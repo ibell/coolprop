@@ -18,14 +18,16 @@
 	//  ****************************
 	//  ***** Liq Variables ********
 	//  ****************************
-	double rhol_A[7], rhol_B[7], rhol_n[7], rhol_Tc[7];
-	double kl_A[7], kl_B[7], kl_C[7], kl_D[7];
-	double cl_A[7], cl_B[7], cl_C[7], cl_D[7];
-	double mul_A[7], mul_B[7], mul_C[7], mul_D[7];
-	double MM_l[7];
+	#define NL 8
+
+	double rhol_A[NL], rhol_B[NL], rhol_n[NL], rhol_Tc[NL];
+	double kl_A[NL], kl_B[NL], kl_C[NL], kl_D[NL];
+	double cl_A[NL], cl_B[NL], cl_C[NL], cl_D[NL];
+	double mul_A[NL], mul_B[NL], mul_C[NL], mul_D[NL];
+	double MM_l[NL];
 	
 	static int I_N2=0, I_He=1, I_Ne=2, I_Ar=3, I_Kr=4, I_Xe=5, I_CO2=6;
-	static int I_Methanol=0, I_Ethanol=1, I_Propanol=2, I_Butanol=3, I_Water=4, I_NH3=5, I_Zerol=6;
+	static int I_Methanol=0, I_Ethanol=1, I_Propanol=2, I_Butanol=3, I_Water=4, I_NH3=5, I_Zerol=6,I_POE=7;
 
 	double hm2(double T, double P, double xL);
 	double cK_e(double v_l, double v_g, double x, double w, double flag);
@@ -70,9 +72,9 @@
 	double h_sp(char *Gas, char *Liq, double s, double p, double xL, double T_guess);
 	double T_sp(char *Gas, char *Liq, double s, double p, double xL, double T_guess);
 	double p_Trho(char *Gas, char *Liq, double rho, double T, double xL, double p_guess);
-	//int isNAN(double x);
-	//int isINFINITY(double x);
 	/*double c_g(char *Gas, double T, double p)*/;
+	int isNAN_FP(double x);
+	int isINFINITY_FP(double x);
 
 	void setGas();
 	void setLiq();

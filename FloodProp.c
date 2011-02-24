@@ -19,13 +19,14 @@
 // the length of coefficient vectors
 
 
-static int isNAN(double x)
+
+int isNAN_FP(double x)
 {
 	// recommendation from http://www.devx.com/tips/Tip/42853
 	return x != x;
 }
 
-static int isINFINITY(double x)
+int isINFINITY_FP(double x)
 {
 	// recommendation from http://www.devx.com/tips/Tip/42853
 	if ((x == x) && ((x - x) != 0.0)) 
@@ -52,6 +53,7 @@ int getIndex(char *Fluid)
     if (!strcmp(Fluid,"Water")) {I=I_Water;}
     if (!strcmp(Fluid,"NH3")) {I=I_NH3;}
     if (!strcmp(Fluid,"Zerol")) {I=I_Zerol;}
+	if (!strcmp(Fluid,"POE")) {I=I_POE;}
     
     return I;
 }
@@ -210,6 +212,12 @@ void setLiq()
         cl_B[I_Zerol]=5.186/1000;
         cl_C[I_Zerol]=0.0;
         cl_D[I_Zerol]=0.0;
+
+		cl_A[I_POE]=1.93;
+        cl_B[I_POE]=0.0;
+        cl_C[I_POE]=0.0;
+        cl_D[I_POE]=0.0;
+
     //Constants for Molar specific heat
     //cp in [kJ/kg-K]
         
@@ -222,6 +230,7 @@ void setLiq()
         kl_A[I_Water]=-0.2758;      kl_B[I_Water]=0.004612;     kl_C[I_Water]=-5.5391E-06;
         kl_A[I_NH3]=1.1606;         kl_B[I_NH3]=-0.002284;      kl_C[I_NH3]=3.1245E-18;
         kl_A[I_Zerol]=0.1700;       kl_B[I_Zerol]=0;            kl_C[I_Zerol]=0;
+		kl_A[I_POE]=0.147;          kl_B[I_POE]=0;              kl_C[I_POE]=0;
     // Thermal Conductivity
     // Units of [W/m-K]
         
@@ -233,7 +242,8 @@ void setLiq()
         mul_A[I_Butanol]=-20.6736;	mul_B[I_Butanol]=3549.3;	mul_C[I_Butanol]=0.040352;      mul_D[I_Butanol]=-0.000030937;
         mul_A[I_Water]=-10.2158;	mul_B[I_Water]=1792.5;      mul_C[I_Water]=0.01773;         mul_D[I_Water]=-0.000012631;
         mul_A[I_NH3]=-8.591;        mul_B[I_NH3]=876.4;         mul_C[I_NH3]=0.02681;           mul_D[I_NH3]=-0.00003612;        
-        mul_A[I_Zerol]=0.0102;      mul_B[I_Zerol]=0;           mul_C[I_Zerol]=0;               mul_D[I_Zerol]=0;        
+        mul_A[I_Zerol]=0.0102;      mul_B[I_Zerol]=0;           mul_C[I_Zerol]=0;               mul_D[I_Zerol]=0;      
+		mul_A[I_POE]=0.0102;        mul_B[I_POE]=0;             mul_C[I_POE]=0;                 mul_D[I_POE]=0;      
     //Viscosity Constants of Liquid
     //Viscosity has units of centi-Poise        
         
@@ -257,6 +267,8 @@ void setLiq()
         MM_l[I_Water]=18.0153;
         MM_l[I_NH3]=17.0306;
         MM_l[I_Zerol]=1;  //Dummy value since values for Zerol are given
+                          // in terms of kJ/kg and dont need conversion
+		MM_l[I_POE]=1;    //Dummy value since values for POE are given
                           // in terms of kJ/kg and dont need conversion
     //Mole Mass of Liquid
     //Units of kg/kmol        
@@ -366,12 +378,15 @@ double rho_l(char *Liq, double T)
     setLiq();
     ii=getIndex(Liq);
     if (!strcmp(Liq,"Zerol"))
-    {
         rhoL=-.6670*T +1050.865;
-    }
+	else if (!strcmp(Liq,"POE"))
+	{
+		// Based on 3MAF POE oil data provided by Emerson Climate
+		rhoL=(-0.00074351165052847*(T-273.15)+0.992439584365375)*1000;
+	}
     else
     {
-        //rho=A/B^((1-T/Tc)^n)
+        //Given by the form rho=A/B^((1-T/Tc)^n)
         rhoL=rhol_A[ii]/pow(rhol_B[ii],pow(1-T/rhol_Tc[ii],rhol_n[ii]))*1000;
     }
     return rhoL;
@@ -413,9 +428,9 @@ double rho_m(char *Gas, char *Liq, double T, double P, double xL)
     vL=1/rho_l(Liq,T);
     x=1-xL;
 	rhom=1/(vG*x+vL*(1-x));
-	if (isNAN(rhom))
+	if (isNAN_FP(rhom))
 		printf("rhom is NaN");
-	if (isINFINITY(rhom))
+	if (isINFINITY_FP(rhom))
 		printf("rhom is Infinite");
     return rhom;
 }
@@ -490,9 +505,9 @@ double u_m(char *Gas, char *Liq, double T, double P, double xL)
         uL=u_l(Liq,T);
         uG=u_g(Gas,T,P);
 		um=xL*uL+(1-xL)*uG;
-	if (isNAN(um))
+	if (isNAN_FP(um))
 		printf("um is NaN");
-	if (isINFINITY(um))
+	if (isINFINITY_FP(um))
 		printf("um is Infinite");
     return um;
 }
@@ -505,9 +520,9 @@ double h_m(char *Gas, char *Liq, double T, double P, double xL)
     hG=h_g(Gas,T,P);
     hL=u_l(Liq,T)+(P-101.325)/rho_l(Liq,T);
 	hm=xL*hL+(1-xL)*hG;
-	if (isNAN(hm))
+	if (isNAN_FP(hm))
 		printf("hm is NaN");
-	if (isINFINITY(hm))
+	if (isINFINITY_FP(hm))
 		printf("hm is Infinite");
     return hm;
 }
@@ -609,16 +624,23 @@ double mu_l(char *Liq, double T)
     // input in K
     // output in cP --> Pa-s
     int ii;
-    double muL;
-    setLiq();
-    ii=getIndex(Liq); 
+    double muL,mu_cSt;
+    
     if (!strcmp(Liq,"Zerol"))
     {
         muL=-0.000122996*T+0.048002276;
-
     }
+	else if (!strcmp(Liq,"POE"))
+	{
+		// Based on 3MAF POE oil data provided by Emerson Climate
+		mu_cSt= 0.0002389593*log(T)*log(T) - 0.1927238779*log(T) + 40.3718884485;
+		// From cSt to m^s, multiply by 1e-6, then multiply by density
+		muL=mu_cSt*1e-6*rho_l(Liq,T);
+	}
     else
     {
+		setLiq();
+		ii=getIndex(Liq); 
         muL=pow(10.0,mul_A[ii] + mul_B[ii]/T + mul_C[ii]*T + mul_D[ii]*T*T)/1.0e3;
     }
     return muL;
@@ -712,9 +734,9 @@ double cp_mix(char *Gas, char *Liq, double T, double P, double xL)
     // output in kJ/kg
 	double cpm;
 	cpm=xL*c_l(Liq,T)+(1-xL)*c_p(Gas,T,P); 
-	if (isNAN(cpm))
+	if (isNAN_FP(cpm))
 		printf("cpm is NaN");
-	if (isINFINITY(cpm))
+	if (isINFINITY_FP(cpm))
 		printf("cpm is Infinite");
     return cpm;
 }
@@ -725,9 +747,9 @@ double mu_mix(char *Gas, char *Liq, double T, double p, double xL)
     muL=mu_l(Liq,T); //kg/m-s
     muG=mu_g(Gas,T,p);
 	mum=1/(xL/muL+(1-xL)/muG);
-	if (isNAN(mum))
+	if (isNAN_FP(mum))
 		printf("mum is NaN");
-	if (isINFINITY(mum))
+	if (isINFINITY_FP(mum))
 		printf("mum is Infinite");
     return mum;
 }
@@ -741,9 +763,9 @@ double k_mix(char *Gas, char *Liq, double T, double P, double xL)
     kG=k_g(Gas,T,P);
     VF=VoidFrac(Gas,Liq,T,P,xL);
 	km=(1-VF)*kL+VF*kG;
-	if (isNAN(km))
+	if (isNAN_FP(km))
 		printf("km is NaN");
-	if (isINFINITY(km))
+	if (isINFINITY_FP(km))
 		printf("km is Infinite");
     return km;
 }
@@ -756,9 +778,9 @@ double VoidFrac(char *Gas, char *Liq, double T, double P, double xL)
     rhoL=rho_l(Liq,T);
     rhoG=rho_g(Gas,T,P);
 	VF= ((1-xL)/rhoG)/((1-xL)/rhoG+xL/rhoL);
-	if (isNAN(VF))
+	if (isNAN_FP(VF))
 		printf("VF is NaN");
-	if (isINFINITY(VF))
+	if (isINFINITY_FP(VF))
 		printf("VF is Infinite");
     return VF;
 }
@@ -771,9 +793,9 @@ double Pr_mix(char *Gas, char *Liq, double T, double P, double xL)
 	//mu=mu_mix(Gas,Liq,T,P,xL);
 	//k=k_mix(Gas,Liq,T,P,xL);
 	cpm=cp_mix(Gas,Liq,T,P,xL)*mu_mix(Gas,Liq,T,P,xL)/k_mix(Gas,Liq,T,P,xL);
-	if (isNAN(cpm))
+	if (isNAN_FP(cpm))
 		printf("cpm is NaN");
-	if (isINFINITY(cpm))
+	if (isINFINITY_FP(cpm))
 		printf("cpm is Infinite");
 
     return cpm;
@@ -787,9 +809,9 @@ double kstar_m(char *Gas, char *Liq, double T, double P,double xL)
 	//cv=c_v(Gas,T,P);
 	//cl=c_l(Liq,T);
 	kstarm=((1-xL)*c_p(Gas,T,P)+xL*c_l(Liq,T))/((1-xL)*c_v(Gas,T,P)+xL*c_l(Liq,T));
-	if (isNAN(kstarm))
+	if (isNAN_FP(kstarm))
 		printf("kstarm is NaN");
-	if (isINFINITY(kstarm))
+	if (isINFINITY_FP(kstarm))
 		printf("kstarm is Infinite");
     return kstarm;
 }
@@ -803,9 +825,9 @@ double s_m(char *Gas, char *Liq, double T, double P, double xL)
     sL=s_l(Liq,T);
 	sm=xL*sL+(1-xL)*sG;
 
-	if (isNAN(sm))
+	if (isNAN_FP(sm))
 		printf("sm is NaN");
-	if (isINFINITY(sm))
+	if (isINFINITY_FP(sm))
 		printf("sm is Infinite");
     return sm;
 }
@@ -846,9 +868,9 @@ double T_hp(char *Gas, char *Liq, double h, double p, double xL, double T_guess)
 		}
 		iter=iter+1;
 	}
-	if (isNAN(T))
+	if (isNAN_FP(T))
 		printf("uhoh");
-	if (isINFINITY(T))
+	if (isINFINITY_FP(T))
 		printf("uhoh");
 	//printf("THP: %d %g %g %g %g\n",iter,f,T,p,h_m(Gas,Liq,T,p+20,xL));
 	return T;
@@ -885,9 +907,9 @@ double T_Up(char *Gas, char *Liq, double U, double p, double xL, double V, doubl
 			printf("T_Up not converging with inputs\n U: %g p: %g xL: %g V: %g T_guess: %g\n",U,p,xL,V,T_guess);
 		}
 	}
-	if (isNAN(T))
+	if (isNAN_FP(T))
 		printf("uhoh");
-	if (isINFINITY(T))
+	if (isINFINITY_FP(T))
 		printf("uhoh");
 	return T;
 }
@@ -924,9 +946,9 @@ double p_Trho(char *Gas, char *Liq, double rho, double T, double xL, double p_gu
 			printf("p_Trho not converging with inputs\n rho: %g T: %g xL: %g p_guess: %g\n",rho,T,xL,p_guess);
 		}
 	}
-	if (isNAN(x3))
+	if (isNAN_FP(x3))
 		printf("uhoh");
-	if (isINFINITY(x3))
+	if (isINFINITY_FP(x3))
 		printf("uhoh");
 	return x3;
 }
@@ -963,9 +985,9 @@ double h_sp(char *Gas, char *Liq, double s, double p, double xL, double T_guess)
 			printf("h_sp not converging with inputs\n s: %g p: %g xL: %gT_guess: %g\n",s,p,xL,T_guess);
 		}
 	}
-	if (isNAN(h_m(Gas,Liq,T,p,xL)))
+	if (isNAN_FP(h_m(Gas,Liq,T,p,xL)))
 		printf("uhoh");
-	if (isINFINITY(h_m(Gas,Liq,T,p,xL)))
+	if (isINFINITY_FP(h_m(Gas,Liq,T,p,xL)))
 		printf("uhoh");
 
 	//Evaluate the enthalpy at the constant-entropy temp
@@ -1004,9 +1026,9 @@ double T_sp(char *Gas, char *Liq, double s, double p, double xL, double T_guess)
 			printf("h_sp not converging with inputs\n s: %g p: %g xL: %gT_guess: %g\n",s,p,xL,T_guess);
 		}
 	}
-	if (isNAN(h_m(Gas,Liq,T,p,xL)))
+	if (isNAN_FP(h_m(Gas,Liq,T,p,xL)))
 		printf("uhoh");
-	if (isINFINITY(h_m(Gas,Liq,T,p,xL)))
+	if (isINFINITY_FP(h_m(Gas,Liq,T,p,xL)))
 		printf("uhoh");
 
 	//Return the temperature
@@ -1048,9 +1070,9 @@ double dpdT_const_v(char *Gas, char *Liq, double T, double p1, double xL)
 		}
 	}
 
-	if (isNAN((p2-p1)/delta))
+	if (isNAN_FP((p2-p1)/delta))
 		printf("uhoh");
-	if (isINFINITY((p2-p1)/delta))
+	if (isINFINITY_FP((p2-p1)/delta))
 		printf("uhoh");
 
 	//Evaluate the enthalpy at the constant-entropy temp

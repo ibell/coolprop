@@ -42,7 +42,7 @@ static char errStr[ERRSTRLENGTH];
 #define nP 200
 #define nT 200
 
-static double Tmin=150, Tmax=550, Pmin=70.03, Pmax=5000;
+static double Tmin=150, Tmax=550, Pmin=70.03, Pmax=6000;
 static double hmat[nT][nP];
 static double rhomat[nT][nP];
 static double cpmat[nT][nP];

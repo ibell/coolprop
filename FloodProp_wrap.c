@@ -2843,7 +2843,7 @@ SWIG_AsCharPtrAndSize(PyObject *obj, char** cptr, size_t* psize, int *alloc)
 #ifdef __cplusplus
 extern "C" {
 #endif
-SWIGINTERN PyObject *_wrap_isNAN(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_isNAN_FP(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   double arg1 ;
   double val1 ;
@@ -2851,13 +2851,13 @@ SWIGINTERN PyObject *_wrap_isNAN(PyObject *SWIGUNUSEDPARM(self), PyObject *args)
   PyObject * obj0 = 0 ;
   int result;
   
-  if (!PyArg_ParseTuple(args,(char *)"O:isNAN",&obj0)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"O:isNAN_FP",&obj0)) SWIG_fail;
   ecode1 = SWIG_AsVal_double(obj0, &val1);
   if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "isNAN" "', argument " "1"" of type '" "double""'");
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "isNAN_FP" "', argument " "1"" of type '" "double""'");
   } 
   arg1 = (double)(val1);
-  result = (int)isNAN(arg1);
+  result = (int)isNAN_FP(arg1);
   resultobj = SWIG_From_int((int)(result));
   return resultobj;
 fail:
@@ -2865,7 +2865,7 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_isINFINITY(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_isINFINITY_FP(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   double arg1 ;
   double val1 ;
@@ -2873,13 +2873,13 @@ SWIGINTERN PyObject *_wrap_isINFINITY(PyObject *SWIGUNUSEDPARM(self), PyObject *
   PyObject * obj0 = 0 ;
   int result;
   
-  if (!PyArg_ParseTuple(args,(char *)"O:isINFINITY",&obj0)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"O:isINFINITY_FP",&obj0)) SWIG_fail;
   ecode1 = SWIG_AsVal_double(obj0, &val1);
   if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "isINFINITY" "', argument " "1"" of type '" "double""'");
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "isINFINITY_FP" "', argument " "1"" of type '" "double""'");
   } 
   arg1 = (double)(val1);
-  result = (int)isINFINITY(arg1);
+  result = (int)isINFINITY_FP(arg1);
   resultobj = SWIG_From_int((int)(result));
   return resultobj;
 fail:
@@ -5290,8 +5290,8 @@ fail:
 
 static PyMethodDef SwigMethods[] = {
 	 { (char *)"SWIG_PyInstanceMethod_New", (PyCFunction)SWIG_PyInstanceMethod_New, METH_O, NULL},
-	 { (char *)"isNAN", _wrap_isNAN, METH_VARARGS, NULL},
-	 { (char *)"isINFINITY", _wrap_isINFINITY, METH_VARARGS, NULL},
+	 { (char *)"isNAN_FP", _wrap_isNAN_FP, METH_VARARGS, NULL},
+	 { (char *)"isINFINITY_FP", _wrap_isINFINITY_FP, METH_VARARGS, NULL},
 	 { (char *)"getIndex", _wrap_getIndex, METH_VARARGS, NULL},
 	 { (char *)"setGas", _wrap_setGas, METH_VARARGS, NULL},
 	 { (char *)"setLiq", _wrap_setLiq, METH_VARARGS, NULL},

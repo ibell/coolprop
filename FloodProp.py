@@ -68,13 +68,13 @@ except AttributeError:
 
 I_N2 = _FloodProp.I_N2
 
-def isNAN(*args):
-  return _FloodProp.isNAN(*args)
-isNAN = _FloodProp.isNAN
+def isNAN_FP(*args):
+  return _FloodProp.isNAN_FP(*args)
+isNAN_FP = _FloodProp.isNAN_FP
 
-def isINFINITY(*args):
-  return _FloodProp.isINFINITY(*args)
-isINFINITY = _FloodProp.isINFINITY
+def isINFINITY_FP(*args):
+  return _FloodProp.isINFINITY_FP(*args)
+isINFINITY_FP = _FloodProp.isINFINITY_FP
 
 def getIndex(*args):
   return _FloodProp.getIndex(*args)
