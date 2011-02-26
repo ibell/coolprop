@@ -879,13 +879,13 @@ double T_hp(char *Gas, char *Liq, double h, double p, double xL, double T_guess)
 
 double T_Up(char *Gas, char *Liq, double U, double p, double xL, double V, double T_guess)
 {
-	double x1,x2,x3,y1,y2,eps,change,f,T;
+	double x1,x2,x3,y1,y2,eps,change,f=999.,T;
 	int iter;
 
 	eps=1e-8;
 	change=999;
 	iter=1;
-	while ((iter<=3 || change>eps) && iter<100)
+	while ((iter<=3 || fabs(f)>eps) && iter<100)
 	{
 		if (iter==1){x1=T_guess; T=x1;}
 		if (iter==2){x2=T_guess+0.1; T=x2;}
