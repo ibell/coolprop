@@ -256,7 +256,7 @@ double REFPROP(char Output,char Name1, double Prop1, char Name2, double Prop2, c
 	char LoadedREFPROPRef[255];
 	double x[ncmax],xliq[ncmax],xvap[ncmax];
 	char RefString[255];
-	double T,p,d,dl,dv,q,e,h,s,cv,cp,w,MW,hl,hv,sl,sv,ul,uv,pl,pv,eta,tcx,Q,Tcrit,pcrit,dcrit;
+	double T,p,d,dl,dv,q,e,h,s,cv,cp,w,MW,hl,hv,sl,sv,ul,uv,pl,pv,eta,tcx,Q,Tcrit,pcrit,dcrit,rho;
 
 	// First create a pointer to an instance of the library
 	// Then have windows load the library.
@@ -423,6 +423,55 @@ double REFPROP(char Output,char Name1, double Prop1, char Name2, double Prop2, c
 			else
 				return _HUGE;
 		}
+		else if (Name1=='T' && Name2=='D')
+		{
+			// T in K, D in kg/m^3
+			T=Prop1;
+			rho=Prop2/MW;
+			
+			if (Output=='P')
+			{
+				PRESSdll(&T,&rho,x,&p);
+				return p;
+			}
+			if (Output=='H')
+			{
+				ENTHALdll(&T,&rho,x,&h);
+				return h/MW;
+			}
+			else if (Output=='S')
+			{
+				ENTROdll(&T,&rho,x,&s);
+				return s/MW;
+			}
+			else if (Output=='U')
+			{
+				ENTHALdll(&T,&rho,x,&h);
+				return (h-p/rho)/MW;
+			}
+			else if (Output=='C')
+			{
+				CVCPdll(&T,&rho,x,&cv,&cp);
+				return cp/MW;
+			}
+			else if (Output=='O')
+			{
+				CVCPdll(&T,&rho,x,&cv,&cp);
+				return cv/MW;
+			}
+			else if (Output=='V') 
+			{
+				TRNPRPdll(&T,&rho,x,&eta,&tcx,&ierr,herr,errormessagelength);
+				return eta/1.0e6; //uPa-s to Pa-s
+			} 
+			else if (Output=='L')
+			{
+				TRNPRPdll(&T,&rho,x,&eta,&tcx,&ierr,herr,errormessagelength);
+				return tcx/1000.0; //W/m-K to kW/m-K
+			}
+			else
+				return _HUGE;
+		}
 		else if (Name1=='T' && Name2=='Q')
 		{
 			T=Prop1;
@@ -492,17 +541,67 @@ double REFPROP(char Output,char Name1, double Prop1, char Name2, double Prop2, c
 }
 #endif
 
+void Help()
+{
+	printf("CoolProp Help\n");
+	printf("CoolProp is written by Ian Bell (ihb2@cornell.edu)\n");
+	printf("\n");
+	printf("Following the naming conventions of MATLAB linked with REFPROP,\n");
+	printf("each output property is represented by one character:\n");
+	printf("\n");
+	printf("P   Pressure [kPa]\n");
+	printf("T   Temperature [K]\n");
+	printf("D   Density [kg/m3]\n");
+	printf("H   Enthalpy [kJ/kg]\n");
+	printf("S   Entropy [kJ/(kg/K)]\n");
+	printf("U   Internal energy [kJ/kg]\n");
+	printf("C   Cp [kJ/(kg K)]\n");
+	printf("O   Cv [kJ/(kg K)]\n");
+	printf("K   Ratio of specific heats (Cp/Cv) [-]\n");
+	printf("A   Speed of sound [m/s]\n");
+	printf("X   liquid phase and gas phase composition (mass fractions)\n");
+	printf("V   Dynamic viscosity [Pa*s]\n");
+	printf("L   Thermal conductivity [kW/(m K)]\n");
+	printf("Q   Quality (vapor fraction) (kg/kg)\n");
+	printf("I   Surface tension [N/m]\n");
+	printf("F   Freezing point of secondary fluid [K] **NOT IN MATLAB-REFPROP **\n");
+	printf("M   Maximum temperature for secondary fluid [K] **NOT IN MATLAB-REFPROP **\n");
+	printf("B   Critical Temperature [K] **NOT IN MATLAB-REFPROP **\n");
+	printf("E   Critical Pressure [K] **NOT IN MATLAB-REFPROP **\n");
+	printf("\n");
+	printf("******** To call **************\n");
+	printf("To call the function Props, for instance for R410A at 300K, 400 kPa, you would do:\n");
+	printf("Props(\"H\",\"T\",300,\"P\",400,\"R410A\")\n");
+	printf("\n");
+	printf("Or to call a pure fluid from REFPROP (for instance Propane).  \n");
+	printf("The name of the refrigerant is \"REPFROP-\" plus the REFPROP defined name of the fluid, for instance\n");
+	printf("\"Propane\" for propane (R290)\n");
+	printf("\n");
+	printf("See the folder C:\\Program Files\\REFPROP\\fluids for the names of the fluids\n");
+	printf("\n");
+	printf("To call Propane from REFPROP:\n");
+	printf("Props(\"H\",\"T\",300,\"P\",400,\"REFPROP-Propane\")\n");
+	printf("\n");
+	printf("**************** Inputs ***************\n");
+	printf("The limited list of inputs that are allowed are:\n");
+	printf("\n");
+	printf("Prop1    ||    Prop2\n");
+	printf("--------------------\n");
+	printf("  T      ||      P\n");
+	printf("  T      ||      Q\n");
+	printf("  T      ||      D\n");
+
+
+}
 double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, char * Ref)
 {
 	double T,p,Q,rhoV,rhoL,Value,rho;
 	int errCode;
 	char errString[ERRSTRLENGTH];
 	
-
-
 	/*
 	Following the naming conventions of MATLAB linked with REFPROP,
-	each outputproperty is represented by one character:
+	each output property is represented by one character:
 
 	P   Pressure [kPa]
 	T   Temperature [K]

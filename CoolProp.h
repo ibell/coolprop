@@ -65,6 +65,7 @@
 	  T      ||      Q
 
 	*/
+	void Help();
 	double SecFluids(char Output, double T, double p,char * Ref);
 	double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, char * Ref);
 	int errCode(char * Ref);

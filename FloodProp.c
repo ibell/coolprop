@@ -213,7 +213,7 @@ void setLiq()
         cl_C[I_Zerol]=0.0;
         cl_D[I_Zerol]=0.0;
 
-		cl_A[I_POE]=1.93;
+		cl_A[I_POE]=1.93; // From Booser page 16
         cl_B[I_POE]=0.0;
         cl_C[I_POE]=0.0;
         cl_D[I_POE]=0.0;
@@ -404,8 +404,8 @@ double rho_g(char *Gas, double T, double P)
 		return rho_R404A(T,P,TYPE_TP);
 	if (!strcmp(Gas,"R134a"))
 		return rho_R134a(T,P,TYPE_TP); // necessary to avoid recalculation
-	if (!strcmp(Gas,"Nitrogen") || !strcmp(Gas,"N2"))
-		return rho_Nitrogen(T,P,TYPE_TPNoLookup); // necessary to avoid recalculation
+	if (!strcmp(Gas,"Nitrogen"))
+		return rho_Nitrogen(T,P,TYPE_TP); // necessary to avoid recalculation
 
     return P/(R(Gas)*T);
 }
@@ -449,8 +449,8 @@ double h_g(char *Gas, double T, double P)
 		return h_R404A(T,P,TYPE_TP);
 	if (!strcmp(Gas,"R134a"))
 		return h_R134a(T,P,TYPE_TP);
-	if (!strcmp(Gas,"Nitrogen") || !strcmp(Gas,"N2"))
-		return h_Nitrogen(T,P,TYPE_TPNoLookup);
+	if (!strcmp(Gas,"Nitrogen"))
+		return h_Nitrogen(T,P,TYPE_TP);
 
     setGas();
 	ii=getIndex(Gas);
@@ -469,8 +469,8 @@ double u_g(char *Gas, double T, double P)
 		return u_R404A(T,P,TYPE_TP);
 	if (!strcmp(Gas,"R134a"))
 		return u_R134a(T,P,TYPE_TP);
-	if (!strcmp(Gas,"Nitrogen") || !strcmp(Gas,"N2"))
-		return u_Nitrogen(T,P,TYPE_TPNoLookup);
+	if (!strcmp(Gas,"Nitrogen"))
+		return u_Nitrogen(T,P,TYPE_TP);
     
 	return h_g(Gas,T,P)-R(Gas)*T;
 }
@@ -489,8 +489,8 @@ double s_g(char *Gas, double T, double P)
 		return s_R404A(T,P,TYPE_TP);
 	if (!strcmp(Gas,"R134a"))
 		return s_R134a(T,P,TYPE_TP);
-	if (!strcmp(Gas,"Nitrogen") || !strcmp(Gas,"N2"))
-		return s_Nitrogen(T,P,TYPE_TPNoLookup);
+	if (!strcmp(Gas,"Nitrogen"))
+		return s_Nitrogen(T,P,TYPE_TP);
 
     setGas();
     ii=getIndex(Gas); 
@@ -540,8 +540,8 @@ double c_v(char *Gas, double T, double P)
 		return cv_R404A(T,P,TYPE_TP);
 	if (!strcmp(Gas,"R134a"))
 		return cv_R134a(T,P,TYPE_TP);
-	if (!strcmp(Gas,"Nitrogen") || !strcmp(Gas,"N2"))
-		return cv_Nitrogen(T,P,TYPE_TPNoLookup);
+	if (!strcmp(Gas,"Nitrogen"))
+		return cv_Nitrogen(T,P,TYPE_TP);
 
     setGas();
     ii=getIndex(Gas);
@@ -561,8 +561,8 @@ double c_p(char *Gas, double T, double P)
 		return cp_R404A(T,P,TYPE_TP);
 	if (!strcmp(Gas,"R134a"))
 		return cp_R134a(T,P,TYPE_TP);
-	if (!strcmp(Gas,"Nitrogen") || !strcmp(Gas,"N2"))
-		return cp_Nitrogen(T,P,TYPE_TPNoLookup);
+	if (!strcmp(Gas,"Nitrogen"))
+		return cp_Nitrogen(T,P,TYPE_TP);
     
     setGas();
     ii=getIndex(Gas);

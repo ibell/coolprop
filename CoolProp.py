@@ -78,6 +78,10 @@ def SecFluids(*args):
   return _CoolProp.SecFluids(*args)
 SecFluids = _CoolProp.SecFluids
 
+def Help():
+  return _CoolProp.Help()
+Help = _CoolProp.Help
+
 def Props(*args):
   return _CoolProp.Props(*args)
 Props = _CoolProp.Props

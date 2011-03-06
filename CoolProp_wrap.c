@@ -3023,6 +3023,18 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_Help(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  
+  if (!PyArg_ParseTuple(args,(char *)":Help")) SWIG_fail;
+  Help();
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_Props(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   char arg1 ;
@@ -3498,6 +3510,7 @@ fail:
 static PyMethodDef SwigMethods[] = {
 	 { (char *)"SWIG_PyInstanceMethod_New", (PyCFunction)SWIG_PyInstanceMethod_New, METH_O, NULL},
 	 { (char *)"SecFluids", _wrap_SecFluids, METH_VARARGS, NULL},
+	 { (char *)"Help", _wrap_Help, METH_VARARGS, NULL},
 	 { (char *)"Props", _wrap_Props, METH_VARARGS, NULL},
 	 { (char *)"pcrit", _wrap_pcrit, METH_VARARGS, NULL},
 	 { (char *)"Tcrit", _wrap_Tcrit, METH_VARARGS, NULL},
