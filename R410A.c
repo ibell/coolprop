@@ -15,8 +15,6 @@ These macros are defined in the PropMacros.h header file:
 	Density and temp plugged directly into EOS
 3) First parameter temperature, second parameter pressure ex: h_R410A(260,354.7,3)=274
 	Density solved for, then plugged into EOS (can be quite slow)
-
-
 */
 
 //You can include any C libraries that you normally use
@@ -637,27 +635,6 @@ double p_dp_R410A(double T)
 
 double rhosatV_R410A(double T)
 {
-	//int counter;
-	//double rho1,rho2,rho3,r1,r2,r3,change,eps=1e-8;
-	///* Solve for the density which gives the 
-	//pressure equal to the dew pressure */
-	//counter=1;
-	//change=999;
- //   rho1=10;
- //   rho2=10+.001;
- //   r1=p_dp_R410A(T)-Pressure_Trho(T,rho1);
- //   r2=p_dp_R410A(T)-Pressure_Trho(T,rho2);
- //   while(counter==1 || fabs(change)>eps)
- //   {
- //       rho3=rho2-r2/(r2-r1)*(rho2-rho1);
- //       r3=p_dp_R410A(T)-Pressure_Trho(T,rho3);
- //       change=r2/(r2-r1)*(rho2-rho1);
- //       rho1=rho2; rho2=rho3;
- //       r1=r2; r2=r3;
- //       counter=counter+1;
- //   }
- //   return rho3;
-
 	double THETA,a1,a2,a3,a4,a5,a6,a7,a8,b1,b2,b3,b4,b5,b6,b7,b8;
 	THETA=1-T/344.5;
 
@@ -683,28 +660,6 @@ double rhosatV_R410A(double T)
 
 double rhosatL_R410A(double T)
 {
-	//int counter;
-
-	//double rho1,rho2,rho3,r1,r2,r3,change,eps=1e-10;
-	///* Solve for the density which gives the 
-	//pressure equal to the bubble pressure */
-	//counter=1;
-	//change=999;
- //   rho1=-2.57878924896E-10*powInt(T,6) + 3.58401823351E-07*powInt(T,5) - 2.04856639109E-04*powInt(T,4) + 6.15631400205E-02*powInt(T,3) - 1.02527033660E+01*powInt(T,2) + 8.94030144564E+02*powInt(T,1) - 3.02025468937E+04;
- //   rho2=rho1+0.1;
- //   r1=p_bp_R410A(T)-Pressure_Trho(T,rho1);
- //   r2=p_bp_R410A(T)-Pressure_Trho(T,rho2);
- //   while(counter==1 || fabs(r1)>eps)
- //   {
- //       rho3=rho2-r2/(r2-r1)*(rho2-rho1);
- //       r3=p_bp_R410A(T)-Pressure_Trho(T,rho3);
- //       change=r2/(r2-r1)*(rho2-rho1);
- //       rho1=rho2; rho2=rho3;
- //       r1=r2; r2=r3;
- //       counter=counter+1;
- //   }
- //   return rho3;
-
 	double THETA,a1,a2,a3,a4,a5,a6,b1,b2,b3,b4,b5,b6;
 	THETA=1-T/344.5;
 
@@ -722,7 +677,6 @@ double rhosatL_R410A(double T)
 	b6 =       1.149; 
 
 	return exp(a1*pow(THETA,b1)+a2*pow(THETA,b2)+a3*pow(THETA,b3)+a4*pow(THETA,b4)+a5*pow(THETA,b5)+a6*pow(THETA,b6))*459.53;
-
 }
 
 double Viscosity_Trho(double T, double rho)

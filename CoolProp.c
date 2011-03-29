@@ -246,7 +246,7 @@ double SecFluids(char Output, double T, double p,char * Ref)
 		}
 	}
 }
-#if defined(_WIN32) || defined(__WIN32__) //Check if it is a windows machine, ir not, hide this function
+#if defined(_WIN32) || defined(__WIN32__) //Check if it is a windows machine, if not, hide this function
 double REFPROP(char Output,char Name1, double Prop1, char Name2, double Prop2, char * Ref)
 {
 
@@ -357,18 +357,43 @@ double REFPROP(char Output,char Name1, double Prop1, char Name2, double Prop2, c
 		WMOLdll = (fp_WMOLdllTYPE) GetProcAddress(RefpropdllInstance,"WMOLdll");
 		XMASSdll = (fp_XMASSdllTYPE) GetProcAddress(RefpropdllInstance,"XMASSdll");
 		XMOLEdll = (fp_XMOLEdllTYPE) GetProcAddress(RefpropdllInstance,"XMOLEdll");
+		
+		if (!strcmp(Ref,"R508B"))
+		{
+			i=2;
+			strcpy(RefString,"R23.fld|R116.fld");
+			x[0]=0.62675;
+			x[1]=0.37325;
+		}
+		else if (!strcmp(Ref,"R410A"))
+		{
+			i=2;
+			strcpy(RefString,"R32.fld|R125.fld");
+			x[0]=0.697615;
+			x[1]=0.302385;
+		}
+		else if (!strcmp(Ref,"R404A"))
+		{
+			i=3;
+			strcpy(RefString,"R125.fld|R134a.fld|R143a.fld");
+			x[0]=0.35782;
+			x[1]=0.038264;
+			x[2]=0.60392;
+		}
+		else
+		{
+			i=1;
+			strcpy(RefString,"");
+			strcat(RefString,Ref);
+			strcat(RefString,".fld");
+			x[0]=1.0;     //Pure fluid
+		}
 
-		i=1;
-		strcpy(RefString,"");
-		strcat(RefString,Ref);
-		strcat(RefString,".fld");
 		strcpy(hf,RefString);
-
 		strcpy(hfmix,"hmx.bnc");
 		strcpy(hrf,"DEF");
 		strcpy(herr,"Ok");
-		x[0]=1.0;     //Air composition
-
+		
 		// If the name of the refrigerant doesn't match 
 		// that of the currently loaded refrigerant
 		if (strcmp(LoadedREFPROPRef,Ref))
@@ -478,33 +503,32 @@ double REFPROP(char Output,char Name1, double Prop1, char Name2, double Prop2, c
 			Q=Prop2;
 			// Saturation Density
 			SATTdll(&T,x,&i,&p,&dl,&dv,xliq,xvap,&ierr,herr,errormessagelength);
-
 			if (Output=='D') 
 			{
 				return 1/(Q/dv+(1-Q)/dl)*MW;
 			}
 			else if (Output=='P') 
 			{
-				PRESSdll(&T,&dl,x,&pl);
-				PRESSdll(&T,&dv,x,&pv);
+				PRESSdll(&T,&dl,xliq,&pl);
+				PRESSdll(&T,&dv,xvap,&pv);
 				return (pv*Q+pl*(1-Q));
 			}
 			else if (Output=='H') 
 			{
-				ENTHALdll(&T,&dl,x,&hl);
-				ENTHALdll(&T,&dv,x,&hv);
+				ENTHALdll(&T,&dl,xliq,&hl);
+				ENTHALdll(&T,&dv,xvap,&hv);
 				return (hv*Q+hl*(1-Q))/MW; // J/kg to kJ/kg
 			}
 			else if (Output=='S') 
 			{
-				ENTROdll(&T,&dl,x,&sl);
-				ENTROdll(&T,&dv,x,&sv);
+				ENTROdll(&T,&dl,xliq,&sl);
+				ENTROdll(&T,&dv,xvap,&sv);
 				return (sv*Q+sl*(1-Q))/MW; // J/kg-K to kJ/kg-K
 			}
 			else if (Output=='U') 
 			{
-				ENTHALdll(&T,&dl,x,&hl);
-				ENTHALdll(&T,&dv,x,&hv);
+				ENTHALdll(&T,&dl,xliq,&hl);
+				ENTHALdll(&T,&dv,xvap,&hv);
 				ul=hl-p/dl;
 				uv=hv-p/dv;
 				return (uv*Q+ul*(1-Q))/MW; // J/kg to kJ/kg
@@ -1068,7 +1092,7 @@ double pcrit(char *Ref)
 		return pcrit_Nitrogen();
 	else if (!strcmp(Ref,"Argon"))
 		return pcrit_Argon();
-
+	#if defined(_WIN32) || defined(__WIN32__) 
 	else if (strncmp(Ref,"REFPROP-",8)==0)  // First eight characters match "REFPROP-"
 	{
 		char *REFPROPRef=NULL,*RefCopy=NULL;
@@ -1082,6 +1106,7 @@ double pcrit(char *Ref)
 		free(RefCopy);
 		return pcrit;
 	}
+	#endif
 	else
 		return _HUGE;
 }
@@ -1106,6 +1131,7 @@ double Tcrit(char *Ref)
 		return Tcrit_Nitrogen();
 	else if (!strcmp(Ref,"Argon"))
 		return Tcrit_Argon();
+	#if defined(_WIN32) || defined(__WIN32__) 
 	else if (strncmp(Ref,"REFPROP-",8)==0)  // First eight characters match "REFPROP-"
 	{
 		char *REFPROPRef=NULL,*RefCopy=NULL;
@@ -1119,6 +1145,7 @@ double Tcrit(char *Ref)
 		free(RefCopy);
 		return Tcrit;
 	}
+	#endif
 	else
 		return _HUGE;
 }

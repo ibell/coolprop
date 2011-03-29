@@ -671,7 +671,7 @@ double visc_R744(double T,double p_rho, int Types)
 	else if (Types==TYPE_TP)
 	{
 		BuildLookup();
-		return LookupValue("d",T,p_rho);
+		return LookupValue("visc",T,p_rho);
 	}
 
 	Tstar=T/e_k;
@@ -1417,20 +1417,23 @@ static double LookupValue(char *Prop, double T, double p)
 	/* Depending on which property is desired, 
 	make the matrix mat a pointer to the 
 	desired property matrix */
+
 	if (!strcmp(Prop,"rho"))
 		mat=&rhomat;
-	if (!strcmp(Prop,"cp"))
+	else if (!strcmp(Prop,"cp"))
 		mat=&cpmat;
-	if (!strcmp(Prop,"cv"))
+	else if (!strcmp(Prop,"cv"))
 		mat=&cvmat;
-	if (!strcmp(Prop,"h"))
+	else if (!strcmp(Prop,"h"))
 		mat=&hmat;
-	if (!strcmp(Prop,"s"))
+	else if (!strcmp(Prop,"s"))
 		mat=&smat;
-	if (!strcmp(Prop,"u"))
+	else if (!strcmp(Prop,"u"))
 		mat=&umat;
-	if (!strcmp(Prop,"visc"))
+	else if (!strcmp(Prop,"visc"))
 		mat=&viscmat;
+	else
+		printf("Parameter %s not found in LookupValue in R744.c\n",Prop);
 	
 	//At Low Temperature Index
 	y1=(*mat)[iTlow][iPlow];

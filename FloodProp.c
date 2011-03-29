@@ -213,7 +213,7 @@ void setLiq()
         cl_C[I_Zerol]=0.0;
         cl_D[I_Zerol]=0.0;
 
-		cl_A[I_POE]=1.93; // From Booser page 16
+		cl_A[I_POE]=1.8; // From Booser page 16
         cl_B[I_POE]=0.0;
         cl_C[I_POE]=0.0;
         cl_D[I_POE]=0.0;
