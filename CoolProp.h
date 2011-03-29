@@ -83,5 +83,9 @@
 	double F2K(double T_F);
 	double K2F(double T);
 	void PrintSaturationTable(char *FileName, char * Ref, double Tmin, double Tmax);
+
+	// Only add REFPROP if build on Windows platform
+	#if defined(_WIN32) || defined(__WIN32__) 
 	double REFPROP(char Output,char Name1, double Prop1, char Name2, double Prop2, char * Ref);
+	#endif
 #endif
