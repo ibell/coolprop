@@ -2,6 +2,8 @@ addpath('..')
 loadlibrary('CoolPropDLL','CoolProp_dll.h')
 disp 'The functions available are:'
 libfunctions CoolPropDLL -full
+disp 'Help for CoolProp:'
+res=calllib('CoolPropDLL','Help');
 disp 'The critical temperature of R410A is:'
 res=calllib('CoolPropDLL','Tcrit_dll','R410A');
 disp(res)

@@ -4,6 +4,8 @@ if 'MYPYTHONHOME' in os.environ and os.environ['MYPYTHONHOME'] in sys.path:
     from CoolProp import CoolProp as cp
 else:
     import CoolProp as cp
+    
+cp.Help()
 
 print 'The functions available are:'
 print dir(cp)
