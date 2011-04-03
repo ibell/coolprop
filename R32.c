@@ -17,8 +17,6 @@ These macros are defined in the PropMacros.h header file:
 3) First parameter temperature, second parameter pressure ex: h_R410A(260,1785,3)=-67.53
 	Density solved for, then plugged into EOS (can be quite slow)
 
-Sanity Checks based on data from EES
-
 */
 
 #if defined(_MSC_VER)

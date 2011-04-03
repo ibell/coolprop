@@ -6,7 +6,7 @@ Themo properties from
 Triple Point Temperature to 1100 K at Pressures up to 800 MPa", 
 R. Span and W. Wagner, J. Phys. Chem. Ref. Data, v. 25, 1996
 
-WARNING: TRANSPORT PROPERTIES NOT CODED!!
+WARNING: Thermal conductivity not coded!!
 
 In order to call the exposed functions, rho_, h_, s_, cp_,...... there are three 
 different ways the inputs can be passed, and this is expressed by the Types integer flag.  
@@ -17,34 +17,8 @@ These macros are defined in the PropMacros.h header file:
 	Density and temp plugged directly into EOS
 3) First parameter temperature, second parameter pressure ex: h_R410A(260,1785,3)=-67.53
 	Density solved for, then plugged into EOS (can be quite slow)
-
-
-Sanity Checks based on data from EES
-
-P[i]	T[i]	Cp[i]		Cv[i]		D[i]		H[i]	S[i]		V[i]		k[i]	mu[i]
-[kPa]	[K]		[kJ/kg-K]	[kJ/kg-K]	[kg/m^3]	[kJ/kg]	[kJ/kg-K]	[m^3/kg]	[W/m-K]	[Pa-s]
-1785	240		2.043		0.9458		1091		-379.9	-2.017		0.000917	0.1508	0.0001788
-1785	250		2.131		0.9364		1046		-359.1	-1.932		0.000956	0.1377	0.0001523
-1785	250		1.219		0.7458		46.64		-69.74	-0.7749		0.02144		0.01421	0.00001288
-1785	260		1.188		0.7334		43.29		-67.53	-0.7571		0.0231		0.01483	0.00001335
-
-P[i]	T[i]	Cp[i]		Cv[i]		D[i]		H[i]	S[i]		V[i]		k[i]	mu[i]
-[kPa]	[K]		[kJ/kg-K]	[kJ/kg-K]	[kg/m^3]	[kJ/kg]	[kJ/kg-K]	[m^3/kg]	[W/m-K]	[Pa-s]
-3659	265		2.298		0.9325		978.9		-326.5	-1.813		0.001022	0.1205	0.000122
-3659	275		2.599		0.9484		916.2		-302.2	-1.723		0.001092	0.1063	0.0001011
-3659	275		1.868		0.8847		103.6		-77.02	-0.9042		0.009655	0.01944	0.00001494
-3659	285		1.701		0.8447		92.33		-70.85	-0.8726		0.01083		0.01896	0.00001523
-
-P[i]	T[i]	Cp[i]		Cv[i]		D[i]		H[i]	S[i]		V[i]		k[i]	mu[i]
-[kPa]	[K]		[kJ/kg-K]	[kJ/kg-K]	[kg/m^3]	[kJ/kg]	[kJ/kg-K]	[m^3/kg]	[W/m-K]	[Pa-s]
-6713	290		3.044		0.9574		834.4		-265.9	-1.607		0.001199	0.09088	0.00007991
-6713	300		7.332		1.111		681.9		-223.9	-1.465		0.001466	0.07834	0.00005326
-6713	300		6.703		1.246		268.2		-119.6	-1.117		0.003728	0.04769	0.00002118
-6713	310		3.33		0.9873		191.9		-88.7	-1.005		0.005211	0.02957	0.00001885
-
 */
 
-//You can include any C libraries that you normally use
 #if defined(_MSC_VER)
 #define _CRTDBG_MAP_ALLOC
 #define _CRT_SECURE_NO_WARNINGS
@@ -939,32 +913,27 @@ static double phir(double tau, double delta)
 
 static double dphir_dDelta(double tau, double delta)
 { 
-    
     int i;
     double dphir_dDelta=0,theta,DELTA,PSI,dPSI_dDelta,dDELTA_dDelta,dDELTAbi_dDelta,psi;
     double di, ci;
-//     mexPrintf("dphir_dDelta\t");
     for (i=1;i<=7;i++)
     {
         di=(double)d[i];
 
         dphir_dDelta=dphir_dDelta+n[i]*di*powI(delta,d[i]-1)*pow(tau,t[i]);
     }
-//    mexPrintf("%10.10g\t",dphir_dDelta);
     for (i=8;i<=34;i++)
     {
         di=(double)d[i];
         ci=(double)c[i];
         dphir_dDelta=dphir_dDelta+n[i]*exp(-powI(delta,c[i]))*(powI(delta,d[i]-1)*pow(tau,t[i])*(di-ci*powI(delta,c[i])));
     }
-//     mexPrintf("%10.10g\t",dphir_dDelta);
     for (i=35;i<=39;i++)
     {
         di=(double)d[i];        
         psi=exp(-alpha[i]*powI(delta-epsilon[i],2)-beta[i]*powI(tau-GAMMA[i],2));
         dphir_dDelta=dphir_dDelta+n[i]*powI(delta,d[i])*pow(tau,t[i])*psi*(di/delta-2.0*alpha[i]*(delta-epsilon[i]));
     }
-// mexPrintf("%10.10g\t",dphir_dDelta);
     for (i=40;i<=42;i++)
     {
         theta=(1.0-tau)+A[i]*pow(powI(delta-1.0,2),1.0/(2.0*beta[i]));
@@ -975,7 +944,6 @@ static double dphir_dDelta(double tau, double delta)
         dDELTAbi_dDelta=b[i]*pow(DELTA,b[i]-1.0)*dDELTA_dDelta;
         dphir_dDelta=dphir_dDelta+n[i]*(pow(DELTA,b[i])*(PSI+delta*dPSI_dDelta)+dDELTAbi_dDelta*delta*PSI);
     }
-//     mexPrintf("%10.10g\n",dphir_dDelta);
     return dphir_dDelta;
 }
 
@@ -986,27 +954,23 @@ static double dphir2_dDelta2(double tau, double delta)
     double di,ci;
     
     double dphir2_dDelta2=0,theta,DELTA,PSI,dPSI_dDelta,dDELTA_dDelta,dDELTAbi_dDelta,psi,dPSI2_dDelta2,dDELTAbi2_dDelta2,dDELTA2_dDelta2;
-//     mexPrintf("dphir2_dDelta2\t");
     for (i=1;i<=7;i++)
     {
         di=(double)d[i];
         dphir2_dDelta2=dphir2_dDelta2+n[i]*di*(di-1.0)*powI(delta,d[i]-2)*pow(tau,t[i]);
     }
-//     mexPrintf("%10.10g\t",dphir2_dDelta2);
     for (i=8;i<=34;i++)
     {
         di=(double)d[i];
         ci=(double)c[i];
         dphir2_dDelta2=dphir2_dDelta2+n[i]*exp(-powI(delta,c[i]))*(powI(delta,d[i]-2)*pow(tau,t[i])*( (di-ci*powI(delta,c[i]))*(di-1.0-ci*powI(delta,c[i])) - ci*ci*powI(delta,c[i])));
     }
-//     mexPrintf("%10.10g\t",dphir2_dDelta2);
     for (i=35;i<=39;i++)
     {
         di=(double)d[i];
         psi=exp(-alpha[i]*powI(delta-epsilon[i],2)-beta[i]*powI(tau-GAMMA[i],2));
         dphir2_dDelta2=dphir2_dDelta2+n[i]*pow(tau,t[i])*psi*(-2.0*alpha[i]*powI(delta,d[i])+4.0*powI(alpha[i],2)*powI(delta,d[i])*powI(delta-epsilon[i],2)-4.0*di*alpha[i]*powI(delta,d[i]-1)*(delta-epsilon[i])+di*(di-1.0)*powI(delta,d[i]-2));
     }
-//     mexPrintf("%10.10g\t",dphir2_dDelta2);
     for (i=40;i<=42;i++)
     {
                
@@ -1024,7 +988,6 @@ static double dphir2_dDelta2(double tau, double delta)
         
         dphir2_dDelta2=dphir2_dDelta2+n[i]*(pow(DELTA,b[i])*(2.0*dPSI_dDelta+delta*dPSI2_dDelta2)+2.0*dDELTAbi_dDelta*(PSI+delta*dPSI_dDelta)+dDELTAbi2_dDelta2*delta*PSI);
     }
-//     mexPrintf("%10.10g\n",dphir2_dDelta2);
     return dphir2_dDelta2;
 }
 
@@ -1036,27 +999,23 @@ static double dphir2_dDelta_dTau(double tau, double delta)
     double di, ci;
     double dphir2_dDelta_dTau=0,theta,DELTA,PSI,dPSI_dDelta,dDELTA_dDelta,dDELTAbi_dDelta,psi,dPSI2_dDelta2,dDELTAbi2_dDelta2,dDELTA2_dDelta2;
     double dPSI2_dDelta_dTau, dDELTAbi2_dDelta_dTau, dPSI_dTau, dDELTAbi_dTau, dPSI2_dTau2, dDELTAbi2_dTau2;
-//     mexPrintf("dphir2_dDelta_dTau\t");
     for (i=1;i<=7;i++)
     {
         di=(double)d[i];
         dphir2_dDelta_dTau=dphir2_dDelta_dTau+n[i]*di*t[i]*powI(delta,d[i]-1)*pow(tau,t[i]-1.0);
     }
-//     mexPrintf("%10.10g\t",dphir2_dDelta_dTau);
     for (i=8;i<=34;i++)
     {
         di=(double)d[i];
         ci=(double)c[i];
         dphir2_dDelta_dTau=dphir2_dDelta_dTau+n[i]*exp(-powI(delta,c[i]))*powI(delta,d[i]-1)*t[i]*pow(tau,t[i]-1.0)*(di-ci*powI(delta,c[i]));
     }
-//     mexPrintf("%10.10g\t",dphir2_dDelta_dTau);
     for (i=35;i<=39;i++)
     {
         di=(double)d[i];
         psi=exp(-alpha[i]*powI(delta-epsilon[i],2)-beta[i]*powI(tau-GAMMA[i],2));
         dphir2_dDelta_dTau=dphir2_dDelta_dTau+n[i]*powI(delta,d[i])*pow(tau,t[i])*psi*(di/delta-2.0*alpha[i]*(delta-epsilon[i]))*(t[i]/tau-2.0*beta[i]*(tau-GAMMA[i]));
     }
-//     mexPrintf("%10.10g\t",dphir2_dDelta_dTau);
     for (i=40;i<=42;i++)
     {
         
@@ -1082,7 +1041,6 @@ static double dphir2_dDelta_dTau(double tau, double delta)
         
         dphir2_dDelta_dTau=dphir2_dDelta_dTau+n[i]*(pow(DELTA,b[i])*(dPSI_dTau+delta*dPSI2_dDelta_dTau)+delta*dDELTAbi_dDelta*dPSI_dTau+ dDELTAbi_dTau*(PSI+delta*dPSI_dDelta)+dDELTAbi2_dDelta_dTau*delta*PSI);
     }
-//     mexPrintf("%10.10g\n",dphir2_dDelta_dTau);
     return dphir2_dDelta_dTau;
 }
 
@@ -1229,11 +1187,9 @@ static double get_Delta(double T, double P)
         {
             delta_guess=1000/rhoc;
         }
-//         return R744_rho_fit_supercrit(T,P)/rhoc;
     }
     else
     {
-//         return R744_rho_fit_subcrit(T,P)/rhoc;
         if (T>Tsat_R744(P))
         {
             delta_guess=P/(R_R744*T)/rhoc;
@@ -1348,8 +1304,7 @@ double ssat_R744(double T, double x)
 }
 
 double rhosat_R744(double T, double x)
-{
-    
+{   
     if (x>0.5)
     {
         return rhosatV_R744(T);

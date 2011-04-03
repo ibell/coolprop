@@ -1,5 +1,4 @@
-// BrineTest.cpp : Defines the entry point for the console application.
-//
+
 #if defined(_MSC_VER)
 #define _CRTDBG_MAP_ALLOC
 #define _CRT_SECURE_NO_WARNINGS

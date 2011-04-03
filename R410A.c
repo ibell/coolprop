@@ -17,7 +17,7 @@ These macros are defined in the PropMacros.h header file:
 	Density solved for, then plugged into EOS (can be quite slow)
 */
 
-//You can include any C libraries that you normally use
+
 #if defined(_MSC_VER)
 #define _CRTDBG_MAP_ALLOC
 #define _CRT_SECURE_NO_WARNINGS

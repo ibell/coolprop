@@ -1,7 +1,7 @@
 /* Properties of Argon
 by Ian Bell
 
-Themo properties from 
+Thermo properties from 
 ---------------------
 "A New Equation of State for Argon Covering the Fluid Region
 for Temperatures From the Melting Line to 700 K

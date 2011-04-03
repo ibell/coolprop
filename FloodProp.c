@@ -1,4 +1,3 @@
-//You can include any C libraries that you normally use
 #ifndef __GNUC__
 #define _CRTDBG_MAP_ALLOC
 #include <stdlib.h>
