@@ -617,6 +617,33 @@ void Help()
 
 
 }
+
+int Phase(char Name1, double Prop1, char Name2, double Prop2, char * Ref)
+{
+	double h,TsatL,TsatV,T,p;
+	if (Name1!='T')
+	{
+		printf("Name1 to Phase must be 'T'\n");
+	}
+	if (T>Tcrit(Ref))
+	{
+		return PHASE_SUPERCRITICAL;
+	}
+	else
+	{
+		if (Prop2=='D')
+			p=Props('P',Name1,Prop1,Name2,Prop2,Ref);
+		TsatV=Tsat(Ref, p, 1.0);
+		TsatL=Tsat(Ref, p, 0.0);
+
+		if (T>TsatV)
+			return PHASE_SUPERHEATED;
+		else if T<TsatV
+			return PHASE_SUBCOOLED;
+		else
+			return PHASE_TWOPHASE;
+	}
+}
 double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, char * Ref)
 {
 	double T,p,Q,rhoV,rhoL,Value,rho;

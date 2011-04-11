@@ -17,8 +17,6 @@
 //When adding gas, make sure to increase
 // the length of coefficient vectors
 
-
-
 int isNAN_FP(double x)
 {
 	// recommendation from http://www.devx.com/tips/Tip/42853

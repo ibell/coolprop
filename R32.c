@@ -1,5 +1,5 @@
 /*
-Properties for R134a.  
+Properties for R32.  
 by Ian Bell
 
 Thermo props from
