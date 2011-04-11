@@ -82,6 +82,10 @@ def Help():
   return _CoolProp.Help()
 Help = _CoolProp.Help
 
+def Phase(*args):
+  return _CoolProp.Phase(*args)
+Phase = _CoolProp.Phase
+
 def Props(*args):
   return _CoolProp.Props(*args)
 Props = _CoolProp.Props

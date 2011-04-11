@@ -3035,6 +3035,67 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_Phase(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  char arg1 ;
+  double arg2 ;
+  char arg3 ;
+  double arg4 ;
+  char *arg5 = (char *) 0 ;
+  char val1 ;
+  int ecode1 = 0 ;
+  double val2 ;
+  int ecode2 = 0 ;
+  char val3 ;
+  int ecode3 = 0 ;
+  double val4 ;
+  int ecode4 = 0 ;
+  int res5 ;
+  char *buf5 = 0 ;
+  int alloc5 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  int result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOO:Phase",&obj0,&obj1,&obj2,&obj3,&obj4)) SWIG_fail;
+  ecode1 = SWIG_AsVal_char(obj0, &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "Phase" "', argument " "1"" of type '" "char""'");
+  } 
+  arg1 = (char)(val1);
+  ecode2 = SWIG_AsVal_double(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "Phase" "', argument " "2"" of type '" "double""'");
+  } 
+  arg2 = (double)(val2);
+  ecode3 = SWIG_AsVal_char(obj2, &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "Phase" "', argument " "3"" of type '" "char""'");
+  } 
+  arg3 = (char)(val3);
+  ecode4 = SWIG_AsVal_double(obj3, &val4);
+  if (!SWIG_IsOK(ecode4)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "Phase" "', argument " "4"" of type '" "double""'");
+  } 
+  arg4 = (double)(val4);
+  res5 = SWIG_AsCharPtrAndSize(obj4, &buf5, NULL, &alloc5);
+  if (!SWIG_IsOK(res5)) {
+    SWIG_exception_fail(SWIG_ArgError(res5), "in method '" "Phase" "', argument " "5"" of type '" "char *""'");
+  }
+  arg5 = (char *)(buf5);
+  result = (int)Phase(arg1,arg2,arg3,arg4,arg5);
+  resultobj = SWIG_From_int((int)(result));
+  if (alloc5 == SWIG_NEWOBJ) free((char*)buf5);
+  return resultobj;
+fail:
+  if (alloc5 == SWIG_NEWOBJ) free((char*)buf5);
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_Props(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   char arg1 ;
@@ -3511,6 +3572,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"SWIG_PyInstanceMethod_New", (PyCFunction)SWIG_PyInstanceMethod_New, METH_O, NULL},
 	 { (char *)"SecFluids", _wrap_SecFluids, METH_VARARGS, NULL},
 	 { (char *)"Help", _wrap_Help, METH_VARARGS, NULL},
+	 { (char *)"Phase", _wrap_Phase, METH_VARARGS, NULL},
 	 { (char *)"Props", _wrap_Props, METH_VARARGS, NULL},
 	 { (char *)"pcrit", _wrap_pcrit, METH_VARARGS, NULL},
 	 { (char *)"Tcrit", _wrap_Tcrit, METH_VARARGS, NULL},

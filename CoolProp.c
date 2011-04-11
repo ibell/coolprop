@@ -622,9 +622,7 @@ int Phase(char Name1, double Prop1, char Name2, double Prop2, char * Ref)
 {
 	double h,TsatL,TsatV,T,p;
 	if (Name1!='T')
-	{
 		printf("Name1 to Phase must be 'T'\n");
-	}
 	if (T>Tcrit(Ref))
 	{
 		return PHASE_SUPERCRITICAL;
@@ -638,7 +636,7 @@ int Phase(char Name1, double Prop1, char Name2, double Prop2, char * Ref)
 
 		if (T>TsatV)
 			return PHASE_SUPERHEATED;
-		else if T<TsatV
+		else if (T<TsatV)
 			return PHASE_SUBCOOLED;
 		else
 			return PHASE_TWOPHASE;

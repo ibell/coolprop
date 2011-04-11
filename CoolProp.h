@@ -17,6 +17,11 @@
 	#include "Argon.h"
 	#include "Nitrogen.h"
 	#include "Brine.h"
+	
+	#define PHASE_SUPERCRITICAL 1
+	#define PHASE_SUPERHEATED 2
+	#define PHASE_SUBCOOLED 3
+	#define PHASE_TWOPHASE 4
 
 	/*
 	Following the naming conventions of MATLAB linked with REFPROP,
@@ -65,6 +70,8 @@
 	  T      ||      Q
 
 	*/
+	
+	
 	void Help();
 	double SecFluids(char Output, double T, double p,char * Ref);
 	double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, char * Ref);
@@ -83,7 +90,7 @@
 	double F2K(double T_F);
 	double K2F(double T);
 	void PrintSaturationTable(char *FileName, char * Ref, double Tmin, double Tmax);
-
+	int Phase(char Name1, double Prop1, char Name2, double Prop2, char * Ref);
 	// Only add REFPROP if build on Windows platform
 	#if defined(_WIN32) || defined(__WIN32__) 
 	double REFPROP(char Output,char Name1, double Prop1, char Name2, double Prop2, char * Ref);
