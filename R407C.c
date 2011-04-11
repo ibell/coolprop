@@ -1,5 +1,5 @@
-﻿/*
-Properties for R407C.  
+﻿/* 
+Properties for R407C. 
 by Ian Bell (ihb2@cornell.edu)
 
 Pseudo-pure fluid thermo props from 
