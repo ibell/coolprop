@@ -1,5 +1,5 @@
-﻿/*
-Properties for R507A.  
+/*
+Properties for R507A. 
 by Ian Bell (ihb2@cornell.edu)
 
 Pseudo-pure fluid thermo props from 
