@@ -631,8 +631,8 @@ int Phase(char Name1, double Prop1, char Name2, double Prop2, char * Ref)
 	{
 		if (Prop2=='D')
 			p=Props('P',Name1,Prop1,Name2,Prop2,Ref);
-		TsatV=Tsat(Ref, p, 1.0);
-		TsatL=Tsat(Ref, p, 0.0);
+		TsatV=Tsat(Ref, p, 1.0,T);
+		TsatL=Tsat(Ref, p, 0.0,T);
 
 		if (T>TsatV)
 			return PHASE_SUPERHEATED;
