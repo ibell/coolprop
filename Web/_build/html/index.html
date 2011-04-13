@@ -1,0 +1,196 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Welcome to CoolProp &mdash; ACHP v1.2.0 documentation</title>
+    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1.2.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="ACHP v1.2.0 documentation" href="#" />
+    <link rel="next" title="Installation and Compilation" href="Installation.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="Installation.html" title="Installation and Compilation"
+             accesskey="N">next</a> |</li>
+        <li><a href="#">ACHP v1.2.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="#">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Welcome to CoolProp</a><ul>
+<li><a class="reference internal" href="#what-it-is">What it is:</a></li>
+<li><a class="reference internal" href="#who-made-it">Who made it?</a></li>
+<li><a class="reference internal" href="#how-to-get-it">How to get it?</a></li>
+<li><a class="reference internal" href="#how-do-i-use-it-5-seconds-introduction">How do I use it (5 seconds introduction)?</a><ul>
+<li><a class="reference internal" href="#matlab-and-languages-other-than-python">MATLAB and languages other than Python:</a></li>
+<li><a class="reference internal" href="#python">Python:</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Next topic</h4>
+  <p class="topless"><a href="Installation.html"
+                        title="next chapter">Installation and Compilation</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/index.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="welcome-to-coolprop">
+<h1>Welcome to CoolProp<a class="headerlink" href="#welcome-to-coolprop" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Installation.html">Installation and Compilation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Installation.html#developer-notes">Developer Notes:</a></li>
+</ul>
+</div>
+<div class="section" id="what-it-is">
+<h2>What it is:<a class="headerlink" href="#what-it-is" title="Permalink to this headline">¶</a></h2>
+<p>An open-source database of refrigerant properties, for use in a wide range of programming environments.  The current refrigerants available at this time are</p>
+<ul class="simple">
+<li>Argon</li>
+<li>Nitrogen</li>
+<li>R134a</li>
+<li>R290 (Propane)</li>
+<li>R32 (No transport properties)</li>
+<li>R404A (Pseudo-pure properties)</li>
+<li>R407C (Pseudo-pure properties)</li>
+<li>R410A (Pseudo-pure properties)</li>
+<li>R507A (Pseudo-pure properties)</li>
+<li>R717 (Ammonia)</li>
+<li>R744 (Carbon Dioxide)</li>
+</ul>
+<p>Originally developed for use in the programming language c, wrappers have been written for Python, and a DLL that can be called from any other language.  In addition, so called flooded properties are included for a mixture of liquids and refrigerants.</p>
+</div>
+<div class="section" id="who-made-it">
+<h2>Who made it?<a class="headerlink" href="#who-made-it" title="Permalink to this headline">¶</a></h2>
+<p>Ian Bell (ian.h.bell .at. gmail.com), during his time as a Ph.D. student in the Herrick Laboratories of Purdue University.</p>
+</div>
+<div class="section" id="how-to-get-it">
+<h2>How to get it?<a class="headerlink" href="#how-to-get-it" title="Permalink to this headline">¶</a></h2>
+<p>To grab a zip file with the CoolProp DLL, head to <a class="reference external" href="https://sourceforge.net/projects/coolprop/files/">https://sourceforge.net/projects/coolprop/files/</a> and download the most recent version.  Or to pull CoolProp source code or Python installer files.</p>
+<p>CoolProp is an open-source project, and is actively looking for developers.  The project is hosted in a subversion repository at <a class="reference external" href="http://coolprop.svn.sourceforge.net/viewvc/coolprop/trunk/">http://coolprop.svn.sourceforge.net/viewvc/coolprop/trunk/</a> .  In order to download the sources, click on the &#8220;Download GNU tarball&#8221; at the bottom of the page.  To unpack the tarball, <a class="reference external" href="http://www.7-zip.org">7-zip</a>  is recommended.</p>
+</div>
+<div class="section" id="how-do-i-use-it-5-seconds-introduction">
+<h2>How do I use it (5 seconds introduction)?<a class="headerlink" href="#how-do-i-use-it-5-seconds-introduction" title="Permalink to this headline">¶</a></h2>
+<p>Also see</p>
+<div class="section" id="matlab-and-languages-other-than-python">
+<h3>MATLAB and languages other than Python:<a class="headerlink" href="#matlab-and-languages-other-than-python" title="Permalink to this headline">¶</a></h3>
+<p>The source folder includes a folder unimaginatively called &#8220;Examples&#8221;.  In there is an example using MATLAB, copied verbatim:</p>
+<div class="highlight-python"><pre>addpath('..')
+loadlibrary('CoolPropDLL','CoolProp_dll.h')
+disp 'The functions available are:'
+libfunctions CoolPropDLL -full
+disp 'Help for CoolProp:'
+res=calllib('CoolPropDLL','Help');
+disp 'The critical temperature of R410A is:'
+res=calllib('CoolPropDLL','Tcrit_dll','R410A');
+disp(res)
+disp 'The saturated vapor enthalpy of Propane at 275 K is:'
+res=calllib('CoolPropDLL','Props_dll',int8('H'),int8('T'),275.0,int8('Q'),1.0,'R290');
+disp(res)
+unloadlibrary('CoolPropDLL')</pre>
+</div>
+<p>This example assumes that the compiled Coolprop DLL and CoolProp_dll.h are located either on the MATLAB path somewhere, or in this case in particular, that the DLL is located one folder up (that&#8217;s what the relative path &#8216;..&#8217; means).  The protocol should remain basically the same for other programming languages other than Python.</p>
+<p>This example demonstrates the two main types of calls to Coolprop</p>
+<ul class="simple">
+<li>Saturation temperature known in the two phase region</li>
+<li>Temperature and pressure known away from two-phase dome</li>
+</ul>
+<p>See the rest of the documentation for further information.</p>
+</div>
+<div class="section" id="python">
+<h3>Python:<a class="headerlink" href="#python" title="Permalink to this headline">¶</a></h3>
+<p>Python is very well suited to the use of code programmed in C.  With the use of SWIG, VERY minimal modifications are required to call c-code from Python.  The same example as for MATLAB shows the Python syntax:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">sys</span><span class="o">,</span><span class="nn">os</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;..&#39;</span><span class="p">)</span>
+<span class="k">if</span> <span class="s">&#39;MYPYTHONHOME&#39;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s">&#39;MYPYTHONHOME&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">CoolProp</span> <span class="kn">import</span> <span class="n">CoolProp</span> <span class="k">as</span> <span class="n">cp</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">CoolProp</span> <span class="kn">as</span> <span class="nn">cp</span>
+    
+<span class="n">cp</span><span class="o">.</span><span class="n">Help</span><span class="p">()</span>
+
+<span class="k">print</span> <span class="s">&#39;The functions available are:&#39;</span>
+<span class="k">print</span> <span class="nb">dir</span><span class="p">(</span><span class="n">cp</span><span class="p">)</span>
+
+<span class="k">print</span> <span class="s">&#39;The critical temperature of R410A is: </span><span class="si">%g</span><span class="s">&#39;</span> <span class="o">%</span><span class="p">(</span><span class="n">cp</span><span class="o">.</span><span class="n">Tcrit</span><span class="p">(</span><span class="s">&#39;R410A&#39;</span><span class="p">),)</span>
+<span class="k">print</span> <span class="s">&#39;The saturated vapor enthalpy of Propane at 275 K is: </span><span class="si">%g</span><span class="s"> kJ/kg&#39;</span> <span class="o">%</span><span class="p">(</span><span class="n">cp</span><span class="o">.</span><span class="n">Props</span><span class="p">(</span><span class="s">&#39;H&#39;</span><span class="p">,</span><span class="s">&#39;T&#39;</span><span class="p">,</span><span class="mf">275.0</span><span class="p">,</span><span class="s">&#39;Q&#39;</span><span class="p">,</span><span class="mf">1.0</span><span class="p">,</span><span class="s">&#39;R290&#39;</span><span class="p">),)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="Installation.html" title="Installation and Compilation"
+             >next</a> |</li>
+        <li><a href="#">ACHP v1.2.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Ian Bell.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

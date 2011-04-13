@@ -1,0 +1,20 @@
+.. _Welcome:
+
+*********************
+Welcome to ACHP
+*********************
+
+What it is:
+-----------
+
+Code that can be used to model air conditioning systems.
+
+Who made it?
+------------
+
+Ian Bell (ian.h.bell .at. gmail.com) during his time as a Ph.D. student in the Herrick Laboratories of Purdue University
+    
+How to get it?
+--------------
+
+ACHP is currently an open-source project, and is actively looking for developers.  The project is hosted in a subversion repository at http://achp.svn.sourceforge.net/viewvc/achp/trunk/ .  In order to download the sources, click on the "Download GNU tarball" at the bottom of the page.  To unpack the tarball, `7-zip <http://www.7-zip.org>`_  is recommended.
