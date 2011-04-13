@@ -16,10 +16,14 @@ FloodProp_module = Extension('_FloodProp',
                            )
 
 setup (name = 'CoolProp',
-       version = '0.0',
+       version = '1.0',
        author      = "Ian Bell",
+       author_email='ian.h.bell@gmail.com',
+       url='http://coolprop.sourceforge.net',
        description = """Properties of R134a, R744, R410A, R290, R717, R32, R404A and brines""",
+       packages = ['CoolProp'],
+       ext_package = 'CoolProp',
        ext_modules = [CoolProp_module,FloodProp_module],
-       py_modules = ["CoolProp","FloodProp"],
+       package_dir = {'CoolProp':'.'}
        )
        

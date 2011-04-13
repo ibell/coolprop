@@ -6,25 +6,7 @@
 	#define TP 1
 	#define Trho 2
 
-	//  ****************************
-	//  ***** Gas Variables ********
-	//  ****************************
 
-	double cp_A[6], cp_B[6], cp_C[6], cp_D[6], cp_E[6];
-	double kg_A[7], kg_B[7], kg_C[7];
-	double w[6], Pc[6], Tc[6], MM_g[6];
-	double mug_A[7], mug_B[7], mug_C[7];
-
-	//  ****************************
-	//  ***** Liq Variables ********
-	//  ****************************
-	#define NL 8
-
-	double rhol_A[NL], rhol_B[NL], rhol_n[NL], rhol_Tc[NL];
-	double kl_A[NL], kl_B[NL], kl_C[NL], kl_D[NL];
-	double cl_A[NL], cl_B[NL], cl_C[NL], cl_D[NL];
-	double mul_A[NL], mul_B[NL], mul_C[NL], mul_D[NL];
-	double MM_l[NL];
 	
 	static int I_N2=0, I_He=1, I_Ne=2, I_Ar=3, I_Kr=4, I_Xe=5, I_CO2=6;
 	static int I_Methanol=0, I_Ethanol=1, I_Propanol=2, I_Butanol=3, I_Water=4, I_NH3=5, I_Zerol=6,I_POE=7;
