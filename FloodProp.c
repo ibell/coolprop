@@ -22,33 +22,22 @@
 
 	
 	static double cp_A[6], cp_B[6], cp_C[6], cp_D[6], cp_E[6];
-	
 	static double kg_A[7], kg_B[7], kg_C[7];
-	
 	static double w[6], Pc[6], Tc[6], MM_g[6];
-	
 	static double mug_A[7], mug_B[7], mug_C[7];
 
 	
 	//  ****************************
-	
 	//  ***** Liq Variables ********
-	
 	//  ****************************
 	
 	#define NL 8
 
-	
 	double rhol_A[NL], rhol_B[NL], rhol_n[NL], rhol_Tc[NL];
-	
 	double kl_A[NL], kl_B[NL], kl_C[NL], kl_D[NL];
-	
 	double cl_A[NL], cl_B[NL], cl_C[NL], cl_D[NL];
-	
 	double mul_A[NL], mul_B[NL], mul_C[NL], mul_D[NL];
-	
 	double MM_l[NL];
-	
 	
 	
 //When adding gas, make sure to increase

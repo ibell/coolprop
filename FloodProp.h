@@ -6,12 +6,9 @@
 	#define TP 1
 	#define Trho 2
 
-
-	
 	static int I_N2=0, I_He=1, I_Ne=2, I_Ar=3, I_Kr=4, I_Xe=5, I_CO2=6;
 	static int I_Methanol=0, I_Ethanol=1, I_Propanol=2, I_Butanol=3, I_Water=4, I_NH3=5, I_Zerol=6,I_POE=7;
-
-	double hm2(double T, double P, double xL);
+	
 	double cK_e(double v_l, double v_g, double x, double w, double flag);
 	double cv_e(double v_l, double v_g, double K_e, double x, double w, double flag);
 	double R(char *Gas);

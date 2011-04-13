@@ -18,7 +18,7 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory=".."
+			OutputDirectory="."
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="2"
 			UseOfMFC="2"
@@ -197,7 +197,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\CoolProp_dll.c"
+				RelativePath=".\CoolProp_dll.c"
 				>
 			</File>
 			<File
@@ -259,7 +259,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\CoolProp_dll.h"
+				RelativePath=".\CoolProp_dll.h"
 				>
 			</File>
 			<File

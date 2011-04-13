@@ -1,5 +1,5 @@
 
-#include "CoolProp.h"
+#include "../CoolProp.h"
 #include "CoolProp_dll.h"
 
 __declspec(dllexport) double  __stdcall Props_dll(char Output,char Name1, double Prop1, char Name2, double Prop2, char * Ref)
