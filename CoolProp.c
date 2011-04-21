@@ -421,6 +421,11 @@ double REFPROP(char Output,char Name1, double Prop1, char Name2, double Prop2, c
 			CRITPdll(x,&Tcrit,&pcrit,&dcrit,&ierr,herr,255);
 			return pcrit;
 		}
+		else if (Output=='M')
+		{
+			// mole mass
+			return MW;
+		}
 		else if (Name1=='T' && Name2=='P')
 		{
 			// T in K, P in kPa
@@ -590,6 +595,7 @@ void Help()
 	printf("I   Surface tension [N/m]\n");
 	printf("F   Freezing point of secondary fluid [K] **NOT IN MATLAB-REFPROP **\n");
 	printf("M   Maximum temperature for secondary fluid [K] **NOT IN MATLAB-REFPROP **\n");
+	printf("M   Molar mass for non-secondary fluid [g/mol] **NOT IN MATLAB-REFPROP **\n");
 	printf("B   Critical Temperature [K] **NOT IN MATLAB-REFPROP **\n");
 	printf("E   Critical Pressure [K] **NOT IN MATLAB-REFPROP **\n");
 	printf("\n");
@@ -979,6 +985,10 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 					Value=w_func(T,p,TYPE_TPNoLookup); break;
 				case 'M':
 					Value=MM_func(); break;
+				case 'E':
+					Value=pc_func(); break;
+				case 'B':
+					Value=Tc_func(); break;
 				default:
 					strcpy(errString,"Invalid Output Name");
 					return -100;
@@ -1017,6 +1027,10 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 					Value=w_func(T,rho,TYPE_Trho); break;
 				case 'M':
 					Value=MM_func(); break;
+				case 'E':
+					Value=pc_func(); break;
+				case 'B':
+					Value=Tc_func(); break;
 				default:
 					strcpy(errString,"Invalid Output Name");
 					return -100;
@@ -1071,6 +1085,10 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 					break;
 				case 'M':
 					Value=MM_func(); break;
+				case 'E':
+					Value=pc_func(); break;
+				case 'B':
+					Value=Tc_func(); break;
 				default:
 					strcpy(errString,"Invalid Output Name");
 					return -100;

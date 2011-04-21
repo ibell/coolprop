@@ -1,7 +1,9 @@
 @echo off
 
-python setup.py build_ext --inplace
-python setup.py build_ext --inplace --debug
+rmdir /S /Q build
+python setup.py build
+python setup.py build --debug
+python setup.py install 
 
 REM ~ rmdir /S /Q build
 

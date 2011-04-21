@@ -7,13 +7,13 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Welcome to CoolProp &mdash; ACHP v1.2.0 documentation</title>
+    <title>Welcome to CoolProp &mdash; CoolProp v1.0.0 documentation</title>
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '1.2.0',
+        VERSION:     '1.0.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -22,7 +22,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="ACHP v1.2.0 documentation" href="#" />
+    <link rel="top" title="CoolProp v1.0.0 documentation" href="#" />
     <link rel="next" title="Installation and Compilation" href="Installation.html" /> 
   </head>
   <body>
@@ -35,7 +35,7 @@
         <li class="right" >
           <a href="Installation.html" title="Installation and Compilation"
              accesskey="N">next</a> |</li>
-        <li><a href="#">ACHP v1.2.0 documentation</a> &raquo;</li> 
+        <li><a href="#">CoolProp v1.0.0 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar">
@@ -121,25 +121,46 @@
 </div>
 <div class="section" id="how-do-i-use-it-5-seconds-introduction">
 <h2>How do I use it (5 seconds introduction)?<a class="headerlink" href="#how-do-i-use-it-5-seconds-introduction" title="Permalink to this headline">¶</a></h2>
-<p>Also see</p>
 <div class="section" id="matlab-and-languages-other-than-python">
 <h3>MATLAB and languages other than Python:<a class="headerlink" href="#matlab-and-languages-other-than-python" title="Permalink to this headline">¶</a></h3>
 <p>The source folder includes a folder unimaginatively called &#8220;Examples&#8221;.  In there is an example using MATLAB, copied verbatim:</p>
-<div class="highlight-python"><pre>addpath('..')
+<div class="highlight-python"><pre>addpath('../CoolPropDLL')
 loadlibrary('CoolPropDLL','CoolProp_dll.h')
-disp 'The functions available are:'
 libfunctions CoolPropDLL -full
-disp 'Help for CoolProp:'
-res=calllib('CoolPropDLL','Help');
 disp 'The critical temperature of R410A is:'
 res=calllib('CoolPropDLL','Tcrit_dll','R410A');
 disp(res)
 disp 'The saturated vapor enthalpy of Propane at 275 K is:'
-res=calllib('CoolPropDLL','Props_dll',int8('H'),int8('T'),275.0,int8('Q'),1.0,'R290');
-disp(res)
+h=calllib('CoolPropDLL','Props_dll',int8('H'),int8('T'),275.0,int8('Q'),1.0,'R290');
+disp(h)
+disp 'The density of nitrogen at STP is:'
+rho=calllib('CoolPropDLL','Props_dll',int8('D'),int8('T'),298.0,int8('P'),101.325,'Nitrogen');
+disp(rho)
 unloadlibrary('CoolPropDLL')</pre>
 </div>
-<p>This example assumes that the compiled Coolprop DLL and CoolProp_dll.h are located either on the MATLAB path somewhere, or in this case in particular, that the DLL is located one folder up (that&#8217;s what the relative path &#8216;..&#8217; means).  The protocol should remain basically the same for other programming languages other than Python.</p>
+<p>which yields:</p>
+<div class="highlight-python"><pre>Functions in library CoolPropDLL:
+
+Help_dll
+[double, cstring] Props_dll(int8, int8, double, int8, double, cstring)
+[double, cstring] T_hp_dll(cstring, double, double, double)
+[double, cstring] Tcrit_dll(cstring)
+[double, cstring] Tsat_dll(cstring, double, double, double)
+[int32, cstring] errCode_dll(cstring)
+[double, cstring] h_sp_dll(cstring, double, double, double)
+[double, cstring] pcrit_dll(cstring)
+
+
+The critical temperature of R410A is:
+  344.4940
+
+The saturated vapor enthalpy of Propane at 275 K is:
+  576.7495
+
+The density of nitrogen at STP is:
+    1.1458</pre>
+</div>
+<p>This example assumes that the compiled CoolpropDLL.dll and CoolProp_dll.h are located either on the MATLAB path somewhere, or in this case in particular, that the DLL is located one folder up and in the CoolPropDLL folder (that&#8217;s what the relative path &#8216;..&#8217; means).  The protocol should remain basically the same for other programming languages other than Python.</p>
 <p>This example demonstrates the two main types of calls to Coolprop</p>
 <ul class="simple">
 <li>Saturation temperature known in the two phase region</li>
@@ -149,21 +170,20 @@ unloadlibrary('CoolPropDLL')</pre>
 </div>
 <div class="section" id="python">
 <h3>Python:<a class="headerlink" href="#python" title="Permalink to this headline">¶</a></h3>
-<p>Python is very well suited to the use of code programmed in C.  With the use of SWIG, VERY minimal modifications are required to call c-code from Python.  The same example as for MATLAB shows the Python syntax:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">sys</span><span class="o">,</span><span class="nn">os</span>
-<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;..&#39;</span><span class="p">)</span>
-<span class="k">if</span> <span class="s">&#39;MYPYTHONHOME&#39;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s">&#39;MYPYTHONHOME&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">CoolProp</span> <span class="kn">import</span> <span class="n">CoolProp</span> <span class="k">as</span> <span class="n">cp</span>
-<span class="k">else</span><span class="p">:</span>
-    <span class="kn">import</span> <span class="nn">CoolProp</span> <span class="kn">as</span> <span class="nn">cp</span>
-    
+<p>Python is very well suited to the use of code programmed in C.  With the use of SWIG, VERY minimal modifications are required to call c-code from Python.  With CoolProp installed properly, the same example as for MATLAB shows the Python syntax:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">CoolProp</span> <span class="kn">import</span> <span class="n">CoolProp</span> <span class="k">as</span> <span class="n">cp</span>
+
+<span class="c">#Print out the help files</span>
 <span class="n">cp</span><span class="o">.</span><span class="n">Help</span><span class="p">()</span>
 
 <span class="k">print</span> <span class="s">&#39;The functions available are:&#39;</span>
 <span class="k">print</span> <span class="nb">dir</span><span class="p">(</span><span class="n">cp</span><span class="p">)</span>
 
-<span class="k">print</span> <span class="s">&#39;The critical temperature of R410A is: </span><span class="si">%g</span><span class="s">&#39;</span> <span class="o">%</span><span class="p">(</span><span class="n">cp</span><span class="o">.</span><span class="n">Tcrit</span><span class="p">(</span><span class="s">&#39;R410A&#39;</span><span class="p">),)</span>
-<span class="k">print</span> <span class="s">&#39;The saturated vapor enthalpy of Propane at 275 K is: </span><span class="si">%g</span><span class="s"> kJ/kg&#39;</span> <span class="o">%</span><span class="p">(</span><span class="n">cp</span><span class="o">.</span><span class="n">Props</span><span class="p">(</span><span class="s">&#39;H&#39;</span><span class="p">,</span><span class="s">&#39;T&#39;</span><span class="p">,</span><span class="mf">275.0</span><span class="p">,</span><span class="s">&#39;Q&#39;</span><span class="p">,</span><span class="mf">1.0</span><span class="p">,</span><span class="s">&#39;R290&#39;</span><span class="p">),)</span>
+<span class="k">print</span> <span class="s">&#39;The critical temperature of R410A is: </span><span class="si">%g</span><span class="s"> K&#39;</span> <span class="o">%</span><span class="p">(</span><span class="n">cp</span><span class="o">.</span><span class="n">Tcrit</span><span class="p">(</span><span class="s">&#39;R410A&#39;</span><span class="p">),)</span>
+<span class="k">print</span> <span class="s">&#39;The saturated vapor enthalpy of Propane at 275 K is: </span><span class="si">%g</span><span class="s"> kJ/kg&#39;</span> <span class="o">%</span><span class="p">(</span><span class="n">cp</span><span class="o">.</span><span class="n">Props</span><span class="p">(</span><span class="s">&#39;H&#39;</span><span class="p">,</span><span class="s">&#39;T&#39;</span><span class="p">,</span><span class="mf">275.0</span><span class="p">,</span><span class="s">&#39;Q&#39;</span><span class="p">,</span><span class="mf">1.0</span><span class="p">,</span><span class="s">&#39;R290&#39;</span><span class="p">))</span>
+
+<span class="n">rho_N2</span><span class="o">=</span><span class="n">cp</span><span class="o">.</span><span class="n">Props</span><span class="p">(</span><span class="s">&#39;H&#39;</span><span class="p">,</span><span class="s">&#39;T&#39;</span><span class="p">,</span><span class="mf">298.0</span><span class="p">,</span><span class="s">&#39;P&#39;</span><span class="p">,</span><span class="mf">101.325</span><span class="p">,</span><span class="s">&#39;Nitrogen&#39;</span><span class="p">)</span>
+<span class="k">print</span> <span class="s">&#39;The density of nitrogen at STP is: </span><span class="si">%g</span><span class="s"> kg/m^3&#39;</span> <span class="o">%</span><span class="p">(</span><span class="n">rho_N2</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -185,7 +205,7 @@ unloadlibrary('CoolPropDLL')</pre>
         <li class="right" >
           <a href="Installation.html" title="Installation and Compilation"
              >next</a> |</li>
-        <li><a href="#">ACHP v1.2.0 documentation</a> &raquo;</li> 
+        <li><a href="#">CoolProp v1.0.0 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

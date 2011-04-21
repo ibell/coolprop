@@ -1,6 +1,5 @@
-import pylab
-import numpy as np
-import CoolProp.CoolProp as cp
+import pylab, numpy as np, CoolProp.CoolProp as cp
+
 def Ts(Ref,**kwargs):
 
     if 'Tmin' in kwargs:

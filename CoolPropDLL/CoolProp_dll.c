@@ -2,6 +2,12 @@
 #include "../CoolProp.h"
 #include "CoolProp_dll.h"
 
+__declspec(dllexport) void  __stdcall Help_dll(void)
+{
+	Help();
+	return; 
+}
+
 __declspec(dllexport) double  __stdcall Props_dll(char Output,char Name1, double Prop1, char Name2, double Prop2, char * Ref)
 {
 	return Props(Output,Name1,Prop1,Name2,Prop2,Ref);

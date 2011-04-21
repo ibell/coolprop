@@ -44,7 +44,6 @@ CoolProp is an open-source project, and is actively looking for developers.  The
 How do I use it (5 seconds introduction)?
 =========================================
 
-Also see 
 
 MATLAB and languages other than Python:
 ---------------------------------------
@@ -53,7 +52,30 @@ The source folder includes a folder unimaginatively called "Examples".  In there
 
 .. literalinclude:: ../Examples/MATLABExample.m
 
-This example assumes that the compiled Coolprop DLL and CoolProp_dll.h are located either on the MATLAB path somewhere, or in this case in particular, that the DLL is located one folder up (that's what the relative path '..' means).  The protocol should remain basically the same for other programming languages other than Python.
+which yields::
+
+	Functions in library CoolPropDLL:
+
+	Help_dll
+	[double, cstring] Props_dll(int8, int8, double, int8, double, cstring)
+	[double, cstring] T_hp_dll(cstring, double, double, double)
+	[double, cstring] Tcrit_dll(cstring)
+	[double, cstring] Tsat_dll(cstring, double, double, double)
+	[int32, cstring] errCode_dll(cstring)
+	[double, cstring] h_sp_dll(cstring, double, double, double)
+	[double, cstring] pcrit_dll(cstring)
+
+
+	The critical temperature of R410A is:
+	  344.4940
+
+	The saturated vapor enthalpy of Propane at 275 K is:
+	  576.7495
+
+	The density of nitrogen at STP is:
+	    1.1458
+
+This example assumes that the compiled CoolpropDLL.dll and CoolProp_dll.h are located either on the MATLAB path somewhere, or in this case in particular, that the DLL is located one folder up and in the CoolPropDLL folder (that's what the relative path '..' means).  The protocol should remain basically the same for other programming languages other than Python.
 
 This example demonstrates the two main types of calls to Coolprop
 
@@ -65,7 +87,7 @@ See the rest of the documentation for further information.
 Python:
 -------
 
-Python is very well suited to the use of code programmed in C.  With the use of SWIG, VERY minimal modifications are required to call c-code from Python.  The same example as for MATLAB shows the Python syntax:
+Python is very well suited to the use of code programmed in C.  With the use of SWIG, VERY minimal modifications are required to call c-code from Python.  With CoolProp installed properly, the same example as for MATLAB shows the Python syntax:
 
 .. literalinclude:: ../Examples/PythonExample.py
 
