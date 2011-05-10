@@ -25,6 +25,9 @@
 #define numparams 72 
 #define maxcoefs 50
 
+// Function prototypes
+double _Dekker_Tsat(double x_min, double x_max, double eps, double p, double Q,char *Ref);
+
 
 double SecFluids(char Output, double T, double p,char * Ref)
 {
@@ -421,6 +424,20 @@ double REFPROP(char Output,char Name1, double Prop1, char Name2, double Prop2, c
 			CRITPdll(x,&Tcrit,&pcrit,&dcrit,&ierr,herr,255);
 			return pcrit;
 		}
+		else if (Output=='R')
+		{
+			long icomp;
+			double wmm,Ttriple,tnbpt,tc,pc,Dc,Zc,acf,dip,Rgas;
+			// Triple point temperature
+			icomp=1;
+			if (i>1)
+			{
+				fprintf(stderr,"Error: Triple point temperature only defined for pure fluids\n");
+				return 200;
+			}
+			INFOdll(&icomp,&wmm,&Ttriple,&tnbpt,&tc,&pc,&Dc,&Zc,&acf,&dip,&Rgas);
+			return Ttriple;
+		}
 		else if (Output=='M')
 		{
 			// mole mass
@@ -597,7 +614,8 @@ void Help()
 	printf("M   Maximum temperature for secondary fluid [K] **NOT IN MATLAB-REFPROP **\n");
 	printf("M   Molar mass for non-secondary fluid [g/mol] **NOT IN MATLAB-REFPROP **\n");
 	printf("B   Critical Temperature [K] **NOT IN MATLAB-REFPROP **\n");
-	printf("E   Critical Pressure [K] **NOT IN MATLAB-REFPROP **\n");
+	printf("E   Critical Pressure [kPa] **NOT IN MATLAB-REFPROP **\n");
+	printf("R   Triple point temperature [K] **NOT IN MATLAB-REFPROP **\n");
 	printf("\n");
 	printf("******** To call **************\n");
 	printf("To call the function Props, for instance for R410A at 300K, 400 kPa, you would do:\n");
@@ -677,6 +695,7 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 	M	Maximum temperature for secondary fluid [K] **NOT IN MATLAB-REFPROP **
 	B	Critical Temperature [K] **NOT IN MATLAB-REFPROP **
 	E	Critical Pressure [K] **NOT IN MATLAB-REFPROP **
+	R   Triple point temperature [K]
 	*/
 
 	// Pointers to the functions
@@ -1192,6 +1211,44 @@ double Tcrit(char *Ref)
 	else
 		return _HUGE;
 }
+double Ttriple(char *Ref)
+{
+	if (!strcmp(Ref,"R134a"))
+		return Ttriple_R134a();
+	else if (!strcmp(Ref,"R290"))
+		return Ttriple_R290();
+	else if (!strcmp(Ref,"R744"))
+		return Ttriple_R744();
+	else if (!strcmp(Ref,"R410A"))
+		return Ttriple_R410A();
+	else if (!strcmp(Ref,"R404A"))
+		return Ttriple_R404A();
+	else if (!strcmp(Ref,"R717"))
+		return Ttriple_R717();
+	else if (!strcmp(Ref,"R32"))
+		return Ttriple_R32();
+	else if (!strcmp(Ref,"Nitrogen"))
+		return Ttriple_Nitrogen();
+	else if (!strcmp(Ref,"Argon"))
+		return Ttriple_Argon();
+	#if defined(_WIN32) || defined(__WIN32__) 
+	else if (strncmp(Ref,"REFPROP-",8)==0)  // First eight characters match "REFPROP-"
+	{
+		char *REFPROPRef=NULL,*RefCopy=NULL;
+		double Ttriple;
+		RefCopy=malloc(strlen(Ref)+1);
+		strcpy(RefCopy,Ref);
+		REFPROPRef = strtok(RefCopy,"-");
+		REFPROPRef = strtok(NULL,"-");
+		// 'R' is the code for the triple point temperature (ran out of sensible characters).
+		Ttriple=REFPROP('R','T',0.0,'Q',0.0,REFPROPRef);
+		free(RefCopy);
+		return Ttriple;
+	}
+	#endif
+	else
+		return _HUGE;
+}
 
 int errCode(char * Ref)
 {
@@ -1277,6 +1334,11 @@ double Tsat(char *Ref, double p, double Q, double T_guess)
 	double x1=0,x2=0,x3=0,y1=0,y2=0,eps=1e-8,change=999,f=999,T=300;
 	int iter=1;
 
+	double Tmax=Tcrit(Ref)-0.5;
+	double Tmin=Ttriple(Ref)+1;
+	
+	
+	return _Dekker_Tsat(Tmin,Tmax,0.0001,p,Q,Ref);
 	
 	while ((iter<=3 || change>eps) && iter<100)
 	{
@@ -1440,4 +1502,109 @@ double DerivTerms(char *Term,char Name1, double Prop1, char Name2, double Prop2,
 		return _HUGE;
 	}
 	
+}
+
+static void swap(double *x, double *y)
+{
+    double temp;
+    temp = *x;
+    *x = *y;
+    *y = temp;
+}
+
+double _Dekker_Tsat(double x_min, double x_max, double eps, double p, double Q,char *Ref)
+{
+	double a_k,b_k,f_ak,f_bk,f_bkn1,error, 
+		b_kn1,b_kp1,s,m,a_kp1,f_akp1,f_bkp1,x;
+
+	int iter=1;
+
+	// Loop for the solver method
+    while ((iter <= 1 || fabs(error) > eps) && iter < 100)
+	{
+		// Start with the maximum value
+        if (iter == 1)
+		{
+            a_k = x_max;
+            x = a_k;
+		}
+		// End with the minimum value
+        if (iter == 2)
+		{
+            b_k = x_min;
+            x = b_k;
+		}
+        if (iter > 2)
+            x = b_k;
+
+		// Evaluate residual
+        error = Props('P','T',x,'Q',Q,Ref)-p;
+
+		// First time through, store the outputs
+        if(iter == 1)
+		{
+            f_ak = error;
+            b_kn1 = a_k;
+            f_bkn1 = error;
+		}
+        if (iter > 1)
+		{
+            f_bk = error;
+			//Secant solution
+            s = b_k - (b_k - b_kn1) / (f_bk - f_bkn1) * f_bk;
+			//Midpoint solution
+            m = (a_k + b_k) / 2.0;
+
+            if (s > b_k && s < m)
+			{
+                //Use the secant solution
+                b_kp1 = s;
+			}
+            else
+			{
+				//Use the midpoint solution
+                b_kp1 = m;
+			}
+
+            //See if the signs of iterate and contrapoint are the same
+            f_bkp1 = Props('P','T',b_kp1,'Q',Q,Ref)-p;
+
+            if (f_ak / fabs(f_ak) != f_bkp1 / fabs(f_bkp1))
+			{
+                // If a and b have opposite signs, 
+				//  keep the same contrapoint
+                a_kp1 = a_k;
+                f_akp1 = f_ak;
+			}
+            else
+			{
+                //Otherwise, keep the iterate
+                a_kp1 = b_k;
+                f_akp1 = f_bk;
+			}
+
+            if (fabs(f_akp1) < fabs(f_bkp1))
+			{
+                //a_k+1 is a better guess than b_k+1, so swap a and b values
+				swap(&a_kp1, &b_kp1);
+                swap(&f_akp1, &f_bkp1);
+			}
+
+            //Update variables
+            //Old values
+            b_kn1 = b_k;
+            f_bkn1 = f_bk;
+            //values at this iterate
+            b_k = b_kp1;
+            a_k = a_kp1;
+            f_ak = f_akp1;
+            f_bk = f_bkp1;
+		}
+        iter++;
+		if (iter>90 && fabs(error)>eps)
+		{
+			printf("Dekker has failed\n");
+		}
+	}
+	return b_k;
 }

@@ -22,6 +22,7 @@ double rhosatL_R744(double T);
 
 double pcrit_R744(void);
 double Tcrit_R744(void);
+double Ttriple_R744(void);
 
 double hsat_R744(double T,double x);
 double rhosat_R744(double T,double x);

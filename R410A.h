@@ -17,6 +17,7 @@
 
 	double Tcrit_R410A(void);
 	double pcrit_R410A(void);
+	double Ttriple_R410A(void);
 
 	double p_dp_R410A(double T);
 	double p_bp_R410A(double T);

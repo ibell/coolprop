@@ -17,6 +17,7 @@
 
 	double Tcrit_R404A(void);
 	double pcrit_R404A(void);
+	double Ttriple_R404A(void);
 
 	double p_dp_R404A(double T);
 	double p_bp_R404A(double T);

@@ -67,7 +67,7 @@ static double pvec[nP];
 
 static int TablesBuilt;
 
-static const double Tc=126.192, R_Nitrogen=0.296803, rhoc=313.3, Pc=3395.8, M_Nitrogen=28.01348;
+static const double Tc=126.192, R_Nitrogen=0.296803, rhoc=313.3, Pc=3395.8, M_Nitrogen=28.01348,Ttriple=63.151;
              //    K               kJ/kg-K             kg/m^3          kPa
 static const double n[]={0,    
 0.924803575275,//[1]
@@ -624,6 +624,11 @@ double pcrit_Nitrogen(void)
 double Tcrit_Nitrogen(void)
 {
 	return Tc;
+}
+
+double Ttriple_Nitrogen(void)
+{
+	return Ttriple;
 }
 
 int errCode_Nitrogen(void)
@@ -1216,7 +1221,7 @@ static double dphi02_dTau2(double tau, double delta)
 
 static double get_Delta(double T, double P)
 {
-    double change,eps=.000005;
+    double change,eps=1e-8;
     int counter=1;
     double r1,r2,r3,delta1,delta2,delta3;
     double tau;

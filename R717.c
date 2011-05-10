@@ -166,6 +166,7 @@ static const double Tc=405.40; //[K]
 static const double rhoc=225; //[kg/m^3]
 static const double pc=11333; //[kPa]
 static const double R=0.488189; //[kJ/kg-K]
+static const double Ttriple=195.5; //[K]
 // R found from Ru/M, or 8.314471/0.102032/1000
 
 // Function prototypes
@@ -532,6 +533,10 @@ double Tcrit_R717(void)
 {
 	return Tc;
 }
+double Ttriple_R717(void)
+{
+	return Ttriple;
+}
 double MM_R717(void)
 {
 	return M;
@@ -640,7 +645,7 @@ static double Viscosity_Trho(double T, double rho)
 	by A. Fenghour and W.A. Wakeham and V. Vesovic and J.T.R. Watson and J. Millat and E. Vogel
 	J. Phys. Chem. Ref. Data, Vol. 24, No. 5, 1995 
 	*/
-	double sum=0, Tr,k_e=386.0,sigma=0.2957,M=17.03026,sum2=0.0;
+	double sum=0, e_k=386.0,sigma=0.2957,M=17.03026,sum2=0.0;
 	int i,j;
 	double T_star,G_eta_star,eta0,B_eta_star,B_eta,b_1,deltaeta_h;
 	double a[]={4.99318220,-0.61122364,0.0,0.18535124,-0.11160946};
@@ -648,20 +653,26 @@ static double Viscosity_Trho(double T, double rho)
 		0.33414230e5,-0.58711743e5,0.71426686e5,-0.59834012e5,0.33652741e5,
 		-0.12027350e5,0.24348205e4,-0.20807957e3};
 	// indices are backwards from paper
-	double d[5][3]={{0,0.17366936e-2,0.0},{0.0,-0.64250359e-2,0.0},{2.19664285e-1,0.0,1.67668649e-4},{0.0,0.0,-1.49710093e-4},{-0.83651107e-1,0.0,0.77012274e-4}};
+	double d[5][3]={{0,0.17366936e-2,0.0},
+	                {0.0,-0.64250359e-2,0.0},
+	                {2.19664285e-1,0.0,1.67668649e-4},
+	                {0.0,0.0,-1.49710093e-4},
+	                {-0.83651107e-1,0.0,0.77012274e-4}};
 
 	// rho is units of mol/L, so convert the density from kg/m^3 to mol/L (poorly documented in paper)
 	rho=rho/M;
 
-	Tr=T/Tc;
 	sum=0;
-	T_star=T/k_e;
+	T_star=T/e_k;
 	for (i=0;i<=4;i++)
 	{
 		sum+=a[i]*powInt(log(T_star),i);
 	}
 	G_eta_star=exp(sum);
-	eta0=0.021357*sqrt(T*M)/(sigma*sigma*G_eta_star);
+
+	// From REFPROP fluid file: !=0.021357*SQRT(MW)*(unknown factor of 100)  [Chapman-Enskog term]
+	// Seems like there is a typo in Fenghour - or am I missing something?
+	eta0=0.021357*sqrt(T*M)*100/(sigma*sigma*G_eta_star);
 	
 	sum=0;
 	for (i=0;i<=12;i++)
@@ -684,7 +695,6 @@ static double Viscosity_Trho(double T, double rho)
 		sum+=sum2*powInt(rho,i);
 	}
 	deltaeta_h=sum;
-
 	return (eta0+b_1*rho+deltaeta_h)/1e6;
 }
 static double Conductivity_Trho(double T, double rho)

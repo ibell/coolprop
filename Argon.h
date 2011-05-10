@@ -21,6 +21,7 @@
 
 	double pcrit_Argon(void);
 	double Tcrit_Argon(void);
+	double Ttriple_Argon(void);
 
 	double hsat_Argon(double T,double x);
 	double rhosat_Argon(double T,double x);

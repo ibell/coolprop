@@ -3,6 +3,6 @@
 #include "CoolProp.h"
 %}
 
-%include "CoolProp.c"
+%include "CoolProp.h"
 
 

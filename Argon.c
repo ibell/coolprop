@@ -69,8 +69,8 @@ static double pvec[nP];
 
 static int TablesBuilt;
 
-static const double Tc=150.687, R_Argon=0.2081333, rhoc=535.6, Pc=4863.0, M_Argon=39.948;
-             //           K             kJ/kg-K         kg/m^3     kPa             kg/kmol
+static const double Tc=150.687, R_Argon=0.2081333, rhoc=535.6, Pc=4863.0, M_Argon=39.948, Ttriple=83.806;
+             //           K             kJ/kg-K         kg/m^3     kPa            kg/kmol          K
 static const double n[]={0,
 0.088722304990011,//[1]
 0.70514805167298,//[2]
@@ -619,7 +619,10 @@ double Tcrit_Argon(void)
 {
 	return Tc;
 }
-
+double Ttriple_Argon(void)
+{
+	return Ttriple;
+}
 int errCode_Argon(void)
 {
 	return errCode;

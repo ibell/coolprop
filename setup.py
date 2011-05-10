@@ -16,6 +16,10 @@ FloodProp_module = Extension('_FloodProp',
                            'R134a.c','R744.c','R290.c','R410A.c',
                            'Brine.c','R32.c','R717.c','R404A.c','Nitrogen.c','Argon.c'],
                            )
+                           
+HumidAirProp_module = Extension('_HumidAirProp',
+                           sources=['HumidAirProp.i','HumAir.c'],
+                           )                           
 
 setup (name = 'CoolProp',
        version = '1.0',
@@ -25,7 +29,7 @@ setup (name = 'CoolProp',
        description = """Properties of R134a, R744, R410A, R290, R717, R32, R404A and brines""",
        packages = ['CoolProp','CoolProp.Plots'],
        ext_package = 'CoolProp',
-       ext_modules = [CoolProp_module,FloodProp_module],
+       ext_modules = [CoolProp_module,FloodProp_module,HumidAirProp_module],
        package_dir = {'CoolProp':'.'}
        )
 
@@ -35,4 +39,6 @@ if 'install' in sys.argv:
     os.remove('CoolProp_wrap.c')
     os.remove('FloodProp.py')
     os.remove('FloodProp_wrap.c')
+    os.remove('HumidAirProp.py')
+    os.remove('HumidAirProp_wrap.c')
     os.remove('None')

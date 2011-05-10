@@ -254,7 +254,7 @@ static const double Tm=345.27; //[K]
 static const double pm=3734.8; //[MPa--> kPa]
 static const double pc=3720; //[MPa--> kPa] From (Calm 2007 HPAC Engineering)
 static const double rhom=482.163; //4.940*M; //[mol/dm^3--> kg/m^3]
-
+static const double Ttriple=200.0; //[K]
 
 // Local function prototypes
 static double Pressure_Trho(double T, double rho);
@@ -594,7 +594,10 @@ double Tcrit_R404A(void)
 {
 	return Tm;
 }
-
+double Ttriple_R404A(void)
+{
+	return Ttriple;
+}
 double MM_R404A(void)
 {
 	return M;

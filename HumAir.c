@@ -12,9 +12,41 @@
 #include <string.h>
 #include "HumAir.h"
 
+ 
 
+void Help()
+{
+	printf(
+		"First two inputs are always T [K], p [kPa absolute]\n"
+		"Next input tells what the next input is. Codes available:\n"
+		"%d : Dewpoint temperature [K]\n"
+		"%d : Humidity ratio [kg water / kg dry air]\n"
+		"%d : Given wet bulb temperature [K] \n"
+		"%d : Relative humidity in range [0-->1]\n"
+		"%d : Enthalpy in [kJ/kg-K]"
+		,GIVEN_TDP,GIVEN_HUMRAT,GIVEN_TWB,GIVEN_RH,GIVEN_ENTHALPY);
 
-int HumAir1(double tSI, double pSI, int HumInput, double xSI, /* in --- out */ double *Tdp_out, double *W_out, double *h_out, double *RH_out, double *v_out)
+}
+int returnHumAirCode(char * Code)
+{
+	if (!strcmp(Code,"GIVEN_TDP"))
+		return GIVEN_TDP;
+	else if (!strcmp(Code,"GIVEN_HUMRAT"))
+		return GIVEN_HUMRAT;
+	else if (!strcmp(Code,"GIVEN_TWB"))
+		return GIVEN_TWB;
+	else if (!strcmp(Code,"GIVEN_RH"))
+		return GIVEN_RH;
+	else if (!strcmp(Code,"GIVEN_ENTHALPY"))
+		return GIVEN_ENTHALPY;
+	else
+	{
+		fprintf(stderr,"Code to returnHumAirCode in HumAir.c [%s] not understood",Code);
+		return -1;
+	}
+}
+
+static int HumAir1(double tSI, double pSI, int HumInput, double xSI, /* in --- out */ double *Tdp_out, double *W_out, double *h_out, double *RH_out, double *v_out)
 {
 	double t,p,T,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16,c17,c18;
 	double W,td,Td,pw,pws,rh,a,tstar,Tstar,pwsstar,Wsstar,hSI,v;
@@ -207,7 +239,7 @@ double calcpw(double T)
 }
 
 
-int HumAir2(double T, double p, int HumInput, double xSI, /* in --- out */ double *Tdp_out, double *W_out, double *h_out, double *RH_out, double *v_out)
+static int HumAir2(double T, double p, int HumInput, double xSI, /* in --- out */ double *Tdp_out, double *W_out, double *h_out, double *RH_out, double *v_out)
 {
 	double R_a,f,Z_ms,ln_pv,p_w,v_ms,x_as,x_ws,W_s,v_hs,h_ms,v_ss,s_ms,
 		v_a,Z_a,v_ha,h_a,v_sa,s_a,RH,x_wm,x_am,W_m,mu,v_m,h_m,
@@ -356,6 +388,44 @@ int HumAir2(double T, double p, int HumInput, double xSI, /* in --- out */ doubl
 	return 1;
 }
 
+double HumAir_Single(double T, double pSI, char *HumInputStr, double xSI, char *OutputStr)
+{
+	int HumInput;
+	double Tdp_out, w_out, h_out, RH_out, v_out;
+
+	if (!strcmp(HumInputStr,"RH"))
+		HumInput=GIVEN_RH;
+	else if (!strcmp(HumInputStr,"Omega"))
+		HumInput=GIVEN_HUMRAT;
+	else if (!strcmp(HumInputStr,"DewPoint"))
+		HumInput=GIVEN_TDP;
+	else if (!strcmp(HumInputStr,"WetBulb"))
+		HumInput=GIVEN_TWB;
+	else if (!strcmp(HumInputStr,"Enthalpy"))
+		HumInput=GIVEN_ENTHALPY;
+	else
+	{
+		fprintf(stderr,"Type of input [%s] not acceptable in HumAir_Single. Valid values are Omega,RH,WetBulb,DewPoint,Enthalpy.",HumInputStr);
+		return -1;
+	}
+	HumAir(T,pSI,HumInput,xSI,&Tdp_out,&w_out,&h_out,&RH_out,&v_out);
+	if (!strcmp(OutputStr,"RH"))
+		return RH_out;
+	else if (!strcmp(OutputStr,"Omega"))
+		return w_out;
+	else if (!strcmp(OutputStr,"DewPoint"))
+		return Tdp_out;
+	else if (!strcmp(OutputStr,"Enthalpy"))
+		return h_out;
+	else if (!strcmp(OutputStr,"Volume"))
+		return v_out;
+	else
+	{
+		fprintf(stderr,"Type of output [%s] not acceptable in HumAir_Single. Valid values are RH,Omega,DewPoint,Enthalpy,Volume.",OutputStr);
+		return -1;
+	}
+
+}
 int HumAir(double T, double pSI, int HumInput, double xSI, /* in --- out */ double *Tdp_out, double *w_out, double *h_out, double *RH_out, double *v_out)
 {
 	double x1=0,x2=0,x3=0,y1=0,y2=0,eps=1e-8,change=999,f,RH;

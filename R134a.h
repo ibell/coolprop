@@ -17,6 +17,7 @@
 
 	double Tcrit_R134a(void); 
 	double pcrit_R134a(void); 
+	double Ttriple_R134a(void);
 
 	// Derivatives
 	double dhdrho_R134a(double T, double p_rho, int Types);

@@ -19,6 +19,7 @@ double rhosatL_Nitrogen(double T);
 
 double pcrit_Nitrogen(void);
 double Tcrit_Nitrogen(void);
+double Ttriple_Nitrogen(void);
 
 double hsat_Nitrogen(double T,double x);
 double rhosat_Nitrogen(double T,double x);

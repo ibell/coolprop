@@ -17,6 +17,7 @@
 
 	double Tcrit_R32(void); 
 	double pcrit_R32(void); 
+	double Ttriple_R32(void);
 
 	double psat_R32(double T);
 	double rhosatL_R32(double T); 

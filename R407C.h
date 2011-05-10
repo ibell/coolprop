@@ -17,6 +17,7 @@
 
 	double Tcrit_R407C(void);
 	double pcrit_R407C(void);
+	double Ttriple_R407C(void);
 
 	double p_dp_R407C(double T);
 	double p_bp_R407C(double T);

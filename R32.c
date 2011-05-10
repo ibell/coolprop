@@ -172,6 +172,7 @@ static const double Tc=351.255; //[K]
 static const double rhoc=424; //[kg/m^3]
 static const double pc=5784; //[kPa]
 static const double R=0.15982; //[kJ/kg-K]
+static const double Ttriple=136.34; //[K]
 // R found from Ru/M, or 8.314471/0.052024/1000
 
 // Function prototypes
@@ -537,6 +538,10 @@ double pcrit_R32(void)
 double Tcrit_R32(void)
 {
 	return Tc;
+}
+double Ttriple_R32(void)
+{
+	return Ttriple;
 }
 double MM_R32(void)
 {

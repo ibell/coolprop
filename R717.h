@@ -17,6 +17,7 @@
 
 	double Tcrit_R717(void); 
 	double pcrit_R717(void); 
+	double Ttriple_R717(void);
 
 	double psat_R717(double T);
 	double rhosatL_R717(double T); 

@@ -17,6 +17,7 @@
 
 	double Tcrit_R507A(void);
 	double pcrit_R507A(void);
+	double Ttriple_R507A(void);
 
 	double p_dp_R507A(double T);
 	double p_bp_R507A(double T);

@@ -2,7 +2,7 @@
 
 rmdir /S /Q build
 python setup.py build
-python setup.py build --debug
+REM ~ python setup.py build --debug
 python setup.py install 
 
 REM ~ rmdir /S /Q build

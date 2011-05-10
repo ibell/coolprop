@@ -80,6 +80,7 @@
 	// Critical Properties
 	double pcrit(char *Ref);
 	double Tcrit(char *Ref);
+	double Ttriple(char *Ref);
 
 	// Convenience functions
 	double T_hp(char *Ref, double h, double p, double T_guess);
