@@ -51,7 +51,7 @@ static double pvec[nP];
 
 static int TablesBuilt;
 
-static const double Tc=369.89, R_R290=0.188555507, rhoc=220.476, Pc=4251.2, M_R290=44.09562, Ttriple=85.525;
+static const double Tc=369.89, R_R290=0.188556, rhoc=220.4781, Pc=4251.2, M_R290=44.09562, Ttriple=85.525;
              //           K             kJ/kg-K         kg/m^3     kPa            kg/kmol          K
 static const double n[]={0,
 0.042910051,
@@ -95,11 +95,11 @@ static const int d[]={0,
 };
 
 static const double t[]={0.00, //offset for natural indices
-1.0,
+1.00,
 0.33,
-0.8,
+0.80,
 0.43,
-0.9,
+0.90,
 2.46,
 2.09,
 0.88,
@@ -107,11 +107,11 @@ static const double t[]={0.00, //offset for natural indices
 3.25,
 4.62,
 0.76,
-2.5,
+2.50,
 2.75,
 3.05,
 2.55,
-8.4,
+8.40,
 6.75};
 
 static const int c[]={
@@ -895,8 +895,7 @@ static double IntEnergy_Trho(double T, double rho)
 {
     double delta,tau;
     delta=rho/rhoc;
-    tau=Tc/T;
-    
+    tau=Tc/T;	
     return R_R290*T*tau*(dphi0_dTau(tau,delta)+dphir_dTau(tau,delta));
 }
 static double Enthalpy_Trho(double T, double rho)
@@ -904,8 +903,7 @@ static double Enthalpy_Trho(double T, double rho)
     double delta,tau;
     delta=rho/rhoc;
     tau=Tc/T;
-    
-    return R_R290*T*(1+tau*(dphi0_dTau(tau,delta)+dphir_dTau(tau,delta))+delta*dphir_dDelta(tau,delta));
+    return R_R290*T*(1.0+tau*(dphi0_dTau(tau,delta)+dphir_dTau(tau,delta))+delta*dphir_dDelta(tau,delta));
 }
 static double Entropy_Trho(double T, double rho)
 {
@@ -1009,23 +1007,18 @@ static double dphir_dDelta(double tau, double delta)
 { 
     int i;
     double dphir_dDelta=0,psi;
-    double di, ci;
     for (i=1;i<=5;i++)
     {
-        di=(double)d[i];
-        dphir_dDelta=dphir_dDelta+n[i]*di*powI(delta,d[i]-1)*pow(tau,t[i]);
+        dphir_dDelta+=n[i]*powI(delta,d[i]-1)*pow(tau,t[i])*d[i];
     }
     for (i=6;i<=11;i++)
     {
-        di=(double)d[i];
-        ci=(double)c[i];
-        dphir_dDelta=dphir_dDelta+n[i]*exp(-powI(delta,c[i]))*(powI(delta,d[i]-1)*pow(tau,t[i])*(di-ci*powI(delta,c[i])));
+        dphir_dDelta+=n[i]*powI(delta,d[i]-1)*pow(tau,t[i])*exp(-powI(delta,c[i]))*(d[i]-c[i]*powI(delta,c[i]));
     }
     for (i=12;i<=18;i++)
     {
-        di=(double)d[i];        
         psi=exp(-alpha[i]*powI(delta-epsilon[i],2)-beta[i]*powI(tau-GAMMA[i],2));
-        dphir_dDelta=dphir_dDelta+n[i]*powI(delta,d[i])*pow(tau,t[i])*psi*(di/delta-2.0*alpha[i]*(delta-epsilon[i]));
+        dphir_dDelta+=n[i]*powI(delta,d[i]-1)*pow(tau,t[i])*psi*(d[i]-2.0*alpha[i]*delta*(delta-epsilon[i]));
     }
     return dphir_dDelta;
 }
@@ -1105,7 +1098,6 @@ static double dphir_dTau(double tau, double delta)
     }
     return dphir_dTau;
 }
-
 
 static double dphir2_dTau2(double tau, double delta)
 { 

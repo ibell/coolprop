@@ -1,10 +1,12 @@
-from CoolProp.CoolProp import Props,Ttriple,Tcrit
+from CoolProp.CoolProp import Props,Ttriple,Tcrit,Help
 import numpy as np,pylab
 
 def SaturationValidationPlot(Ref,REFPROPRef):
     T=np.linspace(Ttriple(Ref)+0.1,0.99*Tcrit(Ref),1000)
     hL_REFPROP=np.zeros_like(T)
     hV_REFPROP=np.zeros_like(T)
+    uL_REFPROP=np.zeros_like(T)
+    uV_REFPROP=np.zeros_like(T)
     sL_REFPROP=np.zeros_like(T)
     sV_REFPROP=np.zeros_like(T)
     rhoL_REFPROP=np.zeros_like(T)
@@ -18,6 +20,8 @@ def SaturationValidationPlot(Ref,REFPROPRef):
     
     hL=np.zeros_like(T)
     hV=np.zeros_like(T)
+    uL=np.zeros_like(T)
+    uV=np.zeros_like(T)
     sL=np.zeros_like(T)
     sV=np.zeros_like(T)
     rhoL=np.zeros_like(T)
@@ -29,13 +33,18 @@ def SaturationValidationPlot(Ref,REFPROPRef):
     pL=np.zeros_like(T)
     pV=np.zeros_like(T)
     
-    h0=Props('H','T',0.9*Tcrit(Ref),'Q',0,Ref)
-    s0=Props('S','T',0.9*Tcrit(Ref),'Q',0,Ref)
+    rho0=Props('D','T',0.9*Tcrit(Ref),'Q',0,REFPROPRef)
+    h0=Props('H','T',0.9*Tcrit(Ref),'D',rho0,Ref)
+    s0=Props('S','T',0.9*Tcrit(Ref),'D',rho0,Ref)
+    u0=Props('U','T',0.9*Tcrit(Ref),'D',rho0,Ref)
     h0_REFPROP=Props('H','T',0.9*Tcrit(Ref),'Q',0,REFPROPRef)
     s0_REFPROP=Props('S','T',0.9*Tcrit(Ref),'Q',0,REFPROPRef)
+    u0_REFPROP=Props('U','T',0.9*Tcrit(Ref),'Q',0,REFPROPRef)
     for i in range(len(T)):
         hL_REFPROP[i]=Props('H','T',T[i],'Q',0,REFPROPRef)-h0_REFPROP
         hV_REFPROP[i]=Props('H','T',T[i],'Q',1,REFPROPRef)-h0_REFPROP
+        uL_REFPROP[i]=Props('U','T',T[i],'Q',0,REFPROPRef)-u0_REFPROP
+        uV_REFPROP[i]=Props('U','T',T[i],'Q',1,REFPROPRef)-u0_REFPROP
         sL_REFPROP[i]=Props('S','T',T[i],'Q',0,REFPROPRef)-s0_REFPROP
         sV_REFPROP[i]=Props('S','T',T[i],'Q',1,REFPROPRef)-s0_REFPROP
         rhoL_REFPROP[i]=Props('D','T',T[i],'Q',0,REFPROPRef)
@@ -44,23 +53,25 @@ def SaturationValidationPlot(Ref,REFPROPRef):
         viscV_REFPROP[i]=Props('V','T',T[i],'Q',1,REFPROPRef)
         kL_REFPROP[i]=Props('L','T',T[i],'Q',0,REFPROPRef)
         kV_REFPROP[i]=Props('L','T',T[i],'Q',1,REFPROPRef)
-        pL_REFPROP[i]=Props('P','T',T[i],'Q',0,REFPROPRef)
-        pV_REFPROP[i]=Props('P','T',T[i],'Q',1,REFPROPRef)
+        pL_REFPROP[i]=Props('P','T',T[i],'D',rhoL_REFPROP[i],REFPROPRef)
+        pV_REFPROP[i]=Props('P','T',T[i],'D',rhoV_REFPROP[i],REFPROPRef)
         
-        hL[i]=Props('H','T',T[i],'Q',0,Ref)-h0
-        hV[i]=Props('H','T',T[i],'Q',1,Ref)-h0
-        sL[i]=Props('S','T',T[i],'Q',0,Ref)-s0
-        sV[i]=Props('S','T',T[i],'Q',1,Ref)-s0
-        rhoL[i]=Props('D','T',T[i],'Q',0,Ref)
-        rhoV[i]=Props('D','T',T[i],'Q',1,Ref)
-        viscL[i]=Props('V','T',T[i],'Q',0,Ref)
-        viscV[i]=Props('V','T',T[i],'Q',1,Ref)
-        kL[i]=Props('L','T',T[i],'Q',0,Ref)
-        kV[i]=Props('L','T',T[i],'Q',1,Ref)
-        pL[i]=Props('P','T',T[i],'Q',0,Ref)
-        pV[i]=Props('P','T',T[i],'Q',1,Ref)
+        rhoL[i]=Props('D','T',T[i],'Q',0.0,REFPROPRef)
+        rhoV[i]=Props('D','T',T[i],'Q',1.0,REFPROPRef)
+        hL[i]=Props('H','T',T[i],'D',rhoL[i],Ref)-h0
+        hV[i]=Props('H','T',T[i],'D',rhoV[i],Ref)-h0
+        uL[i]=Props('U','T',T[i],'D',rhoL[i],Ref)-u0
+        uV[i]=Props('U','T',T[i],'D',rhoV[i],Ref)-u0
+        sL[i]=Props('S','T',T[i],'D',rhoL[i],Ref)-s0
+        sV[i]=Props('S','T',T[i],'D',rhoV[i],Ref)-s0
+        viscL[i]=Props('V','T',T[i],'D',rhoL[i],Ref)
+        viscV[i]=Props('V','T',T[i],'D',rhoV[i],Ref)
+        kL[i]=Props('L','T',T[i],'D',rhoL[i],Ref)
+        kV[i]=Props('L','T',T[i],'D',rhoV[i],Ref)
+        pL[i]=Props('P','T',T[i],'D',rhoL[i],Ref)
+        pV[i]=Props('P','T',T[i],'D',rhoV[i],Ref)
     
-    nR=6
+    nR=7
     nC=2
     pylab.figure(figsize=(8,12))
     pylab.suptitle(Ref)
@@ -74,45 +85,53 @@ def SaturationValidationPlot(Ref,REFPROPRef):
     ax.plot(T,(rhoV_REFPROP/rhoV-1)*100)
     
     ax=pylab.subplot(nR,nC,3)
-    
-    ax.plot(T,(hL_REFPROP/hL-1)*100)
+    ax.plot(T,(pL_REFPROP/pL-1)*100)
+    ax.set_ylabel('Error: p [$\%$]')
     
     ax=pylab.subplot(nR,nC,4)
-    
-    ax.plot(T,(hV_REFPROP/hV-1)*100)
+    ax.plot(T,(pV_REFPROP/pV-1)*100)
     
     ax=pylab.subplot(nR,nC,5)
-    ax.plot(T,(sL_REFPROP/sL-1)*100)
+    ax.plot(T,(hL_REFPROP/hL-1)*100)
+    ax.set_ylabel('Error: h [$\%$]')
     
     ax=pylab.subplot(nR,nC,6)
-    ax.plot(T,(sV_REFPROP/sV-1)*100)
+    ax.plot(T,(hV_REFPROP/hV-1)*100)
     
     ax=pylab.subplot(nR,nC,7)
-    ax.plot(T,(viscL_REFPROP/viscL-1)*100)
+    ax.plot(T,(uL_REFPROP/uL-1)*100)
+    ax.set_ylabel('Error: u [$\%$]')
     
     ax=pylab.subplot(nR,nC,8)
-    ax.plot(T,(viscV_REFPROP/viscV-1)*100)
+    ax.plot(T,(uV_REFPROP/uV-1)*100)
     
     ax=pylab.subplot(nR,nC,9)
-    ax.plot(T,(kL_REFPROP/kL-1)*100)
+    ax.plot(T,(sL_REFPROP/sL-1)*100)
+    ax.set_ylabel('Error: s [$\%$]')
     
     ax=pylab.subplot(nR,nC,10)
-    ax.plot(T,(kV_REFPROP/kV-1)*100)
+    ax.plot(T,(sV_REFPROP/sV-1)*100)
     
     ax=pylab.subplot(nR,nC,11)
-    ax.plot(T,(pL_REFPROP/pL-1)*100)
+    ax.plot(T,(viscL_REFPROP/viscL-1)*100)
+    ax.set_ylabel('Error: $\mu$ [$\%$]')
     
     ax=pylab.subplot(nR,nC,12)
-    ax.plot(T,(pV_REFPROP/pV-1)*100)
+    ax.plot(T,(viscV_REFPROP/viscV-1)*100)
+    
+    ax=pylab.subplot(nR,nC,13)
+    ax.plot(T,(kL_REFPROP/kL-1)*100)
+    ax.set_ylabel('Error: k [$\%$]')
+    
+    ax=pylab.subplot(nR,nC,14)
+    ax.plot(T,(kV_REFPROP/kV-1)*100)
     
     pylab.show()
     
     
 if __name__=='__main__':
-    SaturationValidationPlot('R290','REFPROP-Propane')
-##     print Props('V','T',100,'D',1.298e-6,'R290')
-##     print Props('S','T',300,'P',1.0,'R290'),Props('S','T',300,'P',1.0,'REFPROP-Propane')
+##     SaturationValidationPlot('R290','REFPROP-Propane')
 ##     SaturationValidationPlot('R717','REFPROP-ammonia')
 ##     SaturationValidationPlot('R744','REFPROP-CO2')
-##     SaturationValidationPlot('Nitrogen','REFPROP-Nitrogen')
-##     SaturationValidationPlot('Argon','REFPROP-Argon')
+    SaturationValidationPlot('Nitrogen','REFPROP-Nitrogen')
+    SaturationValidationPlot('Argon','REFPROP-Argon')

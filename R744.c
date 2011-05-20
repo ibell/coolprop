@@ -57,7 +57,7 @@ static double pvec[nP];
 static int TablesBuilt;
 
 static double alpha[40],beta[43],GAMMA[40],epsilon[40],a[43],b[43],A[43],B[43],C[43],D[43],a0[9],theta0[9];
-static const double Tc=304.128, R_R744=0.1889241, rhoc=467.6, Pc=7377.3, Ttriple=216.59;
+static const double Tc=304.128, R_R744=0.1889241, rhoc=467.606, Pc=7377.3, Ttriple=216.59;
              //    K               kJ/kg-K       kg/m^3          kPa              K
 static const double n[]={0,    
  0.3885682320316100E+00,

@@ -4,6 +4,7 @@ rmdir /S /Q build
 python setup.py build
 REM ~ python setup.py build --debug
 python setup.py install 
+python setup.py bdist_msi
 
 REM ~ rmdir /S /Q build
 
