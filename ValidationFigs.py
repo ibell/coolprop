@@ -2,7 +2,7 @@ from CoolProp.CoolProp import Props,Ttriple,Tcrit,Help
 import numpy as np,pylab
 
 def SaturationValidationPlot(Ref,REFPROPRef):
-    T=np.linspace(Ttriple(Ref)+0.1,0.99*Tcrit(Ref),1000)
+    T=np.linspace(Ttriple(Ref)+0.1,0.99*Tcrit(Ref),100)
     hL_REFPROP=np.zeros_like(T)
     hV_REFPROP=np.zeros_like(T)
     uL_REFPROP=np.zeros_like(T)
@@ -40,7 +40,7 @@ def SaturationValidationPlot(Ref,REFPROPRef):
     h0_REFPROP=Props('H','T',0.9*Tcrit(Ref),'Q',0,REFPROPRef)
     s0_REFPROP=Props('S','T',0.9*Tcrit(Ref),'Q',0,REFPROPRef)
     u0_REFPROP=Props('U','T',0.9*Tcrit(Ref),'Q',0,REFPROPRef)
-    for i in range(len(T)):
+    for i in range(len(T)-1,-1,-1):
         hL_REFPROP[i]=Props('H','T',T[i],'Q',0,REFPROPRef)-h0_REFPROP
         hV_REFPROP[i]=Props('H','T',T[i],'Q',1,REFPROPRef)-h0_REFPROP
         uL_REFPROP[i]=Props('U','T',T[i],'Q',0,REFPROPRef)-u0_REFPROP
@@ -56,8 +56,8 @@ def SaturationValidationPlot(Ref,REFPROPRef):
         pL_REFPROP[i]=Props('P','T',T[i],'D',rhoL_REFPROP[i],REFPROPRef)
         pV_REFPROP[i]=Props('P','T',T[i],'D',rhoV_REFPROP[i],REFPROPRef)
         
-        rhoL[i]=Props('D','T',T[i],'Q',0.0,REFPROPRef)
-        rhoV[i]=Props('D','T',T[i],'Q',1.0,REFPROPRef)
+        rhoL[i]=Props('D','T',T[i],'Q',0.0,Ref)
+        rhoV[i]=Props('D','T',T[i],'Q',1.0,Ref)
         hL[i]=Props('H','T',T[i],'D',rhoL[i],Ref)-h0
         hV[i]=Props('H','T',T[i],'D',rhoV[i],Ref)-h0
         uL[i]=Props('U','T',T[i],'D',rhoL[i],Ref)-u0
@@ -70,6 +70,7 @@ def SaturationValidationPlot(Ref,REFPROPRef):
         kV[i]=Props('L','T',T[i],'D',rhoV[i],Ref)
         pL[i]=Props('P','T',T[i],'D',rhoL[i],Ref)
         pV[i]=Props('P','T',T[i],'D',rhoV[i],Ref)
+        
     
     nR=7
     nC=2
@@ -79,6 +80,7 @@ def SaturationValidationPlot(Ref,REFPROPRef):
     ax=pylab.subplot(nR,nC,1)
     ax.set_title('Sat. Liquid')
     ax.plot(T,(rhoL_REFPROP/rhoL-1)*100)
+    ax.set_ylabel(r'Error: $\rho$ [kg/m$^3$]')
     
     ax=pylab.subplot(nR,nC,2)
     ax.set_title('Sat. Vapor')
@@ -128,10 +130,12 @@ def SaturationValidationPlot(Ref,REFPROPRef):
     
     pylab.show()
     
-    
 if __name__=='__main__':
 ##     SaturationValidationPlot('R290','REFPROP-Propane')
-##     SaturationValidationPlot('R717','REFPROP-ammonia')
+    SaturationValidationPlot('R717','REFPROP-ammonia')
 ##     SaturationValidationPlot('R744','REFPROP-CO2')
-    SaturationValidationPlot('Nitrogen','REFPROP-Nitrogen')
-    SaturationValidationPlot('Argon','REFPROP-Argon')
+
+##   These ones are fully validated
+##     SaturationValidationPlot('R134a','REFPROP-R134a')
+##     SaturationValidationPlot('Nitrogen','REFPROP-Nitrogen')
+##     SaturationValidationPlot('Argon','REFPROP-Argon')

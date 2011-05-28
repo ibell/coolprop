@@ -21,13 +21,21 @@
 
 	double pcrit_R290(void);
 	double Tcrit_R290(void);
+	double rhocrit_R290(void);
 	double Ttriple_R290(void);
 
-	double hsat_R290(double T,double x);
-	double rhosat_R290(double T,double x);
-	double ssat_R290(double T,double x);
-	double psat_R290(double T);
-	double Tsat_R290(double P);
+	//Residual Helmholtz formulation and derivatives
+	double phir_R290(double tau, double delta);
+	double dphir_dDelta_R290(double tau, double delta);
+	double dphir2_dDelta2_R290(double tau, double delta);
+	double dphir2_dDelta_dTau_R290(double tau, double delta);
+	double dphir_dTau_R290(double tau, double delta);
+	double dphir2_dTau2_R290(double tau, double delta);
+	double phi0_R290(double tau, double delta);
+	double dphi0_dDelta_R290(double tau, double delta);
+	double dphi02_dDelta2_R290(double tau, double delta);
+	double dphi0_dTau_R290(double tau, double delta);
+	double dphi02_dTau2_R290(double tau, double delta);
 
 	// Derivatives
 	double dhdrho_R290(double T, double p_rho, int Types);

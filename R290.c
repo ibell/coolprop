@@ -1,7 +1,6 @@
 /* Properties of Propane (R290)
 by Ian Bell
 
-
 In order to call the exposed functions, rho_, h_, s_, cp_,...... there are three 
 different ways the inputs can be passed, and this is expressed by the Types integer flag.  
 These macros are defined in the PropMacros.h header file:
@@ -248,18 +247,11 @@ static double SpecHeatV_Trho(double T, double rho);
 static double SpecHeatP_Trho(double T, double rho);
 static double SpeedSound_Trho(double T, double rho);
 
-
-static double phir(double tau, double delta);
-static double phi0(double tau, double delta);
-static double dphir_dDelta(double tau, double delta);
-static double dphir2_dDelta2(double tau, double delta);
-static double dphir_dTau(double tau, double delta);
-static double dphi0_dDelta(double tau, double delta);
-static double dphi02_dDelta2(double tau, double delta);
-static double dphi0_dTau(double tau, double delta);
-static double dphi02_dTau2(double tau, double delta);
-static double dphir2_dTau2(double tau, double delta);
-static double dphir2_dDelta_dTau(double tau, double delta);
+double hsat_R290(double T,double x);
+double rhosat_R290(double T,double x);
+double ssat_R290(double T,double x);
+double psat_R290(double T);
+double Tsat_R290(double P);
 
 static double dhdT(double tau, double delta);
 static double dhdrho(double tau, double delta);
@@ -576,15 +568,17 @@ double MM_R290(void)
 {
     return M_R290;
 }
-
 double pcrit_R290(void)
 {
     return Pc;
 }
-
 double Tcrit_R290(void)
 {
     return Tc;
+}
+double rhocrit_R290(void)
+{
+	return rhoc;
 }
 double Ttriple_R290(void)
 {
@@ -634,51 +628,6 @@ double Tsat_R290(double P)
     }
     return T3;
 }   
-
-double hsat_R290(double T, double x)
-{
-    double delta,tau;
-    
-    if (x>0.5)
-    {
-        delta=rhosatV_R290(T)/rhoc;
-        tau=Tc/T;
-        return R_R290*T*(1+tau*(dphi0_dTau(tau,delta)+dphir_dTau(tau,delta))+delta*dphir_dDelta(tau,delta));
-    }
-    else
-    {
-        delta=rhosatL_R290(T)/rhoc;
-        tau=Tc/T;
-        return R_R290*T*(1+tau*(dphi0_dTau(tau,delta)+dphir_dTau(tau,delta))+delta*dphir_dDelta(tau,delta));
-    }   
-}
-
-double ssat_R290(double T, double x)
-{
-    double delta,tau;
-    
-    if (x>0.5)
-    {
-        delta=rhosatV_R290(T)/rhoc;
-        tau=Tc/T;
-        return R_R290*(tau*(dphi0_dTau(tau,delta)+dphir_dTau(tau,delta))-phi0(tau,delta)-phir(tau,delta));
-    }
-    else
-    {
-        delta=rhosatL_R290(T)/rhoc;
-        tau=Tc/T;
-        return R_R290*(tau*(dphi0_dTau(tau,delta)+dphir_dTau(tau,delta))-phi0(tau,delta)-phir(tau,delta));
-    }   
-}
-
-double rhosat_R290(double T, double x)
-{
-    
-    if (x>0.5)
-        return rhosatV_R290(T);
-    else
-        return rhosatL_R290(T);
-}
 
 
 double visc_R290(double T, double p_rho, int Types)
@@ -889,21 +838,21 @@ static double Pressure_Trho(double T, double rho)
     double delta,tau;
     delta=rho/rhoc;
     tau=Tc/T;
-    return R_R290*T*rho*(1.0+delta*dphir_dDelta(tau,delta));
+    return R_R290*T*rho*(1.0+delta*dphir_dDelta_R290(tau,delta));
 }
 static double IntEnergy_Trho(double T, double rho)
 {
     double delta,tau;
     delta=rho/rhoc;
     tau=Tc/T;	
-    return R_R290*T*tau*(dphi0_dTau(tau,delta)+dphir_dTau(tau,delta));
+    return R_R290*T*tau*(dphi0_dTau_R290(tau,delta)+dphir_dTau_R290(tau,delta));
 }
 static double Enthalpy_Trho(double T, double rho)
 {
     double delta,tau;
     delta=rho/rhoc;
     tau=Tc/T;
-    return R_R290*T*(1.0+tau*(dphi0_dTau(tau,delta)+dphir_dTau(tau,delta))+delta*dphir_dDelta(tau,delta));
+    return R_R290*T*(1.0+tau*(dphi0_dTau_R290(tau,delta)+dphir_dTau_R290(tau,delta))+delta*dphir_dDelta_R290(tau,delta));
 }
 static double Entropy_Trho(double T, double rho)
 {
@@ -911,7 +860,7 @@ static double Entropy_Trho(double T, double rho)
     delta=rho/rhoc;
     tau=Tc/T;
     
-    return R_R290*(tau*(dphi0_dTau(tau,delta)+dphir_dTau(tau,delta))-phi0(tau,delta)-phir(tau,delta));
+    return R_R290*(tau*(dphi0_dTau_R290(tau,delta)+dphir_dTau_R290(tau,delta))-phi0_R290(tau,delta)-phir_R290(tau,delta));
 }
 static double SpecHeatV_Trho(double T, double rho)
 {
@@ -919,7 +868,7 @@ static double SpecHeatV_Trho(double T, double rho)
     delta=rho/rhoc;
     tau=Tc/T;
     
-    return -R_R290*powI(tau,2)*(dphi02_dTau2(tau,delta)+dphir2_dTau2(tau,delta));
+    return -R_R290*powI(tau,2)*(dphi02_dTau2_R290(tau,delta)+dphir2_dTau2_R290(tau,delta));
 }
 static double SpecHeatP_Trho(double T, double rho)
 {
@@ -927,9 +876,9 @@ static double SpecHeatP_Trho(double T, double rho)
     delta=rho/rhoc;
     tau=Tc/T;
 
-    c1=powI(1.0+delta*dphir_dDelta(tau,delta)-delta*tau*dphir2_dDelta_dTau(tau,delta),2);
-    c2=(1.0+2.0*delta*dphir_dDelta(tau,delta)+powI(delta,2)*dphir2_dDelta2(tau,delta));
-    return R_R290*(-powI(tau,2)*(dphi02_dTau2(tau,delta)+dphir2_dTau2(tau,delta))+c1/c2);
+    c1=powI(1.0+delta*dphir_dDelta_R290(tau,delta)-delta*tau*dphir2_dDelta_dTau_R290(tau,delta),2);
+    c2=(1.0+2.0*delta*dphir_dDelta_R290(tau,delta)+powI(delta,2)*dphir2_dDelta2_R290(tau,delta));
+    return R_R290*(-powI(tau,2)*(dphi02_dTau2_R290(tau,delta)+dphir2_dTau2_R290(tau,delta))+c1/c2);
 }
 
 static double SpeedSound_Trho(double T, double rho)
@@ -939,7 +888,7 @@ static double SpeedSound_Trho(double T, double rho)
     tau=Tc/T;
 
     c1=-SpecHeatV_Trho(T,rho)/R_R290;
-    c2=(1.0+2.0*delta*dphir_dDelta(tau,delta)+powI(delta,2)*dphir2_dDelta2(tau,delta));
+    c2=(1.0+2.0*delta*dphir_dDelta_R290(tau,delta)+powI(delta,2)*dphir2_dDelta2_R290(tau,delta));
     return sqrt(-c2*T*SpecHeatP_Trho(T,rho)*1000/c1);
 }
 
@@ -952,34 +901,34 @@ static double dhdrho(double tau, double delta)
     double T,R;
     T=Tc/tau;   R=R_R290;
     //Note: dphi02_dDelta_dTau(tau,delta) is equal to zero
-    return R*T/rhoc*(tau*(dphir2_dDelta_dTau(tau,delta))+dphir_dDelta(tau,delta)+delta*dphir2_dDelta2(tau,delta));
+    return R*T/rhoc*(tau*(dphir2_dDelta_dTau_R290(tau,delta))+dphir_dDelta_R290(tau,delta)+delta*dphir2_dDelta2_R290(tau,delta));
 }
 static double dhdT(double tau, double delta)
 {
     double dhdT_rho,T,R,dhdtau;
     T=Tc/tau;   R=R_R290;
-    dhdT_rho=R*tau*(dphi0_dTau(tau,delta)+dphir_dTau(tau,delta))+R*delta*dphir_dDelta(tau,delta)+R;
-    dhdtau=R*T*(dphi0_dTau(tau,delta)+ dphir_dTau(tau,delta))+R*T*tau*(dphi02_dTau2(tau,delta)+dphir2_dTau2(tau,delta))+R*T*delta*dphir2_dDelta_dTau(tau,delta);
+    dhdT_rho=R*tau*(dphi0_dTau_R290(tau,delta)+dphir_dTau_R290(tau,delta))+R*delta*dphir_dDelta_R290(tau,delta)+R;
+    dhdtau=R*T*(dphi0_dTau_R290(tau,delta)+ dphir_dTau_R290(tau,delta))+R*T*tau*(dphi02_dTau2_R290(tau,delta)+dphir2_dTau2_R290(tau,delta))+R*T*delta*dphir2_dDelta_dTau_R290(tau,delta);
     return dhdT_rho+dhdtau*(-Tc/T/T);
 }
 static double dpdT(double tau, double delta)
 {
     double T,R,rho;
     T=Tc/tau;   R=R_R290;  rho=delta*rhoc;
-    return rho*R*(1+delta*dphir_dDelta(tau,delta)-delta*tau*dphir2_dDelta_dTau(tau,delta));
+    return rho*R*(1+delta*dphir_dDelta_R290(tau,delta)-delta*tau*dphir2_dDelta_dTau_R290(tau,delta));
 }
 static double dpdrho(double tau, double delta)
 {
     double T,R,rho;
     T=Tc/tau;   R=R_R290;  rho=delta*rhoc;
-    return R*T*(1+2*delta*dphir_dDelta(tau,delta)+delta*delta*dphir2_dDelta2(tau,delta));
+    return R*T*(1+2*delta*dphir_dDelta_R290(tau,delta)+delta*delta*dphir2_dDelta2_R290(tau,delta));
 }
 
 /**************************************************/
 /*          Private Property Functions            */
 /**************************************************/
 
-static double phir(double tau, double delta)
+double phir_R290(double tau, double delta)
 { 
     
     int i;
@@ -1003,7 +952,7 @@ static double phir(double tau, double delta)
     return phir;
 }
 
-static double dphir_dDelta(double tau, double delta)
+double dphir_dDelta_R290(double tau, double delta)
 { 
     int i;
     double dphir_dDelta=0,psi;
@@ -1023,7 +972,7 @@ static double dphir_dDelta(double tau, double delta)
     return dphir_dDelta;
 }
 
-static double dphir2_dDelta2(double tau, double delta)
+double dphir2_dDelta2_R290(double tau, double delta)
 { 
     
     int i;
@@ -1050,7 +999,7 @@ static double dphir2_dDelta2(double tau, double delta)
 }
 
     
-static double dphir2_dDelta_dTau(double tau, double delta)
+double dphir2_dDelta_dTau_R290(double tau, double delta)
 { 
     
     int i;
@@ -1077,7 +1026,7 @@ static double dphir2_dDelta_dTau(double tau, double delta)
     return dphir2_dDelta_dTau;
 }
 
-static double dphir_dTau(double tau, double delta)
+double dphir_dTau_R290(double tau, double delta)
 { 
     
     int i;
@@ -1099,7 +1048,7 @@ static double dphir_dTau(double tau, double delta)
     return dphir_dTau;
 }
 
-static double dphir2_dTau2(double tau, double delta)
+double dphir2_dTau2_R290(double tau, double delta)
 { 
     
     int i;
@@ -1121,7 +1070,7 @@ static double dphir2_dTau2(double tau, double delta)
     return dphir2_dTau2;
 }
 
-static double phi0(double tau, double delta)
+double phi0_R290(double tau, double delta)
 {
     double phi0=0;
     phi0=log(delta)+3*log(tau)+a0[1]+a0[2]*tau
@@ -1132,17 +1081,17 @@ static double phi0(double tau, double delta)
     return phi0;
 }
 
-static double dphi0_dDelta(double tau, double delta)
+double dphi0_dDelta_R290(double tau, double delta)
 {
     return 1/delta;
 }
 
-static double dphi02_dDelta2(double tau, double delta)
+double dphi02_dDelta2_R290(double tau, double delta)
 {
     return -1.0/powI(delta,2);
 }
 
-static double dphi0_dTau(double tau, double delta)
+double dphi0_dTau_R290(double tau, double delta)
 {
     double dphi0_dTau=0;
     dphi0_dTau=3.0/tau+a0[2]
@@ -1153,7 +1102,7 @@ static double dphi0_dTau(double tau, double delta)
     return dphi0_dTau;
 }
 
-static double dphi02_dTau2(double tau, double delta)
+double dphi02_dTau2_R290(double tau, double delta)
 {
     double dphi02_dTau2=0;
     dphi02_dTau2=-3.0/powI(tau,2)
@@ -1203,14 +1152,14 @@ static double get_Delta(double T, double P)
     tau=Tc/T;
     delta1=delta_guess;
     delta2=delta_guess+.00001;
-    r1=P/(delta1*rhoc*R_R290*T)-1.0-delta1*dphir_dDelta(tau,delta1);
-    r2=P/(delta2*rhoc*R_R290*T)-1.0-delta2*dphir_dDelta(tau,delta2);
+    r1=P/(delta1*rhoc*R_R290*T)-1.0-delta1*dphir_dDelta_R290(tau,delta1);
+    r2=P/(delta2*rhoc*R_R290*T)-1.0-delta2*dphir_dDelta_R290(tau,delta2);
     
     // End at change less than 0.05%
     while(counter==1 || (fabs(r2)/delta2>eps && counter<40))
     {
         delta3=delta2-r2/(r2-r1)*(delta2-delta1);
-        r3=P/(delta3*rhoc*R_R290*T)-1.0-delta3*dphir_dDelta(tau,delta3);
+        r3=P/(delta3*rhoc*R_R290*T)-1.0-delta3*dphir_dDelta_R290(tau,delta3);
         change=r2/(r2-r1)*(delta2-delta1);
         delta1=delta2;
         delta2=delta3;

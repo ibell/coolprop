@@ -284,19 +284,6 @@ static double SpecHeatV_Trho(double T, double rho);
 static double SpecHeatP_Trho(double T, double rho);
 static double SpeedSound_Trho(double T, double rho);
 
-
-static double phir(double tau, double delta);
-static double phi0(double tau, double delta);
-static double dphir_dDelta(double tau, double delta);
-static double dphir2_dDelta2(double tau, double delta);
-static double dphir_dTau(double tau, double delta);
-static double dphi0_dDelta(double tau, double delta);
-static double dphi02_dDelta2(double tau, double delta);
-static double dphi0_dTau(double tau, double delta);
-static double dphi02_dTau2(double tau, double delta);
-static double dphir2_dTau2(double tau, double delta);
-static double dphir2_dDelta_dTau(double tau, double delta);
-
 static double dhdT(double tau, double delta);
 static double dhdrho(double tau, double delta);
 static double dpdT(double tau, double delta);
@@ -623,6 +610,10 @@ double Ttriple_Argon(void)
 {
 	return Ttriple;
 }
+double rhocrit_Argon(void)
+{
+	return rhoc;
+}
 int errCode_Argon(void)
 {
 	return errCode;
@@ -666,42 +657,6 @@ double Tsat_Argon(double P)
     }
     return T3;
 }   
-
-double hsat_Argon(double T, double x)
-{
-    double delta,tau;
-    
-    if (x>0.5)
-    {
-        delta=rhosatV_Argon(T)/rhoc;
-        tau=Tc/T;
-        return R_Argon*T*(1+tau*(dphi0_dTau(tau,delta)+dphir_dTau(tau,delta))+delta*dphir_dDelta(tau,delta));
-    }
-    else
-    {
-        delta=rhosatL_Argon(T)/rhoc;
-        tau=Tc/T;
-        return R_Argon*T*(1+tau*(dphi0_dTau(tau,delta)+dphir_dTau(tau,delta))+delta*dphir_dDelta(tau,delta));
-    }   
-}
-
-double ssat_Argon(double T, double x)
-{
-    double delta,tau;
-    
-    if (x>0.5)
-    {
-        delta=rhosatV_Argon(T)/rhoc;
-        tau=Tc/T;
-        return R_Argon*(tau*(dphi0_dTau(tau,delta)+dphir_dTau(tau,delta))-phi0(tau,delta)-phir(tau,delta));
-    }
-    else
-    {
-        delta=rhosatL_Argon(T)/rhoc;
-        tau=Tc/T;
-        return R_Argon*(tau*(dphi0_dTau(tau,delta)+dphir_dTau(tau,delta))-phi0(tau,delta)-phir(tau,delta));
-    }   
-}
 
 double rhosat_Argon(double T, double x)
 {
@@ -763,7 +718,7 @@ static double X_tilde(double T,double tau,double delta)
 	// X_tilde is dimensionless
 	// Equation 11 slightly rewritten
 	double drho_dp;
-	drho_dp=1.0/(R_Argon*T*(1+2*delta*dphir_dDelta(tau,delta)+delta*delta*dphir2_dDelta2(tau,delta)));
+	drho_dp=1.0/(R_Argon*T*(1+2*delta*dphir_dDelta_Argon(tau,delta)+delta*delta*dphir2_dDelta2_Argon(tau,delta)));
 	return Pc*delta/rhoc*drho_dp;
 }
 
@@ -934,7 +889,7 @@ static double Pressure_Trho(double T, double rho)
 	double delta,tau;
 	delta=rho/rhoc;
 	tau=Tc/T;
-	return R_Argon*T*rho*(1.0+delta*dphir_dDelta(tau,delta));
+	return R_Argon*T*rho*(1.0+delta*dphir_dDelta_Argon(tau,delta));
 }
 static double IntEnergy_Trho(double T, double rho)
 {
@@ -942,7 +897,7 @@ static double IntEnergy_Trho(double T, double rho)
 	delta=rho/rhoc;
 	tau=Tc/T;
 	
-	return R_Argon*T*tau*(dphi0_dTau(tau,delta)+dphir_dTau(tau,delta));
+	return R_Argon*T*tau*(dphi0_dTau_Argon(tau,delta)+dphir_dTau_Argon(tau,delta));
 }
 static double Enthalpy_Trho(double T, double rho)
 {
@@ -950,7 +905,7 @@ static double Enthalpy_Trho(double T, double rho)
 	delta=rho/rhoc;
 	tau=Tc/T;
 	
-	return R_Argon*T*(1+tau*(dphi0_dTau(tau,delta)+dphir_dTau(tau,delta))+delta*dphir_dDelta(tau,delta));
+	return R_Argon*T*(1+tau*(dphi0_dTau_Argon(tau,delta)+dphir_dTau_Argon(tau,delta))+delta*dphir_dDelta_Argon(tau,delta));
 }
 static double Entropy_Trho(double T, double rho)
 {
@@ -958,7 +913,7 @@ static double Entropy_Trho(double T, double rho)
 	delta=rho/rhoc;
 	tau=Tc/T;
 	
-	return R_Argon*(tau*(dphi0_dTau(tau,delta)+dphir_dTau(tau,delta))-phi0(tau,delta)-phir(tau,delta));
+	return R_Argon*(tau*(dphi0_dTau_Argon(tau,delta)+dphir_dTau_Argon(tau,delta))-phi0_Argon(tau,delta)-phir_Argon(tau,delta));
 }
 static double SpecHeatV_Trho(double T, double rho)
 {
@@ -966,7 +921,7 @@ static double SpecHeatV_Trho(double T, double rho)
 	delta=rho/rhoc;
 	tau=Tc/T;
 	
-	return -R_Argon*powI(tau,2)*(dphi02_dTau2(tau,delta)+dphir2_dTau2(tau,delta));
+	return -R_Argon*powI(tau,2)*(dphi02_dTau2_Argon(tau,delta)+dphir2_dTau2_Argon(tau,delta));
 }
 static double SpecHeatP_Trho(double T, double rho)
 {
@@ -974,9 +929,9 @@ static double SpecHeatP_Trho(double T, double rho)
 	delta=rho/rhoc;
 	tau=Tc/T;
 
-	c1=powI(1.0+delta*dphir_dDelta(tau,delta)-delta*tau*dphir2_dDelta_dTau(tau,delta),2);
-    c2=(1.0+2.0*delta*dphir_dDelta(tau,delta)+powI(delta,2)*dphir2_dDelta2(tau,delta));
-    return R_Argon*(-powI(tau,2)*(dphi02_dTau2(tau,delta)+dphir2_dTau2(tau,delta))+c1/c2);
+	c1=powI(1.0+delta*dphir_dDelta_Argon(tau,delta)-delta*tau*dphir2_dDelta_dTau_Argon(tau,delta),2);
+    c2=(1.0+2.0*delta*dphir_dDelta_Argon(tau,delta)+powI(delta,2)*dphir2_dDelta2_Argon(tau,delta));
+    return R_Argon*(-powI(tau,2)*(dphi02_dTau2_Argon(tau,delta)+dphir2_dTau2_Argon(tau,delta))+c1/c2);
 }
 
 static double SpeedSound_Trho(double T, double rho)
@@ -986,7 +941,7 @@ static double SpeedSound_Trho(double T, double rho)
 	tau=Tc/T;
 
 	c1=-SpecHeatV_Trho(T,rho)/R_Argon;
-	c2=(1.0+2.0*delta*dphir_dDelta(tau,delta)+powI(delta,2)*dphir2_dDelta2(tau,delta));
+	c2=(1.0+2.0*delta*dphir_dDelta_Argon(tau,delta)+powI(delta,2)*dphir2_dDelta2_Argon(tau,delta));
     return sqrt(-c2*T*SpecHeatP_Trho(T,rho)*1000/c1);
 }
 
@@ -999,34 +954,34 @@ static double dhdrho(double tau, double delta)
 	double T,R;
 	T=Tc/tau;   R=R_Argon;
 	//Note: dphi02_dDelta_dTau(tau,delta) is equal to zero
-	return R*T/rhoc*(tau*(dphir2_dDelta_dTau(tau,delta))+dphir_dDelta(tau,delta)+delta*dphir2_dDelta2(tau,delta));
+	return R*T/rhoc*(tau*(dphir2_dDelta_dTau_Argon(tau,delta))+dphir_dDelta_Argon(tau,delta)+delta*dphir2_dDelta2_Argon(tau,delta));
 }
 static double dhdT(double tau, double delta)
 {
 	double dhdT_rho,T,R,dhdtau;
 	T=Tc/tau;   R=R_Argon;
-	dhdT_rho=R*tau*(dphi0_dTau(tau,delta)+dphir_dTau(tau,delta))+R*delta*dphir_dDelta(tau,delta)+R;
-	dhdtau=R*T*(dphi0_dTau(tau,delta)+ dphir_dTau(tau,delta))+R*T*tau*(dphi02_dTau2(tau,delta)+dphir2_dTau2(tau,delta))+R*T*delta*dphir2_dDelta_dTau(tau,delta);
+	dhdT_rho=R*tau*(dphi0_dTau_Argon(tau,delta)+dphir_dTau_Argon(tau,delta))+R*delta*dphir_dDelta_Argon(tau,delta)+R;
+	dhdtau=R*T*(dphi0_dTau_Argon(tau,delta)+ dphir_dTau_Argon(tau,delta))+R*T*tau*(dphi02_dTau2_Argon(tau,delta)+dphir2_dTau2_Argon(tau,delta))+R*T*delta*dphir2_dDelta_dTau_Argon(tau,delta);
 	return dhdT_rho+dhdtau*(-Tc/T/T);
 }
 static double dpdT(double tau, double delta)
 {
 	double T,R,rho;
 	T=Tc/tau;   R=R_Argon;  rho=delta*rhoc;
-	return rho*R*(1+delta*dphir_dDelta(tau,delta)-delta*tau*dphir2_dDelta_dTau(tau,delta));
+	return rho*R*(1+delta*dphir_dDelta_Argon(tau,delta)-delta*tau*dphir2_dDelta_dTau_Argon(tau,delta));
 }
 static double dpdrho(double tau, double delta)
 {
 	double T,R,rho;
 	T=Tc/tau;   R=R_Argon;  rho=delta*rhoc;
-	return R*T*(1+2*delta*dphir_dDelta(tau,delta)+delta*delta*dphir2_dDelta2(tau,delta));
+	return R*T*(1+2*delta*dphir_dDelta_Argon(tau,delta)+delta*delta*dphir2_dDelta2_Argon(tau,delta));
 }
 
 /**************************************************/
 /*          Private Property Functions            */
 /**************************************************/
 
-static double phir(double tau, double delta)
+double phir_Argon(double tau, double delta)
 { 
     
     int i;
@@ -1050,7 +1005,7 @@ static double phir(double tau, double delta)
     return phir;
 }
 
-static double dphir_dDelta(double tau, double delta)
+double dphir_dDelta_Argon(double tau, double delta)
 { 
     int i;
     double dphir_dDelta=0,psi;
@@ -1075,7 +1030,7 @@ static double dphir_dDelta(double tau, double delta)
     return dphir_dDelta;
 }
 
-static double dphir2_dDelta2(double tau, double delta)
+double dphir2_dDelta2_Argon(double tau, double delta)
 { 
     
     int i;
@@ -1102,7 +1057,7 @@ static double dphir2_dDelta2(double tau, double delta)
 }
 
     
-static double dphir2_dDelta_dTau(double tau, double delta)
+double dphir2_dDelta_dTau_Argon(double tau, double delta)
 { 
     
     int i;
@@ -1129,7 +1084,7 @@ static double dphir2_dDelta_dTau(double tau, double delta)
     return dphir2_dDelta_dTau;
 }
 
-static double dphir_dTau(double tau, double delta)
+double dphir_dTau_Argon(double tau, double delta)
 { 
     
     int i;
@@ -1152,7 +1107,7 @@ static double dphir_dTau(double tau, double delta)
 }
 
 
-static double dphir2_dTau2(double tau, double delta)
+double dphir2_dTau2_Argon(double tau, double delta)
 { 
     
     int i;
@@ -1174,7 +1129,7 @@ static double dphir2_dTau2(double tau, double delta)
     return dphir2_dTau2;
 }
 
-static double phi0(double tau, double delta)
+double phi0_Argon(double tau, double delta)
 {
     double phi0=0;
     
@@ -1182,24 +1137,24 @@ static double phi0(double tau, double delta)
     return phi0;
 }
 
-static double dphi0_dDelta(double tau, double delta)
+double dphi0_dDelta_Argon(double tau, double delta)
 {
     return 1/delta;
 }
 
-static double dphi02_dDelta2(double tau, double delta)
+double dphi02_dDelta2_Argon(double tau, double delta)
 {
     return -1.0/powI(delta,2);
 }
 
-static double dphi0_dTau(double tau, double delta)
+double dphi0_dTau_Argon(double tau, double delta)
 {
     double dphi0_dTau=0;
     dphi0_dTau=a0[2]+1.5/tau;
     return dphi0_dTau;
 }
 
-static double dphi02_dTau2(double tau, double delta)
+double dphi02_dTau2_Argon(double tau, double delta)
 {
     double dphi02_dTau2=0;
     dphi02_dTau2=-1.5/powI(tau,2);
@@ -1245,14 +1200,14 @@ static double get_Delta(double T, double P)
     tau=Tc/T;
     delta1=delta_guess;
     delta2=delta_guess+.00001;
-    r1=P/(delta1*rhoc*R_Argon*T)-1.0-delta1*dphir_dDelta(tau,delta1);
-    r2=P/(delta2*rhoc*R_Argon*T)-1.0-delta2*dphir_dDelta(tau,delta2);
+    r1=P/(delta1*rhoc*R_Argon*T)-1.0-delta1*dphir_dDelta_Argon(tau,delta1);
+    r2=P/(delta2*rhoc*R_Argon*T)-1.0-delta2*dphir_dDelta_Argon(tau,delta2);
     
     // End at change less than 0.05%
     while(counter==1 || (fabs(r2)/delta2>eps && counter<40))
     {
         delta3=delta2-r2/(r2-r1)*(delta2-delta1);
-        r3=P/(delta3*rhoc*R_Argon*T)-1.0-delta3*dphir_dDelta(tau,delta3);
+        r3=P/(delta3*rhoc*R_Argon*T)-1.0-delta3*dphir_dDelta_Argon(tau,delta3);
         change=r2/(r2-r1)*(delta2-delta1);
         delta1=delta2;
         delta2=delta3;

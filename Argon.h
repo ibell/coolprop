@@ -21,13 +21,25 @@
 
 	double pcrit_Argon(void);
 	double Tcrit_Argon(void);
+	double rhocrit_Argon(void);
 	double Ttriple_Argon(void);
 
-	double hsat_Argon(double T,double x);
 	double rhosat_Argon(double T,double x);
-	double ssat_Argon(double T,double x);
 	double psat_Argon(double T);
 	double Tsat_Argon(double P);
+
+	//Residual Helmholtz formulation and derivatives
+	double phir_Argon(double tau, double delta);
+	double dphir_dDelta_Argon(double tau, double delta);
+	double dphir2_dDelta2_Argon(double tau, double delta);
+	double dphir2_dDelta_dTau_Argon(double tau, double delta);
+	double dphir_dTau_Argon(double tau, double delta);
+	double dphir2_dTau2_Argon(double tau, double delta);
+	double phi0_Argon(double tau, double delta);
+	double dphi0_dDelta_Argon(double tau, double delta);
+	double dphi02_dDelta2_Argon(double tau, double delta);
+	double dphi0_dTau_Argon(double tau, double delta);
+	double dphi02_dTau2_Argon(double tau, double delta);
 
 	// Derivatives
 	double dhdrho_Argon(double T, double p_rho, int Types);

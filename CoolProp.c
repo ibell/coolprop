@@ -12,9 +12,7 @@
 #include <stdlib.h>
 #include "string.h"
 #include <stdio.h>
-
 #include "CoolProp.h"
-
 
 // Some constants for REFPROP... defined by macros for ease of use 
 #define refpropcharlength 255
@@ -25,9 +23,178 @@
 #define numparams 72 
 #define maxcoefs 50
 
+double R_u=8.314472; //From Lemmon et al 2009 (propane)
 // Function prototypes
 double _Dekker_Tsat(double x_min, double x_max, double eps, double p, double Q,char *Ref);
+void rhosatPure(double T, double *rhoLout, double *rhoVout, double *pout);
 
+// Global residual Helmholtz derivatives function pointers
+double (*p_func)(double,double);
+double (*h_func)(double,double,int);
+double (*s_func)(double,double,int);
+double (*u_func)(double,double,int);
+double (*rho_func)(double,double,int);
+double (*cp_func)(double,double,int);
+double (*cv_func)(double,double,int);
+double (*visc_func)(double,double,int);
+double (*k_func)(double,double,int);
+double (*w_func)(double,double,int);
+double (*MM_func)(void);
+double (*rhocrit_func)(void);
+double (*Tcrit_func)(void);
+double (*pcrit_func)(void);
+
+// Global residual Helmholtz derivatives function pointers
+double (*phir_func)(double,double);
+double (*dphir_dDelta_func)(double,double);
+double (*dphir2_dDelta2_func)(double,double);
+double (*dphir2_dDelta_dTau_func)(double,double);
+double (*dphir_dTau_func)(double,double);
+double (*dphir2_dTau2_func)(double,double);
+double (*phi0_func)(double,double);
+double (*dphi0_dDelta_func)(double,double);
+double (*dphi02_dDelta2_func)(double,double);
+double (*dphi0_dTau_func)(double,double);
+double (*dphi02_dTau2_func)(double,double);
+
+double (*rhosatV_func)(double);
+double (*rhosatL_func)(double);
+
+void MatInv_2(double A[2][2] , double B[2][2])
+{
+	double Det;
+	//Using Cramer's Rule to solve
+
+	Det=A[0][0]*A[1][1]-A[1][0]*A[0][1];
+	B[0][0]=1.0/Det*A[1][1];
+	B[1][1]=1.0/Det*A[0][0];
+	B[1][0]=-1.0/Det*A[1][0];
+	B[0][1]=-1.0/Det*A[0][1];
+}
+
+double Pressure_Trho(double T, double rho)
+{
+	double delta,tau,R;
+	R=R_u/MM_func();
+	tau=Tcrit_func()/T;
+	delta=rho/rhocrit_func();
+    return R*T*rho*(1.0+delta*dphir_dDelta_func(tau,delta));
+}
+double IntEnergy_Trho(double T, double rho)
+{
+    double delta,tau,R;
+    R=R_u/MM_func();
+	tau=Tcrit_func()/T;
+	delta=rho/rhocrit_func();
+    return R*T*tau*(dphi0_dTau_func(tau,delta)+dphir_dTau_func(tau,delta));
+}
+double Enthalpy_Trho(double T, double rho)
+{
+    double delta,tau,R;
+    R=R_u/MM_func();
+	tau=Tcrit_func()/T;
+	delta=rho/rhocrit_func();
+    return R*T*(1.0+tau*(dphi0_dTau_func(tau,delta)+dphir_dTau_func(tau,delta))+delta*dphir_dDelta_func(tau,delta));
+}
+double Entropy_Trho(double T, double rho)
+{
+    double delta,tau,R;
+    R=R_u/MM_func();
+	tau=Tcrit_func()/T;
+	delta=rho/rhocrit_func();
+    return R*(tau*(dphi0_dTau_func(tau,delta)+dphir_dTau_func(tau,delta))-phi0_func(tau,delta)-phir_func(tau,delta));
+}
+//static double SpecHeatV_Trho(double T, double rho)
+//{
+//    double delta,tau;
+//    delta=rho/rhoc;
+//    tau=Tc/T;
+//    
+//    return -R_R290*powI(tau,2)*(dphi02_dTau2_R290(tau,delta)+dphir2_dTau2_R290(tau,delta));
+//}
+//static double SpecHeatP_Trho(double T, double rho)
+//{
+//    double delta,tau,c1,c2;
+//    delta=rho/rhoc;
+//    tau=Tc/T;
+//
+//    c1=powI(1.0+delta*dphir_dDelta_R290(tau,delta)-delta*tau*dphir2_dDelta_dTau_R290(tau,delta),2);
+//    c2=(1.0+2.0*delta*dphir_dDelta_R290(tau,delta)+powI(delta,2)*dphir2_dDelta2_R290(tau,delta));
+//    return R_R290*(-powI(tau,2)*(dphi02_dTau2_R290(tau,delta)+dphir2_dTau2_R290(tau,delta))+c1/c2);
+//}
+//
+//static double SpeedSound_Trho(double T, double rho)
+//{
+//    double delta,tau,c1,c2;
+//    delta=rho/rhoc;
+//    tau=Tc/T;
+//
+//    c1=-SpecHeatV_Trho(T,rho)/R_R290;
+//    c2=(1.0+2.0*delta*dphir_dDelta_R290(tau,delta)+powI(delta,2)*dphir2_dDelta2_R290(tau,delta));
+//    return sqrt(-c2*T*SpecHeatP_Trho(T,rho)*1000/c1);
+//}
+
+double Gibbs_Trho(double T,double rho)
+{
+	return Enthalpy_Trho(T,rho)-T*Entropy_Trho(T,rho);
+}
+
+double Density_Tp(double T, double p, double rho)
+{
+	double delta,tau,dpdrho,error=999,R,rhoc;
+	R=R_u/MM_func();
+	tau=Tcrit_func()/T;
+	rhoc=rhocrit_func();
+	while (fabs(error)>1e-8)
+	{
+		delta=rho/rhoc;
+		// Use Newton's method to find the saturation density since the derivative of pressure w.r.t. density is known from EOS
+		dpdrho=R*T*(1+2*delta*dphir_dDelta_func(tau,delta)+delta*delta*dphir2_dDelta2_func(tau,delta));
+		// Update the step using Newton's method
+		rho=rho-(Pressure_Trho(T,rho)-p)/dpdrho;
+		// Residual
+		error=Pressure_Trho(T,rho)-p;
+	}		
+	return rho;
+}
+void rhosatPure(double T, double *rhoLout, double *rhoVout, double *pout)
+{
+	// Only works for pure fluids (no blends)
+	// At equilibrium, saturated vapor and saturated liquid are at the same pressure and the same Gibbs energy
+	double rhoL,rhoV,R,tau,p,error=999,x1,x2,x3,y1,y2,f,p_guess;
+	int iter;
+	// Use the density ancillary function as the starting point for the secant solver
+	rhoL=rhosatL_func(T);
+	rhoV=rhosatV_func(T);
+	p_guess=Pressure_Trho(T,rhoV);
+
+	iter=1;
+	// Use a secant method to obtain pressure
+	while ((iter<=3 || error>1e-10) && iter<100)
+	{
+		if (iter==1){x1=p_guess; p=x1;}
+		if (iter==2){x2=1.0001*p_guess; p=x2;}
+		if (iter>2) {p=x2;}
+			//Recalculate the densities based on the current pressure
+			rhoL=Density_Tp(T,p,rhoL);
+			rhoV=Density_Tp(T,p,rhoV);
+			// Residual between saturated liquid and saturated vapor gibbs function
+			f=Gibbs_Trho(T,rhoL)-Gibbs_Trho(T,rhoV);
+		if (iter==1){y1=f;}
+		if (iter>1)
+		{
+			y2=f;
+			x3=x2-y2/(y2-y1)*(x2-x1);
+			error=f;
+			y1=y2; x1=x2; x2=x3;
+		}
+		iter=iter+1;
+	}
+	*rhoLout=rhoL;
+	*rhoVout=rhoV;
+	*pout=p;
+	return;
+}
 
 double SecFluids(char Output, double T, double p,char * Ref)
 {
@@ -644,7 +811,7 @@ void Help()
 
 int Phase(char Name1, double Prop1, char Name2, double Prop2, char * Ref)
 {
-	double h,TsatL,TsatV,T,p;
+	double TsatL,TsatV,T,p;
 	if (Name1!='T')
 		printf("Name1 to Phase must be 'T'\n");
 	if (T>Tcrit(Ref))
@@ -666,6 +833,7 @@ int Phase(char Name1, double Prop1, char Name2, double Prop2, char * Ref)
 			return PHASE_TWOPHASE;
 	}
 }
+
 double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, char * Ref)
 {
 	double T,p,Q,rhoV,rhoL,Value,rho;
@@ -699,23 +867,6 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 	*/
 
 	// Pointers to the functions
-	double (*p_func)(double,double);
-	double (*h_func)(double,double,int);
-	double (*s_func)(double,double,int);
-	double (*u_func)(double,double,int);
-	double (*rho_func)(double,double,int);
-	double (*cp_func)(double,double,int);
-	double (*cv_func)(double,double,int);
-	double (*visc_func)(double,double,int);
-	double (*k_func)(double,double,int);
-	double (*w_func)(double,double,int);
-	double (*rhosatV_func)(double);
-	double (*rhosatL_func)(double);
-	
-	double (*Tc_func)(void);
-	double (*pc_func)(void);
-	double (*MM_func)(void);
-
 	char * (*errCode_func)(void);
 
 	errCode=0;
@@ -785,11 +936,25 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 			visc_func=visc_Argon;
 			k_func=k_Argon;
 			w_func=w_Argon;
-			Tc_func=Tcrit_Argon;
-			pc_func=pcrit_Argon;
+			Tcrit_func=Tcrit_Argon;
+			pcrit_func=pcrit_Argon;
+			rhocrit_func=rhocrit_Argon;
 			MM_func=MM_Argon;
 			rhosatV_func=rhosatV_Argon;
 			rhosatL_func=rhosatL_Argon;
+
+			phir_func=phir_Argon;
+			dphir_dDelta_func=dphir_dDelta_Argon;
+			dphir2_dDelta2_func=dphir2_dDelta2_Argon;
+			dphir2_dDelta_dTau_func=dphir2_dDelta_dTau_Argon;
+			dphir_dTau_func=dphir_dTau_Argon;
+			dphir2_dTau2_func=dphir2_dTau2_Argon;
+			phi0_func=phi0_Argon;
+			dphi0_dDelta_func=dphi0_dDelta_Argon;
+			dphi02_dDelta2_func=dphi02_dDelta2_Argon;
+			dphi0_dTau_func=dphi0_dTau_Argon;
+			dphi02_dTau2_func=dphi02_dTau2_Argon;
+
 		}
 		else if (!strcmp(Ref,"Nitrogen") || !strcmp(Ref,"N2"))
 		{
@@ -803,11 +968,24 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 			visc_func=visc_Nitrogen;
 			k_func=k_Nitrogen;
 			w_func=w_Nitrogen;
-			Tc_func=Tcrit_Nitrogen;
-			pc_func=pcrit_Nitrogen;
+			Tcrit_func=Tcrit_Nitrogen;
+			pcrit_func=pcrit_Nitrogen;
+			rhocrit_func=rhocrit_Nitrogen;
 			MM_func=MM_Nitrogen;
 			rhosatV_func=rhosatV_Nitrogen;
 			rhosatL_func=rhosatL_Nitrogen;
+
+			phir_func=phir_Nitrogen;
+			dphir_dDelta_func=dphir_dDelta_Nitrogen;
+			dphir2_dDelta2_func=dphir2_dDelta2_Nitrogen;
+			dphir2_dDelta_dTau_func=dphir2_dDelta_dTau_Nitrogen;
+			dphir_dTau_func=dphir_dTau_Nitrogen;
+			dphir2_dTau2_func=dphir2_dTau2_Nitrogen;
+			phi0_func=phi0_Nitrogen;
+			dphi0_dDelta_func=dphi0_dDelta_Nitrogen;
+			dphi02_dDelta2_func=dphi02_dDelta2_Nitrogen;
+			dphi0_dTau_func=dphi0_dTau_Nitrogen;
+			dphi02_dTau2_func=dphi02_dTau2_Nitrogen;
 		}
 		else if (!strcmp(Ref,"R744") || !strcmp(Ref,"CO2"))
 		{
@@ -821,11 +999,24 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 			visc_func=visc_R744;
 			k_func=k_R744;
 			w_func=w_R744;
-			Tc_func=Tcrit_R744;
-			pc_func=pcrit_R744;
+			Tcrit_func=Tcrit_R744;
+			pcrit_func=pcrit_R744;
+			rhocrit_func=rhocrit_R744;
 			MM_func=MM_R744;
 			rhosatV_func=rhosatV_R744;
 			rhosatL_func=rhosatL_R744;
+
+			phir_func=phir_R744;
+			dphir_dDelta_func=dphir_dDelta_R744;
+			dphir2_dDelta2_func=dphir2_dDelta2_R744;
+			dphir2_dDelta_dTau_func=dphir2_dDelta_dTau_R744;
+			dphir_dTau_func=dphir_dTau_R744;
+			dphir2_dTau2_func=dphir2_dTau2_R744;
+			phi0_func=phi0_R744;
+			dphi0_dDelta_func=dphi0_dDelta_R744;
+			dphi02_dDelta2_func=dphi02_dDelta2_R744;
+			dphi0_dTau_func=dphi0_dTau_R744;
+			dphi02_dTau2_func=dphi02_dTau2_R744;
 		}
 		
 		else if (!strcmp(Ref,"R134a"))
@@ -840,11 +1031,24 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 			visc_func=visc_R134a;
 			k_func=k_R134a;
 			w_func=w_R134a;
-			Tc_func=Tcrit_R134a;
-			pc_func=pcrit_R134a;
+			Tcrit_func=Tcrit_R134a;
+			pcrit_func=pcrit_R134a;
+			rhocrit_func=rhocrit_R134a;
 			MM_func=MM_R134a;
 			rhosatV_func=rhosatV_R134a;
 			rhosatL_func=rhosatL_R134a;
+			
+			phir_func=phir_R134a;
+			dphir_dDelta_func=dphir_dDelta_R134a;
+			dphir2_dDelta2_func=dphir2_dDelta2_R134a;
+			dphir2_dDelta_dTau_func=dphir2_dDelta_dTau_R134a;
+			dphir_dTau_func=dphir_dTau_R134a;
+			dphir2_dTau2_func=dphir2_dTau2_R134a;
+			phi0_func=phi0_R134a;
+			dphi0_dDelta_func=dphi0_dDelta_R134a;
+			dphi02_dDelta2_func=dphi02_dDelta2_R134a;
+			dphi0_dTau_func=dphi0_dTau_R134a;
+			dphi02_dTau2_func=dphi02_dTau2_R134a;
 		}
 
 		else if (!strcmp(Ref,"R290"))
@@ -859,11 +1063,24 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 			visc_func=visc_R290;
 			k_func=k_R290;
 			w_func=w_R290;
-			Tc_func=Tcrit_R290;
-			pc_func=pcrit_R290;
+			Tcrit_func=Tcrit_R290;
+			pcrit_func=pcrit_R290;
+			rhocrit_func=rhocrit_R290;
 			MM_func=MM_R290;
 			rhosatV_func=rhosatV_R290;
 			rhosatL_func=rhosatL_R290;
+
+			phir_func=phir_R290;
+			dphir_dDelta_func=dphir_dDelta_R290;
+			dphir2_dDelta2_func=dphir2_dDelta2_R290;
+			dphir2_dDelta_dTau_func=dphir2_dDelta_dTau_R290;
+			dphir_dTau_func=dphir_dTau_R290;
+			dphir2_dTau2_func=dphir2_dTau2_R290;
+			phi0_func=phi0_R290;
+			dphi0_dDelta_func=dphi0_dDelta_R290;
+			dphi02_dDelta2_func=dphi02_dDelta2_R290;
+			dphi0_dTau_func=dphi0_dTau_R290;
+			dphi02_dTau2_func=dphi02_dTau2_R290;
 		}
 		else if (!strcmp(Ref,"R717") || !strcmp(Ref,"NH3") || !strcmp(Ref,"Ammonia") || !strcmp(Ref,"ammonia"))
 		{
@@ -877,11 +1094,24 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 			visc_func=visc_R717;
 			k_func=k_R717;
 			w_func=w_R717;
-			Tc_func=Tcrit_R717;
-			pc_func=pcrit_R717;
+			Tcrit_func=Tcrit_R717;
+			pcrit_func=pcrit_R717;
+			rhocrit_func=rhocrit_R717;
 			MM_func=MM_R717;
 			rhosatV_func=rhosatV_R717;
 			rhosatL_func=rhosatL_R717;
+
+			phir_func=phir_R717;
+			dphir_dDelta_func=dphir_dDelta_R717;
+			dphir2_dDelta2_func=dphir2_dDelta2_R717;
+			dphir2_dDelta_dTau_func=dphir2_dDelta_dTau_R717;
+			dphir_dTau_func=dphir_dTau_R717;
+			dphir2_dTau2_func=dphir2_dTau2_R717;
+			phi0_func=phi0_R717;
+			dphi0_dDelta_func=dphi0_dDelta_R717;
+			dphi02_dDelta2_func=dphi02_dDelta2_R717;
+			dphi0_dTau_func=dphi0_dTau_R717;
+			dphi02_dTau2_func=dphi02_dTau2_R717;
 		}
 		else if (!strcmp(Ref,"R32"))
 		{
@@ -895,8 +1125,8 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 			visc_func=visc_R32;
 			k_func=k_R32;
 			w_func=w_R32;
-			Tc_func=Tcrit_R32;
-			pc_func=pcrit_R32;
+			Tcrit_func=Tcrit_R32;
+			pcrit_func=pcrit_R32;
 			MM_func=MM_R32;
 			rhosatV_func=rhosatV_R32;
 			rhosatL_func=rhosatL_R32;
@@ -913,8 +1143,8 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 			visc_func=visc_R410A;
 			k_func=k_R410A;
 			w_func=w_R410A;
-			Tc_func=Tcrit_R410A;
-			pc_func=pcrit_R410A;
+			Tcrit_func=Tcrit_R410A;
+			pcrit_func=pcrit_R410A;
 			MM_func=MM_R410A;
 			rhosatV_func=rhosatV_R410A;
 			rhosatL_func=rhosatL_R410A;
@@ -931,8 +1161,8 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 			visc_func=visc_R404A;
 			k_func=k_R404A;
 			w_func=w_R404A;
-			Tc_func=Tcrit_R404A;
-			pc_func=pcrit_R404A;
+			Tcrit_func=Tcrit_R404A;
+			pcrit_func=pcrit_R404A;
 			MM_func=MM_R404A;
 			rhosatV_func=rhosatV_R404A;
 			rhosatL_func=rhosatL_R404A;
@@ -949,8 +1179,8 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 			visc_func=visc_R407C;
 			k_func=k_R407C;
 			w_func=w_R407C;
-			Tc_func=Tcrit_R407C;
-			pc_func=pcrit_R407C;
+			Tcrit_func=Tcrit_R407C;
+			pcrit_func=pcrit_R407C;
 			MM_func=MM_R407C;
 			rhosatV_func=rhosatV_R407C;
 			rhosatL_func=rhosatL_R407C;
@@ -967,8 +1197,8 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 			visc_func=visc_R507A;
 			k_func=k_R507A;
 			w_func=w_R507A;
-			Tc_func=Tcrit_R507A;
-			pc_func=pcrit_R507A;
+			Tcrit_func=Tcrit_R507A;
+			pcrit_func=pcrit_R507A;
 			MM_func=MM_R507A;
 			rhosatV_func=rhosatV_R507A;
 			rhosatL_func=rhosatL_R507A;
@@ -1005,9 +1235,9 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 				case 'M':
 					Value=MM_func(); break;
 				case 'E':
-					Value=pc_func(); break;
+					Value=pcrit_func(); break;
 				case 'B':
-					Value=Tc_func(); break;
+					Value=Tcrit_func(); break;
 				default:
 					strcpy(errString,"Invalid Output Name");
 					return -100;
@@ -1047,9 +1277,9 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 				case 'M':
 					Value=MM_func(); break;
 				case 'E':
-					Value=pc_func(); break;
+					Value=pcrit_func(); break;
 				case 'B':
-					Value=Tc_func(); break;
+					Value=Tcrit_func(); break;
 				default:
 					strcpy(errString,"Invalid Output Name");
 					return -100;
@@ -1067,8 +1297,17 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 		else if (Name2=='Q')
 		{
 			Q=Prop2;
-			rhoV=rhosatV_func(T);
-			rhoL=rhosatL_func(T);
+
+			if (!strcmp(Ref,"R290") || !strcmp(Ref,"Argon") ||!strcmp(Ref,"Nitrogen")  ||!strcmp(Ref,"R134a") ||!strcmp(Ref,"R717") || !strcmp(Ref,"CO2") || !strcmp(Ref,"R744"))
+			{
+				//printf("calling satDensityPure()\n");
+				rhosatPure(T,&rhoL,&rhoV,&Value);
+			}
+			else
+			{
+				rhoV=rhosatV_func(T);
+				rhoL=rhosatL_func(T);
+			}
 			rho=1/(Q/rhoV+(1-Q)/rhoL);
 
 			switch (Output)
@@ -1105,9 +1344,9 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 				case 'M':
 					Value=MM_func(); break;
 				case 'E':
-					Value=pc_func(); break;
+					Value=pcrit_func(); break;
 				case 'B':
-					Value=Tc_func(); break;
+					Value=Tcrit_func(); break;
 				default:
 					strcpy(errString,"Invalid Output Name");
 					return -100;
@@ -1125,7 +1364,6 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 			fprintf(stderr,"Names of input properties invalid (%c,%c) with refrigerant %s.  Valid choices are T,P or T,Q or T,D",Name1,Name2,Ref);
 			return _HUGE;
 		}
-
 	}
 	else
 	{
@@ -1448,13 +1686,6 @@ double DerivTerms(char *Term,char Name1, double Prop1, char Name2, double Prop2,
 		dpdT=dpdT_R410A;
 		dhdrho=dhdrho_R410A;
 		dpdrho=dpdrho_R410A;
-	}
-	else if (!strcmp(Ref,"R134a") )
-	{
-		dhdT=dhdT_R134a;
-		dpdT=dpdT_R134a;
-		dhdrho=dhdrho_R134a;
-		dpdrho=dpdrho_R134a;
 	}
 	else
 	{

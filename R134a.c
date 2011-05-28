@@ -178,26 +178,8 @@ static double Conductivity_Trho(double T, double rho);
 static double get_Delta(double T, double p);
 static double LookupValue(const char *Prop, double T, double p);
 
-static double phi0(double tau,double delta);
-static double dphi0_ddelta(double tau,double delta);
-static double d2phi0_ddelta2(double tau,double delta);
-static double dphi0_dtau(double tau,double delta);
-static double d2phi0_dtau2(double tau,double delta);
-static double d2phi0_ddelta_dtau(double tau, double delta);
-
-static double phir(double tau,double delta);
-static double dphir_ddelta(double tau, double delta);
-static double d2phir_ddelta2(double tau, double delta);
-static double dphir_dtau(double tau, double delta);
-static double d2phir_dtau2(double tau, double delta);
-static double d2phir_ddelta_dtau(double tau, double delta);
 static double QuadInterp(double x0, double x1, double x2, double f0, double f1, double f2, double x);
 static double powInt(double x, int y);
-
-static double dhdT(double tau, double delta);
-static double dhdrho(double tau, double delta);
-static double dpdT(double tau, double delta);
-static double dpdrho(double tau, double delta);
 
 //Microsoft version of math.h doesn't include acosh.h
 #if defined(_MSC_VER)
@@ -522,7 +504,7 @@ double w_R134a(double T, double p_rho, int Types)
 	tau=Tc/T;
 
 	c1=-SpecHeatV_Trho(T,rho)/R;
-	c2=(1.0+2.0*delta*dphir_ddelta(tau,delta)+delta*delta*d2phir_ddelta2(tau,delta));
+	c2=(1.0+2.0*delta*dphir_dDelta_R134a(tau,delta)+delta*delta*dphir2_dDelta2_R134a(tau,delta));
     return sqrt(-c2*T*SpecHeatP_Trho(T,rho)*1000/c1);
 }
 
@@ -533,6 +515,10 @@ double pcrit_R134a(void)
 double Tcrit_R134a(void)
 {
 	return Tc;
+}
+double rhocrit_R134a(void)
+{
+	return rhoc;
 }
 double Ttriple_R134a(void)
 {
@@ -577,7 +563,7 @@ static double Pressure_Trho(double T, double rho)
 	delta=rho/rhoc;
 	tau=Tc/T;
 	
-	return R*T*rho*(1.0+delta*dphir_ddelta(tau,delta));
+	return R*T*rho*(1.0+delta*dphir_dDelta_R134a(tau,delta));
 }
 static double IntEnergy_Trho(double T, double rho)
 {
@@ -585,7 +571,7 @@ static double IntEnergy_Trho(double T, double rho)
 	delta=rho/rhoc;
 	tau=Tc/T;
 	
-	return R*T*tau*(dphi0_dtau(tau,delta)+dphir_dtau(tau,delta));
+	return R*T*tau*(dphi0_dTau_R134a(tau,delta)+dphir_dTau_R134a(tau,delta));
 }
 static double Enthalpy_Trho(double T, double rho)
 {
@@ -593,7 +579,7 @@ static double Enthalpy_Trho(double T, double rho)
 	delta=rho/rhoc;
 	tau=Tc/T;
 	
-	return R*T*(1.0+tau*(dphi0_dtau(tau,delta)+dphir_dtau(tau,delta))+delta*dphir_ddelta(tau,delta));
+	return R*T*(1.0+tau*(dphi0_dTau_R134a(tau,delta)+dphir_dTau_R134a(tau,delta))+delta*dphir_dDelta_R134a(tau,delta));
 }
 static double Entropy_Trho(double T, double rho)
 {
@@ -601,7 +587,7 @@ static double Entropy_Trho(double T, double rho)
 	delta=rho/rhoc;
 	tau=Tc/T;
 	
-	return R*(tau*(dphi0_dtau(tau,delta)+dphir_dtau(tau,delta))-phi0(tau,delta)-phir(tau,delta));
+	return R*(tau*(dphi0_dTau_R134a(tau,delta)+dphir_dTau_R134a(tau,delta))-phi0_R134a(tau,delta)-phir_R134a(tau,delta));
 }
 static double SpecHeatV_Trho(double T, double rho)
 {
@@ -609,7 +595,7 @@ static double SpecHeatV_Trho(double T, double rho)
 	delta=rho/rhoc;
 	tau=Tc/T;
 	
-	return -R*tau*tau*(d2phi0_dtau2(tau,delta)+d2phir_dtau2(tau,delta));
+	return -R*tau*tau*(dphi02_dTau2_R134a(tau,delta)+dphir2_dTau2_R134a(tau,delta));
 }
 static double SpecHeatP_Trho(double T, double rho)
 {
@@ -617,10 +603,10 @@ static double SpecHeatP_Trho(double T, double rho)
 	delta=rho/rhoc;
 	tau=Tc/T;
 
-	c1=1.0+delta*dphir_ddelta(tau,delta)-delta*tau*d2phir_ddelta_dtau(tau,delta);
-	c2=1.0+2.0*delta*dphir_ddelta(tau,delta)+delta*delta*d2phir_ddelta2(tau,delta);
+	c1=1.0+delta*dphir_dDelta_R134a(tau,delta)-delta*tau*dphir2_dDelta_dTau_R134a(tau,delta);
+	c2=1.0+2.0*delta*dphir_dDelta_R134a(tau,delta)+delta*delta*dphir2_dDelta2_R134a(tau,delta);
 	
-	return R*(-tau*tau*(d2phi0_dtau2(tau,delta)+d2phir_dtau2(tau,delta))+c1*c1/c2);
+	return R*(-tau*tau*(dphi02_dTau2_R134a(tau,delta)+dphir2_dTau2_R134a(tau,delta))+c1*c1/c2);
 }
 static double Viscosity_Trho(double T, double rho)
 {
@@ -682,123 +668,6 @@ static double Conductivity_Trho(double T, double rho)
 	return 2.0547*lambda_r/1e6;
 }
 
-double dhdT_R134a(double T, double p_rho, int Types)
-{
-	double rho;
-	errCode=0; // Reset error code
-	switch(Types)
-	{
-		case TYPE_Trho:
-			rho=p_rho;
-			return dhdT(Tc/T,rho/rhoc);
-		case TYPE_TPNoLookup:
-			rho=get_Delta(T,p_rho)*rhoc;
-			return dhdT(Tc/T,rho/rhoc);
-		case 99:
-			rho=get_Delta(T,p_rho)*rhoc;
-			return (Enthalpy_Trho(T+0.001,rho)-Enthalpy_Trho(T,rho))/0.001;
-		default:
-			errCode=BAD_PROPCODE;
-			return _HUGE;
-	}
-}
-
-double dhdrho_R134a(double T, double p_rho, int Types)
-{
-	double rho;
-	errCode=0; // Reset error code
-	switch(Types)
-	{
-		case TYPE_Trho:
-			rho=p_rho;
-			return dhdrho(Tc/T,rho/rhoc);
-		case TYPE_TPNoLookup:
-			rho=get_Delta(T,p_rho)*rhoc;
-			return dhdrho(Tc/T,rho/rhoc);
-		case 99:
-			rho=get_Delta(T,p_rho)*rhoc;
-			return (Enthalpy_Trho(T,rho+0.001)-Enthalpy_Trho(T,rho))/0.001;
-		default:
-			errCode=BAD_PROPCODE;
-			return _HUGE;
-	}
-}
-
-double dpdT_R134a(double T, double p_rho, int Types)
-{
-	double rho;
-	errCode=0; // Reset error code
-	switch(Types)
-	{
-		case TYPE_Trho:
-			rho=p_rho;
-			return dpdT(Tc/T,rho/rhoc);
-		case TYPE_TPNoLookup:
-			rho=get_Delta(T,p_rho)*rhoc;
-			return dpdT(Tc/T,rho/rhoc);
-		case 99:
-			rho=get_Delta(T,p_rho)*rhoc;
-			return (Pressure_Trho(T+0.01,rho)-Pressure_Trho(T,rho))/0.01;
-		default:
-			errCode=BAD_PROPCODE;
-			return _HUGE;
-	}
-}
-
-double dpdrho_R134a(double T, double p_rho, int Types)
-{
-	double rho;
-	errCode=0; // Reset error code
-	switch(Types)
-	{
-		case TYPE_Trho:
-			rho=p_rho;
-			return dpdrho(Tc/T,rho/rhoc);
-		case TYPE_TPNoLookup:
-			rho=get_Delta(T,p_rho)*rhoc;
-			return dpdrho(Tc/T,rho/rhoc);
-		case 99:
-			rho=get_Delta(T,p_rho)*rhoc;
-			return (Pressure_Trho(T,rho+0.0001)-Pressure_Trho(T,rho))/0.0001;
-		default:
-			errCode=BAD_PROPCODE;
-			return _HUGE;
-	}
-}
-
-
-/**************************************************/
-/*           Property Derivatives                 */
-/**************************************************/
-// See Lemmon, 2000 for more information
-static double dhdrho(double tau, double delta)
-{
-	double T;
-	T=Tc/tau;
-	//Note: dphi02_dDelta_dTau(tau,delta) is equal to zero
-	return R*T/rhoc*(tau*(d2phir_ddelta_dtau(tau,delta))+dphir_ddelta(tau,delta)+delta*d2phir_ddelta2(tau,delta));
-}
-static double dhdT(double tau, double delta)
-{
-	double dhdT_rho,T,dhdtau;
-	T=Tc/tau;   
-	dhdT_rho=R*tau*(dphi0_dtau(tau,delta)+dphir_dtau(tau,delta))+R*delta*dphir_ddelta(tau,delta)+R;
-	dhdtau=R*T*(dphi0_dtau(tau,delta)+ dphir_dtau(tau,delta))+R*T*tau*(d2phi0_dtau2(tau,delta)+d2phir_dtau2(tau,delta))+R*T*delta*d2phir_ddelta_dtau(tau,delta);
-	return dhdT_rho+dhdtau*(-Tc/T/T);
-}
-static double dpdT(double tau, double delta)
-{
-	double T,rho;
-	T=Tc/tau;   rho=delta*rhoc;
-	return rho*R*(1+delta*dphir_ddelta(tau,delta)-delta*tau*d2phir_ddelta_dtau(tau,delta));
-}
-static double dpdrho(double tau, double delta)
-{
-	double T,rho;
-	T=Tc/tau;   rho=delta*rhoc;
-	return R*T*(1+2*delta*dphir_ddelta(tau,delta)+delta*delta*d2phir_ddelta2(tau,delta));
-}
-
 
 //**********************************************
 //                 Derivatives
@@ -806,12 +675,12 @@ static double dpdrho(double tau, double delta)
 
 
 
-static double phi0(double tau,double delta)
+double phi0_R134a(double tau,double delta)
 {
 	return a0[1]+a0[2]*tau+a0[3]*log(tau)+log(delta)+a0[4]*pow(tau,-1.0/2.0)+a0[5]*pow(tau,-3.0/4.0);
 }
 
-static double phir(double tau, double delta)
+double phir_R134a(double tau, double delta)
 {
 	double sum=0;
 	int i;
@@ -836,12 +705,12 @@ static double phir(double tau, double delta)
 	return sum;
 }
 
-static double dphi0_ddelta(double tau,double delta)
+double dphi0_dDelta_R134a(double tau,double delta)
 {
 	return 1.0/delta;
 }
 
-static double dphi0_dtau(double tau,double delta)
+double dphi0_dTau_R134a(double tau,double delta)
 {
 	int j;
 	double sum; 
@@ -852,11 +721,11 @@ static double dphi0_dtau(double tau,double delta)
 	}
 	return sum;
 }
-static double d2phi0_ddelta2(double tau,double delta)
+double dphi02_dDelta2_R134a(double tau,double delta)
 {
 	return -1.0/(delta*delta);
 }
-static double d2phi0_dtau2(double tau,double delta)
+double dphi02_dTau2_R134a(double tau,double delta)
 {
 	int j;
 	double sum;
@@ -867,12 +736,12 @@ static double d2phi0_dtau2(double tau,double delta)
 	}
 	return sum;
 }
-static double d2phi0_ddelta_dtau(double tau, double delta)
+double dphi02_dDelta_dtau_R134a(double tau, double delta)
 {
 	return 0.0;
 }
 
-static double dphir_ddelta(double tau, double delta)
+double dphir_dDelta_R134a(double tau, double delta)
 {
 	double sum=0;
 	int i,k;
@@ -890,7 +759,7 @@ static double dphir_ddelta(double tau, double delta)
 	}
 	return sum;
 }
-static double dphir_dtau(double tau, double delta)
+double dphir_dTau_R134a(double tau, double delta)
 {
 	double sum=0;
 	int i,k;
@@ -909,7 +778,7 @@ static double dphir_dtau(double tau, double delta)
 	}
 	return sum;
 }
-static double d2phir_ddelta2(double tau, double delta)
+double dphir2_dDelta2_R134a(double tau, double delta)
 {
 	double sum=0,d_,k_;
 	int i,k;
@@ -932,7 +801,7 @@ static double d2phir_ddelta2(double tau, double delta)
 	return sum;
 }
 
-static double d2phir_dtau2(double tau, double delta)
+double dphir2_dTau2_R134a(double tau, double delta)
 {
 	double sum=0,d_,k_;
 	int i,k;
@@ -954,7 +823,7 @@ static double d2phir_dtau2(double tau, double delta)
 	return sum;
 }
 
-static double d2phir_ddelta_dtau(double tau, double delta)
+double dphir2_dDelta_dTau_R134a(double tau, double delta)
 {
 	double sum=0,d_,k_;
 	int i,k;
@@ -1004,12 +873,12 @@ static double get_Delta(double T, double p)
 	tau=Tc/T;
     delta1=delta_guess;
     delta2=delta_guess+.001;
-    r1=p/(delta1*rhoc*R*T)-1.0-delta1*dphir_ddelta(tau,delta1);
-    r2=p/(delta2*rhoc*R*T)-1.0-delta2*dphir_ddelta(tau,delta2);
+    r1=p/(delta1*rhoc*R*T)-1.0-delta1*dphir_dDelta_R134a(tau,delta1);
+    r2=p/(delta2*rhoc*R*T)-1.0-delta2*dphir_dDelta_R134a(tau,delta2);
     while(counter==1 || fabs(change)>eps)
     {
         delta3=delta2-r2/(r2-r1)*(delta2-delta1);
-        r3=p/(delta3*rhoc*R*T)-1.0-delta3*dphir_ddelta(tau,delta3);
+        r3=p/(delta3*rhoc*R*T)-1.0-delta3*dphir_dDelta_R134a(tau,delta3);
         change=r2/(r2-r1)*(delta2-delta1);
         delta1=delta2;
         delta2=delta3;
