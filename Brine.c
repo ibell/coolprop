@@ -16,7 +16,7 @@ static double powInt(double x, int y);
 
 // inputs in C, %,
 // outputs in kg/m^3, J/kg-K, mW/m-K, Pa-s
-int Brine(char * Mix, double T, double C, /*in --- out */double *Tfreeze, double *Tmax, double *rho, double *cp, double *k, double *visc)
+int Brine(char * Mix, double T, double C, /*in --- out */double *Tfreeze, double *Tmax, double *rho, double *cp, double *k, double *visc, double *h)
 {
 
 	static double PG[18][5]={
@@ -251,7 +251,7 @@ int Brine(char * Mix, double T, double C, /*in --- out */double *Tfreeze, double
 
 	double (*A)[18][5];
 	double xm,ym,x,y;
-	double f_Tfreeze=0.0, f_rho=0.0,f_cp=0.0,f_k=0.0,f_visc=0.0;
+	double f_Tfreeze=0.0, f_rho=0.0,f_cp=0.0,f_k=0.0,f_visc=0.0,f_h=0.0;
 	/*double Tfreeze, rho,cp,k,visc;*/
 	double Cmin,Cmax;
 	int i;
@@ -297,6 +297,7 @@ int Brine(char * Mix, double T, double C, /*in --- out */double *Tfreeze, double
 		f_cp		+= (*A)[i][2] * powInt((x-xm),a[i][0]) * powInt((y-ym),a[i][1]);
 		f_k			+= (*A)[i][3] * powInt((x-xm),a[i][0]) * powInt((y-ym),a[i][1]);
 		f_visc		+= (*A)[i][4] * powInt((x-xm),a[i][0]) * powInt((y-ym),a[i][1]);
+		f_h         += (*A)[i][2] * powInt((x-xm),a[i][0]) * powInt((y-ym),a[i][1]+1)/(a[i][1]+1);
 	}
 
 	if (T < f_Tfreeze || T > *Tmax)
@@ -307,6 +308,7 @@ int Brine(char * Mix, double T, double C, /*in --- out */double *Tfreeze, double
 		*cp=-2;
 		*k=-2;
 		*visc=-2;
+		*h=-2;
 		return -1;
 	}
 	else
@@ -316,6 +318,7 @@ int Brine(char * Mix, double T, double C, /*in --- out */double *Tfreeze, double
 		*cp=f_cp;
 		*k=f_k;
 		*visc=exp(f_visc);
+		*h=f_h;
 		return 0;
 	}
 }

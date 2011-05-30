@@ -43,6 +43,7 @@ double (*MM_func)(void);
 double (*rhocrit_func)(void);
 double (*Tcrit_func)(void);
 double (*pcrit_func)(void);
+double (*Ttriple_func)(void);
 
 // Global residual Helmholtz derivatives function pointers
 double (*phir_func)(double,double);
@@ -145,7 +146,7 @@ double Density_Tp(double T, double p, double rho)
 	R=R_u/MM_func();
 	tau=Tcrit_func()/T;
 	rhoc=rhocrit_func();
-	while (fabs(error)>1e-8)
+	while (fabs(error)>1e-7)
 	{
 		delta=rho/rhoc;
 		// Use Newton's method to find the saturation density since the derivative of pressure w.r.t. density is known from EOS
@@ -161,7 +162,7 @@ void rhosatPure(double T, double *rhoLout, double *rhoVout, double *pout)
 {
 	// Only works for pure fluids (no blends)
 	// At equilibrium, saturated vapor and saturated liquid are at the same pressure and the same Gibbs energy
-	double rhoL,rhoV,R,tau,p,error=999,x1,x2,x3,y1,y2,f,p_guess;
+	double rhoL,rhoV,p,error=999,x1,x2,x3,y1,y2,f,p_guess;
 	int iter;
 	// Use the density ancillary function as the starting point for the secant solver
 	rhoL=rhosatL_func(T);
@@ -170,7 +171,7 @@ void rhosatPure(double T, double *rhoLout, double *rhoVout, double *pout)
 
 	iter=1;
 	// Use a secant method to obtain pressure
-	while ((iter<=3 || error>1e-10) && iter<100)
+	while ((iter<=3 || error>1e-7) && iter<100)
 	{
 		if (iter==1){x1=p_guess; p=x1;}
 		if (iter==2){x2=1.0001*p_guess; p=x2;}
@@ -189,6 +190,11 @@ void rhosatPure(double T, double *rhoLout, double *rhoVout, double *pout)
 			y1=y2; x1=x2; x2=x3;
 		}
 		iter=iter+1;
+		if (iter>100)
+		{
+			printf("rhosatPure failed, current values of rhoL and rhoV are %g,%g\n",rhoL,rhoV);
+			return;
+		}
 	}
 	*rhoLout=rhoL;
 	*rhoVout=rhoV;
@@ -198,36 +204,10 @@ void rhosatPure(double T, double *rhoLout, double *rhoVout, double *pout)
 
 double SecFluids(char Output, double T, double p,char * Ref)
 {
-	double Tfreeze,Tmax,rho,cp,k,mu,TC,C_gly;
+	double Tfreeze,Tmax,rho,cp,k,mu,h,TC,C_gly;
 	// Temperature and Pressure are the inputs
-		
-	if (!strcmp(Ref,"Water"))
-	{
-		/*
-		Brine() takes inputs of temperature [C]  and secondary fluid concentration in water [mass %]
-		Outputs are freezing temperature [C], density [kg/m^3], Specific Heat [J/kg-K], Conductivity [W/m-K], Viscosity [mPa-s]
-		*/
-		Brine("EG", T - 273.15, 0.0, &Tfreeze, &Tmax, &rho, &cp, &k, &mu);
-		switch(Output)
-		{
-			case 'D':
-				return rho;
-			case 'C':
-				return cp/1000;
-			case 'L':
-				return k/1000;
-			case 'V':
-				return mu / 1000.0;
-			case 'F':
-				return Tfreeze+273.15;
-			case 'M':
-				return Tmax+273.15;
-			default:
-				return _HUGE;
-		}
-	}
 
-	else if (!strcmp(Ref,"HC-10"))
+	if (!strcmp(Ref,"HC-10"))
 	{
 		// Curve fits generated from Microsoft Excel fit of manufacturer data
 		// Input temperature is in deg C
@@ -246,6 +226,8 @@ double SecFluids(char Output, double T, double p,char * Ref)
 				return 263.15;
 			case 'M':
 				return 390;
+			case 'H':
+				return h;
 			default:
 				return _HUGE;
 		}
@@ -276,7 +258,7 @@ double SecFluids(char Output, double T, double p,char * Ref)
 		Brine() takes inputs of temperature [C]  and secondary fluid concentration in water [mass %]
 		Outputs are freezing temperature [C], density [kg/m^3], Specific Heat [J/kg-K], Conductivity [W/m-K], Viscosity [mPa-s]
 		*/
-		Brine("EG", T - 273.15, C_gly, &Tfreeze, &Tmax, &rho, &cp, &k, &mu);
+		Brine("EG", T - 273.15, C_gly, &Tfreeze, &Tmax, &rho, &cp, &k, &mu,&h);
 		switch(Output)
 		{
 			case 'D':
@@ -291,6 +273,8 @@ double SecFluids(char Output, double T, double p,char * Ref)
 				return Tfreeze+273.15;
 			case 'M':
 				return Tmax+273.15;
+			case 'H':
+				return h;
 			default:
 				return _HUGE;
 		}
@@ -320,7 +304,7 @@ double SecFluids(char Output, double T, double p,char * Ref)
 		Brine() takes inputs of temperature [C]  and secondary fluid concentration in water [mass %]
 		Outputs are freezing temperature [C], density [kg/m^3], Specific Heat [J/kg-K], Conductivity [W/m-K], Viscosity [mPa-s]
 		*/
-		Brine("PG", T - 273.15, C_gly, &Tfreeze, &Tmax, &rho, &cp, &k, &mu);
+		Brine("PG", T - 273.15, C_gly, &Tfreeze, &Tmax, &rho, &cp, &k, &mu,&h);
 		switch(Output)
 		{
 			case 'D':
@@ -335,6 +319,8 @@ double SecFluids(char Output, double T, double p,char * Ref)
 				return Tfreeze+273.15;
 			case 'M':
 				return Tmax+273.15;
+			case 'H':
+				return h;
 			default:
 				return _HUGE;
 		}
@@ -360,7 +346,7 @@ double SecFluids(char Output, double T, double p,char * Ref)
 		Brine() takes inputs of temperature [C]  and secondary fluid concentration in water [mass %]
 		Outputs are freezing temperature [C], density [kg/m^3], Specific Heat [J/kg-K], Conductivity [W/m-K], Viscosity [mPa-s]
 		*/
-		Brine("Methanol", T - 273.15, C_gly, &Tfreeze, &Tmax, &rho, &cp, &k, &mu);
+		Brine("Methanol", T - 273.15, C_gly, &Tfreeze, &Tmax, &rho, &cp, &k, &mu,&h);
 		switch(Output)
 		{
 			case 'D':
@@ -375,6 +361,8 @@ double SecFluids(char Output, double T, double p,char * Ref)
 				return Tfreeze+273.15;
 			case 'M':
 				return Tmax+273.15;
+			case 'H':
+				return h;
 			default:
 				return _HUGE;
 		}
@@ -396,7 +384,7 @@ double SecFluids(char Output, double T, double p,char * Ref)
 		Brine() takes inputs of temperature [C]  and secondary fluid concentration in water [mass %]
 		Outputs are freezing temperature [C], density [kg/m^3], Specific Heat [J/kg-K], Conductivity [W/m-K], Viscosity [mPa-s]
 		*/
-		Brine("NH3", T - 273.15, C_gly, &Tfreeze, &Tmax, &rho, &cp, &k, &mu);
+		Brine("NH3", T - 273.15, C_gly, &Tfreeze, &Tmax, &rho, &cp, &k, &mu,&h);
 		switch(Output)
 		{
 			case 'D':
@@ -411,9 +399,15 @@ double SecFluids(char Output, double T, double p,char * Ref)
 				return Tfreeze+273.15;
 			case 'M':
 				return Tmax+273.15;
+			case 'H':
+				return h;
 			default:
 				return _HUGE;
 		}
+	}
+	else
+	{
+		return _HUGE;
 	}
 }
 #if defined(_WIN32) || defined(__WIN32__) //Check if it is a windows machine, if not, hide this function
@@ -426,7 +420,7 @@ double REFPROP(char Output,char Name1, double Prop1, char Name2, double Prop2, c
 	char LoadedREFPROPRef[255];
 	double x[ncmax],xliq[ncmax],xvap[ncmax];
 	char RefString[255];
-	double T,p,d,dl,dv,q,e,h,s,cv,cp,w,MW,hl,hv,sl,sv,ul,uv,pl,pv,eta,tcx,Q,Tcrit,pcrit,dcrit,rho;
+	double T,p=0,d,dl,dv,q,e,h,s,cv,cp,w,MW,hl,hv,sl,sv,ul,uv,pl,pv,eta,tcx,Q,Tcrit,pcrit,dcrit,rho;
 
 	// First create a pointer to an instance of the library
 	// Then have windows load the library.
@@ -806,28 +800,31 @@ void Help()
 	printf("  T      ||      Q\n");
 	printf("  T      ||      D\n");
 
-
 }
 
-int Phase(char Name1, double Prop1, char Name2, double Prop2, char * Ref)
+int Phase(double T, double rho, char * Ref)
 {
-	double TsatL,TsatV,T,p;
-	if (Name1!='T')
-		printf("Name1 to Phase must be 'T'\n");
-	if (T>Tcrit(Ref))
+	double rhosatL,rhosatV,p,Tbubble,Tdew;
+	if (fabs(SecFluids('D',0,0,Ref))<1e10)
+	{
+		//It's a secondary fluid, always subcooled
+		return PHASE_SUBCOOLED;
+	}
+	p=Props('P','T',T,'D',rho,Ref);
+	if (p>pcrit(Ref))
 	{
 		return PHASE_SUPERCRITICAL;
 	}
 	else
 	{
-		if (Prop2=='D')
-			p=Props('P',Name1,Prop1,Name2,Prop2,Ref);
-		TsatV=Tsat(Ref, p, 1.0,T);
-		TsatL=Tsat(Ref, p, 0.0,T);
+		Tbubble=Tsat(Ref, p, 0.0,T);
+		Tdew=Tsat(Ref, p, 1.0,T);
+		rhosatV=Props('D','T',Tdew,'Q',1,Ref);
+		rhosatL=Props('D','T',Tbubble,'Q',0,Ref);
 
-		if (T>TsatV)
+		if (rho<rhosatV)
 			return PHASE_SUPERHEATED;
-		else if (T<TsatV)
+		else if (rho>rhosatL)
 			return PHASE_SUBCOOLED;
 		else
 			return PHASE_TWOPHASE;
@@ -914,12 +911,12 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 	// **********************************************************************************
 
 	// It's a secondary fluid
-	else if (!strcmp(Ref,"Water")|| !strcmp(Ref,"HC-10") || (Ref[0]=='E' && Ref[1]=='G') || 
+	else if (!strcmp(Ref,"HC-10") || (Ref[0]=='E' && Ref[1]=='G') || 
 		(Ref[0]=='P' && Ref[1]=='G') || strncmp(Ref,"Methanol",8)==0 || strncmp(Ref,"NH3/H2O",7)==0)
 	{
 		return SecFluids(Output,Prop1,Prop2,Ref);
 	}
-	else if (Name1=='T' && (Name2=='P' || Name2=='D' || Name2=='Q'))
+	else 
 	{
 		T=Prop1; 
 
@@ -936,6 +933,7 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 			visc_func=visc_Argon;
 			k_func=k_Argon;
 			w_func=w_Argon;
+			Ttriple_func=Ttriple_Argon;
 			Tcrit_func=Tcrit_Argon;
 			pcrit_func=pcrit_Argon;
 			rhocrit_func=rhocrit_Argon;
@@ -968,6 +966,7 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 			visc_func=visc_Nitrogen;
 			k_func=k_Nitrogen;
 			w_func=w_Nitrogen;
+			Ttriple_func=Ttriple_Nitrogen;
 			Tcrit_func=Tcrit_Nitrogen;
 			pcrit_func=pcrit_Nitrogen;
 			rhocrit_func=rhocrit_Nitrogen;
@@ -999,6 +998,7 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 			visc_func=visc_R744;
 			k_func=k_R744;
 			w_func=w_R744;
+			Ttriple_func=Ttriple_R744;
 			Tcrit_func=Tcrit_R744;
 			pcrit_func=pcrit_R744;
 			rhocrit_func=rhocrit_R744;
@@ -1018,7 +1018,38 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 			dphi0_dTau_func=dphi0_dTau_R744;
 			dphi02_dTau2_func=dphi02_dTau2_R744;
 		}
-		
+		else if (!strcmp(Ref,"R718") || !strcmp(Ref,"Water") || !strcmp(Ref,"H2O"))
+		{
+			p_func=p_Water;
+			h_func=h_Water;
+			s_func=s_Water;
+			u_func=u_Water;
+			rho_func=rho_Water;
+			cp_func=cp_Water;
+			cv_func=cv_Water;
+			visc_func=visc_Water;
+			k_func=k_Water;
+			w_func=w_Water;
+			Ttriple_func=Ttriple_Water;
+			Tcrit_func=Tcrit_Water;
+			pcrit_func=pcrit_Water;
+			rhocrit_func=rhocrit_Water;
+			MM_func=MM_Water;
+			rhosatV_func=rhosatV_Water;
+			rhosatL_func=rhosatL_Water;
+
+			phir_func=phir_Water;
+			dphir_dDelta_func=dphir_dDelta_Water;
+			dphir2_dDelta2_func=dphir2_dDelta2_Water;
+			dphir2_dDelta_dTau_func=dphir2_dDelta_dTau_Water;
+			dphir_dTau_func=dphir_dTau_Water;
+			dphir2_dTau2_func=dphir2_dTau2_Water;
+			phi0_func=phi0_Water;
+			dphi0_dDelta_func=dphi0_dDelta_Water;
+			dphi02_dDelta2_func=dphi02_dDelta2_Water;
+			dphi0_dTau_func=dphi0_dTau_Water;
+			dphi02_dTau2_func=dphi02_dTau2_Water;
+		}
 		else if (!strcmp(Ref,"R134a"))
 		{
 			p_func=p_R134a;
@@ -1031,6 +1062,7 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 			visc_func=visc_R134a;
 			k_func=k_R134a;
 			w_func=w_R134a;
+			Ttriple_func=Ttriple_R134a;
 			Tcrit_func=Tcrit_R134a;
 			pcrit_func=pcrit_R134a;
 			rhocrit_func=rhocrit_R134a;
@@ -1063,6 +1095,7 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 			visc_func=visc_R290;
 			k_func=k_R290;
 			w_func=w_R290;
+			Ttriple_func=Ttriple_R290;
 			Tcrit_func=Tcrit_R290;
 			pcrit_func=pcrit_R290;
 			rhocrit_func=rhocrit_R290;
@@ -1094,6 +1127,7 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 			visc_func=visc_R717;
 			k_func=k_R717;
 			w_func=w_R717;
+			Ttriple_func=Ttriple_R717;
 			Tcrit_func=Tcrit_R717;
 			pcrit_func=pcrit_R717;
 			rhocrit_func=rhocrit_R717;
@@ -1125,6 +1159,7 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 			visc_func=visc_R32;
 			k_func=k_R32;
 			w_func=w_R32;
+			Ttriple_func=Ttriple_R32;
 			Tcrit_func=Tcrit_R32;
 			pcrit_func=pcrit_R32;
 			MM_func=MM_R32;
@@ -1143,6 +1178,7 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 			visc_func=visc_R410A;
 			k_func=k_R410A;
 			w_func=w_R410A;
+			Ttriple_func=Ttriple_R410A;
 			Tcrit_func=Tcrit_R410A;
 			pcrit_func=pcrit_R410A;
 			MM_func=MM_R410A;
@@ -1161,6 +1197,7 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 			visc_func=visc_R404A;
 			k_func=k_R404A;
 			w_func=w_R404A;
+			Ttriple_func=Ttriple_R404A;
 			Tcrit_func=Tcrit_R404A;
 			pcrit_func=pcrit_R404A;
 			MM_func=MM_R404A;
@@ -1179,6 +1216,7 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 			visc_func=visc_R407C;
 			k_func=k_R407C;
 			w_func=w_R407C;
+			Ttriple_func=Ttriple_R407C;
 			Tcrit_func=Tcrit_R407C;
 			pcrit_func=pcrit_R407C;
 			MM_func=MM_R407C;
@@ -1197,6 +1235,7 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 			visc_func=visc_R507A;
 			k_func=k_R507A;
 			w_func=w_R507A;
+			Ttriple_func=Ttriple_R507A;
 			Tcrit_func=Tcrit_R507A;
 			pcrit_func=pcrit_R507A;
 			MM_func=MM_R507A;
@@ -1206,194 +1245,180 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 		else
 		{
 			fprintf(stderr,"Refrigerant %s not allowed\n",Ref);
+			return _HUGE;
 		}
 
-		// Temperature and Pressure are the inputs
-		if (Name2=='P')
+		if (Name1=='T' && (Name2=='P' || Name2=='D' || Name2=='Q'))
 		{
-			p=Prop2;
-			switch (Output)
+			// Temperature and Pressure are the inputs
+			if (Name2=='P')
 			{
-				case 'H':
-					Value=h_func(T,p,TYPE_TPNoLookup); break;
-				case 'D':
-					Value=rho_func(T,p,TYPE_TPNoLookup); break;
-				case 'S':
-					Value=s_func(T,p,TYPE_TPNoLookup); break;
-				case 'U':
-					Value=u_func(T,p,TYPE_TPNoLookup); break;
-				case 'C':
-					Value=cp_func(T,p,TYPE_TPNoLookup); break;
-				case 'O':
-					Value=cv_func(T,p,TYPE_TPNoLookup); break;
-				case 'V':
-					Value=visc_func(T,p,TYPE_TPNoLookup); break;
-				case 'L':
-					Value=k_func(T,p,TYPE_TPNoLookup); break;
-				case 'A':
-					Value=w_func(T,p,TYPE_TPNoLookup); break;
-				case 'M':
-					Value=MM_func(); break;
-				case 'E':
-					Value=pcrit_func(); break;
-				case 'B':
-					Value=Tcrit_func(); break;
-				default:
-					strcpy(errString,"Invalid Output Name");
-					return -100;
+				p=Prop2;
+				switch (Output)
+				{
+					case 'H':
+						Value=h_func(T,p,TYPE_TPNoLookup); break;
+					case 'D':
+						Value=rho_func(T,p,TYPE_TPNoLookup); break;
+					case 'S':
+						Value=s_func(T,p,TYPE_TPNoLookup); break;
+					case 'U':
+						Value=u_func(T,p,TYPE_TPNoLookup); break;
+					case 'C':
+						Value=cp_func(T,p,TYPE_TPNoLookup); break;
+					case 'O':
+						Value=cv_func(T,p,TYPE_TPNoLookup); break;
+					case 'V':
+						Value=visc_func(T,p,TYPE_TPNoLookup); break;
+					case 'L':
+						Value=k_func(T,p,TYPE_TPNoLookup); break;
+					case 'A':
+						Value=w_func(T,p,TYPE_TPNoLookup); break;
+					case 'M':
+						Value=MM_func(); break;
+					case 'E':
+						Value=pcrit_func(); break;
+					case 'B':
+						Value=Tcrit_func(); break;
+					case 'R':
+						Value=Ttriple_func(); break;
+					default:
+						strcpy(errString,"Invalid Output Name");
+						return -100;
+				}
+			/*	if (errCode_R410A()!=0)
+				{
+					printf("Ref error code %d found\n",Ref, errCode_func());
+					return _HUGE;
+				}*/
+				//else
+					return Value;
 			}
-		/*	if (errCode_R410A()!=0)
+			// Temperature and density are the inputs
+			else if (Name2=='D')
 			{
-				printf("Ref error code %d found\n",Ref, errCode_func());
-				return _HUGE;
-			}*/
-			//else
+				rho=Prop2;
+				switch (Output)
+				{
+
+					case 'P':
+						Value=p_func(T,rho); break;
+					case 'H':
+						Value=h_func(T,rho,TYPE_Trho); break;
+					case 'S':
+						Value=s_func(T,rho,TYPE_Trho); break;
+					case 'U':
+						Value=u_func(T,rho,TYPE_Trho); break;
+					case 'C':
+						Value=cp_func(T,rho,TYPE_Trho); break;
+					case 'O':
+						Value=cv_func(T,rho,TYPE_Trho); break;
+					case 'V':
+						Value=visc_func(T,rho,TYPE_Trho); break;
+					case 'L':
+						Value=k_func(T,rho,TYPE_Trho); break;
+					case 'A':
+						Value=w_func(T,rho,TYPE_Trho); break;
+					case 'M':
+						Value=MM_func(); break;
+					case 'E':
+						Value=pcrit_func(); break;
+					case 'B':
+						Value=Tcrit_func(); break;
+					case 'R':
+						Value=Ttriple_func(); break;
+					default:
+						strcpy(errString,"Invalid Output Name");
+						return -100;
+				}
+				/*if (errCode_func()!=0)
+				{
+					printf("%s error code %d found\n",Ref,errCode_func());
+					return _HUGE;
+				}*/
+				//else
+					return Value;
+			}
+
+			// Temperature and quality are the inputs
+			else if (Name2=='Q')
+			{
+				Q=Prop2;
+				if (!strcmp(Ref,"R290") || !strcmp(Ref,"Argon") ||!strcmp(Ref,"Nitrogen")  ||!strcmp(Ref,"R134a") ||!strcmp(Ref,"R717") || !strcmp(Ref,"CO2") || !strcmp(Ref,"R744") || !strcmp(Ref,"Water") )
+				{
+					//printf("calling satDensityPure()\n");
+					rhosatPure(T,&rhoL,&rhoV,&Value);
+				}
+				else
+				{
+					rhoV=rhosatV_func(T);
+					rhoL=rhosatL_func(T);
+				}
+				rho=1/(Q/rhoV+(1-Q)/rhoL);
+
+				switch (Output)
+				{
+					case 'P':
+						Value=Q*p_func(T,rhoV)+(1-Q)*p_func(T,rhoL); 
+						break;
+					case 'H':
+						Value=Q*h_func(T,rhoV,TYPE_Trho)+(1-Q)*h_func(T,rhoL,TYPE_Trho); 
+						break;
+					case 'D':
+						Value=rho; break;
+					case 'S':
+						Value=Q*s_func(T,rhoV,TYPE_Trho)+(1-Q)*s_func(T,rhoL,TYPE_Trho); 
+						break;
+					case 'U':
+						Value=Q*u_func(T,rhoV,TYPE_Trho)+(1-Q)*u_func(T,rhoL,TYPE_Trho); 
+						break;
+					case 'C':
+						Value=Q*cp_func(T,rhoV,TYPE_Trho)+(1-Q)*cp_func(T,rhoL,TYPE_Trho); 
+						break;
+					case 'O':
+						Value=Q*cv_func(T,rhoV,TYPE_Trho)+(1-Q)*cv_func(T,rhoL,TYPE_Trho); 
+						break;
+					case 'V':
+						Value=Q*visc_func(T,rhoV,TYPE_Trho)+(1-Q)*visc_func(T,rhoL,TYPE_Trho); 
+						break;
+					case 'L':
+						Value=Q*k_func(T,rhoV,TYPE_Trho)+(1-Q)*k_func(T,rhoL,TYPE_Trho); 
+						break;
+					case 'A':
+						Value=Q*w_func(T,rhoV,TYPE_Trho)+(1-Q)*w_func(T,rhoL,TYPE_Trho); 
+						break;
+					case 'M':
+						Value=MM_func(); break;
+					case 'E':
+						Value=pcrit_func(); break;
+					case 'B':
+						Value=Tcrit_func(); break;
+					case 'R':
+						Value=Ttriple_func(); break;
+					default:
+						strcpy(errString,"Invalid Output Name");
+						return -100;
+				}
 				return Value;
+			}
 		}
-		// Temperature and density are the inputs
-		else if (Name2=='D')
+		else if (Name1=='P' && Name2=='Q')
 		{
-			rho=Prop2;
-			switch (Output)
-			{
-				case 'P':
-					Value=p_func(T,rho); break;
-				case 'H':
-					Value=h_func(T,rho,TYPE_Trho); break;
-				case 'S':
-					Value=s_func(T,rho,TYPE_Trho); break;
-				case 'U':
-					Value=u_func(T,rho,TYPE_Trho); break;
-				case 'C':
-					Value=cp_func(T,rho,TYPE_Trho); break;
-				case 'O':
-					Value=cv_func(T,rho,TYPE_Trho); break;
-				case 'V':
-					Value=visc_func(T,rho,TYPE_Trho); break;
-				case 'L':
-					Value=k_func(T,rho,TYPE_Trho); break;
-				case 'A':
-					Value=w_func(T,rho,TYPE_Trho); break;
-				case 'M':
-					Value=MM_func(); break;
-				case 'E':
-					Value=pcrit_func(); break;
-				case 'B':
-					Value=Tcrit_func(); break;
-				default:
-					strcpy(errString,"Invalid Output Name");
-					return -100;
-			}
-			/*if (errCode_func()!=0)
-			{
-				printf("%s error code %d found\n",Ref,errCode_func());
-				return _HUGE;
-			}*/
-			//else
-				return Value;
-		}
-
-		// Temperature and quality are the inputs
-		else if (Name2=='Q')
-		{
-			Q=Prop2;
-
-			if (!strcmp(Ref,"R290") || !strcmp(Ref,"Argon") ||!strcmp(Ref,"Nitrogen")  ||!strcmp(Ref,"R134a") ||!strcmp(Ref,"R717") || !strcmp(Ref,"CO2") || !strcmp(Ref,"R744"))
-			{
-				//printf("calling satDensityPure()\n");
-				rhosatPure(T,&rhoL,&rhoV,&Value);
-			}
-			else
-			{
-				rhoV=rhosatV_func(T);
-				rhoL=rhosatL_func(T);
-			}
-			rho=1/(Q/rhoV+(1-Q)/rhoL);
-
-			switch (Output)
-			{
-				case 'P':
-					Value=Q*p_func(T,rhoV)+(1-Q)*p_func(T,rhoL); 
-					break;
-				case 'H':
-					Value=Q*h_func(T,rhoV,TYPE_Trho)+(1-Q)*h_func(T,rhoL,TYPE_Trho); 
-					break;
-				case 'D':
-					Value=rho; break;
-				case 'S':
-					Value=Q*s_func(T,rhoV,TYPE_Trho)+(1-Q)*s_func(T,rhoL,TYPE_Trho); 
-					break;
-				case 'U':
-					Value=Q*u_func(T,rhoV,TYPE_Trho)+(1-Q)*u_func(T,rhoL,TYPE_Trho); 
-					break;
-				case 'C':
-					Value=Q*cp_func(T,rhoV,TYPE_Trho)+(1-Q)*cp_func(T,rhoL,TYPE_Trho); 
-					break;
-				case 'O':
-					Value=Q*cv_func(T,rhoV,TYPE_Trho)+(1-Q)*cv_func(T,rhoL,TYPE_Trho); 
-					break;
-				case 'V':
-					Value=Q*visc_func(T,rhoV,TYPE_Trho)+(1-Q)*visc_func(T,rhoL,TYPE_Trho); 
-					break;
-				case 'L':
-					Value=Q*k_func(T,rhoV,TYPE_Trho)+(1-Q)*k_func(T,rhoL,TYPE_Trho); 
-					break;
-				case 'A':
-					Value=Q*w_func(T,rhoV,TYPE_Trho)+(1-Q)*w_func(T,rhoL,TYPE_Trho); 
-					break;
-				case 'M':
-					Value=MM_func(); break;
-				case 'E':
-					Value=pcrit_func(); break;
-				case 'B':
-					Value=Tcrit_func(); break;
-				default:
-					strcpy(errString,"Invalid Output Name");
-					return -100;
-			}
-			/*if (errCode_func()!=0)
-			{
-				printf("%s error code %d found\n",Ref,errCode_func());
-				return _HUGE;
-			}
-			else*/
-				return Value;
+			T=Tsat(Ref,Prop1,Prop2,0);
+			return Props(Output,'T',T,'Q',Prop2,Ref);
 		}
 		else
 		{
-			fprintf(stderr,"Names of input properties invalid (%c,%c) with refrigerant %s.  Valid choices are T,P or T,Q or T,D",Name1,Name2,Ref);
+			fprintf(stderr,"Names of input properties invalid (%c,%c) with refrigerant %s.  Valid choices are T,P or T,Q or T,D or P,Q",Name1,Name2,Ref);
 			return _HUGE;
 		}
-	}
-	else
-	{
-		fprintf(stderr,"Names of input properties invalid (%c,%c).  Valid choices are T,P or T,Q or T,D",Name1,Name2);
-		return _HUGE;
 	}
 }
 
 double pcrit(char *Ref)
 {
-	if (!strcmp(Ref,"R134a"))
-		return pcrit_R134a();
-	else if (!strcmp(Ref,"R290"))
-		return pcrit_R290();
-	else if (!strcmp(Ref,"R744"))
-		return pcrit_R744();
-	else if (!strcmp(Ref,"R410A"))
-		return pcrit_R410A();
-	else if (!strcmp(Ref,"R404A"))
-		return pcrit_R404A();
-	else if (!strcmp(Ref,"R717"))
-		return pcrit_R717();
-	else if (!strcmp(Ref,"R32"))
-		return pcrit_R32();
-	else if (!strcmp(Ref,"Nitrogen"))
-		return pcrit_Nitrogen();
-	else if (!strcmp(Ref,"Argon"))
-		return pcrit_Argon();
 	#if defined(_WIN32) || defined(__WIN32__) 
-	else if (strncmp(Ref,"REFPROP-",8)==0)  // First eight characters match "REFPROP-"
+	if (strncmp(Ref,"REFPROP-",8)==0)  // First eight characters match "REFPROP-"
 	{
 		char *REFPROPRef=NULL,*RefCopy=NULL;
 		double pcrit;
@@ -1406,33 +1431,18 @@ double pcrit(char *Ref)
 		free(RefCopy);
 		return pcrit;
 	}
+	#else
+	if (0) // Automatically skip it because REFPROP is not supported on this platform
 	#endif
-	else
-		return _HUGE;
+	else{
+		return Props('E','T',0.0,'Q',0.0,Ref);
+	}
 }
 
 double Tcrit(char *Ref)
 {
-	if (!strcmp(Ref,"R134a"))
-		return Tcrit_R134a();
-	else if (!strcmp(Ref,"R290"))
-		return Tcrit_R290();
-	else if (!strcmp(Ref,"R744"))
-		return Tcrit_R744();
-	else if (!strcmp(Ref,"R410A"))
-		return Tcrit_R410A();
-	else if (!strcmp(Ref,"R404A"))
-		return Tcrit_R404A();
-	else if (!strcmp(Ref,"R717"))
-		return Tcrit_R717();
-	else if (!strcmp(Ref,"R32"))
-		return Tcrit_R32();
-	else if (!strcmp(Ref,"Nitrogen"))
-		return Tcrit_Nitrogen();
-	else if (!strcmp(Ref,"Argon"))
-		return Tcrit_Argon();
 	#if defined(_WIN32) || defined(__WIN32__) 
-	else if (strncmp(Ref,"REFPROP-",8)==0)  // First eight characters match "REFPROP-"
+	if (strncmp(Ref,"REFPROP-",8)==0)  // First eight characters match "REFPROP-"
 	{
 		char *REFPROPRef=NULL,*RefCopy=NULL;
 		double Tcrit;
@@ -1445,32 +1455,18 @@ double Tcrit(char *Ref)
 		free(RefCopy);
 		return Tcrit;
 	}
+	#else
+	if (0) // Automatically skip it because REFPROP is not supported on this platform
 	#endif
 	else
-		return _HUGE;
+	{
+		return Props('B','T',0.0,'Q',0.0,Ref);
+	}
 }
 double Ttriple(char *Ref)
 {
-	if (!strcmp(Ref,"R134a"))
-		return Ttriple_R134a();
-	else if (!strcmp(Ref,"R290"))
-		return Ttriple_R290();
-	else if (!strcmp(Ref,"R744"))
-		return Ttriple_R744();
-	else if (!strcmp(Ref,"R410A"))
-		return Ttriple_R410A();
-	else if (!strcmp(Ref,"R404A"))
-		return Ttriple_R404A();
-	else if (!strcmp(Ref,"R717"))
-		return Ttriple_R717();
-	else if (!strcmp(Ref,"R32"))
-		return Ttriple_R32();
-	else if (!strcmp(Ref,"Nitrogen"))
-		return Ttriple_Nitrogen();
-	else if (!strcmp(Ref,"Argon"))
-		return Ttriple_Argon();
 	#if defined(_WIN32) || defined(__WIN32__) 
-	else if (strncmp(Ref,"REFPROP-",8)==0)  // First eight characters match "REFPROP-"
+	if (strncmp(Ref,"REFPROP-",8)==0)  // First eight characters match "REFPROP-"
 	{
 		char *REFPROPRef=NULL,*RefCopy=NULL;
 		double Ttriple;
@@ -1483,9 +1479,13 @@ double Ttriple(char *Ref)
 		free(RefCopy);
 		return Ttriple;
 	}
+	#else
+	if (0) // Automatically skip it because REFPROP is not supported on this platform
 	#endif
 	else
-		return _HUGE;
+	{
+		return Props('R','T',0.0,'Q',0.0,Ref);
+	}
 }
 
 int errCode(char * Ref)
@@ -1506,6 +1506,7 @@ int errCode(char * Ref)
 		return errCode_R410A();
 	return -1;
 }
+
 
 double T_hp(char *Ref, double h, double p, double T_guess)
 {

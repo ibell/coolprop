@@ -8,7 +8,7 @@ CoolProp_module = Extension('_CoolProp',
                            sources=['CoolProp.i', 'CoolProp.c',
                            'R134a.c','R744.c','R290.c','R410A.c',
                            'Brine.c','R32.c','R717.c','R404A.c','R407C.c',
-                           'R507A.c','Argon.c','Nitrogen.c'],
+                           'R507A.c','Argon.c','Nitrogen.c','Water.c'],
                            )
 
 FloodProp_module = Extension('_FloodProp',
