@@ -1432,7 +1432,7 @@ double pcrit(char *Ref)
 		return pcrit;
 	}
 	#else
-	if (0) // Automatically skip it because REFPROP is not supported on this platform
+	if (0){} // Automatically skip it because REFPROP is not supported on this platform
 	#endif
 	else{
 		return Props('E','T',0.0,'Q',0.0,Ref);
@@ -1456,7 +1456,7 @@ double Tcrit(char *Ref)
 		return Tcrit;
 	}
 	#else
-	if (0) // Automatically skip it because REFPROP is not supported on this platform
+	if (0){} // Automatically skip it because REFPROP is not supported on this platform
 	#endif
 	else
 	{
@@ -1480,7 +1480,7 @@ double Ttriple(char *Ref)
 		return Ttriple;
 	}
 	#else
-	if (0) // Automatically skip it because REFPROP is not supported on this platform
+	if (0){} // Automatically skip it because REFPROP is not supported on this platform
 	#endif
 	else
 	{
