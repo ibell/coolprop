@@ -3,7 +3,6 @@ import numpy as np,pylab
 
 def SaturationValidationPlot(Ref,REFPROPRef):
     
-    print Ttriple(Ref)+0.1,0.99*Tcrit(Ref)
     T=np.linspace(Ttriple(Ref)+0.1,0.99*Tcrit(Ref),700)
     hL_REFPROP=np.zeros_like(T)
     hV_REFPROP=np.zeros_like(T)
@@ -43,7 +42,6 @@ def SaturationValidationPlot(Ref,REFPROPRef):
     s0_REFPROP=Props('S','T',0.9*Tcrit(Ref),'Q',0,REFPROPRef)
     u0_REFPROP=Props('U','T',0.9*Tcrit(Ref),'Q',0,REFPROPRef)
     for i in range(len(T)-1,-1,-1):
-        print T[i],
         hL_REFPROP[i]=Props('H','T',T[i],'Q',0,REFPROPRef)-h0_REFPROP
         hV_REFPROP[i]=Props('H','T',T[i],'Q',1,REFPROPRef)-h0_REFPROP
         uL_REFPROP[i]=Props('U','T',T[i],'Q',0,REFPROPRef)-u0_REFPROP
@@ -58,10 +56,8 @@ def SaturationValidationPlot(Ref,REFPROPRef):
         kV_REFPROP[i]=Props('L','T',T[i],'Q',1,REFPROPRef)
         pL_REFPROP[i]=Props('P','T',T[i],'D',rhoL_REFPROP[i],REFPROPRef)
         pV_REFPROP[i]=Props('P','T',T[i],'D',rhoV_REFPROP[i],REFPROPRef)
-        print 'Done REFPROP',
         rhoL[i]=Props('D','T',T[i],'Q',0.0,Ref)
         rhoV[i]=Props('D','T',T[i],'Q',1.0,Ref)
-        print 'Done sat'
         hL[i]=Props('H','T',T[i],'D',rhoL[i],Ref)-h0
         hV[i]=Props('H','T',T[i],'D',rhoV[i],Ref)-h0
         uL[i]=Props('U','T',T[i],'D',rhoL[i],Ref)-u0
@@ -136,7 +132,7 @@ def SaturationValidationPlot(Ref,REFPROPRef):
     
 if __name__=='__main__':
 ##     SaturationValidationPlot('R290','REFPROP-Propane')
-    SaturationValidationPlot('Water','REFPROP-water')
+##     SaturationValidationPlot('Water','REFPROP-water')
 ##     SaturationValidationPlot('R717','REFPROP-ammonia')
 ##     SaturationValidationPlot('R744','REFPROP-CO2')
 

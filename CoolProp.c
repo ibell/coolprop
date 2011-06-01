@@ -26,7 +26,6 @@
 double R_u=8.314472; //From Lemmon et al 2009 (propane)
 // Function prototypes
 double _Dekker_Tsat(double x_min, double x_max, double eps, double p, double Q,char *Ref);
-void rhosatPure(double T, double *rhoLout, double *rhoVout, double *pout);
 
 // Global residual Helmholtz derivatives function pointers
 double (*p_func)(double,double);
@@ -44,6 +43,8 @@ double (*rhocrit_func)(void);
 double (*Tcrit_func)(void);
 double (*pcrit_func)(void);
 double (*Ttriple_func)(void);
+double (*pdp_func)(double);
+double (*pbp_func)(double);
 
 // Global residual Helmholtz derivatives function pointers
 double (*phir_func)(double,double);
@@ -60,6 +61,15 @@ double (*dphi02_dTau2_func)(double,double);
 
 double (*rhosatV_func)(double);
 double (*rhosatL_func)(double);
+
+static double QuadInterpolate(double x0, double x1, double x2, double f0, double f1, double f2, double x)
+{
+    double L0, L1, L2;
+    L0=((x-x1)*(x-x2))/((x0-x1)*(x0-x2));
+    L1=((x-x0)*(x-x2))/((x1-x0)*(x1-x2));
+    L2=((x-x0)*(x-x1))/((x2-x0)*(x2-x1));
+    return L0*f0+L1*f1+L2*f2;
+}
 
 void MatInv_2(double A[2][2] , double B[2][2])
 {
@@ -158,12 +168,17 @@ double Density_Tp(double T, double p, double rho)
 	}		
 	return rho;
 }
-void rhosatPure(double T, double *rhoLout, double *rhoVout, double *pout)
+
+void rhosatPure(char *Ref, double T, double *rhoLout, double *rhoVout, double *pout)
 {
 	// Only works for pure fluids (no blends)
 	// At equilibrium, saturated vapor and saturated liquid are at the same pressure and the same Gibbs energy
 	double rhoL,rhoV,p,error=999,x1,x2,x3,y1,y2,f,p_guess;
 	int iter;
+
+	// Call a property function to make sure that the pointers to Helmholtz functions are updated
+	Props('B','T',0,'P',0,Ref); //Critical temperature
+
 	// Use the density ancillary function as the starting point for the secant solver
 	rhoL=rhosatL_func(T);
 	rhoV=rhosatV_func(T);
@@ -171,7 +186,7 @@ void rhosatPure(double T, double *rhoLout, double *rhoVout, double *pout)
 
 	iter=1;
 	// Use a secant method to obtain pressure
-	while ((iter<=3 || error>1e-7) && iter<100)
+	while ((iter<=3 || fabs(error)>1e-7) && iter<100)
 	{
 		if (iter==1){x1=p_guess; p=x1;}
 		if (iter==2){x2=1.0001*p_guess; p=x2;}
@@ -833,7 +848,7 @@ int Phase(double T, double rho, char * Ref)
 
 double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, char * Ref)
 {
-	double T,p,Q,rhoV,rhoL,Value,rho;
+	double T,p,Q,rhoV,rhoL,Value,rho,pdp,pbp;
 	int errCode;
 	char errString[ERRSTRLENGTH];
 	
@@ -1184,6 +1199,8 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 			MM_func=MM_R410A;
 			rhosatV_func=rhosatV_R410A;
 			rhosatL_func=rhosatL_R410A;
+			pdp_func=p_dp_R410A;
+			pbp_func=p_bp_R410A;
 		}
 		else if (!strcmp(Ref,"R404A"))
 		{
@@ -1203,6 +1220,8 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 			MM_func=MM_R404A;
 			rhosatV_func=rhosatV_R404A;
 			rhosatL_func=rhosatL_R404A;
+			pdp_func=p_dp_R404A;
+			pbp_func=p_bp_R404A;
 		}
 		else if (!strcmp(Ref,"R407C"))
 		{
@@ -1222,6 +1241,8 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 			MM_func=MM_R407C;
 			rhosatV_func=rhosatV_R407C;
 			rhosatL_func=rhosatL_R407C;
+			pdp_func=p_dp_R407C;
+			pbp_func=p_bp_R407C;
 		}
 		else if (!strcmp(Ref,"R507A"))
 		{
@@ -1241,6 +1262,8 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 			MM_func=MM_R507A;
 			rhosatV_func=rhosatV_R507A;
 			rhosatL_func=rhosatL_R507A;
+			pdp_func=p_dp_R507A;
+			pbp_func=p_bp_R507A;
 		}
 		else
 		{
@@ -1347,19 +1370,22 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 				if (!strcmp(Ref,"R290") || !strcmp(Ref,"Argon") ||!strcmp(Ref,"Nitrogen")  ||!strcmp(Ref,"R134a") ||!strcmp(Ref,"R717") || !strcmp(Ref,"CO2") || !strcmp(Ref,"R744") || !strcmp(Ref,"Water") )
 				{
 					//printf("calling satDensityPure()\n");
-					rhosatPure(T,&rhoL,&rhoV,&Value);
+					rhosatPure(Ref,T,&rhoL,&rhoV,&p);
 				}
 				else
 				{
+					pbp=pbp_func(T);
+					pdp=pdp_func(T);
 					rhoV=rhosatV_func(T);
 					rhoL=rhosatL_func(T);
+					p=Q*pdp+(1-Q)*pbp;
 				}
 				rho=1/(Q/rhoV+(1-Q)/rhoL);
 
 				switch (Output)
 				{
 					case 'P':
-						Value=Q*p_func(T,rhoV)+(1-Q)*p_func(T,rhoL); 
+						Value=p; 
 						break;
 					case 'H':
 						Value=Q*h_func(T,rhoV,TYPE_Trho)+(1-Q)*h_func(T,rhoL,TYPE_Trho); 
@@ -1406,6 +1432,10 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 		{
 			T=Tsat(Ref,Prop1,Prop2,0);
 			return Props(Output,'T',T,'Q',Prop2,Ref);
+		}
+		else if (Output=='T' && Name1=='P' && Name2=='Q')
+		{
+			return Tsat(Ref,Prop1,Prop2,0);
 		}
 		else
 		{
@@ -1570,23 +1600,51 @@ double h_sp(char *Ref, double s, double p, double T_guess)
 
 double Tsat(char *Ref, double p, double Q, double T_guess)
 {
-	double x1=0,x2=0,x3=0,y1=0,y2=0,eps=1e-8,change=999,f=999,T=300;
+	double x1=0,x2=0,x3=0,y1=0,y2=0,y3=0,eps=1e-8,change=999,f=999,T=300,tau,tau1,tau3,tau2,logp1,logp2,logp3,tau_guess,T1,T2,T3;
 	int iter=1;
 
-	double Tmax=Tcrit(Ref)-0.5;
+	double Tc=Tcrit(Ref);
+	double Tmax=Tc-1;
 	double Tmin=Ttriple(Ref)+1;
 	
-	
-	return _Dekker_Tsat(Tmin,Tmax,0.0001,p,Q,Ref);
-	
-	while ((iter<=3 || change>eps) && iter<100)
-	{
-		if (iter==1){x1=T_guess; T=x1;}
-		if (iter==2){x2=T_guess+1.0; T=x2;}
-		if (iter>2) {T=x2;}
+	//// Putting in a value of zero will search in the entire saturation region
+	//// Otherwise search in a 10K band around the input value
+	//if (T_guess<0.0001)
+	//{
+	//	// Don't want to guess, lets try a quadratic interpolation to get a reasonable guess value
+	//	// Plotting Tc/T versus log(p) tends to give very close to straight line
+	//	// Use this fact to figure out a reasonable guess temperature
 
-			// Find the temperature which gives the same entropy
-			f=Props('P','T',T,'Q',Q,Ref)-p;
+	//	T1=Ttriple(Ref)+1;
+	//	T3=Tcrit(Ref)-1;
+	//	T2=(T1+T3)/2;
+	//	tau1=Tc/T1;
+	//	tau2=Tc/T2;
+	//	tau3=Tc/T3;
+	//	logp1=log(Props('P','T',T1,'Q',Q,Ref));
+	//	logp2=log(Props('P','T',T2,'Q',Q,Ref));
+	//	logp3=log(Props('P','T',T3,'Q',Q,Ref));
+
+	//	T_guess=Tc/QuadInterpolate(logp1,logp2,logp3,tau1,tau2,tau3,log(p));
+	//}
+	//
+	//if (T_guess+10<Tmax)
+	//	Tmax=T_guess+10;
+	//if (T_guess-10>Tmin)
+	//	Tmin=T_guess-10;
+
+	return _Dekker_Tsat(Tmin,Tmax,0.001,p,Q,Ref);
+	
+	while ((iter<=3 || exp(f)-1>eps) && iter<100)
+	{
+		if (iter==1){x1=Tc/Tmin; tau=x1;}
+		if (iter==2){x2=Tc/Tmax; tau=x2;}
+		if (iter>2) {tau=x2;}
+
+			T=Tc/tau;
+			f=log(Props('P','T',T,'Q',Q,Ref))-log(p);
+
+			printf("T: %g f %g\n",T,f);
 
 		if (iter==1){y1=f;}
 		if (iter>1)
@@ -1602,7 +1660,7 @@ double Tsat(char *Ref, double p, double Q, double T_guess)
 			printf("Tsat not converging with inputs(%s,%g,%g,%g)\n",Ref,p,Q,T_guess);
 		}
 	}
-	return x2;
+	return Tc/x2;
 }
 
 double K2F(double T)
@@ -1732,8 +1790,7 @@ double DerivTerms(char *Term,char Name1, double Prop1, char Name2, double Prop2,
 	{
 		printf("Bad pair of properties[%c,%c] and derivative name [%s]\n",Name1,Name2,Term);
 		return _HUGE;
-	}
-	
+	}	
 }
 
 static void swap(double *x, double *y)
@@ -1747,9 +1804,13 @@ static void swap(double *x, double *y)
 double _Dekker_Tsat(double x_min, double x_max, double eps, double p, double Q,char *Ref)
 {
 	double a_k,b_k,f_ak,f_bk,f_bkn1,error, 
-		b_kn1,b_kp1,s,m,a_kp1,f_akp1,f_bkp1,x;
+		b_kn1,b_kp1,s,m,a_kp1,f_akp1,f_bkp1,x,Tc;
 
 	int iter=1;
+
+	Tc=Tcrit_func();
+	x_min=Tc/x_min;
+	x_max=Tc/x_max;
 
 	// Loop for the solver method
     while ((iter <= 1 || fabs(error) > eps) && iter < 100)
@@ -1770,7 +1831,7 @@ double _Dekker_Tsat(double x_min, double x_max, double eps, double p, double Q,c
             x = b_k;
 
 		// Evaluate residual
-        error = Props('P','T',x,'Q',Q,Ref)-p;
+        error = log(Props('P','T',Tc/x,'Q',Q,Ref))-log(p);
 
 		// First time through, store the outputs
         if(iter == 1)
@@ -1799,7 +1860,7 @@ double _Dekker_Tsat(double x_min, double x_max, double eps, double p, double Q,c
 			}
 
             //See if the signs of iterate and contrapoint are the same
-            f_bkp1 = Props('P','T',b_kp1,'Q',Q,Ref)-p;
+            f_bkp1 = log(Props('P','T',Tc/b_kp1,'Q',Q,Ref))-log(p);
 
             if (f_ak / fabs(f_ak) != f_bkp1 / fabs(f_bkp1))
 			{
@@ -1835,8 +1896,8 @@ double _Dekker_Tsat(double x_min, double x_max, double eps, double p, double Q,c
         iter++;
 		if (iter>90 && fabs(error)>eps)
 		{
-			printf("Dekker has failed\n");
+			printf("Dekker for Tsat has failed with inputs (%g,%g,%g,%g,%g,%s); value: %g\n",x_min,x_max,eps,p,Q,Ref,error);
 		}
 	}
-	return b_k;
+	return Tc/b_k;
 }
