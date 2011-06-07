@@ -21,7 +21,7 @@ double pcrit_R744(void);
 double Tcrit_R744(void);
 double rhocrit_R744(void);
 double Ttriple_R744(void);
-double Psat_R744(double T);
+double psat_R744(double T);
 double Tsat_R744(double P);
 
 //Residual Helmholtz formulation and derivatives

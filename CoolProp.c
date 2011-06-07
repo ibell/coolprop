@@ -23,6 +23,13 @@
 #define numparams 72 
 #define maxcoefs 50
 
+int FluidType;
+
+#define FLUIDTYPE_REFPROP 0
+#define FLUIDTYPE_BRINE 1
+#define FLUIDTYPE_REFRIGERANT_PURE 2
+#define FLUIDTYPE_REFRIGERANT_PSEUDOPURE 3
+
 double R_u=8.314472; //From Lemmon et al 2009 (propane)
 // Function prototypes
 double _Dekker_Tsat(double x_min, double x_max, double eps, double p, double Q,char *Ref);
@@ -43,6 +50,10 @@ double (*rhocrit_func)(void);
 double (*Tcrit_func)(void);
 double (*pcrit_func)(void);
 double (*Ttriple_func)(void);
+
+//For the pure fluids
+double (*psat_func)(double); 
+// For the psedo-pure fluids
 double (*pdp_func)(double);
 double (*pbp_func)(double);
 
@@ -61,6 +72,7 @@ double (*dphi02_dTau2_func)(double,double);
 
 double (*rhosatV_func)(double);
 double (*rhosatL_func)(double);
+
 
 static double QuadInterpolate(double x0, double x1, double x2, double f0, double f1, double f2, double x)
 {
@@ -905,6 +917,7 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 	#endif
 		char *REFPROPRef=NULL,*RefCopy=NULL;
 		double prop;
+			FluidType=FLUIDTYPE_REFPROP;
 		// Allocate space for refrigerant name
 			RefCopy=malloc(strlen(Ref)+1);
 		// Make a backup copy
@@ -929,15 +942,17 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 	else if (!strcmp(Ref,"HC-10") || (Ref[0]=='E' && Ref[1]=='G') || 
 		(Ref[0]=='P' && Ref[1]=='G') || strncmp(Ref,"Methanol",8)==0 || strncmp(Ref,"NH3/H2O",7)==0)
 	{
+		FluidType=FLUIDTYPE_BRINE;
 		return SecFluids(Output,Prop1,Prop2,Ref);
 	}
 	else 
 	{
 		T=Prop1; 
-
+		
 		// Wire up the function pointers for the given refrigerant
 		if (!strcmp(Ref,"Argon"))
 		{
+			FluidType=FLUIDTYPE_REFRIGERANT_PURE;
 			p_func=p_Argon;
 			h_func=h_Argon;
 			s_func=s_Argon;
@@ -955,6 +970,7 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 			MM_func=MM_Argon;
 			rhosatV_func=rhosatV_Argon;
 			rhosatL_func=rhosatL_Argon;
+			psat_func=psat_Argon;
 
 			phir_func=phir_Argon;
 			dphir_dDelta_func=dphir_dDelta_Argon;
@@ -971,6 +987,7 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 		}
 		else if (!strcmp(Ref,"Nitrogen") || !strcmp(Ref,"N2"))
 		{
+			FluidType=FLUIDTYPE_REFRIGERANT_PURE;
 			p_func=p_Nitrogen;
 			h_func=h_Nitrogen;
 			s_func=s_Nitrogen;
@@ -988,6 +1005,7 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 			MM_func=MM_Nitrogen;
 			rhosatV_func=rhosatV_Nitrogen;
 			rhosatL_func=rhosatL_Nitrogen;
+			psat_func=psat_Nitrogen;
 
 			phir_func=phir_Nitrogen;
 			dphir_dDelta_func=dphir_dDelta_Nitrogen;
@@ -1003,6 +1021,7 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 		}
 		else if (!strcmp(Ref,"R744") || !strcmp(Ref,"CO2"))
 		{
+			FluidType=FLUIDTYPE_REFRIGERANT_PURE;
 			p_func=p_R744;
 			h_func=h_R744;
 			s_func=s_R744;
@@ -1020,6 +1039,7 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 			MM_func=MM_R744;
 			rhosatV_func=rhosatV_R744;
 			rhosatL_func=rhosatL_R744;
+			psat_func=psat_R744;
 
 			phir_func=phir_R744;
 			dphir_dDelta_func=dphir_dDelta_R744;
@@ -1035,6 +1055,7 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 		}
 		else if (!strcmp(Ref,"R718") || !strcmp(Ref,"Water") || !strcmp(Ref,"H2O"))
 		{
+			FluidType=FLUIDTYPE_REFRIGERANT_PURE;
 			p_func=p_Water;
 			h_func=h_Water;
 			s_func=s_Water;
@@ -1052,6 +1073,7 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 			MM_func=MM_Water;
 			rhosatV_func=rhosatV_Water;
 			rhosatL_func=rhosatL_Water;
+			psat_func=psat_Water;
 
 			phir_func=phir_Water;
 			dphir_dDelta_func=dphir_dDelta_Water;
@@ -1067,6 +1089,7 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 		}
 		else if (!strcmp(Ref,"R134a"))
 		{
+			FluidType=FLUIDTYPE_REFRIGERANT_PURE;
 			p_func=p_R134a;
 			h_func=h_R134a;
 			s_func=s_R134a;
@@ -1084,6 +1107,7 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 			MM_func=MM_R134a;
 			rhosatV_func=rhosatV_R134a;
 			rhosatL_func=rhosatL_R134a;
+			psat_func=psat_R134a;
 			
 			phir_func=phir_R134a;
 			dphir_dDelta_func=dphir_dDelta_R134a;
@@ -1100,6 +1124,7 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 
 		else if (!strcmp(Ref,"R290"))
 		{
+			FluidType=FLUIDTYPE_REFRIGERANT_PURE;
 			p_func=p_R290;
 			h_func=h_R290;
 			s_func=s_R290;
@@ -1117,6 +1142,7 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 			MM_func=MM_R290;
 			rhosatV_func=rhosatV_R290;
 			rhosatL_func=rhosatL_R290;
+			psat_func=psat_R290;
 
 			phir_func=phir_R290;
 			dphir_dDelta_func=dphir_dDelta_R290;
@@ -1132,6 +1158,7 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 		}
 		else if (!strcmp(Ref,"R717") || !strcmp(Ref,"NH3") || !strcmp(Ref,"Ammonia") || !strcmp(Ref,"ammonia"))
 		{
+			FluidType=FLUIDTYPE_REFRIGERANT_PURE;
 			p_func=p_R717;
 			h_func=h_R717;
 			s_func=s_R717;
@@ -1149,6 +1176,7 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 			MM_func=MM_R717;
 			rhosatV_func=rhosatV_R717;
 			rhosatL_func=rhosatL_R717;
+			psat_func=psat_R717;
 
 			phir_func=phir_R717;
 			dphir_dDelta_func=dphir_dDelta_R717;
@@ -1164,6 +1192,7 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 		}
 		else if (!strcmp(Ref,"R32"))
 		{
+			FluidType=FLUIDTYPE_REFRIGERANT_PURE;
 			p_func=p_R32;
 			h_func=h_R32;
 			s_func=s_R32;
@@ -1180,9 +1209,11 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 			MM_func=MM_R32;
 			rhosatV_func=rhosatV_R32;
 			rhosatL_func=rhosatL_R32;
+			psat_func=psat_R32;
 		}
 		else if (!strcmp(Ref,"R410A"))
 		{
+			FluidType=FLUIDTYPE_REFRIGERANT_PSEUDOPURE;
 			p_func=p_R410A;
 			h_func=h_R410A;
 			s_func=s_R410A;
@@ -1204,6 +1235,7 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 		}
 		else if (!strcmp(Ref,"R404A"))
 		{
+			FluidType=FLUIDTYPE_REFRIGERANT_PSEUDOPURE;
 			p_func=p_R404A;
 			h_func=h_R404A;
 			s_func=s_R404A;
@@ -1225,6 +1257,7 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 		}
 		else if (!strcmp(Ref,"R407C"))
 		{
+			FluidType=FLUIDTYPE_REFRIGERANT_PSEUDOPURE;
 			p_func=p_R407C;
 			h_func=h_R407C;
 			s_func=s_R407C;
@@ -1246,6 +1279,7 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 		}
 		else if (!strcmp(Ref,"R507A"))
 		{
+			FluidType=FLUIDTYPE_REFRIGERANT_PSEUDOPURE;
 			p_func=p_R507A;
 			h_func=h_R507A;
 			s_func=s_R507A;
@@ -1607,31 +1641,27 @@ double Tsat(char *Ref, double p, double Q, double T_guess)
 	double Tmax=Tc-1;
 	double Tmin=Ttriple(Ref)+1;
 	
-	//// Putting in a value of zero will search in the entire saturation region
-	//// Otherwise search in a 10K band around the input value
-	//if (T_guess<0.0001)
-	//{
-	//	// Don't want to guess, lets try a quadratic interpolation to get a reasonable guess value
-	//	// Plotting Tc/T versus log(p) tends to give very close to straight line
-	//	// Use this fact to figure out a reasonable guess temperature
+	// Plotting Tc/T versus log(p) tends to give very close to straight line
+	// Use this fact to figure out a reasonable guess temperature
 
-	//	T1=Ttriple(Ref)+1;
-	//	T3=Tcrit(Ref)-1;
-	//	T2=(T1+T3)/2;
-	//	tau1=Tc/T1;
-	//	tau2=Tc/T2;
-	//	tau3=Tc/T3;
-	//	logp1=log(Props('P','T',T1,'Q',Q,Ref));
-	//	logp2=log(Props('P','T',T2,'Q',Q,Ref));
-	//	logp3=log(Props('P','T',T3,'Q',Q,Ref));
+	if (FluidType==FLUIDTYPE_REFRIGERANT_PURE)
+	{
+		T1=Ttriple(Ref)+1;
+		T3=Tcrit(Ref)-1;
+		T2=(T1+T3)/2;
+		tau1=Tc/T1;
+		tau2=Tc/T2;
+		tau3=Tc/T3;
+		logp1=log(psat_func(T1));
+		logp2=log(psat_func(T2));
+		logp3=log(psat_func(T3));
 
-	//	T_guess=Tc/QuadInterpolate(logp1,logp2,logp3,tau1,tau2,tau3,log(p));
-	//}
-	//
-	//if (T_guess+10<Tmax)
-	//	Tmax=T_guess+10;
-	//if (T_guess-10>Tmin)
-	//	Tmin=T_guess-10;
+		T_guess=Tc/QuadInterpolate(logp1,logp2,logp3,tau1,tau2,tau3,log(p));
+		if (T_guess+5<Tmax)
+			Tmax=T_guess+5;
+		if (T_guess-5>Tmin)
+			Tmin=T_guess-5;
+	}
 
 	return _Dekker_Tsat(Tmin,Tmax,0.001,p,Q,Ref);
 	
@@ -1644,7 +1674,7 @@ double Tsat(char *Ref, double p, double Q, double T_guess)
 			T=Tc/tau;
 			f=log(Props('P','T',T,'Q',Q,Ref))-log(p);
 
-			printf("T: %g f %g\n",T,f);
+			//printf("T: %g f %g\n",T,f);
 
 		if (iter==1){y1=f;}
 		if (iter>1)

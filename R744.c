@@ -396,7 +396,7 @@ static void BuildLookup(void)
 		{
 			for (j=0;j<nP;j++)
 			{
-				if (Tvec[i]>Tc || pvec[j]<Psat_R744(Tvec[i]))
+				if (Tvec[i]>Tc || pvec[j]<psat_R744(Tvec[i]))
 				{					
 					rhomat[i][j]=get_Delta(Tvec[i],pvec[j])*rhoc;
 					hmat[i][j]=h_R744(Tvec[i],rhomat[i][j],TYPE_Trho);
@@ -1213,7 +1213,7 @@ static double get_Delta(double T, double P)
     return delta3;
 }
 
-double Psat_R744(double T)
+double psat_R744(double T)
 {
     const double ti[]={0,1.0,1.5,2.0,4.0};
     const double ai[]={0,-7.0602087,1.9391218,-1.6463597,-3.2995634};
@@ -1235,14 +1235,14 @@ double Tsat_R744(double P)
  
     T1=275;
     T2=275+.01;
-    r1=Psat_R744(T1)-P;
-    r2=Psat_R744(T2)-P;
+    r1=psat_R744(T1)-P;
+    r2=psat_R744(T2)-P;
     
     // End at change less than 0.5%
     while(counter==1 || (fabs(change)/fabs(T2)>eps && counter<40))
     {
         T3=T2-0.5*r2/(r2-r1)*(T2-T1);
-        r3=Psat_R744(T3)-P;
+        r3=psat_R744(T3)-P;
         change=0.5*r2/(r2-r1)*(T2-T1);
         T1=T2;
         T2=T3;

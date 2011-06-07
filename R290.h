@@ -18,6 +18,7 @@
 
 	double rhosatV_R290(double T);
 	double rhosatL_R290(double T);
+	double psat_R290(double T);
 
 	double pcrit_R290(void);
 	double Tcrit_R290(void);

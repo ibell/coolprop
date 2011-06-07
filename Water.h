@@ -21,7 +21,7 @@ double pcrit_Water(void);
 double Tcrit_Water(void);
 double rhocrit_Water(void);
 double Ttriple_Water(void);
-double Psat_Water(double T);
+double psat_Water(double T);
 double Tsat_Water(double P);
 
 //Residual Helmholtz formulation and derivatives

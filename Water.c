@@ -480,7 +480,7 @@ static void BuildLookup(void)
 		{
 			for (j=0;j<nP;j++)
 			{
-				if (Tvec[i]>Tc || pvec[j]<Psat_Water(Tvec[i]))
+				if (Tvec[i]>Tc || pvec[j]<psat_Water(Tvec[i]))
 				{					
 					rhomat[i][j]=get_Delta(Tvec[i],pvec[j])*rhoc;
 					hmat[i][j]=h_Water(Tvec[i],rhomat[i][j],TYPE_Trho);
@@ -663,7 +663,7 @@ double rhosatL_Water(double T)
     return rhoc*summer;
 }
 
-double Psat_Water(double T)
+double psat_Water(double T)
 {
     const double ti[]={0,1.0,1.5,3.0,3.5,4.0,7.5};
     const double ai[]={0,-7.85951783,1.84408259,-11.7866497,22.6807411,-15.9618719,1.80122502};
@@ -685,14 +685,14 @@ double Tsat_Water(double P)
  
     T1=373;
     T2=373+.01;
-    r1=Psat_Water(T1)-P;
-    r2=Psat_Water(T2)-P;
+    r1=psat_Water(T1)-P;
+    r2=psat_Water(T2)-P;
     
     // End at change less than 0.5%
     while(counter==1 || (fabs(change)/fabs(T2)>eps && counter<40))
     {
         T3=T2-0.5*r2/(r2-r1)*(T2-T1);
-        r3=Psat_Water(T3)-P;
+        r3=psat_Water(T3)-P;
         change=0.5*r2/(r2-r1)*(T2-T1);
         T1=T2;
         T2=T3;
