@@ -84,6 +84,7 @@
 	double Ttriple(char *Ref);
 
 	// Convenience functions
+	int IsFluidType(char *Ref, char *Type);
 	double T_hp(char *Ref, double h, double p, double T_guess);
 	double h_sp(char *Ref, double s, double p, double T_guess);
 	double Tsat(char *Ref, double p, double Q, double T_guess);
