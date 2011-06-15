@@ -231,7 +231,7 @@ void rhosatPure(char *Ref, double T, double *rhoLout, double *rhoVout, double *p
 
 double SecFluids(char Output, double T, double p,char * Ref)
 {
-	double Tfreeze,Tmax,rho,cp,k,mu,u,TC,C_gly;
+	double Tfreeze,Tmax,rho,cp,k,mu,u,s,TC,C_gly;
 	// Temperature and Pressure are the inputs
 
 	if (!strcmp(Ref,"HC-10"))
@@ -254,7 +254,9 @@ double SecFluids(char Output, double T, double p,char * Ref)
 			case 'M':
 				return 390;
 			case 'H':
-				return u+p/rho;
+				return (2.4797494E-03*TC*TC/2.0 + 3.2708330E+00*TC)/1000+p/(-4.52609118E-01*TC + 1.19919457E+03);
+			case 'S':
+				return 2.4797494E-03*(T-298.15) + 3.2708330E+00*log(T/298.15);
 			default:
 				return _HUGE;
 		}
@@ -285,7 +287,10 @@ double SecFluids(char Output, double T, double p,char * Ref)
 		Brine() takes inputs of temperature [C]  and secondary fluid concentration in water [mass %]
 		Outputs are freezing temperature [C], density [kg/m^3], Specific Heat [J/kg-K], Conductivity [W/m-K], Viscosity [mPa-s]
 		*/
-		Brine("EG", T - 273.15, C_gly, &Tfreeze, &Tmax, &rho, &cp, &k, &mu,&u);
+		
+		// Set the temperature to within the band to avoid zero
+		if (Output=='M' || Output=='F'){ T=300;}
+		Brine("EG", T - 273.15, C_gly, &Tfreeze, &Tmax, &rho, &cp, &k, &mu,&u,&s);
 		switch(Output)
 		{
 			case 'D':
@@ -301,7 +306,9 @@ double SecFluids(char Output, double T, double p,char * Ref)
 			case 'M':
 				return Tmax+273.15;
 			case 'H':
-				return u+p/rho;
+				return u/1000+p/rho;
+			case 'S':
+				return s/1000;
 			default:
 				return _HUGE;
 		}
@@ -331,7 +338,9 @@ double SecFluids(char Output, double T, double p,char * Ref)
 		Brine() takes inputs of temperature [C]  and secondary fluid concentration in water [mass %]
 		Outputs are freezing temperature [C], density [kg/m^3], Specific Heat [J/kg-K], Conductivity [W/m-K], Viscosity [mPa-s]
 		*/
-		Brine("PG", T - 273.15, C_gly, &Tfreeze, &Tmax, &rho, &cp, &k, &mu,&u);
+		// Set the temperature to within the band to avoid zero
+		if (Output=='M' || Output=='F'){ T=300;}
+		Brine("PG", T - 273.15, C_gly, &Tfreeze, &Tmax, &rho, &cp, &k, &mu,&u,&s);
 		switch(Output)
 		{
 			case 'D':
@@ -347,7 +356,9 @@ double SecFluids(char Output, double T, double p,char * Ref)
 			case 'M':
 				return Tmax+273.15;
 			case 'H':
-				return u+p/rho;
+				return u/1000+p/rho;
+			case 'S':
+				return s/1000;
 			default:
 				return _HUGE;
 		}
@@ -373,7 +384,9 @@ double SecFluids(char Output, double T, double p,char * Ref)
 		Brine() takes inputs of temperature [C]  and secondary fluid concentration in water [mass %]
 		Outputs are freezing temperature [C], density [kg/m^3], Specific Heat [J/kg-K], Conductivity [W/m-K], Viscosity [mPa-s]
 		*/
-		Brine("Methanol", T - 273.15, C_gly, &Tfreeze, &Tmax, &rho, &cp, &k, &mu,&u);
+		// Set the temperature to within the band to avoid zero
+		if (Output=='M' || Output=='F'){ T=300;}
+		Brine("Methanol", T - 273.15, C_gly, &Tfreeze, &Tmax, &rho, &cp, &k, &mu,&u,&s);
 		switch(Output)
 		{
 			case 'D':
@@ -389,7 +402,9 @@ double SecFluids(char Output, double T, double p,char * Ref)
 			case 'M':
 				return Tmax+273.15;
 			case 'H':
-				return u+p/rho;
+				return u/1000+p/rho;
+			case 'S':
+				return s/1000;
 			default:
 				return _HUGE;
 		}
@@ -411,7 +426,9 @@ double SecFluids(char Output, double T, double p,char * Ref)
 		Brine() takes inputs of temperature [C]  and secondary fluid concentration in water [mass %]
 		Outputs are freezing temperature [C], density [kg/m^3], Specific Heat [J/kg-K], Conductivity [W/m-K], Viscosity [mPa-s]
 		*/
-		Brine("NH3", T - 273.15, C_gly, &Tfreeze, &Tmax, &rho, &cp, &k, &mu,&u);
+		// Set the temperature to within the band to avoid zero
+		if (Output=='M' || Output=='F'){ T=300;}
+		Brine("NH3", T - 273.15, C_gly, &Tfreeze, &Tmax, &rho, &cp, &k, &mu,&u,&s);
 		switch(Output)
 		{
 			case 'D':
@@ -427,7 +444,9 @@ double SecFluids(char Output, double T, double p,char * Ref)
 			case 'M':
 				return Tmax+273.15;
 			case 'H':
-				return u+p/rho;
+				return u/1000+p/rho;
+			case 'S':
+				return s/1000;
 			default:
 				return _HUGE;
 		}
@@ -549,7 +568,38 @@ double REFPROP(char Output,char Name1, double Prop1, char Name2, double Prop2, c
 		XMASSdll = (fp_XMASSdllTYPE) GetProcAddress(RefpropdllInstance,"XMASSdll");
 		XMOLEdll = (fp_XMOLEdllTYPE) GetProcAddress(RefpropdllInstance,"XMOLEdll");
 		
-		if (!strcmp(Ref,"R508B"))
+		printf("%s\n",Ref);
+		if (!strncmp(Ref,"MIX",3))
+		{
+			// Sample is "REFPROP-MIX:R32[0.697615]&R125[0.302385]"
+			char *REFPROPRef=NULL,*RefCopy=NULL,RefString[255];
+			double prop;
+			printf("%s\n",Ref);
+			//Set global fluid type flag
+			FluidType=FLUIDTYPE_REFPROP;
+			// Allocate space for refrigerant name
+			RefCopy=malloc(strlen(Ref)+1);
+			// Make a backup copy
+			strcpy(RefCopy,Ref);
+			// Chop off the "MIX-"
+			REFPROPRef = strtok(RefCopy,":");
+			printf("%s\n",REFPROPRef);
+			REFPROPRef = strtok(NULL,"-");
+			printf("%s\n",REFPROPRef);
+			//while (REFPROPRef!=NULL)
+			//{
+			//	REFPROPRef=strtok(NULL,"-");
+			//	strcpy(RefString,REFPROPRef);
+			//	printf("%s\n",RefString);
+			//}
+			//// Call REFPROP with your fluid name
+			//prop = REFPROP(Output,Name1,Prop1,Name2,Prop2,REFPROPRef);
+			
+			// Free allocated memory
+			free(RefCopy);
+
+		}
+		else if (!strcmp(Ref,"R508B"))
 		{
 			i=2;
 			strcpy(RefString,"R23.fld|R116.fld");
@@ -832,7 +882,7 @@ void Help()
 int IsFluidType(char *Ref, char *Type)
 {
 	// Call a function to set the fluid-specific properties
-	Tcrit(Ref);
+	Props('M','T',0,'P',0,Ref);
 	
 	if (((FluidType==FLUIDTYPE_REFRIGERANT_PURE) || (FluidType==FLUIDTYPE_REFPROP)) && !strcmp(Type,"PureFluid"))
 	{
@@ -1566,7 +1616,6 @@ double Tcrit(char *Ref)
 	#endif
 	else
 	{
-		printf("calling Props\n");
 		return Props('B','T',0.0,'P',0.0,Ref);
 	}
 }
@@ -1686,23 +1735,20 @@ double Tsat(char *Ref, double p, double Q, double T_guess)
 {
 	double x1=0,x2=0,x3=0,y1=0,y2=0,y3=0,eps=1e-8,change=999,f=999,T=300,tau,tau1,tau3,tau2,logp1,logp2,logp3,tau_guess,T1,T2,T3;
 	int iter=1;
-	//~ double Tc,Tmax,Tmin;
+	double Tc,Tmax,Tmin;
 
-	//~ printf("Into Tsat, IsFluidType('Brine'): %d\n",IsFluidType(Ref,"Brine"));
-	//~ // Brines do not have saturation temperatures, set it to a big number
-	//~ if (IsFluidType(Ref,"Brine"))
-	//~ {
-		//~ return 100000;
-	//~ }
+	// Brines do not have saturation temperatures, set it to a big number
+	if (IsFluidType(Ref,"Brine"))
+	{
+		return 100000;
+	}
 	
-	double Tc=Tcrit(Ref);
-	double Tmax=Tc-1;
-	double Tmin=Ttriple(Ref)+1;
+	Tc=Tcrit(Ref);
+	Tmax=Tc-1;
+	Tmin=Ttriple(Ref)+1;
 	
 	// Plotting Tc/T versus log(p) tends to give very close to straight line
 	// Use this fact to figure out a reasonable guess temperature
-
-	printf("Into calculation\n");
 	
 	if (FluidType==FLUIDTYPE_REFRIGERANT_PURE)
 	{

@@ -5,7 +5,7 @@ python setup.py build
 REM ~ python setup.py build --debug
 python setup.py bdist_msi
 python setup.py install 
-
+python testMix.py
 
 REM ~ rmdir /S /Q build
 

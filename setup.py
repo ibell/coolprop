@@ -41,4 +41,3 @@ if 'install' in sys.argv:
     os.remove('FloodProp_wrap.c')
     os.remove('HumidAirProp.py')
     os.remove('HumidAirProp_wrap.c')
-    os.remove('None')
