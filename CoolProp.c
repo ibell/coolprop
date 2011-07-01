@@ -1693,7 +1693,7 @@ double T_hp(char *Ref, double h, double p, double T_guess)
 		iter=iter+1;
 		if (iter>60)
 		{
-			printf("%d: T_hp not converging with inputs(%s,%g,%g,%g) value: %0.12g\n",iter,Ref,h,p,T_guess,f);
+			//printf("%d: T_hp not converging with inputs(%s,%g,%g,%g) value: %0.12g\n",iter,Ref,h,p,T_guess,f);
 		}
 	}
 	return T;
