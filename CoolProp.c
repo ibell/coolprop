@@ -568,7 +568,29 @@ double REFPROP(char Output,char Name1, double Prop1, char Name2, double Prop2, c
 		XMASSdll = (fp_XMASSdllTYPE) GetProcAddress(RefpropdllInstance,"XMASSdll");
 		XMOLEdll = (fp_XMOLEdllTYPE) GetProcAddress(RefpropdllInstance,"XMOLEdll");
 		
-		printf("%s\n",Ref);
+		// If the fluid name starts with the string "REFPROP-", chop off the "REFPROP-"
+		if (!strncmp(Ref,"REFPROP-",8))
+		{
+		char *REFPROPRef=NULL,*RefCopy=NULL;
+		double prop;
+			
+		// Allocate space for refrigerant name
+			RefCopy=malloc(strlen(Ref)+1);
+		// Make a backup copy
+			strcpy(RefCopy,Ref);
+		// Chop off the "REFPROP-"
+			REFPROPRef = strtok(RefCopy,"-");
+			REFPROPRef = strtok(NULL,"-");
+		// Run with the stripped Refrigerant name
+			prop=REFPROP(Output,Name1,Prop1,Name2,Prop2,REFPROPRef);
+		// Free allocated memory
+			free(RefCopy);
+		// Return the new value
+			return prop;
+		}
+		
+
+		//printf("%s\n",Ref);
 		if (!strncmp(Ref,"MIX",3))
 		{
 			// Sample is "REFPROP-MIX:R32[0.697615]&R125[0.302385]"
@@ -820,6 +842,73 @@ double REFPROP(char Output,char Name1, double Prop1, char Name2, double Prop2, c
 			else
 				return _HUGE;
 		}
+		else if (Name1=='P' && Name2=='Q')
+		{
+			p=Prop1;
+			Q=Prop2;
+			// Saturation Density
+			SATPdll(&p,x,&i,&T,&dl,&dv,xliq,xvap,&ierr,herr,errormessagelength);
+			if (Output=='T')
+			{
+				return T;
+			}
+			else if (Output=='D') 
+			{
+				return 1/(Q/dv+(1-Q)/dl)*MW;
+			}
+			else if (Output=='P') 
+			{
+				PRESSdll(&T,&dl,xliq,&pl);
+				PRESSdll(&T,&dv,xvap,&pv);
+				return (pv*Q+pl*(1-Q));
+			}
+			else if (Output=='H') 
+			{
+				ENTHALdll(&T,&dl,xliq,&hl);
+				ENTHALdll(&T,&dv,xvap,&hv);
+				return (hv*Q+hl*(1-Q))/MW; // J/kg to kJ/kg
+			}
+			else if (Output=='S') 
+			{
+				ENTROdll(&T,&dl,xliq,&sl);
+				ENTROdll(&T,&dv,xvap,&sv);
+				return (sv*Q+sl*(1-Q))/MW; // J/kg-K to kJ/kg-K
+			}
+			else if (Output=='U') 
+			{
+				ENTHALdll(&T,&dl,xliq,&hl);
+				ENTHALdll(&T,&dv,xvap,&hv);
+				ul=hl-p/dl;
+				uv=hv-p/dv;
+				return (uv*Q+ul*(1-Q))/MW; // J/kg to kJ/kg
+			}
+			else if (Output=='C') 
+			{
+				d=1/(Q/dv+(1-Q)/dl);
+				CVCPdll(&T,&d,x,&cv,&cp);
+				return cp/MW; // J/kg-K to kJ/kg-K
+			}
+			else if (Output=='O') 
+			{
+				d=1/(Q/dv+(1-Q)/dl);
+				CVCPdll(&T,&d,x,&cv,&cp);
+				return cv/MW; // J/kg-K to kJ/kg-K
+			}
+			else if (Output=='V') 
+			{
+				d=1/(Q/dv+(1-Q)/dl);
+				TRNPRPdll(&T,&d,x,&eta,&tcx,&ierr,herr,errormessagelength);
+				return eta/1.0e6; //uPa-s to Pa-s
+			}
+			else if (Output=='L') 
+			{
+				d=1/(Q/dv+(1-Q)/dl);
+				TRNPRPdll(&T,&d,x,&eta,&tcx,&ierr,herr,errormessagelength);
+				return tcx/1000.0; //W/m-K to kW/m-K
+			}
+			else
+				return _HUGE;
+		}
 		else
 			return _HUGE;
 }
@@ -987,21 +1076,8 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 	if (0) // Automatically skip it because REFPROP is not supported on this platform
 	{
 	#endif
-		char *REFPROPRef=NULL,*RefCopy=NULL;
-		double prop;
-			FluidType=FLUIDTYPE_REFPROP;
-		// Allocate space for refrigerant name
-			RefCopy=malloc(strlen(Ref)+1);
-		// Make a backup copy
-			strcpy(RefCopy,Ref);
-		// Chop off the "REFPROP-"
-			REFPROPRef = strtok(RefCopy,"-");
-			REFPROPRef = strtok(NULL,"-");
-		// Call REFPROP with your fluid name
-			prop = REFPROP(Output,Name1,Prop1,Name2,Prop2,REFPROPRef);
-		// Free allocated memory
-			free(RefCopy);
-		return prop;
+		FluidType=FLUIDTYPE_REFPROP;
+		return REFPROP(Output,Name1,Prop1,Name2,Prop2,Ref);
 	}
 
 	// **********************************************************************************
@@ -1741,6 +1817,11 @@ double Tsat(char *Ref, double p, double Q, double T_guess)
 	if (IsFluidType(Ref,"Brine"))
 	{
 		return 100000;
+	}
+	// It's a REFPROP fluid - use REFPROP to do all the calculations
+	if (!strncmp(Ref,"REFPROP-",8))
+	{
+		return REFPROP('T','P',p,'Q',Q,Ref);
 	}
 	
 	Tc=Tcrit(Ref);
