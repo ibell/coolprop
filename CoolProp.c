@@ -459,7 +459,7 @@ double SecFluids(char Output, double T, double p,char * Ref)
 #if defined(_WIN32) || defined(__WIN32__) //Check if it is a windows machine, if not, hide this function
 double REFPROP(char Output,char Name1, double Prop1, char Name2, double Prop2, char * Ref)
 {
-
+	int j;
 	long i,ierr=0;
 	char hf[refpropcharlength*ncmax], hrf[lengthofreference+1],
 	herr[errormessagelength+1],hfmix[refpropcharlength+1];
@@ -589,37 +589,46 @@ double REFPROP(char Output,char Name1, double Prop1, char Name2, double Prop2, c
 			return prop;
 		}
 		
-
-		//printf("%s\n",Ref);
 		if (!strncmp(Ref,"MIX",3))
 		{
 			// Sample is "REFPROP-MIX:R32[0.697615]&R125[0.302385]"
-			char *REFPROPRef=NULL,*RefCopy=NULL,RefString[255];
-			double prop;
-			printf("%s\n",Ref);
+			char *REFPROPRef=NULL,*RefCopy=NULL,RefString[255],*Refs[20],*Refrigerant;
+			double molefraction;
+
 			//Set global fluid type flag
 			FluidType=FLUIDTYPE_REFPROP;
 			// Allocate space for refrigerant name
 			RefCopy=malloc(strlen(Ref)+1);
 			// Make a backup copy
 			strcpy(RefCopy,Ref);
-			// Chop off the "MIX-"
+			// Chop off the "MIX"
 			REFPROPRef = strtok(RefCopy,":");
-			printf("%s\n",REFPROPRef);
-			REFPROPRef = strtok(NULL,"-");
-			printf("%s\n",REFPROPRef);
-			//while (REFPROPRef!=NULL)
-			//{
-			//	REFPROPRef=strtok(NULL,"-");
-			//	strcpy(RefString,REFPROPRef);
-			//	printf("%s\n",RefString);
-			//}
-			//// Call REFPROP with your fluid name
-			//prop = REFPROP(Output,Name1,Prop1,Name2,Prop2,REFPROPRef);
-			
+			i=1;
+			while (REFPROPRef!=NULL)
+			{
+				Refs[i-1]=strtok(NULL,"&");
+				if (Refs[i-1]==NULL)
+				{
+					i--;
+					break;
+				}
+				else
+					i++;
+			}
+			//Flush out RefString
+			sprintf(RefString,"");
+			for (j=0;j<i;j++)
+			{	
+				Refrigerant=strtok(Refs[j],"[]");
+				molefraction=strtod(strtok(NULL,"[]"),NULL);
+				x[j]=molefraction;
+				if (j==0)
+					sprintf(RefString,"%s%s.fld",RefString,Refs[j]);
+				else
+					sprintf(RefString,"%s|%s.fld",RefString,Refs[j]);
+			}
 			// Free allocated memory
 			free(RefCopy);
-
 		}
 		else if (!strcmp(Ref,"R508B"))
 		{
