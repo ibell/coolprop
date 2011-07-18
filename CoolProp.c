@@ -1853,11 +1853,13 @@ double Tsat(char *Ref, double p, double Q, double T_guess)
 	{
 		return 100000;
 	}
-	// It's a REFPROP fluid - use REFPROP to do all the calculations
-	if (!strncmp(Ref,"REFPROP-",8))
-	{
-		return REFPROP('T','P',p,'Q',Q,Ref);
-	}
+	#if defined(_WIN32) || defined(__WIN32__)
+		// It's a REFPROP fluid - use REFPROP to do all the calculations
+		if (!strncmp(Ref,"REFPROP-",8))
+		{
+			return REFPROP('T','P',p,'Q',Q,Ref);
+		}
+	#endif
 	
 	Tc=Tcrit(Ref);
 	Tmax=Tc-1;
