@@ -23,6 +23,7 @@
 #define numparams 72 
 #define maxcoefs 50
 
+char LoadedREFPROPRef[255];
 int FluidType;
 
 #define FLUIDTYPE_REFPROP 0
@@ -463,7 +464,7 @@ double REFPROP(char Output,char Name1, double Prop1, char Name2, double Prop2, c
 	long i,ierr=0;
 	char hf[refpropcharlength*ncmax], hrf[lengthofreference+1],
 	herr[errormessagelength+1],hfmix[refpropcharlength+1];
-	char LoadedREFPROPRef[255];
+	
 	double x[ncmax],xliq[ncmax],xvap[ncmax];
 	char RefString[255];
 	double T,p=0,d,dl,dv,q,e,h,s,cv,cp,w,MW,hl,hv,sl,sv,ul,uv,pl,pv,eta,tcx,Q,Tcrit,pcrit,dcrit,rho;
@@ -619,6 +620,7 @@ double REFPROP(char Output,char Name1, double Prop1, char Name2, double Prop2, c
 			sprintf(RefString,"");
 			for (j=0;j<i;j++)
 			{	
+				//Get component and its mole fraction
 				Refrigerant=strtok(Refs[j],"[]");
 				molefraction=strtod(strtok(NULL,"[]"),NULL);
 				x[j]=molefraction;
@@ -674,7 +676,7 @@ double REFPROP(char Output,char Name1, double Prop1, char Name2, double Prop2, c
 			SETUPdll(&i, hf, hfmix, hrf, &ierr, herr,
 				refpropcharlength*ncmax,refpropcharlength,
 				lengthofreference,errormessagelength);
-			if (ierr != 0) printf("%s\n",herr);
+			if (ierr != 0) printf("REFPROP setup gives this error during SETUP: %s\n",herr);
 			//Copy the name of the loaded refrigerant back into the temporary holder
 			strcpy(LoadedREFPROPRef,Ref);
 		}
@@ -742,37 +744,34 @@ double REFPROP(char Output,char Name1, double Prop1, char Name2, double Prop2, c
 		else if (Name1=='T' && Name2=='D')
 		{
 			// T in K, D in kg/m^3
+			// This is the explicit formulation of the EOS
 			T=Prop1;
 			rho=Prop2/MW;
 			
+			TDFLSHdll(&T,&rho,x,&p,&dl,&dv,xliq,xvap,&q,&e,&h,&s,&cv,&cp,&w,&ierr,herr,errormessagelength);
+
 			if (Output=='P')
 			{
-				PRESSdll(&T,&rho,x,&p);
 				return p;
 			}
 			if (Output=='H')
 			{
-				ENTHALdll(&T,&rho,x,&h);
 				return h/MW;
 			}
 			else if (Output=='S')
 			{
-				ENTROdll(&T,&rho,x,&s);
 				return s/MW;
 			}
 			else if (Output=='U')
 			{
-				ENTHALdll(&T,&rho,x,&h);
 				return (h-p/rho)/MW;
 			}
 			else if (Output=='C')
 			{
-				CVCPdll(&T,&rho,x,&cv,&cp);
 				return cp/MW;
 			}
 			else if (Output=='O')
 			{
-				CVCPdll(&T,&rho,x,&cv,&cp);
 				return cv/MW;
 			}
 			else if (Output=='V') 
@@ -1031,7 +1030,7 @@ int Phase(double T, double rho, char * Ref)
 double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, char * Ref)
 {
 	double T,p,Q,rhoV,rhoL,Value,rho,pdp,pbp;
-	int errCode;
+	int errCode,isTwoPhase;
 	char errString[ERRSTRLENGTH];
 	
 	/*
@@ -1504,58 +1503,86 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 						strcpy(errString,"Invalid Output Name");
 						return -100;
 				}
-			/*	if (errCode_R410A()!=0)
-				{
-					printf("Ref error code %d found\n",Ref, errCode_func());
-					return _HUGE;
-				}*/
-				//else
-					return Value;
+				return Value;
 			}
 			// Temperature and density are the inputs
 			else if (Name2=='D')
 			{
 				rho=Prop2;
+				
+				// Check if it is one of the outputs that do not require any state information
 				switch (Output)
 				{
-
-					case 'P':
-						Value=p_func(T,rho); break;
-					case 'H':
-						Value=h_func(T,rho,TYPE_Trho); break;
-					case 'S':
-						Value=s_func(T,rho,TYPE_Trho); break;
-					case 'U':
-						Value=u_func(T,rho,TYPE_Trho); break;
-					case 'C':
-						Value=cp_func(T,rho,TYPE_Trho); break;
-					case 'O':
-						Value=cv_func(T,rho,TYPE_Trho); break;
-					case 'V':
-						Value=visc_func(T,rho,TYPE_Trho); break;
-					case 'L':
-						Value=k_func(T,rho,TYPE_Trho); break;
-					case 'A':
-						Value=w_func(T,rho,TYPE_Trho); break;
 					case 'M':
-						Value=MM_func(); break;
+						return MM_func(); 
 					case 'E':
-						Value=pcrit_func(); break;
+						return pcrit_func();
 					case 'B':
-						Value=Tcrit_func(); break;
+						return Tcrit_func();
 					case 'R':
-						Value=Ttriple_func(); break;
-					default:
-						strcpy(errString,"Invalid Output Name");
-						return -100;
+						return Ttriple_func();
 				}
-				/*if (errCode_func()!=0)
+				
+				// Determine if it is somewhere in the two-phase region.
+
+				// First check if the condition is well away from saturation 
+				// by using the ancillary equations because this is much faster
+				if (rho>1.02*rhosatL_func(T) || rho<0.98*rhosatV_func(T))
 				{
-					printf("%s error code %d found\n",Ref,errCode_func());
-					return _HUGE;
-				}*/
-				//else
+					isTwoPhase=0;
+				}
+				else
+				{
+					if (!strcmp(Ref,"R404A") || !strcmp(Ref,"R410A") || !strcmp(Ref,"R407C") || !strcmp(Ref,"R507A"))
+					{
+						rhoV=rhosatV_func(T);
+						rhoL=rhosatL_func(T);
+					}
+					else
+					{
+						rhosatPure(Ref,T,&rhoL,&rhoV,&p);
+					}
+					if (rho<=rhoL && rho>=rhoV)
+						isTwoPhase=1;
+					else
+						isTwoPhase=0;
+				}
+				
+				if (isTwoPhase==0)
+				{
+					// It is not two-phase, and use EOS
+					switch (Output)
+					{
+						case 'P':
+							Value=p_func(T,rho); break;
+						case 'H':
+							Value=h_func(T,rho,TYPE_Trho); break;
+						case 'S':
+							Value=s_func(T,rho,TYPE_Trho); break;
+						case 'U':
+							Value=u_func(T,rho,TYPE_Trho); break;
+						case 'C':
+							Value=cp_func(T,rho,TYPE_Trho); break;
+						case 'O':
+							Value=cv_func(T,rho,TYPE_Trho); break;
+						case 'V':
+							Value=visc_func(T,rho,TYPE_Trho); break;
+						case 'L':
+							Value=k_func(T,rho,TYPE_Trho); break;
+						case 'A':
+							Value=w_func(T,rho,TYPE_Trho); break;
+						default:
+							strcpy(errString,"Invalid Output Name");
+							return -100;
+					}
 					return Value;
+				}
+				else
+				{
+					// It is two-phase. Find the quality and call Props again with the quality
+					Q=(1/rho-1/rhoL)/(1/rhoV-1/rhoL);
+					return Props(Output,'T',T,'Q',Q,Ref);
+				}
 			}
 
 			// Temperature and quality are the inputs
@@ -1564,7 +1591,6 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 				Q=Prop2;
 				if (!strcmp(Ref,"R290") || !strcmp(Ref,"Argon") ||!strcmp(Ref,"Nitrogen")  ||!strcmp(Ref,"R134a") ||!strcmp(Ref,"R717") || !strcmp(Ref,"CO2") || !strcmp(Ref,"R744") || !strcmp(Ref,"Water") )
 				{
-					//printf("calling satDensityPure()\n");
 					rhosatPure(Ref,T,&rhoL,&rhoV,&p);
 				}
 				else

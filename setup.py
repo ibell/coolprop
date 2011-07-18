@@ -2,6 +2,10 @@
 from distutils.core import setup, Extension
 import subprocess,shutil,os,sys
 
+try:
+    os.remove('CoolProp.pyc')
+except:
+    pass
 shutil.copy2('__init__.py.template','__init__.py')
 
 CoolProp_module = Extension('_CoolProp',
