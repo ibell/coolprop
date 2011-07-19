@@ -782,9 +782,14 @@ double k_mix(char *Gas, char *Liq, double T, double P, double xL)
     //input in K,kPa, [-]
     //output in kW/m-K
     double kL, kG, VF,km;
+
     kL=k_l(Liq,T); 
     kG=k_g(Gas,T,P);
     VF=VoidFrac(Gas,Liq,T,P,xL);
+    if (VF<1e-12)
+		return kL;
+	else if (VF>1-1e-12)
+		return kG;
 	km=(1-VF)*kL+VF*kG;
 	if (isNAN_FP(km))
 		printf("km is NaN");
@@ -810,18 +815,18 @@ double VoidFrac(char *Gas, char *Liq, double T, double P, double xL)
 
 double Pr_mix(char *Gas, char *Liq, double T, double P, double xL)
 {
-	double cpm;
-	//double cp,mu,k;
-	//cp=cp_mix(Gas,Liq,T,P,xL);
-	//mu=mu_mix(Gas,Liq,T,P,xL);
-	//k=k_mix(Gas,Liq,T,P,xL);
-	cpm=cp_mix(Gas,Liq,T,P,xL)*mu_mix(Gas,Liq,T,P,xL)/k_mix(Gas,Liq,T,P,xL);
-	if (isNAN_FP(cpm))
-		printf("cpm is NaN");
-	if (isINFINITY_FP(cpm))
-		printf("cpm is Infinite");
+	double Prm;
+//	double cp,mu,k;
+//	cp=cp_mix(Gas,Liq,T,P,xL);
+//	mu=mu_mix(Gas,Liq,T,P,xL);
+//	k=k_mix(Gas,Liq,T,P,xL);
+	Prm=cp_mix(Gas,Liq,T,P,xL)*mu_mix(Gas,Liq,T,P,xL)/k_mix(Gas,Liq,T,P,xL);
+	if (isNAN_FP(Prm))
+		printf("Prm is NaN");
+	if (isINFINITY_FP(Prm))
+		printf("Prm is Infinite");
 
-    return cpm;
+    return Prm;
 }
 
 double kstar_m(char *Gas, char *Liq, double T, double P,double xL)
