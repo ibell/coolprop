@@ -654,6 +654,14 @@ double REFPROP(char Output,char Name1, double Prop1, char Name2, double Prop2, c
 			x[1]=0.038264;
 			x[2]=0.60392;
 		}
+        else if (!strcmp(Ref,"Air"))
+		{
+			i=3;
+			strcpy(RefString,"Nitrogen.fld|Oxygen.fld|Argon.fld");
+			x[0]=0.7812;
+			x[1]=0.2096;
+			x[2]=0.0092;
+		}
 		else
 		{
 			i=1;
@@ -1059,9 +1067,6 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 	R   Triple point temperature [K]
 	*/
 
-	// Pointers to the functions
-	char * (*errCode_func)(void);
-
 	errCode=0;
 	
 	
@@ -1370,6 +1375,28 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 			rhosatV_func=rhosatV_R32;
 			rhosatL_func=rhosatL_R32;
 			psat_func=psat_R32;
+		}
+        else if (!strcmp(Ref,"Air"))
+		{
+			FluidType=FLUIDTYPE_REFRIGERANT_PSEUDOPURE;
+			p_func=p_Air;
+			h_func=h_Air;
+			s_func=s_Air;
+			u_func=u_Air;
+			rho_func=rho_Air;
+			cp_func=cp_Air;
+			cv_func=cv_Air;
+			visc_func=visc_Air;
+			k_func=k_Air;
+			w_func=w_Air;
+			Ttriple_func=Ttriple_Air;
+			Tcrit_func=Tcrit_Air;
+			pcrit_func=pcrit_Air;
+			MM_func=MM_Air;
+			rhosatV_func=rhosatV_Air;
+			rhosatL_func=rhosatL_Air;
+			pdp_func=pdp_Air;
+			pbp_func=pbp_Air;
 		}
 		else if (!strcmp(Ref,"R410A"))
 		{
@@ -1844,7 +1871,7 @@ double h_sp(char *Ref, double s, double p, double T_guess)
 
 double Tsat(char *Ref, double p, double Q, double T_guess)
 {
-	double x1=0,x2=0,x3=0,y1=0,y2=0,y3=0,eps=1e-8,change=999,f=999,T=300,tau,tau1,tau3,tau2,logp1,logp2,logp3,tau_guess,T1,T2,T3;
+	double x1=0,x2=0,x3=0,y1=0,y2=0,y3=0,eps=1e-8,change=999,f=999,T=300,tau,tau1,tau3,tau2,logp1,logp2,logp3,T1,T2,T3;
 	int iter=1;
 	double Tc,Tmax,Tmin;
 

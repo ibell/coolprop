@@ -92,5 +92,6 @@ Python is very well suited to the use of code programmed in C.  With the use of 
 .. literalinclude:: ../Examples/PythonExample.py
 
 
+.. include:: EOS.rst
 
 

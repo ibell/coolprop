@@ -18,6 +18,7 @@
 	#include "Nitrogen.h"
 	#include "Brine.h"
 	#include "Water.h"
+    #include "Air.h"
 	
 	#define PHASE_SUPERCRITICAL 1
 	#define PHASE_SUPERHEATED 4

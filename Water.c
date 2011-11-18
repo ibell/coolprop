@@ -354,8 +354,8 @@ static const double D[]={
 
 // Constant for ideal gas part
 static const double n0[]={0,
-	-8.32044648201, //[1]
-	6.6832105268, //[2]
+	-8.3204464837497, //[1] //From Herrmann 2099 ASHRAE RP-1485
+	6.6832105275932, //[2] //From Herrmann 2099 ASHRAE RP-1485
 	3.00632, //[3]
 	0.012436, //[4]
 	0.97315, //[5]
@@ -517,7 +517,6 @@ static void BuildLookup(void)
 
 double rho_Water(double T, double p, int Types)
 {
-	setCoeffs();
 	errCode=0; // Reset error code
 	switch(Types)
 	{
@@ -533,13 +532,11 @@ double rho_Water(double T, double p, int Types)
 }
 double p_Water(double T, double rho)
 {
-	setCoeffs();
 	return Pressure_Trho(T,rho);
 }
 double h_Water(double T, double p_rho, int Types)
 {
 	double rho;
-	setCoeffs();
 	errCode=0; // Reset error code
 	switch(Types)
 	{
@@ -559,7 +556,6 @@ double h_Water(double T, double p_rho, int Types)
 double s_Water(double T, double p_rho, int Types)
 {
 	double rho;
-	setCoeffs();
 	errCode=0; // Reset error code
 	switch(Types)
 	{
@@ -579,7 +575,6 @@ double s_Water(double T, double p_rho, int Types)
 double u_Water(double T, double p_rho, int Types)
 {
 	double rho;
-	setCoeffs();
 	errCode=0; // Reset error code
 	switch(Types)
 	{
@@ -599,7 +594,6 @@ double u_Water(double T, double p_rho, int Types)
 double cp_Water(double T, double p_rho, int Types)
 {
 	double rho;
-	setCoeffs();
 	errCode=0; // Reset error code
 	switch(Types)
 	{
@@ -619,7 +613,6 @@ double cp_Water(double T, double p_rho, int Types)
 double cv_Water(double T, double p_rho, int Types)
 {
 	double rho;
-	setCoeffs();
 	errCode=0; // Reset error code
 	switch(Types)
 	{
@@ -669,7 +662,6 @@ double psat_Water(double T)
     const double ai[]={0,-7.85951783,1.84408259,-11.7866497,22.6807411,-15.9618719,1.80122502};
     double summer=0;
     int i;
-    setCoeffs();
     for (i=1;i<=6;i++)
     {
         summer=summer+ai[i]*pow(1-T/Tc,ti[i]);
@@ -738,6 +730,17 @@ double c_Water(double T, double p_rho, int Types)
 			return SpeedSound_Trho(T,rho);
 		}
 	}
+}
+
+double IsothermCompress_Water(double T, double p)
+{
+    // Isothermal compressibility with units of 1/Pa
+    double rho,delta,tau,dpdrho;
+    rho=rho_Water(T,p,TYPE_TPNoLookup);
+    delta=rho/rhoc;
+    tau=Tc/T;
+    dpdrho=R_Water*T*(1.0+2.0*delta*dphir_dDelta_Water(tau,delta)+powI(delta,2)*dphir2_dDelta2_Water(tau,delta));
+    return 1/(rho*dpdrho*1000.0);
 }
 
 void visc_Helper(double Tbar, double rhobar, double *mubar_0, double *mubar_1)
@@ -914,6 +917,30 @@ double k_Water(double T,double p_rho, int Types)
 
 	lambdabar_2=55.071*0.0013848/(mubar_0*mubar_1)*powI(Tbar/rhobar,2)*powI(dpbar_dTbar,2)*pow(CHIbar_T,0.4678)*sqrt(rhobar)*exp(-18.66*powI(Tbar-1,2)-powI(rhobar-1,4));
 	return (lambdabar_0*lambdabar_1+lambdabar_2)*lambdastar;
+}
+
+double B_Water(double tau)
+{
+	// given by B*rhoc=lim(delta --> 0) [dphir_ddelta(tau)]
+	return 1.0/rhoc*dphir_dDelta_Water(tau,1e-12);
+}
+
+double dBdT_Water(double tau)
+{
+	// given by B*rhoc^2=lim(delta --> 0) [dphir2_ddelta2(tau)]
+	return -1.0/rhoc*tau*tau/Tc*dphir2_dDelta_dTau_Water(tau,1e-12);
+}
+
+double C_Water(double tau)
+{
+	// given by B*rhoc^2=lim(delta --> 0) [dphir2_ddelta2(tau)]
+	return 1.0/(rhoc*rhoc)*dphir2_dDelta2_Water(tau,1e-12);
+}
+
+double dCdT_Water(double tau)
+{
+	// given by B*rhoc^2=lim(delta --> 0) [dphir2_ddelta2(tau)]
+	return -1.0/(rhoc*rhoc)*tau*tau/Tc*dphir3_dDelta2_dTau_Water(tau,1e-12);
 }
 
 double MM_Water(void)
@@ -1201,7 +1228,6 @@ double dphir_dTau_Water(double tau, double delta)
         dDELTAbi_dTau=-2.0*theta*b[i]*pow(DELTA,b[i]-1.0);
         dphir_dTau=dphir_dTau+n[i]*delta*(dDELTAbi_dTau*PSI+pow(DELTA,b[i])*dPSI_dTau);
     }
-    
     return dphir_dTau;
 }
 
@@ -1240,6 +1266,74 @@ double dphir2_dTau2_Water(double tau, double delta)
     }
     
     return dphir2_dTau2;
+}
+
+double dphir3_dDelta2_dTau_Water(double tau, double delta)
+{ 
+    // Derivation from Hermann 2009 (ASHRAE Report RP-1485)
+    int i;
+    double di, ci;
+    double dphir3_dDelta2_dTau=0,theta,DELTA,PSI,dPSI_dDelta,dDELTA_dDelta,dDELTAbi_dDelta,psi,dPSI2_dDelta2,dDELTAbi2_dDelta2,dDELTA2_dDelta2;
+    double dPSI2_dDelta_dTau, dDELTAbi2_dDelta_dTau, dPSI_dTau, dDELTAbi_dTau, dPSI2_dTau2, dDELTAbi2_dTau2;
+    double Line1,Line2,Line3,dDELTA2_dDelta_dTau,dDELTA3_dDelta2_dTau,dDELTAbim1_dTau,dDELTAbim2_dTau;
+    double dDELTA_dTau,dDELTAbi3_dDelta2_dTau;
+    for (i=1;i<=7;i++)
+    {
+        di=(double)d[i];
+        dphir3_dDelta2_dTau+=n[i]*di*t[i]*(di-1)*powI(delta,d[i]-2)*pow(tau,t[i]-1.0);
+    }
+    for (i=8;i<=51;i++)
+    {
+        di=(double)d[i];
+        ci=(double)c[i];
+        dphir3_dDelta2_dTau+=n[i]*t[i]*exp(-powI(delta,c[i]))*powI(delta,d[i]-2)*pow(tau,t[i]-1.0)*(((di-ci*powI(delta,c[i])))*(di-1-c[i]*powI(delta,c[i]))-c[i]*c[i]*powI(delta,c[i]));
+    }
+    for (i=52;i<=54;i++)
+    {
+        di=(double)d[i];
+        psi=exp(-alpha[i]*powI(delta-epsilon[i],2)-beta[i]*powI(tau-GAMMA[i],2));
+        dphir3_dDelta2_dTau+=n[i]*pow(tau,t[i])*psi*powI(delta,d[i])*(t[i]/tau-2.0*beta[i]*(tau-GAMMA[i]))*(-2.0*alpha[i]*(delta-epsilon[i])+4*alpha[i]*alpha[i]*pow(delta,d[i])*powI(delta-epsilon[i],2)-4*d[i]*alpha[i]*pow(delta,d[i]-1)*(delta-epsilon[i])+d[i]*(d[i]-1)*powI(delta,d[i]-2));
+    }
+    for (i=55;i<=56;i++)
+    {
+        
+        theta=(1.0-tau)+A[i]*pow(powI(delta-1.0,2),1.0/(2.0*beta[i]));
+        DELTA=powI(theta,2)+B[i]*pow(powI(delta-1.0,2),a[i]);
+        PSI=exp(-C[i]*powI(delta-1.0,2)-D[i]*powI(tau-1.0,2));
+        
+        dPSI_dDelta=-2.0*C[i]*(delta-1.0)*PSI;
+        dDELTA_dDelta=(delta-1.0)*(A[i]*theta*2.0/beta[i]*pow(powI(delta-1.0,2),1.0/(2.0*beta[i])-1.0)+2.0*B[i]*a[i]*pow(powI(delta-1.0,2),a[i]-1.0));
+        dDELTAbi_dDelta=b[i]*pow(DELTA,b[i]-1.0)*dDELTA_dDelta;
+        
+        dPSI2_dDelta2=(2.0*C[i]*powI(delta-1.0,2)-1.0)*2.0*C[i]*PSI;
+        dDELTA2_dDelta2=1.0/(delta-1.0)*dDELTA_dDelta+powI(delta-1.0,2)*(4.0*B[i]*a[i]*(a[i]-1.0)*pow(powI(delta-1.0,2),a[i]-2.0)+2.0*powI(A[i]/beta[i],2)*powI(pow(powI(delta-1.0,2),1.0/(2.0*beta[i])-1.0),2)+A[i]*theta*4.0/beta[i]*(1.0/(2.0*beta[i])-1.0)*pow(powI(delta-1.0,2),1.0/(2.0*beta[i])-2.0));
+        dDELTAbi2_dDelta2=b[i]*(pow(DELTA,b[i]-1.0)*dDELTA2_dDelta2+(b[i]-1.0)*pow(DELTA,b[i]-2.0)*powI(dDELTA_dDelta,2));
+        
+        dPSI_dTau=-2.0*D[i]*(tau-1.0)*PSI;
+        dDELTAbi_dTau=-2.0*theta*b[i]*pow(DELTA,b[i]-1.0);
+        dPSI2_dTau2=(2.0*D[i]*powI(tau-1.0,2)-1.0)*2.0*D[i]*PSI;
+        dDELTAbi2_dTau2=2.0*b[i]*pow(DELTA,b[i]-1.0)+4.0*powI(theta,2)*b[i]*(b[i]-1.0)*pow(DELTA,b[i]-2.0);
+        
+        dPSI2_dDelta_dTau=4.0*C[i]*D[i]*(delta-1.0)*(tau-1.0)*PSI;
+        dDELTAbi2_dDelta_dTau=-A[i]*b[i]*2.0/beta[i]*pow(DELTA,b[i]-1.0)*(delta-1.0)*pow(powI(delta-1.0,2),1.0/(2.0*beta[i])-1.0)-2.0*theta*b[i]*(b[i]-1.0)*pow(DELTA,b[i]-2.0)*dDELTA_dDelta;
+	
+	//Following Terms added for this derivative
+	dDELTA_dTau=-2*((1-tau)+A[i]*pow(powI(delta-1,2),1/(2*beta[i])-1)+2*B[i]*a[i]*pow(powI(delta-1,2),a[i]-1));
+	dDELTA2_dDelta_dTau=-(delta-1)*A[i]*(2/beta[i])*pow(powI(delta-1,2),1/(2*beta[i])-1);
+	dDELTA3_dDelta2_dTau=1/(delta-1)*dDELTA2_dDelta_dTau-powI(delta-1,2)*A[i]*(4/beta[i])*(1/(2*beta[i])-1)*pow(powI(delta-1,2),1/(2*beta[i])-2);
+	
+	dDELTAbim1_dTau=(b[i]-1)*pow(DELTA,b[i]-2)*dDELTA_dTau;
+	dDELTAbim2_dTau=(b[i]-2)*pow(DELTA,b[i]-3)*dDELTA_dTau;
+	Line1=dDELTAbim1_dTau*dDELTA2_dDelta2+pow(DELTA,b[i]-1)*dDELTA3_dDelta2_dTau;
+	Line2=(b[i]-1)*(dDELTAbim2_dTau*powI(dDELTA_dDelta,2)+pow(DELTA,b[i]-2)*2*dDELTA2_dDelta_dTau*dDELTA_dDelta);
+	dDELTAbi3_dDelta2_dTau=b[i]*(Line1+Line2);
+	
+	Line1=pow(DELTA,b[i])*(2*delta*dPSI2_dDelta_dTau+delta*dDELTA3_dDelta2_dTau)+dDELTAbi_dTau*(2*dPSI_dDelta+delta*dPSI2_dDelta2);
+	Line2=2*dDELTAbi2_dDelta_dTau*(PSI+delta*dPSI_dDelta)+2*dDELTAbi_dDelta*(dPSI_dTau+delta*dPSI2_dDelta_dTau);
+	Line3=dDELTAbi3_dDelta2_dTau*delta*PSI+dDELTAbi2_dDelta2*delta*dPSI_dTau;
+        dphir3_dDelta2_dTau+=n[i]*(Line1+Line2+Line3);
+    }
+    return dphir3_dDelta2_dTau;
 }
 
 double phi0_Water(double tau, double delta)
@@ -1298,7 +1392,6 @@ static double get_Delta(double T, double P)
     double r1,r2,r3,delta1,delta2,delta3;
     double tau;
     double delta_guess;
-     setCoeffs();
  
     if (P>Pc)
     {

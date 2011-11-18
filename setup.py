@@ -8,11 +8,13 @@ except:
     pass
 shutil.copy2('__init__.py.template','__init__.py')
 
+# If you add a fluid, update this list of fluids
+FluidSources = ['R134a.c','R744.c','R290.c','R410A.c',
+               'Brine.c','R32.c','R717.c','R404A.c','R407C.c',
+               'R507A.c','Argon.c','Nitrogen.c','Water.c','Air.c']
+                           
 CoolProp_module = Extension('_CoolProp',
-                           sources=['CoolProp.i', 'CoolProp.c',
-                           'R134a.c','R744.c','R290.c','R410A.c',
-                           'Brine.c','R32.c','R717.c','R404A.c','R407C.c',
-                           'R507A.c','Argon.c','Nitrogen.c','Water.c'],
+                           sources=['CoolProp.i', 'CoolProp.c']+FluidSources
                            )
 
 FloodProp_module = Extension('_FloodProp',
@@ -22,7 +24,7 @@ FloodProp_module = Extension('_FloodProp',
                            )
                            
 HumidAirProp_module = Extension('_HumidAirProp',
-                           sources=['HumidAirProp.i','HumAir.c'],
+                           sources=['HumidAirProp.i','HumAir.c','CoolProp.c','Ice.cpp']+FluidSources,
                            )                           
 
 setup (name = 'CoolProp',
@@ -33,7 +35,8 @@ setup (name = 'CoolProp',
        description = """Properties of R134a, R744, R410A, R290, R717, R32, R404A and brines""",
        packages = ['CoolProp','CoolProp.Plots'],
        ext_package = 'CoolProp',
-       ext_modules = [CoolProp_module,FloodProp_module,HumidAirProp_module],
+##        ext_modules = [CoolProp_module,FloodProp_module,HumidAirProp_module], #PUT ME BACK!!!
+       ext_modules = [HumidAirProp_module],
        package_dir = {'CoolProp':'.'}
        )
 

@@ -131,8 +131,9 @@ def SaturationValidationPlot(Ref,REFPROPRef):
     pylab.show()
     
 if __name__=='__main__':
-    SaturationValidationPlot('R290','REFPROP-Propane')
+##     SaturationValidationPlot('R290','REFPROP-Propane')
 ##     SaturationValidationPlot('Water','REFPROP-water')
+    SaturationValidationPlot('Air','REFPROP-Air')
 ##     SaturationValidationPlot('R717','REFPROP-ammonia')
 ##     SaturationValidationPlot('R744','REFPROP-CO2')
 

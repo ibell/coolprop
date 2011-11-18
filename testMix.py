@@ -1,4 +1,5 @@
-from CoolProp.CoolProp import Props
+from CoolProp.CoolProp import Props,Help as CPHelp
+from CoolProp.HumidAirProp import HAHelp
 
 print Props('D','T',300,'P',100,'REFPROP-MIX:R32[0.697615]&R125[0.302385]')
 print Props('D','T',300,'P',100,'R410A')
@@ -13,3 +14,5 @@ print Props('H','T',280,'Q',Q,'REFPROP-Propane')
 D=Props('D','T',280,'Q',Q,'REFPROP-Propane')
 print D
 print Props('H','T',280,'D',D,'REFPROP-Propane')
+
+HAHelp()

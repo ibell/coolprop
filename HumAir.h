@@ -21,13 +21,28 @@
 #ifndef HUMAIR_H
 #define HUMAIR_H
 
+// -----------------------
+// Standard I/O functions
+// -----------------------
+// HumAir is the backwards compatible call for consistency
 int HumAir(double tSI, double pSI, int HumInput, double xSI, /* in --- out */ double *Tdp_out, double *W_out, double *h_out, double *RH_out, double *v_out);
+// HumAir_Single is more extensible
+double HumAir_Single(double T, double p, char *HumInputStr, double xSI, char *OutputStr);
+
+// --------------
+// Help functions
+// --------------
+void HAHelp();
+int returnHumAirCode(char * Code);
+
+// ----------------------
+// Other simple functions
+// ----------------------
 double cair_sat(double T);
-double hair_sat(double T);
 double T_hss(double h, double p, double T_guess);
 double T_homega(double h, double omega, double P, double T_guess, double deltaT);
-void Help();
-int returnHumAirCode(char * Code);
-double HumAir_Single(double T, double pSI, char *HumInputStr, double xSI, char *OutputStr);
+
+
+
 
 #endif
