@@ -35,8 +35,8 @@ setup (name = 'CoolProp',
        description = """Properties of R134a, R744, R410A, R290, R717, R32, R404A and brines""",
        packages = ['CoolProp','CoolProp.Plots'],
        ext_package = 'CoolProp',
-##        ext_modules = [CoolProp_module,FloodProp_module,HumidAirProp_module], #PUT ME BACK!!!
-       ext_modules = [HumidAirProp_module],
+       ext_modules = [CoolProp_module,FloodProp_module,HumidAirProp_module], #PUT ME BACK!!!
+##        ext_modules = [CoolProp_module],
        package_dir = {'CoolProp':'.'}
        )
 

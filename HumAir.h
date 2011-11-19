@@ -25,7 +25,7 @@
 // Standard I/O functions
 // -----------------------
 // HumAir is the backwards compatible call for consistency
-int HumAir(double tSI, double pSI, int HumInput, double xSI, /* in --- out */ double *Tdp_out, double *W_out, double *h_out, double *RH_out, double *v_out);
+void HumAir(double tSI, double pSI, int HumInput, double xSI, /* in --- out */ double *Tdp_out, double *W_out, double *h_out, double *RH_out, double *v_out);
 // HumAir_Single is more extensible
 double HumAir_Single(double T, double p, char *HumInputStr, double xSI, char *OutputStr);
 

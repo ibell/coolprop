@@ -74,6 +74,63 @@ double (*dphi02_dTau2_func)(double,double);
 double (*rhosatV_func)(double);
 double (*rhosatL_func)(double);
 
+#define NLUTFLUIDS 30 // How many saturation curve LUTs you can have in one instance of CoolProp
+#define NLUT 300 // How many values to use for each lookup table
+
+double Tsat_LUT[NLUTFLUIDS][NLUT],rhosatL_LUT[NLUTFLUIDS][NLUT],rhosatV_LUT[NLUTFLUIDS][NLUT],psat_LUT[NLUTFLUIDS][NLUT];
+char RefLUT[NLUTFLUIDS][255]; // The names of the fluids that are loaded
+int FlagUseSaturationLUT=0; //Default to not use LUT
+
+int BuildSaturationLUT(char *Ref)
+{
+    // returns the index of the LUT
+    int i,k;
+    double T_t,T_c,dT;
+    
+    // Check if the LUT is already in memory
+    for (k=0;k<NLUTFLUIDS;k++)
+    {
+        // If it is found, break out of loop and stop; no LUT needed
+        if (!strcmp(RefLUT[k],Ref)) return k;
+        // You made it to an empty string, need a LUT, jump out of for loop
+        if (!strcmp(RefLUT[k],"")) break;
+    }
+    if (k==NLUTFLUIDS)
+    {
+        // Ran out of fluids
+        printf("Sorry, ran out of saturation LUT slots, increase NLUTFLUIDS and recompile\n");
+    }
+    
+    // Therefore it hasn't been found yet, assign the refrigerant name
+    strcpy(RefLUT[k],Ref);
+    
+    // Linearly space the values from the triple point of the fluid to the just shy of the critical point
+    T_t=Props('R','T',0,'P',0,Ref);
+    T_c=0.99999*Props('B','T',0,'P',0,Ref);
+    
+    dT=(T_c-T_t)/(NLUT-1);
+    for (i=0;i<NLUT;i++)
+    {
+        // Linearly space the elements
+        Tsat_LUT[k][i]=T_t+i*dT;
+        // Calculate the saturation properties
+        rhosatPure(Ref, Tsat_LUT[k][i], &(rhosatL_LUT[k][i]), &(rhosatV_LUT[k][i]), &(psat_LUT[k][i]));
+    }
+    printf("Saturation LUT built\n");
+    return k;
+}   
+
+void UseSaturationLUT(int OnOff)
+{
+    if (OnOff==1 || OnOff==0)
+    {
+        FlagUseSaturationLUT=OnOff;
+    }
+    else
+    {
+        printf("Sorry, UseSaturationLUT() takes an inter input, either 0 (no) or 1 (yes)\n");
+    }
+}
 
 static double QuadInterpolate(double x0, double x1, double x2, double f0, double f1, double f2, double x)
 {
@@ -82,6 +139,55 @@ static double QuadInterpolate(double x0, double x1, double x2, double f0, double
     L1=((x-x0)*(x-x2))/((x1-x0)*(x1-x2));
     L2=((x-x0)*(x-x1))/((x2-x0)*(x2-x1));
     return L0*f0+L1*f1+L2*f2;
+}
+
+static double ApplySaturationLUT(char *OutPropName,char *InPropName,double T_or_p, char *Ref)
+{
+    int i,k;
+    double x0,x1,x2,y0,y1,y2;
+    // pointers to the x and y vectors for later
+    double (*y)[NLUT],(*x)[NLUT];
+    
+    // First try to build the LUT, get index of LUT
+    k=BuildSaturationLUT(Ref);
+    
+    // Then find the index to the left of the temp
+    for(i=0;i<NLUT;i++)
+    {
+        if (Tsat_LUT[k][i]>=T_or_p) break;
+    }
+    
+    if (!strcmp(InPropName,"T") || !strcmp(InPropName,"Tsat"))
+		x=&(Tsat_LUT[k]);
+    
+    if (!strcmp(OutPropName,"rhoL"))
+		y=&(rhosatL_LUT[k]);
+    else if (!strcmp(OutPropName,"rhoV"))
+        y=&(rhosatV_LUT[k]);
+    else if (!strcmp(OutPropName,"p"))
+        y=&(psat_LUT[k]);
+    
+    // Need a three-point set to interpolate using a quadratic.
+    if (i<NLUT-2)
+    {
+        x0=(*x)[i];
+        x1=(*x)[i+1];
+        x2=(*x)[i+2];
+        y0=(*y)[i];
+        y1=(*y)[i+1];
+        y2=(*y)[i+2];
+    }
+    else
+    {
+        // Go "backwards" with the interpolation range
+        x0=(*x)[i+1];
+        x1=(*x)[i];
+        x2=(*x)[i-1];
+        y0=(*y)[i+1];
+        y1=(*y)[i];
+        y2=(*y)[i-1];
+    }
+    return QuadInterpolate(x0,x1,x2,y0,y1,y2,T_or_p);
 }
 
 void MatInv_2(double A[2][2] , double B[2][2])
@@ -981,7 +1087,6 @@ void Help()
 	printf("  T      ||      P\n");
 	printf("  T      ||      Q\n");
 	printf("  T      ||      D\n");
-
 }
 
 int IsFluidType(char *Ref, char *Type)
@@ -1618,7 +1723,17 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 				Q=Prop2;
 				if (!strcmp(Ref,"R290") || !strcmp(Ref,"Argon") ||!strcmp(Ref,"Nitrogen")  ||!strcmp(Ref,"R134a") ||!strcmp(Ref,"R717") || !strcmp(Ref,"CO2") || !strcmp(Ref,"R744") || !strcmp(Ref,"Water") )
 				{
-					rhosatPure(Ref,T,&rhoL,&rhoV,&p);
+                    if (FlagUseSaturationLUT)
+                    {
+                        // Use the saturation Lookup Table;
+                        rhoL=ApplySaturationLUT("rhoL","T",T,Ref);
+                        rhoV=ApplySaturationLUT("rhoV","T",T,Ref);
+                        p=ApplySaturationLUT("p","T",T,Ref);
+                    }
+                    else
+                    {
+                        rhosatPure(Ref,T,&rhoL,&rhoV,&p);
+                    }
 				}
 				else
 				{
@@ -1872,8 +1987,10 @@ double h_sp(char *Ref, double s, double p, double T_guess)
 double Tsat(char *Ref, double p, double Q, double T_guess)
 {
 	double x1=0,x2=0,x3=0,y1=0,y2=0,y3=0,eps=1e-8,change=999,f=999,T=300,tau,tau1,tau3,tau2,logp1,logp2,logp3,T1,T2,T3;
-	int iter=1;
+	int iter=1,i,k;
 	double Tc,Tmax,Tmin;
+    // pointers to the x and y vectors for later
+    double (*y)[NLUT],(*x)[NLUT],x0,y0;
 
 	// Brines do not have saturation temperatures, set it to a big number
 	if (IsFluidType(Ref,"Brine"))
@@ -1888,6 +2005,44 @@ double Tsat(char *Ref, double p, double Q, double T_guess)
 		}
 	#endif
 	
+    // Do reverse interpolation in the Saturation Lookup Table
+    if (FlagUseSaturationLUT && FluidType==FLUIDTYPE_REFRIGERANT_PURE)
+    {
+        // First try to build the LUT, get index of LUT
+        k=BuildSaturationLUT(Ref);
+        
+        // Then find the index to the left of the pressure
+        for(i=0;i<NLUT;i++)
+        {
+            if (psat_LUT[k][i]>=p) break;
+        }
+        
+        x=&(psat_LUT[k]);
+        y=&(Tsat_LUT[k]);
+        
+        // Need a three-point set to interpolate using a quadratic.
+        if (i<NLUT-2)
+        {
+            x0=(*x)[i];
+            x1=(*x)[i+1];
+            x2=(*x)[i+2];
+            y0=(*y)[i];
+            y1=(*y)[i+1];
+            y2=(*y)[i+2];
+        }
+        else
+        {
+            // Go "backwards" with the interpolation range
+            x0=(*x)[i+1];
+            x1=(*x)[i];
+            x2=(*x)[i-1];
+            y0=(*y)[i+1];
+            y1=(*y)[i];
+            y2=(*y)[i-1];
+        }
+        return QuadInterpolate(x0,x1,x2,y0,y1,y2,p);
+        
+    }
 	Tc=Tcrit(Ref);
 	Tmax=Tc-1;
 	Tmin=Ttriple(Ref)+1;

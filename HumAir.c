@@ -264,7 +264,6 @@ void HAHelp()
     //~ p=101.325;
     //~ HumAir3(T,p,4,0.0001, /* in --- out */ &Tdp_out, &W_out, &h_out, &RH_out, &v_out);
     //~ printf("%g C: DP %0.8g W %0.8f h %0.8f RH %0.8f v %0.8f\n",T-273.15,Tdp_out,W_out,h_out,RH_out,v_out);
-    
 }
 int returnHumAirCode(char * Code)
 {
@@ -379,6 +378,7 @@ double DewpointTemperature(double T, double p, double psi_w)
             if (T>=273.15)
             {
                 // Saturation pressure at dewpoint [kPa]
+                UseSaturationLUT(1);
                 p_ws_dp=Props('P','T',Tdp,'Q',0,"Water");
             }
             else
@@ -483,6 +483,7 @@ static int HumAir_func(double T, double p, int HumInput, double xSI, /* in --- o
     double R_bar=8.314472,epsilon=0.621945,p_ws,p_s,f,RH,Tdp,W,psi_w,p_ws_dp,f_dp,p_w_dp;
     double M_ha,v_bar,v_da,hbar,Twb;
     
+    UseSaturationLUT(1); // Enable the use of lookup tables for saturation properties for speed
     if (T>=273.15)
     {
         // Saturation pressure [kPa]
@@ -545,10 +546,10 @@ static int HumAir_func(double T, double p, int HumInput, double xSI, /* in --- o
     // Get dewpoint temperature
     Tdp=DewpointTemperature(T,p,psi_w);
     
-    //Get wet-bulb temperature
-    Twb=WetbulbTemperature(T,p,psi_w);
+    //~ //Get wet-bulb temperature
+    //~ Twb=WetbulbTemperature(T,p,psi_w);
     
-    // Specific volume in m^3/kg_da, v_bar has units of m^3/mol
+    // Specific volume v_da in m^3/kg_da, v_bar has units of m^3/mol
     v_da=v_bar*(1+W)/M_ha*1000;
     
     *v_out=v_da;
@@ -599,7 +600,7 @@ double HumAir_Single(double T, double pSI, char *HumInputStr, double xSI, char *
 	}
 
 }
-int HumAir(double T, double pSI, int HumInput, double xSI, /* in --- out */ double *Tdp_out, double *w_out, double *h_out, double *RH_out, double *v_out)
+void HumAir(double T, double pSI, int HumInput, double xSI, /* in --- out */ double *Tdp_out, double *w_out, double *h_out, double *RH_out, double *v_out)
 {
 	double x1=0,x2=0,x3=0,y1=0,y2=0,eps=1e-8,change=999,f,RH;
 
@@ -635,7 +636,7 @@ int HumAir(double T, double pSI, int HumInput, double xSI, /* in --- out */ doub
 		}
 		HumAir_func(T,pSI,GIVEN_RH,RH,Tdp_out,w_out,h_out,RH_out,v_out);
 	}
-	return 1;
+	return;
 }
 
 double cair_sat(double T)
@@ -692,12 +693,11 @@ double T_homega(double h, double omega, double P, double T_guess, double deltaT)
 
 	// To compute the temperature based on enthalpy and humidity ratio
 	double T_dummy, rh_dummy, D_dummy, h_dummy, v_dummy, omega_dummy, h_dummy2;
-	int flag;
 	double error = 1;
 
 	while(error>0.0005){
-		flag = HumAir(T_guess, P, GIVEN_HUMRAT, omega, &D_dummy, &omega_dummy, &h_dummy, &rh_dummy, &v_dummy);
-		flag = HumAir(T_guess+0.001, P, GIVEN_HUMRAT, omega, &D_dummy, &omega_dummy, &h_dummy2, &rh_dummy, &v_dummy);
+		HumAir(T_guess, P, GIVEN_HUMRAT, omega, &D_dummy, &omega_dummy, &h_dummy, &rh_dummy, &v_dummy);
+		HumAir(T_guess+0.001, P, GIVEN_HUMRAT, omega, &D_dummy, &omega_dummy, &h_dummy2, &rh_dummy, &v_dummy);
 		T_dummy = T_guess - (h_dummy - h)/(h_dummy2-h_dummy)*0.001;
 		error = fabs(T_dummy-T_guess);
 		T_guess = T_dummy;
