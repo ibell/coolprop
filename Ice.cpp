@@ -90,12 +90,13 @@ extern "C" double dg_dT_Ice(double T, double p)
     theta= T/T_t; pi=p/p_t; pi_0=p_0/p_t;
     r2=r20*pow(pi-pi_0,0.0)+r21*pow(pi-pi_0,1.0)+r22*pow(pi-pi_0,2.0);
     // The two terms of the summation
-    term1=r1*(-log(t1-theta)+log(t1+theta)-theta/t1);
-    term2=r2*(-log(t2-theta)+log(t2+theta)-theta/t2);
+    term1=r1*(-log(t1-theta)+log(t1+theta)-2.0*theta/t1);
+    term2=r2*(-log(t2-theta)+log(t2+theta)-2.0*theta/t2);
     return -s0+real(term1+term2);
 }
 
 extern "C" double h_Ice(double T, double p)
 {
+    // Returned value is in units of J/kg
     return g_Ice(T,p)-T*dg_dT_Ice(T,p);
 }

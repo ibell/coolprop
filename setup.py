@@ -24,11 +24,11 @@ FloodProp_module = Extension('_FloodProp',
                            )
                            
 HumidAirProp_module = Extension('_HumidAirProp',
-                           sources=['HumidAirProp.i','HumAir.c','CoolProp.c','Ice.cpp']+FluidSources,
+                           sources=['HumidAirProp.i','HumAir.c','CoolProp.c','Ice.cpp','SolverFunctions.c']+FluidSources,
                            )                           
 
 setup (name = 'CoolProp',
-       version = '1.2.2',
+       version = '1.3',
        author      = "Ian Bell",
        author_email='ian.h.bell@gmail.com',
        url='http://coolprop.sourceforge.net',
@@ -40,11 +40,11 @@ setup (name = 'CoolProp',
        package_dir = {'CoolProp':'.'}
        )
 
-if 'install' in sys.argv:
-    os.remove('__init__.py')
-    os.remove('CoolProp.py')
-    os.remove('CoolProp_wrap.c')
-    os.remove('FloodProp.py')
-    os.remove('FloodProp_wrap.c')
-    os.remove('HumidAirProp.py')
-    os.remove('HumidAirProp_wrap.c')
+## if 'install' in sys.argv:
+##     os.remove('__init__.py')
+##     os.remove('CoolProp.py')
+##     os.remove('CoolProp_wrap.c')
+##     os.remove('FloodProp.py')
+##     os.remove('FloodProp_wrap.c')
+##     os.remove('HumidAirProp.py')
+##     os.remove('HumidAirProp_wrap.c')

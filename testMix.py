@@ -26,3 +26,17 @@ UseSaturationLUT(1)
 print str(Tsat('Water',101.325,1.0,300)-273.15) +'C'
 UseSaturationLUT(0)
 print str(Tsat('Water',101.325,1.0,300)-273.15) +'C'
+
+HAHelp()
+Tdp,W,h,RH,v=HumAir(290,101.325,2,0.005)
+## Tdp,W,h,RH,v=HumAir(290,101.325,5,h)
+
+## print 'a'
+## for i in range(10000):
+##     Tdp,W,h,RH,v=HumAir(290,101.325,2,0.005)
+##     Props('D','T',298.15,'P',101.325,'Air')
+## print 'a'
+## print 'b'
+## for i in range(10000):
+##     Tdp,W,h,RH,v=HumAir(290,101.325,5,h)
+## print 'b'
