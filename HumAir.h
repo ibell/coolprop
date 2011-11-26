@@ -31,13 +31,9 @@
 #define HUMAIR_H
 
 // -----------------------
-// Standard I/O functions
+// Standard I/O function
 // -----------------------
 double HAProps(char *OutputName, char *Input1Name, double Input1, char *Input2Name, double Input2, char *Input3Name, double Input3);
-// HumAir is the backwards compatible call for consistency
-void HumAir(double tSI, double pSI, int HumInput, double xSI, /* in --- out */ double *Tdp_out, double *W_out, double *h_out, double *RH_out, double *v_out);
-// HumAir_Single is more extensible
-double HumAir_Single(double T, double p, char *HumInputStr, double xSI, char *OutputStr);
 
 // --------------
 // Help functions

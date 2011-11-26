@@ -32,6 +32,7 @@ int FluidType;
 #define FLUIDTYPE_REFRIGERANT_PSEUDOPURE 3
 
 double R_u=8.314472; //From Lemmon et al 2009 (propane)
+
 // Function prototypes
 double _Dekker_Tsat(double x_min, double x_max, double eps, double p, double Q,char *Ref);
 
@@ -128,7 +129,7 @@ void UseSaturationLUT(int OnOff)
     }
     else
     {
-        printf("Sorry, UseSaturationLUT() takes an inter input, either 0 (no) or 1 (yes)\n");
+        printf("Sorry, UseSaturationLUT() takes an integer input, either 0 (no) or 1 (yes)\n");
     }
 }
 
@@ -1173,9 +1174,6 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 	*/
 
 	errCode=0;
-	
-	
-
 
 	// **********************************************************************************
 	// **********************************************************************************

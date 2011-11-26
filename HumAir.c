@@ -527,303 +527,303 @@ double WetbulbTemperature(double T, double p, double psi_w)
     return Twb;
 }
 
-static int HumAir_func(double T, double p, int HumInput, double xSI, char *singleValue, /* in --- out */ double *Tdp_out, double *W_out, double *h_out, double *RH_out, double *v_out, double *Twb_out)
-{
-    /*
-    Based (mostly) on the analysis of Herrmann, Kretzschmar, and Gatley in
+//~ static int HumAir_func(double T, double p, int HumInput, double xSI, char *singleValue, /* in --- out */ double *Tdp_out, double *W_out, double *h_out, double *RH_out, double *v_out, double *Twb_out)
+//~ {
+    //~ /*
+    //~ Based (mostly) on the analysis of Herrmann, Kretzschmar, and Gatley in
     
-    S. Herrmann, H.-J. Kretzschmar and D.P. Gatley, "ASHRAE RP-1485: Thermodynamic Properties of Real Moist Air, Dry Air, Steam, Water and Ice"
+    //~ S. Herrmann, H.-J. Kretzschmar and D.P. Gatley, "ASHRAE RP-1485: Thermodynamic Properties of Real Moist Air, Dry Air, Steam, Water and Ice"
     
-    There is a typo in the December 11, 2009 version, the molar rho_star value for C_aww should be 1 rather than 1000 so far as I (Ian Bell) can tell
-    */
-    double R_bar=8.314472,epsilon=0.621945,p_ws,p_s,f,RH,Tdp,W,psi_w,p_ws_dp,f_dp,p_w_dp;
-    double M_ha,v_bar,v_da,hbar,Twb;
+    //~ There is a typo in the December 11, 2009 version, the molar rho_star value for C_aww should be 1 rather than 1000 so far as I (Ian Bell) can tell
+    //~ */
+    //~ double R_bar=8.314472,epsilon=0.621945,p_ws,p_s,f,RH,Tdp,W,psi_w,p_ws_dp,f_dp,p_w_dp;
+    //~ double M_ha,v_bar,v_da,hbar,Twb;
 
-    int i;
-    double time_elap;
-    clock_t t1,t2;
+    //~ int i;
+    //~ double time_elap;
+    //~ clock_t t1,t2;
     
-    UseSaturationLUT(1); // Enable the use of lookup tables for saturation properties for speed
+    //~ UseSaturationLUT(1); // Enable the use of lookup tables for saturation properties for speed
     
-    if (HumInput==GIVEN_RH)
-    {
-        if (T>=273.15)
-        {
-            // Saturation pressure [kPa]
-            p_ws=Props('P','T',T,'Q',0,"Water");
-        }
-        else
-        {
-            // sublimation pressure [kPa]
-            p_ws=psub_Ice(T);
+    //~ if (HumInput==GIVEN_RH)
+    //~ {
+        //~ if (T>=273.15)
+        //~ {
+            //~ // Saturation pressure [kPa]
+            //~ p_ws=Props('P','T',T,'Q',0,"Water");
+        //~ }
+        //~ else
+        //~ {
+            //~ // sublimation pressure [kPa]
+            //~ p_ws=psub_Ice(T);
             
-        }
-        // Enhancement Factor [-]
-        f=f_factor(T,p);
+        //~ }
+        //~ // Enhancement Factor [-]
+        //~ f=f_factor(T,p);
 
-        // Saturation pressure [kPa]
-        p_s=f*p_ws;
-        RH=xSI;
-        W=epsilon*RH*p_s/(p-RH*p_s);
-        psi_w=W/(epsilon+W);
-    }
-    else if (HumInput==GIVEN_TDP)
-    {
-        Tdp=xSI;
-        // Saturation pressure at dewpoint [kPa]
-        p_ws_dp=Props('P','T',Tdp,'Q',0,"Water");
-        // Enhancement Factor at dewpoint temperature [-]
-        f_dp=f_factor(Tdp,p);
-        // Water vapor pressure at dewpoint [kPa]
-        p_w_dp=f_dp*p_ws_dp;
-        // Water mole fraction [-]
-        psi_w=p_w_dp/p;
-        // Humidity ratio [-]
-        W=psi_w*epsilon/(1-psi_w);
-        // Find relative humidity using W/e=phi*p_s/(p-phi*p_s)
-        RH=W/epsilon*p/(p_w_dp*(1+W/epsilon));
-    }
-    else if (HumInput==GIVEN_HUMRAT) //(2)
-    {
-        W=xSI;
-        psi_w=W/(epsilon+W);
-        if (T>=273.15)
-        {
-            // Saturation pressure [kPa]
-            p_ws=Props('P','T',T,'Q',0,"Water");
-        }
-        else
-        {
-            // sublimation pressure [kPa]
-            p_ws=psub_Ice(T);
+        //~ // Saturation pressure [kPa]
+        //~ p_s=f*p_ws;
+        //~ RH=xSI;
+        //~ W=epsilon*RH*p_s/(p-RH*p_s);
+        //~ psi_w=W/(epsilon+W);
+    //~ }
+    //~ else if (HumInput==GIVEN_TDP)
+    //~ {
+        //~ Tdp=xSI;
+        //~ // Saturation pressure at dewpoint [kPa]
+        //~ p_ws_dp=Props('P','T',Tdp,'Q',0,"Water");
+        //~ // Enhancement Factor at dewpoint temperature [-]
+        //~ f_dp=f_factor(Tdp,p);
+        //~ // Water vapor pressure at dewpoint [kPa]
+        //~ p_w_dp=f_dp*p_ws_dp;
+        //~ // Water mole fraction [-]
+        //~ psi_w=p_w_dp/p;
+        //~ // Humidity ratio [-]
+        //~ W=psi_w*epsilon/(1-psi_w);
+        //~ // Find relative humidity using W/e=phi*p_s/(p-phi*p_s)
+        //~ RH=W/epsilon*p/(p_w_dp*(1+W/epsilon));
+    //~ }
+    //~ else if (HumInput==GIVEN_HUMRAT) //(2)
+    //~ {
+        //~ W=xSI;
+        //~ psi_w=W/(epsilon+W);
+        //~ if (T>=273.15)
+        //~ {
+            //~ // Saturation pressure [kPa]
+            //~ p_ws=Props('P','T',T,'Q',0,"Water");
+        //~ }
+        //~ else
+        //~ {
+            //~ // sublimation pressure [kPa]
+            //~ p_ws=psub_Ice(T);
             
-        }
-        // Enhancement Factor [-]
-        f=f_factor(T,p);
+        //~ }
+        //~ // Enhancement Factor [-]
+        //~ f=f_factor(T,p);
 
-        // Saturation pressure [kPa]
-        p_s=f*p_ws;
-        // Find relative humidity using W/e=phi*p_s/(p-phi*p_s)
-        RH=W/epsilon*p/(p_s*(1+W/epsilon));
-    }
+        //~ // Saturation pressure [kPa]
+        //~ p_s=f*p_ws;
+        //~ // Find relative humidity using W/e=phi*p_s/(p-phi*p_s)
+        //~ RH=W/epsilon*p/(p_s*(1+W/epsilon));
+    //~ }
     
-    M_ha=(1-psi_w)*28.966+MM_Water()*psi_w;
+    //~ M_ha=(1-psi_w)*28.966+MM_Water()*psi_w;
     
-    if (!strcmp(singleValue,"v") || !strcmp(singleValue,""))
-    {
-		// Calculate molar volume
-		v_bar=MolarVolume(T,p,psi_w);
-	}
-	else
-	{ v_bar=-100000; } //Skip it
+    //~ if (!strcmp(singleValue,"v") || !strcmp(singleValue,""))
+    //~ {
+		//~ // Calculate molar volume
+		//~ v_bar=MolarVolume(T,p,psi_w);
+	//~ }
+	//~ else
+	//~ { v_bar=-100000; } //Skip it
     
-    if (!strcmp(singleValue,"h") || !strcmp(singleValue,""))
-    {
-        // Still need to calculate v_bar even though not going to output it
-        v_bar=MolarVolume(T,p,psi_w);
-		// Get molar enthalpy
-		hbar=MolarEnthalpy(T,p,psi_w,v_bar);
-    }
-    else
-    { hbar=-100000;}// Skip it
+    //~ if (!strcmp(singleValue,"h") || !strcmp(singleValue,""))
+    //~ {
+        //~ // Still need to calculate v_bar even though not going to output it
+        //~ v_bar=MolarVolume(T,p,psi_w);
+		//~ // Get molar enthalpy
+		//~ hbar=MolarEnthalpy(T,p,psi_w,v_bar);
+    //~ }
+    //~ else
+    //~ { hbar=-100000;}// Skip it
 
-    if (!strcmp(singleValue,"Tdp") || !strcmp(singleValue,""))
-    {
-    	// Get dewpoint temperature
-    	Tdp=DewpointTemperature(T,p,psi_w);
-    }
-    else
-    {Tdp=-100000;} // Skip it
+    //~ if (!strcmp(singleValue,"Tdp") || !strcmp(singleValue,""))
+    //~ {
+    	//~ // Get dewpoint temperature
+    	//~ Tdp=DewpointTemperature(T,p,psi_w);
+    //~ }
+    //~ else
+    //~ {Tdp=-100000;} // Skip it
     
-    if (!strcmp(singleValue,"Twb") || !strcmp(singleValue,""))
-    {
-    	//Get wet-bulb temperature
-        Twb=WetbulbTemperature(T,p,psi_w);
-    }
-    else
-    {Twb=-100000;} // Skip it
+    //~ if (!strcmp(singleValue,"Twb") || !strcmp(singleValue,""))
+    //~ {
+    	//~ //Get wet-bulb temperature
+        //~ Twb=WetbulbTemperature(T,p,psi_w);
+    //~ }
+    //~ else
+    //~ {Twb=-100000;} // Skip it
     
-    // Specific volume v_da in m^3/kg_ha, v_bar has units of m^3/mol
-    v_da=v_bar*(1+W)/M_ha*1000;
+    //~ // Specific volume v_da in m^3/kg_ha, v_bar has units of m^3/mol
+    //~ v_da=v_bar*(1+W)/M_ha*1000;
     
-    *v_out=v_da;
-    *h_out=hbar*(1+W)/M_ha;
-    *W_out=W;
-    *RH_out=RH;
-    *Tdp_out=Tdp;
-    *Twb_out=Twb;
+    //~ *v_out=v_da;
+    //~ *h_out=hbar*(1+W)/M_ha;
+    //~ *W_out=W;
+    //~ *RH_out=RH;
+    //~ *Tdp_out=Tdp;
+    //~ *Twb_out=Twb;
 
-    // ::::::::::::::::::::::::::::
-    //    Debug timing code:::
-    //   Uncomment and recompile to time the functions
-    // :::::::::::::::::::::::::::
+    //~ // ::::::::::::::::::::::::::::
+    //~ //    Debug timing code:::
+    //~ //   Uncomment and recompile to time the functions
+    //~ // :::::::::::::::::::::::::::
 
-    // Start timer;
-//    t1=clock();  for (i=0;i<10000;i++){ v_bar=MolarVolume(T,p,psi_w);} t2=clock();
-//	time_elap= ((double)(t2-t1))/CLOCKS_PER_SEC; // Elapsed time for this run in sec
-//	printf("time for 10000 calls to MolarVolume: %0.12f s\n",time_elap);
-//
-//	t1=clock();  for (i=0;i<10000;i++){ hbar=MolarEnthalpy(T,p,psi_w,v_bar);} t2=clock();
-//	time_elap= ((double)(t2-t1))/CLOCKS_PER_SEC; // Elapsed time for this run in sec
-//	printf("time for 10000 calls to MolarEnthalpy: %0.12f s\n",time_elap);
-//
-//	t1=clock();  for (i=0;i<10000;i++){Tdp=DewpointTemperature(T,p,psi_w);} t2=clock();
-//	time_elap= ((double)(t2-t1))/CLOCKS_PER_SEC; // Elapsed time for this run in sec
-//	printf("time for 10000 calls to DewpointTemperature: %0.12f s\n",time_elap);
-//
-//	t1=clock();  for (i=0;i<10000;i++){B_Air(132.1/T);} t2=clock();
-//	time_elap= ((double)(t2-t1))/CLOCKS_PER_SEC; // Elapsed time for this run in sec
-//	printf("time for 10000 calls to B_Air: %0.12f s\n",time_elap);
+    //~ // Start timer;
+//~ //    t1=clock();  for (i=0;i<10000;i++){ v_bar=MolarVolume(T,p,psi_w);} t2=clock();
+//~ //	time_elap= ((double)(t2-t1))/CLOCKS_PER_SEC; // Elapsed time for this run in sec
+//~ //	printf("time for 10000 calls to MolarVolume: %0.12f s\n",time_elap);
+//~ //
+//~ //	t1=clock();  for (i=0;i<10000;i++){ hbar=MolarEnthalpy(T,p,psi_w,v_bar);} t2=clock();
+//~ //	time_elap= ((double)(t2-t1))/CLOCKS_PER_SEC; // Elapsed time for this run in sec
+//~ //	printf("time for 10000 calls to MolarEnthalpy: %0.12f s\n",time_elap);
+//~ //
+//~ //	t1=clock();  for (i=0;i<10000;i++){Tdp=DewpointTemperature(T,p,psi_w);} t2=clock();
+//~ //	time_elap= ((double)(t2-t1))/CLOCKS_PER_SEC; // Elapsed time for this run in sec
+//~ //	printf("time for 10000 calls to DewpointTemperature: %0.12f s\n",time_elap);
+//~ //
+//~ //	t1=clock();  for (i=0;i<10000;i++){B_Air(132.1/T);} t2=clock();
+//~ //	time_elap= ((double)(t2-t1))/CLOCKS_PER_SEC; // Elapsed time for this run in sec
+//~ //	printf("time for 10000 calls to B_Air: %0.12f s\n",time_elap);
 
-//
-//	t1=clock();  for (i=0;i<10000;i++){B_Water(640.6/T);} t2=clock();
-//	time_elap= ((double)(t2-t1))/CLOCKS_PER_SEC; // Elapsed time for this run in sec
-//	printf("time for 10000 calls to B_Water: %0.12f s\n",time_elap);
-//
-//	t1=clock();  for (i=0;i<10000;i++){C_Air(132.1/T);} t2=clock();
-//	time_elap= ((double)(t2-t1))/CLOCKS_PER_SEC; // Elapsed time for this run in sec
-//	printf("time for 10000 calls to C_Air: %0.12f s\n",time_elap);
-//
-//	t1=clock();  for (i=0;i<10000;i++){C_Water(640.6/T);} t2=clock();
-//	time_elap= ((double)(t2-t1))/CLOCKS_PER_SEC; // Elapsed time for this run in sec
-//	printf("time for 10000 calls to C_Water: %0.12f s\n",time_elap);
+//~ //
+//~ //	t1=clock();  for (i=0;i<10000;i++){B_Water(640.6/T);} t2=clock();
+//~ //	time_elap= ((double)(t2-t1))/CLOCKS_PER_SEC; // Elapsed time for this run in sec
+//~ //	printf("time for 10000 calls to B_Water: %0.12f s\n",time_elap);
+//~ //
+//~ //	t1=clock();  for (i=0;i<10000;i++){C_Air(132.1/T);} t2=clock();
+//~ //	time_elap= ((double)(t2-t1))/CLOCKS_PER_SEC; // Elapsed time for this run in sec
+//~ //	printf("time for 10000 calls to C_Air: %0.12f s\n",time_elap);
+//~ //
+//~ //	t1=clock();  for (i=0;i<10000;i++){C_Water(640.6/T);} t2=clock();
+//~ //	time_elap= ((double)(t2-t1))/CLOCKS_PER_SEC; // Elapsed time for this run in sec
+//~ //	printf("time for 10000 calls to C_Water: %0.12f s\n",time_elap);
 
-//	t1=clock();  for (i=0;i<10000;i++){f_factor(T,p);} t2=clock();
-//	time_elap= ((double)(t2-t1))/CLOCKS_PER_SEC; // Elapsed time for this run in sec
-//	printf("time for 10000 calls to f_factor: %0.12f s\n",time_elap);
-//
-//	t1=clock();  for (i=0;i<10000;i++){B_m(T,0.001);} t2=clock();
-//	time_elap= ((double)(t2-t1))/CLOCKS_PER_SEC; // Elapsed time for this run in sec
-//	printf("time for 10000 calls to B_m: %0.12f s\n",time_elap);
-//
-//	t1=clock();  for (i=0;i<10000;i++){C_m(T,0.001);} t2=clock();
-//	time_elap= ((double)(t2-t1))/CLOCKS_PER_SEC; // Elapsed time for this run in sec
-//	printf("time for 10000 calls to C_m: %0.12f s\n",time_elap);
+//~ //	t1=clock();  for (i=0;i<10000;i++){f_factor(T,p);} t2=clock();
+//~ //	time_elap= ((double)(t2-t1))/CLOCKS_PER_SEC; // Elapsed time for this run in sec
+//~ //	printf("time for 10000 calls to f_factor: %0.12f s\n",time_elap);
+//~ //
+//~ //	t1=clock();  for (i=0;i<10000;i++){B_m(T,0.001);} t2=clock();
+//~ //	time_elap= ((double)(t2-t1))/CLOCKS_PER_SEC; // Elapsed time for this run in sec
+//~ //	printf("time for 10000 calls to B_m: %0.12f s\n",time_elap);
+//~ //
+//~ //	t1=clock();  for (i=0;i<10000;i++){C_m(T,0.001);} t2=clock();
+//~ //	time_elap= ((double)(t2-t1))/CLOCKS_PER_SEC; // Elapsed time for this run in sec
+//~ //	printf("time for 10000 calls to C_m: %0.12f s\n",time_elap);
 
-	// _B_aw and _C_aaw and _C_aww() all take zero time
+	//~ // _B_aw and _C_aaw and _C_aww() all take zero time
 
-	return 1;
-}
+	//~ return 1;
+//~ }
 
-double HumAir_Single(double T, double pSI, char *HumInputStr, double xSI, char *OutputStr)
-{
-	int HumInput;
-	double Tdp_out, w_out, h_out, RH_out, v_out,Twb_out;
-	char singleValue[100];
+//~ double HumAir_Single(double T, double pSI, char *HumInputStr, double xSI, char *OutputStr)
+//~ {
+	//~ int HumInput;
+	//~ double Tdp_out, w_out, h_out, RH_out, v_out,Twb_out;
+	//~ char singleValue[100];
 
-	if (!strcmp(HumInputStr,"RH"))
-		HumInput=GIVEN_RH;
-	else if (!strcmp(HumInputStr,"Omega") || !strcmp(HumInputStr,"HumRat"))
-		HumInput=GIVEN_HUMRAT;
-	else if (!strcmp(HumInputStr,"DewPoint"))
-		HumInput=GIVEN_TDP;
-	else if (!strcmp(HumInputStr,"WetBulb"))
-		HumInput=GIVEN_TWB;
-	else if (!strcmp(HumInputStr,"Enthalpy"))
-		HumInput=GIVEN_ENTHALPY;
-	else
-	{
-		fprintf(stderr,"Type of input [%s] not acceptable in HumAir_Single. Valid values are Omega,RH,WetBulb,DewPoint,Enthalpy,WetBulb.",HumInputStr);
-		return -1;
-	}
-	// Simplify calculations if possible (RH and W always calculated)
-	strcpy(singleValue,"");
-    if (!strcmp(OutputStr,"DewPoint"))
-		strcpy(singleValue,"Tdp");
-    else if (!strcmp(OutputStr,"WetBulb"))
-		strcpy(singleValue,"Twb");
-	else if (!strcmp(OutputStr,"Enthalpy"))
-		strcpy(singleValue,"h");
-	else if (!strcmp(OutputStr,"Volume"))
-		strcpy(singleValue,"v");
-	// Actually calculate
-    if (!strcmp(HumInputStr,"WetBulb") || (!strcmp(HumInputStr,"Enthalpy")))
-    {
-        // Iterative solution is required, get the humidity ratio using tools in HumAir
-        HumAir(T,pSI,HumInput,xSI,&Tdp_out,&w_out,&h_out,&RH_out,&v_out);
-        // Then use the humidity ratio directly
-        HumAir_func(T,pSI,GIVEN_HUMRAT,w_out,singleValue,&Tdp_out,&w_out,&h_out,&RH_out,&v_out,&Twb_out);
-    }
-    else
-    {
-        HumAir_func(T,pSI,HumInput,xSI,singleValue,&Tdp_out,&w_out,&h_out,&RH_out,&v_out,&Twb_out);
-    }
+	//~ if (!strcmp(HumInputStr,"RH"))
+		//~ HumInput=GIVEN_RH;
+	//~ else if (!strcmp(HumInputStr,"Omega") || !strcmp(HumInputStr,"HumRat"))
+		//~ HumInput=GIVEN_HUMRAT;
+	//~ else if (!strcmp(HumInputStr,"DewPoint"))
+		//~ HumInput=GIVEN_TDP;
+	//~ else if (!strcmp(HumInputStr,"WetBulb"))
+		//~ HumInput=GIVEN_TWB;
+	//~ else if (!strcmp(HumInputStr,"Enthalpy"))
+		//~ HumInput=GIVEN_ENTHALPY;
+	//~ else
+	//~ {
+		//~ fprintf(stderr,"Type of input [%s] not acceptable in HumAir_Single. Valid values are Omega,RH,WetBulb,DewPoint,Enthalpy,WetBulb.",HumInputStr);
+		//~ return -1;
+	//~ }
+	//~ // Simplify calculations if possible (RH and W always calculated)
+	//~ strcpy(singleValue,"");
+    //~ if (!strcmp(OutputStr,"DewPoint"))
+		//~ strcpy(singleValue,"Tdp");
+    //~ else if (!strcmp(OutputStr,"WetBulb"))
+		//~ strcpy(singleValue,"Twb");
+	//~ else if (!strcmp(OutputStr,"Enthalpy"))
+		//~ strcpy(singleValue,"h");
+	//~ else if (!strcmp(OutputStr,"Volume"))
+		//~ strcpy(singleValue,"v");
+	//~ // Actually calculate
+    //~ if (!strcmp(HumInputStr,"WetBulb") || (!strcmp(HumInputStr,"Enthalpy")))
+    //~ {
+        //~ // Iterative solution is required, get the humidity ratio using tools in HumAir
+        //~ HumAir(T,pSI,HumInput,xSI,&Tdp_out,&w_out,&h_out,&RH_out,&v_out);
+        //~ // Then use the humidity ratio directly
+        //~ HumAir_func(T,pSI,GIVEN_HUMRAT,w_out,singleValue,&Tdp_out,&w_out,&h_out,&RH_out,&v_out,&Twb_out);
+    //~ }
+    //~ else
+    //~ {
+        //~ HumAir_func(T,pSI,HumInput,xSI,singleValue,&Tdp_out,&w_out,&h_out,&RH_out,&v_out,&Twb_out);
+    //~ }
     
-	if (!strcmp(OutputStr,"RH"))
-		return RH_out;
-	else if (!strcmp(OutputStr,"Omega"))
-		return w_out;
-	else if (!strcmp(OutputStr,"DewPoint"))
-		return Tdp_out;
-    else if (!strcmp(OutputStr,"WetBulb"))
-		return Twb_out;
-	else if (!strcmp(OutputStr,"Enthalpy"))
-		return h_out;
-	else if (!strcmp(OutputStr,"Volume"))
-		return v_out;
-	else
-	{
-		fprintf(stderr,"Type of output [%s] not acceptable in HumAir_Single. Valid values are RH,Omega,DewPoint,Enthalpy,Volume,WetBulb.",OutputStr);
-		return -1;
-	}
-}
-void HumAir(double T, double pSI, int HumInput, double xSI, /* in --- out */ double *Tdp_out, double *w_out, double *h_out, double *RH_out, double *v_out)
-{
-	double x1=0,x2=0,x3=0,y1=0,y2=0,eps=1e-8,change=999,f,RH,Twb_out;
-	int iter=1;
+	//~ if (!strcmp(OutputStr,"RH"))
+		//~ return RH_out;
+	//~ else if (!strcmp(OutputStr,"Omega"))
+		//~ return w_out;
+	//~ else if (!strcmp(OutputStr,"DewPoint"))
+		//~ return Tdp_out;
+    //~ else if (!strcmp(OutputStr,"WetBulb"))
+		//~ return Twb_out;
+	//~ else if (!strcmp(OutputStr,"Enthalpy"))
+		//~ return h_out;
+	//~ else if (!strcmp(OutputStr,"Volume"))
+		//~ return v_out;
+	//~ else
+	//~ {
+		//~ fprintf(stderr,"Type of output [%s] not acceptable in HumAir_Single. Valid values are RH,Omega,DewPoint,Enthalpy,Volume,WetBulb.",OutputStr);
+		//~ return -1;
+	//~ }
+//~ }
+//~ void HumAir(double T, double pSI, int HumInput, double xSI, /* in --- out */ double *Tdp_out, double *w_out, double *h_out, double *RH_out, double *v_out)
+//~ {
+	//~ double x1=0,x2=0,x3=0,y1=0,y2=0,eps=1e-8,change=999,f,RH,Twb_out;
+	//~ int iter=1;
 
-	// The humid air input is something that gives an explicit solution
-	if (HumInput==GIVEN_TDP || HumInput==GIVEN_HUMRAT || HumInput==GIVEN_RH )
-	{
-		// Don't just take one value
-		HumAir_func(T,pSI,HumInput,xSI,"",Tdp_out,w_out,h_out,RH_out,v_out,&Twb_out);
-	}
-	else if (HumInput==GIVEN_ENTHALPY)
-	{
-		// Use a secant solve to find the relative humidity which gives you the enthalpy you desire
-		while ((iter<=3 || change>eps) && iter<100)
-		{
-			if (iter==1){x1=0.2; RH=x1;}
-			if (iter==2){x2=0.6; RH=x2;}
-			if (iter>2) {RH=x2;}
-				HumAir_func(T,pSI,GIVEN_RH,RH,"h",Tdp_out,w_out,h_out,RH_out,v_out,&Twb_out);
-				f=*h_out-xSI;
-			if (iter==1){y1=f;}
-			if (iter>1)
-			{
-				y2=f;
-				x3=x2-y2/(y2-y1)*(x2-x1);
-				change=fabs(y2/(y2-y1)*(x2-x1));
-				y1=y2; x1=x2; x2=x3;
-			}
-			iter=iter+1;
-		}
-        HumAir_func(T,pSI,GIVEN_RH,RH,"",Tdp_out,w_out,h_out,RH_out,v_out,&Twb_out);
-	}
-    else if (HumInput==GIVEN_TWB)
-	{
-		// Use a secant solve to find the wetbulb temp you desire
-		while ((iter<=3 || change>eps) && iter<100)
-		{
-			if (iter==1){x1=0.0; RH=x1;}
-			if (iter==2){x2=1.0; RH=x2;}
-			if (iter>2) {RH=x2;}
-				HumAir_func(T,pSI,GIVEN_RH,RH,"Twb",Tdp_out,w_out,h_out,RH_out,v_out,&Twb_out);
-				f=Twb_out-xSI;
-			if (iter==1){y1=f;}
-			if (iter>1)
-			{
-				y2=f;
-				x3=x2-y2/(y2-y1)*(x2-x1);
-				change=fabs(y2/(y2-y1)*(x2-x1));
-				y1=y2; x1=x2; x2=x3;
-			}
-			iter=iter+1;
-		}
-        HumAir_func(T,pSI,GIVEN_RH,RH,"",Tdp_out,w_out,h_out,RH_out,v_out,&Twb_out);
-	}
-	return;
-}
+	//~ // The humid air input is something that gives an explicit solution
+	//~ if (HumInput==GIVEN_TDP || HumInput==GIVEN_HUMRAT || HumInput==GIVEN_RH )
+	//~ {
+		//~ // Don't just take one value
+		//~ HumAir_func(T,pSI,HumInput,xSI,"",Tdp_out,w_out,h_out,RH_out,v_out,&Twb_out);
+	//~ }
+	//~ else if (HumInput==GIVEN_ENTHALPY)
+	//~ {
+		//~ // Use a secant solve to find the relative humidity which gives you the enthalpy you desire
+		//~ while ((iter<=3 || change>eps) && iter<100)
+		//~ {
+			//~ if (iter==1){x1=0.2; RH=x1;}
+			//~ if (iter==2){x2=0.6; RH=x2;}
+			//~ if (iter>2) {RH=x2;}
+				//~ HumAir_func(T,pSI,GIVEN_RH,RH,"h",Tdp_out,w_out,h_out,RH_out,v_out,&Twb_out);
+				//~ f=*h_out-xSI;
+			//~ if (iter==1){y1=f;}
+			//~ if (iter>1)
+			//~ {
+				//~ y2=f;
+				//~ x3=x2-y2/(y2-y1)*(x2-x1);
+				//~ change=fabs(y2/(y2-y1)*(x2-x1));
+				//~ y1=y2; x1=x2; x2=x3;
+			//~ }
+			//~ iter=iter+1;
+		//~ }
+        //~ HumAir_func(T,pSI,GIVEN_RH,RH,"",Tdp_out,w_out,h_out,RH_out,v_out,&Twb_out);
+	//~ }
+    //~ else if (HumInput==GIVEN_TWB)
+	//~ {
+		//~ // Use a secant solve to find the wetbulb temp you desire
+		//~ while ((iter<=3 || change>eps) && iter<100)
+		//~ {
+			//~ if (iter==1){x1=0.0; RH=x1;}
+			//~ if (iter==2){x2=1.0; RH=x2;}
+			//~ if (iter>2) {RH=x2;}
+				//~ HumAir_func(T,pSI,GIVEN_RH,RH,"Twb",Tdp_out,w_out,h_out,RH_out,v_out,&Twb_out);
+				//~ f=Twb_out-xSI;
+			//~ if (iter==1){y1=f;}
+			//~ if (iter>1)
+			//~ {
+				//~ y2=f;
+				//~ x3=x2-y2/(y2-y1)*(x2-x1);
+				//~ change=fabs(y2/(y2-y1)*(x2-x1));
+				//~ y1=y2; x1=x2; x2=x3;
+			//~ }
+			//~ iter=iter+1;
+		//~ }
+        //~ HumAir_func(T,pSI,GIVEN_RH,RH,"",Tdp_out,w_out,h_out,RH_out,v_out,&Twb_out);
+	//~ }
+	//~ return;
+//~ }
 static int Name2Type(char *Name)
 {
     if (!strcmp(Name,"Omega") || !strcmp(Name,"HumRat") || !strcmp(Name,"W"))
