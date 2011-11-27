@@ -557,16 +557,16 @@ double rhosat_Air(double T, double x)
 
 double visc_Air(double T, double p_rho, int Types)
 {
-	double e_k=143.2, //[K]
-		   sigma=0.335; //[nm]
+	double e_k=103.3, //[K]
+		   sigma=0.360; //[nm]
 	double rho,eta0,etar,OMEGA,delta,tau,Tstar;
 	double b[]={0.431,-0.4623,0.08406,0.005341,-0.00331};
 
-	double N[]={0,12.19,13.99,0.005027,-18.93,-6.698,-3.827};
-	double t[]={0,0.42,0.0,0.95,0.5,0.9,0.8};
-	double d[]={0,1,2,10,5,1,2};
-	double l[]={0,0,0,0,2,4,4};
-	double g[]={0,0,0,0,1,1,1};
+	double N[]={0,10.72,1.122,0.002019,-8.876,-0.02916};
+	double t[]={0,0.2,0.05,2.4,0.6,3.6};
+	double d[]={0,1,4,9,1,8};
+	double l[]={0,0,0,0,1,1};
+	double g[]={0,0,0,0,1,1};
 
 
 	if (Types==TYPE_Trho)
@@ -594,8 +594,7 @@ double visc_Air(double T, double p_rho, int Types)
 		+N[2]*pow(tau,t[2])*pow(delta,d[2])*exp(-g[2]*pow(delta,l[2]))
 		+N[3]*pow(tau,t[3])*pow(delta,d[3])*exp(-g[3]*pow(delta,l[3]))
 		+N[4]*pow(tau,t[4])*pow(delta,d[4])*exp(-g[4]*pow(delta,l[4]))
-		+N[5]*pow(tau,t[5])*pow(delta,d[5])*exp(-g[5]*pow(delta,l[5]))
-		+N[6]*pow(tau,t[6])*pow(delta,d[6])*exp(-g[6]*pow(delta,l[6]));
+		+N[5]*pow(tau,t[5])*pow(delta,d[5])*exp(-g[5]*pow(delta,l[5]));
 
 	return (eta0+etar)/1e6; // uPa-s to Pa-s
 }
@@ -611,22 +610,22 @@ static double X_tilde(double T,double tau,double delta)
 
 double k_Air(double T, double p_rho, int Types)
 {
-	double e_k=143.2, //[K]
-		   sigma=0.335, //[nm]
-		   Tref=301.374, //[K]
-		   zeta0=0.13, //[nm]
+	double e_k=103.3, //[K]
+		   sigma=0.360, //[nm]
+		   Tref=265.262, //[K]
+		   zeta0=0.11, //[nm]
 		   LAMBDA=0.055,
-		   q_D=0.32; //[nm]
+		   q_D=0.31; //[nm]
 	double rho,eta0,OMEGA,delta,tau,Tstar,lambda0,lambdar,num,
 		cp,cv,OMEGA_tilde,OMEGA_tilde0,zeta,nu,gamma,R0,lambdac,k,
 		pi=3.141592654,mu;
 	double b[]={0.431,-0.4623,0.08406,0.005341,-0.00331};
 
-	double N[]={0,0.8158,-0.4320,0.0,13.73,10.07,0.7375,-33.96,20.47,-2.274,-3.973};
-	double t[]={0,0,-0.77,-1.0,0.0,0.0,0.0,0.8,1.2,0.8,0.5};
-	double d[]={0,0,0,0,1,2,4,5,6,9,1};
-	double l[]={0,0,0,0,0,0,0,2,2,2,4};
-	double g[]={0,0,0,0,0,0,0,1,1,1,1};
+	double N[]={0,1.308,1.405,-1.036,8.743,14.76,-16.62,3.793,-6.142,-0.3778};
+	double t[]={0,0,-1.1,-0.3,0.1,0.0,0.5,2.7,0.3,1.3};
+	double d[]={0,0,0,0,1,2,3,7,7,11};
+	double l[]={0,0,0,0,0,0,2,2,2,2};
+	double g[]={0,0,0,0,0,0,0,1,1,1};
 	
 	if (Types==TYPE_Trho)
 		rho=p_rho;
@@ -657,8 +656,7 @@ double k_Air(double T, double p_rho, int Types)
 		   +N[6]*pow(tau,t[6])*pow(delta,d[6])*exp(-g[6]*pow(delta,l[6]))
 		   +N[7]*pow(tau,t[7])*pow(delta,d[7])*exp(-g[7]*pow(delta,l[7]))
 	 	   +N[8]*pow(tau,t[8])*pow(delta,d[8])*exp(-g[8]*pow(delta,l[8]))
-		   +N[9]*pow(tau,t[9])*pow(delta,d[9])*exp(-g[9]*pow(delta,l[9]))
-		   +N[10]*pow(tau,t[10])*pow(delta,d[10])*exp(-g[10]*pow(delta,l[10]));
+		   +N[9]*pow(tau,t[9])*pow(delta,d[9])*exp(-g[9]*pow(delta,l[9]));
 
 	R0=1.01;
 	nu=0.63;

@@ -26,6 +26,13 @@
 #define GIVEN_P 7
 #endif
 
+#ifndef GIVEN_VISC
+#define GIVEN_VISC 8
+#endif
+
+#ifndef GIVEN_COND
+#define GIVEN_COND 9
+#endif
 
 #ifndef HUMAIR_H
 #define HUMAIR_H

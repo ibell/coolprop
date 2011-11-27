@@ -335,7 +335,48 @@ int returnHumAirCode(char * Code)
 		return -1;
 	}
 }
-
+double Viscosity(double T, double p, double psi_w)
+{
+    /*
+    Using the method of:
+    
+    P.T. Tsilingiris, 2009, Thermophysical and transport properties of humid air at temperature range between 0 and 100 oC, Energy Conversion and Management, 49, 1098-1010
+    
+    but using the detailed measurements for pure fluid from IAPWS formulations
+    */
+    double mu_a,mu_w,Phi_av,Phi_va,Ma,Mw;
+    Mw=MM_Water();
+    Ma=MM_Air();
+    // Viscosity of dry air at dry-bulb temp and total pressure
+    mu_a=Props('V','T',T,'P',p,"Air");
+    // Viscosity of pure saturated water at dry-bulb temperature
+    mu_w=Props('V','P',p,'Q',1,"Water");
+    Phi_av=sqrt(2)/4.0*pow(1+Ma/Mw,-0.5)*powI(1+sqrt(mu_a/mu_w)*pow(Mw/Ma,0.25),2); //[-]
+    Phi_va=sqrt(2)/4.0*pow(1+Mw/Ma,-0.5)*powI(1+sqrt(mu_w/mu_a)*pow(Ma/Mw,0.25),2); //[-]
+    return (1-psi_w)*mu_a/((1-psi_w)+psi_w*Phi_av)+psi_w*mu_w/(psi_w+(1-psi_w)*Phi_va);
+}
+double Conductivity(double T, double p, double psi_w)
+{
+    /*
+    Using the method of:
+    
+    P.T. Tsilingiris, 2009, Thermophysical and transport properties of humid air at temperature range between 0 and 100 oC, Energy Conversion and Management, 49, 1098-1010
+    
+    but using the detailed measurements for pure fluid from IAPWS formulations
+    */
+    double mu_a,mu_w,k_a,k_w,Phi_av,Phi_va,Ma,Mw;
+    Mw=MM_Water();
+    Ma=MM_Air();
+    // Viscosity of dry air at dry-bulb temp and total pressure
+    k_a=Props('L','T',T,'P',p,"Air");
+    mu_a=Props('V','T',T,'P',p,"Air");
+    // Viscosity of pure saturated water at dry-bulb temperature
+    k_w=Props('L','P',p,'Q',1,"Water");
+    mu_w=Props('V','P',p,'Q',1,"Water");
+    Phi_av=sqrt(2)/4.0*pow(1+Ma/Mw,-0.5)*powI(1+sqrt(mu_a/mu_w)*pow(Mw/Ma,0.25),2); //[-]
+    Phi_va=sqrt(2)/4.0*pow(1+Mw/Ma,-0.5)*powI(1+sqrt(mu_w/mu_a)*pow(Ma/Mw,0.25),2); //[-]
+    return (1-psi_w)*k_a/((1-psi_w)+psi_w*Phi_av)+psi_w*k_w/(psi_w+(1-psi_w)*Phi_va);
+}
 double MolarVolume(double T, double p, double psi_w)
 {
     // Output in m^3/mol
@@ -840,8 +881,12 @@ static int Name2Type(char *Name)
         return GIVEN_T;
     else if (!strcmp(Name,"P"))
         return GIVEN_P;
+    else if (!strcmp(Name,"mu") || !strcmp(Name,"Visc") || !strcmp(Name,"M"))
+        return GIVEN_VISC;
+    else if (!strcmp(Name,"k") || !strcmp(Name,"Conductivity") || !strcmp(Name,"K"))
+        return GIVEN_COND;
     else
-        printf("Sorry, your input [%s] was not understood. Acceptable values are T,P,R,W,D,B,H and aliases thereof\n");
+        printf("Sorry, your input [%s] was not understood. Acceptable values are T,P,R,W,D,B,H,M,K and aliases thereof\n");
         return -1;
 }
 int TypeMatch(int TypeCode,char *Input1Name, char *Input2Name, char *Input3Name)
@@ -1131,6 +1176,14 @@ double HAProps(char *OutputName, char *Input1Name, double Input1, char *Input2Na
     else if (!strcmp(OutputName,"RH") || !strcmp(OutputName,"RelHum") || !strcmp(OutputName,"R"))
     {
         return RelativeHumidity(T,p,psi_w);
+    }
+    else if (!strcmp(OutputName,"mu") || !strcmp(OutputName,"Visc") || !strcmp(OutputName,"M"))
+    {
+        return Viscosity(T,p,psi_w);
+    }
+    else if (!strcmp(OutputName,"k") || !strcmp(OutputName,"Conductivity") || !strcmp(OutputName,"K"))
+    {
+        return Conductivity(T,p,psi_w);
     }
     else
     {
