@@ -182,8 +182,8 @@ htmlhelp_basename = 'sampledocdoc'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'sampledoc.tex', u'sampledoc Documentation',
-   u'John Hunter, Fernando Perez, Michael Droettboom', 'manual'),
+  ('index', 'CoolPropdoc.tex', u'CoolProp Documentation',
+   u'Ian Bell', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of

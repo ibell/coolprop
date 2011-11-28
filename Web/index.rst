@@ -9,6 +9,7 @@ Welcome to CoolProp
    :maxdepth: 1
 
    Installation.rst
+   HumidAir.rst
 
 What it is:
 ===========
