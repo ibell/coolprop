@@ -1,0 +1,9 @@
+@echo off
+make html
+make latex
+cd _build/latex
+pdflatex CoolPropdoc.tex
+pdflatex CoolPropdoc.tex
+pdflatex CoolPropdoc.tex
+pdflatex CoolPropdoc.tex
+pdflatex CoolPropdoc.tex
