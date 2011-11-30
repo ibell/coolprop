@@ -1,0 +1,25 @@
+{% extends "!layout.html" %}
+
+
+{% block rootrellink %}
+        <li><a href="{{ pathto('index') }}">home</a>|&nbsp;</li>
+        <li><a href="{{ pathto('search') }}">search</a>|&nbsp;</li>
+        <li><a href="{{ pathto('examples/examples') }}">examples</a>|&nbsp;</li>
+        <li><a href="{{ pathto('contents') }}">docs</a> &raquo;</li>
+{% endblock %}
+
+
+{% block relbar1 %}
+<link rel="shortcut icon" href="_static/favicon.ico">
+
+<div style="background-color: #9999FF; text-align: left; padding: 10px 10px 15px 15px">
+<a href="{{ pathto('index') }}"><img src="{{
+pathto("_static/header.png", 1) }}" border="0" alt="matplotlib"/></a>
+</div>
+{{ super() }}
+{% endblock %}
+
+{# put the sidebar before the body #}
+{% block sidebar1 %}{{ sidebar() }}{% endblock %}
+{% block sidebar2 %}{% endblock %}
+

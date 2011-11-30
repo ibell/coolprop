@@ -1,7 +1,7 @@
 Installation and Compilation
 ============================
 
-Binaries for Windows Users:
+Binaries for Windows Users
 ---------------------------
 
 For those using the DLL, the zip file can be downloaded to your computer and unzipped.  Put the DLL and its header file somewhere on the PATH, or in the same folder as the executable.  Or add the folder you put it in to the Windows search path.  To change the path, right-click on My Computer, go to the Advanced tab, then Environmental Variables, then add your folder to the PATH, being aware that the list is semicolon (;) delimited.
@@ -25,8 +25,8 @@ This will download all the sources to the coolprop folder.  Then simply run::
 
 in the coolprop folder and all the sources will be compiled and installed with your default compiler to the default location for your machine
 
-Developer Notes:
-================
+Developer Notes
+----------------
 
 If you want to use a compiler other than the default compiler, it can be specified as a command line option.  For instance, to use the MINGW GCC compiler on windows, run::
 

@@ -1,5 +1,9 @@
-Humid Air
-*********
+.. _Humid-Air:
+
+Humid Air Properties
+********************
+
+If you are feeling impatient, jump to :ref:`HAProps_Sample`, otherwise, hang in there.
 
 Humid air can be modeled as a mixture of air and water vapor.  In the simplest analysis, water and air are treated as ideal gases but in principle there is interaction between the air and water molecules that must be included through the use of interaction parameters.
 
@@ -41,7 +45,7 @@ where
 
     \psi_{w,s}=\frac{fp_{w,s}}{p}
     
-The product :math:`p_s` is defined by :math:`p_s=fp_{w,s}`, which yields the result for :math:`\psi_w` of
+The product :math:`p_s` is defined by :math:`p_s=fp_{w,s}`, and :math:`p_{w,s}` is the saturation pressure of pure water (or ice) at temperature :math:`T`. This yields the result for :math:`\psi_w` of
 
 .. math::
 
@@ -67,11 +71,58 @@ and the mole fraction of water vapor is obtained from
     
 Once the state has been fixed by a set of :math:`T,p,\psi_w`, any parameter of interest can be calculated
 
+Molar Volume
+------------
+.. math::
+    :label: eq1
+    
+    p=\frac{\bar R T}{\bar v}\left( 1+\frac{B_m}{\bar v}+\frac{C_m}{\bar v^2}\right)
+    
+The bracketed term on the right hand side is the compressibility Z factor, equal to 1 for ideal gas.  The virial terms are given by
+    
+.. math::
+    
+    B_m=(1-\psi_w)^2B_{aa}+2(1-\psi_w)\psi_wB_{aw}+\psi_w^2B_{ww}
+    
+    C_m=(1-\psi_w)^3C_{aaa}+3(1-\psi_w)^2\psi_wC_{aaw}+3(1-\psi_w)\psi_w^2C_{aww}+\psi_w^3C_{www}
+    
+where the virial coefficients are described in ASRAE RP-1485 and their values are provided in :ref:`HA-Validation`.  All virial terms are functions only of temperature.
+
+Usually the temperature is known, the water mole fraction is calculated, and :math:`\bar v` is found using iterativew methods, in HAProps, using a secant solver and the first guess that the compressibility factor is 1.0.
+    
+Molar Enthalpy
+--------------
+
+The molar enthalpy of humid air is obtained from
+
+.. math::
+
+    \bar h=(1-\psi_w)\bar h_a^o+\psi_w\bar h_w^o+\bar R T \left[(B_m-T\frac{dB_m}{dT})\frac{1}{\bar v}+\left(C_m-\frac{T}{2}\frac{dC_m}{dT}\right) \frac{1}{\bar v^2}\right]
+
+with :math:`\bar h` in kJ/kmol.  For both air and water, the full EOS is used to evaluate the enthalpy
+
+.. math::
+
+    \bar h_a^o=\bar h_0+\bar RT\left[ 1+\tau\left( \frac{\partial \alpha^o}{\partial \tau}\right)_{\delta}\right]
+
+which is in kJ/kmol, using the mixture :math:`\bar v` to define the parameter :math:`\delta=1/(\bar v \bar \rho_c)` for each fluid, and using the critical molar density for the fluid obtained from :math:`\bar \rho_c=1000\rho_c/M` to give units of mol/m\ :sup:`3`\ .  The offset enthalpies for air and water are given by
+
+.. math::
+    
+    \bar h_{0,a}=-7,914.149298\mbox{ kJ/kmol}
+    
+    \bar h_{0,w}=-0.01102303806\mbox{ kJ/kmol}
+    
+respectively.  The enthalpy per kg of dry air is given by
+
+.. math::
+
+    h=\bar h\frac{1+W}{M_{ha}}
+
 Enhancement factor
 ------------------
 
 The enhancement factor is a parameter that includes the impact of the air on the saturation pressure of water vapor.  It is only a function of temperature and pressure, but it must be iteratively obtained due to the nature of the expression for the enhancement factor.
-
 
 :math:`\psi_{w,s}` is given by :math:`\psi_{w,s}=fp_{w,s}/p`, where :math:`f` can be obtained from 
 
@@ -86,7 +137,55 @@ The enhancement factor is a parameter that includes the impact of the air on the
     +\left[\dfrac{6(1-\psi_{w,s})^2\psi_{w,s}^2p^2}{(\bar R T)^2}\right]B_{ww}B_{aw}-\left[\dfrac{3(1-\psi_{w,s})^4p^2}{2(\bar R T)^2}\right]B_{aa}^2\\
     -\left[\dfrac{2(1-\psi_{w,s})^2\psi_{w,s}(-2+3\psi_{w,s})p^2}{(\bar R T)^2}\right]B_{aw}^2-\left[\dfrac{p_{w,s}^2-(4-3\psi_{w,s})(\psi_{w,s})^3p^2}{2(\bar R T)^2}\right]B_{ww}^2
     \end{array}\right]
+
+
+Isothermal Compressibility
+--------------------------
+
+For water, the isothermal compressibility [in 1/Pa] is evaluated from
+
+.. math::
+
+    k_T=\frac{1}{\rho\frac{\partial p}{\partial \rho}}\frac{1\mbox{ kPa}}{1000\mbox{ Pa}}
     
+with
+
+.. math::
+
+    \frac{\partial p}{\partial \rho}=RT\left[1+2\delta\left(\frac{\partial \alpha^r}{\partial \delta}\right)_{\tau}+\delta^2\left(\frac{\partial^2 \alpha^r}{\partial \delta^2}\right)_{\tau}\right]
+    
+in kPa/(kg/m\ :sup:`3`\ ). And for ice,
+
+.. math::
+
+    k_T=\left( \frac{\partial^2 g}{\partial p^2}\right) \left( \frac{\partial g}{\partial p}\right)_T^{-1}\frac{1\mbox{ kPa}}{1000\mbox{ Pa}}
+
+.. _HAProps_Sample:
+
+Sample HAProps Code
+-------------------
+To use the HAProps function, import it and do some calls, do something like this
+
+.. ipython::
+
+    #import the things you need 
+    In [1]: from CoolProp.HumidAirProp import HAProps, HAProps_Aux
+    
+    #Enthalpy (kJ per kg dry air) as a function of temperature, pressure, 
+    #    and relative humidity at STP
+    In [2]: h=HAProps('H','T',298.15,'P',101.325,'R',0.5); print h
+    
+    #Temperature of saturated air at the previous enthalpy
+    In [2]: T=HAProps('T','P',101.325,'H',h,'R',1.0); print T
+    
+    #Temperature of saturated air - order of inputs doesn't matter
+    In [2]: T=HAProps('T','H',h,'R',1.0,'P',101.325); print T
+
+.. _HA-Validation:
+
+Humid Air Validation
+--------------------
+Values here are obtained at documentation build-time using the Humid Air Properties module
 
 .. ipython::
 

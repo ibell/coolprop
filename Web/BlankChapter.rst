@@ -1,0 +1,4 @@
+.. only:: latex
+
+    Empty Chapter
+    =============

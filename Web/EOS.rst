@@ -1,9 +1,12 @@
+.. _Fluid-Properties:
 
-Residual Helmholtz Equation of State
-====================================
+Fluid Properties
+================
 
 Introduction
 ------------
+
+If you are feeling impatient, jump to :ref:`Props_Sample`, otherwise, hang in there.
 
 Nearly all the fluids modeling in CoolProp are based on Helmholtz function formulations.  This is a convenient construction of the equation of state because all the thermodynamic properties of interest can be obtained directly from partial derivatives of the helmholtz function.
 
@@ -96,12 +99,73 @@ If the fluid is somewhere in the two-phase region, or saturation state propertie
 
 .. math::
 
-    \frac{\partial \rho}{\partial p}=RT\left[1+2\delta\left(\frac{\partial \alpha^r}{\partial \delta}\right)_{\tau}+\delta^2\left(\frac{\partial^2 \alpha^r}{\partial \delta^2}\right)_{\tau}\right]
+    \frac{\partial p}{\partial \rho}=RT\left[1+2\delta\left(\frac{\partial \alpha^r}{\partial \delta}\right)_{\tau}+\delta^2\left(\frac{\partial^2 \alpha^r}{\partial \delta^2}\right)_{\tau}\right]
     
 and the value for :math:`\rho` is updated by employing
 
 .. math::
 
-    \rho_{new}=\rho_{old}-\frac{p(T,\rho_{old})-p_{guess}}{\frac{\partial \rho}{\partial p}(T,\rho_{old})}
+    \rho_{new}=\rho_{old}-\frac{p(T,\rho_{old})-p_{guess}}{\frac{\partial p}{\partial \rho}(T,\rho_{old})}
     
 until :math:`\left|p(T,\rho_{old})-p_{guess}\right|` is sufficiently small.  Then the numerical method calculates the Gibbs function for saturated liquid and saturated vapor, and uses the difference in Gibbs functions to update the guess for the saturation pressure.  Then the densities are calculated again.  At convergence, the set of :math:`\rho'`, :math:`\rho''`, and :math:`p_{sat}` are known for a given saturation temperature.  If the fluid is not a pure fluid, the best that you can do is to use the ancillary equations to calculate the saturation densities and saturation pressure.
+
+As you might imagine, doing all this work to calculate the saturation state for pure fluids is computationally *very* expensive, so a lookup table method has been implemented for the saturation densities and saturation pressure.  From Python, you can turn on the saturation lookup table with::
+
+    UseSaturationLUT(1)
+    
+or use the full EOS by calling::
+
+    UseSaturationLUT(0)
+
+.. _Props_Sample:
+
+Sample Code
+-----------
+
+.. ipython::
+
+    #import the things you need 
+    In [1]: from CoolProp.CoolProp import Props, UseSaturationLUT
+    
+    #Specific heat (kJ/kg/K) of 20% ethylene glycol as a function of T
+    In [2]: h=Props('C','T',298.15,'P',101.325,'EG-20%'); print h
+    
+    #Density of Air at STP in kg/m^3
+    In [2]: Props('D','T',298.15,'P',101.325,'Air')
+    
+    #Saturation temperature of Water at 1 atm
+    In [2]: Props('T','P',101.325,'Q',0,'Water')
+    
+    #Saturated vapor density of R134a at 0C
+    In [2]: Props('H','T',273.15,'Q',1,'R134a')
+    
+    #Crudely time 100 calls to get saturation temperature without lookup table
+    In [2]: from time import time; t1=time()
+    
+    In [2]: for i in range(100):
+       ...:      T=Props('T','P',101.325,'Q',1,'Water')
+       ...:
+    
+    In [3]: print 'time elapsed for 100 calls:',time()-t1,'s'
+    
+    #Turn on the saturation LUT
+    In [3]: UseSaturationLUT(1)
+    
+    #Crudely time 100 calls to get saturation temperature with lookup table
+    In [2]: from time import time; t1=time()
+    
+    In [2]: for i in range(100):
+       ...:      T=Props('T','P',101.325,'Q',1,'Water')
+       ...:
+    
+    In [3]: print 'time elapsed for 100 calls:',time()-t1,'s'
+    
+    
+    
+    
+Code Documentation
+------------------
+
+.. automodule:: CoolProp.CoolProp
+    :members:
+    :undoc-members:

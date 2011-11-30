@@ -90,7 +90,7 @@ for T in Tv:
 ##########################################
 
 print ""
-print "Molar volume of saturated liquid water or ice (vbar_ws) [units of m^3/mol total]"
+print "Molar volume of saturated liquid water or ice (vbar_ws) [units of m^3/mol]"
 from CoolProp.HumidAirProp import HAProps_Aux
 import numpy as np
 Tv=np.linspace(-60,300,13)+273.15
