@@ -36,15 +36,14 @@ setup (name = 'CoolProp',
        packages = ['CoolProp','CoolProp.Plots'],
        ext_package = 'CoolProp',
        ext_modules = [CoolProp_module,FloodProp_module,HumidAirProp_module], #PUT ME BACK!!!
-##        ext_modules = [CoolProp_module],
        package_dir = {'CoolProp':'.'}
        )
 
-## if 'install' in sys.argv:
-##     os.remove('__init__.py')
-##     os.remove('CoolProp.py')
-##     os.remove('CoolProp_wrap.c')
-##     os.remove('FloodProp.py')
-##     os.remove('FloodProp_wrap.c')
-##     os.remove('HumidAirProp.py')
-##     os.remove('HumidAirProp_wrap.c')
+## Clean up the intermediate files that SWIG generates
+if 'clean' in sys.argv:
+    FileList=['__init__.py','CoolProp.py','CoolProp_wrap.c','FloodProp.py','FloodProp_wrap.c','HumidAirProp.py','HumidAirProp_wrap.c']
+    for file in FileList:
+        try:
+            os.remove(file)
+        except:
+            print "Sorry, couldn't remove the file "+file

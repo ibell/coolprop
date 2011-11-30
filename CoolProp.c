@@ -107,7 +107,7 @@ int BuildSaturationLUT(char *Ref)
     
     // Linearly space the values from the triple point of the fluid to the just shy of the critical point
     T_t=Props('R','T',0,'P',0,Ref);
-    T_c=0.99999*Props('B','T',0,'P',0,Ref);
+    T_c=Props('B','T',0,'P',0,Ref)-0.000001;
     
     dT=(T_c-T_t)/(NLUT-1);
     for (i=0;i<NLUT;i++)
@@ -117,7 +117,6 @@ int BuildSaturationLUT(char *Ref)
         // Calculate the saturation properties
         rhosatPure(Ref, Tsat_LUT[k][i], &(rhosatL_LUT[k][i]), &(rhosatV_LUT[k][i]), &(psat_LUT[k][i]));
     }
-    printf("Saturation LUT built\n");
     return k;
 }   
 
@@ -1663,7 +1662,8 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 				}
 				else
 				{
-					if (!strcmp(Ref,"R404A") || !strcmp(Ref,"R410A") || !strcmp(Ref,"R407C") || !strcmp(Ref,"R507A"))
+					if (!strcmp(Ref,"R404A") || !strcmp(Ref,"R410A") || !strcmp(Ref,"R407C") 
+                        || !strcmp(Ref,"R507A") || !strcmp(Ref,"Air"))
 					{
 						rhoV=rhosatV_func(T);
 						rhoL=rhosatL_func(T);
@@ -1789,14 +1789,14 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 				return Value;
 			}
 		}
-		else if (Name1=='P' && Name2=='Q')
-		{
-			T=Tsat(Ref,Prop1,Prop2,0);
-			return Props(Output,'T',T,'Q',Prop2,Ref);
-		}
 		else if (Output=='T' && Name1=='P' && Name2=='Q')
 		{
 			return Tsat(Ref,Prop1,Prop2,0);
+		}
+        else if (Name1=='P' && Name2=='Q')
+		{
+			T=Tsat(Ref,Prop1,Prop2,0);
+			return Props(Output,'T',T,'Q',Prop2,Ref);
 		}
 		else
 		{
@@ -2042,7 +2042,7 @@ double Tsat(char *Ref, double p, double Q, double T_guess)
         
     }
 	Tc=Tcrit(Ref);
-	Tmax=Tc-1;
+	Tmax=Tc-0.000001;
 	Tmin=Ttriple(Ref)+1;
 	
 	// Plotting Tc/T versus log(p) tends to give very close to straight line

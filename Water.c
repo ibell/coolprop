@@ -1435,7 +1435,7 @@ static double get_Delta(double T, double P)
         r2=r3;
         counter=counter+1;        
     }
-   //printf("Iteration: %d \n",counter);
+    //printf("Iteration: %d \n",counter);
     return delta3;
 }
 
@@ -1459,7 +1459,7 @@ static double LookupValue(char *Prop, double T, double p)
 	}
 	if (T<Tmin || T > Tmax || p<Pmin || p>Pmax || isNAN(T) || isINFINITY(T) ||isNAN(p) || isINFINITY(p))
     {
-		printf("Inputs to LookupValue(%s) of R744 out of bounds:  T=%g K \t P=%g kPa \n",Prop,T,p);
+		printf("Inputs to LookupValue(%s) of Water out of bounds:  T=%g K \t P=%g kPa \n",Prop,T,p);
     }
 
 	L=0;
@@ -1515,7 +1515,7 @@ static double LookupValue(char *Prop, double T, double p)
 	else if (!strcmp(Prop,"visc"))
 		mat=&viscmat;
 	else
-		printf("Parameter %s not found in LookupValue in R744.c\n",Prop);
+		printf("Parameter %s not found in LookupValue in Water.c\n",Prop);
 	
 	//At Low Temperature Index
 	y1=(*mat)[iTlow][iPlow];

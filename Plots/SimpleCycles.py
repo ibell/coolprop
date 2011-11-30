@@ -14,8 +14,19 @@ params = {'axes.labelsize': 12,
           'font.family':'Times New Roman'}
 pylab.rcParams.update(params)
 
-def SimpleCycle(Te,Tc,DTsh,DTsc,eta_a,Ts_Ph='Ph',skipPlot=False,**kwargs):
+def SimpleCycle(Ref,Te,Tc,DTsh,DTsc,eta_a,Ts_Ph='Ph',skipPlot=False,axis=None):
+    """
+    This function plots a simple four-component cycle, on the current axis, or that given by the optional parameter *axis*
     
+    Required parameters:
+    
+    * Te : Evap Temperature in K
+    * Tc : Condensing Temperature in K
+    * DTsh : Evaporator outlet superheat in K
+    * DTsc : Condenser outlet subcooling in K
+    * eta_a : Adiabatic efficiency of compressor (no units) in range [0,1]
+    
+    """
     T=np.zeros((6))
     h=np.zeros_like(T)
     p=np.zeros_like(T)
@@ -46,7 +57,8 @@ def SimpleCycle(Te,Tc,DTsh,DTsc,eta_a,Ts_Ph='Ph',skipPlot=False,**kwargs):
     
     print COP,COPH
     if skipPlot==False:
-        ax=kwargs.get('axis',pylab.gca())
+        if axis==None:
+            ax=pylab.gca()
         if Ts_Ph in ['ph','Ph']:
             ax.plot(h,p)
         elif Ts_Ph in ['Ts','ts']:
@@ -54,7 +66,7 @@ def SimpleCycle(Te,Tc,DTsh,DTsc,eta_a,Ts_Ph='Ph',skipPlot=False,**kwargs):
         else:
             raise TypeError('Type of Ts_Ph invalid')
 
-def TwoStage(Q,Te,Tc,DTsh,DTsc,eta_oi,f_p,Tsat_ic,DTsh_ic,Ts_Ph='Ph',prints=False,skipPlot=False,**kwargs):
+def TwoStage(Ref,Q,Te,Tc,DTsh,DTsc,eta_oi,f_p,Tsat_ic,DTsh_ic,Ts_Ph='Ph',prints=False,skipPlot=False,**kwargs):
     
     T=np.zeros((8))
     h=np.zeros_like(T)
@@ -314,11 +326,11 @@ def EconomizedCycle(Ref,Qin,Te,Tc,DTsh,DTsc,eta_oi,f_p,Ti,Ts_Ph='Ts',skipPlot=Fa
 
 if __name__=='__main__':
     
-    Ref='REFPROP-propane'
+    Ref='R290'
     fig=pylab.figure(figsize=(4,3))
     ax=fig.add_axes((0.15,0.15,0.8,0.8))
     Ph(Ref,Tmin=273.15-100,hbounds=[0,600],axis=ax)
-    COP=SimpleCycle(273.15-5,273.15+45,5,7,0.7,Ts_Ph='Ph')
+    COP=SimpleCycle(Ref,273.15-5,273.15+45,5,7,0.7,Ts_Ph='Ph')
     pylab.show()
     
 ##     for x in np.linspace(0,1):

@@ -1045,7 +1045,7 @@ double dphi0_dTau_Air(double tau, double delta)
     {
         dphi0_dTau+=N0[k]*(k-4)*powI(tau,k-5);
     }
-    dphi0_dTau+=1.5*N0[6]*pow(tau,0.5)+N0[7]/tau;
+    dphi0_dTau+=1.5*N0[6]*sqrt(tau)+N0[7]/tau;
     dphi0_dTau+=N0[8]*N0[11]/(exp(N0[11]*tau)-1)+N0[9]*N0[12]/(exp(N0[12]*tau)-1);
     dphi0_dTau+=N0[10]*N0[13]/(2.0/3.0*exp(-N0[13]*tau)+1);
     

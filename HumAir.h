@@ -41,6 +41,13 @@
 // Standard I/O function
 // -----------------------
 double HAProps(char *OutputName, char *Input1Name, double Input1, char *Input2Name, double Input2, char *Input3Name, double Input3);
+// -----------------------
+// Extra I/O function
+// -----------------------
+double HAProps_Aux(char* Name,double T, double p, double W, char *units);
+
+//Turn on the use of virial correlations for air and water
+void UseVirialCorrelations(int flag);
 
 // --------------
 // Help functions
