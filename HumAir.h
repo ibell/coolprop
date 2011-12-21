@@ -48,6 +48,8 @@ double HAProps_Aux(char* Name,double T, double p, double W, char *units);
 
 //Turn on the use of virial correlations for air and water
 void UseVirialCorrelations(int flag);
+void UseIsothermCompressCorrelation(int flag);
+void UseIdealGasEnthalpyCorrelations(int flag);
 
 // --------------
 // Help functions

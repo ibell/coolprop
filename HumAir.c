@@ -19,10 +19,9 @@
 #include "Ice.h"
 #include "SolverFunctions.h"
 
-static double epsilon=0.621945;
-static int FlagUseVirialCorrelations=0;
+static double epsilon=0.621945,R_bar=8.314472;
+static int FlagUseVirialCorrelations=0,FlagUseIsothermCompressCorrelation=0,FlagUseIdealGasEnthalpyCorrelations=0;
 double f_factor(double T, double p);
-
 
 void UseVirialCorrelations(int flag)
 {
@@ -35,6 +34,28 @@ void UseVirialCorrelations(int flag)
         printf("UseVirialCorrelations takes an integer, either 0 (no) or 1 (yes)\n");
     }
     
+}
+void UseIsothermCompressCorrelation(int flag)
+{
+    if (flag==0 || flag==1)
+    {
+        FlagUseIsothermCompressCorrelation=flag;
+    }        
+    else
+    {
+        printf("UseIsothermCompressCorrelation takes an integer, either 0 (no) or 1 (yes)\n");
+    }
+}
+void UseIdealGasEnthalpyCorrelations(int flag)
+{
+    if (flag==0 || flag==1)
+    {
+        FlagUseIdealGasEnthalpyCorrelations=flag;
+    }        
+    else
+    {
+        printf("UseIdealGasEnthalpyCorrelations takes an integer, either 0 (no) or 1 (yes)\n");
+    }
 }
 static double Secant_HAProps_T(char *OutputName, char *Input1Name, double Input1, char *Input2Name, double Input2, double TargetVal, double T_guess)
 {
@@ -72,7 +93,6 @@ static double Secant_HAProps_W(char *OutputName, char *Input1Name, double Input1
 		if (iter==2){x2=W_guess+0.001; W=x2;}
 		if (iter>2) {W=x2;}
 			f=HAProps(OutputName,"W",W,Input1Name,Input1,Input2Name,Input2)-TargetVal;
-
 		if (iter==1){y1=f;}
 		if (iter>1)
 		{
@@ -280,12 +300,12 @@ double f_factor(double T, double p)
         line1,line2,line3,line4,line5,line6,line7,line8,k_T,beta_H,LHS,RHS,psi_ws,
         vbar_ws;
     
-    // Use correlation for f at atmospheric pressure
-    if (p<1.001*101.325 && p>0.999*101.325 && T>213.15 && T<373.15)
-    {
-        return 7.1285352695 -1.580759239351e-01*T +1.758777627765e-03*powI(T,2) -1.091297459853e-05*powI(T,3) +4.075109681028e-08*powI(T,4) -9.156215217527e-11*powI(T,5) +1.146098035510e-13*powI(T,6) -6.163466181798e-17*powI(T,7);
-    }
-    
+    //// Use correlation for f at atmospheric pressure
+    //if (p<1.001*101.325 && p>0.999*101.325 && T>213.15 && T<373.15)
+    //{
+    //    return 7.1285352695 -1.580759239351e-01*T +1.758777627765e-03*powI(T,2) -1.091297459853e-05*powI(T,3) +4.075109681028e-08*powI(T,4) -9.156215217527e-11*powI(T,5) +1.146098035510e-13*powI(T,6) -6.163466181798e-17*powI(T,7);
+    //}
+
     // Get total pressure in Pa from kPa
     p*=1000;
     
@@ -294,7 +314,15 @@ double f_factor(double T, double p)
     {
         // It is liquid water
         p_ws=Props('P','T',T,'Q',0,"Water")*1000;
-        k_T=IsothermCompress_Water(T,p/1000); //[1/Pa]
+		if (FlagUseIsothermCompressCorrelation)
+		{
+			k_T = 1.6261876614E-22*powI(T,6) - 3.3016385196E-19*powI(T,5) + 2.7978984577E-16*powI(T,4)
+				- 1.2672392901E-13*powI(T,3) + 3.2382864853E-11*powI(T,2) - 4.4318979503E-09*T + 2.5455947289E-07;
+		}
+        else
+		{
+			k_T=IsothermCompress_Water(T,p/1000); //[1/Pa]
+		}
         beta_H=HenryConstant(T); //[1/Pa]
         vbar_ws=1.0/Props('D','T',T,'Q',0,"Water")*MM_Water()/1000; //[m^3/mol]
     }
@@ -318,11 +346,29 @@ double f_factor(double T, double p)
     Tj=132.6312;
     tau_Air=Tj/T;
     tau_Water=Tcrit_Water()/T;
-    B_aa=B_Air(tau_Air)*MM_Air()/1e3; //[m^3/kg] to [m^3/mol]
-    C_aaa=C_Air(tau_Air)*MM_Air()*MM_Air()/1e6; //[m^6/kg^2] to [m^6/mol^2]
-    B_ww=B_Water(tau_Water)*MM_Water()/1e3; //[m^3/kg] to [m^3/mol]
-    C_www=C_Water(tau_Water)*MM_Water()*MM_Water()/1e6; //[m^6/kg^2] to [m^6/mol^2]
-    B_aw=_B_aw(T)/1e3; //[dm^3/mol] to [m^3/mol]
+	if (FlagUseVirialCorrelations)
+	{
+		B_aa=-0.000721183853646 +1.142682674467e-05*T -8.838228412173e-08*powI(T,2) 
+        +4.104150642775e-10*powI(T,3) -1.192780880645e-12*powI(T,4) +2.134201312070e-15*powI(T,5) 
+        -2.157430412913e-18*powI(T,6) +9.453830907795e-22*powI(T,7);
+        B_ww=-10.8963128394 +2.439761625859e-01*T -2.353884845100e-03*powI(T,2) 
+        +1.265864734412e-05*powI(T,3) -4.092175700300e-08*powI(T,4) +7.943925411344e-11*powI(T,5) 
+        -8.567808759123e-14*powI(T,6) +3.958203548563e-17*powI(T,7);
+		C_aaa=1.29192158975e-08 -1.776054020409e-10*T +1.359641176409e-12*powI(T,2) 
+        -6.234878717893e-15*powI(T,3) +1.791668730770e-17*powI(T,4) -3.175283581294e-20*powI(T,5) 
+        +3.184306136120e-23*powI(T,6) -1.386043640106e-26*powI(T,7);
+        C_www=-0.580595811134 +1.365952762696e-02*T -1.375986293288e-04*powI(T,2) 
+        +7.687692259692e-07*powI(T,3) -2.571440816920e-09*powI(T,4) +5.147432221082e-12*powI(T,5) 
+        -5.708156494894e-15*powI(T,6) +2.704605721778e-18*powI(T,7);
+	}
+	else
+	{
+		B_aa=B_Air(tau_Air)*MM_Air()/1e3; //[m^3/kg] to [m^3/mol]
+		C_aaa=C_Air(tau_Air)*MM_Air()*MM_Air()/1e6; //[m^6/kg^2] to [m^6/mol^2]
+		B_ww=B_Water(tau_Water)*MM_Water()/1e3; //[m^3/kg] to [m^3/mol]
+		C_www=C_Water(tau_Water)*MM_Water()*MM_Water()/1e6; //[m^6/kg^2] to [m^6/mol^2]
+	}
+	B_aw=_B_aw(T)/1e3; //[dm^3/mol] to [m^3/mol]
     C_aaw=_C_aaw(T)/1e6; //[dm^6/mol] to [m^6/mol^2]
     C_aww=_C_aww(T)/1e6; //[dm^6/mol] to [m^6/mol^2]
     
@@ -417,6 +463,7 @@ double Conductivity(double T, double p, double psi_w)
     double mu_a,mu_w,k_a,k_w,Phi_av,Phi_va,Ma,Mw;
     Mw=MM_Water();
     Ma=MM_Air();
+	UseSaturationLUT(1); // Use the lookup table
     // Viscosity of dry air at dry-bulb temp and total pressure
     k_a=Props('L','T',T,'P',p,"Air");
     mu_a=Props('V','T',T,'P',p,"Air");
@@ -467,21 +514,21 @@ double MolarVolume(double T, double p, double psi_w)
 	}
     return v_bar;
 }
-double MolarEnthalpy(double T, double p, double psi_w, double v_bar)
+double IdealGasMolarEnthalpy_Water(double T, double v_bar)
 {
-    // In units of kJ/kmol
-    
-    // vbar (molar volume) in m^3/kg
-    
-    double hbar_0,hbar_a_0,tau,R_bar_Lemmon,hbar_a,hbar_w_0,hbar_w,delta,hbar,R_bar=8.314472,rhobar;
-    // ----------------------------------------
-    //      Enthalpy
-    // ----------------------------------------
-    // Constant for enthalpy
-    // Not clear why getting rid of this term yields the correct values in the table, but enthalpies are equal to an additive constant, so not a big deal
-    hbar_0=0;//2.924425468; //[kJ/kmol]
-    
-    // Ideal-Gas contribution to enthalpy of air
+	double hbar_w_0,tau,rhobar,delta,hbar_w;
+	// Ideal-Gas contribution to enthalpy of water
+    hbar_w_0=-0.01102303806;//[kJ/kmol]
+    tau=Tcrit_Water()/T; 
+    rhobar=322/MM_Water()*1000;
+	delta=1/(v_bar*rhobar);
+	hbar_w=hbar_w_0+R_bar*T*(1+tau*dphi0_dTau_Water(tau,delta));
+	return hbar_w;
+}
+double IdealGasMolarEnthalpy_Air(double T, double v_bar)
+{
+	double hbar_a_0,tau,rhobar,delta,hbar_a,R_bar_Lemmon;
+	// Ideal-Gas contribution to enthalpy of air
     hbar_a_0=-7914.149298; //[kJ/kmol]
     //Tj and rhoj are given by 132.6312 and 302.5507652 respectively
     tau=132.6312/T;
@@ -489,12 +536,32 @@ double MolarEnthalpy(double T, double p, double psi_w, double v_bar)
     delta=1/(v_bar*rhobar);
     R_bar_Lemmon=8.314510; //[kJ/kmol/K]
     hbar_a=hbar_a_0+R_bar_Lemmon*T*(1+tau*dphi0_dTau_Air(tau,delta)); //[kJ/kmol]
+	return hbar_a;
+}
+double MolarEnthalpy(double T, double p, double psi_w, double v_bar)
+{
+    // In units of kJ/kmol
     
-    // Ideal-Gas contribution to enthalpy of water
-    hbar_w_0=-0.01102303806;//[kJ/kmol]
-    tau=Tcrit_Water()/T; 
-    rhobar=322/MM_Water()*1000;
-    hbar_w=hbar_w_0+R_bar*T*(1+tau*dphi0_dTau_Water(tau,delta));
+    // vbar (molar volume) in m^3/kg
+    
+    double hbar_0,hbar_a,hbar_w,hbar,R_bar=8.314472;
+    // ----------------------------------------
+    //      Enthalpy
+    // ----------------------------------------
+    // Constant for enthalpy
+    // Not clear why getting rid of this term yields the correct values in the table, but enthalpies are equal to an additive constant, so not a big deal
+    hbar_0=0;//2.924425468; //[kJ/kmol]
+    
+	if (FlagUseIdealGasEnthalpyCorrelations)
+	{
+	hbar_w=2.7030251618E-03*T*T + 3.1994361015E+01*T + 3.6123174929E+04;
+	hbar_a=9.2486716590E-04*T*T + 2.8557221776E+01*T - 7.8616129429E+03;
+	}
+	else
+	{
+    hbar_w=IdealGasMolarEnthalpy_Water(T,v_bar);
+	hbar_a=IdealGasMolarEnthalpy_Air(T,v_bar);
+	}
     
     hbar=hbar_0+(1-psi_w)*hbar_a+psi_w*hbar_w+R_bar*T*((B_m(T,psi_w)-T*dB_m_dT(T,psi_w))/v_bar+(C_m(T,psi_w)-T/2.0*dC_m_dT(T,psi_w))/(v_bar*v_bar));
     return hbar; //[kJ/kmol]
@@ -676,7 +743,7 @@ double MoleFractionWater(double T, double p, int HumInput, double InVal)
         }
         else
         {
-            // sublimation pressure [kPa]
+            // Sublimation pressure [kPa]
             p_ws=psub_Ice(T);
             
         }
@@ -873,10 +940,16 @@ double HAProps(char *OutputName, char *Input1Name, double Input1, char *Input2Na
         }
         else
         {
-            printf("Sorry, but currently at least one of the variables as an input to HAProps() must be temperature, relative humidity, humidity ratio, or dewpoint\n  Eventualy will add a 2-D NR solver to find T and psi_w simultaneously, but not included now\n");
+            printf("Sorry, but currently at least one of the variables as an input to HAProps() must be temperature, relative humidity, humidity ratio, or dewpoint\n  Eventually will add a 2-D NR solver to find T and psi_w simultaneously, but not included now\n");
             return -1000;
         }    
-        
+
+		//if (!strcmp(SecondaryInputName,"H"))
+		//	h_star=log(Value2+33);
+		//else
+		//	h_star=log(Value1+33);
+		//T_guess= -7.4251055543E-02*powI(h_star,6) + 1.0661647745E-01*powI(h_star,5) + 8.5881364720E+00*powI(h_star,4) - 7.2409797021E+01*powI(h_star,3) + 2.3508812707E+02*powI(h_star,2) - 2.8041007078E+02*h_star + 3.5922309997E+02;
+
         // Use the secant solver to find T
         T=Secant_HAProps_T(SecondaryInputName,"P",p,MainInputName,MainInputValue,SecondaryInputValue,T_guess);
         
@@ -962,8 +1035,6 @@ double HAProps_Aux(char* Name,double T, double p, double W, char *units)
     
     // Takes temperature, pressure, and humidity ratio W as inputs;
     double psi_w,Tj,tau_Water,tau_Air,B_aa,C_aaa,B_ww,C_www,B_aw,C_aaw,C_aww,p_ws,v_bar,delta, tau;
-    
-    
     
     Tj=132.6312;
     tau_Air=Tj/T;
@@ -1105,6 +1176,16 @@ double HAProps_Aux(char* Name,double T, double p, double W, char *units)
         //~ delta=rho_Water(T,p,TYPE_TP);tau=647/T;
         return 1+tau*dphi0_dTau_Water(tau,delta);
     }
+	else if (!strcmp(Name,"hbaro_w"))
+	{
+		v_bar=MolarVolume(T,p,psi_w);
+		return IdealGasMolarEnthalpy_Water(T,v_bar);
+	}
+	else if (!strcmp(Name,"hbaro_a"))
+	{
+		v_bar=MolarVolume(T,p,psi_w);
+		return IdealGasMolarEnthalpy_Air(T,v_bar);
+	}
     else
     {
         printf("Sorry I didn't understand your input [%s] to HAProps_Aux\n",Name);

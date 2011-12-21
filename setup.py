@@ -28,7 +28,7 @@ HumidAirProp_module = Extension('_HumidAirProp',
                            )                           
 
 setup (name = 'CoolProp',
-       version = '1.3',
+       version = '1.3.1',
        author      = "Ian Bell",
        author_email='ian.h.bell@gmail.com',
        url='http://coolprop.sourceforge.net',
