@@ -630,7 +630,7 @@ double k_l(char *Liq, double T)
     double kL;
     setLiq();
     ii=getIndex(Liq); 
-    if (!strcmp(Liq,"NH3") || !strcmp(Liq,"Water") || !strcmp(Liq,"Zerol"))
+    if (!strcmp(Liq,"NH3") || !strcmp(Liq,"Water") || !strcmp(Liq,"Zerol") || !strcmp(Liq,"POE"))
     {
         kL=(kl_A[ii] + kl_B[ii]*T + kl_C[ii]*T*T)/1000.0;
     }

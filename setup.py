@@ -14,7 +14,8 @@ FluidSources = ['R134a.c','R744.c','R290.c','R410A.c',
                'R507A.c','Argon.c','Nitrogen.c','Water.c','Air.c']
                            
 CoolProp_module = Extension('_CoolProp',
-                           sources=['CoolProp.i', 'CoolProp.c']+FluidSources
+                           sources=['CoolProp.i', 'CoolProp.c']+FluidSources,
+                           swig_opts=['-builtin']
                            )
 
 FloodProp_module = Extension('_FloodProp',
@@ -25,10 +26,11 @@ FloodProp_module = Extension('_FloodProp',
                            
 HumidAirProp_module = Extension('_HumidAirProp',
                            sources=['HumidAirProp.i','HumAir.c','CoolProp.c','Ice.cpp','SolverFunctions.c']+FluidSources,
+                           swig_opts=['-builtin']
                            )                           
 
 setup (name = 'CoolProp',
-       version = '1.3.1',
+       version = '1.3.2',
        author      = "Ian Bell",
        author_email='ian.h.bell@gmail.com',
        url='http://coolprop.sourceforge.net',
