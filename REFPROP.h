@@ -286,3 +286,13 @@ fp_VIRCdllTYPE VIRCdll;
 fp_WMOLdllTYPE WMOLdll;
 fp_XMASSdllTYPE XMASSdll;
 fp_XMOLEdllTYPE XMOLEdll;
+
+#ifndef REFPROP_H
+#define REFPROP_H
+
+	// Only add REFPROP if build on Windows platform
+	#if defined(__ISWINDOWS__)
+	double REFPROP(char Output,char Name1, double Prop1, char Name2, double Prop2, char * Ref);
+	#endif
+
+#endif

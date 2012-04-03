@@ -19,6 +19,8 @@
 	double pcrit_R134a(void); 
 	double rhocrit_R134a(void);
 	double Ttriple_R134a(void);
+    
+    int Load_R134a(struct fluidParamsVals *Fluid);
 
 	//Residual Helmholtz formulation and derivatives
 	double phir_R134a(double tau, double delta);

@@ -11,13 +11,12 @@
 #include "time.h"
 #include "stdio.h"
 #include <string.h>
-#include "HumAir.h"
+
 #include "PropMacros.h"
-#include "Water.h"
-#include "Air.h"
 #include "CoolProp.h"
 #include "Ice.h"
 #include "SolverFunctions.h"
+#include "HumAir.h"
 
 static double epsilon=0.621945,R_bar=8.314472;
 static int FlagUseVirialCorrelations=0,FlagUseIsothermCompressCorrelation=0,FlagUseIdealGasEnthalpyCorrelations=0;

@@ -14,8 +14,8 @@ FluidSources = ['R134a.c','R744.c','R290.c','R410A.c',
                'R507A.c','Argon.c','Nitrogen.c','Water.c','Air.c']
                            
 CoolProp_module = Extension('_CoolProp',
-                           sources=['CoolProp.i', 'CoolProp.c']+FluidSources,
-                           swig_opts=['-builtin']
+                           sources=['CoolProp.i', 'CoolProp.c','CoolPropTools.c']+FluidSources,
+                           #swig_opts=['-builtin']
                            )
 
 FloodProp_module = Extension('_FloodProp',
@@ -25,8 +25,8 @@ FloodProp_module = Extension('_FloodProp',
                            )
                            
 HumidAirProp_module = Extension('_HumidAirProp',
-                           sources=['HumidAirProp.i','HumAir.c','CoolProp.c','Ice.cpp','SolverFunctions.c']+FluidSources,
-                           swig_opts=['-builtin']
+                           sources=['HumidAirProp.i','HumAir.c','CoolProp.c','CoolPropTools.c','Ice.cpp','SolverFunctions.c']+FluidSources,
+                           #swig_opts=['-builtin']
                            )                           
 
 setup (name = 'CoolProp',
@@ -37,7 +37,7 @@ setup (name = 'CoolProp',
        description = """Properties of R134a, R744, R410A, R290, R717, R32, R404A and brines""",
        packages = ['CoolProp','CoolProp.Plots'],
        ext_package = 'CoolProp',
-       ext_modules = [CoolProp_module,FloodProp_module,HumidAirProp_module], #PUT ME BACK!!!
+       ext_modules = [CoolProp_module,FloodProp_module,HumidAirProp_module],
        package_dir = {'CoolProp':'.'}
        )
 

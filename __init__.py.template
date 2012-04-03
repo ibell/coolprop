@@ -1,2 +1,4 @@
 from CoolProp import Props
 from HumidAirProp import HAProps
+import CoolProp
+import HumidAirProp

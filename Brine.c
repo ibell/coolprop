@@ -14,6 +14,236 @@
 
 static double powInt(double x, int y);
 
+#include "CoolProp.h"
+
+double SecFluids(char Output, double T, double p,char * Ref)
+{
+	double Tfreeze,Tmax,rho,cp,k,mu,u,s,TC,C_gly;
+	// Temperature and Pressure are the inputs
+
+	if (!strcmp(Ref,"HC-10"))
+	{
+		// Curve fits generated from Microsoft Excel fit of manufacturer data
+		// Input temperature is in deg C
+		TC=T-273.15;
+		switch(Output)
+		{
+			case 'D':
+				return -4.52609118E-01*TC + 1.19919457E+03;
+			case 'C':
+				return 2.4797494E-03*TC + 3.2708330E+00;
+			case 'L':
+				return 1.00000E-06*TC + 5.04400E-04;
+			case 'V':
+				return 2.937072591E-12*TC*TC*TC*TC - 1.713938938E-09*TC*TC*TC + 3.826311605E-07*TC*TC - 4.253611683E-05*TC + 2.509839772E-03;
+			case 'F':
+				return 263.15;
+			case 'M':
+				return 390;
+			case 'H':
+				return (2.4797494E-03*TC*TC/2.0 + 3.2708330E+00*TC)/1000+p/(-4.52609118E-01*TC + 1.19919457E+03);
+			case 'S':
+				return 2.4797494E-03*(T-298.15) + 3.2708330E+00*log(T/298.15);
+			default:
+				return _HUGE;
+		}
+	}
+
+
+	// Ethylene glycol blends and pure water
+	// "EG-10%" is 10% by mass ethylene glycol
+	else if (Ref[0]=='E' && Ref[1]=='G')
+	{
+		switch (Ref[3])
+		{
+			case '1':
+				C_gly=10; break;
+			case '2':
+				C_gly=20; break;
+			case '3':
+				C_gly=30; break;
+			case '4':
+				C_gly=40; break;
+			case '5':
+				C_gly=50; break;
+			default:
+				return _HUGE;
+		}
+
+		/*
+		Brine() takes inputs of temperature [C]  and secondary fluid concentration in water [mass %]
+		Outputs are freezing temperature [C], density [kg/m^3], Specific Heat [J/kg-K], Conductivity [W/m-K], Viscosity [mPa-s]
+		*/
+		
+		// Set the temperature to within the band to avoid zero
+		if (Output=='M' || Output=='F'){ T=300;}
+		Brine("EG", T - 273.15, C_gly, &Tfreeze, &Tmax, &rho, &cp, &k, &mu,&u,&s);
+		switch(Output)
+		{
+			case 'D':
+				return rho;
+			case 'C':
+				return cp/1000;
+			case 'L':
+				return k/1000;
+			case 'V':
+				return mu / 1000.0;
+			case 'F':
+				return Tfreeze+273.15;
+			case 'M':
+				return Tmax+273.15;
+			case 'H':
+				return u/1000+p/rho;
+			case 'S':
+				return s/1000;
+			default:
+				return _HUGE;
+		}
+	}
+
+	// Propylene glycol blends and pure water
+	// "PG-10%" is 10% by mass propylene glycol
+	else if (Ref[0]=='P' && Ref[1]=='G')
+	{
+		switch (Ref[3])
+		{
+			case '1':
+				C_gly=10; break;
+			case '2':
+				C_gly=20; break;
+			case '3':
+				C_gly=30; break;
+			case '4':
+				C_gly=40; break;
+			case '5':
+				C_gly=50; break;
+			default:
+				return _HUGE;
+		}
+
+		/*
+		Brine() takes inputs of temperature [C]  and secondary fluid concentration in water [mass %]
+		Outputs are freezing temperature [C], density [kg/m^3], Specific Heat [J/kg-K], Conductivity [W/m-K], Viscosity [mPa-s]
+		*/
+		// Set the temperature to within the band to avoid zero
+		if (Output=='M' || Output=='F'){ T=300;}
+		Brine("PG", T - 273.15, C_gly, &Tfreeze, &Tmax, &rho, &cp, &k, &mu,&u,&s);
+		switch(Output)
+		{
+			case 'D':
+				return rho;
+			case 'C':
+				return cp/1000;
+			case 'L':
+				return k/1000;
+			case 'V':
+				return mu / 1000.0;
+			case 'F':
+				return Tfreeze+273.15;
+			case 'M':
+				return Tmax+273.15;
+			case 'H':
+				return u/1000+p/rho;
+			case 'S':
+				return s/1000;
+			default:
+				return _HUGE;
+		}
+	}
+
+	else if (strncmp(Ref,"Methanol",8)==0)
+	{
+		switch (Ref[9])
+		{
+			case '1':
+				C_gly=10; break;
+			case '2':
+				C_gly=20; break;
+			case '3':
+				C_gly=30; break;
+			case '4':
+				C_gly=40; break;
+			default:
+				return _HUGE;
+		}
+
+		/*
+		Brine() takes inputs of temperature [C]  and secondary fluid concentration in water [mass %]
+		Outputs are freezing temperature [C], density [kg/m^3], Specific Heat [J/kg-K], Conductivity [W/m-K], Viscosity [mPa-s]
+		*/
+		// Set the temperature to within the band to avoid zero
+		if (Output=='M' || Output=='F'){ T=300;}
+		Brine("Methanol", T - 273.15, C_gly, &Tfreeze, &Tmax, &rho, &cp, &k, &mu,&u,&s);
+		switch(Output)
+		{
+			case 'D':
+				return rho;
+			case 'C':
+				return cp/1000;
+			case 'L':
+				return k/1000;
+			case 'V':
+				return mu / 1000.0;
+			case 'F':
+				return Tfreeze+273.15;
+			case 'M':
+				return Tmax+273.15;
+			case 'H':
+				return u/1000+p/rho;
+			case 'S':
+				return s/1000;
+			default:
+				return _HUGE;
+		}
+	}
+
+	else if (strncmp(Ref,"NH3/H2O",7)==0)
+	{
+		switch (Ref[8])
+		{
+			case '1':
+				C_gly=10; break;
+			case '2':
+				C_gly=20; break;
+			default:
+				return _HUGE;
+		}
+
+		/*
+		Brine() takes inputs of temperature [C]  and secondary fluid concentration in water [mass %]
+		Outputs are freezing temperature [C], density [kg/m^3], Specific Heat [J/kg-K], Conductivity [W/m-K], Viscosity [mPa-s]
+		*/
+		// Set the temperature to within the band to avoid zero
+		if (Output=='M' || Output=='F'){ T=300;}
+		Brine("NH3", T - 273.15, C_gly, &Tfreeze, &Tmax, &rho, &cp, &k, &mu,&u,&s);
+		switch(Output)
+		{
+			case 'D':
+				return rho;
+			case 'C':
+				return cp/1000;
+			case 'L':
+				return k/1000;
+			case 'V':
+				return mu / 1000.0;
+			case 'F':
+				return Tfreeze+273.15;
+			case 'M':
+				return Tmax+273.15;
+			case 'H':
+				return u/1000+p/rho;
+			case 'S':
+				return s/1000;
+			default:
+				return _HUGE;
+		}
+	}
+	else
+	{
+		return _HUGE;
+	}
+}
+
 // inputs in C, %,
 // outputs in kg/m^3, J/kg-K, mW/m-K, Pa-s
 int Brine(char * Mix, double T, double C, /*in --- out */double *Tfreeze, double *Tmax, double *rho, double *cp, double *k, double *visc, double *u, double *s)

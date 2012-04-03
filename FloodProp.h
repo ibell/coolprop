@@ -55,8 +55,8 @@
 	int isNAN_FP(double x);
 	int isINFINITY_FP(double x);
 
-	void setGas();
-	void setLiq();
+	void setGas(void);
+	void setLiq(void);
 
 	double dpdT_const_v(char *Gas, char *Liq, double T, double p1, double xL);
 

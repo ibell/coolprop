@@ -10,11 +10,11 @@ by Reiner Tillner-Roth and Hans Dieter Baehr, J. Phys. Chem. Ref. Data, v. 23, 1
 In order to call the exposed functions, rho_, h_, s_, cp_,...... there are three different 
 ways the inputs can be passed, and this is expressed by the Types integer flag.  
 These macros are defined in the PropMacros.h header file:
-1) First parameter temperature, second parameter pressure ex: h_R410A(260,1785,1)=-67.53
+1) First parameter temperature, second parameter pressure ex: h_R134a(260,1785,1)=-67.53
 	In this case, the lookup tables are built if needed and then interpolated
-2) First parameter temperature, second parameter density ex: h_R410A(260,43.29,2)=-67.53
+2) First parameter temperature, second parameter density ex: h_R134a(260,43.29,2)=-67.53
 	Density and temp plugged directly into EOS
-3) First parameter temperature, second parameter pressure ex: h_R410A(260,1785,3)=-67.53
+3) First parameter temperature, second parameter pressure ex: h_R134a(260,1785,3)=-67.53
 	Density solved for, then plugged into EOS (can be quite slow)
 
 
@@ -35,10 +35,9 @@ These macros are defined in the PropMacros.h header file:
 #include <stdlib.h>
 #include "PropErrorCodes.h"
 #include "PropMacros.h"
+#include "CoolPropTools.h"
+#include "CoolProp.h"
 #include "R134a.h"
-
-static int errCode;
-static char errStr[ERRSTRLENGTH];
 
 #define nP 100
 #define nT 100
@@ -162,7 +161,7 @@ static const double Tc=374.18; //[K]
 static const double rhoc=508; //[kg/m^3]
 static const double pc=4056.29; //[kPa]
 static const double R=0.08148885644; //[kJ/kg-K]
-static const double Ttriple=169.85; //[K]
+static const double Tt=169.85; //[K]
 // R found from Ru/M, or 8.314471/0.102032/1000
 
 // Function prototypes
@@ -176,10 +175,7 @@ static double Viscosity_Trho(double T, double rho);
 static double Conductivity_Trho(double T, double rho);
 
 static double get_Delta(double T, double p);
-static double LookupValue(const char *Prop, double T, double p);
-
-static double QuadInterp(double x0, double x1, double x2, double f0, double f1, double f2, double x);
-static double powInt(double x, int y);
+static double LookupValue_R134a(const char *Prop, double T, double p);
 
 //Microsoft version of math.h doesn't include acosh.h
 #if defined(_MSC_VER)
@@ -188,6 +184,39 @@ static double acosh(double x)
  	return log(x + sqrt(x*x - 1.0) );
 }
 #endif
+
+int Load_R134a(struct fluidParamsVals *Fluid)
+{
+    // Function pointers
+    Fluid->funcs.phir=phir_R134a;
+    Fluid->funcs.dphir_dDelta=dphir_dDelta_R134a;
+    Fluid->funcs.dphir2_dDelta2=dphir2_dDelta2_R134a;
+    Fluid->funcs.dphir2_dDelta_dTau=dphir2_dDelta_dTau_R134a;
+    Fluid->funcs.dphir_dTau=dphir_dTau_R134a;
+    Fluid->funcs.dphir2_dTau2=dphir2_dTau2_R134a;
+    Fluid->funcs.phi0=phi0_R134a;
+    Fluid->funcs.dphi0_dDelta=dphi0_dDelta_R134a;
+    Fluid->funcs.dphi02_dDelta2=dphi02_dDelta2_R134a;
+    Fluid->funcs.dphi0_dTau=dphi0_dTau_R134a;
+    Fluid->funcs.dphi02_dTau2=dphi02_dTau2_R134a;
+    Fluid->funcs.rhosatL=rhosatL_R134a;
+    Fluid->funcs.rhosatV=rhosatV_R134a;
+    Fluid->funcs.psat=psat_R134a;
+    
+    //Lookup table parameters
+    Fluid->LUT.Tmin=220.0;
+    Fluid->LUT.Tmax=470.0;
+    Fluid->LUT.pmin=24;
+    Fluid->LUT.pmax=1973;
+    
+    //Fluid parameters
+    Fluid->Type=FLUIDTYPE_REFRIGERANT_PURE;
+    Fluid->Tc=Tc;
+    Fluid->rhoc=rhoc;
+    Fluid->MM=M;
+    Fluid->pc=pc;
+    return 1;
+}
 
 static void WriteLookup(void)
 {
@@ -325,35 +354,31 @@ p	||		 /			  | X X X X Superheated Gas
 	}
 }
 
-int errCode_R134a(void)
-{
-	return errCode;
-}
 
 double rho_R134a(double T, double p, int Types)
 {
-	errCode=0; // Reset error code
+	
 	switch(Types)
 	{
 		case TYPE_TPNoLookup:
 			return get_Delta(T,p)*rhoc;
 		case TYPE_TP:
 			BuildLookup();
-			return LookupValue("rho",T,p);
+			return LookupValue_R134a("rho",T,p);
 		default:
-			errCode=BAD_PROPCODE;
+			
 			return _HUGE;
 	}
 }
 double p_R134a(double T, double rho)
 {
-	errCode=0; // Reset error code
+	
 	return Pressure_Trho(T,rho);
 }
 double h_R134a(double T, double p_rho, int Types)
 {
 	double rho;
-	errCode=0; // Reset error code
+	
 	switch(Types)
 	{
 		case TYPE_Trho:
@@ -363,16 +388,16 @@ double h_R134a(double T, double p_rho, int Types)
 			return Enthalpy_Trho(T,rho);
 		case TYPE_TP:
 			BuildLookup();
-			return LookupValue("h",T,p_rho);
+			return LookupValue_R134a("h",T,p_rho);
 		default:
-			errCode=BAD_PROPCODE;
+			
 			return _HUGE;
 	}
 }
 double s_R134a(double T, double p_rho, int Types)
 {
 	double rho;
-	errCode=0; // Reset error code
+	
 	switch(Types)
 	{
 		case TYPE_Trho:
@@ -382,16 +407,16 @@ double s_R134a(double T, double p_rho, int Types)
 			return Entropy_Trho(T,rho);
 		case TYPE_TP:
 			BuildLookup();
-			return LookupValue("s",T,p_rho);
+			return LookupValue_R134a("s",T,p_rho);
 		default:
-			errCode=BAD_PROPCODE;
+			
 			return _HUGE;
 	}
 }
 double u_R134a(double T, double p_rho, int Types)
 {
 	double rho;
-	errCode=0; // Reset error code
+	
 	switch(Types)
 	{
 		case TYPE_Trho:
@@ -401,16 +426,16 @@ double u_R134a(double T, double p_rho, int Types)
 			return IntEnergy_Trho(T,rho);
 		case TYPE_TP:
 			BuildLookup();
-			return LookupValue("u",T,p_rho);
+			return LookupValue_R134a("u",T,p_rho);
 		default:
-			errCode=BAD_PROPCODE;
+			
 			return _HUGE;
 	}
 }
 double cp_R134a(double T, double p_rho, int Types)
 {
 	double rho;
-	errCode=0; // Reset error code
+	
 	switch(Types)
 	{
 		case TYPE_Trho:
@@ -420,16 +445,16 @@ double cp_R134a(double T, double p_rho, int Types)
 			return SpecHeatP_Trho(T,rho);
 		case TYPE_TP:
 			BuildLookup();
-			return LookupValue("cp",T,p_rho);
+			return LookupValue_R134a("cp",T,p_rho);
 		default:
-			errCode=BAD_PROPCODE;
+			
 			return _HUGE;
 	}
 }
 double cv_R134a(double T, double p_rho, int Types)
 {
 	double rho;
-	errCode=0; // Reset error code
+	
 	switch(Types)
 	{
 		case TYPE_Trho:
@@ -439,16 +464,16 @@ double cv_R134a(double T, double p_rho, int Types)
 			return SpecHeatV_Trho(T,rho);
 		case TYPE_TP:
 			BuildLookup();
-			return LookupValue("cv",T,p_rho);
+			return LookupValue_R134a("cv",T,p_rho);
 		default:
-			errCode=BAD_PROPCODE;
+			
 			return _HUGE;
 	}
 }
 double visc_R134a(double T, double p_rho, int Types)
 {
 	double rho;
-	errCode=0; // Reset error code
+	
 	switch(Types)
 	{
 		case TYPE_Trho:
@@ -458,16 +483,16 @@ double visc_R134a(double T, double p_rho, int Types)
 			return Viscosity_Trho(T,rho);
 		case TYPE_TP:
 			BuildLookup();
-			return LookupValue("visc",T,p_rho);
+			return LookupValue_R134a("visc",T,p_rho);
 		default:
-			errCode=BAD_PROPCODE;
+			
 			return _HUGE;
 	}
 }
 double k_R134a(double T, double p_rho, int Types)
 {
 	double rho;
-	errCode=0; // Reset error code
+	
 	switch(Types)
 	{
 		case TYPE_Trho:
@@ -477,9 +502,9 @@ double k_R134a(double T, double p_rho, int Types)
 			return Conductivity_Trho(T,rho);
 		case TYPE_TP:
 			BuildLookup();
-			return LookupValue("k",T,p_rho);
+			return LookupValue_R134a("k",T,p_rho);
 		default:
-			errCode=BAD_PROPCODE;
+			
 			return _HUGE;
 	}
 }
@@ -488,7 +513,7 @@ double w_R134a(double T, double p_rho, int Types)
 {
 	double rho;
 	double delta,tau,c1,c2;
-	errCode=0; // Reset error code
+	
 	switch(Types)
 	{
 		case TYPE_Trho:
@@ -496,7 +521,7 @@ double w_R134a(double T, double p_rho, int Types)
 		case TYPE_TPNoLookup:
 			rho=get_Delta(T,p_rho)*rhoc; break;
 		default:
-			errCode=BAD_PROPCODE;
+			
 			return _HUGE;
 	}
 	
@@ -522,7 +547,7 @@ double rhocrit_R134a(void)
 }
 double Ttriple_R134a(void)
 {
-	return Ttriple;
+	return Tt;
 }
 double MM_R134a(void)
 {
@@ -531,8 +556,7 @@ double MM_R134a(void)
 double psat_R134a(double T)
 {
 	double theta,phi;
-	errCode=0; // Reset error code
-
+	
 	phi=T/374.18;
 	theta=1-phi;
 
@@ -803,7 +827,7 @@ double dphir2_dDelta2_R134a(double tau, double delta)
 
 double dphir2_dTau2_R134a(double tau, double delta)
 {
-	double sum=0,d_,k_;
+	double sum=0;
 	int i,k;
 
 	for (i=1;i<=N[0];i++)
@@ -815,8 +839,6 @@ double dphir2_dTau2_R134a(double tau, double delta)
 	{
 		for (i=N[k-1]+1;i<=N[k];i++)
 		{
-			d_=(double)d[i];
-			k_=(double)k;
 			sum += exp(-powInt(delta,k))*a[i]*t[i]*(t[i]-1.0)*pow(tau,t[i]-2.0)*powInt(delta,d[i]);
 		}
 	}
@@ -891,26 +913,17 @@ static double get_Delta(double T, double p)
     return delta3;
 }
 
-static double LookupValue(const char *Prop, double T, double p)
+static double LookupValue_R134a(const char *Prop, double T, double p)
 {
 	int iPlow, iPhigh, iTlow, iThigh,L,R,M;
 	double T1, T2, T3, P1, P2, P3, y1, y2, y3, a1, a2, a3;
 	double (*mat)[nT][nP];
 
-	if (T>Tmax || T<Tmin)
-	{
-		errCode=OUT_RANGE_T;
-	}
-	if (p>Pmax || p<Pmin)
-	{
-		errCode=OUT_RANGE_P;
-	}
 	if (T>Tmax || T<Tmin || p>Pmax ||p<Pmin)
 	{
-		printf("Input to LookupValue() for %s is out of bounds [T:%g p:%g]\n",Prop,T,p);
+		printf("Input to LookupValue_R134a() for %s is out of bounds [T:%g p:%g]\n",Prop,T,p);
 		return -1e6;
 	}
-	
 
 	L=0;
 	R=nP-1;
@@ -985,54 +998,4 @@ static double LookupValue(const char *Prop, double T, double p)
 	T3=Tvec[iThigh+1];
 	return QuadInterp(T1,T2,T3,a1,a2,a3,T);
 	
-}
-
-/* Helper functions */
-
-
-
-static double QuadInterp(double x0, double x1, double x2, double f0, double f1, double f2, double x)
-{
-    double L0, L1, L2;
-    L0=((x-x1)*(x-x2))/((x0-x1)*(x0-x2));
-    L1=((x-x0)*(x-x2))/((x1-x0)*(x1-x2));
-    L2=((x-x0)*(x-x1))/((x2-x0)*(x2-x1));
-    return L0*f0+L1*f1+L2*f2;
-}
-
-static double powInt(double x, int y)
-{
-    int i;
-    double product=1.0;
-    double x_in;
-    int y_in;
-    
-    if (y==0)
-    {
-        return 1.0;
-    }
-    
-    if (y<0)
-    {
-        x_in=1/x;
-        y_in=-y;
-    }
-	else
-	{
-		x_in=x;
-		y_in=y;
-	}
-
-    if (y_in==1)
-    {
-        return x_in;
-    }    
-    
-    product=x_in;
-    for (i=1;i<y_in;i++)
-    {
-        product=product*x_in;
-    }
-    
-    return product;
 }
