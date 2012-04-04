@@ -101,6 +101,5 @@
 	double K2F(double T);
 	void PrintSaturationTable(char *FileName, char * Ref, double Tmin, double Tmax);
 	int Phase(double T, double rho, char * Ref);
-	void rhosatPure(char *Ref, double T, double *rhoLout, double *rhoVout, double *pout);
 	
 #endif

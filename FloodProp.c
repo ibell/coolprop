@@ -409,6 +409,7 @@ double rho_g(char *Gas, double T, double P)
 	if (!ValidNumber(Value))
 	{
 		//ERROR
+		printf("rho_g error");
 	}
 	else
 		return Value;
@@ -429,6 +430,7 @@ double h_g(char *Gas, double T, double P)
     if (!ValidNumber(Value))
     {
     	//ERROR
+    	printf("h_g error");
     }
     else
     	return Value;
@@ -450,6 +452,7 @@ double u_g(char *Gas, double T, double P)
 	if (!ValidNumber(Value))
 	{
 		//ERROR
+		printf("u_g error");
 	}
 	else
 		return Value;
@@ -470,6 +473,7 @@ double s_g(char *Gas, double T, double P)
 	if (!ValidNumber(Value))
 	{
 		//ERROR
+		printf("s_g error");
 	}
 	else
 		return Value;
@@ -492,6 +496,7 @@ double c_v(char *Gas, double T, double P)
 	if (!ValidNumber(Value))
 	{
 		//ERROR
+		printf("c_v error");
 	}
 	else
 		return Value;
@@ -514,6 +519,7 @@ double c_p(char *Gas, double T, double P)
 	if (!ValidNumber(Value))
 	{
 		//ERROR
+		printf("c_p error");
 	}
 	else
 		return Value;
@@ -536,6 +542,7 @@ double k_g(char *Gas, double T, double p)
 	if (!ValidNumber(Value))
 	{
 		//ERROR
+		printf("k_g error");
 	}
 	else
 		return Value;
@@ -558,6 +565,7 @@ double mu_g(char *Gas, double T, double p)
 	if (!ValidNumber(Value))
 	{
 		//ERROR
+		printf("mu_g error");
 	}
 	else
 		return Value;

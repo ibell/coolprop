@@ -36,6 +36,7 @@ double R_u=8.314472; //From Lemmon et al 2009 (propane)
 // Function prototypes
 double _Dekker_Tsat(double x_min, double x_max, double eps, double p, double Q,char *Ref);
 int LoadFluid(char *Ref);
+static void rhosatPure(char *Ref, double T, double *rhoLout, double *rhoVout, double *pout);
 
 //For the pure fluids
 double (*psat_func)(double); 
@@ -68,6 +69,7 @@ double Tsat_LUT[NLUTFLUIDS][NLUT],rhosatL_LUT[NLUTFLUIDS][NLUT],rhosatV_LUT[NLUT
 char RefLUT[NLUTFLUIDS][255]; // The names of the fluids that are loaded
 int FlagUseSaturationLUT=0; //Default to not use LUT
 int FlagUseSinglePhaseLUT=0; //Default to not use LUT
+int FlagDebug=1;
 
 // The structure that contains all the fluid-specific parameters and callbacks to functions
 static struct fluidParamsVals Fluid;
@@ -359,14 +361,20 @@ double Density_Tp(double T, double p, double rho)
     return rho;
 }
 
-void rhosatPure(char *Ref, double T, double *rhoLout, double *rhoVout, double *pout)
+static void rhosatPure(char *Ref, double T, double *rhoLout, double *rhoVout, double *pout)
 {
     // Only works for pure fluids (no blends)
     // At equilibrium, saturated vapor and saturated liquid are at the same pressure and the same Gibbs energy
     double rhoL,rhoV,p,error=999,x1,x2,x3,y1,y2,f,p_guess;
     int iter;
+    char Local_errString[300];
 
-    LoadFluid(Ref);
+    if (T>Fluid.Tc || T<Fluid.Tt)
+    {
+    	sprintf(Local_errString,"rhosatPure: Temperature [%g] is out of two-phase range [%g,%g]",T,Fluid.Tt,Fluid.Tc);
+		Append2ErrorString(Local_errString);
+		return;
+    }
 
     // Use the density ancillary function as the starting point for the secant solver
     rhoL=rhosatL_func(T);
@@ -376,7 +384,9 @@ void rhosatPure(char *Ref, double T, double *rhoLout, double *rhoVout, double *p
     if (!ValidNumber(rhoL) || !ValidNumber(rhoV))
 	{
 		//ERROR
-		printf("rhoL [%g] or rhoV [%g] is invalid number\n",rhoL,rhoV);
+		sprintf(Local_errString,"rhosatPure: rhoL [%g] or rhoV [%g] is invalid number\n",rhoL,rhoV);
+		Append2ErrorString(Local_errString);
+		return;
 	}
     iter=1;
     // Use a secant method to obtain pressure
@@ -393,9 +403,11 @@ void rhosatPure(char *Ref, double T, double *rhoLout, double *rhoVout, double *p
             if (!ValidNumber(rhoL) || !ValidNumber(rhoV) || !ValidNumber(f))
             {
             	//ERROR
-            	printf("rhoL [%g] rhoV [%g] or f [%g] is invalid number\n",rhoL,rhoV,f);
+            	sprintf(Local_errString,"rhosatPure: rhoL [%g] rhoV [%g] or f [%g] is invalid number\n",rhoL,rhoV,f);
+				Append2ErrorString(Local_errString);
+				return;
             }
-            if (iter>10)
+            if (iter>100)
             {
             	//ERROR
             	printf("iter>100:: L %g V %G p %g\n",rhoL,rhoV,p_guess);
@@ -424,283 +436,94 @@ void rhosatPure(char *Ref, double T, double *rhoLout, double *rhoVout, double *p
 
 int LoadFluid(char *Ref)
 {
+	char Local_errString[100];
+
     if (!strcmp(LoadedFluid,Ref))
     {
         // Already Loaded, don't do anything else
-        return 0;
+        return OK;
     }
     else
     {
+    	//Copy the refrigerant name
         strcpy(LoadedFluid,Ref);
-        printf("Loading fluid %s...",Ref);
         // Wire up the function pointers for the given refrigerant
         if (!strcmp(Ref,"Argon"))
         {
         	Load_Argon(&Fluid);
-			FluidType=Fluid.Type;
-			phir_func=Fluid.funcs.phir;
-			dphir_dDelta_func=Fluid.funcs.dphir_dDelta;
-			dphir2_dDelta2_func=Fluid.funcs.dphir2_dDelta2;
-			dphir2_dDelta_dTau_func=Fluid.funcs.dphir2_dDelta_dTau;
-			dphir_dTau_func=Fluid.funcs.dphir_dTau;
-			dphir2_dTau2_func=Fluid.funcs.dphir2_dTau2;
-			phi0_func=Fluid.funcs.phi0;
-			dphi0_dDelta_func=Fluid.funcs.dphi0_dDelta;
-			dphi02_dDelta2_func=Fluid.funcs.dphi02_dDelta2;
-			dphi0_dTau_func=Fluid.funcs.dphi0_dTau;
-			dphi02_dTau2_func=Fluid.funcs.dphi02_dTau2;
-			Viscosity_Trho=Fluid.funcs.visc;
-			Conductivity_Trho=Fluid.funcs.cond;
-			rhosatV_func=Fluid.funcs.rhosatV;
-			rhosatL_func=Fluid.funcs.rhosatL;
-			psat_func=Fluid.funcs.psat;
-
         }
         else if (!strcmp(Ref,"Nitrogen") || !strcmp(Ref,"N2"))
         {
         	Load_Nitrogen(&Fluid);
-			FluidType=Fluid.Type;
-			phir_func=Fluid.funcs.phir;
-			dphir_dDelta_func=Fluid.funcs.dphir_dDelta;
-			dphir2_dDelta2_func=Fluid.funcs.dphir2_dDelta2;
-			dphir2_dDelta_dTau_func=Fluid.funcs.dphir2_dDelta_dTau;
-			dphir_dTau_func=Fluid.funcs.dphir_dTau;
-			dphir2_dTau2_func=Fluid.funcs.dphir2_dTau2;
-			phi0_func=Fluid.funcs.phi0;
-			dphi0_dDelta_func=Fluid.funcs.dphi0_dDelta;
-			dphi02_dDelta2_func=Fluid.funcs.dphi02_dDelta2;
-			dphi0_dTau_func=Fluid.funcs.dphi0_dTau;
-			dphi02_dTau2_func=Fluid.funcs.dphi02_dTau2;
-			Viscosity_Trho=Fluid.funcs.visc;
-			Conductivity_Trho=Fluid.funcs.cond;
-			rhosatV_func=Fluid.funcs.rhosatV;
-			rhosatL_func=Fluid.funcs.rhosatL;
-			psat_func=Fluid.funcs.psat;
         }
         else if (!strcmp(Ref,"R744") || !strcmp(Ref,"CO2"))
         {
         	Load_R744(&Fluid);
-			FluidType=Fluid.Type;
-			phir_func=Fluid.funcs.phir;
-			dphir_dDelta_func=Fluid.funcs.dphir_dDelta;
-			dphir2_dDelta2_func=Fluid.funcs.dphir2_dDelta2;
-			dphir2_dDelta_dTau_func=Fluid.funcs.dphir2_dDelta_dTau;
-			dphir_dTau_func=Fluid.funcs.dphir_dTau;
-			dphir2_dTau2_func=Fluid.funcs.dphir2_dTau2;
-			phi0_func=Fluid.funcs.phi0;
-			dphi0_dDelta_func=Fluid.funcs.dphi0_dDelta;
-			dphi02_dDelta2_func=Fluid.funcs.dphi02_dDelta2;
-			dphi0_dTau_func=Fluid.funcs.dphi0_dTau;
-			dphi02_dTau2_func=Fluid.funcs.dphi02_dTau2;
-			Viscosity_Trho=Fluid.funcs.visc;
-			Conductivity_Trho=Fluid.funcs.cond;
-			rhosatV_func=Fluid.funcs.rhosatV;
-			rhosatL_func=Fluid.funcs.rhosatL;
-			psat_func=Fluid.funcs.psat;
         }
         else if (!strcmp(Ref,"R718") || !strcmp(Ref,"Water") || !strcmp(Ref,"H2O"))
         {
         	Load_Water(&Fluid);
-			FluidType=Fluid.Type;
-			phir_func=Fluid.funcs.phir;
-			dphir_dDelta_func=Fluid.funcs.dphir_dDelta;
-			dphir2_dDelta2_func=Fluid.funcs.dphir2_dDelta2;
-			dphir2_dDelta_dTau_func=Fluid.funcs.dphir2_dDelta_dTau;
-			dphir_dTau_func=Fluid.funcs.dphir_dTau;
-			dphir2_dTau2_func=Fluid.funcs.dphir2_dTau2;
-			phi0_func=Fluid.funcs.phi0;
-			dphi0_dDelta_func=Fluid.funcs.dphi0_dDelta;
-			dphi02_dDelta2_func=Fluid.funcs.dphi02_dDelta2;
-			dphi0_dTau_func=Fluid.funcs.dphi0_dTau;
-			dphi02_dTau2_func=Fluid.funcs.dphi02_dTau2;
-			Viscosity_Trho=Fluid.funcs.visc;
-			Conductivity_Trho=Fluid.funcs.cond;
-			rhosatV_func=Fluid.funcs.rhosatV;
-			rhosatL_func=Fluid.funcs.rhosatL;
-			psat_func=Fluid.funcs.psat;
         }
         else if (!strcmp(Ref,"R134a"))
         {
             Load_R134a(&Fluid);
-            FluidType=Fluid.Type;
-            phir_func=Fluid.funcs.phir;
-            dphir_dDelta_func=Fluid.funcs.dphir_dDelta;
-            dphir2_dDelta2_func=Fluid.funcs.dphir2_dDelta2;
-            dphir2_dDelta_dTau_func=Fluid.funcs.dphir2_dDelta_dTau;
-            dphir_dTau_func=Fluid.funcs.dphir_dTau;
-            dphir2_dTau2_func=Fluid.funcs.dphir2_dTau2;
-            phi0_func=Fluid.funcs.phi0;
-            dphi0_dDelta_func=Fluid.funcs.dphi0_dDelta;
-            dphi02_dDelta2_func=Fluid.funcs.dphi02_dDelta2;
-            dphi0_dTau_func=Fluid.funcs.dphi0_dTau;
-            dphi02_dTau2_func=Fluid.funcs.dphi02_dTau2;
-            Viscosity_Trho=Fluid.funcs.visc;
-			Conductivity_Trho=Fluid.funcs.cond;
-			rhosatV_func=Fluid.funcs.rhosatV;
-			rhosatL_func=Fluid.funcs.rhosatL;
-			psat_func=Fluid.funcs.psat;
         }
         else if (!strcmp(Ref,"R290"))
         {
         	Load_R290(&Fluid);
-			FluidType=Fluid.Type;
-			phir_func=Fluid.funcs.phir;
-			dphir_dDelta_func=Fluid.funcs.dphir_dDelta;
-			dphir2_dDelta2_func=Fluid.funcs.dphir2_dDelta2;
-			dphir2_dDelta_dTau_func=Fluid.funcs.dphir2_dDelta_dTau;
-			dphir_dTau_func=Fluid.funcs.dphir_dTau;
-			dphir2_dTau2_func=Fluid.funcs.dphir2_dTau2;
-			phi0_func=Fluid.funcs.phi0;
-			dphi0_dDelta_func=Fluid.funcs.dphi0_dDelta;
-			dphi02_dDelta2_func=Fluid.funcs.dphi02_dDelta2;
-			dphi0_dTau_func=Fluid.funcs.dphi0_dTau;
-			dphi02_dTau2_func=Fluid.funcs.dphi02_dTau2;
-			Viscosity_Trho=Fluid.funcs.visc;
-			Conductivity_Trho=Fluid.funcs.cond;
-			rhosatV_func=Fluid.funcs.rhosatV;
-			rhosatL_func=Fluid.funcs.rhosatL;
-			psat_func=Fluid.funcs.psat;
         }
         else if (!strcmp(Ref,"R717") || !strcmp(Ref,"NH3") || !strcmp(Ref,"Ammonia") || !strcmp(Ref,"ammonia"))
         {
         	Load_R717(&Fluid);
-			FluidType=Fluid.Type;
-			phir_func=Fluid.funcs.phir;
-			dphir_dDelta_func=Fluid.funcs.dphir_dDelta;
-			dphir2_dDelta2_func=Fluid.funcs.dphir2_dDelta2;
-			dphir2_dDelta_dTau_func=Fluid.funcs.dphir2_dDelta_dTau;
-			dphir_dTau_func=Fluid.funcs.dphir_dTau;
-			dphir2_dTau2_func=Fluid.funcs.dphir2_dTau2;
-			phi0_func=Fluid.funcs.phi0;
-			dphi0_dDelta_func=Fluid.funcs.dphi0_dDelta;
-			dphi02_dDelta2_func=Fluid.funcs.dphi02_dDelta2;
-			dphi0_dTau_func=Fluid.funcs.dphi0_dTau;
-			dphi02_dTau2_func=Fluid.funcs.dphi02_dTau2;
-			Viscosity_Trho=Fluid.funcs.visc;
-			Conductivity_Trho=Fluid.funcs.cond;
-			rhosatV_func=Fluid.funcs.rhosatV;
-			rhosatL_func=Fluid.funcs.rhosatL;
-			psat_func=Fluid.funcs.psat;
         }
         else if (!strcmp(Ref,"Air"))
         {
         	Load_Air(&Fluid);
-			FluidType=Fluid.Type;
-			phir_func=Fluid.funcs.phir;
-			dphir_dDelta_func=Fluid.funcs.dphir_dDelta;
-			dphir2_dDelta2_func=Fluid.funcs.dphir2_dDelta2;
-			dphir2_dDelta_dTau_func=Fluid.funcs.dphir2_dDelta_dTau;
-			dphir_dTau_func=Fluid.funcs.dphir_dTau;
-			dphir2_dTau2_func=Fluid.funcs.dphir2_dTau2;
-			phi0_func=Fluid.funcs.phi0;
-			dphi0_dDelta_func=Fluid.funcs.dphi0_dDelta;
-			dphi02_dDelta2_func=Fluid.funcs.dphi02_dDelta2;
-			dphi0_dTau_func=Fluid.funcs.dphi0_dTau;
-			dphi02_dTau2_func=Fluid.funcs.dphi02_dTau2;
-			Viscosity_Trho=Fluid.funcs.visc;
-			Conductivity_Trho=Fluid.funcs.cond;
-			rhosatV_func=Fluid.funcs.rhosatV;
-			rhosatL_func=Fluid.funcs.rhosatL;
-			pdp_func=Fluid.funcs.p_dp;
-			pbp_func=Fluid.funcs.p_bp;
         }
         else if (!strcmp(Ref,"R410A"))
         {
             Load_R410A(&Fluid);
-            FluidType=Fluid.Type;
-            phir_func=Fluid.funcs.phir;
-            dphir_dDelta_func=Fluid.funcs.dphir_dDelta;
-            dphir2_dDelta2_func=Fluid.funcs.dphir2_dDelta2;
-            dphir2_dDelta_dTau_func=Fluid.funcs.dphir2_dDelta_dTau;
-            dphir_dTau_func=Fluid.funcs.dphir_dTau;
-            dphir2_dTau2_func=Fluid.funcs.dphir2_dTau2;
-            phi0_func=Fluid.funcs.phi0;
-            dphi0_dDelta_func=Fluid.funcs.dphi0_dDelta;
-            dphi02_dDelta2_func=Fluid.funcs.dphi02_dDelta2;
-            dphi0_dTau_func=Fluid.funcs.dphi0_dTau;
-            dphi02_dTau2_func=Fluid.funcs.dphi02_dTau2;
-            Viscosity_Trho=Fluid.funcs.visc;
-			Conductivity_Trho=Fluid.funcs.cond;
-            rhosatV_func=Fluid.funcs.rhosatV;
-            rhosatL_func=Fluid.funcs.rhosatL;
-            pdp_func=Fluid.funcs.p_dp;
-            pbp_func=Fluid.funcs.p_bp;
         }
         else if (!strcmp(Ref,"R404A"))
         {
         	Load_R404A(&Fluid);
-			FluidType=Fluid.Type;
-			phir_func=Fluid.funcs.phir;
-			dphir_dDelta_func=Fluid.funcs.dphir_dDelta;
-			dphir2_dDelta2_func=Fluid.funcs.dphir2_dDelta2;
-			dphir2_dDelta_dTau_func=Fluid.funcs.dphir2_dDelta_dTau;
-			dphir_dTau_func=Fluid.funcs.dphir_dTau;
-			dphir2_dTau2_func=Fluid.funcs.dphir2_dTau2;
-			phi0_func=Fluid.funcs.phi0;
-			dphi0_dDelta_func=Fluid.funcs.dphi0_dDelta;
-			dphi02_dDelta2_func=Fluid.funcs.dphi02_dDelta2;
-			dphi0_dTau_func=Fluid.funcs.dphi0_dTau;
-			dphi02_dTau2_func=Fluid.funcs.dphi02_dTau2;
-			Viscosity_Trho=Fluid.funcs.visc;
-			Conductivity_Trho=Fluid.funcs.cond;
-			rhosatV_func=Fluid.funcs.rhosatV;
-			rhosatL_func=Fluid.funcs.rhosatL;
-			pdp_func=Fluid.funcs.p_dp;
-			pbp_func=Fluid.funcs.p_bp;
         }
         else if (!strcmp(Ref,"R407C"))
         {
         	Load_R407C(&Fluid);
-			FluidType=Fluid.Type;
-			phir_func=Fluid.funcs.phir;
-			dphir_dDelta_func=Fluid.funcs.dphir_dDelta;
-			dphir2_dDelta2_func=Fluid.funcs.dphir2_dDelta2;
-			dphir2_dDelta_dTau_func=Fluid.funcs.dphir2_dDelta_dTau;
-			dphir_dTau_func=Fluid.funcs.dphir_dTau;
-			dphir2_dTau2_func=Fluid.funcs.dphir2_dTau2;
-			phi0_func=Fluid.funcs.phi0;
-			dphi0_dDelta_func=Fluid.funcs.dphi0_dDelta;
-			dphi02_dDelta2_func=Fluid.funcs.dphi02_dDelta2;
-			dphi0_dTau_func=Fluid.funcs.dphi0_dTau;
-			dphi02_dTau2_func=Fluid.funcs.dphi02_dTau2;
-			Viscosity_Trho=Fluid.funcs.visc;
-			Conductivity_Trho=Fluid.funcs.cond;
-			rhosatV_func=Fluid.funcs.rhosatV;
-			rhosatL_func=Fluid.funcs.rhosatL;
-			pdp_func=Fluid.funcs.p_dp;
-			pbp_func=Fluid.funcs.p_bp;
         }
         else if (!strcmp(Ref,"R507A"))
         {
         	Load_R507A(&Fluid);
-			FluidType=Fluid.Type;
-			phir_func=Fluid.funcs.phir;
-			dphir_dDelta_func=Fluid.funcs.dphir_dDelta;
-			dphir2_dDelta2_func=Fluid.funcs.dphir2_dDelta2;
-			dphir2_dDelta_dTau_func=Fluid.funcs.dphir2_dDelta_dTau;
-			dphir_dTau_func=Fluid.funcs.dphir_dTau;
-			dphir2_dTau2_func=Fluid.funcs.dphir2_dTau2;
-			phi0_func=Fluid.funcs.phi0;
-			dphi0_dDelta_func=Fluid.funcs.dphi0_dDelta;
-			dphi02_dDelta2_func=Fluid.funcs.dphi02_dDelta2;
-			dphi0_dTau_func=Fluid.funcs.dphi0_dTau;
-			dphi02_dTau2_func=Fluid.funcs.dphi02_dTau2;
-			Viscosity_Trho=Fluid.funcs.visc;
-			Conductivity_Trho=Fluid.funcs.cond;
-			rhosatV_func=Fluid.funcs.rhosatV;
-			rhosatL_func=Fluid.funcs.rhosatL;
-			pdp_func=Fluid.funcs.p_dp;
-			pbp_func=Fluid.funcs.p_bp;
         }
         else
         {
-            sprintf(CP_errString,"Refrigerant %s not allowed\n",Ref);
-            fprintf(stderr,"%s\n",CP_errString);
-            return -1;
+            sprintf(Local_errString,"Refrigerant %s not allowed",Ref);
+            Append2ErrorString(Local_errString);
+            return FAIL;
         }
-        printf("Fluid loaded\n");
+        FluidType=Fluid.Type;
+		phir_func=Fluid.funcs.phir;
+		dphir_dDelta_func=Fluid.funcs.dphir_dDelta;
+		dphir2_dDelta2_func=Fluid.funcs.dphir2_dDelta2;
+		dphir2_dDelta_dTau_func=Fluid.funcs.dphir2_dDelta_dTau;
+		dphir_dTau_func=Fluid.funcs.dphir_dTau;
+		dphir2_dTau2_func=Fluid.funcs.dphir2_dTau2;
+		phi0_func=Fluid.funcs.phi0;
+		dphi0_dDelta_func=Fluid.funcs.dphi0_dDelta;
+		dphi02_dDelta2_func=Fluid.funcs.dphi02_dDelta2;
+		dphi0_dTau_func=Fluid.funcs.dphi0_dTau;
+		dphi02_dTau2_func=Fluid.funcs.dphi02_dTau2;
+		Viscosity_Trho=Fluid.funcs.visc;
+		Conductivity_Trho=Fluid.funcs.cond;
+		rhosatV_func=Fluid.funcs.rhosatV;
+		rhosatL_func=Fluid.funcs.rhosatL;
+		psat_func=Fluid.funcs.psat;
+		pbp_func=Fluid.funcs.p_bp;
+		pdp_func=Fluid.funcs.p_dp;
+        printf("Loaded Fluid %s\n",Ref);
+        return OK;
     }
-    return 0;
 }
 
 void Help()
@@ -812,9 +635,14 @@ int Phase(double T, double rho, char * Ref)
 double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, char * Ref)
 {
     double T,p,Q,rhoV,rhoL,Value,rho,pdp,pbp;
-    int isTwoPhase;
+    int isTwoPhase,success;
     char errString[ERRSTRLENGTH];
-    
+    char Local_errString[300];
+
+    //Flush out any errors from the CoolProp error bubbling stack
+	strcpy(CP_errString,"");
+	ErrorFlag=OK;
+
     /*
     Following the naming conventions of MATLAB linked with REFPROP,
     each output property is represented by one character:
@@ -846,21 +674,22 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
     //                                   REFPROP
     // **********************************************************************************
     // **********************************************************************************
-    
+
     /* 
     If the fluid name is not actually a refrigerant name, but a string beginning with "REFPROP-",
     then REFPROP is used to calculate the desired property.
     */
-    #if defined(__ISWINDOWS__)
     if (strncmp(Ref,"REFPROP-",8)==0)  // First eight characters match "REFPROP-"
     {
-    #else
-    if (0) // Automatically skip it because REFPROP is not supported on this platform
-    {
-    #endif
         FluidType=FLUIDTYPE_REFPROP;
         #if defined(__ISWINDOWS__)
         return REFPROP(Output,Name1,Prop1,Name2,Prop2,Ref);
+		#else
+        sprintf(Local_errString,"Your refrigerant [%s] is from REFPROP, but REFPROP not supported on this platform",Ref);
+        Append2ErrorString(Local_errString);
+        if (FlagDebug==1)
+        	PrintError();
+        return -_HUGE;
         #endif
     }
 
@@ -876,16 +705,27 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
     {
         if (Name1!='T' || Name2!='P')
         {
-            printf("Warning: For brine, Name1 must be 'T' and Name2 must be 'P'\n");
+        	sprintf(Local_errString,"For brine, Name1 must be 'T' and Name2 must be 'P'");
+			Append2ErrorString(Local_errString);
+			if (FlagDebug==1)
+				PrintError();
+			return -_HUGE;
         }
         FluidType=FLUIDTYPE_BRINE;
         return SecFluids(Output,Prop1,Prop2,Ref);
     }
-    else 
+    else // It is something based on CoolProp routines
     {
         T=Prop1; 
         // Load the fluid-specific parameters and function pointers
-        LoadFluid(Ref);
+        success=LoadFluid(Ref);
+        //Error if bad fluid name
+        if (ErrorFlag!=OK)
+        {
+        	if (FlagDebug==1)
+				PrintError();
+        	return -_HUGE;
+        }
         
         // Check if it is an output that doesn't require a state input
         // Deal with it and return
@@ -963,7 +803,11 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
                     if (!ValidNumber(rhoL) || !ValidNumber(rhoV))
 					{
 						//ERROR
-						printf("rhoL [%g] or rhoV [%g] is invalid number\n",rhoL,rhoV);
+						sprintf(Local_errString,"rhoL [%g] or rhoV [%g] is invalid number\n",rhoL,rhoV);
+						Append2ErrorString(Local_errString);
+						if (FlagDebug==1)
+							PrintError();
+						return -_HUGE;
 					}
                 }
                 if (isTwoPhase==0)
@@ -991,8 +835,11 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
                             Value=Conductivity_Trho(T,rho); break;
                         default:
                         	//ERROR
-                            strcpy(errString,"Invalid Output Name");
-                            return -100;
+                            sprintf(Local_errString,"Invalid Output Name: %c",Output);
+							Append2ErrorString(Local_errString);
+							if (FlagDebug==1)
+								PrintError();
+							return -_HUGE;
                     }
                     return Value;
                 }
@@ -1020,6 +867,12 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
                     else
                     {
                         rhosatPure(Ref,T,&rhoL,&rhoV,&p);
+                        if (ErrorFlag==FAIL)
+                        {
+                        if (FlagDebug==1)
+							PrintError();
+                        	return -_HUGE;
+                        }
                     }
                 }
                 else
@@ -1065,8 +918,11 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
                         Value=Q*SpeedSound_Trho(T,rhoV)+(1-Q)*SpeedSound_Trho(T,rhoL);
                         break;
                     default:
-                        strcpy(errString,"Invalid Output Name");
-                        return -100;
+                        sprintf(Local_errString,"Invalid Output Name: %c",Output);
+						Append2ErrorString(Local_errString);
+						if (FlagDebug==1)
+							PrintError();
+						return -_HUGE;
                 }
                 return Value;
             }
@@ -1082,8 +938,11 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
         }
         else
         {
-            fprintf(stderr,"Names of input properties invalid (%c,%c) with refrigerant %s.  Valid choices are T,P or T,Q or T,D or P,Q",Name1,Name2,Ref);
-            return _HUGE;
+        	sprintf(Local_errString,"Names of input properties invalid (%c,%c) with refrigerant %s.  Valid choices are T,P or T,Q or T,D or P,Q",Name1,Name2,Ref);
+			Append2ErrorString(Local_errString);
+			if (FlagDebug==1)
+				PrintError();
+			return -_HUGE;
         }
     }
     return 0;
@@ -1161,8 +1020,8 @@ double Tcrit(char *Ref)
 }
 double Ttriple(char *Ref)
 {
-    // Call a function to set the global constants
-    Props('M','T',0,'P',0,Ref);
+    // Set the global constants
+    LoadFluid(Ref);
     
     // Brines do not have triple point temperatures, set it to a big number
     if (IsFluidType(Ref,"Brine"))
@@ -1198,6 +1057,7 @@ double T_hp(char *Ref, double h, double p, double T_guess)
 {
     double x1=0,x2=0,x3=0,y1=0,y2=0,eps=1e-8,change=999,f,T=300;
     int iter=1;
+    char Local_errString[300];
     while ((iter<=3 || change>eps) && iter<100)
     {
         if (iter==1){x1=T_guess; T=x1;}
@@ -1216,7 +1076,9 @@ double T_hp(char *Ref, double h, double p, double T_guess)
         if (iter>60)
         {
             //ERROR
-        	//printf("%d: T_hp not converging with inputs(%s,%g,%g,%g) value: %0.12g\n",iter,Ref,h,p,T_guess,f);
+        	sprintf(Local_errString,"%d: T_hp not converging with inputs(%s,%g,%g,%g) value: %0.12g\n",iter,Ref,h,p,T_guess,f);
+			Append2ErrorString(Local_errString);
+			return -_HUGE;
         }
     }
     return T;

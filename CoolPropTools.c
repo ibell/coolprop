@@ -373,3 +373,13 @@ double LookupValue(char Prop, double T, double p, char *Ref, struct fluidParamsV
     return QuadInterp(T1,T2,T3,a1,a2,a3,T);	
 }
 
+void Append2ErrorString(char *string)
+{
+	ErrorFlag=FAIL;
+	strcat(CP_errString,"||");
+	strcat(CP_errString,string);
+}
+void PrintError(void)
+{
+	fprintf(stderr,"CoolProp error returned: %s\n",CP_errString);
+}
