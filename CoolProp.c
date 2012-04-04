@@ -1419,62 +1419,63 @@ void PrintSaturationTable(char *FileName, char * Ref,double Tmin, double Tmax)
 
 double DerivTerms(char *Term,char Name1, double Prop1, char Name2, double Prop2, char * Ref)
 {
-    // Pointers to the functions
-    double (*dhdT)(double,double,int);
-    double (*dpdT)(double,double,int);
-    double (*dhdrho)(double,double,int);
-    double (*dpdrho)(double,double,int);
+//    // Pointers to the functions
+//    double (*dhdT)(double,double,int);
+//    double (*dpdT)(double,double,int);
+//    double (*dhdrho)(double,double,int);
+//    double (*dpdrho)(double,double,int);
     printf("Sorry DerivTerms is a work in progress!!");
-    // Wire up the pointers for the given refrigerant
-    if (!strcmp(Ref,"AA"))
-    {
-    }
-    else
-    {
-        printf("Bad Refrigerant Name in DerivTerms [%s]\n",Ref);
-        return _HUGE;
-    }
-    
-    if (Name1=='T' && Name2=='P' && !strcmp(Term,"dhdT"))
-        return dhdT(Prop1,Prop2,TYPE_TPNoLookup);
-    else if (Name1=='T' && Name2=='P' && !strcmp(Term,"dhdrho"))
-        return dhdrho(Prop1,Prop2,TYPE_TPNoLookup);
-    else if (Name1=='T' && Name2=='P' && !strcmp(Term,"dpdT"))
-        return dpdT(Prop1,Prop2,TYPE_TPNoLookup);
-    else if (Name1=='T' && Name2=='P' && !strcmp(Term,"dpdrho"))
-        return dpdrho(Prop1,Prop2,TYPE_TPNoLookup);
-    
-    else if (Name1=='T' && Name2=='D' && !strcmp(Term,"dhdT"))
-        return dhdT(Prop1,Prop2,TYPE_Trho);
-    else if (Name1=='T' && Name2=='D' && !strcmp(Term,"dhdrho"))
-        return dhdrho(Prop1,Prop2,TYPE_Trho);
-    else if (Name1=='T' && Name2=='D' && !strcmp(Term,"dpdT"))
-        return dpdT(Prop1,Prop2,TYPE_Trho);
-    else if (Name1=='T' && Name2=='D' && !strcmp(Term,"dpdrho"))
-        return dpdrho(Prop1,Prop2,TYPE_Trho);
-    
-    else if (Name1=='T' && Name2=='P' && !strcmp(Term,"dhdTnum"))
-        return dhdT(Prop1,Prop2,99);
-    else if (Name1=='T' && Name2=='P' && !strcmp(Term,"dhdrhonum"))
-        return dhdrho(Prop1,Prop2,99);
-    else if (Name1=='T' && Name2=='P' && !strcmp(Term,"dpdTnum"))
-        return dpdT(Prop1,Prop2,99);
-    else if (Name1=='T' && Name2=='P' && !strcmp(Term,"dpdrhonum"))
-        return dpdrho(Prop1,Prop2,99);
-
-    else if (Name1=='T' && Name2=='P' && !strcmp(Term,"dhdTnum"))
-        return dhdT(Prop1,Prop2,99);
-    else if (Name1=='T' && Name2=='P' && !strcmp(Term,"dhdrhonum"))
-        return dhdrho(Prop1,Prop2,99);
-    else if (Name1=='T' && Name2=='P' && !strcmp(Term,"dpdTnum"))
-        return dpdT(Prop1,Prop2,99);
-    else if (Name1=='T' && Name2=='P' && !strcmp(Term,"dpdrhonum"))
-        return dpdrho(Prop1,Prop2,99);
-    else
-    {
-        printf("Bad pair of properties[%c,%c] and derivative name [%s]\n",Name1,Name2,Term);
-        return _HUGE;
-    }	
+    return _HUGE;
+//    // Wire up the pointers for the given refrigerant
+//    if (!strcmp(Ref,"AA"))
+//    {
+//    }
+//    else
+//    {
+//        printf("Bad Refrigerant Name in DerivTerms [%s]\n",Ref);
+//        return _HUGE;
+//    }
+//
+//    if (Name1=='T' && Name2=='P' && !strcmp(Term,"dhdT"))
+//        return dhdT(Prop1,Prop2,TYPE_TPNoLookup);
+//    else if (Name1=='T' && Name2=='P' && !strcmp(Term,"dhdrho"))
+//        return dhdrho(Prop1,Prop2,TYPE_TPNoLookup);
+//    else if (Name1=='T' && Name2=='P' && !strcmp(Term,"dpdT"))
+//        return dpdT(Prop1,Prop2,TYPE_TPNoLookup);
+//    else if (Name1=='T' && Name2=='P' && !strcmp(Term,"dpdrho"))
+//        return dpdrho(Prop1,Prop2,TYPE_TPNoLookup);
+//
+//    else if (Name1=='T' && Name2=='D' && !strcmp(Term,"dhdT"))
+//        return dhdT(Prop1,Prop2,TYPE_Trho);
+//    else if (Name1=='T' && Name2=='D' && !strcmp(Term,"dhdrho"))
+//        return dhdrho(Prop1,Prop2,TYPE_Trho);
+//    else if (Name1=='T' && Name2=='D' && !strcmp(Term,"dpdT"))
+//        return dpdT(Prop1,Prop2,TYPE_Trho);
+//    else if (Name1=='T' && Name2=='D' && !strcmp(Term,"dpdrho"))
+//        return dpdrho(Prop1,Prop2,TYPE_Trho);
+//
+//    else if (Name1=='T' && Name2=='P' && !strcmp(Term,"dhdTnum"))
+//        return dhdT(Prop1,Prop2,99);
+//    else if (Name1=='T' && Name2=='P' && !strcmp(Term,"dhdrhonum"))
+//        return dhdrho(Prop1,Prop2,99);
+//    else if (Name1=='T' && Name2=='P' && !strcmp(Term,"dpdTnum"))
+//        return dpdT(Prop1,Prop2,99);
+//    else if (Name1=='T' && Name2=='P' && !strcmp(Term,"dpdrhonum"))
+//        return dpdrho(Prop1,Prop2,99);
+//
+//    else if (Name1=='T' && Name2=='P' && !strcmp(Term,"dhdTnum"))
+//        return dhdT(Prop1,Prop2,99);
+//    else if (Name1=='T' && Name2=='P' && !strcmp(Term,"dhdrhonum"))
+//        return dhdrho(Prop1,Prop2,99);
+//    else if (Name1=='T' && Name2=='P' && !strcmp(Term,"dpdTnum"))
+//        return dpdT(Prop1,Prop2,99);
+//    else if (Name1=='T' && Name2=='P' && !strcmp(Term,"dpdrhonum"))
+//        return dpdrho(Prop1,Prop2,99);
+//    else
+//    {
+//        printf("Bad pair of properties[%c,%c] and derivative name [%s]\n",Name1,Name2,Term);
+//        return _HUGE;
+//    }
 }
 
 static void swap(double *x, double *y)
