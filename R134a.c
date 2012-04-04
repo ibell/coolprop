@@ -6,18 +6,6 @@ Thermo props from
 "A International Standard Formulation for the Thermodynamic Properties of 1,1,1,2-Tetrafluoroethane 
 (HFC-134a) for Temperatures from 170 K to 455 K and Pressures up to 70 MPa"
 by Reiner Tillner-Roth and Hans Dieter Baehr, J. Phys. Chem. Ref. Data, v. 23, 1994, pp 657-729
-
-In order to call the exposed functions, rho_, h_, s_, cp_,...... there are three different 
-ways the inputs can be passed, and this is expressed by the Types integer flag.  
-These macros are defined in the PropMacros.h header file:
-1) First parameter temperature, second parameter pressure ex: h_R134a(260,1785,1)=-67.53
-	In this case, the lookup tables are built if needed and then interpolated
-2) First parameter temperature, second parameter density ex: h_R134a(260,43.29,2)=-67.53
-	Density and temp plugged directly into EOS
-3) First parameter temperature, second parameter pressure ex: h_R134a(260,1785,3)=-67.53
-	Density solved for, then plugged into EOS (can be quite slow)
-
-
 */
 
 #if defined(_MSC_VER)
@@ -32,29 +20,7 @@ These macros are defined in the PropMacros.h header file:
 #include <math.h>
 #include "string.h"
 #include "stdio.h"
-#include <stdlib.h>
-#include "PropErrorCodes.h"
-#include "PropMacros.h"
-#include "CoolPropTools.h"
 #include "CoolProp.h"
-#include "R134a.h"
-
-#define nP 100
-#define nT 100
-
-static double Tmin=220,Tmax=470, Pmin=24.46,Pmax=1973;
-static double hmat[nT][nP];
-static double rhomat[nT][nP];
-static double cpmat[nT][nP];
-static double smat[nT][nP];
-static double cvmat[nT][nP];
-static double umat[nT][nP];
-static double viscmat[nT][nP];
-static double kmat[nT][nP];
-static double Tvec[nT];
-static double pvec[nP];
-
-static int TablesBuilt;
 
 static const double a[]={
 	 0.0,			//[0]
@@ -160,22 +126,7 @@ static const double M=102.032; //[kg/kmol]
 static const double Tc=374.18; //[K]
 static const double rhoc=508; //[kg/m^3]
 static const double pc=4056.29; //[kPa]
-static const double R=0.08148885644; //[kJ/kg-K]
 static const double Tt=169.85; //[K]
-// R found from Ru/M, or 8.314471/0.102032/1000
-
-// Function prototypes
-static double Pressure_Trho(double T, double rho);
-static double IntEnergy_Trho(double T, double rho);
-static double Enthalpy_Trho(double T, double rho);
-static double Entropy_Trho(double T, double rho);
-static double SpecHeatV_Trho(double T, double rho);
-static double SpecHeatP_Trho(double T, double rho);
-static double Viscosity_Trho(double T, double rho);
-static double Conductivity_Trho(double T, double rho);
-
-static double get_Delta(double T, double p);
-static double LookupValue_R134a(const char *Prop, double T, double p);
 
 //Microsoft version of math.h doesn't include acosh.h
 #if defined(_MSC_VER)
@@ -203,6 +154,9 @@ int Load_R134a(struct fluidParamsVals *Fluid)
     Fluid->funcs.rhosatV=rhosatV_R134a;
     Fluid->funcs.psat=psat_R134a;
     
+    Fluid->funcs.visc=Viscosity_Trho_R134a;
+    Fluid->funcs.cond=Conductivity_Trho_R134a;
+
     //Lookup table parameters
     Fluid->LUT.Tmin=220.0;
     Fluid->LUT.Tmax=470.0;
@@ -215,344 +169,10 @@ int Load_R134a(struct fluidParamsVals *Fluid)
     Fluid->rhoc=rhoc;
     Fluid->MM=M;
     Fluid->pc=pc;
+    Fluid->Tt=Tt;
     return 1;
 }
 
-static void WriteLookup(void)
-{
-	int i,j;
-	FILE *fp_h,*fp_s,*fp_rho,*fp_u,*fp_cp,*fp_cv,*fp_visc,*fp_k;
-	fp_h=fopen("h.csv","w");
-	fp_s=fopen("s.csv","w");
-	fp_u=fopen("u.csv","w");
-	fp_cp=fopen("cp.csv","w");
-	fp_cv=fopen("cv.csv","w");
-	fp_rho=fopen("rho.csv","w");
-	fp_visc=fopen("visc.csv","w");
-	fp_k=fopen("k.csv","w");
-
-	// Write the pressure header row
-	for (j=0;j<nP;j++)
-	{
-		fprintf(fp_h,",%0.12f",pvec[j]);
-		fprintf(fp_s,",%0.12f",pvec[j]);
-		fprintf(fp_rho,",%0.12f",pvec[j]);
-		fprintf(fp_u,",%0.12f",pvec[j]);
-		fprintf(fp_cp,",%0.12f",pvec[j]);
-		fprintf(fp_cv,",%0.12f",pvec[j]);
-		fprintf(fp_visc,",%0.12f",pvec[j]);
-		fprintf(fp_k,",%0.12f",pvec[j]);
-	}
-	fprintf(fp_h,"\n");
-	fprintf(fp_s,"\n");
-	fprintf(fp_rho,"\n");
-	fprintf(fp_u,"\n");
-	fprintf(fp_cp,"\n");
-	fprintf(fp_cv,"\n");
-	fprintf(fp_visc,"\n");
-	fprintf(fp_k,"\n");
-	
-	for (i=1;i<nT;i++)
-	{
-		fprintf(fp_h,"%0.12f",Tvec[i]);
-		fprintf(fp_s,"%0.12f",Tvec[i]);
-		fprintf(fp_rho,"%0.12f",Tvec[i]);
-		fprintf(fp_u,"%0.12f",Tvec[i]);
-		fprintf(fp_cp,"%0.12f",Tvec[i]);
-		fprintf(fp_cv,"%0.12f",Tvec[i]);
-		fprintf(fp_visc,"%0.12f",Tvec[i]);
-		fprintf(fp_k,"%0.12f",Tvec[i]);
-		for (j=0;j<nP;j++)
-		{
-			fprintf(fp_h,",%0.12f",hmat[i][j]);
-			fprintf(fp_s,",%0.12f",smat[i][j]);
-			fprintf(fp_rho,",%0.12f",rhomat[i][j]);
-			fprintf(fp_u,",%0.12f",umat[i][j]);
-			fprintf(fp_cp,",%0.12f",cpmat[i][j]);
-			fprintf(fp_cv,",%0.12f",cvmat[i][j]);
-			fprintf(fp_visc,",%0.12f",viscmat[i][j]);
-			fprintf(fp_k,",%0.12f",kmat[i][j]);
-		}
-		fprintf(fp_h,"\n");
-		fprintf(fp_s,"\n");
-		fprintf(fp_rho,"\n");
-		fprintf(fp_u,"\n");
-		fprintf(fp_cp,"\n");
-		fprintf(fp_cv,"\n");
-		fprintf(fp_visc,"\n");
-		fprintf(fp_k,"\n");
-	}
-	fclose(fp_h);
-	fclose(fp_s);
-	fclose(fp_rho);
-	fclose(fp_u);
-	fclose(fp_cp);
-	fclose(fp_cv);
-	fclose(fp_visc);
-	fclose(fp_k);
-}
-static void BuildLookup(void)
-{
-	int i,j;
-
-	/*      Supercritical
-	||X	X X X X	X X X X X X X X X X X X X X X X X
-	||X	X X X X	X X X X X X X X X X X X X X X X X
-	||			--------  X X X X X X X X X X X X
-	||		  /			 \  X X X X X X X X X X X
-p	||		 /			  | X X X X Superheated Gas
-	||		/	Two  	  / X X X X X X X X X X X
-	||	   /	Phase	 /X X X X X X X X X X X X 
-	||    /				/ X X X X X X X X X X X X 
-	||=	= = = = = = = = = = = = = = = = = = = = =
-						Enthalpy										
-	*/
-	if (!TablesBuilt)
-	{
-		printf("Building Lookup Tables... Please wait...");
-
-		for (i=0;i<nT;i++)
-		{
-			Tvec[i]=Tmin+i*(Tmax-Tmin)/(nT-1);
-		}
-		for (j=0;j<nP;j++)
-		{
-			pvec[j]=Pmin+j*(Pmax-Pmin)/(nP-1);
-		}
-		for (i=0;i<nT;i++)
-		{
-			for (j=0;j<nP;j++)
-			{
-				if (Tvec[i]>Tc || pvec[j]<psat_R134a(Tvec[i]))
-				{					
-					rhomat[i][j]=get_Delta(Tvec[i],pvec[j])*rhoc;
-					hmat[i][j]=h_R134a(Tvec[i],rhomat[i][j],TYPE_Trho);
-					smat[i][j]=s_R134a(Tvec[i],rhomat[i][j],TYPE_Trho);
-					umat[i][j]=u_R134a(Tvec[i],rhomat[i][j],TYPE_Trho);
-					cpmat[i][j]=cp_R134a(Tvec[i],rhomat[i][j],TYPE_Trho);
-					cvmat[i][j]=cv_R134a(Tvec[i],rhomat[i][j],TYPE_Trho);
-					viscmat[i][j]=visc_R134a(Tvec[i],rhomat[i][j],TYPE_Trho);
-					kmat[i][j]=k_R134a(Tvec[i],rhomat[i][j],TYPE_Trho);
-				}
-				else
-				{
-					hmat[i][j]=_HUGE;
-					smat[i][j]=_HUGE;
-					umat[i][j]=_HUGE;
-					rhomat[i][j]=_HUGE;
-					umat[i][j]=_HUGE;
-					cpmat[i][j]=_HUGE;
-					cvmat[i][j]=_HUGE;
-					viscmat[i][j]=_HUGE;
-					kmat[i][j]=_HUGE;
-				}
-			}
-		}
-		TablesBuilt=1;
-		printf("Tables Built\n");
-		//WriteLookup();
-	}
-}
-
-
-double rho_R134a(double T, double p, int Types)
-{
-	
-	switch(Types)
-	{
-		case TYPE_TPNoLookup:
-			return get_Delta(T,p)*rhoc;
-		case TYPE_TP:
-			BuildLookup();
-			return LookupValue_R134a("rho",T,p);
-		default:
-			
-			return _HUGE;
-	}
-}
-double p_R134a(double T, double rho)
-{
-	
-	return Pressure_Trho(T,rho);
-}
-double h_R134a(double T, double p_rho, int Types)
-{
-	double rho;
-	
-	switch(Types)
-	{
-		case TYPE_Trho:
-			return Enthalpy_Trho(T,p_rho);
-		case TYPE_TPNoLookup:
-			rho=get_Delta(T,p_rho)*rhoc;
-			return Enthalpy_Trho(T,rho);
-		case TYPE_TP:
-			BuildLookup();
-			return LookupValue_R134a("h",T,p_rho);
-		default:
-			
-			return _HUGE;
-	}
-}
-double s_R134a(double T, double p_rho, int Types)
-{
-	double rho;
-	
-	switch(Types)
-	{
-		case TYPE_Trho:
-			return Entropy_Trho(T,p_rho);
-		case TYPE_TPNoLookup:
-			rho=get_Delta(T,p_rho)*rhoc;
-			return Entropy_Trho(T,rho);
-		case TYPE_TP:
-			BuildLookup();
-			return LookupValue_R134a("s",T,p_rho);
-		default:
-			
-			return _HUGE;
-	}
-}
-double u_R134a(double T, double p_rho, int Types)
-{
-	double rho;
-	
-	switch(Types)
-	{
-		case TYPE_Trho:
-			return IntEnergy_Trho(T,p_rho);
-		case TYPE_TPNoLookup:
-			rho=get_Delta(T,p_rho)*rhoc;
-			return IntEnergy_Trho(T,rho);
-		case TYPE_TP:
-			BuildLookup();
-			return LookupValue_R134a("u",T,p_rho);
-		default:
-			
-			return _HUGE;
-	}
-}
-double cp_R134a(double T, double p_rho, int Types)
-{
-	double rho;
-	
-	switch(Types)
-	{
-		case TYPE_Trho:
-			return SpecHeatP_Trho(T,p_rho);
-		case TYPE_TPNoLookup:
-			rho=get_Delta(T,p_rho)*rhoc;
-			return SpecHeatP_Trho(T,rho);
-		case TYPE_TP:
-			BuildLookup();
-			return LookupValue_R134a("cp",T,p_rho);
-		default:
-			
-			return _HUGE;
-	}
-}
-double cv_R134a(double T, double p_rho, int Types)
-{
-	double rho;
-	
-	switch(Types)
-	{
-		case TYPE_Trho:
-			return SpecHeatV_Trho(T,p_rho);
-		case TYPE_TPNoLookup:
-			rho=get_Delta(T,p_rho)*rhoc;
-			return SpecHeatV_Trho(T,rho);
-		case TYPE_TP:
-			BuildLookup();
-			return LookupValue_R134a("cv",T,p_rho);
-		default:
-			
-			return _HUGE;
-	}
-}
-double visc_R134a(double T, double p_rho, int Types)
-{
-	double rho;
-	
-	switch(Types)
-	{
-		case TYPE_Trho:
-			return Viscosity_Trho(T,p_rho);
-		case TYPE_TPNoLookup:
-			rho=get_Delta(T,p_rho)*rhoc;
-			return Viscosity_Trho(T,rho);
-		case TYPE_TP:
-			BuildLookup();
-			return LookupValue_R134a("visc",T,p_rho);
-		default:
-			
-			return _HUGE;
-	}
-}
-double k_R134a(double T, double p_rho, int Types)
-{
-	double rho;
-	
-	switch(Types)
-	{
-		case TYPE_Trho:
-			return Conductivity_Trho(T,p_rho);
-		case TYPE_TPNoLookup:
-			rho=get_Delta(T,p_rho)*rhoc;
-			return Conductivity_Trho(T,rho);
-		case TYPE_TP:
-			BuildLookup();
-			return LookupValue_R134a("k",T,p_rho);
-		default:
-			
-			return _HUGE;
-	}
-}
-
-double w_R134a(double T, double p_rho, int Types)
-{
-	double rho;
-	double delta,tau,c1,c2;
-	
-	switch(Types)
-	{
-		case TYPE_Trho:
-			rho=p_rho; break;
-		case TYPE_TPNoLookup:
-			rho=get_Delta(T,p_rho)*rhoc; break;
-		default:
-			
-			return _HUGE;
-	}
-	
-	delta=rho/rhoc;
-	tau=Tc/T;
-
-	c1=-SpecHeatV_Trho(T,rho)/R;
-	c2=(1.0+2.0*delta*dphir_dDelta_R134a(tau,delta)+delta*delta*dphir2_dDelta2_R134a(tau,delta));
-    return sqrt(-c2*T*SpecHeatP_Trho(T,rho)*1000/c1);
-}
-
-double pcrit_R134a(void)
-{
-	return pc;
-}
-double Tcrit_R134a(void)
-{
-	return Tc;
-}
-double rhocrit_R134a(void)
-{
-	return rhoc;
-}
-double Ttriple_R134a(void)
-{
-	return Tt;
-}
-double MM_R134a(void)
-{
-	return M;
-}
 double psat_R134a(double T)
 {
 	double theta,phi;
@@ -581,58 +201,7 @@ double rhosatV_R134a(double T)
 	return rho0*exp(-2.837294*pow(THETA,1.0/3.0)-7.875988*pow(THETA,2.0/3.0)+4.478586*pow(THETA,1.0/2.0)-14.140125*pow(THETA,9.0/4.0)-52.361297*pow(THETA,11.0/2.0));
 }
 
-static double Pressure_Trho(double T, double rho)
-{
-	double delta,tau;
-	delta=rho/rhoc;
-	tau=Tc/T;
-	
-	return R*T*rho*(1.0+delta*dphir_dDelta_R134a(tau,delta));
-}
-static double IntEnergy_Trho(double T, double rho)
-{
-	double delta,tau;
-	delta=rho/rhoc;
-	tau=Tc/T;
-	
-	return R*T*tau*(dphi0_dTau_R134a(tau,delta)+dphir_dTau_R134a(tau,delta));
-}
-static double Enthalpy_Trho(double T, double rho)
-{
-	double delta,tau;
-	delta=rho/rhoc;
-	tau=Tc/T;
-	
-	return R*T*(1.0+tau*(dphi0_dTau_R134a(tau,delta)+dphir_dTau_R134a(tau,delta))+delta*dphir_dDelta_R134a(tau,delta));
-}
-static double Entropy_Trho(double T, double rho)
-{
-	double delta,tau;
-	delta=rho/rhoc;
-	tau=Tc/T;
-	
-	return R*(tau*(dphi0_dTau_R134a(tau,delta)+dphir_dTau_R134a(tau,delta))-phi0_R134a(tau,delta)-phir_R134a(tau,delta));
-}
-static double SpecHeatV_Trho(double T, double rho)
-{
-	double delta,tau;
-	delta=rho/rhoc;
-	tau=Tc/T;
-	
-	return -R*tau*tau*(dphi02_dTau2_R134a(tau,delta)+dphir2_dTau2_R134a(tau,delta));
-}
-static double SpecHeatP_Trho(double T, double rho)
-{
-	double delta,tau,c1,c2;
-	delta=rho/rhoc;
-	tau=Tc/T;
-
-	c1=1.0+delta*dphir_dDelta_R134a(tau,delta)-delta*tau*dphir2_dDelta_dTau_R134a(tau,delta);
-	c2=1.0+2.0*delta*dphir_dDelta_R134a(tau,delta)+delta*delta*dphir2_dDelta2_R134a(tau,delta);
-	
-	return R*(-tau*tau*(dphi02_dTau2_R134a(tau,delta)+dphir2_dTau2_R134a(tau,delta))+c1*c1/c2);
-}
-static double Viscosity_Trho(double T, double rho)
+double Viscosity_Trho_R134a(double T, double rho)
 {
 	/* 
 	From "A Reference Multiparameter Viscosity Equation for R134a
@@ -660,13 +229,13 @@ static double Viscosity_Trho(double T, double rho)
 	}
 	return (exp(sum)-1.0)*25.17975/1e6;
 }
-static double Conductivity_Trho(double T, double rho)
+double Conductivity_Trho_R134a(double T, double rho)
 {
 	/* 
 	From "A multiparameter thermal conductivity equation
 	for R134a with an optimized functional form"
 	by G. Scalabrin, P. Marchi, F. Finezzo, 
-	Fluid Phase Equilibria 245 (2006) 37–51 
+	Fluid Phase Equilibria 245 (2006) 37ï¿½51 
 	*/
 	int i;
 	double sum=0, Tr,rhor,alpha,lambda_r_ce,lambda_r,num,den;
@@ -696,8 +265,6 @@ static double Conductivity_Trho(double T, double rho)
 //**********************************************
 //                 Derivatives
 //**********************************************
-
-
 
 double phi0_R134a(double tau,double delta)
 {
@@ -866,136 +433,4 @@ double dphir2_dDelta_dTau_R134a(double tau, double delta)
 		}
 	}
 	return sum;
-}
-
-/* 
-Utility functions 
-*/
-
-static double get_Delta(double T, double p)
-{
-    double change,eps=1e-8, tau,delta_guess;
-    int counter=1;
-    double r1,r2,r3,delta1,delta2,delta3;
-    
-	
-	if (T>Tc || p<=psat_R134a(T)) 
-	// short-circuits, so avoids problems with 
-	// psat not being defined for super-critical temps
-    {
-		// Superheated vapor and/or supercritical
-        delta_guess=p/(R*T)/rhoc;
-    }
-    else
-    {
-		// Subcooled liquid
-        delta_guess=10;
-    }
-	change=999;
-	tau=Tc/T;
-    delta1=delta_guess;
-    delta2=delta_guess+.001;
-    r1=p/(delta1*rhoc*R*T)-1.0-delta1*dphir_dDelta_R134a(tau,delta1);
-    r2=p/(delta2*rhoc*R*T)-1.0-delta2*dphir_dDelta_R134a(tau,delta2);
-    while(counter==1 || fabs(change)>eps)
-    {
-        delta3=delta2-r2/(r2-r1)*(delta2-delta1);
-        r3=p/(delta3*rhoc*R*T)-1.0-delta3*dphir_dDelta_R134a(tau,delta3);
-        change=r2/(r2-r1)*(delta2-delta1);
-        delta1=delta2;
-        delta2=delta3;
-        r1=r2;
-        r2=r3;
-        counter=counter+1;
-        /*mexPrintf("%g \t %g \t %g \t %g \t %g \n",delta1,r1,delta2,r2,change);*/
-    }
-	//printf("T: %g p: %g rho: %g\n",T,p,delta3*rhoc);
-    return delta3;
-}
-
-static double LookupValue_R134a(const char *Prop, double T, double p)
-{
-	int iPlow, iPhigh, iTlow, iThigh,L,R,M;
-	double T1, T2, T3, P1, P2, P3, y1, y2, y3, a1, a2, a3;
-	double (*mat)[nT][nP];
-
-	if (T>Tmax || T<Tmin || p>Pmax ||p<Pmin)
-	{
-		printf("Input to LookupValue_R134a() for %s is out of bounds [T:%g p:%g]\n",Prop,T,p);
-		return -1e6;
-	}
-
-	L=0;
-	R=nP-1;
-	M=(L+R)/2;
-	// Use interval halving to find the indices which bracket the temperature of interest
-	while (R-L>1)
-	{
-		if (T>=Tvec[M])
-		{ L=M; M=(L+R)/2; }
-		if (T<Tvec[M])
-		{ R=M; M=(L+R)/2; }
-	}
-	iTlow=L; iThigh=R;
-
-	L=0;
-	R=nP-1;
-	M=(L+R)/2;
-	// Use interval halving to find the indices which bracket the pressure of interest
-	while (R-L>1)
-	{
-		if (p>=pvec[M])
-		{ L=M; M=(L+R)/2; }
-		if (p<pvec[M])
-		{ R=M; M=(L+R)/2; }
-	}
-	iPlow=L; iPhigh=R;
-
-	/* Depending on which property is desired, 
-	make the matrix "mat" a pointer to the 
-	desired property matrix */
-	if (!strcmp(Prop,"rho"))
-		mat=&rhomat;
-	if (!strcmp(Prop,"cp"))
-		mat=&cpmat;
-	if (!strcmp(Prop,"cv"))
-		mat=&cvmat;
-	if (!strcmp(Prop,"h"))
-		mat=&hmat;
-	if (!strcmp(Prop,"s"))
-		mat=&smat;
-	if (!strcmp(Prop,"u"))
-		mat=&umat;
-	if (!strcmp(Prop,"visc"))
-		mat=&viscmat;
-	if (!strcmp(Prop,"k"))
-		mat=&kmat;
-	
-	//At Low Temperature Index
-	y1=(*mat)[iTlow][iPlow];
-	y2=(*mat)[iTlow][iPhigh];
-	y3=(*mat)[iTlow][iPhigh+1];
-	P1=pvec[iPlow];
-	P2=pvec[iPhigh];
-	P3=pvec[iPhigh+1];
-	a1=QuadInterp(P1,P2,P3,y1,y2,y3,p);
-
-	//At High Temperature Index
-	y1=(*mat)[iThigh][iPlow];
-	y2=(*mat)[iThigh][iPhigh];
-	y3=(*mat)[iThigh][iPhigh+1];
-	a2=QuadInterp(P1,P2,P3,y1,y2,y3,p);
-
-	//At High Temperature Index+1 (for QuadInterp() )
-	y1=(*mat)[iThigh+1][iPlow];
-	y2=(*mat)[iThigh+1][iPhigh];
-	y3=(*mat)[iThigh+1][iPhigh+1];
-	a3=QuadInterp(P1,P2,P3,y1,y2,y3,p);
-
-	//At Final Interpolation
-	T1=Tvec[iTlow];
-	T2=Tvec[iThigh];
-	T3=Tvec[iThigh+1];
-	return QuadInterp(T1,T2,T3,a1,a2,a3,T);
-	
 }

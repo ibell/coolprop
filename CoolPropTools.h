@@ -15,14 +15,18 @@ struct fcnPointers{
     double(*dphi0_dTau)(double,double);
     double(*dphi02_dTau2)(double,double);
     
+    // Saturation curve functions
     double (*rhosatV)(double);
     double (*rhosatL)(double);
-    
     //For the pure fluids
     double (*psat)(double); 
     // For the psedo-pure fluids
     double (*p_dp)(double);
     double (*p_bp)(double);
+
+    //Transport properties
+    double (*visc)(double,double);
+    double (*cond)(double,double);
 };
 
 struct LUTVals{
@@ -46,12 +50,13 @@ struct fluidParamsVals{
 
 double powInt(double x, int y);
 double QuadInterp(double x0, double x1, double x2, double f0, double f1, double f2, double x);
+int ValidNumber(double x);
 
 int BuildLookupTable(char *Ref, struct fluidParamsVals *Fluid);
-double LookupValue(char *Prop, double T, double p, char *Ref, struct fluidParamsVals *Fluid);
+double LookupValue(char Prop, double T, double p, char *Ref, struct fluidParamsVals *Fluid);
 int WriteLookup2File(int ILUT);
 
-int ValidateFluid();
+int ValidateFluid(void);
 char CP_errString[1000];
 
 #endif

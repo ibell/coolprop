@@ -2,28 +2,27 @@
 #ifndef R407C_H
 #define R407C_H
 
-	double rho_R407C(double T, double p, int Types);
-	double p_R407C(double T, double rho);
-	double h_R407C(double T, double p_rho, int Types);
-	double s_R407C(double T, double p_rho, int Types);
-	double u_R407C(double T, double p_rho, int Types);
-	double cp_R407C(double T, double p_rho, int Types);
-	double cv_R407C(double T, double p_rho, int Types);
-	double visc_R407C(double T, double p_rho, int Types);
-	double k_R407C(double T, double p_rho, int Types);
-	double w_R407C(double T, double p_rho, int Types);
-
-	double MM_R407C(void);
-
-	double Tcrit_R407C(void);
-	double pcrit_R407C(void);
-	double Ttriple_R407C(void);
+	int Load_R407C(struct fluidParamsVals *Fluid);
 
 	double p_dp_R407C(double T);
 	double p_bp_R407C(double T);
 	double rhosatL_R407C(double T);
 	double rhosatV_R407C(double T);
 
-	int errCode_R407C(void);
+	double Viscosity_Trho_R407C(double T, double rho);
+	double Conductivity_Trho_R407C(double T, double rho);
+
+	double a0_R407C(double tau, double delta);
+	double da0_dtau_R407C(double tau, double delta);
+	double d2a0_dtau2_R407C(double tau, double delta);
+	double da0_ddelta_R407C(double tau, double delta);
+	double d2a0_ddelta2_R407C(double tau, double delta);
+
+	double ar_R407C(double tau, double delta);
+	double dar_dtau_R407C(double tau,double delta);
+	double d2ar_dtau2_R407C(double tau, double delta);
+	double dar_ddelta_R407C(double tau,double delta);
+	double d2ar_ddelta2_R407C(double tau,double delta);
+	double d2ar_ddelta_dtau_R407C(double tau,double delta);
 
 #endif

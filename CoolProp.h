@@ -1,4 +1,3 @@
-#include "PropMacros.h"
 
 #ifndef CoolProp_H
 #define CoolProp_H
@@ -8,7 +7,6 @@
 	#include "PropMacros.h"
 	#include "R134a.h"
     #include "R410A.h"
-    
     #include "R290.h"
 	#include "R32.h"
 	#include "R744.h"
@@ -18,10 +16,8 @@
 	#include "R717.h"
 	#include "Argon.h"
 	#include "Nitrogen.h"
-	
 	#include "Water.h"
 	#include "Air.h"
-	
     #include "Brine.h"
 	
 	#define PHASE_SUPERCRITICAL 1
@@ -88,7 +84,6 @@
     int SinglePhaseLUTStatus(void);
 	double SecFluids(char Output, double T, double p,char * Ref);
 	double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, char * Ref);
-	int errCode(char * Ref);
 
 	// Critical Properties
 	double pcrit(char *Ref);

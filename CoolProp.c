@@ -16,7 +16,6 @@
 #include <stdlib.h>
 #include "string.h"
 #include <stdio.h>
-#include "CoolPropTools.h"
 #include "CoolProp.h"
 
 // Some constants for REFPROP... defined by macros for ease of use 
@@ -38,24 +37,6 @@ double R_u=8.314472; //From Lemmon et al 2009 (propane)
 double _Dekker_Tsat(double x_min, double x_max, double eps, double p, double Q,char *Ref);
 int LoadFluid(char *Ref);
 
-// Global residual Helmholtz derivatives function pointers
-double (*p_func)(double,double);
-double (*h_func)(double,double,int);
-double (*s_func)(double,double,int);
-double (*u_func)(double,double,int);
-double (*rho_func)(double,double,int);
-double (*cp_func)(double,double,int);
-double (*cv_func)(double,double,int);
-double (*visc_func)(double,double,int);
-double (*k_func)(double,double,int);
-double (*w_func)(double,double,int);
-
-double (*MM_func)(void);
-double (*rhocrit_func)(void);
-double (*Tcrit_func)(void);
-double (*pcrit_func)(void);
-double (*Ttriple_func)(void);
-
 //For the pure fluids
 double (*psat_func)(double); 
 // For the psedo-pure fluids
@@ -75,6 +56,8 @@ double (*dphi02_dDelta2_func)(double,double);
 double (*dphi0_dTau_func)(double,double);
 double (*dphi02_dTau2_func)(double,double);
 
+double (*Viscosity_Trho)(double,double);
+double (*Conductivity_Trho)(double,double);
 double (*rhosatV_func)(double);
 double (*rhosatL_func)(double);
 
@@ -86,6 +69,7 @@ char RefLUT[NLUTFLUIDS][255]; // The names of the fluids that are loaded
 int FlagUseSaturationLUT=0; //Default to not use LUT
 int FlagUseSinglePhaseLUT=0; //Default to not use LUT
 
+// The structure that contains all the fluid-specific parameters and callbacks to functions
 static struct fluidParamsVals Fluid;
     
 static double get_Delta(double T, double p)
@@ -94,20 +78,20 @@ static double get_Delta(double T, double p)
     int counter=1;
     double r1,r2,r3,delta1,delta2,delta3;
     
-    //Molecular mass of the fluid
+    //Fluid Properties
     M=Fluid.MM;
-    if (M<0.001 || M>1000) {}
     rhoc=Fluid.rhoc;
     Tc=Fluid.Tc;
     R=R_u/M;
         
     if (T>(Fluid.Tc) )
     {
-        delta_guess=p/(8.314/M*T)/Fluid.rhoc/0.7; //0.7 for compressibility factor
+    	//0.7 for compressibility factor since supercritical fluid is quite dense
+        delta_guess=p/(8.314/M*T)/Fluid.rhoc/0.7;
     }
     else
     {
-        if (Fluid.Type == FLUIDTYPE_REFRIGERANT_PURE && fabs(p-Fluid.funcs.psat(T))/p>0.0001)
+        if (Fluid.Type == FLUIDTYPE_REFRIGERANT_PURE && p<Fluid.funcs.psat(T))
         {
             // Superheated vapor
             delta_guess=p/(8.314/M*T)/Fluid.rhoc;
@@ -123,21 +107,29 @@ static double get_Delta(double T, double p)
             delta_guess=10;
         }
     }
-
     tau=Tc/T;
     delta1=delta_guess;
     delta2=delta_guess+.001;
-    r1=p/(delta1*rhoc*R*T)-1.0-delta1*dar_ddelta_R410A(tau,delta1);
-    r2=p/(delta2*rhoc*R*T)-1.0-delta2*dar_ddelta_R410A(tau,delta2);
+    r1=p/(delta1*rhoc*R*T)-1.0-delta1*dphir_dDelta_func(tau,delta1);
+    r2=p/(delta2*rhoc*R*T)-1.0-delta2*dphir_dDelta_func(tau,delta2);
     while( counter==1 || fabs(r2)>eps)
     {
         delta3=delta2-r2/(r2-r1)*(delta2-delta1);
-        r3=p/(delta3*rhoc*R*T)-1.0-delta3*dar_ddelta_R410A(tau,delta3);
+        r3=p/(delta3*rhoc*R*T)-1.0-delta3*dphir_dDelta_func(tau,delta3);
         delta1=delta2;
         delta2=delta3;
         r1=r2;
         r2=r3;
         counter=counter+1;
+        if (counter>40)
+        {
+        	//ERROR
+        	if (fabs(r3)/10<eps)
+        		return delta3;
+        	else
+        		printf("counter for get_Delta > 40, fcn is %g and delta is %g\n",r3,delta3);
+        		return _HUGE;
+        }
     }
     return delta3;
 }
@@ -380,9 +372,12 @@ void rhosatPure(char *Ref, double T, double *rhoLout, double *rhoVout, double *p
     rhoL=rhosatL_func(T);
     rhoV=rhosatV_func(T);
     p_guess=Pressure_Trho(T,rhoV);
-    
-    //printf("L %g V %G p %g\n",rhoL,rhoV,p_guess);
 
+    if (!ValidNumber(rhoL) || !ValidNumber(rhoV))
+	{
+		//ERROR
+		printf("rhoL [%g] or rhoV [%g] is invalid number\n",rhoL,rhoV);
+	}
     iter=1;
     // Use a secant method to obtain pressure
     while ((iter<=3 || fabs(error)>1e-7) && iter<100)
@@ -395,8 +390,14 @@ void rhosatPure(char *Ref, double T, double *rhoLout, double *rhoVout, double *p
             rhoV=Density_Tp(T,p,rhoV);
             // Residual between saturated liquid and saturated vapor gibbs function
             f=Gibbs_Trho(T,rhoL)-Gibbs_Trho(T,rhoV);
+            if (!ValidNumber(rhoL) || !ValidNumber(rhoV) || !ValidNumber(f))
+            {
+            	//ERROR
+            	printf("rhoL [%g] rhoV [%g] or f [%g] is invalid number\n",rhoL,rhoV,f);
+            }
             if (iter>10)
             {
+            	//ERROR
             	printf("iter>100:: L %g V %G p %g\n",rhoL,rhoV,p_guess);
             }
         if (iter==1){y1=f;}
@@ -410,6 +411,7 @@ void rhosatPure(char *Ref, double T, double *rhoLout, double *rhoVout, double *p
         iter=iter+1;
         if (iter>90)
         {
+        	//ERROR
             printf("rhosatPure failed, current values of rhoL and rhoV are %g,%g\n",rhoL,rhoV);
             return;
         }
@@ -430,168 +432,97 @@ int LoadFluid(char *Ref)
     else
     {
         strcpy(LoadedFluid,Ref);
-        printf("Loading fluid...");
+        printf("Loading fluid %s...",Ref);
         // Wire up the function pointers for the given refrigerant
         if (!strcmp(Ref,"Argon"))
         {
-            FluidType=FLUIDTYPE_REFRIGERANT_PURE;
-            p_func=p_Argon;
-            h_func=h_Argon;
-            s_func=s_Argon;
-            u_func=u_Argon;
-            rho_func=rho_Argon;
-            cp_func=cp_Argon;
-            cv_func=cv_Argon;
-            visc_func=visc_Argon;
-            k_func=k_Argon;
-            w_func=w_Argon;
-            Ttriple_func=Ttriple_Argon;
-            Tcrit_func=Tcrit_Argon;
-            pcrit_func=pcrit_Argon;
-            rhocrit_func=rhocrit_Argon;
-            MM_func=MM_Argon;
-            rhosatV_func=rhosatV_Argon;
-            rhosatL_func=rhosatL_Argon;
-            psat_func=psat_Argon;
-
-            phir_func=phir_Argon;
-            dphir_dDelta_func=dphir_dDelta_Argon;
-            dphir2_dDelta2_func=dphir2_dDelta2_Argon;
-            dphir2_dDelta_dTau_func=dphir2_dDelta_dTau_Argon;
-            dphir_dTau_func=dphir_dTau_Argon;
-            dphir2_dTau2_func=dphir2_dTau2_Argon;
-            phi0_func=phi0_Argon;
-            dphi0_dDelta_func=dphi0_dDelta_Argon;
-            dphi02_dDelta2_func=dphi02_dDelta2_Argon;
-            dphi0_dTau_func=dphi0_dTau_Argon;
-            dphi02_dTau2_func=dphi02_dTau2_Argon;
+        	Load_Argon(&Fluid);
+			FluidType=Fluid.Type;
+			phir_func=Fluid.funcs.phir;
+			dphir_dDelta_func=Fluid.funcs.dphir_dDelta;
+			dphir2_dDelta2_func=Fluid.funcs.dphir2_dDelta2;
+			dphir2_dDelta_dTau_func=Fluid.funcs.dphir2_dDelta_dTau;
+			dphir_dTau_func=Fluid.funcs.dphir_dTau;
+			dphir2_dTau2_func=Fluid.funcs.dphir2_dTau2;
+			phi0_func=Fluid.funcs.phi0;
+			dphi0_dDelta_func=Fluid.funcs.dphi0_dDelta;
+			dphi02_dDelta2_func=Fluid.funcs.dphi02_dDelta2;
+			dphi0_dTau_func=Fluid.funcs.dphi0_dTau;
+			dphi02_dTau2_func=Fluid.funcs.dphi02_dTau2;
+			Viscosity_Trho=Fluid.funcs.visc;
+			Conductivity_Trho=Fluid.funcs.cond;
+			rhosatV_func=Fluid.funcs.rhosatV;
+			rhosatL_func=Fluid.funcs.rhosatL;
+			psat_func=Fluid.funcs.psat;
 
         }
         else if (!strcmp(Ref,"Nitrogen") || !strcmp(Ref,"N2"))
         {
-            FluidType=FLUIDTYPE_REFRIGERANT_PURE;
-            p_func=p_Nitrogen;
-            h_func=h_Nitrogen;
-            s_func=s_Nitrogen;
-            u_func=u_Nitrogen;
-            rho_func=rho_Nitrogen;
-            cp_func=cp_Nitrogen;
-            cv_func=cv_Nitrogen;
-            visc_func=visc_Nitrogen;
-            k_func=k_Nitrogen;
-            w_func=w_Nitrogen;
-            Ttriple_func=Ttriple_Nitrogen;
-            Tcrit_func=Tcrit_Nitrogen;
-            pcrit_func=pcrit_Nitrogen;
-            rhocrit_func=rhocrit_Nitrogen;
-            MM_func=MM_Nitrogen;
-            rhosatV_func=rhosatV_Nitrogen;
-            rhosatL_func=rhosatL_Nitrogen;
-            psat_func=psat_Nitrogen;
-
-            phir_func=phir_Nitrogen;
-            dphir_dDelta_func=dphir_dDelta_Nitrogen;
-            dphir2_dDelta2_func=dphir2_dDelta2_Nitrogen;
-            dphir2_dDelta_dTau_func=dphir2_dDelta_dTau_Nitrogen;
-            dphir_dTau_func=dphir_dTau_Nitrogen;
-            dphir2_dTau2_func=dphir2_dTau2_Nitrogen;
-            phi0_func=phi0_Nitrogen;
-            dphi0_dDelta_func=dphi0_dDelta_Nitrogen;
-            dphi02_dDelta2_func=dphi02_dDelta2_Nitrogen;
-            dphi0_dTau_func=dphi0_dTau_Nitrogen;
-            dphi02_dTau2_func=dphi02_dTau2_Nitrogen;
+        	Load_Nitrogen(&Fluid);
+			FluidType=Fluid.Type;
+			phir_func=Fluid.funcs.phir;
+			dphir_dDelta_func=Fluid.funcs.dphir_dDelta;
+			dphir2_dDelta2_func=Fluid.funcs.dphir2_dDelta2;
+			dphir2_dDelta_dTau_func=Fluid.funcs.dphir2_dDelta_dTau;
+			dphir_dTau_func=Fluid.funcs.dphir_dTau;
+			dphir2_dTau2_func=Fluid.funcs.dphir2_dTau2;
+			phi0_func=Fluid.funcs.phi0;
+			dphi0_dDelta_func=Fluid.funcs.dphi0_dDelta;
+			dphi02_dDelta2_func=Fluid.funcs.dphi02_dDelta2;
+			dphi0_dTau_func=Fluid.funcs.dphi0_dTau;
+			dphi02_dTau2_func=Fluid.funcs.dphi02_dTau2;
+			Viscosity_Trho=Fluid.funcs.visc;
+			Conductivity_Trho=Fluid.funcs.cond;
+			rhosatV_func=Fluid.funcs.rhosatV;
+			rhosatL_func=Fluid.funcs.rhosatL;
+			psat_func=Fluid.funcs.psat;
         }
         else if (!strcmp(Ref,"R744") || !strcmp(Ref,"CO2"))
         {
-            FluidType=FLUIDTYPE_REFRIGERANT_PURE;
-            p_func=p_R744;
-            h_func=h_R744;
-            s_func=s_R744;
-            u_func=u_R744;
-            rho_func=rho_R744;
-            cp_func=cp_R744;
-            cv_func=cv_R744;
-            visc_func=visc_R744;
-            k_func=k_R744;
-            w_func=w_R744;
-            Ttriple_func=Ttriple_R744;
-            Tcrit_func=Tcrit_R744;
-            pcrit_func=pcrit_R744;
-            rhocrit_func=rhocrit_R744;
-            MM_func=MM_R744;
-            rhosatV_func=rhosatV_R744;
-            rhosatL_func=rhosatL_R744;
-            psat_func=psat_R744;
-
-            phir_func=phir_R744;
-            dphir_dDelta_func=dphir_dDelta_R744;
-            dphir2_dDelta2_func=dphir2_dDelta2_R744;
-            dphir2_dDelta_dTau_func=dphir2_dDelta_dTau_R744;
-            dphir_dTau_func=dphir_dTau_R744;
-            dphir2_dTau2_func=dphir2_dTau2_R744;
-            phi0_func=phi0_R744;
-            dphi0_dDelta_func=dphi0_dDelta_R744;
-            dphi02_dDelta2_func=dphi02_dDelta2_R744;
-            dphi0_dTau_func=dphi0_dTau_R744;
-            dphi02_dTau2_func=dphi02_dTau2_R744;
+        	Load_R744(&Fluid);
+			FluidType=Fluid.Type;
+			phir_func=Fluid.funcs.phir;
+			dphir_dDelta_func=Fluid.funcs.dphir_dDelta;
+			dphir2_dDelta2_func=Fluid.funcs.dphir2_dDelta2;
+			dphir2_dDelta_dTau_func=Fluid.funcs.dphir2_dDelta_dTau;
+			dphir_dTau_func=Fluid.funcs.dphir_dTau;
+			dphir2_dTau2_func=Fluid.funcs.dphir2_dTau2;
+			phi0_func=Fluid.funcs.phi0;
+			dphi0_dDelta_func=Fluid.funcs.dphi0_dDelta;
+			dphi02_dDelta2_func=Fluid.funcs.dphi02_dDelta2;
+			dphi0_dTau_func=Fluid.funcs.dphi0_dTau;
+			dphi02_dTau2_func=Fluid.funcs.dphi02_dTau2;
+			Viscosity_Trho=Fluid.funcs.visc;
+			Conductivity_Trho=Fluid.funcs.cond;
+			rhosatV_func=Fluid.funcs.rhosatV;
+			rhosatL_func=Fluid.funcs.rhosatL;
+			psat_func=Fluid.funcs.psat;
         }
         else if (!strcmp(Ref,"R718") || !strcmp(Ref,"Water") || !strcmp(Ref,"H2O"))
         {
-            FluidType=FLUIDTYPE_REFRIGERANT_PURE;
-            p_func=p_Water;
-            h_func=h_Water;
-            s_func=s_Water;
-            u_func=u_Water;
-            rho_func=rho_Water;
-            cp_func=cp_Water;
-            cv_func=cv_Water;
-            visc_func=visc_Water;
-            k_func=k_Water;
-            w_func=w_Water;
-            Ttriple_func=Ttriple_Water;
-            Tcrit_func=Tcrit_Water;
-            pcrit_func=pcrit_Water;
-            rhocrit_func=rhocrit_Water;
-            MM_func=MM_Water;
-            rhosatV_func=rhosatV_Water;
-            rhosatL_func=rhosatL_Water;
-            psat_func=psat_Water;
-
-            phir_func=phir_Water;
-            dphir_dDelta_func=dphir_dDelta_Water;
-            dphir2_dDelta2_func=dphir2_dDelta2_Water;
-            dphir2_dDelta_dTau_func=dphir2_dDelta_dTau_Water;
-            dphir_dTau_func=dphir_dTau_Water;
-            dphir2_dTau2_func=dphir2_dTau2_Water;
-            phi0_func=phi0_Water;
-            dphi0_dDelta_func=dphi0_dDelta_Water;
-            dphi02_dDelta2_func=dphi02_dDelta2_Water;
-            dphi0_dTau_func=dphi0_dTau_Water;
-            dphi02_dTau2_func=dphi02_dTau2_Water;
+        	Load_Water(&Fluid);
+			FluidType=Fluid.Type;
+			phir_func=Fluid.funcs.phir;
+			dphir_dDelta_func=Fluid.funcs.dphir_dDelta;
+			dphir2_dDelta2_func=Fluid.funcs.dphir2_dDelta2;
+			dphir2_dDelta_dTau_func=Fluid.funcs.dphir2_dDelta_dTau;
+			dphir_dTau_func=Fluid.funcs.dphir_dTau;
+			dphir2_dTau2_func=Fluid.funcs.dphir2_dTau2;
+			phi0_func=Fluid.funcs.phi0;
+			dphi0_dDelta_func=Fluid.funcs.dphi0_dDelta;
+			dphi02_dDelta2_func=Fluid.funcs.dphi02_dDelta2;
+			dphi0_dTau_func=Fluid.funcs.dphi0_dTau;
+			dphi02_dTau2_func=Fluid.funcs.dphi02_dTau2;
+			Viscosity_Trho=Fluid.funcs.visc;
+			Conductivity_Trho=Fluid.funcs.cond;
+			rhosatV_func=Fluid.funcs.rhosatV;
+			rhosatL_func=Fluid.funcs.rhosatL;
+			psat_func=Fluid.funcs.psat;
         }
         else if (!strcmp(Ref,"R134a"))
         {
-            FluidType=FLUIDTYPE_REFRIGERANT_PURE;
-            p_func=p_R134a;
-            h_func=h_R134a;
-            s_func=s_R134a;
-            u_func=u_R134a;
-            rho_func=rho_R134a;
-            cp_func=cp_R134a;
-            cv_func=cv_R134a;
-            visc_func=visc_R134a;
-            k_func=k_R134a;
-            w_func=w_R134a;
-            Ttriple_func=Ttriple_R134a;
-            Tcrit_func=Tcrit_R134a;
-            pcrit_func=pcrit_R134a;
-            rhocrit_func=rhocrit_R134a;
-            MM_func=MM_R134a;
-            rhosatV_func=rhosatV_R134a;
-            rhosatL_func=rhosatL_R134a;
-            psat_func=psat_R134a;
-            
             Load_R134a(&Fluid);
+            FluidType=Fluid.Type;
             phir_func=Fluid.funcs.phir;
             dphir_dDelta_func=Fluid.funcs.dphir_dDelta;
             dphir2_dDelta2_func=Fluid.funcs.dphir2_dDelta2;
@@ -603,121 +534,80 @@ int LoadFluid(char *Ref)
             dphi02_dDelta2_func=Fluid.funcs.dphi02_dDelta2;
             dphi0_dTau_func=Fluid.funcs.dphi0_dTau;
             dphi02_dTau2_func=Fluid.funcs.dphi02_dTau2;
+            Viscosity_Trho=Fluid.funcs.visc;
+			Conductivity_Trho=Fluid.funcs.cond;
+			rhosatV_func=Fluid.funcs.rhosatV;
+			rhosatL_func=Fluid.funcs.rhosatL;
+			psat_func=Fluid.funcs.psat;
         }
         else if (!strcmp(Ref,"R290"))
         {
-            FluidType=FLUIDTYPE_REFRIGERANT_PURE;
-            p_func=p_R290;
-            h_func=h_R290;
-            s_func=s_R290;
-            u_func=u_R290;
-            rho_func=rho_R290;
-            cp_func=cp_R290;
-            cv_func=cv_R290;
-            visc_func=visc_R290;
-            k_func=k_R290;
-            w_func=w_R290;
-            Ttriple_func=Ttriple_R290;
-            Tcrit_func=Tcrit_R290;
-            pcrit_func=pcrit_R290;
-            rhocrit_func=rhocrit_R290;
-            MM_func=MM_R290;
-            rhosatV_func=rhosatV_R290;
-            rhosatL_func=rhosatL_R290;
-            psat_func=psat_R290;
-
-            phir_func=phir_R290;
-            dphir_dDelta_func=dphir_dDelta_R290;
-            dphir2_dDelta2_func=dphir2_dDelta2_R290;
-            dphir2_dDelta_dTau_func=dphir2_dDelta_dTau_R290;
-            dphir_dTau_func=dphir_dTau_R290;
-            dphir2_dTau2_func=dphir2_dTau2_R290;
-            phi0_func=phi0_R290;
-            dphi0_dDelta_func=dphi0_dDelta_R290;
-            dphi02_dDelta2_func=dphi02_dDelta2_R290;
-            dphi0_dTau_func=dphi0_dTau_R290;
-            dphi02_dTau2_func=dphi02_dTau2_R290;
+        	Load_R290(&Fluid);
+			FluidType=Fluid.Type;
+			phir_func=Fluid.funcs.phir;
+			dphir_dDelta_func=Fluid.funcs.dphir_dDelta;
+			dphir2_dDelta2_func=Fluid.funcs.dphir2_dDelta2;
+			dphir2_dDelta_dTau_func=Fluid.funcs.dphir2_dDelta_dTau;
+			dphir_dTau_func=Fluid.funcs.dphir_dTau;
+			dphir2_dTau2_func=Fluid.funcs.dphir2_dTau2;
+			phi0_func=Fluid.funcs.phi0;
+			dphi0_dDelta_func=Fluid.funcs.dphi0_dDelta;
+			dphi02_dDelta2_func=Fluid.funcs.dphi02_dDelta2;
+			dphi0_dTau_func=Fluid.funcs.dphi0_dTau;
+			dphi02_dTau2_func=Fluid.funcs.dphi02_dTau2;
+			Viscosity_Trho=Fluid.funcs.visc;
+			Conductivity_Trho=Fluid.funcs.cond;
+			rhosatV_func=Fluid.funcs.rhosatV;
+			rhosatL_func=Fluid.funcs.rhosatL;
+			psat_func=Fluid.funcs.psat;
         }
         else if (!strcmp(Ref,"R717") || !strcmp(Ref,"NH3") || !strcmp(Ref,"Ammonia") || !strcmp(Ref,"ammonia"))
         {
-            FluidType=FLUIDTYPE_REFRIGERANT_PURE;
-            p_func=p_R717;
-            h_func=h_R717;
-            s_func=s_R717;
-            u_func=u_R717;
-            rho_func=rho_R717;
-            cp_func=cp_R717;
-            cv_func=cv_R717;
-            visc_func=visc_R717;
-            k_func=k_R717;
-            w_func=w_R717;
-            Ttriple_func=Ttriple_R717;
-            Tcrit_func=Tcrit_R717;
-            pcrit_func=pcrit_R717;
-            rhocrit_func=rhocrit_R717;
-            MM_func=MM_R717;
-            rhosatV_func=rhosatV_R717;
-            rhosatL_func=rhosatL_R717;
-            psat_func=psat_R717;
-
-            phir_func=phir_R717;
-            dphir_dDelta_func=dphir_dDelta_R717;
-            dphir2_dDelta2_func=dphir2_dDelta2_R717;
-            dphir2_dDelta_dTau_func=dphir2_dDelta_dTau_R717;
-            dphir_dTau_func=dphir_dTau_R717;
-            dphir2_dTau2_func=dphir2_dTau2_R717;
-            phi0_func=phi0_R717;
-            dphi0_dDelta_func=dphi0_dDelta_R717;
-            dphi02_dDelta2_func=dphi02_dDelta2_R717;
-            dphi0_dTau_func=dphi0_dTau_R717;
-            dphi02_dTau2_func=dphi02_dTau2_R717;
+        	Load_R717(&Fluid);
+			FluidType=Fluid.Type;
+			phir_func=Fluid.funcs.phir;
+			dphir_dDelta_func=Fluid.funcs.dphir_dDelta;
+			dphir2_dDelta2_func=Fluid.funcs.dphir2_dDelta2;
+			dphir2_dDelta_dTau_func=Fluid.funcs.dphir2_dDelta_dTau;
+			dphir_dTau_func=Fluid.funcs.dphir_dTau;
+			dphir2_dTau2_func=Fluid.funcs.dphir2_dTau2;
+			phi0_func=Fluid.funcs.phi0;
+			dphi0_dDelta_func=Fluid.funcs.dphi0_dDelta;
+			dphi02_dDelta2_func=Fluid.funcs.dphi02_dDelta2;
+			dphi0_dTau_func=Fluid.funcs.dphi0_dTau;
+			dphi02_dTau2_func=Fluid.funcs.dphi02_dTau2;
+			Viscosity_Trho=Fluid.funcs.visc;
+			Conductivity_Trho=Fluid.funcs.cond;
+			rhosatV_func=Fluid.funcs.rhosatV;
+			rhosatL_func=Fluid.funcs.rhosatL;
+			psat_func=Fluid.funcs.psat;
         }
         else if (!strcmp(Ref,"Air"))
         {
-            FluidType=FLUIDTYPE_REFRIGERANT_PSEUDOPURE;
-            p_func=p_Air;
-            h_func=h_Air;
-            s_func=s_Air;
-            u_func=u_Air;
-            rho_func=rho_Air;
-            cp_func=cp_Air;
-            cv_func=cv_Air;
-            visc_func=visc_Air;
-            k_func=k_Air;
-            w_func=w_Air;
-            Ttriple_func=Ttriple_Air;
-            Tcrit_func=Tcrit_Air;
-            pcrit_func=pcrit_Air;
-            MM_func=MM_Air;
-            rhosatV_func=rhosatV_Air;
-            rhosatL_func=rhosatL_Air;
-            pdp_func=pdp_Air;
-            pbp_func=pbp_Air;
+        	Load_Air(&Fluid);
+			FluidType=Fluid.Type;
+			phir_func=Fluid.funcs.phir;
+			dphir_dDelta_func=Fluid.funcs.dphir_dDelta;
+			dphir2_dDelta2_func=Fluid.funcs.dphir2_dDelta2;
+			dphir2_dDelta_dTau_func=Fluid.funcs.dphir2_dDelta_dTau;
+			dphir_dTau_func=Fluid.funcs.dphir_dTau;
+			dphir2_dTau2_func=Fluid.funcs.dphir2_dTau2;
+			phi0_func=Fluid.funcs.phi0;
+			dphi0_dDelta_func=Fluid.funcs.dphi0_dDelta;
+			dphi02_dDelta2_func=Fluid.funcs.dphi02_dDelta2;
+			dphi0_dTau_func=Fluid.funcs.dphi0_dTau;
+			dphi02_dTau2_func=Fluid.funcs.dphi02_dTau2;
+			Viscosity_Trho=Fluid.funcs.visc;
+			Conductivity_Trho=Fluid.funcs.cond;
+			rhosatV_func=Fluid.funcs.rhosatV;
+			rhosatL_func=Fluid.funcs.rhosatL;
+			pdp_func=Fluid.funcs.p_dp;
+			pbp_func=Fluid.funcs.p_bp;
         }
         else if (!strcmp(Ref,"R410A"))
         {
-            FluidType=FLUIDTYPE_REFRIGERANT_PSEUDOPURE;
-            p_func=p_R410A;
-            h_func=h_R410A;
-            s_func=s_R410A;
-            u_func=u_R410A;
-            rho_func=rho_R410A;
-            cp_func=cp_R410A;
-            cv_func=cv_R410A;
-            visc_func=visc_R410A;
-            k_func=k_R410A;
-            w_func=w_R410A;
-            Ttriple_func=Ttriple_R410A;
-            Tcrit_func=Tcrit_R410A;
-            pcrit_func=pcrit_R410A;
-            rhocrit_func=rhocrit_R410A;
-            MM_func=MM_R410A;
-            rhosatV_func=rhosatV_R410A;
-            rhosatL_func=rhosatL_R410A;
-            pdp_func=p_dp_R410A;
-            pbp_func=p_bp_R410A;
-            
             Load_R410A(&Fluid);
+            FluidType=Fluid.Type;
             phir_func=Fluid.funcs.phir;
             dphir_dDelta_func=Fluid.funcs.dphir_dDelta;
             dphir2_dDelta2_func=Fluid.funcs.dphir2_dDelta2;
@@ -729,72 +619,78 @@ int LoadFluid(char *Ref)
             dphi02_dDelta2_func=Fluid.funcs.dphi02_dDelta2;
             dphi0_dTau_func=Fluid.funcs.dphi0_dTau;
             dphi02_dTau2_func=Fluid.funcs.dphi02_dTau2;
+            Viscosity_Trho=Fluid.funcs.visc;
+			Conductivity_Trho=Fluid.funcs.cond;
+            rhosatV_func=Fluid.funcs.rhosatV;
+            rhosatL_func=Fluid.funcs.rhosatL;
+            pdp_func=Fluid.funcs.p_dp;
+            pbp_func=Fluid.funcs.p_bp;
         }
         else if (!strcmp(Ref,"R404A"))
         {
-            FluidType=FLUIDTYPE_REFRIGERANT_PSEUDOPURE;
-            p_func=p_R404A;
-            h_func=h_R404A;
-            s_func=s_R404A;
-            u_func=u_R404A;
-            rho_func=rho_R404A;
-            cp_func=cp_R404A;
-            cv_func=cv_R404A;
-            visc_func=visc_R404A;
-            k_func=k_R404A;
-            w_func=w_R404A;
-            Ttriple_func=Ttriple_R404A;
-            Tcrit_func=Tcrit_R404A;
-            pcrit_func=pcrit_R404A;
-            MM_func=MM_R404A;
-            rhosatV_func=rhosatV_R404A;
-            rhosatL_func=rhosatL_R404A;
-            pdp_func=p_dp_R404A;
-            pbp_func=p_bp_R404A;
+        	Load_R404A(&Fluid);
+			FluidType=Fluid.Type;
+			phir_func=Fluid.funcs.phir;
+			dphir_dDelta_func=Fluid.funcs.dphir_dDelta;
+			dphir2_dDelta2_func=Fluid.funcs.dphir2_dDelta2;
+			dphir2_dDelta_dTau_func=Fluid.funcs.dphir2_dDelta_dTau;
+			dphir_dTau_func=Fluid.funcs.dphir_dTau;
+			dphir2_dTau2_func=Fluid.funcs.dphir2_dTau2;
+			phi0_func=Fluid.funcs.phi0;
+			dphi0_dDelta_func=Fluid.funcs.dphi0_dDelta;
+			dphi02_dDelta2_func=Fluid.funcs.dphi02_dDelta2;
+			dphi0_dTau_func=Fluid.funcs.dphi0_dTau;
+			dphi02_dTau2_func=Fluid.funcs.dphi02_dTau2;
+			Viscosity_Trho=Fluid.funcs.visc;
+			Conductivity_Trho=Fluid.funcs.cond;
+			rhosatV_func=Fluid.funcs.rhosatV;
+			rhosatL_func=Fluid.funcs.rhosatL;
+			pdp_func=Fluid.funcs.p_dp;
+			pbp_func=Fluid.funcs.p_bp;
         }
         else if (!strcmp(Ref,"R407C"))
         {
-            FluidType=FLUIDTYPE_REFRIGERANT_PSEUDOPURE;
-            p_func=p_R407C;
-            h_func=h_R407C;
-            s_func=s_R407C;
-            u_func=u_R407C;
-            rho_func=rho_R407C;
-            cp_func=cp_R407C;
-            cv_func=cv_R407C;
-            visc_func=visc_R407C;
-            k_func=k_R407C;
-            w_func=w_R407C;
-            Ttriple_func=Ttriple_R407C;
-            Tcrit_func=Tcrit_R407C;
-            pcrit_func=pcrit_R407C;
-            MM_func=MM_R407C;
-            rhosatV_func=rhosatV_R407C;
-            rhosatL_func=rhosatL_R407C;
-            pdp_func=p_dp_R407C;
-            pbp_func=p_bp_R407C;
+        	Load_R407C(&Fluid);
+			FluidType=Fluid.Type;
+			phir_func=Fluid.funcs.phir;
+			dphir_dDelta_func=Fluid.funcs.dphir_dDelta;
+			dphir2_dDelta2_func=Fluid.funcs.dphir2_dDelta2;
+			dphir2_dDelta_dTau_func=Fluid.funcs.dphir2_dDelta_dTau;
+			dphir_dTau_func=Fluid.funcs.dphir_dTau;
+			dphir2_dTau2_func=Fluid.funcs.dphir2_dTau2;
+			phi0_func=Fluid.funcs.phi0;
+			dphi0_dDelta_func=Fluid.funcs.dphi0_dDelta;
+			dphi02_dDelta2_func=Fluid.funcs.dphi02_dDelta2;
+			dphi0_dTau_func=Fluid.funcs.dphi0_dTau;
+			dphi02_dTau2_func=Fluid.funcs.dphi02_dTau2;
+			Viscosity_Trho=Fluid.funcs.visc;
+			Conductivity_Trho=Fluid.funcs.cond;
+			rhosatV_func=Fluid.funcs.rhosatV;
+			rhosatL_func=Fluid.funcs.rhosatL;
+			pdp_func=Fluid.funcs.p_dp;
+			pbp_func=Fluid.funcs.p_bp;
         }
         else if (!strcmp(Ref,"R507A"))
         {
-            FluidType=FLUIDTYPE_REFRIGERANT_PSEUDOPURE;
-            p_func=p_R507A;
-            h_func=h_R507A;
-            s_func=s_R507A;
-            u_func=u_R507A;
-            rho_func=rho_R507A;
-            cp_func=cp_R507A;
-            cv_func=cv_R507A;
-            visc_func=visc_R507A;
-            k_func=k_R507A;
-            w_func=w_R507A;
-            Ttriple_func=Ttriple_R507A;
-            Tcrit_func=Tcrit_R507A;
-            pcrit_func=pcrit_R507A;
-            MM_func=MM_R507A;
-            rhosatV_func=rhosatV_R507A;
-            rhosatL_func=rhosatL_R507A;
-            pdp_func=p_dp_R507A;
-            pbp_func=p_bp_R507A;
+        	Load_R507A(&Fluid);
+			FluidType=Fluid.Type;
+			phir_func=Fluid.funcs.phir;
+			dphir_dDelta_func=Fluid.funcs.dphir_dDelta;
+			dphir2_dDelta2_func=Fluid.funcs.dphir2_dDelta2;
+			dphir2_dDelta_dTau_func=Fluid.funcs.dphir2_dDelta_dTau;
+			dphir_dTau_func=Fluid.funcs.dphir_dTau;
+			dphir2_dTau2_func=Fluid.funcs.dphir2_dTau2;
+			phi0_func=Fluid.funcs.phi0;
+			dphi0_dDelta_func=Fluid.funcs.dphi0_dDelta;
+			dphi02_dDelta2_func=Fluid.funcs.dphi02_dDelta2;
+			dphi0_dTau_func=Fluid.funcs.dphi0_dTau;
+			dphi02_dTau2_func=Fluid.funcs.dphi02_dTau2;
+			Viscosity_Trho=Fluid.funcs.visc;
+			Conductivity_Trho=Fluid.funcs.cond;
+			rhosatV_func=Fluid.funcs.rhosatV;
+			rhosatL_func=Fluid.funcs.rhosatL;
+			pdp_func=Fluid.funcs.p_dp;
+			pbp_func=Fluid.funcs.p_bp;
         }
         else
         {
@@ -992,17 +888,17 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
         LoadFluid(Ref);
         
         // Check if it is an output that doesn't require a state input
-        // Deal with it and quit
+        // Deal with it and return
         switch (Output)
         {
             case 'M':
-                Value=MM_func(); break;
+                return Fluid.MM;
             case 'E':
-                Value=pcrit_func(); break;
+                return Fluid.pc;
             case 'B':
-                Value=Tcrit_func(); break;
+                return Fluid.Tc;
             case 'R':
-                Value=Ttriple_func(); break;
+                return Fluid.Tt;
         }
 
         if (Name1=='T' && (Name2=='P' || Name2=='D' || Name2=='Q'))
@@ -1010,6 +906,8 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
             // Temperature and Pressure are the inputs
             if (Name2=='P')
             {
+            	// Collect the value for pressure
+            	p=Prop2;
                 if (FlagUseSinglePhaseLUT==1)
                 {
                     BuildLookupTable(Ref,&Fluid);
@@ -1018,8 +916,6 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
                 }
                 else
                 {
-                    // Collect the value for pressure
-                    p=Prop2;
                     //First find density as a function of temp and pressure (all parameters need it)
                     rho=get_Delta(T,p)*Fluid.rhoc;
                     if (Output=='D')
@@ -1043,8 +939,8 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 
                 // First check if the condition is well away from saturation 
                 // by using the ancillary equations because this is much faster
-                //printf("T: %g L: %g V: %g \n",T,rhosatL_func(T),rhosatV_func(T));
-                if (rho>1.002*rhosatL_func(T) || rho<0.998*rhosatV_func(T))
+
+                if (T>Fluid.Tc || rho>1.002*rhosatL_func(T) || rho<0.998*rhosatV_func(T))
                 {
                     isTwoPhase=0;
                 }
@@ -1064,7 +960,11 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
                         isTwoPhase=1;
                     else
                         isTwoPhase=0;
-                    printf("Is two phase, rhol: %g rhoV: %g\n",rhoL,rhoV);
+                    if (!ValidNumber(rhoL) || !ValidNumber(rhoV))
+					{
+						//ERROR
+						printf("rhoL [%g] or rhoV [%g] is invalid number\n",rhoL,rhoV);
+					}
                 }
                 if (isTwoPhase==0)
                 {
@@ -1084,12 +984,13 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
                         case 'O':
                             Value=SpecHeatV_Trho(T,rho); break;
                         case 'A':
-							Value=w_func(T,rho,TYPE_Trho); break;
+							Value=SpeedSound_Trho(T,rho); break;
                         case 'V':
-                            Value=visc_func(T,rho,TYPE_Trho); break;
+                            Value=Viscosity_Trho(T,rho); break;
                         case 'L':
-                            Value=k_func(T,rho,TYPE_Trho); break;
+                            Value=Conductivity_Trho(T,rho); break;
                         default:
+                        	//ERROR
                             strcpy(errString,"Invalid Output Name");
                             return -100;
                     }
@@ -1137,39 +1038,32 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
                         Value=p; 
                         break;
                     case 'H':
-                        Value=Q*h_func(T,rhoV,TYPE_Trho)+(1-Q)*h_func(T,rhoL,TYPE_Trho); 
+                        Value=Q*Enthalpy_Trho(T,rhoV)+(1-Q)*Enthalpy_Trho(T,rhoL);
                         break;
                     case 'D':
-                        Value=rho; break;
+                        Value=rho;
+                        break;
                     case 'S':
-                        Value=Q*s_func(T,rhoV,TYPE_Trho)+(1-Q)*s_func(T,rhoL,TYPE_Trho); 
+                        Value=Q*Entropy_Trho(T,rhoV)+(1-Q)*Entropy_Trho(T,rhoL);
                         break;
                     case 'U':
-                        Value=Q*u_func(T,rhoV,TYPE_Trho)+(1-Q)*u_func(T,rhoL,TYPE_Trho); 
+                        Value=Q*IntEnergy_Trho(T,rhoV)+(1-Q)*IntEnergy_Trho(T,rhoL);
                         break;
                     case 'C':
-                        Value=Q*cp_func(T,rhoV,TYPE_Trho)+(1-Q)*cp_func(T,rhoL,TYPE_Trho); 
+                        Value=Q*SpecHeatP_Trho(T,rhoV)+(1-Q)*SpecHeatP_Trho(T,rhoL);
                         break;
                     case 'O':
-                        Value=Q*cv_func(T,rhoV,TYPE_Trho)+(1-Q)*cv_func(T,rhoL,TYPE_Trho); 
+                        Value=Q*SpecHeatV_Trho(T,rhoV)+(1-Q)*SpecHeatV_Trho(T,rhoL);
                         break;
                     case 'V':
-                        Value=Q*visc_func(T,rhoV,TYPE_Trho)+(1-Q)*visc_func(T,rhoL,TYPE_Trho); 
+                        Value=Q*Viscosity_Trho(T,rhoV)+(1-Q)*Viscosity_Trho(T,rhoL);
                         break;
                     case 'L':
-                        Value=Q*k_func(T,rhoV,TYPE_Trho)+(1-Q)*k_func(T,rhoL,TYPE_Trho); 
+                        Value=Q*Conductivity_Trho(T,rhoV)+(1-Q)*Conductivity_Trho(T,rhoL);
                         break;
                     case 'A':
-                        Value=Q*w_func(T,rhoV,TYPE_Trho)+(1-Q)*w_func(T,rhoL,TYPE_Trho); 
+                        Value=Q*SpeedSound_Trho(T,rhoV)+(1-Q)*SpeedSound_Trho(T,rhoL);
                         break;
-                    case 'M':
-                        Value=MM_func(); break;
-                    case 'E':
-                        Value=pcrit_func(); break;
-                    case 'B':
-                        Value=Tcrit_func(); break;
-                    case 'R':
-                        Value=Ttriple_func(); break;
                     default:
                         strcpy(errString,"Invalid Output Name");
                         return -100;
@@ -1299,22 +1193,6 @@ double Ttriple(char *Ref)
     //ERROR!
     return 0;
 }
-
-int errCode(char * Ref)
-{
-    if (!strcmp(Ref,"R290"))
-        return errCode_R290();
-    if (!strcmp(Ref,"R744"))
-        return errCode_R744();
-    if (!strcmp(Ref,"R717"))
-        return errCode_R717();
-    if (!strcmp(Ref,"R32"))
-        return errCode_R32();
-    if (!strcmp(Ref,"R404A"))
-        return errCode_R404A();
-    return -1;
-}
-
 
 double T_hp(char *Ref, double h, double p, double T_guess)
 {
@@ -1546,39 +1424,15 @@ double DerivTerms(char *Term,char Name1, double Prop1, char Name2, double Prop2,
     double (*dpdT)(double,double,int);
     double (*dhdrho)(double,double,int);
     double (*dpdrho)(double,double,int);
-    
+    printf("Sorry DerivTerms is a work in progress!!");
     // Wire up the pointers for the given refrigerant
-    if (!strcmp(Ref,"Argon"))
+    if (!strcmp(Ref,"AA"))
     {
-        dhdT=dhdT_Argon;
-        dpdT=dpdT_Argon;
-        dhdrho=dhdrho_Argon;
-        dpdrho=dpdrho_Argon;
-    }
-    else if (!strcmp(Ref,"Nitrogen") || !strcmp(Ref,"N2"))
-    {
-        dhdT=dhdT_Nitrogen;
-        dpdT=dpdT_Nitrogen;
-        dhdrho=dhdrho_Nitrogen;
-        dpdrho=dpdrho_Nitrogen;
-    }
-    else if (!strcmp(Ref,"R744") || !strcmp(Ref,"CO2"))
-    {
-        dhdT=dhdT_R744;
-        dpdT=dpdT_R744;
-        dhdrho=dhdrho_R744;
-        dpdrho=dpdrho_R744;
-    }
-    else if (!strcmp(Ref,"R410A"))
-    {
-        dhdT=dhdT_R410A;
-        dpdT=dpdT_R410A;
-        dhdrho=dhdrho_R410A;
-        dpdrho=dpdrho_R410A;
     }
     else
     {
         printf("Bad Refrigerant Name in DerivTerms [%s]\n",Ref);
+        return _HUGE;
     }
     
     if (Name1=='T' && Name2=='P' && !strcmp(Term,"dhdT"))
@@ -1638,7 +1492,7 @@ double _Dekker_Tsat(double x_min, double x_max, double eps, double p, double Q,c
 
     int iter=1;
 
-    Tc=Tcrit_func();
+    Tc=Fluid.Tc;
     x_min=Tc/x_min;
     x_max=Tc/x_max;
 

@@ -19,9 +19,7 @@ CoolProp_module = Extension('_CoolProp',
                            )
 
 FloodProp_module = Extension('_FloodProp',
-                           sources=['FloodProp.i', 'FloodProp.c',
-                           'R134a.c','R744.c','R290.c','R410A.c',
-                           'Brine.c','R32.c','R717.c','R404A.c','Nitrogen.c','Argon.c'],
+                           sources=['FloodProp.i', 'FloodProp.c','CoolProp.c','CoolPropTools.c']+FluidSources,
                            )
                            
 HumidAirProp_module = Extension('_HumidAirProp',

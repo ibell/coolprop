@@ -1,29 +1,14 @@
 #ifndef R290_H
 #define R290_H
 
-	void setCoeffs(void);
-
-	double p_R290(double T, double rho);
-	double rho_R290(double T, double p_rho, int Types);
-	double h_R290(double T, double p_rho, int Types);
-	double u_R290(double T, double p_rho, int Types);
-	double s_R290(double T, double p_rho, int Types);
-	double cv_R290(double T, double p_rho, int Types);
-	double cp_R290(double T, double p_rho, int Types);
-	double c_R290(double T, double p_rho, int Types);
-	double k_R290(double T, double p_rho, int Types);
-	double visc_R290(double T, double p_rho, int Types);
-	double w_R290(double T, double p_rho, int Types);
-	double MM_R290(void);
+	int Load_R290(struct fluidParamsVals *Fluid);
 
 	double rhosatV_R290(double T);
 	double rhosatL_R290(double T);
 	double psat_R290(double T);
 
-	double pcrit_R290(void);
-	double Tcrit_R290(void);
-	double rhocrit_R290(void);
-	double Ttriple_R290(void);
+	double Viscosity_Trho_R290(double T, double rho);
+	double Conductivity_Trho_R290(double T, double rho);
 
 	//Residual Helmholtz formulation and derivatives
 	double phir_R290(double tau, double delta);
@@ -43,8 +28,5 @@
 	double dhdT_R290(double T, double p_rho, int Types);
 	double dpdrho_R290(double T, double p_rho, int Types);
 	double dpdT_R290(double T, double p_rho, int Types);
-
-
-	int errCode_R290(void);
 
 #endif

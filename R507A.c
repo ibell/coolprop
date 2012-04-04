@@ -20,49 +20,13 @@ by E.W. Lemmon, Int. J. Thermophys. v. 24, n4, 2003
 #include "math.h"
 #include "stdio.h"
 #include <string.h>
-#include "PropErrorCodes.h"
-#include "PropMacros.h"
-#include "R507A.h"
-
-static int errCode;
-static char errStr[ERRSTRLENGTH];
-
-#define nP 200
-#define nT 200
-
-static double Tmin=220, Tmax=450, Pmin=70.03, Pmax=5000;
-static double hmat[nT][nP];
-static double rhomat[nT][nP];
-static double cpmat[nT][nP];
-static double smat[nT][nP];
-static double cvmat[nT][nP];
-static double umat[nT][nP];
-static double viscmat[nT][nP];
-static double kmat[nT][nP];
-static double Tvec[nT];
-static double pvec[nP];
-
-static int TablesBuilt;
-
-static const double c[]={
-	1.5680,			//[0]
-    0.95006,		//[1]
-    4.1887,			//[2]
-	5.5184			//[3]
-};
-
-static const double e[]={
-    0.25,			//[0]
-    364,			//[1]
-    815,			//[2]
-    1768			//[3]
-};
+#include "CoolProp.h"
 
 static const double a[]={
     9.93541,		//[0]
-    7.9985,		//[1]
+    7.9985,		    //[1]
     -21.6054,		//[2]
-    0.95006,			//[3]
+    0.95006,		//[3]
     4.1887,			//[4]
     5.5184			//[5]
 };
@@ -82,9 +46,9 @@ static const double N[]={
 	-8.07855,		//[2]
 	 0.0264843,		//[3]
 	 0.286215,		//[4]
-	-0.00507076,		//[5]
+	-0.00507076,	//[5]
 	 0.0109552,		//[6]
-	 0.00116124,		//[7]
+	 0.00116124,	//[7]
 	 1.38469,		//[8]
 	-0.922473,		//[9]
 	-0.0503562,		//[10]
@@ -239,365 +203,48 @@ static const double tdp[]={
     4.7				//[4]
 };
 
-static const double R=0.0841041; //8.314472/86.2036;
 static const double M=98.8592; //[g/mol]
 static const double Tm=343.765; //[K]
 static const double pm=3704.9; //[MPa--> kPa]
 static const double pc=3700; //[MPa--> kPa] From (Calm 2007 HPAC Engineering)
 static const double rhom=490.74; //4.964*M; //[mol/dm^3--> kg/m^3]
-static const double Ttriple=200.0; //[K]
+static const double _Ttriple=200.0; //[K]
 
+int Load_R507A(struct fluidParamsVals *Fluid)
+{
+    // Function pointers
+    Fluid->funcs.phir=ar_R507A;
+    Fluid->funcs.dphir_dDelta=dar_ddelta_R507A;
+    Fluid->funcs.dphir2_dDelta2=d2ar_ddelta2_R507A;
+    Fluid->funcs.dphir2_dDelta_dTau=d2ar_ddelta_dtau_R507A;
+    Fluid->funcs.dphir_dTau=dar_dtau_R507A;
+    Fluid->funcs.dphir2_dTau2=d2ar_dtau2_R507A;
+    Fluid->funcs.phi0=a0_R507A;
+    Fluid->funcs.dphi0_dDelta=da0_ddelta_R507A;
+    Fluid->funcs.dphi02_dDelta2=d2a0_ddelta2_R507A;
+    Fluid->funcs.dphi0_dTau=da0_dtau_R507A;
+    Fluid->funcs.dphi02_dTau2=d2a0_dtau2_R507A;
+    Fluid->funcs.rhosatL=rhosatL_R507A;
+    Fluid->funcs.rhosatV=rhosatV_R507A;
+    Fluid->funcs.p_dp=p_dp_R507A;
+    Fluid->funcs.p_bp=p_bp_R507A;
+    Fluid->funcs.visc=Viscosity_Trho_R507A;
+    Fluid->funcs.cond=Conductivity_Trho_R507A;
 
-// Local function prototypes
-static double Pressure_Trho(double T, double rho);
-static double IntEnergy_Trho(double T, double rho);
-static double Enthalpy_Trho(double T, double rho);
-static double Entropy_Trho(double T, double rho);
-static double SpecHeatV_Trho(double T, double rho);
-static double SpecHeatP_Trho(double T, double rho);
-static double Viscosity_Trho(double T, double rho);
-static double Conductivity_Trho(double T, double rho);
+    //Lookup table parameters
+    Fluid->LUT.Tmin=220.0;
+    Fluid->LUT.Tmax=450.0;
+    Fluid->LUT.pmin=70.03;
+    Fluid->LUT.pmax=5000.0;
 
-
-static double get_Delta(double T, double p);
-static double LookupValue(char *Prop,double T, double p);
-static double powInt(double x, int y);
-static double QuadInterp(double x0, double x1, double x2, double f0, double f1, double f2, double x);
-
-static double a0(double tau, double delta);
-static double da0_dtau(double tau, double delta);
-static double d2a0_dtau2(double tau, double delta);
-static double da0_ddelta(double tau, double delta);
-
-static double ar(double tau, double delta);
-static double dar_dtau(double tau,double delta);
-static double d2ar_dtau2(double tau, double delta);
-static double dar_ddelta(double tau,double delta);
-static double d2ar_ddelta2(double tau,double delta);
-static double d2ar_ddelta_dtau(double tau,double delta);
-
-
-static void WriteLookup(void)
-{
-	int i,j;
-	FILE *fp_h,*fp_s,*fp_rho,*fp_u,*fp_cp,*fp_cv,*fp_visc;
-	fp_h=fopen("h.csv","w");
-	fp_s=fopen("s.csv","w");
-	fp_u=fopen("u.csv","w");
-	fp_cp=fopen("cp.csv","w");
-	fp_cv=fopen("cv.csv","w");
-	fp_rho=fopen("rho.csv","w");
-	fp_visc=fopen("visc.csv","w");
-
-	// Write the pressure header row
-	for (j=0;j<nP;j++)
-	{
-		fprintf(fp_h,",%0.12f",pvec[j]);
-		fprintf(fp_s,",%0.12f",pvec[j]);
-		fprintf(fp_rho,",%0.12f",pvec[j]);
-		fprintf(fp_u,",%0.12f",pvec[j]);
-		fprintf(fp_cp,",%0.12f",pvec[j]);
-		fprintf(fp_cv,",%0.12f",pvec[j]);
-		fprintf(fp_visc,",%0.12f",pvec[j]);
-	}
-	fprintf(fp_h,"\n");
-	fprintf(fp_s,"\n");
-	fprintf(fp_rho,"\n");
-	fprintf(fp_u,"\n");
-	fprintf(fp_cp,"\n");
-	fprintf(fp_cv,"\n");
-	fprintf(fp_visc,"\n");
-	
-	for (i=1;i<nT;i++)
-	{
-		fprintf(fp_h,"%0.12f",Tvec[i]);
-		fprintf(fp_s,"%0.12f",Tvec[i]);
-		fprintf(fp_rho,"%0.12f",Tvec[i]);
-		fprintf(fp_u,"%0.12f",Tvec[i]);
-		fprintf(fp_cp,"%0.12f",Tvec[i]);
-		fprintf(fp_cv,"%0.12f",Tvec[i]);
-		fprintf(fp_visc,"%0.12f",Tvec[i]);
-		for (j=0;j<nP;j++)
-		{
-			fprintf(fp_h,",%0.12f",hmat[i][j]);
-			fprintf(fp_s,",%0.12f",smat[i][j]);
-			fprintf(fp_rho,",%0.12f",rhomat[i][j]);
-			fprintf(fp_u,",%0.12f",umat[i][j]);
-			fprintf(fp_cp,",%0.12f",cpmat[i][j]);
-			fprintf(fp_cv,",%0.12f",cvmat[i][j]);
-			fprintf(fp_visc,",%0.12f",viscmat[i][j]);
-		}
-		fprintf(fp_h,"\n");
-		fprintf(fp_s,"\n");
-		fprintf(fp_rho,"\n");
-		fprintf(fp_u,"\n");
-		fprintf(fp_cp,"\n");
-		fprintf(fp_cv,"\n");
-		fprintf(fp_visc,"\n");
-	}
-}
-static void BuildLookup(void)
-{
-	int i,j;
-	
-	// Properties evaluated at all points with X in the 
-	// following p-h plot:
-	/*      Supercritical
-	||X	X X X X	X X X X X X X X X X X X X X X X X
-	||X	X X X X	X X X X X X X X X X X X X X X X X
-	||			--------  X X X X X X X X X X X X
-	||		  /			 \  X X X X X X X X X X X
-p	||		 /			  | X X X X Superheated Gas
-	||		/	Two  	  / X X X X X X X X X X X
-	||	   /	Phase	 /X X X X X X X X X X X X 
-	||    /				/ X X X X X X X X X X X X 
-	||=	= = = = = = = = = = = = = = = = = = = = =
-						Enthalpy										
-	*/
-
-	if (!TablesBuilt)
-	{
-		printf("Building Lookup Tables... Please wait...\n");
-
-		for (i=0;i<nT;i++)
-		{
-			Tvec[i]=Tmin+i*(Tmax-Tmin)/(nT-1);
-		}
-		for (j=0;j<nP;j++)
-		{
-			pvec[j]=Pmin+j*(Pmax-Pmin)/(nP-1);
-		}
-		for (i=0;i<nT;i++)
-		{
-			for (j=0;j<nP;j++)
-			{
-				if (Tvec[i]>Tm || pvec[j]>p_dp_R507A(Tvec[i]) || pvec[j]<p_bp_R507A(Tvec[i]))
-				{					
-					rhomat[i][j]=get_Delta(Tvec[i],pvec[j])*rhom;
-					hmat[i][j]=h_R507A(Tvec[i],rhomat[i][j],TYPE_Trho);
-					smat[i][j]=s_R507A(Tvec[i],rhomat[i][j],TYPE_Trho);
-					umat[i][j]=u_R507A(Tvec[i],rhomat[i][j],TYPE_Trho);
-					cpmat[i][j]=cp_R507A(Tvec[i],rhomat[i][j],TYPE_Trho);
-					cvmat[i][j]=cv_R507A(Tvec[i],rhomat[i][j],TYPE_Trho);
-					viscmat[i][j]=visc_R507A(Tvec[i],rhomat[i][j],TYPE_Trho);
-					kmat[i][j]=k_R507A(Tvec[i],rhomat[i][j],TYPE_Trho);
-				}
-				else
-				{
-					hmat[i][j]=_HUGE;
-					smat[i][j]=_HUGE;
-					umat[i][j]=_HUGE;
-					rhomat[i][j]=_HUGE;
-					umat[i][j]=_HUGE;
-					cpmat[i][j]=_HUGE;
-					cvmat[i][j]=_HUGE;
-					viscmat[i][j]=_HUGE;
-					kmat[i][j]=_HUGE;
-				}
-			}
-		}
-		TablesBuilt=1;
-		WriteLookup();
-	}
-}
-double rho_R507A(double T, double p, int Types)
-{
-	errCode=0; // Reset error code
-	switch(Types)
-	{
-		case TYPE_TPNoLookup:
-			return get_Delta(T,p)*rhom;
-		case TYPE_TP:
-			BuildLookup();
-			return LookupValue("rho",T,p);
-		default:
-			errCode=BAD_PROPCODE;
-			return _HUGE;
-	}
-}
-double p_R507A(double T, double rho)
-{
-	return Pressure_Trho(T,rho);
-}
-double h_R507A(double T, double p_rho, int Types)
-{
-	double rho;
-	errCode=0; // Reset error code
-	switch(Types)
-	{
-		case TYPE_Trho:
-			return Enthalpy_Trho(T,p_rho);
-		case TYPE_TPNoLookup:
-			rho=get_Delta(T,p_rho)*rhom;
-			return Enthalpy_Trho(T,rho);
-		case TYPE_TP:
-			BuildLookup();
-			return LookupValue("h",T,p_rho);
-		default:
-			errCode=BAD_PROPCODE;
-			return _HUGE;
-	}
-}
-double s_R507A(double T, double p_rho, int Types)
-{
-	double rho;
-	errCode=0; // Reset error code
-	switch(Types)
-	{
-		case TYPE_Trho:
-			return Entropy_Trho(T,p_rho);
-		case TYPE_TPNoLookup:
-			rho=get_Delta(T,p_rho)*rhom;
-			return Entropy_Trho(T,rho);
-		case TYPE_TP:
-			BuildLookup();
-			return LookupValue("s",T,p_rho);
-		default:
-			errCode=BAD_PROPCODE;
-			return _HUGE;
-	}
-}
-double u_R507A(double T, double p_rho, int Types)
-{
-	double rho;
-	errCode=0; // Reset error code
-	switch(Types)
-	{
-		case TYPE_Trho:
-			return IntEnergy_Trho(T,p_rho);
-		case TYPE_TPNoLookup:
-			rho=get_Delta(T,p_rho)*rhom;
-			return IntEnergy_Trho(T,rho);
-		case TYPE_TP:
-			BuildLookup();
-			return LookupValue("u",T,p_rho);
-		default:
-			errCode=BAD_PROPCODE;
-			return _HUGE;
-	}
-}
-double cp_R507A(double T, double p_rho, int Types)
-{
-	double rho;
-	errCode=0; // Reset error code
-	switch(Types)
-	{
-		case TYPE_Trho:
-			return SpecHeatP_Trho(T,p_rho);
-		case TYPE_TPNoLookup:
-			rho=get_Delta(T,p_rho)*rhom;
-			return SpecHeatP_Trho(T,rho);
-		case TYPE_TP:
-			BuildLookup();
-			return LookupValue("cp",T,p_rho);
-		default:
-			errCode=BAD_PROPCODE;
-			return _HUGE;
-	}
-}
-double cv_R507A(double T, double p_rho, int Types)
-{
-	double rho;
-	errCode=0; // Reset error code
-	switch(Types)
-	{
-		case TYPE_Trho:
-			return SpecHeatV_Trho(T,p_rho);
-		case TYPE_TPNoLookup:
-			rho=get_Delta(T,p_rho)*rhom;
-			return SpecHeatV_Trho(T,rho);
-		case TYPE_TP:
-			BuildLookup();
-			return LookupValue("cv",T,p_rho);
-		default:
-			errCode=BAD_PROPCODE;
-			return _HUGE;
-	}
-}
-double visc_R507A(double T, double p_rho, int Types)
-{
-	double rho;
-	errCode=0; // Reset error code
-	switch(Types)
-	{
-		case TYPE_Trho:
-			return Viscosity_Trho(T,p_rho);
-		case TYPE_TPNoLookup:
-			rho=get_Delta(T,p_rho)*rhom;
-			return Viscosity_Trho(T,rho);
-		case TYPE_TP:
-			BuildLookup();
-			return LookupValue("visc",T,p_rho);
-		default:
-			errCode=BAD_PROPCODE;
-			return _HUGE;
-	}
-}
-double k_R507A(double T, double p_rho, int Types)
-{
-	double rho;
-	errCode=0; // Reset error code
-	switch(Types)
-	{
-		case TYPE_Trho:
-			return Conductivity_Trho(T,p_rho);
-		case TYPE_TPNoLookup:
-			rho=get_Delta(T,p_rho)*rhom;
-			return Conductivity_Trho(T,rho);
-		case TYPE_TP:
-			BuildLookup();
-			return LookupValue("k",T,p_rho);
-		default:
-			errCode=BAD_PROPCODE;
-			return _HUGE;
-	}
-}
-
-double w_R507A(double T, double p_rho, int Types)
-{
-	double rho;
-	double delta,tau,c1,c2;
-	errCode=0; // Reset error code
-	switch(Types)
-	{
-		case TYPE_Trho:
-			rho=p_rho;
-		case TYPE_TPNoLookup:
-			rho=get_Delta(T,p_rho)*rhom;
-		default:
-			errCode=BAD_PROPCODE;
-			return _HUGE;
-	}
-	
-	delta=rho/rhom;
-	tau=Tm/T;
-
-	c1=-SpecHeatV_Trho(T,rho)/R;
-	c2=(1.0+2.0*delta*dar_ddelta(tau,delta)+delta*delta*d2ar_ddelta2(tau,delta));
-    return sqrt(-c2*T*SpecHeatP_Trho(T,rho)*1000/c1);
-}
-
-double pcrit_R507A(void)
-{
-	return pm;
-}
-
-double Tcrit_R507A(void)
-{
-	return Tm;
-}
-double Ttriple_R507A(void)
-{
-	return Ttriple;
-}
-double MM_R507A(void)
-{
-	return M;
-}
-
-int errCode_R507A(void)
-{
-	return errCode;
+    //Fluid parameters
+    Fluid->Type=FLUIDTYPE_REFRIGERANT_PSEUDOPURE;
+    Fluid->Tc=Tm;
+    Fluid->rhoc=rhom;
+    Fluid->MM=M;
+    Fluid->pc=pc;
+    Fluid->Tt=_Ttriple;
+    return 1;
 }
 
 double p_bp_R507A(double T)
@@ -643,7 +290,7 @@ double rhosatL_R507A(double T)
 	return exp(6.059998874+1.305406634077e+00*pow(theta,0.21588)+0.585710808997*theta-2.09578513606*theta*theta+4.667514451*powInt(theta,3)-3.93369379654*powInt(theta,4));
 }
 
-double Viscosity_Trho(double T, double rho)
+double Viscosity_Trho_R507A(double T, double rho)
 {
     // Properties taken from "Viscosity of Mixed 
 	// Refrigerants R404A,R407C,R410A, and R507A" 
@@ -663,7 +310,7 @@ double Viscosity_Trho(double T, double rho)
    return eta_microPa_s/1e6;
 }
 
-double Conductivity_Trho(double T, double rho)
+double Conductivity_Trho_R507A(double T, double rho)
 {
 	// Properties taken from "Thermal Conductivity 
 	// of the Refrigerant mixtures R404A,R407C,R410A, and R507A" 
@@ -679,113 +326,11 @@ double Conductivity_Trho(double T, double rho)
 	return (a_0+a_1*T+b_1*rho+b_2*rho*rho+b_3*rho*rho*rho+b_4*rho*rho*rho*rho)/1.e6; // from mW/m-K to kW/m-K
 }
 
-
-static double get_Delta(double T, double p)
-{
-    double change,eps=1e-8, tau,delta_guess;
-    int counter=1;
-    double r1,r2,r3,delta1,delta2,delta3;
-    
-	if (T>Tm)
-	{
-		 delta_guess=p/(8.314/M*T)/rhom/0.7; //0.7 for compressibility factor
-	}
-	else
-	{
-		if (p<=(0.5*p_dp_R507A(T)+0.5*p_bp_R507A(T)))
-		{
-			// Superheated vapor
-			delta_guess=p/(8.314/M*T)/rhom;
-		}
-		else
-		{
-			// Subcooled liquid
-			delta_guess=10;
-		}
-	}
-
-
-	tau=Tm/T;
-    delta1=delta_guess;
-    delta2=delta_guess+.001;
-    r1=p/(delta1*rhom*R*T)-1.0-delta1*dar_ddelta(tau,delta1);
-    r2=p/(delta2*rhom*R*T)-1.0-delta2*dar_ddelta(tau,delta2);
-    while(counter==1 || fabs(change)>eps)
-    {
-        delta3=delta2-r2/(r2-r1)*(delta2-delta1);
-        r3=p/(delta3*rhom*R*T)-1.0-delta3*dar_ddelta(tau,delta3);
-        change=r2/(r2-r1)*(delta2-delta1);
-        delta1=delta2;
-        delta2=delta3;
-        r1=r2;
-        r2=r3;
-        counter=counter+1;
-        /*mexPrintf("%g \t %g \t %g \t %g \t %g \n",delta1,r1,delta2,r2,change);*/
-    }
-    return delta3;
-}
-
-// ******************************************
-//          THERMODYNAMIC FUNCTIONS
-// ******************************************
-
-static double Pressure_Trho(double T, double rho)
-{
-	double delta,tau;
-	delta=rho/rhom;
-	tau=Tm/T;
-
-	return R*T*rho*(1.0+delta*dar_ddelta(tau,delta));
-}
-static double IntEnergy_Trho(double T, double rho)
-{
-	double delta,tau;
-	delta=rho/rhom;
-	tau=Tm/T;
-	
-	return R*T*tau*(da0_dtau(tau,delta)+dar_dtau(tau,delta));
-}
-static double Enthalpy_Trho(double T, double rho)
-{
-	double delta,tau;
-	delta=rho/rhom;
-	tau=Tm/T;
-	
-	return R*T*(1.0+tau*(da0_dtau(tau,delta)+dar_dtau(tau,delta))+delta*dar_ddelta(tau,delta));
-}
-static double Entropy_Trho(double T, double rho)
-{
-	double delta,tau;
-	delta=rho/rhom;
-	tau=Tm/T;
-	
-	return R*(tau*(da0_dtau(tau,delta)+dar_dtau(tau,delta))-a0(tau,delta)-ar(tau,delta));
-}
-static double SpecHeatV_Trho(double T, double rho)
-{
-	double delta,tau;
-	delta=rho/rhom;
-	tau=Tm/T;
-	
-	return -R*tau*tau*(d2a0_dtau2(tau,delta)+d2ar_dtau2(tau,delta));
-}
-static double SpecHeatP_Trho(double T, double rho)
-{
-	double delta,tau,c1,c2;
-	delta=rho/rhom;
-	tau=Tm/T;
-
-	c1=1.0+delta*dar_ddelta(tau,delta)-delta*tau*d2ar_ddelta_dtau(tau,delta);
-	c2=1.0+2.0*delta*dar_ddelta(tau,delta)+delta*delta*d2ar_ddelta2(tau,delta);
-	
-	return R*(-tau*tau*(d2a0_dtau2(tau,delta)+d2ar_dtau2(tau,delta))+c1*c1/c2);
-}
-
 // ***************************************************
 //                HELMHOLTZ DERIVATIVES
 // ***************************************************
 
-static double a0(double tau, double delta)
+double a0_R507A(double tau, double delta)
 {
 	double sum;
 	int k;
@@ -796,7 +341,7 @@ static double a0(double tau, double delta)
 	}
 	return sum;
 }
-static double da0_dtau(double tau, double delta)
+double da0_dtau_R507A(double tau, double delta)
 {
 	double sum;
 	int k;
@@ -808,7 +353,7 @@ static double da0_dtau(double tau, double delta)
 	return sum;
 }
 
-static double d2a0_dtau2(double tau, double delta)
+double d2a0_dtau2_R507A(double tau, double delta)
 {
 	double sum;
 	int k;
@@ -820,12 +365,17 @@ static double d2a0_dtau2(double tau, double delta)
 	return sum;
 }
 
-static double da0_ddelta(double tau, double delta)
+double da0_ddelta_R507A(double tau, double delta)
 {
 	return 1/delta;
 }
 
-static double ar(double tau, double delta)
+double d2a0_ddelta2_R507A(double tau, double delta)
+{
+	return -1/(delta*delta);
+}
+
+double ar_R507A(double tau, double delta)
 {
 	double sum=0;
 	int k;
@@ -835,7 +385,7 @@ static double ar(double tau, double delta)
     }
 	return sum;
 }
-static double dar_dtau(double tau,double delta)
+double dar_dtau_R507A(double tau,double delta)
 {
 	double sum=0;
 	int k;
@@ -847,7 +397,7 @@ static double dar_dtau(double tau,double delta)
 	return sum;
 }
 
-static double d2ar_dtau2(double tau, double delta)
+double d2ar_dtau2_R507A(double tau, double delta)
 {
 	double sum=0;
 	int k;
@@ -858,7 +408,7 @@ static double d2ar_dtau2(double tau, double delta)
 	return sum;
 }
 
-static double d2ar_ddelta2(double tau,double delta)
+double d2ar_ddelta2_R507A(double tau,double delta)
 {
     double dar2_dDelta2=0;
     int k;
@@ -869,7 +419,7 @@ static double d2ar_ddelta2(double tau,double delta)
     return dar2_dDelta2;
 }
 
-static double dar_ddelta(double tau,double delta)
+double dar_ddelta_R507A(double tau,double delta)
 {
     double sum=0,gk,ik,Lk;
     int k;
@@ -883,7 +433,7 @@ static double dar_ddelta(double tau,double delta)
     return sum;
 }
 
-static double d2ar_ddelta_dtau(double tau,double delta)
+double d2ar_ddelta_dtau_R507A(double tau,double delta)
 {
     double dar_dDelta_dTau=0;
     int k;
@@ -892,156 +442,4 @@ static double d2ar_ddelta_dtau(double tau,double delta)
         dar_dDelta_dTau=dar_dDelta_dTau+N[k]*j[k]*pow(tau,j[k]-1)*(i[k]*pow(delta,i[k]-1)*exp(-g[k]*pow(delta,L[k]))+pow(delta,i[k])*exp(-g[k]*pow(delta,L[k]))*(-g[k]*L[k]*pow(delta,L[k]-1)));
     }
     return dar_dDelta_dTau;
-}
-
-// ********************************************************
-//                  MAINTENANCE FUNCTIONS
-// ********************************************************
-
-static double LookupValue(char *Prop, double T, double p)
-{
-	int iPlow, iPhigh, iTlow, iThigh,L,R,M;
-	double T1, T2, T3, P1, P2, P3, y1, y2, y3, a1, a2, a3;
-	double (*mat)[nT][nP];
-
-	if (T>Tmax || T<Tmin)
-	{
-		errCode=OUT_RANGE_T;
-	}
-	if (p>Pmax || p<Pmin)
-	{
-		errCode=OUT_RANGE_P;
-	}
-	if (T>Tmax || T<Tmin || p>Pmax ||p<Pmin)
-	{
-		printf("Input to LookupValue() for %s is out of bounds [T:%g p:%g]\n",Prop,T,p);
-		return -1e6;
-	}
-	
-
-	L=0;
-	R=nP-1;
-	M=(L+R)/2;
-	// Use interval halving to find the indices which bracket the temperature of interest
-	while (R-L>1)
-	{
-		if (T>=Tvec[M])
-		{ L=M; M=(L+R)/2; }
-		if (T<Tvec[M])
-		{ R=M; M=(L+R)/2; }
-	}
-	iTlow=L; iThigh=R;
-
-	L=0;
-	R=nP-1;
-	M=(L+R)/2;
-	// Use interval halving to find the indices which bracket the pressure of interest
-	while (R-L>1)
-	{
-		if (p>=pvec[M])
-		{ L=M; M=(L+R)/2; }
-		if (p<pvec[M])
-		{ R=M; M=(L+R)/2; }
-	}
-	iPlow=L; iPhigh=R;
-
-	/* Depending on which property is desired, 
-	make the matrix "mat" a pointer to the 
-	desired property matrix */
-	if (!strcmp(Prop,"rho"))
-		mat=&rhomat;
-	if (!strcmp(Prop,"cp"))
-		mat=&cpmat;
-	if (!strcmp(Prop,"cv"))
-		mat=&cvmat;
-	if (!strcmp(Prop,"h"))
-		mat=&hmat;
-	if (!strcmp(Prop,"s"))
-		mat=&smat;
-	if (!strcmp(Prop,"u"))
-		mat=&umat;
-	if (!strcmp(Prop,"visc"))
-		mat=&viscmat;
-	if (!strcmp(Prop,"k"))
-		mat=&kmat;
-	
-	//At Low Temperature Index
-	y1=(*mat)[iTlow][iPlow];
-	y2=(*mat)[iTlow][iPhigh];
-	y3=(*mat)[iTlow][iPhigh+1];
-	P1=pvec[iPlow];
-	P2=pvec[iPhigh];
-	P3=pvec[iPhigh+1];
-	a1=QuadInterp(P1,P2,P3,y1,y2,y3,p);
-
-	//At High Temperature Index
-	y1=(*mat)[iThigh][iPlow];
-	y2=(*mat)[iThigh][iPhigh];
-	y3=(*mat)[iThigh][iPhigh+1];
-	a2=QuadInterp(P1,P2,P3,y1,y2,y3,p);
-
-	//At High Temperature Index+1 (for QuadInterp() )
-	y1=(*mat)[iThigh+1][iPlow];
-	y2=(*mat)[iThigh+1][iPhigh];
-	y3=(*mat)[iThigh+1][iPhigh+1];
-	a3=QuadInterp(P1,P2,P3,y1,y2,y3,p);
-
-	//At Final Interpolation
-	T1=Tvec[iTlow];
-	T2=Tvec[iThigh];
-	T3=Tvec[iThigh+1];
-	return QuadInterp(T1,T2,T3,a1,a2,a3,T);
-	
-}
-
-static double powInt(double x, int y)
-{
-	// Raise a double to an integer power
-	// Overload not provided in math.h
-    int i;
-    double product=1.0;
-    double x_in;
-    int y_in;
-    
-    if (y==0)
-    {
-        return 1.0;
-    }
-    
-    if (y<0)
-    {
-        x_in=1/x;
-        y_in=-y;
-    }
-	else
-	{
-		x_in=x;
-		y_in=y;
-	}
-
-    if (y_in==1)
-    {
-        return x_in;
-    }    
-    
-    product=x_in;
-    for (i=1;i<y_in;i++)
-    {
-        product=product*x_in;
-    }
-    
-    return product;
-}
-
-static double QuadInterp(double x0, double x1, double x2, double f0, double f1, double f2, double x)
-{
-	/* Quadratic interpolation.  
-	Based on method from Kreyszig, 
-	Advanced Engineering Mathematics, 9th Edition 
-	*/
-    double L0, L1, L2;
-    L0=((x-x1)*(x-x2))/((x0-x1)*(x0-x2));
-    L1=((x-x0)*(x-x2))/((x1-x0)*(x1-x2));
-    L2=((x-x0)*(x-x1))/((x2-x0)*(x2-x1));
-    return L0*f0+L1*f1+L2*f2;
 }

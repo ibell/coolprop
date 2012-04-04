@@ -25,6 +25,28 @@ static double kmat[nT][nP][nLUT];
 static double Tvec[nT][nLUT];
 static double pvec[nP][nLUT];
 
+static int isNAN(double x)
+{
+	// recommendation from http://www.devx.com/tips/Tip/42853
+	return x != x;
+}
+
+static int isINFINITY(double x)
+{
+	// recommendation from http://www.devx.com/tips/Tip/42853
+	if ((x == x) && ((x - x) != 0.0))
+		return 1;//return (x < 0.0 ? -1 : 1); // This will tell you whether positive or negative infinity
+	else
+		return 0;
+}
+
+int ValidNumber(double x)
+{
+	if (!isNAN(x) && !isINFINITY(x))
+		return 1;
+	else
+		return 0;
+}
 double powInt(double x, int y)
 {
     // Raise a double to an integer power
@@ -134,11 +156,12 @@ int WriteLookup2File(int ILUT)
         fprintf(fp_cv,"\n");
         fprintf(fp_visc,"\n");
     }
+    return 1;
 }
 
 int BuildLookupTable(char *Ref, struct fluidParamsVals *Fluid)
 {
-    int i,j,k,Tmin,Tmax,pmin,pmax,OldUseLUT;
+    int i,j,k,Tmin,Tmax,pmin,pmax,OldUseLUT,test1,test2,test3;
     double Tc;
     double (*p_dp)(double);
     double (*p_bp)(double);
@@ -214,17 +237,20 @@ p	||   /		  | X X X X Superheated Gas
     {
         for (j=0;j<nP;j++)
         {
-            if (Tvec[i][k]>Tc || pvec[j][k]>p_dp(Tvec[i][k]) || pvec[j][k]<p_bp(Tvec[i][k]))
+        	test1=Tvec[i][k]>Tc;
+        	test2=(Fluid->Type==FLUIDTYPE_REFRIGERANT_PSEUDOPURE && (pvec[j][k]>p_dp(Tvec[i][k]) || pvec[j][k]<p_bp(Tvec[i][k])));
+        	test3=(Fluid->Type==FLUIDTYPE_REFRIGERANT_PURE && fabs((pvec[j][k]-Fluid->funcs.psat(Tvec[i][k]))/pvec[j][k]-1)>0.001);
+
+            if (test1 || test2 || test3)
             {					
                 rhomat[i][j][k]=Props('D','T',Tvec[i][k],'P',pvec[j][k],Ref);
-                printf("%d %d %g %g  %g\n",i,j,Tvec[i][k],pvec[j][k],rhomat[i][j][k]);
                 hmat[i][j][k]=Props('H','T',Tvec[i][k],'D',rhomat[i][j][k],Ref);
                 smat[i][j][k]=Props('S','T',Tvec[i][k],'D',rhomat[i][j][k],Ref);
                 umat[i][j][k]=Props('U','T',Tvec[i][k],'D',rhomat[i][j][k],Ref);
                 cpmat[i][j][k]=Props('C','T',Tvec[i][k],'D',rhomat[i][j][k],Ref);
                 cvmat[i][j][k]=Props('O','T',Tvec[i][k],'D',rhomat[i][j][k],Ref);
                 viscmat[i][j][k]=Props('V','T',Tvec[i][k],'D',rhomat[i][j][k],Ref);
-                kmat[i][j][k]=Props('K','T',Tvec[i][k],'D',rhomat[i][j][k],Ref);
+                kmat[i][j][k]=Props('L','T',Tvec[i][k],'D',rhomat[i][j][k],Ref);
             }
             else
             {
@@ -244,7 +270,7 @@ p	||   /		  | X X X X Superheated Gas
     return k;
 }
 
-double LookupValue(char *Prop, double T, double p, char *Ref, struct fluidParamsVals *Fluid)
+double LookupValue(char Prop, double T, double p, char *Ref, struct fluidParamsVals *Fluid)
 {
     int iPlow, iPhigh, iTlow, iThigh,L,R,M,ILUT,success;
     double T1, T2, T3, P1, P2, P3, y1, y2, y3, a1, a2, a3;
@@ -261,7 +287,7 @@ double LookupValue(char *Prop, double T, double p, char *Ref, struct fluidParams
     
     if (T>Tmax || T<Tmin || p>Pmax ||p<Pmin)
     {
-        success=sprintf(CP_errString,"Input to LookupValue() for %s is out of bounds [T:%g p:%g]",Prop,T,p);
+        success=sprintf(CP_errString,"Input to LookupValue() for %c is out of bounds [T:%g p:%g]",Prop,T,p);
         if (success<0) printf("error writing error string");
         return -1e6;
     }
@@ -295,22 +321,28 @@ double LookupValue(char *Prop, double T, double p, char *Ref, struct fluidParams
     /* Depending on which property is desired, 
     make the matrix "mat" a pointer to the 
     desired property matrix */
-    if (!strcmp(Prop,"rho"))
+    if (Prop=='D')
         mat=&rhomat;
-    if (!strcmp(Prop,"cp"))
+    else if (Prop=='C')
         mat=&cpmat;
-    if (!strcmp(Prop,"cv"))
+    else if (Prop=='O')
         mat=&cvmat;
-    if (!strcmp(Prop,"h") || !strcmp(Prop,"H"))
+    else if (Prop=='H')
         mat=&hmat;
-    if (!strcmp(Prop,"s"))
+    else if (Prop=='S')
         mat=&smat;
-    if (!strcmp(Prop,"u"))
+    else if (Prop=='U')
         mat=&umat;
-    if (!strcmp(Prop,"visc"))
+    else if (Prop=='V')
         mat=&viscmat;
-    if (!strcmp(Prop,"k"))
+    else if (Prop=='L')
         mat=&kmat;
+    else
+    {
+    	//ERROR
+    	printf("Invalid output type [%c]",Prop);
+    	return -1;
+    }
     
     //At Low Temperature Index
     y1=(*mat)[iTlow][iPlow][ILUT];
@@ -337,7 +369,6 @@ double LookupValue(char *Prop, double T, double p, char *Ref, struct fluidParams
     T1=Tvec[iTlow][ILUT];
     T2=Tvec[iThigh][ILUT];
     T3=Tvec[iThigh+1][ILUT];
-    
     
     return QuadInterp(T1,T2,T3,a1,a2,a3,T);	
 }

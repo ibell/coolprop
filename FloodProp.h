@@ -6,9 +6,6 @@
 	#define TP 1
 	#define Trho 2
 
-	static int I_N2=0, I_He=1, I_Ne=2, I_Ar=3, I_Kr=4, I_Xe=5, I_CO2=6;
-	static int I_Methanol=0, I_Ethanol=1, I_Propanol=2, I_Butanol=3, I_Water=4, I_NH3=5, I_Zerol=6,I_POE=7;
-	
 	double cK_e(double v_l, double v_g, double x, double w, double flag);
 	double cv_e(double v_l, double v_g, double K_e, double x, double w, double flag);
 	double R(char *Gas);
@@ -46,9 +43,9 @@
 	double kstar_m(char *Gas, char *Liq, double T, double P, double xL);
 	double rho_g(char *Gas, double T, double P);
 	double u_g(char *Gas, double T, double P);
-	double T_hp(char *Gas, char *Liq, double h, double p, double xL, double T_guess);
+	double T_hp_FP(char *Gas, char *Liq, double h, double p, double xL, double T_guess);
 	double T_Up(char *Gas, char *Liq, double U, double p, double xL, double V, double T_guess);
-	double h_sp(char *Gas, char *Liq, double s, double p, double xL, double T_guess);
+	double h_sp_FP(char *Gas, char *Liq, double s, double p, double xL, double T_guess);
 	double T_sp(char *Gas, char *Liq, double s, double p, double xL, double T_guess);
 	double p_Trho(char *Gas, char *Liq, double rho, double T, double xL, double p_guess);
 	/*double c_g(char *Gas, double T, double p)*/;

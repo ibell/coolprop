@@ -1,27 +1,14 @@
 #ifndef _WATER_H
 #define WATER_H
 
-	double p_Water(double T, double rho);
-	double rho_Water(double T, double p_rho, int Types);
-	double h_Water(double T, double p_rho, int Types);
-	double u_Water(double T, double p_rho, int Types);
-	double s_Water(double T, double p_rho, int Types);
-	double cv_Water(double T, double p_rho, int Types);
-	double cp_Water(double T, double p_rho, int Types);
-	double c_Water(double T, double p_rho, int Types);
-	double visc_Water(double T, double p_rho, int Types);
-	double k_Water(double T, double p_rho, int Types);
-	double w_Water(double T, double p_rho, int Types);
+	int Load_Water(struct fluidParamsVals *Fluid);
 
-	double MM_Water(void);
 	double rhosatV_Water(double T);
 	double rhosatL_Water(double T);
-	double pcrit_Water(void);
-	double Tcrit_Water(void);
-	double rhocrit_Water(void);
-	double Ttriple_Water(void);
 	double psat_Water(double T);
-	double Tsat_Water(double P);
+
+	double Viscosity_Trho_Water(double T,double rho);
+	double Conductivity_Trho_Water(double T,double rho);
 
 	//Residual Helmholtz formulation and derivatives
 	double phir_Water(double tau, double delta);
@@ -44,13 +31,5 @@
 	double dCdT_Water(double tau);
 
     double IsothermCompress_Water(double T, double p);
-	// Derivatives
-	double dhdrho_Water(double T, double p_rho, int Types);
-	double dhdT_Water(double T, double p_rho, int Types);
-	double dpdrho_Water(double T, double p_rho, int Types);
-	double dpdT_Water(double T, double p_rho, int Types);
-
-	int errCode_Water(void);
-
 
 #endif

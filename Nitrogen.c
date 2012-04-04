@@ -18,16 +18,6 @@ International Journal of Thermophysics, Vol. 25, No. 1, January 2004
 
 Note: Critical enhancement included
 
-In order to call the exposed functions, rho_, h_, s_, cp_,...... there are three 
-different ways the inputs can be passed, and this is expressed by the Types integer flag.  
-These macros are defined in the PropMacros.h header file:
-1) First parameter temperature, second parameter pressure ex: h_Nitrogen(260,1785,1)
-	In this case, the lookup tables are built if needed and then interpolated
-2) First parameter temperature, second parameter density ex: h_R410A(260,43.29,2)=-67.53
-	Density and temp plugged directly into EOS
-3) First parameter temperature, second parameter pressure ex: h_R410A(260,1785,3)=-67.53
-	Density solved for, then plugged into EOS (can be quite slow)
-
 */
 
 #if defined(_MSC_VER)
@@ -42,33 +32,10 @@ These macros are defined in the PropMacros.h header file:
 #include "math.h"
 #include "stdio.h"
 #include <string.h>
-#include "PropErrorCodes.h"
-#include "PropMacros.h"
-#include "Nitrogen.h"
-#include "time.h"
+#include "CoolProp.h"
 
-static int errCode;
-static char errStr[ERRSTRLENGTH];
-
-#define nP 200
-#define nT 200
-const static double Tmin=220,Tmax=800, Pmin=500.03,Pmax=16000;
-
-static double hmat[nT][nP];
-static double rhomat[nT][nP];
-static double cpmat[nT][nP];
-static double smat[nT][nP];
-static double cvmat[nT][nP];
-static double cmat[nT][nP];
-static double umat[nT][nP];
-static double viscmat[nT][nP];
-static double Tvec[nT];
-static double pvec[nP];
-
-static int TablesBuilt;
-
-static const double Tc=126.192, R_Nitrogen=0.296803, rhoc=313.3, Pc=3395.8, M_Nitrogen=28.01348,Ttriple=63.151;
-             //    K               kJ/kg-K             kg/m^3          kPa
+static const double Tc=126.192, rhoc=313.3, Pc=3395.8, M_Nitrogen=28.01348, _Ttriple=63.151;
+             //          K           kg/m^3       kPa              g/mol              K
 static const double n[]={0,    
 0.924803575275,//[1]
 -0.492448489428,//[2]
@@ -280,279 +247,43 @@ static const double a0[]={0.0,
 	26.65788
 };
 
-static double powI(double x, int y);
-static double QuadInterpolate(double x0, double x1, double x2, double f0, double f1, double f2, double x);
-
-static double get_Delta(double T, double P);
-static double Pressure_Trho(double T, double rho);
-static double IntEnergy_Trho(double T, double rho);
-static double Enthalpy_Trho(double T, double rho);
-static double Entropy_Trho(double T, double rho);
-static double SpecHeatV_Trho(double T, double rho);
-static double SpecHeatP_Trho(double T, double rho);
-static double SpeedSound_Trho(double T, double rho);
-
-static double dhdT(double tau, double delta);
-static double dhdrho(double tau, double delta);
-static double dpdT(double tau, double delta);
-static double dpdrho(double tau, double delta);
-
-static double LookupValue(char *Prop,double T, double p);
-static int isNAN(double x);
-static int isINFINITY(double x);
-
-static void WriteLookup(void)
+int Load_Nitrogen(struct fluidParamsVals *Fluid)
 {
-	int i,j;
-	FILE *fp_h,*fp_s,*fp_rho,*fp_u,*fp_cp,*fp_cv,*fp_visc;
-	fp_h=fopen("h.csv","w");
-	fp_s=fopen("s.csv","w");
-	fp_u=fopen("u.csv","w");
-	fp_cp=fopen("cp.csv","w");
-	fp_cv=fopen("cv.csv","w");
-	fp_rho=fopen("rho.csv","w");
-	fp_visc=fopen("visc.csv","w");
+    // Function pointers
+    Fluid->funcs.phir=phir_Nitrogen;
+    Fluid->funcs.dphir_dDelta=dphir_dDelta_Nitrogen;
+    Fluid->funcs.dphir2_dDelta2=dphir2_dDelta2_Nitrogen;
+    Fluid->funcs.dphir2_dDelta_dTau=dphir2_dDelta_dTau_Nitrogen;
+    Fluid->funcs.dphir_dTau=dphir_dTau_Nitrogen;
+    Fluid->funcs.dphir2_dTau2=dphir2_dTau2_Nitrogen;
+    Fluid->funcs.phi0=phi0_Nitrogen;
+    Fluid->funcs.dphi0_dDelta=dphi0_dDelta_Nitrogen;
+    Fluid->funcs.dphi02_dDelta2=dphi02_dDelta2_Nitrogen;
+    Fluid->funcs.dphi0_dTau=dphi0_dTau_Nitrogen;
+    Fluid->funcs.dphi02_dTau2=dphi02_dTau2_Nitrogen;
+    Fluid->funcs.rhosatL=rhosatL_Nitrogen;
+    Fluid->funcs.rhosatV=rhosatV_Nitrogen;
+    Fluid->funcs.psat=psat_Nitrogen;
 
-	// Write the pressure header row
-	for (j=0;j<nP;j++)
-	{
-		fprintf(fp_h,",%0.12f",pvec[j]);
-		fprintf(fp_s,",%0.12f",pvec[j]);
-		fprintf(fp_rho,",%0.12f",pvec[j]);
-		fprintf(fp_u,",%0.12f",pvec[j]);
-		fprintf(fp_cp,",%0.12f",pvec[j]);
-		fprintf(fp_cv,",%0.12f",pvec[j]);
-		fprintf(fp_visc,",%0.12f",pvec[j]);
-	}
-	fprintf(fp_h,"\n");
-	fprintf(fp_s,"\n");
-	fprintf(fp_rho,"\n");
-	fprintf(fp_u,"\n");
-	fprintf(fp_cp,"\n");
-	fprintf(fp_cv,"\n");
-	fprintf(fp_visc,"\n");
-	
-	for (i=1;i<nT;i++)
-	{
-		fprintf(fp_h,"%0.12f",Tvec[i]);
-		fprintf(fp_s,"%0.12f",Tvec[i]);
-		fprintf(fp_rho,"%0.12f",Tvec[i]);
-		fprintf(fp_u,"%0.12f",Tvec[i]);
-		fprintf(fp_cp,"%0.12f",Tvec[i]);
-		fprintf(fp_cv,"%0.12f",Tvec[i]);
-		fprintf(fp_visc,"%0.12f",Tvec[i]);
-		for (j=0;j<nP;j++)
-		{
-			fprintf(fp_h,",%0.12f",hmat[i][j]);
-			fprintf(fp_s,",%0.12f",smat[i][j]);
-			fprintf(fp_rho,",%0.12f",rhomat[i][j]);
-			fprintf(fp_u,",%0.12f",umat[i][j]);
-			fprintf(fp_cp,",%0.12f",cpmat[i][j]);
-			fprintf(fp_cv,",%0.12f",cvmat[i][j]);
-			fprintf(fp_visc,",%0.12f",viscmat[i][j]);
-		}
-		fprintf(fp_h,"\n");
-		fprintf(fp_s,"\n");
-		fprintf(fp_rho,"\n");
-		fprintf(fp_u,"\n");
-		fprintf(fp_cp,"\n");
-		fprintf(fp_cv,"\n");
-		fprintf(fp_visc,"\n");
-	}
-	fclose(fp_h);
-	fclose(fp_s);
-	fclose(fp_rho);
-	fclose(fp_u);
-	fclose(fp_cp);
-	fclose(fp_cv);
-	fclose(fp_visc);
-	
-}
-static void BuildLookup(void)
-{
-	int i,j;
+    Fluid->funcs.visc=Viscosity_Trho_Nitrogen;
+    Fluid->funcs.cond=Conductivity_Trho_Nitrogen;
 
-	if (!TablesBuilt)
-	{
-		printf("Building Lookup Tables... Please wait...\n");
+    //Lookup table parameters
+    Fluid->LUT.Tmin=220.0;
+    Fluid->LUT.Tmax=800.0;
+    Fluid->LUT.pmin=50;
+    Fluid->LUT.pmax=16000;
 
-		for (i=0;i<nT;i++)
-		{
-			Tvec[i]=Tmin+i*(Tmax-Tmin)/(nT-1);
-		}
-		for (j=0;j<nP;j++)
-		{
-			pvec[j]=Pmin+j*(Pmax-Pmin)/(nP-1);
-		}
-		for (i=0;i<nT;i++)
-		{
-			for (j=0;j<nP;j++)
-			{
-				if (Tvec[i]>Tc || pvec[j]<psat_Nitrogen(Tvec[i]))
-				{					
-					rhomat[i][j]=get_Delta(Tvec[i],pvec[j])*rhoc;
-					hmat[i][j]=h_Nitrogen(Tvec[i],rhomat[i][j],TYPE_Trho);
-					smat[i][j]=s_Nitrogen(Tvec[i],rhomat[i][j],TYPE_Trho);
-					umat[i][j]=u_Nitrogen(Tvec[i],rhomat[i][j],TYPE_Trho);
-					cpmat[i][j]=cp_Nitrogen(Tvec[i],rhomat[i][j],TYPE_Trho);
-					cvmat[i][j]=cv_Nitrogen(Tvec[i],rhomat[i][j],TYPE_Trho);
-					cmat[i][j]=c_Nitrogen(Tvec[i],rhomat[i][j],TYPE_Trho);
-					viscmat[i][j]=_HUGE;
-				}
-				else
-				{
-					hmat[i][j]=_HUGE;
-					smat[i][j]=_HUGE;
-					umat[i][j]=_HUGE;
-					rhomat[i][j]=_HUGE;
-					umat[i][j]=_HUGE;
-					cpmat[i][j]=_HUGE;
-					cvmat[i][j]=_HUGE;
-					cmat[i][j]=_HUGE;
-					viscmat[i][j]=_HUGE;
-				}
-			}
-		}
-		TablesBuilt=1;
-		//WriteLookup();
-	}
+    //Fluid parameters
+    Fluid->Type=FLUIDTYPE_REFRIGERANT_PURE;
+    Fluid->Tc=Tc;
+    Fluid->rhoc=rhoc;
+    Fluid->MM=M_Nitrogen;
+    Fluid->pc=Pc;
+    Fluid->Tt=_Ttriple;
+    return 1;
 }
 
-
-/**************************************************/
-/*          Public Property Functions            */
-/**************************************************/
-
-double rho_Nitrogen(double T, double p, int Types)
-{
-	errCode=0; // Reset error code
-	switch(Types)
-	{
-		case TYPE_TPNoLookup:
-			return get_Delta(T,p)*rhoc;
-		case TYPE_TP:
-			BuildLookup();
-			return LookupValue("rho",T,p);
-		default:
-			errCode=BAD_PROPCODE;
-			return _HUGE;
-	}
-}
-double p_Nitrogen(double T, double rho)
-{
-	return Pressure_Trho(T,rho);
-}
-double h_Nitrogen(double T, double p_rho, int Types)
-{
-	double rho;
-	errCode=0; // Reset error code
-	switch(Types)
-	{
-		case TYPE_Trho:
-			return Enthalpy_Trho(T,p_rho);
-		case TYPE_TPNoLookup:
-			rho=get_Delta(T,p_rho)*rhoc;
-			return Enthalpy_Trho(T,rho);
-		case TYPE_TP:
-			BuildLookup();
-			return LookupValue("h",T,p_rho);
-		default:
-			errCode=BAD_PROPCODE;
-			return _HUGE;
-	}
-}
-double s_Nitrogen(double T, double p_rho, int Types)
-{
-	double rho;
-	errCode=0; // Reset error code
-	switch(Types)
-	{
-		case TYPE_Trho:
-			return Entropy_Trho(T,p_rho);
-		case TYPE_TPNoLookup:
-			rho=get_Delta(T,p_rho)*rhoc;
-			return Entropy_Trho(T,rho);
-		case TYPE_TP:
-			BuildLookup();
-			return LookupValue("s",T,p_rho);
-		default:
-			errCode=BAD_PROPCODE;
-			return _HUGE;
-	}
-}
-double u_Nitrogen(double T, double p_rho, int Types)
-{
-	double rho;
-	errCode=0; // Reset error code
-	switch(Types)
-	{
-		case TYPE_Trho:
-			return IntEnergy_Trho(T,p_rho);
-		case TYPE_TPNoLookup:
-			rho=get_Delta(T,p_rho)*rhoc;
-			return IntEnergy_Trho(T,rho);
-		case TYPE_TP:
-			BuildLookup();
-			return LookupValue("u",T,p_rho);
-		default:
-			errCode=BAD_PROPCODE;
-			return _HUGE;
-	}
-}
-double cp_Nitrogen(double T, double p_rho, int Types)
-{
-	double rho;
-	errCode=0; // Reset error code
-	switch(Types)
-	{
-		case TYPE_Trho:
-			return SpecHeatP_Trho(T,p_rho);
-		case TYPE_TPNoLookup:
-			rho=get_Delta(T,p_rho)*rhoc;
-			return SpecHeatP_Trho(T,rho);
-		case TYPE_TP:
-			BuildLookup();
-			return LookupValue("cp",T,p_rho);
-		default:
-			errCode=BAD_PROPCODE;
-			return _HUGE;
-	}
-}
-double cv_Nitrogen(double T, double p_rho, int Types)
-{
-	double rho;
-	errCode=0; // Reset error code
-	switch(Types)
-	{
-		case TYPE_Trho:
-			return SpecHeatV_Trho(T,p_rho);
-		case TYPE_TPNoLookup:
-			rho=get_Delta(T,p_rho)*rhoc;
-			return SpecHeatV_Trho(T,rho);
-		case TYPE_TP:
-			BuildLookup();
-			return LookupValue("cv",T,p_rho);
-		default:
-			errCode=BAD_PROPCODE;
-			return _HUGE;
-	}
-}
-double w_Nitrogen(double T, double p_rho, int Types)
-{
-	double rho;
-	errCode=0; // Reset error code
-	switch(Types)
-	{
-		case TYPE_Trho:
-			return SpeedSound_Trho(T,p_rho);
-		case TYPE_TPNoLookup:
-			rho=get_Delta(T,p_rho)*rhoc;
-			return SpeedSound_Trho(T,rho);
-		default:
-			errCode=BAD_PROPCODE;
-			return _HUGE;
-	}
-}
 double rhosatL_Nitrogen(double T)
 {
     const double ti[]={0,0.3294,2.0/3.0,8.0/3.0,35.0/6.0};
@@ -579,55 +310,6 @@ double rhosatV_Nitrogen(double T)
     return rhoc*exp(Tc/T*summer);
 }
 
-double c_Nitrogen(double T, double p_rho, int Types)
-{
-	double rho;
-	if (Types==TYPE_Trho)
-		return SpeedSound_Trho(T,p_rho);
-	else
-	{
-		if (Types==TYPE_TP)
-		{
-			BuildLookup();
-			return LookupValue("c",T,p_rho);
-		}
-		else //Types==TYPE_TPNoTable
-		{
-			rho=get_Delta(T,p_rho)*rhoc;
-			return SpeedSound_Trho(T,rho);
-		}
-	}
-}
-
-double MM_Nitrogen(void)
-{
-	return M_Nitrogen;
-}
-
-double pcrit_Nitrogen(void)
-{
-	return Pc;
-}
-
-double Tcrit_Nitrogen(void)
-{
-	return Tc;
-}
-
-double Ttriple_Nitrogen(void)
-{
-	return Ttriple;
-}
-double rhocrit_Nitrogen(void)
-{
-	return rhoc;
-}
-
-int errCode_Nitrogen(void)
-{
-	return errCode;
-}
-
 double psat_Nitrogen(double T)
 {
     const double ti[]={0,1.0,1.5,2.5,5.0};
@@ -641,37 +323,11 @@ double psat_Nitrogen(double T)
     return Pc*exp(Tc/T*summer);
 }
 
-double Tsat_Nitrogen(double P)
-{
-    double change,eps=.00005;
-    int counter=1;
-    double r1,r2,r3,T1,T2,T3;
- 
-    T1=275;
-    T2=275+.01;
-    r1=psat_Nitrogen(T1)-P;
-    r2=psat_Nitrogen(T2)-P;
-    
-    // End at change less than 0.5%
-    while(counter==1 || (fabs(change)/fabs(T2)>eps && counter<40))
-    {
-        T3=T2-0.5*r2/(r2-r1)*(T2-T1);
-        r3=psat_Nitrogen(T3)-P;
-        change=0.5*r2/(r2-r1)*(T2-T1);
-        T1=T2;
-        T2=T3;
-        r1=r2;
-        r2=r3;
-        counter=counter+1;
-    }
-    return T3;
-}
-
-double visc_Nitrogen(double T, double p_rho, int Types)
+double Viscosity_Trho_Nitrogen(double T, double rho)
 {
 	double e_k=98.94, //[K]
 		   sigma=0.3656; //[nm]
-	double rho,eta0,etar,OMEGA,delta,tau,Tstar;
+	double eta0,etar,OMEGA,delta,tau,Tstar;
 	double b[]={0.431,-0.4623,0.08406,0.005341,-0.00331};
 
 	double N[]={0,10.72,0.03989,0.001208,-7.402,4.620};
@@ -680,26 +336,14 @@ double visc_Nitrogen(double T, double p_rho, int Types)
 	double l[]={0,0,1,1,2,3};
 	double g[]={0,0,1,1,1,1};
 
-
-	if (Types==TYPE_Trho)
-		rho=p_rho;
-	else if (Types==TYPE_TPNoLookup)
-	{
-		rho=get_Delta(T,p_rho)*rhoc;
-	}
-	else if (Types==TYPE_TP)
-	{
-		BuildLookup();
-		return LookupValue("d",T,p_rho);
-	}
 	delta=rho/rhoc;
 	tau=Tc/T;
 	Tstar=T/(e_k);
-	OMEGA=exp(b[0]*powI(log(Tstar),0)
-			 +b[1]*powI(log(Tstar),1)
-		     +b[2]*powI(log(Tstar),2)
-			 +b[3]*powI(log(Tstar),3)
-		     +b[4]*powI(log(Tstar),4));
+	OMEGA=exp(b[0]*powInt(log(Tstar),0)
+			 +b[1]*powInt(log(Tstar),1)
+		     +b[2]*powInt(log(Tstar),2)
+			 +b[3]*powInt(log(Tstar),3)
+		     +b[4]*powInt(log(Tstar),4));
 
 	eta0=0.0266958*sqrt(M_Nitrogen*T)/(sigma*sigma*OMEGA);
 	etar=N[1]*pow(tau,t[1])*pow(delta,d[1])*exp(-g[1]*pow(delta,l[1]))
@@ -715,12 +359,13 @@ double X_tilde(double T,double tau,double delta)
 {
 	// X_tilde is dimensionless
 	// Equation 11 slightly rewritten
-	double drho_dp;
+	double drho_dp,R_Nitrogen;
+	R_Nitrogen=8.31447215/M_Nitrogen;
 	drho_dp=1.0/(R_Nitrogen*T*(1+2*delta*dphir_dDelta_Nitrogen(tau,delta)+delta*delta*dphir2_dDelta2_Nitrogen(tau,delta)));
 	return Pc*delta/rhoc*drho_dp;
 }
 
-double k_Nitrogen(double T, double p_rho, int Types)
+double Conductivity_Trho_Nitrogen(double T, double rho)
 {
 	double e_k=98.94, //[K]
 		   sigma=0.3656, //[nm]
@@ -728,7 +373,7 @@ double k_Nitrogen(double T, double p_rho, int Types)
 		   zeta0=0.17, //[nm]
 		   LAMBDA=0.055,
 		   q_D=0.40; //[nm]
-	double rho,eta0,OMEGA,delta,tau,Tstar,lambda0,lambdar,num,
+	double eta0,OMEGA,delta,tau,Tstar,lambda0,lambdar,num,
 		cp,cv,OMEGA_tilde,OMEGA_tilde0,zeta,nu,gamma,R0,lambdac,k,
 		pi=3.141592654,mu;
 	double b[]={0.431,-0.4623,0.08406,0.005341,-0.00331};
@@ -739,26 +384,15 @@ double k_Nitrogen(double T, double p_rho, int Types)
 	double l[]={0,0,0,0,0,0,1,2,2,2};
 	double g[]={0,0,0,0,0,0,1,1,1,1};
 	
-	if (Types==TYPE_Trho)
-		rho=p_rho;
-	else if (Types==TYPE_TPNoLookup)
-	{
-		rho=get_Delta(T,p_rho)*rhoc;
-	}
-	else if (Types==TYPE_TP)
-	{
-		BuildLookup();
-		return LookupValue("D",T,p_rho);
-	}
 	delta=rho/rhoc;
 	tau=Tc/T;
 	Tstar=T/(e_k);
 
-	OMEGA=exp(b[0]*powI(log(Tstar),0)
-			 +b[1]*powI(log(Tstar),1)
-		     +b[2]*powI(log(Tstar),2)
-			 +b[3]*powI(log(Tstar),3)
-		     +b[4]*powI(log(Tstar),4));
+	OMEGA=exp(b[0]*powInt(log(Tstar),0)
+			 +b[1]*powInt(log(Tstar),1)
+		     +b[2]*powInt(log(Tstar),2)
+			 +b[3]*powInt(log(Tstar),3)
+		     +b[4]*powInt(log(Tstar),4));
 
 	eta0=0.0266958*sqrt(M_Nitrogen*T)/(sigma*sigma*OMEGA);
 	lambda0=N[1]*eta0+N[2]*pow(tau,t[2])+N[3]*pow(tau,t[3]);
@@ -781,9 +415,9 @@ double k_Nitrogen(double T, double p_rho, int Types)
 	if (num<0)
 		return (lambda0+lambdar)/1e6;
 
-	cp=cp_Nitrogen(T,rho,TYPE_Trho);
-	cv=cv_Nitrogen(T,rho,TYPE_Trho);
-	mu=visc_Nitrogen(T,rho,TYPE_Trho)*1e6; //[uPa-s]
+	cp=Props('C','T',T,'D',rho,"Nitrogen");
+	cv=Props('O','T',T,'D',rho,"Nitrogen");
+	mu=Props('V','T',T,'D',rho,"Nitrogen")*1e6; //[uPa-s]
 
 	zeta=zeta0*pow(num/LAMBDA,nu/gamma); //[nm]
 	OMEGA_tilde=2.0/pi*((cp-cv)/cp*atan(zeta/q_D)+cv/cp*(zeta/q_D));
@@ -793,190 +427,6 @@ double k_Nitrogen(double T, double p_rho, int Types)
 	return (lambda0+lambdar+lambdac)/1e6;
 }
 
-double dhdT_Nitrogen(double T, double p_rho, int Types)
-{
-	double rho;
-	errCode=0; // Reset error code
-	switch(Types)
-	{
-		case TYPE_Trho:
-			rho=p_rho;
-			return dhdT(Tc/T,rho/rhoc);
-		case TYPE_TPNoLookup:
-			rho=get_Delta(T,p_rho)*rhoc;
-			return dhdT(Tc/T,rho/rhoc);
-		case 99:
-			rho=get_Delta(T,p_rho)*rhoc;
-			return (Enthalpy_Trho(T+0.001,rho)-Enthalpy_Trho(T,rho))/0.001;
-		default:
-			errCode=BAD_PROPCODE;
-			return _HUGE;
-	}
-}
-
-double dhdrho_Nitrogen(double T, double p_rho, int Types)
-{
-	double rho;
-	errCode=0; // Reset error code
-	switch(Types)
-	{
-		case TYPE_Trho:
-			rho=p_rho;
-			return dhdrho(Tc/T,rho/rhoc);
-		case TYPE_TPNoLookup:
-			rho=get_Delta(T,p_rho)*rhoc;
-			return dhdrho(Tc/T,rho/rhoc);
-		case 99:
-			rho=get_Delta(T,p_rho)*rhoc;
-			return (Enthalpy_Trho(T,rho+0.001)-Enthalpy_Trho(T,rho))/0.001;
-		default:
-			errCode=BAD_PROPCODE;
-			return _HUGE;
-	}
-}
-
-double dpdT_Nitrogen(double T, double p_rho, int Types)
-{
-	double rho;
-	errCode=0; // Reset error code
-	switch(Types)
-	{
-		case TYPE_Trho:
-			rho=p_rho;
-			return dpdT(Tc/T,rho/rhoc);
-		case TYPE_TPNoLookup:
-			rho=get_Delta(T,p_rho)*rhoc;
-			return dpdT(Tc/T,rho/rhoc);
-		case 99:
-			rho=get_Delta(T,p_rho)*rhoc;
-			return (Pressure_Trho(T+0.01,rho)-Pressure_Trho(T,rho))/0.01;
-		default:
-			errCode=BAD_PROPCODE;
-			return _HUGE;
-	}
-}
-
-double dpdrho_Nitrogen(double T, double p_rho, int Types)
-{
-	double rho;
-	errCode=0; // Reset error code
-	switch(Types)
-	{
-		case TYPE_Trho:
-			rho=p_rho;
-			return dpdrho(Tc/T,rho/rhoc);
-		case TYPE_TPNoLookup:
-			rho=get_Delta(T,p_rho)*rhoc;
-			return dpdrho(Tc/T,rho/rhoc);
-		case 99:
-			rho=get_Delta(T,p_rho)*rhoc;
-			return (Pressure_Trho(T,rho+0.0001)-Pressure_Trho(T,rho))/0.0001;
-		default:
-			errCode=BAD_PROPCODE;
-			return _HUGE;
-	}
-}
-
-
-/**************************************************/
-/*          Private Property Functions            */
-/**************************************************/
-
-static double Pressure_Trho(double T, double rho)
-{
-	double delta,tau;
-	delta=rho/rhoc;
-	tau=Tc/T;
-	return R_Nitrogen*T*rho*(1.0+delta*dphir_dDelta_Nitrogen(tau,delta));
-}
-static double IntEnergy_Trho(double T, double rho)
-{
-	double delta,tau;
-	delta=rho/rhoc;
-	tau=Tc/T;
-	
-	return R_Nitrogen*T*tau*(dphi0_dTau_Nitrogen(tau,delta)+dphir_dTau_Nitrogen(tau,delta));
-}
-static double Enthalpy_Trho(double T, double rho)
-{
-	double delta,tau;
-	delta=rho/rhoc;
-	tau=Tc/T;
-	
-	return R_Nitrogen*T*(1+tau*(dphi0_dTau_Nitrogen(tau,delta)+dphir_dTau_Nitrogen(tau,delta))+delta*dphir_dDelta_Nitrogen(tau,delta));
-}
-static double Entropy_Trho(double T, double rho)
-{
-	double delta,tau;
-	delta=rho/rhoc;
-	tau=Tc/T;
-	
-	return R_Nitrogen*(tau*(dphi0_dTau_Nitrogen(tau,delta)+dphir_dTau_Nitrogen(tau,delta))-phi0_Nitrogen(tau,delta)-phir_Nitrogen(tau,delta));
-}
-static double SpecHeatV_Trho(double T, double rho)
-{
-	double delta,tau;
-	delta=rho/rhoc;
-	tau=Tc/T;
-	
-	return -R_Nitrogen*powI(tau,2)*(dphi02_dTau2_Nitrogen(tau,delta)+dphir2_dTau2_Nitrogen(tau,delta));
-}
-static double SpecHeatP_Trho(double T, double rho)
-{
-	double delta,tau,c1,c2;
-	delta=rho/rhoc;
-	tau=Tc/T;
-
-	c1=powI(1.0+delta*dphir_dDelta_Nitrogen(tau,delta)-delta*tau*dphir2_dDelta_dTau_Nitrogen(tau,delta),2);
-    c2=(1.0+2.0*delta*dphir_dDelta_Nitrogen(tau,delta)+powI(delta,2)*dphir2_dDelta2_Nitrogen(tau,delta));
-    return R_Nitrogen*(-powI(tau,2)*(dphi02_dTau2_Nitrogen(tau,delta)+dphir2_dTau2_Nitrogen(tau,delta))+c1/c2);
-}
-
-static double SpeedSound_Trho(double T, double rho)
-{
-	double delta,tau,c1,c2;
-	delta=rho/rhoc;
-	tau=Tc/T;
-
-	c1=-SpecHeatV_Trho(T,rho)/R_Nitrogen;
-	c2=(1.0+2.0*delta*dphir_dDelta_Nitrogen(tau,delta)+powI(delta,2)*dphir2_dDelta2_Nitrogen(tau,delta));
-    return sqrt(-c2*T*SpecHeatP_Trho(T,rho)*1000/c1);
-}
-
-
-
-/**************************************************/
-/*           Property Derivatives                 */
-/**************************************************/
-// See Lemmon, 2000 for more information
-static double dhdrho(double tau, double delta)
-{
-	double T,R;
-	T=Tc/tau;   R=R_Nitrogen;
-	//Note: dphi02_dDelta_dTau(tau,delta) is equal to zero
-	return R*T/rhoc*(tau*(dphir2_dDelta_dTau_Nitrogen(tau,delta))+dphir_dDelta_Nitrogen(tau,delta)+delta*dphir2_dDelta2_Nitrogen(tau,delta));
-}
-static double dhdT(double tau, double delta)
-{
-	double dhdT_rho,T,R,dhdtau;
-	T=Tc/tau;   R=R_Nitrogen;
-	dhdT_rho=R*tau*(dphi0_dTau_Nitrogen(tau,delta)+dphir_dTau_Nitrogen(tau,delta))+R*delta*dphir_dDelta_Nitrogen(tau,delta)+R;
-	dhdtau=R*T*(dphi0_dTau_Nitrogen(tau,delta)+ dphir_dTau_Nitrogen(tau,delta))+R*T*tau*(dphi02_dTau2_Nitrogen(tau,delta)+dphir2_dTau2_Nitrogen(tau,delta))+R*T*delta*dphir2_dDelta_dTau_Nitrogen(tau,delta);
-	return dhdT_rho+dhdtau*(-Tc/T/T);
-}
-static double dpdT(double tau, double delta)
-{
-	double T,R,rho;
-	T=Tc/tau;   R=R_Nitrogen;  rho=delta*rhoc;
-	return rho*R*(1+delta*dphir_dDelta_Nitrogen(tau,delta)-delta*tau*dphir2_dDelta_dTau_Nitrogen(tau,delta));
-}
-static double dpdrho(double tau, double delta)
-{
-	double T,R,rho;
-	T=Tc/tau;   R=R_Nitrogen;  rho=delta*rhoc;
-	return R*T*(1+2*delta*dphir_dDelta_Nitrogen(tau,delta)+delta*delta*dphir2_dDelta2_Nitrogen(tau,delta));
-
-}
 /**************************************************/
 /*          Private Property Functions            */
 /**************************************************/
@@ -989,18 +439,18 @@ double phir_Nitrogen(double tau, double delta)
     
     for (i=1;i<=6;i++)
     {
-        phir=phir+n[i]*powI(delta,d[i])*pow(tau,t[i]);
+        phir=phir+n[i]*powInt(delta,d[i])*pow(tau,t[i]);
     }
     
     for (i=7;i<=32;i++)
     {
-        phir=phir+n[i]*powI(delta,d[i])*pow(tau,t[i])*exp(-powI(delta,c[i]));
+        phir=phir+n[i]*powInt(delta,d[i])*pow(tau,t[i])*exp(-powInt(delta,c[i]));
     }
     
     for (i=33;i<=36;i++)
     {
-        psi=exp(-alpha[i]*powI(delta-epsilon[i],2)-beta[i]*powI(tau-GAMMA[i],2));
-        phir=phir+n[i]*powI(delta,d[i])*pow(tau,t[i])*psi;
+        psi=exp(-alpha[i]*powInt(delta-epsilon[i],2)-beta[i]*powInt(tau-GAMMA[i],2));
+        phir=phir+n[i]*powInt(delta,d[i])*pow(tau,t[i])*psi;
     }
     return phir;
 }
@@ -1013,19 +463,19 @@ double dphir_dDelta_Nitrogen(double tau, double delta)
     for (i=1;i<=6;i++)
     {
         di=(double)d[i];
-        dphir_dDelta=dphir_dDelta+n[i]*di*powI(delta,d[i]-1)*pow(tau,t[i]);
+        dphir_dDelta=dphir_dDelta+n[i]*di*powInt(delta,d[i]-1)*pow(tau,t[i]);
     }
     for (i=7;i<=32;i++)
     {
         di=(double)d[i];
         ci=(double)c[i];
-        dphir_dDelta=dphir_dDelta+n[i]*exp(-powI(delta,c[i]))*(powI(delta,d[i]-1)*pow(tau,t[i])*(di-ci*powI(delta,c[i])));
+        dphir_dDelta=dphir_dDelta+n[i]*exp(-powInt(delta,c[i]))*(powInt(delta,d[i]-1)*pow(tau,t[i])*(di-ci*powInt(delta,c[i])));
     }
     for (i=33;i<=36;i++)
     {
         di=(double)d[i];        
-        psi=exp(-alpha[i]*powI(delta-epsilon[i],2)-beta[i]*powI(tau-GAMMA[i],2));
-        dphir_dDelta=dphir_dDelta+n[i]*powI(delta,d[i])*pow(tau,t[i])*psi*(di/delta-2.0*alpha[i]*(delta-epsilon[i]));
+        psi=exp(-alpha[i]*powInt(delta-epsilon[i],2)-beta[i]*powInt(tau-GAMMA[i],2));
+        dphir_dDelta=dphir_dDelta+n[i]*powInt(delta,d[i])*pow(tau,t[i])*psi*(di/delta-2.0*alpha[i]*(delta-epsilon[i]));
     }
     return dphir_dDelta;
 }
@@ -1039,19 +489,19 @@ double dphir2_dDelta2_Nitrogen(double tau, double delta)
     for (i=1;i<=6;i++)
     {
         di=(double)d[i];
-        dphir2_dDelta2=dphir2_dDelta2+n[i]*di*(di-1.0)*powI(delta,d[i]-2)*pow(tau,t[i]);
+        dphir2_dDelta2=dphir2_dDelta2+n[i]*di*(di-1.0)*powInt(delta,d[i]-2)*pow(tau,t[i]);
     }
     for (i=7;i<=32;i++)
     {
         di=(double)d[i];
         ci=(double)c[i];
-        dphir2_dDelta2=dphir2_dDelta2+n[i]*exp(-powI(delta,c[i]))*(powI(delta,d[i]-2)*pow(tau,t[i])*( (di-ci*powI(delta,c[i]))*(di-1.0-ci*powI(delta,c[i])) - ci*ci*powI(delta,c[i])));
+        dphir2_dDelta2=dphir2_dDelta2+n[i]*exp(-powInt(delta,c[i]))*(powInt(delta,d[i]-2)*pow(tau,t[i])*( (di-ci*powInt(delta,c[i]))*(di-1.0-ci*powInt(delta,c[i])) - ci*ci*powInt(delta,c[i])));
     }
     for (i=33;i<=36;i++)
     {
         di=(double)d[i];
-        psi=exp(-alpha[i]*powI(delta-epsilon[i],2)-beta[i]*powI(tau-GAMMA[i],2));
-        dphir2_dDelta2=dphir2_dDelta2+n[i]*pow(tau,t[i])*psi*(-2.0*alpha[i]*powI(delta,d[i])+4.0*powI(alpha[i],2)*powI(delta,d[i])*powI(delta-epsilon[i],2)-4.0*di*alpha[i]*powI(delta,d[i]-1)*(delta-epsilon[i])+di*(di-1.0)*powI(delta,d[i]-2));
+        psi=exp(-alpha[i]*powInt(delta-epsilon[i],2)-beta[i]*powInt(tau-GAMMA[i],2));
+        dphir2_dDelta2=dphir2_dDelta2+n[i]*pow(tau,t[i])*psi*(-2.0*alpha[i]*powInt(delta,d[i])+4.0*powInt(alpha[i],2)*powInt(delta,d[i])*powInt(delta-epsilon[i],2)-4.0*di*alpha[i]*powInt(delta,d[i]-1)*(delta-epsilon[i])+di*(di-1.0)*powInt(delta,d[i]-2));
     }
     return dphir2_dDelta2;
 }
@@ -1066,19 +516,19 @@ double dphir2_dDelta_dTau_Nitrogen(double tau, double delta)
     for (i=1;i<=6;i++)
     {
         di=(double)d[i];
-        dphir2_dDelta_dTau=dphir2_dDelta_dTau + n[i]*di*t[i]*powI(delta,d[i]-1)*pow(tau,t[i]-1.0);
+        dphir2_dDelta_dTau=dphir2_dDelta_dTau + n[i]*di*t[i]*powInt(delta,d[i]-1)*pow(tau,t[i]-1.0);
     }
     for (i=7;i<=32;i++)
     {
         di=(double)d[i];
         ci=(double)c[i];
-        dphir2_dDelta_dTau=dphir2_dDelta_dTau + n[i]*exp(-powI(delta,c[i]))*powI(delta,d[i]-1)*t[i]*pow(tau,t[i]-1.0)*(di-ci*powI(delta,c[i]));
+        dphir2_dDelta_dTau=dphir2_dDelta_dTau + n[i]*exp(-powInt(delta,c[i]))*powInt(delta,d[i]-1)*t[i]*pow(tau,t[i]-1.0)*(di-ci*powInt(delta,c[i]));
     }
     for (i=33;i<=36;i++)
     {
         di=(double)d[i];
-        psi=exp(-alpha[i]*powI(delta-epsilon[i],2)-beta[i]*powI(tau-GAMMA[i],2));
-        dphir2_dDelta_dTau=dphir2_dDelta_dTau+n[i]*powI(delta,d[i])*pow(tau,t[i])*psi*(di/delta-2.0*alpha[i]*(delta-epsilon[i]))*(t[i]/tau-2.0*beta[i]*(tau-GAMMA[i]));
+        psi=exp(-alpha[i]*powInt(delta-epsilon[i],2)-beta[i]*powInt(tau-GAMMA[i],2));
+        dphir2_dDelta_dTau=dphir2_dDelta_dTau+n[i]*powInt(delta,d[i])*pow(tau,t[i])*psi*(di/delta-2.0*alpha[i]*(delta-epsilon[i]))*(t[i]/tau-2.0*beta[i]*(tau-GAMMA[i]));
     }
     return dphir2_dDelta_dTau;
 }
@@ -1091,16 +541,16 @@ double dphir_dTau_Nitrogen(double tau, double delta)
     
     for (i=1;i<=6;i++)
     {
-        dphir_dTau=dphir_dTau+n[i]*t[i]*powI(delta,d[i])*pow(tau,t[i]-1.0);
+        dphir_dTau=dphir_dTau+n[i]*t[i]*powInt(delta,d[i])*pow(tau,t[i]-1.0);
     }
     for (i=7;i<=32;i++)
     {
-        dphir_dTau=dphir_dTau+n[i]*t[i]*powI(delta,d[i])*pow(tau,t[i]-1.0)*exp(-powI(delta,c[i]));
+        dphir_dTau=dphir_dTau+n[i]*t[i]*powInt(delta,d[i])*pow(tau,t[i]-1.0)*exp(-powInt(delta,c[i]));
     }
     for (i=33;i<=36;i++)
     {
-        psi=exp(-alpha[i]*powI(delta-epsilon[i],2)-beta[i]*powI(tau-GAMMA[i],2));
-        dphir_dTau=dphir_dTau+n[i]*powI(delta,d[i])*pow(tau,t[i])*psi*(t[i]/tau-2.0*beta[i]*(tau-GAMMA[i]));
+        psi=exp(-alpha[i]*powInt(delta-epsilon[i],2)-beta[i]*powInt(tau-GAMMA[i],2));
+        dphir_dTau=dphir_dTau+n[i]*powInt(delta,d[i])*pow(tau,t[i])*psi*(t[i]/tau-2.0*beta[i]*(tau-GAMMA[i]));
     }
     return dphir_dTau;
 }
@@ -1114,16 +564,16 @@ double dphir2_dTau2_Nitrogen(double tau, double delta)
     
     for (i=1;i<=6;i++)
     {
-        dphir2_dTau2=dphir2_dTau2+n[i]*t[i]*(t[i]-1.0)*powI(delta,d[i])*pow(tau,t[i]-2.0);
+        dphir2_dTau2=dphir2_dTau2+n[i]*t[i]*(t[i]-1.0)*powInt(delta,d[i])*pow(tau,t[i]-2.0);
     }
     for (i=7;i<=32;i++)
     {
-        dphir2_dTau2=dphir2_dTau2+n[i]*t[i]*(t[i]-1.0)*powI(delta,d[i])*pow(tau,t[i]-2.0)*exp(-powI(delta,c[i]));
+        dphir2_dTau2=dphir2_dTau2+n[i]*t[i]*(t[i]-1.0)*powInt(delta,d[i])*pow(tau,t[i]-2.0)*exp(-powInt(delta,c[i]));
     }
     for (i=33;i<=36;i++)
     {
-        psi=exp(-alpha[i]*powI(delta-epsilon[i],2)-beta[i]*powI(tau-GAMMA[i],2));
-        dphir2_dTau2=dphir2_dTau2+n[i]*powI(delta,d[i])*pow(tau,t[i])*psi*(powI(t[i]/tau-2.0*beta[i]*(tau-GAMMA[i]),2)-t[i]/powI(tau,2)-2.0*beta[i]);
+        psi=exp(-alpha[i]*powInt(delta-epsilon[i],2)-beta[i]*powInt(tau-GAMMA[i],2));
+        dphir2_dTau2=dphir2_dTau2+n[i]*powInt(delta,d[i])*pow(tau,t[i])*psi*(powInt(t[i]/tau-2.0*beta[i]*(tau-GAMMA[i]),2)-t[i]/powInt(tau,2)-2.0*beta[i]);
     }
     return dphir2_dTau2;
 }
@@ -1151,7 +601,7 @@ double dphi0_dDelta_Nitrogen(double tau, double delta)
 
 double dphi02_dDelta2_Nitrogen(double tau, double delta)
 {
-    return -1.0/powI(delta,2);
+    return -1.0/powInt(delta,2);
 }
 
 double dphi0_dTau_Nitrogen(double tau, double delta)
@@ -1161,234 +611,5 @@ double dphi0_dTau_Nitrogen(double tau, double delta)
 
 double dphi02_dTau2_Nitrogen(double tau, double delta)
 {
-    return -(a0[7]*a0[8]*a0[8]*exp(-a0[8]*tau))/(1-exp(-a0[8]*tau))-(a0[7]*a0[8]*a0[8]*exp(-2*a0[8]*tau))/(1-exp(-a0[8]*tau))/(1-exp(-a0[8]*tau))-a0[1]/tau/tau+(2*a0[4])/powI(tau,3)+(6*a0[5])/powI(tau,4)+(12*a0[6])/powI(tau,5);
+    return -(a0[7]*a0[8]*a0[8]*exp(-a0[8]*tau))/(1-exp(-a0[8]*tau))-(a0[7]*a0[8]*a0[8]*exp(-2*a0[8]*tau))/(1-exp(-a0[8]*tau))/(1-exp(-a0[8]*tau))-a0[1]/tau/tau+(2*a0[4])/powInt(tau,3)+(6*a0[5])/powInt(tau,4)+(12*a0[6])/powInt(tau,5);
 }
-
-static double get_Delta(double T, double P)
-{
-    double change,eps=1e-8;
-    int counter=1;
-    double r1,r2,r3,delta1,delta2,delta3;
-    double tau;
-    double delta_guess;
- 
-    if (P>Pc)
-    {
-        if (T>Tc)
-        {
-            delta_guess=P/(R_Nitrogen*T)/rhoc;
-        }
-        else
-        {
-            delta_guess=1000/rhoc;
-        }
-    }
-    else
-    {
-        if (T>Tc)
-	{
-		// Supercritical (try ideal gas)
-		delta_guess=P/(R_Nitrogen*T)/rhoc;
-	}
-	else if(P<psat_Nitrogen(T))
-        {
-		//Superheated vapor
-		delta_guess=(rhosatV_Nitrogen(T)*P/psat_Nitrogen(T))/rhoc;
-        }
-	else 
-	{
-		delta_guess=(rhosatL_Nitrogen(T))/rhoc;
-	}
-    }
-    
-   
-    tau=Tc/T;
-    delta1=delta_guess;
-    delta2=delta_guess+.00001;
-    r1=P/(delta1*rhoc*R_Nitrogen*T)-1.0-delta1*dphir_dDelta_Nitrogen(tau,delta1);
-    r2=P/(delta2*rhoc*R_Nitrogen*T)-1.0-delta2*dphir_dDelta_Nitrogen(tau,delta2);
-    
-    // End at change less than 0.05%
-    while(counter==1 || (fabs(r2)/delta2>eps && counter<40))
-    {
-        delta3=delta2-r2/(r2-r1)*(delta2-delta1);
-        r3=P/(delta3*rhoc*R_Nitrogen*T)-1.0-delta3*dphir_dDelta_Nitrogen(tau,delta3);
-        change=r2/(r2-r1)*(delta2-delta1);
-        delta1=delta2;
-        delta2=delta3;
-        r1=r2;
-        r2=r3;
-        counter=counter+1;
-    }
-	
-    return delta3;
-}
-
-
-
-static double LookupValue(char *Prop, double T, double p)
-{
-	int iPlow, iPhigh, iTlow, iThigh,L,R,M,iter;
-	double T1, T2, T3, P1, P2, P3, y1, y2, y3, a1, a2, a3;
-	double (*mat)[nT][nP];
-
-	//Input checking
-	if (T>Tmax || T<Tmin)
-	{
-		errCode=OUT_RANGE_T;
-	}
-	if (p>Pmax || p<Pmin)
-	{
-		errCode=OUT_RANGE_P;
-	}
-	if (T<Tmin || T > Tmax || p<Pmin || p>Pmax || isNAN(T) || isINFINITY(T) ||isNAN(p) || isINFINITY(p))
-    {
-		printf("Inputs to LookupValue(%s) of Argon out of bounds:  T=%g K \t P=%g kPa \n",Prop,T,p);
-    }
-
-	L=0;
-	R=nT-1;
-	M=(L+R)/2;
-	iter=0;
-	// Use interval halving to find the indices which bracket the temperature of interest
-	while (R-L>1)
-	{
-		if (T>=Tvec[M])
-		{ L=M; M=(L+R)/2; continue;}
-		if (T<Tvec[M])
-		{ R=M; M=(L+R)/2; continue;}
-		iter++;
-		if (iter>100)
-			printf("Problem with T(%g K)\n",T);
-	}
-	iTlow=L; iThigh=R;
-
-	L=0;
-	R=nP-1;
-	M=(L+R)/2;
-	iter=0;
-	// Use interval halving to find the indices which bracket the pressure of interest
-	while (R-L>1)
-	{
-		if (p>=pvec[M])
-		{ L=M; M=(L+R)/2; continue;}
-		if (p<pvec[M])
-		{ R=M; M=(L+R)/2; continue;}
-		iter++;
-		if (iter>100)
-			printf("Problem with p(%g kPa)\n",p);
-	}
-	iPlow=L; iPhigh=R;
-
-	/* Depending on which property is desired, 
-	make the matrix mat a pointer to the 
-	desired property matrix */
-	if (!strcmp(Prop,"rho"))
-		mat=&rhomat;
-	if (!strcmp(Prop,"cp"))
-		mat=&cpmat;
-	if (!strcmp(Prop,"cv"))
-		mat=&cvmat;
-	if (!strcmp(Prop,"h"))
-		mat=&hmat;
-	if (!strcmp(Prop,"s"))
-		mat=&smat;
-	if (!strcmp(Prop,"u"))
-		mat=&umat;
-	if (!strcmp(Prop,"visc"))
-		mat=&viscmat;
-	
-	//At Low Temperature Index
-	y1=(*mat)[iTlow][iPlow];
-	y2=(*mat)[iTlow][iPhigh];
-	y3=(*mat)[iTlow][iPhigh+1];
-	P1=pvec[iPlow];
-	P2=pvec[iPhigh];
-	P3=pvec[iPhigh+1];
-	a1=QuadInterpolate(P1,P2,P3,y1,y2,y3,p);
-
-	//At High Temperature Index
-	y1=(*mat)[iThigh][iPlow];
-	y2=(*mat)[iThigh][iPhigh];
-	y3=(*mat)[iThigh][iPhigh+1];
-	a2=QuadInterpolate(P1,P2,P3,y1,y2,y3,p);
-
-	//At High Temperature Index+1 (for QuadInterpolate() )
-	y1=(*mat)[iThigh+1][iPlow];
-	y2=(*mat)[iThigh+1][iPhigh];
-	y3=(*mat)[iThigh+1][iPhigh+1];
-	a3=QuadInterpolate(P1,P2,P3,y1,y2,y3,p);
-
-	//At Final Interpolation
-	T1=Tvec[iTlow];
-	T2=Tvec[iThigh];
-	T3=Tvec[iThigh+1];
-	return QuadInterpolate(T1,T2,T3,a1,a2,a3,T);
-	
-}
-
-static double powI(double x, int y)
-{
-    int i;
-    double product=1.0;
-    double x_in;
-    int y_in;
-    
-    if (y==0)
-    {
-        return 1.0;
-    }
-    
-    if (y<0)
-    {
-        x_in=1/x;
-        y_in=-y;
-    }
-	else
-	{
-		x_in=x;
-		y_in=y;
-	}
-
-    if (y_in==1)
-    {
-        return x_in;
-    }    
-    
-    product=x_in;
-    for (i=1;i<y_in;i++)
-    {
-        product=product*x_in;
-    }
-    
-    return product;
-}
-
-static double QuadInterpolate(double x0, double x1, double x2, double f0, double f1, double f2, double x)
-{
-    double L0, L1, L2;
-    L0=((x-x1)*(x-x2))/((x0-x1)*(x0-x2));
-    L1=((x-x0)*(x-x2))/((x1-x0)*(x1-x2));
-    L2=((x-x0)*(x-x1))/((x2-x0)*(x2-x1));
-    return L0*f0+L1*f1+L2*f2;
-}
-
-static int isNAN(double x)
-{
-	// recommendation from http://www.devx.com/tips/Tip/42853
-	return x != x;
-}
-
-static int isINFINITY(double x)
-{
-	// recommendation from http://www.devx.com/tips/Tip/42853
-	if ((x == x) && ((x - x) != 0.0)) 
-		return 1;//return (x < 0.0 ? -1 : 1); // This will tell you whether positive or negative infinity
-	else 
-		return 0;
-}
-
-
-
-
-

@@ -1,4 +1,6 @@
-/* Properties of Water (R718)
+/*
+
+Properties of Water (R718)
 by Ian Bell
 
 Themo properties from 
@@ -6,15 +8,6 @@ Themo properties from
 of Ordinary Water Substance for General and Scientific Use", 
 W. Wagner and A. Pruss, J. Phys. Chem. Ref. Data, v. 31, 2000
 
-In order to call the exposed functions, rho_, h_, s_, cp_,...... there are three 
-different ways the inputs can be passed, and this is expressed by the Types integer flag.  
-These macros are defined in the PropMacros.h header file:
-1) First parameter temperature, second parameter pressure ex: h_R410A(260,1785,1)=-67.53
-	In this case, the lookup tables are built if needed and then interpolated
-2) First parameter temperature, second parameter density ex: h_R410A(260,43.29,2)=-67.53
-	Density and temp plugged directly into EOS
-3) First parameter temperature, second parameter pressure ex: h_R410A(260,1785,3)=-67.53
-	Density solved for, then plugged into EOS (can be quite slow)
 */
 
 #if defined(_MSC_VER)
@@ -29,33 +22,11 @@ These macros are defined in the PropMacros.h header file:
 #include "math.h"
 #include "stdio.h"
 #include <string.h>
-#include "PropErrorCodes.h"
-#include "PropMacros.h"
-#include "Water.h"
-#include "time.h"
+#include "CoolProp.h"
 
-static int errCode;
-static char errStr[ERRSTRLENGTH];
 
-#define nP 200
-#define nT 200
-const static double Tmin=220,Tmax=800, Pmin=500.03,Pmax=16000;
-
-static double hmat[nT][nP];
-static double rhomat[nT][nP];
-static double cpmat[nT][nP];
-static double smat[nT][nP];
-static double cvmat[nT][nP];
-static double cmat[nT][nP];
-static double umat[nT][nP];
-static double viscmat[nT][nP];
-static double Tvec[nT];
-static double pvec[nP];
-
-static int TablesBuilt;
-
-static const double Tc=647.096, R_Water=0.46151805, rhoc=322, Pc=22064, Ttriple=273.16;
-             //    K               kJ/kg-K       kg/m^3          kPa              K
+static const double Tc=647.096, M_Water=18.015268,rhoc=322,     Pc=22064, _Ttriple=273.16;
+             //    K                    g/mol          kg/m^3      kPa             K
 static const double n[]={0,    
 	 0.125335479355233e-1, //[1]
 	 0.78957634722828e1, //[2]
@@ -372,263 +343,43 @@ static const double gamma0[]={0,
 	27.5075105 //[8]
 };
 
-static double powI(double x, int y);
-static double QuadInterpolate(double x0, double x1, double x2, double f0, double f1, double f2, double x);
-
-static double get_Delta(double T, double P);
-static double Pressure_Trho(double T, double rho);
-static double IntEnergy_Trho(double T, double rho);
-static double Enthalpy_Trho(double T, double rho);
-static double Entropy_Trho(double T, double rho);
-static double SpecHeatV_Trho(double T, double rho);
-static double SpecHeatP_Trho(double T, double rho);
-static double SpeedSound_Trho(double T, double rho);
-
-static double dhdT(double tau, double delta);
-static double dhdrho(double tau, double delta);
-static double dpdT(double tau, double delta);
-static double dpdrho(double tau, double delta);
-
-static double LookupValue(char *Prop,double T, double p);
-static int isNAN(double x);
-static int isINFINITY(double x);
-
-static void WriteLookup(void)
+int Load_Water(struct fluidParamsVals *Fluid)
 {
-	int i,j;
-	FILE *fp_h,*fp_s,*fp_rho,*fp_u,*fp_cp,*fp_cv,*fp_visc;
-	fp_h=fopen("h.csv","w");
-	fp_s=fopen("s.csv","w");
-	fp_u=fopen("u.csv","w");
-	fp_cp=fopen("cp.csv","w");
-	fp_cv=fopen("cv.csv","w");
-	fp_rho=fopen("rho.csv","w");
-	fp_visc=fopen("visc.csv","w");
+    // Function pointers
+    Fluid->funcs.phir=phir_Water;
+    Fluid->funcs.dphir_dDelta=dphir_dDelta_Water;
+    Fluid->funcs.dphir2_dDelta2=dphir2_dDelta2_Water;
+    Fluid->funcs.dphir2_dDelta_dTau=dphir2_dDelta_dTau_Water;
+    Fluid->funcs.dphir_dTau=dphir_dTau_Water;
+    Fluid->funcs.dphir2_dTau2=dphir2_dTau2_Water;
+    Fluid->funcs.phi0=phi0_Water;
+    Fluid->funcs.dphi0_dDelta=dphi0_dDelta_Water;
+    Fluid->funcs.dphi02_dDelta2=dphi02_dDelta2_Water;
+    Fluid->funcs.dphi0_dTau=dphi0_dTau_Water;
+    Fluid->funcs.dphi02_dTau2=dphi02_dTau2_Water;
+    Fluid->funcs.rhosatL=rhosatL_Water;
+    Fluid->funcs.rhosatV=rhosatV_Water;
+    Fluid->funcs.psat=psat_Water;
 
-	// Write the pressure header row
-	for (j=0;j<nP;j++)
-	{
-		fprintf(fp_h,",%0.12f",pvec[j]);
-		fprintf(fp_s,",%0.12f",pvec[j]);
-		fprintf(fp_rho,",%0.12f",pvec[j]);
-		fprintf(fp_u,",%0.12f",pvec[j]);
-		fprintf(fp_cp,",%0.12f",pvec[j]);
-		fprintf(fp_cv,",%0.12f",pvec[j]);
-		fprintf(fp_visc,",%0.12f",pvec[j]);
-	}
-	fprintf(fp_h,"\n");
-	fprintf(fp_s,"\n");
-	fprintf(fp_rho,"\n");
-	fprintf(fp_u,"\n");
-	fprintf(fp_cp,"\n");
-	fprintf(fp_cv,"\n");
-	fprintf(fp_visc,"\n");
-	
-	for (i=1;i<nT;i++)
-	{
-		fprintf(fp_h,"%0.12f",Tvec[i]);
-		fprintf(fp_s,"%0.12f",Tvec[i]);
-		fprintf(fp_rho,"%0.12f",Tvec[i]);
-		fprintf(fp_u,"%0.12f",Tvec[i]);
-		fprintf(fp_cp,"%0.12f",Tvec[i]);
-		fprintf(fp_cv,"%0.12f",Tvec[i]);
-		fprintf(fp_visc,"%0.12f",Tvec[i]);
-		for (j=0;j<nP;j++)
-		{
-			fprintf(fp_h,",%0.12f",hmat[i][j]);
-			fprintf(fp_s,",%0.12f",smat[i][j]);
-			fprintf(fp_rho,",%0.12f",rhomat[i][j]);
-			fprintf(fp_u,",%0.12f",umat[i][j]);
-			fprintf(fp_cp,",%0.12f",cpmat[i][j]);
-			fprintf(fp_cv,",%0.12f",cvmat[i][j]);
-			fprintf(fp_visc,",%0.12f",viscmat[i][j]);
-		}
-		fprintf(fp_h,"\n");
-		fprintf(fp_s,"\n");
-		fprintf(fp_rho,"\n");
-		fprintf(fp_u,"\n");
-		fprintf(fp_cp,"\n");
-		fprintf(fp_cv,"\n");
-		fprintf(fp_visc,"\n");
-	}
-	fclose(fp_h);
-	fclose(fp_s);
-	fclose(fp_rho);
-	fclose(fp_u);
-	fclose(fp_cp);
-	fclose(fp_cv);
-	fclose(fp_visc);
-	
-}
-static void BuildLookup(void)
-{
-	int i,j;
+    Fluid->funcs.visc=Viscosity_Trho_Water;
+    Fluid->funcs.cond=Conductivity_Trho_Water;
 
-	if (!TablesBuilt)
-	{
-		printf("Building Lookup Tables... Please wait...\n");
+    //Lookup table parameters
+    Fluid->LUT.Tmin=200.0;
+    Fluid->LUT.Tmax=800.0;
+    Fluid->LUT.pmin=500;
+    Fluid->LUT.pmax=16000;
 
-		for (i=0;i<nT;i++)
-		{
-			Tvec[i]=Tmin+i*(Tmax-Tmin)/(nT-1);
-		}
-		for (j=0;j<nP;j++)
-		{
-			pvec[j]=Pmin+j*(Pmax-Pmin)/(nP-1);
-		}
-		for (i=0;i<nT;i++)
-		{
-			for (j=0;j<nP;j++)
-			{
-				if (Tvec[i]>Tc || pvec[j]<psat_Water(Tvec[i]))
-				{					
-					rhomat[i][j]=get_Delta(Tvec[i],pvec[j])*rhoc;
-					hmat[i][j]=h_Water(Tvec[i],rhomat[i][j],TYPE_Trho);
-					smat[i][j]=s_Water(Tvec[i],rhomat[i][j],TYPE_Trho);
-					umat[i][j]=u_Water(Tvec[i],rhomat[i][j],TYPE_Trho);
-					cpmat[i][j]=cp_Water(Tvec[i],rhomat[i][j],TYPE_Trho);
-					cvmat[i][j]=cv_Water(Tvec[i],rhomat[i][j],TYPE_Trho);
-					cmat[i][j]=c_Water(Tvec[i],rhomat[i][j],TYPE_Trho);
-					viscmat[i][j]=visc_Water(Tvec[i],rhomat[i][j],TYPE_Trho);
-				}
-				else
-				{
-					hmat[i][j]=_HUGE;
-					smat[i][j]=_HUGE;
-					umat[i][j]=_HUGE;
-					rhomat[i][j]=_HUGE;
-					umat[i][j]=_HUGE;
-					cpmat[i][j]=_HUGE;
-					cvmat[i][j]=_HUGE;
-					cmat[i][j]=_HUGE;
-					viscmat[i][j]=_HUGE;
-				}
-			}
-		}
-		TablesBuilt=1;
-		//WriteLookup();
-	}
+    //Fluid parameters
+    Fluid->Type=FLUIDTYPE_REFRIGERANT_PURE;
+    Fluid->Tc=Tc;
+    Fluid->rhoc=rhoc;
+    Fluid->MM=M_Water;
+    Fluid->pc=Pc;
+    Fluid->Tt=_Ttriple;
+    return 1;
 }
 
-
-/**************************************************/
-/*          Public Property Functions            */
-/**************************************************/
-
-double rho_Water(double T, double p, int Types)
-{
-	errCode=0; // Reset error code
-	switch(Types)
-	{
-		case TYPE_TPNoLookup:
-			return get_Delta(T,p)*rhoc;
-		case TYPE_TP:
-			BuildLookup();
-			return LookupValue("rho",T,p);
-		default:
-			errCode=BAD_PROPCODE;
-			return _HUGE;
-	}
-}
-double p_Water(double T, double rho)
-{
-	return Pressure_Trho(T,rho);
-}
-double h_Water(double T, double p_rho, int Types)
-{
-	double rho;
-	errCode=0; // Reset error code
-	switch(Types)
-	{
-		case TYPE_Trho:
-			return Enthalpy_Trho(T,p_rho);
-		case TYPE_TPNoLookup:
-			rho=get_Delta(T,p_rho)*rhoc;
-			return Enthalpy_Trho(T,rho);
-		case TYPE_TP:
-			BuildLookup();
-			return LookupValue("h",T,p_rho);
-		default:
-			errCode=BAD_PROPCODE;
-			return _HUGE;
-	}
-}
-double s_Water(double T, double p_rho, int Types)
-{
-	double rho;
-	errCode=0; // Reset error code
-	switch(Types)
-	{
-		case TYPE_Trho:
-			return Entropy_Trho(T,p_rho);
-		case TYPE_TPNoLookup:
-			rho=get_Delta(T,p_rho)*rhoc;
-			return Entropy_Trho(T,rho);
-		case TYPE_TP:
-			BuildLookup();
-			return LookupValue("s",T,p_rho);
-		default:
-			errCode=BAD_PROPCODE;
-			return _HUGE;
-	}
-}
-double u_Water(double T, double p_rho, int Types)
-{
-	double rho;
-	errCode=0; // Reset error code
-	switch(Types)
-	{
-		case TYPE_Trho:
-			return IntEnergy_Trho(T,p_rho);
-		case TYPE_TPNoLookup:
-			rho=get_Delta(T,p_rho)*rhoc;
-			return IntEnergy_Trho(T,rho);
-		case TYPE_TP:
-			BuildLookup();
-			return LookupValue("u",T,p_rho);
-		default:
-			errCode=BAD_PROPCODE;
-			return _HUGE;
-	}
-}
-double cp_Water(double T, double p_rho, int Types)
-{
-	double rho;
-	errCode=0; // Reset error code
-	switch(Types)
-	{
-		case TYPE_Trho:
-			return SpecHeatP_Trho(T,p_rho);
-		case TYPE_TPNoLookup:
-			rho=get_Delta(T,p_rho)*rhoc;
-			return SpecHeatP_Trho(T,rho);
-		case TYPE_TP:
-			BuildLookup();
-			return LookupValue("cp",T,p_rho);
-		default:
-			errCode=BAD_PROPCODE;
-			return _HUGE;
-	}
-}
-double cv_Water(double T, double p_rho, int Types)
-{
-	double rho;
-	errCode=0; // Reset error code
-	switch(Types)
-	{
-		case TYPE_Trho:
-			return SpecHeatV_Trho(T,p_rho);
-		case TYPE_TPNoLookup:
-			rho=get_Delta(T,p_rho)*rhoc;
-			return SpecHeatV_Trho(T,rho);
-		case TYPE_TP:
-			BuildLookup();
-			return LookupValue("cv",T,p_rho);
-		default:
-			errCode=BAD_PROPCODE;
-			return _HUGE;
-	}
-}
 
 double rhosatV_Water(double T)
 {
@@ -669,87 +420,25 @@ double psat_Water(double T)
     return Pc*exp(Tc/T*summer);
 }
 
-double Tsat_Water(double P)
-{
-    double change,eps=.00005;
-    int counter=1;
-    double r1,r2,r3,T1,T2,T3;
- 
-    T1=373;
-    T2=373+.01;
-    r1=psat_Water(T1)-P;
-    r2=psat_Water(T2)-P;
-    
-    // End at change less than 0.5%
-    while(counter==1 || (fabs(change)/fabs(T2)>eps && counter<40))
-    {
-        T3=T2-0.5*r2/(r2-r1)*(T2-T1);
-        r3=psat_Water(T3)-P;
-        change=0.5*r2/(r2-r1)*(T2-T1);
-        T1=T2;
-        T2=T3;
-        r1=r2;
-        r2=r3;
-        counter=counter+1;
-    }
-    return T3;
-}   
-
-double w_Water(double T, double p_rho, int Types)
-{
-	double rho;
-	errCode=0; // Reset error code
-	switch(Types)
-	{
-		case TYPE_Trho:
-			return SpeedSound_Trho(T,p_rho);
-		case TYPE_TPNoLookup:
-			rho=get_Delta(T,p_rho)*rhoc;
-			return SpeedSound_Trho(T,rho);
-		default:
-			errCode=BAD_PROPCODE;
-			return _HUGE;
-	}
-}
-
-double c_Water(double T, double p_rho, int Types)
-{
-	double rho;
-	if (Types==TYPE_Trho)
-		return SpeedSound_Trho(T,p_rho);
-	else
-	{
-		if (Types==TYPE_TP)
-		{
-			BuildLookup();
-			return LookupValue("c",T,p_rho);
-		}
-		else //Types==TYPE_TPNoTable
-		{
-			rho=get_Delta(T,p_rho)*rhoc;
-			return SpeedSound_Trho(T,rho);
-		}
-	}
-}
-
 double IsothermCompress_Water(double T, double p)
 {
     // Isothermal compressibility with units of 1/Pa
-    double rho,delta,tau,dpdrho;
-    rho=rho_Water(T,p,TYPE_TPNoLookup);
+    double rho,delta,tau,dpdrho,R_Water;
+    rho=Props('D','T',T,'P',p,"Water");
     delta=rho/rhoc;
     tau=Tc/T;
-    dpdrho=R_Water*T*(1.0+2.0*delta*dphir_dDelta_Water(tau,delta)+powI(delta,2)*dphir2_dDelta2_Water(tau,delta));
+    R_Water=8.31447215/M_Water;
+    dpdrho=R_Water*T*(1.0+2.0*delta*dphir_dDelta_Water(tau,delta)+powInt(delta,2)*dphir2_dDelta2_Water(tau,delta));
     return 1/(rho*dpdrho*1000.0);
 }
 
-void visc_Helper(double Tbar, double rhobar, double *mubar_0, double *mubar_1)
+static void visc_Helper(double Tbar, double rhobar, double *mubar_0, double *mubar_1)
 {
 	double H[6][7],sum;
 	int i,j;
 
 	// Dilute-gas component
-	*mubar_0=100.0*sqrt(Tbar)/(1.67752+2.20462/Tbar+0.6366564/powI(Tbar,2)-0.241605/powI(Tbar,3));
+	*mubar_0=100.0*sqrt(Tbar)/(1.67752+2.20462/Tbar+0.6366564/powInt(Tbar,2)-0.241605/powInt(Tbar,3));
 
 	//Fill in zeros in H
 	for (i=0;i<=5;i++)
@@ -795,32 +484,21 @@ void visc_Helper(double Tbar, double rhobar, double *mubar_0, double *mubar_1)
 	{
 		for (j=0;j<=6;j++)
 		{
-			sum+=powI(1/Tbar-1,i)*(H[i][j]*powI(rhobar-1,j));
+			sum+=powInt(1/Tbar-1,i)*(H[i][j]*powInt(rhobar-1,j));
 		}
 	}
 	*mubar_1=exp(rhobar*sum);
 }
 
-double visc_Water(double T,double p_rho, int Types)
+double Viscosity_Trho_Water(double T,double rho)
 {
 	double x_mu=0.068,qc=1/1.9,qd=1/1.1,nu=0.630,gamma=1.239,zeta_0=0.13,LAMBDA_0=0.06,Tbar_R=1.5;
-	double rho,delta,tau,mubar_0,mubar_1,mubar_2,drhodp,drhodp_R,DeltaChibar,zeta,w,L,Y,psi_D,Tbar,rhobar;
-	double drhobar_dpbar,drhobar_dpbar_R;
-	
-	if (Types==TYPE_Trho)
-		rho=p_rho;
-	else if (Types==TYPE_TPNoLookup)
-	{
-		rho=get_Delta(T,p_rho)*rhoc;
-	}
-	else if (Types==TYPE_TP)
-	{
-		BuildLookup();
-		return LookupValue("visc",T,p_rho);
-	}
+	double delta,tau,mubar_0,mubar_1,mubar_2,drhodp,drhodp_R,DeltaChibar,zeta,w,L,Y,psi_D,Tbar,rhobar;
+	double drhobar_dpbar,drhobar_dpbar_R,R_Water;
 	
 	Tbar=T/Tc;
 	rhobar=rho/rhoc;
+	R_Water=8.31447215/M_Water;
 
 	// Dilute and finite gas portions
 	visc_Helper(Tbar,rhobar,&mubar_0,&mubar_1);
@@ -842,11 +520,11 @@ double visc_Water(double T,double p_rho, int Types)
 	zeta=zeta_0*pow(DeltaChibar/LAMBDA_0,nu/gamma);
 	if (zeta<0.3817016416)
 	{
-		Y=1.0/5.0*qc*zeta*powI(qd*zeta,5)*(1-qc*zeta+powI(qc*zeta,2)-765.0/504.0*powI(qd*zeta,2));
+		Y=1.0/5.0*qc*zeta*powInt(qd*zeta,5)*(1-qc*zeta+powInt(qc*zeta,2)-765.0/504.0*powInt(qd*zeta,2));
 	}
 	else
 	{
-		psi_D=acos(pow(1+powI(qd*zeta,2),-1.0/2.0));
+		psi_D=acos(pow(1+powInt(qd*zeta,2),-1.0/2.0));
 		w=sqrt(fabs((qc*zeta-1)/(qc*zeta+1)))*tan(psi_D/2.0);
 		if (qc*zeta>1)
 		{
@@ -856,42 +534,31 @@ double visc_Water(double T,double p_rho, int Types)
 		{
 			L=2*atan(fabs(w));
 		}
-		Y=1.0/12.0*sin(3*psi_D)-1/(4*qc*zeta)*sin(2*psi_D)+1.0/powI(qc*zeta,2)*(1-5.0/4.0*powI(qc*zeta,2))*sin(psi_D)-1.0/powI(qc*zeta,3)*((1-3.0/2.0*powI(qc*zeta,2))*psi_D-pow(fabs(powI(qc*zeta,2)-1),3.0/2.0)*L);
+		Y=1.0/12.0*sin(3*psi_D)-1/(4*qc*zeta)*sin(2*psi_D)+1.0/powInt(qc*zeta,2)*(1-5.0/4.0*powInt(qc*zeta,2))*sin(psi_D)-1.0/powInt(qc*zeta,3)*((1-3.0/2.0*powInt(qc*zeta,2))*psi_D-pow(fabs(powInt(qc*zeta,2)-1),3.0/2.0)*L);
 	}
 	mubar_2=exp(x_mu*Y);
 
 	return (mubar_0*mubar_1*mubar_2)/1e6;
 }
 
-double k_Water(double T,double p_rho, int Types)
+double Conductivity_Trho_Water(double T,double rho)
 {
 	double L[5][6]={{1.3293046,-0.40452437,0.2440949,0.018660751,-0.12961068,0.044809953},
 	{1.7018363,-2.2156845,1.6511057,-0.76736002,0.37283344,-0.1120316},
 	{5.2246158,-10.124111,4.9874687,-0.27297694,-0.43083393,0.13333849},
 	{8.7127675,-9.5000611,4.3786606,-0.91783782,0,0},
 	{-1.8525999,0.9340469,0,0,0,0}};
-	double lambdabar_0,lambdabar_1,lambdabar_2,rhobar,Tbar,sum,rho;
+	double lambdabar_0,lambdabar_1,lambdabar_2,rhobar,Tbar,sum,R_Water;
 	double Tstar=647.226,rhostar=317.763,pstar=22115,lambdastar=0.0004945;
 	double drhodp,drhobar_dpbar,CHIbar_T,dpbar_dTbar,mubar_0,mubar_1,delta,tau;
 	int i,j;
 
-	if (Types==TYPE_Trho)
-		rho=p_rho;
-	else if (Types==TYPE_TPNoLookup)
-	{
-		rho=get_Delta(T,p_rho)*rhoc;
-	}
-	else if (Types==TYPE_TP)
-	{
-		BuildLookup();
-		return LookupValue("visc",T,p_rho);
-	}
-
 	Tbar=T/Tstar;
 	rhobar=rho/rhostar;
+	R_Water=8.31447215/M_Water;
 
 	// Dilute gas contribution
-	lambdabar_0=sqrt(Tbar)/(1.000+6.978267/Tbar+2.599096/powI(Tbar,2)-0.998254/powI(Tbar,3));
+	lambdabar_0=sqrt(Tbar)/(1.000+6.978267/Tbar+2.599096/powInt(Tbar,2)-0.998254/powInt(Tbar,3));
 
 	sum=0;
 	for (i=0;i<=4;i++)
@@ -899,7 +566,7 @@ double k_Water(double T,double p_rho, int Types)
 		for (j=0;j<=5;j++)
 		{
 			//printf("L[%d][%d]: %0.12fg\n",i,j,L[i][j]);
-			sum+=L[i][j]*powI(1.0/Tbar-1.0,i)*powI(rhobar-1,j);
+			sum+=L[i][j]*powInt(1.0/Tbar-1.0,i)*powInt(rhobar-1,j);
 		}
 	}
 	// Finite density contribution
@@ -915,7 +582,7 @@ double k_Water(double T,double p_rho, int Types)
 	// Dilute and finite gas portions
 	visc_Helper(Tbar,rhobar,&mubar_0,&mubar_1);
 
-	lambdabar_2=55.071*0.0013848/(mubar_0*mubar_1)*powI(Tbar/rhobar,2)*powI(dpbar_dTbar,2)*pow(CHIbar_T,0.4678)*sqrt(rhobar)*exp(-18.66*powI(Tbar-1,2)-powI(rhobar-1,4));
+	lambdabar_2=55.071*0.0013848/(mubar_0*mubar_1)*powInt(Tbar/rhobar,2)*powInt(dpbar_dTbar,2)*pow(CHIbar_T,0.4678)*sqrt(rhobar)*exp(-18.66*powInt(Tbar-1,2)-powInt(rhobar-1,4));
 	return (lambdabar_0*lambdabar_1+lambdabar_2)*lambdastar;
 }
 
@@ -943,100 +610,6 @@ double dCdT_Water(double tau)
 	return -1.0/(rhoc*rhoc)*tau*tau/Tc*dphir3_dDelta2_dTau_Water(tau,1e-12);
 }
 
-double MM_Water(void)
-{
-	return 18.015268;
-}
-double pcrit_Water(void)
-{
-	return Pc;
-}
-double Tcrit_Water(void)
-{
-	return Tc;
-}
-double rhocrit_Water(void)
-{
-	return rhoc;
-}
-double Ttriple_Water(void)
-{
-	return Ttriple;
-}
-int errCode_Water(void)
-{
-	return errCode;
-}
-
-/**************************************************/
-/*          Private Property Functions            */
-/**************************************************/
-
-static double Pressure_Trho(double T, double rho)
-{
-	double delta,tau;
-	delta=rho/rhoc;
-	tau=Tc/T;
-	return R_Water*T*rho*(1.0+delta*dphir_dDelta_Water(tau,delta));
-}
-static double IntEnergy_Trho(double T, double rho)
-{
-	double delta,tau;
-	delta=rho/rhoc;
-	tau=Tc/T;
-	
-	return R_Water*T*tau*(dphi0_dTau_Water(tau,delta)+dphir_dTau_Water(tau,delta));
-}
-static double Enthalpy_Trho(double T, double rho)
-{
-	double delta,tau;
-	delta=rho/rhoc;
-	tau=Tc/T;
-	
-	return R_Water*T*(1+tau*(dphi0_dTau_Water(tau,delta)+dphir_dTau_Water(tau,delta))+delta*dphir_dDelta_Water(tau,delta));
-}
-static double Entropy_Trho(double T, double rho)
-{
-	double delta,tau;
-	delta=rho/rhoc;
-	tau=Tc/T;
-	
-	return R_Water*(tau*(dphi0_dTau_Water(tau,delta)+dphir_dTau_Water(tau,delta))-phi0_Water(tau,delta)-phir_Water(tau,delta));
-}
-static double SpecHeatV_Trho(double T, double rho)
-{
-	double delta,tau;
-	delta=rho/rhoc;
-	tau=Tc/T;
-	
-	return -R_Water*powI(tau,2)*(dphi02_dTau2_Water(tau,delta)+dphir2_dTau2_Water(tau,delta));
-}
-static double SpecHeatP_Trho(double T, double rho)
-{
-	double delta,tau,c1,c2;
-	delta=rho/rhoc;
-	tau=Tc/T;
-
-	c1=powI(1.0+delta*dphir_dDelta_Water(tau,delta)-delta*tau*dphir2_dDelta_dTau_Water(tau,delta),2);
-    c2=(1.0+2.0*delta*dphir_dDelta_Water(tau,delta)+powI(delta,2)*dphir2_dDelta2_Water(tau,delta));
-    return R_Water*(-powI(tau,2)*(dphi02_dTau2_Water(tau,delta)+dphir2_dTau2_Water(tau,delta))+c1/c2);
-}
-
-static double SpeedSound_Trho(double T, double rho)
-{
-	double delta,tau,c1,c2;
-	delta=rho/rhoc;
-	tau=Tc/T;
-
-	c1=-SpecHeatV_Trho(T,rho)/R_Water;
-	c2=(1.0+2.0*delta*dphir_dDelta_Water(tau,delta)+powI(delta,2)*dphir2_dDelta2_Water(tau,delta));
-    return sqrt(-c2*T*SpecHeatP_Trho(T,rho)*1000/c1);
-}
-
-/**************************************************/
-/*          Private Property Functions            */
-/**************************************************/
-
 double phir_Water(double tau, double delta)
 { 
     
@@ -1045,25 +618,25 @@ double phir_Water(double tau, double delta)
     
     for (i=1;i<=7;i++)
     {
-        phir+=n[i]*powI(delta,d[i])*pow(tau,t[i]);
+        phir+=n[i]*powInt(delta,d[i])*pow(tau,t[i]);
     }
     
     for (i=8;i<=51;i++)
     {
-        phir+=n[i]*powI(delta,d[i])*pow(tau,t[i])*exp(-powI(delta,c[i]));
+        phir+=n[i]*powInt(delta,d[i])*pow(tau,t[i])*exp(-powInt(delta,c[i]));
     }
     
     for (i=52;i<=54;i++)
     {
-        psi=exp(-alpha[i]*powI(delta-epsilon[i],2)-beta[i]*powI(tau-GAMMA[i],2));
-        phir+=n[i]*powI(delta,d[i])*pow(tau,t[i])*psi;
+        psi=exp(-alpha[i]*powInt(delta-epsilon[i],2)-beta[i]*powInt(tau-GAMMA[i],2));
+        phir+=n[i]*powInt(delta,d[i])*pow(tau,t[i])*psi;
     }
     
     for (i=55;i<=56;i++)
     {
-        theta=(1.0-tau)+A[i]*pow(powI(delta-1.0,2),1/(2*beta[i]));
-        DELTA=powI(theta,2)+B[i]*pow(powI(delta-1.0,2),a[i]);
-        PSI=exp(-C[i]*powI(delta-1,2)-D[i]*powI(tau-1,2));
+        theta=(1.0-tau)+A[i]*pow(powInt(delta-1.0,2),1/(2*beta[i]));
+        DELTA=powInt(theta,2)+B[i]*pow(powInt(delta-1.0,2),a[i]);
+        PSI=exp(-C[i]*powInt(delta-1,2)-D[i]*powInt(tau-1,2));
         phir+=n[i]*pow(DELTA,b[i])*delta*PSI;
     }
     return phir;
@@ -1075,25 +648,25 @@ double dphir_dDelta_Water(double tau, double delta)
     double dphir_dDelta=0,theta,DELTA,PSI,dPSI_dDelta,dDELTA_dDelta,dDELTAbi_dDelta,psi;
     for (i=1;i<=7;i++)
     {
-        dphir_dDelta=dphir_dDelta+n[i]*d[i]*powI(delta,d[i]-1)*pow(tau,t[i]);
+        dphir_dDelta=dphir_dDelta+n[i]*d[i]*powInt(delta,d[i]-1)*pow(tau,t[i]);
     }
     for (i=8;i<=51;i++)
     {
-        dphir_dDelta=dphir_dDelta+n[i]*exp(-powI(delta,c[i]))*(powI(delta,d[i]-1)*pow(tau,t[i])*(d[i]-c[i]*powI(delta,c[i])));
+        dphir_dDelta=dphir_dDelta+n[i]*exp(-powInt(delta,c[i]))*(powInt(delta,d[i]-1)*pow(tau,t[i])*(d[i]-c[i]*powInt(delta,c[i])));
     }
     for (i=52;i<=54;i++)
     {        
-        psi=exp(-alpha[i]*powI(delta-epsilon[i],2)-beta[i]*powI(tau-GAMMA[i],2));
-        dphir_dDelta=dphir_dDelta+n[i]*powI(delta,d[i])*pow(tau,t[i])*psi*(d[i]/delta-2.0*alpha[i]*(delta-epsilon[i]));
+        psi=exp(-alpha[i]*powInt(delta-epsilon[i],2)-beta[i]*powInt(tau-GAMMA[i],2));
+        dphir_dDelta=dphir_dDelta+n[i]*powInt(delta,d[i])*pow(tau,t[i])*psi*(d[i]/delta-2.0*alpha[i]*(delta-epsilon[i]));
     }
     for (i=55;i<=56;i++)
     {
-        theta=(1.0-tau)+A[i]*pow(powI(delta-1.0,2),1/(2*beta[i]));
-        DELTA=powI(theta,2)+B[i]*pow(powI(delta-1.0,2),a[i]);
-        PSI=exp(-C[i]*powI(delta-1,2)-D[i]*powI(tau-1,2));
+        theta=(1.0-tau)+A[i]*pow(powInt(delta-1.0,2),1/(2*beta[i]));
+        DELTA=powInt(theta,2)+B[i]*pow(powInt(delta-1.0,2),a[i]);
+        PSI=exp(-C[i]*powInt(delta-1,2)-D[i]*powInt(tau-1,2));
 
         dPSI_dDelta=-2.0*C[i]*(delta-1.0)*PSI;
-        dDELTA_dDelta=(delta-1.0)*(A[i]*theta*2.0/beta[i]*pow(powI(delta-1.0,2),1.0/(2.0*beta[i])-1.0)+2.0*B[i]*a[i]*pow(powI(delta-1.0,2),a[i]-1.0));
+        dDELTA_dDelta=(delta-1.0)*(A[i]*theta*2.0/beta[i]*pow(powInt(delta-1.0,2),1.0/(2.0*beta[i])-1.0)+2.0*B[i]*a[i]*pow(powInt(delta-1.0,2),a[i]-1.0));
         dDELTAbi_dDelta=b[i]*pow(DELTA,b[i]-1.0)*dDELTA_dDelta;
         dphir_dDelta=dphir_dDelta+n[i]*(pow(DELTA,b[i])*(PSI+delta*dPSI_dDelta)+dDELTAbi_dDelta*delta*PSI);
     }
@@ -1110,34 +683,34 @@ double dphir2_dDelta2_Water(double tau, double delta)
     for (i=1;i<=7;i++)
     {
         di=(double)d[i];
-        dphir2_dDelta2=dphir2_dDelta2+n[i]*di*(di-1.0)*powI(delta,d[i]-2)*pow(tau,t[i]);
+        dphir2_dDelta2=dphir2_dDelta2+n[i]*di*(di-1.0)*powInt(delta,d[i]-2)*pow(tau,t[i]);
     }
     for (i=8;i<=51;i++)
     {
         di=(double)d[i];
         ci=(double)c[i];
-        dphir2_dDelta2=dphir2_dDelta2+n[i]*exp(-powI(delta,c[i]))*(powI(delta,d[i]-2)*pow(tau,t[i])*( (di-ci*powI(delta,c[i]))*(di-1.0-ci*powI(delta,c[i])) - ci*ci*powI(delta,c[i])));
+        dphir2_dDelta2=dphir2_dDelta2+n[i]*exp(-powInt(delta,c[i]))*(powInt(delta,d[i]-2)*pow(tau,t[i])*( (di-ci*powInt(delta,c[i]))*(di-1.0-ci*powInt(delta,c[i])) - ci*ci*powInt(delta,c[i])));
     }
     for (i=52;i<=54;i++)
     {
         di=(double)d[i];
-        psi=exp(-alpha[i]*powI(delta-epsilon[i],2)-beta[i]*powI(tau-GAMMA[i],2));
-        dphir2_dDelta2=dphir2_dDelta2+n[i]*pow(tau,t[i])*psi*(-2.0*alpha[i]*powI(delta,d[i])+4.0*powI(alpha[i],2)*powI(delta,d[i])*powI(delta-epsilon[i],2)-4.0*di*alpha[i]*powI(delta,d[i]-1)*(delta-epsilon[i])+di*(di-1.0)*powI(delta,d[i]-2));
+        psi=exp(-alpha[i]*powInt(delta-epsilon[i],2)-beta[i]*powInt(tau-GAMMA[i],2));
+        dphir2_dDelta2=dphir2_dDelta2+n[i]*pow(tau,t[i])*psi*(-2.0*alpha[i]*powInt(delta,d[i])+4.0*powInt(alpha[i],2)*powInt(delta,d[i])*powInt(delta-epsilon[i],2)-4.0*di*alpha[i]*powInt(delta,d[i]-1)*(delta-epsilon[i])+di*(di-1.0)*powInt(delta,d[i]-2));
     }
     for (i=55;i<=56;i++)
     {
                
-        theta=(1.0-tau)+A[i]*pow(powI(delta-1.0,2),1.0/(2.0*beta[i]));
-        DELTA=powI(theta,2)+B[i]*pow(powI(delta-1.0,2),a[i]);
-        PSI=exp(-C[i]*powI(delta-1.0,2)-D[i]*powI(tau-1.0,2));
+        theta=(1.0-tau)+A[i]*pow(powInt(delta-1.0,2),1.0/(2.0*beta[i]));
+        DELTA=powInt(theta,2)+B[i]*pow(powInt(delta-1.0,2),a[i]);
+        PSI=exp(-C[i]*powInt(delta-1.0,2)-D[i]*powInt(tau-1.0,2));
         
         dPSI_dDelta=-2.0*C[i]*(delta-1.0)*PSI;
-        dDELTA_dDelta=(delta-1.0)*(A[i]*theta*2.0/beta[i]*pow(powI(delta-1.0,2),1.0/(2.0*beta[i])-1.0)+2.0*B[i]*a[i]*pow(powI(delta-1.0,2),a[i]-1.0));
+        dDELTA_dDelta=(delta-1.0)*(A[i]*theta*2.0/beta[i]*pow(powInt(delta-1.0,2),1.0/(2.0*beta[i])-1.0)+2.0*B[i]*a[i]*pow(powInt(delta-1.0,2),a[i]-1.0));
         dDELTAbi_dDelta=b[i]*pow(DELTA,b[i]-1.0)*dDELTA_dDelta;
         
-        dPSI2_dDelta2=(2.0*C[i]*powI(delta-1.0,2)-1.0)*2.0*C[i]*PSI;
-        dDELTA2_dDelta2=1.0/(delta-1.0)*dDELTA_dDelta+powI(delta-1.0,2)*(4.0*B[i]*a[i]*(a[i]-1.0)*pow(powI(delta-1.0,2),a[i]-2.0)+2.0*powI(A[i]/beta[i],2)*powI(pow(powI(delta-1.0,2),1.0/(2.0*beta[i])-1.0),2)+A[i]*theta*4.0/beta[i]*(1.0/(2.0*beta[i])-1.0)*pow(powI(delta-1.0,2),1.0/(2.0*beta[i])-2.0));
-        dDELTAbi2_dDelta2=b[i]*(pow(DELTA,b[i]-1.0)*dDELTA2_dDelta2+(b[i]-1.0)*pow(DELTA,b[i]-2.0)*powI(dDELTA_dDelta,2));
+        dPSI2_dDelta2=(2.0*C[i]*powInt(delta-1.0,2)-1.0)*2.0*C[i]*PSI;
+        dDELTA2_dDelta2=1.0/(delta-1.0)*dDELTA_dDelta+powInt(delta-1.0,2)*(4.0*B[i]*a[i]*(a[i]-1.0)*pow(powInt(delta-1.0,2),a[i]-2.0)+2.0*powInt(A[i]/beta[i],2)*powInt(pow(powInt(delta-1.0,2),1.0/(2.0*beta[i])-1.0),2)+A[i]*theta*4.0/beta[i]*(1.0/(2.0*beta[i])-1.0)*pow(powInt(delta-1.0,2),1.0/(2.0*beta[i])-2.0));
+        dDELTAbi2_dDelta2=b[i]*(pow(DELTA,b[i]-1.0)*dDELTA2_dDelta2+(b[i]-1.0)*pow(DELTA,b[i]-2.0)*powInt(dDELTA_dDelta,2));
         
         dphir2_dDelta2=dphir2_dDelta2+n[i]*(pow(DELTA,b[i])*(2.0*dPSI_dDelta+delta*dPSI2_dDelta2)+2.0*dDELTAbi_dDelta*(PSI+delta*dPSI_dDelta)+dDELTAbi2_dDelta2*delta*PSI);
     }
@@ -1146,51 +719,44 @@ double dphir2_dDelta2_Water(double tau, double delta)
 
     
 double dphir2_dDelta_dTau_Water(double tau, double delta)
-{ 
-    
+{
     int i;
     double di, ci;
-    double dphir2_dDelta_dTau=0,theta,DELTA,PSI,dPSI_dDelta,dDELTA_dDelta,dDELTAbi_dDelta,psi,dPSI2_dDelta2,dDELTAbi2_dDelta2,dDELTA2_dDelta2;
-    double dPSI2_dDelta_dTau, dDELTAbi2_dDelta_dTau, dPSI_dTau, dDELTAbi_dTau, dPSI2_dTau2, dDELTAbi2_dTau2;
+    double dphir2_dDelta_dTau=0,theta,DELTA,PSI,dPSI_dDelta,dDELTA_dDelta,dDELTAbi_dDelta,psi;
+    double dPSI2_dDelta_dTau, dDELTAbi2_dDelta_dTau, dPSI_dTau, dDELTAbi_dTau;
     for (i=1;i<=7;i++)
     {
         di=(double)d[i];
-        dphir2_dDelta_dTau=dphir2_dDelta_dTau+n[i]*di*t[i]*powI(delta,d[i]-1)*pow(tau,t[i]-1.0);
+        dphir2_dDelta_dTau=dphir2_dDelta_dTau+n[i]*di*t[i]*powInt(delta,d[i]-1)*pow(tau,t[i]-1.0);
     }
     for (i=8;i<=51;i++)
     {
         di=(double)d[i];
         ci=(double)c[i];
-        dphir2_dDelta_dTau=dphir2_dDelta_dTau+n[i]*exp(-powI(delta,c[i]))*powI(delta,d[i]-1)*t[i]*pow(tau,t[i]-1.0)*(di-ci*powI(delta,c[i]));
+        dphir2_dDelta_dTau=dphir2_dDelta_dTau+n[i]*exp(-powInt(delta,c[i]))*powInt(delta,d[i]-1)*t[i]*pow(tau,t[i]-1.0)*(di-ci*powInt(delta,c[i]));
     }
     for (i=52;i<=54;i++)
     {
         di=(double)d[i];
-        psi=exp(-alpha[i]*powI(delta-epsilon[i],2)-beta[i]*powI(tau-GAMMA[i],2));
-        dphir2_dDelta_dTau=dphir2_dDelta_dTau+n[i]*powI(delta,d[i])*pow(tau,t[i])*psi*(di/delta-2.0*alpha[i]*(delta-epsilon[i]))*(t[i]/tau-2.0*beta[i]*(tau-GAMMA[i]));
+        psi=exp(-alpha[i]*powInt(delta-epsilon[i],2)-beta[i]*powInt(tau-GAMMA[i],2));
+        dphir2_dDelta_dTau=dphir2_dDelta_dTau+n[i]*powInt(delta,d[i])*pow(tau,t[i])*psi*(di/delta-2.0*alpha[i]*(delta-epsilon[i]))*(t[i]/tau-2.0*beta[i]*(tau-GAMMA[i]));
     }
     for (i=55;i<=56;i++)
     {
         
-        theta=(1.0-tau)+A[i]*pow(powI(delta-1.0,2),1.0/(2.0*beta[i]));
-        DELTA=powI(theta,2)+B[i]*pow(powI(delta-1.0,2),a[i]);
-        PSI=exp(-C[i]*powI(delta-1.0,2)-D[i]*powI(tau-1.0,2));
+        theta=(1.0-tau)+A[i]*pow(powInt(delta-1.0,2),1.0/(2.0*beta[i]));
+        DELTA=powInt(theta,2)+B[i]*pow(powInt(delta-1.0,2),a[i]);
+        PSI=exp(-C[i]*powInt(delta-1.0,2)-D[i]*powInt(tau-1.0,2));
         
         dPSI_dDelta=-2.0*C[i]*(delta-1.0)*PSI;
-        dDELTA_dDelta=(delta-1.0)*(A[i]*theta*2.0/beta[i]*pow(powI(delta-1.0,2),1.0/(2.0*beta[i])-1.0)+2.0*B[i]*a[i]*pow(powI(delta-1.0,2),a[i]-1.0));
+        dDELTA_dDelta=(delta-1.0)*(A[i]*theta*2.0/beta[i]*pow(powInt(delta-1.0,2),1.0/(2.0*beta[i])-1.0)+2.0*B[i]*a[i]*pow(powInt(delta-1.0,2),a[i]-1.0));
         dDELTAbi_dDelta=b[i]*pow(DELTA,b[i]-1.0)*dDELTA_dDelta;
-        
-        dPSI2_dDelta2=(2.0*C[i]*powI(delta-1.0,2)-1.0)*2.0*C[i]*PSI;
-        dDELTA2_dDelta2=1.0/(delta-1.0)*dDELTA_dDelta+powI(delta-1.0,2)*(4.0*B[i]*a[i]*(a[i]-1.0)*pow(powI(delta-1.0,2),a[i]-2.0)+2.0*powI(A[i]/beta[i],2)*powI(pow(powI(delta-1.0,2),1.0/(2.0*beta[i])-1.0),2)+A[i]*theta*4.0/beta[i]*(1.0/(2.0*beta[i])-1.0)*pow(powI(delta-1.0,2),1.0/(2.0*beta[i])-2.0));
-        dDELTAbi2_dDelta2=b[i]*(pow(DELTA,b[i]-1.0)*dDELTA2_dDelta2+(b[i]-1.0)*pow(DELTA,b[i]-2.0)*powI(dDELTA_dDelta,2));
         
         dPSI_dTau=-2.0*D[i]*(tau-1.0)*PSI;
         dDELTAbi_dTau=-2.0*theta*b[i]*pow(DELTA,b[i]-1.0);
-        dPSI2_dTau2=(2.0*D[i]*powI(tau-1.0,2)-1.0)*2.0*D[i]*PSI;
-        dDELTAbi2_dTau2=2.0*b[i]*pow(DELTA,b[i]-1.0)+4.0*powI(theta,2)*b[i]*(b[i]-1.0)*pow(DELTA,b[i]-2.0);
         
         dPSI2_dDelta_dTau=4.0*C[i]*D[i]*(delta-1.0)*(tau-1.0)*PSI;
-        dDELTAbi2_dDelta_dTau=-A[i]*b[i]*2.0/beta[i]*pow(DELTA,b[i]-1.0)*(delta-1.0)*pow(powI(delta-1.0,2),1.0/(2.0*beta[i])-1.0)-2.0*theta*b[i]*(b[i]-1.0)*pow(DELTA,b[i]-2.0)*dDELTA_dDelta;
+        dDELTAbi2_dDelta_dTau=-A[i]*b[i]*2.0/beta[i]*pow(DELTA,b[i]-1.0)*(delta-1.0)*pow(powInt(delta-1.0,2),1.0/(2.0*beta[i])-1.0)-2.0*theta*b[i]*(b[i]-1.0)*pow(DELTA,b[i]-2.0)*dDELTA_dDelta;
         
         dphir2_dDelta_dTau=dphir2_dDelta_dTau+n[i]*(pow(DELTA,b[i])*(dPSI_dTau+delta*dPSI2_dDelta_dTau)+delta*dDELTAbi_dDelta*dPSI_dTau+ dDELTAbi_dTau*(PSI+delta*dPSI_dDelta)+dDELTAbi2_dDelta_dTau*delta*PSI);
     }
@@ -1205,25 +771,25 @@ double dphir_dTau_Water(double tau, double delta)
     
     for (i=1;i<=7;i++)
     {
-        dphir_dTau=dphir_dTau+n[i]*t[i]*powI(delta,d[i])*pow(tau,t[i]-1.0);
+        dphir_dTau=dphir_dTau+n[i]*t[i]*powInt(delta,d[i])*pow(tau,t[i]-1.0);
     }
     
     for (i=8;i<=51;i++)
     {
-        dphir_dTau=dphir_dTau+n[i]*t[i]*powI(delta,d[i])*pow(tau,t[i]-1.0)*exp(-powI(delta,c[i]));
+        dphir_dTau=dphir_dTau+n[i]*t[i]*powInt(delta,d[i])*pow(tau,t[i]-1.0)*exp(-powInt(delta,c[i]));
     }
     
     for (i=52;i<=54;i++)
     {
-        psi=exp(-alpha[i]*powI(delta-epsilon[i],2)-beta[i]*powI(tau-GAMMA[i],2));
-        dphir_dTau=dphir_dTau+n[i]*powI(delta,d[i])*pow(tau,t[i])*psi*(t[i]/tau-2.0*beta[i]*(tau-GAMMA[i]));
+        psi=exp(-alpha[i]*powInt(delta-epsilon[i],2)-beta[i]*powInt(tau-GAMMA[i],2));
+        dphir_dTau=dphir_dTau+n[i]*powInt(delta,d[i])*pow(tau,t[i])*psi*(t[i]/tau-2.0*beta[i]*(tau-GAMMA[i]));
     }
     
     for (i=55;i<=56;i++)
     {
-        theta=(1.0-tau)+A[i]*pow(powI(delta-1.0,2),1.0/(2.0*beta[i]));
-        DELTA=powI(theta,2)+B[i]*pow(powI(delta-1.0,2),a[i]);
-        PSI=exp(-C[i]*powI(delta-1.0,2)-D[i]*powI(tau-1.0,2));
+        theta=(1.0-tau)+A[i]*pow(powInt(delta-1.0,2),1.0/(2.0*beta[i]));
+        DELTA=powInt(theta,2)+B[i]*pow(powInt(delta-1.0,2),a[i]);
+        PSI=exp(-C[i]*powInt(delta-1.0,2)-D[i]*powInt(tau-1.0,2));
         dPSI_dTau=-2.0*D[i]*(tau-1.0)*PSI;
         dDELTAbi_dTau=-2.0*theta*b[i]*pow(DELTA,b[i]-1.0);
         dphir_dTau=dphir_dTau+n[i]*delta*(dDELTAbi_dTau*PSI+pow(DELTA,b[i])*dPSI_dTau);
@@ -1239,29 +805,29 @@ double dphir2_dTau2_Water(double tau, double delta)
     
     for (i=1;i<=7;i++)
     {
-        dphir2_dTau2=dphir2_dTau2+n[i]*t[i]*(t[i]-1.0)*powI(delta,d[i])*pow(tau,t[i]-2.0);
+        dphir2_dTau2=dphir2_dTau2+n[i]*t[i]*(t[i]-1.0)*powInt(delta,d[i])*pow(tau,t[i]-2.0);
     }
     
     for (i=8;i<=51;i++)
     {
-        dphir2_dTau2=dphir2_dTau2+n[i]*t[i]*(t[i]-1.0)*powI(delta,d[i])*pow(tau,t[i]-2.0)*exp(-powI(delta,c[i]));
+        dphir2_dTau2=dphir2_dTau2+n[i]*t[i]*(t[i]-1.0)*powInt(delta,d[i])*pow(tau,t[i]-2.0)*exp(-powInt(delta,c[i]));
     }
     
     for (i=52;i<=54;i++)
     {
-        psi=exp(-alpha[i]*powI(delta-epsilon[i],2)-beta[i]*powI(tau-GAMMA[i],2));
-        dphir2_dTau2=dphir2_dTau2+n[i]*powI(delta,d[i])*pow(tau,t[i])*psi*(powI(t[i]/tau-2.0*beta[i]*(tau-GAMMA[i]),2)-t[i]/powI(tau,2)-2.0*beta[i]);
+        psi=exp(-alpha[i]*powInt(delta-epsilon[i],2)-beta[i]*powInt(tau-GAMMA[i],2));
+        dphir2_dTau2=dphir2_dTau2+n[i]*powInt(delta,d[i])*pow(tau,t[i])*psi*(powInt(t[i]/tau-2.0*beta[i]*(tau-GAMMA[i]),2)-t[i]/powInt(tau,2)-2.0*beta[i]);
     }
     
     for (i=55;i<=56;i++)
     {
-        theta=(1.0-tau)+A[i]*pow(powI(delta-1.0,2),1/(2*beta[i]));
-        DELTA=powI(theta,2)+B[i]*pow(powI(delta-1.0,2),a[i]);
-        PSI=exp(-C[i]*powI(delta-1.0,2)-D[i]*powI(tau-1.0,2));
+        theta=(1.0-tau)+A[i]*pow(powInt(delta-1.0,2),1/(2*beta[i]));
+        DELTA=powInt(theta,2)+B[i]*pow(powInt(delta-1.0,2),a[i]);
+        PSI=exp(-C[i]*powInt(delta-1.0,2)-D[i]*powInt(tau-1.0,2));
         dPSI_dTau=-2.0*D[i]*(tau-1.0)*PSI;
         dDELTAbi_dTau=-2.0*theta*b[i]*pow(DELTA,b[i]-1.0);
-        dPSI2_dTau2=(2.0*D[i]*powI(tau-1.0,2)-1.0)*2.0*D[i]*PSI;
-        dDELTAbi2_dTau2=2.0*b[i]*pow(DELTA,b[i]-1.0)+4.0*powI(theta,2)*b[i]*(b[i]-1.0)*pow(DELTA,b[i]-2.0);
+        dPSI2_dTau2=(2.0*D[i]*powInt(tau-1.0,2)-1.0)*2.0*D[i]*PSI;
+        dDELTAbi2_dTau2=2.0*b[i]*pow(DELTA,b[i]-1.0)+4.0*powInt(theta,2)*b[i]*(b[i]-1.0)*pow(DELTA,b[i]-2.0);
         dphir2_dTau2=dphir2_dTau2+n[i]*delta*(dDELTAbi2_dTau2*PSI+2.0*dDELTAbi_dTau*dPSI_dTau+pow(DELTA,b[i])*dPSI2_dTau2);
     }
     
@@ -1274,58 +840,56 @@ double dphir3_dDelta2_dTau_Water(double tau, double delta)
     int i;
     double di, ci;
     double dphir3_dDelta2_dTau=0,theta,DELTA,PSI,dPSI_dDelta,dDELTA_dDelta,dDELTAbi_dDelta,psi,dPSI2_dDelta2,dDELTAbi2_dDelta2,dDELTA2_dDelta2;
-    double dPSI2_dDelta_dTau, dDELTAbi2_dDelta_dTau, dPSI_dTau, dDELTAbi_dTau, dPSI2_dTau2, dDELTAbi2_dTau2;
+    double dPSI2_dDelta_dTau, dDELTAbi2_dDelta_dTau, dPSI_dTau, dDELTAbi_dTau;
     double Line1,Line2,Line3,dDELTA2_dDelta_dTau,dDELTA3_dDelta2_dTau,dDELTAbim1_dTau,dDELTAbim2_dTau;
     double dDELTA_dTau,dDELTAbi3_dDelta2_dTau;
     for (i=1;i<=7;i++)
     {
         di=(double)d[i];
-        dphir3_dDelta2_dTau+=n[i]*di*t[i]*(di-1)*powI(delta,d[i]-2)*pow(tau,t[i]-1.0);
+        dphir3_dDelta2_dTau+=n[i]*di*t[i]*(di-1)*powInt(delta,d[i]-2)*pow(tau,t[i]-1.0);
     }
     for (i=8;i<=51;i++)
     {
         di=(double)d[i];
         ci=(double)c[i];
-        dphir3_dDelta2_dTau+=n[i]*t[i]*exp(-powI(delta,c[i]))*powI(delta,d[i]-2)*pow(tau,t[i]-1.0)*(((di-ci*powI(delta,c[i])))*(di-1-c[i]*powI(delta,c[i]))-c[i]*c[i]*powI(delta,c[i]));
+        dphir3_dDelta2_dTau+=n[i]*t[i]*exp(-powInt(delta,c[i]))*powInt(delta,d[i]-2)*pow(tau,t[i]-1.0)*(((di-ci*powInt(delta,c[i])))*(di-1-c[i]*powInt(delta,c[i]))-c[i]*c[i]*powInt(delta,c[i]));
     }
     for (i=52;i<=54;i++)
     {
         di=(double)d[i];
-        psi=exp(-alpha[i]*powI(delta-epsilon[i],2)-beta[i]*powI(tau-GAMMA[i],2));
-        dphir3_dDelta2_dTau+=n[i]*pow(tau,t[i])*psi*powI(delta,d[i])*(t[i]/tau-2.0*beta[i]*(tau-GAMMA[i]))*(-2.0*alpha[i]*(delta-epsilon[i])+4*alpha[i]*alpha[i]*pow(delta,d[i])*powI(delta-epsilon[i],2)-4*d[i]*alpha[i]*pow(delta,d[i]-1)*(delta-epsilon[i])+d[i]*(d[i]-1)*powI(delta,d[i]-2));
+        psi=exp(-alpha[i]*powInt(delta-epsilon[i],2)-beta[i]*powInt(tau-GAMMA[i],2));
+        dphir3_dDelta2_dTau+=n[i]*pow(tau,t[i])*psi*powInt(delta,d[i])*(t[i]/tau-2.0*beta[i]*(tau-GAMMA[i]))*(-2.0*alpha[i]*(delta-epsilon[i])+4*alpha[i]*alpha[i]*pow(delta,d[i])*powInt(delta-epsilon[i],2)-4*d[i]*alpha[i]*pow(delta,d[i]-1)*(delta-epsilon[i])+d[i]*(d[i]-1)*powInt(delta,d[i]-2));
     }
     for (i=55;i<=56;i++)
     {
         
-        theta=(1.0-tau)+A[i]*pow(powI(delta-1.0,2),1.0/(2.0*beta[i]));
-        DELTA=powI(theta,2)+B[i]*pow(powI(delta-1.0,2),a[i]);
-        PSI=exp(-C[i]*powI(delta-1.0,2)-D[i]*powI(tau-1.0,2));
+        theta=(1.0-tau)+A[i]*pow(powInt(delta-1.0,2),1.0/(2.0*beta[i]));
+        DELTA=powInt(theta,2)+B[i]*pow(powInt(delta-1.0,2),a[i]);
+        PSI=exp(-C[i]*powInt(delta-1.0,2)-D[i]*powInt(tau-1.0,2));
         
         dPSI_dDelta=-2.0*C[i]*(delta-1.0)*PSI;
-        dDELTA_dDelta=(delta-1.0)*(A[i]*theta*2.0/beta[i]*pow(powI(delta-1.0,2),1.0/(2.0*beta[i])-1.0)+2.0*B[i]*a[i]*pow(powI(delta-1.0,2),a[i]-1.0));
+        dDELTA_dDelta=(delta-1.0)*(A[i]*theta*2.0/beta[i]*pow(powInt(delta-1.0,2),1.0/(2.0*beta[i])-1.0)+2.0*B[i]*a[i]*pow(powInt(delta-1.0,2),a[i]-1.0));
         dDELTAbi_dDelta=b[i]*pow(DELTA,b[i]-1.0)*dDELTA_dDelta;
         
-        dPSI2_dDelta2=(2.0*C[i]*powI(delta-1.0,2)-1.0)*2.0*C[i]*PSI;
-        dDELTA2_dDelta2=1.0/(delta-1.0)*dDELTA_dDelta+powI(delta-1.0,2)*(4.0*B[i]*a[i]*(a[i]-1.0)*pow(powI(delta-1.0,2),a[i]-2.0)+2.0*powI(A[i]/beta[i],2)*powI(pow(powI(delta-1.0,2),1.0/(2.0*beta[i])-1.0),2)+A[i]*theta*4.0/beta[i]*(1.0/(2.0*beta[i])-1.0)*pow(powI(delta-1.0,2),1.0/(2.0*beta[i])-2.0));
-        dDELTAbi2_dDelta2=b[i]*(pow(DELTA,b[i]-1.0)*dDELTA2_dDelta2+(b[i]-1.0)*pow(DELTA,b[i]-2.0)*powI(dDELTA_dDelta,2));
+        dPSI2_dDelta2=(2.0*C[i]*powInt(delta-1.0,2)-1.0)*2.0*C[i]*PSI;
+        dDELTA2_dDelta2=1.0/(delta-1.0)*dDELTA_dDelta+powInt(delta-1.0,2)*(4.0*B[i]*a[i]*(a[i]-1.0)*pow(powInt(delta-1.0,2),a[i]-2.0)+2.0*powInt(A[i]/beta[i],2)*powInt(pow(powInt(delta-1.0,2),1.0/(2.0*beta[i])-1.0),2)+A[i]*theta*4.0/beta[i]*(1.0/(2.0*beta[i])-1.0)*pow(powInt(delta-1.0,2),1.0/(2.0*beta[i])-2.0));
+        dDELTAbi2_dDelta2=b[i]*(pow(DELTA,b[i]-1.0)*dDELTA2_dDelta2+(b[i]-1.0)*pow(DELTA,b[i]-2.0)*powInt(dDELTA_dDelta,2));
         
         dPSI_dTau=-2.0*D[i]*(tau-1.0)*PSI;
         dDELTAbi_dTau=-2.0*theta*b[i]*pow(DELTA,b[i]-1.0);
-        dPSI2_dTau2=(2.0*D[i]*powI(tau-1.0,2)-1.0)*2.0*D[i]*PSI;
-        dDELTAbi2_dTau2=2.0*b[i]*pow(DELTA,b[i]-1.0)+4.0*powI(theta,2)*b[i]*(b[i]-1.0)*pow(DELTA,b[i]-2.0);
         
         dPSI2_dDelta_dTau=4.0*C[i]*D[i]*(delta-1.0)*(tau-1.0)*PSI;
-        dDELTAbi2_dDelta_dTau=-A[i]*b[i]*2.0/beta[i]*pow(DELTA,b[i]-1.0)*(delta-1.0)*pow(powI(delta-1.0,2),1.0/(2.0*beta[i])-1.0)-2.0*theta*b[i]*(b[i]-1.0)*pow(DELTA,b[i]-2.0)*dDELTA_dDelta;
+        dDELTAbi2_dDelta_dTau=-A[i]*b[i]*2.0/beta[i]*pow(DELTA,b[i]-1.0)*(delta-1.0)*pow(powInt(delta-1.0,2),1.0/(2.0*beta[i])-1.0)-2.0*theta*b[i]*(b[i]-1.0)*pow(DELTA,b[i]-2.0)*dDELTA_dDelta;
 	
 	//Following Terms added for this derivative
-	dDELTA_dTau=-2*((1-tau)+A[i]*pow(powI(delta-1,2),1/(2*beta[i])-1)+2*B[i]*a[i]*pow(powI(delta-1,2),a[i]-1));
-	dDELTA2_dDelta_dTau=-(delta-1)*A[i]*(2/beta[i])*pow(powI(delta-1,2),1/(2*beta[i])-1);
-	dDELTA3_dDelta2_dTau=1/(delta-1)*dDELTA2_dDelta_dTau-powI(delta-1,2)*A[i]*(4/beta[i])*(1/(2*beta[i])-1)*pow(powI(delta-1,2),1/(2*beta[i])-2);
+	dDELTA_dTau=-2*((1-tau)+A[i]*pow(powInt(delta-1,2),1/(2*beta[i])-1)+2*B[i]*a[i]*pow(powInt(delta-1,2),a[i]-1));
+	dDELTA2_dDelta_dTau=-(delta-1)*A[i]*(2/beta[i])*pow(powInt(delta-1,2),1/(2*beta[i])-1);
+	dDELTA3_dDelta2_dTau=1/(delta-1)*dDELTA2_dDelta_dTau-powInt(delta-1,2)*A[i]*(4/beta[i])*(1/(2*beta[i])-1)*pow(powInt(delta-1,2),1/(2*beta[i])-2);
 	
 	dDELTAbim1_dTau=(b[i]-1)*pow(DELTA,b[i]-2)*dDELTA_dTau;
 	dDELTAbim2_dTau=(b[i]-2)*pow(DELTA,b[i]-3)*dDELTA_dTau;
 	Line1=dDELTAbim1_dTau*dDELTA2_dDelta2+pow(DELTA,b[i]-1)*dDELTA3_dDelta2_dTau;
-	Line2=(b[i]-1)*(dDELTAbim2_dTau*powI(dDELTA_dDelta,2)+pow(DELTA,b[i]-2)*2*dDELTA2_dDelta_dTau*dDELTA_dDelta);
+	Line2=(b[i]-1)*(dDELTAbim2_dTau*powInt(dDELTA_dDelta,2)+pow(DELTA,b[i]-2)*2*dDELTA2_dDelta_dTau*dDELTA_dDelta);
 	dDELTAbi3_dDelta2_dTau=b[i]*(Line1+Line2);
 	
 	Line1=pow(DELTA,b[i])*(2*delta*dPSI2_dDelta_dTau+delta*dDELTA3_dDelta2_dTau)+dDELTAbi_dTau*(2*dPSI_dDelta+delta*dPSI2_dDelta2);
@@ -1356,7 +920,7 @@ double dphi0_dDelta_Water(double tau, double delta)
 
 double dphi02_dDelta2_Water(double tau, double delta)
 {
-    return -1.0/powI(delta,2);
+    return -1.0/powInt(delta,2);
 }
 
 double dphi0_dTau_Water(double tau, double delta)
@@ -1376,238 +940,10 @@ double dphi02_dTau2_Water(double tau, double delta)
     double dphi02_dTau2=0;
     int i;
     
-    dphi02_dTau2=-n0[3]/powI(tau,2);
+    dphi02_dTau2=-n0[3]/powInt(tau,2);
     for (i=4;i<=8;i++)
     {
-        dphi02_dTau2=dphi02_dTau2-n0[i]*powI(gamma0[i],2)*exp(-gamma0[i]*tau)/powI(1.0-exp(-gamma0[i]*tau),2);
+        dphi02_dTau2=dphi02_dTau2-n0[i]*powInt(gamma0[i],2)*exp(-gamma0[i]*tau)/powInt(1.0-exp(-gamma0[i]*tau),2);
     }
     return dphi02_dTau2;
 }
-
-static double get_Delta(double T, double P)
-{
-    
-    double change,eps=.0005;
-    int counter=1;
-    double r1,r2,r3,delta1,delta2,delta3;
-    double tau;
-    double delta_guess;
- 
-    if (P>Pc)
-    {
-        if (T>Tc)
-        {
-            delta_guess=P/(R_Water*T)/rhoc;
-        }
-        else
-        {
-            delta_guess=1000/rhoc;
-        }
-    }
-    else
-    {
-        if (T>Tsat_Water(P))
-        {
-            delta_guess=P/(R_Water*T)/rhoc;
-        }
-        else
-        {
-            delta_guess=1000/rhoc;
-        }
-    }
-    
-   
-    tau=Tc/T;
-    delta1=delta_guess;
-    delta2=delta_guess+.00001;
-    r1=P/(delta1*rhoc*R_Water*T)-1.0-delta1*dphir_dDelta_Water(tau,delta1);
-    r2=P/(delta2*rhoc*R_Water*T)-1.0-delta2*dphir_dDelta_Water(tau,delta2);
-    
-    // End at change less than 0.05%
-    while(counter==1 || (fabs(change)/fabs(delta2)>eps && counter<40))
-    {
-        delta3=delta2-r2/(r2-r1)*(delta2-delta1);
-        r3=P/(delta3*rhoc*R_Water*T)-1.0-delta3*dphir_dDelta_Water(tau,delta3);
-        change=r2/(r2-r1)*(delta2-delta1);
-        delta1=delta2;
-        delta2=delta3;
-        r1=r2;
-        r2=r3;
-        counter=counter+1;        
-    }
-    //printf("Iteration: %d \n",counter);
-    return delta3;
-}
-
-
-
-
-static double LookupValue(char *Prop, double T, double p)
-{
-	int iPlow, iPhigh, iTlow, iThigh,L,R,M,iter;
-	double T1, T2, T3, P1, P2, P3, y1, y2, y3, a1, a2, a3;
-	double (*mat)[nT][nP];
-
-	//Input checking
-	if (T>Tmax || T<Tmin)
-	{
-		errCode=OUT_RANGE_T;
-	}
-	if (p>Pmax || p<Pmin)
-	{
-		errCode=OUT_RANGE_P;
-	}
-	if (T<Tmin || T > Tmax || p<Pmin || p>Pmax || isNAN(T) || isINFINITY(T) ||isNAN(p) || isINFINITY(p))
-    {
-		printf("Inputs to LookupValue(%s) of Water out of bounds:  T=%g K \t P=%g kPa \n",Prop,T,p);
-    }
-
-	L=0;
-	R=nT-1;
-	M=(L+R)/2;
-	iter=0;
-	// Use interval halving to find the indices which bracket the temperature of interest
-	while (R-L>1)
-	{
-		if (T>=Tvec[M])
-		{ L=M; M=(L+R)/2; continue;}
-		if (T<Tvec[M])
-		{ R=M; M=(L+R)/2; continue;}
-		iter++;
-		if (iter>100)
-			printf("Problem with T(%g K)\n",T);
-	}
-	iTlow=L; iThigh=R;
-
-	L=0;
-	R=nP-1;
-	M=(L+R)/2;
-	iter=0;
-	// Use interval halving to find the indices which bracket the pressure of interest
-	while (R-L>1)
-	{
-		if (p>=pvec[M])
-		{ L=M; M=(L+R)/2; continue;}
-		if (p<pvec[M])
-		{ R=M; M=(L+R)/2; continue;}
-		iter++;
-		if (iter>100)
-			printf("Problem with p(%g kPa)\n",p);
-	}
-	iPlow=L; iPhigh=R;
-
-	/* Depending on which property is desired, 
-	make the matrix mat a pointer to the 
-	desired property matrix */
-
-	if (!strcmp(Prop,"rho"))
-		mat=&rhomat;
-	else if (!strcmp(Prop,"cp"))
-		mat=&cpmat;
-	else if (!strcmp(Prop,"cv"))
-		mat=&cvmat;
-	else if (!strcmp(Prop,"h"))
-		mat=&hmat;
-	else if (!strcmp(Prop,"s"))
-		mat=&smat;
-	else if (!strcmp(Prop,"u"))
-		mat=&umat;
-	else if (!strcmp(Prop,"visc"))
-		mat=&viscmat;
-	else
-		printf("Parameter %s not found in LookupValue in Water.c\n",Prop);
-	
-	//At Low Temperature Index
-	y1=(*mat)[iTlow][iPlow];
-	y2=(*mat)[iTlow][iPhigh];
-	y3=(*mat)[iTlow][iPhigh+1];
-	P1=pvec[iPlow];
-	P2=pvec[iPhigh];
-	P3=pvec[iPhigh+1];
-	a1=QuadInterpolate(P1,P2,P3,y1,y2,y3,p);
-
-	//At High Temperature Index
-	y1=(*mat)[iThigh][iPlow];
-	y2=(*mat)[iThigh][iPhigh];
-	y3=(*mat)[iThigh][iPhigh+1];
-	a2=QuadInterpolate(P1,P2,P3,y1,y2,y3,p);
-
-	//At High Temperature Index+1 (for QuadInterpolate() )
-	y1=(*mat)[iThigh+1][iPlow];
-	y2=(*mat)[iThigh+1][iPhigh];
-	y3=(*mat)[iThigh+1][iPhigh+1];
-	a3=QuadInterpolate(P1,P2,P3,y1,y2,y3,p);
-
-	//At Final Interpolation
-	T1=Tvec[iTlow];
-	T2=Tvec[iThigh];
-	T3=Tvec[iThigh+1];
-	return QuadInterpolate(T1,T2,T3,a1,a2,a3,T);
-	
-}
-
-static double powI(double x, int y)
-{
-    int i;
-    double product=1.0;
-    double x_in;
-    int y_in;
-    
-    if (y==0)
-    {
-        return 1.0;
-    }
-    
-    if (y<0)
-    {
-        x_in=1/x;
-        y_in=-y;
-    }
-	else
-	{
-		x_in=x;
-		y_in=y;
-	}
-
-    if (y_in==1)
-    {
-        return x_in;
-    }    
-    
-    product=x_in;
-    for (i=1;i<y_in;i++)
-    {
-        product=product*x_in;
-    }
-    
-    return product;
-}
-
-static double QuadInterpolate(double x0, double x1, double x2, double f0, double f1, double f2, double x)
-{
-    double L0, L1, L2;
-    L0=((x-x1)*(x-x2))/((x0-x1)*(x0-x2));
-    L1=((x-x0)*(x-x2))/((x1-x0)*(x1-x2));
-    L2=((x-x0)*(x-x1))/((x2-x0)*(x2-x1));
-    return L0*f0+L1*f1+L2*f2;
-}
-
-static int isNAN(double x)
-{
-	// recommendation from http://www.devx.com/tips/Tip/42853
-	return x != x;
-}
-
-static int isINFINITY(double x)
-{
-	// recommendation from http://www.devx.com/tips/Tip/42853
-	if ((x == x) && ((x - x) != 0.0)) 
-		return 1;//return (x < 0.0 ? -1 : 1); // This will tell you whether positive or negative infinity
-	else 
-		return 0;
-}
-
-
-
-
-

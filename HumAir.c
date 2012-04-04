@@ -18,10 +18,20 @@
 #include "SolverFunctions.h"
 #include "HumAir.h"
 
+static const char ITc='B';
 static double epsilon=0.621945,R_bar=8.314472;
 static int FlagUseVirialCorrelations=0,FlagUseIsothermCompressCorrelation=0,FlagUseIdealGasEnthalpyCorrelations=0;
 double f_factor(double T, double p);
 
+// A couple of convenience functions that are needed quite a lot
+static double MM_Air(void)
+{
+	return Props('M','T',0,'P',0,"Air");
+}
+static double MM_Water(void)
+{
+	return Props('M','T',0,'P',0,"Water");
+}
 void UseVirialCorrelations(int flag)
 {
     if (flag==0 || flag==1)
@@ -59,7 +69,7 @@ void UseIdealGasEnthalpyCorrelations(int flag)
 static double Secant_HAProps_T(char *OutputName, char *Input1Name, double Input1, char *Input2Name, double Input2, double TargetVal, double T_guess)
 {
     // Use a secant solve in order to yield a target output value for HAProps by altering T
-    double x1=0,x2=0,x3=0,y1=0,y2=0,eps=1e-8,change=999,f=999,T=300;
+    double x1=0,x2=0,x3=0,y1=0,y2=0,eps=1e-8,f=999,T=300;
 	int iter=1;
 
 	while ((iter<=3 || fabs(f)>eps) && iter<100)
@@ -83,7 +93,7 @@ static double Secant_HAProps_T(char *OutputName, char *Input1Name, double Input1
 static double Secant_HAProps_W(char *OutputName, char *Input1Name, double Input1, char *Input2Name, double Input2, double TargetVal, double W_guess)
 {
     // Use a secant solve in order to yield a target output value for HAProps by altering humidity ratio
-    double x1=0,x2=0,x3=0,y1=0,y2=0,eps=1e-8,change=999,f=999,W=0.0001;
+    double x1=0,x2=0,x3=0,y1=0,y2=0,eps=1e-8,f=999,W=0.0001;
 	int iter=1;
 
 	while ((iter<=3 || fabs(f)>eps) && iter<100)
@@ -183,7 +193,7 @@ static double B_m(double T, double psi_w)
     // NDG for fluid EOS for virial terms
     Tj=132.6312;
     tau_Air=Tj/T;
-    tau_Water=Tcrit_Water()/T;
+    tau_Water=Props(ITc,'T',0,'P',0,"Water")/T;
     if (FlagUseVirialCorrelations==1)
     {
         B_aa=-0.000721183853646 +1.142682674467e-05*T -8.838228412173e-08*powI(T,2) 
@@ -210,7 +220,7 @@ static double dB_m_dT(double T, double psi_w)
     // NDG for fluid EOS for virial terms
     Tj=132.6312;
     tau_Air=Tj/T;
-    tau_Water=Tcrit_Water()/T;
+    tau_Water=Props(ITc,'T',0,'P',0,"Water")/T;
     if (FlagUseVirialCorrelations)
     {
         dB_dT_aa=1.65159324353e-05 -3.026130954749e-07*T +2.558323847166e-09*powI(T,2) -1.250695660784e-11*powI(T,3) +3.759401946106e-14*powI(T,4) -6.889086380822e-17*powI(T,5) +7.089457032972e-20*powI(T,6) -3.149942145971e-23*powI(T,7);
@@ -232,7 +242,7 @@ static double C_m(double T, double psi_w)
     // NDG for fluid EOS for virial terms
     Tj=132.6312;
     tau_Air=Tj/T;
-    tau_Water=Tcrit_Water()/T;
+    tau_Water=Props(ITc,'T',0,'P',0,"Water")/T;
     if (FlagUseVirialCorrelations)
     {
         C_aaa=1.29192158975e-08 -1.776054020409e-10*T +1.359641176409e-12*powI(T,2) 
@@ -260,7 +270,7 @@ static double dC_m_dT(double T, double psi_w)
     // NDG for fluid EOS for virial terms
     Tj=132.6312;
     tau_Air=Tj/T;
-    tau_Water=Tcrit_Water()/T;
+    tau_Water=Props(ITc,'T',0,'P',0,"Water")/T;
     if (FlagUseVirialCorrelations)
     {
         dC_dT_aaa=-2.46582342273e-10 +4.425401935447e-12*T -3.669987371644e-14*powI(T,2) +1.765891183964e-16*powI(T,3) -5.240097805744e-19*powI(T,4) +9.502177003614e-22*powI(T,5) -9.694252610339e-25*powI(T,6) +4.276261986741e-28*powI(T,7);
@@ -344,7 +354,7 @@ double f_factor(double T, double p)
     // NDG for fluid EOS for virial terms
     Tj=132.6312;
     tau_Air=Tj/T;
-    tau_Water=Tcrit_Water()/T;
+    tau_Water=Props(ITc,'T',0,'P',0,"Water")/T;
 	if (FlagUseVirialCorrelations)
 	{
 		B_aa=-0.000721183853646 +1.142682674467e-05*T -8.838228412173e-08*powI(T,2) 
@@ -407,9 +417,8 @@ double f_factor(double T, double p)
 	}
     return f;
 }
-void HAHelp()
+void HAHelp(void)
 {
-    double Tj=132.6312,M_Air=28.9586,M_Water=18.015;
 	printf("Sorry, Need to update!");
 }
 int returnHumAirCode(char * Code)
@@ -477,7 +486,7 @@ double MolarVolume(double T, double p, double psi_w)
 {
     // Output in m^3/mol
     int iter;
-    double v_bar0, v_bar, R_bar=8.314472,x1,x2,x3,y1,y2,resid,change,eps,Bm,Cm;
+    double v_bar0, v_bar, R_bar=8.314472,x1,x2,x3,y1,y2,resid,eps,Bm,Cm;
     
     // -----------------------------
     // Iteratively find molar volume
@@ -506,7 +515,6 @@ double MolarVolume(double T, double p, double psi_w)
 		{
 			y2=resid;
 			x3=x2-y2/(y2-y1)*(x2-x1);
-			change=fabs(y2/(y2-y1)*(x2-x1));
 			y1=y2; x1=x2; x2=x3;
 		}
 		iter=iter+1;
@@ -518,7 +526,7 @@ double IdealGasMolarEnthalpy_Water(double T, double v_bar)
 	double hbar_w_0,tau,rhobar,delta,hbar_w;
 	// Ideal-Gas contribution to enthalpy of water
     hbar_w_0=-0.01102303806;//[kJ/kmol]
-    tau=Tcrit_Water()/T; 
+    tau=Props(ITc,'T',0,'P',0,"Water")/T;
     rhobar=322/MM_Water()*1000;
 	delta=1/(v_bar*rhobar);
 	hbar_w=hbar_w_0+R_bar*T*(1+tau*dphi0_dTau_Water(tau,delta));
@@ -568,7 +576,7 @@ double MolarEnthalpy(double T, double p, double psi_w, double v_bar)
 double DewpointTemperature(double T, double p, double psi_w)
 {
     int iter;
-    double p_w,epsilon=0.621945,eps,resid,Tdp,x1,x2,x3,y1,y2,change;
+    double p_w,eps,resid,Tdp,x1,x2,x3,y1,y2;
     double p_ws_dp,f_dp;
     
     // Make sure it isn't dry air, return an impossible temperature otherwise
@@ -610,7 +618,6 @@ double DewpointTemperature(double T, double p, double psi_w)
 		{
 			y2=resid;
 			x3=x2-y2/(y2-y1)*(x2-x1);
-			change=fabs(y2/(y2-y1)*(x2-x1));
 			y1=y2; x1=x2; x2=x3;
 		}
 		iter=iter+1;
@@ -621,7 +628,7 @@ double DewpointTemperature(double T, double p, double psi_w)
 double WetbulbTemperature(double T, double p, double psi_w)
 {
     int iter;
-    double epsilon=0.621945,eps,resid,Twb,x1,x2,x3,y1,y2,change;
+    double epsilon=0.621945,eps,resid,Twb,x1,x2,x3,y1,y2;
     double p_ws_wb,f_wb,W,W_s_wb,p_s_wb,h_w,psi_wb,M_ha_wb,M_ha;
     double v_bar_w,v_bar_wb;
     
@@ -680,7 +687,6 @@ double WetbulbTemperature(double T, double p, double psi_w)
 		{
 			y2=resid;
 			x3=x2-y2/(y2-y1)*(x2-x1);
-			change=fabs(y2/(y2-y1)*(x2-x1));
 			y1=y2; x1=x2; x2=x3;
 		}
 		iter=iter+1;
@@ -708,7 +714,7 @@ static int Name2Type(char *Name)
     else if (!strcmp(Name,"k") || !strcmp(Name,"Conductivity") || !strcmp(Name,"K"))
         return GIVEN_COND;
     else
-        printf("Sorry, your input [%s] was not understood to Name2Type in HumAir.c. Acceptable values are T,P,R,W,D,B,H,M,K and aliases thereof\n");
+        printf("Sorry, your input [%s] was not understood to Name2Type in HumAir.c. Acceptable values are T,P,R,W,D,B,H,M,K and aliases thereof\n",Name);
         return -1;
 }
 int TypeMatch(int TypeCode,char *Input1Name, char *Input2Name, char *Input3Name)
@@ -1033,11 +1039,11 @@ double HAProps_Aux(char* Name,double T, double p, double W, char *units)
     // Requires W since it is nice and fast and always defined.  Put a dummy value if you want something that doesn't use humidity
     
     // Takes temperature, pressure, and humidity ratio W as inputs;
-    double psi_w,Tj,tau_Water,tau_Air,B_aa,C_aaa,B_ww,C_www,B_aw,C_aaw,C_aww,p_ws,v_bar,delta, tau;
+    double psi_w,Tj,tau_Water,tau_Air,B_aa,C_aaa,B_ww,C_www,B_aw,C_aaw,C_aww,v_bar,delta, tau;
     
     Tj=132.6312;
     tau_Air=Tj/T;
-    tau_Water=Tcrit_Water()/T;
+    tau_Water=Props(ITc,'T',0,'P',0,"Water")/T;
     
     if (!strcmp(Name,"Baa"))
     {
@@ -1137,7 +1143,6 @@ double HAProps_Aux(char* Name,double T, double p, double W, char *units)
         else
         {
             // It is ice
-            p_ws=psub_Ice(T)*1000;
             return dg_dp_Ice(T,p/1000)*MM_Water()/1000/1000; //[m^3/mol]
         }
     }
@@ -1188,6 +1193,7 @@ double HAProps_Aux(char* Name,double T, double p, double W, char *units)
     else
     {
         printf("Sorry I didn't understand your input [%s] to HAProps_Aux\n",Name);
+        return -1;
     }
 }
 double cair_sat(double T)

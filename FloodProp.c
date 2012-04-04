@@ -6,26 +6,21 @@
 #include "math.h"
 #include "stdio.h"
 #include <string.h>
+#include "CoolProp.h"
 #include "FloodProp.h"
-#include "R744.h"
-#include "R404A.h"
-#include "R134a.h"
-#include "R410A.h"
-#include "Nitrogen.h"
-#include "PropMacros.h"
 
 	//  ****************************
-	
 	//  ***** Gas Variables ********
-	
 	//  ****************************
-
+	static int I_N2=0, I_He=1, I_Ne=2, I_Ar=3, I_Kr=4, I_Xe=5, I_CO2=6;
+	static int I_Methanol=0, I_Ethanol=1, I_Propanol=2, I_Butanol=3, I_Water=4, I_NH3=5, I_Zerol=6,I_POE=7;
 	
 	static double cp_A[6], cp_B[6], cp_C[6], cp_D[6], cp_E[6];
 	static double kg_A[7], kg_B[7], kg_C[7];
 	static double w[6], Pc[6], Tc[6], MM_g[6];
 	static double mug_A[7], mug_B[7], mug_C[7];
-
+    //When adding gas, make sure to increase
+    // the length of coefficient vectors
 	
 	//  ****************************
 	//  ***** Liq Variables ********
@@ -38,10 +33,6 @@
 	double cl_A[NL], cl_B[NL], cl_C[NL], cl_D[NL];
 	double mul_A[NL], mul_B[NL], mul_C[NL], mul_D[NL];
 	double MM_l[NL];
-	
-	
-//When adding gas, make sure to increase
-// the length of coefficient vectors
 
 int isNAN_FP(double x)
 {
@@ -376,16 +367,7 @@ double R(char *Gas)
     // output in kJ/kg-K
 	int ii;
 
-	if (!strcmp(Gas,"CO2"))
-    	return 8.31447215/MM_R744();
-	if (!strcmp(Gas,"R410A"))
-    	return 8.31447215/MM_R410A();
-	if (!strcmp(Gas,"R404a"))
-		return 8.31447215/MM_R404A();
-	if (!strcmp(Gas,"R134a"))
-		return 8.31447215/MM_R134a();
-	if (!strcmp(Gas,"Nitrogen") || !strcmp(Gas,"N2"))
-		return 8.31447215/MM_Nitrogen();
+	return 8.31447215/Props('M','T',0,'P',0,Gas);
     
     setGas();
     ii=getIndex(Gas);
@@ -419,26 +401,179 @@ double rho_g(char *Gas, double T, double P)
 { 
     // input in K, [-]
     // output in kg/m^3
-    if (!strcmp(Gas,"CO2"))
-    	return rho_R744(T,P,TYPE_TP);
-	if (!strcmp(Gas,"R410A"))
-    	return rho_R410A(T,P,TYPE_TP);
-	if (!strcmp(Gas,"R404A"))
-		return rho_R404A(T,P,TYPE_TP);
-	if (!strcmp(Gas,"R134a"))
-		return rho_R134a(T,P,TYPE_TP); // necessary to avoid recalculation
-	if (!strcmp(Gas,"Nitrogen"))
-		return rho_Nitrogen(T,P,TYPE_TP); // necessary to avoid recalculation
+	double Value;
+
+	// Turn on the LUT
+	UseSinglePhaseLUT(1);
+	Value=Props('D','T',T,'P',P,Gas);
+	if (!ValidNumber(Value))
+	{
+		//ERROR
+	}
+	else
+		return Value;
 
     return P/(R(Gas)*T);
 }
+
+double h_g(char *Gas, double T, double P)
+{
+    // input in K,kPa
+    // output in kJ/kg
+    int ii;
+	double Value;
+
+	// Turn on the LUT
+	UseSinglePhaseLUT(1);
+    Value=Props('H','T',T,'P',P,Gas);
+    if (!ValidNumber(Value))
+    {
+    	//ERROR
+    }
+    else
+    	return Value;
+
+    setGas();
+	ii=getIndex(Gas);
+	return (cp_A[ii]*(T-298.15) + cp_B[ii]/2.0*(T*T-298.15*298.15) + cp_C[ii]/3.0*(T*T*T-298.15*298.15*298.15) + cp_D[ii]/4.0*(T*T*T*T-298.15*298.15*298.15*298.15) + cp_E[ii]/5.0*(T*T*T*T*T-298.15*298.15*298.15*298.15*298.15))/MM_g[ii];
+}
+
+double u_g(char *Gas, double T, double P)
+{
+    // input in K,kPa
+    // output in kJ/kg
+	double Value;
+
+	// Turn on the LUT
+	UseSinglePhaseLUT(1);
+	Value=Props('U','T',T,'P',P,Gas);
+	if (!ValidNumber(Value))
+	{
+		//ERROR
+	}
+	else
+		return Value;
+    
+	return h_g(Gas,T,P)-R(Gas)*T;
+}
+
+double s_g(char *Gas, double T, double P)
+{
+    // input in K
+    // output in kJ/kg-K
+	double Value;
+	int ii;
+
+	// Turn on the LUT
+	UseSinglePhaseLUT(1);
+	Value=Props('S','T',T,'P',P,Gas);
+	if (!ValidNumber(Value))
+	{
+		//ERROR
+	}
+	else
+		return Value;
+
+    setGas();
+    ii=getIndex(Gas); 
+    return (cp_A[ii]*log(T/298.15) + cp_B[ii]*(T-298.15) + cp_C[ii]/2.0*(T*T-298.15*298.15) + cp_D[ii]/3.0*(T*T*T-298.15*298.15*298.15))/MM_g[ii]-R(Gas)*log(P/101.325);
+}
+
+double c_v(char *Gas, double T, double P)
+{ 
+    // input in K, [-]
+    // output in kJ/kg-K
+    int ii;
+    double Value;
+    
+    // Turn on the LUT
+	UseSinglePhaseLUT(1);
+	Value=Props('O','T',T,'P',P,Gas);
+	if (!ValidNumber(Value))
+	{
+		//ERROR
+	}
+	else
+		return Value;
+
+    setGas();
+    ii=getIndex(Gas);
+    return (cp_A[ii] + cp_B[ii]*T + cp_C[ii]*T*T + cp_D[ii]*T*T*T + cp_E[ii]*T*T*T*T)/MM_g[ii]-R(Gas);
+}
+
+double c_p(char *Gas, double T, double P)
+{ 
+    // input in K, [-]
+    // output in kJ/kg-K
+    int ii;
+    double Value;
+
+	// Turn on the LUT
+	UseSinglePhaseLUT(1);
+	Value=Props('C','T',T,'P',P,Gas);
+	if (!ValidNumber(Value))
+	{
+		//ERROR
+	}
+	else
+		return Value;
+    
+    setGas();
+    ii=getIndex(Gas);
+    return (cp_A[ii] + cp_B[ii]*T + cp_C[ii]*T*T + cp_D[ii]*T*T*T + cp_E[ii]*T*T*T*T)/MM_g[ii];
+}
+
+double k_g(char *Gas, double T, double p)
+{
+    // input in K
+    // output in kW/m-K
+    int ii;
+    double Value;
+
+	// Turn on the LUT
+	UseSinglePhaseLUT(1);
+	Value=Props('L','T',T,'P',p,Gas);
+	if (!ValidNumber(Value))
+	{
+		//ERROR
+	}
+	else
+		return Value;
+
+    setGas();
+    ii=getIndex(Gas);
+    return (kg_A[ii] + kg_B[ii]*T + kg_C[ii]*T*T)/1000.0;
+}
+
+double mu_g(char *Gas, double T, double p)
+{
+    // input in K
+    // output in microP --> Pa-s
+    int ii;
+    double Value;
+
+	// Turn on the LUT
+	UseSinglePhaseLUT(1);
+	Value=Props('V','T',T,'P',p,Gas);
+	if (!ValidNumber(Value))
+	{
+		//ERROR
+	}
+	else
+		return Value;
+
+    setGas();
+    ii=getIndex(Gas);
+    return (mug_A[ii] + mug_B[ii]*T + mug_C[ii]*T*T)/1.0e7;
+}
+
 
 double rho_m(char *Gas, char *Liq, double T, double P, double xL)
 {
     // input in K, kPa, [-]
     // output in kg/m^3
     double vG, vL, x,rhom;
-    
+
     if (xL==0)
     {
         return rho_g(Gas,T,P);
@@ -456,68 +591,6 @@ double rho_m(char *Gas, char *Liq, double T, double P, double xL)
 	if (isINFINITY_FP(rhom))
 		printf("rhom is Infinite");
     return rhom;
-}
-
-double h_g(char *Gas, double T, double P)
-{
-    // input in K,kPa
-    // output in kJ/kg
-    int ii;
-	
-	if (!strcmp(Gas,"CO2"))
-    	return h_R744(T,P,TYPE_TP);
-	if (!strcmp(Gas,"R410A"))
-    	return h_R410A(T,P,TYPE_TP);
-	if (!strcmp(Gas,"R404A"))
-		return h_R404A(T,P,TYPE_TP);
-	if (!strcmp(Gas,"R134a"))
-		return h_R134a(T,P,TYPE_TP);
-	if (!strcmp(Gas,"Nitrogen"))
-		return h_Nitrogen(T,P,TYPE_TP);
-
-    setGas();
-	ii=getIndex(Gas);
-	return (cp_A[ii]*(T-298.15) + cp_B[ii]/2.0*(T*T-298.15*298.15) + cp_C[ii]/3.0*(T*T*T-298.15*298.15*298.15) + cp_D[ii]/4.0*(T*T*T*T-298.15*298.15*298.15*298.15) + cp_E[ii]/5.0*(T*T*T*T*T-298.15*298.15*298.15*298.15*298.15))/MM_g[ii];
-}
-
-double u_g(char *Gas, double T, double P)
-{
-    // input in K,kPa
-    // output in kJ/kg
-    if (!strcmp(Gas,"CO2"))
-    	return u_R744(T,P,TYPE_TP);
-	if (!strcmp(Gas,"R410A"))
-    	return u_R410A(T,P,TYPE_TP);
-	if (!strcmp(Gas,"R404A"))
-		return u_R404A(T,P,TYPE_TP);
-	if (!strcmp(Gas,"R134a"))
-		return u_R134a(T,P,TYPE_TP);
-	if (!strcmp(Gas,"Nitrogen"))
-		return u_Nitrogen(T,P,TYPE_TP);
-    
-	return h_g(Gas,T,P)-R(Gas)*T;
-}
-
-
-double s_g(char *Gas, double T, double P)
-{
-    // input in K
-    // output in kJ/kg-K
-    int ii;
-    if (!strcmp(Gas,"CO2"))
-    	return s_R744(T,P,TYPE_TP);
-	if (!strcmp(Gas,"R410A"))
-    	return s_R410A(T,P,TYPE_TP);
-	if (!strcmp(Gas,"R404A"))
-		return s_R404A(T,P,TYPE_TP);
-	if (!strcmp(Gas,"R134a"))
-		return s_R134a(T,P,TYPE_TP);
-	if (!strcmp(Gas,"Nitrogen"))
-		return s_Nitrogen(T,P,TYPE_TP);
-
-    setGas();
-    ii=getIndex(Gas); 
-    return (cp_A[ii]*log(T/298.15) + cp_B[ii]*(T-298.15) + cp_C[ii]/2.0*(T*T-298.15*298.15) + cp_D[ii]/3.0*(T*T*T-298.15*298.15*298.15))/MM_g[ii]-R(Gas)*log(P/101.325);
 }
 
 double u_m(char *Gas, char *Liq, double T, double P, double xL)
@@ -550,47 +623,7 @@ double h_m(char *Gas, char *Liq, double T, double P, double xL)
     return hm;
 }
 
-double c_v(char *Gas, double T, double P)
-{ 
-    // input in K, [-]
-    // output in kJ/kg-K
-    int ii;
-	if (!strcmp(Gas,"CO2"))
-    	return cv_R744(T,P,TYPE_TP);
-	if (!strcmp(Gas,"R410A"))
-    	return cv_R410A(T,P,TYPE_TP);
-	if (!strcmp(Gas,"R404A"))
-		return cv_R404A(T,P,TYPE_TP);
-	if (!strcmp(Gas,"R134a"))
-		return cv_R134a(T,P,TYPE_TP);
-	if (!strcmp(Gas,"Nitrogen"))
-		return cv_Nitrogen(T,P,TYPE_TP);
 
-    setGas();
-    ii=getIndex(Gas);
-    return (cp_A[ii] + cp_B[ii]*T + cp_C[ii]*T*T + cp_D[ii]*T*T*T + cp_E[ii]*T*T*T*T)/MM_g[ii]-R(Gas);
-}
-
-double c_p(char *Gas, double T, double P)
-{ 
-    // input in K, [-]
-    // output in kJ/kg-K
-    int ii;
-	if (!strcmp(Gas,"CO2"))
-    	return cp_R744(T,P,TYPE_TP);
-	if (!strcmp(Gas,"R410A"))
-    	return cp_R410A(T,P,TYPE_TP);
-	if (!strcmp(Gas,"R404A"))
-		return cp_R404A(T,P,TYPE_TP);
-	if (!strcmp(Gas,"R134a"))
-		return cp_R134a(T,P,TYPE_TP);
-	if (!strcmp(Gas,"Nitrogen"))
-		return cp_Nitrogen(T,P,TYPE_TP);
-    
-    setGas();
-    ii=getIndex(Gas);
-    return (cp_A[ii] + cp_B[ii]*T + cp_C[ii]*T*T + cp_D[ii]*T*T*T + cp_E[ii]*T*T*T*T)/MM_g[ii];
-}
 
 double c_l(char *Liq, double T)
 {
@@ -669,39 +702,7 @@ double mu_l(char *Liq, double T)
     return muL;
 }
 
-double k_g(char *Gas, double T, double p)
-{
-    // input in K
-    // output in kW/m-K
-    int ii;
-	if (!strcmp(Gas,"R134a"))
-		return k_R134a(T,p,TYPE_TP);
-	//if (!strcmp(Gas,"CO2") || !strcmp(Gas,"R744"))
-//		return k_R744(T,p,TYPE_TP);
-	if (!strcmp(Gas,"R410A"))
-		return k_R410A(T,p,TYPE_TP);
 
-    setGas();
-    ii=getIndex(Gas); 
-    return (kg_A[ii] + kg_B[ii]*T + kg_C[ii]*T*T)/1000.0;
-}
-
-double mu_g(char *Gas, double T, double p)
-{
-    // input in K
-    // output in microP --> Pa-s
-    int ii;
-	if (!strcmp(Gas,"R134a"))
-		return visc_R134a(T,p,TYPE_TP);
-	if (!strcmp(Gas,"CO2") || !strcmp(Gas,"R744"))
-			return visc_R744(T,p,TYPE_TP);
-	if (!strcmp(Gas,"R410A"))
-			return visc_R410A(T,p,TYPE_TP);
-
-    setGas();
-    ii=getIndex(Gas); 
-    return (mug_A[ii] + mug_B[ii]*T + mug_C[ii]*T*T)/1.0e7;
-}
 
 double dudT_m(char *Gas, char *Liq, double T, double P, double xL)
 {
@@ -868,13 +869,12 @@ double e_m(char *Gas, char *Liq, double T, double P, double xL)
     return (h_m(Gas,Liq,T,P,xL)-h_m(Gas,Liq,T0,P0,xL))-T0*(s_m(Gas,Liq,T,P,xL)-s_m(Gas,Liq,T0,P0,xL));
 }
 
-double T_hp(char *Gas, char *Liq, double h, double p, double xL, double T_guess)
+double T_hp_FP(char *Gas, char *Liq, double h, double p, double xL, double T_guess)
 {
-	double x1,x2,x3,y1,y2,eps,change,f,T;
+	double x1,x2,x3,y1,y2,eps,f,T;
 	int iter;
 
 	eps=1e-8;
-	change=999;
 	iter=1;
 	f=100.0;
 	while ((iter<=3 || fabs(f)>eps) && iter<100)
@@ -891,7 +891,6 @@ double T_hp(char *Gas, char *Liq, double h, double p, double xL, double T_guess)
 		{
 			y2=f;
 			x3=x2-y2/(y2-y1)*(x2-x1);
-			change=fabs(y2/(y2-y1)*(x2-x1));
 			y1=y2; x1=x2; x2=x3;
 		}
 		iter=iter+1;
@@ -907,11 +906,10 @@ double T_hp(char *Gas, char *Liq, double h, double p, double xL, double T_guess)
 
 double T_Up(char *Gas, char *Liq, double U, double p, double xL, double V, double T_guess)
 {
-	double x1,x2,x3,y1,y2,eps,change,f=999.,T;
+	double x1,x2,x3,y1,y2,eps,f=999.,T;
 	int iter;
 
 	eps=1e-8;
-	change=999;
 	iter=1;
 	while ((iter<=3 || fabs(f)>eps) && iter<100)
 	{
@@ -926,7 +924,6 @@ double T_Up(char *Gas, char *Liq, double U, double p, double xL, double V, doubl
 		{
 			y2=f;
 			x3=x2-y2/(y2-y1)*(x2-x1);
-			change=fabs(y2/(y2-y1)*(x2-x1));
 			y1=y2; x1=x2; x2=x3;
 		}
 		iter=iter+1;
@@ -944,13 +941,13 @@ double T_Up(char *Gas, char *Liq, double U, double p, double xL, double V, doubl
 
 double p_Trho(char *Gas, char *Liq, double rho, double T, double xL, double p_guess)
 {
-	double x1,x2,x3,y1,y2,eps,change,f,p;
+	double x1,x2,x3,y1,y2,eps,f,p;
 	int iter;
 
 	eps=1e-8;
-	change=999;
 	iter=1;
-	while ((iter<=3 || change>eps) && iter<100)
+    f=999;
+	while ((iter<=3 || fabs(f)>eps) && iter<100)
 	{
 		if (iter==1){x1=p_guess; p=x1;}
 		if (iter==2){x2=p_guess+0.1; p=x2;}
@@ -965,7 +962,6 @@ double p_Trho(char *Gas, char *Liq, double rho, double T, double xL, double p_gu
 		{
 			y2=f;
 			x3=x2-y2/(y2-y1)*(x2-x1);
-			change=fabs(y2/(y2-y1)*(x2-x1));
 			y1=y2; x1=x2; x2=x3;
 		}
 		iter=iter+1;
@@ -981,15 +977,15 @@ double p_Trho(char *Gas, char *Liq, double rho, double T, double xL, double p_gu
 	return x3;
 }
 
-double h_sp(char *Gas, char *Liq, double s, double p, double xL, double T_guess)
+double h_sp_FP(char *Gas, char *Liq, double s, double p, double xL, double T_guess)
 {
-	double x1,x2,x3,y1,y2,eps,change,f,T;
+	double x1,x2,x3,y1,y2,eps,f,T;
 	int iter;
 
 	eps=1e-8;
-	change=999;
+	f=999;
 	iter=1;
-	while ((iter<=3 || change>eps) && iter<100)
+	while ((iter<=3 || fabs(f)>eps) && iter<100)
 	{
 		if (iter==1){x1=T_guess; T=x1;}
 		if (iter==2){x2=T_guess+0.1; T=x2;}
@@ -1004,7 +1000,6 @@ double h_sp(char *Gas, char *Liq, double s, double p, double xL, double T_guess)
 		{
 			y2=f;
 			x3=x2-y2/(y2-y1)*(x2-x1);
-			change=fabs(y2/(y2-y1)*(x2-x1));
 			y1=y2; x1=x2; x2=x3;
 		}
 		iter=iter+1;
@@ -1024,13 +1019,13 @@ double h_sp(char *Gas, char *Liq, double s, double p, double xL, double T_guess)
 
 double T_sp(char *Gas, char *Liq, double s, double p, double xL, double T_guess)
 {
-	double x1,x2,x3,y1,y2,eps,change,f,T;
+	double x1,x2,x3,y1,y2,eps,f,T;
 	int iter;
 
 	eps=1e-8;
-	change=999;
+	f=999;
 	iter=1;
-	while ((iter<=3 || change>eps) && iter<100)
+	while ((iter<=3 || fabs(f)>eps) && iter<100)
 	{
 		if (iter==1){x1=T_guess; T=x1;}
 		if (iter==2){x2=T_guess+0.1; T=x2;}
@@ -1045,7 +1040,6 @@ double T_sp(char *Gas, char *Liq, double s, double p, double xL, double T_guess)
 		{
 			y2=f;
 			x3=x2-y2/(y2-y1)*(x2-x1);
-			change=fabs(y2/(y2-y1)*(x2-x1));
 			y1=y2; x1=x2; x2=x3;
 		}
 		iter=iter+1;
@@ -1065,12 +1059,11 @@ double T_sp(char *Gas, char *Liq, double s, double p, double xL, double T_guess)
 
 double dpdT_const_v(char *Gas, char *Liq, double T, double p1, double xL)
 {
-	double x1,x2,x3,y1,y2,eps,change,f,v1,delta,p2;
+	double x1,x2,x3,y1,y2,eps,f,v1,delta,p2;
 	int iter;
 
 	delta=1e-5;
 	eps=1e-6;
-	change=999;
 	iter=1;
 
 	v1=1/rho_m(Gas,Liq,T,p1,xL);
@@ -1088,7 +1081,6 @@ double dpdT_const_v(char *Gas, char *Liq, double T, double p1, double xL)
 		{
 			y2=f;
 			x3=x2-y2/(y2-y1)*(x2-x1);
-			change=fabs(y2/(y2-y1)*(x2-x1));
 			y1=y2; x1=x2; x2=x3;
 		}
 		iter=iter+1;
