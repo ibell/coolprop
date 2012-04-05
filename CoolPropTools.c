@@ -1,4 +1,8 @@
-
+#if defined(_MSC_VER)
+#define _CRTDBG_MAP_ALLOC
+#define _CRT_SECURE_NO_WARNINGS
+#include <crtdbg.h>
+#endif
 #include <stdlib.h>
 
 #include "math.h"
@@ -223,7 +227,8 @@ p	||   /		  | X X X X Superheated Gas
     Tmax=Fluid->LUT.Tmax;
     pmin=Fluid->LUT.pmin;
     pmax=Fluid->LUT.pmax;
-    //Warn the user
+
+	//Warn the user
     printf("Building Lookup Tables... Please wait...");
     for (i=0;i<nT;i++)
     {

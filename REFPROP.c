@@ -1,3 +1,31 @@
+#if defined(_MSC_VER)
+#define _CRTDBG_MAP_ALLOC
+#define _CRT_SECURE_NO_WARNINGS
+#include <crtdbg.h>
+#endif
+
+#include "CoolProp.h"
+
+#if defined(__ISWINDOWS__)
+#include <windows.h>
+#include "REFPROP.h"
+#endif
+
+#include <stdlib.h>
+#include "string.h"
+#include <stdio.h>
+
+// Some constants for REFPROP... defined by macros for ease of use 
+#define refpropcharlength 255
+#define filepathlength 255
+#define lengthofreference 3
+#define errormessagelength 255
+#define ncmax 20		// Note: ncmax is the max number of components
+#define numparams 72 
+#define maxcoefs 50
+
+char LoadedREFPROPRef[255];
+
 #if defined (__ISWINDOWS__) //Check if it is a windows machine, if not, hide this function
 double REFPROP(char Output,char Name1, double Prop1, char Name2, double Prop2, char * Ref)
 {
@@ -137,8 +165,6 @@ double REFPROP(char Output,char Name1, double Prop1, char Name2, double Prop2, c
 			char *REFPROPRef=NULL,*RefCopy=NULL,RefString[255],*Refs[20],*Refrigerant;
 			double molefraction;
 
-			//Set global fluid type flag
-			FluidType=FLUIDTYPE_REFPROP;
 			// Allocate space for refrigerant name
 			RefCopy=malloc(strlen(Ref)+1);
 			// Make a backup copy

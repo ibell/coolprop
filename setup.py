@@ -14,16 +14,16 @@ FluidSources = ['R134a.c','R744.c','R290.c','R410A.c',
                'R507A.c','Argon.c','Nitrogen.c','Water.c','Air.c']
                            
 CoolProp_module = Extension('_CoolProp',
-                           sources=['CoolProp.i', 'CoolProp.c','CoolPropTools.c']+FluidSources,
+                           sources=['CoolProp.i', 'CoolProp.c','CoolPropTools.c','REFPROP.c']+FluidSources,
                            #swig_opts=['-builtin']
                            )
 
 FloodProp_module = Extension('_FloodProp',
-                           sources=['FloodProp.i', 'FloodProp.c','CoolProp.c','CoolPropTools.c']+FluidSources,
+                           sources=['FloodProp.i', 'FloodProp.c','CoolProp.c','CoolPropTools.c','REFPROP.c']+FluidSources,
                            )
                            
 HumidAirProp_module = Extension('_HumidAirProp',
-                           sources=['HumidAirProp.i','HumAir.c','CoolProp.c','CoolPropTools.c','Ice.cpp','SolverFunctions.c']+FluidSources,
+                           sources=['HumidAirProp.i','HumAir.c','CoolProp.c','CoolPropTools.c','Ice.cpp','SolverFunctions.c','REFPROP.c']+FluidSources,
                            #swig_opts=['-builtin']
                            )                           
 

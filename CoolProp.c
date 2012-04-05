@@ -18,17 +18,7 @@
 #include <stdio.h>
 #include "CoolProp.h"
 
-// Some constants for REFPROP... defined by macros for ease of use 
-#define refpropcharlength 255
-#define filepathlength 255
-#define lengthofreference 3
-#define errormessagelength 255
-#define ncmax 20		// Note: ncmax is the max number of components
-#define numparams 72 
-#define maxcoefs 50
-
 char LoadedFluid[255];
-char LoadedREFPROPRef[255];
 int FluidType;
 
 double R_u=8.314472; //From Lemmon et al 2009 (propane)
@@ -421,7 +411,7 @@ static void rhosatPure(char *Ref, double T, double *rhoLout, double *rhoVout, do
             y1=y2; x1=x2; x2=x3;
         }
         iter=iter+1;
-        if (iter>90)
+        if (iter>100)
         {
         	//ERROR
             printf("rhosatPure failed, current values of rhoL and rhoV are %g,%g\n",rhoL,rhoV);

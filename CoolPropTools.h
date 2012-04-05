@@ -1,3 +1,8 @@
+
+#if defined(_WIN32) || defined(__WIN32__) || defined(_WIN64) || defined(__WIN64__)
+#define __ISWINDOWS__
+#endif
+
 #ifndef COOLPROPTOOLS_H
 #define COOLPROPTOOLS_H
 
