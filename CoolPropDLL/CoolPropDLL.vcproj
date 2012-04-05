@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="CoolPropDLL"
+	Name="CoolProp_dll"
 	ProjectGUID="{96E0DBE9-8FA5-4EAE-9E79-502F33308715}"
 	RootNamespace="CoolPropDLL"
 	Keyword="MFCDLLProj"
@@ -349,6 +349,10 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath="..\Air.c"
+				>
+			</File>
+			<File
 				RelativePath="..\Argon.c"
 				>
 			</File>
@@ -414,6 +418,10 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
+			<File
+				RelativePath="..\Air.h"
+				>
+			</File>
 			<File
 				RelativePath="..\Argon.h"
 				>
