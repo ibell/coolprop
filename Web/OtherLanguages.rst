@@ -28,7 +28,7 @@ which yields::
 	The density of nitrogen at STP is:
 	    1.1458
 
-This example assumes that the compiled CoolpropDLL.dll and CoolProp_dll.h are located either on the MATLAB path somewhere, or in this case in particular, that the DLL is located one folder up and in the CoolPropDLL folder (that's what the relative path '..' means).  The protocol should remain basically the same for other programming languages other than Python.
+This example assumes that the compiled CoolpropDLL.dll and CoolProp_dll.h are located either on the MATLAB path somewhere, or in this case in particular, that the DLL is located one folder up and in the CoolPropDLL folder (that's what the relative path '..' means).  The protocol should remain basically the same for other programming languages other than MATLAB.
 
 This example demonstrates the two main types of calls to Coolprop
 

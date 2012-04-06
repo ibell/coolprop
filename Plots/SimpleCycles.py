@@ -20,11 +20,18 @@ def SimpleCycle(Ref,Te,Tc,DTsh,DTsc,eta_a,Ts_Ph='Ph',skipPlot=False,axis=None):
     
     Required parameters:
     
+    * Ref : A string for the refrigerant
     * Te : Evap Temperature in K
     * Tc : Condensing Temperature in K
     * DTsh : Evaporator outlet superheat in K
     * DTsc : Condenser outlet subcooling in K
     * eta_a : Adiabatic efficiency of compressor (no units) in range [0,1]
+    
+    Optional parameters:
+    
+    * Ts_Ph : 'Ts' for a Temperature-Entropy plot, 'Ph' for a Pressure-Enthalpy
+    * axis : An axis to use instead of the active axis
+    * skipPlot : If True, won't actually plot anything, just print COP
     
     """
     T=np.zeros((6))
@@ -66,7 +73,31 @@ def SimpleCycle(Ref,Te,Tc,DTsh,DTsc,eta_a,Ts_Ph='Ph',skipPlot=False,axis=None):
         else:
             raise TypeError('Type of Ts_Ph invalid')
 
-def TwoStage(Ref,Q,Te,Tc,DTsh,DTsc,eta_oi,f_p,Tsat_ic,DTsh_ic,Ts_Ph='Ph',prints=False,skipPlot=False,**kwargs):
+def TwoStage(Ref,Q,Te,Tc,DTsh,DTsc,eta_oi,f_p,Tsat_ic,DTsh_ic,Ts_Ph='Ph',prints=False,skipPlot=False,axis=None,**kwargs):
+    """
+    This function plots a two-stage cycle, on the current axis, or that given by the optional parameter *axis*
+    
+    Required parameters:
+    
+    * Ref : Refrigerant [string]
+    * Q : Cooling capacity [W]
+    * Te : Evap Temperature [K]
+    * Tc : Condensing Temperature [K]
+    * DTsh : Evaporator outlet superheat [K]
+    * DTsc : Condenser outlet subcooling [K]
+    * eta_oi : Adiabatic efficiency of compressor (no units) in range [0,1]
+    * f_p : fraction of compressor power lost as ambient heat transfer in range [0,1]
+    * Tsat_ic : Saturation temperature corresponding to intermediate pressure [K]
+    * DTsh_ic : Superheating at outlet of intermediate stage [K]
+    
+    Optional parameters:
+    
+    * Ts_Ph : 'Ts' for a Temperature-Entropy plot, 'Ph' for a Pressure-Enthalpy
+    * prints : True to print out some values
+    * axis : An axis to use instead of the active axis
+    * skipPlot : If True, won't actually plot anything, just print COP
+    
+    """
     
     T=np.zeros((8))
     h=np.zeros_like(T)
@@ -152,7 +183,10 @@ def TwoStage(Ref,Q,Te,Tc,DTsh,DTsc,eta_oi,f_p,Tsat_ic,DTsh_ic,Ts_Ph='Ph',prints=
         print Tsat_ic,COP
     
     if skipPlot==False:
-        ax=kwargs.get('axis',pylab.gca())
+        if axis==None:
+            ax=pylab.gca())
+        else
+            ax=axis
         if Ts_Ph in ['ph','Ph']:
             ax.plot(h,p)
         elif Ts_Ph in ['Ts','ts']:
@@ -180,7 +214,29 @@ def TwoStage(Ref,Q,Te,Tc,DTsh,DTsc,eta_oi,f_p,Tsat_ic,DTsh_ic,Ts_Ph='Ph',prints=
             raise TypeError('Type of Ts_Ph invalid')
     return COP
     
-def EconomizedCycle(Ref,Qin,Te,Tc,DTsh,DTsc,eta_oi,f_p,Ti,Ts_Ph='Ts',skipPlot=False,**kwargs):
+def EconomizedCycle(Ref,Qin,Te,Tc,DTsh,DTsc,eta_oi,f_p,Ti,Ts_Ph='Ts',skipPlot=False,axis=None,**kwargs):
+     """
+    This function plots an economized cycle, on the current axis, or that given by the optional parameter *axis*
+    
+    Required parameters:
+    
+    * Ref : Refrigerant [string]
+    * Qin : Cooling capacity [W]
+    * Te : Evap Temperature [K]
+    * Tc : Condensing Temperature [K]
+    * DTsh : Evaporator outlet superheat [K]
+    * DTsc : Condenser outlet subcooling [K]
+    * eta_oi : Adiabatic efficiency of compressor (no units) in range [0,1]
+    * f_p : fraction of compressor power lost as ambient heat transfer in range [0,1]
+    * Ti : Saturation temperature corresponding to intermediate pressure [K]
+    
+    Optional parameters:
+    
+    * Ts_Ph : 'Ts' for a Temperature-Entropy plot, 'Ph' for a Pressure-Enthalpy
+    * axis : An axis to use instead of the active axis
+    * skipPlot : If True, won't actually plot anything, just print COP
+    
+    """
     
     m=1
     
@@ -280,7 +336,10 @@ def EconomizedCycle(Ref,Qin,Te,Tc,DTsh,DTsc,eta_oi,f_p,Ti,Ts_Ph='Ts',skipPlot=Fa
     Wdot1=m*wdot1
     Wdot2=(m+x)*wdot2
     if skipPlot==False:
-        ax=kwargs.get('axis',pylab.gca())
+        if axis==None:
+            ax=pylab.gca()
+        else:
+            ax=axis
         if Ts_Ph in ['ph','Ph']:
             ax.plot(h,p)
             ax.set_yscale('log')

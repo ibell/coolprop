@@ -8,11 +8,11 @@ Introduction
 
 If you are feeling impatient, jump to :ref:`Props_Sample`, otherwise, hang in there.
 
-Nearly all the fluids modeling in CoolProp are based on Helmholtz function formulations.  This is a convenient construction of the equation of state because all the thermodynamic properties of interest can be obtained directly from partial derivatives of the helmholtz function.
+Nearly all the fluids modeling in CoolProp are based on Helmholtz function formulations.  This is a convenient construction of the equation of state because all the thermodynamic properties of interest can be obtained directly from partial derivatives of the Helmholtz energy.
 
 It should be noted that the EOS are typically valid over the entire range of the fluid, from subcooled liquid to superheated vapor, to supercritical fluid.  
 
-Annoyingly, different authors have selected different sets of nomenclature for the Helmholtz formulation.  For consistency, the nomenclature of Lemmon will be used here.  Also, some authors present results on a mole-basis or mass-basis, further complicating comparisons.
+Annoyingly, different authors have selected different sets of nomenclature for the Helmholtz energy.  For consistency, the nomenclature of Lemmon will be used here.  Also, some authors present results on a mole-basis or mass-basis, further complicating comparisons.
 
 Mathematical Description
 ------------------------
@@ -89,7 +89,7 @@ The EOS is set up with temperature and density as the two independent properties
 #. If the fluid is superheated, use a guess of ideal gas (:math:`\rho=p/(RT)`)
 #. If the fluid is subcooled, use a guess of saturated liquid density
 #. If the fluid is supercritical, use a guess of ideal gas (:math:`\rho=p/(RT)`)
-#. No solution if the fluid is two-phase
+#. No solution for density as a function of temperature and pressure if the fluid is two-phase
 
 Saturation State
 ----------------

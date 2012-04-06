@@ -78,7 +78,7 @@ Molar Volume
     
     p=\frac{\bar R T}{\bar v}\left( 1+\frac{B_m}{\bar v}+\frac{C_m}{\bar v^2}\right)
     
-The bracketed term on the right hand side is the compressibility Z factor, equal to 1 for ideal gas.  The virial terms are given by
+The bracketed term on the right hand side is the compressibility Z factor, equal to 1 for ideal gas, and is a measure of non-ideality of the air.  The virial terms are given by
     
 .. math::
     
@@ -88,7 +88,7 @@ The bracketed term on the right hand side is the compressibility Z factor, equal
     
 where the virial coefficients are described in ASRAE RP-1485 and their values are provided in :ref:`HA-Validation`.  All virial terms are functions only of temperature.
 
-Usually the temperature is known, the water mole fraction is calculated, and :math:`\bar v` is found using iterativew methods, in HAProps, using a secant solver and the first guess that the compressibility factor is 1.0.
+Usually the temperature is known, the water mole fraction is calculated, and :math:`\bar v` is found using iterative methods, in HAProps, using a secant solver and the first guess that the compressibility factor is 1.0.
     
 Molar Enthalpy
 --------------
@@ -172,7 +172,8 @@ To use the HAProps function, import it and do some calls, do something like this
     In [1]: from CoolProp.HumidAirProp import HAProps, HAProps_Aux
     
     #Enthalpy (kJ per kg dry air) as a function of temperature, pressure, 
-    #    and relative humidity at STP
+    #    and relative humidity at dry bulb temperature T of 25C, pressure 
+    #    P of one atmosphere, relative humidity R of 50%
     In [2]: h=HAProps('H','T',298.15,'P',101.325,'R',0.5); print h
     
     #Temperature of saturated air at the previous enthalpy

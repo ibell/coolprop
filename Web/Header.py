@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 from CoolProp.Plots import Ph
 from CoolProp.Plots.SimpleCycles import SimpleCycle
 
-fig=plt.figure(figsize=(6,2))
+fig=plt.figure(figsize=(6,1))
 ax=fig.add_axes((0,0,1,1))
 ax.set_xlim(0,6)
 ax.set_ylim(0,2)
@@ -16,5 +16,5 @@ ax2.set_xlim(-6,600)
 ax2.set_ylim(-1000,6000)
 ax2.axis('off')
 plt.draw()
-plt.savefig('_static/header.png')
+plt.savefig('_static/header.png',transparent=True)
 plt.show()

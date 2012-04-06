@@ -35,7 +35,7 @@ Virials(['Baw','Caaw','Caww'])
 ##############################
 
 print ""
-print "Water saturation pressure p_ws"
+print "Water saturation pressure p_ws [kPa]"
 from CoolProp.HumidAirProp import HAProps_Aux
 import numpy as np
 Tv=np.linspace(-60,300,13)+273.15
@@ -69,7 +69,7 @@ for T in Tv:
 ##########################################
 
 print ""
-print "Isothermal Compressibility of water (kT) [units of 1/Pa]"
+print "Isothermal Compressibility of water (kT) [1/Pa]"
 from CoolProp.HumidAirProp import HAProps_Aux
 import numpy as np
 Tv=np.linspace(-60,300,13)+273.15
@@ -90,7 +90,7 @@ for T in Tv:
 ##########################################
 
 print ""
-print "Molar volume of saturated liquid water or ice (vbar_ws) [units of m^3/mol]"
+print "Molar volume of saturated liquid water or ice (vbar_ws) [m^3/mol]"
 from CoolProp.HumidAirProp import HAProps_Aux
 import numpy as np
 Tv=np.linspace(-60,300,13)+273.15

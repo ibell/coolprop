@@ -38,13 +38,13 @@ D         Tdp         Dew-Point Temperature [K]
 P                     Pressure [kPa]
 V         Vda         Mixture volume [m3/kg dry air]
 R         RH          Relative humidity in (0,1) [-]
-W         Omega       Humidity Ratio [kgw/kga]
+W         Omega       Humidity Ratio [kg water/kg dry air]
 H         Hda         Mixture enthalpy [kJ/kg dry air]
 M         Visc        Mixture viscosity [Pa-s]
 K                     Mixture thermal conductivity [W/m/K]
 ========  ========    ========================================
 
-There are also strings for the mixture volume and enthalpy that will return the properties on a total humid air flow rate basis, they are given by 'Vha' and 'Hha' respectively.
+There are also strings for the mixture volume and mixture enthalpy that will return the properties on a total humid air flow rate basis, they are given by 'Vha' [units of m^3/kg humid air] and 'Hha' [units of kJ/kg humid air] respectively.
 
 For more information, go to http://coolprop.sourceforge.net
 "
