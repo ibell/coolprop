@@ -626,7 +626,6 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 {
     double T,p,Q,rhoV,rhoL,Value,rho,pdp,pbp;
     int isTwoPhase,success;
-    char errString[ERRSTRLENGTH];
     char Local_errString[300];
 
     //Flush out any errors from the CoolProp error bubbling stack

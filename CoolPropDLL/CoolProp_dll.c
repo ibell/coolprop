@@ -13,11 +13,6 @@ __declspec(dllexport) double  __stdcall Props_dll(char Output,char Name1, double
 	return Props(Output,Name1,Prop1,Name2,Prop2,Ref);
 }
 
-__declspec(dllexport) int  __stdcall errCode_dll(char * Ref)
-{
-	return errCode(Ref);
-}
-
 __declspec(dllexport) double  __stdcall pcrit_dll(char *Ref)
 {
 	return pcrit(Ref);

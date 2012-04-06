@@ -165,8 +165,8 @@ int WriteLookup2File(int ILUT)
 
 int BuildLookupTable(char *Ref, struct fluidParamsVals *Fluid)
 {
-    int i,j,k,Tmin,Tmax,pmin,pmax,OldUseLUT,test1,test2,test3;
-    double Tc;
+    int i,j,k,OldUseLUT,test1,test2,test3;
+    double Tc,Tmin,Tmax,pmin,pmax;
     double (*p_dp)(double);
     double (*p_bp)(double);
     

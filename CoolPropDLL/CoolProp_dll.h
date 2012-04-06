@@ -1,5 +1,4 @@
 __declspec(dllexport) double  __stdcall Props_dll(char Output,char Name1, double Prop1, char Name2, double Prop2, char * Ref);
-__declspec(dllexport) int  __stdcall errCode_dll(char * Ref);
 __declspec(dllexport) double  __stdcall pcrit_dll(char *Ref);
 __declspec(dllexport) double  __stdcall Tcrit_dll(char *Ref);
 __declspec(dllexport) double  __stdcall T_hp_dll(char *Ref, double h, double p, double T_guess);

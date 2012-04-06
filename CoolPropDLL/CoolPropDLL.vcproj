@@ -25,7 +25,7 @@
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="2"
 			UseOfMFC="2"
-			CharacterSet="1"
+			CharacterSet="0"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -54,6 +54,7 @@
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="4"
+				CompileAs="1"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -369,6 +370,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\CoolPropTools.c"
+				>
+			</File>
+			<File
 				RelativePath="..\Nitrogen.c"
 				>
 			</File>
@@ -409,6 +414,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\REFPROP.c"
+				>
+			</File>
+			<File
 				RelativePath="..\Water.c"
 				>
 			</File>
@@ -436,6 +445,10 @@
 			</File>
 			<File
 				RelativePath=".\CoolProp_dll.h"
+				>
+			</File>
+			<File
+				RelativePath="..\CoolPropTools.h"
 				>
 			</File>
 			<File

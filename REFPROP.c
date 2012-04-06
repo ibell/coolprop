@@ -37,11 +37,21 @@ double REFPROP(char Output,char Name1, double Prop1, char Name2, double Prop2, c
 	double x[ncmax],xliq[ncmax],xvap[ncmax];
 	char RefString[255];
 	double T,p=0,d,dl,dv,q,e,h,s,cv,cp,w,MW,hl,hv,sl,sv,ul,uv,pl,pv,eta,tcx,Q,Tcrit,pcrit,dcrit,rho;
+	LPCSTR REFPROPPath1=(LPCSTR)"c:\\Program Files\\REFPROP\\refprop.dll";
+	LPCSTR REFPROPPath2=(LPCSTR)"refprop.dll";
 
 	// First create a pointer to an instance of the library
 	// Then have windows load the library.
 		HINSTANCE RefpropdllInstance;
-		RefpropdllInstance = LoadLibrary("c:/Program Files/REFPROP/refprop.dll");
+		RefpropdllInstance = LoadLibrary(REFPROPPath1);
+		if (RefpropdllInstance==NULL)
+		{
+			RefpropdllInstance = LoadLibrary(REFPROPPath2);
+			if (RefpropdllInstance==NULL)
+			{
+				printf("Could not find REFPROP in the path c:\\Program Files\\REFPROP\\refprop.dll or in the current folder\n");
+			}
+		}
 
 	// Then get pointers into the dll to the actual functions.
 		ABFL1dll = (fp_ABFL1dllTYPE) GetProcAddress(RefpropdllInstance,"ABFL1dll");
