@@ -409,7 +409,7 @@ double rho_g(char *Gas, double T, double P)
 	if (!ValidNumber(Value))
 	{
 		//ERROR
-		printf("rho_g error");
+		printf("rho_g error [T: %0.12f p: %0.12f rho: %g]",T,P,Value);
 	}
 	else
 		return Value;
