@@ -22,6 +22,7 @@ CoolProp_module = Extension('_CoolProp',
 FloodProp_module = Extension('_FloodProp',
                            sources=['FloodProp.i', 'FloodProp.cpp','CoolProp.cpp','CoolPropTools.cpp','REFPROP.cpp']+FluidSources,
                            swig_opts=['-c++']
+                           #swig_opts=['-builtin']
                            )
                            
 HumidAirProp_module = Extension('_HumidAirProp',

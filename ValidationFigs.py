@@ -1,4 +1,4 @@
-from CoolProp.CoolProp import Props,Ttriple,Tcrit,Help
+from CoolProp.CoolProp import Props,Ttriple,Tcrit,Help,UseSaturationLUT
 import numpy as np,pylab
 
 def SaturationValidationPlot(Ref,REFPROPRef):
@@ -79,65 +79,66 @@ def SaturationValidationPlot(Ref,REFPROPRef):
     
     ax=pylab.subplot(nR,nC,1)
     ax.set_title('Sat. Liquid')
-    ax.plot(T,(rhoL_REFPROP/rhoL-1)*100)
+    ax.semilogy(T,np.abs(rhoL_REFPROP/rhoL-1)*100)
     ax.set_ylabel(r'Error: $\rho$ [kg/m$^3$]')
     
     ax=pylab.subplot(nR,nC,2)
     ax.set_title('Sat. Vapor')
-    ax.plot(T,(rhoV_REFPROP/rhoV-1)*100)
+    ax.semilogy(T,np.abs(rhoV_REFPROP/rhoV-1)*100)
     
     ax=pylab.subplot(nR,nC,3)
-    ax.plot(T,(pL_REFPROP/pL-1)*100)
+    ax.semilogy(T,np.abs(pL_REFPROP/pL-1)*100)
     ax.set_ylabel('Error: p [$\%$]')
     
     ax=pylab.subplot(nR,nC,4)
-    ax.plot(T,(pV_REFPROP/pV-1)*100)
+    ax.semilogy(T,np.abs(pV_REFPROP/pV-1)*100)
     
     ax=pylab.subplot(nR,nC,5)
-    ax.plot(T,(hL_REFPROP/hL-1)*100)
+    ax.semilogy(T,np.abs(hL_REFPROP/hL-1)*100)
     ax.set_ylabel('Error: h [$\%$]')
     
     ax=pylab.subplot(nR,nC,6)
-    ax.plot(T,(hV_REFPROP/hV-1)*100)
+    ax.semilogy(T,np.abs(hV_REFPROP/hV-1)*100)
     
     ax=pylab.subplot(nR,nC,7)
-    ax.plot(T,(uL_REFPROP/uL-1)*100)
+    ax.semilogy(T,np.abs(uL_REFPROP/uL-1)*100)
     ax.set_ylabel('Error: u [$\%$]')
     
     ax=pylab.subplot(nR,nC,8)
-    ax.plot(T,(uV_REFPROP/uV-1)*100)
+    ax.semilogy(T,np.abs(uV_REFPROP/uV-1)*100)
     
     ax=pylab.subplot(nR,nC,9)
-    ax.plot(T,(sL_REFPROP/sL-1)*100)
+    ax.semilogy(T,np.abs(sL_REFPROP/sL-1)*100)
     ax.set_ylabel('Error: s [$\%$]')
     
     ax=pylab.subplot(nR,nC,10)
-    ax.plot(T,(sV_REFPROP/sV-1)*100)
+    ax.semilogy(T,np.abs(sV_REFPROP/sV-1)*100)
     
     ax=pylab.subplot(nR,nC,11)
-    ax.plot(T,(viscL_REFPROP/viscL-1)*100)
+    ax.semilogy(T,np.abs(viscL_REFPROP/viscL-1)*100)
     ax.set_ylabel('Error: $\mu$ [$\%$]')
     
     ax=pylab.subplot(nR,nC,12)
-    ax.plot(T,(viscV_REFPROP/viscV-1)*100)
+    ax.semilogy(T,np.abs(viscV_REFPROP/viscV-1)*100)
     
     ax=pylab.subplot(nR,nC,13)
-    ax.plot(T,(kL_REFPROP/kL-1)*100)
+    ax.semilogy(T,np.abs(kL_REFPROP/kL-1)*100)
     ax.set_ylabel('Error: k [$\%$]')
     
     ax=pylab.subplot(nR,nC,14)
-    ax.plot(T,(kV_REFPROP/kV-1)*100)
+    ax.semilogy(T,np.abs(kV_REFPROP/kV-1)*100)
     
     pylab.show()
     
 if __name__=='__main__':
 ##     SaturationValidationPlot('R290','REFPROP-Propane')
 ##     SaturationValidationPlot('Water','REFPROP-water')
-    SaturationValidationPlot('Air','REFPROP-Air')
+##     SaturationValidationPlot('Air','REFPROP-Air')
 ##     SaturationValidationPlot('R717','REFPROP-ammonia')
 ##     SaturationValidationPlot('R744','REFPROP-CO2')
 
 ##   These ones are fully validated
+    UseSaturationLUT(0)
 ##     SaturationValidationPlot('R134a','REFPROP-R134a')
 ##     SaturationValidationPlot('Nitrogen','REFPROP-Nitrogen')
 ##     SaturationValidationPlot('Argon','REFPROP-Argon')

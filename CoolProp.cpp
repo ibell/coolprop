@@ -513,7 +513,7 @@ int LoadFluid(char *Ref)
 		psat_func=Fluid.funcs.psat;
 		pbp_func=Fluid.funcs.p_bp;
 		pdp_func=Fluid.funcs.p_dp;
-        printf("Loaded Fluid %s\n",Ref);
+        //printf("Loaded Fluid %s\n",Ref);
         return OK;
     }
 }
