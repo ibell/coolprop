@@ -184,8 +184,8 @@ def TwoStage(Ref,Q,Te,Tc,DTsh,DTsc,eta_oi,f_p,Tsat_ic,DTsh_ic,Ts_Ph='Ph',prints=
     
     if skipPlot==False:
         if axis==None:
-            ax=pylab.gca())
-        else
+            ax=pylab.gca()
+        else:
             ax=axis
         if Ts_Ph in ['ph','Ph']:
             ax.plot(h,p)
@@ -215,7 +215,7 @@ def TwoStage(Ref,Q,Te,Tc,DTsh,DTsc,eta_oi,f_p,Tsat_ic,DTsh_ic,Ts_Ph='Ph',prints=
     return COP
     
 def EconomizedCycle(Ref,Qin,Te,Tc,DTsh,DTsc,eta_oi,f_p,Ti,Ts_Ph='Ts',skipPlot=False,axis=None,**kwargs):
-     """
+    """
     This function plots an economized cycle, on the current axis, or that given by the optional parameter *axis*
     
     Required parameters:

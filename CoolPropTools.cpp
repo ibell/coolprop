@@ -8,10 +8,7 @@
 #include "math.h"
 #include "stdio.h"
 #include <string.h>
-#include "PropMacros.h"
-#include "CoolPropTools.h"
 #include "CoolProp.h"
-#include "R410A.h"
 
 #define nT 200
 #define nP 200

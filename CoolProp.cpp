@@ -4,20 +4,19 @@
 #include <crtdbg.h>
 #endif
 
-#if defined(_WIN32) || defined(__WIN32__) || defined(_WIN64) || defined(__WIN64__)
-#define __ISWINDOWS__
-#endif
+#include "CoolProp.h"
 
 #if defined(__ISWINDOWS__)
 #include <windows.h>
 #include "REFPROP.h"
 #endif
 
+#include <iostream>
 #include <stdlib.h>
 #include "string.h"
 #include <stdio.h>
-#include "CoolProp.h"
 
+using namespace std;
 char LoadedFluid[255];
 int FluidType;
 
@@ -61,7 +60,10 @@ int FlagUseSaturationLUT=0; //Default to not use LUT
 int FlagUseSinglePhaseLUT=0; //Default to not use LUT
 int FlagDebug=1;
 
-// The structure that contains all the fluid-specific parameters and callbacks to functions
+char CP_errString[5000];
+int ErrorFlag;
+
+// The structure that contains all the fluid-specific parameters and pointers to functions
 static struct fluidParamsVals Fluid;
     
 static double get_Delta(double T, double p)
@@ -622,6 +624,13 @@ int Phase(double T, double rho, char * Ref)
     }
 }
 
+double Props(char *Output,char Name1, double Prop1, char Name2, double Prop2, char * Ref)
+{
+    if (strlen(Output)==1)
+    {
+        return Props(Output[0],Name1,Prop1,Name2,Prop2,Ref);
+    }
+}
 double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, char * Ref)
 {
     double T,p,Q,rhoV,rhoL,Value,rho,pdp,pbp;
@@ -948,23 +957,6 @@ double pcrit(char *Ref)
         //ERROR!
     	return 100000;
     }
-    #if defined(__ISWINDOWS__) 
-    if (strncmp(Ref,"REFPROP-",8)==0)  // First eight characters match "REFPROP-"
-    {
-        char *REFPROPRef=NULL,*RefCopy=NULL;
-        double pcrit;
-        RefCopy=malloc(strlen(Ref)+1);
-        strcpy(RefCopy,Ref);
-        REFPROPRef = strtok(RefCopy,"-");
-        REFPROPRef = strtok(NULL,"-");
-        // 'E' is the code for the critical pressure (ran out of sensible characters).  
-        pcrit=REFPROP('E','T',0.0,'Q',0.0,REFPROPRef);
-        free(RefCopy);
-        return pcrit;
-    }
-    #else
-    if (0){} // Automatically skip it because REFPROP is not supported on this platform
-    #endif
     else{
         return Props('E','T',0.0,'Q',0.0,Ref);
     }
@@ -983,23 +975,6 @@ double Tcrit(char *Ref)
     	//ERROR!
     	return 100000;
     }
-    #if defined(__ISWINDOWS__) 
-    if (strncmp(Ref,"REFPROP-",8)==0)  // First eight characters match "REFPROP-"
-    {
-        char *REFPROPRef=NULL,*RefCopy=NULL;
-        double Tc;
-        RefCopy=malloc(strlen(Ref)+1);
-        strcpy(RefCopy,Ref);
-        REFPROPRef = strtok(RefCopy,"-");
-        REFPROPRef = strtok(NULL,"-");
-        // 'B' is the code for the critical pressure (ran out of sensible characters).
-        Tc=REFPROP('B','T',0.0,'Q',0.0,REFPROPRef);
-        free(RefCopy);
-        return Tc;
-    }
-    #else
-    if (0){} // Automatically skip it because REFPROP is not supported on this platform
-    #endif
     else
     {
         return Props('B','T',0.0,'P',0.0,Ref);
@@ -1017,23 +992,6 @@ double Ttriple(char *Ref)
     {
         return 100000;
     }
-    #if defined(__ISWINDOWS__) 
-    if (strncmp(Ref,"REFPROP-",8)==0)  // First eight characters match "REFPROP-"
-    {
-        char *REFPROPRef=NULL,*RefCopy=NULL;
-        double Ttriple;
-        RefCopy=malloc(strlen(Ref)+1);
-        strcpy(RefCopy,Ref);
-        REFPROPRef = strtok(RefCopy,"-");
-        REFPROPRef = strtok(NULL,"-");
-        // 'R' is the code for the triple point temperature (ran out of sensible characters).
-        Ttriple=REFPROP('R','T',0.0,'Q',0.0,REFPROPRef);
-        free(RefCopy);
-        return Ttriple;
-    }
-    #else
-    if (0){} // Automatically skip it because REFPROP is not supported on this platform
-    #endif
     else
     {
         return Props('R','T',0.0,'Q',0.0,Ref);

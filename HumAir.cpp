@@ -15,7 +15,6 @@
 #include "PropMacros.h"
 #include "CoolProp.h"
 #include "Ice.h"
-#include "SolverFunctions.h"
 #include "HumAir.h"
 
 static const char ITc='B';
@@ -196,12 +195,12 @@ static double B_m(double T, double psi_w)
     tau_Water=Props(ITc,'T',0,'P',0,"Water")/T;
     if (FlagUseVirialCorrelations==1)
     {
-        B_aa=-0.000721183853646 +1.142682674467e-05*T -8.838228412173e-08*powI(T,2) 
-        +4.104150642775e-10*powI(T,3) -1.192780880645e-12*powI(T,4) +2.134201312070e-15*powI(T,5) 
-        -2.157430412913e-18*powI(T,6) +9.453830907795e-22*powI(T,7);
-        B_ww=-10.8963128394 +2.439761625859e-01*T -2.353884845100e-03*powI(T,2) 
-        +1.265864734412e-05*powI(T,3) -4.092175700300e-08*powI(T,4) +7.943925411344e-11*powI(T,5) 
-        -8.567808759123e-14*powI(T,6) +3.958203548563e-17*powI(T,7);
+        B_aa=-0.000721183853646 +1.142682674467e-05*T -8.838228412173e-08*pow(T,2) 
+        +4.104150642775e-10*pow(T,3) -1.192780880645e-12*pow(T,4) +2.134201312070e-15*pow(T,5) 
+        -2.157430412913e-18*pow(T,6) +9.453830907795e-22*pow(T,7);
+        B_ww=-10.8963128394 +2.439761625859e-01*T -2.353884845100e-03*pow(T,2) 
+        +1.265864734412e-05*pow(T,3) -4.092175700300e-08*pow(T,4) +7.943925411344e-11*pow(T,5) 
+        -8.567808759123e-14*pow(T,6) +3.958203548563e-17*pow(T,7);
     }
     else
     {
@@ -210,7 +209,7 @@ static double B_m(double T, double psi_w)
     }
     
     B_aw=_B_aw(T)/1e3; //[dm^3/mol] to [m^3/mol]
-    return powI(1-psi_w,2)*B_aa+2*(1-psi_w)*psi_w*B_aw+psi_w*psi_w*B_ww;
+    return pow(1-psi_w,2)*B_aa+2*(1-psi_w)*psi_w*B_aw+psi_w*psi_w*B_ww;
 }
 
 static double dB_m_dT(double T, double psi_w)
@@ -223,8 +222,8 @@ static double dB_m_dT(double T, double psi_w)
     tau_Water=Props(ITc,'T',0,'P',0,"Water")/T;
     if (FlagUseVirialCorrelations)
     {
-        dB_dT_aa=1.65159324353e-05 -3.026130954749e-07*T +2.558323847166e-09*powI(T,2) -1.250695660784e-11*powI(T,3) +3.759401946106e-14*powI(T,4) -6.889086380822e-17*powI(T,5) +7.089457032972e-20*powI(T,6) -3.149942145971e-23*powI(T,7);
-        dB_dT_ww=0.65615868848 -1.487953162679e-02*T +1.450134660689e-04*powI(T,2) -7.863187630094e-07*powI(T,3) +2.559556607010e-09*powI(T,4) -4.997942221914e-12*powI(T,5) +5.417678681513e-15*powI(T,6) -2.513856275241e-18*powI(T,7);
+        dB_dT_aa=1.65159324353e-05 -3.026130954749e-07*T +2.558323847166e-09*pow(T,2) -1.250695660784e-11*pow(T,3) +3.759401946106e-14*pow(T,4) -6.889086380822e-17*pow(T,5) +7.089457032972e-20*pow(T,6) -3.149942145971e-23*pow(T,7);
+        dB_dT_ww=0.65615868848 -1.487953162679e-02*T +1.450134660689e-04*pow(T,2) -7.863187630094e-07*pow(T,3) +2.559556607010e-09*pow(T,4) -4.997942221914e-12*pow(T,5) +5.417678681513e-15*pow(T,6) -2.513856275241e-18*pow(T,7);
     }
     else
     {
@@ -232,7 +231,7 @@ static double dB_m_dT(double T, double psi_w)
         dB_dT_ww=dBdT_Water(tau_Water)*MM_Water()/1e3; //[m^3/kg] to [m^3/mol]
     }
         dB_dT_aw=_dB_aw_dT(T)/1e3; //[dm^3/mol] to [m^3/mol]
-    return powI(1-psi_w,2)*dB_dT_aa+2*(1-psi_w)*psi_w*dB_dT_aw+psi_w*psi_w*dB_dT_ww;
+    return pow(1-psi_w,2)*dB_dT_aa+2*(1-psi_w)*psi_w*dB_dT_aw+psi_w*psi_w*dB_dT_ww;
 }
 
 static double C_m(double T, double psi_w)
@@ -245,12 +244,12 @@ static double C_m(double T, double psi_w)
     tau_Water=Props(ITc,'T',0,'P',0,"Water")/T;
     if (FlagUseVirialCorrelations)
     {
-        C_aaa=1.29192158975e-08 -1.776054020409e-10*T +1.359641176409e-12*powI(T,2) 
-        -6.234878717893e-15*powI(T,3) +1.791668730770e-17*powI(T,4) -3.175283581294e-20*powI(T,5) 
-        +3.184306136120e-23*powI(T,6) -1.386043640106e-26*powI(T,7);
-        C_www=-0.580595811134 +1.365952762696e-02*T -1.375986293288e-04*powI(T,2) 
-        +7.687692259692e-07*powI(T,3) -2.571440816920e-09*powI(T,4) +5.147432221082e-12*powI(T,5) 
-        -5.708156494894e-15*powI(T,6) +2.704605721778e-18*powI(T,7);
+        C_aaa=1.29192158975e-08 -1.776054020409e-10*T +1.359641176409e-12*pow(T,2) 
+        -6.234878717893e-15*pow(T,3) +1.791668730770e-17*pow(T,4) -3.175283581294e-20*pow(T,5) 
+        +3.184306136120e-23*pow(T,6) -1.386043640106e-26*pow(T,7);
+        C_www=-0.580595811134 +1.365952762696e-02*T -1.375986293288e-04*pow(T,2) 
+        +7.687692259692e-07*pow(T,3) -2.571440816920e-09*pow(T,4) +5.147432221082e-12*pow(T,5) 
+        -5.708156494894e-15*pow(T,6) +2.704605721778e-18*pow(T,7);
     }
     else
     {
@@ -259,7 +258,7 @@ static double C_m(double T, double psi_w)
     }
     C_aaw=_C_aaw(T)/1e6; //[dm^6/mol] to [m^6/mol^2]
     C_aww=_C_aww(T)/1e6; //[dm^6/mol] to [m^6/mol^2]
-    return powI(1-psi_w,3)*C_aaa+3*powI(1-psi_w,2)*psi_w*C_aaw+3*(1-psi_w)*psi_w*psi_w*C_aww+powI(psi_w,3)*C_www;
+    return pow(1-psi_w,3)*C_aaa+3*pow(1-psi_w,2)*psi_w*C_aaw+3*(1-psi_w)*psi_w*psi_w*C_aww+pow(psi_w,3)*C_www;
 }
 
 static double dC_m_dT(double T, double psi_w)
@@ -273,8 +272,8 @@ static double dC_m_dT(double T, double psi_w)
     tau_Water=Props(ITc,'T',0,'P',0,"Water")/T;
     if (FlagUseVirialCorrelations)
     {
-        dC_dT_aaa=-2.46582342273e-10 +4.425401935447e-12*T -3.669987371644e-14*powI(T,2) +1.765891183964e-16*powI(T,3) -5.240097805744e-19*powI(T,4) +9.502177003614e-22*powI(T,5) -9.694252610339e-25*powI(T,6) +4.276261986741e-28*powI(T,7);
-        dC_dT_www=0.0984601196142 -2.356713397262e-03*T +2.409113323685e-05*powI(T,2) -1.363083778715e-07*powI(T,3) +4.609623799524e-10*powI(T,4) -9.316416405390e-13*powI(T,5) +1.041909136255e-15*powI(T,6) -4.973918480607e-19*powI(T,7);
+        dC_dT_aaa=-2.46582342273e-10 +4.425401935447e-12*T -3.669987371644e-14*pow(T,2) +1.765891183964e-16*pow(T,3) -5.240097805744e-19*pow(T,4) +9.502177003614e-22*pow(T,5) -9.694252610339e-25*pow(T,6) +4.276261986741e-28*pow(T,7);
+        dC_dT_www=0.0984601196142 -2.356713397262e-03*T +2.409113323685e-05*pow(T,2) -1.363083778715e-07*pow(T,3) +4.609623799524e-10*pow(T,4) -9.316416405390e-13*pow(T,5) +1.041909136255e-15*pow(T,6) -4.973918480607e-19*pow(T,7);
     }
     else
     {
@@ -283,7 +282,7 @@ static double dC_m_dT(double T, double psi_w)
     }
     dC_dT_aaw=_dC_aaw_dT(T)/1e6; //[dm^6/mol] to [m^6/mol^2]
     dC_dT_aww=_dC_aww_dT(T)/1e6; //[dm^6/mol] to [m^6/mol^2]
-    return powI(1-psi_w,3)*dC_dT_aaa+3*powI(1-psi_w,2)*psi_w*dC_dT_aaw+3*(1-psi_w)*psi_w*psi_w*dC_dT_aww+powI(psi_w,3)*dC_dT_www;
+    return pow(1-psi_w,3)*dC_dT_aaa+3*pow(1-psi_w,2)*psi_w*dC_dT_aaw+3*(1-psi_w)*psi_w*psi_w*dC_dT_aww+pow(psi_w,3)*dC_dT_www;
 }
 
 static double HenryConstant(double T)
@@ -312,7 +311,7 @@ double f_factor(double T, double p)
     //// Use correlation for f at atmospheric pressure
     //if (p<1.001*101.325 && p>0.999*101.325 && T>213.15 && T<373.15)
     //{
-    //    return 7.1285352695 -1.580759239351e-01*T +1.758777627765e-03*powI(T,2) -1.091297459853e-05*powI(T,3) +4.075109681028e-08*powI(T,4) -9.156215217527e-11*powI(T,5) +1.146098035510e-13*powI(T,6) -6.163466181798e-17*powI(T,7);
+    //    return 7.1285352695 -1.580759239351e-01*T +1.758777627765e-03*pow(T,2) -1.091297459853e-05*pow(T,3) +4.075109681028e-08*pow(T,4) -9.156215217527e-11*pow(T,5) +1.146098035510e-13*pow(T,6) -6.163466181798e-17*pow(T,7);
     //}
 
     // Get total pressure in Pa from kPa
@@ -325,8 +324,8 @@ double f_factor(double T, double p)
         p_ws=Props('P','T',T,'Q',0,"Water")*1000;
 		if (FlagUseIsothermCompressCorrelation)
 		{
-			k_T = 1.6261876614E-22*powI(T,6) - 3.3016385196E-19*powI(T,5) + 2.7978984577E-16*powI(T,4)
-				- 1.2672392901E-13*powI(T,3) + 3.2382864853E-11*powI(T,2) - 4.4318979503E-09*T + 2.5455947289E-07;
+			k_T = 1.6261876614E-22*pow(T,6) - 3.3016385196E-19*pow(T,5) + 2.7978984577E-16*pow(T,4)
+				- 1.2672392901E-13*pow(T,3) + 3.2382864853E-11*pow(T,2) - 4.4318979503E-09*T + 2.5455947289E-07;
 		}
         else
 		{
@@ -357,18 +356,18 @@ double f_factor(double T, double p)
     tau_Water=Props(ITc,'T',0,'P',0,"Water")/T;
 	if (FlagUseVirialCorrelations)
 	{
-		B_aa=-0.000721183853646 +1.142682674467e-05*T -8.838228412173e-08*powI(T,2) 
-        +4.104150642775e-10*powI(T,3) -1.192780880645e-12*powI(T,4) +2.134201312070e-15*powI(T,5) 
-        -2.157430412913e-18*powI(T,6) +9.453830907795e-22*powI(T,7);
-        B_ww=-10.8963128394 +2.439761625859e-01*T -2.353884845100e-03*powI(T,2) 
-        +1.265864734412e-05*powI(T,3) -4.092175700300e-08*powI(T,4) +7.943925411344e-11*powI(T,5) 
-        -8.567808759123e-14*powI(T,6) +3.958203548563e-17*powI(T,7);
-		C_aaa=1.29192158975e-08 -1.776054020409e-10*T +1.359641176409e-12*powI(T,2) 
-        -6.234878717893e-15*powI(T,3) +1.791668730770e-17*powI(T,4) -3.175283581294e-20*powI(T,5) 
-        +3.184306136120e-23*powI(T,6) -1.386043640106e-26*powI(T,7);
-        C_www=-0.580595811134 +1.365952762696e-02*T -1.375986293288e-04*powI(T,2) 
-        +7.687692259692e-07*powI(T,3) -2.571440816920e-09*powI(T,4) +5.147432221082e-12*powI(T,5) 
-        -5.708156494894e-15*powI(T,6) +2.704605721778e-18*powI(T,7);
+		B_aa=-0.000721183853646 +1.142682674467e-05*T -8.838228412173e-08*pow(T,2) 
+        +4.104150642775e-10*pow(T,3) -1.192780880645e-12*pow(T,4) +2.134201312070e-15*pow(T,5) 
+        -2.157430412913e-18*pow(T,6) +9.453830907795e-22*pow(T,7);
+        B_ww=-10.8963128394 +2.439761625859e-01*T -2.353884845100e-03*pow(T,2) 
+        +1.265864734412e-05*pow(T,3) -4.092175700300e-08*pow(T,4) +7.943925411344e-11*pow(T,5) 
+        -8.567808759123e-14*pow(T,6) +3.958203548563e-17*pow(T,7);
+		C_aaa=1.29192158975e-08 -1.776054020409e-10*T +1.359641176409e-12*pow(T,2) 
+        -6.234878717893e-15*pow(T,3) +1.791668730770e-17*pow(T,4) -3.175283581294e-20*pow(T,5) 
+        +3.184306136120e-23*pow(T,6) -1.386043640106e-26*pow(T,7);
+        C_www=-0.580595811134 +1.365952762696e-02*T -1.375986293288e-04*pow(T,2) 
+        +7.687692259692e-07*pow(T,3) -2.571440816920e-09*pow(T,4) +5.147432221082e-12*pow(T,5) 
+        -5.708156494894e-15*pow(T,6) +2.704605721778e-18*pow(T,7);
 	}
 	else
 	{
@@ -396,13 +395,13 @@ double f_factor(double T, double p)
             
             // All the terms forming the RHS of Eqn 3.25
             line1=((1+k_T*p_ws)*(p-p_ws)-k_T*(p*p-p_ws*p_ws)/2.0)/(Rbar*T)*vbar_ws+log(1-beta_H*(1-psi_ws)*p);
-            line2=powI(1-psi_ws,2)*p/(Rbar*T)*B_aa-2*powI(1-psi_ws,2)*p/(Rbar*T)*B_aw-(p-p_ws-powI(1-psi_ws,2)*p)/(Rbar*T)*B_ww;
-            line3=powI(1-psi_ws,3)*p*p/powI(Rbar*T,2)*C_aaa+(3*powI(1-psi_ws,2)*(1-2*(1-psi_ws))*p*p)/(2*powI(Rbar*T,2))*C_aaw;
-            line4=-3*powI(1-psi_ws,2)*psi_ws*p*p/powI(Rbar*T,2)*C_aww-((3-2*psi_ws)*psi_ws*psi_ws*p*p-p_ws*p_ws)/(2*powI(Rbar*T,2))*C_www;
-            line5=-(powI(1-psi_ws,2)*(-2+3*psi_ws)*psi_ws*p*p)/powI(Rbar*T,2)*B_aa*B_ww;
-            line6=-(2*powI(1-psi_ws,3)*(-1+3*psi_ws)*p*p)/powI(Rbar*T,2)*B_aa*B_aw;
-            line7=(6*powI(1-psi_ws,2)*psi_ws*psi_ws*p*p)/powI(Rbar*T,2)*B_ww*B_aw-(3*powI(1-psi_ws,4)*p*p)/(2*powI(Rbar*T,2))*B_aa*B_aa;
-            line8=-(2*powI(1-psi_ws,2)*psi_ws*(-2+3*psi_ws)*p*p)/powI(Rbar*T,2)*B_aw*B_aw-(p_ws*p_ws-(4-3*psi_ws)*powI(psi_ws,3)*p*p)/(2*powI(Rbar*T,2))*B_ww*B_ww;
+            line2=pow(1-psi_ws,2)*p/(Rbar*T)*B_aa-2*pow(1-psi_ws,2)*p/(Rbar*T)*B_aw-(p-p_ws-pow(1-psi_ws,2)*p)/(Rbar*T)*B_ww;
+            line3=pow(1-psi_ws,3)*p*p/pow(Rbar*T,2)*C_aaa+(3*pow(1-psi_ws,2)*(1-2*(1-psi_ws))*p*p)/(2*pow(Rbar*T,2))*C_aaw;
+            line4=-3*pow(1-psi_ws,2)*psi_ws*p*p/pow(Rbar*T,2)*C_aww-((3-2*psi_ws)*psi_ws*psi_ws*p*p-p_ws*p_ws)/(2*pow(Rbar*T,2))*C_www;
+            line5=-(pow(1-psi_ws,2)*(-2+3*psi_ws)*psi_ws*p*p)/pow(Rbar*T,2)*B_aa*B_ww;
+            line6=-(2*pow(1-psi_ws,3)*(-1+3*psi_ws)*p*p)/pow(Rbar*T,2)*B_aa*B_aw;
+            line7=(6*pow(1-psi_ws,2)*psi_ws*psi_ws*p*p)/pow(Rbar*T,2)*B_ww*B_aw-(3*pow(1-psi_ws,4)*p*p)/(2*pow(Rbar*T,2))*B_aa*B_aa;
+            line8=-(2*pow(1-psi_ws,2)*psi_ws*(-2+3*psi_ws)*p*p)/pow(Rbar*T,2)*B_aw*B_aw-(p_ws*p_ws-(4-3*psi_ws)*pow(psi_ws,3)*p*p)/(2*pow(Rbar*T,2))*B_ww*B_ww;
             RHS=line1+line2+line3+line4+line5+line6+line7+line8;
         
 		if (iter==1){y1=LHS-RHS;}
@@ -455,8 +454,8 @@ double Viscosity(double T, double p, double psi_w)
     mu_a=Props('V','T',T,'P',p,"Air");
     // Viscosity of pure saturated water at dry-bulb temperature
     mu_w=Props('V','P',p,'Q',1,"Water");
-    Phi_av=sqrt(2)/4.0*pow(1+Ma/Mw,-0.5)*powI(1+sqrt(mu_a/mu_w)*pow(Mw/Ma,0.25),2); //[-]
-    Phi_va=sqrt(2)/4.0*pow(1+Mw/Ma,-0.5)*powI(1+sqrt(mu_w/mu_a)*pow(Ma/Mw,0.25),2); //[-]
+    Phi_av=sqrt(2.0)/4.0*pow(1+Ma/Mw,-0.5)*pow(1+sqrt(mu_a/mu_w)*pow(Mw/Ma,0.25),2); //[-]
+    Phi_va=sqrt(2.0)/4.0*pow(1+Mw/Ma,-0.5)*pow(1+sqrt(mu_w/mu_a)*pow(Ma/Mw,0.25),2); //[-]
     return (1-psi_w)*mu_a/((1-psi_w)+psi_w*Phi_av)+psi_w*mu_w/(psi_w+(1-psi_w)*Phi_va);
 }
 double Conductivity(double T, double p, double psi_w)
@@ -478,8 +477,8 @@ double Conductivity(double T, double p, double psi_w)
     // Viscosity of pure saturated water at dry-bulb temperature
     k_w=Props('L','P',p,'Q',1,"Water");
     mu_w=Props('V','P',p,'Q',1,"Water");
-    Phi_av=sqrt(2)/4.0*pow(1+Ma/Mw,-0.5)*powI(1+sqrt(mu_a/mu_w)*pow(Mw/Ma,0.25),2); //[-]
-    Phi_va=sqrt(2)/4.0*pow(1+Mw/Ma,-0.5)*powI(1+sqrt(mu_w/mu_a)*pow(Ma/Mw,0.25),2); //[-]
+    Phi_av=sqrt(2.0)/4.0*pow(1+Ma/Mw,-0.5)*pow(1+sqrt(mu_a/mu_w)*pow(Mw/Ma,0.25),2); //[-]
+    Phi_va=sqrt(2.0)/4.0*pow(1+Mw/Ma,-0.5)*pow(1+sqrt(mu_w/mu_a)*pow(Ma/Mw,0.25),2); //[-]
     return (1-psi_w)*k_a/((1-psi_w)+psi_w*Phi_av)+psi_w*k_w/(psi_w+(1-psi_w)*Phi_va);
 }
 double MolarVolume(double T, double p, double psi_w)
@@ -953,7 +952,7 @@ double HAProps(char *OutputName, char *Input1Name, double Input1, char *Input2Na
 		//	h_star=log(Value2+33);
 		//else
 		//	h_star=log(Value1+33);
-		//T_guess= -7.4251055543E-02*powI(h_star,6) + 1.0661647745E-01*powI(h_star,5) + 8.5881364720E+00*powI(h_star,4) - 7.2409797021E+01*powI(h_star,3) + 2.3508812707E+02*powI(h_star,2) - 2.8041007078E+02*h_star + 3.5922309997E+02;
+		//T_guess= -7.4251055543E-02*pow(h_star,6) + 1.0661647745E-01*pow(h_star,5) + 8.5881364720E+00*pow(h_star,4) - 7.2409797021E+01*pow(h_star,3) + 2.3508812707E+02*pow(h_star,2) - 2.8041007078E+02*h_star + 3.5922309997E+02;
 
         // Use the secant solver to find T
         T=Secant_HAProps_T(SecondaryInputName,"P",p,MainInputName,MainInputValue,SecondaryInputValue,T_guess);

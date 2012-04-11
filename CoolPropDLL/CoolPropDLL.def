@@ -1,6 +1,6 @@
 ; CoolPropDLL.def : Declares the module parameters for the DLL.
 
-LIBRARY      "CoolPropDLL"
+LIBRARY      "CoolProp_dll"
 
 EXPORTS
     ; Explicit exports can go here

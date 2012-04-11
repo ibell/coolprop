@@ -67,8 +67,9 @@
 	int ValidateFluid(void);
 
 	// Error handling things
-	char CP_errString[5000];
-	int ErrorFlag;
+	extern char CP_errString[5000];
+	extern int ErrorFlag;
 	void Append2ErrorString(char *string);
 	void PrintError(void);
+
 #endif

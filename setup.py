@@ -9,26 +9,29 @@ except:
 shutil.copy2('__init__.py.template','__init__.py')
 
 # If you add a fluid, update this list of fluids
-FluidSources = ['R134a.c','R744.c','R290.c','R410A.c',
-               'Brine.c','R32.c','R717.c','R404A.c','R407C.c',
-               'R507A.c','Argon.c','Nitrogen.c','Water.c','Air.c']
+FluidSources = ['R134a.cpp','R744.cpp','R290.cpp','R410A.cpp',
+               'Brine.cpp','R32.cpp','R717.cpp','R404A.cpp','R407C.cpp',
+               'R507A.cpp','Argon.cpp','Nitrogen.cpp','Water.cpp','Air.cpp']
                            
 CoolProp_module = Extension('_CoolProp',
-                           sources=['CoolProp.i', 'CoolProp.c','CoolPropTools.c','REFPROP.c']+FluidSources,
+                           sources=['CoolProp.i', 'CoolProp.cpp','CoolPropTools.cpp','REFPROP.cpp']+FluidSources,
                            #swig_opts=['-builtin']
+                           swig_opts=['-c++']
                            )
 
 FloodProp_module = Extension('_FloodProp',
-                           sources=['FloodProp.i', 'FloodProp.c','CoolProp.c','CoolPropTools.c','REFPROP.c']+FluidSources,
+                           sources=['FloodProp.i', 'FloodProp.cpp','CoolProp.cpp','CoolPropTools.cpp','REFPROP.cpp']+FluidSources,
+                           swig_opts=['-c++']
                            )
                            
 HumidAirProp_module = Extension('_HumidAirProp',
-                           sources=['HumidAirProp.i','HumAir.c','CoolProp.c','CoolPropTools.c','Ice.cpp','SolverFunctions.c','REFPROP.c']+FluidSources,
+                           sources=['HumidAirProp.i','HumAir.cpp','CoolProp.cpp','CoolPropTools.cpp','Ice.cpp','REFPROP.cpp']+FluidSources,
                            #swig_opts=['-builtin']
+                           swig_opts=['-c++']
                            )                           
 
 setup (name = 'CoolProp',
-       version = '1.3.2',
+       version = '1.4.0',
        author      = "Ian Bell",
        author_email='ian.h.bell@gmail.com',
        url='http://coolprop.sourceforge.net',
@@ -41,7 +44,7 @@ setup (name = 'CoolProp',
 
 ## Clean up the intermediate files that SWIG generates
 if 'clean' in sys.argv:
-    FileList=['__init__.py','CoolProp.py','CoolProp_wrap.c','FloodProp.py','FloodProp_wrap.c','HumidAirProp.py','HumidAirProp_wrap.c']
+    FileList=['__init__.py','CoolProp.py','CoolProp_wrap.cpp','FloodProp.py','FloodProp_wrap.cpp','HumidAirProp.py','HumidAirProp_wrap.cpp']
     for file in FileList:
         try:
             os.remove(file)
