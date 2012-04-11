@@ -24,6 +24,7 @@
 #define numparams 72 
 #define maxcoefs 50
 
+#if defined(__ISWINDOWS__)
 // For C calling conventions, replaced all "double &" with "double *", and "long &" with "long *"
 typedef void (__stdcall *fp_ABFL1dllTYPE)(double *,double *,double *,long *,double *,double *,double *,double *,double *,double *,long *,char*,long );
 typedef void (__stdcall *fp_ABFL2dllTYPE)(double *,double *,double *,long *,long *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,long *,char*,long );
@@ -120,9 +121,6 @@ typedef void (__stdcall *fp_XMASSdllTYPE)(double *,double *,double *);
 typedef void (__stdcall *fp_XMOLEdllTYPE)(double *,double *,double *);
 
 
-//#else
-//
-//#endif
 //Define explicit function pointers
 fp_ABFL1dllTYPE ABFL1dll;
 fp_ABFL2dllTYPE ABFL2dll;
@@ -220,7 +218,6 @@ fp_XMOLEdllTYPE XMOLEdll;
 
 char LoadedREFPROPRef[255];
 
-#if defined (__ISWINDOWS__) //Check if it is a windows machine, if not, hide this function
 double REFPROP(char Output,char Name1, double Prop1, char Name2, double Prop2, char * Ref)
 {
 	int j;

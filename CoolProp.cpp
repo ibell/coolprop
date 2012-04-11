@@ -55,7 +55,7 @@ double (*rhosatL_func)(double);
 #define NLUT 300 // How many values to use for each lookup table
 
 double Tsat_LUT[NLUTFLUIDS][NLUT],rhosatL_LUT[NLUTFLUIDS][NLUT],rhosatV_LUT[NLUTFLUIDS][NLUT],psat_LUT[NLUTFLUIDS][NLUT];
-char RefLUT[NLUTFLUIDS][255]; // The names of the fluids that are loaded
+char RefSatLUT[NLUTFLUIDS][255]; // The names of the fluids that are loaded
 int FlagUseSaturationLUT=0; //Default to not use LUT
 int FlagUseSinglePhaseLUT=0; //Default to not use LUT
 int FlagDebug=1;
@@ -138,9 +138,9 @@ int BuildSaturationLUT(char *Ref)
     for (k=0;k<NLUTFLUIDS;k++)
     {
         // If it is found, break out of loop and stop; no LUT needed
-        if (!strcmp(RefLUT[k],Ref)) return k;
+        if (!strcmp(RefSatLUT[k],Ref)) return k;
         // You made it to an empty string, need a LUT, jump out of for loop
-        if (!strcmp(RefLUT[k],"")) break;
+        if (!strcmp(RefSatLUT[k],"")) break;
     }
     if (k==NLUTFLUIDS)
     {
@@ -149,7 +149,7 @@ int BuildSaturationLUT(char *Ref)
     }
     
     // Therefore it hasn't been found yet, assign the refrigerant name
-    strcpy(RefLUT[k],Ref);
+    strcpy(RefSatLUT[k],Ref);
     
     // Linearly space the values from the triple point of the fluid to the just shy of the critical point
     T_t=Props('R','T',0,'P',0,Ref);
