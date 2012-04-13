@@ -8,6 +8,13 @@ except:
     pass
 shutil.copy2('__init__.py.template','__init__.py')
 
+# Obtain the numpy include directory.  This logic works across numpy versions.
+import numpy
+try:
+    numpy_include = numpy.get_include()
+except AttributeError:
+    numpy_include = numpy.get_numpy_include()
+    
 # If you add a fluid, update this list of fluids
 FluidSources = ['R134a.cpp','R744.cpp','R290.cpp','R410A.cpp',
                'Brine.cpp','R32.cpp','R717.cpp','R404A.cpp','R407C.cpp',
@@ -16,7 +23,8 @@ FluidSources = ['R134a.cpp','R744.cpp','R290.cpp','R410A.cpp',
 CoolProp_module = Extension('_CoolProp',
                            sources=['CoolProp.i', 'CoolProp.cpp','CoolPropTools.cpp','REFPROP.cpp']+FluidSources,
                            #swig_opts=['-builtin']
-                           swig_opts=['-c++']
+                           swig_opts=['-c++'],
+                           include_dirs = [numpy_include],
                            )
 
 FloodProp_module = Extension('_FloodProp',

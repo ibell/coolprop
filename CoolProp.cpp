@@ -624,6 +624,19 @@ int Phase(double T, double rho, char * Ref)
     }
 }
 
+void PropsV(char *Output,char Name1, double *Prop1, int len1, char Name2, double *Prop2, int len2, char * Ref, double *OutVec, int n)
+{
+    // This is a wrapper function that allows for vectors to be passed through 
+    // the SWIG-c++ interface, all the calculations are done at the c++ level,
+    // then all the values are passed back to the Python level.  For large arrays,
+    // the savings in function overhead should be quite large
+    
+    for (int i=0; i<n; i++)
+    {
+        OutVec[i]=Props(Output,Name1,Prop1[i],Name2,Prop2[i],Ref);
+    }
+}
+
 double Props(char *Output,char Name1, double Prop1, char Name2, double Prop2, char * Ref)
 {
 	// This is a wrapper function to allow for overloading, and the passing of a string rather than a 
