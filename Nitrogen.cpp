@@ -269,7 +269,7 @@ int Load_Nitrogen(struct fluidParamsVals *Fluid)
     Fluid->funcs.cond=Conductivity_Trho_Nitrogen;
 
     //Lookup table parameters
-    Fluid->LUT.Tmin=220.0;
+    Fluid->LUT.Tmin=140.0;
     Fluid->LUT.Tmax=800.0;
     Fluid->LUT.pmin=50;
     Fluid->LUT.pmax=16000;

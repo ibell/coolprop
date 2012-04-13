@@ -10,8 +10,8 @@
 #include <string.h>
 #include "CoolProp.h"
 
-#define nT 200
-#define nP 200
+#define nT 75
+#define nP 75
 #define nLUT 5
 
 char RefLUT[255][nLUT]; // The names of the fluids that are loaded in LUT
@@ -168,9 +168,7 @@ int BuildLookupTable(char *Ref, struct fluidParamsVals *Fluid)
     double (*p_bp)(double);
     
     Tc=Fluid->Tc;
-    OldUseLUT=SinglePhaseLUTStatus();
-    UseSinglePhaseLUT(0);
-    
+
     if (Fluid->Type==FLUIDTYPE_REFRIGERANT_PURE)
     {
         p_dp=Fluid->funcs.psat;
@@ -216,7 +214,13 @@ p	||   /		  | X X X X Superheated Gas
         printf("Sorry, ran out of saturation LUT slots, increase nLUT in CoolPropTools.h and recompile\n");
         return -1;
     }
-        
+    
+	// Get the old value for the LUT flag
+	OldUseLUT=SinglePhaseLUTStatus();
+	
+	// Turn off the LUT so that it will use EOS to determine state
+    UseSinglePhaseLUT(0);
+
     // Therefore it hasn't been found yet, assign the refrigerant name
     strcpy(RefLUT[k],Ref);
     
@@ -371,8 +375,8 @@ double LookupValue(char Prop, double T, double p, char *Ref, struct fluidParamsV
     T1=Tvec[iTlow][ILUT];
     T2=Tvec[iThigh][ILUT];
     T3=Tvec[iThigh+1][ILUT];
-    
-    return QuadInterp(T1,T2,T3,a1,a2,a3,T);	
+
+    return QuadInterp(T1,T2,T3,a1,a2,a3,T);
 }
 
 void Append2ErrorString(char *string)

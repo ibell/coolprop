@@ -95,7 +95,7 @@
 	double T_hp(char *Ref, double h, double p, double T_guess);
 	double h_sp(char *Ref, double s, double p, double T_guess);
 	double Tsat(char *Ref, double p, double Q, double T_guess);
-	double DerivTerms(char *Term,char Name1, double Prop1, char Name2, double Prop2, char * Ref);
+	double DerivTerms(char *Term, double T, double rho, char * Ref);
 
 	double F2K(double T_F);
 	double K2F(double T);

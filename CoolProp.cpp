@@ -626,6 +626,7 @@ int Phase(double T, double rho, char * Ref)
 
 double Props(char *Output,char Name1, double Prop1, char Name2, double Prop2, char * Ref)
 {
+	// This is a wrapper function to allow for overloading, and the passing of a string rather than a 
     if (strlen(Output)==1)
     {
         return Props(Output[0],Name1,Prop1,Name2,Prop2,Ref);
@@ -748,9 +749,7 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
             	p=Prop2;
                 if (FlagUseSinglePhaseLUT==1)
                 {
-                    BuildLookupTable(Ref,&Fluid);
-                    Value= LookupValue(Output, T, p, Ref, &Fluid);
-                    return Value;
+                    return LookupValue(Output, T, p, Ref, &Fluid);
                 }
                 else
                 {
@@ -1226,15 +1225,23 @@ void PrintSaturationTable(char *FileName, char * Ref,double Tmin, double Tmax)
     fclose(f);
 }
 
-double DerivTerms(char *Term,char Name1, double Prop1, char Name2, double Prop2, char * Ref)
+double DerivTerms(char *Term,double T, double rho,char * Ref)
 {
-//    // Pointers to the functions
-//    double (*dhdT)(double,double,int);
-//    double (*dpdT)(double,double,int);
-//    double (*dhdrho)(double,double,int);
-//    double (*dpdrho)(double,double,int);
-    printf("Sorry DerivTerms is a work in progress!!");
-    return _HUGE;
+	LoadFluid(Ref);
+
+	if (!strcmp(Term,"dpdT"))
+	{
+		double delta=rho/Fluid.rhoc;
+		double tau=Fluid.Tc/T;
+		double R=R_u/Fluid.MM;
+		return rho*R*(1+delta*dphir_dDelta_func(tau,delta)-delta*tau*dphir2_dDelta_dTau_func(tau,delta));
+	}
+	else
+	{
+		printf("Sorry DerivTerms is a work in progress, your derivative term [%s] is not available!!",Term);
+		return _HUGE;
+	}
+    
 //    // Wire up the pointers for the given refrigerant
 //    if (!strcmp(Ref,"AA"))
 //    {
