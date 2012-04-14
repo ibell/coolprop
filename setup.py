@@ -9,11 +9,13 @@ except:
 shutil.copy2('__init__.py.template','__init__.py')
 
 # Obtain the numpy include directory.  This logic works across numpy versions.
-import numpy
-try:
-    numpy_include = numpy.get_include()
-except AttributeError:
-    numpy_include = numpy.get_numpy_include()
+## import numpy
+## try:
+##     numpy_include = numpy.get_include()
+## except AttributeError:
+##     numpy_include = numpy.get_numpy_include()
+    
+numpy_include=['']
     
 # If you add a fluid, update this list of fluids
 FluidSources = ['R134a.cpp','R744.cpp','R290.cpp','R410A.cpp',

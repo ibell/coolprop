@@ -124,8 +124,8 @@ Sample Code
 
 .. ipython::
 
-    #import the things you need 
-    In [1]: from CoolProp.CoolProp import Props, UseSaturationLUT
+    #Import the things you need 
+    In [1]: from CoolProp.CoolProp import Props, UseSaturationLUT,UseSinglePhaseLUT
     
     #Specific heat (kJ/kg/K) of 20% ethylene glycol as a function of T
     In [2]: h=Props('C','T',298.15,'P',101.325,'EG-20%'); print h
@@ -139,26 +139,78 @@ Sample Code
     #Saturated vapor density of R134a at 0C
     In [2]: Props('H','T',273.15,'Q',1,'R134a')
     
+    # -------------------------------------------------------
+    #  Single phase lookup table
+    # -------------------------------------------------------
+    
     #Crudely time 100 calls to get saturation temperature without lookup table
-    In [2]: from time import time; t1=time()
+    In [2]: from time import clock; t1=clock()
     
     In [2]: for i in range(100):
        ...:      T=Props('T','P',101.325,'Q',1,'Water')
        ...:
     
-    In [3]: print 'time elapsed for 100 calls:',time()-t1,'s'
+    In [3]: print 'time elapsed for 100 calls:',clock()-t1,'s'
     
     #Turn on the saturation LUT
     In [3]: UseSaturationLUT(1)
     
     #Crudely time 100 calls to get saturation temperature with lookup table
-    In [2]: from time import time; t1=time()
+    In [2]: from time import clock; t1=clock()
+    
+    In [3]: Props('T','P',101.325,'Q',1,'Water')
+    
+    In [3]: print 'time to build LUT:',clock()-t1,'s'
+    
+    In [2]: t1=clock()
     
     In [2]: for i in range(100):
        ...:      T=Props('T','P',101.325,'Q',1,'Water')
        ...:
     
-    In [3]: print 'time elapsed for 100 calls:',time()-t1,'s'
+    In [3]: print 'time elapsed for 100 calls:',clock()-t1,'s'
+    
+    # -------------------------------------------------------
+    #  Single phase lookup table
+    # -------------------------------------------------------
+    #Turn off (this is default) the single-phase LUT
+    In [3]: UseSinglePhaseLUT(0)
+    
+    #Crudely time 10000 calls to get enthalpy without lookup table
+    #Using full equation of state.  First get density, then H=f(T,rho)
+    In [2]: from time import clock; t1=clock()
+    
+    In [2]: for i in range(10000):
+       ...:      H=Props('H','T',290,'P',101.325,'R744')
+       ...:
+    
+    In [3]: time_no_LUT=clock()-t1
+    
+    In [3]: print 'time elapsed for 10000 calls:',time_no_LUT,'s'
+    
+    #Turn on the single-phase LUT
+    In [3]: UseSinglePhaseLUT(1)
+    
+    #Crudely time 10000 calls to get enthalpy with lookup table
+    In [2]: from time import clock; t1=clock()
+    
+    In [3]: H=Props('H','T',290,'P',101.325,'R744')
+    
+    In [3]: print 'time to build LUT:',clock()-t1,'s'
+    
+    In [2]: t1=clock()
+    
+    In [2]: for i in range(10000):
+       ...:      H=Props('H','T',290,'P',101.325,'R744')
+       ...:
+       
+    In [3]: time_with_LUT=clock()-t1
+    
+    In [3]: print 'time elapsed for 10000 calls:',time_with_LUT,'s'
+    
+    In [3]: print 'speedup factor with LUT:',time_no_LUT/time_with_LUT,'x'
+    
+    #Note: CO2 has a very involved EOS, so this is perhaps an extreme example
     
     
     

@@ -15,10 +15,10 @@
 #include <stdlib.h>
 #include "string.h"
 #include <stdio.h>
+#include "CoolPropTools.h"
 
 using namespace std;
 char LoadedFluid[255];
-int FluidType;
 
 double R_u=8.314472; //From Lemmon et al 2009 (propane)
 
@@ -68,7 +68,7 @@ static struct fluidParamsVals Fluid;
     
 static double get_Delta(double T, double p)
 {
-    double eps=1e-8, tau,delta_guess,M,Tc,rhoc,R;
+    double eps=1e-10, tau,delta_guess,M,Tc,rhoc,R;
     int counter=1;
     double r1,r2,r3,delta1,delta2,delta3;
     
@@ -119,10 +119,12 @@ static double get_Delta(double T, double p)
         {
         	//ERROR
         	if (fabs(r3)/10<eps)
-        		return delta3;
-        	else
-        		printf("counter for get_Delta > 40, fcn is %g and delta is %g\n",r3,delta3);
         		return _HUGE;
+        	else
+            {
+				printf("counter for get_Delta > 40, fcn is %g and delta is %g w/ inputs of T: %g p: %g\n",r3,delta3,T,p);
+        		return _HUGE;
+            }
         }
     }
     return delta3;
@@ -430,7 +432,8 @@ int LoadFluid(char *Ref)
 {
 	char Local_errString[100];
 
-    if (!strcmp(LoadedFluid,Ref))
+    //Always load the fluid if possible
+    if (0)//(!strcmp(LoadedFluid,Ref))
     {
         // Already Loaded, don't do anything else
         return OK;
@@ -494,7 +497,6 @@ int LoadFluid(char *Ref)
             Append2ErrorString(Local_errString);
             return FAIL;
         }
-        FluidType=Fluid.Type;
 		phir_func=Fluid.funcs.phir;
 		dphir_dDelta_func=Fluid.funcs.dphir_dDelta;
 		dphir2_dDelta2_func=Fluid.funcs.dphir2_dDelta2;
@@ -573,20 +575,60 @@ void Help()
     
 }
 
-int IsFluidType(char *Ref, char *Type)
+static int IsBrine(char *Ref)
 {
-    // Call a function to set the fluid-specific properties
-    Props('M','T',0,'P',0,Ref);
-    
-    if (((FluidType==FLUIDTYPE_REFRIGERANT_PURE) || (FluidType==FLUIDTYPE_REFPROP)) && !strcmp(Type,"PureFluid"))
+    if (
+        strcmp(Ref,"HC-10")==0 || 
+        strncmp(Ref,"EG",2)==0 || 
+        strncmp(Ref,"PG",2)==0 || 
+        strncmp(Ref,"Methanol",8)==0 || 
+        strncmp(Ref,"NH3/H2O",7)==0
+       )
     {
         return 1;
     }
-    else if (FluidType==FLUIDTYPE_BRINE && !strcmp(Type,"Brine"))
+    else
+    {
+        return 0;
+    }
+}
+static int IsREFPROP(char *Ref)
+{
+    if (strncmp(Ref,"REFPROP-",8)==0)
     {
         return 1;
     }
-    else if (FluidType==FLUIDTYPE_REFRIGERANT_PSEUDOPURE && !strcmp(Type,"PseudoPure"))
+    else
+    {
+        return 0;
+    }
+}
+static int IsPseudoPure(char *Ref)
+{
+    if (strncmp(Ref,"Air",3)==0 ||
+        strncmp(Ref,"R410A",4)==0 ||
+        strncmp(Ref,"R407C",4)==0 ||
+        strncmp(Ref,"R507A",4)==0 ||
+        strncmp(Ref,"R404A",4)==0)
+    {
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
+}
+int IsFluidType(char *Ref,char *Type)
+{
+    if (IsBrine(Ref) && !strcmp(Type,"Brine"))
+    {
+        return 1;
+    }
+    else if (IsPseudoPure(Ref) && !strcmp(Type,"PseudoPure"))
+    {
+        return 1;
+    }
+    else if (((Fluid.Type==FLUIDTYPE_REFRIGERANT_PURE) || IsREFPROP(Ref)) && !strcmp(Type,"PureFluid"))
     {
         return 1;
     }
@@ -639,7 +681,7 @@ void PropsV(char *Output,char Name1, double *Prop1, int len1, char Name2, double
 
 double Props(char *Output,char Name1, double Prop1, char Name2, double Prop2, char * Ref)
 {
-	// This is a wrapper function to allow for overloading, and the passing of a string rather than a 
+	// This is a wrapper function to allow for overloading, and the passing of a string rather than a single character
     if (strlen(Output)==1)
     {
         return Props(Output[0],Name1,Prop1,Name2,Prop2,Ref);
@@ -691,9 +733,9 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
     If the fluid name is not actually a refrigerant name, but a string beginning with "REFPROP-",
     then REFPROP is used to calculate the desired property.
     */
-    if (strncmp(Ref,"REFPROP-",8)==0)  // First eight characters match "REFPROP-"
+    if (IsREFPROP(Ref))  // First eight characters match "REFPROP-"
     {
-        FluidType=FLUIDTYPE_REFPROP;
+        Fluid.Type=FLUIDTYPE_REFPROP;
         #if defined(__ISWINDOWS__)
         return REFPROP(Output,Name1,Prop1,Name2,Prop2,Ref);
 		#else
@@ -723,12 +765,13 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 				PrintError();
 			return -_HUGE;
         }
-        FluidType=FLUIDTYPE_BRINE;
+        Fluid.Type=FLUIDTYPE_BRINE;
         return SecFluids(Output,Prop1,Prop2,Ref);
     }
     else // It is something based on CoolProp routines
     {
         T=Prop1; 
+        
         // Load the fluid-specific parameters and function pointers
         success=LoadFluid(Ref);
         //Error if bad fluid name
@@ -768,7 +811,19 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
                 {
                     //First find density as a function of temp and pressure (all parameters need it)
                     rho=get_Delta(T,p)*Fluid.rhoc;
-                    if (Output=='D')
+					if (!ValidNumber(rho))
+					{
+						//ERROR
+						printf("rho is definitely not a valid number [%g] with inputs of T: %g p: %g\n",rho,T,p);
+						return _HUGE;
+					}
+                    else if (fabs(rho)>10000)
+					{
+						//ERROR
+						printf("rho is probably not a valid value [%g] with inputs of T: %g p: %g\n",rho,T,p);
+						return _HUGE;
+					}
+                    else if (Output=='D')
                     {
                         return rho;
                     }
@@ -1032,11 +1087,12 @@ double T_hp(char *Ref, double h, double p, double T_guess)
             y1=y2; x1=x2; x2=x3;
         }
         iter=iter+1;
-        if (iter>60)
+        if (iter>100)
         {
             //ERROR
-        	sprintf(Local_errString,"%d: T_hp not converging with inputs(%s,%g,%g,%g) value: %0.12g\n",iter,Ref,h,p,T_guess,f);
+        	sprintf(Local_errString,"iter %d: T_hp not converging with inputs(%s,%g,%g,%g) value: %0.12g\n",iter,Ref,h,p,T_guess,f);
 			Append2ErrorString(Local_errString);
+            printf("%s\n",Local_errString);
 			return -_HUGE;
         }
     }
@@ -1087,7 +1143,7 @@ double Tsat(char *Ref, double p, double Q, double T_guess)
     // Brines do not have saturation temperatures, set it to a big number
     if (IsFluidType(Ref,"Brine"))
     {
-        return 100000;
+        return _HUGE;
     }
     #if defined(__ISWINDOWS__) 
         // It's a REFPROP fluid - use REFPROP to do all the calculations
@@ -1098,7 +1154,7 @@ double Tsat(char *Ref, double p, double Q, double T_guess)
     #endif
     
     // Do reverse interpolation in the Saturation Lookup Table
-    if (FlagUseSaturationLUT && FluidType==FLUIDTYPE_REFRIGERANT_PURE)
+    if (FlagUseSaturationLUT && Fluid.Type==FLUIDTYPE_REFRIGERANT_PURE)
     {
         // First try to build the LUT, get index of LUT
         k=BuildSaturationLUT(Ref);
@@ -1142,7 +1198,7 @@ double Tsat(char *Ref, double p, double Q, double T_guess)
     // Plotting Tc/T versus log(p) tends to give very close to straight line
     // Use this fact to figure out a reasonable guess temperature
     
-    if (FluidType==FLUIDTYPE_REFRIGERANT_PURE)
+    if (Fluid.Type==FLUIDTYPE_REFRIGERANT_PURE)
     {
         T1=Ttriple(Ref)+1;
         T3=Tcrit(Ref)-1;
