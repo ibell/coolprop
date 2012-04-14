@@ -25,7 +25,7 @@ FluidSources = ['R134a.cpp','R744.cpp','R290.cpp','R410A.cpp',
 CoolProp_module = Extension('_CoolProp',
                            sources=['CoolProp.i', 'CoolProp.cpp','CoolPropTools.cpp','REFPROP.cpp']+FluidSources,
                            #swig_opts=['-builtin']
-                           swig_opts=['-c++'],
+                           swig_opts=['-builtin','-c++'],
                            include_dirs = [numpy_include],
                            )
 
