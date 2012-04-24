@@ -342,7 +342,7 @@ double Density_Tp(double T, double p, double rho)
     R=R_u/Fluid.MM;
     tau=Fluid.Tc/T;
     delta=rho/Fluid.rhoc;
-    while (fabs(error)>1e-7)
+    while (fabs(error)>1e-10)
     {
         delta=rho/Fluid.rhoc;
         // Use Newton's method to find the saturation density since the derivative of pressure w.r.t. density is known from EOS
@@ -384,7 +384,7 @@ static void rhosatPure(char *Ref, double T, double *rhoLout, double *rhoVout, do
 	}
     iter=1;
     // Use a secant method to obtain pressure
-    while ((iter<=3 || fabs(error)>1e-7) && iter<100)
+    while ((iter<=3 || fabs(error)>1e-10) && iter<100)
     {
         if (iter==1){x1=p_guess; p=x1;}
         if (iter==2){x2=1.0001*p_guess; p=x2;}
@@ -1217,7 +1217,7 @@ double Tsat(char *Ref, double p, double Q, double T_guess)
             Tmin=T_guess-5;
     }
 
-    return _Dekker_Tsat(Tmin,Tmax,0.001,p,Q,Ref);
+    return _Dekker_Tsat(Tmin,Tmax,0.0001,p,Q,Ref);
     
     //~ *** This is old code, kept as a reference
     //~ while ((iter<=3 || exp(f)-1>eps) && iter<100)
@@ -1304,6 +1304,14 @@ double DerivTerms(char *Term,double T, double rho,char * Ref)
 		double tau=Fluid.Tc/T;
 		double R=R_u/Fluid.MM;
 		return rho*R*(1+delta*dphir_dDelta_func(tau,delta)-delta*tau*dphir2_dDelta_dTau_func(tau,delta));
+	}
+    else if (!strcmp(Term,"dvdp"))
+	{
+		double delta=rho/Fluid.rhoc;
+		double tau=Fluid.Tc/T;
+		double R=R_u/Fluid.MM;
+        double dpdrho=R*T*(1+2*delta*dphir_dDelta_func(tau,delta)+delta*delta*dphir2_dDelta2_func(tau,delta));
+		return -1/dpdrho/(rho*rho);
 	}
 	else
 	{
