@@ -61,7 +61,8 @@
 	int ValidNumber(double x);
 
 	int BuildLookupTable(char *Ref, struct fluidParamsVals *Fluid);
-	double LookupValue(char Prop, double T, double p, char *Ref, struct fluidParamsVals *Fluid);
+	double LookupValue_TP(char Prop, double T, double p, char *Ref, struct fluidParamsVals *Fluid);
+    double LookupValue_Trho(char Prop, double T, double p, char *Ref, struct fluidParamsVals *Fluid);
 	int WriteLookup2File(int ILUT);
 
 	int ValidateFluid(void);

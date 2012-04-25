@@ -140,7 +140,7 @@ Sample Code
     In [2]: Props('H','T',273.15,'Q',1,'R134a')
     
     # -------------------------------------------------------
-    #  Single phase lookup table
+    #  Without Single phase lookup table
     # -------------------------------------------------------
     
     #Crudely time 100 calls to get saturation temperature without lookup table
@@ -211,6 +211,8 @@ Sample Code
     In [3]: print 'speedup factor with LUT:',time_no_LUT/time_with_LUT,'x'
     
     #Note: CO2 has a very involved EOS, so this is perhaps an extreme example
+    
+   
     
     
     

@@ -276,9 +276,9 @@ p	||   /		  | X X X X Superheated Gas
     return k;
 }
 
-double LookupValue(char Prop, double T, double p, char *Ref, struct fluidParamsVals *Fluid)
+double LookupValue_TP(char Prop, double T, double p, char *Ref, struct fluidParamsVals *Fluid)
 {
-    int iPlow, iPhigh, iTlow, iThigh,L,R,M,ILUT,success;
+    int iPlow, iPhigh, iTlow, iThigh,ILUT,success;
     double T1, T2, T3, P1, P2, P3, y1, y2, y3, a1, a2, a3;
     double (*mat)[nT][nP][nLUT];
     double Tmin,Tmax,Pmin,Pmax;
@@ -298,31 +298,11 @@ double LookupValue(char Prop, double T, double p, char *Ref, struct fluidParamsV
         return -1e6;
     }
 
-    L=0;
-    R=nP-1;
-    M=(L+R)/2;
-    // Use interval halving to find the indices which bracket the temperature of interest
-    while (R-L>1)
-    {
-        if (T>=Tvec[M][ILUT])
-        { L=M; M=(L+R)/2; }
-        if (T<Tvec[M][ILUT])
-        { R=M; M=(L+R)/2; }
-    }
-    iTlow=L; iThigh=R;
+    iTlow=(int)floor((T-Tmin)/(Tmax-Tmin)*(nT-1));
+    iThigh=iTlow+1;
 
-    L=0;
-    R=nP-1;
-    M=(L+R)/2;
-    // Use interval halving to find the indices which bracket the pressure of interest
-    while (R-L>1)
-    {
-        if (p>=pvec[M][ILUT])
-        { L=M; M=(L+R)/2; }
-        if (p<pvec[M][ILUT])
-        { R=M; M=(L+R)/2; }
-    }
-    iPlow=L; iPhigh=R;
+    iPlow=(int)floor((p-Pmin)/(Pmax-Pmin)*(nP-1));
+    iPhigh=iPlow+1;
 
     /* Depending on which property is desired, 
     make the matrix "mat" a pointer to the 
@@ -378,6 +358,8 @@ double LookupValue(char Prop, double T, double p, char *Ref, struct fluidParamsV
 
     return QuadInterp(T1,T2,T3,a1,a2,a3,T);
 }
+
+
 
 void Append2ErrorString(char *string)
 {

@@ -342,7 +342,8 @@ double Density_Tp(double T, double p, double rho)
     R=R_u/Fluid.MM;
     tau=Fluid.Tc/T;
     delta=rho/Fluid.rhoc;
-    while (fabs(error)>1e-10)
+    int iter=1;
+    while (fabs(error)>1e-6)
     {
         delta=rho/Fluid.rhoc;
         // Use Newton's method to find the saturation density since the derivative of pressure w.r.t. density is known from EOS
@@ -351,6 +352,12 @@ double Density_Tp(double T, double p, double rho)
         rho=rho-(Pressure_Trho(T,rho)-p)/dpdrho;
         // Residual
         error=Pressure_Trho(T,rho)-p;
+        iter++;
+        if (iter>100)
+        {
+            printf("Number of steps in Density_TP has exceeded 100 with inputs %g,%g,%g\n",T,p,rho);
+            return _HUGE;
+        }
     }		
     return rho;
 }
@@ -380,6 +387,7 @@ static void rhosatPure(char *Ref, double T, double *rhoLout, double *rhoVout, do
 		//ERROR
 		sprintf(Local_errString,"rhosatPure: rhoL [%g] or rhoV [%g] is invalid number\n",rhoL,rhoV);
 		Append2ErrorString(Local_errString);
+        printf("%s\n",Local_errString);
 		return;
 	}
     iter=1;
@@ -399,6 +407,10 @@ static void rhosatPure(char *Ref, double T, double *rhoLout, double *rhoVout, do
             	//ERROR
             	sprintf(Local_errString,"rhosatPure: rhoL [%g] rhoV [%g] or f [%g] is invalid number\n",rhoL,rhoV,f);
 				Append2ErrorString(Local_errString);
+                printf("%s\n",Local_errString);
+				*rhoLout=_HUGE;
+				*rhoVout=_HUGE;
+				*pout=_HUGE;
 				return;
             }
             if (iter>100)
@@ -414,7 +426,7 @@ static void rhosatPure(char *Ref, double T, double *rhoLout, double *rhoVout, do
             error=f;
             y1=y2; x1=x2; x2=x3;
         }
-        iter=iter+1;
+        iter++;
         if (iter>100)
         {
         	//ERROR
@@ -805,7 +817,7 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
             	p=Prop2;
                 if (FlagUseSinglePhaseLUT==1)
                 {
-                    return LookupValue(Output, T, p, Ref, &Fluid);
+                    return LookupValue_TP(Output, T, p, Ref, &Fluid);
                 }
                 else
                 {
