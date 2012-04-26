@@ -1115,7 +1115,6 @@ double h_sp(char *Ref, double s, double p, double T_guess)
 {
     double x1=0,x2=0,x3=0,y1=0,y2=0,eps=1e-8,change=999,f=999,T=300;
     int iter=1;
-
     
     while ((iter<=3 || change>eps) && iter<100)
     {
@@ -1316,6 +1315,14 @@ double DerivTerms(char *Term,double T, double rho,char * Ref)
 		double tau=Fluid.Tc/T;
 		double R=R_u/Fluid.MM;
 		return rho*R*(1+delta*dphir_dDelta_func(tau,delta)-delta*tau*dphir2_dDelta_dTau_func(tau,delta));
+	}
+    else if (!strcmp(Term,"dpdrho"))
+	{
+		double delta=rho/Fluid.rhoc;
+		double tau=Fluid.Tc/T;
+		double R=R_u/Fluid.MM;
+        double dpdrho=R*T*(1+2*delta*dphir_dDelta_func(tau,delta)+delta*delta*dphir2_dDelta2_func(tau,delta));
+		return dpdrho;
 	}
     else if (!strcmp(Term,"dvdp"))
 	{

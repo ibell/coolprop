@@ -2,31 +2,42 @@
 from distutils.core import setup, Extension
 import subprocess,shutil,os,sys
 
-try:
-    os.remove('CoolProp.pyc')
-except:
-    pass
-shutil.copy2('__init__.py.template','__init__.py')
-
 # Obtain the numpy include directory.  This logic works across numpy versions.
 ## import numpy
 ## try:
 ##     numpy_include = numpy.get_include()
 ## except AttributeError:
 ##     numpy_include = numpy.get_numpy_include()
-    
-numpy_include=['']
-    
-# If you add a fluid, update this list of fluids
-FluidSources = ['R134a.cpp','R744.cpp','R290.cpp','R410A.cpp',
-               'Brine.cpp','R32.cpp','R717.cpp','R404A.cpp','R407C.cpp',
-               'R507A.cpp','Argon.cpp','Nitrogen.cpp','Water.cpp','Air.cpp']
-                           
+numpy_include=[]
+
+version='1.4.0'
+
+#Unpack the __init__.py file and add the version number to the __init__ file
+shutil.copy2('__init__.py.template','__init__.py')
+lines=open('__init__.py','r').readlines()
+lines=['__version__=\''+version+'\'\n']+lines
+fp=open('__init__.py','w')
+for line in lines:
+    fp.write(line)
+fp.close
+
+
+
+import glob
+#This will automagically find all the fluid sources as long as they are in the right folders
+#Pure fluids should all be in the src/purefluids folder relative to setup.py
+#Pseudo-Pure fluids should all be in the src/pseudopurefluids folder relative to setup.py
+
+purefluids=glob.glob(os.path.join('src','purefluids','*.cpp'))
+pseudopurefluids=glob.glob(os.path.join('src','pseudopurefluids','*.cpp'))
+others=[]
+FluidSources=purefluids+pseudopurefluids+others
+
 CoolProp_module = Extension('_CoolProp',
                            sources=['CoolProp.i', 'CoolProp.cpp','CoolPropTools.cpp','REFPROP.cpp']+FluidSources,
                            #swig_opts=['-builtin']
-                           #swig_opts=['-builtin','-c++'],
-                           swig_opts=['-c++'],
+                           swig_opts=['-builtin','-c++'],
+                           #swig_opts=['-c++'],
                            include_dirs = [numpy_include],
                            )
 
@@ -43,7 +54,7 @@ HumidAirProp_module = Extension('_HumidAirProp',
                            )                           
 
 setup (name = 'CoolProp',
-       version = '1.4.0',
+       version = version,
        author      = "Ian Bell",
        author_email='ian.h.bell@gmail.com',
        url='http://coolprop.sourceforge.net',
