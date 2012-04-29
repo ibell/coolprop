@@ -678,6 +678,28 @@ int Phase(double T, double rho, char * Ref)
     }
 }
 
+double Props(char *Fluid, char *Output)
+{
+    LoadFluid(Fluid);
+    
+    if (!strcmp(Output,"Ttriple"))
+    {
+        return Props('R','T',0,'P',0,Fluid);
+    }
+    else if (!strcmp(Output,"Tcrit"))
+    {
+        return Props('B','T',0,'P',0,Fluid);
+    }
+    else if (!strcmp(Output,"pcrit"))
+    {
+        return Props('E','T',0,'P',0,Fluid);
+    }
+    else
+    {
+        printf("Your output parameter to single-parameter Props [%s] is not valid. Sorry.\n");
+        return _HUGE;
+    }
+}
 void PropsV(char *Output,char Name1, double *Prop1, int len1, char Name2, double *Prop2, int len2, char * Ref, double *OutVec, int n)
 {
     // This is a wrapper function that allows for vectors to be passed through 
@@ -889,6 +911,11 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
                 }
                 if (isTwoPhase==0)
                 {
+                    // It is not two-phase, if you are using a LUT, use it
+                    if (FlagUseSinglePhaseLUT==1)
+                    {
+                        return LookupValue_Trho(Output, T, rho, Ref, &Fluid);
+                    }
                     // It is not two-phase, and use EOS or transport relations
                     switch (Output)
                     {

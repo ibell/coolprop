@@ -23,6 +23,7 @@ static double cvmat[nT][nP][nLUT];
 static double umat[nT][nP][nLUT];
 static double viscmat[nT][nP][nLUT];
 static double kmat[nT][nP][nLUT];
+static double pmat[nT][nP][nLUT];
 static double Tvec[nT][nLUT];
 static double pvec[nP][nLUT];
 
@@ -257,6 +258,7 @@ p	||   /		  | X X X X Superheated Gas
                 cvmat[i][j][k]=Props('O','T',Tvec[i][k],'D',rhomat[i][j][k],Ref);
                 viscmat[i][j][k]=Props('V','T',Tvec[i][k],'D',rhomat[i][j][k],Ref);
                 kmat[i][j][k]=Props('L','T',Tvec[i][k],'D',rhomat[i][j][k],Ref);
+                pmat[i][j][k]=pvec[j][k];
             }
             else
             {
@@ -268,11 +270,14 @@ p	||   /		  | X X X X Superheated Gas
                 cvmat[i][j][k]=_HUGE;
                 viscmat[i][j][k]=_HUGE;
                 kmat[i][j][k]=_HUGE;
+                pmat[i][j][k]=_HUGE;
             }
         }
     }
     UseSinglePhaseLUT(OldUseLUT);
     printf("Tables Built\n");
+	//Uncomment and recompile to output LUTs to files
+    //WriteLookup2File(k);
     return k;
 }
 
@@ -293,9 +298,10 @@ double LookupValue_TP(char Prop, double T, double p, char *Ref, struct fluidPara
     
     if (T>Tmax || T<Tmin || p>Pmax ||p<Pmin)
     {
-        success=sprintf(CP_errString,"Input to LookupValue() for %c is out of bounds [T:%g p:%g]",Prop,T,p);
+        success=sprintf(CP_errString,"Input to LookupValue_TP() for %c is out of bounds [T:%g p:%g] with ILUT of %d",Prop,T,p,ILUT);
         if (success<0) printf("error writing error string");
-        return -1e6;
+        printf("%s\n",CP_errString);
+        return _HUGE;
     }
 
     iTlow=(int)floor((T-Tmin)/(Tmax-Tmin)*(nT-1));
@@ -307,10 +313,10 @@ double LookupValue_TP(char Prop, double T, double p, char *Ref, struct fluidPara
     /* Depending on which property is desired, 
     make the matrix "mat" a pointer to the 
     desired property matrix */
-    if (Prop=='D')
-        mat=&rhomat;
-    else if (Prop=='C')
+    if (Prop=='C')
         mat=&cpmat;
+    else if (Prop=='D')
+        mat=&rhomat;
     else if (Prop=='O')
         mat=&cvmat;
     else if (Prop=='H')
@@ -326,8 +332,8 @@ double LookupValue_TP(char Prop, double T, double p, char *Ref, struct fluidPara
     else
     {
     	//ERROR
-    	printf("Invalid output type [%c]",Prop);
-    	return -1;
+    	printf("Invalid output type [%c] in LookupValue_TP\n",Prop);
+    	return _HUGE;
     }
     
     //At Low Temperature Index
@@ -359,6 +365,110 @@ double LookupValue_TP(char Prop, double T, double p, char *Ref, struct fluidPara
     return QuadInterp(T1,T2,T3,a1,a2,a3,T);
 }
 
+double LookupValue_Trho(char Prop, double T, double rho, char *Ref, struct fluidParamsVals *Fluid)
+{
+	// Lookup a value in the lookup table using temperature and rho as the inputs
+
+    int irholow, irhohigh, iTlow, iThigh,ILUT,success,L,R,M;
+    double T1, T2, T3, rho1, rho2, rho3, y1, y2, y3, a1, a2, a3;
+    double (*mat)[nT][nP][nLUT];
+    double Tmin,Tmax,rhomin,rhomax;
+
+    // Either build and get the index of, or just build, the LUT
+    ILUT=BuildLookupTable(Ref,Fluid);
+    
+    Tmin=Tvec[0][ILUT];
+    Tmax=Tvec[nT-1][ILUT];
+
+	if (T>Tmax || T<Tmin)
+    {
+        success=sprintf(CP_errString,"Input to LookupValue_Trho() for %c is out of bounds [T:%g]",Prop,T);
+        if (success<0) printf("error writing error string");
+        return _HUGE;
+    }
+
+	iTlow=(int)floor((T-Tmin)/(Tmax-Tmin)*(nT-1));
+    iThigh=iTlow+1;
+
+    rhomin=rhomat[iThigh][0][ILUT];
+    rhomax=rhomat[iTlow][nP-1][ILUT];
+
+	L=0;
+	R=nP-1;
+	M=(L+R)/2;
+	// Use interval halving to find the indices which bracket the density of interest
+	while (R-L>1)
+	{
+		if (rho>=rhomat[iThigh][M][ILUT])
+		{ L=M; M=(L+R)/2; continue;}
+		if (rho<rhomat[iTlow][M][ILUT])
+		{ R=M; M=(L+R)/2; continue;}
+	}
+    irholow=L;
+    irhohigh=R;
+
+    /* Depending on which property is desired, 
+    make the matrix "mat" a pointer to the 
+    desired property matrix */
+    if (Prop=='P')
+        mat=&pmat;
+    else if (Prop=='D')
+        mat=&rhomat;
+    else if (Prop=='C')
+        mat=&cpmat;
+    else if (Prop=='O')
+        mat=&cvmat;
+    else if (Prop=='H')
+        mat=&hmat;
+    else if (Prop=='S')
+        mat=&smat;
+    else if (Prop=='U')
+        mat=&umat;
+    else if (Prop=='V')
+        mat=&viscmat;
+    else if (Prop=='L')
+        mat=&kmat;
+    else
+    {
+    	//ERROR
+    	printf("Invalid output type [%c] when using LUT\n",Prop);
+    	return _HUGE;
+    }
+    
+    //At Low Temperature Index
+    y1=(*mat)[iTlow][irholow][ILUT];
+    y2=(*mat)[iTlow][irhohigh][ILUT];
+    y3=(*mat)[iTlow][irhohigh+1][ILUT];
+    rho1=rhomat[iTlow][irholow][ILUT];
+    rho2=rhomat[iTlow][irhohigh][ILUT];
+    rho3=rhomat[iTlow][irhohigh+1][ILUT];
+    a1=QuadInterp(rho1,rho2,rho3,y1,y2,y3,rho);
+
+    //At High Temperature Index
+    y1=(*mat)[iThigh][irholow][ILUT];
+    y2=(*mat)[iThigh][irhohigh][ILUT];
+    y3=(*mat)[iThigh][irhohigh+1][ILUT];
+    rho1=rhomat[iThigh][irholow][ILUT];
+    rho2=rhomat[iThigh][irhohigh][ILUT];
+    rho3=rhomat[iThigh][irhohigh+1][ILUT];
+    a2=QuadInterp(rho1,rho2,rho3,y1,y2,y3,rho);
+
+    //At High Temperature Index+1 (for QuadInterp() )
+    y1=(*mat)[iThigh+1][irholow][ILUT];
+    y2=(*mat)[iThigh+1][irhohigh][ILUT];
+    y3=(*mat)[iThigh+1][irhohigh+1][ILUT];
+    rho1=rhomat[iThigh+1][irholow][ILUT];
+    rho2=rhomat[iThigh+1][irhohigh][ILUT];
+    rho3=rhomat[iThigh+1][irhohigh+1][ILUT];
+    a3=QuadInterp(rho1,rho2,rho3,y1,y2,y3,rho);
+
+    //At Final Interpolation
+    T1=Tvec[iTlow][ILUT];
+    T2=Tvec[iThigh][ILUT];
+    T3=Tvec[iThigh+1][ILUT];
+
+    return QuadInterp(T1,T2,T3,a1,a2,a3,T);
+}
 
 
 void Append2ErrorString(char *string)

@@ -207,6 +207,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
+				AdditionalIncludeDirectories="C:\Users\Belli\Documents\Code\PythonModules\CoolPropSource\src\purefluids;C:\Users\Belli\Documents\Code\PythonModules\CoolPropSource\src\pseudopurefluids;C:\Users\Belli\Documents\Code\PythonModules\CoolPropSource\src"
 				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG;_USRDLL"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -352,19 +353,11 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\Air.cpp"
+				RelativePath="..\src\pseudopurefluids\Air.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\Argon.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\Brine.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\CoolProp.cpp"
+				RelativePath="..\src\purefluids\Argon.cpp"
 				>
 			</File>
 			<File
@@ -372,67 +365,47 @@
 				>
 			</File>
 			<File
-				RelativePath="..\CoolPropTools.cpp"
+				RelativePath="..\src\purefluids\Nitrogen.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\FloodProp.cpp"
+				RelativePath="..\src\purefluids\R134a.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\HumAir.cpp"
+				RelativePath="..\src\purefluids\R290.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\Ice.cpp"
+				RelativePath="..\src\purefluids\R32.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\Nitrogen.cpp"
+				RelativePath="..\src\pseudopurefluids\R404A.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\R134a.cpp"
+				RelativePath="..\src\pseudopurefluids\R407C.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\R290.cpp"
+				RelativePath="..\src\pseudopurefluids\R410A.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\R32.cpp"
+				RelativePath="..\src\pseudopurefluids\R507A.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\R404A.cpp"
+				RelativePath="..\src\purefluids\R717.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\R407C.cpp"
+				RelativePath="..\src\purefluids\R744.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\R410A.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\R507A.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\R717.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\R744.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\REFPROP.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\Water.cpp"
+				RelativePath="..\src\purefluids\Water.cpp"
 				>
 			</File>
 		</Filter>
@@ -442,19 +415,27 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath="..\Air.h"
+				RelativePath="..\src\pseudopurefluids\Air.h"
 				>
 			</File>
 			<File
-				RelativePath="..\Argon.h"
+				RelativePath="..\src\purefluids\Argon.h"
 				>
 			</File>
 			<File
-				RelativePath="..\Brine.h"
+				RelativePath="..\src\Brine.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\CoolProp.h"
+				RelativePath="..\src\Brine.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\CoolProp.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\CoolProp.h"
 				>
 			</File>
 			<File
@@ -462,67 +443,99 @@
 				>
 			</File>
 			<File
-				RelativePath="..\CoolPropTools.h"
+				RelativePath="..\src\CoolPropTools.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\Nitrogen.h"
+				RelativePath="..\src\CoolPropTools.h"
 				>
 			</File>
 			<File
-				RelativePath="..\PropErrorCodes.h"
+				RelativePath="..\src\FloodProp.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\PropMacros.h"
+				RelativePath="..\src\FloodProp.h"
 				>
 			</File>
 			<File
-				RelativePath="..\R134a.h"
+				RelativePath="..\src\HumAir.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\R290.h"
+				RelativePath="..\src\HumAir.h"
 				>
 			</File>
 			<File
-				RelativePath="..\R32.h"
+				RelativePath="..\src\Ice.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\R404A.h"
+				RelativePath="..\src\Ice.h"
 				>
 			</File>
 			<File
-				RelativePath="..\R407C.h"
+				RelativePath="..\src\purefluids\Nitrogen.h"
 				>
 			</File>
 			<File
-				RelativePath="..\R410A.h"
+				RelativePath="..\src\PropErrorCodes.h"
 				>
 			</File>
 			<File
-				RelativePath="..\R507A.h"
+				RelativePath="..\src\PropMacros.h"
 				>
 			</File>
 			<File
-				RelativePath="..\R717.h"
+				RelativePath="..\src\purefluids\R134a.h"
 				>
 			</File>
 			<File
-				RelativePath="..\R744.h"
+				RelativePath="..\src\purefluids\R290.h"
 				>
 			</File>
 			<File
-				RelativePath="..\REFPROP.h"
+				RelativePath="..\src\purefluids\R32.h"
 				>
 			</File>
 			<File
-				RelativePath="..\StructsMacros.h"
+				RelativePath="..\src\pseudopurefluids\R404A.h"
 				>
 			</File>
 			<File
-				RelativePath="..\Water.h"
+				RelativePath="..\src\pseudopurefluids\R407C.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\pseudopurefluids\R410A.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\pseudopurefluids\R507A.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\purefluids\R717.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\purefluids\R744.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\REFPROP.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\REFPROP.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\StructsMacros.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\purefluids\Water.h"
 				>
 			</File>
 		</Filter>

@@ -139,6 +139,12 @@ Sample Code
     #Saturated vapor density of R134a at 0C
     In [2]: Props('H','T',273.15,'Q',1,'R134a')
     
+    #Using properties from REFPROP to get R410A density
+    In [2]: Props('D','T',300,'P',100,'REFPROP-MIX:R32[0.697615]&R125[0.302385]')
+    
+    #Check that the same as using pseudo-pure
+    In [2]: Props('D','T',300,'P',100,'R410A')
+    
     # -------------------------------------------------------
     #  Without Single phase lookup table
     # -------------------------------------------------------
