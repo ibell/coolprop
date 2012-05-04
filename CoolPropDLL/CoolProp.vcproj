@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="CoolProp_dll"
+	Name="CoolProp"
 	ProjectGUID="{96E0DBE9-8FA5-4EAE-9E79-502F33308715}"
 	RootNamespace="CoolPropDLL"
 	Keyword="MFCDLLProj"
@@ -23,7 +23,7 @@
 			Name="Debug|Win32"
 			OutputDirectory="."
 			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="2"
+			ConfigurationType="4"
 			UseOfMFC="2"
 			CharacterSet="0"
 			>
@@ -46,15 +46,17 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="0"
-				PreprocessorDefinitions="WIN32;_WINDOWS;_DEBUG;_USRDLL"
+				Optimization="2"
+				AdditionalIncludeDirectories="C:\Users\Belli\Documents\Code\PythonModules\CoolPropSource\src;C:\Users\Belli\Documents\Code\PythonModules\CoolPropSource\src\pseudopurefluids;C:\Users\Belli\Documents\Code\PythonModules\CoolPropSource\src\purefluids"
+				PreprocessorDefinitions="WIN32;_WINDOWS;_DEBUG;_USRDLL;COOLPROP_LIB"
 				MinimalRebuild="true"
-				BasicRuntimeChecks="3"
+				BasicRuntimeChecks="0"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="0"
-				WarningLevel="3"
-				DebugInformationFormat="4"
-				CompileAs="1"
+				WarningLevel="4"
+				DebugInformationFormat="0"
+				CallingConvention="0"
+				CompileAs="2"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -69,18 +71,10 @@
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
-				Name="VCLinkerTool"
-				LinkIncremental="2"
-				ModuleDefinitionFile=".\CoolPropDLL.def"
-				GenerateDebugInformation="true"
-				SubSystem="2"
-				TargetMachine="1"
+				Name="VCLibrarianTool"
 			/>
 			<Tool
 				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -90,9 +84,6 @@
 			/>
 			<Tool
 				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -361,7 +352,27 @@
 				>
 			</File>
 			<File
-				RelativePath=".\CoolProp_dll.cpp"
+				RelativePath="..\src\Brine.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\CoolProp.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\CoolPropTools.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\FloodProp.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\HumAir.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\Ice.cpp"
 				>
 			</File>
 			<File
@@ -405,6 +416,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\REFPROP.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\purefluids\Water.cpp"
 				>
 			</File>
@@ -423,15 +438,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\Brine.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\src\Brine.h"
-				>
-			</File>
-			<File
-				RelativePath="..\src\CoolProp.cpp"
 				>
 			</File>
 			<File
@@ -439,19 +446,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\CoolProp_dll.h"
-				>
-			</File>
-			<File
-				RelativePath="..\src\CoolPropTools.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\src\CoolPropTools.h"
-				>
-			</File>
-			<File
-				RelativePath="..\src\FloodProp.cpp"
 				>
 			</File>
 			<File
@@ -459,15 +454,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\HumAir.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\src\HumAir.h"
-				>
-			</File>
-			<File
-				RelativePath="..\src\Ice.cpp"
 				>
 			</File>
 			<File
@@ -520,10 +507,6 @@
 			</File>
 			<File
 				RelativePath="..\src\purefluids\R744.h"
-				>
-			</File>
-			<File
-				RelativePath="..\src\REFPROP.cpp"
 				>
 			</File>
 			<File

@@ -10,8 +10,11 @@ To use the Props function, import it and do some calls, do something like this
     #import the things you need 
     In [1]: from CoolProp.CoolProp import Props
     
-    #Density of CO2 at STP
-    In [2]: Props('D','T',298.15,'P',101.325,'R744')
+    @suppress
+    In [1]: from CoolProp.CoolProp import UseSinglePhaseLUT; UseSinglePhaseLUT(0)
+    
+    #Density of carbon dioxide (R744) at 100 bar and 25C
+    In [2]: Props('D','T',298.15,'P',10000,'R744')
     
     #Saturated vapor enthalpy [kJ/kg] of R134a at STP
     In [2]: Props('H','T',298.15,'Q',1,'R134a')

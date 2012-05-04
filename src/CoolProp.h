@@ -1,3 +1,16 @@
+/*
+Add some pre-processor directives to this file so that it can either be built as 
+usual, or if the COOLPROP_LIB macro is defined, it will export the functions in 
+this file for building a static or dynamic library
+*/
+#if defined(COOLPROP_LIB)
+	#define EXPORT_CODE __declspec(dllexport)
+	#define CONVENTION __cdecl
+#else
+	#define EXPORT_CODE 
+	#define CONVENTION 
+#endif
+
 #include "CoolPropTools.h"
 #include "PropErrorCodes.h"
 #include "PropMacros.h"
@@ -77,31 +90,30 @@
 #ifndef CoolProp_H
 #define CoolProp_H
 
-	void Help(void);
-	void UseSaturationLUT(int OnOff);
-	void UseSinglePhaseLUT(int OnOff);
-    int SinglePhaseLUTStatus(void);
-	double SecFluids(char Output, double T, double p,char * Ref);
-	double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, char * Ref);
-    double Props(char *Output,char Name1, double Prop1, char Name2, double Prop2, char * Ref);
-    void PropsV(char *Output,char Name1, double *Prop1, int len1, char Name2, double *Prop2, int len2, char * Ref, double *OutVec, int n);
-    double Props(char *Fluid, char *Output);
+	EXPORT_CODE void CONVENTION Help(void);
+	EXPORT_CODE void CONVENTION UseSaturationLUT(int OnOff);
+	EXPORT_CODE void CONVENTION UseSinglePhaseLUT(int OnOff);
+    EXPORT_CODE int CONVENTION SinglePhaseLUTStatus(void);
+	EXPORT_CODE double CONVENTION Props(char Output,char Name1, double Prop1, char Name2, double Prop2, char * Ref);
+    EXPORT_CODE double CONVENTION Props(char *Output,char Name1, double Prop1, char Name2, double Prop2, char * Ref);
+    EXPORT_CODE void CONVENTION PropsV(char *Output,char Name1, double *Prop1, int len1, char Name2, double *Prop2, int len2, char * Ref, double *OutVec, int n);
+    EXPORT_CODE double CONVENTION Props(char *Fluid, char *Output);
     
 	// Critical Properties
-	double pcrit(char *Ref);
-	double Tcrit(char *Ref);
-	double Ttriple(char *Ref);
+	EXPORT_CODE double CONVENTION pcrit(char *Ref);
+	EXPORT_CODE double CONVENTION Tcrit(char *Ref);
+	EXPORT_CODE double CONVENTION Ttriple(char *Ref);
 
 	// Convenience functions
-	int IsFluidType(char *Ref, char *Type);
-	double T_hp(char *Ref, double h, double p, double T_guess);
-	double h_sp(char *Ref, double s, double p, double T_guess);
-	double Tsat(char *Ref, double p, double Q, double T_guess);
-	double DerivTerms(char *Term, double T, double rho, char * Ref);
+	EXPORT_CODE int CONVENTION IsFluidType(char *Ref, char *Type);
+	EXPORT_CODE double CONVENTION T_hp(char *Ref, double h, double p, double T_guess);
+	EXPORT_CODE double CONVENTION h_sp(char *Ref, double s, double p, double T_guess);
+	EXPORT_CODE double CONVENTION Tsat(char *Ref, double p, double Q, double T_guess);
+	EXPORT_CODE double CONVENTION DerivTerms(char *Term, double T, double rho, char * Ref);
 
-	double F2K(double T_F);
-	double K2F(double T);
-	void PrintSaturationTable(char *FileName, char * Ref, double Tmin, double Tmax);
-	int Phase(double T, double rho, char * Ref);
+	EXPORT_CODE double CONVENTION F2K(double T_F);
+	EXPORT_CODE double CONVENTION K2F(double T);
+	EXPORT_CODE void CONVENTION PrintSaturationTable(char *FileName, char * Ref, double Tmin, double Tmax);
+	EXPORT_CODE int CONVENTION Phase(double T, double rho, char * Ref);
 	
 #endif

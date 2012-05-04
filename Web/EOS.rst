@@ -127,10 +127,12 @@ Sample Code
     #Import the things you need 
     In [1]: from CoolProp.CoolProp import Props, UseSaturationLUT,UseSinglePhaseLUT
     
+    In [1]: import timeit
+    
     #Specific heat (kJ/kg/K) of 20% ethylene glycol as a function of T
     In [2]: h=Props('C','T',298.15,'P',101.325,'EG-20%'); print h
     
-    #Density of Air at STP in kg/m^3
+    #Density of Air at standard atmosphere in kg/m^3
     In [2]: Props('D','T',298.15,'P',101.325,'Air')
     
     #Saturation temperature of Water at 1 atm
@@ -146,82 +148,38 @@ Sample Code
     In [2]: Props('D','T',300,'P',100,'R410A')
     
     # -------------------------------------------------------
-    #  Without Single phase lookup table
+    #  Saturation Lookup Table
     # -------------------------------------------------------
     
     #Crudely time 100 calls to get saturation temperature without lookup table
-    In [2]: from time import clock; t1=clock()
-    
-    In [2]: for i in range(100):
-       ...:      T=Props('T','P',101.325,'Q',1,'Water')
-       ...:
-    
-    In [3]: print 'time elapsed for 100 calls:',clock()-t1,'s'
+    In [2]: t1=timeit.Timer("T=Props('T','P',101.325,'Q',1,'Water')",setup="from CoolProp.CoolProp import Props").timeit(100)
     
     #Turn on the saturation LUT
-    In [3]: UseSaturationLUT(1)
+    In [3]: setupstring="from CoolProp.CoolProp import Props,UseSaturationLUT; UseSaturationLUT(1); T=Props('T','P',101.325,'Q',1,'Water')"
     
     #Crudely time 100 calls to get saturation temperature with lookup table
-    In [2]: from time import clock; t1=clock()
+    In [2]: t2=timeit.Timer("T=Props('T','P',101.325,'Q',1,'Water')",setup=setupstring).timeit(100)
     
-    In [3]: Props('T','P',101.325,'Q',1,'Water')
-    
-    In [3]: print 'time to build LUT:',clock()-t1,'s'
-    
-    In [2]: t1=clock()
-    
-    In [2]: for i in range(100):
-       ...:      T=Props('T','P',101.325,'Q',1,'Water')
-       ...:
-    
-    In [3]: print 'time elapsed for 100 calls:',clock()-t1,'s'
+    In [2]: print 'No LUT:{0:g} s With LUT: {1:g} s Speedup: {2:g}x'.format(t1,t2,t1/t2)
     
     # -------------------------------------------------------
-    #  Single phase lookup table
+    #  Single-phase Lookup Table
     # -------------------------------------------------------
-    #Turn off (this is default) the single-phase LUT
-    In [3]: UseSinglePhaseLUT(0)
     
-    #Crudely time 10000 calls to get enthalpy without lookup table
-    #Using full equation of state.  First get density, then H=f(T,rho)
-    In [2]: from time import clock; t1=clock()
+    #Turn off the saturation LUT
+    In [3]: setupstring="from CoolProp.CoolProp import Props,UseSinglePhaseLUT; UseSinglePhaseLUT(0)"
     
-    In [2]: for i in range(10000):
-       ...:      H=Props('H','T',290,'P',101.325,'R744')
-       ...:
+    #Crudely time 10000 calls to get single-phase cp without lookup table
+    In [2]: t1=timeit.Timer("T=Props('C','T',298.15,'P',101.325,'R410A')",setup=setupstring).timeit(10000)
     
-    In [3]: time_no_LUT=clock()-t1
+    #Turn off the saturation LUT - run one to force build of LUT
+    In [3]: setupstring="from CoolProp.CoolProp import Props,UseSinglePhaseLUT; UseSinglePhaseLUT(1); T=Props('C','T',298.15,'P',101.325,'R410A')"
     
-    In [3]: print 'time elapsed for 10000 calls:',time_no_LUT,'s'
+    #Crudely time 10000 calls to get single-phase cp with lookup table
+    In [2]: t2=timeit.Timer("T=Props('C','T',298.15,'P',101.325,'R410A')",setup=setupstring).timeit(10000)
     
-    #Turn on the single-phase LUT
-    In [3]: UseSinglePhaseLUT(1)
-    
-    #Crudely time 10000 calls to get enthalpy with lookup table
-    In [2]: from time import clock; t1=clock()
-    
-    In [3]: H=Props('H','T',290,'P',101.325,'R744')
-    
-    In [3]: print 'time to build LUT:',clock()-t1,'s'
-    
-    In [2]: t1=clock()
-    
-    In [2]: for i in range(10000):
-       ...:      H=Props('H','T',290,'P',101.325,'R744')
-       ...:
-       
-    In [3]: time_with_LUT=clock()-t1
-    
-    In [3]: print 'time elapsed for 10000 calls:',time_with_LUT,'s'
-    
-    In [3]: print 'speedup factor with LUT:',time_no_LUT/time_with_LUT,'x'
-    
-    #Note: CO2 has a very involved EOS, so this is perhaps an extreme example
-    
-   
-    
-    
-    
+    #Note: CO2 has a very involved EOS, so this is perhaps an extreme example    
+    In [2]: print 'No LUT:{0:g} s With LUT: {1:g} s Speedup: {2:g}x'.format(t1,t2,t1/t2)       
     
 Code Documentation
 ------------------

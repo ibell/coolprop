@@ -164,6 +164,7 @@ int BuildSaturationLUT(char *Ref)
         Tsat_LUT[k][i]=T_t+i*dT;
         // Calculate the saturation properties
         rhosatPure(Ref, Tsat_LUT[k][i], &(rhosatL_LUT[k][i]), &(rhosatV_LUT[k][i]), &(psat_LUT[k][i]));
+        if (!ValidNumber(rhosatL_LUT[k][i])) return _HUGE;
     }
     return k;
 }   
@@ -388,7 +389,10 @@ static void rhosatPure(char *Ref, double T, double *rhoLout, double *rhoVout, do
 		sprintf(Local_errString,"rhosatPure: rhoL [%g] or rhoV [%g] is invalid number\n",rhoL,rhoV);
 		Append2ErrorString(Local_errString);
         printf("%s\n",Local_errString);
-		return;
+		*rhoLout=_HUGE;
+        *rhoVout=_HUGE;
+        *pout=_HUGE;
+        return;
 	}
     iter=1;
     // Use a secant method to obtain pressure
@@ -431,6 +435,9 @@ static void rhosatPure(char *Ref, double T, double *rhoLout, double *rhoVout, do
         {
         	//ERROR
             printf("rhosatPure failed, current values of rhoL and rhoV are %g,%g\n",rhoL,rhoV);
+            *rhoLout=_HUGE;
+            *rhoVout=_HUGE;
+            *pout=_HUGE;
             return;
         }
     }
@@ -720,6 +727,11 @@ double Props(char *Output,char Name1, double Prop1, char Name2, double Prop2, ch
     {
         return Props(Output[0],Name1,Prop1,Name2,Prop2,Ref);
     }
+	else
+	{
+		printf("Currently Props with a string first input is not supported");
+		return _HUGE;
+	}
 }
 double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, char * Ref)
 {
@@ -894,6 +906,11 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
                     else
                     {
                         rhosatPure(Ref,T,&rhoL,&rhoV,&p);
+                        if (!ValidNumber(rhoL) || !ValidNumber(rhoV) || !ValidNumber(p))
+                        {
+                            return _HUGE;
+                        }
+                        
                     }
                     if (rho<=rhoL && rho>=rhoV)
                         isTwoPhase=1;
@@ -971,6 +988,7 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
                     else
                     {
                         rhosatPure(Ref,T,&rhoL,&rhoV,&p);
+						if (!ValidNumber(rhoL) || !ValidNumber(rhoV) || !ValidNumber(p)) return _HUGE;
                         if (ErrorFlag==FAIL)
                         {
                         if (FlagDebug==1)
