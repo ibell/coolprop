@@ -1,7 +1,5 @@
 /* Properties of Air
 by Ian Bell
-
-
 */
 
 
@@ -207,6 +205,11 @@ double pdp_Air(double T)
 
 double Viscosity_Trho_Air(double T, double rho)
 {
+	/*
+	E.W. Lemmon and R.T Jacobsen, Viscosity and Thermal Conductivity Equations for Nitrogen, Oxygen, Argon and Air
+	International Journal of Thermophysics, Vol. 25, No. 1, January 2004, p.28 
+	*/
+
 	double e_k=103.3, //[K]
 		   sigma=0.360; //[nm]
 	double eta0,etar,OMEGA,delta,tau,Tstar;
@@ -248,6 +251,10 @@ static double X_tilde(double T,double tau,double delta)
 
 double Conductivity_Trho_Air(double T, double rho)
 {
+	/*
+	E.W. Lemmon and R.T Jacobsen, Viscosity and Thermal Conductivity Equations for Nitrogen, Oxygen, Argon and Air
+	International Journal of Thermophysics, Vol. 25, No. 1, January 2004, p.28 
+	*/
 	double e_k=103.3, //[K]
 		   sigma=0.360, //[nm]
 		   Tref=265.262, //[K]
@@ -263,7 +270,7 @@ double Conductivity_Trho_Air(double T, double rho)
 	double t[]={0,0,-1.1,-0.3,0.1,0.0,0.5,2.7,0.3,1.3};
 	double d[]={0,0,0,0,1,2,3,7,7,11};
 	double l[]={0,0,0,0,0,0,2,2,2,2};
-	double g[]={0,0,0,0,0,0,0,1,1,1};
+	double g[]={0,0,0,0,0,0,1,1,1,1};
 	
 	delta=rho/rhoj;
 	tau=Tj/T;

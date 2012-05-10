@@ -26,6 +26,7 @@ double R_u=8.314472; //From Lemmon et al 2009 (propane)
 double _Dekker_Tsat(double x_min, double x_max, double eps, double p, double Q,char *Ref);
 int LoadFluid(char *Ref);
 static void rhosatPure(char *Ref, double T, double *rhoLout, double *rhoVout, double *pout);
+void _T_hp(char *Ref, double h, double p, double *T, double *rho);
 
 //For the pure fluids
 double (*psat_func)(double); 
@@ -52,9 +53,10 @@ double (*rhosatV_func)(double);
 double (*rhosatL_func)(double);
 
 #define NLUTFLUIDS 30 // How many saturation curve LUTs you can have in one instance of CoolProp
-#define NLUT 300 // How many values to use for each lookup table
+#define NLUT 300 // How many values to use for each saturation lookup table
 
 double Tsat_LUT[NLUTFLUIDS][NLUT],rhosatL_LUT[NLUTFLUIDS][NLUT],rhosatV_LUT[NLUTFLUIDS][NLUT],psat_LUT[NLUTFLUIDS][NLUT];
+double hsatL_LUT[NLUTFLUIDS][NLUT],hsatV_LUT[NLUTFLUIDS][NLUT];
 char RefSatLUT[NLUTFLUIDS][255]; // The names of the fluids that are loaded
 int FlagUseSaturationLUT=0; //Default to not use LUT
 int FlagUseSinglePhaseLUT=0; //Default to not use LUT
@@ -154,8 +156,8 @@ int BuildSaturationLUT(char *Ref)
     strcpy(RefSatLUT[k],Ref);
     
     // Linearly space the values from the triple point of the fluid to the just shy of the critical point
-    T_t=Props('R','T',0,'P',0,Ref);
-    T_c=Props('B','T',0,'P',0,Ref)-0.000001;
+    T_t=Props(Ref,"Ttriple");
+    T_c=Props(Ref,"Tcrit")-0.000001;
     
     dT=(T_c-T_t)/(NLUT-1);
     for (i=0;i<NLUT;i++)
@@ -164,6 +166,9 @@ int BuildSaturationLUT(char *Ref)
         Tsat_LUT[k][i]=T_t+i*dT;
         // Calculate the saturation properties
         rhosatPure(Ref, Tsat_LUT[k][i], &(rhosatL_LUT[k][i]), &(rhosatV_LUT[k][i]), &(psat_LUT[k][i]));
+        // Calculate the other saturation properties
+        hsatL_LUT[k][i]=Props('H','T',Tsat_LUT[k][i],'Q',0.0,Ref);
+        hsatV_LUT[k][i]=Props('H','T',Tsat_LUT[k][i],'Q',1.0,Ref);
         if (!ValidNumber(rhosatL_LUT[k][i])) return _HUGE;
     }
     return k;
@@ -231,6 +236,10 @@ static double ApplySaturationLUT(char *OutPropName,char *InPropName,double T_or_
         y=&(rhosatV_LUT[k]);
     else if (!strcmp(OutPropName,"p"))
         y=&(psat_LUT[k]);
+    else if (!strcmp(OutPropName,"hL"))
+            y=&(hsatL_LUT[k]);
+    else if (!strcmp(OutPropName,"hV"))
+            y=&(hsatV_LUT[k]);
     
     // Need a three-point set to interpolate using a quadratic.
     if (i<NLUT-2)
@@ -1058,6 +1067,11 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
             T=Tsat(Ref,Prop1,Prop2,0);
             return Props(Output,'T',T,'Q',Prop2,Ref);
         }
+        else if (Output=='T' && Name1=='H' && Name2=='P')
+        {
+        	_T_hp(Ref,Prop1,Prop2,&T, &rho);
+            return T;
+        }
         else
         {
         	sprintf(Local_errString,"Names of input properties invalid (%c,%c) with refrigerant %s.  Valid choices are T,P or T,Q or T,D or P,Q",Name1,Name2,Ref);
@@ -1124,12 +1138,104 @@ double Ttriple(char *Ref)
     return 0;
 }
 
+void _T_hp(char *Ref, double h, double p, double *Tout, double *rhoout)
+{
+	int iter;
+	double A[2][2], B[2][2],T_guess,R;
+	double dar_ddelta,da0_dtau,d2a0_dtau2,dar_dtau,d2ar_ddelta_dtau,d2ar_ddelta2,d2ar_dtau2,d2a0_ddelta_dtau;
+	double f1,f2,df1_dtau,df1_ddelta,df2_ddelta,df2_dtau,h_hot;
+    double hsatL,hsatV,TsatL,TsatV,tau,delta,worst_error,dtau,tauplus,ddelta,deltaplus;
+	//First figure out where you are
+	
+	R=R_u/Fluid.MM;
+	if (p > Props(Ref,"pcrit"))
+	{
+        //Supercritical pressure
+		T_guess = Props(Ref,"Tcrit")+30.0;
+		delta = p/(R*T_guess)/Fluid.rhoc/0.7;
+	}
+	else
+	{
+		hsatL=Props('H','P',p,'Q',0.0,Ref);
+		hsatV=Props('H','P',p,'Q',1.0,Ref);
+		TsatL=Props('T','P',p,'Q',0.0,Ref);
+		TsatV=Props('T','P',p,'Q',1.0,Ref);
+
+		if (h>hsatV)
+		{
+			//Superheated vapor
+			// Very superheated
+			h_hot = Props('H','T',TsatV+40.0,'P',p,Ref);
+			T_guess = TsatV+(h-hsatV)/(h_hot-hsatV)*40.0;
+			delta = Props('D','T',T_guess,'P',p,Ref)/Fluid.rhoc;
+		}
+		else if (h<hsatL)
+		{
+			// Subcooled liquid
+			T_guess = TsatL+(h-hsatL)/Props('C','P',p,'Q',0.0,Ref);
+			delta = 10;
+		}
+		else
+		{
+
+		}
+	}
+
+	tau=Fluid.Tc/T_guess;
+
+    worst_error=999;
+    iter=0;
+    while (worst_error>1e-6)
+    {
+    	// All the required partial derivatives
+
+    	da0_dtau = dphi0_dTau_func(tau,delta);
+    	d2a0_dtau2 = dphi02_dTau2_func(tau,delta);
+    	d2a0_ddelta_dtau = 0.0;
+    	dar_dtau = dphir_dTau_func(tau,delta);
+		dar_ddelta = dphir_dDelta_func(tau,delta);
+		d2ar_ddelta_dtau = dphir2_dDelta_dTau_func(tau,delta);
+		d2ar_ddelta2 = dphir2_dDelta2_func(tau,delta);
+		d2ar_dtau2 = dphir2_dTau2_func(tau,delta);
+
+		f1 = delta/tau*(1+delta*dar_ddelta)-p/(Fluid.rhoc*R*Fluid.Tc);
+		f2 = (1+delta*dar_ddelta)+tau*(da0_dtau+dar_dtau)-tau*h/(R*Fluid.Tc);
+		df1_dtau = (1+delta*dar_ddelta)*(-delta/tau/tau)+delta/tau*(delta*d2ar_ddelta_dtau);
+		df1_ddelta = (1.0/tau)*(1+2.0*delta*dar_ddelta+delta*delta*d2ar_ddelta2);
+		df2_dtau = delta*d2ar_ddelta_dtau+da0_dtau+dar_dtau+tau*(d2a0_dtau2+d2ar_dtau2)-h/(R*Fluid.Tc);
+		df2_ddelta = (dar_ddelta+delta*d2ar_ddelta2)+tau*(d2a0_ddelta_dtau+d2ar_ddelta_dtau);
+
+		//First index is the row, second index is the column
+		A[0][0]=df1_dtau;
+		A[0][1]=df1_ddelta;
+		A[1][0]=df2_dtau;
+		A[1][1]=df2_ddelta;
+
+		MatInv_2(A,B);
+		tau -= B[0][0]*f1+B[0][1]*f2;
+		delta -= B[1][0]*f1+B[1][1]*f2;
+
+		worst_error = max(fabs(f1),fabs(f2));
+		iter+=1;
+		if (iter>100)
+		{
+			printf("_Thp did not converge\n");
+			*Tout = _HUGE;
+            *rhoout = _HUGE;
+		}
+    }
+    *Tout = Fluid.Tc/tau;
+    *rhoout = delta*Fluid.rhoc;
+}
+
 double T_hp(char *Ref, double h, double p, double T_guess)
 {
-    double x1=0,x2=0,x3=0,y1=0,y2=0,eps=1e-8,change=999,f,T=300;
+    double x1=0,x2=0,x3=0,y1=0,y2=0,eps=1e-8,change=999,f=999,T=300;
     int iter=1;
+
+	LoadFluid(Ref);
     char Local_errString[300];
-    while ((iter<=3 || change>eps) && iter<100)
+    while ((iter<=3 || fabs(f)>eps) && iter<100)
     {
         if (iter==1){x1=T_guess; T=x1;}
         if (iter==2){x2=T_guess+0.1; T=x2;}
@@ -1150,7 +1256,7 @@ double T_hp(char *Ref, double h, double p, double T_guess)
         	sprintf(Local_errString,"iter %d: T_hp not converging with inputs(%s,%g,%g,%g) value: %0.12g\n",iter,Ref,h,p,T_guess,f);
 			Append2ErrorString(Local_errString);
             printf("%s\n",Local_errString);
-			return -_HUGE;
+			return _HUGE;
         }
     }
     return T;

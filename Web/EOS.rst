@@ -116,7 +116,43 @@ As you might imagine, doing all this work to calculate the saturation state for 
 or use the full EOS by calling::
 
     UseSaturationLUT(0)
+    
+Properties as a function of h,p
+-------------------------------
 
+Reminder: :math:`\tau=T_c/T` and :math:`\delta=\rho/\rho_c`.  Thus, if you know pressure and enthalpy, you can set up a system of residuals in terms of :math:`\delta` and :math:`\tau` in order to yield back the given pressure and enthalpy.  Of course you still need a good guess value to start from.  See below for that.  The system of equations can be given by:
+
+.. math::
+
+    f_1=\frac{\delta}{\tau}\left(1+\delta\frac{\partial \alpha^r}{\partial \delta} \right)-\frac{p_0}{\rho_cRT_c}
+    
+.. math::
+
+    f_2=\left(1+\delta\frac{\partial \alpha^r}{\partial \delta} \right)+\tau \left( \frac{\partial \alpha ^0}{\partial \tau} + \frac{\partial \alpha^r}{\partial \tau} \right)-\tau\frac{h_0}{RT_c}
+
+where the partials can be given by 
+
+.. math::
+
+    \frac{\partial f_1}{\partial \tau}=\left(1+\delta\frac{\partial \alpha^r}{\partial \delta} \right)(\frac{-\delta}{\tau^2})+\frac{\delta}{\tau}\left(\delta\frac{\partial^2 \alpha^r}{\partial \delta \partial\tau} \right)
+
+.. math::
+
+    \frac{\partial f_1}{\partial \delta}=\left(1+\delta\frac{\partial \alpha^r}{\partial \delta} \right)(\frac{1}{\tau})+\frac{\delta}{\tau}\left(\frac{\partial \alpha^r}{\partial \delta}+\delta\frac{\partial^2 \alpha^r}{\partial \delta^2} \right)=\left(\frac{1}{\tau}\right)\left(1+2\delta\frac{\partial \alpha^r}{\partial \delta} +\delta^2\frac{\partial^2 \alpha^r}{\partial \delta^2} \right)
+
+.. math::
+
+    \frac{\partial f_2}{\partial \tau}=\left(\delta\frac{\partial^2 \alpha^r}{\partial \delta \partial\tau} \right)+\left( \frac{\partial \alpha ^0}{\partial \tau} + \frac{\partial \alpha^r}{\partial \tau} \right)+\tau\left( \frac{\partial^2 \alpha ^0}{\partial \tau^2} + \frac{\partial^2 \alpha^r}{\partial \tau^2} \right)-\frac{h_0}{RT_c}
+
+.. math::
+
+    \frac{\partial f_2}{\partial \delta}=\left(\frac{\partial \alpha^r}{\partial \delta}+\delta\frac{\partial^2 \alpha^r}{\partial \delta^2} \right)+\tau\left( \frac{\partial^2 \alpha ^0}{\partial \tau \partial \delta} + \frac{\partial^2 \alpha^r}{\partial \tau \partial\delta} \right)
+    
+and the jacobian is then
+
+.. math::
+
+    J=\left[ \begin{array}{cc} \frac{\partial f_1}{\partial \tau} & \frac{\partial f_1}{\partial \delta} \\ \frac{\partial f_2}{\partial \tau} & \frac{\partial f_2}{\partial \delta}\end{array}\right]
 .. _Props_Sample:
 
 Sample Code
