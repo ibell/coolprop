@@ -53,7 +53,7 @@ double (*rhosatV_func)(double);
 double (*rhosatL_func)(double);
 
 #define NLUTFLUIDS 30 // How many saturation curve LUTs you can have in one instance of CoolProp
-#define NLUT 300 // How many values to use for each saturation lookup table
+#define NLUT 500 // How many values to use for each saturation lookup table
 
 double Tsat_LUT[NLUTFLUIDS][NLUT],rhosatL_LUT[NLUTFLUIDS][NLUT],rhosatV_LUT[NLUTFLUIDS][NLUT],psat_LUT[NLUTFLUIDS][NLUT];
 double hsatL_LUT[NLUTFLUIDS][NLUT],hsatV_LUT[NLUTFLUIDS][NLUT];
@@ -214,7 +214,7 @@ static double QuadInterpolate(double x0, double x1, double x2, double f0, double
 static double ApplySaturationLUT(char *OutPropName,char *InPropName,double T_or_p, char *Ref)
 {
     int i,k;
-    double x0,x1,x2,y0,y1,y2;
+    double x0,x1,x2,x3,y0,y1,y2,y3;
     // pointers to the x and y vectors for later
     double (*y)[NLUT],(*x)[NLUT];
     
@@ -240,10 +240,11 @@ static double ApplySaturationLUT(char *OutPropName,char *InPropName,double T_or_
             y=&(hsatL_LUT[k]);
     else if (!strcmp(OutPropName,"hV"))
             y=&(hsatV_LUT[k]);
-    
+
     // Need a three-point set to interpolate using a quadratic.
     if (i<NLUT-2)
     {
+		// Go "backwards" with the interpolation range
         x0=(*x)[i];
         x1=(*x)[i+1];
         x2=(*x)[i+2];

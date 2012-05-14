@@ -17,13 +17,13 @@
 //%apply (double* ARGOUT_ARRAY1, int DIM1) {(double* OutVec, int n)}
 //%apply (double* IN_ARRAY1, int DIM1) {(double* Prop1, int len1), (double* Prop2, int len2)}
 
-%exception Props {
-  $action
-  if (result>1e20 || -result>1e20) {
-     PyErr_SetString(PyExc_ValueError,"Props returned an invalid number");
-     return NULL;
-  }
-}
+//~ %exception Props {
+  //~ $action
+  //~ if (result>1e20 || -result>1e20) {
+     //~ PyErr_SetString(PyExc_ValueError,"Props returned an invalid number");
+     //~ return NULL;
+  //~ }
+//~ }
 %include "CoolProp.h"
     
 // Have SWIG generate python docstrings

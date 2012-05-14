@@ -99,6 +99,19 @@ double QuadInterp(double x0, double x1, double x2, double f0, double f1, double 
     L2=((x-x0)*(x-x1))/((x2-x0)*(x2-x1));
     return L0*f0+L1*f1+L2*f2;
 }
+double CubicInterp( double x0, double x1, double x2, double x3, double f0, double f1, double f2, double f3, double x)
+{
+	/*
+	Lagrange cubic interpolation as from
+	http://nd.edu/~jjwteach/441/PdfNotes/lecture6.pdf
+	*/
+	double L0,L1,L2,L3;
+	L0=((x-x1)*(x-x2)*(x-x3))/((x0-x1)*(x0-x2)*(x0-x3));
+	L1=((x-x0)*(x-x2)*(x-x3))/((x1-x0)*(x1-x2)*(x1-x3));
+	L1=((x-x0)*(x-x1)*(x-x3))/((x2-x0)*(x2-x1)*(x2-x3));
+	L1=((x-x0)*(x-x1)*(x-x2))/((x3-x0)*(x3-x1)*(x3-x2));
+	return L0*f0+L1*f1+L2*f2+L3*f3;
+}
 
 int WriteLookup2File(int ILUT)
 {
