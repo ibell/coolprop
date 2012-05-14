@@ -23,7 +23,7 @@
 			Name="Debug|Win32"
 			OutputDirectory="."
 			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="4"
+			ConfigurationType="2"
 			UseOfMFC="2"
 			CharacterSet="0"
 			>
@@ -47,7 +47,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="2"
-				AdditionalIncludeDirectories="C:\Users\Belli\Documents\Code\PythonModules\CoolPropSource\src;C:\Users\Belli\Documents\Code\PythonModules\CoolPropSource\src\pseudopurefluids;C:\Users\Belli\Documents\Code\PythonModules\CoolPropSource\src\purefluids"
+				AdditionalIncludeDirectories="C:\Users\Belli\Documents\Code\PythonModules\CoolPropSource\CoolProp;C:\Users\Belli\Documents\Code\PythonModules\CoolPropSource\CoolProp\pseudopurefluids;C:\Users\Belli\Documents\Code\PythonModules\CoolPropSource\CoolProp\purefluids"
 				PreprocessorDefinitions="WIN32;_WINDOWS;_DEBUG;_USRDLL;COOLPROP_LIB"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="0"
@@ -71,10 +71,13 @@
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
-				Name="VCLibrarianTool"
+				Name="VCLinkerTool"
 			/>
 			<Tool
 				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -84,6 +87,9 @@
 			/>
 			<Tool
 				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -344,83 +350,83 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\src\pseudopurefluids\Air.cpp"
+				RelativePath="..\CoolProp\pseudopurefluids\Air.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\purefluids\Argon.cpp"
+				RelativePath="..\CoolProp\purefluids\Argon.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\Brine.cpp"
+				RelativePath="..\CoolProp\Brine.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\CoolProp.cpp"
+				RelativePath="..\CoolProp\CoolProp.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\CoolPropTools.cpp"
+				RelativePath="..\CoolProp\CoolPropTools.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\FloodProp.cpp"
+				RelativePath="..\CoolProp\FloodProp.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\HumAir.cpp"
+				RelativePath="..\CoolProp\HumAir.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\Ice.cpp"
+				RelativePath="..\CoolProp\Ice.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\purefluids\Nitrogen.cpp"
+				RelativePath="..\CoolProp\purefluids\Nitrogen.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\purefluids\R134a.cpp"
+				RelativePath="..\CoolProp\purefluids\R134a.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\purefluids\R290.cpp"
+				RelativePath="..\CoolProp\purefluids\R290.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\purefluids\R32.cpp"
+				RelativePath="..\CoolProp\purefluids\R32.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\pseudopurefluids\R404A.cpp"
+				RelativePath="..\CoolProp\pseudopurefluids\R404A.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\pseudopurefluids\R407C.cpp"
+				RelativePath="..\CoolProp\pseudopurefluids\R407C.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\pseudopurefluids\R410A.cpp"
+				RelativePath="..\CoolProp\pseudopurefluids\R410A.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\pseudopurefluids\R507A.cpp"
+				RelativePath="..\CoolProp\pseudopurefluids\R507A.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\purefluids\R717.cpp"
+				RelativePath="..\CoolProp\purefluids\R717.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\purefluids\R744.cpp"
+				RelativePath="..\CoolProp\purefluids\R744.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\REFPROP.cpp"
+				RelativePath="..\CoolProp\REFPROP.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\purefluids\Water.cpp"
+				RelativePath="..\CoolProp\purefluids\Water.cpp"
 				>
 			</File>
 		</Filter>
@@ -430,95 +436,95 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath="..\src\pseudopurefluids\Air.h"
+				RelativePath="..\CoolProp\pseudopurefluids\Air.h"
 				>
 			</File>
 			<File
-				RelativePath="..\src\purefluids\Argon.h"
+				RelativePath="..\CoolProp\purefluids\Argon.h"
 				>
 			</File>
 			<File
-				RelativePath="..\src\Brine.h"
+				RelativePath="..\CoolProp\Brine.h"
 				>
 			</File>
 			<File
-				RelativePath="..\src\CoolProp.h"
+				RelativePath="..\CoolProp\CoolProp.h"
 				>
 			</File>
 			<File
-				RelativePath="..\src\CoolPropTools.h"
+				RelativePath="..\CoolProp\CoolPropTools.h"
 				>
 			</File>
 			<File
-				RelativePath="..\src\FloodProp.h"
+				RelativePath="..\CoolProp\FloodProp.h"
 				>
 			</File>
 			<File
-				RelativePath="..\src\HumAir.h"
+				RelativePath="..\CoolProp\HumAir.h"
 				>
 			</File>
 			<File
-				RelativePath="..\src\Ice.h"
+				RelativePath="..\CoolProp\Ice.h"
 				>
 			</File>
 			<File
-				RelativePath="..\src\purefluids\Nitrogen.h"
+				RelativePath="..\CoolProp\purefluids\Nitrogen.h"
 				>
 			</File>
 			<File
-				RelativePath="..\src\PropErrorCodes.h"
+				RelativePath="..\CoolProp\PropErrorCodes.h"
 				>
 			</File>
 			<File
-				RelativePath="..\src\PropMacros.h"
+				RelativePath="..\CoolProp\PropMacros.h"
 				>
 			</File>
 			<File
-				RelativePath="..\src\purefluids\R134a.h"
+				RelativePath="..\CoolProp\purefluids\R134a.h"
 				>
 			</File>
 			<File
-				RelativePath="..\src\purefluids\R290.h"
+				RelativePath="..\CoolProp\purefluids\R290.h"
 				>
 			</File>
 			<File
-				RelativePath="..\src\purefluids\R32.h"
+				RelativePath="..\CoolProp\purefluids\R32.h"
 				>
 			</File>
 			<File
-				RelativePath="..\src\pseudopurefluids\R404A.h"
+				RelativePath="..\CoolProp\pseudopurefluids\R404A.h"
 				>
 			</File>
 			<File
-				RelativePath="..\src\pseudopurefluids\R407C.h"
+				RelativePath="..\CoolProp\pseudopurefluids\R407C.h"
 				>
 			</File>
 			<File
-				RelativePath="..\src\pseudopurefluids\R410A.h"
+				RelativePath="..\CoolProp\pseudopurefluids\R410A.h"
 				>
 			</File>
 			<File
-				RelativePath="..\src\pseudopurefluids\R507A.h"
+				RelativePath="..\CoolProp\pseudopurefluids\R507A.h"
 				>
 			</File>
 			<File
-				RelativePath="..\src\purefluids\R717.h"
+				RelativePath="..\CoolProp\purefluids\R717.h"
 				>
 			</File>
 			<File
-				RelativePath="..\src\purefluids\R744.h"
+				RelativePath="..\CoolProp\purefluids\R744.h"
 				>
 			</File>
 			<File
-				RelativePath="..\src\REFPROP.h"
+				RelativePath="..\CoolProp\REFPROP.h"
 				>
 			</File>
 			<File
-				RelativePath="..\src\StructsMacros.h"
+				RelativePath="..\CoolProp\StructsMacros.h"
 				>
 			</File>
 			<File
-				RelativePath="..\src\purefluids\Water.h"
+				RelativePath="..\CoolProp\purefluids\Water.h"
 				>
 			</File>
 		</Filter>
