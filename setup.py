@@ -39,9 +39,9 @@ version='1.4.0'
 #Pure fluids should all be in the src/purefluids folder relative to setup.py
 #Pseudo-Pure fluids should all be in the src/pseudopurefluids folder relative to setup.py
 import glob
-purefluids=glob.glob(os.path.join('src','purefluids','*.cpp'))
-pseudopurefluids=glob.glob(os.path.join('src','pseudopurefluids','*.cpp'))
-others=glob.glob(os.path.join('src','*.cpp'))
+purefluids=glob.glob(os.path.join('CoolProp','purefluids','*.cpp'))
+pseudopurefluids=glob.glob(os.path.join('CoolProp','pseudopurefluids','*.cpp'))
+others=glob.glob(os.path.join('CoolProp','*.cpp'))
 Sources=purefluids+pseudopurefluids+others
 
 #Build a list of all the available fluids - added to __init__.py
@@ -54,7 +54,7 @@ for i in range(len(lines)-1,-1,-1):
     if lines[i].strip().startswith('#') or len(lines[i].strip())==0: 
         lines.pop(i)
 lines=[FluidsList]+['__version__=\''+version+'\'\n']+lines
-fp=open('__init__.py','w')
+fp=open(os.path.join('CoolProp','__init__.py'),'w')
 for line in lines:
     fp.write(line)
 fp.close()
@@ -71,9 +71,9 @@ is called to rebuilt the file
 swig_sources[(source,target)]
 
 """
-swig_sources=[(os.path.join('src','CoolProp.i'),'CoolProp_wrap.cpp'),
-              (os.path.join('src','FloodProp.i'),'FloodProp_wrap.cpp'),
-              (os.path.join('src','HumidAirProp.i'),'HumidAirProp_wrap.cpp')]
+swig_sources=[(os.path.join('CoolProp','CoolProp.i'),os.path.join('CoolProp','CoolProp_wrap.cpp')),
+              (os.path.join('CoolProp','FloodProp.i'),os.path.join('CoolProp','FloodProp_wrap.cpp')),
+              (os.path.join('CoolProp','HumidAirProp.i'),os.path.join('CoolProp','HumidAirProp_wrap.cpp'))]
 
 for source,target in swig_sources:
     
@@ -92,27 +92,28 @@ for source,target in swig_sources:
 ##==== end of SWIG code =======
 
 CoolProp_module = Extension('_CoolProp',
-                           sources=['CoolProp_wrap.cpp']+Sources,
+                           sources=[os.path.join('CoolProp','CoolProp_wrap.cpp')]+Sources,
                            #swig_opts=['-builtin']
                            swig_opts=['-builtin','-c++'],
                            #swig_opts=['-c++'],
-                           include_dirs = ['src',os.path.join('src','purefluids'),os.path.join('src','pseudopurefluids')],
+                           include_dirs = ['CoolProp',os.path.join('CoolProp','purefluids'),os.path.join('CoolProp','pseudopurefluids')],
                            )
 
 FloodProp_module = Extension('_FloodProp',
-                           sources=['FloodProp_wrap.cpp']+Sources,
+                           sources=[os.path.join('CoolProp','FloodProp_wrap.cpp')]+Sources,
                            swig_opts=['-c++'],
-                           include_dirs = ['src',os.path.join('src','purefluids'),os.path.join('src','pseudopurefluids')],
+                           include_dirs = ['CoolProp',os.path.join('CoolProp','purefluids'),os.path.join('CoolProp','pseudopurefluids')],
                            )
 
 HumidAirProp_module = Extension('_HumidAirProp',
-                           sources=['HumidAirProp_wrap.cpp']+Sources,
+                           sources=[os.path.join('CoolProp','HumidAirProp_wrap.cpp')]+Sources,
                            swig_opts=['-c++'],
-                           include_dirs = ['src',os.path.join('src','purefluids'),os.path.join('src','pseudopurefluids')],
+                           include_dirs = ['CoolProp',os.path.join('CoolProp','purefluids'),os.path.join('CoolProp','pseudopurefluids')],
                            )                     
 
-State_module = CyExtension('State',["State.pyx"],language='c++',libraries=['CoolProp'],library_dirs=['CoolPropDLL'],
-                           include_dirs = ['src',os.path.join('src','purefluids'),os.path.join('src','pseudopurefluids')])
+State_module = CyExtension('State',[os.path.join('CoolProp','State.pyx')],language='c++',libraries=['CoolProp'],
+                        library_dirs=['CoolPropDLL'],
+                        include_dirs = ['CoolProp',os.path.join('CoolProp','purefluids'),os.path.join('CoolProp','pseudopurefluids')])
 
 setup (name = 'CoolProp',
        version = version, #look above for the definition of version variable - don't modify it here
@@ -120,10 +121,10 @@ setup (name = 'CoolProp',
        author_email='ian.h.bell@gmail.com',
        url='http://coolprop.sourceforge.net',
        description = """Properties of pure fluids, pseudo-pure fluids and brines""",
-       packages = ['CoolProp','CoolProp.Plots'],
+       packages = ['CoolProp','CoolProp.Plots','CoolProp.tests'],
        ext_package = 'CoolProp',
        ext_modules = [CoolProp_module,FloodProp_module,HumidAirProp_module,State_module],
-       package_dir = {'CoolProp':'',},
+       package_dir = {'CoolProp':'CoolProp',},
        cmdclass={'build_ext': build_ext}
        )
 
