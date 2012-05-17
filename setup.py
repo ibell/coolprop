@@ -59,7 +59,7 @@ for line in lines:
     fp.write(line)
 fp.close()
 
-##==== start of SWIG code =======
+## ==== start of SWIG code =======
 
 swig_opts=['-builtin','-c++','-python']
 
@@ -89,9 +89,9 @@ for source,target in swig_sources:
     else:
         print 'No SWIG required for '+source+' --> '+target+' (up-to-date)'
         
-##==== end of SWIG code =======
+## ==== end of SWIG code =======
 
-CoolProp_module = Extension('_CoolProp',
+CoolProp_module = Extension('CoolProp._CoolProp',
                            sources=[os.path.join('CoolProp','CoolProp_wrap.cpp')]+Sources,
                            #swig_opts=['-builtin']
                            swig_opts=['-builtin','-c++'],
@@ -99,19 +99,19 @@ CoolProp_module = Extension('_CoolProp',
                            include_dirs = ['CoolProp',os.path.join('CoolProp','purefluids'),os.path.join('CoolProp','pseudopurefluids')],
                            )
 
-FloodProp_module = Extension('_FloodProp',
+FloodProp_module = Extension('CoolProp._FloodProp',
                            sources=[os.path.join('CoolProp','FloodProp_wrap.cpp')]+Sources,
                            swig_opts=['-c++'],
                            include_dirs = ['CoolProp',os.path.join('CoolProp','purefluids'),os.path.join('CoolProp','pseudopurefluids')],
                            )
 
-HumidAirProp_module = Extension('_HumidAirProp',
+HumidAirProp_module = Extension('CoolProp._HumidAirProp',
                            sources=[os.path.join('CoolProp','HumidAirProp_wrap.cpp')]+Sources,
                            swig_opts=['-c++'],
                            include_dirs = ['CoolProp',os.path.join('CoolProp','purefluids'),os.path.join('CoolProp','pseudopurefluids')],
                            )                     
 
-State_module = CyExtension('State',[os.path.join('CoolProp','State.pyx')],language='c++',libraries=['CoolProp'],
+State_module = CyExtension('CoolProp.State',[os.path.join('CoolProp','State.pyx')],language='c++',libraries=['CoolProp'],
                         library_dirs=['CoolPropDLL'],
                         include_dirs = ['CoolProp',os.path.join('CoolProp','purefluids'),os.path.join('CoolProp','pseudopurefluids')])
 
@@ -122,17 +122,7 @@ setup (name = 'CoolProp',
        url='http://coolprop.sourceforge.net',
        description = """Properties of pure fluids, pseudo-pure fluids and brines""",
        packages = ['CoolProp','CoolProp.Plots','CoolProp.tests'],
-       ext_package = 'CoolProp',
        ext_modules = [CoolProp_module,FloodProp_module,HumidAirProp_module,State_module],
        package_dir = {'CoolProp':'CoolProp',},
        cmdclass={'build_ext': build_ext}
        )
-
-## Clean up the intermediate files that SWIG generates
-if 'clean' in sys.argv:
-    FileList=['__init__.py','CoolProp.py','CoolProp_wrap.cpp','FloodProp.py','FloodProp_wrap.cpp','HumidAirProp.py','HumidAirProp_wrap.cpp']
-    for file in FileList:
-        try:
-            os.remove(file)
-        except:
-            print "Sorry, couldn't remove the file "+file

@@ -9,7 +9,7 @@ cdef class State:
     """
     
     def __init__(self,bytes Fluid,dict StateDict,double xL=-1.0,Liquid='',bint LUT=True):
-        self.Fluid=Fluid 
+        self.Fluid=Fluid
         self.xL=xL
         self.Liquid=Liquid
         
@@ -146,11 +146,11 @@ cdef class State:
                'cp':'kJ/kg/K',
                'cv':'kJ/kg/K'}
         s=''
-        for k,v in self.__dict__.iteritems():
+        for k in ['T','p','rho','h','u','s','visc','k','cp','cv']:
             if k in units:
-                s+=k+' = '+str(v)+' '+units[k]+'\n'
+                s+=k+' = '+str(getattr(self,k))+' '+units[k]+'\n'
             else:
-                s+=k+' = '+str(v)+' NO UNITS'+'\n'
+                s+=k+' = '+str(getattr(self,k))+' NO UNITS'+'\n'
         return s
         
     cpdef copy(self):
@@ -158,9 +158,7 @@ cdef class State:
         return ST
     
 def rebuildState(d):
-    S=State()
+    S=State(d['Fluid'],{'T':d['T'],'D':d['rho']})
     S.xL = d['xL']
     S.Liquid=d['Liquid']
-    S.Fluid=d['Fluid']
-    S.update({'T':d['T'],'D':d['rho']})
     return S

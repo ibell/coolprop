@@ -1,4 +1,10 @@
 #Everything in this file is added to the bottom of the __init__.py file at buildtime
 
-from CoolProp import Props
-from HumidAirProp import HAProps
+#import CoolProp
+#import HumidAirProp
+#import FloodProp
+import pickle_test
+import CoolProp
+import HumidAirProp
+import FloodProp
+import State
