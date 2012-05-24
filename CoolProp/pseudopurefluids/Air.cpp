@@ -19,11 +19,6 @@ by Ian Bell
 #include "PropMacros.h"
 #include "CoolProp.h"
 
-static const double Tj=132.6312, R_Air=0.287117125828, rhoj=302.5507652, pj=3785.02, M_Air=28.9586, _Ttriple=59.75;
-             //           K             kJ/kg-K       kg/m^3     kPa            kg/kmol          K
-// Critical values (if needed)
-// static const double Tc=132.5306,pc=3786.0;
-
 static const double N[]={0,
  0.118160747229,//[1]
  0.713116392079,//[2]
@@ -46,7 +41,7 @@ static const double N[]={0,
 -0.938782884667e-2//[19]
 };
 
-static const int i[]={0,
+static const int d[]={0,
 1,//[1]
 1,//[2]
 1,//[3]
@@ -68,7 +63,7 @@ static const int i[]={0,
 3//[19]
 };
 
-static const double j[]={0.00,
+static const double t[]={0.00,
 0,//[1]
 0.33,//[2]
 1.01,//[3]
@@ -120,90 +115,139 @@ static const double N0[]={0.0,
  87.31279//[13]
 };
 
-int Load_Air(struct fluidParamsVals *Fluid)
+AirClass::AirClass()
 {
-    // Function pointers
-    Fluid->funcs.phir=phir_Air;
-    Fluid->funcs.dphir_dDelta=dphir_dDelta_Air;
-    Fluid->funcs.dphir2_dDelta2=dphir2_dDelta2_Air;
-    Fluid->funcs.dphir2_dDelta_dTau=dphir2_dDelta_dTau_Air;
-    Fluid->funcs.dphir_dTau=dphir_dTau_Air;
-    Fluid->funcs.dphir2_dTau2=dphir2_dTau2_Air;
-    Fluid->funcs.phi0=phi0_Air;
-    Fluid->funcs.dphi0_dDelta=dphi0_dDelta_Air;
-    Fluid->funcs.dphi02_dDelta2=dphi02_dDelta2_Air;
-    Fluid->funcs.dphi0_dTau=dphi0_dTau_Air;
-    Fluid->funcs.dphi02_dTau2=dphi02_dTau2_Air;
-    Fluid->funcs.rhosatL=rhosatL_Air;
-    Fluid->funcs.rhosatV=rhosatV_Air;
-    Fluid->funcs.p_dp=pdp_Air;
-    Fluid->funcs.p_bp=pbp_Air;
-    Fluid->funcs.visc=Viscosity_Trho_Air;
-    Fluid->funcs.cond=Conductivity_Trho_Air;
+	std::vector<double> n_v(N,N+sizeof(N)/sizeof(double));
+	std::vector<double> d_v(d,d+sizeof(d)/sizeof(int));
+	std::vector<double> t_v(t,t+sizeof(t)/sizeof(double));
+	std::vector<double> l_v(l,l+sizeof(l)/sizeof(int));
+	std::vector<double> N0_v(N0,N0+sizeof(N0)/sizeof(double));
+	std::vector<double> theta0_v(N0,N0+sizeof(N0)/sizeof(double));
 
-    //Lookup table parameters
-    Fluid->LUT.Tmin=220.0;
-    Fluid->LUT.Tmax=800.0;
-    Fluid->LUT.pmin=120.0;
-    Fluid->LUT.pmax=16000.0;
+	phi_BC * phir_ = new phir_power(n_v,d_v,t_v,l_v,1,19);
+	phirlist.push_back(phir_);
+	
+	/*
+	phi0=log(delta);
+    for (k=1;k<=5;k++)
+    {
+        phi0=phi0+N0[k]*powInt(tau,k-4);
+    }
+    phi0+=N0[6]*pow(tau,1.5)+N0[7]*log(tau);
+    for (k=8;k<=9;k++)
+    {
+        phi0+=N0[k]*log(1.0-exp(-N0[k+3]*tau));
+    }
+    phi0+=N0[10]*log(2.0/3.0+exp(N0[13]*tau));
+	*/
+	// Set some constants
+	theta0_v[1]=1-4;
+	theta0_v[2]=2-4;
+	theta0_v[3]=3-4;
+	theta0_v[4]=4-4;
+	theta0_v[5]=5-4;
+	theta0_v[6]=1.5;
+	theta0_v[8]=N0_v[11];
+	theta0_v[9]=N0_v[12];
+	theta0_v[10]=N0_v[13];
 
-    //Fluid parameters
-    Fluid->Type=FLUIDTYPE_REFRIGERANT_PSEUDOPURE;
-    Fluid->Tc=Tj;
-    Fluid->rhoc=rhoj;
-    Fluid->MM=M_Air;
-    Fluid->pc=pj;
-    Fluid->Tt=_Ttriple;
-    return 1;
+	phi_BC * phi0_lead_ = new phi0_lead(0.0,0.0);
+	phi_BC * phi0_logtau_ = new phi0_logtau(N0_v[7]);
+	phi_BC * phi0_power_ = new phi0_power(N0_v,theta0_v,1,5);
+	phi_BC * phi0_Planck_Einstein_ = new phi0_Planck_Einstein(N0_v,theta0_v,8,9);
+	phi_BC * phi0_Planck_Einstein2_ = new phi0_Planck_Einstein2(N0_v[10],theta0_v[10],2.0/3.0);
+	
+	phi0list.push_back(phi0_lead_);
+	phi0list.push_back(phi0_logtau_);
+	phi0list.push_back(phi0_power_);
+	phi0list.push_back(phi0_Planck_Einstein_);
+	phi0list.push_back(phi0_Planck_Einstein2_);
+
+	// Critical parameters (max condensing temperature)
+	crit.rho = 11.8308*28.96546;
+	crit.p = 3786.0;
+	crit.T = 132.5306;
+	crit.v = 1.0/crit.rho;
+
+	maxcondT.rho = 10.4477*28.96546;
+	maxcondT.p = 3785.02;
+	maxcondT.T = 132.6312;
+	maxcondT.v = 1.0/crit.rho;
+
+	// Other fluid parameters
+	params.molemass = 28.96546;
+	params.Ttriple = 59.75;
+	params.accentricfactor = 0.0335;
+	params.R_u = 8.31451;
+	isPure = false;
+	preduce = &maxcondT;
+
+	// Limits of EOS
+	limits.Tmin = params.Ttriple;
+	limits.Tmax = 200.0;
+	limits.pmax = 2000000.0;
+	limits.rhomax = 14.21*params.molemass;
+	
+	EOSReference.assign("Lemmon, E.W., Jacobsen, R.T, Penoncello, S.G., and Friend, D.G.,"
+						"\"Thermodynamic Properties of Air and Mixtures of Nitrogen, Argon, and"
+						" Oxygen from 60 to 2000 K at Pressures to 2000 MPa,"
+						" J. Phys. Chem. Ref. Data, 29(3):331-385, 2000.");
+	TransportReference.assign("\"Viscosity and Thermal Conductivity Equations for"
+							  "Nitrogen, Oxygen, Argon, and Air\""
+							  "E. W. Lemmon and R. T Jacobsen"
+							  "International Journal of Thermophysics, Vol. 25, No. 1, January 2004");
+
+	name.assign("Air");
+	aliases.push_back("air");
 }
 
-double rhosatL_Air(double T)
+double AirClass::rhosatL(double T)
 {
 	const double ti[]={0,0.65,0.85,0.95,1.1};
     const double Ni[]={0,43.3413,-240.073,285.139,-88.3366,-0.892181};
     double summer=0; int k;
     for (k=1;k<=4;k++)
     {
-        summer=summer+Ni[k]*pow(1.0-T/Tj,ti[k]);
+        summer=summer+Ni[k]*pow(1.0-T/reduce.T,ti[k]);
     }
-    return rhoj*(1+summer+Ni[5]*log(T/Tj));
+    return crit.rho*(1+summer+Ni[5]*log(T/crit.T));
 }
 
-double rhosatV_Air(double T)
+double AirClass::rhosatV(double T)
 {
 	const double ti[]={0,0.41,1.0,2.8,6.5};
     const double Ni[]={0,-2.0466,-4.7520,-13.259,-47.652};
     double summer=0; int k;
     for (k=1;k<=4;k++)
     {
-        summer=summer+Ni[k]*pow(1.0-T/Tj,ti[k]);
+        summer=summer+Ni[k]*pow(1.0-T/reduce.T,ti[k]);
     }
-    return rhoj*exp(summer);
+    return crit.rho*exp(summer);
 }
 
-double pbp_Air(double T)
+double AirClass::psatL(double T)
 {
 	const double Ni[]={0,0.2260724,-7.080499,5.700283,-12.44017,17.81926,-10.81364};
 	double summer=0; int k;
     for (k=1;k<=6;k++)
     {
-        summer=summer+Ni[k]*pow(1-T/Tj,(double)k/2.0);
+        summer=summer+Ni[k]*pow(1-T/reduce.T,(double)k/2.0);
     }
-	return pj*exp(Tj/T*summer);
+	return crit.p*exp(crit.T/T*summer);
 }
 
-double pdp_Air(double T)
+double AirClass::psatV(double T)
 {
 	const double Ni[]={0,-0.1567266,-5.539635,0,0,0.7567212,0,0,-3.514322};
 	double summer=0; int k;
     for (k=1;k<=8;k++)
     {
-        summer=summer+Ni[k]*pow(1-T/Tj,(double)k/2.0);
+        summer=summer+Ni[k]*pow(1-T/reduce.T,(double)k/2.0);
     }
-	return pj*exp(Tj/T*summer);
+	return crit.p*exp(crit.T/T*summer);
 }
 
-double Viscosity_Trho_Air(double T, double rho)
+double AirClass::viscosity_Trho(double T, double rho)
 {
 	/*
 	E.W. Lemmon and R.T Jacobsen, Viscosity and Thermal Conductivity Equations for Nitrogen, Oxygen, Argon and Air
@@ -221,8 +265,8 @@ double Viscosity_Trho_Air(double T, double rho)
 	double l[]={0,0,0,0,1,1};
 	double g[]={0,0,0,0,1,1};
 
-	delta=rho/rhoj;
-	tau=Tj/T;
+	delta=rho/crit.rho;
+	tau=crit.T/T;
 	Tstar=T/(e_k);
 	OMEGA=exp(b[0]*powInt(log(Tstar),0)
 			 +b[1]*powInt(log(Tstar),1)
@@ -230,7 +274,7 @@ double Viscosity_Trho_Air(double T, double rho)
 			 +b[3]*powInt(log(Tstar),3)
 		     +b[4]*powInt(log(Tstar),4));
 
-	eta0=0.0266958*sqrt(M_Air*T)/(sigma*sigma*OMEGA);
+	eta0=0.0266958*sqrt(params.molemass*T)/(sigma*sigma*OMEGA);
 	etar=N[1]*pow(tau,t[1])*pow(delta,d[1])*exp(-g[1]*pow(delta,l[1]))
 		+N[2]*pow(tau,t[2])*pow(delta,d[2])*exp(-g[2]*pow(delta,l[2]))
 		+N[3]*pow(tau,t[3])*pow(delta,d[3])*exp(-g[3]*pow(delta,l[3]))
@@ -240,16 +284,17 @@ double Viscosity_Trho_Air(double T, double rho)
 	return (eta0+etar)/1e6; // uPa-s to Pa-s
 }
 
-static double X_tilde(double T,double tau,double delta)
+double AirClass::X_tilde(double T,double tau,double delta)
 {
 	// X_tilde is dimensionless
 	// Equation 11 slightly rewritten
-	double drho_dp;
-	drho_dp=1.0/(R_Air*T*(1+2*delta*dphir_dDelta_Air(tau,delta)+delta*delta*dphir2_dDelta2_Air(tau,delta)));
-	return pj*delta/rhoj*drho_dp;
+	double drho_dp,R_Air;
+    R_Air = params.R_u/params.molemass;
+	drho_dp=1.0/(R_Air*T*(1+2*delta*dphir_dDelta(tau,delta)+delta*delta*d2phir_dDelta2(tau,delta)));
+	return crit.p*delta/crit.rho*drho_dp;
 }
 
-double Conductivity_Trho_Air(double T, double rho)
+double AirClass::conductivity_Trho(double T, double rho)
 {
 	/*
 	E.W. Lemmon and R.T Jacobsen, Viscosity and Thermal Conductivity Equations for Nitrogen, Oxygen, Argon and Air
@@ -272,8 +317,8 @@ double Conductivity_Trho_Air(double T, double rho)
 	double l[]={0,0,0,0,0,0,2,2,2,2};
 	double g[]={0,0,0,0,0,0,1,1,1,1};
 	
-	delta=rho/rhoj;
-	tau=Tj/T;
+	delta=rho/crit.rho;
+	tau=crit.T/T;
 	Tstar=T/(e_k);
 
 	OMEGA=exp(b[0]*powInt(log(Tstar),0)
@@ -282,7 +327,7 @@ double Conductivity_Trho_Air(double T, double rho)
 			 +b[3]*powInt(log(Tstar),3)
 		     +b[4]*powInt(log(Tstar),4));
 
-	eta0=0.0266958*sqrt(M_Air*T)/(sigma*sigma*OMEGA);
+	eta0=0.0266958*sqrt(params.molemass*T)/(sigma*sigma*OMEGA);
 	lambda0=N[1]*eta0+N[2]*pow(tau,t[2])+N[3]*pow(tau,t[3]);
 
 	lambdar=N[4]*pow(tau,t[4])*pow(delta,d[4])*exp(-g[4]*pow(delta,l[4]))
@@ -297,7 +342,7 @@ double Conductivity_Trho_Air(double T, double rho)
 	gamma=1.2415;
 	k=1.380658e-23; //[J/K]
 
-	num=X_tilde(T,Tj/T,delta)-X_tilde(Tref,Tj/Tref,delta)*Tref/T;
+	num=X_tilde(T,crit.T/T,delta)-X_tilde(Tref,crit.T/Tref,delta)*Tref/T;
 
 	// no critical enhancement if numerator of Eq. 10 is negative
 	if (num<0)
@@ -315,150 +360,6 @@ double Conductivity_Trho_Air(double T, double rho)
 	return (lambda0+lambdar+lambdac)/1e6;
 }
 
-double B_Air(double tau)
-{
-	// given by B*rhoc=lim(delta --> 0) [dphir_ddelta(tau)]
-	return 1.0/rhoj*dphir_dDelta_Air(tau,1e-12);
-}
-
-double dBdT_Air(double tau)
-{
-	// given by B*rhoc^2=lim(delta --> 0) [dphir2_ddelta2(tau)]
-	return -1.0/rhoj*tau*tau/Tj*dphir2_dDelta_dTau_Air(tau,1e-12);
-}
-
-double C_Air(double tau)
-{
-	// given by B*rhoc^2=lim(delta --> 0) [dphir2_ddelta2(tau)]
-	return 1.0/(rhoj*rhoj)*dphir2_dDelta2_Air(tau,1e-12);
-}
-
-double dCdT_Air(double tau)
-{
-	// given by B*rhoc^2=lim(delta --> 0) [dphir2_ddelta2(tau)]
-	return -1.0/(rhoj*rhoj)*tau*tau/Tj*dphir3_dDelta2_dTau_Air(tau,1e-12);
-}
-
-/**************************************************/
-/*          Private Property Functions            */
-/**************************************************/
-
-double phir_Air(double tau, double delta)
-{ 
-    int k;
-    double phir=0;
-    
-    for (k=1;k<=10;k++)
-    {
-        phir=phir+N[k]*powInt(delta,i[k])*pow(tau,j[k]);
-    }
-    
-    for (k=11;k<=19;k++)
-    {
-        phir=phir+N[k]*powInt(delta,i[k])*pow(tau,j[k])*exp(-powInt(delta,l[k]));
-    }
-    return phir;
-}
-
-double dphir_dDelta_Air(double tau, double delta)
-{ 
-    int k;
-    double dphir_dDelta=0;
-    for (k=1;k<=10;k++)
-    {
-        dphir_dDelta+=i[k]*N[k]*powInt(delta,i[k]-1)*pow(tau,j[k]);
-    }
-    for (k=11;k<=19;k++)
-    {
-        dphir_dDelta+=N[k]*powInt(delta,i[k]-1)*pow(tau,j[k])*exp(-powInt(delta,l[k]))*(i[k]-l[k]*powInt(delta,l[k]));
-    }
-    return dphir_dDelta;
-}
-
-double dphir2_dDelta2_Air(double tau, double delta)
-{ 
-    int k;
-    double di,ci;
-    double dphir2_dDelta2=0;
-    for (k=1;k<=10;k++)
-    {
-        di=(double)i[k];
-        dphir2_dDelta2=dphir2_dDelta2+N[k]*di*(di-1.0)*powInt(delta,i[k]-2)*pow(tau,j[k]);
-    }
-    for (k=11;k<=19;k++)
-    {
-        di=(double)i[k];
-        ci=(double)l[k];
-        dphir2_dDelta2=dphir2_dDelta2+N[k]*exp(-powInt(delta,l[k]))*(powInt(delta,i[k]-2)*pow(tau,j[k])*( (di-ci*powInt(delta,l[k]))*(di-1.0-ci*powInt(delta,l[k])) - ci*ci*powInt(delta,l[k])));
-    }
-    return dphir2_dDelta2;
-}
-
-    
-double dphir2_dDelta_dTau_Air(double tau, double delta)
-{ 
-    int k;
-    double dphir2_dDelta_dTau=0;
-
-    for (k=1;k<=10;k++)
-    {
-        dphir2_dDelta_dTau+=i[k]*j[k]*N[k]*powInt(delta,i[k]-1)*pow(tau,j[k]-1.0);
-    }
-    for (k=11;k<=19;k++)
-    {
-        dphir2_dDelta_dTau+=j[k]*N[k]*powInt(delta,i[k]-1)*pow(tau,j[k]-1.0)*exp(-powInt(delta,l[k]))*(i[k]-l[k]*powInt(delta,l[k]));
-    }
-    return dphir2_dDelta_dTau;
-}
-
-double dphir3_dDelta2_dTau_Air(double tau, double delta)
-{ 
-    int k;
-    double dphir3_dDelta2_dTau=0;
-
-    for (k=1;k<=10;k++)
-    {
-        dphir3_dDelta2_dTau+=i[k]*(i[k]-1)*j[k]*N[k]*powInt(delta,i[k]-2)*pow(tau,j[k]-1.0);
-    }
-    for (k=11;k<=19;k++)
-    {
-        dphir3_dDelta2_dTau+=j[k]*N[k]*powInt(delta,i[k]-2)*pow(tau,j[k]-1.0)*exp(-powInt(delta,l[k]))*((i[k]-l[k]*powInt(delta,l[k]))*(i[k]-1-l[k]*powInt(delta,l[k]))-l[k]*l[k]*powInt(delta,l[k]));
-    }
-    return dphir3_dDelta2_dTau;
-}
-
-double dphir_dTau_Air(double tau, double delta)
-{ 
-    int k;
-    double dphir_dTau=0;
-    
-    for (k=1;k<=10;k++)
-    {
-        dphir_dTau=dphir_dTau+N[k]*j[k]*powInt(delta,i[k])*pow(tau,j[k]-1.0);
-    }
-    for (k=11;k<=19;k++)
-    {
-        dphir_dTau=dphir_dTau+N[k]*j[k]*powInt(delta,i[k])*pow(tau,j[k]-1.0)*exp(-powInt(delta,l[k]));
-    }
-    return dphir_dTau;
-}
-
-double dphir2_dTau2_Air(double tau, double delta)
-{ 
-    
-    int k;
-    double dphir2_dTau2=0;
-    
-    for (k=1;k<=10;k++)
-    {
-        dphir2_dTau2=dphir2_dTau2+N[k]*j[k]*(j[k]-1.0)*powInt(delta,i[k])*pow(tau,j[k]-2.0);
-    }
-    for (k=11;k<=19;k++)
-    {
-        dphir2_dTau2=dphir2_dTau2+N[k]*j[k]*(j[k]-1.0)*powInt(delta,i[k])*pow(tau,j[k]-2.0)*exp(-powInt(delta,l[k]));
-    }
-    return dphir2_dTau2;
-}
 
 double phi0_Air(double tau, double delta)
 {

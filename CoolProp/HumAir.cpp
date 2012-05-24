@@ -31,6 +31,38 @@ static double MM_Water(void)
 {
 	return Props('M','T',0,'P',0,"Water");
 }
+static double B_Air(double T)
+{
+    return DerivTerms("B",T,1e-12,"Air");
+}
+static double dBdT_Air(double T)
+{
+    return DerivTerms("dBdT",T,1e-12,"Air");
+}
+static double B_Water(double T)
+{
+    return DerivTerms("B",T,1e-12,"Water");
+}
+static double dBdT_Water(double T)
+{
+    return DerivTerms("dBdT",T,1e-12,"Water");
+}
+static double C_Air(double T)
+{
+    return DerivTerms("C",T,1e-12,"Air");
+}
+static double dCdT_Air(double T)
+{
+    return DerivTerms("dCdT",T,1e-12,"Air");
+}
+static double C_Water(double T)
+{
+    return DerivTerms("C",T,1e-12,"Water");
+}
+static double dCdT_Water(double T)
+{
+    return DerivTerms("dCdT",T,1e-12,"Water");
+}
 void UseVirialCorrelations(int flag)
 {
     if (flag==0 || flag==1)
@@ -204,8 +236,8 @@ static double B_m(double T, double psi_w)
     }
     else
     {
-        B_aa=B_Air(tau_Air)*MM_Air()/1e3; //[m^3/kg] to [m^3/mol]
-        B_ww=B_Water(tau_Water)*MM_Water()/1e3; //[m^3/kg] to [m^3/mol]
+        B_aa=B_Air(T)*MM_Air()/1e3; //[m^3/kg] to [m^3/mol]
+        B_ww=B_Water(T)*MM_Water()/1e3; //[m^3/kg] to [m^3/mol]
     }
     
     B_aw=_B_aw(T)/1e3; //[dm^3/mol] to [m^3/mol]
@@ -227,8 +259,8 @@ static double dB_m_dT(double T, double psi_w)
     }
     else
     {
-        dB_dT_aa=dBdT_Air(tau_Air)*MM_Air()/1e3; //[m^3/kg] to [m^3/mol]
-        dB_dT_ww=dBdT_Water(tau_Water)*MM_Water()/1e3; //[m^3/kg] to [m^3/mol]
+        dB_dT_aa=dBdT_Air(T)*MM_Air()/1e3; //[m^3/kg] to [m^3/mol]
+        dB_dT_ww=dBdT_Water(T)*MM_Water()/1e3; //[m^3/kg] to [m^3/mol]
     }
         dB_dT_aw=_dB_aw_dT(T)/1e3; //[dm^3/mol] to [m^3/mol]
     return pow(1-psi_w,2)*dB_dT_aa+2*(1-psi_w)*psi_w*dB_dT_aw+psi_w*psi_w*dB_dT_ww;
@@ -253,8 +285,8 @@ static double C_m(double T, double psi_w)
     }
     else
     {
-        C_aaa=C_Air(tau_Air)*MM_Air()*MM_Air()/1e6; //[m^6/kg^2] to [m^6/mol^2]
-        C_www=C_Water(tau_Water)*MM_Water()*MM_Water()/1e6; //[m^6/kg^2] to [m^6/mol^2]
+        C_aaa=C_Air(T)*MM_Air()*MM_Air()/1e6; //[m^6/kg^2] to [m^6/mol^2]
+        C_www=C_Water(T)*MM_Water()*MM_Water()/1e6; //[m^6/kg^2] to [m^6/mol^2]
     }
     C_aaw=_C_aaw(T)/1e6; //[dm^6/mol] to [m^6/mol^2]
     C_aww=_C_aww(T)/1e6; //[dm^6/mol] to [m^6/mol^2]
@@ -277,8 +309,8 @@ static double dC_m_dT(double T, double psi_w)
     }
     else
     {
-        dC_dT_aaa=dCdT_Air(tau_Air)*MM_Air()*MM_Air()/1e6; //[m^6/kg^2] to [m^6/mol^2]
-        dC_dT_www=dCdT_Water(tau_Water)*MM_Water()*MM_Water()/1e6; //[m^6/kg^2] to [m^6/mol^2]
+        dC_dT_aaa=dCdT_Air(T)*MM_Air()*MM_Air()/1e6; //[m^6/kg^2] to [m^6/mol^2]
+        dC_dT_www=dCdT_Water(T)*MM_Water()*MM_Water()/1e6; //[m^6/kg^2] to [m^6/mol^2]
     }
     dC_dT_aaw=_dC_aaw_dT(T)/1e6; //[dm^6/mol] to [m^6/mol^2]
     dC_dT_aww=_dC_aww_dT(T)/1e6; //[dm^6/mol] to [m^6/mol^2]
@@ -318,7 +350,7 @@ double f_factor(double T, double p)
     p*=1000;
     
     // Saturation pressure [Pa]
-    if (T>=273.15)
+    if (T>273.15)
     {
         // It is liquid water
         p_ws=Props('P','T',T,'Q',0,"Water")*1000;
@@ -329,7 +361,8 @@ double f_factor(double T, double p)
 		}
         else
 		{
-			k_T=IsothermCompress_Water(T,p/1000); //[1/Pa]
+            double rho = Props('D','T',T,'P',p/1000,"Water");
+			k_T=DerivTerms("IsothermalCompressibility",T,rho,"Water")/1000; //[1/Pa]
 		}
         beta_H=HenryConstant(T); //[1/Pa]
         vbar_ws=1.0/Props('D','T',T,'Q',0,"Water")*MM_Water()/1000; //[m^3/mol]
@@ -337,7 +370,7 @@ double f_factor(double T, double p)
     else
     {
         // It is ice
-        p_ws=psub_Ice(T)*1000;
+        p_ws=psub_Ice(T)*1000; // [Pa]
         k_T=IsothermCompress_Ice(T,p/1000); //[1/Pa]
         beta_H=0;
         vbar_ws=dg_dp_Ice(T,p/1000)*MM_Water()/1000/1000; //[m^3/mol]
@@ -371,10 +404,10 @@ double f_factor(double T, double p)
 	}
 	else
 	{
-		B_aa=B_Air(tau_Air)*MM_Air()/1e3; //[m^3/kg] to [m^3/mol]
-		C_aaa=C_Air(tau_Air)*MM_Air()*MM_Air()/1e6; //[m^6/kg^2] to [m^6/mol^2]
-		B_ww=B_Water(tau_Water)*MM_Water()/1e3; //[m^3/kg] to [m^3/mol]
-		C_www=C_Water(tau_Water)*MM_Water()*MM_Water()/1e6; //[m^6/kg^2] to [m^6/mol^2]
+		B_aa=B_Air(T)*MM_Air()/1e3; //[m^3/kg] to [m^3/mol]
+		C_aaa=C_Air(T)*MM_Air()*MM_Air()/1e6; //[m^6/kg^2] to [m^6/mol^2]
+		B_ww=B_Water(T)*MM_Water()/1e3; //[m^3/kg] to [m^3/mol]
+		C_www=C_Water(T)*MM_Water()*MM_Water()/1e6; //[m^6/kg^2] to [m^6/mol^2]
 	}
 	B_aw=_B_aw(T)/1e3; //[dm^3/mol] to [m^3/mol]
     C_aaw=_C_aaw(T)/1e6; //[dm^6/mol] to [m^6/mol^2]
@@ -414,7 +447,10 @@ double f_factor(double T, double p)
 		}
 		iter=iter+1;
 	}
-    return f;
+    if (f>=1.0)
+        return f;
+    else
+        return 1.0;
 }
 void HAHelp(void)
 {
@@ -528,7 +564,7 @@ double IdealGasMolarEnthalpy_Water(double T, double v_bar)
     tau=Props(ITc,'T',0,'P',0,"Water")/T;
     rhobar=322/MM_Water()*1000;
 	delta=1/(v_bar*rhobar);
-	hbar_w=hbar_w_0+R_bar*T*(1+tau*dphi0_dTau_Water(tau,delta));
+	hbar_w=hbar_w_0+R_bar*T*(1+tau*DerivTerms("dphi0_dTau",T,1/v_bar,"Water"));
 	return hbar_w;
 }
 double IdealGasMolarEnthalpy_Air(double T, double v_bar)
@@ -541,9 +577,22 @@ double IdealGasMolarEnthalpy_Air(double T, double v_bar)
     rhobar=302.5507652/MM_Air()*1000;
     delta=1/(v_bar*rhobar);
     R_bar_Lemmon=8.314510; //[kJ/kmol/K]
-    hbar_a=hbar_a_0+R_bar_Lemmon*T*(1+tau*dphi0_dTau_Air(tau,delta)); //[kJ/kmol]
+    hbar_a=hbar_a_0+R_bar_Lemmon*T*(1+tau*DerivTerms("dphi0_dTau",T,1/v_bar,"Air")); //[kJ/kmol]
 	return hbar_a;
 }
+//double IdealGasMolarEntropy_Air(double T, double v_bar)
+//{
+//	double sbar_a_0,tau,rhobar,delta,sbar_a,R_bar_Lemmon;
+//	// Ideal-Gas contribution to enthalpy of air
+//    hbar_a_0=-7914.149298; //[kJ/kmol]
+//    //Tj and rhoj are given by 132.6312 and 302.5507652 respectively
+//    tau=132.6312/T;
+//    rhobar=302.5507652/MM_Air()*1000;
+//    delta=1/(v_bar*rhobar);
+//    R_bar_Lemmon=8.314510; //[kJ/kmol/K]
+//    hbar_a=hbar_a_0+R_bar_Lemmon*T*(1+tau*DerivTerms("dphi0_dTau",T,1/v_bar,"Air")); //[kJ/kmol]
+//	return hbar_a;
+//}
 double MolarEnthalpy(double T, double p, double psi_w, double v_bar)
 {
     // In units of kJ/kmol
@@ -556,7 +605,7 @@ double MolarEnthalpy(double T, double p, double psi_w, double v_bar)
     // ----------------------------------------
     // Constant for enthalpy
     // Not clear why getting rid of this term yields the correct values in the table, but enthalpies are equal to an additive constant, so not a big deal
-    hbar_0=0;//2.924425468; //[kJ/kmol]
+    hbar_0=2.924425468; //[kJ/kmol]
     
 	if (FlagUseIdealGasEnthalpyCorrelations)
 	{
@@ -572,6 +621,36 @@ double MolarEnthalpy(double T, double p, double psi_w, double v_bar)
     hbar=hbar_0+(1-psi_w)*hbar_a+psi_w*hbar_w+R_bar*T*((B_m(T,psi_w)-T*dB_m_dT(T,psi_w))/v_bar+(C_m(T,psi_w)-T/2.0*dC_m_dT(T,psi_w))/(v_bar*v_bar));
     return hbar; //[kJ/kmol]
 }
+
+//double MolarEntropy(double T, double p, double psi_w, double v_bar)
+//{
+//    // In units of kJ/kmol/K
+//    
+//    // vbar (molar volume) in m^3/kg
+//    
+//    double sbar_0,sbar_a,sbar_w,hbar,R_bar=8.314472;
+//    // ----------------------------------------
+//    //      Enthalpy
+//    // ----------------------------------------
+//    // Constant for enthalpy
+//    // Not clear why getting rid of this term yields the correct values in the table, but enthalpies are equal to an additive constant, so not a big deal
+//    sbar_0=0.02366427495 [kJ/kmol]; //2.924425468; //[kJ/kmol]
+//    
+//	if (FlagUseIdealGasEnthalpyCorrelations)
+//	{
+//	hbar_w=2.7030251618E-03*T*T + 3.1994361015E+01*T + 3.6123174929E+04;
+//	hbar_a=9.2486716590E-04*T*T + 2.8557221776E+01*T - 7.8616129429E+03;
+//	}
+//	else
+//	{
+//    sbar_w=IdealGasMolarEntropy_Water(T,v_bar);
+//	sbar_a=IdealGasMolarEntropy_Air(T,v_bar);
+//	}
+//    
+//    hbar=hbar_0+(1-psi_w)*hbar_a+psi_w*hbar_w+R_bar*T*((B_m(T,psi_w)-T*dB_m_dT(T,psi_w))/v_bar+(C_m(T,psi_w)-T/2.0*dC_m_dT(T,psi_w))/(v_bar*v_bar));
+//    return hbar; //[kJ/kmol]
+//}
+
 double DewpointTemperature(double T, double p, double psi_w)
 {
     int iter;
@@ -592,11 +671,11 @@ double DewpointTemperature(double T, double p, double psi_w)
     iter=1; eps=1e-8; resid=999;
     while ((iter<=3 || fabs(resid)>eps) && iter<100)
 	{
-		if (iter==1){x1=T; Tdp=x1;}
-		if (iter==2){x2=T+0.000001; Tdp=x2;}
+		if (iter==1){x1=HAProps("Twb","Tdb",T,"R",0.0,"P",p); Tdp=x1;}
+		if (iter==2){x2=T; Tdp=x2;}
 		if (iter>2) {Tdp=x2;}
         
-            if (T>=273.15)
+            if (Tdp>=273.15)
             {
                 // Saturation pressure at dewpoint [kPa]
                 UseSaturationLUT(1);
@@ -634,19 +713,36 @@ double WetbulbTemperature(double T, double p, double psi_w)
     // ------------------------------------------
     // Iteratively find the wetbulb temperature
     // ------------------------------------------
+
+	// For a given pressure, the range of possible wetbulb temperatures is from the wetbulb calculated for dry air and saturated air
+	//double Tmin = HAProps("Twb","Tdb",T,"R",0.0,"P",p);
+	//double Tmax = HAProps("Twb","Tdb",T,"R",1.0,"P",p);
     
     W=epsilon*psi_w/(1-psi_w);
     
-    iter=1; eps=1e-8; resid=999;
+	// The highest wetbulb temperature that is possible is the pressure 
+	// that results in a water pressure equal to the total pressure i.e. f_wb*p_ws_wb=p
+	// 
+	// So to get a guess value, assume the enhancement factor to be unity, and start below this pressure
+
+	double Twb_guess = Props('T','P',0.95*p,'Q',1.0,"Water");
+	
+	// These things are not a function of Twb
+	// 
+	v_bar_w=MolarVolume(T,p,psi_w);
+	M_ha=MM_Water()*psi_w+(1-psi_w)*28.966;
+	double LHS = MolarEnthalpy(T,p,psi_w,v_bar_w)*(1+W)/M_ha;
+
+    iter=1; eps=1e-7; resid=999;
     while ((iter<=3 || fabs(resid)>eps) && iter<100)
 	{
-		if (iter==1){x1=T; Twb=x1;}
-		if (iter==2){x2=T+0.000001; Twb=x2;}
+		if (iter==1){x1=Twb_guess; Twb=x1;}
+		if (iter==2){x2=Twb_guess+0.000001; Twb=x2;}
 		if (iter>2) {Twb=x2;}
         
             // Enhancement Factor at wetbulb temperature [-]
             f_wb=f_factor(Twb,p);
-            if (T>273.15)
+            if (Twb>273.15)
             {
                 // Saturation pressure at wetbulb temperature [kPa]
                 p_ws_wb=Props('P','T',Twb,'Q',0,"Water");
@@ -663,7 +759,7 @@ double WetbulbTemperature(double T, double p, double psi_w)
             W_s_wb=epsilon*p_s_wb/(p-p_s_wb);
             // wetbulb water mole fraction
             psi_wb=W_s_wb/(epsilon+W_s_wb);
-            if (T>=273.15)
+            if (T>273.15)
             {
                 // Enthalpy of water [kJ/kg_water]
                 h_w=Props('H','T',Twb,'P',p,"Water");
@@ -674,12 +770,11 @@ double WetbulbTemperature(double T, double p, double psi_w)
                 h_w=h_Ice(T,p)/1000;
             }
             // Mole masses of wetbulb and humid air
-            M_ha=MM_Water()*psi_w+(1-psi_w)*28.966;
+            
             M_ha_wb=MM_Water()*psi_wb+(1-psi_wb)*28.966;
-            v_bar_w=MolarVolume(T,p,psi_w);
-            v_bar_wb=MolarVolume(T,p,psi_wb);
+            v_bar_wb=MolarVolume(Twb,p,psi_wb);
             // Error between target and actual pressure [kJ/kg_da]
-            resid=MolarEnthalpy(T,p,psi_w,v_bar_w)/M_ha*(1+W)-(MolarEnthalpy(Twb,p,psi_wb,v_bar_wb)/M_ha_wb*(1+W_s_wb)+(W-W_s_wb)*h_w);
+            resid=LHS-(MolarEnthalpy(Twb,p,psi_wb,v_bar_wb)*(1+W_s_wb)/M_ha_wb+(W-W_s_wb)*h_w);
         
         if (iter==1){y1=resid;}
 		if (iter>1)
@@ -1044,51 +1139,52 @@ double HAProps_Aux(char* Name,double T, double p, double W, char *units)
     tau_Air=Tj/T;
     tau_Water=Props(ITc,'T',0,'P',0,"Water")/T;
     
+	try{
     if (!strcmp(Name,"Baa"))
     {
-        B_aa=B_Air(tau_Air)*MM_Air()/1e3; //[m^3/kg] to [m^3/mol]
+        B_aa=B_Air(T)*MM_Air()/1e3; //[m^3/kg] to [m^3/mol]
         strcpy(units,"m^3/mol");
         return B_aa;
     }
     else if (!strcmp(Name,"Caaa"))
     {
-        C_aaa=C_Air(tau_Air)*MM_Air()*MM_Air()/1e6; //[m^6/kg^2] to [m^6/mol^2]
+        C_aaa=C_Air(T)*MM_Air()*MM_Air()/1e6; //[m^6/kg^2] to [m^6/mol^2]
         strcpy(units,"m^6/mol^2");
         return C_aaa;
     }
     else if (!strcmp(Name,"Bww"))
     {
-        B_ww=B_Water(tau_Water)*MM_Water()/1e3; //[m^3/kg] to [m^3/mol]
+        B_ww=B_Water(T)*MM_Water()/1e3; //[m^3/kg] to [m^3/mol]
         strcpy(units,"m^3/mol");
         return B_ww;
     }
     else if (!strcmp(Name,"Cwww"))
     {
-        C_www=C_Water(tau_Water)*MM_Water()*MM_Water()/1e6; //[m^6/kg^2] to [m^6/mol^2]
+        C_www=C_Water(T)*MM_Water()*MM_Water()/1e6; //[m^6/kg^2] to [m^6/mol^2]
         strcpy(units,"m^6/mol^2");
         return C_www;
     }
     else if (!strcmp(Name,"dBaa"))
     {
-        B_aa=dBdT_Air(tau_Air)*MM_Air()/1e3; //[m^3/kg] to [m^3/mol]
+        B_aa=dBdT_Air(T)*MM_Air()/1e3; //[m^3/kg] to [m^3/mol]
         strcpy(units,"m^3/mol");
         return B_aa;
     }
     else if (!strcmp(Name,"dCaaa"))
     {
-        C_aaa=dCdT_Air(tau_Air)*MM_Air()*MM_Air()/1e6; //[m^6/kg^2] to [m^6/mol^2]
+        C_aaa=dCdT_Air(T)*MM_Air()*MM_Air()/1e6; //[m^6/kg^2] to [m^6/mol^2]
         strcpy(units,"m^6/mol^2");
         return C_aaa;
     }
     else if (!strcmp(Name,"dBww"))
     {
-        B_ww=dBdT_Water(tau_Water)*MM_Water()/1e3; //[m^3/kg] to [m^3/mol]
+        B_ww=dBdT_Water(T)*MM_Water()/1e3; //[m^3/kg] to [m^3/mol]
         strcpy(units,"m^3/mol");
         return B_ww;
     }
     else if (!strcmp(Name,"dCwww"))
     {
-        C_www=dCdT_Water(tau_Water)*MM_Water()*MM_Water()/1e6; //[m^6/kg^2] to [m^6/mol^2]
+        C_www=dCdT_Water(T)*MM_Water()*MM_Water()/1e6; //[m^6/kg^2] to [m^6/mol^2]
         strcpy(units,"m^6/mol^2");
         return C_www;
     }
@@ -1119,14 +1215,17 @@ double HAProps_Aux(char* Name,double T, double p, double W, char *units)
     {
         strcpy(units,"1/Pa");
         if (T>273.15)
-            return IsothermCompress_Water(T,p); //[1/Pa]
+        {
+            double rho = Props('D','T',T,'P',p,"Water");
+            return DerivTerms("IsothermalCompressibility",T,rho,"Water")/1000; //[1/Pa]
+        }
         else
             return IsothermCompress_Ice(T,p); //[1/Pa]
     }
     else if (!strcmp(Name,"p_ws"))
     {
         strcpy(units,"kPa");
-        if (T>=273.15)
+        if (T>273.15)
             return Props('P','T',T,'Q',0,"Water");
         else
             return psub_Ice(T);
@@ -1134,7 +1233,7 @@ double HAProps_Aux(char* Name,double T, double p, double W, char *units)
     else if (!strcmp(Name,"vbar_ws"))
     {
         strcpy(units,"m^3/mol");
-        if (T>=273.15)
+        if (T>273.15)
         {
             // It is liquid water
             return 1.0/Props('D','T',T,'Q',0,"Water")*MM_Water()/1000; //[m^3/mol]
@@ -1170,14 +1269,14 @@ double HAProps_Aux(char* Name,double T, double p, double W, char *units)
     else if (!strcmp(Name,"ha"))
     {
         delta=1.1/322; tau=132/T;
-        return 1+tau*dphi0_dTau_Air(tau,delta);
+        return 1+tau*DerivTerms("dphi0_dTau",tau,delta,"Water");
     }
     else if (!strcmp(Name,"hw"))
     {
         //~ return Props('D','T',T,'P',p,"Water")/322; tau=647/T;
         delta=1000/322; tau=647/T;
         //~ delta=rho_Water(T,p,TYPE_TP);tau=647/T;
-        return 1+tau*dphi0_dTau_Water(tau,delta);
+        return 1+tau*DerivTerms("dphi0_dTau",tau,delta,"Water");
     }
 	else if (!strcmp(Name,"hbaro_w"))
 	{
@@ -1194,6 +1293,11 @@ double HAProps_Aux(char* Name,double T, double p, double W, char *units)
         printf("Sorry I didn't understand your input [%s] to HAProps_Aux\n",Name);
         return -1;
     }
+	}
+	catch(std::exception &e)
+	{
+		return _HUGE;
+	}
 }
 double cair_sat(double T)
 {

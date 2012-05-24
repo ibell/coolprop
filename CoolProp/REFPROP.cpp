@@ -227,7 +227,7 @@ double REFPROP(char Output,char Name1, double Prop1, char Name2, double Prop2, c
 	
 	double x[ncmax],xliq[ncmax],xvap[ncmax];
 	char RefString[255];
-	double T,p=0,d,dl,dv,q,e,h,s,cv,cp,w,MW,hl,hv,sl,sv,ul,uv,pl,pv,eta,tcx,Q,Tcrit,pcrit,dcrit,rho;
+	double T,p=0,d,dl,dv,dl_,dv_,q,e,h,s,cv,cp,w,MW,hl,hv,sl,sv,ul,uv,pl,pv,eta,tcx,Q,Tcrit,pcrit,dcrit,rho;
 
 	// First create a pointer to an instance of the library
 	// Then have windows load the library.
@@ -395,7 +395,15 @@ double REFPROP(char Output,char Name1, double Prop1, char Name2, double Prop2, c
 			// Free allocated memory
 			free(RefCopy);
 		}
-		else if (!strcmp(Ref,"R508B"))
+		else if (!strcmp(Ref,"Air") || !strcmp(Ref,"R507A") || !strcmp(Ref,"R404A") || !strcmp(Ref,"R410A") || !strcmp(Ref,"R407C"))
+		{
+			i=1;
+			strcpy(RefString,"");
+			strcat(RefString,Ref);
+			strcat(RefString,".ppf");
+			x[0]=1.0;     //Pseudo-Pure fluid
+		}
+		else if (!strcmp(Ref,"R507A"))
 		{
 			i=2;
 			strcpy(RefString,"R23.fld|R116.fld");
@@ -499,6 +507,7 @@ double REFPROP(char Output,char Name1, double Prop1, char Name2, double Prop2, c
 			else if (Output=='U') return e/MW;
 			else if (Output=='C') return cp/MW;
 			else if (Output=='O') return cv/MW;
+			else if (Output=='P') return p;
 			else if (Output=='V') 
 			{
 				TRNPRPdll(&T,&d,x,&eta,&tcx,&ierr,herr,errormessagelength);
@@ -555,6 +564,10 @@ double REFPROP(char Output,char Name1, double Prop1, char Name2, double Prop2, c
 				TRNPRPdll(&T,&rho,x,&eta,&tcx,&ierr,herr,errormessagelength);
 				return tcx/1000.0; //W/m-K to kW/m-K
 			}
+			else if (Output=='D')
+			{
+				return rho*MW;
+			}
 			else
 				return _HUGE;
 		}
@@ -562,16 +575,18 @@ double REFPROP(char Output,char Name1, double Prop1, char Name2, double Prop2, c
 		{
 			T=Prop1;
 			Q=Prop2;
+			
 			// Saturation Density
-			SATTdll(&T,x,&i,&p,&dl,&dv,xliq,xvap,&ierr,herr,errormessagelength);
+			i=1;
+			SATTdll(&T,x,&i,&pl,&dl,&dv_,xliq,xvap,&ierr,herr,errormessagelength);
+			i=2;
+			SATTdll(&T,x,&i,&pv,&dl_,&dv,xliq,xvap,&ierr,herr,errormessagelength);
 			if (Output=='D') 
 			{
 				return 1/(Q/dv+(1-Q)/dl)*MW;
 			}
 			else if (Output=='P') 
 			{
-				PRESSdll(&T,&dl,xliq,&pl);
-				PRESSdll(&T,&dv,xvap,&pv);
 				return (pv*Q+pl*(1-Q));
 			}
 			else if (Output=='H') 

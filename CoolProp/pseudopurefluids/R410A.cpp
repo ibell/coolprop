@@ -75,7 +75,7 @@ static const double N[]={
     -0.00482049		//[21]
 };
 
-static const double j[]={
+static const double t[]={
     0.0,			//[0]
     0.44,			//[1]
     1.2,			//[2]
@@ -100,7 +100,7 @@ static const double j[]={
     7.4				//[21]
 };
 
-static const int i[]={
+static const int d[]={
     0,				//[0]
     1,				//[1]
     1,				//[2]
@@ -125,7 +125,7 @@ static const int i[]={
     6				//[21]
 };
 
-static const int L[]={
+static const int l[]={
     0,				//[0]
     0,				//[1]
     0,				//[2]
@@ -150,35 +150,10 @@ static const int L[]={
     3				//[21]
 };
 
-static const int g[]={
-    0,				//[0]
-    0,				//[1]
-    0,				//[2]
-    0,				//[3]
-    0,				//[4]
-    0,				//[5]
-    1,				//[6]
-    1,				//[7]
-    1,				//[8]
-    1,				//[9]
-    1,				//[10]
-    1,				//[11]
-    1,				//[12]
-    1,				//[13]
-    1,				//[14]
-    1,				//[15]
-    1,				//[16]
-    1,				//[17]
-    1,				//[18]
-    1,				//[19]
-    1,				//[20]
-    1,				//[21]
-};
-
 static const double Nbp[]={
     0.0,			//[0]
     -7.2818,		//[1]
-    2.5093,			//[2]
+     2.5093,		//[2]
     -3.2695,		//[3]
     -2.8022			//[4]
 };
@@ -207,79 +182,94 @@ static const double tdp[]={
     5.0			    //[4]
 };
 
-static const double M=72.5824; //[g/mol]
-static const double Tm=344.494; //[K]
-static const double pm=4901.2; //[MPa--> kPa]
-static const double pc=4810; //[MPa--> kPa] From (Calm 2007 HPAC Engineering)
-static const double rhom=459.0300696; //6.324*M; //[mol/dm^3--> kg/m^3]
-static const double _Ttriple=200.0; //[K]
-
-int Load_R410A(struct fluidParamsVals *Fluid)
+R410AClass::R410AClass()
 {
-    // Function pointers
-    Fluid->funcs.phir=ar_R410A;
-    Fluid->funcs.dphir_dDelta=dar_ddelta_R410A;
-    Fluid->funcs.dphir2_dDelta2=d2ar_ddelta2_R410A;
-    Fluid->funcs.dphir2_dDelta_dTau=d2ar_ddelta_dtau_R410A;
-    Fluid->funcs.dphir_dTau=dar_dtau_R410A;
-    Fluid->funcs.dphir2_dTau2=d2ar_dtau2_R410A;
-    Fluid->funcs.phi0=a0_R410A;
-    Fluid->funcs.dphi0_dDelta=da0_ddelta_R410A;
-    Fluid->funcs.dphi02_dDelta2=d2a0_ddelta2_R410A;
-    Fluid->funcs.dphi0_dTau=da0_dtau_R410A;
-    Fluid->funcs.dphi02_dTau2=d2a0_dtau2_R410A;
-    Fluid->funcs.rhosatL=rhosatL_R410A;
-    Fluid->funcs.rhosatV=rhosatV_R410A;
-    Fluid->funcs.p_dp=p_dp_R410A;
-    Fluid->funcs.p_bp=p_bp_R410A;
-    Fluid->funcs.visc=Viscosity_Trho_R410A;
-    Fluid->funcs.cond=Conductivity_Trho_R410A;
-    
-    //Lookup table parameters
-    Fluid->LUT.Tmin=150.0;
-    Fluid->LUT.Tmax=550.0;
-    Fluid->LUT.pmin=70.03;
-    Fluid->LUT.pmax=6000.0;
-    
-    //Fluid parameters
-    Fluid->Type=FLUIDTYPE_REFRIGERANT_PSEUDOPURE;
-    Fluid->Tc=Tm;
-    Fluid->rhoc=rhom;
-    Fluid->MM=M;
-    Fluid->pc=pc;
-    Fluid->Tt=_Ttriple;
-    return 1;
-}
+	std::vector<double> n_v(N,N+sizeof(N)/sizeof(double));
+	std::vector<double> d_v(d,d+sizeof(d)/sizeof(int));
+	std::vector<double> t_v(t,t+sizeof(t)/sizeof(double));
+	std::vector<double> l_v(l,l+sizeof(l)/sizeof(int));
+	std::vector<double> a0(a,a+sizeof(a)/sizeof(double));
+	std::vector<double> n0(b,b+sizeof(b)/sizeof(double));
 
-double p_bp_R410A(double T)
+	phi_BC * phir_ = new phir_power(n_v,d_v,t_v,l_v,1,21);
+	phirlist.push_back(phir_);
+
+	/*
+	sum=log(delta)-log(tau)+a[0]+a[1]*tau+a[2]*pow(tau,b[2]);
+	for(k=3;k<=5;k++)
+	{
+		sum+=a[k]*log(1.0-exp(-b[k]*tau));
+	}
+	*/
+	phi_BC * phi0_lead_ = new phi0_lead(a0[0],a0[1]);
+	phi_BC * phi0_logtau_ = new phi0_logtau(-1.0);
+	phi_BC * phi0_power_ = new phi0_power(a0[2],n0[2]);
+	phi_BC * phi0_Planck_Einstein_ = new phi0_Planck_Einstein(a0,n0,3,5);
+
+	phi0list.push_back(phi0_lead_);
+	phi0list.push_back(phi0_logtau_);
+	phi0list.push_back(phi0_power_);
+	phi0list.push_back(phi0_Planck_Einstein_);
+
+	// Other fluid parameters
+	params.molemass = 72.5854;
+	params.Ttriple = 200.0;
+	params.accentricfactor = 0.296;
+	params.R_u = 8.314472;
+	isPure = false;
+	
+	// Critical parameters
+	crit.rho = 459.0300696;
+	crit.p = 4901.2;
+	crit.T = 344.494;
+	crit.v = 1.0/crit.rho;
+
+	// Limits of EOS
+	limits.Tmin = params.Ttriple;
+	limits.Tmax = 500.0;
+	limits.pmax = 50000.0;
+	limits.rhomax = 19.51*params.molemass;
+	
+	EOSReference.assign("E.W. Lemmon, \"Pseudo-pure fluid Equations of State for the Refrigerant Blends R410A, R404A, R507C and R407C\"" 
+						",Int. J. Thermophys. v. 24, n4, 2003");
+	TransportReference.assign(" Viscosity: V. Geller, \"Viscosity of Mixed Refrigerants R404A,R407C,"
+							"R410A, and R507A\", 2000 Purdue Refrigeration conferences\n\n"
+							"Thermal Conductivity: V.Z. Geller, B.Z. Nemzer, and U.V. Cheremnykh \"Thermal Conductivity "
+							"of the Refrigerant mixtures R404A,R407C,R410A, and R507A\" "
+							"Int. J. Thermophysics, v. 22, n 4 2001");
+
+	name.assign("R410A");
+	aliases.push_back("R410a");
+}
+double R410AClass::psatL(double T)
 {
     //Bubble point of R410A
     double sum=0,theta;
     int k;
-    theta=1-T/Tm;
+    theta=1-T/reduce.T;
     
     for (k=1;k<=4;k++)
     {
         sum+=Nbp[k]*pow(theta,tbp[k]);
     }
-    return pm*exp(Tm/T*sum);
+    return crit.p*exp(reduce.T/T*sum);
 }
     
-double p_dp_R410A(double T)
+double R410AClass::psatV(double T)
 {
     //Dew point of R410A
     double sum=0,theta;
     int k;
-    theta=1-T/Tm;
+    theta=1-T/reduce.T;
 
     for (k=1;k<=4;k++)
     {
         sum+=Ndp[k]*pow(theta,tdp[k]);
     }
-    return pm*exp(Tm/T*sum);
+    return crit.p*exp(reduce.T/T*sum);
 }
 
-double rhosatV_R410A(double T)
+double R410AClass::rhosatV(double T)
 {
     double THETA,a1,a2,a3,a4,a5,a6,a7,a8,b1,b2,b3,b4,b5,b6,b7,b8;
     THETA=1-T/344.5;
@@ -304,7 +294,7 @@ double rhosatV_R410A(double T)
     return exp(a1*pow(THETA,b1)+a2*pow(THETA,b2)+a3*pow(THETA,b3)+a4*pow(THETA,b4)+a5*pow(THETA,b5)+a6*pow(THETA,b6)+a7*pow(THETA,b7)+a8*pow(THETA,b8))*459.53;
 }
 
-double rhosatL_R410A(double T)
+double R410AClass::rhosatL(double T)
 {
     double THETA,a1,a2,a3,a4,a5,a6,b1,b2,b3,b4,b5,b6;
     THETA=1-T/344.5;
@@ -325,7 +315,7 @@ double rhosatL_R410A(double T)
     return exp(a1*pow(THETA,b1)+a2*pow(THETA,b2)+a3*pow(THETA,b3)+a4*pow(THETA,b4)+a5*pow(THETA,b5)+a6*pow(THETA,b6))*459.53;
 }
 
-double Viscosity_Trho_R410A(double T, double rho)
+double R410AClass::viscosity_Trho(double T, double rho)
 {
     // Properties taken from "Viscosity of Mixed 
     // Refrigerants R404A,R407C,R410A, and R507A" 
@@ -345,7 +335,7 @@ double Viscosity_Trho_R410A(double T, double rho)
    return eta_microPa_s/1e6;
 }
 
-double Conductivity_Trho_R410A(double T, double rho)
+double R410AClass::conductivity_Trho(double T, double rho)
 {
     // Properties taken from "Thermal Conductivity 
     // of the Refrigerant mixtures R404A,R407C,R410A, and R507A" 
@@ -359,122 +349,4 @@ double Conductivity_Trho_R410A(double T, double rho)
     double a_0=-8.872e0,a_1=7.410e-2,b_1=3.576e-2,b_2=-9.045e-6,b_3=4.343e-8,b_4=-3.705e-12;
 
     return (a_0+a_1*T+b_1*rho+b_2*rho*rho+b_3*rho*rho*rho+b_4*rho*rho*rho*rho)/1.e6; // from mW/m-K to kW/m-K
-}
-
-// ***************************************************
-//                HELMHOLTZ DERIVATIVES
-// ***************************************************
-
-double a0_R410A(double tau, double delta)
-{
-    double sum;
-    int k;
-    sum=log(delta)-log(tau)+a[0]+a[1]*tau+a[2]*pow(tau,b[2]);
-    for(k=3;k<=5;k++)
-    {
-        sum+=a[k]*log(1.0-exp(-b[k]*tau));
-    }
-    return sum;
-}
-double da0_dtau_R410A(double tau, double delta)
-{
-    double sum;
-    int k;
-    sum=-1/tau+a[1]+a[2]*b[2]*pow(tau,b[2]-1);
-    for(k=3;k<=5;k++)
-    {
-        sum+=a[k]*b[k]*exp(-b[k]*tau)/(1-exp(-b[k]*tau));
-    }
-    return sum;
-}
-
-double d2a0_dtau2_R410A(double tau, double delta)
-{
-    double sum;
-    int k;
-    sum=1.0/(tau*tau)+a[2]*b[2]*(b[2]-1)*pow(tau,b[2]-2);
-    for(k=3;k<=5;k++)
-    {
-        sum+=-a[k]*b[k]*b[k]/(4.0*powInt(sinh(b[k]*tau/2.0),2));
-    }
-    return sum;
-}
-
-double da0_ddelta_R410A(double tau, double delta)
-{
-    return 1/delta;
-}
-
-double d2a0_ddelta2_R410A(double tau, double delta)
-{
-    return -1/(delta*delta);
-}
-
-double ar_R410A(double tau, double delta)
-{
-    double sum=0;
-    int k;
-    for  (k=1;k<=21;k++)
-    {
-        sum+=N[k]*pow(delta,i[k])*pow(tau,j[k])*exp(-g[k]*pow(delta,L[k]));
-    }
-    return sum;
-}
-double dar_dtau_R410A(double tau,double delta)
-{
-    double sum=0;
-    int k;
-
-    for  (k=1;k<=21;k++)
-    {
-        sum+=j[k]*N[k]*pow(delta,i[k])*pow(tau,j[k]-1)*exp(-g[k]*pow(delta,L[k]));
-    }
-    return sum;
-}
-
-double d2ar_dtau2_R410A(double tau, double delta)
-{
-    double sum=0;
-    int k;
-    for  (k=1;k<=21;k++)
-    {
-        sum+=N[k]*pow(delta,i[k])*j[k]*(j[k]-1)*pow(tau,j[k]-2)*exp(-g[k]*pow(delta,L[k]));
-    }
-    return sum;
-}
-
-double d2ar_ddelta2_R410A(double tau,double delta)
-{
-    double dar2_dDelta2=0;
-    int k;
-    for  (k=1;k<=21;k++)
-    {
-        dar2_dDelta2=dar2_dDelta2+N[k]*pow(tau,j[k])*exp(-g[k]*pow(delta,L[k]))*(pow(delta,i[k]-2)*pow((double)i[k],2)-pow(delta,i[k]-2)*i[k]-2*pow(delta,i[k]-2+L[k])*i[k]*g[k]*L[k]-pow(delta,i[k]-2+L[k])*g[k]*pow((double)L[k],2)+pow(delta,i[k]-2+L[k])*g[k]*L[k]+pow(delta,i[k]+2*L[k]-2)*pow((double)g[k],2)*pow((double)L[k],2));
-    }
-    return dar2_dDelta2;
-}
-
-double dar_ddelta_R410A(double tau,double delta)
-{
-    double sum=0,gk,ik,Lk;
-    int k;
-    for  (k=1;k<=21;k++)
-    {
-        gk=(double)g[k];
-        ik=(double)i[k];
-        Lk=(double)L[k];
-        sum+=N[k]*powInt(delta,i[k]-1)*pow(tau,j[k])*exp(-gk*powInt(delta,L[k]))*(ik-powInt(delta,L[k])*gk*Lk);
-    }
-    return sum;
-}
-
-double d2ar_ddelta_dtau_R410A(double tau,double delta)
-{
-    double dar_dDelta_dTau=0;
-    int k;
-    for  (k=1;k<=21;k++)
-    {
-        dar_dDelta_dTau=dar_dDelta_dTau+N[k]*j[k]*pow(tau,j[k]-1)*(i[k]*pow(delta,i[k]-1)*exp(-g[k]*pow(delta,L[k]))+pow(delta,i[k])*exp(-g[k]*pow(delta,L[k]))*(-g[k]*L[k]*pow(delta,L[k]-1)));
-    }
-    return dar_dDelta_dTau;
 }

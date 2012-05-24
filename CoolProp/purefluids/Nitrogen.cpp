@@ -233,8 +233,6 @@ static const double GAMMA[]={
 1.25
 };
 
-
-
 //Constants for ideal gas expression
 static const double a0[]={0.0,
 	2.5,
@@ -247,125 +245,84 @@ static const double a0[]={0.0,
 	26.65788
 };
 
-int Load_Nitrogen(struct fluidParamsVals *Fluid)
+NitrogenClass::NitrogenClass()
 {
-    // Function pointers
-    Fluid->funcs.phir=phir_Nitrogen;
-    Fluid->funcs.dphir_dDelta=dphir_dDelta_Nitrogen;
-    Fluid->funcs.dphir2_dDelta2=dphir2_dDelta2_Nitrogen;
-    Fluid->funcs.dphir2_dDelta_dTau=dphir2_dDelta_dTau_Nitrogen;
-    Fluid->funcs.dphir_dTau=dphir_dTau_Nitrogen;
-    Fluid->funcs.dphir2_dTau2=dphir2_dTau2_Nitrogen;
-    Fluid->funcs.phi0=phi0_Nitrogen;
-    Fluid->funcs.dphi0_dDelta=dphi0_dDelta_Nitrogen;
-    Fluid->funcs.dphi02_dDelta2=dphi02_dDelta2_Nitrogen;
-    Fluid->funcs.dphi0_dTau=dphi0_dTau_Nitrogen;
-    Fluid->funcs.dphi02_dTau2=dphi02_dTau2_Nitrogen;
-    Fluid->funcs.rhosatL=rhosatL_Nitrogen;
-    Fluid->funcs.rhosatV=rhosatV_Nitrogen;
-    Fluid->funcs.psat=psat_Nitrogen;
+	std::vector<double> n_v(n,n+sizeof(n)/sizeof(double));
+	std::vector<double> d_v(d,d+sizeof(d)/sizeof(int));
+	std::vector<double> t_v(t,t+sizeof(t)/sizeof(double));
+	std::vector<double> l_v(c,c+sizeof(c)/sizeof(int));
+	std::vector<double> alpha_v(alpha,alpha+sizeof(alpha)/sizeof(double));
+	std::vector<double> beta_v(beta,beta+sizeof(beta)/sizeof(double));
+	std::vector<double> gamma_v(GAMMA,GAMMA+sizeof(GAMMA)/sizeof(double));
+	std::vector<double> epsilon_v(epsilon,epsilon+sizeof(epsilon)/sizeof(double));
+	std::vector<double> a0_v(a0,a0+sizeof(a0)/sizeof(double));
+	std::vector<double> n0_v(sizeof(a0)/sizeof(double),0);
 
-    Fluid->funcs.visc=Viscosity_Trho_Nitrogen;
-    Fluid->funcs.cond=Conductivity_Trho_Nitrogen;
+	phi_BC * phir_ = new phir_power(n_v,d_v,t_v,l_v,1,32);
+	phi_BC * phirg_ = new phir_gaussian(n_v,d_v,t_v,alpha_v,epsilon_v,beta_v,gamma_v,33,36);
 
-    //Lookup table parameters
-    Fluid->LUT.Tmin=140.0;
-    Fluid->LUT.Tmax=800.0;
-    Fluid->LUT.pmin=50;
-    Fluid->LUT.pmax=16000;
+	phirlist.push_back(phir_);
+	phirlist.push_back(phirg_);
 
-    //Fluid parameters
-    Fluid->Type=FLUIDTYPE_REFRIGERANT_PURE;
-    Fluid->Tc=Tc;
-    Fluid->rhoc=rhoc;
-    Fluid->MM=M_Nitrogen;
-    Fluid->pc=Pc;
-    Fluid->Tt=_Ttriple;
-    return 1;
+	// phi0=log(delta)+a0[1]*log(tau)+a0[2]+a0[3]*tau+a0[4]/tau+a0[5]/tau/tau+a0[6]/tau/tau/tau+a0[7]*log(1-exp(-a0[8]*tau));
+	n0_v[4]=-1.0;
+	n0_v[5]=-2.0;
+	n0_v[6]=-3.0;
+	n0_v[7]=a0[8];
+	phi_BC * phi0_lead_ = new phi0_lead(a0[2],a0[3]);
+	phi_BC * phi0_logtau_ = new phi0_logtau(a0[1]);
+	phi_BC * phi0_power_ = new phi0_power(a0_v,n0_v,4,6);
+	phi_BC * phi0_Planck_Einstein_ = new phi0_Planck_Einstein(a0_v,n0_v,7,7);
+
+	phi0list.push_back(phi0_lead_);
+	phi0list.push_back(phi0_logtau_);
+	phi0list.push_back(phi0_power_);
+	phi0list.push_back(phi0_Planck_Einstein_);
+
+	// Critical parameters
+	crit.rho = 313.3;
+	crit.p = 3395.8;
+	crit.T = 126.192;
+	crit.v = 1.0/crit.rho;
+
+	// Other fluid parameters
+	params.molemass = 28.01348;
+	params.Ttriple = 63.151;
+	params.accentricfactor = 0.0372 ;
+	params.R_u = 8.31451;
+
+	// Limits of EOS
+	limits.Tmin = 63.151;
+	limits.Tmax = 2000.0;
+	limits.pmax = 2200000.0;
+	limits.rhomax = 53.15*params.molemass;
+	
+	EOSReference.assign("\"A Reference Equation of State for the Thermodynamic Properties"
+						"of Nitrogen for Temperatures from 63.151 to 1000 K "
+						"and Pressures to 2200 MPa\", " 
+						"R. Span and E.W. Lemmon and R.T. Jacobsen and W. Wagner and A. Yokozeki, "
+						"J. Phys. Chem. Ref. Data, v. 29, n. 6, 2000");
+	TransportReference.assign("\"Viscosity and Thermal Conductivity Equations for"
+							  "Nitrogen, Oxygen, Argon, and Air\""
+							  "E. W. Lemmon and R. T Jacobsen"
+							  "International Journal of Thermophysics, Vol. 25, No. 1, January 2004");
+
+	name.assign("Nitrogen");
+	aliases.push_back("nitrogen");
+	aliases.push_back("N2");
 }
 
-double rhosatL_Nitrogen(double T)
-{
-    const double ti[]={0,0.3294,2.0/3.0,8.0/3.0,35.0/6.0};
-    const double Ni[]={0,1.48654237,-0.280476066,0.0894143085,-0.119879866};
-    double summer=0;
-    int i;
-    for (i=1;i<=4;i++)
-    {
-        summer=summer+Ni[i]*pow(1.0-T/Tc,ti[i]);
-    }
-    return rhoc*exp(summer);
-}
-
-double rhosatV_Nitrogen(double T)
-{
-    const double ti[]={0,0.34,5.0/6.0,7.0/6.0,13.0/6.0,14.0/3.0};
-    const double Ni[]={0,-1.70127164,-3.70402649,1.29859383,-0.561424977,-2.68505381};
-    double summer=0;
-    int i;
-    for (i=1;i<=5;i++)
-    {
-        summer=summer+Ni[i]*pow(1.0-T/Tc,ti[i]);
-    }
-    return rhoc*exp(Tc/T*summer);
-}
-
-double psat_Nitrogen(double T)
-{
-    const double ti[]={0,1.0,1.5,2.5,5.0};
-    const double Ni[]={0,-6.12445284,1.26327220,-0.765910082,-1.77570564};
-    double summer=0;
-    int i;
-    for (i=1;i<=4;i++)
-    {
-        summer=summer+Ni[i]*pow(1-T/Tc,ti[i]);
-    }
-    return Pc*exp(Tc/T*summer);
-}
-
-double Viscosity_Trho_Nitrogen(double T, double rho)
-{
-	double e_k=98.94, //[K]
-		   sigma=0.3656; //[nm]
-	double eta0,etar,OMEGA,delta,tau,Tstar;
-	double b[]={0.431,-0.4623,0.08406,0.005341,-0.00331};
-
-	double N[]={0,10.72,0.03989,0.001208,-7.402,4.620};
-	double t[]={0,0.1,0.25,3.2,0.9,0.3};
-	double d[]={0,2,10,12,2,1};
-	double l[]={0,0,1,1,2,3};
-	double g[]={0,0,1,1,1,1};
-
-	delta=rho/rhoc;
-	tau=Tc/T;
-	Tstar=T/(e_k);
-	OMEGA=exp(b[0]*powInt(log(Tstar),0)
-			 +b[1]*powInt(log(Tstar),1)
-		     +b[2]*powInt(log(Tstar),2)
-			 +b[3]*powInt(log(Tstar),3)
-		     +b[4]*powInt(log(Tstar),4));
-
-	eta0=0.0266958*sqrt(M_Nitrogen*T)/(sigma*sigma*OMEGA);
-	etar=N[1]*pow(tau,t[1])*pow(delta,d[1])*exp(-g[1]*pow(delta,l[1]))
-		+N[2]*pow(tau,t[2])*pow(delta,d[2])*exp(-g[2]*pow(delta,l[2]))
-		+N[3]*pow(tau,t[3])*pow(delta,d[3])*exp(-g[3]*pow(delta,l[3]))
-		+N[4]*pow(tau,t[4])*pow(delta,d[4])*exp(-g[4]*pow(delta,l[4]))
-		+N[5]*pow(tau,t[5])*pow(delta,d[5])*exp(-g[5]*pow(delta,l[5]));
-
-	return (eta0+etar)/1e6; // uPa-s to Pa-s
-}
-
-double X_tilde(double T,double tau,double delta)
+double NitrogenClass::X_tilde(double T,double tau,double delta)
 {
 	// X_tilde is dimensionless
 	// Equation 11 slightly rewritten
 	double drho_dp,R_Nitrogen;
-	R_Nitrogen=8.31447215/M_Nitrogen;
-	drho_dp=1.0/(R_Nitrogen*T*(1+2*delta*dphir_dDelta_Nitrogen(tau,delta)+delta*delta*dphir2_dDelta2_Nitrogen(tau,delta)));
+	R_Nitrogen=params.R_u/M_Nitrogen;
+	drho_dp=1.0/(R_Nitrogen*T*(1+2*delta*dphir_dDelta(tau,delta)+delta*delta*d2phir_dDelta2(tau,delta)));
 	return Pc*delta/rhoc*drho_dp;
 }
 
-double Conductivity_Trho_Nitrogen(double T, double rho)
+double NitrogenClass::conductivity_Trho(double T, double rho)
 {
 	double e_k=98.94, //[K]
 		   sigma=0.3656, //[nm]
@@ -426,190 +383,70 @@ double Conductivity_Trho_Nitrogen(double T, double rho)
 
 	return (lambda0+lambdar+lambdac)/1e6;
 }
-
-/**************************************************/
-/*          Private Property Functions            */
-/**************************************************/
-
-double phir_Nitrogen(double tau, double delta)
-{ 
-    
-    int i;
-    double phir=0,psi;
-    
-    for (i=1;i<=6;i++)
-    {
-        phir=phir+n[i]*powInt(delta,d[i])*pow(tau,t[i]);
-    }
-    
-    for (i=7;i<=32;i++)
-    {
-        phir=phir+n[i]*powInt(delta,d[i])*pow(tau,t[i])*exp(-powInt(delta,c[i]));
-    }
-    
-    for (i=33;i<=36;i++)
-    {
-        psi=exp(-alpha[i]*powInt(delta-epsilon[i],2)-beta[i]*powInt(tau-GAMMA[i],2));
-        phir=phir+n[i]*powInt(delta,d[i])*pow(tau,t[i])*psi;
-    }
-    return phir;
-}
-
-double dphir_dDelta_Nitrogen(double tau, double delta)
-{ 
-    int i;
-    double dphir_dDelta=0,psi;
-    double di, ci;
-    for (i=1;i<=6;i++)
-    {
-        di=(double)d[i];
-        dphir_dDelta=dphir_dDelta+n[i]*di*powInt(delta,d[i]-1)*pow(tau,t[i]);
-    }
-    for (i=7;i<=32;i++)
-    {
-        di=(double)d[i];
-        ci=(double)c[i];
-        dphir_dDelta=dphir_dDelta+n[i]*exp(-powInt(delta,c[i]))*(powInt(delta,d[i]-1)*pow(tau,t[i])*(di-ci*powInt(delta,c[i])));
-    }
-    for (i=33;i<=36;i++)
-    {
-        di=(double)d[i];        
-        psi=exp(-alpha[i]*powInt(delta-epsilon[i],2)-beta[i]*powInt(tau-GAMMA[i],2));
-        dphir_dDelta=dphir_dDelta+n[i]*powInt(delta,d[i])*pow(tau,t[i])*psi*(di/delta-2.0*alpha[i]*(delta-epsilon[i]));
-    }
-    return dphir_dDelta;
-}
-
-double dphir2_dDelta2_Nitrogen(double tau, double delta)
-{ 
-    
-    int i;
-    double di,ci;
-    double dphir2_dDelta2=0,psi;
-    for (i=1;i<=6;i++)
-    {
-        di=(double)d[i];
-        dphir2_dDelta2=dphir2_dDelta2+n[i]*di*(di-1.0)*powInt(delta,d[i]-2)*pow(tau,t[i]);
-    }
-    for (i=7;i<=32;i++)
-    {
-        di=(double)d[i];
-        ci=(double)c[i];
-        dphir2_dDelta2=dphir2_dDelta2+n[i]*exp(-powInt(delta,c[i]))*(powInt(delta,d[i]-2)*pow(tau,t[i])*( (di-ci*powInt(delta,c[i]))*(di-1.0-ci*powInt(delta,c[i])) - ci*ci*powInt(delta,c[i])));
-    }
-    for (i=33;i<=36;i++)
-    {
-        di=(double)d[i];
-        psi=exp(-alpha[i]*powInt(delta-epsilon[i],2)-beta[i]*powInt(tau-GAMMA[i],2));
-        dphir2_dDelta2=dphir2_dDelta2+n[i]*pow(tau,t[i])*psi*(-2.0*alpha[i]*powInt(delta,d[i])+4.0*powInt(alpha[i],2)*powInt(delta,d[i])*powInt(delta-epsilon[i],2)-4.0*di*alpha[i]*powInt(delta,d[i]-1)*(delta-epsilon[i])+di*(di-1.0)*powInt(delta,d[i]-2));
-    }
-    return dphir2_dDelta2;
-}
-
-double dphir2_dDelta_dTau_Nitrogen(double tau, double delta)
-{ 
-    
-    int i;
-    double di, ci;
-    double dphir2_dDelta_dTau=0,psi;
-
-    for (i=1;i<=6;i++)
-    {
-        di=(double)d[i];
-        dphir2_dDelta_dTau=dphir2_dDelta_dTau + n[i]*di*t[i]*powInt(delta,d[i]-1)*pow(tau,t[i]-1.0);
-    }
-    for (i=7;i<=32;i++)
-    {
-        di=(double)d[i];
-        ci=(double)c[i];
-        dphir2_dDelta_dTau=dphir2_dDelta_dTau + n[i]*exp(-powInt(delta,c[i]))*powInt(delta,d[i]-1)*t[i]*pow(tau,t[i]-1.0)*(di-ci*powInt(delta,c[i]));
-    }
-    for (i=33;i<=36;i++)
-    {
-        di=(double)d[i];
-        psi=exp(-alpha[i]*powInt(delta-epsilon[i],2)-beta[i]*powInt(tau-GAMMA[i],2));
-        dphir2_dDelta_dTau=dphir2_dDelta_dTau+n[i]*powInt(delta,d[i])*pow(tau,t[i])*psi*(di/delta-2.0*alpha[i]*(delta-epsilon[i]))*(t[i]/tau-2.0*beta[i]*(tau-GAMMA[i]));
-    }
-    return dphir2_dDelta_dTau;
-}
-
-double dphir_dTau_Nitrogen(double tau, double delta)
-{ 
-    
-    int i;
-    double dphir_dTau=0,psi;
-    
-    for (i=1;i<=6;i++)
-    {
-        dphir_dTau=dphir_dTau+n[i]*t[i]*powInt(delta,d[i])*pow(tau,t[i]-1.0);
-    }
-    for (i=7;i<=32;i++)
-    {
-        dphir_dTau=dphir_dTau+n[i]*t[i]*powInt(delta,d[i])*pow(tau,t[i]-1.0)*exp(-powInt(delta,c[i]));
-    }
-    for (i=33;i<=36;i++)
-    {
-        psi=exp(-alpha[i]*powInt(delta-epsilon[i],2)-beta[i]*powInt(tau-GAMMA[i],2));
-        dphir_dTau=dphir_dTau+n[i]*powInt(delta,d[i])*pow(tau,t[i])*psi*(t[i]/tau-2.0*beta[i]*(tau-GAMMA[i]));
-    }
-    return dphir_dTau;
-}
-
-
-double dphir2_dTau2_Nitrogen(double tau, double delta)
-{ 
-    
-    int i;
-    double dphir2_dTau2=0,psi;
-    
-    for (i=1;i<=6;i++)
-    {
-        dphir2_dTau2=dphir2_dTau2+n[i]*t[i]*(t[i]-1.0)*powInt(delta,d[i])*pow(tau,t[i]-2.0);
-    }
-    for (i=7;i<=32;i++)
-    {
-        dphir2_dTau2=dphir2_dTau2+n[i]*t[i]*(t[i]-1.0)*powInt(delta,d[i])*pow(tau,t[i]-2.0)*exp(-powInt(delta,c[i]));
-    }
-    for (i=33;i<=36;i++)
-    {
-        psi=exp(-alpha[i]*powInt(delta-epsilon[i],2)-beta[i]*powInt(tau-GAMMA[i],2));
-        dphir2_dTau2=dphir2_dTau2+n[i]*powInt(delta,d[i])*pow(tau,t[i])*psi*(powInt(t[i]/tau-2.0*beta[i]*(tau-GAMMA[i]),2)-t[i]/powInt(tau,2)-2.0*beta[i]);
-    }
-    return dphir2_dTau2;
-}
-
-/* Maxima code for derivatives of ideal gas residual Helmholtz:
-A:log(delta)+a0[1]*log(tau)+a0[2]+a0[3]*tau+a0[4]/tau+a0[5]/tau/tau+a0[6]/tau/tau/tau+a0[7]*log(1-exp(-a0[8]*tau));
-diff(A,delta);
-diff(%,delta);
-diff(A,tau);
-diff(%,tau);
-*/
-
-double phi0_Nitrogen(double tau, double delta)
+double NitrogenClass::viscosity_Trho(double T, double rho)
 {
-    double phi0=0;
-    
-    phi0=log(delta)+a0[1]*log(tau)+a0[2]+a0[3]*tau+a0[4]/tau+a0[5]/tau/tau+a0[6]/tau/tau/tau+a0[7]*log(1-exp(-a0[8]*tau));
-    return phi0;
-}
+	double e_k=98.94, //[K]
+		   sigma=0.3656; //[nm]
+	double eta0,etar,OMEGA,delta,tau,Tstar;
+	double b[]={0.431,-0.4623,0.08406,0.005341,-0.00331};
 
-double dphi0_dDelta_Nitrogen(double tau, double delta)
-{
-    return 1/delta;
-}
+	double N[]={0,10.72,0.03989,0.001208,-7.402,4.620};
+	double t[]={0,0.1,0.25,3.2,0.9,0.3};
+	double d[]={0,2,10,12,2,1};
+	double l[]={0,0,1,1,2,3};
+	double g[]={0,0,1,1,1,1};
 
-double dphi02_dDelta2_Nitrogen(double tau, double delta)
-{
-    return -1.0/powInt(delta,2);
-}
+	delta=rho/rhoc;
+	tau=Tc/T;
+	Tstar=T/(e_k);
+	OMEGA=exp(b[0]*powInt(log(Tstar),0)
+			 +b[1]*powInt(log(Tstar),1)
+		     +b[2]*powInt(log(Tstar),2)
+			 +b[3]*powInt(log(Tstar),3)
+		     +b[4]*powInt(log(Tstar),4));
 
-double dphi0_dTau_Nitrogen(double tau, double delta)
-{
-    return a0[1]/tau+a0[3]-a0[4]/tau/tau-2.0*a0[5]/tau/tau/tau-3*a0[6]/tau/tau/tau/tau+(a0[7]*a0[8]*exp(-a0[8]*tau))/(1-exp(-a0[8]*tau));
-}
+	eta0=0.0266958*sqrt(M_Nitrogen*T)/(sigma*sigma*OMEGA);
+	etar=N[1]*pow(tau,t[1])*pow(delta,d[1])*exp(-g[1]*pow(delta,l[1]))
+		+N[2]*pow(tau,t[2])*pow(delta,d[2])*exp(-g[2]*pow(delta,l[2]))
+		+N[3]*pow(tau,t[3])*pow(delta,d[3])*exp(-g[3]*pow(delta,l[3]))
+		+N[4]*pow(tau,t[4])*pow(delta,d[4])*exp(-g[4]*pow(delta,l[4]))
+		+N[5]*pow(tau,t[5])*pow(delta,d[5])*exp(-g[5]*pow(delta,l[5]));
 
-double dphi02_dTau2_Nitrogen(double tau, double delta)
+	return (eta0+etar)/1e6; // uPa-s to Pa-s
+}
+double NitrogenClass::psat(double T)
 {
-    return -(a0[7]*a0[8]*a0[8]*exp(-a0[8]*tau))/(1-exp(-a0[8]*tau))-(a0[7]*a0[8]*a0[8]*exp(-2*a0[8]*tau))/(1-exp(-a0[8]*tau))/(1-exp(-a0[8]*tau))-a0[1]/tau/tau+(2*a0[4])/powInt(tau,3)+(6*a0[5])/powInt(tau,4)+(12*a0[6])/powInt(tau,5);
+	const double ti[]={0,1.0,1.5,2.5,5.0};
+    const double Ni[]={0,-6.12445284,1.26327220,-0.765910082,-1.77570564};
+    double summer=0;
+    int i;
+    for (i=1;i<=4;i++)
+    {
+        summer=summer+Ni[i]*pow(1-T/Tc,ti[i]);
+    }
+    return Pc*exp(Tc/T*summer);
+}
+double NitrogenClass::rhosatL(double T)
+{
+	const double ti[]={0,0.3294,2.0/3.0,8.0/3.0,35.0/6.0};
+    const double Ni[]={0,1.48654237,-0.280476066,0.0894143085,-0.119879866};
+    double summer=0;
+    int i;
+    for (i=1;i<=4;i++)
+    {
+        summer=summer+Ni[i]*pow(1.0-T/Tc,ti[i]);
+    }
+    return rhoc*exp(summer);
+}
+double NitrogenClass::rhosatV(double T)
+{
+	const double ti[]={0,0.34,5.0/6.0,7.0/6.0,13.0/6.0,14.0/3.0};
+    const double Ni[]={0,-1.70127164,-3.70402649,1.29859383,-0.561424977,-2.68505381};
+    double summer=0;
+    int i;
+    for (i=1;i<=5;i++)
+    {
+        summer=summer+Ni[i]*pow(1.0-T/Tc,ti[i]);
+    }
+    return rhoc*exp(Tc/T*summer);
 }

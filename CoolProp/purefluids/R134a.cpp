@@ -97,6 +97,31 @@ static const double t[]={
 	50.0		//[21]
 };
 
+static const double c[]={
+	0.0,		//[0]
+	0.0,		//[1]
+	0.0,		//[2]
+	0.0,		//[3]
+	0.0,		//[4]
+	0.0,		//[5]
+	0.0,		//[6]
+	0.0,		//[7]
+	0.0,		//[8]
+	1.0,		//[9]
+	1.0,		//[10]
+	1.0,		//[11]
+	2.0,		//[12]
+	2.0, 		//[13]
+	2.0,		//[14]
+	2.0,		//[15]
+	2.0,		//[16]
+	2.0,		//[17]
+	3.0,		//[18]
+	3.0,		//[19]
+	3.0,		//[20]
+	4.0			//[21]
+};
+
 static const int N[]={
 	8,			//[0]
 	11,			//[1]
@@ -122,12 +147,6 @@ static const double t0[]={
 	-3.0/4.0	//[5]
 };
 
-static const double M=102.032; //[kg/kmol]
-static const double Tc=374.18; //[K]
-static const double rhoc=508; //[kg/m^3]
-static const double pc=4056.29; //[kPa]
-static const double Tt=169.85; //[K]
-
 //Microsoft version of math.h doesn't include acosh.h
 #if defined(_MSC_VER)
 static double acosh(double x)
@@ -136,72 +155,90 @@ static double acosh(double x)
 }
 #endif
 
-int Load_R134a(struct fluidParamsVals *Fluid)
+R134aClass::R134aClass()
 {
-    // Function pointers
-    Fluid->funcs.phir=phir_R134a;
-    Fluid->funcs.dphir_dDelta=dphir_dDelta_R134a;
-    Fluid->funcs.dphir2_dDelta2=dphir2_dDelta2_R134a;
-    Fluid->funcs.dphir2_dDelta_dTau=dphir2_dDelta_dTau_R134a;
-    Fluid->funcs.dphir_dTau=dphir_dTau_R134a;
-    Fluid->funcs.dphir2_dTau2=dphir2_dTau2_R134a;
-    Fluid->funcs.phi0=phi0_R134a;
-    Fluid->funcs.dphi0_dDelta=dphi0_dDelta_R134a;
-    Fluid->funcs.dphi02_dDelta2=dphi02_dDelta2_R134a;
-    Fluid->funcs.dphi0_dTau=dphi0_dTau_R134a;
-    Fluid->funcs.dphi02_dTau2=dphi02_dTau2_R134a;
-    Fluid->funcs.rhosatL=rhosatL_R134a;
-    Fluid->funcs.rhosatV=rhosatV_R134a;
-    Fluid->funcs.psat=psat_R134a;
-    
-    Fluid->funcs.visc=Viscosity_Trho_R134a;
-    Fluid->funcs.cond=Conductivity_Trho_R134a;
+	std::vector<double> n_v(a,a+sizeof(a)/sizeof(double));
+	std::vector<double> d_v(d,d+sizeof(d)/sizeof(int));
+	std::vector<double> t_v(t,t+sizeof(t)/sizeof(double));
+	std::vector<double> l_v(c,c+sizeof(c)/sizeof(int));
+	std::vector<double> a0_v(a0,a0+sizeof(a0)/sizeof(double));
+	std::vector<double> n0_v(sizeof(a0)/sizeof(double),0);
 
-    //Lookup table parameters
-    Fluid->LUT.Tmin=220.0;
-    Fluid->LUT.Tmax=470.0;
-    Fluid->LUT.pmin=24;
-    Fluid->LUT.pmax=1973;
-    
-    //Fluid parameters
-    Fluid->Type=FLUIDTYPE_REFRIGERANT_PURE;
-    Fluid->Tc=Tc;
-    Fluid->rhoc=rhoc;
-    Fluid->MM=M;
-    Fluid->pc=pc;
-    Fluid->Tt=Tt;
-    return 1;
-}
+	phi_BC * phir_ = new phir_power(n_v,d_v,t_v,l_v,1,21);
+	phirlist.push_back(phir_);
 
-double psat_R134a(double T)
-{
-	double theta,phi;
+	// phi0=log(delta)+a0[1]+a0[2]*tau+a0[3]*log(tau)+a0[4]*pow(tau,-1.0/2.0)+a0[5]*pow(tau,-3.0/4.0);
+	n0_v[4]=-1.0/2.0;
+	n0_v[5]=-3.0/4.0;
+	phi_BC * phi0_lead_ = new phi0_lead(a0[1],a0[2]);
+	phi_BC * phi0_logtau_ = new phi0_logtau(a0[3]);
+	phi_BC * phi0_power_ = new phi0_power(a0_v,n0_v,4,5);
+
+	phi0list.push_back(phi0_lead_);
+	phi0list.push_back(phi0_logtau_);
+	phi0list.push_back(phi0_power_);
+
+	// Critical parameters
+	crit.rho = 508;
+	crit.p = 4059.28;
+	crit.T = 374.21;
+	crit.v = 1.0/crit.rho;
+
+	// Other fluid parameters
+	params.molemass = 102.032;
+	params.Ttriple = 169.85;
+	params.accentricfactor = 0.32684;
+	params.R_u = 8.314471;
+
+	// Limits of EOS
+	limits.Tmin = 169.85;
+	limits.Tmax = 455.0;
+	limits.pmax = 70000.0;
+	limits.rhomax = 15.60*params.molemass;
 	
-	phi=T/374.18;
-	theta=1-phi;
+	EOSReference.assign("\"A International Standard Formulation for the Thermodynamic Properties of 1,1,1,2-Tetrafluoroethane" 
+					    "(HFC-134a) for Temperatures from 170 K to 455 K and Pressures up to 70 MPa\""
+						"by Reiner Tillner-Roth and Hans Dieter Baehr, J. Phys. Chem. Ref. Data, v. 23, 1994, pp 657-729");
+	TransportReference.assign("Viscosity: \"A Reference Multiparameter Viscosity Equation for R134a"
+						"with an Optimized Functional Form\""
+						"by G. Scalabrin and P. Marchi, R. Span"
+						"J. Phys. Chem. Ref. Data, Vol. 35, No. 2, 2006");
 
-	return pc*exp((-7.686556*theta+2.311791*pow(theta,1.5)-2.039554*theta*theta-3.583758*theta*theta*theta*theta)/phi);
+	name.assign("R134a");
+	aliases.push_back("R134A");
 }
-
-double rhosatL_R134a(double T)
+double R134aClass::conductivity_Trho(double T, double rho)
 {
-	double theta, THETA;
-	theta=T/374.15;
-	THETA=1-theta;
+	/* 
+	From "A multiparameter thermal conductivity equation
+	for R134a with an optimized functional form"
+	by G. Scalabrin, P. Marchi, F. Finezzo, 
+	Fluid Phase Equilibria 245 (2006) 37-51 
+	*/
+	int i;
+	double sum=0, Tr,rhor,alpha,lambda_r_ce,lambda_r,num,den;
+	double g[]={0.0,0.0,0.5,1.0,1.5,4.0,5.5,6.0,0.0};
+	double h[]={0.0,1.0,1.0,6.0,0.0,3.0,0.0,0.0,1.0};
+	double n[]={0.0,23.504800,-15.261689,0.064403724,7.9735850,0.28675949,
+		8.1819842,-6.4852285,-4.8298888};
+	double nc=1.2478242;
+	double a[]={0.0,1.0,0.0,0.0,0.30,0.30,0.36525,
+		0.61221,0.94930,0.92162,0.15,0.08,0.14};
 
-	return 518.20+884.13*pow(THETA,1.0/3.0)+485.84*pow(THETA,2.0/3.0)+193.29*pow(THETA,10.0/3.0);
+	Tr=T/crit.T;
+	rhor=rho/crit.rho;
+	alpha=1.0-a[10]*acosh(1+a[11]*pow((1-Tr)*(1-Tr),a[12]));
+	num=rhor*exp(-pow(rhor,a[1])/a[1]-powInt(a[2]*(Tr-1.0),2)-powInt(a[3]*(rhor-1.0),2));
+	den=pow(pow(powInt((1.0-1.0/Tr)+a[4]*pow((rhor-1.0)*(rhor-1.0),1.0/(2.0*a[5])),2),a[6])+pow(a[7]*a[7]*(rhor-alpha)*(rhor-alpha),a[8]),a[9]);
+	lambda_r_ce=num/den;
+	for(i=1;i<=7;i++)
+	{
+		sum+=n[i]*pow(Tr,g[i])*pow(rhor,h[i]);
+	}
+	lambda_r=sum+n[8]*exp(-5.0*rhor*rhor)*pow(Tr,g[8])*pow(rhor,h[8])+nc*lambda_r_ce;
+	return 2.0547*lambda_r/1e6;
 }
-
-double rhosatV_R134a(double T)
-{
-	double theta, THETA,rho0=516.86;
-	theta=T/374.15;
-	THETA=1-theta;
-
-	return rho0*exp(-2.837294*pow(THETA,1.0/3.0)-7.875988*pow(THETA,2.0/3.0)+4.478586*pow(THETA,1.0/2.0)-14.140125*pow(THETA,9.0/4.0)-52.361297*pow(THETA,11.0/2.0));
-}
-
-double Viscosity_Trho_R134a(double T, double rho)
+double R134aClass::viscosity_Trho(double T, double rho)
 {
 	/* 
 	From "A Reference Multiparameter Viscosity Equation for R134a
@@ -216,8 +253,8 @@ double Viscosity_Trho_R134a(double T, double rho)
 	double n[]={0.0,0.6564868,0.6882417e-10,0.5668165,-0.2989820,-0.1061795,
 		0.6245080e-1,0.2758366e-6,-0.1621088,0.1675102,-0.9224693e-1};
 
-	Tr=T/Tc;
-	rhor=rho/rhoc;
+	Tr=T/crit.T;
+	rhor=rho/crit.rho;
 
 	for (i=1;i<=7;i++)
 	{
@@ -229,208 +266,26 @@ double Viscosity_Trho_R134a(double T, double rho)
 	}
 	return (exp(sum)-1.0)*25.17975/1e6;
 }
-double Conductivity_Trho_R134a(double T, double rho)
+double R134aClass::psat(double T)
 {
-	/* 
-	From "A multiparameter thermal conductivity equation
-	for R134a with an optimized functional form"
-	by G. Scalabrin, P. Marchi, F. Finezzo, 
-	Fluid Phase Equilibria 245 (2006) 37�51 
-	*/
-	int i;
-	double sum=0, Tr,rhor,alpha,lambda_r_ce,lambda_r,num,den;
-	double g[]={0.0,0.0,0.5,1.0,1.5,4.0,5.5,6.0,0.0};
-	double h[]={0.0,1.0,1.0,6.0,0.0,3.0,0.0,0.0,1.0};
-	double n[]={0.0,23.504800,-15.261689,0.064403724,7.9735850,0.28675949,
-		8.1819842,-6.4852285,-4.8298888};
-	double nc=1.2478242;
-	double a[]={0.0,1.0,0.0,0.0,0.30,0.30,0.36525,
-		0.61221,0.94930,0.92162,0.15,0.08,0.14};
-
-	Tr=T/Tc;
-	rhor=rho/rhoc;
-	alpha=1.0-a[10]*acosh(1+a[11]*pow((1-Tr)*(1-Tr),a[12]));
-	num=rhor*exp(-pow(rhor,a[1])/a[1]-powInt(a[2]*(Tr-1.0),2)-powInt(a[3]*(rhor-1.0),2));
-	den=pow(pow(powInt((1.0-1.0/Tr)+a[4]*pow((rhor-1.0)*(rhor-1.0),1.0/(2.0*a[5])),2),a[6])+pow(a[7]*a[7]*(rhor-alpha)*(rhor-alpha),a[8]),a[9]);
-	lambda_r_ce=num/den;
-	for(i=1;i<=7;i++)
-	{
-		sum+=n[i]*pow(Tr,g[i])*pow(rhor,h[i]);
-	}
-	lambda_r=sum+n[8]*exp(-5.0*rhor*rhor)*pow(Tr,g[8])*pow(rhor,h[8])+nc*lambda_r_ce;
-	return 2.0547*lambda_r/1e6;
+	double theta,phi;	
+	phi=T/374.18;
+	theta=1-phi;
+	return crit.p*exp((-7.686556*theta+2.311791*pow(theta,1.5)-2.039554*theta*theta-3.583758*theta*theta*theta*theta)/phi);
 }
-
-
-//**********************************************
-//                 Derivatives
-//**********************************************
-
-double phi0_R134a(double tau,double delta)
+double R134aClass::rhosatL(double T)
 {
-	return a0[1]+a0[2]*tau+a0[3]*log(tau)+log(delta)+a0[4]*pow(tau,-1.0/2.0)+a0[5]*pow(tau,-3.0/4.0);
+	double theta, THETA;
+	theta=T/374.15;
+	THETA=1-theta;
+
+	return 518.20+884.13*pow(THETA,1.0/3.0)+485.84*pow(THETA,2.0/3.0)+193.29*pow(THETA,10.0/3.0);
 }
-
-double phir_R134a(double tau, double delta)
+double R134aClass::rhosatV(double T)
 {
-	double sum=0;
-	int i;
+	double theta, THETA,rho0=516.86;
+	theta=T/374.15;
+	THETA=1-theta;
 
-	for (i=1;i<=8;i++)
-	{
-		sum += a[i]*pow(tau,t[i])*powInt(delta,d[i]);
-	}
-	for (i=9;i<=11;i++)
-	{
-		sum += exp(-delta)*a[i]*pow(tau,t[i])*powInt(delta,d[i]);
-	}
-	for (i=12;i<=17;i++)
-	{
-		sum += exp(-delta*delta)*a[i]*pow(tau,t[i])*powInt(delta,d[i]);
-	}
-	for (i=18;i<=20;i++)
-	{
-		sum += exp(-delta*delta*delta)*a[i]*pow(tau,t[i])*powInt(delta,d[i]);
-	}
-	sum += exp(-delta*delta*delta*delta)*a[21]*pow(tau,t[21])*powInt(delta,d[21]);
-	return sum;
-}
-
-double dphi0_dDelta_R134a(double tau,double delta)
-{
-	return 1.0/delta;
-}
-
-double dphi0_dTau_R134a(double tau,double delta)
-{
-	int j;
-	double sum; 
-	sum=a0[2]+a0[3]/tau;
-	for (j=4;j<=5;j++)
-	{
-		sum+=a0[j]*t0[j]*pow(tau,t0[j]-1.0);
-	}
-	return sum;
-}
-double dphi02_dDelta2_R134a(double tau,double delta)
-{
-	return -1.0/(delta*delta);
-}
-double dphi02_dTau2_R134a(double tau,double delta)
-{
-	int j;
-	double sum;
-	sum=-a0[3]/(tau*tau);
-	for (j=4;j<=5;j++)
-	{
-		sum+=a0[j]*t0[j]*(t0[j]-1.0)*pow(tau,t0[j]-2.0);
-	}
-	return sum;
-}
-double dphi02_dDelta_dtau_R134a(double tau, double delta)
-{
-	return 0.0;
-}
-
-double dphir_dDelta_R134a(double tau, double delta)
-{
-	double sum=0;
-	int i,k;
-
-	for (i=1;i<=N[0];i++)
-	{
-		sum += a[i]*((double)d[i])*pow(tau,t[i])*powInt(delta,d[i]-1);
-	}
-	for (k=1;k<=4;k++)
-	{
-		for (i=N[k-1]+1;i<=N[k];i++)
-		{
-			sum += exp(-powInt(delta,k))*a[i]*((double)d[i]-k*powInt(delta,k))*pow(tau,t[i])*powInt(delta,d[i]-1);
-		}
-	}
-	return sum;
-}
-double dphir_dTau_R134a(double tau, double delta)
-{
-	double sum=0;
-	int i,k;
-
-	for (i=1;i<=N[0];i++)
-	{
-		sum += a[i]*t[i]*pow(tau,t[i]-1.0)*powInt(delta,d[i]);
-	}
-
-	for (k=1;k<=4;k++)
-	{
-		for (i=N[k-1]+1;i<=N[k];i++)
-		{
-			sum += exp(-powInt(delta,k))*a[i]*t[i]*pow(tau,t[i]-1.0)*powInt(delta,d[i]);
-		}
-	}
-	return sum;
-}
-double dphir2_dDelta2_R134a(double tau, double delta)
-{
-	double sum=0,d_,k_;
-	int i,k;
-
-	for (i=1;i<=N[0];i++)
-	{
-		d_=(double)d[i];
-		sum += a[i]*d_*(d_-1.0)*pow(tau,t[i])*powInt(delta,d[i]-2);
-	}
-
-	for (k=1;k<=4;k++)
-	{
-		for (i=N[k-1]+1;i<=N[k];i++)
-		{
-			d_=(double)d[i];
-			k_=(double)k;
-			sum += exp(-powInt(delta,k))*a[i]*(d_*d_-d_-k_*powInt(delta,k)*(2.0*d_+k_-1.0-k_*powInt(delta,k)))*pow(tau,t[i])*powInt(delta,d[i]-2);
-		}
-	}
-	return sum;
-}
-
-double dphir2_dTau2_R134a(double tau, double delta)
-{
-	double sum=0;
-	int i,k;
-
-	for (i=1;i<=N[0];i++)
-	{
-		sum += a[i]*t[i]*(t[i]-1.0)*pow(tau,t[i]-2.0)*powInt(delta,d[i]);
-	}
-
-	for (k=1;k<=4;k++)
-	{
-		for (i=N[k-1]+1;i<=N[k];i++)
-		{
-			sum += exp(-powInt(delta,k))*a[i]*t[i]*(t[i]-1.0)*pow(tau,t[i]-2.0)*powInt(delta,d[i]);
-		}
-	}
-	return sum;
-}
-
-double dphir2_dDelta_dTau_R134a(double tau, double delta)
-{
-	double sum=0,d_,k_;
-	int i,k;
-
-	for (i=1;i<=N[0];i++)
-	{
-		d_=(double)d[i];
-		sum += a[i]*t[i]*d_*pow(tau,t[i]-1.0)*powInt(delta,d[i]-1);
-	}
-
-	for (k=1;k<=4;k++)
-	{
-		for (i=N[k-1]+1;i<=N[k];i++)
-		{
-			d_=(double)d[i];
-			k_=(double)k;
-			sum += exp(-powInt(delta,k))*a[i]*t[i]*(d_-k_*powInt(delta,k))*pow(tau,t[i]-1.0)*powInt(delta,d[i]-1);
-		}
-	}
-	return sum;
+	return rho0*exp(-2.837294*pow(THETA,1.0/3.0)-7.875988*pow(THETA,2.0/3.0)+4.478586*pow(THETA,1.0/2.0)-14.140125*pow(THETA,9.0/4.0)-52.361297*pow(THETA,11.0/2.0));
 }

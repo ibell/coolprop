@@ -14,6 +14,13 @@ this file for building a static or dynamic library
 #include "CoolPropTools.h"
 #include "PropErrorCodes.h"
 #include "PropMacros.h"
+
+// Always include Air and Water
+#include "Water.h"
+#include "Air.h"
+
+// If the proprocessor key ONLY_AIR_WATER is defined, only air and water will be included
+#if !defined(ONLY_AIR_WATER)
 #include "R134a.h"
 #include "R410A.h"
 #include "R290.h"
@@ -24,10 +31,11 @@ this file for building a static or dynamic library
 #include "R407C.h"
 #include "R717.h"
 #include "Argon.h"
+#include "R1234yf.h"
 #include "Nitrogen.h"
-#include "Water.h"
-#include "Air.h"
 #include "Brine.h"
+#include "IndustrialFluids.h"
+#endif
 
 #define PHASE_SUPERCRITICAL 1
 #define PHASE_SUPERHEATED 4
@@ -91,24 +99,19 @@ this file for building a static or dynamic library
 #define CoolProp_H
 
 	EXPORT_CODE void CONVENTION Help(void);
-	EXPORT_CODE void CONVENTION UseSaturationLUT(int OnOff);
-	EXPORT_CODE void CONVENTION UseSinglePhaseLUT(int OnOff);
-    EXPORT_CODE int CONVENTION SinglePhaseLUTStatus(void);
+	EXPORT_CODE void CONVENTION UseSaturationLUT(bool OnOff);
+	EXPORT_CODE void CONVENTION UseSinglePhaseLUT(bool OnOff);
+    EXPORT_CODE bool CONVENTION SinglePhaseLUTStatus(void);
+	EXPORT_CODE double CONVENTION Props(std::string Fluid,std::string Output);
+	EXPORT_CODE double CONVENTION Props(char *Fluid, char *Output);
 	EXPORT_CODE double CONVENTION Props(char Output,char Name1, double Prop1, char Name2, double Prop2, char * Ref);
-    EXPORT_CODE double CONVENTION Props(char *Output,char Name1, double Prop1, char Name2, double Prop2, char * Ref);
-    EXPORT_CODE void CONVENTION PropsV(char *Output,char Name1, double *Prop1, int len1, char Name2, double *Prop2, int len2, char * Ref, double *OutVec, int n);
-    EXPORT_CODE double CONVENTION Props(char *Fluid, char *Output);
-    
-	// Critical Properties
-	EXPORT_CODE double CONVENTION pcrit(char *Ref);
-	EXPORT_CODE double CONVENTION Tcrit(char *Ref);
-	EXPORT_CODE double CONVENTION Ttriple(char *Ref);
+    EXPORT_CODE double CONVENTION Props(char Output,char Name1, double Prop1, char Name2, double Prop2, std::string Ref);
+	EXPORT_CODE double CONVENTION Props(char *Output,char Name1, double Prop1, char Name2, double Prop2, char * Ref);
 
 	// Convenience functions
 	EXPORT_CODE int CONVENTION IsFluidType(char *Ref, char *Type);
 	EXPORT_CODE double CONVENTION T_hp(char *Ref, double h, double p, double T_guess);
 	EXPORT_CODE double CONVENTION h_sp(char *Ref, double s, double p, double T_guess);
-	EXPORT_CODE double CONVENTION Tsat(char *Ref, double p, double Q, double T_guess);
 	EXPORT_CODE double CONVENTION DerivTerms(char *Term, double T, double rho, char * Ref);
 
 	EXPORT_CODE double CONVENTION F2K(double T_F);
@@ -116,4 +119,5 @@ this file for building a static or dynamic library
 	EXPORT_CODE void CONVENTION PrintSaturationTable(char *FileName, char * Ref, double Tmin, double Tmax);
 	EXPORT_CODE int CONVENTION Phase(double T, double rho, char * Ref);
 	
+	EXPORT_CODE std::string CONVENTION FluidsList(void);
 #endif

@@ -4,11 +4,12 @@
 #include <crtdbg.h>
 #endif
 #include <stdlib.h>
-
 #include "math.h"
 #include "stdio.h"
 #include <string.h>
 #include "CoolProp.h"
+
+#define new new(_NORMAL_BLOCK, __FILE__, __LINE__)
 
 #define nT 75
 #define nP 75
@@ -108,8 +109,8 @@ double CubicInterp( double x0, double x1, double x2, double x3, double f0, doubl
 	double L0,L1,L2,L3;
 	L0=((x-x1)*(x-x2)*(x-x3))/((x0-x1)*(x0-x2)*(x0-x3));
 	L1=((x-x0)*(x-x2)*(x-x3))/((x1-x0)*(x1-x2)*(x1-x3));
-	L1=((x-x0)*(x-x1)*(x-x3))/((x2-x0)*(x2-x1)*(x2-x3));
-	L1=((x-x0)*(x-x1)*(x-x2))/((x3-x0)*(x3-x1)*(x3-x2));
+	L2=((x-x0)*(x-x1)*(x-x3))/((x2-x0)*(x2-x1)*(x2-x3));
+	L3=((x-x0)*(x-x1)*(x-x2))/((x3-x0)*(x3-x1)*(x3-x2));
 	return L0*f0+L1*f1+L2*f2+L3*f3;
 }
 
@@ -176,7 +177,8 @@ int WriteLookup2File(int ILUT)
 
 int BuildLookupTable(char *Ref, struct fluidParamsVals *Fluid)
 {
-    int i,j,k,OldUseLUT,test1,test2,test3;
+	bool OldUseLUT;
+    int i,j,k,test1,test2,test3;
     double Tc,Tmin,Tmax,pmin,pmax;
     double (*p_dp)(double);
     double (*p_bp)(double);
@@ -311,9 +313,10 @@ double LookupValue_TP(char Prop, double T, double p, char *Ref, struct fluidPara
     
     if (T>Tmax || T<Tmin || p>Pmax ||p<Pmin)
     {
-        success=sprintf(CP_errString,"Input to LookupValue_TP() for %c is out of bounds [T:%g p:%g] with ILUT of %d",Prop,T,p,ILUT);
+		throw ValueError("Input to LookupValue_TP() is out of bounds");
+        /*success=sprintf(CP_errString,"Input to LookupValue_TP() for %c is out of bounds [T:%g p:%g] with ILUT of %d",Prop,T,p,ILUT);
         if (success<0) printf("error writing error string");
-        printf("%s\n",CP_errString);
+        printf("%s\n",CP_errString);*/
         return _HUGE;
     }
 
@@ -395,8 +398,9 @@ double LookupValue_Trho(char Prop, double T, double rho, char *Ref, struct fluid
 
 	if (T>Tmax || T<Tmin)
     {
-        success=sprintf(CP_errString,"Input to LookupValue_Trho() for %c is out of bounds [T:%g]",Prop,T);
-        if (success<0) printf("error writing error string");
+		throw ValueError();
+        /*success=sprintf(CP_errString,"Input to LookupValue_Trho() for %c is out of bounds [T:%g]",Prop,T);
+        if (success<0) printf("error writing error string");*/
         return _HUGE;
     }
 
@@ -482,15 +486,100 @@ double LookupValue_Trho(char Prop, double T, double rho, char *Ref, struct fluid
 
     return QuadInterp(T1,T2,T3,a1,a2,a3,T);
 }
+//
+//void Append2ErrorString(char *string)
+//{
+//	ErrorFlag=FAIL;
+//	strcat(CP_errString,"||");
+//	strcat(CP_errString,string);
+//}
+//void PrintError(void)
+//{
+//	fprintf(stderr,"CoolProp error returned: %s\n",CP_errString);
+//}
+// ------------------------------
+// FluidsContainer Implementation
+// ------------------------------
 
-
-void Append2ErrorString(char *string)
+FluidsContainer::FluidsContainer()
 {
-	ErrorFlag=FAIL;
-	strcat(CP_errString,"||");
-	strcat(CP_errString,string);
+	FluidsList.push_back(new AirClass());
+	FluidsList.push_back(new WaterClass());	
+	
+	// If the proprocessor key ONLY_AIR_WATER is defined, only air and water will be included
+	// This is to speed up compilation of humid air package since many fewer files will be included
+	#if !defined(ONLY_AIR_WATER)
+	// The pure fluids
+	FluidsList.push_back(new ArgonClass());
+	FluidsList.push_back(new R744Class());
+	FluidsList.push_back(new NitrogenClass());
+	FluidsList.push_back(new R134aClass());
+	FluidsList.push_back(new R290Class());
+	FluidsList.push_back(new R717Class());
+	FluidsList.push_back(new R1234yfClass());
+	// The industrial fluids
+	FluidsList.push_back(new CarbonMonoxideClass());
+	FluidsList.push_back(new CarbonylSulfideClass());
+	FluidsList.push_back(new DecaneClass());
+	FluidsList.push_back(new HydrogenSulfideClass());
+	FluidsList.push_back(new IsopentaneClass());
+	FluidsList.push_back(new NeopentaneClass());
+	FluidsList.push_back(new IsohexaneClass());
+	FluidsList.push_back(new KryptonClass());
+	FluidsList.push_back(new NonaneClass());
+	FluidsList.push_back(new TolueneClass());
+	FluidsList.push_back(new XenonClass());
+	FluidsList.push_back(new R116Class());
+	FluidsList.push_back(new AcetoneClass());
+	FluidsList.push_back(new NitrousOxideClass());
+	FluidsList.push_back(new SulfurDioxideClass());
+	FluidsList.push_back(new R141bClass());
+	FluidsList.push_back(new R142bClass());
+	FluidsList.push_back(new R218Class());
+	FluidsList.push_back(new R245faClass());
+	FluidsList.push_back(new R41Class());
+	// The pseudo-pure fluids
+	FluidsList.push_back(new R404AClass());
+	FluidsList.push_back(new R410AClass());
+	FluidsList.push_back(new R407CClass());
+	FluidsList.push_back(new R507AClass());
+	#endif
 }
-void PrintError(void)
+
+// Destructor
+FluidsContainer::~FluidsContainer()
 {
-	fprintf(stderr,"CoolProp error returned: %s\n",CP_errString);
+	while (!FluidsList.empty())
+	{
+		delete FluidsList.back();
+		FluidsList.pop_back();
+	}
+}
+
+Fluid * FluidsContainer::get_fluid(std::string name)
+{
+	for (std::list<Fluid*>::iterator it = FluidsList.begin(); it != FluidsList.end(); it++)
+	{
+		if (name.compare((*it)->get_name())==0 || (*it)->isAlias(name))
+		{
+			// Set the reducing values
+			(*it)->reduce=*(*it)->preduce;
+			return *it;
+		}
+	}
+	throw NotImplementedError(format("Fluid [%s] not allowed",name.c_str()));
+	return NULL;
+}
+
+std::string FluidsContainer::FluidList()
+{
+	std::string FL;
+	for (std::list<Fluid*>::iterator it = FluidsList.begin(); it != FluidsList.end(); it++)
+	{
+		FL+=(*it)->get_name();
+		FL+=",";
+	}
+	//Remove the tailing comma
+	FL = FL.substr (0,FL.length()-1);
+	return FL;
 }

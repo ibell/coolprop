@@ -1,16 +1,15 @@
-#ifndef R717_H
-#define R717_H
+#ifndef R1234yf_H
+#define R1234yf_H
 
-	class R717Class : public Fluid{
+	class R1234yfClass : public Fluid{
 
 	public:
-		R717Class();
-		~R717Class(){};
+		R1234yfClass();
+		~R1234yfClass(){};
 		virtual double conductivity_Trho(double, double);
 		virtual double viscosity_Trho(double, double);
 		double psat(double);
 		double rhosatL(double);
 		double rhosatV(double);
 	};
-
 #endif

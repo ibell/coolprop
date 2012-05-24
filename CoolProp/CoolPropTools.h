@@ -1,3 +1,8 @@
+#include <vector>
+#include <exception>
+#include <iostream>
+#include <list>
+#include "FluidClass.h"
 
 #if defined(_WIN32) || defined(__WIN32__) || defined(_WIN64) || defined(__WIN64__)
 #define __ISWINDOWS__
@@ -5,6 +10,29 @@
 
 #ifndef COOLPROPTOOLS_H
 #define COOLPROPTOOLS_H
+
+#include <string>
+#include <cstdarg>
+
+//missing string printf
+//this is safe and convenient but not exactly efficient
+inline std::string format(const char* fmt, ...){
+    int size = 512;
+    char* buffer = 0;
+    buffer = new char[size];
+    va_list vl;
+    va_start(vl,fmt);
+    int nsize = vsnprintf(buffer,size,fmt,vl);
+    if(size<=nsize){//fail delete buffer and try again
+        delete buffer; buffer = 0;
+        buffer = new char[nsize+1];//+1 for /0
+        nsize = vsnprintf(buffer,size,fmt,vl);
+    }
+    std::string ret(buffer);
+    va_end(vl);
+    delete buffer;
+    return ret;
+}
 
 	#define OK 1
 	#define FAIL 0
@@ -68,10 +96,26 @@
 
 	int ValidateFluid(void);
 
-	// Error handling things
-	extern char CP_errString[5000];
-	extern int ErrorFlag;
-	void Append2ErrorString(char *string);
-	void PrintError(void);
+	//void Append2ErrorString(char *string);
+	//void PrintError(void);
+
+	// This class contains all the classes for the fluids that can be used
+	class FluidsContainer
+	{
+	private:
+		std::list <Fluid*> FluidsList;
+	public:
+		// Constructor
+		FluidsContainer();
+
+		// Destructor
+		~FluidsContainer();
+
+		// Accessor
+		Fluid * get_fluid(std::string name);
+
+		//
+		std::string FluidList();
+	};
 
 #endif

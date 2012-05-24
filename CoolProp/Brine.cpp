@@ -11,6 +11,7 @@
 #include "math.h"
 #include "stdio.h"
 #include <string.h>
+#include "Brine.h"
 
 static double powInt(double x, int y);
 

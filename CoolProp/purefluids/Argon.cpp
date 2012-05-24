@@ -10,7 +10,7 @@ Ch. Tegeler, R. Span, and W. Wagner
 J. Phys. Chem. Ref. Data, Vol. 28, No. 3, 1999
 
 Transport properties from
-------------------------
+-------------------------
 "Viscosity and Thermal Conductivity Equations for
 Nitrogen, Oxygen, Argon, and Air"
 E. W. Lemmon and R. T Jacobsen
@@ -25,6 +25,8 @@ Note: Critical enhancement included
 #define _CRT_SECURE_NO_WARNINGS
 #include <stdlib.h>
 #include <crtdbg.h>
+// The most important line
+//#define new new(_NORMAL_BLOCK, __FILE__, __LINE__)
 #else
 #include <stdlib.h>
 #endif
@@ -33,6 +35,14 @@ Note: Critical enhancement included
 #include "stdio.h"
 #include <string.h>
 #include "CoolProp.h"
+#include <vector>
+#include <iostream>
+#include <list>
+#include "Helmholtz.h"
+#include "FluidClass.h"
+
+#define new new(_NORMAL_BLOCK, __FILE__, __LINE__)
+using namespace std;
 
 static const double Tc=150.687, rhoc=535.6, Pc=4863.0, M_Argon=39.948, _Ttriple=83.806;
              //           K          kg/m^3     kPa            kg/kmol          K
@@ -80,6 +90,8 @@ static const double n[]={0,
 -0.0027380447449783//[41]
 };
 
+
+
 static const int d[]={0,
 1,//[1]
 1,//[2]
@@ -123,6 +135,8 @@ static const int d[]={0,
 2,//[40]
 3,//[41]
 };
+
+
 
 static const double t[]={0.00,
 0,//[1]
@@ -198,6 +212,8 @@ static const int c[]={
 0,0,0,0 // indices [38-41]
 };
 
+
+
 // alpha is used here for consistency with the definitions in R744.c upon which Argon.c is based
 static const double alpha[]={
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, // indices [0-37]
@@ -215,6 +231,8 @@ static const double beta[]={
 225
 };
 
+
+
 static const double GAMMA[]={
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, // indices [0-37]
 1.11,
@@ -222,6 +240,8 @@ static const double GAMMA[]={
 1.17,
 1.11
 };
+
+
 
 static const double epsilon[]={
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, // indices [0-37]
@@ -231,133 +251,74 @@ static const double epsilon[]={
 1
 };
 
+
 //Constants for ideal gas expression
-static const double a0[]={0.0,
+static double a0[]={0.0,
 	8.31666243,
 	-4.94651164
 };
 
-int Load_Argon(struct fluidParamsVals *Fluid)
+ArgonClass::ArgonClass()
 {
-    // Function pointers
-    Fluid->funcs.phir=phir_Argon;
-    Fluid->funcs.dphir_dDelta=dphir_dDelta_Argon;
-    Fluid->funcs.dphir2_dDelta2=dphir2_dDelta2_Argon;
-    Fluid->funcs.dphir2_dDelta_dTau=dphir2_dDelta_dTau_Argon;
-    Fluid->funcs.dphir_dTau=dphir_dTau_Argon;
-    Fluid->funcs.dphir2_dTau2=dphir2_dTau2_Argon;
-    Fluid->funcs.phi0=phi0_Argon;
-    Fluid->funcs.dphi0_dDelta=dphi0_dDelta_Argon;
-    Fluid->funcs.dphi02_dDelta2=dphi02_dDelta2_Argon;
-    Fluid->funcs.dphi0_dTau=dphi0_dTau_Argon;
-    Fluid->funcs.dphi02_dTau2=dphi02_dTau2_Argon;
-    Fluid->funcs.rhosatL=rhosatL_Argon;
-    Fluid->funcs.rhosatV=rhosatV_Argon;
-    Fluid->funcs.psat=psat_Argon;
+	vector<double> n_v(n,n+sizeof(n)/sizeof(double));
+	vector<double> d_v(d,d+sizeof(d)/sizeof(int));
+	vector<double> t_v(t,t+sizeof(t)/sizeof(double));
+	vector<double> l_v(c,c+sizeof(c)/sizeof(int));
+	vector<double> alpha_v(alpha,alpha+sizeof(alpha)/sizeof(double));
+	vector<double> beta_v(beta,beta+sizeof(beta)/sizeof(double));
+	vector<double> gamma_v(GAMMA,GAMMA+sizeof(GAMMA)/sizeof(double));
+	vector<double> epsilon_v(epsilon,epsilon+sizeof(epsilon)/sizeof(double));
 
-    Fluid->funcs.visc=Viscosity_Trho_Argon;
-    Fluid->funcs.cond=Conductivity_Trho_Argon;
+	phi_BC * phir_ = new phir_power(n_v,d_v,t_v,l_v,1,37);
+	phi_BC * phirg_ = new phir_gaussian(n_v,d_v,t_v,alpha_v,epsilon_v,beta_v,gamma_v,38,41);
 
-    //Lookup table parameters
-    Fluid->LUT.Tmin=220.0;
-    Fluid->LUT.Tmax=800.0;
-    Fluid->LUT.pmin=50;
-    Fluid->LUT.pmax=16000;
+	phirlist.push_back(phir_);
+	phirlist.push_back(phirg_);
 
-    //Fluid parameters
-    Fluid->Type=FLUIDTYPE_REFRIGERANT_PURE;
-    Fluid->Tc=Tc;
-    Fluid->rhoc=rhoc;
-    Fluid->MM=M_Argon;
-    Fluid->pc=Pc;
-    Fluid->Tt=_Ttriple;
-    return 1;
+	phi_BC * phi0_lead_ = new phi0_lead(a0[1],a0[2]);
+	phi_BC * phi0_logtau_ = new phi0_logtau(1.5);
+
+	phi0list.push_back(phi0_lead_);
+	phi0list.push_back(phi0_logtau_);
+
+	// Critical parameters
+	crit.rho = 535.6;
+	crit.p = 4863.0;
+	crit.T = 150.687;
+	crit.v = 1.0/crit.rho;
+
+	// Other fluid parameters
+	params.molemass = 39.948;
+	params.Ttriple = 83.806;
+	params.accentricfactor = -0.00219 ;
+	params.R_u = 8.31451;
+
+	// Limits of EOS
+	limits.Tmin = 83.8058;
+	limits.Tmax = 2000.0;
+	limits.pmax = 1000000.0;
+	limits.rhomax = 50.65*params.molemass;
+	
+	EOSReference.assign("\"A New Equation of State for Argon Covering the Fluid Region"
+						" for Temperatures From the Melting Line to 700 K"
+						" at Pressures up to 1000 MPa\""
+						" Ch. Tegeler, R. Span, and W. Wagner,"
+						" J. Phys. Chem. Ref. Data, Vol. 28, No. 3, 1999");
+	TransportReference.assign("\"Viscosity and Thermal Conductivity Equations for Nitrogen, Oxygen, Argon, and Air\" E. W. Lemmon and R. T Jacobsen International Journal of Thermophysics, Vol. 25, No. 1, January 2004 \nNote: Critical enhancement included");
+
+	name.assign("Argon");
+	aliases.push_back("argon");
 }
-
-double psat_Argon(double T)
-{
-    const double ti[]={0,1.0,1.5,2.0,4.5};
-    const double ai[]={0,-5.9409785,1.3553888,-0.46497607,-1.5399043};
-    double summer=0;
-    int i;
-    for (i=1;i<=4;i++)
-    {
-        summer=summer+ai[i]*pow(1-T/Tc,ti[i]);
-    }
-    return Pc*exp(Tc/T*summer);
-}
-
-double rhosatL_Argon(double T)
-{
-    const double ti[]={0,0.334,2.0/3.0,7.0/3.0,4.0};
-    const double ai[]={0,1.5004262,-0.31381290,0.086461622,-0.041477525};
-    double summer=0;
-    int i;
-    for (i=1;i<=4;i++)
-    {
-        summer=summer+ai[i]*pow(1.0-T/Tc,ti[i]);
-    }
-    return rhoc*exp(summer);
-}
-
-double rhosatV_Argon(double T)
-{
-    const double ti[]={0,0.345,5.0/6.0,1.0,13.0/3.0};
-    const double ai[]={0,-1.70695656,-4.02739448,1.55177558,-2.30683228};
-    double summer=0;
-    int i;
-    for (i=1;i<=4;i++)
-    {
-        summer=summer+ai[i]*pow(1.0-T/Tc,ti[i]);
-    }
-    return rhoc*exp(Tc/T*summer);
-}
-
-
-double Viscosity_Trho_Argon(double T, double rho)
-{
-	double e_k=143.2, //[K]
-		   sigma=0.335; //[nm]
-	double eta0,etar,OMEGA,delta,tau,Tstar;
-	double b[]={0.431,-0.4623,0.08406,0.005341,-0.00331};
-
-	double N[]={0,12.19,13.99,0.005027,-18.93,-6.698,-3.827};
-	double t[]={0,0.42,0.0,0.95,0.5,0.9,0.8};
-	double d[]={0,1,2,10,5,1,2};
-	double l[]={0,0,0,0,2,4,4};
-	double g[]={0,0,0,0,1,1,1};
-
-	delta=rho/rhoc;
-	tau=Tc/T;
-	Tstar=T/(e_k);
-	OMEGA=exp(b[0]*powInt(log(Tstar),0)
-			 +b[1]*powInt(log(Tstar),1)
-		     +b[2]*powInt(log(Tstar),2)
-			 +b[3]*powInt(log(Tstar),3)
-		     +b[4]*powInt(log(Tstar),4));
-
-	eta0=0.0266958*sqrt(M_Argon*T)/(sigma*sigma*OMEGA);
-	etar=N[1]*pow(tau,t[1])*pow(delta,d[1])*exp(-g[1]*pow(delta,l[1]))
-		+N[2]*pow(tau,t[2])*pow(delta,d[2])*exp(-g[2]*pow(delta,l[2]))
-		+N[3]*pow(tau,t[3])*pow(delta,d[3])*exp(-g[3]*pow(delta,l[3]))
-		+N[4]*pow(tau,t[4])*pow(delta,d[4])*exp(-g[4]*pow(delta,l[4]))
-		+N[5]*pow(tau,t[5])*pow(delta,d[5])*exp(-g[5]*pow(delta,l[5]))
-		+N[6]*pow(tau,t[6])*pow(delta,d[6])*exp(-g[6]*pow(delta,l[6]));
-
-	return (eta0+etar)/1e6; // uPa-s to Pa-s
-}
-
-static double X_tilde(double T,double tau,double delta)
+double ArgonClass::X_tilde(double T,double tau,double delta)
 {
 	// X_tilde is dimensionless
 	// Equation 11 slightly rewritten
 	double drho_dp,R_Argon;
-	R_Argon=8.31447215/M_Argon;
-	drho_dp=1.0/(R_Argon*T*(1+2*delta*dphir_dDelta_Argon(tau,delta)+delta*delta*dphir2_dDelta2_Argon(tau,delta)));
+	R_Argon=params.R_u/M_Argon;
+	drho_dp=1.0/(R_Argon*T*(1+2*delta*dphir_dDelta(tau,delta)+delta*delta*d2phir_dDelta2(tau,delta)));
 	return Pc*delta/rhoc*drho_dp;
 }
-
-double Conductivity_Trho_Argon(double T, double rho)
+double ArgonClass::conductivity_Trho(double T, double rho)
 {
 	double e_k=143.2, //[K]
 		   sigma=0.335, //[nm]
@@ -419,184 +380,71 @@ double Conductivity_Trho_Argon(double T, double rho)
 
 	return (lambda0+lambdar+lambdac)/1e6;
 }
-
-
-double phir_Argon(double tau, double delta)
-{ 
-    
-    int i;
-    double phir=0,psi;
-    
-    for (i=1;i<=12;i++)
-    {
-        phir=phir+n[i]*powInt(delta,d[i])*pow(tau,t[i]);
-    }
-    
-    for (i=13;i<=37;i++)
-    {
-        phir=phir+n[i]*powInt(delta,d[i])*pow(tau,t[i])*exp(-powInt(delta,c[i]));
-    }
-    
-    for (i=38;i<=41;i++)
-    {
-        psi=exp(-alpha[i]*powInt(delta-epsilon[i],2)-beta[i]*powInt(tau-GAMMA[i],2));
-        phir=phir+n[i]*powInt(delta,d[i])*pow(tau,t[i])*psi;
-    }
-    return phir;
-}
-
-double dphir_dDelta_Argon(double tau, double delta)
-{ 
-    int i;
-    double dphir_dDelta=0,psi;
-    double di, ci;
-    for (i=1;i<=12;i++)
-    {
-        di=(double)d[i];
-        dphir_dDelta=dphir_dDelta+n[i]*di*powInt(delta,d[i]-1)*pow(tau,t[i]);
-    }
-    for (i=13;i<=37;i++)
-    {
-        di=(double)d[i];
-        ci=(double)c[i];
-        dphir_dDelta=dphir_dDelta+n[i]*exp(-powInt(delta,c[i]))*(powInt(delta,d[i]-1)*pow(tau,t[i])*(di-ci*powInt(delta,c[i])));
-    }
-    for (i=38;i<=41;i++)
-    {
-        di=(double)d[i];        
-        psi=exp(-alpha[i]*powInt(delta-epsilon[i],2)-beta[i]*powInt(tau-GAMMA[i],2));
-        dphir_dDelta=dphir_dDelta+n[i]*powInt(delta,d[i])*pow(tau,t[i])*psi*(di/delta-2.0*alpha[i]*(delta-epsilon[i]));
-    }
-    return dphir_dDelta;
-}
-
-double dphir2_dDelta2_Argon(double tau, double delta)
-{ 
-    
-    int i;
-    double di,ci;
-    double dphir2_dDelta2=0,psi;
-    for (i=1;i<=12;i++)
-    {
-        di=(double)d[i];
-        dphir2_dDelta2=dphir2_dDelta2+n[i]*di*(di-1.0)*powInt(delta,d[i]-2)*pow(tau,t[i]);
-    }
-    for (i=13;i<=37;i++)
-    {
-        di=(double)d[i];
-        ci=(double)c[i];
-        dphir2_dDelta2=dphir2_dDelta2+n[i]*exp(-powInt(delta,c[i]))*(powInt(delta,d[i]-2)*pow(tau,t[i])*( (di-ci*powInt(delta,c[i]))*(di-1.0-ci*powInt(delta,c[i])) - ci*ci*powInt(delta,c[i])));
-    }
-    for (i=38;i<=41;i++)
-    {
-        di=(double)d[i];
-        psi=exp(-alpha[i]*powInt(delta-epsilon[i],2)-beta[i]*powInt(tau-GAMMA[i],2));
-        dphir2_dDelta2=dphir2_dDelta2+n[i]*pow(tau,t[i])*psi*(-2.0*alpha[i]*powInt(delta,d[i])+4.0*powInt(alpha[i],2)*powInt(delta,d[i])*powInt(delta-epsilon[i],2)-4.0*di*alpha[i]*powInt(delta,d[i]-1)*(delta-epsilon[i])+di*(di-1.0)*powInt(delta,d[i]-2));
-    }
-    return dphir2_dDelta2;
-}
-
-    
-double dphir2_dDelta_dTau_Argon(double tau, double delta)
-{ 
-    
-    int i;
-    double di, ci;
-    double dphir2_dDelta_dTau=0,psi;
-
-    for (i=1;i<=12;i++)
-    {
-        di=(double)d[i];
-        dphir2_dDelta_dTau=dphir2_dDelta_dTau + n[i]*di*t[i]*powInt(delta,d[i]-1)*pow(tau,t[i]-1.0);
-    }
-    for (i=13;i<=37;i++)
-    {
-        di=(double)d[i];
-        ci=(double)c[i];
-        dphir2_dDelta_dTau=dphir2_dDelta_dTau + n[i]*exp(-powInt(delta,c[i]))*powInt(delta,d[i]-1)*t[i]*pow(tau,t[i]-1.0)*(di-ci*powInt(delta,c[i]));
-    }
-    for (i=38;i<=41;i++)
-    {
-        di=(double)d[i];
-        psi=exp(-alpha[i]*powInt(delta-epsilon[i],2)-beta[i]*powInt(tau-GAMMA[i],2));
-        dphir2_dDelta_dTau=dphir2_dDelta_dTau+n[i]*powInt(delta,d[i])*pow(tau,t[i])*psi*(di/delta-2.0*alpha[i]*(delta-epsilon[i]))*(t[i]/tau-2.0*beta[i]*(tau-GAMMA[i]));
-    }
-    return dphir2_dDelta_dTau;
-}
-
-double dphir_dTau_Argon(double tau, double delta)
-{ 
-    
-    int i;
-    double dphir_dTau=0,psi;
-    
-    for (i=1;i<=12;i++)
-    {
-        dphir_dTau=dphir_dTau+n[i]*t[i]*powInt(delta,d[i])*pow(tau,t[i]-1.0);
-    }
-    for (i=13;i<=37;i++)
-    {
-        dphir_dTau=dphir_dTau+n[i]*t[i]*powInt(delta,d[i])*pow(tau,t[i]-1.0)*exp(-powInt(delta,c[i]));
-    }
-    for (i=38;i<=41;i++)
-    {
-        psi=exp(-alpha[i]*powInt(delta-epsilon[i],2)-beta[i]*powInt(tau-GAMMA[i],2));
-        dphir_dTau=dphir_dTau+n[i]*powInt(delta,d[i])*pow(tau,t[i])*psi*(t[i]/tau-2.0*beta[i]*(tau-GAMMA[i]));
-    }
-    return dphir_dTau;
-}
-
-
-double dphir2_dTau2_Argon(double tau, double delta)
-{ 
-    
-    int i;
-    double dphir2_dTau2=0,psi;
-    
-    for (i=1;i<=12;i++)
-    {
-        dphir2_dTau2=dphir2_dTau2+n[i]*t[i]*(t[i]-1.0)*powInt(delta,d[i])*pow(tau,t[i]-2.0);
-    }
-    for (i=13;i<=37;i++)
-    {
-        dphir2_dTau2=dphir2_dTau2+n[i]*t[i]*(t[i]-1.0)*powInt(delta,d[i])*pow(tau,t[i]-2.0)*exp(-powInt(delta,c[i]));
-    }
-    for (i=38;i<=41;i++)
-    {
-        psi=exp(-alpha[i]*powInt(delta-epsilon[i],2)-beta[i]*powInt(tau-GAMMA[i],2));
-        dphir2_dTau2=dphir2_dTau2+n[i]*powInt(delta,d[i])*pow(tau,t[i])*psi*(powInt(t[i]/tau-2.0*beta[i]*(tau-GAMMA[i]),2)-t[i]/powInt(tau,2)-2.0*beta[i]);
-    }
-    return dphir2_dTau2;
-}
-
-double phi0_Argon(double tau, double delta)
+double ArgonClass::viscosity_Trho(double T, double rho)
 {
-    double phi0=0;
-    
-    phi0=log(delta)+a0[1]+a0[2]*tau+1.5*log(tau);
-    return phi0;
-}
+	double e_k=143.2, //[K]
+		   sigma=0.335; //[nm]
+	double eta0,etar,OMEGA,delta,tau,Tstar;
+	double b[]={0.431,-0.4623,0.08406,0.005341,-0.00331};
 
-double dphi0_dDelta_Argon(double tau, double delta)
-{
-    return 1/delta;
-}
+	double N[]={0,12.19,13.99,0.005027,-18.93,-6.698,-3.827};
+	double t[]={0,0.42,0.0,0.95,0.5,0.9,0.8};
+	double d[]={0,1,2,10,5,1,2};
+	double l[]={0,0,0,0,2,4,4};
+	double g[]={0,0,0,0,1,1,1};
 
-double dphi02_dDelta2_Argon(double tau, double delta)
-{
-    return -1.0/powInt(delta,2);
-}
+	delta=rho/rhoc;
+	tau=Tc/T;
+	Tstar=T/(e_k);
+	OMEGA=exp(b[0]*powInt(log(Tstar),0)
+			 +b[1]*powInt(log(Tstar),1)
+		     +b[2]*powInt(log(Tstar),2)
+			 +b[3]*powInt(log(Tstar),3)
+		     +b[4]*powInt(log(Tstar),4));
 
-double dphi0_dTau_Argon(double tau, double delta)
-{
-    double dphi0_dTau=0;
-    dphi0_dTau=a0[2]+1.5/tau;
-    return dphi0_dTau;
-}
+	eta0=0.0266958*sqrt(M_Argon*T)/(sigma*sigma*OMEGA);
+	etar=N[1]*pow(tau,t[1])*pow(delta,d[1])*exp(-g[1]*pow(delta,l[1]))
+		+N[2]*pow(tau,t[2])*pow(delta,d[2])*exp(-g[2]*pow(delta,l[2]))
+		+N[3]*pow(tau,t[3])*pow(delta,d[3])*exp(-g[3]*pow(delta,l[3]))
+		+N[4]*pow(tau,t[4])*pow(delta,d[4])*exp(-g[4]*pow(delta,l[4]))
+		+N[5]*pow(tau,t[5])*pow(delta,d[5])*exp(-g[5]*pow(delta,l[5]))
+		+N[6]*pow(tau,t[6])*pow(delta,d[6])*exp(-g[6]*pow(delta,l[6]));
 
-double dphi02_dTau2_Argon(double tau, double delta)
+	return (eta0+etar)/1e6; // uPa-s to Pa-s
+}
+double ArgonClass::psat(double T)
 {
-    double dphi02_dTau2=0;
-    dphi02_dTau2=-1.5/powInt(tau,2);
-    return dphi02_dTau2;
+	const double ti[]={0,1.0,1.5,2.0,4.5};
+    const double ai[]={0,-5.9409785,1.3553888,-0.46497607,-1.5399043};
+    double summer=0;
+    int i;
+    for (i=1;i<=4;i++)
+    {
+        summer=summer+ai[i]*pow(1-T/Tc,ti[i]);
+    }
+    return Pc*exp(Tc/T*summer);
+}
+double ArgonClass::rhosatL(double T)
+{
+	const double ti[]={0,0.334,2.0/3.0,7.0/3.0,4.0};
+    const double ai[]={0,1.5004262,-0.31381290,0.086461622,-0.041477525};
+    double summer=0;
+    int i;
+    for (i=1;i<=4;i++)
+    {
+        summer=summer+ai[i]*pow(1.0-T/Tc,ti[i]);
+    }
+    return rhoc*exp(summer);
+}
+double ArgonClass::rhosatV(double T)
+{
+	const double ti[]={0,0.345,5.0/6.0,1.0,13.0/3.0};
+    const double ai[]={0,-1.70695656,-4.02739448,1.55177558,-2.30683228};
+    double summer=0;
+    int i;
+    for (i=1;i<=4;i++)
+    {
+        summer=summer+ai[i]*pow(1.0-T/Tc,ti[i]);
+    }
+    return rhoc*exp(Tc/T*summer);
 }

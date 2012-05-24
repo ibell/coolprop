@@ -1,6 +1,6 @@
-/* Properties of Propane (R290)
+/* 
+Properties of Propane (R290)
 by Ian Bell
-
 */
 
 #if defined(_MSC_VER)
@@ -202,120 +202,72 @@ static const double nv[]={
     0.1207253		//[13]
 };
 
-int Load_R290(struct fluidParamsVals *Fluid)
+R290Class::R290Class()
 {
-    // Function pointers
-    Fluid->funcs.phir=phir_R290;
-    Fluid->funcs.dphir_dDelta=dphir_dDelta_R290;
-    Fluid->funcs.dphir2_dDelta2=dphir2_dDelta2_R290;
-    Fluid->funcs.dphir2_dDelta_dTau=dphir2_dDelta_dTau_R290;
-    Fluid->funcs.dphir_dTau=dphir_dTau_R290;
-    Fluid->funcs.dphir2_dTau2=dphir2_dTau2_R290;
-    Fluid->funcs.phi0=phi0_R290;
-    Fluid->funcs.dphi0_dDelta=dphi0_dDelta_R290;
-    Fluid->funcs.dphi02_dDelta2=dphi02_dDelta2_R290;
-    Fluid->funcs.dphi0_dTau=dphi0_dTau_R290;
-    Fluid->funcs.dphi02_dTau2=dphi02_dTau2_R290;
-    Fluid->funcs.rhosatL=rhosatL_R290;
-    Fluid->funcs.rhosatV=rhosatV_R290;
-    Fluid->funcs.psat=psat_R290;
+	std::vector<double> n_v(n,n+sizeof(n)/sizeof(double));
+	std::vector<double> d_v(d,d+sizeof(d)/sizeof(int));
+	std::vector<double> t_v(t,t+sizeof(t)/sizeof(double));
+	std::vector<double> l_v(c,c+sizeof(c)/sizeof(int));
+	std::vector<double> alpha_v(alpha,alpha+sizeof(alpha)/sizeof(double));
+	std::vector<double> beta_v(beta,beta+sizeof(beta)/sizeof(double));
+	std::vector<double> gamma_v(GAMMA,GAMMA+sizeof(GAMMA)/sizeof(double));
+	std::vector<double> epsilon_v(epsilon,epsilon+sizeof(epsilon)/sizeof(double));
+	std::vector<double> a0_v(a0,a0+sizeof(a0)/sizeof(double));
+	std::vector<double> b0_v(b0,b0+sizeof(b0)/sizeof(double));
 
-    Fluid->funcs.visc=Viscosity_Trho_R290;
-    Fluid->funcs.cond=Conductivity_Trho_R290;
+	phi_BC * phir_ = new phir_power(n_v,d_v,t_v,l_v,1,11);
+	phi_BC * phirg_ = new phir_gaussian(n_v,d_v,t_v,alpha_v,epsilon_v,beta_v,gamma_v,12,18);
+	phirlist.push_back(phir_);
+	phirlist.push_back(phirg_);
 
-    //Lookup table parameters
-    Fluid->LUT.Tmin=200.0;
-    Fluid->LUT.Tmax=800.0;
-    Fluid->LUT.pmin=500;
-    Fluid->LUT.pmax=16000;
+	/* phi0=log(delta)+3*log(tau)+a0[1]+a0[2]*tau
+        +a0[3]*log(1-exp(-b0[3]*tau))
+        +a0[4]*log(1-exp(-b0[4]*tau))
+        +a0[5]*log(1-exp(-b0[5]*tau))
+        +a0[6]*log(1-exp(-b0[6]*tau));
+	*/
+	phi_BC * phi0_lead_ = new phi0_lead(a0[1],a0[2]);
+	phi_BC * phi0_logtau_ = new phi0_logtau(3.0);
+	phi_BC * phi0_Planck_Einstein_ = new phi0_Planck_Einstein(a0_v,b0_v,3,6);
 
-    //Fluid parameters
-    Fluid->Type=FLUIDTYPE_REFRIGERANT_PURE;
-    Fluid->Tc=Tc;
-    Fluid->rhoc=rhoc;
-    Fluid->MM=M_R290;
-    Fluid->pc=Pc;
-    Fluid->Tt=_Ttriple;
-    return 1;
+	phi0list.push_back(phi0_lead_);
+	phi0list.push_back(phi0_logtau_);
+	phi0list.push_back(phi0_Planck_Einstein_);
+
+	// Critical parameters
+	crit.rho = 220.4781;
+	crit.p = 4251.2;
+	crit.T = 369.89;
+	crit.v = 1.0/crit.rho;
+
+	// Other fluid parameters
+	params.molemass = 44.09562;
+	params.Ttriple = 85.525;
+	params.accentricfactor = 0.1521;
+	params.R_u = 8.314472;
+
+	// Limits of EOS
+	limits.Tmin = 85.525;
+	limits.Tmax = 625.0;
+	limits.pmax = 1000000.0;
+	limits.rhomax = 20.6*params.molemass;
+	
+	EOSReference.assign("\"A International Standard Formulation for the Thermodynamic Properties of 1,1,1,2-Tetrafluoroethane" 
+					    "(HFC-134a) for Temperatures from 170 K to 455 K and Pressures up to 70 MPa\""
+						"by Reiner Tillner-Roth and Hans Dieter Baehr, J. Phys. Chem. Ref. Data, v. 23, 1994, pp 657-729");
+	TransportReference.assign("Viscosity: \"A Reference Multiparameter Viscosity Equation for R290"
+						"with an Optimized Functional Form\""
+						"by G. Scalabrin and P. Marchi, R. Span"
+						"J. Phys. Chem. Ref. Data, Vol. 35, No. 2, 2006");
+
+	name.assign("R290");
+	aliases.push_back("propane");
+	aliases.push_back("Propane");
+	aliases.push_back("C3H8");
 }
-
-double rhosatL_R290(double T)
+double R290Class::conductivity_Trho(double T, double rho)
 {
-    const double ti[]={0,0.345,0.74,2.6,7.2};
-    const double Ni[]={0,1.82205,0.65802,0.21109,0.083973};
-    double summer=1;
-    int i;
-    double theta;
-    theta=1-T/Tc;
-    for (i=1;i<=4;i++)
-    {
-        summer+=Ni[i]*pow(theta,ti[i]);
-    }
-    return rhoc*summer;
-}
-
-double rhosatV_R290(double T)
-{
-    const double ti[]={0,0.3785,1.07,2.7,5.5,10,20};
-    const double Ni[]={0,-2.4887,-5.1069,-12.174,-30.495,-52.192,-134.89};
-    double summer=0,theta;
-    int i;
-    theta=1.0-T/Tc;
-    for (i=1;i<=6;i++)
-    {
-        summer=summer+Ni[i]*pow(theta,ti[i]);
-    }
-    return rhoc*exp(summer);
-}
-
-double psat_R290(double T)
-{
-    const double ti[]={0,1.0,1.5,2.2,4.8,6.2};
-    const double Ni[]={0,-6.7722,1.6938,-1.3341,-3.1876,0.94937};
-    double summer=0,theta;
-    int i;
-    theta=1-T/Tc;
-    for (i=1;i<=5;i++)
-    {
-        summer=summer+Ni[i]*pow(theta,ti[i]);
-    }
-    return Pc*exp(Tc/T*summer);
-}
-
-double Viscosity_Trho_R290(double T, double rho)
-{
-    /* 
-    Properties taken from "A Reference Multiparameter Viscosity Equation 
-    for Propane with an Optimized Functional Form" 
-    by G. Scalabrin and P. Marchi and R. Span
-    J. Phys. Chem. Ref. Data, Vol. 35, No. 3, 2006, 1415-1442
-    */
-
-    // inputs in T [K], and p [kPa]
-    // output in Pa-s
-
-    int i;
-    double Tr,rhor,Hc=17.1045,etar, sum=0;
-
-    //Reduced Temperature
-    Tr=T/Tc;
-    rhor=rho/rhoc;
-    for(i=1;i<=11;i++)
-    {
-        sum+=nv[i]*pow(Tr,tv[i])*pow(rhor,dv[i]);
-    }
-    for(i=12;i<=13;i++)
-    {
-        sum+=exp(-rhor*rhor/2.0)*nv[i]*pow(Tr,tv[i])*pow(rhor,dv[i]);
-    }
-    etar=sum;
-
-    return (exp(etar)-1)*Hc/1e6;
-}
-
-double Conductivity_Trho_R290(double T, double rho)
-{
-    /*Properties taken from "Measurement and Correlation of the Thermal Conductivity of 
+	/*Properties taken from "Measurement and Correlation of the Thermal Conductivity of 
     Propane from 86 K to 600 K at Pressures to 70 MPa" 
     by Kenneth N. Marsh, Richard A. Perkins, and Maria L. V. Ramires
     J. Chem. Eng. Data 2002, 47, 932-940
@@ -372,192 +324,73 @@ double Conductivity_Trho_R290(double T, double rho)
 
     return (lambda0+lambdar+lambdac)/1000.0;
 }
-
-/**************************************************/
-/*          Private Property Functions            */
-/**************************************************/
-
-double phir_R290(double tau, double delta)
-{ 
-    
-    int i;
-    double phir=0,psi;
-    
-    for (i=1;i<=5;i++)
-    {
-        phir=phir+n[i]*powInt(delta,d[i])*pow(tau,t[i]);
-    }
-    
-    for (i=6;i<=11;i++)
-    {
-        phir=phir+n[i]*powInt(delta,d[i])*pow(tau,t[i])*exp(-powInt(delta,c[i]));
-    }
-    
-    for (i=12;i<=18;i++)
-    {
-        psi=exp(-alpha[i]*powInt(delta-epsilon[i],2)-beta[i]*powInt(tau-GAMMA[i],2));
-        phir=phir+n[i]*powInt(delta,d[i])*pow(tau,t[i])*psi;
-    }
-    return phir;
-}
-
-double dphir_dDelta_R290(double tau, double delta)
-{ 
-    int i;
-    double dphir_dDelta=0,psi;
-    for (i=1;i<=5;i++)
-    {
-        dphir_dDelta+=n[i]*powInt(delta,d[i]-1)*pow(tau,t[i])*d[i];
-    }
-    for (i=6;i<=11;i++)
-    {
-        dphir_dDelta+=n[i]*powInt(delta,d[i]-1)*pow(tau,t[i])*exp(-powInt(delta,c[i]))*(d[i]-c[i]*powInt(delta,c[i]));
-    }
-    for (i=12;i<=18;i++)
-    {
-        psi=exp(-alpha[i]*powInt(delta-epsilon[i],2)-beta[i]*powInt(tau-GAMMA[i],2));
-        dphir_dDelta+=n[i]*powInt(delta,d[i]-1)*pow(tau,t[i])*psi*(d[i]-2.0*alpha[i]*delta*(delta-epsilon[i]));
-    }
-    return dphir_dDelta;
-}
-
-double dphir2_dDelta2_R290(double tau, double delta)
-{ 
-    
-    int i;
-    double di,ci;
-    double dphir2_dDelta2=0,psi;
-    for (i=1;i<=5;i++)
-    {
-        di=(double)d[i];
-        dphir2_dDelta2=dphir2_dDelta2+n[i]*di*(di-1.0)*powInt(delta,d[i]-2)*pow(tau,t[i]);
-    }
-    for (i=6;i<=11;i++)
-    {
-        di=(double)d[i];
-        ci=(double)c[i];
-        dphir2_dDelta2=dphir2_dDelta2+n[i]*exp(-powInt(delta,c[i]))*(powInt(delta,d[i]-2)*pow(tau,t[i])*( (di-ci*powInt(delta,c[i]))*(di-1.0-ci*powInt(delta,c[i])) - ci*ci*powInt(delta,c[i])));
-    }
-    for (i=12;i<=18;i++)
-    {
-        di=(double)d[i];
-        psi=exp(-alpha[i]*powInt(delta-epsilon[i],2)-beta[i]*powInt(tau-GAMMA[i],2));
-        dphir2_dDelta2=dphir2_dDelta2+n[i]*pow(tau,t[i])*psi*(-2.0*alpha[i]*powInt(delta,d[i])+4.0*powInt(alpha[i],2)*powInt(delta,d[i])*powInt(delta-epsilon[i],2)-4.0*di*alpha[i]*powInt(delta,d[i]-1)*(delta-epsilon[i])+di*(di-1.0)*powInt(delta,d[i]-2));
-    }
-    return dphir2_dDelta2;
-}
-
-    
-double dphir2_dDelta_dTau_R290(double tau, double delta)
-{ 
-    
-    int i;
-    double di, ci;
-    double dphir2_dDelta_dTau=0,psi;
-
-    for (i=1;i<=5;i++)
-    {
-        di=(double)d[i];
-        dphir2_dDelta_dTau=dphir2_dDelta_dTau + n[i]*di*t[i]*powInt(delta,d[i]-1)*pow(tau,t[i]-1.0);
-    }
-    for (i=6;i<=11;i++)
-    {
-        di=(double)d[i];
-        ci=(double)c[i];
-        dphir2_dDelta_dTau=dphir2_dDelta_dTau + n[i]*exp(-powInt(delta,c[i]))*powInt(delta,d[i]-1)*t[i]*pow(tau,t[i]-1.0)*(di-ci*powInt(delta,c[i]));
-    }
-    for (i=12;i<=18;i++)
-    {
-        di=(double)d[i];
-        psi=exp(-alpha[i]*powInt(delta-epsilon[i],2)-beta[i]*powInt(tau-GAMMA[i],2));
-        dphir2_dDelta_dTau=dphir2_dDelta_dTau+n[i]*powInt(delta,d[i])*pow(tau,t[i])*psi*(di/delta-2.0*alpha[i]*(delta-epsilon[i]))*(t[i]/tau-2.0*beta[i]*(tau-GAMMA[i]));
-    }
-    return dphir2_dDelta_dTau;
-}
-
-double dphir_dTau_R290(double tau, double delta)
-{ 
-    
-    int i;
-    double dphir_dTau=0,psi;
-    
-    for (i=1;i<=5;i++)
-    {
-        dphir_dTau=dphir_dTau+n[i]*t[i]*powInt(delta,d[i])*pow(tau,t[i]-1.0);
-    }
-    for (i=6;i<=11;i++)
-    {
-        dphir_dTau=dphir_dTau+n[i]*t[i]*powInt(delta,d[i])*pow(tau,t[i]-1.0)*exp(-powInt(delta,c[i]));
-    }
-    for (i=12;i<=18;i++)
-    {
-        psi=exp(-alpha[i]*powInt(delta-epsilon[i],2)-beta[i]*powInt(tau-GAMMA[i],2));
-        dphir_dTau=dphir_dTau+n[i]*powInt(delta,d[i])*pow(tau,t[i])*psi*(t[i]/tau-2.0*beta[i]*(tau-GAMMA[i]));
-    }
-    return dphir_dTau;
-}
-
-double dphir2_dTau2_R290(double tau, double delta)
-{ 
-    
-    int i;
-    double dphir2_dTau2=0,psi;
-    
-    for (i=1;i<=5;i++)
-    {
-        dphir2_dTau2=dphir2_dTau2+n[i]*t[i]*(t[i]-1.0)*powInt(delta,d[i])*pow(tau,t[i]-2.0);
-    }
-    for (i=6;i<=11;i++)
-    {
-        dphir2_dTau2=dphir2_dTau2+n[i]*t[i]*(t[i]-1.0)*powInt(delta,d[i])*pow(tau,t[i]-2.0)*exp(-powInt(delta,c[i]));
-    }
-    for (i=12;i<=18;i++)
-    {
-        psi=exp(-alpha[i]*powInt(delta-epsilon[i],2)-beta[i]*powInt(tau-GAMMA[i],2));
-        dphir2_dTau2=dphir2_dTau2+n[i]*powInt(delta,d[i])*pow(tau,t[i])*psi*(powInt(t[i]/tau-2.0*beta[i]*(tau-GAMMA[i]),2)-t[i]/powInt(tau,2)-2.0*beta[i]);
-    }
-    return dphir2_dTau2;
-}
-
-double phi0_R290(double tau, double delta)
+double R290Class::viscosity_Trho(double T, double rho)
 {
-    double phi0=0;
-    phi0=log(delta)+3*log(tau)+a0[1]+a0[2]*tau
-        +a0[3]*log(1-exp(-b0[3]*tau))
-        +a0[4]*log(1-exp(-b0[4]*tau))
-        +a0[5]*log(1-exp(-b0[5]*tau))
-        +a0[6]*log(1-exp(-b0[6]*tau));
-    return phi0;
-}
+	/* 
+    Properties taken from "A Reference Multiparameter Viscosity Equation 
+    for Propane with an Optimized Functional Form" 
+    by G. Scalabrin and P. Marchi and R. Span
+    J. Phys. Chem. Ref. Data, Vol. 35, No. 3, 2006, 1415-1442
+    */
 
-double dphi0_dDelta_R290(double tau, double delta)
-{
-    return 1/delta;
-}
+    // inputs in T [K], and p [kPa]
+    // output in Pa-s
 
-double dphi02_dDelta2_R290(double tau, double delta)
-{
-    return -1.0/powInt(delta,2);
-}
+    int i;
+    double Tr,rhor,Hc=17.1045,etar, sum=0;
 
-double dphi0_dTau_R290(double tau, double delta)
-{
-    double dphi0_dTau=0;
-    dphi0_dTau=3.0/tau+a0[2]
-        +a0[3]*b0[3]*(1/(exp(b0[3]*tau)-1))
-        +a0[4]*b0[4]*(1/(exp(b0[4]*tau)-1))
-        +a0[5]*b0[5]*(1/(exp(b0[5]*tau)-1))
-        +a0[6]*b0[6]*(1/(exp(b0[6]*tau)-1));
-    return dphi0_dTau;
-}
+    //Reduced Temperature
+    Tr=T/Tc;
+    rhor=rho/rhoc;
+    for(i=1;i<=11;i++)
+    {
+        sum+=nv[i]*pow(Tr,tv[i])*pow(rhor,dv[i]);
+    }
+    for(i=12;i<=13;i++)
+    {
+        sum+=exp(-rhor*rhor/2.0)*nv[i]*pow(Tr,tv[i])*pow(rhor,dv[i]);
+    }
+    etar=sum;
 
-double dphi02_dTau2_R290(double tau, double delta)
+    return (exp(etar)-1)*Hc/1e6;
+}
+double R290Class::psat(double T)
 {
-    double dphi02_dTau2=0;
-    dphi02_dTau2=-3.0/powInt(tau,2)
-        -a0[3]*b0[3]*b0[3]*exp(b0[3]*tau)/powInt(exp(b0[3]*tau)-1.0,2)
-        -a0[4]*b0[4]*b0[4]*exp(b0[4]*tau)/powInt(exp(b0[4]*tau)-1.0,2)
-        -a0[5]*b0[5]*b0[5]*exp(b0[5]*tau)/powInt(exp(b0[5]*tau)-1.0,2)
-        -a0[6]*b0[6]*b0[6]*exp(b0[6]*tau)/powInt(exp(b0[6]*tau)-1.0,2);
-    return dphi02_dTau2;
+	const double ti[]={0,1.0,1.5,2.2,4.8,6.2};
+    const double Ni[]={0,-6.7722,1.6938,-1.3341,-3.1876,0.94937};
+    double summer=0,theta;
+    int i;
+    theta=1-T/Tc;
+    for (i=1;i<=5;i++)
+    {
+        summer=summer+Ni[i]*pow(theta,ti[i]);
+    }
+    return Pc*exp(Tc/T*summer);
+}
+double R290Class::rhosatL(double T)
+{
+	const double ti[]={0,0.345,0.74,2.6,7.2};
+    const double Ni[]={0,1.82205,0.65802,0.21109,0.083973};
+    double summer=1;
+    int i;
+    double theta;
+    theta=1-T/Tc;
+    for (i=1;i<=4;i++)
+    {
+        summer+=Ni[i]*pow(theta,ti[i]);
+    }
+    return rhoc*summer;
+}
+double R290Class::rhosatV(double T)
+{
+	const double ti[]={0,0.3785,1.07,2.7,5.5,10,20};
+    const double Ni[]={0,-2.4887,-5.1069,-12.174,-30.495,-52.192,-134.89};
+    double summer=0,theta;
+    int i;
+    theta=1.0-T/Tc;
+    for (i=1;i<=6;i++)
+    {
+        summer=summer+Ni[i]*pow(theta,ti[i]);
+    }
+    return rhoc*exp(summer);
 }

@@ -103,6 +103,31 @@ static const double t[]={
 	30.0		//[21]
 };
 
+static const double c[]={
+	0.0,		//[0]
+	0.0,		//[1]
+	0.0,		//[2]
+	0.0,		//[3]
+	0.0,		//[4]
+	0.0,		//[5]
+	1.0,		//[6]
+	1.0,		//[7]
+	1.0,		//[8]
+	1.0,		//[9]
+	1.0,		//[10]
+	2.0,		//[11]
+	2.0,		//[12]
+	2.0, 		//[13]
+	2.0,		//[14]
+	2.0,		//[15]
+	2.0,		//[16]
+	2.0,		//[17]
+	3.0,		//[18]
+	3.0,		//[19]
+	3.0,		//[20]
+	3.0			//[21]
+};
+
 static const int N[]={
 	5,			//[0]
 	10,			//[1]
@@ -134,148 +159,67 @@ static const double rhoc=225; //[kg/m^3]
 static const double pc=11333; //[kPa]s
 static const double _Ttriple=195.5; //[K]
 
-int Load_R717(struct fluidParamsVals *Fluid)
+R717Class::R717Class()
 {
-    // Function pointers
-    Fluid->funcs.phir=phir_R717;
-    Fluid->funcs.dphir_dDelta=dphir_dDelta_R717;
-    Fluid->funcs.dphir2_dDelta2=dphir2_dDelta2_R717;
-    Fluid->funcs.dphir2_dDelta_dTau=dphir2_dDelta_dTau_R717;
-    Fluid->funcs.dphir_dTau=dphir_dTau_R717;
-    Fluid->funcs.dphir2_dTau2=dphir2_dTau2_R717;
-    Fluid->funcs.phi0=phi0_R717;
-    Fluid->funcs.dphi0_dDelta=dphi0_dDelta_R717;
-    Fluid->funcs.dphi02_dDelta2=dphi02_dDelta2_R717;
-    Fluid->funcs.dphi0_dTau=dphi0_dTau_R717;
-    Fluid->funcs.dphi02_dTau2=dphi02_dTau2_R717;
-    Fluid->funcs.rhosatL=rhosatL_R717;
-    Fluid->funcs.rhosatV=rhosatV_R717;
-    Fluid->funcs.psat=psat_R717;
+	std::vector<double> n_v(a,a+sizeof(a)/sizeof(double));
+	std::vector<double> d_v(d,d+sizeof(d)/sizeof(int));
+	std::vector<double> t_v(t,t+sizeof(t)/sizeof(double));
+	std::vector<double> l_v(c,c+sizeof(c)/sizeof(int));
+	std::vector<double> a0_v(a0,a0+sizeof(a0)/sizeof(double));
+	std::vector<double> t0_v(t0,t0+sizeof(t0)/sizeof(double));
 
-    Fluid->funcs.visc=Viscosity_Trho_R717;
-    Fluid->funcs.cond=Conductivity_Trho_R717;
+	phi_BC * phir_ = new phir_power(n_v,d_v,t_v,l_v,1,21);
+	phirlist.push_back(phir_);
 
-    //Lookup table parameters
-    Fluid->LUT.Tmin=220.0;
-    Fluid->LUT.Tmax=470.0;
-    Fluid->LUT.pmin=24.46;
-    Fluid->LUT.pmax=1973;
+	// phi0=log(delta)+a0[1]+a0[2]*tau-log(tau)+a0[3]*pow(tau,1.0/3.0)+a0[4]*pow(tau,-3.0/2.0)+a0[5]*pow(tau,-7.0/4.0);
+	phi_BC * phi0_lead_ = new phi0_lead(a0[1],a0[2]);
+	phi_BC * phi0_logtau_ = new phi0_logtau(-1);
+	phi_BC * phi0_power_ = new phi0_power(a0_v,t0_v,3,5);
 
-    //Fluid parameters
-    Fluid->Type=FLUIDTYPE_REFRIGERANT_PURE;
-    Fluid->Tc=Tc;
-    Fluid->rhoc=rhoc;
-    Fluid->MM=M;
-    Fluid->pc=pc;
-    Fluid->Tt=_Ttriple;
-    return 1;
-}
+	phi0list.push_back(phi0_lead_);
+	phi0list.push_back(phi0_logtau_);
+	phi0list.push_back(phi0_power_);
 
-double psat_R717(double T)
-{
-	double theta,phi;
+	// Critical parameters
+	crit.rho = 225;
+	crit.p = 11333;
+	crit.T = 405.40;
+	crit.v = 1.0/crit.rho;
 
-	phi=T/Tc;
-	theta=1-phi;
+	// Other fluid parameters
+	params.molemass = 17.03026;
+	params.Ttriple = 195.495;
+	params.accentricfactor = 0.25601;
+	params.R_u = 8.314471;
 
-	return pc*exp(5.64633073E-04 - 7.13654961E+00*theta-2.46962841E+00*theta*theta-2.56218797E+01*powInt(theta,3)+4.02270547E+01*powInt(theta,4)-6.72626052E+01*powInt(theta,5));
-}
-
-double rhosatL_R717(double T)
-{
-	double theta, THETA;
-	theta=T/Tc;
-	THETA=1-theta;
-	// |Error| is < 0.1% between 197.6 and 396.2 K
-	return exp(1.485*pow(THETA,0.2524)-0.0753)*rhoc;
-}
-
-double rhosatV_R717(double T)
-{
-	double theta, THETA;
-	double a1,a2,a3,a4,a5,a6,b1,b2,b3,b4,b5,b6,rhog_hat;
-	theta=T/Tc;
-	THETA=1-theta;
-
-	// |Error| is < 0.1% between 225 and 375 K (approximately)
-
-	a1 = -0.1912;
-	a2 = -5.934;
-	a3 = -17.75;  
-	a4 = -18.07;  
-	a5 = -18.08;  
-	a6 = -13.59;  
-	b1 = 0.02903; 
-	b2 = 0.6403;  
-	b3 = 4.829;  
-	b4 = 6.766;  
-	b5 = 6.767;  
-	b6 = 2.333;  
+	// Limits of EOS
+	limits.Tmin = 195.495;
+	limits.Tmax = 700.0;
+	limits.pmax = 1000000.0;
+	limits.rhomax = 52.915*params.molemass;
 	
-	rhog_hat = a1*pow(THETA,b1)+a2*pow(THETA,b2)+a3*pow(THETA,b3)+a4*pow(THETA,b4)+a5*pow(THETA,b5)+a6*pow(THETA,b6);
-	return rhoc*exp(rhog_hat);
+	EOSReference.assign("\"Eine neue Fundamentalgleichung fur Ammoniak (A new Equation of State for Ammonia)\""
+						" R. Tillner-Roth and F. Harms-Watzenberg and H.D. Baehr, "
+						"Deutscher Kaelte- und Klimatechnischer Verein Tagung 1993");
+	TransportReference.assign("Viscosity: \"The Viscosity of Ammonia\", "
+							"A. Fenghour and W.A. Wakeham and V. Vesovic and J.T.R. Watson and J. Millat and E. Vogel"
+							"J. Phys. Chem. Ref. Data, Vol. 24, No. 5, 1995 \n\n"
+							"Conductivity: \"Thermal Conductivity of Ammonia in a Large"
+							"Temperature and Pressure Range Including the Critical Region\""
+							"by R. Tufeu, D.Y. Ivanov, Y. Garrabos, B. Le Neindre, "
+							"Bereicht der Bunsengesellschaft Phys. Chem. 88 (1984) 422-427\n\n"
+							"Does not include the critical enhancement.  Comparison of EES (without enhancement) and Refprop (with enhancement) give "
+							"errors in saturated liquid and saturated vapor conductivities of \n\n"
+							"T < 325K, error < 0.1%\n"
+							"325K < T < 355 K, error <1%\n\n"
+							"Most practical conditions will be in the <325K range");
+
+	name.assign("R717");
+	aliases.push_back("NH3");
+	aliases.push_back("ammonia");
+	aliases.push_back("Ammonia");
 }
-
-double Viscosity_Trho_R717(double T, double rho)
-{
-	/* 
-	From "The Viscosity of Ammonia"
-	by A. Fenghour and W.A. Wakeham and V. Vesovic and J.T.R. Watson and J. Millat and E. Vogel
-	J. Phys. Chem. Ref. Data, Vol. 24, No. 5, 1995 
-	*/
-	double sum=0, e_k=386.0,sigma=0.2957,M=17.03026,sum2=0.0;
-	int i,j;
-	double T_star,G_eta_star,eta0,B_eta_star,B_eta,b_1,deltaeta_h;
-	double a[]={4.99318220,-0.61122364,0.0,0.18535124,-0.11160946};
-	double c[]={-0.17999496e1,0.46692621e2,-0.53460794e3,0.33604074e4,-0.13019164e5,
-		0.33414230e5,-0.58711743e5,0.71426686e5,-0.59834012e5,0.33652741e5,
-		-0.12027350e5,0.24348205e4,-0.20807957e3};
-	// indices are backwards from paper
-	double d[5][3]={{0,0.17366936e-2,0.0},
-	                {0.0,-0.64250359e-2,0.0},
-	                {2.19664285e-1,0.0,1.67668649e-4},
-	                {0.0,0.0,-1.49710093e-4},
-	                {-0.83651107e-1,0.0,0.77012274e-4}};
-
-	// rho is units of mol/L, so convert the density from kg/m^3 to mol/L (poorly documented in paper)
-	rho=rho/M;
-
-	sum=0;
-	T_star=T/e_k;
-	for (i=0;i<=4;i++)
-	{
-		sum+=a[i]*powInt(log(T_star),i);
-	}
-	G_eta_star=exp(sum);
-
-	// From REFPROP fluid file: !=0.021357*SQRT(MW)*(unknown factor of 100)  [Chapman-Enskog term]
-	// Seems like there is a typo in Fenghour - or am I missing something?
-	eta0=0.021357*sqrt(T*M)*100/(sigma*sigma*G_eta_star);
-	
-	sum=0;
-	for (i=0;i<=12;i++)
-	{
-		sum+=c[i]*powInt(sqrt(T_star),-i);
-	}
-	B_eta_star=sum;
-	B_eta=B_eta_star*(0.6022137*sigma*sigma*sigma);
-	b_1=B_eta*eta0;
-
-	sum=0;
-	for (i=2;i<=4;i++)
-	{
-		sum2=0.0;
-		for (j=0;j<=4;j++)
-		{
-			// indices of d are backwards from paper
-			sum2+=d[j][i-2]/powInt(T_star,j);
-		}
-		sum+=sum2*powInt(rho,i);
-	}
-	deltaeta_h=sum;
-	return (eta0+b_1*rho+deltaeta_h)/1e6;
-}
-double Conductivity_Trho_R717(double T, double rho)
+double R717Class::conductivity_Trho(double T, double rho)
 {
 	/* 
 	From "Thermal Conductivity of Ammonia in a Large 
@@ -342,175 +286,114 @@ double Conductivity_Trho_R717(double T, double rho)
 
 	return (lambda_0+lambda_tilde+DELTA_lambda)/1000.0;
 }
+double R717Class::viscosity_Trho(double T, double rho)
+{
+	/* 
+	From "The Viscosity of Ammonia"
+	by A. Fenghour and W.A. Wakeham and V. Vesovic and J.T.R. Watson and J. Millat and E. Vogel
+	J. Phys. Chem. Ref. Data, Vol. 24, No. 5, 1995 
+	*/
+	double sum=0, e_k=386.0,sigma=0.2957,M=17.03026,sum2=0.0;
+	int i,j;
+	double T_star,G_eta_star,eta0,B_eta_star,B_eta,b_1,deltaeta_h;
+	double a[]={4.99318220,-0.61122364,0.0,0.18535124,-0.11160946};
+	double c[]={-0.17999496e1,0.46692621e2,-0.53460794e3,0.33604074e4,-0.13019164e5,
+		0.33414230e5,-0.58711743e5,0.71426686e5,-0.59834012e5,0.33652741e5,
+		-0.12027350e5,0.24348205e4,-0.20807957e3};
+	// indices are backwards from paper
+	double d[5][3]={{0,0.17366936e-2,0.0},
+	                {0.0,-0.64250359e-2,0.0},
+	                {2.19664285e-1,0.0,1.67668649e-4},
+	                {0.0,0.0,-1.49710093e-4},
+	                {-0.83651107e-1,0.0,0.77012274e-4}};
+
+	// rho is units of mol/L, so convert the density from kg/m^3 to mol/L (poorly documented in paper)
+	rho=rho/M;
+
+	sum=0;
+	T_star=T/e_k;
+	for (i=0;i<=4;i++)
+	{
+		sum+=a[i]*powInt(log(T_star),i);
+	}
+	G_eta_star=exp(sum);
+
+	// From REFPROP fluid file: !=0.021357*SQRT(MW)*(unknown factor of 100)  [Chapman-Enskog term]
+	// Seems like there is a typo in Fenghour - or am I missing something?
+	eta0=0.021357*sqrt(T*M)*100/(sigma*sigma*G_eta_star);
 	
-//**********************************************
-//                 Derivatives
-//**********************************************
-
-double phi0_R717(double tau,double delta)
-{
-	return log(delta)+a0[1]+a0[2]*tau-log(tau)+a0[3]*pow(tau,1.0/3.0)+a0[4]*pow(tau,-3.0/2.0)+a0[5]*pow(tau,-7.0/4.0);
-}
-
-double phir_R717(double tau, double delta)
-{
-	double sum=0;
-	int i;
-
-	for (i=1;i<=5;i++)
+	sum=0;
+	for (i=0;i<=12;i++)
 	{
-		sum += a[i]*pow(tau,t[i])*powInt(delta,d[i]);
+		sum+=c[i]*powInt(sqrt(T_star),-i);
 	}
-	for (i=6;i<=10;i++)
-	{
-		sum += exp(-delta)*a[i]*pow(tau,t[i])*powInt(delta,d[i]);
-	}
-	for (i=11;i<=17;i++)
-	{
-		sum += exp(-delta*delta)*a[i]*pow(tau,t[i])*powInt(delta,d[i]);
-	}
-	for (i=18;i<=21;i++)
-	{
-		sum += exp(-delta*delta*delta)*a[i]*pow(tau,t[i])*powInt(delta,d[i]);
-	}
-	return sum;
-}
+	B_eta_star=sum;
+	B_eta=B_eta_star*(0.6022137*sigma*sigma*sigma);
+	b_1=B_eta*eta0;
 
-double dphi0_dDelta_R717(double tau,double delta)
-{
-	return 1.0/delta;
-}
-
-double dphi0_dTau_R717(double tau,double delta)
-{
-	int j;
-	double sum; 
-	sum=a0[2]-1/tau;
-	for (j=3;j<=5;j++)
+	sum=0;
+	for (i=2;i<=4;i++)
 	{
-		sum+=a0[j]*t0[j]*pow(tau,t0[j]-1.0);
-	}
-	return sum;
-}
-double dphi02_dDelta2_R717(double tau,double delta)
-{
-	return -1.0/(delta*delta);
-}
-double dphi02_dTau2_R717(double tau,double delta)
-{
-	int j;
-	double sum;
-	sum=+1.0/(tau*tau);
-	for (j=3;j<=5;j++)
-	{
-		sum+=a0[j]*t0[j]*(t0[j]-1.0)*pow(tau,t0[j]-2.0);
-	}
-	return sum;
-}
-double dphi02_dDelta_dTau_R717(double tau, double delta)
-{
-	return 0.0;
-}
-
-double dphir_dDelta_R717(double tau, double delta)
-{
-	double sum=0;
-	int i,k;
-
-	for (i=1;i<=N[0];i++)
-	{
-		sum += a[i]*((double)d[i])*pow(tau,t[i])*powInt(delta,d[i]-1);
-	}
-	for (k=1;k<=4;k++)
-	{
-		for (i=N[k-1]+1;i<=N[k];i++)
+		sum2=0.0;
+		for (j=0;j<=4;j++)
 		{
-			sum += exp(-powInt(delta,k))*a[i]*((double)d[i]-k*powInt(delta,k))*pow(tau,t[i])*powInt(delta,d[i]-1);
+			// indices of d are backwards from paper
+			sum2+=d[j][i-2]/powInt(T_star,j);
 		}
+		sum+=sum2*powInt(rho,i);
 	}
-	return sum;
+	deltaeta_h=sum;
+	return (eta0+b_1*rho+deltaeta_h)/1e6;
 }
-double dphir_dTau_R717(double tau, double delta)
+double R717Class::psat(double T)
 {
-	double sum=0;
-	int i,k;
+	double theta,phi;
 
-	for (i=1;i<=N[0];i++)
-	{
-		sum += a[i]*t[i]*pow(tau,t[i]-1.0)*powInt(delta,d[i]);
-	}
+	phi=T/Tc;
+	theta=1-phi;
 
-	for (k=1;k<=4;k++)
-	{
-		for (i=N[k-1]+1;i<=N[k];i++)
-		{
-			sum += exp(-powInt(delta,k))*a[i]*t[i]*pow(tau,t[i]-1.0)*powInt(delta,d[i]);
-		}
-	}
-	return sum;
+	return pc*exp(5.64633073E-04 - 7.13654961E+00*theta-2.46962841E+00*theta*theta-2.56218797E+01*powInt(theta,3)+4.02270547E+01*powInt(theta,4)-6.72626052E+01*powInt(theta,5));
 }
-double dphir2_dDelta2_R717(double tau, double delta)
+double R717Class::rhosatL(double T)
 {
-	double sum=0,d_,k_;
-	int i,k;
-
-	for (i=1;i<=N[0];i++)
-	{
-		d_=(double)d[i];
-		sum += a[i]*d_*(d_-1.0)*pow(tau,t[i])*powInt(delta,d[i]-2);
-	}
-
-	for (k=1;k<=4;k++)
-	{
-		for (i=N[k-1]+1;i<=N[k];i++)
-		{
-			d_=(double)d[i];
-			k_=(double)k;
-			sum += exp(-powInt(delta,k))*a[i]*(d_*d_-d_-k_*powInt(delta,k)*(2.0*d_+k_-1.0-k_*powInt(delta,k)))*pow(tau,t[i])*powInt(delta,d[i]-2);
-		}
-	}
-	return sum;
+	double theta, THETA;
+	theta=T/Tc;
+	THETA=1-theta;
+	// |Error| is < 0.1% between 197.6 and 396.2 K
+	return exp(1.485*pow(THETA,0.2524)-0.0753)*rhoc;
 }
-
-double dphir2_dTau2_R717(double tau, double delta)
+double R717Class::rhosatV(double T)
 {
-	double sum=0;
-	int i,k;
+	double theta, THETA;
+	double a1,a2,a3,a4,a5,a6,b1,b2,b3,b4,b5,b6,rhog_hat;
+	theta=T/Tc;
+	THETA=1-theta;
 
-	for (i=1;i<=N[0];i++)
-	{
-		sum += a[i]*t[i]*(t[i]-1.0)*pow(tau,t[i]-2.0)*powInt(delta,d[i]);
-	}
+	// |Error| is < 0.1% between 225 and 375 K (approximately)
 
-	for (k=1;k<=4;k++)
-	{
-		for (i=N[k-1]+1;i<=N[k];i++)
-		{
-			sum += exp(-powInt(delta,k))*a[i]*t[i]*(t[i]-1.0)*pow(tau,t[i]-2.0)*powInt(delta,d[i]);
-		}
-	}
-	return sum;
+	a1 = -0.1912;
+	a2 = -5.934;
+	a3 = -17.75;  
+	a4 = -18.07;  
+	a5 = -18.08;  
+	a6 = -13.59;  
+	b1 = 0.02903; 
+	b2 = 0.6403;  
+	b3 = 4.829;  
+	b4 = 6.766;  
+	b5 = 6.767;  
+	b6 = 2.333;  
+	
+	rhog_hat = a1*pow(THETA,b1)+a2*pow(THETA,b2)+a3*pow(THETA,b3)+a4*pow(THETA,b4)+a5*pow(THETA,b5)+a6*pow(THETA,b6);
+	return rhoc*exp(rhog_hat);
 }
 
-double dphir2_dDelta_dTau_R717(double tau, double delta)
+double psat_R717(double T)
 {
-	double sum=0,d_,k_;
-	int i,k;
+	double theta,phi;
 
-	for (i=1;i<=N[0];i++)
-	{
-		d_=(double)d[i];
-		sum += a[i]*t[i]*d_*pow(tau,t[i]-1.0)*powInt(delta,d[i]-1);
-	}
+	phi=T/Tc;
+	theta=1-phi;
 
-	for (k=1;k<=4;k++)
-	{
-		for (i=N[k-1]+1;i<=N[k];i++)
-		{
-			d_=(double)d[i];
-			k_=(double)k;
-			sum += exp(-powInt(delta,k))*a[i]*t[i]*(d_-k_*powInt(delta,k))*pow(tau,t[i]-1.0)*powInt(delta,d[i]-1);
-		}
-	}
-	return sum;
+	return pc*exp(5.64633073E-04 - 7.13654961E+00*theta-2.46962841E+00*theta*theta-2.56218797E+01*powInt(theta,3)+4.02270547E+01*powInt(theta,4)-6.72626052E+01*powInt(theta,5));
 }

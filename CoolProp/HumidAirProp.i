@@ -79,9 +79,9 @@ The list of possible inputs is
 %cstring_bounded_output(char *units, 1024);
 
 %feature("autodoc", 
-"To turn on the use of virial correlations rather than the EOS for air and water Baa Caaa Bww Cwww, call UseVirialCorrelations(1), or to turn off, call UseVirialCorrelations(0).  The error in virial coefficients is usually less than 1e-6 relative error.
+"To turn on the use of virial correlations rather than the EOS for air and water Baa Caaa Bww Cwww, call UseVirialCorrelations(True), or to turn off, call UseVirialCorrelations(False).  The error in virial coefficients is usually less than 1e-6 relative error.
 
-The default value is to use the full EOS - i.e. UseVirialCorrelations(0).
+The default value is to use the full EOS - i.e. UseVirialCorrelations(False).
 ") UseVirialCorrelations;
 
 %include "HumAir.h"

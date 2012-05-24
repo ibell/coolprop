@@ -2,11 +2,13 @@
 Properties for R32.  
 by Ian Bell
 
-???
+
 Thermo props from
-"A International Standard Formulation for the Thermodynamic Properties of 1,1,1,2-Tetrafluoroethane 
-(HFC-134a) for Temperatures from 170 K to 455 K and Pressures up to 70 MPa"
-by Reiner Tillner-Roth and Hans Dieter Baehr, J. Phys. Chem. Ref. Data, v. 23, 1994, pp 657-729
+Tillner-Roth, R. and Yokozeki, A.,
+"An international standard equation of state for difluoromethane (R-32)
+for temperatures from the triple point at 136.34 K to 435 K and pressures
+up to 70 MPa,"
+J. Phys. Chem. Ref. Data, 26(6):1273-1328, 1997.
 
 */
 
@@ -94,7 +96,7 @@ static const double t[]={
 	1.0/2.0		//[19]
 };
 
-static const int e[]={
+static const int c[]={
 	0,			//[0]
 	0,			//[1]
 	0,			//[2]
@@ -136,228 +138,97 @@ static const double n0[]={
 	32.7682170	//[6]
 };
 
-static const double M=52.024; //[kg/kmol]
-static const double Tc=351.255; //[K]
-static const double rhoc=424; //[kg/m^3]
-static const double pc=5784; //[kPa]
-static const double _Ttriple=136.34; //[K]
 
-int Load_R32(struct fluidParamsVals *Fluid)
+
+R32Class::R32Class()
 {
-    // Function pointers
-    Fluid->funcs.phir=phir_R32;
-    Fluid->funcs.dphir_dDelta=dphir_ddelta_R32;
-    Fluid->funcs.dphir2_dDelta2=d2phir_ddelta2_R32;
-    Fluid->funcs.dphir2_dDelta_dTau=d2phir_ddelta_dtau_R32;
-    Fluid->funcs.dphir_dTau=dphir_dtau_R32;
-    Fluid->funcs.dphir2_dTau2=d2phir_dtau2_R32;
-    Fluid->funcs.phi0=phi0_R32;
-    Fluid->funcs.dphi0_dDelta=dphi0_ddelta_R32;
-    Fluid->funcs.dphi02_dDelta2=d2phi0_ddelta2_R32;
-    Fluid->funcs.dphi0_dTau=dphi0_dtau_R32;
-    Fluid->funcs.dphi02_dTau2=d2phi0_dtau2_R32;
-    Fluid->funcs.rhosatL=rhosatL_R32;
-    Fluid->funcs.rhosatV=rhosatV_R32;
-    Fluid->funcs.psat=psat_R32;
+	std::vector<double> n_v(a,a+sizeof(a)/sizeof(double));
+	std::vector<double> d_v(d,d+sizeof(d)/sizeof(int));
+	std::vector<double> t_v(t,t+sizeof(t)/sizeof(double));
+	std::vector<double> l_v(c,c+sizeof(c)/sizeof(int));
+	std::vector<double> a0_v(a0,a0+sizeof(a0)/sizeof(double));
+	std::vector<double> n0_v(n0,n0+sizeof(n0)/sizeof(double));
 
-    Fluid->funcs.visc=Viscosity_Trho_R32;
-    Fluid->funcs.cond=Conductivity_Trho_R32;
+	phi_BC * phir_ = new phir_power(n_v,d_v,t_v,l_v,1,19);
+	phirlist.push_back(phir_);
 
-    //Lookup table parameters
-    Fluid->LUT.Tmin=220.0;
-    Fluid->LUT.Tmax=470.0;
-    Fluid->LUT.pmin=24.46;
-    Fluid->LUT.pmax=1973;
+	// return log(delta)+a0[0]+a0[1]*tau+a0[2]*log(tau)+a0[3]*log(1-exp(-n0[3]*tau))+a0[4]*log(1-exp(-n0[4]*tau))+a0[5]*log(1-exp(-n0[5]*tau))+a0[6]*log(1-exp(-n0[6]*tau));
+	phi_BC * phi0_lead_ = new phi0_lead(a0[0],a0[1]);
+	phi_BC * phi0_logtau_ = new phi0_logtau(a0[2]);
+	phi_BC * phi0_power_ = new phi0_power(a0_v,n0_v,3,6);
 
-    //Fluid parameters
-    Fluid->Type=FLUIDTYPE_REFRIGERANT_PURE;
-    Fluid->Tc=Tc;
-    Fluid->rhoc=rhoc;
-    Fluid->MM=M;
-    Fluid->pc=pc;
-    Fluid->Tt=_Ttriple;
-    return 1;
+	phi0list.push_back(phi0_lead_);
+	phi0list.push_back(phi0_logtau_);
+	phi0list.push_back(phi0_power_);
+
+	// Critical parameters
+	crit.rho = 424;
+	crit.p = 5782;
+	crit.T = 351.255;
+	crit.v = 1.0/crit.rho;
+
+	// Other fluid parameters
+	params.molemass = 52.024;
+	params.Ttriple = 136.34;
+	params.accentricfactor = 0.2769;
+	params.R_u = 8.314471;
+
+	// Limits of EOS
+	limits.Tmin = params.Ttriple;
+	limits.Tmax = 435.0;
+	limits.pmax = 70000.0;
+	limits.rhomax = 27.4734*params.molemass;
+	
+	EOSReference.assign("Tillner-Roth, R. and Yokozeki, A.,"
+						" \"An international standard equation of state for difluoromethane (R-32)"
+						" for temperatures from the triple point at 136.34 K to 435 K and pressures"
+						" up to 70 MPa,\""
+						" J. Phys. Chem. Ref. Data, 26(6):1273-1328, 1997.");
+	TransportReference.assign("Viscosity: \"A Reference Multiparameter Viscosity Equation for R32"
+						"with an Optimized Functional Form\""
+						"by G. Scalabrin and P. Marchi, R. Span"
+						"J. Phys. Chem. Ref. Data, Vol. 35, No. 2, 2006");
+
+	name.assign("R32");
+	aliases.push_back("R134A");
 }
-
-double psat_R32(double T)
+double R32Class::psat(double T)
 {
 	double theta,phi,p0=5781.16;
 
-	phi=T/Tc;
+	phi=T/crit.T;
 	theta=1-phi;
 
 	return p0*exp((-7.44892*theta+1.6886*pow(theta,3.0/2.0)-1.908*pow(theta,5.0/2.0)-2.810*theta*theta*theta*theta*theta)/phi);
 }
 
-double rhosatL_R32(double T)
+double R32Class::rhosatL(double T)
 {
 	double theta, phi;
-	phi=T/Tc;
+	phi=T/crit.T;
 	theta=1-phi;
 
 	return 424.0+434.55*pow(theta,1.0/4.0)+1296.53*pow(theta,2.0/3.0)-777.49*theta+366.84*pow(theta,5.0/3.0);
 }
 
-double rhosatV_R32(double T)
+double R32Class::rhosatV(double T)
 {
 	double theta, phi;
-	phi=T/Tc;
+	phi=T/crit.T;
 	theta=1-phi;
 
-	return rhoc*exp(-1.969*pow(theta,1.0/3.0)-2.0222*pow(theta,2.0/3.0)-6.7409*pow(theta,4.0/3.0)-27.479*pow(theta,11.0/3.0));
+	return crit.rho*exp(-1.969*pow(theta,1.0/3.0)-2.0222*pow(theta,2.0/3.0)-6.7409*pow(theta,4.0/3.0)-27.479*pow(theta,11.0/3.0));
 }
 
-double Viscosity_Trho_R32(double T, double rho)
+double R32Class::viscosity_Trho(double T, double rho)
 {
 	//ERROR
 	fprintf(stderr,"Viscosity_Trho for R32 not coded");
 	return _HUGE;
 }
-double Conductivity_Trho_R32(double T, double rho)
+double R32Class::conductivity_Trho(double T, double rho)
 {
 	//ERROR
 	fprintf(stderr,"Conductivity_Trho for R32 not coded");
 	return _HUGE;
-}
-	
-//**********************************************
-//                 Derivatives
-//**********************************************
-
-double phi0_R32(double tau,double delta)
-{
-	return log(delta)+a0[0]+a0[1]*tau+a0[2]*log(tau)+a0[3]*log(1-exp(-n0[3]*tau))+a0[4]*log(1-exp(-n0[4]*tau))+a0[5]*log(1-exp(-n0[5]*tau))+a0[6]*log(1-exp(-n0[6]*tau));
-}
-
-double dphi0_ddelta_R32(double tau,double delta)
-{
-	return 1.0/delta;
-}
-
-double dphi0_dtau_R32(double tau,double delta)
-{
-	int j;
-	double sum; 
-	sum=a0[1]+a0[2]/tau;
-	for (j=3;j<=6;j++)
-	{
-		sum+=a0[j]*n0[j]/(exp(n0[j]*tau)-1.0);
-	}
-	return sum;
-}
-double d2phi0_ddelta2_R32(double tau,double delta)
-{
-	return -1.0/(delta*delta);
-}
-double d2phi0_dtau2_R32(double tau,double delta)
-{
-	int j;
-	double sum;
-	sum=-a0[2]/(tau*tau);
-	for (j=3;j<=6;j++)
-	{
-		sum -= a0[j]*n0[j]*n0[j]*exp(-n0[j]*tau)/powInt(1.0-exp(-n0[j]*tau),2);
-	}
-	return sum;
-}
-double d2phi0_ddelta_dtau_R32(double tau, double delta)
-{
-	return 0.0;
-}
-
-double phir_R32(double tau, double delta)
-{
-	double sum=0;
-	int i;
-
-	for (i=1;i<=8;i++)
-	{
-		sum += a[i]*pow(tau,t[i])*powInt(delta,d[i]);
-	}
-	for (i=9;i<=19;i++)
-	{
-		sum += exp(-powInt(delta,e[i]))*a[i]*pow(tau,t[i])*powInt(delta,d[i]);
-	}
-	return sum;
-}
-
-double dphir_ddelta_R32(double tau, double delta)
-{
-	double sum=0;
-	int i;
-
-	for (i=1;i<=8;i++)
-	{
-		sum += a[i]*((double)d[i])*powInt(delta,d[i]-1)*pow(tau,t[i]);
-	}
-	for (i=9;i<=19;i++)
-	{
-		sum += a[i]*exp(-powInt(delta,e[i]))*((double)d[i]-e[i]*powInt(delta,e[i]))*powInt(delta,d[i]-1)*pow(tau,t[i]);
-	}
-	return sum;
-}
-double dphir_dtau_R32(double tau, double delta)
-{
-	double sum=0;
-	int i;
-
-	for (i=1;i<=8;i++)
-	{
-		sum += a[i]*t[i]*powInt(delta,d[i])*pow(tau,t[i]-1.0);
-	}
-	for (i=9;i<=19;i++)
-	{
-		sum += a[i]*t[i]*exp(-powInt(delta,e[i]))*powInt(delta,d[i])*pow(tau,t[i]-1.0);
-	}
-	return sum;
-}
-double d2phir_ddelta2_R32(double tau, double delta)
-{
-	double sum=0,di,ei; 
-	int i;
-	for (i=1;i<=8;i++)
-	{
-		di=(double)d[i];
-		sum += a[i]*di*(di-1.0)*powInt(delta,d[i]-2)*pow(tau,t[i]);
-	}
-	for (i=9;i<=19;i++)
-	{
-		di=(double)d[i];
-		ei=(double)e[i];
-		sum += a[i]* exp(-powInt(delta,e[i])) *(di*di-di-ei*powInt(delta,e[i])*(2.0*di+ei-1.0-ei*powInt(delta,e[i])))*powInt(delta,d[i]-2)*pow(tau,t[i]);
-	}
-	return sum;
-}
-
-double d2phir_dtau2_R32(double tau, double delta)
-{
-	double sum=0;
-	int i;
-
-	for (i=1;i<=8;i++)
-		sum += a[i]*t[i]*(t[i]-1.0)*pow(tau,t[i]-2.0)*powInt(delta,d[i]);
-	for (i=9;i<=19;i++)
-	{
-		sum += a[i]*t[i]*(t[i]-1.0)*exp(-powInt(delta,e[i]))*powInt(delta,d[i])*pow(tau,t[i]-2.0);
-	}
-	return sum;
-}
-
-double d2phir_ddelta_dtau_R32(double tau, double delta)
-{
-	double sum=0,di,ei;
-	int i;
-
-	for (i=1;i<=8;i++)
-	{
-		di=(double)d[i];
-		sum += a[i]*di*t[i]*powInt(delta,d[i]-1)*pow(tau,t[i]-1.0);
-	}
-	for (i=9;i<=19;i++)
-	{
-		di=(double)d[i];
-		ei=(double)e[i];
-		sum += a[i]*t[i]*(di-ei*powInt(delta,e[i]))*exp(-powInt(delta,e[i]))*powInt(delta,d[i]-1)*pow(tau,t[i]-1.0);
-	}
-	return sum;
 }

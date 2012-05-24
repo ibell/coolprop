@@ -1,6 +1,20 @@
 #ifndef NITROGEN_H
 #define NITROGEN_H
 
+	class NitrogenClass : public Fluid{
+
+	public:
+		NitrogenClass();
+		~NitrogenClass(){};
+		virtual double conductivity_Trho(double, double);
+		virtual double viscosity_Trho(double, double);
+		double psat(double);
+		double rhosatL(double);
+		double rhosatV(double);
+
+		double X_tilde(double T,double tau,double delta);
+	};
+
 	int Load_Nitrogen(struct fluidParamsVals *Fluid);
 
 	double rhosatV_Nitrogen(double T);

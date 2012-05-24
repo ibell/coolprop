@@ -1,8 +1,9 @@
-cdef extern from "CoolProp.h":
-    double Props(char,char,double,char,double,char*)
-    void UseSinglePhaseLUT(int)
-    double DerivTerms(char *, double, double, char*)
+#cdef extern from "CoolProp.h":
+#    double Props(char,char,double,char,double,char*)
+#    void UseSinglePhaseLUT(bool)
+#    double DerivTerms(char *, double, double, char*)
     
+from CoolProp import Props,UseSinglePhaseLUT,DerivTerms
 cdef class State:
     """
     A class that contains all the code that represents a thermodynamic state
@@ -17,9 +18,9 @@ cdef class State:
         self.update(StateDict)
         
         if LUT==True:
-            UseSinglePhaseLUT(1)
+            UseSinglePhaseLUT(<bint>True)
         else:
-            UseSinglePhaseLUT(0)
+            UseSinglePhaseLUT(<bint>False)
             
     def __reduce__(self):
         d={}
