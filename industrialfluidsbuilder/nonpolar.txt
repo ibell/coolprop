@@ -1,5 +1,5 @@
 #Coefficients for the residual part for nonpolar or weakly polar fluids
-carbon monoxide [CO], carbonyl sulfide [COS], decane, hydrogen sulfide [H2S]
+CarbonMonoxide,CarbonylSulfide,Decane,HydrogenSulfide
 1,0.90554,0.94374,1.0461,0.87641
 2,-2.4515,-2.5348,-2.4807,-2.0367
 3,0.53149,0.59058,0.74372,0.21634
@@ -12,7 +12,7 @@ carbon monoxide [CO], carbonyl sulfide [COS], decane, hydrogen sulfide [H2S]
 10,-0.027896,-0.050828,-0.18507,-0.034714
 11,-0.034154,-0.028333,-0.020775,-0.014885
 12,0.016329,0.016983,0.012335,0.0074154
-isopentane,neopentane,isohexane,krypton
+Isopentane,Neopentane,Isohexane,Krypton
 1,1.0963,1.1136,1.1027,0.83561
 2,-3.0402,-3.1792,-2.9699,-2.3725
 3,1.0317,1.1411,1.0295,0.54567
@@ -25,7 +25,7 @@ isopentane,neopentane,isohexane,krypton
 10,-0.10107,-0.099401,-0.11693,-0.022897
 11,-0.035484,-0.039569,-0.019262,-0.021454
 12,0.018156,0.023177,0.0080783,0.0069397
-nonane,toluene,xenon,R116
+Nonane,Toluene,Xenon,R116
 1,1.1151,0.96464,0.83115,1.1632
 2,-2.7020,-2.7855,-2.3553,-2.8123
 3,0.83416,0.86712,0.53904,0.77202

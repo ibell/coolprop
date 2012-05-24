@@ -1,0 +1,706 @@
+
+#include "CoolProp.h"
+#include <vector>
+
+static const double d_nonpolar =
+{
+0,
+1.0, //[1]
+1.0, //[2]
+1.0, //[3]
+2.0, //[4]
+3.0, //[5]
+7.0, //[6]
+2.0, //[7]
+5.0, //[8]
+1.0, //[9]
+4.0, //[10]
+3.0, //[11]
+4.0, //[12]
+};
+
+static const double t_nonpolar =
+{
+0,
+0.25,  //[1]
+1.125, //[2]
+1.5,   //[3]
+1.375, //[4]
+0.25,  //[5]
+0.875, //[6]
+0.625, //[7]
+1.75,  //[8]
+3.625, //[9]
+3.625, //[10]
+14.5,  //[11]
+12.0,  //[12]
+};
+
+static const double c_nonpolar =
+{
+0,
+0.0, //[1]
+0.0, //[2]
+0.0, //[3]
+0.0, //[4]
+0.0, //[5]
+0.0, //[6]
+1.0, //[7]
+1.0, //[8]
+2.0, //[9]
+2.0, //[10]
+3.0, //[11]
+3.0, //[12]
+};
+
+static const double d_polar =
+{
+0,
+1.0, //[1]
+1.0, //[2]
+1.0, //[3]
+3.0, //[4]
+7.0, //[5]
+1.0, //[6]
+2.0, //[7]
+5.0, //[8]
+1.0, //[9]
+1.0, //[10]
+4.0, //[11]
+2.0, //[12]
+};
+
+static const double t_polar =
+{
+0,
+0.25,  //[1]
+1.25,  //[2]
+1.5,   //[3]
+0.25,  //[4]
+0.875, //[5]
+2.375, //[6]
+2.0,   //[7]
+2.125, //[8]
+3.5,   //[9]
+6.5,   //[10]
+4.75,  //[11]
+12.5,  //[12]
+};
+
+static const double c_polar =
+{
+0,
+0.0, //[1]
+0.0, //[2]
+0.0, //[3]
+0.0, //[4]
+0.0, //[5]
+1.0, //[6]
+1.0, //[7]
+1.0, //[8]
+2.0, //[9]
+2.0, //[10]
+2.0, //[11]
+3.0, //[12]
+};
+
+
+
+CarbonMonoxideClass::CarbonMonoxideClass()
+{
+
+
+
+
+    std::vector<double> n_v(a_nonpolar,a_nonpolar+sizeof(a_nonpolar)/sizeof(double));
+    std::vector<double> d_v(d_nonpolar,d_nonpolar+sizeof(d_nonpolar)/sizeof(double));
+    std::vector<double> t_v(t_nonpolar,t_nonpolar+sizeof(t_nonpolar)/sizeof(double));
+    std::vector<double> l_v(c_nonpolar,c_nonpolar+sizeof(c_nonpolar)/sizeof(double));
+    std::vector<double> u0_v(u0,u0+sizeof(u0)/sizeof(double));
+    std::vector<double> v0_v(v0,v0+sizeof(v0)/sizeof(double));
+
+    phi_BC * phir_ = new phir_power(n_v,d_v,t_v,l_v,1,12);
+    phirlist.push_back(phir_);
+
+    phi_BC * phi0_lead_ = new phi0_lead(-12.837928,8.042605);
+    phi_BC * phi0_logtau_ = new phi0_logtau(4.944);
+    phi_BC * phi0_Planck_Einstein_ = new phi0_Planck_Einstein(v0_v,u0_v,1,4);
+
+    phi0list.push_back(phi0_lead_);
+    phi0list.push_back(phi0_logtau_);
+    phi0list.push_back(phi0_Planck_Einstein_);
+
+    // Critical parameters
+    crit.rho = 10.85;
+    crit.p = 3.494;
+    crit.T = 132.86;
+    crit.v = 1.0/crit.rho;
+
+    // Other fluid parameters
+    params.molemass = 28.0101;
+    params.Ttriple = 68.16;
+    params.accentricfactor = 0.0497;
+    params.R_u = 8.314472;
+
+    // Limits of EOS
+    limits.Tmin = 68.16;
+    limits.Tmax = 500.0;
+    limits.pmax = 100.0;
+    limits.rhomax = 1000000.0*params.molemass;
+
+    EOSReference.assign("Lemmon, E.W., and R. Span, \"Short Fundamental Equations of State for 20 Industrial Fluids,\", J. Chem. Eng. Data, 51:785-850, 2006.);
+    TransportReference.assign("Using ECS");
+
+    name.assign("CarbonMonoxide");
+
+}
+
+
+CarbonylSulfideClass::CarbonylSulfideClass()
+{
+
+
+
+
+    std::vector<double> n_v(a_nonpolar,a_nonpolar+sizeof(a_nonpolar)/sizeof(double));
+    std::vector<double> d_v(d_nonpolar,d_nonpolar+sizeof(d_nonpolar)/sizeof(double));
+    std::vector<double> t_v(t_nonpolar,t_nonpolar+sizeof(t_nonpolar)/sizeof(double));
+    std::vector<double> l_v(c_nonpolar,c_nonpolar+sizeof(c_nonpolar)/sizeof(double));
+    std::vector<double> u0_v(u0,u0+sizeof(u0)/sizeof(double));
+    std::vector<double> v0_v(v0,v0+sizeof(v0)/sizeof(double));
+
+    phi_BC * phir_ = new phir_power(n_v,d_v,t_v,l_v,1,12);
+    phirlist.push_back(phir_);
+
+    phi_BC * phi0_lead_ = new phi0_lead(-12.837928,8.042605);
+    phi_BC * phi0_logtau_ = new phi0_logtau(4.944);
+    phi_BC * phi0_Planck_Einstein_ = new phi0_Planck_Einstein(v0_v,u0_v,1,4);
+
+    phi0list.push_back(phi0_lead_);
+    phi0list.push_back(phi0_logtau_);
+    phi0list.push_back(phi0_Planck_Einstein_);
+
+    // Critical parameters
+    crit.rho = 7.41;
+    crit.p = 6.37;
+    crit.T = 378.77;
+    crit.v = 1.0/crit.rho;
+
+    // Other fluid parameters
+    params.molemass = 60.0751;
+    params.Ttriple = 134.3;
+    params.accentricfactor = 0.0978;
+    params.R_u = 8.314472;
+
+    // Limits of EOS
+    limits.Tmin = 134.3;
+    limits.Tmax = 650.0;
+    limits.pmax = 50.0;
+    limits.rhomax = 1000000.0*params.molemass;
+
+    EOSReference.assign("Lemmon, E.W., and R. Span, \"Short Fundamental Equations of State for 20 Industrial Fluids,\", J. Chem. Eng. Data, 51:785-850, 2006.);
+    TransportReference.assign("Using ECS");
+
+    name.assign("CarbonylSulfide");
+
+}
+
+
+DecaneClass::DecaneClass()
+{
+
+
+
+
+    std::vector<double> n_v(a_nonpolar,a_nonpolar+sizeof(a_nonpolar)/sizeof(double));
+    std::vector<double> d_v(d_nonpolar,d_nonpolar+sizeof(d_nonpolar)/sizeof(double));
+    std::vector<double> t_v(t_nonpolar,t_nonpolar+sizeof(t_nonpolar)/sizeof(double));
+    std::vector<double> l_v(c_nonpolar,c_nonpolar+sizeof(c_nonpolar)/sizeof(double));
+    std::vector<double> u0_v(u0,u0+sizeof(u0)/sizeof(double));
+    std::vector<double> v0_v(v0,v0+sizeof(v0)/sizeof(double));
+
+    phi_BC * phir_ = new phir_power(n_v,d_v,t_v,l_v,1,12);
+    phirlist.push_back(phir_);
+
+    phi_BC * phi0_lead_ = new phi0_lead(-12.837928,8.042605);
+    phi_BC * phi0_logtau_ = new phi0_logtau(4.944);
+    phi_BC * phi0_Planck_Einstein_ = new phi0_Planck_Einstein(v0_v,u0_v,1,4);
+
+    phi0list.push_back(phi0_lead_);
+    phi0list.push_back(phi0_logtau_);
+    phi0list.push_back(phi0_Planck_Einstein_);
+
+    // Critical parameters
+    crit.rho = 1.64;
+    crit.p = 2.103;
+    crit.T = 617.7;
+    crit.v = 1.0/crit.rho;
+
+    // Other fluid parameters
+    params.molemass = 142.28168;
+    params.Ttriple = 243.5;
+    params.accentricfactor = 0.4884;
+    params.R_u = 8.314472;
+
+    // Limits of EOS
+    limits.Tmin = 243.5;
+    limits.Tmax = 675.0;
+    limits.pmax = 800.0;
+    limits.rhomax = 1000000.0*params.molemass;
+
+    EOSReference.assign("Lemmon, E.W., and R. Span, \"Short Fundamental Equations of State for 20 Industrial Fluids,\", J. Chem. Eng. Data, 51:785-850, 2006.);
+    TransportReference.assign("Using ECS");
+
+    name.assign("Decane");
+
+}
+
+
+HydrogenSulfideClass::HydrogenSulfideClass()
+{
+
+
+
+
+    std::vector<double> n_v(a_nonpolar,a_nonpolar+sizeof(a_nonpolar)/sizeof(double));
+    std::vector<double> d_v(d_nonpolar,d_nonpolar+sizeof(d_nonpolar)/sizeof(double));
+    std::vector<double> t_v(t_nonpolar,t_nonpolar+sizeof(t_nonpolar)/sizeof(double));
+    std::vector<double> l_v(c_nonpolar,c_nonpolar+sizeof(c_nonpolar)/sizeof(double));
+    std::vector<double> u0_v(u0,u0+sizeof(u0)/sizeof(double));
+    std::vector<double> v0_v(v0,v0+sizeof(v0)/sizeof(double));
+
+    phi_BC * phir_ = new phir_power(n_v,d_v,t_v,l_v,1,12);
+    phirlist.push_back(phir_);
+
+    phi_BC * phi0_lead_ = new phi0_lead(-12.837928,8.042605);
+    phi_BC * phi0_logtau_ = new phi0_logtau(4.944);
+    phi_BC * phi0_Planck_Einstein_ = new phi0_Planck_Einstein(v0_v,u0_v,1,4);
+
+    phi0list.push_back(phi0_lead_);
+    phi0list.push_back(phi0_logtau_);
+    phi0list.push_back(phi0_Planck_Einstein_);
+
+    // Critical parameters
+    crit.rho = 10.19;
+    crit.p = 9.0;
+    crit.T = 373.1;
+    crit.v = 1.0/crit.rho;
+
+    // Other fluid parameters
+    params.molemass = 34.08088;
+    params.Ttriple = 187.7;
+    params.accentricfactor = 0.1005;
+    params.R_u = 8.314472;
+
+    // Limits of EOS
+    limits.Tmin = 187.7;
+    limits.Tmax = 760.0;
+    limits.pmax = 170.0;
+    limits.rhomax = 1000000.0*params.molemass;
+
+    EOSReference.assign("Lemmon, E.W., and R. Span, \"Short Fundamental Equations of State for 20 Industrial Fluids,\", J. Chem. Eng. Data, 51:785-850, 2006.);
+    TransportReference.assign("Using ECS");
+
+    name.assign("HydrogenSulfide");
+
+}
+
+
+IsopentaneClass::IsopentaneClass()
+{
+
+
+
+
+    std::vector<double> n_v(a_nonpolar,a_nonpolar+sizeof(a_nonpolar)/sizeof(double));
+    std::vector<double> d_v(d_nonpolar,d_nonpolar+sizeof(d_nonpolar)/sizeof(double));
+    std::vector<double> t_v(t_nonpolar,t_nonpolar+sizeof(t_nonpolar)/sizeof(double));
+    std::vector<double> l_v(c_nonpolar,c_nonpolar+sizeof(c_nonpolar)/sizeof(double));
+    std::vector<double> u0_v(u0,u0+sizeof(u0)/sizeof(double));
+    std::vector<double> v0_v(v0,v0+sizeof(v0)/sizeof(double));
+
+    phi_BC * phir_ = new phir_power(n_v,d_v,t_v,l_v,1,12);
+    phirlist.push_back(phir_);
+
+    phi_BC * phi0_lead_ = new phi0_lead(-12.837928,8.042605);
+    phi_BC * phi0_logtau_ = new phi0_logtau(4.944);
+    phi_BC * phi0_Planck_Einstein_ = new phi0_Planck_Einstein(v0_v,u0_v,1,4);
+
+    phi0list.push_back(phi0_lead_);
+    phi0list.push_back(phi0_logtau_);
+    phi0list.push_back(phi0_Planck_Einstein_);
+
+    // Critical parameters
+    crit.rho = 3.271;
+    crit.p = 3.378;
+    crit.T = 460.35;
+    crit.v = 1.0/crit.rho;
+
+    // Other fluid parameters
+    params.molemass = 72.14878;
+    params.Ttriple = 112.65;
+    params.accentricfactor = 0.2274;
+    params.R_u = 8.314472;
+
+    // Limits of EOS
+    limits.Tmin = 112.65;
+    limits.Tmax = 500.0;
+    limits.pmax = 1000.0;
+    limits.rhomax = 1000000.0*params.molemass;
+
+    EOSReference.assign("Lemmon, E.W., and R. Span, \"Short Fundamental Equations of State for 20 Industrial Fluids,\", J. Chem. Eng. Data, 51:785-850, 2006.);
+    TransportReference.assign("Using ECS");
+
+    name.assign("Isopentane");
+
+}
+
+
+NeopentaneClass::NeopentaneClass()
+{
+
+
+
+
+    std::vector<double> n_v(a_nonpolar,a_nonpolar+sizeof(a_nonpolar)/sizeof(double));
+    std::vector<double> d_v(d_nonpolar,d_nonpolar+sizeof(d_nonpolar)/sizeof(double));
+    std::vector<double> t_v(t_nonpolar,t_nonpolar+sizeof(t_nonpolar)/sizeof(double));
+    std::vector<double> l_v(c_nonpolar,c_nonpolar+sizeof(c_nonpolar)/sizeof(double));
+    std::vector<double> u0_v(u0,u0+sizeof(u0)/sizeof(double));
+    std::vector<double> v0_v(v0,v0+sizeof(v0)/sizeof(double));
+
+    phi_BC * phir_ = new phir_power(n_v,d_v,t_v,l_v,1,12);
+    phirlist.push_back(phir_);
+
+    phi_BC * phi0_lead_ = new phi0_lead(-12.837928,8.042605);
+    phi_BC * phi0_logtau_ = new phi0_logtau(4.944);
+    phi_BC * phi0_Planck_Einstein_ = new phi0_Planck_Einstein(v0_v,u0_v,1,4);
+
+    phi0list.push_back(phi0_lead_);
+    phi0list.push_back(phi0_logtau_);
+    phi0list.push_back(phi0_Planck_Einstein_);
+
+    // Critical parameters
+    crit.rho = 3.27;
+    crit.p = 3.196;
+    crit.T = 433.74;
+    crit.v = 1.0/crit.rho;
+
+    // Other fluid parameters
+    params.molemass = 72.14878;
+    params.Ttriple = 256.6;
+    params.accentricfactor = 0.1961;
+    params.R_u = 8.314472;
+
+    // Limits of EOS
+    limits.Tmin = 256.6;
+    limits.Tmax = 550.0;
+    limits.pmax = 200.0;
+    limits.rhomax = 1000000.0*params.molemass;
+
+    EOSReference.assign("Lemmon, E.W., and R. Span, \"Short Fundamental Equations of State for 20 Industrial Fluids,\", J. Chem. Eng. Data, 51:785-850, 2006.);
+    TransportReference.assign("Using ECS");
+
+    name.assign("Neopentane");
+
+}
+
+
+IsohexaneClass::IsohexaneClass()
+{
+
+
+
+
+    std::vector<double> n_v(a_nonpolar,a_nonpolar+sizeof(a_nonpolar)/sizeof(double));
+    std::vector<double> d_v(d_nonpolar,d_nonpolar+sizeof(d_nonpolar)/sizeof(double));
+    std::vector<double> t_v(t_nonpolar,t_nonpolar+sizeof(t_nonpolar)/sizeof(double));
+    std::vector<double> l_v(c_nonpolar,c_nonpolar+sizeof(c_nonpolar)/sizeof(double));
+    std::vector<double> u0_v(u0,u0+sizeof(u0)/sizeof(double));
+    std::vector<double> v0_v(v0,v0+sizeof(v0)/sizeof(double));
+
+    phi_BC * phir_ = new phir_power(n_v,d_v,t_v,l_v,1,12);
+    phirlist.push_back(phir_);
+
+    phi_BC * phi0_lead_ = new phi0_lead(-12.837928,8.042605);
+    phi_BC * phi0_logtau_ = new phi0_logtau(4.944);
+    phi_BC * phi0_Planck_Einstein_ = new phi0_Planck_Einstein(v0_v,u0_v,1,4);
+
+    phi0list.push_back(phi0_lead_);
+    phi0list.push_back(phi0_logtau_);
+    phi0list.push_back(phi0_Planck_Einstein_);
+
+    // Critical parameters
+    crit.rho = 2.715;
+    crit.p = 3.04;
+    crit.T = 497.7;
+    crit.v = 1.0/crit.rho;
+
+    // Other fluid parameters
+    params.molemass = 86.17536;
+    params.Ttriple = 119.6;
+    params.accentricfactor = 0.2797;
+    params.R_u = 8.314472;
+
+    // Limits of EOS
+    limits.Tmin = 119.6;
+    limits.Tmax = 550.0;
+    limits.pmax = 1000.0;
+    limits.rhomax = 1000000.0*params.molemass;
+
+    EOSReference.assign("Lemmon, E.W., and R. Span, \"Short Fundamental Equations of State for 20 Industrial Fluids,\", J. Chem. Eng. Data, 51:785-850, 2006.);
+    TransportReference.assign("Using ECS");
+
+    name.assign("Isohexane");
+
+}
+
+
+KryptonClass::KryptonClass()
+{
+
+
+
+
+    std::vector<double> n_v(a_nonpolar,a_nonpolar+sizeof(a_nonpolar)/sizeof(double));
+    std::vector<double> d_v(d_nonpolar,d_nonpolar+sizeof(d_nonpolar)/sizeof(double));
+    std::vector<double> t_v(t_nonpolar,t_nonpolar+sizeof(t_nonpolar)/sizeof(double));
+    std::vector<double> l_v(c_nonpolar,c_nonpolar+sizeof(c_nonpolar)/sizeof(double));
+    std::vector<double> u0_v(u0,u0+sizeof(u0)/sizeof(double));
+    std::vector<double> v0_v(v0,v0+sizeof(v0)/sizeof(double));
+
+    phi_BC * phir_ = new phir_power(n_v,d_v,t_v,l_v,1,12);
+    phirlist.push_back(phir_);
+
+    phi_BC * phi0_lead_ = new phi0_lead(-12.837928,8.042605);
+    phi_BC * phi0_logtau_ = new phi0_logtau(4.944);
+    phi_BC * phi0_Planck_Einstein_ = new phi0_Planck_Einstein(v0_v,u0_v,1,4);
+
+    phi0list.push_back(phi0_lead_);
+    phi0list.push_back(phi0_logtau_);
+    phi0list.push_back(phi0_Planck_Einstein_);
+
+    // Critical parameters
+    crit.rho = 10.85;
+    crit.p = 5.525;
+    crit.T = 209.48;
+    crit.v = 1.0/crit.rho;
+
+    // Other fluid parameters
+    params.molemass = 83.798;
+    params.Ttriple = 115.77;
+    params.accentricfactor = -0.00089;
+    params.R_u = 8.314472;
+
+    // Limits of EOS
+    limits.Tmin = 115.77;
+    limits.Tmax = 750.0;
+    limits.pmax = 200.0;
+    limits.rhomax = 1000000.0*params.molemass;
+
+    EOSReference.assign("Lemmon, E.W., and R. Span, \"Short Fundamental Equations of State for 20 Industrial Fluids,\", J. Chem. Eng. Data, 51:785-850, 2006.);
+    TransportReference.assign("Using ECS");
+
+    name.assign("Krypton");
+
+}
+
+
+NonaneClass::NonaneClass()
+{
+
+
+
+
+    std::vector<double> n_v(a_nonpolar,a_nonpolar+sizeof(a_nonpolar)/sizeof(double));
+    std::vector<double> d_v(d_nonpolar,d_nonpolar+sizeof(d_nonpolar)/sizeof(double));
+    std::vector<double> t_v(t_nonpolar,t_nonpolar+sizeof(t_nonpolar)/sizeof(double));
+    std::vector<double> l_v(c_nonpolar,c_nonpolar+sizeof(c_nonpolar)/sizeof(double));
+    std::vector<double> u0_v(u0,u0+sizeof(u0)/sizeof(double));
+    std::vector<double> v0_v(v0,v0+sizeof(v0)/sizeof(double));
+
+    phi_BC * phir_ = new phir_power(n_v,d_v,t_v,l_v,1,12);
+    phirlist.push_back(phir_);
+
+    phi_BC * phi0_lead_ = new phi0_lead(-12.837928,8.042605);
+    phi_BC * phi0_logtau_ = new phi0_logtau(4.944);
+    phi_BC * phi0_Planck_Einstein_ = new phi0_Planck_Einstein(v0_v,u0_v,1,4);
+
+    phi0list.push_back(phi0_lead_);
+    phi0list.push_back(phi0_logtau_);
+    phi0list.push_back(phi0_Planck_Einstein_);
+
+    // Critical parameters
+    crit.rho = 1.81;
+    crit.p = 2.281;
+    crit.T = 594.55;
+    crit.v = 1.0/crit.rho;
+
+    // Other fluid parameters
+    params.molemass = 128.2551;
+    params.Ttriple = 219.7;
+    params.accentricfactor = 0.4433;
+    params.R_u = 8.314472;
+
+    // Limits of EOS
+    limits.Tmin = 219.7;
+    limits.Tmax = 600.0;
+    limits.pmax = 800.0;
+    limits.rhomax = 1000000.0*params.molemass;
+
+    EOSReference.assign("Lemmon, E.W., and R. Span, \"Short Fundamental Equations of State for 20 Industrial Fluids,\", J. Chem. Eng. Data, 51:785-850, 2006.);
+    TransportReference.assign("Using ECS");
+
+    name.assign("Nonane");
+
+}
+
+
+TolueneClass::TolueneClass()
+{
+
+
+
+
+    std::vector<double> n_v(a_nonpolar,a_nonpolar+sizeof(a_nonpolar)/sizeof(double));
+    std::vector<double> d_v(d_nonpolar,d_nonpolar+sizeof(d_nonpolar)/sizeof(double));
+    std::vector<double> t_v(t_nonpolar,t_nonpolar+sizeof(t_nonpolar)/sizeof(double));
+    std::vector<double> l_v(c_nonpolar,c_nonpolar+sizeof(c_nonpolar)/sizeof(double));
+    std::vector<double> u0_v(u0,u0+sizeof(u0)/sizeof(double));
+    std::vector<double> v0_v(v0,v0+sizeof(v0)/sizeof(double));
+
+    phi_BC * phir_ = new phir_power(n_v,d_v,t_v,l_v,1,12);
+    phirlist.push_back(phir_);
+
+    phi_BC * phi0_lead_ = new phi0_lead(-12.837928,8.042605);
+    phi_BC * phi0_logtau_ = new phi0_logtau(4.944);
+    phi_BC * phi0_Planck_Einstein_ = new phi0_Planck_Einstein(v0_v,u0_v,1,4);
+
+    phi0list.push_back(phi0_lead_);
+    phi0list.push_back(phi0_logtau_);
+    phi0list.push_back(phi0_Planck_Einstein_);
+
+    // Critical parameters
+    crit.rho = 3.169;
+    crit.p = 4.126;
+    crit.T = 591.75;
+    crit.v = 1.0/crit.rho;
+
+    // Other fluid parameters
+    params.molemass = 92.13842;
+    params.Ttriple = 178.0;
+    params.accentricfactor = 0.2657;
+    params.R_u = 8.314472;
+
+    // Limits of EOS
+    limits.Tmin = 178.0;
+    limits.Tmax = 700.0;
+    limits.pmax = 500.0;
+    limits.rhomax = 1000000.0*params.molemass;
+
+    EOSReference.assign("Lemmon, E.W., and R. Span, \"Short Fundamental Equations of State for 20 Industrial Fluids,\", J. Chem. Eng. Data, 51:785-850, 2006.);
+    TransportReference.assign("Using ECS");
+
+    name.assign("Toluene");
+
+}
+
+
+XenonClass::XenonClass()
+{
+
+
+
+
+    std::vector<double> n_v(a_nonpolar,a_nonpolar+sizeof(a_nonpolar)/sizeof(double));
+    std::vector<double> d_v(d_nonpolar,d_nonpolar+sizeof(d_nonpolar)/sizeof(double));
+    std::vector<double> t_v(t_nonpolar,t_nonpolar+sizeof(t_nonpolar)/sizeof(double));
+    std::vector<double> l_v(c_nonpolar,c_nonpolar+sizeof(c_nonpolar)/sizeof(double));
+    std::vector<double> u0_v(u0,u0+sizeof(u0)/sizeof(double));
+    std::vector<double> v0_v(v0,v0+sizeof(v0)/sizeof(double));
+
+    phi_BC * phir_ = new phir_power(n_v,d_v,t_v,l_v,1,12);
+    phirlist.push_back(phir_);
+
+    phi_BC * phi0_lead_ = new phi0_lead(-12.837928,8.042605);
+    phi_BC * phi0_logtau_ = new phi0_logtau(4.944);
+    phi_BC * phi0_Planck_Einstein_ = new phi0_Planck_Einstein(v0_v,u0_v,1,4);
+
+    phi0list.push_back(phi0_lead_);
+    phi0list.push_back(phi0_logtau_);
+    phi0list.push_back(phi0_Planck_Einstein_);
+
+    // Critical parameters
+    crit.rho = 8.4;
+    crit.p = 5.842;
+    crit.T = 289.733;
+    crit.v = 1.0/crit.rho;
+
+    // Other fluid parameters
+    params.molemass = 131.293;
+    params.Ttriple = 161.4;
+    params.accentricfactor = 0.00363;
+    params.R_u = 8.314472;
+
+    // Limits of EOS
+    limits.Tmin = 161.4;
+    limits.Tmax = 750.0;
+    limits.pmax = 700.0;
+    limits.rhomax = 1000000.0*params.molemass;
+
+    EOSReference.assign("Lemmon, E.W., and R. Span, \"Short Fundamental Equations of State for 20 Industrial Fluids,\", J. Chem. Eng. Data, 51:785-850, 2006.);
+    TransportReference.assign("Using ECS");
+
+    name.assign("Xenon");
+
+}
+
+
+R116Class::R116Class()
+{
+
+
+
+
+    std::vector<double> n_v(a_nonpolar,a_nonpolar+sizeof(a_nonpolar)/sizeof(double));
+    std::vector<double> d_v(d_nonpolar,d_nonpolar+sizeof(d_nonpolar)/sizeof(double));
+    std::vector<double> t_v(t_nonpolar,t_nonpolar+sizeof(t_nonpolar)/sizeof(double));
+    std::vector<double> l_v(c_nonpolar,c_nonpolar+sizeof(c_nonpolar)/sizeof(double));
+    std::vector<double> u0_v(u0,u0+sizeof(u0)/sizeof(double));
+    std::vector<double> v0_v(v0,v0+sizeof(v0)/sizeof(double));
+
+    phi_BC * phir_ = new phir_power(n_v,d_v,t_v,l_v,1,12);
+    phirlist.push_back(phir_);
+
+    phi_BC * phi0_lead_ = new phi0_lead(-12.837928,8.042605);
+    phi_BC * phi0_logtau_ = new phi0_logtau(4.944);
+    phi_BC * phi0_Planck_Einstein_ = new phi0_Planck_Einstein(v0_v,u0_v,1,4);
+
+    phi0list.push_back(phi0_lead_);
+    phi0list.push_back(phi0_logtau_);
+    phi0list.push_back(phi0_Planck_Einstein_);
+
+    // Critical parameters
+    crit.rho = 4.444;
+    crit.p = 3.048;
+    crit.T = 293.03;
+    crit.v = 1.0/crit.rho;
+
+    // Other fluid parameters
+    params.molemass = 138.01182;
+    params.Ttriple = 173.1;
+    params.accentricfactor = 0.2566;
+    params.R_u = 8.314472;
+
+    // Limits of EOS
+    limits.Tmin = 173.1;
+    limits.Tmax = 425.0;
+    limits.pmax = 50.0;
+    limits.rhomax = 1000000.0*params.molemass;
+
+    EOSReference.assign("Lemmon, E.W., and R. Span, \"Short Fundamental Equations of State for 20 Industrial Fluids,\", J. Chem. Eng. Data, 51:785-850, 2006.);
+    TransportReference.assign("Using ECS");
+
+    name.assign("R116");
+
+}
