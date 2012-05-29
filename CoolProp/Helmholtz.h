@@ -5,38 +5,65 @@
 #include <vector>
 #include "math.h"
 
-// The abstract base class upon which each residual Helmholtz energy class is built
+/// This is the abstract base class upon which each residual Helmholtz energy class is built
 class phi_BC{
 public:
 	phi_BC(){};
 	virtual ~phi_BC(){};
-	virtual double base(double,double) = 0;
-	virtual double dTau(double,double) = 0;
-	virtual double dTau2(double,double) = 0;
-	virtual double dDelta_dTau(double,double) = 0;
-	virtual double dDelta(double,double) = 0;
-	virtual double dDelta2(double,double) = 0;
-	virtual double dDelta2_dTau(double,double) = 0;
+	// Term and its derivatives
+	/// Returns the base, non-dimensional, Helmholtz energy term (no derivatives) [-]
+	/// @param tau Reciprocal reduced temperature where tau=Tc/T
+	/// @param delta Reduced pressure where delta = rho / rhoc 
+	virtual double base(double tau,double delta) = 0;
+	/// Returns the first partial derivative of Helmholtz energy term with respect to tau [-]
+	/// @param tau Reciprocal reduced temperature where tau=Tc/T
+	/// @param delta Reduced pressure where delta = rho / rhoc 
+	virtual double dTau(double tau,double delta) = 0;
+	/// Returns the second partial derivative of Helmholtz energy term with respect to tau [-]
+	/// @param tau Reciprocal reduced temperature where tau=Tc/T
+	/// @param delta Reduced pressure where delta = rho / rhoc 
+	virtual double dTau2(double tau, double delta) = 0;
+	/// Returns the second mixed partial derivative (delta1,dtau1) of Helmholtz energy term with respect to delta and tau [-]
+	/// @param tau Reciprocal reduced temperature where tau=Tc / T
+	/// @param delta Reduced pressure where delta = rho / rhoc 
+	virtual double dDelta_dTau(double tau, double delta) = 0;
+	/// Returns the first partial derivative of Helmholtz energy term with respect to delta [-]
+	/// @param tau Reciprocal reduced temperature where tau=Tc / T
+	/// @param delta Reduced pressure where delta = rho / rhoc 
+	virtual double dDelta(double tau, double delta) = 0;
+	/// Returns the second partial derivative of Helmholtz energy term with respect to delta [-]
+	/// @param tau Reciprocal reduced temperature where tau=Tc / T
+	/// @param delta Reduced pressure where delta = rho / rhoc 
+	virtual double dDelta2(double tau, double delta) = 0;
+	/// Returns the third mixed partial derivative (delta2,dtau1) of Helmholtz energy term with respect to delta and tau [-]
+	/// @param tau Reciprocal reduced temperature where tau=Tc / T
+	/// @param delta Reduced pressure where delta = rho / rhoc 
+	virtual double dDelta2_dTau(double tau, double delta) = 0;
 };
 
+/// This class implements residual Helmholtz Energy terms of the form  n * delta ^d * tau^t * exp(-gamma*delta^l) if l>0 or if
+///	l==0, then n * delta ^d * tau^t
 class phir_power : public phi_BC{
 	/*
-	Terms are of the form n * delta ^d * tau^t
+	Terms are of the form n * delta ^d * tau^t * exp(-delta^l) if l>0 or if
+	l==0, then n * delta ^d * tau^t
 
 	Constructor must be called with std::vector instances of double type
 	*/
 private:
-	std::vector<double> n,d,t,l;
+	std::vector<double> n, ///< The coefficients multiplying each term
+		                d, ///< The power for the delta terms
+						t, ///< The powers for the tau terms
+						l; ///< The powers for delta in the exp terms
 	int iStart,iEnd;
 public:
 	// Constructors
 	phir_power(std::vector<double>,std::vector<double>,std::vector<double>,int,int);
 	phir_power(std::vector<double>,std::vector<double>,std::vector<double>,std::vector<double>,int,int);
 
-	// Destructor
+	///< Destructor for the phir_power class.  No implementation
 	~phir_power(){};
 
-	// Term and its derivatives
 	double base(double tau, double delta);
 	double dTau(double tau, double delta);
 	double dTau2(double tau, double delta);
@@ -76,7 +103,6 @@ public:
 class phir_critical : public phi_BC{
 	/*
 	Terms are of the form n * delta ^d * tau^t * exp(-alpha*(delta-epsilon)^2-beta*(tau-gamma)^2)
-
 	Constructor must be called with std::vector instances of double type
 	*/
 private:
@@ -238,7 +264,10 @@ public:
 	double dTau(double tau, double delta)
 	{
 		double summer=0;
-		for (int i=iStart;i<=iEnd;i++) summer+=a[i]*b[i]*pow(tau,b[i]-1);
+		
+		for (int i=iStart;i<=iEnd;i++) { 
+			summer+=a[i]*b[i]*pow(tau,b[i]-1);
+		}
 		return summer;
 	};
 	double dTau2(double tau, double delta)
@@ -253,5 +282,149 @@ public:
 	double dDelta_dTau(double tau, double delta){return 0.0;};
 };
 
-#endif
 
+/// Term in the ideal-gas specific heat equation that is constant
+class phi0_cp0_constant : public phi_BC{
+	/*
+
+	Maxima code for this term:
+	assume(T>0)$
+	assume(T0>0)$
+	assume(T-T0>0)$
+	a:(1/T)*integrate(c,T,T0,T)-integrate(c/T,T,T0,T)$
+	subst(Tc/tau,T,a)$
+	subst(Tc/tau0,T0,%)$
+	b:ratsimp(logcontract(%));
+	db:ratsimp(diff(b,tau));
+	db2:ratsimp(diff(%,tau));
+
+	*/
+private:
+	double c,Tc,T0,tau0; // Use these variables internally
+public:
+
+	/// Constructor with just a single double value
+	phi0_cp0_constant(double c_, double Tc_, double T0_) { c=c_; T0=T0_; Tc=Tc_; tau0=Tc/T0;};
+
+	/// Destructor
+	~phi0_cp0_constant(){};
+
+	// Term and its derivatives
+	double base(double tau, double delta){ 
+		return c-c*tau/tau0+c*log(tau/tau0);
+	};
+	double dTau(double tau, double delta)
+	{
+		return c/tau-c/tau0;
+	};
+	double dTau2(double tau, double delta)
+	{
+		return -c/(tau*tau);
+	};
+	double dDelta(double tau, double delta){return 0.0;};
+	double dDelta2(double tau, double delta){return 0.0;};
+	double dDelta2_dTau(double tau, double delta){return 0.0;};
+	double dDelta_dTau(double tau, double delta){return 0.0;};
+};
+
+/// Term in the ideal-gas specific heat equation that is constant
+class phi0_cp0_exponential : public phi_BC{
+private:
+	std::vector<double> a,b;
+	double Tc,T0,tau0; // Use these variables internally
+	int iStart, iEnd;
+public:
+	/// Constructor with just a single double value
+	phi0_cp0_exponential(std::vector<double> a_, std::vector<double> b_, double Tc_, double T0_, int iStart_, int iEnd_) { 
+		a=a_; b=b_; T0=T0_; Tc=Tc_; iStart=iStart_; iEnd=iEnd_; tau0=Tc/T0;
+	};
+
+	/// Destructor
+	~phi0_cp0_exponential(){};
+
+	// Term and its derivatives
+	double base(double tau, double delta){ 
+		double sum=0;
+		for (int i = iStart; i<=iEnd; i++){
+			sum+=a[i]*(log(exp(b[i]*tau)-1)-log(exp(b[i]*tau0)-1)-b[i]*tau+b[i]*(tau0*exp(b[i]*tau0)-tau)/(exp(b[i]*tau0)-1));
+		}
+		return sum;
+	};
+	double dTau(double tau, double delta)
+	{
+		double sum=0;
+		for (int i = iStart; i<=iEnd; i++){
+			sum+=a[i]*(b[i]*exp(b[i]*tau)/(exp(b[i]*tau)-1)-b[i]-b[i]/(exp(b[i]*tau0)-1));
+		}
+		return sum;
+	};
+	double dTau2(double tau, double delta)
+	{
+		double sum=0;
+		for (int i = iStart; i<=iEnd; i++){
+			sum+=-a[i]*b[i]*b[i]*exp(b[i]*tau)/pow(exp(b[i]*tau)-1,2);
+		}
+		return sum;
+	};
+	double dDelta(double tau, double delta){return 0.0;};
+	double dDelta2(double tau, double delta){return 0.0;};
+	double dDelta2_dTau(double tau, double delta){return 0.0;};
+	double dDelta_dTau(double tau, double delta){return 0.0;};
+};
+
+/// Term in the ideal-gas specific heat equation that is polynomial term
+class phi0_cp0_poly : public phi_BC{
+private:
+	std::vector<double> a,tv;
+	double Tc,T0,tau0; // Use these variables internally
+	int iStart, iEnd;
+public:
+	/// Constructor with just a single double value
+	phi0_cp0_poly(double a_, double t_, double Tc_, double T0_) {
+		a=std::vector<double>(1,a_);
+		tv=std::vector<double>(1,t_);
+		Tc=Tc_; T0=T0_; iStart=0; iEnd=0; tau0=Tc/T0;
+	};
+
+	/// Constructor with std::vectors
+	phi0_cp0_poly(std::vector<double> a_, std::vector<double> t_, double Tc_, double T0_, int iStart_, int iEnd_) { 
+		a=a_; tv=t_; Tc = Tc_; T0=T0_; iStart=iStart_; iEnd=iEnd; tau0=Tc/T0;
+	};
+
+	/// Destructor
+	~phi0_cp0_poly(){};
+
+	// Term and its derivatives
+	double base(double tau, double delta){ 
+		double sum=0;
+		for (int i = iStart; i<=iEnd; i++){
+			double t=tv[i];
+			sum+=-a[i]*pow(Tc,t)*pow(tau,-t)/(t*(t+1))-a[i]*pow(T0,t+1)*tau/(Tc*(t+1))+a[i]*pow(T0,t)/t;
+		}
+		return sum;
+	};
+	double dTau(double tau, double delta)
+	{
+		double sum=0;
+		for (int i = iStart; i<=iEnd; i++){
+			double t=tv[i];
+			sum+=a[i]*pow(Tc,t)*pow(tau,-t-1)/(t+1)-a[i]*pow(Tc,t)/(pow(tau0,t+1)*(t+1));
+		}
+		return sum;
+	};
+	double dTau2(double tau, double delta)
+	{
+		double sum=0;
+		for (int i = iStart; i<=iEnd; i++){
+			double t=tv[i];
+			sum+=-a[i]*pow(Tc,t)/pow(tau,t+2);
+		}
+		return sum;
+	};
+	double dDelta(double tau, double delta){return 0.0;};
+	double dDelta2(double tau, double delta){return 0.0;};
+	double dDelta2_dTau(double tau, double delta){return 0.0;};
+	double dDelta_dTau(double tau, double delta){return 0.0;};
+};
+
+#endif

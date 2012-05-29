@@ -1,4 +1,6 @@
 
+cdef int set_1phase_LUT_params_(bytes Ref, int nT,int np,double Tmin,double Tmax,double pmin,double pmax)
+
 cdef class State:
     cdef readonly bint hasLiquid
     cdef readonly bytes Liquid, Fluid

@@ -108,12 +108,12 @@ f1=plt.figure()
 f2=plt.figure()
 f3=plt.figure()
 
-def Ancillary(Ref,plot=False):
-    print Ref
+def Ancillary(Fluid,plot=False):
+    print Fluid
     Tcrit=Props(Fluid,'Tcrit')
     Ttrip=Props(Fluid,'Ttriple')
     pcrit = Props(Fluid,'pcrit')
-    rhoc = Props('D','T',Tcrit,'P',pcrit,Fluid)
+    rhoc = Props('D','T',Tcrit-0.0001,'P',pcrit,Fluid)
     Tv=np.linspace(Ttrip,0.995*Tcrit,500)
     rhoL = np.zeros_like(Tv)
     rhoV = np.zeros_like(Tv)
@@ -209,6 +209,17 @@ def buildEOS(Ref,CPPName,polar=True):
     else:
         phi0_PE_def = 'phi_BC * phi0_Planck_Einstein_ = new phi0_Planck_Einstein(v0_v,u0_v,1,v0_v.size()-1);\n\tphi0list.push_back(phi0_Planck_Einstein_);';
         
+    
+    AList = list(RefLookup[Fluid])
+    if Fluid not in AList:
+        AList.append(Fluid)
+    AList.pop(0) #The name is not needed again
+    print AList
+    aliases=''    
+    # Add the REFPROP name
+    for alias in AList:
+        aliases+='aliases.push_back(std::string(\"{alias}\")); '.format(alias=alias)
+            
     rhoL_code,rhoV_code,psat_code = Ancillary(Ref)
     CPPString=textwrap.dedent(
 """
@@ -263,12 +274,7 @@ def buildEOS(Ref,CPPName,polar=True):
 
     name.assign(\"{Fluid:s}\");
     {aliases}
-    
-}}
-double {Fluid}Class::viscosity_Trho(double tau, double delta)
-{{
-    //throw NotImplementedError();
-    return _HUGE;
+    REFPROPname.assign(\"{REFPROPname:s}\");
 }}
 double {Fluid}Class::conductivity_Trho(double tau, double delta)
 {{
@@ -279,7 +285,7 @@ double {Fluid}Class::conductivity_Trho(double tau, double delta)
 {rhoV_code}
 {psat_code}
 
-""".format(Fluid=key,d=d,t=t,c=c,rhoc=rhoc[key]*MM[key],pc=pc[key]*1000 ,Tc=Tc[key],MM=MM[key],Tt=Tt[key],omega=omega[key],Tmin=Tt[key],Tmax=Tmax[key],pmax=pmax[key]*1000,rhomax_molar=1e6,u0string=u0string, v0string=v0string,a1=a1[key],a2=a2[key],c0=c0[key],c1string=c1string,c2=c2[key],aliases='//Aliases not implemented yet',nstring=nstring,rhoL_code=rhoL_code,rhoV_code=rhoV_code,psat_code=psat_code,phi0_power_def=phi0_power_def,phi0_PE_def=phi0_PE_def))
+""".format(Fluid=key,d=d,t=t,c=c,rhoc=rhoc[key]*MM[key],pc=pc[key]*1000 ,Tc=Tc[key],MM=MM[key],Tt=Tt[key],omega=omega[key],Tmin=Tt[key],Tmax=Tmax[key],pmax=pmax[key]*1000,rhomax_molar=1e6,u0string=u0string, v0string=v0string,a1=a1[key],a2=a2[key],c0=c0[key],c1string=c1string,c2=c2[key],aliases=aliases,nstring=nstring,rhoL_code=rhoL_code,rhoV_code=rhoV_code,psat_code=psat_code,phi0_power_def=phi0_power_def,phi0_PE_def=phi0_PE_def,REFPROPname=Fluid))
     fp = open(CPPName,'a')
     fp.write(CPPString)
     fp.close()
@@ -296,7 +302,6 @@ def AddHeader(Ref,HeadName):
         {Fluid}Class();
         ~{Fluid}Class(){{}};
         virtual double conductivity_Trho(double, double);
-        virtual double viscosity_Trho(double, double);
         double psat(double);
         double rhosatL(double);
         double rhosatV(double);

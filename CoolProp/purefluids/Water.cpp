@@ -387,6 +387,7 @@ WaterClass::WaterClass()
 	// Other fluid parameters
 	params.molemass = 18.015268;
 	params.Ttriple = 273.15;
+	params.ptriple = 0.61248;
 	params.R_u = 8.314371357587;
 	params.accentricfactor = 0.3443;
 
@@ -474,7 +475,7 @@ double WaterClass::conductivity_Trho(double T, double rho)
 
 	double lambdabar_0,lambdabar_1,lambdabar_2,rhobar,Tbar,sum,R_Water;
 	double Tstar=647.096,rhostar=322,pstar=22064,lambdastar=1e-3,mustar=1e-6;
-	double CHIbar_T,dpbar_dTbar,mubar_0,mubar_1,delta,tau,xi;
+	double tau,xi;
 	int i,j;
 
 	Tbar=T/Tstar;

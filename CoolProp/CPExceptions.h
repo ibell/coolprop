@@ -10,10 +10,7 @@ private:
 public:
 	NotImplementedError() throw(){};
 	NotImplementedError(std::string errstring) throw(){err=errstring;};
-  virtual const char* what() const throw()
-  {
-    return err.c_str();
-  }
+	virtual const char* what() const throw(){ return err.c_str(); }
 };
 
 class SolutionError: public std::exception
@@ -23,11 +20,7 @@ private:
 public:
 	SolutionError() throw(){};
 	SolutionError(std::string errstring) throw(){err=errstring;};
-
-  virtual const char* what() const throw()
-  {
-    return "Solution failed";
-  }
+	virtual const char* what() const throw(){ return err.c_str(); }
 };
 
 
@@ -38,11 +31,7 @@ private:
 public:
 	ValueError() throw(){};
 	ValueError(std::string errstring) throw(){err=errstring;};
-
-  virtual const char* what() const throw()
-  {
-    return "Solution failed";
-  }
+	virtual const char* what() const throw(){ return err.c_str(); }
 };
 
 class AttributeError: public std::exception
@@ -52,8 +41,7 @@ private:
 public:
 	AttributeError() throw(){};
 	AttributeError(std::string errstring) throw(){err=errstring;};
-
-  virtual const char* what() const throw(){ return err.c_str(); }
+	virtual const char* what() const throw(){ return err.c_str(); }
 };
 
 #endif

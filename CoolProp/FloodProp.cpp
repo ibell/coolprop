@@ -1,3 +1,4 @@
+#define _CRT_SECURE_NO_WARNINGS
 #ifndef __GNUC__
 #define _CRTDBG_MAP_ALLOC
 #include <stdlib.h>

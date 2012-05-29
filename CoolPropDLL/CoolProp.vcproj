@@ -53,7 +53,7 @@
 				BasicRuntimeChecks="0"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="0"
-				WarningLevel="4"
+				WarningLevel="3"
 				DebugInformationFormat="0"
 				CallingConvention="0"
 				CompileAs="2"
@@ -368,6 +368,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\CoolProp\FluidClass.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\CoolProp\Helmholtz.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\CoolProp\HumAir.cpp"
 				>
 			</File>
@@ -376,7 +384,15 @@
 				>
 			</File>
 			<File
+				RelativePath="..\CoolProp\purefluids\IndustrialFluids.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\CoolProp\purefluids\Nitrogen.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\CoolProp\purefluids\R1234yf.cpp"
 				>
 			</File>
 			<File
@@ -420,6 +436,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\CoolProp\Solvers.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\CoolProp\purefluids\Water.cpp"
 				>
 			</File>
@@ -454,11 +474,23 @@
 				>
 			</File>
 			<File
+				RelativePath="..\CoolProp\FluidClass.h"
+				>
+			</File>
+			<File
+				RelativePath="..\CoolProp\Helmholtz.h"
+				>
+			</File>
+			<File
 				RelativePath="..\CoolProp\HumAir.h"
 				>
 			</File>
 			<File
 				RelativePath="..\CoolProp\Ice.h"
+				>
+			</File>
+			<File
+				RelativePath="..\CoolProp\purefluids\IndustrialFluids.h"
 				>
 			</File>
 			<File
@@ -471,6 +503,10 @@
 			</File>
 			<File
 				RelativePath="..\CoolProp\PropMacros.h"
+				>
+			</File>
+			<File
+				RelativePath="..\CoolProp\purefluids\R1234yf.h"
 				>
 			</File>
 			<File

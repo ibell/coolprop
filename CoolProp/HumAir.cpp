@@ -1,12 +1,8 @@
 #if defined(_MSC_VER)
-#define _CRTDBG_MAP_ALLOC
 #define _CRT_SECURE_NO_WARNINGS
-#include <stdlib.h>
-#include <crtdbg.h>
-#else
-#include <stdlib.h>
 #endif
 
+#include <stdlib.h>
 #include "math.h"
 #include "time.h"
 #include "stdio.h"
@@ -339,12 +335,6 @@ double f_factor(double T, double p)
     double p_ws,tau_Air,tau_Water,B_aa,B_aw,B_ww,C_aaa,C_aaw,C_aww,C_www,
         line1,line2,line3,line4,line5,line6,line7,line8,k_T,beta_H,LHS,RHS,psi_ws,
         vbar_ws;
-    
-    //// Use correlation for f at atmospheric pressure
-    //if (p<1.001*101.325 && p>0.999*101.325 && T>213.15 && T<373.15)
-    //{
-    //    return 7.1285352695 -1.580759239351e-01*T +1.758777627765e-03*pow(T,2) -1.091297459853e-05*pow(T,3) +4.075109681028e-08*pow(T,4) -9.156215217527e-11*pow(T,5) +1.146098035510e-13*pow(T,6) -6.163466181798e-17*pow(T,7);
-    //}
 
     // Get total pressure in Pa from kPa
     p*=1000;
@@ -567,6 +557,15 @@ double IdealGasMolarEnthalpy_Water(double T, double v_bar)
 	hbar_w=hbar_w_0+R_bar*T*(1+tau*DerivTerms("dphi0_dTau",T,1/v_bar,"Water"));
 	return hbar_w;
 }
+double IdealGasMolarEntropy_Water(double T)
+{
+	double sbar_w,tau,R_bar,rho,p0=101.325;
+	R_bar = 8.314371; //[kJ/kmol/K]
+    tau=Props("Water","Tcrit")/T;
+	rho = p0/(R_bar/MM_Water()*T); //[kg/m^3]
+	sbar_w=R_bar*(tau*DerivTerms("dphi0_dTau",T,rho,"Water")-DerivTerms("phi0",T,rho,"Water")); //[kJ/kmol/K]
+	return sbar_w; 
+}
 double IdealGasMolarEnthalpy_Air(double T, double v_bar)
 {
 	double hbar_a_0,tau,rhobar,delta,hbar_a,R_bar_Lemmon;
@@ -580,19 +579,19 @@ double IdealGasMolarEnthalpy_Air(double T, double v_bar)
     hbar_a=hbar_a_0+R_bar_Lemmon*T*(1+tau*DerivTerms("dphi0_dTau",T,1/v_bar,"Air")); //[kJ/kmol]
 	return hbar_a;
 }
-//double IdealGasMolarEntropy_Air(double T, double v_bar)
-//{
-//	double sbar_a_0,tau,rhobar,delta,sbar_a,R_bar_Lemmon;
-//	// Ideal-Gas contribution to enthalpy of air
-//    hbar_a_0=-7914.149298; //[kJ/kmol]
-//    //Tj and rhoj are given by 132.6312 and 302.5507652 respectively
-//    tau=132.6312/T;
-//    rhobar=302.5507652/MM_Air()*1000;
-//    delta=1/(v_bar*rhobar);
-//    R_bar_Lemmon=8.314510; //[kJ/kmol/K]
-//    hbar_a=hbar_a_0+R_bar_Lemmon*T*(1+tau*DerivTerms("dphi0_dTau",T,1/v_bar,"Air")); //[kJ/kmol]
-//	return hbar_a;
-//}
+double IdealGasMolarEntropy_Air(double T, double v_bar_a)
+{
+	double sbar_0_Lem,tau,sbar_a,R_bar_Lemmon,T0=273.15,p0=101.325,v_0,v_bar_0;
+	R_bar_Lemmon=8.314510; //[kJ/kmol/K]
+	// Ideal-Gas contribution to entropy of air
+    sbar_0_Lem=-196.1375815; //[kJ/kmol/K]
+    //Tj and rhoj are given by 132.6312 and 302.5507652 respectively
+    tau=132.6312/T; //[no units]
+	v_0 = R_bar_Lemmon/MM_Air()*T0/p0; //[m^3/kg]
+	v_bar_0 = R_bar_Lemmon*T0/p0; //[m^3/kmol]
+    sbar_a=sbar_0_Lem+R_bar_Lemmon*(tau*DerivTerms("dphi0_dTau",T,1/v_0,"Air")-DerivTerms("phi0",T,1/v_0,"Air"))+R_bar_Lemmon*log(v_bar_a/v_bar_0); //[kJ/kmol/K]
+	return sbar_a; //[kJ/kmol/K]
+}
 double MolarEnthalpy(double T, double p, double psi_w, double v_bar)
 {
     // In units of kJ/kmol
@@ -605,7 +604,7 @@ double MolarEnthalpy(double T, double p, double psi_w, double v_bar)
     // ----------------------------------------
     // Constant for enthalpy
     // Not clear why getting rid of this term yields the correct values in the table, but enthalpies are equal to an additive constant, so not a big deal
-    hbar_0=2.924425468; //[kJ/kmol]
+    hbar_0=0.0;//2.924425468; //[kJ/kmol]
     
 	if (FlagUseIdealGasEnthalpyCorrelations)
 	{
@@ -622,34 +621,66 @@ double MolarEnthalpy(double T, double p, double psi_w, double v_bar)
     return hbar; //[kJ/kmol]
 }
 
-//double MolarEntropy(double T, double p, double psi_w, double v_bar)
-//{
-//    // In units of kJ/kmol/K
-//    
-//    // vbar (molar volume) in m^3/kg
-//    
-//    double sbar_0,sbar_a,sbar_w,hbar,R_bar=8.314472;
-//    // ----------------------------------------
-//    //      Enthalpy
-//    // ----------------------------------------
-//    // Constant for enthalpy
-//    // Not clear why getting rid of this term yields the correct values in the table, but enthalpies are equal to an additive constant, so not a big deal
-//    sbar_0=0.02366427495 [kJ/kmol]; //2.924425468; //[kJ/kmol]
-//    
-//	if (FlagUseIdealGasEnthalpyCorrelations)
-//	{
-//	hbar_w=2.7030251618E-03*T*T + 3.1994361015E+01*T + 3.6123174929E+04;
-//	hbar_a=9.2486716590E-04*T*T + 2.8557221776E+01*T - 7.8616129429E+03;
-//	}
-//	else
-//	{
-//    sbar_w=IdealGasMolarEntropy_Water(T,v_bar);
-//	sbar_a=IdealGasMolarEntropy_Air(T,v_bar);
-//	}
-//    
-//    hbar=hbar_0+(1-psi_w)*hbar_a+psi_w*hbar_w+R_bar*T*((B_m(T,psi_w)-T*dB_m_dT(T,psi_w))/v_bar+(C_m(T,psi_w)-T/2.0*dC_m_dT(T,psi_w))/(v_bar*v_bar));
-//    return hbar; //[kJ/kmol]
-//}
+double MolarEntropy(double T, double p, double psi_w, double v_bar)
+{
+    // In units of kJ/kmol/K
+    
+    // vbar (molar volume) in m^3/kmol
+    double x1=0,x2=0,x3=0,y1=0,y2=0,eps=1e-8,change=999,f=999,R_bar_Lem=8.314510;
+    int iter=1;
+    double sbar_0,sbar_a,sbar_w,sbar,R_bar=8.314472,vbar_a_guess, Baa, Caaa,vbar_a;
+    double B,dBdT,C,dCdT;
+    // Constant for entropy
+    sbar_0=0.02366427495;  //[kJ/kmol/K]
+
+	//Calculate vbar_a, the molar volume of dry air
+	// B_m, C_m, etc. functions take care of the units
+	Baa = B_m(T,0); 
+	B = B_m(T,psi_w);
+	dBdT = dB_m_dT(T,psi_w);
+	Caaa = C_m(T,0);
+	C = C_m(T,psi_w);
+	dCdT = dC_m_dT(T,psi_w);
+
+	vbar_a_guess = R_bar_Lem*T/p; //[m^3/mol] since p in [kPa]
+	
+    while ((iter<=3 || fabs(f)>eps) && iter<100)
+    {
+        if (iter==1){x1=vbar_a_guess; vbar_a=x1;}
+        if (iter==2){x2=vbar_a_guess+0.001; vbar_a=x2;}
+        if (iter>2) {vbar_a=x2;}
+            f=R_bar_Lem*T/vbar_a*(1+Baa/vbar_a+Caaa/pow(vbar_a,2))-p;
+        if (iter==1){y1=f;}
+        if (iter>1)
+        {
+            y2=f;
+            x3=x2-y2/(y2-y1)*(x2-x1);
+            y1=y2; x1=x2; x2=x3;
+        }
+        iter=iter+1;
+        if (iter>100){ return _HUGE; }
+    }
+    
+	if (FlagUseIdealGasEnthalpyCorrelations)
+	{
+		std::cout << "Not implemented" << std::endl;
+	}
+	else
+	{
+		sbar_w=IdealGasMolarEntropy_Water(T);
+		sbar_a=IdealGasMolarEntropy_Air(T,vbar_a);
+	}
+    if (psi_w!=0)
+	{
+		sbar=sbar_0+(1-psi_w)*sbar_a+psi_w*sbar_w-R_bar*(
+		(B+T*dBdT)/v_bar+(C+T*dCdT)/(2*pow(v_bar,2))+
+		(1-psi_w)*log(1-psi_w)+psi_w*log(psi_w));
+	}
+	else{
+		sbar=sbar_0+sbar_a;
+	}
+    return sbar; //[kJ/kmol/K]
+}
 
 double DewpointTemperature(double T, double p, double psi_w)
 {
@@ -903,7 +934,7 @@ double RelativeHumidity(double T, double p, double psi_w)
 double HAProps(char *OutputName, char *Input1Name, double Input1, char *Input2Name, double Input2, char *Input3Name, double Input3)
 {
     int In1Type, In2Type, In3Type,iT,iW,iTdp,iRH,ip,Type1,Type2;
-    double vals[3],p,T,RH,W,Tdp,psi_w,M_ha,v_bar,h_bar,MainInputValue,SecondaryInputValue,T_guess;
+    double vals[3],p,T,RH,W,Tdp,psi_w,M_ha,v_bar,h_bar,s_bar,MainInputValue,SecondaryInputValue,T_guess;
     double Value1,Value2,W_guess;
     char MainInputName[100], SecondaryInputName[100],Name1[100],Name2[100];
     
@@ -1096,6 +1127,13 @@ double HAProps(char *OutputName, char *Input1Name, double Input1, char *Input2Na
         h_bar=MolarEnthalpy(T,p,psi_w,v_bar); //[kJ/kmol_ha]
         return h_bar/M_ha; //[kJ/kg_ha]
     }
+	else if (!strcmp(OutputName,"S") || !strcmp(OutputName,"Entropy"))
+	{
+		v_bar=MolarVolume(T,p,psi_w); //[m^3/mol_ha]
+		s_bar=MolarEntropy(T,p,psi_w,v_bar); //[kJ/kmol_ha]
+        W=HumidityRatio(psi_w); //[kg_w/kg_da]
+        return s_bar*(1+W)/M_ha; //[kJ/kg_da]
+	}
     else if (!strcmp(OutputName,"Tdp") || !strcmp(OutputName,"D"))
     {
         return DewpointTemperature(T,p,psi_w); //[K]
@@ -1205,6 +1243,24 @@ double HAProps_Aux(char* Name,double T, double p, double W, char *units)
         C_aaw=_C_aaw(T)/1e6; //[dm^6/mol] to [m^6/mol^2]
         strcpy(units,"m^6/mol^2");
         return C_aaw;
+    }
+	else if (!strcmp(Name,"dBawdT"))
+    {
+        double dB_aw=_dB_aw_dT(T)/1e3; //[dm^3/mol] to [m^3/mol]
+        strcpy(units,"m^3/mol");
+        return dB_aw;
+    }
+    else if (!strcmp(Name,"dCawwdT"))
+    {
+        double dC_aww=_dC_aww_dT(T)/1e6; //[dm^6/mol] to [m^6/mol^2]
+        strcpy(units,"m^6/mol^2");
+        return dC_aww;
+    }
+    else if (!strcmp(Name,"dCaawdT"))
+    {
+        double dC_aaw=_dC_aaw_dT(T)/1e6; //[dm^6/mol] to [m^6/mol^2]
+        strcpy(units,"m^6/mol^2");
+        return dC_aaw;
     }
     else if (!strcmp(Name,"beta_H"))
     {

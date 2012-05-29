@@ -111,11 +111,11 @@ until :math:`\left|p(T,\rho_{old})-p_{guess}\right|` is sufficiently small.  The
 
 As you might imagine, doing all this work to calculate the saturation state for pure fluids is computationally *very* expensive, so a lookup table method has been implemented for the saturation densities and saturation pressure.  From Python, you can turn on the saturation lookup table with::
 
-    UseSaturationLUT(1)
+    UseSaturationLUT(True)
     
 or use the full EOS by calling::
 
-    UseSaturationLUT(0)
+    UseSaturationLUT(False)
     
 Properties as a function of h,p
 -------------------------------
@@ -153,6 +153,217 @@ and the jacobian is then
 .. math::
 
     J=\left[ \begin{array}{cc} \frac{\partial f_1}{\partial \tau} & \frac{\partial f_1}{\partial \delta} \\ \frac{\partial f_2}{\partial \tau} & \frac{\partial f_2}{\partial \delta}\end{array}\right]
+
+
+Use of Extended Corresponding States for Transport Properties
+-------------------------------------------------------------
+
+Exact solution for the conformal temperature
+
+If you have Helmholtz EOS for both the fluid and the reference fluid, you need to find a conformal temperature for the reference fluid that will yield the same compressibility factor and the residual Helmholtz energy
+
+.. math::
+
+    Z_j(T_j,\rho_j) = Z_0(T_0,\rho_0)
+
+.. math::
+
+    \alpha_j^r(T_j,\rho_j) = \alpha_0^r(T_0,\rho_0)
+
+where "j" is for the fluid of interest, and the subscript "0" is for the reference fluid.  The left side of each equation is already known from the equation of state.  Literature suggests that solving for :math:`T_0` and :math:`\rho_0` directly is quite challenging.  See McLinden 2000 or Klein 1997.
+
+Alternatively, if the shape factors :math:`\theta` and :math:`\phi` are known, either from correlation or otherwise, the conformal temperature and density can be calculated directly.
+
+.. math::
+
+    T_0 = \frac{T}{f} = T\frac{T_0^{c}}{T_j^c\theta(T_j,\rho_j)}
+    
+.. math::
+
+    \rho_0 = \rho h = \rho\frac{\rho_0^c}{\rho_j^c}\phi(T_j,\rho_j)
+
+
+Conversion from ideal gas term to Helmholtz energy term
+-------------------------------------------------------
+
+Much of the time the coefficients for the ideal-gas part of the Helmholtz energy are given directly, but sometimes only the gas-specific heat is provided.  Therefore you need to be able to go from specific heat to ideal-gas Helmholtz Energy.  The ideal-gas Helmholtz energy is given by Equation 23 from Lemmon, 2004, Equations of State for Mixtures of R-32, R-125, R-134a, R-143a, and R-152a, J. Phys. Chem. Ref. Data, Vol. 33, No. 2, 2004 or
+
+.. math::
+
+    a_0 = -RT+RT\ln\frac{\rho T}{\rho_0T_0}+h_0^0-Ts_0^0+\int_{T_0}^T c_p^0(T)dT-T\int_{T_0}^T \frac{c_p^0(T)}{T}dT
+    
+non-dimensionalizing
+
+.. math::
+
+    \alpha_0 =\frac{a_0}{RT}= -1+\ln\frac{\rho T}{\rho_0T_0}+\frac{h_0^0}{RT}-\frac{s_0^0}{R}+\frac{1}{RT}\int_{T_0}^T c_p^0(T)dT-\frac{1}{R}\int_{T_0}^T \frac{c_p^0(T)}{T}dT
+    
+Now we might want to do a change of variable in the integrals.  If so, do a u-substitution in the integrals.
+    
+.. math::
+
+    T=\frac{T_c}{\tau}
+
+where
+
+.. math::
+
+    dT=-\frac{T_c}{\tau^2}d\tau
+    
+.. math::
+
+    \alpha_0 = -1+\ln\frac{\rho T}{\rho_0T_0}+\frac{h_0^0}{RT}-\frac{s_0^0}{R}+\frac{1}{RT}\int_{\tau_0}^{\tau} c_p^0(T)(-\frac{T_c}{\tau^2}d\tau)-\frac{1}{R}\int_{\tau_0}^{\tau} \frac{c_p^0(\tau)}{T}(-\frac{T_c}{\tau^2}d\tau)
+    
+Simplifying and factoring the :math:`\tau` term yields
+
+.. math::
+
+    \alpha_0 = -1+\ln\frac{\rho T}{\rho_0T_0}+\frac{h_0^0}{RT}-\frac{s_0^0}{R}-\frac{\tau}{R}\int_{\tau_0}^{\tau} \frac{c_p^0(\tau)}{\tau^2}d\tau+\frac{1}{R}\int_{\tau_0}^{\tau} \frac{c_p^0(\tau)}{\tau}d\tau
+        
+which finally yields the solution as of Equation 3 from Lemmon, 2003 (and others)
+
+The specific-heat contribution can then be taken as a sum of the contributions 
+
+for a term of the form
+
+.. math::
+
+    \frac{c_p^0}{R}=\frac{(B/T)^2\exp(B/T)}{(\exp(B/T)-1)^2}
+
+the contribution is found from 
+
+.. math::
+
+    \frac{1}{T}\int_{T_0}^T \frac{(B/T)^2\exp(B/T)}{(\exp(B/T)-1)^2} dT-\int_{T_0}^T \frac{(B/T)^2\exp(B/T)}{(\exp(B/T)-1)^2}\frac{1}{T}dT
+    
+.. math::
+
+    \frac{1}{T} \left[ \frac{B}{\exp(B/T)-1 }\right|_{T_0}^T - \left[ \frac{B}{T}\left(\frac{1}{\exp(B/T)-1}+1\right) - \log[\exp(B/T)-1] \right|_{T_0}^T dT
+
+Factor out a B, First two terms cancel, leaving
+
+.. math::
+
+    - \left[ \frac{B}{T} - \log[\exp(B/T)-1] \right|_{T_0}^T dT
+    
+.. math::
+
+    \left[\log[\exp(B/T)-1] - \frac{B}{T} \right|_{T_0}^T dT
+    
+.. math::
+
+    \log[\exp(B/T)-1] - \frac{B}{T} -(\log[\exp(B/T_0)-1] - \frac{B}{T_0})
+    
+or in terms of :math:`\tau`
+
+.. math::
+
+    \log[\exp(B\tau/Tc)-1] - \frac{B\tau}{Tc} -(\log[\exp(B\tau_0/T_c)-1] - \frac{B\tau_0}{T_c})
+    
+for a term of the form
+
+.. math::
+
+    \frac{c_p^0}{R}=c
+
+the contribution is found from 
+
+.. math::
+
+    \frac{1}{T}\int_{T_0}^T c dT-\int_{T_0}^T \frac{c}{T}dT
+    
+.. math::
+
+    \frac{c}{T}(T-T_0)-c\log(T/T_0)
+    
+or in terms of :math:`\tau`
+
+.. math::
+
+    c-\frac{cT_0\tau}{T_c}+c\log(\tau/\tau_0)
+    
+    
+for a term of the form
+
+.. math::
+
+    \frac{c_p^0}{R}=cT^t, t \neq 0
+
+the contribution is found from 
+
+.. math::
+
+    \frac{1}{T}\int_{T_0}^T c T^t dT-\int_{T_0}^T \frac{c T^t}{T}dT
+    
+.. math::
+
+    \frac{c}{T}\left(\frac{T^{t+1}}{t+1}-\frac{T_0^{t+1}}{t+1}\right)-c\left(\frac{T^{t}}{t}-\frac{T_0^{t}}{t}\right)
+
+.. math::
+
+    cT^{t}\left(\frac{1}{t+1}-\frac{1}{t}\right)-c\frac{T_0^{t+1}}{T(t+1)}+c\frac{T_0^t}{t}
+
+or in terms of :math:`\tau`
+
+.. math::
+
+    cT_c^{t}\tau^{-t}\left(\frac{1}{t+1}-\frac{1}{t}\right)-c\frac{T_0^{t+1}\tau}{T_c(t+1)}+c\frac{T_0^t}{t}
+    
+..
+    .. math::
+        
+        \int\limits_{{\tau _0}}^\tau  {\left[ {aT_c^t{\tau ^{ - t - 1}}} \right]d\tau }  - \tau \int\limits_{{\tau _0}}^\tau  {\left[ {aT_c^t{\tau ^{ - t - 2}}} \right]d\tau } \\
+
+    .. math::
+
+        aT_c^t\left( {\int\limits_{{\tau _0}}^\tau  {{\tau ^{ - t - 1}}d\tau }  - \tau \int\limits_{{\tau _0}}^\tau  {{\tau ^{ - t - 2}}d\tau } } \right)\\
+
+    if :math:`t=0`
+
+    .. math::
+
+        a\left( {\int\limits_{{\tau _0}}^\tau  {\frac{1}{\tau }d\tau }  - \tau \int\limits_{{\tau _0}}^\tau  {{\tau ^{ - 2}}d\tau } } \right)
+
+    .. math::
+
+        a\left( {\left[ {\ln \left( \tau  \right)} \right]_{{\tau _0}}^\tau  - \tau \left[ {\frac{{{\tau ^{ - 1}}}}{{ - 1}}} \right]_{{\tau _0}}^\tau } \right)
+        
+    .. math::
+        a\left( \ln \left( \tau  \right) - \ln \left( {{\tau _0}} \right) \right)
+
+
+    if :math:`t\neq0`:
+
+    .. math::
+        
+        aT_c^t\left( {\left[ {\frac{{{\tau ^{ - t}}}}{{ - t}}} \right]_{{\tau _0}}^\tau  - \tau \left[ {\frac{{{\tau ^{ - t - 1}}}}{{ - t - 1}}} \right]_{{\tau _0}}^\tau } \right)\\
+
+    .. math::
+
+        aT_c^t\left( {\frac{{{\tau ^{ - t}}}}{{ - t}} - \frac{{\tau _0^{ - t}}}{{ - t}} - \tau \left[ {\frac{{{\tau ^{ - t - 1}}}}{{ - t - 1}} - \frac{{\tau _0^{ - t - 1}}}{{ - t - 1}}} \right]} \right)\\
+     
+    .. math::
+     
+        - aT_c^t\left( {\frac{{{\tau ^{ - t}}}}{t} - \frac{{\tau _0^{ - t}}}{t} - \left[ {\frac{{{\tau ^{ - t}}}}{{t + 1}} - \frac{{\tau _0^{ - t}}}{{t + 1}}} \right]} \right)
+        
+    .. math::
+
+        - aT_c^t\frac{{{\tau ^{ - t}}}}{t} + aT_c^t\frac{{{\tau ^{ - t}}}}{{t + 1}} + aT_c^t\frac{{\tau _0^{ - t}}}{t} - aT_c^t\frac{{\tau _0^{ - t}}}{{t + 1}}
+
+    .. math::
+
+        - aT_c^t\frac{{{\tau ^{ - t}}}}{t} + aT_c^t\frac{{{\tau ^{ - t}}}}{{t + 1}} + aT_c^t\tau _0^{ - t}\left[ {\frac{1}{t} - \frac{1}{{t + 1}}} \right]
+        
+    .. math::
+
+        aT_c^t{\tau ^{ - t}}\left[ {\frac{1}{{t + 1}} - \frac{1}{t}} \right] + aT_c^t\tau _0^{ - t}\left[ {\frac{1}{t} - \frac{1}{{t + 1}}} \right]\\
+        
+    if :math:`t = 1`
+
+    .. math::
+     
+        - \frac{{a{T_c}{\tau ^{ - 1}}}}{2} + \frac{{a{T_c}\tau _0^{ - 1}}}{2}
+    
 .. _Props_Sample:
 
 Sample Code
@@ -191,7 +402,7 @@ Sample Code
     In [2]: t1=timeit.Timer("T=Props('T','P',101.325,'Q',1,'Water')",setup="from CoolProp.CoolProp import Props").timeit(100)
     
     #Turn on the saturation LUT
-    In [3]: setupstring="from CoolProp.CoolProp import Props,UseSaturationLUT; UseSaturationLUT(1); T=Props('T','P',101.325,'Q',1,'Water')"
+    In [3]: setupstring="from CoolProp.CoolProp import Props,UseSaturationLUT; UseSaturationLUT(True); T=Props('T','P',101.325,'Q',1,'Water')"
     
     #Crudely time 100 calls to get saturation temperature with lookup table
     In [2]: t2=timeit.Timer("T=Props('T','P',101.325,'Q',1,'Water')",setup=setupstring).timeit(100)
@@ -203,7 +414,7 @@ Sample Code
     # -------------------------------------------------------
     
     #Turn off the saturation LUT
-    In [3]: setupstring="from CoolProp.CoolProp import Props,UseSinglePhaseLUT; UseSinglePhaseLUT(0)"
+    In [3]: setupstring="from CoolProp.CoolProp import Props,UseSinglePhaseLUT; UseSinglePhaseLUT(False)"
     
     #Crudely time 10000 calls to get single-phase cp without lookup table
     In [2]: t1=timeit.Timer("T=Props('C','T',298.15,'P',101.325,'R410A')",setup=setupstring).timeit(10000)
@@ -214,7 +425,6 @@ Sample Code
     #Crudely time 10000 calls to get single-phase cp with lookup table
     In [2]: t2=timeit.Timer("T=Props('C','T',298.15,'P',101.325,'R410A')",setup=setupstring).timeit(10000)
     
-    #Note: CO2 has a very involved EOS, so this is perhaps an extreme example    
     In [2]: print 'No LUT:{0:g} s With LUT: {1:g} s Speedup: {2:g}x'.format(t1,t2,t1/t2)       
     
 Code Documentation

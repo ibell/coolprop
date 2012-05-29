@@ -11,5 +11,8 @@
 		double psat(double);
 		double rhosatL(double);
 		double rhosatV(double);
+
+		void ECSParams(double *e_k, double *sigma);
+		double ECS_psi_viscosity(double rhor);
 	};
 #endif

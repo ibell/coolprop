@@ -15,13 +15,13 @@ this file for building a static or dynamic library
 #include "PropErrorCodes.h"
 #include "PropMacros.h"
 
-// Always include Air and Water
+// Always include Air and Water, and R134a since it is the default reference fluid for ECS
 #include "Water.h"
 #include "Air.h"
-
-// If the proprocessor key ONLY_AIR_WATER is defined, only air and water will be included
-#if !defined(ONLY_AIR_WATER)
 #include "R134a.h"
+
+// If the preprocessor key ONLY_AIR_WATER is defined, only air and water will be included (and R134a since default for ECS)
+#if !defined(ONLY_AIR_WATER)
 #include "R410A.h"
 #include "R290.h"
 #include "R32.h"
@@ -35,6 +35,7 @@ this file for building a static or dynamic library
 #include "Nitrogen.h"
 #include "Brine.h"
 #include "IndustrialFluids.h"
+#include "R22.h"
 #endif
 
 #define PHASE_SUPERCRITICAL 1
@@ -95,13 +96,28 @@ this file for building a static or dynamic library
 
 	*/
 
+/*! \mainpage CoolProp Core Code Documentation
+
+Welcome to the home page
+
+\section Extended Corresposponding State References
+
+Extended Corresponding States sucks.  But here are a few references:
+
+\section Links
+
+Other sources
+*/
+
 #ifndef CoolProp_H
 #define CoolProp_H
 
 	EXPORT_CODE void CONVENTION Help(void);
 	EXPORT_CODE void CONVENTION UseSaturationLUT(bool OnOff);
+	EXPORT_CODE bool CONVENTION SaturationLUTStatus();
 	EXPORT_CODE void CONVENTION UseSinglePhaseLUT(bool OnOff);
     EXPORT_CODE bool CONVENTION SinglePhaseLUTStatus(void);
+
 	EXPORT_CODE double CONVENTION Props(std::string Fluid,std::string Output);
 	EXPORT_CODE double CONVENTION Props(char *Fluid, char *Output);
 	EXPORT_CODE double CONVENTION Props(char Output,char Name1, double Prop1, char Name2, double Prop2, char * Ref);
@@ -120,4 +136,18 @@ this file for building a static or dynamic library
 	EXPORT_CODE int CONVENTION Phase(double T, double rho, char * Ref);
 	
 	EXPORT_CODE std::string CONVENTION FluidsList(void);
+	EXPORT_CODE std::string CONVENTION get_errstring(void);
+	EXPORT_CODE char* CONVENTION get_errstringc(void);
+
+	/*
+	returns 1 if parameters set properly
+	*/
+	EXPORT_CODE int CONVENTION set_1phase_LUT_params(char *Ref, int nT, int np, double Tmin, double Tmax, double pmin, double pmax, bool rebuild);
+	EXPORT_CODE int CONVENTION set_1phase_LUT_params(std::string Ref, int nT, int np, double Tmin, double Tmax, double pmin, double pmax, bool rebuild);
+	// Without rebuild provided, default to not rebuild automatically (rebuild=False)
+	EXPORT_CODE int CONVENTION set_1phase_LUT_params(char *Ref,int nT, int np, double Tmin, double Tmax, double pmin, double pmax);
+	EXPORT_CODE int CONVENTION set_1phase_LUT_params(std::string Ref, int nT, int np, double Tmin, double Tmax, double pmin, double pmax);
+
+	EXPORT_CODE void CONVENTION get_1phase_LUT_params(int *nT, int *np, double *Tmin, double *Tmax, double *pmin, double *pmax);
+
 #endif

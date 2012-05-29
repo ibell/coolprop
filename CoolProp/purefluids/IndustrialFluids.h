@@ -8,7 +8,6 @@ public:
     CarbonMonoxideClass();
     ~CarbonMonoxideClass(){};
     virtual double conductivity_Trho(double, double);
-    virtual double viscosity_Trho(double, double);
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
@@ -20,7 +19,6 @@ public:
     CarbonylSulfideClass();
     ~CarbonylSulfideClass(){};
     virtual double conductivity_Trho(double, double);
-    virtual double viscosity_Trho(double, double);
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
@@ -32,7 +30,6 @@ public:
     DecaneClass();
     ~DecaneClass(){};
     virtual double conductivity_Trho(double, double);
-    virtual double viscosity_Trho(double, double);
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
@@ -44,7 +41,6 @@ public:
     HydrogenSulfideClass();
     ~HydrogenSulfideClass(){};
     virtual double conductivity_Trho(double, double);
-    virtual double viscosity_Trho(double, double);
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
@@ -56,7 +52,6 @@ public:
     IsopentaneClass();
     ~IsopentaneClass(){};
     virtual double conductivity_Trho(double, double);
-    virtual double viscosity_Trho(double, double);
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
@@ -68,7 +63,6 @@ public:
     NeopentaneClass();
     ~NeopentaneClass(){};
     virtual double conductivity_Trho(double, double);
-    virtual double viscosity_Trho(double, double);
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
@@ -80,7 +74,6 @@ public:
     IsohexaneClass();
     ~IsohexaneClass(){};
     virtual double conductivity_Trho(double, double);
-    virtual double viscosity_Trho(double, double);
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
@@ -92,7 +85,6 @@ public:
     KryptonClass();
     ~KryptonClass(){};
     virtual double conductivity_Trho(double, double);
-    virtual double viscosity_Trho(double, double);
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
@@ -104,7 +96,6 @@ public:
     NonaneClass();
     ~NonaneClass(){};
     virtual double conductivity_Trho(double, double);
-    virtual double viscosity_Trho(double, double);
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
@@ -116,7 +107,6 @@ public:
     TolueneClass();
     ~TolueneClass(){};
     virtual double conductivity_Trho(double, double);
-    virtual double viscosity_Trho(double, double);
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
@@ -128,7 +118,6 @@ public:
     XenonClass();
     ~XenonClass(){};
     virtual double conductivity_Trho(double, double);
-    virtual double viscosity_Trho(double, double);
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
@@ -140,7 +129,6 @@ public:
     R116Class();
     ~R116Class(){};
     virtual double conductivity_Trho(double, double);
-    virtual double viscosity_Trho(double, double);
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
@@ -152,7 +140,6 @@ public:
     AcetoneClass();
     ~AcetoneClass(){};
     virtual double conductivity_Trho(double, double);
-    virtual double viscosity_Trho(double, double);
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
@@ -164,7 +151,6 @@ public:
     NitrousOxideClass();
     ~NitrousOxideClass(){};
     virtual double conductivity_Trho(double, double);
-    virtual double viscosity_Trho(double, double);
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
@@ -176,7 +162,6 @@ public:
     SulfurDioxideClass();
     ~SulfurDioxideClass(){};
     virtual double conductivity_Trho(double, double);
-    virtual double viscosity_Trho(double, double);
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
@@ -188,7 +173,6 @@ public:
     R141bClass();
     ~R141bClass(){};
     virtual double conductivity_Trho(double, double);
-    virtual double viscosity_Trho(double, double);
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
@@ -200,7 +184,6 @@ public:
     R142bClass();
     ~R142bClass(){};
     virtual double conductivity_Trho(double, double);
-    virtual double viscosity_Trho(double, double);
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
@@ -212,7 +195,6 @@ public:
     R218Class();
     ~R218Class(){};
     virtual double conductivity_Trho(double, double);
-    virtual double viscosity_Trho(double, double);
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
@@ -224,7 +206,6 @@ public:
     R245faClass();
     ~R245faClass(){};
     virtual double conductivity_Trho(double, double);
-    virtual double viscosity_Trho(double, double);
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
@@ -236,7 +217,6 @@ public:
     R41Class();
     ~R41Class(){};
     virtual double conductivity_Trho(double, double);
-    virtual double viscosity_Trho(double, double);
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);

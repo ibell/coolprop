@@ -138,8 +138,6 @@ static const double n0[]={
 	32.7682170	//[6]
 };
 
-
-
 R32Class::R32Class()
 {
 	std::vector<double> n_v(a,a+sizeof(a)/sizeof(double));
@@ -155,11 +153,11 @@ R32Class::R32Class()
 	// return log(delta)+a0[0]+a0[1]*tau+a0[2]*log(tau)+a0[3]*log(1-exp(-n0[3]*tau))+a0[4]*log(1-exp(-n0[4]*tau))+a0[5]*log(1-exp(-n0[5]*tau))+a0[6]*log(1-exp(-n0[6]*tau));
 	phi_BC * phi0_lead_ = new phi0_lead(a0[0],a0[1]);
 	phi_BC * phi0_logtau_ = new phi0_logtau(a0[2]);
-	phi_BC * phi0_power_ = new phi0_power(a0_v,n0_v,3,6);
+	phi_BC * phi0_Planck_Einstein_ = new phi0_Planck_Einstein(a0_v,n0_v,3,6);
 
 	phi0list.push_back(phi0_lead_);
 	phi0list.push_back(phi0_logtau_);
-	phi0list.push_back(phi0_power_);
+	phi0list.push_back(phi0_Planck_Einstein_);
 
 	// Critical parameters
 	crit.rho = 424;
@@ -184,13 +182,9 @@ R32Class::R32Class()
 						" for temperatures from the triple point at 136.34 K to 435 K and pressures"
 						" up to 70 MPa,\""
 						" J. Phys. Chem. Ref. Data, 26(6):1273-1328, 1997.");
-	TransportReference.assign("Viscosity: \"A Reference Multiparameter Viscosity Equation for R32"
-						"with an Optimized Functional Form\""
-						"by G. Scalabrin and P. Marchi, R. Span"
-						"J. Phys. Chem. Ref. Data, Vol. 35, No. 2, 2006");
+	TransportReference.assign("");
 
 	name.assign("R32");
-	aliases.push_back("R134A");
 }
 double R32Class::psat(double T)
 {
@@ -219,16 +213,33 @@ double R32Class::rhosatV(double T)
 
 	return crit.rho*exp(-1.969*pow(theta,1.0/3.0)-2.0222*pow(theta,2.0/3.0)-6.7409*pow(theta,4.0/3.0)-27.479*pow(theta,11.0/3.0));
 }
-
+double R32Class::ECS_psi_viscosity(double rhor)
+{
+//	return 1.0;
+	//return 0.9;
+	//return 0.95;
+	//return 0.898+0.0099*rhor;
+	return 0.7954+5.426580e-2*rhor;
+}
+void R32Class::ECSParams(double *e_k, double *sigma)
+{
+	*e_k = 289.65;
+	*sigma = 0.4098;
+}
 double R32Class::viscosity_Trho(double T, double rho)
 {
-	//ERROR
-	fprintf(stderr,"Viscosity_Trho for R32 not coded");
-	return _HUGE;
+	// Use propane as the reference
+	Fluid * ReferenceFluid = new R290Class();
+	ReferenceFluid->post_load();
+	// Calculate the ECS
+	double mu = viscosity_ECS_Trho(T, rho, ReferenceFluid);
+	// Delete the reference fluid instance
+	delete ReferenceFluid;
+	return mu;
 }
 double R32Class::conductivity_Trho(double T, double rho)
 {
 	//ERROR
-	fprintf(stderr,"Conductivity_Trho for R32 not coded");
+	throw NotImplementedError(format("Conductivity_Trho for R32 not coded"));
 	return _HUGE;
 }

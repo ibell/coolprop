@@ -7,7 +7,6 @@ from Cython.Distutils.extension import Extension as CyExtension
 if len(sys.argv)==1:
     sys.argv+=['install','install']
     
-    
 badfiles = [os.path.join('CoolProp','__init__.pyc'),os.path.join('CoolProp','__init__.py')]
 for file in badfiles:
     try:
@@ -52,7 +51,7 @@ fp.close()
 
 ## ==== start of SWIG code =======
 
-swig_opts=['-builtin','-Wall','-c++','-python']
+swig_opts=['-c++','-python','-builtin']
 
 """
 In this block of code, all the files that require SWIG are rebuilt on an as needed basis.  
@@ -79,7 +78,17 @@ for source,target in swig_sources:
         rebuild_swig(source,target)
     else:
         print 'No SWIG required for '+source+' --> '+target+' (up-to-date)'
-        
+
+#from distutils.sysconfig import get_python_inc
+#from distutils.ccompiler import new_compiler
+#include_dirs = ['CoolProp',os.path.join('CoolProp','purefluids'),os.path.join('CoolProp','pseudopurefluids'),get_python_inc(False)]
+#def StaticLibBuilder(sources):
+#    CC = new_compiler()
+#    objs = CC.compile(sources,'build_lib',[('COOLPROP_LIB',None)],include_dirs=include_dirs)
+#    print objs
+#    CC.create_static_lib(objs, 'CoolProp','lib')    
+#StaticLibBuilder(Sources)            
+
 ## ==== end of SWIG code =======
 
 CoolProp_module = Extension('CoolProp._CoolProp',
@@ -100,6 +109,7 @@ HASources = [
      os.path.join('CoolProp','HumidAirProp_wrap.cpp'),
      os.path.join('CoolProp','pseudopurefluids','Air.cpp'),
      os.path.join('CoolProp','purefluids','Water.cpp'),
+     os.path.join('CoolProp','purefluids','R134a.cpp'),
      os.path.join('CoolProp','REFPROP.cpp'),
      os.path.join('CoolProp','Brine.cpp'),
      os.path.join('CoolProp','CoolProp.cpp'),
@@ -109,6 +119,7 @@ HASources = [
      os.path.join('CoolProp','HumAir.cpp'),
      os.path.join('CoolProp','Ice.cpp'),
      os.path.join('CoolProp','PengRobinson.cpp'),
+     os.path.join('CoolProp','Solvers.cpp'),
      ]
 HumidAirProp_module = Extension('CoolProp._HumidAirProp',
                            sources=HASources,
@@ -116,8 +127,12 @@ HumidAirProp_module = Extension('CoolProp._HumidAirProp',
                            include_dirs = ['CoolProp',os.path.join('CoolProp','purefluids'),os.path.join('CoolProp','pseudopurefluids')],
                            )                     
 
-State_module = CyExtension('CoolProp.State',[os.path.join('CoolProp','State.pyx')],language='c++')                
+#State_module = CyExtension('CoolProp.State',[os.path.join('CoolProp','State.pyx')],language='c++')                
 
+State_module = CyExtension('CoolProp.State',[os.path.join('CoolProp','State.pyx')],language='c++',libraries=['CoolProp'],
+                        library_dirs=['lib'],
+                        include_dirs = ['CoolProp',os.path.join('CoolProp','purefluids'),os.path.join('CoolProp','pseudopurefluids')])
+#                        
 setup (name = 'CoolProp',
        version = version, #look above for the definition of version variable - don't modify it here
        author = "Ian Bell",
@@ -125,7 +140,7 @@ setup (name = 'CoolProp',
        url='http://coolprop.sourceforge.net',
        description = """Properties of pure fluids, pseudo-pure fluids and brines""",
        packages = ['CoolProp','CoolProp.Plots','CoolProp.tests'],
-       ext_modules = [HumidAirProp_module,CoolProp_module,State_module,FloodProp_module],
+       ext_modules = [State_module,CoolProp_module,FloodProp_module,HumidAirProp_module],
        package_dir = {'CoolProp':'CoolProp',},
        cmdclass={'build_ext': build_ext}
        )

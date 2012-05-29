@@ -1,15 +1,20 @@
-#cdef extern from "CoolProp.h":
-#    double Props(char,char,double,char,double,char*)
-#    void UseSinglePhaseLUT(bool)
-#    double DerivTerms(char *, double, double, char*)
-    
-from CoolProp import Props,UseSinglePhaseLUT,DerivTerms
-cdef class State:
+cdef extern from "CoolProp.h":
+    double Props(char,char,double,char,double,char*)
+    void UseSinglePhaseLUT(bool)
+    double DerivTerms(char *, double, double, char*)
+    char * get_errstringc()
+    int set_1phase_LUT_params(char*,int,int,double,double,double,double)
+
+cdef int set_1phase_LUT_params_(bytes Ref, int nT,int np,double Tmin,double Tmax,double pmin,double pmax):
+    return set_1phase_LUT_params(Ref,nT, np, Tmin, Tmax, pmin, pmax)
+
+#from CoolProp import Props,UseSinglePhaseLUT,DerivTerms
+cdef class State: 
     """
     A class that contains all the code that represents a thermodynamic state
     """
     
-    def __init__(self,bytes Fluid,dict StateDict,double xL=-1.0,Liquid='',bint LUT=True):
+    def __init__(self,bytes Fluid,dict StateDict,double xL=-1.0,Liquid='',bint LUT=False):
         self.Fluid=Fluid
         self.xL=xL
         self.Liquid=Liquid
@@ -18,9 +23,9 @@ cdef class State:
         self.update(StateDict)
         
         if LUT==True:
-            UseSinglePhaseLUT(<bint>True)
+            UseSinglePhaseLUT(<bint>1)
         else:
-            UseSinglePhaseLUT(<bint>False)
+            UseSinglePhaseLUT(<bint>0) 
             
     def __reduce__(self):
         d={}
@@ -37,6 +42,7 @@ cdef class State:
         that have been updated and will be used to fix the rest of the state. 
         ['T','P'] for temperature and pressure for instance
         """
+        cdef double p
         
         # If no value for xL is provided, it will have a value of -1 which is 
         # impossible, so don't update xL
@@ -62,10 +68,20 @@ cdef class State:
             #Get the density if T,P provided, or pressure if T,rho provided
             if 'P' in params:
                 self.p_=params['P']
-                self.rho_=Props('D','T',self.T_,'P',self.p_,self.Fluid)
+                rho = Props('D','T',self.T_,'P',self.p_,self.Fluid)
+                if abs(rho)<1e90:
+                    self.rho_=rho
+                else:
+                    errstr = get_errstringc()
+                    raise ValueError(errstr)
             elif 'D' in params:
                 self.rho_=params['D']
-                self.p_=Props('P','T',self.T_,'D',self.rho_,self.Fluid)
+                p = Props('P','T',self.T_,'D',self.rho_,self.Fluid)
+                if abs(p)<1e90:
+                    self.p_=p
+                else:
+                    errstr = get_errstringc()
+                    raise ValueError(errstr)
             
         elif self.xL>0 and self.xL<=1:
             raise ValueError('Need more code here')
@@ -119,19 +135,19 @@ cdef class State:
     property dpdT:
         def __get__(self):
             return DerivTerms('dpdT',self.T_,self.rho_,self.Fluid)
-    
+        
     cpdef speed_test(self,int N):
         from time import clock
         cdef int i
         cdef char * k
-        cdef char * Fluid = self.Fluid
+        cdef char * Fluid = self.Fluid 
         print 'Direct c++ call to CoolProp without the Python call layer'
         keys = ['H','P','S','U','C','O']
         for key in keys:
             t1=clock()
             k=key
             for i in range(N):
-                Props(k[0],'T',self.T,'D',self.rho,Fluid)
+                Props(k[0],'T',self.T_,'D',self.rho_,Fluid)
             t2=clock()
             print 'Elapsed time for {0:d} calls for "{1:s}" at {2:g} us/call'.format(N,key,(t2-t1)/N*1e6)
     
@@ -159,7 +175,10 @@ cdef class State:
         return ST
     
 def rebuildState(d):
+    print d
     S=State(d['Fluid'],{'T':d['T'],'D':d['rho']})
     S.xL = d['xL']
     S.Liquid=d['Liquid']
     return S
+
+

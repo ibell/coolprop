@@ -11,6 +11,12 @@
 		double psat(double);
 		double rhosatL(double);
 		double rhosatV(double);
+
+		double viscosity_dilute(double T);
+		double viscosity_dilute2(double T, double rho);
+		double viscosity_residual(double T, double rho);
+		double viscosity_background(double T, double rho);
+		void ECSParams(double *e_k, double *sigma);
 	};
 
 #endif

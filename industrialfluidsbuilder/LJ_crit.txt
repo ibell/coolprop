@@ -1,0 +1,20 @@
+# McLinden, 2000, Model for the Viscosity and Thermal Conductivity of Refrigerants,
+# Including a New Correlation for the Viscosity of R134a
+# e/kB [K], sigma [nm], Tc [K], pc [MPa], rhoc [mol/L], reference
+R13,204.00,0.4971,302.00,3.879,5.580,Takahashi65
+R14,164.44,0.4543,227.51,3.750,7.109,Millat145
+R32,289.65,0.4098,351.26,5.782,8.150,fit to Takahashi85
+R115,201.90,0.5876,353.10,3.120,3.969,Takahashi94
+R116,226.16,0.5249,293.02,3.054,4.518,estimated
+R124,275.80,0.5501,395.43,3.624,4.103,Dowdell31
+R125,249.00,0.5190,339.17,3.618,4.779,Le Neindre146
+R141b,370.44,0.5493,479.96,4.460,3.933,estimated
+R142b,278.20,0.5362,410.26,4.070,4.438,Nabizadeh106
+R218,266.35,0.5800,345.10,2.671,3.340,estimated
+R227ea,289.34,0.5746,374.8,2.926,3.370,estimated
+R236ea,318.33,0.5604,412.44,3.502,3.703,estimated
+R236fa,307.24,0.5644,398.07,3.200,3.626,estimated
+R245ca,345.44,0.5505,447.57,3.925,3.906,estimated
+R245fa,329.72,0.5529,4,27.20,3.640,3.857,estimated
+RC318,299.76,0.5947,388.38,2.778,3.099,estimated
+propylene,298.90,0.4678,365.57,4.665,5.309,Reid147

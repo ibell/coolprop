@@ -166,13 +166,8 @@ CarbonMonoxideClass::CarbonMonoxideClass()
     TransportReference.assign("Using ECS");
 
     name.assign("CarbonMonoxide");
-    //Aliases not implemented yet
-
-}
-double CarbonMonoxideClass::viscosity_Trho(double tau, double delta)
-{
-    //throw NotImplementedError();
-    return _HUGE;
+    aliases.push_back(std::string("CO")); 
+    REFPROPname.assign("CO");
 }
 double CarbonMonoxideClass::conductivity_Trho(double tau, double delta)
 {
@@ -187,7 +182,7 @@ double CarbonMonoxideClass::rhosatL(double T)
 double CarbonMonoxideClass::rhosatV(double T) 
 {
     double THETA = 1-T/crit.T;
-    double RHS = 0.0917324-3.94598*pow(THETA,0.529036)-8.93952*pow(THETA,1.85865)-33.3358*pow(THETA,5.11753);
+    double RHS = -0.119344-3.94598*pow(THETA,0.529036)-8.93952*pow(THETA,1.85865)-33.3358*pow(THETA,5.11753);
     return exp(RHS)*crit.rho;
 }
 double CarbonMonoxideClass::psat(double T) 
@@ -249,13 +244,8 @@ CarbonylSulfideClass::CarbonylSulfideClass()
     TransportReference.assign("Using ECS");
 
     name.assign("CarbonylSulfide");
-    //Aliases not implemented yet
-
-}
-double CarbonylSulfideClass::viscosity_Trho(double tau, double delta)
-{
-    //throw NotImplementedError();
-    return _HUGE;
+    aliases.push_back(std::string("COS")); 
+    REFPROPname.assign("COS");
 }
 double CarbonylSulfideClass::conductivity_Trho(double tau, double delta)
 {
@@ -270,7 +260,7 @@ double CarbonylSulfideClass::rhosatL(double T)
 double CarbonylSulfideClass::rhosatV(double T) 
 {
     double THETA = 1-T/crit.T;
-    double RHS = -0.23594-14.9863*pow(THETA,2.50487)-5.12115*pow(THETA,0.604117)-57.4114*pow(THETA,7.01426);
+    double RHS = -0.23617-14.9863*pow(THETA,2.50487)-5.12115*pow(THETA,0.604117)-57.4114*pow(THETA,7.01427);
     return exp(RHS)*crit.rho;
 }
 double CarbonylSulfideClass::psat(double T) 
@@ -332,13 +322,8 @@ DecaneClass::DecaneClass()
     TransportReference.assign("Using ECS");
 
     name.assign("Decane");
-    //Aliases not implemented yet
-
-}
-double DecaneClass::viscosity_Trho(double tau, double delta)
-{
-    //throw NotImplementedError();
-    return _HUGE;
+    aliases.push_back(std::string("decane")); 
+    REFPROPname.assign("decane");
 }
 double DecaneClass::conductivity_Trho(double tau, double delta)
 {
@@ -353,7 +338,7 @@ double DecaneClass::rhosatL(double T)
 double DecaneClass::rhosatV(double T) 
 {
     double THETA = 1-T/crit.T;
-    double RHS = -0.205669-22.9208*pow(THETA,2.51421)-6.45011*pow(THETA,0.587562)-84.889*pow(THETA,6.49204);
+    double RHS = -0.205737-22.9208*pow(THETA,2.51421)-6.45011*pow(THETA,0.587562)-84.889*pow(THETA,6.49204);
     return exp(RHS)*crit.rho;
 }
 double DecaneClass::psat(double T) 
@@ -416,13 +401,8 @@ HydrogenSulfideClass::HydrogenSulfideClass()
     TransportReference.assign("Using ECS");
 
     name.assign("HydrogenSulfide");
-    //Aliases not implemented yet
-
-}
-double HydrogenSulfideClass::viscosity_Trho(double tau, double delta)
-{
-    //throw NotImplementedError();
-    return _HUGE;
+    aliases.push_back(std::string("H2S")); 
+    REFPROPname.assign("H2S");
 }
 double HydrogenSulfideClass::conductivity_Trho(double tau, double delta)
 {
@@ -437,7 +417,7 @@ double HydrogenSulfideClass::rhosatL(double T)
 double HydrogenSulfideClass::rhosatV(double T) 
 {
     double THETA = 1-T/crit.T;
-    double RHS = -0.0864737-4.31985*pow(THETA,0.523612)-10.4004*pow(THETA,1.98277)-37.8195*pow(THETA,5.34652);
+    double RHS = -0.0867325-4.31985*pow(THETA,0.523612)-10.4004*pow(THETA,1.98277)-37.8195*pow(THETA,5.34652);
     return exp(RHS)*crit.rho;
 }
 double HydrogenSulfideClass::psat(double T) 
@@ -499,13 +479,8 @@ IsopentaneClass::IsopentaneClass()
     TransportReference.assign("Using ECS");
 
     name.assign("Isopentane");
-    //Aliases not implemented yet
-
-}
-double IsopentaneClass::viscosity_Trho(double tau, double delta)
-{
-    //throw NotImplementedError();
-    return _HUGE;
+    aliases.push_back(std::string("ipentane")); 
+    REFPROPname.assign("ipentane");
 }
 double IsopentaneClass::conductivity_Trho(double tau, double delta)
 {
@@ -520,7 +495,7 @@ double IsopentaneClass::rhosatL(double T)
 double IsopentaneClass::rhosatV(double T) 
 {
     double THETA = 1-T/crit.T;
-    double RHS = -0.212329-7.37526*pow(THETA,0.76493)-30.5914*pow(THETA,3.48774)-104.82*pow(THETA,9.92148);
+    double RHS = -0.307787-7.37525*pow(THETA,0.764929)-104.82*pow(THETA,9.92148)-30.5914*pow(THETA,3.48774);
     return exp(RHS)*crit.rho;
 }
 double IsopentaneClass::psat(double T) 
@@ -582,13 +557,8 @@ NeopentaneClass::NeopentaneClass()
     TransportReference.assign("Using ECS");
 
     name.assign("Neopentane");
-    //Aliases not implemented yet
-
-}
-double NeopentaneClass::viscosity_Trho(double tau, double delta)
-{
-    //throw NotImplementedError();
-    return _HUGE;
+    aliases.push_back(std::string("neopentn")); 
+    REFPROPname.assign("neopentn");
 }
 double NeopentaneClass::conductivity_Trho(double tau, double delta)
 {
@@ -603,7 +573,7 @@ double NeopentaneClass::rhosatL(double T)
 double NeopentaneClass::rhosatV(double T) 
 {
     double THETA = 1-T/crit.T;
-    double RHS = -0.0108838-8.94383*pow(THETA,1.72519)-4.16982*pow(THETA,0.51322)-33.8828*pow(THETA,4.47481);
+    double RHS = -0.105179-4.16981*pow(THETA,0.513219)-8.9438*pow(THETA,1.72519)-33.8828*pow(THETA,4.4748);
     return exp(RHS)*crit.rho;
 }
 double NeopentaneClass::psat(double T) 
@@ -665,13 +635,8 @@ IsohexaneClass::IsohexaneClass()
     TransportReference.assign("Using ECS");
 
     name.assign("Isohexane");
-    //Aliases not implemented yet
-
-}
-double IsohexaneClass::viscosity_Trho(double tau, double delta)
-{
-    //throw NotImplementedError();
-    return _HUGE;
+    aliases.push_back(std::string("ihexane")); 
+    REFPROPname.assign("ihexane");
 }
 double IsohexaneClass::conductivity_Trho(double tau, double delta)
 {
@@ -686,7 +651,7 @@ double IsohexaneClass::rhosatL(double T)
 double IsohexaneClass::rhosatV(double T) 
 {
     double THETA = 1-T/crit.T;
-    double RHS = -0.0928397-7.59811*pow(THETA,0.746706)-33.6158*pow(THETA,3.50509)-115.543*pow(THETA,10.0502);
+    double RHS = -0.241105-7.59813*pow(THETA,0.746707)-33.6159*pow(THETA,3.5051)-115.543*pow(THETA,10.0502);
     return exp(RHS)*crit.rho;
 }
 double IsohexaneClass::psat(double T) 
@@ -747,13 +712,8 @@ KryptonClass::KryptonClass()
     TransportReference.assign("Using ECS");
 
     name.assign("Krypton");
-    //Aliases not implemented yet
-
-}
-double KryptonClass::viscosity_Trho(double tau, double delta)
-{
-    //throw NotImplementedError();
-    return _HUGE;
+    aliases.push_back(std::string("krypton")); 
+    REFPROPname.assign("krypton");
 }
 double KryptonClass::conductivity_Trho(double tau, double delta)
 {
@@ -768,7 +728,7 @@ double KryptonClass::rhosatL(double T)
 double KryptonClass::rhosatV(double T) 
 {
     double THETA = 1-T/crit.T;
-    double RHS = 0.0306691-3.75692*pow(THETA,0.509614)-7.6865*pow(THETA,1.77205)-25.2873*pow(THETA,4.75345);
+    double RHS = -0.0392213-3.75692*pow(THETA,0.509614)-7.68651*pow(THETA,1.77205)-25.2873*pow(THETA,4.75346);
     return exp(RHS)*crit.rho;
 }
 double KryptonClass::psat(double T) 
@@ -830,13 +790,8 @@ NonaneClass::NonaneClass()
     TransportReference.assign("Using ECS");
 
     name.assign("Nonane");
-    //Aliases not implemented yet
-
-}
-double NonaneClass::viscosity_Trho(double tau, double delta)
-{
-    //throw NotImplementedError();
-    return _HUGE;
+    aliases.push_back(std::string("nonane")); 
+    REFPROPname.assign("nonane");
 }
 double NonaneClass::conductivity_Trho(double tau, double delta)
 {
@@ -851,7 +806,7 @@ double NonaneClass::rhosatL(double T)
 double NonaneClass::rhosatV(double T) 
 {
     double THETA = 1-T/crit.T;
-    double RHS = 0.0177639-23.6569*pow(THETA,2.59633)-6.38284*pow(THETA,0.593543)-87.0598*pow(THETA,6.83533);
+    double RHS = -0.0977264-23.6568*pow(THETA,2.59633)-6.38283*pow(THETA,0.593543)-87.0597*pow(THETA,6.83533);
     return exp(RHS)*crit.rho;
 }
 double NonaneClass::psat(double T) 
@@ -913,13 +868,8 @@ TolueneClass::TolueneClass()
     TransportReference.assign("Using ECS");
 
     name.assign("Toluene");
-    //Aliases not implemented yet
-
-}
-double TolueneClass::viscosity_Trho(double tau, double delta)
-{
-    //throw NotImplementedError();
-    return _HUGE;
+    aliases.push_back(std::string("toluene")); 
+    REFPROPname.assign("toluene");
 }
 double TolueneClass::conductivity_Trho(double tau, double delta)
 {
@@ -934,7 +884,7 @@ double TolueneClass::rhosatL(double T)
 double TolueneClass::rhosatV(double T) 
 {
     double THETA = 1-T/crit.T;
-    double RHS = -0.135392-6.8994*pow(THETA,0.691253)-25.5456*pow(THETA,3.08489)-89.434*pow(THETA,8.33107);
+    double RHS = -0.191773-6.8994*pow(THETA,0.691253)-25.5456*pow(THETA,3.08489)-89.434*pow(THETA,8.33106);
     return exp(RHS)*crit.rho;
 }
 double TolueneClass::psat(double T) 
@@ -995,13 +945,8 @@ XenonClass::XenonClass()
     TransportReference.assign("Using ECS");
 
     name.assign("Xenon");
-    //Aliases not implemented yet
-
-}
-double XenonClass::viscosity_Trho(double tau, double delta)
-{
-    //throw NotImplementedError();
-    return _HUGE;
+    aliases.push_back(std::string("Xe")); aliases.push_back(std::string("xenon")); 
+    REFPROPname.assign("xenon");
 }
 double XenonClass::conductivity_Trho(double tau, double delta)
 {
@@ -1016,7 +961,7 @@ double XenonClass::rhosatL(double T)
 double XenonClass::rhosatV(double T) 
 {
     double THETA = 1-T/crit.T;
-    double RHS = -0.0731716-3.68385*pow(THETA,0.50101)-7.66799*pow(THETA,1.74507)-25.3412*pow(THETA,4.69948);
+    double RHS = -0.0761819-3.68385*pow(THETA,0.50101)-7.66799*pow(THETA,1.74507)-25.3412*pow(THETA,4.69948);
     return exp(RHS)*crit.rho;
 }
 double XenonClass::psat(double T) 
@@ -1078,13 +1023,8 @@ R116Class::R116Class()
     TransportReference.assign("Using ECS");
 
     name.assign("R116");
-    //Aliases not implemented yet
 
-}
-double R116Class::viscosity_Trho(double tau, double delta)
-{
-    //throw NotImplementedError();
-    return _HUGE;
+    REFPROPname.assign("R116");
 }
 double R116Class::conductivity_Trho(double tau, double delta)
 {
@@ -1099,7 +1039,7 @@ double R116Class::rhosatL(double T)
 double R116Class::rhosatV(double T) 
 {
     double THETA = 1-T/crit.T;
-    double RHS = -0.160941-4.35824*pow(THETA,0.51947)-9.81421*pow(THETA,1.76751)-36.972*pow(THETA,4.5405);
+    double RHS = -0.161563-4.35824*pow(THETA,0.519469)-9.81421*pow(THETA,1.76751)-36.972*pow(THETA,4.5405);
     return exp(RHS)*crit.rho;
 }
 double R116Class::psat(double T) 
@@ -1161,13 +1101,8 @@ AcetoneClass::AcetoneClass()
     TransportReference.assign("Using ECS");
 
     name.assign("Acetone");
-    //Aliases not implemented yet
-
-}
-double AcetoneClass::viscosity_Trho(double tau, double delta)
-{
-    //throw NotImplementedError();
-    return _HUGE;
+    aliases.push_back(std::string("acetone")); 
+    REFPROPname.assign("acetone");
 }
 double AcetoneClass::conductivity_Trho(double tau, double delta)
 {
@@ -1182,7 +1117,7 @@ double AcetoneClass::rhosatL(double T)
 double AcetoneClass::rhosatV(double T) 
 {
     double THETA = 1-T/crit.T;
-    double RHS = -0.410446-21.187*pow(THETA,2.75107)-6.65354*pow(THETA,0.661221)-74.2311*pow(THETA,7.23056);
+    double RHS = -0.41049-21.187*pow(THETA,2.75107)-6.65354*pow(THETA,0.661221)-74.2311*pow(THETA,7.23056);
     return exp(RHS)*crit.rho;
 }
 double AcetoneClass::psat(double T) 
@@ -1244,13 +1179,8 @@ NitrousOxideClass::NitrousOxideClass()
     TransportReference.assign("Using ECS");
 
     name.assign("NitrousOxide");
-    //Aliases not implemented yet
-
-}
-double NitrousOxideClass::viscosity_Trho(double tau, double delta)
-{
-    //throw NotImplementedError();
-    return _HUGE;
+    aliases.push_back(std::string("N2O")); 
+    REFPROPname.assign("N2O");
 }
 double NitrousOxideClass::conductivity_Trho(double tau, double delta)
 {
@@ -1265,7 +1195,7 @@ double NitrousOxideClass::rhosatL(double T)
 double NitrousOxideClass::rhosatV(double T) 
 {
     double THETA = 1-T/crit.T;
-    double RHS = -0.123004-3.75546*pow(THETA,0.47858)-8.99126*pow(THETA,1.66409)-32.9961*pow(THETA,4.52787);
+    double RHS = -0.123997-3.75546*pow(THETA,0.47858)-8.99126*pow(THETA,1.66409)-32.9961*pow(THETA,4.52787);
     return exp(RHS)*crit.rho;
 }
 double NitrousOxideClass::psat(double T) 
@@ -1328,13 +1258,8 @@ SulfurDioxideClass::SulfurDioxideClass()
     TransportReference.assign("Using ECS");
 
     name.assign("SulfurDioxide");
-    //Aliases not implemented yet
-
-}
-double SulfurDioxideClass::viscosity_Trho(double tau, double delta)
-{
-    //throw NotImplementedError();
-    return _HUGE;
+    aliases.push_back(std::string("SO2")); 
+    REFPROPname.assign("SO2");
 }
 double SulfurDioxideClass::conductivity_Trho(double tau, double delta)
 {
@@ -1349,7 +1274,7 @@ double SulfurDioxideClass::rhosatL(double T)
 double SulfurDioxideClass::rhosatV(double T) 
 {
     double THETA = 1-T/crit.T;
-    double RHS = -0.24875-13.6192*pow(THETA,2.10106)-4.90322*pow(THETA,0.553285)-53.2983*pow(THETA,5.65125);
+    double RHS = -0.24882-13.6192*pow(THETA,2.10106)-4.90322*pow(THETA,0.553285)-53.2983*pow(THETA,5.65125);
     return exp(RHS)*crit.rho;
 }
 double SulfurDioxideClass::psat(double T) 
@@ -1411,13 +1336,8 @@ R141bClass::R141bClass()
     TransportReference.assign("Using ECS");
 
     name.assign("R141b");
-    //Aliases not implemented yet
 
-}
-double R141bClass::viscosity_Trho(double tau, double delta)
-{
-    //throw NotImplementedError();
-    return _HUGE;
+    REFPROPname.assign("R141b");
 }
 double R141bClass::conductivity_Trho(double tau, double delta)
 {
@@ -1432,7 +1352,7 @@ double R141bClass::rhosatL(double T)
 double R141bClass::rhosatV(double T) 
 {
     double THETA = 1-T/crit.T;
-    double RHS = -0.266838-18.7606*pow(THETA,2.58933)-5.57638*pow(THETA,0.61954)-73.7862*pow(THETA,7.15925);
+    double RHS = -0.267267-18.7606*pow(THETA,2.58933)-5.57637*pow(THETA,0.619539)-73.7862*pow(THETA,7.15925);
     return exp(RHS)*crit.rho;
 }
 double R141bClass::psat(double T) 
@@ -1494,13 +1414,8 @@ R142bClass::R142bClass()
     TransportReference.assign("Using ECS");
 
     name.assign("R142b");
-    //Aliases not implemented yet
 
-}
-double R142bClass::viscosity_Trho(double tau, double delta)
-{
-    //throw NotImplementedError();
-    return _HUGE;
+    REFPROPname.assign("R142b");
 }
 double R142bClass::conductivity_Trho(double tau, double delta)
 {
@@ -1515,7 +1430,7 @@ double R142bClass::rhosatL(double T)
 double R142bClass::rhosatV(double T) 
 {
     double THETA = 1-T/crit.T;
-    double RHS = -0.252251-19.0218*pow(THETA,2.62874)-5.8241*pow(THETA,0.632573)-71.2366*pow(THETA,7.13992);
+    double RHS = -0.252933-19.0218*pow(THETA,2.62874)-5.8241*pow(THETA,0.632573)-71.2366*pow(THETA,7.13992);
     return exp(RHS)*crit.rho;
 }
 double R142bClass::psat(double T) 
@@ -1577,13 +1492,8 @@ R218Class::R218Class()
     TransportReference.assign("Using ECS");
 
     name.assign("R218");
-    //Aliases not implemented yet
 
-}
-double R218Class::viscosity_Trho(double tau, double delta)
-{
-    //throw NotImplementedError();
-    return _HUGE;
+    REFPROPname.assign("R218");
 }
 double R218Class::conductivity_Trho(double tau, double delta)
 {
@@ -1598,7 +1508,7 @@ double R218Class::rhosatL(double T)
 double R218Class::rhosatV(double T) 
 {
     double THETA = 1-T/crit.T;
-    double RHS = -0.0541117-21.0428*pow(THETA,2.61018)-5.969*pow(THETA,0.611066)-76.2274*pow(THETA,6.98835);
+    double RHS = -0.12954-21.0428*pow(THETA,2.61018)-5.96899*pow(THETA,0.611065)-76.2274*pow(THETA,6.98835);
     return exp(RHS)*crit.rho;
 }
 double R218Class::psat(double T) 
@@ -1660,13 +1570,8 @@ R245faClass::R245faClass()
     TransportReference.assign("Using ECS");
 
     name.assign("R245fa");
-    //Aliases not implemented yet
 
-}
-double R245faClass::viscosity_Trho(double tau, double delta)
-{
-    //throw NotImplementedError();
-    return _HUGE;
+    REFPROPname.assign("R245fa");
 }
 double R245faClass::conductivity_Trho(double tau, double delta)
 {
@@ -1681,7 +1586,7 @@ double R245faClass::rhosatL(double T)
 double R245faClass::rhosatV(double T) 
 {
     double THETA = 1-T/crit.T;
-    double RHS = -0.130585-20.291*pow(THETA,2.4712)-5.94045*pow(THETA,0.618455)-76.7531*pow(THETA,6.51668);
+    double RHS = -0.204607-20.291*pow(THETA,2.4712)-5.94045*pow(THETA,0.618455)-76.7531*pow(THETA,6.51668);
     return exp(RHS)*crit.rho;
 }
 double R245faClass::psat(double T) 
@@ -1744,13 +1649,8 @@ R41Class::R41Class()
     TransportReference.assign("Using ECS");
 
     name.assign("R41");
-    //Aliases not implemented yet
 
-}
-double R41Class::viscosity_Trho(double tau, double delta)
-{
-    //throw NotImplementedError();
-    return _HUGE;
+    REFPROPname.assign("R41");
 }
 double R41Class::conductivity_Trho(double tau, double delta)
 {
@@ -1765,7 +1665,7 @@ double R41Class::rhosatL(double T)
 double R41Class::rhosatV(double T) 
 {
     double THETA = 1-T/crit.T;
-    double RHS = 0.0751905-13.6245*pow(THETA,2.23602)-5.29707*pow(THETA,0.574996)-52.0276*pow(THETA,6.16363);
+    double RHS = -0.16056-13.6245*pow(THETA,2.23602)-5.29706*pow(THETA,0.574996)-52.0276*pow(THETA,6.16363);
     return exp(RHS)*crit.rho;
 }
 double R41Class::psat(double T) 

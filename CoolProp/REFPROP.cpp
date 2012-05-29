@@ -90,6 +90,7 @@ typedef void (__stdcall *fp_SATEdllTYPE)(double *,double *,long *,long *,long *,
 typedef void (__stdcall *fp_SATHdllTYPE)(double *,double *,long *,long *,long *,double *,double *,double *,long *,double *,double *,double *,long *,char*,long );
 typedef void (__stdcall *fp_SATPdllTYPE)(double *,double *,long *,double *,double *,double *,double *,double *,long *,char*,long );
 typedef void (__stdcall *fp_SATSdllTYPE)(double *,double *,long *,long *,long *,double *,double *,double *,long *,double *,double *,double *,long *,double *,double *,double *,long *,char*,long );
+// subroutine SATT (t,x,kph,p,rhol,rhov,xliq,xvap,ierr,herr)
 typedef void (__stdcall *fp_SATTdllTYPE)(double *,double *,long *,double *,double *,double *,double *,double *,long *,char*,long );
 typedef void (__stdcall *fp_SETAGAdllTYPE)(long *,char*,long );
 typedef void (__stdcall *fp_SETKTVdllTYPE)(long *,long *,char*,double *,char*,long *,char*,long ,long ,long );
@@ -120,6 +121,9 @@ typedef void (__stdcall *fp_WMOLdllTYPE)(double *,double *);
 typedef void (__stdcall *fp_XMASSdllTYPE)(double *,double *,double *);
 typedef void (__stdcall *fp_XMOLEdllTYPE)(double *,double *,double *);
 
+// Some ECS function calls
+// From FORTRAN: ETAK0dll (icomp,t,eta0,ierr,herr)
+typedef void (__stdcall *fp_ETAK0dll)(long *,double *, double *,long *, char *,long);
 
 //Define explicit function pointers
 fp_ABFL1dllTYPE ABFL1dll;
@@ -215,6 +219,8 @@ fp_VIRCdllTYPE VIRCdll;
 fp_WMOLdllTYPE WMOLdll;
 fp_XMASSdllTYPE XMASSdll;
 fp_XMOLEdllTYPE XMOLEdll;
+
+fp_ETAK0dll ETAK0dll;
 
 char LoadedREFPROPRef[255];
 
@@ -333,6 +339,9 @@ double REFPROP(char Output,char Name1, double Prop1, char Name2, double Prop2, c
 		WMOLdll = (fp_WMOLdllTYPE) GetProcAddress(RefpropdllInstance,"WMOLdll");
 		XMASSdll = (fp_XMASSdllTYPE) GetProcAddress(RefpropdllInstance,"XMASSdll");
 		XMOLEdll = (fp_XMOLEdllTYPE) GetProcAddress(RefpropdllInstance,"XMOLEdll");
+		
+		ETAK0dll = (fp_ETAK0dll) GetProcAddress(RefpropdllInstance,"ETAK0dll");
+
 		
 		// If the fluid name starts with the string "REFPROP-", chop off the "REFPROP-"
 		if (!strncmp(Ref,"REFPROP-",8))
@@ -605,6 +614,7 @@ double REFPROP(char Output,char Name1, double Prop1, char Name2, double Prop2, c
 			{
 				ENTHALdll(&T,&dl,xliq,&hl);
 				ENTHALdll(&T,&dv,xvap,&hv);
+				p=pv*Q+pl*(1-Q);
 				ul=hl-p/dl;
 				uv=hv-p/dv;
 				return (uv*Q+ul*(1-Q))/MW; // J/kg to kJ/kg

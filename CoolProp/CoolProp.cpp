@@ -15,78 +15,64 @@
 #include <stdlib.h>
 #include <list>
 #include <exception>
-#include <complex>
+#include <stdio.h>
 #include "string.h"
 #include "FluidClass.h"
-#include <stdio.h>
 #include "CoolPropTools.h"
 #include "CPExceptions.h"
-#include "PengRobinson.h"
 #include "Brine.h"
 
-char LoadedFluid[255];
 
 // Function prototypes
 void _T_hp(char *Ref, double h, double p, double *T, double *rho);
 double rho_TP(double T, double p);
 double _Props(char Output,char Name1, double Prop1, char Name2, double Prop2, char * Ref);
 
-bool FlagUseSaturationLUT=false; //Default to not use LUT
+bool FlagUseSaturationLUT=false; //Default to use LUT since they are used so much and don't take long to build
 bool FlagUseSinglePhaseLUT=false; //Default to not use LUT
+
+std::string err_string;
 
 FluidsContainer Fluids = FluidsContainer();
 Fluid * pFluid;
 
-static double get_Delta(double T, double p)
+std::string get_errstring(void){return err_string;}
+char * get_errstringc(void){return (char*)err_string.c_str();}
+
+int set_1phase_LUT_params(std::string Ref, int nT, int np, double Tmin, double Tmax, double pmin, double pmax)
+{ return set_1phase_LUT_params(Ref, nT, np, Tmin, Tmax, pmin, pmax, false); }
+
+int set_1phase_LUT_params(char *Ref, int nT, int np, double Tmin, double Tmax, double pmin, double pmax)
+{ return set_1phase_LUT_params(Ref, nT, np, Tmin, Tmax, pmin, pmax, false); }
+
+int set_1phase_LUT_params(std::string Ref, int nT, int np, double Tmin, double Tmax, double pmin, double pmax, bool rebuild)
 {
-    double eps=1e-10,delta_guess,M,Tc,rhoc,R,pc;
-    int counter=1;
-    double rho, delta,pL,pV,rhoL,rhoV;
-    
-	if (pFluid!=NULL)
-	{
-		M = pFluid->params.molemass;
-		rhoc = pFluid->crit.rho;
-		Tc = pFluid->crit.T;
-		pc = pFluid->crit.p;
-		R=pFluid->R();
+	try{
+		// Get a pointer to the fluid (if possible)
+		Fluid * LUTFluid = Fluids.get_fluid(Ref);
+		// Set the LUT parameters
+		LUTFluid->set_1phase_LUT_params(nT,np,Tmin,Tmax,pmin,pmax);
+
+		if (rebuild==true)
+			LUTFluid->BuildLookupTable();
 	}
-	else
+	catch (NotImplementedError &e)
 	{
-		throw NotImplementedError();
+		err_string = std::string("CoolProp Error: ").append(e.what());
+		return -1;
 	}
+	return 0;
+}
 
-    if ( T > Tc )
-    {
-		// Use Peng-Robinson to get a guess value for the solution
-		delta_guess = PRGuess_rho(pFluid,T,p,-1,-1,-1,-1)/rhoc;
-    }
-    else
-    {
-		rhoL = pFluid->rhosatL(T);
-		rhoV = pFluid->rhosatV(T);
-		if (pFluid->pure()==true)
-		{
-			pL = pFluid->psat(T);
-			pV = pL;
-		}
-		else
-		{
-			pL = pFluid->psatL(T);
-			pV = pFluid->psatV(T);
-		}
-		delta_guess = PRGuess_rho(pFluid,T,p,pL,pV,rhoL,rhoV)/rhoc;
-    }
-
-	rho = pFluid->density_Tp(T,p,delta_guess*rhoc);
-	delta = rho / rhoc;
-
-	return delta;
+int set_1phase_LUT_params(char *Ref, int nT, int np, double Tmin, double Tmax, double pmin, double pmax, bool rebuild)
+{
+	// Overload to take "normal" c-string and convert to std::string
+	return set_1phase_LUT_params(std::string(Ref), nT, np, Tmin, Tmax, pmin, pmax,rebuild);
 }
 
 void UseSaturationLUT(bool OnOff)
 {
-    if (OnOff==1 || OnOff==0)
+    if (OnOff==true || OnOff==false)
     {
         FlagUseSaturationLUT=(bool)OnOff;
     }
@@ -94,6 +80,10 @@ void UseSaturationLUT(bool OnOff)
     {
         printf("Sorry, UseSaturationLUT() takes an integer input, either 0 (no) or 1 (yes)\n");
     }
+}
+bool SaturationLUTStatus()
+{
+	return FlagUseSaturationLUT;
 }
 
 void UseSinglePhaseLUT(bool OnOff)
@@ -187,6 +177,7 @@ void Help()
     //~ printf("  T      ||      D\n");
     
 }
+
 
 static int IsBrine(char *Ref)
 {
@@ -282,29 +273,19 @@ int Phase(double T, double rho, char * Ref)
 
 double Props(std::string Ref,std::string Output)
 {
-	char Ref_[255], Output_[255];
-	if (Ref.size()>254 || Output.size()>254)
-	{
-		return _HUGE;
-	}
-	else
-	{
-		strcpy(Ref_,Ref.c_str());
-		strcpy(Output_,Output.c_str());
-		return Props(Ref_,Output_);
-	}
+	return Props((char*)Ref.c_str(),(char*)Output.c_str());
 }
 
 double Props(char *Fluid, char *Output)
 {
 	// Fluid was loaded successfully
-	try
-	{	
+	try{	
 		try{
 			// Try to load the CoolProp Fluid
 			pFluid = Fluids.get_fluid(Fluid);
 		}
 		catch(NotImplementedError &e){
+			// It didn't load properly.  Perhaps it is a REFPROP fluid.
 			try{
 				if (!strcmp(Output,"Ttriple"))
 					return _Props('R','T',0,'P',0,Fluid);
@@ -315,13 +296,13 @@ double Props(char *Fluid, char *Output)
 				else if (!strcmp(Output,"molemass"))
 					return _Props('M','T',0,'P',0,Fluid);
 				else 
-					return _HUGE;
+					throw ValueError(format("Output parameter \"%s\" is invalid",Output));
 			}
-			catch(std::exception &e)
-			{
+			// Catch any error that subclasses the std::exception
+			catch(std::exception &e){
+				err_string = std::string("CoolProp error: ").append(e.what());
 				return _HUGE;
 			}
-
 		}
 
 		if (!strcmp(Output,"Ttriple"))
@@ -336,12 +317,13 @@ double Props(char *Fluid, char *Output)
 			return pFluid->params.molemass;
 		else
 		{
-			printf("Your output parameter to single-parameter Props [%s] is not valid. Sorry.\n",Output);
+			throw ValueError(format("Output parameter \"%s\" is invalid",Output));
 			return _HUGE;
 		}
 	}
-	catch(NotImplementedError &e){
-		std::cout << "CoolProp error: " << e.what() << std::endl;
+	// Catch any error that subclasses the std::exception
+	catch(std::exception &e){
+		err_string = std::string("CoolProp error: ").append(e.what());
 		return _HUGE;
 	}
 	catch(...)
@@ -360,12 +342,9 @@ double Props(char *Output,char Name1, double Prop1, char Name2, double Prop2, ch
 		{
 			return _Props(Output[0],Name1,Prop1,Name2,Prop2,Ref);
 		}
-		catch(NotImplementedError &e){
-			std::cout << e.what() << "Bad fluid" << std::endl;
-			return _HUGE;
-		}
+		// Catch any error that subclasses the std::exception
 		catch(std::exception &e){
-			std::cout << "CoolProp error:" << e.what() << std::endl;
+			err_string = std::string("CoolProp error: ").append(e.what());
 			return _HUGE;
 		}
 		catch(...){
@@ -381,26 +360,16 @@ double Props(char *Output,char Name1, double Prop1, char Name2, double Prop2, ch
 }
 double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, std::string Ref)
 {
-	char Ref_[255];
-	if (Ref.size()>254)
-	{
-		return _HUGE;
-	}
-	else
-	{
-		strcpy(Ref_,Ref.c_str());
-		return Props(Output,Name1,Prop1,Name2,Prop2,Ref_);
-	}
+	return Props(Output,Name1,Prop1,Name2,Prop2,(char*)Ref.c_str());
 }
 
 double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, char * Ref)
 {
-	try
-	{
+	try{
 		return _Props(Output,Name1,Prop1,Name2,Prop2,Ref);
 	}
-	catch(NotImplementedError &e){
-		std::cout << "CoolProp error: " << e.what() << std::endl;
+	catch(std::exception &e){
+		err_string=std::string("CoolProp error: ").append(e.what());
 		return _HUGE;
 	}
 	catch(...){
@@ -408,7 +377,7 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 		return _HUGE;
 	}
 }
-// Make this an internal function so that error bubbling can be done properly
+// Make this a wrapped function so that error bubbling can be done properly
 double _Props(char Output,char Name1, double Prop1, char Name2, double Prop2, char * Ref)
 {
     double T,Q,rhoV,rhoL,Value,rho,pL,pV;
@@ -474,23 +443,15 @@ double _Props(char Output,char Name1, double Prop1, char Name2, double Prop2, ch
     {
         if (Name1!='T' || Name2!='P')
         {
-			std::cout << "For brine, Name1 must be 'T' and Name2 must be 'P'" << std::endl;
-			throw ValueError();
+			throw ValueError("For brine, Name1 must be 'T' and Name2 must be 'P'");
 		}
         return SecFluids(Output,Prop1,Prop2,Ref);
     }
     else // It is something based on CoolProp routines
     {
-		try
-		{
-			pFluid=Fluids.get_fluid(Ref);
-		}
-		catch(NotImplementedError &e)
-		{
-			std::cout << e.what();
-			std::cout << "Invalid fluid" <<std::endl;
-			return _HUGE;
-		}
+
+		//Load the fluid - throws a NotImplementedError if not matched
+		pFluid=Fluids.get_fluid(Ref);
 
         T=Prop1; 
         
@@ -514,7 +475,13 @@ double _Props(char Output,char Name1, double Prop1, char Name2, double Prop2, ch
 			if (Output=='P') return Prop2;
 			else if (Output=='T') return Prop1;
 			// Get density as a function of T&p
-			rho = rho_TP(Prop1,Prop2);
+			if (FlagUseSinglePhaseLUT==true){
+                return pFluid->LookupValue_TP(Output, T, Prop2);
+            }
+			else{
+				rho = rho_TP(Prop1,Prop2);
+			}
+			
 			if (Output=='D')
 				return rho;
 			else
@@ -532,7 +499,7 @@ double _Props(char Output,char Name1, double Prop1, char Name2, double Prop2, ch
 
 			// Recurse and call Props again with the calculated density
 			if (Output=='D')
-				return 1/(Q/Props(Output,'T',Prop1,'D',rhoV,Ref)+(1-Q)/Props(Output,'T',Prop1,'D',rhoL,Ref));
+				return 1/(Q/rhoV+(1-Q)/rhoL);
 			else if (Output=='C' || Output=='O')
 				return Props(Output,'T',Prop1,'D',rho,Ref);
 			else
@@ -540,13 +507,14 @@ double _Props(char Output,char Name1, double Prop1, char Name2, double Prop2, ch
 		}
 		else if (Name1=='T' && Name2=='D')
 		{
+			T=Prop1;
+			rho=Prop2;
 			if (Output=='D')
 				return Prop2;
 			// If you are using LUT, use it
-			if (FlagUseSinglePhaseLUT==1)
-            {
-				throw NotImplementedError();
-                //return LookupValue_Trho(Output, T, rho, Ref, &FluidStruct);
+			if (FlagUseSinglePhaseLUT==1){
+                Value = pFluid->LookupValue_Trho(Output, T, rho);
+                return Value;
             }
 			rho = Prop2;
             switch (Output)
@@ -567,13 +535,14 @@ double _Props(char Output,char Name1, double Prop1, char Name2, double Prop2, ch
                     Value=pFluid->specific_heat_v_Trho(T,rho); break;
                 case 'A':
 					Value=pFluid->speed_sound_Trho(T,rho); break;
+				case 'G':
+					Value=pFluid->gibbs_Trho(T,rho); break;
                 case 'V':
                     Value=pFluid->viscosity_Trho(T,rho); break;
                 case 'L':
                     Value=pFluid->conductivity_Trho(T,rho); break;
                 default:
-					std::cout << "Invalid Output Name:" << Output << std::endl;
-					throw ValueError();
+					throw ValueError(format("Invalid Output Name: %c",Output));
 					return _HUGE;
             }
             return Value;
@@ -594,8 +563,7 @@ double _Props(char Output,char Name1, double Prop1, char Name2, double Prop2, ch
         }
         else
         {
-			std::cout << "Not a valid parameter" << std::endl;
-			throw ValueError();
+			throw ValueError(format("Not a valid pair of input keys %c,%c and output key %c",Name1,Name2,Output));
         }
     }
     return 0;
@@ -603,15 +571,14 @@ double _Props(char Output,char Name1, double Prop1, char Name2, double Prop2, ch
 double rho_TP(double T, double p)
 {
 	// Calculate the density as a function of T&p, either using EOS or LUT
-	if (FlagUseSinglePhaseLUT==1)
+	if (FlagUseSinglePhaseLUT==true)
     {
-		throw NotImplementedError();
-		//return LookupValue_TP('D', T, p, pFluid->get_name(), &FluidStruct);
+		return pFluid->LookupValue_TP('D', T, p);
     }
     else
     {
         //Find density as a function of temp and pressure (all parameters need it)
-        return get_Delta(T,p)*pFluid->reduce.rho;
+		return pFluid->density_Tp(T,p);
     }
 }
 void _T_hp(char *Ref, double h, double p, double *Tout, double *rhoout)
@@ -728,11 +695,7 @@ double T_hp(char *Ref, double h, double p, double T_guess)
         iter=iter+1;
         if (iter>100)
         {
-			throw SolutionError();
-   //         //ERROR
-   //     	sprintf(Local_errString,"iter %d: T_hp not converging with inputs(%s,%g,%g,%g) value: %0.12g\n",iter,Ref,h,p,T_guess,f);
-	//	//Append2ErrorString(Local_errString);
-   //         printf("%s\n",Local_errString);
+			throw SolutionError(format("iter %d: T_hp not converging with inputs(%s,%g,%g,%g) value: %0.12g\n",iter,Ref,h,p,T_guess,f));
 			return _HUGE;
         }
     }
@@ -771,21 +734,14 @@ double h_sp(char *Ref, double s, double p, double T_guess)
     return Props('H','T',T,'P',p,Ref);
 }
 
-
-
 double K2F(double T)
-{
-    return T * 9 / 5 - 459.67;
-}
+{ return T * 9 / 5 - 459.67; }
 
 double F2K(double T_F)
-{
-    return (T_F + 459.67) * 5 / 9;
-}
+{ return (T_F + 459.67) * 5 / 9;}
 
 void PrintSaturationTable(char *FileName, char * Ref,double Tmin, double Tmax)
 {
-
     double T;
     FILE *f;
     f=fopen(FileName,"w");
@@ -824,16 +780,15 @@ std::string FluidsList()
 	return Fluids.FluidList();
 }
 
-double DerivTerms(char *Term,double T, double rho,char * Ref)
+double DerivTerms(char *Term,double T, double rho, char * Ref)
 {
-	
 	pFluid=Fluids.get_fluid(Ref);
 
     double rhoc =pFluid->reduce.rho;
 	double delta=rho/rhoc;
 	double tau=pFluid->reduce.T/T;
 	double R=pFluid->R();
-	double dtau_dT = -pFluid->crit.T/T/T;
+	double dtau_dT = -pFluid->reduce.T/T/T;
 
 	if (!strcmp(Term,"dpdT"))
 	{
@@ -849,6 +804,18 @@ double DerivTerms(char *Term,double T, double rho,char * Ref)
         double dpdrho=R*T*(1+2*delta*pFluid->dphir_dDelta(tau,delta)+delta*delta*pFluid->d2phir_dDelta2(tau,delta));
 		return -1/dpdrho/(rho*rho);
 	}
+	else if (!strcmp(Term,"Z"))
+	{
+		return 1+delta*pFluid->dphir_dDelta(tau,delta);
+	}
+	else if (!strcmp(Term,"dZ_dDelta"))
+    {
+        return delta*pFluid->d2phir_dDelta2(tau,delta)+pFluid->dphir_dDelta(tau,delta);
+    }
+	else if (!strcmp(Term,"dZ_dTau"))
+    {
+        return delta*pFluid->d2phir_dDelta_dTau(tau,delta);
+    }
 	else if (!strcmp(Term,"B"))
 	{
 		// given by B*rhoc=lim(delta --> 0) [dphir_ddelta(tau)]
@@ -867,10 +834,35 @@ double DerivTerms(char *Term,double T, double rho,char * Ref)
 	{
 		return 1.0/(rhoc*rhoc)*pFluid->d3phir_dDelta2_dTau(tau,1e-12)*dtau_dT;
     }
+	else if (!strcmp(Term,"phir"))
+    {
+        return pFluid->phir(tau,delta);
+    }
+	else if (!strcmp(Term,"phi0"))
+    {
+        return pFluid->phi0(tau,delta);
+    }
     else if (!strcmp(Term,"dphi0_dTau"))
     {
         return pFluid->dphi0_dTau(tau,delta);
     }
+	else if (!strcmp(Term,"dphir_dTau"))
+    {
+        return pFluid->dphir_dTau(tau,delta);
+    }
+	else if (!strcmp(Term,"dphir_dDelta"))
+    {
+        return pFluid->dphir_dDelta(tau,delta);
+    }
+	else if (!strcmp(Term,"d2phir_dTau2"))
+    {
+        return pFluid->d2phir_dTau2(tau,delta);
+    }
+	else if (!strcmp(Term,"d2phir_dDelta2"))
+    {
+        return pFluid->d2phir_dDelta2(tau,delta);
+    }
+	
 	else if (!strcmp(Term,"IsothermalCompressibility"))
 	{
 		double dpdrho=R*T*(1+2*delta*pFluid->dphir_dDelta(tau,delta)+delta*delta*pFluid->d2phir_dDelta2(tau,delta));
@@ -881,48 +873,7 @@ double DerivTerms(char *Term,double T, double rho,char * Ref)
 		printf("Sorry DerivTerms is a work in progress, your derivative term [%s] is not available!!",Term);
 		return _HUGE;
 	}
-    
-
-//    if (Name1=='T' && Name2=='P' && !strcmp(Term,"dhdT"))
-//        return dhdT(Prop1,Prop2,TYPE_TPNoLookup);
-//    else if (Name1=='T' && Name2=='P' && !strcmp(Term,"dhdrho"))
-//        return dhdrho(Prop1,Prop2,TYPE_TPNoLookup);
-//    else if (Name1=='T' && Name2=='P' && !strcmp(Term,"dpdT"))
-//        return dpdT(Prop1,Prop2,TYPE_TPNoLookup);
-//    else if (Name1=='T' && Name2=='P' && !strcmp(Term,"dpdrho"))
-//        return dpdrho(Prop1,Prop2,TYPE_TPNoLookup);
-//
-//    else if (Name1=='T' && Name2=='D' && !strcmp(Term,"dhdT"))
-//        return dhdT(Prop1,Prop2,TYPE_Trho);
-//    else if (Name1=='T' && Name2=='D' && !strcmp(Term,"dhdrho"))
-//        return dhdrho(Prop1,Prop2,TYPE_Trho);
-//    else if (Name1=='T' && Name2=='D' && !strcmp(Term,"dpdT"))
-//        return dpdT(Prop1,Prop2,TYPE_Trho);
-//    else if (Name1=='T' && Name2=='D' && !strcmp(Term,"dpdrho"))
-//        return dpdrho(Prop1,Prop2,TYPE_Trho);
-//
-//    else if (Name1=='T' && Name2=='P' && !strcmp(Term,"dhdTnum"))
-//        return dhdT(Prop1,Prop2,99);
-//    else if (Name1=='T' && Name2=='P' && !strcmp(Term,"dhdrhonum"))
-//        return dhdrho(Prop1,Prop2,99);
-//    else if (Name1=='T' && Name2=='P' && !strcmp(Term,"dpdTnum"))
-//        return dpdT(Prop1,Prop2,99);
-//    else if (Name1=='T' && Name2=='P' && !strcmp(Term,"dpdrhonum"))
-//        return dpdrho(Prop1,Prop2,99);
-//
-//    else if (Name1=='T' && Name2=='P' && !strcmp(Term,"dhdTnum"))
-//        return dhdT(Prop1,Prop2,99);
-//    else if (Name1=='T' && Name2=='P' && !strcmp(Term,"dhdrhonum"))
-//        return dhdrho(Prop1,Prop2,99);
-//    else if (Name1=='T' && Name2=='P' && !strcmp(Term,"dpdTnum"))
-//        return dpdT(Prop1,Prop2,99);
-//    else if (Name1=='T' && Name2=='P' && !strcmp(Term,"dpdrhonum"))
-//        return dpdrho(Prop1,Prop2,99);
-//    else
-//    {
-//        printf("Bad pair of properties[%c,%c] and derivative name [%s]\n",Name1,Name2,Term);
-//        return _HUGE;
-//    }
+   
 }
 
 

@@ -2,10 +2,11 @@
 #include <complex>
 #include "PengRobinson.h"
 
-double PRGuess_rho(Fluid * pFluid, double T, double p, double psatL, double psatV, double rhosatL, double rhosatV)
+std::vector<double> PRGuess_rho(Fluid * pFluid, double T, double p)
 {
 	// See http://ascend4.org/PengRobinson_EOS_in_FPROPS or 
 	std::complex<double> cQ,cdelta,cC,cZ1,cZ2,cZ3,cplussqrt3,cminussqrt3;
+	std::vector<double> solns;
 	double alpha,kappa,omega,Tc,pc,a,b,c,d,A,B,DELTA,R,delta,Z,Q,Z1,Z2,Z3,sqrt3,rho,p_check;
 	omega = pFluid->params.accentricfactor;
 	Tc = pFluid->reduce.T;
@@ -58,13 +59,15 @@ double PRGuess_rho(Fluid * pFluid, double T, double p, double psatL, double psat
 		{
 			Z=Z3;
 		}
-		throw std::exception();
+		rho = p/(R*T*Z);
+		solns.push_back(rho);
 	}
 	else if (Q==0 && (pow(b,2)-3*a*c)==0)
 	{
 		// All three roots are equal and real
 		Z = -b/(3*a);
 		rho = p/(R*T*Z);
+		solns.push_back(rho);
 	}
 	else if (pow(b,2)-3*a*c!=0)
 	{ 
@@ -80,63 +83,12 @@ double PRGuess_rho(Fluid * pFluid, double T, double p, double psatL, double psat
 		cZ3 = -1.0/(3.0*a)*(b-cC*cminussqrt3/2.0-cplussqrt3*(pow(b,2)-3.0*a*c)/(2.0*cC));
 
 		// Find the densities that are real and positive
-		std::vector<double> solns;
-
 		if (fabs(cZ1.imag())<1e-14 && cZ1.real()>0)
 			solns.push_back(p/(cZ1.real()*R*T));
 		if (fabs(cZ2.imag())<1e-14 && cZ2.real()>0)
 			solns.push_back(p/(cZ2.real()*R*T));
 		if (fabs(cZ3.imag())<1e-14 && cZ3.real()>0)
 			solns.push_back(p/(cZ3.real()*R*T));
-		if (solns.size()==1)
-			rho=solns[0];
-		else
-		{
-			// Above the critical temperature (if you don't pass in saturation temperatures and densities), 
-			//       you should only get one sensible solution
-			if (rhosatL<0 && rhosatV<0 && psatL <0 && psatV < 0)
-			{
-				for (unsigned int i=0; i<solns.size();i++)
-				{
-					p_check = pFluid->pressure_Trho(T,solns[i]);
-
-					// Return the solution that is within 1% of the target solution
-					if (fabs(p_check/p-1)<0.01)
-					{
-						return solns[i];
-					}
-				}
-			}
-			// You are below the subcritical temperature and therefore you can get 
-			// saturation pressures and densities for the given temperature
-			// and intelligently select the solution of interest
-			else
-			{
-				// Superheated, want density below that of saturated vapor
-				if (p<psatV)
-				{
-					for (unsigned int i=0; i<solns.size();i++)
-					{
-						if (solns[i]<rhosatV)
-							return solns[i];
-					}
-					// Throw an exception if didn't get a good value
-					throw SolutionError();
-				}
-				// Subcooled, give density of saturated liquid
-				else if (p>psatL)
-				{
-					return rhosatL;
-				}
-				else
-				{
-					// Two-phase??
-					throw SolutionError();
-				}
-			}
-			rho=solns[0];
-		}
-
 	}
 	else if (pow(b,2)-3*a*c==0)
 	{
@@ -144,5 +96,5 @@ double PRGuess_rho(Fluid * pFluid, double T, double p, double psatL, double psat
 		rho=p/(R*T);
 	}
 	
-	return rho;
+	return solns;
 }
