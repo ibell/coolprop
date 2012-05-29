@@ -1,5 +1,5 @@
 from CoolProp.Plots import Ph,Ts
-from CoolProp.CoolProp import Props,T_hp,Tsat
+from CoolProp.CoolProp import Props,T_hp
 from scipy.optimize import newton
 import pylab,numpy as np
 
@@ -49,8 +49,8 @@ def SimpleCycle(Ref,Te,Tc,DTsh,DTsc,eta_a,Ts_Ph='Ph',skipPlot=False,axis=None):
     T[2]=T_hp(Ref,h[2],pc,T2s)
     s[2]=Props('S','T',T[2],'P',pc,Ref)
     
-    Tbubble_c=Tsat(Ref,pc,0.0,0)
-    Tbubble_e=Tsat(Ref,pe,0.0,0)
+    Tbubble_c=Props('T','P',pc,'Q',0,Ref)
+    Tbubble_e=Props('T','P',pe,'Q',0,Ref)
     T[3]=Tbubble_c-DTsc
     h[3]=Props('H','T',T[3],'P',pc,Ref)
     s[3]=Props('S','T',T[3],'P',pc,Ref)
@@ -110,8 +110,8 @@ def TwoStage(Ref,Q,Te,Tc,DTsh,DTsc,eta_oi,f_p,Tsat_ic,DTsh_ic,Ts_Ph='Ph',prints=
     pe=Props('P','T',Te,'Q',1.0,Ref)
     pc=Props('P','T',Tc,'Q',1.0,Ref)
     pic=Props('P','T',Tsat_ic,'Q',1.0,Ref)
-    Tbubble_c=Tsat(Ref,pc,0.0,0)
-    Tbubble_e=Tsat(Ref,pe,0.0,0)
+    Tbubble_c=Props('T','P',pc,'Q',Ref)
+    Tbubble_e=Props('T','P',pe,'Q',Ref)
 
     h[1]=Props('H','T',T[1],'P',pe,Ref)
     s[1]=Props('S','T',T[1],'P',pe,Ref)
