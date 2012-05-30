@@ -57,9 +57,9 @@ fp.close()
 ######################################
 ######################################
 ######################################
-#####         SWIG!! SWIG!!!! SWIG!!!               ########
+##### SWIG!! SWIG!!!! SWIG!!! ########
 ######################################
-##                            start of SWIG code                            ## 
+##       start of SWIG code         ## 
 ######################################
 swig_opts=['-c++','-python','-builtin']
 
@@ -144,7 +144,7 @@ CoolProp_module = Extension('CoolProp._CoolProp',
                            include_dirs = include_dirs,
                            language='c++'
                            # libraries=['CoolProp'],
-                           # library_dirs=['lib'],language='c++'
+                           # library_dirs=['lib']
                            )
 
 FloodProp_module = Extension('CoolProp._FloodProp',
@@ -152,7 +152,7 @@ FloodProp_module = Extension('CoolProp._FloodProp',
                            include_dirs = include_dirs,
                            language='c++'
                            # libraries=['CoolProp'],
-                           # library_dirs=['lib'],language='c++'
+                           # library_dirs=['lib']
                            )
 
 HASources = [

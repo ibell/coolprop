@@ -86,7 +86,6 @@ cdef class State:
                 self.rho_=params['D']
                 #Explicit type conversion
                 pchar='P'
-                print pchar,self.T_,self.rho_
                 p = Props(pchar,'T',self.T_,'D',self.rho_,self.Fluid)
                 if abs(p)<1e90:
                     self.p_=p

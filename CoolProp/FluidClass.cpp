@@ -910,6 +910,15 @@ double Fluid::LookupValue_TP(std::string Prop, double T, double p)
 
 	mat = _get_LUT_ptr(Prop);    
     
+	if (iThigh==LUT.nT-1){
+		iThigh--;
+		iTlow--;
+	}
+
+	if (iPhigh==LUT.np-1){
+		iPhigh--;
+		iPlow--;
+	}
     //At Low Temperature Index
     y1=(*mat)[iTlow][iPlow];
     y2=(*mat)[iTlow][iPhigh];
@@ -963,13 +972,18 @@ double Fluid::LookupValue_Trho(std::string Prop, double T, double rho)
 
 	iTlow=(int)floor((T-LUT.Tmin)/(LUT.Tmax-LUT.Tmin)*(LUT.nT-1));
     iThigh=iTlow+1;
+	
+	if (iThigh==LUT.nT-1){
+		iThigh--;
+		iTlow--;
+	}
 
     rhomin=LUT.rhomat[iThigh][0];
     rhomax=LUT.rhomat[iTlow][LUT.np-1];
 
 	if (rho>rhomax || rho<rhomin)
     {
-		throw ValueError(format("Input rho to LookupValue_Trho(%g kg/m3) for given T is out of bounds [%g kg/m3,%g kg/m3]",rho,rhomin,rhomax));
+		throw ValueError(format("Input rho to LookupValue_Trho(%g kg/m3) for given T=%g K is out of bounds [%g kg/m3,%g kg/m3]",rho,T,rhomin,rhomax));
         return _HUGE;
     }
 
@@ -986,6 +1000,11 @@ double Fluid::LookupValue_Trho(std::string Prop, double T, double rho)
 	}
     irholow=L;
     irhohigh=R;
+	
+	if (irhohigh==LUT.np-1){
+		irholow--;
+		irhohigh--;
+	}
 
     mat = _get_LUT_ptr(Prop);
     
