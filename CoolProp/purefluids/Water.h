@@ -1,3 +1,4 @@
+#include "FluidClass.h"
 #ifndef _WATER_H
 #define WATER_H
 

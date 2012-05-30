@@ -57,9 +57,9 @@ fp.close()
 ######################################
 ######################################
 ######################################
-##### SWIG!! SWIG!!!! SWIG!!! ########
+#####         SWIG!! SWIG!!!! SWIG!!!               ########
 ######################################
-##      start of SWIG code          ## 
+##                            start of SWIG code                            ## 
 ######################################
 swig_opts=['-c++','-python','-builtin']
 
@@ -88,7 +88,6 @@ for source,target in swig_sources:
     else:
         print 'No SWIG required for '+source+' --> '+target+' (up-to-date)'
 
-
 ################################
 ##  CoolProp Static Library ####
 ################################
@@ -109,14 +108,19 @@ Sources=purefluids+pseudopurefluids+others
 include_dirs = ['CoolProp',os.path.join('CoolProp','purefluids'),os.path.join('CoolProp','pseudopurefluids'),get_python_inc(False)]
 
 def StaticLibBuilder(sources,LibName='CoolProp',build_path='build_lib',lib_path='lib',force=False):
-    CC = new_compiler()
+    CC = new_compiler(verbose=True)
     #Default to not build
     buildCPLib=False
     # The full path to the library to be built
     CPLibPath=CC.library_filename(os.path.join(lib_path,LibName),lib_type='static')    
-    # 
-    OutDate= not newer_group(sources,CPLibPath,missing='ignore')
     
+    if not sys.platform.startswith('linux'):
+        extra_compile_args=['-fPIC']
+        MACROS = None
+    else:
+        extra_compile_args=[]
+        MACROS = None
+            
     if not os.path.exists(build_path) or not os.path.exists(lib_path):
         if not os.path.exists(build_path): os.mkdir(build_path)
         if not os.path.exists(lib_path): os.mkdir(lib_path)
@@ -126,8 +130,9 @@ def StaticLibBuilder(sources,LibName='CoolProp',build_path='build_lib',lib_path=
         buildCPLib=True
     
     if buildCPLib==True:
-        objs = CC.compile(sources,build_path,[('COOLPROP_LIB',None)],include_dirs=include_dirs)
-        CC.create_static_lib(objs, LibName,lib_path)
+        objs=CC.compile(sources,build_path,MACROS,include_dirs=include_dirs,extra_postargs=extra_compile_args)
+        CC.create_static_lib(objs, LibName,lib_path,target_lang='c++')
+        print 'Built the static library in',CPLibPath
     else:
         print 'No build of CoolProp static library required.'
     
@@ -135,15 +140,17 @@ StaticLibBuilder(Sources)
 
 #Now come in and build the modules themselves
 CoolProp_module = Extension('CoolProp._CoolProp',
-                           sources=[os.path.join('CoolProp','CoolProp_wrap.cpp')],
-                           include_dirs = include_dirs, libraries=['CoolProp'],
-                           library_dirs=['lib']
+                           sources=[os.path.join('CoolProp','CoolProp_wrap.cpp')]+Sources,
+                           include_dirs = include_dirs,
+                           # libraries=['CoolProp'],
+                           # library_dirs=['lib'],language='c++'
                            )
 
 FloodProp_module = Extension('CoolProp._FloodProp',
-                           sources=[os.path.join('CoolProp','FloodProp_wrap.cpp')],
-                           include_dirs = include_dirs, libraries=['CoolProp'],
-                           library_dirs=['lib']
+                           sources=[os.path.join('CoolProp','FloodProp_wrap.cpp')]+Sources,
+                           include_dirs = include_dirs,
+                           # libraries=['CoolProp'],
+                           # library_dirs=['lib'],language='c++'
                            )
 
 HASources = [
@@ -163,14 +170,17 @@ HASources = [
      os.path.join('CoolProp','Solvers.cpp'),
      ]
 HumidAirProp_module = Extension('CoolProp._HumidAirProp',
-                           sources=HASources,define_macros=[('ONLY_AIR_WATER',None)],
+                           sources=HASources,
+                           define_macros=[('ONLY_AIR_WATER',None)],
                            include_dirs = include_dirs,
-                           )                     
+                           )                            
 
-#State_module = CyExtension('CoolProp.State',[os.path.join('CoolProp','State.pyx')],language='c++')                
-
-State_module = CyExtension('CoolProp.State',[os.path.join('CoolProp','State.pyx')],language='c++',libraries=['CoolProp'],
-                        library_dirs=['lib'],include_dirs = include_dirs)
+State_module = CyExtension('CoolProp.State',
+                          [os.path.join('CoolProp','State.pyx')]+Sources,
+                         language='c++',
+                        # libraries=['CoolProp'],
+                        # library_dirs=['lib'],
+                        include_dirs = include_dirs)
 #                        
 setup (name = 'CoolProp',
        version = version, #look above for the definition of version variable - don't modify it here
@@ -179,7 +189,7 @@ setup (name = 'CoolProp',
        url='http://coolprop.sourceforge.net',
        description = """Properties of pure fluids, pseudo-pure fluids and brines""",
        packages = ['CoolProp','CoolProp.Plots','CoolProp.tests'],
-       ext_modules = [State_module,CoolProp_module,FloodProp_module,HumidAirProp_module],
+       ext_modules = [CoolProp_module,FloodProp_module,HumidAirProp_module,State_module],
        package_dir = {'CoolProp':'CoolProp',},
        cmdclass={'build_ext': build_ext}
        )

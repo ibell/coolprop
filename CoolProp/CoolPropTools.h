@@ -1,37 +1,16 @@
 #define _CRT_SECURE_NO_WARNINGS
-#include <iostream>
-#include "FluidClass.h"
 
 #if defined(_WIN32) || defined(__WIN32__) || defined(_WIN64) || defined(__WIN64__)
 #define __ISWINDOWS__
 #endif
 
+#include <string>
+
 #ifndef COOLPROPTOOLS_H
 #define COOLPROPTOOLS_H
 
-#include <string>
-#include <cstdarg>
-
-//missing string printf
-//this is safe and convenient but not exactly efficient
-inline std::string format(const char* fmt, ...)
-{
-    int size = 512;
-    char* buffer = 0;
-    buffer = new char[size];
-    va_list vl;
-    va_start(vl,fmt);
-    int nsize = vsnprintf(buffer,size,fmt,vl);
-    if(size<=nsize){//fail delete buffer and try again
-        delete buffer; buffer = 0;
-        buffer = new char[nsize+1];//+1 for /0
-        nsize = vsnprintf(buffer,size,fmt,vl);
-    }
-    std::string ret(buffer);
-    va_end(vl);
-    delete buffer;
-    return ret;
-}
+    //missing string printf
+    std::string format(const char* fmt, ...);
 
 	#define OK 1
 	#define FAIL 0

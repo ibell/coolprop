@@ -12,8 +12,8 @@
 #include "PengRobinson.h"
 #include "Solvers.h"
 #include "R134a.h"
-
-#define CHAR_DPDT '#'
+#include <stdlib.h>
+#include <stdio.h>
 
 using namespace std;
 
@@ -876,7 +876,7 @@ std::vector<std::vector<double> >* Fluid::_get_LUT_ptr(std::string Prop)
 		mat=&LUT.dpdTmat;
     else
     {
-    	throw ValueError(format("Invalid output type [%c] in _get_LUT_ptr\n",Prop));
+    	throw ValueError(format("Invalid output type [%s] in _get_LUT_ptr\n",Prop.c_str()));
     }
 	return mat;
 }

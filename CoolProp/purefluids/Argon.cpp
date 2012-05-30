@@ -41,7 +41,6 @@ Note: Critical enhancement included
 #include "Helmholtz.h"
 #include "FluidClass.h"
 
-#define new new(_NORMAL_BLOCK, __FILE__, __LINE__)
 using namespace std;
 
 static const double Tc=150.687, rhoc=535.6, Pc=4863.0, M_Argon=39.948, _Ttriple=83.806;

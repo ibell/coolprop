@@ -1,3 +1,4 @@
+#include "FluidClass.h"
 #ifndef R717_H
 #define R717_H
 

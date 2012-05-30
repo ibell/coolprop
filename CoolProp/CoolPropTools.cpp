@@ -1,14 +1,32 @@
-#if defined(_MSC_VER)
-#define _CRTDBG_MAP_ALLOC
 #define _CRT_SECURE_NO_WARNINGS
-#include <crtdbg.h>
-#endif
+#include <string>
+#include <cstdio>
+#include <cstdarg>
 #include <stdlib.h>
 #include "math.h"
 #include "stdio.h"
 #include <string.h>
 #include "CoolProp.h"
 
+std::string format(const char* fmt, ...)
+{
+    int size = 512;
+    char* buffer = 0;
+    buffer = new char[size];
+    va_list vl;
+    va_start(vl,fmt);
+    int nsize = vsnprintf(buffer,size,fmt,vl);
+    if(size<=nsize){//fail delete buffer and try again
+        delete buffer; buffer = 0;
+        buffer = new char[nsize+1];//+1 for /0
+        nsize = vsnprintf(buffer,size,fmt,vl);
+    }
+    std::string ret(buffer);
+    va_end(vl);
+    delete buffer;
+    return ret;
+}
+    
 static int isNAN(double x)
 {
 	// recommendation from http://www.devx.com/tips/Tip/42853

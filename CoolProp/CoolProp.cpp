@@ -30,7 +30,7 @@ double _Props(std::string Output,char Name1, double Prop1, char Name2, double Pr
 bool FlagUseSaturationLUT=false; //Default to use LUT since they are used so much and don't take long to build
 bool FlagUseSinglePhaseLUT=false; //Default to not use LUT
 
-std::string err_string;
+static std::string err_string;
 int debug_level=5;
 FluidsContainer Fluids = FluidsContainer();
 Fluid * pFluid;
@@ -359,10 +359,7 @@ double _Props(std::string Output,char Name1, double Prop1, char Name2, double Pr
         #if defined(__ISWINDOWS__)
         return REFPROP(Output.c_str()[0],Name1,Prop1,Name2,Prop2,(char*)Ref.c_str());
 		#else
-        sprintf(Local_errString,"Your refrigerant [%s] is from REFPROP, but REFPROP not supported on this platform",Ref);
-        Append2ErrorString(Local_errString);
-        if (FlagDebug==1)
-        	PrintError();
+        throw AttributeError(format("Your refrigerant [%s] is from REFPROP, but REFPROP not supported on this platform",Ref.c_str()));
         return -_HUGE;
         #endif
     }
@@ -502,7 +499,7 @@ double _Props(std::string Output,char Name1, double Prop1, char Name2, double Pr
         }
         else
         {
-			throw ValueError(format("Not a valid pair of input keys %c,%c and output key %c",Name1,Name2,Output));
+			throw ValueError(format("Not a valid pair of input keys %c,%c and output key %s",Name1,Name2,Output.c_str()));
         }
     }
     return 0;
@@ -610,7 +607,7 @@ void _T_hp(std::string Ref, double h, double p, double *Tout, double *rhoout)
 		tau -= B[0][0]*f1+B[0][1]*f2;
 		delta -= B[1][0]*f1+B[1][1]*f2;
 
-		worst_error = max(fabs(f1),fabs(f2));
+		worst_error = std::max(fabs(f1),fabs(f2));
 		iter+=1;
 		if (iter>100)
 		{
@@ -812,7 +809,6 @@ double DerivTerms(char *Term,double T, double rho, char * Ref)
     {
         return pFluid->d2phir_dDelta2(tau,delta);
     }
-	
 	else if (!strcmp(Term,"IsothermalCompressibility"))
 	{
 		double dpdrho=R*T*(1+2*delta*pFluid->dphir_dDelta(tau,delta)+delta*delta*pFluid->d2phir_dDelta2(tau,delta));
@@ -823,7 +819,6 @@ double DerivTerms(char *Term,double T, double rho, char * Ref)
 		printf("Sorry DerivTerms is a work in progress, your derivative term [%s] is not available!!",Term);
 		return _HUGE;
 	}
-   
 }
 
 

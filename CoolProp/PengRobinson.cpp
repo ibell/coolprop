@@ -7,7 +7,7 @@ std::vector<double> PRGuess_rho(Fluid * pFluid, double T, double p)
 	// See http://ascend4.org/PengRobinson_EOS_in_FPROPS or 
 	std::complex<double> cQ,cdelta,cC,cZ1,cZ2,cZ3,cplussqrt3,cminussqrt3;
 	std::vector<double> solns;
-	double alpha,kappa,omega,Tc,pc,a,b,c,d,A,B,DELTA,R,delta,Z,Q,Z1,Z2,Z3,sqrt3,rho,p_check;
+	double alpha,kappa,omega,Tc,pc,a,b,c,d,A,B,DELTA,R,delta,Z,Q,Z1,Z2,Z3,sqrt3,rho;
 	omega = pFluid->params.accentricfactor;
 	Tc = pFluid->reduce.T;
 	pc = pFluid->reduce.p;
