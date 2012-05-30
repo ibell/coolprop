@@ -3,6 +3,7 @@
 #include <string>
 #include <exception>
 #include "CPExceptions.h"
+#include "PropMacros.h"
 
 #ifndef FLUIDCLASS_H
 #define FLUIDCLASS_H

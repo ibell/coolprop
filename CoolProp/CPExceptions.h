@@ -10,6 +10,7 @@ private:
 public:
 	NotImplementedError() throw(){};
 	NotImplementedError(std::string errstring) throw(){err=errstring;};
+    ~NotImplementedError() throw(){};
 	virtual const char* what() const throw(){ return err.c_str(); }
 };
 
@@ -20,6 +21,7 @@ private:
 public:
 	SolutionError() throw(){};
 	SolutionError(std::string errstring) throw(){err=errstring;};
+    ~SolutionError() throw(){};
 	virtual const char* what() const throw(){ return err.c_str(); }
 };
 
@@ -31,6 +33,7 @@ private:
 public:
 	ValueError() throw(){};
 	ValueError(std::string errstring) throw(){err=errstring;};
+    ~ValueError() throw(){};
 	virtual const char* what() const throw(){ return err.c_str(); }
 };
 
@@ -41,6 +44,7 @@ private:
 public:
 	AttributeError() throw(){};
 	AttributeError(std::string errstring) throw(){err=errstring;};
+    ~AttributeError() throw(){};
 	virtual const char* what() const throw(){ return err.c_str(); }
 };
 

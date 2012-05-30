@@ -7,6 +7,9 @@ from distutils.sysconfig import get_python_inc
 from distutils.ccompiler import new_compiler
 from distutils.dep_util import newer_group
 
+# from distutils.ccompiler import show_compilers
+# show_compilers()
+
 ## If the file is run directly without any parameters, build and install
 if len(sys.argv)==1:
     sys.argv+=['install']

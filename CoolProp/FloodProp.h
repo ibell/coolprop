@@ -1,10 +1,6 @@
-/* File FloodProp.h */
+
  #ifndef FLOODPROP_H
  #define FLOODPROP_H
- 
-	//Define macros for different types of input parameters for EOS
-	#define TP 1
-	#define Trho 2
 
 	double cK_e(double v_l, double v_g, double x, double w, double flag);
 	double cv_e(double v_l, double v_g, double K_e, double x, double w, double flag);
