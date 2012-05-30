@@ -49,7 +49,11 @@ def SimpleCycle(Ref,Te,Tc,DTsh,DTsc,eta_a,Ts_Ph='Ph',skipPlot=False,axis=None):
     T[2]=T_hp(Ref,h[2],pc,T2s)
     s[2]=Props('S','T',T[2],'P',pc,Ref)
     
+    sbubble_c=Props('S','P',pc,'Q',0,Ref)
+    sdew_c=Props('S','P',pc,'Q',1,Ref)
     Tbubble_c=Props('T','P',pc,'Q',0,Ref)
+    sbubble_e=Props('S','P',pe,'Q',0,Ref)
+    sdew_e=Props('S','P',pe,'Q',1,Ref)
     Tbubble_e=Props('T','P',pe,'Q',0,Ref)
     T[3]=Tbubble_c-DTsc
     h[3]=Props('H','T',T[3],'P',pc,Ref)
@@ -62,6 +66,17 @@ def SimpleCycle(Ref,Te,Tc,DTsh,DTsc,eta_a,Ts_Ph='Ph',skipPlot=False,axis=None):
     COP=(h[1]-h[4])/(h[2]-h[1])
     COPH=(h[2]-h[3])/(h[2]-h[1])
     
+    hsatL=Props('H','T',Tbubble_e,'Q',0,Ref)
+    hsatV=Props('H','T',Te,'Q',1,Ref)
+    ssatL=Props('S','T',Tbubble_e,'Q',0,Ref)
+    ssatV=Props('S','T',Te,'Q',1,Ref)
+    vsatL=1/Props('D','T',Tbubble_e,'Q',0,Ref)
+    vsatV=1/Props('D','T',Te,'Q',1,Ref)
+    x=(h[4]-hsatL)/(hsatV-hsatL)
+    s[4]=x*ssatV+(1-x)*ssatL
+    T[4]=x*Te+(1-x)*Tbubble_e
+    print x,s[4],T[4]
+    
     print COP,COPH
     if skipPlot==False:
         if axis==None:
@@ -69,7 +84,15 @@ def SimpleCycle(Ref,Te,Tc,DTsh,DTsc,eta_a,Ts_Ph='Ph',skipPlot=False,axis=None):
         if Ts_Ph in ['ph','Ph']:
             ax.plot(h,p)
         elif Ts_Ph in ['Ts','ts']:
-            ax.plot(s,T)
+            s=list(s)
+            T=list(T)
+            s.insert(5,sdew_e)
+            T.insert(5,Te)
+            s.insert(3,sbubble_c)
+            T.insert(3,Tbubble_c)
+            s.insert(3,sdew_c)
+            T.insert(3,Tc)
+            ax.plot(s[1::],T[1::],'b')
         else:
             raise TypeError('Type of Ts_Ph invalid')
 
@@ -391,6 +414,13 @@ if __name__=='__main__':
     Ph(Ref,Tmin=273.15-100,hbounds=[0,600],axis=ax)
     COP=SimpleCycle(Ref,273.15-5,273.15+45,5,7,0.7,Ts_Ph='Ph')
     pylab.show()
+    
+    Ref='R410A'
+    fig=pylab.figure(figsize=(4,3))
+    ax=fig.add_axes((0.15,0.15,0.8,0.8))
+    Ts(Ref,Tmin=273.15-100,sbounds=[0,600],axis=ax)
+    COP=SimpleCycle(Ref,273.15-5,273.15+45,5,7,0.7,Ts_Ph='Ts')
+    pylab.show()    
     
 ##     for x in np.linspace(0,1):
 ##         Ref='REFPROP-MIX:R152A[%g]&R32[%g]' %(x,1-x)

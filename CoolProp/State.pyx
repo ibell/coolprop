@@ -3,14 +3,14 @@ cdef extern from "CoolProp.h":
     void UseSinglePhaseLUT(bool)
     double DerivTerms(char *, double, double, char*)
     char * get_errstringc()
-    int set_1phase_LUT_params(char*,int,int,double,double,double,double)
-    void debug(int)
+    int _set_1phase_LUT_params "set_1phase_LUT_params" (char*,int,int,double,double,double,double)
+    void _debug "debug" (int)
 
-cpdef int set_1phase_LUT_params_(bytes Ref, int nT,int np,double Tmin,double Tmax,double pmin,double pmax):
-    return set_1phase_LUT_params(Ref,nT, np, Tmin, Tmax, pmin, pmax)
+cpdef int set_1phase_LUT_params(bytes Ref, int nT,int np,double Tmin,double Tmax,double pmin,double pmax):
+    return _set_1phase_LUT_params(Ref, nT, np, Tmin, Tmax, pmin, pmax)
 
-cpdef debug_level(int level):
-    debug(level)
+cpdef debug(int level):
+    _debug(level)
 
 cpdef LUT(bint LUTval):
     if LUTval==True:
@@ -48,6 +48,7 @@ cdef class State:
         ['T','P'] for temperature and pressure for instance
         """
         cdef double p
+        cdef char* pchar
         
         # If no value for xL is provided, it will have a value of -1 which is 
         # impossible, so don't update xL
@@ -73,7 +74,9 @@ cdef class State:
             #Get the density if T,P provided, or pressure if T,rho provided
             if 'P' in params:
                 self.p_=params['P']
-                rho = Props('D','T',self.T_,'P',self.p_,self.Fluid)
+                #Explicit type conversion
+                pchar='D'
+                rho = Props(pchar,'T',self.T_,'P',self.p_,self.Fluid)
                 if abs(rho)<1e90:
                     self.rho_=rho
                 else:
@@ -81,7 +84,10 @@ cdef class State:
                     raise ValueError(errstr)
             elif 'D' in params:
                 self.rho_=params['D']
-                p = Props('P','T',self.T_,'D',self.rho_,self.Fluid)
+                #Explicit type conversion
+                pchar='P'
+                print pchar,self.T_,self.rho_
+                p = Props(pchar,'T',self.T_,'D',self.rho_,self.Fluid)
                 if abs(p)<1e90:
                     self.p_=p
                 else:
@@ -178,7 +184,7 @@ cdef class State:
                 s+=k+' = '+str(getattr(self,k))+' '+units[k]+'\n'
             else:
                 s+=k+' = '+str(getattr(self,k))+' NO UNITS'+'\n'
-        return s
+        return s.rstrip()
         
     cpdef copy(self):
         ST=State(self.Fluid,{'T':self.T,'D':self.rho})

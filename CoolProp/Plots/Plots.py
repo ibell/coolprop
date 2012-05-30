@@ -1,7 +1,7 @@
 import pylab, numpy as np, CoolProp.CoolProp as cp
 
 #Turn off lookup for sure
-cp.UseSaturationLUT(0)
+cp.UseSaturationLUT(0) 
 
 def Ts(Ref,Tmin=220,axis=None,**kwargs):
     """
@@ -15,7 +15,7 @@ def Ts(Ref,Tmin=220,axis=None,**kwargs):
     else:
         ax=axis
 
-    Tsat = np.linspace(Tmin,cp.Tcrit(Ref)-0.0001,100)
+    Tsat = np.linspace(Tmin,cp.Props(Ref,"Tcrit")-0.0001,100)
     (ssatL,psatL,ssatV,psatV)=(0.0*Tsat,0.0*Tsat,0.0*Tsat,0.0*Tsat)
     for i in range(len(Tsat)):
         ssatL[i] = cp.Props('S','T',Tsat[i],'Q',0,Ref)
@@ -40,7 +40,7 @@ def Ph(Ref,axis=None,Tmin=220,**kwargs):
         ax=pylab.gca()
     else:
         ax=axis
-    Tsat = np.linspace(Tmin,cp.Tcrit(Ref)-0.001,1000)
+    Tsat = np.linspace(Tmin,cp.Props(Ref,"Tcrit")-0.001,1000)
     (hsatL,psatL,hsatV,psatV)=(0.0*Tsat,0.0*Tsat,0.0*Tsat,0.0*Tsat)
     for i in range(len(Tsat)):
         hsatL[i] = cp.Props('H','T',Tsat[i],'Q',0,Ref)

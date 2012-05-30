@@ -29,7 +29,7 @@ struct SatLUTStruct
 
 struct OnePhaseLUTStruct
 {
-	std::vector< std::vector<double>> hmat,rhomat,cpmat,smat,cvmat,umat,viscmat,kmat,pmat,dpdTmat;
+	std::vector< std::vector<double> > hmat,rhomat,cpmat,smat,cvmat,umat,viscmat,kmat,pmat,dpdTmat;
 	std::vector<double> Tvec,pvec;
 	double Tmin,Tmax,pmin,pmax;
 	int nT,np;
@@ -56,7 +56,7 @@ class Fluid
 		/// @param p Pressure [kPa(abs)]
 		double _get_rho_guess(double T, double p); 
 
-		std::vector<std::vector<double>>* _get_LUT_ptr(std::string Prop);
+		std::vector<std::vector<double> >* _get_LUT_ptr(std::string Prop);
     public:
 		/// Constructor for the Fluid class.  This is an abstract base class that 
 		/// is not meant to be instantiated directly.  Rather it should be subclassed
@@ -131,6 +131,7 @@ class Fluid
 		double specific_heat_p_Trho(double T, double rho);
 		double specific_heat_v_Trho(double T, double rho);
 		double gibbs_Trho(double T, double rho);
+		double dpdT_Trho(double T,double rho);
 		double density_Tp(double T, double p);
 		double density_Tp(double T, double p, double rho_guess);
 		std::string phase(double T, double p);

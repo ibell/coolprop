@@ -22,7 +22,6 @@
 #include "CPExceptions.h"
 #include "Brine.h"
 
-
 // Function prototypes
 void _T_hp(std::string Ref, double h, double p, double *T, double *rho);
 double rho_TP(double T, double p);
@@ -455,7 +454,7 @@ double _Props(std::string Output,char Name1, double Prop1, char Name2, double Pr
 				Value = pFluid->LookupValue_Trho(std::string(Output), T, rho);
                 return Value;
             }
-			rho = Prop2;
+			rho = Prop2; 
 			if (!Output.compare("D"))
 				Value=rho;
 			else if (!Output.compare("P"))
@@ -478,8 +477,11 @@ double _Props(std::string Output,char Name1, double Prop1, char Name2, double Pr
 				Value=pFluid->viscosity_Trho(T,rho);
 			else if (!Output.compare("L"))
 				Value=pFluid->conductivity_Trho(T,rho);
+			else if (!Output.compare("dpdT"))
+				Value=pFluid->dpdT_Trho(T,rho);
 			else{
-				throw ValueError(format("Invalid Output Name: %s",Output.c_str()));
+				std::cout<<Output<<std::endl;
+				throw ValueError(format("Invalid Output Name: %s ",Output.c_str()));
 				return _HUGE;
             }
             return Value;

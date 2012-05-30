@@ -1,10 +1,11 @@
 
 from distutils.core import setup, Extension
-import subprocess,shutil,os,sys
+import subprocess,shutil,os,sys,glob
 from Cython.Distutils import build_ext
 from Cython.Distutils.extension import Extension as CyExtension
 from distutils.sysconfig import get_python_inc
 from distutils.ccompiler import new_compiler
+from distutils.dep_util import newer_group
 
 ## If the file is run directly without any parameters, build and install
 if len(sys.argv)==1:
@@ -19,7 +20,10 @@ for file in badfiles:
     
 def availableFluids():
     try:
+        ## Can't load the CoolProp module in this file because then you can't install the files :(
+        ## Run a subprocess to do it instead
         FL = subprocess.check_output(['python','-c','import CoolProp; print CoolProp.CoolProp.FluidsList()']).rstrip()
+        ## Take the comma,separated string and turn it into a Python-friendly list for writing to __init__.py file
         line = '__fluids__=' + str(FL.split(',')) +'\n' 
     except:
         line=''
@@ -28,17 +32,9 @@ def availableFluids():
 
 version='2.0.0'
 
-#This will automagically find all the fluid sources as long as they are in the right folders
-#Pure fluids should all be in the CoolProp/purefluids folder relative to setup.py
-#Pseudo-Pure fluids should all be in the CoolProp/pseudopurefluids folder relative to setup.py
-import glob
-purefluids=glob.glob(os.path.join('CoolProp','purefluids','*.cpp'))
-pseudopurefluids=glob.glob(os.path.join('CoolProp','pseudopurefluids','*.cpp'))
-CPCore=['CoolProp.cpp','CoolPropTools.cpp','FloodProp.cpp','FluidClass.cpp',
-        'Helmholtz.cpp','PengRobinson.cpp','REFPROP.cpp','Solvers.cpp',
-        'Brine.cpp']
-others=[os.path.join('CoolProp',f) for f in CPCore]
-Sources=purefluids+pseudopurefluids+others
+#########################
+## __init__.py builder ##
+#########################
 
 #Build a list of all the available fluids - added to __init__.py
 FluidsList=availableFluids()
@@ -55,14 +51,19 @@ for line in lines:
     fp.write(line)
 fp.close()
 
-## ==== start of SWIG code =======
-
+######################################
+######################################
+######################################
+##### SWIG!! SWIG!!!! SWIG!!! ########
+######################################
+##      start of SWIG code          ## 
+######################################
 swig_opts=['-c++','-python','-builtin']
 
 """
 In this block of code, all the files that require SWIG are rebuilt on an as needed basis.  
 If the target file X_wrap.cpp doesn't exist, or is older than the X.i file, SWIG
-is called to rebuilt the file
+is called to rebuilt the file.  Does not check the c++ headers.  Delete the _wrap.cpp to force build
 
 swig_sources[(source,target)]
 
@@ -76,7 +77,6 @@ for source,target in swig_sources:
     def rebuild_swig(source,target):
         swig_call=['swig']+swig_opts+['-o',target,source]
         print 'Swigging '+source+' to '+target+' ....'
-        print swig_call
         subprocess.call(swig_call)
         
     #if the target doesn't exist or the wrapped C++ code is newer
@@ -85,29 +85,62 @@ for source,target in swig_sources:
     else:
         print 'No SWIG required for '+source+' --> '+target+' (up-to-date)'
 
+
+################################
+##  CoolProp Static Library ####
+################################
 ## Build a static library of CoolProp
+
+#This will automagically find all the fluid sources as long as they are in the right folders
+#Pure fluids should all be in the CoolProp/purefluids folder relative to setup.py
+#Pseudo-Pure fluids should all be in the CoolProp/pseudopurefluids folder relative to setup.py
+purefluids=glob.glob(os.path.join('CoolProp','purefluids','*.cpp'))
+pseudopurefluids=glob.glob(os.path.join('CoolProp','pseudopurefluids','*.cpp'))
+CPCore=['CoolProp.cpp','CoolPropTools.cpp','FloodProp.cpp','FluidClass.cpp',
+        'Helmholtz.cpp','PengRobinson.cpp','REFPROP.cpp','Solvers.cpp',
+        'Brine.cpp']
+others=[os.path.join('CoolProp',f) for f in CPCore]
+Sources=purefluids+pseudopurefluids+others
+
+### Include folders for build
 include_dirs = ['CoolProp',os.path.join('CoolProp','purefluids'),os.path.join('CoolProp','pseudopurefluids'),get_python_inc(False)]
-def StaticLibBuilder(sources):
+
+def StaticLibBuilder(sources,LibName='CoolProp',build_path='build_lib',lib_path='lib',force=False):
     CC = new_compiler()
-    objs = CC.compile(sources,'build_lib',[('COOLPROP_LIB',None)],include_dirs=include_dirs)
-    print objs
-    CC.create_static_lib(objs, 'CoolProp','lib')    
-StaticLibBuilder(Sources)            
+    #Default to not build
+    buildCPLib=False
+    # The full path to the library to be built
+    CPLibPath=CC.library_filename(os.path.join(lib_path,LibName),lib_type='static')    
+    # 
+    OutDate= not newer_group(sources,CPLibPath,missing='ignore')
+    
+    if not os.path.exists(build_path) or not os.path.exists(lib_path):
+        if not os.path.exists(build_path): os.mkdir(build_path)
+        if not os.path.exists(lib_path): os.mkdir(lib_path)
+        #Force rebuild of all
+        buildCPLib=True
+    elif newer_group(sources,CPLibPath):
+        buildCPLib=True
+    
+    if buildCPLib==True:
+        objs = CC.compile(sources,build_path,[('COOLPROP_LIB',None)],include_dirs=include_dirs)
+        CC.create_static_lib(objs, LibName,lib_path)
+    else:
+        print 'No build of CoolProp static library required.'
+    
+StaticLibBuilder(Sources)
 
-## ==== end of SWIG code =======
-
+#Now come in and build the modules themselves
 CoolProp_module = Extension('CoolProp._CoolProp',
-                           sources=[os.path.join('CoolProp','CoolProp_wrap.cpp')]+Sources,
-                           #swig_opts=['-builtin']
-                           swig_opts=['-builtin','-c++'],
-                           #swig_opts=['-c++'],
-                           include_dirs = ['CoolProp',os.path.join('CoolProp','purefluids'),os.path.join('CoolProp','pseudopurefluids')],
+                           sources=[os.path.join('CoolProp','CoolProp_wrap.cpp')],
+                           include_dirs = include_dirs, libraries=['CoolProp'],
+                           library_dirs=['lib']
                            )
 
 FloodProp_module = Extension('CoolProp._FloodProp',
-                           sources=[os.path.join('CoolProp','FloodProp_wrap.cpp')]+Sources,
-                           swig_opts=['-c++'],
-                           include_dirs = ['CoolProp',os.path.join('CoolProp','purefluids'),os.path.join('CoolProp','pseudopurefluids')],
+                           sources=[os.path.join('CoolProp','FloodProp_wrap.cpp')],
+                           include_dirs = include_dirs, libraries=['CoolProp'],
+                           library_dirs=['lib']
                            )
 
 HASources = [
@@ -127,16 +160,14 @@ HASources = [
      os.path.join('CoolProp','Solvers.cpp'),
      ]
 HumidAirProp_module = Extension('CoolProp._HumidAirProp',
-                           sources=HASources,
-                           swig_opts=['-c++'],define_macros=[('ONLY_AIR_WATER',None)],
-                           include_dirs = ['CoolProp',os.path.join('CoolProp','purefluids'),os.path.join('CoolProp','pseudopurefluids')],
+                           sources=HASources,define_macros=[('ONLY_AIR_WATER',None)],
+                           include_dirs = include_dirs,
                            )                     
 
 #State_module = CyExtension('CoolProp.State',[os.path.join('CoolProp','State.pyx')],language='c++')                
 
 State_module = CyExtension('CoolProp.State',[os.path.join('CoolProp','State.pyx')],language='c++',libraries=['CoolProp'],
-                        library_dirs=['lib'],
-                        include_dirs = ['CoolProp',os.path.join('CoolProp','purefluids'),os.path.join('CoolProp','pseudopurefluids')])
+                        library_dirs=['lib'],include_dirs = include_dirs)
 #                        
 setup (name = 'CoolProp',
        version = version, #look above for the definition of version variable - don't modify it here
