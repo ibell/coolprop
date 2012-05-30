@@ -1,12 +1,22 @@
 cdef extern from "CoolProp.h":
-    double Props(char,char,double,char,double,char*)
+    double Props(char*,char,double,char,double,char*)
     void UseSinglePhaseLUT(bool)
     double DerivTerms(char *, double, double, char*)
     char * get_errstringc()
     int set_1phase_LUT_params(char*,int,int,double,double,double,double)
+    void debug(int)
 
-cdef int set_1phase_LUT_params_(bytes Ref, int nT,int np,double Tmin,double Tmax,double pmin,double pmax):
+cpdef int set_1phase_LUT_params_(bytes Ref, int nT,int np,double Tmin,double Tmax,double pmin,double pmax):
     return set_1phase_LUT_params(Ref,nT, np, Tmin, Tmax, pmin, pmax)
+
+cpdef debug_level(int level):
+    debug(level)
+
+cpdef LUT(bint LUTval):
+    if LUTval==True:
+        UseSinglePhaseLUT(True)
+    elif LUTval==True:
+        UseSinglePhaseLUT(False)
 
 #from CoolProp import Props,UseSinglePhaseLUT,DerivTerms
 cdef class State: 
@@ -14,18 +24,13 @@ cdef class State:
     A class that contains all the code that represents a thermodynamic state
     """
     
-    def __init__(self,bytes Fluid,dict StateDict,double xL=-1.0,Liquid='',bint LUT=False):
+    def __init__(self,bytes Fluid,dict StateDict,double xL=-1.0,Liquid=''):
         self.Fluid=Fluid
         self.xL=xL
         self.Liquid=Liquid
         
         #Parse the inputs provided
         self.update(StateDict)
-        
-        if LUT==True:
-            UseSinglePhaseLUT(<bint>1)
-        else:
-            UseSinglePhaseLUT(<bint>0) 
             
     def __reduce__(self):
         d={}
@@ -88,6 +93,10 @@ cdef class State:
         else:
             raise ValueError('xL must be between 0 and 1')
         
+    property LUT:
+        def __get__(self):
+            return self.LUT
+        
     property rho:
         def __get__(self):
             return self.rho_
@@ -102,7 +111,7 @@ cdef class State:
     
     property h:
         def __get__(self):
-            return Props('H','T',self.T_,'D',self.rho_,self.Fluid)
+            return Props("H",'T',self.T_,'D',self.rho_,self.Fluid)
             
     property u:
         def __get__(self):
@@ -134,7 +143,7 @@ cdef class State:
             
     property dpdT:
         def __get__(self):
-            return DerivTerms('dpdT',self.T_,self.rho_,self.Fluid)
+            return Props('dpdT','T',self.T_,'D',self.rho_,self.Fluid)
         
     cpdef speed_test(self,int N):
         from time import clock
@@ -147,7 +156,7 @@ cdef class State:
             t1=clock()
             k=key
             for i in range(N):
-                Props(k[0],'T',self.T_,'D',self.rho_,Fluid)
+                Props(k,'T',self.T_,'D',self.rho_,Fluid)
             t2=clock()
             print 'Elapsed time for {0:d} calls for "{1:s}" at {2:g} us/call'.format(N,key,(t2-t1)/N*1e6)
     
@@ -161,9 +170,10 @@ cdef class State:
                'visc':'Pa-s',
                'k':'kW/m/K',
                'cp':'kJ/kg/K',
-               'cv':'kJ/kg/K'}
+               'cv':'kJ/kg/K',
+               'dpdT':'kPa/K'}
         s=''
-        for k in ['T','p','rho','h','u','s','visc','k','cp','cv']:
+        for k in ['T','p','rho','h','u','s','visc','k','cp','cv','dpdT','Prandtl']:
             if k in units:
                 s+=k+' = '+str(getattr(self,k))+' '+units[k]+'\n'
             else:

@@ -11,43 +11,6 @@ this file for building a static or dynamic library
 	#define CONVENTION 
 #endif
 
-#include "CoolPropTools.h"
-#include "PropErrorCodes.h"
-#include "PropMacros.h"
-
-// Always include Air and Water, and R134a since it is the default reference fluid for ECS
-#include "Water.h"
-#include "Air.h"
-#include "R134a.h"
-
-// If the preprocessor key ONLY_AIR_WATER is defined, only air and water will be included (and R134a since default for ECS)
-#if !defined(ONLY_AIR_WATER)
-#include "R410A.h"
-#include "R290.h"
-#include "R32.h"
-#include "R744.h"
-#include "R404A.h"
-#include "R507A.h"
-#include "R407C.h"
-#include "R717.h"
-#include "Argon.h"
-#include "R1234yf.h"
-#include "Nitrogen.h"
-#include "Brine.h"
-#include "IndustrialFluids.h"
-#include "R22.h"
-#endif
-
-#define PHASE_SUPERCRITICAL 1
-#define PHASE_SUPERHEATED 4
-#define PHASE_SUBCOOLED 2
-#define PHASE_TWOPHASE 3    
-
-#define FLUIDTYPE_REFPROP 0
-#define FLUIDTYPE_BRINE 1
-#define FLUIDTYPE_REFRIGERANT_PURE 2
-#define FLUIDTYPE_REFRIGERANT_PSEUDOPURE 3
-
 	/*
 	Following the naming conventions of MATLAB linked with REFPROP,
 	each outputproperty is represented by one character:
@@ -112,6 +75,33 @@ Other sources
 #ifndef CoolProp_H
 #define CoolProp_H
 
+	#include "CoolPropTools.h"
+	#include "PropErrorCodes.h"
+	#include "PropMacros.h"
+
+	// Always include Air and Water, and R134a since it is the default reference fluid for ECS
+	#include "Water.h"
+	#include "Air.h"
+	#include "R134a.h"
+
+	// If the preprocessor key ONLY_AIR_WATER is defined, only air and water will be included (and R134a since default for ECS)
+	#if !defined(ONLY_AIR_WATER)
+	#include "R410A.h"
+	#include "R290.h"
+	#include "R32.h"
+	#include "R744.h"
+	#include "R404A.h"
+	#include "R507A.h"
+	#include "R407C.h"
+	#include "R717.h"
+	#include "Argon.h"
+	#include "R1234yf.h"
+	#include "Nitrogen.h"
+	#include "Brine.h"
+	#include "IndustrialFluids.h"
+	#include "R22.h"
+	#endif
+
 	EXPORT_CODE void CONVENTION Help(void);
 	EXPORT_CODE void CONVENTION UseSaturationLUT(bool OnOff);
 	EXPORT_CODE bool CONVENTION SaturationLUTStatus();
@@ -121,7 +111,7 @@ Other sources
 	EXPORT_CODE double CONVENTION Props(std::string Fluid,std::string Output);
 	EXPORT_CODE double CONVENTION Props(char *Fluid, char *Output);
 	EXPORT_CODE double CONVENTION Props(char Output,char Name1, double Prop1, char Name2, double Prop2, char * Ref);
-    EXPORT_CODE double CONVENTION Props(char Output,char Name1, double Prop1, char Name2, double Prop2, std::string Ref);
+	EXPORT_CODE double CONVENTION Props(std::string Output,char Name1, double Prop1, char Name2, double Prop2, std::string Ref);
 	EXPORT_CODE double CONVENTION Props(char *Output,char Name1, double Prop1, char Name2, double Prop2, char * Ref);
 
 	// Convenience functions
@@ -133,7 +123,6 @@ Other sources
 	EXPORT_CODE double CONVENTION F2K(double T_F);
 	EXPORT_CODE double CONVENTION K2F(double T);
 	EXPORT_CODE void CONVENTION PrintSaturationTable(char *FileName, char * Ref, double Tmin, double Tmax);
-	EXPORT_CODE int CONVENTION Phase(double T, double rho, char * Ref);
 	
 	EXPORT_CODE std::string CONVENTION FluidsList(void);
 	EXPORT_CODE std::string CONVENTION get_errstring(void);
@@ -150,4 +139,6 @@ Other sources
 
 	EXPORT_CODE void CONVENTION get_1phase_LUT_params(int *nT, int *np, double *Tmin, double *Tmax, double *pmin, double *pmax);
 
+	EXPORT_CODE int CONVENTION debug();
+	EXPORT_CODE void CONVENTION debug(int level);
 #endif

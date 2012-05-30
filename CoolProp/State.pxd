@@ -1,5 +1,7 @@
 
-cdef int set_1phase_LUT_params_(bytes Ref, int nT,int np,double Tmin,double Tmax,double pmin,double pmax)
+cpdef LUT(bint LUTkey)
+cpdef int set_1phase_LUT_params_(bytes Ref, int nT,int np,double Tmin,double Tmax,double pmin,double pmax)
+cpdef debug_level(int level)
 
 cdef class State:
     cdef readonly bint hasLiquid

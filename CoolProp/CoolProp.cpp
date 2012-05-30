@@ -24,17 +24,20 @@
 
 
 // Function prototypes
-void _T_hp(char *Ref, double h, double p, double *T, double *rho);
+void _T_hp(std::string Ref, double h, double p, double *T, double *rho);
 double rho_TP(double T, double p);
-double _Props(char Output,char Name1, double Prop1, char Name2, double Prop2, char * Ref);
+double _Props(std::string Output,char Name1, double Prop1, char Name2, double Prop2, std::string Ref);
 
 bool FlagUseSaturationLUT=false; //Default to use LUT since they are used so much and don't take long to build
 bool FlagUseSinglePhaseLUT=false; //Default to not use LUT
 
 std::string err_string;
-
+int debug_level=5;
 FluidsContainer Fluids = FluidsContainer();
 Fluid * pFluid;
+
+int debug(){return debug_level;}
+void debug(int level){debug_level=level;}
 
 std::string get_errstring(void){return err_string;}
 char * get_errstringc(void){return (char*)err_string.c_str();}
@@ -45,6 +48,11 @@ int set_1phase_LUT_params(std::string Ref, int nT, int np, double Tmin, double T
 int set_1phase_LUT_params(char *Ref, int nT, int np, double Tmin, double Tmax, double pmin, double pmax)
 { return set_1phase_LUT_params(Ref, nT, np, Tmin, Tmax, pmin, pmax, false); }
 
+int set_1phase_LUT_params(char *Ref, int nT, int np, double Tmin, double Tmax, double pmin, double pmax, bool rebuild)
+{
+	// Overload to take "normal" c-string and convert to std::string
+	return set_1phase_LUT_params(std::string(Ref), nT, np, Tmin, Tmax, pmin, pmax,rebuild);
+}
 int set_1phase_LUT_params(std::string Ref, int nT, int np, double Tmin, double Tmax, double pmin, double pmax, bool rebuild)
 {
 	try{
@@ -52,7 +60,7 @@ int set_1phase_LUT_params(std::string Ref, int nT, int np, double Tmin, double T
 		Fluid * LUTFluid = Fluids.get_fluid(Ref);
 		// Set the LUT parameters
 		LUTFluid->set_1phase_LUT_params(nT,np,Tmin,Tmax,pmin,pmax);
-
+		// If you call this function, it will build the LUT on the next function call
 		if (rebuild==true)
 			LUTFluid->BuildLookupTable();
 	}
@@ -63,11 +71,8 @@ int set_1phase_LUT_params(std::string Ref, int nT, int np, double Tmin, double T
 	}
 	return 0;
 }
-
-int set_1phase_LUT_params(char *Ref, int nT, int np, double Tmin, double Tmax, double pmin, double pmax, bool rebuild)
-{
-	// Overload to take "normal" c-string and convert to std::string
-	return set_1phase_LUT_params(std::string(Ref), nT, np, Tmin, Tmax, pmin, pmax,rebuild);
+void get_1phase_LUT_params(int *nT, int *np, double *Tmin, double *Tmax, double *pmin, double *pmax){
+	pFluid->get_1phase_LUT_params(nT,np,Tmin,Tmax,pmin,pmax);
 }
 
 void UseSaturationLUT(bool OnOff)
@@ -100,27 +105,6 @@ void UseSinglePhaseLUT(bool OnOff)
 bool SinglePhaseLUTStatus(void)
 {
     return FlagUseSinglePhaseLUT;
-}
-
-static double QuadInterpolate(double x0, double x1, double x2, double f0, double f1, double f2, double x)
-{
-    double L0, L1, L2;
-    L0=((x-x1)*(x-x2))/((x0-x1)*(x0-x2));
-    L1=((x-x0)*(x-x2))/((x1-x0)*(x1-x2));
-    L2=((x-x0)*(x-x1))/((x2-x0)*(x2-x1));
-    return L0*f0+L1*f1+L2*f2;
-}
-
-void MatInv_2(double A[2][2] , double B[2][2])
-{
-    double Det;
-    //Using Cramer's Rule to solve
-
-    Det=A[0][0]*A[1][1]-A[1][0]*A[0][1];
-    B[0][0]=1.0/Det*A[1][1];
-    B[1][1]=1.0/Det*A[0][0];
-    B[1][0]=-1.0/Det*A[1][0];
-    B[0][1]=-1.0/Det*A[0][1];
 }
 
 void Help()
@@ -196,24 +180,20 @@ static int IsBrine(char *Ref)
         return 0;
     }
 }
-static int IsREFPROP(char *Ref)
+static int IsREFPROP(std::string Ref)
 {
-    if (strncmp(Ref,"REFPROP-",8)==0)
-    {
+    if (!Ref.compare(0,8,"REFPROP-"))
         return 1;
-    }
     else
-    {
         return 0;
-    }
 }
-static int IsPseudoPure(char *Ref)
+static int IsPseudoPure(std::string Ref)
 {
-    if (strncmp(Ref,"Air",3)==0 ||
-        strncmp(Ref,"R410A",4)==0 ||
-        strncmp(Ref,"R407C",4)==0 ||
-        strncmp(Ref,"R507A",4)==0 ||
-        strncmp(Ref,"R404A",4)==0)
+    if (!Ref.compare("Air") ||
+        !Ref.compare("R410A") ||
+        !Ref.compare("R407C") ||
+        !Ref.compare("R507A") ||
+        !Ref.compare("R404A"))
     {
         return 1;
     }
@@ -241,35 +221,6 @@ int IsFluidType(char *Ref,char *Type)
         return 0;
     }
 }
-int Phase(double T, double rho, char * Ref)
-{
-    double rhosatL,rhosatV,p,Tbubble,Tdew;
-    if (fabs(SecFluids('D',0,0,Ref))<1e10)
-    {
-        //It's a secondary fluid, always subcooled
-        return PHASE_SUBCOOLED;
-    }
-
-    p=Props('P','T',T,'D',rho,Ref);
-    if (p>Props(Ref,"pcrit") && T>Props(Ref,"Tcrit"))
-    {
-        return PHASE_SUPERCRITICAL;
-    }
-    else
-    {
-        Tbubble=Props('T', 'P',p, 'Q',0.0,Ref);
-        Tdew=Props('T','P', p, 'Q',1.0,Ref);
-        rhosatV=Props('D','T',Tdew,'Q',1,Ref);
-        rhosatL=Props('D','T',Tbubble,'Q',0,Ref);
-
-        if (rho<rhosatV)
-            return PHASE_SUPERHEATED;
-        else if (rho>rhosatL)
-            return PHASE_SUBCOOLED;
-        else
-            return PHASE_TWOPHASE;
-    }
-}
 
 double Props(std::string Ref,std::string Output)
 {
@@ -288,13 +239,13 @@ double Props(char *Fluid, char *Output)
 			// It didn't load properly.  Perhaps it is a REFPROP fluid.
 			try{
 				if (!strcmp(Output,"Ttriple"))
-					return _Props('R','T',0,'P',0,Fluid);
+					return Props('R','T',0,'P',0,Fluid);
 				else if (!strcmp(Output,"Tcrit"))
-					return _Props('B','T',0,'P',0,Fluid);
+					return Props('B','T',0,'P',0,Fluid);
 				else if (!strcmp(Output,"pcrit"))
-					return _Props('E','T',0,'P',0,Fluid);
+					return Props('E','T',0,'P',0,Fluid);
 				else if (!strcmp(Output,"molemass"))
-					return _Props('M','T',0,'P',0,Fluid);
+					return Props('M','T',0,'P',0,Fluid);
 				else 
 					throw ValueError(format("Output parameter \"%s\" is invalid",Output));
 			}
@@ -335,36 +286,17 @@ double Props(char *Fluid, char *Output)
 
 double Props(char *Output,char Name1, double Prop1, char Name2, double Prop2, char * Ref)
 {
-	// This is a wrapper function to allow for overloading, and the passing of a string rather than a single character
-    if (strlen(Output)==1)
-    {
-		try
-		{
-			return _Props(Output[0],Name1,Prop1,Name2,Prop2,Ref);
-		}
-		// Catch any error that subclasses the std::exception
-		catch(std::exception &e){
-			err_string = std::string("CoolProp error: ").append(e.what());
-			return _HUGE;
-		}
-		catch(...){
-			std::cout << "Indeterminate error:" << std::endl;
-			return _HUGE;
-		}
-    }
-	else
-	{
-		printf("Currently Props with a string first input is not supported");
-		return _HUGE;
-	}
+	// Go to the std::string, std::string version
+	return Props(std::string(Output),Name1,Prop1,Name2,Prop2,std::string(Ref));
 }
-double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, std::string Ref)
+double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, char* Ref)
 {
-	return Props(Output,Name1,Prop1,Name2,Prop2,(char*)Ref.c_str());
+	// Go to the std::string, std::string version
+	return Props(std::string(1,Output),Name1,Prop1,Name2,Prop2,std::string(Ref));
 }
-
-double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, char * Ref)
+double Props(std::string Output,char Name1, double Prop1, char Name2, double Prop2, std::string Ref)
 {
+	// In this function the error catching happens;
 	try{
 		return _Props(Output,Name1,Prop1,Name2,Prop2,Ref);
 	}
@@ -378,7 +310,7 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 	}
 }
 // Make this a wrapped function so that error bubbling can be done properly
-double _Props(char Output,char Name1, double Prop1, char Name2, double Prop2, char * Ref)
+double _Props(std::string Output,char Name1, double Prop1, char Name2, double Prop2, std::string Ref)
 {
     double T,Q,rhoV,rhoL,Value,rho,pL,pV;
 
@@ -414,6 +346,11 @@ double _Props(char Output,char Name1, double Prop1, char Name2, double Prop2, ch
     // **********************************************************************************
     // **********************************************************************************
 
+	if (debug()>5){
+		std::cout<<__FILE__<<": "<<Output<<","<<Name1<<","<<Prop1<<","<<Name2<<","<<Prop2<<","<<Ref<<std::endl;
+		std::cout<<__FILE__<<": Using SinglePhase LUT is "<<FlagUseSinglePhaseLUT<<std::endl;
+	}
+
     /* 
     If the fluid name is not actually a refrigerant name, but a string beginning with "REFPROP-",
     then REFPROP is used to calculate the desired property.
@@ -421,7 +358,7 @@ double _Props(char Output,char Name1, double Prop1, char Name2, double Prop2, ch
     if (IsREFPROP(Ref))  // First eight characters match "REFPROP-"
     {
         #if defined(__ISWINDOWS__)
-        return REFPROP(Output,Name1,Prop1,Name2,Prop2,Ref);
+        return REFPROP(Output.c_str()[0],Name1,Prop1,Name2,Prop2,(char*)Ref.c_str());
 		#else
         sprintf(Local_errString,"Your refrigerant [%s] is from REFPROP, but REFPROP not supported on this platform",Ref);
         Append2ErrorString(Local_errString);
@@ -438,14 +375,17 @@ double _Props(char Output,char Name1, double Prop1, char Name2, double Prop2, ch
     // **********************************************************************************
 
     // It's a brine, call the brine routine
-    else if (!strcmp(Ref,"HC-10") || (Ref[0]=='E' && Ref[1]=='G') || 
-        (Ref[0]=='P' && Ref[1]=='G') || strncmp(Ref,"Methanol",8)==0 || strncmp(Ref,"NH3/H2O",7)==0)
+	else if (!Ref.compare("HC-10") || 
+		!Ref.compare(0,2,"EG") || 
+		!Ref.compare(0,2,"PG") || 
+		!Ref.compare(0,8,"Methanol") || 
+		!Ref.compare(0,7,"NH3/H2O"))
     {
         if (Name1!='T' || Name2!='P')
         {
 			throw ValueError("For brine, Name1 must be 'T' and Name2 must be 'P'");
 		}
-        return SecFluids(Output,Prop1,Prop2,Ref);
+        return SecFluids(Output[0],Prop1,Prop2,(char*)Ref.c_str());
     }
     else // It is something based on CoolProp routines
     {
@@ -457,32 +397,31 @@ double _Props(char Output,char Name1, double Prop1, char Name2, double Prop2, ch
         
         // Check if it is an output that doesn't require a state input
         // Deal with it and return
-        switch (Output)
-        {
-            case 'M':
-				return pFluid->params.molemass;
-            case 'E':
-				return pFluid->crit.p;
-            case 'B':
-				return pFluid->crit.T;
-            case 'R':
-				return pFluid->params.Ttriple;
-        }
+        if (!Output.compare("M"))
+			return pFluid->params.molemass;
+		else if (!Output.compare("E"))
+			return pFluid->crit.p;
+		else if (!Output.compare("B"))
+			return pFluid->crit.T;
+		else if (!Output.compare("R"))
+			return pFluid->params.Ttriple;
 
 		// In any case, you want to get a (temperature,density) pair
 		if (Name1=='T' && Name2=='P')
 		{
-			if (Output=='P') return Prop2;
-			else if (Output=='T') return Prop1;
+			if (!Output.compare("P")) 
+				return Prop2;
+			else if (!Output.compare("T")) 
+				return Prop1;
 			// Get density as a function of T&p
 			if (FlagUseSinglePhaseLUT==true){
-                return pFluid->LookupValue_TP(Output, T, Prop2);
+				return pFluid->LookupValue_TP(std::string(Output), T, Prop2);
             }
 			else{
 				rho = rho_TP(Prop1,Prop2);
 			}
 			
-			if (Output=='D')
+			if (!Output.compare("D"))
 				return rho;
 			else
 				return Props(Output,Name1,Prop1,'D',rho,Ref);
@@ -494,13 +433,13 @@ double _Props(char Output,char Name1, double Prop1, char Name2, double Prop2, ch
 			pFluid->saturation(Prop1,FlagUseSaturationLUT,&pL,&pV,&rhoL,&rhoV);
 			// Find the effective density to use
 			rho=1/(Q/rhoV+(1-Q)/rhoL);
-			if (Output=='P') 
+			if (!Output.compare("P")) 
 				return Q*pV+(1-Q)*pL;
 
 			// Recurse and call Props again with the calculated density
-			if (Output=='D')
+			if (!Output.compare("D"))
 				return 1/(Q/rhoV+(1-Q)/rhoL);
-			else if (Output=='C' || Output=='O')
+			else if (!Output.compare("C") || !Output.compare("O"))
 				return Props(Output,'T',Prop1,'D',rho,Ref);
 			else
 				return Q*Props(Output,'T',Prop1,'D',rhoV,Ref)+(1-Q)*Props(Output,'T',Prop1,'D',rhoL,Ref);
@@ -509,45 +448,43 @@ double _Props(char Output,char Name1, double Prop1, char Name2, double Prop2, ch
 		{
 			T=Prop1;
 			rho=Prop2;
-			if (Output=='D')
+			if (!Output.compare("D"))
 				return Prop2;
 			// If you are using LUT, use it
 			if (FlagUseSinglePhaseLUT==1){
-                Value = pFluid->LookupValue_Trho(Output, T, rho);
+				Value = pFluid->LookupValue_Trho(std::string(Output), T, rho);
                 return Value;
             }
 			rho = Prop2;
-            switch (Output)
-            {
-				case 'D':
-					Value=rho; break;
-                case 'P':
-                    Value=pFluid->pressure_Trho(T,rho); break;
-                case 'H':
-                    Value=pFluid->enthalpy_Trho(T,rho); break;
-                case 'S':
-                    Value=pFluid->entropy_Trho(T,rho); break;
-                case 'U':
-                    Value=pFluid->internal_energy_Trho(T,rho); break;
-                case 'C':
-                    Value=pFluid->specific_heat_p_Trho(T,rho); break;
-                case 'O':
-                    Value=pFluid->specific_heat_v_Trho(T,rho); break;
-                case 'A':
-					Value=pFluid->speed_sound_Trho(T,rho); break;
-				case 'G':
-					Value=pFluid->gibbs_Trho(T,rho); break;
-                case 'V':
-                    Value=pFluid->viscosity_Trho(T,rho); break;
-                case 'L':
-                    Value=pFluid->conductivity_Trho(T,rho); break;
-                default:
-					throw ValueError(format("Invalid Output Name: %c",Output));
-					return _HUGE;
+			if (!Output.compare("D"))
+				Value=rho;
+			else if (!Output.compare("P"))
+				Value=pFluid->pressure_Trho(T,rho);
+			else if (!Output.compare("H"))
+				Value=pFluid->enthalpy_Trho(T,rho);
+			else if (!Output.compare("S"))
+				Value=pFluid->entropy_Trho(T,rho);
+			else if (!Output.compare("U"))
+				Value=pFluid->internal_energy_Trho(T,rho);
+			else if (!Output.compare("C"))
+				Value=pFluid->specific_heat_p_Trho(T,rho);
+			else if (!Output.compare("O"))
+				Value=pFluid->specific_heat_v_Trho(T,rho);
+			else if (!Output.compare("A"))
+				Value=pFluid->speed_sound_Trho(T,rho);
+			else if (!Output.compare("G"))
+				Value=pFluid->gibbs_Trho(T,rho);
+			else if (!Output.compare("V"))
+				Value=pFluid->viscosity_Trho(T,rho);
+			else if (!Output.compare("L"))
+				Value=pFluid->conductivity_Trho(T,rho);
+			else{
+				throw ValueError(format("Invalid Output Name: %s",Output.c_str()));
+				return _HUGE;
             }
             return Value;
 		}
-        else if (Output=='T' && Name1=='P' && Name2=='Q')
+        else if (!Output.compare("T") && Name1=='P' && Name2=='Q')
         {
 			return pFluid->Tsat(Prop1,Prop2,0);
         }
@@ -556,7 +493,7 @@ double _Props(char Output,char Name1, double Prop1, char Name2, double Prop2, ch
             T=pFluid->Tsat(Prop1,Prop2,0);
             return Props(Output,'T',T,'Q',Prop2,Ref);
         }
-        else if (Output=='T' && Name1=='H' && Name2=='P')
+        else if (!Output.compare("T") && Name1=='H' && Name2=='P')
         {
         	_T_hp(Ref,Prop1,Prop2,&T, &rho);
             return T;
@@ -573,7 +510,7 @@ double rho_TP(double T, double p)
 	// Calculate the density as a function of T&p, either using EOS or LUT
 	if (FlagUseSinglePhaseLUT==true)
     {
-		return pFluid->LookupValue_TP('D', T, p);
+		return pFluid->LookupValue_TP(std::string("D"), T, p);
     }
     else
     {
@@ -581,7 +518,18 @@ double rho_TP(double T, double p)
 		return pFluid->density_Tp(T,p);
     }
 }
-void _T_hp(char *Ref, double h, double p, double *Tout, double *rhoout)
+void MatInv_2(double A[2][2] , double B[2][2])
+{
+    double Det;
+    //Using Cramer's Rule to solve
+
+    Det=A[0][0]*A[1][1]-A[1][0]*A[0][1];
+    B[0][0]=1.0/Det*A[1][1];
+    B[1][1]=1.0/Det*A[0][0];
+    B[1][0]=-1.0/Det*A[1][0];
+    B[0][1]=-1.0/Det*A[0][1];
+}
+void _T_hp(std::string Ref, double h, double p, double *Tout, double *rhoout)
 {
 	int iter;
 	double A[2][2], B[2][2],T_guess,R;
@@ -599,23 +547,23 @@ void _T_hp(char *Ref, double h, double p, double *Tout, double *rhoout)
 	}
 	else
 	{
-		hsatL=Props('H','P',p,'Q',0.0,Ref);
-		hsatV=Props('H','P',p,'Q',1.0,Ref);
-		TsatL=Props('T','P',p,'Q',0.0,Ref);
-		TsatV=Props('T','P',p,'Q',1.0,Ref);
+		hsatL=Props(std::string("H"),'P',p,'Q',0.0,Ref);
+		hsatV=Props(std::string("H"),'P',p,'Q',1.0,Ref);
+		TsatL=Props(std::string("T"),'P',p,'Q',0.0,Ref);
+		TsatV=Props(std::string("T"),'P',p,'Q',1.0,Ref);
 
 		if (h>hsatV)
 		{
 			//Superheated vapor
 			// Very superheated
-			h_hot = Props('H','T',TsatV+40.0,'P',p,Ref);
+			h_hot = Props(std::string("H"),'T',TsatV+40.0,'P',p,Ref);
 			T_guess = TsatV+(h-hsatV)/(h_hot-hsatV)*40.0;
-			delta = Props('D','T',T_guess,'P',p,Ref)/ (pFluid->reduce.rho);
+			delta = Props(std::string("D"),'T',T_guess,'P',p,Ref)/ (pFluid->reduce.rho);
 		}
 		else if (h<hsatL)
 		{
 			// Subcooled liquid
-			T_guess = TsatL+(h-hsatL)/Props('C','P',p,'Q',0.0,Ref);
+			T_guess = TsatL+(h-hsatL)/Props(std::string("C"),'P',p,'Q',0.0,Ref);
 			delta = 10;
 		}
 		else

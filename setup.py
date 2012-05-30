@@ -3,9 +3,12 @@ from distutils.core import setup, Extension
 import subprocess,shutil,os,sys
 from Cython.Distutils import build_ext
 from Cython.Distutils.extension import Extension as CyExtension
+from distutils.sysconfig import get_python_inc
+from distutils.ccompiler import new_compiler
 
+## If the file is run directly without any parameters, build and install
 if len(sys.argv)==1:
-    sys.argv+=['install','install']
+    sys.argv+=['install']
     
 badfiles = [os.path.join('CoolProp','__init__.pyc'),os.path.join('CoolProp','__init__.py')]
 for file in badfiles:
@@ -23,15 +26,18 @@ def availableFluids():
     print line
     return line
 
-version='1.5.0'
+version='2.0.0'
 
 #This will automagically find all the fluid sources as long as they are in the right folders
-#Pure fluids should all be in the src/purefluids folder relative to setup.py
-#Pseudo-Pure fluids should all be in the src/pseudopurefluids folder relative to setup.py
+#Pure fluids should all be in the CoolProp/purefluids folder relative to setup.py
+#Pseudo-Pure fluids should all be in the CoolProp/pseudopurefluids folder relative to setup.py
 import glob
 purefluids=glob.glob(os.path.join('CoolProp','purefluids','*.cpp'))
 pseudopurefluids=glob.glob(os.path.join('CoolProp','pseudopurefluids','*.cpp'))
-others=glob.glob(os.path.join('CoolProp','*.cpp'))
+CPCore=['CoolProp.cpp','CoolPropTools.cpp','FloodProp.cpp','FluidClass.cpp',
+        'Helmholtz.cpp','PengRobinson.cpp','REFPROP.cpp','Solvers.cpp',
+        'Brine.cpp']
+others=[os.path.join('CoolProp',f) for f in CPCore]
 Sources=purefluids+pseudopurefluids+others
 
 #Build a list of all the available fluids - added to __init__.py
@@ -79,15 +85,14 @@ for source,target in swig_sources:
     else:
         print 'No SWIG required for '+source+' --> '+target+' (up-to-date)'
 
-#from distutils.sysconfig import get_python_inc
-#from distutils.ccompiler import new_compiler
-#include_dirs = ['CoolProp',os.path.join('CoolProp','purefluids'),os.path.join('CoolProp','pseudopurefluids'),get_python_inc(False)]
-#def StaticLibBuilder(sources):
-#    CC = new_compiler()
-#    objs = CC.compile(sources,'build_lib',[('COOLPROP_LIB',None)],include_dirs=include_dirs)
-#    print objs
-#    CC.create_static_lib(objs, 'CoolProp','lib')    
-#StaticLibBuilder(Sources)            
+## Build a static library of CoolProp
+include_dirs = ['CoolProp',os.path.join('CoolProp','purefluids'),os.path.join('CoolProp','pseudopurefluids'),get_python_inc(False)]
+def StaticLibBuilder(sources):
+    CC = new_compiler()
+    objs = CC.compile(sources,'build_lib',[('COOLPROP_LIB',None)],include_dirs=include_dirs)
+    print objs
+    CC.create_static_lib(objs, 'CoolProp','lib')    
+StaticLibBuilder(Sources)            
 
 ## ==== end of SWIG code =======
 

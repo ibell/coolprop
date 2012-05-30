@@ -29,7 +29,7 @@ struct SatLUTStruct
 
 struct OnePhaseLUTStruct
 {
-	std::vector< std::vector<double>> hmat,rhomat,cpmat,smat,cvmat,umat,viscmat,kmat,pmat;
+	std::vector< std::vector<double>> hmat,rhomat,cpmat,smat,cvmat,umat,viscmat,kmat,pmat,dpdTmat;
 	std::vector<double> Tvec,pvec;
 	double Tmin,Tmax,pmin,pmax;
 	int nT,np;
@@ -53,8 +53,10 @@ class Fluid
 		
 		/// Obtain a guess value for the density of the fluid for a given set of temperature and pressure
 		/// @param T Temperature [K]
-		/// @param p Pressre [kPa(abs)]
+		/// @param p Pressure [kPa(abs)]
 		double _get_rho_guess(double T, double p); 
+
+		std::vector<std::vector<double>>* _get_LUT_ptr(std::string Prop);
     public:
 		/// Constructor for the Fluid class.  This is an abstract base class that 
 		/// is not meant to be instantiated directly.  Rather it should be subclassed
@@ -172,7 +174,7 @@ class Fluid
 		/// Hopefully the calling function catches the error
 		///@param rhor The reduced density where rhor = rho/rhoc
 		virtual double ECS_f_int(double rhor){
-			throw NotImplementedError("ECS_fint not implemented for this fluid");
+			throw NotImplementedError("ECS_f_int not implemented for this fluid");
 		};
 		/// This function is optional, and returns a NotImplementedError if the derived class does not implement it.
 		/// Hopefully the calling function catches the error
@@ -261,15 +263,16 @@ class Fluid
 		/// @param Tmax The maximum temperature [K]
 		/// @param pmin The minimum pressure [kPa(abs)]
 		/// @param pmax The maximum pressure [kPa(abs)]
-		void set_1phase_LUT_params(int nT, int np, double Tmin, double Tmax, double pmin, double pmax)
-		{
-			LUT.nT=nT; 
-			LUT.np=np; 
-			LUT.Tmin=Tmin;
-			LUT.Tmax=Tmax;
-			LUT.pmin=pmin;
-			LUT.pmax=pmax;
-		};
+		void set_1phase_LUT_params(int nT, int np, double Tmin, double Tmax, double pmin, double pmax);
+
+		/// Get the single-phase LUT range, including the number of steps and the range for each variable
+		/// @param nT The number of points to use for the temperature
+		/// @param np The number of points to use for the pressure
+		/// @param Tmin The minimum temperature [K]
+		/// @param Tmax The maximum temperature [K]
+		/// @param pmin The minimum pressure [kPa(abs)]
+		/// @param pmax The maximum pressure [kPa(abs)]
+		void get_1phase_LUT_params(int *nT, int *np, double *Tmin, double *Tmax, double *pmin, double *pmax);
 		
 		/// Use the single-phase lookup table to determine	the value for the desired property as a function of temperature and pressure.
 		/// The definition of the keys for Prop are given by Props
@@ -278,7 +281,7 @@ class Fluid
 		/// @param T Temperature [K]
 		/// @param p Temperature [kPa(abs)]
 		/// @returns Value corresponding to the key Prop [varies]
-		double LookupValue_TP(char Prop, double T, double p);
+		double LookupValue_TP(std::string Prop, double T, double p);
 
 		/// Use the single-phase lookup table to determine	the value for the desired property as a function of temperature and density.
 		/// The definition of the keys for Prop are given by
@@ -286,7 +289,7 @@ class Fluid
 		/// @param Prop Single character corresponding to the property of interest
 		/// @param T Temperature [K]
 		/// @param rho Density [kg/m3]
-		double LookupValue_Trho(char Prop, double T, double rho);
+		double LookupValue_Trho(std::string Prop, double T, double rho);
 		
 		/// Returns true if the given name is an alias of the Fluid name.  (Case-sensitive!!)
 		/// @param name The given name
