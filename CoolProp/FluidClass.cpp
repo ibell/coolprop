@@ -858,7 +858,9 @@ std::vector<std::vector<double> >* Fluid::_get_LUT_ptr(std::string Prop)
     desired property matrix */
 	if (!Prop.compare("C"))
         mat=&LUT.cpmat;
-    else if (!Prop.compare("D"))
+    else if (!Prop.compare("P"))
+        mat=&LUT.rhomat;
+	else if (!Prop.compare("D"))
         mat=&LUT.rhomat;
     else if (!Prop.compare("O"))
         mat=&LUT.cvmat;

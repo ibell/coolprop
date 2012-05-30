@@ -607,7 +607,11 @@ void _T_hp(std::string Ref, double h, double p, double *Tout, double *rhoout)
 		tau -= B[0][0]*f1+B[0][1]*f2;
 		delta -= B[1][0]*f1+B[1][1]*f2;
 
-		worst_error = std::max(fabs(f1),fabs(f2));
+        if (fabs(f1)>fabs(f2))
+            worst_error=fabs(f1);
+        else
+            worst_error=fabs(f2);
+
 		iter+=1;
 		if (iter>100)
 		{

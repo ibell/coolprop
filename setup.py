@@ -114,7 +114,7 @@ def StaticLibBuilder(sources,LibName='CoolProp',build_path='build_lib',lib_path=
     # The full path to the library to be built
     CPLibPath=CC.library_filename(os.path.join(lib_path,LibName),lib_type='static')    
     
-    if not sys.platform.startswith('linux'):
+    if sys.platform.startswith('linux'):
         extra_compile_args=['-fPIC']
         MACROS = None
     else:
@@ -142,6 +142,7 @@ StaticLibBuilder(Sources)
 CoolProp_module = Extension('CoolProp._CoolProp',
                            sources=[os.path.join('CoolProp','CoolProp_wrap.cpp')]+Sources,
                            include_dirs = include_dirs,
+                           language='c++'
                            # libraries=['CoolProp'],
                            # library_dirs=['lib'],language='c++'
                            )
@@ -149,6 +150,7 @@ CoolProp_module = Extension('CoolProp._CoolProp',
 FloodProp_module = Extension('CoolProp._FloodProp',
                            sources=[os.path.join('CoolProp','FloodProp_wrap.cpp')]+Sources,
                            include_dirs = include_dirs,
+                           language='c++'
                            # libraries=['CoolProp'],
                            # library_dirs=['lib'],language='c++'
                            )
@@ -169,19 +171,22 @@ HASources = [
      os.path.join('CoolProp','PengRobinson.cpp'),
      os.path.join('CoolProp','Solvers.cpp'),
      ]
+     
 HumidAirProp_module = Extension('CoolProp._HumidAirProp',
-                           sources=HASources,
-                           define_macros=[('ONLY_AIR_WATER',None)],
-                           include_dirs = include_dirs,
-                           )                            
+                        sources=HASources,
+                        define_macros=[('ONLY_AIR_WATER',None)],
+                        include_dirs = include_dirs,
+                        language='c++'
+                        )                            
 
 State_module = CyExtension('CoolProp.State',
-                          [os.path.join('CoolProp','State.pyx')]+Sources,
-                         language='c++',
+                        [os.path.join('CoolProp','State.pyx')]+Sources,
+                        include_dirs = include_dirs,
+                        language='c++'
                         # libraries=['CoolProp'],
                         # library_dirs=['lib'],
-                        include_dirs = include_dirs)
-#                        
+                        )
+                        
 setup (name = 'CoolProp',
        version = version, #look above for the definition of version variable - don't modify it here
        author = "Ian Bell",
