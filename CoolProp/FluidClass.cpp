@@ -859,7 +859,7 @@ std::vector<std::vector<double> >* Fluid::_get_LUT_ptr(std::string Prop)
 	if (!Prop.compare("C"))
         mat=&LUT.cpmat;
     else if (!Prop.compare("P"))
-        mat=&LUT.rhomat;
+        mat=&LUT.pmat;
 	else if (!Prop.compare("D"))
         mat=&LUT.rhomat;
     else if (!Prop.compare("O"))
@@ -946,7 +946,7 @@ double Fluid::LookupValue_TP(std::string Prop, double T, double p)
     T3=LUT.Tvec[iThigh+1];
 
 	if (debug()>8){
-		std::cout << __FILE__<<"Lookup_TP for" << Prop << "with inputs T="<< T <<" and p="<< p <<std::endl;
+		std::cout << __FILE__<<"Lookup_TP for " << Prop << " with inputs T="<< T <<" and p="<< p <<std::endl;
 	}
     return QuadInterp(T1,T2,T3,a1,a2,a3,T);
 }

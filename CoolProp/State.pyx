@@ -92,6 +92,8 @@ cdef class State:
                 else:
                     errstr = get_errstringc()
                     raise ValueError(errstr)
+            else:
+                raise KeyError('Dictionary must contain the key \'T\' and one of \'P\' or \'D\'')
             
         elif self.xL>0 and self.xL<=1:
             raise ValueError('Need more code here')
