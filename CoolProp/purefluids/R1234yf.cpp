@@ -22,6 +22,7 @@ by Reiner Tillner-Roth and Hans Dieter Baehr, J. Chem. Eng. Data, v. 56, 2011, p
 #include "stdio.h"
 #include "CoolProp.h"
 #include "R1234yf.h"
+#include "PropMacros.h"
 
 static const double a[]={
 	 0, //[0]
@@ -132,7 +133,7 @@ static const double beta[]={
 108, //[15]
 };
 
-static const double gamma[]={
+static const double gamm[]={
 0, //[0]
 0, //[1]
 0, //[2]
@@ -194,13 +195,13 @@ R1234yfClass::R1234yfClass()
 	std::vector<double> l_v(c,c+sizeof(c)/sizeof(double));
     std::vector<double> alpha_v(alpha,alpha+sizeof(alpha)/sizeof(double));
 	std::vector<double> beta_v(beta,beta+sizeof(beta)/sizeof(double));
-	std::vector<double> gamma_v(gamma,gamma+sizeof(gamma)/sizeof(double));
+	std::vector<double> gamm_v(gamm,gamm+sizeof(gamm)/sizeof(double));
 	std::vector<double> epsilon_v(epsilon,epsilon+sizeof(epsilon)/sizeof(double));
 	std::vector<double> u0_v(u0,u0+sizeof(u0)/sizeof(double));
 	std::vector<double> v0_v(v0,v0+sizeof(v0)/sizeof(double));
 
 	phi_BC * phir_ = new phir_power(n_v,d_v,t_v,l_v,1,10);
-    phi_BC * phirg_ = new phir_gaussian(n_v,d_v,t_v,alpha_v,epsilon_v,beta_v,gamma_v,11,15);
+    phi_BC * phirg_ = new phir_gaussian(n_v,d_v,t_v,alpha_v,epsilon_v,beta_v,gamm_v,11,15);
 	
 	phirlist.push_back(phir_);
     phirlist.push_back(phirg_);
