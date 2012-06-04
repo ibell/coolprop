@@ -1,7 +1,7 @@
 import sys
 sys.path.append('../')
 from numpy import linspace
-from CoolProp import Props, PrintSaturationTable
+from CoolProp.CoolProp import Props, PrintSaturationTable
 from scipy import optimize
 import numpy as np
 

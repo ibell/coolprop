@@ -51,11 +51,9 @@ def SimpleCycle(Ref,Te,Tc,DTsh,DTsc,eta_a,Ts_Ph='Ph',skipPlot=False,axis=None):
     
     sbubble_c=Props('S','P',pc,'Q',0,Ref)
     sdew_c=Props('S','P',pc,'Q',1,Ref)
-    Tbubble_c=Props('T','P',pc,'Q',0,Ref)
     sbubble_e=Props('S','P',pe,'Q',0,Ref)
     sdew_e=Props('S','P',pe,'Q',1,Ref)
-    Tbubble_e=Props('T','P',pe,'Q',0,Ref)
-    T[3]=Tbubble_c-DTsc
+    T[3]=Tc-DTsc
     h[3]=Props('H','T',T[3],'P',pc,Ref)
     s[3]=Props('S','T',T[3],'P',pc,Ref)
     h[4]=h[3]
@@ -66,15 +64,15 @@ def SimpleCycle(Ref,Te,Tc,DTsh,DTsc,eta_a,Ts_Ph='Ph',skipPlot=False,axis=None):
     COP=(h[1]-h[4])/(h[2]-h[1])
     COPH=(h[2]-h[3])/(h[2]-h[1])
     
-    hsatL=Props('H','T',Tbubble_e,'Q',0,Ref)
+    hsatL=Props('H','T',Te,'Q',0,Ref)
     hsatV=Props('H','T',Te,'Q',1,Ref)
-    ssatL=Props('S','T',Tbubble_e,'Q',0,Ref)
+    ssatL=Props('S','T',Te,'Q',0,Ref)
     ssatV=Props('S','T',Te,'Q',1,Ref)
-    vsatL=1/Props('D','T',Tbubble_e,'Q',0,Ref)
+    vsatL=1/Props('D','T',Te,'Q',0,Ref)
     vsatV=1/Props('D','T',Te,'Q',1,Ref)
     x=(h[4]-hsatL)/(hsatV-hsatL)
     s[4]=x*ssatV+(1-x)*ssatL
-    T[4]=x*Te+(1-x)*Tbubble_e
+    T[4]=x*Te+(1-x)*Te
     print x,s[4],T[4]
     
     print COP,COPH
@@ -89,7 +87,7 @@ def SimpleCycle(Ref,Te,Tc,DTsh,DTsc,eta_a,Ts_Ph='Ph',skipPlot=False,axis=None):
             s.insert(5,sdew_e)
             T.insert(5,Te)
             s.insert(3,sbubble_c)
-            T.insert(3,Tbubble_c)
+            T.insert(3,Tc)
             s.insert(3,sdew_c)
             T.insert(3,Tc)
             ax.plot(s[1::],T[1::],'b')

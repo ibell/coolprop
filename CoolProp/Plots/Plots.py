@@ -15,7 +15,7 @@ def Ts(Ref,Tmin=220,axis=None,**kwargs):
     else:
         ax=axis
 
-    Tsat = np.linspace(Tmin,cp.Props(Ref,"Tcrit")-0.0001,100)
+    Tsat = np.linspace(Tmin,cp.Props(Ref,"Tcrit")-0.001,100)
     (ssatL,psatL,ssatV,psatV)=(0.0*Tsat,0.0*Tsat,0.0*Tsat,0.0*Tsat)
     for i in range(len(Tsat)):
         ssatL[i] = cp.Props('S','T',Tsat[i],'Q',0,Ref)
