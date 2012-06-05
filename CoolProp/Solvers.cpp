@@ -30,7 +30,7 @@ Eigen::VectorXd NDNewtonRaphson_Jacobian(FuncWrapperND *f, Eigen::VectorXd x0, d
 	Eigen::VectorXd f0;
 	Eigen::MatrixXd J;
 	double error = 999;
-	while (iter==0 || abs(error)>tol){
+	while (iter==0 || fabs(error)>tol){
 		
 		double T =  x0(0), rho = x0(1);
 		f0 = f->call(x0);
@@ -75,7 +75,7 @@ double Secant(FuncWrapper1D *f, double x0, double dx, double tol, int maxiter, s
     int iter=1;
 	*errstring=std::string("");
 	
-	if (abs(dx)==0){ *errstring=std::string("dx cannot be zero"); return _HUGE;}
+	if (fabs(dx)==0){ *errstring=std::string("dx cannot be zero"); return _HUGE;}
     while ((iter<=3 || fabs(fval)>tol) && iter<100)
     {
         if (iter==1){x1=x0; x=x1;}
@@ -126,7 +126,7 @@ double Brent(FuncWrapper1D *f, double a, double b, double macheps, double t, int
     c=a;
     fc=fa;
 	iter=1;
-	if (abs(fc)<abs(fb)){
+	if (fabs(fc)<fabs(fb)){
         // Goto ext: from Brent ALGOL code
         a=b;
         b=c;
@@ -138,10 +138,10 @@ double Brent(FuncWrapper1D *f, double a, double b, double macheps, double t, int
     d=b-a;
     e=b-a;
     m=0.5*(c-b);
-    tol=2*macheps*abs(b)+t;
-	while (abs(m)>tol && fb!=0){
+    tol=2*macheps*fabs(b)+t;
+	while (fabs(m)>tol && fb!=0){
         // See if a bisection is forced
-		if (abs(e)<tol || abs(fa) <= abs(fb)){
+		if (fabs(e)<tol || fabs(fa) <= fabs(fb)){
             m=0.5*(c-b);
             d=e=m;
 		}
@@ -169,7 +169,7 @@ double Brent(FuncWrapper1D *f, double a, double b, double macheps, double t, int
             s=e;
             e=d;
             m=0.5*(c-b);
-			if (2*p<3*m*q-abs(tol*q) || p<abs(0.5*s*q)){
+			if (2*p<3*m*q-fabs(tol*q) || p<fabs(0.5*s*q)){
                 d=p/q;
 			}
 			else{
@@ -179,7 +179,7 @@ double Brent(FuncWrapper1D *f, double a, double b, double macheps, double t, int
 		}
         a=b;
         fa=fb;
-		if (abs(d)>tol){
+		if (fabs(d)>tol){
             b+=d;
 		}
         else if (m>0){
@@ -195,7 +195,7 @@ double Brent(FuncWrapper1D *f, double a, double b, double macheps, double t, int
             fc=fa;
             d=e=b-a;
 		}
-		if (abs(fc)<abs(fb)){
+		if (fabs(fc)<fabs(fb)){
             // Goto ext: from Brent ALGOL code
             a=b;
             b=c;
@@ -205,7 +205,7 @@ double Brent(FuncWrapper1D *f, double a, double b, double macheps, double t, int
             fc=fa;
 		}
         m=0.5*(c-b);
-        tol=2*macheps*abs(b)+t;
+        tol=2*macheps*fabs(b)+t;
 		iter+=1;
 		if (iter>maxiter){
 			throw SolutionError(std::string("Reached maximum number of steps")); 
