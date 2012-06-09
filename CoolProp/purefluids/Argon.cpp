@@ -447,3 +447,7 @@ double ArgonClass::rhosatV(double T)
     }
     return rhoc*exp(Tc/T*summer);
 }
+double ArgonClass::surface_tension_T(double T)
+{
+	return 0.037898063*pow(1-T/reduce.T,1.278);
+}

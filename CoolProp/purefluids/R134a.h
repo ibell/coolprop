@@ -16,7 +16,7 @@
 		double viscosity_dilute(double T);
 		double viscosity_residual(double T, double rho);
 		double conductivity_background(double T, double rho);
-
+		double surface_tension_T(double T);
 		double conductivity_dilute(double T);
 		double conductivity_residual(double T, double rho);
 		double conductivity_critical(double T, double rho);

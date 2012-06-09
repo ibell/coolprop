@@ -125,6 +125,7 @@ Other sources
 	EXPORT_CODE void CONVENTION PrintSaturationTable(char *FileName, char * Ref, double Tmin, double Tmax);
 	
 	EXPORT_CODE std::string CONVENTION FluidsList(void);
+	EXPORT_CODE std::string CONVENTION get_REFPROPname(std::string Ref);
 	EXPORT_CODE std::string CONVENTION get_errstring(void);
 	EXPORT_CODE char* CONVENTION get_errstringc(void);
 

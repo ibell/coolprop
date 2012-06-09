@@ -182,7 +182,7 @@ R32Class::R32Class()
 						" for temperatures from the triple point at 136.34 K to 435 K and pressures"
 						" up to 70 MPa,\""
 						" J. Phys. Chem. Ref. Data, 26(6):1273-1328, 1997.");
-	TransportReference.assign("");
+	TransportReference.assign("Surface Tension: R. Heide, \"The surface tension of HFC refrigerants and mixtures\", Int J. Refrig. Vol. 20, No. 7, pp. 496-503, 1997");
 
 	name.assign("R32");
 }
@@ -245,4 +245,8 @@ double R32Class::conductivity_Trho(double T, double rho)
 	//ERROR
 	throw NotImplementedError(format("Conductivity_Trho for R32 not coded"));
 	return _HUGE;
+}
+double R32Class::surface_tension_T(double T)
+{
+	return 0.0705581*pow(1-T/reduce.T,1.234);
 }

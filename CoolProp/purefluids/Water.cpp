@@ -401,7 +401,9 @@ WaterClass::WaterClass()
 						"of Ordinary Water Substance for General and Scientific Use\"," 
 						"W. Wagner and A. Pruss, J. Phys. Chem. Ref. Data, v. 31, 2000");
 		
-	TransportReference.assign("");
+	TransportReference.assign("Thermal Conductivity: Release on the IAPWS Formulation 2011 for the Thermal Conductivity of Ordinary Water Substance\n"
+		"Viscosity: Release on the IAPWS Formulation 2008 for the Viscosity of Ordinary Water Substance\n"
+		"Surface Tension: International Representation of the Surface Tension of Ordinary Water Substance 1994\n");
 
 	name.assign("Water");
 	aliases.push_back("water");
@@ -612,6 +614,11 @@ double WaterClass::rhosatV(double T)
         summer=summer+ai[i]*pow(1.0-T/Tc,ti[i]);
     }
     return rhoc*exp(summer);
+}
+
+double WaterClass::surface_tension_T(double T)
+{
+	return 0.2358*pow(1-T/reduce.T,1.256)*(1-0.625*(1-T/reduce.T));
 }
 
 //double WaterClass::IsothermCompress_Water(double T, double p)

@@ -201,7 +201,8 @@ R134aClass::R134aClass()
 	TransportReference.assign("Viscosity & Conductivity: Marcia L. Huber, Arno Laesecke, and Richard A. Perkins, "
 							"\"Model for the Viscosity and Thermal Conductivity of Refrigerants,"
 							"Including a New Correlation for the Viscosity of R134a\"A Reference "
-							"Ind. Eng. Chem. Res. 2003, 42, 3163-3178");
+							"Ind. Eng. Chem. Res. 2003, 42, 3163-3178\n"
+							"Surface Tension: R. Heide, \"The surface tension of HFC refrigerants and mixtures\", Int J. Refrig. Vol. 20, No. 7, pp. 496-503, 1997");
 
 	name.assign("R134a");
 	aliases.push_back("R134A");
@@ -363,6 +364,10 @@ double R134aClass::rhosatV(double T)
 	THETA=1-theta;
 
 	return rho0*exp(-2.837294*pow(THETA,1.0/3.0)-7.875988*pow(THETA,2.0/3.0)+4.478586*pow(THETA,1.0/2.0)-14.140125*pow(THETA,9.0/4.0)-52.361297*pow(THETA,11.0/2.0));
+}
+double R134aClass::surface_tension_T(double T)
+{
+	return 0.0604278*pow(1-T/reduce.T,1.272);
 }
 
 

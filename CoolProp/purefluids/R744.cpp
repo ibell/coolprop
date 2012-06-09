@@ -327,6 +327,7 @@ R744Class::R744Class()
 	aliases.push_back("CO2");
 	aliases.push_back("co2");
 	aliases.push_back("carbondioxide");
+	REFPROPname.assign("CO2");
 
 }
 double R744Class::conductivity_Trho(double T, double rho)

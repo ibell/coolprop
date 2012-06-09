@@ -450,3 +450,7 @@ double NitrogenClass::rhosatV(double T)
     }
     return rhoc*exp(Tc/T*summer);
 }
+double NitrogenClass::surface_tension_T(double T)
+{
+	return 0.029324108*pow(1-T/reduce.T,1.259);
+}

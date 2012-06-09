@@ -99,6 +99,7 @@ class Fluid
 		std::string get_name(){return name;};
 		/// Returns a char* with the name of the fluid
 		char * get_namec(){return (char *)name.c_str();};
+		std::string get_REFPROPname(){return REFPROPname;};
 		/// Returns true if the fluid is pure, false if pseudo-pure or a mixture
 		bool pure(){return isPure;};
 		/// Returns the mass-specific gas constant for the fluid [kJ/kg/K]
@@ -231,6 +232,8 @@ class Fluid
 		virtual double viscosity_background(double T, double rho){
 			throw NotImplementedError(std::string("viscosity_background not implemented for this fluid")); return _HUGE;
 		};
+
+		virtual double surface_tension_T(double T);
 
 		/// Saturation pressure and saturated liquid and vapor densities as a function of the temperature.
 		/// @param UseLUT If True, use the Saturation Lookup tables, otherwise use the EOS and the equal gibbs function and equal pressure criterion to determine saturation state

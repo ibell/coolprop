@@ -1179,7 +1179,34 @@ double Fluid::conductivity_critical(double T, double rho)
 	double lambda=rho*cp*1e9*(R0*k*T)/(6*pi*mu*zeta)*(OMEGA_tilde-OMEGA_tilde0); //[W/m/K]
 	return lambda/1e3; //[kW/m/K]
 }
+double Fluid::surface_tension_T(double T)
+{
+	/* Implements the method of Miqeu et al;, "An extended scaled equation for the temperature dependence of
+    the surface tension of pure compounds inferred from an analysis of experimental data",Fluid Phase 
+	Equilibria 172 (2000) 169–182
 
+	This correlation is used as the default, in the absence of other correlation, which can be provided for fluids if desired
+
+	sigma in [mN/m]-->[N/m]
+	*/
+	double N_A = 6.02214129e23,    //[-]
+		k = params.R_u/N_A,         //[J/K]
+		w = params.accentricfactor, //[-]
+		Vc,                         //[cm^3/mol]
+		Tc,                         //[K]
+		t,                          //[K]
+		sigma;                      //[mN/m]
+	Tc=reduce.T;
+	t=1-T/Tc;
+	//[m3/kg]*[kg/kmol]*[0.001 kmol/mol] --> [m3/mol]
+	Vc = 1/reduce.rho*params.molemass/1000;
+    // N_A has units of 1/mol, Vc has units of m3/mol , (1/m3)^(2/3)->1/m^2
+	// k has units of J/K
+	// Tc has units of K
+	// k*Tc has units of J, or N-m
+	sigma = k*Tc*pow(N_A/Vc,2.0/3.0)*(4.35+4.14*w)*pow(t,1.26)*(1+0.19*sqrt(t)-0.25*t);
+	return sigma;
+}
 class ConformalTempResids : public FuncWrapperND
 {
 private:

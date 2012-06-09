@@ -235,7 +235,7 @@ R1234yfClass::R1234yfClass()
 	EOSReference.assign("M. Richter and M.O. McLinden and E.W. Lemmon, \"Thermodynamic Properties of 2,3,3,3-Tetrafluoroprop-1-ene"
 						"(R1234yf): Vapor Pressure and p-rho-T Measurements and an Equation of State\""
 						", J. Chem. Eng. Data, v. 56, 2011, pp 3254-3264");
-	TransportReference.assign("");
+	TransportReference.assign("Surface Tension: Katsuyuki Tanaka, Yukihiro Higashi, \"Thermodynamic properties of HFO-1234yf (2,3,3,3-tetrafluoropropene)\", international journal of refrigeration 33 (2010) 474–479");
 
 	name.assign("R1234yf");
 }
@@ -263,4 +263,8 @@ double R1234yfClass::rhosatV(double T)
 	double THETA = 1-T/crit.T;
 	double RHS = -0.036061-4.16439*pow(THETA,0.499635)-9.33292*pow(THETA,1.64976)-35.4903*pow(THETA,4.36857);
 	return exp(RHS)*crit.rho;
+}
+double R1234yfClass::surface_tension_T(double T)
+{
+	return 0.05983*pow(1-T/reduce.T,1.367);
 }

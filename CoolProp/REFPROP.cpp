@@ -121,10 +121,6 @@ typedef void (__stdcall *fp_WMOLdllTYPE)(double *,double *);
 typedef void (__stdcall *fp_XMASSdllTYPE)(double *,double *,double *);
 typedef void (__stdcall *fp_XMOLEdllTYPE)(double *,double *,double *);
 
-// Some ECS function calls
-// From FORTRAN: ETAK0dll (icomp,t,eta0,ierr,herr)
-typedef void (__stdcall *fp_ETAK0dll)(long *,double *, double *,long *, char *,long);
-
 //Define explicit function pointers
 fp_ABFL1dllTYPE ABFL1dll;
 fp_ABFL2dllTYPE ABFL2dll;
@@ -220,9 +216,7 @@ fp_WMOLdllTYPE WMOLdll;
 fp_XMASSdllTYPE XMASSdll;
 fp_XMOLEdllTYPE XMOLEdll;
 
-fp_ETAK0dll ETAK0dll;
-
-char LoadedREFPROPRef[255];
+char LoadedREFPROPRef[2550];
 
 double REFPROP(char Output,char Name1, double Prop1, char Name2, double Prop2, char * Ref)
 {
@@ -233,7 +227,7 @@ double REFPROP(char Output,char Name1, double Prop1, char Name2, double Prop2, c
 	
 	double x[ncmax],xliq[ncmax],xvap[ncmax];
 	char RefString[255];
-	double T,p=0,d,dl,dv,dl_,dv_,q,e,h,s,cv,cp,w,MW,hl,hv,sl,sv,ul,uv,pl,pv,eta,tcx,Q,Tcrit,pcrit,dcrit,rho;
+	double T,p=0,d,dl,dv,dl_,dv_,q,e,h,s,cv,cp,w,MW,hl,hv,sl,sv,ul,uv,pl,pv,eta,tcx,Q,Tcrit,pcrit,dcrit,rho,sigma;
 
 	// First create a pointer to an instance of the library
 	// Then have windows load the library.
@@ -339,9 +333,6 @@ double REFPROP(char Output,char Name1, double Prop1, char Name2, double Prop2, c
 		WMOLdll = (fp_WMOLdllTYPE) GetProcAddress(RefpropdllInstance,"WMOLdll");
 		XMASSdll = (fp_XMASSdllTYPE) GetProcAddress(RefpropdllInstance,"XMASSdll");
 		XMOLEdll = (fp_XMOLEdllTYPE) GetProcAddress(RefpropdllInstance,"XMOLEdll");
-		
-		ETAK0dll = (fp_ETAK0dll) GetProcAddress(RefpropdllInstance,"ETAK0dll");
-
 		
 		// If the fluid name starts with the string "REFPROP-", chop off the "REFPROP-"
 		if (!strncmp(Ref,"REFPROP-",8))
@@ -460,6 +451,7 @@ double REFPROP(char Output,char Name1, double Prop1, char Name2, double Prop2, c
 		// that of the currently loaded refrigerant
 		if (strcmp(LoadedREFPROPRef,Ref))
 		{
+			ierr=999;
 			//...Call SETUP to initialize the program
 			SETUPdll(&i, hf, hfmix, hrf, &ierr, herr,
 				refpropcharlength*ncmax,refpropcharlength,
@@ -496,6 +488,17 @@ double REFPROP(char Output,char Name1, double Prop1, char Name2, double Prop2, c
 			}
 			INFOdll(&icomp,&wmm,&Ttriple,&tnbpt,&tc,&pc,&Dc,&Zc,&acf,&dip,&Rgas);
 			return Ttriple;
+		}
+		else if (Output=='I')
+		{
+			if (Name1=='T'){
+				SURFTdll(&Prop1,&dl,x,&sigma,&i,herr,errormessagelength);
+				return sigma;
+			}
+			else{
+				std::cout<< "If surface tension is the output, temperature must be the first input" << std::endl;
+				return _HUGE;
+			}
 		}
 		else if (Output=='M')
 		{

@@ -212,12 +212,14 @@ R717Class::R717Class()
 							"errors in saturated liquid and saturated vapor conductivities of \n\n"
 							"T < 325K, error < 0.1%\n"
 							"325K < T < 355 K, error <1%\n\n"
-							"Most practical conditions will be in the <325K range");
+							"Most practical conditions will be in the <325K range\n"
+							"Surface tension:  Michael Kleiber and Ralph Joh, \"VDI Heat Atlas 2010 Chapter D3.1 Liquids and Gases\" ");
 
 	name.assign("R717");
 	aliases.push_back("NH3");
 	aliases.push_back("ammonia");
 	aliases.push_back("Ammonia");
+	REFPROPname.assign("AMMONIA");
 }
 double R717Class::conductivity_Trho(double T, double rho)
 {
@@ -396,4 +398,8 @@ double psat_R717(double T)
 	theta=1-phi;
 
 	return pc*exp(5.64633073E-04 - 7.13654961E+00*theta-2.46962841E+00*theta*theta-2.56218797E+01*powInt(theta,3)+4.02270547E+01*powInt(theta,4)-6.72626052E+01*powInt(theta,5));
+}
+double R717Class::surface_tension_T(double T)
+{
+	return 0.10175*pow(1-T/reduce.T,1.21703);
 }

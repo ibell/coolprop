@@ -13,6 +13,7 @@
 		double rhosatV(double);
 
 		double X_tilde(double T,double tau,double delta);
+		double surface_tension_T(double T);
 	};
 
 	int Load_Nitrogen(struct fluidParamsVals *Fluid);

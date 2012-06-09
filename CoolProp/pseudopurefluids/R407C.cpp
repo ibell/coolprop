@@ -228,7 +228,8 @@ R407CClass::R407CClass()
 							"R410A, and R507A\", 2000 Purdue Refrigeration conferences\n\n"
 							"Thermal Conductivity: V.Z. Geller, B.Z. Nemzer, and U.V. Cheremnykh \"Thermal Conductivity "
 							"of the Refrigerant mixtures R404A,R407C,R410A, and R507A\" "
-							"Int. J. Thermophysics, v. 22, n 4 2001");
+							"Int. J. Thermophysics, v. 22, n 4 2001\n"
+							"Surface Tension: R. Heide, \"The surface tension of HFC refrigerants and mixtures\", Int J. Refrig. Vol. 20, No. 7, pp. 496-503, 1997");
 
 	name.assign("R407C");
 	aliases.push_back("R407c");
@@ -310,4 +311,8 @@ double R407CClass::conductivity_Trho(double T, double rho)
 	double a_0=-9.628e0,a_1=7.638e-2,b_1=2.715e-2,b_2=4.963e-5,b_3=-4.912e-8,b_4=2.884e-11;
 
 	return (a_0+a_1*T+b_1*rho+b_2*rho*rho+b_3*rho*rho*rho+b_4*rho*rho*rho*rho)/1.e6; // from mW/m-K to kW/m-K
+}
+double R407CClass::surface_tension_T(double T)
+{
+	return 0.0583286*pow(1-T/reduce.T,1.237);
 }

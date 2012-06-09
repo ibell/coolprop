@@ -402,6 +402,14 @@ double _Props(std::string Output,char Name1, double Prop1, char Name2, double Pr
 		else if (!Output.compare("R"))
 			return pFluid->params.Ttriple;
 
+		//Surface tension is only a function of temperature
+		if (!Output.compare("I") || !Output.compare("SurfaceTension")){
+			if (Name1=='T')
+				return pFluid->surface_tension_T(Prop1);
+			else
+				throw ValueError(format("If output is surface tension ['I' or 'SurfaceTension'], Param1 must be temperature"));
+		}
+
 		// In any case, you want to get a (temperature,density) pair
 		if (Name1=='T' && Name2=='P')
 		{
@@ -830,4 +838,14 @@ double DerivTerms(char *Term,double T, double rho, char * Ref)
 	}
 }
 
+std::string get_REFPROPname(std::string Ref)
+{
+	pFluid=Fluids.get_fluid(Ref);
 
+	if ( (pFluid->get_REFPROPname()).size()!=0 ){
+		return pFluid->get_REFPROPname();
+	}
+	else{
+		return pFluid->get_name();
+	}
+}

@@ -254,6 +254,7 @@ R290Class::R290Class()
 	aliases.push_back("propane");
 	aliases.push_back("Propane");
 	aliases.push_back("C3H8");
+	REFPROPname.assign("PROPANE");
 }
 double R290Class::conductivity_Trho(double T, double rho)
 {
