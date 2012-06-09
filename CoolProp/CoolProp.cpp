@@ -438,7 +438,12 @@ double _Props(std::string Output,char Name1, double Prop1, char Name2, double Pr
 			else if (!Output.compare("C") || !Output.compare("O"))
 				return Props(Output,'T',Prop1,'D',rho,Ref);
 			else
-				return Q*Props(Output,'T',Prop1,'D',rhoV,Ref)+(1-Q)*Props(Output,'T',Prop1,'D',rhoL,Ref);
+				if (fabs(Q)<1e-12)
+					return Props(Output,'T',Prop1,'D',rhoL,Ref);
+				else if (fabs(Q-1)<1e-12)
+					return Props(Output,'T',Prop1,'D',rhoV,Ref);
+				else
+					return Q*Props(Output,'T',Prop1,'D',rhoV,Ref)+(1-Q)*Props(Output,'T',Prop1,'D',rhoL,Ref);
 		}
 		else if (Name1=='T' && Name2=='D')
 		{

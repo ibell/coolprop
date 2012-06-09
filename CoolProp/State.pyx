@@ -103,38 +103,54 @@ cdef class State:
     property LUT:
         def __get__(self):
             return self.LUT
-        
+    
+    cpdef double get_rho(self): 
+        return self.rho_
     property rho:
         def __get__(self):
             return self.rho_
             
+    cpdef double get_p(self): 
+        return self.p_
     property p:
         def __get__(self):
             return self.p_
-            
+    
+    cpdef double get_T(self): 
+        return self.T_
     property T:
         def __get__(self):
             return self.T_
     
+    cpdef double get_h(self): 
+        return Props("H",'T',self.T_,'D',self.rho_,self.Fluid)
     property h:
         def __get__(self):
-            return Props("H",'T',self.T_,'D',self.rho_,self.Fluid)
-            
+            return self.get_h()
+          
+    cpdef double get_u(self): 
+        return Props("U",'T',self.T_,'D',self.rho_,self.Fluid)
     property u:
         def __get__(self):
-            return Props('U','T',self.T_,'D',self.rho_,self.Fluid)
+            return self.get_u()
             
+    cpdef double get_s(self): 
+        return Props("S",'T',self.T_,'D',self.rho_,self.Fluid)            
     property s:
         def __get__(self):
-            return Props('S','T',self.T_,'D',self.rho_,self.Fluid)
+            return self.get_s()
     
+    cpdef double get_cp(self): 
+        return Props("C",'T',self.T_,'D',self.rho_,self.Fluid)
     property cp:
         def __get__(self):
-            return Props('C','T',self.T_,'D',self.rho_,self.Fluid)
+            return self.get_cp()
             
+    cpdef double get_cv(self): 
+        return Props("O",'T',self.T_,'D',self.rho_,self.Fluid)
     property cv:
         def __get__(self):
-            return Props('O','T',self.T_,'D',self.rho_,self.Fluid)
+            return self.get_cv()
             
     property visc:
         def __get__(self):
@@ -192,7 +208,6 @@ cdef class State:
         return ST
     
 def rebuildState(d):
-    print d
     S=State(d['Fluid'],{'T':d['T'],'D':d['rho']})
     S.xL = d['xL']
     S.Liquid=d['Liquid']

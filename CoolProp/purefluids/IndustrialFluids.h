@@ -7,10 +7,10 @@ class CarbonMonoxideClass : public Fluid {
 public:
     CarbonMonoxideClass();
     ~CarbonMonoxideClass(){};
-    virtual double conductivity_Trho(double, double);
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
+
 };
 
 class CarbonylSulfideClass : public Fluid {
@@ -18,10 +18,10 @@ class CarbonylSulfideClass : public Fluid {
 public:
     CarbonylSulfideClass();
     ~CarbonylSulfideClass(){};
-    virtual double conductivity_Trho(double, double);
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
+
 };
 
 class DecaneClass : public Fluid {
@@ -29,10 +29,10 @@ class DecaneClass : public Fluid {
 public:
     DecaneClass();
     ~DecaneClass(){};
-    virtual double conductivity_Trho(double, double);
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
+
 };
 
 class HydrogenSulfideClass : public Fluid {
@@ -40,10 +40,10 @@ class HydrogenSulfideClass : public Fluid {
 public:
     HydrogenSulfideClass();
     ~HydrogenSulfideClass(){};
-    virtual double conductivity_Trho(double, double);
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
+
 };
 
 class IsopentaneClass : public Fluid {
@@ -51,10 +51,10 @@ class IsopentaneClass : public Fluid {
 public:
     IsopentaneClass();
     ~IsopentaneClass(){};
-    virtual double conductivity_Trho(double, double);
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
+
 };
 
 class NeopentaneClass : public Fluid {
@@ -62,10 +62,10 @@ class NeopentaneClass : public Fluid {
 public:
     NeopentaneClass();
     ~NeopentaneClass(){};
-    virtual double conductivity_Trho(double, double);
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
+
 };
 
 class IsohexaneClass : public Fluid {
@@ -73,10 +73,10 @@ class IsohexaneClass : public Fluid {
 public:
     IsohexaneClass();
     ~IsohexaneClass(){};
-    virtual double conductivity_Trho(double, double);
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
+
 };
 
 class KryptonClass : public Fluid {
@@ -84,10 +84,10 @@ class KryptonClass : public Fluid {
 public:
     KryptonClass();
     ~KryptonClass(){};
-    virtual double conductivity_Trho(double, double);
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
+
 };
 
 class NonaneClass : public Fluid {
@@ -95,10 +95,10 @@ class NonaneClass : public Fluid {
 public:
     NonaneClass();
     ~NonaneClass(){};
-    virtual double conductivity_Trho(double, double);
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
+
 };
 
 class TolueneClass : public Fluid {
@@ -106,10 +106,10 @@ class TolueneClass : public Fluid {
 public:
     TolueneClass();
     ~TolueneClass(){};
-    virtual double conductivity_Trho(double, double);
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
+
 };
 
 class XenonClass : public Fluid {
@@ -117,10 +117,10 @@ class XenonClass : public Fluid {
 public:
     XenonClass();
     ~XenonClass(){};
-    virtual double conductivity_Trho(double, double);
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
+
 };
 
 class R116Class : public Fluid {
@@ -128,10 +128,13 @@ class R116Class : public Fluid {
 public:
     R116Class();
     ~R116Class(){};
-    virtual double conductivity_Trho(double, double);
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
+    void ECSParams(double *e_k, double *sigma);
+    double ECS_psi_viscosity(double rhor);
+    double ECS_chi_conductivity(double rhor);
+    double ECS_f_int(double T);
 };
 
 class AcetoneClass : public Fluid {
@@ -139,10 +142,10 @@ class AcetoneClass : public Fluid {
 public:
     AcetoneClass();
     ~AcetoneClass(){};
-    virtual double conductivity_Trho(double, double);
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
+
 };
 
 class NitrousOxideClass : public Fluid {
@@ -150,10 +153,10 @@ class NitrousOxideClass : public Fluid {
 public:
     NitrousOxideClass();
     ~NitrousOxideClass(){};
-    virtual double conductivity_Trho(double, double);
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
+
 };
 
 class SulfurDioxideClass : public Fluid {
@@ -161,10 +164,10 @@ class SulfurDioxideClass : public Fluid {
 public:
     SulfurDioxideClass();
     ~SulfurDioxideClass(){};
-    virtual double conductivity_Trho(double, double);
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
+
 };
 
 class R141bClass : public Fluid {
@@ -172,10 +175,13 @@ class R141bClass : public Fluid {
 public:
     R141bClass();
     ~R141bClass(){};
-    virtual double conductivity_Trho(double, double);
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
+    void ECSParams(double *e_k, double *sigma);
+    double ECS_psi_viscosity(double rhor);
+    double ECS_chi_conductivity(double rhor);
+    double ECS_f_int(double T);
 };
 
 class R142bClass : public Fluid {
@@ -183,10 +189,13 @@ class R142bClass : public Fluid {
 public:
     R142bClass();
     ~R142bClass(){};
-    virtual double conductivity_Trho(double, double);
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
+    void ECSParams(double *e_k, double *sigma);
+    double ECS_psi_viscosity(double rhor);
+    double ECS_chi_conductivity(double rhor);
+    double ECS_f_int(double T);
 };
 
 class R218Class : public Fluid {
@@ -194,10 +203,13 @@ class R218Class : public Fluid {
 public:
     R218Class();
     ~R218Class(){};
-    virtual double conductivity_Trho(double, double);
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
+    void ECSParams(double *e_k, double *sigma);
+    double ECS_psi_viscosity(double rhor);
+    double ECS_chi_conductivity(double rhor);
+    double ECS_f_int(double T);
 };
 
 class R245faClass : public Fluid {
@@ -205,10 +217,13 @@ class R245faClass : public Fluid {
 public:
     R245faClass();
     ~R245faClass(){};
-    virtual double conductivity_Trho(double, double);
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
+    void ECSParams(double *e_k, double *sigma);
+    double ECS_psi_viscosity(double rhor);
+    double ECS_chi_conductivity(double rhor);
+    double ECS_f_int(double T);
 };
 
 class R41Class : public Fluid {
@@ -216,9 +231,9 @@ class R41Class : public Fluid {
 public:
     R41Class();
     ~R41Class(){};
-    virtual double conductivity_Trho(double, double);
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
+
 };
 #endif

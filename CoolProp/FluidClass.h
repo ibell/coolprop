@@ -4,6 +4,7 @@
 #include <exception>
 #include "CPExceptions.h"
 #include "PropMacros.h"
+#include <Eigen/Dense>
 
 #ifndef FLUIDCLASS_H
 #define FLUIDCLASS_H
@@ -104,7 +105,7 @@ class Fluid
 		double R(){return params.R_u/params.molemass;};
 
 		// These MUST be implemented by derived class
-        virtual double conductivity_Trho(double T, double rho) = 0;
+        virtual double conductivity_Trho(double T, double rho);
 		virtual double viscosity_Trho(double T, double rho);
 		
 		// These Helmholtz energy terms are provided by the base class
@@ -155,6 +156,7 @@ class Fluid
 			throw NotImplementedError(std::string("rhosatV not implemented for this fluid")); return _HUGE;
 		};
 
+		Eigen::Vector2d ConformalTemperature(Fluid *InterestFluid, Fluid *ReferenceFluid,double T, double rho, std::string *errstring);
 		// Extended corresponding states functions for fluids that do not have their own high-accuracy
 		// transport property implementation
 		virtual void ECSParams(double *e_k, double *sigma){
@@ -169,13 +171,13 @@ class Fluid
 		/// This function is optional, and returns a NotImplementedError if the derived class does not implement it.
 		/// Hopefully the calling function catches the error
 		///@param rhor The reduced density where rhor = rho/rhoc
-		virtual double ECS_psi_conductivity(double rhor){
-			throw NotImplementedError("ECS_psi_conductivity not implemented for this fluid");
+		virtual double ECS_chi_conductivity(double rhor){
+			throw NotImplementedError("ECS_chi_conductivity not implemented for this fluid");
 		};
 		/// This function is optional, and returns a NotImplementedError if the derived class does not implement it.
 		/// Hopefully the calling function catches the error
 		///@param rhor The reduced density where rhor = rho/rhoc
-		virtual double ECS_f_int(double rhor){
+		virtual double ECS_f_int(double T){
 			throw NotImplementedError("ECS_f_int not implemented for this fluid");
 		};
 		/// This function is optional, and returns a NotImplementedError if the derived class does not implement it.
@@ -184,6 +186,25 @@ class Fluid
 		///@param rho Density [kg/m3]
 		///@param ReferenceFluid A pointer to an instance of a Fluid class that is used as the reference fluid for the ECS model
 		double viscosity_ECS_Trho(double T, double rho, Fluid * ReferenceFluid);
+
+		/// This function is optional, and returns a NotImplementedError if the derived class does not implement it.
+		/// Hopefully the calling function catches the error
+		///@param T Temperature [K]
+		///@param rho Density [kg/m3]
+		///@param ReferenceFluid A pointer to an instance of a Fluid class that is used as the reference fluid for the ECS model
+		double conductivity_ECS_Trho(double T, double rho, Fluid * ReferenceFluid);
+
+		/// The background viscosity for the fluid.  The viscosity minus the critical contribution minus the dilute-gas contribution
+		/// This function is optional, and returns a NotImplementedError if the derived class does not implement it.
+		/// Hopefully the calling function catches the error
+		/// @see viscosity_Trho
+		/// @param T Temperature [K]
+		/// @param rho Density [kg/m3]
+		virtual double conductivity_background(double T, double rho){
+			throw NotImplementedError(std::string("conductivity_background not implemented for this fluid")); return _HUGE;
+		};
+
+		virtual double conductivity_critical(double T, double rho);
 
 		/// This function returns the dilute portion of the viscosity
 		/// @param T Temperature [K]

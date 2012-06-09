@@ -11,3 +11,12 @@ cdef class State:
     cpdef update(self,dict params, double xL=?)
     cpdef copy(self)
     
+    cpdef double get_T(self)
+    cpdef double get_p(self)
+    cpdef double get_h(self)
+    cpdef double get_rho(self)
+    cpdef double get_s(self)
+    cpdef double get_u(self)
+    cpdef double get_cp(self)
+    cpdef double get_cv(self)
+    

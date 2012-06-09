@@ -169,11 +169,6 @@ CarbonMonoxideClass::CarbonMonoxideClass()
     aliases.push_back(std::string("CO")); 
     REFPROPname.assign("CO");
 }
-double CarbonMonoxideClass::conductivity_Trho(double tau, double delta)
-{
-    //throw NotImplementedError();
-    return _HUGE;
-}
 double CarbonMonoxideClass::rhosatL(double T) 
 {
     double THETA = 1-T/crit.T;
@@ -191,6 +186,9 @@ double CarbonMonoxideClass::psat(double T)
     double RHS = 0.00381083-5.39772*pow(THETA,0.966354)-2.44727*pow(THETA,4.60196);
     return exp(crit.T/T*RHS)*crit.p;
 }
+
+
+
 
 
 
@@ -247,11 +245,6 @@ CarbonylSulfideClass::CarbonylSulfideClass()
     aliases.push_back(std::string("COS")); 
     REFPROPname.assign("COS");
 }
-double CarbonylSulfideClass::conductivity_Trho(double tau, double delta)
-{
-    //throw NotImplementedError();
-    return _HUGE;
-}
 double CarbonylSulfideClass::rhosatL(double T) 
 {
     double THETA = 1-T/crit.T;
@@ -269,6 +262,9 @@ double CarbonylSulfideClass::psat(double T)
     double RHS = 0.000586188-5.62785*pow(THETA,0.96735)-2.63574*pow(THETA,4.34562);
     return exp(crit.T/T*RHS)*crit.p;
 }
+
+
+
 
 
 
@@ -325,11 +321,6 @@ DecaneClass::DecaneClass()
     aliases.push_back(std::string("decane")); 
     REFPROPname.assign("decane");
 }
-double DecaneClass::conductivity_Trho(double tau, double delta)
-{
-    //throw NotImplementedError();
-    return _HUGE;
-}
 double DecaneClass::rhosatL(double T) 
 {
     double THETA = 1-T/crit.T;
@@ -347,6 +338,9 @@ double DecaneClass::psat(double T)
     double RHS = -0.000777868-7.47275*pow(THETA,0.973801)-6.00257*pow(THETA,3.54267);
     return exp(crit.T/T*RHS)*crit.p;
 }
+
+
+
 
 
 
@@ -404,11 +398,6 @@ HydrogenSulfideClass::HydrogenSulfideClass()
     aliases.push_back(std::string("H2S")); 
     REFPROPname.assign("H2S");
 }
-double HydrogenSulfideClass::conductivity_Trho(double tau, double delta)
-{
-    //throw NotImplementedError();
-    return _HUGE;
-}
 double HydrogenSulfideClass::rhosatL(double T) 
 {
     double THETA = 1-T/crit.T;
@@ -426,6 +415,9 @@ double HydrogenSulfideClass::psat(double T)
     double RHS = 0.00182417-2.48038*pow(THETA,4.1794)-5.63481*pow(THETA,0.966803);
     return exp(crit.T/T*RHS)*crit.p;
 }
+
+
+
 
 
 
@@ -482,11 +474,6 @@ IsopentaneClass::IsopentaneClass()
     aliases.push_back(std::string("ipentane")); 
     REFPROPname.assign("ipentane");
 }
-double IsopentaneClass::conductivity_Trho(double tau, double delta)
-{
-    //throw NotImplementedError();
-    return _HUGE;
-}
 double IsopentaneClass::rhosatL(double T) 
 {
     double THETA = 1-T/crit.T;
@@ -504,6 +491,9 @@ double IsopentaneClass::psat(double T)
     double RHS = -0.0029609-6.35049*pow(THETA,0.979701)-3.60812*pow(THETA,4.15062);
     return exp(crit.T/T*RHS)*crit.p;
 }
+
+
+
 
 
 
@@ -560,11 +550,6 @@ NeopentaneClass::NeopentaneClass()
     aliases.push_back(std::string("neopentn")); 
     REFPROPname.assign("neopentn");
 }
-double NeopentaneClass::conductivity_Trho(double tau, double delta)
-{
-    //throw NotImplementedError();
-    return _HUGE;
-}
 double NeopentaneClass::rhosatL(double T) 
 {
     double THETA = 1-T/crit.T;
@@ -582,6 +567,9 @@ double NeopentaneClass::psat(double T)
     double RHS = 0.0015322-3.14966*pow(THETA,3.75951)-6.09657*pow(THETA,0.970415);
     return exp(crit.T/T*RHS)*crit.p;
 }
+
+
+
 
 
 
@@ -638,11 +626,6 @@ IsohexaneClass::IsohexaneClass()
     aliases.push_back(std::string("ihexane")); 
     REFPROPname.assign("ihexane");
 }
-double IsohexaneClass::conductivity_Trho(double tau, double delta)
-{
-    //throw NotImplementedError();
-    return _HUGE;
-}
 double IsohexaneClass::rhosatL(double T) 
 {
     double THETA = 1-T/crit.T;
@@ -660,6 +643,9 @@ double IsohexaneClass::psat(double T)
     double RHS = -0.00331591-4.1175*pow(THETA,4.06252)-6.62477*pow(THETA,0.982416);
     return exp(crit.T/T*RHS)*crit.p;
 }
+
+
+
 
 
 
@@ -715,11 +701,6 @@ KryptonClass::KryptonClass()
     aliases.push_back(std::string("krypton")); 
     REFPROPname.assign("krypton");
 }
-double KryptonClass::conductivity_Trho(double tau, double delta)
-{
-    //throw NotImplementedError();
-    return _HUGE;
-}
 double KryptonClass::rhosatL(double T) 
 {
     double THETA = 1-T/crit.T;
@@ -737,6 +718,9 @@ double KryptonClass::psat(double T)
     double RHS = 0.00424691-5.11498*pow(THETA,0.958996)-2.92151*pow(THETA,5.82349);
     return exp(crit.T/T*RHS)*crit.p;
 }
+
+
+
 
 
 
@@ -793,11 +777,6 @@ NonaneClass::NonaneClass()
     aliases.push_back(std::string("nonane")); 
     REFPROPname.assign("nonane");
 }
-double NonaneClass::conductivity_Trho(double tau, double delta)
-{
-    //throw NotImplementedError();
-    return _HUGE;
-}
 double NonaneClass::rhosatL(double T) 
 {
     double THETA = 1-T/crit.T;
@@ -815,6 +794,9 @@ double NonaneClass::psat(double T)
     double RHS = -0.000227121-5.62753*pow(THETA,3.58749)-7.25067*pow(THETA,0.971535);
     return exp(crit.T/T*RHS)*crit.p;
 }
+
+
+
 
 
 
@@ -871,11 +853,6 @@ TolueneClass::TolueneClass()
     aliases.push_back(std::string("toluene")); 
     REFPROPname.assign("toluene");
 }
-double TolueneClass::conductivity_Trho(double tau, double delta)
-{
-    //throw NotImplementedError();
-    return _HUGE;
-}
 double TolueneClass::rhosatL(double T) 
 {
     double THETA = 1-T/crit.T;
@@ -893,6 +870,9 @@ double TolueneClass::psat(double T)
     double RHS = 0.00129047-4.14206*pow(THETA,3.99689)-6.4543*pow(THETA,0.969688);
     return exp(crit.T/T*RHS)*crit.p;
 }
+
+
+
 
 
 
@@ -948,11 +928,6 @@ XenonClass::XenonClass()
     aliases.push_back(std::string("Xe")); aliases.push_back(std::string("xenon")); 
     REFPROPname.assign("xenon");
 }
-double XenonClass::conductivity_Trho(double tau, double delta)
-{
-    //throw NotImplementedError();
-    return _HUGE;
-}
 double XenonClass::rhosatL(double T) 
 {
     double THETA = 1-T/crit.T;
@@ -970,6 +945,9 @@ double XenonClass::psat(double T)
     double RHS = 0.00359722-5.14301*pow(THETA,0.960574)-2.64349*pow(THETA,5.51079);
     return exp(crit.T/T*RHS)*crit.p;
 }
+
+
+
 
 
 
@@ -1026,11 +1004,6 @@ R116Class::R116Class()
 
     REFPROPname.assign("R116");
 }
-double R116Class::conductivity_Trho(double tau, double delta)
-{
-    //throw NotImplementedError();
-    return _HUGE;
-}
 double R116Class::rhosatL(double T) 
 {
     double THETA = 1-T/crit.T;
@@ -1048,7 +1021,23 @@ double R116Class::psat(double T)
     double RHS = 0.00172169-3.43163*pow(THETA,3.63334)-6.36934*pow(THETA,0.968831);
     return exp(crit.T/T*RHS)*crit.p;
 }
-
+void R116Class::ECSParams(double *e_k, double *sigma)
+{
+    *e_k = 226.16;
+    *sigma = 0.5249;
+}
+double R116Class::ECS_f_int(double T)
+{
+    return 0.00132+0*T;
+}
+double R116Class::ECS_psi_viscosity(double rhor)
+{
+    return 1.21996-0.0647835*rhor+0*rhor*rhor;
+}
+double R116Class::ECS_chi_conductivity(double rhor)
+{
+    return 1.1804-0.0539975*rhor;
+}
 
 
 AcetoneClass::AcetoneClass()
@@ -1104,11 +1093,6 @@ AcetoneClass::AcetoneClass()
     aliases.push_back(std::string("acetone")); 
     REFPROPname.assign("acetone");
 }
-double AcetoneClass::conductivity_Trho(double tau, double delta)
-{
-    //throw NotImplementedError();
-    return _HUGE;
-}
 double AcetoneClass::rhosatL(double T) 
 {
     double THETA = 1-T/crit.T;
@@ -1126,6 +1110,9 @@ double AcetoneClass::psat(double T)
     double RHS = 0.000795221-3.84184*pow(THETA,3.82733)-6.6419*pow(THETA,0.968566);
     return exp(crit.T/T*RHS)*crit.p;
 }
+
+
+
 
 
 
@@ -1182,11 +1169,6 @@ NitrousOxideClass::NitrousOxideClass()
     aliases.push_back(std::string("N2O")); 
     REFPROPname.assign("N2O");
 }
-double NitrousOxideClass::conductivity_Trho(double tau, double delta)
-{
-    //throw NotImplementedError();
-    return _HUGE;
-}
 double NitrousOxideClass::rhosatL(double T) 
 {
     double THETA = 1-T/crit.T;
@@ -1204,6 +1186,9 @@ double NitrousOxideClass::psat(double T)
     double RHS = 0.00124529-5.94036*pow(THETA,0.970591)-2.93925*pow(THETA,3.86231);
     return exp(crit.T/T*RHS)*crit.p;
 }
+
+
+
 
 
 
@@ -1261,11 +1246,6 @@ SulfurDioxideClass::SulfurDioxideClass()
     aliases.push_back(std::string("SO2")); 
     REFPROPname.assign("SO2");
 }
-double SulfurDioxideClass::conductivity_Trho(double tau, double delta)
-{
-    //throw NotImplementedError();
-    return _HUGE;
-}
 double SulfurDioxideClass::rhosatL(double T) 
 {
     double THETA = 1-T/crit.T;
@@ -1283,6 +1263,9 @@ double SulfurDioxideClass::psat(double T)
     double RHS = -0.000667106-3.64759*pow(THETA,3.75619)-6.41012*pow(THETA,0.974263);
     return exp(crit.T/T*RHS)*crit.p;
 }
+
+
+
 
 
 
@@ -1339,11 +1322,6 @@ R141bClass::R141bClass()
 
     REFPROPname.assign("R141b");
 }
-double R141bClass::conductivity_Trho(double tau, double delta)
-{
-    //throw NotImplementedError();
-    return _HUGE;
-}
 double R141bClass::rhosatL(double T) 
 {
     double THETA = 1-T/crit.T;
@@ -1361,7 +1339,23 @@ double R141bClass::psat(double T)
     double RHS = -0.00308472-3.97593*pow(THETA,4.09844)-6.29057*pow(THETA,0.97953);
     return exp(crit.T/T*RHS)*crit.p;
 }
-
+void R141bClass::ECSParams(double *e_k, double *sigma)
+{
+    *e_k = 370.44;
+    *sigma = 0.5493;
+}
+double R141bClass::ECS_f_int(double T)
+{
+    return 0.000521722+0.00000292456*T;
+}
+double R141bClass::ECS_psi_viscosity(double rhor)
+{
+    return 0.92135+0.041091*rhor+0*rhor*rhor;
+}
+double R141bClass::ECS_chi_conductivity(double rhor)
+{
+    return 1.0867-0.0216469*rhor;
+}
 
 
 R142bClass::R142bClass()
@@ -1417,11 +1411,6 @@ R142bClass::R142bClass()
 
     REFPROPname.assign("R142b");
 }
-double R142bClass::conductivity_Trho(double tau, double delta)
-{
-    //throw NotImplementedError();
-    return _HUGE;
-}
 double R142bClass::rhosatL(double T) 
 {
     double THETA = 1-T/crit.T;
@@ -1439,7 +1428,23 @@ double R142bClass::psat(double T)
     double RHS = -0.000556636-3.66973*pow(THETA,3.92032)-6.29906*pow(THETA,0.97278);
     return exp(crit.T/T*RHS)*crit.p;
 }
-
+void R142bClass::ECSParams(double *e_k, double *sigma)
+{
+    *e_k = 278.2;
+    *sigma = 0.5362;
+}
+double R142bClass::ECS_f_int(double T)
+{
+    return 0.000940725+0.000000988196*T;
+}
+double R142bClass::ECS_psi_viscosity(double rhor)
+{
+    return 0.9716+0.019181*rhor+0*rhor*rhor;
+}
+double R142bClass::ECS_chi_conductivity(double rhor)
+{
+    return 1.0749-0.0177916*rhor;
+}
 
 
 R218Class::R218Class()
@@ -1495,11 +1500,6 @@ R218Class::R218Class()
 
     REFPROPname.assign("R218");
 }
-double R218Class::conductivity_Trho(double tau, double delta)
-{
-    //throw NotImplementedError();
-    return _HUGE;
-}
 double R218Class::rhosatL(double T) 
 {
     double THETA = 1-T/crit.T;
@@ -1517,7 +1517,23 @@ double R218Class::psat(double T)
     double RHS = -0.00117049-4.27976*pow(THETA,3.67253)-6.68013*pow(THETA,0.972918);
     return exp(crit.T/T*RHS)*crit.p;
 }
-
+void R218Class::ECSParams(double *e_k, double *sigma)
+{
+    *e_k = 266.35;
+    *sigma = 0.58;
+}
+double R218Class::ECS_f_int(double T)
+{
+    return 0.000892659+0.00000114912*T;
+}
+double R218Class::ECS_psi_viscosity(double rhor)
+{
+    return 1.10225-0.00550442*rhor+0*rhor*rhor;
+}
+double R218Class::ECS_chi_conductivity(double rhor)
+{
+    return 1.2877-0.0758811*rhor;
+}
 
 
 R245faClass::R245faClass()
@@ -1573,11 +1589,6 @@ R245faClass::R245faClass()
 
     REFPROPname.assign("R245fa");
 }
-double R245faClass::conductivity_Trho(double tau, double delta)
-{
-    //throw NotImplementedError();
-    return _HUGE;
-}
 double R245faClass::rhosatL(double T) 
 {
     double THETA = 1-T/crit.T;
@@ -1595,7 +1606,23 @@ double R245faClass::psat(double T)
     double RHS = -0.00254547-5.01251*pow(THETA,3.66623)-7.05974*pow(THETA,0.984797);
     return exp(crit.T/T*RHS)*crit.p;
 }
-
+void R245faClass::ECSParams(double *e_k, double *sigma)
+{
+    *e_k = 329.72;
+    *sigma = 0.5529;
+}
+double R245faClass::ECS_f_int(double T)
+{
+    return 0.00164999-0.000000328868*T;
+}
+double R245faClass::ECS_psi_viscosity(double rhor)
+{
+    return 1.13848-0.0332328*rhor+0*rhor*rhor;
+}
+double R245faClass::ECS_chi_conductivity(double rhor)
+{
+    return 1.1627-0.0473491*rhor;
+}
 
 
 R41Class::R41Class()
@@ -1652,11 +1679,6 @@ R41Class::R41Class()
 
     REFPROPname.assign("R41");
 }
-double R41Class::conductivity_Trho(double tau, double delta)
-{
-    //throw NotImplementedError();
-    return _HUGE;
-}
 double R41Class::rhosatL(double T) 
 {
     double THETA = 1-T/crit.T;
@@ -1674,4 +1696,7 @@ double R41Class::psat(double T)
     double RHS = 0.0041837-6.13932*pow(THETA,0.964557)-2.73068*pow(THETA,4.21954);
     return exp(crit.T/T*RHS)*crit.p;
 }
+
+
+
 

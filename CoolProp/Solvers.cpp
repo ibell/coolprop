@@ -27,6 +27,7 @@ All the linear algebra functions are provided by the Eigen package. (see link ab
 Eigen::VectorXd NDNewtonRaphson_Jacobian(FuncWrapperND *f, Eigen::VectorXd x0, double tol, int maxiter, std::string *errstring)
 {
 	int iter=0;
+	*errstring=std::string("");
 	Eigen::VectorXd f0;
 	Eigen::MatrixXd J;
 	double error = 999;
@@ -37,7 +38,7 @@ Eigen::VectorXd NDNewtonRaphson_Jacobian(FuncWrapperND *f, Eigen::VectorXd x0, d
 		J = f->Jacobian(x0);
 		x0 -= J.inverse()*f0;
 		error = sqrt(f0.array().square().sum());
-		//std::cout << J << std::endl << x0 << std::endl << error << std::endl;
+		std::cout << J << std::endl << x0 << std::endl << error << std::endl;
 		if (iter>maxiter){
 			*errstring=std::string("reached maximum number of iterations");
 			x0(0)=_HUGE;

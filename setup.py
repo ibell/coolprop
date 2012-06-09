@@ -196,6 +196,7 @@ setup (name = 'CoolProp',
        packages = ['CoolProp','CoolProp.Plots','CoolProp.tests'],
        ext_modules = [CoolProp_module,FloodProp_module,HumidAirProp_module,State_module],
        package_dir = {'CoolProp':'CoolProp',},
+       package_data = {'CoolProp':['State.pxd']},
        cmdclass={'build_ext': build_ext}
        )
 

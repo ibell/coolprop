@@ -204,7 +204,6 @@ double R32Class::rhosatL(double T)
 
 	return 424.0+434.55*pow(theta,1.0/4.0)+1296.53*pow(theta,2.0/3.0)-777.49*theta+366.84*pow(theta,5.0/3.0);
 }
-
 double R32Class::rhosatV(double T)
 {
 	double theta, phi;
@@ -215,11 +214,15 @@ double R32Class::rhosatV(double T)
 }
 double R32Class::ECS_psi_viscosity(double rhor)
 {
-//	return 1.0;
-	//return 0.9;
-	//return 0.95;
-	//return 0.898+0.0099*rhor;
 	return 0.7954+5.426580e-2*rhor;
+}
+double R32Class::ECS_f_int(double T)
+{
+	return 0.000436654+0.00000178134*T;
+}
+double R32Class::ECS_chi_conductivity(double rhor)
+{
+	return 1.2942-0.0924549*rhor;
 }
 void R32Class::ECSParams(double *e_k, double *sigma)
 {

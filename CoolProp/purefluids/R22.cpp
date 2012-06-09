@@ -286,6 +286,16 @@ double R22Class::psat(double T)
     double RHS = -2.53703e-05-3.59007*pow(THETA,4.08377)-6.30182*pow(THETA,0.977892);
     return exp(crit.T/T*RHS)*crit.p;
 }
+double R22Class::ECS_f_int(double T)
+{
+	// McLinden et al., 2000
+	return 7.7817e-4+1.2536e-6*T;
+}
+double R22Class::ECS_chi_conductivity(double rhor)
+{
+	// McLinden et al, 2000
+	return 1.0750-0.0385740*rhor;
+}
 double R22Class::ECS_psi_viscosity(double rhor)
 {
 	return 1.0272423-0.0198493*rhor;
@@ -294,28 +304,4 @@ void R22Class::ECSParams(double *e_k, double *sigma)
 {
 	*e_k = 284.7242;
 	*sigma = 0.4666;
-}
-double R22Class::viscosity_Trho(double T, double rho)
-{
-	double mu;
-	// Use propane as the reference
-	Fluid * ReferenceFluid = new R134aClass();
-	ReferenceFluid->post_load();
-	// Calculate the ECS
-	try{
-		mu = viscosity_ECS_Trho(T, rho, ReferenceFluid);
-	}
-	catch(std::exception&e)
-	{
-		mu=_HUGE;
-	}
-	// Delete the reference fluid instance
-	delete ReferenceFluid;
-	return mu;
-}
-double R22Class::conductivity_Trho(double T, double rho)
-{
-	//ERROR
-	throw NotImplementedError(format("Conductivity_Trho for R22 not coded"));
-	return _HUGE;
 }

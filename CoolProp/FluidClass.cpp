@@ -307,6 +307,17 @@ double Fluid::viscosity_Trho( double T, double rho)
 	delete ReferenceFluid;
 	return mu;
 }
+double Fluid::conductivity_Trho( double T, double rho)
+{
+	// Use propane as the reference
+	Fluid * ReferenceFluid = new R134aClass();
+	ReferenceFluid->post_load();
+	// Calculate the ECS
+	double lambda = conductivity_ECS_Trho(T, rho, ReferenceFluid);
+	// Delete the reference fluid instance
+	delete ReferenceFluid;
+	return lambda;
+}
 
 void Fluid::set_1phase_LUT_params(int nT,int np,double Tmin, double Tmax, double pmin, double pmax)
 {
@@ -1120,14 +1131,53 @@ double Fluid::viscosity_dilute(double T, double e_k, double sigma)
 	Ind. Eng. Chem. Res. 2003, 42, 3163-3178
 	*/
 
-	double sum=0,eta_star, Tstar, OMEGA_2_2, pi=3.141592654, k_B=1.380648813e-23;
+	double sum=0,eta_star, Tstar, OMEGA_2_2, pi=3.141592654;
 	Tstar = T/e_k;
 	// From Neufeld, 1972, Journal of Chemical Physics - checked coefficients
 	OMEGA_2_2 = 1.16145*pow(Tstar,-0.14874)+ 0.52487*exp(-0.77320*Tstar)+2.16178*exp(-2.43787*Tstar);
-	double k=pow(26.69e-3*16*pi/5,2)/pi;
 	// Using the leading constant from McLinden, 2000 since the leading term from Huber 2003 gives crazy values
 	eta_star = 26.69e-3*sqrt(params.molemass*T)/(pow(sigma,2)*OMEGA_2_2)/1e6;
 	return eta_star;
+}
+double Fluid::conductivity_critical(double T, double rho)
+{
+	double k=1.380658e-23, //[J/K]
+		R0=1.03,
+		gamma=1.239,
+		nu=0.63,
+		Pcrit = reduce.p, //[kPa]
+		Tref = 1.5*reduce.T, //[K]
+		GAMMA = 0.0496,
+		zeta0=1.94e-10, //[m]
+		qd = 2.0e9, //[1/m]
+		cp,cv,delta,num,zeta,mu,
+		OMEGA_tilde,OMEGA_tilde0,pi=M_PI,tau;
+
+	delta = rho/reduce.rho;
+
+	tau = reduce.T/T;
+	double dp_drho=R()*T*(1+2*delta*dphir_dDelta(tau,delta)+delta*delta*d2phir_dDelta2(tau,delta));
+	double X = Pcrit/pow(511.9,2)*rho/dp_drho;
+	tau = reduce.T/Tref;
+	double dp_drho_ref=R()*Tref*(1+2*delta*dphir_dDelta(tau,delta)+delta*delta*d2phir_dDelta2(tau,delta));
+	double Xref = Pcrit/pow(511.9,2)*rho/dp_drho_ref*Tref/T;
+	num=X-Xref;
+
+	// no critical enhancement if numerator is negative
+	if (num<0)
+		return 0.0;
+	else
+		zeta=zeta0*pow(num/GAMMA,nu/gamma); //[m]
+
+	cp=specific_heat_p_Trho(T,rho); //[kJ/kg/K]
+	cv=specific_heat_v_Trho(T,rho); //[kJ/kg/K]
+	mu=viscosity_Trho(T,rho)*1e6; //[uPa-s]
+
+	OMEGA_tilde=2.0/pi*((cp-cv)/cp*atan(zeta*qd)+cv/cp*(zeta*qd)); //[-]
+	OMEGA_tilde0=2.0/pi*(1.0-exp(-1.0/(1.0/(qd*zeta)+1.0/3.0*(zeta*qd)*(zeta*qd)/delta/delta))); //[-]
+
+	double lambda=rho*cp*1e9*(R0*k*T)/(6*pi*mu*zeta)*(OMEGA_tilde-OMEGA_tilde0); //[W/m/K]
+	return lambda/1e3; //[kW/m/K]
 }
 
 class ConformalTempResids : public FuncWrapperND
@@ -1175,6 +1225,65 @@ public:
 	}
 };
 
+Eigen::Vector2d Fluid::ConformalTemperature(Fluid *InterestFluid, Fluid *ReferenceFluid,double T0, double rho0, std::string *errstring)
+{
+	int iter=0;
+	double error,v0,v1,T,rho,delta,tau,dp_drho;
+	Eigen::Vector2d f0,v;
+	Eigen::MatrixXd J;
+	ConformalTempResids CTR = ConformalTempResids(InterestFluid,ReferenceFluid,T0,rho0);
+	Eigen::Vector2d x0;
+	x0 << T0, rho0;
+	
+	// Check whether the starting guess is already pretty good
+	error = sqrt(CTR.call(x0).array().square().sum());
+	if (fabs(error)<1e-3){
+		return x0;
+	}
+	// Make a copy so that if the calculations fail, we can return the original values
+	Eigen::Vector2d x0_initial=x0;
+
+	try{
+		// First naively try to just use the Newton-Raphson solver without any
+		// special checking of the values.
+		x0=NDNewtonRaphson_Jacobian(&CTR,x0_initial,1e-10,30,errstring);
+		error = sqrt(CTR.call(x0).array().square().sum());
+		if (fabs(error)>1e-2 || x0(0)<0.0  || x0(1)<0.0 || !ValidNumber(x0(0)) || !ValidNumber(x0(1))){
+			throw ValueError("");
+		}
+		return x0;
+	}
+	catch(std::exception &e){}
+	// Ok, that didn't work, so we need to try something more interesting
+	// Local Newton-Raphson solver with bounds checking on the step values
+	error=999;
+	iter=0;
+	x0=x0_initial; // Start back at unity shape factors
+	while (iter<30 && fabs(error)>1e-6)
+	{
+		T = x0(0);
+		rho = x0(1);
+		tau = reduce.T/T;
+		delta = rho/reduce.rho;
+		dp_drho=R()*T*(1+2*delta*dphir_dDelta(tau,delta)+delta*delta*d2phir_dDelta2(tau,delta));
+
+		//Try to take a step
+		f0 = CTR.call(x0);
+		J = CTR.Jacobian(x0);
+		v = J.inverse()*f0;
+		v0 = v(0); 
+		v1 = v(1);
+		if (x0(0)-v(0)>0 && x0(1)-v(1)>0)
+			x0 -= v;
+		else
+			x0 -= 1.05*x0;
+
+		error = sqrt(f0.array().square().sum());
+		iter+=1;
+	}
+	return x0_initial;
+};
+
 double Fluid::viscosity_ECS_Trho(double T, double rho, Fluid * ReferenceFluid)
 {
 	/*
@@ -1184,34 +1293,43 @@ double Fluid::viscosity_ECS_Trho(double T, double rho, Fluid * ReferenceFluid)
 	Including a New Correlation for the Viscosity of R134a"
 	Ind. Eng. Chem. Res. 2003, 42, 3163-3178
 	*/
-	double e_k,sigma,e0_k, sigma0, Tc0,rhoc0,T0,rho0,rhoc,Tc,eta_dilute,theta,phi,f,h,eta_resid,M,M0,F_eta,eta,psi;
-	
+	double e_k,sigma,e0_k, sigma0, Tc0,rhoc0,T0,rho0,rhoc,Tc,
+		eta_dilute,theta,phi,f,h,eta_resid,M,M0,F_eta,eta,psi,
+		rhoc0bar,rhobar,rhocbar,rho0bar;
+	Eigen::Vector2d x0;
+
 	Tc0=ReferenceFluid->reduce.T;
 	rhoc0=ReferenceFluid->reduce.rho;
 	M0=ReferenceFluid->params.molemass;
+	rhoc0bar = rhoc0/M0;
 	Tc = reduce.T;
 	rhoc = reduce.rho;
 	M = params.molemass;
+	rhocbar=rhoc/M;
+	rhobar=rho/M;
 	try{
 		// Get the ECS params for the fluid if it has them
 		ECSParams(&e_k,&sigma);
 	}
 	catch(NotImplementedError &e){
 		try{
-			//Estimate the ECS parameters from Huber and Ely, 2003
+			// Get the ECS parameters from the reference fluid
 			ReferenceFluid->ECSParams(&e0_k,&sigma0);
 		}
 		catch (NotImplementedError &e){
 			// Doesn't have e_k and sigma for reference fluid
 			throw NotImplementedError(format("Your reference fluid for ECS [%s] does not have an implementation of ECSParams",(char *)ReferenceFluid->get_name().c_str()));
 		}
+		//Estimate the ECS parameters from Huber and Ely, 2003
 		e_k = e0_k*Tc/Tc0;
+		sigma = sigma0*pow(rhoc/rhoc0,1.0/3.0);
 	}
+
 	// The dilute portion is for the fluid of interest, not for the reference fluid
 	// It is the viscosity in the limit of zero density
 	eta_dilute = viscosity_dilute(T,e_k,sigma);
 
-	if (T>reduce.T)
+	if (1)//(T>reduce.T)
 	{
 		// Get the conformal temperature.  To start out here, assume that the shape factors are unity
 		theta=1;
@@ -1254,35 +1372,134 @@ double Fluid::viscosity_ECS_Trho(double T, double rho, Fluid * ReferenceFluid)
 	catch(NotImplementedError &e){
 		psi = 1.0;
 	}
-
 	f=Tc/Tc0*theta;
-	h=rhoc0/rhoc*phi;
+	//Must be the ratio of MOLAR densities!!
+	h=rhoc0bar/rhocbar*phi;
 	T0=T/f;
-	rho0=rho*h;
-
-	ConformalTempResids CTR = ConformalTempResids(this,ReferenceFluid,T,rho);
+	rho0bar=rhobar*h;
+	//Get the mass density for the reference fluid [kg/m3]
+	rho0=rho0bar*M0;
 	std::string errstring;
-	Eigen::Vector2d x0;
-	x0 << T0, rho0;
-	x0=NDNewtonRaphson_Jacobian(&CTR,x0,1e-10,30,&errstring);
-	if (errstring.size()==0){ 
-		// Solution found successfully using Newton-Raphson
+	// First check whether you should use this code in the first place.
+	// Implementing the method of TRNECS from REFPROP
+	double delta = rho/reduce.rho;
+	double tau = reduce.T/T;
+	double Z = 1+delta*dphir_dDelta(tau,delta);
+	double p0 = Z*R()*T0*rho0;
+	if (Z<0.3 || p0>1.1*ReferenceFluid->reduce.p || rho0>ReferenceFluid->reduce.rho){
+		// Use the code to calculate the conformal state
+		x0=ConformalTemperature(this,ReferenceFluid,T0,rho0,&errstring);
 		T0=x0(0);
 		rho0=x0(1);
 	}
-	else{
-		// No solution from Newton-Raphson, use unity shape factors
-		theta=1; phi=1;
-		f=Tc/Tc0*theta;
-		h=rhoc0/rhoc*phi;
-		T0=T/f;
-		rho0=rho*h;
-	}
-	
+	rho0bar = rho0/M0;
+	h=rho0bar/rhobar;
+	f=T/T0;
+
 	eta_resid = ReferenceFluid->viscosity_background(T0,rho0*psi);
 	F_eta = sqrt(f)*pow(h,-2.0/3.0)*sqrt(M/M0);
 	eta = eta_dilute+eta_resid*F_eta;
 	return eta;
+}
+
+double Fluid::conductivity_ECS_Trho(double T, double rho, Fluid * ReferenceFluid)
+{
+	/*
+	Implements the method of
+	Marcia L. Huber, Arno Laesecke, and Richard A. Perkins
+	"Model for the Viscosity and Thermal Conductivity of Refrigerants,
+	Including a New Correlation for the Viscosity of R134a"
+	Ind. Eng. Chem. Res. 2003, 42, 3163-3178
+	*/
+	double e_k,sigma,e0_k, sigma0, Tc0,rhoc0,T0,rho0,rhoc,Tc,
+		eta_dilute,theta,phi,f,h,lambda_resid,M,M0,F_lambda,lambda,chi,
+		f_int,lambda_int,lambda_crit,lambda_star,rhoc0bar,rhobar,rhocbar,rho0bar;
+	Eigen::Vector2d x0;
+
+	Tc0=ReferenceFluid->reduce.T;
+	rhoc0=ReferenceFluid->reduce.rho;
+	M0=ReferenceFluid->params.molemass;
+	rhoc0bar = rhoc0/M0;
+	Tc = reduce.T;
+	rhoc = reduce.rho;
+	M = params.molemass;
+	rhocbar=rhoc/M;
+	rhobar=rho/M;
+	try{
+		// Get the ECS params for the fluid if it has them
+		ECSParams(&e_k,&sigma);
+	}
+	catch(NotImplementedError &e){
+		try{
+			//Estimate the ECS parameters from Huber and Ely, 2003
+			ReferenceFluid->ECSParams(&e0_k,&sigma0);
+		}
+		catch (NotImplementedError &e){
+			// Doesn't have e_k and sigma for reference fluid
+			throw NotImplementedError(format("Your reference fluid for ECS [%s] does not have an implementation of ECSParams",(char *)ReferenceFluid->get_name().c_str()));
+		}
+		e_k = e0_k*Tc/Tc0;
+		sigma = sigma0*pow(rhoc/rhoc0,1.0/3.0);
+	}
+	// The dilute portion is for the fluid of interest, not for the reference fluid
+	// It is the viscosity in the limit of zero density
+	// It has units of Pa-s here
+	eta_dilute = viscosity_dilute(T,e_k,sigma);
+	
+	try{
+		chi = ECS_chi_conductivity(rho/reduce.rho);
+	}
+	catch(NotImplementedError &e){
+		chi = 1.0;
+	}
+
+	try{
+		f_int = ECS_f_int(T);
+	}
+	catch(NotImplementedError &e){
+		f_int = 1.32e-3;
+	}
+
+	// Get the conformal temperature.  To start out here, assume that the shape factors are unity
+	theta=1.0;
+	phi=1.0;
+	f=Tc/Tc0*theta;
+	h=rhoc0bar/rhocbar*phi;
+	T0=T/f;
+	rho0bar=rhobar*h;
+	//Get the mass density for the reference fluid [kg/m3]
+	rho0=rho0bar*M0;
+	
+	std::string errstring;
+	// First check whether you should use this code in the first place.
+	// Implementing the method of TRNECS from REFPROP
+	double delta = rho/reduce.rho;
+	double tau = reduce.T/T;
+	double Z = 1+delta*dphir_dDelta(tau,delta);
+	double p0 = Z*R()*T0*rho0;
+	if (Z<0.3 || p0>1.1*ReferenceFluid->reduce.p || rho0>ReferenceFluid->reduce.rho){
+		// Use the code to calculate the conformal state
+		x0=ConformalTemperature(this,ReferenceFluid,T0,rho0,&errstring);
+		T0=x0(0);
+		rho0=x0(1);
+	}
+	
+	rho0bar = rho0/M0;
+	h=rho0bar/rhobar;
+	f=T/T0;
+	
+	// Ideal-gas specific heat in the limit of zero density
+	double cpstar = specific_heat_p_Trho(T,1e-12);
+	lambda_int = f_int*(eta_dilute*1e6)*(cpstar-5.0/2.0*R() ); //[W/m/K]
+	lambda_star = 15e-3*R()*(eta_dilute*1e6)/4.0; //[W/m/K]
+	F_lambda = sqrt(f)*pow(h,-2.0/3.0)*sqrt(M0/M);
+	
+	//Get the background viscosity from the reference fluid
+	lambda_resid = ReferenceFluid->conductivity_background(T0,rho0*chi)*1e3 ;//[W/m/K]
+	//No critical enhancement for now..
+	lambda_crit = conductivity_critical(T,rho);
+	lambda = lambda_int+lambda_star+lambda_resid*F_lambda+lambda_crit;
+	return lambda/1e3; //[kW/m/K]
 }
 
 // ------------------------------

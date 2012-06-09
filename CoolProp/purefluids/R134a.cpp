@@ -122,18 +122,10 @@ static const double c[]={
 	4.0			//[21]
 };
 
-static const int N[]={
-	8,			//[0]
-	11,			//[1]
-	17,			//[2]
-	20,			//[3]
-	21			//[4]
-};
-
 static const double a0[]={
 	0.0,		//[0]
 	-1.019535,	//[1]
-	9.047135,	//[2]
+	 9.047135,	//[2]
 	-1.629789,	//[3]
 	-9.723916,	//[4]
 	-3.927170	//[5]
@@ -162,14 +154,12 @@ R134aClass::R134aClass()
 	std::vector<double> t_v(t,t+sizeof(t)/sizeof(double));
 	std::vector<double> l_v(c,c+sizeof(c)/sizeof(int));
 	std::vector<double> a0_v(a0,a0+sizeof(a0)/sizeof(double));
-	std::vector<double> n0_v(sizeof(a0)/sizeof(double),0);
+	std::vector<double> n0_v(t0,t0+sizeof(t0)/sizeof(double));
 
 	phi_BC * phir_ = new phir_power(n_v,d_v,t_v,l_v,1,21);
 	phirlist.push_back(phir_);
 
 	// phi0=log(delta)+a0[1]+a0[2]*tau+a0[3]*log(tau)+a0[4]*pow(tau,-1.0/2.0)+a0[5]*pow(tau,-3.0/4.0);
-	n0_v[4]=-1.0/2.0;
-	n0_v[5]=-3.0/4.0;
 	phi_BC * phi0_lead_ = new phi0_lead(a0[1],a0[2]);
 	phi_BC * phi0_logtau_ = new phi0_logtau(a0[3]);
 	phi_BC * phi0_power_ = new phi0_power(a0_v,n0_v,4,5);
@@ -178,18 +168,26 @@ R134aClass::R134aClass()
 	phi0list.push_back(phi0_logtau_);
 	phi0list.push_back(phi0_power_);
 
-	// Critical parameters
-	crit.rho = 508;
-	crit.p = 4059.28;
-	crit.T = 374.21;
-	crit.v = 1.0/crit.rho;
-
 	// Other fluid parameters
 	params.molemass = 102.032;
 	params.Ttriple = 169.85;
 	params.ptriple = 0.3896;
 	params.accentricfactor = 0.32684;
 	params.R_u = 8.314471;
+
+	// Critical parameters
+	crit.rho = 5.017053*params.molemass;
+	crit.p = 4059.28;
+	crit.T = 374.21;
+	crit.v = 1.0/crit.rho;
+
+	// Reducing parameters used in EOS
+	reduce.p = crit.p;
+	reduce.T = 374.18;
+	reduce.rho = 4.978830171*params.molemass;
+	reduce.v = 1.0/reduce.rho;
+
+	preduce = &reduce;
 
 	// Limits of EOS
 	limits.Tmin = 169.85;
@@ -208,36 +206,76 @@ R134aClass::R134aClass()
 	name.assign("R134a");
 	aliases.push_back("R134A");
 }
+double R134aClass::conductivity_dilute(double T)
+{
+	// Typo in McLinden, 1999.  a1 should be x10-5
+	double a0=-1.05248e-2, //[W/m/K]
+		   a1=8.00982e-5;     //[W/m/K^2]
+	double lambda = (a0+a1*T); //[W/m/K]
+	return lambda/1000; //[kW/m/K]
+}
+double R134aClass::conductivity_residual(double T, double rho)
+{
+	double b1=1.836526,
+		   b2=5.126143,
+		   b3=-1.436883,
+		   b4=0.626144,
+		   lambda_reducing=2.055e-3; //[W/m/K]
+	double delta = rho/(5.049886*params.molemass); // Does not use either the reduce.rho value or crit.rho value !!! Or the value listed in Huber, 2003 either
+	double lambda_r = lambda_reducing*(b1*delta+b2*pow(delta,2)+b3*pow(delta,3)+b4*pow(delta,4)); //[W/m/K]
+	return lambda_r/1000; //[kW/m/K]
+}
+double R134aClass::conductivity_critical(double T, double rho)
+{
+	double k=1.380658e-23, //[J/K]
+		R0=1.03,
+		gamma=1.239,
+		nu=0.63,
+		Pcrit = 4059.28, //[kPa]
+		Tref = 561.411, //[K]
+		GAMMA = 0.0496,
+		zeta0=1.94e-10, //[m]
+		qd = 1.89202e9, //[1/m]
+		cp,cv,delta,num,zeta,mu,
+		OMEGA_tilde,OMEGA_tilde0,pi=M_PI,tau;
+
+	// Here, we use 511.9 kg/m3 and 374.21 K as the "critical" state, even 
+	// though the EOS uses a different state
+	double rhoc = 508, Tc = 374.18;
+	delta = rho/rhoc;
+
+	tau = Tc/T;
+	double dp_drho=R()*T*(1+2*delta*dphir_dDelta(tau,delta)+delta*delta*d2phir_dDelta2(tau,delta));
+	double X = Pcrit/pow(511.9,2)*rho/dp_drho;
+	tau = Tc/Tref;
+	double dp_drho_ref=R()*Tref*(1+2*delta*dphir_dDelta(tau,delta)+delta*delta*d2phir_dDelta2(tau,delta));
+	double Xref = Pcrit/pow(511.9,2)*rho/dp_drho_ref*Tref/T;
+	num=X-Xref;
+
+	// no critical enhancement if numerator is negative
+	if (num<0)
+		return 0.0;
+	else
+		zeta=zeta0*pow(num/GAMMA,nu/gamma); //[m]
+
+	cp=specific_heat_p_Trho(T,rho); //[kJ/kg/K]
+	cv=specific_heat_v_Trho(T,rho); //[kJ/kg/K]
+	mu=viscosity_Trho(T,rho)*1e6; //[uPa-s]
+
+	double delta_visc = rho/511.9;
+	OMEGA_tilde=2.0/pi*((cp-cv)/cp*atan(zeta*qd)+cv/cp*(zeta*qd)); //[-]
+	OMEGA_tilde0=2.0/pi*(1.0-exp(-1.0/(1.0/(qd*zeta)+1.0/3.0*(zeta*qd)*(zeta*qd)/delta_visc/delta_visc))); //[-]
+
+	double lambda=rho*cp*1e9*(R0*k*T)/(6*pi*mu*zeta)*(OMEGA_tilde-OMEGA_tilde0); //[W/m/K]
+	return lambda/1e3; //[kW/m/K]
+}
+double R134aClass::conductivity_background(double T, double rho)
+{
+	return conductivity_residual(T,rho);
+}
 double R134aClass::conductivity_Trho(double T, double rho)
 {
-	/* 
-	From "A multiparameter thermal conductivity equation
-	for R134a with an optimized functional form"
-	by G. Scalabrin, P. Marchi, F. Finezzo, 
-	Fluid Phase Equilibria 245 (2006) 37-51 
-	*/
-	int i;
-	double sum=0, Tr,rhor,alpha,lambda_r_ce,lambda_r,num,den;
-	double g[]={0.0,0.0,0.5,1.0,1.5,4.0,5.5,6.0,0.0};
-	double h[]={0.0,1.0,1.0,6.0,0.0,3.0,0.0,0.0,1.0};
-	double n[]={0.0,23.504800,-15.261689,0.064403724,7.9735850,0.28675949,
-		8.1819842,-6.4852285,-4.8298888};
-	double nc=1.2478242;
-	double a[]={0.0,1.0,0.0,0.0,0.30,0.30,0.36525,
-		0.61221,0.94930,0.92162,0.15,0.08,0.14};
-
-	Tr=T/crit.T;
-	rhor=rho/crit.rho;
-	alpha=1.0-a[10]*acosh(1+a[11]*pow((1-Tr)*(1-Tr),a[12]));
-	num=rhor*exp(-pow(rhor,a[1])/a[1]-powInt(a[2]*(Tr-1.0),2)-powInt(a[3]*(rhor-1.0),2));
-	den=pow(pow(powInt((1.0-1.0/Tr)+a[4]*pow((rhor-1.0)*(rhor-1.0),1.0/(2.0*a[5])),2),a[6])+pow(a[7]*a[7]*(rhor-alpha)*(rhor-alpha),a[8]),a[9]);
-	lambda_r_ce=num/den;
-	for(i=1;i<=7;i++)
-	{
-		sum+=n[i]*pow(Tr,g[i])*pow(rhor,h[i]);
-	}
-	lambda_r=sum+n[8]*exp(-5.0*rhor*rhor)*pow(Tr,g[8])*pow(rhor,h[8])+nc*lambda_r_ce;
-	return 2.0547*lambda_r/1e6;
+	return conductivity_dilute(T)+conductivity_residual(T,rho)+conductivity_critical(T,rho);
 }
 void R134aClass::ECSParams(double *e_k, double *sigma)
 {
@@ -245,7 +283,7 @@ void R134aClass::ECSParams(double *e_k, double *sigma)
 }
 double R134aClass::viscosity_dilute(double T)
 {	
-	double sum=0,eta_star, a[]={0.355404,-0.464337,0.257353};
+	double sum=0,eta_star, a[]={0.355404,-0.464337,0.257353e-1};
 	double e_k = 299.363, sigma = 0.468932, theta_star, Tstar;
 	Tstar = T/e_k;
 	theta_star = exp(a[0]*pow(log(Tstar),0)+a[1]*pow(log(Tstar),1)+a[2]*pow(log(Tstar),2));
@@ -270,17 +308,16 @@ double R134aClass::viscosity_residual(double T, double rho)
 		 0.100035295,    //[9]
 		 3.163695636     //[10]
 	};
-	tau = T / reduce.T;
-	delta = rho / 511.9; 
-	/*
-	From Huber (2003):
+	tau = T / 374.21;
+	/* From Huber (2003):
 	The higher-density terms of eq 11, ∆Hη(F,T), were
-	formulated in terms of the reduced density δ ) F/Fcand
+	formulated in terms of the reduced density δ = F/Fc and
 	the reduced temperature τ ) T/Tc with the critical
 	parameters of R134a from the equation of state of
-	Tillner-Roth and Baehr as reducing parameters, Fc)
-	511.9 kg‚m-3
-	*/
+	Tillner-Roth and Baehr as reducing parameters, rhoc=
+	511.9 kg/m3 */
+	delta = rho / 511.9; 
+	
 	Tstar = T / e_k;
 	for (unsigned int i=0;i<=8;i++){
 		sum += b[i]*pow(Tstar,t[i]);
@@ -303,31 +340,6 @@ double R134aClass::viscosity_Trho(double T, double rho)
 {
 	double v = viscosity_dilute(T)+viscosity_residual(T,rho);
 	return v;
-	///* 
-	//From "A Reference Multiparameter Viscosity Equation for R134a
-	//with an Optimized Functional Form"
-	//by G. Scalabrin and P. Marchi, R. Span
-	//J. Phys. Chem. Ref. Data, Vol. 35, No. 2, 2006 
-	//*/
-	//double sum=0, Tr,rhor;
-	//int i;
-	//double g[]={0.0,0.0,0.0,1.0,1.0,2.0,2.0,4.0,0.0,2.0,5.0};
-	//double h[]={0.0,2.0,20.0,0.0,3.0,0.0,4.0,14.0,1.0,1.0,3.0};
-	//double n[]={0.0,0.6564868,0.6882417e-10,0.5668165,-0.2989820,-0.1061795,
-	//	0.6245080e-1,0.2758366e-6,-0.1621088,0.1675102,-0.9224693e-1};
-
-	//Tr=T/crit.T;
-	//rhor=rho/crit.rho;
-
-	//for (i=1;i<=7;i++)
-	//{
-	//	sum += n[i]*pow(Tr,g[i])*pow(rhor,h[i]);
-	//}
-	//for (i=8;i<=10;i++)
-	//{
-	//	sum += exp(-2*rhor*rhor)*n[i]*pow(Tr,g[i])*pow(rhor,h[i]);
-	//}
-	//return (exp(sum)-1.0)*25.17975/1e6;
 }
 double R134aClass::psat(double T)
 {
@@ -352,3 +364,61 @@ double R134aClass::rhosatV(double T)
 
 	return rho0*exp(-2.837294*pow(THETA,1.0/3.0)-7.875988*pow(THETA,2.0/3.0)+4.478586*pow(THETA,1.0/2.0)-14.140125*pow(THETA,9.0/4.0)-52.361297*pow(THETA,11.0/2.0));
 }
+
+
+//// STORAGE
+///// Not used, but is in theory more accurate than current correlation
+///* 
+	//From "A Reference Multiparameter Viscosity Equation for R134a
+	//with an Optimized Functional Form"
+	//by G. Scalabrin and P. Marchi, R. Span
+	//J. Phys. Chem. Ref. Data, Vol. 35, No. 2, 2006 
+	//*/
+	//double sum=0, Tr,rhor;
+	//int i;
+	//double g[]={0.0,0.0,0.0,1.0,1.0,2.0,2.0,4.0,0.0,2.0,5.0};
+	//double h[]={0.0,2.0,20.0,0.0,3.0,0.0,4.0,14.0,1.0,1.0,3.0};
+	//double n[]={0.0,0.6564868,0.6882417e-10,0.5668165,-0.2989820,-0.1061795,
+	//	0.6245080e-1,0.2758366e-6,-0.1621088,0.1675102,-0.9224693e-1};
+
+	//Tr=T/crit.T;
+	//rhor=rho/crit.rho;
+
+	//for (i=1;i<=7;i++)
+	//{
+	//	sum += n[i]*pow(Tr,g[i])*pow(rhor,h[i]);
+	//}
+	//for (i=8;i<=10;i++)
+	//{
+	//	sum += exp(-2*rhor*rhor)*n[i]*pow(Tr,g[i])*pow(rhor,h[i]);
+	//}
+	//return (exp(sum)-1.0)*25.17975/1e6;
+
+///* 
+//	From "A multiparameter thermal conductivity equation
+//	for R134a with an optimized functional form"
+//	by G. Scalabrin, P. Marchi, F. Finezzo, 
+//	Fluid Phase Equilibria 245 (2006) 37-51 
+//	*/
+//	int i;
+//	double sum=0, Tr,rhor,alpha,lambda_r_ce,lambda_r,num,den;
+//	double g[]={0.0,0.0,0.5,1.0,1.5,4.0,5.5,6.0,0.0};
+//	double h[]={0.0,1.0,1.0,6.0,0.0,3.0,0.0,0.0,1.0};
+//	double n[]={0.0,23.504800,-15.261689,0.064403724,7.9735850,0.28675949,
+//		8.1819842,-6.4852285,-4.8298888};
+//	double nc=1.2478242;
+//	double a[]={0.0,1.0,0.0,0.0,0.30,0.30,0.36525,
+//		0.61221,0.94930,0.92162,0.15,0.08,0.14};
+//
+//	Tr=T/crit.T;
+//	rhor=rho/crit.rho;
+//	alpha=1.0-a[10]*acosh(1+a[11]*pow((1-Tr)*(1-Tr),a[12]));
+//	num=rhor*exp(-pow(rhor,a[1])/a[1]-powInt(a[2]*(Tr-1.0),2)-powInt(a[3]*(rhor-1.0),2));
+//	den=pow(pow(powInt((1.0-1.0/Tr)+a[4]*pow((rhor-1.0)*(rhor-1.0),1.0/(2.0*a[5])),2),a[6])+pow(a[7]*a[7]*(rhor-alpha)*(rhor-alpha),a[8]),a[9]);
+//	lambda_r_ce=num/den;
+//	for(i=1;i<=7;i++)
+//	{
+//		sum+=n[i]*pow(Tr,g[i])*pow(rhor,h[i]);
+//	}
+//	lambda_r=sum+n[8]*exp(-5.0*rhor*rhor)*pow(Tr,g[8])*pow(rhor,h[8])+nc*lambda_r_ce;
+//	return 2.0547*lambda_r/1e6;
