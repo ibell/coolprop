@@ -12,7 +12,13 @@ from distutils.dep_util import newer_group
 
 ## If the file is run directly without any parameters, build and install
 if len(sys.argv)==1:
-    sys.argv+=['install']
+    sys.argv+=['install','DLL']
+    
+if 'DLL' in sys.argv:
+    packDLL = True
+    sys.argv.pop(sys.argv.index('DLL'))
+else:
+    packDLL = False
     
 badfiles = [os.path.join('CoolProp','__init__.pyc'),os.path.join('CoolProp','__init__.py')]
 for file in badfiles:
@@ -119,8 +125,8 @@ def StaticLibBuilder(sources,LibName='CoolProp',build_path='build_lib',lib_path=
         extra_compile_args=['-fPIC']
         MACROS = None
     else:
-        extra_compile_args=[]
-        MACROS = None
+        extra_compile_args=['/EHsc']
+        MACROS = [('COOLPROP_LIB',None)]
             
     if not os.path.exists(build_path) or not os.path.exists(lib_path):
         if not os.path.exists(build_path): os.mkdir(build_path)
@@ -134,11 +140,21 @@ def StaticLibBuilder(sources,LibName='CoolProp',build_path='build_lib',lib_path=
         objs=CC.compile(sources,build_path,MACROS,include_dirs=include_dirs,extra_postargs=extra_compile_args)
         CC.create_static_lib(objs, LibName,lib_path,target_lang='c++')
         print 'Built the static library in',CPLibPath
+        CC.link_shared_lib(objs, LibName,lib_path,target_lang='c++')
+        print 'Built the shared library in',os.path.join(lib_path,LibName)
     else:
         print 'No build of CoolProp static library required.'
-    
-if useStaticLib==True:
+  
+print packDLL
+if useStaticLib==True or packDLL==True:
     StaticLibBuilder(Sources)
+    
+if packDLL==True:
+    ZIPfilePath = 'dist/CoolPropDLL-'+version+'.zip'
+    from zipfile import ZipFile
+    with ZipFile(ZIPfilePath,'w') as z:
+        z.write(os.path.join('lib','CoolProp.dll'),arcname='CoolProp.dll')
+        z.write(os.path.join('CoolProp','CoolProp.h'),arcname='CoolProp.h')
 
 #Now come in and build the modules themselves
 if useStaticLib==True:

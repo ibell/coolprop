@@ -1,17 +1,22 @@
 import os
-os.environ['PATH']+=';..\\CoolPropDLL' #Add the path to the CoolPropDLL
+os.environ['PATH']+=';..\\lib' #Add the path to the CoolProp DLL
 
+#REFPROP DLL is compiled using the __cdecl calling convention, therefore, use cdll
 from ctypes import *
-cp=windll.LoadLibrary("CoolProp_dll.dll")
+cp=cdll.LoadLibrary("CoolProp.dll")
 
-Output = c_char('D')
+Output = c_char_p("D")
 Name1 = c_char('T')
-Prop1 = c_double(400)
+Prop1 = c_double(400.0)
 Name2 = c_char('P')
-Prop2 = c_double(1000)
+Prop2 = c_double(1000.0)
 Ref = c_char_p("REFPROP-R134a")
 
-cp.Props_dll.restype = c_double
+T = c_double(47.0)
+cp.F2K.restype = c_double
+val= cp.F2K(T)
+print '47F in K is',val,'K'
 
-Return_value = cp.Props_dll(Output, Name1, Prop1, Name2, Prop2, Ref)
+cp.Props.restype = c_double
+Return_value = cp.Props(Output, Name1, Prop1, Name2, Prop2, Ref)
 print Return_value

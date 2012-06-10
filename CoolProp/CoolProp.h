@@ -102,44 +102,59 @@ Other sources
 	#include "R22.h"
 	#endif
 
-	EXPORT_CODE void CONVENTION Help(void);
-	EXPORT_CODE void CONVENTION UseSaturationLUT(bool OnOff);
-	EXPORT_CODE bool CONVENTION SaturationLUTStatus();
-	EXPORT_CODE void CONVENTION UseSinglePhaseLUT(bool OnOff);
-    EXPORT_CODE bool CONVENTION SinglePhaseLUTStatus(void);
-
-	EXPORT_CODE double CONVENTION Props(std::string Fluid,std::string Output);
-	EXPORT_CODE double CONVENTION Props(char *Fluid, char *Output);
-	EXPORT_CODE double CONVENTION Props(char Output,char Name1, double Prop1, char Name2, double Prop2, char * Ref);
-	EXPORT_CODE double CONVENTION Props(std::string Output,char Name1, double Prop1, char Name2, double Prop2, std::string Ref);
-	EXPORT_CODE double CONVENTION Props(char *Output,char Name1, double Prop1, char Name2, double Prop2, char * Ref);
-
-	// Convenience functions
-	EXPORT_CODE int CONVENTION IsFluidType(char *Ref, char *Type);
-	EXPORT_CODE double CONVENTION T_hp(char *Ref, double h, double p, double T_guess);
-	EXPORT_CODE double CONVENTION h_sp(char *Ref, double s, double p, double T_guess);
-	EXPORT_CODE double CONVENTION DerivTerms(char *Term, double T, double rho, char * Ref);
-
-	EXPORT_CODE double CONVENTION F2K(double T_F);
-	EXPORT_CODE double CONVENTION K2F(double T);
-	EXPORT_CODE void CONVENTION PrintSaturationTable(char *FileName, char * Ref, double Tmin, double Tmax);
 	
-	EXPORT_CODE std::string CONVENTION FluidsList(void);
-	EXPORT_CODE std::string CONVENTION get_REFPROPname(std::string Ref);
-	EXPORT_CODE std::string CONVENTION get_errstring(void);
-	EXPORT_CODE char* CONVENTION get_errstringc(void);
+	// Functions within this extern "C" bracket will be export to the DLL
+	extern "C" {
+		EXPORT_CODE void CONVENTION Help(void);
+		EXPORT_CODE void CONVENTION UseSaturationLUT(bool OnOff);
+		EXPORT_CODE bool CONVENTION SaturationLUTStatus();
+		EXPORT_CODE void CONVENTION UseSinglePhaseLUT(bool OnOff);
+		EXPORT_CODE bool CONVENTION SinglePhaseLUTStatus(void);
 
-	/*
-	returns 1 if parameters set properly
-	*/
-	EXPORT_CODE int CONVENTION set_1phase_LUT_params(char *Ref, int nT, int np, double Tmin, double Tmax, double pmin, double pmax, bool rebuild);
-	EXPORT_CODE int CONVENTION set_1phase_LUT_params(std::string Ref, int nT, int np, double Tmin, double Tmax, double pmin, double pmax, bool rebuild);
+		EXPORT_CODE double CONVENTION Props(char *Output,char Name1, double Prop1, char Name2, double Prop2, char * Ref);
+
+		// Convenience functions
+		EXPORT_CODE int CONVENTION IsFluidType(char *Ref, char *Type);
+		EXPORT_CODE double CONVENTION T_hp(char *Ref, double h, double p, double T_guess);
+		EXPORT_CODE double CONVENTION h_sp(char *Ref, double s, double p, double T_guess);
+		EXPORT_CODE double CONVENTION DerivTerms(char *Term, double T, double rho, char * Ref);
+
+		EXPORT_CODE double CONVENTION F2K(double T_F);
+		EXPORT_CODE double CONVENTION K2F(double T);
+		EXPORT_CODE void CONVENTION PrintSaturationTable(char *FileName, char * Ref, double Tmin, double Tmax);
+		
+		EXPORT_CODE void CONVENTION FluidsList(char*);
+		EXPORT_CODE void CONVENTION get_REFPROPname(char* Ref,char*);
+		EXPORT_CODE void CONVENTION get_errstring(char*);
+		EXPORT_CODE char* CONVENTION get_errstringc(void);
+
+		/*
+		returns 1 if parameters set properly
+		*/
+		EXPORT_CODE int CONVENTION set_1phase_LUT_params(char *Ref, int nT, int np, double Tmin, double Tmax, double pmin, double pmax, bool rebuild);
+		EXPORT_CODE void CONVENTION get_1phase_LUT_params(int *nT, int *np, double *Tmin, double *Tmax, double *pmin, double *pmax);
+
+		EXPORT_CODE int CONVENTION get_debug();
+		EXPORT_CODE void CONVENTION debug(int level); 
+	}
+
+	// ------------------------------------------------------------------------------------------------
+	// All the functions below this line do NOT get exported to REFPROP DLL due to the fact that the 
+	// DLL MUST use extern "C" for all exported functions, which does not allow for function overloads 
+	// or the use of any c++ types like std::string or std::vector
+	// ------------------------------------------------------------------------------------------------
+	double Props(std::string Fluid,std::string Output);
+	double Props(char *Fluid, char *Output);
+	double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, char * Ref);
+	double Props(std::string Output,char Name1, double Prop1, char Name2, double Prop2, std::string Ref);
+
+	int set_1phase_LUT_params(std::string Ref, int nT, int np, double Tmin, double Tmax, double pmin, double pmax, bool rebuild);
 	// Without rebuild provided, default to not rebuild automatically (rebuild=False)
-	EXPORT_CODE int CONVENTION set_1phase_LUT_params(char *Ref,int nT, int np, double Tmin, double Tmax, double pmin, double pmax);
-	EXPORT_CODE int CONVENTION set_1phase_LUT_params(std::string Ref, int nT, int np, double Tmin, double Tmax, double pmin, double pmax);
+	int set_1phase_LUT_params(char *Ref,int nT, int np, double Tmin, double Tmax, double pmin, double pmax);
+	int set_1phase_LUT_params(std::string Ref, int nT, int np, double Tmin, double Tmax, double pmin, double pmax);
+	int debug();
 
-	EXPORT_CODE void CONVENTION get_1phase_LUT_params(int *nT, int *np, double *Tmin, double *Tmax, double *pmin, double *pmax);
-
-	EXPORT_CODE int CONVENTION debug();
-	EXPORT_CODE void CONVENTION debug(int level);
+	std::string FluidsList(void);
+	std::string get_REFPROPname(std::string Ref);
+	std::string get_errstring(void);
 #endif

@@ -35,10 +35,12 @@ int debug_level=5;
 FluidsContainer Fluids = FluidsContainer();
 Fluid * pFluid;
 
+int get_debug(){return debug_level;}
 int debug(){return debug_level;}
 void debug(int level){debug_level=level;}
 
 std::string get_errstring(void){return err_string;}
+void get_errstring(char* str){str=(char*) get_errstring().c_str();};
 char * get_errstringc(void){return (char*)err_string.c_str();}
 
 int set_1phase_LUT_params(std::string Ref, int nT, int np, double Tmin, double Tmax, double pmin, double pmax)
@@ -160,7 +162,6 @@ void Help()
     //~ printf("  T      ||      D\n");
     
 }
-
 
 static int IsBrine(char *Ref)
 {
@@ -739,6 +740,11 @@ void PrintSaturationTable(char *FileName, char * Ref,double Tmin, double Tmax)
     fclose(f);
 }
 
+void FluidsList(char* str)
+{
+	str=(char*)FluidsList().c_str();
+	return;
+}
 std::string FluidsList()
 {
 	return Fluids.FluidList();
@@ -837,7 +843,10 @@ double DerivTerms(char *Term,double T, double rho, char * Ref)
 		return _HUGE;
 	}
 }
-
+void get_REFPROPname(char* Ref, char * str)
+{
+	str= (char*)get_REFPROPname(std::string(Ref)).c_str();
+}
 std::string get_REFPROPname(std::string Ref)
 {
 	pFluid=Fluids.get_fluid(Ref);

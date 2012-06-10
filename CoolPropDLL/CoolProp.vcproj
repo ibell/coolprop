@@ -23,7 +23,7 @@
 			Name="Debug|Win32"
 			OutputDirectory="."
 			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="4"
+			ConfigurationType="2"
 			UseOfMFC="2"
 			CharacterSet="0"
 			>
@@ -71,10 +71,13 @@
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
-				Name="VCLibrarianTool"
+				Name="VCLinkerTool"
 			/>
 			<Tool
 				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -84,6 +87,9 @@
 			/>
 			<Tool
 				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -397,6 +403,10 @@
 			</File>
 			<File
 				RelativePath="..\CoolProp\purefluids\R134a.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\CoolProp\purefluids\R22.cpp"
 				>
 			</File>
 			<File
