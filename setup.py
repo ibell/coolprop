@@ -155,6 +155,8 @@ if packDLL==True:
     with ZipFile(ZIPfilePath,'w') as z:
         z.write(os.path.join('lib','CoolProp.dll'),arcname='CoolProp.dll')
         z.write(os.path.join('CoolProp','CoolProp.h'),arcname='CoolProp.h')
+        z.write(os.path.join('Examples','CoolPropDLL.py'),arcname='CoolPropDLL.py')
+        z.write('DLLREADME.txt',arcname='README.txt')
 
 #Now come in and build the modules themselves
 if useStaticLib==True:
