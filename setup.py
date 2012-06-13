@@ -12,13 +12,19 @@ from distutils.dep_util import newer_group
 
 ## If the file is run directly without any parameters, build and install
 if len(sys.argv)==1:
-    sys.argv+=['install','DLL']
+    sys.argv+=['install']
     
-if 'DLL' in sys.argv:
+if '--DLL' in sys.argv:
     packDLL = True
-    sys.argv.pop(sys.argv.index('DLL'))
+    sys.argv.pop(sys.argv.index('--DLL'))
 else:
     packDLL = False
+    
+if '--no-static-lib' in sys.argv:
+    useStaticLib = False
+    sys.argv.pop(sys.argv.index('--no-static-lib'))
+else:
+    useStaticLib=True
     
 badfiles = [os.path.join('CoolProp','__init__.pyc'),os.path.join('CoolProp','__init__.py')]
 for file in badfiles:
@@ -40,7 +46,7 @@ def availableFluids():
     return line
 
 version='2.0.0'
-useStaticLib=True
+
 
 #########################
 ## __init__.py builder ##
@@ -121,7 +127,7 @@ Sources=purefluids+pseudopurefluids+others
 ### Include folders for build
 include_dirs = ['CoolProp',os.path.join('CoolProp','purefluids'),os.path.join('CoolProp','pseudopurefluids'),get_python_inc(False)]
 
-def StaticLibBuilder(sources,LibName='CoolProp',build_path='build_lib',lib_path='lib',force=False):
+def StaticLibBuilder(sources,LibName='CoolProp',build_path='build_lib',lib_path='lib',force=False,DLL=True,StaticLib=True):
     CC = new_compiler(verbose=True)
     #Default to not build
     buildCPLib=False
@@ -147,14 +153,14 @@ def StaticLibBuilder(sources,LibName='CoolProp',build_path='build_lib',lib_path=
         objs=CC.compile(sources,build_path,MACROS,include_dirs=include_dirs,extra_postargs=extra_compile_args)
         CC.create_static_lib(objs, LibName,lib_path,target_lang='c++')
         print 'Built the static library in',CPLibPath
-        CC.link_shared_lib(objs, LibName,lib_path,target_lang='c++')
-        print 'Built the shared library in',os.path.join(lib_path,LibName)
+        if DLL==True:
+            CC.link_shared_lib(objs, LibName,lib_path,target_lang='c++')
+            print 'Built the shared library in',os.path.join(lib_path,LibName)
     else:
         print 'No build of CoolProp static library required.'
   
-print packDLL
 if useStaticLib==True or packDLL==True:
-    StaticLibBuilder(Sources)
+    StaticLibBuilder(Sources,DLL=packDLL)
     
 if packDLL==True:
     ZIPfilePath = 'dist/CoolPropDLL-'+version+'.zip'
@@ -165,6 +171,7 @@ if packDLL==True:
         z.write(os.path.join('Examples','CoolPropDLL.py'),arcname='CoolPropDLL.py')
         z.write('DLLREADME.txt',arcname='README.txt')
 
+print 'UseStaticLib is ',useStaticLib
 #Now come in and build the modules themselves
 if useStaticLib==True:
     CoolProp_module = Extension('CoolProp._CoolProp',
