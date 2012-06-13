@@ -40,7 +40,7 @@ def availableFluids():
     return line
 
 version='2.0.0'
-useStaticLib=False
+useStaticLib=True
 
 #########################
 ## __init__.py builder ##
@@ -51,11 +51,18 @@ FluidsList=availableFluids()
 
 #Unpack the __init__.py file template and add some things to the __init__ file
 lines=open('__init__.py.template','r').readlines()
-    
+
+import subprocess
+SVNInfo = subprocess.check_output(['svn','info']).split('\n')
+for line in SVNInfo:
+    if line.startswith('Revision'):
+        svnstring='__svnrevision__ = '+line.strip().split(':')[1].strip()+'\n'
+        break
+
 for i in range(len(lines)-1,-1,-1):
     if lines[i].strip().startswith('#') or len(lines[i].strip())==0: 
         lines.pop(i)
-lines=[FluidsList]+['__version__=\''+version+'\'\n']+lines
+lines=[FluidsList]+['__version__=\''+version+'\'\n']+[svnstring]+lines
 fp=open(os.path.join('CoolProp','__init__.py'),'w')
 for line in lines:
     fp.write(line)
@@ -68,7 +75,7 @@ fp.close()
 ######################################
 ##       start of SWIG code         ## 
 ######################################
-swig_opts=['-c++','-python','-builtin']
+swig_opts=['-c++','-python']
 
 """
 In this block of code, all the files that require SWIG are rebuilt on an as needed basis.  

@@ -210,7 +210,7 @@ double AirClass::rhosatL(double T)
     {
         summer=summer+Ni[k]*pow(1.0-T/reduce.T,ti[k]);
     }
-    return crit.rho*(1+summer+Ni[5]*log(T/crit.T));
+    return reduce.rho*(1+summer+Ni[5]*log(T/crit.T));
 }
 
 double AirClass::rhosatV(double T)
@@ -222,7 +222,7 @@ double AirClass::rhosatV(double T)
     {
         summer=summer+Ni[k]*pow(1.0-T/reduce.T,ti[k]);
     }
-    return crit.rho*exp(summer);
+    return reduce.rho*exp(summer);
 }
 
 double AirClass::psatL(double T)
@@ -233,7 +233,7 @@ double AirClass::psatL(double T)
     {
         summer=summer+Ni[k]*pow(1-T/reduce.T,(double)k/2.0);
     }
-	return crit.p*exp(crit.T/T*summer);
+	return reduce.p*exp(crit.T/T*summer);
 }
 
 double AirClass::psatV(double T)
@@ -244,7 +244,7 @@ double AirClass::psatV(double T)
     {
         summer=summer+Ni[k]*pow(1-T/reduce.T,(double)k/2.0);
     }
-	return crit.p*exp(crit.T/T*summer);
+	return reduce.p*exp(crit.T/T*summer);
 }
 
 double AirClass::viscosity_Trho(double T, double rho)

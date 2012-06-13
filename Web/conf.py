@@ -18,6 +18,10 @@ import sys, os
 # absolute, like shown here.
 sys.path.append(os.path.abspath('sphinxext'))
 
+## breathe_projects = {
+##     "CoolProp":"doxygen/xml/",
+##     }
+    
 # -- General configuration -----------------------------------------------------
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
@@ -31,7 +35,9 @@ extensions = [#'matplotlib.sphinxext.mathmpl',
               'sphinx.ext.pngmath',
               'ipython_console_highlighting',
               'inheritance_diagram',
-              'numpydoc']
+              'numpydoc',
+              #'breathe'
+              ]
 
 
 # Add any paths that contain templates here, relative to this directory.

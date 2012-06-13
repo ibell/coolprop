@@ -38,7 +38,7 @@ Eigen::VectorXd NDNewtonRaphson_Jacobian(FuncWrapperND *f, Eigen::VectorXd x0, d
 		J = f->Jacobian(x0);
 		x0 -= J.inverse()*f0;
 		error = sqrt(f0.array().square().sum());
-		std::cout << J << std::endl << x0 << std::endl << error << std::endl;
+		//std::cout << J << std::endl << x0 << std::endl << error << std::endl;
 		if (iter>maxiter){
 			*errstring=std::string("reached maximum number of iterations");
 			x0(0)=_HUGE;

@@ -6,16 +6,16 @@ Fluid Properties
 Introduction
 ------------
 
-If you are feeling impatient, jump to :ref:`Props_Sample`, otherwise, hang in there.
+If you are feeling impatient, jump to :ref:`Props_Sample`, or to :ref:`CoolPropsDocs`, otherwise, hang in there.
 
-Nearly all the fluids modeling in CoolProp are based on Helmholtz function formulations.  This is a convenient construction of the equation of state because all the thermodynamic properties of interest can be obtained directly from partial derivatives of the Helmholtz energy.
+Nearly all the fluids modeling in CoolProp are based on Helmholtz energy formulations.  This is a convenient construction of the equation of state because all the thermodynamic properties of interest can be obtained directly from partial derivatives of the Helmholtz energy.
 
 It should be noted that the EOS are typically valid over the entire range of the fluid, from subcooled liquid to superheated vapor, to supercritical fluid.  
 
 Annoyingly, different authors have selected different sets of nomenclature for the Helmholtz energy.  For consistency, the nomenclature of Lemmon will be used here.  Also, some authors present results on a mole-basis or mass-basis, further complicating comparisons.
 
-Mathematical Description
-------------------------
+Thermodynamic properties of Fluid
+---------------------------------
 In general, the EOS are based on non-dimensional terms :math:`\delta` and :math:`\tau`, where these terms are defined by
 
 .. math::
@@ -120,7 +120,7 @@ or use the full EOS by calling::
 Properties as a function of h,p
 -------------------------------
 
-Reminder: :math:`\tau=T_c/T` and :math:`\delta=\rho/\rho_c`.  Thus, if you know pressure and enthalpy, you can set up a system of residuals in terms of :math:`\delta` and :math:`\tau` in order to yield back the given pressure and enthalpy.  Of course you still need a good guess value to start from.  See below for that.  The system of equations can be given by:
+As a reminder, the EOS is typically set up as a function of :math:`\tau=T_c/T` and :math:`\delta=\rho/\rho_c`.  Thus, if you know pressure and enthalpy, you can set up a system of residuals in terms of :math:`\delta` and :math:`\tau` in order to yield back the given pressure and enthalpy.  Of course you still need a good guess value to start from.  See below for that.  The system of equations can be given by:
 
 .. math::
 
@@ -152,11 +152,27 @@ and the jacobian is then
 
 .. math::
 
-    J=\left[ \begin{array}{cc} \frac{\partial f_1}{\partial \tau} & \frac{\partial f_1}{\partial \delta} \\ \frac{\partial f_2}{\partial \tau} & \frac{\partial f_2}{\partial \delta}\end{array}\right]
+    J=\left[ \begin{array}{cc} \frac{\partial f_1}{\partial \tau} & \frac{\partial f_1}{\partial \delta} \\ \frac{\partial f_2}{\partial \tau} & \frac{\partial f_2}{\partial \delta}\end{array} \right]
 
 
 Use of Extended Corresponding States for Transport Properties
 -------------------------------------------------------------
+
+For a limited selection of fluids, correlations are provided for the viscosity and the thermal conductivity.  But for many fluids, no correlations are available, and therefore other methods must be employed.  The extended corresponding states is a method of estimating the transport properties of a fluid by analogy with the transport properties of a fluid that are well defined.
+
+Implementing the ECS method is quite a challenge, but CoolProp is one of the only fluid property databases that properly implements it.  And the onlyopen-source package that does.  A multi-step method is required, which is hopefully clearly laid out here.
+
+To begin with, the reference fluid must be selected that the fluid of interest will be compared with.  Ideally the shape of the molecules should be similar, but in practice, most fluids use R134a as the reference fluid since its thermodynamic and transport properties are well quantified with reference-quality correlations.
+
+Once the reference fluid has been selected, the conformal state of the reference fluid must be determined.  The conformal state is the state at which the transport properties of the reference fluid and the fluid of interest are (in theory) the same.  In practice, at low densities the shape factors are assumed to be unity, and the conformal temperature and molar density are obtained from 
+
+.. math::
+
+    T_0 = T\frac{T_0^{c}}{T_j^c}
+    
+.. math::
+
+    \overline{\rho_0} = \overline{\rho}\frac{\overline{\rho_0}^c}{\overline{\rho_j}^c}
 
 Exact solution for the conformal temperature
 
@@ -427,8 +443,10 @@ Sample Code
     
     In [2]: print 'No LUT:{0:g} s With LUT: {1:g} s Speedup: {2:g}x'.format(t1,t2,t1/t2)       
     
-Code Documentation
-------------------
+.. _CoolPropsDocs:
+
+CoolProp Code Documentation
+---------------------------
 
 .. automodule:: CoolProp.CoolProp
     :members:

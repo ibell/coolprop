@@ -252,7 +252,7 @@ double R410AClass::psatL(double T)
     {
         sum+=Nbp[k]*pow(theta,tbp[k]);
     }
-    return crit.p*exp(reduce.T/T*sum);
+    return reduce.p*exp(reduce.T/T*sum);
 }
     
 double R410AClass::psatV(double T)
@@ -266,7 +266,7 @@ double R410AClass::psatV(double T)
     {
         sum+=Ndp[k]*pow(theta,tdp[k]);
     }
-    return crit.p*exp(reduce.T/T*sum);
+    return reduce.p*exp(reduce.T/T*sum);
 }
 
 double R410AClass::rhosatV(double T)

@@ -217,6 +217,7 @@ fp_XMASSdllTYPE XMASSdll;
 fp_XMOLEdllTYPE XMOLEdll;
 
 char LoadedREFPROPRef[2550];
+HINSTANCE RefpropdllInstance=NULL;
 
 double REFPROP(char Output,char Name1, double Prop1, char Name2, double Prop2, char * Ref)
 {
@@ -231,13 +232,21 @@ double REFPROP(char Output,char Name1, double Prop1, char Name2, double Prop2, c
 
 	// First create a pointer to an instance of the library
 	// Then have windows load the library.
-		HINSTANCE RefpropdllInstance;
-		RefpropdllInstance = LoadLibrary((LPCSTR)"refprop.dll");
+	
+	// If REFPROP is not loaded, try to load it
+	if (RefpropdllInstance==NULL)
+	{
+		#if defined(UNICODE)
+			RefpropdllInstance = LoadLibrary((LPCSTRW)"refprop.dll");
+		#else
+			RefpropdllInstance = LoadLibrary((LPCSTR)"refprop.dll");
+		#endif
 		if (RefpropdllInstance==NULL)
 		{
 			printf("Could not load REFPROP, not in current location or found on system PATH.  Add location of REFPROP to the PATH environmental variable\n");
 			return -_HUGE;
 		}
+	}
 
 	// Then get pointers into the dll to the actual functions.
 		ABFL1dll = (fp_ABFL1dllTYPE) GetProcAddress(RefpropdllInstance,"ABFL1dll");
