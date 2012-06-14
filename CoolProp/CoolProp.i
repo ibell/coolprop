@@ -87,6 +87,50 @@ since surface tension is only a function of temperature
 %enddef
 %feature("autodoc",PROPSDOCSTRING2) Props(char *, char*);
 
+
+%define DERIVTERMS
+"
+.. |cubed| replace:: \ :sup:`3`\ 
+.. |squared| replace:: \ :sup:`2`\ 
+.. |IC| replace:: ``IsothermalCompressibility``
+
+Call signature::
+
+    DerivTerms(OutputName, T, rho, Fluid) --> float
+
+where ``Fluid`` is a string with a valid CoolProp fluid name, and ``T`` and ``rho`` are the temperature in K and density in kg/m |cubed| .  The value 
+``OutputName`` is one of the strings in the table below:
+
+========================  =====================================================================================================================================
+OutputName                Description
+========================  =====================================================================================================================================
+``dpdT``                  Derivative of pressure with respect to temperature at constant density [kPa/K]
+``dpdrho``                Derivative of pressure with respect to density at constant temperature [kPa/(kg/m |cubed| )]
+``Z``                     Compressibility factor [-]
+``dZ_dDelta``             Derivative of Z with respect to reduced density [-]
+``dZ_dTau``               Derivative of Z with respect to inverse reduced temperature [-]
+``B``                     Second virial coefficient [m |cubed| /kg]
+``dBdT``                  Derivative of second virial coefficient with respect to temperature [m |cubed| /kg/K]
+``C``                     Third virial coefficient [m\ :sup:`6`\ /kg |squared| ]
+``dCdT``                  Derivative of third virial coefficient with respect to temperature [m\ :sup:`6`\ /kg |squared| /K]
+``phir``                  Residual non-dimensionalized Helmholtz energy [-]
+``dphir_dTau``            Partial of residual non-dimensionalized Helmholtz energy with respect to inverse reduced temperature [-]
+``d2phir_dTau2``          Second partial of residual non-dimensionalized Helmholtz energy with respect to inverse reduced temperature [-]
+``dphir_dDelta``          Partial of residual non-dimensionalized Helmholtz energy with respect to reduced density [-]
+``d2phir_dDelta2``        Second partial of residual non-dimensionalized Helmholtz energy with respect to reduced density [-]
+``d2phir_dDelta_dTau``    First cross-partial of residual non-dimensionalized Helmholtz energy [-]
+``d3phir_dDelta2_dTau``   Second cross-partial of residual non-dimensionalized Helmholtz energy [-]
+``phi0``                  Ideal-gas non-dimensionalized Helmholtz energy [-]
+``dphi0_dTau``            Partial of ideal-gas non-dimensionalized Helmholtz energy with respect to inverse reduced temperature [-]
+``d2phi0_dTau2``          Second partial of ideal-gas non-dimensionalized Helmholtz energy with respect to inverse reduced temperature [-]
+``dphi0_dDelta``          Partial of ideal-gas non-dimensionalized Helmholtz energy with respect to reduced density [-]
+``d2phi0_dDelta2``        Second partial of ideal-gas non-dimensionalized Helmholtz energy with respect to reduced density [-]
+|IC|                      Isothermal compressibility [1/kPa]
+========================  =====================================================================================================================================
+"
+%enddef
+%feature("autodoc",DERIVTERMS) DerivTerms(char *, double T, double rho, char*);
+
 %ignore Props(char, char, double, char, double, char*);
 %ignore Props(std::string, char, double, char, double, std::string);
 %ignore Props(std::string, std::string);

@@ -228,7 +228,8 @@ double REFPROP(char Output,char Name1, double Prop1, char Name2, double Prop2, c
 	
 	double x[ncmax],xliq[ncmax],xvap[ncmax];
 	char RefString[255];
-	double T,p=0,d,dl,dv,dl_,dv_,q,e,h,s,cv,cp,w,MW,hl,hv,sl,sv,ul,uv,pl,pv,eta,tcx,Q,Tcrit,pcrit,dcrit,rho,sigma;
+	double T,p=0,d,dl,dv,dl_,dv_,q,e,h,s,cv,cp,w,MW,hl,hv,sl,sv,ul,
+		uv,pl,pv,hjt,eta,tcx,Q,Tcrit,pcrit,dcrit,rho,sigma;
 
 	// First create a pointer to an instance of the library
 	// Then have windows load the library.
@@ -529,6 +530,7 @@ double REFPROP(char Output,char Name1, double Prop1, char Name2, double Prop2, c
 			else if (Output=='C') return cp/MW;
 			else if (Output=='O') return cv/MW;
 			else if (Output=='P') return p;
+			else if (Output=='A') return w;
 			else if (Output=='V') 
 			{
 				TRNPRPdll(&T,&d,x,&eta,&tcx,&ierr,herr,errormessagelength);
@@ -558,6 +560,10 @@ double REFPROP(char Output,char Name1, double Prop1, char Name2, double Prop2, c
 			if (Output=='H')
 			{
 				return h/MW;
+			}
+			else if (Output=='A')
+			{
+				return w;
 			}
 			else if (Output=='S')
 			{
@@ -609,6 +615,12 @@ double REFPROP(char Output,char Name1, double Prop1, char Name2, double Prop2, c
 			else if (Output=='P') 
 			{
 				return (pv*Q+pl*(1-Q));
+			}
+			else if (Output=='A')
+			{
+				rho=1/(Q/dv+(1-Q)/dl);
+				THERMdll(&T,&rho,x,&p,&e,&h,&s,&cv,&cp,&w,&hjt);
+				return w;
 			}
 			else if (Output=='H') 
 			{
@@ -709,6 +721,12 @@ double REFPROP(char Output,char Name1, double Prop1, char Name2, double Prop2, c
 				d=1/(Q/dv+(1-Q)/dl);
 				CVCPdll(&T,&d,x,&cv,&cp);
 				return cv/MW; // J/kg-K to kJ/kg-K
+			}
+			else if (Output=='A')
+			{
+				rho=1/(Q/dv+(1-Q)/dl);
+				THERMdll(&T,&rho,x,&p,&e,&h,&s,&cv,&cp,&w,&hjt);
+				return w;
 			}
 			else if (Output=='V') 
 			{

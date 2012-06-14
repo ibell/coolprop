@@ -6,7 +6,7 @@ Fluid Properties
 Introduction
 ------------
 
-If you are feeling impatient, jump to :ref:`Props_Sample`, or to :ref:`CoolPropsDocs`, otherwise, hang in there.
+If you are feeling impatient, jump to :ref:`Props_Sample`, or to the documentation of the :mod:`CoolProp.CoolProp` module, otherwise, hang in there.
 
 Nearly all the fluids modeling in CoolProp are based on Helmholtz energy formulations.  This is a convenient construction of the equation of state because all the thermodynamic properties of interest can be obtained directly from partial derivatives of the Helmholtz energy.
 
@@ -387,7 +387,14 @@ Sample Code
 
 .. ipython::
 
+    In [1]: import CoolProp as CP
+    
+    In [1]: print CP.__version__
+    
+    In [1]: print CP.__svnrevision__
+    
     #Import the things you need 
+    
     In [1]: from CoolProp.CoolProp import Props, UseSaturationLUT,UseSinglePhaseLUT
     
     In [1]: import timeit
@@ -429,26 +436,21 @@ Sample Code
     #  Single-phase Lookup Table
     # -------------------------------------------------------
     
-    #Turn off the saturation LUT
+    #Turn off the single-phase LUT
     In [3]: setupstring="from CoolProp.CoolProp import Props,UseSinglePhaseLUT; UseSinglePhaseLUT(False)"
     
     #Crudely time 10000 calls to get single-phase cp without lookup table
     In [2]: t1=timeit.Timer("T=Props('C','T',298.15,'P',101.325,'R410A')",setup=setupstring).timeit(10000)
     
-    #Turn off the saturation LUT - run one to force build of LUT
-    In [3]: setupstring="from CoolProp.CoolProp import Props,UseSinglePhaseLUT; UseSinglePhaseLUT(1); T=Props('C','T',298.15,'P',101.325,'R410A')"
+    #Turn on the single-phase LUT - run one to force build of LUT
+    In [3]: setupstring="from CoolProp.CoolProp import Props,UseSinglePhaseLUT;\
+       ...:             from CoolProp.CoolProp import set_1phase_LUT_params;\
+       ...:             UseSinglePhaseLUT(1);\
+       ...:             set_1phase_LUT_params('R410A',100,100,250,330,50,200);\
+       ...:             T=Props('C','T',298.15,'P',101.325,'R410A');"
     
     #Crudely time 10000 calls to get single-phase cp with lookup table
     In [2]: t2=timeit.Timer("T=Props('C','T',298.15,'P',101.325,'R410A')",setup=setupstring).timeit(10000)
     
     In [2]: print 'No LUT:{0:g} s With LUT: {1:g} s Speedup: {2:g}x'.format(t1,t2,t1/t2)       
-    
-.. _CoolPropsDocs:
-
-CoolProp Code Documentation
----------------------------
-
-.. automodule:: CoolProp.CoolProp
-    :members:
-    :undoc-members:
     

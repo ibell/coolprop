@@ -27,6 +27,6 @@ Originally developed for use in the programming language c, wrappers have been w
     EOS.rst
     Fluids/FluidInformation.rst
     HumidAir.rst
-    plots/plots.rst
+    apidoc/modules.rst
     OtherLanguages.rst
 

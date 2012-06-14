@@ -198,10 +198,11 @@ R134aClass::R134aClass()
 	EOSReference.assign("\"A International Standard Formulation for the Thermodynamic Properties of 1,1,1,2-Tetrafluoroethane" 
 					    "(HFC-134a) for Temperatures from 170 K to 455 K and Pressures up to 70 MPa\""
 						"by Reiner Tillner-Roth and Hans Dieter Baehr, J. Phys. Chem. Ref. Data, v. 23, 1994, pp 657-729");
-	TransportReference.assign("Viscosity & Conductivity: Marcia L. Huber, Arno Laesecke, and Richard A. Perkins, "
+	TransportReference.assign("Viscosity: Marcia L. Huber, Arno Laesecke, and Richard A. Perkins, "
 							"\"Model for the Viscosity and Thermal Conductivity of Refrigerants,"
 							"Including a New Correlation for the Viscosity of R134a\"A Reference "
-							"Ind. Eng. Chem. Res. 2003, 42, 3163-3178\n"
+							"Ind. Eng. Chem. Res. 2003, 42, 3163-3178\n\n"
+							"Conductivity: McLinden, M.O., and S.A. Klein and R.A. Perkins, \"An extended corresponding states model for the thermal conductivity of refrigerants and refrigerant mixtures\", International Journal of Refrigeration, 23 (2000) 43-63.\nSeveral typos: Table A1- a1 should be 8.00892e-5, R0 should be 1.03 . Eqn A5 - chi*(Tref,rho) should be multiplied by Tref/T. Eqn A4 - epsilon should be eta (viscosity)\n\n"
 							"Surface Tension: R. Heide, \"The surface tension of HFC refrigerants and mixtures\", Int J. Refrig. Vol. 20, No. 7, pp. 496-503, 1997");
 
 	name.assign("R134a");

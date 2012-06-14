@@ -401,8 +401,8 @@ WaterClass::WaterClass()
 						"of Ordinary Water Substance for General and Scientific Use\"," 
 						"W. Wagner and A. Pruss, J. Phys. Chem. Ref. Data, v. 31, 2000");
 		
-	TransportReference.assign("Thermal Conductivity: Release on the IAPWS Formulation 2011 for the Thermal Conductivity of Ordinary Water Substance\n"
-		"Viscosity: Release on the IAPWS Formulation 2008 for the Viscosity of Ordinary Water Substance\n"
+	TransportReference.assign("Thermal Conductivity: Release on the IAPWS Formulation 2011 for the Thermal Conductivity of Ordinary Water Substance\n\n"
+		"Viscosity: Release on the IAPWS Formulation 2008 for the Viscosity of Ordinary Water Substance\n\n"
 		"Surface Tension: International Representation of the Surface Tension of Ordinary Water Substance 1994\n");
 
 	name.assign("Water");

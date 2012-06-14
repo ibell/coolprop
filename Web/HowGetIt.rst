@@ -1,7 +1,7 @@
 How to get it?
 ==============
 
-To grab a zip file with the CoolProp DLL or a Python module, head to https://sourceforge.net/projects/coolprop/files/ and download the most recent version.  Or to pull CoolProp source code or Python installer files.
+To grab a zip file with the CoolProp DLL or a Python module, head to https://sourceforge.net/projects/coolprop/files/CoolProp and download the most recent version.  Or to pull CoolProp source code or Python installer files.
 
 CoolProp is an open-source project, and is actively looking for developers.  The project is hosted in a subversion repository at::
 

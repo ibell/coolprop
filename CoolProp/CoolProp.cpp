@@ -771,6 +771,7 @@ double DerivTerms(char *Term,double T, double rho, char * Ref)
 	}
     else if (!strcmp(Term,"dvdp"))
 	{
+		// not sure this is working properly, so not documented
         double dpdrho=R*T*(1+2*delta*pFluid->dphir_dDelta(tau,delta)+delta*delta*pFluid->d2phir_dDelta2(tau,delta));
 		return -1/dpdrho/(rho*rho);
 	}
@@ -808,14 +809,6 @@ double DerivTerms(char *Term,double T, double rho, char * Ref)
     {
         return pFluid->phir(tau,delta);
     }
-	else if (!strcmp(Term,"phi0"))
-    {
-        return pFluid->phi0(tau,delta);
-    }
-    else if (!strcmp(Term,"dphi0_dTau"))
-    {
-        return pFluid->dphi0_dTau(tau,delta);
-    }
 	else if (!strcmp(Term,"dphir_dTau"))
     {
         return pFluid->dphir_dTau(tau,delta);
@@ -831,6 +824,34 @@ double DerivTerms(char *Term,double T, double rho, char * Ref)
 	else if (!strcmp(Term,"d2phir_dDelta2"))
     {
         return pFluid->d2phir_dDelta2(tau,delta);
+    }
+	else if (!strcmp(Term,"d2phir_dDelta_dTau"))
+    {
+        return pFluid->d2phir_dDelta_dTau(tau,delta);
+    }
+	else if (!strcmp(Term,"d3phir_dDelta2_dTau"))
+    {
+        return pFluid->d3phir_dDelta2_dTau(tau,delta);
+    }
+	else if (!strcmp(Term,"phi0"))
+    {
+        return pFluid->phi0(tau,delta);
+    }
+    else if (!strcmp(Term,"dphi0_dTau"))
+    {
+        return pFluid->dphi0_dTau(tau,delta);
+    }
+	else if (!strcmp(Term,"d2phi0_dTau2"))
+    {
+        return pFluid->d2phi0_dTau2(tau,delta);
+    }
+	else if (!strcmp(Term,"dphi0_dDelta"))
+    {
+        return pFluid->dphi0_dDelta(tau,delta);
+    }
+	else if (!strcmp(Term,"d2phi0_dDelta2"))
+    {
+        return pFluid->d2phi0_dDelta2(tau,delta);
     }
 	else if (!strcmp(Term,"IsothermalCompressibility"))
 	{

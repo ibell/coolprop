@@ -1244,19 +1244,19 @@ double HAProps_Aux(char* Name,double T, double p, double W, char *units)
         strcpy(units,"m^6/mol^2");
         return C_aaw;
     }
-	else if (!strcmp(Name,"dBawdT"))
+	else if (!strcmp(Name,"dBaw"))
     {
         double dB_aw=_dB_aw_dT(T)/1e3; //[dm^3/mol] to [m^3/mol]
         strcpy(units,"m^3/mol");
         return dB_aw;
     }
-    else if (!strcmp(Name,"dCawwdT"))
+    else if (!strcmp(Name,"dCaww"))
     {
         double dC_aww=_dC_aww_dT(T)/1e6; //[dm^6/mol] to [m^6/mol^2]
         strcpy(units,"m^6/mol^2");
         return dC_aww;
     }
-    else if (!strcmp(Name,"dCaawdT"))
+    else if (!strcmp(Name,"dCaaw"))
     {
         double dC_aaw=_dC_aaw_dT(T)/1e6; //[dm^6/mol] to [m^6/mol^2]
         strcpy(units,"m^6/mol^2");

@@ -232,7 +232,7 @@ R1234yfClass::R1234yfClass()
 	limits.pmax = 30000.0;
 	limits.rhomax = 11.64*params.molemass;
 	
-	EOSReference.assign("M. Richter and M.O. McLinden and E.W. Lemmon, \"Thermodynamic Properties of 2,3,3,3-Tetrafluoroprop-1-ene"
+	EOSReference.assign("Richter, M. and M.O. McLinden and E.W. Lemmon, \"Thermodynamic Properties of 2,3,3,3-Tetrafluoroprop-1-ene"
 						"(R1234yf): Vapor Pressure and p-rho-T Measurements and an Equation of State\""
 						", J. Chem. Eng. Data, v. 56, 2011, pp 3254-3264");
 	TransportReference.assign("Surface Tension: Katsuyuki Tanaka, Yukihiro Higashi, \"Thermodynamic properties of HFO-1234yf (2,3,3,3-tetrafluoropropene)\", International Journal of Refrigeration 33 (2010) 474-479");

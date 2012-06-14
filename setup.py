@@ -7,9 +7,6 @@ from distutils.sysconfig import get_python_inc
 from distutils.ccompiler import new_compiler
 from distutils.dep_util import newer_group
 
-# from distutils.ccompiler import show_compilers
-# show_compilers()
-
 ## If the file is run directly without any parameters, build and install
 if len(sys.argv)==1:
     sys.argv+=['install']
@@ -37,7 +34,7 @@ def availableFluids():
     try:
         ## Can't load the CoolProp module in this file because then you can't install the files :(
         ## Run a subprocess to do it instead
-        FL = subprocess.check_output(['python','-c','import CoolProp; print CoolProp.CoolProp.FluidsList()']).rstrip()
+        FL = subprocess.Popen(['python','-c','import CoolProp; print CoolProp.CoolProp.FluidsList()'], stdout=subprocess.PIPE).communicate()[0].rstrip()
         ## Take the comma,separated string and turn it into a Python-friendly list for writing to __init__.py file
         line = '__fluids__=' + str(FL.split(',')) +'\n' 
     except:
@@ -59,12 +56,15 @@ FluidsList=availableFluids()
 lines=open('__init__.py.template','r').readlines()
 
 import subprocess
-SVNInfo = subprocess.check_output(['svn','info']).split('\n')
-for line in SVNInfo:
-    if line.startswith('Revision'):
-        svnstring='__svnrevision__ = '+line.strip().split(':')[1].strip()+'\n'
-        break
-
+try:
+    SVNInfo = subprocess.Popen(['svn','info'], stdout=subprocess.PIPE).communicate()[0].split('\n')
+    for line in SVNInfo:
+        if line.startswith('Revision'):
+            svnstring='__svnrevision__ = '+line.strip().split(':')[1].strip()+'\n'
+            break
+except:
+    svnstring=''
+    
 for i in range(len(lines)-1,-1,-1):
     if lines[i].strip().startswith('#') or len(lines[i].strip())==0: 
         lines.pop(i)

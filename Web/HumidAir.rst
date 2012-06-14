@@ -3,7 +3,7 @@
 Humid Air Properties
 ********************
 
-If you are feeling impatient, jump to :ref:`HAProps_Sample`, otherwise, hang in there.
+If you are feeling impatient, jump to :ref:`HAProps_Sample`, or to go to the code documentation :mod:`CoolProp.HumidAirProp`, otherwise, hang in there.
 
 Humid air can be modeled as a mixture of air and water vapor.  In the simplest analysis, water and air are treated as ideal gases but in principle there is interaction between the air and water molecules that must be included through the use of interaction parameters.
 
@@ -191,10 +191,3 @@ Values here are obtained at documentation build-time using the Humid Air Propert
 .. ipython::
 
     In [1]: execfile('Validation/HAValidation.py')
-    
-Code Documentation
-------------------
-
-.. automodule:: CoolProp.HumidAirProp
-    :members:
-    :undoc-members:

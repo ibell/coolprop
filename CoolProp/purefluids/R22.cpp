@@ -261,12 +261,12 @@ R22Class::R22Class()
 	limits.pmax = 60000.0;
 	limits.rhomax = 19.91*params.molemass;
 	
-	EOSReference.assign("A. Kamei, S. W. Beyerlein, and R. T Jacobsen "
+	EOSReference.assign("Kamei, A., and S. W. Beyerlein, and R. T Jacobsen "
 						"\"Application of Nonlinear Regression in the "
 						"Development of a Wide Range Formulation "
 						"for HCFC-22\""
 						"International Journal of Thermophysics, Vol 16, No. 5, 1995 ");
-	TransportReference.assign("");
+	TransportReference.assign("Using ECS");
 	name.assign("R22");
 }
 double R22Class::rhosatL(double T) 
