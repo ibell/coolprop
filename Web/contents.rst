@@ -29,6 +29,7 @@ Originally developed for use in the programming language c, wrappers have been w
     examples/examples.rst
     Installation.rst
     EOS.rst
+    FluidInformation.rst
     HumidAir.rst
     plots/plots.rst
     OtherLanguages.rst

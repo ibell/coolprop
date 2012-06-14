@@ -154,6 +154,8 @@ Other sources
 	int set_1phase_LUT_params(std::string Ref, int nT, int np, double Tmin, double Tmax, double pmin, double pmax);
 	int debug();
 
+	std::string get_EOSReference(std::string Ref);
+	std::string get_TransportReference(std::string Ref);
 	std::string FluidsList(void);
 	std::string get_REFPROPname(std::string Ref);
 	std::string get_errstring(void);

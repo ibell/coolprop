@@ -100,6 +100,8 @@ class Fluid
 		/// Returns a char* with the name of the fluid
 		char * get_namec(){return (char *)name.c_str();};
 		std::string get_REFPROPname(){return REFPROPname;};
+		std::string get_EOSReference(){return EOSReference;};
+		std::string get_TransportReference(){return TransportReference;};
 		/// Returns true if the fluid is pure, false if pseudo-pure or a mixture
 		bool pure(){return isPure;};
 		/// Returns the mass-specific gas constant for the fluid [kJ/kg/K]

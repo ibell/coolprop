@@ -843,6 +843,26 @@ double DerivTerms(char *Term,double T, double rho, char * Ref)
 		return _HUGE;
 	}
 }
+std::string get_EOSReference(std::string Ref)
+{
+	pFluid=Fluids.get_fluid(Ref);
+	if (pFluid!=NULL)
+	{
+		return pFluid->get_EOSReference();
+	}
+	else
+		return std::string("");
+}
+std::string get_TransportReference(std::string Ref)
+{
+	pFluid=Fluids.get_fluid(Ref);
+	if (pFluid!=NULL)
+	{
+		return pFluid->get_TransportReference();
+	}
+	else
+		return std::string("");
+}
 void get_REFPROPname(char* Ref, char * str)
 {
 	str= (char*)get_REFPROPname(std::string(Ref)).c_str();
