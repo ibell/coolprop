@@ -1,0 +1,32 @@
+
+********************
+R1234yf
+********************
+
+Equation of State Reference
+===========================
+M. Richter and M.O. McLinden and E.W. Lemmon, "Thermodynamic Properties of 2,3,3,3-Tetrafluoroprop-1-ene(R1234yf): Vapor Pressure and p-rho-T Measurements and an Equation of State", J. Chem. Eng. Data, v. 56, 2011, pp 3254-3264
+
+Transport Properties Information
+================================
+Surface Tension: Katsuyuki Tanaka, Yukihiro Higashi, "Thermodynamic properties of HFO-1234yf (2,3,3,3-tetrafluoropropene)", international journal of refrigeration 33 (2010) 474–479
+
+
+Fluid Data
+==========
+
+Fluid Parameters
+
+=========================  ==============================
+Mole Mass [kg/kmol]        114.04159
+Triple Point [K]           220.000
+=========================  ==============================
+
+Critical Parameters
+
+==========================  ==============================
+Temperature [K]             367.85
+Density [kg/m\ :sup:`3`\ ]   475.553442
+Pressure [kPa]              3382.20000
+==========================  ==============================
+

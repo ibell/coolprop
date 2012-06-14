@@ -1,0 +1,32 @@
+
+********************
+R22
+********************
+
+Equation of State Reference
+===========================
+A. Kamei, S. W. Beyerlein, and R. T Jacobsen "Application of Nonlinear Regression in the Development of a Wide Range Formulation for HCFC-22"International Journal of Thermophysics, Vol 16, No. 5, 1995 
+
+Transport Properties Information
+================================
+
+
+
+Fluid Data
+==========
+
+Fluid Parameters
+
+=========================  ==============================
+Mole Mass [kg/kmol]        86.46800
+Triple Point [K]           115.730
+=========================  ==============================
+
+Critical Parameters
+
+==========================  ==============================
+Temperature [K]             369.30
+Density [kg/m\ :sup:`3`\ ]   523.842167
+Pressure [kPa]              4990.00000
+==========================  ==============================
+

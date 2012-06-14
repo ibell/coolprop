@@ -1,0 +1,33 @@
+
+********************
+R134a
+********************
+
+Equation of State Reference
+===========================
+"A International Standard Formulation for the Thermodynamic Properties of 1,1,1,2-Tetrafluoroethane(HFC-134a) for Temperatures from 170 K to 455 K and Pressures up to 70 MPa"by Reiner Tillner-Roth and Hans Dieter Baehr, J. Phys. Chem. Ref. Data, v. 23, 1994, pp 657-729
+
+Transport Properties Information
+================================
+Viscosity & Conductivity: Marcia L. Huber, Arno Laesecke, and Richard A. Perkins, "Model for the Viscosity and Thermal Conductivity of Refrigerants,Including a New Correlation for the Viscosity of R134a"A Reference Ind. Eng. Chem. Res. 2003, 42, 3163-3178
+Surface Tension: R. Heide, "The surface tension of HFC refrigerants and mixtures", Int J. Refrig. Vol. 20, No. 7, pp. 496-503, 1997
+
+
+Fluid Data
+==========
+
+Fluid Parameters
+
+=========================  ==============================
+Mole Mass [kg/kmol]        102.03200
+Triple Point [K]           169.850
+=========================  ==============================
+
+Critical Parameters
+
+==========================  ==============================
+Temperature [K]             374.21
+Density [kg/m\ :sup:`3`\ ]   511.899952
+Pressure [kPa]              4059.28000
+==========================  ==============================
+

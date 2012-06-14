@@ -1,0 +1,32 @@
+
+********************
+R32
+********************
+
+Equation of State Reference
+===========================
+Tillner-Roth, R. and Yokozeki, A., "An international standard equation of state for difluoromethane (R-32) for temperatures from the triple point at 136.34 K to 435 K and pressures up to 70 MPa," J. Phys. Chem. Ref. Data, 26(6):1273-1328, 1997.
+
+Transport Properties Information
+================================
+Surface Tension: R. Heide, "The surface tension of HFC refrigerants and mixtures", Int J. Refrig. Vol. 20, No. 7, pp. 496-503, 1997
+
+
+Fluid Data
+==========
+
+Fluid Parameters
+
+=========================  ==============================
+Mole Mass [kg/kmol]        52.02400
+Triple Point [K]           136.340
+=========================  ==============================
+
+Critical Parameters
+
+==========================  ==============================
+Temperature [K]             351.25
+Density [kg/m\ :sup:`3`\ ]   424.000000
+Pressure [kPa]              5782.00000
+==========================  ==============================
+

@@ -236,11 +236,11 @@ R404AClass::R404AClass()
 	
 	EOSReference.assign("E.W. Lemmon, \"Pseudo-pure fluid Equations of State for the Refrigerant Blends R410A, R404A, R507C and R407C\"" 
 						",Int. J. Thermophys. v. 24, n4, 2003");
-	TransportReference.assign(" Viscosity: V. Geller, \"Viscosity of Mixed Refrigerants R404A,R407C,"
+	TransportReference.assign("Viscosity: V. Geller, \"Viscosity of Mixed Refrigerants R404A,R407C,"
 							"R410A, and R507A\", 2000 Purdue Refrigeration conferences\n\n"
 							"Thermal Conductivity: V.Z. Geller, B.Z. Nemzer, and U.V. Cheremnykh \"Thermal Conductivity "
 							"of the Refrigerant mixtures R404A,R407C,R410A, and R507A\" "
-							"Int. J. Thermophysics, v. 22, n 4 2001\n"
+							"Int. J. Thermophysics, v. 22, n 4 2001\n\n"
 							"Surface Tension: R. Heide, \"The surface tension of HFC refrigerants and mixtures\", Int J. Refrig. Vol. 20, No. 7, pp. 496-503, 1997");
 
 	name.assign("R404A");

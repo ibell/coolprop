@@ -1,0 +1,34 @@
+
+********************
+R507A
+********************
+
+Equation of State Reference
+===========================
+E.W. Lemmon, "Pseudo-pure fluid Equations of State for the Refrigerant Blends R410A, R404A, R507C and R407C",Int. J. Thermophys. v. 24, n4, 2003
+
+Transport Properties Information
+================================
+Viscosity: V. Geller, "Viscosity of Mixed Refrigerants R404A,R407C,R410A, and R507A", 2000 Purdue Refrigeration conferences
+
+Thermal Conductivity: V.Z. Geller, B.Z. Nemzer, and U.V. Cheremnykh "Thermal Conductivity of the Refrigerant mixtures R404A,R407C,R410A, and R507A" Int. J. Thermophysics, v. 22, n 4 2001
+
+
+Fluid Data
+==========
+
+Fluid Parameters
+
+=========================  ==============================
+Mole Mass [kg/kmol]        98.85920
+Triple Point [K]           200.000
+=========================  ==============================
+
+Critical Parameters
+
+==========================  ==============================
+Temperature [K]             343.76
+Density [kg/m\ :sup:`3`\ ]   490.740000
+Pressure [kPa]              3704.90000
+==========================  ==============================
+

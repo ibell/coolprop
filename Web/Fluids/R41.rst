@@ -1,0 +1,32 @@
+
+********************
+R41
+********************
+
+Equation of State Reference
+===========================
+Lemmon, E.W., and R. Span, "Short Fundamental Equations of State for 20 Industrial Fluids,", J. Chem. Eng. Data, 51:785-850, 2006.
+
+Transport Properties Information
+================================
+Using ECS
+
+
+Fluid Data
+==========
+
+Fluid Parameters
+
+=========================  ==============================
+Mole Mass [kg/kmol]        34.03292
+Triple Point [K]           129.820
+=========================  ==============================
+
+Critical Parameters
+
+==========================  ==============================
+Temperature [K]             317.28
+Density [kg/m\ :sup:`3`\ ]   316.506156
+Pressure [kPa]              5897.00000
+==========================  ==============================
+
