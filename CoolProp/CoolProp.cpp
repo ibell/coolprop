@@ -221,7 +221,21 @@ int IsFluidType(char *Ref,char *Type)
         return 0;
     }
 }
-
+void Phase(char *Fluid,double T, double p, char *Phase_str)
+{
+	strcpy(Phase_str,(char*)Phase(std::string(Fluid),T,p).c_str());
+}
+std::string Phase(std::string Fluid, double T, double p)
+{
+	try{
+		// Try to load the CoolProp Fluid
+		pFluid = Fluids.get_fluid(Fluid);
+		return pFluid->phase_Tp(T,p);
+	}
+	catch(NotImplementedError){
+		return std::string("");
+	}
+}
 double Props(std::string Ref,std::string Output)
 {
 	return Props((char*)Ref.c_str(),(char*)Output.c_str());
@@ -235,7 +249,7 @@ double Props(char *Fluid, char *Output)
 			// Try to load the CoolProp Fluid
 			pFluid = Fluids.get_fluid(Fluid);
 		}
-		catch(NotImplementedError &e){
+		catch(NotImplementedError){
 			// It didn't load properly.  Perhaps it is a REFPROP fluid.
 			try{
 				if (!strcmp(Output,"Ttriple"))

@@ -44,7 +44,6 @@ def availableFluids():
 
 version='2.0.0'
 
-
 #########################
 ## __init__.py builder ##
 #########################
@@ -96,14 +95,14 @@ swig_sources=[(os.path.join('CoolProp','CoolProp.i'),os.path.join('CoolProp','Co
               (os.path.join('CoolProp','HumidAirProp.i'),os.path.join('CoolProp','HumidAirProp_wrap.cpp'))]
 
 for source,target in swig_sources:
-    
+    header = source.rsplit('.',1)[0]+'.h'
     def rebuild_swig(source,target):
         swig_call=['swig']+swig_opts+['-o',target,source]
         print 'Swigging '+source+' to '+target+' ....'
         subprocess.call(swig_call)
         
     #if the target doesn't exist or the wrapped C++ code is newer
-    if not os.path.exists(target) or os.path.getmtime(source)>os.path.getmtime(target):
+    if not os.path.exists(target) or os.path.getmtime(source)>os.path.getmtime(target) or os.path.getmtime(header)>os.path.getmtime(target):
         rebuild_swig(source,target)
     else:
         print 'No SWIG required for '+source+' --> '+target+' (up-to-date)'
@@ -209,7 +208,7 @@ HASources = [
      os.path.join('CoolProp','CoolPropTools.cpp'),
      os.path.join('CoolProp','FluidClass.cpp'),
      os.path.join('CoolProp','Helmholtz.cpp'),
-     os.path.join('CoolProp','HumAir.cpp'),
+     os.path.join('CoolProp','HumidAirProp.cpp'),
      os.path.join('CoolProp','Ice.cpp'),
      os.path.join('CoolProp','PengRobinson.cpp'),
      os.path.join('CoolProp','Solvers.cpp'),

@@ -576,7 +576,7 @@ double Fluid::_get_rho_guess(double T, double p)
 	Tc = reduce.T;
 
 	// Then based on phase, select the useful solution(s)
-	std::string phase = Fluid::phase(T,p);
+	std::string phase = Fluid::phase_Tp(T,p);
 
 	// These are very simplistic guesses for the density, but they work ok, use them if PR fails
 	if (!strcmp(phase.c_str(),"Gas") || !strcmp(phase.c_str(),"Supercritical")){
@@ -623,7 +623,7 @@ static void swap(double *x, double *y)
     *x = *y;
     *y = temp;
 }
-std::string Fluid::phase(double T, double p)
+std::string Fluid::phase_Tp(double T, double p)
 {
 	double pL,pV,rhoL,rhoV;
 	/*

@@ -3,7 +3,7 @@
 %include "cstring.i"
 
 %{
-#include "HumAir.h"
+#include "HumidAirProp.h"
 %}
 
 // Have SWIG generate python docstrings

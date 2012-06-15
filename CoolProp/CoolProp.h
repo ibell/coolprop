@@ -118,6 +118,7 @@ Other sources
 		EXPORT_CODE double CONVENTION T_hp(char *Ref, double h, double p, double T_guess);
 		EXPORT_CODE double CONVENTION h_sp(char *Ref, double s, double p, double T_guess);
 		EXPORT_CODE double CONVENTION DerivTerms(char *Term, double T, double rho, char * Ref);
+		EXPORT_CODE void CONVENTION Phase(char *Fluid, double T, double p, char *Phase_str);
 
 		EXPORT_CODE double CONVENTION F2K(double T_F);
 		EXPORT_CODE double CONVENTION K2F(double T);
@@ -139,7 +140,7 @@ Other sources
 	}
 
 	// ------------------------------------------------------------------------------------------------
-	// All the functions below this line do NOT get exported to REFPROP DLL due to the fact that the 
+	// All the functions below this comment do NOT get exported to REFPROP DLL due to the fact that the 
 	// DLL MUST use extern "C" for all exported functions, which does not allow for function overloads 
 	// or the use of any c++ types like std::string or std::vector
 	// ------------------------------------------------------------------------------------------------
@@ -154,6 +155,7 @@ Other sources
 	int set_1phase_LUT_params(std::string Ref, int nT, int np, double Tmin, double Tmax, double pmin, double pmax);
 	int debug();
 
+	std::string Phase(std::string Fluid, double T, double p);
 	std::string get_EOSReference(std::string Ref);
 	std::string get_TransportReference(std::string Ref);
 	std::string FluidsList(void);
