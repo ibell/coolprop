@@ -84,6 +84,6 @@ The list of possible inputs is
 The default value is to use the full EOS - i.e. UseVirialCorrelations(False).
 ") UseVirialCorrelations;
 
-%include "HumAir.h"
+%include "HumidAirProp.h"
 
 

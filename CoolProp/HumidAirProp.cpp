@@ -11,7 +11,7 @@
 #include "PropMacros.h"
 #include "CoolProp.h"
 #include "Ice.h"
-#include "HumAir.h"
+#include "HumidAirProp.h"
 
 static const char ITc='B';
 static double epsilon=0.621945,R_bar=8.314472;

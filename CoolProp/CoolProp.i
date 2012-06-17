@@ -105,14 +105,14 @@ where ``Fluid`` is a string with a valid CoolProp fluid name, and ``T`` and ``rh
 OutputName                Description
 ========================  =====================================================================================================================================
 ``dpdT``                  Derivative of pressure with respect to temperature at constant density [kPa/K]
-``dpdrho``                Derivative of pressure with respect to density at constant temperature [kPa/(kg/m |cubed| )]
+``dpdrho``                Derivative of pressure with respect to density at constant temperature [kPa/(kg/m\ |cubed|\ )]
 ``Z``                     Compressibility factor [-]
 ``dZ_dDelta``             Derivative of Z with respect to reduced density [-]
 ``dZ_dTau``               Derivative of Z with respect to inverse reduced temperature [-]
-``B``                     Second virial coefficient [m |cubed| /kg]
-``dBdT``                  Derivative of second virial coefficient with respect to temperature [m |cubed| /kg/K]
-``C``                     Third virial coefficient [m\ :sup:`6`\ /kg |squared| ]
-``dCdT``                  Derivative of third virial coefficient with respect to temperature [m\ :sup:`6`\ /kg |squared| /K]
+``B``                     Second virial coefficient [m\ |cubed|\ /kg]
+``dBdT``                  Derivative of second virial coefficient with respect to temperature [m\ |cubed|\ /kg/K]
+``C``                     Third virial coefficient [m\ :sup:`6`\ /kg\ |squared|\ ]
+``dCdT``                  Derivative of third virial coefficient with respect to temperature [m\ :sup:`6`\ /kg\ |squared|\ /K]
 ``phir``                  Residual non-dimensionalized Helmholtz energy [-]
 ``dphir_dTau``            Partial of residual non-dimensionalized Helmholtz energy with respect to inverse reduced temperature [-]
 ``d2phir_dTau2``          Second partial of residual non-dimensionalized Helmholtz energy with respect to inverse reduced temperature [-]
@@ -130,6 +130,38 @@ OutputName                Description
 "
 %enddef
 %feature("autodoc",DERIVTERMS) DerivTerms(char *, double T, double rho, char*);
+
+%define PHASE
+"
+Given a set of temperature and pressure, returns one of the following strings
+
+* Gas
+* Liquid
+* Supercritical
+* Two-Phase
+
+Phase diagram::
+
+		|         |     
+		|         |    Supercritical
+		|         |
+	p	| Liquid (b)------------
+		|        /
+		|       / 
+		|      /       Gas
+		|     / 
+		|   (a)
+		|  /
+		|------------------------
+
+				   T
+
+	   a: triple point
+	   b: critical point
+	   a-b: Saturation line
+"
+%enddef
+%feature("autodoc",PHASE) Phase(std::string,double,double);
 
 %ignore Props(char, char, double, char, double, char*);
 %ignore Props(std::string, char, double, char, double, std::string);

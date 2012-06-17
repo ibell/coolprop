@@ -693,7 +693,6 @@ std::string Fluid::phase_Tp(double T, double p)
 	}
 }
 
-
 double Fluid::Tsat(double p, double Q, double T_guess, bool UseLUT)
 {
     double x1=0,x2=0,y1=0,y2=0;
@@ -703,7 +702,7 @@ double Fluid::Tsat(double p, double Q, double T_guess, bool UseLUT)
     if (UseLUT && isPure==true) { return ApplySaturationLUT("T","p",p); }
 
     Tc=Props(name,"Tcrit");
-    Tmax=Tc-0.000001;
+    Tmax=Tc-0.1;
     Tmin=Props(name,"Ttriple")+1;
     
     // Plotting Tc/T versus log(p) tends to give very close to straight line

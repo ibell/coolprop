@@ -91,6 +91,7 @@ cdef class State:
                     self.p_=p
                 else:
                     errstr = get_errstringc()
+                    print errstr
                     raise ValueError(errstr)
             else:
                 raise KeyError('Dictionary must contain the key \'T\' and one of \'P\' or \'D\'')

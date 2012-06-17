@@ -170,7 +170,7 @@ if packDLL==True:
         z.write(os.path.join('Examples','CoolPropDLL.py'),arcname='CoolPropDLL.py')
         z.write('DLLREADME.txt',arcname='README.txt')
 
-print 'UseStaticLib is ',useStaticLib
+print 'UseStaticLib is',useStaticLib
 #Now come in and build the modules themselves
 if useStaticLib==True:
     CoolProp_module = Extension('CoolProp._CoolProp',
