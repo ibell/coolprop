@@ -32,7 +32,7 @@ struct SatLUTStruct
 
 struct OnePhaseLUTStruct
 {
-	std::vector< std::vector<double> > hmat,rhomat,cpmat,smat,cvmat,umat,viscmat,kmat,pmat,dpdTmat;
+	std::vector< std::vector<double> > hmat,rhomat,cpmat,cp0mat, smat,cvmat,umat,viscmat,kmat,pmat,dpdTmat;
 	std::vector<double> Tvec,pvec;
 	double Tmin,Tmax,pmin,pmax;
 	int nT,np;

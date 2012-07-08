@@ -765,6 +765,7 @@ void Fluid::BuildLookupTable()
 	LUT.kmat=std::vector< std::vector<double> >( LUT.nT, std::vector<double> ( LUT.np, 0 ) );
 	LUT.kmat=std::vector< std::vector<double> >( LUT.nT, std::vector<double> ( LUT.np, 0 ) );
 	LUT.cpmat=std::vector< std::vector<double> >( LUT.nT, std::vector<double> ( LUT.np, 0 ) );
+	LUT.cp0mat=std::vector< std::vector<double> >( LUT.nT, std::vector<double> ( LUT.np, 0 ) );
 	LUT.cvmat=std::vector< std::vector<double> >( LUT.nT, std::vector<double> ( LUT.np, 0 ) );
 	LUT.pmat=std::vector< std::vector<double> >( LUT.nT, std::vector<double> ( LUT.np, 0 ) );
 	LUT.rhomat=std::vector< std::vector<double> >( LUT.nT, std::vector<double> ( LUT.np, 0 ) );
@@ -844,6 +845,7 @@ p	||X  /		    | X X X X Superheated Gas
                 LUT.smat[i][j]=entropy_Trho(T,rho);
                 LUT.umat[i][j]=internal_energy_Trho(T,rho);
                 LUT.cpmat[i][j]=specific_heat_p_Trho(T,rho);
+				LUT.cp0mat[i][j]=specific_heat_p_ideal_Trho(T);
                 LUT.cvmat[i][j]=specific_heat_v_Trho(T,rho);
                 LUT.viscmat[i][j]=viscosity_Trho(T,rho);
                 LUT.kmat[i][j]=conductivity_Trho(T,rho);
@@ -857,6 +859,7 @@ p	||X  /		    | X X X X Superheated Gas
                 LUT.smat[i][j]=_HUGE;
                 LUT.umat[i][j]=_HUGE;
                 LUT.cpmat[i][j]=_HUGE;
+				LUT.cp0mat[i][j]=_HUGE;
                 LUT.cvmat[i][j]=_HUGE;
                 LUT.viscmat[i][j]=_HUGE;
                 LUT.kmat[i][j]=_HUGE;
@@ -875,23 +878,25 @@ std::vector<std::vector<double> >* Fluid::_get_LUT_ptr(std::string Prop)
 	/* Depending on which property is desired, 
     make the matrix "mat" a pointer to the 
     desired property matrix */
-	if (!Prop.compare("C"))
+	if (Prop[0] == 'C')
         mat=&LUT.cpmat;
-    else if (!Prop.compare("P"))
+	else if (Prop[0] == 'C' && Prop[1]=='0')
+        mat=&LUT.cp0mat;
+    else if (Prop[0] == 'P')
         mat=&LUT.pmat;
-	else if (!Prop.compare("D"))
+	else if (Prop[0] == 'D')
         mat=&LUT.rhomat;
-    else if (!Prop.compare("O"))
+    else if (Prop[0] == 'O')
         mat=&LUT.cvmat;
-    else if (!Prop.compare("H"))
+    else if (Prop[0] == 'H')
         mat=&LUT.hmat;
-    else if (!Prop.compare("S"))
+    else if (Prop[0] == 'S')
         mat=&LUT.smat;
-    else if (!Prop.compare("U"))
+    else if (Prop[0] == 'U')
         mat=&LUT.umat;
-    else if (!Prop.compare("V"))
+    else if (Prop[0] == 'V')
         mat=&LUT.viscmat;
-    else if (!Prop.compare("L"))
+    else if (Prop[0] == 'L')
         mat=&LUT.kmat;
 	else if (!Prop.compare("dpdT"))
 		mat=&LUT.dpdTmat;

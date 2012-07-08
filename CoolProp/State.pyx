@@ -9,6 +9,7 @@ cdef extern from "CoolProp.h":
 from libc.math cimport pow, sin, cos, exp
 from math import pow as pow_
 
+cdef bint _LUT_Enabled
 import CoolProp as CP
 
 cpdef cmath_speed_test(float x, long N):
@@ -64,9 +65,11 @@ cpdef debug(int level):
 
 cpdef LUT(bint LUTval):
     if LUTval:
+        _LUT_Enabled = True
         print 'Turning on singlephase LUT'
         UseSinglePhaseLUT(True)
     else:
+        _LUT_Enabled = False
         UseSinglePhaseLUT(False)
         
 cpdef double Props(bytes Parameter, bytes param1, float value1, bytes param2, float value2, bytes Fluid):
@@ -232,7 +235,7 @@ cdef class State:
             return self.cp * self.visc / self.k
             
     cpdef double get_dpdT(self):
-        return DerivTerms('dpdT',self.T_,self.rho_,self.Fluid)
+        return _Props("dpdT",'T',self.T_,'D',self.rho_,self.Fluid)
     property dpdT:
         def __get__(self):
             return self.get_dpdT()
