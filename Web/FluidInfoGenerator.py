@@ -248,6 +248,7 @@ with open(os.path.join('Fluids','PureFluids.rst'),'w') as fp:
     fp.write(index_file(sorted(pure_fluids)))
     
 for Fluid in sorted(pure_fluids):
+    print Fluid
     fp=open(os.path.join('Fluids',Fluid+'.rst'),'w')
     s = fluid_header(Fluid) + params_table(Fluid) + critical_table(Fluid) + SatVaporParity(Fluid) + SatLiquidParity(Fluid) + CriticalIsotherm(Fluid)
     fp.write(s)

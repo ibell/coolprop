@@ -1,22 +1,78 @@
 cdef extern from "CoolProp.h":
-    double Props(char*,char,double,char,double,char*)
+    double _Props "Props" (char*,char,double,char,double,char*)
     void UseSinglePhaseLUT(bool)
     double DerivTerms(char *, double, double, char*)
     char * get_errstringc()
     int _set_1phase_LUT_params "set_1phase_LUT_params" (char*,int,int,double,double,double,double)
     void _debug "debug" (int)
+    
+from libc.math cimport pow, sin, cos, exp
+from math import pow as pow_
 
-cpdef int set_1phase_LUT_params(bytes Ref, int nT,int np,double Tmin,double Tmax,double pmin,double pmax):
-    return _set_1phase_LUT_params(Ref, nT, np, Tmin, Tmax, pmin, pmax)
+import CoolProp as CP
+
+cpdef cmath_speed_test(float x, long N):
+    from time import clock
+    cdef int i
+    cdef double y
+    
+    t1=clock()
+    for i in range(N):
+        sin(x)
+    t2=clock()
+    print 'Elapsed time for {0:d} calls for "{1:s}" at {2:g} us/call'.format(N,'sin',(t2-t1)/N*1e6)
+    
+    t1=clock()
+    for i in range(N):
+        cos(x)
+    t2=clock()
+    print 'Elapsed time for {0:d} calls for "{1:s}" at {2:g} us/call'.format(N,'cos',(t2-t1)/N*1e6)
+    
+    t1=clock()
+    for i in range(N):
+        exp(x)
+    t2=clock()
+    print 'Elapsed time for {0:d} calls for "{1:s}" at {2:g} us/call'.format(N,'exp',(t2-t1)/N*1e6)
+    
+    t1=clock()
+    y=0
+    for i in range(N):
+        y += pow(<double>x,<int>4)
+    t2=clock()
+    print y
+    print 'Elapsed time for {0:d} calls for "{1:s}" at {2:g} us/call'.format(N,'pow(int)',(t2-t1)/N*1e6)
+    
+    t1=clock()
+    y=0
+    for i in range(N):
+        y += pow(<double>x,<double>4)
+    t2=clock()
+    print y
+    print 'Elapsed time for {0:d} calls for "{1:s}" at {2:g} us/call'.format(N,'pow(double)',(t2-t1)/N*1e6)
+
+cpdef int set_1phase_LUT_params(bytes Ref, int nT, int np, double Tmin, double Tmax, double pmin, double pmax):
+    #Set the LUT parameters in CoolProp copy of the LUT table
+    CP.set_1phase_LUT_params(Ref, nT, np, Tmin, Tmax, pmin, pmax)
+    
+    #Set the LUT parameters in the local LUT copy build into the State module
+    _set_1phase_LUT_params(Ref, nT, np, Tmin, Tmax, pmin, pmax)
+    
+    return 0
 
 cpdef debug(int level):
     _debug(level)
 
 cpdef LUT(bint LUTval):
-    if LUTval==True:
+    if LUTval:
+        print 'Turning on singlephase LUT'
         UseSinglePhaseLUT(True)
-    elif LUTval==True:
+    else:
         UseSinglePhaseLUT(False)
+        
+cpdef double Props(bytes Parameter, bytes param1, float value1, bytes param2, float value2, bytes Fluid):
+    cdef char _param1 = param1[0]
+    cdef char _param2 = param2[0]  
+    return _Props(Parameter, _param1, value1, _param2, value2, Fluid)
 
 #from CoolProp import Props,UseSinglePhaseLUT,DerivTerms
 cdef class State: 
@@ -76,7 +132,7 @@ cdef class State:
                 self.p_=params['P']
                 #Explicit type conversion
                 pchar='D'
-                rho = Props(pchar,'T',self.T_,'P',self.p_,self.Fluid)
+                rho = _Props(pchar,'T',self.T_,'P',self.p_,self.Fluid)
                 if abs(rho)<1e90:
                     self.rho_=rho
                 else:
@@ -86,7 +142,7 @@ cdef class State:
                 self.rho_=params['D']
                 #Explicit type conversion
                 pchar='P'
-                p = Props(pchar,'T',self.T_,'D',self.rho_,self.Fluid)
+                p = _Props(pchar,'T',self.T_,'D',self.rho_,self.Fluid)
                 if abs(p)<1e90:
                     self.p_=p
                 else:
@@ -101,6 +157,9 @@ cdef class State:
         else:
             raise ValueError('xL must be between 0 and 1')
         
+    cpdef double get_MM(self):
+        return _Props('M','T',0,'D',0,self.Fluid)
+    
     property LUT:
         def __get__(self):
             return self.LUT
@@ -124,50 +183,59 @@ cdef class State:
             return self.T_
     
     cpdef double get_h(self): 
-        return Props("H",'T',self.T_,'D',self.rho_,self.Fluid)
+        return _Props("H",'T',self.T_,'D',self.rho_,self.Fluid)
     property h:
         def __get__(self):
             return self.get_h()
           
     cpdef double get_u(self): 
-        return Props("U",'T',self.T_,'D',self.rho_,self.Fluid)
+        return _Props("U",'T',self.T_,'D',self.rho_,self.Fluid)
     property u:
         def __get__(self):
             return self.get_u()
             
     cpdef double get_s(self): 
-        return Props("S",'T',self.T_,'D',self.rho_,self.Fluid)            
+        return _Props("S",'T',self.T_,'D',self.rho_,self.Fluid)            
     property s:
         def __get__(self):
             return self.get_s()
     
+    cpdef double get_cp0(self):
+        return _Props("C0",'T',self.T_,'D',self.rho_,self.Fluid)
+    
     cpdef double get_cp(self): 
-        return Props("C",'T',self.T_,'D',self.rho_,self.Fluid)
+        return _Props("C",'T',self.T_,'D',self.rho_,self.Fluid)
     property cp:
         def __get__(self):
             return self.get_cp()
             
     cpdef double get_cv(self): 
-        return Props("O",'T',self.T_,'D',self.rho_,self.Fluid)
+        return _Props("O",'T',self.T_,'D',self.rho_,self.Fluid)
     property cv:
         def __get__(self):
             return self.get_cv()
             
+    cpdef double get_visc(self):
+        return _Props('V','T',self.T_,'D',self.rho_,self.Fluid)
     property visc:
         def __get__(self):
-            return Props('V','T',self.T_,'D',self.rho_,self.Fluid)
-            
+            return self.get_visc()
+
+    cpdef double get_cond(self):
+        return _Props('L','T',self.T_,'D',self.rho_,self.Fluid)    
     property k:
         def __get__(self):
-            return Props('L','T',self.T_,'D',self.rho_,self.Fluid)
+            return self.get_cond()
             
     property Prandtl:
         def __get__(self):
             return self.cp * self.visc / self.k
             
+    cpdef double get_dpdT(self):
+        return DerivTerms('dpdT',self.T_,self.rho_,self.Fluid)
     property dpdT:
         def __get__(self):
-            return Props('dpdT','T',self.T_,'D',self.rho_,self.Fluid)
+            return self.get_dpdT()
         
     cpdef speed_test(self,int N):
         from time import clock
@@ -175,12 +243,12 @@ cdef class State:
         cdef char * k
         cdef char * Fluid = self.Fluid 
         print 'Direct c++ call to CoolProp without the Python call layer'
-        keys = ['H','P','S','U','C','O']
+        print "'M' involves basically no computational effort"
+        keys = ['H','P','S','U','C','O','V','L','M','C0']
         for key in keys:
             t1=clock()
-            k=key
             for i in range(N):
-                Props(k,'T',self.T_,'D',self.rho_,Fluid)
+                _Props(key,'T',self.T_,'D',self.rho_,Fluid)
             t2=clock()
             print 'Elapsed time for {0:d} calls for "{1:s}" at {2:g} us/call'.format(N,key,(t2-t1)/N*1e6)
     

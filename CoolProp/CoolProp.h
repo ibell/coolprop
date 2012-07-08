@@ -61,15 +61,9 @@ this file for building a static or dynamic library
 
 /*! \mainpage CoolProp Core Code Documentation
 
-Welcome to the home page
+Welcome to the home page for the C++ sources of CoolProp.  This information may be useful for developers or just the plain inquisitive
 
-\section Extended Corresposponding State References
-
-Extended Corresponding States sucks.  But here are a few references:
-
-\section Links
-
-Other sources
+You might want to start by looking at CoolProp.h
 */
 
 #ifndef CoolProp_H

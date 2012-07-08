@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string>
 #include <vector>
+#include <map>
 #include <list>
 #include <exception>
 #include <iostream>
@@ -49,6 +50,7 @@ void Fluid::post_load(void)
 //--------------------------------------------
 //    Residual Part
 //--------------------------------------------
+
 double Fluid::phir(double tau, double delta)
 {
 	double summer = 0;
@@ -210,14 +212,21 @@ double Fluid::specific_heat_v_Trho(double T, double rho)
 }
 double Fluid::specific_heat_p_Trho(double T, double rho)
 {
-    double delta,tau,c1,c2,R;
+    double delta,tau,c1,c2,R,dphir_dDelta_;
     R=params.R_u/params.molemass;
 	tau=reduce.T/T;
 	delta=rho/reduce.rho;
-
-    c1=pow(1.0+delta*dphir_dDelta(tau,delta)-delta*tau*d2phir_dDelta_dTau(tau,delta),2);
-    c2=(1.0+2.0*delta*dphir_dDelta(tau,delta)+pow(delta,2)*d2phir_dDelta2(tau,delta));
+	dphir_dDelta_=dphir_dDelta(tau,delta);
+    c1=pow(1.0+delta*dphir_dDelta_-delta*tau*d2phir_dDelta_dTau(tau,delta),2);
+    c2=(1.0+2.0*delta*dphir_dDelta_+pow(delta,2)*d2phir_dDelta2(tau,delta));
     return R*(-pow(tau,2)*(d2phi0_dTau2(tau,delta)+d2phir_dTau2(tau,delta))+c1/c2);
+}
+double Fluid::specific_heat_p_ideal_Trho(double T)
+{
+    double tau,R;
+    R=params.R_u/params.molemass;
+	tau=reduce.T/T;
+    return R*(1-tau*tau*d2phi0_dTau2(tau, 1e-12));
 }
 double Fluid::speed_sound_Trho(double T, double rho)
 {
@@ -1577,6 +1586,15 @@ FluidsContainer::FluidsContainer()
 	FluidsList.push_back(new R407CClass());
 	FluidsList.push_back(new R507AClass());
 	#endif
+
+	// Build the map of fluid names mapping to pointers to the Fluid class instances
+	for (std::list<Fluid*>::iterator it = FluidsList.begin(); it != FluidsList.end(); it++)
+	{
+		// Call the post_load routine
+		(*it)->post_load();
+		// Load up entry in map
+		fluid_name_map[(*it)->get_name()] = *it;
+	}
 }
 
 // Destructor
@@ -1591,12 +1609,21 @@ FluidsContainer::~FluidsContainer()
 
 Fluid * FluidsContainer::get_fluid(std::string name)
 {
+	std::map<std::string,Fluid*>::iterator it;
+	// Try to find using the map if Fluid name is provided
+	it = fluid_name_map.find(name);
+	// If it is found the iterator will not be equal to end
+	if (it != fluid_name_map.end() )
+	{
+		// Return a pointer to the class
+		return (*it).second;
+	}
+
+	// Wasn't found, now we need to check for an alias
 	for (std::list<Fluid*>::iterator it = FluidsList.begin(); it != FluidsList.end(); it++)
 	{
-		if (name.compare((*it)->get_name())==0 || (*it)->isAlias(name))
+		if ( (*it)->isAlias(name) )
 		{
-			// Do some post-loading things
-			(*it)->post_load();
 			return *it;
 		}
 	}

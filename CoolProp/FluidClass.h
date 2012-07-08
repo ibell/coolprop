@@ -1,5 +1,6 @@
 #include "Helmholtz.h"
 #include <list>
+#include <map>
 #include <string>
 #include <exception>
 #include "CPExceptions.h"
@@ -45,8 +46,7 @@ class Fluid
 		std::string name; /// The name of the fluid
 		std::string REFPROPname; /// The REFPROP-compliant name if REFPROP-"name" is not a compatible fluid name.  If not included, "name" is assumed to be a valid name for REFPROP
 		std::list <std::string> aliases; /// A list of aliases of names for the Fluid, each element is a std::string instance
-		std::list <phi_BC*> phirlist; /// A list of instances of the phi_BC classes for the residual Helmholtz energy contribution
-		std::list <phi_BC*> phi0list; /// A list of instances of the phi_BC classes for the ideal-gas Helmholtz energy contribution
+		
 		std::string EOSReference; /// A std::string that contains a reference for thermo properties for the fluid
 		std::string TransportReference; /// A std::string that contains a reference for the transport properties of the fluid
 		bool isPure; /// True if it is a pure fluid, false otherqwise
@@ -60,6 +60,10 @@ class Fluid
 
 		std::vector<std::vector<double> >* _get_LUT_ptr(std::string Prop);
     public:
+
+		std::list <phi_BC*> phirlist; /// A list of instances of the phi_BC classes for the residual Helmholtz energy contribution
+		std::list <phi_BC*> phi0list; /// A list of instances of the phi_BC classes for the ideal-gas Helmholtz energy contribution
+
 		/// Constructor for the Fluid class.  This is an abstract base class that 
 		/// is not meant to be instantiated directly.  Rather it should be subclassed
 		/// to implement new fluids.  Examples of this behavior are the R134aClass or the 
@@ -134,6 +138,7 @@ class Fluid
 		double internal_energy_Trho(double T, double rho);
 		double speed_sound_Trho(double T, double rho);
 		double specific_heat_p_Trho(double T, double rho);
+		double specific_heat_p_ideal_Trho(double T);
 		double specific_heat_v_Trho(double T, double rho);
 		double gibbs_Trho(double T, double rho);
 		double dpdT_Trho(double T,double rho);
@@ -179,7 +184,7 @@ class Fluid
 		};
 		/// This function is optional, and returns a NotImplementedError if the derived class does not implement it.
 		/// Hopefully the calling function catches the error
-		///@param rhor The reduced density where rhor = rho/rhoc
+		///@param T The temperature
 		virtual double ECS_f_int(double T){
 			throw NotImplementedError("ECS_f_int not implemented for this fluid");
 		};
@@ -329,6 +334,7 @@ class Fluid
 	class FluidsContainer
 	{
 	private:
+		std::map<std::string,Fluid*> fluid_name_map; ///< maps fluid names to pointers to the fluid
 		std::list <Fluid*> FluidsList; ///< A list of pointers to the instances of the fluids
 	public:
 		/// Constructor for the FluidsContainer class

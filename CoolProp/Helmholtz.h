@@ -55,7 +55,7 @@ private:
 		                d, ///< The power for the delta terms
 						t, ///< The powers for the tau terms
 						l; ///< The powers for delta in the exp terms
-	int iStart,iEnd;
+	unsigned int iStart,iEnd;
 public:
 	// Constructors
 	phir_power(std::vector<double>,std::vector<double>,std::vector<double>,int,int);
@@ -64,13 +64,13 @@ public:
 	///< Destructor for the phir_power class.  No implementation
 	~phir_power(){};
 
-	double base(double tau, double delta);
-	double dTau(double tau, double delta);
-	double dTau2(double tau, double delta);
-	double dDelta(double tau, double delta);
-	double dDelta2(double tau, double delta);
-	double dDelta2_dTau(double tau, double delta);
-	double dDelta_dTau(double tau, double delta);
+	double base(double tau, double delta) throw();
+	double dTau(double tau, double delta) throw();
+	double dTau2(double tau, double delta) throw();
+	double dDelta(double tau, double delta) throw();
+	double dDelta2(double tau, double delta) throw();
+	double dDelta2_dTau(double tau, double delta) throw();
+	double dDelta_dTau(double tau, double delta) throw();
 };
 
 class phir_gaussian : public phi_BC{
@@ -81,11 +81,17 @@ class phir_gaussian : public phi_BC{
 	*/
 private:
 	std::vector<double> n,d,t,alpha,epsilon,beta,gamma;
-	int iStart,iEnd;
+	unsigned int iStart,iEnd;
 public:
 	// Constructors
-	phir_gaussian(std::vector<double> a_in, std::vector<double> d_in,std::vector<double> t_in, 
-		std::vector<double> alpha_in, std::vector<double> epsilon_in, std::vector<double> beta_in, std::vector<double> gamma_in,int iStart_in, int iEnd_in);
+	phir_gaussian(std::vector<double> a_in, 
+				  std::vector<double> d_in,
+				  std::vector<double> t_in, 
+				  std::vector<double> alpha_in, 
+				  std::vector<double> epsilon_in, 
+				  std::vector<double> beta_in, 
+				  std::vector<double> gamma_in,
+		unsigned int iStart_in, unsigned int iEnd_in);
 
 	// Destructor
 	~phir_gaussian(){};

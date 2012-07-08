@@ -408,13 +408,14 @@ double _Props(std::string Output,char Name1, double Prop1, char Name2, double Pr
         
         // Check if it is an output that doesn't require a state input
         // Deal with it and return
-        if (!Output.compare("M"))
+		
+        if (Output[0]=='M')
 			return pFluid->params.molemass;
-		else if (!Output.compare("E"))
+		else if (Output[0]=='E')
 			return pFluid->crit.p;
-		else if (!Output.compare("B"))
+		else if (Output[0]=='B')
 			return pFluid->crit.T;
-		else if (!Output.compare("R"))
+		else if (Output[0]=='R')
 			return pFluid->params.Ttriple;
 
 		//Surface tension is only a function of temperature
@@ -476,8 +477,15 @@ double _Props(std::string Output,char Name1, double Prop1, char Name2, double Pr
 				return Prop2;
 			// If you are using LUT, use it
 			if (FlagUseSinglePhaseLUT==1){
-				Value = pFluid->LookupValue_Trho(std::string(Output), T, rho);
-                return Value;
+				// Try to use the LUT, if the parameter is not included in the LUT,
+				// allow it to fall back to the conventional analysis
+				try{
+					Value = pFluid->LookupValue_Trho(std::string(Output), T, rho);
+					return Value;
+				}
+                catch(ValueError){
+
+                }
             }
 			rho = Prop2; 
 			if (!Output.compare("D"))
@@ -492,6 +500,8 @@ double _Props(std::string Output,char Name1, double Prop1, char Name2, double Pr
 				Value=pFluid->internal_energy_Trho(T,rho);
 			else if (!Output.compare("C"))
 				Value=pFluid->specific_heat_p_Trho(T,rho);
+			else if (!Output.compare("C0"))
+				Value=pFluid->specific_heat_p_ideal_Trho(T);
 			else if (!Output.compare("O"))
 				Value=pFluid->specific_heat_v_Trho(T,rho);
 			else if (!Output.compare("A"))
@@ -674,7 +684,7 @@ double T_hp(char *Ref, double h, double p, double T_guess)
         iter=iter+1;
         if (iter>100)
         {
-			throw SolutionError(format("iter %d: T_hp not converging with inputs(%s,%g,%g,%g) value: %0.12g\n",iter,Ref,h,p,T_guess,f));
+			//throw SolutionError(format("iter %d: T_hp not converging with inputs(%s,%g,%g,%g) value: %0.12g\n",iter,Ref,h,p,T_guess,f));
 			return _HUGE;
         }
     }

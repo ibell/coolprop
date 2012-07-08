@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #endif
 
+#include "time.h"
 #include <vector>
 #include <iostream>
 #include "math.h"
@@ -32,95 +33,98 @@ phir_power::phir_power(std::vector<double> n_in,std::vector<double> d_in,std::ve
 	iStart=iStart_in;
 	iEnd=iEnd_in;
 }
-
 // Term and its derivatives
-double phir_power::base(double tau, double delta)
+double phir_power::base(double tau, double delta) throw()
 {
-	double summer=0;
-	for (int i=iStart;i<=iEnd;i++)
+	double summer=0, log_tau = log(tau), log_delta = log(delta);
+	for (unsigned int i=iStart;i<=iEnd;i++)
 	{
 		if (l[i]>0)
-			summer+=n[i]*pow(delta,d[i])*pow(tau,t[i])*exp(-pow(delta,l[i]));
+			summer+=n[i]*exp(t[i]*log_tau+d[i]*log_delta-pow(delta,l[i]));
 		else
-			summer+=n[i]*pow(delta,d[i])*pow(tau,t[i]);
+			summer+=n[i]*exp(t[i]*log_tau+d[i]*log_delta);
 	}
 	return summer;
 }
-double phir_power::dTau(double tau, double delta)
+double phir_power::dTau(double tau, double delta) throw()
 {
-	double summer=0;
-	for (int i=iStart;i<=iEnd;i++)
+	double summer=0, log_tau = log(tau), log_delta = log(delta);
+	for (unsigned int i=iStart;i<=iEnd;i++)
 	{
 		if (l[i]>0)
-			summer+=n[i]*t[i]*pow(delta,d[i])*pow(tau,t[i]-1)*exp(-pow(delta,l[i]));
+			summer+=n[i]*t[i]*exp((t[i]-1)*log_tau+d[i]*log_delta-pow(delta,l[i]));
 		else
-			summer+=n[i]*t[i]*pow(delta,d[i])*pow(tau,t[i]-1);
+			summer+=n[i]*t[i]*exp((t[i]-1)*log_tau+d[i]*log_delta);
 	}
 	return summer;
 }
-double phir_power::dTau2(double tau, double delta)
+double phir_power::dTau2(double tau, double delta) throw()
 {
-	double summer=0;
-	for (int i=iStart;i<=iEnd;i++)
+	double summer=0, log_tau = log(tau), log_delta = log(delta);
+	for (unsigned int i=iStart;i<=iEnd;i++)
 	{
 		if (l[i]>0)
-			summer+=n[i]*t[i]*(t[i]-1)*pow(delta,d[i])*pow(tau,t[i]-2)*exp(-pow(delta,l[i]));
+			summer+=n[i]*t[i]*(t[i]-1)*exp((t[i]-2)*log_tau+d[i]*log_delta-pow(delta,l[i]));
 		else
-			summer+=n[i]*t[i]*(t[i]-1)*pow(delta,d[i])*pow(tau,t[i]-2);
+			summer+=n[i]*t[i]*(t[i]-1)*exp((t[i]-2)*log_tau+d[i]*log_delta);
 	}
 	return summer;
 }
-double phir_power::dDelta(double tau, double delta)
+double phir_power::dDelta(double tau, double delta) throw()
 {
-	double summer=0;
-	for (int i=iStart;i<=iEnd;i++)
+	double summer=0, log_tau = log(tau), log_delta = log(delta);
+	for (unsigned int i=iStart;i<=iEnd;i++)
 	{
+		double pow_delta_li = pow(delta,l[i]);
 		if (l[i]>0)
-			summer+=n[i]*(pow(delta,d[i]-1)*pow(tau,t[i])*(d[i]-l[i]*pow(delta,l[i])))*exp(-pow(delta,l[i]));
+			summer+=n[i]*(d[i]-l[i]*pow_delta_li)*exp(t[i]*log_tau+(d[i]-1)*log_delta-pow_delta_li);
 		else
-			summer+=n[i]*pow(delta,d[i]-1)*pow(tau,t[i])*d[i];
+			summer+=n[i]*d[i]*exp(t[i]*log_tau+(d[i]-1)*log_delta);
 	}
 	return summer;
 }
-double phir_power::dDelta2(double tau, double delta)
+double phir_power::dDelta2(double tau, double delta) throw()
 {
-	double summer=0;
-	for (int i=iStart;i<=iEnd;i++)
+	double summer=0, log_tau = log(tau), log_delta = log(delta);
+	for (unsigned int i=iStart;i<=iEnd;i++)
 	{
+		double pow_delta_li = pow(delta,l[i]);
 		if (l[i]>0)
-			summer+=n[i]*exp(-pow(delta,l[i]))*(pow(delta,d[i]-2)*pow(tau,t[i])*( (d[i]-l[i]*pow(delta,l[i]))*(d[i]-1.0-l[i]*pow(delta,l[i])) - l[i]*l[i]*pow(delta,l[i])));
+			summer+=n[i]*((d[i]-l[i]*pow_delta_li)*(d[i]-1.0-l[i]*pow_delta_li) - l[i]*l[i]*pow_delta_li)*exp(t[i]*log_tau+(d[i]-2)*log_delta-pow(delta,l[i]));
 		else
-			summer+=n[i]*pow(delta,d[i]-2)*pow(tau,t[i])*d[i]*(d[i]-1.0);
+			summer+=n[i]*d[i]*(d[i]-1.0)*exp(t[i]*log_tau+(d[i]-2)*log_delta);
 	}
 	return summer;
 }
-double phir_power::dDelta2_dTau(double tau, double delta)
+double phir_power::dDelta2_dTau(double tau, double delta) throw()
 {
-	double summer=0;
-	for (int i=iStart;i<=iEnd;i++)
+	double summer=0, log_tau = log(tau), log_delta = log(delta);
+	for (unsigned int i=iStart;i<=iEnd;i++)
 	{
+		double pow_delta_li = pow(delta,l[i]);
 		if (l[i]>0)
-			summer+=n[i]*t[i]*exp(-pow(delta,l[i]))*pow(delta,d[i]-2)*pow(tau,t[i]-1.0)*(((d[i]-l[i]*pow(delta,l[i])))*(d[i]-1-l[i]*pow(delta,l[i]))-l[i]*l[i]*pow(delta,l[i]));
+			summer+=n[i]*t[i]*(((d[i]-l[i]*pow_delta_li))*(d[i]-1-l[i]*pow_delta_li)-l[i]*l[i]*pow_delta_li)*exp((t[i]-1)*log_tau+(d[i]-2)*log_delta-pow(delta,l[i]));
 		else
-			summer+=n[i]*d[i]*t[i]*(d[i]-1)*pow(delta,d[i]-2)*pow(tau,t[i]-1.0);
+			summer+=n[i]*d[i]*t[i]*(d[i]-1)*exp((t[i]-1)*log_tau+(d[i]-2)*log_delta);;
 	}
 	return summer;
 }
-double phir_power::dDelta_dTau(double tau, double delta)
+double phir_power::dDelta_dTau(double tau, double delta) throw()
 {
-	double summer=0;
-	for (int i=iStart;i<=iEnd;i++)
+	double summer=0, log_tau = log(tau), log_delta = log(delta);
+	for (unsigned int i=iStart;i<=iEnd;i++)
 	{
+		double pow_delta_li = pow(delta,l[i]);
 		if (l[i]>0)
-			summer+=n[i]*exp(-pow(delta,l[i]))*pow(delta,d[i]-1)*t[i]*pow(tau,t[i]-1.0)*(d[i]-l[i]*pow(delta,l[i]));
+			summer+=n[i]*t[i]*(d[i]-l[i]*pow_delta_li)*exp((t[i]-1)*log_tau+(d[i]-1)*log_delta-pow_delta_li);
 		else
-			summer+=n[i]*d[i]*t[i]*pow(delta,d[i]-1)*pow(tau,t[i]-1.0);
+			summer+=n[i]*d[i]*t[i]*exp((t[i]-1)*log_tau+(d[i]-1)*log_delta);
 	}
 	return summer;
 }
 
 phir_gaussian::phir_gaussian(vector<double> n_in, vector<double> d_in,vector<double> t_in, 
-	vector<double> alpha_in, vector<double> epsilon_in, vector<double> beta_in, vector<double> gamma_in,int iStart_in, int iEnd_in)
+	vector<double> alpha_in, vector<double> epsilon_in, vector<double> beta_in, vector<double> gamma_in,unsigned int iStart_in, unsigned int iEnd_in)
 {
 	n=n_in;
 	d=d_in;
@@ -137,7 +141,7 @@ phir_gaussian::phir_gaussian(vector<double> n_in, vector<double> d_in,vector<dou
 double phir_gaussian::base(double tau, double delta)
 {
 	double summer=0,psi;
-	for (int i=iStart;i<=iEnd;i++)
+	for (unsigned int i=iStart;i<=iEnd;i++)
 	{
 		psi=exp(-alpha[i]*pow(delta-epsilon[i],2)-beta[i]*pow(tau-gamma[i],2));
 		summer+=n[i]*pow(delta,d[i])*pow(tau,t[i])*psi;
@@ -147,7 +151,7 @@ double phir_gaussian::base(double tau, double delta)
 double phir_gaussian::dTau(double tau, double delta)
 {
 	double summer=0,psi;
-	for (int i=iStart;i<=iEnd;i++)
+	for (unsigned int i=iStart;i<=iEnd;i++)
 	{
 		psi=exp(-alpha[i]*pow(delta-epsilon[i],2)-beta[i]*pow(tau-gamma[i],2));
 		summer+=n[i]*pow(delta,d[i])*pow(tau,t[i])*psi*(t[i]/tau-2.0*beta[i]*(tau-gamma[i]));
@@ -157,7 +161,7 @@ double phir_gaussian::dTau(double tau, double delta)
 double phir_gaussian::dTau2(double tau, double delta)
 {
 	double summer=0,psi;
-	for (int i=iStart;i<=iEnd;i++)
+	for (unsigned int i=iStart;i<=iEnd;i++)
 	{
 		psi=exp(-alpha[i]*pow(delta-epsilon[i],2)-beta[i]*pow(tau-gamma[i],2));
 		summer+=n[i]*pow(delta,d[i])*pow(tau,t[i])*psi*(pow(t[i]/tau-2.0*beta[i]*(tau-gamma[i]),2)-t[i]/pow(tau,2)-2.0*beta[i]);
@@ -167,7 +171,7 @@ double phir_gaussian::dTau2(double tau, double delta)
 double phir_gaussian::dDelta(double tau, double delta)
 {
 	double summer=0,psi;
-	for (int i=iStart;i<=iEnd;i++)
+	for (unsigned int i=iStart;i<=iEnd;i++)
 	{
 		psi=exp(-alpha[i]*pow(delta-epsilon[i],2)-beta[i]*pow(tau-gamma[i],2));
 		summer+=n[i]*pow(delta,d[i])*pow(tau,t[i])*psi*(d[i]/delta-2.0*alpha[i]*(delta-epsilon[i]));
@@ -177,7 +181,7 @@ double phir_gaussian::dDelta(double tau, double delta)
 double phir_gaussian::dDelta2(double tau, double delta)
 {
 	double summer=0,psi;
-	for (int i=iStart;i<=iEnd;i++)
+	for (unsigned int i=iStart;i<=iEnd;i++)
 	{
 		psi=exp(-alpha[i]*pow(delta-epsilon[i],2)-beta[i]*pow(tau-gamma[i],2));
 		summer+=n[i]*pow(tau,t[i])*psi*(-2.0*alpha[i]*pow(delta,d[i])+4.0*pow(alpha[i],2)*pow(delta,d[i])*pow(delta-epsilon[i],2)-4.0*d[i]*alpha[i]*pow(delta,d[i]-1)*(delta-epsilon[i])+d[i]*(d[i]-1.0)*pow(delta,d[i]-2));
@@ -187,7 +191,7 @@ double phir_gaussian::dDelta2(double tau, double delta)
 double phir_gaussian::dDelta2_dTau(double tau, double delta)
 {
 	double summer=0,psi;
-	for (int i=iStart;i<=iEnd;i++)
+	for (unsigned int i=iStart;i<=iEnd;i++)
 	{
 		psi=exp(-alpha[i]*pow(delta-epsilon[i],2)-beta[i]*pow(tau-gamma[i],2));
 		summer+=n[i]*pow(tau,t[i])*psi*pow(delta,d[i])*(t[i]/tau-2.0*beta[i]*(tau-gamma[i]))*(-2.0*alpha[i]*(delta-epsilon[i])+4*alpha[i]*alpha[i]*pow(delta,d[i])*pow(delta-epsilon[i],2)-4*d[i]*alpha[i]*pow(delta,d[i]-1)*(delta-epsilon[i])+d[i]*(d[i]-1)*pow(delta,d[i]-2));
@@ -197,7 +201,7 @@ double phir_gaussian::dDelta2_dTau(double tau, double delta)
 double phir_gaussian::dDelta_dTau(double tau, double delta)
 {
 	double summer=0,psi;
-	for (int i=iStart;i<=iEnd;i++)
+	for (unsigned int i=iStart;i<=iEnd;i++)
 	{
 		psi=exp(-alpha[i]*pow(delta-epsilon[i],2)-beta[i]*pow(tau-gamma[i],2));
 		summer+=n[i]*pow(delta,d[i])*pow(tau,t[i])*psi*(d[i]/delta-2.0*alpha[i]*(delta-epsilon[i]))*(t[i]/tau-2.0*beta[i]*(tau-gamma[i]));

@@ -1,11 +1,16 @@
 
 from distutils.core import setup, Extension
 import subprocess,shutil,os,sys,glob
+from Cython.Build import cythonize
 from Cython.Distutils import build_ext
 from Cython.Distutils.extension import Extension as CyExtension
 from distutils.sysconfig import get_python_inc
 from distutils.ccompiler import new_compiler
 from distutils.dep_util import newer_group
+
+import Cython
+#This will generate HTML to show where there are still pythonic bits hiding out
+Cython.Compiler.Options.annotate = True
 
 ## If the file is run directly without any parameters, build and install
 if len(sys.argv)==1:
@@ -80,7 +85,7 @@ fp.close()
 ######################################
 ##       start of SWIG code         ## 
 ######################################
-swig_opts=['-c++','-python']
+swig_opts=['-c++','-python', '-builtin']
 
 """
 In this block of code, all the files that require SWIG are rebuilt on an as needed basis.  
