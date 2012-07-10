@@ -8,7 +8,6 @@ cdef extern from "CoolProp.h":
     
 from libc.math cimport pow, sin, cos, exp
 from math import pow as pow_
-
 cdef bint _LUT_Enabled
 import CoolProp as CP
 
@@ -83,7 +82,7 @@ cdef class State:
     A class that contains all the code that represents a thermodynamic state
     """
     
-    def __init__(self,bytes Fluid,dict StateDict,double xL=-1.0,Liquid=''):
+    def __init__(self,bytes Fluid, dict StateDict, double xL=-1.0, Liquid=''):
         self.Fluid=Fluid
         self.xL=xL
         self.Liquid=Liquid
@@ -276,7 +275,9 @@ cdef class State:
         return s.rstrip()
         
     cpdef copy(self):
-        ST=State(self.Fluid,{'T':self.T,'D':self.rho})
+        cdef double T = self.T_*(1.0+1e-20)
+        cdef double rho = self.rho_*(1.0+1e-20)
+        ST=State(self.Fluid,{'T':T,'D':rho})
         return ST
     
 def rebuildState(d):
