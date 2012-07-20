@@ -6,7 +6,7 @@ Fluid Properties
 Introduction
 ------------
 
-If you are feeling impatient, jump to :ref:`Props_Sample`, or to the documentation of the :mod:`CoolProp.CoolProp` module, otherwise, hang in there.
+If you are feeling impatient, jump to :ref:`Props_Sample`, or to the documentation of the :mod:`CoolProp.CoolProp` module, or the :mod:`CoolProp.State` module, otherwise, hang in there.
 
 Nearly all the fluids modeling in CoolProp are based on Helmholtz energy formulations.  This is a convenient construction of the equation of state because all the thermodynamic properties of interest can be obtained directly from partial derivatives of the Helmholtz energy.
 

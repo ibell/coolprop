@@ -14,7 +14,8 @@ Cython.Compiler.Options.annotate = True
 
 ## If the file is run directly without any parameters, build and install
 if len(sys.argv)==1:
-    sys.argv+=['install']
+    sys.argv+=['build_ext','--inplace']
+    #sys.argv+=['install']
     
 if '--DLL' in sys.argv:
     packDLL = True
@@ -85,7 +86,7 @@ fp.close()
 ######################################
 ##       start of SWIG code         ## 
 ######################################
-swig_opts=['-c++','-python', '-builtin']
+swig_opts=['-c++','-python']
 
 """
 In this block of code, all the files that require SWIG are rebuilt on an as needed basis.  
