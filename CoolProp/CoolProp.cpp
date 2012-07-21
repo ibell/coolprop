@@ -572,7 +572,7 @@ void _T_hp(std::string Ref, double h, double p, double *Tout, double *rhoout)
 	double A[2][2], B[2][2],T_guess,R;
 	double dar_ddelta,da0_dtau,d2a0_dtau2,dar_dtau,d2ar_ddelta_dtau,d2ar_ddelta2,d2ar_dtau2,d2a0_ddelta_dtau;
 	double f1,f2,df1_dtau,df1_ddelta,df2_ddelta,df2_dtau,h_hot;
-    double hsatL,hsatV,TsatL,TsatV,tau,delta,worst_error;
+    double rhosatL,hsatL,hsatV,TsatL,TsatV,tau,delta,worst_error;
 	//First figure out where you are
 	
 	R=pFluid->R();
@@ -584,6 +584,7 @@ void _T_hp(std::string Ref, double h, double p, double *Tout, double *rhoout)
 	}
 	else
 	{
+		rhosatL=Props(std::string("D"),'P',p,'Q',0.0,Ref);
 		hsatL=Props(std::string("H"),'P',p,'Q',0.0,Ref);
 		hsatV=Props(std::string("H"),'P',p,'Q',1.0,Ref);
 		TsatL=Props(std::string("T"),'P',p,'Q',0.0,Ref);
@@ -601,7 +602,7 @@ void _T_hp(std::string Ref, double h, double p, double *Tout, double *rhoout)
 		{
 			// Subcooled liquid
 			T_guess = TsatL+(h-hsatL)/Props(std::string("C"),'P',p,'Q',0.0,Ref);
-			delta = 10;
+			delta = rhosatL/pFluid->reduce.rho;
 		}
 		else
 		{
