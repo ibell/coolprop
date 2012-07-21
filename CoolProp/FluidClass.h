@@ -259,6 +259,14 @@ class Fluid
 		/// @param rhoVout Saturated vapor pressure [kg/m3]
 		void rhosatPure(double T, double *rhoLout, double *rhoVout, double *pout);
 
+		/// NB: Only valid for pure fluids - no pseudo-pure or mixtures.
+		/// Get the saturated liquid, vapor densities and the saturated pressure using the method from Akasaka
+		/// @param T Temperature [K]]
+		/// @param pout Saturated pressure [kPa(abs)]
+		/// @param rhoLout Saturated liquid pressure [kg/m3]
+		/// @param rhoVout Saturated vapor pressure [kg/m3]
+		void rhosatPure_Akasaka(double T, double *rhoLout, double *rhoVout, double *pout);
+
 		/// Tries to build the Saturation Lookup tables for Temperature, pressure, densities and enthalpies.  
 		///  If the LUT are already built, don't rebuild them, but if the parameter SatLUT.force=True, rebuild.
 		void BuildSaturationLUT(void);

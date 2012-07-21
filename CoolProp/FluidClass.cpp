@@ -371,7 +371,7 @@ void Fluid::saturation(double T, bool UseLUT, double *psatLout, double *psatVout
 		}
 		else
 		{
-			rhosatPure(T,&rhoL,&rhoV,&p);
+			rhosatPure_Akasaka(T,&rhoL,&rhoV,&p);
 			*rhosatLout = rhoL;
 			*rhosatVout = rhoV;
 			*psatLout = p;
@@ -390,6 +390,61 @@ void Fluid::saturation(double T, bool UseLUT, double *psatLout, double *psatVout
 	}
 }
 
+void Fluid::rhosatPure_Akasaka(double T, double *rhoLout, double *rhoVout, double *pout)
+{
+	double rhoL,rhoV,dphirL,dphirV,ddphirL,ddphirV,phirL,phirV,JL,JV,KL,KV,dJL,dJV,dKL,dKV;
+	double DELTA, deltaL, deltaV, tau, gamma = 1.0, error, PL, PV;
+	int iter=0;
+	// Use the density ancillary function as the starting point for the solver
+    try
+	{
+		rhoL=rhosatL(T);
+		rhoV=rhosatV(T);
+		deltaL = rhoL/reduce.rho;
+		deltaV = rhoV/reduce.rho;
+		tau = reduce.T/T;
+	}
+	catch(NotImplementedError &e)
+	{
+		std::cout << e.what() << "Ancillary not provided" << std::endl;
+	}
+
+	do{
+		// Calculate once to save on calls to EOS
+		dphirL = dphir_dDelta(tau,deltaL);
+		dphirV = dphir_dDelta(tau,deltaV);
+		ddphirL = d2phir_dDelta2(tau,deltaL);
+		ddphirV = d2phir_dDelta2(tau,deltaV);
+		phirL = phir(tau,deltaL);
+		phirV = phir(tau,deltaV);
+
+		JL = deltaL * (1 + deltaL*dphirL);
+		JV = deltaV * (1 + deltaV*dphirV);
+		KL = deltaL*dphirL + phirL + log(deltaL);
+		KV = deltaV*dphirV + phirV + log(deltaV);
+		dJL = 1 + 2*deltaL*dphirL + deltaL*deltaL*ddphirL;
+		dJV = 1 + 2*deltaV*dphirV + deltaV*deltaV*ddphirV;
+		dKL = 2*dphirL + deltaL*ddphirL + 1/deltaL;
+		dKV = 2*dphirV + deltaV*ddphirV + 1/deltaV;
+		
+		DELTA = dJV*dKL-dJL*dKV;
+
+		error = fabs(KL-KV)+fabs(JL-JV);
+
+		//Update the step
+		deltaL += gamma/DELTA*( (KV-KL)*dJV-(JV-JL)*dKV);
+		deltaV += gamma/DELTA*( (KV-KL)*dJL-(JV-JL)*dKL);
+		
+		iter=iter+1;
+	}
+	while (error > 1e-10);
+	*rhoLout = deltaL*reduce.rho;
+	*rhoVout = deltaV*reduce.rho;
+	PL = pressure_Trho(T,*rhoLout);
+	PV = pressure_Trho(T,*rhoVout);
+	*pout = 0.5*(PL+PV);
+	return;
+}
 void Fluid::rhosatPure(double T, double *rhoLout, double *rhoVout, double *pout)
 {
     // Only works for pure fluids (no blends)

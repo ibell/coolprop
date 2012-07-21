@@ -5,6 +5,10 @@ import matplotlib as mpl
 import CoolProp as CP
 from CoolProp.Plots.Plots import Ph
 
+# Munge the system path if necessary to add the lib folder (only really needed
+# for packaging using cx_Freeze)
+#if os.path.exists('lib') and os.path.abspath(os.path.join(os.curdir,'lib')) not in os.:
+
 class PlotPanel(wx.Panel):
     def __init__(self, parent, **kwargs):
         wx.Panel.__init__(self, parent, **kwargs)
@@ -28,7 +32,7 @@ class PHPlotFrame(wx.Frame):
         
         sizer.Add(self.PP, 1, wx.EXPAND)
         self.SetSizer(sizer)
-        Ph(Fluid, axis = self.PP.ax)
+        Ph(str(Fluid), axis = self.PP.ax)
         sizer.Layout()
         
         self.add_menu()
@@ -60,7 +64,7 @@ class MainFrame(wx.Frame):
         self.PHPlot  = wx.Menu()#Item(self.plots, -1, "p-h plot", "", wx.ITEM_NORMAL)
         
         for Fluid in sorted(CP.__fluids__):
-            mnuItem  = wx.MenuItem(self.PHPlot, -1, Fluid, Fluid, wx.ITEM_NORMAL)
+            mnuItem  = wx.MenuItem(self.PHPlot, -1, Fluid, "", wx.ITEM_NORMAL)
             self.PHPlot.AppendItem(mnuItem)
             self.Bind(wx.EVT_MENU, lambda(event): self.OnPHPlot(event, mnuItem), mnuItem)
         
