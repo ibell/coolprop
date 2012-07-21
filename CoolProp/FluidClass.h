@@ -260,7 +260,8 @@ class Fluid
 		void rhosatPure(double T, double *rhoLout, double *rhoVout, double *pout);
 
 		/// NB: Only valid for pure fluids - no pseudo-pure or mixtures.
-		/// Get the saturated liquid, vapor densities and the saturated pressure using the method from Akasaka
+		/// Get the saturated liquid, vapor densities and the saturated pressure using the method from Akasaka given by
+		/// Ryo Akasaka, "A reliable and useful Method to Determine the Saturation State from Helmholtz Energy Equations of State", Journal of Thermal Science and Technology, v.3 n3 2008, 442-451
 		/// @param T Temperature [K]]
 		/// @param pout Saturated pressure [kPa(abs)]
 		/// @param rhoLout Saturated liquid pressure [kg/m3]
