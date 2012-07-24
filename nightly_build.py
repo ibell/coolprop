@@ -6,7 +6,9 @@ Uses whatever the default python distro is on the building computer
 To Use:
  - SSH key should be uploaded to SF servers and key managed by pageant on building computer
  - Add a shortcut to the .ppk private key file so that pageant will be started and key loaded at logon - you will be asked for password
- - Task should be setup that will run python with argument nightly_build.py in the source folder
+ - Windows Task should be setup in the task scheduler that will run python.exe with argument nightly_build.py in the source folder
+ 
+Change ibell to your sourceforge name below
 """
 
 def make_temp_folder():

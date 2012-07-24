@@ -3,7 +3,7 @@ from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as WXCanvas
 from matplotlib.backends.backend_wxagg import NavigationToolbar2Wx as WXToolbar
 import matplotlib as mpl
 import CoolProp as CP
-from CoolProp.Plots.Plots import Ph
+from CoolProp.Plots.Plots import Ph, Ts
 
 # Munge the system path if necessary to add the lib folder (only really needed
 # for packaging using cx_Freeze)
@@ -22,7 +22,33 @@ class PlotPanel(wx.Panel):
         #sizer.Add(self.toolbar)
         self.SetSizer(sizer)
         sizer.Layout()
+
+class TSPlotFrame(wx.Frame):
+    def __init__(self, Fluid):
+        wx.Frame.__init__(self, None,title='T-s plot: '+Fluid)
         
+        sizer = wx.BoxSizer(wx.HORIZONTAL)
+        self.PP = PlotPanel(self, size = (-1,-1))
+        
+        sizer.Add(self.PP, 1, wx.EXPAND)
+        self.SetSizer(sizer)
+        Ts(str(Fluid), axis = self.PP.ax)
+        sizer.Layout()
+        
+        self.add_menu()
+    
+    def add_menu(self):
+        # Menu Bar
+        self.MenuBar = wx.MenuBar()
+        self.File = wx.Menu()
+        
+        mnuItem  = wx.MenuItem(self.File, -1, "Edit...", "", wx.ITEM_NORMAL)
+        
+        self.File.AppendItem(mnuItem)
+        self.MenuBar.Append(self.File, "File")
+        
+        self.SetMenuBar(self.MenuBar)
+                
 class PHPlotFrame(wx.Frame):
     def __init__(self, Fluid):
         wx.Frame.__init__(self, None,title='p-h plot: '+Fluid)
@@ -61,15 +87,21 @@ class MainFrame(wx.Frame):
         self.MenuBar = wx.MenuBar()
         
         self.plots = wx.Menu()
-        self.PHPlot  = wx.Menu()#Item(self.plots, -1, "p-h plot", "", wx.ITEM_NORMAL)
+        self.PHPlot = wx.Menu()
+        self.TSPlot = wx.Menu()
         
         for Fluid in sorted(CP.__fluids__):
             mnuItem  = wx.MenuItem(self.PHPlot, -1, Fluid, "", wx.ITEM_NORMAL)
             self.PHPlot.AppendItem(mnuItem)
             self.Bind(wx.EVT_MENU, lambda(event): self.OnPHPlot(event, mnuItem), mnuItem)
+            
+            mnuItem  = wx.MenuItem(self.TSPlot, -1, Fluid, "", wx.ITEM_NORMAL)
+            self.TSPlot.AppendItem(mnuItem)
+            self.Bind(wx.EVT_MENU, lambda(event): self.OnTSPlot(event, mnuItem), mnuItem)
         
         self.MenuBar.Append(self.plots, "Plots")
         self.plots.AppendMenu(-1,'p-h plot',self.PHPlot)
+        self.plots.AppendMenu(-1,'T-s plot',self.TSPlot)
         
         self.SetMenuBar(self.MenuBar)
     
@@ -79,6 +111,13 @@ class MainFrame(wx.Frame):
         Fluid = self.PHPlot.FindItemById(event.Id).Label
         PH = PHPlotFrame(Fluid)
         PH.Show()
+        
+    def OnTSPlot(self, event, mnuItem):
+        #Make a p-h plot instance in a new frame
+        #Get the label (Fluid name)
+        Fluid = self.TSPlot.FindItemById(event.Id).Label
+        TS = TSPlotFrame(Fluid)
+        TS.Show()
         
 if __name__=='__main__':
     app = wx.App(False)

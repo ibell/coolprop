@@ -1511,10 +1511,13 @@ double Fluid::conductivity_ECS_Trho(double T, double rho, Fluid * ReferenceFluid
 		f_int,lambda_int,lambda_crit,lambda_star,rhoc0bar,rhobar,rhocbar,rho0bar;
 	Eigen::Vector2d x0;
 
+	// Properties for the reference fluid
 	Tc0=ReferenceFluid->reduce.T;
 	rhoc0=ReferenceFluid->reduce.rho;
 	M0=ReferenceFluid->params.molemass;
 	rhoc0bar = rhoc0/M0;
+
+	// Properties for the given fluid
 	Tc = reduce.T;
 	rhoc = reduce.rho;
 	M = params.molemass;
@@ -1544,14 +1547,14 @@ double Fluid::conductivity_ECS_Trho(double T, double rho, Fluid * ReferenceFluid
 	try{
 		chi = ECS_chi_conductivity(rho/reduce.rho);
 	}
-	catch(NotImplementedError &e){
+	catch(NotImplementedError){
 		chi = 1.0;
 	}
 
 	try{
 		f_int = ECS_f_int(T);
 	}
-	catch(NotImplementedError &e){
+	catch(NotImplementedError){
 		f_int = 1.32e-3;
 	}
 
@@ -1591,7 +1594,6 @@ double Fluid::conductivity_ECS_Trho(double T, double rho, Fluid * ReferenceFluid
 	
 	//Get the background viscosity from the reference fluid
 	lambda_resid = ReferenceFluid->conductivity_background(T0,rho0*chi)*1e3 ;//[W/m/K]
-	//No critical enhancement for now..
 	lambda_crit = conductivity_critical(T,rho);
 	lambda = lambda_int+lambda_star+lambda_resid*F_lambda+lambda_crit;
 	return lambda/1e3; //[kW/m/K]

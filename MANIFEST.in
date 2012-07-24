@@ -1,14 +1,13 @@
 recursive-include Plots *.*
-recursive-include CoolPropDLL *.*
-recursive-exclude CoolPropDLL *.ncb
 
 include *.template
 include *.h *.cpp *.i
-include setup.py
-include Readme.txt
+include fluids.txt
+include svnrevision.txt
 
 exclude *_wrap.*
-prune Vault
-prune Release
-prune CoolPropDLL\Release
 
+prune CoolPropBuilder
+prune Vault
+prune wrappers
+graft CoolProp/Eigen

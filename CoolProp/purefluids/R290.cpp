@@ -256,6 +256,35 @@ R290Class::R290Class()
 	aliases.push_back("C3H8");
 	REFPROPname.assign("PROPANE");
 }
+double R290Class::conductivity_background(double T, double rho)
+{
+	double sum=0;
+	int i;
+	//Set constants required
+    double B1[]={
+        0.0,			//[0]
+        -3.51153e-2,	//[1]
+         1.70890e-1,	//[2]
+        -1.47688e-1,	//[3]
+         5.19283e-2,	//[4]
+        -6.18662e-3		//[5]
+    };
+    double B2[]={
+        0.0,			//[0]
+         4.69195e-2,	//[1]
+        -1.48616e-1,	//[2]
+         1.32457e-1,	//[3]
+        -4.85636e-2,	//[4]
+         6.60414e-3		//[5]
+    };
+    double delta=rho/reduce.rho;
+    double tau=reduce.T/T;
+	for(i=1;i<=5;i++)
+    {
+        sum+=(B1[i]+B2[i]/tau)*pow(delta,(double)i);
+    }
+    return sum/1000;
+}
 double R290Class::conductivity_Trho(double T, double rho)
 {
 	/*Properties taken from "Measurement and Correlation of the Thermal Conductivity of 
@@ -305,12 +334,17 @@ double R290Class::conductivity_Trho(double T, double rho)
     };
     delta=rho/rhoc;
     tau=Tc/T;
+	// The dilute gas contribution
     lambda0=A[1]+A[2]/tau+A[3]/(tau*tau);
-    for(i=1;i<=5;i++)
+    
+	// The finite-density contribution
+	for(i=1;i<=5;i++)
     {
         sum+=(B1[i]+B2[i]/tau)*pow(delta,(double)i);
     }
     lambdar=sum;
+
+	// The critical region contribution
     DELTAT_c=(1.0/tau-1.0);
     DELTArho_c=delta-1.0;
     lambdac=C[1]/(C[2]+fabs(DELTAT_c))*exp(-(C[3]*DELTArho_c)*(C[3]*DELTArho_c));

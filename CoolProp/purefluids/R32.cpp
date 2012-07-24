@@ -222,7 +222,7 @@ double R32Class::ECS_f_int(double T)
 }
 double R32Class::ECS_chi_conductivity(double rhor)
 {
-	return 1.2942-0.0924549*rhor;
+	return 1.29424-0.0924549*rhor;
 }
 void R32Class::ECSParams(double *e_k, double *sigma)
 {
@@ -242,9 +242,14 @@ double R32Class::viscosity_Trho(double T, double rho)
 }
 double R32Class::conductivity_Trho(double T, double rho)
 {
-	//ERROR
-	throw NotImplementedError(format("Conductivity_Trho for R32 not coded"));
-	return _HUGE;
+	// Use propane as the reference
+	Fluid * ReferenceFluid = new R290Class();
+	ReferenceFluid->post_load();
+	// Calculate the ECS
+	double cond = conductivity_ECS_Trho(T, rho, ReferenceFluid);
+	// Delete the reference fluid instance
+	delete ReferenceFluid;
+	return cond;
 }
 double R32Class::surface_tension_T(double T)
 {

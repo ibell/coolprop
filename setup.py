@@ -23,11 +23,19 @@ if '--DLL' in sys.argv:
 else:
     packDLL = False
     
-if '--no-static-lib' in sys.argv:
+if '--no-static-lib' in sys.argv or 'sdist' in sys.argv:
     useStaticLib = False
-    sys.argv.pop(sys.argv.index('--no-static-lib'))
+    if '--no-static-lib' in sys.argv:
+        sys.argv.pop(sys.argv.index('--no-static-lib'))
 else:
     useStaticLib=True
+    
+if '--update-fluids' in sys.argv:
+    FL = subprocess.Popen(['python','-c','import CoolProp; print CoolProp.CoolProp.FluidsList()'], stdout=subprocess.PIPE).communicate()[0].rstrip()
+    fp = open('fluids.txt','w')
+    fp.write(FL)
+    fp.close()
+    sys.argv.pop(sys.argv.index('--update-fluids'))
     
 badfiles = [os.path.join('CoolProp','__init__.pyc'),os.path.join('CoolProp','__init__.py')]
 for file in badfiles:
@@ -37,6 +45,13 @@ for file in badfiles:
         pass
     
 def availableFluids():
+    #First see if there is a file called fluids.txt - a comma-separated list of fluids
+    if os.path.exists('fluids.txt'):
+        FL = open('fluids.txt','r').read()
+        line = '__fluids__=' + str(FL.split(',')) +'\n'
+        print line
+        return line
+        
     try:
         ## Can't load the CoolProp module in this file because then you can't install the files :(
         ## Run a subprocess to do it instead
@@ -48,7 +63,7 @@ def availableFluids():
     print line
     return line
 
-version='2.0.0'
+version='2.0.1'
 
 #########################
 ## __init__.py builder ##
@@ -67,6 +82,7 @@ try:
         if line.startswith('Revision'):
             svnstring='__svnrevision__ = '+line.strip().split(':')[1].strip()+'\n'
             break
+    svnstring=''
 except:
     svnstring=''
     
@@ -246,12 +262,24 @@ setup (name = 'CoolProp',
        author = "Ian Bell",
        author_email='ian.h.bell@gmail.com',
        url='http://coolprop.sourceforge.net',
-       description = """Properties of pure fluids, pseudo-pure fluids and brines""",
+       description = """Open-source thermodynamic and transport properties database""",
        packages = ['CoolProp','CoolProp.Plots','CoolProp.tests'],
        ext_modules = [CoolProp_module,FloodProp_module,HumidAirProp_module,State_module],
        package_dir = {'CoolProp':'CoolProp',},
        package_data = {'CoolProp':['State.pxd']},
-       cmdclass={'build_ext': build_ext}
+       cmdclass={'build_ext': build_ext},
+       
+       classifiers = [
+        "Programming Language :: Python",
+        "Development Status :: 4 - Beta",
+        "Environment :: Other Environment",
+        "Intended Audience :: Developers",
+        "License :: OSI Approved :: X11",
+        "Operating System :: OS Independent",
+        "Topic :: Software Development :: Libraries :: Python Modules",
+        "Topic :: Text Processing :: Linguistic",
+        ],
+
        )
 
 badfiles = [os.path.join('CoolProp','__init__.pyc'),os.path.join('CoolProp','__init__.py')]
