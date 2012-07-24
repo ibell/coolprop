@@ -289,7 +289,7 @@ double R22Class::psat(double T)
 double R22Class::ECS_f_int(double T)
 {
 	// McLinden et al., 2000
-	return 7.7817e-4+1.2536e-6*T;
+	return 7.7817e-4+1.2636e-6*T;
 }
 double R22Class::ECS_chi_conductivity(double rhor)
 {
