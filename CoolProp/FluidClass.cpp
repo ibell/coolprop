@@ -540,7 +540,7 @@ void Fluid::BuildSaturationLUT()
 		// Build the tau vector - for better interpolation behavior
 		SatLUT.tau[i]=reduce.T/SatLUT.T[i];
         // Calculate the saturation properties
-        rhosatPure(SatLUT.T[i], &(SatLUT.rhoL[i]), &(SatLUT.rhoV[i]), &(SatLUT.p[i]));
+        rhosatPure_Akasaka(SatLUT.T[i], &(SatLUT.rhoL[i]), &(SatLUT.rhoV[i]), &(SatLUT.p[i]));
 		SatLUT.logp[i]=log(SatLUT.p[i]);
         // Calculate the other saturation properties
 		SatLUT.hL[i]=Props(std::string("H"),'T',SatLUT.T[i],'D',SatLUT.rhoL[i],name);
@@ -1225,10 +1225,10 @@ double Fluid::conductivity_critical(double T, double rho)
 
 	tau = reduce.T/T;
 	double dp_drho=R()*T*(1+2*delta*dphir_dDelta(tau,delta)+delta*delta*d2phir_dDelta2(tau,delta));
-	double X = Pcrit/pow(511.9,2)*rho/dp_drho;
+	double X = Pcrit/pow(reduce.rho,2)*rho/dp_drho;
 	tau = reduce.T/Tref;
 	double dp_drho_ref=R()*Tref*(1+2*delta*dphir_dDelta(tau,delta)+delta*delta*d2phir_dDelta2(tau,delta));
-	double Xref = Pcrit/pow(511.9,2)*rho/dp_drho_ref*Tref/T;
+	double Xref = Pcrit/pow(reduce.rho,2)*rho/dp_drho_ref*Tref/T;
 	num=X-Xref;
 
 	// no critical enhancement if numerator is negative

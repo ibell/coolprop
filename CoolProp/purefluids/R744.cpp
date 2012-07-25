@@ -6,8 +6,6 @@ Themo properties from
 Triple Point Temperature to 1100 K at Pressures up to 800 MPa", 
 R. Span and W. Wagner, J. Phys. Chem. Ref. Data, v. 25, 1996
 
-WARNING: Thermal conductivity not coded!!
-
 */
 
 #if defined(_MSC_VER)
@@ -320,8 +318,7 @@ R744Class::R744Class()
 	TransportReference.assign("\"The Transport Properties of Carbon Dioxide\","
 							  " V. Vesovic and W.A. Wakeham and G.A. Olchowy and "
 							  "J.V. Sengers and J.T.R. Watson and J. Millat"
-							  "J. Phys. Chem. Ref. Data, v. 19, 1990"
-							  "**Note: Only viscosity implemented");
+							  "J. Phys. Chem. Ref. Data, v. 19, 1990");
 
 	name.assign("R744");
 	aliases.push_back("CO2");
@@ -330,28 +327,119 @@ R744Class::R744Class()
 	REFPROPname.assign("CO2");
 
 }
+double R744Class::conductivity_critical(double T, double rho)
+{
+	double k=1.380658e-23, //[J/K]
+		Tref = 1.5*reduce.T, //[K]
+		Pcrit = reduce.p, //[kPa]
+
+		//Critical exponents
+		nu=0.63,
+		gamma=1.2415,
+
+		//Critical amplitudes
+		R0=1.01,
+		zeta0=1.50e-10, //[m]
+		GAMMA = 0.052,
+		
+		qd = 1/(4.0e-10), //[1/m]
+		cp,cv,delta,num,zeta,mu,
+		OMEGA_tilde,OMEGA_tilde0,pi=M_PI,tau;
+
+	delta = rho/reduce.rho;
+
+	tau = reduce.T/T;
+	double dp_drho=R()*T*(1+2*delta*dphir_dDelta(tau,delta)+delta*delta*d2phir_dDelta2(tau,delta));
+	double X = Pcrit/pow(reduce.rho,2)*rho/dp_drho;
+	tau = reduce.T/Tref;
+	double dp_drho_ref=R()*Tref*(1+2*delta*dphir_dDelta(tau,delta)+delta*delta*d2phir_dDelta2(tau,delta));
+	double Xref = Pcrit/pow(reduce.rho,2)*rho/dp_drho_ref*Tref/T;
+	num=X-Xref;
+
+	// no critical enhancement if numerator is negative
+	if (num<0)
+		return 0.0;
+	else
+		zeta=zeta0*pow(num/GAMMA,nu/gamma); //[m]
+
+	cp=specific_heat_p_Trho(T,rho); //[kJ/kg/K]
+	cv=specific_heat_v_Trho(T,rho); //[kJ/kg/K]
+	mu=viscosity_Trho(T,rho)*1e6; //[uPa-s]
+
+	OMEGA_tilde=2.0/pi*((cp-cv)/cp*atan(zeta*qd)+cv/cp*(zeta*qd)); //[-]
+	OMEGA_tilde0=2.0/pi*(1.0-exp(-1.0/(1.0/(qd*zeta)+1.0/3.0*(zeta*qd)*(zeta*qd)/delta/delta))); //[-]
+
+	double lambda=rho*cp*1e9*(R0*k*T)/(6*pi*mu*zeta)*(OMEGA_tilde-OMEGA_tilde0); //[W/m/K]
+	return lambda*1e3; //[mW/m/K]
+}
 double R744Class::conductivity_Trho(double T, double rho)
 {
-	fprintf(stderr,"Thermal conductivity not coded for R744 (CO2).  Sorry.\n");
-	return _HUGE;
+	double e_k=251.196,Tstar;
+	double a[]={0.235156,-0.491266,5.211155e-2,5.347906e-2,-1.537102e-2};
+	double b[]={0.4226159,0.6280115,-0.5387661,0.6735941,0,0,-0.4362677,0.2255388};
+	double c[]={0,2.387869e-2,4.350794,-10.33404,7.981590,-1.940558};
+	double d[]={0,2.447164e-2,8.705605e-5,-6.547950e-8,6.594919e-11};
+	double e[]={0,3.635074e-3,7.209997e-5, 0,0,0,0,3.00306e-20};
+
+	//Vesovic Eq. 31 [no units]
+	double summer = 0;
+	for (int i=1; i<=5; i++)
+		summer += c[i]*pow(T/100.0, 2-i);
+	double cint_k = 1.0 + exp(-183.5/T)*summer;
+
+	//Vesovic Eq. 12 [no units]
+	double r = sqrt(2.0/5.0*cint_k);
+
+	Tstar=T/e_k;
+	//Vesovic Eq. 30 [no units]
+	summer = 0;
+	for (int i=0; i<=7; i++)
+		summer += b[i]/pow(Tstar, i);
+	double Gstar_lambda = summer;
+
+	//Vesovic Eq. 29 [mW/m/K]
+	double lambda_0 = 0.475598*sqrt(T)*(1+r*r)/Gstar_lambda;
+
+	//Vesovic Eq. 63 [mW/m/K]
+	summer = 0;
+	for (int i=1; i<=4; i++)
+		summer += d[i]*pow(rho, i);
+	double delta_lambda = summer;
+
+	// Use the simplified cross-over critical enhancement term
+	double delta_c = conductivity_critical(T,rho); //[mW/m/K]
+
+	return (lambda_0+delta_lambda+delta_c)/1e6; //[kW/m/K]
 }
 double R744Class::viscosity_Trho(double T, double rho)
 {
 	int i;
 	double e_k=251.196,Tstar,sumGstar=0.0,Gstar,eta0,delta_eta;
 	double a[]={0.235156,-0.491266,5.211155e-2,5.347906e-2,-1.537102e-2};
-	double d11=0.4071119e-2,d21=0.7198037e-4,d64=0.2411697e-16,d81=0.2971072e-22,d82=-0.1627888e-22;
+	double e[]={0,3.635074e-3,7.209997e-5, 0,0,0,0,3.00306e-20};
 
+	double d11=0.4071119e-2,d21=0.7198037e-4,d64=0.2411697e-16,d81=0.2971072e-22,d82=-0.1627888e-22;
+	double summer=0;
 	Tstar=T/e_k;
 	for (i=0;i<=4;i++)
 	{
-		sumGstar=sumGstar+a[i]*powInt(log(Tstar),i);
+		sumGstar += a[i]*powInt(log(Tstar),i);
 	}
 	Gstar=exp(sumGstar);
 	eta0=1.00697*sqrt(T)/Gstar;
-	delta_eta=d11*rho+d21*rho*rho*d64*powInt(rho,6)/powInt(Tstar,3)+d81*powInt(rho,8)+d82*powInt(rho,8)/Tstar;
 
-	return (eta0+delta_eta)/1e6;
+	for (i=1;i<=7;i++)
+		summer += e[i]*pow(rho,i);
+	double delta_eta_g = summer;
+
+	// No critical enhancement in viscosity
+	double delta_eta_c = 0.0;
+
+	double B = 18.56 + 0.014*T;
+	double V0 = 7.41e-4 - 3.3e-7*T;
+	double eta_l = delta_eta_c+1/(B*(1/rho-V0));
+
+	return (eta0+delta_eta_g)/1e6;
 }
 double R744Class::psat(double T)
 {

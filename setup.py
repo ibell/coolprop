@@ -30,6 +30,7 @@ if '--no-static-lib' in sys.argv or 'sdist' in sys.argv:
 else:
     useStaticLib=True
     
+
 if '--update-fluids' in sys.argv:
     FL = subprocess.Popen(['python','-c','import CoolProp; print CoolProp.CoolProp.FluidsList()'], stdout=subprocess.PIPE).communicate()[0].rstrip()
     fp = open('fluids.txt','w')
@@ -77,6 +78,7 @@ lines=open('__init__.py.template','r').readlines()
 
 import subprocess
 try:
+    subprocess.Popen(['svn','update'], stdout=subprocess.PIPE).communicate()
     SVNInfo = subprocess.Popen(['svn','info'], stdout=subprocess.PIPE).communicate()[0].split('\n')
     for line in SVNInfo:
         if line.startswith('Revision'):
@@ -124,7 +126,11 @@ for source,target in swig_sources:
         subprocess.call(swig_call)
         
     #if the target doesn't exist or the wrapped C++ code is newer
-    if not os.path.exists(target) or os.path.getmtime(source)>os.path.getmtime(target) or os.path.getmtime(header)>os.path.getmtime(target):
+    if (not os.path.exists(target) 
+        or os.path.getmtime(source)>os.path.getmtime(target) 
+        or os.path.getmtime(header)>os.path.getmtime(target)
+        ):
+        
         rebuild_swig(source,target)
     else:
         print 'No SWIG required for '+source+' --> '+target+' (up-to-date)'
@@ -158,6 +164,9 @@ def StaticLibBuilder(sources,LibName='CoolProp',build_path='build_lib',lib_path=
     if sys.platform.startswith('linux'):
         extra_compile_args=['-fPIC']
         MACROS = None
+    elif sys.platform.startswith('darwin'):
+        extra_compile_args=['']
+        MACROS = None
     else:
         extra_compile_args=['/EHsc']
         MACROS = [('COOLPROP_LIB',None)]
@@ -170,20 +179,20 @@ def StaticLibBuilder(sources,LibName='CoolProp',build_path='build_lib',lib_path=
     elif newer_group(sources,CPLibPath):
         buildCPLib=True
     
-    if buildCPLib==True:
+    if buildCPLib or DLL:
         objs=CC.compile(sources,build_path,MACROS,include_dirs=include_dirs,extra_postargs=extra_compile_args)
         CC.create_static_lib(objs, LibName,lib_path,target_lang='c++')
         print 'Built the static library in',CPLibPath
-        if DLL==True:
+        if DLL:
             CC.link_shared_lib(objs, LibName,lib_path,target_lang='c++')
             print 'Built the shared library in',os.path.join(lib_path,LibName)
     else:
         print 'No build of CoolProp static library required.'
   
-if useStaticLib==True or packDLL==True:
+if useStaticLib or packDLL:
     StaticLibBuilder(Sources,DLL=packDLL)
     
-if packDLL==True:
+if packDLL:
     ZIPfilePath = 'dist/CoolPropDLL-'+version+'.zip'
     from zipfile import ZipFile
     with ZipFile(ZIPfilePath,'w') as z:
@@ -191,6 +200,7 @@ if packDLL==True:
         z.write(os.path.join('CoolProp','CoolProp.h'),arcname='CoolProp.h')
         z.write(os.path.join('Examples','CoolPropDLL.py'),arcname='CoolPropDLL.py')
         z.write('DLLREADME.txt',arcname='README.txt')
+    print 'DLL file has been packed into file', ZIPfilePath
 
 print 'UseStaticLib is',useStaticLib
 #Now come in and build the modules themselves

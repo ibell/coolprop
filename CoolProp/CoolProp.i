@@ -56,12 +56,13 @@ where ``Fluid`` is a string with a valid CoolProp fluid name.  The value
 ``OutputName`` is either a single-character or a string alias.  This list 
 shows the possible values
 
-========================  =================================================
+========================  ======================================================
 ``OutputName``            Description
-========================  =================================================
+========================  ======================================================
 `T`                       Temperature [K]
 `P`                       Pressure [kPa]
 `D`                       Density [kg/m3]
+`C0`                      Ideal-gas specific heat at constant pressure [kJ/kg]
 `C`                       Specific heat at constant pressure [kJ/kg]
 `O`                       Specific heat at constant volume [kJ/kg]
 `U`                       Internal energy [kJ/kg]
@@ -72,7 +73,7 @@ shows the possible values
 `V`                       Viscosity [Pa-s]
 `L`                       Thermal conductivity [kW/m/K]
 `I` or `SurfaceTension`   Surface Tension [N/m]
-========================  =================================================
+========================  ======================================================
 
 If `InputName1` is `T` and `InputName2` is `D`, any of the outputs are valid
 
