@@ -203,7 +203,7 @@ AirClass::AirClass()
 double AirClass::rhosatL(double T)
 {
 	const double ti[]={0,0.65,0.85,0.95,1.1};
-    const double Ni[]={0,43.3413,-240.073,285.139,-88.3366,-0.892181};
+    const double Ni[]={0,44.3413,-240.073,285.139,-88.3366,-0.892181};
     double summer=0; int k;
     for (k=1;k<=4;k++)
     {
