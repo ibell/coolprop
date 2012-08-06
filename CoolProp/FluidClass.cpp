@@ -281,7 +281,7 @@ double Fluid::density_Tp(double T, double p, double rho_guess)
 	// Start with the guess value
 	rho=rho_guess;
     int iter=1;
-    while (fabs(error)>1e-8)
+    while (fabs(error)>1e-10)
     {
         delta=rho/reduce.rho;
 		// Run and save to cut down on calculations

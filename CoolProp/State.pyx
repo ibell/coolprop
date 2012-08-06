@@ -1,3 +1,5 @@
+#cython: embedsignature = True
+
 cdef extern from "CoolProp.h":
     double _Props "Props" (char*,char,double,char,double,char*)
     void UseSinglePhaseLUT(bool)
@@ -12,6 +14,16 @@ cdef bint _LUT_Enabled
 import CoolProp as CP
 
 cpdef cmath_speed_test(float x, long N):
+    """
+    Run a few tests at the c++ level to test how fast math functions are
+    
+    Parameters
+    ----------
+    x : float
+        Input value for trig functions
+    N : int
+        Number of calls to make
+    """
     from time import clock
     cdef int i
     cdef double y
@@ -51,6 +63,9 @@ cpdef cmath_speed_test(float x, long N):
     print 'Elapsed time for {0:d} calls for "{1:s}" at {2:g} us/call'.format(N,'pow(double)',(t2-t1)/N*1e6)
 
 cpdef int set_1phase_LUT_params(bytes Ref, int nT, int np, double Tmin, double Tmax, double pmin, double pmax):
+    """
+    Set the 
+    """
     #Set the LUT parameters in CoolProp copy of the LUT table
     CP.set_1phase_LUT_params(Ref, nT, np, Tmin, Tmax, pmin, pmax)
     
@@ -60,9 +75,28 @@ cpdef int set_1phase_LUT_params(bytes Ref, int nT, int np, double Tmin, double T
     return 0
 
 cpdef debug(int level):
+    """
+    Sets the debug level
+    
+    Parameters
+    ----------
+    level : int
+        Flag indicating how verbose the debugging should be.
+            0 : no debugging output
+            ...
+            ...
+            10 : very annoying debugging output - every function call debugged
+    """
     _debug(level)
 
 cpdef LUT(bint LUTval):
+    """
+    
+    LUTval : boolean
+        If ``True``, turn on the use of lookup table.  Parameters must have 
+        already been set through the use of set_1phase_LUT_params
+
+    """
     if LUTval:
         _LUT_Enabled = True
         print 'Turning on singlephase LUT'
@@ -72,6 +106,9 @@ cpdef LUT(bint LUTval):
         UseSinglePhaseLUT(False)
         
 cpdef double Props(bytes Parameter, bytes param1, float value1, bytes param2, float value2, bytes Fluid):
+    """
+    Expose the Props() function.  Uses the same call signature as the Props() function in CoolProp.CoolProp
+    """
     cdef char _param1 = param1[0]
     cdef char _param2 = param2[0]  
     return _Props(Parameter, _param1, value1, _param2, value2, Fluid)
@@ -110,7 +147,7 @@ cdef class State:
         
         # If no value for xL is provided, it will have a value of -1 which is 
         # impossible, so don't update xL
-        if xL>0:
+        if xL > 0:
             #There is liquid
             self.xL=xL
             self.hasLiquid=True
@@ -121,7 +158,7 @@ cdef class State:
         
         #You passed in a dictionary, use the values to update the state
         if 'T' not in params:
-            raise AttributeError
+            raise AttributeError('T must be provided in params dict in State.update')
             
         #Consume the 'T' key since it is required (TODO?)
         self.T_=float(params.pop('T'))
@@ -152,7 +189,7 @@ cdef class State:
                     print errstr
                     raise ValueError(errstr)
             else:
-                raise KeyError('Dictionary must contain the key \'T\' and one of \'P\' or \'D\'')
+                raise KeyError("Dictionary must contain the key 'T' and one of 'P' or 'D'")
             
         elif self.xL>0 and self.xL<=1:
             raise ValueError('Need more code here')
@@ -239,13 +276,13 @@ cdef class State:
         def __get__(self):
             return self.get_dpdT()
         
-    cpdef speed_test(self,int N):
+    cpdef speed_test(self, int N):
         from time import clock
         cdef int i
         cdef char * k
         cdef char * Fluid = self.Fluid 
         print 'Direct c++ call to CoolProp without the Python call layer'
-        print "'M' involves basically no computational effort"
+        print "'M' involves basically no computational effort and is a good measure of the function call overhead"
         keys = ['H','P','S','U','C','O','V','L','M','C0']
         for key in keys:
             t1=clock()
