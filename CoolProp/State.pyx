@@ -5,6 +5,7 @@ cdef extern from "CoolProp.h":
     void UseSinglePhaseLUT(bool)
     double DerivTerms(char *, double, double, char*)
     char * get_errstringc()
+    void get_errstring(char*)
     int _set_1phase_LUT_params "set_1phase_LUT_params" (char*,int,int,double,double,double,double)
     void _debug "debug" (int)
     
@@ -71,7 +72,7 @@ cpdef int set_1phase_LUT_params(bytes Ref, int nT, int np, double Tmin, double T
     
     #Set the LUT parameters in the local LUT copy build into the State module
     _set_1phase_LUT_params(Ref, nT, np, Tmin, Tmax, pmin, pmax)
-    
+
     return 0
 
 cpdef debug(int level):
@@ -142,8 +143,10 @@ cdef class State:
         that have been updated and will be used to fix the rest of the state. 
         ['T','P'] for temperature and pressure for instance
         """
+            
         cdef double p
         cdef char* pchar
+        cdef bytes errstr
         
         # If no value for xL is provided, it will have a value of -1 which is 
         # impossible, so don't update xL
@@ -186,8 +189,7 @@ cdef class State:
                     self.p_=p
                 else:
                     errstr = get_errstringc()
-                    print errstr
-                    raise ValueError(errstr)
+                    raise ValueError(errstr+str(params))
             else:
                 raise KeyError("Dictionary must contain the key 'T' and one of 'P' or 'D'")
             

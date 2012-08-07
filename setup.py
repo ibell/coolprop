@@ -5,7 +5,7 @@ from Cython.Build import cythonize
 from Cython.Distutils import build_ext
 from Cython.Distutils.extension import Extension as CyExtension
 from distutils.sysconfig import get_python_inc
-from distutils.ccompiler import new_compiler
+from distutils.ccompiler import new_compiler 
 from distutils.dep_util import newer_group
 
 import Cython
@@ -64,7 +64,7 @@ def availableFluids():
     print line
     return line
 
-version='2.0.1'
+version='2.0.2'
 
 #########################
 ## __init__.py builder ##

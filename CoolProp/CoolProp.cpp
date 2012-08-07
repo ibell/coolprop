@@ -24,6 +24,7 @@
 
 // Function prototypes
 void _T_hp(std::string Ref, double h, double p, double *T, double *rho);
+void _T_sp(std::string Ref, double s, double p, double *T, double *rho);
 double rho_TP(double T, double p);
 double _Props(std::string Output,char Name1, double Prop1, char Name2, double Prop2, std::string Ref);
 
@@ -535,6 +536,21 @@ double _Props(std::string Output,char Name1, double Prop1, char Name2, double Pr
         	_T_hp(Ref,Prop1,Prop2,&T, &rho);
             return T;
         }
+		else if (!Output.compare("T") && Name2=='H' && Name1=='P')
+        {
+        	_T_hp(Ref,Prop2,Prop1,&T, &rho);
+            return T;
+        }
+		else if (!Output.compare("T") && Name1=='S' && Name2=='P')
+        {
+        	_T_sp(Ref,Prop1,Prop2,&T, &rho);
+            return T;
+        }
+		else if (!Output.compare("T") && Name2=='S' && Name1=='P')
+        {
+        	_T_sp(Ref,Prop2,Prop1,&T, &rho);
+            return T;
+        }
         else
         {
 			throw ValueError(format("Not a valid pair of input keys %c,%c and output key %s",Name1,Name2,Output.c_str()));
@@ -566,6 +582,110 @@ void MatInv_2(double A[2][2] , double B[2][2])
     B[1][0]=-1.0/Det*A[1][0];
     B[0][1]=-1.0/Det*A[0][1];
 }
+
+void _T_sp(std::string Ref, double s, double p, double *Tout, double *rhoout)
+{
+	int iter;
+	double A[2][2], B[2][2],T_guess,R;
+	double dar_ddelta,da0_dtau,d2a0_dtau2,dar_dtau,d2ar_ddelta_dtau,d2ar_ddelta2,d2ar_dtau2,d2a0_ddelta_dtau,ar,a0,da0_ddelta;
+	double f1,f2,df1_dtau,df1_ddelta,df2_ddelta,df2_dtau,s_hot;
+    double rhosatL,ssatL,ssatV,TsatL,TsatV,tau,delta,worst_error;
+	//First figure out where you are
+
+	R=pFluid->R();
+	if (p > Props(Ref,"pcrit"))
+	{
+        //Supercritical pressure
+		T_guess = Props(Ref,"Tcrit")+30.0;
+		delta = p/(R*T_guess)/pFluid->reduce.rho/0.7;
+	}
+	else
+	{
+		rhosatL=Props(std::string("D"),'P',p,'Q',0.0,Ref);
+		ssatL=Props(std::string("S"),'P',p,'Q',0.0,Ref);
+		ssatV=Props(std::string("S"),'P',p,'Q',1.0,Ref);
+		TsatL=Props(std::string("T"),'P',p,'Q',0.0,Ref);
+		TsatV=Props(std::string("T"),'P',p,'Q',1.0,Ref);
+
+		if (s>ssatV)
+		{
+			// Superheated vapor
+			// Very superheated
+			s_hot = Props(std::string("S"),'T',TsatV+40.0,'P',p,Ref);
+			T_guess = TsatV+(s-ssatV)/(s_hot-ssatV)*40.0;
+			delta = Props(std::string("D"),'T',T_guess,'P',p,Ref)/ (pFluid->reduce.rho);
+		}
+		else if (s<ssatL)
+		{
+			// Subcooled liquid
+			T_guess = TsatL*log((s-ssatL)/Props(std::string("C"),'P',p,'Q',0.0,Ref));
+			delta = rhosatL/pFluid->reduce.rho;
+		}
+		else
+		{
+
+		}
+	}
+
+	double Tc = pFluid->reduce.T;
+	tau=Tc/T_guess;
+	double rhoc = pFluid->reduce.rho;
+
+    worst_error=999;
+    iter=0;
+    while (worst_error>1e-6)
+    {
+    	// All the required partial derivatives
+		a0 = pFluid->phi0(tau,delta);
+    	da0_dtau = pFluid->dphi0_dTau(tau,delta);
+    	d2a0_dtau2 = pFluid->d2phi0_dTau2(tau,delta);
+    	da0_ddelta = pFluid->dphi0_dDelta(tau,delta);
+		d2a0_ddelta_dtau = 0.0;
+
+    	ar = pFluid->phir(tau,delta);
+		dar_dtau = pFluid->dphir_dTau(tau,delta);
+		d2ar_dtau2 = pFluid->d2phir_dTau2(tau,delta);
+		dar_ddelta = pFluid->dphir_dDelta(tau,delta);
+		d2ar_ddelta2 = pFluid->d2phir_dDelta2(tau,delta);
+		d2ar_ddelta_dtau = pFluid->d2phir_dDelta_dTau(tau,delta);
+		
+		// Residual and derivatives thereof for entropy
+		f1 = tau*(da0_dtau+dar_dtau)-ar-a0-s/R;
+		df1_dtau = tau*(d2a0_dtau2 + d2ar_dtau2)+(da0_dtau+dar_dtau)-dar_dtau-da0_dtau;
+		df1_ddelta = tau*(d2a0_ddelta_dtau+d2ar_ddelta_dtau)-dar_ddelta-da0_ddelta;
+
+		// Residual and derivatives thereof for pressure
+		f2 = delta/tau*(1+delta*dar_ddelta)-p/(rhoc*R*Tc);
+		df2_dtau = (1+delta*dar_ddelta)*(-delta/tau/tau)+delta/tau*(delta*d2ar_ddelta_dtau);
+		df2_ddelta = (1.0/tau)*(1+2.0*delta*dar_ddelta+delta*delta*d2ar_ddelta2);
+
+		//First index is the row, second index is the column
+		A[0][0]=df1_dtau;
+		A[0][1]=df1_ddelta;
+		A[1][0]=df2_dtau;
+		A[1][1]=df2_ddelta;
+
+		MatInv_2(A,B);
+		tau -= B[0][0]*f1+B[0][1]*f2;
+		delta -= B[1][0]*f1+B[1][1]*f2;
+
+        if (fabs(f1)>fabs(f2))
+            worst_error=fabs(f1);
+        else
+            worst_error=fabs(f2);
+
+		iter+=1;
+		if (iter>100)
+		{
+			printf("_Tsp did not converge\n");
+			*Tout = _HUGE;
+            *rhoout = _HUGE;
+		}
+    }
+    *Tout = Tc/tau;
+    *rhoout = delta*rhoc;
+}
+
 void _T_hp(std::string Ref, double h, double p, double *Tout, double *rhoout)
 {
 	int iter;
