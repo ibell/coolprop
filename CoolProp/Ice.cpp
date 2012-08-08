@@ -95,3 +95,16 @@ extern "C" double h_Ice(double T, double p)
     // Returned value is in units of J/kg
     return g_Ice(T,p)-T*dg_dT_Ice(T,p);
 }
+
+extern "C" double rho_Ice(double T, double p)
+{
+    // Returned value is in units of kg/m3
+    return 1/g_Ice(T,p);
+}
+
+extern "C" double s_Ice(double T, double p)
+{
+    // Returned value is in units of J/kg/K
+    return -dg_dT_Ice(T,p);
+}
+

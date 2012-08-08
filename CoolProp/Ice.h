@@ -33,3 +33,13 @@ double dg_dT_Ice(double T, double p);
 extern "C" 
 #endif
 double h_Ice(double T, double p);
+
+#if __cplusplus
+extern "C" 
+#endif
+double s_Ice(double T, double p);
+
+#if __cplusplus
+extern "C" 
+#endif
+double rho_Ice(double T, double p);

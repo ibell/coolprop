@@ -64,7 +64,7 @@ def availableFluids():
     print line
     return line
 
-version='2.0.2'
+version='2.0.3'
 
 #########################
 ## __init__.py builder ##
@@ -203,18 +203,18 @@ if packDLL:
     print 'DLL file has been packed into file', ZIPfilePath
 
 print 'UseStaticLib is',useStaticLib
-#Now come in and build the modules themselves
-if useStaticLib==True:
-    CoolProp_module = Extension('CoolProp._CoolProp',
-                           sources=[os.path.join('CoolProp','CoolProp_wrap.cpp')],
-                           include_dirs = include_dirs,language='c++',
-                           libraries=['CoolProp'],library_dirs=['lib']
-                           )
-else:
-    CoolProp_module = Extension('CoolProp._CoolProp',
-                           sources=[os.path.join('CoolProp','CoolProp_wrap.cpp')]+Sources,
-                           include_dirs = include_dirs,language='c++'
-                           )
+##Now come in and build the modules themselves
+#if useStaticLib==True:
+#    CoolProp_module = Extension('CoolProp._CoolProp',
+#                           sources=[os.path.join('CoolProp','CoolProp_wrap.cpp')],
+#                           include_dirs = include_dirs,language='c++',
+#                           libraries=['CoolProp'],library_dirs=['lib']
+#                           )
+#else:
+#    CoolProp_module = Extension('CoolProp._CoolProp',
+#                           sources=[os.path.join('CoolProp','CoolProp_wrap.cpp')]+Sources,
+#                           include_dirs = include_dirs,language='c++'
+#                           )
     
     
 if useStaticLib==True:
@@ -265,6 +265,22 @@ else:
                         include_dirs = include_dirs,
                         language='c++'
                         )
+
+if useStaticLib==True:
+    CoolProp2_module = CyExtension('CoolProp.CoolProp2',
+                        [os.path.join('CoolProp','CoolProp2.pyx')],
+                        include_dirs = include_dirs,
+                        language='c++',
+                        libraries=['CoolProp'],
+                        library_dirs=['lib'],
+                        cython_c_in_temp = True
+                        )
+else:
+    CoolProp2_module = CyExtension('CoolProp.CoolProp2',
+                        [os.path.join('CoolProp','CoolProp2.pyx')]+Sources,
+                        include_dirs = include_dirs,
+                        language='c++'
+                        )
     
                         
 setup (name = 'CoolProp',
@@ -274,7 +290,7 @@ setup (name = 'CoolProp',
        url='http://coolprop.sourceforge.net',
        description = """Open-source thermodynamic and transport properties database""",
        packages = ['CoolProp','CoolProp.Plots','CoolProp.tests'],
-       ext_modules = [CoolProp_module,FloodProp_module,HumidAirProp_module,State_module],
+       ext_modules = [FloodProp_module,HumidAirProp_module,State_module,CoolProp2_module],
        package_dir = {'CoolProp':'CoolProp',},
        package_data = {'CoolProp':['State.pxd']},
        cmdclass={'build_ext': build_ext},

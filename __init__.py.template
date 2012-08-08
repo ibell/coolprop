@@ -4,7 +4,8 @@
 #import HumidAirProp
 #import FloodProp
 
-import CoolProp
+import CoolProp2 as CoolProp
+#import CoolProp
 import HumidAirProp
 import FloodProp
 import State

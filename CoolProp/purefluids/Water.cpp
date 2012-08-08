@@ -386,7 +386,7 @@ WaterClass::WaterClass()
 
 	// Other fluid parameters
 	params.molemass = 18.015268;
-	params.Ttriple = 273.15;
+	params.Ttriple = 273.16;
 	params.ptriple = 0.61248;
 	params.R_u = 8.314371357587;
 	params.accentricfactor = 0.3443;

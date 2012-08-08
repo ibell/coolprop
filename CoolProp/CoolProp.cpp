@@ -36,6 +36,21 @@ int debug_level=5;
 FluidsContainer Fluids = FluidsContainer();
 Fluid * pFluid;
 
+void swap (double *x, double *y)
+{
+	double tmp;
+	tmp = *y;
+	*y = *x;
+	*x = tmp;
+}
+void swap (char *x, char *y)
+{
+	char tmp;
+	tmp = *y;
+	*y = *x;
+	*x = tmp;
+}
+
 int get_debug(){return debug_level;}
 int debug(){return debug_level;}
 void debug(int level){debug_level=level;}
@@ -404,8 +419,6 @@ double _Props(std::string Output,char Name1, double Prop1, char Name2, double Pr
 
 		//Load the fluid - throws a NotImplementedError if not matched
 		pFluid=Fluids.get_fluid(Ref);
-
-        T=Prop1; 
         
         // Check if it is an output that doesn't require a state input
         // Deal with it and return
@@ -427,16 +440,25 @@ double _Props(std::string Output,char Name1, double Prop1, char Name2, double Pr
 				throw ValueError(format("If output is surface tension ['I' or 'SurfaceTension'], Param1 must be temperature"));
 		}
 
-		// In any case, you want to get a (temperature,density) pair
-		if (Name1=='T' && Name2=='P')
+		// In any case, you want to get a (temperature, density) pair
+		if ((Name1=='T' && Name2=='P') || (Name1=='P' && Name2 == 'T'))
 		{
+			//Swap values and keys
+			if (Name1=='P' && Name2 == 'T')
+			{
+				swap(&Prop1,&Prop2);
+				swap(&Name1,&Name2);
+			}
+
+			// Handle trivial outputs
 			if (!Output.compare("P")) 
 				return Prop2;
 			else if (!Output.compare("T")) 
 				return Prop1;
-			// Get density as a function of T&p
+			
+			// Get density as a function of T&p, then call again
 			if (FlagUseSinglePhaseLUT==true){
-				return pFluid->LookupValue_TP(std::string(Output), T, Prop2);
+				return pFluid->LookupValue_TP(std::string(Output), Prop1, Prop2);
             }
 			else{
 				rho = rho_TP(Prop1,Prop2);
@@ -447,8 +469,13 @@ double _Props(std::string Output,char Name1, double Prop1, char Name2, double Pr
 			else
 				return Props(Output,Name1,Prop1,'D',rho,Ref);
 		}
-		else if (Name1=='T' && Name2=='Q')
+		else if ((Name1=='T' && Name2=='Q') || (Name1=='Q' && Name2=='T'))
 		{
+			if (Name1=='Q' && Name2=='T'){
+				//Swap values and keys to get T,Q
+				swap(&Prop1,&Prop2);
+				swap(&Name1,&Name2);
+			}
 			Q=Prop2;
 			// Get the saturation properties
 			pFluid->saturation(Prop1,FlagUseSaturationLUT,&pL,&pV,&rhoL,&rhoV);
@@ -470,8 +497,14 @@ double _Props(std::string Output,char Name1, double Prop1, char Name2, double Pr
 				else
 					return Q*Props(Output,'T',Prop1,'D',rhoV,Ref)+(1-Q)*Props(Output,'T',Prop1,'D',rhoL,Ref);
 		}
-		else if (Name1=='T' && Name2=='D')
+		else if ((Name1=='T' && Name2=='D') || (Name1=='D' && Name2=='T'))
 		{
+			if (Name1=='D' && Name2=='T')
+			{
+				//Swap values and keys to get T,D
+				swap(&Prop1,&Prop2);
+				swap(&Name1,&Name2);
+			}
 			T=Prop1;
 			rho=Prop2;
 			if (!Output.compare("D"))
@@ -522,34 +555,35 @@ double _Props(std::string Output,char Name1, double Prop1, char Name2, double Pr
             }
             return Value;
 		}
-        else if (!Output.compare("T") && Name1=='P' && Name2=='Q')
-        {
-			return pFluid->Tsat(Prop1,Prop2,0);
-        }
         else if (Name1=='P' && Name2=='Q')
         {
             T=pFluid->Tsat(Prop1,Prop2,0);
             return Props(Output,'T',T,'Q',Prop2,Ref);
         }
-        else if (!Output.compare("T") && Name1=='H' && Name2=='P')
+		else if (Name1=='Q' && Name2=='P')
+        {
+            T=pFluid->Tsat(Prop2,Prop1,0);
+            return Props(Output,'T',T,'Q',Prop1,Ref);
+        }
+        else if (Name1=='H' && Name2=='P')
         {
         	_T_hp(Ref,Prop1,Prop2,&T, &rho);
-            return T;
+			return Props(Output,'T',T,'D',rho,Ref);
         }
-		else if (!Output.compare("T") && Name2=='H' && Name1=='P')
+		else if (Name1=='P' && Name2=='H')
         {
         	_T_hp(Ref,Prop2,Prop1,&T, &rho);
-            return T;
+			return Props(Output,'T',T,'D',rho,Ref);
         }
-		else if (!Output.compare("T") && Name1=='S' && Name2=='P')
+		else if (Name1=='S' && Name2=='P')
         {
         	_T_sp(Ref,Prop1,Prop2,&T, &rho);
-            return T;
+			return Props(Output,'T',T,'D',rho,Ref);
         }
-		else if (!Output.compare("T") && Name2=='S' && Name1=='P')
+		else if (Name1=='P' && Name2=='S')
         {
         	_T_sp(Ref,Prop2,Prop1,&T, &rho);
-            return T;
+			return Props(Output,'T',T,'D',rho,Ref);
         }
         else
         {

@@ -46,6 +46,9 @@ double HAProps(char *OutputName, char *Input1Name, double Input1, char *Input2Na
 // -----------------------
 double HAProps_Aux(char* Name,double T, double p, double W, char *units);
 
+// Properties for Ice Ih at temperatures below 273.16 K
+double IceProps(char* Name, double T, double p);
+
 //Turn on the use of virial correlations for air and water
 void UseVirialCorrelations(int flag);
 void UseIsothermCompressCorrelation(int flag);

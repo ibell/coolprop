@@ -1364,3 +1364,25 @@ double cair_sat(double T)
 	// cair_s: [kJ/kg-K]
 	return 2.14627073E+03-3.28917768E+01*T+1.89471075E-01*T*T-4.86290986E-04*T*T*T+4.69540143E-07*T*T*T*T;
 }
+
+
+double IceProps(char* Name, double T, double p)
+{
+	if (!strcmp(Name,"s"))
+	{
+		return s_Ice(T,p*1000.0);
+	}
+	else if (!strcmp(Name,"rho"))
+	{
+		return rho_Ice(T,p*1000.0);
+	}
+	else if (!strcmp(Name,"h"))
+	{
+		return h_Ice(T,p*1000.0);
+	}
+	else
+	{
+		return 1e99;
+	}
+
+}
