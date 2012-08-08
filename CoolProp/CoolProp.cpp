@@ -509,6 +509,8 @@ double _Props(std::string Output,char Name1, double Prop1, char Name2, double Pr
 			rho = Prop2; 
 			if (!Output.compare("D"))
 				Value=rho;
+			else if (!Output.compare("T"))
+				Value=T;
 			else if (!Output.compare("P"))
 				Value=pFluid->pressure_Trho(T,rho);
 			else if (!Output.compare("H"))
@@ -534,7 +536,6 @@ double _Props(std::string Output,char Name1, double Prop1, char Name2, double Pr
 			else if (!Output.compare("dpdT"))
 				Value=pFluid->dpdT_Trho(T,rho);
 			else{
-				std::cout<<Output<<std::endl;
 				throw ValueError(format("Invalid Output Name: %s ",Output.c_str()));
 				return _HUGE;
             }

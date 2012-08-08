@@ -203,18 +203,6 @@ if packDLL:
 
 print 'UseStaticLib is',useStaticLib
 ##Now come in and build the modules themselves
-#if useStaticLib==True:
-#    CoolProp_module = Extension('CoolProp._CoolProp',
-#                           sources=[os.path.join('CoolProp','CoolProp_wrap.cpp')],
-#                           include_dirs = include_dirs,language='c++',
-#                           libraries=['CoolProp'],library_dirs=['lib']
-#                           )
-#else:
-#    CoolProp_module = Extension('CoolProp._CoolProp',
-#                           sources=[os.path.join('CoolProp','CoolProp_wrap.cpp')]+Sources,
-#                           include_dirs = include_dirs,language='c++'
-#                           )
-    
     
 if useStaticLib==True:
     FloodProp_module = Extension('CoolProp._FloodProp',
@@ -281,7 +269,6 @@ else:
                         include_dirs = include_dirs,
                         language='c++'
                         )
-    
                         
 setup (name = 'CoolProp',
        version = version, #look above for the definition of version variable - don't modify it here
