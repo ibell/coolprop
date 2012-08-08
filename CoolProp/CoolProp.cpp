@@ -28,7 +28,7 @@ void _T_sp(std::string Ref, double s, double p, double *T, double *rho);
 double rho_TP(double T, double p);
 double _Props(std::string Output,char Name1, double Prop1, char Name2, double Prop2, std::string Ref);
 
-bool FlagUseSaturationLUT=false; //Default to use LUT since they are used so much and don't take long to build
+bool FlagUseSaturationLUT=false; //Default to not use LUT
 bool FlagUseSinglePhaseLUT=false; //Default to not use LUT
 
 static std::string err_string;

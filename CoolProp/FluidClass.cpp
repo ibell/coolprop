@@ -270,7 +270,7 @@ double Fluid::density_Tp(double T, double p)
 
 double Fluid::density_Tp(double T, double p, double rho_guess)
 {
-    double delta,tau,dpdrho,error=999,R,p_EOS,rho;
+    double delta,tau,dpdrho,error=999,R,p_EOS,rho,change=999;
     R=params.R_u/params.molemass;
 	tau=reduce.T/T;
 
@@ -281,21 +281,22 @@ double Fluid::density_Tp(double T, double p, double rho_guess)
 	// Start with the guess value
 	rho=rho_guess;
     int iter=1;
-    while (fabs(error)>1e-10)
+    while (fabs(error)>1e-10 && change>1e-11)
     {
         delta=rho/reduce.rho;
 		// Run and save to cut down on calculations
 		double dphirdDelta = dphir_dDelta(tau,delta);
-        // Use Newton's method to find the saturation density since the derivative of pressure w.r.t. density is known from EOS
+        // Use Newton's method to find the density since the derivative of pressure w.r.t. density is known from EOS
         dpdrho=R*T*(1+2*delta*dphirdDelta+delta*delta*d2phir_dDelta2(tau,delta));
 		// Pressure from equation of state
 		p_EOS = rho*R*T*(1+delta*dphirdDelta);
         // Update the step using Newton's method
         rho=rho-(p_EOS-p)/dpdrho;
+		change = fabs((p_EOS-p)/dpdrho);
         // Residual
         error=p_EOS-p;
         iter++;
-        if (iter>100)
+        if (iter>200)
         {
 			throw SolutionError(format("Number of steps in density_TP has exceeded 100 with inputs T=%g,p=%g,rho_guess=%g for fluid %s\n",T,p,rho_guess,name.c_str()));
             return _HUGE;
@@ -648,8 +649,15 @@ double Fluid::_get_rho_guess(double T, double p)
 		rho_simple = p/(R()*T);
 	}
 	else if (!strcmp(phase.c_str(),"Liquid")){
+		// Start at the saturation state, with a known density
 		// Return subcooled liquid density
-		rho_simple = 1.05*rhosatL(T);
+		double rhoL,rhoV,pL,pV;
+		saturation(T,false,&pL,&pV,&rhoL,&rhoV);
+		double delta = rhoL / reduce.rho;
+		double tau = reduce.T/T;
+		double dp_drho = R()*T*(1+2*delta*dphir_dDelta(tau,delta)+delta*delta*d2phir_dDelta2(tau,delta));
+		double drho_dp = 1/dp_drho;
+		rho_simple = rhosatL(T)-drho_dp*(pL-p);
 	}
 	return rho_simple;
 

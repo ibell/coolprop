@@ -709,7 +709,6 @@ double DewpointTemperature(double T, double p, double psi_w)
             if (Tdp>=273.15)
             {
                 // Saturation pressure at dewpoint [kPa]
-                UseSaturationLUT(1);
                 p_ws_dp=Props('P','T',Tdp,'Q',0,"Water");
             }
             else
@@ -857,7 +856,6 @@ int TypeMatch(int TypeCode,char *Input1Name, char *Input2Name, char *Input3Name)
 double MoleFractionWater(double T, double p, int HumInput, double InVal)
 {
     double p_ws,f,W,epsilon=0.621945,Tdp,p_ws_dp,f_dp,p_w_dp,p_s,RH;
-    UseSaturationLUT(1); // Enable the use of lookup tables for saturation properties for speed
     
     if (HumInput==GIVEN_HUMRAT) //(2)
     {
@@ -866,7 +864,7 @@ double MoleFractionWater(double T, double p, int HumInput, double InVal)
     }
     else if (HumInput==GIVEN_RH)
     {
-        if (T>=273.15)
+        if (T>=273.16)
         {
             // Saturation pressure [kPa]
             p_ws=Props('P','T',T,'Q',0,"Water");
