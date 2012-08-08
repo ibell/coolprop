@@ -28,14 +28,14 @@ cdef extern from "CoolProp.h":
     
     string _get_EOSReference "get_EOSReference"(string Ref)
     string _get_TransportReference "get_TransportReference"(string Ref)
+
+    int _set_1phase_LUT_params "set_1phase_LUT_params"(char *Ref, int nT, int np, double Tmin, double Tmax, double pmin, double pmax, bint rebuild)
+    void _get_1phase_LUT_params "get_1phase_LUT_params"(int *nT, int *np, double *Tmin, double *Tmax, double *pmin, double *pmax)
     
-    ##### NOT DONE BELOW ######
     # Convenience functions
     int _IsFluidType "IsFluidType"(char *Ref, char *Type)
 
-    #returns 1 if parameters set properly
-    int _set_1phase_LUT_params "set_1phase_LUT_params"(char *Ref, int nT, int np, double Tmin, double Tmax, double pmin, double pmax, bint rebuild)
-    void _get_1phase_LUT_params "get_1phase_LUT_params"(int *nT, int *np, double *Tmin, double *Tmax, double *pmin, double *pmax)
+
 
     
     

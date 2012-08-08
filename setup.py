@@ -64,7 +64,7 @@ def availableFluids():
     print line
     return line
 
-version='2.0.3'
+version='2.0.4'
 
 #########################
 ## __init__.py builder ##
@@ -114,8 +114,7 @@ is called to rebuilt the file.  Does not check the c++ headers.  Delete the _wra
 swig_sources[(source,target)]
 
 """
-swig_sources=[(os.path.join('CoolProp','CoolProp.i'),os.path.join('CoolProp','CoolProp_wrap.cpp')),
-              (os.path.join('CoolProp','FloodProp.i'),os.path.join('CoolProp','FloodProp_wrap.cpp')),
+swig_sources=[(os.path.join('CoolProp','FloodProp.i'),os.path.join('CoolProp','FloodProp_wrap.cpp')),
               (os.path.join('CoolProp','HumidAirProp.i'),os.path.join('CoolProp','HumidAirProp_wrap.cpp'))]
 
 for source,target in swig_sources:
@@ -257,7 +256,8 @@ if useStaticLib==True:
     State_module = CyExtension('CoolProp.State',
                         [os.path.join('CoolProp','State.pyx')],
                         include_dirs = include_dirs,language='c++',
-                        libraries=['CoolProp'],library_dirs=['lib']
+                        libraries=['CoolProp'],
+                        library_dirs=['lib']
                         )
 else:
     State_module = CyExtension('CoolProp.State',
@@ -267,8 +267,8 @@ else:
                         )
 
 if useStaticLib==True:
-    CoolProp2_module = CyExtension('CoolProp.CoolProp2',
-                        [os.path.join('CoolProp','CoolProp2.pyx')],
+    CoolProp2_module = CyExtension('CoolProp.CoolProp',
+                        [os.path.join('CoolProp','CoolProp.pyx')],
                         include_dirs = include_dirs,
                         language='c++',
                         libraries=['CoolProp'],
@@ -276,8 +276,8 @@ if useStaticLib==True:
                         cython_c_in_temp = True
                         )
 else:
-    CoolProp2_module = CyExtension('CoolProp.CoolProp2',
-                        [os.path.join('CoolProp','CoolProp2.pyx')]+Sources,
+    CoolProp2_module = CyExtension('CoolProp.CoolProp',
+                        [os.path.join('CoolProp','CoolProp.pyx')]+Sources,
                         include_dirs = include_dirs,
                         language='c++'
                         )

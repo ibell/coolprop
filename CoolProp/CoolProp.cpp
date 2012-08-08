@@ -203,32 +203,17 @@ static int IsREFPROP(std::string Ref)
     else
         return 0;
 }
-static int IsPseudoPure(std::string Ref)
-{
-    if (!Ref.compare("Air") ||
-        !Ref.compare("R410A") ||
-        !Ref.compare("R407C") ||
-        !Ref.compare("R507A") ||
-        !Ref.compare("R404A"))
-    {
-        return 1;
-    }
-    else
-    {
-        return 0;
-    }
-}
-int IsFluidType(char *Ref,char *Type)
+int IsFluidType(char *Ref, char *Type)
 {
     if (IsBrine(Ref) && !strcmp(Type,"Brine"))
     {
         return 1;
     }
-    else if (IsPseudoPure(Ref) && !strcmp(Type,"PseudoPure"))
+    else if (!pFluid->pure() && (!strcmp(Type,"PseudoPure") || !strcmp(Type,"PseudoPureFluid")))
     {
         return 1;
     }
-	else if ((pFluid->pure() || IsREFPROP(Ref)) && !strcmp(Type,"PureFluidStruct"))
+	else if ((pFluid->pure() || IsREFPROP(Ref)) && !strcmp(Type,"PureFluid"))
     {
         return 1;
     }
