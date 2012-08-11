@@ -101,7 +101,7 @@
 			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="2"
 			UseOfMFC="2"
-			CharacterSet="1"
+			CharacterSet="2"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -124,7 +124,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				PreprocessorDefinitions="WIN64;_WINDOWS;_DEBUG;_USRDLL"
+				AdditionalIncludeDirectories="C:\Users\Belli\Documents\Code\PythonModules\CoolPropSource\CoolProp;C:\Users\Belli\Documents\Code\PythonModules\CoolPropSource\CoolProp\pseudopurefluids;C:\Users\Belli\Documents\Code\PythonModules\CoolPropSource\CoolProp\purefluids"
+				PreprocessorDefinitions="WIN64;_WINDOWS;_DEBUG;_USRDLL;COOLPROP_LIB"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -147,7 +148,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				LinkIncremental="2"
-				ModuleDefinitionFile=".\CoolPropDLL.def"
+				ModuleDefinitionFile=""
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				TargetMachine="17"
@@ -289,7 +290,8 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG;_USRDLL"
+				AdditionalIncludeDirectories="C:\Users\Belli\Documents\Code\PythonModules\CoolPropSource\CoolProp\purefluids;C:\Users\Belli\Documents\Code\PythonModules\CoolPropSource\CoolProp\pseudopurefluids;C:\Users\Belli\Documents\Code\PythonModules\CoolPropSource\CoolProp"
+				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG;_USRDLL;COOLPROP_LIB"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
@@ -311,7 +313,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				LinkIncremental="1"
-				ModuleDefinitionFile=".\CoolPropDLL.def"
+				ModuleDefinitionFile=""
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -382,10 +384,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\CoolProp\HumAir.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\CoolProp\Ice.cpp"
 				>
 			</File>
@@ -395,6 +393,10 @@
 			</File>
 			<File
 				RelativePath="..\CoolProp\purefluids\Nitrogen.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\CoolProp\PengRobinson.cpp"
 				>
 			</File>
 			<File

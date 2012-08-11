@@ -32,7 +32,7 @@ bool FlagUseSaturationLUT=false; //Default to not use LUT
 bool FlagUseSinglePhaseLUT=false; //Default to not use LUT
 
 static std::string err_string;
-int debug_level=5;
+int debug_level=0;
 FluidsContainer Fluids = FluidsContainer();
 Fluid * pFluid;
 
@@ -237,9 +237,21 @@ std::string Phase(std::string Fluid, double T, double p)
 		return std::string("");
 	}
 }
+
+// All the function interfaces that point to the single-input Props function
+double Props1(char* Ref, char * Output)
+{
+	// Redirect to the Props function - should have called it Props1 from the outset
+	return Props(Ref, Output);
+}
+double Props1(std::string Ref, std::string Output)
+{
+	// Redirect to the Props function - should have called it Props1 from the outset
+	return Props((char*)Ref.c_str(), (char*)Output.c_str());
+}
 double Props(std::string Ref,std::string Output)
 {
-	return Props((char*)Ref.c_str(),(char*)Output.c_str());
+	return Props((char*)Ref.c_str(), (char*)Output.c_str());
 }
 
 double Props(char *Fluid, char *Output)
@@ -267,6 +279,7 @@ double Props(char *Fluid, char *Output)
 			// Catch any error that subclasses the std::exception
 			catch(std::exception &e){
 				err_string = std::string("CoolProp error: ").append(e.what());
+				std::cout << err_string <<std::endl;
 				return _HUGE;
 			}
 		}
@@ -290,6 +303,7 @@ double Props(char *Fluid, char *Output)
 	// Catch any error that subclasses the std::exception
 	catch(std::exception &e){
 		err_string = std::string("CoolProp error: ").append(e.what());
+		std::cout << err_string <<std::endl;
 		return _HUGE;
 	}
 	catch(...)
@@ -449,8 +463,12 @@ double _Props(std::string Output,char Name1, double Prop1, char Name2, double Pr
 				rho = rho_TP(Prop1,Prop2);
 			}
 			
-			if (!Output.compare("D"))
+			if (!Output.compare("D")){
+				if (debug()>5){
+					std::cout<<__FILE__<<": "<<Output<<","<<Name1<<","<<Prop1<<","<<Name2<<","<<Prop2<<","<<Ref<<"="<<rho<<std::endl;
+				}
 				return rho;
+			}
 			else
 				return Props(Output,Name1,Prop1,'D',rho,Ref);
 		}
@@ -539,6 +557,9 @@ double _Props(std::string Output,char Name1, double Prop1, char Name2, double Pr
 				throw ValueError(format("Invalid Output Name: %s ",Output.c_str()));
 				return _HUGE;
             }
+			if (debug()>5){
+				std::cout<<__FILE__<<": "<<Output<<","<<Name1<<","<<Prop1<<","<<Name2<<","<<Prop2<<","<<Ref<<"="<<Value<<std::endl;
+			}
             return Value;
 		}
         else if (Name1=='P' && Name2=='Q')

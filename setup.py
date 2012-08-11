@@ -243,7 +243,8 @@ HumidAirProp_module = Extension('CoolProp._HumidAirProp',
 if useStaticLib==True:
     State_module = CyExtension('CoolProp.State',
                         [os.path.join('CoolProp','State.pyx')],
-                        include_dirs = include_dirs,language='c++',
+                        include_dirs = include_dirs,
+                        language='c++',
                         libraries=['CoolProp'],
                         library_dirs=['lib']
                         )
@@ -276,7 +277,7 @@ setup (name = 'CoolProp',
        author_email='ian.h.bell@gmail.com',
        url='http://coolprop.sourceforge.net',
        description = """Open-source thermodynamic and transport properties database""",
-       packages = ['CoolProp','CoolProp.Plots','CoolProp.tests'],
+       packages = ['CoolProp','CoolProp.Plots','CoolProp.tests','CoolProp.GUI'],
        ext_modules = [FloodProp_module,HumidAirProp_module,State_module,CoolProp2_module],
        package_dir = {'CoolProp':'CoolProp',},
        package_data = {'CoolProp':['State.pxd']},

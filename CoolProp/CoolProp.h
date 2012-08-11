@@ -97,7 +97,7 @@ You might want to start by looking at CoolProp.h
 	#endif
 
 	
-	// Functions within this extern "C" bracket will be export to the DLL
+	// Functions within this extern "C" bracket will be exported to the DLL
 	extern "C" {
 		EXPORT_CODE void CONVENTION Help(void);
 		EXPORT_CODE void CONVENTION UseSaturationLUT(bool OnOff);
@@ -106,6 +106,7 @@ You might want to start by looking at CoolProp.h
 		EXPORT_CODE bool CONVENTION SinglePhaseLUTStatus(void);
 
 		EXPORT_CODE double CONVENTION Props(char *Output,char Name1, double Prop1, char Name2, double Prop2, char * Ref);
+		EXPORT_CODE double CONVENTION Props1(char *Output, char * Ref);
 
 		// Convenience functions
 		EXPORT_CODE int CONVENTION IsFluidType(char *Ref, char *Type);
@@ -140,6 +141,7 @@ You might want to start by looking at CoolProp.h
 	// ------------------------------------------------------------------------------------------------
 	double Props(std::string Fluid,std::string Output);
 	double Props(char *Fluid, char *Output);
+	double Props1(std::string Fluid,std::string Output);
 	double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, char * Ref);
 	double Props(std::string Output,char Name1, double Prop1, char Name2, double Prop2, std::string Ref);
 

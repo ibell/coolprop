@@ -1,6 +1,6 @@
 %module CoolProp
 
-// This %include allows the use of std::string natively in Python
+// This %include allows the use of std::string natively
 %include "std_string.i"
 
 // This stuff will get included verbatim in CoolProp_wrap.cpp
@@ -11,6 +11,7 @@
 // Have SWIG generate python docstrings for all the functions automatically
 %feature("autodoc", "1");
 
+#ifdef SWIGPYTHON
 /* 
 Something went wrong because an exception was thrown, yielding an infinite output value.
 get_errstring() returns a std::string string, which is converted to a c-string and returned in the ValueError call
@@ -22,6 +23,7 @@ get_errstring() returns a std::string string, which is converted to a c-string a
      return NULL;
   }
 }
+#endif
 
 //Add the docstring for the Props function
 %define PROPSDOCSTRING

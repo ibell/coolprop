@@ -1,5 +1,13 @@
 Changelog:
 
+2.0.4 (revision 132)
+Fixed density for subcooled liquid
+Fixed setup.py for OSX (I think)
+Using cython for wrapping of CoolProp module
+CoolProp module - removed T_hp and h_sp - use Props instead
+Added IceProps function to HumidAirProps
+Added and fixed CO2 transport properties
+
 2.0.1 (revision 122)
 Implemented the method of Akasaka to calculate the saturation state (works great).  H/T to FPROPS for the recommendation
 Fixed the calculations for T(h,p) up to a subcooling of 50 K, works fine in superheated vapor
