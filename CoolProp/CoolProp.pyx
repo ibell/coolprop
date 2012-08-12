@@ -75,8 +75,8 @@ cpdef double Props(bytes in1, bytes in2, in3=None, in4=None,in5=None,in6=None):
         
         return _Props1(in1,in2)
     else:
-        _in2 = <char>(in2)[0]
-        _in4 = <char>(in4)[0]
+        _in2 = <char>((<bytes>in2)[0])
+        _in4 = <char>((<bytes>in4)[0])
         return _Props(in1, _in2, in3, _in4, in5, in6)
     
 cpdef double DerivTerms(bytes Output, double T, double rho, bytes Fluid):
