@@ -1,4 +1,5 @@
 
+$Rev$
 from distutils.core import setup, Extension
 import subprocess,shutil,os,sys,glob
 from Cython.Build import cythonize
@@ -65,6 +66,7 @@ def availableFluids():
     return line
 
 version='2.0.4'
+
 
 #########################
 ## __init__.py builder ##
@@ -201,7 +203,7 @@ if packDLL:
         z.write('DLLREADME.txt',arcname='README.txt')
     print 'DLL file has been packed into file', ZIPfilePath
 
-print 'UseStaticLib is',useStaticLib
+print 'UseStaticLib is ',useStaticLib
 ##Now come in and build the modules themselves
     
 if useStaticLib==True:
