@@ -211,7 +211,7 @@ cpdef K2F(double T_K):
     """
     return _K2F(T_K)
 
-cpdef list FluidsList(bint OnOff):
+cpdef list FluidsList():
     """
     Return a list of strings of all fluid names
     

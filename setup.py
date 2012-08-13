@@ -81,18 +81,6 @@ lines=open('__init__.py.template','r').readlines()
 # The stuff in the $Rev: xxx$ is magic subversion code, 
 # do not change it, it is updated every time svn commit is called
 svnstring = '__svnrevision__ ='+'$Rev$'.rstrip('$').split(":")[1].strip()+'\n'
-print svnstring
-# import subprocess
-# try:
-    # subprocess.Popen(['svn','update'], stdout=subprocess.PIPE).communicate()
-    # SVNInfo = subprocess.Popen(['svn','info'], stdout=subprocess.PIPE).communicate()[0].split('\n')
-    # for line in SVNInfo:
-        # if line.startswith('Revision'):
-            # svnstring='__svnrevision__ = '+line.strip().split(':')[1].strip()+'\n'
-            # break
-    # svnstring=''
-# except:
-    # svnstring=''
     
 for i in range(len(lines)-1,-1,-1):
     if lines[i].strip().startswith('#') or len(lines[i].strip())==0: 
