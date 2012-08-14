@@ -67,7 +67,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     /* Create matrix for the return argument. */
     plhs[0] = mxCreateDoubleMatrix(1,1, mxREAL);
     
-    if (nrhs == 2 && mxIsString (prhs[0]) && mxIsString (prhs[1]))
+    if (nrhs == 2 && mxIsChar (prhs[0]) && mxIsChar (prhs[1]))
     {
         // Get the refrigerant (it is a string) (+1 for the NULL terminator)
         Ref_len=(mxGetM(prhs[0]) * mxGetN(prhs[0])) + 1;
