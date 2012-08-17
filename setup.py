@@ -65,7 +65,7 @@ def availableFluids():
     print line
     return line
 
-version='2.0.4'
+version='2.0.5'
 
 
 #########################

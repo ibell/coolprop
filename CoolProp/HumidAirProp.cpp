@@ -12,6 +12,7 @@
 #include "CoolProp.h"
 #include "Ice.h"
 #include "HumidAirProp.h"
+#include "Solvers.h"
 
 static const char ITc='B';
 static double epsilon=0.621945,R_bar=8.314472;
@@ -696,14 +697,22 @@ double DewpointTemperature(double T, double p, double psi_w)
     // ------------------------------------------
     // Iteratively find the dewpoint temperature
     // ------------------------------------------
+
+	// The highest dewpoint temperature possible is the dry-bulb temperature.  
+	// When they are equal, the air is saturated (R=1)
+	//
+	// The lowest dewpoint temperature possible 
     
     p_w=psi_w*p;
+
+	// A good guess for Tdp is that enhancement factor is unity, which yields
+	// p_w_s = p_w, and get 
     
     iter=1; eps=1e-8; resid=999;
     while ((iter<=3 || fabs(resid)>eps) && iter<100)
 	{
-		if (iter==1){x1=HAProps("Twb","Tdb",T,"R",0.0,"P",p); Tdp=x1;}
-		if (iter==2){x2=T; Tdp=x2;}
+		if (iter==1){x1=Props('T','P',p_w/1000,'Q',1.0,"Water"); Tdp=x1;}
+		if (iter==2){x2=x1+1.0; Tdp=x2;}
 		if (iter>2) {Tdp=x2;}
         
             if (Tdp>=273.15)
@@ -733,6 +742,66 @@ double DewpointTemperature(double T, double p, double psi_w)
     return Tdp;
 }
 
+class WetBulbSolver : public FuncWrapper1D
+{
+private:
+	double _T,_p,_W,LHS,v_bar_w,M_ha;
+public:
+	WetBulbSolver(double T, double p, double psi_w){
+		_T = p;
+		_p = p;
+		_W = epsilon*psi_w/(1-psi_w);
+
+		//These things are all not a function of Twb
+		v_bar_w=MolarVolume(T,p,psi_w);
+		M_ha=MM_Water()*psi_w+(1-psi_w)*28.966;
+		LHS = MolarEnthalpy(T,p,psi_w,v_bar_w)*(1+_W)/M_ha;
+	};
+	~WetBulbSolver(){};
+	double call(double Twb)
+	{
+		double epsilon=0.621945;
+		double f_wb,p_ws_wb,p_s_wb,W_s_wb,h_w,M_ha_wb,psi_wb,v_bar_wb;
+		
+
+		// Enhancement Factor at wetbulb temperature [-]
+        f_wb=f_factor(Twb,_p);
+        if (Twb>273.15)
+        {
+            // Saturation pressure at wetbulb temperature [kPa]
+            p_ws_wb=Props('P','T',Twb,'Q',0,"Water");
+        }
+        else
+        {
+            // Sublimation pressure at wetbulb temperature [kPa]
+            p_ws_wb=psub_Ice(Twb);
+        }
+            
+        // Vapor pressure
+        p_s_wb=f_wb*p_ws_wb;
+        // wetbulb humidity ratio
+        W_s_wb=epsilon*p_s_wb/(_p-p_s_wb);
+        // wetbulb water mole fraction
+        psi_wb=W_s_wb/(epsilon+W_s_wb);
+        if (Twb>273.15)
+        {
+            // Enthalpy of water [kJ/kg_water]
+            h_w=Props('H','T',Twb,'P',_p,"Water");
+        }
+        else
+        {
+            // Enthalpy of ice [kJ/kg_water]
+            h_w=h_Ice(Twb,_p)/1000;
+        }
+        // Mole masses of wetbulb and humid air
+        
+        M_ha_wb=MM_Water()*psi_wb+(1-psi_wb)*28.966;
+        v_bar_wb=MolarVolume(Twb,_p,psi_wb);
+        // Error between target and actual pressure [kJ/kg_da]
+        return LHS-(MolarEnthalpy(Twb,_p,psi_wb,v_bar_wb)*(1+W_s_wb)/M_ha_wb+(_W-W_s_wb)*h_w);
+	}
+};
+
 double WetbulbTemperature(double T, double p, double psi_w)
 {
     int iter;
@@ -744,78 +813,21 @@ double WetbulbTemperature(double T, double p, double psi_w)
     // Iteratively find the wetbulb temperature
     // ------------------------------------------
 
-	// For a given pressure, the range of possible wetbulb temperatures is from the wetbulb calculated for dry air and saturated air
-	//double Tmin = HAProps("Twb","Tdb",T,"R",0.0,"P",p);
-	//double Tmax = HAProps("Twb","Tdb",T,"R",1.0,"P",p);
-    
-    W=epsilon*psi_w/(1-psi_w);
-    
-	// The highest wetbulb temperature that is possible is the pressure 
-	// that results in a water pressure equal to the total pressure i.e. f_wb*p_ws_wb=p
-	// 
-	// So to get a guess value, assume the enhancement factor to be unity, and start below this pressure
+	// The highest wetbulb temperature that is possible is the dry bulb temperature
+	double Tmax = T;
+	double Tmin = T;
+	// The lowest wetbulb temperature that is possible for a given dry bulb temperature 
+	// is the saturated air temperature which yields the enthalpy of dry air at dry bulb temperature
+	// Easier just to keep decreasing lower limit until safe
 
-	double Twb_guess = Props('T','P',0.95*p,'Q',1.0,"Water");
-	
-	// These things are not a function of Twb
-	// 
-	v_bar_w=MolarVolume(T,p,psi_w);
-	M_ha=MM_Water()*psi_w+(1-psi_w)*28.966;
-	double LHS = MolarEnthalpy(T,p,psi_w,v_bar_w)*(1+W)/M_ha;
-
-    iter=1; eps=1e-7; resid=999;
-    while ((iter<=3 || fabs(resid)>eps) && iter<100)
-	{
-		if (iter==1){x1=Twb_guess; Twb=x1;}
-		if (iter==2){x2=Twb_guess+0.000001; Twb=x2;}
-		if (iter>2) {Twb=x2;}
-        
-            // Enhancement Factor at wetbulb temperature [-]
-            f_wb=f_factor(Twb,p);
-            if (Twb>273.15)
-            {
-                // Saturation pressure at wetbulb temperature [kPa]
-                p_ws_wb=Props('P','T',Twb,'Q',0,"Water");
-            }
-            else
-            {
-                // Sublimation pressure at wetbulb temperature [kPa]
-                p_ws_wb=psub_Ice(Twb);
-            }
-                
-            // Vapor pressure
-            p_s_wb=f_wb*p_ws_wb;
-            // wetbulb humidity ratio
-            W_s_wb=epsilon*p_s_wb/(p-p_s_wb);
-            // wetbulb water mole fraction
-            psi_wb=W_s_wb/(epsilon+W_s_wb);
-            if (T>273.15)
-            {
-                // Enthalpy of water [kJ/kg_water]
-                h_w=Props('H','T',Twb,'P',p,"Water");
-            }
-            else
-            {
-                // Enthalpy of ice [kJ/kg_water]
-                h_w=h_Ice(T,p)/1000;
-            }
-            // Mole masses of wetbulb and humid air
-            
-            M_ha_wb=MM_Water()*psi_wb+(1-psi_wb)*28.966;
-            v_bar_wb=MolarVolume(Twb,p,psi_wb);
-            // Error between target and actual pressure [kJ/kg_da]
-            resid=LHS-(MolarEnthalpy(Twb,p,psi_wb,v_bar_wb)*(1+W_s_wb)/M_ha_wb+(W-W_s_wb)*h_w);
-        
-        if (iter==1){y1=resid;}
-		if (iter>1)
-		{
-			y2=resid;
-			x3=x2-y2/(y2-y1)*(x2-x1);
-			y1=y2; x1=x2; x2=x3;
-		}
-		iter=iter+1;
-	}
-    return Twb;
+	// Instantiate the solver container class
+	WetBulbSolver WBS = WetBulbSolver(T,p,psi_w);
+	// Decrease the lower bound until you get below the actual wet-bulb temperature
+	while (WBS.call(Tmin)*WBS.call(Tmax)>0)
+		Tmin-=10;
+	std::string errstr;
+    double return_val = Brent(&WBS,Tmin,Tmax,1e-14,1e-14,30,&errstr);
+	return return_val;	
 }
 static int Name2Type(char *Name)
 {

@@ -10,6 +10,7 @@
 # an underscored name so that the same name can be used in the exposed functions below
 
 import cython
+import math
 
 cpdef double Props(bytes in1, bytes in2, in3=None, in4=None,in5=None,in6=None):
     """
@@ -73,11 +74,19 @@ cpdef double Props(bytes in1, bytes in2, in3=None, in4=None,in5=None,in6=None):
         and in5 is None
         and in6 is None):
         
-        return _Props1(in1,in2)
+        val = _Props1(in1,in2)
+        if math.isnan(val) or abs(val)>1e20:
+            raise ValueError(_get_errstring())
+        else:
+            return val
     else:
         _in2 = <char>((<bytes>in2)[0])
         _in4 = <char>((<bytes>in4)[0])
-        return _Props(in1, _in2, in3, _in4, in5, in6)
+        val = _Props(in1, _in2, in3, _in4, in5, in6)
+        if math.isnan(val) or abs(val)>1e20:
+            raise ValueError(_get_errstring())
+        else:
+            return val
     
 cpdef double DerivTerms(bytes Output, double T, double rho, bytes Fluid):
     """
