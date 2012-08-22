@@ -1,4 +1,9 @@
 
+#Check for cython >= 0.17
+import pkg_resources
+ver = pkg_resources.get_distribution('Cython').parsed_version 
+if ver < ('00000000','00000017'):
+    raise ImportError('Cython version >= 0.17 required due to the use of STL wrappers.  Please update your version of cython')
 
 from distutils.core import setup, Extension
 import subprocess,shutil,os,sys,glob
