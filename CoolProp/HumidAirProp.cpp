@@ -597,21 +597,6 @@ double IdealGasMolarEntropy_Air(double T, double v_bar_a)
     sbar_a=sbar_0_Lem+R_bar_Lemmon*(tau*DerivTerms("dphi0_dTau",T,rho_0,"Air")-DerivTerms("phi0",T,rho_0,"Air"))+R_bar_Lemmon*log(v_bar_a/v_bar_0); //[kJ/kmol/K]
 	return sbar_a; //[kJ/kmol/K]
 }
-//double MolarSpecificHeat(double T, double p, double psi_w, double v_bar)
-//{
-//	double dBdT,dCdT,Z,B,C,dvbar_dT;
-//
-//	// Functions take care of the units
-//	B = B_m(T,psi_w);
-//	dBdT = dB_m_dT(T,psi_w);
-//	C = C_m(T,psi_w);
-//	dCdT = dC_m_dT(T,psi_w);
-//
-//	Z = 1+B/v_bar+C/v_bar/v_bar;
-//
-//	dvbar_dT = ((dBdT+dCdT/v_bar)+Z*v_bar/T)/(B/v_bar+2*C/v_bar/v_bar+Z);
-//
-//}
 
 double MolarEnthalpy(double T, double p, double psi_w, double v_bar)
 {
@@ -1173,6 +1158,28 @@ double HAProps(char *OutputName, char *Input1Name, double Input1, char *Input2Na
 		s_bar=MolarEntropy(T,p,psi_w,v_bar); //[kJ/kmol_ha]
         W=HumidityRatio(psi_w); //[kg_w/kg_da]
         return s_bar*(1+W)/M_ha; //[kJ/kg_da]
+	}
+	else if (!strcmp(OutputName,"C") || !strcmp(OutputName,"cp"))
+	{
+		double v_bar1,v_bar2,h_bar1,h_bar2, cp_bar, dT = 1e-3;
+		v_bar1=MolarVolume(T-dT,p,psi_w); //[m^3/mol_ha]
+		h_bar1=MolarEnthalpy(T-dT,p,psi_w,v_bar1); //[kJ/kmol_ha]
+		v_bar2=MolarVolume(T+dT,p,psi_w); //[m^3/mol_ha]
+		h_bar2=MolarEnthalpy(T+dT,p,psi_w,v_bar2); //[kJ/kmol_ha]
+		W=HumidityRatio(psi_w); //[kg_w/kg_da]
+		cp_bar = (h_bar2-h_bar1)/(2*dT);
+		return cp_bar*(1+W)/M_ha; //[kJ/kg_da]
+	}
+	else if (!strcmp(OutputName,"Cha") || !strcmp(OutputName,"cp_ha"))
+	{
+		double v_bar1,v_bar2,h_bar1,h_bar2, cp_bar, dT = 1e-3;
+		v_bar1=MolarVolume(T-dT,p,psi_w); //[m^3/mol_ha]
+		h_bar1=MolarEnthalpy(T-dT,p,psi_w,v_bar1); //[kJ/kmol_ha]
+		v_bar2=MolarVolume(T+dT,p,psi_w); //[m^3/mol_ha]
+		h_bar2=MolarEnthalpy(T+dT,p,psi_w,v_bar2); //[kJ/kmol_ha]
+		W=HumidityRatio(psi_w); //[kg_w/kg_da]
+		cp_bar = (h_bar2-h_bar1)/(2*dT);
+		return cp_bar/M_ha; //[kJ/kg_da]
 	}
     else if (!strcmp(OutputName,"Tdp") || !strcmp(OutputName,"D"))
     {

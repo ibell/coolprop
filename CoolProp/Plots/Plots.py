@@ -3,7 +3,13 @@ import pylab, numpy as np, CoolProp.CoolProp as cp
 #Turn off lookup for sure
 cp.UseSaturationLUT(0) 
 
-def Ts(Ref,Tmin=220,axis=None,**kwargs):
+def show():
+    """
+    A convenience function to call pylab.show()
+    """
+    pylab.show()
+    
+def Ts(Ref,Tmin=220,axis=None,show=False, **kwargs):
     """
     Make a temperature- entropy plot for the given fluid
     
@@ -28,8 +34,10 @@ def Ts(Ref,Tmin=220,axis=None,**kwargs):
     ax.set_xlabel('Entropy [kJ/kg$\cdot$K]')
     ax.set_ylabel('Temperature [K]')
     ax.autoscale(enable=True)
+    if show:
+        pylab.show()
 
-def Ph(Ref,axis=None,Tmin=220,**kwargs):
+def Ph(Ref,axis=None,Tmin=220,show = False, **kwargs):
     
     """
     Make a pressure-enthalpy plot for the given fluid
@@ -56,10 +64,10 @@ def Ph(Ref,axis=None,Tmin=220,**kwargs):
     ax.set_xlabel('Enthalpy [kJ/kg]')
     ax.set_ylabel('Pressure [kPa]')
     ax.autoscale(enable=True)
+    if show:
+        pylab.show()
     
     
 if __name__=='__main__':
-    Ph('R290')
-    pylab.show()
-    Ts('R290')
-    pylab.show()
+    Ph('R290', show = True)
+    Ts('R290', show = True)
