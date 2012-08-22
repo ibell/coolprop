@@ -2,10 +2,6 @@ from CoolProp.HumidAirProp import HAProps
 import numpy as np
 
 print ' Replicating the tables from ASHRAE RP-1485'
-print ' Warning:: Entropy at high humidity ratios does not seem to be correct'
-print ' Warning:: Entropy at high humidity ratios does not seem to be correct'
-print ' Warning:: Entropy at high humidity ratios does not seem to be correct'
-
 print '  '
 print 'A.6.1 Psychrometric Properties of Moist Air at 0C and Below'
 print 'Saturated air at 101.325 kPa'

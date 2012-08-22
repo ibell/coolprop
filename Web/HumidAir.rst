@@ -193,78 +193,80 @@ Values here are obtained at documentation build-time using the Humid Air Propert
 
     In [1]: execfile('Validation/HAValidation.py')
     
-Appendices
-----------
+.. comment::
 
-Derivation for specific heat of humid air
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    Appendices
+    ----------
 
-.. math::
+    Derivation for specific heat of humid air
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-    p = \frac{{\bar RT}}{{\bar v}}\left( {1 + \frac{{{B_m}}}{{\bar v}} + \frac{{{C_m}}}{{{{\bar v}^2}}}} \right)\\
+    .. math::
 
-.. math::
+        p = \frac{{\bar RT}}{{\bar v}}\left( {1 + \frac{{{B_m}}}{{\bar v}} + \frac{{{C_m}}}{{{{\bar v}^2}}}} \right)\\
 
-    0 = \frac{d}{{dT}}\left[ {\frac{{\bar RT}}{{\bar v}}\left( {1 + \frac{{{B_m}}}{{\bar v}} + \frac{{{C_m}}}{{{{\bar v}^2}}}} \right)} \right]\\
+    .. math::
 
-.. math::
+        0 = \frac{d}{{dT}}\left[ {\frac{{\bar RT}}{{\bar v}}\left( {1 + \frac{{{B_m}}}{{\bar v}} + \frac{{{C_m}}}{{{{\bar v}^2}}}} \right)} \right]\\
 
-    0 = \frac{{\bar RT}}{{\bar v}}\left( {0 + \frac{d}{{dT}}\left[ {\frac{{{B_m}}}{{\bar v}}} \right] + \frac{d}{{dT}}\left[ {\frac{{{C_m}}}{{{{\bar v}^2}}}} \right]} \right) + \left( {1 + \frac{{{B_m}}}{{\bar v}} + \frac{{{C_m}}}{{{{\bar v}^2}}}} \right)\bar R\left( {\frac{{\bar v - T\frac{{d\bar v}}{{dT}}}}{{{{\bar v}^2}}}} \right)\\
+    .. math::
 
-.. math::
+        0 = \frac{{\bar RT}}{{\bar v}}\left( {0 + \frac{d}{{dT}}\left[ {\frac{{{B_m}}}{{\bar v}}} \right] + \frac{d}{{dT}}\left[ {\frac{{{C_m}}}{{{{\bar v}^2}}}} \right]} \right) + \left( {1 + \frac{{{B_m}}}{{\bar v}} + \frac{{{C_m}}}{{{{\bar v}^2}}}} \right)\bar R\left( {\frac{{\bar v - T\frac{{d\bar v}}{{dT}}}}{{{{\bar v}^2}}}} \right)\\
 
-    0 = \frac{{\bar RT}}{{\bar v}}\left( {0 + \frac{{\bar v\frac{{d{B_m}}}{{dT}} - {B_m}\frac{{d\bar v}}{{dT}}}}{{{{\bar v}^2}}} + \frac{{{{\bar v}^2}\frac{{d{C_m}}}{{dT}} - 2{C_m}\bar v\frac{{d\bar v}}{{dT}}}}{{{{\bar v}^4}}}} \right) + \left( {1 + \frac{{{B_m}}}{{\bar v}} + \frac{{{C_m}}}{{{{\bar v}^2}}}} \right)\bar R\left( {\frac{{\bar v - T\frac{{d\bar v}}{{dT}}}}{{{{\bar v}^2}}}} \right)\\
+    .. math::
 
-.. math::
+        0 = \frac{{\bar RT}}{{\bar v}}\left( {0 + \frac{{\bar v\frac{{d{B_m}}}{{dT}} - {B_m}\frac{{d\bar v}}{{dT}}}}{{{{\bar v}^2}}} + \frac{{{{\bar v}^2}\frac{{d{C_m}}}{{dT}} - 2{C_m}\bar v\frac{{d\bar v}}{{dT}}}}{{{{\bar v}^4}}}} \right) + \left( {1 + \frac{{{B_m}}}{{\bar v}} + \frac{{{C_m}}}{{{{\bar v}^2}}}} \right)\bar R\left( {\frac{{\bar v - T\frac{{d\bar v}}{{dT}}}}{{{{\bar v}^2}}}} \right)\\
 
-    0 = \frac{{\bar RT}}{{\bar v}}\left( {\frac{1}{{\bar v}}\frac{{d{B_m}}}{{dT}} - \frac{{{B_m}}}{{{{\bar v}^2}}}\frac{{d\bar v}}{{dT}} + \frac{1}{{{{\bar v}^2}}}\frac{{d{C_m}}}{{dT}} - \frac{{2{C_m}}}{{{{\bar v}^3}}}\frac{{d\bar v}}{{dT}}} \right) + \left( {1 + \frac{{{B_m}}}{{\bar v}} + \frac{{{C_m}}}{{{{\bar v}^2}}}} \right)\bar R\left( {\frac{1}{{\bar v}} - \frac{T}{{{{\bar v}^2}}}\frac{{d\bar v}}{{dT}}} \right)\\
+    .. math::
 
-.. math::
+        0 = \frac{{\bar RT}}{{\bar v}}\left( {\frac{1}{{\bar v}}\frac{{d{B_m}}}{{dT}} - \frac{{{B_m}}}{{{{\bar v}^2}}}\frac{{d\bar v}}{{dT}} + \frac{1}{{{{\bar v}^2}}}\frac{{d{C_m}}}{{dT}} - \frac{{2{C_m}}}{{{{\bar v}^3}}}\frac{{d\bar v}}{{dT}}} \right) + \left( {1 + \frac{{{B_m}}}{{\bar v}} + \frac{{{C_m}}}{{{{\bar v}^2}}}} \right)\bar R\left( {\frac{1}{{\bar v}} - \frac{T}{{{{\bar v}^2}}}\frac{{d\bar v}}{{dT}}} \right)\\
 
-    0 = \frac{T}{{\bar v}}\left( {\frac{1}{{\bar v}}\frac{{d{B_m}}}{{dT}} - \frac{{{B_m}}}{{{{\bar v}^2}}}\frac{{d\bar v}}{{dT}} + \frac{1}{{{{\bar v}^2}}}\frac{{d{C_m}}}{{dT}} - \frac{{2{C_m}}}{{{{\bar v}^3}}}\frac{{d\bar v}}{{dT}}} \right) + \left( {1 + \frac{{{B_m}}}{{\bar v}} + \frac{{{C_m}}}{{{{\bar v}^2}}}} \right)\left( {\frac{1}{{\bar v}} - \frac{T}{{{{\bar v}^2}}}\frac{{d\bar v}}{{dT}}} \right)\\
+    .. math::
 
-.. math::
+        0 = \frac{T}{{\bar v}}\left( {\frac{1}{{\bar v}}\frac{{d{B_m}}}{{dT}} - \frac{{{B_m}}}{{{{\bar v}^2}}}\frac{{d\bar v}}{{dT}} + \frac{1}{{{{\bar v}^2}}}\frac{{d{C_m}}}{{dT}} - \frac{{2{C_m}}}{{{{\bar v}^3}}}\frac{{d\bar v}}{{dT}}} \right) + \left( {1 + \frac{{{B_m}}}{{\bar v}} + \frac{{{C_m}}}{{{{\bar v}^2}}}} \right)\left( {\frac{1}{{\bar v}} - \frac{T}{{{{\bar v}^2}}}\frac{{d\bar v}}{{dT}}} \right)\\
 
-    \frac{{d\bar v}}{{dT}}\left( {\frac{{{B_m}}}{{{{\bar v}^2}}}\frac{T}{{\bar v}} + \frac{{2{C_m}}}{{{{\bar v}^3}}}\frac{T}{{\bar v}} + \left( {1 + \frac{{{B_m}}}{{\bar v}} + \frac{{{C_m}}}{{{{\bar v}^2}}}} \right)\frac{T}{{{{\bar v}^2}}}} \right) = \frac{T}{{\bar v}}\left( {\frac{1}{{\bar v}}\frac{{d{B_m}}}{{dT}} + \frac{1}{{{{\bar v}^2}}}\frac{{d{C_m}}}{{dT}}} \right) + \left( {1 + \frac{{{B_m}}}{{\bar v}} + \frac{{{C_m}}}{{{{\bar v}^2}}}} \right)\left( {\frac{1}{{\bar v}}} \right)\\
+    .. math::
 
-.. math::
+        \frac{{d\bar v}}{{dT}}\left( {\frac{{{B_m}}}{{{{\bar v}^2}}}\frac{T}{{\bar v}} + \frac{{2{C_m}}}{{{{\bar v}^3}}}\frac{T}{{\bar v}} + \left( {1 + \frac{{{B_m}}}{{\bar v}} + \frac{{{C_m}}}{{{{\bar v}^2}}}} \right)\frac{T}{{{{\bar v}^2}}}} \right) = \frac{T}{{\bar v}}\left( {\frac{1}{{\bar v}}\frac{{d{B_m}}}{{dT}} + \frac{1}{{{{\bar v}^2}}}\frac{{d{C_m}}}{{dT}}} \right) + \left( {1 + \frac{{{B_m}}}{{\bar v}} + \frac{{{C_m}}}{{{{\bar v}^2}}}} \right)\left( {\frac{1}{{\bar v}}} \right)\\
 
-    \frac{{d\bar v}}{{dT}}\left( {\frac{{{B_m}}}{{{{\bar v}^2}}}T + \frac{{2T{C_m}}}{{{{\bar v}^3}}} + \left( {1 + \frac{{{B_m}}}{{\bar v}} + \frac{{{C_m}}}{{{{\bar v}^2}}}} \right)\frac{T}{{\bar v}}} \right) = T\left( {\frac{1}{{\bar v}}\frac{{d{B_m}}}{{dT}} + \frac{1}{{{{\bar v}^2}}}\frac{{d{C_m}}}{{dT}}} \right) + \left( {1 + \frac{{{B_m}}}{{\bar v}} + \frac{{{C_m}}}{{{{\bar v}^2}}}} \right)\\
+    .. math::
 
-.. math::
+        \frac{{d\bar v}}{{dT}}\left( {\frac{{{B_m}}}{{{{\bar v}^2}}}T + \frac{{2T{C_m}}}{{{{\bar v}^3}}} + \left( {1 + \frac{{{B_m}}}{{\bar v}} + \frac{{{C_m}}}{{{{\bar v}^2}}}} \right)\frac{T}{{\bar v}}} \right) = T\left( {\frac{1}{{\bar v}}\frac{{d{B_m}}}{{dT}} + \frac{1}{{{{\bar v}^2}}}\frac{{d{C_m}}}{{dT}}} \right) + \left( {1 + \frac{{{B_m}}}{{\bar v}} + \frac{{{C_m}}}{{{{\bar v}^2}}}} \right)\\
 
-    \frac{{d\bar v}}{{dT}} = \frac{{T\left( {\frac{1}{{\bar v}}\frac{{d{B_m}}}{{dT}} + \frac{1}{{{{\bar v}^2}}}\frac{{d{C_m}}}{{dT}}} \right) + \left( {1 + \frac{{{B_m}}}{{\bar v}} + \frac{{{C_m}}}{{{{\bar v}^2}}}} \right)}}{{\left( {\frac{{{B_m}}}{{{{\bar v}^2}}}T + \frac{{2T{C_m}}}{{{{\bar v}^3}}} + \left( {1 + \frac{{{B_m}}}{{\bar v}} + \frac{{{C_m}}}{{{{\bar v}^2}}}} \right)\frac{T}{{\bar v}}} \right)}}\\
+    .. math::
 
-.. math::
+        \frac{{d\bar v}}{{dT}} = \frac{{T\left( {\frac{1}{{\bar v}}\frac{{d{B_m}}}{{dT}} + \frac{1}{{{{\bar v}^2}}}\frac{{d{C_m}}}{{dT}}} \right) + \left( {1 + \frac{{{B_m}}}{{\bar v}} + \frac{{{C_m}}}{{{{\bar v}^2}}}} \right)}}{{\left( {\frac{{{B_m}}}{{{{\bar v}^2}}}T + \frac{{2T{C_m}}}{{{{\bar v}^3}}} + \left( {1 + \frac{{{B_m}}}{{\bar v}} + \frac{{{C_m}}}{{{{\bar v}^2}}}} \right)\frac{T}{{\bar v}}} \right)}}\\
 
-    \frac{{d\bar v}}{{dT}} = \frac{{T\left( {\frac{1}{{\bar v}}\frac{{d{B_m}}}{{dT}} + \frac{1}{{{{\bar v}^2}}}\frac{{d{C_m}}}{{dT}}} \right) + Z}}{{\left( {\frac{{{B_m}}}{{{{\bar v}^2}}}T + \frac{{2T{C_m}}}{{{{\bar v}^3}}} + Z\frac{T}{{\bar v}}} \right)}}\\
+    .. math::
 
-.. math::
+        \frac{{d\bar v}}{{dT}} = \frac{{T\left( {\frac{1}{{\bar v}}\frac{{d{B_m}}}{{dT}} + \frac{1}{{{{\bar v}^2}}}\frac{{d{C_m}}}{{dT}}} \right) + Z}}{{\left( {\frac{{{B_m}}}{{{{\bar v}^2}}}T + \frac{{2T{C_m}}}{{{{\bar v}^3}}} + Z\frac{T}{{\bar v}}} \right)}}\\
 
-    \frac{{d\bar v}}{{dT}} = \frac{{\left( {\frac{{d{B_m}}}{{dT}} + \frac{1}{{\bar v}}\frac{{d{C_m}}}{{dT}}} \right) + Z\frac{{\bar v}}{T}}}{{\left( {\frac{{{B_m}}}{{\bar v}} + \frac{{2{C_m}}}{{{{\bar v}^2}}} + Z} \right)}}\\
+    .. math::
 
-where
+        \frac{{d\bar v}}{{dT}} = \frac{{\left( {\frac{{d{B_m}}}{{dT}} + \frac{1}{{\bar v}}\frac{{d{C_m}}}{{dT}}} \right) + Z\frac{{\bar v}}{T}}}{{\left( {\frac{{{B_m}}}{{\bar v}} + \frac{{2{C_m}}}{{{{\bar v}^2}}} + Z} \right)}}\\
 
-.. math::
+    where
 
-    Z = \left( {1 + \frac{{{B_m}}}{{\bar v}} + \frac{{{C_m}}}{{{{\bar v}^2}}}} \right)
+    .. math::
 
-.. math::
+        Z = \left( {1 + \frac{{{B_m}}}{{\bar v}} + \frac{{{C_m}}}{{{{\bar v}^2}}}} \right)
 
-    \bar h = {{\bar h}_0} + \left( {1 - {\psi _w}} \right)\bar h_a^0 + {\psi _w}\bar h_w^0 + \bar RT\left[ {\left( {{B_m} - T\frac{{d{B_m}}}{{dT}}} \right)\frac{1}{{\bar v}} + \left( {{C_m} - \frac{T}{2}\frac{{d{C_m}}}{{dT}}} \right)\frac{1}{{{{\bar v}^2}}}} \right]\\
+    .. math::
 
-.. math::
+        \bar h = {{\bar h}_0} + \left( {1 - {\psi _w}} \right)\bar h_a^0 + {\psi _w}\bar h_w^0 + \bar RT\left[ {\left( {{B_m} - T\frac{{d{B_m}}}{{dT}}} \right)\frac{1}{{\bar v}} + \left( {{C_m} - \frac{T}{2}\frac{{d{C_m}}}{{dT}}} \right)\frac{1}{{{{\bar v}^2}}}} \right]\\
 
-    {{\bar c}_p} = \frac{{d\bar h}}{{dT}} = \frac{{\delta \bar h}}{{\delta T}} + \frac{{\delta \bar h}}{{\delta \bar v}}\frac{{\delta \bar v}}{{\delta T}}\\
+    .. math::
 
-.. math::
+        {{\bar c}_p} = \frac{{d\bar h}}{{dT}} = \frac{{\delta \bar h}}{{\delta T}} + \frac{{\delta \bar h}}{{\delta \bar v}}\frac{{\delta \bar v}}{{\delta T}}\\
 
-    \frac{{\delta \bar h}}{{\delta \bar v}} = \left( {1 - {\psi _w}} \right)\frac{{d\bar h_a^0}}{{d\delta }}\frac{{d\delta }}{{d\bar v}} + {\psi _w}\frac{{d\bar h_w^0}}{{d\delta }}\frac{{d\delta }}{{d\bar v}} + \bar RT\left[ {\left( {{B_m} - T\frac{{d{B_m}}}{{dT}}} \right)\frac{{ - 1}}{{{{\bar v}^2}}} + \left( {{C_m} - \frac{T}{2}\frac{{d{C_m}}}{{dT}}} \right)\frac{{ - 2}}{{{{\bar v}^3}}}} \right]\\
+    .. math::
 
-.. math::
+        \frac{{\delta \bar h}}{{\delta \bar v}} = \left( {1 - {\psi _w}} \right)\frac{{d\bar h_a^0}}{{d\delta }}\frac{{d\delta }}{{d\bar v}} + {\psi _w}\frac{{d\bar h_w^0}}{{d\delta }}\frac{{d\delta }}{{d\bar v}} + \bar RT\left[ {\left( {{B_m} - T\frac{{d{B_m}}}{{dT}}} \right)\frac{{ - 1}}{{{{\bar v}^2}}} + \left( {{C_m} - \frac{T}{2}\frac{{d{C_m}}}{{dT}}} \right)\frac{{ - 2}}{{{{\bar v}^3}}}} \right]\\
 
-    \frac{{\delta \bar h}}{{\delta T}} = \left( {1 - {\psi _w}} \right)\frac{{d\bar h_a^0}}{{d\tau }}\frac{{d\tau }}{{dT}} + {\psi _w}\frac{{d\bar h_w^0}}{{d\tau }}\frac{{d\tau }}{{dT}} + \bar R\left[ {\left( {{B_m} - T\frac{{d{B_m}}}{{dT}}} \right)\frac{1}{{\bar v}} + \left( {{C_m} - \frac{T}{2}\frac{{d{C_m}}}{{dT}}} \right)\frac{1}{{{{\bar v}^2}}}} \right] + \bar RT\left[ {\left( {\frac{{d{B_m}}}{{dT}} - \frac{{d{B_m}}}{{dT}} - T\frac{{{d^2}{B_m}}}{{d{T^2}}}} \right)\frac{1}{{\bar v}} + \left( {\frac{{d{C_m}}}{{dT}} - \frac{1}{2}\frac{{d{C_m}}}{{dT}} - \frac{T}{2}\frac{{{d^2}{C_m}}}{{d{T^2}}}} \right)\frac{1}{{{{\bar v}^2}}}} \right]\\
+    .. math::
 
-.. math::
+        \frac{{\delta \bar h}}{{\delta T}} = \left( {1 - {\psi _w}} \right)\frac{{d\bar h_a^0}}{{d\tau }}\frac{{d\tau }}{{dT}} + {\psi _w}\frac{{d\bar h_w^0}}{{d\tau }}\frac{{d\tau }}{{dT}} + \bar R\left[ {\left( {{B_m} - T\frac{{d{B_m}}}{{dT}}} \right)\frac{1}{{\bar v}} + \left( {{C_m} - \frac{T}{2}\frac{{d{C_m}}}{{dT}}} \right)\frac{1}{{{{\bar v}^2}}}} \right] + \bar RT\left[ {\left( {\frac{{d{B_m}}}{{dT}} - \frac{{d{B_m}}}{{dT}} - T\frac{{{d^2}{B_m}}}{{d{T^2}}}} \right)\frac{1}{{\bar v}} + \left( {\frac{{d{C_m}}}{{dT}} - \frac{1}{2}\frac{{d{C_m}}}{{dT}} - \frac{T}{2}\frac{{{d^2}{C_m}}}{{d{T^2}}}} \right)\frac{1}{{{{\bar v}^2}}}} \right]\\
 
-    \frac{{\delta \bar h}}{{\delta T}} = \left( {1 - {\psi _w}} \right)\frac{{d\bar h_a^0}}{{d\tau }}\frac{{d\tau }}{{dT}} + {\psi _w}\frac{{d\bar h_w^0}}{{d\tau }}\frac{{d\tau }}{{dT}} + \bar R\left[ {\left( {{B_m} - T\frac{{d{B_m}}}{{dT}}} \right)\frac{1}{{\bar v}} + \frac{{{C_m}}}{{{{\bar v}^2}}}} \right] + \bar R{T^2}\left[ {\left( { - \frac{{{d^2}{B_m}}}{{d{T^2}}}} \right)\frac{1}{{\bar v}} + \left( { - \frac{1}{2}\frac{{{d^2}{C_m}}}{{d{T^2}}}} \right)\frac{1}{{{{\bar v}^2}}}} \right]
+    .. math::
+
+        \frac{{\delta \bar h}}{{\delta T}} = \left( {1 - {\psi _w}} \right)\frac{{d\bar h_a^0}}{{d\tau }}\frac{{d\tau }}{{dT}} + {\psi _w}\frac{{d\bar h_w^0}}{{d\tau }}\frac{{d\tau }}{{dT}} + \bar R\left[ {\left( {{B_m} - T\frac{{d{B_m}}}{{dT}}} \right)\frac{1}{{\bar v}} + \frac{{{C_m}}}{{{{\bar v}^2}}}} \right] + \bar R{T^2}\left[ {\left( { - \frac{{{d^2}{B_m}}}{{d{T^2}}}} \right)\frac{1}{{\bar v}} + \left( { - \frac{1}{2}\frac{{{d^2}{C_m}}}{{d{T^2}}}} \right)\frac{1}{{{{\bar v}^2}}}} \right]
