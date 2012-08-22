@@ -1,7 +1,7 @@
 recursive-include Plots *.*
 
 include *.template
-include *.h *.cpp *.i
+include *.h *.cpp *.i *.pxd
 include fluids.txt
 include svnrevision.txt
 

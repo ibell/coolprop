@@ -1,5 +1,9 @@
 Changelog:
 
+2.0.5 (revision 143)
+Fixed wetbulb and dewpoint calculations - works correctly now
+Added wrappers for MATLAB and Octave to subversion code - not included in source distro
+
 2.0.4 (revision 132)
 Fixed density for subcooled liquid
 Fixed setup.py for OSX (I think)

@@ -549,50 +549,70 @@ double MolarVolume(double T, double p, double psi_w)
 }
 double IdealGasMolarEnthalpy_Water(double T, double v_bar)
 {
-	double hbar_w_0,tau,rhobar,delta,hbar_w;
+	double hbar_w_0,tau,rhobar,delta,hbar_w,rho;
 	// Ideal-Gas contribution to enthalpy of water
     hbar_w_0=-0.01102303806;//[kJ/kmol]
-    tau=Props(ITc,'T',0,'P',0,"Water")/T;
-    rhobar=322/MM_Water()*1000;
-	delta=1/(v_bar*rhobar);
-	hbar_w=hbar_w_0+R_bar*T*(1+tau*DerivTerms("dphi0_dTau",T,1/v_bar,"Water"));
+    tau=Props("Water","Tcrit")/T;
+    rhobar=1/v_bar; //[kmol/m^3]
+    rho = rhobar * Props("Water","molemass");
+	hbar_w=hbar_w_0+R_bar*T*(1+tau*DerivTerms("dphi0_dTau",T,rho,"Water"));
 	return hbar_w;
 }
-double IdealGasMolarEntropy_Water(double T)
+double IdealGasMolarEntropy_Water(double T, double p)
 {
 	double sbar_w,tau,R_bar,rho,p0=101.325;
 	R_bar = 8.314371; //[kJ/kmol/K]
     tau=Props("Water","Tcrit")/T;
-	rho = p0/(R_bar/MM_Water()*T); //[kg/m^3]
+	rho = p/(R_bar/MM_Water()*T); //[kg/m^3]
 	sbar_w=R_bar*(tau*DerivTerms("dphi0_dTau",T,rho,"Water")-DerivTerms("phi0",T,rho,"Water")); //[kJ/kmol/K]
 	return sbar_w; 
 }
 double IdealGasMolarEnthalpy_Air(double T, double v_bar)
 {
-	double hbar_a_0,tau,rhobar,delta,hbar_a,R_bar_Lemmon;
+	double hbar_a_0,tau,rhobar,delta,hbar_a,R_bar_Lemmon, rho;
 	// Ideal-Gas contribution to enthalpy of air
     hbar_a_0=-7914.149298; //[kJ/kmol]
     //Tj and rhoj are given by 132.6312 and 302.5507652 respectively
     tau=132.6312/T;
-    rhobar=302.5507652/MM_Air()*1000;
-    delta=1/(v_bar*rhobar);
+    rhobar=1/v_bar; //[kmol/m^3]
+	rho = rhobar * Props("Air","molemass");
     R_bar_Lemmon=8.314510; //[kJ/kmol/K]
-    hbar_a=hbar_a_0+R_bar_Lemmon*T*(1+tau*DerivTerms("dphi0_dTau",T,1/v_bar,"Air")); //[kJ/kmol]
+    hbar_a=hbar_a_0+R_bar_Lemmon*T*(1+tau*DerivTerms("dphi0_dTau",T,rho,"Air")); //[kJ/kmol]
 	return hbar_a;
 }
 double IdealGasMolarEntropy_Air(double T, double v_bar_a)
 {
-	double sbar_0_Lem,tau,sbar_a,R_bar_Lemmon,T0=273.15,p0=101.325,v_0,v_bar_0;
+	double sbar_0_Lem,tau,sbar_a,R_bar_Lemmon,T0=273.15,p0=101.325,v_0,v_bar_0, rho_a,rho_bar_a, rho_bar_0,rho_0;
 	R_bar_Lemmon=8.314510; //[kJ/kmol/K]
 	// Ideal-Gas contribution to entropy of air
     sbar_0_Lem=-196.1375815; //[kJ/kmol/K]
     //Tj and rhoj are given by 132.6312 and 302.5507652 respectively
     tau=132.6312/T; //[no units]
 	v_0 = R_bar_Lemmon/MM_Air()*T0/p0; //[m^3/kg]
+	rho_bar_a = 1/v_bar_a;
+	rho_a = rho_bar_a * Props("Air","molemass");
 	v_bar_0 = R_bar_Lemmon*T0/p0; //[m^3/kmol]
-    sbar_a=sbar_0_Lem+R_bar_Lemmon*(tau*DerivTerms("dphi0_dTau",T,1/v_0,"Air")-DerivTerms("phi0",T,1/v_0,"Air"))+R_bar_Lemmon*log(v_bar_a/v_bar_0); //[kJ/kmol/K]
+	rho_bar_0 = 1/v_bar_0;
+	rho_0 = rho_bar_0 * Props("Air","molemass");
+    sbar_a=sbar_0_Lem+R_bar_Lemmon*(tau*DerivTerms("dphi0_dTau",T,rho_0,"Air")-DerivTerms("phi0",T,rho_0,"Air"))+R_bar_Lemmon*log(v_bar_a/v_bar_0); //[kJ/kmol/K]
 	return sbar_a; //[kJ/kmol/K]
 }
+//double MolarSpecificHeat(double T, double p, double psi_w, double v_bar)
+//{
+//	double dBdT,dCdT,Z,B,C,dvbar_dT;
+//
+//	// Functions take care of the units
+//	B = B_m(T,psi_w);
+//	dBdT = dB_m_dT(T,psi_w);
+//	C = C_m(T,psi_w);
+//	dCdT = dC_m_dT(T,psi_w);
+//
+//	Z = 1+B/v_bar+C/v_bar/v_bar;
+//
+//	dvbar_dT = ((dBdT+dCdT/v_bar)+Z*v_bar/T)/(B/v_bar+2*C/v_bar/v_bar+Z);
+//
+//}
+
 double MolarEnthalpy(double T, double p, double psi_w, double v_bar)
 {
     // In units of kJ/kmol
@@ -625,6 +645,9 @@ double MolarEnthalpy(double T, double p, double psi_w, double v_bar)
 double MolarEntropy(double T, double p, double psi_w, double v_bar)
 {
     // In units of kJ/kmol/K
+
+	// Serious typo in RP-1485 - should use total pressure rather than
+	// reference pressure in density calculation for water vapor molar entropy
     
     // vbar (molar volume) in m^3/kmol
     double x1=0,x2=0,x3=0,y1=0,y2=0,eps=1e-8,change=999,f=999,R_bar_Lem=8.314510;
@@ -668,7 +691,7 @@ double MolarEntropy(double T, double p, double psi_w, double v_bar)
 	}
 	else
 	{
-		sbar_w=IdealGasMolarEntropy_Water(T);
+		sbar_w=IdealGasMolarEntropy_Water(T,p);
 		sbar_a=IdealGasMolarEntropy_Air(T,vbar_a);
 	}
     if (psi_w!=0)
@@ -706,13 +729,13 @@ double DewpointTemperature(double T, double p, double psi_w)
     p_w=psi_w*p;
 
 	// A good guess for Tdp is that enhancement factor is unity, which yields
-	// p_w_s = p_w, and get 
+	// p_w_s = p_w, and get guess for T from saturation temperature
     
     iter=1; eps=1e-8; resid=999;
     while ((iter<=3 || fabs(resid)>eps) && iter<100)
 	{
-		if (iter==1){x1=Props('T','P',p_w/1000,'Q',1.0,"Water"); Tdp=x1;}
-		if (iter==2){x2=x1+1.0; Tdp=x2;}
+		if (iter==1){x1 = Props('T','P',p_w/1000,'Q',1.0,"Water"); Tdp=x1;}
+		if (iter==2){x2 = x1+1.0; Tdp=x2;}
 		if (iter>2) {Tdp=x2;}
         
             if (Tdp>=273.15)
@@ -753,8 +776,8 @@ public:
 		_W = epsilon*psi_w/(1-psi_w);
 
 		//These things are all not a function of Twb
-		v_bar_w=MolarVolume(T,p,psi_w);
-		M_ha=MM_Water()*psi_w+(1-psi_w)*28.966;
+		v_bar_w = MolarVolume(T,p,psi_w);
+		M_ha = MM_Water()*psi_w+(1-psi_w)*28.966;
 		LHS = MolarEnthalpy(T,p,psi_w,v_bar_w)*(1+_W)/M_ha;
 	};
 	~WetBulbSolver(){};
@@ -762,7 +785,6 @@ public:
 	{
 		double epsilon=0.621945;
 		double f_wb,p_ws_wb,p_s_wb,W_s_wb,h_w,M_ha_wb,psi_wb,v_bar_wb;
-		
 
 		// Enhancement Factor at wetbulb temperature [-]
         f_wb=f_factor(Twb,_p);
@@ -804,27 +826,35 @@ public:
 
 double WetbulbTemperature(double T, double p, double psi_w)
 {
-    int iter;
-    double epsilon=0.621945,eps,resid,Twb,x1,x2,x3,y1,y2;
-    double p_ws_wb,f_wb,W,W_s_wb,p_s_wb,h_w,psi_wb,M_ha_wb,M_ha;
-    double v_bar_w,v_bar_wb;
     
     // ------------------------------------------
     // Iteratively find the wetbulb temperature
     // ------------------------------------------
 
-	// The highest wetbulb temperature that is possible is the dry bulb temperature
+	// The highest wetbulb temperature that is possible is the dry bulb
+	// temperature if the temperature is less than the saturation temperature of water
+	// for the given atmospheric pressure.
+	//
+	// If the temperature is above the saturation temperature corresponding to the atmospheric pressure,
+	// then the maximum value for the wetbulb temperature is the saturation temperature
 	double Tmax = T;
-	double Tmin = T;
+	double Tsat = Props('T','P',p,'Q',1.0,"Water");
+	if (T > Tsat)
+	{
+		Tmax = Tsat-0.1;
+	}
+	double Tmin = Tmax;
 	// The lowest wetbulb temperature that is possible for a given dry bulb temperature 
 	// is the saturated air temperature which yields the enthalpy of dry air at dry bulb temperature
 	// Easier just to keep decreasing lower limit until safe
 
 	// Instantiate the solver container class
 	WetBulbSolver WBS = WetBulbSolver(T,p,psi_w);
+
 	// Decrease the lower bound until you get below the actual wet-bulb temperature
-	while (WBS.call(Tmin)*WBS.call(Tmax)>0)
+	while (WBS.call(Tmin)*WBS.call(Tmax)>0){
 		Tmin-=10;
+	}
 	std::string errstr;
     double return_val = Brent(&WBS,Tmin,Tmax,1e-14,1e-14,30,&errstr);
 	return return_val;	
