@@ -121,10 +121,9 @@ cdef class State:
     """
     
     def __init__(self,bytes Fluid, dict StateDict, double xL=-1.0, Liquid=''):
-        self.Fluid=Fluid
-        self.xL=xL
-        self.Liquid=Liquid
-        
+        self.Fluid = Fluid
+        self.xL = xL
+        self.Liquid = Liquid
         #Parse the inputs provided
         self.update(StateDict)
             
@@ -181,6 +180,7 @@ cdef class State:
                     errstr = get_errstringc()
                     raise ValueError(errstr)
             elif 'D' in params:
+                
                 self.rho_=params['D']
                 #Explicit type conversion
                 pchar='P'
@@ -194,7 +194,7 @@ cdef class State:
                 raise KeyError("Dictionary must contain the key 'T' and one of 'P' or 'D'")
             
         elif self.xL>0 and self.xL<=1:
-            raise ValueError('Need more code here')
+            raise ValueError('xL is out of range - value for xL is [0,1]')
         else:
             raise ValueError('xL must be between 0 and 1')
         

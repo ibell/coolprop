@@ -32,17 +32,9 @@ else:
 if '--no-static-lib' in sys.argv or 'sdist' in sys.argv:
     useStaticLib = False
     if '--no-static-lib' in sys.argv:
-        sys.argv.pop(sys.argv.index('--no-static-lib'))
+        sys.argv.remove('--no-static-lib')
 else:
     useStaticLib=True
-    
-
-if '--update-fluids' in sys.argv:
-    FL = subprocess.Popen(['python','-c','import CoolProp; print CoolProp.CoolProp.FluidsList()'], stdout=subprocess.PIPE).communicate()[0].rstrip()
-    fp = open('fluids.txt','w')
-    fp.write(FL)
-    fp.close()
-    sys.argv.pop(sys.argv.index('--update-fluids'))
     
 badfiles = [os.path.join('CoolProp','__init__.pyc'),os.path.join('CoolProp','__init__.py')]
 for file in badfiles:
@@ -50,34 +42,12 @@ for file in badfiles:
         os.remove(file)
     except:
         pass
-    
-def availableFluids():
-    #First see if there is a file called fluids.txt - a comma-separated list of fluids
-    if os.path.exists('fluids.txt'):
-        FL = open('fluids.txt','r').read()
-        line = '__fluids__=' + str(FL.split(',')) +'\n'
-        print line
-        return line
-        
-    try:
-        ## Can't load the CoolProp module in this file because then you can't install the files :(
-        ## Run a subprocess to do it instead
-        FL = subprocess.Popen(['python','-c','import CoolProp; print CoolProp.CoolProp.FluidsList()'], stdout=subprocess.PIPE).communicate()[0].rstrip()
-        ## Take the comma,separated string and turn it into a Python-friendly list for writing to __init__.py file
-        line = '__fluids__=' + str(FL.split(',')) +'\n' 
-    except:
-        line=''
-    print line
-    return line
 
-version='2.0.6'
+version='2.0.7'
 
 #########################
 ## __init__.py builder ##
 #########################
-
-#Build a list of all the available fluids - added to __init__.py
-FluidsList=availableFluids()
 
 #Unpack the __init__.py file template and add some things to the __init__ file
 lines=open('__init__.py.template','r').readlines()
@@ -89,7 +59,7 @@ svnstring = '__svnrevision__ ='+'$Rev$'.rstrip('$').split(":")[1].strip()+'\n'
 for i in range(len(lines)-1,-1,-1):
     if lines[i].strip().startswith('#') or len(lines[i].strip())==0: 
         lines.pop(i)
-lines=[FluidsList]+['__version__=\''+version+'\'\n']+[svnstring]+lines
+lines=['__version__=\''+version+'\'\n']+[svnstring]+lines
 fp=open(os.path.join('CoolProp','__init__.py'),'w')
 for line in lines:
     fp.write(line)
@@ -149,7 +119,10 @@ others=[os.path.join('CoolProp',f) for f in CPCore]
 Sources=purefluids+pseudopurefluids+others
 
 ### Include folders for build
-include_dirs = ['CoolProp',os.path.join('CoolProp','purefluids'),os.path.join('CoolProp','pseudopurefluids'),get_python_inc(False)]
+include_dirs = ['CoolProp',
+                os.path.join('CoolProp','purefluids'),
+                os.path.join('CoolProp','pseudopurefluids'),
+                get_python_inc(False)]
 
 def StaticLibBuilder(sources,LibName='CoolProp',build_path='build_lib',lib_path='lib',force=False,DLL=True,StaticLib=True):
     CC = new_compiler(verbose=True)

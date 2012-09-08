@@ -10,6 +10,7 @@ Pure Fluids
     CarbonMonoxide.rst
     CarbonylSulfide.rst
     Decane.rst
+    Hydrogen.rst
     HydrogenSulfide.rst
     Isohexane.rst
     Isopentane.rst
@@ -18,6 +19,7 @@ Pure Fluids
     Nitrogen.rst
     NitrousOxide.rst
     Nonane.rst
+    Oxygen.rst
     R116.rst
     R1234yf.rst
     R134a.rst

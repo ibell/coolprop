@@ -219,7 +219,7 @@ double Fluid::specific_heat_p_Trho(double T, double rho)
 	dphir_dDelta_=dphir_dDelta(tau,delta);
     c1=pow(1.0+delta*dphir_dDelta_-delta*tau*d2phir_dDelta_dTau(tau,delta),2);
     c2=(1.0+2.0*delta*dphir_dDelta_+pow(delta,2)*d2phir_dDelta2(tau,delta));
-    return R*(-pow(tau,2)*(d2phi0_dTau2(tau,delta)+d2phir_dTau2(tau,delta))+c1/c2);
+	return R*(-pow(tau,2)*(d2phi0_dTau2(tau,delta)+d2phir_dTau2(tau,delta))+c1/c2);
 }
 double Fluid::specific_heat_p_ideal_Trho(double T)
 {
@@ -393,8 +393,17 @@ void Fluid::saturation(double T, bool UseLUT, double *psatLout, double *psatVout
 
 void Fluid::rhosatPure_Akasaka(double T, double *rhoLout, double *rhoVout, double *pout)
 {
+	/*
+	This function implements the method of Akasaka 
+
+	R. Akasaka,"A reliable and Useful Method to Determine the Saturation State from 
+	Helmholtz Energy Equations of State", 
+	Journal of Thermal Science and Technology v3 n3,2008
+
+	Ancillary equations are used to get a sensible starting point
+	*/
 	double rhoL,rhoV,dphirL,dphirV,ddphirL,ddphirV,phirL,phirV,JL,JV,KL,KV,dJL,dJV,dKL,dKV;
-	double DELTA, deltaL, deltaV, tau, gamma = 1.0, error, PL, PV;
+	double DELTA, deltaL, deltaV, tau, gamma = 1, error, PL, PV, stepL, stepV;
 	int iter=0;
 	// Use the density ancillary function as the starting point for the solver
     try
@@ -432,10 +441,21 @@ void Fluid::rhosatPure_Akasaka(double T, double *rhoLout, double *rhoVout, doubl
 
 		error = fabs(KL-KV)+fabs(JL-JV);
 
-		//Update the step
-		deltaL += gamma/DELTA*( (KV-KL)*dJV-(JV-JL)*dKV);
-		deltaV += gamma/DELTA*( (KV-KL)*dJL-(JV-JL)*dKL);
-		
+		//Get the step
+		stepL = gamma/DELTA*( (KV-KL)*dJV-(JV-JL)*dKV);
+		stepV = gamma/DELTA*( (KV-KL)*dJL-(JV-JL)*dKL);
+
+		if (deltaL+stepL > 0 && deltaV+stepV > 0)
+		{
+			deltaL += stepL;
+			deltaV += stepV;
+		}
+		else{
+			// Try a smaller step, 
+			double W = 0.0001;
+			deltaL += stepL*W;
+			deltaV += stepV*W;
+		}
 		iter=iter+1;
 	}
 	while (error > 1e-10);
@@ -1622,6 +1642,8 @@ FluidsContainer::FluidsContainer()
 	// This is to speed up compilation of humid air package since many fewer files will be included
 	#if !defined(ONLY_AIR_WATER)
 	// The pure fluids
+	FluidsList.push_back(new OxygenClass());
+	FluidsList.push_back(new HydrogenClass());
 	FluidsList.push_back(new ArgonClass());
 	FluidsList.push_back(new R744Class());
 	FluidsList.push_back(new NitrogenClass());

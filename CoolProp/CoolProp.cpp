@@ -273,6 +273,10 @@ double Props(char *Fluid, char *Output)
 					return Props('E','T',0,'P',0,Fluid);
 				else if (!strcmp(Output,"molemass"))
 					return Props('M','T',0,'P',0,Fluid);
+				else if (!strcmp(Output,"rhocrit"))
+					return Props('N','T',0,'P',0,Fluid);
+				else if (!strcmp(Output,"accentric"))
+					return Props('w','T',0,'P',0,Fluid);
 				else 
 					throw ValueError(format("Output parameter \"%s\" is invalid",Output));
 			}
@@ -294,6 +298,8 @@ double Props(char *Fluid, char *Output)
 			return pFluid->crit.rho;
 		else if (!strcmp(Output,"molemass"))
 			return pFluid->params.molemass;
+		else if (!strcmp(Output,"accentric"))
+			return pFluid->params.accentricfactor;
 		else
 		{
 			throw ValueError(format("Output parameter \"%s\" is invalid",Output));
@@ -430,6 +436,10 @@ double _Props(std::string Output,char Name1, double Prop1, char Name2, double Pr
 			return pFluid->crit.T;
 		else if (Output[0]=='R')
 			return pFluid->params.Ttriple;
+		else if (Output[0]=='N')
+			return pFluid->reduce.rho;
+		else if (Output[0]=='w')
+			return pFluid->params.accentricfactor;
 
 		//Surface tension is only a function of temperature
 		if (!Output.compare("I") || !Output.compare("SurfaceTension")){

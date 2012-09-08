@@ -414,7 +414,7 @@ double R744Class::conductivity_Trho(double T, double rho)
 double R744Class::viscosity_Trho(double T, double rho)
 {
 	int i;
-	double e_k=251.196,Tstar,sumGstar=0.0,Gstar,eta0,delta_eta;
+	double e_k=251.196,Tstar,sumGstar=0.0,Gstar,eta0;
 	double a[]={0.235156,-0.491266,5.211155e-2,5.347906e-2,-1.537102e-2};
 	double e[]={0,3.635074e-3,7.209997e-5, 0,0,0,0,3.00306e-20};
 

@@ -9,7 +9,7 @@ Equation of State Reference
 
 Transport Properties Information
 ================================
-"The Transport Properties of Carbon Dioxide", V. Vesovic and W.A. Wakeham and G.A. Olchowy and J.V. Sengers and J.T.R. Watson and J. MillatJ. Phys. Chem. Ref. Data, v. 19, 1990**Note: Only viscosity implemented
+"The Transport Properties of Carbon Dioxide", V. Vesovic and W.A. Wakeham and G.A. Olchowy and J.V. Sengers and J.T.R. Watson and J. MillatJ. Phys. Chem. Ref. Data, v. 19, 1990
 
 
 Fluid Data

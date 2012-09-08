@@ -485,6 +485,37 @@ double REFPROP(char Output,char Name1, double Prop1, char Name2, double Prop2, c
 			CRITPdll(x,&Tcrit,&pcrit,&dcrit,&ierr,herr,255);
 			return pcrit;
 		}
+		else if (Output =='N')
+		{
+			// Critical density
+			CRITPdll(x,&Tcrit,&pcrit,&dcrit,&ierr,herr,255);
+			return dcrit*MW;
+			
+		}
+		else if (Output =='w')
+		{
+			double wmm,Ttriple,tnbpt,tc,pc,Dc,Zc,acf,dip,Rgas;
+			// Accentric factor
+			if (i>1)
+			{
+				fprintf(stderr,"Error: Accentric factor only defined for pure fluids\n");
+				return _HUGE;
+			}
+			INFOdll(&i,&wmm,&Ttriple,&tnbpt,&tc,&pc,&Dc,&Zc,&acf,&dip,&Rgas);
+			return acf;
+		}
+		else if (Output =='o')
+		{
+			double wmm,Ttriple,tnbpt,tc,pc,Dc,Zc,acf,dip,Rgas;
+			// Dipole moment
+			if (i>1)
+			{
+				fprintf(stderr,"Error: Dipole moment only defined for pure fluids\n");
+				return _HUGE;
+			}
+			INFOdll(&i,&wmm,&Ttriple,&tnbpt,&tc,&pc,&Dc,&Zc,&acf,&dip,&Rgas);
+			return dip;
+		}
 		else if (Output=='R')
 		{
 			long icomp;

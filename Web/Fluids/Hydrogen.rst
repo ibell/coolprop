@@ -1,20 +1,15 @@
 
 ********************
-Water
+Hydrogen
 ********************
 
 Equation of State Reference
 ===========================
-"The IAPWS Formulation 1995 for the Thermodynamic Propertiesof Ordinary Water Substance for General and Scientific Use",W. Wagner and A. Pruss, J. Phys. Chem. Ref. Data, v. 31, 2000
+"Fundamental Equations of State for Parahydrogen, Normal Hydrogen, and Orthohydrogen"by J.W. Leachman and R.T. Jacobsen and S.G. Penoncello and E.W. Lemmon, J. Phys. Chem. Ref. Data, Vol. 38, No. 3, 2009, pp 721-748
 
 Transport Properties Information
 ================================
-Thermal Conductivity: Release on the IAPWS Formulation 2011 for the Thermal Conductivity of Ordinary Water Substance
-
-Viscosity: Release on the IAPWS Formulation 2008 for the Viscosity of Ordinary Water Substance
-
-Surface Tension: International Representation of the Surface Tension of Ordinary Water Substance 1994
-
+Viscosity: McCarty, R.D. and Weber, L.A., "Thermophysical properties of parahydrogen from the freezing liquid line to 5000 R for pressures to 10,000 psia," Natl. Bur. Stand., Tech. Note 617, 1972.
 
 
 Fluid Data
@@ -23,16 +18,16 @@ Fluid Data
 Fluid Parameters
 
 =========================  ==============================
-Mole Mass [kg/kmol]        18.01527
-Triple Point [K]           273.160
+Mole Mass [kg/kmol]        2.01588
+Triple Point [K]           13.957
 =========================  ==============================
 
 Critical Parameters
 
 ==========================  ==============================
-Temperature [K]             647.10
-Density [kg/m\ :sup:`3`\ ]   322.000000
-Pressure [kPa]              22064.00000
+Temperature [K]             33.15
+Density [kg/m\ :sup:`3`\ ]   31.262267
+Pressure [kPa]              1296.40000
 ==========================  ==============================
 
 
@@ -41,8 +36,8 @@ Saturated Vapor Deviations
 
 .. plot::
 
-    Fluid = "Water"
-    RPFluid = "REFPROP-Water"
+    Fluid = "Hydrogen"
+    RPFluid = "REFPROP-hydrogen"
 
     #Saturated Vapor
     from CoolProp.CoolProp import Props
@@ -86,8 +81,8 @@ Saturated Liquid Deviations
 
 .. plot::
 
-    Fluid = "Water"
-    RPFluid = "REFPROP-Water"
+    Fluid = "Hydrogen"
+    RPFluid = "REFPROP-hydrogen"
 
     #Saturated Liquid
     from CoolProp.CoolProp import Props
@@ -130,8 +125,8 @@ Along the critical isotherm where T=T\ :sub:`c`
 ================================================
 .. plot::
 
-    Fluid = "Water"
-    RPFluid = "REFPROP-Water"
+    Fluid = "Hydrogen"
+    RPFluid = "REFPROP-hydrogen"
 
     #Critical isotherm
     from CoolProp.CoolProp import Props

@@ -1,20 +1,15 @@
-
 ********************
-Water
+Oxygen
 ********************
 
 Equation of State Reference
 ===========================
-"The IAPWS Formulation 1995 for the Thermodynamic Propertiesof Ordinary Water Substance for General and Scientific Use",W. Wagner and A. Pruss, J. Phys. Chem. Ref. Data, v. 31, 2000
+"Thermodynamic Properties of Oxygen from the Triple point to 300 K with pressures to 80 MPa", Richard B. Stewart, Richard T. Jacobsen, and W. Wagner, J. Phys. Chem. Ref. Data, v. 20, n. 5, 1991
 
 Transport Properties Information
 ================================
-Thermal Conductivity: Release on the IAPWS Formulation 2011 for the Thermal Conductivity of Ordinary Water Substance
-
-Viscosity: Release on the IAPWS Formulation 2008 for the Viscosity of Ordinary Water Substance
-
-Surface Tension: International Representation of the Surface Tension of Ordinary Water Substance 1994
-
+Viscosity and Thermal Conductivity: "Viscosity and Thermal Conductivity Equations forNitrogen, Oxygen, Argon, and Air"E. W. Lemmon and R. T JacobsenInternational Journal of Thermophysics, Vol. 25, No. 1, January 2004
+Surface Tension: Lemmon, E.W. and Penoncello, S.G., "The Surface Tension of Air and Air Component Mixtures," Adv. Cryo. Eng., 39:1927-1934, 1994.
 
 
 Fluid Data
@@ -23,16 +18,16 @@ Fluid Data
 Fluid Parameters
 
 =========================  ==============================
-Mole Mass [kg/kmol]        18.01527
-Triple Point [K]           273.160
+Mole Mass [kg/kmol]        31.99880
+Triple Point [K]           54.361
 =========================  ==============================
 
 Critical Parameters
 
 ==========================  ==============================
-Temperature [K]             647.10
-Density [kg/m\ :sup:`3`\ ]   322.000000
-Pressure [kPa]              22064.00000
+Temperature [K]             154.58
+Density [kg/m\ :sup:`3`\ ]   436.143644
+Pressure [kPa]              5043.00000
 ==========================  ==============================
 
 
@@ -41,8 +36,8 @@ Saturated Vapor Deviations
 
 .. plot::
 
-    Fluid = "Water"
-    RPFluid = "REFPROP-Water"
+    Fluid = "Oxygen"
+    RPFluid = "REFPROP-Oxygen"
 
     #Saturated Vapor
     from CoolProp.CoolProp import Props
@@ -86,8 +81,8 @@ Saturated Liquid Deviations
 
 .. plot::
 
-    Fluid = "Water"
-    RPFluid = "REFPROP-Water"
+    Fluid = "Oxygen"
+    RPFluid = "REFPROP-Oxygen"
 
     #Saturated Liquid
     from CoolProp.CoolProp import Props
@@ -130,8 +125,8 @@ Along the critical isotherm where T=T\ :sub:`c`
 ================================================
 .. plot::
 
-    Fluid = "Water"
-    RPFluid = "REFPROP-Water"
+    Fluid = "Oxygen"
+    RPFluid = "REFPROP-Oxygen"
 
     #Critical isotherm
     from CoolProp.CoolProp import Props

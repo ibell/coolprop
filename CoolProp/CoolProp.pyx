@@ -12,7 +12,7 @@
 import cython
 import math
 
-cpdef double Props(bytes in1, bytes in2, in3=None, in4=None,in5=None,in6=None):
+cpdef double Props(bytes in1, bytes in2, in3=None, in4=None,in5=None,in6=None) except *:
     """
     Call Type #1::
 
@@ -68,7 +68,8 @@ cpdef double Props(bytes in1, bytes in2, in3=None, in4=None,in5=None,in6=None):
     """
     cdef char _in2
     cdef char _in4
-    
+    cdef bytes errs
+	
     if (in3 is None
         and in4 is None
         and in5 is None

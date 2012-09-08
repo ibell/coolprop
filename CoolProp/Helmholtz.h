@@ -75,7 +75,7 @@ public:
 
 class phir_gaussian : public phi_BC{
 	/*
-	Terms are of the form n * delta ^d * tau^t * exp(-alpha*(delta-epsilon)^2-beta*(tau-gamma)^2)
+	Terms are of the form a * delta ^d * tau^t * exp(-alpha*(delta-epsilon)^2-beta*(tau-gamma)^2)
 
 	Constructor must be called with std::vector instances of double type
 	*/
@@ -193,6 +193,12 @@ public:
 	phi0_Planck_Einstein(std::vector<double> a_in, std::vector<double> theta_in, int iStart_in, int iEnd_in)
 	{
 		a=a_in; theta=theta_in; iStart = iStart_in; iEnd = iEnd_in;
+	};
+	phi0_Planck_Einstein(double a_in, double theta_in)
+	{
+		a=std::vector<double> (1,a_in); 
+		theta=std::vector<double> (1,theta_in); 
+		iStart = 0; iEnd = 0;
 	};
 
 	//Destructor

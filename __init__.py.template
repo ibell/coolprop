@@ -4,3 +4,5 @@ import CoolProp
 import HumidAirProp
 import FloodProp
 import State
+
+__fluids__ = CoolProp.FluidsList()
