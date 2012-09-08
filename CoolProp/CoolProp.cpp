@@ -424,7 +424,12 @@ double _Props(std::string Output,char Name1, double Prop1, char Name2, double Pr
 
 		//Load the fluid - throws a NotImplementedError if not matched
 		pFluid=Fluids.get_fluid(Ref);
-        
+
+		if (Name1 == 'T' && Prop1 < pFluid->limits.Tmin) 
+			throw ValueError(format("Input temperature to Props function [%f K] is below the fluid minimum temp [%f K]",Prop1,pFluid->limits.Tmin));
+		if (Name2 == 'T' && Prop2 < pFluid->limits.Tmin) 
+			throw ValueError(format("Input temperature to Props function [%f K] is below the fluid minimum temp [%f K]",Prop2,pFluid->limits.Tmin));
+         
         // Check if it is an output that doesn't require a state input
         // Deal with it and return
 		

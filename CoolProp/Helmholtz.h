@@ -189,11 +189,12 @@ private:
 	std::vector<double> a,theta; // Use these variables internally
 	int iStart, iEnd;
 public:
-	// Constructor
+	// Constructor with std::vector instances
 	phi0_Planck_Einstein(std::vector<double> a_in, std::vector<double> theta_in, int iStart_in, int iEnd_in)
 	{
 		a=a_in; theta=theta_in; iStart = iStart_in; iEnd = iEnd_in;
 	};
+	// Constructor with doubles
 	phi0_Planck_Einstein(double a_in, double theta_in)
 	{
 		a=std::vector<double> (1,a_in); 

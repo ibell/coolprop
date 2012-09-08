@@ -211,6 +211,26 @@ HumidAirProp_module = Extension('CoolProp._HumidAirProp',
                         language='c++'
                         )                            
 
+import os
+def touch(fname):
+    open(fname, 'a').close()
+    os.utime(fname, None)
+
+#If library has been updated but the cython sources haven't been,
+#force cython to build by touching the cython sources
+cython_sources = [os.path.join('CoolProp','State.pyx'),
+                  os.path.join('CoolProp','CoolProp.pyx')]
+                  
+if useStaticLib:
+    CC = new_compiler()
+    CPLibPath=CC.library_filename(os.path.join('lib','CoolProp'),lib_type='static')
+    if not newer_group(cython_sources, CPLibPath):
+        for source in cython_sources:
+            print 'touching',source
+            touch(source)
+    else:
+        print 'no touching of cython sources needed'
+
 if useStaticLib==True:
     State_module = CyExtension('CoolProp.State',
                         [os.path.join('CoolProp','State.pyx')],
@@ -226,6 +246,7 @@ else:
                         language='c++'
                         )
 
+
 if useStaticLib==True:
     CoolProp2_module = CyExtension('CoolProp.CoolProp',
                         [os.path.join('CoolProp','CoolProp.pyx')],
@@ -239,7 +260,8 @@ else:
     CoolProp2_module = CyExtension('CoolProp.CoolProp',
                         [os.path.join('CoolProp','CoolProp.pyx')]+Sources,
                         include_dirs = include_dirs,
-                        language='c++'
+                        language='c++',
+                        cython_c_in_temp = True
                         )
                         
 setup (name = 'CoolProp',

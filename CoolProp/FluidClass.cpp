@@ -108,7 +108,6 @@ double Fluid::phi0(double tau, double delta)
 {
 	double summer = 0;
 	for (list<phi_BC*>::iterator it = phi0list.begin(); it != phi0list.end(); it++){
-		double contrib=(*it)->base(tau,delta);
 		summer += (*it)->base(tau,delta);
 	}	
 	return summer;
@@ -131,7 +130,6 @@ double Fluid::dphi0_dTau(double tau, double delta)
 {
 	double summer = 0;
 	for (list<phi_BC*>::iterator it = phi0list.begin(); it != phi0list.end(); it++){
-		double contribution  =	(*it)->dTau(tau,delta);
 		summer += (*it)->dTau(tau,delta);
 	}
 	return summer;
@@ -140,7 +138,6 @@ double Fluid::d2phi0_dTau2(double tau, double delta)
 {
 	double summer = 0;
 	for (list<phi_BC*>::iterator it = phi0list.begin(); it != phi0list.end(); it++){
-		double contrib = (*it)->dTau2(tau,delta);
 		summer += (*it)->dTau2(tau,delta);
 	}
 	return summer;
