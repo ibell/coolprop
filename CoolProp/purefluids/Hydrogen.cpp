@@ -180,7 +180,7 @@ HydrogenClass::HydrogenClass()
 	EOSReference.assign("\"Fundamental Equations of State for Parahydrogen, Normal Hydrogen, and Orthohydrogen\""
 						"by J.W. Leachman and R.T. Jacobsen and S.G. Penoncello and E.W. Lemmon"
 						", J. Phys. Chem. Ref. Data, Vol. 38, No. 3, 2009, pp 721-748");
-	TransportReference.assign("Viscosity: McCarty, R.D. and Weber, L.A., "
+	TransportReference.assign("Viscosity & Surface Tension: McCarty, R.D. and Weber, L.A., "
 							  "\"Thermophysical properties of parahydrogen from the freezing liquid line to "
 							  "5000 R for pressures to 10,000 psia,\" "
                               "Natl. Bur. Stand., Tech. Note 617, 1972.");
@@ -233,7 +233,10 @@ double HydrogenClass::rhosatV(double T)
 
 double HydrogenClass::conductivity_Trho(double T, double rho)
 {
-	return conductivity_background(T, rho);
+	double e_k = 59.7,
+		   sigma = 0.2827;
+	double eta_dilute = viscosity_dilute(T,e_k,sigma);
+	return 15e-3*R()*(eta_dilute*1e6)/4.0/1000;
 }
 double HydrogenClass::viscosity_Trho(double T, double rho)
 {
@@ -261,8 +264,13 @@ double HydrogenClass::viscosity_Trho(double T, double rho)
 		// Use dilute gas properties
 		e_k = 59.7;
 		sigma = 0.2827;
-		return HydrogenClass::viscosity_dilute(T,e_k,sigma);
+		return viscosity_dilute(T,e_k,sigma);
     }
+}
+
+double HydrogenClass::surface_tension_T(double T)
+{
+	return 0.005369*pow(1-T/reduce.T,1.065);
 }
 
 

@@ -1617,7 +1617,6 @@ double Fluid::conductivity_ECS_Trho(double T, double rho, Fluid * ReferenceFluid
 	// Ideal-gas specific heat in the limit of zero density
 	double cpstar = specific_heat_p_ideal_Trho(T);
 	lambda_star = 15e-3*R()*(eta_dilute*1e6)/4.0; //[W/m/K]
-	double rrrrr2 = f_int*(eta_dilute*1e6);
 	lambda_int = f_int*(eta_dilute*1e6)*(cpstar-5.0/2.0*R() ); //[W/m/K]
 	F_lambda = sqrt(f)*pow(h,-2.0/3.0)*sqrt(M0/M);
 	
