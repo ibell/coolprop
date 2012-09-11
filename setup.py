@@ -43,7 +43,7 @@ for file in badfiles:
     except:
         pass
 
-version='2.0.7'
+version='2.1'
 
 #########################
 ## __init__.py builder ##
@@ -296,3 +296,5 @@ for file in badfiles:
         os.remove(file)
     except:
         pass
+        
+touch('setup.py')
