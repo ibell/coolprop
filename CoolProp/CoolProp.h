@@ -5,7 +5,7 @@ this file for building a static or dynamic library
 */
 #if defined(COOLPROP_LIB)
 	#define EXPORT_CODE __declspec(dllexport)
-	#define CONVENTION __cdecl
+	#define CONVENTION __stdcall
 #else
 	#define EXPORT_CODE 
 	#define CONVENTION 
@@ -96,6 +96,7 @@ You might want to start by looking at CoolProp.h
 	#include "R22.h"
 	#include "Hydrogen.h"
 	#include "Oxygen.h"
+	#include "Helium.h"
 	#endif
 
 	

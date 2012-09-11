@@ -2,6 +2,7 @@
 
 cdef extern from "CoolProp.h":
     double _Props "Props" (char*,char,double,char,double,char*)
+    double _Props1 "Props" (char*,char*)
     void UseSinglePhaseLUT(bool)
     double DerivTerms(char *, double, double, char*)
     char * get_errstringc()
@@ -199,7 +200,7 @@ cdef class State:
             raise ValueError('xL must be between 0 and 1')
         
     cpdef double get_MM(self):
-        return _Props('M','T',0,'D',0,self.Fluid)
+        return _Props1(self.Fluid,'molemass')
     
     property LUT:
         def __get__(self):

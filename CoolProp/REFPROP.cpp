@@ -534,7 +534,7 @@ double REFPROP(char Output,char Name1, double Prop1, char Name2, double Prop2, c
 		{
 			if (Name1=='T'){
 				SURFTdll(&Prop1,&dl,x,&sigma,&i,herr,errormessagelength);
-				return sigma;
+				return sigma/1000;
 			}
 			else{
 				std::cout<< "If surface tension is the output, temperature must be the first input" << std::endl;

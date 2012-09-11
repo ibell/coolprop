@@ -139,7 +139,10 @@ def StaticLibBuilder(sources,LibName='CoolProp',build_path='build_lib',lib_path=
         MACROS = None
     else:
         extra_compile_args=['/EHsc']
-        MACROS = [('COOLPROP_LIB',None)]
+        if DLL:
+            MACROS = [('COOLPROP_LIB',None)]
+        else:
+            MACROS = None
             
     if not os.path.exists(build_path) or not os.path.exists(lib_path):
         if not os.path.exists(build_path): os.mkdir(build_path)
@@ -211,7 +214,6 @@ HumidAirProp_module = Extension('CoolProp._HumidAirProp',
                         language='c++'
                         )                            
 
-import os
 def touch(fname):
     open(fname, 'a').close()
     os.utime(fname, None)

@@ -179,6 +179,7 @@ double Fluid::enthalpy_Trho(double T, double rho)
     R=params.R_u/params.molemass;
 	tau=reduce.T/T;
 	delta=rho/reduce.rho;
+	double dphi = dphi0_dTau(tau,delta);
     return R*T*(1.0+tau*(dphi0_dTau(tau,delta)+dphir_dTau(tau,delta))+delta*dphir_dDelta(tau,delta));
 }
 
@@ -1638,6 +1639,7 @@ FluidsContainer::FluidsContainer()
 	// This is to speed up compilation of humid air package since many fewer files will be included
 	#if !defined(ONLY_AIR_WATER)
 	// The pure fluids
+	FluidsList.push_back(new HeliumClass());
 	FluidsList.push_back(new OxygenClass());
 	FluidsList.push_back(new HydrogenClass());
 	FluidsList.push_back(new ArgonClass());

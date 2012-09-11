@@ -423,6 +423,7 @@ double _Props(std::string Output,char Name1, double Prop1, char Name2, double Pr
     {
 
 		//Load the fluid - throws a NotImplementedError if not matched
+		// Exception should be caught by calling function
 		pFluid=Fluids.get_fluid(Ref);
 
 		if (Name1 == 'T' && Prop1 < pFluid->limits.Tmin) 
@@ -449,7 +450,9 @@ double _Props(std::string Output,char Name1, double Prop1, char Name2, double Pr
 		//Surface tension is only a function of temperature
 		if (!Output.compare("I") || !Output.compare("SurfaceTension")){
 			if (Name1=='T')
-				return pFluid->surface_tension_T(Prop1);
+				return pFluid->surface_tension_T(Prop1)/1000;
+			else if (Name2 == 'T')
+				return pFluid->surface_tension_T(Prop2)/1000;
 			else
 				throw ValueError(format("If output is surface tension ['I' or 'SurfaceTension'], Param1 must be temperature"));
 		}
@@ -490,11 +493,19 @@ double _Props(std::string Output,char Name1, double Prop1, char Name2, double Pr
 		else if ((Name1=='T' && Name2=='Q') || (Name1=='Q' && Name2=='T'))
 		{
 			if (Name1=='Q' && Name2=='T'){
-				//Swap values and keys to get T,Q
+				//Swap values and keys to get order of T, Q
 				swap(&Prop1,&Prop2);
 				swap(&Name1,&Name2);
 			}
-			Q=Prop2;
+			
+			T = Prop1;
+			Q = Prop2;
+			if (T <= pFluid->params.Ttriple || T >= pFluid->reduce.T){
+				throw ValueError(format("Your saturation temperature [%f K] is out of range [%f K, %f K]",T,pFluid->params.Ttriple,pFluid->reduce.T ));
+			}
+			if (Q>1+1e-13 || Q<-1e-13){
+				throw ValueError(format("Your quality [%f] is out of range (0, 1)",Q ));
+			}
 			// Get the saturation properties
 			pFluid->saturation(Prop1,FlagUseSaturationLUT,&pL,&pV,&rhoL,&rhoV);
 			// Find the effective density to use
@@ -644,20 +655,32 @@ void _T_sp(std::string Ref, double s, double p, double *Tout, double *rhoout)
 	int iter;
 	double A[2][2], B[2][2],T_guess,R;
 	double dar_ddelta,da0_dtau,d2a0_dtau2,dar_dtau,d2ar_ddelta_dtau,d2ar_ddelta2,d2ar_dtau2,d2a0_ddelta_dtau,ar,a0,da0_ddelta;
-	double f1,f2,df1_dtau,df1_ddelta,df2_ddelta,df2_dtau,s_hot;
-    double rhosatL,ssatL,ssatV,TsatL,TsatV,tau,delta,worst_error;
+	double f1,f2,df1_dtau,df1_ddelta,df2_ddelta,df2_dtau,s_hot,cp,s1,T1,p1;
+    double rhosatL,rhosatV,ssatL,ssatV,TsatL,TsatV,tau,delta,worst_error;
+	
 	//First figure out where you are
+
+	double Tc = pFluid->reduce.T;
+	double rhoc = pFluid->reduce.rho;
+	double pc = pFluid->reduce.p;
 
 	R=pFluid->R();
 	if (p > Props(Ref,"pcrit"))
 	{
-        //Supercritical pressure
-		T_guess = Props(Ref,"Tcrit")+30.0;
-		delta = p/(R*T_guess)/pFluid->reduce.rho/0.7;
+        // Supercritical; use critical point as anchor to determine guess for T
+		// by assuming it is ideal gas
+		// For isentropic, T2/T1 = (p2/p1)^(R/cp); T1,p1, are critical state
+		T1 = Tc + 5.0;
+		p1 = pc + 5.0;
+		s1 = Props(std::string("S"),'T',T1,'P',p1,Ref);
+		cp = Props(std::string("C"),'T',T1,'P',p1,Ref);
+		T_guess = T1*exp((s-s1+R*log(p/p1))/cp);
+		delta = p/(R*T_guess)/pFluid->reduce.rho;
 	}
 	else
 	{
 		rhosatL=Props(std::string("D"),'P',p,'Q',0.0,Ref);
+		rhosatV=Props(std::string("D"),'P',p,'Q',1.0,Ref);
 		ssatL=Props(std::string("S"),'P',p,'Q',0.0,Ref);
 		ssatV=Props(std::string("S"),'P',p,'Q',1.0,Ref);
 		TsatL=Props(std::string("T"),'P',p,'Q',0.0,Ref);
@@ -679,13 +702,17 @@ void _T_sp(std::string Ref, double s, double p, double *Tout, double *rhoout)
 		}
 		else
 		{
+			// It is two-phase
+			// Return the quality weighted values
+			double quality = (s-ssatL)/(ssatV-ssatL);
+			*Tout = quality*TsatV+(1-quality)*TsatL;
+			double v = quality*(1/rhosatV)+(1-quality)*1/rhosatL;
+			*rhoout = 1/v;
 
 		}
 	}
 
-	double Tc = pFluid->reduce.T;
 	tau=Tc/T_guess;
-	double rhoc = pFluid->reduce.rho;
 
     worst_error=999;
     iter=0;

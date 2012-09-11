@@ -380,6 +380,17 @@ or in terms of :math:`\tau`
      
         - \frac{{a{T_c}{\tau ^{ - 1}}}}{2} + \frac{{a{T_c}\tau _0^{ - 1}}}{2}
     
+    
+If the reference enthalpy is known, you can determine the constants from 
+
+.. math::
+
+    \frac{h_0}{RT}=\tau \left[\left(\frac{\partial \alpha^0}{\partial \tau}\right)_{\delta}+ \left(\frac{\partial \alpha^r}{\partial \tau}\right)_{\delta} \right] +\delta\left(\frac{\partial \alpha^r}{\partial \delta}\right)_{\tau}+1
+    
+.. math::
+
+    \left(\frac{\partial \alpha^0}{\partial \tau}\right)_{\delta} = \frac{1}{\tau}\left(\frac{h_0}{RT}-\delta\left(\frac{\partial \alpha^r}{\partial \delta}\right)_{\tau}-1\right)- \left(\frac{\partial \alpha^r}{\partial \tau}\right)_{\delta}
+    
 .. _Props_Sample:
 
 Sample Code
