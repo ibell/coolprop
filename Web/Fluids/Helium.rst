@@ -1,15 +1,21 @@
 
 ********************
-Hydrogen
+Helium
 ********************
 
 Equation of State Reference
 ===========================
-"Fundamental Equations of State for Parahydrogen, Normal Hydrogen, and Orthohydrogen"by J.W. Leachman and R.T. Jacobsen and S.G. Penoncello and E.W. Lemmon, J. Phys. Chem. Ref. Data, Vol. 38, No. 3, 2009, pp 721-748
+Ortiz-Vega, D.O., Hall, K.R., Arp, V.D., and Lemmon, E.W.,Interim equation to be published in Int. J. Thermophys., 2010.
+
+Note: Using the EOS constants from REFPROP by permission while awaiting Ortiz-Vega publication in JPCRD
 
 Transport Properties Information
 ================================
-Viscosity & Surface Tension: McCarty, R.D. and Weber, L.A., "Thermophysical properties of parahydrogen from the freezing liquid line to 5000 R for pressures to 10,000 psia," Natl. Bur. Stand., Tech. Note 617, 1972.
+Viscosity & Surface Tension: Arp, V.D., McCarty, R.D., and Friend, D.G., "Thermophysical Properties of Helium-4 from 0.8 to 1500 K with Pressures to 2000 MPa", NIST Technical Note 1334 (revised), 1998.
+
+Thermal Conductivity: Hands, B.A. and Arp, V.D., "A Correlation of Thermal Conductivity Data for Helium," Cryogenics, 21(12):697-703, 1981. 
+
+Warning: Critical enhancement of conductivity not included
 
 
 Fluid Data
@@ -18,16 +24,16 @@ Fluid Data
 Fluid Parameters
 
 =========================  ==============================
-Mole Mass [kg/kmol]        2.01588
-Triple Point [K]           13.957
+Mole Mass [kg/kmol]        4.00260
+Triple Point [K]           2.177
 =========================  ==============================
 
 Critical Parameters
 
 ==========================  ==============================
-Temperature [K]             33.15
-Density [kg/m\ :sup:`3`\ ]   31.262267
-Pressure [kPa]              1296.40000
+Temperature [K]             5.20
+Density [kg/m\ :sup:`3`\ ]   72.567174
+Pressure [kPa]              227.60000
 ==========================  ==============================
 
 
@@ -36,8 +42,8 @@ Saturated Vapor Deviations
 
 .. plot::
 
-    Fluid = "Hydrogen"
-    RPFluid = "REFPROP-hydrogen"
+    Fluid = "Helium"
+    RPFluid = "REFPROP-Helium"
 
     #Saturated Vapor
     from CoolProp.CoolProp import Props
@@ -81,8 +87,8 @@ Saturated Liquid Deviations
 
 .. plot::
 
-    Fluid = "Hydrogen"
-    RPFluid = "REFPROP-hydrogen"
+    Fluid = "Helium"
+    RPFluid = "REFPROP-Helium"
 
     #Saturated Liquid
     from CoolProp.CoolProp import Props
@@ -125,8 +131,8 @@ Along the critical isotherm where T=T\ :sub:`c`
 ================================================
 .. plot::
 
-    Fluid = "Hydrogen"
-    RPFluid = "REFPROP-hydrogen"
+    Fluid = "Helium"
+    RPFluid = "REFPROP-Helium"
 
     #Critical isotherm
     from CoolProp.CoolProp import Props

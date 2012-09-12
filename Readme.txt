@@ -1,5 +1,12 @@
 Changelog:
 
+2.1.0 (revision 152)
+Added the fluids Hydrogen, Oxygen, and Helium
+Added the output term 'accentric' to get the accentric factor of the fluid
+Checking of input temperature now yields errors for bad temperatures below fluid min temp
+Fixed T(h,p) and T(s,p) in two-phase region 
+Fixed Units on surface tension to N/m
+
 2.0.6 (revision 147)
 Fixed entropy of humid air at above-atomospheric pressure (Typo in RP-1485)
 Added specific heat of humid air

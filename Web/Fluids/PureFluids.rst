@@ -10,6 +10,7 @@ Pure Fluids
     CarbonMonoxide.rst
     CarbonylSulfide.rst
     Decane.rst
+    Helium.rst
     Hydrogen.rst
     HydrogenSulfide.rst
     Isohexane.rst

@@ -26,6 +26,7 @@ cpdef double Props(bytes in1, bytes in2, in3=None, in4=None,in5=None,in6=None) e
     ``rhocrit``    Critical density [kg/m3]
     ``molemass``   Molecular mass [kg/kmol]
     ``Ttriple``    Triple-point temperature [K]
+    ``accentric``  Accentric factor [-]
     =============  ============================
    
     Call Type #2:
@@ -55,6 +56,7 @@ cpdef double Props(bytes in1, bytes in2, in3=None, in4=None,in5=None,in6=None) e
     `V`                       Viscosity [Pa-s]
     `L`                       Thermal conductivity [kW/m/K]
     `I` or `SurfaceTension`   Surface Tension [N/m]
+    `w`                       Accentric Factor [-]
     ========================  ======================================================
     
     If `InputName1` is `T` and `InputName2` is `D`, any of the outputs are valid
