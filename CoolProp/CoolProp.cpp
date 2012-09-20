@@ -51,13 +51,13 @@ void swap (char *x, char *y)
 	*x = tmp;
 }
 
-int get_debug(){return debug_level;}
-int debug(){return debug_level;}
-void debug(int level){debug_level=level;}
+EXPORT_CODE int CONVENTION get_debug(){return debug_level;}
+int  debug(){return debug_level;}
+EXPORT_CODE void CONVENTION debug(int level){debug_level=level;}
 
 std::string get_errstring(void){return err_string;}
-void get_errstring(char* str){str=(char*) get_errstring().c_str();};
-char * get_errstringc(void){return (char*)err_string.c_str();}
+EXPORT_CODE void CONVENTION get_errstring(char* str){str=(char*) get_errstring().c_str();};
+EXPORT_CODE char * CONVENTION get_errstringc(void){return (char*)err_string.c_str();}
 
 int set_1phase_LUT_params(std::string Ref, int nT, int np, double Tmin, double Tmax, double pmin, double pmax)
 { return set_1phase_LUT_params(Ref, nT, np, Tmin, Tmax, pmin, pmax, false); }
@@ -65,7 +65,7 @@ int set_1phase_LUT_params(std::string Ref, int nT, int np, double Tmin, double T
 int set_1phase_LUT_params(char *Ref, int nT, int np, double Tmin, double Tmax, double pmin, double pmax)
 { return set_1phase_LUT_params(Ref, nT, np, Tmin, Tmax, pmin, pmax, false); }
 
-int set_1phase_LUT_params(char *Ref, int nT, int np, double Tmin, double Tmax, double pmin, double pmax, bool rebuild)
+EXPORT_CODE int CONVENTION set_1phase_LUT_params(char *Ref, int nT, int np, double Tmin, double Tmax, double pmin, double pmax, bool rebuild)
 {
 	// Overload to take "normal" c-string and convert to std::string
 	return set_1phase_LUT_params(std::string(Ref), nT, np, Tmin, Tmax, pmin, pmax,rebuild);
@@ -88,11 +88,11 @@ int set_1phase_LUT_params(std::string Ref, int nT, int np, double Tmin, double T
 	}
 	return 0;
 }
-void get_1phase_LUT_params(int *nT, int *np, double *Tmin, double *Tmax, double *pmin, double *pmax){
+EXPORT_CODE void CONVENTION get_1phase_LUT_params(int *nT, int *np, double *Tmin, double *Tmax, double *pmin, double *pmax){
 	pFluid->get_1phase_LUT_params(nT,np,Tmin,Tmax,pmin,pmax);
 }
 
-void UseSaturationLUT(bool OnOff)
+EXPORT_CODE void CONVENTION UseSaturationLUT(bool OnOff)
 {
     if (OnOff==true || OnOff==false)
     {
@@ -103,12 +103,12 @@ void UseSaturationLUT(bool OnOff)
         printf("Sorry, UseSaturationLUT() takes an integer input, either 0 (no) or 1 (yes)\n");
     }
 }
-bool SaturationLUTStatus()
+EXPORT_CODE bool CONVENTION SaturationLUTStatus()
 {
 	return FlagUseSaturationLUT;
 }
 
-void UseSinglePhaseLUT(bool OnOff)
+EXPORT_CODE void CONVENTION UseSinglePhaseLUT(bool OnOff)
 {
     if (OnOff==1 || OnOff==0)
     {
@@ -119,12 +119,12 @@ void UseSinglePhaseLUT(bool OnOff)
         printf("Sorry, UseSinglePhaseLUT() takes an integer input, either 0 (no) or 1 (yes)\n");
     }
 }
-bool SinglePhaseLUTStatus(void)
+EXPORT_CODE bool CONVENTION SinglePhaseLUTStatus(void)
 {
     return FlagUseSinglePhaseLUT;
 }
 
-void Help()
+EXPORT_CODE void CONVENTION Help()
 {
     
     //~ printf("CoolProp Help\n");
@@ -179,7 +179,7 @@ void Help()
     
 }
 
-static int IsBrine(char *Ref)
+static int IsBrine(char* Ref)
 {
     if (
         strcmp(Ref,"HC-10")==0 || 
@@ -203,7 +203,7 @@ static int IsREFPROP(std::string Ref)
     else
         return 0;
 }
-int IsFluidType(char *Ref, char *Type)
+EXPORT_CODE int CONVENTION IsFluidType(char *Ref, char *Type)
 {
     if (IsBrine(Ref) && !strcmp(Type,"Brine"))
     {
@@ -222,7 +222,7 @@ int IsFluidType(char *Ref, char *Type)
         return 0;
     }
 }
-void Phase(char *Fluid,double T, double p, char *Phase_str)
+EXPORT_CODE void CONVENTION Phase(char *Fluid,double T, double p, char *Phase_str)
 {
 	strcpy(Phase_str,(char*)Phase(std::string(Fluid),T,p).c_str());
 }
@@ -239,7 +239,7 @@ std::string Phase(std::string Fluid, double T, double p)
 }
 
 // All the function interfaces that point to the single-input Props function
-double Props1(char* Ref, char * Output)
+EXPORT_CODE double CONVENTION Props1(char* Ref, char * Output)
 {
 	// Redirect to the Props function - should have called it Props1 from the outset
 	return Props(Ref, Output);
@@ -319,7 +319,7 @@ double Props(char *Fluid, char *Output)
 	}
 }
 
-double Props(char *Output,char Name1, double Prop1, char Name2, double Prop2, char * Ref)
+EXPORT_CODE double CONVENTION Props(char *Output,char Name1, double Prop1, char Name2, double Prop2, char * Ref)
 {
 	// Go to the std::string, std::string version
 	return Props(std::string(Output),Name1,Prop1,Name2,Prop2,std::string(Ref));
@@ -329,8 +329,10 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 	// Go to the std::string, std::string version
 	return Props(std::string(1,Output),Name1,Prop1,Name2,Prop2,std::string(Ref));
 }
+
 double Props(std::string Output,char Name1, double Prop1, char Name2, double Prop2, std::string Ref)
 {
+
 	// In this function the error catching happens;
 	try{
 		return _Props(Output,Name1,Prop1,Name2,Prop2,Ref);
@@ -344,6 +346,8 @@ double Props(std::string Output,char Name1, double Prop1, char Name2, double Pro
 		return _HUGE;
 	}
 }
+
+
 // Make this a wrapped function so that error bubbling can be done properly
 double _Props(std::string Output,char Name1, double Prop1, char Name2, double Prop2, std::string Ref)
 {
@@ -407,11 +411,7 @@ double _Props(std::string Output,char Name1, double Prop1, char Name2, double Pr
     // **********************************************************************************
 
     // It's a brine, call the brine routine
-	else if (!Ref.compare("HC-10") || 
-		!Ref.compare(0,2,"EG") || 
-		!Ref.compare(0,2,"PG") || 
-		!Ref.compare(0,8,"Methanol") || 
-		!Ref.compare(0,7,"NH3/H2O"))
+	else if (IsBrine((char*)Ref.c_str()))
     {
         if (Name1!='T' || Name2!='P')
         {
@@ -426,14 +426,12 @@ double _Props(std::string Output,char Name1, double Prop1, char Name2, double Pr
 		// Exception should be caught by calling function
 		pFluid=Fluids.get_fluid(Ref);
 
-		if (Name1 == 'T' && Prop1 < pFluid->limits.Tmin) 
-			throw ValueError(format("Input temperature to Props function [%f K] is below the fluid minimum temp [%f K]",Prop1,pFluid->limits.Tmin));
-		if (Name2 == 'T' && Prop2 < pFluid->limits.Tmin) 
-			throw ValueError(format("Input temperature to Props function [%f K] is below the fluid minimum temp [%f K]",Prop2,pFluid->limits.Tmin));
-         
         // Check if it is an output that doesn't require a state input
         // Deal with it and return
 		
+		// Build one map for the fluid at load time with the constants that maps from 
+		// single-character and std::strings to constants
+
         if (Output[0]=='M')
 			return pFluid->params.molemass;
 		else if (Output[0]=='E')
@@ -446,6 +444,11 @@ double _Props(std::string Output,char Name1, double Prop1, char Name2, double Pr
 			return pFluid->reduce.rho;
 		else if (Output[0]=='w')
 			return pFluid->params.accentricfactor;
+
+		if (Name1 == 'T' && Prop1 < pFluid->limits.Tmin) 
+			throw ValueError(format("Input temperature to Props function [%f K] is below the fluid minimum temp [%f K]",Prop1,pFluid->limits.Tmin));
+		if (Name2 == 'T' && Prop2 < pFluid->limits.Tmin) 
+			throw ValueError(format("Input temperature to Props function [%f K] is below the fluid minimum temp [%f K]",Prop2,pFluid->limits.Tmin));
 
 		//Surface tension is only a function of temperature
 		if (!Output.compare("I") || !Output.compare("SurfaceTension")){
@@ -873,74 +876,74 @@ void _T_hp(std::string Ref, double h, double p, double *Tout, double *rhoout)
     *rhoout = delta*rhoc;
 }
 
-double T_hp(char *Ref, double h, double p, double T_guess)
-{
-    double x1=0,x2=0,x3=0,y1=0,y2=0,eps=1e-8,change=999,f=999,T=300;
-    int iter=1;
+//double T_hp(char *Ref, double h, double p, double T_guess)
+//{
+//    double x1=0,x2=0,x3=0,y1=0,y2=0,eps=1e-8,change=999,f=999,T=300;
+//    int iter=1;
+//
+//    while ((iter<=3 || fabs(f)>eps) && iter<100)
+//    {
+//        if (iter==1){x1=T_guess; T=x1;}
+//        if (iter==2){x2=T_guess+0.1; T=x2;}
+//        if (iter>2) {T=x2;}
+//            f=Props('H','T',T,'P',p,Ref)-h;
+//        if (iter==1){y1=f;}
+//        if (iter>1)
+//        {
+//            y2=f;
+//            x3=x2-y2/(y2-y1)*(x2-x1);
+//            change=fabs(y2/(y2-y1)*(x2-x1));
+//            y1=y2; x1=x2; x2=x3;
+//        }
+//        iter=iter+1;
+//        if (iter>100)
+//        {
+//			//throw SolutionError(format("iter %d: T_hp not converging with inputs(%s,%g,%g,%g) value: %0.12g\n",iter,Ref,h,p,T_guess,f));
+//			return _HUGE;
+//        }
+//    }
+//    return T;
+//}
+//
+//double h_sp(char *Ref, double s, double p, double T_guess)
+//{
+//    double x1=0,x2=0,x3=0,y1=0,y2=0,eps=1e-8,change=999,f=999,T=300;
+//    int iter=1;
+//    
+//    while ((iter<=3 || change>eps) && iter<100)
+//    {
+//        if (iter==1){x1=T_guess; T=x1;}
+//        if (iter==2){x2=T_guess+1.0; T=x2;}
+//        if (iter>2) {T=x2;}
+//
+//            // Find the temperature which gives the same entropy
+//            f=Props('S','T',T,'P',p,Ref)-s;
+//
+//        if (iter==1){y1=f;}
+//        if (iter>1)
+//        {
+//            y2=f;
+//            x3=x2-y2/(y2-y1)*(x2-x1);
+//            change=fabs(y2/(y2-y1)*(x2-x1));
+//            y1=y2; x1=x2; x2=x3;
+//        }
+//        iter=iter+1;
+//        if (iter>50)
+//        {
+//        	//ERROR
+//            printf("h_sp not converging with inputs(%s,%g,%g,%g)\n",Ref,s,p,T_guess);
+//        }
+//    }
+//    return Props('H','T',T,'P',p,Ref);
+//}
 
-    while ((iter<=3 || fabs(f)>eps) && iter<100)
-    {
-        if (iter==1){x1=T_guess; T=x1;}
-        if (iter==2){x2=T_guess+0.1; T=x2;}
-        if (iter>2) {T=x2;}
-            f=Props('H','T',T,'P',p,Ref)-h;
-        if (iter==1){y1=f;}
-        if (iter>1)
-        {
-            y2=f;
-            x3=x2-y2/(y2-y1)*(x2-x1);
-            change=fabs(y2/(y2-y1)*(x2-x1));
-            y1=y2; x1=x2; x2=x3;
-        }
-        iter=iter+1;
-        if (iter>100)
-        {
-			//throw SolutionError(format("iter %d: T_hp not converging with inputs(%s,%g,%g,%g) value: %0.12g\n",iter,Ref,h,p,T_guess,f));
-			return _HUGE;
-        }
-    }
-    return T;
-}
-
-double h_sp(char *Ref, double s, double p, double T_guess)
-{
-    double x1=0,x2=0,x3=0,y1=0,y2=0,eps=1e-8,change=999,f=999,T=300;
-    int iter=1;
-    
-    while ((iter<=3 || change>eps) && iter<100)
-    {
-        if (iter==1){x1=T_guess; T=x1;}
-        if (iter==2){x2=T_guess+1.0; T=x2;}
-        if (iter>2) {T=x2;}
-
-            // Find the temperature which gives the same entropy
-            f=Props('S','T',T,'P',p,Ref)-s;
-
-        if (iter==1){y1=f;}
-        if (iter>1)
-        {
-            y2=f;
-            x3=x2-y2/(y2-y1)*(x2-x1);
-            change=fabs(y2/(y2-y1)*(x2-x1));
-            y1=y2; x1=x2; x2=x3;
-        }
-        iter=iter+1;
-        if (iter>50)
-        {
-        	//ERROR
-            printf("h_sp not converging with inputs(%s,%g,%g,%g)\n",Ref,s,p,T_guess);
-        }
-    }
-    return Props('H','T',T,'P',p,Ref);
-}
-
-double K2F(double T)
+EXPORT_CODE double CONVENTION K2F(double T)
 { return T * 9 / 5 - 459.67; }
 
-double F2K(double T_F)
+EXPORT_CODE double CONVENTION F2K(double T_F)
 { return (T_F + 459.67) * 5 / 9;}
 
-void PrintSaturationTable(char *FileName, char * Ref,double Tmin, double Tmax)
+EXPORT_CODE void CONVENTION PrintSaturationTable(char *FileName, char * Ref,double Tmin, double Tmax)
 {
     double T;
     FILE *f;
@@ -975,7 +978,7 @@ void PrintSaturationTable(char *FileName, char * Ref,double Tmin, double Tmax)
     fclose(f);
 }
 
-void FluidsList(char* str)
+EXPORT_CODE void CONVENTION FluidsList(char* str)
 {
 	str=(char*)FluidsList().c_str();
 	return;
@@ -985,7 +988,7 @@ std::string FluidsList()
 	return Fluids.FluidList();
 }
 
-double DerivTerms(char *Term,double T, double rho, char * Ref)
+EXPORT_CODE double CONVENTION DerivTerms(char *Term,double T, double rho, char * Ref)
 {
 	pFluid=Fluids.get_fluid(Ref);
 
@@ -1119,7 +1122,7 @@ std::string get_TransportReference(std::string Ref)
 	else
 		return std::string("");
 }
-void get_REFPROPname(char* Ref, char * str)
+EXPORT_CODE void CONVENTION get_REFPROPname(char* Ref, char * str)
 {
 	str= (char*)get_REFPROPname(std::string(Ref)).c_str();
 }

@@ -284,7 +284,7 @@ OxygenClass::OxygenClass()
 	phi0list.push_back(phi0_Planck_Einstein2_);
 
 	// Limits of EOS
-	limits.Tmin = 63.151;
+	limits.Tmin = params.Ttriple;
 	limits.Tmax = 2000.0;
 	limits.pmax = 2200000.0;
 	limits.rhomax = 53.15*params.molemass;

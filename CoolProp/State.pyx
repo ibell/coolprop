@@ -1,8 +1,10 @@
 #cython: embedsignature = True
 
 cdef extern from "CoolProp.h":
-    double _Props "Props" (char*,char,double,char,double,char*)
+    double _Props "Props" (char* ,char,double,char,double,char*)
     double _Props1 "Props" (char*,char*)
+    double __Props "Props" (string ,char,double,char,double,string)
+    double __Props1 "Props" (string,string)
     void UseSinglePhaseLUT(bool)
     double DerivTerms(char *, double, double, char*)
     char * get_errstringc()
@@ -283,7 +285,7 @@ cdef class State:
         from time import clock
         cdef int i
         cdef char * k
-        cdef char * Fluid = self.Fluid 
+        cdef char * Fluid = self.Fluid
         print 'Direct c++ call to CoolProp without the Python call layer'
         print "'M' involves basically no computational effort and is a good measure of the function call overhead"
         keys = ['H','P','S','U','C','O','V','L','M','C0']
@@ -293,6 +295,18 @@ cdef class State:
                 _Props(key,'T',self.T_,'D',self.rho_,Fluid)
             t2=clock()
             print 'Elapsed time for {0:d} calls for "{1:s}" at {2:g} us/call'.format(N,key,(t2-t1)/N*1e6)
+            
+        print 'Call to the Python call layer'
+        print "'M' involves basically no computational effort and is a good measure of the function call overhead"
+        keys = ['H','P','S','U','C','O','V','L','M','C0']
+        for key in keys:
+            t1=clock()
+            for i in range(N):
+                CP.Props(key,'T',self.T_,'D',self.rho_,Fluid)
+            t2=clock()
+            print 'Elapsed time for {0:d} calls for "{1:s}" at {2:g} us/call'.format(N,key,(t2-t1)/N*1e6)
+        
+        
     
     def __str__(self):
         units={'T': 'K', 
@@ -325,5 +339,3 @@ def rebuildState(d):
     S.xL = d['xL']
     S.Liquid=d['Liquid']
     return S
-
-

@@ -1,6 +1,6 @@
 Changelog:
 
-2.1.0 (revision 152)
+2.1.0 (revision 154)
 Added the fluids Hydrogen, Oxygen, and Helium
 Added the output term 'accentric' to get the accentric factor of the fluid
 Checking of input temperature now yields errors for bad temperatures below fluid min temp
@@ -8,7 +8,7 @@ Fixed T(h,p) and T(s,p) in two-phase region
 Fixed Units on surface tension to N/m
 
 2.0.6 (revision 147)
-Fixed entropy of humid air at above-atomospheric pressure (Typo in RP-1485)
+Fixed entropy of humid air at above-atmospheric pressure (Typo in RP-1485)
 Added specific heat of humid air
 Changes to setup.py so that it will not build if cython version < 0.17 which is a requirement due to the use of STL containers
 Changes to plot module to allow for showing right after plot

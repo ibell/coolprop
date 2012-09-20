@@ -1,14 +1,24 @@
 /*
 Add some pre-processor directives to this file so that it can either be built as 
 usual, or if the COOLPROP_LIB macro is defined, it will export the functions in 
-this file for building a static or dynamic library
+this file for building a static or dynamic library.  
+
+The __stdcall calling convention is used by default.  By providing the macro CONVENTION, the 
+calling convention can be changed at build time.
+
+Any functions that are exported to DLL must also add the "EXPORT_CODE function_name CONVENTION ..." code 
+to the CoolProp.cpp implementation.  See the Props function for instance
 */
 #if defined(COOLPROP_LIB)
-	#define EXPORT_CODE __declspec(dllexport)
-	#define CONVENTION __stdcall
+	#define EXPORT_CODE extern "C" __declspec(dllexport)
+	#ifndef CONVENTION
+		#define CONVENTION __stdcall
+	#endif
 #else
-	#define EXPORT_CODE 
-	#define CONVENTION 
+	#define EXPORT_CODE
+	#ifndef CONVENTION
+		#define CONVENTION
+	#endif
 #endif
 
 	/*
@@ -101,41 +111,37 @@ You might want to start by looking at CoolProp.h
 
 	
 	// Functions within this extern "C" bracket will be exported to the DLL
-	extern "C" {
-		EXPORT_CODE void CONVENTION Help(void);
-		EXPORT_CODE void CONVENTION UseSaturationLUT(bool OnOff);
-		EXPORT_CODE bool CONVENTION SaturationLUTStatus();
-		EXPORT_CODE void CONVENTION UseSinglePhaseLUT(bool OnOff);
-		EXPORT_CODE bool CONVENTION SinglePhaseLUTStatus(void);
-
-		EXPORT_CODE double CONVENTION Props(char *Output,char Name1, double Prop1, char Name2, double Prop2, char * Ref);
-		EXPORT_CODE double CONVENTION Props1(char *Output, char * Ref);
-
-		// Convenience functions
-		EXPORT_CODE int CONVENTION IsFluidType(char *Ref, char *Type);
-		EXPORT_CODE double CONVENTION T_hp(char *Ref, double h, double p, double T_guess);
-		EXPORT_CODE double CONVENTION h_sp(char *Ref, double s, double p, double T_guess);
-		EXPORT_CODE double CONVENTION DerivTerms(char *Term, double T, double rho, char * Ref);
-		EXPORT_CODE void CONVENTION Phase(char *Fluid, double T, double p, char *Phase_str);
-
-		EXPORT_CODE double CONVENTION F2K(double T_F);
-		EXPORT_CODE double CONVENTION K2F(double T);
-		EXPORT_CODE void CONVENTION PrintSaturationTable(char *FileName, char * Ref, double Tmin, double Tmax);
+	// They can only use data types that play well with DLL wrapping
 		
-		EXPORT_CODE void CONVENTION FluidsList(char*);
-		EXPORT_CODE void CONVENTION get_REFPROPname(char* Ref,char*);
-		EXPORT_CODE void CONVENTION get_errstring(char*);
-		EXPORT_CODE char* CONVENTION get_errstringc(void);
+	EXPORT_CODE void CONVENTION UseSaturationLUT(bool OnOff);
+	EXPORT_CODE bool CONVENTION SaturationLUTStatus();
+	EXPORT_CODE void CONVENTION UseSinglePhaseLUT(bool OnOff);
+	EXPORT_CODE bool CONVENTION SinglePhaseLUTStatus(void);
 
-		/*
-		returns 1 if parameters set properly
-		*/
-		EXPORT_CODE int CONVENTION set_1phase_LUT_params(char *Ref, int nT, int np, double Tmin, double Tmax, double pmin, double pmax, bool rebuild);
-		EXPORT_CODE void CONVENTION get_1phase_LUT_params(int *nT, int *np, double *Tmin, double *Tmax, double *pmin, double *pmax);
+	EXPORT_CODE double CONVENTION Props(char *Output,char Name1, double Prop1, char Name2, double Prop2, char * Ref);
+	EXPORT_CODE double CONVENTION Props1(char *Output, char * Ref);
 
-		EXPORT_CODE int CONVENTION get_debug();
-		EXPORT_CODE void CONVENTION debug(int level); 
-	}
+	// Convenience functions
+	EXPORT_CODE int CONVENTION IsFluidType(char *Ref, char *Type);
+	EXPORT_CODE double CONVENTION DerivTerms(char *Term, double T, double rho, char * Ref);
+	EXPORT_CODE void CONVENTION Phase(char *Fluid, double T, double p, char *Phase_str);
+	EXPORT_CODE double CONVENTION F2K(double T_F);
+	EXPORT_CODE double CONVENTION K2F(double T);
+	EXPORT_CODE void CONVENTION PrintSaturationTable(char *FileName, char * Ref, double Tmin, double Tmax);
+	
+	EXPORT_CODE void CONVENTION FluidsList(char*);
+	EXPORT_CODE void CONVENTION get_REFPROPname(char* Ref,char*);
+	EXPORT_CODE void CONVENTION get_errstring(char*);
+	EXPORT_CODE char* CONVENTION get_errstringc(void);
+
+	/*
+	returns 1 if parameters set properly
+	*/
+	EXPORT_CODE int CONVENTION set_1phase_LUT_params(char *Ref, int nT, int np, double Tmin, double Tmax, double pmin, double pmax, bool rebuild);
+	EXPORT_CODE void CONVENTION get_1phase_LUT_params(int *nT, int *np, double *Tmin, double *Tmax, double *pmin, double *pmax);
+
+	EXPORT_CODE int CONVENTION get_debug();
+	EXPORT_CODE void CONVENTION debug(int level); 
 
 	// ------------------------------------------------------------------------------------------------
 	// All the functions below this comment do NOT get exported to REFPROP DLL due to the fact that the 
@@ -160,4 +166,5 @@ You might want to start by looking at CoolProp.h
 	std::string FluidsList(void);
 	std::string get_REFPROPname(std::string Ref);
 	std::string get_errstring(void);
+
 #endif

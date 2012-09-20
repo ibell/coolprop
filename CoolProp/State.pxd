@@ -1,4 +1,6 @@
 
+from libcpp.string cimport string
+
 #Functions defined at the module level
 cpdef double Props(bytes Parameter, bytes Param1, float value1, bytes Param2, float value2, bytes Fluid)
 cpdef LUT(bint LUTkey)

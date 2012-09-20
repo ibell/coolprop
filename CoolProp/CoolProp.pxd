@@ -2,8 +2,8 @@ from libcpp.string cimport string
 
 cdef extern from "CoolProp.h":
     
-    double _Props "Props"(char *Output, char Name1, double Prop1, char Name2, double Prop2, char * Ref)
-    double _Props1 "Props"(char * Ref, char *Output)
+    double _Props "Props"(string Output, char Name1, double Prop1, char Name2, double Prop2, string Ref)
+    double _Props1 "Props"(string Ref, string Output)
     string _Phase "Phase"(char *Fluid, double T, double p)
     double _DerivTerms "DerivTerms"(char *Term, double T, double rho, char * Ref)
     
