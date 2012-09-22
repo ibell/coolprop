@@ -118,6 +118,10 @@ You might want to start by looking at CoolProp.h
 	EXPORT_CODE void CONVENTION UseSinglePhaseLUT(bool OnOff);
 	EXPORT_CODE bool CONVENTION SinglePhaseLUTStatus(void);
 
+	// This version uses the indices in place of the strings for speed.  Get the parameter indices
+	// from get_param_index('D') for instance and the Fluid index from get_Fluid_index('Air') for instance
+	EXPORT_CODE double CONVENTION IProps(long iOutput, long iName1, double Prop1, long iName2, double Prop2, long iFluid);
+
 	EXPORT_CODE double CONVENTION Props(char *Output,char Name1, double Prop1, char Name2, double Prop2, char * Ref);
 	EXPORT_CODE double CONVENTION Props1(char *Output, char * Ref);
 
@@ -133,6 +137,10 @@ You might want to start by looking at CoolProp.h
 	EXPORT_CODE void CONVENTION get_REFPROPname(char* Ref,char*);
 	EXPORT_CODE void CONVENTION get_errstring(char*);
 	EXPORT_CODE char* CONVENTION get_errstringc(void);
+
+	EXPORT_CODE long CONVENTION get_param_index(char * param);
+	EXPORT_CODE long CONVENTION get_Fluid_index(char * param);
+
 
 	/*
 	returns 1 if parameters set properly
@@ -167,4 +175,9 @@ You might want to start by looking at CoolProp.h
 	std::string get_REFPROPname(std::string Ref);
 	std::string get_errstring(void);
 
+	long get_param_index(std::string param);
+	long get_Fluid_index(std::string param);
+
+
+	double dummy_function(long,long,double,long,double,long);
 #endif

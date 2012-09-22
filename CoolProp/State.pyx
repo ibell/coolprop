@@ -11,61 +11,44 @@ cdef extern from "CoolProp.h":
     void get_errstring(char*)
     int _set_1phase_LUT_params "set_1phase_LUT_params" (char*,int,int,double,double,double,double)
     void _debug "debug" (int)
+    double _IProps "IProps" (long,long,double,long,double,long)
+    long _get_param_index "get_param_index" (string param)
+    long _get_Fluid_index "get_Fluid_index" (string param)
     
 from libc.math cimport pow, sin, cos, exp
 from math import pow as pow_
 cdef bint _LUT_Enabled
 import CoolProp as CP
 
-cpdef cmath_speed_test(float x, long N):
-    """
-    Run a few tests at the c++ level to test how fast math functions are
-    
-    Parameters
-    ----------
-    x : float
-        Input value for trig functions
-    N : int
-        Number of calls to make
-    """
-    from time import clock
-    cdef int i
-    cdef double y
-    
-    t1=clock()
-    for i in range(N):
-        sin(x)
-    t2=clock()
-    print 'Elapsed time for {0:d} calls for "{1:s}" at {2:g} us/call'.format(N,'sin',(t2-t1)/N*1e6)
-    
-    t1=clock()
-    for i in range(N):
-        cos(x)
-    t2=clock()
-    print 'Elapsed time for {0:d} calls for "{1:s}" at {2:g} us/call'.format(N,'cos',(t2-t1)/N*1e6)
-    
-    t1=clock()
-    for i in range(N):
-        exp(x)
-    t2=clock()
-    print 'Elapsed time for {0:d} calls for "{1:s}" at {2:g} us/call'.format(N,'exp',(t2-t1)/N*1e6)
-    
-    t1=clock()
-    y=0
-    for i in range(N):
-        y += pow(<double>x,<int>4)
-    t2=clock()
-    print y
-    print 'Elapsed time for {0:d} calls for "{1:s}" at {2:g} us/call'.format(N,'pow(int)',(t2-t1)/N*1e6)
-    
-    t1=clock()
-    y=0
-    for i in range(N):
-        y += pow(<double>x,<double>4)
-    t2=clock()
-    print y
-    print 'Elapsed time for {0:d} calls for "{1:s}" at {2:g} us/call'.format(N,'pow(double)',(t2-t1)/N*1e6)
+## Variables for each of the possible variables
+cdef long iMM = _get_param_index('M')
+cdef long iT = _get_param_index('T')
+cdef long iD = _get_param_index('D')
+cdef long iH = _get_param_index('H')
+cdef long iP = _get_param_index('P')
+cdef long iC = _get_param_index('C')
+cdef long iC0 = _get_param_index('C0')
+cdef long iO = _get_param_index('O')
+cdef long iV = _get_param_index('V')
+cdef long iL = _get_param_index('L')
+cdef long iS = _get_param_index('S')
+cdef long iU = _get_param_index('U')
+cdef long iDpdT = _get_param_index('dpdT')
 
+#A dictionary mapping parameter index to string for use with non-CoolProp fluids
+cdef dict paras = {iMM : 'M',
+                   iT : 'T',
+                   iH : 'H',
+                   iP : 'P',
+                   iC : 'C',
+                   iC0 : 'C0',
+                   iO : 'O',
+                   iV : 'V',
+                   iL : 'L',
+                   iS : 'S',
+                   iU : 'U',
+                   iDpdT : 'dpdT'}
+        
 cpdef int set_1phase_LUT_params(bytes Ref, int nT, int np, double Tmin, double Tmax, double pmin, double pmax):
     """
     Set the 
@@ -125,6 +108,13 @@ cdef class State:
     
     def __init__(self,bytes Fluid, dict StateDict, double xL=-1.0, Liquid=''):
         self.Fluid = Fluid
+        self.iFluid = _get_Fluid_index(Fluid)
+        #Try to get the fluid from CoolProp
+        if self.iFluid >= 0:
+            #It is a CoolProp Fluid so we can use the faster integer passing function
+            self.is_CPFluid = True
+        else:
+            self.is_CPFluid = False
         self.xL = xL
         self.Liquid = Liquid
         #Parse the inputs provided
@@ -201,6 +191,15 @@ cdef class State:
         else:
             raise ValueError('xL must be between 0 and 1')
         
+    cpdef double Props(self, long iOutput):
+        if iOutput<0:
+            raise ValueError('Your output is invalid') 
+        
+        if self.is_CPFluid:
+            return _IProps(iOutput,iT,self.T_,iD,self.rho_,self.iFluid)
+        else:
+            return _Props(paras[iOutput],'T',self.T_,'D',self.rho_,self.Fluid)
+            
     cpdef double get_MM(self):
         return _Props1(self.Fluid,'molemass')
     
@@ -227,46 +226,46 @@ cdef class State:
             return self.T_
     
     cpdef double get_h(self): 
-        return _Props("H",'T',self.T_,'D',self.rho_,self.Fluid)
+        return self.Props(iH)
     property h:
         def __get__(self):
             return self.get_h()
           
     cpdef double get_u(self): 
-        return _Props("U",'T',self.T_,'D',self.rho_,self.Fluid)
+        return self.Props(iU)
     property u:
         def __get__(self):
             return self.get_u()
             
     cpdef double get_s(self): 
-        return _Props("S",'T',self.T_,'D',self.rho_,self.Fluid)            
+        return self.Props(iS)
     property s:
         def __get__(self):
             return self.get_s()
     
     cpdef double get_cp0(self):
-        return _Props("C0",'T',self.T_,'D',self.rho_,self.Fluid)
+        return self.Props(iC0)
     
     cpdef double get_cp(self): 
-        return _Props("C",'T',self.T_,'D',self.rho_,self.Fluid)
+        return self.Props(iC)
     property cp:
         def __get__(self):
             return self.get_cp()
             
     cpdef double get_cv(self): 
-        return _Props("O",'T',self.T_,'D',self.rho_,self.Fluid)
+        return self.Props(iO)
     property cv:
         def __get__(self):
             return self.get_cv()
             
     cpdef double get_visc(self):
-        return _Props('V','T',self.T_,'D',self.rho_,self.Fluid)
+        return self.Props(iV)
     property visc:
         def __get__(self):
             return self.get_visc()
 
     cpdef double get_cond(self):
-        return _Props('L','T',self.T_,'D',self.rho_,self.Fluid)    
+        return self.Props(iL)
     property k:
         def __get__(self):
             return self.get_cond()
@@ -276,7 +275,7 @@ cdef class State:
             return self.cp * self.visc / self.k
             
     cpdef double get_dpdT(self):
-        return _Props("dpdT",'T',self.T_,'D',self.rho_,self.Fluid)
+        return self.Props(iDpdT)
     property dpdT:
         def __get__(self):
             return self.get_dpdT()
@@ -286,6 +285,9 @@ cdef class State:
         cdef int i
         cdef char * k
         cdef char * Fluid = self.Fluid
+        cdef long IT = 'T'
+        cdef long ID = 'D'
+        
         print 'Direct c++ call to CoolProp without the Python call layer'
         print "'M' involves basically no computational effort and is a good measure of the function call overhead"
         keys = ['H','P','S','U','C','O','V','L','M','C0']
@@ -295,6 +297,15 @@ cdef class State:
                 _Props(key,'T',self.T_,'D',self.rho_,Fluid)
             t2=clock()
             print 'Elapsed time for {0:d} calls for "{1:s}" at {2:g} us/call'.format(N,key,(t2-t1)/N*1e6)
+        
+        print 'Call to the c++ layer using integers'
+        keys = [iH,iP,iS,iU,iC,iO,iV,iL,iMM,iC0]
+        for key in keys:
+            t1=clock()
+            for i in range(N):
+                _IProps(key,iT,self.T_,iD,self.rho_,self.iFluid)
+            t2=clock()
+            print 'Elapsed time for {0:d} calls for "{1:s}" at {2:g} us/call'.format(N,paras[key],(t2-t1)/N*1e6)
             
         print 'Call to the Python call layer'
         print "'M' involves basically no computational effort and is a good measure of the function call overhead"
@@ -305,10 +316,11 @@ cdef class State:
                 CP.Props(key,'T',self.T_,'D',self.rho_,Fluid)
             t2=clock()
             print 'Elapsed time for {0:d} calls for "{1:s}" at {2:g} us/call'.format(N,key,(t2-t1)/N*1e6)
-        
-        
     
     def __str__(self):
+        """
+        Return a string representation of the state
+        """
         units={'T': 'K', 
                'p': 'kPa', 
                'rho': 'kg/m^3',

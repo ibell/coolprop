@@ -26,7 +26,8 @@
 void _T_hp(std::string Ref, double h, double p, double *T, double *rho);
 void _T_sp(std::string Ref, double s, double p, double *T, double *rho);
 double rho_TP(double T, double p);
-double _Props(std::string Output,char Name1, double Prop1, char Name2, double Prop2, std::string Ref);
+double _Props(std::string Output,std::string Name1, double Prop1, std::string Name2, double Prop2, std::string Ref);
+double _CoolProp_Fluid_Props(long iOutput, long iName1, double Value1, long iName2, double Value2, Fluid *pFluid);
 
 bool FlagUseSaturationLUT=false; //Default to not use LUT
 bool FlagUseSinglePhaseLUT=false; //Default to not use LUT
@@ -35,6 +36,33 @@ static std::string err_string;
 int debug_level=0;
 FluidsContainer Fluids = FluidsContainer();
 Fluid * pFluid;
+
+// Define some constants that will be used throughout
+enum params {iT,iP,iD,iC,iC0,iO,iU,iH,iS,iA,iG,iQ,iV,iL,iI,iMM,iTcrit,iTriple,iPcrit,iRhocrit,iAccentric,iDpdT};
+// This is a map of all possible strings to unique identifiers 
+std::pair<std::string, long> map_data[] = {
+	std::make_pair(std::string("Q"),iQ),
+	std::make_pair(std::string("T"),iT),
+    std::make_pair(std::string("P"),iP),
+	std::make_pair(std::string("D"),iD),
+	std::make_pair(std::string("C"),iC),
+	std::make_pair(std::string("C0"),iC0),
+	std::make_pair(std::string("O"),iO),
+	std::make_pair(std::string("U"),iU),
+	std::make_pair(std::string("H"),iH),
+	std::make_pair(std::string("S"),iS),
+	std::make_pair(std::string("A"),iA),
+	std::make_pair(std::string("G"),iG),
+	std::make_pair(std::string("V"),iV),
+	std::make_pair(std::string("L"),iL),
+	std::make_pair(std::string("I"),iI),
+	std::make_pair(std::string("SurfaceTension"),iI),
+	std::make_pair(std::string("dpdT"),iDpdT),
+	std::make_pair(std::string("M"),iMM),
+};
+
+std::map<std::string, long> param_map(map_data,
+    map_data + sizeof map_data / sizeof map_data[0]);
 
 void swap (double *x, double *y)
 {
@@ -50,6 +78,14 @@ void swap (char *x, char *y)
 	*y = *x;
 	*x = tmp;
 }
+void swap (long *x, long *y)
+{
+	long tmp;
+	tmp = *y;
+	*y = *x;
+	*x = tmp;
+}
+
 
 EXPORT_CODE int CONVENTION get_debug(){return debug_level;}
 int  debug(){return debug_level;}
@@ -119,64 +155,75 @@ EXPORT_CODE void CONVENTION UseSinglePhaseLUT(bool OnOff)
         printf("Sorry, UseSinglePhaseLUT() takes an integer input, either 0 (no) or 1 (yes)\n");
     }
 }
+
 EXPORT_CODE bool CONVENTION SinglePhaseLUTStatus(void)
 {
     return FlagUseSinglePhaseLUT;
 }
-
-EXPORT_CODE void CONVENTION Help()
+long get_Fluid_index(std::string FluidName)
 {
-    
-    //~ printf("CoolProp Help\n");
-    //~ printf("CoolProp is written by Ian Bell (ihb2@cornell.edu)\n");
-    //~ printf("\n");
-    //~ printf("Following the naming conventions of MATLAB linked with REFPROP,\n");
-    //~ printf("each output property is represented by one character:\n");
-    //~ printf("\n");
-    //~ printf("P   Pressure [kPa]\n");
-    //~ printf("T   Temperature [K]\n");
-    //~ printf("D   Density [kg/m3]\n");
-    //~ printf("H   Enthalpy [kJ/kg]\n");
-    //~ printf("S   Entropy [kJ/(kg/K)]\n");
-    //~ printf("U   Internal energy [kJ/kg]\n");
-    //~ printf("C   Cp [kJ/(kg K)]\n");
-    //~ printf("O   Cv [kJ/(kg K)]\n");
-    //~ printf("K   Ratio of specific heats (Cp/Cv) [-]\n");
-    //~ printf("A   Speed of sound [m/s]\n");
-    //~ printf("X   liquid phase and gas phase composition (mass fractions)\n");
-    //~ printf("V   Dynamic viscosity [Pa*s]\n");
-    //~ printf("L   Thermal conductivity [kW/(m K)]\n");
-    //~ printf("Q   Quality (vapor fraction) (kg/kg)\n");
-    //~ printf("I   Surface tension [N/m]\n");
-    //~ printf("F   Freezing point of secondary fluid [K] **NOT IN MATLAB-REFPROP **\n");
-    //~ printf("M   Maximum temperature for secondary fluid [K] **NOT IN MATLAB-REFPROP **\n");
-    //~ printf("M   Molar mass for non-secondary fluid [g/mol] **NOT IN MATLAB-REFPROP **\n");
-    //~ printf("B   Critical Temperature [K] **NOT IN MATLAB-REFPROP **\n");
-    //~ printf("E   Critical Pressure [kPa] **NOT IN MATLAB-REFPROP **\n");
-    //~ printf("R   Triple point temperature [K] **NOT IN MATLAB-REFPROP **\n");
-    //~ printf("\n");
-    //~ printf("******** To call **************\n");
-    //~ printf("To call the function Props, for instance for R410A at 300K, 400 kPa, you would do:\n");
-    //~ printf("Props(\"H\",\"T\",300,\"P\",400,\"R410A\")\n");
-    //~ printf("\n");
-    //~ printf("Or to call a pure fluid from REFPROP (for instance Propane).  \n");
-    //~ printf("The name of the refrigerant is \"REPFROP-\" plus the REFPROP defined name of the fluid, for instance\n");
-    //~ printf("\"Propane\" for propane (R290)\n");
-    //~ printf("\n");
-    //~ printf("See the folder C:\\Program Files\\REFPROP\\fluids for the names of the fluids\n");
-    //~ printf("\n");
-    //~ printf("To call Propane from REFPROP:\n");
-    //~ printf("Props(\"H\",\"T\",300,\"P\",400,\"REFPROP-Propane\")\n");
-    //~ printf("\n");
-    //~ printf("**************** Inputs ***************\n");
-    //~ printf("The limited list of inputs that are allowed are:\n");
-    //~ printf("\n");
-    //~ printf("Prop1    ||    Prop2\n");
-    //~ printf("--------------------\n");
-    //~ printf("  T      ||      P\n");
-    //~ printf("  T      ||      Q\n");
-    //~ printf("  T      ||      D\n");
-    
+	// Try to get the fluid from Fluids by name
+	pFluid = Fluids.get_fluid(FluidName);
+	// If NULL, didn't find it (or its alias)
+	if (pFluid!=NULL)
+	{
+		// Find the fluid index
+		return Fluids.get_fluid_index(pFluid);
+	}
+	else
+		return -1;
+
+	
+}
+EXPORT_CODE long CONVENTION get_Fluid_index(char * param)
+{
+	return get_Fluid_index(std::string(param));
+}
+
+long get_param_index(std::string param)
+{
+	std::map<std::string,long>::iterator it;
+	// Try to find using the map
+	it = param_map.find(param);
+	// If it is found the iterator will not be equal to end
+	if (it != param_map.end() )
+	{
+		// Return the index of the parameter
+		return (*it).second;
+	}
+	else
+	{
+		std::cout << "Didn't match parameter: " <<param << std::endl;
+		return -1;
+	}
+}
+EXPORT_CODE long CONVENTION get_param_index(char * param)
+{
+	return get_param_index(std::string(param));
+}
+static int IsCoolPropFluid(std::string FluidName)
+{
+	// Try to get the fluid from Fluids by name
+	try
+	{
+		pFluid = Fluids.get_fluid(FluidName);
+	}
+	catch (NotImplementedError)
+	{
+		return NULL;
+	}
+	// If NULL, didn't find it (or its alias)
+	if (pFluid!=NULL)
+	{
+		return true;
+	}
+	else
+		return false;
+}
+
+static int IsCoolPropFluid(char* Fluid)
+{
+	return IsCoolPropFluid(std::string(Fluid));
 }
 
 static int IsBrine(char* Ref)
@@ -335,7 +382,7 @@ double Props(std::string Output,char Name1, double Prop1, char Name2, double Pro
 
 	// In this function the error catching happens;
 	try{
-		return _Props(Output,Name1,Prop1,Name2,Prop2,Ref);
+		return _Props(Output,std::string(1,Name1),Prop1,std::string(1,Name2),Prop2,Ref);
 	}
 	catch(std::exception &e){
 		err_string=std::string("CoolProp error: ").append(e.what());
@@ -349,10 +396,9 @@ double Props(std::string Output,char Name1, double Prop1, char Name2, double Pro
 
 
 // Make this a wrapped function so that error bubbling can be done properly
-double _Props(std::string Output,char Name1, double Prop1, char Name2, double Prop2, std::string Ref)
+double _Props(std::string Output,std::string Name1, double Prop1, std::string Name2, double Prop2, std::string Ref)
 {
-    double T,Q,rhoV,rhoL,Value,rho,pL,pV;
-
+    
     /*
     Following the naming conventions of MATLAB linked with REFPROP,
     each output property is represented by one character:
@@ -390,14 +436,25 @@ double _Props(std::string Output,char Name1, double Prop1, char Name2, double Pr
 		std::cout<<__FILE__<<": Using SinglePhase LUT is "<<FlagUseSinglePhaseLUT<<std::endl;
 	}
 
+	if (IsCoolPropFluid(Ref))
+	{
+		pFluid = Fluids.get_fluid(Ref);
+		// Convert all the parameters to integers
+		long iOutput = get_param_index(Output);
+		long iName1 = get_param_index(std::string(Name1));
+		long iName2 = get_param_index(std::string(Name2));
+		// Call the internal method that uses the parameters converted to longs
+		return _CoolProp_Fluid_Props(iOutput,iName1,Prop1,iName2,Prop2,pFluid);
+	}
+
     /* 
     If the fluid name is not actually a refrigerant name, but a string beginning with "REFPROP-",
     then REFPROP is used to calculate the desired property.
     */
-    if (IsREFPROP(Ref))  // First eight characters match "REFPROP-"
+    else if (IsREFPROP(Ref))  // First eight characters match "REFPROP-"
     {
         #if defined(__ISWINDOWS__)
-        return REFPROP(Output.c_str()[0],Name1,Prop1,Name2,Prop2,(char*)Ref.c_str());
+		return REFPROP(Output.c_str()[0],Name1.c_str()[0],Prop1,Name2.c_str()[0],Prop2,(char*)Ref.c_str());
 		#else
         throw AttributeError(format("Your refrigerant [%s] is from REFPROP, but REFPROP not supported on this platform",Ref.c_str()));
         return -_HUGE;
@@ -413,220 +470,251 @@ double _Props(std::string Output,char Name1, double Prop1, char Name2, double Pr
     // It's a brine, call the brine routine
 	else if (IsBrine((char*)Ref.c_str()))
     {
-        if (Name1!='T' || Name2!='P')
+		if (Name1.c_str()[0]!='T' || Name2.c_str()[0]!='P')
         {
 			throw ValueError("For brine, Name1 must be 'T' and Name2 must be 'P'");
 		}
         return SecFluids(Output[0],Prop1,Prop2,(char*)Ref.c_str());
     }
-    else // It is something based on CoolProp routines
-    {
-
-		//Load the fluid - throws a NotImplementedError if not matched
-		// Exception should be caught by calling function
-		pFluid=Fluids.get_fluid(Ref);
-
-        // Check if it is an output that doesn't require a state input
-        // Deal with it and return
-		
-		// Build one map for the fluid at load time with the constants that maps from 
-		// single-character and std::strings to constants
-
-        if (Output[0]=='M')
-			return pFluid->params.molemass;
-		else if (Output[0]=='E')
-			return pFluid->crit.p;
-		else if (Output[0]=='B')
-			return pFluid->crit.T;
-		else if (Output[0]=='R')
-			return pFluid->params.Ttriple;
-		else if (Output[0]=='N')
-			return pFluid->reduce.rho;
-		else if (Output[0]=='w')
-			return pFluid->params.accentricfactor;
-
-		if (Name1 == 'T' && Prop1 < pFluid->limits.Tmin) 
-			throw ValueError(format("Input temperature to Props function [%f K] is below the fluid minimum temp [%f K]",Prop1,pFluid->limits.Tmin));
-		if (Name2 == 'T' && Prop2 < pFluid->limits.Tmin) 
-			throw ValueError(format("Input temperature to Props function [%f K] is below the fluid minimum temp [%f K]",Prop2,pFluid->limits.Tmin));
-
-		//Surface tension is only a function of temperature
-		if (!Output.compare("I") || !Output.compare("SurfaceTension")){
-			if (Name1=='T')
-				return pFluid->surface_tension_T(Prop1)/1000;
-			else if (Name2 == 'T')
-				return pFluid->surface_tension_T(Prop2)/1000;
-			else
-				throw ValueError(format("If output is surface tension ['I' or 'SurfaceTension'], Param1 must be temperature"));
-		}
-
-		// In any case, you want to get a (temperature, density) pair
-		if ((Name1=='T' && Name2=='P') || (Name1=='P' && Name2 == 'T'))
-		{
-			//Swap values and keys
-			if (Name1=='P' && Name2 == 'T')
-			{
-				swap(&Prop1,&Prop2);
-				swap(&Name1,&Name2);
-			}
-
-			// Handle trivial outputs
-			if (!Output.compare("P")) 
-				return Prop2;
-			else if (!Output.compare("T")) 
-				return Prop1;
-			
-			// Get density as a function of T&p, then call again
-			if (FlagUseSinglePhaseLUT==true){
-				return pFluid->LookupValue_TP(std::string(Output), Prop1, Prop2);
-            }
-			else{
-				rho = rho_TP(Prop1,Prop2);
-			}
-			
-			if (!Output.compare("D")){
-				if (debug()>5){
-					std::cout<<__FILE__<<": "<<Output<<","<<Name1<<","<<Prop1<<","<<Name2<<","<<Prop2<<","<<Ref<<"="<<rho<<std::endl;
-				}
-				return rho;
-			}
-			else
-				return Props(Output,Name1,Prop1,'D',rho,Ref);
-		}
-		else if ((Name1=='T' && Name2=='Q') || (Name1=='Q' && Name2=='T'))
-		{
-			if (Name1=='Q' && Name2=='T'){
-				//Swap values and keys to get order of T, Q
-				swap(&Prop1,&Prop2);
-				swap(&Name1,&Name2);
-			}
-			
-			T = Prop1;
-			Q = Prop2;
-			if (T <= pFluid->params.Ttriple || T >= pFluid->reduce.T){
-				throw ValueError(format("Your saturation temperature [%f K] is out of range [%f K, %f K]",T,pFluid->params.Ttriple,pFluid->reduce.T ));
-			}
-			if (Q>1+1e-13 || Q<-1e-13){
-				throw ValueError(format("Your quality [%f] is out of range (0, 1)",Q ));
-			}
-			// Get the saturation properties
-			pFluid->saturation(Prop1,FlagUseSaturationLUT,&pL,&pV,&rhoL,&rhoV);
-			// Find the effective density to use
-			rho=1/(Q/rhoV+(1-Q)/rhoL);
-			if (!Output.compare("P")) 
-				return Q*pV+(1-Q)*pL;
-
-			// Recurse and call Props again with the calculated density
-			if (!Output.compare("D"))
-				return 1/(Q/rhoV+(1-Q)/rhoL);
-			else if (!Output.compare("C") || !Output.compare("O"))
-				return Props(Output,'T',Prop1,'D',rho,Ref);
-			else
-				if (fabs(Q)<1e-12)
-					return Props(Output,'T',Prop1,'D',rhoL,Ref);
-				else if (fabs(Q-1)<1e-12)
-					return Props(Output,'T',Prop1,'D',rhoV,Ref);
-				else
-					return Q*Props(Output,'T',Prop1,'D',rhoV,Ref)+(1-Q)*Props(Output,'T',Prop1,'D',rhoL,Ref);
-		}
-		else if ((Name1=='T' && Name2=='D') || (Name1=='D' && Name2=='T'))
-		{
-			if (Name1=='D' && Name2=='T')
-			{
-				//Swap values and keys to get T,D
-				swap(&Prop1,&Prop2);
-				swap(&Name1,&Name2);
-			}
-			T=Prop1;
-			rho=Prop2;
-			if (!Output.compare("D"))
-				return Prop2;
-			// If you are using LUT, use it
-			if (FlagUseSinglePhaseLUT==1){
-				// Try to use the LUT, if the parameter is not included in the LUT,
-				// allow it to fall back to the conventional analysis
-				try{
-					Value = pFluid->LookupValue_Trho(std::string(Output), T, rho);
-					return Value;
-				}
-                catch(ValueError){
-
-                }
-            }
-			rho = Prop2; 
-			if (!Output.compare("D"))
-				Value=rho;
-			else if (!Output.compare("T"))
-				Value=T;
-			else if (!Output.compare("P"))
-				Value=pFluid->pressure_Trho(T,rho);
-			else if (!Output.compare("H"))
-				Value=pFluid->enthalpy_Trho(T,rho);
-			else if (!Output.compare("S"))
-				Value=pFluid->entropy_Trho(T,rho);
-			else if (!Output.compare("U"))
-				Value=pFluid->internal_energy_Trho(T,rho);
-			else if (!Output.compare("C"))
-				Value=pFluid->specific_heat_p_Trho(T,rho);
-			else if (!Output.compare("C0"))
-				Value=pFluid->specific_heat_p_ideal_Trho(T);
-			else if (!Output.compare("O"))
-				Value=pFluid->specific_heat_v_Trho(T,rho);
-			else if (!Output.compare("A"))
-				Value=pFluid->speed_sound_Trho(T,rho);
-			else if (!Output.compare("G"))
-				Value=pFluid->gibbs_Trho(T,rho);
-			else if (!Output.compare("V"))
-				Value=pFluid->viscosity_Trho(T,rho);
-			else if (!Output.compare("L"))
-				Value=pFluid->conductivity_Trho(T,rho);
-			else if (!Output.compare("dpdT"))
-				Value=pFluid->dpdT_Trho(T,rho);
-			else{
-				throw ValueError(format("Invalid Output Name: %s ",Output.c_str()));
-				return _HUGE;
-            }
-			if (debug()>5){
-				std::cout<<__FILE__<<": "<<Output<<","<<Name1<<","<<Prop1<<","<<Name2<<","<<Prop2<<","<<Ref<<"="<<Value<<std::endl;
-			}
-            return Value;
-		}
-        else if (Name1=='P' && Name2=='Q')
-        {
-            T=pFluid->Tsat(Prop1,Prop2,0);
-            return Props(Output,'T',T,'Q',Prop2,Ref);
-        }
-		else if (Name1=='Q' && Name2=='P')
-        {
-            T=pFluid->Tsat(Prop2,Prop1,0);
-            return Props(Output,'T',T,'Q',Prop1,Ref);
-        }
-        else if (Name1=='H' && Name2=='P')
-        {
-        	_T_hp(Ref,Prop1,Prop2,&T, &rho);
-			return Props(Output,'T',T,'D',rho,Ref);
-        }
-		else if (Name1=='P' && Name2=='H')
-        {
-        	_T_hp(Ref,Prop2,Prop1,&T, &rho);
-			return Props(Output,'T',T,'D',rho,Ref);
-        }
-		else if (Name1=='S' && Name2=='P')
-        {
-        	_T_sp(Ref,Prop1,Prop2,&T, &rho);
-			return Props(Output,'T',T,'D',rho,Ref);
-        }
-		else if (Name1=='P' && Name2=='S')
-        {
-        	_T_sp(Ref,Prop2,Prop1,&T, &rho);
-			return Props(Output,'T',T,'D',rho,Ref);
-        }
-        else
-        {
-			throw ValueError(format("Not a valid pair of input keys %c,%c and output key %s",Name1,Name2,Output.c_str()));
-        }
-    }
     return 0;
+}
+double _CoolProp_Fluid_Props(long iOutput, long iName1, double Prop1, long iName2, double Prop2, Fluid *pFluid)
+{
+	double T,Q,rhoV,rhoL,Value,rho,pL,pV;
+
+	// This private method uses the indices directly for speed
+
+	// Check if it is an output that doesn't require a state input
+    // Deal with it and return
+
+	switch (iOutput)
+	{
+		case iMM:
+			return pFluid->params.molemass;
+			break;
+		case iPcrit:
+			return pFluid->crit.p;
+			break;
+		case iTcrit:
+			return pFluid->crit.T;
+			break;
+		case iTriple:
+			return pFluid->params.Ttriple;
+			break;
+		case iRhocrit:
+			return pFluid->reduce.rho;
+			break;
+		case iAccentric: 
+			return pFluid->params.accentricfactor;
+			break;
+	}
+
+	if (iName1 == iT && Prop1 < pFluid->limits.Tmin) 
+		throw ValueError(format("Input temperature to Props function [%f K] is below the fluid minimum temp [%f K]",Prop1,pFluid->limits.Tmin));
+	if (iName2 == iT && Prop2 < pFluid->limits.Tmin) 
+		throw ValueError(format("Input temperature to Props function [%f K] is below the fluid minimum temp [%f K]",Prop2,pFluid->limits.Tmin));
+
+	//Surface tension is only a function of temperature
+	if (iOutput == iI){
+		if (iName1 == iT)
+			return pFluid->surface_tension_T(Prop1)/1000;
+		else if (iName2 == iT)
+			return pFluid->surface_tension_T(Prop2)/1000;
+		else
+			throw ValueError(format("If output is surface tension ['I' or 'SurfaceTension'], Param1 must be temperature"));
+	}
+
+	// In any case, you want to get a (temperature, density) pair
+	if ((iName1 == iT && iName2 == iP) || (iName1 == iP && iName2 == iT))
+	{
+		//Swap values and keys
+		if (iName1 == iP && iName2 == iT)
+		{
+			swap(&Prop1,&Prop2);
+			swap(&iName1,&iName2);
+		}
+
+		// Handle trivial outputs
+		if (iOutput == iP) 
+			return Prop2;
+		else if (iOutput == iT) 
+			return Prop1;
+		
+		// Get density as a function of T&p, then call again
+		if (FlagUseSinglePhaseLUT==true){
+			return pFluid->LookupValue_TP(std::string((char*)iOutput), Prop1, Prop2);
+        }
+		else{
+			rho = rho_TP(Prop1,Prop2);
+		}
+		
+		if (iOutput == iD){
+			if (debug()>5){
+				std::cout<<__FILE__<<": "<<iOutput<<","<<iName1<<","<<Prop1<<","<<iName2<<","<<Prop2<<","<<pFluid->get_name()<<"="<<rho<<std::endl;
+			}
+			return rho;
+		}
+		else
+			return _CoolProp_Fluid_Props(iOutput,iName1,Prop1,iD,rho,pFluid);
+	}
+	else if ((iName1 == iT && iName2 == iQ) || (iName1 == iQ && iName2 == iT))
+	{
+		if (iName1 == iQ && iName2 == iT){
+			//Swap values and keys to get order of T, Q
+			swap(&Prop1,&Prop2);
+			swap(&iName1,&iName2);
+		}
+		
+		T = Prop1;
+		Q = Prop2;
+		if (T <= pFluid->params.Ttriple || T >= pFluid->reduce.T){
+			throw ValueError(format("Your saturation temperature [%f K] is out of range [%f K, %f K]",T,pFluid->params.Ttriple,pFluid->reduce.T ));
+		}
+		if (Q>1+1e-13 || Q<-1e-13){
+			throw ValueError(format("Your quality [%f] is out of range (0, 1)",Q ));
+		}
+		// Get the saturation properties
+		pFluid->saturation(Prop1,FlagUseSaturationLUT,&pL,&pV,&rhoL,&rhoV);
+		// Find the effective density to use
+		rho=1/(Q/rhoV+(1-Q)/rhoL);
+
+		// Trivial output
+		if (iOutput == iP)
+			return Q*pV+(1-Q)*pL;
+
+		// Recurse and call Props again with the calculated density
+		if (iOutput == iD)
+			return 1/(Q/rhoV+(1-Q)/rhoL);
+		else if (iOutput == iC || iOutput == iO)
+			return _CoolProp_Fluid_Props(iOutput,iT,Prop1,iD,rho,pFluid);
+		else
+			if (fabs(Q)<1e-12)
+				return _CoolProp_Fluid_Props(iOutput,iT,Prop1,iD,rhoL,pFluid);
+			else if (fabs(Q-1)<1e-12)
+				return _CoolProp_Fluid_Props(iOutput,iT,Prop1,iD,rhoV,pFluid);
+			else
+				return Q*_CoolProp_Fluid_Props(iOutput,iT,Prop1,iD,rhoV,pFluid)+(1-Q)*_CoolProp_Fluid_Props(iOutput,iT,Prop1,iD,rhoL,pFluid);
+	}
+	else if ((iName1 == iT && iName2 == iD) || (iName1 == iD && iName2 == iT))
+	{
+		if (iName1 == iD && iName2 == iT)
+		{
+			//Swap values and keys to get T,D
+			swap(&Prop1,&Prop2);
+			swap(&iName1,&iName2);
+		}
+		T=Prop1;
+		rho=Prop2;
+		// Trivial output
+		if (iOutput == iD)
+			return rho;
+		else if (iOutput == iT)
+			return T;
+
+		// If you are using LUT, use it
+		if (FlagUseSinglePhaseLUT==1){
+			// Try to use the LUT, if the parameter is not included in the LUT,
+			// allow it to fall back to the conventional analysis
+			try{
+				Value = pFluid->LookupValue_Trho(std::string((char*)iOutput), T, rho);
+				return Value;
+			}
+            catch(ValueError){
+
+            }
+        }
+		rho = Prop2; 
+		switch (iOutput)
+		{
+			case iP:
+				Value=pFluid->pressure_Trho(T,rho);
+				break;
+			case iH:
+				Value=pFluid->enthalpy_Trho(T,rho);
+				break;
+			case iS:
+				Value=pFluid->entropy_Trho(T,rho);
+				break;
+			case iU:
+				Value=pFluid->internal_energy_Trho(T,rho);
+				break;
+			case iC:
+				Value=pFluid->specific_heat_p_Trho(T,rho);
+				break;
+			case iC0:
+
+				Value=pFluid->specific_heat_p_ideal_Trho(T);
+				break;
+			case iO:
+				Value=pFluid->specific_heat_v_Trho(T,rho);
+				break;
+			case iA:
+				Value=pFluid->speed_sound_Trho(T,rho);
+				break;
+			case iG:
+				Value=pFluid->gibbs_Trho(T,rho);
+				break;
+			case iV:
+				Value=pFluid->viscosity_Trho(T,rho);
+				break;
+			case iL:
+				Value=pFluid->conductivity_Trho(T,rho);
+				break;
+			case iDpdT:
+				Value=pFluid->dpdT_Trho(T,rho);
+				break;
+			default:
+				throw ValueError(format("Invalid Output index: %d ",iOutput));
+				return _HUGE;
+        }
+		if (debug()>5){
+			std::cout<<__FILE__<<": "<<iOutput<<","<<iName1<<","<<Prop1<<","<<iName2<<","<<Prop2<<","<<pFluid->get_name()<<"="<<Value<<std::endl;
+		}
+        return Value;
+	}
+    else if (iName1 == iP && iName2 == iQ)
+    {
+        T=pFluid->Tsat(Prop1,Prop2,0);
+        return _CoolProp_Fluid_Props(iOutput,iT,T,iQ,Prop2,pFluid);
+    }
+	else if (iName1 == iQ && iName2 == iP)
+    {
+        T=pFluid->Tsat(Prop2,Prop1,0);
+        return _CoolProp_Fluid_Props(iOutput,iT,T,iQ,Prop1,pFluid);
+    }
+    else if (iName1 == iH && iName2 == iP)
+    {
+    	_T_hp(pFluid->get_name(),Prop1,Prop2,&T, &rho);
+		return _CoolProp_Fluid_Props(iOutput,iT,T,iD,rho,pFluid);
+    }
+	else if (iName1 == iP && iName2 == iH)
+    {
+    	_T_hp(pFluid->get_name(),Prop2,Prop1,&T, &rho);
+		return _CoolProp_Fluid_Props(iOutput,iT,T,iD,rho,pFluid);
+    }
+	else if (iName1 == iS && iName2 == iP)
+    {
+    	_T_sp(pFluid->get_name(),Prop1,Prop2,&T, &rho);
+		return _CoolProp_Fluid_Props(iOutput,iT,T,iD,rho,pFluid);
+    }
+	else if (iName1 == iP && iName2 == iS)
+    {
+		_T_sp(pFluid->get_name(),Prop2,Prop1,&T, &rho);
+		return _CoolProp_Fluid_Props(iOutput,iT,T,iD,rho,pFluid);
+    }
+    else
+    {
+		throw ValueError(format("Not a valid pair of input keys %d,%d and output key %d",iName1,iName2,iOutput));
+    }
+}
+double IProps(long iOutput, long iName1, double Prop1, long iName2, double Prop2, long iFluid)
+{
+	pFluid = Fluids.get_fluid(iFluid);
+	// Didn't work
+	if (pFluid == NULL)
+		return _HUGE;
+	else
+		return _CoolProp_Fluid_Props(iOutput,iName1,Prop1,iName2,Prop2,pFluid);
 }
 double rho_TP(double T, double p)
 {

@@ -1374,7 +1374,7 @@ Eigen::Vector2d Fluid::ConformalTemperature(Fluid *InterestFluid, Fluid *Referen
 		}
 		return x0;
 	}
-	catch(std::exception &e){}
+	catch(std::exception){}
 	// Ok, that didn't work, so we need to try something more interesting
 	// Local Newton-Raphson solver with bounds checking on the step values
 	error=999;
@@ -1432,12 +1432,12 @@ double Fluid::viscosity_ECS_Trho(double T, double rho, Fluid * ReferenceFluid)
 		// Get the ECS params for the fluid if it has them
 		ECSParams(&e_k,&sigma);
 	}
-	catch(NotImplementedError &e){
+	catch(NotImplementedError){
 		try{
 			// Get the ECS parameters from the reference fluid
 			ReferenceFluid->ECSParams(&e0_k,&sigma0);
 		}
-		catch (NotImplementedError &e){
+		catch (NotImplementedError){
 			// Doesn't have e_k and sigma for reference fluid
 			throw NotImplementedError(format("Your reference fluid for ECS [%s] does not have an implementation of ECSParams",(char *)ReferenceFluid->get_name().c_str()));
 		}
@@ -1490,7 +1490,7 @@ double Fluid::viscosity_ECS_Trho(double T, double rho, Fluid * ReferenceFluid)
 	try{
 		psi = ECS_psi_viscosity(rho/reduce.rho);
 	}
-	catch(NotImplementedError &e){
+	catch(NotImplementedError){
 		psi = 1.0;
 	}
 	f=Tc/Tc0*theta;
@@ -1553,12 +1553,12 @@ double Fluid::conductivity_ECS_Trho(double T, double rho, Fluid * ReferenceFluid
 		// Get the ECS params for the fluid if it has them
 		ECSParams(&e_k,&sigma);
 	}
-	catch(NotImplementedError &e){
+	catch(NotImplementedError){
 		try{
 			//Estimate the ECS parameters from Huber and Ely, 2003
 			ReferenceFluid->ECSParams(&e0_k,&sigma0);
 		}
-		catch (NotImplementedError &e){
+		catch (NotImplementedError){
 			// Doesn't have e_k and sigma for reference fluid
 			throw NotImplementedError(format("Your reference fluid for ECS [%s] does not have an implementation of ECSParams",(char *)ReferenceFluid->get_name().c_str()));
 		}
@@ -1679,7 +1679,7 @@ FluidsContainer::FluidsContainer()
 	#endif
 
 	// Build the map of fluid names mapping to pointers to the Fluid class instances
-	for (std::list<Fluid*>::iterator it = FluidsList.begin(); it != FluidsList.end(); it++)
+	for (std::vector<Fluid*>::iterator it = FluidsList.begin(); it != FluidsList.end(); it++)
 	{
 		// Call the post_load routine
 		(*it)->post_load();
@@ -1698,6 +1698,10 @@ FluidsContainer::~FluidsContainer()
 	}
 }
 
+Fluid * FluidsContainer::get_fluid(long iFluid)
+{
+	return FluidsList[iFluid];
+}
 Fluid * FluidsContainer::get_fluid(std::string name)
 {
 	std::map<std::string,Fluid*>::iterator it;
@@ -1711,7 +1715,7 @@ Fluid * FluidsContainer::get_fluid(std::string name)
 	}
 
 	// Wasn't found, now we need to check for an alias
-	for (std::list<Fluid*>::iterator it = FluidsList.begin(); it != FluidsList.end(); it++)
+	for (std::vector<Fluid*>::iterator it = FluidsList.begin(); it != FluidsList.end(); it++)
 	{
 		if ( (*it)->isAlias(name) )
 		{
@@ -1722,10 +1726,26 @@ Fluid * FluidsContainer::get_fluid(std::string name)
 	return NULL;
 }
 
+long FluidsContainer::get_fluid_index(Fluid* pFluid)
+{
+	int i = 0;
+	// It found it, now iterate to find the 0-based index of the fluid
+	for (std::vector<Fluid*>::iterator it = FluidsList.begin(); it != FluidsList.end(); it++)
+	{
+		if ((*it) == pFluid)
+		{
+			return i;
+		}
+		i++;
+	}
+	return -1;
+}
+
 std::string FluidsContainer::FluidList()
 {
+	// Return a std::string with the list of fluids
 	std::string FL;
-	for (std::list<Fluid*>::iterator it = FluidsList.begin(); it != FluidsList.end(); it++)
+	for (std::vector<Fluid*>::iterator it = FluidsList.begin(); it != FluidsList.end(); it++)
 	{
 		FL+=(*it)->get_name();
 		FL+=",";
