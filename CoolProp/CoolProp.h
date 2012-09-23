@@ -178,6 +178,4 @@ You might want to start by looking at CoolProp.h
 	long get_param_index(std::string param);
 	long get_Fluid_index(std::string param);
 
-
-	double dummy_function(long,long,double,long,double,long);
 #endif
