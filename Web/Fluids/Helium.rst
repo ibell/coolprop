@@ -148,11 +148,13 @@ Along the critical isotherm where T=T\ :sub:`c`
     rho = array([Props('D','T',Tc,'D',D,Fluid) for D in rhov])
     cp = array([Props('C','T',Tc,'D',D,Fluid) for D in rhov])
     cv = array([Props('O','T',Tc,'D',D,Fluid) for D in rhov])
+    visc = array([Props('V','T',Tc,'D',D,Fluid) for D in rhov])
 
     Rp = array([Props('P','T',Tc,'D',D,RPFluid) for D in rhov])
     Rrho = array([Props('D','T',Tc,'D',D,RPFluid) for D in rhov])
     Rcp = array([Props('C','T',Tc,'D',D,RPFluid) for D in rhov])
     Rcv = array([Props('O','T',Tc,'D',D,RPFluid) for D in rhov])
+    Rvisc = array([Props('V','T',Tc,'D',D,RPFluid) for D in rhov])
 
     fig = plt.figure()
 
@@ -160,6 +162,7 @@ Along the critical isotherm where T=T\ :sub:`c`
     ax.semilogy(rhov/rhoc,abs(p/Rp-1)*100,'o',label='Pressure')
     ax.semilogy(rhov/rhoc,abs(cp/Rcp-1)*100,'o',label='Specific heat (cp)')
     ax.semilogy(rhov/rhoc,abs(cv/Rcv-1)*100,'o',label='Specific heat (cv)')
+    ax.semilogy(rhov/rhoc,abs(visc/Rvisc-1)*100,'o',label='Viscosity')
     ax.set_ylim(1e-16,100)
     ax.set_title('Critical isotherm Deviations from REFPROP 9.0')
     ax.set_xlabel(r'Reduced density $\rho/\rho_c$')

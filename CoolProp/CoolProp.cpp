@@ -38,9 +38,23 @@ FluidsContainer Fluids = FluidsContainer();
 Fluid * pFluid;
 
 // Define some constants that will be used throughout
-enum params {iT,iP,iD,iC,iC0,iO,iU,iH,iS,iA,iG,iQ,iV,iL,iI,iMM,iTcrit,iTriple,iPcrit,iRhocrit,iAccentric,iDpdT};
+enum params {iB,iT,iP,iD,iC,iC0,iO,iU,iH,iS,iA,iG,iQ,iV,iL,iI,iMM,iTcrit,iTtriple,iPcrit,iRhocrit,iAccentric,iDpdT};
 // This is a map of all possible strings to unique identifiers 
 std::pair<std::string, long> map_data[] = {
+	std::make_pair(std::string("E"),iPcrit),
+	std::make_pair(std::string("M"),iMM),
+	std::make_pair(std::string("w"),iAccentric),
+	std::make_pair(std::string("R"),iTtriple),
+	std::make_pair(std::string("N"),iRhocrit),
+	std::make_pair(std::string("B"),iTcrit),
+
+	std::make_pair(std::string("pcrit"),iPcrit),
+	std::make_pair(std::string("molemass"),iMM),
+	std::make_pair(std::string("accentric"),iAccentric),
+	std::make_pair(std::string("Ttriple"),iTtriple),
+	std::make_pair(std::string("rhocrit"),iRhocrit),
+	std::make_pair(std::string("Tcrit"),iTcrit),
+
 	std::make_pair(std::string("Q"),iQ),
 	std::make_pair(std::string("T"),iT),
     std::make_pair(std::string("P"),iP),
@@ -172,8 +186,6 @@ long get_Fluid_index(std::string FluidName)
 	}
 	else
 		return -1;
-
-	
 }
 EXPORT_CODE long CONVENTION get_Fluid_index(char * param)
 {
@@ -193,7 +205,7 @@ long get_param_index(std::string param)
 	}
 	else
 	{
-		std::cout << "Didn't match parameter: " <<param << std::endl;
+		std::cout << "Didn't match parameter: " << param << std::endl;
 		return -1;
 	}
 }
@@ -498,7 +510,7 @@ double _CoolProp_Fluid_Props(long iOutput, long iName1, double Prop1, long iName
 		case iTcrit:
 			return pFluid->crit.T;
 			break;
-		case iTriple:
+		case iTtriple:
 			return pFluid->params.Ttriple;
 			break;
 		case iRhocrit:

@@ -97,10 +97,10 @@ void UseIdealGasEnthalpyCorrelations(int flag)
 static double Secant_HAProps_T(char *OutputName, char *Input1Name, double Input1, char *Input2Name, double Input2, double TargetVal, double T_guess)
 {
     // Use a secant solve in order to yield a target output value for HAProps by altering T
-    double x1=0,x2=0,x3=0,y1=0,y2=0,eps=1e-8,f=999,T=300;
+    double x1=0,x2=0,x3=0,y1=0,y2=0,eps=5e-7,f=999,T=300,change;
 	int iter=1;
 
-	while ((iter<=3 || fabs(f)>eps) && iter<100)
+	while ((iter<=3 || (fabs(f)>eps && fabs(change)>1e-10)) && iter<100)
 	{
 		if (iter==1){x1=T_guess; T=x1;}
 		if (iter==2){x2=T_guess+0.001; T=x2;}
@@ -111,6 +111,7 @@ static double Secant_HAProps_T(char *OutputName, char *Input1Name, double Input1
 		{
 			y2=f;
 			x3=x2-y2/(y2-y1)*(x2-x1);
+			change = y2/(y2-y1)*(x2-x1);
 			y1=y2; x1=x2; x2=x3;
 		}
 		iter=iter+1;

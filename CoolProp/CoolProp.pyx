@@ -39,33 +39,42 @@ cpdef double Props(bytes in1, bytes in2, in3=None, in4=None,in5=None,in6=None) e
     ``OutputName`` is either a single-character or a string alias.  This list 
     shows the possible values
     
-    ========================  ======================================================
-    ``OutputName``            Description
-    ========================  ======================================================
-    `T`                       Temperature [K]
-    `P`                       Pressure [kPa]
-    `D`                       Density [kg/m3]
-    `C0`                      Ideal-gas specific heat at constant pressure [kJ/kg]
-    `C`                       Specific heat at constant pressure [kJ/kg]
-    `O`                       Specific heat at constant volume [kJ/kg]
-    `U`                       Internal energy [kJ/kg]
-    `H`                       Enthalpy [kJ/kg]
-    `S`                       Entropy [kJ/kg/K]
-    `A`                       Speed of sound [m/s]
-    `G`                       Gibbs function [kJ/kg]
-    `V`                       Viscosity [Pa-s]
-    `L`                       Thermal conductivity [kW/m/K]
-    `I` or `SurfaceTension`   Surface Tension [N/m]
-    `w`                       Accentric Factor [-]
-    ========================  ======================================================
+    ==========================  ======================================================
+    ``OutputName``              Description
+    ==========================  ======================================================
+    ``Q``                       Quality [-]
+    ``T``                       Temperature [K]
+    ``P``                       Pressure [kPa]
+    ``D``                       Density [kg/m3]
+    ``C0``                      Ideal-gas specific heat at constant pressure [kJ/kg]
+    ``C``                       Specific heat at constant pressure [kJ/kg]
+    ``O``                       Specific heat at constant volume [kJ/kg]
+    ``U``                       Internal energy [kJ/kg]
+    ``H``                       Enthalpy [kJ/kg]
+    ``S``                       Entropy [kJ/kg/K]
+    ``A``                       Speed of sound [m/s]
+    ``G``                       Gibbs function [kJ/kg]
+    ``V``                       Viscosity [Pa-s]
+    ``L``                       Thermal conductivity [kW/m/K]
+    ``I`` or `SurfaceTension`   Surface Tension [N/m]
+    ``w`` or `accentric`        Accentric Factor [-]
+    ==========================  ======================================================
     
-    If `InputName1` is `T` and `InputName2` is `D`, any of the outputs are valid
+    The following sets of input values are valid (order doesn't matter):
     
-    If `InputName1` is `T` and `InputName2` is `P`, any of the outputs are valid
+    =========================  ======================================
+    ``InputName1``             ``InputName2``
+    =========================  ======================================
+    ``T``                      ``P``
+    ``T``                      ``D``
+    ``T``                      ``Q``
+    ``P``                      ``Q``
+    ``H``                      ``P``
+    ``S``                      ``P``
+    =========================  ======================================
     
-    If `InputName1` is `T` and `InputName2` is `Q`, any of the outputs are valid
     
-    If `InputName1` is `T` and `OutputName` is `I`, the second input is neglected
+    If `InputName1` is `T` and `OutputName` is ``I`` or ``SurfaceTension``, the second input is neglected
     since surface tension is only a function of temperature
     """
     cdef char _in2

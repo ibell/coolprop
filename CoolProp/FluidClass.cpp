@@ -1305,21 +1305,19 @@ class ConformalTempResids : public FuncWrapperND
 {
 private:
 	Fluid * InterestFluid, * ReferenceFluid;
-	double T,rho;
+	double alpha_j, Z_j;
 public:
-	ConformalTempResids(Fluid *InterestFluid_, Fluid *ReferenceFluid_, double T_, double rho_){
+	ConformalTempResids(Fluid *InterestFluid_, Fluid *ReferenceFluid_, double _alpha_j, double _Z_j){
 		InterestFluid=InterestFluid_;
 		ReferenceFluid=ReferenceFluid_;
-		T=T_;
-		rho=rho_;
+		alpha_j = _alpha_j;
+		Z_j = _Z_j;
 	};
 	~ConformalTempResids(){};
 	Eigen::VectorXd call(Eigen::VectorXd x)
 	{
 		double T0=x[0]; double rho0=x[1];
-		double alpha_j = DerivTerms("phir",T,rho,InterestFluid->get_namec());
 		double alpha_0 = DerivTerms("phir",T0,rho0,ReferenceFluid->get_namec());
-		double Z_j = DerivTerms("Z",T,rho,InterestFluid->get_namec());
 		double Z_0 = DerivTerms("Z",T0,rho0,ReferenceFluid->get_namec());
 		Eigen::Vector2d out;
 		out(0)=alpha_j-alpha_0;
@@ -1329,7 +1327,7 @@ public:
 	Eigen::MatrixXd Jacobian(Eigen::VectorXd x)
 	{
 		double T0=x[0]; double rho0=x[1];
-		double dtau_dT = -ReferenceFluid->reduce.T/T/T;
+		double dtau_dT = -ReferenceFluid->reduce.T/T0/T0;
 		double ddelta_drho = 1/ReferenceFluid->reduce.rho;
 		Eigen::MatrixXd out(x.rows(),x.rows());
 		// Terms for the fluid of interest drop out
@@ -1346,13 +1344,18 @@ public:
 	}
 };
 
-Eigen::Vector2d Fluid::ConformalTemperature(Fluid *InterestFluid, Fluid *ReferenceFluid,double T0, double rho0, std::string *errstring)
+Eigen::Vector2d Fluid::ConformalTemperature(Fluid *InterestFluid, Fluid *ReferenceFluid,double T, double rho, double T0, double rho0, std::string *errstring)
 {
 	int iter=0;
-	double error,v0,v1,T,rho,delta,tau,dp_drho;
+	double error,v0,v1,delta,tau,dp_drho;
+	
+	//The values for the fluid of interest that are the target
+	double alpha_j = DerivTerms("phir",T,rho,InterestFluid->get_namec());
+	double Z_j = DerivTerms("Z",T,rho,InterestFluid->get_namec());
+	
 	Eigen::Vector2d f0,v;
 	Eigen::MatrixXd J;
-	ConformalTempResids CTR = ConformalTempResids(InterestFluid,ReferenceFluid,T0,rho0);
+	ConformalTempResids CTR = ConformalTempResids(InterestFluid,ReferenceFluid,alpha_j,Z_j);
 	Eigen::Vector2d x0;
 	x0 << T0, rho0;
 	
@@ -1363,7 +1366,7 @@ Eigen::Vector2d Fluid::ConformalTemperature(Fluid *InterestFluid, Fluid *Referen
 	}
 	// Make a copy so that if the calculations fail, we can return the original values
 	Eigen::Vector2d x0_initial=x0;
-
+	
 	try{
 		// First naively try to just use the Newton-Raphson solver without any
 		// special checking of the values.
@@ -1387,7 +1390,14 @@ Eigen::Vector2d Fluid::ConformalTemperature(Fluid *InterestFluid, Fluid *Referen
 		tau = reduce.T/T;
 		delta = rho/reduce.rho;
 		dp_drho=R()*T*(1+2*delta*dphir_dDelta(tau,delta)+delta*delta*d2phir_dDelta2(tau,delta));
-
+		
+		/*if (dp_drho<0)
+		{
+			if (rho > ReferenceFluid->reduce.rho)
+				x0(1)*=1.04;
+			else
+				x0(0)*=0.96;
+		}*/
 		//Try to take a step
 		f0 = CTR.call(x0);
 		J = CTR.Jacobian(x0);
@@ -1398,7 +1408,7 @@ Eigen::Vector2d Fluid::ConformalTemperature(Fluid *InterestFluid, Fluid *Referen
 			x0 -= v;
 		else
 			x0 -= 1.05*x0;
-
+		std::cout<<f0<<std::endl;
 		error = sqrt(f0.array().square().sum());
 		iter+=1;
 	}
@@ -1509,7 +1519,7 @@ double Fluid::viscosity_ECS_Trho(double T, double rho, Fluid * ReferenceFluid)
 	double p0 = Z*R()*T0*rho0;
 	if (Z<0.3 || p0>1.1*ReferenceFluid->reduce.p || rho0>ReferenceFluid->reduce.rho){
 		// Use the code to calculate the conformal state
-		x0=ConformalTemperature(this,ReferenceFluid,T0,rho0,&errstring);
+		x0=ConformalTemperature(this,ReferenceFluid,T,rho,T0,rho0,&errstring);
 		T0=x0(0);
 		rho0=x0(1);
 	}
@@ -1603,7 +1613,7 @@ double Fluid::conductivity_ECS_Trho(double T, double rho, Fluid * ReferenceFluid
 	double p0 = Z*R()*T0*rho0;
 	if (Z<0.3 || p0>1.1*ReferenceFluid->reduce.p || rho0>ReferenceFluid->reduce.rho){
 		// Use the code to calculate the conformal state
-		x0=ConformalTemperature(this,ReferenceFluid,T0,rho0,&errstring);
+		x0=ConformalTemperature(this,ReferenceFluid,T,rho,T0,rho0,&errstring);
 		T0=x0(0);
 		rho0=x0(1);
 	}

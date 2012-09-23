@@ -164,7 +164,7 @@ class Fluid
 			throw NotImplementedError(std::string("rhosatV not implemented for this fluid")); return _HUGE;
 		};
 
-		Eigen::Vector2d ConformalTemperature(Fluid *InterestFluid, Fluid *ReferenceFluid,double T, double rho, std::string *errstring);
+		Eigen::Vector2d ConformalTemperature(Fluid *InterestFluid, Fluid *ReferenceFluid,double T, double rho, double T0, double rho0, std::string *errstring);
 		// Extended corresponding states functions for fluids that do not have their own high-accuracy
 		// transport property implementation
 		virtual void ECSParams(double *e_k, double *sigma){

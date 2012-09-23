@@ -428,40 +428,4 @@ Sample Code
     #Check that the same as using pseudo-pure
     In [2]: Props('D','T',300,'P',100,'R410A')
     
-    # -------------------------------------------------------
-    #  Saturation Lookup Table
-    # -------------------------------------------------------
-    
-    #Crudely time 100 calls to get saturation temperature without lookup table
-    In [2]: t1=timeit.Timer("T=Props('T','P',101.325,'Q',1,'Water')",setup="from CoolProp.CoolProp import Props").timeit(100)
-    
-    #Turn on the saturation LUT
-    In [3]: setupstring="from CoolProp.CoolProp import Props,UseSaturationLUT; UseSaturationLUT(True); T=Props('T','P',101.325,'Q',1,'Water')"
-    
-    #Crudely time 100 calls to get saturation temperature with lookup table
-    In [2]: t2=timeit.Timer("T=Props('T','P',101.325,'Q',1,'Water')",setup=setupstring).timeit(100)
-    
-    In [2]: print 'No LUT:{0:g} s With LUT: {1:g} s Speedup: {2:g}x'.format(t1,t2,t1/t2)
-    
-    # -------------------------------------------------------
-    #  Single-phase Lookup Table
-    # -------------------------------------------------------
-    
-    #Turn off the single-phase LUT
-    In [3]: setupstring="from CoolProp.CoolProp import Props,UseSinglePhaseLUT; UseSinglePhaseLUT(False)"
-    
-    #Crudely time 10000 calls to get single-phase cp without lookup table
-    In [2]: t1=timeit.Timer("T=Props('C','T',298.15,'P',101.325,'R410A')",setup=setupstring).timeit(10000)
-    
-    #Turn on the single-phase LUT - run one to force build of LUT
-    In [3]: setupstring="from CoolProp.CoolProp import Props,UseSinglePhaseLUT;\
-       ...:             from CoolProp.CoolProp import set_1phase_LUT_params;\
-       ...:             UseSinglePhaseLUT(1);\
-       ...:             set_1phase_LUT_params('R410A',100,100,250,330,50,200);\
-       ...:             T=Props('C','T',298.15,'P',101.325,'R410A');"
-    
-    #Crudely time 10000 calls to get single-phase cp with lookup table
-    In [2]: t2=timeit.Timer("T=Props('C','T',298.15,'P',101.325,'R410A')",setup=setupstring).timeit(10000)
-    
-    In [2]: print 'No LUT:{0:g} s With LUT: {1:g} s Speedup: {2:g}x'.format(t1,t2,t1/t2)       
     

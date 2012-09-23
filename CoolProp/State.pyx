@@ -137,7 +137,6 @@ cdef class State:
         """
             
         cdef double p
-        cdef char* pchar
         cdef bytes errstr
         
         # If no value for xL is provided, it will have a value of -1 which is 
@@ -164,9 +163,12 @@ cdef class State:
             #Get the density if T,P provided, or pressure if T,rho provided
             if 'P' in params:
                 self.p_=params['P']
-                #Explicit type conversion
-                pchar='D'
-                rho = _Props(pchar,'T',self.T_,'P',self.p_,self.Fluid)
+                
+                if self.is_CPFluid:
+                    rho = _IProps(iD,iT,self.T_,iP,self.p_,self.iFluid)
+                else:
+                    rho = _Props('D','T',self.T_,'P',self.p_,self.Fluid)
+                
                 if abs(rho)<1e90:
                     self.rho_=rho
                 else:
@@ -175,9 +177,12 @@ cdef class State:
             elif 'D' in params:
                 
                 self.rho_=params['D']
-                #Explicit type conversion
-                pchar='P'
-                p = _Props(pchar,'T',self.T_,'D',self.rho_,self.Fluid)
+                
+                if self.is_CPFluid:
+                    p = _IProps(iP,iT,self.T_,iD,self.rho_,self.iFluid)
+                else:
+                    p = _Props('P','T',self.T_,'D',self.rho_,self.Fluid)
+                
                 if abs(p)<1e90:
                     self.p_=p
                 else:
