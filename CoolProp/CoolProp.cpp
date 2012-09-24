@@ -39,7 +39,8 @@ Fluid * pFluid;
 
 // Define some constants that will be used throughout
 enum params {iB,iT,iP,iD,iC,iC0,iO,iU,iH,iS,iA,iG,iQ,iV,iL,iI,iMM,iTcrit,iTtriple,iPcrit,iRhocrit,iAccentric,iDpdT};
-// This is a map of all possible strings to unique identifiers 
+
+// This is a map of all possible strings to a unique identifier
 std::pair<std::string, long> map_data[] = {
 	std::make_pair(std::string("E"),iPcrit),
 	std::make_pair(std::string("M"),iMM),
@@ -74,9 +75,41 @@ std::pair<std::string, long> map_data[] = {
 	std::make_pair(std::string("dpdT"),iDpdT),
 	std::make_pair(std::string("M"),iMM),
 };
-
+//Now actually construct the map
 std::map<std::string, long> param_map(map_data,
     map_data + sizeof map_data / sizeof map_data[0]);
+
+// This is a map of all unique identifiers to std::strings with the default units
+// that are used internally
+std::pair<long, std::string> units_data[] = {
+	std::make_pair(iPcrit, std::string("kPa")),
+	std::make_pair(iMM, std::string("kg/kmol")),
+	std::make_pair(iAccentric, std::string("-")),
+	std::make_pair(iTtriple, std::string("K")),
+	std::make_pair(iRhocrit, std::string("kg/m^3")),
+	std::make_pair(iTcrit, std::string("K")),
+
+	std::make_pair(iQ, std::string("-")),
+	std::make_pair(iT, std::string("K")),
+    std::make_pair(iP, std::string("kPa")),
+	std::make_pair(iD, std::string("kg/m^3")),
+	std::make_pair(iC, std::string("kJ/kg/K")),
+	std::make_pair(iC0, std::string("kJ/kg/K")),
+	std::make_pair(iO, std::string("kJ/kg/K")),
+	std::make_pair(iU, std::string("kJ/kg")),
+	std::make_pair(iH, std::string("kJ/kg")),
+	std::make_pair(iS, std::string("kJ/kg/K")),
+	std::make_pair(iA, std::string("m/s")),
+	std::make_pair(iG, std::string("kJ/kg")),
+	std::make_pair(iV, std::string("Pa*s")),
+	std::make_pair(iL, std::string("kW/m/K")),
+	std::make_pair(iI, std::string("N/m")),
+	std::make_pair(iDpdT, std::string("kPa/K"))
+};
+
+//Now actually construct the map
+std::map<long, std::string> units_map(units_data,
+		units_data + sizeof units_data / sizeof units_data[0]);
 
 void swap (double *x, double *y)
 {
@@ -170,10 +203,12 @@ EXPORT_CODE void CONVENTION UseSinglePhaseLUT(bool OnOff)
     }
 }
 
+
 EXPORT_CODE bool CONVENTION SinglePhaseLUTStatus(void)
 {
     return FlagUseSinglePhaseLUT;
 }
+
 long get_Fluid_index(std::string FluidName)
 {
 	// Try to get the fluid from Fluids by name
@@ -190,6 +225,29 @@ long get_Fluid_index(std::string FluidName)
 EXPORT_CODE long CONVENTION get_Fluid_index(char * param)
 {
 	return get_Fluid_index(std::string(param));
+}
+
+std::string get_index_units(long index)
+{
+	std::map<long, std::string>::iterator it;
+	// Try to find using the map
+	it = units_map.find(index);
+	// If it is found the iterator will not be equal to end
+	if (it != units_map.end() )
+	{
+		// Return the index of the parameter
+		return (*it).second;
+	}
+	else
+	{
+		std::cout << "Didn't match parameter: " << index << std::endl;
+		return std::string("Didn't match parameter");
+	}
+}
+EXPORT_CODE void CONVENTION get_index_units(long param, char * units)
+{
+	strcpy(units, (char*)get_index_units(param).c_str());
+	return;
 }
 
 long get_param_index(std::string param)

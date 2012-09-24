@@ -140,7 +140,7 @@ You might want to start by looking at CoolProp.h
 
 	EXPORT_CODE long CONVENTION get_param_index(char * param);
 	EXPORT_CODE long CONVENTION get_Fluid_index(char * param);
-
+	EXPORT_CODE void CONVENTION get_index_units(long param, char * units);
 
 	/*
 	returns 1 if parameters set properly
@@ -177,5 +177,6 @@ You might want to start by looking at CoolProp.h
 
 	long get_param_index(std::string param);
 	long get_Fluid_index(std::string param);
+	std::string get_index_units(long index);
 
 #endif

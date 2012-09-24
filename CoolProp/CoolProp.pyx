@@ -9,10 +9,48 @@
 # Each of the functions from the CoolProp header are renamed in cython code to
 # an underscored name so that the same name can be used in the exposed functions below
 
+#Check for the existence of quantities
+cdef bint _quantities_supported
+try:
+    import quantities as pq
+    _quantities_supported = True
+except ImportError:
+    _quantities_supported = False
+
 import cython
 import math
 
-cpdef double Props(bytes in1, bytes in2, in3=None, in4=None,in5=None,in6=None) except *:
+cpdef double _convert_to_desired_units(double value, bytes parameter_type, bytes desired_units) except *:
+    """
+    A convenience function to convert a double value back to the units that
+    people
+    """
+    #Convert parameter string to index
+    cdef long index = _get_param_index(parameter_type)
+    #Get the units string by the index
+    cdef bytes default_units = _get_index_units(index)
+    #Create the Quantity instance
+    old = pq.Quantity(value, default_units)
+    #Convert the units
+    old.units = desired_units
+    #Return the scaled units
+    return old.magnitude
+
+cpdef _convert_to_default_units(bytes parameter_type, object parameter):
+    """
+    A convenience function to convert a quantities instance to the default 
+    units required for CoolProp
+    """
+    #Convert parameter string to index
+    cdef long index = _get_param_index(parameter_type)
+    #Get the units string by the index
+    cdef bytes default_units = _get_index_units(index)
+    #Rescale the units of the paramter to the default units
+    parameter.units = default_units
+    #Return the scaled units
+    return parameter
+                          
+cpdef double Props(bytes in1, bytes in2, in3=None, in4=None,in5=None,in6=None,in7=None) except *:
     """
     Call Type #1::
 
@@ -29,6 +67,9 @@ cpdef double Props(bytes in1, bytes in2, in3=None, in4=None,in5=None,in6=None) e
     ``accentric``  Accentric factor [-]
     =============  ============================
    
+    This type of call is used to get fluid-specific parameters that are not 
+    dependent on the state 
+     
     Call Type #2:
     
     Alternatively, Props can be called in the form::
@@ -76,6 +117,12 @@ cpdef double Props(bytes in1, bytes in2, in3=None, in4=None,in5=None,in6=None) e
     
     If `InputName1` is `T` and `OutputName` is ``I`` or ``SurfaceTension``, the second input is neglected
     since surface tension is only a function of temperature
+    
+    Call Type #3:
+    New in 2.2
+    If you provide InputName1 or InputName2 as a derived class of Quantity, the value will be internally
+    converted to the required units as long as it is dimensionally correct.  Otherwise a ValueError will 
+    be raised by the conversion
     """
     cdef char _in2
     cdef char _in4
@@ -84,7 +131,8 @@ cpdef double Props(bytes in1, bytes in2, in3=None, in4=None,in5=None,in6=None) e
     if (in3 is None
         and in4 is None
         and in5 is None
-        and in6 is None):
+        and in6 is None
+        and in7 is None):
         
         val = _Props1(in1,in2)
         if math.isnan(val) or abs(val)>1e20:
@@ -92,13 +140,26 @@ cpdef double Props(bytes in1, bytes in2, in3=None, in4=None,in5=None,in6=None) e
         else:
             return val
     else:
+        if _quantities_supported:
+            if isinstance(in3,pq.Quantity):
+                in3 = _convert_to_default_units(in2,in3).magnitude
+            if isinstance(in5,pq.Quantity):
+                in5 = _convert_to_default_units(in4,in5).magnitude
+                
         _in2 = <char>((<bytes>in2)[0])
         _in4 = <char>((<bytes>in4)[0])
         val = _Props(in1, _in2, in3, _in4, in5, in6)
         if math.isnan(val) or abs(val)>1e20:
             raise ValueError(_get_errstring())
         else:
-            return val
+            if not _quantities_supported:
+                return val
+            else:
+                if in7 is not None:
+                    #Convert the units to the units given by in7
+                    return _convert_to_desired_units(val,in1,in7)
+                else:
+                    return val
     
 cpdef double DerivTerms(bytes Output, double T, double rho, bytes Fluid):
     """
