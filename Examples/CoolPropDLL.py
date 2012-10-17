@@ -1,6 +1,6 @@
-## REFPROP DLL is compiled using the __cdecl calling convention, therefore, use cdll
+## REFPROP DLL is compiled using the __stdcall calling convention, therefore, use windll
 from ctypes import *
-cp=cdll.LoadLibrary("CoolProp.dll")
+cp=windll.LoadLibrary("CoolProp.dll")
 
 Output = c_char_p("D")
 Name1 = c_char('T')

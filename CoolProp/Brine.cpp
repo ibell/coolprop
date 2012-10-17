@@ -22,6 +22,12 @@ double SecFluids(char Output, double T, double p,char * Ref)
 	double Tfreeze,Tmax,rho,cp,k,mu,u,s,TC,C_gly;
 	// Temperature and Pressure are the inputs
 
+	// Check for trivial output values
+	if (Output == 'T')
+		return T;
+	else if (Output == 'P')
+		return p;
+
 	if (!strcmp(Ref,"HC-10"))
 	{
 		// Curve fits generated from Microsoft Excel fit of manufacturer data

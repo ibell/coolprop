@@ -13,6 +13,7 @@
 #include "math.h"
 using namespace std;
 #include "Helmholtz.h"
+#include "CoolPropTools.h"
 
 // Constructors
 phir_power::phir_power(std::vector<double> n_in,std::vector<double> d_in,std::vector<double> t_in, std::vector<double> l_in, int iStart_in,int iEnd_in)
@@ -409,7 +410,7 @@ double phi0_Planck_Einstein::dTau2(double tau, double delta)
 	double summer=0;
 	for (int i=iStart;i<=iEnd;i++)
 	{
-		summer-=a[i]*pow(theta[i],2)*exp(-theta[i]*tau)/pow(1.0-exp(-theta[i]*tau),2);
+		summer-=a[i]*pow(theta[i],2.0)*exp(theta[i]*tau)/pow(1.0-exp(theta[i]*tau),2.0);
 	}
 	return summer;
 }
@@ -452,4 +453,78 @@ double phi0_Planck_Einstein2::dTau2(double tau, double delta)
 		summer+=a[i]*pow(theta[i],2)*c[i]*exp(tau*theta[i])/pow(c[i]+exp(tau*theta[i]),2);
 	}
 	return summer;
+}
+
+/*
+Maxima code for the sinh term:
+part a)
+((Tc*chi/tau)/sinh(Tc*chi/tau))^2;
+-integrate(%,tau);
+ratsimp(%);
+part b)
+((Tc*chi/tau)/sinh(Tc*chi/tau))^2;
+integrate(%/tau,tau);
+ratsimp(%);
+Swap cosh for sinh and do it again
+*/
+double phi0_cp0_AlyLee::base(double tau, double delta)
+{	
+	return -tau/R_u*(anti_deriv_cp0_tau2(tau)-anti_deriv_cp0_tau2(tau0))+1/R_u*(anti_deriv_cp0_tau(tau)-anti_deriv_cp0_tau(tau0));
+}
+double phi0_cp0_AlyLee::dTau(double tau, double delta)
+{
+	// combining the integral terms for dTau yields
+	// -1/Rbar*int(cp0/tau^2,dtau,tau0,tau)
+
+	return -1/R_u*(anti_deriv_cp0_tau2(tau) - anti_deriv_cp0_tau2(tau0));
+}
+double phi0_cp0_AlyLee::anti_deriv_cp0_tau2(double tau)
+{
+	/*
+	Maxima code:
+	a[1]+a[2]*(a[3]*tau/Tc/sinh(a[3]*tau/Tc))^2+a[4]*(a[5]*tau/Tc/cosh(a[5]*tau/Tc))^2;
+	integrate(%/tau^2,tau);
+	*/
+	return (4*a[4]*a[5])/(Tc*(2*exp(-(2*a[5]*tau)/Tc)+2))+(4*a[2]*a[3])/(Tc*(2*exp(-(2*a[3]*tau)/Tc)-2))-a[1]/tau;
+}
+double phi0_cp0_AlyLee::anti_deriv_cp0_tau(double tau)
+{
+	/*
+	Maxima code:
+	a[1]+a[2]*(a[3]*tau/Tc/sinh(a[3]*tau/Tc))^2+a[4]*(a[5]*tau/Tc/cosh(a[5]*tau/Tc))^2;
+	integrate(%/tau,tau);
+	*/
+	double term1 = (4*a[4]*a[5]*a[5]*((tau*Tc*exp((2*a[5]*tau)/Tc))/(2*a[5]*exp((2*a[5]*tau)/Tc)+2*a[5])-(Tc*Tc*log(exp((2*a[5]*tau)/Tc)+1))/(4*a[5]*a[5])))/Tc/Tc;
+	double term2 = (4*a[2]*a[3]*a[3]*((Tc*Tc*log(exp((a[3]*tau)/Tc)+1))/(4*a[3]*a[3])+(Tc*Tc*log(exp((a[3]*tau)/Tc)-1))/(4*a[3]*a[3])-(tau*Tc*exp((2*a[3]*tau)/Tc))/(2*a[3]*exp((2*a[3]*tau)/Tc)-2*a[3])))/Tc/Tc;
+	double term3 = a[1]*log(tau);
+	return term1 + term2 + term3;
+}
+double phi0_cp0_AlyLee::cp0(double tau)
+{
+	return a[1]+a[2]*pow(a[3]*tau/Tc/sinh(a[3]*tau/Tc),2)+a[4]*pow(a[5]*tau/Tc/(cosh(a[5]*tau/Tc)),2);
+}
+double phi0_cp0_AlyLee::dTau2(double tau, double delta)
+{
+	// The first integral term goes away, leaving just the second partial of the term (1/Rbar)*int(cp0/tau,dtau,tau0,tau)
+	// which is equal to 1/Rbar*((tau*dcp0_dtau-cp0)/tau^2)
+	return -cp0(tau)/(tau*tau*R_u);
+}
+
+double phi0_cp0_poly::dTau(double tau, double delta)
+{
+	double sum=0;
+	for (int i = iStart; i<=iEnd; i++){
+		double t=tv[i];
+		sum+=a[i]*pow(Tc,t)*pow(tau,-t-1)/(t+1)-a[i]*pow(Tc,t)/(pow(tau0,t+1)*(t+1));
+	}
+	return sum;
+}
+
+double phi0_cp0_poly::dTau2(double tau, double delta)
+{
+	double sum=0;
+	for (int i = iStart; i<=iEnd; i++){
+		sum+=-a[i]*pow(Tc/tau,tv[i])/(tau*tau);
+	}
+	return sum;
 }

@@ -111,9 +111,44 @@ std::pair<long, std::string> units_data[] = {
 std::map<long, std::string> units_map(units_data,
 		units_data + sizeof units_data / sizeof units_data[0]);
 
+double _T_hp_secant(std::string Ref, double h, double p, double T_guess)
+{
+    double x1=0,x2=0,x3=0,y1=0,y2=0,eps=1e-8,change=999,f=999,T=300;
+    int iter=1;
+
+    while ((iter<=3 || fabs(f)>eps) && iter<100)
+    {
+        if (iter==1){x1=T_guess; T=x1;}
+        if (iter==2){x2=T_guess+0.1; T=x2;}
+        if (iter>2) {T=x2;}
+            f=Props("H",'T',T,'P',p,Ref)-h;
+        if (iter==1){y1=f;}
+        if (iter>1)
+        {
+            y2=f;
+            x3=x2-y2/(y2-y1)*(x2-x1);
+            change=fabs(y2/(y2-y1)*(x2-x1));
+            y1=y2; x1=x2; x2=x3;
+        }
+        iter=iter+1;
+        if (iter>100)
+        {
+			throw SolutionError(format("iter %d: T_hp not converging with inputs(%s,%g,%g,%g) value: %0.12g\n",iter,Ref,h,p,T_guess,f));
+        }
+    }
+    return T;
+}
+
 void swap (double *x, double *y)
 {
 	double tmp;
+	tmp = *y;
+	*y = *x;
+	*x = tmp;
+}
+void swap (std::string *x, std::string *y)
+{
+	std::string tmp;
 	tmp = *y;
 	*y = *x;
 	*x = tmp;
@@ -540,11 +575,29 @@ double _Props(std::string Output,std::string Name1, double Prop1, std::string Na
     // It's a brine, call the brine routine
 	else if (IsBrine((char*)Ref.c_str()))
     {
-		if (Name1.c_str()[0]!='T' || Name2.c_str()[0]!='P')
+		//Enthalpy and pressure are the inputs
+		if ((Name1.c_str()[0]=='H' && Name2.c_str()[0]=='P') || (Name2.c_str()[0]=='H' && Name1.c_str()[0]=='P'))
         {
-			throw ValueError("For brine, Name1 must be 'T' and Name2 must be 'P'");
+			if (Name2.c_str()[0]=='H' && Name1.c_str()[0]=='P')
+			{
+				swap(&Prop1,&Prop2);
+				swap(&Name1,&Name2);
+			}
+			// Start with a guess of 10 K below max temp of fluid
+			double Tguess = SecFluids('M',Prop1,Prop2,(char*)Ref.c_str())-10;
+			// Get the temperature
+			double T =_T_hp_secant(Ref,Prop1,Prop2,Tguess);
+			// Return whatever property is desired
+			return SecFluids(Output[0],T,Prop2,(char*)Ref.c_str());
 		}
-        return SecFluids(Output[0],Prop1,Prop2,(char*)Ref.c_str());
+		else if (Name1.c_str()[0]!='T' || Name2.c_str()[0]!='P')
+        {
+			throw ValueError("For brine, Name1 must be 'T' and Name2 must be 'P' or Name1 must be 'H' and Name2 must be 'P'");
+		}
+		else
+		{
+			return SecFluids(Output[0],Prop1,Prop2,(char*)Ref.c_str());
+		}
     }
     return 0;
 }
@@ -712,7 +765,6 @@ double _CoolProp_Fluid_Props(long iOutput, long iName1, double Prop1, long iName
 				Value=pFluid->specific_heat_p_Trho(T,rho);
 				break;
 			case iC0:
-
 				Value=pFluid->specific_heat_p_ideal_Trho(T);
 				break;
 			case iO:
@@ -738,7 +790,9 @@ double _CoolProp_Fluid_Props(long iOutput, long iName1, double Prop1, long iName
 				return _HUGE;
         }
 		if (debug()>5){
-			std::cout<<__FILE__<<": "<<iOutput<<","<<iName1<<","<<Prop1<<","<<iName2<<","<<Prop2<<","<<pFluid->get_name()<<"="<<Value<<std::endl;
+			std::cout<<__FILE__<<"More output" <<std::endl;
+			std::cout<<__FILE__<<__LINE__<<": "<<iOutput<<","<<iName1<<","<<Prop1<<","<<iName2<<","<<Prop2<<","<<pFluid->get_name()<<"="<<Value<<std::endl;
+			std::cout<<__FILE__<<__LINE__<<": "<<iOutput<<","<<iName1<<","<<Prop1<<","<<iName2<<","<<Prop2<<","<<pFluid->get_name()<<"="<<Value<<std::endl;
 		}
         return Value;
 	}
@@ -777,7 +831,7 @@ double _CoolProp_Fluid_Props(long iOutput, long iName1, double Prop1, long iName
 		throw ValueError(format("Not a valid pair of input keys %d,%d and output key %d",iName1,iName2,iOutput));
     }
 }
-double IProps(long iOutput, long iName1, double Prop1, long iName2, double Prop2, long iFluid)
+EXPORT_CODE double CONVENTION IProps(long iOutput, long iName1, double Prop1, long iName2, double Prop2, long iFluid)
 {
 	pFluid = Fluids.get_fluid(iFluid);
 	// Didn't work
@@ -978,6 +1032,7 @@ void _T_hp(std::string Ref, double h, double p, double *Tout, double *rhoout)
 			*Tout = quality*TsatV+(1-quality)*TsatL;
 			double v = quality*(1/rhosatV)+(1-quality)*1/rhosatL;
 			*rhoout = 1/v;
+			return;
 		}
 	}
 
@@ -1034,34 +1089,7 @@ void _T_hp(std::string Ref, double h, double p, double *Tout, double *rhoout)
     *rhoout = delta*rhoc;
 }
 
-//double T_hp(char *Ref, double h, double p, double T_guess)
-//{
-//    double x1=0,x2=0,x3=0,y1=0,y2=0,eps=1e-8,change=999,f=999,T=300;
-//    int iter=1;
-//
-//    while ((iter<=3 || fabs(f)>eps) && iter<100)
-//    {
-//        if (iter==1){x1=T_guess; T=x1;}
-//        if (iter==2){x2=T_guess+0.1; T=x2;}
-//        if (iter>2) {T=x2;}
-//            f=Props('H','T',T,'P',p,Ref)-h;
-//        if (iter==1){y1=f;}
-//        if (iter>1)
-//        {
-//            y2=f;
-//            x3=x2-y2/(y2-y1)*(x2-x1);
-//            change=fabs(y2/(y2-y1)*(x2-x1));
-//            y1=y2; x1=x2; x2=x3;
-//        }
-//        iter=iter+1;
-//        if (iter>100)
-//        {
-//			//throw SolutionError(format("iter %d: T_hp not converging with inputs(%s,%g,%g,%g) value: %0.12g\n",iter,Ref,h,p,T_guess,f));
-//			return _HUGE;
-//        }
-//    }
-//    return T;
-//}
+
 //
 //double h_sp(char *Ref, double s, double p, double T_guess)
 //{

@@ -14,7 +14,14 @@ cdef extern from "CoolProp.h":
     double _IProps "IProps" (long,long,double,long,double,long)
     long _get_param_index "get_param_index" (string param)
     long _get_Fluid_index "get_Fluid_index" (string param)
-    
+ 
+
+##Functions defined at the module level
+#cpdef double Props(bytes Parameter, bytes Param1, float value1, bytes Param2, float value2, bytes Fluid)
+#cpdef LUT(bint LUTkey)
+#cpdef int set_1phase_LUT_params(bytes Ref, int nT,int np,double Tmin,double Tmax,double pmin,double pmax)
+#cpdef debug(int level)
+   
 from libc.math cimport pow, sin, cos, exp
 from math import pow as pow_
 cdef bint _LUT_Enabled
@@ -61,7 +68,7 @@ cpdef int set_1phase_LUT_params(bytes Ref, int nT, int np, double Tmin, double T
 
     return 0
 
-cpdef debug(int level):
+cpdef int debug(int level):
     """
     Sets the debug level
     
@@ -76,7 +83,7 @@ cpdef debug(int level):
     """
     _debug(level)
 
-cpdef LUT(bint LUTval):
+cpdef int LUT(bint LUTval):
     """
     
     LUTval : boolean
@@ -207,10 +214,6 @@ cdef class State:
             
     cpdef double get_MM(self):
         return _Props1(self.Fluid,'molemass')
-    
-    property LUT:
-        def __get__(self):
-            return self.LUT
     
     cpdef double get_rho(self): 
         return self.rho_

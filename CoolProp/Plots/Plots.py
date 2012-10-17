@@ -1,7 +1,95 @@
 import pylab, numpy as np, CoolProp.CoolProp as cp
+from scipy.interpolate import interp1d
+import pylab
 
 #Turn off lookup for sure
 cp.UseSaturationLUT(0) 
+
+
+def InlineLabel(xv,yv,x = None, y= None, axis = None, fig = None):
+    """
+    This will give the coordinates and rotation required to align a label with
+    a line on a plot
+    """
+    
+    def ToPixelCoords(xv,yv,axis,fig):
+        [Axmin,Axmax]=axis.get_xlim()
+        [Aymin,Aymax]=axis.get_ylim()
+        DELTAX_axis=Axmax-Axmin
+        DELTAY_axis=Aymax-Aymin
+        
+        width=fig.get_figwidth()
+        height=fig.get_figheight()
+        pos=axis.get_position().get_points()
+        [[Fxmin,Fymin],[Fxmax,Fymax]]=pos
+        DELTAX_fig=width*(Fxmax-Fxmin)
+        DELTAY_fig=height*(Fymax-Fymin)
+        
+        #Convert coords to pixels
+        x=(xv-Axmin)/DELTAX_axis*DELTAX_fig+Fxmin
+        y=(yv-Aymin)/DELTAY_axis*DELTAY_fig+Fymin
+        
+        return x,y
+    
+    def ToDataCoords(xv,yv,axis,fig):
+        [Axmin,Axmax]=axis.get_xlim()
+        [Aymin,Aymax]=axis.get_ylim()
+        DELTAX_axis=Axmax-Axmin
+        DELTAY_axis=Aymax-Aymin
+        
+        width=fig.get_figwidth()
+        height=fig.get_figheight()
+        pos=axis.get_position().get_points()
+        [[Fxmin,Fymin],[Fxmax,Fymax]]=pos
+        DELTAX_fig=(Fxmax-Fxmin)*width
+        DELTAY_fig=(Fymax-Fymin)*height
+        
+        #Convert back to measurements
+        x=(xv-Fxmin)/DELTAX_fig*DELTAX_axis+Axmin
+        y=(yv-Fymin)/DELTAY_fig*DELTAY_axis+Aymin
+        
+        return x,y
+    
+    if axis is None:
+        axis=pylab.gca()
+    
+    if fig is None:
+        fig=pylab.gcf()
+    
+    
+    
+    if y is None and x is not None:
+        trash=0
+        (xv,yv)=ToPixelCoords(xv,yv,axis,fig)
+        #x is provided but y isn't
+        (x,trash)=ToPixelCoords(x,trash,axis,fig)
+    
+        #Get the rotation angle
+        f = interp1d(xv, yv)
+        y = f(x)
+        h = 0.001*x
+        dy_dx = (f(x+h)-f(x-h))/(2*h)
+        rot = np.arctan(dy_dx)/np.pi*180.
+        
+    elif x is None and y is not None:
+        #y is provided, but x isn't
+        
+        _xv = xv[::-1]
+        _yv = yv[::-1]
+        #Find x by interpolation
+        x = interp1d(yv, xv)(y)
+        trash=0
+        (xv,yv)=ToPixelCoords(xv,yv,axis,fig)
+        (x,trash)=ToPixelCoords(x,trash,axis,fig)
+        
+        f = interp1d(xv, yv)
+        y = f(x)
+        h = 0.001*x
+        dy_dx = (f(x+h)-f(x-h))/(2*h)
+        rot = np.arctan(dy_dx)/np.pi*180.
+        
+    (x,y)=ToDataCoords(x,y,axis,fig)
+    return (x,y,rot)
 
 def show():
     """

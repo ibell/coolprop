@@ -21,6 +21,7 @@ Cython.Compiler.Options.annotate = True
 ## If the file is run directly without any parameters, build and install
 if len(sys.argv)==1:
     #sys.argv+=['build_ext','--inplace']
+    #sys.argv+=['build','--compiler=mingw32','install']
     sys.argv+=['install']
     
 if '--DLL' in sys.argv:

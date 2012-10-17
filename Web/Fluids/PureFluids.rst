@@ -9,6 +9,9 @@ Pure Fluids
     Argon.rst
     CarbonMonoxide.rst
     CarbonylSulfide.rst
+    D4.rst
+    D5.rst
+    D6.rst
     Decane.rst
     Helium.rst
     Hydrogen.rst
@@ -16,6 +19,11 @@ Pure Fluids
     Isohexane.rst
     Isopentane.rst
     Krypton.rst
+    MD2M.rst
+    MD3M.rst
+    MD4M.rst
+    MDM.rst
+    MM.rst
     Neopentane.rst
     Nitrogen.rst
     NitrousOxide.rst

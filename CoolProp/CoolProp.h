@@ -103,6 +103,7 @@ You might want to start by looking at CoolProp.h
 	#include "Nitrogen.h"
 	#include "Brine.h"
 	#include "IndustrialFluids.h"
+	#include "Siloxanes.h"
 	#include "R22.h"
 	#include "Hydrogen.h"
 	#include "Oxygen.h"

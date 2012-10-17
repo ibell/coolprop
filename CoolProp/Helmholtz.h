@@ -271,7 +271,9 @@ public:
 	double base(double tau, double delta)
 	{
 		double summer=0;
-		for (int i=iStart;i<=iEnd;i++) summer+=a[i]*pow(tau,b[i]);
+		for (int i=iStart;i<=iEnd;i++){
+			summer += a[i]*pow(tau,b[i]);
+		}
 		return summer;
 	};
 	double dTau(double tau, double delta)
@@ -279,14 +281,16 @@ public:
 		double summer=0;
 		
 		for (int i=iStart;i<=iEnd;i++) { 
-			summer+=a[i]*b[i]*pow(tau,b[i]-1);
+			summer += a[i]*b[i]*pow(tau,b[i]-1);
 		}
 		return summer;
 	};
 	double dTau2(double tau, double delta)
 	{
 		double summer=0;
-		for (int i=iStart;i<=iEnd;i++) summer+=a[i]*b[i]*(b[i]-1)*pow(tau,b[i]-2);
+		for (int i=iStart; i<=iEnd; i++){
+			summer += a[i]*b[i]*(b[i]-1)*pow(tau,b[i]-2);
+		}
 		return summer;
 	};
 	double dDelta(double tau, double delta){return 0.0;};
@@ -401,7 +405,7 @@ public:
 
 	/// Constructor with std::vectors
 	phi0_cp0_poly(std::vector<double> a_, std::vector<double> t_, double Tc_, double T0_, int iStart_, int iEnd_) { 
-		a=a_; tv=t_; Tc = Tc_; T0=T0_; iStart=iStart_; iEnd=iEnd; tau0=Tc/T0;
+		a=a_; tv=t_; Tc = Tc_; T0=T0_; iStart=iStart_; iEnd=iEnd_; tau0=Tc/T0;
 	};
 
 	/// Destructor
@@ -416,28 +420,38 @@ public:
 		}
 		return sum;
 	};
-	double dTau(double tau, double delta)
-	{
-		double sum=0;
-		for (int i = iStart; i<=iEnd; i++){
-			double t=tv[i];
-			sum+=a[i]*pow(Tc,t)*pow(tau,-t-1)/(t+1)-a[i]*pow(Tc,t)/(pow(tau0,t+1)*(t+1));
-		}
-		return sum;
-	};
-	double dTau2(double tau, double delta)
-	{
-		double sum=0;
-		for (int i = iStart; i<=iEnd; i++){
-			double t=tv[i];
-			sum+=-a[i]*pow(Tc,t)/pow(tau,t+2);
-		}
-		return sum;
-	};
+	double dTau(double tau, double delta);
+	double dTau2(double tau, double delta);
 	double dDelta(double tau, double delta){return 0.0;};
 	double dDelta2(double tau, double delta){return 0.0;};
 	double dDelta2_dTau(double tau, double delta){return 0.0;};
 	double dDelta_dTau(double tau, double delta){return 0.0;};
+};
+
+/// Term in the ideal-gas specific heat equation that is based on Aly-Lee formulation
+class phi0_cp0_AlyLee : public phi_BC{
+private:
+	std::vector<double> a;
+	double Tc,tau0,T0,R_u; // Use these variables internally
+public:
+
+	/// Constructor with std::vectors
+	phi0_cp0_AlyLee(std::vector<double> _a, double _Tc, double _T0, double _R) { 
+		a=_a; Tc = _Tc; T0=_T0; tau0=Tc/T0; R_u = _R;
+	};
+
+	/// Destructor
+	~phi0_cp0_AlyLee(){};
+	double base(double tau, double delta);
+	double dTau(double tau, double delta);
+	double dTau2(double tau, double delta);
+	double dDelta(double tau, double delta){return 0.0;};
+	double dDelta2(double tau, double delta){return 0.0;};
+	double dDelta2_dTau(double tau, double delta){return 0.0;};
+	double dDelta_dTau(double tau, double delta){return 0.0;};
+	double cp0(double tau);
+	double anti_deriv_cp0_tau(double tau);
+	double anti_deriv_cp0_tau2(double tau);
 };
 
 #endif

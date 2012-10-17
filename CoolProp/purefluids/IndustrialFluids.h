@@ -148,6 +148,31 @@ public:
 
 };
 
+class R245faClass : public Fluid {
+
+public:
+    R245faClass();
+    ~R245faClass(){};
+    double psat(double);
+    double rhosatL(double);
+    double rhosatV(double);
+    void ECSParams(double *e_k, double *sigma);
+    double ECS_psi_viscosity(double rhor);
+    double ECS_chi_conductivity(double rhor);
+    double ECS_f_int(double T);
+};
+
+class R41Class : public Fluid {
+
+public:
+    R41Class();
+    ~R41Class(){};
+    double psat(double);
+    double rhosatL(double);
+    double rhosatV(double);
+
+};
+
 class NitrousOxideClass : public Fluid {
 
 public:
@@ -212,28 +237,5 @@ public:
     double ECS_f_int(double T);
 };
 
-class R245faClass : public Fluid {
 
-public:
-    R245faClass();
-    ~R245faClass(){};
-    double psat(double);
-    double rhosatL(double);
-    double rhosatV(double);
-    void ECSParams(double *e_k, double *sigma);
-    double ECS_psi_viscosity(double rhor);
-    double ECS_chi_conductivity(double rhor);
-    double ECS_f_int(double T);
-};
-
-class R41Class : public Fluid {
-
-public:
-    R41Class();
-    ~R41Class(){};
-    double psat(double);
-    double rhosatL(double);
-    double rhosatV(double);
-
-};
 #endif

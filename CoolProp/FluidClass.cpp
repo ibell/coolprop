@@ -179,7 +179,6 @@ double Fluid::enthalpy_Trho(double T, double rho)
     R=params.R_u/params.molemass;
 	tau=reduce.T/T;
 	delta=rho/reduce.rho;
-	double dphi = dphi0_dTau(tau,delta);
     return R*T*(1.0+tau*(dphi0_dTau(tau,delta)+dphir_dTau(tau,delta))+delta*dphir_dDelta(tau,delta));
 }
 
@@ -300,7 +299,9 @@ double Fluid::density_Tp(double T, double p, double rho_guess)
             return _HUGE;
         }
     }	
-	//std::cout << iter << " " << rho << " " << rho_guess << std::endl;
+	if (debug()>8){
+		std::cout<<__FILE__<<':'<<__LINE__<<": Fluid::density_Tp(double T, double p, double rho_guess): "<<T<<","<<p<<","<<rho_guess<<" = "<<rho<<std::endl;
+	}
     return rho;
 }
 
@@ -679,31 +680,31 @@ double Fluid::_get_rho_guess(double T, double p)
 	}
 	return rho_simple;
 
-	// Try to use Peng-Robinson to get a guess value for the density
-	std::vector<double> rholist= PRGuess_rho(this,T,p);
-	if (rholist.size()==0){
-		throw SolutionError(format("PengRobinson could not yield any solutions"));
-	}
-	else if (rholist.size()==1){
-		rho_guess = rholist[0];
-	}
-	else{
-		// A list of ok solutions
-		std::vector<double> goodrholist;
-		for (unsigned int i=0;i<rholist.size();i++){
-			pEOS=Props(std::string("P"),'T',T,'D',rholist[i],name.c_str());
-			if (fabs(pEOS/p-1)<0.03){
-				goodrholist.push_back(rholist[i]);
-			}
-		}
-		if (goodrholist.size()==1){
-			rho_guess = goodrholist[0];
-		}
-		else{
-			rho_guess = rho_simple;
-		}
-	}
-	return rho_guess;
+	//// Try to use Peng-Robinson to get a guess value for the density
+	//std::vector<double> rholist= PRGuess_rho(this,T,p);
+	//if (rholist.size()==0){
+	//	throw SolutionError(format("PengRobinson could not yield any solutions"));
+	//}
+	//else if (rholist.size()==1){
+	//	rho_guess = rholist[0];
+	//}
+	//else{
+	//	// A list of ok solutions
+	//	std::vector<double> goodrholist;
+	//	for (unsigned int i=0;i<rholist.size();i++){
+	//		pEOS=Props(std::string("P"),'T',T,'D',rholist[i],name.c_str());
+	//		if (fabs(pEOS/p-1)<0.03){
+	//			goodrholist.push_back(rholist[i]);
+	//		}
+	//	}
+	//	if (goodrholist.size()==1){
+	//		rho_guess = goodrholist[0];
+	//	}
+	//	else{
+	//		rho_guess = rho_simple;
+	//	}
+	//}
+	//return rho_guess;
 }
 
 static void swap(double *x, double *y)
@@ -794,6 +795,8 @@ double Fluid::Tsat(double p, double Q, double T_guess, bool UseLUT)
     Tc=Props(name,"Tcrit");
     Tmax=Tc-0.1;
     Tmin=Props(name,"Ttriple")+1;
+	if (Tmin <= limits.Tmin)
+		Tmin = limits.Tmin;
     
     // Plotting Tc/T versus log(p) tends to give very close to straight line
     // Use this fact find T more easily
@@ -1661,6 +1664,8 @@ FluidsContainer::FluidsContainer()
 	FluidsList.push_back(new R32Class());
 	FluidsList.push_back(new R22Class());
 	// The industrial fluids
+	FluidsList.push_back(new R245faClass());
+	FluidsList.push_back(new R41Class());
 	FluidsList.push_back(new CarbonMonoxideClass());
 	FluidsList.push_back(new CarbonylSulfideClass());
 	FluidsList.push_back(new DecaneClass());
@@ -1679,8 +1684,17 @@ FluidsContainer::FluidsContainer()
 	FluidsList.push_back(new R141bClass());
 	FluidsList.push_back(new R142bClass());
 	FluidsList.push_back(new R218Class());
-	FluidsList.push_back(new R245faClass());
-	FluidsList.push_back(new R41Class());
+
+	// The Siloxanes
+	FluidsList.push_back(new OctamethyltrisiloxaneClass()); //MDM
+	FluidsList.push_back(new DecamethyltetrasiloxaneClass()); //MD2M
+	FluidsList.push_back(new DodecamethylpentasiloxaneClass()); //MD3M
+	FluidsList.push_back(new DodecamethylcyclohexasiloxaneClass()); //D6
+	FluidsList.push_back(new HexamethyldisiloxaneClass());//MM
+	FluidsList.push_back(new TetradecamethylhexasiloxaneClass()); //MD4M
+	FluidsList.push_back(new OctamethylcyclotetrasiloxaneClass()); //D4
+	FluidsList.push_back(new DecamethylcyclopentasiloxaneClass()); //D5
+
 	// The pseudo-pure fluids
 	FluidsList.push_back(new R404AClass());
 	FluidsList.push_back(new R410AClass());
@@ -1732,6 +1746,7 @@ Fluid * FluidsContainer::get_fluid(std::string name)
 			return *it;
 		}
 	}
+
 	throw NotImplementedError(format("Fluid [%s] not allowed",name.c_str()));
 	return NULL;
 }

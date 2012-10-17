@@ -5,6 +5,7 @@ from matplotlib.backends.backend_wxagg import NavigationToolbar2Wx as WXToolbar
 import matplotlib as mpl
 import CoolProp as CP
 from CoolProp.Plots.Plots import Ph, Ts
+from CoolProp.Plots import PsychChart
 import numpy as np
 
 # Munge the system path if necessary to add the lib folder (only really needed
@@ -35,7 +36,7 @@ class TSPlotFrame(wx.Frame):
         sizer.Add(self.PP, 1, wx.EXPAND)
         self.SetSizer(sizer)
         Ts(str(Fluid), 
-           axis = self.PP.ax, 
+           axis = self.PP.ax,
            Tmin = CP.CoolProp.Props(str(Fluid),'Ttriple')+0.01)
         sizer.Layout()
         
@@ -52,7 +53,85 @@ class TSPlotFrame(wx.Frame):
         self.MenuBar.Append(self.File, "File")
         
         self.SetMenuBar(self.MenuBar)
-                
+   
+class PsychOptions(wx.Dialog):
+    def __init__(self,parent):
+        wx.Dialog.__init__(self,parent)
+    
+        self.build_contents()
+        self.layout()
+        
+    def build_contents(self):
+        self.p_label = wx.StaticText(self,label=u'Pressure [kPa (absolute)]')
+        self.p = wx.TextCtrl(self,value = '101.325')
+        self.Tmin_label = wx.StaticText(self,label=u'Minimum dry bulb temperature [\xb0 C]')
+        self.Tmin = wx.TextCtrl(self,value = '-10')
+        self.Tmax_label = wx.StaticText(self,label=u'Maximum dry bulb temperature [\xb0 C]')
+        self.Tmax = wx.TextCtrl(self,value = '60')
+        self.GoButton = wx.Button(self,label='Accept')
+        self.GoButton.Bind(wx.EVT_BUTTON,self.OnAccept)
+        
+    def OnAccept(self, event):
+        self.EndModal(wx.ID_OK)
+        
+    def layout(self):
+        sizer = wx.FlexGridSizer(cols = 2)
+        sizer.AddMany([self.p_label,self.p,self.Tmin_label,self.Tmin,self.Tmax_label,self.Tmax])
+        sizer.Add(self.GoButton)
+        sizer.Layout()
+        self.Fit()
+            
+class PsychPlotFrame(wx.Frame):
+    def __init__(self,Tmin = 263.15,Tmax=333.15,p = 101.325, **kwargs):
+            
+        wx.Frame.__init__(self, None, title='Psychrometric plot', **kwargs)
+        
+        sizer = wx.BoxSizer(wx.HORIZONTAL)
+        self.PP = PlotPanel(self)
+        
+        self.PP.figure.delaxes(self.PP.ax)
+        self.PP.ax = self.PP.figure.add_axes((0.1,0.1,0.85,0.85))
+        
+        sizer.Add(self.PP, 1, wx.EXPAND)
+        self.SetSizer(sizer)
+        
+        PsychChart.p = p
+        PsychChart.Tdb = np.linspace(Tmin,Tmax)
+        
+        SL = PsychChart.SaturationLine()
+        SL.plot(self.PP.ax)
+        
+        RHL = PsychChart.HumidityLines([0.05,0.1,0.15,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9])
+        RHL.plot(self.PP.ax)
+        
+        HL = PsychChart.EnthalpyLines(range(-20,100,10))
+        HL.plot(self.PP.ax)
+        
+        PF = PsychChart.PlotFormatting()
+        PF.plot(self.PP.ax)
+        
+        sizer.Layout()
+        
+        self.add_menu()
+            
+        self.PP.toolbar = WXToolbar(self.PP.canvas)
+        self.PP.toolbar.Realize()
+        self.PP.GetSizer().Add(self.PP.toolbar)
+        
+        self.PP.Layout()
+    
+    def add_menu(self):
+        # Menu Bar
+        self.MenuBar = wx.MenuBar()
+        self.File = wx.Menu()
+        
+        mnuItem  = wx.MenuItem(self.File, -1, "Edit...", "", wx.ITEM_NORMAL)
+        
+        self.File.AppendItem(mnuItem)
+        self.MenuBar.Append(self.File, "File")
+        
+        self.SetMenuBar(self.MenuBar)
+        
 class PHPlotFrame(wx.Frame):
     def __init__(self, Fluid):
         wx.Frame.__init__(self, None,title='p-h plot: '+Fluid)
@@ -80,6 +159,14 @@ class PHPlotFrame(wx.Frame):
         self.MenuBar.Append(self.File, "File")
         
         self.SetMenuBar(self.MenuBar)
+        
+    def overlay_points(self):
+        pass
+    
+    def overlay_cycle(self):
+        pass
+        
+    
 
 class SimpleGrid(wx.grid.Grid):
     def __init__(self, parent, ncol = 20, nrow = 8):
@@ -193,8 +280,14 @@ class SaturationTable(wx.Frame):
         dlg = SaturationTableDialog(None)
         if dlg.ShowModal() == wx.ID_OK:
             Fluid,Tvals = dlg.get_values()
+            cancel = False
+        else:
+            cancel = True
         dlg.Destroy()
-        return Fluid,Tvals
+        if not cancel:
+            return Fluid,Tvals
+        else:
+            return None,None
         
     def build(self):
         self.SetTitle('Saturation Table: '+self.Fluid)
@@ -319,6 +412,7 @@ class MainFrame(wx.Frame):
         self.PHPlot = wx.Menu()
         self.TSPlot = wx.Menu()
         self.tables = wx.Menu()
+        self.PsychPlot = wx.MenuItem(self.plots,-1,'Psychrometric Plot')
         self.SatTable = wx.MenuItem(self.tables, -1,' Saturation Table', "", wx.ITEM_NORMAL)
         
         for Fluid in sorted(CP.__fluids__):
@@ -331,14 +425,29 @@ class MainFrame(wx.Frame):
             self.Bind(wx.EVT_MENU, lambda(event): self.OnTSPlot(event, mnuItem), mnuItem)
         
         self.MenuBar.Append(self.plots, "Plots")
+        self.plots.AppendItem(self.PsychPlot)
         self.plots.AppendMenu(-1,'p-h plot', self.PHPlot)
         self.plots.AppendMenu(-1,'T-s plot', self.TSPlot)
         self.MenuBar.Append(self.tables, "Tables")
         self.tables.AppendItem(self.SatTable)
-        self.Bind(wx.EVT_MENU, self.OnSatTable,self.SatTable)
+        self.Bind(wx.EVT_MENU, self.OnSatTable, self.SatTable)
+        self.Bind(wx.EVT_MENU, self.OnPsychPlot, self.PsychPlot)
         
         self.SetMenuBar(self.MenuBar)
     
+    def OnPsychPlot(self, event=None):
+        
+        #Load the options
+        dlg = PsychOptions(None)
+        if dlg.ShowModal() == wx.ID_OK:
+            Tmin = float(dlg.Tmin.GetValue())+273.15
+            Tmax = float(dlg.Tmax.GetValue())+273.15
+            p = float(dlg.p.GetValue())
+            PPF = PsychPlotFrame(Tmin = Tmin, Tmax = Tmax, p = p, size = (1000,700))
+            PPF.Show()
+        dlg.Destroy()
+            
+        
     def OnSatTable(self,event):
         TBL = SaturationTable(None)
         TBL.Show()

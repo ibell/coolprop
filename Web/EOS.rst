@@ -391,6 +391,26 @@ If the reference enthalpy is known, you can determine the constants from
 
     \left(\frac{\partial \alpha^0}{\partial \tau}\right)_{\delta} = \frac{1}{\tau}\left(\frac{h_0}{RT}-\delta\left(\frac{\partial \alpha^r}{\partial \delta}\right)_{\tau}-1\right)- \left(\frac{\partial \alpha^r}{\partial \tau}\right)_{\delta}
     
+For the specific heat
+The two integral terms are
+
+.. math::
+    
+    - \frac{\tau }{R}\int_{{\tau _0}}^\tau  {\frac{{c_p^0}}{{{\tau ^2}}}d\tau }  + \frac{1}{R}\int_{{\tau _0}}^\tau  {\frac{{c_p^0}}{\tau }d\tau }
+
+First derivative
+
+.. math::
+
+    \frac{d}{{d\tau }}\left[ { - \frac{\tau }{R}\int_{{\tau _0}}^\tau  {\frac{{c_p^0}}{{{\tau ^2}}}d\tau }  + \frac{1}{R}\int_{{\tau _0}}^\tau  {\frac{{c_p^0}}{\tau }d\tau } } \right] =  - \frac{{c_p^0}}{{\tau R}} - \frac{1}{R}\int_{{\tau _0}}^\tau  {\frac{{c_p^0}}{{{\tau ^2}}}d\tau }  + \frac{{c_p^0}}{{\tau R}} =  - \frac{1}{R}\int_{{\tau _0}}^\tau  {\frac{{c_p^0}}{{{\tau ^2}}}d\tau }
+
+Second Derivative
+
+.. math::
+
+    \frac{{{d^2}}}{{d{\tau ^2}}}\left[ { - \frac{\tau }{R}\int_{{\tau _0}}^\tau  {\frac{{c_p^0}}{{{\tau ^2}}}d\tau }  + \frac{1}{R}\int_{{\tau _0}}^\tau  {\frac{{c_p^0}}{\tau }d\tau } } \right] = \frac{d}{{d\tau }}\left[ { - \frac{1}{R}\int_{{\tau _0}}^\tau  {\frac{{c_p^0}}{{{\tau ^2}}}d\tau } } \right] =  - \frac{{c_p^0}}{{{\tau ^2}R}}
+
+
 .. _Props_Sample:
 
 Sample Code

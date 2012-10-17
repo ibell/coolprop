@@ -1039,7 +1039,6 @@ double R116Class::ECS_chi_conductivity(double rhor)
     return 1.1804-0.0539975*rhor;
 }
 
-
 AcetoneClass::AcetoneClass()
 {
     const double n[]={0.0,0.90041000000,-2.12670000000,-0.08340900000,0.06568300000,0.00016527000,-0.03966300000,0.72085000000,0.00923180000,-0.17217000000,-0.14961000000,-0.07612400000,-0.01816600000};
@@ -1081,7 +1080,6 @@ AcetoneClass::AcetoneClass()
 
     phi_BC * phi0_logtau_ = new phi0_logtau(4.0-1);
     phi0list.push_back(phi0_logtau_);
-
 
     phi_BC * phi0_Planck_Einstein_ = new phi0_Planck_Einstein(v0_v,u0_v,1,v0_v.size()-1);
 	phi0list.push_back(phi0_Planck_Einstein_);
@@ -1538,7 +1536,18 @@ double R218Class::ECS_chi_conductivity(double rhor)
 
 R245faClass::R245faClass()
 {
-    const double n[]={0.0,1.29000000000,-3.21540000000,0.50693000000,0.09314800000,0.00027638000,0.71458000000,0.87252000000,-0.01507700000,-0.40645000000,-0.11701000000,-0.13062000000,-0.02295200000};
+    const double n[]={0.0,1.2904,
+		                 -3.2154,
+						  0.50693,
+						  0.093148,
+						  0.00027638,
+						  0.71458,
+						  0.87252,
+						 -0.015077,
+						 -0.40645,
+						 -0.11701,
+						 -0.13062,
+						 -0.022952};
     const double u0[]={0.0,222.0,1010.0,2450.0};
     const double v0[]={0.0,5.5728,10.385,12.554};
 
@@ -1567,7 +1576,7 @@ R245faClass::R245faClass()
     std::vector<double> u0_v(u0,u0+sizeof(u0)/sizeof(double));
     std::vector<double> v0_v(v0,v0+sizeof(v0)/sizeof(double));
 
-    for (unsigned int i=0;i<u0_v.size();i++) { u0_v[i]/=crit.T; }
+    for (unsigned int i=0; i < u0_v.size();i++) { u0_v[i]/=crit.T; }
 
     phi_BC * phir_ = new phir_power(n_v,d_v,t_v,l_v,1,12);
     phirlist.push_back(phir_);
@@ -1578,7 +1587,6 @@ R245faClass::R245faClass()
     phi_BC * phi0_logtau_ = new phi0_logtau(4.0-1);
     phi0list.push_back(phi0_logtau_);
 
-
     phi_BC * phi0_Planck_Einstein_ = new phi0_Planck_Einstein(v0_v,u0_v,1,v0_v.size()-1);
 	phi0list.push_back(phi0_Planck_Einstein_);
 
@@ -1586,8 +1594,7 @@ R245faClass::R245faClass()
     TransportReference.assign("Using ECS");
 
     name.assign("R245fa");
-
-    REFPROPname.assign("R245fa");
+	REFPROPname.assign("R245fa");
 }
 double R245faClass::rhosatL(double T) 
 {
@@ -1626,7 +1633,19 @@ double R245faClass::ECS_chi_conductivity(double rhor)
 
 R41Class::R41Class()
 {
-    const double n[]={0.0,0.85316000000,-2.63660000000,0.69129000000,0.05468100000,0.00012796000,-0.37093000000,0.33920000000,-0.00174130000,-0.09541700000,-0.07885200000,-0.03072900000,-0.01149700000};
+    const double n[]={0.0,
+					0.85316,
+					-2.6366,
+					0.69129,
+					0.054681,
+					0.00012796,
+					-0.37093,
+					0.33920,
+					-0.0017413,
+					-0.095417,
+					-0.078852,
+					-0.030729,
+					-0.011497};
     const double u0[]={0.0,1841.0,4232.0};
     const double v0[]={0.0,5.6936,2.9351};
 

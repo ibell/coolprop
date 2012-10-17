@@ -226,7 +226,7 @@ R290Class::R290Class()
 	phi0list.push_back(phi0_Planck_Einstein_);
 
 	// Critical parameters
-	crit.rho = 220.47799999;
+	crit.rho = 220.4781;
 	crit.p = 4251.2;
 	crit.T = 369.89;
 	crit.v = 1.0/crit.rho;

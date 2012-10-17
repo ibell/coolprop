@@ -1,11 +1,7 @@
 
 from libcpp.string cimport string
 
-#Functions defined at the module level
-cpdef double Props(bytes Parameter, bytes Param1, float value1, bytes Param2, float value2, bytes Fluid)
-cpdef LUT(bint LUTkey)
-cpdef int set_1phase_LUT_params(bytes Ref, int nT,int np,double Tmin,double Tmax,double pmin,double pmax)
-cpdef debug(int level)
+
 
 cdef class State:
     cdef readonly bint hasLiquid
@@ -15,7 +11,7 @@ cdef class State:
     cdef bint is_CPFluid
     
     cpdef speed_test(self, int N)
-    cpdef update(self,dict params, double xL=?)
+    cpdef update(self,dict params, double xL=*)
     cpdef copy(self)
     cpdef double Props(self, long iOutput)
     
