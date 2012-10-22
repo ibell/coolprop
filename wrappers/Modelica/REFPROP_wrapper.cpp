@@ -17,6 +17,11 @@
 #include "REFPROP_wrapper.h"
 #include "CoolProp.h"
 
+int init_REFPROP(char* fluidnames, char* REFPROP_PATH, long* nX, char* herr, HINSTANCE* RefpropdllInstance, char* errormsg, int DEBUGMODE){
+    //Not needed for CoolProp
+    return 0;
+}
+
 double props_REFPROP(char* what, char* statevars_in, char* fluidnames, double *props, double statevar1, double statevar2, double* x, int phase, char* REFPROP_PATH, char* errormsg, int DEBUGMODE){
 /*Calculates thermodynamic properties of a pure substance/mixture, returns both single value and array containing all calculated values (because the are calculated anyway)
 INPUT: 

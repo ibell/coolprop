@@ -1,5 +1,14 @@
 Changelog:
 
+2.2.0 (revision 164)
+Added the Siloxanes (MM,MDM,MD2M,MD3M,MD4M,D4,D5,D6)
+Added a script that will build all the parts (Excel DLL, Python, MATLAB, etc.) and upload to Sourceforge
+Very-alpha code for use of CoolProp in Modelica
+Enthalpy and pressure are valid inputs for Brine fluids
+Added support for quantities package in Python code (If you provide quantities.Quantity instance to CoolProp.CoolProp.Props, the units will be converted to the default units for CoolProp; Default units can be obtained by calling get_index_units(iParam) as a std::string; If a string for the desired output units is passed to Props the units will be converted to the output units)
+Internals of CoolProp changed again, added a function called IProps that uses the integer indices for the input terms as well as the fluids - significant speedup.  This is mostly for use with CoolProp.State.State in Python although the same principle can be used elsewhere
+Bug fixes for ECS
+
 2.1.0 (revision 154)
 Added the fluids Hydrogen, Oxygen, and Helium
 Added the output term 'accentric' to get the accentric factor of the fluid
