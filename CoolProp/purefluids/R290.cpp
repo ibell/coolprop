@@ -250,9 +250,9 @@ R290Class::R290Class()
 							"\"Reference Correlation of the Viscosity of Propane\""
 							"J. Phys. Chem. Ref. Data, Vol. 27, No. 5, 1998");
 
-	name.assign("R290");
+	name.assign("Propane");
 	aliases.push_back("propane");
-	aliases.push_back("Propane");
+	aliases.push_back("R290");
 	aliases.push_back("C3H8");
 	REFPROPname.assign("PROPANE");
 }
