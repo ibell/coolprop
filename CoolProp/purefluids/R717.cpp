@@ -215,10 +215,10 @@ R717Class::R717Class()
 							"Most practical conditions will be in the <325K range\n"
 							"Surface tension:  Michael Kleiber and Ralph Joh, \"VDI Heat Atlas 2010 Chapter D3.1 Liquids and Gases\" ");
 
-	name.assign("R717");
+	name.assign("Ammonia");
 	aliases.push_back("NH3");
 	aliases.push_back("ammonia");
-	aliases.push_back("Ammonia");
+	aliases.push_back("R717");
 	REFPROPname.assign("AMMONIA");
 }
 double R717Class::conductivity_Trho(double T, double rho)

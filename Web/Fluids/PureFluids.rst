@@ -6,7 +6,9 @@ Pure Fluids
     :maxdepth: 1
 
     Acetone.rst
+    Ammonia.rst
     Argon.rst
+    CO2.rst
     CarbonMonoxide.rst
     CarbonylSulfide.rst
     D4.rst
@@ -40,8 +42,7 @@ Pure Fluids
     R290.rst
     R32.rst
     R41.rst
-    R717.rst
-    R744.rst
+    SES36.rst
     SulfurDioxide.rst
     Toluene.rst
     Water.rst

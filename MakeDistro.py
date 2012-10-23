@@ -93,11 +93,11 @@ def UploadSourceForge():
     os.remove(version)
     
 if __name__=='__main__':
-    #InstallPrereqs()
-    #PythonInstallers()
-    #DLL()
-    #Source()
-    #Octave()
+    InstallPrereqs()
+    PythonInstallers()
+    DLL()
+    Source()
+    Octave()
     #MATLAB()
-    #PYPI()
+    PYPI()
     UploadSourceForge()

@@ -60,6 +60,8 @@ public:
 	// Constructors
 	phir_power(std::vector<double>,std::vector<double>,std::vector<double>,int,int);
 	phir_power(std::vector<double>,std::vector<double>,std::vector<double>,std::vector<double>,int,int);
+	//phir_power(double[],double[],double[],int,int);
+	//phir_power(double[],double[],double[],double[],int,int);
 
 	///< Destructor for the phir_power class.  No implementation
 	~phir_power(){};
@@ -92,6 +94,14 @@ public:
 				  std::vector<double> beta_in, 
 				  std::vector<double> gamma_in,
 		unsigned int iStart_in, unsigned int iEnd_in);
+	/*phir_gaussian(double a_in[], 
+				  double d_in[],
+				  double t_in[], 
+				  double alpha_in[], 
+				  double epsilon_in[], 
+				  double beta_in[], 
+				  double gamma_in[],
+		unsigned int iStart_in, unsigned int iEnd_in);*/
 
 	// Destructor
 	~phir_gaussian(){};

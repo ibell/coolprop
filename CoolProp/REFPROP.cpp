@@ -405,7 +405,7 @@ double REFPROP(char Output,char Name1, double Prop1, char Name2, double Prop2, c
 			// Free allocated memory
 			free(RefCopy);
 		}
-		else if (!strcmp(Ref,"Air") || !strcmp(Ref,"R507A") || !strcmp(Ref,"R404A") || !strcmp(Ref,"R410A") || !strcmp(Ref,"R407C"))
+		else if (!strcmp(Ref,"Air") || !strcmp(Ref,"R507A") || !strcmp(Ref,"R404A") || !strcmp(Ref,"R410A") || !strcmp(Ref,"R407C") || !strcmp(Ref,"SES36"))
 		{
 			i=1;
 			strcpy(RefString,"");

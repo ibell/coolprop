@@ -104,6 +104,7 @@ You might want to start by looking at CoolProp.h
 	#include "Brine.h"
 	#include "IndustrialFluids.h"
 	#include "Siloxanes.h"
+	#include "SES36.h"
 	#include "R22.h"
 	#include "Hydrogen.h"
 	#include "Oxygen.h"

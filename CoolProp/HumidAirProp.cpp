@@ -550,7 +550,7 @@ double MolarVolume(double T, double p, double psi_w)
 }
 double IdealGasMolarEnthalpy_Water(double T, double v_bar)
 {
-	double hbar_w_0,tau,rhobar,delta,hbar_w,rho;
+	double hbar_w_0,tau,rhobar,hbar_w,rho;
 	// Ideal-Gas contribution to enthalpy of water
     hbar_w_0=-0.01102303806;//[kJ/kmol]
     tau=Props("Water","Tcrit")/T;
@@ -570,7 +570,7 @@ double IdealGasMolarEntropy_Water(double T, double p)
 }
 double IdealGasMolarEnthalpy_Air(double T, double v_bar)
 {
-	double hbar_a_0,tau,rhobar,delta,hbar_a,R_bar_Lemmon, rho;
+	double hbar_a_0,tau,rhobar,hbar_a,R_bar_Lemmon, rho;
 	// Ideal-Gas contribution to enthalpy of air
     hbar_a_0=-7914.149298; //[kJ/kmol]
     //Tj and rhoj are given by 132.6312 and 302.5507652 respectively
@@ -957,7 +957,7 @@ double RelativeHumidity(double T, double p, double psi_w)
     // Find relative humidity using W/e=phi*p_s/(p-phi*p_s)
     return W/epsilon*p/(p_s*(1+W/epsilon));
 }
-double HAProps(char *OutputName, char *Input1Name, double Input1, char *Input2Name, double Input2, char *Input3Name, double Input3)
+EXPORT_CODE double CONVENTION HAProps(char *OutputName, char *Input1Name, double Input1, char *Input2Name, double Input2, char *Input3Name, double Input3)
 {
     int In1Type, In2Type, In3Type,iT,iW,iTdp,iRH,ip,Type1,Type2;
     double vals[3],p,T,RH,W,Tdp,psi_w,M_ha,v_bar,h_bar,s_bar,MainInputValue,SecondaryInputValue,T_guess;
@@ -1212,7 +1212,7 @@ double HAProps(char *OutputName, char *Input1Name, double Input1, char *Input2Na
     }
 }
 
-double HAProps_Aux(char* Name,double T, double p, double W, char *units)
+EXPORT_CODE double CONVENTION HAProps_Aux(char* Name,double T, double p, double W, char *units)
 {
     // This function provides some things that are not usually needed, but could be interesting for debug purposes.
     
@@ -1398,7 +1398,7 @@ double HAProps_Aux(char* Name,double T, double p, double W, char *units)
         return -1;
     }
 	}
-	catch(std::exception &e)
+	catch(std::exception)
 	{
 		return _HUGE;
 	}
@@ -1412,7 +1412,6 @@ double cair_sat(double T)
 	// cair_s: [kJ/kg-K]
 	return 2.14627073E+03-3.28917768E+01*T+1.89471075E-01*T*T-4.86290986E-04*T*T*T+4.69540143E-07*T*T*T*T;
 }
-
 
 double IceProps(char* Name, double T, double p)
 {

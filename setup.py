@@ -15,7 +15,7 @@ from distutils.ccompiler import new_compiler
 from distutils.dep_util import newer_group
 import Cython
 
-version='2.1.0'
+version='2.2.1'
     
 if __name__=='__main__':
     
@@ -117,10 +117,10 @@ if __name__=='__main__':
     pseudopurefluids=glob.glob(os.path.join('CoolProp','pseudopurefluids','*.cpp'))
     CPCore=['CoolProp.cpp','CoolPropTools.cpp','FloodProp.cpp','FluidClass.cpp',
             'Helmholtz.cpp','PengRobinson.cpp','REFPROP.cpp','Solvers.cpp',
-            'Brine.cpp']
+            'Brine.cpp','Ice.cpp','HumidAirProp.cpp']
     others=[os.path.join('CoolProp',f) for f in CPCore]
     Sources=purefluids+pseudopurefluids+others
-
+         
     ### Include folders for build
     include_dirs = ['CoolProp',
                     os.path.join('CoolProp','purefluids'),
@@ -178,7 +178,7 @@ if __name__=='__main__':
             z.write('DLLREADME.txt',arcname='README.txt')
         print 'DLL file has been packed into file', ZIPfilePath
 
-    print 'UseStaticLib is ',useStaticLib
+    print 'UseStaticLib is',useStaticLib
     ##Now come in and build the modules themselves
         
     if useStaticLib==True:
@@ -192,30 +192,18 @@ if __name__=='__main__':
                                sources=[os.path.join('CoolProp','FloodProp_wrap.cpp')]+Sources,
                                include_dirs = include_dirs,language='c++'
                                )
-        
-    HASources = [
-         os.path.join('CoolProp','HumidAirProp_wrap.cpp'),
-         os.path.join('CoolProp','pseudopurefluids','Air.cpp'),
-         os.path.join('CoolProp','purefluids','Water.cpp'),
-         os.path.join('CoolProp','purefluids','R134a.cpp'),
-         os.path.join('CoolProp','REFPROP.cpp'),
-         os.path.join('CoolProp','Brine.cpp'),
-         os.path.join('CoolProp','CoolProp.cpp'),
-         os.path.join('CoolProp','CoolPropTools.cpp'),
-         os.path.join('CoolProp','FluidClass.cpp'),
-         os.path.join('CoolProp','Helmholtz.cpp'),
-         os.path.join('CoolProp','HumidAirProp.cpp'),
-         os.path.join('CoolProp','Ice.cpp'),
-         os.path.join('CoolProp','PengRobinson.cpp'),
-         os.path.join('CoolProp','Solvers.cpp'),
-         ]
-         
-    HumidAirProp_module = Extension('CoolProp._HumidAirProp',
-                            sources=HASources,
-                            define_macros=[('ONLY_AIR_WATER',None)],
-                            include_dirs = include_dirs,
-                            language='c++'
-                            )                            
+                               
+    if useStaticLib==True:
+        HumidAirProp_module = Extension('CoolProp._HumidAirProp',
+                               sources=[os.path.join('CoolProp','HumidAirProp_wrap.cpp')],
+                               include_dirs = include_dirs,language='c++',
+                               libraries=['CoolProp'],library_dirs=['lib']
+                               )
+    else:
+        HumidAirProp_module = Extension('CoolProp._HumidAirProp',
+                               sources=[os.path.join('CoolProp','HumidAirProp_wrap.cpp')]+Sources,
+                               include_dirs = include_dirs,language='c++'
+                               )
 
     def touch(fname):
         open(fname, 'a').close()

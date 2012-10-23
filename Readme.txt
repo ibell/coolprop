@@ -1,5 +1,11 @@
 Changelog:
 
+2.2.1 (revision 166)
+Added the fluid SES36
+HAProps added to CoolProp wrapper and added to Excel addin
+When using pseudo-pure fluid, saturation density are calculated based on solving for density given T,P and guess value given by ancillary for density 
+Improved saturated vapor ancillary for SES36
+
 2.2.0 (revision 164)
 Added the Siloxanes (MM,MDM,MD2M,MD3M,MD4M,D4,D5,D6)
 Added a script that will build all the parts (Excel DLL, Python, MATLAB, etc.) and upload to Sourceforge

@@ -320,8 +320,8 @@ R744Class::R744Class()
 							  "J.V. Sengers and J.T.R. Watson and J. Millat"
 							  "J. Phys. Chem. Ref. Data, v. 19, 1990");
 
-	name.assign("R744");
-	aliases.push_back("CO2");
+	name.assign("CO2");
+	aliases.push_back("R744");
 	aliases.push_back("co2");
 	aliases.push_back("carbondioxide");
 	REFPROPname.assign("CO2");

@@ -34,6 +34,25 @@ phir_power::phir_power(std::vector<double> n_in,std::vector<double> d_in,std::ve
 	iStart=iStart_in;
 	iEnd=iEnd_in;
 }
+//phir_power::phir_power(double n_in[],double d_in[], double t_in[],int iStart_in,int iEnd_in)
+//{
+//	n=std::vector<double>(n_in,n_in+sizeof(n_in)/sizeof(double));
+//	d=std::vector<double>(d_in,d_in+sizeof(d_in)/sizeof(double));
+//	t=std::vector<double>(t_in,t_in+sizeof(t_in)/sizeof(double));
+//	l.assign(d.size(),0.0);
+//	iStart=iStart_in;
+//	iEnd=iEnd_in;
+//}
+//phir_power::phir_power(double n_in[],double d_in[], double t_in[], double l_in[], int iStart_in,int iEnd_in)
+//{
+//	n=std::vector<double>(n_in,n_in+sizeof(n_in)/sizeof(double));
+//	d=std::vector<double>(d_in,d_in+sizeof(d_in)/sizeof(double));
+//	t=std::vector<double>(t_in,t_in+sizeof(t_in)/sizeof(double));
+//	l=std::vector<double>(l_in,l_in+sizeof(l_in)/sizeof(double));
+//	iStart=iStart_in;
+//	iEnd=iEnd_in;
+//}
+
 // Term and its derivatives
 double phir_power::base(double tau, double delta) throw()
 {
@@ -125,7 +144,8 @@ double phir_power::dDelta_dTau(double tau, double delta) throw()
 }
 
 phir_gaussian::phir_gaussian(vector<double> n_in, vector<double> d_in,vector<double> t_in, 
-	vector<double> alpha_in, vector<double> epsilon_in, vector<double> beta_in, vector<double> gamma_in,unsigned int iStart_in, unsigned int iEnd_in)
+	vector<double> alpha_in, vector<double> epsilon_in, vector<double> beta_in, vector<double> gamma_in,
+	unsigned int iStart_in, unsigned int iEnd_in)
 {
 	n=n_in;
 	d=d_in;
@@ -137,6 +157,20 @@ phir_gaussian::phir_gaussian(vector<double> n_in, vector<double> d_in,vector<dou
 	iStart=iStart_in;
 	iEnd=iEnd_in;
 }
+//phir_gaussian::phir_gaussian(double n_in[], double d_in[],double t_in[], double alpha_in[], 
+//							 double epsilon_in[], double beta_in[], double gamma_in[],
+//							 unsigned int iStart_in, unsigned int iEnd_in)
+//{
+//	n=std::vector<double>(n_in,n_in+sizeof(n_in)/sizeof(double));
+//	d=std::vector<double>(d_in,n_in+sizeof(d_in)/sizeof(double));
+//	t=std::vector<double>(t_in,n_in+sizeof(t_in)/sizeof(double));
+//	alpha=std::vector<double>(alpha_in,alpha_in+sizeof(alpha_in)/sizeof(double));
+//	epsilon=std::vector<double>(epsilon_in,epsilon_in+sizeof(epsilon_in)/sizeof(double));
+//	beta=std::vector<double>(beta_in,beta_in+sizeof(beta_in)/sizeof(double));
+//	gamma=std::vector<double>(gamma_in,gamma_in+sizeof(gamma_in)/sizeof(double));
+//	iStart=iStart_in;
+//	iEnd=iEnd_in;
+//}
 
 // Term and its derivatives
 double phir_gaussian::base(double tau, double delta)

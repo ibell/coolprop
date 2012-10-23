@@ -382,10 +382,10 @@ void Fluid::saturation(double T, bool UseLUT, double *psatLout, double *psatVout
 	else
 	{ 
 		// Pseudo-pure fluid
-		*rhosatLout = rhosatL(T);
-		*rhosatVout = rhosatV(T);
 		*psatLout = psatL(T);
 		*psatVout = psatV(T);
+		*rhosatLout = density_Tp(T, *psatLout, rhosatL(T));
+		*rhosatVout = density_Tp(T, *psatVout, rhosatV(T));
 		return;
 	}
 }
@@ -1663,6 +1663,7 @@ FluidsContainer::FluidsContainer()
 	FluidsList.push_back(new R1234yfClass());
 	FluidsList.push_back(new R32Class());
 	FluidsList.push_back(new R22Class());
+	FluidsList.push_back(new SES36Class());
 	// The industrial fluids
 	FluidsList.push_back(new R245faClass());
 	FluidsList.push_back(new R41Class());
