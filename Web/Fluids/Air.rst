@@ -193,3 +193,56 @@ Along the critical isotherm where T=T\ :sub:`c`
     ax.set_ylabel('Absolute deviation [%]')
     ax.legend(numpoints=1,loc='best')
     plt.show()
+
+Along the isobar corresponding to :math:`T_{sat}=T_t+T_c`
+===========================================================
+.. plot::
+
+    Fluid = "Air"
+
+    from CoolProp.CoolProp import Props
+    from numpy import linspace,array,abs
+    import matplotlib.pyplot as plt
+
+    Tt = Props(Fluid,'Ttriple')
+    Tc = Props(Fluid,'Tcrit')
+    Tm = (Tt+Tc)/2.0
+    p = Props('P','T',Tm,'Q',0,Fluid)
+
+    fig = plt.figure()
+
+    Tmin = Tm - 30 if Tm - 30 > Tt else Tt+0.1
+    Tv = linspace(Tmin, Tm - 0.001, 20)
+    #Start with T&P as inputs
+    rho = array([Props('D','T',T,'P',p,Fluid) for T in Tv])
+    h = array([Props('H','T',T,'P',p,Fluid) for T in Tv])
+    s = array([Props('S','T',T,'P',p,Fluid) for T in Tv])
+    p_Trho = array([Props('P','T',T,'D',D,Fluid) for T,D in zip(Tv,rho)])
+    T_hp = array([Props('T','H',H,'P',p,Fluid) for H in h])
+    ax1 = fig.add_subplot(121)
+    ax1.semilogy(Tv,abs(p/p_Trho-1)*100,'o',label='p & p(T,rho)')
+    ax1.semilogy(Tv,abs(T_hp/Tv-1)*100,'o',label='T & T(h,p)')
+    ax1.set_ylim(1e-16,100)
+    ax1.set_title('Subcooled liquid')
+    ax1.set_xlabel('Temperature [K]')
+    ax1.set_ylabel('Absolute deviation [%]')
+    ax1.legend(numpoints=1,loc='best')
+
+    Tv = linspace(Tm+0.001, Tm + 30, 20)
+    #Start with T&P as inputs
+    rho = array([Props('D','T',T,'P',p,Fluid) for T in Tv])
+    h = array([Props('H','T',T,'P',p,Fluid) for T in Tv])
+    s = array([Props('S','T',T,'P',p,Fluid) for T in Tv])
+    p_Trho = array([Props('P','T',T,'D',D,Fluid) for T,D in zip(Tv,rho)])
+    T_hp = array([Props('T','H',H,'P',p,Fluid) for H in h])
+    ax2 = fig.add_subplot(122)
+    ax2.semilogy(Tv,abs(p/p_Trho-1)*100,'o',label='p & p(T,rho)')
+    ax2.semilogy(Tv,abs(T_hp/Tv-1)*100,'o',label='T & T(h,p)')
+    ax2.set_ylim(1e-16,100)
+    ax2.set_title('Superheated vapor')
+    ax2.set_xlabel('Temperature [K]')
+    ax2.set_ylabel('Absolute deviation [%]')
+    ax2.legend(numpoints=1,loc='best')
+
+    fig.tight_layout()
+    plt.show()
