@@ -62,7 +62,7 @@ def MATLAB():
         os.makedirs(os.path.join('dist_temp','MATLAB'))
     except os.error: pass
         
-    subprocess.check_output(['matlab','-nojvm','-nodesktop','-nosplash','-r','MATLABBuilder'],shell=True,cwd=os.path.join('wrappers','Octave'))
+    subprocess.check_output(['matlab','-nojvm','-nodesktop','-nosplash','-r','MATLABBuilder'],shell=True,cwd=os.path.join('wrappers','MATLAB'))
     shutil.copy2(os.path.join('wrappers','MATLAB','Props.mexw64'),os.path.join('dist_temp','MATLAB','Props.mexw64'))
     shutil.copy2(os.path.join('wrappers','MATLAB','HAProps.mexw64'),os.path.join('dist_temp','MATLAB','HAProps.mexw64'))
     shutil.copy2(os.path.join('wrappers','MATLAB','README.txt'),os.path.join('dist_temp','MATLAB','README.txt'))

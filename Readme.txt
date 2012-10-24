@@ -1,5 +1,9 @@
 Changelog:
 
+2.2.2 (revision 167)
+Added MATLAB wrappers and compiled versions on Windows to batch
+Added plots to check solvers for (T,p) and (h,p) in subcooled liquid and superheated vapor regions
+
 2.2.1 (revision 166)
 Added the fluid SES36
 HAProps added to CoolProp wrapper and added to Excel addin
