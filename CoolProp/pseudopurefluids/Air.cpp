@@ -15,9 +15,9 @@ by Ian Bell
 #include "math.h"
 #include "stdio.h"
 #include <string.h>
-#include "PropErrorCodes.h"
-#include "PropMacros.h"
 #include "CoolProp.h"
+#include "FluidClass.h"
+#include "Air.h"
 
 static const double N[]={0,
  0.118160747229,//[1]
@@ -177,6 +177,7 @@ AirClass::AirClass()
 	// Other fluid parameters
 	params.molemass = 28.96546;
 	params.Ttriple = 59.75;
+	params.ptriple = 2.44582352329;
 	params.accentricfactor = 0.0335;
 	params.R_u = 8.31451;
 	isPure = false;

@@ -34,6 +34,8 @@ Adv. Cryo. Eng., 39:1927-1934, 1994.
 #include "stdio.h"
 #include <string.h>
 #include "CoolProp.h"
+#include "FluidClass.h"
+#include "Oxygen.h"
 
 static const double n[]={0,    
  0.3983768749,    //[1]
@@ -232,6 +234,7 @@ OxygenClass::OxygenClass()
 	// Other fluid parameters
 	params.molemass = 31.9988;
 	params.Ttriple = 54.361;
+	params.ptriple = 0.146323903868;
 	params.accentricfactor = 0.0222;
 	params.R_u = 8.31434;
 

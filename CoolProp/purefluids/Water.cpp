@@ -24,6 +24,8 @@ W. Wagner and A. Pruss, J. Phys. Chem. Ref. Data, v. 31, 2000
 #include <string.h>
 #include "CoolProp.h"
 #include <vector>
+#include "FluidClass.h"
+#include "Water.h"
 
 static const double Tc=647.096, M_Water=18.015268,rhoc=322,     Pc=22064, _Ttriple=273.16;
              //    K                    g/mol          kg/m^3      kPa             K
@@ -387,7 +389,7 @@ WaterClass::WaterClass()
 	// Other fluid parameters
 	params.molemass = 18.015268;
 	params.Ttriple = 273.16;
-	params.ptriple = 0.61248;
+	params.ptriple = 0.611699223742;
 	params.R_u = 8.314371357587;
 	params.accentricfactor = 0.3443;
 

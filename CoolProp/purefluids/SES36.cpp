@@ -15,6 +15,8 @@ by Ian Bell, 2012
 #include "stdio.h"
 #include <string.h>
 #include "CoolProp.h"
+#include "FluidClass.h"
+#include "SES36.h"
 
 static const double n[]={0,    
 0.0675748, //[1]
@@ -152,6 +154,7 @@ SES36Class::SES36Class()
 	// Other fluid parameters
 	params.molemass = 184.85;
 	params.Ttriple = 200; // No value given, taken from PPF Refprop file
+	params.ptriple = 0.573325755702; //Evaluated at 200 K
 	params.accentricfactor = 0.352;
 	params.R_u = 8.314472;
 	isPure = false;

@@ -60,8 +60,9 @@ public:
 	// Constructors
 	phir_power(std::vector<double>,std::vector<double>,std::vector<double>,int,int);
 	phir_power(std::vector<double>,std::vector<double>,std::vector<double>,std::vector<double>,int,int);
-	//phir_power(double[],double[],double[],int,int);
-	//phir_power(double[],double[],double[],double[],int,int);
+	// Add a dummy value at the end of the function since compiler sees std::vector<double> and double[] as being the same type
+	//phir_power(double[],double[],double[],int,int,bool);
+	//phir_power(double[],double[],double[],double[],int,int,bool);
 
 	///< Destructor for the phir_power class.  No implementation
 	~phir_power(){};

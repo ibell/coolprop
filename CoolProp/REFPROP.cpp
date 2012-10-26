@@ -14,6 +14,7 @@
 #include <stdlib.h>
 #include "string.h"
 #include <stdio.h>
+#include <iostream>
 
 // Some constants for REFPROP... defined by macros for ease of use 
 #define refpropcharlength 255

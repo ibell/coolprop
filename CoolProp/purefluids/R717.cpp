@@ -21,6 +21,8 @@ by R. Tillner-Roth and F. Harms-Watzenberg and H.D. Baehr, Deutscher Kaelte- und
 #include "string.h"
 #include "stdio.h"
 #include "CoolProp.h"
+#include "FluidClass.h"
+#include "R717.h"
 
 /*
 From REFPROP documentation:
@@ -189,6 +191,7 @@ R717Class::R717Class()
 	// Other fluid parameters
 	params.molemass = 17.03026;
 	params.Ttriple = 195.495;
+	params.ptriple = 6.09170982378;
 	params.accentricfactor = 0.25601;
 	params.R_u = 8.314471;
 

@@ -34,7 +34,7 @@ phir_power::phir_power(std::vector<double> n_in,std::vector<double> d_in,std::ve
 	iStart=iStart_in;
 	iEnd=iEnd_in;
 }
-//phir_power::phir_power(double n_in[],double d_in[], double t_in[],int iStart_in,int iEnd_in)
+//phir_power::phir_power(double n_in[], double d_in[], double t_in[],int iStart_in,int iEnd_in, bool carray = true)
 //{
 //	n=std::vector<double>(n_in,n_in+sizeof(n_in)/sizeof(double));
 //	d=std::vector<double>(d_in,d_in+sizeof(d_in)/sizeof(double));
@@ -43,7 +43,7 @@ phir_power::phir_power(std::vector<double> n_in,std::vector<double> d_in,std::ve
 //	iStart=iStart_in;
 //	iEnd=iEnd_in;
 //}
-//phir_power::phir_power(double n_in[],double d_in[], double t_in[], double l_in[], int iStart_in,int iEnd_in)
+//phir_power::phir_power(double n_in[], double d_in[], double t_in[], double l_in[], int iStart_in,int iEnd_in, bool carray = true)
 //{
 //	n=std::vector<double>(n_in,n_in+sizeof(n_in)/sizeof(double));
 //	d=std::vector<double>(d_in,d_in+sizeof(d_in)/sizeof(double));

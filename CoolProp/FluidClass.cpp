@@ -16,7 +16,182 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include "Water.h"
+#include "Air.h"
+#include "R134a.h"
+#include "R410A.h"
+#include "R290.h"
+#include "R32.h"
+#include "R744.h"
+#include "R404A.h"
+#include "R507A.h"
+#include "R407C.h"
+#include "R717.h"
+#include "Argon.h"
+#include "R1234yf.h"
+#include "Nitrogen.h"
+#include "Brine.h"
+#include "IndustrialFluids.h"
+#include "Alkanes.h"
+#include "Siloxanes.h"
+#include "SES36.h"
+#include "R22.h"
+#include "Hydrogen.h"
+#include "Oxygen.h"
+#include "Helium.h"
+
 using namespace std;
+
+// ------------------------------
+// FluidsContainer Implementation
+// ------------------------------
+
+FluidsContainer::FluidsContainer()
+{
+	
+	// The pure fluids
+	FluidsList.push_back(new WaterClass());	
+	FluidsList.push_back(new R134aClass());
+	FluidsList.push_back(new HeliumClass());
+	FluidsList.push_back(new OxygenClass());
+	FluidsList.push_back(new HydrogenClass());
+	FluidsList.push_back(new ParaHydrogenClass());
+	FluidsList.push_back(new OrthoHydrogenClass());
+	FluidsList.push_back(new ArgonClass());
+	FluidsList.push_back(new R744Class());
+	FluidsList.push_back(new NitrogenClass());
+	FluidsList.push_back(new R290Class());
+	FluidsList.push_back(new R717Class());
+	FluidsList.push_back(new R1234yfClass());
+	FluidsList.push_back(new R32Class());
+	FluidsList.push_back(new R22Class());
+	FluidsList.push_back(new SES36Class());
+	// The industrial fluids
+	FluidsList.push_back(new R245faClass());
+	FluidsList.push_back(new R41Class());
+	FluidsList.push_back(new CarbonMonoxideClass());
+	FluidsList.push_back(new CarbonylSulfideClass());
+	FluidsList.push_back(new DecaneClass());
+	FluidsList.push_back(new HydrogenSulfideClass());
+	FluidsList.push_back(new IsopentaneClass());
+	FluidsList.push_back(new NeopentaneClass());
+	FluidsList.push_back(new IsohexaneClass());
+	FluidsList.push_back(new KryptonClass());
+	FluidsList.push_back(new NonaneClass());
+	FluidsList.push_back(new TolueneClass());
+	FluidsList.push_back(new XenonClass());
+	FluidsList.push_back(new R116Class());
+	FluidsList.push_back(new AcetoneClass());
+	FluidsList.push_back(new NitrousOxideClass());
+	FluidsList.push_back(new SulfurDioxideClass());
+	FluidsList.push_back(new R141bClass());
+	FluidsList.push_back(new R142bClass());
+	FluidsList.push_back(new R218Class());
+
+	// Span Non-Polar
+	FluidsList.push_back(new MethaneClass());
+	FluidsList.push_back(new EthaneClass());
+	FluidsList.push_back(new nButaneClass());
+	FluidsList.push_back(new IsoButaneClass());
+
+	// The Siloxanes
+	FluidsList.push_back(new OctamethyltrisiloxaneClass()); //MDM
+	FluidsList.push_back(new DecamethyltetrasiloxaneClass()); //MD2M
+	FluidsList.push_back(new DodecamethylpentasiloxaneClass()); //MD3M
+	FluidsList.push_back(new DodecamethylcyclohexasiloxaneClass()); //D6
+	FluidsList.push_back(new HexamethyldisiloxaneClass());//MM
+	FluidsList.push_back(new TetradecamethylhexasiloxaneClass()); //MD4M
+	FluidsList.push_back(new OctamethylcyclotetrasiloxaneClass()); //D4
+	FluidsList.push_back(new DecamethylcyclopentasiloxaneClass()); //D5
+
+	// The pseudo-pure fluids
+	FluidsList.push_back(new AirClass());
+	FluidsList.push_back(new R404AClass());
+	FluidsList.push_back(new R410AClass());
+	FluidsList.push_back(new R407CClass());
+	FluidsList.push_back(new R507AClass());
+
+	// Build the map of fluid names mapping to pointers to the Fluid class instances
+	for (std::vector<Fluid*>::iterator it = FluidsList.begin(); it != FluidsList.end(); it++)
+	{
+		// Call the post_load routine
+		(*it)->post_load();
+		// Load up entry in map
+		fluid_name_map[(*it)->get_name()] = *it;
+	}
+	int a=1;
+}
+
+// Destructor
+FluidsContainer::~FluidsContainer()
+{
+	while (!FluidsList.empty())
+	{
+		delete FluidsList.back();
+		FluidsList.pop_back();
+	}
+}
+
+Fluid * FluidsContainer::get_fluid(long iFluid)
+{
+	return FluidsList[iFluid];
+}
+Fluid * FluidsContainer::get_fluid(std::string name)
+{
+	std::map<std::string,Fluid*>::iterator it;
+	// Try to find using the map if Fluid name is provided
+	it = fluid_name_map.find(name);
+	// If it is found the iterator will not be equal to end
+	if (it != fluid_name_map.end() )
+	{
+		// Return a pointer to the class
+		return (*it).second;
+	}
+
+	// Wasn't found, now we need to check for an alias
+	for (std::vector<Fluid*>::iterator it = FluidsList.begin(); it != FluidsList.end(); it++)
+	{
+		if ( (*it)->isAlias(name) )
+		{
+			return *it;
+		}
+	}
+
+	throw NotImplementedError(format("Fluid [%s] not allowed",name.c_str()));
+	return NULL;
+}
+
+long FluidsContainer::get_fluid_index(Fluid* pFluid)
+{
+	int i = 0;
+	// It found it, now iterate to find the 0-based index of the fluid
+	for (std::vector<Fluid*>::iterator it = FluidsList.begin(); it != FluidsList.end(); it++)
+	{
+		if ((*it) == pFluid)
+		{
+			return i;
+		}
+		i++;
+	}
+	return -1;
+}
+
+std::string FluidsContainer::FluidList()
+{
+	// Return a std::string with the list of fluids
+	std::string FL;
+	for (std::vector<Fluid*>::iterator it = FluidsList.begin(); it != FluidsList.end(); it++)
+	{
+		FL+=(*it)->get_name();
+		FL+=",";
+	}
+	//Remove the tailing comma
+	FL = FL.substr (0,FL.length()-1);
+	return FL;
+}
+
+
+// 
 
 // Destructor needs to free all dynamically allocated objects
 // In this case, the phir and phi0 components
@@ -653,9 +828,8 @@ double Fluid::Tsat(double p, double Q, double T_guess)
 
 double Fluid::_get_rho_guess(double T, double p)
 {
-    double eps=1e-10,Tc,rho_guess,rho_simple;
+    double eps=1e-10,Tc,rho_simple;
     int counter=1;
-    double pEOS;
 
 	Tc = reduce.T;
 
@@ -1636,147 +1810,4 @@ double Fluid::conductivity_ECS_Trho(double T, double rho, Fluid * ReferenceFluid
 	lambda_crit = conductivity_critical(T,rho);
 	lambda = lambda_int+lambda_star+lambda_resid*F_lambda+lambda_crit;
 	return lambda/1e3; //[kW/m/K]
-}
-
-// ------------------------------
-// FluidsContainer Implementation
-// ------------------------------
-
-FluidsContainer::FluidsContainer()
-{
-	FluidsList.push_back(new AirClass());
-	FluidsList.push_back(new WaterClass());	
-	FluidsList.push_back(new R134aClass());
-	
-	// If the proprocessor key ONLY_AIR_WATER is defined, only air and water will be included
-	// This is to speed up compilation of humid air package since many fewer files will be included
-	#if !defined(ONLY_AIR_WATER)
-	// The pure fluids
-	FluidsList.push_back(new HeliumClass());
-	FluidsList.push_back(new OxygenClass());
-	FluidsList.push_back(new HydrogenClass());
-	FluidsList.push_back(new ArgonClass());
-	FluidsList.push_back(new R744Class());
-	FluidsList.push_back(new NitrogenClass());
-	FluidsList.push_back(new R290Class());
-	FluidsList.push_back(new R717Class());
-	FluidsList.push_back(new R1234yfClass());
-	FluidsList.push_back(new R32Class());
-	FluidsList.push_back(new R22Class());
-	FluidsList.push_back(new SES36Class());
-	// The industrial fluids
-	FluidsList.push_back(new R245faClass());
-	FluidsList.push_back(new R41Class());
-	FluidsList.push_back(new CarbonMonoxideClass());
-	FluidsList.push_back(new CarbonylSulfideClass());
-	FluidsList.push_back(new DecaneClass());
-	FluidsList.push_back(new HydrogenSulfideClass());
-	FluidsList.push_back(new IsopentaneClass());
-	FluidsList.push_back(new NeopentaneClass());
-	FluidsList.push_back(new IsohexaneClass());
-	FluidsList.push_back(new KryptonClass());
-	FluidsList.push_back(new NonaneClass());
-	FluidsList.push_back(new TolueneClass());
-	FluidsList.push_back(new XenonClass());
-	FluidsList.push_back(new R116Class());
-	FluidsList.push_back(new AcetoneClass());
-	FluidsList.push_back(new NitrousOxideClass());
-	FluidsList.push_back(new SulfurDioxideClass());
-	FluidsList.push_back(new R141bClass());
-	FluidsList.push_back(new R142bClass());
-	FluidsList.push_back(new R218Class());
-
-	// The Siloxanes
-	FluidsList.push_back(new OctamethyltrisiloxaneClass()); //MDM
-	FluidsList.push_back(new DecamethyltetrasiloxaneClass()); //MD2M
-	FluidsList.push_back(new DodecamethylpentasiloxaneClass()); //MD3M
-	FluidsList.push_back(new DodecamethylcyclohexasiloxaneClass()); //D6
-	FluidsList.push_back(new HexamethyldisiloxaneClass());//MM
-	FluidsList.push_back(new TetradecamethylhexasiloxaneClass()); //MD4M
-	FluidsList.push_back(new OctamethylcyclotetrasiloxaneClass()); //D4
-	FluidsList.push_back(new DecamethylcyclopentasiloxaneClass()); //D5
-
-	// The pseudo-pure fluids
-	FluidsList.push_back(new R404AClass());
-	FluidsList.push_back(new R410AClass());
-	FluidsList.push_back(new R407CClass());
-	FluidsList.push_back(new R507AClass());
-	#endif
-
-	// Build the map of fluid names mapping to pointers to the Fluid class instances
-	for (std::vector<Fluid*>::iterator it = FluidsList.begin(); it != FluidsList.end(); it++)
-	{
-		// Call the post_load routine
-		(*it)->post_load();
-		// Load up entry in map
-		fluid_name_map[(*it)->get_name()] = *it;
-	}
-}
-
-// Destructor
-FluidsContainer::~FluidsContainer()
-{
-	while (!FluidsList.empty())
-	{
-		delete FluidsList.back();
-		FluidsList.pop_back();
-	}
-}
-
-Fluid * FluidsContainer::get_fluid(long iFluid)
-{
-	return FluidsList[iFluid];
-}
-Fluid * FluidsContainer::get_fluid(std::string name)
-{
-	std::map<std::string,Fluid*>::iterator it;
-	// Try to find using the map if Fluid name is provided
-	it = fluid_name_map.find(name);
-	// If it is found the iterator will not be equal to end
-	if (it != fluid_name_map.end() )
-	{
-		// Return a pointer to the class
-		return (*it).second;
-	}
-
-	// Wasn't found, now we need to check for an alias
-	for (std::vector<Fluid*>::iterator it = FluidsList.begin(); it != FluidsList.end(); it++)
-	{
-		if ( (*it)->isAlias(name) )
-		{
-			return *it;
-		}
-	}
-
-	throw NotImplementedError(format("Fluid [%s] not allowed",name.c_str()));
-	return NULL;
-}
-
-long FluidsContainer::get_fluid_index(Fluid* pFluid)
-{
-	int i = 0;
-	// It found it, now iterate to find the 0-based index of the fluid
-	for (std::vector<Fluid*>::iterator it = FluidsList.begin(); it != FluidsList.end(); it++)
-	{
-		if ((*it) == pFluid)
-		{
-			return i;
-		}
-		i++;
-	}
-	return -1;
-}
-
-std::string FluidsContainer::FluidList()
-{
-	// Return a std::string with the list of fluids
-	std::string FL;
-	for (std::vector<Fluid*>::iterator it = FluidsList.begin(); it != FluidsList.end(); it++)
-	{
-		FL+=(*it)->get_name();
-		FL+=",";
-	}
-	//Remove the tailing comma
-	FL = FL.substr (0,FL.length()-1);
-	return FL;
 }

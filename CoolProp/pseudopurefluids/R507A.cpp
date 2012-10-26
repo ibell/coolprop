@@ -21,6 +21,8 @@ by E.W. Lemmon, Int. J. Thermophys. v. 24, n4, 2003
 #include "stdio.h"
 #include <string.h>
 #include "CoolProp.h"
+#include "FluidClass.h"
+#include "R507A.h"
 
 static const double a[]={
     9.93541,		//[0]
@@ -217,6 +219,7 @@ R507AClass::R507AClass()
 	// Other fluid parameters
 	params.molemass = 98.8592;
 	params.Ttriple = 200.0;
+	params.ptriple = 23.2234432758;
 	params.accentricfactor = 0.286;
 	params.R_u = 8.314472;
 	isPure = false;

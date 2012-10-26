@@ -22,6 +22,8 @@ R. Span and W. Wagner, J. Phys. Chem. Ref. Data, v. 25, 1996
 #include <string.h>
 #include "CoolProp.h"
 #include <vector>
+#include "FluidClass.h"
+#include "R744.h"
 
 using namespace std;
 
@@ -302,6 +304,7 @@ R744Class::R744Class()
 	// Other fluid parameters
 	params.molemass = 44.0098;
 	params.Ttriple = 216.592;
+	params.ptriple = 517.996380545;
 	params.R_u = 8.31451;
 	params.accentricfactor = 0.22394;
 

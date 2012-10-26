@@ -1,6 +1,6 @@
 Changelog:
 
-2.2.2 (revision 167)
+2.2.2 (revision 169)
 Added MATLAB wrappers and compiled versions on Windows to batch
 Added plots to check solvers for (T,p) and (h,p) in subcooled liquid and superheated vapor regions
 

@@ -33,6 +33,8 @@ Note: Critical enhancement included
 #include "stdio.h"
 #include <string.h>
 #include "CoolProp.h"
+#include "FluidClass.h"
+#include "Nitrogen.h"
 
 static const double Tc=126.192, rhoc=313.3, Pc=3395.8, M_Nitrogen=28.01348, _Ttriple=63.151;
              //          K           kg/m^3       kPa              g/mol              K
@@ -288,6 +290,7 @@ NitrogenClass::NitrogenClass()
 	// Other fluid parameters
 	params.molemass = 28.01348;
 	params.Ttriple = 63.151;
+	params.ptriple = 12.5220865181;
 	params.accentricfactor = 0.0372 ;
 	params.R_u = 8.31451;
 

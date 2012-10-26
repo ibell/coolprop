@@ -26,6 +26,7 @@ International Journal of Thermophysics, Vol 16, No. 5, 1995
 #include "stdio.h"
 #include <stdlib.h>
 #include "CoolProp.h"
+#include "FluidClass.h"
 #include "R22.h"
 
 static const double a[]={0,

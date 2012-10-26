@@ -82,35 +82,6 @@ You might want to start by looking at CoolProp.h
 	#include "CoolPropTools.h"
 	#include "PropErrorCodes.h"
 	#include "PropMacros.h"
-
-	// Always include Air and Water, and R134a since it is the default reference fluid for ECS
-	#include "Water.h"
-	#include "Air.h"
-	#include "R134a.h"
-
-	// If the preprocessor key ONLY_AIR_WATER is defined, only air and water will be included (and R134a since default for ECS)
-	#if !defined(ONLY_AIR_WATER)
-	#include "R410A.h"
-	#include "R290.h"
-	#include "R32.h"
-	#include "R744.h"
-	#include "R404A.h"
-	#include "R507A.h"
-	#include "R407C.h"
-	#include "R717.h"
-	#include "Argon.h"
-	#include "R1234yf.h"
-	#include "Nitrogen.h"
-	#include "Brine.h"
-	#include "IndustrialFluids.h"
-	#include "Siloxanes.h"
-	#include "SES36.h"
-	#include "R22.h"
-	#include "Hydrogen.h"
-	#include "Oxygen.h"
-	#include "Helium.h"
-	#endif
-
 	
 	// Functions within this extern "C" bracket will be exported to the DLL
 	// They can only use data types that play well with DLL wrapping

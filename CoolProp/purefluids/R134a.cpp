@@ -21,6 +21,8 @@ by Reiner Tillner-Roth and Hans Dieter Baehr, J. Phys. Chem. Ref. Data, v. 23, 1
 #include "string.h"
 #include "stdio.h"
 #include "CoolProp.h"
+#include "FluidClass.h"
+#include "R134a.h"
 
 static const double a[]={
 	 0.0,			//[0]

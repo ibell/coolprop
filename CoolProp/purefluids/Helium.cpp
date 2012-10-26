@@ -47,6 +47,7 @@ NIST Technical Note 1334 (revised), 1998.
 #include <list>
 #include "Helmholtz.h"
 #include "FluidClass.h"
+#include "Helium.h"
 
 using namespace std;
 
@@ -231,6 +232,7 @@ HeliumClass::HeliumClass()
 	// Other fluid parameters
 	params.molemass = 4.002602;
 	params.Ttriple = 2.1768;
+	params.ptriple = 5.05513477113;
 	params.accentricfactor = -0.385 ;
 	params.R_u = 8.314472;
 

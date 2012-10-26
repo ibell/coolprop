@@ -62,9 +62,14 @@ def MATLAB():
         os.makedirs(os.path.join('dist_temp','MATLAB'))
     except os.error: pass
         
-    subprocess.check_output(['matlab','-nojvm','-nodesktop','-nosplash','-r','MATLABBuilder'],shell=True,cwd=os.path.join('wrappers','MATLAB'))
+    process = subprocess.Popen(['C:\\MATLAB_32bit\\bin\\matlab','-r','MATLABBuilder'],shell=True,cwd=os.path.join('wrappers','MATLAB'))
+    process.wait()
+    process = subprocess.Popen(['matlab','-nojvm','-nodesktop','-nosplash','-r','MATLABBuilder'],shell=True,cwd=os.path.join('wrappers','MATLAB'))
+    process.wait()
     shutil.copy2(os.path.join('wrappers','MATLAB','Props.mexw64'),os.path.join('dist_temp','MATLAB','Props.mexw64'))
     shutil.copy2(os.path.join('wrappers','MATLAB','HAProps.mexw64'),os.path.join('dist_temp','MATLAB','HAProps.mexw64'))
+    shutil.copy2(os.path.join('wrappers','MATLAB','Props.mexw32'),os.path.join('dist_temp','MATLAB','Props.mexw32'))
+    shutil.copy2(os.path.join('wrappers','MATLAB','HAProps.mexw32'),os.path.join('dist_temp','MATLAB','HAProps.mexw32'))
     shutil.copy2(os.path.join('wrappers','MATLAB','README.txt'),os.path.join('dist_temp','MATLAB','README.txt'))
     shutil.copy2(os.path.join('wrappers','MATLAB','MATLAB_sample.m'),os.path.join('dist_temp','MATLAB','MATLAB_sample.m'))
     
@@ -95,11 +100,11 @@ def UploadSourceForge():
     os.remove(version)
     
 if __name__=='__main__':
-    InstallPrereqs()
-    PythonInstallers()
-    DLL()
-    Source()
-    Octave()
+##     InstallPrereqs()
+##     PythonInstallers()
+##     DLL()
+##     Source()
+##     Octave()
     MATLAB()
-    PYPI()
-    UploadSourceForge()
+##     PYPI()
+##     UploadSourceForge()

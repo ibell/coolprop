@@ -21,8 +21,8 @@ by Reiner Tillner-Roth and Hans Dieter Baehr, J. Chem. Eng. Data, v. 56, 2011, p
 #include "string.h"
 #include "stdio.h"
 #include "CoolProp.h"
+#include "FluidClass.h"
 #include "R1234yf.h"
-#include "PropMacros.h"
 
 static const double a[]={
 	 0, //[0]
@@ -223,6 +223,7 @@ R1234yfClass::R1234yfClass()
 	// Other fluid parameters
 	params.molemass = 114.0415928;
 	params.Ttriple = 220;
+	params.ptriple = 31.5093083629;
 	params.accentricfactor = 0.276;
 	params.R_u = 8.314472;
 

@@ -26,6 +26,9 @@ J. Phys. Chem. Ref. Data, 26(6):1273-1328, 1997.
 #include "stdio.h"
 #include <stdlib.h>
 #include "CoolProp.h"
+#include "FluidClass.h"
+#include "R32.h"
+#include "R290.h"
 
 static const double a[]={
 	 0.0,			//[0]
@@ -168,6 +171,7 @@ R32Class::R32Class()
 	// Other fluid parameters
 	params.molemass = 52.024;
 	params.Ttriple = 136.34;
+	params.ptriple = 0.0480073825051;
 	params.accentricfactor = 0.2769;
 	params.R_u = 8.314471;
 

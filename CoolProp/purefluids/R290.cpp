@@ -9,6 +9,8 @@ by Ian Bell
 #include "stdio.h"
 #include <string.h>
 #include "CoolProp.h"
+#include "FluidClass.h"
+#include "R290.h"
 
 static const double n[]={0,
 0.042910051,
@@ -234,6 +236,7 @@ R290Class::R290Class()
 	// Other fluid parameters
 	params.molemass = 44.09562;
 	params.Ttriple = 85.525;
+	params.ptriple = 1.71314090116e-07;
 	params.accentricfactor = 0.1521;
 	params.R_u = 8.314472;
 

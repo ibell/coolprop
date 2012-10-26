@@ -40,6 +40,7 @@ Note: Critical enhancement included
 #include <list>
 #include "Helmholtz.h"
 #include "FluidClass.h"
+#include "Argon.h"
 
 using namespace std;
 
@@ -289,6 +290,7 @@ ArgonClass::ArgonClass()
 	// Other fluid parameters
 	params.molemass = 39.948;
 	params.Ttriple = 83.806;
+	params.ptriple = 68.9004210852;
 	params.accentricfactor = -0.00219 ;
 	params.R_u = 8.31451;
 

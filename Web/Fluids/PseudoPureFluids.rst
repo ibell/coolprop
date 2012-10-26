@@ -10,3 +10,4 @@ Pseudo-Pure Fluids
     R410A.rst
     R407C.rst
     R507A.rst
+    SES36.rst

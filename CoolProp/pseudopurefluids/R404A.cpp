@@ -31,6 +31,8 @@ These macros are defined in the PropMacros.h header file:
 #include "stdio.h"
 #include <string.h>
 #include "CoolProp.h"
+#include "FluidClass.h"
+#include "R404A.h"
 
 static const double a[]={
     7.00407,		//[0]
@@ -224,6 +226,7 @@ R404AClass::R404AClass()
 	// Other fluid parameters
 	params.molemass = 97.6038;
 	params.Ttriple = 200.0;
+	params.ptriple = 21.2656766151;
 	params.accentricfactor = 0.293;
 	params.R_u = 8.314472;
 	isPure = false;

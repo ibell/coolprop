@@ -7,9 +7,10 @@
 // Do NOT modify this file.  It is created by a script in the industrialfluidsbuilder folder within the source
 
 #include "CoolProp.h"
-#include "IndustrialFluids.h"
 #include <vector>
 #include "CPExceptions.h"
+#include "FluidClass.h"
+#include "IndustrialFluids.h"
 
 static const double d_nonpolar[] =
 {
@@ -130,6 +131,7 @@ CarbonMonoxideClass::CarbonMonoxideClass()
     // Other fluid parameters
     params.molemass = 28.0101;
     params.Ttriple = 68.16;
+	params.ptriple = 15.5395203075;
     params.accentricfactor = 0.0497;
     params.R_u = 8.314472;
 
@@ -207,6 +209,7 @@ CarbonylSulfideClass::CarbonylSulfideClass()
     // Other fluid parameters
     params.molemass = 60.0751;
     params.Ttriple = 134.3;
+	params.ptriple = 0.0644440370601;
     params.accentricfactor = 0.0978;
     params.R_u = 8.314472;
 
@@ -283,6 +286,7 @@ DecaneClass::DecaneClass()
     // Other fluid parameters
     params.molemass = 142.28168;
     params.Ttriple = 243.5;
+	params.ptriple = 0.00140434258288;
     params.accentricfactor = 0.4884;
     params.R_u = 8.314472;
 
@@ -359,6 +363,7 @@ HydrogenSulfideClass::HydrogenSulfideClass()
     // Other fluid parameters
     params.molemass = 34.08088;
     params.Ttriple = 187.7;
+	params.ptriple = 23.2604252601;
     params.accentricfactor = 0.1005;
     params.R_u = 8.314472;
 
@@ -436,6 +441,7 @@ IsopentaneClass::IsopentaneClass()
     // Other fluid parameters
     params.molemass = 72.14878;
     params.Ttriple = 112.65;
+	params.ptriple = 8.93808446917e-08;
     params.accentricfactor = 0.2274;
     params.R_u = 8.314472;
 
@@ -512,6 +518,7 @@ NeopentaneClass::NeopentaneClass()
     // Other fluid parameters
     params.molemass = 72.14878;
     params.Ttriple = 256.6;
+	params.ptriple = 35.4025457009;
     params.accentricfactor = 0.1961;
     params.R_u = 8.314472;
 
@@ -588,6 +595,7 @@ IsohexaneClass::IsohexaneClass()
     // Other fluid parameters
     params.molemass = 86.17536;
     params.Ttriple = 119.6;
+	params.ptriple = 7.80272777499e-09;
     params.accentricfactor = 0.2797;
     params.R_u = 8.314472;
 
@@ -664,6 +672,7 @@ KryptonClass::KryptonClass()
     // Other fluid parameters
     params.molemass = 83.798;
     params.Ttriple = 115.77;
+	params.ptriple = 73.5090071088;
     params.accentricfactor = -0.00089;
     params.R_u = 8.314472;
 
@@ -739,6 +748,7 @@ NonaneClass::NonaneClass()
     // Other fluid parameters
     params.molemass = 128.2551;
     params.Ttriple = 219.7;
+	params.ptriple = 0.000444543592359;
     params.accentricfactor = 0.4433;
     params.R_u = 8.314472;
 
@@ -815,6 +825,7 @@ TolueneClass::TolueneClass()
     // Other fluid parameters
     params.molemass = 92.13842;
     params.Ttriple = 178.0;
+	params.ptriple = 3.94003300153e-05;
     params.accentricfactor = 0.2657;
     params.R_u = 8.314472;
 
@@ -891,6 +902,7 @@ XenonClass::XenonClass()
     // Other fluid parameters
     params.molemass = 131.293;
     params.Ttriple = 161.4;
+	params.ptriple = 81.7527231534;
     params.accentricfactor = 0.00363;
     params.R_u = 8.314472;
 
@@ -966,6 +978,7 @@ R116Class::R116Class()
     // Other fluid parameters
     params.molemass = 138.01182;
     params.Ttriple = 173.1;
+	params.ptriple = 26.0855875793;
     params.accentricfactor = 0.2566;
     params.R_u = 8.314472;
 
@@ -1054,6 +1067,7 @@ AcetoneClass::AcetoneClass()
     // Other fluid parameters
     params.molemass = 58.07914;
     params.Ttriple = 178.5;
+	params.ptriple = 0.00232681797023;
     params.accentricfactor = 0.3071;
     params.R_u = 8.314472;
 
@@ -1129,6 +1143,7 @@ NitrousOxideClass::NitrousOxideClass()
     // Other fluid parameters
     params.molemass = 44.0128;
     params.Ttriple = 182.33;
+	params.ptriple = 87.8428495079;
     params.accentricfactor = 0.1613;
     params.R_u = 8.314472;
 
@@ -1205,6 +1220,7 @@ SulfurDioxideClass::SulfurDioxideClass()
     // Other fluid parameters
     params.molemass = 64.0638;
     params.Ttriple = 197.7;
+	params.ptriple = 1.66036590338;
     params.accentricfactor = 0.2557;
     params.R_u = 8.314472;
 
@@ -1282,6 +1298,7 @@ R141bClass::R141bClass()
     // Other fluid parameters
     params.molemass = 116.94962;
     params.Ttriple = 169.68;
+	params.ptriple = 0.00649365146247;
     params.accentricfactor = 0.2195;
     params.R_u = 8.314472;
 
@@ -1371,6 +1388,7 @@ R142bClass::R142bClass()
     // Other fluid parameters
     params.molemass = 100.49503;
     params.Ttriple = 142.72;
+	params.ptriple = 0.00363327066489;
     params.accentricfactor = 0.2321;
     params.R_u = 8.314472;
 
@@ -1460,6 +1478,7 @@ R218Class::R218Class()
     // Other fluid parameters
     params.molemass = 188.01933;
     params.Ttriple = 125.45;
+	params.ptriple = 0.00201898352904;
     params.accentricfactor = 0.3172;
     params.R_u = 8.314472;
 
@@ -1560,6 +1579,7 @@ R245faClass::R245faClass()
     // Other fluid parameters
     params.molemass = 134.04794;
     params.Ttriple = 171.05;
+	params.ptriple = 0.0125165917597;
     params.accentricfactor = 0.3776;
     params.R_u = 8.314472;
 
@@ -1658,6 +1678,7 @@ R41Class::R41Class()
     // Other fluid parameters
     params.molemass = 34.03292;
     params.Ttriple = 129.82;
+	params.ptriple = 0.344246534824;
     params.accentricfactor = 0.2004;
     params.R_u = 8.314472;
 

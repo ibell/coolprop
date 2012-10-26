@@ -8,16 +8,18 @@ Pure Fluids
     Acetone.rst
     Ammonia.rst
     Argon.rst
-    CO2.rst
+    CarbonDioxide.rst
     CarbonMonoxide.rst
     CarbonylSulfide.rst
     D4.rst
     D5.rst
     D6.rst
     Decane.rst
+    Ethane.rst
     Helium.rst
     Hydrogen.rst
     HydrogenSulfide.rst
+    IsoButane.rst
     Isohexane.rst
     Isopentane.rst
     Krypton.rst
@@ -26,11 +28,15 @@ Pure Fluids
     MD4M.rst
     MDM.rst
     MM.rst
+    Methane.rst
     Neopentane.rst
     Nitrogen.rst
     NitrousOxide.rst
     Nonane.rst
+    OrthoHydrogen.rst
     Oxygen.rst
+    ParaHydrogen.rst
+    Propane.rst
     R116.rst
     R1234yf.rst
     R134a.rst
@@ -39,11 +45,10 @@ Pure Fluids
     R218.rst
     R22.rst
     R245fa.rst
-    R290.rst
     R32.rst
     R41.rst
-    SES36.rst
     SulfurDioxide.rst
     Toluene.rst
     Water.rst
     Xenon.rst
+    n-Butane.rst
