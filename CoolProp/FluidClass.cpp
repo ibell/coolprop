@@ -39,6 +39,9 @@
 #include "Hydrogen.h"
 #include "Oxygen.h"
 #include "Helium.h"
+#include "Ethylene.h"
+#include "SulfurHexafluoride.h"
+#include "Ethanol.h"
 
 using namespace std;
 
@@ -66,6 +69,10 @@ FluidsContainer::FluidsContainer()
 	FluidsList.push_back(new R32Class());
 	FluidsList.push_back(new R22Class());
 	FluidsList.push_back(new SES36Class());
+	FluidsList.push_back(new EthyleneClass());
+	FluidsList.push_back(new SulfurHexafluorideClass());
+	FluidsList.push_back(new EthanolClass());
+
 	// The industrial fluids
 	FluidsList.push_back(new R245faClass());
 	FluidsList.push_back(new R41Class());
@@ -164,7 +171,7 @@ Fluid * FluidsContainer::get_fluid(std::string name)
 long FluidsContainer::get_fluid_index(Fluid* pFluid)
 {
 	int i = 0;
-	// It found it, now iterate to find the 0-based index of the fluid
+	// Iterate to find the 0-based index of the fluid
 	for (std::vector<Fluid*>::iterator it = FluidsList.begin(); it != FluidsList.end(); it++)
 	{
 		if ((*it) == pFluid)
@@ -958,16 +965,15 @@ std::string Fluid::phase_Tp(double T, double p)
 	}
 }
 
-double Fluid::Tsat(double p, double Q, double T_guess, bool UseLUT)
+double Fluid::Tsat_anc(double p, double Q)
 {
+	// This one only uses the ancillary equations
+
     double x1=0,x2=0,y1=0,y2=0;
     double Tc,Tmax,Tmin;
-    
-    // Do reverse interpolation in the Saturation Lookup Table
-    if (UseLUT && isPure==true) { return ApplySaturationLUT("T","p",p); }
 
     Tc=Props(name,"Tcrit");
-    Tmax=Tc-0.1;
+    Tmax=Tc-0.001;
     Tmin=Props(name,"Ttriple")+1;
 	if (Tmin <= limits.Tmin)
 		Tmin = limits.Tmin;
@@ -980,17 +986,28 @@ double Fluid::Tsat(double p, double Q, double T_guess, bool UseLUT)
 	private:
 		double p,Q,Tc;
 		std::string name;
+		Fluid * pFluid;
 	public:
-		SatFuncClass(double p_, double Q_, double Tc_, std::string name_){
-			p=p_;Q=Q_;Tc=Tc_,name=name_;
+		SatFuncClass(double p_, double Q_, double Tc_, std::string name_,Fluid *_pFluid){
+			p=p_;Q=Q_;Tc=Tc_,name=name_,pFluid = _pFluid;
 		};
 		double call(double tau){
-			return log(Props(std::string("P"),'T',Tc/tau,'Q',Q,name)/p);
+			if (fabs(Q-1)<1e-10)
+
+				return log(pFluid->psatV_anc(Tc/tau)/p);
+			else if (fabs(Q)<1e-10)
+				return log(pFluid->psatL_anc(Tc/tau)/p);
+			else
+				throw ValueError("Quality must be 1 or 0");
 		};
-	} SatFunc(p,Q,reduce.T,name);
+	} SatFunc(p,Q,reduce.T,name,this);
 
 	double tau_max = Tc/Tmin;
 	double tau_min = Tc/Tmax;
+
+	double gregtes = psatV_anc(Tc/tau_max);
+	double gregregresgres = psatV_anc(Tc/tau_min);
+
 
 	// Use Brent's method to find tau = Tc/T
 	std::string errstr;
@@ -998,7 +1015,185 @@ double Fluid::Tsat(double p, double Q, double T_guess, bool UseLUT)
 	if (errstr.size()>0)
 		throw SolutionError("Saturation calculation failed");
 	return reduce.T/tau;
+}
 
+// A wrapper class to do the calculations to get densities and saturation temperature
+// as a function of pressure for pure fluids
+class SaturationFunctionOfPressureResids : public FuncWrapperND
+{
+private:
+	double arL, arV, dar_ddeltaL, dar_ddeltaV, d2ar_ddelta2L, d2ar_ddelta2V, d2ar_ddelta_dtauL, d2ar_ddelta_dtauV;
+	double dar_dtauL,dar_dtauV;
+	double p,R,rhoc,Tc,deltaL,deltaV,tau;
+	Fluid *pFluid;
+public:
+	SaturationFunctionOfPressureResids(Fluid *_pFluid, double _p, double _R, double _rhoc, double _Tc){
+		pFluid = _pFluid;
+		p = _p;
+		R = _R;
+		rhoc = _rhoc;
+		Tc = _Tc;
+	};
+	~SaturationFunctionOfPressureResids(){};
+	
+	void calculate_parameters(double deltaV, double deltaL, double tau)
+	{	
+		arL = pFluid->phir(tau,deltaL);
+		arV = pFluid->phir(tau,deltaV);
+		dar_ddeltaL = pFluid->dphir_dDelta(tau,deltaL);
+		dar_ddeltaV = pFluid->dphir_dDelta(tau,deltaV);
+		dar_dtauL = pFluid->dphir_dTau(tau,deltaL);
+		dar_dtauV = pFluid->dphir_dTau(tau,deltaV);
+		d2ar_ddelta2L = pFluid->d2phir_dDelta2(tau,deltaL);
+		d2ar_ddelta2V = pFluid->d2phir_dDelta2(tau,deltaV);
+		d2ar_ddelta_dtauL = pFluid->d2phir_dDelta_dTau(tau,deltaL);
+		d2ar_ddelta_dtauV = pFluid->d2phir_dDelta_dTau(tau,deltaV);
+	}
+	double J(char Q)
+	{
+		if (Q=='L')
+			return deltaL*(1+deltaL*dar_ddeltaL);
+		else
+			return deltaV*(1+deltaV*dar_ddeltaV);
+	}
+	double J_delta(char Q)
+	{
+		if (Q=='L')
+			return 1+2*deltaL*dar_ddeltaL+deltaL*deltaL*d2ar_ddelta2L;
+		else
+			return 1+2*deltaV*dar_ddeltaV+deltaV*deltaV*d2ar_ddelta2V;
+	}
+	double J_tau(char Q)
+	{
+		if (Q=='L')
+			return deltaL*deltaL*d2ar_ddelta_dtauL;
+		else
+			return deltaV*deltaV*d2ar_ddelta_dtauV;
+	}
+	double K(char Q)
+	{
+		if (Q=='L')
+			return deltaL*dar_ddeltaL+arL+log(deltaL);
+		else
+			return deltaV*dar_ddeltaV+arV+log(deltaV);
+	}
+	double K_delta(char Q)
+	{
+		if (Q=='L')
+			return 2*dar_ddeltaL+deltaL*d2ar_ddelta2L+1/deltaL;
+		else
+			return 2*dar_ddeltaV+deltaV*d2ar_ddelta2V+1/deltaV;
+	}
+	double K_tau(char Q)
+	{
+		if (Q=='L')
+			return deltaL*d2ar_ddelta_dtauL+dar_dtauL;
+		else
+			return deltaV*d2ar_ddelta_dtauV+dar_dtauV;
+	}
+
+	Eigen::VectorXd call(Eigen::VectorXd x)
+	{
+		
+		deltaV = x[0]; 
+		deltaL = x[1];
+		tau = x[2];
+
+		// Calculate all the parameters that are needed for the derivatives
+		calculate_parameters(deltaV,deltaL,tau);
+
+		Eigen::Vector3d out;
+		out(0)=J('V')-J('L');
+		out(1)=K('V')-K('L');
+		out(2)=1+deltaV*dar_ddeltaV-p*tau/(R*Tc*deltaV*rhoc);
+		return out;
+	}
+	Eigen::MatrixXd Jacobian(Eigen::VectorXd x)
+	{
+		deltaV = x[0]; 
+		deltaL = x[1];
+		tau = x[2];
+		Eigen::MatrixXd out(x.rows(),x.rows());
+		
+		out(0,0) = J_delta('V');
+		out(0,1) = -J_delta('L');
+		out(0,2) = J_tau('V')-J_tau('L');
+		out(1,0) = K_delta('V');
+		out(1,1) = -K_delta('L');
+		out(1,2) = K_tau('V')-K_tau('L');
+		out(2,0) = deltaV*d2ar_ddelta2V+dar_ddeltaV+p*tau/(R*Tc*deltaV*deltaV*rhoc);
+		out(2,1) = 0;
+		out(2,2) = deltaV*d2ar_ddelta_dtauV-p/(R*Tc*deltaV*rhoc);
+		return out;
+	}
+};
+
+void Fluid::TsatP_Pure(double p, double *Tout, double *rhoLout, double *rhoVout)
+{
+	double Tsat,rhoL,rhoV;
+	SaturationFunctionOfPressureResids *SFPR = new SaturationFunctionOfPressureResids(this,p,params.R_u/params.molemass,reduce.rho,reduce.T);
+	Eigen::Vector3d x0_initial, x;
+	Tsat = Tsat_anc(p,0);
+	rhoL = rhosatL(Tsat);
+	rhoV = rhosatV(Tsat);
+	x0_initial << rhoV/reduce.rho, rhoL/reduce.rho, reduce.T/Tsat;
+	std::string errstring;
+	x=NDNewtonRaphson_Jacobian(SFPR,x0_initial,1e-10,30,&errstring);
+	*rhoVout = reduce.rho*x(0);
+	*rhoLout = reduce.rho*x(1);
+	*Tout = reduce.T/x(2);
+	return;
+}
+
+double Fluid::Tsat(double p, double Q, double T_guess, bool UseLUT)
+{
+	if (isPure)
+	{
+		double Tout,rhoLout,rhoVout;
+		TsatP_Pure(p,&Tout,&rhoLout,&rhoVout);
+		return Tout;
+	}
+	else
+	{
+		double x1=0,x2=0,y1=0,y2=0;
+		double Tc,Tmax,Tmin;
+	    
+		// Do reverse interpolation in the Saturation Lookup Table
+		if (UseLUT && isPure==true) { return ApplySaturationLUT("T","p",p); }
+
+		Tc=Props(name,"Tcrit");
+		Tmax=Tc-0.001;
+		Tmin=Props(name,"Ttriple")+1;
+		if (Tmin <= limits.Tmin)
+			Tmin = limits.Tmin;
+	    
+		// Plotting Tc/T versus log(p) tends to give very close to straight line
+		// Use this fact find T more easily
+    
+		class SatFuncClass : public FuncWrapper1D
+		{
+		private:
+			double p,Q,Tc;
+			std::string name;
+		public:
+			SatFuncClass(double p_, double Q_, double Tc_, std::string name_){
+				p=p_;Q=Q_;Tc=Tc_,name=name_;
+			};
+			double call(double tau){
+				return log(Props(std::string("P"),'T',Tc/tau,'Q',Q,name)/p);
+			};
+		} SatFunc(p,Q,reduce.T,name);
+
+		double tau_max = Tc/Tmin;
+		double tau_min = Tc/Tmax;
+
+		// Use Brent's method to find tau = Tc/T
+		std::string errstr;
+		double tau = Brent(&SatFunc,tau_min,tau_max,1e-10,1e-10,50,&errstr);
+		if (errstr.size()>0)
+			throw SolutionError("Saturation calculation failed");
+		return reduce.T/tau;
+	}
 }
 
 void Fluid::BuildLookupTable()
@@ -1550,7 +1745,7 @@ Eigen::Vector2d Fluid::ConformalTemperature(Fluid *InterestFluid, Fluid *Referen
 		x0=NDNewtonRaphson_Jacobian(&CTR,x0_initial,1e-10,30,errstring);
 		error = sqrt(CTR.call(x0).array().square().sum());
 		if (fabs(error)>1e-2 || x0(0)<0.0  || x0(1)<0.0 || !ValidNumber(x0(0)) || !ValidNumber(x0(1))){
-			throw ValueError("");
+			throw ValueError("Error calculating the conformal state for ECS");
 		}
 		return x0;
 	}

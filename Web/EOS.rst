@@ -380,7 +380,21 @@ or in terms of :math:`\tau`
      
         - \frac{{a{T_c}{\tau ^{ - 1}}}}{2} + \frac{{a{T_c}\tau _0^{ - 1}}}{2}
     
-    
+These terms can be summarized by the following table:
+
+.. math::
+
+    \begin{array}{*{20}{c}}
+    {\dfrac{{c_p^0}}{R}{\rm{ Term}}}&{{\alpha ^0}{\rm{ Term}}}&{{\rm{Class Name}}}&{}&{}&{}&{}&{}\\
+    {{a_k}\dfrac{{{{\left( {{b_k}/T} \right)}^2}\exp \left( {{b_k}/T} \right)}}{{{{\left( {\exp \left( {{b_k}/T} \right) - 1} \right)}^2}}}}&{{a_k}\ln \left[ {1 - \exp \left( {\frac{{ - {b_k}\tau }}{{{T_c}}}} \right)} \right]}&{{\rm{phi0\_Planck\_Einstein}}(a,b/Tc,[iStart,iEnd])}&{}&{}&{}&{}&{}\\
+    {ac\frac{{{{\left( {b/T} \right)}^2}\exp \left( { - b/T} \right)}}{{{{\left( {c\exp \left( { - b/T} \right) + 1} \right)}^2}}}}&{a\ln \left[ {c + \exp \left( {\frac{{b\tau }}{{{T_c}}}} \right)} \right]}&{{\rm{phi0\_Planck\_Einstein2}}(a,b/Tc,c)}&{}&{}&{}&{}&{}\\
+    {yuck}&{{a_k}{\tau ^{{b_k}}}}&{{\rm{phi0\_power}}\left( {a,b,[iStart,iEnd]} \right)}&{}&{}&{}&{}&{}\\
+    a&{a - a\frac{\tau }{{{\tau _0}}} + a\ln \left( {\frac{\tau }{{{\tau _0}}}} \right)}&{{\rm{phi0\_cp0\_constant}}(a,Tc,T0)}&{}&{}&{}&{}&{}\\
+    {{a_1} + {a_2}{{\left( {\frac{{{a_3}/T}}{{\sinh \left( {{a_3}/T} \right)}}} \right)}^2} + {a_4}{{\left( {\frac{{{a_5}/T}}{{\cosh \left( {{a_5}/T} \right)}}} \right)}^2}}&{yuck}&{{\rm{phi0\_cp0\_AlyLee}}(a,Tc,T0,R)}&{}&{}&{}&{}&{}\\
+    {{\rm{n/a}}}&{\log (\delta ) + {a_1} + {a_2}\tau }&{{\rm{phi0\_lead(}}a1,{\rm{ }}a2{\rm{)}}}&{}&{}&{}&{}&{}\\
+    {{\rm{n/a}}}&{a\log \tau }&{{\rm{phi0\_logtau}}(a)}&{}&{}&{}&{}&{}
+    \end{array}
+
 If the reference enthalpy is known, you can determine the constants from 
 
 .. math::
@@ -409,7 +423,6 @@ Second Derivative
 .. math::
 
     \frac{{{d^2}}}{{d{\tau ^2}}}\left[ { - \frac{\tau }{R}\int_{{\tau _0}}^\tau  {\frac{{c_p^0}}{{{\tau ^2}}}d\tau }  + \frac{1}{R}\int_{{\tau _0}}^\tau  {\frac{{c_p^0}}{\tau }d\tau } } \right] = \frac{d}{{d\tau }}\left[ { - \frac{1}{R}\int_{{\tau _0}}^\tau  {\frac{{c_p^0}}{{{\tau ^2}}}d\tau } } \right] =  - \frac{{c_p^0}}{{{\tau ^2}R}}
-
 
 .. _Props_Sample:
 

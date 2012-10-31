@@ -151,18 +151,13 @@ AirClass::AirClass()
 	theta0_v[9]=N0_v[12];
 	theta0_v[10]=N0_v[13];
 
-	phi_BC * phi0_lead_ = new phi0_lead(0.0,0.0);
-	phi_BC * phi0_logtau_ = new phi0_logtau(N0_v[7]);
-	phi_BC * phi0_power_ = new phi0_power(N0_v,theta0_v,1,5);
-	phi_BC * phi0_Planck_Einstein_ = new phi0_Planck_Einstein(N0_v,theta0_v,8,9);
-	phi_BC * phi0_Planck_Einstein2_ = new phi0_Planck_Einstein2(N0_v[10],theta0_v[10],2.0/3.0);
+	phi0list.push_back(new phi0_lead(0.0,0.0));
+	phi0list.push_back(new phi0_power(N0_v,theta0_v,1,5));
+	phi0list.push_back(new phi0_power(N0_v[6],1.5));
+	phi0list.push_back(new phi0_logtau(N0_v[7]));
+	phi0list.push_back(new phi0_Planck_Einstein(N0_v,theta0_v,8,9));
+	phi0list.push_back(new phi0_Planck_Einstein2(N0_v[10],theta0_v[10],2.0/3.0));
 	
-	phi0list.push_back(phi0_lead_);
-	phi0list.push_back(phi0_logtau_);
-	phi0list.push_back(phi0_power_);
-	phi0list.push_back(phi0_Planck_Einstein_);
-	phi0list.push_back(phi0_Planck_Einstein2_);
-
 	// Critical parameters (max condensing temperature)
 	crit.rho = 11.8308*28.96546;
 	crit.p = 3786.0;
@@ -172,7 +167,7 @@ AirClass::AirClass()
 	maxcondT.rho = 10.4477*28.96546;
 	maxcondT.p = 3785.02;
 	maxcondT.T = 132.6312;
-	maxcondT.v = 1.0/crit.rho;
+	maxcondT.v = 1.0/maxcondT.rho;
 
 	// Other fluid parameters
 	params.molemass = 28.96546;
@@ -210,7 +205,7 @@ double AirClass::rhosatL(double T)
     {
         summer=summer+Ni[k]*pow(1.0-T/reduce.T,ti[k]);
     }
-    return reduce.rho*(1+summer+Ni[5]*log(T/crit.T));
+    return reduce.rho*(1+summer+Ni[5]*log(T/reduce.T));
 }
 
 double AirClass::rhosatV(double T)
@@ -231,9 +226,10 @@ double AirClass::psatL(double T)
 	double summer=0; int k;
     for (k=1;k<=6;k++)
     {
-        summer=summer+Ni[k]*pow(1-T/reduce.T,(double)k/2.0);
+        summer=summer+Ni[k]*pow(1-T/reduce.T,((double)k)/2.0);
     }
-	return reduce.p*exp(crit.T/T*summer);
+	double p = reduce.p*exp(reduce.T/T*summer);
+	return p;
 }
 
 double AirClass::psatV(double T)
@@ -242,9 +238,10 @@ double AirClass::psatV(double T)
 	double summer=0; int k;
     for (k=1;k<=8;k++)
     {
-        summer=summer+Ni[k]*pow(1-T/reduce.T,(double)k/2.0);
+        summer=summer+Ni[k]*pow(1-T/reduce.T,((double)k)/2.0);
     }
-	return reduce.p*exp(crit.T/T*summer);
+	double p =  reduce.p*exp(reduce.T/T*summer);
+	return p;
 }
 
 double AirClass::viscosity_Trho(double T, double rho)

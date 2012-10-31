@@ -1,15 +1,15 @@
 
 ********************
-R744
+IsoButane
 ********************
 
 Equation of State Reference
 ===========================
-"A New Equation of State for Carbon Dioxide Covering the Fluid Region from the Triple Point Temperature to 1100 K at Pressures up to 800 MPa", R. Span and W. Wagner, J. Phys. Chem. Ref. Data, v. 25, 1996
+Buecker, D. and Wagner, W. "Reference Equations of State for the Thermodynamic Properties of Fluid Phase n-Butane and Isobutane," J. Phys. Chem. Ref. Data, Vol. 35, No. 2, 2006, 929-1019.
 
 Transport Properties Information
 ================================
-"The Transport Properties of Carbon Dioxide", V. Vesovic and W.A. Wakeham and G.A. Olchowy and J.V. Sengers and J.T.R. Watson and J. MillatJ. Phys. Chem. Ref. Data, v. 19, 1990
+Using ECS in fully predictive mode
 
 
 Fluid Data
@@ -18,16 +18,16 @@ Fluid Data
 Fluid Parameters
 
 =========================  ==============================
-Mole Mass [kg/kmol]        44.00980
-Triple Point [K]           216.592
+Mole Mass [kg/kmol]        58.12220
+Triple Point [K]           113.730
 =========================  ==============================
 
 Critical Parameters
 
 ==========================  ==============================
-Temperature [K]             304.13
-Density [kg/m\ :sup:`3`\ ]   467.606000
-Pressure [kPa]              7377.30000
+Temperature [K]             407.81
+Density [kg/m\ :sup:`3`\ ]   225.500000
+Pressure [kPa]              3629.00000
 ==========================  ==============================
 
 
@@ -36,8 +36,8 @@ Saturated Vapor Deviations
 
 .. plot::
 
-    Fluid = "R744"
-    RPFluid = "REFPROP-CO2"
+    Fluid = "IsoButane"
+    RPFluid = "REFPROP-ISOBUTAN"
 
     #Saturated Vapor
     from CoolProp.CoolProp import Props
@@ -53,12 +53,20 @@ Saturated Vapor Deviations
     rho = array([Props('D','T',T,'Q',1,Fluid) for T in Tv])
     cp = array([Props('C','T',T,'Q',1,Fluid) for T in Tv])
     cv = array([Props('O','T',T,'Q',1,Fluid) for T in Tv])
+    h0 = Props('H','T',(Tt+Tc)/2.0,'Q',1,Fluid)
+    h = array([Props('H','T',T,'Q',1,Fluid)-h0 for T in Tv])
+    s0 = Props('S','T',(Tt+Tc)/2.0,'Q',1,Fluid)
+    s = array([Props('S','T',T,'Q',1,Fluid)-s0 for T in Tv])   
     sigma = array([Props('I','T',T,'Q',1,Fluid) for T in Tv])
 
     Rp = array([Props('P','T',T,'Q',1,RPFluid) for T in Tv])
     Rrho = array([Props('D','T',T,'Q',1,RPFluid) for T in Tv])
     Rcp = array([Props('C','T',T,'Q',1,RPFluid) for T in Tv])
     Rcv = array([Props('O','T',T,'Q',1,RPFluid) for T in Tv])
+    Rh0 = Props('H','T',(Tt+Tc)/2.0,'Q',1,RPFluid)
+    Rh = array([Props('H','T',T,'Q',1,RPFluid)-Rh0 for T in Tv])
+    Rs0 = Props('S','T',(Tt+Tc)/2.0,'Q',1,RPFluid)
+    Rs = array([Props('S','T',T,'Q',1,RPFluid)-Rs0 for T in Tv])
     Rsigma = array([Props('I','T',T,'Q',1,RPFluid) for T in Tv])
 
     fig = plt.figure()
@@ -68,6 +76,8 @@ Saturated Vapor Deviations
     ax.semilogy(Tv/Tc,abs(rho/Rrho-1)*100,'o',label='Density')
     ax.semilogy(Tv/Tc,abs(cp/Rcp-1)*100,'o',label='Specific heat (cp)')
     ax.semilogy(Tv/Tc,abs(cv/Rcv-1)*100,'o',label='Specific heat (cv)')
+    ax.semilogy(Tv/Tc,abs(h/Rh-1)*100,'o',label='Enthalpy')
+    ax.semilogy(Tv/Tc,abs(s/Rs-1)*100,'o',label='Entropy')  
     ax.semilogy(Tv/Tc,abs(sigma/Rsigma-1)*100,'o',label='Surface tension')
     ax.set_ylim(1e-16,100)
     ax.set_title('Saturated Vapor Deviations from REFPROP 9.0')
@@ -81,8 +91,8 @@ Saturated Liquid Deviations
 
 .. plot::
 
-    Fluid = "R744"
-    RPFluid = "REFPROP-CO2"
+    Fluid = "IsoButane"
+    RPFluid = "REFPROP-ISOBUTAN"
 
     #Saturated Liquid
     from CoolProp.CoolProp import Props
@@ -98,12 +108,20 @@ Saturated Liquid Deviations
     rho = array([Props('D','T',T,'Q',0,Fluid) for T in Tv])
     cp = array([Props('C','T',T,'Q',0,Fluid) for T in Tv])
     cv = array([Props('O','T',T,'Q',0,Fluid) for T in Tv])
+    h0 = Props('H','T',(Tt+Tc)/2.0,'Q',0,Fluid)
+    h = array([Props('H','T',T,'Q',0,Fluid)-h0 for T in Tv])
+    s0 = Props('S','T',(Tt+Tc)/2.0,'Q',0,Fluid)
+    s = array([Props('S','T',T,'Q',0,Fluid)-s0 for T in Tv])    
     sigma = array([Props('I','T',T,'Q',0,Fluid) for T in Tv])
 
     Rp = array([Props('P','T',T,'Q',0,RPFluid) for T in Tv])
     Rrho = array([Props('D','T',T,'Q',0,RPFluid) for T in Tv])
     Rcp = array([Props('C','T',T,'Q',0,RPFluid) for T in Tv])
     Rcv = array([Props('O','T',T,'Q',0,RPFluid) for T in Tv])
+    Rh0 = Props('H','T',(Tt+Tc)/2.0,'Q',0,RPFluid)
+    Rh = array([Props('H','T',T,'Q',0,RPFluid)-Rh0 for T in Tv])
+    Rs0 = Props('S','T',(Tt+Tc)/2.0,'Q',0,RPFluid)
+    Rs = array([Props('S','T',T,'Q',0,RPFluid)-Rs0 for T in Tv])
     Rsigma = array([Props('I','T',T,'Q',0,RPFluid) for T in Tv])
 
     fig = plt.figure()
@@ -113,6 +131,8 @@ Saturated Liquid Deviations
     ax.semilogy(Tv/Tc,abs(rho/Rrho-1)*100,'o',label='Density')
     ax.semilogy(Tv/Tc,abs(cp/Rcp-1)*100,'o',label='Specific heat (cp)')
     ax.semilogy(Tv/Tc,abs(cv/Rcv-1)*100,'o',label='Specific heat (cv)')
+    ax.semilogy(Tv/Tc,abs(h/Rh-1)*100,'o',label='Enthalpy')
+    ax.semilogy(Tv/Tc,abs(s/Rs-1)*100,'o',label='Entropy')
     ax.semilogy(Tv/Tc,abs(sigma/Rsigma-1)*100,'o',label='Surface tension')
     ax.set_ylim(1e-16,100)
     ax.set_title('Saturated Liquid Deviations from REFPROP 9.0')
@@ -125,8 +145,8 @@ Along the critical isotherm where T=T\ :sub:`c`
 ================================================
 .. plot::
 
-    Fluid = "R744"
-    RPFluid = "REFPROP-CO2"
+    Fluid = "IsoButane"
+    RPFluid = "REFPROP-ISOBUTAN"
 
     #Critical isotherm
     from CoolProp.CoolProp import Props
@@ -142,12 +162,20 @@ Along the critical isotherm where T=T\ :sub:`c`
     rho = array([Props('D','T',Tc,'D',D,Fluid) for D in rhov])
     cp = array([Props('C','T',Tc,'D',D,Fluid) for D in rhov])
     cv = array([Props('O','T',Tc,'D',D,Fluid) for D in rhov])
+    h0 = Props('H','T',0.95*Tc,'Q',1,Fluid)
+    h = array([Props('H','T',Tc,'D',D,Fluid)-h0 for D in rhov])
+    s0 = Props('S','T',0.95*Tc,'Q',1,Fluid)
+    s = array([Props('S','T',Tc,'D',D,Fluid)-s0 for D in rhov])
     visc = array([Props('V','T',Tc,'D',D,Fluid) for D in rhov])
 
     Rp = array([Props('P','T',Tc,'D',D,RPFluid) for D in rhov])
     Rrho = array([Props('D','T',Tc,'D',D,RPFluid) for D in rhov])
     Rcp = array([Props('C','T',Tc,'D',D,RPFluid) for D in rhov])
     Rcv = array([Props('O','T',Tc,'D',D,RPFluid) for D in rhov])
+    Rh0 = Props('H','T',0.95*Tc,'Q',1,RPFluid)
+    Rh = array([Props('H','T',Tc,'D',D,RPFluid)-Rh0 for D in rhov])
+    Rs0 = Props('S','T',0.95*Tc,'Q',1,RPFluid)
+    Rs = array([Props('S','T',Tc,'D',D,RPFluid)-Rs0 for D in rhov])
     Rvisc = array([Props('V','T',Tc,'D',D,RPFluid) for D in rhov])
 
     fig = plt.figure()
@@ -156,10 +184,65 @@ Along the critical isotherm where T=T\ :sub:`c`
     ax.semilogy(rhov/rhoc,abs(p/Rp-1)*100,'o',label='Pressure')
     ax.semilogy(rhov/rhoc,abs(cp/Rcp-1)*100,'o',label='Specific heat (cp)')
     ax.semilogy(rhov/rhoc,abs(cv/Rcv-1)*100,'o',label='Specific heat (cv)')
+    ax.semilogy(rhov/rhoc,abs(h/Rh-1)*100,'o',label='Enthalpy')
+    ax.semilogy(rhov/rhoc,abs(s/Rs-1)*100,'o',label='Entropy') 
     ax.semilogy(rhov/rhoc,abs(visc/Rvisc-1)*100,'o',label='Viscosity')
     ax.set_ylim(1e-16,100)
     ax.set_title('Critical isotherm Deviations from REFPROP 9.0')
     ax.set_xlabel(r'Reduced density $\rho/\rho_c$')
     ax.set_ylabel('Absolute deviation [%]')
     ax.legend(numpoints=1,loc='best')
+    plt.show()
+
+Along the isobar corresponding to :math:`T_{sat}=(T_t+T_c)/2`
+=================================================================
+.. plot::
+
+    Fluid = "IsoButane"
+
+    from CoolProp.CoolProp import Props
+    from numpy import linspace,array,abs
+    import matplotlib.pyplot as plt
+
+    Tt = Props(Fluid,'Ttriple')
+    Tc = Props(Fluid,'Tcrit')
+    Tm = (Tt+Tc)/2.0
+    p = Props('P','T',Tm,'Q',0,Fluid)
+
+    fig = plt.figure()
+
+    Tmin = Tm - 30 if Tm - 30 > Tt else Tt+0.1
+    Tv = linspace(Tmin, Tm - 0.001, 20)
+    #Start with T&P as inputs
+    rho = array([Props('D','T',T,'P',p,Fluid) for T in Tv])
+    h = array([Props('H','T',T,'P',p,Fluid) for T in Tv])
+    s = array([Props('S','T',T,'P',p,Fluid) for T in Tv])
+    p_Trho = array([Props('P','T',T,'D',D,Fluid) for T,D in zip(Tv,rho)])
+    T_hp = array([Props('T','H',H,'P',p,Fluid) for H in h])
+    ax1 = fig.add_subplot(121)
+    ax1.semilogy(Tv,abs(p/p_Trho-1)*100,'o',label='p & p(T,rho)')
+    ax1.semilogy(Tv,abs(T_hp/Tv-1)*100,'o',label='T & T(h,p)')
+    ax1.set_ylim(1e-16,100)
+    ax1.set_title('Subcooled liquid')
+    ax1.set_xlabel('Temperature [K]')
+    ax1.set_ylabel('Absolute deviation [%]')
+    ax1.legend(numpoints=1,loc='best')
+
+    Tv = linspace(Tm+0.001, Tm + 30, 20)
+    #Start with T&P as inputs
+    rho = array([Props('D','T',T,'P',p,Fluid) for T in Tv])
+    h = array([Props('H','T',T,'P',p,Fluid) for T in Tv])
+    s = array([Props('S','T',T,'P',p,Fluid) for T in Tv])
+    p_Trho = array([Props('P','T',T,'D',D,Fluid) for T,D in zip(Tv,rho)])
+    T_hp = array([Props('T','H',H,'P',p,Fluid) for H in h])
+    ax2 = fig.add_subplot(122)
+    ax2.semilogy(Tv,abs(p/p_Trho-1)*100,'o',label='p & p(T,rho)')
+    ax2.semilogy(Tv,abs(T_hp/Tv-1)*100,'o',label='T & T(h,p)')
+    ax2.set_ylim(1e-16,100)
+    ax2.set_title('Superheated vapor')
+    ax2.set_xlabel('Temperature [K]')
+    ax2.set_ylabel('Absolute deviation [%]')
+    ax2.legend(numpoints=1,loc='best')
+
+    fig.tight_layout()
     plt.show()

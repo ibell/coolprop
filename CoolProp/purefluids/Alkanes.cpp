@@ -62,7 +62,7 @@ MethaneClass::MethaneClass()
 
 	name.assign("Methane");
 	aliases.push_back("CH4");
-	REFPROPname.assign("ETHANE");
+	REFPROPname.assign("METHANE");
 }
 double MethaneClass::rhosatL(double T)
 {
@@ -469,7 +469,7 @@ nButaneClass::nButaneClass()
 
 	double _theta [] ={0,0,0,0,0.774840445,3.340602552,4.970513096,9.975553778};
 	std::vector<double> theta_v (_theta,_theta+sizeof(_theta)/sizeof(double));
-	double _n0 [] ={12.54882924,-5.46976878,3.24680487,5.54913289,11.4648996,7.59987584,9.66033239};
+	double _n0 [] ={0, 12.54882924,-5.46976878,3.24680487,5.54913289,11.4648996,7.59987584,9.66033239};
 	std::vector<double> n0_v (_n0,_n0+sizeof(_n0)/sizeof(double));
 	
 	// lead term: log(delta)+c+m*tau
@@ -482,8 +482,7 @@ nButaneClass::nButaneClass()
 
 	name.assign("n-Butane");
 	aliases.push_back("nButane");
-
-	REFPROPname.assign("NBUTANE");
+	REFPROPname.assign("BUTANE");
 }
 double nButaneClass::rhosatL(double T)
 {
@@ -581,7 +580,7 @@ IsoButaneClass::IsoButaneClass()
 
 	name.assign("IsoButane");
 	aliases.push_back("isobutane");
-	REFPROPname.assign("IBUTANE");
+	REFPROPname.assign("ISOBUTAN");
 }
 double IsoButaneClass::rhosatL(double T)
 {

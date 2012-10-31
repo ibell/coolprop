@@ -117,7 +117,7 @@ OctamethyltrisiloxaneClass::OctamethyltrisiloxaneClass()
 	phi_BC * phi0_cp0_AlyLee_ = new phi0_cp0_AlyLee(u0_v,crit.T,T0,params.R_u);
 	phi0list.push_back(phi0_cp0_AlyLee_);
 
-    EOSReference.assign("P. Colonna, N.R. Nannan, A. Guardone, \"Multiparameter equations of state for siloxanes: [(CH3)3-Si-O1/2]2-[O-Si-(CH3)2]i=1,...,3, and [O-Si-(CH3)2]6,\", Fluid Phase Equilibria 263 (2008) 115–130.");
+    EOSReference.assign("Colonna, P., N.R. Nannan, A. Guardone, \"Multiparameter equations of state for siloxanes: [(CH3)3-Si-O1/2]2-[O-Si-(CH3)2]i=1,...,3, and [O-Si-(CH3)2]6,\", Fluid Phase Equilibria 263 (2008) 115–130.");
     TransportReference.assign("Using ECS in fully predictive mode");
 
     name.assign("MDM");
@@ -126,7 +126,7 @@ OctamethyltrisiloxaneClass::OctamethyltrisiloxaneClass()
 }
 double OctamethyltrisiloxaneClass::rhosatL(double T) 
 {
-	double A = reduce.p*params.molemass/params.R_u/crit.T;
+	double A = reduce.p*params.molemass/params.R_u/reduce.T;
 	double B = reduce.p/(reduce.rho*params.R_u/params.molemass*reduce.T);
 	double C = reduce.T;
 	double D = 2.0/7.0;
@@ -148,9 +148,9 @@ double OctamethyltrisiloxaneClass::rhosatV(double T)
 }
 double OctamethyltrisiloxaneClass::psat(double T) 
 {
-    double THETA = 1-T/crit.T;
-    double RHS = -8.6693+2.2965*pow(THETA,1.5)-4.4658*pow(THETA,2.5)-8.4529*pow(THETA,5);
-    return exp(crit.T/T*RHS)*crit.p;
+    double THETA = 1-T/reduce.T;
+    double RHS = -8.5589*THETA+2.0278*pow(THETA,1.5)-2.8501*pow(THETA,2.3)-6.4397*pow(THETA,4.0)-8.5460*pow(THETA,13.0);
+    return exp(reduce.T/T*RHS)*reduce.p;
 }
 
 //MD2M
@@ -212,7 +212,7 @@ DecamethyltetrasiloxaneClass::DecamethyltetrasiloxaneClass()
 	phi_BC * phi0_cp0_AlyLee_ = new phi0_cp0_AlyLee(u0_v,crit.T,T0,params.R_u);
 	phi0list.push_back(phi0_cp0_AlyLee_);
 
-    EOSReference.assign("P. Colonna, N.R. Nannan, A. Guardone, \"Multiparameter equations of state for siloxanes: [(CH3)3-Si-O1/2]2-[O-Si-(CH3)2]i=1,...,3, and [O-Si-(CH3)2]6,\", Fluid Phase Equilibria 263 (2008) 115–130.");
+    EOSReference.assign("Colonna, P., N.R. Nannan, A. Guardone, \"Multiparameter equations of state for siloxanes: [(CH3)3-Si-O1/2]2-[O-Si-(CH3)2]i=1,...,3, and [O-Si-(CH3)2]6,\", Fluid Phase Equilibria 263 (2008) 115–130.");
     TransportReference.assign("Using ECS in fully predictive mode");
 
     name.assign("MD2M");
@@ -221,7 +221,7 @@ DecamethyltetrasiloxaneClass::DecamethyltetrasiloxaneClass()
 }
 double DecamethyltetrasiloxaneClass::rhosatL(double T) 
 {
-	double A = reduce.p*params.molemass/params.R_u/crit.T;
+	double A = reduce.p*params.molemass/params.R_u/reduce.T;
 	double B = reduce.p/(reduce.rho*params.R_u/params.molemass*reduce.T);
 	double C = reduce.T;
 	double D = 2.0/7.0;
@@ -243,9 +243,9 @@ double DecamethyltetrasiloxaneClass::rhosatV(double T)
 }
 double DecamethyltetrasiloxaneClass::psat(double T) 
 {
-    double THETA = 1-T/crit.T;
-    double RHS = -10.072+4.1849*pow(THETA,2.2965)+-6.9586*pow(THETA,-4.4658)+-4.8277*pow(THETA,-8.4529);
-    return exp(crit.T/T*RHS)*crit.p;
+    double THETA = 1-T/reduce.T;
+    double RHS = -10.072*THETA+4.1849*pow(THETA,2.2965)+-6.9586*pow(THETA,-4.4658)+-4.8277*pow(THETA,-8.4529);
+    return exp(reduce.T/T*RHS)*reduce.p;
 }
 
 //MD3M
@@ -307,7 +307,7 @@ DodecamethylpentasiloxaneClass::DodecamethylpentasiloxaneClass()
 	phi_BC * phi0_cp0_AlyLee_ = new phi0_cp0_AlyLee(u0_v,crit.T,T0,params.R_u);
 	phi0list.push_back(phi0_cp0_AlyLee_);
 
-    EOSReference.assign("P. Colonna, N.R. Nannan, A. Guardone, \"Multiparameter equations of state for siloxanes: [(CH3)3-Si-O1/2]2-[O-Si-(CH3)2]i=1,...,3, and [O-Si-(CH3)2]6,\", Fluid Phase Equilibria 263 (2008) 115–130.");
+    EOSReference.assign("Colonna, P., N.R. Nannan, A. Guardone, \"Multiparameter equations of state for siloxanes: [(CH3)3-Si-O1/2]2-[O-Si-(CH3)2]i=1,...,3, and [O-Si-(CH3)2]6,\", Fluid Phase Equilibria 263 (2008) 115–130.");
     TransportReference.assign("Using ECS in fully predictive mode");
 
     name.assign("MD3M");
@@ -316,7 +316,7 @@ DodecamethylpentasiloxaneClass::DodecamethylpentasiloxaneClass()
 }
 double DodecamethylpentasiloxaneClass::rhosatL(double T) 
 {
-	double A = reduce.p*params.molemass/params.R_u/crit.T;
+	double A = reduce.p*params.molemass/params.R_u/reduce.T;
 	double B = reduce.p/(reduce.rho*params.R_u/params.molemass*reduce.T);
 	double C = reduce.T;
 	double D = 2.0/7.0;
@@ -338,9 +338,9 @@ double DodecamethylpentasiloxaneClass::rhosatV(double T)
 }
 double DodecamethylpentasiloxaneClass::psat(double T) 
 {
-    double THETA = 1-T/crit.T;
-    double RHS = -9.531+2.7012*pow(THETA,4.1849)+-6.9841*pow(THETA,-6.9586)+-6.5038*pow(THETA,-4.8277);
-    return exp(crit.T/T*RHS)*crit.p;
+    double THETA = 1-T/reduce.T;
+    double RHS = -9.531*THETA+2.7012*pow(THETA,4.1849)+-6.9841*pow(THETA,-6.9586)+-6.5038*pow(THETA,-4.8277);
+    return exp(reduce.T/T*RHS)*reduce.p;
 }
 
 //D6
@@ -402,7 +402,7 @@ DodecamethylcyclohexasiloxaneClass::DodecamethylcyclohexasiloxaneClass()
 	phi_BC * phi0_cp0_AlyLee_ = new phi0_cp0_AlyLee(u0_v,crit.T,T0,params.R_u);
 	phi0list.push_back(phi0_cp0_AlyLee_);
 
-    EOSReference.assign("P. Colonna, N.R. Nannan, A. Guardone, \"Multiparameter equations of state for siloxanes: [(CH3)3-Si-O1/2]2-[O-Si-(CH3)2]i=1,...,3, and [O-Si-(CH3)2]6,\", Fluid Phase Equilibria 263 (2008) 115–130.");
+    EOSReference.assign("Colonna, P., N.R. Nannan, A. Guardone, \"Multiparameter equations of state for siloxanes: [(CH3)3-Si-O1/2]2-[O-Si-(CH3)2]i=1,...,3, and [O-Si-(CH3)2]6,\", Fluid Phase Equilibria 263 (2008) 115–130.");
     TransportReference.assign("Using ECS in fully predictive mode");
 
     name.assign("D6");
@@ -411,7 +411,7 @@ DodecamethylcyclohexasiloxaneClass::DodecamethylcyclohexasiloxaneClass()
 }
 double DodecamethylcyclohexasiloxaneClass::rhosatL(double T) 
 {
-	double A = reduce.p*params.molemass/params.R_u/crit.T;
+	double A = reduce.p*params.molemass/params.R_u/reduce.T;
 	double B = reduce.p/(reduce.rho*params.R_u/params.molemass*reduce.T);
 	double C = reduce.T;
 	double D = 2.0/7.0;
@@ -433,9 +433,9 @@ double DodecamethylcyclohexasiloxaneClass::rhosatV(double T)
 }
 double DodecamethylcyclohexasiloxaneClass::psat(double T) 
 {
-    double THETA = 1-T/crit.T;
-    double RHS = -10.275+4.1393*pow(THETA,2.7012)+-7.7307*pow(THETA,-6.9841)+-5.9825*pow(THETA,-6.5038);
-    return exp(crit.T/T*RHS)*crit.p;
+    double THETA = 1-T/reduce.T;
+    double RHS = -10.275*THETA+4.1393*pow(THETA,2.7012)+-7.7307*pow(THETA,-6.9841)+-5.9825*pow(THETA,-6.5038);
+    return exp(reduce.T/T*RHS)*reduce.p;
 }
 
 //MM
@@ -509,7 +509,7 @@ HexamethyldisiloxaneClass::HexamethyldisiloxaneClass()
 	
 	phi0list.push_back(new phi0_cp0_poly(u0_v,n0_v,reduce.T,T0,2,4));
 
-    EOSReference.assign("P. Colonna, N.R. Nannan, A. Guardone, E.W. Lemmon, \"Multiparameter equations of state for selected siloxanes\", Fluid Phase Equilibria 244 (2006) 193–211.");
+    EOSReference.assign("Colonna, P., N.R. Nannan, A. Guardone, E.W. Lemmon, \"Multiparameter equations of state for selected siloxanes\", Fluid Phase Equilibria 244 (2006) 193–211.");
     TransportReference.assign("Using ECS in fully predictive mode");
 
     name.assign("MM");
@@ -518,7 +518,7 @@ HexamethyldisiloxaneClass::HexamethyldisiloxaneClass()
 }
 double HexamethyldisiloxaneClass::rhosatL(double T) 
 {
-	double A = reduce.p*params.molemass/params.R_u/crit.T;
+	double A = reduce.p*params.molemass/params.R_u/reduce.T;
 	double B = reduce.p/(reduce.rho*params.R_u/params.molemass*reduce.T);
 	double C = reduce.T;
 	double D = 2.0/7.0;
@@ -541,9 +541,9 @@ double HexamethyldisiloxaneClass::rhosatV(double T)
 }
 double HexamethyldisiloxaneClass::psat(double T) 
 {
-    double THETA = 1-T/crit.T;
-    double RHS = -7.338-0.3093*pow(THETA,4.1393)+0.20125*pow(THETA,-7.7307)-13.455*pow(THETA,-5.9825);
-    return exp(crit.T/T*RHS)*crit.p;
+    double THETA = 1-T/reduce.T;
+    double RHS = -7.338*THETA-0.3093*pow(THETA,4.1393)+0.20125*pow(THETA,-7.7307)-13.455*pow(THETA,-5.9825);
+    return exp(reduce.T/T*RHS)*reduce.p;
 }
 
 //MD4M
@@ -621,7 +621,7 @@ TetradecamethylhexasiloxaneClass::TetradecamethylhexasiloxaneClass()
 	phi_BC * phi0_cp0_poly_ = new phi0_cp0_poly(u0_v,n0_v,reduce.T,T0,2,4);
 	phi0list.push_back(phi0_cp0_poly_);
 
-    EOSReference.assign("P. Colonna, N.R. Nannan, A. Guardone, E.W. Lemmon, \"Multiparameter equations of state for selected siloxanes\", Fluid Phase Equilibria 244 (2006) 193–211.");
+    EOSReference.assign("Colonna, P., N.R. Nannan, A. Guardone, E.W. Lemmon, \"Multiparameter equations of state for selected siloxanes\", Fluid Phase Equilibria 244 (2006) 193–211.");
     TransportReference.assign("Using ECS in fully predictive mode");
 
     name.assign("MD4M");
@@ -630,7 +630,7 @@ TetradecamethylhexasiloxaneClass::TetradecamethylhexasiloxaneClass()
 }
 double TetradecamethylhexasiloxaneClass::rhosatL(double T) 
 {
-	double A = reduce.p*params.molemass/params.R_u/crit.T;
+	double A = reduce.p*params.molemass/params.R_u/reduce.T;
 	double B = reduce.p/(reduce.rho*params.R_u/params.molemass*reduce.T);
 	double C = reduce.T;
 	double D = 2.0/7.0;
@@ -653,9 +653,9 @@ double TetradecamethylhexasiloxaneClass::rhosatV(double T)
 }
 double TetradecamethylhexasiloxaneClass::psat(double T) 
 {
-    double THETA = 1-T/crit.T;
-    double RHS = -10.2921+3.3035*pow(THETA,-0.3093)+-8.0592*pow(THETA,0.20125)+-2.4366*pow(THETA,-13.455);
-    return exp(crit.T/T*RHS)*crit.p;
+    double THETA = 1-T/reduce.T;
+    double RHS = -10.2921*THETA+3.3035*pow(THETA,-0.3093)+-8.0592*pow(THETA,0.20125)+-2.4366*pow(THETA,-13.455);
+    return exp(reduce.T/T*RHS)*reduce.p;
 }
 
 //D4
@@ -732,7 +732,7 @@ OctamethylcyclotetrasiloxaneClass::OctamethylcyclotetrasiloxaneClass()
 	phi_BC * phi0_cp0_poly_ = new phi0_cp0_poly(u0_v,n0_v,reduce.T,T0,2,4);
 	phi0list.push_back(phi0_cp0_poly_);
 
-    EOSReference.assign("P. Colonna, N.R. Nannan, A. Guardone, E.W. Lemmon, \"Multiparameter equations of state for selected siloxanes\", Fluid Phase Equilibria 244 (2006) 193–211.");
+    EOSReference.assign("Colonna, P., N.R. Nannan, A. Guardone, E.W. Lemmon, \"Multiparameter equations of state for selected siloxanes\", Fluid Phase Equilibria 244 (2006) 193–211.");
     TransportReference.assign("Using ECS in fully predictive mode");
 
     name.assign("D4");
@@ -741,7 +741,7 @@ OctamethylcyclotetrasiloxaneClass::OctamethylcyclotetrasiloxaneClass()
 }
 double OctamethylcyclotetrasiloxaneClass::rhosatL(double T) 
 {
-	double A = reduce.p*params.molemass/params.R_u/crit.T;
+	double A = reduce.p*params.molemass/params.R_u/reduce.T;
 	double B = reduce.p/(reduce.rho*params.R_u/params.molemass*reduce.T);
 	double C = reduce.T;
 	double D = 2.0/7.0;
@@ -764,9 +764,9 @@ double OctamethylcyclotetrasiloxaneClass::rhosatV(double T)
 }
 double OctamethylcyclotetrasiloxaneClass::psat(double T) 
 {
-    double THETA = 1-T/crit.T;
-    double RHS = -8.8952+2.5694*pow(THETA,3.3035)+-6.3275*pow(THETA,-8.0592)+-3.5483*pow(THETA,-2.4366);
-    return exp(crit.T/T*RHS)*crit.p;
+    double THETA = 1-T/reduce.T;
+    double RHS = -8.8952*THETA+2.5694*pow(THETA,3.3035)+-6.3275*pow(THETA,-8.0592)+-3.5483*pow(THETA,-2.4366);
+    return exp(reduce.T/T*RHS)*reduce.p;
 }
 
 //D5
@@ -844,7 +844,7 @@ DecamethylcyclopentasiloxaneClass::DecamethylcyclopentasiloxaneClass()
 	phi_BC * phi0_cp0_poly_ = new phi0_cp0_poly(u0_v,n0_v,reduce.T,T0,2,4);
 	phi0list.push_back(phi0_cp0_poly_);
 
-    EOSReference.assign("P. Colonna, N.R. Nannan, A. Guardone, E.W. Lemmon, \"Multiparameter equations of state for selected siloxanes\", Fluid Phase Equilibria 244 (2006) 193–211.");
+    EOSReference.assign("Colonna, P., N.R. Nannan, A. Guardone, E.W. Lemmon, \"Multiparameter equations of state for selected siloxanes\", Fluid Phase Equilibria 244 (2006) 193–211.");
     TransportReference.assign("Using ECS in fully predictive mode");
 
     name.assign("D5");
@@ -853,7 +853,7 @@ DecamethylcyclopentasiloxaneClass::DecamethylcyclopentasiloxaneClass()
 }
 double DecamethylcyclopentasiloxaneClass::rhosatL(double T) 
 {
-	double A = reduce.p*params.molemass/params.R_u/crit.T;
+	double A = reduce.p*params.molemass/params.R_u/reduce.T;
 	double B = reduce.p/(reduce.rho*params.R_u/params.molemass*reduce.T);
 	double C = reduce.T;
 	double D = 2.0/7.0;
@@ -876,7 +876,7 @@ double DecamethylcyclopentasiloxaneClass::rhosatV(double T)
 }
 double DecamethylcyclopentasiloxaneClass::psat(double T) 
 {
-    double THETA = 1-T/crit.T;
-    double RHS = -9.4473+3.0697*pow(THETA,2.5694)+-6.9411*pow(THETA,-6.3275)+-2.1692*pow(THETA,-3.5483);
-    return exp(crit.T/T*RHS)*crit.p;
+    double THETA = 1-T/reduce.T;
+    double RHS = -9.4473*THETA+3.0697*pow(THETA,2.5694)+-6.9411*pow(THETA,-6.3275)+-2.1692*pow(THETA,-3.5483);
+    return exp(reduce.T/T*RHS)*reduce.p;
 }

@@ -165,11 +165,9 @@ SES36Class::SES36Class()
 	limits.pmax = 2200000.0;
 	limits.rhomax = 53.15*params.molemass;
 	
-	EOSReference.assign("\"A Reference Equation of State for the Thermodynamic Properties"
-						"of Nitrogen for Temperatures from 63.151 to 1000 K "
-						"and Pressures to 2200 MPa\", " 
-						);
-	TransportReference.assign("Surface Tension: A. P. Fröba, H. Kremer, A. Leipertz, F. Flohr and C. Meurer, "
+	EOSReference.assign("Unpublished report: Monika Thol, Eric W. Lemmon, Roland Span, \"Equation of State for a Refrigerant Mixture of R365mfc (1,1,1,3,3-Pentafluorobutane) and Galden® HT 55 (Perfluoropolyether)\",  ");
+	TransportReference.assign("Using ECS in predictive mode\n\n"
+		                      "Surface Tension: A. P. Fröba, H. Kremer, A. Leipertz, F. Flohr and C. Meurer, "
 		                      "\"Thermophysical Properties of a Refrigerant Mixture of R365mfc (1,1,1,3,3-Pentafluorobutane) "
 							  "and Galden® HT 55 (Perfluoropolyether)\", International Journal of Thermophysics, Volume 28, "
 							  "Number 2 (2007), 449-480, DOI: 10.1007/s10765-007-0178-y");

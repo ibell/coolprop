@@ -17,7 +17,7 @@ http://eigen.tuxfamily.org/dox/TutorialLinearAlgebra.html.
 
 All the linear algebra functions are provided by the Eigen package. (see link above)
 
-@param f A pointer to an instance of the FuncWrapperND class that implements the call() and Jacobian() functions
+@param f A pointer to an subclass of the FuncWrapperND class that implements the call() and Jacobian() functions
 @param x0 The initial guess value for the solution
 @param tol The root-sum-square of the errors from each of the components
 @param maxiter The maximum number of iterations

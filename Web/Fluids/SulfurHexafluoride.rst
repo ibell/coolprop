@@ -1,15 +1,15 @@
 
 ********************
-R290
+SulfurHexafluoride
 ********************
 
 Equation of State Reference
 ===========================
-"A International Standard Formulation for the Thermodynamic Properties of 1,1,1,2-Tetrafluoroethane(HFC-134a) for Temperatures from 170 K to 455 K and Pressures up to 70 MPa"by Reiner Tillner-Roth and Hans Dieter Baehr, J. Phys. Chem. Ref. Data, v. 23, 1994, pp 657-729
+Guder C., and W. Wagner, "A Reference Equation of State for the Thermodynamic Properties of Sulfur Hexafluoride SF6 for Temperatures from the Melting Line to 625 K and Pressures up to 150 MPa," J. Phys. Chem. Ref. Data, Vol. 38, No. 1, 2009
 
 Transport Properties Information
 ================================
-Viscosity: E. Vogel, C. Kuchenmeister, and E. Bich, A. Laesecke,"Reference Correlation of the Viscosity of Propane"J. Phys. Chem. Ref. Data, Vol. 27, No. 5, 1998
+Using ECS in fully predictive mode
 
 
 Fluid Data
@@ -18,16 +18,16 @@ Fluid Data
 Fluid Parameters
 
 =========================  ==============================
-Mole Mass [kg/kmol]        44.09562
-Triple Point [K]           85.525
+Mole Mass [kg/kmol]        146.05542
+Triple Point [K]           223.555
 =========================  ==============================
 
 Critical Parameters
 
 ==========================  ==============================
-Temperature [K]             369.89
-Density [kg/m\ :sup:`3`\ ]   220.478100
-Pressure [kPa]              4251.20000
+Temperature [K]             318.72
+Density [kg/m\ :sup:`3`\ ]   742.300000
+Pressure [kPa]              3754.98300
 ==========================  ==============================
 
 
@@ -36,8 +36,8 @@ Saturated Vapor Deviations
 
 .. plot::
 
-    Fluid = "R290"
-    RPFluid = "REFPROP-PROPANE"
+    Fluid = "SulfurHexafluoride"
+    RPFluid = "REFPROP-SF6"
 
     #Saturated Vapor
     from CoolProp.CoolProp import Props
@@ -91,8 +91,8 @@ Saturated Liquid Deviations
 
 .. plot::
 
-    Fluid = "R290"
-    RPFluid = "REFPROP-PROPANE"
+    Fluid = "SulfurHexafluoride"
+    RPFluid = "REFPROP-SF6"
 
     #Saturated Liquid
     from CoolProp.CoolProp import Props
@@ -145,8 +145,8 @@ Along the critical isotherm where T=T\ :sub:`c`
 ================================================
 .. plot::
 
-    Fluid = "R290"
-    RPFluid = "REFPROP-PROPANE"
+    Fluid = "SulfurHexafluoride"
+    RPFluid = "REFPROP-SF6"
 
     #Critical isotherm
     from CoolProp.CoolProp import Props
@@ -184,8 +184,8 @@ Along the critical isotherm where T=T\ :sub:`c`
     ax.semilogy(rhov/rhoc,abs(p/Rp-1)*100,'o',label='Pressure')
     ax.semilogy(rhov/rhoc,abs(cp/Rcp-1)*100,'o',label='Specific heat (cp)')
     ax.semilogy(rhov/rhoc,abs(cv/Rcv-1)*100,'o',label='Specific heat (cv)')
-    ax.semilogy(Tv/Tc,abs(h/Rh-1)*100,'o',label='Enthalpy')
-    ax.semilogy(Tv/Tc,abs(s/Rs-1)*100,'o',label='Entropy') 
+    ax.semilogy(rhov/rhoc,abs(h/Rh-1)*100,'o',label='Enthalpy')
+    ax.semilogy(rhov/rhoc,abs(s/Rs-1)*100,'o',label='Entropy') 
     ax.semilogy(rhov/rhoc,abs(visc/Rvisc-1)*100,'o',label='Viscosity')
     ax.set_ylim(1e-16,100)
     ax.set_title('Critical isotherm Deviations from REFPROP 9.0')
@@ -194,11 +194,11 @@ Along the critical isotherm where T=T\ :sub:`c`
     ax.legend(numpoints=1,loc='best')
     plt.show()
 
-Along the isobar corresponding to :math:`T_{sat}=T_t+T_c`
-===========================================================
+Along the isobar corresponding to :math:`T_{sat}=(T_t+T_c)/2`
+=================================================================
 .. plot::
 
-    Fluid = "R290"
+    Fluid = "SulfurHexafluoride"
 
     from CoolProp.CoolProp import Props
     from numpy import linspace,array,abs

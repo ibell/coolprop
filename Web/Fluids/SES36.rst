@@ -5,10 +5,12 @@ SES36
 
 Equation of State Reference
 ===========================
-"A Reference Equation of State for the Thermodynamic Propertiesof Nitrogen for Temperatures from 63.151 to 1000 K and Pressures to 2200 MPa", 
+Unpublished report: Monika Thol, Eric W. Lemmon, Roland Span, "Equation of State for a Refrigerant Mixture of R365mfc (1,1,1,3,3-Pentafluorobutane) and Galden® HT 55 (Perfluoropolyether)",  
 
 Transport Properties Information
 ================================
+Using ECS in predictive mode
+
 Surface Tension: A. P. Fröba, H. Kremer, A. Leipertz, F. Flohr and C. Meurer, "Thermophysical Properties of a Refrigerant Mixture of R365mfc (1,1,1,3,3-Pentafluorobutane) and Galden® HT 55 (Perfluoropolyether)", International Journal of Thermophysics, Volume 28, Number 2 (2007), 449-480, DOI: 10.1007/s10765-007-0178-y
 
 
@@ -184,8 +186,8 @@ Along the critical isotherm where T=T\ :sub:`c`
     ax.semilogy(rhov/rhoc,abs(p/Rp-1)*100,'o',label='Pressure')
     ax.semilogy(rhov/rhoc,abs(cp/Rcp-1)*100,'o',label='Specific heat (cp)')
     ax.semilogy(rhov/rhoc,abs(cv/Rcv-1)*100,'o',label='Specific heat (cv)')
-    ax.semilogy(Tv/Tc,abs(h/Rh-1)*100,'o',label='Enthalpy')
-    ax.semilogy(Tv/Tc,abs(s/Rs-1)*100,'o',label='Entropy') 
+    ax.semilogy(rhov/rhoc,abs(h/Rh-1)*100,'o',label='Enthalpy')
+    ax.semilogy(rhov/rhoc,abs(s/Rs-1)*100,'o',label='Entropy') 
     ax.semilogy(rhov/rhoc,abs(visc/Rvisc-1)*100,'o',label='Viscosity')
     ax.set_ylim(1e-16,100)
     ax.set_title('Critical isotherm Deviations from REFPROP 9.0')
@@ -194,8 +196,8 @@ Along the critical isotherm where T=T\ :sub:`c`
     ax.legend(numpoints=1,loc='best')
     plt.show()
 
-Along the isobar corresponding to :math:`T_{sat}=T_t+T_c`
-===========================================================
+Along the isobar corresponding to :math:`T_{sat}=(T_t+T_c)/2`
+=================================================================
 .. plot::
 
     Fluid = "SES36"

@@ -1,15 +1,15 @@
 
 ********************
-D4
+ParaHydrogen
 ********************
 
 Equation of State Reference
 ===========================
-Colonna, P., N.R. Nannan, A. Guardone, E.W. Lemmon, "Multiparameter equations of state for selected siloxanes", Fluid Phase Equilibria 244 (2006) 193–211.
+"Fundamental Equations of State for Parahydrogen, Normal Hydrogen, and Orthohydrogen"by J.W. Leachman and R.T. Jacobsen and S.G. Penoncello and E.W. Lemmon, J. Phys. Chem. Ref. Data, Vol. 38, No. 3, 2009, pp 721-748
 
 Transport Properties Information
 ================================
-Using ECS in fully predictive mode
+Viscosity & Surface Tension: McCarty, R.D. and Weber, L.A., "Thermophysical properties of parahydrogen from the freezing liquid line to 5000 R for pressures to 10,000 psia," Natl. Bur. Stand., Tech. Note 617, 1972.
 
 
 Fluid Data
@@ -18,16 +18,16 @@ Fluid Data
 Fluid Parameters
 
 =========================  ==============================
-Mole Mass [kg/kmol]        296.61576
-Triple Point [K]           290.250
+Mole Mass [kg/kmol]        2.01588
+Triple Point [K]           13.803
 =========================  ==============================
 
 Critical Parameters
 
 ==========================  ==============================
-Temperature [K]             586.50
-Density [kg/m\ :sup:`3`\ ]   305.789492
-Pressure [kPa]              1332.00000
+Temperature [K]             32.94
+Density [kg/m\ :sup:`3`\ ]   31.322743
+Pressure [kPa]              1285.80000
 ==========================  ==============================
 
 
@@ -36,8 +36,8 @@ Saturated Vapor Deviations
 
 .. plot::
 
-    Fluid = "D4"
-    RPFluid = "REFPROP-D4"
+    Fluid = "ParaHydrogen"
+    RPFluid = "REFPROP-PARAHYD"
 
     #Saturated Vapor
     from CoolProp.CoolProp import Props
@@ -91,8 +91,8 @@ Saturated Liquid Deviations
 
 .. plot::
 
-    Fluid = "D4"
-    RPFluid = "REFPROP-D4"
+    Fluid = "ParaHydrogen"
+    RPFluid = "REFPROP-PARAHYD"
 
     #Saturated Liquid
     from CoolProp.CoolProp import Props
@@ -145,8 +145,8 @@ Along the critical isotherm where T=T\ :sub:`c`
 ================================================
 .. plot::
 
-    Fluid = "D4"
-    RPFluid = "REFPROP-D4"
+    Fluid = "ParaHydrogen"
+    RPFluid = "REFPROP-PARAHYD"
 
     #Critical isotherm
     from CoolProp.CoolProp import Props
@@ -198,7 +198,7 @@ Along the isobar corresponding to :math:`T_{sat}=(T_t+T_c)/2`
 =================================================================
 .. plot::
 
-    Fluid = "D4"
+    Fluid = "ParaHydrogen"
 
     from CoolProp.CoolProp import Props
     from numpy import linspace,array,abs

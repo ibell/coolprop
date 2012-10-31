@@ -16,6 +16,8 @@ Pure Fluids
     D6.rst
     Decane.rst
     Ethane.rst
+    Ethanol.rst
+    Ethylene.rst
     Helium.rst
     Hydrogen.rst
     HydrogenSulfide.rst
@@ -48,6 +50,7 @@ Pure Fluids
     R32.rst
     R41.rst
     SulfurDioxide.rst
+    SulfurHexafluoride.rst
     Toluene.rst
     Water.rst
     Xenon.rst

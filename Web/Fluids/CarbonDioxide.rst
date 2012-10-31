@@ -1,15 +1,15 @@
 
 ********************
-D4
+CarbonDioxide
 ********************
 
 Equation of State Reference
 ===========================
-Colonna, P., N.R. Nannan, A. Guardone, E.W. Lemmon, "Multiparameter equations of state for selected siloxanes", Fluid Phase Equilibria 244 (2006) 193–211.
+"A New Equation of State for Carbon Dioxide Covering the Fluid Region from the Triple Point Temperature to 1100 K at Pressures up to 800 MPa", R. Span and W. Wagner, J. Phys. Chem. Ref. Data, v. 25, 1996
 
 Transport Properties Information
 ================================
-Using ECS in fully predictive mode
+"The Transport Properties of Carbon Dioxide", V. Vesovic and W.A. Wakeham and G.A. Olchowy and J.V. Sengers and J.T.R. Watson and J. MillatJ. Phys. Chem. Ref. Data, v. 19, 1990
 
 
 Fluid Data
@@ -18,16 +18,16 @@ Fluid Data
 Fluid Parameters
 
 =========================  ==============================
-Mole Mass [kg/kmol]        296.61576
-Triple Point [K]           290.250
+Mole Mass [kg/kmol]        44.00980
+Triple Point [K]           216.592
 =========================  ==============================
 
 Critical Parameters
 
 ==========================  ==============================
-Temperature [K]             586.50
-Density [kg/m\ :sup:`3`\ ]   305.789492
-Pressure [kPa]              1332.00000
+Temperature [K]             304.13
+Density [kg/m\ :sup:`3`\ ]   467.606000
+Pressure [kPa]              7377.30000
 ==========================  ==============================
 
 
@@ -36,8 +36,8 @@ Saturated Vapor Deviations
 
 .. plot::
 
-    Fluid = "D4"
-    RPFluid = "REFPROP-D4"
+    Fluid = "CarbonDioxide"
+    RPFluid = "REFPROP-CO2"
 
     #Saturated Vapor
     from CoolProp.CoolProp import Props
@@ -91,8 +91,8 @@ Saturated Liquid Deviations
 
 .. plot::
 
-    Fluid = "D4"
-    RPFluid = "REFPROP-D4"
+    Fluid = "CarbonDioxide"
+    RPFluid = "REFPROP-CO2"
 
     #Saturated Liquid
     from CoolProp.CoolProp import Props
@@ -145,8 +145,8 @@ Along the critical isotherm where T=T\ :sub:`c`
 ================================================
 .. plot::
 
-    Fluid = "D4"
-    RPFluid = "REFPROP-D4"
+    Fluid = "CarbonDioxide"
+    RPFluid = "REFPROP-CO2"
 
     #Critical isotherm
     from CoolProp.CoolProp import Props
@@ -198,7 +198,7 @@ Along the isobar corresponding to :math:`T_{sat}=(T_t+T_c)/2`
 =================================================================
 .. plot::
 
-    Fluid = "D4"
+    Fluid = "CarbonDioxide"
 
     from CoolProp.CoolProp import Props
     from numpy import linspace,array,abs

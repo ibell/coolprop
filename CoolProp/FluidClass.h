@@ -163,6 +163,18 @@ class Fluid
 		virtual double rhosatV(double T){
 			throw NotImplementedError(std::string("rhosatV not implemented for this fluid")); return _HUGE;
 		};
+		double psatL_anc(double T){
+			if (isPure)
+				return psat(T);
+			else
+				return psatL(T);
+		};
+		double psatV_anc(double T){
+			if (isPure)
+				return psat(T);
+			else
+				return psatV(T);
+		};
 
 		Eigen::Vector2d ConformalTemperature(Fluid *InterestFluid, Fluid *ReferenceFluid,double T, double rho, double T0, double rho0, std::string *errstring);
 		// Extended corresponding states functions for fluids that do not have their own high-accuracy
@@ -294,6 +306,20 @@ class Fluid
 		/// @param T_guess  Not currently used due to the use of the Brent solver. Used to be the guess temperature
 		/// @param UseLUT Use the Lookup table (True), or not (False)
 		double Tsat(double p, double Q, double T_guess, bool UseLUT);
+
+		/// The saturation temperature of the fluid for a given pressure and quality. If the 
+		/// fluid is pure, the saturated vapor and saturated liquid temperatures are the same.  
+		/// If not, give the "correct" saturation temperature.
+		/// @param p Saturation pressure [kPa(abs)]
+		/// @param Tout Temperature [K]
+		/// @param rhoLout Saturated liquid density [kg/m^3]
+		/// @param rhoVout Saturated vapor density [kg/m^3]
+		void TsatP_Pure(double p, double *Tout, double *rhoLout, double *rhoVout);
+
+		/// The saturation temperature of the fluid for a given pressure and quality (1 or 0) using only the ancillary equations
+		/// @param p Saturation pressure [kPa(abs)]
+		/// @param Q Vapor quality in the range [0,1]
+		double Tsat_anc(double p, double Q);
 
 		/// Build the single-phase LUT in the range[Tmin,Tmax]x[pmin,pmax] if not already built
 		void BuildLookupTable();

@@ -1,11 +1,11 @@
 
 ********************
-D4
+Ethylene
 ********************
 
 Equation of State Reference
 ===========================
-Colonna, P., N.R. Nannan, A. Guardone, E.W. Lemmon, "Multiparameter equations of state for selected siloxanes", Fluid Phase Equilibria 244 (2006) 193–211.
+Smukala, J., R. Span, and W. Wagner, "New Equation of State for Ethylene Covering the Fluid Region for Temperatures From the Melting Line to 450 K at Pressures up to 300 MPa," J. Phys. Chem. Ref. Data, Vol. 29, No. 5, 2000
 
 Transport Properties Information
 ================================
@@ -18,16 +18,16 @@ Fluid Data
 Fluid Parameters
 
 =========================  ==============================
-Mole Mass [kg/kmol]        296.61576
-Triple Point [K]           290.250
+Mole Mass [kg/kmol]        28.05376
+Triple Point [K]           103.989
 =========================  ==============================
 
 Critical Parameters
 
 ==========================  ==============================
-Temperature [K]             586.50
-Density [kg/m\ :sup:`3`\ ]   305.789492
-Pressure [kPa]              1332.00000
+Temperature [K]             282.35
+Density [kg/m\ :sup:`3`\ ]   214.240000
+Pressure [kPa]              5041.80000
 ==========================  ==============================
 
 
@@ -36,8 +36,8 @@ Saturated Vapor Deviations
 
 .. plot::
 
-    Fluid = "D4"
-    RPFluid = "REFPROP-D4"
+    Fluid = "Ethylene"
+    RPFluid = "REFPROP-ETHYLENE"
 
     #Saturated Vapor
     from CoolProp.CoolProp import Props
@@ -91,8 +91,8 @@ Saturated Liquid Deviations
 
 .. plot::
 
-    Fluid = "D4"
-    RPFluid = "REFPROP-D4"
+    Fluid = "Ethylene"
+    RPFluid = "REFPROP-ETHYLENE"
 
     #Saturated Liquid
     from CoolProp.CoolProp import Props
@@ -145,8 +145,8 @@ Along the critical isotherm where T=T\ :sub:`c`
 ================================================
 .. plot::
 
-    Fluid = "D4"
-    RPFluid = "REFPROP-D4"
+    Fluid = "Ethylene"
+    RPFluid = "REFPROP-ETHYLENE"
 
     #Critical isotherm
     from CoolProp.CoolProp import Props
@@ -198,7 +198,7 @@ Along the isobar corresponding to :math:`T_{sat}=(T_t+T_c)/2`
 =================================================================
 .. plot::
 
-    Fluid = "D4"
+    Fluid = "Ethylene"
 
     from CoolProp.CoolProp import Props
     from numpy import linspace,array,abs

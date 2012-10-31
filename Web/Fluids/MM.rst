@@ -5,7 +5,7 @@ MM
 
 Equation of State Reference
 ===========================
-P. Colonna, N.R. Nannan, A. Guardone, E.W. Lemmon, "Multiparameter equations of state for selected siloxanes", Fluid Phase Equilibria 244 (2006) 193–211.
+Colonna, P., N.R. Nannan, A. Guardone, E.W. Lemmon, "Multiparameter equations of state for selected siloxanes", Fluid Phase Equilibria 244 (2006) 193–211.
 
 Transport Properties Information
 ================================
@@ -184,8 +184,8 @@ Along the critical isotherm where T=T\ :sub:`c`
     ax.semilogy(rhov/rhoc,abs(p/Rp-1)*100,'o',label='Pressure')
     ax.semilogy(rhov/rhoc,abs(cp/Rcp-1)*100,'o',label='Specific heat (cp)')
     ax.semilogy(rhov/rhoc,abs(cv/Rcv-1)*100,'o',label='Specific heat (cv)')
-    ax.semilogy(Tv/Tc,abs(h/Rh-1)*100,'o',label='Enthalpy')
-    ax.semilogy(Tv/Tc,abs(s/Rs-1)*100,'o',label='Entropy') 
+    ax.semilogy(rhov/rhoc,abs(h/Rh-1)*100,'o',label='Enthalpy')
+    ax.semilogy(rhov/rhoc,abs(s/Rs-1)*100,'o',label='Entropy') 
     ax.semilogy(rhov/rhoc,abs(visc/Rvisc-1)*100,'o',label='Viscosity')
     ax.set_ylim(1e-16,100)
     ax.set_title('Critical isotherm Deviations from REFPROP 9.0')
@@ -194,8 +194,8 @@ Along the critical isotherm where T=T\ :sub:`c`
     ax.legend(numpoints=1,loc='best')
     plt.show()
 
-Along the isobar corresponding to :math:`T_{sat}=T_t+T_c`
-===========================================================
+Along the isobar corresponding to :math:`T_{sat}=(T_t+T_c)/2`
+=================================================================
 .. plot::
 
     Fluid = "MM"

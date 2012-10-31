@@ -7,8 +7,8 @@ def PropertyConsistency(Fluid):
     
     return textwrap.dedent(
     """
-    Along the isobar corresponding to :math:`T_{{sat}}=T_t+T_c`
-    ===========================================================
+    Along the isobar corresponding to :math:`T_{{sat}}=(T_t+T_c)/2`
+    =================================================================
     .. plot::
     
         Fluid = "{Fluid:s}"
@@ -108,8 +108,8 @@ def CriticalIsotherm(Fluid):
         ax.semilogy(rhov/rhoc,abs(p/Rp-1)*100,'o',label='Pressure')
         ax.semilogy(rhov/rhoc,abs(cp/Rcp-1)*100,'o',label='Specific heat (cp)')
         ax.semilogy(rhov/rhoc,abs(cv/Rcv-1)*100,'o',label='Specific heat (cv)')
-        ax.semilogy(Tv/Tc,abs(h/Rh-1)*100,'o',label='Enthalpy')
-        ax.semilogy(Tv/Tc,abs(s/Rs-1)*100,'o',label='Entropy') 
+        ax.semilogy(rhov/rhoc,abs(h/Rh-1)*100,'o',label='Enthalpy')
+        ax.semilogy(rhov/rhoc,abs(s/Rs-1)*100,'o',label='Entropy') 
         ax.semilogy(rhov/rhoc,abs(visc/Rvisc-1)*100,'o',label='Viscosity')
         ax.set_ylim(1e-16,100)
         ax.set_title('Critical isotherm Deviations from REFPROP 9.0')

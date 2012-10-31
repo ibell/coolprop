@@ -21,54 +21,6 @@ to the CoolProp.cpp implementation.  See the Props function for instance
 	#endif
 #endif
 
-	/*
-	Following the naming conventions of MATLAB linked with REFPROP,
-	each outputproperty is represented by one character:
-
-	P   Pressure [kPa]
-	T   Temperature [K]
-	D   Density [kg/m3]
-	H   Enthalpy [kJ/kg]
-	S   Entropy [kJ/(kg/K)]
-	U   Internal energy [kJ/kg]
-	C   Cp [kJ/(kg K)]
-	O   Cv [kJ/(kg K)]
-	K   Ratio of specific heats (Cp/Cv) [-]
-	A   Speed of sound [m/s]
-	X   liquid phase and gas phase composition (mass fractions)
-	V   Dynamic viscosity [Pa*s]
-	L   Thermal conductivity [kW/(m K)]
-	Q   Quality (vapor fraction) (kg/kg)
-	I   Surface tension [N/m]
-	F	Freezing point of secondary fluid [K] **NOT IN MATLAB-REFPROP **
-	M	Maximum temperature for secondary fluid [K] **NOT IN MATLAB-REFPROP **
-	B	Critical Temperature [K] **NOT IN MATLAB-REFPROP **
-	E	Critical Pressure [K] **NOT IN MATLAB-REFPROP **
-	R   
-
-	******** To call **************
-	To call the function Props, for instance for R410A at 300K, 400 kPa, you would do:
-	Props("H","T",300,"P",400,"R410A")
-
-	Or to call a pure fluid from REFPROP (for instance Propane).  
-	The name of the refrigerant is "REPFROP-" plus the REFPROP defined name of the fluid, for instance
-	"Propane" for propane (R290)
-
-	See the folder C:\Program Files\REFPROP\fluids for the names of the fluids
-	
-	To call Propane:
-	Props("H","T",300,"P",400,"REFPROP-Propane")
-
-	**************** Inputs ***************
-	The limited list of inputs that are allowed are:
-
-	Prop1    ||    Prop2
-	--------------------
-	  T      ||      P
-	  T      ||      Q
-
-	*/
-
 /*! \mainpage CoolProp Core Code Documentation
 
 Welcome to the home page for the C++ sources of CoolProp.  This information may be useful for developers or just the plain inquisitive

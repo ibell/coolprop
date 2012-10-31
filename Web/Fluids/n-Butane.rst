@@ -1,11 +1,11 @@
 
 ********************
-D4
+n-Butane
 ********************
 
 Equation of State Reference
 ===========================
-Colonna, P., N.R. Nannan, A. Guardone, E.W. Lemmon, "Multiparameter equations of state for selected siloxanes", Fluid Phase Equilibria 244 (2006) 193–211.
+Buecker, D. and Wagner, W. "Reference Equations of State for the Thermodynamic Properties of Fluid Phase n-Butane and Isobutane," J. Phys. Chem. Ref. Data, Vol. 35, No. 2, 2006, 929-1019.
 
 Transport Properties Information
 ================================
@@ -18,16 +18,16 @@ Fluid Data
 Fluid Parameters
 
 =========================  ==============================
-Mole Mass [kg/kmol]        296.61576
-Triple Point [K]           290.250
+Mole Mass [kg/kmol]        58.12220
+Triple Point [K]           134.895
 =========================  ==============================
 
 Critical Parameters
 
 ==========================  ==============================
-Temperature [K]             586.50
-Density [kg/m\ :sup:`3`\ ]   305.789492
-Pressure [kPa]              1332.00000
+Temperature [K]             425.12
+Density [kg/m\ :sup:`3`\ ]   228.000000
+Pressure [kPa]              3796.00000
 ==========================  ==============================
 
 
@@ -36,8 +36,8 @@ Saturated Vapor Deviations
 
 .. plot::
 
-    Fluid = "D4"
-    RPFluid = "REFPROP-D4"
+    Fluid = "n-Butane"
+    RPFluid = "REFPROP-BUTANE"
 
     #Saturated Vapor
     from CoolProp.CoolProp import Props
@@ -91,8 +91,8 @@ Saturated Liquid Deviations
 
 .. plot::
 
-    Fluid = "D4"
-    RPFluid = "REFPROP-D4"
+    Fluid = "n-Butane"
+    RPFluid = "REFPROP-BUTANE"
 
     #Saturated Liquid
     from CoolProp.CoolProp import Props
@@ -145,8 +145,8 @@ Along the critical isotherm where T=T\ :sub:`c`
 ================================================
 .. plot::
 
-    Fluid = "D4"
-    RPFluid = "REFPROP-D4"
+    Fluid = "n-Butane"
+    RPFluid = "REFPROP-BUTANE"
 
     #Critical isotherm
     from CoolProp.CoolProp import Props
@@ -198,7 +198,7 @@ Along the isobar corresponding to :math:`T_{sat}=(T_t+T_c)/2`
 =================================================================
 .. plot::
 
-    Fluid = "D4"
+    Fluid = "n-Butane"
 
     from CoolProp.CoolProp import Props
     from numpy import linspace,array,abs
