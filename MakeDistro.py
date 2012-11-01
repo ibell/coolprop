@@ -45,6 +45,7 @@ def DLL():
     shutil.copy2('DLLREADME.txt',os.path.join('dist_temp','Excel and DLL','README.txt'))
     shutil.copy2(os.path.join('Examples','CoolPropDLL.py'),os.path.join('dist_temp','Excel and DLL','CoolPropDLL.py'))
     shutil.copy2(os.path.join('wrappers','Excel','CoolProp.xlam'),os.path.join('dist_temp','Excel and DLL','CoolProp.xlam'))
+    shutil.copy2(os.path.join('wrappers','Excel','CoolProp.xla'),os.path.join('dist_temp','Excel and DLL','CoolProp.xla'))
     shutil.copy2(os.path.join('wrappers','Excel','TestExcel.xlsx'),os.path.join('dist_temp','Excel and DLL','TestExcel.xlsx'))
     shutil.copy2(os.path.join('wrappers','Excel','ExcelInstructions.txt'),os.path.join('dist_temp','Excel and DLL','ExcelInstructions.txt'))
     
@@ -99,12 +100,22 @@ def UploadSourceForge():
     os.remove('dist_temp')
     os.remove(version)
     
+def BuildDocs():
+    print subprocess.check_output(['BuildCPDocs.bat'],shell=True,cwd='Web')
+    
+def UploadDocs():
+    call_str = ['pscp','-r','-v','Web/_build/html/*.*','ibell@web.sourceforge.net:/home/groups/coolprop/htdocs']
+    print 'Calling: '+' '.join(call_str)
+    print subprocess.check_output(call_str,shell=True)
+    
 if __name__=='__main__':
 ##     InstallPrereqs()
 ##     PythonInstallers()
 ##     DLL()
 ##     Source()
 ##     Octave()
-    MATLAB()
+##     MATLAB()
 ##     PYPI()
 ##     UploadSourceForge()
+    BuildDocs()
+    UploadDocs()

@@ -1,5 +1,13 @@
 Changelog:
 
+2.2.3 (revision 172)
+Added Ethylene, SF5, Ethanol, Methane, Ethane, n-Butane, Isobutane
+x(h,p) is much faster due to the avoidance of a lot of saturation routine calls
+x(p,Q) is about 200 times faster!!
+Added Quality 'Q' as an output
+Fixed properties for Air
+Fixed ancillaries for Siloxanes
+
 2.2.2 (revision 169)
 Added MATLAB wrappers and compiled versions on Windows to batch
 Added plots to check solvers for (T,p) and (h,p) in subcooled liquid and superheated vapor regions
