@@ -1471,16 +1471,103 @@ EXPORT_CODE double CONVENTION DerivTerms(char *Term,double T, double rho, char *
 	}
 	else if (!strcmp(Term,"drhodp|h"))
 	{
-		// All the terms are re-calculated here in order to cut down on the number of calls
-		double dphir_dDelta = pFluid->dphir_dDelta(tau,delta);	
-		double d2phir_dDelta_dTau = pFluid->d2phir_dDelta_dTau(tau,delta);
-		double d2phir_dDelta2 = pFluid->d2phir_dDelta2(tau,delta);
-		
-		double dpdrho = R*T*(1+2*delta*dphir_dDelta+delta*delta*d2phir_dDelta2);
-		double dpdT = R*rho*(1+delta*dphir_dDelta-delta*tau*d2phir_dDelta_dTau);
-		double cp = -tau*tau*R*(pFluid->d2phi0_dTau2(tau,delta)+pFluid->d2phir_dTau2(tau,delta))+T/rho/rho*(dpdT*dpdT)/dpdrho;
-		double drhodT = -dpdT/dpdrho;
-		return (cp/dpdrho+T*(-1/pow(rho,2))*pow(drhodT,2)-1/rho*drhodT)/cp;
+		// Using the method of Matthis Thorade and Ali Saadat "Partial derivatives of thermodynamic state properties for dynamic simulation" Submitted to Environmental Earth Sciences, 2012
+		// If two-phase, need to do something different
+		if (!pFluid->phase_Trho(T,rho).compare("Two-Phase"))
+		{
+			SaturationClass *sat = new SaturationClass('T',T,0);
+			double vV =  1/sat->rhoV();
+			double vL =  1/sat->rhoL();
+			double hV =  sat->hV();
+			double hL =  sat->hL();
+			double rhoL = 1/vL;
+			double rhoV = 1/vV;
+			double TL = T;
+			double TV = T;
+			double tauL = pFluid->reduce.T/TL;
+			double tauV = pFluid->reduce.T/TV;
+			double deltaL = rhoL/pFluid->reduce.rho;
+			double deltaV = rhoV/pFluid->reduce.rho;
+
+			// Quality
+			double x = (1/rho-vL)/(vV-vL);
+
+			// For the liquid
+			double d2phir_dDelta_dTauL = pFluid->d2phir_dDelta_dTau(tauL,deltaL);
+			double dphir_dDeltaL = pFluid->dphir_dDelta(tauL,deltaL);
+			double d2phir_dDelta2L = pFluid->d2phir_dDelta2(tauL,deltaL);
+			double d2phi0_dTau2L = pFluid->d2phi0_dTau2(tauL,deltaL);
+			double d2phir_dTau2L = pFluid->d2phir_dTau2(tauL,deltaL);
+			// For the vapor
+			double d2phir_dDelta_dTauV = pFluid->d2phir_dDelta_dTau(tauV,deltaV);
+			double dphir_dDeltaV = pFluid->dphir_dDelta(tauV,deltaV);
+			double d2phir_dDelta2V = pFluid->d2phir_dDelta2(tauV,deltaV);
+			double d2phi0_dTau2V = pFluid->d2phi0_dTau2(tauV,deltaV);
+			double d2phir_dTau2V = pFluid->d2phir_dTau2(tauV,deltaV);
+
+			// Saturation derivatives at constant temperature
+			double dhdrhoL_T = TL*pFluid->R()/rhoL*(tauL*deltaL*d2phir_dDelta_dTauL+deltaL*dphir_dDeltaL+deltaL*deltaL*d2phir_dDelta2L);
+			double dhdrhoV_T = TV*pFluid->R()/rhoV*(tauV*deltaV*d2phir_dDelta_dTauV+deltaV*dphir_dDeltaV+deltaV*deltaV*d2phir_dDelta2V);
+			double dpdrhoL_T = TL*pFluid->R()*(1+2*deltaL*dphir_dDeltaL+deltaL*deltaL*d2phir_dDelta2L);
+			double dpdrhoV_T = TV*pFluid->R()*(1+2*deltaV*dphir_dDeltaV+deltaV*deltaV*d2phir_dDelta2V);
+			
+			// Saturation derivatives at constant density
+			double dhdTL_rho = pFluid->R()*(-tauL*tauL*(d2phi0_dTau2L+d2phir_dTau2L)+1+deltaL*dphir_dDeltaL-deltaL*tauL*d2phir_dDelta_dTauL);
+			double dhdTV_rho = pFluid->R()*(-tauV*tauV*(d2phi0_dTau2V+d2phir_dTau2V)+1+deltaV*dphir_dDeltaV-deltaV*tauV*d2phir_dDelta_dTauV);
+			double dpdTL_rho = rhoL*pFluid->R()*(1+deltaL*dphir_dDeltaL-deltaL*tauL*d2phir_dDelta_dTauL);
+			double dpdTV_rho = rhoV*pFluid->R()*(1+deltaV*dphir_dDeltaV-deltaV*tauV*d2phir_dDelta_dTauV);
+
+			// Now get dh/dp at constant T for saturated liquid and vapor
+			double dhdpL_T = dhdrhoL_T/dpdrhoL_T;
+			double dhdpV_T = dhdrhoV_T/dpdrhoV_T;
+
+			// Derivatives of enthalpy 
+			double dhdTL_p = dhdTL_rho - dhdrhoL_T*dpdTL_rho/dpdrhoL_T;
+			double dhdTV_p = dhdTV_rho - dhdrhoV_T*dpdTV_rho/dpdrhoV_T;
+
+			// Derivatives of specific volume (just to make thing easier)
+			double dvdrhoL = -1/(rhoL*rhoL);
+			double dvdrhoV = -1/(rhoV*rhoV);
+
+			// Derivatives of specific volume
+			double dvdpL_T = 1/dpdrhoL_T*dvdrhoL;
+			double dvdTL_p = -dpdTL_rho/dpdrhoL_T*dvdrhoL;
+			double dvdpV_T = 1/dpdrhoV_T*dvdrhoV;
+			double dvdTV_p = -dpdTV_rho/dpdrhoV_T*dvdrhoV;
+
+			double dTsigmadp = T*(vV-vL)/(hV-hL);
+
+			double dhdpL = dhdpL_T+dhdTL_p*dTsigmadp;
+			double dhdpV = dhdpV_T+dhdTV_p*dTsigmadp;
+			double dvdpL = dvdpL_T+dvdTL_p*dTsigmadp;
+			double dvdpV = dvdpV_T+dvdTV_p*dTsigmadp;
+
+			double dxdp_h = (dhdpL+x*(dhdpV-dhdpL))/(hL-hV);
+
+			double p = Props("P",'T',T,'Q',1,pFluid->get_name());
+			double dp = 0.01;
+			double dhdpL_num = (1/Props(std::string("D"),'Q',0,'P',p+dp,pFluid->get_name())-1/Props(std::string("D"),'Q',0,'P',p,pFluid->get_name()))/dp;
+			double h = Props("H",'P',p,'Q',x,pFluid->get_name());		
+			double dxdp_num = (Props(std::string("Q"),'H',h,'P',p+dp,pFluid->get_name())-Props(std::string("Q"),'H',h,'P',p,pFluid->get_name()))/dp;
+			std::cout << "dxdp_h " << dxdp_h << " : " << dxdp_num << std::endl;
+			
+			double dvdp_h = dvdpL+dxdp_h*(vV-vL)+x*(dvdpV-dvdpL);
+
+			return -rho*rho*dvdp_h;
+		}
+		else
+		{
+			// All the terms are re-calculated here in order to cut down on the number of calls
+			double dphir_dDelta = pFluid->dphir_dDelta(tau,delta);	
+			double d2phir_dDelta_dTau = pFluid->d2phir_dDelta_dTau(tau,delta);
+			double d2phir_dDelta2 = pFluid->d2phir_dDelta2(tau,delta);
+			
+			double dpdrho = R*T*(1+2*delta*dphir_dDelta+delta*delta*d2phir_dDelta2);
+			double dpdT = R*rho*(1+delta*dphir_dDelta-delta*tau*d2phir_dDelta_dTau);
+			double cp = -tau*tau*R*(pFluid->d2phi0_dTau2(tau,delta)+pFluid->d2phir_dTau2(tau,delta))+T/rho/rho*(dpdT*dpdT)/dpdrho;
+			double drhodT = -dpdT/dpdrho;
+			return (cp/dpdrho+T*(-1/pow(rho,2))*pow(drhodT,2)-1/rho*drhodT)/cp;
+		}
 	}
 	else if (!strcmp(Term,"dhdp|rho") || !strcmp(Term,"dhdp|v"))
 	{
