@@ -28,7 +28,7 @@ void _T_hp(std::string Ref, double h, double p, double *T, double *rho);
 void _T_sp(std::string Ref, double s, double p, double *T, double *rho);
 double rho_TP(double T, double p);
 double _Props(std::string Output,std::string Name1, double Prop1, std::string Name2, double Prop2, std::string Ref);
-double _CoolProp_Fluid_Props(long iOutput, long iName1, double Value1, long iName2, double Value2, Fluid *pFluid);
+double _CoolProp_Fluid_Props(long iOutput, long iName1, double Value1, long iName2, double Value2, Fluid *pFluid, bool SinglePhase = false);
 
 bool FlagUseSaturationLUT=false; //Default to not use LUT
 bool FlagUseSinglePhaseLUT=false; //Default to not use LUT
@@ -657,7 +657,33 @@ double _Props(std::string Output,std::string Name1, double Prop1, std::string Na
     }
     return 0;
 }
-double _CoolProp_Fluid_Props(long iOutput, long iName1, double Prop1, long iName2, double Prop2, Fluid *pFluid)
+double _CoolProp_Fluid_TwoPhaseProps(long iOutput, double Q, Fluid *pFluid, double TL, double TV, double pL, double pV, double rhoL, double rhoV)
+{
+	// In this function you know you are within the two-phase region, and might be saturated liquid or vapor.
+	// You have already carried out the saturation calculations before so you have the saturation temperatures, densities, and pressures
+	
+	// If you are saturated, just use the saturated density back into the main function and enforce single-phase.
+	// In reality it is not single-phase but it is thermodynamically consistent to just plug in the saturated density into the EOS
+
+	if (fabs(Q)<1e-12)
+		// Recurse and call Props again with the saturated liquid density
+		return _CoolProp_Fluid_Props(iOutput,iT,TL,iD,rhoL,pFluid,true);
+	else if (fabs(Q-1)<1e-12)
+		// Recurse and call Props again with the saturated vapor density
+		return _CoolProp_Fluid_Props(iOutput,iT,TV,iD,rhoV,pFluid,true);
+	else{
+		if (iOutput==iD){
+			return 1/(Q/rhoV+(1-Q)/rhoL);
+		}
+		else{
+			// Quality weighted temperature for pseudo-pure
+			double T = Q*TV+(1-Q)*TL;
+			// Do a quality-weighted-average of the saturated liquid and vapor properties
+			return Q*_CoolProp_Fluid_Props(iOutput,iT,T,iD,rhoV,pFluid,true)+(1-Q)*_CoolProp_Fluid_Props(iOutput,iT,T,iD,rhoL,pFluid,true);
+		}
+	}
+}
+double _CoolProp_Fluid_Props(long iOutput, long iName1, double Prop1, long iName2, double Prop2, Fluid *pFluid, bool SinglePhase)
 {
 	double T,Q,rhoV,rhoL,Value,rho,pL,pV;
 
@@ -707,8 +733,7 @@ double _CoolProp_Fluid_Props(long iOutput, long iName1, double Prop1, long iName
 	if ((iName1 == iT && iName2 == iP) || (iName1 == iP && iName2 == iT))
 	{
 		//Swap values and keys
-		if (iName1 == iP && iName2 == iT)
-		{
+		if (iName1 == iP && iName2 == iT){
 			swap(&Prop1,&Prop2);
 			swap(&iName1,&iName2);
 		}
@@ -734,7 +759,10 @@ double _CoolProp_Fluid_Props(long iOutput, long iName1, double Prop1, long iName
 			return rho;
 		}
 		else
-			return _CoolProp_Fluid_Props(iOutput,iName1,Prop1,iD,rho,pFluid);
+		{
+			// Recurse, telling CoolProp that it is single-phase by setting the last parameter to true
+			return _CoolProp_Fluid_Props(iOutput,iName1,Prop1,iD,rho,pFluid,true);
+		}
 	}
 	else if ((iName1 == iT && iName2 == iQ) || (iName1 == iQ && iName2 == iT))
 	{
@@ -757,24 +785,20 @@ double _CoolProp_Fluid_Props(long iOutput, long iName1, double Prop1, long iName
 		// Find the effective density to use
 		rho=1/(Q/rhoV+(1-Q)/rhoL);
 
-		// Trivial output
+		// Trivial outputs
 		if (iOutput == iP)
 			return Q*pV+(1-Q)*pL;
 		if (iOutput == iQ)
 			return Q;
-
-		// Recurse and call Props again with the calculated density
 		if (iOutput == iD)
 			return 1/(Q/rhoV+(1-Q)/rhoL);
-		else if (iOutput == iC || iOutput == iO)
-			return _CoolProp_Fluid_Props(iOutput,iT,Prop1,iD,rho,pFluid);
+	
+		if (fabs(Q)<1e-12)
+			return _CoolProp_Fluid_Props(iOutput,iT,Prop1,iD,rhoL,pFluid,true);
+		else if (fabs(Q-1)<1e-12)
+			return _CoolProp_Fluid_Props(iOutput,iT,Prop1,iD,rhoV,pFluid,true);
 		else
-			if (fabs(Q)<1e-12)
-				return _CoolProp_Fluid_Props(iOutput,iT,Prop1,iD,rhoL,pFluid);
-			else if (fabs(Q-1)<1e-12)
-				return _CoolProp_Fluid_Props(iOutput,iT,Prop1,iD,rhoV,pFluid);
-			else
-				return Q*_CoolProp_Fluid_Props(iOutput,iT,Prop1,iD,rhoV,pFluid)+(1-Q)*_CoolProp_Fluid_Props(iOutput,iT,Prop1,iD,rhoL,pFluid);
+			return Q*_CoolProp_Fluid_Props(iOutput,iT,Prop1,iD,rhoV,pFluid,true)+(1-Q)*_CoolProp_Fluid_Props(iOutput,iT,Prop1,iD,rhoL,pFluid,true);
 	}
 	else if ((iName1 == iT && iName2 == iD) || (iName1 == iD && iName2 == iT))
 	{
@@ -800,56 +824,66 @@ double _CoolProp_Fluid_Props(long iOutput, long iName1, double Prop1, long iName
 				Value = pFluid->LookupValue_Trho(std::string((char*)iOutput), T, rho);
 				return Value;
 			}
-            catch(ValueError){
+            catch(ValueError){}
+        }
 
-            }
-        }
 		rho = Prop2; 
-		switch (iOutput)
+		double pL,pV,rhoL,rhoV;
+		// If SinglePhase is true here it will shortcut and not do the saturation 
+		// calculation, saving a lot of computational effort
+		if (!SinglePhase && !pFluid->phase_Trho(T,rho,&pL,&pV,&rhoL,&rhoV).compare("Two-Phase"))
 		{
-			case iP:
-				Value=pFluid->pressure_Trho(T,rho);
-				break;
-			case iH:
-				Value=pFluid->enthalpy_Trho(T,rho);
-				break;
-			case iS:
-				Value=pFluid->entropy_Trho(T,rho);
-				break;
-			case iU:
-				Value=pFluid->internal_energy_Trho(T,rho);
-				break;
-			case iC:
-				Value=pFluid->specific_heat_p_Trho(T,rho);
-				break;
-			case iC0:
-				Value=pFluid->specific_heat_p_ideal_Trho(T);
-				break;
-			case iO:
-				Value=pFluid->specific_heat_v_Trho(T,rho);
-				break;
-			case iA:
-				Value=pFluid->speed_sound_Trho(T,rho);
-				break;
-			case iG:
-				Value=pFluid->gibbs_Trho(T,rho);
-				break;
-			case iV:
-				Value=pFluid->viscosity_Trho(T,rho);
-				break;
-			case iL:
-				Value=pFluid->conductivity_Trho(T,rho);
-				break;
-			case iDpdT:
-				Value=pFluid->dpdT_Trho(T,rho);
-				break;
-			case iDrhodT_p:
-				Value=pFluid->drhodT_p_Trho(T,rho);
-				break;
-			default:
-				throw ValueError(format("Invalid Output index: %d ",iOutput));
-				return _HUGE;
-        }
+			double Q = (1/rho-1/rhoL)/(1/rhoV-1/rhoL);
+			return _CoolProp_Fluid_TwoPhaseProps(iOutput,Q,pFluid,T,T,pL,pV,rhoL,rhoV);
+		}
+		else
+		{
+			switch (iOutput)
+			{
+				case iP:
+					Value=pFluid->pressure_Trho(T,rho);
+					break;
+				case iH:
+					Value=pFluid->enthalpy_Trho(T,rho);
+					break;
+				case iS:
+					Value=pFluid->entropy_Trho(T,rho);
+					break;
+				case iU:
+					Value=pFluid->internal_energy_Trho(T,rho);
+					break;
+				case iC:
+					Value=pFluid->specific_heat_p_Trho(T,rho);
+					break;
+				case iC0:
+					Value=pFluid->specific_heat_p_ideal_Trho(T);
+					break;
+				case iO:
+					Value=pFluid->specific_heat_v_Trho(T,rho);
+					break;
+				case iA:
+					Value=pFluid->speed_sound_Trho(T,rho);
+					break;
+				case iG:
+					Value=pFluid->gibbs_Trho(T,rho);
+					break;
+				case iV:
+					Value=pFluid->viscosity_Trho(T,rho);
+					break;
+				case iL:
+					Value=pFluid->conductivity_Trho(T,rho);
+					break;
+				case iDpdT:
+					Value=pFluid->dpdT_Trho(T,rho);
+					break;
+				case iDrhodT_p:
+					Value=pFluid->drhodT_p_Trho(T,rho);
+					break;
+				default:
+					throw ValueError(format("Invalid Output index: %d ",iOutput));
+					return _HUGE;
+			}
+		}
 		if (debug()>5){
 			std::cout<<__FILE__<<"More output" <<std::endl;
 			std::cout<<__FILE__<<__LINE__<<": "<<iOutput<<","<<iName1<<","<<Prop1<<","<<iName2<<","<<Prop2<<","<<pFluid->get_name()<<"="<<Value<<std::endl;
@@ -857,37 +891,38 @@ double _CoolProp_Fluid_Props(long iOutput, long iName1, double Prop1, long iName
 		}
         return Value;
 	}
-    else if (iName1 == iP && iName2 == iQ)
+    else if ((iName1 == iP && iName2 == iQ) || (iName1 == iQ && iName2 == iP))
     {
+		if (iName1 == 'Q')
+		{
+			swap(&Prop1,&Prop2);
+		}
         T=pFluid->Tsat(Prop1,Prop2,0);
         return _CoolProp_Fluid_Props(iOutput,iT,T,iQ,Prop2,pFluid);
     }
-	else if (iName1 == iQ && iName2 == iP)
+    else if ((iName1 == iH && iName2 == iP) || (iName1 == iP && iName2 == iH))
     {
-        T=pFluid->Tsat(Prop2,Prop1,0);
-        return _CoolProp_Fluid_Props(iOutput,iT,T,iQ,Prop1,pFluid);
-    }
-    else if (iName1 == iH && iName2 == iP)
-    {
-    	_T_hp(pFluid->get_name(),Prop1,Prop2,&T, &rho);
-		if (iOutput == iQ)
-		{
-			double hV = _CoolProp_Fluid_Props(iH,iT,T,iQ,1.0,pFluid);
-			double hL = _CoolProp_Fluid_Props(iH,iT,T,iQ,0.0,pFluid);
-			return (Prop1-hL)/(hV-hL);
+		if (iName1 == iP && iName2 == iH){
+			swap(&Prop1,&Prop2);
 		}
-		return _CoolProp_Fluid_Props(iOutput,iT,T,iD,rho,pFluid);
-    }
-	else if (iName1 == iP && iName2 == iH)
-    {
-		_T_hp(pFluid->get_name(),Prop2,Prop1,&T, &rho);
-		if (iOutput == iQ)
-		{
-			double hV = _CoolProp_Fluid_Props(iH,iT,T,iQ,1.0,pFluid);
-			double hL = _CoolProp_Fluid_Props(iH,iT,T,iQ,0.0,pFluid);
-			return (Prop2-hL)/(hV-hL);
+		double h = Prop1;
+		double p = Prop2;
+		// Actually call the h,p routine to find temperature, density (and saturation densities if they get calculated)
+    	_T_hp(pFluid->get_name(), h, p, &T, &rho, &rhoL, &rhoV);
+
+		// Check if it is two-phase - if so, call the two-phase routine
+		if (T < pFluid->reduce.T && rho > rhoV && rho < rhoL){
+			// It's two-phase
+			double Q = (1/rho-1/rhoL)/(1/rhoV-1/rhoL);
+			if (iOutput == iQ)
+				return Q;
+			return _CoolProp_Fluid_TwoPhaseProps(iOutput,Q,pFluid,T,T,p,p,rhoL,rhoV);
 		}
-		return _CoolProp_Fluid_Props(iOutput,iT,T,iD,rho,pFluid);
+		else{
+			// It's not two phase, use the density and temperature to find the state point
+			// Non two-phase is strictly enforced here by passing the true in as the last parameter
+			return _CoolProp_Fluid_Props(iOutput,iT,T,iD,rho,pFluid,true);
+		}
     }
 	else if (iName1 == iS && iName2 == iP)
     {
@@ -1162,7 +1197,7 @@ public:
 		return error;
 	};
 };
-void _T_hp(std::string Ref, double h, double p, double *Tout, double *rhoout)
+void _T_hp(std::string Ref, double h, double p, double *Tout, double *rhoout, double *rhoL, double *rhoV)
 {
 	int iter;
 	double A[2][2], B[2][2],T_guess,R;
@@ -1195,6 +1230,10 @@ void _T_hp(std::string Ref, double h, double p, double *Tout, double *rhoout)
 		rhosatV = pFluid->rhosatV(TsatV);
 		hsatL = pFluid->hsatL_anc(TsatL);
 		hsatV = pFluid->hsatV_anc(TsatV);
+		
+		// Dummy values for the densities
+		*rhoL = -1;
+		*rhoV = -1;
 
 		if (h>hsatV*1.10)
 		{
@@ -1236,6 +1275,8 @@ void _T_hp(std::string Ref, double h, double p, double *Tout, double *rhoout)
 			hsatV = sat->hV();
 			TsatL = sat->TL();
 			TsatV = sat->TV();
+			*rhoL = rhosatL;
+			*rhoV = rhosatV;
 
 			if (h>hsatV)
 			{
@@ -1543,14 +1584,6 @@ EXPORT_CODE double CONVENTION DerivTerms(char *Term,double T, double rho, char *
 			double dvdpV = dvdpV_T+dvdTV_p*dTsigmadp;
 
 			double dxdp_h = (dhdpL+x*(dhdpV-dhdpL))/(hL-hV);
-
-			double p = Props("P",'T',T,'Q',1,pFluid->get_name());
-			double dp = 0.01;
-			double dhdpL_num = (1/Props(std::string("D"),'Q',0,'P',p+dp,pFluid->get_name())-1/Props(std::string("D"),'Q',0,'P',p,pFluid->get_name()))/dp;
-			double h = Props("H",'P',p,'Q',x,pFluid->get_name());		
-			double dxdp_num = (Props(std::string("Q"),'H',h,'P',p+dp,pFluid->get_name())-Props(std::string("Q"),'H',h,'P',p,pFluid->get_name()))/dp;
-			std::cout << "dxdp_h " << dxdp_h << " : " << dxdp_num << std::endl;
-			
 			double dvdp_h = dvdpL+dxdp_h*(vV-vL)+x*(dvdpV-dvdpL);
 
 			return -rho*rho*dvdp_h;

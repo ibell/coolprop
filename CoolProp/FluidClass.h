@@ -172,6 +172,7 @@ class Fluid
 		double density_Tp(double T, double p, double rho_guess);
 		std::string phase_Tp(double T, double p);
 		std::string phase_Trho(double T, double rho);
+		std::string phase_Trho(double T, double rho, double *pL, double *pV, double *rhoL, double *rhoV);
 
 		// Optional ancillary functions can be overloaded, will throw a NotImplementedError
 		// to be caught by calling function if not implemented

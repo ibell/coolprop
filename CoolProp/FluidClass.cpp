@@ -1017,6 +1017,11 @@ std::string Fluid::phase_Tp(double T, double p)
 std::string Fluid::phase_Trho(double T, double rho)
 {
 	double pL,pV,rhoL,rhoV;
+	return phase_Trho(T,rho,&pL,&pV,&rhoL,&rhoV);
+}
+
+std::string Fluid::phase_Trho(double T, double rho, double *pL, double *pV, double *rhoL, double *rhoV)
+{
 	/*
         |
 	    | Liquid
@@ -1058,11 +1063,12 @@ std::string Fluid::phase_Trho(double T, double rho)
 			// Actually have to use saturation information sadly
 			// For the given temperature, find the saturation state
 			// Run the saturation routines to determine the saturation densities and pressures
-			saturation(T,SaturationLUTStatus(),&pL,&pV,&rhoL,&rhoV);
-			if (rho>rhoL){
+			// Use the passed in variables to save calls to the saturation routine so the values can be re-used again
+			saturation(T,SaturationLUTStatus(),pL,pV,rhoL,rhoV);
+			if (rho>*rhoL){
 				return std::string("Liquid");
 			}
-			else if (rho<rhoV){
+			else if (rho<*rhoV){
 				return std::string("Gas");
 			}
 			else{

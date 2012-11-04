@@ -109,5 +109,5 @@ You might want to start by looking at CoolProp.h
 	long get_Fluid_index(std::string param);
 	std::string get_index_units(long index);
 
-	void _T_hp(std::string Ref, double h, double p, double *, double *);
+	void _T_hp(std::string Ref, double h, double p, double *T, double *rho, double *rhoL, double *rhoV);
 #endif
