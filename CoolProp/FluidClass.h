@@ -10,6 +10,8 @@
 #ifndef FLUIDCLASS_H
 #define FLUIDCLASS_H
 
+class Fluid;
+
 struct OtherParameters
 {
 	double molemass, Ttriple, ptriple, accentricfactor, R_u;
@@ -27,6 +29,23 @@ struct SatLUTStruct
 {
 	std::vector<double> T,rhoL,rhoV,p,hL,hV,tau,logp;
 	int N;
+	bool built;
+};
+
+class AncillaryCurveClass
+{
+public:
+	// Default Constructor
+	AncillaryCurveClass(){built = false;};
+	// Constructor with values
+	AncillaryCurveClass(Fluid *_pFluid, std::string Output){built = false; update(_pFluid,Output);};
+	void update(Fluid *_pFluid, std::string Output);
+	std::vector<double> xL,yL,xV,yV;
+	int build(int N);
+	long iOutput;
+	Fluid * pFluid;
+	double interpolateL(double T);
+	double interpolateV(double T);
 	bool built;
 };
 
@@ -52,7 +71,13 @@ class Fluid
 		bool isPure; /// True if it is a pure fluid, false otherqwise
 		SatLUTStruct SatLUT; /// The private Saturation lookup structure
 		OnePhaseLUTStruct LUT; /// The private single-phase lookup structure
-		
+
+		// The structures that hold onto ancillary data for the fluid
+		AncillaryCurveClass *h_ancillary;
+		AncillaryCurveClass *s_ancillary;
+		AncillaryCurveClass *cp_ancillary;
+		AncillaryCurveClass *drhodT_p_ancillary;
+
 		/// Obtain a guess value for the density of the fluid for a given set of temperature and pressure
 		/// @param T Temperature [K]
 		/// @param p Pressure [kPa(abs)]
@@ -142,9 +167,11 @@ class Fluid
 		double specific_heat_v_Trho(double T, double rho);
 		double gibbs_Trho(double T, double rho);
 		double dpdT_Trho(double T,double rho);
+		double drhodT_p_Trho(double T,double rho);
 		double density_Tp(double T, double p);
 		double density_Tp(double T, double p, double rho_guess);
 		std::string phase_Tp(double T, double p);
+		std::string phase_Trho(double T, double rho);
 
 		// Optional ancillary functions can be overloaded, will throw a NotImplementedError
 		// to be caught by calling function if not implemented
@@ -175,6 +202,16 @@ class Fluid
 			else
 				return psatV(T);
 		};
+		// Ancillary equations composed by interpolating within 3-point 
+		// curve that is calculated once
+		double hsatV_anc(double T);
+		double hsatL_anc(double T);
+		double ssatV_anc(double T);
+		double ssatL_anc(double T);
+		double cpsatV_anc(double T);
+		double cpsatL_anc(double T);
+		double drhodT_pL_anc(double T);
+		double drhodT_pV_anc(double T);
 
 		Eigen::Vector2d ConformalTemperature(Fluid *InterestFluid, Fluid *ReferenceFluid,double T, double rho, double T0, double rho0, std::string *errstring);
 		// Extended corresponding states functions for fluids that do not have their own high-accuracy

@@ -76,6 +76,11 @@ You might want to start by looking at CoolProp.h
 	EXPORT_CODE int CONVENTION get_debug();
 	EXPORT_CODE void CONVENTION debug(int level); 
 
+	EXPORT_CODE double CONVENTION rhosatL_anc(char* Fluid, double T);
+	EXPORT_CODE double CONVENTION rhosatV_anc(char* Fluid, double T);
+	EXPORT_CODE double CONVENTION psatL_anc(char* Fluid, double T);
+	EXPORT_CODE double CONVENTION psatV_anc(char* Fluid, double T);
+
 	// ------------------------------------------------------------------------------------------------
 	// All the functions below this comment do NOT get exported to REFPROP DLL due to the fact that the 
 	// DLL MUST use extern "C" for all exported functions, which does not allow for function overloads 
@@ -104,4 +109,5 @@ You might want to start by looking at CoolProp.h
 	long get_Fluid_index(std::string param);
 	std::string get_index_units(long index);
 
+	void _T_hp(std::string Ref, double h, double p, double *, double *);
 #endif

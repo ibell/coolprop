@@ -228,6 +228,11 @@ void Fluid::post_load(void)
 		saturation(params.Ttriple,false,&pL,&pV,&rhoL,&rhoV);
 		params.ptriple = pV;
 	}
+	//// Instantiate the ancillary curve classes
+	h_ancillary = new AncillaryCurveClass(this,std::string("H"));
+	s_ancillary = new AncillaryCurveClass(this,std::string("S"));
+	cp_ancillary = new AncillaryCurveClass(this,std::string("C"));
+	drhodT_p_ancillary = new AncillaryCurveClass(this,std::string("drhodT|p"));
 }
 //--------------------------------------------
 //    Residual Part
@@ -435,6 +440,10 @@ double Fluid::dpdT_Trho(double T,double rho)
 	delta=rho/reduce.rho;
 
 	return rho*R*(1+delta*dphir_dDelta(tau,delta)-delta*tau*d2phir_dDelta_dTau(tau,delta));
+}
+double Fluid::drhodT_p_Trho(double T,double rho)
+{
+	return DerivTerms("drhodT|p",T,rho,(char*)name.c_str());
 }
 
 double Fluid::density_Tp(double T, double p)
@@ -750,6 +759,46 @@ void Fluid::BuildSaturationLUT()
     }
 	SatLUT.built=true;
 }   
+// Ancillary equations composed by interpolating within 10-point 
+// curve that is calculated once
+double Fluid::hsatV_anc(double T)
+{
+	if (!h_ancillary->built) 
+		h_ancillary->build(10);
+	return h_ancillary->interpolateV(T);
+}
+double Fluid::cpsatV_anc(double T)
+{
+	if (!cp_ancillary->built) 
+		cp_ancillary->build(10);
+	return cp_ancillary->interpolateV(T);
+}
+double Fluid::drhodT_pV_anc(double T)
+{
+	if (!drhodT_p_ancillary->built) 
+		drhodT_p_ancillary->build(10);
+	return drhodT_p_ancillary->interpolateV(T);
+}
+double Fluid::hsatL_anc(double T)
+{
+	if (!h_ancillary->built) 
+		h_ancillary->build(10);
+	return h_ancillary->interpolateL(T);
+}
+double Fluid::cpsatL_anc(double T)
+{
+	if (!cp_ancillary->built) 
+		cp_ancillary->build(10);
+	return cp_ancillary->interpolateL(T);
+}
+double Fluid::drhodT_pL_anc(double T)
+{
+	if (!drhodT_p_ancillary->built) 
+		drhodT_p_ancillary->build(10);
+	return drhodT_p_ancillary->interpolateL(T);
+}
+//double ssatV_anc(double T);
+//double ssatL_anc(double T);
 
 double Fluid::ApplySaturationLUT(char *OutPropName,char *InPropName,double InPropVal)
 {
@@ -965,56 +1014,149 @@ std::string Fluid::phase_Tp(double T, double p)
 	}
 }
 
+std::string Fluid::phase_Trho(double T, double rho)
+{
+	double pL,pV,rhoL,rhoV;
+	/*
+        |
+	    | Liquid
+		|
+	    | ---
+		|     \
+		|      \
+	rho	|       a
+		|      /
+		|     /
+		|  --
+		|
+		| Gas
+		|
+		|------------------------
+
+		           T
+
+	   a: triple point
+	   b: critical point
+	   a-b: Saturation line
+
+	*/
+	// If temperature is below the critical temperature, it is either 
+	// subcooled liquid, superheated vapor, or two-phase
+	if (T<reduce.T)
+	{
+		// Start to think about the saturation stuff
+		// First try to use the ancillary equations if you are far enough away
+		// Ancillary equations are good to within 1% in pressure in general
+		// Some industrial fluids might not be within 3%
+		if (rho<0.95*rhosatV(T)){
+			return std::string("Gas");
+		}
+		else if (rho>1.05*rhosatL(T)){
+			return std::string("Liquid");
+		}
+		else{
+			// Actually have to use saturation information sadly
+			// For the given temperature, find the saturation state
+			// Run the saturation routines to determine the saturation densities and pressures
+			saturation(T,SaturationLUTStatus(),&pL,&pV,&rhoL,&rhoV);
+			if (rho>rhoL){
+				return std::string("Liquid");
+			}
+			else if (rho<rhoV){
+				return std::string("Gas");
+			}
+			else{
+				return std::string("Two-Phase");
+			}
+		}
+	}
+	// Now check the states above the critical temperature
+	double p = pressure_Trho(T,rho);
+
+	if (T>reduce.T && p>reduce.p){
+		return std::string("Supercritical");
+	}
+	else if (T>reduce.T && p<reduce.p){
+		return std::string("Gas");
+	}
+	else if (T<reduce.T && p>reduce.p){
+		return std::string("Liquid");
+	}
+	else if (p<params.ptriple){
+		return std::string("Gas");
+	}
+	else{
+		return std::string("NotApplicable");
+	}
+}
+
 double Fluid::Tsat_anc(double p, double Q)
 {
 	// This one only uses the ancillary equations
 
     double x1=0,x2=0,y1=0,y2=0;
-    double Tc,Tmax,Tmin;
+    double Tc,Tmax,Tmin,Tmid,logp_min,logp_mid,logp_max;
 
-    Tc=Props(name,"Tcrit");
+    Tc=reduce.T;
     Tmax=Tc-0.001;
-    Tmin=Props(name,"Ttriple")+1;
+	Tmin=params.Ttriple+1;
 	if (Tmin <= limits.Tmin)
 		Tmin = limits.Tmin;
-    
-    // Plotting Tc/T versus log(p) tends to give very close to straight line
-    // Use this fact find T more easily
-    
-	class SatFuncClass : public FuncWrapper1D
-	{
-	private:
-		double p,Q,Tc;
-		std::string name;
-		Fluid * pFluid;
-	public:
-		SatFuncClass(double p_, double Q_, double Tc_, std::string name_,Fluid *_pFluid){
-			p=p_;Q=Q_;Tc=Tc_,name=name_,pFluid = _pFluid;
-		};
-		double call(double tau){
-			if (fabs(Q-1)<1e-10)
-
-				return log(pFluid->psatV_anc(Tc/tau)/p);
-			else if (fabs(Q)<1e-10)
-				return log(pFluid->psatL_anc(Tc/tau)/p);
-			else
-				throw ValueError("Quality must be 1 or 0");
-		};
-	} SatFunc(p,Q,reduce.T,name,this);
-
+	
+	Tmid = (Tmax+Tmin)/2.0;
+	
 	double tau_max = Tc/Tmin;
+	double tau_mid = Tc/Tmid;
 	double tau_min = Tc/Tmax;
 
-	double gregtes = psatV_anc(Tc/tau_max);
-	double gregregresgres = psatV_anc(Tc/tau_min);
+	if (fabs(Q-1)<1e-10)
+	{
+		// reduced pressures
+		logp_min = log(psatV_anc(Tmin));
+		logp_mid = log(psatV_anc(Tmid));
+		logp_max = log(psatV_anc(Tmax));
+	}
+	else if (fabs(Q)<1e-10)
+	{
+		logp_min = log(psatL_anc(Tmin));
+		logp_mid = log(psatL_anc(Tmid));
+		logp_max = log(psatL_anc(Tmax));
+	}
+	
+	// Plotting Tc/T versus log(p) tends to give very close to straight line
+    // Use this fact find T more easily using reverse quadratic interpolation
+	double tau_interp = QuadInterp(logp_min,logp_mid,logp_max,tau_max,tau_mid,tau_min,log(p));
 
+	return reduce.T/tau_interp;
+    
+    
+	//class SatFuncClass : public FuncWrapper1D
+	//{
+	//private:
+	//	double p,Q,Tc;
+	//	std::string name;
+	//	Fluid * pFluid;
+	//public:
+	//	SatFuncClass(double p_, double Q_, double Tc_, std::string name_,Fluid *_pFluid){
+	//		p=p_;Q=Q_;Tc=Tc_,name=name_,pFluid = _pFluid;
+	//	};
+	//	double call(double tau){
+	//		if (fabs(Q-1)<1e-10)
+	//			return log(pFluid->psatV_anc(Tc/tau)/p);
+	//		else if (fabs(Q)<1e-10)
+	//			return log(pFluid->psatL_anc(Tc/tau)/p);
+	//		else
+	//			throw ValueError("Quality must be 1 or 0");
+	//	};
+	//} SatFunc(p,Q,reduce.T,name,this);
 
-	// Use Brent's method to find tau = Tc/T
-	std::string errstr;
-    double tau = Brent(&SatFunc,tau_min,tau_max,1e-10,1e-10,50,&errstr);
-	if (errstr.size()>0)
-		throw SolutionError("Saturation calculation failed");
-	return reduce.T/tau;
+	//
+	//// Use Brent's method to find tau = Tc/T
+	//std::string errstr;
+ //   double tau = Brent(&SatFunc,tau_min,tau_max,1e-10,1e-4,50,&errstr);
+	//if (errstr.size()>0)
+	//	throw SolutionError("Saturation calculation failed");
+	//return reduce.T/tau;
 }
 
 // A wrapper class to do the calculations to get densities and saturation temperature
@@ -2005,4 +2147,70 @@ double Fluid::conductivity_ECS_Trho(double T, double rho, Fluid * ReferenceFluid
 	lambda_crit = conductivity_critical(T,rho);
 	lambda = lambda_int+lambda_star+lambda_resid*F_lambda+lambda_crit;
 	return lambda/1e3; //[kW/m/K]
+}
+void AncillaryCurveClass::update(Fluid *_pFluid, std::string Output)
+{
+	pFluid = _pFluid;
+	iOutput = get_param_index(Output);
+}
+int AncillaryCurveClass::build(int N)
+{
+	double T,rhoV,rhoL;
+
+	// Output values
+	long iD = get_param_index("D");
+	long iT = get_param_index("T");
+	long iQ = get_param_index("Q");
+	long iFluid = get_Fluid_index(pFluid->get_name());
+
+	double Tmin	= pFluid->params.Ttriple+0.001;
+	if (Tmin<pFluid->limits.Tmin)
+		Tmin = pFluid->limits.Tmin+0.001;
+	double Tmax	= pFluid->reduce.T-5;
+	for(int i = 0; i<N; i++)
+	{
+		T = Tmin+(Tmax-Tmin)/(N-1)*i;
+		xL.push_back(T);
+		xV.push_back(T);
+		rhoL = pFluid->rhosatL(T);
+		rhoV = pFluid->rhosatV(T);
+		yL.push_back(IProps(iOutput,iT,T,iD,rhoL,iFluid));
+		yV.push_back(IProps(iOutput,iT,T,iD,rhoV,iFluid));
+	}
+	built = true;
+	return 1;
+}
+
+double interp1d(std::vector<double> x, std::vector<double> y, double x0)
+{
+	unsigned int i,L,R,M;
+	L=0;
+	R=x.size()-1;
+	M=(L+R)/2;
+	// Use interval halving to find the indices which bracket the density of interest
+	while (R-L>1)
+	{
+		if (x0>=x[M])
+		{ L=M; M=(L+R)/2; continue;}
+		if (x0<x[M])
+		{ R=M; M=(L+R)/2; continue;}
+	}
+	i=L;
+	if (i<x.size()-2)
+    {
+		// Go "forwards" with the interpolation range
+		return QuadInterp(x[i],x[i+1],x[i+2],y[i],y[i+1],y[i+2],x0);
+    }
+    else
+    {
+        // Go "backwards" with the interpolation range
+		return QuadInterp(x[i],x[i-1],x[i-2],y[i],y[i-1],y[i-2],x0);
+    }
+}
+double AncillaryCurveClass::interpolateL(double T){
+	return interp1d(xL,yL,T);
+}
+
+double AncillaryCurveClass::interpolateV(double T){
+	return interp1d(xV,yV,T);
 }

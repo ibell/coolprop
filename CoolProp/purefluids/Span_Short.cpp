@@ -115,7 +115,7 @@ static const double c_polar[] =
 };
 
 
-
+/*
 CarbonMonoxideClass::CarbonMonoxideClass()
 {
     const double n[]={0.0,0.905540000,-2.451500000,0.531490000,0.024173000,0.072156000,0.000188180,0.194050000,-0.043268000,-0.127780000,-0.027896000,-0.034154000,0.016329000};
@@ -1736,6 +1736,6 @@ double R41Class::psat(double T)
     return exp(crit.T/T*RHS)*crit.p;
 }
 
-
+*/
 
 

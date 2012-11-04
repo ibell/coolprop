@@ -177,6 +177,7 @@ if __name__=='__main__':
             z.write(os.path.join('Examples','CoolPropDLL.py'),arcname='CoolPropDLL.py')
             z.write('DLLREADME.txt',arcname='README.txt')
         print 'DLL file has been packed into file', ZIPfilePath
+        quit()
 
     print 'UseStaticLib is',useStaticLib
     ##Now come in and build the modules themselves

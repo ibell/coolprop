@@ -75,22 +75,33 @@ EthanolClass::EthanolClass()
     //aliases.push_back(std::string("C2H6O")); 
     REFPROPname.assign("ETHANOL");
 }
-double EthanolClass::rhosatL(double T) 
+double EthanolClass::rhosatL(double T)
 {
-    double THETA = 1-T/crit.T;
-    return crit.rho*(1+2.22195*pow(THETA,1.0/3.0)-0.0469268*THETA+10.3036*pow(THETA,5.0/3.0)-17.2305*THETA*THETA+8.23564*pow(THETA,8.0/3.0));
-}
-double EthanolClass::rhosatV(double T) 
-{
-    double THETA = 1-T/crit.T;
-    double RHS = -8.35648*pow(THETA,2.0/3.0)-2.38722*pow(THETA,5.0/3.0)-39.6946*pow(THETA,10.0/3.0)-9.99134*pow(THETA,16.0/3.0);
-    return exp(RHS)*crit.rho;
-}
-double EthanolClass::psat(double T) 
-{
-    double THETA = 1-T/crit.T;
-    double RHS = -0.0514771*sqrt(THETA)-8.27075*THETA-5.49245*pow(THETA,3)+5.64829*pow(THETA,11.0/2.0);
-    return exp(crit.T/T*RHS)*crit.p;
-}
+	double theta = 1-T/reduce.T;
+	double RHS,rho;
 
+	// Max error is 0.484219 %
+	RHS = +0.205104*pow(theta,0.000000)-15.416759*pow(theta,0.714104)+15.243853*pow(theta,0.646579)+0.133914*pow(theta,8.236855)-0.198413*pow(theta,7.134261);
+	rho = exp(RHS*reduce.T/T)*reduce.rho;
+	return rho;
+}
+double EthanolClass::rhosatV(double T)
+{
+	double theta = 1-T/reduce.T;
+	double RHS,rho;
 
+	// Max error is 0.662657 %
+	RHS = -0.486696*pow(theta,0.000000)-5.679398*pow(theta,0.656847)-3.890921*pow(theta,2.162034)-1.665655*pow(theta,3.649010)-0.477865*pow(theta,5.342953)+0.180460*pow(theta,6.372113)+0.563563*pow(theta,7.253718);
+	rho = exp(RHS*reduce.T/T)*reduce.rho;
+	return rho;
+}
+double EthanolClass::psat(double T)
+{
+	double theta = 1-T/reduce.T;
+	double RHS,p;
+
+	// Max error is 2.196317 %
+	RHS = -11.227298*pow(theta,1.081329)-30.349599*pow(theta,3.427789)-8.178391*pow(theta,3.426262)-5.420801*pow(theta,3.380834)-3.447215*pow(theta,6.181072);
+	p = exp(RHS)*reduce.p;
+	return p;
+}

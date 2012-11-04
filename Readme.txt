@@ -1,7 +1,7 @@
 Changelog:
 
 2.2.3 (revision 172)
-Added Ethylene, SF5, Ethanol, Methane, Ethane, n-Butane, Isobutane
+Added Ethylene, SF6, Ethanol, Methane, Ethane, n-Butane, Isobutane
 x(h,p) is much faster due to the avoidance of a lot of saturation routine calls
 x(p,Q) is about 200 times faster!!
 Added Quality 'Q' as an output

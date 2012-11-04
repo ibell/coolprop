@@ -23,6 +23,12 @@ cdef extern from "CoolProp.h":
     long _get_param_index "get_param_index" (string param)
     string _get_index_units "get_index_units" (long index)
     
+    #Ancillary equations
+    double _psatL_anc "psatL_anc"(char*Fluid, double T)
+    double _psatV_anc "psatV_anc"(char*Fluid, double T)
+    double _rhosatL_anc "rhosatL_anc"(char*Fluid, double T)
+    double _rhosatV_anc "rhosatV_anc"(char*Fluid, double T)
+    
     int _get_debug "get_debug"()
     void _debug "debug"(int level)
     

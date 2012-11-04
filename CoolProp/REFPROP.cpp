@@ -248,9 +248,8 @@ double REFPROP(char Output,char Name1, double Prop1, char Name2, double Prop2, c
 			printf("Could not load REFPROP, not in current location or found on system PATH.  Add location of REFPROP to the PATH environmental variable\n");
 			return -_HUGE;
 		}
-	}
 
-	// Then get pointers into the dll to the actual functions.
+		// Then get pointers into the dll to the actual functions.
 		ABFL1dll = (fp_ABFL1dllTYPE) GetProcAddress(RefpropdllInstance,"ABFL1dll");
 		ABFL2dll = (fp_ABFL2dllTYPE) GetProcAddress(RefpropdllInstance,"ABFL2dll");
 		ACTVYdll = (fp_ACTVYdllTYPE) GetProcAddress(RefpropdllInstance,"ACTVYdll");
@@ -344,438 +343,500 @@ double REFPROP(char Output,char Name1, double Prop1, char Name2, double Prop2, c
 		WMOLdll = (fp_WMOLdllTYPE) GetProcAddress(RefpropdllInstance,"WMOLdll");
 		XMASSdll = (fp_XMASSdllTYPE) GetProcAddress(RefpropdllInstance,"XMASSdll");
 		XMOLEdll = (fp_XMOLEdllTYPE) GetProcAddress(RefpropdllInstance,"XMOLEdll");
+	}
+	// If the fluid name starts with the string "REFPROP-", chop off the "REFPROP-"
+	if (!strncmp(Ref,"REFPROP-",8))
+	{
+	char *REFPROPRef=NULL,*RefCopy=NULL;
+	double prop;
 		
-		// If the fluid name starts with the string "REFPROP-", chop off the "REFPROP-"
-		if (!strncmp(Ref,"REFPROP-",8))
-		{
-		char *REFPROPRef=NULL,*RefCopy=NULL;
-		double prop;
-			
+	// Allocate space for refrigerant name
+		RefCopy=(char *)malloc(strlen(Ref)+1);
+	// Make a backup copy
+		strcpy(RefCopy,Ref);
+	// Chop off the "REFPROP-"
+		REFPROPRef = strtok(RefCopy,"-");
+		REFPROPRef = strtok(NULL,"-");
+	// Run with the stripped Refrigerant name
+		prop=REFPROP(Output,Name1,Prop1,Name2,Prop2,REFPROPRef);
+	// Free allocated memory
+		free(RefCopy);
+	// Return the new value
+		return prop;
+	}
+	
+	if (!strncmp(Ref,"MIX",3))
+	{
+		// Sample is "REFPROP-MIX:R32[0.697615]&R125[0.302385]" -  this is R410A
+		char *REFPROPRef=NULL,*RefCopy=NULL,RefString[255],*Refs[20],*Refrigerant;
+		double molefraction;
+
 		// Allocate space for refrigerant name
-			RefCopy=(char *)malloc(strlen(Ref)+1);
+		RefCopy=(char *)malloc(strlen(Ref)+1);
 		// Make a backup copy
-			strcpy(RefCopy,Ref);
-		// Chop off the "REFPROP-"
-			REFPROPRef = strtok(RefCopy,"-");
-			REFPROPRef = strtok(NULL,"-");
-		// Run with the stripped Refrigerant name
-			prop=REFPROP(Output,Name1,Prop1,Name2,Prop2,REFPROPRef);
+		strcpy(RefCopy,Ref);
+		// Chop off the "MIX"
+		REFPROPRef = strtok(RefCopy,":");
+		i=1;
+		while (REFPROPRef!=NULL)
+		{
+			Refs[i-1]=strtok(NULL,"&");
+			if (Refs[i-1]==NULL)
+			{
+				i--;
+				break;
+			}
+			else
+				i++;
+		}
+		//Flush out RefString
+		sprintf(RefString,"");
+		for (j=0;j<i;j++)
+		{	
+			//Get component and its mole fraction
+			Refrigerant=strtok(Refs[j],"[]");
+			molefraction=strtod(strtok(NULL,"[]"),NULL);
+			x[j]=molefraction;
+			if (j==0)
+				sprintf(RefString,"%s%s.fld",RefString,Refs[j]);
+			else
+				sprintf(RefString,"%s|%s.fld",RefString,Refs[j]);
+		}
 		// Free allocated memory
-			free(RefCopy);
-		// Return the new value
-			return prop;
+		free(RefCopy);
+	}
+	else if (!strcmp(Ref,"Air") || !strcmp(Ref,"R507A") || !strcmp(Ref,"R404A") || !strcmp(Ref,"R410A") || !strcmp(Ref,"R407C") || !strcmp(Ref,"SES36"))
+	{
+		i=1;
+		strcpy(RefString,"");
+		strcat(RefString,Ref);
+		strcat(RefString,".ppf");
+		x[0]=1.0;     //Pseudo-Pure fluid
+	}
+	else if (!strcmp(Ref,"R507A"))
+	{
+		i=2;
+		strcpy(RefString,"R23.fld|R116.fld");
+		x[0]=0.62675;
+		x[1]=0.37325;
+	}
+	else if (!strcmp(Ref,"R410A"))
+	{
+		i=2;
+		strcpy(RefString,"R32.fld|R125.fld");
+		x[0]=0.697615;
+		x[1]=0.302385;
+	}
+	else if (!strcmp(Ref,"R404A"))
+	{
+		i=3;
+		strcpy(RefString,"R125.fld|R134a.fld|R143a.fld");
+		x[0]=0.35782;
+		x[1]=0.038264;
+		x[2]=0.60392;
+	}
+    else if (!strcmp(Ref,"Air"))
+	{
+		i=3;
+		strcpy(RefString,"Nitrogen.fld|Oxygen.fld|Argon.fld");
+		x[0]=0.7812;
+		x[1]=0.2096;
+		x[2]=0.0092;
+	}
+	else
+	{
+		i=1;
+		strcpy(RefString,"");
+		strcat(RefString,Ref);
+		strcat(RefString,".fld");
+		x[0]=1.0;     //Pure fluid
+	}
+
+	strcpy(hf,RefString);
+	strcpy(hfmix,"hmx.bnc");
+	strcpy(hrf,"DEF");
+	strcpy(herr,"Ok");
+	
+	// If the name of the refrigerant doesn't match 
+	// that of the currently loaded refrigerant
+	if (strcmp(LoadedREFPROPRef,Ref))
+	{
+		ierr=999;
+		//...Call SETUP to initialize the program
+		SETUPdll(&i, hf, hfmix, hrf, &ierr, herr,
+			refpropcharlength*ncmax,refpropcharlength,
+			lengthofreference,errormessagelength);
+		if (ierr != 0) printf("REFPROP setup gives this error during SETUP: %s\n",herr);
+		//Copy the name of the loaded refrigerant back into the temporary holder
+		strcpy(LoadedREFPROPRef,Ref);
+	}
+
+	// Get the molar mass of the fluid
+	WMOLdll(x,&MW);
+	if (Output=='B')
+	{
+		// Critical temperature
+		CRITPdll(x,&Tcrit,&pcrit,&dcrit,&ierr,herr,255);
+		return Tcrit;
+	}
+	else if (Output=='M')
+	{
+		// mole mass
+		return MW;
+	}
+	else if (Output=='E')
+	{
+		// Critical pressure
+		CRITPdll(x,&Tcrit,&pcrit,&dcrit,&ierr,herr,255);
+		return pcrit;
+	}
+	else if (Output =='N')
+	{
+		// Critical density
+		CRITPdll(x,&Tcrit,&pcrit,&dcrit,&ierr,herr,255);
+		return dcrit*MW;
+		
+	}
+	else if (Output == 't')
+	{
+		// Minimum temperature
+		double tmin,tmax,Dmax,pmax;
+		LIMITSdll("EOS",x,&tmin,&tmax,&Dmax,&pmax,255);
+		return tmin;
+	}
+	else if (Output =='w')
+	{
+		double wmm,Ttriple,tnbpt,tc,pc,Dc,Zc,acf,dip,Rgas;
+		// Accentric factor
+		if (i>1)
+		{
+			fprintf(stderr,"Error: Accentric factor only defined for pure fluids\n");
+			return _HUGE;
+		}
+		INFOdll(&i,&wmm,&Ttriple,&tnbpt,&tc,&pc,&Dc,&Zc,&acf,&dip,&Rgas);
+		return acf;
+	}
+	else if (Output =='o')
+	{
+		double wmm,Ttriple,tnbpt,tc,pc,Dc,Zc,acf,dip,Rgas;
+		// Dipole moment
+		if (i>1)
+		{
+			fprintf(stderr,"Error: Dipole moment only defined for pure fluids\n");
+			return _HUGE;
+		}
+		INFOdll(&i,&wmm,&Ttriple,&tnbpt,&tc,&pc,&Dc,&Zc,&acf,&dip,&Rgas);
+		return dip;
+	}
+	else if (Output=='R')
+	{
+		long icomp;
+		double wmm,Ttriple,tnbpt,tc,pc,Dc,Zc,acf,dip,Rgas;
+		// Triple point temperature
+		icomp=1;
+		if (i>1)
+		{
+			fprintf(stderr,"Error: Triple point temperature only defined for pure fluids\n");
+			return 200;
+		}
+		INFOdll(&icomp,&wmm,&Ttriple,&tnbpt,&tc,&pc,&Dc,&Zc,&acf,&dip,&Rgas);
+		return Ttriple;
+	}
+	else if (Output=='I')
+	{
+		if (Name1=='T'){
+			SURFTdll(&Prop1,&dl,x,&sigma,&i,herr,errormessagelength);
+			return sigma/1000;
+		}
+		else{
+			std::cout<< "If surface tension is the output, temperature must be the first input" << std::endl;
+			return _HUGE;
+		}
+	}
+	
+	else if ((Name1=='T' && Name2=='P') || (Name2=='T' && Name1=='P'))
+	{
+		// T in K, P in kPa
+		if (Name1 == 'T'){
+			T = Prop1; p = Prop2;
+		}
+		else{
+			p = Prop1; T = Prop2;
 		}
 		
-		if (!strncmp(Ref,"MIX",3))
-		{
-			// Sample is "REFPROP-MIX:R32[0.697615]&R125[0.302385]"
-			char *REFPROPRef=NULL,*RefCopy=NULL,RefString[255],*Refs[20],*Refrigerant;
-			double molefraction;
 
-			// Allocate space for refrigerant name
-			RefCopy=(char *)malloc(strlen(Ref)+1);
-			// Make a backup copy
-			strcpy(RefCopy,Ref);
-			// Chop off the "MIX"
-			REFPROPRef = strtok(RefCopy,":");
-			i=1;
-			while (REFPROPRef!=NULL)
-			{
-				Refs[i-1]=strtok(NULL,"&");
-				if (Refs[i-1]==NULL)
-				{
-					i--;
-					break;
-				}
-				else
-					i++;
-			}
-			//Flush out RefString
-			sprintf(RefString,"");
-			for (j=0;j<i;j++)
-			{	
-				//Get component and its mole fraction
-				Refrigerant=strtok(Refs[j],"[]");
-				molefraction=strtod(strtok(NULL,"[]"),NULL);
-				x[j]=molefraction;
-				if (j==0)
-					sprintf(RefString,"%s%s.fld",RefString,Refs[j]);
-				else
-					sprintf(RefString,"%s|%s.fld",RefString,Refs[j]);
-			}
-			// Free allocated memory
-			free(RefCopy);
-		}
-		else if (!strcmp(Ref,"Air") || !strcmp(Ref,"R507A") || !strcmp(Ref,"R404A") || !strcmp(Ref,"R410A") || !strcmp(Ref,"R407C") || !strcmp(Ref,"SES36"))
+		// Use flash routine to find properties
+		TPFLSHdll(&T,&p,x,&d,&dl,&dv,xliq,xvap,&q,&e,&h,&s,&cv,&cp,&w,&ierr,herr,errormessagelength);
+		if (Output=='H') return h/MW;
+		else if (Output=='D') return d*MW;
+		else if (Output=='S') return s/MW;
+		else if (Output=='U') return e/MW;
+		else if (Output=='C') return cp/MW;
+		else if (Output=='O') return cv/MW;
+		else if (Output=='P') return p;
+		else if (Output=='A') return w;
+		else if (Output=='V') 
 		{
-			i=1;
-			strcpy(RefString,"");
-			strcat(RefString,Ref);
-			strcat(RefString,".ppf");
-			x[0]=1.0;     //Pseudo-Pure fluid
-		}
-		else if (!strcmp(Ref,"R507A"))
+			TRNPRPdll(&T,&d,x,&eta,&tcx,&ierr,herr,errormessagelength);
+			return eta/1.0e6; //uPa-s to Pa-s
+		} 
+		else if (Output=='L')
 		{
-			i=2;
-			strcpy(RefString,"R23.fld|R116.fld");
-			x[0]=0.62675;
-			x[1]=0.37325;
-		}
-		else if (!strcmp(Ref,"R410A"))
-		{
-			i=2;
-			strcpy(RefString,"R32.fld|R125.fld");
-			x[0]=0.697615;
-			x[1]=0.302385;
-		}
-		else if (!strcmp(Ref,"R404A"))
-		{
-			i=3;
-			strcpy(RefString,"R125.fld|R134a.fld|R143a.fld");
-			x[0]=0.35782;
-			x[1]=0.038264;
-			x[2]=0.60392;
-		}
-        else if (!strcmp(Ref,"Air"))
-		{
-			i=3;
-			strcpy(RefString,"Nitrogen.fld|Oxygen.fld|Argon.fld");
-			x[0]=0.7812;
-			x[1]=0.2096;
-			x[2]=0.0092;
-		}
-		else
-		{
-			i=1;
-			strcpy(RefString,"");
-			strcat(RefString,Ref);
-			strcat(RefString,".fld");
-			x[0]=1.0;     //Pure fluid
-		}
-
-		strcpy(hf,RefString);
-		strcpy(hfmix,"hmx.bnc");
-		strcpy(hrf,"DEF");
-		strcpy(herr,"Ok");
-		
-		// If the name of the refrigerant doesn't match 
-		// that of the currently loaded refrigerant
-		if (strcmp(LoadedREFPROPRef,Ref))
-		{
-			ierr=999;
-			//...Call SETUP to initialize the program
-			SETUPdll(&i, hf, hfmix, hrf, &ierr, herr,
-				refpropcharlength*ncmax,refpropcharlength,
-				lengthofreference,errormessagelength);
-			if (ierr != 0) printf("REFPROP setup gives this error during SETUP: %s\n",herr);
-			//Copy the name of the loaded refrigerant back into the temporary holder
-			strcpy(LoadedREFPROPRef,Ref);
-		}
-
-		// Get the molar mass of the fluid
-		WMOLdll(x,&MW);
-		if (Output=='B')
-		{
-			// Critical temperature
-			CRITPdll(x,&Tcrit,&pcrit,&dcrit,&ierr,herr,255);
-			return Tcrit;
-		}
-		else if (Output=='E')
-		{
-			// Critical pressure
-			CRITPdll(x,&Tcrit,&pcrit,&dcrit,&ierr,herr,255);
-			return pcrit;
-		}
-		else if (Output =='N')
-		{
-			// Critical density
-			CRITPdll(x,&Tcrit,&pcrit,&dcrit,&ierr,herr,255);
-			return dcrit*MW;
-			
-		}
-		else if (Output =='w')
-		{
-			double wmm,Ttriple,tnbpt,tc,pc,Dc,Zc,acf,dip,Rgas;
-			// Accentric factor
-			if (i>1)
-			{
-				fprintf(stderr,"Error: Accentric factor only defined for pure fluids\n");
-				return _HUGE;
-			}
-			INFOdll(&i,&wmm,&Ttriple,&tnbpt,&tc,&pc,&Dc,&Zc,&acf,&dip,&Rgas);
-			return acf;
-		}
-		else if (Output =='o')
-		{
-			double wmm,Ttriple,tnbpt,tc,pc,Dc,Zc,acf,dip,Rgas;
-			// Dipole moment
-			if (i>1)
-			{
-				fprintf(stderr,"Error: Dipole moment only defined for pure fluids\n");
-				return _HUGE;
-			}
-			INFOdll(&i,&wmm,&Ttriple,&tnbpt,&tc,&pc,&Dc,&Zc,&acf,&dip,&Rgas);
-			return dip;
-		}
-		else if (Output=='R')
-		{
-			long icomp;
-			double wmm,Ttriple,tnbpt,tc,pc,Dc,Zc,acf,dip,Rgas;
-			// Triple point temperature
-			icomp=1;
-			if (i>1)
-			{
-				fprintf(stderr,"Error: Triple point temperature only defined for pure fluids\n");
-				return 200;
-			}
-			INFOdll(&icomp,&wmm,&Ttriple,&tnbpt,&tc,&pc,&Dc,&Zc,&acf,&dip,&Rgas);
-			return Ttriple;
-		}
-		else if (Output=='I')
-		{
-			if (Name1=='T'){
-				SURFTdll(&Prop1,&dl,x,&sigma,&i,herr,errormessagelength);
-				return sigma/1000;
-			}
-			else{
-				std::cout<< "If surface tension is the output, temperature must be the first input" << std::endl;
-				return _HUGE;
-			}
-		}
-		else if (Output=='M')
-		{
-			// mole mass
-			return MW;
-		}
-		else if (Name1=='T' && Name2=='P')
-		{
-			// T in K, P in kPa
-
-			// Use flash routine to find properties
-			T=Prop1;
-			p=Prop2;  
-			TPFLSHdll(&T,&p,x,&d,&dl,&dv,xliq,xvap,&q,&e,&h,&s,&cv,&cp,&w,&ierr,herr,errormessagelength);
-			if (Output=='H') return h/MW;
-			else if (Output=='D') return d*MW;
-			else if (Output=='S') return s/MW;
-			else if (Output=='U') return e/MW;
-			else if (Output=='C') return cp/MW;
-			else if (Output=='O') return cv/MW;
-			else if (Output=='P') return p;
-			else if (Output=='A') return w;
-			else if (Output=='V') 
-			{
-				TRNPRPdll(&T,&d,x,&eta,&tcx,&ierr,herr,errormessagelength);
-				return eta/1.0e6; //uPa-s to Pa-s
-			} 
-			else if (Output=='L')
-			{
-				TRNPRPdll(&T,&d,x,&eta,&tcx,&ierr,herr,errormessagelength);
-				return tcx/1000.0; //W/m-K to kW/m-K
-			}
-			else
-				return _HUGE;
-		}
-		else if (Name1=='T' && Name2=='D')
-		{
-			// T in K, D in kg/m^3
-			// This is the explicit formulation of the EOS
-			T=Prop1;
-			rho=Prop2/MW;
-			
-			TDFLSHdll(&T,&rho,x,&p,&dl,&dv,xliq,xvap,&q,&e,&h,&s,&cv,&cp,&w,&ierr,herr,errormessagelength);
-
-			if (Output=='P')
-			{
-				return p;
-			}
-			if (Output=='H')
-			{
-				return h/MW;
-			}
-			else if (Output=='A')
-			{
-				return w;
-			}
-			else if (Output=='S')
-			{
-				return s/MW;
-			}
-			else if (Output=='U')
-			{
-				return (h-p/rho)/MW;
-			}
-			else if (Output=='C')
-			{
-				return cp/MW;
-			}
-			else if (Output=='O')
-			{
-				return cv/MW;
-			}
-			else if (Output=='V') 
-			{
-				TRNPRPdll(&T,&rho,x,&eta,&tcx,&ierr,herr,errormessagelength);
-				return eta/1.0e6; //uPa-s to Pa-s
-			} 
-			else if (Output=='L')
-			{
-				TRNPRPdll(&T,&rho,x,&eta,&tcx,&ierr,herr,errormessagelength);
-				return tcx/1000.0; //W/m-K to kW/m-K
-			}
-			else if (Output=='D')
-			{
-				return rho*MW;
-			}
-			else
-				return _HUGE;
-		}
-		else if (Name1=='T' && Name2=='Q')
-		{
-			T=Prop1;
-			Q=Prop2;
-			
-			// Saturation Density
-			i=1;
-			SATTdll(&T,x,&i,&pl,&dl,&dv_,xliq,xvap,&ierr,herr,errormessagelength);
-			i=2;
-			SATTdll(&T,x,&i,&pv,&dl_,&dv,xliq,xvap,&ierr,herr,errormessagelength);
-			if (Output=='D') 
-			{
-				return 1/(Q/dv+(1-Q)/dl)*MW;
-			}
-			else if (Output=='P') 
-			{
-				return (pv*Q+pl*(1-Q));
-			}
-			else if (Output=='A')
-			{
-				rho=1/(Q/dv+(1-Q)/dl);
-				THERMdll(&T,&rho,x,&p,&e,&h,&s,&cv,&cp,&w,&hjt);
-				return w;
-			}
-			else if (Output=='H') 
-			{
-				ENTHALdll(&T,&dl,xliq,&hl);
-				ENTHALdll(&T,&dv,xvap,&hv);
-				return (hv*Q+hl*(1-Q))/MW; // J/kg to kJ/kg
-			}
-			else if (Output=='S') 
-			{
-				ENTROdll(&T,&dl,xliq,&sl);
-				ENTROdll(&T,&dv,xvap,&sv);
-				return (sv*Q+sl*(1-Q))/MW; // J/kg-K to kJ/kg-K
-			}
-			else if (Output=='U') 
-			{
-				ENTHALdll(&T,&dl,xliq,&hl);
-				ENTHALdll(&T,&dv,xvap,&hv);
-				p=pv*Q+pl*(1-Q);
-				ul=hl-p/dl;
-				uv=hv-p/dv;
-				return (uv*Q+ul*(1-Q))/MW; // J/kg to kJ/kg
-			}
-			else if (Output=='C') 
-			{
-				d=1/(Q/dv+(1-Q)/dl);
-				CVCPdll(&T,&d,x,&cv,&cp);
-				return cp/MW; // J/kg-K to kJ/kg-K
-			}
-			else if (Output=='O') 
-			{
-				d=1/(Q/dv+(1-Q)/dl);
-				CVCPdll(&T,&d,x,&cv,&cp);
-				return cv/MW; // J/kg-K to kJ/kg-K
-			}
-			else if (Output=='V') 
-			{
-				d=1/(Q/dv+(1-Q)/dl);
-				TRNPRPdll(&T,&d,x,&eta,&tcx,&ierr,herr,errormessagelength);
-				return eta/1.0e6; //uPa-s to Pa-s
-			}
-			else if (Output=='L') 
-			{
-				d=1/(Q/dv+(1-Q)/dl);
-				TRNPRPdll(&T,&d,x,&eta,&tcx,&ierr,herr,errormessagelength);
-				return tcx/1000.0; //W/m-K to kW/m-K
-			}
-			else
-				return _HUGE;
-		}
-		else if (Name1=='P' && Name2=='Q')
-		{
-			p=Prop1;
-			Q=Prop2;
-			// Saturation Density
-			SATPdll(&p,x,&i,&T,&dl,&dv,xliq,xvap,&ierr,herr,errormessagelength);
-			if (Output=='T')
-			{
-				return T;
-			}
-			else if (Output=='D') 
-			{
-				return 1/(Q/dv+(1-Q)/dl)*MW;
-			}
-			else if (Output=='P') 
-			{
-				PRESSdll(&T,&dl,xliq,&pl);
-				PRESSdll(&T,&dv,xvap,&pv);
-				return (pv*Q+pl*(1-Q));
-			}
-			else if (Output=='H') 
-			{
-				ENTHALdll(&T,&dl,xliq,&hl);
-				ENTHALdll(&T,&dv,xvap,&hv);
-				return (hv*Q+hl*(1-Q))/MW; // J/kg to kJ/kg
-			}
-			else if (Output=='S') 
-			{
-				ENTROdll(&T,&dl,xliq,&sl);
-				ENTROdll(&T,&dv,xvap,&sv);
-				return (sv*Q+sl*(1-Q))/MW; // J/kg-K to kJ/kg-K
-			}
-			else if (Output=='U') 
-			{
-				ENTHALdll(&T,&dl,xliq,&hl);
-				ENTHALdll(&T,&dv,xvap,&hv);
-				ul=hl-p/dl;
-				uv=hv-p/dv;
-				return (uv*Q+ul*(1-Q))/MW; // J/kg to kJ/kg
-			}
-			else if (Output=='C') 
-			{
-				d=1/(Q/dv+(1-Q)/dl);
-				CVCPdll(&T,&d,x,&cv,&cp);
-				return cp/MW; // J/kg-K to kJ/kg-K
-			}
-			else if (Output=='O') 
-			{
-				d=1/(Q/dv+(1-Q)/dl);
-				CVCPdll(&T,&d,x,&cv,&cp);
-				return cv/MW; // J/kg-K to kJ/kg-K
-			}
-			else if (Output=='A')
-			{
-				rho=1/(Q/dv+(1-Q)/dl);
-				THERMdll(&T,&rho,x,&p,&e,&h,&s,&cv,&cp,&w,&hjt);
-				return w;
-			}
-			else if (Output=='V') 
-			{
-				d=1/(Q/dv+(1-Q)/dl);
-				TRNPRPdll(&T,&d,x,&eta,&tcx,&ierr,herr,errormessagelength);
-				return eta/1.0e6; //uPa-s to Pa-s
-			}
-			else if (Output=='L') 
-			{
-				d=1/(Q/dv+(1-Q)/dl);
-				TRNPRPdll(&T,&d,x,&eta,&tcx,&ierr,herr,errormessagelength);
-				return tcx/1000.0; //W/m-K to kW/m-K
-			}
-			else
-				return _HUGE;
+			TRNPRPdll(&T,&d,x,&eta,&tcx,&ierr,herr,errormessagelength);
+			return tcx/1000.0; //W/m-K to kW/m-K
 		}
 		else
 			return _HUGE;
+	}
+	else if ((Name1=='T' && Name2=='D') || (Name2=='T' && Name1=='D'))
+	{
+		// T in K, D in kg/m^3
+		if (Name1 == 'T'){
+			T = Prop1; rho = Prop2/MW;
+		}
+		else{
+			rho = Prop1/MW; T = Prop2;
+		}
+		
+		// This is the explicit formulation of the EOS
+		TDFLSHdll(&T,&rho,x,&p,&dl,&dv,xliq,xvap,&q,&e,&h,&s,&cv,&cp,&w,&ierr,herr,errormessagelength);
+
+		if (Output=='P')
+		{
+			return p;
+		}
+		if (Output=='H')
+		{
+			return h/MW;
+		}
+		else if (Output=='A')
+		{
+			return w;
+		}
+		else if (Output=='S')
+		{
+			return s/MW;
+		}
+		else if (Output=='U')
+		{
+			return (h-p/rho)/MW;
+		}
+		else if (Output=='C')
+		{
+			return cp/MW;
+		}
+		else if (Output=='O')
+		{
+			return cv/MW;
+		}
+		else if (Output=='V') 
+		{
+			TRNPRPdll(&T,&rho,x,&eta,&tcx,&ierr,herr,errormessagelength);
+			return eta/1.0e6; //uPa-s to Pa-s
+		} 
+		else if (Output=='L')
+		{
+			TRNPRPdll(&T,&rho,x,&eta,&tcx,&ierr,herr,errormessagelength);
+			return tcx/1000.0; //W/m-K to kW/m-K
+		}
+		else if (Output=='D')
+		{
+			return rho*MW;
+		}
+		else
+			return _HUGE;
+	}
+	else if ((Name1=='T' && Name2=='Q') || (Name2=='T' && Name1=='Q'))
+	{
+
+		if (Name1 == 'T'){
+			T = Prop1; Q = Prop2;
+		}
+		else{
+			Q = Prop1; T = Prop2;
+		}
+		
+		// Saturation Density
+		i=1;
+		SATTdll(&T,x,&i,&pl,&dl,&dv_,xliq,xvap,&ierr,herr,errormessagelength);
+		i=2;
+		SATTdll(&T,x,&i,&pv,&dl_,&dv,xliq,xvap,&ierr,herr,errormessagelength);
+		if (Output=='D') 
+		{
+			return 1/(Q/dv+(1-Q)/dl)*MW;
+		}
+		else if (Output=='P') 
+		{
+			return (pv*Q+pl*(1-Q));
+		}
+		else if (Output=='A')
+		{
+			rho=1/(Q/dv+(1-Q)/dl);
+			THERMdll(&T,&rho,x,&p,&e,&h,&s,&cv,&cp,&w,&hjt);
+			return w;
+		}
+		else if (Output=='H') 
+		{
+			ENTHALdll(&T,&dl,xliq,&hl);
+			ENTHALdll(&T,&dv,xvap,&hv);
+			return (hv*Q+hl*(1-Q))/MW; // J/kg to kJ/kg
+		}
+		else if (Output=='S') 
+		{
+			ENTROdll(&T,&dl,xliq,&sl);
+			ENTROdll(&T,&dv,xvap,&sv);
+			return (sv*Q+sl*(1-Q))/MW; // J/kg-K to kJ/kg-K
+		}
+		else if (Output=='U') 
+		{
+			ENTHALdll(&T,&dl,xliq,&hl);
+			ENTHALdll(&T,&dv,xvap,&hv);
+			p=pv*Q+pl*(1-Q);
+			ul=hl-p/dl;
+			uv=hv-p/dv;
+			return (uv*Q+ul*(1-Q))/MW; // J/kg to kJ/kg
+		}
+		else if (Output=='C') 
+		{
+			d=1/(Q/dv+(1-Q)/dl);
+			CVCPdll(&T,&d,x,&cv,&cp);
+			return cp/MW; // J/kg-K to kJ/kg-K
+		}
+		else if (Output=='O') 
+		{
+			d=1/(Q/dv+(1-Q)/dl);
+			CVCPdll(&T,&d,x,&cv,&cp);
+			return cv/MW; // J/kg-K to kJ/kg-K
+		}
+		else if (Output=='V') 
+		{
+			d=1/(Q/dv+(1-Q)/dl);
+			TRNPRPdll(&T,&d,x,&eta,&tcx,&ierr,herr,errormessagelength);
+			return eta/1.0e6; //uPa-s to Pa-s
+		}
+		else if (Output=='L') 
+		{
+			d=1/(Q/dv+(1-Q)/dl);
+			TRNPRPdll(&T,&d,x,&eta,&tcx,&ierr,herr,errormessagelength);
+			return tcx/1000.0; //W/m-K to kW/m-K
+		}
+		else
+			return _HUGE;
+	}
+	else if ((Name1=='P' && Name2=='Q') || (Name2=='P' && Name1=='Q'))
+	{
+
+		if (Name1 == 'P'){
+			p = Prop1; Q = Prop2;
+		}
+		else{
+			Q = Prop1; p = Prop2;
+		}
+
+		// Saturation Density
+		SATPdll(&p,x,&i,&T,&dl,&dv,xliq,xvap,&ierr,herr,errormessagelength);
+		if (Output=='T')
+		{
+			return T;
+		}
+		else if (Output=='D') 
+		{
+			return 1/(Q/dv+(1-Q)/dl)*MW;
+		}
+		else if (Output=='P') 
+		{
+			PRESSdll(&T,&dl,xliq,&pl);
+			PRESSdll(&T,&dv,xvap,&pv);
+			return (pv*Q+pl*(1-Q));
+		}
+		else if (Output=='H') 
+		{
+			ENTHALdll(&T,&dl,xliq,&hl);
+			ENTHALdll(&T,&dv,xvap,&hv);
+			return (hv*Q+hl*(1-Q))/MW; // J/kg to kJ/kg
+		}
+		else if (Output=='S') 
+		{
+			ENTROdll(&T,&dl,xliq,&sl);
+			ENTROdll(&T,&dv,xvap,&sv);
+			return (sv*Q+sl*(1-Q))/MW; // J/kg-K to kJ/kg-K
+		}
+		else if (Output=='U') 
+		{
+			ENTHALdll(&T,&dl,xliq,&hl);
+			ENTHALdll(&T,&dv,xvap,&hv);
+			ul=hl-p/dl;
+			uv=hv-p/dv;
+			return (uv*Q+ul*(1-Q))/MW; // J/kg to kJ/kg
+		}
+		else if (Output=='C') 
+		{
+			d=1/(Q/dv+(1-Q)/dl);
+			CVCPdll(&T,&d,x,&cv,&cp);
+			return cp/MW; // J/kg-K to kJ/kg-K
+		}
+		else if (Output=='O') 
+		{
+			d=1/(Q/dv+(1-Q)/dl);
+			CVCPdll(&T,&d,x,&cv,&cp);
+			return cv/MW; // J/kg-K to kJ/kg-K
+		}
+		else if (Output=='A')
+		{
+			rho=1/(Q/dv+(1-Q)/dl);
+			THERMdll(&T,&rho,x,&p,&e,&h,&s,&cv,&cp,&w,&hjt);
+			return w;
+		}
+		else if (Output=='V') 
+		{
+			d=1/(Q/dv+(1-Q)/dl);
+			TRNPRPdll(&T,&d,x,&eta,&tcx,&ierr,herr,errormessagelength);
+			return eta/1.0e6; //uPa-s to Pa-s
+		}
+		else if (Output=='L') 
+		{
+			d=1/(Q/dv+(1-Q)/dl);
+			TRNPRPdll(&T,&d,x,&eta,&tcx,&ierr,herr,errormessagelength);
+			return tcx/1000.0; //W/m-K to kW/m-K
+		}
+		else
+			return _HUGE;
+	}
+	else if ((Name1=='P' && Name2=='H') || (Name2=='P' && Name1=='H'))
+	{
+		// p in kPa, h in kJ/kg
+		if (Name1 == 'P'){
+			p = Prop1; h = Prop2*MW;
+		}
+		else{
+			h = Prop1*MW; p = Prop2;
+		}
+		
+		// Use flash routine to find properties
+		PHFLSHdll(&p,&h,x,&T,&d,&dl,&dv,xliq,xvap,&q,&e,&s,&cv,&cp,&w,&ierr,herr,errormessagelength);
+		if (Output=='H') return h/MW;
+		else if (Output=='T') return T;
+		else if (Output=='D') return d*MW;
+		else if (Output=='S') return s/MW;
+		else if (Output=='U') return e/MW;
+		else if (Output=='C') return cp/MW;
+		else if (Output=='O') return cv/MW;
+		else if (Output=='P') return p;
+		else if (Output=='A') return w;
+		else if (Output=='V') 
+		{
+			TRNPRPdll(&T,&d,x,&eta,&tcx,&ierr,herr,errormessagelength);
+			return eta/1.0e6; //uPa-s to Pa-s
+		} 
+		else if (Output=='L')
+		{
+			TRNPRPdll(&T,&d,x,&eta,&tcx,&ierr,herr,errormessagelength);
+			return tcx/1000.0; //W/m-K to kW/m-K
+		}
+		else
+			return _HUGE;
+	}
+	else
+		return _HUGE;
 }
 #endif

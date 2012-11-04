@@ -126,31 +126,33 @@ OctamethyltrisiloxaneClass::OctamethyltrisiloxaneClass()
 }
 double OctamethyltrisiloxaneClass::rhosatL(double T) 
 {
-	double A = reduce.p*params.molemass/params.R_u/reduce.T;
-	double B = reduce.p/(reduce.rho*params.R_u/params.molemass*reduce.T);
-	double C = reduce.T;
-	double D = 2.0/7.0;
-    return A/pow(B,1+pow(1-T/C,D));
-}
-double OctamethyltrisiloxaneClass::rhosatV(double T) 
-{
-    double rhoc = reduce.rho;
 	double theta = 1-T/reduce.T;
 	double RHS,rho;
 
-	// Max error is 96.205848 %
-	RHS = +0.740718*pow(theta,0.3)
-		  -26.952900*pow(theta,0.9)
-		  +37.116438*pow(theta,1.5)
-		  -83.326173*pow(theta,3.2);
-	rho = exp(RHS)*rhoc;
+	// Max error is 0.302445 %
+	RHS = +0.078367*pow(theta,0.000000)+1.349838*pow(theta,0.296634)-0.005638*pow(theta,3.479858)-0.183289*pow(theta,4.132701)+0.118136*pow(theta,5.130423)+0.416073*pow(theta,6.155667);
+	rho = exp(RHS)*reduce.rho;
+	return rho;
+}
+double OctamethyltrisiloxaneClass::rhosatV(double T) 
+{
+	double theta = 1-T/reduce.T;
+	double RHS,rho;
+
+	// Max error is 1.778104 %
+	RHS = -1.048698*pow(theta,0.247369)-5.092477*pow(theta,0.713675)-3.797490*pow(theta,3.909802)-3.570078*pow(theta,3.001271)-2.125414*pow(theta,3.929410)-0.833132*pow(theta,6.254329);
+	rho = exp(RHS*reduce.T/T)*reduce.rho;
 	return rho;
 }
 double OctamethyltrisiloxaneClass::psat(double T) 
 {
-    double THETA = 1-T/reduce.T;
-    double RHS = -8.5589*THETA+2.0278*pow(THETA,1.5)-2.8501*pow(THETA,2.3)-6.4397*pow(THETA,4.0)-8.5460*pow(THETA,13.0);
-    return exp(reduce.T/T*RHS)*reduce.p;
+    double theta = 1-T/reduce.T;
+	double RHS,p;
+
+	// Max error is 1.053362 %
+	RHS = -7.765160*pow(theta,0.984389)-5.002622*pow(theta,3.506411)-2.478207*pow(theta,4.186938)-1.023016*pow(theta,4.808272)-0.201986*pow(theta,5.513089);
+	p = exp(RHS*reduce.T/T)*reduce.p;
+	return p;
 }
 
 //MD2M
@@ -221,31 +223,33 @@ DecamethyltetrasiloxaneClass::DecamethyltetrasiloxaneClass()
 }
 double DecamethyltetrasiloxaneClass::rhosatL(double T) 
 {
-	double A = reduce.p*params.molemass/params.R_u/reduce.T;
-	double B = reduce.p/(reduce.rho*params.R_u/params.molemass*reduce.T);
-	double C = reduce.T;
-	double D = 2.0/7.0;
-    return A/pow(B,1+pow(1-T/C,D));
-}
-double DecamethyltetrasiloxaneClass::rhosatV(double T) 
-{
-	double rhoc = reduce.rho;
 	double theta = 1-T/reduce.T;
 	double RHS,rho;
 
-	// Max error is 81.362003 %
-	RHS = +0.564413*pow(theta,0.3)
-		  -26.829650*pow(theta,0.9)
-		  +35.702268*pow(theta,1.5)
-		  -85.660462*pow(theta,3.2);
-	rho = exp(RHS)*rhoc;
+	// Max error is 0.222790 %
+	RHS = +1.308255*pow(theta,0.286019)+0.298564*pow(theta,2.774999)-0.249494*pow(theta,3.604257)-0.208559*pow(theta,4.311892)+0.062389*pow(theta,5.214777)+0.366547*pow(theta,6.192231);
+	rho = exp(RHS)*reduce.rho;
+	return rho;
+}
+double DecamethyltetrasiloxaneClass::rhosatV(double T) 
+{
+	double theta = 1-T/reduce.T;
+	double RHS,rho;
+
+	// Max error is 1.208888 %
+	RHS = -0.960382*pow(theta,0.278536)-5.480676*pow(theta,0.662789)-2.828222*pow(theta,18.650241)-5.572572*pow(theta,3.335709)-4.457275*pow(theta,3.347180)-0.138084*pow(theta,5.498642);
+	rho = exp(RHS*reduce.T/T)*reduce.rho;
 	return rho;
 }
 double DecamethyltetrasiloxaneClass::psat(double T) 
 {
-    double THETA = 1-T/reduce.T;
-    double RHS = -10.072*THETA+4.1849*pow(THETA,2.2965)+-6.9586*pow(THETA,-4.4658)+-4.8277*pow(THETA,-8.4529);
-    return exp(reduce.T/T*RHS)*reduce.p;
+	double theta = 1-T/reduce.T;
+	double RHS,p;
+
+	// Max error is 0.653417 %
+	RHS = -10.255244*pow(theta,1.003893)-14.680968*pow(theta,8.315832)-8.013482*pow(theta,2.914286)+3.386436*pow(theta,1.418176)+14.914376*pow(theta,9.632505);
+	p = exp(RHS*reduce.T/T)*reduce.p;
+	return p;
 }
 
 //MD3M
@@ -316,31 +320,33 @@ DodecamethylpentasiloxaneClass::DodecamethylpentasiloxaneClass()
 }
 double DodecamethylpentasiloxaneClass::rhosatL(double T) 
 {
-	double A = reduce.p*params.molemass/params.R_u/reduce.T;
-	double B = reduce.p/(reduce.rho*params.R_u/params.molemass*reduce.T);
-	double C = reduce.T;
-	double D = 2.0/7.0;
-    return A/pow(B,1+pow(1-T/C,D));
-}
-double DodecamethylpentasiloxaneClass::rhosatV(double T) 
-{
-	double rhoc = reduce.rho;
 	double theta = 1-T/reduce.T;
 	double RHS,rho;
 
-	// Max error is 211.128665 %
-	RHS = +2.193063*pow(theta,0.3)
-		  -39.614003*pow(theta,0.9)
-		  +58.043624*pow(theta,1.5)
-		  -112.804111*pow(theta,3.2);
-	rho = exp(RHS)*rhoc;
+	// Max error is 0.189418 %
+	RHS = +1.444130*pow(theta,0.283323)-0.302728*pow(theta,2.044798)+0.541210*pow(theta,3.052636)+0.068940*pow(theta,4.204474)-0.201696*pow(theta,5.091646)-0.097683*pow(theta,5.995629);
+	rho = exp(RHS)*reduce.rho;
+	return rho;
+}
+double DodecamethylpentasiloxaneClass::rhosatV(double T) 
+{
+	double theta = 1-T/reduce.T;
+	double RHS,rho;
+
+	// Max error is 0.438429 %
+	RHS = -0.684316*pow(theta,0.224289)-5.775962*pow(theta,0.647314)-4.949845*pow(theta,12.992735)-5.441576*pow(theta,2.995052)-4.656813*pow(theta,3.081345)-2.895576*pow(theta,5.572842);
+	rho = exp(RHS*reduce.T/T)*reduce.rho;
 	return rho;
 }
 double DodecamethylpentasiloxaneClass::psat(double T) 
 {
-    double THETA = 1-T/reduce.T;
-    double RHS = -9.531*THETA+2.7012*pow(THETA,4.1849)+-6.9841*pow(THETA,-6.9586)+-6.5038*pow(THETA,-4.8277);
-    return exp(reduce.T/T*RHS)*reduce.p;
+    double theta = 1-T/reduce.T;
+	double RHS,p;
+
+	// Max error is 1.742903 %
+	RHS = -9.420404*pow(theta,1.006686)-196.634130*pow(theta,11.675161)-33.068505*pow(theta,29.446680)-75.039718*pow(theta,5.418764)-24.437771*pow(theta,2.613191);
+	p = exp(RHS)*reduce.p;
+	return p;
 }
 
 //D6
@@ -411,31 +417,33 @@ DodecamethylcyclohexasiloxaneClass::DodecamethylcyclohexasiloxaneClass()
 }
 double DodecamethylcyclohexasiloxaneClass::rhosatL(double T) 
 {
-	double A = reduce.p*params.molemass/params.R_u/reduce.T;
-	double B = reduce.p/(reduce.rho*params.R_u/params.molemass*reduce.T);
-	double C = reduce.T;
-	double D = 2.0/7.0;
-    return A/pow(B,1+pow(1-T/C,D));
-}
-double DodecamethylcyclohexasiloxaneClass::rhosatV(double T) 
-{
-	double rhoc = reduce.rho;
 	double theta = 1-T/reduce.T;
 	double RHS,rho;
 
-	// Max error is 27.900863 %
-	RHS = -0.516885*pow(theta,0.3)
-		  -17.855403*pow(theta,0.9)
-		  +19.163264*pow(theta,1.5)
-		  -72.670303*pow(theta,3.2);
-	rho = exp(RHS)*rhoc;
+	// Max error is 0.390948 %
+	RHS = +1.508669*pow(theta,0.299083)-0.367377*pow(theta,2.751619)+0.197308*pow(theta,3.522398)+0.393542*pow(theta,4.060807)+0.115383*pow(theta,4.768416)-0.125626*pow(theta,5.916593);
+	rho = exp(RHS)*reduce.rho;
+	return rho;
+}
+double DodecamethylcyclohexasiloxaneClass::rhosatV(double T) 
+{
+	double theta = 1-T/reduce.T;
+	double RHS,rho;
+
+	// Max error is 0.463858 %
+	RHS = -2.334877*pow(theta,0.354340)-84.316983*pow(theta,8.854211)-36.472358*pow(theta,6.602777)-9.706856*pow(theta,1.066697)-29.464799*pow(theta,3.643699)-17.991230*pow(theta,3.468228)-10.449427*pow(theta,9.287216);
+	rho = exp(RHS)*reduce.rho;
 	return rho;
 }
 double DodecamethylcyclohexasiloxaneClass::psat(double T) 
 {
-    double THETA = 1-T/reduce.T;
-    double RHS = -10.275*THETA+4.1393*pow(THETA,2.7012)+-7.7307*pow(THETA,-6.9841)+-5.9825*pow(THETA,-6.5038);
-    return exp(reduce.T/T*RHS)*reduce.p;
+	double theta = 1-T/reduce.T;
+	double RHS,p;
+
+	// Max error is 1.754539 %
+	RHS = -10.075325*pow(theta,1.012056)-134.690578*pow(theta,9.074796)-43.425090*pow(theta,5.030680)-32.551643*pow(theta,11.673831)-27.321344*pow(theta,2.821284);
+	p = exp(RHS)*reduce.p;
+	return p;
 }
 
 //MM
@@ -518,32 +526,33 @@ HexamethyldisiloxaneClass::HexamethyldisiloxaneClass()
 }
 double HexamethyldisiloxaneClass::rhosatL(double T) 
 {
-	double A = reduce.p*params.molemass/params.R_u/reduce.T;
-	double B = reduce.p/(reduce.rho*params.R_u/params.molemass*reduce.T);
-	double C = reduce.T;
-	double D = 2.0/7.0;
-    double rho = A/pow(B,1+pow(1-T/C,D));
+	double theta = 1-T/reduce.T;
+	double RHS,rho;
+
+	// Max error is 0.177687 %
+	RHS = +4.701517*pow(theta,0.429578)-3.554857*pow(theta,0.485308)+0.461167*pow(theta,4.050387)-0.438751*pow(theta,4.407893)-0.107601*pow(theta,5.383350)+0.294769*pow(theta,6.326992);
+	rho = exp(RHS)*reduce.rho;
 	return rho;
 }
 double HexamethyldisiloxaneClass::rhosatV(double T) 
 {
-	double rhoc = 304.404388825315;
-	double theta = 1 - T/reduce.T;
+	double theta = 1-T/reduce.T;
 	double RHS,rho;
 
-	// Max error is 1.832708 % between 300K and crit temp
-	RHS = -2.219346*pow(theta,0.3)
-		  -5.000191*pow(theta,0.9)
-		  -2.252852*pow(theta,1.5)
-		  -31.605209*pow(theta,3.2);
-	rho = exp(RHS)*rhoc;
+	// Max error is 0.625617 %
+	RHS = -3.349640*pow(theta,0.363375)-3.919482*pow(theta,1.308131)-5.046495*pow(theta,5.251634)-3.395130*pow(theta,4.732761)-1.880353*pow(theta,5.885600)-0.727824*pow(theta,6.806098);
+	rho = exp(RHS*reduce.T/T)*reduce.rho;
 	return rho;
 }
 double HexamethyldisiloxaneClass::psat(double T) 
 {
-    double THETA = 1-T/reduce.T;
-    double RHS = -7.338*THETA-0.3093*pow(THETA,4.1393)+0.20125*pow(THETA,-7.7307)-13.455*pow(THETA,-5.9825);
-    return exp(reduce.T/T*RHS)*reduce.p;
+    double theta = 1-T/reduce.T;
+	double RHS,p;
+
+	// Max error is 0.636597 %
+	RHS = -6.993179*pow(theta,0.968165)-3.963479*pow(theta,3.066906)-1.333772*pow(theta,4.415999)-0.096273*pow(theta,4.801166)+0.499673*pow(theta,5.391500);
+	p = exp(RHS*reduce.T/T)*reduce.p;
+	return p;
 }
 
 //MD4M
@@ -630,32 +639,33 @@ TetradecamethylhexasiloxaneClass::TetradecamethylhexasiloxaneClass()
 }
 double TetradecamethylhexasiloxaneClass::rhosatL(double T) 
 {
-	double A = reduce.p*params.molemass/params.R_u/reduce.T;
-	double B = reduce.p/(reduce.rho*params.R_u/params.molemass*reduce.T);
-	double C = reduce.T;
-	double D = 2.0/7.0;
-    double rho = A/pow(B,1+pow(1-T/C,D));
+	double theta = 1-T/reduce.T;
+	double RHS,rho;
+
+	// Max error is 0.736426 %
+	RHS = +1.323853*pow(theta,0.281503)+0.147420*pow(theta,3.828555)+0.246462*pow(theta,3.896665)-0.346926*pow(theta,4.315933)-0.173105*pow(theta,5.291410)+0.187277*pow(theta,6.286236);
+	rho = exp(RHS)*reduce.rho;
 	return rho;
 }
 double TetradecamethylhexasiloxaneClass::rhosatV(double T) 
 {
-	double rhoc = reduce.rho;
 	double theta = 1-T/reduce.T;
 	double RHS,rho;
 
-	// Max error is 17.785355 %
-	RHS = -1.140416*pow(theta,0.3)
-		  -14.921997*pow(theta,0.9)
-		  +13.506731*pow(theta,1.5)
-		  -70.413994*pow(theta,3.2);
-	rho = exp(RHS)*rhoc;
+	// Max error is 0.158764 %
+	RHS = -0.411516*pow(theta,0.123844)-6.464782*pow(theta,0.633729)-11.135283*pow(theta,17.959104)-10.395902*pow(theta,3.308400)-2.873559*pow(theta,3.275238)-1.178585*pow(theta,9.838501);
+	rho = exp(RHS*reduce.T/T)*reduce.rho;
 	return rho;
 }
 double TetradecamethylhexasiloxaneClass::psat(double T) 
 {
-    double THETA = 1-T/reduce.T;
-    double RHS = -10.2921*THETA+3.3035*pow(THETA,-0.3093)+-8.0592*pow(THETA,0.20125)+-2.4366*pow(THETA,-13.455);
-    return exp(reduce.T/T*RHS)*reduce.p;
+    double theta = 1-T/reduce.T;
+	double RHS,p;
+
+	// Max error is 0.104803 %
+	RHS = -9.945866*pow(theta,0.993284)-113.010891*pow(theta,7.297341)-38.114082*pow(theta,24.782767)-33.140158*pow(theta,4.160418)-21.201196*pow(theta,2.574117);
+	p = exp(RHS)*reduce.p;
+	return p;
 }
 
 //D4
@@ -741,32 +751,33 @@ OctamethylcyclotetrasiloxaneClass::OctamethylcyclotetrasiloxaneClass()
 }
 double OctamethylcyclotetrasiloxaneClass::rhosatL(double T) 
 {
-	double A = reduce.p*params.molemass/params.R_u/reduce.T;
-	double B = reduce.p/(reduce.rho*params.R_u/params.molemass*reduce.T);
-	double C = reduce.T;
-	double D = 2.0/7.0;
-    double rho = A/pow(B,1+pow(1-T/C,D));
-	return rho;
+		double theta = 1-T/reduce.T;
+		double RHS,rho;
+
+		// Max error is 0.063302 %
+		RHS = +0.104571*pow(theta,0.045868)+1.250508*pow(theta,0.294117)+4.015272*pow(theta,4.002063)-2.091843*pow(theta,3.489495)-2.218802*pow(theta,5.461110)-1.211494*pow(theta,6.781263);
+		rho = exp(RHS)*reduce.rho;
+		return rho;
 }
 double OctamethylcyclotetrasiloxaneClass::rhosatV(double T) 
 {
-	double rhoc = reduce.rho;
 	double theta = 1-T/reduce.T;
 	double RHS,rho;
 
-	// Max error is 6.584655 %
-	RHS = -1.507450*pow(theta,0.3)
-		  -9.626093*pow(theta,0.9)
-		  +4.782647*pow(theta,1.5)
-		  -50.192115*pow(theta,3.2);
-	rho = exp(RHS)*rhoc;
+	// Max error is 0.539080 %
+	RHS = -0.836967*pow(theta,0.246119)-4.887839*pow(theta,0.626148)-5.741624*pow(theta,2.543434)-3.669516*pow(theta,4.023274)-2.021077*pow(theta,5.824788)-0.819746*pow(theta,6.842893);
+	rho = exp(RHS*reduce.T/T)*reduce.rho;
 	return rho;
 }
 double OctamethylcyclotetrasiloxaneClass::psat(double T) 
 {
-    double THETA = 1-T/reduce.T;
-    double RHS = -8.8952*THETA+2.5694*pow(THETA,3.3035)+-6.3275*pow(THETA,-8.0592)+-3.5483*pow(THETA,-2.4366);
-    return exp(reduce.T/T*RHS)*reduce.p;
+	double theta = 1-T/reduce.T;
+	double RHS,p;
+
+	// Max error is 1.931173 %
+	RHS = -8.107067*pow(theta,0.989493)-15.105377*pow(theta,2.829970)-7.034093*pow(theta,5.585178)+7.153378*pow(theta,2.409375)+9.431011*pow(theta,5.477738);
+	p = exp(RHS*reduce.T/T)*reduce.p;
+	return p;
 }
 
 //D5
@@ -853,30 +864,31 @@ DecamethylcyclopentasiloxaneClass::DecamethylcyclopentasiloxaneClass()
 }
 double DecamethylcyclopentasiloxaneClass::rhosatL(double T) 
 {
-	double A = reduce.p*params.molemass/params.R_u/reduce.T;
-	double B = reduce.p/(reduce.rho*params.R_u/params.molemass*reduce.T);
-	double C = reduce.T;
-	double D = 2.0/7.0;
-    double rho = A/pow(B,1+pow(1-T/C,D));
+	double theta = 1-T/reduce.T;
+	double RHS,rho;
+
+	// Max error is 0.260518 %
+	RHS = +1.080094*pow(theta,0.198987)+0.585719*pow(theta,1.050756)-0.605915*pow(theta,3.284144)-0.279332*pow(theta,3.681234)+0.797515*pow(theta,5.186809)+1.061822*pow(theta,6.108004);
+	rho = exp(RHS)*reduce.rho;
 	return rho;
 }
 double DecamethylcyclopentasiloxaneClass::rhosatV(double T) 
 {
-	double rhoc = reduce.rho;
 	double theta = 1-T/reduce.T;
 	double RHS,rho;
 
-	// Max error is 8.958681 %
-	RHS = -1.163417*pow(theta,0.3)
-		  -11.715446*pow(theta,0.9)
-		  +7.824346*pow(theta,1.5)
-		  -54.839101*pow(theta,3.2);
-	rho = exp(RHS)*rhoc;
+	// Max error is 0.660365 %
+	RHS = -0.752767*pow(theta,0.311678)-5.032494*pow(theta,0.603043)-8.781241*pow(theta,9.277681)-7.681111*pow(theta,2.635003)-4.604776*pow(theta,6.635875)-2.743916*pow(theta,7.810733);
+	rho = exp(RHS*reduce.T/T)*reduce.rho;
 	return rho;
 }
 double DecamethylcyclopentasiloxaneClass::psat(double T) 
 {
-    double THETA = 1-T/reduce.T;
-    double RHS = -9.4473*THETA+3.0697*pow(THETA,2.5694)+-6.9411*pow(THETA,-6.3275)+-2.1692*pow(THETA,-3.5483);
-    return exp(reduce.T/T*RHS)*reduce.p;
+	double theta = 1-T/reduce.T;
+	double RHS,p;
+
+	// Max error is 1.040101 %
+	RHS = -9.243668*pow(theta,0.996513)-98.611662*pow(theta,6.934223)-32.083059*pow(theta,2.871414)-18.793106*pow(theta,8.376677)-12.211323*pow(theta,9.708690)-6.644894*pow(theta,10.070804);
+	p = exp(RHS)*reduce.p;
+	return p;
 }

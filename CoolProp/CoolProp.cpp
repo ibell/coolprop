@@ -21,6 +21,7 @@
 #include "CoolPropTools.h"
 #include "CPExceptions.h"
 #include "Brine.h"
+#include "Solvers.h"
 
 // Function prototypes
 void _T_hp(std::string Ref, double h, double p, double *T, double *rho);
@@ -34,11 +35,11 @@ bool FlagUseSinglePhaseLUT=false; //Default to not use LUT
 
 static std::string err_string;
 int debug_level=0;
-FluidsContainer Fluids = FluidsContainer();
+
 Fluid * pFluid;
 
 // Define some constants that will be used throughout
-enum params {iB,iT,iP,iD,iC,iC0,iO,iU,iH,iS,iA,iG,iQ,iV,iL,iI,iMM,iTcrit,iTtriple,iPcrit,iRhocrit,iAccentric,iDpdT};
+enum params {iB,iT,iP,iD,iC,iC0,iO,iU,iH,iS,iA,iG,iQ,iV,iL,iI,iMM,iTcrit,iTtriple,iPcrit,iRhocrit,iAccentric,iDpdT,iDrhodT_p};
 
 // This is a map of all possible strings to a unique identifier
 std::pair<std::string, long> map_data[] = {
@@ -73,6 +74,7 @@ std::pair<std::string, long> map_data[] = {
 	std::make_pair(std::string("I"),iI),
 	std::make_pair(std::string("SurfaceTension"),iI),
 	std::make_pair(std::string("dpdT"),iDpdT),
+	std::make_pair(std::string("drhodT|p"),iDrhodT_p),
 	std::make_pair(std::string("M"),iMM),
 };
 //Now actually construct the map
@@ -104,12 +106,15 @@ std::pair<long, std::string> units_data[] = {
 	std::make_pair(iV, std::string("Pa*s")),
 	std::make_pair(iL, std::string("kW/m/K")),
 	std::make_pair(iI, std::string("N/m")),
-	std::make_pair(iDpdT, std::string("kPa/K"))
+	std::make_pair(iDpdT, std::string("kPa/K")),
+	std::make_pair(iDrhodT_p, std::string("kg/K/m^3"))
 };
 
 //Now actually construct the map
 std::map<long, std::string> units_map(units_data,
 		units_data + sizeof units_data / sizeof units_data[0]);
+
+FluidsContainer Fluids = FluidsContainer();
 
 double _T_hp_secant(std::string Ref, double h, double p, double T_guess)
 {
@@ -374,6 +379,52 @@ EXPORT_CODE int CONVENTION IsFluidType(char *Ref, char *Type)
         return 0;
     }
 }
+
+EXPORT_CODE double CONVENTION rhosatL_anc(char* Fluid, double T)
+{
+	try{
+		// Try to load the CoolProp Fluid
+		pFluid = Fluids.get_fluid(std::string(Fluid));
+		return pFluid->rhosatL(T);
+	}
+	catch(NotImplementedError){
+		return -_HUGE;
+	}
+}
+EXPORT_CODE double CONVENTION rhosatV_anc(char* Fluid, double T)
+{
+	try{
+		// Try to load the CoolProp Fluid
+		pFluid = Fluids.get_fluid(std::string(Fluid));
+		return pFluid->rhosatV(T);
+	}
+	catch(NotImplementedError){
+		return -_HUGE;
+	}
+}
+EXPORT_CODE double CONVENTION psatL_anc(char* Fluid, double T)
+{
+	try{
+		// Try to load the CoolProp Fluid
+		pFluid = Fluids.get_fluid(std::string(Fluid));
+		return pFluid->psatL_anc(T);
+	}
+	catch(NotImplementedError){
+		return -_HUGE;
+	}
+}
+EXPORT_CODE double CONVENTION psatV_anc(char* Fluid, double T)
+{
+	try{
+		// Try to load the CoolProp Fluid
+		pFluid = Fluids.get_fluid(std::string(Fluid));
+		return pFluid->psatV_anc(T);
+	}
+	catch(NotImplementedError){
+		return -_HUGE;
+	}
+}
+
 EXPORT_CODE void CONVENTION Phase(char *Fluid,double T, double p, char *Phase_str)
 {
 	strcpy(Phase_str,(char*)Phase(std::string(Fluid),T,p).c_str());
@@ -423,6 +474,8 @@ double Props(char *Fluid, char *Output)
 					return Props('B','T',0,'P',0,Fluid);
 				else if (!strcmp(Output,"pcrit"))
 					return Props('E','T',0,'P',0,Fluid);
+				else if (!strcmp(Output,"Tmin"))
+					return Props('t','T',0,'P',0,Fluid);
 				else if (!strcmp(Output,"molemass"))
 					return Props('M','T',0,'P',0,Fluid);
 				else if (!strcmp(Output,"rhocrit"))
@@ -444,6 +497,8 @@ double Props(char *Fluid, char *Output)
 			return pFluid->params.Ttriple;
 		else if (!strcmp(Output,"Tcrit"))
 			return pFluid->crit.T;
+		else if (!strcmp(Output,"Tmin"))
+			return pFluid->limits.Tmin;
 		else if (!strcmp(Output,"pcrit"))
 			return pFluid->crit.p;
 		else if (!strcmp(Output,"rhocrit"))
@@ -452,6 +507,7 @@ double Props(char *Fluid, char *Output)
 			return pFluid->params.molemass;
 		else if (!strcmp(Output,"accentric"))
 			return pFluid->params.accentricfactor;
+		
 		else
 		{
 			throw ValueError(format("Output parameter \"%s\" is invalid",Output));
@@ -787,6 +843,9 @@ double _CoolProp_Fluid_Props(long iOutput, long iName1, double Prop1, long iName
 			case iDpdT:
 				Value=pFluid->dpdT_Trho(T,rho);
 				break;
+			case iDrhodT_p:
+				Value=pFluid->drhodT_p_Trho(T,rho);
+				break;
 			default:
 				throw ValueError(format("Invalid Output index: %d ",iOutput));
 				return _HUGE;
@@ -1025,7 +1084,30 @@ public:
 		}
 		else if (Input1Name == 'T')
 		{
-			throw ValueError(std::string("Bad Input1Name to SaturationClass constructor"));
+			if (pFluid->pure())
+			{
+				// Same temperatures for saturated liquid and vapor
+				_TL = Input1;
+				_TV = Input1;
+			}
+			else
+			{
+				// Its pseudo-pure
+				if (Q>0.5) // Saturated vapor
+				{
+					// Use the vapor temperature
+					_TV = Input1;
+					// Convert to pressure -> Back calculate saturation temperature
+					_TL = pFluid->Tsat_anc(pFluid->psatV_anc(_TV),0);
+				}
+				else if (Q<0.5) // Saturated liquid
+				{
+					// Use the liquid temperature
+					_TL = Input1;
+					// Convert to pressure -> Back calculate saturation temperature
+					_TV = pFluid->Tsat_anc(pFluid->psatL_anc(_TL),1);
+				}
+			}
 		}
 		else
 		{
@@ -1060,6 +1142,26 @@ public:
 
 };
 
+// A wrapper class for finding temperature and density for a given enthalpy and pressure
+class HPFuncClass : public FuncWrapper1D
+{
+public:
+	double rho;
+private:
+	double p,h,rho_guess;
+	Fluid * pFluid;
+public:
+	HPFuncClass(double _p, double _h, Fluid *_pFluid, double _rho_guess){
+		p=_p; h=_h; pFluid=_pFluid; rho_guess = _rho_guess;
+	};
+	double call(double T){
+		// Solve for density for the given temperature
+		rho = pFluid->density_Tp(T,p,rho_guess);
+		// Calculate the error in the prediction of the enthalpy
+		double error = pFluid->enthalpy_Trho(T,rho)-h;
+		return error;
+	};
+};
 void _T_hp(std::string Ref, double h, double p, double *Tout, double *rhoout)
 {
 	int iter;
@@ -1070,10 +1172,10 @@ void _T_hp(std::string Ref, double h, double p, double *Tout, double *rhoout)
 	//First figure out where you are
 	
 	R=pFluid->R();
-	if (p > Props(Ref,"pcrit"))
+	if (p > pFluid->reduce.p)
 	{
         //Supercritical pressure
-		T_guess = Props(Ref,"Tcrit")+30.0;
+		T_guess = pFluid->reduce.T+30.0;
 		delta = p/(R*T_guess)/pFluid->reduce.rho/0.7;
 	}
 	else
@@ -1085,31 +1187,39 @@ void _T_hp(std::string Ref, double h, double p, double *Tout, double *rhoout)
 		// Step 1: Try to just use the ancillary equations
 		//**************************************************
 		TsatL = pFluid->Tsat_anc(p,0);
-		TsatV = pFluid->Tsat_anc(p,1);
+		if (pFluid->pure())
+			TsatV = TsatL;
+		else
+			TsatV = pFluid->Tsat_anc(p,1);
 		rhosatL = pFluid->rhosatL(TsatL);
 		rhosatV = pFluid->rhosatV(TsatV);
-		hsatL = pFluid->enthalpy_Trho(TsatL,rhosatL);
-		hsatV = pFluid->enthalpy_Trho(TsatV,rhosatV);
+		hsatL = pFluid->hsatL_anc(TsatL);
+		hsatV = pFluid->hsatV_anc(TsatV);
 
 		if (h>hsatV*1.10)
 		{
-			double cpV = pFluid->specific_heat_p_Trho(TsatV,rhosatV);
+			// Using ideal gas cp is a bit faster
+			// Can't use an ancillary since it diverges at the critical point
+			double cpV = pFluid->specific_heat_p_ideal_Trho(TsatV);
 			//Superheated vapor
 			T_guess = TsatV+(h-hsatV)/cpV;
-			// Volume expansivity at saturated vapor
-			double drhodT = -DerivTerms("dpdT",TsatV,rhosatV,(char*)Ref.c_str())/DerivTerms("dpdrho",TsatV,rhosatV,(char*)Ref.c_str());
-			// Extrapolate to get new density;
+			// Volume expansivity at saturated vapor using the ancillaries
+			// Can't use an ancillary since it diverges at the critical point
+			double drhodT = DerivTerms("drhodT|p",TsatV,rhosatV,(char*)pFluid->get_name().c_str());
+			// Extrapolate to get new density guess
 			double rho = rhosatV+drhodT*(h-hsatV)/cpV;
 			delta = rho / pFluid->reduce.rho;
 		}
 		else if (h<hsatL*0.9)
 		{
+			// Can't use an ancillary since it diverges at the critical point
 			double cpL = pFluid->specific_heat_p_Trho(TsatL,rhosatL);
 			// Subcooled liquid
 			T_guess = TsatL+(h-hsatL)/cpL;
 			// Volume expansivity at saturated liquid
-			double drhodT = -DerivTerms("dpdT",TsatL,rhosatL,(char*)Ref.c_str())/DerivTerms("dpdrho",TsatL,rhosatL,(char*)Ref.c_str());
-			// Extrapolate to get new density;
+			// Can't use an ancillary since it diverges at the critical point
+			double drhodT = DerivTerms("drhodT|p",TsatL,rhosatL,(char*)pFluid->get_name().c_str());
+			// Extrapolate to get new density guess
 			double rho = rhosatL+drhodT*(h-hsatL)/cpL;
 			delta = rho / pFluid->reduce.rho;
 		}
@@ -1117,7 +1227,7 @@ void _T_hp(std::string Ref, double h, double p, double *Tout, double *rhoout)
 		if (delta<0) // No solution found using ancillary equations - need to use saturation call
 		{
 			//**************************************************
-			// Step 2: Not far away from saturation (or two-phase) - need to solve saturation as a function of p
+			// Step 2: Not far away from saturation (or it is two-phase) - need to solve saturation as a function of p
 			//**************************************************
 			SaturationClass *sat = new SaturationClass('P',p,0);
 			rhosatL = sat->rhoL();
@@ -1162,8 +1272,8 @@ void _T_hp(std::string Ref, double h, double p, double *Tout, double *rhoout)
 		}
 	}
 
+	tau=pFluid->reduce.T/T_guess;
 	double Tc = pFluid->reduce.T;
-	tau=Tc/T_guess;
 	double rhoc = pFluid->reduce.rho;
 
     worst_error=999;
@@ -1171,7 +1281,6 @@ void _T_hp(std::string Ref, double h, double p, double *Tout, double *rhoout)
     while (worst_error>1e-6)
     {
     	// All the required partial derivatives
-
     	da0_dtau = pFluid->dphi0_dTau(tau,delta);
     	d2a0_dtau2 = pFluid->d2phi0_dTau2(tau,delta);
     	d2a0_ddelta_dtau = 0.0;
@@ -1212,8 +1321,8 @@ void _T_hp(std::string Ref, double h, double p, double *Tout, double *rhoout)
 		}
     }
 	//std::cout<<iter-1<<" calls to NR in _T_hp()"<<std::endl;
-    *Tout = Tc/tau;
-    *rhoout = delta*rhoc;
+	*Tout = pFluid->reduce.T/tau;
+	*rhoout = delta*pFluid->reduce.rho;
 }
 
 //
@@ -1325,17 +1434,40 @@ EXPORT_CODE double CONVENTION DerivTerms(char *Term,double T, double rho, char *
         double dpdrho=R*T*(1+2*delta*pFluid->dphir_dDelta(tau,delta)+delta*delta*pFluid->d2phir_dDelta2(tau,delta));
 		return -1/dpdrho/(rho*rho);
 	}
-	else if (!strcmp(Term,"drhodh|p"))
+	else if (!strcmp(Term,"drhodT|p"))
 	{
-		// All the terms are re-calculated here in order to cut down on the number of calls
 		double dphir_dDelta = pFluid->dphir_dDelta(tau,delta);	
 		double d2phir_dDelta_dTau = pFluid->d2phir_dDelta_dTau(tau,delta);
 		double d2phir_dDelta2 = pFluid->d2phir_dDelta2(tau,delta);
 		
-		double dpdrho = R*T*(1+2*delta*dphir_dDelta+delta*delta*d2phir_dDelta2);
-		double dpdT = R*rho*(1+delta*dphir_dDelta-delta*tau*d2phir_dDelta_dTau);
-		double cp = -tau*tau*R*(pFluid->d2phi0_dTau2(tau,delta)+pFluid->d2phir_dTau2(tau,delta))+T/rho/rho*(dpdT*dpdT)/dpdrho;
-		return -(dpdT/dpdrho)/cp;
+		double dpdrho_T = R*T*(1+2*delta*dphir_dDelta+delta*delta*d2phir_dDelta2);
+		double dpdT_rho = R*rho*(1+delta*dphir_dDelta-delta*tau*d2phir_dDelta_dTau);
+		return -dpdT_rho/dpdrho_T;
+	}
+	else if (!strcmp(Term,"drhodh|p"))
+	{
+		// If two-phase, need to do something different
+		if (!pFluid->phase_Trho(T,rho).compare("Two-Phase"))
+		{
+			SaturationClass *sat = new SaturationClass('T',T,0);
+			double vV =  1/sat->rhoV();
+			double vL =  1/sat->rhoL();
+
+			double dvdh_p = (vV-vL)/(sat->hV()-sat->hL());
+			return -rho*rho*dvdh_p;
+		}
+		else
+		{
+			// All the terms are re-calculated here in order to cut down on the number of calls
+			double dphir_dDelta = pFluid->dphir_dDelta(tau,delta);	
+			double d2phir_dDelta_dTau = pFluid->d2phir_dDelta_dTau(tau,delta);
+			double d2phir_dDelta2 = pFluid->d2phir_dDelta2(tau,delta);
+			
+			double dpdrho = R*T*(1+2*delta*dphir_dDelta+delta*delta*d2phir_dDelta2);
+			double dpdT = R*rho*(1+delta*dphir_dDelta-delta*tau*d2phir_dDelta_dTau);
+			double cp = -tau*tau*R*(pFluid->d2phi0_dTau2(tau,delta)+pFluid->d2phir_dTau2(tau,delta))+T/rho/rho*(dpdT*dpdT)/dpdrho;
+			return -(dpdT/dpdrho)/cp;
+		}
 	}
 	else if (!strcmp(Term,"drhodp|h"))
 	{

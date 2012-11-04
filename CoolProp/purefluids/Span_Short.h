@@ -1,7 +1,7 @@
 #ifndef INDUSTRIALFLUIDS_H
 #define INDUSTRIALFLUIDS_H
 
-
+/*
 class CarbonMonoxideClass : public Fluid {
 
 public:
@@ -237,5 +237,5 @@ public:
     double ECS_f_int(double T);
 };
 
-
+*/
 #endif

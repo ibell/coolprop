@@ -437,3 +437,15 @@ cpdef bint IsFluidType(bytes Ref, bytes Type):
         return True
     else:
         return False
+    
+cpdef rhosatL_anc(bytes Fluid, double T):
+    return _rhosatL_anc(Fluid,T)
+
+cpdef rhosatV_anc(bytes Fluid, double T):
+    return _rhosatV_anc(Fluid,T)
+
+cpdef psatL_anc(bytes Fluid, double T):
+    return _psatL_anc(Fluid,T)
+
+cpdef psatV_anc(bytes Fluid, double T):
+    return _psatV_anc(Fluid,T)

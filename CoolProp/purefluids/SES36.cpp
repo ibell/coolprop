@@ -203,17 +203,12 @@ double SES36Class::rhosatL(double T)
 }
 double SES36Class::rhosatV(double T)
 {
-	// A fit of REFPROP data from 270K to critical point
-    double rhoc = reduce.rho;
 	double theta = 1-T/reduce.T;
 	double RHS,rho;
 
-	// Max error is 1.728617 %
-	RHS = -1.601283*pow(theta,0.3)
-		  -6.002024*pow(theta,0.9)
-		  -2.387794*pow(theta,1.5)
-		  -21.518275*pow(theta,3.2);
-	rho = exp(RHS)*rhoc;
+	// Max error is 0.722490 %
+	RHS = -0.155721*pow(theta,0.000000)-13.669499*pow(theta,2.452194)-6.186741*pow(theta,0.635276)-5.454902*pow(theta,2.573221)-3.512970*pow(theta,5.915373)-1.760205*pow(theta,7.207006)-0.547867*pow(theta,7.850921);
+	rho = exp(RHS)*reduce.rho;
 	return rho;
 }
 double SES36Class::surface_tension_T(double T)
