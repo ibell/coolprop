@@ -15,6 +15,7 @@
 #include "R134a.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include "CPState.h"
 
 #include "Water.h"
 #include "Air.h"
@@ -890,7 +891,8 @@ double Fluid::_get_rho_guess(double T, double p)
 	Tc = reduce.T;
 
 	// Then based on phase, select the useful solution(s)
-	std::string phase = Fluid::phase_Tp(T,p);
+	double pL,pV,rhoL,rhoV;
+	std::string phase = Fluid::phase_Tp(T,p,&pL,&pV,&rhoL,&rhoV);
 
 	// These are very simplistic guesses for the density, but they work ok, use them if PR fails
 	if (!strcmp(phase.c_str(),"Gas") || !strcmp(phase.c_str(),"Supercritical")){
@@ -944,9 +946,8 @@ static void swap(double *x, double *y)
     *x = *y;
     *y = temp;
 }
-std::string Fluid::phase_Tp(double T, double p)
+std::string Fluid::phase_Tp(double T, double p, double *pL, double *pV, double *rhoL, double *rhoV)
 {
-	double pL,pV,rhoL,rhoV;
 	/*
 		|         |     
 		|         |    Supercritical
@@ -1000,11 +1001,11 @@ std::string Fluid::phase_Tp(double T, double p)
 			// Actually have to use saturation information sadly
 			// For the given temperature, find the saturation state
 			// Run the saturation routines to determine the saturation densities and pressures
-			saturation(T,SaturationLUTStatus(),&pL,&pV,&rhoL,&rhoV);
-			if (p>pL){
+			saturation(T,SaturationLUTStatus(),pL,pV,rhoL,rhoV);
+			if (p>*pL){
 				return std::string("Liquid");
 			}
-			else if (p<pV){
+			else if (p<*pV){
 				return std::string("Gas");
 			}
 			else{
@@ -1012,12 +1013,6 @@ std::string Fluid::phase_Tp(double T, double p)
 			}
 		}
 	}
-}
-
-std::string Fluid::phase_Trho(double T, double rho)
-{
-	double pL,pV,rhoL,rhoV;
-	return phase_Trho(T,rho,&pL,&pV,&rhoL,&rhoV);
 }
 
 std::string Fluid::phase_Trho(double T, double rho, double *pL, double *pV, double *rhoL, double *rhoV)
@@ -1094,6 +1089,189 @@ std::string Fluid::phase_Trho(double T, double rho, double *pL, double *pV, doub
 	else{
 		return std::string("NotApplicable");
 	}
+}
+
+static void MatInv_2(double A[2][2] , double B[2][2])
+{
+    double Det;
+    //Using Cramer's Rule to solve
+
+    Det=A[0][0]*A[1][1]-A[1][0]*A[0][1];
+    B[0][0]=1.0/Det*A[1][1];
+    B[1][1]=1.0/Det*A[0][0];
+    B[1][0]=-1.0/Det*A[1][0];
+    B[0][1]=-1.0/Det*A[0][1];
+}
+
+void Fluid::Temperature_ph(double p, double h, double *Tout, double *rhoout, double *rhoLout, double *rhoVout, double *TsatLout, double *TsatVout)
+{
+	int iter;
+	double A[2][2], B[2][2],T_guess;
+	double dar_ddelta,da0_dtau,d2a0_dtau2,dar_dtau,d2ar_ddelta_dtau,d2ar_ddelta2,d2ar_dtau2,d2a0_ddelta_dtau;
+	double f1,f2,df1_dtau,df1_ddelta,df2_ddelta,df2_dtau;
+    double rhoL, rhoV, hsatL,hsatV,TsatL,TsatV,tau,delta,worst_error;
+
+	// It is supercritical pressure	
+	if (p > reduce.p)
+	{
+        //Supercritical pressure
+		T_guess = reduce.T+30.0;
+		delta = p/(R()*T_guess)/reduce.rho/0.7;
+	}
+	else
+	{
+		// Set to a negative value as a dummy value
+		delta = -1;
+
+		//**************************************************
+		// Step 1: Try to just use the ancillary equations
+		//**************************************************
+		TsatL = Tsat_anc(p,0);
+		if (pure())
+			TsatV = TsatL;
+		else
+			TsatV = Tsat_anc(p,1);
+		rhoL = rhosatL(TsatL);
+		rhoV = rhosatV(TsatV);
+		hsatL = hsatL_anc(TsatL);
+		hsatV = hsatV_anc(TsatV);
+		*rhoLout = -1;
+		*rhoVout = -1;
+		*TsatLout = -1;
+		*TsatVout = -1;
+
+		if (h > hsatV*1.10)
+		{
+			// Using ideal gas cp is a bit faster
+			// Can't use an ancillary since it diverges at the critical point
+			double cpV = specific_heat_p_ideal_Trho(TsatV);
+			//Superheated vapor
+			T_guess = TsatV+(h-hsatV)/cpV;
+			// Volume expansivity at saturated vapor using the ancillaries
+			// Can't use an ancillary since it diverges at the critical point
+			double drhodT = DerivTerms("drhodT|p",TsatV,rhoV,(char*)name.c_str());
+			// Extrapolate to get new density guess
+			double rho = rhoV+drhodT*(h-hsatV)/cpV;
+			delta = rho / reduce.rho;
+		}
+		else if (h < hsatL*0.9)
+		{
+			// Can't use an ancillary since it diverges at the critical point
+			double cpL = specific_heat_p_Trho(TsatL,rhoL);
+			// Subcooled liquid
+			T_guess = TsatL+(h-hsatL)/cpL;
+			// Volume expansivity at saturated liquid
+			// Can't use an ancillary since it diverges at the critical point
+			double drhodT = DerivTerms("drhodT|p",TsatL,rhoL,(char*)name.c_str());
+			// Extrapolate to get new density guess
+			double rho = rhoL+drhodT*(h-hsatL)/cpL;
+			delta = rho / reduce.rho;
+		}
+		
+		if (delta<0) // No solution found using ancillary equations - need to use saturation call
+		{
+			//**************************************************
+			// Step 2: Not far away from saturation (or it is two-phase) - need to solve saturation as a function of p :( - this is slow
+			//**************************************************
+			CoolPropStateClass *sat = new CoolPropStateClass(name);
+			sat->update(get_param_index("P"),p,get_param_index("Q"),0);
+			rhoL = sat->rhoL();
+			rhoV = sat->rhoV();
+			hsatL = sat->hL();
+			hsatV = sat->hV();
+			TsatL = sat->TL();
+			TsatV = sat->TV();
+			*rhoLout = rhoL;
+			*rhoVout = rhoV;
+			*TsatLout = TsatL;
+			*TsatVout = TsatV;
+
+			if (h>hsatV)
+			{
+				double cpV = sat->cpV();
+				//Superheated vapor
+				T_guess = TsatV+(h-hsatV)/cpV;
+				// Volume expansivity at saturated vapor
+				double drhodT = DerivTerms("drhodT|p",TsatV,rhoV,(char*)name.c_str());
+				// Extrapolate to get new density;
+				double rho = rhoV+drhodT*(h-hsatV)/cpV;
+				delta = rho / reduce.rho;
+			}
+			else if (h<hsatL)
+			{
+				double cpL = sat->cpL();
+				// Subcooled liquid
+				T_guess = TsatL+(h-hsatL)/cpL;
+				// Volume expansivity at saturated liquid
+				double drhodT = DerivTerms("drhodT|pT",TsatL,rhoL,(char*)name.c_str());
+				// Extrapolate to get new density;
+				double rho = rhoL+drhodT*(h-hsatL)/cpL;
+				delta = rho / reduce.rho;
+			}
+			else
+			{
+				// It is two-phase
+				// Return the quality weighted values
+				double quality = (h-hsatL)/(hsatV-hsatL);
+				*Tout = quality*TsatV+(1-quality)*TsatL;
+				double v = quality*(1/rhoV)+(1-quality)*1/rhoL;
+				*rhoout = 1/v;
+				return;
+			}
+		}
+	}
+
+	tau=reduce.T/T_guess;
+	double Tc = reduce.T;
+	double rhoc = reduce.rho;
+
+    worst_error=999;
+    iter=0;
+    while (worst_error>1e-6)
+    {
+    	// All the required partial derivatives
+    	da0_dtau = dphi0_dTau(tau,delta);
+    	d2a0_dtau2 = d2phi0_dTau2(tau,delta);
+    	d2a0_ddelta_dtau = 0.0;
+    	dar_dtau = dphir_dTau(tau,delta);
+		dar_ddelta = dphir_dDelta(tau,delta);
+		d2ar_ddelta_dtau = d2phir_dDelta_dTau(tau,delta);
+		d2ar_ddelta2 = d2phir_dDelta2(tau,delta);
+		d2ar_dtau2 = d2phir_dTau2(tau,delta);
+
+		f1 = delta/tau*(1+delta*dar_ddelta)-p/(rhoc*R()*Tc);
+		f2 = (1+delta*dar_ddelta)+tau*(da0_dtau+dar_dtau)-tau*h/(R()*Tc);
+		df1_dtau = (1+delta*dar_ddelta)*(-delta/tau/tau)+delta/tau*(delta*d2ar_ddelta_dtau);
+		df1_ddelta = (1.0/tau)*(1+2.0*delta*dar_ddelta+delta*delta*d2ar_ddelta2);
+		df2_dtau = delta*d2ar_ddelta_dtau+da0_dtau+dar_dtau+tau*(d2a0_dtau2+d2ar_dtau2)-h/(R()*Tc);
+		df2_ddelta = (dar_ddelta+delta*d2ar_ddelta2)+tau*(d2a0_ddelta_dtau+d2ar_ddelta_dtau);
+
+		//First index is the row, second index is the column
+		A[0][0]=df1_dtau;
+		A[0][1]=df1_ddelta;
+		A[1][0]=df2_dtau;
+		A[1][1]=df2_ddelta;
+
+		MatInv_2(A,B);
+		tau -= B[0][0]*f1+B[0][1]*f2;
+		delta -= B[1][0]*f1+B[1][1]*f2;
+
+        if (fabs(f1)>fabs(f2))
+            worst_error=fabs(f1);
+        else
+            worst_error=fabs(f2);
+
+		iter+=1;
+		if (iter>100)
+		{
+			printf("_Thp did not converge\n");
+			*Tout = _HUGE;
+            *rhoout = _HUGE;
+		}
+    }
+	//std::cout<<iter-1<<" calls to NR in _T_hp()"<<std::endl;
+	*Tout = reduce.T/tau;
+	*rhoout = delta*reduce.rho;
 }
 
 double Fluid::Tsat_anc(double p, double Q)

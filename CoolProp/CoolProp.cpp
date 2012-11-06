@@ -24,7 +24,6 @@
 #include "Solvers.h"
 
 // Function prototypes
-void _T_hp(std::string Ref, double h, double p, double *T, double *rho);
 void _T_sp(std::string Ref, double s, double p, double *T, double *rho);
 double rho_TP(double T, double p);
 double _Props(std::string Output,std::string Name1, double Prop1, std::string Name2, double Prop2, std::string Ref);
@@ -37,6 +36,12 @@ static std::string err_string;
 int debug_level=0;
 
 Fluid * pFluid;
+
+enum phases {iLiquid, iGas, iTwoPhase, iSupercritical};
+int global_Phase = -1;
+bool global_SinglePhase = false;
+bool global_SaturatedL = false;
+bool global_SaturatedV = false;
 
 // Define some constants that will be used throughout
 enum params {iB,iT,iP,iD,iC,iC0,iO,iU,iH,iS,iA,iG,iQ,iV,iL,iI,iMM,iTcrit,iTtriple,iPcrit,iRhocrit,iAccentric,iDpdT,iDrhodT_p};
@@ -178,9 +183,64 @@ EXPORT_CODE int CONVENTION get_debug(){return debug_level;}
 int  debug(){return debug_level;}
 EXPORT_CODE void CONVENTION debug(int level){debug_level=level;}
 
-std::string get_errstring(void){return err_string;}
-EXPORT_CODE void CONVENTION get_errstring(char* str){str=(char*) get_errstring().c_str();};
-EXPORT_CODE char * CONVENTION get_errstringc(void){return (char*)err_string.c_str();}
+std::string get_errstring(void){
+    std::string temp = err_string;
+    err_string = std::string("");
+    return temp;
+    }
+EXPORT_CODE void CONVENTION get_errstring(char* str){
+    str=(char*) get_errstring().c_str();
+    err_string = std::string("");
+    };
+EXPORT_CODE char * CONVENTION get_errstringc(void){
+    std::string temp = err_string;
+    err_string = std::string("");
+    return (char*)temp.c_str();
+    }
+
+// A function to enforce the state if known
+EXPORT_CODE void CONVENTION set_phase(char *Phase_str){
+	set_phase(std::string(Phase_str));
+}
+EXPORT_CODE void CONVENTION set_phase(std::string Phase_str){
+	if (!Phase_str.compare("Two-Phase")){
+		global_SinglePhase = false;
+		global_SaturatedL = false;
+		global_SaturatedV = false;
+		global_Phase = iTwoPhase;
+	}
+	else if (!Phase_str.compare("Liquid")){
+		global_SinglePhase = true;
+		global_SaturatedL = false;
+		global_SaturatedV = false;
+		global_Phase = iLiquid;
+	}
+	else if (!Phase_str.compare("Gas")){
+		global_SinglePhase = true;
+		global_SaturatedL = false;
+		global_SaturatedV = false;
+		global_Phase = iGas;
+	}
+	else if (!Phase_str.compare("Supercritical")){
+		global_SinglePhase = true;
+		global_SaturatedL = false;
+		global_SaturatedV = false;
+		global_Phase = iSupercritical;
+	}
+	else if (!Phase_str.compare("SaturatedL")){
+		global_SinglePhase = false;
+		global_SaturatedL = true;
+		global_SaturatedV = false;
+		global_Phase = iTwoPhase;
+	}
+	else if (!Phase_str.compare("SaturatedV")){
+		global_SinglePhase = false;
+		global_SaturatedL = false;
+		global_SaturatedV = true;
+		global_Phase = iTwoPhase;
+	}
+
+}
 
 int set_1phase_LUT_params(std::string Ref, int nT, int np, double Tmin, double Tmax, double pmin, double pmax)
 { return set_1phase_LUT_params(Ref, nT, np, Tmin, Tmax, pmin, pmax, false); }
@@ -249,6 +309,10 @@ EXPORT_CODE bool CONVENTION SinglePhaseLUTStatus(void)
     return FlagUseSinglePhaseLUT;
 }
 
+// Returns a pointer to the fluid class
+Fluid* get_fluid(long iFluid){
+	return Fluids.get_fluid(iFluid);
+}
 long get_Fluid_index(std::string FluidName)
 {
 	// Try to get the fluid from Fluids by name
@@ -434,7 +498,8 @@ std::string Phase(std::string Fluid, double T, double p)
 	try{
 		// Try to load the CoolProp Fluid
 		pFluid = Fluids.get_fluid(Fluid);
-		return pFluid->phase_Tp(T,p);
+		double pL,pV,rhoL,rhoV;
+		return pFluid->phase_Tp(T, p, &pL, &pV, &rhoL, &rhoV);
 	}
 	catch(NotImplementedError){
 		return std::string("");
@@ -831,7 +896,7 @@ double _CoolProp_Fluid_Props(long iOutput, long iName1, double Prop1, long iName
 		double pL,pV,rhoL,rhoV;
 		// If SinglePhase is true here it will shortcut and not do the saturation 
 		// calculation, saving a lot of computational effort
-		if (!SinglePhase && !pFluid->phase_Trho(T,rho,&pL,&pV,&rhoL,&rhoV).compare("Two-Phase"))
+		if (!SinglePhase && !global_SinglePhase && !pFluid->phase_Trho(T,rho,&pL,&pV,&rhoL,&rhoV).compare("Two-Phase"))
 		{
 			double Q = (1/rho-1/rhoL)/(1/rhoV-1/rhoL);
 			return _CoolProp_Fluid_TwoPhaseProps(iOutput,Q,pFluid,T,T,pL,pV,rhoL,rhoV);
@@ -907,8 +972,9 @@ double _CoolProp_Fluid_Props(long iOutput, long iName1, double Prop1, long iName
 		}
 		double h = Prop1;
 		double p = Prop2;
+		double TsatL, TsatV;
 		// Actually call the h,p routine to find temperature, density (and saturation densities if they get calculated)
-    	_T_hp(pFluid->get_name(), h, p, &T, &rho, &rhoL, &rhoV);
+    	pFluid->Temperature_ph(p, h, &T, &rho, &rhoL, &rhoV, &TsatL, &TsatV);
 
 		// Check if it is two-phase - if so, call the two-phase routine
 		if (T < pFluid->reduce.T && rho > rhoV && rho < rhoL){
@@ -1092,6 +1158,27 @@ void _T_sp(std::string Ref, double s, double p, double *Tout, double *rhoout)
     *rhoout = delta*rhoc;
 }
 
+// A wrapper class for finding temperature and density for a given enthalpy and pressure
+class HPFuncClass : public FuncWrapper1D
+{
+public:
+	double rho;
+private:
+	double p,h,rho_guess;
+	Fluid * pFluid;
+public:
+	HPFuncClass(double _p, double _h, Fluid *_pFluid, double _rho_guess){
+		p=_p; h=_h; pFluid=_pFluid; rho_guess = _rho_guess;
+	};
+	double call(double T){
+		// Solve for density for the given temperature
+		rho = pFluid->density_Tp(T,p,rho_guess);
+		// Calculate the error in the prediction of the enthalpy
+		double error = pFluid->enthalpy_Trho(T,rho)-h;
+		return error;
+	};
+};
+
 class SaturationClass
 {
 protected:
@@ -1174,197 +1261,8 @@ public:
 	double cpV(){return pFluid->specific_heat_p_Trho(_TV,_rhoV);};
 	double hL(){return pFluid->enthalpy_Trho(_TL,_rhoL);};
 	double hV(){return pFluid->enthalpy_Trho(_TV,_rhoV);};
-
 };
 
-// A wrapper class for finding temperature and density for a given enthalpy and pressure
-class HPFuncClass : public FuncWrapper1D
-{
-public:
-	double rho;
-private:
-	double p,h,rho_guess;
-	Fluid * pFluid;
-public:
-	HPFuncClass(double _p, double _h, Fluid *_pFluid, double _rho_guess){
-		p=_p; h=_h; pFluid=_pFluid; rho_guess = _rho_guess;
-	};
-	double call(double T){
-		// Solve for density for the given temperature
-		rho = pFluid->density_Tp(T,p,rho_guess);
-		// Calculate the error in the prediction of the enthalpy
-		double error = pFluid->enthalpy_Trho(T,rho)-h;
-		return error;
-	};
-};
-void _T_hp(std::string Ref, double h, double p, double *Tout, double *rhoout, double *rhoL, double *rhoV)
-{
-	int iter;
-	double A[2][2], B[2][2],T_guess,R;
-	double dar_ddelta,da0_dtau,d2a0_dtau2,dar_dtau,d2ar_ddelta_dtau,d2ar_ddelta2,d2ar_dtau2,d2a0_ddelta_dtau;
-	double f1,f2,df1_dtau,df1_ddelta,df2_ddelta,df2_dtau;
-    double rhosatL,rhosatV,hsatL,hsatV,TsatL,TsatV,tau,delta,worst_error;
-	//First figure out where you are
-	
-	R=pFluid->R();
-	if (p > pFluid->reduce.p)
-	{
-        //Supercritical pressure
-		T_guess = pFluid->reduce.T+30.0;
-		delta = p/(R*T_guess)/pFluid->reduce.rho/0.7;
-	}
-	else
-	{
-		// Set to a negative value as a dummy value
-		delta = -1;
-
-		//**************************************************
-		// Step 1: Try to just use the ancillary equations
-		//**************************************************
-		TsatL = pFluid->Tsat_anc(p,0);
-		if (pFluid->pure())
-			TsatV = TsatL;
-		else
-			TsatV = pFluid->Tsat_anc(p,1);
-		rhosatL = pFluid->rhosatL(TsatL);
-		rhosatV = pFluid->rhosatV(TsatV);
-		hsatL = pFluid->hsatL_anc(TsatL);
-		hsatV = pFluid->hsatV_anc(TsatV);
-		
-		// Dummy values for the densities
-		*rhoL = -1;
-		*rhoV = -1;
-
-		if (h>hsatV*1.10)
-		{
-			// Using ideal gas cp is a bit faster
-			// Can't use an ancillary since it diverges at the critical point
-			double cpV = pFluid->specific_heat_p_ideal_Trho(TsatV);
-			//Superheated vapor
-			T_guess = TsatV+(h-hsatV)/cpV;
-			// Volume expansivity at saturated vapor using the ancillaries
-			// Can't use an ancillary since it diverges at the critical point
-			double drhodT = DerivTerms("drhodT|p",TsatV,rhosatV,(char*)pFluid->get_name().c_str());
-			// Extrapolate to get new density guess
-			double rho = rhosatV+drhodT*(h-hsatV)/cpV;
-			delta = rho / pFluid->reduce.rho;
-		}
-		else if (h<hsatL*0.9)
-		{
-			// Can't use an ancillary since it diverges at the critical point
-			double cpL = pFluid->specific_heat_p_Trho(TsatL,rhosatL);
-			// Subcooled liquid
-			T_guess = TsatL+(h-hsatL)/cpL;
-			// Volume expansivity at saturated liquid
-			// Can't use an ancillary since it diverges at the critical point
-			double drhodT = DerivTerms("drhodT|p",TsatL,rhosatL,(char*)pFluid->get_name().c_str());
-			// Extrapolate to get new density guess
-			double rho = rhosatL+drhodT*(h-hsatL)/cpL;
-			delta = rho / pFluid->reduce.rho;
-		}
-		
-		if (delta<0) // No solution found using ancillary equations - need to use saturation call
-		{
-			//**************************************************
-			// Step 2: Not far away from saturation (or it is two-phase) - need to solve saturation as a function of p
-			//**************************************************
-			SaturationClass *sat = new SaturationClass('P',p,0);
-			rhosatL = sat->rhoL();
-			rhosatV = sat->rhoV();
-			hsatL = sat->hL();
-			hsatV = sat->hV();
-			TsatL = sat->TL();
-			TsatV = sat->TV();
-			*rhoL = rhosatL;
-			*rhoV = rhosatV;
-
-			if (h>hsatV)
-			{
-				double cpV = sat->cpV();
-				//Superheated vapor
-				T_guess = TsatV+(h-hsatV)/cpV;
-				// Volume expansivity at saturated vapor
-				double drhodT = -DerivTerms("dpdT",TsatV,rhosatV,(char*)Ref.c_str())/DerivTerms("dpdrho",TsatV,rhosatV,(char*)Ref.c_str());
-				// Extrapolate to get new density;
-				double rho = rhosatV+drhodT*(h-hsatV)/cpV;
-				delta = rho / pFluid->reduce.rho;
-			}
-			else if (h<hsatL)
-			{
-				double cpL = sat->cpL();
-				// Subcooled liquid
-				T_guess = TsatL+(h-hsatL)/cpL;
-				// Volume expansivity at saturated liquid
-				double drhodT = -DerivTerms("dpdT",TsatL,rhosatL,(char*)Ref.c_str())/DerivTerms("dpdrho",TsatL,rhosatL,(char*)Ref.c_str());
-				// Extrapolate to get new density;
-				double rho = rhosatL+drhodT*(h-hsatL)/cpL;
-				delta = rho / pFluid->reduce.rho;
-			}
-			else
-			{
-				// It is two-phase
-				// Return the quality weighted values
-				double quality = (h-hsatL)/(hsatV-hsatL);
-				*Tout = quality*TsatV+(1-quality)*TsatL;
-				double v = quality*(1/rhosatV)+(1-quality)*1/rhosatL;
-				*rhoout = 1/v;
-				return;
-			}
-		}
-	}
-
-	tau=pFluid->reduce.T/T_guess;
-	double Tc = pFluid->reduce.T;
-	double rhoc = pFluid->reduce.rho;
-
-    worst_error=999;
-    iter=0;
-    while (worst_error>1e-6)
-    {
-    	// All the required partial derivatives
-    	da0_dtau = pFluid->dphi0_dTau(tau,delta);
-    	d2a0_dtau2 = pFluid->d2phi0_dTau2(tau,delta);
-    	d2a0_ddelta_dtau = 0.0;
-    	dar_dtau = pFluid->dphir_dTau(tau,delta);
-		dar_ddelta = pFluid->dphir_dDelta(tau,delta);
-		d2ar_ddelta_dtau = pFluid->d2phir_dDelta_dTau(tau,delta);
-		d2ar_ddelta2 = pFluid->d2phir_dDelta2(tau,delta);
-		d2ar_dtau2 = pFluid->d2phir_dTau2(tau,delta);
-
-		f1 = delta/tau*(1+delta*dar_ddelta)-p/(rhoc*R*Tc);
-		f2 = (1+delta*dar_ddelta)+tau*(da0_dtau+dar_dtau)-tau*h/(R*Tc);
-		df1_dtau = (1+delta*dar_ddelta)*(-delta/tau/tau)+delta/tau*(delta*d2ar_ddelta_dtau);
-		df1_ddelta = (1.0/tau)*(1+2.0*delta*dar_ddelta+delta*delta*d2ar_ddelta2);
-		df2_dtau = delta*d2ar_ddelta_dtau+da0_dtau+dar_dtau+tau*(d2a0_dtau2+d2ar_dtau2)-h/(R*Tc);
-		df2_ddelta = (dar_ddelta+delta*d2ar_ddelta2)+tau*(d2a0_ddelta_dtau+d2ar_ddelta_dtau);
-
-		//First index is the row, second index is the column
-		A[0][0]=df1_dtau;
-		A[0][1]=df1_ddelta;
-		A[1][0]=df2_dtau;
-		A[1][1]=df2_ddelta;
-
-		MatInv_2(A,B);
-		tau -= B[0][0]*f1+B[0][1]*f2;
-		delta -= B[1][0]*f1+B[1][1]*f2;
-
-        if (fabs(f1)>fabs(f2))
-            worst_error=fabs(f1);
-        else
-            worst_error=fabs(f2);
-
-		iter+=1;
-		if (iter>100)
-		{
-			printf("_Thp did not converge\n");
-			*Tout = _HUGE;
-            *rhoout = _HUGE;
-		}
-    }
-	//std::cout<<iter-1<<" calls to NR in _T_hp()"<<std::endl;
-	*Tout = pFluid->reduce.T/tau;
-	*rhoout = delta*pFluid->reduce.rho;
-}
 
 //
 //double h_sp(char *Ref, double s, double p, double T_guess)
@@ -1450,10 +1348,23 @@ std::string FluidsList()
 	return Fluids.FluidList();
 }
 
-EXPORT_CODE double CONVENTION DerivTerms(char *Term,double T, double rho, char * Ref)
+EXPORT_CODE double CONVENTION DerivTerms(char *Term, double T, double rho, char * Ref)
 {
 	pFluid=Fluids.get_fluid(Ref);
+	return DerivTerms(Term,T,rho,pFluid);
+}
 
+double DerivTerms(char *Term, double T, double rho, Fluid * pFluid)
+{
+	return DerivTerms(Term,T,rho,pFluid,false,false);
+}
+
+/// Calculate some interesting derivatives
+/// @param SinglePhase true if it is known to be single phase
+/// @param TwoPhase true if it is known to be two phase
+/// If phase is not known, set both SinglePhase and TwoPhase to false
+double DerivTerms(char *Term, double T, double rho, Fluid * pFluid, bool SinglePhase, bool TwoPhase)
+{
     double rhoc =pFluid->reduce.rho;
 	double delta=rho/rhoc;
 	double tau=pFluid->reduce.T/T;
@@ -1487,8 +1398,10 @@ EXPORT_CODE double CONVENTION DerivTerms(char *Term,double T, double rho, char *
 	}
 	else if (!strcmp(Term,"drhodh|p"))
 	{
-		// If two-phase, need to do something different
-		if (!pFluid->phase_Trho(T,rho).compare("Two-Phase"))
+		double pL,pV,rhoL,rhoV;
+		// If SinglePhase, it will shortcut and skip to single-phase
+		// If it is TwoPhase, shortcut and cancel call to phase calcs
+		if (!SinglePhase && (TwoPhase || !pFluid->phase_Trho(T,rho,&pL,&pV,&rhoL,&rhoV).compare("Two-Phase")))
 		{
 			SaturationClass *sat = new SaturationClass('T',T,0);
 			double vV =  1/sat->rhoV();
@@ -1514,7 +1427,8 @@ EXPORT_CODE double CONVENTION DerivTerms(char *Term,double T, double rho, char *
 	{
 		// Using the method of Matthis Thorade and Ali Saadat "Partial derivatives of thermodynamic state properties for dynamic simulation" Submitted to Environmental Earth Sciences, 2012
 		// If two-phase, need to do something different
-		if (!pFluid->phase_Trho(T,rho).compare("Two-Phase"))
+		double pL,pV,rhoL,rhoV;
+		if (!SinglePhase && (TwoPhase || !pFluid->phase_Trho(T,rho,&pL,&pV,&rhoL,&rhoV).compare("Two-Phase")))
 		{
 			SaturationClass *sat = new SaturationClass('T',T,0);
 			double vV =  1/sat->rhoV();

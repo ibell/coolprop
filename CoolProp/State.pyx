@@ -14,7 +14,7 @@ cdef extern from "CoolProp.h":
     double _IProps "IProps" (long,long,double,long,double,long)
     long _get_param_index "get_param_index" (string param)
     long _get_Fluid_index "get_Fluid_index" (string param)
- 
+    void _set_phase "set_phase"(string Phase_str)
 
 ##Functions defined at the module level
 #cpdef double Props(bytes Parameter, bytes Param1, float value1, bytes Param2, float value2, bytes Fluid)
@@ -113,7 +113,7 @@ cdef class State:
     A class that contains all the code that represents a thermodynamic state
     """
     
-    def __init__(self,bytes Fluid, dict StateDict, double xL=-1.0, Liquid=''):
+    def __init__(self,bytes Fluid, dict StateDict, double xL=-1.0, bytes Liquid=str(''), phase = str('Gas')):
         self.Fluid = Fluid
         self.iFluid = _get_Fluid_index(Fluid)
         #Try to get the fluid from CoolProp
@@ -124,8 +124,12 @@ cdef class State:
             self.is_CPFluid = False
         self.xL = xL
         self.Liquid = Liquid
+        self.phase = phase
         #Parse the inputs provided
         self.update(StateDict)
+        #Set the phase flag
+        if self.phase == str('Gas') or self.phase == str('Liquid') or self.phase == str('Supercritical'):
+            _set_phase(self.phase)
             
     def __reduce__(self):
         d={}

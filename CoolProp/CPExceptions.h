@@ -1,4 +1,5 @@
 #include <exception>
+#include <iostream>
 
 #ifndef CPEXCEPTIONS_H
 #define CPEXCEPTIONS_H

@@ -1,11 +1,9 @@
 
 from libcpp.string cimport string
 
-
-
 cdef class State:
     cdef readonly bint hasLiquid
-    cdef readonly bytes Liquid, Fluid
+    cdef readonly bytes Liquid, Fluid, phase
     cdef long iFluid,iParam1,iParam2,iOutput
     cdef double T_, rho_, p_, xL
     cdef bint is_CPFluid

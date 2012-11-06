@@ -115,10 +115,8 @@ if __name__=='__main__':
     #Pseudo-Pure fluids should all be in the CoolProp/pseudopurefluids folder relative to setup.py
     purefluids=glob.glob(os.path.join('CoolProp','purefluids','*.cpp'))
     pseudopurefluids=glob.glob(os.path.join('CoolProp','pseudopurefluids','*.cpp'))
-    CPCore=['CoolProp.cpp','CoolPropTools.cpp','FloodProp.cpp','FluidClass.cpp',
-            'Helmholtz.cpp','PengRobinson.cpp','REFPROP.cpp','Solvers.cpp',
-            'Brine.cpp','Ice.cpp','HumidAirProp.cpp']
-    others=[os.path.join('CoolProp',f) for f in CPCore]
+    others = glob.glob(os.path.join('CoolProp','*.cpp'))
+    
     Sources=purefluids+pseudopurefluids+others
          
     ### Include folders for build

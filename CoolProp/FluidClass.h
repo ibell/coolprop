@@ -1,11 +1,13 @@
-#include "Helmholtz.h"
+
 #include <list>
 #include <map>
 #include <string>
 #include <exception>
+#include <vector>
 #include "CPExceptions.h"
 #include "PropMacros.h"
 #include <Eigen/Dense>
+#include "Helmholtz.h"
 
 #ifndef FLUIDCLASS_H
 #define FLUIDCLASS_H
@@ -170,8 +172,9 @@ class Fluid
 		double drhodT_p_Trho(double T,double rho);
 		double density_Tp(double T, double p);
 		double density_Tp(double T, double p, double rho_guess);
-		std::string phase_Tp(double T, double p);
-		std::string phase_Trho(double T, double rho);
+
+		void Temperature_ph(double p, double h, double *Tout, double *rhoout, double *rhoL, double *rhoV, double *TsatLout, double *TsatVout);
+		std::string phase_Tp(double T, double p, double *pL, double *pV, double *rhoL, double *rhoV);
 		std::string phase_Trho(double T, double rho, double *pL, double *pV, double *rhoL, double *rhoV);
 
 		// Optional ancillary functions can be overloaded, will throw a NotImplementedError

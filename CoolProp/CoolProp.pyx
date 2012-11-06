@@ -150,7 +150,11 @@ cpdef double Props(bytes in1, bytes in2, in3=None, in4=None,in5=None,in6=None,in
         _in4 = <char>((<bytes>in4)[0])
         val = _Props(in1, _in2, in3, _in4, in5, in6)
         if math.isnan(val) or abs(val)>1e20:
-            raise ValueError(_get_errstring())
+            err_string = _get_errstring()
+            if not len(err_string) == 0:
+                raise ValueError(err_string)
+            else:
+                raise ValueError("Props failed ungracefully with inputs:"+str(in1)+','+str(in2)+','+str(in3)+','+str(in4)+','+str(in5)+','+str(in6)+'; please file a ticket at https://sourceforge.net/p/coolprop/tickets/')
         else:
             if not _quantities_supported:
                 return val

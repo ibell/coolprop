@@ -34,8 +34,12 @@ You might want to start by looking at CoolProp.h
 	#include "CoolPropTools.h"
 	#include "PropErrorCodes.h"
 	#include "PropMacros.h"
+	#include "FluidClass.h"
 	
-	// Functions within this extern "C" bracket will be exported to the DLL
+	// Functions with the call type like
+    // EXPORT_CODE void CONVENTION AFunction(double, double);
+	// will be exported to the DLL
+
 	// They can only use data types that play well with DLL wrapping
 		
 	EXPORT_CODE void CONVENTION UseSaturationLUT(bool OnOff);
@@ -54,6 +58,7 @@ You might want to start by looking at CoolProp.h
 	EXPORT_CODE int CONVENTION IsFluidType(char *Ref, char *Type);
 	EXPORT_CODE double CONVENTION DerivTerms(char *Term, double T, double rho, char * Ref);
 	EXPORT_CODE void CONVENTION Phase(char *Fluid, double T, double p, char *Phase_str);
+	EXPORT_CODE void CONVENTION set_phase(char *Phase_str);
 	EXPORT_CODE double CONVENTION F2K(double T_F);
 	EXPORT_CODE double CONVENTION K2F(double T);
 	EXPORT_CODE void CONVENTION PrintSaturationTable(char *FileName, char * Ref, double Tmin, double Tmax);
@@ -81,6 +86,7 @@ You might want to start by looking at CoolProp.h
 	EXPORT_CODE double CONVENTION psatL_anc(char* Fluid, double T);
 	EXPORT_CODE double CONVENTION psatV_anc(char* Fluid, double T);
 
+
 	// ------------------------------------------------------------------------------------------------
 	// All the functions below this comment do NOT get exported to REFPROP DLL due to the fact that the 
 	// DLL MUST use extern "C" for all exported functions, which does not allow for function overloads 
@@ -92,11 +98,16 @@ You might want to start by looking at CoolProp.h
 	double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, char * Ref);
 	double Props(std::string Output,char Name1, double Prop1, char Name2, double Prop2, std::string Ref);
 
+	double DerivTerms(char *Term, double T, double rho, Fluid * pFluid);
+	double DerivTerms(char *Term, double T, double rho, Fluid * pFluid, bool SinglePhase, bool TwoPhase);
+
+
 	int set_1phase_LUT_params(std::string Ref, int nT, int np, double Tmin, double Tmax, double pmin, double pmax, bool rebuild);
 	// Without rebuild provided, default to not rebuild automatically (rebuild=False)
 	int set_1phase_LUT_params(char *Ref,int nT, int np, double Tmin, double Tmax, double pmin, double pmax);
 	int set_1phase_LUT_params(std::string Ref, int nT, int np, double Tmin, double Tmax, double pmin, double pmax);
 	int debug();
+	void set_phase(std::string Phase_str);
 
 	std::string Phase(std::string Fluid, double T, double p);
 	std::string get_EOSReference(std::string Ref);
@@ -109,5 +120,5 @@ You might want to start by looking at CoolProp.h
 	long get_Fluid_index(std::string param);
 	std::string get_index_units(long index);
 
-	void _T_hp(std::string Ref, double h, double p, double *T, double *rho, double *rhoL, double *rhoV);
+	Fluid * get_fluid(long iFluid);
 #endif
