@@ -305,7 +305,7 @@ double CoolPropStateClass::drhodp_consth(void){
 double CoolPropStateClass::dpdrho_constT(void){
 	return DerivTerms("dpdrho|T",_T,_rho,pFluid,SinglePhase,TwoPhase);
 }
-void CoolPropStateClass::dhdp_dvdp_sat(double T, double *dvdpL, double *dvdpV, double *dhdpL, double *dhdpV)
+void CoolPropStateClass::dvdp_dhdp_sat(double T, double *dvdpL, double *dvdpV, double *dhdpL, double *dhdpV)
 {
 	CoolPropStateClass *sat = new CoolPropStateClass(pFluid);
 	sat->update(iT,T,iQ,0.5);
