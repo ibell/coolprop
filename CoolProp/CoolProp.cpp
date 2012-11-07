@@ -900,7 +900,7 @@ double _CoolProp_Fluid_Props(long iOutput, long iName1, double Prop1, long iName
 	}
     else if ((iName1 == iP && iName2 == iQ) || (iName1 == iQ && iName2 == iP))
     {
-		if (iName1 == 'Q')
+		if (iName1 == iQ)
 		{
 			std::swap(Prop1,Prop2);
 		}
