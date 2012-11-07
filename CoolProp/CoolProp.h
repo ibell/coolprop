@@ -120,8 +120,4 @@ You might want to start by looking at CoolProp.h
 
 	Fluid * get_fluid(long iFluid);
 
-	// This is a general swapping function that will take pointers to any type of class and then swap the pointers;
-	template <class type> void swap(type *x, type *y){
-		type tmp; tmp = *y; *y = *x; *x = tmp;
-	};
 #endif

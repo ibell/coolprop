@@ -39,8 +39,8 @@ bool match_pair(long iI1, long iI2, long I1, long I2)
 void sort_pair(long *iInput1, double *Value1, long *iInput2, double *Value2, long I1, long I2)
 {
 	if (!(*iInput1 == I1) || !(*iInput2 == I2)){
-		swap(iInput1,iInput2);
-		swap(Value1,Value2);
+		std::swap(iInput1,iInput2);
+		std::swap(Value1,Value2);
 	}
 }
 void CoolPropStateClass::check_saturated_quality(double Q){

@@ -1355,12 +1355,12 @@ private:
 	double p,R,rhoc,Tc,deltaL,deltaV,tau;
 	Fluid *pFluid;
 public:
-	SaturationFunctionOfPressureResids(Fluid *_pFluid, double _p, double _R, double _rhoc, double _Tc){
-		pFluid = _pFluid;
-		p = _p;
-		R = _R;
-		rhoc = _rhoc;
-		Tc = _Tc;
+	SaturationFunctionOfPressureResids(Fluid *pFluid, double p, double R, double rhoc, double Tc){
+		this->pFluid = pFluid;
+		this->p = p;
+		this->R = R;
+		this->rhoc = rhoc;
+		this->Tc = Tc;
 	};
 	~SaturationFunctionOfPressureResids(){};
 	

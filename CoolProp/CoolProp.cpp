@@ -643,8 +643,8 @@ double _Props(std::string Output,std::string Name1, double Prop1, std::string Na
         {
 			if (Name2.c_str()[0]=='H' && Name1.c_str()[0]=='P')
 			{
-				swap(&Prop1,&Prop2);
-				swap(&Name1,&Name2);
+				std::swap(Prop1,Prop2);
+				std::swap(Name1,Name2);
 			}
 			// Start with a guess of 10 K below max temp of fluid
 			double Tguess = SecFluids('M',Prop1,Prop2,(char*)Ref.c_str())-10;
@@ -741,8 +741,8 @@ double _CoolProp_Fluid_Props(long iOutput, long iName1, double Prop1, long iName
 	{
 		//Swap values and keys
 		if (iName1 == iP && iName2 == iT){
-			swap(&Prop1,&Prop2);
-			swap(&iName1,&iName2);
+			std::swap(Prop1,Prop2);
+			std::swap(iName1,iName2);
 		}
 
 		// Handle trivial outputs
@@ -775,8 +775,8 @@ double _CoolProp_Fluid_Props(long iOutput, long iName1, double Prop1, long iName
 	{
 		if (iName1 == iQ && iName2 == iT){
 			//Swap values and keys to get order of T, Q
-			swap(&Prop1,&Prop2);
-			swap(&iName1,&iName2);
+			std::swap(Prop1,Prop2);
+			std::swap(iName1,iName2);
 		}
 		
 		T = Prop1;
@@ -812,8 +812,8 @@ double _CoolProp_Fluid_Props(long iOutput, long iName1, double Prop1, long iName
 		if (iName1 == iD && iName2 == iT)
 		{
 			//Swap values and keys to get T,D
-			swap(&Prop1,&Prop2);
-			swap(&iName1,&iName2);
+			std::swap(Prop1,Prop2);
+			std::swap(iName1,iName2);
 		}
 		T=Prop1;
 		rho=Prop2;
@@ -902,7 +902,7 @@ double _CoolProp_Fluid_Props(long iOutput, long iName1, double Prop1, long iName
     {
 		if (iName1 == 'Q')
 		{
-			swap(&Prop1,&Prop2);
+			std::swap(Prop1,Prop2);
 		}
         T=pFluid->Tsat(Prop1,Prop2,0);
         return _CoolProp_Fluid_Props(iOutput,iT,T,iQ,Prop2,pFluid);
@@ -910,7 +910,7 @@ double _CoolProp_Fluid_Props(long iOutput, long iName1, double Prop1, long iName
     else if ((iName1 == iH && iName2 == iP) || (iName1 == iP && iName2 == iH))
     {
 		if (iName1 == iP && iName2 == iH){
-			swap(&Prop1,&Prop2);
+			std::swap(Prop1,Prop2);
 		}
 		double h = Prop1;
 		double p = Prop2;
