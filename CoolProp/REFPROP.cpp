@@ -239,7 +239,7 @@ double REFPROP(char Output,char Name1, double Prop1, char Name2, double Prop2, c
 	if (RefpropdllInstance==NULL)
 	{
 		#if defined(UNICODE)
-			RefpropdllInstance = LoadLibrary((LPCSTRW)"refprop.dll");
+			RefpropdllInstance = LoadLibrary((LPCWSTR)"refprop.dll");
 		#else
 			RefpropdllInstance = LoadLibrary((LPCSTR)"refprop.dll");
 		#endif
