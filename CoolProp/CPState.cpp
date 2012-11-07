@@ -9,24 +9,7 @@ static long iH = get_param_index("H");
 static long iS = get_param_index("S");
 static long iD = get_param_index("D");
 
-void _swap (double *x, double *y)
-{
-	double tmp; tmp = *y; *y = *x; *x = tmp;
-}
-void _swap (std::string *x, std::string *y)
-{
-	std::string tmp; tmp = *y; *y = *x; *x = tmp;
-}
-void _swap (char *x, char *y)
-{
-	char tmp; tmp = *y; *y = *x; *x = tmp;
-}
-void _swap (long *x, long *y)
-{
-	long tmp; tmp = *y; *y = *x; *x = tmp;
-}
-
-// Constructor
+// Constructor with fluid name
 CoolPropStateClass::CoolPropStateClass(std::string Fluid){
 	// Set the fluid name string
 	_Fluid = Fluid;
@@ -42,7 +25,12 @@ CoolPropStateClass::CoolPropStateClass(std::string Fluid){
 	{
 		throw ValueError("Bad Fluid name - not a CoolProp fluid");
 	}
-}	
+}
+
+// Constructor with pointer to fluid
+CoolPropStateClass::CoolPropStateClass(Fluid * pFluid){
+	this->pFluid = pFluid;
+}
 
 bool match_pair(long iI1, long iI2, long I1, long I2)
 {
@@ -51,8 +39,8 @@ bool match_pair(long iI1, long iI2, long I1, long I2)
 void sort_pair(long *iInput1, double *Value1, long *iInput2, double *Value2, long I1, long I2)
 {
 	if (!(*iInput1 == I1) || !(*iInput2 == I2)){
-		_swap(iInput1,iInput2);
-		_swap(Value1,Value2);
+		swap(iInput1,iInput2);
+		swap(Value1,Value2);
 	}
 }
 void CoolPropStateClass::check_saturated_quality(double Q){
@@ -313,4 +301,7 @@ double CoolPropStateClass::drhodh_constp(void){
 }
 double CoolPropStateClass::drhodp_consth(void){
 	return DerivTerms("drhodp|h",_T,_rho,pFluid,SinglePhase,TwoPhase);
+}
+double CoolPropStateClass::dpdrho_constT(void){
+	return DerivTerms("dpdrho|T",_T,_rho,pFluid,SinglePhase,TwoPhase);
 }

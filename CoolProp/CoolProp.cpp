@@ -22,6 +22,7 @@
 #include "CPExceptions.h"
 #include "Brine.h"
 #include "Solvers.h"
+#include "CPState.h"
 
 // Function prototypes
 void _T_sp(std::string Ref, double s, double p, double *T, double *rho);
@@ -120,64 +121,6 @@ std::map<long, std::string> units_map(units_data,
 		units_data + sizeof units_data / sizeof units_data[0]);
 
 FluidsContainer Fluids = FluidsContainer();
-
-double _T_hp_secant(std::string Ref, double h, double p, double T_guess)
-{
-    double x1=0,x2=0,x3=0,y1=0,y2=0,eps=1e-8,change=999,f=999,T=300;
-    int iter=1;
-
-    while ((iter<=3 || fabs(f)>eps) && iter<100)
-    {
-        if (iter==1){x1=T_guess; T=x1;}
-        if (iter==2){x2=T_guess+0.1; T=x2;}
-        if (iter>2) {T=x2;}
-            f=Props("H",'T',T,'P',p,Ref)-h;
-        if (iter==1){y1=f;}
-        if (iter>1)
-        {
-            y2=f;
-            x3=x2-y2/(y2-y1)*(x2-x1);
-            change=fabs(y2/(y2-y1)*(x2-x1));
-            y1=y2; x1=x2; x2=x3;
-        }
-        iter=iter+1;
-        if (iter>100)
-        {
-			throw SolutionError(format("iter %d: T_hp not converging with inputs(%s,%g,%g,%g) value: %0.12g\n",iter,Ref,h,p,T_guess,f));
-        }
-    }
-    return T;
-}
-
-void swap (double *x, double *y)
-{
-	double tmp;
-	tmp = *y;
-	*y = *x;
-	*x = tmp;
-}
-void swap (std::string *x, std::string *y)
-{
-	std::string tmp;
-	tmp = *y;
-	*y = *x;
-	*x = tmp;
-}
-void swap (char *x, char *y)
-{
-	char tmp;
-	tmp = *y;
-	*y = *x;
-	*x = tmp;
-}
-void swap (long *x, long *y)
-{
-	long tmp;
-	tmp = *y;
-	*y = *x;
-	*x = tmp;
-}
-
 
 EXPORT_CODE int CONVENTION get_debug(){return debug_level;}
 int  debug(){return debug_level;}
@@ -302,7 +245,6 @@ EXPORT_CODE void CONVENTION UseSinglePhaseLUT(bool OnOff)
         printf("Sorry, UseSinglePhaseLUT() takes an integer input, either 0 (no) or 1 (yes)\n");
     }
 }
-
 
 EXPORT_CODE bool CONVENTION SinglePhaseLUTStatus(void)
 {
@@ -489,6 +431,34 @@ EXPORT_CODE double CONVENTION psatV_anc(char* Fluid, double T)
 	}
 }
 
+double _T_hp_secant(std::string Ref, double h, double p, double T_guess)
+{
+    double x1=0,x2=0,x3=0,y1=0,y2=0,eps=1e-8,change=999,f=999,T=300;
+    int iter=1;
+
+    while ((iter<=3 || fabs(f)>eps) && iter<100)
+    {
+        if (iter==1){x1=T_guess; T=x1;}
+        if (iter==2){x2=T_guess+0.1; T=x2;}
+        if (iter>2) {T=x2;}
+            f=Props("H",'T',T,'P',p,Ref)-h;
+        if (iter==1){y1=f;}
+        if (iter>1)
+        {
+            y2=f;
+            x3=x2-y2/(y2-y1)*(x2-x1);
+            change=fabs(y2/(y2-y1)*(x2-x1));
+            y1=y2; x1=x2; x2=x3;
+        }
+        iter=iter+1;
+        if (iter>100)
+        {
+			throw SolutionError(format("iter %d: T_hp not converging with inputs(%s,%g,%g,%g) value: %0.12g\n",iter,Ref,h,p,T_guess,f));
+        }
+    }
+    return T;
+}
+
 EXPORT_CODE void CONVENTION Phase(char *Fluid,double T, double p, char *Phase_str)
 {
 	strcpy(Phase_str,(char*)Phase(std::string(Fluid),T,p).c_str());
@@ -605,7 +575,6 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 
 double Props(std::string Output,char Name1, double Prop1, char Name2, double Prop2, std::string Ref)
 {
-
 	// In this function the error catching happens;
 	try{
 		return _Props(Output,std::string(1,Name1),Prop1,std::string(1,Name2),Prop2,Ref);
@@ -620,36 +589,9 @@ double Props(std::string Output,char Name1, double Prop1, char Name2, double Pro
 	}
 }
 
-
 // Make this a wrapped function so that error bubbling can be done properly
 double _Props(std::string Output,std::string Name1, double Prop1, std::string Name2, double Prop2, std::string Ref)
 {
-    
-    /*
-    Following the naming conventions of MATLAB linked with REFPROP,
-    each output property is represented by one character:
-
-    P   Pressure [kPa]
-    T   Temperature [K]
-    D   Density [kg/m3]
-    H   Enthalpy [kJ/kg]
-    S   Entropy [kJ/(kg/K)]
-    U   Internal energy [kJ/kg]
-    C   Cp [kJ/(kg K)]
-    O   Cv [kJ/(kg K)]
-    K   Ratio of specific heats (Cp/Cv) [-]
-    A   Speed of sound [m/s]
-    X   liquid phase and gas phase composition (mass fractions)
-    V   Dynamic viscosity [Pa*s]
-    L   Thermal conductivity [kW/(m K)]
-    Q   Quality (vapor fraction) (kg/kg)
-    I   Surface tension [N/m]
-    F	Freezing point of secondary fluid [K] **NOT IN MATLAB-REFPROP **
-    M	Maximum temperature for secondary fluid [K] **NOT IN MATLAB-REFPROP **
-    B	Critical Temperature [K] **NOT IN MATLAB-REFPROP **
-    E	Critical Pressure [K] **NOT IN MATLAB-REFPROP **
-    R   Triple point temperature [K]
-    */
 
     // **********************************************************************************
     // **********************************************************************************
@@ -1158,145 +1100,6 @@ void _T_sp(std::string Ref, double s, double p, double *Tout, double *rhoout)
     *rhoout = delta*rhoc;
 }
 
-// A wrapper class for finding temperature and density for a given enthalpy and pressure
-class HPFuncClass : public FuncWrapper1D
-{
-public:
-	double rho;
-private:
-	double p,h,rho_guess;
-	Fluid * pFluid;
-public:
-	HPFuncClass(double _p, double _h, Fluid *_pFluid, double _rho_guess){
-		p=_p; h=_h; pFluid=_pFluid; rho_guess = _rho_guess;
-	};
-	double call(double T){
-		// Solve for density for the given temperature
-		rho = pFluid->density_Tp(T,p,rho_guess);
-		// Calculate the error in the prediction of the enthalpy
-		double error = pFluid->enthalpy_Trho(T,rho)-h;
-		return error;
-	};
-};
-
-class SaturationClass
-{
-protected:
-	double _rhoL,_rhoV,_pL,_pV,_TL,_TV;
-
-public:
-	// First input is either 'T' or 'P', second is the value corresponding to the flag, third is quality
-	SaturationClass(char Input1Name, double Input1, double Q)
-	{
-		if (Input1Name == 'P')
-		{
-			if (pFluid->pure())
-			{
-				// Pure fluids have no glide
-				double T = pFluid->Tsat(Input1,1,300);
-				_TL = T;
-				_TV = T;
-			}
-			else
-			{
-				// Mixtures may have glide
-				_TL = pFluid->Tsat(Input1,0,300);
-				_TV = pFluid->Tsat(Input1,1,300);
-			}
-		}
-		else if (Input1Name == 'T')
-		{
-			if (pFluid->pure())
-			{
-				// Same temperatures for saturated liquid and vapor
-				_TL = Input1;
-				_TV = Input1;
-			}
-			else
-			{
-				// Its pseudo-pure
-				if (Q>0.5) // Saturated vapor
-				{
-					// Use the vapor temperature
-					_TV = Input1;
-					// Convert to pressure -> Back calculate saturation temperature
-					_TL = pFluid->Tsat_anc(pFluid->psatV_anc(_TV),0);
-				}
-				else if (Q<0.5) // Saturated liquid
-				{
-					// Use the liquid temperature
-					_TL = Input1;
-					// Convert to pressure -> Back calculate saturation temperature
-					_TV = pFluid->Tsat_anc(pFluid->psatL_anc(_TL),1);
-				}
-			}
-		}
-		else
-		{
-			throw ValueError(std::string("Bad Input1Name to SaturationClass constructor"));
-		}
-		if (pFluid->pure())
-			pFluid->saturation(_TL, false, &_pL, &_pV, &_rhoL, &_rhoV);
-		else
-		{
-			double dummy1,dummy2;
-			//Saturated liquid
-			pFluid->saturation(_TL, false, &_pL, &dummy1, &_rhoL, &dummy2);
-			//Saturated vapor
-			pFluid->saturation(_TV, false, &dummy1, &_pV, &dummy2, &_rhoV);
-		}
-	};
-	~SaturationClass(){};
-
-	//These outputs are given directly from the saturation routine
-	double rhoL(){return _rhoL;};
-	double rhoV(){return _rhoV;};
-	double TL(){return _TL;};
-	double TV(){return _TV;};
-
-	//These require the EOS
-	double pL(){return pFluid->pressure_Trho(_TL,_rhoL);};
-	double pV(){return pFluid->pressure_Trho(_TV,_rhoV);};
-	double cpL(){return pFluid->specific_heat_p_Trho(_TL,_rhoL);};
-	double cpV(){return pFluid->specific_heat_p_Trho(_TV,_rhoV);};
-	double hL(){return pFluid->enthalpy_Trho(_TL,_rhoL);};
-	double hV(){return pFluid->enthalpy_Trho(_TV,_rhoV);};
-};
-
-
-//
-//double h_sp(char *Ref, double s, double p, double T_guess)
-//{
-//    double x1=0,x2=0,x3=0,y1=0,y2=0,eps=1e-8,change=999,f=999,T=300;
-//    int iter=1;
-//    
-//    while ((iter<=3 || change>eps) && iter<100)
-//    {
-//        if (iter==1){x1=T_guess; T=x1;}
-//        if (iter==2){x2=T_guess+1.0; T=x2;}
-//        if (iter>2) {T=x2;}
-//
-//            // Find the temperature which gives the same entropy
-//            f=Props('S','T',T,'P',p,Ref)-s;
-//
-//        if (iter==1){y1=f;}
-//        if (iter>1)
-//        {
-//            y2=f;
-//            x3=x2-y2/(y2-y1)*(x2-x1);
-//            change=fabs(y2/(y2-y1)*(x2-x1));
-//            y1=y2; x1=x2; x2=x3;
-//        }
-//        iter=iter+1;
-//        if (iter>50)
-//        {
-//        	//ERROR
-//            printf("h_sp not converging with inputs(%s,%g,%g,%g)\n",Ref,s,p,T_guess);
-//        }
-//    }
-//    return Props('H','T',T,'P',p,Ref);
-//}
-
 EXPORT_CODE double CONVENTION K2F(double T)
 { return T * 9 / 5 - 459.67; }
 
@@ -1375,7 +1178,7 @@ double DerivTerms(char *Term, double T, double rho, Fluid * pFluid, bool SingleP
 	{
 		return rho*R*(1+delta*pFluid->dphir_dDelta(tau,delta)-delta*tau*pFluid->d2phir_dDelta_dTau(tau,delta));
 	}
-    else if (!strcmp(Term,"dpdrho"))
+    else if (!strcmp(Term,"dpdrho") || !strcmp(Term,"dpdrho|T"))
 	{
         double dpdrho=R*T*(1+2*delta*pFluid->dphir_dDelta(tau,delta)+delta*delta*pFluid->d2phir_dDelta2(tau,delta));
 		return dpdrho;
@@ -1403,7 +1206,9 @@ double DerivTerms(char *Term, double T, double rho, Fluid * pFluid, bool SingleP
 		// If it is TwoPhase, shortcut and cancel call to phase calcs
 		if (!SinglePhase && (TwoPhase || !pFluid->phase_Trho(T,rho,&pL,&pV,&rhoL,&rhoV).compare("Two-Phase")))
 		{
-			SaturationClass *sat = new SaturationClass('T',T,0);
+			CoolPropStateClass *sat = new CoolPropStateClass(pFluid);
+			// This will force a call to the saturation routine
+			sat->update(iT,T,iQ,0.5);
 			double vV =  1/sat->rhoV();
 			double vL =  1/sat->rhoL();
 
@@ -1425,12 +1230,15 @@ double DerivTerms(char *Term, double T, double rho, Fluid * pFluid, bool SingleP
 	}
 	else if (!strcmp(Term,"drhodp|h"))
 	{
-		// Using the method of Matthis Thorade and Ali Saadat "Partial derivatives of thermodynamic state properties for dynamic simulation" Submitted to Environmental Earth Sciences, 2012
+		// Using the method of Matthis Thorade and Ali Saadat "Partial derivatives of thermodynamic state properties for dynamic simulation" 
+		// Submitted to Environmental Earth Sciences, 2012
+
 		// If two-phase, need to do something different
 		double pL,pV,rhoL,rhoV;
 		if (!SinglePhase && (TwoPhase || !pFluid->phase_Trho(T,rho,&pL,&pV,&rhoL,&rhoV).compare("Two-Phase")))
 		{
-			SaturationClass *sat = new SaturationClass('T',T,0);
+			CoolPropStateClass *sat = new CoolPropStateClass(pFluid);
+			sat->update(iT,T,iQ,0.5);
 			double vV =  1/sat->rhoV();
 			double vL =  1/sat->rhoL();
 			double hV =  sat->hV();

@@ -34,8 +34,11 @@ protected:
 	// Check whether the quality corresponds to saturated liquid or vapor
 	void check_saturated_quality(double Q);
 public:
-	// Constructor
+	// Constructor with fluid name
 	CoolPropStateClass(std::string FluidName);
+
+	// Constructor with fluid name
+	CoolPropStateClass(Fluid *pFluid);
 
 	// Property updater
 	// Uses the indices in CoolProp for the input parameters
@@ -72,6 +75,7 @@ public:
 	double drhodT_constp(void);
 	double drhodh_constp(void);
 	double drhodp_consth(void);
+	double dpdrho_constT(void);
 
 };
 

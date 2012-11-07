@@ -1343,6 +1343,8 @@ double Fluid::Tsat_anc(double p, double Q)
 	//return reduce.T/tau;
 }
 
+
+
 // A wrapper class to do the calculations to get densities and saturation temperature
 // as a function of pressure for pure fluids
 class SaturationFunctionOfPressureResids : public FuncWrapperND
@@ -1456,6 +1458,39 @@ public:
 
 void Fluid::TsatP_Pure(double p, double *Tout, double *rhoLout, double *rhoVout)
 {
+	class SatFuncClass : public FuncWrapper1D
+	{
+	private:
+		double p,gL,gV;
+		Fluid * pFluid;
+	public:
+		double T,rhoL,rhoV;
+		SatFuncClass(double p, Fluid *pFluid){
+			this->p=p;
+			this->pFluid = pFluid;
+			T = pFluid->Tsat_anc(p,0);
+			rhoL = pFluid->rhosatL(T);
+			rhoV = pFluid->rhosatV(T);
+		};
+		double call(double T){
+			rhoL = pFluid->density_Tp(T,p,rhoL);
+			rhoV = pFluid->density_Tp(T,p,rhoV);
+			gL = pFluid->gibbs_Trho(T,rhoL);
+			gV = pFluid->gibbs_Trho(T,rhoV);
+			return gL-gV;
+		};
+	} SatFunc(p,this);
+
+	// Use Secant method to find T that gives the same gibbs function in both phases - a la REFPROP SATP function
+	std::string errstr;
+	double T = Secant(&SatFunc,SatFunc.T,1e-7,1e-4,50,&errstr);
+	if (errstr.size()>0)
+		throw SolutionError("Saturation calculation failed");
+	*rhoVout = SatFunc.rhoV;
+	*rhoLout = SatFunc.rhoL;
+	*Tout = T;
+	return;
+
 	double Tsat,rhoL,rhoV;
 	SaturationFunctionOfPressureResids *SFPR = new SaturationFunctionOfPressureResids(this,p,params.R_u/params.molemass,reduce.rho,reduce.T);
 	Eigen::Vector3d x0_initial, x;
@@ -1464,7 +1499,7 @@ void Fluid::TsatP_Pure(double p, double *Tout, double *rhoLout, double *rhoVout)
 	rhoV = rhosatV(Tsat);
 	x0_initial << rhoV/reduce.rho, rhoL/reduce.rho, reduce.T/Tsat;
 	std::string errstring;
-	x=NDNewtonRaphson_Jacobian(SFPR,x0_initial,1e-10,30,&errstring);
+	x=NDNewtonRaphson_Jacobian(SFPR,x0_initial,1e-7,30,&errstring);
 	*rhoVout = reduce.rho*x(0);
 	*rhoLout = reduce.rho*x(1);
 	*Tout = reduce.T/x(2);
