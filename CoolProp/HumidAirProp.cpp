@@ -916,7 +916,15 @@ double MoleFractionWater(double T, double p, int HumInput, double InVal)
     {
         Tdp=InVal;
         // Saturation pressure at dewpoint [kPa]
-        p_ws_dp=Props('P','T',Tdp,'Q',0,"Water");
+		if (Tdp>=273.16)
+		{
+			p_ws_dp=Props('P','T',Tdp,'Q',0,"Water");
+		}
+		else{
+			// Sublimation pressure [kPa]
+            p_ws_dp=psub_Ice(Tdp);
+		}
+
         // Enhancement Factor at dewpoint temperature [-]
         f_dp=f_factor(Tdp,p);
         // Water vapor pressure at dewpoint [kPa]
