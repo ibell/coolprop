@@ -242,7 +242,7 @@ void CoolPropStateClass::update_ph(long iInput1, double Value1, long iInput2, do
 	// Get them in the right order
 	sort_pair(&iInput1,&Value1,&iInput2,&Value2,iP,iH);
 
-	// Solve for temperature and pressure
+	// Solve for temperature and density
 	pFluid->Temperature_ph(Value1, Value2,&_T,&_rho,&rhosatL,&rhosatV,&TsatL,&TsatV);
 
 	// Set internal variables

@@ -37,7 +37,7 @@ public:
 	// Constructor with fluid name
 	CoolPropStateClass(std::string FluidName);
 
-	// Constructor with fluid name
+	// Constructor with fluid pointer
 	CoolPropStateClass(Fluid *pFluid);
 
 	// Property updater
