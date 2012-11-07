@@ -11,7 +11,7 @@ protected:
 	std::string _Fluid;
 	Fluid * pFluid;
 	bool flag_SinglePhase;
-	bool TwoPhase,SinglePhase,SaturatedL,SaturatedV;
+	bool SaturatedL,SaturatedV;
 
 	// Saturation values
 	double rhosatL, rhosatV, psatL, psatV, TsatL, TsatV;
@@ -34,6 +34,10 @@ protected:
 	// Check whether the quality corresponds to saturated liquid or vapor
 	void check_saturated_quality(double Q);
 public:
+
+	// Phase flags
+	bool TwoPhase,SinglePhase;
+	
 	// Constructor with fluid name
 	CoolPropStateClass(std::string FluidName);
 
