@@ -910,6 +910,12 @@ double Fluid::_get_rho_guess(double T, double p)
 		double drho_dp = 1/dp_drho;
 		rho_simple = rhosatL(T)-drho_dp*(pL-p);
 	}
+	else
+	{
+		// It is two-phase, we are going to skip the process of 
+		// solving and just return a value somewhere in the two-phase region.
+		return (rhoL+rhoV)/2;
+	}
 	return rho_simple;
 
 	//// Try to use Peng-Robinson to get a guess value for the density
