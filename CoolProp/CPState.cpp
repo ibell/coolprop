@@ -305,3 +305,70 @@ double CoolPropStateClass::drhodp_consth(void){
 double CoolPropStateClass::dpdrho_constT(void){
 	return DerivTerms("dpdrho|T",_T,_rho,pFluid,SinglePhase,TwoPhase);
 }
+void CoolPropStateClass::dhdp_dvdp_sat(double T, double *dvdpL, double *dvdpV, double *dhdpL, double *dhdpV)
+{
+	CoolPropStateClass *sat = new CoolPropStateClass(pFluid);
+	sat->update(iT,T,iQ,0.5);
+	double vV =  1/sat->rhoV();
+	double vL =  1/sat->rhoL();
+	double hV =  sat->hV();
+	double hL =  sat->hL();
+	double rhoL = 1/vL;
+	double rhoV = 1/vV;
+	double TL = T;
+	double TV = T;
+	double tauL = pFluid->reduce.T/TL;
+	double tauV = pFluid->reduce.T/TV;
+	double deltaL = rhoL/pFluid->reduce.rho;
+	double deltaV = rhoV/pFluid->reduce.rho;
+
+	// For the liquid
+	double d2phir_dDelta_dTauL = pFluid->d2phir_dDelta_dTau(tauL,deltaL);
+	double dphir_dDeltaL = pFluid->dphir_dDelta(tauL,deltaL);
+	double d2phir_dDelta2L = pFluid->d2phir_dDelta2(tauL,deltaL);
+	double d2phi0_dTau2L = pFluid->d2phi0_dTau2(tauL,deltaL);
+	double d2phir_dTau2L = pFluid->d2phir_dTau2(tauL,deltaL);
+	// For the vapor
+	double d2phir_dDelta_dTauV = pFluid->d2phir_dDelta_dTau(tauV,deltaV);
+	double dphir_dDeltaV = pFluid->dphir_dDelta(tauV,deltaV);
+	double d2phir_dDelta2V = pFluid->d2phir_dDelta2(tauV,deltaV);
+	double d2phi0_dTau2V = pFluid->d2phi0_dTau2(tauV,deltaV);
+	double d2phir_dTau2V = pFluid->d2phir_dTau2(tauV,deltaV);
+
+	// Saturation derivatives at constant temperature
+	double dhdrhoL_T = TL*pFluid->R()/rhoL*(tauL*deltaL*d2phir_dDelta_dTauL+deltaL*dphir_dDeltaL+deltaL*deltaL*d2phir_dDelta2L);
+	double dhdrhoV_T = TV*pFluid->R()/rhoV*(tauV*deltaV*d2phir_dDelta_dTauV+deltaV*dphir_dDeltaV+deltaV*deltaV*d2phir_dDelta2V);
+	double dpdrhoL_T = TL*pFluid->R()*(1+2*deltaL*dphir_dDeltaL+deltaL*deltaL*d2phir_dDelta2L);
+	double dpdrhoV_T = TV*pFluid->R()*(1+2*deltaV*dphir_dDeltaV+deltaV*deltaV*d2phir_dDelta2V);
+	
+	// Saturation derivatives at constant density
+	double dhdTL_rho = pFluid->R()*(-tauL*tauL*(d2phi0_dTau2L+d2phir_dTau2L)+1+deltaL*dphir_dDeltaL-deltaL*tauL*d2phir_dDelta_dTauL);
+	double dhdTV_rho = pFluid->R()*(-tauV*tauV*(d2phi0_dTau2V+d2phir_dTau2V)+1+deltaV*dphir_dDeltaV-deltaV*tauV*d2phir_dDelta_dTauV);
+	double dpdTL_rho = rhoL*pFluid->R()*(1+deltaL*dphir_dDeltaL-deltaL*tauL*d2phir_dDelta_dTauL);
+	double dpdTV_rho = rhoV*pFluid->R()*(1+deltaV*dphir_dDeltaV-deltaV*tauV*d2phir_dDelta_dTauV);
+
+	// Now get dh/dp at constant T for saturated liquid and vapor
+	double dhdpL_T = dhdrhoL_T/dpdrhoL_T;
+	double dhdpV_T = dhdrhoV_T/dpdrhoV_T;
+
+	// Derivatives of enthalpy 
+	double dhdTL_p = dhdTL_rho - dhdrhoL_T*dpdTL_rho/dpdrhoL_T;
+	double dhdTV_p = dhdTV_rho - dhdrhoV_T*dpdTV_rho/dpdrhoV_T;
+
+	// Derivatives of specific volume (just to make thing easier)
+	double dvdrhoL = -1/(rhoL*rhoL);
+	double dvdrhoV = -1/(rhoV*rhoV);
+
+	// Derivatives of specific volume
+	double dvdpL_T = 1/dpdrhoL_T*dvdrhoL;
+	double dvdTL_p = -dpdTL_rho/dpdrhoL_T*dvdrhoL;
+	double dvdpV_T = 1/dpdrhoV_T*dvdrhoV;
+	double dvdTV_p = -dpdTV_rho/dpdrhoV_T*dvdrhoV;
+
+	double dTsigmadp = T*(vV-vL)/(hV-hL);
+
+	*dhdpL = dhdpL_T+dhdTL_p*dTsigmadp;
+	*dhdpV = dhdpV_T+dhdTV_p*dTsigmadp;
+	*dvdpL = dvdpL_T+dvdTL_p*dTsigmadp;
+	*dvdpV = dvdpV_T+dvdTV_p*dTsigmadp;
+}

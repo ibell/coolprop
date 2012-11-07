@@ -63,6 +63,8 @@ public:
 	double sV(void){return pFluid->entropy_Trho(TsatV,rhosatV);};
 	double cpL(void){return pFluid->specific_heat_p_Trho(TsatL,rhosatL);};
 	double cpV(void){return pFluid->specific_heat_p_Trho(TsatV,rhosatV);};
+	// Derivatives along the saturation curve
+	void dhdp_dvdp_sat(double T, double *dvdpL, double *dvdpV, double *dhdpL, double *dhdpV);
 
 	// Bulk properties accessors - temperature and density are directly calculated every time
 	// All other parameters are calculated on an as-needed basis
