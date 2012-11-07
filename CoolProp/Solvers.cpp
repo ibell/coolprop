@@ -3,7 +3,6 @@
 #include "math.h"
 #include <Eigen/Dense>
 #include <iostream>
-#include "PropMacros.h"
 #include "CPExceptions.h"
 /**
 In this formulation of the Multi-Dimensional Newton-Raphson solver the Jacobian matrix is known.

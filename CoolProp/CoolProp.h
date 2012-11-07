@@ -32,8 +32,6 @@ You might want to start by looking at CoolProp.h
 #define CoolProp_H
 
 	#include "CoolPropTools.h"
-	#include "PropErrorCodes.h"
-	#include "PropMacros.h"
 	#include "FluidClass.h"
 	
 	// Functions with the call type like

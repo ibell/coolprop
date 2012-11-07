@@ -9,7 +9,6 @@
 #include <string.h>
 #include <iostream>
 
-#include "PropMacros.h"
 #include "CoolProp.h"
 #include "Ice.h"
 #include "HumidAirProp.h"
