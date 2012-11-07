@@ -145,7 +145,8 @@ EXPORT_CODE char * CONVENTION get_errstringc(void){
 EXPORT_CODE void CONVENTION set_phase(char *Phase_str){
 	set_phase(std::string(Phase_str));
 }
-EXPORT_CODE void CONVENTION set_phase(std::string Phase_str){
+
+void set_phase(std::string Phase_str){
 	if (!Phase_str.compare("Two-Phase")){
 		global_SinglePhase = false;
 		global_SaturatedL = false;
