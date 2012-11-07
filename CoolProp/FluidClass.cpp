@@ -1203,7 +1203,7 @@ void Fluid::Temperature_ph(double p, double h, double *Tout, double *rhoout, dou
 				// Subcooled liquid
 				T_guess = TsatL+(h-hsatL)/cpL;
 				// Volume expansivity at saturated liquid
-				double drhodT = DerivTerms("drhodT|pT",TsatL,rhoL,(char*)name.c_str());
+				double drhodT = DerivTerms("drhodT|p",TsatL,rhoL,(char*)name.c_str());
 				// Extrapolate to get new density;
 				double rho = rhoL+drhodT*(h-hsatL)/cpL;
 				delta = rho / reduce.rho;
