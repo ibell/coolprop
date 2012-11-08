@@ -1,4 +1,4 @@
-This CoolProp.oct module is built using SWIG, and is built for octave for windows built with Visual Studio.  Separate versions are available for 3.6.1 and 3.6.2
+This CoolProp.oct module is built using SWIG, and is built for octave for windows built with Visual Studio.  Separate versions are available for 3.6.1 and 3.6.2.
 
 Developer Notes:
 ===============

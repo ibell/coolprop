@@ -1,5 +1,19 @@
 Changelog:
 
+2.2.4 (revision 192)
+Does not die if pseudo-pure T,P are in the two-phase region
+Fixed bug with dewpoint as an input for dewpoints below 0C
+Added a CoolPropStateClass for elegantly handling inputs - internal codebase will soon transition to this entirely
+Fixed derivatives of drhodp|h and drhodh|p in two-phase region
+Improved ancillary equations for Siloxanes (were terrible!)
+Improved ancillary equations for Ethanol
+Improved ancillary equations for SES36
+Tmin is now an option for CoolProp and REFPROP fluids - ex: Props("REFPROP-MDM","Tmin") or Props("MDM","Tmin")
+T_hp is now faster than REFPROP 
+Added Excel 2003 Add-in for CoolProp - not clear it is working though
+Improved the Distro builder
+
+
 2.2.3 (revision 172)
 Added Ethylene, SF6, Ethanol, Methane, Ethane, n-Butane, Isobutane
 x(h,p) is much faster due to the avoidance of a lot of saturation routine calls

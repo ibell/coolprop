@@ -280,7 +280,12 @@ if __name__=='__main__':
 
            )
 
-    badfiles = [os.path.join('CoolProp','__init__.pyc'),os.path.join('CoolProp','__init__.py')]
+    badfiles = [os.path.join('CoolProp','__init__.pyc'),
+                os.path.join('CoolProp','__init__.py'),
+                os.path.join('CoolProp','HumidAirProp_wrap.cpp'),
+                os.path.join('CoolProp','FloodProp_wrap.cpp'),
+                os.path.join('CoolProp','State.cpp')
+                ]
     for file in badfiles:
         try:
             os.remove(file)

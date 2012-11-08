@@ -59,6 +59,7 @@ def Octave():
     subprocess.check_output(['OctaveBuilder.bat'],shell=True,cwd=os.path.join('wrappers','Octave'))
     shutil.copy2(os.path.join('wrappers','Octave','3.6.1','CoolProp.oct'),os.path.join('dist_temp','Octave','3.6.1','CoolProp.oct'))
     shutil.copy2(os.path.join('wrappers','Octave','3.6.2','CoolProp.oct'),os.path.join('dist_temp','Octave','3.6.2','CoolProp.oct'))
+    shutil.copy2(os.path.join('wrappers','Octave','sample_code.m'),os.path.join('dist_temp','Octave','sample_code.m'))
     shutil.copy2(os.path.join('wrappers','Octave','README.txt'),os.path.join('dist_temp','Octave','README.txt'))
     
 def MATLAB():
@@ -112,13 +113,13 @@ def UploadDocs():
     print subprocess.check_output(call_str,shell=True)
     
 if __name__=='__main__':
-    InstallPrereqs()
-    PythonInstallers()
-    DLL()
-    Source()
-    Octave()
-    MATLAB()
+##     InstallPrereqs()
+##     PythonInstallers()
+##     DLL()
+##     Source()
+##     Octave()
+##     MATLAB()
     PYPI()
     UploadSourceForge()
-    BuildDocs()
-    UploadDocs()
+##     BuildDocs()
+##     UploadDocs()
