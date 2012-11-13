@@ -105,7 +105,10 @@ double MethaneClass::psat(double T)
 	return p;
 }
 
-static double n[] = 
+EthaneClass::EthaneClass()
+{
+
+double n[] = 
 {0.0,
 0.83440745735241, //[1]
 -1.4287360607171, //[2]
@@ -153,7 +156,7 @@ static double n[] =
 -10.397127984854, //[44]
 };
 
-static double d[] =
+double d[] =
 {0,
 1, //[1]
 1, //[2]
@@ -201,7 +204,7 @@ static double d[] =
 2 //[44]
 };
 
-static double t[] =
+double t[] =
 {0,
 0.25, //[1]
 1, //[2]
@@ -249,7 +252,7 @@ static double t[] =
 3, //[44]
 };
 
-static double l[] =
+double l[] =
 {0,
 0, //[1]
 0, //[2]
@@ -297,7 +300,7 @@ static double l[] =
 0, //[44]
 };
 
-static double eta [] =
+double eta [] =
 {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, //[indices 0-39]
 15, //[40]
 15, //[41]
@@ -306,7 +309,7 @@ static double eta [] =
 20, //[44]
 };
 
-static double epsilon [] =
+double epsilon [] =
 {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, //[indices 0-39]
 1, //[40]
 1, //[41]
@@ -315,7 +318,7 @@ static double epsilon [] =
 1, //[44]
 };
 
-static double beta [] =
+double beta [] =
 {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, //[indices 0-39]
 150, //[40]
 150, //[41]
@@ -324,7 +327,7 @@ static double beta [] =
 400, //[44]
 };
 
-static double gamma [] =
+double gamma [] =
 {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, //[indices 0-39]
 1.05, //[40]
 1.05, //[41]
@@ -333,8 +336,7 @@ static double gamma [] =
 1.16, //[44]
 };
 
-EthaneClass::EthaneClass()
-{
+
 	std::vector<double> n_v(n,n+sizeof(n)/sizeof(double));
 	std::vector<double> d_v(d,d+sizeof(d)/sizeof(double));
 	std::vector<double> t_v(t,t+sizeof(t)/sizeof(double));
@@ -424,6 +426,7 @@ double EthaneClass::psat(double T)
 	p = exp(reduce.T/T*RHS)*pc;
 	return p;
 }
+
 
 
 nButaneClass::nButaneClass()

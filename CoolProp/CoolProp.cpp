@@ -454,7 +454,7 @@ double _T_hp_secant(std::string Ref, double h, double p, double T_guess)
         iter=iter+1;
         if (iter>100)
         {
-			throw SolutionError(format("iter %d: T_hp not converging with inputs(%s,%g,%g,%g) value: %0.12g\n",iter,Ref,h,p,T_guess,f));
+			throw SolutionError(format("iter %d: T_hp not converging with inputs(%s,%g,%g,%g) value: %0.12g\n",iter,(char*)Ref.c_str(),h,p,T_guess,f));
         }
     }
     return T;

@@ -5,6 +5,7 @@
 #include <exception>
 #include <vector>
 #include "CPExceptions.h"
+#include "CoolPropTools.h"
 #include <Eigen/Dense>
 #include "Helmholtz.h"
 

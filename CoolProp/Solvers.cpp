@@ -4,6 +4,7 @@
 #include <Eigen/Dense>
 #include <iostream>
 #include "CPExceptions.h"
+#include "CoolPropTools.h"
 /**
 In this formulation of the Multi-Dimensional Newton-Raphson solver the Jacobian matrix is known.
 Therefore, the dx vector can be obtained from 
