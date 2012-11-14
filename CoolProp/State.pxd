@@ -1,6 +1,9 @@
 
 from libcpp.string cimport string
 
+cimport cython
+
+@cython.final
 cdef class State:
     cdef readonly bint hasLiquid
     cdef readonly bytes Liquid, Fluid, phase
@@ -10,6 +13,7 @@ cdef class State:
     
     cpdef speed_test(self, int N)
     cpdef update(self,dict params, double xL=*)
+    cpdef update_Trho(self, double T, double rho)
     cpdef copy(self)
     cpdef double Props(self, long iOutput)
     

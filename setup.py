@@ -117,6 +117,10 @@ if __name__=='__main__':
     pseudopurefluids=glob.glob(os.path.join('CoolProp','pseudopurefluids','*.cpp'))
     others = glob.glob(os.path.join('CoolProp','*.cpp'))
     
+    #Remove the _wrap files from the build
+    for f in glob.glob(os.path.join('CoolProp','*_wrap.cpp')):
+        others.remove(f)
+    
     Sources=purefluids+pseudopurefluids+others
          
     ### Include folders for build

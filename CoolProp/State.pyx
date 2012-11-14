@@ -26,6 +26,7 @@ from libc.math cimport pow, sin, cos, exp
 from math import pow as pow_
 cdef bint _LUT_Enabled
 import CoolProp as CP
+cimport cython
 
 ## Variables for each of the possible variables
 cdef long iMM = _get_param_index('M')
@@ -108,6 +109,7 @@ cpdef double Props(bytes Parameter, bytes param1, float value1, bytes param2, fl
     return _Props(Parameter, _param1, value1, _param2, value2, Fluid)
 
 #from CoolProp import Props,UseSinglePhaseLUT,DerivTerms
+@cython.final
 cdef class State: 
     """
     A class that contains all the code that represents a thermodynamic state
@@ -140,6 +142,26 @@ cdef class State:
         d['rho']=self.rho_
         return rebuildState,(d,)
           
+          
+    cpdef update_Trho(self, double T, double rho):
+        """
+        Just use the temperature and density directly
+        """
+        self.T_ = T
+        self.rho_ = rho
+        cdef double p
+        
+        if self.is_CPFluid:
+            p = _IProps(iP,iT,T,iD,rho,self.iFluid)
+        else:
+            p = _Props('P','T',T,'D',rho,self.Fluid)
+        
+        if abs(p)<1e90:
+            self.p_=p
+        else:
+            errstr = get_errstringc()
+            raise ValueError(errstr)
+        
     cpdef update(self,dict params, double xL=-1.0):
         """
         *params* is a list(or tuple) of strings that represent the parameters 

@@ -368,7 +368,7 @@ double REFPROP(char Output,char Name1, double Prop1, char Name2, double Prop2, c
 	if (!strncmp(Ref,"MIX",3))
 	{
 		// Sample is "REFPROP-MIX:R32[0.697615]&R125[0.302385]" -  this is R410A
-		char *REFPROPRef=NULL,*RefCopy=NULL,RefString[255],*Refs[20],*Refrigerant;
+		char *REFPROPRef=NULL,*RefCopy=NULL,*Refs[20],*Refrigerant;
 		double molefraction;
 
 		// Allocate space for refrigerant name

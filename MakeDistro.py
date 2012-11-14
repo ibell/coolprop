@@ -33,7 +33,7 @@ def Source():
 
 def DLL():
     """ Build a DLL using __stdcall calling convention """
-    subprocess.call(['python','setup.py','--DLL'])
+    subprocess.call(['BuildDLL'],shell=True,cwd=os.path.join('wrappers','Excel'))
     #Collect the zip file and p
     try:
         os.makedirs(os.path.join('dist_temp','Excel and DLL'))
@@ -115,11 +115,11 @@ def UploadDocs():
 if __name__=='__main__':
 ##     InstallPrereqs()
 ##     PythonInstallers()
-##     DLL()
+    DLL()
 ##     Source()
 ##     Octave()
 ##     MATLAB()
-    PYPI()
-    UploadSourceForge()
+##     PYPI()
+##     UploadSourceForge()
 ##     BuildDocs()
 ##     UploadDocs()

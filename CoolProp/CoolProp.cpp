@@ -782,7 +782,7 @@ double _CoolProp_Fluid_Props(long iOutput, long iName1, double Prop1, long iName
 		
 		T = Prop1;
 		Q = Prop2;
-		if (T <= pFluid->params.Ttriple || T >= pFluid->reduce.T){
+		if (T <= pFluid->params.Ttriple || T >= pFluid->crit.T){
 			throw ValueError(format("Your saturation temperature [%f K] is out of range [%f K, %f K]",T,pFluid->params.Ttriple,pFluid->reduce.T ));
 		}
 		if (Q>1+1e-13 || Q<-1e-13){
@@ -1021,7 +1021,10 @@ void _T_sp(std::string Ref, double s, double p, double *Tout, double *rhoout)
 		if (s>ssatV)
 		{
 			// Superheated vapor
-			// Very superheated
+			// Use Bridgman tables to determine the necessary derivatives
+			//dsdT_constp = cpsatV/TsatV;
+			//dvdT_constp = -1/(rhosatV*rhosatV)*
+			//dsdv_constp = cpsatV/TsatV/(dvdT_constp);
 			s_hot = Props(std::string("S"),'T',TsatV+40.0,'P',p,Ref);
 			T_guess = TsatV+(s-ssatV)/(s_hot-ssatV)*40.0;
 			delta = Props(std::string("D"),'T',T_guess,'P',p,Ref)/ (pFluid->reduce.rho);
