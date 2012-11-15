@@ -217,6 +217,10 @@ Fluid::~Fluid()
 	}
 	EOSReference.clear();
 	TransportReference.clear();
+	delete h_ancillary;
+	delete s_ancillary;
+	delete cp_ancillary;
+	delete drhodT_p_ancillary;
 }
 void Fluid::post_load(void)
 {
