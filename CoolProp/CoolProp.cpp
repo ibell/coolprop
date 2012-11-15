@@ -920,7 +920,7 @@ double _CoolProp_Fluid_Props(long iOutput, long iName1, double Prop1, long iName
     	pFluid->Temperature_ph(p, h, &T, &rho, &rhoL, &rhoV, &TsatL, &TsatV);
 
 		// Check if it is two-phase - if so, call the two-phase routine
-		if (T < pFluid->reduce.T && rho > rhoV && rho < rhoL){
+		if (p < pFluid->crit.p && rho > rhoV && rho < rhoL){
 			// It's two-phase
 			double Q = (1/rho-1/rhoL)/(1/rhoV-1/rhoL);
 			if (iOutput == iQ)

@@ -11,12 +11,10 @@ static long iD = get_param_index("D");
 
 // Constructor with fluid name
 CoolPropStateClass::CoolPropStateClass(std::string Fluid){
-	// Set the fluid name string
-	_Fluid = Fluid;
 	// Try to get the index of the fluid
-	long iFluid = get_Fluid_index(_Fluid);
-	// If iFluid is greater than 0, it is a CoolProp Fluid, otherwise not
-	if (iFluid > 0)
+	long iFluid = get_Fluid_index(Fluid);
+	// If iFluid is greater than -1, it is a CoolProp Fluid, otherwise not
+	if (iFluid > -1)
 	{
 		// Get a pointer to the fluid object
 		pFluid = get_fluid(iFluid);

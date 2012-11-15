@@ -136,7 +136,8 @@ def Ph(Ref,axis=None,Tmin=220,show = False, **kwargs):
         ax=pylab.gca()
     else:
         ax=axis
-    Tsat = np.linspace(Tmin,cp.Props(Ref,"Tcrit")-0.001,1000)
+    Tmin = min(Tmin, cp.Props(Ref,'Tmin')+0.01)
+    Tsat = np.linspace(Tmin,cp.Props(Ref,"Tcrit")-0.1,1000)
     (hsatL,psatL,hsatV,psatV)=(0.0*Tsat,0.0*Tsat,0.0*Tsat,0.0*Tsat)
     for i in range(len(Tsat)):
         hsatL[i] = cp.Props('H','T',Tsat[i],'Q',0,Ref)

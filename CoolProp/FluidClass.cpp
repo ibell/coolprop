@@ -1112,17 +1112,40 @@ static void MatInv_2(double A[2][2] , double B[2][2])
 void Fluid::Temperature_ph(double p, double h, double *Tout, double *rhoout, double *rhoLout, double *rhoVout, double *TsatLout, double *TsatVout)
 {
 	int iter;
-	double A[2][2], B[2][2],T_guess;
+	bool failed = false;
+	double A[2][2], B[2][2],T_guess, omega =1.0;
 	double dar_ddelta,da0_dtau,d2a0_dtau2,dar_dtau,d2ar_ddelta_dtau,d2ar_ddelta2,d2ar_dtau2,d2a0_ddelta_dtau;
 	double f1,f2,df1_dtau,df1_ddelta,df2_ddelta,df2_dtau;
     double rhoL, rhoV, hsatL,hsatV,TsatL,TsatV,tau,delta,worst_error;
-
+	double h_guess, hc, rho_guess;
+	double hsat_tol = 5;
 	// It is supercritical pressure	
-	if (p > reduce.p)
+	if (p > crit.p)
 	{
-        //Supercritical pressure
-		T_guess = reduce.T+30.0;
-		delta = p/(R()*T_guess)/reduce.rho/0.7;
+		hc = enthalpy_Trho(crit.T+0.001,crit.rho);
+		if (h > hc)
+		{
+			// Supercritical pseudo-gas - extrapolate to find guess temperature at critical density
+			T_guess = crit.T+30;
+			h_guess = enthalpy_Trho(T_guess,crit.rho);
+			T_guess = (crit.T-T_guess)/(hc-h_guess)*(h-h_guess)+T_guess;
+			
+			delta = p/(R()*T_guess)/reduce.rho;
+		}
+		else
+		{
+			// Supercritical pseudo-liquid
+			T_guess = params.Ttriple;
+			rho_guess = density_Tp(T_guess,p);
+			h_guess = enthalpy_Trho(T_guess,rho_guess);
+			// Update the guess with linear interpolation
+			T_guess = (crit.T-T_guess)/(hc-h_guess)*(h-h_guess)+T_guess;
+			// Solve for the density
+			rho_guess = density_Tp(T_guess,p,rho_guess);
+			
+			// Start out more subcooled than you think
+			delta = rho_guess/reduce.rho;
+		}
 	}
 	else
 	{
@@ -1146,7 +1169,7 @@ void Fluid::Temperature_ph(double p, double h, double *Tout, double *rhoout, dou
 		*TsatLout = -1;
 		*TsatVout = -1;
 
-		if (h > hsatV*1.10)
+		if (h > hsatV + hsat_tol)
 		{
 			// Using ideal gas cp is a bit faster
 			// Can't use an ancillary since it diverges at the critical point
@@ -1158,19 +1181,20 @@ void Fluid::Temperature_ph(double p, double h, double *Tout, double *rhoout, dou
 			double drhodT = DerivTerms("drhodT|p",TsatV,rhoV,(char*)name.c_str());
 			// Extrapolate to get new density guess
 			double rho = rhoV+drhodT*(h-hsatV)/cpV;
+			// If the guess is negative for the density, need to
+			if (rho<0)
+				rho = 0.1;
 			delta = rho / reduce.rho;
 		}
-		else if (h < hsatL*0.9)
+		else if (h < hsatL - hsat_tol) 
 		{
 			// Can't use an ancillary since it diverges at the critical point
 			double cpL = specific_heat_p_Trho(TsatL,rhoL);
 			// Subcooled liquid
 			T_guess = TsatL+(h-hsatL)/cpL;
-			// Volume expansivity at saturated liquid
-			// Can't use an ancillary since it diverges at the critical point
-			double drhodT = DerivTerms("drhodT|p",TsatL,rhoL,(char*)name.c_str());
-			// Extrapolate to get new density guess
-			double rho = rhoL+drhodT*(h-hsatL)/cpL;
+			// Solve for the density
+			double rho = density_Tp(T_guess,p);
+
 			delta = rho / reduce.rho;
 		}
 		
@@ -1231,9 +1255,11 @@ void Fluid::Temperature_ph(double p, double h, double *Tout, double *rhoout, dou
 	double Tc = reduce.T;
 	double rhoc = reduce.rho;
 
+	// Now we enter into a Jacobian loop that attempts to simultaneously solve 
+	// for temperature and density using Newton-Raphson
     worst_error=999;
     iter=0;
-    while (worst_error>1e-6)
+    while (worst_error>1e-6 && failed == false)
     {
     	// All the required partial derivatives
     	da0_dtau = dphi0_dTau(tau,delta);
@@ -1258,9 +1284,11 @@ void Fluid::Temperature_ph(double p, double h, double *Tout, double *rhoout, dou
 		A[1][0]=df2_dtau;
 		A[1][1]=df2_ddelta;
 
+		double det = A[0][0]*A[1][1]-A[1][0]*A[0][1];
+
 		MatInv_2(A,B);
-		tau -= B[0][0]*f1+B[0][1]*f2;
-		delta -= B[1][0]*f1+B[1][1]*f2;
+		tau -= omega*(B[0][0]*f1+B[0][1]*f2);
+		delta -= omega*(B[1][0]*f1+B[1][1]*f2);
 
         if (fabs(f1)>fabs(f2))
             worst_error=fabs(f1);
@@ -1270,12 +1298,13 @@ void Fluid::Temperature_ph(double p, double h, double *Tout, double *rhoout, dou
 		iter+=1;
 		if (iter>100)
 		{
-			printf("_Thp did not converge\n");
+			throw SolutionError(format("_Thp did not converge with inputs p=%g h=%g for fluid %s",p,h,(char*)name.c_str()));
 			*Tout = _HUGE;
             *rhoout = _HUGE;
 		}
     }
-	//std::cout<<iter-1<<" calls to NR in _T_hp()"<<std::endl;
+
+
 	*Tout = reduce.T/tau;
 	*rhoout = delta*reduce.rho;
 }
