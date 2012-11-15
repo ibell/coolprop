@@ -9,7 +9,7 @@ cdef class State:
     cdef readonly bytes Liquid, Fluid, phase
     cdef long iFluid,iParam1,iParam2,iOutput
     cdef double T_, rho_, p_, xL
-    cdef bint is_CPFluid
+    cdef readonly bint is_CPFluid
     
     cpdef speed_test(self, int N)
     cpdef update(self,dict params, double xL=*)

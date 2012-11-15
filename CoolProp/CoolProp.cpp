@@ -710,7 +710,6 @@ double _CoolProp_Fluid_Props(long iOutput, long iName1, double Prop1, long iName
 		case iTcrit:
 			return pFluid->crit.T;
 			break;
-
 		case iTtriple:
 			return pFluid->params.Ttriple;
 			break;
@@ -894,8 +893,7 @@ double _CoolProp_Fluid_Props(long iOutput, long iName1, double Prop1, long iName
 			}
 		}
 		if (debug()>5){
-			std::cout<<__FILE__<<"More output" <<std::endl;
-			std::cout<<__FILE__<<__LINE__<<": "<<iOutput<<","<<iName1<<","<<Prop1<<","<<iName2<<","<<Prop2<<","<<pFluid->get_name()<<"="<<Value<<std::endl;
+			std::cout<<__FILE__<<__LINE__<<": global_SinglePhase is "<<global_SinglePhase<<std::endl;
 			std::cout<<__FILE__<<__LINE__<<": "<<iOutput<<","<<iName1<<","<<Prop1<<","<<iName2<<","<<Prop2<<","<<pFluid->get_name()<<"="<<Value<<std::endl;
 		}
         return Value;
@@ -969,10 +967,25 @@ EXPORT_CODE double CONVENTION IProps(long iOutput, long iName1, double Prop1, lo
 {
 	pFluid = Fluids.get_fluid(iFluid);
 	// Didn't work
-	if (pFluid == NULL)
+	if (pFluid == NULL){
+		err_string=std::string("CoolProp error: ").append(format("%d is an invalid fluid index to IProps",iFluid));
 		return _HUGE;
-	else
-		return _CoolProp_Fluid_Props(iOutput,iName1,Prop1,iName2,Prop2,pFluid);
+	}
+	else{
+		// In this function the error catching happens;
+		try{
+			return _CoolProp_Fluid_Props(iOutput,iName1,Prop1,iName2,Prop2,pFluid);
+		}
+		catch(std::exception &e){
+			err_string=std::string("CoolProp error: ").append(e.what());
+			return _HUGE;
+		}
+		catch(...){
+			err_string=std::string("CoolProp error: Indeterminate error");
+			return _HUGE;
+		}
+	}
+		
 }
 double rho_TP(double T, double p)
 {

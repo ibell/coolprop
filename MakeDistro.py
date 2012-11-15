@@ -105,6 +105,16 @@ def UploadSourceForge():
     os.remove(version)
     
 def BuildDocs():
+    #Open Doxyfile, and update the version number in the file
+    lines = open('Doxyfile','r').readlines()
+    import CoolProp
+    for i in range(len(lines)):
+        if lines[i].startswith('PROJECT_NUMBER'):
+            line = lines[i].split('=')[0]+' = '+CoolProp.__version__+'\n'
+            lines[i]=line
+            break
+    open('Doxyfile','w').write(''.join(lines))
+    print subprocess.check_output(['doxygen','Doxyfile'],shell=True)
     print subprocess.check_output(['BuildCPDocs.bat'],shell=True,cwd='Web')
     
 def UploadDocs():
@@ -115,12 +125,14 @@ def UploadDocs():
 if __name__=='__main__':
     
 ##     InstallPrereqs()  #This is optional if you think any of the pre-reqs have been updated
-    DLL()
-    Source()
-    Python()
-    Octave()
-    MATLAB()
-    PYPI()
-    UploadSourceForge()
-##     BuildDocs()
+
+##     DLL()
+##     Source()
+##     Python()
+##     Octave()
+##     MATLAB()
+##     PYPI()
+##     UploadSourceForge()
+
+    BuildDocs()
 ##     UploadDocs()
