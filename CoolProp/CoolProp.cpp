@@ -25,7 +25,6 @@
 #include "CPState.h"
 
 // Function prototypes
-void _T_sp(std::string Ref, double s, double p, double *T, double *rho);
 double rho_TP(double T, double p);
 double _Props(std::string Output,std::string Name1, double Prop1, std::string Name2, double Prop2, std::string Ref);
 double _CoolProp_Fluid_Props(long iOutput, long iName1, double Value1, long iName2, double Value2, Fluid *pFluid, bool SinglePhase = false);
@@ -917,7 +916,7 @@ double _CoolProp_Fluid_Props(long iOutput, long iName1, double Prop1, long iName
 		double p = Prop2;
 		double TsatL, TsatV;
 		// Actually call the h,p routine to find temperature, density (and saturation densities if they get calculated)
-    	pFluid->Temperature_ph(p, h, &T, &rho, &rhoL, &rhoV, &TsatL, &TsatV);
+    	pFluid->temperature_ph(p, h, &T, &rho, &rhoL, &rhoV, &TsatL, &TsatV);
 
 		// Check if it is two-phase - if so, call the two-phase routine
 		if (p < pFluid->crit.p && rho > rhoV && rho < rhoL){
@@ -933,15 +932,30 @@ double _CoolProp_Fluid_Props(long iOutput, long iName1, double Prop1, long iName
 			return _CoolProp_Fluid_Props(iOutput,iT,T,iD,rho,pFluid,true);
 		}
     }
-	else if (iName1 == iS && iName2 == iP)
+	else if ((iName1 == iS && iName2 == iP) || (iName1 == iP && iName2 == iS))
     {
-    	_T_sp(pFluid->get_name(),Prop1,Prop2,&T, &rho);
-		return _CoolProp_Fluid_Props(iOutput,iT,T,iD,rho,pFluid);
-    }
-	else if (iName1 == iP && iName2 == iS)
-    {
-		_T_sp(pFluid->get_name(),Prop2,Prop1,&T, &rho);
-		return _CoolProp_Fluid_Props(iOutput,iT,T,iD,rho,pFluid);
+		if (iName1 == iP && iName2 == iS){
+			std::swap(Prop1,Prop2);
+		}
+		double s = Prop1;
+		double p = Prop2;
+		double TsatL, TsatV;
+		// Actually call the s,p routine to find temperature, density (and saturation densities if they get calculated)
+    	pFluid->temperature_ps(p, s, &T, &rho, &rhoL, &rhoV, &TsatL, &TsatV);
+
+		// Check if it is two-phase - if so, call the two-phase routine
+		if (p < pFluid->crit.p && rho > rhoV && rho < rhoL){
+			// It's two-phase
+			double Q = (1/rho-1/rhoL)/(1/rhoV-1/rhoL);
+			if (iOutput == iQ)
+				return Q;
+			return _CoolProp_Fluid_TwoPhaseProps(iOutput,Q,pFluid,T,T,p,p,rhoL,rhoV);
+		}
+		else{
+			// It's not two phase, use the density and temperature to find the state point
+			// Non two-phase is strictly enforced here by passing the true in as the last parameter since we know for sure it is not two-phase
+			return _CoolProp_Fluid_Props(iOutput,iT,T,iD,rho,pFluid,true);
+		}
     }
     else
     {
@@ -980,128 +994,6 @@ void MatInv_2(double A[2][2] , double B[2][2])
     B[1][1]=1.0/Det*A[0][0];
     B[1][0]=-1.0/Det*A[1][0];
     B[0][1]=-1.0/Det*A[0][1];
-}
-
-void _T_sp(std::string Ref, double s, double p, double *Tout, double *rhoout)
-{
-	int iter;
-	double A[2][2], B[2][2],T_guess,R;
-	double dar_ddelta,da0_dtau,d2a0_dtau2,dar_dtau,d2ar_ddelta_dtau,d2ar_ddelta2,d2ar_dtau2,d2a0_ddelta_dtau,ar,a0,da0_ddelta;
-	double f1,f2,df1_dtau,df1_ddelta,df2_ddelta,df2_dtau,s_hot,cp,s1,T1,p1;
-    double rhosatL,rhosatV,ssatL,ssatV,TsatL,TsatV,tau,delta,worst_error;
-	
-	//First figure out where you are
-
-	double Tc = pFluid->reduce.T;
-	double rhoc = pFluid->reduce.rho;
-	double pc = pFluid->reduce.p;
-
-	R=pFluid->R();
-	if (p > Props(Ref,"pcrit"))
-	{
-        // Supercritical; use critical point as anchor to determine guess for T
-		// by assuming it is ideal gas
-		// For isentropic, T2/T1 = (p2/p1)^(R/cp); T1,p1, are critical state
-		T1 = Tc + 5.0;
-		p1 = pc + 5.0;
-		s1 = Props(std::string("S"),'T',T1,'P',p1,Ref);
-		cp = Props(std::string("C"),'T',T1,'P',p1,Ref);
-		T_guess = T1*exp((s-s1+R*log(p/p1))/cp);
-		delta = p/(R*T_guess)/pFluid->reduce.rho;
-	}
-	else
-	{
-		rhosatL=Props(std::string("D"),'P',p,'Q',0.0,Ref);
-		rhosatV=Props(std::string("D"),'P',p,'Q',1.0,Ref);
-		ssatL=Props(std::string("S"),'P',p,'Q',0.0,Ref);
-		ssatV=Props(std::string("S"),'P',p,'Q',1.0,Ref);
-		TsatL=Props(std::string("T"),'P',p,'Q',0.0,Ref);
-		TsatV=Props(std::string("T"),'P',p,'Q',1.0,Ref);
-
-		if (s>ssatV)
-		{
-			// Superheated vapor
-			// Use Bridgman tables to determine the necessary derivatives
-			//dsdT_constp = cpsatV/TsatV;
-			//dvdT_constp = -1/(rhosatV*rhosatV)*
-			//dsdv_constp = cpsatV/TsatV/(dvdT_constp);
-			s_hot = Props(std::string("S"),'T',TsatV+40.0,'P',p,Ref);
-			T_guess = TsatV+(s-ssatV)/(s_hot-ssatV)*40.0;
-			delta = Props(std::string("D"),'T',T_guess,'P',p,Ref)/ (pFluid->reduce.rho);
-		}
-		else if (s<ssatL)
-		{
-			// Subcooled liquid
-			T_guess = TsatL*log((s-ssatL)/Props(std::string("C"),'P',p,'Q',0.0,Ref));
-			delta = rhosatL/pFluid->reduce.rho;
-		}
-		else
-		{
-			// It is two-phase
-			// Return the quality weighted values
-			double quality = (s-ssatL)/(ssatV-ssatL);
-			*Tout = quality*TsatV+(1-quality)*TsatL;
-			double v = quality*(1/rhosatV)+(1-quality)*1/rhosatL;
-			*rhoout = 1/v;
-
-		}
-	}
-
-	tau=Tc/T_guess;
-
-    worst_error=999;
-    iter=0;
-    while (worst_error>1e-6)
-    {
-    	// All the required partial derivatives
-		a0 = pFluid->phi0(tau,delta);
-    	da0_dtau = pFluid->dphi0_dTau(tau,delta);
-    	d2a0_dtau2 = pFluid->d2phi0_dTau2(tau,delta);
-    	da0_ddelta = pFluid->dphi0_dDelta(tau,delta);
-		d2a0_ddelta_dtau = 0.0;
-
-    	ar = pFluid->phir(tau,delta);
-		dar_dtau = pFluid->dphir_dTau(tau,delta);
-		d2ar_dtau2 = pFluid->d2phir_dTau2(tau,delta);
-		dar_ddelta = pFluid->dphir_dDelta(tau,delta);
-		d2ar_ddelta2 = pFluid->d2phir_dDelta2(tau,delta);
-		d2ar_ddelta_dtau = pFluid->d2phir_dDelta_dTau(tau,delta);
-		
-		// Residual and derivatives thereof for entropy
-		f1 = tau*(da0_dtau+dar_dtau)-ar-a0-s/R;
-		df1_dtau = tau*(d2a0_dtau2 + d2ar_dtau2)+(da0_dtau+dar_dtau)-dar_dtau-da0_dtau;
-		df1_ddelta = tau*(d2a0_ddelta_dtau+d2ar_ddelta_dtau)-dar_ddelta-da0_ddelta;
-
-		// Residual and derivatives thereof for pressure
-		f2 = delta/tau*(1+delta*dar_ddelta)-p/(rhoc*R*Tc);
-		df2_dtau = (1+delta*dar_ddelta)*(-delta/tau/tau)+delta/tau*(delta*d2ar_ddelta_dtau);
-		df2_ddelta = (1.0/tau)*(1+2.0*delta*dar_ddelta+delta*delta*d2ar_ddelta2);
-
-		//First index is the row, second index is the column
-		A[0][0]=df1_dtau;
-		A[0][1]=df1_ddelta;
-		A[1][0]=df2_dtau;
-		A[1][1]=df2_ddelta;
-
-		MatInv_2(A,B);
-		tau -= B[0][0]*f1+B[0][1]*f2;
-		delta -= B[1][0]*f1+B[1][1]*f2;
-
-        if (fabs(f1)>fabs(f2))
-            worst_error=fabs(f1);
-        else
-            worst_error=fabs(f2);
-
-		iter+=1;
-		if (iter>100)
-		{
-			printf("_Tsp did not converge\n");
-			*Tout = _HUGE;
-            *rhoout = _HUGE;
-		}
-    }
-    *Tout = Tc/tau;
-    *rhoout = delta*rhoc;
 }
 
 EXPORT_CODE double CONVENTION K2F(double T)

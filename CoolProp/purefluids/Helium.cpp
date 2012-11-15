@@ -272,18 +272,6 @@ HeliumClass::HeliumClass()
 	phi0list.push_back(phi0_lead_);
 	phi0list.push_back(phi0_logtau_);
 
-	// Critical parameters
-	crit.rho = 4.002602 * 18.13;
-	crit.p = 227.6;
-	crit.T = 5.1953;
-	crit.v = 1.0/crit.rho;
-
-	// Other fluid parameters
-	params.molemass = 4.002602;
-	params.Ttriple = 2.1768;
-	params.accentricfactor = -0.385 ;
-	params.R_u = 8.314472;
-
 	// Limits of EOS
 	limits.Tmin = 2.1768;
 	limits.Tmax = 2000.0;

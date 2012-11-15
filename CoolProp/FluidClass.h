@@ -173,7 +173,8 @@ class Fluid
 		double density_Tp(double T, double p);
 		double density_Tp(double T, double p, double rho_guess);
 
-		void Temperature_ph(double p, double h, double *Tout, double *rhoout, double *rhoL, double *rhoV, double *TsatLout, double *TsatVout);
+		void temperature_ps(double p, double s, double *Tout, double *rhoout, double *rhoL, double *rhoV, double *TsatLout, double *TsatVout);
+		void temperature_ph(double p, double h, double *Tout, double *rhoout, double *rhoL, double *rhoV, double *TsatLout, double *TsatVout);
 		std::string phase_Tp(double T, double p, double *pL, double *pV, double *rhoL, double *rhoV);
 		std::string phase_Trho(double T, double rho, double *pL, double *pV, double *rhoL, double *rhoV);
 

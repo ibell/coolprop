@@ -28,7 +28,8 @@
 	};
 
 
-	class OrthoHydrogenClass : public Fluid{
+	// Currently always crashes - commented out for now
+	/*class OrthoHydrogenClass : public Fluid{
 
 	public:
 		OrthoHydrogenClass();
@@ -39,7 +40,7 @@
 		double rhosatL(double);
 		double rhosatV(double);
 		double surface_tension_T(double);
-	};
+	};*/
 
 
 #endif

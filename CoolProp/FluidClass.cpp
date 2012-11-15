@@ -60,7 +60,7 @@ FluidsContainer::FluidsContainer()
 	FluidsList.push_back(new OxygenClass());
 	FluidsList.push_back(new HydrogenClass());
 	FluidsList.push_back(new ParaHydrogenClass());
-	FluidsList.push_back(new OrthoHydrogenClass());
+	//FluidsList.push_back(new OrthoHydrogenClass());  NOT WORKING
 	FluidsList.push_back(new ArgonClass());
 	FluidsList.push_back(new R744Class());
 	FluidsList.push_back(new NitrogenClass());
@@ -768,6 +768,12 @@ double Fluid::hsatV_anc(double T)
 		h_ancillary->build(10);
 	return h_ancillary->interpolateV(T);
 }
+double Fluid::ssatV_anc(double T)
+{
+	if (!s_ancillary->built) 
+		s_ancillary->build(10);
+	return s_ancillary->interpolateV(T);
+}
 double Fluid::cpsatV_anc(double T)
 {
 	if (!cp_ancillary->built) 
@@ -785,6 +791,12 @@ double Fluid::hsatL_anc(double T)
 	if (!h_ancillary->built) 
 		h_ancillary->build(10);
 	return h_ancillary->interpolateL(T);
+}
+double Fluid::ssatL_anc(double T)
+{
+	if (!s_ancillary->built) 
+		s_ancillary->build(10);
+	return s_ancillary->interpolateL(T);
 }
 double Fluid::cpsatL_anc(double T)
 {
@@ -1109,7 +1121,7 @@ static void MatInv_2(double A[2][2] , double B[2][2])
     B[0][1]=-1.0/Det*A[0][1];
 }
 
-void Fluid::Temperature_ph(double p, double h, double *Tout, double *rhoout, double *rhoLout, double *rhoVout, double *TsatLout, double *TsatVout)
+void Fluid::temperature_ph(double p, double h, double *Tout, double *rhoout, double *rhoLout, double *rhoVout, double *TsatLout, double *TsatVout)
 {
 	int iter;
 	bool failed = false;
@@ -1143,7 +1155,6 @@ void Fluid::Temperature_ph(double p, double h, double *Tout, double *rhoout, dou
 			// Solve for the density
 			rho_guess = density_Tp(T_guess,p,rho_guess);
 			
-			// Start out more subcooled than you think
 			delta = rho_guess/reduce.rho;
 		}
 	}
@@ -1181,21 +1192,22 @@ void Fluid::Temperature_ph(double p, double h, double *Tout, double *rhoout, dou
 			double drhodT = DerivTerms("drhodT|p",TsatV,rhoV,(char*)name.c_str());
 			// Extrapolate to get new density guess
 			double rho = rhoV+drhodT*(h-hsatV)/cpV;
-			// If the guess is negative for the density, need to
+			// If the guess is negative for the density, need to make it positive
 			if (rho<0)
 				rho = 0.1;
 			delta = rho / reduce.rho;
 		}
 		else if (h < hsatL - hsat_tol) 
 		{
-			// Can't use an ancillary since it diverges at the critical point
-			double cpL = specific_heat_p_Trho(TsatL,rhoL);
-			// Subcooled liquid
-			T_guess = TsatL+(h-hsatL)/cpL;
+			T_guess = params.Ttriple;
+			rho_guess = density_Tp(T_guess,p);
+			h_guess = enthalpy_Trho(T_guess,rho_guess);
+			// Update the guess with linear interpolation
+			T_guess = (TsatL-T_guess)/(hsatL-h_guess)*(h-h_guess)+T_guess;
 			// Solve for the density
-			double rho = density_Tp(T_guess,p);
-
-			delta = rho / reduce.rho;
+			rho_guess = density_Tp(T_guess,p,rho_guess);
+			
+			delta = rho_guess/reduce.rho;
 		}
 		
 		if (delta<0) // No solution found using ancillary equations - need to use saturation call
@@ -1218,25 +1230,23 @@ void Fluid::Temperature_ph(double p, double h, double *Tout, double *rhoout, dou
 
 			if (h>hsatV)
 			{
-				double cpV = sat->cpV();
-				//Superheated vapor
-				T_guess = TsatV+(h-hsatV)/cpV;
-				// Volume expansivity at saturated vapor
-				double drhodT = DerivTerms("drhodT|p",TsatV,rhoV,(char*)name.c_str());
-				// Extrapolate to get new density;
-				double rho = rhoV+drhodT*(h-hsatV)/cpV;
-				delta = rho / reduce.rho;
+				T_guess = TsatV+30;
+				h_guess = enthalpy_Trho(T_guess,rhoV);
+				T_guess = (TsatV-T_guess)/(hsatV-h_guess)*(h - h_guess)+T_guess;
+				
+				delta = p/(R()*T_guess)/reduce.rho;
 			}
 			else if (h<hsatL)
 			{
-				double cpL = sat->cpL();
-				// Subcooled liquid
-				T_guess = TsatL+(h-hsatL)/cpL;
-				// Volume expansivity at saturated liquid
-				double drhodT = DerivTerms("drhodT|p",TsatL,rhoL,(char*)name.c_str());
-				// Extrapolate to get new density;
-				double rho = rhoL+drhodT*(h-hsatL)/cpL;
-				delta = rho / reduce.rho;
+				T_guess = params.Ttriple;
+				rho_guess = density_Tp(T_guess,p);
+				h_guess = enthalpy_Trho(T_guess,rho_guess);
+				// Update the guess with linear interpolation
+				T_guess = (TsatL-T_guess)/(hsatL-h_guess)*(h-h_guess)+T_guess;
+				// Solve for the density
+				rho_guess = density_Tp(T_guess,p,rho_guess);
+				
+				delta = rho_guess/reduce.rho;
 			}
 			else
 			{
@@ -1298,12 +1308,206 @@ void Fluid::Temperature_ph(double p, double h, double *Tout, double *rhoout, dou
 		iter+=1;
 		if (iter>100)
 		{
-			throw SolutionError(format("_Thp did not converge with inputs p=%g h=%g for fluid %s",p,h,(char*)name.c_str()));
+			throw SolutionError(format("Thp did not converge with inputs p=%g h=%g for fluid %s",p,h,(char*)name.c_str()));
 			*Tout = _HUGE;
             *rhoout = _HUGE;
 		}
     }
 
+
+	*Tout = reduce.T/tau;
+	*rhoout = delta*reduce.rho;
+}
+
+void Fluid::temperature_ps(double p, double s, double *Tout, double *rhoout, double *rhoLout, double *rhoVout, double *TsatLout, double *TsatVout)
+{
+	int iter;
+	bool failed = false;
+	double A[2][2], B[2][2],T_guess, omega =1.0;
+	double dar_ddelta,da0_dtau,d2a0_dtau2,dar_dtau,d2ar_ddelta_dtau,d2ar_ddelta2,d2ar_dtau2,d2a0_ddelta_dtau,a0,ar,da0_ddelta;
+	double f1,f2,df1_dtau,df1_ddelta,df2_ddelta,df2_dtau;
+    double rhoL, rhoV, ssatL,ssatV,TsatL,TsatV,tau,delta,worst_error;
+	double s_guess, sc, rho_guess;
+	double ssat_tol = 0.1;
+	// It is supercritical pressure	
+	if (p > crit.p)
+	{
+		sc = entropy_Trho(crit.T+0.001,crit.rho);
+		if (s > sc)
+		{
+			// Supercritical pseudo-gas - extrapolate to find guess temperature at critical density
+			T_guess = crit.T+30;
+			s_guess = entropy_Trho(T_guess,crit.rho);
+			T_guess = (crit.T-T_guess)/(sc-s_guess)*(s-s_guess)+T_guess;
+			
+			delta = p/(R()*T_guess)/reduce.rho;
+		}
+		else
+		{
+			// Supercritical pseudo-liquid
+			T_guess = params.Ttriple;
+			rho_guess = density_Tp(T_guess,p);
+			s_guess = entropy_Trho(T_guess,rho_guess);
+			// Update the guess with linear interpolation
+			T_guess = (crit.T-T_guess)/(sc-s_guess)*(s-s_guess)+T_guess;
+			// Solve for the density
+			rho_guess = density_Tp(T_guess,p,rho_guess);
+			
+			delta = rho_guess/reduce.rho;
+		}
+	}
+	else
+	{
+		// Set to a negative value as a dummy value
+		delta = -1;
+
+		//**************************************************
+		// Step 1: Try to just use the ancillary equations
+		//**************************************************
+		TsatL = Tsat_anc(p,0);
+		if (pure())
+			TsatV = TsatL;
+		else
+			TsatV = Tsat_anc(p,1);
+		rhoL = rhosatL(TsatL);
+		rhoV = rhosatV(TsatV);
+		ssatL = ssatL_anc(TsatL);
+		ssatV = ssatV_anc(TsatV);
+		*rhoLout = -1;
+		*rhoVout = -1;
+		*TsatLout = -1;
+		*TsatVout = -1;
+
+		if (s > ssatV + ssat_tol)
+		{
+			
+			T_guess = TsatV+30;
+			s_guess = entropy_Trho(T_guess,rhoV);
+			T_guess = (TsatV-T_guess)/(ssatV-s_guess)*(s-s_guess)+T_guess;
+			
+			delta = p/(R()*T_guess)/reduce.rho;
+		}
+		else if (s < ssatL - ssat_tol)
+		{
+			T_guess = params.Ttriple;
+			rho_guess = density_Tp(T_guess,p);
+			s_guess = entropy_Trho(T_guess,rho_guess);
+			// Update the guess with linear interpolation
+			T_guess = (TsatL-T_guess)/(ssatL-s_guess)*(s-s_guess)+T_guess;
+			// Solve for the density
+			rho_guess = density_Tp(T_guess,p,rho_guess);
+			
+			delta = rho_guess/reduce.rho;
+		}
+		
+		if (delta<0) // No solution found using ancillary equations - need to use saturation call
+		{
+			//**************************************************
+			// Step 2: Not far away from saturation (or it is two-phase) - need to solve saturation as a function of p :( - this is slow
+			//**************************************************
+			CoolPropStateClass *sat = new CoolPropStateClass(name);
+			sat->update(get_param_index("P"),p,get_param_index("Q"),0);
+			rhoL = sat->rhoL();
+			rhoV = sat->rhoV();
+			ssatL = sat->sL();
+			ssatV = sat->sV();
+			TsatL = sat->TL();
+			TsatV = sat->TV();
+			*rhoLout = rhoL;
+			*rhoVout = rhoV;
+			*TsatLout = TsatL;
+			*TsatVout = TsatV;
+
+			if (s > ssatV)
+			{
+				T_guess = TsatV+30;
+				s_guess = entropy_Trho(T_guess,rhoV);
+				T_guess = (TsatV-T_guess)/(ssatV-s_guess)*(s-s_guess)+T_guess;
+				
+				delta = p/(R()*T_guess)/reduce.rho;
+			}
+			else if (s < ssatL)
+			{
+				T_guess = params.Ttriple;
+				rho_guess = density_Tp(T_guess,p);
+				s_guess = entropy_Trho(T_guess,rho_guess);
+				// Update the guess with linear interpolation
+				T_guess = (TsatL-T_guess)/(ssatL-s_guess)*(s-s_guess)+T_guess;
+				// Solve for the density
+				rho_guess = density_Tp(T_guess,p,rho_guess);
+				
+				delta = rho_guess/reduce.rho;
+			}
+			else
+			{
+				// It is two-phase
+				// Return the quality weighted values
+				double quality = (s-ssatL)/(ssatV-ssatL);
+				*Tout = quality*TsatV+(1-quality)*TsatL;
+				double v = quality*(1/rhoV)+(1-quality)*1/rhoL;
+				*rhoout = 1/v;
+				return;
+			}
+		}
+	}
+
+	tau=reduce.T/T_guess;
+	double Tc = reduce.T;
+	double rhoc = reduce.rho;
+
+	// Now we enter into a Jacobian loop that attempts to simultaneously solve 
+	// for temperature and density using Newton-Raphson
+    worst_error=999;
+    iter=0;
+    while (worst_error>1e-6)
+    {
+    	// All the required partial derivatives
+		a0 = phi0(tau,delta);
+    	da0_dtau = dphi0_dTau(tau,delta);
+    	d2a0_dtau2 = d2phi0_dTau2(tau,delta);
+    	da0_ddelta = dphi0_dDelta(tau,delta);
+		d2a0_ddelta_dtau = 0.0;
+
+    	ar = phir(tau,delta);
+		dar_dtau = dphir_dTau(tau,delta);
+		d2ar_dtau2 = d2phir_dTau2(tau,delta);
+		dar_ddelta = dphir_dDelta(tau,delta);
+		d2ar_ddelta2 = d2phir_dDelta2(tau,delta);
+		d2ar_ddelta_dtau = d2phir_dDelta_dTau(tau,delta);
+		
+		// Residual and derivatives thereof for entropy
+		f1 = tau*(da0_dtau+dar_dtau)-ar-a0-s/R();
+		df1_dtau = tau*(d2a0_dtau2 + d2ar_dtau2)+(da0_dtau+dar_dtau)-dar_dtau-da0_dtau;
+		df1_ddelta = tau*(d2a0_ddelta_dtau+d2ar_ddelta_dtau)-dar_ddelta-da0_ddelta;
+
+		// Residual and derivatives thereof for pressure
+		f2 = delta/tau*(1+delta*dar_ddelta)-p/(rhoc*R()*Tc);
+		df2_dtau = (1+delta*dar_ddelta)*(-delta/tau/tau)+delta/tau*(delta*d2ar_ddelta_dtau);
+		df2_ddelta = (1.0/tau)*(1+2.0*delta*dar_ddelta+delta*delta*d2ar_ddelta2);
+
+		//First index is the row, second index is the column
+		A[0][0]=df1_dtau;
+		A[0][1]=df1_ddelta;
+		A[1][0]=df2_dtau;
+		A[1][1]=df2_ddelta;
+
+		MatInv_2(A,B);
+		tau -= B[0][0]*f1+B[0][1]*f2;
+		delta -= B[1][0]*f1+B[1][1]*f2;
+
+        if (fabs(f1)>fabs(f2))
+            worst_error=fabs(f1);
+        else
+            worst_error=fabs(f2);
+
+		iter+=1;
+		if (iter>100)
+		{
+			throw SolutionError(format("Tsp did not converge with inputs p=%g s=%g for fluid %s",p,s,(char*)name.c_str()));
+			*Tout = _HUGE;
+            *rhoout = _HUGE;
+		}
+    }
 
 	*Tout = reduce.T/tau;
 	*rhoout = delta*reduce.rho;

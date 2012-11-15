@@ -97,18 +97,17 @@ def show():
     """
     pylab.show()
     
-def Ts(Ref,Tmin=220,axis=None,show=False, **kwargs):
+def Ts(Ref,Tmin=220, show=False, axis=None, **kwargs):
     """
     Make a temperature- entropy plot for the given fluid
     
     Will plot in the current axis unless the optional parameter *axis* gives the name for the axis to use
     """
-    
-    if axis==None:
-        ax=pylab.gca()
-    else:
-        ax=axis
 
+    ax = axis if axis is not None else pylab.gca()
+    if Tmin > cp.Props(Ref,'Tcrit'):
+        raise ValueError('Tmin cannot be greater than fluid critical temperature')
+    Tmin = max(Tmin, cp.Props(Ref,'Tmin')+0.01)
     Tsat = np.linspace(Tmin,cp.Props(Ref,"Tcrit")-0.001,100)
     (ssatL,psatL,ssatV,psatV)=(0.0*Tsat,0.0*Tsat,0.0*Tsat,0.0*Tsat)
     for i in range(len(Tsat)):
@@ -125,18 +124,18 @@ def Ts(Ref,Tmin=220,axis=None,show=False, **kwargs):
     if show:
         pylab.show()
 
-def Ph(Ref,axis=None,Tmin=220,show = False, **kwargs):
+def Ph(Ref, Tmin=220, show = False, axis=None, **kwargs):
     
     """
     Make a pressure-enthalpy plot for the given fluid
     
     Will plot in the current axis unless the optional parameter *axis* gives the name for the axis to use
     """
-    if axis==None:
-        ax=pylab.gca()
-    else:
-        ax=axis
-    Tmin = min(Tmin, cp.Props(Ref,'Tmin')+0.01)
+    
+    ax = axis if axis is not None else pylab.gca()
+    if Tmin > cp.Props(Ref,'Tcrit'):
+        raise ValueError('Tmin cannot be greater than fluid critical temperature')
+    Tmin = max(Tmin, cp.Props(Ref,'Tmin')+0.01)
     Tsat = np.linspace(Tmin,cp.Props(Ref,"Tcrit")-0.1,1000)
     (hsatL,psatL,hsatV,psatV)=(0.0*Tsat,0.0*Tsat,0.0*Tsat,0.0*Tsat)
     for i in range(len(Tsat)):
@@ -144,7 +143,6 @@ def Ph(Ref,axis=None,Tmin=220,show = False, **kwargs):
         hsatV[i] = cp.Props('H','T',Tsat[i],'Q',1,Ref)
         psatL[i] = cp.Props('P','T',Tsat[i],'Q',0,Ref)
         psatV[i] = cp.Props('P','T',Tsat[i],'Q',1,Ref)
-
 
     ax.plot(hsatL,psatL,'k')
     ax.plot(hsatV,psatV,'k')
@@ -156,7 +154,37 @@ def Ph(Ref,axis=None,Tmin=220,show = False, **kwargs):
     if show:
         pylab.show()
     
+def Ps(Ref, Tmin=220, show = False, axis = None, **kwargs):
     
+    """
+    Make a pressure-entropy plot for the given fluid
+    
+    Will plot in the current axis unless the optional parameter *axis* gives the name for the axis to use
+    """
+    ax = axis if axis is not None else pylab.gca()
+    if Tmin > cp.Props(Ref,'Tcrit'):
+        raise ValueError('Tmin cannot be greater than fluid critical temperature')
+    Tmin = max(Tmin, cp.Props(Ref,'Tmin')+0.01)
+    Tsat = np.linspace(Tmin,cp.Props(Ref,"Tcrit")-0.1,1000)
+    (ssatL,psatL,ssatV,psatV)=(0.0*Tsat,0.0*Tsat,0.0*Tsat,0.0*Tsat)
+    for i in range(len(Tsat)):
+        ssatL[i] = cp.Props('S','T',Tsat[i],'Q',0,Ref)
+        ssatV[i] = cp.Props('S','T',Tsat[i],'Q',1,Ref)
+        psatL[i] = cp.Props('P','T',Tsat[i],'Q',0,Ref)
+        psatV[i] = cp.Props('P','T',Tsat[i],'Q',1,Ref)
+
+    ax.plot(ssatL,psatL,'k')
+    ax.plot(ssatV,psatV,'k')
+    ax.plot(np.r_[ssatL[-1],ssatV[-1]],np.r_[psatL[-1],psatV[-1]],'k')
+    
+    ax.set_xlabel('Entropy [kJ/kg/K]')
+    ax.set_ylabel('Pressure [kPa]')
+    ax.autoscale(enable=True)
+    if show:
+        pylab.show()
+        
 if __name__=='__main__':
+    Ps('R290', show = True)
+    Ps('R290', show = True)
     Ph('R290', show = True)
     Ts('R290', show = True)
