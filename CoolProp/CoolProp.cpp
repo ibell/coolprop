@@ -782,7 +782,7 @@ double _CoolProp_Fluid_Props(long iOutput, long iName1, double Prop1, long iName
 		T = Prop1;
 		Q = Prop2;
 		if (T <= pFluid->params.Ttriple || T >= pFluid->crit.T){
-			throw ValueError(format("Your saturation temperature [%f K] is out of range [%f K, %f K]",T,pFluid->params.Ttriple,pFluid->reduce.T ));
+			throw ValueError(format("Your saturation temperature [%f K] is out of range [%f K, %f K]",T,pFluid->params.Ttriple,pFluid->crit.T ));
 		}
 		if (Q>1+1e-13 || Q<-1e-13){
 			throw ValueError(format("Your quality [%f] is out of range (0, 1)",Q ));
@@ -822,6 +822,7 @@ double _CoolProp_Fluid_Props(long iOutput, long iName1, double Prop1, long iName
 			return rho;
 		else if (iOutput == iT)
 			return T;
+
 
 		// If you are using LUT, use it
 		if (FlagUseSinglePhaseLUT==1){
@@ -919,7 +920,7 @@ double _CoolProp_Fluid_Props(long iOutput, long iName1, double Prop1, long iName
     	pFluid->temperature_ph(p, h, &T, &rho, &rhoL, &rhoV, &TsatL, &TsatV);
 
 		// Check if it is two-phase - if so, call the two-phase routine
-		if (p < pFluid->crit.p && rho > rhoV && rho < rhoL){
+		if (p < 0.999*pFluid->crit.p && rho > rhoV && rho < rhoL){
 			// It's two-phase
 			double Q = (1/rho-1/rhoL)/(1/rhoV-1/rhoL);
 			if (iOutput == iQ)
@@ -940,11 +941,12 @@ double _CoolProp_Fluid_Props(long iOutput, long iName1, double Prop1, long iName
 		double s = Prop1;
 		double p = Prop2;
 		double TsatL, TsatV;
+		
 		// Actually call the s,p routine to find temperature, density (and saturation densities if they get calculated)
     	pFluid->temperature_ps(p, s, &T, &rho, &rhoL, &rhoV, &TsatL, &TsatV);
 
 		// Check if it is two-phase - if so, call the two-phase routine
-		if (p < pFluid->crit.p && rho > rhoV && rho < rhoL){
+		if (p < 0.999*pFluid->crit.p && rho > rhoV && rho < rhoL){
 			// It's two-phase
 			double Q = (1/rho-1/rhoL)/(1/rhoV-1/rhoL);
 			if (iOutput == iQ)

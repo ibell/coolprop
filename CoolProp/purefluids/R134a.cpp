@@ -354,17 +354,34 @@ double R134aClass::psat(double T)
 }
 double R134aClass::rhosatL(double T)
 {
-	double theta, THETA;
+	double theta, THETA, rho_anc;
 	theta=T/374.15;
 	THETA=1-theta;
 
-	return 518.20+884.13*pow(THETA,1.0/3.0)+485.84*pow(THETA,2.0/3.0)+193.29*pow(THETA,10.0/3.0);
+	if (T >= 374.15)
+	{
+		// Linearly interpolate between the end of the ancillary equation and critical temp
+		rho_anc = 518.20;
+		return (crit.rho-rho_anc)/(crit.T-374.15)*(T-374.15)+rho_anc;
+	}
+	else
+		return 518.20+884.13*pow(THETA,1.0/3.0)+485.84*pow(THETA,2.0/3.0)+193.29*pow(THETA,10.0/3.0);
 }
 double R134aClass::rhosatV(double T)
 {
-	double theta, THETA,rho0=516.86;
+	double theta, THETA,rho0=516.86, rho_anc;
 	theta=T/374.15;
 	THETA=1-theta;
+	if (T >= 374.1)
+	{
+		// Linearly interpolate between the end of the ancillary equation and critical temp
+		theta=374.1/374.15;
+		THETA=1-theta;
+		rho_anc = rho0*exp(-2.837294*pow(THETA,1.0/3.0)-7.875988*pow(THETA,2.0/3.0)+4.478586*pow(THETA,1.0/2.0)-14.140125*pow(THETA,9.0/4.0)-52.361297*pow(THETA,11.0/2.0));
+		return (crit.rho-rho_anc)/(crit.T-374.1)*(T-374.1)+rho_anc;
+	}
+	else
+		return rho_anc;
 
 	return rho0*exp(-2.837294*pow(THETA,1.0/3.0)-7.875988*pow(THETA,2.0/3.0)+4.478586*pow(THETA,1.0/2.0)-14.140125*pow(THETA,9.0/4.0)-52.361297*pow(THETA,11.0/2.0));
 }

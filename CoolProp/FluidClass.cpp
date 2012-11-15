@@ -1131,8 +1131,8 @@ void Fluid::temperature_ph(double p, double h, double *Tout, double *rhoout, dou
     double rhoL, rhoV, hsatL,hsatV,TsatL,TsatV,tau,delta,worst_error;
 	double h_guess, hc, rho_guess;
 	double hsat_tol = 5;
-	// It is supercritical pressure	
-	if (p > crit.p)
+	// It is supercritical pressure	(or just below the critical pressure)
+	if (p > 0.999*crit.p)
 	{
 		hc = enthalpy_Trho(crit.T+0.001,crit.rho);
 		if (h > hc)
@@ -1329,8 +1329,8 @@ void Fluid::temperature_ps(double p, double s, double *Tout, double *rhoout, dou
     double rhoL, rhoV, ssatL,ssatV,TsatL,TsatV,tau,delta,worst_error;
 	double s_guess, sc, rho_guess;
 	double ssat_tol = 0.1;
-	// It is supercritical pressure	
-	if (p > crit.p)
+	// It is supercritical pressure	(or just below the critical pressure)
+	if (p > 0.999*crit.p) 
 	{
 		sc = entropy_Trho(crit.T+0.001,crit.rho);
 		if (s > sc)
@@ -1495,6 +1495,7 @@ void Fluid::temperature_ps(double p, double s, double *Tout, double *rhoout, dou
 		tau -= B[0][0]*f1+B[0][1]*f2;
 		delta -= B[1][0]*f1+B[1][1]*f2;
 
+		
         if (fabs(f1)>fabs(f2))
             worst_error=fabs(f1);
         else
