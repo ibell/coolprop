@@ -710,6 +710,7 @@ double _CoolProp_Fluid_Props(long iOutput, long iName1, double Prop1, long iName
 		case iTcrit:
 			return pFluid->crit.T;
 			break;
+
 		case iTtriple:
 			return pFluid->params.Ttriple;
 			break;

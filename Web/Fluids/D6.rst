@@ -194,55 +194,57 @@ Along the critical isotherm where T=T\ :sub:`c`
     ax.legend(numpoints=1,loc='best')
     plt.show()
 
-Along the isobar corresponding to :math:`T_{sat}=(T_t+T_c)/2`
+Check of p,h and p,s as inputs (X: Failure .: Success)
 =================================================================
 .. plot::
 
-    Fluid = "D6"
-
+    from CoolProp.Plots.Plots import Ph,Ps
     from CoolProp.CoolProp import Props
-    from numpy import linspace,array,abs
-    import matplotlib.pyplot as plt
+    from matplotlib import pyplot as plt
+    import numpy as np
 
-    Tt = Props(Fluid,'Ttriple')
-    Tc = Props(Fluid,'Tcrit')
-    Tm = (Tt+Tc)/2.0
-    p = Props('P','T',Tm,'Q',0,Fluid)
-
-    fig = plt.figure()
-
-    Tmin = Tm - 30 if Tm - 30 > Tt else Tt+0.1
-    Tv = linspace(Tmin, Tm - 0.001, 20)
-    #Start with T&P as inputs
-    rho = array([Props('D','T',T,'P',p,Fluid) for T in Tv])
-    h = array([Props('H','T',T,'P',p,Fluid) for T in Tv])
-    s = array([Props('S','T',T,'P',p,Fluid) for T in Tv])
-    p_Trho = array([Props('P','T',T,'D',D,Fluid) for T,D in zip(Tv,rho)])
-    T_hp = array([Props('T','H',H,'P',p,Fluid) for H in h])
+    Ref = "D6"
+    fig = plt.figure(figsize=(10,5))
     ax1 = fig.add_subplot(121)
-    ax1.semilogy(Tv,abs(p/p_Trho-1)*100,'o',label='p & p(T,rho)')
-    ax1.semilogy(Tv,abs(T_hp/Tv-1)*100,'o',label='T & T(h,p)')
-    ax1.set_ylim(1e-16,100)
-    ax1.set_title('Subcooled liquid')
-    ax1.set_xlabel('Temperature [K]')
-    ax1.set_ylabel('Absolute deviation [%]')
-    ax1.legend(numpoints=1,loc='best')
-
-    Tv = linspace(Tm+0.001, Tm + 30, 20)
-    #Start with T&P as inputs
-    rho = array([Props('D','T',T,'P',p,Fluid) for T in Tv])
-    h = array([Props('H','T',T,'P',p,Fluid) for T in Tv])
-    s = array([Props('S','T',T,'P',p,Fluid) for T in Tv])
-    p_Trho = array([Props('P','T',T,'D',D,Fluid) for T,D in zip(Tv,rho)])
-    T_hp = array([Props('T','H',H,'P',p,Fluid) for H in h])
     ax2 = fig.add_subplot(122)
-    ax2.semilogy(Tv,abs(p/p_Trho-1)*100,'o',label='p & p(T,rho)')
-    ax2.semilogy(Tv,abs(T_hp/Tv-1)*100,'o',label='T & T(h,p)')
-    ax2.set_ylim(1e-16,100)
-    ax2.set_title('Superheated vapor')
-    ax2.set_xlabel('Temperature [K]')
-    ax2.set_ylabel('Absolute deviation [%]')
-    ax2.legend(numpoints=1,loc='best')
 
-    fig.tight_layout()
-    plt.show()
+    Tmin = Props(Ref,'Tmin')+3
+    pmin = Props('P','T',Tmin,'Q',0,Ref)
+    pmax = Props(Ref,'pcrit')*2
+    hmin = Props('H','T',Tmin,'Q',0,Ref)
+    hmax = 2*Props('H','T',Props(Ref,'Tcrit')-1,'Q',1,Ref)-hmin
+    smin = Props('S','T',Tmin,'Q',0,Ref)
+    smax = 2*Props('S','T',Props(Ref,'Tcrit')-1,'Q',1,Ref)-smin
+
+    Ph(Ref, axis = ax1, Tmin = Tmin)
+    Ps(Ref, axis = ax2, Tmin = Tmin)
+
+    for p in np.linspace(pmin,pmax,10):
+        for h in np.linspace(hmin,hmax):
+            _bad = False
+            try:
+                T = Props('T','H',h,'P',p,Ref)
+                rho = Props('D','H',h,'P',p,Ref)
+                hEOS = Props('H','T',T,'D',rho,Ref)
+            except ValueError:
+                _bad = True
+            if _bad or abs(hEOS/h-1)>1e-6:
+                ax1.plot(h,p,'x',ms = 10)
+            else:
+                ax1.plot(h,p,'k.', ms = 1)
+
+    for p in np.linspace(pmin,pmax,10):
+        for s in np.linspace(smin,smax):
+            _bad = False
+            try:
+                T = Props('T','S',s,'P',p,Ref)
+                rho = Props('D','S',s,'P',p,Ref)
+                sEOS = Props('S','T',T,'D',rho,Ref)
+            except ValueError:
+                _bad = True
+            if _bad or abs(sEOS/s-1)>1e-6:
+                ax2.plot(s,p,'x',ms = 10)
+            else:
+                ax2.plot(s,p,'k.', ms = 1)
+
+    plt.tight_layout()

@@ -78,7 +78,7 @@ def MATLAB():
     shutil.copy2(os.path.join('wrappers','MATLAB','README.txt'),os.path.join('dist_temp','MATLAB','README.txt'))
     shutil.copy2(os.path.join('wrappers','MATLAB','MATLAB_sample.m'),os.path.join('dist_temp','MATLAB','MATLAB_sample.m'))
     
-def PythonInstallers():
+def Python():
     
     for python_install in PYTHONVERSIONS:
         remove_coolprop_lib()
@@ -113,13 +113,14 @@ def UploadDocs():
     print subprocess.check_output(call_str,shell=True)
     
 if __name__=='__main__':
-##     InstallPrereqs()
-##     PythonInstallers()
+    
+##     InstallPrereqs()  #This is optional if you think any of the pre-reqs have been updated
     DLL()
-##     Source()
-##     Octave()
-##     MATLAB()
-##     PYPI()
-##     UploadSourceForge()
+    Source()
+    Python()
+    Octave()
+    MATLAB()
+    PYPI()
+    UploadSourceForge()
 ##     BuildDocs()
 ##     UploadDocs()

@@ -1,5 +1,14 @@
 Changelog:
 
+2.2.5 (revision 199)
+P,h and p,s as inputs solve for almost all fluids under almost all conditions
+Octave modules for 3.6.1 and 3.6.2 now build and run properly for VS build on Windows
+Builds properly on Linux now
+Bugfixes:
+    REFPROP.cpp bug with mixtures (r195)
+    fixes around critical point (r198)
+    Ancillaries for R134a updated in the vicinity of critical point
+
 2.2.4 (revision 192)
 Does not die if pseudo-pure T,P are in the two-phase region
 Fixed bug with dewpoint as an input for dewpoints below 0C
