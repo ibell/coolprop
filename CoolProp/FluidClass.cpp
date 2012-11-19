@@ -165,7 +165,6 @@ Fluid * FluidsContainer::get_fluid(std::string name)
 		}
 	}
 
-	throw NotImplementedError(format("Fluid [%s] not allowed",name.c_str()));
 	return NULL;
 }
 
@@ -514,7 +513,7 @@ double Fluid::viscosity_Trho( double T, double rho)
 }
 double Fluid::conductivity_Trho( double T, double rho)
 {
-	// Use propane as the reference
+	// Use R134a as the reference
 	Fluid * ReferenceFluid = new R134aClass();
 	ReferenceFluid->post_load();
 	// Calculate the ECS
@@ -1262,6 +1261,7 @@ void Fluid::temperature_ph(double p, double h, double *Tout, double *rhoout, dou
 				*rhoout = 1/v;
 				return;
 			}
+			delete sat;
 		}
 	}
 
@@ -1589,8 +1589,9 @@ double Fluid::Tsat_anc(double p, double Q)
 
 
 
-// A wrapper class to do the calculations to get densities and saturation temperature
-// as a function of pressure for pure fluids
+/// A wrapper class to do the calculations to get densities and saturation temperature
+/// as a function of pressure for pure fluids
+/// This class has been deprecated as it is in general 4 times slower than the method below that is based on the secant solver
 class SaturationFunctionOfPressureResids : public FuncWrapperND
 {
 private:
@@ -1700,6 +1701,24 @@ public:
 	}
 };
 
+class SaturationPressureGivenResids : public FuncWrapper1D
+{
+private:
+	double p,tau;
+	Fluid *pFluid;
+public:
+	double rhoL, rhoV;
+	SaturationPressureGivenResids(Fluid *pFluid, double p){this->pFluid = pFluid; this->p = p;};
+	~SaturationPressureGivenResids(){};
+	
+	double call(double T)
+	{
+		rhoL = pFluid->density_Tp(T,p,rhoL);
+		rhoV = pFluid->density_Tp(T,p,rhoV);
+		return pFluid->gibbs_Trho(T,rhoL)-pFluid->gibbs_Trho(T,rhoV);
+	}
+};
+
 void Fluid::TsatP_Pure(double p, double *Tout, double *rhoLout, double *rhoVout)
 {
 	//class SatFuncClass : public FuncWrapper1D
@@ -1725,17 +1744,28 @@ void Fluid::TsatP_Pure(double p, double *Tout, double *rhoLout, double *rhoVout)
 	//	};
 	//} SatFunc(p,this);
 
-	//// Use Secant method to find T that gives the same gibbs function in both phases - a la REFPROP SATP function
-	//std::string errstr;
-	//double T = Secant(&SatFunc,SatFunc.T,1e-7,1e-4,50,&errstr);
-	//if (errstr.size()>0)
-	//	throw SolutionError("Saturation calculation failed");
-	//*rhoVout = SatFunc.rhoV;
-	//*rhoLout = SatFunc.rhoL;
-	//*Tout = T;
-	//return;
 
 	double Tsat,rhoL,rhoV;
+
+	//// Use Secant method to find T that gives the same gibbs function in both phases - a la REFPROP SATP function
+	std::string errstr;
+	SaturationPressureGivenResids *SPGR = new SaturationPressureGivenResids(this,p);
+	Tsat = Tsat_anc(p,0);
+	rhoL = rhosatL(Tsat);
+	rhoV = rhosatV(Tsat);
+	SPGR->rhoL = rhoL;
+	SPGR->rhoV = rhoV;
+	Tsat = Secant(SPGR,Tsat,1e-7,1e-4,50,&errstr);
+	if (errstr.size()>0)
+		throw SolutionError("Saturation calculation failed");
+	*rhoVout = SPGR->rhoV;
+	*rhoLout = SPGR->rhoL;
+	*Tout = Tsat;
+	delete SPGR;
+	return;
+
+
+	
 	SaturationFunctionOfPressureResids *SFPR = new SaturationFunctionOfPressureResids(this,p,params.R_u/params.molemass,reduce.rho,reduce.T);
 	Eigen::Vector3d x0_initial, x;
 	Tsat = Tsat_anc(p,0);
@@ -1747,6 +1777,7 @@ void Fluid::TsatP_Pure(double p, double *Tout, double *rhoLout, double *rhoVout)
 	*rhoVout = reduce.rho*x(0);
 	*rhoLout = reduce.rho*x(1);
 	*Tout = reduce.T/x(2);
+	delete SFPR;
 	return;
 }
 

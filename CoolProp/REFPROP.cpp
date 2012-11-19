@@ -4,6 +4,7 @@
 #include <crtdbg.h>
 #endif
 
+#include <string>
 #include "CoolProp.h"
 
 #if defined(__ISWINDOWS__)
@@ -217,27 +218,58 @@ fp_WMOLdllTYPE WMOLdll;
 fp_XMASSdllTYPE XMASSdll;
 fp_XMOLEdllTYPE XMOLEdll;
 
-char LoadedREFPROPRef[2550];
+static long iMM = get_param_index("M");
+static long iT = get_param_index("T");
+static long iD = get_param_index("D");
+static long iH = get_param_index("H");
+static long iP = get_param_index("P");
+static long iC = get_param_index("C");
+static long iC0 = get_param_index("C0");
+static long iO = get_param_index("O");
+static long iV = get_param_index("V");
+static long iL = get_param_index("L");
+static long iS = get_param_index("S");
+static long iU = get_param_index("U");
+static long iQ = get_param_index("Q");
+static long iI = get_param_index("I");
+static long iA = get_param_index("A");
+static long iDipole = get_param_index("dipole");
+static long iAccentric = get_param_index("accentric");
+static long iTmin = get_param_index("Tmin");
+static long iTtriple = get_param_index("Ttriple");
+static long iTcrit = get_param_index("Tcrit");
+static long iPcrit = get_param_index("pcrit");
+static long iRhocrit = get_param_index("rhocrit");
+
+std::string LoadedREFPROPRef;
 HINSTANCE RefpropdllInstance=NULL;
 
-double REFPROP(char Output,char Name1, double Prop1, char Name2, double Prop2, char * Ref)
+char hfmix[] = "hmx.bnc";
+char hrf[] = "DEF";
+
+double REFPROP(char Output, char Name1, double Prop1, char Name2, double Prop2, char * Ref)
+{
+	return REFPROP(std::string(1,Output),std::string(1,Name1),Prop1,std::string(1,Name2),Prop2,std::string(Ref));
+}
+double REFPROP(std::string Output, std::string Name1, double Prop1, std::string Name2, double Prop2, std::string Ref)
 {
 	int j;
-	long i,ierr=0;
-	char hf[refpropcharlength*ncmax], hrf[lengthofreference+1],
-	herr[errormessagelength+1],hfmix[refpropcharlength+1];
+	long i,ierr=0,iOutput,iName1,iName2;
+	char hf[refpropcharlength*ncmax], herr[errormessagelength+1];
 	
 	double x[ncmax],xliq[ncmax],xvap[ncmax];
-	char RefString[255];
+	
 	double T,p=0,d,dl,dv,dl_,dv_,q,e,h,s,cv,cp,w,MW,hl,hv,sl,sv,ul,
 		uv,pl,pv,hjt,eta,tcx,Q,Tcrit,pcrit,dcrit,rho,sigma;
-
+	std::string sRef;
+	std::string RefString;
 	// First create a pointer to an instance of the library
 	// Then have windows load the library.
 	
-	// If REFPROP is not loaded, try to load it
+	// If REFPROP is not loaded
 	if (RefpropdllInstance==NULL)
 	{
+		// Load it
 		#if defined(UNICODE)
 			RefpropdllInstance = LoadLibrary((LPCWSTR)"refprop.dll");
 		#else
@@ -344,123 +376,111 @@ double REFPROP(char Output,char Name1, double Prop1, char Name2, double Prop2, c
 		XMASSdll = (fp_XMASSdllTYPE) GetProcAddress(RefpropdllInstance,"XMASSdll");
 		XMOLEdll = (fp_XMOLEdllTYPE) GetProcAddress(RefpropdllInstance,"XMOLEdll");
 	}
-	// If the fluid name starts with the string "REFPROP-", chop off the "REFPROP-"
-	if (!strncmp(Ref,"REFPROP-",8))
-	{
-	char *REFPROPRef=NULL,*RefCopy=NULL;
-	double prop;
-		
-	// Allocate space for refrigerant name
-		RefCopy=(char *)malloc(strlen(Ref)+1);
-	// Make a backup copy
-		strcpy(RefCopy,Ref);
-	// Chop off the "REFPROP-"
-		REFPROPRef = strtok(RefCopy,"-");
-		REFPROPRef = strtok(NULL,"-");
-	// Run with the stripped Refrigerant name
-		prop=REFPROP(Output,Name1,Prop1,Name2,Prop2,REFPROPRef);
-	// Free allocated memory
-		free(RefCopy);
-	// Return the new value
-		return prop;
-	}
 	
-	if (!strncmp(Ref,"MIX",3))
+	
+	// If the fluid name does not start with the string "REFPROP-"
+	if (Ref.find("REFPROP-") == std::string::npos)
 	{
-		// Sample is "REFPROP-MIX:R32[0.697615]&R125[0.302385]" -  this is R410A
-		char *REFPROPRef=NULL,*RefCopy=NULL,*Refs[20],*Refrigerant;
-		double molefraction;
-
-		// Allocate space for refrigerant name
-		RefCopy=(char *)malloc(strlen(Ref)+1);
-		// Make a backup copy
-		strcpy(RefCopy,Ref);
-		// Chop off the "MIX"
-		REFPROPRef = strtok(RefCopy,":");
-		i=1;
-		while (REFPROPRef!=NULL)
-		{
-			Refs[i-1]=strtok(NULL,"&");
-			if (Refs[i-1]==NULL)
-			{
-				i--;
-				break;
-			}
-			else
-				i++;
-		}
-		//Flush out RefString
-		sprintf(RefString,"");
-		for (j=0;j<i;j++)
-		{	
-			//Get component and its mole fraction
-			Refrigerant=strtok(Refs[j],"[]");
-			molefraction=strtod(strtok(NULL,"[]"),NULL);
-			x[j]=molefraction;
-			if (j==0)
-				sprintf(RefString,"%s%s.fld",RefString,Refs[j]);
-			else
-				sprintf(RefString,"%s|%s.fld",RefString,Refs[j]);
-		}
-		// Free allocated memory
-		free(RefCopy);
+		// Fail and give error
+		std::cout << "Invalid REFPROP string: " << Ref << std::endl;
 	}
-	else if (!strcmp(Ref,"Air") || !strcmp(Ref,"R507A") || !strcmp(Ref,"R404A") || !strcmp(Ref,"R410A") || !strcmp(Ref,"R407C") || !strcmp(Ref,"SES36"))
+	// Chop off the "REFPROP-"
+	else 
 	{
-		i=1;
-		strcpy(RefString,"");
-		strcat(RefString,Ref);
-		strcat(RefString,".ppf");
-		x[0]=1.0;     //Pseudo-Pure fluid
+		// Keep everything after the "REFPROP-"
+		sRef = Ref.substr(8,Ref.size()-8);
 	}
-	else if (!strcmp(Ref,"R507A"))
-	{
-		i=2;
-		strcpy(RefString,"R23.fld|R116.fld");
-		x[0]=0.62675;
-		x[1]=0.37325;
-	}
-	else if (!strcmp(Ref,"R410A"))
-	{
-		i=2;
-		strcpy(RefString,"R32.fld|R125.fld");
-		x[0]=0.697615;
-		x[1]=0.302385;
-	}
-	else if (!strcmp(Ref,"R404A"))
-	{
-		i=3;
-		strcpy(RefString,"R125.fld|R134a.fld|R143a.fld");
-		x[0]=0.35782;
-		x[1]=0.038264;
-		x[2]=0.60392;
-	}
-    else if (!strcmp(Ref,"Air"))
-	{
-		i=3;
-		strcpy(RefString,"Nitrogen.fld|Oxygen.fld|Argon.fld");
-		x[0]=0.7812;
-		x[1]=0.2096;
-		x[2]=0.0092;
-	}
-	else
-	{
-		i=1;
-		strcpy(RefString,"");
-		strcat(RefString,Ref);
-		strcat(RefString,".fld");
-		x[0]=1.0;     //Pure fluid
-	}
-
-	strcpy(hf,RefString);
-	strcpy(hfmix,"hmx.bnc");
-	strcpy(hrf,"DEF");
-	strcpy(herr,"Ok");
 	
 	// If the name of the refrigerant doesn't match 
 	// that of the currently loaded refrigerant
-	if (strcmp(LoadedREFPROPRef,Ref))
+	if (LoadedREFPROPRef.compare(Ref))
 	{
+		if (!strncmp(Ref.c_str(),"MIX",3))
+		{
+			// Sample is "REFPROP-MIX:R32[0.697615]&R125[0.302385]" -  this is R410A
+			char *REFPROPRef=NULL,*RefCopy=NULL,*Refs[20],*Refrigerant;
+			double molefraction;
+
+			// Allocate space for refrigerant name
+			RefCopy=(char *)malloc(strlen(sRef.c_str())+1);
+			// Make a backup copy
+			strcpy(RefCopy,Ref.c_str());
+			// Chop off the "MIX"
+			REFPROPRef = strtok(RefCopy,":");
+			i=1;
+			while (REFPROPRef!=NULL)
+			{
+				Refs[i-1]=strtok(NULL,"&");
+				if (Refs[i-1]==NULL)
+				{
+					i--;
+					break;
+				}
+				else
+					i++;
+			}
+			//Flush out RefString
+			RefString.clear();
+			
+			for (j=0;j<i;j++)
+			{	
+				//Get component and its mole fraction
+				Refrigerant=strtok(Refs[j],"[]");
+				molefraction=strtod(strtok(NULL,"[]"),NULL);
+				x[j]=molefraction;
+				if (j==0)
+					RefString = format("%s.fld",Refs[j]);
+				else
+					RefString += format("|%s.fld",Refs[j]);
+			}
+			// Free allocated memory
+			free(RefCopy);
+		}
+		else if (!sRef.compare("Air") || !sRef.compare("R507A") || !sRef.compare("R404A") || !sRef.compare("R410A") || !sRef.compare("R407C") || !sRef.compare("SES36"))
+		{
+			i=1;
+			RefString = std::string(sRef)+std::string(".ppf");
+			x[0]=1.0;     //Pseudo-Pure fluid
+		}
+		/*else if (!strcmp(Ref,"R507A"))
+		{
+			i=2;
+			strcpy(RefString,"R23.fld|R116.fld");
+			x[0]=0.62675;
+			x[1]=0.37325;
+		}
+		else if (!strcmp(Ref,"R410A"))
+		{
+			i=2;
+			strcpy(RefString,"R32.fld|R125.fld");
+			x[0]=0.697615;
+			x[1]=0.302385;
+		}
+		else if (!strcmp(Ref,"R404A"))
+		{
+			i=3;
+			strcpy(RefString,"R125.fld|R134a.fld|R143a.fld");
+			x[0]=0.35782;
+			x[1]=0.038264;
+			x[2]=0.60392;
+		}
+		else if (!strcmp(Ref,"Air"))
+		{
+			i=3;
+			strcpy(RefString,"Nitrogen.fld|Oxygen.fld|Argon.fld");
+			x[0]=0.7812;
+			x[1]=0.2096;
+			x[2]=0.0092;
+		}*/
+		else
+		{
+			i=1;
+			RefString = std::string(sRef)+std::string(".fld");
+			x[0]=1.0;     //Pure fluid
+		}
+
+		strcpy(hf,RefString.c_str());
+
 		ierr=999;
 		//...Call SETUP to initialize the program
 		SETUPdll(&i, hf, hfmix, hrf, &ierr, herr,
@@ -468,43 +488,50 @@ double REFPROP(char Output,char Name1, double Prop1, char Name2, double Prop2, c
 			lengthofreference,errormessagelength);
 		if (ierr != 0) printf("REFPROP setup gives this error during SETUP: %s\n",herr);
 		//Copy the name of the loaded refrigerant back into the temporary holder
-		strcpy(LoadedREFPROPRef,Ref);
+		LoadedREFPROPRef = std::string(Ref);
 	}
+	
+	strcpy(herr,"Ok");
+	
+	iOutput = get_param_index(Output);
+	iName1 = get_param_index(Name1);
+	iName2 = get_param_index(Name2);
 
+	
 	// Get the molar mass of the fluid
-	WMOLdll(x,&MW);
-	if (Output=='B')
+	WMOLdll(x,&MW);	
+	if (iOutput == iTcrit)
 	{
 		// Critical temperature
 		CRITPdll(x,&Tcrit,&pcrit,&dcrit,&ierr,herr,255);
 		return Tcrit;
 	}
-	else if (Output=='M')
+	else if (iOutput==iMM)
 	{
 		// mole mass
 		return MW;
 	}
-	else if (Output=='E')
+	else if (iOutput==iPcrit)
 	{
 		// Critical pressure
 		CRITPdll(x,&Tcrit,&pcrit,&dcrit,&ierr,herr,255);
 		return pcrit;
 	}
-	else if (Output =='N')
+	else if (iOutput ==iRhocrit)
 	{
 		// Critical density
 		CRITPdll(x,&Tcrit,&pcrit,&dcrit,&ierr,herr,255);
 		return dcrit*MW;
 		
 	}
-	else if (Output == 't')
+	else if (iOutput == iTmin)
 	{
 		// Minimum temperature
 		double tmin,tmax,Dmax,pmax;
 		LIMITSdll("EOS",x,&tmin,&tmax,&Dmax,&pmax,255);
 		return tmin;
 	}
-	else if (Output =='w')
+	else if (iOutput == iAccentric)
 	{
 		double wmm,Ttriple,tnbpt,tc,pc,Dc,Zc,acf,dip,Rgas;
 		// Accentric factor
@@ -516,7 +543,7 @@ double REFPROP(char Output,char Name1, double Prop1, char Name2, double Prop2, c
 		INFOdll(&i,&wmm,&Ttriple,&tnbpt,&tc,&pc,&Dc,&Zc,&acf,&dip,&Rgas);
 		return acf;
 	}
-	else if (Output =='o')
+	else if (iOutput ==iDipole)
 	{
 		double wmm,Ttriple,tnbpt,tc,pc,Dc,Zc,acf,dip,Rgas;
 		// Dipole moment
@@ -528,7 +555,7 @@ double REFPROP(char Output,char Name1, double Prop1, char Name2, double Prop2, c
 		INFOdll(&i,&wmm,&Ttriple,&tnbpt,&tc,&pc,&Dc,&Zc,&acf,&dip,&Rgas);
 		return dip;
 	}
-	else if (Output=='R')
+	else if (iOutput==iTtriple)
 	{
 		long icomp;
 		double wmm,Ttriple,tnbpt,tc,pc,Dc,Zc,acf,dip,Rgas;
@@ -542,9 +569,9 @@ double REFPROP(char Output,char Name1, double Prop1, char Name2, double Prop2, c
 		INFOdll(&icomp,&wmm,&Ttriple,&tnbpt,&tc,&pc,&Dc,&Zc,&acf,&dip,&Rgas);
 		return Ttriple;
 	}
-	else if (Output=='I')
+	else if (iOutput==iI)
 	{
-		if (Name1=='T'){
+		if (iName1==iT){
 			SURFTdll(&Prop1,&dl,x,&sigma,&i,herr,errormessagelength);
 			return sigma/1000;
 		}
@@ -554,33 +581,30 @@ double REFPROP(char Output,char Name1, double Prop1, char Name2, double Prop2, c
 		}
 	}
 	
-	else if ((Name1=='T' && Name2=='P') || (Name2=='T' && Name1=='P'))
+	else if ((iName1==iT && iName2 == iP) || (iName2==  iT && iName1== iP))
 	{
 		// T in K, P in kPa
-		if (Name1 == 'T'){
-			T = Prop1; p = Prop2;
+		if (iName1 == iP){
+			std::swap(Prop1,Prop2);
 		}
-		else{
-			p = Prop1; T = Prop2;
-		}
-		
+		T = Prop1; p = Prop2;
 
 		// Use flash routine to find properties
 		TPFLSHdll(&T,&p,x,&d,&dl,&dv,xliq,xvap,&q,&e,&h,&s,&cv,&cp,&w,&ierr,herr,errormessagelength);
-		if (Output=='H') return h/MW;
-		else if (Output=='D') return d*MW;
-		else if (Output=='S') return s/MW;
-		else if (Output=='U') return e/MW;
-		else if (Output=='C') return cp/MW;
-		else if (Output=='O') return cv/MW;
-		else if (Output=='P') return p;
-		else if (Output=='A') return w;
-		else if (Output=='V') 
+		if (iOutput==iH) return h/MW;
+		else if (iOutput==iD) return d*MW;
+		else if (iOutput==iS) return s/MW;
+		else if (iOutput==iU) return e/MW;
+		else if (iOutput==iC) return cp/MW;
+		else if (iOutput==iO) return cv/MW;
+		else if (iOutput==iP) return p;
+		else if (iOutput==iA) return w;
+		else if (iOutput==iV) 
 		{
 			TRNPRPdll(&T,&d,x,&eta,&tcx,&ierr,herr,errormessagelength);
 			return eta/1.0e6; //uPa-s to Pa-s
 		} 
-		else if (Output=='L')
+		else if (iOutput==iL)
 		{
 			TRNPRPdll(&T,&d,x,&eta,&tcx,&ierr,herr,errormessagelength);
 			return tcx/1000.0; //W/m-K to kW/m-K
@@ -588,106 +612,102 @@ double REFPROP(char Output,char Name1, double Prop1, char Name2, double Prop2, c
 		else
 			return _HUGE;
 	}
-	else if ((Name1=='T' && Name2=='D') || (Name2=='T' && Name1=='D'))
+	else if ((iName1==iT && iName2==iD) || (iName2==iT && iName1==iD))
 	{
 		// T in K, D in kg/m^3
-		if (Name1 == 'T'){
-			T = Prop1; rho = Prop2/MW;
+		if (iName2 == iT){
+			std::swap(Prop1,Prop2);
 		}
-		else{
-			rho = Prop1/MW; T = Prop2;
-		}
+		T = Prop1; rho = Prop2/MW;
 		
 		// This is the explicit formulation of the EOS
 		TDFLSHdll(&T,&rho,x,&p,&dl,&dv,xliq,xvap,&q,&e,&h,&s,&cv,&cp,&w,&ierr,herr,errormessagelength);
 
-		if (Output=='P')
+		if (iOutput==iP)
 		{
 			return p;
 		}
-		if (Output=='H')
+		if (iOutput==iH)
 		{
 			return h/MW;
 		}
-		else if (Output=='A')
+		else if (iOutput==iA)
 		{
 			return w;
 		}
-		else if (Output=='S')
+		else if (iOutput==iS)
 		{
 			return s/MW;
 		}
-		else if (Output=='U')
+		else if (iOutput==iU)
 		{
 			return (h-p/rho)/MW;
 		}
-		else if (Output=='C')
+		else if (iOutput==iC)
 		{
 			return cp/MW;
 		}
-		else if (Output=='O')
+		else if (iOutput==iO)
 		{
 			return cv/MW;
 		}
-		else if (Output=='V') 
+		else if (iOutput==iV) 
 		{
 			TRNPRPdll(&T,&rho,x,&eta,&tcx,&ierr,herr,errormessagelength);
 			return eta/1.0e6; //uPa-s to Pa-s
 		} 
-		else if (Output=='L')
+		else if (iOutput==iL)
 		{
 			TRNPRPdll(&T,&rho,x,&eta,&tcx,&ierr,herr,errormessagelength);
 			return tcx/1000.0; //W/m-K to kW/m-K
 		}
-		else if (Output=='D')
+		else if (iOutput==iD)
 		{
 			return rho*MW;
 		}
 		else
 			return _HUGE;
 	}
-	else if ((Name1=='T' && Name2=='Q') || (Name2=='T' && Name1=='Q'))
+	else if ((iName1==iT && iName2==iQ) || (iName2==iT && iName1==iQ))
 	{
 
-		if (Name1 == 'T'){
-			T = Prop1; Q = Prop2;
+		if (iName2 == iT){
+			std::swap(Prop1,Prop2);
 		}
-		else{
-			Q = Prop1; T = Prop2;
-		}
+		T = Prop1; Q = Prop2;
 		
 		// Saturation Density
 		i=1;
 		SATTdll(&T,x,&i,&pl,&dl,&dv_,xliq,xvap,&ierr,herr,errormessagelength);
 		i=2;
 		SATTdll(&T,x,&i,&pv,&dl_,&dv,xliq,xvap,&ierr,herr,errormessagelength);
-		if (Output=='D') 
+		if (iOutput==iD) 
 		{
 			return 1/(Q/dv+(1-Q)/dl)*MW;
 		}
-		else if (Output=='P') 
+		else if (iOutput==iP) 
 		{
 			return (pv*Q+pl*(1-Q));
 		}
-		else if (Output=='A')
+		else if (iOutput==iA)
 		{
 			rho=1/(Q/dv+(1-Q)/dl);
 			THERMdll(&T,&rho,x,&p,&e,&h,&s,&cv,&cp,&w,&hjt);
 			return w;
 		}
-		else if (Output=='H') 
+		else if (iOutput==iH) 
 		{
 			ENTHALdll(&T,&dl,xliq,&hl);
 			ENTHALdll(&T,&dv,xvap,&hv);
 			return (hv*Q+hl*(1-Q))/MW; // J/kg to kJ/kg
 		}
-		else if (Output=='S') 
+		else if (iOutput==iS) 
 		{
 			ENTROdll(&T,&dl,xliq,&sl);
 			ENTROdll(&T,&dv,xvap,&sv);
 			return (sv*Q+sl*(1-Q))/MW; // J/kg-K to kJ/kg-K
 		}
-		else if (Output=='U') 
+		else if (iOutput==iU) 
 		{
 			ENTHALdll(&T,&dl,xliq,&hl);
 			ENTHALdll(&T,&dv,xvap,&hv);
@@ -696,25 +716,25 @@ double REFPROP(char Output,char Name1, double Prop1, char Name2, double Prop2, c
 			uv=hv-p/dv;
 			return (uv*Q+ul*(1-Q))/MW; // J/kg to kJ/kg
 		}
-		else if (Output=='C') 
+		else if (iOutput==iC) 
 		{
 			d=1/(Q/dv+(1-Q)/dl);
 			CVCPdll(&T,&d,x,&cv,&cp);
 			return cp/MW; // J/kg-K to kJ/kg-K
 		}
-		else if (Output=='O') 
+		else if (iOutput==iO) 
 		{
 			d=1/(Q/dv+(1-Q)/dl);
 			CVCPdll(&T,&d,x,&cv,&cp);
 			return cv/MW; // J/kg-K to kJ/kg-K
 		}
-		else if (Output=='V') 
+		else if (iOutput==iV) 
 		{
 			d=1/(Q/dv+(1-Q)/dl);
 			TRNPRPdll(&T,&d,x,&eta,&tcx,&ierr,herr,errormessagelength);
 			return eta/1.0e6; //uPa-s to Pa-s
 		}
-		else if (Output=='L') 
+		else if (iOutput==iL) 
 		{
 			d=1/(Q/dv+(1-Q)/dl);
 			TRNPRPdll(&T,&d,x,&eta,&tcx,&ierr,herr,errormessagelength);
@@ -723,45 +743,42 @@ double REFPROP(char Output,char Name1, double Prop1, char Name2, double Prop2, c
 		else
 			return _HUGE;
 	}
-	else if ((Name1=='P' && Name2=='Q') || (Name2=='P' && Name1=='Q'))
+	else if ((iName1==iP && iName2==iQ) || (iName2==iP && iName1==iQ))
 	{
-
-		if (Name1 == 'P'){
-			p = Prop1; Q = Prop2;
+		if (iName2 == iP){
+			std::swap(Prop1,Prop2);
 		}
-		else{
-			Q = Prop1; p = Prop2;
-		}
+		p = Prop1; Q = Prop2;
 
 		// Saturation Density
 		SATPdll(&p,x,&i,&T,&dl,&dv,xliq,xvap,&ierr,herr,errormessagelength);
-		if (Output=='T')
+		if (iOutput==iT)
 		{
 			return T;
 		}
-		else if (Output=='D') 
+		else if (iOutput==iD) 
 		{
 			return 1/(Q/dv+(1-Q)/dl)*MW;
 		}
-		else if (Output=='P') 
+		else if (iOutput==iP) 
 		{
 			PRESSdll(&T,&dl,xliq,&pl);
 			PRESSdll(&T,&dv,xvap,&pv);
 			return (pv*Q+pl*(1-Q));
 		}
-		else if (Output=='H') 
+		else if (iOutput==iH) 
 		{
 			ENTHALdll(&T,&dl,xliq,&hl);
 			ENTHALdll(&T,&dv,xvap,&hv);
 			return (hv*Q+hl*(1-Q))/MW; // J/kg to kJ/kg
 		}
-		else if (Output=='S') 
+		else if (iOutput==iS) 
 		{
 			ENTROdll(&T,&dl,xliq,&sl);
 			ENTROdll(&T,&dv,xvap,&sv);
 			return (sv*Q+sl*(1-Q))/MW; // J/kg-K to kJ/kg-K
 		}
-		else if (Output=='U') 
+		else if (iOutput==iU) 
 		{
 			ENTHALdll(&T,&dl,xliq,&hl);
 			ENTHALdll(&T,&dv,xvap,&hv);
@@ -769,31 +786,31 @@ double REFPROP(char Output,char Name1, double Prop1, char Name2, double Prop2, c
 			uv=hv-p/dv;
 			return (uv*Q+ul*(1-Q))/MW; // J/kg to kJ/kg
 		}
-		else if (Output=='C') 
+		else if (iOutput==iC) 
 		{
 			d=1/(Q/dv+(1-Q)/dl);
 			CVCPdll(&T,&d,x,&cv,&cp);
 			return cp/MW; // J/kg-K to kJ/kg-K
 		}
-		else if (Output=='O') 
+		else if (iOutput==iO) 
 		{
 			d=1/(Q/dv+(1-Q)/dl);
 			CVCPdll(&T,&d,x,&cv,&cp);
 			return cv/MW; // J/kg-K to kJ/kg-K
 		}
-		else if (Output=='A')
+		else if (iOutput==iA)
 		{
 			rho=1/(Q/dv+(1-Q)/dl);
 			THERMdll(&T,&rho,x,&p,&e,&h,&s,&cv,&cp,&w,&hjt);
 			return w;
 		}
-		else if (Output=='V') 
+		else if (iOutput==iV) 
 		{
 			d=1/(Q/dv+(1-Q)/dl);
 			TRNPRPdll(&T,&d,x,&eta,&tcx,&ierr,herr,errormessagelength);
 			return eta/1.0e6; //uPa-s to Pa-s
 		}
-		else if (Output=='L') 
+		else if (iOutput==iL) 
 		{
 			d=1/(Q/dv+(1-Q)/dl);
 			TRNPRPdll(&T,&d,x,&eta,&tcx,&ierr,herr,errormessagelength);
@@ -802,33 +819,31 @@ double REFPROP(char Output,char Name1, double Prop1, char Name2, double Prop2, c
 		else
 			return _HUGE;
 	}
-	else if ((Name1=='P' && Name2=='H') || (Name2=='P' && Name1=='H'))
+	else if ((iName1==iP && iName2==iH) || (iName2==iP && iName1==iH))
 	{
 		// p in kPa, h in kJ/kg
-		if (Name1 == 'P'){
-			p = Prop1; h = Prop2*MW;
+		if (iName2 == iP){
+			std::swap(Prop1,Prop2);
 		}
-		else{
-			h = Prop1*MW; p = Prop2;
-		}
+		p = Prop1; h = Prop2*MW;
 		
 		// Use flash routine to find properties
 		PHFLSHdll(&p,&h,x,&T,&d,&dl,&dv,xliq,xvap,&q,&e,&s,&cv,&cp,&w,&ierr,herr,errormessagelength);
-		if (Output=='H') return h/MW;
-		else if (Output=='T') return T;
-		else if (Output=='D') return d*MW;
-		else if (Output=='S') return s/MW;
-		else if (Output=='U') return e/MW;
-		else if (Output=='C') return cp/MW;
-		else if (Output=='O') return cv/MW;
-		else if (Output=='P') return p;
-		else if (Output=='A') return w;
-		else if (Output=='V') 
+		if (iOutput==iH) return h/MW;
+		else if (iOutput==iT) return T;
+		else if (iOutput==iD) return d*MW;
+		else if (iOutput==iS) return s/MW;
+		else if (iOutput==iU) return e/MW;
+		else if (iOutput==iC) return cp/MW;
+		else if (iOutput==iO) return cv/MW;
+		else if (iOutput==iP) return p;
+		else if (iOutput==iA) return w;
+		else if (iOutput==iV) 
 		{
 			TRNPRPdll(&T,&d,x,&eta,&tcx,&ierr,herr,errormessagelength);
 			return eta/1.0e6; //uPa-s to Pa-s
 		} 
-		else if (Output=='L')
+		else if (iOutput==iL)
 		{
 			TRNPRPdll(&T,&d,x,&eta,&tcx,&ierr,herr,errormessagelength);
 			return tcx/1000.0; //W/m-K to kW/m-K

@@ -44,7 +44,7 @@ bool global_SaturatedL = false;
 bool global_SaturatedV = false;
 
 // Define some constants that will be used throughout
-enum params {iB,iT,iP,iD,iC,iC0,iO,iU,iH,iS,iA,iG,iQ,iV,iL,iI,iMM,iTcrit,iTtriple,iPcrit,iRhocrit,iAccentric,iDpdT,iDrhodT_p};
+enum params {iB,iT,iP,iD,iC,iC0,iO,iU,iH,iS,iA,iG,iQ,iV,iL,iI,iMM,iTcrit,iTtriple,iPcrit,iRhocrit,iAccentric,iDpdT,iDrhodT_p,iTmin,iDipole};
 
 // This is a map of all possible strings to a unique identifier
 std::pair<std::string, long> map_data[] = {
@@ -58,6 +58,8 @@ std::pair<std::string, long> map_data[] = {
 	std::make_pair(std::string("pcrit"),iPcrit),
 	std::make_pair(std::string("molemass"),iMM),
 	std::make_pair(std::string("accentric"),iAccentric),
+	std::make_pair(std::string("dipole"),iDipole),
+	std::make_pair(std::string("Tmin"),iTmin),
 	std::make_pair(std::string("Ttriple"),iTtriple),
 	std::make_pair(std::string("rhocrit"),iRhocrit),
 	std::make_pair(std::string("Tcrit"),iTcrit),
@@ -326,7 +328,7 @@ static int IsCoolPropFluid(std::string FluidName)
 	}
 	catch (NotImplementedError)
 	{
-		return NULL;
+		return false;
 	}
 	// If NULL, didn't find it (or its alias)
 	if (pFluid!=NULL)
@@ -593,16 +595,11 @@ double Props(std::string Output,char Name1, double Prop1, char Name2, double Pro
 double _Props(std::string Output,std::string Name1, double Prop1, std::string Name2, double Prop2, std::string Ref)
 {
 
-    // **********************************************************************************
-    // **********************************************************************************
-    //                                   REFPROP
-    // **********************************************************************************
-    // **********************************************************************************
-
 	if (debug()>5){
 		std::cout<<__FILE__<<": "<<Output<<","<<Name1<<","<<Prop1<<","<<Name2<<","<<Prop2<<","<<Ref<<std::endl;
 		std::cout<<__FILE__<<": Using SinglePhase LUT is "<<FlagUseSinglePhaseLUT<<std::endl;
 	}
+
 
 	if (IsCoolPropFluid(Ref))
 	{
@@ -614,7 +611,6 @@ double _Props(std::string Output,std::string Name1, double Prop1, std::string Na
 		// Call the internal method that uses the parameters converted to longs
 		return _CoolProp_Fluid_Props(iOutput,iName1,Prop1,iName2,Prop2,pFluid);
 	}
-
     /* 
     If the fluid name is not actually a refrigerant name, but a string beginning with "REFPROP-",
     then REFPROP is used to calculate the desired property.
@@ -622,18 +618,12 @@ double _Props(std::string Output,std::string Name1, double Prop1, std::string Na
     else if (IsREFPROP(Ref))  // First eight characters match "REFPROP-"
     {
         #if defined(__ISWINDOWS__)
-		return REFPROP(Output.c_str()[0],Name1.c_str()[0],Prop1,Name2.c_str()[0],Prop2,(char*)Ref.c_str());
+		return REFPROP(Output,Name1,Prop1,Name2,Prop2,Ref);
 		#else
         throw AttributeError(format("Your refrigerant [%s] is from REFPROP, but REFPROP not supported on this platform",Ref.c_str()));
         return -_HUGE;
         #endif
     }
-
-    // **********************************************************************************
-    // **********************************************************************************
-    //                                Normal Property evaluation
-    // **********************************************************************************
-    // **********************************************************************************
 
     // It's a brine, call the brine routine
 	else if (IsBrine((char*)Ref.c_str()))
