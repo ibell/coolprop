@@ -1154,6 +1154,7 @@ EXPORT_CODE double CONVENTION HAProps(char *OutputName, char *Input1Name, double
 		// First try to use the secant solver to find T
         T = Secant_HAProps_T(SecondaryInputName,"P",p,MainInputName,MainInputValue,SecondaryInputValue,T_guess);
 
+		// If that fails, we can fall back to a Brent's method which is more robust but also slower
 		if (!ValidNumber(T) || !(T_min < T && T < T_max) || fabs(HAProps(SecondaryInputName,"T",T,"P",p,MainInputName,MainInputValue)-SecondaryInputValue)>1e-6)
 		{
 			// Use the Brent's method solver to find T

@@ -10,6 +10,9 @@ To use the Props function, import it and do some calls, do something like this
     #import the things you need 
     In [1]: from CoolProp.CoolProp import Props
     
+    # print the currently used version of coolprop
+    In [1]: import CoolProp; print CoolProp.__version__
+    
     @suppress
     In [1]: from CoolProp.CoolProp import UseSinglePhaseLUT; UseSinglePhaseLUT(0)
     
@@ -18,6 +21,8 @@ To use the Props function, import it and do some calls, do something like this
     
     #Saturated vapor enthalpy [kJ/kg] of R134a at STP
     In [2]: Props('H','T',298.15,'Q',1,'R134a')
+
+Or go to the :ref:`Fluid-Properties` documentation.
 
 Sample HAProps Code
 -------------------

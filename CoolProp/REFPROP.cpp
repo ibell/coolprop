@@ -395,7 +395,7 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 	// that of the currently loaded refrigerant
 	if (LoadedREFPROPRef.compare(Ref))
 	{
-		if (!strncmp(Ref.c_str(),"MIX",3))
+		if (!strncmp(sRef.c_str(),"MIX",3))
 		{
 			// Sample is "REFPROP-MIX:R32[0.697615]&R125[0.302385]" -  this is R410A
 			char *REFPROPRef=NULL,*RefCopy=NULL,*Refs[20],*Refrigerant;
