@@ -3,10 +3,46 @@
 Fluid Properties
 ================
 
+.. _Props_Sample:
+
+Sample Code
+-----------
+
+.. ipython::
+
+    In [1]: import CoolProp as CP
+    
+    In [1]: print CP.__version__
+    
+    In [1]: print CP.__svnrevision__
+    
+    #Import the things you need 
+    In [1]: from CoolProp.CoolProp import Props, UseSaturationLUT,UseSinglePhaseLUT
+    
+    In [1]: import timeit
+    
+    #Specific heat (kJ/kg/K) of 20% ethylene glycol as a function of T
+    In [2]: Props('C','T',298.15,'P',101.325,'EG-20%')
+    
+    #Density of Air at standard atmosphere in kg/m^3
+    In [2]: Props('D','T',298.15,'P',101.325,'Air')
+    
+    #Saturation temperature of Water at 1 atm
+    In [2]: Props('T','P',101.325,'Q',0,'Water')
+    
+    #Saturated vapor density of R134a at 0C
+    In [2]: Props('H','T',273.15,'Q',1,'R134a')
+    
+    #Using properties from REFPROP to get R410A density
+    In [2]: Props('D','T',300,'P',100,'REFPROP-MIX:R32[0.697615]&R125[0.302385]')
+    
+    #Check that the same as using pseudo-pure
+    In [2]: Props('D','T',300,'P',100,'R410A')
+    
+The documentation of the :mod:`CoolProp.CoolProp` module, or the :mod:`CoolProp.State` module are also available.
+
 Introduction
 ------------
-
-If you are feeling impatient, jump to :ref:`Props_Sample`, or to the documentation of the :mod:`CoolProp.CoolProp` module, or the :mod:`CoolProp.State` module, otherwise, hang in there.
 
 Nearly all the fluids modeling in CoolProp are based on Helmholtz energy formulations.  This is a convenient construction of the equation of state because all the thermodynamic properties of interest can be obtained directly from partial derivatives of the Helmholtz energy.
 
@@ -424,41 +460,5 @@ Second Derivative
 
     \frac{{{d^2}}}{{d{\tau ^2}}}\left[ { - \frac{\tau }{R}\int_{{\tau _0}}^\tau  {\frac{{c_p^0}}{{{\tau ^2}}}d\tau }  + \frac{1}{R}\int_{{\tau _0}}^\tau  {\frac{{c_p^0}}{\tau }d\tau } } \right] = \frac{d}{{d\tau }}\left[ { - \frac{1}{R}\int_{{\tau _0}}^\tau  {\frac{{c_p^0}}{{{\tau ^2}}}d\tau } } \right] =  - \frac{{c_p^0}}{{{\tau ^2}R}}
 
-.. _Props_Sample:
 
-Sample Code
------------
-
-.. ipython::
-
-    In [1]: import CoolProp as CP
-    
-    In [1]: print CP.__version__
-    
-    In [1]: print CP.__svnrevision__
-    
-    #Import the things you need 
-    
-    In [1]: from CoolProp.CoolProp import Props, UseSaturationLUT,UseSinglePhaseLUT
-    
-    In [1]: import timeit
-    
-    #Specific heat (kJ/kg/K) of 20% ethylene glycol as a function of T
-    In [2]: h=Props('C','T',298.15,'P',101.325,'EG-20%'); print h
-    
-    #Density of Air at standard atmosphere in kg/m^3
-    In [2]: Props('D','T',298.15,'P',101.325,'Air')
-    
-    #Saturation temperature of Water at 1 atm
-    In [2]: Props('T','P',101.325,'Q',0,'Water')
-    
-    #Saturated vapor density of R134a at 0C
-    In [2]: Props('H','T',273.15,'Q',1,'R134a')
-    
-    #Using properties from REFPROP to get R410A density
-    In [2]: Props('D','T',300,'P',100,'REFPROP-MIX:R32[0.697615]&R125[0.302385]')
-    
-    #Check that the same as using pseudo-pure
-    In [2]: Props('D','T',300,'P',100,'R410A')
-    
     

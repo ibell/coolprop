@@ -13,6 +13,7 @@
 #include "Ice.h"
 #include "HumidAirProp.h"
 #include "Solvers.h"
+#include "CoolPropTools.h"
 
 static const char ITc='B';
 static double epsilon=0.621945,R_bar=8.314472;
@@ -94,6 +95,41 @@ void UseIdealGasEnthalpyCorrelations(int flag)
         printf("UseIdealGasEnthalpyCorrelations takes an integer, either 0 (no) or 1 (yes)\n");
     }
 }
+static double Brent_HAProps_T(char *OutputName, char *Input1Name, double Input1, char *Input2Name, double Input2, double TargetVal, double T_min, double T_max)
+{
+	double T;
+	class BrentSolverResids : public FuncWrapper1D
+	{
+	private:
+		double Input1,Input2,TargetVal;
+		char *OutputName,*Input1Name,*Input2Name;
+	public:
+		double rhoL, rhoV;
+		BrentSolverResids(char *OutputName, char *Input1Name, double Input1, char *Input2Name, double Input2, double TargetVal)
+		{
+			this->OutputName = OutputName;
+			this->Input1Name = Input1Name;
+			this->Input2Name = Input2Name;
+			this->Input1 = Input1;
+			this->Input2 = Input2;
+			this->TargetVal = TargetVal;
+		};
+		~BrentSolverResids(){};
+		
+		double call(double T){
+			return HAProps(OutputName,"T",T,Input1Name,Input1,Input2Name,Input2)-TargetVal;
+		}
+	};
+
+    BrentSolverResids *BSR = new BrentSolverResids(OutputName, Input1Name, Input1, Input2Name, Input2, TargetVal);
+
+	std::string errstr;
+	T = Brent(BSR,T_min,T_max,1e-7,1e-4,50,&errstr);
+
+	delete BSR;
+	return T;
+}
+
 static double Secant_HAProps_T(char *OutputName, char *Input1Name, double Input1, char *Input2Name, double Input2, double TargetVal, double T_guess)
 {
     // Use a secant solve in order to yield a target output value for HAProps by altering T
@@ -1110,16 +1146,19 @@ EXPORT_CODE double CONVENTION HAProps(char *OutputName, char *Input1Name, double
         {
             printf("Sorry, but currently at least one of the variables as an input to HAProps() must be temperature, relative humidity, humidity ratio, or dewpoint\n  Eventually will add a 2-D NR solver to find T and psi_w simultaneously, but not included now\n");
             return -1000;
-        }    
+        }
 
-		//if (!strcmp(SecondaryInputName,"H"))
-		//	h_star=log(Value2+33);
-		//else
-		//	h_star=log(Value1+33);
-		//T_guess= -7.4251055543E-02*pow(h_star,6) + 1.0661647745E-01*pow(h_star,5) + 8.5881364720E+00*pow(h_star,4) - 7.2409797021E+01*pow(h_star,3) + 2.3508812707E+02*pow(h_star,2) - 2.8041007078E+02*h_star + 3.5922309997E+02;
+		double T_min = 210;
+		double T_max = 370;
 
-        // Use the secant solver to find T
-        T=Secant_HAProps_T(SecondaryInputName,"P",p,MainInputName,MainInputValue,SecondaryInputValue,T_guess);
+		// First try to use the secant solver to find T
+        T = Secant_HAProps_T(SecondaryInputName,"P",p,MainInputName,MainInputValue,SecondaryInputValue,T_guess);
+
+		if (!ValidNumber(T) || !(T_min < T && T < T_max) || fabs(HAProps(SecondaryInputName,"T",T,"P",p,MainInputName,MainInputValue)-SecondaryInputValue)>1e-6)
+		{
+			// Use the Brent's method solver to find T
+			T = Brent_HAProps_T(SecondaryInputName,"P",p,MainInputName,MainInputValue,SecondaryInputValue,T_min,T_max);
+		}
         
         // If you want the temperature, return it
         if (Name2Type(OutputName)==GIVEN_T)
