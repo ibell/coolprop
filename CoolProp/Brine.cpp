@@ -494,7 +494,7 @@ int Brine(char * Mix, double T, double C, /*in --- out */double *Tfreeze, double
 	int i;
 
 	if (!strcmp(Mix,"EG"))
-		{ A=&EG; xm=38.1615; ym=6.3333; Cmin=0.0; Cmax=56.0; *Tmax=40;}
+	{ A=&EG; xm=38.1615; ym=6.3333; Cmin=0.0; Cmax=56.0; *Tmax=100;} //40C to 100C increase
 	if (!strcmp(Mix,"PG"))
 		{ A=&PG; xm=42.7686; ym=5.3571; Cmin=15.0; Cmax=57.0; *Tmax=40;}
 	if (!strcmp(Mix,"EA"))

@@ -498,11 +498,10 @@ double Conductivity(double T, double p, double psi_w)
     double mu_a,mu_w,k_a,k_w,Phi_av,Phi_va,Ma,Mw;
     Mw=MM_Water();
     Ma=MM_Air();
-	UseSaturationLUT(1); // Use the lookup table
     // Viscosity of dry air at dry-bulb temp and total pressure
     k_a=Props('L','T',T,'P',p,"Air");
     mu_a=Props('V','T',T,'P',p,"Air");
-    // Viscosity of pure saturated water at dry-bulb temperature
+    // Viscosity of pure saturated water vapor at dry-bulb temperature
     k_w=Props('L','P',p,'Q',1,"Water");
     mu_w=Props('V','P',p,'Q',1,"Water");
     Phi_av=sqrt(2.0)/4.0*pow(1+Ma/Mw,-0.5)*pow(1+sqrt(mu_a/mu_w)*pow(Mw/Ma,0.25),2); //[-]
@@ -695,7 +694,7 @@ double MolarEntropy(double T, double p, double psi_w, double v_bar)
 double DewpointTemperature(double T, double p, double psi_w)
 {
     int iter;
-    double p_w,eps,resid,Tdp,x1,x2,x3,y1,y2;
+    double p_w,eps,resid,Tdp,x1,x2,x3,y1,y2,T0;
     double p_ws_dp,f_dp;
     
     // Make sure it isn't dry air, return an impossible temperature otherwise
@@ -709,22 +708,27 @@ double DewpointTemperature(double T, double p, double psi_w)
 
 	// The highest dewpoint temperature possible is the dry-bulb temperature.  
 	// When they are equal, the air is saturated (R=1)
-	//
-	// The lowest dewpoint temperature possible 
     
-    p_w=psi_w*p;
+    p_w = psi_w*p;
 
+	// 0.61165... is the triple point pressure of water in kPa
+	if (p_w > 0.6116547241637944){
+		T0 = Props('T','P',p_w,'Q',1.0,"Water");
+	}
+	else{
+		T0 = 268;
+	}
 	// A good guess for Tdp is that enhancement factor is unity, which yields
 	// p_w_s = p_w, and get guess for T from saturation temperature
     
     iter=1; eps=1e-8; resid=999;
     while ((iter<=3 || fabs(resid)>eps) && iter<100)
 	{
-		if (iter==1){x1 = Props('T','P',p_w/1000,'Q',1.0,"Water"); Tdp=x1;}
-		if (iter==2){x2 = x1+1.0; Tdp=x2;}
+		if (iter==1){x1 = T0; Tdp=x1;}
+		if (iter==2){x2 = x1 + 0.1; Tdp=x2;}
 		if (iter>2) {Tdp=x2;}
         
-            if (Tdp>=273.15)
+            if (Tdp >= 273.15)
             {
                 // Saturation pressure at dewpoint [kPa]
                 p_ws_dp=Props('P','T',Tdp,'Q',0,"Water");
@@ -895,7 +899,7 @@ double MoleFractionWater(double T, double p, int HumInput, double InVal)
         if (T>=273.16)
         {
             // Saturation pressure [kPa]
-            p_ws=Props('P','T',T,'Q',0,"Water");
+			p_ws=Props('P','T',T,'Q',0,"Water");
         }
         else
         {

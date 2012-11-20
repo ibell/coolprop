@@ -689,6 +689,8 @@ double _CoolProp_Fluid_Props(long iOutput, long iName1, double Prop1, long iName
 	// Check if it is an output that doesn't require a state input
     // Deal with it and return
 
+	if (iOutput<0)
+		throw ValueError("Input key is invalid");
 	switch (iOutput)
 	{
 		case iMM:
