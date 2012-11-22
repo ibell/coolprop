@@ -496,13 +496,10 @@ double Props(std::string Ref,std::string Output)
 
 double Props(char *Fluid, char *Output)
 {
-	// Fluid was loaded successfully
 	try{	
-		try{
-			// Try to load the CoolProp Fluid
-			pFluid = Fluids.get_fluid(Fluid);
-		}
-		catch(NotImplementedError){
+		// Try to load the CoolProp Fluid
+		pFluid = Fluids.get_fluid(Fluid);
+		if (pFluid == NULL){
 			// It didn't load properly.  Perhaps it is a REFPROP fluid.
 			try{
 				if (!strcmp(Output,"Ttriple"))
@@ -529,26 +526,26 @@ double Props(char *Fluid, char *Output)
 				return _HUGE;
 			}
 		}
-
-		if (!strcmp(Output,"Ttriple"))
-			return pFluid->params.Ttriple;
-		else if (!strcmp(Output,"Tcrit"))
-			return pFluid->crit.T;
-		else if (!strcmp(Output,"Tmin"))
-			return pFluid->limits.Tmin;
-		else if (!strcmp(Output,"pcrit"))
-			return pFluid->crit.p;
-		else if (!strcmp(Output,"rhocrit"))
-			return pFluid->crit.rho;
-		else if (!strcmp(Output,"molemass"))
-			return pFluid->params.molemass;
-		else if (!strcmp(Output,"accentric"))
-			return pFluid->params.accentricfactor;
-		
-		else
-		{
-			throw ValueError(format("Output parameter \"%s\" is invalid",Output));
-			return _HUGE;
+		else{
+			// Fluid was loaded successfully - it is a CoolProp fluid
+			if (!strcmp(Output,"Ttriple"))
+				return pFluid->params.Ttriple;
+			else if (!strcmp(Output,"Tcrit"))
+				return pFluid->crit.T;
+			else if (!strcmp(Output,"Tmin"))
+				return pFluid->limits.Tmin;
+			else if (!strcmp(Output,"pcrit"))
+				return pFluid->crit.p;
+			else if (!strcmp(Output,"rhocrit"))
+				return pFluid->crit.rho;
+			else if (!strcmp(Output,"molemass"))
+				return pFluid->params.molemass;
+			else if (!strcmp(Output,"accentric"))
+				return pFluid->params.accentricfactor;
+			else{
+				throw ValueError(format("Output parameter \"%s\" is invalid",Output));
+				return _HUGE;
+			}
 		}
 	}
 	// Catch any error that subclasses the std::exception
