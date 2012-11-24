@@ -134,13 +134,20 @@ std::string get_errstring(void){
     }
 EXPORT_CODE void CONVENTION get_errstring(char* str){
     str=(char*) get_errstring().c_str();
-    err_string = std::string("");
+	err_string.clear();
     };
+
 EXPORT_CODE char * CONVENTION get_errstringc(void){
     std::string temp = err_string;
-    err_string = std::string("");
+	err_string.clear();
     return (char*)temp.c_str();
     }
+
+EXPORT_CODE long CONVENTION get_errstring_copy(char* str){
+    strcpy(str, get_errstring().c_str());
+	err_string.clear();
+	return strlen(str);
+    };
 
 // A function to enforce the state if known
 EXPORT_CODE void CONVENTION set_phase(char *Phase_str){
@@ -671,6 +678,10 @@ double _Props(std::string Output,std::string Name1, double Prop1, std::string Na
 			throw ValueError("For brine, inputs must be (order doesnt matter) 'T' and 'P', or 'H' and 'P'");
 		}
     }
+	else
+	{
+		throw ValueError(format("Your fluid name [%s] is not a CoolProp fluid, a REFPROP fluid, a brine or a liquid",Ref.c_str()));
+	}
     return 0;
 }
 double _CoolProp_Fluid_TwoPhaseProps(long iOutput, double Q, Fluid *pFluid, double TL, double TV, double pL, double pV, double rhoL, double rhoV)

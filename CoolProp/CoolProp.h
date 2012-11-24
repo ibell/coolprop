@@ -66,6 +66,8 @@ You might want to start by looking at CoolProp.h
 	EXPORT_CODE void CONVENTION get_errstring(char*);
 	EXPORT_CODE char* CONVENTION get_errstringc(void);
 
+	EXPORT_CODE long CONVENTION get_errstring_copy(char *);
+
 	EXPORT_CODE long CONVENTION get_param_index(char * param);
 	EXPORT_CODE long CONVENTION get_Fluid_index(char * param);
 	EXPORT_CODE void CONVENTION get_index_units(long param, char * units);
