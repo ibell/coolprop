@@ -33,7 +33,7 @@ def Source():
 
 def DLL():
     """ Build a DLL using __stdcall calling convention """
-    subprocess.call(['BuildDLL'],shell=True,cwd=os.path.join('wrappers','Excel'))
+    subprocess.check_output(['BuildDLL'],shell=True,cwd=os.path.join('wrappers','Excel'))
     #Collect the zip file and p
     try:
         os.makedirs(os.path.join('dist_temp','Excel and DLL'))
@@ -126,13 +126,13 @@ if __name__=='__main__':
     
 ##     InstallPrereqs()  #This is optional if you think any of the pre-reqs have been updated
 
-##     DLL()
-##     Source()
-##     Python()
-##     Octave()
-##     MATLAB()
+    DLL()
+    Source()
+    Python()
+    Octave()
+    MATLAB()
 ##     PYPI()
 ##     UploadSourceForge()
 
 ##     BuildDocs()
-    UploadDocs()
+##     UploadDocs()

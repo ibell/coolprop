@@ -231,7 +231,6 @@ double REFPROP(char Output, char Name1, double Prop1, char Name2, double Prop2, 
 }
 double REFPROP(std::string Output, std::string Name1, double Prop1, std::string Name2, double Prop2, std::string Ref)
 {
-	int j;
 	long i,ierr=0,iOutput,iName1,iName2;
 	char hf[refpropcharlength*ncmax], herr[errormessagelength+1];
 	
@@ -375,44 +374,35 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 	{
 		if (!strncmp(sRef.c_str(),"MIX",3))
 		{
-			// Sample is "REFPROP-MIX:R32[0.697615]&R125[0.302385]" -  this is R410A
-			char *REFPROPRef=NULL,*RefCopy=NULL,*Refs[20],*Refrigerant;
-			double molefraction;
-
-			// Allocate space for refrigerant name
-			RefCopy=(char *)malloc(strlen(sRef.c_str())+1);
-			// Make a backup copy
-			strcpy(RefCopy,Ref.c_str());
-			// Chop off the "MIX"
-			REFPROPRef = strtok(RefCopy,":");
-			i=1;
-			while (REFPROPRef!=NULL)
-			{
-				Refs[i-1]=strtok(NULL,"&");
-				if (Refs[i-1]==NULL)
-				{
-					i--;
-					break;
-				}
-				else
-					i++;
-			}
-			//Flush out RefString
-			RefString.clear();
+			// Sample sRef is "MIX:R32[0.697615]&R125[0.302385]" -  this is R410A
 			
-			for (j=0;j<i;j++)
+			// Chop off the MIX by keeping everything after the ':'
+			std::string components_joined = strsplit(sRef,':')[1];
+
+			// Split the components_joined into the components
+			std::vector<std::string> components_split = strsplit(components_joined,'&');
+
+			// Flush out the refrigerant string for REFPROP
+			RefString.clear();
+
+			for (unsigned int j=0;j<components_split.size();j++)
 			{	
-				//Get component and its mole fraction
-				Refrigerant=strtok(Refs[j],"[]");
-				molefraction=strtod(strtok(NULL,"[]"),NULL);
-				x[j]=molefraction;
-				if (j==0)
-					RefString = format("%s.fld",Refs[j]);
-				else
-					RefString += format("|%s.fld",Refs[j]);
+				// Get component name and mole fraction (as strings)
+				std::vector<std::string> comp_fraction = strsplit(components_split[j],'[');
+				
+				// Build the refrigerant string
+				if (j == 0){
+					RefString = comp_fraction[0]+".fld";
+				}
+				else{
+					RefString += "|"+comp_fraction[0]+".fld";
+				}
+				// Convert the mole fraction (as string) to a number
+				x[j] = strtod(comp_fraction[1].c_str(),NULL);
+
+				// Update the number of components
+				i = j+1;
 			}
-			// Free allocated memory
-			free(RefCopy);
 		}
 		else if (!sRef.compare("Air") || !sRef.compare("R507A") || !sRef.compare("R404A") || !sRef.compare("R410A") || !sRef.compare("R407C") || !sRef.compare("SES36"))
 		{
@@ -728,8 +718,14 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 		}
 		p = Prop1; Q = Prop2;
 
-		// Saturation Density
-		SATPdll(&p,x,&i,&T,&dl,&dv,xliq,xvap,&ierr,herr,errormessagelength);
+		double dummy;
+		
+		// Saturation Density for the liquid
+		long kph = 1;
+		SATPdll(&p,x,&kph,&T,&dl,&dummy,xliq,xvap,&ierr,herr,errormessagelength);
+		// Saturation density for the vapor
+		kph = 2;
+		SATPdll(&p,x,&kph,&T,&dummy,&dv,xliq,xvap,&ierr,herr,errormessagelength);
 		if (iOutput==iT)
 		{
 			return T;

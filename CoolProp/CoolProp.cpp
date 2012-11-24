@@ -1410,7 +1410,7 @@ EXPORT_CODE void CONVENTION get_aliases(char* Ref, char *aliases)
 {
 	strcpy(aliases, get_aliases(std::string(Ref)).c_str());
 }
-EXPORT_CODE std::string CONVENTION get_aliases(std::string Ref)
+std::string get_aliases(std::string Ref)
 {
 	pFluid=Fluids.get_fluid(Ref);
 	std::string s;

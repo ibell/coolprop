@@ -1,5 +1,21 @@
 Changelog:
 
+2.3 (revision 212)
+Added updated correlations for brines and subcooled liquids from Melinder 2010 (r207)
+Added aliases to docs and python and DLL (r211)
+Excel wrapper updated to catch errors and output them to a message box
+Big speed update to p,Q as inputs (as fast as REFPROP now) (r202)
+Doxygen now gets updated as well (r200)
+Bugfixes:
+    Updated inputs for brines (order doesn't matter) (r208)
+    Fixed REFPROP with single-input props (r206)
+    Fixed Manifest file for source distro (r206)
+    Fixed bug with REFPROP mixtures not being properly parsed (r205 & r212)
+    Added a backup Brent method for HAProps when solving at low humidity ratio: closed https://sourceforge.net/p/coolprop/tickets/32/ (r204)
+    Added an example to show how to get version of CoolProp: closed https://sourceforge.net/p/coolprop/tickets/34/ (r204)
+    Closed the bugs/issues in https://sourceforge.net/p/coolprop/tickets/35/ (r203)
+    Resolved memory leak with ECS (r201)
+
 2.2.5 (revision 199)
 P,h and p,s as inputs solve for almost all fluids under almost all conditions
 Octave modules for 3.6.1 and 3.6.2 now build and run properly for VS build on Windows

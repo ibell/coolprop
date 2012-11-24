@@ -15,7 +15,7 @@ from distutils.ccompiler import new_compiler
 from distutils.dep_util import newer_group
 import Cython
 
-version='2.2.5'
+version='2.3'
     
 if __name__=='__main__':
     
