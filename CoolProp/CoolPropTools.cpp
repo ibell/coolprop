@@ -26,6 +26,33 @@ std::string format(const char* fmt, ...)
     delete buffer;
     return ret;
 }
+
+std::vector<std::string> strsplit(std::string s, char del)
+{
+	int iL = 0, iR = 0, N;
+	N = s.size();
+	std::vector<std::string> v;
+	// Find the first instance of the delimiter
+	iR = s.find_first_of(del);
+	// Delimiter not found, return the same string again
+	if (iR<0){
+		v.push_back(s);
+		return v;
+	}
+	while (iR != N-1)
+	{
+		v.push_back(s.substr(iL,iR-iL));	
+		iL = iR;
+		iR = s.find_first_of(del,iR+1);
+		// Move the iL to the right to avoid the delimiter
+		iL += 1;
+		if (iR == std::string::npos)
+		{
+			v.push_back(s.substr(iL,N-iL));
+			return v;
+		}
+	}
+}
     
 static int isNAN(double x)
 {

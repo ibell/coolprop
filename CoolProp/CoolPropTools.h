@@ -5,6 +5,7 @@
 #endif
 
 #include <string>
+#include <vector>
 
 #include <math.h>
 #ifdef HUGE_VAL
@@ -21,6 +22,8 @@
 
     //missing string printf
     std::string format(const char* fmt, ...);
+	// Missing string split - like in Python
+	std::vector<std::string> strsplit(std::string s, char del);
 
 	#define OK 1
 	#define FAIL 0
@@ -29,5 +32,6 @@
 	double QuadInterp(double x0, double x1, double x2, double f0, double f1, double f2, double x);
 	double CubicInterp( double x0, double x1, double x2, double x3, double f0, double f1, double f2, double f3, double x);
 	int ValidNumber(double x);
+	
 
 #endif

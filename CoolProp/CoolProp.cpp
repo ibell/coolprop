@@ -346,16 +346,35 @@ static int IsCoolPropFluid(char* Fluid)
 
 static int IsBrine(char* Ref)
 {
+	// First check whether it is one of the Brines that does
+	// not have a pure-fluid equivalent in CoolProp
     if (
         strcmp(Ref,"HC-10")==0 || 
-        strncmp(Ref,"EG",2)==0 || 
         strncmp(Ref,"PG",2)==0 || 
-        strncmp(Ref,"Methanol",8)==0 || 
+		strncmp(Ref,"EG",2)==0 || 
+		strncmp(Ref,"EA",2)==0 ||
+		strncmp(Ref,"MA",2)==0 || 
+		strncmp(Ref,"Glycerol",8)==0 ||
+		strncmp(Ref,"K2CO3",5)==0 || 
+		strncmp(Ref,"CaCl2",5)==0 || 
+		strncmp(Ref,"MgCl2",5)==0 || 
+		strncmp(Ref,"NaCl",4)==0 || 
+		strncmp(Ref,"KAC",3)==0 || 
+		strncmp(Ref,"KFO",3)==0 || 
+		strncmp(Ref,"LiCl",3)==0 || 
         strncmp(Ref,"NH3/H2O",7)==0
        )
     {
         return 1;
     }
+	// Then check for diluants that are also pure fluids in CoolProp
+	else if ( (strncmp(Ref,"Methanol",8)==0 && Ref[8] == '-') ||
+		      (strncmp(Ref,"Ethanol",7)==0 && Ref[7] == '-') ||
+			  (strncmp(Ref,"NH3",3)==0 && Ref[3] == '-')
+		)
+	{
+		return 1;
+	}
     else
     {
         return 0;

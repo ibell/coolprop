@@ -851,6 +851,38 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 		else
 			return _HUGE;
 	}
+	else if ((iName1==iP && iName2==iS) || (iName2==iP && iName1==iS))
+	{
+		// p in kPa, h in kJ/kg
+		if (iName2 == iP){
+			std::swap(Prop1,Prop2);
+		}
+		p = Prop1; s = Prop2*MW;
+		
+		// Use flash routine to find properties
+		PSFLSHdll(&p,&s,x,&T,&d,&dl,&dv,xliq,xvap,&q,&e,&h,&cv,&cp,&w,&ierr,herr,errormessagelength);
+		if (iOutput==iH) return h/MW;
+		else if (iOutput==iT) return T;
+		else if (iOutput==iD) return d*MW;
+		else if (iOutput==iS) return s/MW;
+		else if (iOutput==iU) return e/MW;
+		else if (iOutput==iC) return cp/MW;
+		else if (iOutput==iO) return cv/MW;
+		else if (iOutput==iP) return p;
+		else if (iOutput==iA) return w;
+		else if (iOutput==iV) 
+		{
+			TRNPRPdll(&T,&d,x,&eta,&tcx,&ierr,herr,errormessagelength);
+			return eta/1.0e6; //uPa-s to Pa-s
+		} 
+		else if (iOutput==iL)
+		{
+			TRNPRPdll(&T,&d,x,&eta,&tcx,&ierr,herr,errormessagelength);
+			return tcx/1000.0; //W/m-K to kW/m-K
+		}
+		else
+			return _HUGE;
+	}
 	else
 		return _HUGE;
 }
