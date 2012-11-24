@@ -2,13 +2,6 @@
 #include "CPExceptions.h"
 #include "CPState.h"
 
-static long iT = get_param_index("T");
-static long iP = get_param_index("P");
-static long iQ = get_param_index("Q");
-static long iH = get_param_index("H");
-static long iS = get_param_index("S");
-static long iD = get_param_index("D");
-
 // Constructor with fluid name
 CoolPropStateClass::CoolPropStateClass(std::string Fluid){
 	// Try to get the index of the fluid

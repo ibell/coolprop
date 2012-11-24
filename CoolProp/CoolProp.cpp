@@ -23,6 +23,7 @@
 #include "Brine.h"
 #include "Solvers.h"
 #include "CPState.h"
+#include "IncompLiquid.h"
 
 // Function prototypes
 double rho_TP(double T, double p);
@@ -42,9 +43,6 @@ int global_Phase = -1;
 bool global_SinglePhase = false;
 bool global_SaturatedL = false;
 bool global_SaturatedV = false;
-
-// Define some constants that will be used throughout
-enum params {iB,iT,iP,iD,iC,iC0,iO,iU,iH,iS,iA,iG,iQ,iV,iL,iI,iMM,iTcrit,iTtriple,iPcrit,iRhocrit,iAccentric,iDpdT,iDrhodT_p,iTmin,iDipole};
 
 // This is a map of all possible strings to a unique identifier
 std::pair<std::string, long> map_data[] = {
@@ -672,6 +670,36 @@ double _Props(std::string Output,std::string Name1, double Prop1, std::string Na
 				std::swap(Prop1,Prop2);
 			}
 			return SecFluids(Output[0],Prop1,Prop2,(char*)Ref.c_str());
+		}
+		else
+		{
+			throw ValueError("For brine, inputs must be (order doesnt matter) 'T' and 'P', or 'H' and 'P'");
+		}
+    }
+	// It's an incompressible liquid, call the routine
+	else if (IsIncompressibleLiquid((char*)Ref.c_str()))
+    {
+		//Enthalpy and pressure are the inputs
+		if ((Name1.c_str()[0]=='H' && Name2.c_str()[0]=='P') || (Name2.c_str()[0]=='H' && Name1.c_str()[0]=='P'))
+        {
+			if (Name2.c_str()[0]=='H' && Name1.c_str()[0]=='P')
+			{
+				std::swap(Prop1,Prop2);
+				std::swap(Name1,Name2);
+			}
+			// Start with a guess of 10 K below max temp of fluid
+			double Tguess = SecFluids('M',Prop1,Prop2,(char*)Ref.c_str())-10;
+			// Solve for the temperature
+			double T =_T_hp_secant(Ref,Prop1,Prop2,Tguess);
+			// Return whatever property is desired
+			return SecFluids(Output[0],T,Prop2,(char*)Ref.c_str());
+		}
+		else if ((Name1.c_str()[0] == 'T' && Name2.c_str()[0] =='P') || (Name1.c_str()[0] == 'P' && Name2.c_str()[0] == 'T'))
+        {
+			if (Name1.c_str()[0] =='P' && Name2.c_str()[0] =='T'){
+				std::swap(Prop1,Prop2);
+			}
+			return IncompLiquid(get_param_index(Output),Prop1,Prop2,Ref);
 		}
 		else
 		{

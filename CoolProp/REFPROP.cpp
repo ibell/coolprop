@@ -218,28 +218,6 @@ fp_WMOLdllTYPE WMOLdll;
 fp_XMASSdllTYPE XMASSdll;
 fp_XMOLEdllTYPE XMOLEdll;
 
-static long iMM = get_param_index("M");
-static long iT = get_param_index("T");
-static long iD = get_param_index("D");
-static long iH = get_param_index("H");
-static long iP = get_param_index("P");
-static long iC = get_param_index("C");
-static long iC0 = get_param_index("C0");
-static long iO = get_param_index("O");
-static long iV = get_param_index("V");
-static long iL = get_param_index("L");
-static long iS = get_param_index("S");
-static long iU = get_param_index("U");
-static long iQ = get_param_index("Q");
-static long iI = get_param_index("I");
-static long iA = get_param_index("A");
-static long iDipole = get_param_index("dipole");
-static long iAccentric = get_param_index("accentric");
-static long iTmin = get_param_index("Tmin");
-static long iTtriple = get_param_index("Ttriple");
-static long iTcrit = get_param_index("Tcrit");
-static long iPcrit = get_param_index("pcrit");
-static long iRhocrit = get_param_index("rhocrit");
 
 std::string LoadedREFPROPRef;
 HINSTANCE RefpropdllInstance=NULL;

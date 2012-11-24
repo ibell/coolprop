@@ -9,7 +9,7 @@ File Type: DLL
   Section contains the following exports for CoolProp.dll
 
     00000000 characteristics
-    50B0F084 time date stamp Sat Nov 24 17:06:28 2012
+    50B11B86 time date stamp Sat Nov 24 20:09:58 2012
         0.00 version
            1 ordinal base
           32 number of functions
@@ -17,16 +17,16 @@ File Type: DLL
 
     ordinal hint RVA      name
 
-          1    0 000055B0 _DerivTerms@24
-          2    1 00005090 _F2K@8
-          3    2 00005550 _FluidsList@4
-          4    3 000553F0 _HAProps@40
-          5    4 000567E0 _HAProps_Aux@32
-          6    5 00004D60 _IProps@32
+          1    0 00005920 _DerivTerms@24
+          2    1 00005400 _F2K@8
+          3    2 000058C0 _FluidsList@4
+          4    3 00053040 _HAProps@40
+          5    4 00054430 _HAProps_Aux@32
+          6    5 000050D0 _IProps@32
           7    6 00001A10 _IsFluidType@8
-          8    7 00005070 _K2F@8
+          8    7 000053E0 _K2F@8
           9    8 00002320 _Phase@24
-         10    9 000050B0 _PrintSaturationTable@24
+         10    9 00005420 _PrintSaturationTable@24
          11    A 00002490 _Props1@8
          12    B 00002C30 _Props@32
          13    C 00001670 _SaturationLUTStatus@0
@@ -36,7 +36,7 @@ File Type: DLL
          17   10 00001020 _debug@4
          18   11 00001610 _get_1phase_LUT_params@24
          19   12 000017B0 _get_Fluid_index@4
-         20   13 00006FC0 _get_REFPROPname@8
+         20   13 00007330 _get_REFPROPname@8
          21   14 00001000 _get_debug@0
          22   15 000010F0 _get_errstring@4
          23   16 00001180 _get_errstring_copy@4
@@ -55,4 +55,4 @@ File Type: DLL
         9000 .data
        32000 .rdata
         B000 .reloc
-       B1000 .text
+       B3000 .text

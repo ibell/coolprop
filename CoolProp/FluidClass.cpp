@@ -127,7 +127,6 @@ FluidsContainer::FluidsContainer()
 		// Load up entry in map
 		fluid_name_map[(*it)->get_name()] = *it;
 	}
-	int a=1;
 }
 
 // Destructor
