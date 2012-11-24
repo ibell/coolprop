@@ -318,6 +318,12 @@ cpdef list FluidsList():
     """ 
     return _FluidsList().split(',')
 
+cpdef get_aliases(bytes Fluid):
+    """
+    Return a comma separated string of aliases for the given fluid
+    """
+    return _get_aliases(Fluid)
+    
 cpdef string get_REFPROPname(bytes Fluid):
     """
     Return the REFPROP compatible name for the fluid (only useful on windows)
@@ -441,6 +447,8 @@ cpdef bint IsFluidType(bytes Ref, bytes Type):
         return True
     else:
         return False
+    
+
     
 cpdef rhosatL_anc(bytes Fluid, double T):
     return _rhosatL_anc(Fluid,T)

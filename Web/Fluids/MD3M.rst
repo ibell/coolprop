@@ -3,6 +3,10 @@
 MD3M
 ********************
 
+Aliases
+================================================================================
+Dodecamethylpentasiloxane
+
 Equation of State Reference
 ===========================
 Colonna, P., N.R. Nannan, A. Guardone, "Multiparameter equations of state for siloxanes: [(CH3)3-Si-O1/2]2-[O-Si-(CH3)2]i=1,...,3, and [O-Si-(CH3)2]6,", Fluid Phase Equilibria 263 (2008) 115–130.
@@ -24,11 +28,11 @@ Triple Point [K]           192.000
 
 Critical Parameters
 
-==========================  ==============================
-Temperature [K]             628.36
-Density [kg/m\ :sup:`3`\ ]   263.921879
-Pressure [kPa]              945.00000
-==========================  ==============================
+==============================  ==============================
+Temperature [K]                 628.36
+Density [kg/m\ :sup:`3`\ ]      263.921879
+Pressure [kPa]                  945.00000
+==============================  ==============================
 
 
 Saturated Vapor Deviations

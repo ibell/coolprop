@@ -20,6 +20,7 @@ cdef extern from "CoolProp.h":
     string _FluidsList "FluidsList"()
     string _get_REFPROPname "get_REFPROPname"(string Ref)
     string _get_errstring "get_errstring"()
+    string _get_aliases "get_aliases"(string Ref)
     long _get_param_index "get_param_index" (string param)
     string _get_index_units "get_index_units" (long index)
     

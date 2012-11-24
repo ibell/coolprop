@@ -3,6 +3,10 @@
 SES36
 ********************
 
+Aliases
+================================================================================
+
+
 Equation of State Reference
 ===========================
 Unpublished report: Monika Thol, Eric W. Lemmon, Roland Span, "Equation of State for a Refrigerant Mixture of R365mfc (1,1,1,3,3-Pentafluorobutane) and Galden® HT 55 (Perfluoropolyether)",  
@@ -26,11 +30,11 @@ Triple Point [K]           200.000
 
 Critical Parameters
 
-==========================  ==============================
-Temperature [K]             450.70
-Density [kg/m\ :sup:`3`\ ]   517.580000
-Pressure [kPa]              2849.00000
-==========================  ==============================
+==============================  ==============================
+Temperature [K]                 450.70
+Density [kg/m\ :sup:`3`\ ]      517.580000
+Pressure [kPa]                  2849.00000
+==============================  ==============================
 
 
 Saturated Vapor Deviations

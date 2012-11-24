@@ -299,6 +299,10 @@ def fluid_header(Fluid):
 {Fluid:s}
 ********************
 
+Aliases
+================================================================================
+{Aliases:s}
+
 Equation of State Reference
 ===========================
 {Reference:s}
@@ -308,8 +312,11 @@ Transport Properties Information
 {Transport:s}
     
 """.format(Fluid=Fluid,
-               Reference=CP.get_EOSReference(Fluid),
-               Transport=CP.get_TransportReference(Fluid)))
+           Aliases = CP.get_aliases(Fluid),
+           Reference = CP.get_EOSReference(Fluid),
+           Transport = CP.get_TransportReference(Fluid)
+           )
+           )
     
 fp=open(os.path.join('Fluids','FluidInformation.rst'),'w')
 fp.write('###########################\nFluid Information\n###########################\n')

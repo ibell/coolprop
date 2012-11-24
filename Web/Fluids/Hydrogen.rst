@@ -3,6 +3,10 @@
 Hydrogen
 ********************
 
+Aliases
+================================================================================
+hydrogen, H2, R702
+
 Equation of State Reference
 ===========================
 "Fundamental Equations of State for Parahydrogen, Normal Hydrogen, and Orthohydrogen"by J.W. Leachman and R.T. Jacobsen and S.G. Penoncello and E.W. Lemmon, J. Phys. Chem. Ref. Data, Vol. 38, No. 3, 2009, pp 721-748
@@ -24,11 +28,11 @@ Triple Point [K]           13.957
 
 Critical Parameters
 
-==========================  ==============================
-Temperature [K]             33.15
-Density [kg/m\ :sup:`3`\ ]   31.262267
-Pressure [kPa]              1296.40000
-==========================  ==============================
+==============================  ==============================
+Temperature [K]                 33.15
+Density [kg/m\ :sup:`3`\ ]      31.262267
+Pressure [kPa]                  1296.40000
+==============================  ==============================
 
 
 Saturated Vapor Deviations

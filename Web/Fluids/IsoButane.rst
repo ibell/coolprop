@@ -3,6 +3,10 @@
 IsoButane
 ********************
 
+Aliases
+================================================================================
+isobutane
+
 Equation of State Reference
 ===========================
 Buecker, D. and Wagner, W. "Reference Equations of State for the Thermodynamic Properties of Fluid Phase n-Butane and Isobutane," J. Phys. Chem. Ref. Data, Vol. 35, No. 2, 2006, 929-1019.
@@ -24,11 +28,11 @@ Triple Point [K]           113.730
 
 Critical Parameters
 
-==========================  ==============================
-Temperature [K]             407.81
-Density [kg/m\ :sup:`3`\ ]   225.500000
-Pressure [kPa]              3629.00000
-==========================  ==============================
+==============================  ==============================
+Temperature [K]                 407.81
+Density [kg/m\ :sup:`3`\ ]      225.500000
+Pressure [kPa]                  3629.00000
+==============================  ==============================
 
 
 Saturated Vapor Deviations

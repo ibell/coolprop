@@ -3,6 +3,10 @@
 Air
 ********************
 
+Aliases
+================================================================================
+air
+
 Equation of State Reference
 ===========================
 Lemmon, E.W., Jacobsen, R.T, Penoncello, S.G., and Friend, D.G.,"Thermodynamic Properties of Air and Mixtures of Nitrogen, Argon, and Oxygen from 60 to 2000 K at Pressures to 2000 MPa, J. Phys. Chem. Ref. Data, 29(3):331-385, 2000.
@@ -24,11 +28,11 @@ Triple Point [K]           59.750
 
 Critical Parameters
 
-==========================  ==============================
-Temperature [K]             132.53
-Density [kg/m\ :sup:`3`\ ]   342.684564
-Pressure [kPa]              3786.00000
-==========================  ==============================
+==============================  ==============================
+Temperature [K]                 132.53
+Density [kg/m\ :sup:`3`\ ]      342.684564
+Pressure [kPa]                  3786.00000
+==============================  ==============================
 
 
 Saturated Vapor Deviations

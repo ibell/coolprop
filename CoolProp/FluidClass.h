@@ -66,7 +66,7 @@ class Fluid
 	protected:
 		std::string name; /// The name of the fluid
 		std::string REFPROPname; /// The REFPROP-compliant name if REFPROP-"name" is not a compatible fluid name.  If not included, "name" is assumed to be a valid name for REFPROP
-		std::list <std::string> aliases; /// A list of aliases of names for the Fluid, each element is a std::string instance
+		std::vector <std::string> aliases; /// A list of aliases of names for the Fluid, each element is a std::string instance
 		
 		std::string EOSReference; /// A std::string that contains a reference for thermo properties for the fluid
 		std::string TransportReference; /// A std::string that contains a reference for the transport properties of the fluid
@@ -133,6 +133,7 @@ class Fluid
 		std::string get_REFPROPname(){return REFPROPname;};
 		std::string get_EOSReference(){return EOSReference;};
 		std::string get_TransportReference(){return TransportReference;};
+		std::vector<std::string> get_aliases(){return aliases;};
 		/// Returns true if the fluid is pure, false if pseudo-pure or a mixture
 		bool pure(){return isPure;};
 		/// Returns the mass-specific gas constant for the fluid [kJ/kg/K]

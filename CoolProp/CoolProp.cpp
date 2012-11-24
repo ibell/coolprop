@@ -13,7 +13,7 @@
 
 #include <iostream>
 #include <stdlib.h>
-#include <list>
+#include <vector>
 #include <exception>
 #include <stdio.h>
 #include "string.h"
@@ -621,7 +621,6 @@ double _Props(std::string Output,std::string Name1, double Prop1, std::string Na
 		std::cout<<__FILE__<<": Using SinglePhase LUT is "<<FlagUseSinglePhaseLUT<<std::endl;
 	}
 
-
 	if (IsCoolPropFluid(Ref))
 	{
 		pFluid = Fluids.get_fluid(Ref);
@@ -687,12 +686,11 @@ double _Props(std::string Output,std::string Name1, double Prop1, std::string Na
 				std::swap(Prop1,Prop2);
 				std::swap(Name1,Name2);
 			}
-			// Start with a guess of 10 K below max temp of fluid
-			double Tguess = SecFluids('M',Prop1,Prop2,(char*)Ref.c_str())-10;
+			
 			// Solve for the temperature
-			double T =_T_hp_secant(Ref,Prop1,Prop2,Tguess);
+			double T =_T_hp_secant(Ref,Prop1,Prop2,300);
 			// Return whatever property is desired
-			return SecFluids(Output[0],T,Prop2,(char*)Ref.c_str());
+			return IncompLiquid(get_param_index(Output),T,Prop2,(char*)Ref.c_str());
 		}
 		else if ((Name1.c_str()[0] == 'T' && Name2.c_str()[0] =='P') || (Name1.c_str()[0] == 'P' && Name2.c_str()[0] == 'T'))
         {
@@ -1407,6 +1405,28 @@ std::string get_TransportReference(std::string Ref)
 	}
 	else
 		return std::string("");
+}
+EXPORT_CODE void CONVENTION get_aliases(char* Ref, char *aliases)
+{
+	strcpy(aliases, get_aliases(std::string(Ref)).c_str());
+}
+EXPORT_CODE std::string CONVENTION get_aliases(std::string Ref)
+{
+	pFluid=Fluids.get_fluid(Ref);
+	std::string s;
+	
+	std::vector<std::string> v = pFluid->get_aliases();
+	for (unsigned long i = 0; i< v.size(); i++){
+		if (i==0)
+		{
+			s = v[i];
+		}
+		else
+		{
+			s += ", " + v[i];
+		}
+	}
+	return s;
 }
 EXPORT_CODE void CONVENTION get_REFPROPname(char* Ref, char * str)
 {

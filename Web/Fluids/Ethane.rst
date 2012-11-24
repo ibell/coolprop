@@ -3,6 +3,10 @@
 Ethane
 ********************
 
+Aliases
+================================================================================
+
+
 Equation of State Reference
 ===========================
 Buecker, D. and Wagner, W. "A Reference Equation of State for the Thermodynamic Properties of Ethane for Temperatures from the Melting Line to 675 K and Pressures up to 900 MPa," J. Phys. Chem. Ref. Data, 35(1):205-266, 2006.
@@ -24,11 +28,11 @@ Triple Point [K]           90.368
 
 Critical Parameters
 
-==========================  ==============================
-Temperature [K]             305.32
-Density [kg/m\ :sup:`3`\ ]   206.180000
-Pressure [kPa]              4872.20000
-==========================  ==============================
+==============================  ==============================
+Temperature [K]                 305.32
+Density [kg/m\ :sup:`3`\ ]      206.180000
+Pressure [kPa]                  4872.20000
+==============================  ==============================
 
 
 Saturated Vapor Deviations

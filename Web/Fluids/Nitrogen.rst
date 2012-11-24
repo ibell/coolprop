@@ -3,6 +3,10 @@
 Nitrogen
 ********************
 
+Aliases
+================================================================================
+nitrogen, N2
+
 Equation of State Reference
 ===========================
 "A Reference Equation of State for the Thermodynamic Propertiesof Nitrogen for Temperatures from 63.151 to 1000 K and Pressures to 2200 MPa", R. Span and E.W. Lemmon and R.T. Jacobsen and W. Wagner and A. Yokozeki, J. Phys. Chem. Ref. Data, v. 29, n. 6, 2000
@@ -24,11 +28,11 @@ Triple Point [K]           63.151
 
 Critical Parameters
 
-==========================  ==============================
-Temperature [K]             126.19
-Density [kg/m\ :sup:`3`\ ]   313.300000
-Pressure [kPa]              3395.80000
-==========================  ==============================
+==============================  ==============================
+Temperature [K]                 126.19
+Density [kg/m\ :sup:`3`\ ]      313.300000
+Pressure [kPa]                  3395.80000
+==============================  ==============================
 
 
 Saturated Vapor Deviations

@@ -3,6 +3,10 @@
 Argon
 ********************
 
+Aliases
+================================================================================
+argon
+
 Equation of State Reference
 ===========================
 "A New Equation of State for Argon Covering the Fluid Region for Temperatures From the Melting Line to 700 K at Pressures up to 1000 MPa" Ch. Tegeler, R. Span, and W. Wagner, J. Phys. Chem. Ref. Data, Vol. 28, No. 3, 1999
@@ -25,11 +29,11 @@ Triple Point [K]           83.806
 
 Critical Parameters
 
-==========================  ==============================
-Temperature [K]             150.69
-Density [kg/m\ :sup:`3`\ ]   535.600000
-Pressure [kPa]              4863.00000
-==========================  ==============================
+==============================  ==============================
+Temperature [K]                 150.69
+Density [kg/m\ :sup:`3`\ ]      535.600000
+Pressure [kPa]                  4863.00000
+==============================  ==============================
 
 
 Saturated Vapor Deviations

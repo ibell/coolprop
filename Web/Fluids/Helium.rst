@@ -3,6 +3,10 @@
 Helium
 ********************
 
+Aliases
+================================================================================
+helium, He
+
 Equation of State Reference
 ===========================
 Ortiz-Vega, D.O., Hall, K.R., Arp, V.D., and Lemmon, E.W.,Interim equation to be published in Int. J. Thermophys., 2010.
@@ -30,11 +34,11 @@ Triple Point [K]           2.177
 
 Critical Parameters
 
-==========================  ==============================
-Temperature [K]             5.20
-Density [kg/m\ :sup:`3`\ ]   72.567174
-Pressure [kPa]              227.60000
-==========================  ==============================
+==============================  ==============================
+Temperature [K]                 5.20
+Density [kg/m\ :sup:`3`\ ]      72.567174
+Pressure [kPa]                  227.60000
+==============================  ==============================
 
 
 Saturated Vapor Deviations

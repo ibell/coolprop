@@ -3,6 +3,10 @@
 Ethanol
 ********************
 
+Aliases
+================================================================================
+
+
 Equation of State Reference
 ===========================
 Dillon, H.E., and S. G. Penoncello, "A Fundamental Equation for Calculation of the Thermodynamic Properties of Ethanol,", International Journal of Thermophysics, Vol. 25, No. 2, March 2004.
@@ -24,11 +28,11 @@ Triple Point [K]           159.100
 
 Critical Parameters
 
-==========================  ==============================
-Temperature [K]             513.90
-Density [kg/m\ :sup:`3`\ ]   275.996024
-Pressure [kPa]              6148.00000
-==========================  ==============================
+==============================  ==============================
+Temperature [K]                 513.90
+Density [kg/m\ :sup:`3`\ ]      275.996024
+Pressure [kPa]                  6148.00000
+==============================  ==============================
 
 
 Saturated Vapor Deviations

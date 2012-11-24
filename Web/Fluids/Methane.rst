@@ -3,6 +3,10 @@
 Methane
 ********************
 
+Aliases
+================================================================================
+CH4
+
 Equation of State Reference
 ===========================
 Setzmann, U. and Wagner, W., "A New Equation of State and Tables of Thermodynamic Properties for Methane Covering the Range from the Melting Line to 625 K at Pressures up to 1000 MPa," J. Phys. Chem. Ref. Data, 20(6):1061-1151, 1991.
@@ -24,11 +28,11 @@ Triple Point [K]           90.694
 
 Critical Parameters
 
-==========================  ==============================
-Temperature [K]             190.56
-Density [kg/m\ :sup:`3`\ ]   162.660000
-Pressure [kPa]              4599.20000
-==========================  ==============================
+==============================  ==============================
+Temperature [K]                 190.56
+Density [kg/m\ :sup:`3`\ ]      162.660000
+Pressure [kPa]                  4599.20000
+==============================  ==============================
 
 
 Saturated Vapor Deviations

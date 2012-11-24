@@ -3,6 +3,10 @@
 Oxygen
 ********************
 
+Aliases
+================================================================================
+oxygen, O2
+
 Equation of State Reference
 ===========================
 "Thermodynamic Properties of Oxygen from the Triple point to 300 K with pressures to 80 MPa", Richard B. Stewart, Richard T. Jacobsen, and W. Wagner, J. Phys. Chem. Ref. Data, v. 20, n. 5, 1991
@@ -26,11 +30,11 @@ Triple Point [K]           54.361
 
 Critical Parameters
 
-==========================  ==============================
-Temperature [K]             154.58
-Density [kg/m\ :sup:`3`\ ]   436.143644
-Pressure [kPa]              5043.00000
-==========================  ==============================
+==============================  ==============================
+Temperature [K]                 154.58
+Density [kg/m\ :sup:`3`\ ]      436.143644
+Pressure [kPa]                  5043.00000
+==============================  ==============================
 
 
 Saturated Vapor Deviations

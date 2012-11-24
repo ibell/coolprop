@@ -3,6 +3,10 @@
 Propane
 ********************
 
+Aliases
+================================================================================
+propane, R290, C3H8
+
 Equation of State Reference
 ===========================
 "A International Standard Formulation for the Thermodynamic Properties of 1,1,1,2-Tetrafluoroethane(HFC-134a) for Temperatures from 170 K to 455 K and Pressures up to 70 MPa"by Reiner Tillner-Roth and Hans Dieter Baehr, J. Phys. Chem. Ref. Data, v. 23, 1994, pp 657-729
@@ -24,11 +28,11 @@ Triple Point [K]           85.525
 
 Critical Parameters
 
-==========================  ==============================
-Temperature [K]             369.89
-Density [kg/m\ :sup:`3`\ ]   220.478100
-Pressure [kPa]              4251.20000
-==========================  ==============================
+==============================  ==============================
+Temperature [K]                 369.89
+Density [kg/m\ :sup:`3`\ ]      220.478100
+Pressure [kPa]                  4251.20000
+==============================  ==============================
 
 
 Saturated Vapor Deviations

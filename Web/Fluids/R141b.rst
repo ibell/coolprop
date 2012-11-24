@@ -3,6 +3,10 @@
 R141b
 ********************
 
+Aliases
+================================================================================
+
+
 Equation of State Reference
 ===========================
 Lemmon, E.W., and R. Span, "Short Fundamental Equations of State for 20 Industrial Fluids,", J. Chem. Eng. Data, 51:785-850, 2006.
@@ -24,11 +28,11 @@ Triple Point [K]           169.680
 
 Critical Parameters
 
-==========================  ==============================
-Temperature [K]             477.50
-Density [kg/m\ :sup:`3`\ ]   458.559460
-Pressure [kPa]              4212.00000
-==========================  ==============================
+==============================  ==============================
+Temperature [K]                 477.50
+Density [kg/m\ :sup:`3`\ ]      458.559460
+Pressure [kPa]                  4212.00000
+==============================  ==============================
 
 
 Saturated Vapor Deviations

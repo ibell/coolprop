@@ -3,6 +3,10 @@
 MM
 ********************
 
+Aliases
+================================================================================
+Hexamethyldisiloxane
+
 Equation of State Reference
 ===========================
 Colonna, P., N.R. Nannan, A. Guardone, E.W. Lemmon, "Multiparameter equations of state for selected siloxanes", Fluid Phase Equilibria 244 (2006) 193–211.
@@ -24,11 +28,11 @@ Triple Point [K]           204.930
 
 Critical Parameters
 
-==========================  ==============================
-Temperature [K]             518.75
-Density [kg/m\ :sup:`3`\ ]   258.151841
-Pressure [kPa]              1939.00000
-==========================  ==============================
+==============================  ==============================
+Temperature [K]                 518.75
+Density [kg/m\ :sup:`3`\ ]      258.151841
+Pressure [kPa]                  1939.00000
+==============================  ==============================
 
 
 Saturated Vapor Deviations

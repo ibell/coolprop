@@ -3,6 +3,10 @@
 D5
 ********************
 
+Aliases
+================================================================================
+Decamethylcyclopentasiloxane
+
 Equation of State Reference
 ===========================
 Colonna, P., N.R. Nannan, A. Guardone, E.W. Lemmon, "Multiparameter equations of state for selected siloxanes", Fluid Phase Equilibria 244 (2006) 193–211.
@@ -24,11 +28,11 @@ Triple Point [K]           226.000
 
 Critical Parameters
 
-==========================  ==============================
-Temperature [K]             619.15
-Density [kg/m\ :sup:`3`\ ]   304.909285
-Pressure [kPa]              1160.00000
-==========================  ==============================
+==============================  ==============================
+Temperature [K]                 619.15
+Density [kg/m\ :sup:`3`\ ]      304.909285
+Pressure [kPa]                  1160.00000
+==============================  ==============================
 
 
 Saturated Vapor Deviations

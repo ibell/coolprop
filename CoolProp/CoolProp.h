@@ -62,10 +62,10 @@ You might want to start by looking at CoolProp.h
 	EXPORT_CODE void CONVENTION PrintSaturationTable(char *FileName, char * Ref, double Tmin, double Tmax);
 	
 	EXPORT_CODE void CONVENTION FluidsList(char*);
-	EXPORT_CODE void CONVENTION get_REFPROPname(char* Ref,char*);
+	EXPORT_CODE void CONVENTION get_aliases(char* Ref, char *aliases);
+	EXPORT_CODE void CONVENTION get_REFPROPname(char* Ref, char*);
 	EXPORT_CODE void CONVENTION get_errstring(char*);
 	EXPORT_CODE char* CONVENTION get_errstringc(void);
-
 	EXPORT_CODE long CONVENTION get_errstring_copy(char *);
 
 	EXPORT_CODE long CONVENTION get_param_index(char * param);
@@ -113,6 +113,7 @@ You might want to start by looking at CoolProp.h
 	std::string get_EOSReference(std::string Ref);
 	std::string get_TransportReference(std::string Ref);
 	std::string FluidsList(void);
+	std::string get_aliases(std::string Ref);
 	std::string get_REFPROPname(std::string Ref);
 	std::string get_errstring(void);
 

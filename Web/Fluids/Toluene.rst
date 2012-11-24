@@ -3,6 +3,10 @@
 Toluene
 ********************
 
+Aliases
+================================================================================
+toluene
+
 Equation of State Reference
 ===========================
 Lemmon, E.W., and R. Span, "Short Fundamental Equations of State for 20 Industrial Fluids,", J. Chem. Eng. Data, 51:785-850, 2006.
@@ -24,11 +28,11 @@ Triple Point [K]           178.000
 
 Critical Parameters
 
-==========================  ==============================
-Temperature [K]             591.75
-Density [kg/m\ :sup:`3`\ ]   291.986653
-Pressure [kPa]              4126.00000
-==========================  ==============================
+==============================  ==============================
+Temperature [K]                 591.75
+Density [kg/m\ :sup:`3`\ ]      291.986653
+Pressure [kPa]                  4126.00000
+==============================  ==============================
 
 
 Saturated Vapor Deviations

@@ -3,6 +3,10 @@
 ParaHydrogen
 ********************
 
+Aliases
+================================================================================
+
+
 Equation of State Reference
 ===========================
 "Fundamental Equations of State for Parahydrogen, Normal Hydrogen, and Orthohydrogen"by J.W. Leachman and R.T. Jacobsen and S.G. Penoncello and E.W. Lemmon, J. Phys. Chem. Ref. Data, Vol. 38, No. 3, 2009, pp 721-748
@@ -24,11 +28,11 @@ Triple Point [K]           13.803
 
 Critical Parameters
 
-==========================  ==============================
-Temperature [K]             32.94
-Density [kg/m\ :sup:`3`\ ]   31.322743
-Pressure [kPa]              1285.80000
-==========================  ==============================
+==============================  ==============================
+Temperature [K]                 32.94
+Density [kg/m\ :sup:`3`\ ]      31.322743
+Pressure [kPa]                  1285.80000
+==============================  ==============================
 
 
 Saturated Vapor Deviations

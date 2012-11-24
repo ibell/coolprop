@@ -3,6 +3,10 @@
 Ammonia
 ********************
 
+Aliases
+================================================================================
+NH3, ammonia, R717
+
 Equation of State Reference
 ===========================
 "Eine neue Fundamentalgleichung fur Ammoniak (A new Equation of State for Ammonia)" R. Tillner-Roth and F. Harms-Watzenberg and H.D. Baehr, Deutscher Kaelte- und Klimatechnischer Verein Tagung 1993
@@ -34,11 +38,11 @@ Triple Point [K]           195.495
 
 Critical Parameters
 
-==========================  ==============================
-Temperature [K]             405.40
-Density [kg/m\ :sup:`3`\ ]   225.000000
-Pressure [kPa]              11333.00000
-==========================  ==============================
+==============================  ==============================
+Temperature [K]                 405.40
+Density [kg/m\ :sup:`3`\ ]      225.000000
+Pressure [kPa]                  11333.00000
+==============================  ==============================
 
 
 Saturated Vapor Deviations

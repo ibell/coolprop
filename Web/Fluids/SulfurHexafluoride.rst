@@ -3,6 +3,10 @@
 SulfurHexafluoride
 ********************
 
+Aliases
+================================================================================
+SF6
+
 Equation of State Reference
 ===========================
 Guder C., and W. Wagner, "A Reference Equation of State for the Thermodynamic Properties of Sulfur Hexafluoride SF6 for Temperatures from the Melting Line to 625 K and Pressures up to 150 MPa," J. Phys. Chem. Ref. Data, Vol. 38, No. 1, 2009
@@ -24,11 +28,11 @@ Triple Point [K]           223.555
 
 Critical Parameters
 
-==========================  ==============================
-Temperature [K]             318.72
-Density [kg/m\ :sup:`3`\ ]   742.300000
-Pressure [kPa]              3754.98300
-==========================  ==============================
+==============================  ==============================
+Temperature [K]                 318.72
+Density [kg/m\ :sup:`3`\ ]      742.300000
+Pressure [kPa]                  3754.98300
+==============================  ==============================
 
 
 Saturated Vapor Deviations

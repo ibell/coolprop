@@ -3,6 +3,10 @@
 MDM
 ********************
 
+Aliases
+================================================================================
+Octamethyltrisiloxane
+
 Equation of State Reference
 ===========================
 Colonna, P., N.R. Nannan, A. Guardone, "Multiparameter equations of state for siloxanes: [(CH3)3-Si-O1/2]2-[O-Si-(CH3)2]i=1,...,3, and [O-Si-(CH3)2]6,", Fluid Phase Equilibria 263 (2008) 115–130.
@@ -24,11 +28,11 @@ Triple Point [K]           187.200
 
 Critical Parameters
 
-==========================  ==============================
-Temperature [K]             564.09
-Density [kg/m\ :sup:`3`\ ]   256.739909
-Pressure [kPa]              1415.00000
-==========================  ==============================
+==============================  ==============================
+Temperature [K]                 564.09
+Density [kg/m\ :sup:`3`\ ]      256.739909
+Pressure [kPa]                  1415.00000
+==============================  ==============================
 
 
 Saturated Vapor Deviations

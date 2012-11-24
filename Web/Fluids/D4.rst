@@ -3,6 +3,10 @@
 D4
 ********************
 
+Aliases
+================================================================================
+Octamethylcyclotetrasiloxane
+
 Equation of State Reference
 ===========================
 Colonna, P., N.R. Nannan, A. Guardone, E.W. Lemmon, "Multiparameter equations of state for selected siloxanes", Fluid Phase Equilibria 244 (2006) 193–211.
@@ -24,11 +28,11 @@ Triple Point [K]           290.250
 
 Critical Parameters
 
-==========================  ==============================
-Temperature [K]             586.50
-Density [kg/m\ :sup:`3`\ ]   305.789492
-Pressure [kPa]              1332.00000
-==========================  ==============================
+==============================  ==============================
+Temperature [K]                 586.50
+Density [kg/m\ :sup:`3`\ ]      305.789492
+Pressure [kPa]                  1332.00000
+==============================  ==============================
 
 
 Saturated Vapor Deviations

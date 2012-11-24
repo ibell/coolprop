@@ -3,6 +3,10 @@
 Ethylene
 ********************
 
+Aliases
+================================================================================
+
+
 Equation of State Reference
 ===========================
 Smukala, J., R. Span, and W. Wagner, "New Equation of State for Ethylene Covering the Fluid Region for Temperatures From the Melting Line to 450 K at Pressures up to 300 MPa," J. Phys. Chem. Ref. Data, Vol. 29, No. 5, 2000
@@ -24,11 +28,11 @@ Triple Point [K]           103.989
 
 Critical Parameters
 
-==========================  ==============================
-Temperature [K]             282.35
-Density [kg/m\ :sup:`3`\ ]   214.240000
-Pressure [kPa]              5041.80000
-==========================  ==============================
+==============================  ==============================
+Temperature [K]                 282.35
+Density [kg/m\ :sup:`3`\ ]      214.240000
+Pressure [kPa]                  5041.80000
+==============================  ==============================
 
 
 Saturated Vapor Deviations

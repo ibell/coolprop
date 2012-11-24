@@ -3,6 +3,10 @@
 Water
 ********************
 
+Aliases
+================================================================================
+water, H2O, h2o
+
 Equation of State Reference
 ===========================
 "The IAPWS Formulation 1995 for the Thermodynamic Propertiesof Ordinary Water Substance for General and Scientific Use",W. Wagner and A. Pruss, J. Phys. Chem. Ref. Data, v. 31, 2000
@@ -29,11 +33,11 @@ Triple Point [K]           273.160
 
 Critical Parameters
 
-==========================  ==============================
-Temperature [K]             647.10
-Density [kg/m\ :sup:`3`\ ]   322.000000
-Pressure [kPa]              22064.00000
-==========================  ==============================
+==============================  ==============================
+Temperature [K]                 647.10
+Density [kg/m\ :sup:`3`\ ]      322.000000
+Pressure [kPa]                  22064.00000
+==============================  ==============================
 
 
 Saturated Vapor Deviations

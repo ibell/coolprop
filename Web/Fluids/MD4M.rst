@@ -3,6 +3,10 @@
 MD4M
 ********************
 
+Aliases
+================================================================================
+Tetradecamethylhexasiloxane
+
 Equation of State Reference
 ===========================
 Colonna, P., N.R. Nannan, A. Guardone, E.W. Lemmon, "Multiparameter equations of state for selected siloxanes", Fluid Phase Equilibria 244 (2006) 193–211.
@@ -24,11 +28,11 @@ Triple Point [K]           214.150
 
 Critical Parameters
 
-==========================  ==============================
-Temperature [K]             653.20
-Density [kg/m\ :sup:`3`\ ]   278.177743
-Pressure [kPa]              877.00000
-==========================  ==============================
+==============================  ==============================
+Temperature [K]                 653.20
+Density [kg/m\ :sup:`3`\ ]      278.177743
+Pressure [kPa]                  877.00000
+==============================  ==============================
 
 
 Saturated Vapor Deviations

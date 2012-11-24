@@ -3,6 +3,10 @@
 CarbonDioxide
 ********************
 
+Aliases
+================================================================================
+R744, co2, CO2, carbondioxide
+
 Equation of State Reference
 ===========================
 "A New Equation of State for Carbon Dioxide Covering the Fluid Region from the Triple Point Temperature to 1100 K at Pressures up to 800 MPa", R. Span and W. Wagner, J. Phys. Chem. Ref. Data, v. 25, 1996
@@ -24,11 +28,11 @@ Triple Point [K]           216.592
 
 Critical Parameters
 
-==========================  ==============================
-Temperature [K]             304.13
-Density [kg/m\ :sup:`3`\ ]   467.606000
-Pressure [kPa]              7377.30000
-==========================  ==============================
+==============================  ==============================
+Temperature [K]                 304.13
+Density [kg/m\ :sup:`3`\ ]      467.606000
+Pressure [kPa]                  7377.30000
+==============================  ==============================
 
 
 Saturated Vapor Deviations
