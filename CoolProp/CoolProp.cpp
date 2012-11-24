@@ -654,18 +654,21 @@ double _Props(std::string Output,std::string Name1, double Prop1, std::string Na
 			}
 			// Start with a guess of 10 K below max temp of fluid
 			double Tguess = SecFluids('M',Prop1,Prop2,(char*)Ref.c_str())-10;
-			// Get the temperature
+			// Solve for the temperature
 			double T =_T_hp_secant(Ref,Prop1,Prop2,Tguess);
 			// Return whatever property is desired
 			return SecFluids(Output[0],T,Prop2,(char*)Ref.c_str());
 		}
-		else if (Name1.c_str()[0]!='T' || Name2.c_str()[0]!='P')
+		else if ((Name1.c_str()[0] == 'T' && Name2.c_str()[0] =='P') || (Name1.c_str()[0] == 'P' && Name2.c_str()[0] == 'T'))
         {
-			throw ValueError("For brine, Name1 must be 'T' and Name2 must be 'P' or Name1 must be 'H' and Name2 must be 'P'");
+			if (Name1.c_str()[0] =='P' && Name2.c_str()[0] =='T'){
+				std::swap(Prop1,Prop2);
+			}
+			return SecFluids(Output[0],Prop1,Prop2,(char*)Ref.c_str());
 		}
 		else
 		{
-			return SecFluids(Output[0],Prop1,Prop2,(char*)Ref.c_str());
+			throw ValueError("For brine, inputs must be (order doesnt matter) 'T' and 'P', or 'H' and 'P'");
 		}
     }
     return 0;
