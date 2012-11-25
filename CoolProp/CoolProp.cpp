@@ -394,18 +394,48 @@ static int IsREFPROP(std::string Ref)
 }
 EXPORT_CODE int CONVENTION IsFluidType(char *Ref, char *Type)
 {
-    if (IsBrine(Ref) && !strcmp(Type,"Brine"))
-    {
-        return 1;
-    }
-    else if (!pFluid->pure() && (!strcmp(Type,"PseudoPure") || !strcmp(Type,"PseudoPureFluid")))
-    {
-        return 1;
-    }
-	else if ((pFluid->pure() || IsREFPROP(Ref)) && !strcmp(Type,"PureFluid"))
-    {
-        return 1;
-    }
+	pFluid = Fluids.get_fluid(Ref);
+
+	if (IsBrine(Ref)){
+		if (!strcmp(Type,"Brine")){
+			return 1;
+		}
+		else{
+			return 0;
+		}
+	}
+	else if (IsIncompressibleLiquid(Ref)){
+		if (!strcmp(Type,"Liquid")){
+			return 1;
+		}
+		else{
+			return 0;
+		}
+	}
+	else if (IsREFPROP(Ref)){
+		if (!strcmp(Type,"PureFluid")){
+			return 1;
+		}
+		else{
+			return 0;
+		}
+	}
+	else if (!pFluid->pure()){
+		if (!strcmp(Type,"PseudoPure") || !strcmp(Type,"PseudoPureFluid")){
+			return 1;
+		}
+		else{
+			return 0;
+		}
+	}
+	else if (pFluid->pure()){
+		if (!strcmp(Type,"PureFluid")){
+			return 1;
+		}
+		else{
+			return 0;
+		}
+	}
     else
     {
         return 0;

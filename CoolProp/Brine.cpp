@@ -8,6 +8,7 @@ Ake Melinder, "Properties of Secondary Working Fluids for Indirect Systems", 201
 
 Erratum: 
 	--> In the tables of coefficients, the range for y should always be between tF(x) < y < ymax
+	--> There is a typo in the specific heat for Ethylene Glycol, coefficients give a result in kJ/kg
 	--> Watch out for some values with commas that should be decimals
 
 */
@@ -24,9 +25,6 @@ Erratum:
 #include "stdio.h"
 #include <string.h>
 #include "Brine.h"
-
-static double powInt(double x, int y);
-
 #include "CoolProp.h"
 
 // From Melinder, 2010
@@ -471,19 +469,25 @@ int Brine(char * Mix, double T, double C, /*in --- out */double *Tfreeze, double
 	for(i=0;i<18;i++)
 	{
 		x=C; y=T;
-		f_Tfreeze 	+= (*A)[i][0] * powInt((x-xm),a[i][0]) * powInt((y-ym),a[i][1]);
-		f_rho		+= (*A)[i][1] * powInt((x-xm),a[i][0]) * powInt((y-ym),a[i][1]);
-		f_cp		+= (*A)[i][2] * powInt((x-xm),a[i][0]) * powInt((y-ym),a[i][1]);
-		f_k			+= (*A)[i][3] * powInt((x-xm),a[i][0]) * powInt((y-ym),a[i][1]);
-		f_visc		+= (*A)[i][4] * powInt((x-xm),a[i][0]) * powInt((y-ym),a[i][1]);
-		f_u         += (*A)[i][2] * powInt((x-xm),a[i][0]) * powInt((y-ym),a[i][1]+1)/(a[i][1]+1);
-		if (a[i][1]==0)
-		{
-			f_s += (*A)[i][2] * powInt((x-xm),a[i][0]) * log((y-ym)/(25.0-ym));
+		f_Tfreeze 	+= (*A)[i][0] * pow((x-xm),a[i][0]) * pow((y-ym),a[i][1]);
+		f_rho		+= (*A)[i][1] * pow((x-xm),a[i][0]) * pow((y-ym),a[i][1]);
+		f_cp		+= (*A)[i][2] * pow((x-xm),a[i][0]) * pow((y-ym),a[i][1]);
+		f_k			+= (*A)[i][3] * pow((x-xm),a[i][0]) * pow((y-ym),a[i][1]);
+		f_visc		+= (*A)[i][4] * pow((x-xm),a[i][0]) * pow((y-ym),a[i][1]);
+		f_u         += (*A)[i][2] * pow((x-xm),a[i][0]) * pow((y-ym),a[i][1]+1)/(a[i][1]+1);
+		int n = a[i][1];
+		if (n == 0){
+			f_s += (*A)[i][2] * pow((x-xm),a[i][0]) * log((y+273.15)/298.0);
 		}
-		else
-		{
-			f_s += (*A)[i][2] * powInt((x-xm),a[i][0]) * (powInt((y-ym),a[i][1])-powInt((25-ym),a[i][1]))/(a[i][1]);
+		else if (n == 1){
+			f_s += (*A)[i][2] * pow((x-xm),a[i][0]) * ((y+273.15)-(ym+273.15)*log(y+273.15));
+		}
+		else if (n == 2){
+			f_s += (*A)[i][2] * pow((x-xm),a[i][0]) * (pow(ym+273.15,2)*log(y+273.15)+0.5*(y+273.15)*((y+273.15)-4*(ym+273.15)));
+		}
+		else if (n == 3){
+			double _y = y+273.15, b = ym+273.15;
+			f_s += (*A)[i][2] * pow((x-xm),a[i][0]) * (-pow(b,3)*log(_y)-1.0/6.0*(b-_y)*(11*pow(b,2)-7*b*_y+2*pow(_y,2)));
 		}
 	}
 
@@ -501,6 +505,12 @@ int Brine(char * Mix, double T, double C, /*in --- out */double *Tfreeze, double
 	}
 	else
 	{
+		// There is a typo in the specific heat for Ethylene Glycol, coefficients give a result in kJ/kg
+		if (!strcmp(Mix,"EG")){
+			f_cp *= 1000;
+			f_u *= 1000;
+			f_s *= 1000;
+		}
 		*Tfreeze=f_Tfreeze;
 		*rho=f_rho;
 		*cp=f_cp;
@@ -510,41 +520,4 @@ int Brine(char * Mix, double T, double C, /*in --- out */double *Tfreeze, double
 		*s=f_s;
 		return 0;
 	}
-}
-
-static double powInt(double x, int y)
-{
-    int i;
-    double product=1.0;
-    double x_in;
-    int y_in;
-    
-    if (y==0)
-    {
-        return 1.0;
-    }
-    
-    if (y<0)
-    {
-        x_in=1/x;
-        y_in=-y;
-    }
-	else
-	{
-		x_in=x;
-		y_in=y;
-	}
-
-    if (y_in==1)
-    {
-        return x_in;
-    }    
-    
-    product=x_in;
-    for (i=1;i<y_in;i++)
-    {
-        product=product*x_in;
-    }
-    
-    return product;
 }
