@@ -495,13 +495,14 @@ double Fluid::density_Tp(double T, double p, double rho_guess)
     }	
 	if (debug()>8){
 		std::cout<<__FILE__<<':'<<__LINE__<<": Fluid::density_Tp(double T, double p, double rho_guess): "<<T<<","<<p<<","<<rho_guess<<" = "<<rho<<std::endl;
+
 	}
     return rho;
 }
 
 double Fluid::viscosity_Trho( double T, double rho)
 {
-	// Use propane as the reference
+	// Use R134a as the reference
 	Fluid * ReferenceFluid = new R134aClass();
 	ReferenceFluid->post_load();
 	// Calculate the ECS
@@ -938,7 +939,7 @@ double Fluid::_get_rho_guess(double T, double p)
 		// Start at the saturation state, with a known density
 		// Return subcooled liquid density
 		double rhoL,rhoV,pL,pV;
-		saturation(T,false,&pL,&pV,&rhoL,&rhoV);
+		saturation(T,SaturationLUTStatus(),&pL,&pV,&rhoL,&rhoV);
 		double delta = rhoL / reduce.rho;
 		double tau = reduce.T/T;
 		double dp_drho = R()*T*(1+2*delta*dphir_dDelta(tau,delta)+delta*delta*d2phir_dDelta2(tau,delta));
@@ -1241,14 +1242,14 @@ void Fluid::temperature_ph(double p, double h, double *Tout, double *rhoout, dou
 			rhoL = sat->rhoL();
 			rhoV = sat->rhoV();
 			hsatL = sat->hL();
-			hsatV = sat->hV();
+			hsatV = sat->hV(); 
 			TsatL = sat->TL();
 			TsatV = sat->TV();
 			*rhoLout = rhoL;
 			*rhoVout = rhoV;
 			*TsatLout = TsatL;
 			*TsatVout = TsatV;
-
+			
 			if (h>hsatV)
 			{
 				T_guess = TsatV+30;
@@ -1266,7 +1267,7 @@ void Fluid::temperature_ph(double p, double h, double *Tout, double *rhoout, dou
 				T_guess = (TsatL-T_guess)/(hsatL-h_guess)*(h-h_guess)+T_guess;
 				// Solve for the density
 				rho_guess = density_Tp(T_guess,p,rho_guess);
-				
+				//*Tout = T_guess; *rhoout = rho_guess; return;
 				delta = rho_guess/reduce.rho;
 			}
 			else
@@ -1335,9 +1336,10 @@ void Fluid::temperature_ph(double p, double h, double *Tout, double *rhoout, dou
 			*Tout = _HUGE;
             *rhoout = _HUGE;
 		}
+		
     }
 
-
+	//std::cout<<"Temperature_ph took"<<iter-1<<"steps\n";
 	*Tout = reduce.T/tau;
 	*rhoout = delta*reduce.rho;
 }
