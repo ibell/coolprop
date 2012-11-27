@@ -557,10 +557,10 @@ void Fluid::saturation(double T, bool UseLUT, double *psatLout, double *psatVout
 		if (UseLUT)
 		{
 			// Use the saturation Lookup Table;
-			*rhosatLout=ApplySaturationLUT("rhoL","T",T);
-			*rhosatVout=ApplySaturationLUT("rhoV","T",T);
-			*psatLout=ApplySaturationLUT("p","T",T);
-			*psatVout=ApplySaturationLUT("p","T",T);
+			*rhosatLout=ApplySaturationLUT(SatLUT.iDL,SatLUT.iT,T);
+			*rhosatVout=ApplySaturationLUT(SatLUT.iDV,SatLUT.iT,T);
+			*psatLout=ApplySaturationLUT(SatLUT.iP,SatLUT.iT,T);
+			*psatVout=ApplySaturationLUT(SatLUT.iP,SatLUT.iT,T);
 			return;
 		}
 		else
@@ -727,12 +727,13 @@ bool isBetween(double x1,double x2, double x)
 }
 void Fluid::BuildSaturationLUT()
 {
-    // returns the index of the LUT
     int i;
     double T_t,T_c,dT;
     
-	if (SatLUT.built==true)
+	// If the tables have already been built, don't do anything
+	if (SatLUT.built == true)
 		return;
+
     // Linearly space the values from the triple point of the fluid to the just shy of the critical point
     T_t=Props(name,"Ttriple")+0.00001;
     T_c=Props(name,"Tcrit")-0.000001;
@@ -757,9 +758,18 @@ void Fluid::BuildSaturationLUT()
         rhosatPure_Akasaka(SatLUT.T[i], &(SatLUT.rhoL[i]), &(SatLUT.rhoV[i]), &(SatLUT.p[i]));
 		SatLUT.logp[i]=log(SatLUT.p[i]);
         // Calculate the other saturation properties
-		SatLUT.hL[i]=Props(std::string("H"),'T',SatLUT.T[i],'D',SatLUT.rhoL[i],name);
-        SatLUT.hV[i]=Props(std::string("H"),'T',SatLUT.T[i],'D',SatLUT.rhoV[i],name);
+		SatLUT.hL[i]=enthalpy_Trho(SatLUT.T[i],SatLUT.rhoL[i]);
+        SatLUT.hV[i]=enthalpy_Trho(SatLUT.T[i],SatLUT.rhoV[i]);
     }
+	// Get reversed copies for when you use temperature as an input because 
+	// temperature is monotonically increasing, but tau is monotonic decreasing
+	// so need to go "backwards" if temperature is an input
+	SatLUT.tau_reversed.assign(SatLUT.tau.rbegin(),SatLUT.tau.rend());
+	SatLUT.logp_reversed.assign(SatLUT.logp.rbegin(),SatLUT.logp.rend());
+	SatLUT.rhoL_reversed.assign(SatLUT.rhoL.rbegin(),SatLUT.rhoL.rend());
+	SatLUT.rhoV_reversed.assign(SatLUT.rhoV.rbegin(),SatLUT.rhoV.rend());
+	SatLUT.hL_reversed.assign(SatLUT.hL.rbegin(),SatLUT.hL.rend());
+	SatLUT.hV_reversed.assign(SatLUT.hV.rbegin(),SatLUT.hV.rend());
 	SatLUT.built=true;
 }   
 // Ancillary equations composed by interpolating within 10-point 
@@ -815,9 +825,10 @@ double Fluid::drhodT_pL_anc(double T)
 //double ssatV_anc(double T);
 //double ssatL_anc(double T);
 
-double Fluid::ApplySaturationLUT(char *OutPropName,char *InPropName,double InPropVal)
+double Fluid::ApplySaturationLUT(long iOutProp,long iInProp,double InPropVal)
 {
     int i;
+	bool _reverse;
     double x0,x1,x2,y0,y1,y2,LUTVal;
 
     // pointers to the x and y std::vectors for later
@@ -826,39 +837,79 @@ double Fluid::ApplySaturationLUT(char *OutPropName,char *InPropName,double InPro
     // First try to build the LUT
     BuildSaturationLUT();
    
-	if (!strcmp(InPropName,"T") || !strcmp(InPropName,"Tsat"))
+	if (iInProp == SatLUT.iT)
 	{
-		x=&(SatLUT.tau);
+		x=&(SatLUT.tau_reversed);// from ~1 to Tc/Ttriple
 		LUTVal = reduce.T/InPropVal;
+		_reverse = true;
 	}
-	else if (!strcmp(InPropName,"P") || !strcmp(InPropName,"psat"))
+	else if (iInProp == SatLUT.iP)
 	{
 		x=&(SatLUT.logp);
 		LUTVal = log(InPropVal);
+		_reverse = false;
 	}
 	else 
 	{
-		throw AttributeError(format("InPropName [%s] to ApplySaturationLUT is invalid.  Valid values are T,p,Tsat,psat",InPropName));
+		throw AttributeError(format("iInProp [%d] to ApplySaturationLUT is invalid.  Valid values are iT,iP",iInProp));
 	}
-
-    // Then find indices that bracket the value of interest
-    for(i=0;i<SatLUT.N-1;i++)
-    {
-        if (isBetween((*x)[i],(*x)[i+1],LUTVal)) break;
-    }
+	
+	long L=0;
+	long R=SatLUT.N-1;
+	long M=(L+R)/2;
+	// Use interval halving to find the indices which bracket the value of interest
+	while (R-L>1)
+	{
+		if (LUTVal>=(*x)[M])
+		{ L=M; M=(L+R)/2; continue;}
+		if (LUTVal<(*x)[M])
+		{ R=M; M=(L+R)/2; continue;}
+	}
+	i = L;
     
-    if (!strcmp(OutPropName,"rhoL"))
-        y=&(SatLUT.rhoL);
-    else if (!strcmp(OutPropName,"rhoV"))
-        y=&(SatLUT.rhoV);
-    else if (!strcmp(OutPropName,"p"))
-        y=&(SatLUT.logp);
-    else if (!strcmp(OutPropName,"hL"))
-        y=&(SatLUT.hL);
-    else if (!strcmp(OutPropName,"hV"))
-        y=&(SatLUT.hV);
-	else if (!strcmp(OutPropName,"T"))
-        y=&(SatLUT.tau);
+	if (iOutProp == SatLUT.iDL)
+	{
+		if (_reverse)
+			y=&(SatLUT.rhoL_reversed);
+        else
+			y=&(SatLUT.rhoL);
+	}
+	else if (iOutProp == SatLUT.iDV)
+	{
+		if (_reverse)
+			y=&(SatLUT.rhoV_reversed);
+        else
+			y=&(SatLUT.rhoV);
+	}
+    else if (iOutProp == SatLUT.iP)
+	{
+		if (_reverse)
+			y=&(SatLUT.logp_reversed);
+        else
+			y=&(SatLUT.logp);
+	}
+	else if (iOutProp == SatLUT.iHL)
+	{
+		if (_reverse)
+			y=&(SatLUT.hL_reversed);
+        else
+			y=&(SatLUT.hL);
+	}
+	else if (iOutProp == SatLUT.iHV)
+	{
+		if (_reverse)
+			y=&(SatLUT.hV_reversed);
+        else
+			y=&(SatLUT.hV);
+	}
+	else if (iOutProp == SatLUT.iT)
+	{
+		if (_reverse)
+			y=&(SatLUT.tau_reversed);
+        else
+			y=&(SatLUT.tau);
+	}
+   
 
     // Need a three-point set to interpolate using a quadratic.
     if (i<SatLUT.N-2)
@@ -882,10 +933,10 @@ double Fluid::ApplySaturationLUT(char *OutPropName,char *InPropName,double InPro
         y2=(*y)[i-2];
     }
     double y_LUT = QuadInterp(x0,x1,x2,y0,y1,y2,LUTVal);
-	if (!strcmp(OutPropName,"p"))
+	if (iOutProp == SatLUT.iP)
 		// y_LUT has the value of log(p)
 		return exp(y_LUT);
-	else if (!strcmp(OutPropName,"p"))
+	else if (iOutProp == SatLUT.iT)
 		// yLUT has the value of Tc/T
 		return reduce.T/y_LUT;
 	else
@@ -959,13 +1010,7 @@ double Fluid::_get_rho_guess(double T, double p)
 	//return rho_guess;
 }
 
-static void swap(double *x, double *y)
-{
-    double temp;
-    temp = *x;
-    *x = *y;
-    *y = temp;
-}
+
 std::string Fluid::phase_Tp(double T, double p, double *pL, double *pV, double *rhoL, double *rhoV)
 {
 	/*
@@ -1762,8 +1807,6 @@ void Fluid::TsatP_Pure(double p, double *Tout, double *rhoLout, double *rhoVout)
 	*Tout = Tsat;
 	delete SPGR;
 	return;
-
-
 	
 	SaturationFunctionOfPressureResids *SFPR = new SaturationFunctionOfPressureResids(this,p,params.R_u/params.molemass,reduce.rho,reduce.T);
 	Eigen::Vector3d x0_initial, x;
@@ -1782,7 +1825,7 @@ void Fluid::TsatP_Pure(double p, double *Tout, double *rhoLout, double *rhoVout)
 
 double Fluid::Tsat(double p, double Q, double T_guess, bool UseLUT)
 {
-	if (isPure)
+	if (isPure && !UseLUT)
 	{
 		double Tout,rhoLout,rhoVout;
 		TsatP_Pure(p,&Tout,&rhoLout,&rhoVout);
@@ -1794,7 +1837,7 @@ double Fluid::Tsat(double p, double Q, double T_guess, bool UseLUT)
 		double Tc,Tmax,Tmin;
 	    
 		// Do reverse interpolation in the Saturation Lookup Table
-		if (UseLUT && isPure==true) { return ApplySaturationLUT("T","p",p); }
+		if (UseLUT && isPure==true) { return ApplySaturationLUT(SatLUT.iT,SatLUT.iP,p); }
 
 		Tc=Props(name,"Tcrit");
 		Tmax=Tc-0.001;
@@ -2415,7 +2458,6 @@ Eigen::Vector2d Fluid::ConformalTemperature(Fluid *InterestFluid, Fluid *Referen
 			x0 -= v;
 		else
 			x0 -= 1.05*x0;
-		std::cout<<f0<<std::endl;
 		error = sqrt(f0.array().square().sum());
 		iter+=1;
 	}

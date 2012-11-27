@@ -30,8 +30,10 @@ struct FluidLimits
 struct SatLUTStruct
 {
 	std::vector<double> T,rhoL,rhoV,p,hL,hV,tau,logp;
+	std::vector<double> T_reversed,rhoL_reversed,rhoV_reversed,p_reversed,hL_reversed,hV_reversed,tau_reversed,logp_reversed;
 	int N;
 	bool built;
+	enum flags{ iT,iP,iHL,iHV,iDL,iDV};
 };
 
 class AncillaryCurveClass
@@ -328,10 +330,10 @@ class Fluid
 		void BuildSaturationLUT(void);
 
 		/// Apply the Saturation lookup tables to a given set of inputs and output
-		/// @param OutPropName Single-char corresponding to the output of interest. @see Props
-		/// @param InPropName Single-char corresponding to the input of interest. @see Props
+		/// @param iOutProp Flag for the output property from SatLUTStruct. @see SatLUTStruct
+		/// @param iInProp Flag for the input property from SatLUTStruct. @see SatLUTStruct
 		/// @param InPropVal Value of the input of interest. @see Props
-		double ApplySaturationLUT(char *OutPropName,char *InPropName,double InPropVal);
+		double ApplySaturationLUT(long iOutProp, long iInProp, double InPropVal);
 		
 		/// The saturation temperature of the fluid for a given pressure and quality. If the 
 		/// fluid is pure, the saturated vapor and saturated liquid temperatures are the same.  
