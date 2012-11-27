@@ -54,6 +54,33 @@ std::vector<std::string> strsplit(std::string s, char del)
 	}
 }
     
+double interp1d(std::vector<double> *x, std::vector<double> *y, double x0)
+{
+	unsigned int i,L,R,M;
+	L=0;
+	R=(*x).size()-1;
+	M=(L+R)/2;
+	// Use interval halving to find the indices which bracket the density of interest
+	while (R-L>1)
+	{
+		if (x0 >= (*x)[M])
+		{ L=M; M=(L+R)/2; continue;}
+		if (x0 < (*x)[M])
+		{ R=M; M=(L+R)/2; continue;}
+	}
+	i=L;
+	if (i<(*x).size()-2)
+    {
+		// Go "forwards" with the interpolation range
+		return QuadInterp((*x)[i],(*x)[i+1],(*x)[i+2],(*y)[i],(*y)[i+1],(*y)[i+2],x0);
+    }
+    else
+    {
+        // Go "backwards" with the interpolation range
+		return QuadInterp((*x)[i],(*x)[i-1],(*x)[i-2],(*y)[i],(*y)[i-1],(*y)[i-2],x0);
+    }
+}
+
 static int isNAN(double x)
 {
 	// recommendation from http://www.devx.com/tips/Tip/42853

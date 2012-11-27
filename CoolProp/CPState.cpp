@@ -113,8 +113,16 @@ void CoolPropStateClass::update_twophase(long iInput1, double Value1, long iInpu
 		sort_pair(&iInput1,&Value1,&iInput2,&Value2,iP,iQ);
 		// Carry out the saturation call to get the temperature and density for each phases
 		if (pFluid->pure()){
-			pFluid->TsatP_Pure(Value1, &TsatL, &rhosatL, &rhosatV);
-			TsatV = TsatL;
+			if (SaturationLUTStatus()){
+				TsatL = pFluid->ApplySaturationLUT(pFluid->SatLUT.iT,pFluid->SatLUT.iP,Value1);
+				rhosatL = pFluid->ApplySaturationLUT(pFluid->SatLUT.iDL,pFluid->SatLUT.iP,Value1);
+				rhosatV = pFluid->ApplySaturationLUT(pFluid->SatLUT.iDV,pFluid->SatLUT.iP,Value1);
+				TsatV = TsatL;
+			}
+			else{
+				pFluid->TsatP_Pure(Value1, &TsatL, &rhosatL, &rhosatV);
+				TsatV = TsatL;
+			}
 		}
 		else{
 			TsatL = pFluid->Tsat_anc(Value1,0);
@@ -131,7 +139,7 @@ void CoolPropStateClass::update_twophase(long iInput1, double Value1, long iInpu
 		sort_pair(&iInput1,&Value1,&iInput2,&Value2,iT,iQ);
 		// Carry out the saturation call to get the temperature and density for each phases
 		if (pFluid->pure()){
-			pFluid->saturation(Value1,false,&psatL,&psatV,&rhosatL,&rhosatV);
+			pFluid->saturation(Value1,SaturationLUTStatus(),&psatL,&psatV,&rhosatL,&rhosatV);
 			TsatL = Value1;
 			TsatV = Value1;
 		}

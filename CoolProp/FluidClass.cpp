@@ -734,6 +734,10 @@ void Fluid::BuildSaturationLUT()
 	if (SatLUT.built == true)
 		return;
 
+	if (debug()>2){
+		std::cout<<__FILE__<<": Building saturation lookup for "<<name<<std::endl;
+	}
+
     // Linearly space the values from the triple point of the fluid to the just shy of the critical point
     T_t=Props(name,"Ttriple")+0.00001;
     T_c=Props(name,"Tcrit")-0.000001;
@@ -827,9 +831,8 @@ double Fluid::drhodT_pL_anc(double T)
 
 double Fluid::ApplySaturationLUT(long iOutProp,long iInProp,double InPropVal)
 {
-    int i;
 	bool _reverse;
-    double x0,x1,x2,y0,y1,y2,LUTVal;
+    double LUTVal;
 
     // pointers to the x and y std::vectors for later
 	std::vector<double> *y,*x;
@@ -853,19 +856,6 @@ double Fluid::ApplySaturationLUT(long iOutProp,long iInProp,double InPropVal)
 	{
 		throw AttributeError(format("iInProp [%d] to ApplySaturationLUT is invalid.  Valid values are iT,iP",iInProp));
 	}
-	
-	long L=0;
-	long R=SatLUT.N-1;
-	long M=(L+R)/2;
-	// Use interval halving to find the indices which bracket the value of interest
-	while (R-L>1)
-	{
-		if (LUTVal>=(*x)[M])
-		{ L=M; M=(L+R)/2; continue;}
-		if (LUTVal<(*x)[M])
-		{ R=M; M=(L+R)/2; continue;}
-	}
-	i = L;
     
 	if (iOutProp == SatLUT.iDL)
 	{
@@ -909,30 +899,10 @@ double Fluid::ApplySaturationLUT(long iOutProp,long iInProp,double InPropVal)
         else
 			y=&(SatLUT.tau);
 	}
-   
 
-    // Need a three-point set to interpolate using a quadratic.
-    if (i<SatLUT.N-2)
-    {
-		// Go "forwards" with the interpolation range
-        x0=(*x)[i];
-        x1=(*x)[i+1];
-        x2=(*x)[i+2];
-        y0=(*y)[i];
-        y1=(*y)[i+1];
-        y2=(*y)[i+2];
-    }
-    else
-    {
-        // Go "backwards" with the interpolation range
-        x0=(*x)[i];
-        x1=(*x)[i-1];
-        x2=(*x)[i-2];
-        y0=(*y)[i];
-        y1=(*y)[i-1];
-        y2=(*y)[i-2];
-    }
-    double y_LUT = QuadInterp(x0,x1,x2,y0,y1,y2,LUTVal);
+	// Actually interpolate
+    double y_LUT = interp1d(x,y,LUTVal);
+
 	if (iOutProp == SatLUT.iP)
 		// y_LUT has the value of log(p)
 		return exp(y_LUT);
@@ -1209,61 +1179,65 @@ void Fluid::temperature_ph(double p, double h, double *Tout, double *rhoout, dou
 	{
 		// Set to a negative value as a dummy value
 		delta = -1;
-
-		//**************************************************
-		// Step 1: Try to just use the ancillary equations
-		//**************************************************
-		TsatL = Tsat_anc(p,0);
-		if (pure())
-			TsatV = TsatL;
-		else
-			TsatV = Tsat_anc(p,1);
-		rhoL = rhosatL(TsatL);
-		rhoV = rhosatV(TsatV);
-		hsatL = hsatL_anc(TsatL);
-		hsatV = hsatV_anc(TsatV);
-		*rhoLout = -1;
-		*rhoVout = -1;
-		*TsatLout = -1;
-		*TsatVout = -1;
-
-		if (h > hsatV + hsat_tol)
+		
+		// If not using saturation LUT, start by trying to use the ancillary equations
+		if (!SaturationLUTStatus())
 		{
-			// Using ideal gas cp is a bit faster
-			// Can't use an ancillary since it diverges at the critical point
-			double cpV = specific_heat_p_ideal_Trho(TsatV);
-			//Superheated vapor
-			T_guess = TsatV+(h-hsatV)/cpV;
-			// Volume expansivity at saturated vapor using the ancillaries
-			// Can't use an ancillary since it diverges at the critical point
-			double drhodT = DerivTerms("drhodT|p",TsatV,rhoV,(char*)name.c_str());
-			// Extrapolate to get new density guess
-			double rho = rhoV+drhodT*(h-hsatV)/cpV;
-			// If the guess is negative for the density, need to make it positive
-			if (rho<0)
-				rho = 0.1;
-			delta = rho / reduce.rho;
-		}
-		else if (h < hsatL - hsat_tol) 
-		{
-			T_guess = params.Ttriple;
-			rho_guess = density_Tp(T_guess,p);
-			h_guess = enthalpy_Trho(T_guess,rho_guess);
-			// Update the guess with linear interpolation
-			T_guess = (TsatL-T_guess)/(hsatL-h_guess)*(h-h_guess)+T_guess;
-			// Solve for the density
-			rho_guess = density_Tp(T_guess,p,rho_guess);
-			
-			delta = rho_guess/reduce.rho;
+			//**************************************************
+			// Step 1: Try to just use the ancillary equations
+			//**************************************************
+			TsatL = Tsat_anc(p,0);
+			if (pure())
+				TsatV = TsatL;
+			else
+				TsatV = Tsat_anc(p,1);
+			rhoL = rhosatL(TsatL);
+			rhoV = rhosatV(TsatV);
+			hsatL = hsatL_anc(TsatL);
+			hsatV = hsatV_anc(TsatV);
+			*rhoLout = -1;
+			*rhoVout = -1;
+			*TsatLout = -1;
+			*TsatVout = -1;
+
+			if (h > hsatV + hsat_tol)
+			{
+				// Using ideal gas cp is a bit faster
+				// Can't use an ancillary since it diverges at the critical point
+				double cpV = specific_heat_p_ideal_Trho(TsatV);
+				//Superheated vapor
+				T_guess = TsatV+(h-hsatV)/cpV;
+				// Volume expansivity at saturated vapor using the ancillaries
+				// Can't use an ancillary since it diverges at the critical point
+				double drhodT = DerivTerms("drhodT|p",TsatV,rhoV,(char*)name.c_str());
+				// Extrapolate to get new density guess
+				double rho = rhoV+drhodT*(h-hsatV)/cpV;
+				// If the guess is negative for the density, need to make it positive
+				if (rho<0)
+					rho = 0.1;
+				delta = rho / reduce.rho;
+			}
+			else if (h < hsatL - hsat_tol) 
+			{
+				T_guess = params.Ttriple;
+				rho_guess = density_Tp(T_guess,p);
+				h_guess = enthalpy_Trho(T_guess,rho_guess);
+				// Update the guess with linear interpolation
+				T_guess = (TsatL-T_guess)/(hsatL-h_guess)*(h-h_guess)+T_guess;
+				// Solve for the density
+				rho_guess = density_Tp(T_guess,p,rho_guess);
+				
+				delta = rho_guess/reduce.rho;
+			}
 		}
 		
-		if (delta<0) // No solution found using ancillary equations - need to use saturation call
+		if (delta<0) // No solution found using ancillary equations (or the saturation LUT is in use) - need to use saturation call (or LUT)
 		{
 			//**************************************************
 			// Step 2: Not far away from saturation (or it is two-phase) - need to solve saturation as a function of p :( - this is slow
 			//**************************************************
 			CoolPropStateClass *sat = new CoolPropStateClass(name);
-			sat->update(get_param_index("P"),p,get_param_index("Q"),0);
+			sat->update(iP,p,iQ,0);
 			rhoL = sat->rhoL();
 			rhoV = sat->rhoV();
 			hsatL = sat->hL();
@@ -1303,6 +1277,7 @@ void Fluid::temperature_ph(double p, double h, double *Tout, double *rhoout, dou
 				*Tout = quality*TsatV+(1-quality)*TsatL;
 				double v = quality*(1/rhoV)+(1-quality)*1/rhoL;
 				*rhoout = 1/v;
+				delete sat;
 				return;
 			}
 			delete sat;
@@ -2716,36 +2691,11 @@ int AncillaryCurveClass::build(int N)
 	return 1;
 }
 
-double interp1d(std::vector<double> x, std::vector<double> y, double x0)
-{
-	unsigned int i,L,R,M;
-	L=0;
-	R=x.size()-1;
-	M=(L+R)/2;
-	// Use interval halving to find the indices which bracket the density of interest
-	while (R-L>1)
-	{
-		if (x0>=x[M])
-		{ L=M; M=(L+R)/2; continue;}
-		if (x0<x[M])
-		{ R=M; M=(L+R)/2; continue;}
-	}
-	i=L;
-	if (i<x.size()-2)
-    {
-		// Go "forwards" with the interpolation range
-		return QuadInterp(x[i],x[i+1],x[i+2],y[i],y[i+1],y[i+2],x0);
-    }
-    else
-    {
-        // Go "backwards" with the interpolation range
-		return QuadInterp(x[i],x[i-1],x[i-2],y[i],y[i-1],y[i-2],x0);
-    }
-}
+
 double AncillaryCurveClass::interpolateL(double T){
-	return interp1d(xL,yL,T);
+	return interp1d(&xL,&yL,T);
 }
 
 double AncillaryCurveClass::interpolateV(double T){
-	return interp1d(xV,yV,T);
+	return interp1d(&xV,&yV,T);
 }

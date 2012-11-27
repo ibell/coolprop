@@ -73,7 +73,7 @@ class Fluid
 		std::string EOSReference; /// A std::string that contains a reference for thermo properties for the fluid
 		std::string TransportReference; /// A std::string that contains a reference for the transport properties of the fluid
 		bool isPure; /// True if it is a pure fluid, false otherqwise
-		SatLUTStruct SatLUT; /// The private Saturation lookup structure
+		
 		OnePhaseLUTStruct LUT; /// The private single-phase lookup structure
 
 		// The structures that hold onto ancillary data for the fluid
@@ -89,6 +89,7 @@ class Fluid
 
 		std::vector<std::vector<double> >* _get_LUT_ptr(std::string Prop);
     public:
+		SatLUTStruct SatLUT; /// The private Saturation lookup structure
 
 		std::list <phi_BC*> phirlist; /// A list of instances of the phi_BC classes for the residual Helmholtz energy contribution
 		std::list <phi_BC*> phi0list; /// A list of instances of the phi_BC classes for the ideal-gas Helmholtz energy contribution

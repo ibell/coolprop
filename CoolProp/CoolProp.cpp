@@ -1000,8 +1000,14 @@ double _CoolProp_Fluid_Props(long iOutput, long iName1, double Prop1, long iName
 		if (p < 0.999*pFluid->crit.p && rho > rhoV && rho < rhoL){
 			// It's two-phase
 			double Q = (1/rho-1/rhoL)/(1/rhoV-1/rhoL);
+			
+			// Handle the trivial outputs right now
 			if (iOutput == iQ)
 				return Q;
+			else if (iOutput == iD)
+				return 1/(Q/rhoV+(1-Q)/rhoL);
+
+			// Go into the two-phase routine
 			return _CoolProp_Fluid_TwoPhaseProps(iOutput,Q,pFluid,T,T,p,p,rhoL,rhoV);
 		}
 		else{
