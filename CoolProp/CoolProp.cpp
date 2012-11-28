@@ -38,7 +38,6 @@ int debug_level=0;
 
 Fluid * pFluid;
 
-enum phases {iLiquid, iGas, iTwoPhase, iSupercritical};
 int global_Phase = -1;
 bool global_SinglePhase = false;
 bool global_SaturatedL = false;

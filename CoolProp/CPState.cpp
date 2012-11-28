@@ -267,6 +267,47 @@ void CoolPropStateClass::update_ph(long iInput1, double Value1, long iInput2, do
 	}
 }
 
+double CoolPropStateClass::hL(void){
+	if (SaturationLUTStatus())
+	{
+		return pFluid->ApplySaturationLUT(pFluid->SatLUT.iHL,pFluid->SatLUT.iT,TsatL);
+	}
+	else
+	{
+		return pFluid->enthalpy_Trho(TsatL,rhosatL);
+	}
+}
+double CoolPropStateClass::hV(void){
+	if (SaturationLUTStatus())
+	{
+		return pFluid->ApplySaturationLUT(pFluid->SatLUT.iHV,pFluid->SatLUT.iT,TsatV);
+	}
+	else
+	{
+		return pFluid->enthalpy_Trho(TsatV,rhosatV);
+	}
+}
+double CoolPropStateClass::sL(void){
+	if (SaturationLUTStatus())
+	{
+		return pFluid->ApplySaturationLUT(pFluid->SatLUT.iSL,pFluid->SatLUT.iT,TsatL);
+	}
+	else
+	{
+		return pFluid->entropy_Trho(TsatL,rhosatL);
+	}
+}
+double CoolPropStateClass::sV(void){
+	if (SaturationLUTStatus())
+	{
+		return pFluid->ApplySaturationLUT(pFluid->SatLUT.iSV,pFluid->SatLUT.iT,TsatV);
+	}
+	else
+	{
+		return pFluid->entropy_Trho(TsatV,rhosatV);
+	}
+}
+
 double CoolPropStateClass::h(void){
 	if (TwoPhase){
 		return _Q*hV()+(1-_Q)*hL();

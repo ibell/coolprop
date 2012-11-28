@@ -33,7 +33,7 @@ struct SatLUTStruct
 	std::vector<double> T_reversed,rhoL_reversed,rhoV_reversed,p_reversed,hL_reversed,hV_reversed,tau_reversed,logp_reversed;
 	int N;
 	bool built;
-	enum flags{ iT,iP,iHL,iHV,iDL,iDV};
+	enum flags{ iT,iP,iHL,iHV,iDL,iDV,iSL,iSV};
 };
 
 class AncillaryCurveClass
@@ -101,7 +101,7 @@ class Fluid
 		Fluid(){
 			params.R_u=8.314472; /// Default molar gas constant [kJ/kmol/K]
 			isPure=true;  /// true if fluid is one-component pure fluid, false otherwise
-			SatLUT.N = 200; /// Number of points in saturation lookup table [-]
+			SatLUT.N = 300; /// Number of points in saturation lookup table [-]
 			SatLUT.built = false; /// reset the saturation LUT built flag
 			LUT.built = false; /// reset the LUT built flag
 				
@@ -174,12 +174,38 @@ class Fluid
 		double gibbs_Trho(double T, double rho);
 		double dpdT_Trho(double T,double rho);
 		double drhodT_p_Trho(double T,double rho);
+
+		// Get the density using the Soave EOS
+		double density_Tp_Soave(double T, double p);
+
 		double density_Tp(double T, double p);
 		double density_Tp(double T, double p, double rho_guess);
 
+		/// Temperature as a function of pressure and entropy
+		/// @param p Pressure [kPa]
+		/// @param s Entropy [kJ/kg/K]
+		/// @param Tout Temperature [K]
+		/// @param rhoout Density [kg/m^3]
+		/// @param rhoL Saturated liquid density [kg/m^3]
+		/// @param rhoV Saturated vapor density [kg/m^3]
 		void temperature_ps(double p, double s, double *Tout, double *rhoout, double *rhoL, double *rhoV, double *TsatLout, double *TsatVout);
+		
+		/// Temperature as a function of pressure and enthalpy
+		/// @param p Pressure [kPa]
+		/// @param h Enthalpy [kJ/kg]
+		/// @param Tout Temperature [K]
+		/// @param rhoout Density [kg/m^3]
+		/// @param rhoL Saturated liquid density [kg/m^3]
+		/// @param rhoV Saturated vapor density [kg/m^3]
 		void temperature_ph(double p, double h, double *Tout, double *rhoout, double *rhoL, double *rhoV, double *TsatLout, double *TsatVout);
+		
+		/// Return the phase given the temperature and pressure
 		std::string phase_Tp(double T, double p, double *pL, double *pV, double *rhoL, double *rhoV);
+		
+		/// Return the phase using the phase flags from phase enum in CoolProp.h
+		long phase_Tp_indices(double T, double p, double *pL, double *pV, double *rhoL, double *rhoV);
+		
+		/// Return the phase given the temperature and the density
 		std::string phase_Trho(double T, double rho, double *pL, double *pV, double *rhoL, double *rhoV);
 
 		// Optional ancillary functions can be overloaded, will throw a NotImplementedError

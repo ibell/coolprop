@@ -57,12 +57,10 @@ public:
 	double TL(void){return TsatL;};
 	double TV(void){return TsatV;};
 	// Derived parameters for the saturation states
-	double hL(void){return pFluid->enthalpy_Trho(TsatL,rhosatL);};
-	double hV(void){return pFluid->enthalpy_Trho(TsatV,rhosatV);};
-	double sL(void){return pFluid->entropy_Trho(TsatL,rhosatL);};
-	double sV(void){return pFluid->entropy_Trho(TsatV,rhosatV);};
-	double cpL(void){return pFluid->specific_heat_p_Trho(TsatL,rhosatL);};
-	double cpV(void){return pFluid->specific_heat_p_Trho(TsatV,rhosatV);};
+	double hL(void);
+	double hV(void);
+	double sL(void);
+	double sV(void);
 	// Derivatives along the saturation curve
 	void dvdp_dhdp_sat(double T, double *dvdpL, double *dvdpV, double *dhdpL, double *dhdpV);
 

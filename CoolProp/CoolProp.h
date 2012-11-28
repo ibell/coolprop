@@ -125,4 +125,5 @@ You might want to start by looking at CoolProp.h
 
 	// Define some constants that will be used throughout
 	enum params {iB,iT,iP,iD,iC,iC0,iO,iU,iH,iS,iA,iG,iQ,iV,iL,iI,iMM,iTcrit,iTtriple,iPcrit,iRhocrit,iAccentric,iDpdT,iDrhodT_p,iTmin,iDipole};
+	enum phases {iLiquid, iSupercritical, iGas, iTwoPhase};
 #endif

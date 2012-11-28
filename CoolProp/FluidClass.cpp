@@ -449,6 +449,38 @@ double Fluid::drhodT_p_Trho(double T,double rho)
 	return DerivTerms("drhodT|p",T,rho,(char*)name.c_str());
 }
 
+/// Get the density using the Soave EOS
+double Fluid::density_Tp_Soave(double T, double p)
+{
+	double omega, R, m, a, b, A, B, r, q, D, u, Y, rho;
+	omega = params.accentricfactor;
+	R = params.R_u/params.molemass;
+	m = 0.480+1.574*omega-0.176*omega*omega;
+	a = 0.42747*R*R*crit.T*crit.T/crit.p*pow(1+m*sqrt(1-T/crit.T),2);
+	b = 0.08664*R*crit.T/crit.p;
+	A = a*p/(R*R*T*T);
+	B = b*p/(R*T);
+
+	// Terms in reduced cubic equation
+	r = (3*(A-B-B*B)-1)/3;
+	q = -2/27.0+1.0/3.0*(A-B-B*B)-A*B;
+
+	// Discriminant
+	D = pow(r/3,3)+pow(q/2,2);
+
+	if (D>0)
+	{
+		// One real root
+		u = pow(-q/2+sqrt(D),1.0/3.0);
+		Y = u-r/(3*u);
+		rho = p/(R*T*(Y+1.0/3.0));
+		return rho;
+	}
+	else
+	{
+		return _HUGE;
+	}
+}
 double Fluid::density_Tp(double T, double p)
 {
 	// If the guess value is not provided, calculate the guess density using Peng-Robinson
@@ -468,7 +500,6 @@ double Fluid::density_Tp(double T, double p, double rho_guess)
 	if (debug()>8){
 		std::cout<<__FILE__<<':'<<__LINE__<<": Fluid::density_Tp(double T, double p, double rho_guess): "<<T<<","<<p<<","<<rho_guess<<std::endl;
 	}
-	
 	// Start with the guess value
 	rho=rho_guess;
     int iter=1;
@@ -928,14 +959,17 @@ double Fluid::_get_rho_guess(double T, double p)
 
 	// Then based on phase, select the useful solution(s)
 	double pL,pV,rhoL,rhoV;
-	std::string phase = Fluid::phase_Tp(T,p,&pL,&pV,&rhoL,&rhoV);
 
+	long phase = phase_Tp_indices(T,p,&pL,&pV,&rhoL,&rhoV);
+	
 	// These are very simplistic guesses for the density, but they work ok, use them if PR fails
-	if (!strcmp(phase.c_str(),"Gas") || !strcmp(phase.c_str(),"Supercritical")){
+	if (phase == iGas || phase == iSupercritical)
+	{
 		// Guess that it is ideal gas
 		rho_simple = p/(R()*T);
 	}
-	else if (!strcmp(phase.c_str(),"Liquid")){
+	else if (phase == iLiquid)
+	{
 		// Start at the saturation state, with a known density
 		// Return subcooled liquid density
 		double rhoL,rhoV,pL,pV;
@@ -984,6 +1018,25 @@ double Fluid::_get_rho_guess(double T, double p)
 
 std::string Fluid::phase_Tp(double T, double p, double *pL, double *pV, double *rhoL, double *rhoV)
 {
+	// Get the value from the long-output function
+	long iPhase = phase_Tp_indices(T, p, pL, pV, rhoL, rhoV);
+	// Convert it to a std::string
+	switch (iPhase)
+	{
+	case iTwoPhase:
+		return std::string("Two-Phase");
+	case iSupercritical:
+		return std::string("Supercritical");
+	case iGas:
+		return std::string("Gas");
+	case iLiquid:
+		return std::string("Liquid");
+	default:
+		return std::string("");
+	}
+}
+long Fluid::phase_Tp_indices(double T, double p, double *pL, double *pV, double *rhoL, double *rhoV)
+{
 	/*
 		|         |     
 		|         |    Supercritical
@@ -1004,17 +1057,18 @@ std::string Fluid::phase_Tp(double T, double p, double *pL, double *pV, double *
 	   a-b: Saturation line
 
 	*/
+
 	if (T>crit.T && p>crit.p){
-		return std::string("Supercritical");
+		return iSupercritical;
 	}
 	else if (T>crit.T && p<crit.p){
-		return std::string("Gas");
+		return iGas;
 	}
 	else if (T<crit.T && p>crit.p){
-		return std::string("Liquid");
+		return iLiquid;
 	}
 	else if (p<params.ptriple){
-		return std::string("Gas");
+		return iGas;
 	}
 	else{
 		// Now start to think about the saturation stuff
@@ -1022,16 +1076,16 @@ std::string Fluid::phase_Tp(double T, double p, double *pL, double *pV, double *
 		// Ancillary equations are good to within 1% in pressure in general
 		// Some industrial fluids might not be within 3%
 		if (isPure && p<0.94*psat(T)){
-			return std::string("Gas");
+			return iGas;
 		}
 		else if (isPure && p>1.06*psat(T)){
-			return std::string("Liquid");
+			return iLiquid;
 		}
 		else if (!isPure && p<0.94*psatV(T)){
-			return std::string("Gas");
+			return iGas;
 		}
 		else if (!isPure && p>1.06*psatL(T)){
-			return std::string("Liquid");
+			return iLiquid;
 		}
 		else{
 			// Actually have to use saturation information sadly
@@ -1039,13 +1093,13 @@ std::string Fluid::phase_Tp(double T, double p, double *pL, double *pV, double *
 			// Run the saturation routines to determine the saturation densities and pressures
 			saturation(T,SaturationLUTStatus(),pL,pV,rhoL,rhoV);
 			if (p>*pL){
-				return std::string("Liquid");
+				return iLiquid;
 			}
 			else if (p<*pV){
-				return std::string("Gas");
+				return iGas;
 			}
 			else{
-				return std::string("Two-Phase");
+				return iTwoPhase;
 			}
 		}
 	}
@@ -1242,7 +1296,7 @@ void Fluid::temperature_ph(double p, double h, double *Tout, double *rhoout, dou
 			rhoL = sat->rhoL();
 			rhoV = sat->rhoV();
 			hsatL = sat->hL();
-			hsatV = sat->hV(); 
+			hsatV = sat->hV();
 			TsatL = sat->TL();
 			TsatV = sat->TV();
 			*rhoLout = rhoL;
@@ -1261,12 +1315,14 @@ void Fluid::temperature_ph(double p, double h, double *Tout, double *rhoout, dou
 			else if (h<hsatL)
 			{
 				T_guess = params.Ttriple;
-				rho_guess = density_Tp(T_guess,p);
+				// Guess for the density from Soave
+				rho_guess = density_Tp_Soave(T_guess,p);
+				// Get enthalpy from the EOS directly
 				h_guess = enthalpy_Trho(T_guess,rho_guess);
 				// Update the guess with linear interpolation
 				T_guess = (TsatL-T_guess)/(hsatL-h_guess)*(h-h_guess)+T_guess;
 				// Solve for the density
-				rho_guess = density_Tp(T_guess,p,rho_guess);
+				rho_guess = density_Tp_Soave(T_guess,p);
 				//*Tout = T_guess; *rhoout = rho_guess; return;
 				delta = rho_guess/reduce.rho;
 			}
@@ -1339,7 +1395,7 @@ void Fluid::temperature_ph(double p, double h, double *Tout, double *rhoout, dou
 		
     }
 
-	//std::cout<<"Temperature_ph took"<<iter-1<<"steps\n";
+	//std::cout<<"Temperature_ph took "<<iter-1<<" steps\n";
 	*Tout = reduce.T/tau;
 	*rhoout = delta*reduce.rho;
 }
