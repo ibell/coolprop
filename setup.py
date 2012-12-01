@@ -1,10 +1,19 @@
 
-#Check for cython >= 0.17
-import pkg_resources
-ver = pkg_resources.get_distribution('Cython').parsed_version 
-if ver < ('00000000','00000017'):
+#Check for cython >= 0.17 due to the use of STL containers
+try:
+    import Cython
+except ImportError:
+    raise ImportError("Cython not found")
+major,minor = Cython.__version__.split('.')
+#Convert major to integer
+major = int(major)
+iEnd = 0
+while minor[iEnd].isdigit():
+    iEnd+=1
+minor = int(minor[0:iEnd])
+if not(major > 0 or minor >= 17):
     raise ImportError('Cython version >= 0.17 required due to the use of STL wrappers.  Please update your version of cython')
-
+    
 from distutils.core import setup, Extension
 import subprocess,shutil,os,sys,glob
 from Cython.Build import cythonize
@@ -13,9 +22,51 @@ from Cython.Distutils.extension import Extension as CyExtension
 from distutils.sysconfig import get_python_inc
 from distutils.ccompiler import new_compiler 
 from distutils.dep_util import newer_group
-import Cython
 
-version='2.3'
+#This will generate HTML to show where there are still pythonic bits hiding out
+Cython.Compiler.Options.annotate = True
+
+version = '2.3'
+
+def svnrev_to_file():
+    """
+    If a svn repo, use subversion to update the file in revision
+    """
+    try:
+        subprocess.call(['svn','update'], shell = True)
+        p = subprocess.Popen(['svn','info'], 
+                             stdout=subprocess.PIPE, 
+                             stderr=subprocess.PIPE)
+        stdout, stderr = p.communicate()
+        for line in stdout.split('\n'):
+            if line.startswith('Revision'):
+                rev = line.split(':')[1].strip()
+                svnstring = 'long svnrevision = '+rev+';'
+                #Check if it is different than the current version
+                f = open('svnrevision.h','r')
+                current_svn = f.read()
+                f.close()
+                if not current_svn.strip() == svnstring.strip():                
+                    f = open('svnrevision.h','w')
+                    f.write(svnstring)
+                    f.close()
+                break
+    except subprocess.CalledProcessError:
+        pass
+    
+svnrev_to_file()
+
+def version_to_file():
+    string_for_file = 'char version [] ="{v:s}";'.format(v = version)
+    f = open('version.h','r')
+    current_version = f.read()
+    f.close()
+    if not current_version.strip() == string_for_file.strip():
+        f = open('version.h','w')
+        f.write()
+        f.close()
+    
+version_to_file()
     
 if __name__=='__main__':
     
@@ -55,9 +106,10 @@ if __name__=='__main__':
     #Unpack the __init__.py file template and add some things to the __init__ file
     lines=open('__init__.py.template','r').readlines()
 
-    # The stuff in the $Rev: xxx$ is magic subversion code, 
-    # do not change it, it is updated every time svn commit is called
-    svnstring = '__svnrevision__ ='+'$Rev$'.rstrip('$').split(":")[1].strip()+'\n'
+    f = open('svnrevision.h','r')
+    rev = f.read().strip().split('=')[1].strip(';').strip()
+    f.close()
+    svnstring = '__svnrevision__ ='+rev+'\n'
         
     for i in range(len(lines)-1,-1,-1):
         if lines[i].strip().startswith('#') or len(lines[i].strip())==0: 
@@ -67,43 +119,6 @@ if __name__=='__main__':
     for line in lines:
         fp.write(line)
     fp.close()
-
-    ######################################
-    ######################################
-    ######################################
-    ##### SWIG!! SWIG!!!! SWIG!!! ########
-    ######################################
-    ##       start of SWIG code         ## 
-    ######################################
-    swig_opts=['-c++','-python']
-
-    """
-    In this block of code, all the files that require SWIG are rebuilt on an as needed basis.  
-    If the target file X_wrap.cpp doesn't exist, or is older than the X.i file, SWIG
-    is called to rebuilt the file.  Does not check the c++ headers.  Delete the _wrap.cpp to force build
-
-    swig_sources[(source,target)]
-
-    """
-    swig_sources=[(os.path.join('CoolProp','FloodProp.i'),os.path.join('CoolProp','FloodProp_wrap.cpp')),
-                  (os.path.join('CoolProp','HumidAirProp.i'),os.path.join('CoolProp','HumidAirProp_wrap.cpp'))]
-
-    for source,target in swig_sources:
-        header = source.rsplit('.',1)[0]+'.h'
-        def rebuild_swig(source,target):
-            swig_call=['swig']+swig_opts+['-o',target,source]
-            print 'Swigging '+source+' to '+target+' ....'
-            subprocess.call(swig_call)
-            
-        #if the target doesn't exist or the wrapped C++ code is newer
-        if (not os.path.exists(target) 
-            or os.path.getmtime(source)>os.path.getmtime(target) 
-            or os.path.getmtime(header)>os.path.getmtime(target)
-            ):
-            
-            rebuild_swig(source,target)
-        else:
-            print 'No SWIG required for '+source+' --> '+target+' (up-to-date)'
 
     ################################
     ##  CoolProp Static Library ####
@@ -267,9 +282,9 @@ if __name__=='__main__':
            url='http://coolprop.sourceforge.net',
            description = """Open-source thermodynamic and transport properties database""",
            packages = ['CoolProp','CoolProp.Plots','CoolProp.tests','CoolProp.GUI'],
-           ext_modules = [FloodProp_module,HumidAirProp_module,State_module,CoolProp2_module],
+           ext_modules = [CoolProp2_module],
            package_dir = {'CoolProp':'CoolProp',},
-           package_data = {'CoolProp':['State.pxd']},
+           package_data = {'CoolProp':['State.pxd','CoolProp.pxd']},
            cmdclass={'build_ext': build_ext},
            
            classifiers = [
@@ -281,7 +296,6 @@ if __name__=='__main__':
             "Operating System :: OS Independent",
             "Topic :: Software Development :: Libraries :: Python Modules"
             ],
-
            )
 
     badfiles = [os.path.join('CoolProp','__init__.pyc'),

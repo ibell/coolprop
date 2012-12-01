@@ -1,50 +1,29 @@
 from libcpp.string cimport string
 
-cdef extern from "CoolProp.h":
+cdef class State:
+    cdef readonly bint hasLiquid
+    cdef readonly bytes Liquid, Fluid, phase
+    cdef long iFluid,iParam1,iParam2,iOutput
+    cdef double T_, rho_, p_, xL
+    cdef readonly bint is_CPFluid
     
-    double _Props "Props"(string Output, char Name1, double Prop1, char Name2, double Prop2, string Ref)
-    double _Props1 "Props"(string Ref, string Output)
-    string _Phase "Phase"(char *Fluid, double T, double p)
-    double _DerivTerms "DerivTerms"(char *Term, double T, double rho, char * Ref)
+    cpdef speed_test(self, int N)
+    cpdef update(self,dict params, double xL=*)
+    cpdef update_Trho(self, double T, double rho)
+    cpdef copy(self)
+    cpdef double Props(self, long iOutput)
     
-    # LUT functions
-    void _UseSaturationLUT "UseSaturationLUT"(bint OnOff)
-    bint _SaturationLUTStatus "SaturationLUTStatus" ()
-    void _UseSinglePhaseLUT "UseSinglePhaseLUT"(bint OnOff)
-    bint _SinglePhaseLUTStatus "SinglePhaseLUTStatus"()
-    
-    # Conversion functions
-    double _F2K "F2K"(double T_F)
-    double _K2F "K2F"(double T)
-    
-    string _FluidsList "FluidsList"()
-    string _get_REFPROPname "get_REFPROPname"(string Ref)
-    string _get_errstring "get_errstring"()
-    string _get_aliases "get_aliases"(string Ref)
-    long _get_param_index "get_param_index" (string param)
-    string _get_index_units "get_index_units" (long index)
-    
-    #Ancillary equations
-    double _psatL_anc "psatL_anc"(char*Fluid, double T)
-    double _psatV_anc "psatV_anc"(char*Fluid, double T)
-    double _rhosatL_anc "rhosatL_anc"(char*Fluid, double T)
-    double _rhosatV_anc "rhosatV_anc"(char*Fluid, double T)
-    
-    int _get_debug "get_debug"()
-    void _debug "debug"(int level)
-    
-    void _PrintSaturationTable "PrintSaturationTable"(char *FileName, char * Ref, double Tmin, double Tmax)
-    
-    string _get_EOSReference "get_EOSReference"(string Ref)
-    string _get_TransportReference "get_TransportReference"(string Ref)
-
-    int _set_1phase_LUT_params "set_1phase_LUT_params"(char *Ref, int nT, int np, double Tmin, double Tmax, double pmin, double pmax, bint rebuild)
-    void _get_1phase_LUT_params "get_1phase_LUT_params"(int *nT, int *np, double *Tmin, double *Tmax, double *pmin, double *pmax)
-    
-    # Convenience functions
-    int _IsFluidType "IsFluidType"(char *Ref, char *Type)
-
-
-
-    
+    cpdef double get_T(self)
+    cpdef double get_p(self)
+    cpdef double get_h(self)
+    cpdef double get_rho(self)
+    cpdef double get_s(self)
+    cpdef double get_u(self)
+    cpdef double get_visc(self)
+    cpdef double get_cond(self)
+    cpdef double get_cp(self)
+    cpdef double get_cp0(self)
+    cpdef double get_cv(self)
+    cpdef double get_MM(self)
+    cpdef double get_dpdT(self)
     

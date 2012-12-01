@@ -3,8 +3,6 @@
 cdef extern from "CoolProp.h":
     double _Props "Props" (char* ,char,double,char,double,char*)
     double _Props1 "Props" (char*,char*)
-    double __Props "Props" (string ,char,double,char,double,string)
-    double __Props1 "Props" (string,string)
     void UseSinglePhaseLUT(bool)
     double DerivTerms(char *, double, double, char*)
     char * get_errstringc()
@@ -15,12 +13,6 @@ cdef extern from "CoolProp.h":
     long _get_param_index "get_param_index" (string param)
     long _get_Fluid_index "get_Fluid_index" (string param)
     void _set_phase "set_phase"(string Phase_str)
-
-##Functions defined at the module level
-#cpdef double Props(bytes Parameter, bytes Param1, float value1, bytes Param2, float value2, bytes Fluid)
-#cpdef LUT(bint LUTkey)
-#cpdef int set_1phase_LUT_params(bytes Ref, int nT,int np,double Tmin,double Tmax,double pmin,double pmax)
-#cpdef debug(int level)
    
 from libc.math cimport pow, sin, cos, exp
 from math import pow as pow_
@@ -108,7 +100,6 @@ cpdef double Props(bytes Parameter, bytes param1, float value1, bytes param2, fl
     cdef char _param2 = param2[0]  
     return _Props(Parameter, _param1, value1, _param2, value2, Fluid)
 
-#from CoolProp import Props,UseSinglePhaseLUT,DerivTerms
 @cython.final
 cdef class State: 
     """

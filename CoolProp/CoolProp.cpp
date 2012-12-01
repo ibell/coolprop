@@ -38,6 +38,10 @@ int debug_level=0;
 
 Fluid * pFluid;
 
+// This is very hacky, but pull the subversion revision from the file
+#include "../svnrevision.h"
+#include "../version.h"
+
 int global_Phase = -1;
 bool global_SinglePhase = false;
 bool global_SaturatedL = false;
@@ -119,6 +123,13 @@ std::map<long, std::string> units_map(units_data,
 		units_data + sizeof units_data / sizeof units_data[0]);
 
 FluidsContainer Fluids = FluidsContainer();
+
+EXPORT_CODE long CONVENTION get_svnrevision(){return svnrevision;}
+EXPORT_CODE long CONVENTION get_version(char * pversion){
+	strcpy(pversion,version);
+	return 0;
+}
+std::string get_version(){return std::string(version);}
 
 EXPORT_CODE int CONVENTION get_debug(){return debug_level;}
 int  debug(){return debug_level;}

@@ -15,6 +15,8 @@
 #include "Solvers.h"
 #include "CoolPropTools.h"
 
+enum givens{GIVEN_TDP,GIVEN_HUMRAT,GIVEN_TWB,GIVEN_RH,GIVEN_ENTHALPY,GIVEN_T,GIVEN_P,GIVEN_VISC,GIVEN_COND};
+
 static const char ITc='B';
 static double epsilon=0.621945,R_bar=8.314472;
 static int FlagUseVirialCorrelations=0,FlagUseIsothermCompressCorrelation=0,FlagUseIdealGasEnthalpyCorrelations=0;

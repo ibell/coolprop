@@ -1315,16 +1315,19 @@ void Fluid::temperature_ph(double p, double h, double *Tout, double *rhoout, dou
 			else if (h<hsatL)
 			{
 				T_guess = params.Ttriple;
-				// Guess for the density from Soave
-				rho_guess = density_Tp_Soave(T_guess,p);
-				// Get enthalpy from the EOS directly
+				rho_guess = density_Tp(T_guess,p);
 				h_guess = enthalpy_Trho(T_guess,rho_guess);
-				// Update the guess with linear interpolation
-				T_guess = (TsatL-T_guess)/(hsatL-h_guess)*(h-h_guess)+T_guess;
-				// Solve for the density
-				rho_guess = density_Tp_Soave(T_guess,p);
-				//*Tout = T_guess; *rhoout = rho_guess; return;
-				delta = rho_guess/reduce.rho;
+
+				// Same thing at the midpoint temperature
+				double Tmid = (T_guess + TsatL)/2.0;
+				double rho_mid = density_Tp(Tmid,p,(rho_guess+rhoL)/2.0);
+				double h_mid = enthalpy_Trho(Tmid,rho_mid);
+
+				// Quadratic interpolation
+				T_guess = QuadInterp(h_guess, h_mid, hsatL, T_guess, Tmid, TsatL, h);
+				rho_guess = QuadInterp(h_guess, h_mid, hsatL, rho_guess, rho_mid, rhoL, h);
+
+				delta = rho_guess / reduce.rho;
 			}
 			else
 			{
