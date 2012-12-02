@@ -1781,10 +1781,26 @@ public:
 	}
 };
 
+/// A stub class to do the density(T,p) calculations for near the critical point using Brent solver
+class DensityTpResids : public FuncWrapper1D
+{
+private:
+	double p,T;
+	Fluid *pFluid;
+public:
+	DensityTpResids(Fluid *pFluid, double T, double p){this->pFluid = pFluid; this->p = p; this->T = T;};
+	~DensityTpResids(){};
+	
+	double call(double rho)
+	{
+		return this->p - pFluid->pressure_Trho(T,rho);
+	}
+};
+
 class SaturationPressureGivenResids : public FuncWrapper1D
 {
 private:
-	double p,tau;
+	double p;
 	Fluid *pFluid;
 public:
 	double rhoL, rhoV;
@@ -1793,8 +1809,23 @@ public:
 	
 	double call(double T)
 	{
-		rhoL = pFluid->density_Tp(T,p,rhoL);
-		rhoV = pFluid->density_Tp(T,p,rhoV);
+		// If the temperature is greater than 0.95*Tc, use a Brent solver to find the 
+		// densities for the given temperature and pressure.  Secant solver craps out
+		if (T>0.95*pFluid->crit.T)
+		{
+			DensityTpResids * DTPR = new DensityTpResids(this->pFluid,T,this->p);
+			double rhoL_095 = pFluid->rhosatL(0.95*pFluid->crit.T);
+			double rhoV_095 = pFluid->rhosatV(0.95*pFluid->crit.T);
+			std::string errstr;
+			rhoL = Brent(DTPR,rhoL_095,pFluid->crit.rho+1e-6,1e-16,1e-8,40,&errstr);
+			rhoV = Brent(DTPR,rhoV_095,pFluid->crit.rho-1e-6,1e-16,1e-8,40,&errstr);
+			delete DTPR;
+		}
+		else
+		{
+			rhoL = pFluid->density_Tp(T,p,rhoL);
+			rhoV = pFluid->density_Tp(T,p,rhoV);
+		}
 		return pFluid->gibbs_Trho(T,rhoL)-pFluid->gibbs_Trho(T,rhoV);
 	}
 };
