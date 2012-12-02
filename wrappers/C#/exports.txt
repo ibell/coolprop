@@ -1,0 +1,78 @@
+Microsoft (R) COFF/PE Dumper Version 9.00.30729.01
+Copyright (C) Microsoft Corporation.  All rights reserved.
+
+
+Dump of file CoolProp.dll
+
+File Type: DLL
+
+  Section contains the following exports for CoolProp.dll
+
+    00000000 characteristics
+    50BB8499 time date stamp Sun Dec 02 17:40:57 2012
+        0.00 version
+           1 ordinal base
+          52 number of functions
+          52 number of names
+
+    ordinal hint RVA      name
+
+          1    0 00001210 _CSharp_DerivTerms__SWIG_0@24
+          2    1 00001B10 _CSharp_DerivTerms__SWIG_1@24
+          3    2 00001B70 _CSharp_DerivTerms__SWIG_2@32
+          4    3 000012D0 _CSharp_F2K@8
+          5    4 00001390 _CSharp_FluidsList__SWIG_0@4
+          6    5 00002110 _CSharp_FluidsList__SWIG_1@0
+          7    6 00001150 _CSharp_IProps@32
+          8    7 000011C0 _CSharp_IsFluidType@8
+          9    8 00001300 _CSharp_K2F@8
+         10    9 00001270 _CSharp_Phase__SWIG_0@24
+         11    A 00001E80 _CSharp_Phase__SWIG_1@20
+         12    B 00001330 _CSharp_PrintSaturationTable@24
+         13    C 00001860 _CSharp_Props1@8
+         14    D 00001730 _CSharp_Props__SWIG_0@8
+         15    E 00001960 _CSharp_Props__SWIG_1@32
+         16    F 000019D0 _CSharp_Props__SWIG_2@32
+         17   10 000010E0 _CSharp_SaturationLUTStatus@0
+         18   11 00001130 _CSharp_SinglePhaseLUTStatus@0
+         19   12 000010B0 _CSharp_UseSaturationLUT@4
+         20   13 00001100 _CSharp_UseSinglePhaseLUT@4
+         21   14 00001610 _CSharp_debug__SWIG_0@4
+         22   15 00001DE0 _CSharp_debug__SWIG_1@0
+         23   16 00001570 _CSharp_get_1phase_LUT_params@24
+         24   17 00001F70 _CSharp_get_EOSReference@4
+         25   18 000024A0 _CSharp_get_Fluid_index@4
+         26   19 00001400 _CSharp_get_REFPROPname__SWIG_0@8
+         27   1A 00002250 _CSharp_get_REFPROPname__SWIG_1@4
+         28   1B 00002040 _CSharp_get_TransportReference@4
+         29   1C 000013C0 _CSharp_get_aliases__SWIG_0@8
+         30   1D 00002180 _CSharp_get_aliases__SWIG_1@4
+         31   1E 000015F0 _CSharp_get_debug@0
+         32   1F 00001440 _CSharp_get_errstring__SWIG_0@4
+         33   20 00002320 _CSharp_get_errstring__SWIG_1@0
+         34   21 000014A0 _CSharp_get_errstring_copy@4
+         35   22 00001470 _CSharp_get_errstringc@0
+         36   23 000025C0 _CSharp_get_fluid@4
+         37   24 00001540 _CSharp_get_index_units__SWIG_0@8
+         38   25 00002540 _CSharp_get_index_units__SWIG_1@4
+         39   26 00002400 _CSharp_get_param_index@4
+         40   27 000014E0 _CSharp_get_svnrevision@0
+         41   28 00001500 _CSharp_get_version__SWIG_0@4
+         42   29 00002390 _CSharp_get_version__SWIG_1@0
+         43   2A 000016B0 _CSharp_psatL_anc@12
+         44   2B 000016F0 _CSharp_psatV_anc@12
+         45   2C 00001630 _CSharp_rhosatL_anc@12
+         46   2D 00001670 _CSharp_rhosatV_anc@12
+         47   2E 00001BF0 _CSharp_set_1phase_LUT_params__SWIG_0@48
+         48   2F 00001CF0 _CSharp_set_1phase_LUT_params__SWIG_1@44
+         49   30 00001E00 _CSharp_set_phase@4
+         50   31 00001070 _SWIGRegisterExceptionArgumentCallbacks_CoolProp@12
+         51   32 00001000 _SWIGRegisterExceptionCallbacks_CoolProp@44
+         52   33 000010A0 _SWIGRegisterStringCallback_CoolProp@4
+
+  Summary
+
+        9000 .data
+       32000 .rdata
+        B000 .reloc
+       B2000 .text

@@ -28,47 +28,47 @@ Cython.Compiler.Options.annotate = True
 
 version = '2.3'
 
-def svnrev_to_file():
-    """
-    If a svn repo, use subversion to update the file in revision
-    """
-    try:
-        subprocess.call(['svn','update'], shell = True)
-        p = subprocess.Popen(['svn','info'], 
-                             stdout=subprocess.PIPE, 
-                             stderr=subprocess.PIPE)
-        stdout, stderr = p.communicate()
-        for line in stdout.split('\n'):
-            if line.startswith('Revision'):
-                rev = line.split(':')[1].strip()
-                svnstring = 'long svnrevision = '+rev+';'
-                #Check if it is different than the current version
-                f = open('svnrevision.h','r')
-                current_svn = f.read()
-                f.close()
-                if not current_svn.strip() == svnstring.strip():                
-                    f = open('svnrevision.h','w')
-                    f.write(svnstring)
-                    f.close()
-                break
-    except subprocess.CalledProcessError:
-        pass
-    
-svnrev_to_file()
-
-def version_to_file():
-    string_for_file = 'char version [] ="{v:s}";'.format(v = version)
-    f = open('version.h','r')
-    current_version = f.read()
-    f.close()
-    if not current_version.strip() == string_for_file.strip():
-        f = open('version.h','w')
-        f.write()
-        f.close()
-    
-version_to_file()
-    
 if __name__=='__main__':
+
+    def svnrev_to_file():
+        """
+        If a svn repo, use subversion to update the file in revision
+        """
+        try:
+            subprocess.call(['svn','update'], shell = True)
+            p = subprocess.Popen(['svn','info'], 
+                                 stdout=subprocess.PIPE, 
+                                 stderr=subprocess.PIPE)
+            stdout, stderr = p.communicate()
+            for line in stdout.split('\n'):
+                if line.startswith('Revision'):
+                    rev = line.split(':')[1].strip()
+                    svnstring = 'long svnrevision = '+rev+';'
+                    #Check if it is different than the current version
+                    f = open('svnrevision.h','r')
+                    current_svn = f.read()
+                    f.close()
+                    if not current_svn.strip() == svnstring.strip():                
+                        f = open('svnrevision.h','w')
+                        f.write(svnstring)
+                        f.close()
+                    break
+        except subprocess.CalledProcessError:
+            pass
+        
+    svnrev_to_file()
+
+    def version_to_file():
+        string_for_file = 'char version [] ="{v:s}";'.format(v = version)
+        f = open('version.h','r')
+        current_version = f.read()
+        f.close()
+        if not current_version.strip() == string_for_file.strip():
+            f = open('version.h','w')
+            f.write()
+            f.close()
+        
+    version_to_file()
     
     #This will generate HTML to show where there are still pythonic bits hiding out
     Cython.Compiler.Options.annotate = True
@@ -210,18 +210,6 @@ if __name__=='__main__':
                                sources=[os.path.join('CoolProp','FloodProp_wrap.cpp')]+Sources,
                                include_dirs = include_dirs,language='c++'
                                )
-                               
-    if useStaticLib==True:
-        HumidAirProp_module = Extension('CoolProp._HumidAirProp',
-                               sources=[os.path.join('CoolProp','HumidAirProp_wrap.cpp')],
-                               include_dirs = include_dirs,language='c++',
-                               libraries=['CoolProp'],library_dirs=['lib']
-                               )
-    else:
-        HumidAirProp_module = Extension('CoolProp._HumidAirProp',
-                               sources=[os.path.join('CoolProp','HumidAirProp_wrap.cpp')]+Sources,
-                               include_dirs = include_dirs,language='c++'
-                               )
 
     def touch(fname):
         open(fname, 'a').close()
@@ -241,22 +229,6 @@ if __name__=='__main__':
                 touch(source)
         else:
             print 'no touching of cython sources needed'
-
-    if useStaticLib==True:
-        State_module = CyExtension('CoolProp.State',
-                            [os.path.join('CoolProp','State.pyx')],
-                            include_dirs = include_dirs,
-                            language='c++',
-                            libraries=['CoolProp'],
-                            library_dirs=['lib']
-                            )
-    else:
-        State_module = CyExtension('CoolProp.State',
-                            [os.path.join('CoolProp','State.pyx')]+Sources,
-                            include_dirs = include_dirs,
-                            language='c++'
-                            )
-
 
     if useStaticLib==True:
         CoolProp2_module = CyExtension('CoolProp.CoolProp',

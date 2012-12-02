@@ -79,9 +79,13 @@
   <ItemGroup>
     <Compile Include="CoolProp.cs" />
     <Compile Include="CoolPropPINVOKE.cs" />
+    <Compile Include="phases.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SWIGTYPE_p_double.cs" />
+    <Compile Include="SWIGTYPE_p_Fluid.cs" />
+    <Compile Include="SWIGTYPE_p_int.cs" />
+    <Compile Include="_params.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
@@ -117,6 +121,11 @@
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="CoolProp.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
