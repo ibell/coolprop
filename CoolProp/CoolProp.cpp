@@ -39,8 +39,8 @@ int debug_level=0;
 Fluid * pFluid;
 
 // This is very hacky, but pull the subversion revision from the file
-#include "../svnrevision.h"
-#include "../version.h"
+#include "svnrevision.h"
+#include "version.h"
 
 int global_Phase = -1;
 bool global_SinglePhase = false;
