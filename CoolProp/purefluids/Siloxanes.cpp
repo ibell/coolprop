@@ -80,6 +80,7 @@ OctamethyltrisiloxaneClass::OctamethyltrisiloxaneClass()
     params.Ttriple = 187.2;
     params.accentricfactor = 0.5297;
     params.R_u = 8.314472;
+	params.ptriple = 7.9911106087e-07;
 
     // Limits of EOS
     limits.Tmin = params.Ttriple;
@@ -177,6 +178,7 @@ DecamethyltetrasiloxaneClass::DecamethyltetrasiloxaneClass()
 	params.Ttriple=205.2;
 	params.accentricfactor=0.668;
     params.R_u = 8.314472;
+	params.ptriple = 4.79509942923e-07;
 
     // Limits of EOS
     limits.Tmin = params.Ttriple;
@@ -274,6 +276,7 @@ DodecamethylpentasiloxaneClass::DodecamethylpentasiloxaneClass()
 	params.Ttriple=192;
 	params.accentricfactor=0.722;
     params.R_u = 8.314472;
+	params.ptriple = 2.05774764356e-10;
 
     // Limits of EOS
     limits.Tmin = params.Ttriple;
@@ -371,6 +374,7 @@ DodecamethylcyclohexasiloxaneClass::DodecamethylcyclohexasiloxaneClass()
 	params.Ttriple=270.2;
 	params.accentricfactor=0.736;
     params.R_u = 8.314472;
+	params.ptriple = 0.000159753038201;
 
     // Limits of EOS
     limits.Tmin = params.Ttriple;

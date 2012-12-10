@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <algorithm>
 #include <list>
 #include <exception>
 #include <iostream>
@@ -195,6 +196,22 @@ std::string FluidsContainer::FluidList()
 	FL = FL.substr (0,FL.length()-1);
 	return FL;
 }
+
+/// A stub class to do the density(T,p) calculations for near the critical point using Brent solver
+class DensityTpResids : public FuncWrapper1D
+{
+private:
+	double p,T;
+	Fluid *pFluid;
+public:
+	DensityTpResids(Fluid *pFluid, double T, double p){this->pFluid = pFluid; this->p = p; this->T = T;};
+	~DensityTpResids(){};
+	
+	double call(double rho)
+	{
+		return this->p - pFluid->pressure_Trho(T,rho);
+	}
+};
 
 
 // 
@@ -449,10 +466,22 @@ double Fluid::drhodT_p_Trho(double T,double rho)
 	return DerivTerms("drhodT|p",T,rho,(char*)name.c_str());
 }
 
+//class SoaveSaturationTResids : public FuncWrapper1D
+//{
+//private:
+//	double p,T;
+//	Fluid *pFluid;
+//public:
+//	DensityTpResids(Fluid *pFluid, double T, double p){this->pFluid = pFluid; this->p = p; this->T = T;};
+//	~DensityTpResids(){};
+//	
+//	double call(double rho){ return this->p - pFluid->pressure_Trho(T,rho);	}
+//};
+
 /// Get the density using the Soave EOS
-double Fluid::density_Tp_Soave(double T, double p)
+double Fluid::density_Tp_Soave(double T, double p, int iValue)
 {
-	double omega, R, m, a, b, A, B, r, q, D, u, Y, rho;
+	double omega, R, m, a, b, A, B, r, q, D, u, Y, Y1, Y2, Y3, theta, phi, rho;
 	omega = params.accentricfactor;
 	R = params.R_u/params.molemass;
 	m = 0.480+1.574*omega-0.176*omega*omega;
@@ -478,7 +507,27 @@ double Fluid::density_Tp_Soave(double T, double p)
 	}
 	else
 	{
-		return _HUGE;
+		theta = sqrt(-r*r*r/27);
+		phi = acos(-q/(2*theta));
+
+		Y1 = 2*pow(theta,1.0/3.0)*cos(phi/3.0);
+		Y2 = 2*pow(theta,1.0/3.0)*cos(phi/3.0+2.0*M_PI/3.0);
+		Y3 = 2*pow(theta,1.0/3.0)*cos(phi/3.0+4.0*M_PI/3.0);
+
+		double solns [] = {Y1, Y2, Y3};
+
+		// Find the solution that you want to use if there are multiple solutions
+		if (iValue == 0)
+		{
+			Y = *std::min_element(solns, solns+3);
+		}
+		else if (iValue == 1)
+		{
+			Y = *std::max_element(solns, solns+3);
+		}
+		
+		rho = p/(R*T*(Y+1.0/3.0));
+		return rho;
 	}
 }
 double Fluid::density_Tp(double T, double p)
@@ -597,12 +646,22 @@ void Fluid::saturation(double T, bool UseLUT, double *psatLout, double *psatVout
 		}
 		else
 		{
-			rhosatPure_Akasaka(T,&rhoL,&rhoV,&p);
-			*rhosatLout = rhoL;
-			*rhosatVout = rhoV;
-			*psatLout = p;
-			*psatVout = p;
-			return;
+			try{
+				rhosatPure_Akasaka(T,&rhoL,&rhoV,&p);
+				*rhosatLout = rhoL;
+				*rhosatVout = rhoV;
+				*psatLout = p;
+				*psatVout = p;
+				return;
+			}
+			catch (std::exception){
+				rhosatPure_Brent(T,&rhoL,&rhoV,&p);
+				*rhosatLout = rhoL;
+				*rhosatVout = rhoV;
+				*psatLout = p;
+				*psatVout = p;
+				return;
+			}
 		}
 	}
 	else
@@ -616,6 +675,46 @@ void Fluid::saturation(double T, bool UseLUT, double *psatLout, double *psatVout
 	}
 }
 
+
+void Fluid::rhosatPure_Brent(double T, double *rhoLout, double *rhoVout, double *pout)
+{
+	/*
+	Use Brent's method around the critical point.  Slow but reliable
+	*/
+
+	class SatFuncClass : public FuncWrapper1D
+	{
+	private:
+		double T,gL,gV;
+		Fluid * pFluid;
+	public:
+		double p,rhoL,rhoV;
+		SatFuncClass(double T, Fluid *pFluid){
+			this->T=T;
+			this->pFluid = pFluid;
+		};
+		double call(double p){
+			// Span, 2000 p 56
+			DensityTpResids * DTPR = new DensityTpResids(this->pFluid,T,p);
+			std::string errstr;
+			this->rhoL = this->pFluid->rhosatL(T);
+			//std::cout << Props("D",'Q',0,'T',T,"REFPROP-R245fa") <<std::endl;
+			rhoL = Brent(DTPR,rhoL+1e-3,rhoL-1e-3,DBL_EPSILON,1e-8,30,&errstr);
+			rhoV = Brent(DTPR,rhoV,pFluid->crit.rho-10*DBL_EPSILON,DBL_EPSILON,1e-8,40,&errstr);
+			gL = pFluid->gibbs_Trho(T,rhoL);
+			gV = pFluid->gibbs_Trho(T,rhoV);
+			delete DTPR;
+			return gL-gV;
+		};
+	} SatFunc(T,this);
+
+	std::string errstr;
+	double ppmax = pressure_Trho(crit.T-0.01,crit.rho);
+	double pmax = pressure_Trho(crit.T-0.01,crit.rho)+1e-6;
+	double pmin = psatV_anc(T-0.1);
+	Brent(&SatFunc,pmin,pmax,DBL_EPSILON,1e-8,30,&errstr);
+
+}
 void Fluid::rhosatPure_Akasaka(double T, double *rhoLout, double *rhoVout, double *pout)
 {
 	/*
@@ -670,16 +769,14 @@ void Fluid::rhosatPure_Akasaka(double T, double *rhoLout, double *rhoVout, doubl
 		stepL = gamma/DELTA*( (KV-KL)*dJV-(JV-JL)*dKV);
 		stepV = gamma/DELTA*( (KV-KL)*dJL-(JV-JL)*dKL);
 
-		if (deltaL+stepL > 0 && deltaV+stepV > 0)
+		if (deltaL+stepL > 1 && deltaV+stepV < 1)
 		{
 			deltaL += stepL;
 			deltaV += stepV;
 		}
-		else{
-			// Try a smaller step, 
-			double W = 0.0001;
-			deltaL += stepL*W;
-			deltaV += stepV*W;
+		else
+		{
+			throw ValueError(format("rhosatPure_Akasaka failed"));
 		}
 		iter=iter+1;
 	}
@@ -813,50 +910,26 @@ void Fluid::BuildSaturationLUT()
 double Fluid::hsatV_anc(double T)
 {
 	if (!h_ancillary->built) 
-		h_ancillary->build(10);
+		h_ancillary->build(50);
 	return h_ancillary->interpolateV(T);
 }
 double Fluid::ssatV_anc(double T)
 {
 	if (!s_ancillary->built) 
-		s_ancillary->build(10);
+		s_ancillary->build(50);
 	return s_ancillary->interpolateV(T);
-}
-double Fluid::cpsatV_anc(double T)
-{
-	if (!cp_ancillary->built) 
-		cp_ancillary->build(10);
-	return cp_ancillary->interpolateV(T);
-}
-double Fluid::drhodT_pV_anc(double T)
-{
-	if (!drhodT_p_ancillary->built) 
-		drhodT_p_ancillary->build(10);
-	return drhodT_p_ancillary->interpolateV(T);
 }
 double Fluid::hsatL_anc(double T)
 {
 	if (!h_ancillary->built) 
-		h_ancillary->build(10);
+		h_ancillary->build(50);
 	return h_ancillary->interpolateL(T);
 }
 double Fluid::ssatL_anc(double T)
 {
 	if (!s_ancillary->built) 
-		s_ancillary->build(10);
+		s_ancillary->build(50);
 	return s_ancillary->interpolateL(T);
-}
-double Fluid::cpsatL_anc(double T)
-{
-	if (!cp_ancillary->built) 
-		cp_ancillary->build(10);
-	return cp_ancillary->interpolateL(T);
-}
-double Fluid::drhodT_pL_anc(double T)
-{
-	if (!drhodT_p_ancillary->built) 
-		drhodT_p_ancillary->build(10);
-	return drhodT_p_ancillary->interpolateL(T);
 }
 //double ssatV_anc(double T);
 //double ssatL_anc(double T);
@@ -1193,7 +1266,7 @@ static void MatInv_2(double A[2][2] , double B[2][2])
     B[0][1]=-1.0/Det*A[0][1];
 }
 
-void Fluid::temperature_ph(double p, double h, double *Tout, double *rhoout, double *rhoLout, double *rhoVout, double *TsatLout, double *TsatVout)
+void Fluid::temperature_ph(double p, double h, double *Tout, double *rhoout, double *rhoLout, double *rhoVout, double *TsatLout, double *TsatVout, double T0, double rho0)
 {
 	int iter;
 	bool failed = false;
@@ -1606,7 +1679,7 @@ double Fluid::Tsat_anc(double p, double Q)
     double Tc,Tmax,Tmin,Tmid,logp_min,logp_mid,logp_max;
 
     Tc=reduce.T;
-    Tmax=Tc-0.001;
+    Tmax=Tc-10*DBL_EPSILON;
 	Tmin=params.Ttriple+1;
 	if (Tmin <= limits.Tmin)
 		Tmin = limits.Tmin;
@@ -1781,21 +1854,6 @@ public:
 	}
 };
 
-/// A stub class to do the density(T,p) calculations for near the critical point using Brent solver
-class DensityTpResids : public FuncWrapper1D
-{
-private:
-	double p,T;
-	Fluid *pFluid;
-public:
-	DensityTpResids(Fluid *pFluid, double T, double p){this->pFluid = pFluid; this->p = p; this->T = T;};
-	~DensityTpResids(){};
-	
-	double call(double rho)
-	{
-		return this->p - pFluid->pressure_Trho(T,rho);
-	}
-};
 
 class SaturationPressureGivenResids : public FuncWrapper1D
 {
@@ -1810,15 +1868,15 @@ public:
 	double call(double T)
 	{
 		// If the temperature is greater than 0.95*Tc, use a Brent solver to find the 
-		// densities for the given temperature and pressure.  Secant solver craps out
+		// densities for the given temperature and pressure.  Secant solver in density_Tp craps out
 		if (T>0.95*pFluid->crit.T)
 		{
 			DensityTpResids * DTPR = new DensityTpResids(this->pFluid,T,this->p);
 			double rhoL_095 = pFluid->rhosatL(0.95*pFluid->crit.T);
 			double rhoV_095 = pFluid->rhosatV(0.95*pFluid->crit.T);
 			std::string errstr;
-			rhoL = Brent(DTPR,rhoL_095,pFluid->crit.rho+1e-6,1e-16,1e-8,40,&errstr);
-			rhoV = Brent(DTPR,rhoV_095,pFluid->crit.rho-1e-6,1e-16,1e-8,40,&errstr);
+			rhoL = Brent(DTPR,rhoL_095,pFluid->crit.rho+10*DBL_EPSILON,DBL_EPSILON,1e-8,40,&errstr);
+			rhoV = Brent(DTPR,rhoV_095,pFluid->crit.rho-10*DBL_EPSILON,DBL_EPSILON,1e-8,40,&errstr);
 			delete DTPR;
 		}
 		else
@@ -1856,7 +1914,7 @@ void Fluid::TsatP_Pure(double p, double *Tout, double *rhoLout, double *rhoVout)
 	//} SatFunc(p,this);
 
 
-	double Tsat,rhoL,rhoV;
+	double Tsat,rhoL,rhoV,Tmax,Tmin;
 
 	//// Use Secant method to find T that gives the same gibbs function in both phases - a la REFPROP SATP function
 	std::string errstr;
@@ -1866,7 +1924,19 @@ void Fluid::TsatP_Pure(double p, double *Tout, double *rhoLout, double *rhoVout)
 	rhoV = rhosatV(Tsat);
 	SPGR->rhoL = rhoL;
 	SPGR->rhoV = rhoV;
-	Tsat = Secant(SPGR,Tsat,1e-7,1e-4,50,&errstr);
+	try{
+		Tsat = Secant(SPGR,Tsat,1e-7,1e-4,50,&errstr);
+	}
+	catch(std::exception) // Whoops that failed...
+	{
+		Tmax = Tsat+5;
+		Tmin = Tsat-5;
+		if (Tmax > crit.T-2*DBL_EPSILON)
+		{
+			Tmax = crit.T-2*DBL_EPSILON;
+		}	
+		Tsat = Brent(SPGR,Tmin,Tmax,DBL_EPSILON,1e-8,30,&errstr);
+	}
 	if (errstr.size()>0)
 		throw SolutionError("Saturation calculation failed");
 	*rhoVout = SPGR->rhoV;
@@ -2750,6 +2820,8 @@ double Fluid::conductivity_ECS_Trho(double T, double rho, Fluid * ReferenceFluid
 	lambda = lambda_int+lambda_star+lambda_resid*F_lambda+lambda_crit;
 	return lambda/1e3; //[kW/m/K]
 }
+
+
 void AncillaryCurveClass::update(Fluid *_pFluid, std::string Output)
 {
 	pFluid = _pFluid;
@@ -2760,15 +2832,12 @@ int AncillaryCurveClass::build(int N)
 	double T,rhoV,rhoL;
 
 	// Output values
-	long iD = get_param_index("D");
-	long iT = get_param_index("T");
-	long iQ = get_param_index("Q");
 	long iFluid = get_Fluid_index(pFluid->get_name());
 
-	double Tmin	= pFluid->params.Ttriple+0.001;
+	double Tmin	= pFluid->params.Ttriple+1e-6;
 	if (Tmin<pFluid->limits.Tmin)
-		Tmin = pFluid->limits.Tmin+0.001;
-	double Tmax	= pFluid->reduce.T-5;
+		Tmin = pFluid->limits.Tmin+1e-6;
+	double Tmax	= pFluid->reduce.T-10*DBL_EPSILON;
 	for(int i = 0; i<N; i++)
 	{
 		T = Tmin+(Tmax-Tmin)/(N-1)*i;
@@ -2782,7 +2851,6 @@ int AncillaryCurveClass::build(int N)
 	built = true;
 	return 1;
 }
-
 
 double AncillaryCurveClass::interpolateL(double T){
 	return interp1d(&xL,&yL,T);

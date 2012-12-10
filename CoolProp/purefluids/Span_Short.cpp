@@ -1,16 +1,11 @@
 
 
-// **** WARNING ******
-// **** WARNING ******
-// **** WARNING ******
-
-// Do NOT modify this file.  It is created by a script in the industrialfluidsbuilder folder within the source
 
 #include "CoolProp.h"
 #include <vector>
 #include "CPExceptions.h"
 #include "FluidClass.h"
-#include "IndustrialFluids.h"
+#include "Span_Short.h"
 
 static const double d_nonpolar[] =
 {
@@ -114,6 +109,364 @@ static const double c_polar[] =
 3.0, //[12]
 };
 
+//nPentaneClass::nPentaneClass()
+//{
+//const double n[] = {0.0, 1.0968643, -2.9988888, 0.99516887, -0.16170709, 0.1133446, 0.00026760595, 0.40979882, -0.040876423, -0.38169482, -0.10931957, -0.032073223, 0.016877016};
+//std::vector<double> n_v(n,n+sizeof(n)/sizeof(double));
+//std::vector<double> t_v(t_nonpolar,t_nonpolar+sizeof(t_nonpolar)/sizeof(double));
+//std::vector<double> d_v(d_nonpolar,d_nonpolar+sizeof(d_nonpolar)/sizeof(double));
+//std::vector<double> l_v(c_nonpolar,c_nonpolar+sizeof(c_nonpolar)/sizeof(double));
+//
+////Critical parameters
+//crit.rho = 232; //[kg/m^3]
+//crit.p = 3370; //[kPa]
+//crit.T = 469.7; //[K]
+//crit.v = 1/crit.rho; 
+//
+//// Other fluid parameters
+//params.molemass = 72.15;
+//params.Ttriple = 143.47;
+//params.accentricfactor = 0.251;
+//params.R_u = 8.314510;
+//
+//// Limits of EOS
+//limits.Tmin = params.Ttriple;
+//limits.Tmax = 500.0;
+//limits.pmax = 100000.0;
+//limits.rhomax = 1000000.0*params.molemass;
+//
+//phirlist.push_back(new phir_power( n_v,d_v,t_v,l_v,1,12));
+//
+//double T0 = 309.213623675,
+//R_ = 8.314510/params.molemass,
+//rho0 = 609.710850486,
+//m,
+//c,
+//H0 = 0.0, // kJ/kmol
+//S0 = 0.0, /// kJ/kmol/K
+//tau0=crit.T/T0,
+//delta0=rho0/crit.rho;
+//
+//// log(delta)+c+m*tau
+//
+///// c is the constant term
+//c=-S0/R_-1+log(tau0/delta0);/*<< from the leading term*/
+//
+///// m multiplies the tau term in the leading term (slope)
+//m=H0/(R_*crit.T); /*<< from the leading term */
+//
+//phi0list.push_back(new phi0_lead(c,m));
+//phi0list.push_back(new phi0_logtau(-1.0));
+//
+//const double a0[] = {8.95043,178.67, 21.836, 840.538};
+//std::vector<double> a0_v(a0,a0+sizeof(a0)/sizeof(double));
+//const double a1[] = {33.4032, 1774.25, 0, 0};
+//std::vector<double> a1_v(a1,a1+sizeof(a1)/sizeof(double));
+//
+//phi0list.push_back(new phi0_cp0_constant(4,crit.T,T0));
+//phi0list.push_back(new phi0_cp0_AlyLee(a0_v,crit.T,T0,params.R_u));
+//phi0list.push_back(new phi0_cp0_AlyLee(a1_v,crit.T,T0,params.R_u));
+//
+//EOSReference.assign("R. Span and W. Wagner, \"Equations of State for Technical Applications. II. Results for Nonpolar Fluids\", International Journal of Thermophysics, Vol. 24, No. 1, January 2003.");
+//TransportReference.assign("Using ECS in fully predictive mode");
+//
+//name.assign("nPentane");
+//aliases.push_back(std::string("Pentane"));
+//REFPROPname.assign("PENTANE");
+//}
+//
+//nHexaneClass::nHexaneClass()
+//{
+//const double n[] = {0.0, 1.0553238, -2.6120616, 0.76613883, -0.29770321, 0.11879908, 0.00027922861, 0.4634759, 0.011433197, -0.48256969, -0.093750559, -0.0067273247, -0.0051141584};
+//std::vector<double> n_v(n,n+sizeof(n)/sizeof(double));
+//std::vector<double> t_v(t_nonpolar,t_nonpolar+sizeof(t_nonpolar)/sizeof(double));
+//std::vector<double> d_v(d_nonpolar,d_nonpolar+sizeof(d_nonpolar)/sizeof(double));
+//std::vector<double> l_v(c_nonpolar,c_nonpolar+sizeof(c_nonpolar)/sizeof(double));
+//
+////Critical parameters
+//crit.rho = 233.18; //[kg/m^3]
+//crit.p = 3034; //[kPa]
+//crit.T = 507.82; //[K]
+//crit.v = 1/crit.rho; 
+//
+//// Other fluid parameters
+//params.molemass = 86.177;
+//params.Ttriple = 177.83;
+//params.accentricfactor = 0.299;
+//params.R_u = 8.314510;
+//
+//// Limits of EOS
+//limits.Tmin = params.Ttriple;
+//limits.Tmax = 500.0;
+//limits.pmax = 100000.0;
+//limits.rhomax = 1000000.0*params.molemass;
+//
+//phirlist.push_back(new phir_power( n_v,d_v,t_v,l_v,1,12));
+//
+//double T0 = 341.864512243,
+//R_ = 8.314510/params.molemass,
+//rho0 = 613.01116119,
+//m,
+//c,
+//H0 = 0.0, // kJ/kmol
+//S0 = 0.0, /// kJ/kmol/K
+//tau0=crit.T/T0,
+//delta0=rho0/crit.rho;
+//
+//// log(delta)+c+m*tau
+//
+///// c is the constant term
+//c=-S0/R_-1+log(tau0/delta0);/*<< from the leading term*/
+//
+///// m multiplies the tau term in the leading term (slope)
+//m=H0/(R_*crit.T); /*<< from the leading term */
+//
+//phi0list.push_back(new phi0_lead(c,m));
+//phi0list.push_back(new phi0_logtau(-1.0));
+//
+//const double a0[] = {11.6977,182.326, 26.8142, 859.207};
+//std::vector<double> a0_v(a0,a0+sizeof(a0)/sizeof(double));
+//const double a1[] = {38.6164, 1826.59, 0, 0};
+//std::vector<double> a1_v(a1,a1+sizeof(a1)/sizeof(double));
+//
+//phi0list.push_back(new phi0_cp0_constant(4,crit.T,T0));
+//phi0list.push_back(new phi0_cp0_AlyLee(a0_v,crit.T,T0,params.R_u));
+//phi0list.push_back(new phi0_cp0_AlyLee(a1_v,crit.T,T0,params.R_u));
+//
+//EOSReference.assign("R. Span and W. Wagner, \"Equations of State for Technical Applications. II. Results for Nonpolar Fluids\", International Journal of Thermophysics, Vol. 24, No. 1, January 2003.");
+//TransportReference.assign("Using ECS in fully predictive mode");
+//
+//name.assign("nHexane");
+//REFPROPname.assign("HEXANE");
+//
+//}
+//
+//
+//nHeptaneClass::nHeptaneClass()
+//{
+//const double n[] = {0.0, 1.0543748, -2.6500682, 0.81730048, -0.30451391, 0.12253869, 0.00027266473, 0.49865826, -0.00071432815, -0.54236896, -0.13801822, -0.0061595287, 0.0004860251};
+//std::vector<double> n_v(n,n+sizeof(n)/sizeof(double));
+//std::vector<double> t_v(t_nonpolar,t_nonpolar+sizeof(t_nonpolar)/sizeof(double));
+//std::vector<double> d_v(d_nonpolar,d_nonpolar+sizeof(d_nonpolar)/sizeof(double));
+//std::vector<double> l_v(c_nonpolar,c_nonpolar+sizeof(c_nonpolar)/sizeof(double));
+//
+////Critical parameters
+//crit.rho = 232; //[kg/m^3]
+//crit.p = 2736; //[kPa]
+//crit.T = 540.13; //[K]
+//crit.v = 1/crit.rho; 
+//
+//// Other fluid parameters
+//params.molemass = 100.204;
+//params.Ttriple = 182.55;
+//params.accentricfactor = 0.349;
+//params.R_u = 8.314510;
+//
+//// Limits of EOS
+//limits.Tmin = params.Ttriple;
+//limits.Tmax = 500.0;
+//limits.pmax = 100000.0;
+//limits.rhomax = 1000000.0*params.molemass;
+//
+//phirlist.push_back(new phir_power( n_v,d_v,t_v,l_v,1,12));
+//
+//double T0 = 371.533277446,
+//R_ = 8.314510/params.molemass,
+//rho0 = 614.215551363,
+//m,
+//c,
+//H0 = 0.0, // kJ/kmol
+//S0 = 0.0, /// kJ/kmol/K
+//tau0=crit.T/T0,
+//delta0=rho0/crit.rho;
+//
+//// log(delta)+c+m*tau
+//
+///// c is the constant term
+//c=-S0/R_-1+log(tau0/delta0);/*<< from the leading term*/
+//
+///// m multiplies the tau term in the leading term (slope)
+//m=H0/(R_*crit.T); /*<< from the leading term */
+//
+//phi0list.push_back(new phi0_lead(c,m));
+//phi0list.push_back(new phi0_logtau(-1.0));
+//
+//const double a0[] = {13.7266,169.789, 30.4707, 836.195};
+//std::vector<double> a0_v(a0,a0+sizeof(a0)/sizeof(double));
+//const double a1[] = {43.5561, 1760.46, 0, 0};
+//std::vector<double> a1_v(a1,a1+sizeof(a1)/sizeof(double));
+//
+//phi0list.push_back(new phi0_cp0_constant(4,crit.T,T0));
+//phi0list.push_back(new phi0_cp0_AlyLee(a0_v,crit.T,T0,params.R_u));
+//phi0list.push_back(new phi0_cp0_AlyLee(a1_v,crit.T,T0,params.R_u));
+//
+//EOSReference.assign("R. Span and W. Wagner, \"Equations of State for Technical Applications. II. Results for Nonpolar Fluids\", International Journal of Thermophysics, Vol. 24, No. 1, January 2003.");
+//TransportReference.assign("Using ECS in fully predictive mode");
+//
+//name.assign("nHeptane");
+//REFPROPname.assign("HEPTANE");
+//}
+//
+//
+//nOctaneClass::nOctaneClass()
+//{
+//const double n[] = {0.0, 1.0722545, -2.4632951, 0.65386674, -0.36324974, 0.1271327, 0.00030713573, 0.52656857, 0.019362863, -0.58939427, -0.14069964, -0.0078966331, 0.0033036598};
+//std::vector<double> n_v(n,n+sizeof(n)/sizeof(double));
+//std::vector<double> t_v(t_nonpolar,t_nonpolar+sizeof(t_nonpolar)/sizeof(double));
+//std::vector<double> d_v(d_nonpolar,d_nonpolar+sizeof(d_nonpolar)/sizeof(double));
+//std::vector<double> l_v(c_nonpolar,c_nonpolar+sizeof(c_nonpolar)/sizeof(double));
+//
+////Critical parameters
+//crit.rho = 234.9; //[kg/m^3]
+//crit.p = 2497; //[kPa]
+//crit.T = 569.32; //[K]
+//crit.v = 1/crit.rho; 
+//
+//// Other fluid parameters
+//params.molemass = 114.231;
+//params.Ttriple = 216.37;
+//params.accentricfactor = 0.395;
+//params.R_u = 8.314510;
+//
+//// Limits of EOS
+//limits.Tmin = params.Ttriple;
+//limits.Tmax = 500.0;
+//limits.pmax = 100000.0;
+//limits.rhomax = 1000000.0*params.molemass;
+//
+//phirlist.push_back(new phir_power( n_v,d_v,t_v,l_v,1,12));
+//
+//double T0 = 398.773831136,
+//R_ = 8.314510/params.molemass,
+//rho0 = 612.212813966,
+//m,
+//c,
+//H0 = 0.0, // kJ/kmol
+//S0 = 0.0, /// kJ/kmol/K
+//tau0=crit.T/T0,
+//delta0=rho0/crit.rho;
+//
+//// log(delta)+c+m*tau
+//
+///// c is the constant term
+//c=-S0/R_-1+log(tau0/delta0);/*<< from the leading term*/
+//
+///// m multiplies the tau term in the leading term (slope)
+//m=H0/(R_*crit.T); /*<< from the leading term */
+//
+//phi0list.push_back(new phi0_lead(c,m));
+//phi0list.push_back(new phi0_logtau(-1.0));
+//
+//const double a0[] = {15.6865,158.922, 33.8029, 815.064};
+//std::vector<double> a0_v(a0,a0+sizeof(a0)/sizeof(double));
+//const double a1[] = {48.1731, 1693.07, 0, 0};
+//std::vector<double> a1_v(a1,a1+sizeof(a1)/sizeof(double));
+//
+//phi0list.push_back(new phi0_cp0_constant(4,crit.T,T0));
+//phi0list.push_back(new phi0_cp0_AlyLee(a0_v,crit.T,T0,params.R_u));
+//phi0list.push_back(new phi0_cp0_AlyLee(a1_v,crit.T,T0,params.R_u));
+//
+//EOSReference.assign("R. Span and W. Wagner, \"Equations of State for Technical Applications. II. Results for Nonpolar Fluids\", International Journal of Thermophysics, Vol. 24, No. 1, January 2003.");
+//TransportReference.assign("Using ECS in fully predictive mode");
+//
+//name.assign("nOctane");
+//REFPROPname.assign("OCTANE");
+//}
+//
+//CyclohexaneClass::CyclohexaneClass()
+//{
+//const double n[] = {0.0, 1.0232354, -2.9204964, 1.073663, -0.19573985, 0.12228111, 0.00028943321, 0.27231767, -0.04483332, -0.38253334, -0.089835333, -0.024874965, 0.010836132};
+//std::vector<double> n_v(n,n+sizeof(n)/sizeof(double));
+//std::vector<double> t_v(t_nonpolar,t_nonpolar+sizeof(t_nonpolar)/sizeof(double));
+//std::vector<double> d_v(d_nonpolar,d_nonpolar+sizeof(d_nonpolar)/sizeof(double));
+//std::vector<double> l_v(c_nonpolar,c_nonpolar+sizeof(c_nonpolar)/sizeof(double));
+//
+////Critical parameters
+//crit.rho = 273.02; //[kg/m^3]
+//crit.p = 4078; //[kPa]
+//crit.T = 553.6; //[K]
+//crit.v = 1/crit.rho; 
+//
+//// Other fluid parameters
+//params.molemass = 84.161;
+//params.Ttriple = 279.47;
+//params.accentricfactor = 0.209;
+//params.R_u = 8.314510;
+//
+//// Limits of EOS
+//limits.Tmin = params.Ttriple;
+//limits.Tmax = 500.0;
+//limits.pmax = 100000.0;
+//limits.rhomax = 1000000.0*params.molemass;
+//
+//phirlist.push_back(new phir_power( n_v,d_v,t_v,l_v,1,12));
+//
+//double T0 = 353.885834409,
+//R_ = 8.314510/params.molemass,
+//rho0 = 719.521755268,
+//m,
+//c,
+//H0 = 0.0, // kJ/kmol
+//S0 = 0.0, /// kJ/kmol/K
+//tau0=crit.T/T0,
+//delta0=rho0/crit.rho;
+//
+//// log(delta)+c+m*tau
+//
+///// c is the constant term
+//c=-S0/R_-1+log(tau0/delta0);/*<< from the leading term*/
+//
+///// m multiplies the tau term in the leading term (slope)
+//m=H0/(R_*crit.T); /*<< from the leading term */
+//
+//phi0list.push_back(new phi0_lead(c,m));
+//phi0list.push_back(new phi0_logtau(-1.0));
+//
+//const double a0[] = {8.97575,438.27, 5.25156, 198.018};
+//std::vector<double> a0_v(a0,a0+sizeof(a0)/sizeof(double));
+//const double a1[] = {25.1423, 1905.02, 16.1388, 893.765};
+//std::vector<double> a1_v(a1,a1+sizeof(a1)/sizeof(double));
+//
+//phi0list.push_back(new phi0_cp0_constant(4.06714,crit.T,T0));
+//phi0list.push_back(new phi0_cp0_AlyLee(a0_v,crit.T,T0,params.R_u));
+//phi0list.push_back(new phi0_cp0_AlyLee(a1_v,crit.T,T0,params.R_u));
+//
+//EOSReference.assign("R. Span and W. Wagner, \"Equations of State for Technical Applications. II. Results for Nonpolar Fluids\", International Journal of Thermophysics, Vol. 24, No. 1, January 2003.");
+//TransportReference.assign("Using ECS in fully predictive mode");
+//
+//name.assign("Cyclohexane");
+//REFPROPname.assign("CYCLOHEX");
+//}
+//double CycloHexaneClass::rhosatL(double T)
+//{
+//double theta = 1-T/reduce.T;
+//double RHS,rho;
+//
+//// Max error is 1.203781 %
+//RHS = +3.423073*pow(theta,0.478901)-3.938464*pow(theta,0.891470)+2.685844*pow(theta,1.511803)-0.161555*pow(theta,0.618265)-1.308157*pow(theta,3.622466);
+//rho = exp(RHS)*reduce.rho;
+//return rho;
+//}
+//double CycloHexaneClass::rhosatV(double T)
+//{
+//double theta = 1-T/reduce.T;
+//double RHS,rho;
+//
+//// Max error is 1.422293 %
+//RHS = -3.415161*pow(theta,0.479322)-27.454140*pow(theta,3.666526)-5.961795*pow(theta,1.211006)-10.529204*pow(theta,6.982487)-5.293922*pow(theta,5.870169)-2.422792*pow(theta,7.402405)-0.810945*pow(theta,7.985446);
+//rho = exp(RHS)*reduce.rho;
+//return rho;
+//}
+//double CycloHexaneClass::psat(double T)
+//{
+//double theta = 1-T/reduce.T;
+//double RHS,p;
+//
+//// Max error is 0.651913 %
+//RHS = -6.773141*pow(theta,0.995463)-41.697003*pow(theta,5.578823)-13.514395*pow(theta,2.473207)-7.840948*pow(theta,6.618245)-3.910911*pow(theta,7.730997);
+//p = exp(RHS)*reduce.p;
+//return p;
+//}
 
 /*
 CarbonMonoxideClass::CarbonMonoxideClass()

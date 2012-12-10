@@ -4,12 +4,15 @@ try:
     import Cython
 except ImportError:
     raise ImportError("Cython not found")
-major,minor = Cython.__version__.split('.')
+major,minor = Cython.__version__.split('.')[0:2]
 #Convert major to integer
 major = int(major)
 iEnd = 0
 while minor[iEnd].isdigit():
     iEnd+=1
+    if iEnd == len(minor):
+        break
+
 minor = int(minor[0:iEnd])
 if not(major > 0 or minor >= 17):
     raise ImportError('Cython version >= 0.17 required due to the use of STL wrappers.  Please update your version of cython')
@@ -40,7 +43,7 @@ if __name__=='__main__':
                                  stdout=subprocess.PIPE, 
                                  stderr=subprocess.PIPE)
             stdout, stderr = p.communicate()
-            for line in stdout.split('\n'):
+            for line in str(stdout).split('\n'):
                 if line.startswith('Revision'):
                     rev = line.split(':')[1].strip()
                     svnstring = 'long svnrevision = '+rev+';'
@@ -175,12 +178,12 @@ if __name__=='__main__':
         if buildCPLib or DLL:
             objs=CC.compile(sources,build_path,MACROS,include_dirs=include_dirs,extra_postargs=extra_compile_args)
             CC.create_static_lib(objs, LibName,lib_path,target_lang='c++')
-            print 'Built the static library in',CPLibPath
+            print('Built the static library in',CPLibPath)
             if DLL:
                 CC.link_shared_lib(objs, LibName,lib_path,target_lang='c++')
-                print 'Built the shared library in',os.path.join(lib_path,LibName)
+                print('Built the shared library in',os.path.join(lib_path,LibName))
         else:
-            print 'No build of CoolProp static library required.'
+            print('No build of CoolProp static library required.')
       
     if useStaticLib or packDLL:
         StaticLibBuilder(Sources,DLL=packDLL)
@@ -193,10 +196,10 @@ if __name__=='__main__':
             z.write(os.path.join('CoolProp','CoolProp.h'),arcname='CoolProp.h')
             z.write(os.path.join('Examples','CoolPropDLL.py'),arcname='CoolPropDLL.py')
             z.write('DLLREADME.txt',arcname='README.txt')
-        print 'DLL file has been packed into file', ZIPfilePath
+        print('DLL file has been packed into file', ZIPfilePath)
         quit()
 
-    print 'UseStaticLib is',useStaticLib
+    print('UseStaticLib is',useStaticLib)
     ##Now come in and build the modules themselves
         
     if useStaticLib==True:
@@ -225,10 +228,10 @@ if __name__=='__main__':
         CPLibPath=CC.library_filename(os.path.join('lib','CoolProp'),lib_type='static')
         if not newer_group(cython_sources, CPLibPath):
             for source in cython_sources:
-                print 'touching',source
+                print('touching',source)
                 touch(source)
         else:
-            print 'no touching of cython sources needed'
+            print('no touching of cython sources needed')
 
     if useStaticLib==True:
         CoolProp2_module = CyExtension('CoolProp.CoolProp',

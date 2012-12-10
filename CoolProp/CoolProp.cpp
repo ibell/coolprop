@@ -61,6 +61,7 @@ std::pair<std::string, long> map_data[] = {
 	std::make_pair(std::string("accentric"),iAccentric),
 	std::make_pair(std::string("dipole"),iDipole),
 	std::make_pair(std::string("Tmin"),iTmin),
+	std::make_pair(std::string("t"),iTmin),
 	std::make_pair(std::string("Ttriple"),iTtriple),
 	std::make_pair(std::string("rhocrit"),iRhocrit),
 	std::make_pair(std::string("Tcrit"),iTcrit),

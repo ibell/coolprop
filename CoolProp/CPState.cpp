@@ -58,6 +58,15 @@ void CoolPropStateClass::update(long iInput1, double Value1, long iInput2, doubl
 	|  T,Q
 	|
 	*/
+
+	// Reset all the internal variables to _HUGE
+	_T = _HUGE;
+	_p = _HUGE;
+	_h = _HUGE;
+	_s = _HUGE;
+	_rho = _HUGE;
+	_Q = _HUGE;
+
 	// If flag_SinglePhase is true, it will always assume that it is not in the two-phase region
 	// Can be over-written by changing the flag to true
 	flag_SinglePhase = false;
@@ -236,16 +245,50 @@ void CoolPropStateClass::update_Tp(long iInput1, double Value1, long iInput2, do
 }
 
 // Updater if p,h are inputs
-void CoolPropStateClass::update_ph(long iInput1, double Value1, long iInput2, double Value2)
+void CoolPropStateClass::update_ph(long iInput1, double Value1, long iInput2, double Value2, double T0, double rho0)
 {
 	// Get them in the right order
 	sort_pair(&iInput1,&Value1,&iInput2,&Value2,iP,iH);
 
-	// Solve for temperature and density
-	pFluid->temperature_ph(Value1, Value2,&_T,&_rho,&rhosatL,&rhosatV,&TsatL,&TsatV);
+	// Solve for temperature and density with or without the guess values provided
+	pFluid->temperature_ph(Value1, Value2,&_T,&_rho,&rhosatL,&rhosatV,&TsatL,&TsatV, T0, rho0);
 
 	// Set internal variables
 	_p = Value1;
+	_h = Value2;
+
+	// Set the phase flags
+	if ( _T < pFluid->reduce.T && _rho < rhosatL && _rho > rhosatV)
+	{
+		TwoPhase = true;
+		SinglePhase = false;
+		_Q = (1/_rho-1/rhosatL)/(1/rhosatV-1/rhosatL);
+		check_saturated_quality(_Q);
+
+		psatL = _p;
+		psatV = _p;
+	}
+	else
+	{
+		TwoPhase = false;
+		SinglePhase = true;
+		SaturatedL = false;
+		SaturatedV = true;
+	}
+}
+
+// Updater if p,s are inputs
+void CoolPropStateClass::update_ps(long iInput1, double Value1, long iInput2, double Value2)
+{
+	// Get them in the right order
+	sort_pair(&iInput1,&Value1,&iInput2,&Value2,iP,iS);
+
+	// Solve for temperature and density
+	pFluid->temperature_ps(Value1, Value2,&_T,&_rho,&rhosatL,&rhosatV,&TsatL,&TsatV);
+
+	// Set internal variables
+	_p = Value1;
+	_s = Value2;
 
 	// Set the phase flags
 	if ( _T < pFluid->reduce.T && _rho < rhosatL && _rho > rhosatV)
@@ -313,7 +356,16 @@ double CoolPropStateClass::h(void){
 		return _Q*hV()+(1-_Q)*hL();
 	}
 	else{
-		return pFluid->enthalpy_Trho(_T,_rho);
+		if (fabs(_h)<1e90)
+		{
+			// Use the pre-calculated value
+			return _h;
+		}
+		else
+		{
+			// Use the EOS
+			return pFluid->enthalpy_Trho(_T,_rho);
+		}
 	}
 }
 double CoolPropStateClass::s(void){

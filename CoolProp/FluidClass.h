@@ -176,7 +176,7 @@ class Fluid
 		double drhodT_p_Trho(double T,double rho);
 
 		// Get the density using the Soave EOS
-		double density_Tp_Soave(double T, double p);
+		double density_Tp_Soave(double T, double p, int iValue = 0);
 
 		double density_Tp(double T, double p);
 		double density_Tp(double T, double p, double rho_guess);
@@ -197,7 +197,9 @@ class Fluid
 		/// @param rhoout Density [kg/m^3]
 		/// @param rhoL Saturated liquid density [kg/m^3]
 		/// @param rhoV Saturated vapor density [kg/m^3]
-		void temperature_ph(double p, double h, double *Tout, double *rhoout, double *rhoL, double *rhoV, double *TsatLout, double *TsatVout);
+		/// @param T0 Starting temperature for the solver
+		/// @param rho0 Starting density value for the solver
+		void temperature_ph(double p, double h, double *Tout, double *rhoout, double *rhoL, double *rhoV, double *TsatLout, double *TsatVout, double T0 = -1, double rho0 = -1);
 		
 		/// Return the phase given the temperature and pressure
 		std::string phase_Tp(double T, double p, double *pL, double *pV, double *rhoL, double *rhoV);
@@ -351,6 +353,13 @@ class Fluid
 		/// @param rhoLout Saturated liquid pressure [kg/m3]
 		/// @param rhoVout Saturated vapor pressure [kg/m3]
 		void rhosatPure_Akasaka(double T, double *rhoLout, double *rhoVout, double *pout);
+
+		/// Get the saturated liquid, vapor densities and the saturated pressure using Brent's method and adjusting the pressure
+		/// @param T Temperature [K]]
+		/// @param pout Saturated pressure [kPa(abs)]
+		/// @param rhoLout Saturated liquid pressure [kg/m3]
+		/// @param rhoVout Saturated vapor pressure [kg/m3]
+		void rhosatPure_Brent(double T, double *rhoLout, double *rhoVout, double *pout);
 
 		/// Tries to build the Saturation Lookup tables for Temperature, pressure, densities and enthalpies.  
 		///  If the LUT are already built, don't rebuild them, but if the parameter SatLUT.force=True, rebuild.

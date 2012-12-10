@@ -221,7 +221,7 @@ fp_XMOLEdllTYPE XMOLEdll;
 
 std::string LoadedREFPROPRef;
 HINSTANCE RefpropdllInstance=NULL;
-
+long i;
 char hfmix[] = "hmx.bnc";
 char hrf[] = "DEF";
 
@@ -231,7 +231,7 @@ double REFPROP(char Output, char Name1, double Prop1, char Name2, double Prop2, 
 }
 double REFPROP(std::string Output, std::string Name1, double Prop1, std::string Name2, double Prop2, std::string Ref)
 {
-	long i,ierr=0,iOutput,iName1,iName2;
+	long ierr=0,iOutput,iName1,iName2;
 	char hf[refpropcharlength*ncmax], herr[errormessagelength+1];
 	
 	double x[ncmax],xliq[ncmax],xvap[ncmax];
@@ -464,7 +464,6 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 	iOutput = get_param_index(Output);
 	iName1 = get_param_index(Name1);
 	iName2 = get_param_index(Name2);
-
 	
 	// Get the molar mass of the fluid
 	WMOLdll(x,&MW);	
@@ -534,7 +533,7 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 			fprintf(stderr,"Error: Triple point temperature only defined for pure fluids\n");
 			return 200;
 		}
-		INFOdll(&icomp,&wmm,&Ttriple,&tnbpt,&tc,&pc,&Dc,&Zc,&acf,&dip,&Rgas);
+		INFOdll(&i,&wmm,&Ttriple,&tnbpt,&tc,&pc,&Dc,&Zc,&acf,&dip,&Rgas);
 		return Ttriple;
 	}
 	else if (iOutput==iI)
@@ -639,16 +638,17 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 	else if ((iName1==iT && iName2==iQ) || (iName2==iT && iName1==iQ))
 	{
 
+		long ic;
 		if (iName2 == iT){
 			std::swap(Prop1,Prop2);
 		}
 		T = Prop1; Q = Prop2;
 		
 		// Saturation Density
-		i=1;
-		SATTdll(&T,x,&i,&pl,&dl,&dv_,xliq,xvap,&ierr,herr,errormessagelength);
-		i=2;
-		SATTdll(&T,x,&i,&pv,&dl_,&dv,xliq,xvap,&ierr,herr,errormessagelength);
+		ic=1;
+		SATTdll(&T,x,&ic,&pl,&dl,&dv_,xliq,xvap,&ierr,herr,errormessagelength);
+		ic=2;
+		SATTdll(&T,x,&ic,&pv,&dl_,&dv,xliq,xvap,&ierr,herr,errormessagelength);
 		if (iOutput==iD) 
 		{
 			return 1/(Q/dv+(1-Q)/dl)*MW;

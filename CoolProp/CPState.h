@@ -5,6 +5,9 @@
 #ifndef CPSTATE_H
 #define CPSTATE_H
 
+bool match_pair(long iI1, long iI2, long I1, long I2);
+void sort_pair(long *iInput1, double *Value1, long *iInput2, double *Value2, long I1, long I2);
+
 class CoolPropStateClass
 {
 protected:
@@ -17,7 +20,7 @@ protected:
 	double rhosatL, rhosatV, psatL, psatV, TsatL, TsatV;
 
 	// Bulk values
-	double _rho,_T,_p,_Q;
+	double _rho,_T,_p,_Q,_h,_s;
 
 	// To be used to update internal variables if you know that your parameters are T,Q or P,Q
 	void update_twophase(long iInput1, double Value1, long iInput2, double Value2);
@@ -28,8 +31,12 @@ protected:
 	// To be used to update internal variables if you know that your parameters are T,P
 	void update_Tp(long iInput1, double Value1, long iInput2, double Value2);
 
-	// To be used to update internal variables if you know that your parameters are P,H
-	void update_ph(long iInput1, double Value1, long iInput2, double Value2);
+	/// To be used to update internal variables if you know that your parameters are P,H
+	/// If T0 and rho0 are included, start at this value for the solution
+	void update_ph(long iInput1, double Value1, long iInput2, double Value2, double T0 = -1, double rho0 = -1);
+
+	// To be used to update internal variables if you know that your parameters are P,S
+	void update_ps(long iInput1, double Value1, long iInput2, double Value2);
 
 	// Check whether the quality corresponds to saturated liquid or vapor
 	void check_saturated_quality(double Q);

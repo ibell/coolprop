@@ -94,7 +94,7 @@ double Secant(FuncWrapper1D *f, double x0, double dx, double tol, int maxiter, s
 		if (iter>maxiter)
 		{
 			*errstring=std::string("reached maximum number of iterations");
-			return _HUGE;
+			throw SolutionError(format("Secant reached maximum number of iterations"));
 		}
         iter=iter+1;
     }
@@ -124,6 +124,10 @@ double Brent(FuncWrapper1D *f, double a, double b, double macheps, double t, int
 	double fa,fb,c,fc,m,tol,d,e,p,q,s,r;
     fa=f->call(a);
     fb=f->call(b);
+	if (fa*fb>0)
+	{
+		throw ValueError(format("Inputs in Brent [%f,%f] do not bracket the root.  Function values are [%f,%f]",a,b,fa,fb));
+	}
     c=a;
     fc=fa;
 	iter=1;

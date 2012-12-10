@@ -1616,16 +1616,25 @@ R245faClass::R245faClass()
     name.assign("R245fa");
 	REFPROPname.assign("R245fa");
 }
-double R245faClass::rhosatL(double T) 
+double R245faClass::rhosatL(double T)
 {
-    double THETA = 1-T/crit.T;
-    return 580.728+1264.86*pow(THETA,0.437088)+230.04*pow(THETA,2.8002);
+double theta = 1-T/reduce.T;
+double RHS,rho;
+
+// Max error is 0.941705 %
+RHS = +1.934009*pow(theta,0.333333)-1.048842*pow(theta,0.666667)+0.705519*pow(theta,1.333333)-0.564935*pow(theta,3.000000)+1.000168*pow(theta,6.166667);
+rho = exp(RHS)*reduce.rho;
+return rho;
 }
-double R245faClass::rhosatV(double T) 
+double R245faClass::rhosatV(double T)
 {
-    double THETA = 1-T/crit.T;
-    double RHS = -0.204607-20.291*pow(THETA,2.4712)-5.94045*pow(THETA,0.618455)-76.7531*pow(THETA,6.51668);
-    return exp(RHS)*crit.rho;
+double theta = 1-T/reduce.T;
+double RHS,rho;
+
+// Max error is 0.845742 %
+RHS = -1.772448*pow(theta,0.333333)-2.921410*pow(theta,0.666667)-1.224996*pow(theta,1.333333)-3.873472*pow(theta,3.000000)-4.176325*pow(theta,6.166667)+0.525028*pow(theta,11.833333);
+rho = exp(RHS*reduce.T/T)*reduce.rho;
+return rho;
 }
 double R245faClass::psat(double T) 
 {
