@@ -985,10 +985,12 @@ double Fluid::ApplySaturationLUT(long iOutProp,long iInProp,double InPropVal)
 	}
 	else if (iOutProp == SatLUT.iHL)
 	{
-		if (_reverse)
+		if (_reverse){
 			y=&(SatLUT.hL_reversed);
-        else
+		}
+		else{
 			y=&(SatLUT.hL);
+		}
 	}
 	else if (iOutProp == SatLUT.iHV)
 	{

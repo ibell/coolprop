@@ -87,14 +87,13 @@ void CoolPropStateClass::update(long iInput1, double Value1, long iInput2, doubl
 	else if (match_pair(iInput1,iInput2,iP,iH)){
 		update_ph(iInput1,Value1,iInput2,Value2);
 	}
+	else if (match_pair(iInput1,iInput2,iP,iS)){
+		update_ps(iInput1,Value1,iInput2,Value2);
+	}
 	else
 	{
 		throw ValueError(format("Sorry your inputs didn't work"));
 	}
-	/*		 match_pair(iInput1,iInput2,iS,iP)){
-		 // Now you need to first figure out what the phase is, and then based on that work out the rest of the parameters
-		
-	}*/
 }
 void CoolPropStateClass::update_twophase(long iInput1, double Value1, long iInput2, double Value2)
 {
@@ -373,7 +372,15 @@ double CoolPropStateClass::s(void){
 		return _Q*sV()+(1-_Q)*sL();
 	}
 	else{
-		return pFluid->entropy_Trho(_T,_rho);
+		if (fabs(_s)<1e90)
+		{
+			// Use the pre-calculated value
+			return _s;
+		}
+		else
+		{
+			return pFluid->entropy_Trho(_T,_rho);
+		}
 	}
 }
 double CoolPropStateClass::cp(void){
@@ -388,14 +395,14 @@ double CoolPropStateClass::speed_sound(void){
 double CoolPropStateClass::drhodT_constp(void){
 	return DerivTerms("drhodT|p",_T,_rho,pFluid,SinglePhase,TwoPhase);
 }
+double CoolPropStateClass::dpdrho_constT(void){
+	return DerivTerms("dpdrho|T",_T,_rho,pFluid,SinglePhase,TwoPhase);
+}
 double CoolPropStateClass::drhodh_constp(void){
 	return DerivTerms("drhodh|p",_T,_rho,pFluid,SinglePhase,TwoPhase);
 }
 double CoolPropStateClass::drhodp_consth(void){
 	return DerivTerms("drhodp|h",_T,_rho,pFluid,SinglePhase,TwoPhase);
-}
-double CoolPropStateClass::dpdrho_constT(void){
-	return DerivTerms("dpdrho|T",_T,_rho,pFluid,SinglePhase,TwoPhase);
 }
 void CoolPropStateClass::dvdp_dhdp_sat(double T, double *dvdpL, double *dvdpV, double *dhdpL, double *dhdpV)
 {
