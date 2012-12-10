@@ -48,7 +48,7 @@ if __name__=='__main__':
                     rev = line.split(':')[1].strip()
                     svnstring = 'long svnrevision = '+rev+';'
                     #Check if it is different than the current version
-                    f = open('svnrevision.h','r')
+                    f = open('CoolProp/svnrevision.h','r')
                     current_svn = f.read()
                     f.close()
                     if not current_svn.strip() == svnstring.strip():                
@@ -63,7 +63,7 @@ if __name__=='__main__':
 
     def version_to_file():
         string_for_file = 'char version [] ="{v:s}";'.format(v = version)
-        f = open('version.h','r')
+        f = open('CoolProp/version.h','r')
         current_version = f.read()
         f.close()
         if not current_version.strip() == string_for_file.strip():
