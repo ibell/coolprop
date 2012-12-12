@@ -647,9 +647,7 @@ void Fluid::saturation(double T, bool UseLUT, double *psatLout, double *psatVout
 		else
 		{
 			try{
-				rhosatPure_Akasaka(T,&rhoL,&rhoV,&p);
-				*rhosatLout = rhoL;
-				*rhosatVout = rhoV;
+				rhosatPure_Akasaka(T,rhosatLout,rhosatVout,&p);
 				*psatLout = p;
 				*psatVout = p;
 				return;
@@ -868,8 +866,8 @@ void Fluid::BuildSaturationLUT()
 	}
 
     // Linearly space the values from the triple point of the fluid to the just shy of the critical point
-    T_t=Props(name,"Ttriple")+0.00001;
-    T_c=Props(name,"Tcrit")-0.000001;
+    T_t=Props(name,"Tmin")+0.00001;
+    T_c=Props(name,"Tcrit")-0.01;
     
 	SatLUT.T=std::vector<double>(SatLUT.N,0);
 	SatLUT.tau=std::vector<double>(SatLUT.N,0);
@@ -879,6 +877,8 @@ void Fluid::BuildSaturationLUT()
 	SatLUT.rhoV=std::vector<double>(SatLUT.N,0);
 	SatLUT.hL=std::vector<double>(SatLUT.N,0);
 	SatLUT.hV=std::vector<double>(SatLUT.N,0);
+	SatLUT.sL=std::vector<double>(SatLUT.N,0);
+	SatLUT.sV=std::vector<double>(SatLUT.N,0);
 
     dT=(T_c-T_t)/(SatLUT.N-1);
     for (i=0;i<SatLUT.N;i++)
@@ -893,6 +893,9 @@ void Fluid::BuildSaturationLUT()
         // Calculate the other saturation properties
 		SatLUT.hL[i]=enthalpy_Trho(SatLUT.T[i],SatLUT.rhoL[i]);
         SatLUT.hV[i]=enthalpy_Trho(SatLUT.T[i],SatLUT.rhoV[i]);
+		SatLUT.sL[i]=entropy_Trho(SatLUT.T[i],SatLUT.rhoL[i]);
+        SatLUT.sV[i]=entropy_Trho(SatLUT.T[i],SatLUT.rhoV[i]);
+
     }
 	// Get reversed copies for when you use temperature as an input because 
 	// temperature is monotonically increasing, but tau is monotonic decreasing
@@ -903,9 +906,11 @@ void Fluid::BuildSaturationLUT()
 	SatLUT.rhoV_reversed.assign(SatLUT.rhoV.rbegin(),SatLUT.rhoV.rend());
 	SatLUT.hL_reversed.assign(SatLUT.hL.rbegin(),SatLUT.hL.rend());
 	SatLUT.hV_reversed.assign(SatLUT.hV.rbegin(),SatLUT.hV.rend());
+	SatLUT.sL_reversed.assign(SatLUT.sL.rbegin(),SatLUT.sL.rend());
+	SatLUT.sV_reversed.assign(SatLUT.sV.rbegin(),SatLUT.sV.rend());
 	SatLUT.built=true;
 }   
-// Ancillary equations composed by interpolating within 10-point 
+// Ancillary equations composed by interpolating within 50-point 
 // curve that is calculated once
 double Fluid::hsatV_anc(double T)
 {
@@ -931,8 +936,6 @@ double Fluid::ssatL_anc(double T)
 		s_ancillary->build(50);
 	return s_ancillary->interpolateL(T);
 }
-//double ssatV_anc(double T);
-//double ssatL_anc(double T);
 
 double Fluid::ApplySaturationLUT(long iOutProp,long iInProp,double InPropVal)
 {
@@ -941,10 +944,11 @@ double Fluid::ApplySaturationLUT(long iOutProp,long iInProp,double InPropVal)
 
     // pointers to the x and y std::vectors for later
 	std::vector<double> *y,*x;
-    
+	
     // First try to build the LUT
     BuildSaturationLUT();
-   
+
+	
 	if (iInProp == SatLUT.iT)
 	{
 		x=&(SatLUT.tau_reversed);// from ~1 to Tc/Ttriple
@@ -959,9 +963,11 @@ double Fluid::ApplySaturationLUT(long iOutProp,long iInProp,double InPropVal)
 	}
 	else 
 	{
-		throw AttributeError(format("iInProp [%d] to ApplySaturationLUT is invalid.  Valid values are iT,iP",iInProp));
+		std::cout << format("iInProp [%d] to ApplySaturationLUT is invalid.  Valid values are iT [%d],iP [%d]\n",iInProp,iT,iP);
+		//throw AttributeError(format("iInProp [%d] to ApplySaturationLUT is invalid.  Valid values are iT [%d],iP [%d]",iInProp,iT,iP));
+		return 1000;
 	}
-    
+
 	if (iOutProp == SatLUT.iDL)
 	{
 		if (_reverse)
@@ -999,12 +1005,34 @@ double Fluid::ApplySaturationLUT(long iOutProp,long iInProp,double InPropVal)
         else
 			y=&(SatLUT.hV);
 	}
+	else if (iOutProp == SatLUT.iSL)
+	{
+		if (_reverse){
+			y=&(SatLUT.sL_reversed);
+		}
+		else{
+			y=&(SatLUT.sL);
+		}
+	}
+	else if (iOutProp == SatLUT.iSV)
+	{
+		if (_reverse)
+			y=&(SatLUT.sV_reversed);
+        else
+			y=&(SatLUT.sV);
+	}
 	else if (iOutProp == SatLUT.iT)
 	{
 		if (_reverse)
 			y=&(SatLUT.tau_reversed);
         else
 			y=&(SatLUT.tau);
+	}
+	else
+	{
+		std::cout << format("iOutProp [%d] to ApplySaturationLUT is invalid.\n",iOutProp);
+		//throw AttributeError(format("iOutProp [%d] to ApplySaturationLUT is invalid.",iOutProp));
+		return 1000;
 	}
 
 	// Actually interpolate
@@ -1020,10 +1048,7 @@ double Fluid::ApplySaturationLUT(long iOutProp,long iInProp,double InPropVal)
 		return y_LUT;
 }
 
-double Fluid::Tsat(double p, double Q, double T_guess)
-{
-	return Tsat(p,Q,T_guess,false);
-}
+
 
 double Fluid::_get_rho_guess(double T, double p)
 {
@@ -1678,7 +1703,7 @@ double Fluid::Tsat_anc(double p, double Q)
 	// This one only uses the ancillary equations
 
     double x1=0,x2=0,y1=0,y2=0;
-    double Tc,Tmax,Tmin,Tmid,logp_min,logp_mid,logp_max;
+    double Tc,Tmax,Tmin,Tmid;
 
     Tc=reduce.T;
     Tmax=Tc-10*DBL_EPSILON;
@@ -1692,54 +1717,55 @@ double Fluid::Tsat_anc(double p, double Q)
 	double tau_mid = Tc/Tmid;
 	double tau_min = Tc/Tmax;
 
-	if (fabs(Q-1)<1e-10)
-	{
-		// reduced pressures
-		logp_min = log(psatV_anc(Tmin));
-		logp_mid = log(psatV_anc(Tmid));
-		logp_max = log(psatV_anc(Tmax));
-	}
-	else if (fabs(Q)<1e-10)
-	{
-		logp_min = log(psatL_anc(Tmin));
-		logp_mid = log(psatL_anc(Tmid));
-		logp_max = log(psatL_anc(Tmax));
-	}
-	
-	// Plotting Tc/T versus log(p) tends to give very close to straight line
-    // Use this fact find T more easily using reverse quadratic interpolation
-	double tau_interp = QuadInterp(logp_min,logp_mid,logp_max,tau_max,tau_mid,tau_min,log(p));
-
-	return reduce.T/tau_interp;
-    
-    
-	//class SatFuncClass : public FuncWrapper1D
+	//if (fabs(Q-1)<1e-10)
 	//{
-	//private:
-	//	double p,Q,Tc;
-	//	std::string name;
-	//	Fluid * pFluid;
-	//public:
-	//	SatFuncClass(double p_, double Q_, double Tc_, std::string name_,Fluid *_pFluid){
-	//		p=p_;Q=Q_;Tc=Tc_,name=name_,pFluid = _pFluid;
-	//	};
-	//	double call(double tau){
-	//		if (fabs(Q-1)<1e-10)
-	//			return log(pFluid->psatV_anc(Tc/tau)/p);
-	//		else if (fabs(Q)<1e-10)
-	//			return log(pFluid->psatL_anc(Tc/tau)/p);
-	//		else
-	//			throw ValueError("Quality must be 1 or 0");
-	//	};
-	//} SatFunc(p,Q,reduce.T,name,this);
-
+	//	// reduced pressures
+	//	logp_min = log(psatV_anc(Tmin));
+	//	logp_mid = log(psatV_anc(Tmid));
+	//	logp_max = log(psatV_anc(Tmax));
+	//}
+	//else if (fabs(Q)<1e-10)
+	//{
+	//	logp_min = log(psatL_anc(Tmin));
+	//	logp_mid = log(psatL_anc(Tmid));
+	//	logp_max = log(psatL_anc(Tmax));
+	//}
 	//
-	//// Use Brent's method to find tau = Tc/T
-	//std::string errstr;
- //   double tau = Brent(&SatFunc,tau_min,tau_max,1e-10,1e-4,50,&errstr);
-	//if (errstr.size()>0)
-	//	throw SolutionError("Saturation calculation failed");
-	//return reduce.T/tau;
+	//// Plotting Tc/T versus log(p) tends to give very close to straight line
+ //   // Use this fact find T more easily using reverse quadratic interpolation
+	//double tau_interp = QuadInterp(logp_min,logp_mid,logp_max,tau_max,tau_mid,tau_min,log(p));
+
+	//std::cout << "Tsat_anc" << psatV_anc(reduce.T/tau_interp) << '\n';
+	//return reduce.T/tau_interp;
+    
+    
+	class SatFuncClass : public FuncWrapper1D
+	{
+	private:
+		double p,Q,Tc;
+		std::string name;
+		Fluid * pFluid;
+	public:
+		SatFuncClass(double p_, double Q_, double Tc_, std::string name_,Fluid *_pFluid){
+			p=p_;Q=Q_;Tc=Tc_,name=name_,pFluid = _pFluid;
+		};
+		double call(double tau){
+			if (fabs(Q-1)<10*DBL_EPSILON)
+				return log(pFluid->psatV_anc(Tc/tau)/p);
+			else if (fabs(Q)<10*DBL_EPSILON)
+				return log(pFluid->psatL_anc(Tc/tau)/p);
+			else
+				throw ValueError("Quality must be 1 or 0");
+		};
+	} SatFunc(p,Q,reduce.T,name,this);
+
+	
+	// Use Brent's method to find tau = Tc/T
+	std::string errstr;
+    double tau = Brent(&SatFunc,tau_min,tau_max,1e-10,1e-4,50,&errstr);
+	if (errstr.size()>0)
+		throw SolutionError("Saturation calculation failed");
+	return reduce.T/tau;
 }
 
 
@@ -1856,7 +1882,6 @@ public:
 	}
 };
 
-
 class SaturationPressureGivenResids : public FuncWrapper1D
 {
 private:
@@ -1864,28 +1889,16 @@ private:
 	Fluid *pFluid;
 public:
 	double rhoL, rhoV;
-	SaturationPressureGivenResids(Fluid *pFluid, double p){this->pFluid = pFluid; this->p = p;};
+	SaturationPressureGivenResids(Fluid *pFluid, double p){
+		this->pFluid = pFluid; 
+		this->p = p;
+	};
 	~SaturationPressureGivenResids(){};
 	
 	double call(double T)
 	{
-		// If the temperature is greater than 0.95*Tc, use a Brent solver to find the 
-		// densities for the given temperature and pressure.  Secant solver in density_Tp craps out
-		if (T>0.95*pFluid->crit.T)
-		{
-			DensityTpResids * DTPR = new DensityTpResids(this->pFluid,T,this->p);
-			double rhoL_095 = pFluid->rhosatL(0.95*pFluid->crit.T);
-			double rhoV_095 = pFluid->rhosatV(0.95*pFluid->crit.T);
-			std::string errstr;
-			rhoL = Brent(DTPR,rhoL_095,pFluid->crit.rho+10*DBL_EPSILON,DBL_EPSILON,1e-8,40,&errstr);
-			rhoV = Brent(DTPR,rhoV_095,pFluid->crit.rho-10*DBL_EPSILON,DBL_EPSILON,1e-8,40,&errstr);
-			delete DTPR;
-		}
-		else
-		{
-			rhoL = pFluid->density_Tp(T,p,rhoL);
-			rhoV = pFluid->density_Tp(T,p,rhoV);
-		}
+		rhoL = pFluid->density_Tp(T,p,rhoL);
+		rhoV = pFluid->density_Tp(T,p,rhoV);
 		return pFluid->gibbs_Trho(T,rhoL)-pFluid->gibbs_Trho(T,rhoV);
 	}
 };
@@ -1927,15 +1940,15 @@ void Fluid::TsatP_Pure(double p, double *Tout, double *rhoLout, double *rhoVout)
 	SPGR->rhoL = rhoL;
 	SPGR->rhoV = rhoV;
 	try{
-		Tsat = Secant(SPGR,Tsat,1e-7,1e-4,50,&errstr);
+		Tsat = Secant(SPGR,Tsat,1e-4,1e-9,50,&errstr);
 	}
 	catch(std::exception) // Whoops that failed...
 	{
 		Tmax = Tsat+5;
 		Tmin = Tsat-5;
-		if (Tmax > crit.T-2*DBL_EPSILON)
+		if (Tmax > crit.T-0.0001)
 		{
-			Tmax = crit.T-2*DBL_EPSILON;
+			Tmax = crit.T-0.0001;
 		}	
 		Tsat = Brent(SPGR,Tmin,Tmax,DBL_EPSILON,1e-8,30,&errstr);
 	}
@@ -1962,12 +1975,18 @@ void Fluid::TsatP_Pure(double p, double *Tout, double *rhoLout, double *rhoVout)
 	return;
 }
 
-double Fluid::Tsat(double p, double Q, double T_guess, bool UseLUT)
+double Fluid::Tsat(double p, double Q, double T_guess)
+{
+	double rhoLout,rhoVout;
+	return Tsat(p,Q,T_guess,false,&rhoLout, &rhoVout);
+}
+
+double Fluid::Tsat(double p, double Q, double T_guess, bool UseLUT, double *rhoLout, double *rhoVout)
 {
 	if (isPure && !UseLUT)
 	{
-		double Tout,rhoLout,rhoVout;
-		TsatP_Pure(p,&Tout,&rhoLout,&rhoVout);
+		double Tout;
+		TsatP_Pure(p,&Tout,rhoLout,rhoVout);
 		return Tout;
 	}
 	else
@@ -2419,7 +2438,7 @@ double Fluid::viscosity_dilute(double T, double e_k, double sigma)
 	// From Neufeld, 1972, Journal of Chemical Physics - checked coefficients
 	OMEGA_2_2 = 1.16145*pow(Tstar,-0.14874)+ 0.52487*exp(-0.77320*Tstar)+2.16178*exp(-2.43787*Tstar);
 	// Using the leading constant from McLinden, 2000 since the leading term from Huber 2003 gives crazy values
-	eta_star = 26.69e-3*sqrt(params.molemass*T)/(pow(sigma,2)*OMEGA_2_2)/1e6;
+	eta_star = 26.692e-3*sqrt(params.molemass*T)/(pow(sigma,2)*OMEGA_2_2)/1e6;
 	return eta_star;
 }
 double Fluid::conductivity_critical(double T, double rho)

@@ -220,8 +220,8 @@ Check of p,h and p,s as inputs (X: Failure .: Success)
     smin = Props('S','T',Tmin,'Q',0,Ref)
     smax = 2*Props('S','T',Props(Ref,'Tcrit')-1,'Q',1,Ref)-smin
 
-    Ph(Ref, axis = ax1, Tmin = Tmin)
-    Ps(Ref, axis = ax2, Tmin = Tmin)
+    Ph(Ref, axis = ax1, Tmin = Tmin, Tmax = 369.285000)
+    Ps(Ref, axis = ax2, Tmin = Tmin, Tmax = 369.285000)
 
     for p in np.linspace(pmin,pmax,10):
         for h in np.linspace(hmin,hmax):

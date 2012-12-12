@@ -52,7 +52,7 @@ if __name__=='__main__':
                     current_svn = f.read()
                     f.close()
                     if not current_svn.strip() == svnstring.strip():                
-                        f = open('svnrevision.h','w')
+                        f = open('CoolProp/svnrevision.h','w')
                         f.write(svnstring)
                         f.close()
                     break
@@ -109,7 +109,7 @@ if __name__=='__main__':
     #Unpack the __init__.py file template and add some things to the __init__ file
     lines=open('__init__.py.template','r').readlines()
 
-    f = open('svnrevision.h','r')
+    f = open('CoolProp/svnrevision.h','r')
     rev = f.read().strip().split('=')[1].strip(';').strip()
     f.close()
     svnstring = '__svnrevision__ ='+rev+'\n'
@@ -139,7 +139,7 @@ if __name__=='__main__':
     for f in glob.glob(os.path.join('CoolProp','*_wrap.cpp')):
         others.remove(f)
     
-    Sources=purefluids+pseudopurefluids+others
+    Sources=purefluids + pseudopurefluids + others
          
     ### Include folders for build
     include_dirs = ['CoolProp',

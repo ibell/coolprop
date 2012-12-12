@@ -5,6 +5,8 @@ import os
 
 def PropertyConsistency(Fluid):
     
+    Tmax = CP.Props(Fluid,"Tcrit")-1 if Fluid == 'SES36' else CP.Props(Fluid,"Tcrit")-0.01
+        
     return textwrap.dedent(
     """
     Check of p,h and p,s as inputs (X: Failure .: Success)
@@ -29,8 +31,8 @@ def PropertyConsistency(Fluid):
         smin = Props('S','T',Tmin,'Q',0,Ref)
         smax = 2*Props('S','T',Props(Ref,'Tcrit')-1,'Q',1,Ref)-smin
             
-        Ph(Ref, axis = ax1, Tmin = Tmin)
-        Ps(Ref, axis = ax2, Tmin = Tmin)
+        Ph(Ref, axis = ax1, Tmin = Tmin, Tmax = {Tmax:f})
+        Ps(Ref, axis = ax2, Tmin = Tmin, Tmax = {Tmax:f})
 
         for p in np.linspace(pmin,pmax,10):
             for h in np.linspace(hmin,hmax):
@@ -61,7 +63,7 @@ def PropertyConsistency(Fluid):
                     ax2.plot(s,p,'k.', ms = 1)
                     
         plt.tight_layout()
-    """.format(Fluid=Fluid))
+    """.format(Fluid=Fluid,Tmax = Tmax))
 
 def CriticalIsotherm(Fluid):
     

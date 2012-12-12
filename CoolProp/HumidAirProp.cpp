@@ -15,7 +15,7 @@
 #include "Solvers.h"
 #include "CoolPropTools.h"
 
-enum givens{GIVEN_TDP,GIVEN_HUMRAT,GIVEN_TWB,GIVEN_RH,GIVEN_ENTHALPY,GIVEN_T,GIVEN_P,GIVEN_VISC,GIVEN_COND};
+enum givens{GIVEN_TDP,GIVEN_HUMRAT,GIVEN_V,GIVEN_TWB,GIVEN_RH,GIVEN_ENTHALPY,GIVEN_T,GIVEN_P,GIVEN_VISC,GIVEN_COND};
 
 static const char ITc='B';
 static double epsilon=0.621945,R_bar=8.314472;
@@ -903,6 +903,8 @@ static int Name2Type(char *Name)
         return GIVEN_T;
     else if (!strcmp(Name,"P"))
         return GIVEN_P;
+	else if (!strcmp(Name,"V") || !strcmp(Name,"Vda"))
+        return GIVEN_V;
     else if (!strcmp(Name,"mu") || !strcmp(Name,"Visc") || !strcmp(Name,"M"))
         return GIVEN_VISC;
     else if (!strcmp(Name,"k") || !strcmp(Name,"Conductivity") || !strcmp(Name,"K"))

@@ -141,8 +141,8 @@ SES36Class::SES36Class()
 	phirlist.push_back(new phir_gaussian(n_v,d_v,t_v,eta_v,epsilon_v,beta_v,gamma_v,11,14));
 
 	// phi0=log(delta)+a0[1]*log(tau)+a0[2]*log(1-exp(-b0*tau));
-	phi0list.push_back(new phi0_lead(0,0));
-	phi0list.push_back(new phi0_logtau(a0[1]));
+	phi0list.push_back(new phi0_lead(0,0)); // phi0_lead is like log(delta)+a1+a2*tau with a1=0, a2=0
+	phi0list.push_back(new phi0_logtau(a0[1]-1)); // -1 value needed to yield the correct values for the ideal gas part
 	phi0list.push_back(new phi0_Planck_Einstein(a0[2],b0/450.7));
 
 	// Critical parameters

@@ -192,12 +192,16 @@ R32Class::R32Class()
 }
 double R32Class::psat(double T)
 {
-	double theta,phi,p0=5781.16;
-
-	phi=T/crit.T;
-	theta=1-phi;
-
-	return p0*exp((-7.44892*theta+1.6886*pow(theta,3.0/2.0)-1.908*pow(theta,5.0/2.0)-2.810*theta*theta*theta*theta*theta)/phi);
+	const double ti[]={0,1,1.5,2.3,3.6,5.2,7.3};
+    const double Ni[]={0,-7.4655606703362523, 1.804181047910655, -1.5910694825428875, -0.72617761983564866, -3.0701624093185873, 1.4422289706087676};
+    double summer=0,theta;
+    int i;
+    theta=1.0-T/reduce.T;
+    for (i=1;i<=6;i++)
+    {
+        summer=summer+Ni[i]*pow(theta,ti[i]);
+    }
+    return crit.p*exp(summer*crit.T/T);
 }
 
 double R32Class::rhosatL(double T)
@@ -210,11 +214,16 @@ double R32Class::rhosatL(double T)
 }
 double R32Class::rhosatV(double T)
 {
-	double theta, phi;
-	phi=T/crit.T;
-	theta=1-phi;
-
-	return crit.rho*exp(-1.969*pow(theta,1.0/3.0)-2.0222*pow(theta,2.0/3.0)-6.7409*pow(theta,4.0/3.0)-27.479*pow(theta,11.0/3.0));
+	const double ti[]={0,0.30280531791334198, 0.7420002747530019, 3.8727512808619684};
+    const double Ni[]={0,-1.6156590624508722, -3.8438826469427365, -4.429417770439076};
+    double summer=0,theta;
+    int i;
+    theta=1.0-T/reduce.T;
+    for (i=1;i<=3;i++)
+    {
+        summer=summer+Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.rho*exp(summer*crit.T/T);
 }
 double R32Class::ECS_psi_viscosity(double rhor)
 {

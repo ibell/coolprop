@@ -1,4 +1,4 @@
-#!/usr/bin/python
+from __future__ import division
 
 import string
 import random
@@ -7,7 +7,7 @@ from scipy.odr import *
 
 from summer import sum_function
 
-LIBRARY = [i/6.0 for i in range(1,121)]+[0.35+i/1000 for i in range(1,11)]
+LIBRARY = [i/6.0 for i in range(1,151)]+[0.35+i/2000 for i in range(1,100)]
 
 class Sample(object):
     def __init__(self,v):
@@ -16,10 +16,10 @@ class Sample(object):
 class GeneticHelloWorld(object):
     def __init__(self,
                num_samples = 60, # Have 60 chromos in the sample group
-               num_selected = 6, # Have 10 chromos in the selected group
-               mutation_factor = 5, # Mutate every 10 chromosomes
+               num_selected = 20, # Have 10 chromos in the selected group
+               mutation_factor = 3, # Randomly mutate 1/n of the chromosomes
                num_powers = 6, # How many powers in the fit
-               Ref = 'REFPROP-R32',
+               Ref = 'REFPROP-R22',
                value = 'rhoV',
                addTr = False
                 ):
@@ -54,7 +54,7 @@ class GeneticHelloWorld(object):
         '''
         chromos = []
         while len(chromos) < self.num_samples:
-            chromos.append(Sample(random.sample(LIBRARY,self.num_powers)))
+            chromos.append(Sample(sorted(random.sample(LIBRARY,self.num_powers))))
         return chromos
 
     def fitness(self, chromo):
@@ -83,6 +83,8 @@ class GeneticHelloWorld(object):
             mydata = Data(x, LHS)
             myodr = ODR(mydata, linear, beta0=[0.0]*self.num_powers)
             myoutput = myodr.run()
+            
+            chromo.beta = myoutput.beta
         
             if self.addTr:
                 RHS = f_RHS(myoutput.beta,x,n)*self.Tc/self.T
@@ -128,7 +130,7 @@ class GeneticHelloWorld(object):
         splice_pos = random.randrange(len(a.v))
         new_a = a.v[:splice_pos] + b.v[splice_pos:]
         new_b = b.v[:splice_pos] + a.v[splice_pos:]
-        return Sample(new_a), Sample(new_b)
+        return Sample(sorted(new_a)), Sample(sorted(new_b))
 
 
     def mutate(self, chromo):
@@ -147,7 +149,7 @@ class GeneticHelloWorld(object):
         if new_fitness < old_fitness:
             return chromo
         else:
-            return Sample(v)
+            return Sample(sorted(v))
 
     def run(self):
         # Create a random sample of chromos
@@ -165,12 +167,12 @@ class GeneticHelloWorld(object):
         # Main loop: each generation select a subset of the sample and breed from
         # them.
         generation = -1
-        while generation < 0 or samples[0].fitness > 1e-5 or generation < 3:
+        while generation < 0 or samples[0].fitness > 1e-5 or generation < 3 and generation < 35:
             generation += 1
                 
-            # Generate the selected group from sample- take the top 20% of samples
+            # Generate the selected group from sample- take the top 5% of samples
             # and tourny select to generate the rest of selected.
-            ten_percent = int(len(samples)*.2)
+            ten_percent = int(len(samples)*.05)
             selected = samples[:ten_percent]
             while len(selected) < self.num_selected:
                 selected.append(self.tourny_select_chromo(samples))
@@ -182,7 +184,8 @@ class GeneticHelloWorld(object):
                                          random.choice(selected)))
             
             # Apply a mutation to a subset of the solution set
-            for i, chromo in enumerate(solution[::self.mutation_factor]):
+            mutate_indices = random.sample(range(len(solution)), len(solution)//self.mutation_factor)
+            for i in mutate_indices:
                 solution[i] = self.mutate(solution[i])
             
             for chromo in solution:
@@ -193,19 +196,24 @@ class GeneticHelloWorld(object):
             decorated.sort()
             samples = [s for sv,s in decorated]
             
+            print '------------------  Top 10 values  ---------------'
             for sample in samples[0:10]:
                 print sample.v, sample.fitness, sample.max_abserror
+            
+            print samples[0].v, list(samples[0].beta)
                 
             # Print useful stats about this generation
             (min, median, max) =  [samples[0].fitness, samples[len(samples)//2].fitness, samples[-1].fitness]
             print("{0} best value: {1}. fitness: best {2}, median {3}, worst {4}".format(generation, samples[0].v, min, median, max))
     
         return samples[0]
-
   
 def main():
     ghw = GeneticHelloWorld()
     r = ghw.run()
+    
+    print r.v
+    print list(r.beta)
 
 if __name__ == "__main__":
   main() 

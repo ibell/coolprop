@@ -873,7 +873,7 @@ double _CoolProp_Fluid_Props(long iOutput, long iName1, double Prop1, long iName
 		if (T <= pFluid->params.Ttriple || T >= pFluid->crit.T){
 			throw ValueError(format("Your saturation temperature [%f K] is out of range [%f K, %f K]",T,pFluid->params.Ttriple,pFluid->crit.T ));
 		}
-		if (Q>1+1e-13 || Q<-1e-13){
+		if (Q>1+10*DBL_EPSILON || Q<-10*DBL_EPSILON){
 			throw ValueError(format("Your quality [%f] is out of range (0, 1)",Q ));
 		}
 		// Get the saturation properties
@@ -889,10 +889,13 @@ double _CoolProp_Fluid_Props(long iOutput, long iName1, double Prop1, long iName
 		if (iOutput == iD)
 			return 1/(Q/rhoV+(1-Q)/rhoL);
 	
-		if (fabs(Q)<1e-12)
+		// Saturated liquid
+		if (fabs(Q)<10*DBL_EPSILON)
 			return _CoolProp_Fluid_Props(iOutput,iT,Prop1,iD,rhoL,pFluid,true);
-		else if (fabs(Q-1)<1e-12)
+		// Saturated vapor
+		else if (fabs(Q-1)<10*DBL_EPSILON)
 			return _CoolProp_Fluid_Props(iOutput,iT,Prop1,iD,rhoV,pFluid,true);
+		// Neither saturated liquid not saturated vapor
 		else
 			return Q*_CoolProp_Fluid_Props(iOutput,iT,Prop1,iD,rhoV,pFluid,true)+(1-Q)*_CoolProp_Fluid_Props(iOutput,iT,Prop1,iD,rhoL,pFluid,true);
 	}
@@ -993,8 +996,24 @@ double _CoolProp_Fluid_Props(long iOutput, long iName1, double Prop1, long iName
 		{
 			std::swap(Prop1,Prop2);
 		}
-        T=pFluid->Tsat(Prop1,Prop2,0);
-        return _CoolProp_Fluid_Props(iOutput,iT,T,iQ,Prop2,pFluid);
+		// Do the saturation call
+		double rhoL, rhoV;
+        T=pFluid->Tsat(Prop1,Prop2,0,SaturationLUTStatus(), &rhoL, &rhoV);
+		// Saturated liquid
+		if (fabs(Prop2) < 10*DBL_EPSILON)
+		{
+			return _CoolProp_Fluid_Props(iOutput,iT,T,iD,rhoL,pFluid,true);
+		}
+		// Saturated vapor
+		else if (fabs(Prop2-1) < 10*DBL_EPSILON)
+		{
+			return _CoolProp_Fluid_Props(iOutput,iT,T,iD,rhoV,pFluid,true);
+		}
+		// Neither saturated liquid not saturated vapor
+		else
+		{
+			return _CoolProp_Fluid_Props(iOutput,iT,T,iQ,Prop2,pFluid);
+		}
     }
     else if ((iName1 == iH && iName2 == iP) || (iName1 == iP && iName2 == iH))
     {

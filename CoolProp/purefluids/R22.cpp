@@ -272,20 +272,42 @@ R22Class::R22Class()
 }
 double R22Class::rhosatL(double T) 
 {
-    double THETA = 1-T/crit.T;
-    return 554.3+1260.78*pow(THETA,0.420045)+203.734*pow(THETA,2.18989);
+    const double ti[]={0,0.31192915101182356, 2.8946435869795102, 0.67246871922761298};
+    const double Ni[]={0,1.483021299160145, 0.080969023427476514, -0.20168767717342609};
+    double summer=0,theta;
+    int i;
+    theta=1.0-T/reduce.T;
+    for (i=1;i<=3;i++)
+    {
+        summer=summer+Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.rho*exp(summer);
 }
 double R22Class::rhosatV(double T) 
 {
-    double THETA = 1-T/crit.T;
-    double RHS = -0.260491-21.0257*pow(THETA,2.83725)-6.25081*pow(THETA,0.679654)-77.5907*pow(THETA,7.74259);
-    return exp(RHS)*crit.rho;
+    const double ti[]={0,0.34946619849137917, 0.85911512967423576, 4.0559379494670686};
+    const double Ni[]={0,-2.1778924368532797, -3.1490525869084243, -4.5796870359311495};
+    double summer=0,theta;
+    int i;
+    theta=1.0-T/reduce.T;
+    for (i=1;i<=3;i++)
+    {
+        summer=summer+Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.rho*exp(summer*crit.T/T);
 }
 double R22Class::psat(double T) 
 {
-    double THETA = 1-T/crit.T;
-    double RHS = -2.53703e-05-3.59007*pow(THETA,4.08377)-6.30182*pow(THETA,0.977892);
-    return exp(crit.T/T*RHS)*crit.p;
+    const double ti[]={0,1,1.5,2.3,3.6,5.2,7.3};
+    const double Ni[]={0,-7.0751284116491497, 1.6540574277960167, -1.6991342890871426, -0.28422811006931187, -3.5966160189328447, 1.217643375964375};
+    double summer=0,theta;
+    int i;
+    theta=1.0-T/reduce.T;
+    for (i=1;i<=6;i++)
+    {
+        summer=summer+Ni[i]*pow(theta,ti[i]);
+    }
+    return crit.p*exp(summer*crit.T/T);
 }
 double R22Class::ECS_f_int(double T)
 {

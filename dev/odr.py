@@ -46,18 +46,23 @@ def example2(Ref, N = 3):
     def f_p(B, x):
         # B is a vector of the parameters.
         # x is an array of the current x values.
-        return B[0]*x + B[1]*x**1.5 + B[2]*x**2.3 + B[3]*x**3.6 + B[3]*x**5.2 + B[4]*x**7.3
+        return B[0]*x + B[1]*x**1.5 + B[2]*x**2.3 + B[3]*x**3.6 + B[4]*x**5.2 + B[5]*x**7.3
     x = 1.0-TT/Tc
     y = logppc
     
     linear = Model(f_p)
     mydata = Data(x, y)
-    myodr = ODR(mydata, linear, beta0=[0, 0, 0, 0, 0])
+    myodr = ODR(mydata, linear, beta0=[0, 0, 0, 0, 0, 0])
     myoutput = myodr.run()
     print Ref, 'p SSE =', myoutput.sum_square
+    print list(myoutput.beta)
+    p_fit = np.exp(f_p(myoutput.beta,x)*Tc/TT)*pc
+    max_abserror = np.max(np.abs((p_fit/p)-1)*100)
+    print max_abserror
     
     x = 1.0-TT/Tc
-    y = np.log(np.array(rhoL)/rhoc)
+    y = np.log(np.array(rhoV)/rhoc)*TT/Tc
+    #y = np.log(np.array(rhoL)/rhoc)
     
     def f_coeffs(n,x):
         # The outer optimizer that will find the coefficients
@@ -72,25 +77,19 @@ def example2(Ref, N = 3):
         myodr = ODR(mydata, linear, beta0=[0]*N)
         myoutput = myodr.run()
     
-        rho_fit = np.exp(f_rhoL(myoutput.beta,x))*rhoc
-        max_abserror = np.max(np.abs((rho_fit/rhoL)-1)*100)
+        rho_fit = np.exp(f_rhoL(myoutput.beta,x)*Tc/TT)*rhoc
+        max_abserror = np.max(np.abs((rho_fit/rhoV)-1)*100)
+        #rho_fit = np.exp(f_rhoL(myoutput.beta,x))*rhoc
+        #max_abserror = np.max(np.abs((rho_fit/rhoV)-1)*100)
         
-        print Ref, 'rhoL SSE =', myoutput.sum_square, myoutput.beta, max_abserror,'%'
+        print Ref, 'rhoL SSE =', myoutput.sum_square, list(myoutput.beta), list(n), max_abserror,'%'
         return myoutput.sum_square
     
     import scipy.optimize, random
     
-#    n_library = [i/2.0 for i in range(20)]
-#    Ngenes = 10
-#    
-#    genes = [random.sample(n_library,N) for gene in range(Ngenes)]
-#        
-#    while True:
-#        for gene in genes:
-#            f_coeffs(gene,x)
     n0 = [0.345,2.2,4.3]
     x = scipy.optimize.minimize(f_coeffs,n0, args=(x,), method = 'Powell')
     
 #example1()
 
-example2('REFPROP-R245fa')
+example2('REFPROP-R134a')

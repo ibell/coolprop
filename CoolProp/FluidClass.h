@@ -29,8 +29,8 @@ struct FluidLimits
 
 struct SatLUTStruct
 {
-	std::vector<double> T,rhoL,rhoV,p,hL,hV,tau,logp;
-	std::vector<double> T_reversed,rhoL_reversed,rhoV_reversed,p_reversed,hL_reversed,hV_reversed,tau_reversed,logp_reversed;
+	std::vector<double> T,rhoL,rhoV,p,hL,hV,sL,sV,tau,logp;
+	std::vector<double> T_reversed,rhoL_reversed,rhoV_reversed,p_reversed,hL_reversed,hV_reversed,sL_reversed,sV_reversed,tau_reversed,logp_reversed;
 	int N;
 	bool built;
 	enum flags{ iT,iP,iHL,iHV,iDL,iDV,iSL,iSV};
@@ -386,7 +386,9 @@ class Fluid
 		/// @param Q Vapor quality in the range [0,1]
 		/// @param T_guess  Not currently used due to the use of the Brent solver. Used to be the guess temperature
 		/// @param UseLUT Use the Lookup table (True), or not (False)
-		double Tsat(double p, double Q, double T_guess, bool UseLUT);
+		/// @param rhoLout The saturated liquid density [kg/m3]
+		/// @param rhoVout The saturated vapor density [kg/m3]
+		double Tsat(double p, double Q, double T_guess, bool UseLUT, double *rhoLout, double *rhoVout);
 
 		/// The saturation temperature of the fluid for a given pressure and quality. If the 
 		/// fluid is pure, the saturated vapor and saturated liquid temperatures are the same.  

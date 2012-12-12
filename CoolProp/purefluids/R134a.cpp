@@ -347,34 +347,42 @@ double R134aClass::viscosity_Trho(double T, double rho)
 }
 double R134aClass::psat(double T)
 {
-	double theta,phi;	
-	phi=T/374.18;
-	theta=1-phi;
-	return crit.p*exp((-7.686556*theta+2.311791*pow(theta,1.5)-2.039554*theta*theta-3.583758*theta*theta*theta*theta)/phi);
+	const double ti[]={0,1,1.5,2.3,3.6,5.2,7.3};
+    const double Ni[]={0,-7.6896400207782598, 2.0859760566425463, -2.6755347075503888, 0.3010493765467589, -5.8583601582059233, 3.4788072104059631};
+    double summer=0,theta;
+    int i;
+    theta=1.0-T/reduce.T;
+    for (i=1;i<=6;i++)
+    {
+        summer=summer+Ni[i]*pow(theta,ti[i]);
+    }
+    return crit.p*exp(summer*crit.T/T);
 }
 double R134aClass::rhosatL(double T)
 {
-	if (T>374.15)
-		T=374.15;
-	double theta = 1-T/reduce.T;
-	double RHS,rho;
-
-	// Max error is 0.154203 %
-	RHS = +6.718083*pow(theta,0.409563)-5.712894*pow(theta,0.466939)-1.052246*pow(theta,1.476237)-0.038187*pow(theta,4.443366)+0.262220*pow(theta,5.082950);
-	rho = exp(RHS*reduce.T/T)*reduce.rho;
-	return rho;
+	const double ti[]={0,0.30476365788328746, 1.3693916347775943, 1.47181218204009};
+    const double Ni[]={0,1.4547755306897099, -1.8409578717703114, 1.7741041693195705};
+    double summer=0,theta;
+    int i;
+    theta=1.0-T/reduce.T;
+    for (i=1;i<=3;i++)
+    {
+        summer=summer+Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.rho*exp(summer);
 }
 double R134aClass::rhosatV(double T)
 {
-	if (T>374.15)
-		T=374.15;
-	double theta = 1-T/reduce.T;
-	double RHS,rho;
-
-	// Max error is 0.843771 %
-	RHS = -2.830780*pow(theta,0.380346)-3.207817*pow(theta,1.002114)-3.557142*pow(theta,4.122745)-2.129481*pow(theta,4.582308)-0.941618*pow(theta,5.635823)-0.148541*pow(theta,6.507706)+0.344686*pow(theta,7.340183);
-	rho = exp(RHS*reduce.T/T)*reduce.rho;
-	return rho;
+	const double ti[]={0,0.36671869805172808, 0.90909437225529799, 3.8975848316804713};
+    const double Ni[]={0,-2.5530620653554106, -3.260103853948312, -5.5500764019235618};
+    double summer=0,theta;
+    int i;
+    theta=1.0-T/reduce.T;
+    for (i=1;i<=3;i++)
+    {
+        summer=summer+Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.rho*exp(summer*crit.T/T);
 }
 double R134aClass::surface_tension_T(double T)
 {
