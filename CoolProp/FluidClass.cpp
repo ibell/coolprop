@@ -2483,7 +2483,7 @@ double Fluid::conductivity_critical(double T, double rho)
 }
 double Fluid::surface_tension_T(double T)
 {
-	/* Implements the method of Miqeu et al;, "An extended scaled equation for the temperature dependence of
+	/* Implements the method of Miqeu et al., "An extended scaled equation for the temperature dependence of
     the surface tension of pure compounds inferred from an analysis of experimental data",Fluid Phase 
 	Equilibria 172 (2000) 169–182
 

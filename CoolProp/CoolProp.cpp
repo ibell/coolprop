@@ -818,9 +818,9 @@ double _CoolProp_Fluid_Props(long iOutput, long iName1, double Prop1, long iName
 	//Surface tension is only a function of temperature
 	if (iOutput == iI){
 		if (iName1 == iT)
-			return pFluid->surface_tension_T(Prop1)/1000;
+			return pFluid->surface_tension_T(Prop1);
 		else if (iName2 == iT)
-			return pFluid->surface_tension_T(Prop2)/1000;
+			return pFluid->surface_tension_T(Prop2);
 		else
 			throw ValueError(format("If output is surface tension ['I' or 'SurfaceTension'], Param1 must be temperature"));
 	}

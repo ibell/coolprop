@@ -1611,7 +1611,7 @@ R245faClass::R245faClass()
 	phi0list.push_back(phi0_Planck_Einstein_);
 
     EOSReference.assign("Lemmon, E.W., and R. Span, \"Short Fundamental Equations of State for 20 Industrial Fluids,\", J. Chem. Eng. Data, 51:785-850, 2006.");
-    TransportReference.assign("Using ECS");
+	TransportReference.assign("Using ECS\n\nSurface Tension:\nJames W Schmidt, Ernesto Carrillo-Nava, Michael R Moldover \"Partially halogenated hydrocarbons CHFCl-CF3, CF3-CH3, CF3-CHF-CHF2, CF3-CH2-CF3, CHF2-CF2-CH2F, CF3-CH2-CHF2, CF3-O-CHF2: critical temperature, refractive indices, surface tension and estimates of liquid, vapor and critical densities\" Fluid Phase Equilibria, Volume 122, Issues 1–2, 31 July 1996, Pages 187–206 http://dx.doi.org/10.1016/0378-3812(96)03044-0");
 
     name.assign("R245fa");
 	REFPROPname.assign("R245fa");
@@ -1659,6 +1659,12 @@ double R245faClass::ECS_chi_conductivity(double rhor)
 {
     return 1.1627-0.0473491*rhor;
 }
+double R245faClass::surface_tension_T(double T)
+{
+	double t = 1-T/crit.T;
+    return 0.054784*pow(t,1.26)*(1+0.921*sqrt(t)-1.15*t);
+}
+
 
 R41Class::R41Class()
 {

@@ -35,7 +35,7 @@ void sort_pair(long *iInput1, double *Value1, long *iInput2, double *Value2, lon
 	}
 }
 void CoolPropStateClass::check_saturated_quality(double Q){
-	double mach_eps = 1e-14;
+	double mach_eps = 10*DBL_EPSILON;
 
 	if (fabs(Q-1) < mach_eps){
 		SaturatedL = true; SaturatedV = false;
