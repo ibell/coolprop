@@ -250,20 +250,46 @@ double R1234yfClass::viscosity_Trho(double T, double rho)
 }
 double R1234yfClass::psat(double T)
 {
-	double THETA = 1-T/crit.T;
-	double RHS = 0.0015481-3.29049*pow(THETA,3.68086)-6.51048*pow(THETA,0.972422);
-	return exp(crit.T/T*RHS)*crit.p;
+    // Maximum absolute error is 0.012005 % between 220.000001 K and 367.849999 K
+    const double ti[]={0,1.0,1.5,2.3,3.6,5.2,7.3};
+    const double Ni[]={0,-7.4299777557954254, 1.9583865741838868, -2.4230509106877167, 1.4167726905491065, -9.6120250676570098, 15.003017622880735 };
+    double summer=0,theta;
+    int i;
+    theta=1-T/reduce.T;
+    for (i=1;i<=6;i++)
+    {
+        summer=summer+Ni[i]*pow(theta,ti[i]);
+    }
+    return crit.p*exp(crit.T/T*summer);
 }
 double R1234yfClass::rhosatL(double T)
 {
-	double THETA = 1-T/crit.T;
-	return 5.03314154e+02+1.15871385e+03*pow(THETA,4.13963252e-01)+1.68771255e+02*pow(THETA,1.93705217e+00);
+    // Maximum absolute error is 0.320186 % between 220.000001 K and 367.849999 K
+    const double Ni[]={0,1.4756519570309901, -0.57454181759520018, 0.76682587551792647, -0.510882068727329, 0.66112133039760046};
+    const double ti[]={0,0.31104118625261612, 1.1997863650360587, 1.8936812371106437, 3.0633279469212082, 6.4584770277609298};
+    double summer=0;
+    int i;
+    double theta;
+    theta=1-T/reduce.T;
+    for (i=1;i<=5;i++)
+    {
+        summer+=Ni[i]*pow(theta,ti[i]);
+    }
+    return crit.rho*exp(summer);
 }
 double R1234yfClass::rhosatV(double T)
 {
-	double THETA = 1-T/crit.T;
-	double RHS = -0.036061-4.16439*pow(THETA,0.499635)-9.33292*pow(THETA,1.64976)-35.4903*pow(THETA,4.36857);
-	return exp(RHS)*crit.rho;
+    // Maximum absolute error is 0.189556 % between 220.000001 K and 367.849999 K
+    const double Ni[]={0,-2.4937203841988023, -4.0958221912377883, 2.598118460659435, -4.9686143098130451, -4.0779557647493059};
+    const double ti[]={0,0.36409300811029677, 0.99593569215609024, 1.8193545503400304, 3.0060054082610717, 7.955467733338411};
+    double summer=0,theta;
+    int i;
+    theta=1.0-T/reduce.T;
+    for (i=1;i<=5;i++)
+    {
+        summer=summer+Ni[i]*pow(theta,ti[i]);
+    }
+    return crit.rho*exp(crit.T/T*summer);
 }
 double R1234yfClass::surface_tension_T(double T)
 {

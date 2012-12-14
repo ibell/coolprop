@@ -803,7 +803,7 @@ double _CoolProp_Fluid_Props(long iOutput, long iName1, double Prop1, long iName
 			return pFluid->params.Ttriple;
 			break;
 		case iRhocrit:
-			return pFluid->reduce.rho;
+			return pFluid->crit.rho;
 			break;
 		case iAccentric: 
 			return pFluid->params.accentricfactor;

@@ -88,7 +88,7 @@ double MethaneClass::rhosatV(double T)
 		  -5.2511690*pow(theta,5.0/2.0)
 		  -13.191859*pow(theta,25.0/6.0)
 		  -37.553961*pow(theta,47.0/6.0);
-	rho = exp(RHS*reduce.T/T)*rhoc;
+	rho = exp(RHS)*rhoc;
 	return rho;
 }
 double MethaneClass::psat(double T)
@@ -595,7 +595,7 @@ double IsoButaneClass::rhosatL(double T)
 		  +0.850874089*pow(theta,1.0)
 		  -0.479052281*pow(theta,4.0/3.0)
 		  +0.348201252*pow(theta,7.0/3.0);
-	rho = (1.0+ RHS)*rhoc;
+	rho = (1.0 + RHS)*rhoc;
 	return rho;
 }
 double IsoButaneClass::rhosatV(double T)
@@ -608,6 +608,10 @@ double IsoButaneClass::rhosatV(double T)
 		  -2.93790085*pow(theta,5.0/6.0)
 		  -0.89441086*pow(theta,19.0/6.0)
 		  -3.46343707*pow(theta,26.0/6.0);
+	//RHS = -2.12933323*pow(theta,1.065)
+	//	  -2.93790085*pow(theta,3.0)
+	//	  -0.89441086*pow(theta,4.0)
+	//	  -3.46343707*pow(theta,7.0);
 	rho = exp(RHS*reduce.T/T)*rhoc;
 	return rho;
 }

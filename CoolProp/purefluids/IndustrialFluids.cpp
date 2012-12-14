@@ -171,28 +171,6 @@ CarbonMonoxideClass::CarbonMonoxideClass()
     aliases.push_back(std::string("CO")); 
     REFPROPname.assign("CO");
 }
-double CarbonMonoxideClass::rhosatL(double T) 
-{
-    double THETA = 1-T/crit.T;
-    return 314.41+562.237*pow(THETA,0.370304)+201.906*pow(THETA,0.921208);
-}
-double CarbonMonoxideClass::rhosatV(double T) 
-{
-    double THETA = 1-T/crit.T;
-    double RHS = -0.119344-3.94598*pow(THETA,0.529036)-8.93952*pow(THETA,1.85865)-33.3358*pow(THETA,5.11753);
-    return exp(RHS)*crit.rho;
-}
-double CarbonMonoxideClass::psat(double T) 
-{
-    double THETA = 1-T/crit.T;
-    double RHS = 0.00381083-5.39772*pow(THETA,0.966354)-2.44727*pow(THETA,4.60196);
-    return exp(crit.T/T*RHS)*crit.p;
-}
-
-
-
-
-
 
 CarbonylSulfideClass::CarbonylSulfideClass()
 {
@@ -248,28 +226,6 @@ CarbonylSulfideClass::CarbonylSulfideClass()
     aliases.push_back(std::string("COS")); 
     REFPROPname.assign("COS");
 }
-double CarbonylSulfideClass::rhosatL(double T) 
-{
-    double THETA = 1-T/crit.T;
-    return 475.543+1033.64*pow(THETA,0.451523)+119.239*pow(THETA,3.25939);
-}
-double CarbonylSulfideClass::rhosatV(double T) 
-{
-    double THETA = 1-T/crit.T;
-    double RHS = -0.23617-14.9863*pow(THETA,2.50487)-5.12115*pow(THETA,0.604117)-57.4114*pow(THETA,7.01427);
-    return exp(RHS)*crit.rho;
-}
-double CarbonylSulfideClass::psat(double T) 
-{
-    double THETA = 1-T/crit.T;
-    double RHS = 0.000586188-5.62785*pow(THETA,0.96735)-2.63574*pow(THETA,4.34562);
-    return exp(crit.T/T*RHS)*crit.p;
-}
-
-
-
-
-
 
 DecaneClass::DecaneClass()
 {
@@ -325,28 +281,6 @@ DecaneClass::DecaneClass()
     aliases.push_back(std::string("decane")); 
     REFPROPname.assign("decane");
 }
-double DecaneClass::rhosatL(double T) 
-{
-    double THETA = 1-T/crit.T;
-    return 221.841+614.913*pow(THETA,0.380059)+141.621*pow(THETA,2.57228);
-}
-double DecaneClass::rhosatV(double T) 
-{
-    double THETA = 1-T/crit.T;
-    double RHS = -0.205737-22.9208*pow(THETA,2.51421)-6.45011*pow(THETA,0.587562)-84.889*pow(THETA,6.49204);
-    return exp(RHS)*crit.rho;
-}
-double DecaneClass::psat(double T) 
-{
-    double THETA = 1-T/crit.T;
-    double RHS = -0.000777868-7.47275*pow(THETA,0.973801)-6.00257*pow(THETA,3.54267);
-    return exp(crit.T/T*RHS)*crit.p;
-}
-
-
-
-
-
 
 HydrogenSulfideClass::HydrogenSulfideClass()
 {
@@ -403,28 +337,6 @@ HydrogenSulfideClass::HydrogenSulfideClass()
     aliases.push_back(std::string("H2S")); 
     REFPROPname.assign("H2S");
 }
-double HydrogenSulfideClass::rhosatL(double T) 
-{
-    double THETA = 1-T/crit.T;
-    return 341.396+807.261*pow(THETA,0.403989)+113.571*pow(THETA,1.42227);
-}
-double HydrogenSulfideClass::rhosatV(double T) 
-{
-    double THETA = 1-T/crit.T;
-    double RHS = -0.0867325-4.31985*pow(THETA,0.523612)-10.4004*pow(THETA,1.98277)-37.8195*pow(THETA,5.34652);
-    return exp(RHS)*crit.rho;
-}
-double HydrogenSulfideClass::psat(double T) 
-{
-    double THETA = 1-T/crit.T;
-    double RHS = 0.00182417-2.48038*pow(THETA,4.1794)-5.63481*pow(THETA,0.966803);
-    return exp(crit.T/T*RHS)*crit.p;
-}
-
-
-
-
-
 
 IsopentaneClass::IsopentaneClass()
 {
@@ -480,28 +392,6 @@ IsopentaneClass::IsopentaneClass()
     aliases.push_back(std::string("ipentane")); 
     REFPROPname.assign("ipentane");
 }
-double IsopentaneClass::rhosatL(double T) 
-{
-    double THETA = 1-T/crit.T;
-    return 263.636+558.226*pow(THETA,0.449723)+90.2293*pow(THETA,3.59523);
-}
-double IsopentaneClass::rhosatV(double T) 
-{
-    double THETA = 1-T/crit.T;
-    double RHS = -0.307787-7.37525*pow(THETA,0.764929)-104.82*pow(THETA,9.92148)-30.5914*pow(THETA,3.48774);
-    return exp(RHS)*crit.rho;
-}
-double IsopentaneClass::psat(double T) 
-{
-    double THETA = 1-T/crit.T;
-    double RHS = -0.0029609-6.35049*pow(THETA,0.979701)-3.60812*pow(THETA,4.15062);
-    return exp(crit.T/T*RHS)*crit.p;
-}
-
-
-
-
-
 
 NeopentaneClass::NeopentaneClass()
 {
@@ -557,28 +447,6 @@ NeopentaneClass::NeopentaneClass()
     aliases.push_back(std::string("neopentn")); 
     REFPROPname.assign("neopentn");
 }
-double NeopentaneClass::rhosatL(double T) 
-{
-    double THETA = 1-T/crit.T;
-    return 259.311+759.07*pow(THETA,0.457452)-205.291*pow(THETA,0.457453);
-}
-double NeopentaneClass::rhosatV(double T) 
-{
-    double THETA = 1-T/crit.T;
-    double RHS = -0.105179-4.16981*pow(THETA,0.513219)-8.9438*pow(THETA,1.72519)-33.8828*pow(THETA,4.4748);
-    return exp(RHS)*crit.rho;
-}
-double NeopentaneClass::psat(double T) 
-{
-    double THETA = 1-T/crit.T;
-    double RHS = 0.0015322-3.14966*pow(THETA,3.75951)-6.09657*pow(THETA,0.970415);
-    return exp(crit.T/T*RHS)*crit.p;
-}
-
-
-
-
-
 
 IsohexaneClass::IsohexaneClass()
 {
@@ -634,28 +502,6 @@ IsohexaneClass::IsohexaneClass()
     aliases.push_back(std::string("ihexane")); 
     REFPROPname.assign("ihexane");
 }
-double IsohexaneClass::rhosatL(double T) 
-{
-    double THETA = 1-T/crit.T;
-    return 238.626+578.165*pow(THETA,0.398393)+109.839*pow(THETA,2.87839);
-}
-double IsohexaneClass::rhosatV(double T) 
-{
-    double THETA = 1-T/crit.T;
-    double RHS = -0.241105-7.59813*pow(THETA,0.746707)-33.6159*pow(THETA,3.5051)-115.543*pow(THETA,10.0502);
-    return exp(RHS)*crit.rho;
-}
-double IsohexaneClass::psat(double T) 
-{
-    double THETA = 1-T/crit.T;
-    double RHS = -0.00331591-4.1175*pow(THETA,4.06252)-6.62477*pow(THETA,0.982416);
-    return exp(crit.T/T*RHS)*crit.p;
-}
-
-
-
-
-
 
 KryptonClass::KryptonClass()
 {
@@ -710,28 +556,6 @@ KryptonClass::KryptonClass()
     aliases.push_back(std::string("krypton")); 
     REFPROPname.assign("krypton");
 }
-double KryptonClass::rhosatL(double T) 
-{
-    double THETA = 1-T/crit.T;
-    return 809.494+1434.1*pow(THETA,0.270621)+916.309*pow(THETA,0.795785);
-}
-double KryptonClass::rhosatV(double T) 
-{
-    double THETA = 1-T/crit.T;
-    double RHS = -0.0392213-3.75692*pow(THETA,0.509614)-7.68651*pow(THETA,1.77205)-25.2873*pow(THETA,4.75346);
-    return exp(RHS)*crit.rho;
-}
-double KryptonClass::psat(double T) 
-{
-    double THETA = 1-T/crit.T;
-    double RHS = 0.00424691-5.11498*pow(THETA,0.958996)-2.92151*pow(THETA,5.82349);
-    return exp(crit.T/T*RHS)*crit.p;
-}
-
-
-
-
-
 
 NonaneClass::NonaneClass()
 {
@@ -787,28 +611,6 @@ NonaneClass::NonaneClass()
     aliases.push_back(std::string("nonane")); 
     REFPROPname.assign("nonane");
 }
-double NonaneClass::rhosatL(double T) 
-{
-    double THETA = 1-T/crit.T;
-    return 226.867+582.22*pow(THETA,0.361657)+143.829*pow(THETA,2.04318);
-}
-double NonaneClass::rhosatV(double T) 
-{
-    double THETA = 1-T/crit.T;
-    double RHS = -0.0977264-23.6568*pow(THETA,2.59633)-6.38283*pow(THETA,0.593543)-87.0597*pow(THETA,6.83533);
-    return exp(RHS)*crit.rho;
-}
-double NonaneClass::psat(double T) 
-{
-    double THETA = 1-T/crit.T;
-    double RHS = -0.000227121-5.62753*pow(THETA,3.58749)-7.25067*pow(THETA,0.971535);
-    return exp(crit.T/T*RHS)*crit.p;
-}
-
-
-
-
-
 
 TolueneClass::TolueneClass()
 {
@@ -864,28 +666,6 @@ TolueneClass::TolueneClass()
     aliases.push_back(std::string("toluene")); 
     REFPROPname.assign("toluene");
 }
-double TolueneClass::rhosatL(double T) 
-{
-    double THETA = 1-T/crit.T;
-    return 306.67+722.044*pow(THETA,0.418475)+130.709*pow(THETA,2.9141);
-}
-double TolueneClass::rhosatV(double T) 
-{
-    double THETA = 1-T/crit.T;
-    double RHS = -0.191773-6.8994*pow(THETA,0.691253)-25.5456*pow(THETA,3.08489)-89.434*pow(THETA,8.33106);
-    return exp(RHS)*crit.rho;
-}
-double TolueneClass::psat(double T) 
-{
-    double THETA = 1-T/crit.T;
-    double RHS = 0.00129047-4.14206*pow(THETA,3.99689)-6.4543*pow(THETA,0.969688);
-    return exp(crit.T/T*RHS)*crit.p;
-}
-
-
-
-
-
 
 XenonClass::XenonClass()
 {
@@ -940,28 +720,6 @@ XenonClass::XenonClass()
     aliases.push_back(std::string("Xe")); aliases.push_back(std::string("xenon")); 
     REFPROPname.assign("xenon");
 }
-double XenonClass::rhosatL(double T) 
-{
-    double THETA = 1-T/crit.T;
-    return 1032.78+1710.94*pow(THETA,0.284822)+1086.69*pow(THETA,0.779685);
-}
-double XenonClass::rhosatV(double T) 
-{
-    double THETA = 1-T/crit.T;
-    double RHS = -0.0761819-3.68385*pow(THETA,0.50101)-7.66799*pow(THETA,1.74507)-25.3412*pow(THETA,4.69948);
-    return exp(RHS)*crit.rho;
-}
-double XenonClass::psat(double T) 
-{
-    double THETA = 1-T/crit.T;
-    double RHS = 0.00359722-5.14301*pow(THETA,0.960574)-2.64349*pow(THETA,5.51079);
-    return exp(crit.T/T*RHS)*crit.p;
-}
-
-
-
-
-
 
 R116Class::R116Class()
 {
@@ -1016,23 +774,6 @@ R116Class::R116Class()
     name.assign("R116");
 
     REFPROPname.assign("R116");
-}
-double R116Class::rhosatL(double T) 
-{
-    double THETA = 1-T/crit.T;
-    return 642.924+1289.38*pow(THETA,0.373632)+338.774*pow(THETA,1.06117);
-}
-double R116Class::rhosatV(double T) 
-{
-    double THETA = 1-T/crit.T;
-    double RHS = -0.161563-4.35824*pow(THETA,0.519469)-9.81421*pow(THETA,1.76751)-36.972*pow(THETA,4.5405);
-    return exp(RHS)*crit.rho;
-}
-double R116Class::psat(double T) 
-{
-    double THETA = 1-T/crit.T;
-    double RHS = 0.00172169-3.43163*pow(THETA,3.63334)-6.36934*pow(THETA,0.968831);
-    return exp(crit.T/T*RHS)*crit.p;
 }
 void R116Class::ECSParams(double *e_k, double *sigma)
 {
@@ -1105,27 +846,6 @@ AcetoneClass::AcetoneClass()
     aliases.push_back(std::string("acetone")); 
     REFPROPname.assign("acetone");
 }
-double AcetoneClass::rhosatL(double T) 
-{
-    double THETA = 1-T/crit.T;
-    return 312.663+703.191*pow(THETA,0.464385)+108.895*pow(THETA,3.3934);
-}
-double AcetoneClass::rhosatV(double T) 
-{
-    double THETA = 1-T/crit.T;
-    double RHS = -0.41049-21.187*pow(THETA,2.75107)-6.65354*pow(THETA,0.661221)-74.2311*pow(THETA,7.23056);
-    return exp(RHS)*crit.rho;
-}
-double AcetoneClass::psat(double T) 
-{
-    double THETA = 1-T/crit.T;
-    double RHS = 0.000795221-3.84184*pow(THETA,3.82733)-6.6419*pow(THETA,0.968566);
-    return exp(crit.T/T*RHS)*crit.p;
-}
-
-
-
-
 
 
 NitrousOxideClass::NitrousOxideClass()
@@ -1182,27 +902,6 @@ NitrousOxideClass::NitrousOxideClass()
     aliases.push_back(std::string("N2O")); 
     REFPROPname.assign("N2O");
 }
-double NitrousOxideClass::rhosatL(double T) 
-{
-    double THETA = 1-T/crit.T;
-    return 403.808+595.753*pow(THETA,0.227187)+669.834*pow(THETA,0.741133);
-}
-double NitrousOxideClass::rhosatV(double T) 
-{
-    double THETA = 1-T/crit.T;
-    double RHS = -0.123997-3.75546*pow(THETA,0.47858)-8.99126*pow(THETA,1.66409)-32.9961*pow(THETA,4.52787);
-    return exp(RHS)*crit.rho;
-}
-double NitrousOxideClass::psat(double T) 
-{
-    double THETA = 1-T/crit.T;
-    double RHS = 0.00124529-5.94036*pow(THETA,0.970591)-2.93925*pow(THETA,3.86231);
-    return exp(crit.T/T*RHS)*crit.p;
-}
-
-
-
-
 
 
 SulfurDioxideClass::SulfurDioxideClass()
@@ -1260,27 +959,6 @@ SulfurDioxideClass::SulfurDioxideClass()
     aliases.push_back(std::string("SO2")); 
     REFPROPname.assign("SO2");
 }
-double SulfurDioxideClass::rhosatL(double T) 
-{
-    double THETA = 1-T/crit.T;
-    return 556.41+1266.62*pow(THETA,0.413726)+210.182*pow(THETA,1.5635);
-}
-double SulfurDioxideClass::rhosatV(double T) 
-{
-    double THETA = 1-T/crit.T;
-    double RHS = -0.24882-13.6192*pow(THETA,2.10106)-4.90322*pow(THETA,0.553285)-53.2983*pow(THETA,5.65125);
-    return exp(RHS)*crit.rho;
-}
-double SulfurDioxideClass::psat(double T) 
-{
-    double THETA = 1-T/crit.T;
-    double RHS = -0.000667106-3.64759*pow(THETA,3.75619)-6.41012*pow(THETA,0.974263);
-    return exp(crit.T/T*RHS)*crit.p;
-}
-
-
-
-
 
 
 R141bClass::R141bClass()
@@ -1336,23 +1014,6 @@ R141bClass::R141bClass()
     name.assign("R141b");
 
     REFPROPname.assign("R141b");
-}
-double R141bClass::rhosatL(double T) 
-{
-    double THETA = 1-T/crit.T;
-    return 509.965+1091.12*pow(THETA,0.439413)+185.865*pow(THETA,2.64809);
-}
-double R141bClass::rhosatV(double T) 
-{
-    double THETA = 1-T/crit.T;
-    double RHS = -0.267267-18.7606*pow(THETA,2.58933)-5.57637*pow(THETA,0.619539)-73.7862*pow(THETA,7.15925);
-    return exp(RHS)*crit.rho;
-}
-double R141bClass::psat(double T) 
-{
-    double THETA = 1-T/crit.T;
-    double RHS = -0.00308472-3.97593*pow(THETA,4.09844)-6.29057*pow(THETA,0.97953);
-    return exp(crit.T/T*RHS)*crit.p;
 }
 void R141bClass::ECSParams(double *e_k, double *sigma)
 {
@@ -1427,23 +1088,6 @@ R142bClass::R142bClass()
 
     REFPROPname.assign("R142b");
 }
-double R142bClass::rhosatL(double T) 
-{
-    double THETA = 1-T/crit.T;
-    return 500.671+1074.63*pow(THETA,0.442711)+200.08*pow(THETA,2.81729);
-}
-double R142bClass::rhosatV(double T) 
-{
-    double THETA = 1-T/crit.T;
-    double RHS = -0.252933-19.0218*pow(THETA,2.62874)-5.8241*pow(THETA,0.632573)-71.2366*pow(THETA,7.13992);
-    return exp(RHS)*crit.rho;
-}
-double R142bClass::psat(double T) 
-{
-    double THETA = 1-T/crit.T;
-    double RHS = -0.000556636-3.66973*pow(THETA,3.92032)-6.29906*pow(THETA,0.97278);
-    return exp(crit.T/T*RHS)*crit.p;
-}
 void R142bClass::ECSParams(double *e_k, double *sigma)
 {
     *e_k = 278.2;
@@ -1517,23 +1161,7 @@ R218Class::R218Class()
 
     REFPROPname.assign("R218");
 }
-double R218Class::rhosatL(double T) 
-{
-    double THETA = 1-T/crit.T;
-    return 649.764+1507.68*pow(THETA,0.404379)+331.916*pow(THETA,2.60611);
-}
-double R218Class::rhosatV(double T) 
-{
-    double THETA = 1-T/crit.T;
-    double RHS = -0.12954-21.0428*pow(THETA,2.61018)-5.96899*pow(THETA,0.611065)-76.2274*pow(THETA,6.98835);
-    return exp(RHS)*crit.rho;
-}
-double R218Class::psat(double T) 
-{
-    double THETA = 1-T/crit.T;
-    double RHS = -0.00117049-4.27976*pow(THETA,3.67253)-6.68013*pow(THETA,0.972918);
-    return exp(crit.T/T*RHS)*crit.p;
-}
+
 void R218Class::ECSParams(double *e_k, double *sigma)
 {
     *e_k = 266.35;
@@ -1616,32 +1244,6 @@ R245faClass::R245faClass()
     name.assign("R245fa");
 	REFPROPname.assign("R245fa");
 }
-double R245faClass::rhosatL(double T)
-{
-double theta = 1-T/reduce.T;
-double RHS,rho;
-
-// Max error is 0.941705 %
-RHS = +1.934009*pow(theta,0.333333)-1.048842*pow(theta,0.666667)+0.705519*pow(theta,1.333333)-0.564935*pow(theta,3.000000)+1.000168*pow(theta,6.166667);
-rho = exp(RHS)*reduce.rho;
-return rho;
-}
-double R245faClass::rhosatV(double T)
-{
-double theta = 1-T/reduce.T;
-double RHS,rho;
-
-// Max error is 0.845742 %
-RHS = -1.772448*pow(theta,0.333333)-2.921410*pow(theta,0.666667)-1.224996*pow(theta,1.333333)-3.873472*pow(theta,3.000000)-4.176325*pow(theta,6.166667)+0.525028*pow(theta,11.833333);
-rho = exp(RHS*reduce.T/T)*reduce.rho;
-return rho;
-}
-double R245faClass::psat(double T) 
-{
-    double THETA = 1-T/crit.T;
-    double RHS = -0.00254547-5.01251*pow(THETA,3.66623)-7.05974*pow(THETA,0.984797);
-    return exp(crit.T/T*RHS)*crit.p;
-}
 void R245faClass::ECSParams(double *e_k, double *sigma)
 {
     *e_k = 329.72;
@@ -1664,7 +1266,6 @@ double R245faClass::surface_tension_T(double T)
 	double t = 1-T/crit.T;
     return 0.054784*pow(t,1.26)*(1+0.921*sqrt(t)-1.15*t);
 }
-
 
 R41Class::R41Class()
 {
@@ -1733,24 +1334,912 @@ R41Class::R41Class()
 
     REFPROPname.assign("R41");
 }
-double R41Class::rhosatL(double T) 
+
+// --------------------
+// ANCILLARY EQUATIONS
+// --------------------
+// All of these ancillary equations were generated with the Python script in the dev folder
+// REFPROP saturation data (since it could go pretty much all the way (within 1 uK) to the critical point) was fit
+// Powell method used to guess the exponents, within the function ODRPack from scipy.odr used to find the coefficients
+// Works quite well
+
+double R141bClass::rhosatL(double T) 
 {
     double THETA = 1-T/crit.T;
-    return 369.324+1847.91*pow(THETA,0.501338)-1021.15*pow(THETA,0.501344);
+    return 509.965+1091.12*pow(THETA,0.439413)+185.865*pow(THETA,2.64809);
 }
-double R41Class::rhosatV(double T) 
+double IsohexaneClass::rhosatL(double T) 
 {
     double THETA = 1-T/crit.T;
-    double RHS = -0.16056-13.6245*pow(THETA,2.23602)-5.29706*pow(THETA,0.574996)-52.0276*pow(THETA,6.16363);
-    return exp(RHS)*crit.rho;
+    return 238.626+578.165*pow(THETA,0.398393)+109.839*pow(THETA,2.87839);
 }
-double R41Class::psat(double T) 
+double R245faClass::rhosatL(double T)
 {
-    double THETA = 1-T/crit.T;
-    double RHS = 0.0041837-6.13932*pow(THETA,0.964557)-2.73068*pow(THETA,4.21954);
-    return exp(crit.T/T*RHS)*crit.p;
+double theta = 1-T/reduce.T;
+double RHS,rho;
+
+// Max error is 0.941705 %
+RHS = +1.934009*pow(theta,0.333333)-1.048842*pow(theta,0.666667)+0.705519*pow(theta,1.333333)-0.564935*pow(theta,3.000000)+1.000168*pow(theta,6.166667);
+rho = exp(RHS)*reduce.rho;
+return rho;
 }
 
+double AcetoneClass::psat(double T)
+{
+    // Maximum absolute error is 0.161624 % between 178.500001 K and 508.099999 K
+    const double ti[]={0,1.0,1.5,2.3,3.6,5.2,7.3};
+    const double Ni[]={0,-7.7420933491645938, 2.2551227728042176, -2.2097584451804844, -0.80807019454396622, -3.0130241547201058, 1.1288610270689932 };
+    double summer=0,theta;
+    int i;
+    theta=1-T/reduce.T;
+    for (i=1;i<=6;i++)
+    {
+        summer=summer+Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.p*exp(reduce.T/T*summer);
+}
+double AcetoneClass::rhosatL(double T)
+{
+    // Maximum absolute error is 0.479021 % between 178.500001 K and 508.099999 K
+    const double ti[]={0,0.26459772663939418, 1.4091452766461503, 1.4202544602432625, 11.775226488952327, 1.4009455029990348};
+    const double Ni[]={0,1.2349786870374411, -3379.0389866312494, 1436.4764562223259, 0.16448509887442936, 1942.7394651540521};
+    double summer=0;
+    int i;
+    double theta;
+    theta=1-T/reduce.T;
+    for (i=1;i<=5;i++)
+    {
+        summer+=Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.rho*exp(summer);
+}
+double AcetoneClass::rhosatV(double T)
+{
+    // Maximum absolute error is 0.166474 % between 178.500001 K and 508.099999 K
+    const double ti[]={0,0.32486954786675754, 1.1136505233132008, 1.397124100888042, 1.4206102336811905, 4.1261683284501736};
+    const double Ni[]={0,-2.0054679941104143, -27.132764899927583, 304.9671207804098, -282.29487966244773, -4.08636533228474};
+    double summer=0,theta;
+    int i;
+    theta=1.0-T/reduce.T;
+    for (i=1;i<=5;i++)
+    {
+        summer=summer+Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.rho*exp(crit.T/T*summer);
+}
 
+double NitrousOxideClass::psat(double T)
+{
+    // Maximum absolute error is 0.008121 % between 182.330001 K and 309.519999 K
+    const double ti[]={0,1.0,1.5,2.3,3.6,5.2,7.3};
+    const double Ni[]={0,-6.868769329455664, 2.044618171539057, -2.6329617846296989, 2.5383085882276508, -9.5683854957182639, 10.373557988632387 };
+    double summer=0,theta;
+    int i;
+    theta=1-T/reduce.T;
+    for (i=1;i<=6;i++)
+    {
+        summer=summer+Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.p*exp(reduce.T/T*summer);
+}
+double NitrousOxideClass::rhosatL(double T)
+{
+    // Maximum absolute error is 1.073634 % between 182.330001 K and 309.519999 K
+    const double ti[]={0,0.60557790700716319, 0.70939607919869829, 2.5963911853523869, 0.68042926228856082, 0.67155910920440876};
+    const double Ni[]={0,389.77875979761046, -1767.6976331438359, 0.20467533761004733, 10361.905167320929, -8982.8239481801156};
+    double summer=0;
+    int i;
+    double theta;
+    theta=1-T/reduce.T;
+    for (i=1;i<=5;i++)
+    {
+        summer+=Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.rho*exp(summer);
+}
+double NitrousOxideClass::rhosatV(double T)
+{
+    // Maximum absolute error is 0.610881 % between 182.330001 K and 309.519999 K
+    const double ti[]={0,0.39081966725676398, 1.1522466533120135, 2.3180840594503693, 2.6358258974386621, 8.1917571767482542};
+    const double Ni[]={0,-2.7894545753779387, -3.4744736926456077, 9.951411057303936, -11.242955195846788, -9.9192629053042864};
+    double summer=0,theta;
+    int i;
+    theta=1.0-T/reduce.T;
+    for (i=1;i<=5;i++)
+    {
+        summer=summer+Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.rho*exp(crit.T/T*summer);
+}
 
+double SulfurDioxideClass::psat(double T)
+{
+    // Maximum absolute error is 0.110395 % between 197.700001 K and 430.639999 K
+    const double ti[]={0,1.0,1.5,2.3,3.6,5.2,7.3};
+    const double Ni[]={0,-7.4278303501775333, 2.4740630627264735, -3.5299527654256115, 2.6573726552982837, -8.7531566071245539, 6.5589471788208602 };
+    double summer=0,theta;
+    int i;
+    theta=1-T/reduce.T;
+    for (i=1;i<=6;i++)
+    {
+        summer=summer+Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.p*exp(reduce.T/T*summer);
+}
+double SulfurDioxideClass::rhosatL(double T)
+{
+    // Maximum absolute error is 1.149548 % between 197.700001 K and 430.639999 K
+    const double ti[]={0,0.70876204235579221, 0.7229678532566155, 0.83486766193741779, 0.73141949820423335, 1.6738565688812563};
+    const double Ni[]={0,12156.409552558353, -37170.600921873636, -391.93020566978561, 25406.018688280838, 1.5016221145583379};
+    double summer=0;
+    int i;
+    double theta;
+    theta=1-T/reduce.T;
+    for (i=1;i<=5;i++)
+    {
+        summer+=Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.rho*exp(summer);
+}
+double SulfurDioxideClass::rhosatV(double T)
+{
+    // Maximum absolute error is 0.772197 % between 197.700001 K and 430.639999 K
+    const double ti[]={0,0.40597757408572105, 1.0078158710335801, 1.5968694256951719, 4.007078507058492, -0.16145660992043773};
+    const double Ni[]={0,-3.0032294578395011, -2.4869182335281512, -0.13184442384899894, -4.7263242155221183, -0.00033424139516086214};
+    double summer=0,theta;
+    int i;
+    theta=1.0-T/reduce.T;
+    for (i=1;i<=5;i++)
+    {
+        summer=summer+Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.rho*exp(crit.T/T*summer);
+}
 
+double R141bClass::psat(double T)
+{
+    // Maximum absolute error is 0.175974 % between 169.680001 K and 477.499999 K
+    const double ti[]={0,1.0,1.5,2.3,3.6,5.2,7.3};
+    const double Ni[]={0,-7.2204561290947709, 2.2758349671865776, -2.7502808754918209, 0.45527436710325281, -3.6366202389018829, 0.018941343442678414 };
+    double summer=0,theta;
+    int i;
+    theta=1-T/reduce.T;
+    for (i=1;i<=6;i++)
+    {
+        summer=summer+Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.p*exp(reduce.T/T*summer);
+}
+//double R141bClass::rhosatL(double T)
+//{
+//    // Maximum absolute error is 100.000000 % between 169.680001 K and 477.499999 K
+//    const double ti[]={0,0.2828129519231074, -0.25200521806435544, -0.72225671323569796, 3.1715066594344008, 3.3149603333488011};
+//    const double Ni[]={0,1.30652890669813, 0.00055365778690386611, -8.3776570451762927e-05, -0.8565619843893828, 0.95359468578186291};
+//    double summer=0;
+//    int i;
+//    double theta;
+//    theta=1-T/reduce.T;
+//    for (i=1;i<=5;i++)
+//    {
+//        summer+=Ni[i]*pow(theta,ti[i]);
+//    }
+//    return reduce.rho*exp(summer);
+//}
+double R141bClass::rhosatV(double T)
+{
+    // Maximum absolute error is 0.284442 % between 169.680001 K and 477.499999 K
+    const double ti[]={0,0.37287817354647435, 0.91276608962657058, 4.7497423008783093, 2.6894254703994478, 18.919444023057686};
+    const double Ni[]={0,-2.6251044774898529, -2.4960108200116555, -3.9765002486540135, -1.4797257697369941, -13.683339624267827};
+    double summer=0,theta;
+    int i;
+    theta=1.0-T/reduce.T;
+    for (i=1;i<=5;i++)
+    {
+        summer=summer+Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.rho*exp(crit.T/T*summer);
+}
+
+double R142bClass::psat(double T)
+{
+    // Maximum absolute error is 0.104651 % between 142.720001 K and 410.259999 K
+    const double ti[]={0,1.0,1.5,2.3,3.6,5.2,7.3};
+    const double Ni[]={0,-7.3079519349991271, 2.2608201769441369, -2.5771971051912246, 0.3158163336195175, -4.025672461018349, 1.4340055620931298 };
+    double summer=0,theta;
+    int i;
+    theta=1-T/reduce.T;
+    for (i=1;i<=6;i++)
+    {
+        summer=summer+Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.p*exp(reduce.T/T*summer);
+}
+double R142bClass::rhosatL(double T)
+{
+    // Maximum absolute error is 0.806206 % between 142.720001 K and 410.259999 K
+    const double ti[]={0,0.27967246985799865, 2.2595545100614993, 2.2688822238233723, 2.2789373329095373, 15.311342436654607};
+    const double Ni[]={0,1.3105419105059686, 819.04365787414179, -1594.0402800866095, 775.09185686337332, 0.41293568648240681};
+    double summer=0;
+    int i;
+    double theta;
+    theta=1-T/reduce.T;
+    for (i=1;i<=5;i++)
+    {
+        summer+=Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.rho*exp(summer);
+}
+double R142bClass::rhosatV(double T)
+{
+    // Maximum absolute error is 0.361112 % between 142.720001 K and 410.259999 K
+    const double ti[]={0,0.37340891699198825, 0.83800239688015932, 2.7771025614151861, 4.7454937920345799, 9.028952964225164};
+    const double Ni[]={0,-2.4392795173014732, -2.6846161393904771, -1.6167477168461746, -3.8473658756292215, 0.93171399760554896};
+    double summer=0,theta;
+    int i;
+    theta=1.0-T/reduce.T;
+    for (i=1;i<=5;i++)
+    {
+        summer=summer+Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.rho*exp(crit.T/T*summer);
+}
+
+double R218Class::psat(double T)
+{
+    // Maximum absolute error is 0.098033 % between 125.450001 K and 345.019999 K
+    const double ti[]={0,1.0,1.5,2.3,3.6,5.2,7.3};
+    const double Ni[]={0,-7.8102674790768001, 2.6559310101692217, -3.3120240937942338, -0.1760076204907364, -3.3661799062965576, 0.76921236609229326 };
+    double summer=0,theta;
+    int i;
+    theta=1-T/reduce.T;
+    for (i=1;i<=6;i++)
+    {
+        summer=summer+Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.p*exp(reduce.T/T*summer);
+}
+double R218Class::rhosatL(double T)
+{
+    // Maximum absolute error is 1.122651 % between 125.450001 K and 345.019999 K
+    const double ti[]={0,0.36912361663072235, 0.71091417114172772, 1.276402066765205, 2.1923155395132605, 2.874407938057681};
+    const double Ni[]={0,2.1608111314789578, -1.4692977923406709, 0.94803741116228957, -0.70505497641399617, 0.47144925458636899};
+    double summer=0;
+    int i;
+    double theta;
+    theta=1-T/reduce.T;
+    for (i=1;i<=5;i++)
+    {
+        summer+=Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.rho*exp(summer);
+}
+double R218Class::rhosatV(double T)
+{
+    // Maximum absolute error is 0.066811 % between 125.450001 K and 345.019999 K
+    const double ti[]={0,0.45990648911676563, 0.72073155438993686, 2.8543906505788574, 3.1271008410006345, 3.1486689815091231};
+    const double Ni[]={0,-3.5237161790276961, -1.1802834239391882, -79.601787512253651, 1180.1487663875571, -1107.036693472731};
+    double summer=0,theta;
+    int i;
+    theta=1.0-T/reduce.T;
+    for (i=1;i<=5;i++)
+    {
+        summer=summer+Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.rho*exp(crit.T/T*summer);
+}
+
+double R245faClass::psat(double T)
+{
+    // Maximum absolute error is 0.064905 % between 171.050001 K and 427.159999 K
+    const double ti[]={0,1.0,1.5,2.3,3.6,5.2,7.3};
+    const double Ni[]={0,-7.8747833396154343, 2.1483917502708074, -3.0988907177869018, -0.75337618597081146, -3.6008657396087567, 0.51065419034037485 };
+    double summer=0,theta;
+    int i;
+    theta=1-T/reduce.T;
+    for (i=1;i<=6;i++)
+    {
+        summer=summer+Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.p*exp(reduce.T/T*summer);
+}
+//double R245faClass::rhosatL(double T)
+//{
+//    // Maximum absolute error is 100.000000 % between 171.050001 K and 427.159999 K
+//    const double ti[]={0,0.27693090083315086, -1.4025248198906601, 3.272629636964723, 3.2506863808943436, 3.2910804431261043};
+//    const double Ni[]={0,1.3320595187721502, -4.4520940178003259e-08, 599.15455788284294, -274.91018529580305, -324.15959831342224};
+//    double summer=0;
+//    int i;
+//    double theta;
+//    theta=1-T/reduce.T;
+//    for (i=1;i<=5;i++)
+//    {
+//        summer+=Ni[i]*pow(theta,ti[i]);
+//    }
+//    return reduce.rho*exp(summer);
+//}
+double R245faClass::rhosatV(double T)
+{
+    // Maximum absolute error is 0.236320 % between 171.050001 K and 427.159999 K
+    const double ti[]={0,0.34115317949378737, 0.79355129238839972, 2.8038127551966383, 2.7353987486677047, 4.822133836311937};
+    const double Ni[]={0,-2.0810252672377687, -3.4639909310829626, 1.9189382275384959, -5.1121366494430251, -4.0159777625303965};
+    double summer=0,theta;
+    int i;
+    theta=1.0-T/reduce.T;
+    for (i=1;i<=5;i++)
+    {
+        summer=summer+Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.rho*exp(crit.T/T*summer);
+}
+
+double R41Class::psat(double T)
+{
+    // Maximum absolute error is 0.134323 % between 129.820001 K and 317.279999 K
+    const double ti[]={0,1.0,1.5,2.3,3.6,5.2,7.3};
+    const double Ni[]={0,-7.1501947108542199, 1.7685510326093266, -0.91167320234282201, -1.5386487669225608, -0.93016709851120405, -0.1884522931161588 };
+    double summer=0,theta;
+    int i;
+    theta=1-T/reduce.T;
+    for (i=1;i<=6;i++)
+    {
+        summer=summer+Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.p*exp(reduce.T/T*summer);
+}
+double R41Class::rhosatL(double T)
+{
+    // Maximum absolute error is 1.080025 % between 129.820001 K and 317.279999 K
+    const double ti[]={0,0.34900292856984289, 0.62896434437355531, 1.1347417598669201, 1.9506054552664505, 2.8649776878900806};
+    const double Ni[]={0,1.9328233782786501, -0.86609333320547166, 0.46954483433043431, -0.39626336460294198, 0.24164742846392567};
+    double summer=0;
+    int i;
+    double theta;
+    theta=1-T/reduce.T;
+    for (i=1;i<=5;i++)
+    {
+        summer+=Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.rho*exp(summer);
+}
+double R41Class::rhosatV(double T)
+{
+    // Maximum absolute error is 0.595603 % between 129.820001 K and 317.279999 K
+    const double ti[]={0,0.42460168461232123, 1.0384822760759682, 3.4244642508329721, 5.7279055805230801, 2.533996044180983};
+    const double Ni[]={0,-3.3953933375589633, -2.0551088914483819, -4.7134737225801491, -0.51245543874877442, 1.9051073656048443};
+    double summer=0,theta;
+    int i;
+    theta=1.0-T/reduce.T;
+    for (i=1;i<=5;i++)
+    {
+        summer=summer+Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.rho*exp(crit.T/T*summer);
+}
+
+double CarbonMonoxideClass::psat(double T)
+{
+    // Maximum absolute error is 0.106378 % between 68.160001 K and 132.859999 K
+    const double ti[]={0,1.0,1.5,2.3,3.6,5.2,7.3};
+    const double Ni[]={0,-6.1148803182354188, 1.0194126886426906, 0.056580021372273664, -2.418806695158302, 2.035082448741151, -4.7228196982300803 };
+    double summer=0,theta;
+    int i;
+    theta=1-T/reduce.T;
+    for (i=1;i<=6;i++)
+    {
+        summer=summer+Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.p*exp(reduce.T/T*summer);
+}
+double CarbonMonoxideClass::rhosatL(double T)
+{
+    // Maximum absolute error is 0.898555 % between 68.160001 K and 132.859999 K
+    const double ti[]={0,0.29742254451341815, 1.0554099042533132, 1.489758454772462, 3.9719137526372501, 3.961448705224472};
+    const double Ni[]={0,1.2676977992280518, 0.09697196291781153, -0.13852431420071057, 0.058524336717331704, 0.055612102409353124};
+    double summer=0;
+    int i;
+    double theta;
+    theta=1-T/reduce.T;
+    for (i=1;i<=5;i++)
+    {
+        summer+=Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.rho*exp(summer);
+}
+double CarbonMonoxideClass::rhosatV(double T)
+{
+    // Maximum absolute error is 0.369651 % between 68.160001 K and 132.859999 K
+    const double ti[]={0,0.3854343522767737, 1.0104603372467613, 2.1283755916162046, 2.9193957820543872, 6.6868135430695865};
+    const double Ni[]={0,-2.3723744833990232, -2.8592470973387676, 2.7678810236798252, -3.7675026842177273, -2.5221867301156755};
+    double summer=0,theta;
+    int i;
+    theta=1.0-T/reduce.T;
+    for (i=1;i<=5;i++)
+    {
+        summer=summer+Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.rho*exp(crit.T/T*summer);
+}
+
+double CarbonylSulfideClass::psat(double T)
+{
+    // Maximum absolute error is 0.083057 % between 134.300001 K and 378.769999 K
+    const double ti[]={0,1.0,1.5,2.3,3.6,5.2,7.3};
+    const double Ni[]={0,-6.6144340815954452, 2.0534257788168455, -2.0722088131457848, 1.1149167490331107, -3.8513264261829465, 1.1808252156160568 };
+    double summer=0,theta;
+    int i;
+    theta=1-T/reduce.T;
+    for (i=1;i<=6;i++)
+    {
+        summer=summer+Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.p*exp(reduce.T/T*summer);
+}
+double CarbonylSulfideClass::rhosatL(double T)
+{
+    // Maximum absolute error is 0.677071 % between 134.300001 K and 378.769999 K
+    const double ti[]={0,0.39284393894021785, 0.38390015433790292, 2.2386517189152535, 2.2115659405613348, 27.119517181027163};
+    const double Ni[]={0,-12.475292718905436, 13.76513349301672, 5.9184468000342676, -5.9019500519058772, 22.562403946162679};
+    double summer=0;
+    int i;
+    double theta;
+    theta=1-T/reduce.T;
+    for (i=1;i<=5;i++)
+    {
+        summer+=Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.rho*exp(summer);
+}
+double CarbonylSulfideClass::rhosatV(double T)
+{
+    // Maximum absolute error is 0.670265 % between 134.300001 K and 378.769999 K
+    const double ti[]={0,0.4002371604431198, 1.0280542888849111, 4.7960989516998014, 2.1665471855290961, 2.6645774028673594};
+    const double Ni[]={0,-2.8333597180190568, -2.2058837335661083, -2.8226141763428818, 1.6742917835056423, -2.2132884573899081};
+    double summer=0,theta;
+    int i;
+    theta=1.0-T/reduce.T;
+    for (i=1;i<=5;i++)
+    {
+        summer=summer+Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.rho*exp(crit.T/T*summer);
+}
+
+double DecaneClass::psat(double T)
+{
+    // Maximum absolute error is 0.095897 % between 243.500001 K and 617.699999 K
+    const double ti[]={0,1.0,1.5,2.3,3.6,5.2,7.3};
+    const double Ni[]={0,-8.6751621424501106, 2.8804901074112048, -3.9783693016893227, -0.78550488926699347, -5.4428041796076343, 3.0822748884469573 };
+    double summer=0,theta;
+    int i;
+    theta=1-T/reduce.T;
+    for (i=1;i<=6;i++)
+    {
+        summer=summer+Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.p*exp(reduce.T/T*summer);
+}
+double DecaneClass::rhosatL(double T)
+{
+    // Maximum absolute error is 0.397401 % between 243.500001 K and 617.699999 K
+    const double ti[]={0,0.39698081733802165, 0.99375746839456702, 1.3824414058838479, 2.0870109314455987, 4.0369621174956682};
+    const double Ni[]={0,2.306748788146411, -3.2750228326598099, 3.2390179121827032, -1.0158340181331245, 0.22333903274150235};
+    double summer=0;
+    int i;
+    double theta;
+    theta=1-T/reduce.T;
+    for (i=1;i<=5;i++)
+    {
+        summer+=Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.rho*exp(summer);
+}
+double DecaneClass::rhosatV(double T)
+{
+    // Maximum absolute error is 0.192674 % between 243.500001 K and 617.699999 K
+    const double ti[]={0,0.50769604931055112, 5.5518179080415102, 1.2630033323438727, 5.1843447790955253, 1.7840587243093533};
+    const double Ni[]={0,-5.317247348628082, 26.915460654851557, 1.6082159690036035, -31.527804141299679, -4.4909283644660496};
+    double summer=0,theta;
+    int i;
+    theta=1.0-T/reduce.T;
+    for (i=1;i<=5;i++)
+    {
+        summer=summer+Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.rho*exp(crit.T/T*summer);
+}
+
+double HydrogenSulfideClass::psat(double T)
+{
+    // Maximum absolute error is 0.014061 % between 187.700001 K and 373.099999 K
+    const double ti[]={0,1.0,1.5,2.3,3.6,5.2,7.3};
+    const double Ni[]={0,-6.5723352326794293, 1.896430781127326, -1.9355862944610984, 1.2531037764282309, -4.795728167798825, 2.787887611896148 };
+    double summer=0,theta;
+    int i;
+    theta=1-T/reduce.T;
+    for (i=1;i<=6;i++)
+    {
+        summer=summer+Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.p*exp(reduce.T/T*summer);
+}
+double HydrogenSulfideClass::rhosatL(double T)
+{
+    // Maximum absolute error is 0.566702 % between 187.700001 K and 373.099999 K
+    const double ti[]={0,0.79106386489177882, 0.88939381375621784, 1.0266714393290504, 0.91099311495488788, 1.0191641121567934};
+    const double Ni[]={0,738.4889085778741, -12085.6445805242, 16689.69047856304, 14107.568427822798, -19448.779316224445};
+    double summer=0;
+    int i;
+    double theta;
+    theta=1-T/reduce.T;
+    for (i=1;i<=5;i++)
+    {
+        summer+=Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.rho*exp(summer);
+}
+double HydrogenSulfideClass::rhosatV(double T)
+{
+    // Maximum absolute error is 0.601824 % between 187.700001 K and 373.099999 K
+    const double ti[]={0,0.53435963955142052, 1.0318813376408911, 1.0297572598900648, 1.0392102012903406, 4.3435423458517368};
+    const double Ni[]={0,-5.7597583855079861, -23677.45852297284, 18468.602400239459, 5209.7832429802875, -3.4496094719154797};
+    double summer=0,theta;
+    int i;
+    theta=1.0-T/reduce.T;
+    for (i=1;i<=5;i++)
+    {
+        summer=summer+Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.rho*exp(crit.T/T*summer);
+}
+
+double IsopentaneClass::psat(double T)
+{
+    // Maximum absolute error is 0.859211 % between 112.650001 K and 460.349999 K
+    const double ti[]={0,1.0,1.5,2.3,3.6,5.2,7.3};
+    const double Ni[]={0,-7.1614631214691062, 1.6427675982493801, -1.0765148777064892, -2.4350359463228068, -0.00077830587755741939, -1.3607605842862582 };
+    double summer=0,theta;
+    int i;
+    theta=1-T/reduce.T;
+    for (i=1;i<=6;i++)
+    {
+        summer=summer+Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.p*exp(reduce.T/T*summer);
+}
+double IsopentaneClass::rhosatL(double T)
+{
+    // Maximum absolute error is 0.412680 % between 112.650001 K and 460.349999 K
+    const double ti[]={0,0.2910137977462911, 2.0204585261825168, 4.1882444640378527, 3.0704844993207829, 9.097169407695036};
+    const double Ni[]={0,1.3160559423567124, -0.24235357370003638, -0.2239827299027437, 0.45658057492355336, 0.10114204215110814};
+    double summer=0;
+    int i;
+    double theta;
+    theta=1-T/reduce.T;
+    for (i=1;i<=5;i++)
+    {
+        summer+=Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.rho*exp(summer);
+}
+double IsopentaneClass::rhosatV(double T)
+{
+    // Maximum absolute error is 0.314179 % between 112.650001 K and 460.349999 K
+    const double ti[]={0,0.31270615359363657, 0.74616825916589047, 13.438145185545892, 3.7712973823560603, 13.112073494833108};
+    const double Ni[]={0,-1.6095085105632891, -3.5410442212702162, -2.4025730674501111, -4.4705198913818949, 0.70459696994457377};
+    double summer=0,theta;
+    int i;
+    theta=1.0-T/reduce.T;
+    for (i=1;i<=5;i++)
+    {
+        summer=summer+Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.rho*exp(crit.T/T*summer);
+}
+
+double NeopentaneClass::psat(double T)
+{
+    // Maximum absolute error is 0.004526 % between 256.600001 K and 433.739999 K
+    const double ti[]={0,1.0,1.5,2.3,3.6,5.2,7.3};
+    const double Ni[]={0,-7.027004544708106, 1.9793386200106815, -2.360943757602449, 1.1636391968268969, -6.9110737915478353, 6.6905802185479404 };
+    double summer=0,theta;
+    int i;
+    theta=1-T/reduce.T;
+    for (i=1;i<=6;i++)
+    {
+        summer=summer+Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.p*exp(reduce.T/T*summer);
+}
+double NeopentaneClass::rhosatL(double T)
+{
+    // Maximum absolute error is 0.308171 % between 256.600001 K and 433.739999 K
+    const double ti[]={0,0.30715908929085167, 0.02408980306294933, 2.2951165419376474, 4.2880092045078628, 3.5718062728106448};
+    const double Ni[]={0,1.3278912346796319, -7.1433703381307663e-07, -0.73279809856370448, -2.8725817580875623, 3.0804108412532227};
+    double summer=0;
+    int i;
+    double theta;
+    theta=1-T/reduce.T;
+    for (i=1;i<=5;i++)
+    {
+        summer+=Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.rho*exp(summer);
+}
+double NeopentaneClass::rhosatV(double T)
+{
+    // Maximum absolute error is 0.331471 % between 256.600001 K and 433.739999 K
+    const double ti[]={0,0.34885244286586209, 0.96026335525006201, 1.7026350507007288, 2.6663611861234626, 8.6409603088688787};
+    const double Ni[]={0,-2.2227708856840378, -4.1741890159176576, 3.3061543791847985, -4.7204205710823963, -14.871952577080259};
+    double summer=0,theta;
+    int i;
+    theta=1.0-T/reduce.T;
+    for (i=1;i<=5;i++)
+    {
+        summer=summer+Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.rho*exp(crit.T/T*summer);
+}
+
+double IsohexaneClass::psat(double T)
+{
+    // Maximum absolute error is 0.867155 % between 119.600001 K and 497.699999 K
+    const double ti[]={0,1.0,1.5,2.3,3.6,5.2,7.3};
+    const double Ni[]={0,-7.3903287973234741, 1.5420871354898538, -0.84149185676025828, -3.6210436902930638, 0.99970651583741965, -1.9923902966792624 };
+    double summer=0,theta;
+    int i;
+    theta=1-T/reduce.T;
+    for (i=1;i<=6;i++)
+    {
+        summer=summer+Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.p*exp(reduce.T/T*summer);
+}
+//double IsohexaneClass::rhosatL(double T)
+//{
+//    // Maximum absolute error is 100.000000 % between 119.600001 K and 497.699999 K
+//    const double ti[]={0,0.38741720877237773, 0.64489852383389468, -0.62850971090632879, 0.96387798104707323, 5.8195252011033674};
+//    const double Ni[]={0,2.6903597481863968, -2.1807843451672779, -0.00020797768707719061, 0.82279828297613955, 0.077310109570527946};
+//    double summer=0;
+//    int i;
+//    double theta;
+//    theta=1-T/reduce.T;
+//    for (i=1;i<=5;i++)
+//    {
+//        summer+=Ni[i]*pow(theta,ti[i]);
+//    }
+//    return reduce.rho*exp(summer);
+//}
+double IsohexaneClass::rhosatV(double T)
+{
+    // Maximum absolute error is 0.605575 % between 119.600001 K and 497.699999 K
+    const double ti[]={0,0.47580852830565717, 0.80170994863058465, 4.1456753389418717, 2.0754191791227719, 22.863511521748787};
+    const double Ni[]={0,-3.7956367210298922, -1.0172685447655876, -4.3120611056906561, -1.4909297795395249, -10.739883495485737};
+    double summer=0,theta;
+    int i;
+    theta=1.0-T/reduce.T;
+    for (i=1;i<=5;i++)
+    {
+        summer=summer+Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.rho*exp(crit.T/T*summer);
+}
+
+double KryptonClass::psat(double T)
+{
+    // Maximum absolute error is 0.017436 % between 115.775001 K and 209.479999 K
+    const double ti[]={0,1.0,1.5,2.3,3.6,5.2,7.3};
+    const double Ni[]={0,-5.9739950665662702, 1.3051794187375625, -0.31592680234061876, -1.0365678166366274, 0.63351382066291007, -2.8912024898026756 };
+    double summer=0,theta;
+    int i;
+    theta=1-T/reduce.T;
+    for (i=1;i<=6;i++)
+    {
+        summer=summer+Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.p*exp(reduce.T/T*summer);
+}
+double KryptonClass::rhosatL(double T)
+{
+    // Maximum absolute error is 1.463881 % between 115.775001 K and 209.479999 K
+    const double ti[]={0,0.36780895915580791, 0.70248203166996614, 1.172529422523406, 6.2635912317680793, 1.7846540318478548};
+    const double Ni[]={0,1.9755226451868064, -1.3056130307532876, 0.8586443600865078, 0.12193064253237056, -0.30634286614817541};
+    double summer=0;
+    int i;
+    double theta;
+    theta=1-T/reduce.T;
+    for (i=1;i<=5;i++)
+    {
+        summer+=Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.rho*exp(summer);
+}
+double KryptonClass::rhosatV(double T)
+{
+    // Maximum absolute error is 0.283547 % between 115.775001 K and 209.479999 K
+    const double ti[]={0,0.453854278772161, 1.6977667091236079, 2.0472835465021171, 2.0651987529414351, 7.5969412041939615};
+    const double Ni[]={0,-3.1505671898070267, -18.65209521960794, 400.42457764318993, -383.96236538350985, -3.3751290883620086};
+    double summer=0,theta;
+    int i;
+    theta=1.0-T/reduce.T;
+    for (i=1;i<=5;i++)
+    {
+        summer=summer+Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.rho*exp(crit.T/T*summer);
+}
+
+double NonaneClass::psat(double T)
+{
+    // Maximum absolute error is 0.087879 % between 219.700001 K and 594.549999 K
+    const double ti[]={0,1.0,1.5,2.3,3.6,5.2,7.3};
+    const double Ni[]={0,-8.4747418596031192, 2.8227667935992362, -3.5458599565380906, -1.4242947475868946, -3.5254946604872481, 1.1334065831048079 };
+    double summer=0,theta;
+    int i;
+    theta=1-T/reduce.T;
+    for (i=1;i<=6;i++)
+    {
+        summer=summer+Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.p*exp(reduce.T/T*summer);
+}
+double NonaneClass::rhosatL(double T)
+{
+    // Maximum absolute error is 0.867150 % between 219.700001 K and 594.549999 K
+    const double ti[]={0,0.45434458789525356, 0.72748787625567024, 0.925063834736367, 1.3573478933523566, 3.0112206747240773};
+    const double Ni[]={0,5.1572118610805857, -11.028370080657231, 8.9470309229999039, -1.8357217413258595, 0.20683170461251787};
+    double summer=0;
+    int i;
+    double theta;
+    theta=1-T/reduce.T;
+    for (i=1;i<=5;i++)
+    {
+        summer+=Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.rho*exp(summer);
+}
+double NonaneClass::rhosatV(double T)
+{
+    // Maximum absolute error is 0.312530 % between 219.700001 K and 594.549999 K
+    const double ti[]={0,0.50655477629124324, 2.4876505608371025, 2.2041597822504291, 1.9430824560248301, 2.5830185280832492};
+    const double Ni[]={0,-5.2194783202879194, 861.04350631411342, -342.56220842639533, 83.891172356485143, -610.13190227150676};
+    double summer=0,theta;
+    int i;
+    theta=1.0-T/reduce.T;
+    for (i=1;i<=5;i++)
+    {
+        summer=summer+Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.rho*exp(crit.T/T*summer);
+}
+
+double TolueneClass::psat(double T)
+{
+    // Maximum absolute error is 0.187697 % between 178.000001 K and 591.749999 K
+    const double ti[]={0,1.0,1.5,2.3,3.6,5.2,7.3};
+    const double Ni[]={0,-7.4184042521750229, 1.7705795922329421, -1.0620069658107303, -2.8961055438497469, -0.35601288602065423, -1.1203832074545026 };
+    double summer=0,theta;
+    int i;
+    theta=1-T/reduce.T;
+    for (i=1;i<=6;i++)
+    {
+        summer=summer+Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.p*exp(reduce.T/T*summer);
+}
+double TolueneClass::rhosatL(double T)
+{
+    // Maximum absolute error is 0.659779 % between 178.000001 K and 591.749999 K
+    const double ti[]={0,0.32703234036345474, 0.86030837877972832, 1.9855638765309758, 4.3159296915209184, 5.9759915024218611};
+    const double Ni[]={0,1.585216471761786, -0.42546736843083033, 0.23353047360987148, -0.1034086810731789, 0.13104469387313702};
+    double summer=0;
+    int i;
+    double theta;
+    theta=1-T/reduce.T;
+    for (i=1;i<=5;i++)
+    {
+        summer+=Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.rho*exp(summer);
+}
+double TolueneClass::rhosatV(double T)
+{
+    // Maximum absolute error is 0.270124 % between 178.000001 K and 591.749999 K
+    const double ti[]={0,0.26453133585430771, 0.59439611774229872, 3.2399544120904609, 5.3573873604955704, 13.640514113563155};
+    const double Ni[]={0,-0.56008642910342632, -4.465640983522734, -3.7664413431830686, -1.9809221774094345, -0.062332971201866233};
+    double summer=0,theta;
+    int i;
+    theta=1.0-T/reduce.T;
+    for (i=1;i<=5;i++)
+    {
+        summer=summer+Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.rho*exp(crit.T/T*summer);
+}
+
+double XenonClass::psat(double T)
+{
+    // Maximum absolute error is 0.007007 % between 161.405001 K and 289.732999 K
+    const double ti[]={0,1.0,1.5,2.3,3.6,5.2,7.3};
+    const double Ni[]={0,-6.0179736298621336, 1.4531608028462166, -0.75746733733446314, -0.05721415196027424, -1.4372963787937452, -0.28767071914740688 };
+    double summer=0,theta;
+    int i;
+    theta=1-T/reduce.T;
+    for (i=1;i<=6;i++)
+    {
+        summer=summer+Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.p*exp(reduce.T/T*summer);
+}
+double XenonClass::rhosatL(double T)
+{
+    // Maximum absolute error is 1.642288 % between 161.405001 K and 289.732999 K
+    const double ti[]={0,0.31434776766743999, 0.67805601917916636, 5.8038130756111892, 2.3240256223897999, 3.0208547327754598};
+    const double Ni[]={0,1.4226874845199544, -0.21979298723304491, 0.32922435816070406, 0.26160336954409047, -0.32636485566039475};
+    double summer=0;
+    int i;
+    double theta;
+    theta=1-T/reduce.T;
+    for (i=1;i<=5;i++)
+    {
+        summer+=Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.rho*exp(summer);
+}
+double XenonClass::rhosatV(double T)
+{
+    // Maximum absolute error is 0.384221 % between 161.405001 K and 289.732999 K
+    const double ti[]={0,0.42456694647604343, 1.0929357777332234, 2.7453780242937951, 2.5165708451263624, 11.065026375451158};
+    const double Ni[]={0,-2.8060599998539235, -2.0481529361896662, -9.9196250401113062, 9.0109861593982856, -19.388336288784551};
+    double summer=0,theta;
+    int i;
+    theta=1.0-T/reduce.T;
+    for (i=1;i<=5;i++)
+    {
+        summer=summer+Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.rho*exp(crit.T/T*summer);
+}
+
+double R116Class::psat(double T)
+{
+    // Maximum absolute error is 0.005177 % between 173.100001 K and 293.029999 K
+    const double ti[]={0,1.0,1.5,2.3,3.6,5.2,7.3};
+    const double Ni[]={0,-7.3955589482937381, 2.1874345047641488, -2.6407260335629017, 0.83237779144881274, -6.480800530357623, 6.0527091022412938 };
+    double summer=0,theta;
+    int i;
+    theta=1-T/reduce.T;
+    for (i=1;i<=6;i++)
+    {
+        summer=summer+Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.p*exp(reduce.T/T*summer);
+}
+double R116Class::rhosatL(double T)
+{
+    // Maximum absolute error is 0.976437 % between 173.100001 K and 293.029999 K
+    const double ti[]={0,0.29011688981180672, 0.34284809214776468, 2.1525665789650317, 3.0547917391285706, 3.2820127321141621};
+    const double Ni[]={0,1.5085971874674042, -0.19169905028904163, -0.1004169669731468, 0.068745519590789839, 0.10395251177877873};
+    double summer=0;
+    int i;
+    double theta;
+    theta=1-T/reduce.T;
+    for (i=1;i<=5;i++)
+    {
+        summer+=Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.rho*exp(summer);
+}
+double R116Class::rhosatV(double T)
+{
+    // Maximum absolute error is 0.309692 % between 173.100001 K and 293.029999 K
+    const double ti[]={0,0.38604749962219331, 1.0088719781777016, 1.6277698849200228, 2.720738012316323, 6.8941744996057599};
+    const double Ni[]={0,-2.6038986210545034, -4.0396795352002455, 2.7069117508619911, -4.2648317254667782, -5.93238493168551};
+    double summer=0,theta;
+    int i;
+    theta=1.0-T/reduce.T;
+    for (i=1;i<=5;i++)
+    {
+        summer=summer+Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.rho*exp(crit.T/T*summer);
+}

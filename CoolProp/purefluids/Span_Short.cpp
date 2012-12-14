@@ -174,6 +174,47 @@ static const double c_polar[] =
 //aliases.push_back(std::string("Pentane"));
 //REFPROPname.assign("PENTANE");
 //}
+
+//double nPentaneClass::psat(double T)
+//{
+//	const double ti[]={0,1.0,1.5,2.3,3.6,5.2,7.3};
+//    const double Ni[]={0,-7.3189517956008201, 1.831575521794627, -1.5679176810170088, -1.6016976280767432, -1.5476025637398951, -0.16036924003931891};
+//    double summer=0,theta;
+//    int i;
+//    theta=1-T/reduce.T;
+//    for (i=1;i<=6;i++)
+//    {
+//        summer=summer+Ni[i]*pow(theta,ti[i]);
+//    }
+//    return crit.p*exp(crit.T/T*summer);
+//}
+//double nPentaneClass::rhosatL(double T)
+//{
+//	const double ti[]={0,0.29552166083980214, 1.838108920806391, 13.815301765944588, 1.6968751214021764};
+//    const double Ni[]={0,1.370181555793448, 1.2843194779193425, 0.1837342868039078, -1.2973895270674818};
+//    double summer=1;
+//    int i;
+//    double theta;
+//    theta=1-T/reduce.T;
+//    for (i=1;i<=4;i++)
+//    {
+//        summer+=Ni[i]*pow(theta,ti[i]);
+//    }
+//    return crit.rho*summer;
+//}
+//double nPentaneClass::rhosatV(double T)
+//{
+//	const double ti[]={0,-2.5668755584727574, -4.6864340387861239, -1.7110580294015947, -2.7375442349312742};
+//    const double Ni[]={0,-2.51117688, -4.13789189, -10.22378321, -36.26769491, -77.14114162, -119.24617268};
+//    double summer=0,theta;
+//    int i;
+//    theta=1.0-T/reduce.T;
+//    for (i=1;i<=4;i++)
+//    {
+//        summer=summer+Ni[i]*pow(theta,ti[i]);
+//    }
+//    return crit.rho*exp(crit.T/T*summer);
+//}
 //
 //nHexaneClass::nHexaneClass()
 //{
