@@ -7,7 +7,7 @@ from scipy.odr import *
 
 from summer import sum_function
 
-LIBRARY = [i/6.0 for i in range(1,151)]+[0.35+i/2000 for i in range(1,100)]
+LIBRARY = [i/6.0 for i in range(1,151)]+[0.35+i/2000 for i in range(1,100)]+[0.05+0.001*i for i in range(1,100)]
 
 class Sample(object):
     def __init__(self,v):
@@ -19,7 +19,7 @@ class GeneticHelloWorld(object):
                num_selected = 20, # Have 10 chromos in the selected group
                mutation_factor = 3, # Randomly mutate 1/n of the chromosomes
                num_powers = 6, # How many powers in the fit
-               Ref = 'REFPROP-R22',
+               Ref = 'REFPROP-HEPTANE',
                value = 'rhoV',
                addTr = False
                 ):

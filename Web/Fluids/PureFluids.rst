@@ -11,6 +11,7 @@ Pure Fluids
     CarbonDioxide.rst
     CarbonMonoxide.rst
     CarbonylSulfide.rst
+    CycloHexane.rst
     D4.rst
     D5.rst
     D6.rst
@@ -40,6 +41,7 @@ Pure Fluids
     Propane.rst
     R116.rst
     R1234yf.rst
+    R1234ze.rst
     R134a.rst
     R141b.rst
     R142b.rst
@@ -54,3 +56,7 @@ Pure Fluids
     Water.rst
     Xenon.rst
     n-Butane.rst
+    n-Heptane.rst
+    n-Hexane.rst
+    n-Octane.rst
+    n-Pentane.rst

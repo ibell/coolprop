@@ -36,7 +36,7 @@ def example2(Ref, ClassName,  N = 4, addTr = True, Llog = True):
     rhoc = Props(Ref,'rhocrit')
     Tmin = Props(Ref,'Tmin')
     
-    TT = np.linspace(Tmin+1e-6, Tc-0.000001,300)
+    TT = np.linspace(Tmin+1e-6, Tc-0.00001,300)
     p = [Props('P','T',T,'Q',0,Ref) for T in TT]
     rhoL = [Props('D','T',T,'Q',0,Ref) for T in TT]
     rhoV = [Props('D','T',T,'Q',1,Ref) for T in TT]
@@ -73,6 +73,7 @@ def example2(Ref, ClassName,  N = 4, addTr = True, Llog = True):
         Tr = 1
         
     y = np.log(np.array(rhoV)/rhoc)*Tr
+    
     def f_coeffs(n, x):
         global t, max_abserror
 
@@ -80,7 +81,7 @@ def example2(Ref, ClassName,  N = 4, addTr = True, Llog = True):
             return sum([_B*x**_n for _B,_n in zip(B,n)])
         linear = Model(f_rho)
         mydata = Data(x, y)
-        myodr = ODR(mydata, linear, beta0=[1.0]*N)
+        myodr = ODR(mydata, linear, beta0=[1]*N)
         myoutput = myodr.run()
     
         rho_fit = np.exp(f_rho(myoutput.beta,x)/Tr)*rhoc
@@ -91,6 +92,7 @@ def example2(Ref, ClassName,  N = 4, addTr = True, Llog = True):
         return myoutput.sum_square
         
     n0 = [0.345]+range(1,N)
+    assert(len(n0) == N)
     n0 = scipy.optimize.minimize(f_coeffs,n0, args=(x,), method = 'Powell').x
     max_abserror = globals()['max_abserror']
     t = globals()['t']
@@ -103,8 +105,9 @@ def example2(Ref, ClassName,  N = 4, addTr = True, Llog = True):
     else:
         y = np.array(rhoL)/rhoc-1
         
+    beta0 = [1]*N
     def f_coeffs(n,x):
-        global t, max_abserror
+        global t, max_abserror, beta0
         def f_rho(B, x):
             return sum([_B*x**_n for _B,_n in zip(B,n)])
             
@@ -124,7 +127,8 @@ def example2(Ref, ClassName,  N = 4, addTr = True, Llog = True):
         print Ref, 'rhoL SSE =', myoutput.sum_square, max_abserror,'%', list(myoutput.beta), list(n), max_abserror,'%'
         return myoutput.sum_square
     
-    n0 = [0.345]+range(1,N)
+    n0 = [0.345]+list(0.75*np.array(range(1,N)))
+    assert(len(n0) == N)
     n0 = scipy.optimize.minimize(f_coeffs,n0, args=(x,), method = 'Powell').x
     max_abserror = globals()['max_abserror']
     t = globals()['t']
@@ -199,9 +203,11 @@ def example2(Ref, ClassName,  N = 4, addTr = True, Llog = True):
     
 #example1()
 
-#example2('REFPROP-pentane','nPentane',4)
-## example2('REFPROP-HEXANE','nHexane',5)
-## example2('REFPROP-OCTANE','nOctane',6)
-## example2('REFPROP-HEPTANE','nHeptane')
-example2('REFPROP-Methane','Methane', N = 5)
+## example2('REFPROP-pentane','nPentane',N = 4)
+## example2('REFPROP-HEXANE','nHexane',N = 5)
+example2('REFPROP-R1234ze','R1234ze',N = 5)
+## example2('REFPROP-HEPTANE','nHeptane',N = 5)
+## example2('REFPROP-CYCLOHEX','Cyclohexane', N = 5)
+
+
 

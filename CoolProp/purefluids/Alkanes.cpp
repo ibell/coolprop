@@ -608,10 +608,6 @@ double IsoButaneClass::rhosatV(double T)
 		  -2.93790085*pow(theta,5.0/6.0)
 		  -0.89441086*pow(theta,19.0/6.0)
 		  -3.46343707*pow(theta,26.0/6.0);
-	//RHS = -2.12933323*pow(theta,1.065)
-	//	  -2.93790085*pow(theta,3.0)
-	//	  -0.89441086*pow(theta,4.0)
-	//	  -3.46343707*pow(theta,7.0);
 	rho = exp(RHS*reduce.T/T)*rhoc;
 	return rho;
 }

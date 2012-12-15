@@ -523,12 +523,21 @@ double phi0_cp0_AlyLee::anti_deriv_cp0_tau2(double tau)
 }
 double phi0_cp0_AlyLee::anti_deriv_cp0_tau(double tau)
 {
+	double term1;
 	/*
 	Maxima code:
 	a[1]+a[2]*(a[3]*tau/Tc/sinh(a[3]*tau/Tc))^2+a[4]*(a[5]*tau/Tc/cosh(a[5]*tau/Tc))^2;
 	integrate(%/tau,tau);
 	*/
-	double term1 = (4*a[4]*a[5]*a[5]*((tau*Tc*exp((2*a[5]*tau)/Tc))/(2*a[5]*exp((2*a[5]*tau)/Tc)+2*a[5])-(Tc*Tc*log(exp((2*a[5]*tau)/Tc)+1))/(4*a[5]*a[5])))/Tc/Tc;
+	if (a[4] == 0.0 && a[5] == 0.0)
+	{
+		term1 = 0;
+	}
+	else
+	{
+		term1 = (4*a[4]*a[5]*a[5]*((tau*Tc*exp((2*a[5]*tau)/Tc))/(2*a[5]*exp((2*a[5]*tau)/Tc)+2*a[5])-(Tc*Tc*log(exp((2*a[5]*tau)/Tc)+1))/(4*a[5]*a[5])))/Tc/Tc;
+	}
+
 	double term2 = (4*a[2]*a[3]*a[3]*((Tc*Tc*log(exp((a[3]*tau)/Tc)+1))/(4*a[3]*a[3])+(Tc*Tc*log(exp((a[3]*tau)/Tc)-1))/(4*a[3]*a[3])-(tau*Tc*exp((2*a[3]*tau)/Tc))/(2*a[3]*exp((2*a[3]*tau)/Tc)-2*a[3])))/Tc/Tc;
 	double term3 = a[1]*log(tau);
 	return term1 + term2 + term3;

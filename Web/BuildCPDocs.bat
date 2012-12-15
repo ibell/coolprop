@@ -11,4 +11,4 @@ REM ~ cd ..\..
 
 
 rem sphinx-apidoc -f -o apidoc ../CoolProp
-make html > log.txt
+make html

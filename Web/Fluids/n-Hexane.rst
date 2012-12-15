@@ -1,22 +1,21 @@
 
 ********************
-R245fa
+n-Hexane
 ********************
 
 Aliases
 ================================================================================
-
+nHexane, Hexane
 
 Equation of State Reference
 ===========================
-Lemmon, E.W., and R. Span, "Short Fundamental Equations of State for 20 Industrial Fluids,", J. Chem. Eng. Data, 51:785-850, 2006.
+Span, R. and W. Wagner, "Equations of State for Technical Applications. II. Results for Nonpolar Fluids", International Journal of Thermophysics, Vol. 24, No. 1, January 2003. 
+
+Cp0: Jaeschke, M. and P. Schley,"Ideal-Gas Thermodynamic Properties for Natural-Gas Applications", Int. J. Thermophys. v 16, n6 1995
 
 Transport Properties Information
 ================================
-Using ECS
-
-Surface Tension:
-James W Schmidt, Ernesto Carrillo-Nava, Michael R Moldover "Partially halogenated hydrocarbons CHFCl-CF3, CF3-CH3, CF3-CHF-CHF2, CF3-CH2-CF3, CHF2-CF2-CH2F, CF3-CH2-CHF2, CF3-O-CHF2: critical temperature, refractive indices, surface tension and estimates of liquid, vapor and critical densities" Fluid Phase Equilibria, Volume 122, Issues 1–2, 31 July 1996, Pages 187–206 http://dx.doi.org/10.1016/0378-3812(96)03044-0
+Using ECS in fully predictive mode
 
 
 Fluid Data
@@ -25,16 +24,16 @@ Fluid Data
 Fluid Parameters
 
 =========================  ==============================
-Mole Mass [kg/kmol]        134.04794
-Triple Point [K]           171.050
+Mole Mass [kg/kmol]        86.17700
+Triple Point [K]           177.830
 =========================  ==============================
 
 Critical Parameters
 
 ==============================  ==============================
-Temperature [K]                 427.16
-Density [kg/m\ :sup:`3`\ ]      516.084569
-Pressure [kPa]                  3651.00000
+Temperature [K]                 507.82
+Density [kg/m\ :sup:`3`\ ]      233.180000
+Pressure [kPa]                  3034.00000
 ==============================  ==============================
 
 
@@ -43,8 +42,8 @@ Saturated Vapor Deviations
 
 .. plot::
 
-    Fluid = "R245fa"
-    RPFluid = "REFPROP-R245fa"
+    Fluid = "n-Hexane"
+    RPFluid = "REFPROP-HEXANE"
 
     #Saturated Vapor
     from CoolProp.CoolProp import Props
@@ -98,8 +97,8 @@ Saturated Liquid Deviations
 
 .. plot::
 
-    Fluid = "R245fa"
-    RPFluid = "REFPROP-R245fa"
+    Fluid = "n-Hexane"
+    RPFluid = "REFPROP-HEXANE"
 
     #Saturated Liquid
     from CoolProp.CoolProp import Props
@@ -152,8 +151,8 @@ Along the critical isotherm where T=T\ :sub:`c`
 ================================================
 .. plot::
 
-    Fluid = "R245fa"
-    RPFluid = "REFPROP-R245fa"
+    Fluid = "n-Hexane"
+    RPFluid = "REFPROP-HEXANE"
 
     #Critical isotherm
     from CoolProp.CoolProp import Props
@@ -210,7 +209,7 @@ Check of p,h and p,s as inputs (X: Failure .: Success)
     from matplotlib import pyplot as plt
     import numpy as np
 
-    Ref = "R245fa"
+    Ref = "n-Hexane"
     fig = plt.figure(figsize=(10,5))
     ax1 = fig.add_subplot(121)
     ax2 = fig.add_subplot(122)
@@ -223,8 +222,8 @@ Check of p,h and p,s as inputs (X: Failure .: Success)
     smin = Props('S','T',Tmin,'Q',0,Ref)
     smax = 2*Props('S','T',Props(Ref,'Tcrit')-1,'Q',1,Ref)-smin
 
-    Ph(Ref, axis = ax1, Tmin = Tmin, Tmax = 427.150000)
-    Ps(Ref, axis = ax2, Tmin = Tmin, Tmax = 427.150000)
+    Ph(Ref, axis = ax1, Tmin = Tmin, Tmax = 507.810000)
+    Ps(Ref, axis = ax2, Tmin = Tmin, Tmax = 507.810000)
 
     for p in np.linspace(pmin,pmax,10):
         for h in np.linspace(hmin,hmax):

@@ -440,6 +440,9 @@ public:
 };
 
 /// Term in the ideal-gas specific heat equation that is based on Aly-Lee formulation
+/// All the terms are of the form 
+/// cp0 = A + B*((C/T)/sinh(C/T))^2 + D*((E/T)/cosh(E/T))^2
+/// Note the LHS is NOT cp0/R
 class phi0_cp0_AlyLee : public phi_BC{
 private:
 	std::vector<double> a;

@@ -44,6 +44,8 @@
 #include "purefluids/Ethylene.h"
 #include "purefluids/SulfurHexafluoride.h"
 #include "purefluids/Ethanol.h"
+#include "purefluids/Span_Short.h"
+#include "purefluids/R1234ze.h"
 
 using namespace std;
 
@@ -68,6 +70,7 @@ FluidsContainer::FluidsContainer()
 	FluidsList.push_back(new R290Class());
 	FluidsList.push_back(new R717Class());
 	FluidsList.push_back(new R1234yfClass());
+	FluidsList.push_back(new R1234zeClass());
 	FluidsList.push_back(new R32Class());
 	FluidsList.push_back(new R22Class());
 	FluidsList.push_back(new SES36Class());
@@ -96,12 +99,17 @@ FluidsContainer::FluidsContainer()
 	FluidsList.push_back(new R141bClass());
 	FluidsList.push_back(new R142bClass());
 	FluidsList.push_back(new R218Class());
-
-	// Span Non-Polar
+	
 	FluidsList.push_back(new MethaneClass());
 	FluidsList.push_back(new EthaneClass());
 	FluidsList.push_back(new nButaneClass());
 	FluidsList.push_back(new IsoButaneClass());
+	// Span Non-Polar
+	FluidsList.push_back(new nPentaneClass());
+	FluidsList.push_back(new nHexaneClass());
+	FluidsList.push_back(new nHeptaneClass());
+	FluidsList.push_back(new nOctaneClass());
+	FluidsList.push_back(new CyclohexaneClass());
 
 	// The Siloxanes
 	FluidsList.push_back(new OctamethyltrisiloxaneClass()); //MDM
