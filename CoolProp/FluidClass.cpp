@@ -46,6 +46,9 @@
 #include "purefluids/Ethanol.h"
 #include "purefluids/Span_Short.h"
 #include "purefluids/R1234ze.h"
+#include "purefluids/Butenes.h"
+#include "purefluids/FAME.h"
+#include "purefluids/Ether.h"
 
 using namespace std;
 
@@ -77,6 +80,7 @@ FluidsContainer::FluidsContainer()
 	FluidsList.push_back(new EthyleneClass());
 	FluidsList.push_back(new SulfurHexafluorideClass());
 	FluidsList.push_back(new EthanolClass());
+	FluidsList.push_back(new DimethylEtherClass());	
 
 	// The industrial fluids
 	FluidsList.push_back(new R245faClass());
@@ -120,6 +124,19 @@ FluidsContainer::FluidsContainer()
 	FluidsList.push_back(new TetradecamethylhexasiloxaneClass()); //MD4M
 	FluidsList.push_back(new OctamethylcyclotetrasiloxaneClass()); //D4
 	FluidsList.push_back(new DecamethylcyclopentasiloxaneClass()); //D5
+
+	// The butenes
+	FluidsList.push_back(new OneButeneClass());
+	FluidsList.push_back(new IsoButeneClass());
+	FluidsList.push_back(new Cis2ButeneClass());
+	FluidsList.push_back(new Trans2ButeneClass());
+	
+	// The methyl ester components of biodiesel
+	FluidsList.push_back(new MethylPalmitateClass());
+	FluidsList.push_back(new MethylStearateClass());
+	FluidsList.push_back(new MethylOleateClass());
+	FluidsList.push_back(new MethylLinoleateClass());
+	FluidsList.push_back(new MethylLinolenateClass());
 
 	// The pseudo-pure fluids
 	FluidsList.push_back(new AirClass());
@@ -277,7 +294,9 @@ double Fluid::dphir_dDelta(double tau, double delta)
 {
 	double summer = 0;
 	for (list<phi_BC*>::iterator it = phirlist.begin(); it != phirlist.end(); it++)
+	{
 		summer += (*it)->dDelta(tau,delta);
+	}
 	return summer;
 }
 double Fluid::d2phir_dDelta2(double tau, double delta)
@@ -641,6 +660,9 @@ void Fluid::get_1phase_LUT_params(int *nT,int *np,double *Tmin, double *Tmax, do
 void Fluid::saturation(double T, bool UseLUT, double *psatLout, double *psatVout, double *rhosatLout, double *rhosatVout)
 {
 	double rhoL, rhoV, p;
+	if (debug()>5){
+		std::cout<<format("%s:%d: Fluid::saturation(%g,%d) \n",__FILE__,__LINE__,T,UseLUT);
+	}
 	if (isPure==true)
 	{
 		if (UseLUT)
@@ -721,6 +743,8 @@ void Fluid::rhosatPure_Brent(double T, double *rhoLout, double *rhoVout, double 
 	Brent(&SatFunc,pmin,pmax,DBL_EPSILON,1e-8,30,&errstr);
 
 }
+/// This function implements the method of Akasaka to do analytic Newton-Raphson for the 
+/// saturation calcs
 void Fluid::rhosatPure_Akasaka(double T, double *rhoLout, double *rhoVout, double *pout)
 {
 	/*
@@ -750,6 +774,9 @@ void Fluid::rhosatPure_Akasaka(double T, double *rhoLout, double *rhoVout, doubl
 	}
 
 	do{
+		if (debug()>5){
+			std::cout << format("%s:%d: right before the derivs with deltaL = %g deltaV = %g tau = %g\n",__FILE__,__LINE__,deltaL, deltaV, tau);
+		}
 		// Calculate once to save on calls to EOS
 		dphirL = dphir_dDelta(tau,deltaL);
 		dphirV = dphir_dDelta(tau,deltaV);
@@ -774,7 +801,7 @@ void Fluid::rhosatPure_Akasaka(double T, double *rhoLout, double *rhoVout, doubl
 		//Get the step
 		stepL = gamma/DELTA*( (KV-KL)*dJV-(JV-JL)*dKV);
 		stepV = gamma/DELTA*( (KV-KL)*dJL-(JV-JL)*dKL);
-
+		
 		if (deltaL+stepL > 1 && deltaV+stepV < 1)
 		{
 			deltaL += stepL;
@@ -1070,7 +1097,10 @@ double Fluid::_get_rho_guess(double T, double p)
 
 	long phase = phase_Tp_indices(T,p,&pL,&pV,&rhoL,&rhoV);
 	
-	// These are very simplistic guesses for the density, but they work ok, use them if PR fails
+	if (debug()>5){
+		std::cout<<__FILE__<<format(": Fluid::_get_rho_guess(%g,%g) phase =%d\n",T,p,phase);
+	}
+	// These are very simplistic guesses for the density, but they work ok
 	if (phase == iGas || phase == iSupercritical)
 	{
 		// Guess that it is ideal gas
@@ -1082,17 +1112,24 @@ double Fluid::_get_rho_guess(double T, double p)
 		// Return subcooled liquid density
 		double rhoL,rhoV,pL,pV;
 		saturation(T,SaturationLUTStatus(),&pL,&pV,&rhoL,&rhoV);
+		if (debug()>5){
+			std::cout<<format("%d:%d: pL = %g rhoL = %g rhoV %g \n",__FILE__,__LINE__,pL,rhoL, rhoV);
+		}
 		double delta = rhoL / reduce.rho;
 		double tau = reduce.T/T;
 		double dp_drho = R()*T*(1+2*delta*dphir_dDelta(tau,delta)+delta*delta*d2phir_dDelta2(tau,delta));
 		double drho_dp = 1/dp_drho;
 		rho_simple = rhosatL(T)-drho_dp*(pL-p);
+		
 	}
 	else
 	{
 		// It is two-phase, we are going to skip the process of 
 		// solving and just return a value somewhere in the two-phase region.
 		return (rhoL+rhoV)/2;
+	}
+	if (debug()>5){
+		std::cout<<__FILE__<<": _get_rho_guess = "<<rho_simple<<std::endl;
 	}
 	return rho_simple;
 
@@ -1128,6 +1165,13 @@ std::string Fluid::phase_Tp(double T, double p, double *pL, double *pV, double *
 {
 	// Get the value from the long-output function
 	long iPhase = phase_Tp_indices(T, p, pL, pV, rhoL, rhoV);
+	if (get_debug()>7)
+	{
+		if (debug()>5){
+			std::cout<<__FILE__<<": phase index is " << iPhase <<std::endl;
+		}
+
+	}
 	// Convert it to a std::string
 	switch (iPhase)
 	{
@@ -1165,6 +1209,10 @@ long Fluid::phase_Tp_indices(double T, double p, double *pL, double *pV, double 
 	   a-b: Saturation line
 
 	*/
+
+	if (debug()>5){
+		std::cout<<__FILE__<<format(": phase_Tp_indices(%g,%g)\n",T,p);
+	}
 
 	if (T>crit.T && p>crit.p){
 		return iSupercritical;

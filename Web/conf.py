@@ -38,6 +38,7 @@ extensions = ['matplotlib.sphinxext.only_directives',
               #'breathe'
               ]
 
+plot_formats = [('png',80)]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

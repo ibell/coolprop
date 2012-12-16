@@ -205,9 +205,16 @@ def example2(Ref, ClassName,  N = 4, addTr = True, Llog = True):
 
 ## example2('REFPROP-pentane','nPentane',N = 4)
 ## example2('REFPROP-HEXANE','nHexane',N = 5)
-example2('REFPROP-R1234ze','R1234ze',N = 5)
+## example2('REFPROP-T2Butene','Trans2Butene',N = 5)
+## example2('REFPROP-1Butene','1Butene',N = 5)
+## example2('REFPROP-C2BUTENE','Cis2Butene',N = 5)
+## example2('REFPROP-IBUTENE','IsoButene',N = 5)
 ## example2('REFPROP-HEPTANE','nHeptane',N = 5)
 ## example2('REFPROP-CYCLOHEX','Cyclohexane', N = 5)
 
+example2('REFPROP-R123','R123',N = 5)
+example2('REFPROP-R152A','R152A',N = 5)
+example2('REFPROP-R12','R12',N = 5)
+example2('REFPROP-R113','R113',N = 5)
 
 

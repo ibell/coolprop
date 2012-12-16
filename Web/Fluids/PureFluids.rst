@@ -5,6 +5,7 @@ Pure Fluids
 .. toctree::
     :maxdepth: 1
 
+    1-Butene.rst
     Acetone.rst
     Ammonia.rst
     Argon.rst
@@ -16,6 +17,7 @@ Pure Fluids
     D5.rst
     D6.rst
     Decane.rst
+    DimethylEther.rst
     Ethane.rst
     Ethanol.rst
     Ethylene.rst
@@ -23,6 +25,7 @@ Pure Fluids
     Hydrogen.rst
     HydrogenSulfide.rst
     IsoButane.rst
+    IsoButene.rst
     Isohexane.rst
     Isopentane.rst
     Krypton.rst
@@ -32,6 +35,11 @@ Pure Fluids
     MDM.rst
     MM.rst
     Methane.rst
+    MethylLinoleate.rst
+    MethylLinolenate.rst
+    MethylOleate.rst
+    MethylPalmitate.rst
+    MethylStearate.rst
     Neopentane.rst
     Nitrogen.rst
     NitrousOxide.rst
@@ -55,8 +63,10 @@ Pure Fluids
     Toluene.rst
     Water.rst
     Xenon.rst
+    cis-2-Butene.rst
     n-Butane.rst
     n-Heptane.rst
     n-Hexane.rst
     n-Octane.rst
     n-Pentane.rst
+    trans-2-Butene.rst

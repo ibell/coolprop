@@ -61,8 +61,8 @@ public:
 	phir_power(std::vector<double>,std::vector<double>,std::vector<double>,int,int);
 	phir_power(std::vector<double>,std::vector<double>,std::vector<double>,std::vector<double>,int,int);
 	// Add a dummy value at the end of the function since compiler sees std::vector<double> and double[] as being the same type
-	//phir_power(double[],double[],double[],int,int,bool);
-	//phir_power(double[],double[],double[],double[],int,int,bool);
+	phir_power(const double[],const double[],const double[],int,int,int);
+	phir_power(double[],double[],double[],double[],int,int,int);
 
 	///< Destructor for the phir_power class.  No implementation
 	~phir_power(){};
@@ -95,14 +95,14 @@ public:
 				  std::vector<double> beta_in, 
 				  std::vector<double> gamma_in,
 		unsigned int iStart_in, unsigned int iEnd_in);
-	/*phir_gaussian(double a_in[], 
+	phir_gaussian(double a_in[], 
 				  double d_in[],
 				  double t_in[], 
 				  double alpha_in[], 
 				  double epsilon_in[], 
 				  double beta_in[], 
 				  double gamma_in[],
-		unsigned int iStart_in, unsigned int iEnd_in);*/
+		unsigned int iStart_in, unsigned int iEnd_in, unsigned int N);
 
 	// Destructor
 	~phir_gaussian(){};
@@ -148,6 +148,7 @@ public:
 class phi0_lead : public phi_BC{
 	/*
 	Term is of the form log(delta)+a1+a2*tau
+	constructor: phi0_lead(double a1, double a2)
 	*/
 private:
 	double c1,c2; // Use these variables internally
@@ -172,6 +173,7 @@ public:
 class phi0_logtau : public phi_BC{
 	/*
 	Term is of the form a1*log(tau)
+	Constructor: phi0_logtau(double a1)
 	*/
 private:
 	double c1; // Use these variables internally
@@ -195,6 +197,9 @@ public:
 class phi0_Planck_Einstein : public phi_BC{
 	/*
 	Term is of the form a_0*log(1-exp(-theta_0*tau))
+	Constructors: 
+		phi0_Planck_Einstein(std::vector<double> a_in, std::vector<double> theta_in, int iStart_in, int iEnd_in)
+		phi0_Planck_Einstein(double a_in, double theta_in)
 	*/
 private:
 	std::vector<double> a,theta; // Use these variables internally
@@ -229,6 +234,8 @@ public:
 class phi0_Planck_Einstein2 : public phi_BC{
 	/*
 	Term is of the form a_0*log(c+exp(theta_0*tau))
+	Constructor:
+		phi0_Planck_Einstein2(double a_in, double theta_in, double c_in)
 	*/
 private:
 	std::vector<double> a,theta,c; // Use these variables internally
@@ -259,6 +266,8 @@ public:
 class phi0_power : public phi_BC{
 	/*
 	Term is of the form a_0*tau^b_0
+	Constructor:
+		phi0_power(std::vector<double> a_in, std::vector<double> theta_in, int iStart_in, int iEnd_in)
 	*/
 private:
 	std::vector<double> a,b; // Use these variables internally

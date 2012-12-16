@@ -109,7 +109,7 @@ static const double c_polar[] =
 3.0, //[12]
 };
 
-char EOSstr [] = "Span, R. and W. Wagner, \"Equations of State for Technical Applications. II. Results for Nonpolar Fluids\", International Journal of Thermophysics, Vol. 24, No. 1, January 2003. \n\nCp0: Jaeschke, M. and P. Schley,\"Ideal-Gas Thermodynamic Properties for Natural-Gas Applications\", Int. J. Thermophys. v 16, n6 1995";
+static char EOSstr [] = "Span, R. and W. Wagner, \"Equations of State for Technical Applications. II. Results for Nonpolar Fluids\", International Journal of Thermophysics, Vol. 24, No. 1, January 2003. \n\nCp0: Jaeschke, M. and P. Schley,\"Ideal-Gas Thermodynamic Properties for Natural-Gas Applications\", Int. J. Thermophys. v 16, n6 1995";
 
 nPentaneClass::nPentaneClass()
 {
@@ -615,6 +615,7 @@ CyclohexaneClass::CyclohexaneClass()
 	phi0list.push_back(new phi0_cp0_AlyLee(a1_v,crit.T,T0,params.R_u));
 
 	EOSReference.assign(EOSstr);
+    // Also see Penoncello, 1995
 	TransportReference.assign("Using ECS in fully predictive mode.  ECS parameters from ");
 
 	name.assign("CycloHexane");
