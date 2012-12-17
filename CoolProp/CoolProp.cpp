@@ -1200,7 +1200,7 @@ double DerivTerms(char *Term, double T, double rho, Fluid * pFluid, bool SingleP
 	double R=pFluid->R();
 	double dtau_dT = -pFluid->reduce.T/T/T;
 
-	if (!strcmp(Term,"dpdT"))
+	if (!strcmp(Term,"dpdT") || !strcmp(Term,"dpdT|rho"))
 	{
 		return rho*R*(1+delta*pFluid->dphir_dDelta(tau,delta)-delta*tau*pFluid->d2phir_dDelta_dTau(tau,delta));
 	}
@@ -1208,6 +1208,18 @@ double DerivTerms(char *Term, double T, double rho, Fluid * pFluid, bool SingleP
 	{
         double dpdrho=R*T*(1+2*delta*pFluid->dphir_dDelta(tau,delta)+delta*delta*pFluid->d2phir_dDelta2(tau,delta));
 		return dpdrho;
+	}
+	else if (!strcmp(Term,"dhdT") || !strcmp(Term,"dhdT|rho"))
+	{
+        double dpdrho=R*T*(1+2*delta*pFluid->dphir_dDelta(tau,delta)+delta*delta*pFluid->d2phir_dDelta2(tau,delta));
+		double dhdT = 1/rho*dpdrho-R*tau*tau*(pFluid->d2phi0_dTau2(tau,delta)+pFluid->d2phir_dTau2(tau,delta));
+		return dhdT;
+	}
+	else if (!strcmp(Term,"dhdrho") || !strcmp(Term,"dhdrho|T"))
+	{
+		double d2phi0_dDelta_dTau = 0; // This term will always be zero
+		double dhdrho=R*T/pFluid->crit.rho*(tau*(dphi0_dDelta_dTau + pFluid->d2phir_dDelta_dTau(tau,delta))+delta*pFluid->d2phir_dDelta2(tau,delta)+pFluid->dphir_dDelta(tau,delta));
+		return dhdrho;
 	}
     else if (!strcmp(Term,"dvdp"))
 	{
