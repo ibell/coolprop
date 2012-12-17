@@ -355,7 +355,16 @@ double phir_critical::dDelta(double tau, double delta)
 	}
 	return summer;
 }
-
+double phir_critical::dDelta_dTau2(double tau, double delta)
+{
+	std::cout << format("phir_critical::dDelta_dTau2 not implemented\n");
+	return 0;
+}
+double phir_critical::dTau3(double tau, double delta)
+{
+	std::cout << format("phir_critical::dTau3 not implemented\n");
+	return 0;
+}
 double phir_critical::dDelta3(double tau, double delta)
 {
 	std::cout << format("phir_critical::dDelta3 not implemented\n");

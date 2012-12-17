@@ -1437,6 +1437,10 @@ double DerivTerms(char *Term, double T, double rho, Fluid * pFluid, bool SingleP
     {
         return pFluid->d3phir_dDelta2_dTau(tau,delta);
     }
+	else if (!strcmp(Term,"d3phir_dDelta_dTau2"))
+    {
+        return pFluid->d3phir_dDelta_dTau2(tau,delta);
+    }
 	else if (!strcmp(Term,"phi0"))
     {
         return pFluid->phi0(tau,delta);

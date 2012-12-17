@@ -158,7 +158,7 @@ class Fluid
 		// Third derivative
 		double d3phir_dDelta3(double tau, double delta);
 		double d3phir_dDelta2_dTau(double tau, double delta);
-		//double d3phir_dDelta_dTau2(double tau, double delta);
+		double d3phir_dDelta_dTau2(double tau, double delta);
 		//double d3phir_dTau3(double tau, double delta);
 		
 		double phi0(double tau, double delta);

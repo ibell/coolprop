@@ -42,7 +42,7 @@ public:
 	/// Returns the third mixed partial derivative (delta1,dtau2) of Helmholtz energy term with respect to delta and tau [-]
 	/// @param tau Reciprocal reduced temperature where tau=Tc / T
 	/// @param delta Reduced pressure where delta = rho / rhoc 
-	double dDelta_dTau2(double tau, double delta);
+	virtual double dDelta_dTau2(double tau, double delta) = 0;
 	/// Returns the third partial derivative of Helmholtz energy term with respect to tau [-]
 	/// @param tau Reciprocal reduced temperature where tau=Tc / T
 	/// @param delta Reduced pressure where delta = rho / rhoc 
