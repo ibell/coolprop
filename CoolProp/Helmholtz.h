@@ -46,7 +46,7 @@ public:
 	/// Returns the third partial derivative of Helmholtz energy term with respect to tau [-]
 	/// @param tau Reciprocal reduced temperature where tau=Tc / T
 	/// @param delta Reduced pressure where delta = rho / rhoc 
-	double dTau3(double tau, double delta);
+	virtual double dTau3(double tau, double delta) = 0;
 	/// Returns the third partial derivative of Helmholtz energy term with respect to delta [-]
 	/// @param tau Reciprocal reduced temperature where tau=Tc / T
 	/// @param delta Reduced pressure where delta = rho / rhoc 
@@ -143,6 +143,7 @@ public:
 class phir_critical : public phi_BC{
 	/*
 	The critical term, used for Water and Carbon Dioxide
+	It is truly horrible
 	*/
 private:
 	std::vector<double> n,d,t,a,b,A,B,C,D,beta;
@@ -292,12 +293,12 @@ public:
 	double base(double tau, double delta);
 	double dTau(double tau, double delta);
 	double dTau2(double tau, double delta);
+	double dTau3(double tau, double delta);
 	double dDelta(double tau, double delta){return 0.0;};
 	double dDelta2(double tau, double delta){return 0.0;};
 	double dDelta2_dTau(double tau, double delta){return 0.0;};
 	double dDelta_dTau(double tau, double delta){return 0.0;};
 	double dDelta_dTau2(double tau, double delta){return 0.0;};
-	double dTau3(double tau, double delta);
 	double dDelta3(double tau, double delta){return 0.0;};
 };
 
@@ -351,15 +352,21 @@ public:
 		}
 		return summer;
 	};
+	double dTau3(double tau, double delta)
+	{
+		double summer=0;
+		for (int i=iStart; i<=iEnd; i++){
+			summer += a[i]*b[i]*(b[i]-1)*(b[i]-2)*pow(tau,b[i]-3);
+		}
+		return summer;
+	};
 	double dDelta(double tau, double delta){return 0.0;};
 	double dDelta2(double tau, double delta){return 0.0;};
 	double dDelta2_dTau(double tau, double delta){return 0.0;};
 	double dDelta_dTau(double tau, double delta){return 0.0;};
 	double dDelta_dTau2(double tau, double delta){return 0.0;};
-	double dTau3(double tau, double delta);
 	double dDelta3(double tau, double delta){return 0.0;};
 };
-
 
 /// Term in the ideal-gas specific heat equation that is constant
 class phi0_cp0_constant : public phi_BC{
@@ -399,60 +406,15 @@ public:
 	{
 		return -c/(tau*tau);
 	};
-	double dDelta(double tau, double delta){return 0.0;};
-	double dDelta2(double tau, double delta){return 0.0;};
-	double dDelta2_dTau(double tau, double delta){return 0.0;};
-	double dDelta_dTau(double tau, double delta){return 0.0;};
-	double dDelta_dTau2(double tau, double delta){return 0.0;};
-	double dTau3(double tau, double delta);
-	double dDelta3(double tau, double delta){return 0.0;};
-};
-
-/// Term in the ideal-gas specific heat equation that is constant
-class phi0_cp0_exponential : public phi_BC{
-private:
-	std::vector<double> a,b;
-	double Tc,T0,tau0; // Use these variables internally
-	int iStart, iEnd;
-public:
-	/// Constructor with just a single double value
-	phi0_cp0_exponential(std::vector<double> a_, std::vector<double> b_, double Tc_, double T0_, int iStart_, int iEnd_) { 
-		a=a_; b=b_; T0=T0_; Tc=Tc_; iStart=iStart_; iEnd=iEnd_; tau0=Tc/T0;
-	};
-
-	/// Destructor
-	~phi0_cp0_exponential(){};
-
-	// Term and its derivatives
-	double base(double tau, double delta){ 
-		double sum=0;
-		for (int i = iStart; i<=iEnd; i++){
-			sum+=a[i]*(log(exp(b[i]*tau)-1)-log(exp(b[i]*tau0)-1)-b[i]*tau+b[i]*(tau0*exp(b[i]*tau0)-tau)/(exp(b[i]*tau0)-1));
-		}
-		return sum;
-	};
-	double dTau(double tau, double delta)
+	double dTau3(double tau, double delta)
 	{
-		double sum=0;
-		for (int i = iStart; i<=iEnd; i++){
-			sum+=a[i]*(b[i]*exp(b[i]*tau)/(exp(b[i]*tau)-1)-b[i]-b[i]/(exp(b[i]*tau0)-1));
-		}
-		return sum;
-	};
-	double dTau2(double tau, double delta)
-	{
-		double sum=0;
-		for (int i = iStart; i<=iEnd; i++){
-			sum+=-a[i]*b[i]*b[i]*exp(b[i]*tau)/pow(exp(b[i]*tau)-1,2);
-		}
-		return sum;
+		return 2*c/(tau*tau*tau);
 	};
 	double dDelta(double tau, double delta){return 0.0;};
 	double dDelta2(double tau, double delta){return 0.0;};
 	double dDelta2_dTau(double tau, double delta){return 0.0;};
 	double dDelta_dTau(double tau, double delta){return 0.0;};
 	double dDelta_dTau2(double tau, double delta){return 0.0;};
-	double dTau3(double tau, double delta);
 	double dDelta3(double tau, double delta){return 0.0;};
 };
 

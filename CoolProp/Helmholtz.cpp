@@ -246,6 +246,12 @@ double phir_gaussian::dTau2(double tau, double delta)
 	}
 	return summer;
 }
+double phir_gaussian::dTau3(double tau, double delta)
+{
+	double summer=0,psi;
+	std::cout << format("phir_gaussian::dTau3 Not working yet\n");
+	return summer;
+}
 double phir_gaussian::dDelta(double tau, double delta)
 {
 	double summer=0,psi;
@@ -531,7 +537,7 @@ double phi0_Planck_Einstein::dTau3(double tau, double delta)
 	double summer=0;
 	for (int i=iStart;i<=iEnd;i++)
 	{
-		summer += a[i]*pow(theta[i],2.0)*exp(theta[i]*tau)*(exp(theta[i]*tau)-1)/pow(exp(theta[i]*tau)-1,3.0);
+		summer += a[i]*pow(theta[i],2.0)*theta[i]*exp(theta[i]*tau)*(exp(theta[i]*tau)+1)/pow(exp(theta[i]*tau)-1,3.0);
 	}
 	return summer;
 }
@@ -572,6 +578,15 @@ double phi0_Planck_Einstein2::dTau2(double tau, double delta)
 	for (int i=iStart;i<=iEnd;i++)
 	{
 		summer+=a[i]*pow(theta[i],2)*c[i]*exp(tau*theta[i])/pow(c[i]+exp(tau*theta[i]),2);
+	}
+	return summer;
+}
+double phi0_Planck_Einstein2::dTau3(double tau, double delta)
+{
+	double summer=0;
+	for (int i=iStart;i<=iEnd;i++)
+	{
+		summer += a[i]*pow(theta[i],2.0)*c[i]*(-theta[i])*exp(theta[i]*tau)*(exp(theta[i]*tau)-c[i])/pow(exp(theta[i]*tau)+c[i],3.0);
 	}
 	return summer;
 }
@@ -639,6 +654,11 @@ double phi0_cp0_AlyLee::dTau2(double tau, double delta)
 	// which is equal to 1/Rbar*((tau*dcp0_dtau-cp0)/tau^2)
 	return -cp0(tau)/(tau*tau*R_u);
 }
+double phi0_cp0_AlyLee::dTau3(double tau, double delta)
+{
+	// -cp0/tau/tau/R_u = -a[1]/tau^2/R_u+a[2]*pow(a[3]/Tc/sinh(a[3]*tau/Tc),2)/R_u+a[4]*pow(a[5]/Tc/(cosh(a[5]*tau/Tc)),2)/R_u;
+	return 2*a[1]/tau/tau/tau/R_u+a[2]/R_u*(a[3]/Tc/sinh(a[3]*tau/Tc))*(-cosh(a[3]*tau/Tc)/sinh(a[3]*tau/Tc))*(a[3]/Tc)+a[4]/R_u*(a[5]/Tc/cosh(a[5]*tau/Tc))*(-sinh(a[5]*tau/Tc)/cosh(a[5]*tau/Tc))*(a[5]/Tc);
+}
 
 double phi0_cp0_poly::dTau(double tau, double delta)
 {
@@ -655,6 +675,15 @@ double phi0_cp0_poly::dTau2(double tau, double delta)
 	double sum=0;
 	for (int i = iStart; i<=iEnd; i++){
 		sum+=-a[i]*pow(Tc/tau,tv[i])/(tau*tau);
+	}
+	return sum;
+}
+
+double phi0_cp0_poly::dTau3(double tau, double delta)
+{
+	double sum=0;
+	for (int i = iStart; i<=iEnd; i++){
+		sum += -a[i]*pow(Tc/tau,tv[i])*(tv[i]+2)/(tau*tau*tau);
 	}
 	return sum;
 }

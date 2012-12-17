@@ -124,8 +124,10 @@ print d2s_dp2
 print d2s_dp2_num
 
 dx = 1e-4
+Tc = Props(fluid,'Tcrit')
 rhoc = Props(fluid,'rhocrit')
 delta = rho/rhoc
+tau = Tc/T
 
 def f(dx):
     rho = rhoc*(delta+dx)
@@ -150,3 +152,9 @@ def f(dx):
     return DerivTerms('d2phir_dTau2',T,rho,fluid)
 print (f(-2*dx)-8*f(-dx)+8*f(dx)-f(2*dx))/(12*dx)
 print DerivTerms('d3phir_dDelta_dTau2',T,rho,fluid)
+
+def f(dx):
+    T = Tc/(tau+dx)
+    return DerivTerms('dphir_dTau',T,rho,fluid)
+print (f(-2*dx)-8*f(-dx)+8*f(dx)-f(2*dx))/(12*dx)
+print DerivTerms('d2phir_dTau2',T,rho,fluid)

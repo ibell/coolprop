@@ -234,13 +234,14 @@ R22Class::R22Class()
 	phi_BC * phi0_logtau_ = new phi0_logtau(-1.0);
 	phi_BC * phi0_cp0_constant_ = new phi0_cp0_constant(B[10]+4,Tc,T0);/// checked - good
 	phi_BC * phi0_cp0_poly_ = new phi0_cp0_poly(B[11],1,Tc,T0);/// checked - good
-	phi_BC * phi0_cp0_exponential_ = new phi0_cp0_exponential(b_v,B_v,Tc,T0,1,9);/// checked - good
+	//phi_BC * phi0_cp0_exponential_ = new phi0_cp0_exponential(b_v,B_v,Tc,T0,1,9);/// checked - good
 
 	phi0list.push_back(phi0_lead_);
 	phi0list.push_back(phi0_logtau_);
 	phi0list.push_back(phi0_cp0_constant_);
 	phi0list.push_back(phi0_cp0_poly_);
-	phi0list.push_back(phi0_cp0_exponential_);
+	//phi0list.push_back(phi0_cp0_exponential_);
+	phi0list.push_back(new phi0_Planck_Einstein(b_v,B_v,1,9));
 	
 	
 	// Other fluid parameters
