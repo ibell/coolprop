@@ -39,6 +39,18 @@ public:
 	/// @param tau Reciprocal reduced temperature where tau=Tc / T
 	/// @param delta Reduced pressure where delta = rho / rhoc 
 	virtual double dDelta2_dTau(double tau, double delta) = 0;
+	/// Returns the third mixed partial derivative (delta1,dtau2) of Helmholtz energy term with respect to delta and tau [-]
+	/// @param tau Reciprocal reduced temperature where tau=Tc / T
+	/// @param delta Reduced pressure where delta = rho / rhoc 
+	double dDelta_dTau2(double tau, double delta);
+	/// Returns the third partial derivative of Helmholtz energy term with respect to tau [-]
+	/// @param tau Reciprocal reduced temperature where tau=Tc / T
+	/// @param delta Reduced pressure where delta = rho / rhoc 
+	double dTau3(double tau, double delta);
+	/// Returns the third partial derivative of Helmholtz energy term with respect to delta [-]
+	/// @param tau Reciprocal reduced temperature where tau=Tc / T
+	/// @param delta Reduced pressure where delta = rho / rhoc 
+	virtual double dDelta3(double tau, double delta) = 0;
 };
 
 /// This class implements residual Helmholtz Energy terms of the form  n * delta ^d * tau^t * exp(-gamma*delta^l) if l>0 or if
@@ -68,12 +80,17 @@ public:
 	~phir_power(){};
 
 	double base(double tau, double delta) throw();
-	double dTau(double tau, double delta) throw();
-	double dTau2(double tau, double delta) throw();
 	double dDelta(double tau, double delta) throw();
+	double dTau(double tau, double delta) throw();
+	
 	double dDelta2(double tau, double delta) throw();
-	double dDelta2_dTau(double tau, double delta) throw();
 	double dDelta_dTau(double tau, double delta) throw();
+	double dTau2(double tau, double delta) throw();
+	
+	double dDelta3(double tau, double delta);
+	double dDelta2_dTau(double tau, double delta);
+	double dDelta_dTau2(double tau, double delta);
+	double dTau3(double tau, double delta);
 };
 
 class phir_gaussian : public phi_BC{
@@ -108,19 +125,24 @@ public:
 	~phir_gaussian(){};
 
 	// Term and its derivatives
-	double base(double tau, double delta);
-	double dTau(double tau, double delta);
-	double dTau2(double tau, double delta);
-	double dDelta(double tau, double delta);
-	double dDelta2(double tau, double delta);
+	double base(double tau, double delta) throw();
+	double dDelta(double tau, double delta) throw();
+	double dTau(double tau, double delta) throw();
+	
+	double dDelta2(double tau, double delta) throw();
+	double dDelta_dTau(double tau, double delta) throw();
+	double dTau2(double tau, double delta) throw();
+	
+	double dDelta3(double tau, double delta);
 	double dDelta2_dTau(double tau, double delta);
-	double dDelta_dTau(double tau, double delta);
+	double dDelta_dTau2(double tau, double delta);
+	double dTau3(double tau, double delta);
+	
 };
 
 class phir_critical : public phi_BC{
 	/*
-	Terms are of the form n * delta ^d * tau^t * exp(-alpha*(delta-epsilon)^2-beta*(tau-gamma)^2)
-	Constructor must be called with std::vector instances of double type
+	The critical term, used for Water and Carbon Dioxide
 	*/
 private:
 	std::vector<double> n,d,t,a,b,A,B,C,D,beta;
@@ -136,13 +158,18 @@ public:
 	~phir_critical(){};
 
 	// Term and its derivatives
-	double base(double tau, double delta);
-	double dTau(double tau, double delta);
-	double dTau2(double tau, double delta);
-	double dDelta(double tau, double delta);
-	double dDelta2(double tau, double delta);
+	double base(double tau, double delta) throw();
+	double dDelta(double tau, double delta) throw();
+	double dTau(double tau, double delta) throw();
+	
+	double dDelta2(double tau, double delta) throw();
+	double dDelta_dTau(double tau, double delta) throw();
+	double dTau2(double tau, double delta) throw();
+	
+	double dDelta3(double tau, double delta);
 	double dDelta2_dTau(double tau, double delta);
-	double dDelta_dTau(double tau, double delta);
+	double dDelta_dTau2(double tau, double delta);
+	double dTau3(double tau, double delta);
 };
 
 class phi0_lead : public phi_BC{
@@ -167,7 +194,9 @@ public:
 	double dDelta2(double tau, double delta){return -1.0/delta/delta;};
 	double dDelta2_dTau(double tau, double delta){return 0.0;};
 	double dDelta_dTau(double tau, double delta){return 0.0;};
-
+	double dDelta_dTau2(double tau, double delta){return 0.0;};
+	double dTau3(double tau, double delta){return 0.0;};
+	double dDelta3(double tau, double delta){return 2/delta/delta/delta;};
 };
 
 class phi0_logtau : public phi_BC{
@@ -192,6 +221,9 @@ public:
 	double dDelta2(double tau, double delta){return 0.0;};
 	double dDelta2_dTau(double tau, double delta){return 0.0;};
 	double dDelta_dTau(double tau, double delta){return 0.0;};
+	double dDelta_dTau2(double tau, double delta){return 0.0;};
+	double dTau3(double tau, double delta){return 2*c1/tau/tau/tau;};
+	double dDelta3(double tau, double delta){return 0;};
 };
 
 class phi0_Planck_Einstein : public phi_BC{
@@ -225,10 +257,13 @@ public:
 	double base(double tau, double delta);
 	double dTau(double tau, double delta);
 	double dTau2(double tau, double delta);
+	double dTau3(double tau, double delta);
 	double dDelta(double tau, double delta){return 0.0;};
 	double dDelta2(double tau, double delta){return 0.0;};
 	double dDelta2_dTau(double tau, double delta){return 0.0;};
 	double dDelta_dTau(double tau, double delta){return 0.0;};
+	double dDelta_dTau2(double tau, double delta){return 0.0;};
+	double dDelta3(double tau, double delta){return 0;};
 };
 
 class phi0_Planck_Einstein2 : public phi_BC{
@@ -261,6 +296,9 @@ public:
 	double dDelta2(double tau, double delta){return 0.0;};
 	double dDelta2_dTau(double tau, double delta){return 0.0;};
 	double dDelta_dTau(double tau, double delta){return 0.0;};
+	double dDelta_dTau2(double tau, double delta){return 0.0;};
+	double dTau3(double tau, double delta);
+	double dDelta3(double tau, double delta){return 0.0;};
 };
 
 class phi0_power : public phi_BC{
@@ -317,6 +355,9 @@ public:
 	double dDelta2(double tau, double delta){return 0.0;};
 	double dDelta2_dTau(double tau, double delta){return 0.0;};
 	double dDelta_dTau(double tau, double delta){return 0.0;};
+	double dDelta_dTau2(double tau, double delta){return 0.0;};
+	double dTau3(double tau, double delta);
+	double dDelta3(double tau, double delta){return 0.0;};
 };
 
 
@@ -362,6 +403,9 @@ public:
 	double dDelta2(double tau, double delta){return 0.0;};
 	double dDelta2_dTau(double tau, double delta){return 0.0;};
 	double dDelta_dTau(double tau, double delta){return 0.0;};
+	double dDelta_dTau2(double tau, double delta){return 0.0;};
+	double dTau3(double tau, double delta);
+	double dDelta3(double tau, double delta){return 0.0;};
 };
 
 /// Term in the ideal-gas specific heat equation that is constant
@@ -407,6 +451,9 @@ public:
 	double dDelta2(double tau, double delta){return 0.0;};
 	double dDelta2_dTau(double tau, double delta){return 0.0;};
 	double dDelta_dTau(double tau, double delta){return 0.0;};
+	double dDelta_dTau2(double tau, double delta){return 0.0;};
+	double dTau3(double tau, double delta);
+	double dDelta3(double tau, double delta){return 0.0;};
 };
 
 /// Term in the ideal-gas specific heat equation that is polynomial term
@@ -446,6 +493,9 @@ public:
 	double dDelta2(double tau, double delta){return 0.0;};
 	double dDelta2_dTau(double tau, double delta){return 0.0;};
 	double dDelta_dTau(double tau, double delta){return 0.0;};
+	double dDelta_dTau2(double tau, double delta){return 0.0;};
+	double dTau3(double tau, double delta);
+	double dDelta3(double tau, double delta){return 0.0;};
 };
 
 /// Term in the ideal-gas specific heat equation that is based on Aly-Lee formulation
@@ -475,6 +525,9 @@ public:
 	double cp0(double tau);
 	double anti_deriv_cp0_tau(double tau);
 	double anti_deriv_cp0_tau2(double tau);
+	double dDelta_dTau2(double tau, double delta){return 0.0;};
+	double dTau3(double tau, double delta);
+	double dDelta3(double tau, double delta){return 0.0;};
 };
 
 #endif

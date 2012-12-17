@@ -148,18 +148,31 @@ class Fluid
 		
 		// These Helmholtz energy terms are provided by the base class
 		double phir(double tau, double delta);
+		// First derivative
 		double dphir_dDelta(double tau, double delta);
+		double dphir_dTau(double tau, double delta);
+		// Second derivative
 		double d2phir_dDelta2(double tau, double delta);
 		double d2phir_dDelta_dTau(double tau, double delta);
-		double d3phir_dDelta2_dTau(double tau, double delta);
-		double dphir_dTau(double tau, double delta);
 		double d2phir_dTau2(double tau, double delta);
+		// Third derivative
+		double d3phir_dDelta3(double tau, double delta);
+		double d3phir_dDelta2_dTau(double tau, double delta);
+		//double d3phir_dDelta_dTau2(double tau, double delta);
+		//double d3phir_dTau3(double tau, double delta);
+		
 		double phi0(double tau, double delta);
 		double dphi0_dDelta(double tau, double delta);
+		double dphi0_dTau(double tau, double delta);
+
 		double d2phi0_dDelta2(double tau, double delta);
 		double d2phi0_dDelta_dTau(double tau, double delta);
-		double dphi0_dTau(double tau, double delta);
 		double d2phi0_dTau2(double tau, double delta);
+
+		//double d3phi0_dDelta3(double tau, double delta){return 0;};
+		//double d3phi0_dDelta2_dTau(double tau, double delta){return 0;};
+		//double d3phi0_dDelta_dTau2(double tau, double delta){return 0;};
+		//double d3phi0_dTau3(double tau, double delta); // This one needs to be calculated
 
 		// These thermodynamic properties as a function of temperature and density are
 		// provided by the base class

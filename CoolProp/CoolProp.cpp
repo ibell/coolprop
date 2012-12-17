@@ -1211,14 +1211,14 @@ double DerivTerms(char *Term, double T, double rho, Fluid * pFluid, bool SingleP
 	}
 	else if (!strcmp(Term,"dhdT") || !strcmp(Term,"dhdT|rho"))
 	{
-        double dpdrho=R*T*(1+2*delta*pFluid->dphir_dDelta(tau,delta)+delta*delta*pFluid->d2phir_dDelta2(tau,delta));
-		double dhdT = 1/rho*dpdrho-R*tau*tau*(pFluid->d2phi0_dTau2(tau,delta)+pFluid->d2phir_dTau2(tau,delta));
+        double dpdT = rho*R*(1+delta*pFluid->dphir_dDelta(tau,delta)-delta*tau*pFluid->d2phir_dDelta_dTau(tau,delta));
+		double dhdT = 1/rho*dpdT-R*tau*tau*(pFluid->d2phi0_dTau2(tau,delta)+pFluid->d2phir_dTau2(tau,delta));
 		return dhdT;
 	}
 	else if (!strcmp(Term,"dhdrho") || !strcmp(Term,"dhdrho|T"))
 	{
 		double d2phi0_dDelta_dTau = 0; // This term will always be zero
-		double dhdrho=R*T/pFluid->crit.rho*(tau*(dphi0_dDelta_dTau + pFluid->d2phir_dDelta_dTau(tau,delta))+delta*pFluid->d2phir_dDelta2(tau,delta)+pFluid->dphir_dDelta(tau,delta));
+		double dhdrho=R*T/pFluid->reduce.rho*(tau*(d2phi0_dDelta_dTau + pFluid->d2phir_dDelta_dTau(tau,delta))+delta*pFluid->d2phir_dDelta2(tau,delta)+pFluid->dphir_dDelta(tau,delta));
 		return dhdrho;
 	}
     else if (!strcmp(Term,"dvdp"))
@@ -1429,6 +1429,10 @@ double DerivTerms(char *Term, double T, double rho, Fluid * pFluid, bool SingleP
     {
         return pFluid->d2phir_dDelta_dTau(tau,delta);
     }
+	else if (!strcmp(Term,"d3phir_dDelta3"))
+    {
+        return pFluid->d3phir_dDelta3(tau,delta);
+    }
 	else if (!strcmp(Term,"d3phir_dDelta2_dTau"))
     {
         return pFluid->d3phir_dDelta2_dTau(tau,delta);
@@ -1452,6 +1456,10 @@ double DerivTerms(char *Term, double T, double rho, Fluid * pFluid, bool SingleP
 	else if (!strcmp(Term,"d2phi0_dDelta2"))
     {
         return pFluid->d2phi0_dDelta2(tau,delta);
+    }
+	else if (!strcmp(Term,"d2phi0_dDelta_dTau"))
+    {
+        return pFluid->d2phi0_dDelta_dTau(tau,delta);
     }
 	else if (!strcmp(Term,"IsothermalCompressibility"))
 	{

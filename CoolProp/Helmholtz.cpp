@@ -90,6 +90,31 @@ double phir_power::dTau2(double tau, double delta) throw()
 	}
 	return summer;
 }
+double phir_power::dTau3(double tau, double delta) throw()
+{
+	double summer=0, log_tau = log(tau), log_delta = log(delta);
+	for (unsigned int i=iStart;i<=iEnd;i++)
+	{
+		if (l[i]>0)
+			summer+=n[i]*t[i]*(t[i]-1)*(t[i]-2)*exp((t[i]-3)*log_tau+d[i]*log_delta-pow(delta,l[i]));
+		else
+			summer+=n[i]*t[i]*(t[i]-1)*(t[i]-2)*exp((t[i]-3)*log_tau+d[i]*log_delta);
+	}
+	return summer;
+}
+double phir_power::dDelta_dTau2(double tau, double delta) throw()
+{
+	double summer=0, log_tau = log(tau), log_delta = log(delta);
+	for (unsigned int i=iStart;i<=iEnd;i++)
+	{
+		double pow_delta_li = pow(delta,l[i]);
+		if (l[i]>0)
+			summer+=n[i]*t[i]*(t[i]-1)*(d[i]-l[i]*pow_delta_li)*exp((t[i]-2)*log_tau+(d[i]-1)*log_delta-pow(delta,l[i]));
+		else
+			summer+=n[i]*t[i]*(t[i]-1)*d[i]*exp((t[i]-2)*log_tau+(d[i]-1)*log_delta);
+	}
+	return summer;
+}
 double phir_power::dDelta(double tau, double delta) throw()
 {
 	double summer=0, log_tau = log(tau), log_delta = log(delta);
@@ -116,6 +141,23 @@ double phir_power::dDelta2(double tau, double delta) throw()
 	}
 	return summer;
 }
+double phir_power::dDelta3(double tau, double delta) throw()
+{
+	double summer=0, log_tau = log(tau), log_delta = log(delta);
+	for (unsigned int i=iStart;i<=iEnd;i++)
+	{
+		double pow_delta_li = pow(delta,l[i]);
+		if (l[i]>0)
+		{
+			double bracket = (d[i]*(d[i]-1)*(d[i]-2)+pow_delta_li*(-2*l[i]+6*d[i]*l[i]-3*d[i]*d[i]*l[i]-3*d[i]*l[i]*l[i]+3*l[i]*l[i]-l[i]*l[i]*l[i])+pow_delta_li*pow_delta_li*(3*d[i]*l[i]*l[i]-3*l[i]*l[i]+3*l[i]*l[i]*l[i])-l[i]*l[i]*l[i]*pow_delta_li*pow_delta_li*pow_delta_li);
+			summer+=n[i]*bracket*exp(t[i]*log_tau+(d[i]-3)*log_delta-pow(delta,l[i]));
+		}
+		else
+			summer+=n[i]*d[i]*(d[i]-1.0)*(d[i]-2)*exp(t[i]*log_tau+(d[i]-3)*log_delta);
+	}
+	return summer;
+}
+
 double phir_power::dDelta2_dTau(double tau, double delta) throw()
 {
 	double summer=0, log_tau = log(tau), log_delta = log(delta);
@@ -224,6 +266,17 @@ double phir_gaussian::dDelta2(double tau, double delta)
 	}
 	return summer;
 }
+double phir_gaussian::dDelta3(double tau, double delta)
+{
+	double summer=0,psi;
+	for (unsigned int i=iStart;i<=iEnd;i++)
+	{
+		psi=exp(-alpha[i]*pow(delta-epsilon[i],2)-beta[i]*pow(tau-gamma[i],2));
+		double bracket = (pow(d[i]-2*alpha[i]*delta*(delta-epsilon[i]),3)-3*d[i]*d[i]+2*d[i]-6*d[i]*alpha[i]*delta*delta+6*alpha[i]*delta*(delta-epsilon[i])*(d[i]+2*alpha[i]*delta*delta));
+		summer+=n[i]*pow(tau,t[i])*pow(delta,d[i]-3)*psi*bracket;
+	}
+	return summer;
+}
 double phir_gaussian::dDelta2_dTau(double tau, double delta)
 {
 	double summer=0,psi;
@@ -241,6 +294,16 @@ double phir_gaussian::dDelta_dTau(double tau, double delta)
 	{
 		psi=exp(-alpha[i]*pow(delta-epsilon[i],2)-beta[i]*pow(tau-gamma[i],2));
 		summer+=n[i]*pow(delta,d[i])*pow(tau,t[i])*psi*(d[i]/delta-2.0*alpha[i]*(delta-epsilon[i]))*(t[i]/tau-2.0*beta[i]*(tau-gamma[i]));
+	}
+	return summer;
+}
+double phir_gaussian::dDelta_dTau2(double tau, double delta)
+{
+	double summer=0,psi;
+	for (unsigned int i=iStart;i<=iEnd;i++)
+	{
+		psi=exp(-alpha[i]*pow(delta-epsilon[i],2)-beta[i]*pow(tau-gamma[i],2));
+		summer+=n[i]*pow(delta,d[i])*pow(tau,t[i])*psi*(d[i]/delta-2.0*alpha[i]*(delta-epsilon[i]))*(pow(t[i]-2.0*beta[i]*tau*(tau-gamma[i]),2)-t[i]-2*beta[i]*tau*tau)/tau/tau;
 	}
 	return summer;
 }
@@ -293,6 +356,11 @@ double phir_critical::dDelta(double tau, double delta)
 	return summer;
 }
 
+double phir_critical::dDelta3(double tau, double delta)
+{
+	std::cout << format("phir_critical::dDelta3 not implemented\n");
+	return 0;
+}
 double phir_critical::dDelta2(double tau, double delta)
 {
 	double summer=0,theta,DELTA,PSI,dPSI_dDelta,dDELTA_dDelta,dDELTAbi_dDelta;
@@ -445,7 +513,16 @@ double phi0_Planck_Einstein::dTau2(double tau, double delta)
 	double summer=0;
 	for (int i=iStart;i<=iEnd;i++)
 	{
-		summer-=a[i]*pow(theta[i],2.0)*exp(theta[i]*tau)/pow(1.0-exp(theta[i]*tau),2.0);
+		summer -= a[i]*pow(theta[i],2.0)*exp(theta[i]*tau)/pow(1.0-exp(theta[i]*tau),2.0);
+	}
+	return summer;
+}
+double phi0_Planck_Einstein::dTau3(double tau, double delta)
+{
+	double summer=0;
+	for (int i=iStart;i<=iEnd;i++)
+	{
+		summer += a[i]*pow(theta[i],2.0)*exp(theta[i]*tau)*(exp(theta[i]*tau)-1)/pow(exp(theta[i]*tau)-1,3.0);
 	}
 	return summer;
 }

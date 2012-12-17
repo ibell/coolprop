@@ -306,6 +306,13 @@ double Fluid::d2phir_dDelta2(double tau, double delta)
 		summer += (*it)->dDelta2(tau,delta);
 	return summer;
 }
+double Fluid::d3phir_dDelta3(double tau, double delta)
+{
+	double summer = 0;
+	for (list<phi_BC*>::iterator it = phirlist.begin(); it != phirlist.end(); it++)
+		summer += (*it)->dDelta3(tau,delta);
+	return summer;
+}
 double Fluid::dphir_dTau(double tau, double delta)
 {
 	double summer = 0;
