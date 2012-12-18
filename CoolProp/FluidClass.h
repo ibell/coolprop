@@ -159,7 +159,7 @@ class Fluid
 		double d3phir_dDelta3(double tau, double delta);
 		double d3phir_dDelta2_dTau(double tau, double delta);
 		double d3phir_dDelta_dTau2(double tau, double delta);
-		//double d3phir_dTau3(double tau, double delta);
+		double d3phir_dTau3(double tau, double delta);
 		
 		double phi0(double tau, double delta);
 		double dphi0_dDelta(double tau, double delta);
@@ -169,10 +169,10 @@ class Fluid
 		double d2phi0_dDelta_dTau(double tau, double delta);
 		double d2phi0_dTau2(double tau, double delta);
 
-		//double d3phi0_dDelta3(double tau, double delta){return 0;};
-		//double d3phi0_dDelta2_dTau(double tau, double delta){return 0;};
-		//double d3phi0_dDelta_dTau2(double tau, double delta){return 0;};
-		//double d3phi0_dTau3(double tau, double delta); // This one needs to be calculated
+		double d3phi0_dDelta3(double tau, double delta){return 0;};
+		double d3phi0_dDelta2_dTau(double tau, double delta){return 0;};
+		double d3phi0_dDelta_dTau2(double tau, double delta){return 0;};
+		double d3phi0_dTau3(double tau, double delta);
 
 		// These thermodynamic properties as a function of temperature and density are
 		// provided by the base class

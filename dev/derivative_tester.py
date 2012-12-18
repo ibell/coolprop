@@ -26,7 +26,7 @@ def finite_diff(Output,Input1,Val1,Input2,Val2,Fluid,  index,deriv,order,type = 
     else:
         raise ValueError
 
-fluid = 'Propane'
+fluid = 'MDM'
 T = 300
 rho = 1.1
 H = Props('H','T',T,'D',rho,fluid)
@@ -158,3 +158,21 @@ def f(dx):
     return DerivTerms('dphir_dTau',T,rho,fluid)
 print (f(-2*dx)-8*f(-dx)+8*f(dx)-f(2*dx))/(12*dx)
 print DerivTerms('d2phir_dTau2',T,rho,fluid)
+
+def f(dx):
+    T = Tc/(tau+dx)
+    return DerivTerms('d2phir_dTau2',T,rho,fluid)
+print (f(-2*dx)-8*f(-dx)+8*f(dx)-f(2*dx))/(12*dx)
+print DerivTerms('d3phir_dTau3',T,rho,fluid)
+
+def f(dx):
+    T = Tc/(tau+dx)
+    return DerivTerms('dphi0_dTau',T,rho,fluid)
+print (f(-2*dx)-8*f(-dx)+8*f(dx)-f(2*dx))/(12*dx)
+print DerivTerms('d2phi0_dTau2',T,rho,fluid)
+
+def f(dx):
+    T = Tc/(tau+dx)
+    return DerivTerms('d2phi0_dTau2',T,rho,fluid)
+print (f(-2*dx)-8*f(-dx)+8*f(dx)-f(2*dx))/(12*dx)
+print DerivTerms('d3phi0_dTau3',T,rho,fluid)

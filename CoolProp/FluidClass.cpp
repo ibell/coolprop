@@ -334,6 +334,14 @@ double Fluid::d2phir_dTau2(double tau, double delta)
 		summer += (*it)->dTau2(tau,delta);
 	return summer;
 }
+double Fluid::d3phir_dTau3(double tau, double delta)
+{
+	double summer = 0;
+	for (list<phi_BC*>::iterator it = phirlist.begin(); it != phirlist.end(); it++)
+		summer += (*it)->dTau3(tau,delta);
+	return summer;
+}
+
 double Fluid::d2phir_dDelta_dTau(double tau, double delta)
 {
 	double summer = 0;
@@ -387,6 +395,14 @@ double Fluid::d2phi0_dTau2(double tau, double delta)
 	double summer = 0;
 	for (list<phi_BC*>::iterator it = phi0list.begin(); it != phi0list.end(); it++){
 		summer += (*it)->dTau2(tau,delta);
+	}
+	return summer;
+}
+double Fluid::d3phi0_dTau3(double tau, double delta)
+{
+	double summer = 0;
+	for (list<phi_BC*>::iterator it = phi0list.begin(); it != phi0list.end(); it++){
+		summer += (*it)->dTau3(tau,delta);
 	}
 	return summer;
 }

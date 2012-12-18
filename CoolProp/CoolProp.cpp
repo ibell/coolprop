@@ -1441,6 +1441,10 @@ double DerivTerms(char *Term, double T, double rho, Fluid * pFluid, bool SingleP
     {
         return pFluid->d3phir_dDelta_dTau2(tau,delta);
     }
+	else if (!strcmp(Term,"d3phir_dTau3"))
+    {
+        return pFluid->d3phir_dTau3(tau,delta);
+    }
 	else if (!strcmp(Term,"phi0"))
     {
         return pFluid->phi0(tau,delta);
@@ -1464,6 +1468,10 @@ double DerivTerms(char *Term, double T, double rho, Fluid * pFluid, bool SingleP
 	else if (!strcmp(Term,"d2phi0_dDelta_dTau"))
     {
         return pFluid->d2phi0_dDelta_dTau(tau,delta);
+    }
+	else if (!strcmp(Term,"d3phi0_dTau3"))
+    {
+        return pFluid->d3phi0_dTau3(tau,delta);
     }
 	else if (!strcmp(Term,"IsothermalCompressibility"))
 	{
