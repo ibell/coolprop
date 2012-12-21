@@ -49,6 +49,7 @@
 #include "purefluids/Butenes.h"
 #include "purefluids/FAME.h"
 #include "purefluids/Ether.h"
+#include "purefluids/R143A.h"
 
 using namespace std;
 
@@ -81,6 +82,7 @@ FluidsContainer::FluidsContainer()
 	FluidsList.push_back(new SulfurHexafluorideClass());
 	FluidsList.push_back(new EthanolClass());
 	FluidsList.push_back(new DimethylEtherClass());	
+	FluidsList.push_back(new R143AClass());	
 
 	// The industrial fluids
 	FluidsList.push_back(new R245faClass());
@@ -1278,10 +1280,10 @@ long Fluid::phase_Tp_indices(double T, double p, double *pL, double *pV, double 
 			// For the given temperature, find the saturation state
 			// Run the saturation routines to determine the saturation densities and pressures
 			saturation(T,SaturationLUTStatus(),pL,pV,rhoL,rhoV);
-			if (p>*pL){
+			if (p>(*pL+10*DBL_EPSILON)){
 				return iLiquid;
 			}
-			else if (p<*pV){
+			else if (p<(*pV-10*DBL_EPSILON)){
 				return iGas;
 			}
 			else{

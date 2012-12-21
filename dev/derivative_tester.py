@@ -8,7 +8,7 @@ def finite_diff(Output,Input1,Val1,Input2,Val2,Fluid,  index,deriv,order,type = 
         else:
             return Props(Output,Input1,Val1,Input2,Val2+dx,Fluid)
         
-    dx = 1e-2
+    dx = 1e-3
     if deriv == 1:
         if order == 1:
             return (f(index,dx)-f(index,0))/(dx)
@@ -26,11 +26,12 @@ def finite_diff(Output,Input1,Val1,Input2,Val2,Fluid,  index,deriv,order,type = 
     else:
         raise ValueError
 
-fluid = 'MDM'
-T = 300
-rho = 1.1
+fluid = 'Water'
+T = 647#Props(fluid,'Tcrit')+1
+rho = 358#Props(fluid,'rhocrit')+1
 H = Props('H','T',T,'D',rho,fluid)
 P = Props('P','T',T,'D',rho,fluid)
+print T,rho,H,P
 
 dpdT__rho = DerivTerms('dpdT|rho',T,rho,fluid)
 dpdrho__T = DerivTerms('dpdrho|T',T,rho,fluid)
@@ -58,6 +59,71 @@ dhdrho__T_num = finite_diff('H','T',T,'D',rho,fluid,2,1,4)
 print 'dhdrho|T'
 print dhdrho__T
 print dhdrho__T_num
+print
+print '*******************************************'
+print 'CHECKING HELMHOLTZ DERIVATIVES'
+print '*******************************************'
+dx = 1e-4
+Tc = Props(fluid,'Tcrit')
+rhoc = Props(fluid,'rhocrit')
+delta = rho/rhoc
+tau = Tc/T
+
+def f(dx):
+    rho = rhoc*(delta+dx)
+    return DerivTerms('dphir_dDelta',T,rho,fluid)
+print 'd2phir_dDelta2'
+print (f(-2*dx)-8*f(-dx)+8*f(dx)-f(2*dx))/(12*dx)
+print DerivTerms('d2phir_dDelta2',T,rho,fluid)
+
+def f(dx):
+    rho = rhoc*(delta+dx)
+    return DerivTerms('d2phir_dDelta2',T,rho,fluid)
+print 'd3phir_dDelta3'
+print (f(-2*dx)-8*f(-dx)+8*f(dx)-f(2*dx))/(12*dx)
+print DerivTerms('d3phir_dDelta3',T,rho,fluid)
+
+def f(dx):
+    rho = rhoc*(delta+dx)
+    return DerivTerms('dphir_dTau',T,rho,fluid)
+print 'd2phir_dDelta_dTau'
+print (f(-2*dx)-8*f(-dx)+8*f(dx)-f(2*dx))/(12*dx)
+print DerivTerms('d2phir_dDelta_dTau',T,rho,fluid)
+
+def f(dx):
+    rho = rhoc*(delta+dx)
+    return DerivTerms('d2phir_dTau2',T,rho,fluid)
+print 'd3phir_dDelta_dTau2'
+print (f(-2*dx)-8*f(-dx)+8*f(dx)-f(2*dx))/(12*dx)
+print DerivTerms('d3phir_dDelta_dTau2',T,rho,fluid)
+
+def f(dx):
+    T = Tc/(tau+dx)
+    return DerivTerms('dphir_dTau',T,rho,fluid)
+print 'd2phir_dTau2'
+print (f(-2*dx)-8*f(-dx)+8*f(dx)-f(2*dx))/(12*dx)
+print DerivTerms('d2phir_dTau2',T,rho,fluid)
+
+def f(dx):
+    T = Tc/(tau+dx)
+    return DerivTerms('d2phir_dTau2',T,rho,fluid)
+print 'd3phir_dTau3'
+print (f(-2*dx)-8*f(-dx)+8*f(dx)-f(2*dx))/(12*dx)
+print DerivTerms('d3phir_dTau3',T,rho,fluid)
+
+def f(dx):
+    T = Tc/(tau+dx)
+    return DerivTerms('dphi0_dTau',T,rho,fluid)
+print 'd2phi0_dTau2'
+print (f(-2*dx)-8*f(-dx)+8*f(dx)-f(2*dx))/(12*dx)
+print DerivTerms('d2phi0_dTau2',T,rho,fluid)
+
+def f(dx):
+    T = Tc/(tau+dx)
+    return DerivTerms('d2phi0_dTau2',T,rho,fluid)
+print 'd3phi0_dTau3'
+print (f(-2*dx)-8*f(-dx)+8*f(dx)-f(2*dx))/(12*dx)
+print DerivTerms('d3phi0_dTau3',T,rho,fluid)
 print
 print '*******************************************'
 print 'CHECKING FIRST DERIVATIVES OF PROPERTIES'
@@ -100,6 +166,8 @@ ds_dp = -1/(T*rho)
 print 'dsdp|h'
 print ds_dp
 print ds_dp_num
+
+
 print 
 print '*******************************************'
 print 'CHECKING SECOND DERIVATIVES OF PROPERTIES'
@@ -123,56 +191,3 @@ print 'd2sdp2|h'
 print d2s_dp2
 print d2s_dp2_num
 
-dx = 1e-4
-Tc = Props(fluid,'Tcrit')
-rhoc = Props(fluid,'rhocrit')
-delta = rho/rhoc
-tau = Tc/T
-
-def f(dx):
-    rho = rhoc*(delta+dx)
-    return DerivTerms('dphir_dDelta',T,rho,fluid)
-print (f(-2*dx)-8*f(-dx)+8*f(dx)-f(2*dx))/(12*dx)
-print DerivTerms('d2phir_dDelta2',T,rho,fluid)
-
-def f(dx):
-    rho = rhoc*(delta+dx)
-    return DerivTerms('d2phir_dDelta2',T,rho,fluid)
-print (f(-2*dx)-8*f(-dx)+8*f(dx)-f(2*dx))/(12*dx)
-print DerivTerms('d3phir_dDelta3',T,rho,fluid)
-
-def f(dx):
-    rho = rhoc*(delta+dx)
-    return DerivTerms('dphir_dTau',T,rho,fluid)
-print (f(-2*dx)-8*f(-dx)+8*f(dx)-f(2*dx))/(12*dx)
-print DerivTerms('d2phir_dDelta_dTau',T,rho,fluid)
-
-def f(dx):
-    rho = rhoc*(delta+dx)
-    return DerivTerms('d2phir_dTau2',T,rho,fluid)
-print (f(-2*dx)-8*f(-dx)+8*f(dx)-f(2*dx))/(12*dx)
-print DerivTerms('d3phir_dDelta_dTau2',T,rho,fluid)
-
-def f(dx):
-    T = Tc/(tau+dx)
-    return DerivTerms('dphir_dTau',T,rho,fluid)
-print (f(-2*dx)-8*f(-dx)+8*f(dx)-f(2*dx))/(12*dx)
-print DerivTerms('d2phir_dTau2',T,rho,fluid)
-
-def f(dx):
-    T = Tc/(tau+dx)
-    return DerivTerms('d2phir_dTau2',T,rho,fluid)
-print (f(-2*dx)-8*f(-dx)+8*f(dx)-f(2*dx))/(12*dx)
-print DerivTerms('d3phir_dTau3',T,rho,fluid)
-
-def f(dx):
-    T = Tc/(tau+dx)
-    return DerivTerms('dphi0_dTau',T,rho,fluid)
-print (f(-2*dx)-8*f(-dx)+8*f(dx)-f(2*dx))/(12*dx)
-print DerivTerms('d2phi0_dTau2',T,rho,fluid)
-
-def f(dx):
-    T = Tc/(tau+dx)
-    return DerivTerms('d2phi0_dTau2',T,rho,fluid)
-print (f(-2*dx)-8*f(-dx)+8*f(dx)-f(2*dx))/(12*dx)
-print DerivTerms('d3phi0_dTau3',T,rho,fluid)

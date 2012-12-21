@@ -759,6 +759,10 @@ double _CoolProp_Fluid_TwoPhaseProps(long iOutput, double Q, Fluid *pFluid, doub
 	// If you are saturated, just use the saturated density back into the main function and enforce single-phase.
 	// In reality it is not single-phase but it is thermodynamically consistent to just plug in the saturated density into the EOS
 
+	// Trivial output
+	if (iOutput == iQ)
+		return Q;
+
 	if (fabs(Q)<1e-12)
 		// Recurse and call Props again with the saturated liquid density
 		return _CoolProp_Fluid_Props(iOutput,iT,TL,iD,rhoL,pFluid,true);

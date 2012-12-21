@@ -372,14 +372,43 @@ double phir_critical::dDelta(double tau, double delta)
 }
 double phir_critical::dDelta_dTau2(double tau, double delta)
 {
-	std::cout << format("phir_critical::dDelta_dTau2 not implemented\n");
-	return 0;
+	double summer=0,theta,DELTA,PSI,dPSI_dDelta,dDELTA_dDelta,dDELTAbi_dDelta;
+	double dDELTAbi_dTau,dPSI_dTau, dtheta_dDelta;
+	double dPSI2_dDelta2, dDELTA2_dDelta2,dDELTAbi2_dDelta2,dPSI2_dTau2,dDELTAbi2_dTau2;
+	double dDELTAbi2_dDelta_dTau,dPSI2_dDelta_dTau;
+	double dDELTAbi3_dDelta_dTau2,dPSI3_dDelta_dTau2;
+
+	for (int i=iStart;i<=iEnd;i++)
+	{
+		theta=(1.0-tau)+A[i]*pow(pow(delta-1.0,2),1.0/(2.0*beta[i]));
+        DELTA=pow(theta,2)+B[i]*pow(pow(delta-1.0,2),a[i]);
+        PSI=exp(-C[i]*pow(delta-1.0,2)-D[i]*pow(tau-1.0,2));
+        
+        dPSI_dDelta=-2.0*C[i]*(delta-1.0)*PSI;
+        dDELTA_dDelta=(delta-1.0)*(A[i]*theta*2.0/beta[i]*pow(pow(delta-1.0,2),1.0/(2.0*beta[i])-1.0)+2.0*B[i]*a[i]*pow(pow(delta-1.0,2),a[i]-1.0));
+        dDELTAbi_dDelta=b[i]*pow(DELTA,b[i]-1.0)*dDELTA_dDelta;
+        
+        dPSI2_dDelta2=(2.0*C[i]*pow(delta-1.0,2)-1.0)*2.0*C[i]*PSI;
+        dDELTA2_dDelta2=1.0/(delta-1.0)*dDELTA_dDelta+pow(delta-1.0,2)*(4.0*B[i]*a[i]*(a[i]-1.0)*pow(pow(delta-1.0,2),a[i]-2.0)+2.0*pow(A[i]/beta[i],2)*pow(pow(pow(delta-1.0,2),1.0/(2.0*beta[i])-1.0),2)+A[i]*theta*4.0/beta[i]*(1.0/(2.0*beta[i])-1.0)*pow(pow(delta-1.0,2),1.0/(2.0*beta[i])-2.0));
+        dDELTAbi2_dDelta2=b[i]*(pow(DELTA,b[i]-1.0)*dDELTA2_dDelta2+(b[i]-1.0)*pow(DELTA,b[i]-2.0)*pow(dDELTA_dDelta,2));
+        
+		dPSI_dTau=-2.0*D[i]*(tau-1.0)*PSI;
+        dDELTAbi_dTau=-2.0*theta*b[i]*pow(DELTA,b[i]-1.0);
+
+		dPSI2_dTau2=(2.0*D[i]*pow(tau-1.0,2)-1.0)*2.0*D[i]*PSI;
+        dDELTAbi2_dTau2=2.0*b[i]*pow(DELTA,b[i]-1.0)+4.0*pow(theta,2)*b[i]*(b[i]-1.0)*pow(DELTA,b[i]-2.0);
+		dPSI2_dDelta_dTau=4.0*C[i]*D[i]*(delta-1.0)*(tau-1.0)*PSI;
+        dDELTAbi2_dDelta_dTau=-A[i]*b[i]*2.0/beta[i]*pow(DELTA,b[i]-1.0)*(delta-1.0)*pow(pow(delta-1.0,2),1.0/(2.0*beta[i])-1.0)-2.0*theta*b[i]*(b[i]-1.0)*pow(DELTA,b[i]-2.0)*dDELTA_dDelta;
+
+		dPSI3_dDelta_dTau2 = 2*D[i]*(2*D[i]*pow(tau-1,2)-1)*dPSI_dDelta;
+		dtheta_dDelta = A[i]/(2*beta[i])*pow(pow(delta-1,2),1/(2*beta[i])-1)*2*(delta-1);
+		dDELTAbi3_dDelta_dTau2 = 2*b[i]*(b[i]-1)*pow(DELTA,b[i]-2)*dDELTA_dDelta+4*pow(theta,2)*b[i]*(b[i]-1)*(b[i]-2)*pow(DELTA,b[i]-3)*dDELTA_dDelta+8*theta*b[i]*(b[i]-1)*pow(DELTA,b[i]-2)*dtheta_dDelta;
+		
+        summer += n[i]*delta*(dDELTAbi2_dTau2*dPSI_dDelta+dDELTAbi3_dDelta_dTau2*PSI+2*dDELTAbi_dTau*dPSI2_dDelta_dTau+2.0*dDELTAbi2_dDelta_dTau*dPSI_dTau+pow(DELTA,b[i])*dPSI3_dDelta_dTau2+dDELTAbi_dDelta*dPSI2_dTau2)+n[i]*(dDELTAbi2_dTau2*PSI+2.0*dDELTAbi_dTau*dPSI_dTau+pow(DELTA,b[i])*dPSI2_dTau2);
+	}
+	return summer;
 }
-double phir_critical::dTau3(double tau, double delta)
-{
-	std::cout << format("phir_critical::dTau3 not implemented\n");
-	return 0;
-}
+
 double phir_critical::dDelta3(double tau, double delta)
 {
 	std::cout << format("phir_critical::dDelta3 not implemented\n");
@@ -510,6 +539,25 @@ double phir_critical::dTau2(double tau, double delta)
         dPSI2_dTau2=(2.0*D[i]*pow(tau-1.0,2)-1.0)*2.0*D[i]*PSI;
         dDELTAbi2_dTau2=2.0*b[i]*pow(DELTA,b[i]-1.0)+4.0*pow(theta,2)*b[i]*(b[i]-1.0)*pow(DELTA,b[i]-2.0);
         summer+=n[i]*delta*(dDELTAbi2_dTau2*PSI+2.0*dDELTAbi_dTau*dPSI_dTau+pow(DELTA,b[i])*dPSI2_dTau2);
+	}
+	return summer;
+}
+double phir_critical::dTau3(double tau, double delta)
+{
+	double summer=0,theta,DELTA,PSI,dPSI_dTau, dDELTAbi_dTau;
+	double dPSI2_dTau2, dDELTAbi2_dTau2, dPSI3_dTau3, dDELTAbi3_dTau3;
+	for (int i=iStart;i<=iEnd;i++)
+	{
+		theta=(1.0-tau)+A[i]*pow(pow(delta-1.0,2),1/(2*beta[i]));
+        DELTA=pow(theta,2)+B[i]*pow(pow(delta-1.0,2),a[i]);
+        PSI=exp(-C[i]*pow(delta-1.0,2)-D[i]*pow(tau-1.0,2));
+        dPSI_dTau=-2.0*D[i]*(tau-1.0)*PSI;
+        dDELTAbi_dTau=-2.0*theta*b[i]*pow(DELTA,b[i]-1.0);
+        dPSI2_dTau2=(2.0*D[i]*pow(tau-1.0,2)-1.0)*2.0*D[i]*PSI;
+        dDELTAbi2_dTau2=2.0*b[i]*pow(DELTA,b[i]-1.0)+4.0*pow(theta,2)*b[i]*(b[i]-1.0)*pow(DELTA,b[i]-2.0);
+		dPSI3_dTau3=2.0*D[i]*PSI*(-4*D[i]*D[i]*pow(tau-1.0,3)+6*D[i]*(tau-1));
+		dDELTAbi3_dTau3 = -12.0*theta*b[i]*(b[i]-1.0)*pow(DELTA,b[i]-2)-8*pow(theta,3)*b[i]*(b[i]-1)*(b[i]-2)*pow(DELTA,b[i]-3.0);
+        summer += n[i]*delta*(dDELTAbi3_dTau3*PSI+(3.0*dDELTAbi2_dTau2)*dPSI_dTau+(3*dDELTAbi_dTau )*dPSI2_dTau2+pow(DELTA,b[i])*dPSI3_dTau3);
 	}
 	return summer;
 }
@@ -666,7 +714,7 @@ double phi0_cp0_AlyLee::dTau2(double tau, double delta)
 double phi0_cp0_AlyLee::dTau3(double tau, double delta)
 {
 	// -cp0/tau/tau/R_u = -a[1]/tau^2/R_u-a[2]/R_u*(a[3]/Tc/sinh(a[3]*tau/Tc))^2-a[4]/R_u*(a[5]/Tc/cosh(a[5]*tau/Tc))^2;
-	return 2*a[1]/tau/tau/tau/R_u    -a[2]/R_u*(-2)*pow(a[3]/Tc,3)*cosh(a[3]*tau/Tc)/pow(sinh(a[3]*tau/Tc),3)      -a[4]/R_u*(-2)*pow(a[5]/Tc,3)*sinh(a[5]*tau/Tc)/pow(cosh(a[5]*tau/Tc),3);
+	return 2*a[1]/tau/tau/tau/R_u     -a[2]/R_u*(-2)*pow(a[3]/Tc,3)*cosh(a[3]*tau/Tc)/pow(sinh(a[3]*tau/Tc),3)      -a[4]/R_u*(-2)*pow(a[5]/Tc,3)*sinh(a[5]*tau/Tc)/pow(cosh(a[5]*tau/Tc),3);
 }
 
 double phi0_cp0_poly::dTau(double tau, double delta)
