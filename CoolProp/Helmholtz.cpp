@@ -450,15 +450,15 @@ double phir_critical::dDelta3(double tau, double delta)
         dPSI2_dDelta2=(2.0*C[i]*pow(delta-1.0,2)-1.0)*2.0*C[i]*PSI;
         dDELTA2_dDelta2=1.0/(delta-1.0)*dDELTA_dDelta+pow(delta-1.0,2)*(4.0*B[i]*a[i]*(a[i]-1.0)*pow(pow(delta-1.0,2),a[i]-2.0)+2.0*pow(A[i]/beta[i],2)*pow(pow(pow(delta-1.0,2),1.0/(2.0*beta[i])-1.0),2)+A[i]*theta*4.0/beta[i]*(1.0/(2.0*beta[i])-1.0)*pow(pow(delta-1.0,2),1.0/(2.0*beta[i])-2.0));
         dDELTAbi2_dDelta2=b[i]*(pow(DELTA,b[i]-1.0)*dDELTA2_dDelta2+(b[i]-1.0)*pow(DELTA,b[i]-2.0)*pow(dDELTA_dDelta,2));
-        
+
 		dPSI3_dDelta3=2.0*C[i]*PSI*(-4*C[i]*C[i]*pow(delta-1.0,3)+6*C[i]*(delta-1));
 		dtheta_dDelta = A[i]/(2*beta[i])*pow(pow(delta-1,2),1/(2*beta[i])-1)*2*(delta-1);
 		PI = 4*B[i]*a[i]*(a[i]-1)*pow(delta-1,2*a[i]-4)+2*pow(A[i]/beta[i],2)*pow(delta-1,2/beta[i]-4)+4*A[i]*theta/beta[i]*(1/(2*beta[i])-1)*pow(delta-1,1/beta[i]-4);
 		dPI_dDelta = 8*B[i]*a[i]*(a[i]-1)*(a[i]-2)*pow(delta-1,2*a[i]-5)+8*pow(A[i]/beta[i],2)*(1/(2*beta[i])-2)*pow(delta-1,2/beta[i]-5)+(8*A[i]*theta)/beta[i]*(1/(2*beta[i])-1)*(1/(2*beta[i])-2)*pow(delta-1,1/beta[i]-5)+4*A[i]/beta[i]*(1/(2*beta[i])-1)*pow(delta-1,1/beta[i]-4)*dtheta_dDelta;
 		dDELTA3_dDelta3 = 1/(delta-1)*dDELTA2_dDelta2-1/pow(delta-1,2)*dDELTA_dDelta+pow(delta-1,2)*dPI_dDelta+2*(delta-1)*PI;
 		dDELTAbi3_dDelta3 = b[i]*(pow(DELTA,b[i]-1)*dDELTA3_dDelta3+dDELTA2_dDelta2*(b[i]-1)*pow(DELTA,b[i]-2)*dDELTA_dDelta+(b[i]-1)*(pow(DELTA,b[i]-2)*2*dDELTA_dDelta*dDELTA2_dDelta2+pow(dDELTA_dDelta,2)*(b[i]-2)*pow(DELTA,b[i]-3)*dDELTA_dDelta));
-
-        summer+=n[i]*(pow(DELTA,b[i])*(3.0*dPSI2_dDelta2+delta*dPSI3_dDelta3)+3.0*dDELTAbi_dDelta*(2*dPSI_dDelta+delta*dPSI2_dDelta2)+3*dDELTAbi2_dDelta2*(PSI+delta*dPSI_dDelta)+dDELTAbi3_dDelta3*PSI*delta);
+        
+		summer += n[i]*(pow(DELTA,b[i])*(3.0*dPSI2_dDelta2+delta*dPSI3_dDelta3)+3.0*dDELTAbi_dDelta*(2*dPSI_dDelta+delta*dPSI2_dDelta2)+3*dDELTAbi2_dDelta2*(PSI+delta*dPSI_dDelta)+dDELTAbi3_dDelta3*PSI*delta);
 	}
 	return summer;
 }
@@ -581,7 +581,8 @@ double phir_critical::dTau3(double tau, double delta)
         dDELTAbi_dTau=-2.0*theta*b[i]*pow(DELTA,b[i]-1.0);
         dPSI2_dTau2=(2.0*D[i]*pow(tau-1.0,2)-1.0)*2.0*D[i]*PSI;
         dDELTAbi2_dTau2=2.0*b[i]*pow(DELTA,b[i]-1.0)+4.0*pow(theta,2)*b[i]*(b[i]-1.0)*pow(DELTA,b[i]-2.0);
-		dPSI3_dTau3=2.0*D[i]*PSI*(-4*D[i]*D[i]*pow(tau-1.0,3)+6*D[i]*(tau-1));
+		
+		dPSI3_dTau3=2.0*D[i]*PSI*(-4*D[i]*D[i]*pow(tau-1,3)+6*D[i]*(tau-1));
 		dDELTAbi3_dTau3 = -12.0*theta*b[i]*(b[i]-1.0)*pow(DELTA,b[i]-2)-8*pow(theta,3)*b[i]*(b[i]-1)*(b[i]-2)*pow(DELTA,b[i]-3.0);
         summer += n[i]*delta*(dDELTAbi3_dTau3*PSI+(3.0*dDELTAbi2_dTau2)*dPSI_dTau+(3*dDELTAbi_dTau )*dPSI2_dTau2+pow(DELTA,b[i])*dPSI3_dTau3);
 	}

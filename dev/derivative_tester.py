@@ -27,8 +27,8 @@ def finite_diff(Output,Input1,Val1,Input2,Val2,Fluid,  index,deriv,order,type = 
         raise ValueError
 
 fluid = 'Water'
-T = 647#Props(fluid,'Tcrit')+1
-rho = 358#Props(fluid,'rhocrit')+1
+T = 647.74374374374372#647#Props(fluid,'Tcrit')+1
+rho = 322.32199999#358#Props(fluid,'rhocrit')+1
 H = Props('H','T',T,'D',rho,fluid)
 P = Props('P','T',T,'D',rho,fluid)
 print T,rho,H,P
@@ -63,7 +63,7 @@ print
 print '*******************************************'
 print 'CHECKING HELMHOLTZ DERIVATIVES'
 print '*******************************************'
-dx = 1e-4
+dx = 1e-8
 Tc = Props(fluid,'Tcrit')
 rhoc = Props(fluid,'rhocrit')
 delta = rho/rhoc
