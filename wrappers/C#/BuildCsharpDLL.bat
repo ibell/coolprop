@@ -19,3 +19,6 @@ erase CoolProp.lib
 erase CoolProp.exp
 move *.cs VSCsharp
 move CoolProp.dll VSCsharp
+
+rem **** Make a zip file using 7-zip ***
+7z a -r VSCsharp.zip VSCsharp/*.*

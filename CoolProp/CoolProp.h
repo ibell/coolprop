@@ -56,6 +56,8 @@ You might want to start by looking at CoolProp.h
 	EXPORT_CODE int CONVENTION IsFluidType(char *Ref, char *Type);
 	EXPORT_CODE double CONVENTION DerivTerms(char *Term, double T, double rho, char * Ref);
 	EXPORT_CODE void CONVENTION Phase(char *Fluid, double T, double p, char *Phase_str);
+	EXPORT_CODE long CONVENTION Phase_Trho(char *Fluid, double T, double p, char *Phase_str);
+	EXPORT_CODE long CONVENTION Phase_Tp(char *Fluid, double T, double rho, char *Phase_str);
 	EXPORT_CODE void CONVENTION set_phase(char *Phase_str);
 	EXPORT_CODE double CONVENTION F2K(double T_F);
 	EXPORT_CODE double CONVENTION K2F(double T);
@@ -113,6 +115,7 @@ You might want to start by looking at CoolProp.h
 	void set_phase(std::string Phase_str);
 
 	std::string Phase(std::string Fluid, double T, double p);
+	std::string Phase_Trho(std::string Fluid, double T, double rho);
 	std::string get_EOSReference(std::string Ref);
 	std::string get_TransportReference(std::string Ref);
 	std::string FluidsList(void);

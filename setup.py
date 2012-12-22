@@ -29,7 +29,7 @@ from distutils.dep_util import newer_group
 #This will generate HTML to show where there are still pythonic bits hiding out
 Cython.Compiler.Options.annotate = True
 
-version = '2.3'
+version = '2.4'
 
 if __name__=='__main__':
 
@@ -68,7 +68,7 @@ if __name__=='__main__':
         f.close()
         if not current_version.strip() == string_for_file.strip():
             f = open('version.h','w')
-            f.write()
+            f.write(string_for_file)
             f.close()
         
     version_to_file()

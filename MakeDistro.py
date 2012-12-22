@@ -3,8 +3,8 @@ import subprocess,os,shutil
 #These should be paths to python executables that you want want use to build versions of CoolProp
 PYTHONVERSIONS=['_python\py27\python.exe',
                 '_python\py27_x64\python.exe',
-                '_python\py33\python.exe',
-                '_python\py33_x64\python.exe',
+                #'_python\py33\python.exe',
+                #'_python\py33_x64\python.exe',
                 ]
 
 if not os.path.exists('_deps'):
@@ -19,11 +19,9 @@ def InstallPrereqs():
     """ Get the requirements for CoolProp """
     #Collect the source for Cython and put in _deps/cython
     subprocess.call(['easy_install','-U','--editable','--build-directory','_deps','Cython'], shell = True, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
-    #Collect the source for setuptools and put in _deps/distribute
-    subprocess.call(['easy_install','-U','--editable','--build-directory','_deps','setuptools'], shell = True, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
         
     for python_install in PYTHONVERSIONS:
-        for cwd in ['_deps/cython','_deps/distribute']:
+        for cwd in ['_deps/cython']:
             print subprocess.check_output([python_install, 'setup.py', 'install'], cwd = cwd)
     
 def PYPI():
@@ -45,7 +43,6 @@ def DLL():
     shutil.copy2(os.path.join('lib','CoolProp.dll'),os.path.join('dist_temp','Excel and DLL','CoolProp.dll'))
     shutil.copy2(os.path.join('CoolProp','CoolProp.h'),os.path.join('dist_temp','Excel and DLL','CoolProp.h'))
     shutil.copy2('DLLREADME.txt',os.path.join('dist_temp','Excel and DLL','README.txt'))
-    shutil.copy2(os.path.join('Examples','CoolPropDLL.py'),os.path.join('dist_temp','Excel and DLL','CoolPropDLL.py'))
     shutil.copy2(os.path.join('wrappers','Excel','CoolProp.xlam'),os.path.join('dist_temp','Excel and DLL','CoolProp.xlam'))
     shutil.copy2(os.path.join('wrappers','Excel','CoolProp.xla'),os.path.join('dist_temp','Excel and DLL','CoolProp.xla'))
     shutil.copy2(os.path.join('wrappers','Excel','TestExcel.xlsx'),os.path.join('dist_temp','Excel and DLL','TestExcel.xlsx'))
@@ -63,6 +60,15 @@ def Octave():
     shutil.copy2(os.path.join('wrappers','Octave','3.6.2','CoolProp.oct'),os.path.join('dist_temp','Octave','3.6.2','CoolProp.oct'))
     shutil.copy2(os.path.join('wrappers','Octave','sample_code.m'),os.path.join('dist_temp','Octave','sample_code.m'))
     shutil.copy2(os.path.join('wrappers','Octave','README.txt'),os.path.join('dist_temp','Octave','README.txt'))
+    
+def Csharp():
+    try:
+        os.makedirs(os.path.join('dist_temp','C#'))
+    except os.error: pass
+        
+    subprocess.check_output(['BuildCsharpDLL.bat'],shell=True,cwd=os.path.join('wrappers','C#'))
+    shutil.copy2(os.path.join('wrappers','C#','readme.txt'),os.path.join('dist_temp','C#','readme.txt'))
+    shutil.copy2(os.path.join('wrappers','C#','VSCsharp.zip'),os.path.join('dist_temp','C#','VSCsharp.zip'))
     
 def MATLAB():
     try:
@@ -128,11 +134,12 @@ if __name__=='__main__':
     
 ##     InstallPrereqs()  #This is optional if you think any of the pre-reqs have been updated
 
-##     DLL()
-##     Source()
+    DLL()
+    Source()
     Python()
-##     Octave()
-##     MATLAB()
+    Csharp()
+    Octave()
+    MATLAB()
 ##     PYPI()
 ##     UploadSourceForge()
 

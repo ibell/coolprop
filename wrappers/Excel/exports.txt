@@ -9,53 +9,55 @@ File Type: DLL
   Section contains the following exports for CoolProp.dll
 
     00000000 characteristics
-    50C7206F time date stamp Tue Dec 11 13:00:47 2012
+    50D63485 time date stamp Sat Dec 22 17:30:29 2012
         0.00 version
            1 ordinal base
-          35 number of functions
-          35 number of names
+          37 number of functions
+          37 number of names
 
     ordinal hint RVA      name
 
-          1    0 00005B70 _DerivTerms@24
-          2    1 00005650 _F2K@8
-          3    2 00005B10 _FluidsList@4
-          4    3 000535B0 _HAProps@40
-          5    4 000549A0 _HAProps_Aux@32
-          6    5 00005320 _IProps@32
+          1    0 00005D40 _DerivTerms@24
+          2    1 00005820 _F2K@8
+          3    2 00005CE0 _FluidsList@4
+          4    3 0005EF20 _HAProps@40
+          5    4 00060310 _HAProps_Aux@32
+          6    5 000054F0 _IProps@32
           7    6 00001A70 _IsFluidType@8
-          8    7 00005630 _K2F@8
+          8    7 00005800 _K2F@8
           9    8 00002430 _Phase@24
-         10    9 00005670 _PrintSaturationTable@24
-         11    A 000025A0 _Props1@8
-         12    B 00002D40 _Props@32
-         13    C 000016D0 _SaturationLUTStatus@0
-         14    D 00001710 _SinglePhaseLUTStatus@0
-         15    E 000016A0 _UseSaturationLUT@4
-         16    F 000016E0 _UseSinglePhaseLUT@4
-         17   10 00001080 _debug@4
-         18   11 00001670 _get_1phase_LUT_params@24
-         19   12 00001810 _get_Fluid_index@4
-         20   13 00007730 _get_REFPROPname@8
-         21   14 00007580 _get_aliases@8
-         22   15 00001060 _get_debug@0
-         23   16 00001150 _get_errstring@4
-         24   17 000011E0 _get_errstring_copy@4
-         25   18 00001190 _get_errstringc@0
-         26   19 00001900 _get_index_units@8
-         27   1A 00001A40 _get_param_index@4
-         28   1B 00001000 _get_svnrevision@0
-         29   1C 00001010 _get_version@4
-         30   1D 00002010 _psatL_anc@12
-         31   1E 000020D0 _psatV_anc@12
-         32   1F 00001E90 _rhosatL_anc@12
-         33   20 00001F50 _rhosatV_anc@12
-         34   21 000014C0 _set_1phase_LUT_params@48
-         35   22 00001230 _set_phase@4
+         10    9 00002490 _Phase_Tp@24
+         11    A 000024F0 _Phase_Trho@24
+         12    B 00005840 _PrintSaturationTable@24
+         13    C 00002770 _Props1@8
+         14    D 00002F10 _Props@32
+         15    E 000016D0 _SaturationLUTStatus@0
+         16    F 00001710 _SinglePhaseLUTStatus@0
+         17   10 000016A0 _UseSaturationLUT@4
+         18   11 000016E0 _UseSinglePhaseLUT@4
+         19   12 00001080 _debug@4
+         20   13 00001670 _get_1phase_LUT_params@24
+         21   14 00001810 _get_Fluid_index@4
+         22   15 00007C30 _get_REFPROPname@8
+         23   16 00007A80 _get_aliases@8
+         24   17 00001060 _get_debug@0
+         25   18 00001150 _get_errstring@4
+         26   19 000011E0 _get_errstring_copy@4
+         27   1A 00001190 _get_errstringc@0
+         28   1B 00001900 _get_index_units@8
+         29   1C 00001A40 _get_param_index@4
+         30   1D 00001000 _get_svnrevision@0
+         31   1E 00001010 _get_version@4
+         32   1F 00002010 _psatL_anc@12
+         33   20 000020D0 _psatV_anc@12
+         34   21 00001E90 _rhosatL_anc@12
+         35   22 00001F50 _rhosatV_anc@12
+         36   23 000014C0 _set_1phase_LUT_params@48
+         37   24 00001230 _set_phase@4
 
   Summary
 
-        9000 .data
-       32000 .rdata
-        B000 .reloc
-       B3000 .text
+        A000 .data
+       37000 .rdata
+        D000 .reloc
+       C7000 .text

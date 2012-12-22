@@ -530,6 +530,30 @@ EXPORT_CODE void CONVENTION Phase(char *Fluid,double T, double p, char *Phase_st
 {
 	strcpy(Phase_str,(char*)Phase(std::string(Fluid),T,p).c_str());
 }
+EXPORT_CODE long CONVENTION Phase_Tp(char *Fluid,double T, double p, char *Phase_str)
+{
+	strcpy(Phase_str,(char*)Phase(std::string(Fluid),T,p).c_str());
+	return 0;
+}
+EXPORT_CODE long CONVENTION Phase_Trho(char *Fluid,double T, double rho, char *Phase_str)
+{
+	strcpy(Phase_str,(char*)Phase_Trho(std::string(Fluid),T,rho).c_str());
+	return 0;
+}
+
+std::string Phase_Trho(std::string Fluid, double T, double rho)
+{
+	try{
+		// Try to load the CoolProp Fluid
+		pFluid = Fluids.get_fluid(Fluid);
+		double pL,pV,rhoL,rhoV;
+		return pFluid->phase_Trho(T,rho, &pL, &pV, &rhoL, &rhoV);
+	}
+	catch(NotImplementedError){
+		return std::string("");
+	}
+}
+
 std::string Phase(std::string Fluid, double T, double p)
 {
 	try{
