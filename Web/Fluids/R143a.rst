@@ -1,6 +1,6 @@
 
 ********************
-R143a 
+R143a
 ********************
 
 Aliases
@@ -9,16 +9,11 @@ R143A
 
 Equation of State Reference
 ===========================
-"A International Standard Formulation for the Thermodynamic Properties of 1,1,1,2-Tetrafluoroethane(HFC-134a) for Temperatures from 170 K to 455 K and Pressures up to 70 MPa"by Reiner Tillner-Roth and Hans Dieter Baehr, J. Phys. Chem. Ref. Data, v. 23, 1994, pp 657-729
+Eric W. Lemmon and Richard T. Jacobsen, "An International Standard Formulation for the Thermodynamic Properties of 1,1,1-Trifluoroethane (HFC-143a) for Temperatures From 161 to 450 K and Pressures to 50 MPa," J. Phys. Chem. Ref. Data, Vol. 29, No. 4, 2000
 
 Transport Properties Information
 ================================
-Viscosity: Marcia L. Huber, Arno Laesecke, and Richard A. Perkins, "Model for the Viscosity and Thermal Conductivity of Refrigerants,Including a New Correlation for the Viscosity of R134a"A Reference Ind. Eng. Chem. Res. 2003, 42, 3163-3178
-
-Conductivity: McLinden, M.O., and S.A. Klein and R.A. Perkins, "An extended corresponding states model for the thermal conductivity of refrigerants and refrigerant mixtures", International Journal of Refrigeration, 23 (2000) 43-63.
-Several typos: Table A1- a1 should be 8.00892e-5, R0 should be 1.03 . Eqn A5 - chi*(Tref,rho) should be multiplied by Tref/T. Eqn A4 - epsilon should be eta (viscosity)
-
-Surface Tension: R. Heide, "The surface tension of HFC refrigerants and mixtures", Int J. Refrig. Vol. 20, No. 7, pp. 496-503, 1997
+Using ECS in fully predictive mode
 
 
 Fluid Data
@@ -27,16 +22,16 @@ Fluid Data
 Fluid Parameters
 
 =========================  ==============================
-Mole Mass [kg/kmol]        102.03200
-Triple Point [K]           169.850
+Mole Mass [kg/kmol]        84.04100
+Triple Point [K]           161.340
 =========================  ==============================
 
 Critical Parameters
 
 ==============================  ==============================
-Temperature [K]                 374.21
-Density [kg/m\ :sup:`3`\ ]      511.899952
-Pressure [kPa]                  4059.28000
+Temperature [K]                 345.86
+Density [kg/m\ :sup:`3`\ ]      431.000066
+Pressure [kPa]                  3761.00000
 ==============================  ==============================
 
 
@@ -46,7 +41,7 @@ Saturated Vapor Deviations
 .. plot::
 
     Fluid = "R143a"
-    RPFluid = "REFPROP-R143a"
+    RPFluid = "REFPROP-R143A"
 
     #Saturated Vapor
     from CoolProp.CoolProp import Props
@@ -101,7 +96,7 @@ Saturated Liquid Deviations
 .. plot::
 
     Fluid = "R143a"
-    RPFluid = "REFPROP-R143a"
+    RPFluid = "REFPROP-R143A"
 
     #Saturated Liquid
     from CoolProp.CoolProp import Props
@@ -155,7 +150,7 @@ Along the critical isotherm where T=T\ :sub:`c`
 .. plot::
 
     Fluid = "R143a"
-    RPFluid = "REFPROP-R143a"
+    RPFluid = "REFPROP-R143A"
 
     #Critical isotherm
     from CoolProp.CoolProp import Props
@@ -225,8 +220,8 @@ Check of p,h and p,s as inputs (X: Failure .: Success)
     smin = Props('S','T',Tmin,'Q',0,Ref)
     smax = 2*Props('S','T',Props(Ref,'Tcrit')-1,'Q',1,Ref)-smin
 
-    Ph(Ref, axis = ax1, Tmin = Tmin, Tmax = 374.200000)
-    Ps(Ref, axis = ax2, Tmin = Tmin, Tmax = 374.200000)
+    Ph(Ref, axis = ax1, Tmin = Tmin, Tmax = 345.847000)
+    Ps(Ref, axis = ax2, Tmin = Tmin, Tmax = 345.847000)
 
     for p in np.linspace(pmin,pmax,10):
         for h in np.linspace(hmin,hmax):

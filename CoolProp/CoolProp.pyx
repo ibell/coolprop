@@ -14,6 +14,8 @@ cdef extern from "CoolProp.h":
     double _IProps "IProps"(long Output, long Name1, double Prop1, long Name2, double Prop2, long Ref)
     double _Props1 "Props"(string Ref, string Output)
     string _Phase "Phase"(char *Fluid, double T, double p)
+    string _Phase_Tp "Phase_Tp"(string Fluid, double T, double p)
+    string _Phase_Trho "Phase_Trho"(string Fluid, double T, double rho)
     double _DerivTerms "DerivTerms"(char *Term, double T, double rho, char * Ref)
     
     # LUT functions
@@ -337,6 +339,12 @@ cpdef double DerivTerms(bytes Output, double T, double rho, bytes Fluid):
     """
     return _DerivTerms(Output,T,rho,Fluid)
 
+cpdef string Phase_Tp(bytes Fluid, double T, double p):
+    return _Phase_Tp(Fluid,T,p)
+    
+cpdef string Phase_Trho(bytes Fluid, double T, double rho):
+    return _Phase_Trho(Fluid,T,rho)
+    
 cpdef string Phase(bytes Fluid, double T, double p):
     """
     Given a set of temperature and pressure, returns one of the following strings

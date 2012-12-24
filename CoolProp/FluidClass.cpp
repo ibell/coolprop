@@ -50,6 +50,8 @@
 #include "purefluids/FAME.h"
 #include "purefluids/Ether.h"
 #include "purefluids/R143A.h"
+#include "purefluids/DMC.h"
+#include "purefluids/R23.h"
 
 using namespace std;
 
@@ -82,7 +84,10 @@ FluidsContainer::FluidsContainer()
 	FluidsList.push_back(new SulfurHexafluorideClass());
 	FluidsList.push_back(new EthanolClass());
 	FluidsList.push_back(new DimethylEtherClass());	
+	FluidsList.push_back(new DimethylCarbonateClass());	
 	FluidsList.push_back(new R143AClass());	
+	FluidsList.push_back(new R23Class());
+	FluidsList.push_back(new nDodecaneClass());	
 
 	// The industrial fluids
 	FluidsList.push_back(new R245faClass());

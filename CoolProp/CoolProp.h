@@ -116,6 +116,7 @@ You might want to start by looking at CoolProp.h
 
 	std::string Phase(std::string Fluid, double T, double p);
 	std::string Phase_Trho(std::string Fluid, double T, double rho);
+    std::string Phase_Tp(std::string Fluid, double T, double p);
 	std::string get_EOSReference(std::string Ref);
 	std::string get_TransportReference(std::string Ref);
 	std::string FluidsList(void);

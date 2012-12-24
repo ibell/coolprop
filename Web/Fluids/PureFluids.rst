@@ -17,6 +17,7 @@ Pure Fluids
     D5.rst
     D6.rst
     Decane.rst
+    DimethylCarbonate.rst
     DimethylEther.rst
     Ethane.rst
     Ethanol.rst
@@ -53,8 +54,10 @@ Pure Fluids
     R134a.rst
     R141b.rst
     R142b.rst
+    R143a.rst
     R218.rst
     R22.rst
+    R23.rst
     R245fa.rst
     R32.rst
     R41.rst
@@ -65,6 +68,7 @@ Pure Fluids
     Xenon.rst
     cis-2-Butene.rst
     n-Butane.rst
+    n-Dodecane.rst
     n-Heptane.rst
     n-Hexane.rst
     n-Octane.rst

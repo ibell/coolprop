@@ -556,6 +556,96 @@ double nOctaneClass::rhosatV(double T)
     return reduce.rho*exp(summer);
 }
 
+nDodecaneClass::nDodecaneClass()
+{
+	double n[] = {0.0, 1.38031, -2.85352, 0.288897, -0.165993, 0.0923993, 0.000282772, 0.956627, 0.0353076, -0.445008, -0.118911, -0.0366475, 0.0184223};
+	double t[] = {0,0.32,1.23,1.5,1.4,0.07,0.8,2.16,1.1,4.1,5.6,14.5,12.0};
+	double c[] = {0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 2, 3, 3};
+	double d[] = {0, 1, 1, 1, 2, 3, 7, 2, 5, 1, 4, 3, 4};
+
+	//Critical parameters
+	crit.rho = 1.33*170.33484; //[kg/m^3]
+	crit.p = 1817; //[kPa]
+	crit.T = 658.1; //[K]
+	crit.v = 1/crit.rho; 
+
+	// Other fluid parameters
+	params.molemass = 170.33484;
+	params.Ttriple = 263.60;
+	params.accentricfactor = 0.574182221240689;
+	params.R_u = 8.314472;
+	params.ptriple = 0.00062621099412445;
+
+	// Limits of EOS
+	limits.Tmin = params.Ttriple;
+	limits.Tmax = 500.0;
+	limits.pmax = 100000.0;
+	limits.rhomax = 1000000.0*params.molemass;
+
+	phirlist.push_back(new phir_power(n, d, t, c, 1, 12, 13));
+
+	phi0list.push_back(new phi0_lead(0,0));
+	phi0list.push_back(new phi0_logtau(23.085-1.0));
+
+	const double a0[] = {0, 37.776, 29.369, 12.461, 7.7733};
+	std::vector<double> a0_v(a0,a0+sizeof(a0)/sizeof(double));
+	const double a1[] = {0, 1280/crit.T, 2399/crit.T, 5700/crit.T, 13869/crit.T};
+	std::vector<double> a1_v(a1,a1+sizeof(a1)/sizeof(double));
+
+	phi0list.push_back(new phi0_Planck_Einstein(a0_v,a1_v,1,4));
+
+	EOSReference.assign("Eric W. Lemmon and Marcia L. Huber, \"Thermodynamic Properties of n-Dodecane\" Energy & Fuels 2004, 18, 960-967");
+	TransportReference.assign("Using ECS in fully predictive mode");
+
+	name.assign("n-Dodecane");
+	aliases.push_back("nDodecane");
+	aliases.push_back("Dodecane");
+	REFPROPname.assign("C12");
+}
+double nDodecaneClass::psat(double T)
+{
+    // Maximum absolute error is 0.138846 % between 263.600001 K and 658.099990 K
+    const double ti[]={0,1.0,1.5,2.3,3.6,5.2,7.3};
+    const double Ni[]={0,-8.9866724724738951, 2.5493588271985472, -3.4360168519160204, -2.8106764008676923, -4.2863137232691715, 2.0061541458847785 };
+    double summer=0,theta;
+    int i;
+    theta=1-T/reduce.T;
+    for (i=1;i<=6;i++)
+    {
+        summer=summer+Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.p*exp(reduce.T/T*summer);
+}
+double nDodecaneClass::rhosatL(double T)
+{
+    // Maximum absolute error is 2.000452 % between 263.600001 K and 658.099990 K
+    const double ti[]={0,0.18641474693916188, 1.1243571862574657, 12.893082664340085, 1.0855027883831063, 1.0077286384840609};
+    const double Ni[]={0,0.79443715883454757, 113.11123644121949, 0.67935350544099971, -172.20630557113711, 59.770329506604732};
+    double summer=0;
+    int i;
+    double theta;
+    theta=1-T/reduce.T;
+    for (i=1;i<=5;i++)
+    {
+        summer+=Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.rho*exp(summer);
+}
+double nDodecaneClass::rhosatV(double T)
+{
+    // Maximum absolute error is 0.594552 % between 263.600001 K and 658.099990 K
+    const double ti[]={0,0.26387014250856733, 1.159849371473102, 0.98182373858336336, 1.1708598109208148, 3.5424277704241764};
+    const double Ni[]={0,-1.3944420975391763, 445.78839795908664, -36.255938474032995, -414.80248500375251, -8.5883385816933817};
+    double summer=0,theta;
+    int i;
+    theta=1.0-T/reduce.T;
+    for (i=1;i<=5;i++)
+    {
+        summer=summer+Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.rho*exp(crit.T/T*summer);
+}
+
 CyclohexaneClass::CyclohexaneClass()
 {
 	const double n[] = {0.0, 1.0232354, -2.9204964, 1.0736630, -0.19573985, 0.12228111, 0.00028943321, 0.27231767, -0.04483332, -0.38253334, -0.089835333, -0.024874965, 0.010836132};

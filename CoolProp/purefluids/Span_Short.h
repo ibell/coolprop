@@ -45,6 +45,17 @@ public:
 	void ECSParams(double *e_k, double *sigma){*e_k = 452.09; *sigma = 0.63617;};
 };
 
+class nDodecaneClass : public Fluid {
+
+public:
+    nDodecaneClass();
+    ~nDodecaneClass(){};
+    double psat(double);
+    double rhosatL(double);
+    double rhosatV(double);
+	//void ECSParams(double *e_k, double *sigma){*e_k = 452.09; *sigma = 0.63617;};
+};
+
 class CyclohexaneClass : public Fluid {
 
 public:

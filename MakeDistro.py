@@ -134,14 +134,14 @@ if __name__=='__main__':
     
 ##     InstallPrereqs()  #This is optional if you think any of the pre-reqs have been updated
 
-    DLL()
-    Source()
-    Python()
-    Csharp()
-    Octave()
-    MATLAB()
+##     DLL()
+##     Source()
+##     Python()
+##     Csharp()
+##     Octave()
+##     MATLAB()
 ##     PYPI()
 ##     UploadSourceForge()
 
 ##     BuildDocs()
-##     UploadDocs()
+    UploadDocs()

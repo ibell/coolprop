@@ -1,15 +1,15 @@
 
 ********************
-DimethylEther
+DimethylCarbonate
 ********************
 
 Aliases
 ================================================================================
-
+DMC, dimethylcarbonate
 
 Equation of State Reference
 ===========================
-Jiangtao Wu, Yong Zhou, Eric W. Lemmon, "An Equation of State for the Thermodynamic Properties of Dimethyl Ether", J. Phys. Chem. Ref. Data, Vol. 40, No. 2, 2011
+Yong Zhou, Jiangtao Wu and Eric W. Lemmon, "Thermodynamic Properties of Dimethyl Carbonate", J. Phys. Chem. Ref. Data, Vol. 40, No. 4, 2011
 
 Transport Properties Information
 ================================
@@ -22,16 +22,16 @@ Fluid Data
 Fluid Parameters
 
 =========================  ==============================
-Mole Mass [kg/kmol]        46.06844
-Triple Point [K]           131.660
+Mole Mass [kg/kmol]        90.07790
+Triple Point [K]           277.060
 =========================  ==============================
 
 Critical Parameters
 
 ==============================  ==============================
-Temperature [K]                 400.38
-Density [kg/m\ :sup:`3`\ ]      273.646534
-Pressure [kPa]                  5336.80000
+Temperature [K]                 557.00
+Density [kg/m\ :sup:`3`\ ]      360.311600
+Pressure [kPa]                  4908.80000
 ==============================  ==============================
 
 
@@ -40,8 +40,8 @@ Saturated Vapor Deviations
 
 .. plot::
 
-    Fluid = "DimethylEther"
-    RPFluid = "REFPROP-DME"
+    Fluid = "DimethylCarbonate"
+    RPFluid = "REFPROP-DMC"
 
     #Saturated Vapor
     from CoolProp.CoolProp import Props
@@ -95,8 +95,8 @@ Saturated Liquid Deviations
 
 .. plot::
 
-    Fluid = "DimethylEther"
-    RPFluid = "REFPROP-DME"
+    Fluid = "DimethylCarbonate"
+    RPFluid = "REFPROP-DMC"
 
     #Saturated Liquid
     from CoolProp.CoolProp import Props
@@ -149,8 +149,8 @@ Along the critical isotherm where T=T\ :sub:`c`
 ================================================
 .. plot::
 
-    Fluid = "DimethylEther"
-    RPFluid = "REFPROP-DME"
+    Fluid = "DimethylCarbonate"
+    RPFluid = "REFPROP-DMC"
 
     #Critical isotherm
     from CoolProp.CoolProp import Props
@@ -207,7 +207,7 @@ Check of p,h and p,s as inputs (X: Failure .: Success)
     from matplotlib import pyplot as plt
     import numpy as np
 
-    Ref = "DimethylEther"
+    Ref = "DimethylCarbonate"
     fig = plt.figure(figsize=(10,5))
     ax1 = fig.add_subplot(121)
     ax2 = fig.add_subplot(122)
@@ -220,8 +220,8 @@ Check of p,h and p,s as inputs (X: Failure .: Success)
     smin = Props('S','T',Tmin,'Q',0,Ref)
     smax = 2*Props('S','T',Props(Ref,'Tcrit')-1,'Q',1,Ref)-smin
 
-    Ph(Ref, axis = ax1, Tmin = Tmin, Tmax = 400.368000)
-    Ps(Ref, axis = ax2, Tmin = Tmin, Tmax = 400.368000)
+    Ph(Ref, axis = ax1, Tmin = Tmin, Tmax = 556.990000)
+    Ps(Ref, axis = ax2, Tmin = Tmin, Tmax = 556.990000)
 
     for p in np.linspace(pmin,pmax,10):
         for h in np.linspace(hmin,hmax):

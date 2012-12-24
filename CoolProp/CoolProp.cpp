@@ -567,6 +567,11 @@ std::string Phase(std::string Fluid, double T, double p)
 	}
 }
 
+std::string Phase_Tp(std::string Fluid, double T, double p)
+{
+	return Phase(Fluid,T,p);
+}
+
 // All the function interfaces that point to the single-input Props function
 EXPORT_CODE double CONVENTION Props1(char* Ref, char * Output)
 {

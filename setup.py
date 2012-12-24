@@ -67,7 +67,7 @@ if __name__=='__main__':
         current_version = f.read()
         f.close()
         if not current_version.strip() == string_for_file.strip():
-            f = open('version.h','w')
+            f = open('CoolProp/version.h','w')
             f.write(string_for_file)
             f.close()
         
