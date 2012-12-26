@@ -21,6 +21,7 @@ Pure Fluids
     DimethylEther.rst
     Ethane.rst
     Ethanol.rst
+    EthylBenzene.rst
     Ethylene.rst
     Helium.rst
     Hydrogen.rst
@@ -67,10 +68,13 @@ Pure Fluids
     Water.rst
     Xenon.rst
     cis-2-Butene.rst
+    m-Xylene.rst
     n-Butane.rst
     n-Dodecane.rst
     n-Heptane.rst
     n-Hexane.rst
     n-Octane.rst
     n-Pentane.rst
+    o-Xylene.rst
+    p-Xylene.rst
     trans-2-Butene.rst

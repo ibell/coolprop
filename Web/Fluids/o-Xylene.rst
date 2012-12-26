@@ -1,15 +1,15 @@
-
+ 
 ********************
-n-Dodecane
+o-Xylene
 ********************
 
 Aliases
 ================================================================================
-nDodecane, Dodecane
+oXylene
 
 Equation of State Reference
 ===========================
-Eric W. Lemmon and Marcia L. Huber, "Thermodynamic Properties of n-Dodecane" Energy & Fuels 2004, 18, 960-967
+Yong Zhou, Jiangtao Wu, Eric W. Lemmon, "Thermodynamic Properties of o-Xylene, m-Xylene, p-Xylene, and Ethylbenzene", J. Phys. Chem. Ref. Data, Vol. 41, No. 2, 2012
 
 Transport Properties Information
 ================================
@@ -22,16 +22,16 @@ Fluid Data
 Fluid Parameters
 
 =========================  ==============================
-Mole Mass [kg/kmol]        170.33484
-Triple Point [K]           263.600
+Mole Mass [kg/kmol]        106.16500
+Triple Point [K]           247.985
 =========================  ==============================
 
 Critical Parameters
 
 ==============================  ==============================
-Temperature [K]                 658.10
-Density [kg/m\ :sup:`3`\ ]      226.545337
-Pressure [kPa]                  1817.00000
+Temperature [K]                 247.99
+Density [kg/m\ :sup:`3`\ ]      284.999943
+Pressure [kPa]                  3737.50000
 ==============================  ==============================
 
 
@@ -40,8 +40,8 @@ Saturated Vapor Deviations
 
 .. plot::
 
-    Fluid = "n-Dodecane"
-    RPFluid = "REFPROP-C12"
+    Fluid = "o-Xylene"
+    RPFluid = "REFPROP-OXYLENE"
 
     #Saturated Vapor
     from CoolProp.CoolProp import Props
@@ -95,8 +95,8 @@ Saturated Liquid Deviations
 
 .. plot::
 
-    Fluid = "n-Dodecane"
-    RPFluid = "REFPROP-C12"
+    Fluid = "o-Xylene"
+    RPFluid = "REFPROP-OXYLENE"
 
     #Saturated Liquid
     from CoolProp.CoolProp import Props
@@ -149,8 +149,8 @@ Along the critical isotherm where T=T\ :sub:`c`
 ================================================
 .. plot::
 
-    Fluid = "n-Dodecane"
-    RPFluid = "REFPROP-C12"
+    Fluid = "o-Xylene"
+    RPFluid = "REFPROP-OXYLENE"
 
     #Critical isotherm
     from CoolProp.CoolProp import Props
@@ -207,7 +207,7 @@ Check of p,h and p,s as inputs (X: Failure .: Success)
     from matplotlib import pyplot as plt
     import numpy as np
 
-    Ref = "n-Dodecane"
+    Ref = "o-Xylene"
     fig = plt.figure(figsize=(10,5))
     ax1 = fig.add_subplot(121)
     ax2 = fig.add_subplot(122)
@@ -220,8 +220,8 @@ Check of p,h and p,s as inputs (X: Failure .: Success)
     smin = Props('S','T',Tmin,'Q',0,Ref)
     smax = 2*Props('S','T',Props(Ref,'Tcrit')-1,'Q',1,Ref)-smin
 
-    Ph(Ref, axis = ax1, Tmin = Tmin, Tmax = 658.090000)
-    Ps(Ref, axis = ax2, Tmin = Tmin, Tmax = 658.090000)
+    Ph(Ref, axis = ax1, Tmin = Tmin, Tmax = 247.975000)
+    Ps(Ref, axis = ax2, Tmin = Tmin, Tmax = 247.975000)
 
     for p in np.linspace(pmin,pmax,10):
         for h in np.linspace(hmin,hmax):

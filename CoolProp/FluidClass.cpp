@@ -52,6 +52,7 @@
 #include "purefluids/R143A.h"
 #include "purefluids/DMC.h"
 #include "purefluids/R23.h"
+#include "purefluids/Xylene_EthylBenzene.h"
 
 using namespace std;
 
@@ -144,6 +145,12 @@ FluidsContainer::FluidsContainer()
 	FluidsList.push_back(new MethylOleateClass());
 	FluidsList.push_back(new MethylLinoleateClass());
 	FluidsList.push_back(new MethylLinolenateClass());
+
+	// Xylene isomers and EthylBenzene
+	FluidsList.push_back(new oXyleneClass());
+	FluidsList.push_back(new mXyleneClass());
+	FluidsList.push_back(new pXyleneClass());
+	FluidsList.push_back(new EthylBenzeneClass());
 
 	// The pseudo-pure fluids
 	FluidsList.push_back(new AirClass());
