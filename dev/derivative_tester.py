@@ -26,9 +26,16 @@ def finite_diff(Output,Input1,Val1,Input2,Val2,Fluid,  index,deriv,order,type = 
     else:
         raise ValueError
 
-fluid = 'Water'
-T = 647.74374374374372#647#Props(fluid,'Tcrit')+1
-rho = 322.32199999#358#Props(fluid,'rhocrit')+1
+## fluid = 'Water'
+## T = 647.74374374374372#647#Props(fluid,'Tcrit')+1
+## rho = 322.32199999#358#Props(fluid,'rhocrit')+1
+## H = Props('H','T',T,'D',rho,fluid)
+## P = Props('P','T',T,'D',rho,fluid)
+## print T,rho,H,P
+
+fluid = 'Nitrogen'
+T = 300
+rho = 1.5
 H = Props('H','T',T,'D',rho,fluid)
 P = Props('P','T',T,'D',rho,fluid)
 print T,rho,H,P
@@ -191,3 +198,13 @@ print 'd2sdp2|h'
 print d2s_dp2
 print d2s_dp2_num
 
+## d2s_dhdp = -(1/T/T)*dT_dp
+## d2s_dhdp_num = finite_diff('S','H',H,'P',P,fluid,1,2,4)
+## print 'd2s_dhdp'
+## print d2s_dhdp
+## print d2s_dhdp_num
+
+## d2s_dhdp = -(1/T/T)*dT_dp
+## print d2s_dhdp
+## d2s_dhdp = 1/(T**2*rho)*dT_dh+1/(T*rho**2)*drho_dh
+## print d2s_dhdp
