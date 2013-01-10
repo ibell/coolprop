@@ -33,7 +33,7 @@ def finite_diff(Output,Input1,Val1,Input2,Val2,Fluid,  index,deriv,order,type = 
 ## P = Props('P','T',T,'D',rho,fluid)
 ## print T,rho,H,P
 
-fluid = 'Nitrogen'
+fluid = 'Propane'
 T = 300
 rho = 1.5
 H = Props('H','T',T,'D',rho,fluid)
@@ -103,6 +103,13 @@ def f(dx):
 print 'd3phir_dDelta_dTau2'
 print (f(-2*dx)-8*f(-dx)+8*f(dx)-f(2*dx))/(12*dx)
 print DerivTerms('d3phir_dDelta_dTau2',T,rho,fluid)
+
+def f(dx):
+    T = Tc/(tau+dx)
+    return DerivTerms('d2phir_dDelta2',T,rho,fluid)
+print 'd3phir_dDelta2_dTau'
+print (f(-2*dx)-8*f(-dx)+8*f(dx)-f(2*dx))/(12*dx)
+print DerivTerms('d3phir_dDelta2_dTau',T,rho,fluid)
 
 def f(dx):
     T = Tc/(tau+dx)

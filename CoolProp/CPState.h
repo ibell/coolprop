@@ -11,16 +11,30 @@ void sort_pair(long *iInput1, double *Value1, long *iInput2, double *Value2, lon
 class CoolPropStateClass
 {
 protected:
+	// Helmholtz derivative cache flags
+	bool cached_phi0, cached_dphi0_dTau, cached_dphi0_dDelta,  cached_d2phi0_dTau2, cached_d2phi0_dDelta_dTau, cached_d2phi0_dDelta2, cached_d3phi0_dTau3, cached_d3phi0_dDelta_dTau2, cached_d3phi0_dDelta2_dTau, cached_d3phi0_dDelta3; 
+	double cachedval_phi0, cachedval_dphi0_dTau, cachedval_dphi0_dDelta,  cachedval_d2phi0_dTau2, cachedval_d2phi0_dDelta_dTau, cachedval_d2phi0_dDelta2, cachedval_d3phi0_dTau3,  cachedval_d3phi0_dDelta_dTau2, cachedval_d3phi0_dDelta2_dTau, cachedval_d3phi0_dDelta3;
+
+	bool cached_phir, cached_dphir_dTau, cached_dphir_dDelta,  cached_d2phir_dTau2, cached_d2phir_dDelta_dTau, cached_d2phir_dDelta2, cached_d3phir_dTau3,  cached_d3phir_dDelta_dTau2, cached_d3phir_dDelta2_dTau, cached_d3phir_dDelta3;
+	double cachedval_phir, cachedval_dphir_dTau, cachedval_dphir_dDelta,  cachedval_d2phir_dTau2, cachedval_d2phir_dDelta_dTau, cachedval_d2phir_dDelta2, cachedval_d3phir_dTau3,  cachedval_d3phir_dDelta_dTau2, cachedval_d3phir_dDelta2_dTau, cachedval_d3phir_dDelta3;
+
+
 	std::string _Fluid;
 	Fluid * pFluid;
-	bool flag_SinglePhase;
+	bool flag_SinglePhase, flag_TwoPhase;
 	bool SaturatedL,SaturatedV;
 
 	// Saturation values
 	double rhosatL, rhosatV, psatL, psatV, TsatL, TsatV;
 
+	// Pointers to the Liquid and Vapor classes
+	CoolPropStateClass *SatL, *SatV;
+
+	void add_saturation_states(void);
+	void remove_saturation_states(void);
+
 	// Bulk values
-	double _rho,_T,_p,_Q,_h,_s;
+	double _rho,_T,_p,_Q,_h,_s, tau, delta;
 
 	// To be used to update internal variables if you know that your parameters are T,Q or P,Q
 	void update_twophase(long iInput1, double Value1, long iInput2, double Value2);
@@ -40,16 +54,21 @@ protected:
 
 	// Check whether the quality corresponds to saturated liquid or vapor
 	void check_saturated_quality(double Q);
+
+	
 public:
 
 	// Phase flags
-	bool TwoPhase,SinglePhase;
+	bool TwoPhase, SinglePhase;
 	
 	// Constructor with fluid name
 	CoolPropStateClass(std::string FluidName);
 
 	// Constructor with fluid pointer
 	CoolPropStateClass(Fluid *pFluid);
+
+	// Destructor to clear SatL and SatV
+	~CoolPropStateClass(){delete SatL; delete SatV;};
 
 	// Property updater
 	// Uses the indices in CoolProp for the input parameters
@@ -87,6 +106,36 @@ public:
 	double drhodh_constp(void);
 	double drhodp_consth(void);
 	double dpdrho_constT(void);
+	double dpdT_constrho(void);
+	double dhdrho_constT(void);
+	double dhdT_constrho(void);
+
+	/// Clear out all the cached values
+	void clear_cache(void);
+
+	double phi0(double tau, double delta);
+	double dphi0_dDelta(double tau, double delta);
+	double dphi0_dTau(double tau, double delta);
+	double d2phi0_dDelta2(double tau, double delta);
+	double d2phi0_dDelta_dTau(double tau, double delta);
+	double d2phi0_dTau2(double tau, double delta);
+	double d3phi0_dDelta3(double tau, double delta);
+	double d3phi0_dDelta2_dTau(double tau, double delta);
+	double d3phi0_dDelta_dTau2(double tau, double delta);
+	double d3phi0_dTau3(double tau, double delta);
+
+
+	double phir(double tau, double delta);
+	double dphir_dDelta(double tau, double delta);
+	double dphir_dTau(double tau, double delta);
+	double d2phir_dDelta2(double tau, double delta);
+	double d2phir_dDelta_dTau(double tau, double delta);
+	double d2phir_dTau2(double tau, double delta);
+	double d3phir_dDelta3(double tau, double delta);
+	double d3phir_dDelta2_dTau(double tau, double delta);
+	double d3phir_dDelta_dTau2(double tau, double delta);
+	double d3phir_dTau3(double tau, double delta);
+
 
 };
 

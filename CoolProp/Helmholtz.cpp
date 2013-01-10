@@ -298,7 +298,7 @@ double phir_gaussian::dDelta2_dTau(double tau, double delta)
 	for (unsigned int i=iStart;i<=iEnd;i++)
 	{
 		psi=exp(-alpha[i]*pow(delta-epsilon[i],2)-beta[i]*pow(tau-gamma[i],2));
-		summer+=n[i]*pow(tau,t[i])*psi*pow(delta,d[i])*(t[i]/tau-2.0*beta[i]*(tau-gamma[i]))*(-2.0*alpha[i]*(delta-epsilon[i])+4*alpha[i]*alpha[i]*pow(delta,d[i])*pow(delta-epsilon[i],2)-4*d[i]*alpha[i]*pow(delta,d[i]-1)*(delta-epsilon[i])+d[i]*(d[i]-1)*pow(delta,d[i]-2));
+		summer+=n[i]*pow(tau,t[i])*psi*(t[i]/tau-2.0*beta[i]*(tau-gamma[i]))*(-2.0*alpha[i]*pow(delta,d[i])+4.0*pow(alpha[i],2)*pow(delta,d[i])*pow(delta-epsilon[i],2)-4.0*d[i]*alpha[i]*pow(delta,d[i]-1)*(delta-epsilon[i])+d[i]*(d[i]-1.0)*pow(delta,d[i]-2));
 	}
 	return summer;
 }

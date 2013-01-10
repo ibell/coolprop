@@ -28,8 +28,6 @@ R. Span and W. Wagner, J. Phys. Chem. Ref. Data, v. 25, 1996
 using namespace std;
 
 static double alpha[40],beta[43],GAMMA[40],epsilon[40],a[43],b[43],A[43],B[43],C[43],D[43],a0[9],theta0[9];
-static const double Tc=304.128, M_R744=44.0098, rhoc=467.606, Pc=7377.3, _Ttriple=216.592;
-             //    K               g/mol       kg/m^3          kPa              K
 static const double n[]={0,    
  0.388568232032E+00,
  0.293854759427E+01,
@@ -296,9 +294,9 @@ R744Class::R744Class()
 	phi0list.push_back(phi0_PE_);
 
 	// Critical parameters
-	crit.rho = 467.606;
+	crit.rho = 44.0098*10.6249063;
 	crit.p = 7377.3;
-	crit.T = 304.128;
+	crit.T = 304.1282;
 	crit.v = 1.0/crit.rho;
 
 	// Other fluid parameters
@@ -454,9 +452,9 @@ double R744Class::psat(double T)
     setCoeffs();
     for (i=1;i<=4;i++)
     {
-        summer=summer+ai[i]*pow(1-T/Tc,ti[i]);
+        summer=summer+ai[i]*pow(1-T/crit.T,ti[i]);
     }
-    return Pc*exp(Tc/T*summer);
+    return crit.p*exp(crit.T/T*summer);
 }
 double R744Class::rhosatL(double T)
 {
@@ -466,9 +464,9 @@ double R744Class::rhosatL(double T)
     int i;
     for (i=1;i<=4;i++)
     {
-        summer=summer+ai[i]*pow(1.0-T/Tc,ti[i]);
+        summer=summer+ai[i]*pow(1.0-T/crit.T,ti[i]);
     }
-    return rhoc*exp(summer);
+    return crit.rho*exp(summer);
 }
 double R744Class::rhosatV(double T)
 {
@@ -478,7 +476,7 @@ double R744Class::rhosatV(double T)
     int i;
     for (i=1;i<=5;i++)
     {
-        summer=summer+ai[i]*pow(1.0-T/Tc,ti[i]);
+        summer=summer+ai[i]*pow(1.0-T/crit.T,ti[i]);
     }
-    return rhoc*exp(summer);
+    return crit.rho*exp(summer);
 }
