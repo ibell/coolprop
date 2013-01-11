@@ -68,7 +68,7 @@ public:
 	CoolPropStateClass(Fluid *pFluid);
 
 	// Destructor to clear SatL and SatV
-	~CoolPropStateClass(){delete SatL; delete SatV;};
+	~CoolPropStateClass();
 
 	// Property updater
 	// Uses the indices in CoolProp for the input parameters
@@ -88,7 +88,7 @@ public:
 	double sL(void);
 	double sV(void);
 	// Derivatives along the saturation curve
-	void dvdp_dhdp_sat(double T, double *dvdpL, double *dvdpV, double *dhdpL, double *dhdpV);
+	void dvdp_dhdp_sat(double T, double *dvdpL, double *dvdpV, double *dhdpL, double *dhdpV, double *);
 
 	// Bulk properties accessors - temperature and density are directly calculated every time
 	// All other parameters are calculated on an as-needed basis
@@ -109,6 +109,8 @@ public:
 	double dpdT_constrho(void);
 	double dhdrho_constT(void);
 	double dhdT_constrho(void);
+	double dhdp_constT(void);
+	double dhdT_constp(void);
 
 	/// Clear out all the cached values
 	void clear_cache(void);

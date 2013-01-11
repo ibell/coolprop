@@ -633,7 +633,7 @@ double Fluid::density_Tp(double T, double p, double rho_guess)
 		// Pressure from equation of state
 		p_EOS = rho*R*T*(1+delta*dphirdDelta);
         // Update the step using Newton's method
-        rho=rho-(p_EOS-p)/dpdrho;
+        rho = rho-(p_EOS-p)/dpdrho;
 		change = fabs((p_EOS-p)/dpdrho);
         // Residual
         error=p_EOS-p;
@@ -2091,11 +2091,14 @@ double Fluid::Tsat(double p, double Q, double T_guess, bool UseLUT, double *rhoL
 	}
 	else
 	{
+		// Do reverse interpolation in the Saturation Lookup Table
+		if (isPure && UseLUT) 
+		{
+			return ApplySaturationLUT(SatLUT.iT,SatLUT.iP,p); 
+		}
+		
 		double x1=0,x2=0,y1=0,y2=0;
 		double Tc,Tmax,Tmin;
-	    
-		// Do reverse interpolation in the Saturation Lookup Table
-		if (UseLUT && isPure==true) { return ApplySaturationLUT(SatLUT.iT,SatLUT.iP,p); }
 
 		Tc=Props(name,"Tcrit");
 		Tmax=Tc-0.001;
@@ -2111,14 +2114,26 @@ double Fluid::Tsat(double p, double Q, double T_guess, bool UseLUT, double *rhoL
 		private:
 			double p,Q,Tc;
 			std::string name;
+			Fluid * pFluid;
 		public:
-			SatFuncClass(double p_, double Q_, double Tc_, std::string name_){
-				p=p_;Q=Q_;Tc=Tc_,name=name_;
+			SatFuncClass(double p_, double Q_, double Tc_, std::string name, Fluid * pFluid){
+				p=p_;Q=Q_;Tc=Tc_,this->name=name,this->pFluid = pFluid;
 			};
 			double call(double tau){
-				return log(Props(std::string("P"),'T',Tc/tau,'Q',Q,name)/p);
+				if (fabs(Q)<10*DBL_EPSILON)
+				{
+					return log(pFluid->psatL(Tc/tau)/p);
+				}
+				else if (fabs(Q-1)<10*DBL_EPSILON)
+				{
+					return log(pFluid->psatV(Tc/tau)/p);
+				}
+				else
+				{
+					throw ValueError(format("Must be either saturated liquid or vapor"));
+				}
 			};
-		} SatFunc(p,Q,reduce.T,name);
+		} SatFunc(p,Q,reduce.T,name,this);
 
 		double tau_max = Tc/Tmin;
 		double tau_min = Tc/Tmax;

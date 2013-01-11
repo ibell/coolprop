@@ -132,6 +132,7 @@ EXPORT_CODE long CONVENTION get_version(char * pversion){
 }
 std::string get_version(){return std::string(version);}
 
+void set_debug(int level){debug_level = level;}
 EXPORT_CODE int CONVENTION get_debug(){return debug_level;}
 int  debug(){return debug_level;}
 EXPORT_CODE void CONVENTION debug(int level){debug_level=level;}
@@ -624,6 +625,8 @@ double Props(char *Fluid, char *Output)
 			// Fluid was loaded successfully - it is a CoolProp fluid
 			if (!strcmp(Output,"Ttriple"))
 				return pFluid->params.Ttriple;
+			else if (!strcmp(Output,"ptriple"))
+				return pFluid->params.ptriple;
 			else if (!strcmp(Output,"Tcrit"))
 				return pFluid->crit.T;
 			else if (!strcmp(Output,"Tmin"))

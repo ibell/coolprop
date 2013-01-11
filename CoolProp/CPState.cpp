@@ -1,6 +1,7 @@
 
 #include "CPExceptions.h"
 #include "CPState.h"
+#include "Solvers.h"
 
 // Constructor with fluid name
 CoolPropStateClass::CoolPropStateClass(std::string Fluid){
@@ -23,6 +24,9 @@ CoolPropStateClass::CoolPropStateClass(std::string Fluid){
 	// Can be over-written by changing the flag to true
 	flag_SinglePhase = false;
 	flag_TwoPhase = false;
+
+	SatL = NULL;
+	SatV = NULL;
 }
 
 // Constructor with pointer to fluid
@@ -35,8 +39,24 @@ CoolPropStateClass::CoolPropStateClass(Fluid * pFluid){
 	// Can be over-written by changing the flag to true
 	flag_SinglePhase = false;
 	flag_TwoPhase = false;
+
+	SatL = NULL;
+	SatV = NULL;
 }
 
+CoolPropStateClass::~CoolPropStateClass()
+{
+	if (SatL != NULL)
+	{
+		delete SatL;
+		SatL = NULL;
+	}
+	if (SatV != NULL)
+	{
+		delete SatV; 
+		SatV = NULL;
+	}
+}
 bool match_pair(long iI1, long iI2, long I1, long I2)
 {
 	return ((iI1 == I1 || iI1 == I2) && (iI2 == I1 || iI2 == I2) && iI1!=iI2);
@@ -107,8 +127,11 @@ void CoolPropStateClass::update(long iInput1, double Value1, long iInput2, doubl
 	_rho = _HUGE;
 	_Q = _HUGE;
 
-	SatL = new CoolPropStateClass(pFluid);
-	SatV = new CoolPropStateClass(pFluid);
+	if (SatL == NULL)
+	{
+		SatL = new CoolPropStateClass(pFluid);
+		SatV = new CoolPropStateClass(pFluid);
+	}
 
 	// Don't know if it is single phase or not, so assume it isn't
 	SinglePhase = false;
@@ -477,6 +500,14 @@ double CoolPropStateClass::dhdT_constrho(void){
 	return pFluid->R()*(-tau*tau*(d2phi0_dTau2(tau,delta)+d2phir_dTau2(tau,delta))+1+delta*dphir_dDelta(tau,delta)-delta*tau*d2phir_dDelta_dTau(tau,delta));
 }
 
+double CoolPropStateClass::dhdp_constT(void){
+	return dhdrho_constT()/dpdrho_constT();
+}
+
+double CoolPropStateClass::dhdT_constp(void){
+	return dhdT_constrho() - dhdrho_constT()*dpdT_constrho()/dpdrho_constT();
+}
+
 double CoolPropStateClass::drhodh_constp(void){
 
 	if (TwoPhase)
@@ -502,7 +533,7 @@ double CoolPropStateClass::drhodp_consth(void){
 		return 1/(dpdrho_constT()-dpdT_constrho()*dhdrho_constT()/dhdT_constrho());
 	}
 }
-void CoolPropStateClass::dvdp_dhdp_sat(double T, double *dvdpL, double *dvdpV, double *dhdpL, double *dhdpV)
+void CoolPropStateClass::dvdp_dhdp_sat(double T, double *dvdpL, double *dvdpV, double *dhdpL, double *dhdpV, double *d2hdp2V)
 {
 	CoolPropStateClass *sat = new CoolPropStateClass(pFluid);
 	sat->update(iT,T,iQ,0.5);
@@ -532,6 +563,8 @@ void CoolPropStateClass::dvdp_dhdp_sat(double T, double *dvdpL, double *dvdpV, d
 	double d3phir_dDelta3V = sat->SatV->d3phir_dDelta3(tauV,deltaV);
 	double d3phir_dDelta2_dTauV = sat->SatV->d3phir_dDelta2_dTau(tauV,deltaV);
 	double d3phir_dDelta_dTau2V = sat->SatV->d3phir_dDelta_dTau2(tauV,deltaV);
+	double d3phi0_dTau3V = sat->SatV->d3phi0_dTau3(tauV,deltaV);
+	double d3phir_dTau3V = sat->SatV->d3phir_dTau3(tauV,deltaV);
 	double d2phi0_dTau2V = sat->SatV->d2phi0_dTau2(tauV,deltaV);
 	double d2phir_dTau2V = sat->SatV->d2phir_dTau2(tauV,deltaV);
 
@@ -576,38 +609,100 @@ void CoolPropStateClass::dvdp_dhdp_sat(double T, double *dvdpL, double *dvdpV, d
 	*dvdpV = dvdpV_T+dvdTV_p*dTsigmadp;
 
 	//double tau = Tc/T;
-	double dtaudT = -pFluid->reduce.T/T/T;
+	double dtaudT = -pFluid->reduce.T/T/T; //-tau/T
 	double d2Tsigma_dp2_T = T*((hV-hL)*(dvdpV_T-dvdpL_T)-(vV-vL)*(dhdpV_T-dhdpL_T))/pow(hV-hL,2);
 	double d2Tsigma_dpdT_p = T*((hV-hL)*(dvdTV_p-dvdTL_p)-(vV-vL)*(dhdTV_p-dhdTL_p))/pow(hV-hL,2)+(vV-vL)/(hV-hL);
-	double d2Tsigmadp2 = d2Tsigma_dp2_T+d2Tsigma_dpdT_p*dTsigmadp;
+	//double d2Tsigmadp2 = d2Tsigma_dp2_T+d2Tsigma_dpdT_p*dTsigmadp;
 
 	double d2pdrho2V_T = T*pFluid->R()*(2*deltaV*d2phir_dDelta2V+2*dphir_dDeltaV+2*deltaV*d2phir_dDelta2V+deltaV*deltaV*d3phir_dDelta3V)/pFluid->reduce.rho;
 	double d2hdrho2V_T = TV*pFluid->R()/rhoV*(tauV*deltaV*d3phir_dDelta2_dTauV+tauV*d2phir_dDelta_dTauV+deltaV*d2phir_dDelta2V+dphir_dDeltaV+deltaV*deltaV*d3phir_dDelta3V+2*deltaV*d2phir_dDelta2V)/pFluid->reduce.rho - dhdrhoV_T/rhoV;
 	// d3phi0_dDelta_dTau2V is zero by definition
 	double d2hdrhodTV = pFluid->R()*(-tauV*tauV*d3phir_dDelta_dTau2V+deltaV*deltaV*d2phir_dDelta2V+deltaV*d2phir_dDelta2V+dphir_dDeltaV-deltaV*tauV*d3phir_dDelta2_dTauV-tauV*d2phir_dDelta_dTauV)/pFluid->reduce.rho;
 	double d2pdrhodTV = pFluid->R()*((1+2*deltaV*dphir_dDeltaV+deltaV*deltaV*d2phir_dDelta2V)+T*(2*deltaV*d2phir_dDelta_dTauV+deltaV*deltaV*d3phir_dDelta2_dTauV)*dtaudT);
+
+	double d2pdT2V_rho = -pFluid->R()*rhoV*deltaV*tauV*d3phir_dDelta_dTau2V*dtaudT;
+	double d2hdT2V_rho = pFluid->R()*(-tauV*tauV*(d3phi0_dTau3V+d3phir_dTau3V)-2*tauV*(d2phi0_dTau2V+d2phir_dTau2V)-deltaV*tauV*d3phir_dDelta_dTau2V)*dtaudT;
+
 	double d2hdp2V_T = (d2hdrho2V_T-dhdpV_T*d2pdrho2V_T)/pow(dpdrhoV_T,2);
+	double d2hdTdpV = 1/dpdrhoV_T*(d2hdrhodTV-dhdpV_T*(drhodTV_p*d2pdrho2V_T+d2pdrhodTV)+d2hdrho2V_T*drhodTV_p);
+
+	double ddT_dhdT = d2hdT2V_rho-1/pow(dpdrhoV_T,2)*(dpdrhoV_T*(dhdrhoV_T*d2pdT2V_rho+d2hdrhodTV*dpdTV_rho)-dhdrhoV_T*dpdTV_rho*d2pdrhodTV);
+	double drho_dhdT = d2hdrhodTV-1/pow(dpdrhoV_T,2)*(dpdrhoV_T*(dhdrhoV_T*d2pdrhodTV+d2hdrho2V_T*dpdTV_rho)-dhdrhoV_T*dpdTV_rho*d2pdrho2V_T);
+
+	// derivative of dhdp along saturation with respect to p with constant T
+	double ddp_dhdpsigmaV = d2hdp2V_T+dhdTV_p*d2Tsigma_dp2_T+d2hdTdpV*dTsigmadp;
+
+	double d2hdT2V_p = ddT_dhdT-drho_dhdT*dpdTV_rho/dpdrhoV_T;
+	double ddT_dhdpsigmaV = d2hdTdpV+dhdTV_p*d2Tsigma_dpdT_p+d2hdT2V_p*dTsigmadp;
 
 	// ------ GOOD TO THIS POINT -------------
 	
 	double dd = 1e-3;
-	//double d2pdrhodTVn = (pFluid->pressure_Trho(TV+dd,rhoV+dd)-pFluid->pressure_Trho(TV+dd,rhoV-dd)-pFluid->pressure_Trho(TV-dd,rhoV+dd)+pFluid->pressure_Trho(TV-dd,rhoV-dd))/dd/dd/4;
-	/*double rho1 = pFluid->pressure_Trho(TV-dd,rhoV);
-	double rho2 = pFluid->pressure_Trho(TV,rhoV);
-	double p3 = pFluid->pressure_Trho(TV+dd,rhoV);
+	CoolPropStateClass CPS2 = CoolPropStateClass(pFluid);
+	CPS2.flag_SinglePhase=true;
+	CPS2.update(iT,_T,iD,rhoV+dd);
 
-	double h1 = pFluid->enthalpy_Trho(TV-dd,rhoV);
-	double h2 = pFluid->enthalpy_Trho(TV,rhoV);
-	double h3 = pFluid->enthalpy_Trho(TV+dd,rhoV);
+	double d2hdTdpVn = (CPS2.dhdT_constp()-this->dhdT_constp())/(dd)/dpdrho_constT();
+	double d2pdT2Vn = (pFluid->pressure_Trho(TV-dd,rhoV)-2*pFluid->pressure_Trho(TV,rhoV)+pFluid->pressure_Trho(TV+dd,rhoV))/dd/dd;
+	double d2hdT2Vn = (pFluid->enthalpy_Trho(TV-dd,rhoV)-2*pFluid->enthalpy_Trho(TV,rhoV)+pFluid->enthalpy_Trho(TV+dd,rhoV))/dd/dd;
+	double d2pdrhodTVn = (pFluid->pressure_Trho(TV+dd,rhoV+dd)-pFluid->pressure_Trho(TV+dd,rhoV-dd)-pFluid->pressure_Trho(TV-dd,rhoV+dd)+pFluid->pressure_Trho(TV-dd,rhoV-dd))/dd/dd/4;
 
-	double dhdpV_rhon = (h2-h1)/(p2-p1);
-	double dhdpV_rhon2 = (h3-h2)/(p3-p2);
-	double d2hdTdpVn = (dhdpV_rhon2-dhdpV_rhon)/(2*dd);*/
+	// Find T(p,rho)
+
+	/// A stub class to do the density(T,p) calculations for near the critical point using Brent solver
+	class TprhoResids : public FuncWrapper1D
+	{
+	private:
+		double p,rho;
+		Fluid *pFluid;
+	public:
+		TprhoResids(Fluid *pFluid, double rho, double p){this->pFluid = pFluid; this->p = p; this->rho = rho;};
+		~TprhoResids(){};
+		
+		double call(double T)
+		{
+			return this->p - pFluid->pressure_Trho(T,rho);
+		}
+	};
+
+	std::string errstr;
+	TprhoResids TPR1 = TprhoResids(pFluid,rhoV-dd,sat->pV());
+	double T1 = Secant(&TPR1,TV,1e-3,1e-10,100,&errstr);
+
+	TprhoResids TPR2 = TprhoResids(pFluid,rhoV,sat->pV());
+	double T2 = Secant(&TPR2,TV,1e-3,1e-10,100,&errstr);
+
+	TprhoResids TPR3 = TprhoResids(pFluid,rhoV+dd,sat->pV());
+	double T3 = Secant(&TPR3,TV,1e-3,1e-10,100,&errstr);
+
+	double p1 = pFluid->pressure_Trho(T1,rhoV-dd);
+	double p2 = pFluid->pressure_Trho(T2,rhoV);
+	double p3 = pFluid->pressure_Trho(T3,rhoV+dd);
+
+	double h1 = pFluid->enthalpy_Trho(T1,rhoV-dd);
+	double h2 = pFluid->enthalpy_Trho(T2,rhoV);
+	double h3 = pFluid->enthalpy_Trho(T3,rhoV+dd);
+
+	double dhdTV_rhon = (h2-h1)/(T2-T1);
+	double dhdTV_rhon2 = (h3-h2)/(T3-T2);
+	double d2hdT2V_pn = (dhdTV_rhon2-dhdTV_rhon)/(T3-T1)*2;
+
+	std::cout<<format("%g,%g,%g\n",T1,T2,T3);
+	std::cout<<format("%g,%g,%g\n",h1,h2,h3);
 	
-	double d2hdTdpV = 1/dpdrhoV_T*(d2hdrhodTV-dhdpV_T*(drhodTV_p*d2pdrho2V_T+d2pdrhodTV)+d2hdrho2V_T*drhodTV_p);
-	//double d2hdTdpVn = (pFluid->enthalpy_Trho(TV+dd,rho1)-pFluid->enthalpy_Trho(TV+dd,rho2)-pFluid->enthalpy_Trho(TV-dd,rho3)+pFluid->enthalpy_Trho(TV-dd,rho4))/dd/dd/4;
-	double d2hsigmadp2V = d2hdp2V_T+dhdTV_p*d2Tsigmadp2+2*d2hdTdpV*dTsigmadp;
-	//std::cout<<format("d2hsigmadp2V = %g\n",d2hsigmadp2V);
+	CoolPropStateClass CPS3 = CoolPropStateClass(pFluid);
+	CPS3.flag_SinglePhase=true;
+	CPS3.update(iT,_T+dd,iD,rhoV);
+
+	double dT_dhdTn = (CPS3.dhdT_constp()-this->dhdT_constp())/(dd);
+
+	
+
+	
+	
+	*d2hdp2V = ddp_dhdpsigmaV+ddT_dhdpsigmaV*dTsigmadp;
+
+	std::cout<<format("d2hsigmadp2V = %g\n",*d2hdp2V);
 }
 
 // All the derivatives of the ideal-gas and residual Helmholtz energy
@@ -789,6 +884,19 @@ double CoolPropStateClass::d2phir_dTau2(double tau, double delta){
 		cached_d2phir_dTau2 = true;
 		cachedval_d2phir_dTau2 = pFluid->d2phir_dTau2(tau,delta);
 		return cachedval_d2phir_dTau2;
+	}
+};
+
+double CoolPropStateClass::d3phir_dTau3(double tau, double delta){
+	if (cached_d3phir_dTau3) 
+	{
+		return cachedval_d3phir_dTau3; 
+	}
+	else 
+	{
+		cached_d3phir_dTau3 = true;
+		cachedval_d3phir_dTau3 = pFluid->d3phir_dTau3(tau,delta);
+		return cachedval_d3phir_dTau3;
 	}
 };
 

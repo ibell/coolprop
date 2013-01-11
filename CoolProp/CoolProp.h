@@ -112,6 +112,7 @@ You might want to start by looking at CoolProp.h
 	int set_1phase_LUT_params(char *Ref,int nT, int np, double Tmin, double Tmax, double pmin, double pmax);
 	int set_1phase_LUT_params(std::string Ref, int nT, int np, double Tmin, double Tmax, double pmin, double pmax);
 	int debug();
+	void set_debug(int level);
 	void set_phase(std::string Phase_str);
 
 	std::string Phase(std::string Fluid, double T, double p);

@@ -9,7 +9,7 @@ File Type: DLL
   Section contains the following exports for CoolProp.dll
 
     00000000 characteristics
-    50D63596 time date stamp Sat Dec 22 17:35:02 2012
+    50F03682 time date stamp Fri Jan 11 16:57:54 2013
         0.00 version
            1 ordinal base
           37 number of functions
@@ -17,20 +17,20 @@ File Type: DLL
 
     ordinal hint RVA      name
 
-          1    0 00005D40 _DerivTerms@24
-          2    1 00005820 _F2K@8
-          3    2 00005CE0 _FluidsList@4
-          4    3 0005EF20 _HAProps@40
-          5    4 00060310 _HAProps_Aux@32
-          6    5 000054F0 _IProps@32
+          1    0 00005E00 _DerivTerms@24
+          2    1 000058E0 _F2K@8
+          3    2 00005DA0 _FluidsList@4
+          4    3 00062B60 _HAProps@40
+          5    4 00063F50 _HAProps_Aux@32
+          6    5 000055B0 _IProps@32
           7    6 00001A70 _IsFluidType@8
-          8    7 00005800 _K2F@8
+          8    7 000058C0 _K2F@8
           9    8 00002430 _Phase@24
          10    9 00002490 _Phase_Tp@24
          11    A 000024F0 _Phase_Trho@24
-         12    B 00005840 _PrintSaturationTable@24
-         13    C 00002770 _Props1@8
-         14    D 00002F10 _Props@32
+         12    B 00005900 _PrintSaturationTable@24
+         13    C 00002800 _Props1@8
+         14    D 00002FD0 _Props@32
          15    E 000016D0 _SaturationLUTStatus@0
          16    F 00001710 _SinglePhaseLUTStatus@0
          17   10 000016A0 _UseSaturationLUT@4
@@ -38,8 +38,8 @@ File Type: DLL
          19   12 00001080 _debug@4
          20   13 00001670 _get_1phase_LUT_params@24
          21   14 00001810 _get_Fluid_index@4
-         22   15 00007C30 _get_REFPROPname@8
-         23   16 00007A80 _get_aliases@8
+         22   15 00007CF0 _get_REFPROPname@8
+         23   16 00007B40 _get_aliases@8
          24   17 00001060 _get_debug@0
          25   18 00001150 _get_errstring@4
          26   19 000011E0 _get_errstring_copy@4
@@ -58,6 +58,6 @@ File Type: DLL
   Summary
 
         A000 .data
-       37000 .rdata
+       39000 .rdata
         D000 .reloc
-       C7000 .text
+       D0000 .text
