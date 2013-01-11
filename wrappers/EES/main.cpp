@@ -31,7 +31,7 @@
 //  Thermodynamics Laboratory                                                                 //
 //  University of Liège                                                                       //
 //                                                                                            //
-//  January 2012                                                                                 //
+//  January 2013                                                                              //
 //============================================================================================//
 
 #define _CRT_SECURE_NO_WARNINGS
