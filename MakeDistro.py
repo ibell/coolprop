@@ -86,6 +86,24 @@ def MATLAB():
     shutil.copy2(os.path.join('wrappers','MATLAB','README.txt'),os.path.join('dist_temp','MATLAB','README.txt'))
     shutil.copy2(os.path.join('wrappers','MATLAB','MATLAB_sample.m'),os.path.join('dist_temp','MATLAB','MATLAB_sample.m'))
     
+def EES():
+    import CoolProp
+    version = CoolProp.__version__
+    try:
+        os.makedirs(os.path.join('dist_temp','EES'))
+    except os.error: pass
+        
+    process = subprocess.Popen(['BuildLIB.bat'],shell=True,cwd=os.path.join('wrappers','EES'))
+    process.wait()
+    process = subprocess.Popen(['BuildDLF.bat'],shell=True,cwd=os.path.join('wrappers','EES'))
+    process.wait()
+    process = subprocess.Popen(['BuildMSI.bat'],shell=True,cwd=os.path.join('wrappers','EES'))
+    process.wait()
+    
+    shutil.copy2(os.path.join('wrappers','EES','Debug','CoolProp_EES_installer.msi'),os.path.join('dist_temp','EES','CoolProp_EES_installer.msi'))
+    shutil.copy2(os.path.join('wrappers','EES','CoolProp.htm'),os.path.join('dist_temp','EES','CoolProp.htm'))
+    shutil.copy2(os.path.join('wrappers','EES','README.rst'),os.path.join('dist_temp','EES','README.rst'))
+    
 def Python():
     
     for python_install in PYTHONVERSIONS:
@@ -140,8 +158,9 @@ if __name__=='__main__':
 ##     Csharp()
 ##     Octave()
 ##     MATLAB()
+    EES()
 ##     PYPI()
 ##     UploadSourceForge()
 
 ##     BuildDocs()
-    UploadDocs()
+##     UploadDocs()
