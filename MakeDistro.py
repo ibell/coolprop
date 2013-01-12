@@ -158,9 +158,9 @@ if __name__=='__main__':
 ##     Csharp()
 ##     Octave()
 ##     MATLAB()
-    EES()
-##     PYPI()
-##     UploadSourceForge()
+##     EES()
+    PYPI()
+    UploadSourceForge()
 
 ##     BuildDocs()
 ##     UploadDocs()

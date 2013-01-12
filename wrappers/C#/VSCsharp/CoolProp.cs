@@ -54,7 +54,7 @@ public class CoolProp {
   }
 
   public static int Phase_Tp(string Fluid, double T, double rho, string Phase_str) {
-    int ret = CoolPropPINVOKE.Phase_Tp(Fluid, T, rho, Phase_str);
+    int ret = CoolPropPINVOKE.Phase_Tp__SWIG_0(Fluid, T, rho, Phase_str);
     return ret;
   }
 
@@ -195,6 +195,10 @@ public class CoolProp {
     return ret;
   }
 
+  public static void set_debug(int level) {
+    CoolPropPINVOKE.set_debug(level);
+  }
+
   public static void set_phase(string Phase_str) {
     CoolPropPINVOKE.set_phase(Phase_str);
     if (CoolPropPINVOKE.SWIGPendingException.Pending) throw CoolPropPINVOKE.SWIGPendingException.Retrieve();
@@ -208,6 +212,12 @@ public class CoolProp {
 
   public static string Phase_Trho(string Fluid, double T, double rho) {
     string ret = CoolPropPINVOKE.Phase_Trho__SWIG_1(Fluid, T, rho);
+    if (CoolPropPINVOKE.SWIGPendingException.Pending) throw CoolPropPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
+  public static string Phase_Tp(string Fluid, double T, double p) {
+    string ret = CoolPropPINVOKE.Phase_Tp__SWIG_1(Fluid, T, p);
     if (CoolPropPINVOKE.SWIGPendingException.Pending) throw CoolPropPINVOKE.SWIGPendingException.Retrieve();
     return ret;
   }

@@ -20,7 +20,7 @@ protected:
 
 
 	std::string _Fluid;
-	Fluid * pFluid;
+	
 	bool flag_SinglePhase, flag_TwoPhase;
 	bool SaturatedL,SaturatedV;
 
@@ -33,8 +33,7 @@ protected:
 	void add_saturation_states(void);
 	void remove_saturation_states(void);
 
-	// Bulk values
-	double _rho,_T,_p,_Q,_h,_s, tau, delta;
+	
 
 	// To be used to update internal variables if you know that your parameters are T,Q or P,Q
 	void update_twophase(long iInput1, double Value1, long iInput2, double Value2);
@@ -57,6 +56,10 @@ protected:
 
 	
 public:
+	Fluid * pFluid;
+
+	// Bulk values
+	double _rho,_T,_p,_Q,_h,_s, tau, delta;
 
 	// Phase flags
 	bool TwoPhase, SinglePhase;
@@ -105,12 +108,29 @@ public:
 	double drhodT_constp(void);
 	double drhodh_constp(void);
 	double drhodp_consth(void);
+	
 	double dpdrho_constT(void);
+	double dpdrho_consth(void);
 	double dpdT_constrho(void);
+	double dpdT_consth(void);
+
 	double dhdrho_constT(void);
+	double dhdrho_constp(void);
 	double dhdT_constrho(void);
-	double dhdp_constT(void);
 	double dhdT_constp(void);
+
+	double dhdp_constT(void);
+	
+
+	double d2pdrho2_constT(void);
+	double d2pdrhodT(void);
+	double d2pdT2_constrho(void);
+
+	double d2hdrho2_constT(void);
+	double d2hdrhodT(void);
+	double d2hdT2_constrho(void);
+	double d2hdT2_constp(void);
+	
 
 	/// Clear out all the cached values
 	void clear_cache(void);
@@ -125,7 +145,6 @@ public:
 	double d3phi0_dDelta2_dTau(double tau, double delta);
 	double d3phi0_dDelta_dTau2(double tau, double delta);
 	double d3phi0_dTau3(double tau, double delta);
-
 
 	double phir(double tau, double delta);
 	double dphir_dDelta(double tau, double delta);

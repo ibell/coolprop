@@ -215,8 +215,8 @@ class CoolPropPINVOKE {
   [DllImport("CoolProp", EntryPoint="CSharp_Phase_Trho__SWIG_0")]
   public static extern int Phase_Trho__SWIG_0(string jarg1, double jarg2, double jarg3, string jarg4);
 
-  [DllImport("CoolProp", EntryPoint="CSharp_Phase_Tp")]
-  public static extern int Phase_Tp(string jarg1, double jarg2, double jarg3, string jarg4);
+  [DllImport("CoolProp", EntryPoint="CSharp_Phase_Tp__SWIG_0")]
+  public static extern int Phase_Tp__SWIG_0(string jarg1, double jarg2, double jarg3, string jarg4);
 
   [DllImport("CoolProp", EntryPoint="CSharp_F2K")]
   public static extern double F2K(double jarg1);
@@ -302,6 +302,9 @@ class CoolPropPINVOKE {
   [DllImport("CoolProp", EntryPoint="CSharp_debug__SWIG_1")]
   public static extern int debug__SWIG_1();
 
+  [DllImport("CoolProp", EntryPoint="CSharp_set_debug")]
+  public static extern void set_debug(int jarg1);
+
   [DllImport("CoolProp", EntryPoint="CSharp_set_phase")]
   public static extern void set_phase(string jarg1);
 
@@ -310,6 +313,9 @@ class CoolPropPINVOKE {
 
   [DllImport("CoolProp", EntryPoint="CSharp_Phase_Trho__SWIG_1")]
   public static extern string Phase_Trho__SWIG_1(string jarg1, double jarg2, double jarg3);
+
+  [DllImport("CoolProp", EntryPoint="CSharp_Phase_Tp__SWIG_1")]
+  public static extern string Phase_Tp__SWIG_1(string jarg1, double jarg2, double jarg3);
 
   [DllImport("CoolProp", EntryPoint="CSharp_get_EOSReference")]
   public static extern string get_EOSReference(string jarg1);
