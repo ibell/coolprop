@@ -25,6 +25,11 @@
 #include "CPState.h"
 #include "IncompLiquid.h"
 
+#ifndef DBL_EPSILON
+	#include <limits>
+	#define DBL_EPSILON std::numeric_limits<double>::epsilon()
+#endif
+
 // Function prototypes
 double rho_TP(double T, double p);
 double _Props(std::string Output,std::string Name1, double Prop1, std::string Name2, double Prop2, std::string Ref);

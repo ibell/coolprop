@@ -87,10 +87,10 @@ public:
 	double dDelta_dTau(double tau, double delta) throw();
 	double dTau2(double tau, double delta) throw();
 	
-	double dDelta3(double tau, double delta);
-	double dDelta2_dTau(double tau, double delta);
-	double dDelta_dTau2(double tau, double delta);
-	double dTau3(double tau, double delta);
+	double dDelta3(double tau, double delta) throw();
+	double dDelta2_dTau(double tau, double delta) throw();
+	double dDelta_dTau2(double tau, double delta) throw();
+	double dTau3(double tau, double delta) throw();
 };
 
 class phir_gaussian : public phi_BC{
@@ -133,10 +133,10 @@ public:
 	double dDelta_dTau(double tau, double delta) throw();
 	double dTau2(double tau, double delta) throw();
 	
-	double dDelta3(double tau, double delta);
-	double dDelta2_dTau(double tau, double delta);
-	double dDelta_dTau2(double tau, double delta);
-	double dTau3(double tau, double delta);
+	double dDelta3(double tau, double delta) throw();
+	double dDelta2_dTau(double tau, double delta) throw();
+	double dDelta_dTau2(double tau, double delta) throw();
+	double dTau3(double tau, double delta) throw();
 	
 };
 
@@ -167,10 +167,10 @@ public:
 	double dDelta_dTau(double tau, double delta) throw();
 	double dTau2(double tau, double delta) throw();
 	
-	double dDelta3(double tau, double delta);
-	double dDelta2_dTau(double tau, double delta);
-	double dDelta_dTau2(double tau, double delta);
-	double dTau3(double tau, double delta);
+	double dDelta3(double tau, double delta) throw();
+	double dDelta2_dTau(double tau, double delta) throw();
+	double dDelta_dTau2(double tau, double delta) throw();
+	double dTau3(double tau, double delta) throw();
 };
 
 class phi0_lead : public phi_BC{

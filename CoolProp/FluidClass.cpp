@@ -56,6 +56,10 @@
 
 using namespace std;
 
+#ifndef DBL_EPSILON
+	#include <limits>
+	#define DBL_EPSILON std::numeric_limits<double>::epsilon()
+#endif
 // ------------------------------
 // FluidsContainer Implementation
 // ------------------------------

@@ -216,7 +216,7 @@ phir_gaussian::phir_gaussian(double n_in[], double d_in[],double t_in[], double 
 }
 
 // Term and its derivatives
-double phir_gaussian::base(double tau, double delta)
+double phir_gaussian::base(double tau, double delta) throw()
 {
 	double summer=0,psi;
 	for (unsigned int i=iStart;i<=iEnd;i++)
@@ -226,7 +226,7 @@ double phir_gaussian::base(double tau, double delta)
 	}
 	return summer;
 }
-double phir_gaussian::dTau(double tau, double delta)
+double phir_gaussian::dTau(double tau, double delta) throw()
 {
 	double summer=0,psi;
 	for (unsigned int i=iStart;i<=iEnd;i++)
@@ -236,7 +236,7 @@ double phir_gaussian::dTau(double tau, double delta)
 	}
 	return summer;
 }
-double phir_gaussian::dTau2(double tau, double delta)
+double phir_gaussian::dTau2(double tau, double delta) throw()
 {
 	double summer=0,psi;
 	for (unsigned int i=iStart;i<=iEnd;i++)
@@ -246,7 +246,7 @@ double phir_gaussian::dTau2(double tau, double delta)
 	}
 	return summer;
 }
-double phir_gaussian::dTau3(double tau, double delta)
+double phir_gaussian::dTau3(double tau, double delta) throw()
 {
 	double summer=0,psi;
 	for (unsigned int i=iStart;i<=iEnd;i++)
@@ -261,7 +261,7 @@ double phir_gaussian::dTau3(double tau, double delta)
 	}
 	return summer;
 }
-double phir_gaussian::dDelta(double tau, double delta)
+double phir_gaussian::dDelta(double tau, double delta) throw()
 {
 	double summer=0,psi;
 	for (unsigned int i=iStart;i<=iEnd;i++)
@@ -271,7 +271,7 @@ double phir_gaussian::dDelta(double tau, double delta)
 	}
 	return summer;
 }
-double phir_gaussian::dDelta2(double tau, double delta)
+double phir_gaussian::dDelta2(double tau, double delta) throw()
 {
 	double summer=0,psi;
 	for (unsigned int i=iStart;i<=iEnd;i++)
@@ -281,7 +281,7 @@ double phir_gaussian::dDelta2(double tau, double delta)
 	}
 	return summer;
 }
-double phir_gaussian::dDelta3(double tau, double delta)
+double phir_gaussian::dDelta3(double tau, double delta) throw()
 {
 	double summer=0,psi;
 	for (unsigned int i=iStart;i<=iEnd;i++)
@@ -292,7 +292,7 @@ double phir_gaussian::dDelta3(double tau, double delta)
 	}
 	return summer;
 }
-double phir_gaussian::dDelta2_dTau(double tau, double delta)
+double phir_gaussian::dDelta2_dTau(double tau, double delta) throw()
 {
 	double summer=0,psi;
 	for (unsigned int i=iStart;i<=iEnd;i++)
@@ -302,7 +302,7 @@ double phir_gaussian::dDelta2_dTau(double tau, double delta)
 	}
 	return summer;
 }
-double phir_gaussian::dDelta_dTau(double tau, double delta)
+double phir_gaussian::dDelta_dTau(double tau, double delta) throw()
 {
 	double summer=0,psi;
 	for (unsigned int i=iStart;i<=iEnd;i++)
@@ -312,7 +312,7 @@ double phir_gaussian::dDelta_dTau(double tau, double delta)
 	}
 	return summer;
 }
-double phir_gaussian::dDelta_dTau2(double tau, double delta)
+double phir_gaussian::dDelta_dTau2(double tau, double delta) throw()
 {
 	double summer=0,psi;
 	for (unsigned int i=iStart;i<=iEnd;i++)
@@ -342,7 +342,7 @@ phir_critical::phir_critical(std::vector<double> n_in, std::vector<double> d_in,
 	iEnd=iEnd_in;
 }
 
-double phir_critical::base(double tau, double delta)
+double phir_critical::base(double tau, double delta) throw()
 {
 	double summer=0,theta,DELTA,PSI;
 	for (int i=iStart;i<=iEnd;i++)
@@ -355,7 +355,7 @@ double phir_critical::base(double tau, double delta)
 	return summer;
 }
 
-double phir_critical::dDelta(double tau, double delta)
+double phir_critical::dDelta(double tau, double delta) throw()
 {
 	double summer=0,theta,DELTA,PSI,dPSI_dDelta,dDELTA_dDelta,dDELTAbi_dDelta;
 	for (int i=iStart;i<=iEnd;i++)
@@ -370,7 +370,7 @@ double phir_critical::dDelta(double tau, double delta)
 	}
 	return summer;
 }
-double phir_critical::dDelta_dTau2(double tau, double delta)
+double phir_critical::dDelta_dTau2(double tau, double delta) throw()
 {
 	double summer=0,theta,DELTA,PSI,dPSI_dDelta,dDELTA_dDelta,dDELTAbi_dDelta;
 	double dDELTAbi_dTau,dPSI_dTau, dtheta_dDelta;
@@ -409,7 +409,7 @@ double phir_critical::dDelta_dTau2(double tau, double delta)
 	return summer;
 }
 
-double phir_critical::dDelta2(double tau, double delta)
+double phir_critical::dDelta2(double tau, double delta) throw()
 {
 	double summer=0,theta,DELTA,PSI,dPSI_dDelta,dDELTA_dDelta,dDELTAbi_dDelta;
 	double dPSI2_dDelta2, dDELTA2_dDelta2,dDELTAbi2_dDelta2;
@@ -431,7 +431,7 @@ double phir_critical::dDelta2(double tau, double delta)
 	}
 	return summer;
 }
-double phir_critical::dDelta3(double tau, double delta)
+double phir_critical::dDelta3(double tau, double delta) throw()
 {
 	double summer=0,theta,DELTA,PSI,dPSI_dDelta,dDELTA_dDelta,dDELTAbi_dDelta;
 	double dPSI2_dDelta2, dDELTA2_dDelta2,dDELTAbi2_dDelta2;
@@ -463,7 +463,7 @@ double phir_critical::dDelta3(double tau, double delta)
 	return summer;
 }
 
-double phir_critical::dDelta2_dTau(double tau, double delta)
+double phir_critical::dDelta2_dTau(double tau, double delta) throw()
 {
 	double summer=0;
 	double dphir3_dDelta2_dTau=0,theta,DELTA,PSI,dPSI_dDelta,dDELTA_dDelta,dDELTAbi_dDelta,dPSI2_dDelta2,dDELTAbi2_dDelta2,dDELTA2_dDelta2;
@@ -510,7 +510,7 @@ double phir_critical::dDelta2_dTau(double tau, double delta)
 	return summer;
 }
 
-double phir_critical::dDelta_dTau(double tau, double delta)
+double phir_critical::dDelta_dTau(double tau, double delta) throw()
 {
 	double summer=0,theta,DELTA,PSI,dPSI_dDelta,dDELTAbi_dDelta;
 	double dPSI_dTau, dDELTAbi_dTau,dDELTA_dDelta, dPSI2_dDelta_dTau;
@@ -535,7 +535,7 @@ double phir_critical::dDelta_dTau(double tau, double delta)
 	return summer;
 }
 	
-double phir_critical::dTau(double tau, double delta)
+double phir_critical::dTau(double tau, double delta) throw()
 {
 	double summer=0,theta,DELTA,PSI,dPSI_dTau, dDELTAbi_dTau;
 
@@ -551,7 +551,7 @@ double phir_critical::dTau(double tau, double delta)
 	return summer;
 }
 
-double phir_critical::dTau2(double tau, double delta)
+double phir_critical::dTau2(double tau, double delta) throw()
 {
 	double summer=0,theta,DELTA,PSI,dPSI_dTau, dDELTAbi_dTau;
 	double dPSI2_dTau2, dDELTAbi2_dTau2;
@@ -568,7 +568,7 @@ double phir_critical::dTau2(double tau, double delta)
 	}
 	return summer;
 }
-double phir_critical::dTau3(double tau, double delta)
+double phir_critical::dTau3(double tau, double delta) throw()
 {
 	double summer=0,theta,DELTA,PSI,dPSI_dTau, dDELTAbi_dTau;
 	double dPSI2_dTau2, dDELTAbi2_dTau2, dPSI3_dTau3, dDELTAbi3_dTau3;

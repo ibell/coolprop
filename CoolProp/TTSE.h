@@ -17,9 +17,9 @@ public:
 	double hmin,hmax,pmin,pmax;
 
 	// Variables with h, p
-	std::vector<std::vector<double>> T,dTdh,dTdp,d2Tdh2,d2Tdp2,d2Tdhdp;
-	std::vector<std::vector<double>> rho,drhodh,drhodp,d2rhodh2,d2rhodp2,d2rhodhdp;
-	std::vector<std::vector<double>> s,dsdh,dsdp,d2sdh2,d2sdp2,d2sdhdp;
+	std::vector<std::vector<double> > T,dTdh,dTdp,d2Tdh2,d2Tdp2,d2Tdhdp;
+	std::vector<std::vector<double> > rho,drhodh,drhodp,d2rhodh2,d2rhodp2,d2rhodhdp;
+	std::vector<std::vector<double> > s,dsdh,dsdp,d2sdh2,d2sdp2,d2sdhdp;
 	std::vector<double> h,p;
 
 	/// Build the tables

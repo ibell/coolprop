@@ -3,6 +3,11 @@
 #include "CPState.h"
 #include "Solvers.h"
 
+#ifndef DBL_EPSILON
+	#include <limits>
+	#define DBL_EPSILON std::numeric_limits<double>::epsilon()
+#endif
+
 // Constructor with fluid name
 CoolPropStateClass::CoolPropStateClass(std::string Fluid){
 	// Try to get the index of the fluid
