@@ -17,8 +17,15 @@ depending on where your VS is installed
 Building on Linux (Ubuntu in this case)
 ---------------------------------------
 1. You will need to run 
+      sudo apt-get install swig
       sudo apt-get install octave
       sudo apt-get install liboctave-dev
-2. Check out the full source for coolprop
+   to install the necesary dependencies.  The install of octave might not be necessary
+2. Check out the full source for coolprop from subversion
 3. Change into the trunk/wrappers/Octave folder
+4. Call
+      octave _OctaveBuilder_Linux.m
+5. Call
+      octave sample_code.m
+   to run the sample
 
