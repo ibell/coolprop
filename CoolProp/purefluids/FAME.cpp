@@ -8,7 +8,7 @@ static char EOSstr [] = "Marcia L. Huber, Eric W. Lemmon, Andrei Kazakov, Lisa S
 
 static double eta[] = {0,0,0,0,0,0,0,0,0,0,0,1.1,1.6,1.1};
 static double beta[] = {0,0,0,0,0,0,0,0,0,0,0,0.9,0.65,0.75};
-static double gamma[] = {0,0,0,0,0,0,0,0,0,0,0,1.14,0.65,0.77};
+static double _gamma[] = {0,0,0,0,0,0,0,0,0,0,0,1.14,0.65,0.77};
 static double epsilon[] = {0,0,0,0,0,0,0,0,0,0,0,0.79,0.90,0.76};
 
 MethylPalmitateClass::MethylPalmitateClass()
@@ -38,7 +38,7 @@ MethylPalmitateClass::MethylPalmitateClass()
 	limits.rhomax = 1000000.0*params.molemass;
 
 	phirlist.push_back(new phir_power( n,d,t,c,1,10,14));
-	phirlist.push_back(new phir_gaussian(n,d,t,eta,epsilon,beta,gamma,11,13,14));
+	phirlist.push_back(new phir_gaussian(n,d,t,eta,epsilon,beta,_gamma,11,13,14));
 
 	phi0list.push_back(new phi0_lead(-1,0));
 	phi0list.push_back(new phi0_logtau(-1));
@@ -130,7 +130,7 @@ MethylStearateClass::MethylStearateClass()
 	limits.rhomax = 1000000.0*params.molemass;
 
 	phirlist.push_back(new phir_power( n,d,t,c,1,10,14));
-	phirlist.push_back(new phir_gaussian(n,d,t,eta,epsilon,beta,gamma,11,13,14));
+	phirlist.push_back(new phir_gaussian(n,d,t,eta,epsilon,beta,_gamma,11,13,14));
 
 	phi0list.push_back(new phi0_lead(-1,0));
 	phi0list.push_back(new phi0_logtau(-1));
@@ -221,7 +221,7 @@ MethylOleateClass::MethylOleateClass()
 	limits.rhomax = 1000000.0*params.molemass;
 
 	phirlist.push_back(new phir_power( n,d,t,c,1,10,14));
-	phirlist.push_back(new phir_gaussian(n,d,t,eta,epsilon,beta,gamma,11,13,14));
+	phirlist.push_back(new phir_gaussian(n,d,t,eta,epsilon,beta,_gamma,11,13,14));
 
 	phi0list.push_back(new phi0_lead(-1,0));
 	phi0list.push_back(new phi0_logtau(-1));
@@ -312,7 +312,7 @@ MethylLinoleateClass::MethylLinoleateClass()
 	limits.rhomax = 1000000.0*params.molemass;
 
 	phirlist.push_back(new phir_power( n,d,t,c,1,10,14));
-	phirlist.push_back(new phir_gaussian(n,d,t,eta,epsilon,beta,gamma,11,13,14));
+	phirlist.push_back(new phir_gaussian(n,d,t,eta,epsilon,beta,_gamma,11,13,14));
 
 	phi0list.push_back(new phi0_lead(-1,0));
 	phi0list.push_back(new phi0_logtau(-1));
@@ -404,7 +404,7 @@ MethylLinolenateClass::MethylLinolenateClass()
 	limits.rhomax = 1000000.0*params.molemass;
 
 	phirlist.push_back(new phir_power( n,d,t,c,1,10,14));
-	phirlist.push_back(new phir_gaussian(n,d,t,eta,epsilon,beta,gamma,11,13,14));
+	phirlist.push_back(new phir_gaussian(n,d,t,eta,epsilon,beta,_gamma,11,13,14));
 
 	phi0list.push_back(new phi0_lead(-1,0));
 	phi0list.push_back(new phi0_logtau(-1));
