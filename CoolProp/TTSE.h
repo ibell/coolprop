@@ -36,6 +36,11 @@ public:
 	/// @param p Pressure (absolute) [kPa]
 	double evaluate(long iParam, double h, double p);
 
+	/// Randomly evaluate a property in the single phase region using the TTSE method
+	/// @param iParam Index of desired output
+	/// @param N Number of runs to do
+ 	double evaluate_randomly(long iParam, unsigned int N);
+
 	/// Randomly select a point within the range, and evaluate the property using TTSE and the EOS
 	/// @param iParam Index of desired output
 	/// @param N Number of runs to do
@@ -88,9 +93,8 @@ public:
 	/// @param N Number of runs to do
  	double evaluate_randomly(long iParam, unsigned int N);
 
-	/// Randomly select a point within the range, and evaluate the property using TTSE and the EOS
+	/// Randomly select points within the range, and evaluate the property using TTSE and the EOS
 	/// @param iParam Index of desired output
-
 	/// @param N Number of runs to do
 	/// @param p std::vector of pressures
 	/// @param EOS std::vector of values from Equation of State

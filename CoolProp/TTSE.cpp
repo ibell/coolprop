@@ -166,6 +166,23 @@ double TTSESinglePhaseTable::check_randomly(long iParam, unsigned int N, std::ve
 	return val;
 }
 
+double TTSESinglePhaseTable::evaluate_randomly(long iParam, unsigned int N)
+{		
+	clock_t t1,t2;
+	t1 = clock();
+	for (unsigned int i = 0; i < N; i++)
+	{
+		double p1 = ((double)rand()/(double)RAND_MAX)*(pmax-pmin)+pmin;
+		double h1 = ((double)rand()/(double)RAND_MAX)*(hmax-hmin)+hmin;
+
+		// Get the value from TTSE
+		evaluate(iParam,h1,p1);
+	}
+	t2 = clock();
+	return (double)(t2-t1)/CLOCKS_PER_SEC/(double)N*1e6;
+}
+
+
 double TTSESinglePhaseTable::evaluate(long iParam, double h, double p)
 {
 	int i = (int)((h-hmin)/(hmax-hmin)*(Nrow-1));

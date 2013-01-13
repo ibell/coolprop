@@ -1153,7 +1153,7 @@ EXPORT_CODE double CONVENTION HAProps(char *OutputName, char *Input1Name, double
         }
 
 		double T_min = 210;
-		double T_max = 370;
+		double T_max = 450;
 
 		// First try to use the secant solver to find T
         T = Secant_HAProps_T(SecondaryInputName,"P",p,MainInputName,MainInputValue,SecondaryInputValue,T_guess);
