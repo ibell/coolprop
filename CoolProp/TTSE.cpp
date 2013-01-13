@@ -6,9 +6,6 @@
 #include <stdio.h>
 #include "time.h"
 
-// TEmporary
-#include "Solvers.h"
-
 TTSESinglePhaseTable::TTSESinglePhaseTable(Fluid *pFluid, int Nrow, int Ncol)
 {
 	this->Nrow = Nrow;
@@ -189,3 +186,139 @@ double TTSESinglePhaseTable::evaluate(long iParam, double h, double p)
 	}
 	return 0;
 }
+
+TTSETwoPhaseTable::TTSETwoPhaseTable(Fluid *pFluid, int N, double Q)
+{
+
+	this->N = N;
+	this->pFluid = pFluid;
+	this->Q = Q;
+
+	// Seed the generator
+	srand((unsigned int)time(NULL));
+
+	// Resize all the arrays
+	h.resize(N);
+	p.resize(N);
+	T.resize(N);
+	dTdp.resize(N);
+	d2Tdp2.resize(N);
+	rho.resize(N);
+	drhodp.resize(N);
+	d2rhodp2.resize(N);
+	s.resize(N);
+	dsdp.resize(N);
+	d2sdp2.resize(N);
+	h.resize(N);
+	dhdp.resize(N);
+	d2hdp2.resize(N);
+
+	// make the CoolPropStateClass instance that will be used throughout
+	pCPS = new CoolPropStateClass(pFluid);
+}
+
+double TTSETwoPhaseTable::build(double pmin, double pmax)
+{
+	CoolPropStateClass CPS = *pCPS;
+
+	this->pmin = pmin;
+	this->pmax = pmax;
+	this->logpmin = log(pmin);
+	this->logpmax = log(pmax);
+
+	double dlogp = (logpmax-logpmin)/(N-1);
+	clock_t t1,t2;
+	t1 = clock();
+	// Linear distribution of pressures
+	for (unsigned int i = 0; i < N; i++)
+	{
+		p[i] = exp(logpmin + i*dlogp);
+		CPS.update(iP,p[i],iQ,Q);
+		T[i] = CPS.T();
+		dTdp[i] = CPS.dTdp_along_sat();
+		d2Tdp2[i] = CPS.d2Tdp2_along_sat();
+		h[i] = CPS.h();
+		dhdp[i] = CPS.dhdp_along_sat_vapor();
+		d2hdp2[i] = CPS.d2hdp2_along_sat_vapor();
+		rho[i] = CPS.rho();
+		drhodp[i] = CPS.drhodp_along_sat_vapor();
+		d2rhodp2[i] = CPS.d2rhodp2_along_sat_vapor();
+	}
+	t2 = clock();
+	return double(t2-t1)/CLOCKS_PER_SEC;
+}
+
+double round(double r) {
+    return (r > 0.0) ? floor(r + 0.5) : ceil(r - 0.5);
+}
+
+double TTSETwoPhaseTable::evaluate(long iParam, double p)
+{
+	CoolPropStateClass CPS = *pCPS;
+
+	int i = round(((log(p)-logpmin)/(logpmax-logpmin)*(N-1)));
+	double deltap = log(p/this->p[i]);
+	double log_PI_PIi = log(p/this->p[i]);
+	double pi = this->p[i];
+	
+	switch (iParam)
+	{
+	//case iS:
+	//	return s[i][j]+deltah*dsdh[i][j]+deltap*dsdp[i][j]+0.5*deltah*deltah*d2sdh2[i][j]+0.5*deltap*deltap*d2sdp2[i][j]+deltap*deltah*d2sdhdp[i][j]; break;
+	case iT:
+		return T[i]+log_PI_PIi*pi*dTdp[i]*(1.0+0.5*log_PI_PIi)+0.5*log_PI_PIi*log_PI_PIi*d2Tdp2[i]*pi*pi;
+	case iH:
+		return h[i]+log_PI_PIi*pi*dhdp[i]*(1.0+0.5*log_PI_PIi)+0.5*log_PI_PIi*log_PI_PIi*d2hdp2[i]*pi*pi;
+	case iD:
+		// log(p) v. log(rho) gives close to a line for most of the curve
+		return exp(log(rho[i])+log_PI_PIi*(1.0+0.5*log_PI_PIi*(1-pi/rho[i]*drhodp[i]))*pi/rho[i]*drhodp[i]+0.5*log_PI_PIi*log_PI_PIi*d2rhodp2[i]*pi*pi/rho[i]);
+	default:
+		throw ValueError();
+	}
+}
+
+double TTSETwoPhaseTable::check_randomly(long iParam, double Q, unsigned int N, std::vector<double> *p, std::vector<double> *EOS, std::vector<double> *TTSE)
+{	
+	double val=0;
+	p->resize(N);
+	EOS->resize(N);
+	TTSE->resize(N);
+	
+	for (unsigned int i = 0; i < N; i++)
+	{
+		double p1 = ((double)rand()/(double)RAND_MAX)*(pmax-pmin)+pmin;
+		
+		CoolPropStateClass CPS = *pCPS;
+		CPS.update(iP,p1,iQ,Q);
+		double hEOS = CPS.h();
+		double sEOS = CPS.s();
+		double cpEOS = CPS.cp();
+		double TEOS = CPS.T();
+		double rhoEOS = CPS.rho();
+
+		// Store the inputs
+		(*p)[i] = p1;
+
+		// Get the value from TTSE
+		(*TTSE)[i] = evaluate(iParam,p1);
+		
+		// Get the value from EOS
+		switch (iParam)
+		{
+		//case iS: 
+		//	(*EOS)[i] = sEOS; break;
+		case iT:
+			(*EOS)[i] = TEOS; break;
+		case iH:
+			(*EOS)[i] = hEOS; break;
+		case iD:
+			(*EOS)[i] = rhoEOS; break;
+		default:
+			throw ValueError();
+		}
+		
+		std::cout << format("%g %g %g %g TTSE (p,EOS,TTSE, delta [mK])\n",p1,(*EOS)[i],(*TTSE)[i],((*EOS)[i]-(*TTSE)[i])/(*EOS)[i]*100);
+	}
+	return val;
+}
+

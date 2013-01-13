@@ -105,9 +105,20 @@ public:
 	double cv(void);
 	double speed_sound(void);
 
+	// ----------------------------------------	
+	// Derivatives of properties
+	// ----------------------------------------
+
+	double dvdp_constT(void);
+	double dvdT_constp(void);
+
 	double drhodT_constp(void);
 	double drhodh_constp(void);
 	double drhodp_consth(void);
+	double drhodp_constT(void);
+	double d2rhodp2_constT(void);
+	double d2rhodTdp(void);
+	double d2rhodT2_constp(void);
 	
 	double dpdrho_constT(void);
 	double dpdrho_consth(void);
@@ -118,10 +129,8 @@ public:
 	double dhdrho_constp(void);
 	double dhdT_constrho(void);
 	double dhdT_constp(void);
-
 	double dhdp_constT(void);
 	
-
 	double d2pdrho2_constT(void);
 	double d2pdrhodT(void);
 	double d2pdT2_constrho(void);
@@ -130,10 +139,38 @@ public:
 	double d2hdrhodT(void);
 	double d2hdT2_constrho(void);
 	double d2hdT2_constp(void);
+	double d2hdp2_constT(void);
+	double d2hdTdp(void);
+
+	// ----------------------------------------	
+	// Derivatives along the saturation curve
+	// ----------------------------------------
 	
+	/// Derivative of temperature w.r.t. pressure along saturation curve
+	double dTdp_along_sat(void);
+	/// Second derivative of temperature w.r.t. pressure along saturation curve
+	double d2Tdp2_along_sat(void);
+	/// Partial derivative w.r.t. pressure of dTdp along saturation curve
+	double ddp_dTdp_along_sat(void);
+	/// Partial derivative w.r.t. temperature of dTdp along saturation curve
+	double ddT_dTdp_along_sat(void);
+
+	double dhdp_along_sat_vapor(void);
+	double dhdp_along_sat_liquid(void);
+	double d2hdp2_along_sat_vapor(void);
+	double d2hdp2_along_sat_liquid(void);
+
+	double drhodp_along_sat_vapor(void);
+	double drhodp_along_sat_liquid(void);
+	double d2rhodp2_along_sat_vapor(void);
+	double d2rhodp2_along_sat_liquid(void);
 
 	/// Clear out all the cached values
 	void clear_cache(void);
+
+	// ----------------------------------------	
+	// Helmholtz Energy Derivatives
+	// ----------------------------------------
 
 	double phi0(double tau, double delta);
 	double dphi0_dDelta(double tau, double delta);
@@ -156,8 +193,6 @@ public:
 	double d3phir_dDelta2_dTau(double tau, double delta);
 	double d3phir_dDelta_dTau2(double tau, double delta);
 	double d3phir_dTau3(double tau, double delta);
-
-
 };
 
 #endif

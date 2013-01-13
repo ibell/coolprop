@@ -156,6 +156,7 @@ void CoolPropStateClass::update(long iInput1, double Value1, long iInput2, doubl
 	{
 		throw ValueError(format("Sorry your inputs didn't work"));
 	}
+
 	// Clear the cached derivative flags
 	this->clear_cache();
 
@@ -256,6 +257,13 @@ void CoolPropStateClass::update_Trho(long iInput1, double Value1, long iInput2, 
 	// SinglePhase is set by the class routines, and flag_SinglePhase is a flag that can be set externally
 	if (!SinglePhase || !flag_SinglePhase || flag_TwoPhase || !pFluid->phase_Trho(_T,_rho,&psatL,&psatV,&rhosatL,&rhosatV).compare("Two-Phase"))
 	{
+		if (!flag_SinglePhase || flag_TwoPhase)
+		{
+			pFluid->phase_Trho(_T,_rho,&psatL,&psatV,&rhosatL,&rhosatV);
+			TsatV = _T;
+			TsatL = _T;
+			
+		}
 		// If it made it to the saturation routine and it is two-phase the saturation variables have been set
 		TwoPhase = true;
 		SinglePhase = false;
@@ -482,7 +490,6 @@ double CoolPropStateClass::speed_sound(void){
     return sqrt(-c2*this->_T*this->cp()*1000/c1);
 }
 
-
 double CoolPropStateClass::drhodT_constp(void){
 	double dpdrho_T = pFluid->R()*_T*(1+2*delta*dphir_dDelta(tau,delta)+delta*delta*d2phir_dDelta2(tau,delta));
 	double dpdT_rho = pFluid->R()*_rho*(1+delta*dphir_dDelta(tau,delta)-delta*tau*d2phir_dDelta_dTau(tau,delta));
@@ -500,6 +507,12 @@ double CoolPropStateClass::dhdrho_constT(void){
 }
 double CoolPropStateClass::dhdT_constrho(void){
 	return pFluid->R()*(-tau*tau*(d2phi0_dTau2(tau,delta)+d2phir_dTau2(tau,delta))+1+delta*dphir_dDelta(tau,delta)-delta*tau*d2phir_dDelta_dTau(tau,delta));
+}
+double CoolPropStateClass::dvdp_constT(void){
+	return -1/(_rho*_rho)/dpdrho_constT();
+}
+double CoolPropStateClass::dvdT_constp(void){
+	return -1/(_rho*_rho)*drhodT_constp();
 }
 
 double CoolPropStateClass::dhdp_constT(void){
@@ -546,6 +559,93 @@ double CoolPropStateClass::d2hdT2_constp(void)
 	double ddT_dhdT = d2hdT2_constrho()-1/pow(dpdrho_constT(),2)*(dpdrho_constT()*(dhdrho_constT()*d2pdT2_constrho()+d2hdrhodT()*dpdT_constrho())-dhdrho_constT()*dpdT_constrho()*d2pdrhodT());
 	double drho_dhdT = d2hdrhodT()-1/pow(dpdrho_constT(),2)*(dpdrho_constT()*(dhdrho_constT()*d2pdrhodT()+d2hdrho2_constT()*dpdT_constrho())-dhdrho_constT()*dpdT_constrho()*d2pdrho2_constT());
 	return ddT_dhdT-drho_dhdT*dpdT_constrho()/dpdrho_constT();
+}
+double CoolPropStateClass::d2hdp2_constT(void)
+{
+	return (d2hdrho2_constT()-dhdp_constT()*d2pdrho2_constT())/pow(dpdrho_constT(),2);
+}
+double CoolPropStateClass::d2hdTdp(void)
+{
+	return 1/dpdrho_constT()*(d2hdrhodT()-dhdp_constT()*(drhodT_constp()*d2pdrho2_constT()+d2pdrhodT())+d2hdrho2_constT()*drhodT_constp());
+}
+double CoolPropStateClass::drhodp_constT(void)
+{
+	return 1/dpdrho_constT();
+}
+double CoolPropStateClass::d2rhodp2_constT(void)
+{
+	return -d2pdrho2_constT()/pow(dpdrho_constT(),3);
+}
+double CoolPropStateClass::d2rhodTdp(void)
+{
+	return (dpdT_constrho()*d2pdrho2_constT()-dpdrho_constT()*d2pdrhodT())/pow(dpdrho_constT(),3);
+}
+double CoolPropStateClass::d2rhodT2_constp(void)
+{
+	double ddrho_drhodT_p_constT = (dpdT_constrho()*d2pdrho2_constT()-dpdrho_constT()*d2pdrhodT())/pow(dpdrho_constT(),2);
+	double ddT_drhodT_p_constrho = (dpdT_constrho()*d2pdrhodT()-dpdrho_constT()*d2pdT2_constrho())/pow(dpdrho_constT(),2);
+	return ddT_drhodT_p_constrho+ddrho_drhodT_p_constT*drhodT_constp();
+}
+
+
+
+double CoolPropStateClass::dTdp_along_sat(void)
+{
+	return _T*(1/SatV->rho()-1/SatL->rho())/(SatV->h()-SatL->h());
+}
+double CoolPropStateClass::ddp_dTdp_along_sat(void)
+{
+	return 1/(SatV->h()-SatL->h())*(_T*(SatV->dvdp_constT()-SatL->dvdp_constT())-dTdp_along_sat()*(SatV->dhdp_constT()-SatL->dhdp_constT()));
+}
+double CoolPropStateClass::ddT_dTdp_along_sat(void)
+{
+	return 1/(SatV->h()-SatL->h())*(_T*(SatV->dvdT_constp()-SatL->dvdT_constp())-dTdp_along_sat()*(SatV->dhdT_constp()-SatL->dhdT_constp())+(1/SatV->rho()-1/SatL->rho()));
+}
+double CoolPropStateClass::d2Tdp2_along_sat(void)
+{
+	return ddp_dTdp_along_sat()+ddT_dTdp_along_sat()*dTdp_along_sat();
+}
+
+double CoolPropStateClass::dhdp_along_sat_liquid(void)
+{
+	return SatL->dhdp_constT()+SatL->dhdT_constp()*dTdp_along_sat();
+}
+double CoolPropStateClass::dhdp_along_sat_vapor(void)
+{
+	return SatV->dhdp_constT()+SatV->dhdT_constp()*dTdp_along_sat();
+}
+double CoolPropStateClass::d2hdp2_along_sat_vapor(void)
+{
+	double ddp_dhdpsigmaV = SatV->d2hdp2_constT()+SatV->dhdT_constp()*ddp_dTdp_along_sat()+SatV->d2hdTdp()*dTdp_along_sat();
+	double ddT_dhdpsigmaV = SatV->d2hdTdp()+SatV->dhdT_constp()*ddT_dTdp_along_sat()+SatV->d2hdT2_constp()*dTdp_along_sat();
+	return ddp_dhdpsigmaV+ddT_dhdpsigmaV*dTdp_along_sat();
+}
+double CoolPropStateClass::d2hdp2_along_sat_liquid(void)
+{
+	double ddp_dhdpsigmaL = SatL->d2hdp2_constT()+SatL->dhdT_constp()*ddp_dTdp_along_sat()+SatL->d2hdTdp()*dTdp_along_sat();
+	double ddT_dhdpsigmaL = SatL->d2hdTdp()+SatL->dhdT_constp()*ddT_dTdp_along_sat()+SatL->d2hdT2_constp()*dTdp_along_sat();
+	return ddp_dhdpsigmaL+ddT_dhdpsigmaL*dTdp_along_sat();
+}
+
+double CoolPropStateClass::drhodp_along_sat_vapor(void)
+{
+	return SatV->drhodp_constT()+SatV->drhodT_constp()*dTdp_along_sat();
+}
+double CoolPropStateClass::drhodp_along_sat_liquid(void)
+{
+	return SatL->drhodp_constT()+SatL->drhodT_constp()*dTdp_along_sat();
+}
+double CoolPropStateClass::d2rhodp2_along_sat_vapor(void)
+{
+	double ddp_drhodpsigmaV = SatV->d2rhodp2_constT()+SatV->drhodT_constp()*ddp_dTdp_along_sat()+SatV->d2rhodTdp()*dTdp_along_sat();
+	double ddT_drhodpsigmaV = SatV->d2rhodTdp()+SatV->drhodT_constp()*ddT_dTdp_along_sat()+SatV->d2rhodT2_constp()*dTdp_along_sat();
+	return ddp_drhodpsigmaV+ddT_drhodpsigmaV*dTdp_along_sat();
+}
+double CoolPropStateClass::d2rhodp2_along_sat_liquid(void)
+{
+	double ddp_drhodpsigmaL = SatL->d2rhodp2_constT()+SatL->drhodT_constp()*ddp_dTdp_along_sat()+SatL->d2rhodTdp()*dTdp_along_sat();
+	double ddT_drhodpsigmaL = SatL->d2rhodTdp()+SatL->drhodT_constp()*ddT_dTdp_along_sat()+SatL->d2rhodT2_constp()*dTdp_along_sat();
+	return ddp_drhodpsigmaL+ddT_drhodpsigmaL*dTdp_along_sat();
 }
 
 double CoolPropStateClass::drhodh_constp(void){
@@ -611,24 +711,24 @@ void CoolPropStateClass::dvdp_dhdp_sat(double T, double *dvdpL, double *dvdpV, d
 	double drhodTV_p = DerivTerms("drhodT|p",TV,rhoV,(char*)pFluid->get_name().c_str());
 
 	// Saturation derivatives at constant temperature
-	double dhdrhoL_T = TL*pFluid->R()/rhoL*(tauL*deltaL*d2phir_dDelta_dTauL+deltaL*dphir_dDeltaL+deltaL*deltaL*d2phir_dDelta2L);
-	double dhdrhoV_T = TV*pFluid->R()/rhoV*(tauV*deltaV*d2phir_dDelta_dTauV+deltaV*dphir_dDeltaV+deltaV*deltaV*d2phir_dDelta2V);
-	double dpdrhoL_T = TL*pFluid->R()*(1+2*deltaL*dphir_dDeltaL+deltaL*deltaL*d2phir_dDelta2L);
-	double dpdrhoV_T = TV*pFluid->R()*(1+2*deltaV*dphir_dDeltaV+deltaV*deltaV*d2phir_dDelta2V);
+	double dhdrhoL_T = SatL->dhdrho_constT();
+	double dhdrhoV_T = SatV->dhdrho_constT();
+	double dpdrhoL_T = SatL->dpdrho_constT();
+	double dpdrhoV_T = SatV->dpdrho_constT();
 	
 	// Saturation derivatives at constant density
-	double dhdTL_rho = pFluid->R()*(-tauL*tauL*(d2phi0_dTau2L+d2phir_dTau2L)+1+deltaL*dphir_dDeltaL-deltaL*tauL*d2phir_dDelta_dTauL);
-	double dhdTV_rho = pFluid->R()*(-tauV*tauV*(d2phi0_dTau2V+d2phir_dTau2V)+1+deltaV*dphir_dDeltaV-deltaV*tauV*d2phir_dDelta_dTauV);
-	double dpdTL_rho = rhoL*pFluid->R()*(1+deltaL*dphir_dDeltaL-deltaL*tauL*d2phir_dDelta_dTauL);
-	double dpdTV_rho = rhoV*pFluid->R()*(1+deltaV*dphir_dDeltaV-deltaV*tauV*d2phir_dDelta_dTauV);
+	double dhdTL_rho = SatL->dhdT_constrho();
+	double dhdTV_rho = SatV->dhdT_constrho();
+	double dpdTL_rho = SatL->dpdT_constrho();
+	double dpdTV_rho = SatV->dpdT_constrho();
 
 	// Now get dh/dp at constant T for saturated liquid and vapor
-	double dhdpL_T = dhdrhoL_T/dpdrhoL_T;
-	double dhdpV_T = dhdrhoV_T/dpdrhoV_T;
+	double dhdpL_T = SatL->dhdp_constT();
+	double dhdpV_T = SatV->dhdp_constT();
 
 	// Derivatives of enthalpy 
-	double dhdTL_p = dhdTL_rho - dhdrhoL_T*dpdTL_rho/dpdrhoL_T;
-	double dhdTV_p = dhdTV_rho - dhdrhoV_T*dpdTV_rho/dpdrhoV_T;
+	double dhdTL_p = SatL->dhdT_constp();
+	double dhdTV_p = SatV->dhdT_constp();
 
 	// Derivatives of specific volume (just to make thing easier)
 	double dvdrhoL = -1/(rhoL*rhoL);
@@ -650,32 +750,24 @@ void CoolPropStateClass::dvdp_dhdp_sat(double T, double *dvdpL, double *dvdpV, d
 
 	//double tau = Tc/T;
 	double dtaudT = -pFluid->reduce.T/T/T; //-tau/T
-	double d2Tsigma_dp2_T = T*((hV-hL)*(dvdpV_T-dvdpL_T)-(vV-vL)*(dhdpV_T-dhdpL_T))/pow(hV-hL,2);
-	double d2Tsigma_dpdT_p = T*((hV-hL)*(dvdTV_p-dvdTL_p)-(vV-vL)*(dhdTV_p-dhdTL_p))/pow(hV-hL,2)+(vV-vL)/(hV-hL);
-	//double d2Tsigmadp2 = d2Tsigma_dp2_T+d2Tsigma_dpdT_p*dTsigmadp;
+	double d2Tsigma_dp2_T = ddp_dTdp_along_sat();  //T*((hV-hL)*(dvdpV_T-dvdpL_T)-(vV-vL)*(dhdpV_T-dhdpL_T))/pow(hV-hL,2);
+	double d2Tsigma_dpdT_p = ddT_dTdp_along_sat();  //T*((hV-hL)*(dvdTV_p-dvdTL_p)-(vV-vL)*(dhdTV_p-dhdTL_p))/pow(hV-hL,2)+(vV-vL)/(hV-hL);
+	double d2Tsigmadp2 = d2Tsigma_dp2_T+d2Tsigma_dpdT_p*dTsigmadp;
 
-	double d2pdrho2V_T = T*pFluid->R()*(2*deltaV*d2phir_dDelta2V+2*dphir_dDeltaV+2*deltaV*d2phir_dDelta2V+deltaV*deltaV*d3phir_dDelta3V)/pFluid->reduce.rho;
-	double d2pdrhodTV = pFluid->R()*((1+2*deltaV*dphir_dDeltaV+deltaV*deltaV*d2phir_dDelta2V)+T*(2*deltaV*d2phir_dDelta_dTauV+deltaV*deltaV*d3phir_dDelta2_dTauV)*dtaudT);
-	double d2pdT2V_rho = -pFluid->R()*rhoV*deltaV*tauV*d3phir_dDelta_dTau2V*dtaudT;
-
-	double d2hdrho2V_T = TV*pFluid->R()/rhoV*(tauV*deltaV*d3phir_dDelta2_dTauV+tauV*d2phir_dDelta_dTauV+deltaV*d2phir_dDelta2V+dphir_dDeltaV+deltaV*deltaV*d3phir_dDelta3V+2*deltaV*d2phir_dDelta2V)/pFluid->reduce.rho - dhdrhoV_T/rhoV;
-	// d3phi0_dDelta_dTau2V is zero by definition
-	double d2hdrhodTV = pFluid->R()*(-tauV*tauV*d3phir_dDelta_dTau2V+deltaV*deltaV*d2phir_dDelta2V+deltaV*d2phir_dDelta2V+dphir_dDeltaV-deltaV*tauV*d3phir_dDelta2_dTauV-tauV*d2phir_dDelta_dTauV)/pFluid->reduce.rho;
-	double d2hdT2V_rho = pFluid->R()*(-tauV*tauV*(d3phi0_dTau3V+d3phir_dTau3V)-2*tauV*(d2phi0_dTau2V+d2phir_dTau2V)-deltaV*tauV*d3phir_dDelta_dTau2V)*dtaudT;
-
-	double d2hdp2V_T = (d2hdrho2V_T-dhdpV_T*d2pdrho2V_T)/pow(dpdrhoV_T,2);
-	double d2hdTdpV = 1/dpdrhoV_T*(d2hdrhodTV-dhdpV_T*(drhodTV_p*d2pdrho2V_T+d2pdrhodTV)+d2hdrho2V_T*drhodTV_p);
-
-	//double ddT_dhdT = d2hdT2V_rho-1/pow(dpdrhoV_T,2)*(dpdrhoV_T*(dhdrhoV_T*d2pdT2V_rho+d2hdrhodTV*dpdTV_rho)-dhdrhoV_T*dpdTV_rho*d2pdrhodTV);
-	//double drho_dhdT = d2hdrhodTV-1/pow(dpdrhoV_T,2)*(dpdrhoV_T*(dhdrhoV_T*d2pdrhodTV+d2hdrho2V_T*dpdTV_rho)-dhdrhoV_T*dpdTV_rho*d2pdrho2V_T);
-	//double d2hdT2V_p = ddT_dhdT-drho_dhdT*dpdTV_rho/dpdrhoV_T;
+	double d2pdrho2V_T = SatV->d2pdrho2_constT();
+	double d2pdrhodTV = SatV->d2pdrhodT();
+	double d2pdT2V_rho = SatV->d2pdT2_constrho();
+	double d2hdrho2V_T = SatV->d2hdrho2_constT();
+	double d2hdrhodTV = SatV->d2hdrhodT();
+	double d2hdT2V_rho = SatV->d2hdT2_constrho();
+	double d2hdp2V_T = SatV->d2hdp2_constT();
+	double d2hdTdpV = SatV->d2hdTdp();
 	double d2hdT2V_p = sat->SatV->d2hdT2_constp();
 
 	// derivative of dhdp along saturation with respect to p with constant T
 	double ddp_dhdpsigmaV = d2hdp2V_T+dhdTV_p*d2Tsigma_dp2_T+d2hdTdpV*dTsigmadp;
-
-	
 	double ddT_dhdpsigmaV = d2hdTdpV+dhdTV_p*d2Tsigma_dpdT_p+d2hdT2V_p*dTsigmadp;
+	*d2hdp2V = ddp_dhdpsigmaV+ddT_dhdpsigmaV*dTsigmadp;
 
 	// ------ GOOD TO THIS POINT -------------
 	
@@ -737,12 +829,8 @@ void CoolPropStateClass::dvdp_dhdp_sat(double T, double *dvdpL, double *dvdpV, d
 	CPS3.update(iT,_T+dd,iD,rhoV);
 
 	double dT_dhdTn = (CPS3.dhdT_constp()-this->dhdT_constp())/(dd);
-
-	
-
 	
 	
-	*d2hdp2V = ddp_dhdpsigmaV+ddT_dhdpsigmaV*dTsigmadp;
 
 	std::cout<<format("d2hsigmadp2V = %g\n",*d2hdp2V);
 }

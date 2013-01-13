@@ -48,4 +48,51 @@ public:
 	double check_randomly(long iParam, unsigned int N, std::vector<double> *h, std::vector<double> *p, std::vector<double> *EOS, std::vector<double> *TTSE);
 };
 
+class TTSETwoPhaseTable
+{
+protected:
+	unsigned int N;
+	Fluid *pFluid;
+	CoolPropStateClass *pCPS;
+	double dh,dp;
+
+public:
+	/// Instantiator
+	/// @param pFluid Pointer to an instance of a Fluid class
+	/// @param N Number of elements in arrays
+	/// @param Q Quality [kg/kg], in [0,1]
+	TTSETwoPhaseTable(Fluid *pFluid, int N, double Q);
+	~TTSETwoPhaseTable(){delete pCPS;};
+
+	double pmin,pmax,Q,logpmin,logpmax;
+
+	// Variables with h, p
+	std::vector<double> T,dTdp,d2Tdp2;
+	std::vector<double> rho,drhodp,d2rhodp2;
+	std::vector<double> s,dsdp,d2sdp2;
+	std::vector<double> h,dhdp,d2hdp2;
+	std::vector<double> p;
+
+	/// Build the tables along the saturation curves
+	/// @param pmin Minimum pressure [kJ/kg]
+	/// @param pmax Maximum pressure [kJ/kg]
+	double build(double pmin, double pmax);
+	
+	/// Evaluate a property in the two-phase region using the TTSE method and
+	/// @param iParam Index of desired output
+	/// @param p Pressure (absolute) [kPa]
+ 	double evaluate(long iParam, double p);
+
+	/// Randomly select a point within the range, and evaluate the property using TTSE and the EOS
+	/// @param iParam Index of desired output
+
+	/// @param N Number of runs to do
+	/// @param p std::vector of pressures
+	/// @param EOS std::vector of values from Equation of State
+	/// @param TTSE std::vector of values from TTSE
+	///
+	/// Note: p,EOS, TTSE should be empty std::vector passed by reference
+	double check_randomly(long iParam, double Q, unsigned int N, std::vector<double> *p, std::vector<double> *EOS, std::vector<double> *TTSE);
+};
+
 #endif

@@ -159,8 +159,8 @@ if __name__=='__main__':
 ##     Octave()
 ##     MATLAB()
 ##     EES()
-    PYPI()
-    UploadSourceForge()
+##     PYPI()
+##     UploadSourceForge()
 
-##     BuildDocs()
+    BuildDocs()
 ##     UploadDocs()
