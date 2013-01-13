@@ -124,23 +124,33 @@ public:
 	double dpdrho_consth(void);
 	double dpdT_constrho(void);
 	double dpdT_consth(void);
+	double d2pdrho2_constT(void);
+	double d2pdrhodT(void);
+	double d2pdT2_constrho(void);
 
 	double dhdrho_constT(void);
 	double dhdrho_constp(void);
 	double dhdT_constrho(void);
 	double dhdT_constp(void);
 	double dhdp_constT(void);
-	
-	double d2pdrho2_constT(void);
-	double d2pdrhodT(void);
-	double d2pdT2_constrho(void);
-
 	double d2hdrho2_constT(void);
 	double d2hdrhodT(void);
 	double d2hdT2_constrho(void);
 	double d2hdT2_constp(void);
 	double d2hdp2_constT(void);
 	double d2hdTdp(void);
+
+	double dsdrho_constT(void);
+	double dsdT_constrho(void);
+	double dsdrho_constp(void);
+	double dsdT_constp(void);
+	double dsdp_constT(void);
+	double d2sdrho2_constT(void);
+	double d2sdrhodT(void);
+	double d2sdT2_constrho(void);
+	double d2sdT2_constp(void);
+	double d2sdp2_constT(void);
+	double d2sdTdp(void);
 
 	// ----------------------------------------	
 	// Derivatives along the saturation curve
@@ -159,6 +169,11 @@ public:
 	double dhdp_along_sat_liquid(void);
 	double d2hdp2_along_sat_vapor(void);
 	double d2hdp2_along_sat_liquid(void);
+
+	double dsdp_along_sat_vapor(void);
+	double dsdp_along_sat_liquid(void);
+	double d2sdp2_along_sat_vapor(void);
+	double d2sdp2_along_sat_liquid(void);
 
 	double drhodp_along_sat_vapor(void);
 	double drhodp_along_sat_liquid(void);

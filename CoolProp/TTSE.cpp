@@ -240,6 +240,9 @@ double TTSETwoPhaseTable::build(double pmin, double pmax)
 		h[i] = CPS.h();
 		dhdp[i] = CPS.dhdp_along_sat_vapor();
 		d2hdp2[i] = CPS.d2hdp2_along_sat_vapor();
+		s[i] = CPS.s();
+		dsdp[i] = CPS.dsdp_along_sat_vapor();
+		d2sdp2[i] = CPS.d2sdp2_along_sat_vapor();
 		rho[i] = CPS.rho();
 		drhodp[i] = CPS.drhodp_along_sat_vapor();
 		d2rhodp2[i] = CPS.d2rhodp2_along_sat_vapor();
@@ -256,15 +259,15 @@ double TTSETwoPhaseTable::evaluate(long iParam, double p)
 {
 	CoolPropStateClass CPS = *pCPS;
 
-	int i = round(((log(p)-logpmin)/(logpmax-logpmin)*(N-1)));
+	int i = (int)round(((log(p)-logpmin)/(logpmax-logpmin)*(N-1)));
 	double deltap = log(p/this->p[i]);
 	double log_PI_PIi = log(p/this->p[i]);
 	double pi = this->p[i];
 	
 	switch (iParam)
 	{
-	//case iS:
-	//	return s[i][j]+deltah*dsdh[i][j]+deltap*dsdp[i][j]+0.5*deltah*deltah*d2sdh2[i][j]+0.5*deltap*deltap*d2sdp2[i][j]+deltap*deltah*d2sdhdp[i][j]; break;
+	case iS:
+		return s[i]+log_PI_PIi*pi*dsdp[i]*(1.0+0.5*log_PI_PIi)+0.5*log_PI_PIi*log_PI_PIi*d2sdp2[i]*pi*pi;
 	case iT:
 		return T[i]+log_PI_PIi*pi*dTdp[i]*(1.0+0.5*log_PI_PIi)+0.5*log_PI_PIi*log_PI_PIi*d2Tdp2[i]*pi*pi;
 	case iH:
@@ -276,6 +279,22 @@ double TTSETwoPhaseTable::evaluate(long iParam, double p)
 		throw ValueError();
 	}
 }
+
+double TTSETwoPhaseTable::evaluate_randomly(long iParam, unsigned int N)
+{		
+	clock_t t1,t2;
+	t1 = clock();
+	for (unsigned int i = 0; i < N; i++)
+	{
+		double p1 = ((double)rand()/(double)RAND_MAX)*(pmax-pmin)+pmin;
+
+		// Get the value from TTSE
+		evaluate(iParam,p1);
+	}
+	t2 = clock();
+	return (double)(t2-t1)/CLOCKS_PER_SEC/(double)N*1e6;
+}
+
 
 double TTSETwoPhaseTable::check_randomly(long iParam, double Q, unsigned int N, std::vector<double> *p, std::vector<double> *EOS, std::vector<double> *TTSE)
 {	
@@ -305,8 +324,8 @@ double TTSETwoPhaseTable::check_randomly(long iParam, double Q, unsigned int N, 
 		// Get the value from EOS
 		switch (iParam)
 		{
-		//case iS: 
-		//	(*EOS)[i] = sEOS; break;
+		case iS: 
+			(*EOS)[i] = sEOS; break;
 		case iT:
 			(*EOS)[i] = TEOS; break;
 		case iH:
@@ -317,7 +336,7 @@ double TTSETwoPhaseTable::check_randomly(long iParam, double Q, unsigned int N, 
 			throw ValueError();
 		}
 		
-		std::cout << format("%g %g %g %g TTSE (p,EOS,TTSE, delta [mK])\n",p1,(*EOS)[i],(*TTSE)[i],((*EOS)[i]-(*TTSE)[i])/(*EOS)[i]*100);
+		std::cout << format("%g %g %g %g TTSE (p,EOS,TTSE, delta [mK])\n",p1,(*EOS)[i],(*TTSE)[i],((*EOS)[i]-(*TTSE)[i]));
 	}
 	return val;
 }
