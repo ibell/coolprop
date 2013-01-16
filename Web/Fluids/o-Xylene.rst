@@ -1,4 +1,4 @@
- 
+
 ********************
 o-Xylene
 ********************
@@ -23,13 +23,15 @@ Fluid Parameters
 
 =========================  ==============================
 Mole Mass [kg/kmol]        106.16500
-Triple Point [K]           247.985
+Triple Point Temp. [K]     247.985
+Triple Point Press. [kPa]  0.023
+Minimum temperature [K]    247.985
 =========================  ==============================
 
 Critical Parameters
 
 ==============================  ==============================
-Temperature [K]                 247.99
+Temperature [K]                 630.26
 Density [kg/m\ :sup:`3`\ ]      284.999943
 Pressure [kPa]                  3737.50000
 ==============================  ==============================
@@ -48,7 +50,7 @@ Saturated Vapor Deviations
     from numpy import linspace,array,abs
     import matplotlib.pyplot as plt
 
-    Tt = Props(Fluid,'Ttriple')
+    Tt = Props(Fluid,'Tmin')
     Tc = Props(Fluid,'Tcrit')
     Tv = linspace(Tt+0.01,0.95*Tc,20)
 
@@ -103,7 +105,7 @@ Saturated Liquid Deviations
     from numpy import linspace,array,abs
     import matplotlib.pyplot as plt
 
-    Tt = Props(Fluid,'Ttriple')
+    Tt = Props(Fluid,'Tmin')
     Tc = Props(Fluid,'Tcrit')
     Tv = linspace(Tt+0.01,0.95*Tc,20)
 
@@ -220,8 +222,8 @@ Check of p,h and p,s as inputs (X: Failure .: Success)
     smin = Props('S','T',Tmin,'Q',0,Ref)
     smax = 2*Props('S','T',Props(Ref,'Tcrit')-1,'Q',1,Ref)-smin
 
-    Ph(Ref, axis = ax1, Tmin = Tmin, Tmax = 247.975000)
-    Ps(Ref, axis = ax2, Tmin = Tmin, Tmax = 247.975000)
+    Ph(Ref, axis = ax1, Tmin = Tmin, Tmax = 630.249000)
+    Ps(Ref, axis = ax2, Tmin = Tmin, Tmax = 630.249000)
 
     for p in np.linspace(pmin,pmax,10):
         for h in np.linspace(hmin,hmax):

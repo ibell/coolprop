@@ -23,7 +23,9 @@ Fluid Parameters
 
 =========================  ==============================
 Mole Mass [kg/kmol]        128.25510
-Triple Point [K]           219.700
+Triple Point Temp. [K]     219.700
+Triple Point Press. [kPa]  0.000
+Minimum temperature [K]    219.700
 =========================  ==============================
 
 Critical Parameters
@@ -48,7 +50,7 @@ Saturated Vapor Deviations
     from numpy import linspace,array,abs
     import matplotlib.pyplot as plt
 
-    Tt = Props(Fluid,'Ttriple')
+    Tt = Props(Fluid,'Tmin')
     Tc = Props(Fluid,'Tcrit')
     Tv = linspace(Tt+0.01,0.95*Tc,20)
 
@@ -103,7 +105,7 @@ Saturated Liquid Deviations
     from numpy import linspace,array,abs
     import matplotlib.pyplot as plt
 
-    Tt = Props(Fluid,'Ttriple')
+    Tt = Props(Fluid,'Tmin')
     Tc = Props(Fluid,'Tcrit')
     Tv = linspace(Tt+0.01,0.95*Tc,20)
 

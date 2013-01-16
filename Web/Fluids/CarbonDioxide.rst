@@ -1,4 +1,4 @@
-   
+
 ********************
 CarbonDioxide
 ********************
@@ -23,14 +23,16 @@ Fluid Parameters
 
 =========================  ==============================
 Mole Mass [kg/kmol]        44.00980
-Triple Point [K]           216.592
+Triple Point Temp. [K]     216.592
+Triple Point Press. [kPa]  517.996
+Minimum temperature [K]    216.592
 =========================  ==============================
 
 Critical Parameters
 
 ==============================  ==============================
 Temperature [K]                 304.13
-Density [kg/m\ :sup:`3`\ ]      467.606000
+Density [kg/m\ :sup:`3`\ ]      467.600001
 Pressure [kPa]                  7377.30000
 ==============================  ==============================
 
@@ -48,7 +50,7 @@ Saturated Vapor Deviations
     from numpy import linspace,array,abs
     import matplotlib.pyplot as plt
 
-    Tt = Props(Fluid,'Ttriple')
+    Tt = Props(Fluid,'Tmin')
     Tc = Props(Fluid,'Tcrit')
     Tv = linspace(Tt+0.01,0.95*Tc,20)
 
@@ -103,7 +105,7 @@ Saturated Liquid Deviations
     from numpy import linspace,array,abs
     import matplotlib.pyplot as plt
 
-    Tt = Props(Fluid,'Ttriple')
+    Tt = Props(Fluid,'Tmin')
     Tc = Props(Fluid,'Tcrit')
     Tv = linspace(Tt+0.01,0.95*Tc,20)
 
@@ -220,8 +222,8 @@ Check of p,h and p,s as inputs (X: Failure .: Success)
     smin = Props('S','T',Tmin,'Q',0,Ref)
     smax = 2*Props('S','T',Props(Ref,'Tcrit')-1,'Q',1,Ref)-smin
 
-    Ph(Ref, axis = ax1, Tmin = Tmin, Tmax = 304.118000)
-    Ps(Ref, axis = ax2, Tmin = Tmin, Tmax = 304.118000)
+    Ph(Ref, axis = ax1, Tmin = Tmin, Tmax = 304.118200)
+    Ps(Ref, axis = ax2, Tmin = Tmin, Tmax = 304.118200)
 
     for p in np.linspace(pmin,pmax,10):
         for h in np.linspace(hmin,hmax):

@@ -4,7 +4,7 @@ Changelog:
 
 2.5 (revision 247)
 Added EES wrapper (r245-r247)
-Saturation derivates dhdp and d2hdp2 (r244)
+Saturation derivatives dhdp and d2hdp2 (r244)
 Caching of Helholtz derivatives in CPState.cpp (r243)
 Added Xylenes and EthylBenzene (r242)
 Added n-Dodecane, R23, DMC (r241)

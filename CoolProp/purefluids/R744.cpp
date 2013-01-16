@@ -11,6 +11,7 @@ R. Span and W. Wagner, J. Phys. Chem. Ref. Data, v. 25, 1996
 #if defined(_MSC_VER)
 #define _CRTDBG_MAP_ALLOC
 #define _CRT_SECURE_NO_WARNINGS
+#define _USE_MATH_DEFINES
 #include <stdlib.h>
 #include <crtdbg.h>
 #else

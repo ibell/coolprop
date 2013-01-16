@@ -11,11 +11,13 @@ Equation of State Reference
 ===========================
 Span, R. and W. Wagner, "Equations of State for Technical Applications. II. Results for Nonpolar Fluids", International Journal of Thermophysics, Vol. 24, No. 1, January 2003. 
 
-Cp0: Jaeschke, M. and P. Schley,"Ideal-Gas Thermodynamic Properties for Natural-Gas Applications", Int. J. Thermophys. v 16, n6 1995
+Cp0: Penoncello, S.G., R.T. Jacobsen, A.R.H. Goodwin,"A Thermodynamic Property Formulation for Cyclohexane " International Journal of Thermophysics. vol. 16. No. 2, 1995
+
+Note: Results do not agree(01/15/2013) with REFPROP, but it seems REFPROP is in error based on validation data in Span
 
 Transport Properties Information
 ================================
-Using ECS in fully predictive mode.  ECS parameters from 
+Using ECS in fully predictive mode. 
 
 
 Fluid Data
@@ -25,7 +27,9 @@ Fluid Parameters
 
 =========================  ==============================
 Mole Mass [kg/kmol]        84.16080
-Triple Point [K]           279.470
+Triple Point Temp. [K]     279.470
+Triple Point Press. [kPa]  5.254
+Minimum temperature [K]    279.470
 =========================  ==============================
 
 Critical Parameters
@@ -50,7 +54,7 @@ Saturated Vapor Deviations
     from numpy import linspace,array,abs
     import matplotlib.pyplot as plt
 
-    Tt = Props(Fluid,'Ttriple')
+    Tt = Props(Fluid,'Tmin')
     Tc = Props(Fluid,'Tcrit')
     Tv = linspace(Tt+0.01,0.95*Tc,20)
 
@@ -105,7 +109,7 @@ Saturated Liquid Deviations
     from numpy import linspace,array,abs
     import matplotlib.pyplot as plt
 
-    Tt = Props(Fluid,'Ttriple')
+    Tt = Props(Fluid,'Tmin')
     Tc = Props(Fluid,'Tcrit')
     Tv = linspace(Tt+0.01,0.95*Tc,20)
 

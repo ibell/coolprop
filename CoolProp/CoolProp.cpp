@@ -911,14 +911,14 @@ double _CoolProp_Fluid_Props(long iOutput, long iName1, double Prop1, long iName
 		
 		T = Prop1;
 		Q = Prop2;
-		if (T <= pFluid->params.Ttriple || T >= pFluid->crit.T){
+		if (T <= pFluid->params.Ttriple || T > pFluid->crit.T){
 			throw ValueError(format("Your saturation temperature [%f K] is out of range [%f K, %f K]",T,pFluid->params.Ttriple,pFluid->crit.T ));
 		}
 		if (Q>1+10*DBL_EPSILON || Q<-10*DBL_EPSILON){
 			throw ValueError(format("Your quality [%f] is out of range (0, 1)",Q ));
 		}
 		// Get the saturation properties
-		pFluid->saturation(Prop1,FlagUseSaturationLUT,&pL,&pV,&rhoL,&rhoV);
+		pFluid->saturation_T(Prop1,FlagUseSaturationLUT,&pL,&pV,&rhoL,&rhoV);
 		// Find the effective density to use
 		rho=1/(Q/rhoV+(1-Q)/rhoL);
 

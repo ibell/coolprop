@@ -250,6 +250,16 @@ if __name__=='__main__':
                             cython_c_in_temp = True
                             )
                             
+    #Collect all the header files into an include folder
+    try:
+        os.mkdir(os.path.join('CoolProp','include'))
+    except:
+        pass
+    
+    for header in glob.glob(os.path.join('CoolProp','*.h')):
+        pth,fName = os.path.split(header)
+        shutil.copy2(header,os.path.join('CoolProp','include',fName))
+    
     setup (name = 'CoolProp',
            version = version, #look above for the definition of version variable - don't modify it here
            author = "Ian Bell",
@@ -259,7 +269,7 @@ if __name__=='__main__':
            packages = ['CoolProp','CoolProp.Plots','CoolProp.tests','CoolProp.GUI'],
            ext_modules = [CoolProp2_module],
            package_dir = {'CoolProp':'CoolProp',},
-           package_data = {'CoolProp':['State.pxd','CoolProp.pxd']},
+           package_data = {'CoolProp':['State.pxd','CoolProp.pxd','include/*.h']},
            cmdclass={'build_ext': build_ext},
            
            classifiers = [
@@ -284,5 +294,6 @@ if __name__=='__main__':
             os.remove(file)
         except:
             pass
+    shutil.rmtree(os.path.join('CoolProp','include'), ignore_errors = True)
             
     touch('setup.py')

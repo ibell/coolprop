@@ -140,7 +140,7 @@ def SatVaporParity(Fluid):
         from numpy import linspace,array,abs
         import matplotlib.pyplot as plt
 
-        Tt = Props(Fluid,'Ttriple')
+        Tt = Props(Fluid,'Tmin')
         Tc = Props(Fluid,'Tcrit')
         Tv = linspace(Tt+0.01,0.95*Tc,20)
 
@@ -200,7 +200,7 @@ def SatLiquidParity(Fluid):
         from numpy import linspace,array,abs
         import matplotlib.pyplot as plt
 
-        Tt = Props(Fluid,'Ttriple')
+        Tt = Props(Fluid,'Tmin')
         Tc = Props(Fluid,'Tcrit')
         Tv = linspace(Tt+0.01,0.95*Tc,20)
 
@@ -246,7 +246,8 @@ def SatLiquidParity(Fluid):
 def params_table(Fluid):
     params = dict(mm = CP.Props(Fluid,'molemass'),
                   Tt = CP.Props(Fluid,'Ttriple'),
-                  pc = CP.Props(Fluid,'pcrit'),
+                  pt = CP.Props(Fluid,'ptriple'),
+                  Tmin = CP.Props(Fluid,'Tmin'),
                   )
     
     return textwrap.dedent(
@@ -258,7 +259,9 @@ def params_table(Fluid):
     
     =========================  ==============================
     Mole Mass [kg/kmol]        {mm:0.5f}
-    Triple Point [K]           {Tt:0.3f}
+    Triple Point Temp. [K]     {Tt:0.3f}
+    Triple Point Press. [kPa]  {pt:0.3f}
+    Minimum temperature [K]    {Tmin:0.3f}
     =========================  ==============================
     """.format(**params))
     

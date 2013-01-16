@@ -1,4 +1,4 @@
- 
+
 ********************
 m-Xylene
 ********************
@@ -23,14 +23,16 @@ Fluid Parameters
 
 =========================  ==============================
 Mole Mass [kg/kmol]        106.16500
-Triple Point [K]           225.300
+Triple Point Temp. [K]     225.300
+Triple Point Press. [kPa]  0.003
+Minimum temperature [K]    225.300
 =========================  ==============================
 
 Critical Parameters
 
 ==============================  ==============================
 Temperature [K]                 616.89
-Density [kg/m\ :sup:`3`\ ]      284.999943
+Density [kg/m\ :sup:`3`\ ]      282.929725
 Pressure [kPa]                  3534.60000
 ==============================  ==============================
 
@@ -48,7 +50,7 @@ Saturated Vapor Deviations
     from numpy import linspace,array,abs
     import matplotlib.pyplot as plt
 
-    Tt = Props(Fluid,'Ttriple')
+    Tt = Props(Fluid,'Tmin')
     Tc = Props(Fluid,'Tcrit')
     Tv = linspace(Tt+0.01,0.95*Tc,20)
 
@@ -103,7 +105,7 @@ Saturated Liquid Deviations
     from numpy import linspace,array,abs
     import matplotlib.pyplot as plt
 
-    Tt = Props(Fluid,'Ttriple')
+    Tt = Props(Fluid,'Tmin')
     Tc = Props(Fluid,'Tcrit')
     Tv = linspace(Tt+0.01,0.95*Tc,20)
 

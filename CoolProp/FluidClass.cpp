@@ -17,6 +17,7 @@
 #include <stdio.h>
 #include "CPState.h"
 #include "Brine.h"
+#include "CriticalSplineConstants.h"
 
 #include "pseudopurefluids/Air.h"
 #include "pseudopurefluids/R410A.h"
@@ -170,6 +171,8 @@ FluidsContainer::FluidsContainer()
 		(*it)->post_load();
 		// Load up entry in map
 		fluid_name_map[(*it)->get_name()] = *it;
+		// Load all the parameters related to the Critical point spline
+		set_critical_spline_constants((*it));
 	}
 }
 
@@ -211,6 +214,7 @@ Fluid * FluidsContainer::get_fluid(std::string name)
 	return NULL;
 }
 
+
 long FluidsContainer::get_fluid_index(Fluid* pFluid)
 {
 	int i = 0;
@@ -239,6 +243,7 @@ std::string FluidsContainer::FluidList()
 	FL = FL.substr (0,FL.length()-1);
 	return FL;
 }
+
 
 /// A stub class to do the density(T,p) calculations for near the critical point using Brent solver
 class DensityTpResids : public FuncWrapper1D
@@ -288,7 +293,7 @@ void Fluid::post_load(void)
 	// Use the dewpoint pressure for pseudo-pure fluids
 	if ( fabs(params.ptriple)>1e9 ){
 		double pL, pV, rhoL, rhoV;
-		saturation(params.Ttriple,false,&pL,&pV,&rhoL,&rhoV);
+		saturation_T(params.Ttriple,false,&pL,&pV,&rhoL,&rhoV);
 		params.ptriple = pV;
 	}
 	//// Instantiate the ancillary curve classes
@@ -705,7 +710,8 @@ void Fluid::get_1phase_LUT_params(int *nT,int *np,double *Tmin, double *Tmax, do
 	}
 	return;
 }
-void Fluid::saturation(double T, bool UseLUT, double *psatLout, double *psatVout, double *rhosatLout, double *rhosatVout)
+
+void Fluid::saturation_T(double T, bool UseLUT, double *psatLout, double *psatVout, double *rhosatLout, double *rhosatVout)
 {
 	double rhoL, rhoV, p;
 	if (debug()>5){
@@ -724,6 +730,15 @@ void Fluid::saturation(double T, bool UseLUT, double *psatLout, double *psatVout
 		}
 		else
 		{
+			if (ValidNumber(CriticalSpline_T.Tend) && T>CriticalSpline_T.Tend)
+			{
+				//// Use the spline (or linear) interpolation since you are very close to the critical point
+				*rhosatLout = CriticalSpline_T.interpolate_rho(this,0,T);
+				*rhosatVout = CriticalSpline_T.interpolate_rho(this,1,T);
+				*psatLout = pressure_Trho(T,*rhosatLout);
+				*psatVout = *psatLout;
+				return;
+			}
 			try{
 				rhosatPure_Akasaka(T,rhosatLout,rhosatVout,&p);
 				*psatLout = p;
@@ -771,15 +786,14 @@ void Fluid::rhosatPure_Brent(double T, double *rhoLout, double *rhoVout, double 
 		};
 		double call(double p){
 			// Span, 2000 p 56
-			DensityTpResids * DTPR = new DensityTpResids(this->pFluid,T,p);
+			DensityTpResids DTPR = DensityTpResids(this->pFluid,T,p);
 			std::string errstr;
 			this->rhoL = this->pFluid->rhosatL(T);
 			//std::cout << Props("D",'Q',0,'T',T,"REFPROP-R245fa") <<std::endl;
-			rhoL = Brent(DTPR,rhoL+1e-3,rhoL-1e-3,DBL_EPSILON,1e-8,30,&errstr);
-			rhoV = Brent(DTPR,rhoV,pFluid->crit.rho-10*DBL_EPSILON,DBL_EPSILON,1e-8,40,&errstr);
+			rhoL = Brent(&DTPR,rhoL+1e-3,rhoL-1e-3,DBL_EPSILON,1e-8,30,&errstr);
+			rhoV = Brent(&DTPR,rhoV,pFluid->crit.rho-10*DBL_EPSILON,DBL_EPSILON,1e-8,40,&errstr);
 			gL = pFluid->gibbs_Trho(T,rhoL);
 			gV = pFluid->gibbs_Trho(T,rhoV);
-			delete DTPR;
 			return gL-gV;
 		};
 	} SatFunc(T,this);
@@ -791,6 +805,42 @@ void Fluid::rhosatPure_Brent(double T, double *rhoLout, double *rhoVout, double 
 	Brent(&SatFunc,pmin,pmax,DBL_EPSILON,1e-8,30,&errstr);
 
 }
+
+class rhosatPure_BrentrhoVResidClass : public FuncWrapper1D
+{
+public:
+	Fluid * pFluid;
+	double T,gL,gV,rhoL,rhoV,p;
+
+	rhosatPure_BrentrhoVResidClass(double T, Fluid *pFluid){
+		this->T=T;
+		this->pFluid = pFluid;
+		this->rhoL = pFluid->rhosatL(T);
+	};
+	double call(double rhoV){
+		double pV = pFluid->pressure_Trho(T,rhoV);
+		rhoL = pFluid->density_Tp(T,pV,rhoL);
+		gL = pFluid->gibbs_Trho(T,rhoL);
+		gV = pFluid->gibbs_Trho(T,rhoV);
+		this->p = pV;
+		this->rhoV = rhoV;
+		return gL-gV;
+	};
+};
+
+void Fluid::rhosatPure_BrentrhoV(double T, double *rhoLout, double *rhoVout, double *pout)
+{
+
+	rhosatPure_BrentrhoVResidClass SF = rhosatPure_BrentrhoVResidClass(T,this);
+
+	std::string errstr;
+	Brent(&SF,(reduce.rho+0.95*rhosatV(T))/2,0.95*rhosatV(T),DBL_EPSILON,1e-12,30,&errstr);
+	*rhoLout = SF.rhoL;
+	*rhoVout = SF.rhoV;
+	*pout = SF.p;
+}
+
+
 /// This function implements the method of Akasaka to do analytic Newton-Raphson for the 
 /// saturation calcs
 void Fluid::rhosatPure_Akasaka(double T, double *rhoLout, double *rhoVout, double *pout)
@@ -1159,7 +1209,7 @@ double Fluid::_get_rho_guess(double T, double p)
 		// Start at the saturation state, with a known density
 		// Return subcooled liquid density
 		double rhoL,rhoV,pL,pV;
-		saturation(T,SaturationLUTStatus(),&pL,&pV,&rhoL,&rhoV);
+		saturation_T(T,SaturationLUTStatus(),&pL,&pV,&rhoL,&rhoV);
 		if (debug()>5){
 			std::cout<<format("%d:%d: pL = %g rhoL = %g rhoV %g \n",__FILE__,__LINE__,pL,rhoL, rhoV);
 		}
@@ -1295,7 +1345,7 @@ long Fluid::phase_Tp_indices(double T, double p, double *pL, double *pV, double 
 			// Actually have to use saturation information sadly
 			// For the given temperature, find the saturation state
 			// Run the saturation routines to determine the saturation densities and pressures
-			saturation(T,SaturationLUTStatus(),pL,pV,rhoL,rhoV);
+			saturation_T(T,SaturationLUTStatus(),pL,pV,rhoL,rhoV);
 			if (p>(*pL+10*DBL_EPSILON)){
 				return iLiquid;
 			}
@@ -1353,7 +1403,7 @@ std::string Fluid::phase_Trho(double T, double rho, double *pL, double *pV, doub
 			// For the given temperature, find the saturation state
 			// Run the saturation routines to determine the saturation densities and pressures
 			// Use the passed in variables to save calls to the saturation routine so the values can be re-used again
-			saturation(T,SaturationLUTStatus(),pL,pV,rhoL,rhoV);
+			saturation_T(T,SaturationLUTStatus(),pL,pV,rhoL,rhoV);
 			if (rho>*rhoL){
 				return std::string("Liquid");
 			}
@@ -1407,144 +1457,155 @@ void Fluid::temperature_ph(double p, double h, double *Tout, double *rhoout, dou
     double rhoL, rhoV, hsatL,hsatV,TsatL,TsatV,tau,delta,worst_error;
 	double h_guess, hc, rho_guess;
 	double hsat_tol = 5;
-	// It is supercritical pressure	(or just below the critical pressure)
-	if (p > 0.999*crit.p)
+	
+	// A starting set of temperature and pressure are provided, use them as the guess value
+	// Their default values are -1 and -1, which are unphysical values
+	if (T0 > 0 && rho0 > 0)
 	{
-		hc = enthalpy_Trho(crit.T+0.001,crit.rho);
-		if (h > hc)
-		{
-			// Supercritical pseudo-gas - extrapolate to find guess temperature at critical density
-			T_guess = crit.T+30;
-			h_guess = enthalpy_Trho(T_guess,crit.rho);
-			T_guess = (crit.T-T_guess)/(hc-h_guess)*(h-h_guess)+T_guess;
-			
-			delta = p/(R()*T_guess)/reduce.rho;
-		}
-		else
-		{
-			// Supercritical pseudo-liquid
-			T_guess = params.Ttriple;
-			rho_guess = density_Tp(T_guess,p);
-			h_guess = enthalpy_Trho(T_guess,rho_guess);
-			// Update the guess with linear interpolation
-			T_guess = (crit.T-T_guess)/(hc-h_guess)*(h-h_guess)+T_guess;
-			// Solve for the density
-			rho_guess = density_Tp(T_guess,p,rho_guess);
-			
-			delta = rho_guess/reduce.rho;
-		}
+		T_guess = T0;
+		delta = rho0/reduce.rho;
 	}
 	else
 	{
-		// Set to a negative value as a dummy value
-		delta = -1;
-		
-		// If not using saturation LUT, start by trying to use the ancillary equations
-		if (!SaturationLUTStatus())
+		// It is supercritical pressure	(or just below the critical pressure)
+		if (p > 0.999*crit.p)
 		{
-			//**************************************************
-			// Step 1: Try to just use the ancillary equations
-			//**************************************************
-			TsatL = Tsat_anc(p,0);
-			if (pure())
-				TsatV = TsatL;
-			else
-				TsatV = Tsat_anc(p,1);
-			rhoL = rhosatL(TsatL);
-			rhoV = rhosatV(TsatV);
-			hsatL = hsatL_anc(TsatL);
-			hsatV = hsatV_anc(TsatV);
-			*rhoLout = -1;
-			*rhoVout = -1;
-			*TsatLout = -1;
-			*TsatVout = -1;
-
-			if (h > hsatV + hsat_tol)
+			hc = enthalpy_Trho(crit.T+0.001,crit.rho);
+			if (h > hc)
 			{
-				// Using ideal gas cp is a bit faster
-				// Can't use an ancillary since it diverges at the critical point
-				double cpV = specific_heat_p_ideal_Trho(TsatV);
-				//Superheated vapor
-				T_guess = TsatV+(h-hsatV)/cpV;
-				// Volume expansivity at saturated vapor using the ancillaries
-				// Can't use an ancillary since it diverges at the critical point
-				double drhodT = DerivTerms("drhodT|p",TsatV,rhoV,(char*)name.c_str());
-				// Extrapolate to get new density guess
-				double rho = rhoV+drhodT*(h-hsatV)/cpV;
-				// If the guess is negative for the density, need to make it positive
-				if (rho<0)
-					rho = 0.1;
-				delta = rho / reduce.rho;
+				// Supercritical pseudo-gas - extrapolate to find guess temperature at critical density
+				T_guess = crit.T+30;
+				h_guess = enthalpy_Trho(T_guess,crit.rho);
+				T_guess = (crit.T-T_guess)/(hc-h_guess)*(h-h_guess)+T_guess;
+				
+				delta = p/(R()*T_guess)/reduce.rho;
 			}
-			else if (h < hsatL - hsat_tol) 
+			else
 			{
+				// Supercritical pseudo-liquid
 				T_guess = params.Ttriple;
 				rho_guess = density_Tp(T_guess,p);
 				h_guess = enthalpy_Trho(T_guess,rho_guess);
 				// Update the guess with linear interpolation
-				T_guess = (TsatL-T_guess)/(hsatL-h_guess)*(h-h_guess)+T_guess;
+				T_guess = (crit.T-T_guess)/(hc-h_guess)*(h-h_guess)+T_guess;
 				// Solve for the density
 				rho_guess = density_Tp(T_guess,p,rho_guess);
 				
 				delta = rho_guess/reduce.rho;
 			}
 		}
-		
-		if (delta<0) // No solution found using ancillary equations (or the saturation LUT is in use) - need to use saturation call (or LUT)
+		else
 		{
-			//**************************************************
-			// Step 2: Not far away from saturation (or it is two-phase) - need to solve saturation as a function of p :( - this is slow
-			//**************************************************
-			CoolPropStateClass *sat = new CoolPropStateClass(name);
-			sat->update(iP,p,iQ,0);
-			rhoL = sat->rhoL();
-			rhoV = sat->rhoV();
-			hsatL = sat->hL();
-			hsatV = sat->hV();
-			TsatL = sat->TL();
-			TsatV = sat->TV();
-			*rhoLout = rhoL;
-			*rhoVout = rhoV;
-			*TsatLout = TsatL;
-			*TsatVout = TsatV;
+			// Set to a negative value as a dummy value
+			delta = -1;
 			
-			if (h>hsatV)
+			// If not using saturation LUT, start by trying to use the ancillary equations
+			if (!SaturationLUTStatus())
 			{
-				T_guess = TsatV+30;
-				h_guess = enthalpy_Trho(T_guess,rhoV);
-				T_guess = (TsatV-T_guess)/(hsatV-h_guess)*(h - h_guess)+T_guess;
+				//**************************************************
+				// Step 1: Try to just use the ancillary equations
+				//**************************************************
+				TsatL = Tsat_anc(p,0);
+				if (pure())
+					TsatV = TsatL;
+				else
+					TsatV = Tsat_anc(p,1);
+				rhoL = rhosatL(TsatL);
+				rhoV = rhosatV(TsatV);
+				hsatL = hsatL_anc(TsatL);
+				hsatV = hsatV_anc(TsatV);
+				*rhoLout = -1;
+				*rhoVout = -1;
+				*TsatLout = -1;
+				*TsatVout = -1;
+
+				if (h > hsatV + hsat_tol)
+				{
+					// Using ideal gas cp is a bit faster
+					// Can't use an ancillary since it diverges at the critical point
+					double cpV = specific_heat_p_ideal_Trho(TsatV);
+					//Superheated vapor
+					T_guess = TsatV+(h-hsatV)/cpV;
+					// Volume expansivity at saturated vapor using the ancillaries
+					// Can't use an ancillary since it diverges at the critical point
+					double drhodT = DerivTerms("drhodT|p",TsatV,rhoV,(char*)name.c_str());
+					// Extrapolate to get new density guess
+					double rho = rhoV+drhodT*(h-hsatV)/cpV;
+					// If the guess is negative for the density, need to make it positive
+					if (rho<0)
+						rho = 0.1;
+					delta = rho / reduce.rho;
+				}
+				else if (h < hsatL - hsat_tol) 
+				{
+					T_guess = params.Ttriple;
+					rho_guess = density_Tp(T_guess,p);
+					h_guess = enthalpy_Trho(T_guess,rho_guess);
+					// Update the guess with linear interpolation
+					T_guess = (TsatL-T_guess)/(hsatL-h_guess)*(h-h_guess)+T_guess;
+					// Solve for the density
+					rho_guess = density_Tp(T_guess,p,rho_guess);
+					
+					delta = rho_guess/reduce.rho;
+				}
+			}
+			
+			if (delta<0) // No solution found using ancillary equations (or the saturation LUT is in use) - need to use saturation call (or LUT)
+			{
+				//**************************************************
+				// Step 2: Not far away from saturation (or it is two-phase) - need to solve saturation as a function of p :( - this is slow
+				//**************************************************
+				CoolPropStateClass *sat = new CoolPropStateClass(name);
+				sat->update(iP,p,iQ,0);
+				rhoL = sat->rhoL();
+				rhoV = sat->rhoV();
+				hsatL = sat->hL();
+				hsatV = sat->hV();
+				TsatL = sat->TL();
+				TsatV = sat->TV();
+				*rhoLout = rhoL;
+				*rhoVout = rhoV;
+				*TsatLout = TsatL;
+				*TsatVout = TsatV;
 				
-				delta = p/(R()*T_guess)/reduce.rho;
-			}
-			else if (h<hsatL)
-			{
-				T_guess = params.Ttriple;
-				rho_guess = density_Tp(T_guess,p);
-				h_guess = enthalpy_Trho(T_guess,rho_guess);
+				if (h>hsatV)
+				{
+					T_guess = TsatV+30;
+					h_guess = enthalpy_Trho(T_guess,rhoV);
+					T_guess = (TsatV-T_guess)/(hsatV-h_guess)*(h - h_guess)+T_guess;
+					
+					delta = p/(R()*T_guess)/reduce.rho;
+				}
+				else if (h<hsatL)
+				{
+					T_guess = params.Ttriple;
+					rho_guess = density_Tp(T_guess,p);
+					h_guess = enthalpy_Trho(T_guess,rho_guess);
 
-				// Same thing at the midpoint temperature
-				double Tmid = (T_guess + TsatL)/2.0;
-				double rho_mid = density_Tp(Tmid,p,(rho_guess+rhoL)/2.0);
-				double h_mid = enthalpy_Trho(Tmid,rho_mid);
+					// Same thing at the midpoint temperature
+					double Tmid = (T_guess + TsatL)/2.0;
+					double rho_mid = density_Tp(Tmid,p,(rho_guess+rhoL)/2.0);
+					double h_mid = enthalpy_Trho(Tmid,rho_mid);
 
-				// Quadratic interpolation
-				T_guess = QuadInterp(h_guess, h_mid, hsatL, T_guess, Tmid, TsatL, h);
-				rho_guess = QuadInterp(h_guess, h_mid, hsatL, rho_guess, rho_mid, rhoL, h);
+					// Quadratic interpolation
+					T_guess = QuadInterp(h_guess, h_mid, hsatL, T_guess, Tmid, TsatL, h);
+					rho_guess = QuadInterp(h_guess, h_mid, hsatL, rho_guess, rho_mid, rhoL, h);
 
-				delta = rho_guess / reduce.rho;
-			}
-			else
-			{
-				// It is two-phase
-				// Return the quality weighted values
-				double quality = (h-hsatL)/(hsatV-hsatL);
-				*Tout = quality*TsatV+(1-quality)*TsatL;
-				double v = quality*(1/rhoV)+(1-quality)*1/rhoL;
-				*rhoout = 1/v;
+					delta = rho_guess / reduce.rho;
+				}
+				else
+				{
+					// It is two-phase
+					// Return the quality weighted values
+					double quality = (h-hsatL)/(hsatV-hsatL);
+					*Tout = quality*TsatV+(1-quality)*TsatL;
+					double v = quality*(1/rhoV)+(1-quality)*1/rhoL;
+					*rhoout = 1/v;
+					delete sat;
+					return;
+				}
 				delete sat;
-				return;
 			}
-			delete sat;
 		}
 	}
 
@@ -1811,37 +1872,14 @@ double Fluid::Tsat_anc(double p, double Q)
 
     Tc=reduce.T;
     Tmax=Tc-10*DBL_EPSILON;
-	Tmin=params.Ttriple+1;
+	Tmin=params.Ttriple+10*DBL_EPSILON;
 	if (Tmin <= limits.Tmin)
 		Tmin = limits.Tmin;
 	
 	Tmid = (Tmax+Tmin)/2.0;
 	
 	double tau_max = Tc/Tmin;
-	double tau_mid = Tc/Tmid;
 	double tau_min = Tc/Tmax;
-
-	//if (fabs(Q-1)<1e-10)
-	//{
-	//	// reduced pressures
-	//	logp_min = log(psatV_anc(Tmin));
-	//	logp_mid = log(psatV_anc(Tmid));
-	//	logp_max = log(psatV_anc(Tmax));
-	//}
-	//else if (fabs(Q)<1e-10)
-	//{
-	//	logp_min = log(psatL_anc(Tmin));
-	//	logp_mid = log(psatL_anc(Tmid));
-	//	logp_max = log(psatL_anc(Tmax));
-	//}
-	//
-	//// Plotting Tc/T versus log(p) tends to give very close to straight line
- //   // Use this fact find T more easily using reverse quadratic interpolation
-	//double tau_interp = QuadInterp(logp_min,logp_mid,logp_max,tau_max,tau_mid,tau_min,log(p));
-
-	//std::cout << "Tsat_anc" << psatV_anc(reduce.T/tau_interp) << '\n';
-	//return reduce.T/tau_interp;
-    
     
 	class SatFuncClass : public FuncWrapper1D
 	{
@@ -1866,10 +1904,46 @@ double Fluid::Tsat_anc(double p, double Q)
 	
 	// Use Brent's method to find tau = Tc/T
 	std::string errstr;
-    double tau = Brent(&SatFunc,tau_min,tau_max,1e-10,1e-4,50,&errstr);
-	if (errstr.size()>0)
-		throw SolutionError("Saturation calculation failed");
-	return reduce.T/tau;
+	try
+	{
+		double tau = Brent(&SatFunc,tau_min,tau_max,1e-10,1e-4,50,&errstr);
+		if (errstr.size()>0)
+			throw SolutionError("Saturation calculation failed");
+		return reduce.T/tau;
+	}
+	catch(std::exception)
+	{
+		// At very low pressures the above solver will sometimes fail due to 
+		// the uncertainty of the ancillary pressure equation at low temperature (pressure)
+		// Here we just do a quadratic interpolation
+		
+		double logp_min, logp_mid, logp_max;
+		double Tmid = (Tmax+Tmin)/2.0;
+		double tau_mid = Tc/Tmid;
+
+		if (fabs(Q-1)<1e-10)
+		{
+			// reduced pressures
+			logp_min = log(psatV_anc(Tmin));
+			logp_mid = log(psatV_anc(Tmid));
+			logp_max = log(psatV_anc(Tmax));
+		}
+		else if (fabs(Q)<1e-10)
+		{
+			logp_min = log(psatL_anc(Tmin));
+			logp_mid = log(psatL_anc(Tmid));
+			logp_max = log(psatL_anc(Tmax));
+		}
+		
+		// plotting tc/t versus log(p) tends to give very close to straight line
+		// use this fact find t more easily using reverse quadratic interpolation
+		double tau_interp = QuadInterp(logp_min,logp_mid,logp_max,tau_max,tau_mid,tau_min,log(p));
+
+		//std::cout << "tsat_anc" << psatV_anc(reduce.T/tau_interp) << '\n';
+		return reduce.T/tau_interp;
+	}
+	
+	
 }
 
 
@@ -2671,7 +2745,7 @@ public:
 	}
 };
 
-Eigen::Vector2d Fluid::ConformalTemperature(Fluid *InterestFluid, Fluid *ReferenceFluid,double T, double rho, double T0, double rho0, std::string *errstring)
+std::vector<double> Fluid::ConformalTemperature(Fluid *InterestFluid, Fluid *ReferenceFluid,double T, double rho, double T0, double rho0, std::string *errstring)
 {
 	int iter=0;
 	double error,v0,v1,delta,tau,dp_drho;
@@ -2689,7 +2763,10 @@ Eigen::Vector2d Fluid::ConformalTemperature(Fluid *InterestFluid, Fluid *Referen
 	// Check whether the starting guess is already pretty good
 	error = sqrt(CTR.call(x0).array().square().sum());
 	if (fabs(error)<1e-3){
-		return x0;
+		// convert to STL vector to avoid Eigen library in header
+		std::vector<double> xout(2,x0[0]);
+		xout[1] = x0[1];
+		return xout;
 	}
 	// Make a copy so that if the calculations fail, we can return the original values
 	Eigen::Vector2d x0_initial=x0;
@@ -2702,14 +2779,17 @@ Eigen::Vector2d Fluid::ConformalTemperature(Fluid *InterestFluid, Fluid *Referen
 		if (fabs(error)>1e-2 || x0(0)<0.0  || x0(1)<0.0 || !ValidNumber(x0(0)) || !ValidNumber(x0(1))){
 			throw ValueError("Error calculating the conformal state for ECS");
 		}
-		return x0;
+		// convert to STL vector to avoid Eigen library in header
+		std::vector<double> xout(2,x0[0]);
+		xout[1] = x0[1];
+		return xout;
 	}
 	catch(std::exception){}
 	// Ok, that didn't work, so we need to try something more interesting
 	// Local Newton-Raphson solver with bounds checking on the step values
 	error=999;
 	iter=0;
-	x0=x0_initial; // Start back at unity shape factors
+	x0 = x0_initial; // Start back at unity shape factors
 	while (iter<30 && fabs(error)>1e-6)
 	{
 		T = x0(0);
@@ -2738,7 +2818,10 @@ Eigen::Vector2d Fluid::ConformalTemperature(Fluid *InterestFluid, Fluid *Referen
 		error = sqrt(f0.array().square().sum());
 		iter+=1;
 	}
-	return x0_initial;
+	// convert to STL vector to avoid Eigen library in header
+	std::vector<double> xout(2,x0[0]);
+	xout[1] = x0[1];
+	return xout;
 };
 
 double Fluid::viscosity_ECS_Trho(double T, double rho, Fluid * ReferenceFluid)
@@ -2753,7 +2836,7 @@ double Fluid::viscosity_ECS_Trho(double T, double rho, Fluid * ReferenceFluid)
 	double e_k,sigma,e0_k, sigma0, Tc0,rhoc0,T0,rho0,rhoc,Tc,
 		eta_dilute,theta,phi,f,h,eta_resid,M,M0,F_eta,eta,psi,
 		rhoc0bar,rhobar,rhocbar,rho0bar;
-	Eigen::Vector2d x0;
+	std::vector<double> x0;
 
 	Tc0=ReferenceFluid->reduce.T;
 	rhoc0=ReferenceFluid->reduce.rho;
@@ -2846,8 +2929,8 @@ double Fluid::viscosity_ECS_Trho(double T, double rho, Fluid * ReferenceFluid)
 	if (Z<0.3 || p0>1.1*ReferenceFluid->reduce.p || rho0>ReferenceFluid->reduce.rho){
 		// Use the code to calculate the conformal state
 		x0=ConformalTemperature(this,ReferenceFluid,T,rho,T0,rho0,&errstring);
-		T0=x0(0);
-		rho0=x0(1);
+		T0=x0[0];
+		rho0=x0[1];
 	}
 	rho0bar = rho0/M0;
 	h=rho0bar/rhobar;
@@ -2871,7 +2954,7 @@ double Fluid::conductivity_ECS_Trho(double T, double rho, Fluid * ReferenceFluid
 	double e_k,sigma,e0_k, sigma0, Tc0,rhoc0,T0,rho0,rhoc,Tc,
 		eta_dilute,theta,phi,f,h,lambda_resid,M,M0,F_lambda,lambda,chi,
 		f_int,lambda_int,lambda_crit,lambda_star,rhoc0bar,rhobar,rhocbar,rho0bar;
-	Eigen::Vector2d x0;
+	std::vector<double> x0;
 
 	// Properties for the reference fluid
 	Tc0=ReferenceFluid->reduce.T;
@@ -2940,8 +3023,8 @@ double Fluid::conductivity_ECS_Trho(double T, double rho, Fluid * ReferenceFluid
 	if (Z<0.3 || p0>1.1*ReferenceFluid->reduce.p || rho0>ReferenceFluid->reduce.rho){
 		// Use the code to calculate the conformal state
 		x0=ConformalTemperature(this,ReferenceFluid,T,rho,T0,rho0,&errstring);
-		T0=x0(0);
-		rho0=x0(1);
+		T0=x0[0];
+		rho0=x0[1];
 	}
 	
 	rho0bar = rho0/M0;
@@ -2998,4 +3081,143 @@ double AncillaryCurveClass::interpolateL(double T){
 
 double AncillaryCurveClass::interpolateV(double T){
 	return interp1d(&xV,&yV,T);
+}
+
+//Microsoft version of math.h doesn't include acosh.h
+#if defined(_MSC_VER)
+static double acosh(double x)
+{
+ 	return log(x + sqrt(x*x - 1.0) );
+}
+double asinh(double value){
+
+ if(value>0)
+    return log(value + sqrt(value * value + 1));
+ else
+    return -log(-value + sqrt(value * value + 1));
+
+}
+#endif
+
+
+double CriticalSplineStruct_T::interpolate_rho(Fluid *pFluid, int phase, double T)
+{
+	// Use the spline interpolation since you are very close to the critical point
+	// R = rho/rhoc-1 => we are solving for R for liquid and vapor using a spline
+	// since we know that dtaudR|crit = 0, tau|crit = 1, R|crit = 0, and we know 
+	// rho and drhodT_sat at Tend, the end of the normal Akasaka solving method
+	//
+	// Essentially you have tau = aR^3+bR^2+cR+d, where c = 0 and d = 1 from constraints 
+	// at critical point
+	// Can check cubic solution from http://www.akiti.ca/Quad3Deg.html
+	// Also, wikipedia has good docs on cubics: http://en.wikipedia.org/wiki/Cubic_function, especially the "Trigonometric (and hyperbolic) method" section
+
+	double rhoc = pFluid->reduce.rho;
+	double Tc = pFluid->reduce.T;
+	double tauend = Tc/Tend, tau = Tc/T;
+
+
+	double tau_difference = tau-tauend;
+	double k1,k2,R,Rend,a,b,c,d,rhoend;
+	// If you are within a microKelvin of critical point, return critical point
+	if (fabs(T-Tc)<1e-6)
+	{
+		return rhoc;
+	}
+	if (phase == 0)
+	{
+		k1 = -tauend/Tend*rhoc/drhoLdT_sat; // k1 = dtaudR|sat at Tend
+		k2 = tauend;
+		Rend = rhoendL/rhoc-1; // R at Tend
+		rhoend = rhoendL;
+	}
+	else if (phase == 1)
+	{
+		k1 = -tauend/Tend*rhoc/drhoVdT_sat; // k1 = dtaudR|sat at Tend
+		k2 = tauend;
+		Rend = rhoendV/rhoc-1; // R at Tend
+		rhoend = rhoendV;
+	}
+	else
+	{
+		throw ValueError();
+	}
+	
+	// Linear system to find constants a,b for the spline cubic
+	/*
+	k2 = aR^3+bR^2+1
+	k1 = 3aR^2+2bR
+	*/
+	double a11 = Rend*Rend*Rend;
+	double a12 = Rend*Rend;
+	double b1 = k2-1;
+	double a21 = 3*Rend*Rend;
+	double a22 = 2*Rend;
+	double b2 = k1;
+
+	// Cramer's rule to find a,b
+	double det = a11*a22-a21*a12;
+	a = (b1*a22-a12*b2)/det;
+	b = (b2*a11-a21*b1)/det;
+
+	// Constants from critical point
+	c = 0;
+	d = 1-tau;
+
+	double b1_error = a11*a+a12*b-b1;
+	double b2_error = a21*a+a22*b-b2;
+
+	// Discriminant
+	double DELTA = 18*a*b*c*d-4*b*b*b*d+b*b*c*c-4*a*c*c*c-27*a*a*d*d;
+
+	// Coefficients for the depressed cubic t^3+p*t+q = 0
+	double p = (3*a*c-b*b)/(3*a*a);
+	double q = (2*b*b*b-9*a*b*c+27*a*a*d)/(27*a*a*a);
+
+	if (DELTA<0)
+	{
+		// One real root
+		double t0;
+		if (4*p*p*p+27*q*q>0 && p<0)
+		{
+			t0 = -2.0*fabs(q)/q*sqrt(-p/3.0)*cosh(1.0/3.0*acosh(-3.0*fabs(q)/(2.0*p)*sqrt(-3.0/p)));
+		}
+		else
+		{
+			t0 = -2.0*sqrt(p/3.0)*sinh(1.0/3.0*asinh(3.0*q/(2.0*p)*sqrt(3.0/p)));
+		}
+		R = t0-b/(3*a);
+	}
+	else if (DELTA>0)
+	{
+		// Three real roots
+
+		double arg_arccos = 3*q/(2*p)*sqrt(-3/p);
+		double t0 = 2.0*sqrt(-p/3.0)*cos(1.0/3.0*acos(3.0*q/(2.0*p)*sqrt(-3.0/p))-0*2.0*M_PI/3.0);
+		double t1 = 2.0*sqrt(-p/3.0)*cos(1.0/3.0*acos(3.0*q/(2.0*p)*sqrt(-3.0/p))-1*2.0*M_PI/3.0);
+		double t2 = 2.0*sqrt(-p/3.0)*cos(1.0/3.0*acos(3.0*q/(2.0*p)*sqrt(-3.0/p))-2*2.0*M_PI/3.0);
+		double t0_check = t0*t0*t0+p*t0+q;
+		double t1_check = t1*t1*t1+p*t1+q;
+		double t2_check = t2*t2*t2+p*t2+q;
+
+		double R0 = t0-b/(3*a);
+		double R1 = t1-b/(3*a);
+		double R2 = t2-b/(3*a);
+
+		// The solution for R must be bounded between Rend and 0
+		if (R0*Rend > 0 && fabs(R0)<=fabs(Rend))
+		{
+			R = R0;
+		}
+		else if (R1*Rend > 0 && fabs(R1)<=fabs(Rend))
+		{
+			R = R1;
+		}
+		else if (R2*Rend > 0 && fabs(R2)<=fabs(Rend))
+		{
+			R = R2;
+		}
+	}
+
+	return rhoc*(1+R);
 }

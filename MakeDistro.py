@@ -163,4 +163,4 @@ if __name__=='__main__':
 ##     UploadSourceForge()
 
     BuildDocs()
-##     UploadDocs()
+    UploadDocs()

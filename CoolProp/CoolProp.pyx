@@ -6,62 +6,6 @@
 #
 # Each of the functions from the CoolProp header are renamed in cython code to
 # an underscored name so that the same name can be used in the exposed functions below
-
-
-cdef extern from "CoolProp.h":
-    
-    double _Props "Props"(string Output, char Name1, double Prop1, char Name2, double Prop2, string Ref)
-    double _IProps "IProps"(long Output, long Name1, double Prop1, long Name2, double Prop2, long Ref)
-    double _Props1 "Props"(string Ref, string Output)
-    string _Phase "Phase"(char *Fluid, double T, double p)
-    string _Phase_Tp "Phase_Tp"(string Fluid, double T, double p)
-    string _Phase_Trho "Phase_Trho"(string Fluid, double T, double rho)
-    double _DerivTerms "DerivTerms"(char *Term, double T, double rho, char * Ref)
-    
-    # LUT functions
-    void _UseSaturationLUT "UseSaturationLUT"(bint OnOff)
-    bint _SaturationLUTStatus "SaturationLUTStatus" ()
-    void _UseSinglePhaseLUT "UseSinglePhaseLUT"(bint OnOff)
-    bint _SinglePhaseLUTStatus "SinglePhaseLUTStatus"()
-    
-    # Conversion functions
-    double _F2K "F2K"(double T_F)
-    double _K2F "K2F"(double T)
-    
-    string _FluidsList "FluidsList"()
-    string _get_REFPROPname "get_REFPROPname"(string Ref)
-    string _get_errstring "get_errstring"()
-    string _get_aliases "get_aliases"(string Ref)
-    long _set_phase "set_phase" (string phase)
-    long _get_Fluid_index "get_Fluid_index" (string Fluid)
-    long _get_param_index "get_param_index" (string param)
-    string _get_index_units "get_index_units" (long index)
-    char * get_errstringc()
-    
-    #Ancillary equations
-    double _psatL_anc "psatL_anc"(char*Fluid, double T)
-    double _psatV_anc "psatV_anc"(char*Fluid, double T)
-    double _rhosatL_anc "rhosatL_anc"(char*Fluid, double T)
-    double _rhosatV_anc "rhosatV_anc"(char*Fluid, double T)
-    
-    int _get_debug "get_debug"()
-    void _debug "debug"(int level)
-    
-    void _PrintSaturationTable "PrintSaturationTable"(char *FileName, char * Ref, double Tmin, double Tmax)
-    
-    string _get_EOSReference "get_EOSReference"(string Ref)
-    string _get_TransportReference "get_TransportReference"(string Ref)
-
-    int _set_1phase_LUT_params "set_1phase_LUT_params"(char *Ref, int nT, int np, double Tmin, double Tmax, double pmin, double pmax, bint rebuild)
-    void _get_1phase_LUT_params "get_1phase_LUT_params"(int *nT, int *np, double *Tmin, double *Tmax, double *pmin, double *pmax)
-    
-    # Convenience functions
-    int _IsFluidType "IsFluidType"(char *Ref, char *Type)
-
-cdef extern from "HumidAirProp.h":
-    double _HAProps "HAProps"(char *OutputName, char *Input1Name, double Input1, char *Input2Name, double Input2, char *Input3Name, double Input3)
-    double _HAProps_Aux "HAProps_Aux"(char* Name,double T, double p, double W, char *units)
-    
     
 #Check for the existence of quantities
 cdef bint _quantities_supported
@@ -119,7 +63,7 @@ cpdef _convert_to_default_units(bytes parameter_type, object parameter):
     #Return the scaled units
     return parameter
      
-cpdef double HAProps(bytes OutputName, bytes InputName1, double Input1, bytes Input2Name, double Input2, bytes Input3Name, double Input3):
+cpdef double __HAProps(bytes OutputName, bytes InputName1, double Input1, bytes Input2Name, double Input2, bytes Input3Name, double Input3):
     """
     Copyright Ian Bell, 2011 email: ian.h.bell@gmail.com
 
@@ -157,7 +101,7 @@ cpdef double HAProps(bytes OutputName, bytes InputName1, double Input1, bytes In
     """
     return _HAProps(OutputName,InputName1,Input1,Input2Name,Input2,Input3Name,Input3)
 
-cpdef tuple HAProps_Aux(bytes OutputName, double T, double p, double w, bytes units):
+cpdef tuple __HAProps_Aux(bytes OutputName, double T, double p, double w, bytes units):
     """
     Allows low-level access to some of the routines employed in HumidAirProps
 
@@ -195,6 +139,7 @@ cpdef double Props(bytes in1, bytes in2, in3=None, in4=None,in5=None,in6=None,in
     ``rhocrit``    Critical density [kg/m3]
     ``molemass``   Molecular mass [kg/kmol]
     ``Ttriple``    Triple-point temperature [K]
+    ``ptriple``    Triple-point pressure [kPa]
     ``accentric``  Accentric factor [-]
     =============  ============================
    
@@ -632,8 +577,6 @@ cpdef int LUT(bint LUTval):
 from math import pow as pow_
 cdef bint _LUT_Enabled
 
-
-
 #A dictionary mapping parameter index to string for use with non-CoolProp fluids
 cdef dict paras = {iMM : 'M',
                    iT : 'T',
@@ -648,13 +591,19 @@ cdef dict paras = {iMM : 'M',
                    iU : 'U',
                    iDpdT : 'dpdT'}
 
-@cython.final
-cdef class State:
+cdef class __State:
     """
     A class that contains all the code that represents a thermodynamic state
     """
     
-    def __init__(self, bytes Fluid, dict StateDict, double xL=-1.0, bytes Liquid=str(''), phase = str('Gas')):
+    def __cinit__(self, string FluidName, dict StateDict, double xL=-1.0, bytes Liquid=str(''), phase = str('none')):
+        """ Allocate the CoolPropStateClass instance"""
+        self.CPS = new CoolPropStateClass(FluidName)
+    def __dealloc__(self):
+        """ Deallocate the CoolPropStateClass instance"""
+        del self.CPS
+        
+    def __init__(self, bytes Fluid, dict StateDict, double xL=-1.0, bytes Liquid=str(''), phase = str('none')):
         self.Fluid = Fluid
         self.iFluid = _get_Fluid_index(Fluid)
         #Try to get the fluid from CoolProp
@@ -681,10 +630,37 @@ cdef class State:
         d['rho']=self.rho_
         return rebuildState,(d,)
           
-          
+    cpdef update_ph(self, double p, double h):
+        """
+        Use the pressure and enthalpy directly
+        
+        Parameters
+        ----------
+        p: float
+            Pressure (absolute) [kPa]
+        h: float
+            Enthalpy [kJ/kg]
+        
+        """
+        self.p_ = p
+        cdef double T
+        
+        if self.is_CPFluid:
+            self.CPS.update(iP, p, iH, h)
+            self.T_ = self.CPS.T()
+            self.rho_ = self.CPS.rho()
+        else:
+            T = _Props('T','P',p,'H',h,self.Fluid)
+            if abs(T)<1e90:
+                self.T_=T
+            else:
+                errstr = get_errstringc()
+                raise ValueError(errstr)
+            self.rho_ = _Props('D','P',p,'H',h,self.Fluid)
+            
     cpdef update_Trho(self, double T, double rho):
         """
-        Just use the temperature and density directly
+        Just use the temperature and density directly for speed
         """
         self.T_ = T
         self.rho_ = rho
@@ -701,7 +677,7 @@ cdef class State:
             errstr = get_errstringc()
             raise ValueError(errstr)
         
-    cpdef update(self,dict params, double xL=-1.0):
+    cpdef update(self, dict params, double xL=-1.0):
         """
         *params* is a list(or tuple) of strings that represent the parameters 
         that have been updated and will be used to fix the rest of the state. 
@@ -741,7 +717,7 @@ cdef class State:
                 else:
                     rho = _Props('D','T',self.T_,'P',self.p_,self.Fluid)
                 
-                if abs(rho)<1e90:
+                if abs(rho) < 1e90:
                     self.rho_=rho
                 else:
                     errstr = get_errstringc()
@@ -917,11 +893,11 @@ cdef class State:
     cpdef copy(self):
         cdef double T = self.T_*(1.0+1e-20)
         cdef double rho = self.rho_*(1.0+1e-20)
-        ST=State(self.Fluid,{'T':T,'D':rho})
+        ST=__State(self.Fluid,{'T':T,'D':rho})
         return ST
     
 def rebuildState(d):
-    S=State(d['Fluid'],{'T':d['T'],'D':d['rho']})
+    S=__State(d['Fluid'],{'T':d['T'],'D':d['rho']})
     S.xL = d['xL']
     S.Liquid=d['Liquid']
     return S

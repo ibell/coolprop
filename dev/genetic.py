@@ -19,7 +19,7 @@ class GeneticHelloWorld(object):
                num_selected = 20, # Have 10 chromos in the selected group
                mutation_factor = 3, # Randomly mutate 1/n of the chromosomes
                num_powers = 6, # How many powers in the fit
-               Ref = 'REFPROP-MLINOLEA',
+               Ref = 'REFPROP-CYCLOHEX',
                value = 'rhoV',
                addTr = False
                 ):

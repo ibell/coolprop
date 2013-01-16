@@ -4,9 +4,9 @@
 #include <string>
 #include <exception>
 #include <vector>
+
 #include "CPExceptions.h"
 #include "CoolPropTools.h"
-#include <Eigen/Dense>
 #include "Helmholtz.h"
 
 #ifndef FLUIDCLASS_H
@@ -34,6 +34,53 @@ struct SatLUTStruct
 	int N;
 	bool built;
 	enum flags{ iT,iP,iHL,iHV,iDL,iDV,iSL,iSV};
+};
+
+class CriticalSplineStruct_T
+{
+public:
+	CriticalSplineStruct_T(){};
+	CriticalSplineStruct_T(double Tend, double rhoendL, double rhoendV, double drhoLdT_sat, double drhoVdT_sat){
+		this->Tend = Tend;
+		this->rhoendL = rhoendL;
+		this->rhoendV = rhoendV;
+		this->drhoLdT_sat = drhoLdT_sat;
+		this->drhoVdT_sat = drhoVdT_sat;
+	};
+	/// Interpolate within the spline to get the density
+	/// @param pFluid Pointer to fluid of interest
+	/// @param phase Integer for phase (0=liquid, 1 = vapor)
+	/// @param T Tempeature [K]
+	double interpolate_rho(Fluid* pFluid, int phase, double T);
+
+	/// The last temperature for which the conventional methods can be used
+	double Tend;
+	/// Saturated liquid density at the last temperature for which the conventional methods can be used
+	double rhoendL;
+	/// Saturated vapor density at the last temperature for which the conventional methods can be used
+	double rhoendV;
+	/// Derivative of density w.r.t. temperature along the saturated liquid curve
+	double drhoLdT_sat;
+	/// Derivative of density w.r.t. temperature along the saturated vapor curve
+	double drhoVdT_sat;
+};
+
+/// Not working right now, a place holder
+class CriticalSplineStruct_p
+{
+public:
+	CriticalSplineStruct_p(){};
+	CriticalSplineStruct_p(double pend, double drhoLdT_sat, double drhoVdT_sat){
+		this->pend = pend;
+		this->drhoLdT_sat = drhoLdT_sat;
+		this->drhoVdT_sat = drhoVdT_sat;
+	};
+	/// The last temperature for which the conventional methods can be used
+	double pend;
+	/// Derivative of density w.r.t. temperature along the saturated liquid curve
+	double drhoLdT_sat;
+	/// Derivative of density w.r.t. temperature along the saturated vapor curve
+	double drhoVdT_sat;
 };
 
 class AncillaryCurveClass
@@ -82,6 +129,8 @@ class Fluid
 		AncillaryCurveClass *cp_ancillary;
 		AncillaryCurveClass *drhodT_p_ancillary;
 
+		
+
 		/// Obtain a guess value for the density of the fluid for a given set of temperature and pressure
 		/// @param T Temperature [K]
 		/// @param p Pressure [kPa(abs)]
@@ -127,6 +176,10 @@ class Fluid
 		struct OtherParameters params;
 		struct CriticalStruct * preduce; /// A pointer to the point that is used to reduce the T and rho for EOS
 		struct CriticalStruct reduce; /// The point that is used to reduce the T and rho for EOS
+
+		// The classes that hold the information on the critical spline parameters
+		CriticalSplineStruct_T CriticalSpline_T;
+		CriticalSplineStruct_p CriticalSpline_p;
 
 		// Member Access functions
 		/// Returns a std::string with the name of the fluid
@@ -263,7 +316,7 @@ class Fluid
 		double drhodT_pL_anc(double T);
 		double drhodT_pV_anc(double T);
 
-		Eigen::Vector2d ConformalTemperature(Fluid *InterestFluid, Fluid *ReferenceFluid,double T, double rho, double T0, double rho0, std::string *errstring);
+		std::vector<double> ConformalTemperature(Fluid *InterestFluid, Fluid *ReferenceFluid,double T, double rho, double T0, double rho0, std::string *errstring);
 		// Extended corresponding states functions for fluids that do not have their own high-accuracy
 		// transport property implementation
 		virtual void ECSParams(double *e_k, double *sigma){
@@ -348,7 +401,16 @@ class Fluid
 		/// @param psatVout Saturated vapor pressure [kPa(abs)]
 		/// @param rhoLout Saturated liquid pressure [kg/m3]
 		/// @param rhoVout Saturated vapor pressure [kg/m3]
-		void saturation(double T, bool UseLUT, double *psatLout, double *psatVout, double *rhoLout, double *rhoVout);
+		void saturation_T(double T, bool UseLUT, double *psatLout, double *psatVout, double *rhoLout, double *rhoVout);
+
+		/// Saturation pressure and saturated liquid and vapor densities as a function of the temperature.
+		/// @param UseLUT If True, use the Saturation Lookup tables, otherwise use the EOS and the equal gibbs function and equal pressure criterion to determine saturation state
+		/// @param p Pressure [kPa(abs)]
+		/// @param TLout Saturated liquid temperature [K]
+		/// @param TVout Saturated vapor temperature [K]
+		/// @param rhoLout Saturated liquid pressure [kg/m3]
+		/// @param rhoVout Saturated vapor pressure [kg/m3]
+		void saturation_p(double p, bool UseLUT, double *psatLout, double *psatVout, double *rhoLout, double *rhoVout);
 		
 		/// NB: Only valid for pure fluids - no pseudo-pure or mixtures.
 		/// Get the saturated liquid, vapor densities and the saturated pressure
@@ -373,6 +435,13 @@ class Fluid
 		/// @param rhoLout Saturated liquid pressure [kg/m3]
 		/// @param rhoVout Saturated vapor pressure [kg/m3]
 		void rhosatPure_Brent(double T, double *rhoLout, double *rhoVout, double *pout);
+
+		/// Get the saturated liquid, vapor densities and the saturated pressure using Brent's method and adjusting the density
+		/// @param T Temperature [K]]
+		/// @param pout Saturated pressure [kPa(abs)]
+		/// @param rhoLout Saturated liquid pressure [kg/m3]
+		/// @param rhoVout Saturated vapor pressure [kg/m3]
+		void rhosatPure_BrentrhoV(double T, double *rhoLout, double *rhoVout, double *pout);
 
 		/// Tries to build the Saturation Lookup tables for Temperature, pressure, densities and enthalpies.  
 		///  If the LUT are already built, don't rebuild them, but if the parameter SatLUT.force=True, rebuild.

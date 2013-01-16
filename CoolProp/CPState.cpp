@@ -1,12 +1,14 @@
 
 #include "CPExceptions.h"
-#include "CPState.h"
 #include "Solvers.h"
+#include "CPState.h"
 
 #ifndef DBL_EPSILON
 	#include <limits>
 	#define DBL_EPSILON std::numeric_limits<double>::epsilon()
 #endif
+
+
 
 // Constructor with fluid name
 CoolPropStateClass::CoolPropStateClass(std::string Fluid){
@@ -32,6 +34,10 @@ CoolPropStateClass::CoolPropStateClass(std::string Fluid){
 
 	SatL = NULL;
 	SatV = NULL;
+
+	/// Default is to disable the TTSE
+	enabled_TTSE_LUT = false;
+	built_TTSE_LUT = false;
 }
 
 // Constructor with pointer to fluid
@@ -47,6 +53,10 @@ CoolPropStateClass::CoolPropStateClass(Fluid * pFluid){
 
 	SatL = NULL;
 	SatV = NULL;
+
+	/// Default is to disable the TTSE
+	enabled_TTSE_LUT = false;
+	built_TTSE_LUT = false;
 }
 
 CoolPropStateClass::~CoolPropStateClass()
@@ -141,38 +151,44 @@ void CoolPropStateClass::update(long iInput1, double Value1, long iInput2, doubl
 	// Don't know if it is single phase or not, so assume it isn't
 	SinglePhase = false;
 	
-	// If the inputs are P,Q or T,Q , it is guaranteed to require a call to the saturation routine
-	if (match_pair(iInput1,iInput2,iP,iQ) || match_pair(iInput1,iInput2,iT,iQ)){
-		update_twophase(iInput1,Value1,iInput2,Value2);
-	}
-	else if (match_pair(iInput1,iInput2,iT,iD)){
-		update_Trho(iInput1,Value1,iInput2,Value2);
-	}
-	else if (match_pair(iInput1,iInput2,iT,iP)){
-		update_Tp(iInput1,Value1,iInput2,Value2);
-	}
-	else if (match_pair(iInput1,iInput2,iP,iH)){
-		update_ph(iInput1,Value1,iInput2,Value2);
-	}
-	else if (match_pair(iInput1,iInput2,iP,iS)){
-		update_ps(iInput1,Value1,iInput2,Value2);
+	if (enabled_TTSE_LUT)
+	{
+		build_TTSE_LUT();
 	}
 	else
 	{
-		throw ValueError(format("Sorry your inputs didn't work"));
-	}
+		// If the inputs are P,Q or T,Q , it is guaranteed to require a call to the saturation routine
+		if (match_pair(iInput1,iInput2,iP,iQ) || match_pair(iInput1,iInput2,iT,iQ)){
+			update_twophase(iInput1,Value1,iInput2,Value2);
+		}
+		else if (match_pair(iInput1,iInput2,iT,iD)){
+			update_Trho(iInput1,Value1,iInput2,Value2);
+		}
+		else if (match_pair(iInput1,iInput2,iT,iP)){
+			update_Tp(iInput1,Value1,iInput2,Value2);
+		}
+		else if (match_pair(iInput1,iInput2,iP,iH)){
+			update_ph(iInput1,Value1,iInput2,Value2);
+		}
+		else if (match_pair(iInput1,iInput2,iP,iS)){
+			update_ps(iInput1,Value1,iInput2,Value2);
+		}
+		else
+		{
+			throw ValueError(format("Sorry your inputs didn't work"));
+		}
+		// Clear the cached derivative flags
+		this->clear_cache();
 
-	// Clear the cached derivative flags
-	this->clear_cache();
+		if (TwoPhase && !flag_TwoPhase)
+		{
+			add_saturation_states();
+		}
+	}
 
 	// Reduced parameters
 	delta = this->_rho/pFluid->reduce.rho;
-	tau = pFluid->reduce.T/this->_T;
-
-	if (TwoPhase && !flag_TwoPhase)
-	{
-		add_saturation_states();
-	}
+	tau = pFluid->reduce.T/this->_T;	
 }
 void CoolPropStateClass::update_twophase(long iInput1, double Value1, long iInput2, double Value2)
 {
@@ -225,8 +241,9 @@ void CoolPropStateClass::update_twophase(long iInput1, double Value1, long iInpu
 		// Sort so they are in the order T, Q
 		sort_pair(&iInput1,&Value1,&iInput2,&Value2,iT,iQ);
 		// Carry out the saturation call to get the temperature and density for each phases
+		// for the given temperature
 		if (pFluid->pure()){
-			pFluid->saturation(Value1,SaturationLUTStatus(),&psatL,&psatV,&rhosatL,&rhosatV);
+			pFluid->saturation_T(Value1,SaturationLUTStatus(),&psatL,&psatV,&rhosatL,&rhosatV);
 			TsatL = Value1;
 			TsatV = Value1;
 		}
@@ -404,6 +421,45 @@ void CoolPropStateClass::add_saturation_states(void)
 	SatV->flag_TwoPhase = true;
 	SatV->update(iT,TsatV,iD,rhosatV);
 	SatV->flag_TwoPhase = false;
+}
+
+/// Enable the TTSE LUT
+void CoolPropStateClass::enable_TTSE_LUT(void){
+	enabled_TTSE_LUT = true;
+}
+/// Check if TTSE is enabled
+bool CoolPropStateClass::isenabled_TTSE_LUT(void){
+	return enabled_TTSE_LUT;
+};
+/// Disable the TTSE
+void CoolPropStateClass::disable_TTSE_LUT(void){
+	enabled_TTSE_LUT = false;
+};
+
+bool CoolPropStateClass::build_TTSE_LUT()
+{
+	if (!built_TTSE_LUT)
+	{
+		TTSESatL = TTSETwoPhaseTableClass(pFluid,0);
+		TTSESatL.set_size(400);
+		TTSESatL.build(pFluid->params.ptriple+1e-08,pFluid->reduce.p);
+
+		TTSESatV = TTSETwoPhaseTableClass(pFluid,1);
+		TTSESatV.set_size(400);
+		TTSESatV.build(pFluid->params.ptriple+1e-08,pFluid->reduce.p);
+
+		// Enthalpy at saturated liquid at triple point temperature
+		double hmin = Props("H",'T',pFluid->params.Ttriple+1e-8,'Q',0,pFluid->get_name());
+		double hmax = Props("H",'T',pFluid->params.Ttriple+1e-8,'Q',1,pFluid->get_name())*2;
+		double pmin = pFluid->params.ptriple;
+		double pmax = 2*pFluid->reduce.p;
+		TTSESinglePhase = TTSESinglePhaseTableClass(pFluid);
+		TTSESinglePhase.set_size(200,200);
+		TTSESinglePhase.build_TTSESat(hmin,hmax,pmin,pmax,&TTSESatL,&TTSESatV);
+		TTSESinglePhase.write_dotdrawing_tofile("dot.txt");
+		built_TTSE_LUT = true;
+	}
+	return true;
 }
 
 double CoolPropStateClass::hL(void){
@@ -715,6 +771,15 @@ double CoolPropStateClass::d2rhodp2_along_sat_liquid(void)
 	double ddp_drhodpsigmaL = SatL->d2rhodp2_constT()+SatL->drhodT_constp()*ddp_dTdp_along_sat()+SatL->d2rhodTdp()*dTdp_along_sat();
 	double ddT_drhodpsigmaL = SatL->d2rhodTdp()+SatL->drhodT_constp()*ddT_dTdp_along_sat()+SatL->d2rhodT2_constp()*dTdp_along_sat();
 	return ddp_drhodpsigmaL+ddT_drhodpsigmaL*dTdp_along_sat();
+}
+
+double CoolPropStateClass::drhodT_along_sat_vapor(void)
+{
+	return SatV->drhodT_constp()+SatV->drhodp_constT()/dTdp_along_sat();
+}
+double CoolPropStateClass::drhodT_along_sat_liquid(void)
+{
+	return SatL->drhodT_constp()+SatL->drhodp_constT()/dTdp_along_sat();
 }
 
 double CoolPropStateClass::drhodh_constp(void){

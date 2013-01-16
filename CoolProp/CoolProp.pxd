@@ -1,6 +1,68 @@
 from libcpp.string cimport string
 
-cdef class State:
+cdef extern from "CoolProp.h":
+    
+    double _Props "Props"(string Output, char Name1, double Prop1, char Name2, double Prop2, string Ref)
+    double _IProps "IProps"(long Output, long Name1, double Prop1, long Name2, double Prop2, long Ref)
+    double _Props1 "Props"(string Ref, string Output)
+    string _Phase "Phase"(char *Fluid, double T, double p)
+    string _Phase_Tp "Phase_Tp"(string Fluid, double T, double p)
+    string _Phase_Trho "Phase_Trho"(string Fluid, double T, double rho)
+    double _DerivTerms "DerivTerms"(char *Term, double T, double rho, char * Ref)
+    
+    # LUT functions
+    void _UseSaturationLUT "UseSaturationLUT"(bint OnOff)
+    bint _SaturationLUTStatus "SaturationLUTStatus" ()
+    void _UseSinglePhaseLUT "UseSinglePhaseLUT"(bint OnOff)
+    bint _SinglePhaseLUTStatus "SinglePhaseLUTStatus"()
+    
+    # Conversion functions
+    double _F2K "F2K"(double T_F)
+    double _K2F "K2F"(double T)
+    
+    string _FluidsList "FluidsList"()
+    string _get_REFPROPname "get_REFPROPname"(string Ref)
+    string _get_errstring "get_errstring"()
+    string _get_aliases "get_aliases"(string Ref)
+    long _set_phase "set_phase" (string phase)
+    long _get_Fluid_index "get_Fluid_index" (string Fluid)
+    long _get_param_index "get_param_index" (string param)
+    string _get_index_units "get_index_units" (long index)
+    char * get_errstringc()
+    
+    #Ancillary equations
+    double _psatL_anc "psatL_anc"(char*Fluid, double T)
+    double _psatV_anc "psatV_anc"(char*Fluid, double T)
+    double _rhosatL_anc "rhosatL_anc"(char*Fluid, double T)
+    double _rhosatV_anc "rhosatV_anc"(char*Fluid, double T)
+    
+    int _get_debug "get_debug"()
+    void _debug "debug"(int level)
+    
+    void _PrintSaturationTable "PrintSaturationTable"(char *FileName, char * Ref, double Tmin, double Tmax)
+    
+    string _get_EOSReference "get_EOSReference"(string Ref)
+    string _get_TransportReference "get_TransportReference"(string Ref)
+
+    int _set_1phase_LUT_params "set_1phase_LUT_params"(char *Ref, int nT, int np, double Tmin, double Tmax, double pmin, double pmax, bint rebuild)
+    void _get_1phase_LUT_params "get_1phase_LUT_params"(int *nT, int *np, double *Tmin, double *Tmax, double *pmin, double *pmax)
+    
+    # Convenience functions
+    int _IsFluidType "IsFluidType"(char *Ref, char *Type)
+
+cdef extern from "CPState.h":
+    cdef cppclass CoolPropStateClass:
+        CoolPropStateClass(string FluidName) except +
+        double T()
+        double rho()
+        void update(long iInput1, double Value1, long iInput2, double Value2)
+        
+cdef extern from "HumidAirProp.h":
+    double _HAProps "HAProps"(char *OutputName, char *Input1Name, double Input1, char *Input2Name, double Input2, char *Input3Name, double Input3)
+    double _HAProps_Aux "HAProps_Aux"(char* Name,double T, double p, double W, char *units)
+       
+cdef class __State:
+    cdef CoolPropStateClass *CPS      # hold a C++ instance which we're wrapping
     cdef readonly bint hasLiquid
     cdef readonly bytes Liquid, Fluid, phase
     cdef long iFluid,iParam1,iParam2,iOutput
@@ -9,6 +71,7 @@ cdef class State:
     
     cpdef speed_test(self, int N)
     cpdef update(self,dict params, double xL=*)
+    cpdef update_ph(self, double p, double h)
     cpdef update_Trho(self, double T, double rho)
     cpdef copy(self)
     cpdef double Props(self, long iOutput)

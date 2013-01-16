@@ -1,7 +1,6 @@
 State Module
-===============
+============
 
-.. automodule:: CoolProp.State
+.. autoclass:: CoolProp.State.State 
     :members:
     :undoc-members:
-    :show-inheritance:

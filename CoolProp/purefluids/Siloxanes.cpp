@@ -709,7 +709,7 @@ OctamethylcyclotetrasiloxaneClass::OctamethylcyclotetrasiloxaneClass()
 	params.ptriple = 0.147791735066714;
 
     // Limits of EOS
-    limits.Tmin = 273;
+	limits.Tmin = params.Ttriple;
     limits.Tmax = 500.0;
     limits.pmax = 100000.0;
     limits.rhomax = 1000000.0*params.molemass;    

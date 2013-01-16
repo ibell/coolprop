@@ -7,7 +7,7 @@
 #include "FluidClass.h"
 #include "Span_Short.h"
 
-static const double d_nonpolar[] =
+static double d_nonpolar[] =
 {
 0,
 1.0, //[1]
@@ -24,7 +24,7 @@ static const double d_nonpolar[] =
 4.0, //[12]
 };
 
-static const double t_nonpolar[] =
+static double t_nonpolar[] =
 {
 0,
 0.25,  //[1]
@@ -41,7 +41,7 @@ static const double t_nonpolar[] =
 12.0,  //[12]
 };
 
-static const double c_nonpolar[] =
+static double c_nonpolar[] =
 {
 0,
 0.0, //[1]
@@ -58,7 +58,7 @@ static const double c_nonpolar[] =
 3.0, //[12]
 };
 
-static const double d_polar[] =
+static double d_polar[] =
 {
 0,
 1.0, //[1]
@@ -75,7 +75,7 @@ static const double d_polar[] =
 2.0, //[12]
 };
 
-static const double t_polar[] =
+static double t_polar[] =
 {
 0,
 0.25,  //[1]
@@ -92,7 +92,7 @@ static const double t_polar[] =
 12.5,  //[12]
 };
 
-static const double c_polar[] =
+static double c_polar[] =
 {
 0,
 0.0, //[1]
@@ -648,11 +648,7 @@ double nDodecaneClass::rhosatV(double T)
 
 CyclohexaneClass::CyclohexaneClass()
 {
-	const double n[] = {0.0, 1.0232354, -2.9204964, 1.0736630, -0.19573985, 0.12228111, 0.00028943321, 0.27231767, -0.04483332, -0.38253334, -0.089835333, -0.024874965, 0.010836132};
-	std::vector<double> n_v(n,n+sizeof(n)/sizeof(double));
-	std::vector<double> t_v(t_nonpolar,t_nonpolar+sizeof(t_nonpolar)/sizeof(double));
-	std::vector<double> d_v(d_nonpolar,d_nonpolar+sizeof(d_nonpolar)/sizeof(double));
-	std::vector<double> l_v(c_nonpolar,c_nonpolar+sizeof(c_nonpolar)/sizeof(double));
+	double n[] = {0.0, 1.0232354, -2.9204964, 1.0736630, -0.19573985, 0.12228111, 0.00028943321, 0.27231767, -0.044833320, -0.38253334, -0.089835333, -0.024874965, 0.010836132};
 
 	//Critical parameters
 	crit.rho = 273.02; //[kg/m^3]
@@ -673,7 +669,7 @@ CyclohexaneClass::CyclohexaneClass()
 	limits.pmax = 100000.0;
 	limits.rhomax = 1000000.0*params.molemass;
 
-	phirlist.push_back(new phir_power( n_v,d_v,t_v,l_v,1,12));
+	phirlist.push_back(new phir_power( n,d_nonpolar,t_nonpolar,c_nonpolar,1,12,13));
 
 	double T0 = 353.885834409,
 	R_ = 8.314510/params.molemass,
@@ -696,17 +692,20 @@ CyclohexaneClass::CyclohexaneClass()
 	phi0list.push_back(new phi0_lead(c,m));
 	phi0list.push_back(new phi0_logtau(-1.0));
 
-	const double a0[] = {0,4*params.R_u,8.97575*params.R_u,438.27, 5.25156*params.R_u, 198.018};
+	// Span and Penoncello use different R values, use correction method from Span
+	double Rr = 8.31434/8.314510;
+	const double a0[] = {0,-Rr*56214088,Rr*0.01526155409,Rr*-0.000003635246755};
 	std::vector<double> a0_v(a0,a0+sizeof(a0)/sizeof(double));
-	const double a1[] = {0,0,25.1423*params.R_u, 1905.02, 16.1388*params.R_u, 893.765};
-	std::vector<double> a1_v(a1,a1+sizeof(a1)/sizeof(double));
+	const double b0[] = {0,-3,1,2};
+	std::vector<double> b0_v(b0,b0+sizeof(b0)/sizeof(double));
 
-	phi0list.push_back(new phi0_cp0_AlyLee(a0_v,crit.T,T0,params.R_u));
-	phi0list.push_back(new phi0_cp0_AlyLee(a1_v,crit.T,T0,params.R_u));
+	phi0list.push_back(new phi0_cp0_constant(Rr*9.368327211,crit.T,T0));
+	phi0list.push_back(new phi0_cp0_poly(a0_v,b0_v,crit.T,T0,1,3));
+	phi0list.push_back(new phi0_Planck_Einstein(Rr*23.76658940,2000.0/crit.T));
 
+	static char EOSstr [] = "Span, R. and W. Wagner, \"Equations of State for Technical Applications. II. Results for Nonpolar Fluids\", International Journal of Thermophysics, Vol. 24, No. 1, January 2003. \n\nCp0: Penoncello, S.G., R.T. Jacobsen, A.R.H. Goodwin,\"A Thermodynamic Property Formulation for Cyclohexane \" International Journal of Thermophysics. vol. 16. No. 2, 1995\n\nNote: Results do not agree(01/15/2013) with REFPROP, but it seems REFPROP is in error based on validation data in Span";
 	EOSReference.assign(EOSstr);
-    // Also see Penoncello, 1995
-	TransportReference.assign("Using ECS in fully predictive mode.  ECS parameters from ");
+	TransportReference.assign("Using ECS in fully predictive mode. ");
 
 	name.assign("CycloHexane");
 	aliases.push_back("Cyclohexane");

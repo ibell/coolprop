@@ -1,6 +1,7 @@
 #include <iostream>
 #include "FluidClass.h"
 #include "CoolProp.h"
+#include "TTSE.h"
 
 #ifndef CPSTATE_H
 #define CPSTATE_H
@@ -18,11 +19,11 @@ protected:
 	bool cached_phir, cached_dphir_dTau, cached_dphir_dDelta,  cached_d2phir_dTau2, cached_d2phir_dDelta_dTau, cached_d2phir_dDelta2, cached_d3phir_dTau3,  cached_d3phir_dDelta_dTau2, cached_d3phir_dDelta2_dTau, cached_d3phir_dDelta3;
 	double cachedval_phir, cachedval_dphir_dTau, cachedval_dphir_dDelta,  cachedval_d2phir_dTau2, cachedval_d2phir_dDelta_dTau, cachedval_d2phir_dDelta2, cachedval_d3phir_dTau3,  cachedval_d3phir_dDelta_dTau2, cachedval_d3phir_dDelta2_dTau, cachedval_d3phir_dDelta3;
 
-
 	std::string _Fluid;
 	
-	bool flag_SinglePhase, flag_TwoPhase;
+	
 	bool SaturatedL,SaturatedV;
+	bool enabled_TTSE_LUT, built_TTSE_LUT;
 
 	// Saturation values
 	double rhosatL, rhosatV, psatL, psatV, TsatL, TsatV;
@@ -32,8 +33,6 @@ protected:
 
 	void add_saturation_states(void);
 	void remove_saturation_states(void);
-
-	
 
 	// To be used to update internal variables if you know that your parameters are T,Q or P,Q
 	void update_twophase(long iInput1, double Value1, long iInput2, double Value2);
@@ -54,15 +53,20 @@ protected:
 	// Check whether the quality corresponds to saturated liquid or vapor
 	void check_saturated_quality(double Q);
 
-	
+	TTSETwoPhaseTableClass TTSESatL;
+	TTSETwoPhaseTableClass TTSESatV;
+	TTSESinglePhaseTableClass TTSESinglePhase;
 public:
 	Fluid * pFluid;
+
+	bool flag_SinglePhase, flag_TwoPhase;
 
 	// Bulk values
 	double _rho,_T,_p,_Q,_h,_s, tau, delta;
 
 	// Phase flags
 	bool TwoPhase, SinglePhase;
+
 	
 	// Constructor with fluid name
 	CoolPropStateClass(std::string FluidName);
@@ -104,6 +108,19 @@ public:
 	double cp(void);
 	double cv(void);
 	double speed_sound(void);
+
+	// ----------------------------------------	
+	// TTSE LUT things
+	// ----------------------------------------
+
+	/// Enable the TTSE
+	void enable_TTSE_LUT(void);
+	/// Check if TTSE is enabled
+	bool isenabled_TTSE_LUT(void);
+	/// Disable the TTSE
+	void disable_TTSE_LUT(void);
+	/// Build the TTSE LUT
+	bool build_TTSE_LUT();
 
 	// ----------------------------------------	
 	// Derivatives of properties
@@ -179,6 +196,9 @@ public:
 	double drhodp_along_sat_liquid(void);
 	double d2rhodp2_along_sat_vapor(void);
 	double d2rhodp2_along_sat_liquid(void);
+
+	double drhodT_along_sat_vapor(void);
+	double drhodT_along_sat_liquid(void);
 
 	/// Clear out all the cached values
 	void clear_cache(void);

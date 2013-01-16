@@ -1,3 +1,3 @@
 
-from CoolProp cimport State
+from CoolProp cimport __State as State
     

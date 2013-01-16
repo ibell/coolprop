@@ -5,3 +5,9 @@ import HumidAirProp
 import State
 
 __fluids__ = CoolProp.FluidsList()
+
+#Get the include directory for CoolProp header files
+def get_include_directory():
+    import os
+    head,file = os.path.split(__file__)
+    return os.path.join(head,'include')

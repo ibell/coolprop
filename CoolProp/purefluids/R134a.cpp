@@ -11,13 +11,14 @@ by Reiner Tillner-Roth and Hans Dieter Baehr, J. Phys. Chem. Ref. Data, v. 23, 1
 #if defined(_MSC_VER)
 #define _CRTDBG_MAP_ALLOC
 #define _CRT_SECURE_NO_WARNINGS
+#define _USE_MATH_DEFINES
 #include <stdlib.h>
 #include <crtdbg.h>
 #else
 #include <stdlib.h>
 #endif
 
-#include <math.h>
+#include <cmath>
 #include "string.h"
 #include "stdio.h"
 #include "CoolProp.h"

@@ -31,7 +31,7 @@ You might want to start by looking at CoolProp.h
 #ifndef CoolProp_H
 #define CoolProp_H
 
-	#include "CoolPropTools.h"
+
 	#include "FluidClass.h"
 	
 	// Functions with the call type like

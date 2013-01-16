@@ -61,9 +61,9 @@ DimethylCarbonateClass::DimethylCarbonateClass()
 
 double DimethylCarbonateClass::psat(double T)
 {
-    // Maximum absolute error is 0.064951 % between 277.060001 K and 557.375990 K
+    // Maximum absolute error is 0.015238 % between 277.060001 K and 556.999990 K
     const double ti[]={0,1.0,1.5,2.3,3.6,5.2,7.3};
-    const double Ni[]={0,-7.7928206192250107, 1.3222297463719033, 1.2782222794392091, -10.191666886980443, 11.705151513528206, -15.068640871839705 };
+    const double Ni[]={0,-8.3202660729706679, 3.4264854309711628, -3.5672563248732438, -0.4374159102683291, -3.895322642705378, 1.5398890451904521 };
     double summer=0,theta;
     int i;
     theta=1-T/reduce.T;
@@ -75,9 +75,9 @@ double DimethylCarbonateClass::psat(double T)
 }
 double DimethylCarbonateClass::rhosatL(double T)
 {
-    // Maximum absolute error is 0.255085 % between 277.060001 K and 557.375990 K
-    const double ti[]={0,0.52905093358062949, 1.4240973954142175, 1.524800190302471, 1.5704405955068217, 1.5610758382698038};
-    const double Ni[]={0,4.1413913119076957, -1151.9239702805367, 12808.231636029685, 33056.037912515378, -44715.063071742923};
+    // Maximum absolute error is 0.652451 % between 277.060001 K and 556.999990 K
+    const double ti[]={0,0.33284736596795433, 1.1366445658032931, 2.7906891264436053, 1.7799430494935189, 2.0875761898754157};
+    const double Ni[]={0,1.7636989589272027, -2.9872459633577173, 2.7945804747539671, 12.18823328946845, -12.277305677322932};
     double summer=0;
     int i;
     double theta;
@@ -90,9 +90,9 @@ double DimethylCarbonateClass::rhosatL(double T)
 }
 double DimethylCarbonateClass::rhosatV(double T)
 {
-    // Maximum absolute error is 0.872847 % between 277.060001 K and 557.375990 K
-    const double ti[]={0,0.57109603779743123, 3.587843817857145, 3.7003166570584805, 3.6325748011811418, 3.7507786815643307};
-    const double Ni[]={0,-5.4824326490120523, 46563.732088367462, 105888.70048625593, -109444.8137448363, -43016.028398601287};
+    // Maximum absolute error is 1.260499 % between 277.060001 K and 556.999990 K
+    const double ti[]={0,0.33841607864325307, 0.5933974580623832, 2.886748190301069, 2.9419516518946685, 3.7009082521243766};
+    const double Ni[]={0,-1.6096589892868987, -3.1404499566953206, -152.60727137415188, 163.13818237601296, -17.725607890477058};
     double summer=0,theta;
     int i;
     theta=1.0-T/reduce.T;
