@@ -482,11 +482,11 @@ bool CoolPropStateClass::build_TTSE_LUT()
 	if (!built_TTSE_LUT)
 	{
 		TTSESatL = TTSETwoPhaseTableClass(pFluid,0);
-		TTSESatL.set_size(500);
+		TTSESatL.set_size(1000);
 		TTSESatL.build(pFluid->params.ptriple+1e-08,pFluid->reduce.p);
 
 		TTSESatV = TTSETwoPhaseTableClass(pFluid,1);
-		TTSESatV.set_size(500);
+		TTSESatV.set_size(1000);
 		TTSESatV.build(pFluid->params.ptriple+1e-08,pFluid->reduce.p);
 
 		// Enthalpy at saturated liquid at triple point temperature

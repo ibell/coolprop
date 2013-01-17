@@ -115,31 +115,31 @@ cdef extern from "CPState.h":
         ## ----------------------------------------
         
         ## Derivative of temperature w.r.t. pressure along saturation curve
-        double dTdp_along_sat()
+        double dTdp_along_sat() except +ValueError
         ## Second derivative of temperature w.r.t. pressure along saturation curve
-        double d2Tdp2_along_sat()
+        double d2Tdp2_along_sat() except +ValueError
         ## Partial derivative w.r.t. pressure of dTdp along saturation curve
-        double ddp_dTdp_along_sat()
+        double ddp_dTdp_along_sat() except +ValueError
         ## Partial derivative w.r.t. temperature of dTdp along saturation curve
-        double ddT_dTdp_along_sat()
+        double ddT_dTdp_along_sat() except +ValueError
 
-        double dhdp_along_sat_vapor()
-        double dhdp_along_sat_liquid()
-        double d2hdp2_along_sat_vapor()
-        double d2hdp2_along_sat_liquid()
+        double dhdp_along_sat_vapor() except +ValueError
+        double dhdp_along_sat_liquid() except +ValueError
+        double d2hdp2_along_sat_vapor() except +ValueError
+        double d2hdp2_along_sat_liquid() except +ValueError
 
-        double dsdp_along_sat_vapor()
-        double dsdp_along_sat_liquid()
-        double d2sdp2_along_sat_vapor()
-        double d2sdp2_along_sat_liquid()
+        double dsdp_along_sat_vapor() except +ValueError
+        double dsdp_along_sat_liquid() except +ValueError
+        double d2sdp2_along_sat_vapor() except +ValueError
+        double d2sdp2_along_sat_liquid() except +ValueError
 
-        double drhodp_along_sat_vapor()
-        double drhodp_along_sat_liquid()
-        double d2rhodp2_along_sat_vapor()
-        double d2rhodp2_along_sat_liquid()
+        double drhodp_along_sat_vapor() except +ValueError
+        double drhodp_along_sat_liquid() except +ValueError
+        double d2rhodp2_along_sat_vapor() except +ValueError
+        double d2rhodp2_along_sat_liquid() except +ValueError
 
-        double drhodT_along_sat_vapor()
-        double drhodT_along_sat_liquid()
+        double drhodT_along_sat_vapor() except +ValueError
+        double drhodT_along_sat_liquid() except +ValueError
 
         ## Clear out all the cached values
         void clear_cache()

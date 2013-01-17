@@ -423,7 +423,7 @@ double TTSETwoPhaseTableClass::evaluate(long iParam, double p)
 	if (i == -1) i = 0;
 	if (i == N) i = N-1;
 	// If it is really out of the range, throw an error
-	if (i<0 || i>N-1)
+	if (i<0 || i>(int)N-1)
 	{
 		throw ValueError(format("p [%g] is out of range",p));
 	}
@@ -459,7 +459,7 @@ double TTSETwoPhaseTableClass::evaluate_sat_derivative(long iParam, double p)
 	if (i == -1) i = 0;
 	if (i == N) i = N-1;
 	// If it is really out of the range, throw an error
-	if (i<0 || i>N-1)
+	if (i<0 || i>(int)N-1)
 	{
 		throw ValueError(format("p [%g] is out of range",p));
 	}
@@ -488,10 +488,6 @@ double TTSETwoPhaseTableClass::evaluate_sat_derivative(long iParam, double p)
 		{
 			/// First order expansion of drhodp around point of interest
 			return drhodp[i]+(p-pi)*d2rhodp2[i];
-
-		// log(p) v. log(rho) gives close to a line for most of the curve
-		double dRdPIi = pi/rho[i]*drhodp[i];
-		return rho[i]/pi*(dRdPIi*(1+log_PI_PIi*(1-dRdPIi))+log_PI_PIi*d2rhodp2[i]*pi*pi/rho[i]);
 		}
 	default:
 		throw ValueError();

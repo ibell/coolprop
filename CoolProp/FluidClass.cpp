@@ -1456,7 +1456,7 @@ void Fluid::temperature_ph(double p, double h, double *Tout, double *rhoout, dou
 	double f1,f2,df1_dtau,df1_ddelta,df2_ddelta,df2_dtau;
     double rhoL, rhoV, hsatL,hsatV,TsatL,TsatV,tau,delta,worst_error;
 	double h_guess, hc, rho_guess;
-	double hsat_tol = 5;
+	double hsat_tol = 0.5;
 	
 	// A starting set of temperature and pressure are provided, use them as the guess value
 	// Their default values are -1 and -1, which are unphysical values
@@ -3095,7 +3095,6 @@ double Fluid::conductivity_ECS_Trho(double T, double rho, Fluid * ReferenceFluid
 	lambda = lambda_int+lambda_star+lambda_resid*F_lambda+lambda_crit;
 	return lambda/1e3; //[kW/m/K]
 }
-
 
 void AncillaryCurveClass::update(Fluid *_pFluid, std::string Output)
 {

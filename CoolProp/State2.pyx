@@ -3,34 +3,34 @@ cimport cython
 import cython
 
 cimport State2
-cimport State2_constants as s
+cimport State2_constants
 
-iT = s.iT
-iP = s.iP
-iD = s.iD
-iQ = s.iQ
-iH = s.iH
-iS = s.iS
-iB = s.iB
-iC = s.iC
-iC0 = s.iC0
-iO = s.iO
-iU = s.iU
-iA = s.iA
-iG = s.iG
-iV = s.iV
-iL = s.iL
-iI = s.iI
-iMM = s.iMM
-iTcrit = s.iTcrit
-iTtriple = s.iTriple
-iPcrit = s.iPcrit
-iRhocrit = s.iRhocrit
-iAccentric = s.iAccentric
-iDpdT = s.iDpdT
-iDrhodT_p = s.iDrhodT_p
-iTmin = s.iTmin
-iDipole = s.iDipole
+iT = State2_constants.iT
+iP = State2_constants.iP
+iD = State2_constants.iD
+iQ = State2_constants.iQ
+iH = State2_constants.iH
+iS = State2_constants.iS
+iB = State2_constants.iB
+iC = State2_constants.iC
+iC0 = State2_constants.iC0
+iO = State2_constants.iO
+iU = State2_constants.iU
+iA = State2_constants.iA
+iG = State2_constants.iG
+iV = State2_constants.iV
+iL = State2_constants.iL
+iI = State2_constants.iI
+iMM = State2_constants.iMM
+iTcrit = State2_constants.iTcrit
+#iTtriple = State2_constants.iTriple
+iPcrit = State2_constants.iPcrit
+iRhocrit = State2_constants.iRhocrit
+iAccentric = State2_constants.iAccentric
+iDpdT = State2_constants.iDpdT
+iDrhodT_p = State2_constants.iDrhodT_p
+iTmin = State2_constants.iTmin
+iDipole = State2_constants.iDipole
 
 cdef class PureFluidClass:
     cdef CoolPropStateClass CPS     # hold a C++ instance which we're wrapping
@@ -100,3 +100,41 @@ cdef class PureFluidClass:
     # Build the TTSE LUT
     cpdef bool build_TTSE_LUT(self):
         self.CPS.build_TTSE_LUT()
+        
+
+    cpdef double dTdp_along_sat(self):
+        return self.CPS.dTdp_along_sat()
+    cpdef double d2Tdp2_along_sat(self):
+        return self.CPS.d2Tdp2_along_sat()
+
+    cpdef double dhdp_along_sat_vapor(self):
+        return self.CPS.dhdp_along_sat_vapor()
+    cpdef double dhdp_along_sat_liquid(self):
+        return self.CPS.dhdp_along_sat_liquid()
+    cpdef double d2hdp2_along_sat_vapor(self):
+        return self.CPS.d2hdp2_along_sat_vapor()
+    cpdef double d2hdp2_along_sat_liquid(self):
+        return self.CPS.d2hdp2_along_sat_liquid()
+
+    cpdef double dsdp_along_sat_vapor(self):
+        return self.CPS.dsdp_along_sat_vapor()
+    cpdef double dsdp_along_sat_liquid(self):
+        return self.CPS.dsdp_along_sat_liquid()
+    cpdef double d2sdp2_along_sat_vapor(self):
+        return self.CPS.d2sdp2_along_sat_vapor()
+    cpdef double d2sdp2_along_sat_liquid(self):
+        return self.CPS.d2sdp2_along_sat_liquid()
+
+    cpdef double drhodp_along_sat_vapor(self):
+        return self.CPS.drhodp_along_sat_vapor()
+    cpdef double drhodp_along_sat_liquid(self):
+        return self.CPS.drhodp_along_sat_liquid()
+    cpdef double d2rhodp2_along_sat_vapor(self):
+        return self.CPS.d2rhodp2_along_sat_vapor()
+    cpdef double d2rhodp2_along_sat_liquid(self):
+        return self.CPS.d2rhodp2_along_sat_liquid()
+
+    cpdef double drhodT_along_sat_vapor(self):
+        return self.CPS.drhodT_along_sat_vapor()
+    cpdef double drhodT_along_sat_liquid(self):
+        return self.CPS.drhodT_along_sat_liquid()

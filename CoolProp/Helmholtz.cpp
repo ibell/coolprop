@@ -3,8 +3,11 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <stdlib.h>
 #include <crtdbg.h>
+#include "float.h"
 #else
 #include <stdlib.h>
+#include <limits>
+#define DBL_EPSILON std::numeric_limits<double>::epsilon()
 #endif
 
 #include "time.h"
@@ -367,7 +370,7 @@ double phir_critical::dDelta(double tau, double delta) throw()
         dDELTA_dDelta=(delta-1.0)*(A[i]*theta*2.0/beta[i]*pow(pow(delta-1.0,2),1.0/(2.0*beta[i])-1.0)+2.0*B[i]*a[i]*pow(pow(delta-1.0,2),a[i]-1.0));
 		
 		// At critical point, DELTA is 0, and 1/0^n is undefined
-		if (DELTA == 0)
+		if (fabs(DELTA) < 10*DBL_EPSILON)
 		{
 			dDELTAbi_dDelta = 0;
 		}
@@ -553,7 +556,10 @@ double phir_critical::dTau(double tau, double delta) throw()
         DELTA=pow(theta,2)+B[i]*pow(pow(delta-1.0,2),a[i]);
         PSI=exp(-C[i]*pow(delta-1.0,2)-D[i]*pow(tau-1.0,2));
         dPSI_dTau=-2.0*D[i]*(tau-1.0)*PSI;
-        dDELTAbi_dTau=-2.0*theta*b[i]*pow(DELTA,b[i]-1.0);
+		if (fabs(DELTA)<10*DBL_EPSILON)
+			dDELTAbi_dTau = 0;
+		else
+			dDELTAbi_dTau = -2.0*theta*b[i]*pow(DELTA,b[i]-1.0);
         summer+=n[i]*delta*(dDELTAbi_dTau*PSI+pow(DELTA,b[i])*dPSI_dTau);
 	}
 	return summer;

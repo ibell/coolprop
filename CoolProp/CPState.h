@@ -123,6 +123,13 @@ public:
 	bool isenabled_TTSE_LUT(void);
 	/// Disable the TTSE
 	void disable_TTSE_LUT(void);
+	/// Over-ride the default size of both of the saturation LUT
+	void set_TTSESat_LUT_size(int);
+	/// Over-ride the default size of the single-phase LUT
+	void set_TTSESinglePhase_LUT_size(int Np, int Nh);
+	/// Over-ride the default range of the single-phase LUT
+	void set_TTSESinglePhase_LUT_range(double hmin, double hmax, double pmin, double pmax);
+
 	/// Build the TTSE LUT
 	bool build_TTSE_LUT();
 	/// Interpolate within the TTSE LUT
