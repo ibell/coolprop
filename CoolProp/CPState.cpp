@@ -8,8 +8,6 @@
 	#define DBL_EPSILON std::numeric_limits<double>::epsilon()
 #endif
 
-
-
 // Constructor with fluid name
 CoolPropStateClass::CoolPropStateClass(std::string Fluid){
 	// Try to get the index of the fluid
@@ -153,9 +151,10 @@ void CoolPropStateClass::update(long iInput1, double Value1, long iInput2, doubl
 	
 	if (enabled_TTSE_LUT)
 	{
+		// Build the tables
 		build_TTSE_LUT();
-
-		// Set internal variables
+		// Update using the LUT
+		update_TTSE_LUT(iInput1,Value1,iInput2,Value2);
 	}
 	else
 	{
@@ -225,7 +224,7 @@ void CoolPropStateClass::update_twophase(long iInput1, double Value1, long iInpu
 				TsatV = TsatL;
 			}
 			else{
-				pFluid->TsatP_Pure(Value1, &TsatL, &rhosatL, &rhosatV);
+				pFluid->saturation_p(Value1,SaturationLUTStatus(),&TsatL,&TsatV,&rhosatL,&rhosatV);
 				TsatV = TsatL;
 			}
 		}
@@ -414,6 +413,46 @@ void CoolPropStateClass::update_ps(long iInput1, double Value1, long iInput2, do
 	}
 }
 
+// Updater if you are using TTSE LUT
+void CoolPropStateClass::update_TTSE_LUT(long iInput1, double Value1, long iInput2, double Value2)
+{
+	
+	// If the inputs are P,Q or T,Q , it is guaranteed to require a call to the saturation routine
+	if (match_pair(iInput1,iInput2,iP,iQ))
+	{
+		// Set phase flags
+		SinglePhase = false;
+		TwoPhase = true;
+		
+		// Sort in the right order (P,Q)
+		sort_pair(&iInput1,&Value1,&iInput2,&Value2,iP,iQ);
+
+		double p = Value1;
+		double Q = Value2;
+
+		// Check whether saturated liquid or vapor
+		check_saturated_quality(Q);
+
+		rhosatL = TTSESatL.evaluate(iD,p);
+		rhosatV = TTSESatV.evaluate(iD,p);
+		TsatL = TTSESatL.evaluate(iT,p);
+		TsatV = TTSESatV.evaluate(iT,p);
+		psatL = p;
+		psatV = p;
+
+		// Set internal variables
+		_T = Q*TsatV+(1-Q)*TsatL;
+		_rho = 1/(Q/rhosatV+(1-Q)/rhosatL);
+		_p = Q*psatV+(1-Q)*psatL;
+		_Q = Q;
+	}
+	else
+	{
+		printf("Sorry your inputs didn't work for now\n");
+		throw ValueError(format("Sorry your inputs didn't work for now"));
+	}
+}
+
 void CoolPropStateClass::add_saturation_states(void)
 {
 	SatL->flag_TwoPhase = true;
@@ -443,11 +482,11 @@ bool CoolPropStateClass::build_TTSE_LUT()
 	if (!built_TTSE_LUT)
 	{
 		TTSESatL = TTSETwoPhaseTableClass(pFluid,0);
-		TTSESatL.set_size(400);
+		TTSESatL.set_size(500);
 		TTSESatL.build(pFluid->params.ptriple+1e-08,pFluid->reduce.p);
 
 		TTSESatV = TTSETwoPhaseTableClass(pFluid,1);
-		TTSESatV.set_size(400);
+		TTSESatV.set_size(500);
 		TTSESatV.build(pFluid->params.ptriple+1e-08,pFluid->reduce.p);
 
 		// Enthalpy at saturated liquid at triple point temperature
@@ -458,16 +497,22 @@ bool CoolPropStateClass::build_TTSE_LUT()
 		TTSESinglePhase = TTSESinglePhaseTableClass(pFluid);
 		TTSESinglePhase.set_size(200,200);
 		TTSESinglePhase.build_TTSESat(hmin,hmax,pmin,pmax,&TTSESatL,&TTSESatV);
+		
 		TTSESinglePhase.write_dotdrawing_tofile("dot.txt");
 		built_TTSE_LUT = true;
 	}
 	return true;
 }
+//double CoolPropStateClass::interpolate_in_TTSE_LUT(long iParam, long iInput1, double Input1, long iInput2, double Input2)
+//{
+//	
+//}
 
 double CoolPropStateClass::hL(void){
-	if (SaturationLUTStatus())
+	if (enabled_TTSE_LUT)
 	{
-		return pFluid->ApplySaturationLUT(pFluid->SatLUT.iHL,pFluid->SatLUT.iT,TsatL);
+		build_TTSE_LUT();
+		return TTSESatL.evaluate(iH,psatL);
 	}
 	else
 	{
@@ -475,9 +520,10 @@ double CoolPropStateClass::hL(void){
 	}
 }
 double CoolPropStateClass::hV(void){
-	if (SaturationLUTStatus())
+	if (enabled_TTSE_LUT)
 	{
-		return pFluid->ApplySaturationLUT(pFluid->SatLUT.iHV,pFluid->SatLUT.iT,TsatV);
+		build_TTSE_LUT();
+		return TTSESatV.evaluate(iH,psatV);
 	}
 	else
 	{
@@ -485,9 +531,10 @@ double CoolPropStateClass::hV(void){
 	}
 }
 double CoolPropStateClass::sL(void){
-	if (SaturationLUTStatus())
+	if (enabled_TTSE_LUT)
 	{
-		return pFluid->ApplySaturationLUT(pFluid->SatLUT.iSL,pFluid->SatLUT.iT,TsatL);
+		build_TTSE_LUT();
+		return TTSESatL.evaluate(iH,psatL);
 	}
 	else
 	{
@@ -495,9 +542,10 @@ double CoolPropStateClass::sL(void){
 	}
 }
 double CoolPropStateClass::sV(void){
-	if (SaturationLUTStatus())
+	if (enabled_TTSE_LUT)
 	{
-		return pFluid->ApplySaturationLUT(pFluid->SatLUT.iSV,pFluid->SatLUT.iT,TsatV);
+		build_TTSE_LUT();
+		return TTSESatV.evaluate(iS,psatV);
 	}
 	else
 	{
@@ -507,11 +555,11 @@ double CoolPropStateClass::sV(void){
 
 double CoolPropStateClass::h(void){
 	if (TwoPhase){
+		// This will use the TTSE LUT if enable_TTSE_LUT() has been called
 		return _Q*hV()+(1-_Q)*hL();
 	}
 	else{
-		if (fabs(_h)<1e90)
-		{
+		if (fabs(_h)<1e90){
 			// Use the pre-calculated value
 			return _h;
 		}
@@ -524,6 +572,7 @@ double CoolPropStateClass::h(void){
 }
 double CoolPropStateClass::s(void){
 	if (TwoPhase){
+		// This will use the TTSE LUT if enable_TTSE_LUT() has been called
 		return _Q*sV()+(1-_Q)*sL();
 	}
 	else{
@@ -694,10 +743,20 @@ double CoolPropStateClass::d2rhodT2_constp(void)
 	return ddT_drhodT_p_constrho+ddrho_drhodT_p_constT*drhodT_constp();
 }
 
+/// SATURATION DERIVATIVES
+/// SATURATION DERIVATIVES
+/// SATURATION DERIVATIVES
 
 double CoolPropStateClass::dTdp_along_sat(void)
 {
-	return _T*(1/SatV->rho()-1/SatL->rho())/(SatV->h()-SatL->h());
+	if (enabled_TTSE_LUT)
+	{
+		build_TTSE_LUT();
+		return TTSESatL.evaluate_sat_derivative(iT,psatL);
+	}
+	else{
+		return _T*(1/SatV->rho()-1/SatL->rho())/(SatV->h()-SatL->h());
+	}
 }
 double CoolPropStateClass::ddp_dTdp_along_sat(void)
 {
@@ -714,11 +773,23 @@ double CoolPropStateClass::d2Tdp2_along_sat(void)
 
 double CoolPropStateClass::dhdp_along_sat_liquid(void)
 {
-	return SatL->dhdp_constT()+SatL->dhdT_constp()*dTdp_along_sat();
+	if (enabled_TTSE_LUT){
+		build_TTSE_LUT();
+		return TTSESatL.evaluate_sat_derivative(iH,psatL);
+	}
+	else{
+		return SatL->dhdp_constT()+SatL->dhdT_constp()*dTdp_along_sat();
+	}
 }
 double CoolPropStateClass::dhdp_along_sat_vapor(void)
 {
-	return SatV->dhdp_constT()+SatV->dhdT_constp()*dTdp_along_sat();
+	if (enabled_TTSE_LUT){
+		build_TTSE_LUT();
+		return TTSESatV.evaluate_sat_derivative(iH,psatV);
+	}
+	else{
+		return SatV->dhdp_constT()+SatV->dhdT_constp()*dTdp_along_sat();
+	}
 }
 double CoolPropStateClass::d2hdp2_along_sat_vapor(void)
 {
@@ -756,11 +827,27 @@ double CoolPropStateClass::d2sdp2_along_sat_liquid(void)
 
 double CoolPropStateClass::drhodp_along_sat_vapor(void)
 {
-	return SatV->drhodp_constT()+SatV->drhodT_constp()*dTdp_along_sat();
+	if (enabled_TTSE_LUT)
+	{
+		build_TTSE_LUT();
+		return TTSESatV.evaluate_sat_derivative(iD,psatV);
+	}
+	else
+	{
+		return SatV->drhodp_constT()+SatV->drhodT_constp()*dTdp_along_sat();
+	}
 }
 double CoolPropStateClass::drhodp_along_sat_liquid(void)
 {
-	return SatL->drhodp_constT()+SatL->drhodT_constp()*dTdp_along_sat();
+	if (enabled_TTSE_LUT)
+	{
+		build_TTSE_LUT();
+		return TTSESatL.evaluate_sat_derivative(iD,psatL);
+	}
+	else
+	{
+		return SatL->drhodp_constT()+SatL->drhodT_constp()*dTdp_along_sat();
+	}
 }
 double CoolPropStateClass::d2rhodp2_along_sat_vapor(void)
 {

@@ -37,10 +37,15 @@ public:
 	/// @param pmax Maximum pressure [kJ/kg]
 	double build(double pmin, double pmax);
 	
-	/// Evaluate a property in the two-phase region using the TTSE method and
+	/// Evaluate a property in the two-phase region using the TTSE method
 	/// @param iParam Index of desired output
 	/// @param p Pressure (absolute) [kPa]
  	double evaluate(long iParam, double p);
+
+	/// Evaluate the derivative of a property along the saturation curve using the TTSE method
+	/// @param iParam Index of desired output
+	/// @param p Pressure (absolute) [kPa]
+	double evaluate_sat_derivative(long iParam, double p);
 
 	/// Randomly evaluate a property in the two-phase region using the TTSE method
 	/// @param iParam Index of desired output

@@ -715,7 +715,7 @@ void Fluid::saturation_T(double T, bool UseLUT, double *psatLout, double *psatVo
 {
 	double rhoL, rhoV, p;
 	if (debug()>5){
-		std::cout<<format("%s:%d: Fluid::saturation(%g,%d) \n",__FILE__,__LINE__,T,UseLUT);
+		std::cout<<format("%s:%d: Fluid::saturation_T(%g,%d) \n",__FILE__,__LINE__,T,UseLUT);
 	}
 	if (isPure==true)
 	{
@@ -730,7 +730,7 @@ void Fluid::saturation_T(double T, bool UseLUT, double *psatLout, double *psatVo
 		}
 		else
 		{
-			if (ValidNumber(CriticalSpline_T.Tend) && T>CriticalSpline_T.Tend)
+			if (ValidNumber(CriticalSpline_T.Tend) && T > CriticalSpline_T.Tend)
 			{
 				//// Use the spline (or linear) interpolation since you are very close to the critical point
 				*rhosatLout = CriticalSpline_T.interpolate_rho(this,0,T);
@@ -2102,33 +2102,10 @@ public:
 	}
 };
 
-void Fluid::TsatP_Pure(double p, double *Tout, double *rhoLout, double *rhoVout)
+void Fluid::saturation_p(double p, bool UseLUT, double *TsatL, double *TsatV, double *rhoLout, double *rhoVout)
 {
-	//class SatFuncClass : public FuncWrapper1D
-	//{
-	//private:
-	//	double p,gL,gV;
-	//	Fluid * pFluid;
-	//public:
-	//	double T,rhoL,rhoV;
-	//	SatFuncClass(double p, Fluid *pFluid){
-	//		this->p=p;
-	//		this->pFluid = pFluid;
-	//		T = pFluid->Tsat_anc(p,0);
-	//		rhoL = pFluid->rhosatL(T);
-	//		rhoV = pFluid->rhosatV(T);
-	//	};
-	//	double call(double T){
-	//		rhoL = pFluid->density_Tp(T,p,rhoL);
-	//		rhoV = pFluid->density_Tp(T,p,rhoV);
-	//		gL = pFluid->gibbs_Trho(T,rhoL);
-	//		gV = pFluid->gibbs_Trho(T,rhoV);
-	//		return gL-gV;
-	//	};
-	//} SatFunc(p,this);
+	double Tsat,rhoL,rhoV;
 
-
-	double Tsat,rhoL,rhoV,Tmax,Tmin;
 
 	// Pseudo-critical pressure based on critical density and temperature
 	// The highest pressure that be achieved with a temperature <= Tc
@@ -2137,56 +2114,82 @@ void Fluid::TsatP_Pure(double p, double *Tout, double *rhoLout, double *rhoVout)
 
 	if (fabs(p-reduce.p)<DBL_EPSILON || p > pc_EOS)
 	{
-		*Tout = reduce.T;
+		*TsatL = reduce.T;
+		*TsatV = reduce.T;
 		*rhoLout = reduce.rho;
 		*rhoVout = reduce.rho;
 		return;
 	}
-	
 
-	//// Use Secant method to find T that gives the same gibbs function in both phases - a la REFPROP SATP function
-	std::string errstr;
-	SaturationPressureGivenResids SPGR = SaturationPressureGivenResids(this,p);
-	Tsat = Tsat_anc(p,0);
-	rhoL = rhosatL(Tsat);
-	rhoV = rhosatV(Tsat);
-	SPGR.rhoL = rhoL;
-	SPGR.rhoV = rhoV;
-	try{
-		Tsat = Secant(&SPGR,Tsat,1e-4,1e-9,50,&errstr);
-		if (errstr.size()>0 || !ValidNumber(Tsat)|| !ValidNumber(SPGR.rhoV)|| !ValidNumber(SPGR.rhoL))
-			throw SolutionError("Saturation calculation failed");
-		*rhoVout = SPGR.rhoV;
-		*rhoLout = SPGR.rhoL;
-		*Tout = Tsat;
-		return;
+	if (debug()>5){
+		std::cout<<format("%s:%d: Fluid::saturation_p(%g,%d) \n",__FILE__,__LINE__,p,UseLUT);
 	}
-	catch(std::exception) // Whoops that failed...
+	if (isPure==true)
 	{
-		try{
-			// Now try to get Tsat by using Brent's method on saturation_T calls
-			Saturation_p_IterateSaturationT_Resids SPISTR = Saturation_p_IterateSaturationT_Resids(this,p);
+		if (UseLUT)
+		{
+			throw NotImplementedError();
+		}
+		else
+		{
+			//// Use Secant method to find T that gives the same gibbs function in both phases - a la REFPROP SATP function
+			std::string errstr;
+			SaturationPressureGivenResids SPGR = SaturationPressureGivenResids(this,p);
 			Tsat = Tsat_anc(p,0);
 			rhoL = rhosatL(Tsat);
 			rhoV = rhosatV(Tsat);
 			SPGR.rhoL = rhoL;
 			SPGR.rhoV = rhoV;
-			Tsat = Brent(&SPISTR,Tsat-3,reduce.T,DBL_EPSILON,1e-10,30,&errstr);
-			if (errstr.size()>0 || !ValidNumber(Tsat)|| !ValidNumber(SPGR.rhoV)|| !ValidNumber(SPGR.rhoL))
-				throw SolutionError("Saturation calculation failed");
-			*rhoVout = SPGR.rhoV;
-			*rhoLout = SPGR.rhoL;
-			*Tout = Tsat;
-			return;
-		}
-		catch (std::exception &e)
-		{
-			throw SolutionError("saturation_p calculation failed");
+			try{
+				Tsat = Secant(&SPGR,Tsat,1e-4,1e-9,50,&errstr);
+				if (errstr.size()>0 || !ValidNumber(Tsat)|| !ValidNumber(SPGR.rhoV)|| !ValidNumber(SPGR.rhoL))
+					throw SolutionError("Saturation calculation failed");
+				*rhoVout = SPGR.rhoV;
+				*rhoLout = SPGR.rhoL;
+				*TsatL = Tsat;
+				*TsatV = Tsat;
+				return;
+			}
+			catch(std::exception) // Whoops that failed...
+			{
+				try{
+					// Now try to get Tsat by using Brent's method on saturation_T calls
+					Saturation_p_IterateSaturationT_Resids SPISTR = Saturation_p_IterateSaturationT_Resids(this,p);
+					Tsat = Tsat_anc(p,0);
+					rhoL = rhosatL(Tsat);
+					rhoV = rhosatV(Tsat);
+					SPGR.rhoL = rhoL;
+					SPGR.rhoV = rhoV;
+					Tsat = Brent(&SPISTR,Tsat-3,reduce.T,DBL_EPSILON,1e-10,30,&errstr);
+					if (errstr.size()>0 || !ValidNumber(Tsat)|| !ValidNumber(SPGR.rhoV)|| !ValidNumber(SPGR.rhoL))
+						throw SolutionError("Saturation calculation failed");
+					*rhoVout = SPGR.rhoV;
+					*rhoLout = SPGR.rhoL;
+					*TsatL = Tsat;
+					*TsatV = Tsat;
+					return;
+				}
+				catch (std::exception)
+				{
+					throw SolutionError("saturation_p calculation failed");
+				}
+			}
 		}
 	}
+	else
+	{ 
+		// Pseudo-pure fluid
+		*TsatL = Tsat_anc(p,0);
+		*TsatV = Tsat_anc(p,1);
+		*rhoLout = rhosatL(*TsatL);
+		*rhoVout = rhosatV(*TsatV);
+		return;
+	}
+
+
 	
 	
-	SaturationFunctionOfPressureResids SFPR = SaturationFunctionOfPressureResids(this,p,params.R_u/params.molemass,reduce.rho,reduce.T);
+	/*SaturationFunctionOfPressureResids SFPR = SaturationFunctionOfPressureResids(this,p,params.R_u/params.molemass,reduce.rho,reduce.T);
 	Eigen::Vector3d x0_initial, x;
 	Tsat = Tsat_anc(p,0);
 	rhoL = rhosatL(Tsat);
@@ -2199,7 +2202,7 @@ void Fluid::TsatP_Pure(double p, double *Tout, double *rhoLout, double *rhoVout)
 	*Tout = reduce.T/x(2);
 	if (errstring.size()>0 && !ValidNumber(Tsat))
 		throw SolutionError("Saturation calculation failed");
-	return;
+	return;*/
 }
 
 double Fluid::Tsat(double p, double Q, double T_guess)
@@ -2212,9 +2215,9 @@ double Fluid::Tsat(double p, double Q, double T_guess, bool UseLUT, double *rhoL
 {
 	if (isPure && !UseLUT)
 	{
-		double Tout;
-		TsatP_Pure(p,&Tout,rhoLout,rhoVout);
-		return Tout;
+		double TL,TV;
+		saturation_p(p,UseLUT,&TL,&TV,rhoLout,rhoVout);
+		return TL;
 	}
 	else
 	{
@@ -3164,7 +3167,6 @@ double CriticalSplineStruct_T::interpolate_rho(Fluid *pFluid, int phase, double 
 	double rhoc = pFluid->reduce.rho;
 	double Tc = pFluid->reduce.T;
 	double tauend = Tc/Tend, tau = Tc/T;
-
 
 	double tau_difference = tau-tauend;
 	double k1,k2,R,Rend,a,b,c,d,rhoend;

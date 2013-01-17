@@ -21,7 +21,6 @@ protected:
 
 	std::string _Fluid;
 	
-	
 	bool SaturatedL,SaturatedV;
 	bool enabled_TTSE_LUT, built_TTSE_LUT;
 
@@ -53,6 +52,9 @@ protected:
 	// Check whether the quality corresponds to saturated liquid or vapor
 	void check_saturated_quality(double Q);
 
+	// Update using the TTSE lookup tables
+	void update_TTSE_LUT(long iInput1, double Value1, long iInput2, double Value2);
+
 	TTSETwoPhaseTableClass TTSESatL;
 	TTSETwoPhaseTableClass TTSESatV;
 	TTSESinglePhaseTableClass TTSESinglePhase;
@@ -66,8 +68,10 @@ public:
 
 	// Phase flags
 	bool TwoPhase, SinglePhase;
-
 	
+	// Default Constructor
+	CoolPropStateClass(){};
+
 	// Constructor with fluid name
 	CoolPropStateClass(std::string FluidName);
 
@@ -121,6 +125,8 @@ public:
 	void disable_TTSE_LUT(void);
 	/// Build the TTSE LUT
 	bool build_TTSE_LUT();
+	/// Interpolate within the TTSE LUT
+	double interpolate_in_TTSE_LUT(long iParam, long iInput1, double Input1, long iInput2, double Input2);
 
 	// ----------------------------------------	
 	// Derivatives of properties

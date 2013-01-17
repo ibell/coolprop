@@ -1,0 +1,102 @@
+
+cimport cython
+import cython
+
+cimport State2
+cimport State2_constants as s
+
+iT = s.iT
+iP = s.iP
+iD = s.iD
+iQ = s.iQ
+iH = s.iH
+iS = s.iS
+iB = s.iB
+iC = s.iC
+iC0 = s.iC0
+iO = s.iO
+iU = s.iU
+iA = s.iA
+iG = s.iG
+iV = s.iV
+iL = s.iL
+iI = s.iI
+iMM = s.iMM
+iTcrit = s.iTcrit
+iTtriple = s.iTriple
+iPcrit = s.iPcrit
+iRhocrit = s.iRhocrit
+iAccentric = s.iAccentric
+iDpdT = s.iDpdT
+iDrhodT_p = s.iDrhodT_p
+iTmin = s.iTmin
+iDipole = s.iDipole
+
+cdef class PureFluidClass:
+    cdef CoolPropStateClass CPS     # hold a C++ instance which we're wrapping
+    def __cinit__(self, string name):
+        self.CPS = CoolPropStateClass(name)
+    def update(self, long iInput1, double Value1, long iInput2, double Value2):
+        self.CPS.update(iInput1,Value1,iInput2,Value2)
+    
+    cpdef double rhoL(self): 
+        return self.CPS.rhoL()
+    cpdef double rhoV(self):
+        return self.CPS.rhoV()
+    cpdef double pL(self):
+        return self.CPS.pL()
+    cpdef double pV(self):
+        return self.CPS.pV()
+    cpdef double TL(self):
+        return self.CPS.TL()
+    cpdef double TV(self):
+        return self.CPS.TV()
+    cpdef double sL(self):
+        return self.CPS.sL()
+    cpdef double sV(self):
+        return self.CPS.sV()
+    cpdef double hL(self):
+        return self.CPS.hL()
+    cpdef double hV(self):
+        return self.CPS.hV()
+    
+    ## ----------------------------------------	
+    ##        Fluid property accessors
+    ## ----------------------------------------
+    
+    cpdef double T(self):
+        return self.CPS.T()    
+    cpdef double rho(self):
+        return self.CPS.rho()
+    cpdef double p(self):
+        return self.CPS.p()
+    cpdef double h(self):
+        return self.CPS.h()
+    cpdef double s(self):
+        return self.CPS.s()
+    cpdef double cp(self):
+        return self.CPS.cp()
+    cpdef double cv(self):
+        return self.CPS.cv()
+    cpdef double speed_sound(self):
+        return self.CPS.speed_sound()
+
+    ## ----------------------------------------	
+    ##        TTSE LUT things
+    ## ----------------------------------------
+
+    # Enable the TTSE
+    cpdef enable_TTSE_LUT(self):
+        self.CPS.enable_TTSE_LUT()
+        
+    # Check if TTSE is enabled
+    cpdef bool isenabled_TTSE_LUT(self):
+        return self.CPS.isenabled_TTSE_LUT()
+        
+    # Disable the TTSE
+    cpdef disable_TTSE_LUT(self):
+        self.CPS.disable_TTSE_LUT()
+        
+    # Build the TTSE LUT
+    cpdef bool build_TTSE_LUT(self):
+        self.CPS.build_TTSE_LUT()

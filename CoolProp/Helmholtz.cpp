@@ -365,7 +365,15 @@ double phir_critical::dDelta(double tau, double delta) throw()
         PSI=exp(-C[i]*pow(delta-1.0,2)-D[i]*pow(tau-1.0,2));
         dPSI_dDelta=-2.0*C[i]*(delta-1.0)*PSI;
         dDELTA_dDelta=(delta-1.0)*(A[i]*theta*2.0/beta[i]*pow(pow(delta-1.0,2),1.0/(2.0*beta[i])-1.0)+2.0*B[i]*a[i]*pow(pow(delta-1.0,2),a[i]-1.0));
-        dDELTAbi_dDelta=b[i]*pow(DELTA,b[i]-1.0)*dDELTA_dDelta;
+		
+		// At critical point, DELTA is 0, and 1/0^n is undefined
+		if (DELTA == 0)
+		{
+			dDELTAbi_dDelta = 0;
+		}
+		else{
+			dDELTAbi_dDelta=b[i]*pow(DELTA,b[i]-1.0)*dDELTA_dDelta;
+		}
         summer+=n[i]*(pow(DELTA,b[i])*(PSI+delta*dPSI_dDelta)+dDELTAbi_dDelta*delta*PSI);
 	}
 	return summer;

@@ -1,3 +1,7 @@
+#if defined(_MSC_VER)
+#define _CRT_SECURE_NO_WARNINGS
+#endif
+
 #include "CoolProp.h"
 #include "CPState.h"
 #include "TTSE.h"
@@ -142,7 +146,7 @@ double TTSESinglePhaseTableClass::build_TTSESat(double hmin, double hmax, double
 			p[j] = pval;
 
 			// If enthalpy is outside the saturation region, continue and do the calculation as a function of p,h
-			if (pval > pFluid->reduce.p || hval < SatL->evaluate(iH,pval)  || hval > SatV->evaluate(iH,pval))
+			if (pval > pFluid->reduce.p || pval < pFluid->params.ptriple ||  hval < SatL->evaluate(iH,pval)  || hval > SatV->evaluate(iH,pval))
 			{
 				CPS.update(iH, hval, iP, pval);
 				double T = CPS.T();
@@ -213,7 +217,7 @@ double TTSESinglePhaseTableClass::build_TTSESat(double hmin, double hmax, double
 	}
 	t2 = clock();
 	double elap = (double)(t2-t1)/CLOCKS_PER_SEC;
-	std::cout << elap << "build" << std::endl;
+	std::cout << elap << " to build single phase table" << std::endl;
 	return elap;
 }
 
@@ -302,7 +306,6 @@ double TTSESinglePhaseTableClass::evaluate_randomly(long iParam, unsigned int N)
 	t2 = clock();
 	return (double)(t2-t1)/CLOCKS_PER_SEC/(double)N*1e6;
 }
-
 
 double TTSESinglePhaseTableClass::evaluate(long iParam, double h, double p)
 {
@@ -407,14 +410,24 @@ double TTSETwoPhaseTableClass::build(double pmin, double pmax)
 	d2rhodp2[N-1] = (this->Q>0.5) ? CPS.d2rhodp2_along_sat_vapor() : CPS.d2rhodp2_along_sat_liquid();
 
 	t2 = clock();
+	std::cout << double(t2-t1)/CLOCKS_PER_SEC << " to build two phase table" << std::endl;
 	return double(t2-t1)/CLOCKS_PER_SEC;
 }
 
 double TTSETwoPhaseTableClass::evaluate(long iParam, double p)
 {
-
 	double logp = log(p);
-	unsigned int i = (unsigned int)round(((logp-logpmin)/(logpmax-logpmin)*(N-1)));
+	int i = (int)round(((logp-logpmin)/(logpmax-logpmin)*(N-1)));
+	// If the value is just a little bit out of the range, clip 
+	// it back to the range of the LUT
+	if (i == -1) i = 0;
+	if (i == N) i = N-1;
+	// If it is really out of the range, throw an error
+	if (i<0 || i>N-1)
+	{
+		throw ValueError(format("p [%g] is out of range",p));
+	}
+		
 	double log_PI_PIi = logp-this->logp[i];
 	double pi = this->p[i];
 	
@@ -432,6 +445,53 @@ double TTSETwoPhaseTableClass::evaluate(long iParam, double p)
 		// log(p) v. log(rho) gives close to a line for most of the curve
 		double dRdPI = pi/rho[i]*drhodp[i];
 		return exp(logrho[i]+log_PI_PIi*(1.0+0.5*log_PI_PIi*(1-dRdPI))*dRdPI+0.5*log_PI_PIi*log_PI_PIi*d2rhodp2[i]*pi*pi/rho[i]);
+		}
+	default:
+		throw ValueError();
+	}
+}
+double TTSETwoPhaseTableClass::evaluate_sat_derivative(long iParam, double p)
+{
+	double logp = log(p);
+	int i = (int)round(((logp-logpmin)/(logpmax-logpmin)*(N-1)));
+	// If the value is just a little bit out of the range, clip 
+	// it back to the range of the LUT
+	if (i == -1) i = 0;
+	if (i == N) i = N-1;
+	// If it is really out of the range, throw an error
+	if (i<0 || i>N-1)
+	{
+		throw ValueError(format("p [%g] is out of range",p));
+	}
+		
+	double log_PI_PIi = logp-this->logp[i];
+	double pi = this->p[i];
+	
+	switch (iParam)
+	{
+	case iT:
+		{
+			/// First order expansion of dTdp around point of interest
+			return dTdp[i]+(p-pi)*d2Tdp2[i];
+		}
+	case iH:
+		{	
+			/// First order expansion of dhdp around point of interest
+			return dhdp[i]+(p-pi)*d2hdp2[i];
+		}
+	case iS:
+		{	
+			/// First order expansion of dsdp around point of interest
+			return dsdp[i]+(p-pi)*d2sdp2[i];
+		}
+	case iD:
+		{
+			/// First order expansion of drhodp around point of interest
+			return drhodp[i]+(p-pi)*d2rhodp2[i];
+
+		// log(p) v. log(rho) gives close to a line for most of the curve
+		double dRdPIi = pi/rho[i]*drhodp[i];
+		return rho[i]/pi*(dRdPIi*(1+log_PI_PIi*(1-dRdPIi))+log_PI_PIi*d2rhodp2[i]*pi*pi/rho[i]);
 		}
 	default:
 		throw ValueError();

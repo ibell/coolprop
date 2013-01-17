@@ -135,9 +135,9 @@ if __name__=='__main__':
     pseudopurefluids=glob.glob(os.path.join('CoolProp','pseudopurefluids','*.cpp'))
     others = glob.glob(os.path.join('CoolProp','*.cpp'))
     
-    #Remove the _wrap files from the build
-    for f in glob.glob(os.path.join('CoolProp','*_wrap.cpp')):
-        others.remove(f)
+##     #Remove the _wrap files from the build
+##     for f in glob.glob(os.path.join('CoolProp','*_wrap.cpp')):
+##         others.remove(f)
     
     Sources=purefluids + pseudopurefluids + others
          
@@ -249,6 +249,15 @@ if __name__=='__main__':
                             language='c++',
                             cython_c_in_temp = True
                             )
+    
+    State2_module = CyExtension('CoolProp.State2',
+                            [os.path.join('CoolProp','State2.pyx')],
+                            include_dirs = include_dirs,
+                            language='c++',
+                            libraries=['CoolProp'],
+                            library_dirs=['lib'],
+                            cython_c_in_temp = True
+                            )
                             
     #Collect all the header files into an include folder
     try:
@@ -267,7 +276,7 @@ if __name__=='__main__':
            url='http://coolprop.sourceforge.net',
            description = """Open-source thermodynamic and transport properties database""",
            packages = ['CoolProp','CoolProp.Plots','CoolProp.tests','CoolProp.GUI'],
-           ext_modules = [CoolProp2_module],
+           ext_modules = [CoolProp2_module,State2_module],
            package_dir = {'CoolProp':'CoolProp',},
            package_data = {'CoolProp':['State.pxd','CoolProp.pxd','include/*.h']},
            cmdclass={'build_ext': build_ext},
