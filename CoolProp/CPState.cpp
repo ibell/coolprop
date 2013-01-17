@@ -154,6 +154,8 @@ void CoolPropStateClass::update(long iInput1, double Value1, long iInput2, doubl
 	if (enabled_TTSE_LUT)
 	{
 		build_TTSE_LUT();
+
+		// Set internal variables
 	}
 	else
 	{

@@ -70,17 +70,29 @@ class CriticalSplineStruct_p
 {
 public:
 	CriticalSplineStruct_p(){};
-	CriticalSplineStruct_p(double pend, double drhoLdT_sat, double drhoVdT_sat){
+	CriticalSplineStruct_p(double pend, double Tend, double drhoLdp_sat, double drhoVdp_sat, double dTdp_sat){
 		this->pend = pend;
-		this->drhoLdT_sat = drhoLdT_sat;
-		this->drhoVdT_sat = drhoVdT_sat;
+		this->Tend = Tend;
+		this->drhoLdp_sat = drhoLdp_sat;
+		this->drhoVdp_sat = drhoVdp_sat;
+		this->dTdp_sat = dTdp_sat;
 	};
-	/// The last temperature for which the conventional methods can be used
+	/// Interpolate within the spline to get the density
+	/// @param pFluid Pointer to fluid of interest
+	/// @param phase Integer for phase (0=liquid, 1 = vapor)
+	/// @param T Tempeature [K]
+	double interpolate_rho(Fluid* pFluid, int phase, double T);
+
+	/// The last pressure for which the conventional methods can be used
 	double pend;
-	/// Derivative of density w.r.t. temperature along the saturated liquid curve
-	double drhoLdT_sat;
-	/// Derivative of density w.r.t. temperature along the saturated vapor curve
-	double drhoVdT_sat;
+	/// The last temperature for which the conventional methods can be used
+	double Tend;
+	/// Derivative of density w.r.t. pressure along the saturated liquid curve
+	double drhoLdp_sat;
+	/// Derivative of density w.r.t. pressure along the saturated vapor curve
+	double drhoVdp_sat;
+	/// Derivative of density w.r.t. pressure along the saturated vapor curve
+	double dTdp_sat;
 };
 
 class AncillaryCurveClass

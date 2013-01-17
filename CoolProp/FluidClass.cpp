@@ -2081,6 +2081,27 @@ public:
 	}
 };
 
+class Saturation_p_IterateSaturationT_Resids : public FuncWrapper1D
+{
+private:
+	double p;
+	Fluid *pFluid;
+public:
+	double rhoL, rhoV;
+	Saturation_p_IterateSaturationT_Resids(Fluid *pFluid, double p){
+		this->pFluid = pFluid; 
+		this->p = p;
+	};
+	~Saturation_p_IterateSaturationT_Resids(){};
+	
+	double call(double T)
+	{
+		double psatL,psatV;
+		pFluid->saturation_T(T,SaturationLUTStatus(),&psatL,&psatV,&rhoL,&rhoV);
+		return psatL-this->p;
+	}
+};
+
 void Fluid::TsatP_Pure(double p, double *Tout, double *rhoLout, double *rhoVout)
 {
 	//class SatFuncClass : public FuncWrapper1D
@@ -2109,47 +2130,75 @@ void Fluid::TsatP_Pure(double p, double *Tout, double *rhoLout, double *rhoVout)
 
 	double Tsat,rhoL,rhoV,Tmax,Tmin;
 
+	// Pseudo-critical pressure based on critical density and temperature
+	// The highest pressure that be achieved with a temperature <= Tc
+	// Some EOS, pc != p(Tc,rhoc)
+	double pc_EOS = pressure_Trho(reduce.T,reduce.rho);
+
+	if (fabs(p-reduce.p)<DBL_EPSILON || p > pc_EOS)
+	{
+		*Tout = reduce.T;
+		*rhoLout = reduce.rho;
+		*rhoVout = reduce.rho;
+		return;
+	}
+	
+
 	//// Use Secant method to find T that gives the same gibbs function in both phases - a la REFPROP SATP function
 	std::string errstr;
-	SaturationPressureGivenResids *SPGR = new SaturationPressureGivenResids(this,p);
+	SaturationPressureGivenResids SPGR = SaturationPressureGivenResids(this,p);
 	Tsat = Tsat_anc(p,0);
 	rhoL = rhosatL(Tsat);
 	rhoV = rhosatV(Tsat);
-	SPGR->rhoL = rhoL;
-	SPGR->rhoV = rhoV;
+	SPGR.rhoL = rhoL;
+	SPGR.rhoV = rhoV;
 	try{
-		Tsat = Secant(SPGR,Tsat,1e-4,1e-9,50,&errstr);
+		Tsat = Secant(&SPGR,Tsat,1e-4,1e-9,50,&errstr);
+		if (errstr.size()>0 || !ValidNumber(Tsat)|| !ValidNumber(SPGR.rhoV)|| !ValidNumber(SPGR.rhoL))
+			throw SolutionError("Saturation calculation failed");
+		*rhoVout = SPGR.rhoV;
+		*rhoLout = SPGR.rhoL;
+		*Tout = Tsat;
+		return;
 	}
 	catch(std::exception) // Whoops that failed...
 	{
-		Tmax = Tsat+5;
-		Tmin = Tsat-5;
-		if (Tmax > crit.T-0.0001)
+		try{
+			// Now try to get Tsat by using Brent's method on saturation_T calls
+			Saturation_p_IterateSaturationT_Resids SPISTR = Saturation_p_IterateSaturationT_Resids(this,p);
+			Tsat = Tsat_anc(p,0);
+			rhoL = rhosatL(Tsat);
+			rhoV = rhosatV(Tsat);
+			SPGR.rhoL = rhoL;
+			SPGR.rhoV = rhoV;
+			Tsat = Brent(&SPISTR,Tsat-3,reduce.T,DBL_EPSILON,1e-10,30,&errstr);
+			if (errstr.size()>0 || !ValidNumber(Tsat)|| !ValidNumber(SPGR.rhoV)|| !ValidNumber(SPGR.rhoL))
+				throw SolutionError("Saturation calculation failed");
+			*rhoVout = SPGR.rhoV;
+			*rhoLout = SPGR.rhoL;
+			*Tout = Tsat;
+			return;
+		}
+		catch (std::exception &e)
 		{
-			Tmax = crit.T-0.0001;
-		}	
-		Tsat = Brent(SPGR,Tmin,Tmax,DBL_EPSILON,1e-8,30,&errstr);
+			throw SolutionError("saturation_p calculation failed");
+		}
 	}
-	if (errstr.size()>0)
-		throw SolutionError("Saturation calculation failed");
-	*rhoVout = SPGR->rhoV;
-	*rhoLout = SPGR->rhoL;
-	*Tout = Tsat;
-	delete SPGR;
-	return;
 	
-	SaturationFunctionOfPressureResids *SFPR = new SaturationFunctionOfPressureResids(this,p,params.R_u/params.molemass,reduce.rho,reduce.T);
+	
+	SaturationFunctionOfPressureResids SFPR = SaturationFunctionOfPressureResids(this,p,params.R_u/params.molemass,reduce.rho,reduce.T);
 	Eigen::Vector3d x0_initial, x;
 	Tsat = Tsat_anc(p,0);
 	rhoL = rhosatL(Tsat);
 	rhoV = rhosatV(Tsat);
 	x0_initial << rhoV/reduce.rho, rhoL/reduce.rho, reduce.T/Tsat;
 	std::string errstring;
-	x=NDNewtonRaphson_Jacobian(SFPR,x0_initial,1e-7,30,&errstring);
+	x=NDNewtonRaphson_Jacobian(&SFPR,x0_initial,1e-7,30,&errstring);
 	*rhoVout = reduce.rho*x(0);
 	*rhoLout = reduce.rho*x(1);
 	*Tout = reduce.T/x(2);
-	delete SFPR;
+	if (errstring.size()>0 && !ValidNumber(Tsat))
+		throw SolutionError("Saturation calculation failed");
 	return;
 }
 
