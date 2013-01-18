@@ -438,6 +438,46 @@ void CoolPropStateClass::update_TTSE_LUT(long iInput1, double Value1, long iInpu
 		_p = Q*psatV+(1-Q)*psatL;
 		_Q = Q;
 	}
+	else if (match_pair(iInput1,iInput2,iP,iH))
+	{
+		// Sort in the right order (P,H)
+		sort_pair(&iInput1,&Value1,&iInput2,&Value2,iP,iH);
+
+		double p = Value1; 
+		double h = Value2;
+
+		// If enthalpy is outside the saturation region, it is single-phase
+		if (p > pFluid->reduce.p || p < pFluid->params.ptriple ||  h < pFluid->TTSESatL.evaluate(iH,p)  || h > pFluid->TTSESatV.evaluate(iH,p))
+		{
+			_rho = pFluid->TTSESinglePhase.evaluate(iD,h,p);
+			_T = pFluid->TTSESinglePhase.evaluate(iT,h,p);
+			_p = p;
+			_h = h;
+		}
+		else
+		{
+			
+			TwoPhase = true;
+			SinglePhase = false;
+
+			double hsatL = pFluid->TTSESatL.evaluate(iH,p);
+			double hsatV = pFluid->TTSESatV.evaluate(iH,p);
+			rhosatL = pFluid->TTSESatL.evaluate(iD,p);
+			rhosatV = pFluid->TTSESatV.evaluate(iD,p);
+			TsatL = pFluid->TTSESatL.evaluate(iT,p);
+			TsatV = pFluid->TTSESatV.evaluate(iT,p);
+			psatL = p;
+			psatV = p;
+			
+			_Q = (h-hsatL)/(hsatV-hsatL);
+			_rho = 1/(1/rhosatV*_Q+1/rhosatL*(1-_Q));
+			_T = _Q*TsatV+(1-_Q)*TsatL;
+			_p = _Q*psatV+(1-_Q)*psatL;
+			_h = h;
+
+			check_saturated_quality(_Q);
+		}
+	}
 	else
 	{
 		printf("Sorry your inputs didn't work for now\n");
