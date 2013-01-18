@@ -1555,7 +1555,7 @@ void Fluid::temperature_ph(double p, double h, double *Tout, double *rhoout, dou
 				//**************************************************
 				// Step 2: Not far away from saturation (or it is two-phase) - need to solve saturation as a function of p :( - this is slow
 				//**************************************************
-				CoolPropStateClass *sat = new CoolPropStateClass(name);
+ 				CoolPropStateClass *sat = new CoolPropStateClass(name);
 				sat->update(iP,p,iQ,0);
 				rhoL = sat->rhoL();
 				rhoV = sat->rhoV();
@@ -3094,6 +3094,37 @@ double Fluid::conductivity_ECS_Trho(double T, double rho, Fluid * ReferenceFluid
 	lambda_crit = conductivity_critical(T,rho);
 	lambda = lambda_int+lambda_star+lambda_resid*F_lambda+lambda_crit;
 	return lambda/1e3; //[kW/m/K]
+}
+
+bool Fluid::build_TTSE_LUT()
+{
+	if (!built_TTSE_LUT)
+	{
+		// Turn off the use of LUT while you are building it, 
+		// otherwise you get an infinite recursion
+		enabled_TTSE_LUT = false;
+		TTSESatL = TTSETwoPhaseTableClass(this,0);
+		TTSESatL.set_size(1000);
+		TTSESatL.build(params.ptriple+1e-08,reduce.p);
+
+		TTSESatV = TTSETwoPhaseTableClass(this,1);
+		TTSESatV.set_size(1000);
+		TTSESatV.build(params.ptriple+1e-08,reduce.p);
+
+		// Enthalpy at saturated liquid at triple point temperature
+		double hmin = Props("H",'T',params.Ttriple+1e-8,'Q',0,get_name());
+		double hmax = Props("H",'T',params.Ttriple+1e-8,'Q',1,get_name())*2;
+		double pmin = params.ptriple;
+		double pmax = 2*reduce.p;
+		TTSESinglePhase = TTSESinglePhaseTableClass(this);
+		TTSESinglePhase.set_size(200,200);
+		TTSESinglePhase.build_TTSESat(hmin,hmax,pmin,pmax,&TTSESatL,&TTSESatV);
+		
+		TTSESinglePhase.write_dotdrawing_tofile("dot.txt");
+		built_TTSE_LUT = true;
+		enabled_TTSE_LUT = true;
+	}
+	return true;
 }
 
 void AncillaryCurveClass::update(Fluid *_pFluid, std::string Output)

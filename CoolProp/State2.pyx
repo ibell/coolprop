@@ -4,7 +4,7 @@ import cython
 
 cimport State2
 cimport State2_constants
-
+ 
 iT = State2_constants.iT
 iP = State2_constants.iP
 iD = State2_constants.iD
@@ -96,10 +96,6 @@ cdef class PureFluidClass:
     # Disable the TTSE
     cpdef disable_TTSE_LUT(self):
         self.CPS.disable_TTSE_LUT()
-        
-    # Build the TTSE LUT
-    cpdef bool build_TTSE_LUT(self):
-        self.CPS.build_TTSE_LUT()
         
 
     cpdef double dTdp_along_sat(self):

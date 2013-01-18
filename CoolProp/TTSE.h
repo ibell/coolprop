@@ -4,6 +4,10 @@
 #ifndef TTSE_H
 #define TTSE_H
 
+#include "FluidClass.h"
+
+class Fluid;
+
 class TTSETwoPhaseTableClass
 {
 protected:

@@ -20,7 +20,7 @@ cdef extern from "CPState.h":
 
         ## Property updater
         ## Uses the indices in CoolProp for the input parameters
-        void update(long iInput1, double Value1, long iInput2, double Value2)
+        void update(long iInput1, double Value1, long iInput2, double Value2) except +ValueError
 
         ## Property accessors for saturation parameters directly
         ## These all must be calculated every time if the state is saturated or two-phase
@@ -58,8 +58,6 @@ cdef extern from "CPState.h":
         bool isenabled_TTSE_LUT()
         ## Disable the TTSE
         void disable_TTSE_LUT()
-        ## Build the TTSE LUT
-        bool build_TTSE_LUT()
         ## Interpolate within the TTSE LUT
         double interpolate_in_TTSE_LUT(long iParam, long iInput1, double Input1, long iInput2, double Input2)
 

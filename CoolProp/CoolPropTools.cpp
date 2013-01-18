@@ -1,12 +1,13 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <string>
+#include <vector>
 #include <cstdio>
 #include <cstdarg>
 #include <stdlib.h>
 #include "math.h"
 #include "stdio.h"
 #include <string.h>
-#include "CoolProp.h"
+#include "CoolPropTools.h"
 
 std::string format(const char* fmt, ...)
 {
@@ -41,7 +42,7 @@ std::vector<std::string> strsplit(std::string s, char del)
 	}
 	while (iR != N-1)
 	{
-		v.push_back(s.substr(iL,iR-iL));	
+		v.push_back(s.substr(iL,iR-iL));
 		iL = iR;
 		iR = s.find_first_of(del,iR+1);
 		// Move the iL to the right to avoid the delimiter

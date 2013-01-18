@@ -1,24 +1,26 @@
-#define _CRT_SECURE_NO_WARNINGS
 
-#if defined(_WIN32) || defined(__WIN32__) || defined(_WIN64) || defined(__WIN64__)
-#define __ISWINDOWS__
-#endif
-
-#include <string>
-#include <vector>
-
-#include <math.h>
-#ifdef HUGE_VAL
-#define _HUGE HUGE_VAL
-#else
-	// GCC Version of huge value macro
-	#ifdef HUGE 
-	#define _HUGE HUGE
-	#endif
-#endif
 
 #ifndef COOLPROPTOOLS_H
 #define COOLPROPTOOLS_H
+
+	#define _CRT_SECURE_NO_WARNINGS
+
+	#if defined(_WIN32) || defined(__WIN32__) || defined(_WIN64) || defined(__WIN64__)
+	#define __ISWINDOWS__
+	#endif
+
+	#include <string>
+	#include <vector>
+	#include <math.h>
+
+	#ifdef HUGE_VAL
+	#define _HUGE HUGE_VAL
+	#else
+		// GCC Version of huge value macro
+		#ifdef HUGE 
+		#define _HUGE HUGE
+		#endif
+	#endif
 
     //missing string printf
     std::string format(const char* fmt, ...);

@@ -1,4 +1,7 @@
 
+#ifndef FLUIDCLASS_H
+#define FLUIDCLASS_H
+
 #include <list>
 #include <map>
 #include <string>
@@ -8,9 +11,7 @@
 #include "CPExceptions.h"
 #include "CoolPropTools.h"
 #include "Helmholtz.h"
-
-#ifndef FLUIDCLASS_H
-#define FLUIDCLASS_H
+#include "TTSE.h"
 
 class Fluid;
 
@@ -71,8 +72,8 @@ public:
 	// Default Constructor
 	AncillaryCurveClass(){built = false;};
 	// Constructor with values
-	AncillaryCurveClass(Fluid *_pFluid, std::string Output){built = false; update(_pFluid,Output);};
-	void update(Fluid *_pFluid, std::string Output);
+	AncillaryCurveClass(Fluid *pFluid, std::string Output){built = false; update(pFluid,Output);};
+	void update(Fluid *pFluid, std::string Output);
 	std::vector<double> xL,yL,xV,yV;
 	int build(int N);
 	long iOutput;
@@ -119,6 +120,8 @@ class Fluid
 		double _get_rho_guess(double T, double p); 
 
 		std::vector<std::vector<double> >* _get_LUT_ptr(std::string Prop);
+
+		
     public:
 		SatLUTStruct SatLUT; /// The private Saturation lookup structure
 
@@ -135,6 +138,8 @@ class Fluid
 			SatLUT.N = 300; /// Number of points in saturation lookup table [-]
 			SatLUT.built = false; /// reset the saturation LUT built flag
 			LUT.built = false; /// reset the LUT built flag
+
+			built_TTSE_LUT = false;
 				
 			preduce = &crit; /// pointer to the reducing parameters
 
@@ -158,6 +163,11 @@ class Fluid
 		struct OtherParameters params;
 		struct CriticalStruct * preduce; /// A pointer to the point that is used to reduce the T and rho for EOS
 		struct CriticalStruct reduce; /// The point that is used to reduce the T and rho for EOS
+
+		// The TTSE lookup tables
+		TTSETwoPhaseTableClass TTSESatL;
+		TTSETwoPhaseTableClass TTSESatV;
+		TTSESinglePhaseTableClass TTSESinglePhase;
 
 		// The class that holds the information on the critical spline parameters
 		CriticalSplineStruct_T CriticalSpline_T;
@@ -498,6 +508,26 @@ class Fluid
 		/// Returns true if the given name is an alias of the Fluid name.  (Case-sensitive!!)
 		/// @param name The given name
 		bool isAlias(std::string name);
+
+		bool enabled_TTSE_LUT, built_TTSE_LUT;
+
+		/// Enable the TTSE
+		void enable_TTSE_LUT(void);
+		/// Check if TTSE is enabled
+		bool isenabled_TTSE_LUT(void);
+		/// Disable the TTSE
+		void disable_TTSE_LUT(void);
+		/// Over-ride the default size of both of the saturation LUT
+		void set_TTSESat_LUT_size(int);
+		/// Over-ride the default size of the single-phase LUT
+		void set_TTSESinglePhase_LUT_size(int Np, int Nh);
+		/// Over-ride the default range of the single-phase LUT
+		void set_TTSESinglePhase_LUT_range(double hmin, double hmax, double pmin, double pmax);
+
+		/// Build the TTSE LUT
+		bool build_TTSE_LUT();
+		/// Interpolate within the TTSE LUT
+		double interpolate_in_TTSE_LUT(long iParam, long iInput1, double Input1, long iInput2, double Input2);
 };
 
 	/// This class contains pointers to all the classes of the fluids that can be used in addition  

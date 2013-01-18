@@ -32,10 +32,6 @@ CoolPropStateClass::CoolPropStateClass(std::string Fluid){
 
 	SatL = NULL;
 	SatV = NULL;
-
-	/// Default is to disable the TTSE
-	enabled_TTSE_LUT = false;
-	built_TTSE_LUT = false;
 }
 
 // Constructor with pointer to fluid
@@ -51,10 +47,6 @@ CoolPropStateClass::CoolPropStateClass(Fluid * pFluid){
 
 	SatL = NULL;
 	SatV = NULL;
-
-	/// Default is to disable the TTSE
-	enabled_TTSE_LUT = false;
-	built_TTSE_LUT = false;
 }
 
 CoolPropStateClass::~CoolPropStateClass()
@@ -149,10 +141,10 @@ void CoolPropStateClass::update(long iInput1, double Value1, long iInput2, doubl
 	// Don't know if it is single phase or not, so assume it isn't
 	SinglePhase = false;
 	
-	if (enabled_TTSE_LUT)
+	if (pFluid->enabled_TTSE_LUT)
 	{
 		// Build the tables
-		build_TTSE_LUT();
+		pFluid->build_TTSE_LUT();
 		// Update using the LUT
 		update_TTSE_LUT(iInput1,Value1,iInput2,Value2);
 	}
@@ -433,10 +425,10 @@ void CoolPropStateClass::update_TTSE_LUT(long iInput1, double Value1, long iInpu
 		// Check whether saturated liquid or vapor
 		check_saturated_quality(Q);
 
-		rhosatL = TTSESatL.evaluate(iD,p);
-		rhosatV = TTSESatV.evaluate(iD,p);
-		TsatL = TTSESatL.evaluate(iT,p);
-		TsatV = TTSESatV.evaluate(iT,p);
+		rhosatL = pFluid->TTSESatL.evaluate(iD,p);
+		rhosatV = pFluid->TTSESatV.evaluate(iD,p);
+		TsatL = pFluid->TTSESatL.evaluate(iT,p);
+		TsatV = pFluid->TTSESatV.evaluate(iT,p);
 		psatL = p;
 		psatV = p;
 
@@ -466,53 +458,22 @@ void CoolPropStateClass::add_saturation_states(void)
 
 /// Enable the TTSE LUT
 void CoolPropStateClass::enable_TTSE_LUT(void){
-	enabled_TTSE_LUT = true;
+	pFluid->enabled_TTSE_LUT = true;
 }
 /// Check if TTSE is enabled
 bool CoolPropStateClass::isenabled_TTSE_LUT(void){
-	return enabled_TTSE_LUT;
+	return pFluid->enabled_TTSE_LUT;
 };
 /// Disable the TTSE
 void CoolPropStateClass::disable_TTSE_LUT(void){
-	enabled_TTSE_LUT = false;
+	pFluid->enabled_TTSE_LUT = false;
 };
 
-bool CoolPropStateClass::build_TTSE_LUT()
-{
-	if (!built_TTSE_LUT)
-	{
-		TTSESatL = TTSETwoPhaseTableClass(pFluid,0);
-		TTSESatL.set_size(1000);
-		TTSESatL.build(pFluid->params.ptriple+1e-08,pFluid->reduce.p);
-
-		TTSESatV = TTSETwoPhaseTableClass(pFluid,1);
-		TTSESatV.set_size(1000);
-		TTSESatV.build(pFluid->params.ptriple+1e-08,pFluid->reduce.p);
-
-		// Enthalpy at saturated liquid at triple point temperature
-		double hmin = Props("H",'T',pFluid->params.Ttriple+1e-8,'Q',0,pFluid->get_name());
-		double hmax = Props("H",'T',pFluid->params.Ttriple+1e-8,'Q',1,pFluid->get_name())*2;
-		double pmin = pFluid->params.ptriple;
-		double pmax = 2*pFluid->reduce.p;
-		TTSESinglePhase = TTSESinglePhaseTableClass(pFluid);
-		TTSESinglePhase.set_size(200,200);
-		TTSESinglePhase.build_TTSESat(hmin,hmax,pmin,pmax,&TTSESatL,&TTSESatV);
-		
-		TTSESinglePhase.write_dotdrawing_tofile("dot.txt");
-		built_TTSE_LUT = true;
-	}
-	return true;
-}
-//double CoolPropStateClass::interpolate_in_TTSE_LUT(long iParam, long iInput1, double Input1, long iInput2, double Input2)
-//{
-//	
-//}
-
 double CoolPropStateClass::hL(void){
-	if (enabled_TTSE_LUT)
+	if (pFluid->enabled_TTSE_LUT)
 	{
-		build_TTSE_LUT();
-		return TTSESatL.evaluate(iH,psatL);
+		pFluid->build_TTSE_LUT();
+		return pFluid->TTSESatL.evaluate(iH,psatL);
 	}
 	else
 	{
@@ -520,10 +481,10 @@ double CoolPropStateClass::hL(void){
 	}
 }
 double CoolPropStateClass::hV(void){
-	if (enabled_TTSE_LUT)
+	if (pFluid->enabled_TTSE_LUT)
 	{
-		build_TTSE_LUT();
-		return TTSESatV.evaluate(iH,psatV);
+		pFluid->build_TTSE_LUT();
+		return pFluid->TTSESatV.evaluate(iH,psatV);
 	}
 	else
 	{
@@ -531,10 +492,10 @@ double CoolPropStateClass::hV(void){
 	}
 }
 double CoolPropStateClass::sL(void){
-	if (enabled_TTSE_LUT)
+	if (pFluid->enabled_TTSE_LUT)
 	{
-		build_TTSE_LUT();
-		return TTSESatL.evaluate(iH,psatL);
+		pFluid->build_TTSE_LUT();
+		return pFluid->TTSESatL.evaluate(iH,psatL);
 	}
 	else
 	{
@@ -542,10 +503,10 @@ double CoolPropStateClass::sL(void){
 	}
 }
 double CoolPropStateClass::sV(void){
-	if (enabled_TTSE_LUT)
+	if (pFluid->enabled_TTSE_LUT)
 	{
-		build_TTSE_LUT();
-		return TTSESatV.evaluate(iS,psatV);
+		pFluid->build_TTSE_LUT();
+		return pFluid->TTSESatV.evaluate(iS,psatV);
 	}
 	else
 	{
@@ -749,10 +710,10 @@ double CoolPropStateClass::d2rhodT2_constp(void)
 
 double CoolPropStateClass::dTdp_along_sat(void)
 {
-	if (enabled_TTSE_LUT)
+	if (pFluid->enabled_TTSE_LUT)
 	{
-		build_TTSE_LUT();
-		return TTSESatL.evaluate_sat_derivative(iT,psatL);
+		pFluid->build_TTSE_LUT();
+		return pFluid->TTSESatL.evaluate_sat_derivative(iT,psatL);
 	}
 	else{
 		return _T*(1/SatV->rho()-1/SatL->rho())/(SatV->h()-SatL->h());
@@ -773,9 +734,9 @@ double CoolPropStateClass::d2Tdp2_along_sat(void)
 
 double CoolPropStateClass::dhdp_along_sat_liquid(void)
 {
-	if (enabled_TTSE_LUT){
-		build_TTSE_LUT();
-		return TTSESatL.evaluate_sat_derivative(iH,psatL);
+	if (pFluid->enabled_TTSE_LUT){
+		pFluid->build_TTSE_LUT();
+		return pFluid->TTSESatL.evaluate_sat_derivative(iH,psatL);
 	}
 	else{
 		return SatL->dhdp_constT()+SatL->dhdT_constp()*dTdp_along_sat();
@@ -783,9 +744,9 @@ double CoolPropStateClass::dhdp_along_sat_liquid(void)
 }
 double CoolPropStateClass::dhdp_along_sat_vapor(void)
 {
-	if (enabled_TTSE_LUT){
-		build_TTSE_LUT();
-		return TTSESatV.evaluate_sat_derivative(iH,psatV);
+	if (pFluid->enabled_TTSE_LUT){
+		pFluid->build_TTSE_LUT();
+		return pFluid->TTSESatV.evaluate_sat_derivative(iH,psatV);
 	}
 	else{
 		return SatV->dhdp_constT()+SatV->dhdT_constp()*dTdp_along_sat();
@@ -827,10 +788,10 @@ double CoolPropStateClass::d2sdp2_along_sat_liquid(void)
 
 double CoolPropStateClass::drhodp_along_sat_vapor(void)
 {
-	if (enabled_TTSE_LUT)
+	if (pFluid->enabled_TTSE_LUT)
 	{
-		build_TTSE_LUT();
-		return TTSESatV.evaluate_sat_derivative(iD,psatV);
+		pFluid->build_TTSE_LUT();
+		return pFluid->TTSESatV.evaluate_sat_derivative(iD,psatV);
 	}
 	else
 	{
@@ -839,10 +800,10 @@ double CoolPropStateClass::drhodp_along_sat_vapor(void)
 }
 double CoolPropStateClass::drhodp_along_sat_liquid(void)
 {
-	if (enabled_TTSE_LUT)
+	if (pFluid->enabled_TTSE_LUT)
 	{
-		build_TTSE_LUT();
-		return TTSESatL.evaluate_sat_derivative(iD,psatL);
+		pFluid->build_TTSE_LUT();
+		return pFluid->TTSESatL.evaluate_sat_derivative(iD,psatL);
 	}
 	else
 	{
@@ -1052,8 +1013,6 @@ void CoolPropStateClass::dvdp_dhdp_sat(double T, double *dvdpL, double *dvdpV, d
 	CPS3.update(iT,_T+dd,iD,rhoV);
 
 	double dT_dhdTn = (CPS3.dhdT_constp()-this->dhdT_constp())/(dd);
-	
-	
 
 	std::cout<<format("d2hsigmadp2V = %g\n",*d2hdp2V);
 }

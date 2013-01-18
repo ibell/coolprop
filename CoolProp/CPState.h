@@ -22,7 +22,6 @@ protected:
 	std::string _Fluid;
 	
 	bool SaturatedL,SaturatedV;
-	bool enabled_TTSE_LUT, built_TTSE_LUT;
 
 	// Saturation values
 	double rhosatL, rhosatV, psatL, psatV, TsatL, TsatV;
@@ -55,9 +54,6 @@ protected:
 	// Update using the TTSE lookup tables
 	void update_TTSE_LUT(long iInput1, double Value1, long iInput2, double Value2);
 
-	TTSETwoPhaseTableClass TTSESatL;
-	TTSETwoPhaseTableClass TTSESatV;
-	TTSESinglePhaseTableClass TTSESinglePhase;
 public:
 	Fluid * pFluid;
 
@@ -130,8 +126,6 @@ public:
 	/// Over-ride the default range of the single-phase LUT
 	void set_TTSESinglePhase_LUT_range(double hmin, double hmax, double pmin, double pmax);
 
-	/// Build the TTSE LUT
-	bool build_TTSE_LUT();
 	/// Interpolate within the TTSE LUT
 	double interpolate_in_TTSE_LUT(long iParam, long iInput1, double Input1, long iInput2, double Input2);
 

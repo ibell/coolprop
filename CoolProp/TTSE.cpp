@@ -418,10 +418,14 @@ double TTSETwoPhaseTableClass::evaluate(long iParam, double p)
 {
 	double logp = log(p);
 	int i = (int)round(((logp-logpmin)/(logpmax-logpmin)*(N-1)));
-	// If the value is just a little bit out of the range, clip 
+	// If the value is just a little bit below the range, clip 
 	// it back to the range of the LUT
 	if (i == -1) i = 0;
-	if (i == N) i = N-1;
+	// If the pressure is just barely above the critical pressure
+	// or between the critical pressure and the next lowest point,
+	// just just the next lowest point to avoid some of the 
+	// derivatives that are infinite at the critical point
+	if (i == N || i == N-1 ) i = N-2;
 	// If it is really out of the range, throw an error
 	if (i<0 || i>(int)N-1)
 	{
