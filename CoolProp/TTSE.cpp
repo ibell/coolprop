@@ -51,85 +51,123 @@ void TTSESinglePhaseTableClass::set_size(unsigned int Nrow, unsigned int Ncol)
 	d2rhodhdp.resize(Nrow, std::vector<double>(Ncol, _HUGE));
 }
 
-double TTSESinglePhaseTableClass::build(double hmin, double hmax, double pmin, double pmax, bool logp)
+//double TTSESinglePhaseTableClass::build(double hmin, double hmax, double pmin, double pmax, bool logp)
+//{
+//	this->hmin = hmin;
+//	this->hmax = hmax;
+//	this->pmin = pmin;
+//	this->pmax = pmax;
+//
+//	CoolPropStateClass CPS = CoolPropStateClass(pFluid);
+//
+//	dh = (hmax - hmin)/(Nrow - 1);
+//	dp = (pmax - pmin)/(Ncol - 1);
+//
+//	clock_t t1,t2;
+//	t1 = clock();
+//	for (unsigned int i = 0; i<Nrow; i++)
+//	{
+//		double hval = hmin + i*dh;
+//		h[i] = hval;
+//		for (unsigned int j = 0; j<Ncol; j++)
+//		{
+//			double pval = pmin + j*dp;
+//			p[j] = pval;
+//
+//			CPS.update(iH, hval, iP, pval);
+//			double T = CPS.T();
+//			double rho = CPS.rho();
+//			double cp = CPS.cp();
+//
+//			// Matrices for entropy as a function of pressure and enthalpy
+//			s[i][j] = CPS.s();
+//			dsdh[i][j] = 1/T;
+//			dsdp[i][j] = -1/(T*rho);
+//			d2sdh2[i][j] = -1/(T*T)/CPS.dhdT_constp();
+//			d2sdhdp[i][j] = -1/(T*T)/CPS.dpdT_consth();
+//			d2sdp2[i][j] = 1/(T*T*rho)/CPS.dhdT_constp()+1/(T*rho*rho)/CPS.dpdrho_consth();
+//
+//			// These are common terms needed for a range of terms for T(h,p) as well as rho(h,p)
+//			double A = CPS.dpdT_constrho()*CPS.dhdrho_constT()-CPS.dpdrho_constT()*CPS.dhdT_constrho();
+//			double dAdT_constrho = CPS.d2pdT2_constrho()*CPS.dhdrho_constT()+CPS.dpdT_constrho()*CPS.d2hdrhodT()-CPS.d2pdrhodT()*CPS.dhdT_constrho()-CPS.dpdrho_constT()*CPS.d2hdT2_constrho();
+//			double dAdrho_constT = CPS.d2pdrhodT()*CPS.dhdrho_constT()+CPS.dpdT_constrho()*CPS.d2hdrho2_constT()-CPS.d2pdrho2_constT()*CPS.dhdT_constrho()-CPS.dpdrho_constT()*CPS.d2hdrhodT();
+//
+//			//Matrices for temperature as a function of pressure and enthalpy
+//			double ddT_dTdp_h_constrho = 1/A*CPS.d2hdrhodT()-1/(A*A)*dAdT_constrho*CPS.dhdrho_constT();
+//			double ddrho_dTdp_h_constT = 1/A*CPS.d2hdrho2_constT()-1/(A*A)*dAdrho_constT*CPS.dhdT_constrho();
+//			double ddT_dTdh_p_constrho = -1/(cp*cp)*(CPS.d2hdT2_constrho()-CPS.dhdp_constT()*CPS.d2pdT2_constrho()+CPS.d2hdrhodT()*CPS.drhodT_constp()-CPS.dhdp_constT()*CPS.drhodT_constp()*CPS.d2pdrhodT());
+//			double ddrho_dTdh_p_constT = -1/(cp*cp)*(CPS.d2hdrhodT()-CPS.dhdp_constT()*CPS.d2pdrhodT()+CPS.d2hdrho2_constT()*CPS.drhodT_constp()-CPS.dhdp_constT()*CPS.drhodT_constp()*CPS.d2pdrho2_constT());
+//			this->T[i][j] = T;
+//			dTdh[i][j] = 1/cp;
+//			dTdp[i][j] = 1/A*CPS.dhdrho_constT();
+//			d2Tdh2[i][j]  = ddT_dTdh_p_constrho/CPS.dhdT_constp()+ddrho_dTdh_p_constT/CPS.dhdrho_constp();
+//			d2Tdhdp[i][j] = ddT_dTdp_h_constrho/CPS.dhdT_constp()+ddrho_dTdp_h_constT/CPS.dhdrho_constp();
+//			d2Tdp2[i][j]  = ddT_dTdp_h_constrho/CPS.dpdT_consth()+ddrho_dTdp_h_constT/CPS.dpdrho_consth();
+//
+//			//// Matrices for density as a function of pressure and enthalpy
+//			double ddT_drhodp_h_constrho = -1/A*CPS.d2hdT2_constrho()+1/(A*A)*dAdT_constrho*CPS.dhdT_constrho();
+//			double ddrho_drhodp_h_constT = -1/A*CPS.d2hdrhodT()+1/(A*A)*dAdrho_constT*CPS.dhdrho_constT();
+//			double ddT_drhodh_p_constrho = 1/A*CPS.d2pdT2_constrho()-1/(A*A)*dAdT_constrho*CPS.dpdT_constrho();
+//			double ddrho_drhodh_p_constT = 1/A*CPS.d2pdrhodT()-1/(A*A)*dAdrho_constT*CPS.dpdrho_constT();
+//			this->rho[i][j] = rho;
+//			drhodh[i][j] = 1/A*CPS.dpdT_constrho();
+//			drhodp[i][j] = -1/A*CPS.dhdT_constrho();
+//			d2rhodh2[i][j]  = ddT_drhodh_p_constrho/CPS.dhdT_constp()+ddrho_drhodh_p_constT/CPS.dhdrho_constp();
+//			d2rhodhdp[i][j] = ddT_drhodp_h_constrho/CPS.dhdT_constp()+ddrho_drhodp_h_constT/CPS.dhdrho_constp();
+//			d2rhodp2[i][j]  = ddT_drhodp_h_constrho/CPS.dpdT_consth()+ddrho_drhodp_h_constT/CPS.dpdrho_consth();
+//		}
+//	}
+//	t2 = clock();
+//	double elap = (double)(t2-t1)/CLOCKS_PER_SEC;
+//	return elap;
+//}
+
+void TTSESinglePhaseTableClass::nearest_neighbor(int i, int j, double *T0, double *rho0)
 {
-	this->hmin = hmin;
-	this->hmax = hmax;
-	this->pmin = pmin;
-	this->pmax = pmax;
-
-	CoolPropStateClass CPS = CoolPropStateClass(pFluid);
-
-	dh = (hmax - hmin)/(Nrow - 1);
-	dp = (pmax - pmin)/(Ncol - 1);
-
-	clock_t t1,t2;
-	t1 = clock();
-	for (unsigned int i = 0; i<Nrow; i++)
-	{
-		double hval = hmin + i*dh;
-		h[i] = hval;
-		for (unsigned int j = 0; j<Ncol; j++)
-		{
-			double pval = pmin + j*dp;
-			p[j] = pval;
-
-			CPS.update(iH, hval, iP, pval);
-			double T = CPS.T();
-			double rho = CPS.rho();
-			double cp = CPS.cp();
-
-			// Matrices for entropy as a function of pressure and enthalpy
-			s[i][j] = CPS.s();
-			dsdh[i][j] = 1/T;
-			dsdp[i][j] = -1/(T*rho);
-			d2sdh2[i][j] = -1/(T*T)/CPS.dhdT_constp();
-			d2sdhdp[i][j] = -1/(T*T)/CPS.dpdT_consth();
-			d2sdp2[i][j] = 1/(T*T*rho)/CPS.dhdT_constp()+1/(T*rho*rho)/CPS.dpdrho_consth();
-
-			// These are common terms needed for a range of terms for T(h,p) as well as rho(h,p)
-			double A = CPS.dpdT_constrho()*CPS.dhdrho_constT()-CPS.dpdrho_constT()*CPS.dhdT_constrho();
-			double dAdT_constrho = CPS.d2pdT2_constrho()*CPS.dhdrho_constT()+CPS.dpdT_constrho()*CPS.d2hdrhodT()-CPS.d2pdrhodT()*CPS.dhdT_constrho()-CPS.dpdrho_constT()*CPS.d2hdT2_constrho();
-			double dAdrho_constT = CPS.d2pdrhodT()*CPS.dhdrho_constT()+CPS.dpdT_constrho()*CPS.d2hdrho2_constT()-CPS.d2pdrho2_constT()*CPS.dhdT_constrho()-CPS.dpdrho_constT()*CPS.d2hdrhodT();
-
-			//Matrices for temperature as a function of pressure and enthalpy
-			double ddT_dTdp_h_constrho = 1/A*CPS.d2hdrhodT()-1/(A*A)*dAdT_constrho*CPS.dhdrho_constT();
-			double ddrho_dTdp_h_constT = 1/A*CPS.d2hdrho2_constT()-1/(A*A)*dAdrho_constT*CPS.dhdT_constrho();
-			double ddT_dTdh_p_constrho = -1/(cp*cp)*(CPS.d2hdT2_constrho()-CPS.dhdp_constT()*CPS.d2pdT2_constrho()+CPS.d2hdrhodT()*CPS.drhodT_constp()-CPS.dhdp_constT()*CPS.drhodT_constp()*CPS.d2pdrhodT());
-			double ddrho_dTdh_p_constT = -1/(cp*cp)*(CPS.d2hdrhodT()-CPS.dhdp_constT()*CPS.d2pdrhodT()+CPS.d2hdrho2_constT()*CPS.drhodT_constp()-CPS.dhdp_constT()*CPS.drhodT_constp()*CPS.d2pdrho2_constT());
-			this->T[i][j] = T;
-			dTdh[i][j] = 1/cp;
-			dTdp[i][j] = 1/A*CPS.dhdrho_constT();
-			d2Tdh2[i][j]  = ddT_dTdh_p_constrho/CPS.dhdT_constp()+ddrho_dTdh_p_constT/CPS.dhdrho_constp();
-			d2Tdhdp[i][j] = ddT_dTdp_h_constrho/CPS.dhdT_constp()+ddrho_dTdp_h_constT/CPS.dhdrho_constp();
-			d2Tdp2[i][j]  = ddT_dTdp_h_constrho/CPS.dpdT_consth()+ddrho_dTdp_h_constT/CPS.dpdrho_consth();
-
-			//// Matrices for density as a function of pressure and enthalpy
-			double ddT_drhodp_h_constrho = -1/A*CPS.d2hdT2_constrho()+1/(A*A)*dAdT_constrho*CPS.dhdT_constrho();
-			double ddrho_drhodp_h_constT = -1/A*CPS.d2hdrhodT()+1/(A*A)*dAdrho_constT*CPS.dhdrho_constT();
-			double ddT_drhodh_p_constrho = 1/A*CPS.d2pdT2_constrho()-1/(A*A)*dAdT_constrho*CPS.dpdT_constrho();
-			double ddrho_drhodh_p_constT = 1/A*CPS.d2pdrhodT()-1/(A*A)*dAdrho_constT*CPS.dpdrho_constT();
-			this->rho[i][j] = rho;
-			drhodh[i][j] = 1/A*CPS.dpdT_constrho();
-			drhodp[i][j] = -1/A*CPS.dhdT_constrho();
-			d2rhodh2[i][j]  = ddT_drhodh_p_constrho/CPS.dhdT_constp()+ddrho_drhodh_p_constT/CPS.dhdrho_constp();
-			d2rhodhdp[i][j] = ddT_drhodp_h_constrho/CPS.dhdT_constp()+ddrho_drhodp_h_constT/CPS.dhdrho_constp();
-			d2rhodp2[i][j]  = ddT_drhodp_h_constrho/CPS.dpdT_consth()+ddrho_drhodp_h_constT/CPS.dpdrho_consth();
-		}
+	// Left
+	if (i>0 && ValidNumber(rho[i-1][j]) && ValidNumber(T[i-1][j])){
+		*T0 = T[i-1][j];
+		*rho0 = rho[i-1][j];
+		return;
 	}
-	t2 = clock();
-	double elap = (double)(t2-t1)/CLOCKS_PER_SEC;
-	return elap;
-}
+	// Right
+	else if (i<Nrow-1 && ValidNumber(rho[i+1][j]) && ValidNumber(T[i+1][j])){
+		*T0 = T[i+1][j];
+		*rho0 = rho[i+1][j];
+		return;
+	}
+	// Down
+	else if (j>0 && ValidNumber(rho[i][j-1]) && ValidNumber(T[i][j-1])){
+		*T0 = T[i][j-1];
+		*rho0 = rho[i][j-1];
+		return;
+	}
+	// Up
+	else if (j<Ncol-1 && ValidNumber(rho[i][j+1]) && ValidNumber(T[i][j+1])){
+		*T0 = T[i][j+1];
+		*rho0 = rho[i][j+1];
+		return;
+	}
+	else
+		*T0 = -1;
+		*rho0 = -1;
+		return;
+	}
 
-double TTSESinglePhaseTableClass::build_TTSESat(double hmin, double hmax, double pmin, double pmax, TTSETwoPhaseTableClass *SatL, TTSETwoPhaseTableClass *SatV)
+
+	
+double TTSESinglePhaseTableClass::build(double hmin, double hmax, double pmin, double pmax, TTSETwoPhaseTableClass *SatL, TTSETwoPhaseTableClass *SatV)
 {
+	bool SinglePhase = false;
+
 	this->hmin = hmin;
 	this->hmax = hmax;
 	this->pmin = pmin;
 	this->pmax = pmax;
 
 	CoolPropStateClass CPS = CoolPropStateClass(pFluid);
+
+	
 
 	dh = (hmax - hmin)/(Nrow - 1);
 	dp = (pmax - pmin)/(Ncol - 1);
@@ -144,13 +182,82 @@ double TTSESinglePhaseTableClass::build_TTSESat(double hmin, double hmax, double
 		{
 			double pval = pmin + j*dp;
 			p[j] = pval;
-
-			// If enthalpy is outside the saturation region, continue and do the calculation as a function of p,h
-			if (pval > pFluid->reduce.p || pval < pFluid->params.ptriple ||  hval < SatL->evaluate(iH,pval)  || hval > SatV->evaluate(iH,pval))
+			
+			// Check whether the point is single phase
+			// If pressure between ptriple point and pcrit, might be two-phase or sigle phase, otherwise definitely single phase
+			if (pval <= pFluid->reduce.p && pval >= pFluid->params.ptriple)
 			{
-				CPS.update(iH, hval, iP, pval);
-				double T = CPS.T();
-				double rho = CPS.rho();
+				if (SatL == NULL || SatV == NULL){
+					// Not using TTSE method, use saturation (slow...)
+					CPS.update(iP,pval,iQ,0.5);
+					SinglePhase = (hval < CPS.hL()  || hval > CPS.hV());
+				}
+				else{
+					// Using the TTSE method, nice and fast
+					SinglePhase = (hval < SatL->evaluate(iH,pval)  || hval > SatV->evaluate(iH,pval));
+				}
+			}
+			else
+			{
+				SinglePhase = true;
+			}
+			
+			// If enthalpy is outside the saturation region, continue and do the calculation as a function of p,h
+			if (SinglePhase)
+			{
+				double T0=-1,rho0=-1,T,rho,rhoL,rhoV,TsatL,TsatV;
+
+				// Find a good point around this point that is single-phase if any of its neighbors have been calculated
+				nearest_neighbor(i,j,&T0,&rho0);
+
+				// If good T,rho was returned, use it as a guess value to calculate T,rho from p,h more quickly
+				if (T0 > 0 && rho0 > 0)
+				{
+					// Get T,rho from p,h using our guess value
+					CPS.pFluid->temperature_ph(pval,hval,&T,&rho,&rhoL,&rhoV,&TsatL,&TsatV,T0,rho0);
+					CPS.flag_SinglePhase = true;
+					CPS.update(iT, T, iD, rho);
+				}
+				else
+				{
+					// Probably here you are close to the saturation boundary since TTSE says it is single phase, but no neighbors to lean on
+					CPS.flag_SinglePhase = true;
+
+					double hsatLTTSE = SatL->evaluate(iH,pval);
+					double hsatVTTSE = SatV->evaluate(iH,pval);
+
+					if (fabs(hval-hsatLTTSE)<10)
+					{
+						// Close to the saturated liquid boundary
+						T0 = SatL->evaluate(iT,pval);
+						rho0 = SatL->evaluate(iD,pval);
+						CPS.pFluid->temperature_ph(pval,hval,&T,&rho,&rhoL,&rhoV,&TsatL,&TsatV,T0,rho0);
+						CPS.flag_SinglePhase = true;
+						CPS.update(iT, T, iD, rho);
+					}
+					else if (fabs(hval-hsatVTTSE)<10)
+					{
+						// Close to the saturated vapor boundary
+						T0 = SatV->evaluate(iT,pval);
+						rho0 = SatV->evaluate(iD,pval);
+						CPS.pFluid->temperature_ph(pval,hval,&T,&rho,&rhoL,&rhoV,&TsatL,&TsatV,T0,rho0);
+						CPS.flag_SinglePhase = true;
+						CPS.update(iT, T, iD, rho);
+					}
+					else
+					{
+						CPS.update(iP, pval, iH, hval);
+					}
+					//std::cout << format("%d %d %g %g\n",i,j,pval,hval);
+				}
+				
+				//// TEMP
+				//this->T[i][j] = T;
+				//this->rho[i][j] = rho;
+				//continue;
+				
+				T = CPS.T();
+				rho = CPS.rho();
 				double cp = CPS.cp();
 
 				// Matrices for entropy as a function of pressure and enthalpy
@@ -359,7 +466,7 @@ void TTSETwoPhaseTableClass::set_size(unsigned int N)
 	d2hdp2.resize(N);
 }
 
-double TTSETwoPhaseTableClass::build(double pmin, double pmax)
+double TTSETwoPhaseTableClass::build(double pmin, double pmax, TTSETwoPhaseTableClass *other)
 {
 	CoolPropStateClass CPS = CoolPropStateClass(pFluid);
 
@@ -374,9 +481,17 @@ double TTSETwoPhaseTableClass::build(double pmin, double pmax)
 	// Logarithmic distribution of pressures
 	for (unsigned int i = 0; i < N-1; i++)
 	{
+		// Calculate the pressure
 		p[i] = exp(logpmin + i*dlogp);
 		logp[i] = log(p[i]);
+		// Update the class
 		CPS.update(iP,p[i],iQ,Q);
+
+		// rho for the other saturation curve
+		double rho_other = (this->Q>0.5) ? CPS.rhoL() : CPS.rhoV();
+		double Q_other = (this->Q>0.5) ? 0 : 1;
+
+		// Set the variables
 		T[i] = CPS.T();
 		dTdp[i] = CPS.dTdp_along_sat();
 		d2Tdp2[i] = CPS.d2Tdp2_along_sat();
@@ -390,27 +505,52 @@ double TTSETwoPhaseTableClass::build(double pmin, double pmax)
 		logrho[i] = log(CPS.rho());
 		drhodp[i] = (this->Q>0.5) ? CPS.drhodp_along_sat_vapor() : CPS.drhodp_along_sat_liquid();
 		d2rhodp2[i] = (this->Q>0.5) ? CPS.d2rhodp2_along_sat_vapor() : CPS.d2rhodp2_along_sat_liquid();
+
+		// If other is provided
+		if (other != NULL)
+		{
+			other->pmin = pmin;
+			other->pmax = pmax;
+			other->logpmin = log(pmin);
+			other->logpmax = log(pmax);
+
+			// Set the variables
+			other->T[i] = CPS.T();
+			other->dTdp[i] = CPS.dTdp_along_sat();
+			other->d2Tdp2[i] = CPS.d2Tdp2_along_sat();
+			other->h[i] = (other->Q>0.5) ? CPS.hV() : CPS.hL();
+			other->dhdp[i] = (other->Q>0.5) ? CPS.dhdp_along_sat_vapor() : CPS.dhdp_along_sat_liquid();
+			other->d2hdp2[i] = (other->Q>0.5) ? CPS.d2hdp2_along_sat_vapor() : CPS.d2hdp2_along_sat_liquid();
+			other->s[i] = (other->Q>0.5) ? CPS.sV() : CPS.sL();
+			other->dsdp[i] = (other->Q>0.5) ? CPS.dsdp_along_sat_vapor() : CPS.dsdp_along_sat_liquid();
+			other->d2sdp2[i] = (other->Q>0.5) ? CPS.d2sdp2_along_sat_vapor() : CPS.d2sdp2_along_sat_liquid();
+			other->rho[i] = (other->Q>0.5) ? CPS.rhoV() : CPS.rhoL();
+			other->logrho[i] = log(other->rho[i]);
+			other->drhodp[i] = (other->Q>0.5) ? CPS.drhodp_along_sat_vapor() : CPS.drhodp_along_sat_liquid();
+			other->d2rhodp2[i] = (other->Q>0.5) ? CPS.d2rhodp2_along_sat_vapor() : CPS.d2rhodp2_along_sat_liquid();
+		}
 	}
-	CPS.flag_SinglePhase = true; // Don't have it check the state or do a saturation call
-	p[N-1] = CPS.pFluid->reduce.p;
-	logp[N-1] = log(p[N-1]);
-	CPS.update(iT,CPS.pFluid->reduce.T,iD,CPS.pFluid->reduce.rho);
-	T[N-1] = CPS.T();
-	dTdp[N-1] = CPS.dTdp_along_sat();
-	d2Tdp2[N-1] = CPS.d2Tdp2_along_sat();
-	h[N-1] = CPS.h();
-	dhdp[N-1] = (this->Q>0.5) ? CPS.dhdp_along_sat_vapor() : CPS.dhdp_along_sat_liquid();
-	d2hdp2[N-1] = (this->Q>0.5) ? CPS.d2hdp2_along_sat_vapor() : CPS.d2hdp2_along_sat_liquid();
-	s[N-1] = CPS.s();
-	dsdp[N-1] = (this->Q>0.5) ? CPS.dsdp_along_sat_vapor() : CPS.dsdp_along_sat_liquid();
-	d2sdp2[N-1] = (this->Q>0.5) ? CPS.d2sdp2_along_sat_vapor() : CPS.d2sdp2_along_sat_liquid();
-	rho[N-1] = CPS.rho();
-	logrho[N-1] = log(CPS.rho());
-	drhodp[N-1] = (this->Q>0.5) ? CPS.drhodp_along_sat_vapor() : CPS.drhodp_along_sat_liquid();
-	d2rhodp2[N-1] = (this->Q>0.5) ? CPS.d2rhodp2_along_sat_vapor() : CPS.d2rhodp2_along_sat_liquid();
+	//// At the last point
+	//CPS.flag_SinglePhase = true; // Don't have it check the state or do a saturation call
+	//p[N-1] = CPS.pFluid->reduce.p;
+	//logp[N-1] = log(p[N-1]);
+	//CPS.update(iT,CPS.pFluid->reduce.T,iD,CPS.pFluid->reduce.rho);
+	//T[N-1] = CPS.T();
+	//dTdp[N-1] = CPS.dTdp_along_sat();
+	//d2Tdp2[N-1] = CPS.d2Tdp2_along_sat();
+	//h[N-1] = CPS.h();
+	//dhdp[N-1] = (this->Q>0.5) ? CPS.dhdp_along_sat_vapor() : CPS.dhdp_along_sat_liquid();
+	//d2hdp2[N-1] = (this->Q>0.5) ? CPS.d2hdp2_along_sat_vapor() : CPS.d2hdp2_along_sat_liquid();
+	//s[N-1] = CPS.s();
+	//dsdp[N-1] = (this->Q>0.5) ? CPS.dsdp_along_sat_vapor() : CPS.dsdp_along_sat_liquid();
+	//d2sdp2[N-1] = (this->Q>0.5) ? CPS.d2sdp2_along_sat_vapor() : CPS.d2sdp2_along_sat_liquid();
+	//rho[N-1] = CPS.rho();
+	//logrho[N-1] = log(CPS.rho());
+	//drhodp[N-1] = (this->Q>0.5) ? CPS.drhodp_along_sat_vapor() : CPS.drhodp_along_sat_liquid();
+	//d2rhodp2[N-1] = (this->Q>0.5) ? CPS.d2rhodp2_along_sat_vapor() : CPS.d2rhodp2_along_sat_liquid();
 
 	t2 = clock();
-	std::cout << double(t2-t1)/CLOCKS_PER_SEC << " to build two phase table" << std::endl;
+	std::cout << double(t2-t1)/CLOCKS_PER_SEC << " to build both two phase tables" << std::endl;
 	return double(t2-t1)/CLOCKS_PER_SEC;
 }
 
@@ -429,7 +569,7 @@ double TTSETwoPhaseTableClass::evaluate(long iParam, double p)
 	// If it is really out of the range, throw an error
 	if (i<0 || i>(int)N-1)
 	{
-		throw ValueError(format("p [%g] is out of range",p));
+		throw ValueError(format("p [%g] is out of range, yielded index of %d",p,i));
 	}
 		
 	double log_PI_PIi = logp-this->logp[i];

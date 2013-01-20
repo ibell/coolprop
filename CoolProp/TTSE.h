@@ -39,7 +39,8 @@ public:
 	/// Build the tables along the saturation curves
 	/// @param pmin Minimum pressure [kJ/kg]
 	/// @param pmax Maximum pressure [kJ/kg]
-	double build(double pmin, double pmax);
+	/// @param other TTSETwoPhaseTableClass for the other phase boundary (liquid for the vapor, or vice versa)
+	double build(double pmin, double pmax, TTSETwoPhaseTableClass *other = NULL);
 	
 	/// Evaluate a property in the two-phase region using the TTSE method
 	/// @param iParam Index of desired output
@@ -92,17 +93,9 @@ public:
 	/// @param hmax Maximum enthalpy [kJ/kg]
 	/// @param pmin Minimum pressure [kJ/kg]
 	/// @param pmax Maximum pressure [kJ/kg]
-	/// @param logp Flag whether to use log(p) rather than p [true/false]
-	double build(double hmin, double hmax, double pmin, double pmax, bool logp = false);
-
-	/// Build the tables, but using the saturation TTSE LUT to determine where you are
-	/// @param hmin Minimum enthalpy [kJ/kg]
-	/// @param hmax Maximum enthalpy [kJ/kg]
-	/// @param pmin Minimum pressure [kJ/kg]
-	/// @param pmax Maximum pressure [kJ/kg]
 	/// @param TTSESatL Saturated liquid TTSE LUT
 	/// @param TTSESatV Saturated vapor TTSE LUT
-	double build_TTSESat(double hmin, double hmax, double pmin, double pmax, TTSETwoPhaseTableClass *SatL, TTSETwoPhaseTableClass *SatV);
+	double build(double hmin, double hmax, double pmin, double pmax, TTSETwoPhaseTableClass *SatL = NULL, TTSETwoPhaseTableClass *SatV = NULL);
 	
 	/// Evaluate a property in the single-phase region
 	/// @param iParam Index of desired output
@@ -128,6 +121,13 @@ public:
 
 	/// Write a representation of the ph surface to file with O in each "good" spot and "X" in each "bad" one or two-phase
 	void write_dotdrawing_tofile(char fName[]);
+
+	/// Find the nearest neighbor density and temperature if they exist to speed up calcs
+	/// @param i Index in h
+	/// @param j Index in p
+	/// @param T0 Temperature
+	/// @param rho0 Density
+	void nearest_neighbor(int i, int j, double *T0, double *rho0);
 };
 
 

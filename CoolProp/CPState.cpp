@@ -175,6 +175,7 @@ void CoolPropStateClass::update(long iInput1, double Value1, long iInput2, doubl
 
 		if (TwoPhase && !flag_TwoPhase)
 		{
+			// Update temperature and density for SatL and SatV
 			add_saturation_states();
 		}
 	}
@@ -183,6 +184,7 @@ void CoolPropStateClass::update(long iInput1, double Value1, long iInput2, doubl
 	delta = this->_rho/pFluid->reduce.rho;
 	tau = pFluid->reduce.T/this->_T;	
 }
+
 void CoolPropStateClass::update_twophase(long iInput1, double Value1, long iInput2, double Value2)
 {
 	// This function handles setting internal variables when the state is known to be saturated
@@ -270,7 +272,7 @@ void CoolPropStateClass::update_Trho(long iInput1, double Value1, long iInput2, 
 
 	// If either SinglePhase or flag_SinglePhase is set to true, it will not make the call to the saturation routine
 	// SinglePhase is set by the class routines, and flag_SinglePhase is a flag that can be set externally
-	if (!SinglePhase || !flag_SinglePhase || flag_TwoPhase || !pFluid->phase_Trho(_T,_rho,&psatL,&psatV,&rhosatL,&rhosatV).compare("Two-Phase"))
+	if ((!SinglePhase && !flag_SinglePhase) || flag_TwoPhase || !pFluid->phase_Trho(_T,_rho,&psatL,&psatV,&rhosatL,&rhosatV).compare("Two-Phase"))
 	{
 		if (!flag_SinglePhase || flag_TwoPhase)
 		{
@@ -409,7 +411,7 @@ void CoolPropStateClass::update_ps(long iInput1, double Value1, long iInput2, do
 void CoolPropStateClass::update_TTSE_LUT(long iInput1, double Value1, long iInput2, double Value2)
 {
 	
-	// If the inputs are P,Q or T,Q , it is guaranteed to require a call to the saturation routine
+	// If the inputs are P,Q or T,Q , it is guaranteed to be two-phase
 	if (match_pair(iInput1,iInput2,iP,iQ))
 	{
 		// Set phase flags
@@ -449,6 +451,9 @@ void CoolPropStateClass::update_TTSE_LUT(long iInput1, double Value1, long iInpu
 		// If enthalpy is outside the saturation region, it is single-phase
 		if (p > pFluid->reduce.p || p < pFluid->params.ptriple ||  h < pFluid->TTSESatL.evaluate(iH,p)  || h > pFluid->TTSESatV.evaluate(iH,p))
 		{
+			TwoPhase = false;
+			SinglePhase = true;
+
 			_rho = pFluid->TTSESinglePhase.evaluate(iD,h,p);
 			_T = pFluid->TTSESinglePhase.evaluate(iT,h,p);
 			_p = p;
@@ -487,13 +492,19 @@ void CoolPropStateClass::update_TTSE_LUT(long iInput1, double Value1, long iInpu
 
 void CoolPropStateClass::add_saturation_states(void)
 {
+	// While SatL and SatV are technically two-phase, we consider 
+	// them to be single-phase to speed up the calcs and avoid saturation calls
 	SatL->flag_TwoPhase = true;
 	SatL->update(iT,TsatL,iD,rhosatL);
 	SatL->flag_TwoPhase = false;
+	SatL->SinglePhase = true;
+	SatL->TwoPhase = false;
 
 	SatV->flag_TwoPhase = true;
 	SatV->update(iT,TsatV,iD,rhosatV);
 	SatV->flag_TwoPhase = false;
+	SatV->SinglePhase = true;
+	SatV->TwoPhase = false;
 }
 
 /// Enable the TTSE LUT
@@ -517,7 +528,7 @@ double CoolPropStateClass::hL(void){
 	}
 	else
 	{
-		return pFluid->enthalpy_Trho(TsatL,rhosatL);
+		return SatL->h();
 	}
 }
 double CoolPropStateClass::hV(void){
@@ -528,7 +539,7 @@ double CoolPropStateClass::hV(void){
 	}
 	else
 	{
-		return pFluid->enthalpy_Trho(TsatV,rhosatV);
+		return SatV->h();
 	}
 }
 double CoolPropStateClass::sL(void){
@@ -539,7 +550,7 @@ double CoolPropStateClass::sL(void){
 	}
 	else
 	{
-		return pFluid->entropy_Trho(TsatL,rhosatL);
+		return SatL->s();
 	}
 }
 double CoolPropStateClass::sV(void){
@@ -550,7 +561,7 @@ double CoolPropStateClass::sV(void){
 	}
 	else
 	{
-		return pFluid->entropy_Trho(TsatV,rhosatV);
+		return SatV->s();
 	}
 }
 
@@ -750,6 +761,7 @@ double CoolPropStateClass::d2rhodT2_constp(void)
 
 double CoolPropStateClass::dTdp_along_sat(void)
 {
+	if (!TwoPhase){throw ValueError(format("Saturation derivative cannot be called now.  Call update() with a two-phase set of inputs"));}
 	if (pFluid->enabled_TTSE_LUT)
 	{
 		pFluid->build_TTSE_LUT();
@@ -761,19 +773,23 @@ double CoolPropStateClass::dTdp_along_sat(void)
 }
 double CoolPropStateClass::ddp_dTdp_along_sat(void)
 {
+	if (!TwoPhase){throw ValueError(format("Saturation derivative cannot be called now.  Call update() with a two-phase set of inputs"));}
 	return 1/(SatV->h()-SatL->h())*(_T*(SatV->dvdp_constT()-SatL->dvdp_constT())-dTdp_along_sat()*(SatV->dhdp_constT()-SatL->dhdp_constT()));
 }
 double CoolPropStateClass::ddT_dTdp_along_sat(void)
 {
+	if (!TwoPhase){throw ValueError(format("Saturation derivative cannot be called now.  Call update() with a two-phase set of inputs"));}
 	return 1/(SatV->h()-SatL->h())*(_T*(SatV->dvdT_constp()-SatL->dvdT_constp())-dTdp_along_sat()*(SatV->dhdT_constp()-SatL->dhdT_constp())+(1/SatV->rho()-1/SatL->rho()));
 }
 double CoolPropStateClass::d2Tdp2_along_sat(void)
 {
+	if (!TwoPhase){throw ValueError(format("Saturation derivative cannot be called now.  Call update() with a two-phase set of inputs"));}
 	return ddp_dTdp_along_sat()+ddT_dTdp_along_sat()*dTdp_along_sat();
 }
 
 double CoolPropStateClass::dhdp_along_sat_liquid(void)
 {
+	if (!TwoPhase){throw ValueError(format("Saturation derivative cannot be called now.  Call update() with a two-phase set of inputs"));}
 	if (pFluid->enabled_TTSE_LUT){
 		pFluid->build_TTSE_LUT();
 		return pFluid->TTSESatL.evaluate_sat_derivative(iH,psatL);
@@ -784,6 +800,7 @@ double CoolPropStateClass::dhdp_along_sat_liquid(void)
 }
 double CoolPropStateClass::dhdp_along_sat_vapor(void)
 {
+	if (!TwoPhase){throw ValueError(format("Saturation derivative cannot be called now.  Call update() with a two-phase set of inputs"));}
 	if (pFluid->enabled_TTSE_LUT){
 		pFluid->build_TTSE_LUT();
 		return pFluid->TTSESatV.evaluate_sat_derivative(iH,psatV);
@@ -794,12 +811,14 @@ double CoolPropStateClass::dhdp_along_sat_vapor(void)
 }
 double CoolPropStateClass::d2hdp2_along_sat_vapor(void)
 {
+	if (!TwoPhase){throw ValueError(format("Saturation derivative cannot be called now.  Call update() with a two-phase set of inputs"));}
 	double ddp_dhdpsigmaV = SatV->d2hdp2_constT()+SatV->dhdT_constp()*ddp_dTdp_along_sat()+SatV->d2hdTdp()*dTdp_along_sat();
 	double ddT_dhdpsigmaV = SatV->d2hdTdp()+SatV->dhdT_constp()*ddT_dTdp_along_sat()+SatV->d2hdT2_constp()*dTdp_along_sat();
 	return ddp_dhdpsigmaV+ddT_dhdpsigmaV*dTdp_along_sat();
 }
 double CoolPropStateClass::d2hdp2_along_sat_liquid(void)
 {
+	if (!TwoPhase){throw ValueError(format("Saturation derivative cannot be called now.  Call update() with a two-phase set of inputs"));}
 	double ddp_dhdpsigmaL = SatL->d2hdp2_constT()+SatL->dhdT_constp()*ddp_dTdp_along_sat()+SatL->d2hdTdp()*dTdp_along_sat();
 	double ddT_dhdpsigmaL = SatL->d2hdTdp()+SatL->dhdT_constp()*ddT_dTdp_along_sat()+SatL->d2hdT2_constp()*dTdp_along_sat();
 	return ddp_dhdpsigmaL+ddT_dhdpsigmaL*dTdp_along_sat();
@@ -807,20 +826,24 @@ double CoolPropStateClass::d2hdp2_along_sat_liquid(void)
 
 double CoolPropStateClass::dsdp_along_sat_liquid(void)
 {
+	if (!TwoPhase){throw ValueError(format("Saturation derivative cannot be called now.  Call update() with a two-phase set of inputs"));}
 	return SatL->dsdp_constT()+SatL->dsdT_constp()*dTdp_along_sat();
 }
 double CoolPropStateClass::dsdp_along_sat_vapor(void)
 {
+	if (!TwoPhase){throw ValueError(format("Saturation derivative cannot be called now.  Call update() with a two-phase set of inputs"));}
 	return SatV->dsdp_constT()+SatV->dsdT_constp()*dTdp_along_sat();
 }
 double CoolPropStateClass::d2sdp2_along_sat_vapor(void)
 {
+	if (!TwoPhase){throw ValueError(format("Saturation derivative cannot be called now.  Call update() with a two-phase set of inputs"));}
 	double ddp_dsdpsigmaV = SatV->d2sdp2_constT()+SatV->dsdT_constp()*ddp_dTdp_along_sat()+SatV->d2sdTdp()*dTdp_along_sat();
 	double ddT_dsdpsigmaV = SatV->d2sdTdp()+SatV->dsdT_constp()*ddT_dTdp_along_sat()+SatV->d2sdT2_constp()*dTdp_along_sat();
 	return ddp_dsdpsigmaV+ddT_dsdpsigmaV*dTdp_along_sat();
 }
 double CoolPropStateClass::d2sdp2_along_sat_liquid(void)
 {
+	if (!TwoPhase){throw ValueError(format("Saturation derivative cannot be called now.  Call update() with a two-phase set of inputs"));}
 	double ddp_dsdpsigmaL = SatL->d2sdp2_constT()+SatL->dsdT_constp()*ddp_dTdp_along_sat()+SatL->d2sdTdp()*dTdp_along_sat();
 	double ddT_dsdpsigmaL = SatL->d2sdTdp()+SatL->dsdT_constp()*ddT_dTdp_along_sat()+SatL->d2sdT2_constp()*dTdp_along_sat();
 	return ddp_dsdpsigmaL+ddT_dsdpsigmaL*dTdp_along_sat();
@@ -828,6 +851,7 @@ double CoolPropStateClass::d2sdp2_along_sat_liquid(void)
 
 double CoolPropStateClass::drhodp_along_sat_vapor(void)
 {
+	if (!TwoPhase){throw ValueError(format("Saturation derivative cannot be called now.  Call update() with a two-phase set of inputs"));}
 	if (pFluid->enabled_TTSE_LUT)
 	{
 		pFluid->build_TTSE_LUT();
@@ -840,6 +864,7 @@ double CoolPropStateClass::drhodp_along_sat_vapor(void)
 }
 double CoolPropStateClass::drhodp_along_sat_liquid(void)
 {
+	if (!TwoPhase){throw ValueError(format("Saturation derivative cannot be called now.  Call update() with a two-phase set of inputs"));}
 	if (pFluid->enabled_TTSE_LUT)
 	{
 		pFluid->build_TTSE_LUT();
@@ -852,12 +877,14 @@ double CoolPropStateClass::drhodp_along_sat_liquid(void)
 }
 double CoolPropStateClass::d2rhodp2_along_sat_vapor(void)
 {
+	if (!TwoPhase){throw ValueError(format("Saturation derivative cannot be called now.  Call update() with a two-phase set of inputs"));}
 	double ddp_drhodpsigmaV = SatV->d2rhodp2_constT()+SatV->drhodT_constp()*ddp_dTdp_along_sat()+SatV->d2rhodTdp()*dTdp_along_sat();
 	double ddT_drhodpsigmaV = SatV->d2rhodTdp()+SatV->drhodT_constp()*ddT_dTdp_along_sat()+SatV->d2rhodT2_constp()*dTdp_along_sat();
 	return ddp_drhodpsigmaV+ddT_drhodpsigmaV*dTdp_along_sat();
 }
 double CoolPropStateClass::d2rhodp2_along_sat_liquid(void)
 {
+	if (!TwoPhase){throw ValueError(format("Saturation derivative cannot be called now.  Call update() with a two-phase set of inputs"));}
 	double ddp_drhodpsigmaL = SatL->d2rhodp2_constT()+SatL->drhodT_constp()*ddp_dTdp_along_sat()+SatL->d2rhodTdp()*dTdp_along_sat();
 	double ddT_drhodpsigmaL = SatL->d2rhodTdp()+SatL->drhodT_constp()*ddT_dTdp_along_sat()+SatL->d2rhodT2_constp()*dTdp_along_sat();
 	return ddp_drhodpsigmaL+ddT_drhodpsigmaL*dTdp_along_sat();
@@ -865,10 +892,12 @@ double CoolPropStateClass::d2rhodp2_along_sat_liquid(void)
 
 double CoolPropStateClass::drhodT_along_sat_vapor(void)
 {
+	if (!TwoPhase){throw ValueError(format("Saturation derivative cannot be called now.  Call update() with a two-phase set of inputs"));}
 	return SatV->drhodT_constp()+SatV->drhodp_constT()/dTdp_along_sat();
 }
 double CoolPropStateClass::drhodT_along_sat_liquid(void)
 {
+	if (!TwoPhase){throw ValueError(format("Saturation derivative cannot be called now.  Call update() with a two-phase set of inputs"));}
 	return SatL->drhodT_constp()+SatL->drhodp_constT()/dTdp_along_sat();
 }
 

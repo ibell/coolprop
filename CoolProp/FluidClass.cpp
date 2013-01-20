@@ -1499,8 +1499,20 @@ void Fluid::temperature_ph(double p, double h, double *Tout, double *rhoout, dou
 			// Set to a negative value as a dummy value
 			delta = -1;
 			
-			// If not using saturation LUT, start by trying to use the ancillary equations
-			if (!SaturationLUTStatus())
+			// If using TTSE, TTSE is the arbiter of two-phase/single-phase boundary
+			// 
+			if (enabled_TTSE_LUT)
+			{
+				hsatL = TTSESatL.evaluate(iH,p);
+				hsatV = TTSESatV.evaluate(iH,p);
+				// If TTSE is enabled and we have gotten to this point
+				if (h>hsatV || h<hsatL)
+				{
+					
+					
+				}
+			}
+			else if (!SaturationLUTStatus())
 			{
 				//**************************************************
 				// Step 1: Try to just use the ancillary equations
@@ -3104,12 +3116,11 @@ bool Fluid::build_TTSE_LUT()
 		// otherwise you get an infinite recursion
 		enabled_TTSE_LUT = false;
 		TTSESatL = TTSETwoPhaseTableClass(this,0);
-		TTSESatL.set_size(1000);
-		TTSESatL.build(params.ptriple+1e-08,reduce.p);
+		TTSESatL.set_size(500);
 
 		TTSESatV = TTSETwoPhaseTableClass(this,1);
-		TTSESatV.set_size(1000);
-		TTSESatV.build(params.ptriple+1e-08,reduce.p);
+		TTSESatV.set_size(500);
+		TTSESatV.build(params.ptriple+1e-08,reduce.p,&TTSESatL);
 
 		// Enthalpy at saturated liquid at triple point temperature
 		double hmin = Props("H",'T',params.Ttriple+1e-8,'Q',0,get_name());
@@ -3118,7 +3129,7 @@ bool Fluid::build_TTSE_LUT()
 		double pmax = 2*reduce.p;
 		TTSESinglePhase = TTSESinglePhaseTableClass(this);
 		TTSESinglePhase.set_size(200,200);
-		TTSESinglePhase.build_TTSESat(hmin,hmax,pmin,pmax,&TTSESatL,&TTSESatV);
+		TTSESinglePhase.build(hmin,hmax,pmin,pmax,&TTSESatL,&TTSESatV);
 		
 		TTSESinglePhase.write_dotdrawing_tofile("dot.txt");
 		built_TTSE_LUT = true;

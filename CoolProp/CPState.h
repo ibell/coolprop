@@ -57,7 +57,13 @@ protected:
 public:
 	Fluid * pFluid;
 
-	bool flag_SinglePhase, flag_TwoPhase;
+	/// Temporarily set a flag to tell that the next call to update should be special 
+	/// cased as though it is single-phase even if it isn't
+	bool flag_SinglePhase;
+
+	/// Temporarily set a flag to tell that the next call to update should be special 
+	/// cased as though it is two-phase even if it isn't
+	bool flag_TwoPhase;
 
 	// Bulk values
 	double _rho,_T,_p,_Q,_h,_s, tau, delta;
