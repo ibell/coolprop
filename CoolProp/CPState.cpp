@@ -179,6 +179,8 @@ void CoolPropStateClass::update(long iInput1, double Value1, long iInput2, doubl
 			add_saturation_states();
 		}
 	}
+	
+	
 
 	// Reduced parameters
 	delta = this->_rho/pFluid->reduce.rho;
@@ -475,7 +477,7 @@ void CoolPropStateClass::update_TTSE_LUT(long iInput1, double Value1, long iInpu
 			psatV = p;
 			
 			_Q = (h-hsatL)/(hsatV-hsatL);
-			_rho = 1/(1/rhosatV*_Q+1/rhosatL*(1-_Q));
+			_rho = 1/(_Q/rhosatV+(1-_Q)/rhosatL);
 			_T = _Q*TsatV+(1-_Q)*TsatL;
 			_p = _Q*psatV+(1-_Q)*psatL;
 			_h = h;
@@ -485,8 +487,8 @@ void CoolPropStateClass::update_TTSE_LUT(long iInput1, double Value1, long iInpu
 	}
 	else
 	{
-		printf("Sorry your inputs didn't work for now\n");
-		throw ValueError(format("Sorry your inputs didn't work for now"));
+		printf("Sorry your inputs[%d,%d] don't work for now with TTSE\n",iInput1,iInput2);
+		throw ValueError(format("Sorry your inputs don't work for now with TTSE"));
 	}
 }
 

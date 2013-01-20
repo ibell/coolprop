@@ -487,10 +487,6 @@ double TTSETwoPhaseTableClass::build(double pmin, double pmax, TTSETwoPhaseTable
 		// Update the class
 		CPS.update(iP,p[i],iQ,Q);
 
-		// rho for the other saturation curve
-		double rho_other = (this->Q>0.5) ? CPS.rhoL() : CPS.rhoV();
-		double Q_other = (this->Q>0.5) ? 0 : 1;
-
 		// Set the variables
 		T[i] = CPS.T();
 		dTdp[i] = CPS.dTdp_along_sat();
@@ -513,6 +509,9 @@ double TTSETwoPhaseTableClass::build(double pmin, double pmax, TTSETwoPhaseTable
 			other->pmax = pmax;
 			other->logpmin = log(pmin);
 			other->logpmax = log(pmax);
+
+			other->p[i] = this->p[i];
+			other->logp[i] = log(this->p[i]);
 
 			// Set the variables
 			other->T[i] = CPS.T();

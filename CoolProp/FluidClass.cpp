@@ -1953,11 +1953,8 @@ double Fluid::Tsat_anc(double p, double Q)
 
 		//std::cout << "tsat_anc" << psatV_anc(reduce.T/tau_interp) << '\n';
 		return reduce.T/tau_interp;
-	}
-	
-	
+	}	
 }
-
 
 
 /// A wrapper class to do the calculations to get densities and saturation temperature
@@ -2117,7 +2114,6 @@ public:
 void Fluid::saturation_p(double p, bool UseLUT, double *TsatL, double *TsatV, double *rhoLout, double *rhoVout)
 {
 	double Tsat,rhoL,rhoV;
-
 
 	// Pseudo-critical pressure based on critical density and temperature
 	// The highest pressure that be achieved with a temperature <= Tc
@@ -2285,6 +2281,11 @@ double Fluid::Tsat(double p, double Q, double T_guess, bool UseLUT, double *rhoL
 		double tau = Brent(&SatFunc,tau_min,tau_max,1e-10,1e-10,50,&errstr);
 		if (errstr.size()>0)
 			throw SolutionError("Saturation calculation failed");
+		if (!isPure)
+		{
+			*rhoLout = rhosatL(reduce.T/tau);
+			*rhoVout = rhosatV(reduce.T/tau);
+		}
 		return reduce.T/tau;
 	}
 }
@@ -3117,6 +3118,7 @@ bool Fluid::build_TTSE_LUT()
 		enabled_TTSE_LUT = false;
 		TTSESatL = TTSETwoPhaseTableClass(this,0);
 		TTSESatL.set_size(500);
+		//TTSESatL.build(params.ptriple+1e-08,reduce.p);
 
 		TTSESatV = TTSETwoPhaseTableClass(this,1);
 		TTSESatV.set_size(500);
@@ -3191,7 +3193,6 @@ double asinh(double value){
 
 }
 #endif
-
 
 double CriticalSplineStruct_T::interpolate_rho(Fluid *pFluid, int phase, double T)
 {
