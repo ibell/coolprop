@@ -449,8 +449,7 @@ double TTSESinglePhaseTableClass::evaluate(long iParam, double h, double p)
 {
 	int i = (int)round(((h-hmin)/(hmax-hmin)*(Nrow-1)));
 	int j = (int)round(((p-pmin)/(pmax-pmin)*(Ncol-1)));
-	double deltah = h-this->h[i];
-	double deltap = p-this->p[j];
+	
 
 	// If the value at i,j is too close to the saturation boundary, the nearest point i,j 
 	// might be in the two-phase region which is not defined for single-phase table.  
@@ -458,6 +457,9 @@ double TTSESinglePhaseTableClass::evaluate(long iParam, double h, double p)
 	if (!ValidNumber(T[i][j])){
 		nearest_good_neighbor(&i,&j);
 	}
+
+	double deltah = h-this->h[i];
+	double deltap = p-this->p[j];
 	
 	switch (iParam)
 	{
