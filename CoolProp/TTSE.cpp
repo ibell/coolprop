@@ -122,6 +122,35 @@ void TTSESinglePhaseTableClass::set_size(unsigned int Nrow, unsigned int Ncol)
 //	return elap;
 //}
 
+void TTSESinglePhaseTableClass::nearest_good_neighbor(int *i, int *j)
+{
+	// Left
+	if (*i>0 && ValidNumber(rho[*i-1][*j]) && ValidNumber(T[*i-1][*j])){
+		*i -= 1;
+		return;
+	}
+	// Right
+	else if (*i<Nrow-1 && ValidNumber(rho[*i+1][*j]) && ValidNumber(T[*i+1][*j])){
+		*i += 1;
+		return;
+	}
+	// Down
+	else if (*j>0 && ValidNumber(rho[*i][*j-1]) && ValidNumber(T[*i][*j-1])){
+		*j -= 1;
+		return;
+	}
+	// Up
+	else if (*j<Ncol-1 && ValidNumber(rho[*i][*j+1]) && ValidNumber(T[*i][*j+1])){
+		*j += 1;
+		return;
+	}
+	else
+	{
+		throw ValueError(format("No neighbors found for %d,%d",i,j));
+		return;
+	}
+}
+
 void TTSESinglePhaseTableClass::nearest_neighbor(int i, int j, double *T0, double *rho0)
 {
 	// Left
@@ -149,10 +178,12 @@ void TTSESinglePhaseTableClass::nearest_neighbor(int i, int j, double *T0, doubl
 		return;
 	}
 	else
+	{
 		*T0 = -1;
 		*rho0 = -1;
 		return;
 	}
+}
 
 
 	
@@ -420,6 +451,13 @@ double TTSESinglePhaseTableClass::evaluate(long iParam, double h, double p)
 	int j = (int)round(((p-pmin)/(pmax-pmin)*(Ncol-1)));
 	double deltah = h-this->h[i];
 	double deltap = p-this->p[j];
+
+	// If the value at i,j is too close to the saturation boundary, the nearest point i,j 
+	// might be in the two-phase region which is not defined for single-phase table.  
+	// Therefore, search around its neighbors for a better choice
+	if (!ValidNumber(T[i][j])){
+		nearest_good_neighbor(&i,&j);
+	}
 	
 	switch (iParam)
 	{

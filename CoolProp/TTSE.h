@@ -128,6 +128,12 @@ public:
 	/// @param T0 Temperature
 	/// @param rho0 Density
 	void nearest_neighbor(int i, int j, double *T0, double *rho0);
+
+	/// Find the nearest neighbor indices that have good values
+	/// @param i Index in h
+	/// @param j Index in p
+	void nearest_good_neighbor(int *i, int *j);
+
 };
 
 
