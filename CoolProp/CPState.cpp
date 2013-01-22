@@ -677,7 +677,8 @@ double CoolPropStateClass::speed_sound(void){
 			double drhodh__p = pFluid->TTSESinglePhase.evaluate_first_derivative(iD,iH,iP,_p,_h);
 			double drhodp__h = pFluid->TTSESinglePhase.evaluate_first_derivative(iD,iP,iH,_p,_h);
 			
-			return sqrt(1/(drhodp__h-drhodh__p*dsdp__h/dsdh__p));
+			/// Factor of 1000 is because units within radical need to be all in base units to result in m^2/s^3
+			return 1/sqrt((drhodp__h-drhodh__p*dsdp__h/dsdh__p)/1000);
 		}
 	}
 	else
