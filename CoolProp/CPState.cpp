@@ -218,10 +218,14 @@ void CoolPropStateClass::update_twophase(long iInput1, double Value1, long iInpu
 				rhosatL = pFluid->ApplySaturationLUT(pFluid->SatLUT.iDL,pFluid->SatLUT.iP,Value1);
 				rhosatV = pFluid->ApplySaturationLUT(pFluid->SatLUT.iDV,pFluid->SatLUT.iP,Value1);
 				TsatV = TsatL;
+				psatV = Value1;
+				psatL = Value1;
 			}
 			else{
 				pFluid->saturation_p(Value1,SaturationLUTStatus(),&TsatL,&TsatV,&rhosatL,&rhosatV);
 				TsatV = TsatL;
+				psatV = Value1;
+				psatL = Value1;
 			}
 		}
 		else{
@@ -809,11 +813,12 @@ double CoolPropStateClass::drhodp_consth(void){
 			
 			double dxdp_h = (dhdpL+_Q*(dhdpV-dhdpL))/(hL()-hV());
 
-			//double dhdpV_2 = (Props("H",'P',_p+1e-5,'Q',1,"Propane")-Props("H",'P',_p,'Q',1,"Propane"))/1e-5;
-			//double dhdpL_2 = (Props("H",'P',_p+1e-5,'Q',0,"Propane")-Props("H",'P',_p,'Q',0,"Propane"))/1e-5;
-			//double dxdp_h2 = (Props("Q",'P',_p+1e-3,'H',_h,"Propane")-Props("Q",'P',_p,'H',_h,"Propane"))/1e-3;
-			//double dvdp_h2 = (1/Props("D",'P',_p+1e-3,'H',_h,"Propane")-1/Props("D",'P',_p,'H',_h,"Propane"))/1e-3;
-			//double gretresgr = Props("Q",'P',_p,'H',_h,"Propane");
+			double dhdpV_2 = (Props("H",'P',p()+1e-5,'Q',1,"Propane")-Props("H",'P',p(),'Q',1,"Propane"))/1e-5;
+			double dhdpL_2 = (Props("H",'P',p()+1e-5,'Q',0,"Propane")-Props("H",'P',p(),'Q',0,"Propane"))/1e-5;
+			double dxdp_h2 = (Props("Q",'P',p()+1e-3,'H',h(),"Propane")-Props("Q",'P',p(),'H',h(),"Propane"))/1e-3;
+			double dvdp_h2 = (1/Props("D",'P',p()+1e-3,'H',h(),"Propane")-1/Props("D",'P',p(),'H',h(),"Propane"))/1e-3;
+			double drhodp_h2 = (Props("D",'P',p()+1e-3,'H',h(),"Propane")-Props("D",'P',p(),'H',h(),"Propane"))/1e-3;
+			double gretresgr = Props("Q",'P',p(),'H',_h,"Propane");
 			
 			double dvdp_h = dvdpL+dxdp_h*(1/rhosatV-1/rhosatL)+_Q*(dvdpV-dvdpL);
 
