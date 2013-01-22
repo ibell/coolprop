@@ -1,10 +1,11 @@
+
+#ifndef CPSTATE_H
+#define CPSTATE_H
+
 #include <iostream>
 #include "FluidClass.h"
 #include "CoolProp.h"
 #include "TTSE.h"
-
-#ifndef CPSTATE_H
-#define CPSTATE_H
 
 bool match_pair(long iI1, long iI2, long I1, long I2);
 void sort_pair(long *iInput1, double *Value1, long *iInput2, double *Value2, long I1, long I2);
@@ -114,6 +115,8 @@ public:
 	double cp(void);
 	double cv(void);
 	double speed_sound(void);
+	double isothermal_compressibility(void);
+	double isobaric_expansion_coefficient(void);
 
 	// ----------------------------------------	
 	// TTSE LUT things
@@ -131,6 +134,13 @@ public:
 	void set_TTSESinglePhase_LUT_size(int Np, int Nh);
 	/// Over-ride the default range of the single-phase LUT
 	void set_TTSESinglePhase_LUT_range(double hmin, double hmax, double pmin, double pmax);
+
+	/// Evaluate the B term from TTSE method
+	double B_TTSE(double _p, double _h);
+	/// Evaluate the D term from TTSE method
+	double D_TTSE(double _p, double _h);
+	/// Get the ratio directly which is just a bit faster
+	double B_over_D_TTSE(double _p, double _h);
 
 	/// Interpolate within the TTSE LUT
 	double interpolate_in_TTSE_LUT(long iParam, long iInput1, double Input1, long iInput2, double Input2);

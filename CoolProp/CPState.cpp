@@ -456,14 +456,13 @@ void CoolPropStateClass::update_TTSE_LUT(long iInput1, double Value1, long iInpu
 			TwoPhase = false;
 			SinglePhase = true;
 
-			_rho = pFluid->TTSESinglePhase.evaluate(iD,h,p);
-			_T = pFluid->TTSESinglePhase.evaluate(iT,h,p);
+			_rho = pFluid->TTSESinglePhase.evaluate(iD,p,h);
+			_T = pFluid->TTSESinglePhase.evaluate(iT,p,h);
 			_p = p;
 			_h = h;
 		}
 		else
 		{
-			
 			TwoPhase = true;
 			SinglePhase = false;
 
@@ -603,18 +602,151 @@ double CoolPropStateClass::s(void){
 	}
 }
 double CoolPropStateClass::cp(void){
-	double c1 = pow(1.0+delta*dphir_dDelta(tau,delta)-delta*tau*d2phir_dDelta_dTau(tau,delta),2);
-    double c2 = (1.0+2.0*delta*dphir_dDelta(tau,delta)+pow(delta,2)*d2phir_dDelta2(tau,delta));
-	return pFluid->R()*(-pow(tau,2)*(d2phi0_dTau2(tau,delta)+d2phir_dTau2(tau,delta))+c1/c2);
+	if (pFluid->enabled_TTSE_LUT)
+	{
+		if (TwoPhase && _Q>0 && _Q < 1)
+		{
+			return -1;
+		}
+		else
+		{
+			pFluid->build_TTSE_LUT();
+			// cp is also given by (dh/dT)|p, or 1/((dT/dh)|p) which is tabulated
+			return 1/pFluid->TTSESinglePhase.evaluate_first_derivative(iT,iH,iP,_p,_h);
+		}
+	}
+	else
+	{
+		double c1 = pow(1.0+delta*dphir_dDelta(tau,delta)-delta*tau*d2phir_dDelta_dTau(tau,delta),2);
+		double c2 = (1.0+2.0*delta*dphir_dDelta(tau,delta)+pow(delta,2)*d2phir_dDelta2(tau,delta));
+		return pFluid->R()*(-pow(tau,2)*(d2phi0_dTau2(tau,delta)+d2phir_dTau2(tau,delta))+c1/c2);
+	}
+}
+double CoolPropStateClass::B_TTSE(double p, double h){
+	// Slightly modified, doesn't use specific volume at all, also sign switched
+	double drhodh_p = pFluid->TTSESinglePhase.evaluate_first_derivative(iD,iH,iP,p,h);
+	double drhodp_h = pFluid->TTSESinglePhase.evaluate_first_derivative(iD,iP,iH,p,h);
+	double dsdh_p = pFluid->TTSESinglePhase.evaluate_first_derivative(iS,iH,iP,p,h);
+	double dsdp_h = pFluid->TTSESinglePhase.evaluate_first_derivative(iS,iP,iH,p,h);
+	double rho = pFluid->TTSESinglePhase.evaluate(iD,p,h);
+	return (drhodp_h*dsdh_p-drhodh_p*dsdp_h);
+}
+double CoolPropStateClass::B_over_D_TTSE(double p, double h)
+{
+	double drhodh_p = pFluid->TTSESinglePhase.evaluate_first_derivative(iD,iH,iP,p,h);
+	double drhodp_h = pFluid->TTSESinglePhase.evaluate_first_derivative(iD,iP,iH,p,h);
+	double   dsdh_p = pFluid->TTSESinglePhase.evaluate_first_derivative(iS,iH,iP,p,h);
+	double   dsdp_h = pFluid->TTSESinglePhase.evaluate_first_derivative(iS,iP,iH,p,h);
+	double   dTdh_p = pFluid->TTSESinglePhase.evaluate_first_derivative(iT,iH,iP,p,h);
+	double   dTdp_h = pFluid->TTSESinglePhase.evaluate_first_derivative(iT,iP,iH,p,h);
+	return (drhodh_p*dsdp_h-drhodp_h*dsdh_p)/(dTdh_p*drhodp_h-dTdp_h*drhodh_p);
 }
 double CoolPropStateClass::cv(void){
-	return -pFluid->R()*pow(tau,2)*(d2phi0_dTau2(tau,delta)+d2phir_dTau2(tau,delta));
+	if (pFluid->enabled_TTSE_LUT)
+	{
+		if (TwoPhase && _Q>0 && _Q < 1)
+		{
+			return -1;
+		}
+		else
+		{
+			pFluid->build_TTSE_LUT();
+			// cv is also given by -B*T/D which is tabulated (indirectly)
+			return -B_over_D_TTSE(_p,_h)*pFluid->TTSESinglePhase.evaluate(iT,_p,_h);
+		}
+	}
+	else
+	{
+		return -pFluid->R()*pow(tau,2)*(d2phi0_dTau2(tau,delta)+d2phir_dTau2(tau,delta));
+	}
 }
 double CoolPropStateClass::speed_sound(void){
-	double c1 = pow(tau,2)*(d2phi0_dTau2(tau,delta)+d2phir_dTau2(tau,delta));
-    double c2 = (1.0+2.0*delta*dphir_dDelta(tau,delta)+pow(delta,2)*d2phir_dDelta2(tau,delta));
-    return sqrt(-c2*this->_T*this->cp()*1000/c1);
+	if (pFluid->enabled_TTSE_LUT)
+	{
+		if (TwoPhase && _Q>0 && _Q < 1)
+		{
+			// Not defined for two-phase
+			return -1;
+		}
+		else
+		{
+			pFluid->build_TTSE_LUT();
+			// speed of sound given by sqrt(v^2/B*dsdh|p), or sqrt(dpdrho|s)
+			
+			double dsdh__p2 = (Props("S",'H',_h+1e-5,'P',_p,"Propane")-Props("S",'H',_h,'P',_p,"Propane"))/1e-5;
+			double dsdp__h2 = (Props("S",'H',_h,'P',_p+1e-5,"Propane")-Props("S",'H',_h,'P',_p,"Propane"))/1e-5;
+			double drhodh__p2 = (Props("D",'H',_h+1e-5,'P',_p,"Propane")-Props("D",'H',_h,'P',_p,"Propane"))/1e-5;
+			double drhodp__h2 = (Props("D",'H',_h,'P',_p+1e-5,"Propane")-Props("D",'H',_h,'P',_p,"Propane"))/1e-5;
+
+			double dsdh__p = pFluid->TTSESinglePhase.evaluate_first_derivative(iS,iH,iP,_p,_h);
+			double dsdp__h = pFluid->TTSESinglePhase.evaluate_first_derivative(iS,iP,iH,_p,_h);
+			double drhodh__p = pFluid->TTSESinglePhase.evaluate_first_derivative(iD,iH,iP,_p,_h);
+			double drhodp__h = pFluid->TTSESinglePhase.evaluate_first_derivative(iD,iP,iH,_p,_h);
+			
+			return sqrt(1/(drhodp__h-drhodh__p*dsdp__h/dsdh__p));
+		}
+	}
+	else
+	{
+		double c1 = pow(tau,2)*(d2phi0_dTau2(tau,delta)+d2phir_dTau2(tau,delta));
+		double c2 = (1.0+2.0*delta*dphir_dDelta(tau,delta)+pow(delta,2)*d2phir_dDelta2(tau,delta));
+		return sqrt(-c2*this->_T*this->cp()*1000/c1);
+	}
 }
+
+double CoolPropStateClass::isothermal_compressibility(void){
+
+	if (pFluid->enabled_TTSE_LUT)
+	{
+		if (TwoPhase && _Q>0 && _Q < 1)
+		{
+			// Not defined for two-phase
+			return -1;
+		}
+		else
+		{
+			pFluid->build_TTSE_LUT();
+			// isothermal compressibility given by kappa = -1/v*dvdp|T = 1/rho*drhodp|T
+			double dTdh__p = pFluid->TTSESinglePhase.evaluate_first_derivative(iT,iH,iP,_p,_h);
+			double dTdp__h = pFluid->TTSESinglePhase.evaluate_first_derivative(iT,iP,iH,_p,_h);
+			double drhodh__p = pFluid->TTSESinglePhase.evaluate_first_derivative(iD,iH,iP,_p,_h);
+			double drhodp__h = pFluid->TTSESinglePhase.evaluate_first_derivative(iD,iP,iH,_p,_h);
+
+			double rho = pFluid->TTSESinglePhase.evaluate(iD,_p,_h);
+			return 1/rho*(drhodp__h-drhodh__p*dTdp__h/dTdh__p);
+		}
+	}
+	else
+	{
+		return 1/(_rho*dpdrho_constT());
+	}
+}
+
+double CoolPropStateClass::isobaric_expansion_coefficient(void){
+
+	if (pFluid->enabled_TTSE_LUT)
+	{
+		if (TwoPhase && _Q>0 && _Q < 1)
+		{
+			// Not defined for two-phase
+			return -1;
+		}
+		else
+		{
+			pFluid->build_TTSE_LUT();
+			// isobaric expansion coefficient given by kappa = -1/v*dvdp|T = 1/rho*drhodp|T
+			double dTdh__p = pFluid->TTSESinglePhase.evaluate_first_derivative(iT,iH,iP,_p,_h);
+			double drhodh__p = pFluid->TTSESinglePhase.evaluate_first_derivative(iD,iH,iP,_p,_h);
+			double rho = pFluid->TTSESinglePhase.evaluate(iD,_p,_h);
+			return -1/(rho*rho)*drhodh__p/dTdh__p;
+		}
+	}
+	else
+	{
+		return -1/(_rho*_rho)*drhodT_constp();
+	}
+}
+
 
 double CoolPropStateClass::drhodT_constp(void){
 	double dpdrho_T = pFluid->R()*_T*(1+2*delta*dphir_dDelta(tau,delta)+delta*delta*d2phir_dDelta2(tau,delta));

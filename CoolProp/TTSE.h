@@ -99,9 +99,9 @@ public:
 	
 	/// Evaluate a property in the single-phase region
 	/// @param iParam Index of desired output
-	/// @param h Enthalpy [kJ/kg]
 	/// @param p Pressure (absolute) [kPa]
-	double evaluate(long iParam, double h, double p);
+	/// @param h Enthalpy [kJ/kg]
+	double evaluate(long iParam, double p, double h);
 
 	/// Randomly evaluate a property in the single phase region using the TTSE method
 	/// @param iParam Index of desired output
@@ -129,10 +129,18 @@ public:
 	/// @param rho0 Density
 	void nearest_neighbor(int i, int j, double *T0, double *rho0);
 
-	/// Find the nearest neighbor indices that have good values
+	/// Find the nearest neighbor indices that have good values if i,j are not good
 	/// @param i Index in h
 	/// @param j Index in p
 	void nearest_good_neighbor(int *i, int *j);
+
+	/// Evaluate the first partial derivative
+	/// @param iOF Index in numerator
+	/// @param iWRT Index of denominator
+	/// @param iCONSTANT Index of property held constant
+	/// @param p Pressure [kPa]
+	/// @param h Enthalpy [kJ/kg]
+	double evaluate_first_derivative(long iOF, long iWRT, long iCONSTANT, double p, double h);
 
 };
 

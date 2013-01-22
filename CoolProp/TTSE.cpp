@@ -407,7 +407,7 @@ double TTSESinglePhaseTableClass::check_randomly(long iParam, unsigned int N, st
 		(*p)[i] = p1;
 
 		// Get the value from TTSE
-		(*TTSE)[i] = evaluate(iParam,h1,p1);
+		(*TTSE)[i] = evaluate(iParam,p1,h1);
 		
 		// Get the value from EOS
 		switch (iParam)
@@ -439,13 +439,13 @@ double TTSESinglePhaseTableClass::evaluate_randomly(long iParam, unsigned int N)
 		double h1 = ((double)rand()/(double)RAND_MAX)*(hmax-hmin)+hmin;
 
 		// Get the value from TTSE
-		evaluate(iParam,h1,p1);
+		evaluate(iParam,p1,h1);
 	}
 	t2 = clock();
 	return (double)(t2-t1)/CLOCKS_PER_SEC/(double)N*1e6;
 }
 
-double TTSESinglePhaseTableClass::evaluate(long iParam, double h, double p)
+double TTSESinglePhaseTableClass::evaluate(long iParam, double p, double h)
 {
 	int i = (int)round(((h-hmin)/(hmax-hmin)*(Nrow-1)));
 	int j = (int)round(((p-pmin)/(pmax-pmin)*(Ncol-1)));
@@ -458,8 +458,9 @@ double TTSESinglePhaseTableClass::evaluate(long iParam, double h, double p)
 		nearest_good_neighbor(&i,&j);
 	}
 
-	double deltah = h-this->h[i];
+	// Distances from the node
 	double deltap = p-this->p[j];
+	double deltah = h-this->h[i];
 	
 	switch (iParam)
 	{
@@ -472,6 +473,65 @@ double TTSESinglePhaseTableClass::evaluate(long iParam, double h, double p)
 	default:
 		throw ValueError();
 	}
+	return 0;
+}
+
+double TTSESinglePhaseTableClass::evaluate_first_derivative(long iOF, long iWRT, long iCONSTANT, double p, double h)
+{
+	int i = (int)round(((h-hmin)/(hmax-hmin)*(Nrow-1)));
+	int j = (int)round(((p-pmin)/(pmax-pmin)*(Ncol-1)));
+	
+	// If the value at i,j is too close to the saturation boundary, the nearest point i,j 
+	// might be in the two-phase region which is not defined for single-phase table.  
+	// Therefore, search around its neighbors for a better choice
+	if (!ValidNumber(T[i][j]))
+	{
+		nearest_good_neighbor(&i,&j);
+	}
+
+	// Distances from the node
+	double deltah = h-this->h[i];
+	double deltap = p-this->p[j];
+	
+	// This is a first-order expansion of the derivative around the node point.
+	//
+	// Derivatives for constant p
+	if (iOF == iT && iWRT == iH && iCONSTANT == iP)
+	{
+		// Derivative of T w.r.t. h for p constant (for cp, the constant-pressure specific heat)
+		return dTdh[i][j]+deltah*d2Tdh2[i][j]+deltap*d2Tdhdp[i][j];
+	}
+	else if (iOF == iS && iWRT == iH && iCONSTANT == iP)
+	{
+		// Derivative of s w.r.t. h for p constant
+		return dsdh[i][j]+deltah*d2sdh2[i][j]+deltap*d2sdhdp[i][j];
+	}
+	else if (iOF == iD && iWRT == iH && iCONSTANT == iP)
+	{
+		// Derivative of density w.r.t. h for p constant
+		return drhodh[i][j]+deltah*d2rhodh2[i][j]+deltap*d2rhodhdp[i][j];
+	}
+
+	// Derivatives for constant h
+	else if (iOF == iT && iWRT == iP && iCONSTANT == iH)
+	{
+		// Derivative of T w.r.t. p for h constant
+		return dTdp[i][j]+deltap*d2Tdp2[i][j]+deltah*d2Tdhdp[i][j];
+	}
+	else if (iOF == iS && iWRT == iP && iCONSTANT == iH)
+	{
+		// Derivative of s w.r.t. p for h constant
+		return dsdp[i][j]+deltap*d2sdp2[i][j]+deltah*d2sdhdp[i][j];
+	}
+	else if (iOF == iD && iWRT == iP && iCONSTANT == iH)
+	{
+		// Derivative of density w.r.t. p for h constant
+		return drhodp[i][j]+deltap*d2rhodp2[i][j]+deltah*d2rhodhdp[i][j];
+	}
+	else{
+		throw ValueError();
+	}
+	
 	return 0;
 }
 

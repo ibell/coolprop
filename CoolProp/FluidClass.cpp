@@ -7,14 +7,15 @@
 #include <list>
 #include <exception>
 #include <iostream>
+#include <stdlib.h>
+#include <stdio.h>
+
 #include "Helmholtz.h"
 #include "FluidClass.h"
 #include "CoolProp.h"
 #include "CoolPropTools.h"
 #include "PengRobinson.h"
 #include "Solvers.h"
-#include <stdlib.h>
-#include <stdio.h>
 #include "CPState.h"
 #include "Brine.h"
 #include "CriticalSplineConstants.h"

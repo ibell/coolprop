@@ -1,6 +1,7 @@
-#include "FluidClass.h"
+
 #ifndef ARGON_H
 #define ARGON_H
+	#include "FluidClass.h"
 
 	class ArgonClass : public Fluid{
 
