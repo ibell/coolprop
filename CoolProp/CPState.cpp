@@ -730,11 +730,11 @@ double CoolPropStateClass::isobaric_expansion_coefficient(void){
 		else
 		{
 			pFluid->build_TTSE_LUT();
-			// isobaric expansion coefficient given by kappa = -1/v*dvdp|T = 1/rho*drhodp|T
+			// isobaric expansion coefficient given by kappa = 1/v*dvdT|p = -1/rho*drhodT|p
 			double dTdh__p = pFluid->TTSESinglePhase.evaluate_first_derivative(iT,iH,iP,_p,_h);
 			double drhodh__p = pFluid->TTSESinglePhase.evaluate_first_derivative(iD,iH,iP,_p,_h);
 			double rho = pFluid->TTSESinglePhase.evaluate(iD,_p,_h);
-			return -1/(rho*rho)*drhodh__p/dTdh__p;
+			return -1/rho*drhodh__p/dTdh__p;
 		}
 	}
 	else
