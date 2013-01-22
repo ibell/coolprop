@@ -784,8 +784,8 @@ double CoolPropStateClass::drhodp_consth(void){
 			double rhoV = pFluid->TTSESatV.evaluate(iD,_p);
 			double dhdpL = pFluid->TTSESatL.evaluate_sat_derivative(iH,_p);
 			double dhdpV = pFluid->TTSESatV.evaluate_sat_derivative(iH,_p);
-			double dvdpL = -pFluid->TTSESatL.evaluate_sat_derivative(iH,_p)/rhoL/rhoL;
-			double dvdpV = -pFluid->TTSESatV.evaluate_sat_derivative(iH,_p)/rhoV/rhoV;
+			double dvdpL = -pFluid->TTSESatL.evaluate_sat_derivative(iD,_p)/rhoL/rhoL;
+			double dvdpV = -pFluid->TTSESatV.evaluate_sat_derivative(iD,_p)/rhoV/rhoV;
 			
 			double dxdp_h = (_Q*dhdpV+(1-_Q)*(dhdpV-dhdpL))/(hL-hV);
 			double dvdp_h = dvdpL+dxdp_h*(1/rhoV-1/rhoL)+_Q*(dvdpV-dvdpL);
@@ -807,7 +807,14 @@ double CoolPropStateClass::drhodp_consth(void){
 			double dvdpL = -drhodp_along_sat_liquid()/rhosatL/rhosatL;
 			double dvdpV = -drhodp_along_sat_vapor()/rhosatV/rhosatV;
 			
-			double dxdp_h = (_Q*dhdpV+(1-_Q)*(dhdpV-dhdpL))/(hL()-hV());
+			double dxdp_h = (dhdpL+_Q*(dhdpV-dhdpL))/(hL()-hV());
+
+			//double dhdpV_2 = (Props("H",'P',_p+1e-5,'Q',1,"Propane")-Props("H",'P',_p,'Q',1,"Propane"))/1e-5;
+			//double dhdpL_2 = (Props("H",'P',_p+1e-5,'Q',0,"Propane")-Props("H",'P',_p,'Q',0,"Propane"))/1e-5;
+			//double dxdp_h2 = (Props("Q",'P',_p+1e-3,'H',_h,"Propane")-Props("Q",'P',_p,'H',_h,"Propane"))/1e-3;
+			//double dvdp_h2 = (1/Props("D",'P',_p+1e-3,'H',_h,"Propane")-1/Props("D",'P',_p,'H',_h,"Propane"))/1e-3;
+			//double gretresgr = Props("Q",'P',_p,'H',_h,"Propane");
+			
 			double dvdp_h = dvdpL+dxdp_h*(1/rhosatV-1/rhosatL)+_Q*(dvdpV-dvdpL);
 
 			return -_rho*_rho*dvdp_h;
