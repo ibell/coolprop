@@ -743,6 +743,80 @@ double CoolPropStateClass::isobaric_expansion_coefficient(void){
 	}
 }
 
+double CoolPropStateClass::drhodp_consth(void){
+
+	if (pFluid->enabled_TTSE_LUT)
+	{
+		if (TwoPhase && _Q>0 && _Q < 1)
+		{
+			// equals -rho^2*dvdp_h where dvdp_h = 1/T*dTdp|sigma
+			return -_rho*_rho/_T*pFluid->TTSESatL.evaluate_sat_derivative(iT,_p);
+		}
+		else
+		{
+			pFluid->build_TTSE_LUT();
+			return pFluid->TTSESinglePhase.evaluate_first_derivative(iD,iP,iH,_p,_h);
+		}
+	}
+	else
+	{
+		if (TwoPhase)
+		{
+			// equals -rho^2*dvdp_h where dvdp_h = 1/T*dTdp|sigma
+			return -_rho*_rho/_T*dTdp_along_sat();
+		}
+		else
+		{
+			return 1/(dhdrho_constT()-dhdT_constrho()*dpdrho_constT()/dpdT_constrho());
+		}
+	}
+}
+
+double CoolPropStateClass::drhodh_constp(void){
+
+	if (pFluid->enabled_TTSE_LUT)
+	{
+		if (TwoPhase && _Q>0 && _Q < 1)
+		{
+			double dhdpL = pFluid->TTSESatL.evaluate_sat_derivative(iH,_p);
+			double dhdpV = pFluid->TTSESatV.evaluate_sat_derivative(iH,_p);
+			double drhodpL = pFluid->TTSESatL.evaluate_sat_derivative(iH,_p);
+			double drhodpV = pFluid->TTSESatV.evaluate_sat_derivative(iH,_p);
+			double hL = pFluid->TTSESatL.evaluate(iH,_p);
+			double hV = pFluid->TTSESatV.evaluate(iH,_p);
+			double rhoL = pFluid->TTSESatL.evaluate(iH,_p);
+			double rhoV = pFluid->TTSESatV.evaluate(iH,_p);
+			
+			double dxdp_h = (_Q*dhdpV+(1-_Q)*(dhdpV-dhdpL))/(hL-hV);
+			// Converted to rho derivatives by multiplying through by drho/dv
+			return drhodpL+dxdp_h*(1/rhoV-1/rhoL)*(-_rho*_rho)+_Q*(drhodpV-drhodpL);
+		}
+		else
+		{
+			pFluid->build_TTSE_LUT();
+			return pFluid->TTSESinglePhase.evaluate_first_derivative(iD,iH,iP,_p,_h);
+		}
+	}
+	else
+	{
+		if (TwoPhase)
+		{
+			double dhdpL = dhdp_along_sat_liquid();
+			double dhdpV = dhdp_along_sat_vapor();
+			double drhodpL = drhodp_along_sat_liquid();
+			double drhodpV = drhodp_along_sat_vapor();
+			
+			double dxdp_h = (_Q*dhdpV+(1-_Q)*(dhdpV-dhdpL))/(hL()-hV());
+			// Converted to rho derivatives by multiplying through by drho/dv
+			return drhodpL+dxdp_h*(1/rhoV()-1/rhoL())*(-_rho*_rho)+_Q*(drhodpV-drhodpL);
+		}
+		else
+		{
+			return 1/(dpdrho_constT()-dpdT_constrho()*dhdrho_constT()/dhdT_constrho());
+		}
+	}
+}
+
 
 double CoolPropStateClass::drhodT_constp(void){
 	double dpdrho_T = pFluid->R()*_T*(1+2*delta*dphir_dDelta(tau,delta)+delta*delta*d2phir_dDelta2(tau,delta));
@@ -1031,31 +1105,6 @@ double CoolPropStateClass::drhodT_along_sat_liquid(void)
 	return SatL->drhodT_constp()+SatL->drhodp_constT()/dTdp_along_sat();
 }
 
-double CoolPropStateClass::drhodh_constp(void){
-
-	if (TwoPhase)
-	{
-		double vV = 1/rhosatV;
-		double vL = 1/rhosatL;
-
-		double dvdh_p = (vV-vL)/(SatV->h()-SatL->h());
-		return -_rho*_rho*dvdh_p;
-	}
-	else
-	{	
-		return -dpdT_constrho()/dpdrho_constT()/cp();
-	}
-}
-double CoolPropStateClass::drhodp_consth(void){
-	if (TwoPhase)
-	{
-		return DerivTerms("drhodp|h",_T,_rho,pFluid,SinglePhase,TwoPhase);
-	}
-	else
-	{
-		return 1/(dpdrho_constT()-dpdT_constrho()*dhdrho_constT()/dhdT_constrho());
-	}
-}
 void CoolPropStateClass::dvdp_dhdp_sat(double T, double *dvdpL, double *dvdpV, double *dhdpL, double *dhdpV, double *d2hdp2V)
 {
 	CoolPropStateClass *sat = new CoolPropStateClass(pFluid);

@@ -117,6 +117,8 @@ public:
 	double speed_sound(void);
 	double isothermal_compressibility(void);
 	double isobaric_expansion_coefficient(void);
+	double drhodh_constp(void);
+	double drhodp_consth(void);
 
 	// ----------------------------------------	
 	// TTSE LUT things
@@ -153,8 +155,6 @@ public:
 	double dvdT_constp(void);
 
 	double drhodT_constp(void);
-	double drhodh_constp(void);
-	double drhodp_consth(void);
 	double drhodp_constT(void);
 	double d2rhodp2_constT(void);
 	double d2rhodTdp(void);
