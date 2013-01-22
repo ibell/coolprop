@@ -672,12 +672,6 @@ double CoolPropStateClass::speed_sound(void){
 		{
 			pFluid->build_TTSE_LUT();
 			// speed of sound given by sqrt(v^2/B*dsdh|p), or sqrt(dpdrho|s)
-			
-			double dsdh__p2 = (Props("S",'H',_h+1e-5,'P',_p,"Propane")-Props("S",'H',_h,'P',_p,"Propane"))/1e-5;
-			double dsdp__h2 = (Props("S",'H',_h,'P',_p+1e-5,"Propane")-Props("S",'H',_h,'P',_p,"Propane"))/1e-5;
-			double drhodh__p2 = (Props("D",'H',_h+1e-5,'P',_p,"Propane")-Props("D",'H',_h,'P',_p,"Propane"))/1e-5;
-			double drhodp__h2 = (Props("D",'H',_h,'P',_p+1e-5,"Propane")-Props("D",'H',_h,'P',_p,"Propane"))/1e-5;
-
 			double dsdh__p = pFluid->TTSESinglePhase.evaluate_first_derivative(iS,iH,iP,_p,_h);
 			double dsdp__h = pFluid->TTSESinglePhase.evaluate_first_derivative(iS,iP,iH,_p,_h);
 			double drhodh__p = pFluid->TTSESinglePhase.evaluate_first_derivative(iD,iH,iP,_p,_h);
