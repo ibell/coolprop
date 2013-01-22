@@ -780,14 +780,14 @@ double CoolPropStateClass::drhodp_consth(void){
 		{
 			double hL = pFluid->TTSESatL.evaluate(iH,_p);
 			double hV = pFluid->TTSESatV.evaluate(iH,_p);
-			double rhoL = pFluid->TTSESatL.evaluate(iH,_p);
-			double rhoV = pFluid->TTSESatV.evaluate(iH,_p);
+			double rhoL = pFluid->TTSESatL.evaluate(iD,_p);
+			double rhoV = pFluid->TTSESatV.evaluate(iD,_p);
 			double dhdpL = pFluid->TTSESatL.evaluate_sat_derivative(iH,_p);
 			double dhdpV = pFluid->TTSESatV.evaluate_sat_derivative(iH,_p);
 			double dvdpL = -pFluid->TTSESatL.evaluate_sat_derivative(iH,_p)/rhoL/rhoL;
 			double dvdpV = -pFluid->TTSESatV.evaluate_sat_derivative(iH,_p)/rhoV/rhoV;
 			
-			double dxdp_h = (dhdpL+_Q*(dhdpV-dhdpL))/(hL-hV);
+			double dxdp_h = (_Q*dhdpV+(1-_Q)*(dhdpV-dhdpL))/(hL-hV);
 			double dvdp_h = dvdpL+dxdp_h*(1/rhoV-1/rhoL)+_Q*(dvdpV-dvdpL);
 
 			return -_rho*_rho*dvdp_h;
@@ -807,7 +807,7 @@ double CoolPropStateClass::drhodp_consth(void){
 			double dvdpL = -drhodp_along_sat_liquid()/rhosatL/rhosatL;
 			double dvdpV = -drhodp_along_sat_vapor()/rhosatV/rhosatV;
 			
-			double dxdp_h = (dhdpL+_Q*(dhdpV-dhdpL))/(hL()-hV());
+			double dxdp_h = (_Q*dhdpV+(1-_Q)*(dhdpV-dhdpL))/(hL()-hV());
 			double dvdp_h = dvdpL+dxdp_h*(1/rhosatV-1/rhosatL)+_Q*(dvdpV-dvdpL);
 
 			return -_rho*_rho*dvdp_h;
