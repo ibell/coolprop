@@ -140,6 +140,7 @@ class Fluid
 			LUT.built = false; /// reset the LUT built flag
 
 			built_TTSE_LUT = false;
+			enabled_TTSE_LUT = false;
 				
 			preduce = &crit; /// pointer to the reducing parameters
 
