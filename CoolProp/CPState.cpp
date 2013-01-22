@@ -743,26 +743,26 @@ double CoolPropStateClass::isobaric_expansion_coefficient(void){
 	}
 }
 
-double CoolPropStateClass::drhodp_consth(void){
+double CoolPropStateClass::drhodh_constp(void){
 
 	if (pFluid->enabled_TTSE_LUT)
 	{
 		if (TwoPhase && _Q>0 && _Q < 1)
 		{
-			// equals -rho^2*dvdp_h where dvdp_h = 1/T*dTdp|sigma
+			// equals -rho^2*dvdh_p where dvdh_p = 1/T*dTdp|sat
 			return -_rho*_rho/_T*pFluid->TTSESatL.evaluate_sat_derivative(iT,_p);
 		}
 		else
 		{
 			pFluid->build_TTSE_LUT();
-			return pFluid->TTSESinglePhase.evaluate_first_derivative(iD,iP,iH,_p,_h);
+			return pFluid->TTSESinglePhase.evaluate_first_derivative(iD,iH,iP,_p,_h);
 		}
 	}
 	else
 	{
 		if (TwoPhase)
 		{
-			// equals -rho^2*dvdp_h where dvdp_h = 1/T*dTdp|sigma
+			// equals -rho^2*dvdh_p where dvdh_p = 1/T*dTdp|sat
 			return -_rho*_rho/_T*dTdp_along_sat();
 		}
 		else
@@ -772,7 +772,7 @@ double CoolPropStateClass::drhodp_consth(void){
 	}
 }
 
-double CoolPropStateClass::drhodh_constp(void){
+double CoolPropStateClass::drhodp_consth(void){
 
 	if (pFluid->enabled_TTSE_LUT)
 	{
@@ -794,7 +794,7 @@ double CoolPropStateClass::drhodh_constp(void){
 		else
 		{
 			pFluid->build_TTSE_LUT();
-			return pFluid->TTSESinglePhase.evaluate_first_derivative(iD,iH,iP,_p,_h);
+			return pFluid->TTSESinglePhase.evaluate_first_derivative(iD,iP,iH,_p,_h);
 		}
 	}
 	else
