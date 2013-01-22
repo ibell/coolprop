@@ -787,8 +787,10 @@ double CoolPropStateClass::drhodp_consth(void){
 			double dvdpL = -pFluid->TTSESatL.evaluate_sat_derivative(iH,_p)/rhoL/rhoL;
 			double dvdpV = -pFluid->TTSESatV.evaluate_sat_derivative(iH,_p)/rhoV/rhoV;
 			
-			double dxdp_h = (_Q*dhdpV+(1-_Q)*(dhdpV-dhdpL))/(hL-hV);
-			return -_rho*_rho*(dvdpL+dxdp_h*(1/rhoV-1/rhoL)+_Q*(dvdpV-dvdpL));
+			double dxdp_h = (dhdpL+_Q*(dhdpV-dhdpL))/(hL-hV);
+			double dvdp_h = dvdpL+dxdp_h*(1/rhoV-1/rhoL)+_Q*(dvdpV-dvdpL);
+
+			return -_rho*_rho*dvdp_h;
 		}
 		else
 		{
