@@ -1,8 +1,10 @@
-#include <exception>
-#include <iostream>
+
 
 #ifndef CPEXCEPTIONS_H
 #define CPEXCEPTIONS_H
+
+#include <exception>
+#include <iostream>
 
 class NotImplementedError: public std::exception
 {

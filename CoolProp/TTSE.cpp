@@ -51,77 +51,6 @@ void TTSESinglePhaseTableClass::set_size(unsigned int Nrow, unsigned int Ncol)
 	d2rhodhdp.resize(Nrow, std::vector<double>(Ncol, _HUGE));
 }
 
-//double TTSESinglePhaseTableClass::build(double hmin, double hmax, double pmin, double pmax, bool logp)
-//{
-//	this->hmin = hmin;
-//	this->hmax = hmax;
-//	this->pmin = pmin;
-//	this->pmax = pmax;
-//
-//	CoolPropStateClass CPS = CoolPropStateClass(pFluid);
-//
-//	dh = (hmax - hmin)/(Nrow - 1);
-//	dp = (pmax - pmin)/(Ncol - 1);
-//
-//	clock_t t1,t2;
-//	t1 = clock();
-//	for (unsigned int i = 0; i<Nrow; i++)
-//	{
-//		double hval = hmin + i*dh;
-//		h[i] = hval;
-//		for (unsigned int j = 0; j<Ncol; j++)
-//		{
-//			double pval = pmin + j*dp;
-//			p[j] = pval;
-//
-//			CPS.update(iH, hval, iP, pval);
-//			double T = CPS.T();
-//			double rho = CPS.rho();
-//			double cp = CPS.cp();
-//
-//			// Matrices for entropy as a function of pressure and enthalpy
-//			s[i][j] = CPS.s();
-//			dsdh[i][j] = 1/T;
-//			dsdp[i][j] = -1/(T*rho);
-//			d2sdh2[i][j] = -1/(T*T)/CPS.dhdT_constp();
-//			d2sdhdp[i][j] = -1/(T*T)/CPS.dpdT_consth();
-//			d2sdp2[i][j] = 1/(T*T*rho)/CPS.dhdT_constp()+1/(T*rho*rho)/CPS.dpdrho_consth();
-//
-//			// These are common terms needed for a range of terms for T(h,p) as well as rho(h,p)
-//			double A = CPS.dpdT_constrho()*CPS.dhdrho_constT()-CPS.dpdrho_constT()*CPS.dhdT_constrho();
-//			double dAdT_constrho = CPS.d2pdT2_constrho()*CPS.dhdrho_constT()+CPS.dpdT_constrho()*CPS.d2hdrhodT()-CPS.d2pdrhodT()*CPS.dhdT_constrho()-CPS.dpdrho_constT()*CPS.d2hdT2_constrho();
-//			double dAdrho_constT = CPS.d2pdrhodT()*CPS.dhdrho_constT()+CPS.dpdT_constrho()*CPS.d2hdrho2_constT()-CPS.d2pdrho2_constT()*CPS.dhdT_constrho()-CPS.dpdrho_constT()*CPS.d2hdrhodT();
-//
-//			//Matrices for temperature as a function of pressure and enthalpy
-//			double ddT_dTdp_h_constrho = 1/A*CPS.d2hdrhodT()-1/(A*A)*dAdT_constrho*CPS.dhdrho_constT();
-//			double ddrho_dTdp_h_constT = 1/A*CPS.d2hdrho2_constT()-1/(A*A)*dAdrho_constT*CPS.dhdT_constrho();
-//			double ddT_dTdh_p_constrho = -1/(cp*cp)*(CPS.d2hdT2_constrho()-CPS.dhdp_constT()*CPS.d2pdT2_constrho()+CPS.d2hdrhodT()*CPS.drhodT_constp()-CPS.dhdp_constT()*CPS.drhodT_constp()*CPS.d2pdrhodT());
-//			double ddrho_dTdh_p_constT = -1/(cp*cp)*(CPS.d2hdrhodT()-CPS.dhdp_constT()*CPS.d2pdrhodT()+CPS.d2hdrho2_constT()*CPS.drhodT_constp()-CPS.dhdp_constT()*CPS.drhodT_constp()*CPS.d2pdrho2_constT());
-//			this->T[i][j] = T;
-//			dTdh[i][j] = 1/cp;
-//			dTdp[i][j] = 1/A*CPS.dhdrho_constT();
-//			d2Tdh2[i][j]  = ddT_dTdh_p_constrho/CPS.dhdT_constp()+ddrho_dTdh_p_constT/CPS.dhdrho_constp();
-//			d2Tdhdp[i][j] = ddT_dTdp_h_constrho/CPS.dhdT_constp()+ddrho_dTdp_h_constT/CPS.dhdrho_constp();
-//			d2Tdp2[i][j]  = ddT_dTdp_h_constrho/CPS.dpdT_consth()+ddrho_dTdp_h_constT/CPS.dpdrho_consth();
-//
-//			//// Matrices for density as a function of pressure and enthalpy
-//			double ddT_drhodp_h_constrho = -1/A*CPS.d2hdT2_constrho()+1/(A*A)*dAdT_constrho*CPS.dhdT_constrho();
-//			double ddrho_drhodp_h_constT = -1/A*CPS.d2hdrhodT()+1/(A*A)*dAdrho_constT*CPS.dhdrho_constT();
-//			double ddT_drhodh_p_constrho = 1/A*CPS.d2pdT2_constrho()-1/(A*A)*dAdT_constrho*CPS.dpdT_constrho();
-//			double ddrho_drhodh_p_constT = 1/A*CPS.d2pdrhodT()-1/(A*A)*dAdrho_constT*CPS.dpdrho_constT();
-//			this->rho[i][j] = rho;
-//			drhodh[i][j] = 1/A*CPS.dpdT_constrho();
-//			drhodp[i][j] = -1/A*CPS.dhdT_constrho();
-//			d2rhodh2[i][j]  = ddT_drhodh_p_constrho/CPS.dhdT_constp()+ddrho_drhodh_p_constT/CPS.dhdrho_constp();
-//			d2rhodhdp[i][j] = ddT_drhodp_h_constrho/CPS.dhdT_constp()+ddrho_drhodp_h_constT/CPS.dhdrho_constp();
-//			d2rhodp2[i][j]  = ddT_drhodp_h_constrho/CPS.dpdT_consth()+ddrho_drhodp_h_constT/CPS.dpdrho_consth();
-//		}
-//	}
-//	t2 = clock();
-//	double elap = (double)(t2-t1)/CLOCKS_PER_SEC;
-//	return elap;
-//}
-
 void TTSESinglePhaseTableClass::nearest_good_neighbor(int *i, int *j)
 {
 	// Left
@@ -185,8 +114,6 @@ void TTSESinglePhaseTableClass::nearest_neighbor(int i, int j, double *T0, doubl
 	}
 }
 
-
-	
 double TTSESinglePhaseTableClass::build(double hmin, double hmax, double pmin, double pmax, TTSETwoPhaseTableClass *SatL, TTSETwoPhaseTableClass *SatV)
 {
 	bool SinglePhase = false;
@@ -282,48 +209,47 @@ double TTSESinglePhaseTableClass::build(double hmin, double hmax, double pmin, d
 					//std::cout << format("%d %d %g %g\n",i,j,pval,hval);
 				}
 				
-				//// TEMP
-				//this->T[i][j] = T;
-				//this->rho[i][j] = rho;
-				//continue;
-				
 				T = CPS.T();
 				rho = CPS.rho();
 				double cp = CPS.cp();
 
-				// Matrices for entropy as a function of pressure and enthalpy
+				double A = CPS.dpdT_constrho()*CPS.dhdrho_constT()-CPS.dpdrho_constT()*CPS.dhdT_constrho();
+
+				this->T[i][j] = T;
+				dTdh[i][j] = 1/cp;
+				dTdp[i][j] = 1/A*CPS.dhdrho_constT();
+				this->rho[i][j] = rho;
+				drhodh[i][j] = 1/A*CPS.dpdT_constrho();
+				drhodp[i][j] = -1/A*CPS.dhdT_constrho();
 				s[i][j] = CPS.s();
 				dsdh[i][j] = 1/T;
 				dsdp[i][j] = -1/(T*rho);
-				d2sdh2[i][j] = -1/(T*T)/CPS.dhdT_constp();
-				d2sdhdp[i][j] = -1/(T*T)/CPS.dpdT_consth();
-				d2sdp2[i][j] = 1/(T*T*rho)/CPS.dhdT_constp()+1/(T*rho*rho)/CPS.dpdrho_consth();
+
+				// Matrices for second derivatives of entropy as a function of pressure and enthalpy
+				d2sdh2[i][j] = -1/(T*T)*dTdh[i][j];
+				d2sdhdp[i][j] = -1/(T*T)*dTdp[i][j];
+				d2sdp2[i][j] = 1/(T*T*rho)*dTdp[i][j]+1/(T*rho*rho)*drhodp[i][j];
 
 				// These are common terms needed for a range of terms for T(h,p) as well as rho(h,p)
-				double A = CPS.dpdT_constrho()*CPS.dhdrho_constT()-CPS.dpdrho_constT()*CPS.dhdT_constrho();
 				double dAdT_constrho = CPS.d2pdT2_constrho()*CPS.dhdrho_constT()+CPS.dpdT_constrho()*CPS.d2hdrhodT()-CPS.d2pdrhodT()*CPS.dhdT_constrho()-CPS.dpdrho_constT()*CPS.d2hdT2_constrho();
 				double dAdrho_constT = CPS.d2pdrhodT()*CPS.dhdrho_constT()+CPS.dpdT_constrho()*CPS.d2hdrho2_constT()-CPS.d2pdrho2_constT()*CPS.dhdT_constrho()-CPS.dpdrho_constT()*CPS.d2hdrhodT();
 
 				//Matrices for temperature as a function of pressure and enthalpy
-				double ddT_dTdp_h_constrho = 1/A*CPS.d2hdrhodT()-1/(A*A)*dAdT_constrho*CPS.dhdrho_constT();
-				double ddrho_dTdp_h_constT = 1/A*CPS.d2hdrho2_constT()-1/(A*A)*dAdrho_constT*CPS.dhdT_constrho();
+				double ddT_dTdp_h_constrho = 1/A*CPS.d2hdrhodT()-1/(A*A)*dAdT_constrho*CPS.dhdrho_constT(); //[check]
+				double ddrho_dTdp_h_constT = 1/A*CPS.d2hdrho2_constT()-1/(A*A)*dAdrho_constT*CPS.dhdrho_constT(); //[check
 				double ddT_dTdh_p_constrho = -1/(cp*cp)*(CPS.d2hdT2_constrho()-CPS.dhdp_constT()*CPS.d2pdT2_constrho()+CPS.d2hdrhodT()*CPS.drhodT_constp()-CPS.dhdp_constT()*CPS.drhodT_constp()*CPS.d2pdrhodT());
 				double ddrho_dTdh_p_constT = -1/(cp*cp)*(CPS.d2hdrhodT()-CPS.dhdp_constT()*CPS.d2pdrhodT()+CPS.d2hdrho2_constT()*CPS.drhodT_constp()-CPS.dhdp_constT()*CPS.drhodT_constp()*CPS.d2pdrho2_constT());
-				this->T[i][j] = T;
-				dTdh[i][j] = 1/cp;
-				dTdp[i][j] = 1/A*CPS.dhdrho_constT();
+				
 				d2Tdh2[i][j]  = ddT_dTdh_p_constrho/CPS.dhdT_constp()+ddrho_dTdh_p_constT/CPS.dhdrho_constp();
 				d2Tdhdp[i][j] = ddT_dTdp_h_constrho/CPS.dhdT_constp()+ddrho_dTdp_h_constT/CPS.dhdrho_constp();
 				d2Tdp2[i][j]  = ddT_dTdp_h_constrho/CPS.dpdT_consth()+ddrho_dTdp_h_constT/CPS.dpdrho_consth();
 
 				//// Matrices for density as a function of pressure and enthalpy
 				double ddT_drhodp_h_constrho = -1/A*CPS.d2hdT2_constrho()+1/(A*A)*dAdT_constrho*CPS.dhdT_constrho();
-				double ddrho_drhodp_h_constT = -1/A*CPS.d2hdrhodT()+1/(A*A)*dAdrho_constT*CPS.dhdrho_constT();
+				double ddrho_drhodp_h_constT = -1/A*CPS.d2hdrhodT()+1/(A*A)*dAdrho_constT*CPS.dhdT_constrho();
 				double ddT_drhodh_p_constrho = 1/A*CPS.d2pdT2_constrho()-1/(A*A)*dAdT_constrho*CPS.dpdT_constrho();
-				double ddrho_drhodh_p_constT = 1/A*CPS.d2pdrhodT()-1/(A*A)*dAdrho_constT*CPS.dpdrho_constT();
-				this->rho[i][j] = rho;
-				drhodh[i][j] = 1/A*CPS.dpdT_constrho();
-				drhodp[i][j] = -1/A*CPS.dhdT_constrho();
+				double ddrho_drhodh_p_constT = 1/A*CPS.d2pdrhodT()-1/(A*A)*dAdrho_constT*CPS.dpdT_constrho();
+				
 				d2rhodh2[i][j]  = ddT_drhodh_p_constrho/CPS.dhdT_constp()+ddrho_drhodh_p_constT/CPS.dhdrho_constp();
 				d2rhodhdp[i][j] = ddT_drhodp_h_constrho/CPS.dhdT_constp()+ddrho_drhodp_h_constT/CPS.dhdrho_constp();
 				d2rhodp2[i][j]  = ddT_drhodp_h_constrho/CPS.dpdT_consth()+ddrho_drhodp_h_constT/CPS.dpdrho_consth();

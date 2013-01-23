@@ -1,9 +1,11 @@
-#include <vector>
-#include <string>
-#include <Eigen/Dense>
+
 
 #ifndef SOLVERS_H
 #define SOLVERS_H
+
+#include <vector>
+#include <string>
+#include <Eigen/Dense>
 
 class FuncWrapper1D
 {

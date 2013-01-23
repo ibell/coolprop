@@ -812,15 +812,9 @@ double CoolPropStateClass::drhodp_consth(void){
 			double dvdpV = -drhodp_along_sat_vapor()/rhosatV/rhosatV;
 			
 			double dxdp_h = (dhdpL+_Q*(dhdpV-dhdpL))/(hL()-hV());
-
-			/*double dhdpV_2 = (Props("H",'P',p()+1e-5,'Q',1,"Propane")-Props("H",'P',p(),'Q',1,"Propane"))/1e-5;
-			double dhdpL_2 = (Props("H",'P',p()+1e-5,'Q',0,"Propane")-Props("H",'P',p(),'Q',0,"Propane"))/1e-5;
-			double dxdp_h2 = (Props("Q",'P',p()+1e-3,'H',h(),"Propane")-Props("Q",'P',p(),'H',h(),"Propane"))/1e-3;
-			double dvdp_h2 = (1/Props("D",'P',p()+1e-3,'H',h(),"Propane")-1/Props("D",'P',p(),'H',h(),"Propane"))/1e-3;
-			double drhodp_h2 = (Props("D",'P',p()+1e-3,'H',h(),"Propane")-Props("D",'P',p(),'H',h(),"Propane"))/1e-3;
-			double gretresgr = Props("Q",'P',p(),'H',_h,"Propane");*/
 			
 			double dvdp_h = dvdpL+dxdp_h*(1/rhosatV-1/rhosatL)+_Q*(dvdpV-dvdpL);
+
 			return -_rho*_rho*dvdp_h;
 		}
 		else
@@ -864,7 +858,7 @@ double CoolPropStateClass::d2hdrho2_constT(void){
 }
 double CoolPropStateClass::d2hdrhodT(void){
 	// d3phi0_dDelta_dTau2V is zero by definition
-	return pFluid->R()*(-tau*tau*d3phir_dDelta_dTau2(tau,delta)+delta*delta*d2phir_dDelta2(tau,delta)+delta*d2phir_dDelta2(tau,delta)+dphir_dDelta(tau,delta)-delta*tau*d3phir_dDelta2_dTau(tau,delta)-tau*d2phir_dDelta_dTau(tau,delta))/pFluid->reduce.rho;
+	return pFluid->R()*(-tau*tau*d3phir_dDelta_dTau2(tau,delta)+delta*d2phir_dDelta2(tau,delta)+dphir_dDelta(tau,delta)-delta*tau*d3phir_dDelta2_dTau(tau,delta)-tau*d2phir_dDelta_dTau(tau,delta))/pFluid->reduce.rho;
 }
 double CoolPropStateClass::d2hdT2_constrho(void){
 	return pFluid->R()*(-tau*tau*(d3phi0_dTau3(tau,delta)+d3phir_dTau3(tau,delta))-2*tau*(d2phi0_dTau2(tau,delta)+d2phir_dTau2(tau,delta))-delta*tau*d3phir_dDelta_dTau2(tau,delta))*(-tau/_T);

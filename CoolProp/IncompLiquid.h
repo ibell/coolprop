@@ -1,10 +1,9 @@
 
-#include <string>
-#include "CPExceptions.h"
-
-
 #ifndef INCOMPRESSIBLE_LIQUID_H
 #define INCOMPRESSIBLE_LIQUID_H
+
+#include <string>
+#include "CPExceptions.h"
 
 /**
 Notes for developers:

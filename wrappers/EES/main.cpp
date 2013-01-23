@@ -62,7 +62,7 @@ extern "C"
 		std::vector<std::string> fluid_split;
 
 		if (mode==-1) {	
-			strcpy(fluid,"T = coolprop('R134a','P',101.325,'Q',0)"); 
+			strcpy(fluid,"T = coolprop('D','P',101.325,'Q',0,'R134a')"); 
 			return 0;
 		}
 
@@ -100,18 +100,18 @@ extern "C"
 		input_rec=input_rec->next;
 		In2=input_rec->value;
 
-		/*
-		//This block can be used to debug the code by writing output or intermediate values to file
+		
+		//This block can be used to debug the code by writing output or intermediate values to a text file
 
-		FILE *fp;
-		fp = fopen("file.txt","a+");
-		fprintf(fp,"%s %s %g %s %g %s\n",Outstr.c_str(),In1str.c_str(),In1,In2str.c_str(),In2,Fluidstr.c_str());
-		fclose(fp);
+		//~ FILE *fp;
+		//~ fp = fopen("file.txt","a+");
+		//~ fprintf(fp,"%s %s %g %s %g %s\n",Outstr.c_str(),In1str.c_str(),In1,In2str.c_str(),In2,Fluidstr.c_str());
+		//~ fclose(fp);
 
-		// This redirect standard output to file2.txt
-		freopen("file2.txt", "w", stdout);
-		set_debug(10); // Maximum debugging
-		*/
+		//~ // This redirect standard output to file2.txt
+		//~ freopen("file2.txt", "w", stdout);
+		//~ set_debug(10); // Maximum debugging
+		
 
 		out = Props(Outstr, In1str[0], In1, In2str[0], In2, Fluidstr);
 

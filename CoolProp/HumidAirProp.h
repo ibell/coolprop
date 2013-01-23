@@ -1,3 +1,8 @@
+
+
+#ifndef HUMAIR_H
+#define HUMAIR_H
+
 #if defined(COOLPROP_LIB)
 	#define EXPORT_CODE extern "C" __declspec(dllexport)
 	#ifndef CONVENTION
@@ -9,9 +14,6 @@
 		#define CONVENTION
 	#endif
 #endif
-
-#ifndef HUMAIR_H
-#define HUMAIR_H
 
 // -----------------------
 // Standard I/O function

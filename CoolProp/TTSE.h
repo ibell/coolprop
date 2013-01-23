@@ -1,6 +1,3 @@
-
-
-
 #ifndef TTSE_H
 #define TTSE_H
 
@@ -133,6 +130,8 @@ public:
 	/// @param i Index in h
 	/// @param j Index in p
 	void nearest_good_neighbor(int *i, int *j);
+
+	void get_partner(int i, int j, double p, double h, int *ipartner, int *jpartner);
 
 	/// Evaluate the first partial derivative
 	/// @param iOF Index in numerator

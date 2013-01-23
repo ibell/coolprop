@@ -9,17 +9,7 @@ calling convention can be changed at build time.
 Any functions that are exported to DLL must also add the "EXPORT_CODE function_name CONVENTION ..." code 
 to the CoolProp.cpp implementation.  See the Props function for instance
 */
-#if defined(COOLPROP_LIB)
-	#define EXPORT_CODE extern "C" __declspec(dllexport)
-	#ifndef CONVENTION
-		#define CONVENTION __stdcall
-	#endif
-#else
-	#define EXPORT_CODE
-	#ifndef CONVENTION
-		#define CONVENTION
-	#endif
-#endif
+
 
 /*! \mainpage CoolProp Core Code Documentation
 
@@ -31,6 +21,17 @@ You might want to start by looking at CoolProp.h
 #ifndef CoolProp_H
 #define CoolProp_H
 
+	#if defined(COOLPROP_LIB)
+	#define EXPORT_CODE extern "C" __declspec(dllexport)
+	#ifndef CONVENTION
+		#define CONVENTION __stdcall
+	#endif
+	#else
+		#define EXPORT_CODE
+		#ifndef CONVENTION
+			#define CONVENTION
+		#endif
+	#endif
 
 	#include "FluidClass.h"
 	

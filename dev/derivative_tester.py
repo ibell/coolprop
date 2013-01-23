@@ -1,14 +1,13 @@
 from __future__ import division
 from CoolProp.CoolProp import Props, DerivTerms
 
-def finite_diff(Output,Input1,Val1,Input2,Val2,Fluid,  index,deriv,order,type = 'centered'):
+def finite_diff(Output,Input1,Val1,Input2,Val2,Fluid,  index,deriv,order,type = 'centered',dx = 1e-3):
     def f(index, dx):
         if index == 1:
             return Props(Output,Input1,Val1+dx,Input2,Val2,Fluid)
         else:
             return Props(Output,Input1,Val1,Input2,Val2+dx,Fluid)
         
-    dx = 1e-3
     if deriv == 1:
         if order == 1:
             return (f(index,dx)-f(index,0))/(dx)
@@ -34,8 +33,8 @@ def finite_diff(Output,Input1,Val1,Input2,Val2,Fluid,  index,deriv,order,type = 
 ## print T,rho,H,P
 
 fluid = 'Propane'
-T = 300
-rho = 1.5
+T = 182.94915691527495#300
+rho = 635.26714710276121#1.5
 H = Props('H','T',T,'D',rho,fluid)
 P = Props('P','T',T,'D',rho,fluid)
 print T,rho,H,P
@@ -194,13 +193,13 @@ print '*******************************************'
 ## print dT_dh_num
 
 d2s_dh2 = -(1/T/T)*dT_dh
-d2s_dh2_num = finite_diff('S','H',H,'P',P,fluid,1,2,4)
+d2s_dh2_num = finite_diff('S','H',H,'P',P,fluid,1,2,4,dx = 10)
 print 'd2sdh2|p'
 print d2s_dh2
 print d2s_dh2_num
 
 d2s_dp2 = 1/(T**2*rho)*dT_dp+1/(T*rho**2)*drho_dp
-d2s_dp2_num = finite_diff('S','H',H,'P',P,fluid,2,2,4)
+d2s_dp2_num = finite_diff('S','H',H,'P',P,fluid,2,2,4,dx = 10)
 print 'd2sdp2|h'
 print d2s_dp2
 print d2s_dp2_num

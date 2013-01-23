@@ -704,8 +704,14 @@ double _Props(std::string Output,std::string Name1, double Prop1, std::string Na
 		pFluid = Fluids.get_fluid(Ref);
 		// Convert all the parameters to integers
 		long iOutput = get_param_index(Output);
-		long iName1 = get_param_index(std::string(Name1));
-		long iName2 = get_param_index(std::string(Name2));
+		if (iOutput<0) 
+			throw ValueError(format("Your output key [%s] is not valid. (names are case sensitive)",Output.c_str()));
+		long iName1 = get_param_index(std::string(Name1));  
+		if (iName1<0) 
+			throw ValueError(format("Your input key #1 [%s] is not valid. (names are case sensitive)",Name1.c_str()));
+		long iName2 = get_param_index(std::string(Name2));  
+		if (iName2<0) 
+			throw ValueError(format("Your input key #2 [%s] is not valid. (names are case sensitive)",Name2.c_str()));
 		// Call the internal method that uses the parameters converted to longs
 		return _CoolProp_Fluid_Props(iOutput,iName1,Prop1,iName2,Prop2,pFluid);
 	}
