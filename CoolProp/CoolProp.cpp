@@ -1026,6 +1026,8 @@ double _CoolProp_Fluid_Props(long iOutput, long iName1, double Prop1, long iName
 				case iDrhodT_p:
 					Value=pFluid->drhodT_p_Trho(T,rho);
 					break;
+				case iQ:
+					throw ValueError(format("Quality is not a valid output for single-phase inputs"));
 				default:
 					throw ValueError(format("Invalid Output index: %d ",iOutput));
 					return _HUGE;
