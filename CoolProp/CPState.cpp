@@ -488,6 +488,37 @@ void CoolPropStateClass::update_TTSE_LUT(long iInput1, double Value1, long iInpu
 			check_saturated_quality(_Q);
 		}
 	}
+	else if (match_pair(iInput1,iInput2,iP,iT))
+	{
+		// Sort in the right order (P,T)
+		sort_pair(&iInput1,&Value1,&iInput2,&Value2,iP,iT);
+
+		_h = pFluid->TTSESinglePhase.evaluate_other_inputs(iP,Value1,iT,Value2);
+		_rho = pFluid->TTSESinglePhase.evaluate(iD,Value1,_h);
+		_p = Value1;
+		_T = Value2;
+	}
+	else if (match_pair(iInput1,iInput2,iP,iD))
+	{
+		// Sort in the right order (P,D)
+		sort_pair(&iInput1,&Value1,&iInput2,&Value2,iP,iD);
+
+		_h = pFluid->TTSESinglePhase.evaluate_other_inputs(iP,Value1,iD,Value2);
+		_T = pFluid->TTSESinglePhase.evaluate(iT,Value1,_h);
+		_p = Value1;
+		_rho = Value2;
+	}
+	else if (match_pair(iInput1,iInput2,iP,iS))
+	{
+		// Sort in the right order (P,S)
+		sort_pair(&iInput1,&Value1,&iInput2,&Value2,iP,iS);
+
+		_h = pFluid->TTSESinglePhase.evaluate_other_inputs(iP,Value1,iS,Value2);
+		_T = pFluid->TTSESinglePhase.evaluate(iT,Value1,_h);
+		_rho = pFluid->TTSESinglePhase.evaluate(iT,Value1,_h);
+		_p = Value1;
+		_s = Value2;
+	}
 	else
 	{
 		printf("Sorry your inputs[%d,%d] don't work for now with TTSE\n",iInput1,iInput2);

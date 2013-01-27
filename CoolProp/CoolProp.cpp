@@ -881,6 +881,8 @@ double _CoolProp_Fluid_Props(long iOutput, long iName1, double Prop1, long iName
 			std::swap(iName1,iName2);
 		}
 
+
+
 		// Handle trivial outputs
 		if (iOutput == iP) 
 			return Prop2;
@@ -1045,6 +1047,13 @@ double _CoolProp_Fluid_Props(long iOutput, long iName1, double Prop1, long iName
 		{
 			std::swap(Prop1,Prop2);
 		}
+		if (Prop1 <= pFluid->params.ptriple || Prop1 > pFluid->crit.p){
+			throw ValueError(format("Your saturation pressure [%f K] is out of range [%f kPa, %f kPa]",Prop1,pFluid->params.ptriple,pFluid->crit.p ));
+		}
+		if (Prop2>1+10*DBL_EPSILON || Prop2<-10*DBL_EPSILON){
+			throw ValueError(format("Your quality [%f] is out of range (0, 1)",Prop2 ));
+		}
+
 		// Do the saturation call
 		double rhoL, rhoV;
         T=pFluid->Tsat(Prop1,Prop2,0,SaturationLUTStatus(), &rhoL, &rhoV);

@@ -11,7 +11,7 @@ protected:
 	unsigned int N;
 	Fluid *pFluid;
 	double dh,dp;
-
+	
 public:
 	/// Default Instantiator
 	TTSETwoPhaseTableClass(){};
@@ -68,14 +68,18 @@ public:
 class TTSESinglePhaseTableClass
 {
 protected:
-	unsigned int Nrow, Ncol;
+	unsigned int Nh, Np;
 	Fluid *pFluid;
 	double dh,dp;
 
 public:
 	TTSESinglePhaseTableClass(){};
 	TTSESinglePhaseTableClass(Fluid *pFluid);
-	void set_size(unsigned int Nrow=100, unsigned int Ncol=100);
+	TTSETwoPhaseTableClass *SatL, *SatV;
+	void set_size(unsigned int Nh=100, unsigned int Np=100);
+	
+	std::string root_path;
+	std::vector<double> TL,SL,DL,TV,SV,DV;
 
 	double hmin,hmax,pmin,pmax;
 
@@ -83,7 +87,17 @@ public:
 	std::vector<std::vector<double> > T,dTdh,dTdp,d2Tdh2,d2Tdp2,d2Tdhdp;
 	std::vector<std::vector<double> > rho,drhodh,drhodp,d2rhodh2,d2rhodp2,d2rhodhdp;
 	std::vector<std::vector<double> > s,dsdh,dsdp,d2sdh2,d2sdp2,d2sdhdp;
-	std::vector<double> h,p;
+	std::vector<double> h, p;
+	std::vector<int> iL, iV;
+
+	bool read_all_from_file(std::string root_path);
+	void write_all_to_file(std::string root_path = std::string());
+	void matrix_to_file(std::string fName, std::vector< std::vector<double> > *A);
+	void vector_to_file(std::string fName, std::vector<double> *A);
+	void vector_from_file(std::string fName, int N, std::vector<double> *A);
+	void matrix_from_file(std::string fName, std::vector< std::vector<double> > *A);
+
+	void update_saturation_boundary_indices();
 
 	/// Build the tables
 	/// @param hmin Minimum enthalpy [kJ/kg]
@@ -99,6 +113,8 @@ public:
 	/// @param p Pressure (absolute) [kPa]
 	/// @param h Enthalpy [kJ/kg]
 	double evaluate(long iParam, double p, double h);
+
+	double evaluate_other_inputs(long iInput1, double Param1, long iInput2, double Param2);
 
 	/// Randomly evaluate a property in the single phase region using the TTSE method
 	/// @param iParam Index of desired output

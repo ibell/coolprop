@@ -3126,15 +3126,19 @@ bool Fluid::build_TTSE_LUT()
 		TTSESatV.build(params.ptriple+1e-08,reduce.p,&TTSESatL);
 
 		// Enthalpy at saturated liquid at triple point temperature
-		double hmin = Props("H",'T',params.Ttriple+1e-8,'Q',0,get_name());
-		double hmax = Props("H",'T',params.Ttriple+1e-8,'Q',1,get_name())*2;
+		double hL = Props("H",'T',params.Ttriple+1e-8,'Q',0,get_name());
+		double hV = Props("H",'T',params.Ttriple+1e-8,'Q',1,get_name());
+		double hmin = hL;
+		double hmax = hL+(hV-hL)*2;
 		double pmin = params.ptriple;
 		double pmax = 2*reduce.p;
 		TTSESinglePhase = TTSESinglePhaseTableClass(this);
 		TTSESinglePhase.set_size(200,200);
+		TTSESinglePhase.SatL = &TTSESatL;
+		TTSESinglePhase.SatV = &TTSESatV;
 		TTSESinglePhase.build(hmin,hmax,pmin,pmax,&TTSESatL,&TTSESatV);
 		
-		TTSESinglePhase.write_dotdrawing_tofile("dot.txt");
+		//TTSESinglePhase.write_dotdrawing_tofile("dot.txt");
 		built_TTSE_LUT = true;
 		enabled_TTSE_LUT = true;
 	}
