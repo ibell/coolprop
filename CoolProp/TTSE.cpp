@@ -228,7 +228,11 @@ void make_dirs(std::string file_path)
 			if (!pathExists(path))
 			{
 			#ifdef _WIN32
-				CreateDirectory(path.c_str(),NULL);
+				#if defined(UNICODE)
+					CreateDirectory((LPCWSTR)path.c_str(),NULL);
+				#else
+					CreateDirectory((LPCSTR)path.c_str(),NULL);
+				#endif
 			#else 
 				mkdir(path.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 			#endif
