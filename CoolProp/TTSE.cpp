@@ -4,6 +4,9 @@
 
 #if defined(_WIN32)
 #include <windows.h> // for the CreateDirectory function
+#else
+#include <sys/types.h>
+#include <sys/stat.h>
 #endif
 
 #include "CoolProp.h"
@@ -226,8 +229,8 @@ void make_dirs(std::string file_path)
 			{
 			#ifdef _WIN32
 				CreateDirectory(path.c_str(),NULL);
-			#else
-				mkdir(path.c_str());
+			#else 
+				mkdir(path.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 			#endif
 			}
 			if (i < pathsplit.size()-1)

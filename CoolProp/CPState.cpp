@@ -7,6 +7,7 @@
 	#include <limits>
 	#define DBL_EPSILON std::numeric_limits<double>::epsilon()
 #endif
+#include <stdio.h>
 
 // Constructor with fluid name
 CoolPropStateClass::CoolPropStateClass(std::string Fluid){
