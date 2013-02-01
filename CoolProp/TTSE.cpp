@@ -229,7 +229,7 @@ void make_dirs(std::string file_path)
 			{
 			#ifdef _WIN32
 				#if defined(_UNICODE)
-					CreateDirectory((LPCWSTR)path.c_str(),NULL);
+					CreateDirectoryA((LPCSTR)path.c_str(),NULL);
 				#else
 					CreateDirectory((LPCSTR)path.c_str(),NULL);
 				#endif
@@ -332,26 +332,26 @@ bool TTSESinglePhaseTableClass::read_all_from_file(std::string root_path)
 		)) return false;
 
 	// Read all the data from the binary files
-	vector_from_file(root_path + std::string("p.ttse"),Np,&p);
-	vector_from_file(root_path + std::string("h.ttse"),Nh,&h);
-	matrix_from_file(root_path + std::string("T.ttse"),&T);
-	matrix_from_file(root_path + std::string("dTdh.ttse"),&dTdh);
-	matrix_from_file(root_path + std::string("dTdp.ttse"),&dTdp);
-	matrix_from_file(root_path + std::string("d2Tdh2.ttse"),&d2Tdh2);
-	matrix_from_file(root_path + std::string("d2Tdp2.ttse"),&d2Tdp2);
-	matrix_from_file(root_path + std::string("d2Tdhdp.ttse"),&d2Tdhdp);
-	matrix_from_file(root_path + std::string("s.ttse"),&s);
-	matrix_from_file(root_path + std::string("dsdh.ttse"),&dsdh);
-	matrix_from_file(root_path + std::string("dsdp.ttse"),&dsdp);
-	matrix_from_file(root_path + std::string("d2sdh2.ttse"),&d2sdh2);
-	matrix_from_file(root_path + std::string("d2sdp2.ttse"),&d2sdp2);
-	matrix_from_file(root_path + std::string("d2sdhdp.ttse"),&d2sdhdp);
-	matrix_from_file(root_path + std::string("rho.ttse"),&rho);
-	matrix_from_file(root_path + std::string("drhodh.ttse"),&drhodh);
-	matrix_from_file(root_path + std::string("drhodp.ttse"),&drhodp);
-	matrix_from_file(root_path + std::string("d2rhodh2.ttse"),&d2rhodh2);
-	matrix_from_file(root_path + std::string("d2rhodp2.ttse"),&d2rhodp2);
-	matrix_from_file(root_path + std::string("d2rhoTdhdp.ttse"),&d2rhodhdp);
+	vector_from_file(root_path + std::string("p_ph.ttse"),Np,&p);
+	vector_from_file(root_path + std::string("h_ph.ttse"),Nh,&h);
+	matrix_from_file(root_path + std::string("T_ph.ttse"),&T);
+	matrix_from_file(root_path + std::string("dTdh_ph.ttse"),&dTdh);
+	matrix_from_file(root_path + std::string("dTdp_ph.ttse"),&dTdp);
+	matrix_from_file(root_path + std::string("d2Tdh2_ph.ttse"),&d2Tdh2);
+	matrix_from_file(root_path + std::string("d2Tdp2_ph.ttse"),&d2Tdp2);
+	matrix_from_file(root_path + std::string("d2Tdhdp_ph.ttse"),&d2Tdhdp);
+	matrix_from_file(root_path + std::string("s_ph.ttse"),&s);
+	matrix_from_file(root_path + std::string("dsdh_ph.ttse"),&dsdh);
+	matrix_from_file(root_path + std::string("dsdp_ph.ttse"),&dsdp);
+	matrix_from_file(root_path + std::string("d2sdh2_ph.ttse"),&d2sdh2);
+	matrix_from_file(root_path + std::string("d2sdp2_ph.ttse"),&d2sdp2);
+	matrix_from_file(root_path + std::string("d2sdhdp_ph.ttse"),&d2sdhdp);
+	matrix_from_file(root_path + std::string("rho_ph.ttse"),&rho);
+	matrix_from_file(root_path + std::string("drhodh_ph.ttse"),&drhodh);
+	matrix_from_file(root_path + std::string("drhodp_ph.ttse"),&drhodp);
+	matrix_from_file(root_path + std::string("d2rhodh2_ph.ttse"),&d2rhodh2);
+	matrix_from_file(root_path + std::string("d2rhodp2_ph.ttse"),&d2rhodp2);
+	matrix_from_file(root_path + std::string("d2rhoTdhdp_ph.ttse"),&d2rhodhdp);
 
 	update_saturation_boundary_indices();
 	return true;
@@ -382,31 +382,31 @@ void TTSESinglePhaseTableClass::write_all_to_file(std::string root_path)
 
 	// Write the header information to a text file
 	FILE *fp;
-	fp = fopen((root_path+std::string("Info.txt")).c_str(),"w");
+	fp = fopen((root_path+std::string("Info_ph.txt")).c_str(),"w");
 	fprintf(fp,"%s",header.c_str());
 	fclose(fp);
 
 	// Write each of these files in binary mode
-	vector_to_file(root_path + std::string("p.ttse"),&p);
-	vector_to_file(root_path + std::string("h.ttse"),&h);
-	matrix_to_file(root_path + std::string("T.ttse"),&T);
-	matrix_to_file(root_path + std::string("dTdh.ttse"),&dTdh);
-	matrix_to_file(root_path + std::string("dTdp.ttse"),&dTdp);
-	matrix_to_file(root_path + std::string("d2Tdh2.ttse"),&d2Tdh2);
-	matrix_to_file(root_path + std::string("d2Tdp2.ttse"),&d2Tdp2);
-	matrix_to_file(root_path + std::string("d2Tdhdp.ttse"),&d2Tdhdp);
-	matrix_to_file(root_path + std::string("s.ttse"),&s);
-	matrix_to_file(root_path + std::string("dsdh.ttse"),&dsdh);
-	matrix_to_file(root_path + std::string("dsdp.ttse"),&dsdp);
-	matrix_to_file(root_path + std::string("d2sdh2.ttse"),&d2sdh2);
-	matrix_to_file(root_path + std::string("d2sdp2.ttse"),&d2sdp2);
-	matrix_to_file(root_path + std::string("d2sdhdp.ttse"),&d2sdhdp);
-	matrix_to_file(root_path + std::string("rho.ttse"),&rho);
-	matrix_to_file(root_path + std::string("drhodh.ttse"),&drhodh);
-	matrix_to_file(root_path + std::string("drhodp.ttse"),&drhodp);
-	matrix_to_file(root_path + std::string("d2rhodh2.ttse"),&d2rhodh2);
-	matrix_to_file(root_path + std::string("d2rhodp2.ttse"),&d2rhodp2);
-	matrix_to_file(root_path + std::string("d2rhoTdhdp.ttse"),&d2rhodhdp);
+	vector_to_file(root_path + std::string("p_ph.ttse"),&p);
+	vector_to_file(root_path + std::string("h_ph.ttse"),&h);
+	matrix_to_file(root_path + std::string("T_ph.ttse"),&T);
+	matrix_to_file(root_path + std::string("dTdh_ph.ttse"),&dTdh);
+	matrix_to_file(root_path + std::string("dTdp_ph.ttse"),&dTdp);
+	matrix_to_file(root_path + std::string("d2Tdh2_ph.ttse"),&d2Tdh2);
+	matrix_to_file(root_path + std::string("d2Tdp2_ph.ttse"),&d2Tdp2);
+	matrix_to_file(root_path + std::string("d2Tdhdp_ph.ttse"),&d2Tdhdp);
+	matrix_to_file(root_path + std::string("s_ph.ttse"),&s);
+	matrix_to_file(root_path + std::string("dsdh_ph.ttse"),&dsdh);
+	matrix_to_file(root_path + std::string("dsdp_ph.ttse"),&dsdp);
+	matrix_to_file(root_path + std::string("d2sdh2_ph.ttse"),&d2sdh2);
+	matrix_to_file(root_path + std::string("d2sdp2_ph.ttse"),&d2sdp2);
+	matrix_to_file(root_path + std::string("d2sdhdp_ph.ttse"),&d2sdhdp);
+	matrix_to_file(root_path + std::string("rho_ph.ttse"),&rho);
+	matrix_to_file(root_path + std::string("drhodh_ph.ttse"),&drhodh);
+	matrix_to_file(root_path + std::string("drhodp_ph.ttse"),&drhodp);
+	matrix_to_file(root_path + std::string("d2rhodh2_ph.ttse"),&d2rhodh2);
+	matrix_to_file(root_path + std::string("d2rhodp2_ph.ttse"),&d2rhodp2);
+	matrix_to_file(root_path + std::string("d2rhoTdhdp_ph.ttse"),&d2rhodhdp);
 	t2 = clock();
 	std::cout << "write time" << (double)(t2-t1)/CLOCKS_PER_SEC << std::endl;
 }

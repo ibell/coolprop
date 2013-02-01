@@ -130,8 +130,8 @@ def TwoStage(Ref,Q,Te,Tc,DTsh,DTsc,eta_oi,f_p,Tsat_ic,DTsh_ic,Ts_Ph='Ph',prints=
     pe=Props('P','T',Te,'Q',1.0,Ref)
     pc=Props('P','T',Tc,'Q',1.0,Ref)
     pic=Props('P','T',Tsat_ic,'Q',1.0,Ref)
-    Tbubble_c=Props('T','P',pc,'Q',Ref)
-    Tbubble_e=Props('T','P',pe,'Q',Ref)
+    Tbubble_c=Props('T','P',pc,'Q',0,Ref)
+    Tbubble_e=Props('T','P',pe,'Q',0,Ref)
 
     h[1]=Props('H','T',T[1],'P',pe,Ref)
     s[1]=Props('S','T',T[1],'P',pe,Ref)
@@ -143,8 +143,7 @@ def TwoStage(Ref,Q,Te,Tc,DTsh,DTsc,eta_oi,f_p,Tsat_ic,DTsh_ic,Ts_Ph='Ph',prints=
     mdot=Q/(h[1]-h[5])
     
     rho1=Props('D','T',T[1],'P',pe,Ref)
-    T2s=newton(lambda T: Props('S','T',T,'P',pic,Ref)-s[1],T[1]+30)
-    h2s=Props('H','T',T2s,'P',pic,Ref)
+    h2s=Props('H','S',s[1],'P',pic,Ref)
     Wdot1=mdot*(h2s-h[1])/eta_oi
     h[2]=h[1]+(1-f_p)*Wdot1/mdot
     T[2]=Props('T','H',h[2],'P',pic,Ref)
@@ -156,8 +155,7 @@ def TwoStage(Ref,Q,Te,Tc,DTsh,DTsc,eta_oi,f_p,Tsat_ic,DTsh_ic,Ts_Ph='Ph',prints=
     s[3]=Props('S','T',T[3],'P',pic,Ref)
     rho[3]=Props('D','T',T[3],'P',pic,Ref)
     rho3=Props('D','T',T[3],'P',pic,Ref)
-    T4s=newton(lambda T: Props('S','T',T,'P',pc,Ref)-s[3],T[3]+30)
-    h4s=Props('H','T',T4s,'P',pc,Ref)
+    h4s=Props('H','T',s[3],'P',pc,Ref)
     Wdot2=mdot*(h4s-h[3])/eta_oi
     h[4]=h[3]+(1-f_p)*Wdot2/mdot
     T[4]=Props('T','H',h[4],'P',pc,Ref)
@@ -190,7 +188,8 @@ def TwoStage(Ref,Q,Te,Tc,DTsh,DTsc,eta_oi,f_p,Tsat_ic,DTsh_ic,Ts_Ph='Ph',prints=
     
     if prints==True:
         print 'x5:',x
-        print 'COP:',COP
+        print 'COP:', COP
+        print 'COPH', (Q+Wdot1+Wdot2)/(Wdot1+Wdot2)
         print T[2]-273.15,T[4]-273.15,p[2]/p[1],p[4]/p[3]
         print mdot,mdot*(h[4]-h[5]),pic
         print 'Vdot1',mdot/rho1,'Vdisp',mdot/rho1/(3500/60.)*1e6/0.7
@@ -198,7 +197,6 @@ def TwoStage(Ref,Q,Te,Tc,DTsh,DTsc,eta_oi,f_p,Tsat_ic,DTsh_ic,Ts_Ph='Ph',prints=
         print mdot*(h[4]-h[5]),Tc-273.15
         for i in range(1,len(T)-1):
             print '%d & %g & %g & %g & %g & %g \\\\' %(i,T[i]-273.15,p[i],h[i],s[i],rho[i])
-            
     else:
         print Tsat_ic,COP
     
@@ -276,8 +274,7 @@ def EconomizedCycle(Ref,Qin,Te,Tc,DTsh,DTsc,eta_oi,f_p,Ti,Ts_Ph='Ts',skipPlot=Fa
     h[1]=Props('H','T',T[1],'P',pe,Ref)
     s[1]=Props('S','T',T[1],'P',pe,Ref)
     rho[1]=Props('D','T',T[1],'P',pe,Ref)
-    T2s=newton(lambda T: Props('S','T',T,'P',pi,Ref)-s[1],T[1]+30)
-    h2s=Props('H','T',T2s,'P',pi,Ref)
+    h2s=Props('H','S',s[1],'P',pi,Ref)
     wdot1=(h2s-h[1])/eta_oi
     h[2]=h[1]+(1-f_p[0])*wdot1
     p[2]=pi
@@ -408,7 +405,14 @@ if __name__=='__main__':
     Ref='R290'
     fig=pylab.figure(figsize=(4,3))
     ax=fig.add_axes((0.15,0.15,0.8,0.8))
-    Ph(Ref,Tmin=273.15-100,hbounds=[0,600],axis=ax)
+    Ph(Ref,Tmin=273.15-30,hbounds=[0,600],axis=ax)
+    COP=TwoStage('Propane',10000,273.15-5,273.15+43.3,5,7,0.7,0.3,15+273.15,3,prints = True)
+    pylab.show()
+    
+    Ref='R290'
+    fig=pylab.figure(figsize=(4,3))
+    ax=fig.add_axes((0.15,0.15,0.8,0.8))
+    Ph(Ref,Tmin=273.15-30,hbounds=[0,600],axis=ax)
     COP=SimpleCycle(Ref,273.15-5,273.15+45,5,7,0.7,Ts_Ph='Ph')
     pylab.show()
     
@@ -418,6 +422,9 @@ if __name__=='__main__':
     Ts(Ref,Tmin=273.15-100,sbounds=[0,600],axis=ax)
     COP=SimpleCycle(Ref,273.15-5,273.15+45,5,7,0.7,Ts_Ph='Ts')
     pylab.show()    
+    
+    
+    
     
 ##     for x in np.linspace(0,1):
 ##         Ref='REFPROP-MIX:R152A[%g]&R32[%g]' %(x,1-x)

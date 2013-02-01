@@ -230,7 +230,7 @@ cpdef double Props(bytes in1, bytes in2, in3=None, in4=None,in5=None,in6=None,in
             if not len(err_string) == 0:
                 raise ValueError(err_string)
             else:
-                raise ValueError("Props failed ungracefully with inputs:"+str(in1)+','+str(in2)+','+str(in3)+','+str(in4)+','+str(in5)+','+str(in6)+'; please file a ticket at https://sourceforge.net/p/coolprop/tickets/')
+                raise ValueError("Props failed ungracefully with inputs:\"{in1:s}\",'{in2:s}',{in3:0.16e},'{in4:s}',{in5:0.16e},\"{in6:s}\", ; please file a ticket at https://sourceforge.net/p/coolprop/tickets/".format(in1=in1,in2=in2,in3=in3,in4=in4,in5=in5,in6=in6))
         else:
             if not _quantities_supported:
                 return val

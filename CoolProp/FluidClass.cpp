@@ -1207,10 +1207,8 @@ double Fluid::_get_rho_guess(double T, double p)
 	}
 	else if (phase == iLiquid)
 	{
-		// Start at the saturation state, with a known density
-		// Return subcooled liquid density
-		double rhoL,rhoV,pL,pV;
-		saturation_T(T,SaturationLUTStatus(),&pL,&pV,&rhoL,&rhoV);
+		// Start at the saturation state, with a known density, using the ancillary
+		double rhoL = rhosatL(T);
 		if (debug()>5){
 			std::cout<<format("%d:%d: pL = %g rhoL = %g rhoV %g \n",__FILE__,__LINE__,pL,rhoL, rhoV);
 		}
@@ -1218,8 +1216,11 @@ double Fluid::_get_rho_guess(double T, double p)
 		double tau = reduce.T/T;
 		double dp_drho = R()*T*(1+2*delta*dphir_dDelta(tau,delta)+delta*delta*d2phir_dDelta2(tau,delta));
 		double drho_dp = 1/dp_drho;
-		rho_simple = rhosatL(T)-drho_dp*(pL-p);
-		
+		rho_simple = rhoL-drho_dp*(pL-p);
+	}
+	else if (fabs(psatL(T)-p)<1e-8 || fabs(psatV(T)-p)<1e-8)
+	{
+		throw ValueError(format("Input T [%0.16g] & p [%0.16g] are two-phase or saturated which is thermodynamically undefined\n",T,p));
 	}
 	else
 	{
