@@ -596,14 +596,14 @@ cdef class __State:
     A class that contains all the code that represents a thermodynamic state
     """
     
-    def __cinit__(self, string FluidName, dict StateDict, double xL=-1.0, bytes Liquid=str(''), phase = str('none')):
+    def __cinit__(self, bytes FluidName, dict StateDict, double xL=-1.0, bytes Liquid = b'', bytes phase = b'none'):
         """ Allocate the CoolPropStateClass instance"""
         self.CPS = new CoolPropStateClass(FluidName)
     def __dealloc__(self):
         """ Deallocate the CoolPropStateClass instance"""
         del self.CPS
         
-    def __init__(self, bytes Fluid, dict StateDict, double xL=-1.0, bytes Liquid=str(''), phase = str('none')):
+    def __init__(self, bytes Fluid, dict StateDict, double xL=-1.0, bytes Liquid = b'', bytes phase = b'none'):
         self.Fluid = Fluid
         self.iFluid = _get_Fluid_index(Fluid)
         #Try to get the fluid from CoolProp

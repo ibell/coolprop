@@ -40,11 +40,6 @@ You might want to start by looking at CoolProp.h
 	// will be exported to the DLL
 
 	// They can only use data types that play well with DLL wrapping
-		
-	EXPORT_CODE void CONVENTION UseSaturationLUT(bool OnOff);
-	EXPORT_CODE bool CONVENTION SaturationLUTStatus();
-	EXPORT_CODE void CONVENTION UseSinglePhaseLUT(bool OnOff);
-	EXPORT_CODE bool CONVENTION SinglePhaseLUTStatus(void);
 
 	// This version uses the indices in place of the strings for speed.  Get the parameter indices
 	// from get_param_index('D') for instance and the Fluid index from get_Fluid_index('Air') for instance
@@ -72,26 +67,17 @@ You might want to start by looking at CoolProp.h
 	EXPORT_CODE long CONVENTION get_errstring_copy(char *);
 	EXPORT_CODE long CONVENTION get_svnrevision(void);
 	EXPORT_CODE long CONVENTION get_version(char * pversion);
-	
-
 	EXPORT_CODE long CONVENTION get_param_index(char * param);
 	EXPORT_CODE long CONVENTION get_Fluid_index(char * param);
 	EXPORT_CODE void CONVENTION get_index_units(long param, char * units);
 
-	/*
-	returns 1 if parameters set properly
-	*/
-	EXPORT_CODE int CONVENTION set_1phase_LUT_params(char *Ref, int nT, int np, double Tmin, double Tmax, double pmin, double pmax, bool rebuild);
-	EXPORT_CODE void CONVENTION get_1phase_LUT_params(int *nT, int *np, double *Tmin, double *Tmax, double *pmin, double *pmax);
-
 	EXPORT_CODE int CONVENTION get_debug();
-	EXPORT_CODE void CONVENTION debug(int level); 
+	EXPORT_CODE void CONVENTION debug(int level);
 
 	EXPORT_CODE double CONVENTION rhosatL_anc(char* Fluid, double T);
 	EXPORT_CODE double CONVENTION rhosatV_anc(char* Fluid, double T);
 	EXPORT_CODE double CONVENTION psatL_anc(char* Fluid, double T);
 	EXPORT_CODE double CONVENTION psatV_anc(char* Fluid, double T);
-
 
 	// ------------------------------------------------------------------------------------------------
 	// All the functions below this comment do NOT get exported to REFPROP DLL due to the fact that the 
@@ -106,7 +92,6 @@ You might want to start by looking at CoolProp.h
 
 	double DerivTerms(char *Term, double T, double rho, Fluid * pFluid);
 	double DerivTerms(char *Term, double T, double rho, Fluid * pFluid, bool SinglePhase, bool TwoPhase);
-
 
 	int set_1phase_LUT_params(std::string Ref, int nT, int np, double Tmin, double Tmax, double pmin, double pmax, bool rebuild);
 	// Without rebuild provided, default to not rebuild automatically (rebuild=False)

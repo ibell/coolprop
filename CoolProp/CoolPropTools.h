@@ -30,6 +30,8 @@
 	#define OK 1
 	#define FAIL 0
 	
+	void MatInv_2(double A[2][2] , double B[2][2]);
+
 	double interp1d(std::vector<double> *x, std::vector<double> *y, double x0);
 	double powInt(double x, int y);
 	double QuadInterp(double x0, double x1, double x2, double f0, double f1, double f2, double x);

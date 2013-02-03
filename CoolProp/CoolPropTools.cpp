@@ -165,3 +165,15 @@ double CubicInterp( double x0, double x1, double x2, double x3, double f0, doubl
 	L3=((x-x0)*(x-x1)*(x-x2))/((x3-x0)*(x3-x1)*(x3-x2));
 	return L0*f0+L1*f1+L2*f2+L3*f3;
 }
+
+void MatInv_2(double A[2][2] , double B[2][2])
+{
+	double Det;
+	//Using Cramer's Rule to solve
+
+	Det=A[0][0]*A[1][1]-A[1][0]*A[0][1];
+	B[0][0]=1.0/Det*A[1][1];
+	B[1][1]=1.0/Det*A[0][0];
+	B[1][0]=-1.0/Det*A[1][0];
+	B[0][1]=-1.0/Det*A[0][1];
+}

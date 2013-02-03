@@ -71,9 +71,10 @@ protected:
 	unsigned int Nh, Np;
 	Fluid *pFluid;
 	double dh,dp;
-
+	std::vector<double> T_Trho, rho_Trho;
+	std::vector<std::vector<int> > i_Trho, j_Trho;
 public:
-	TTSESinglePhaseTableClass(){};
+	TTSESinglePhaseTableClass(){SatL = NULL; SatV = NULL;};
 	TTSESinglePhaseTableClass(Fluid *pFluid);
 	TTSETwoPhaseTableClass *SatL, *SatV;
 	void set_size(unsigned int Nh=100, unsigned int Np=100);
@@ -98,6 +99,9 @@ public:
 	void matrix_from_file(std::string fName, std::vector< std::vector<double> > *A);
 
 	void update_saturation_boundary_indices();
+	
+	/// Update the map from the values of T,rho to the indices i,j
+	void update_Trho_map();
 
 	/// Build the tables
 	/// @param hmin Minimum enthalpy [kJ/kg]
@@ -114,7 +118,11 @@ public:
 	/// @param h Enthalpy [kJ/kg]
 	double evaluate(long iParam, double p, double h);
 
-	double evaluate_other_inputs(long iInput1, double Param1, long iInput2, double Param2);
+	/// Evaluate the TTSE using P,S or P,T
+	double evaluate_one_other_input(long iInput1, double Param1, long iOther, double Other);
+	
+	/// Evaluate the TTSE using T,D or XXX to give P,H
+	void evaluate_two_other_inputs(long iInput1, double Input1, long iInput2, double Input2, double *pout, double *hout);
 
 	/// Randomly evaluate a property in the single phase region using the TTSE method
 	/// @param iParam Index of desired output
@@ -135,7 +143,7 @@ public:
 	/// Write a representation of the ph surface to file with O in each "good" spot and "X" in each "bad" one or two-phase
 	void write_dotdrawing_tofile(char fName[]);
 
-	/// Find the nearest neighbor density and temperature if they exist to speed up calcs
+	/// Find the nearest neighbor density and temperature if they exist to speed up calcs for the calculation of T(p,h) and rho(p,h)
 	/// @param i Index in h
 	/// @param j Index in p
 	/// @param T0 Temperature

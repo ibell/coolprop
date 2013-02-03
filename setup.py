@@ -113,11 +113,11 @@ if __name__=='__main__':
     rev = f.read().strip().split('=')[1].strip(';').strip()
     f.close()
     svnstring = '__svnrevision__ ='+rev+'\n'
-        
+    
     for i in range(len(lines)-1,-1,-1):
         if lines[i].strip().startswith('#') or len(lines[i].strip())==0: 
             lines.pop(i)
-    lines=['__version__=\''+version+'\'\n']+[svnstring]+lines
+    lines=['from __future__ import absolute_import\n']+['__version__=\''+version+'\'\n']+[svnstring]+lines
     fp=open(os.path.join('CoolProp','__init__.py'),'w')
     for line in lines:
         fp.write(line)
@@ -244,6 +244,14 @@ if __name__=='__main__':
                             library_dirs=['lib'],
                             cython_c_in_temp = True
                             )
+        State2_module = CyExtension('CoolProp.State2',
+                            [os.path.join('CoolProp','State2.pyx')],
+                            include_dirs = include_dirs,
+                            language='c++',
+                            libraries=['CoolProp'],
+                            library_dirs=['lib'],
+                            cython_c_in_temp = True
+                            )
     else:
         CoolProp2_module = CyExtension('CoolProp.CoolProp',
                             [os.path.join('CoolProp','CoolProp.pyx')]+Sources,
@@ -252,14 +260,12 @@ if __name__=='__main__':
                             cython_c_in_temp = True
                             )
     
-    State2_module = CyExtension('CoolProp.State2',
-                            [os.path.join('CoolProp','State2.pyx')],
-                            include_dirs = include_dirs,
-                            language='c++',
-                            libraries=['CoolProp'],
-                            library_dirs=['lib'],
-                            cython_c_in_temp = True
-                            )
+        State2_module = CyExtension('CoolProp.State2',
+                                [os.path.join('CoolProp','State2.pyx')]+Sources,
+                                include_dirs = include_dirs,
+                                language='c++',
+                                cython_c_in_temp = True
+                                )
                             
     #Collect all the header files into an include folder
     try:

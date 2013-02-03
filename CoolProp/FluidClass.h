@@ -103,8 +103,6 @@ class Fluid
 		std::string EOSReference; /// A std::string that contains a reference for thermo properties for the fluid
 		std::string TransportReference; /// A std::string that contains a reference for the transport properties of the fluid
 		bool isPure; /// True if it is a pure fluid, false otherqwise
-		
-		OnePhaseLUTStruct LUT; /// The private single-phase lookup structure
 
 		// The structures that hold onto ancillary data for the fluid
 		AncillaryCurveClass *h_ancillary;
@@ -112,16 +110,14 @@ class Fluid
 		AncillaryCurveClass *cp_ancillary;
 		AncillaryCurveClass *drhodT_p_ancillary;
 
-		
-
 		/// Obtain a guess value for the density of the fluid for a given set of temperature and pressure
 		/// @param T Temperature [K]
 		/// @param p Pressure [kPa(abs)]
 		double _get_rho_guess(double T, double p); 
 
-		std::vector<std::vector<double> >* _get_LUT_ptr(std::string Prop);
-
-		
+		// The boundaries for the TTSE
+		double hmin_TTSE, hmax_TTSE, pmin_TTSE, pmax_TTSE;
+		unsigned int Nsat_TTSE, Nh_TTSE, Np_TTSE;
     public:
 		SatLUTStruct SatLUT; /// The private Saturation lookup structure
 
@@ -135,23 +131,17 @@ class Fluid
 		Fluid(){
 			params.R_u=8.314472; /// Default molar gas constant [kJ/kmol/K]
 			isPure=true;  /// true if fluid is one-component pure fluid, false otherwise
-			SatLUT.N = 300; /// Number of points in saturation lookup table [-]
-			SatLUT.built = false; /// reset the saturation LUT built flag
-			LUT.built = false; /// reset the LUT built flag
 
+			// Default parameters for TTSE - others are set in post-load() function
 			built_TTSE_LUT = false;
 			enabled_TTSE_LUT = false;
+			Nsat_TTSE = 400;
+			Nh_TTSE = 200;
+			Np_TTSE = 200;
+
+			CriticalSpline_T.Tend = _HUGE;
 				
 			preduce = &crit; /// pointer to the reducing parameters
-
-			// Default limits for the Single-phase LUT
-			// Can be overwritten by calling set_1phase_LUT_params()
-			LUT.nT = 200;
-			LUT.np = 200;
-			LUT.Tmax = limits.Tmax-0.1;
-			LUT.Tmin = limits.Tmin+0.1;
-			LUT.pmin = 0.0001;
-			LUT.pmax = limits.pmax-0.1;
 		};
 		virtual ~Fluid();
 
@@ -438,16 +428,6 @@ class Fluid
 		/// @param rhoLout Saturated liquid pressure [kg/m3]
 		/// @param rhoVout Saturated vapor pressure [kg/m3]
 		void rhosatPure_BrentrhoV(double T, double *rhoLout, double *rhoVout, double *pout);
-
-		/// Tries to build the Saturation Lookup tables for Temperature, pressure, densities and enthalpies.  
-		///  If the LUT are already built, don't rebuild them, but if the parameter SatLUT.force=True, rebuild.
-		void BuildSaturationLUT(void);
-
-		/// Apply the Saturation lookup tables to a given set of inputs and output
-		/// @param iOutProp Flag for the output property from SatLUTStruct. @see SatLUTStruct
-		/// @param iInProp Flag for the input property from SatLUTStruct. @see SatLUTStruct
-		/// @param InPropVal Value of the input of interest. @see Props
-		double ApplySaturationLUT(long iOutProp, long iInProp, double InPropVal);
 		
 		/// The saturation temperature of the fluid for a given pressure and quality. If the 
 		/// fluid is pure, the saturated vapor and saturated liquid temperatures are the same.  
@@ -467,52 +447,16 @@ class Fluid
 		/// @param rhoLout The saturated liquid density [kg/m3]
 		/// @param rhoVout The saturated vapor density [kg/m3]
 		double Tsat(double p, double Q, double T_guess, bool UseLUT, double *rhoLout, double *rhoVout);
-
-		/// Build the single-phase LUT in the range[Tmin,Tmax]x[pmin,pmax] if not already built
-		void BuildLookupTable();
-
-		/// Set the single-phase LUT range, including the number of steps and the range for each variable
-		/// @param nT The number of points to use for the temperature
-		/// @param np The number of points to use for the pressure
-		/// @param Tmin The minimum temperature [K]
-		/// @param Tmax The maximum temperature [K]
-		/// @param pmin The minimum pressure [kPa(abs)]
-		/// @param pmax The maximum pressure [kPa(abs)]
-		void set_1phase_LUT_params(int nT, int np, double Tmin, double Tmax, double pmin, double pmax);
-
-		/// Get the single-phase LUT range, including the number of steps and the range for each variable
-		/// @param nT The number of points to use for the temperature
-		/// @param np The number of points to use for the pressure
-		/// @param Tmin The minimum temperature [K]
-		/// @param Tmax The maximum temperature [K]
-		/// @param pmin The minimum pressure [kPa(abs)]
-		/// @param pmax The maximum pressure [kPa(abs)]
-		void get_1phase_LUT_params(int *nT, int *np, double *Tmin, double *Tmax, double *pmin, double *pmax);
-		
-		/// Use the single-phase lookup table to determine	the value for the desired property as a function of temperature and pressure.
-		/// The definition of the keys for Prop are given by Props
-		/// @see Props
-		/// @param Prop Single character corresponding to the property of interest
-		/// @param T Temperature [K]
-		/// @param p Temperature [kPa(abs)]
-		/// @returns Value corresponding to the key Prop [varies]
-		double LookupValue_TP(std::string Prop, double T, double p);
-
-		/// Use the single-phase lookup table to determine	the value for the desired property as a function of temperature and density.
-		/// The definition of the keys for Prop are given by
-		/// @see Props
-		/// @param Prop Single character corresponding to the property of interest
-		/// @param T Temperature [K]
-		/// @param rho Density [kg/m3]
-		double LookupValue_Trho(std::string Prop, double T, double rho);
 		
 		/// Returns true if the given name is an alias of the Fluid name.  (Case-sensitive!!)
 		/// @param name The given name
 		bool isAlias(std::string name);
 
+		/// Parameters for the Tabular Taylor Series Expansion (TTSE) Method
 		bool enabled_TTSE_LUT, built_TTSE_LUT;
 
 		/// Enable the TTSE
+		/// If you want to over-ride parameters, must be done before calling this function
 		void enable_TTSE_LUT(void);
 		/// Check if TTSE is enabled
 		bool isenabled_TTSE_LUT(void);
@@ -525,8 +469,8 @@ class Fluid
 		/// Over-ride the default range of the single-phase LUT
 		void set_TTSESinglePhase_LUT_range(double hmin, double hmax, double pmin, double pmax);
 
-		/// Build the TTSE LUT
-		bool build_TTSE_LUT();
+		/// Build of the TTSE LUT
+		bool build_TTSE_LUT(bool force = false);
 		/// Interpolate within the TTSE LUT
 		double interpolate_in_TTSE_LUT(long iParam, long iInput1, double Input1, long iInput2, double Input2);
 };

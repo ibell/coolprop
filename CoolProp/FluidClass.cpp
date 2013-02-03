@@ -149,7 +149,7 @@ FluidsContainer::FluidsContainer()
 	FluidsList.push_back(new MethylPalmitateClass());
 	FluidsList.push_back(new MethylStearateClass());
 	FluidsList.push_back(new MethylOleateClass());
-	FluidsList.push_back(new MethylLinoleateClass());
+	//FluidsList.push_back(new MethylLinoleateClass());// Something wrong with this fluid NOT WORKING
 	FluidsList.push_back(new MethylLinolenateClass());
 
 	// Xylene isomers and EthylBenzene
@@ -302,6 +302,15 @@ void Fluid::post_load(void)
 	s_ancillary = new AncillaryCurveClass(this,std::string("S"));
 	cp_ancillary = new AncillaryCurveClass(this,std::string("C"));
 	drhodT_p_ancillary = new AncillaryCurveClass(this,std::string("drhodT|p"));
+
+	double psatL,psatV,rhoL,rhoV;
+	saturation_T(limits.Tmin,false,&psatL,&psatV,&rhoL,&rhoV);
+	double hL = enthalpy_Trho(limits.Tmin,rhoL);
+	double hV = enthalpy_Trho(limits.Tmin,rhoV);
+	hmin_TTSE = hL;
+	hmax_TTSE = hL+(hV-hL)*2;
+	pmin_TTSE = params.ptriple;
+	pmax_TTSE = 2*reduce.p;
 }
 //--------------------------------------------
 //    Residual Part
@@ -684,34 +693,6 @@ double Fluid::conductivity_Trho( double T, double rho)
 	return lambda;
 }
 
-void Fluid::set_1phase_LUT_params(int nT,int np,double Tmin, double Tmax, double pmin, double pmax)
-{
-	if (debug()>0){
-		std::cout << __FILE__<<": Setting 1phase_LUT_params of ("<<name<<","<<nT<<","<<np<<","<<Tmin<<","<<Tmax<<","<<pmin<<","<<pmax<<")"<<std::endl;
-	}
-	LUT.nT=nT; 
-	LUT.np=np; 
-	LUT.Tmin=Tmin;
-	LUT.Tmax=Tmax;
-	LUT.pmin=pmin;
-	LUT.pmax=pmax;
-	LUT.built=false;  // Rebuild on the next call
-	return;
-}
-void Fluid::get_1phase_LUT_params(int *nT,int *np,double *Tmin, double *Tmax, double *pmin, double *pmax)
-{
-	*nT=LUT.nT; 
-	*np=LUT.np; 
-	*Tmin=LUT.Tmin;
-	*Tmax=LUT.Tmax;
-	*pmin=LUT.pmin;
-	*pmax=LUT.pmax;
-	if (debug()>0){
-		std::cout << __FILE__<<": Getting 1phase_LUT_params of ("<<","<<name<<","<<*nT<<","<<*np<<","<<*Tmin<<","<<*Tmax<<","<<*pmin<<","<<*pmax<<")"<<std::endl;
-	}
-	return;
-}
-
 void Fluid::saturation_T(double T, bool UseLUT, double *psatLout, double *psatVout, double *rhosatLout, double *rhosatVout)
 {
 	double rhoL, rhoV, p;
@@ -720,13 +701,9 @@ void Fluid::saturation_T(double T, bool UseLUT, double *psatLout, double *psatVo
 	}
 	if (isPure==true)
 	{
-		if (UseLUT)
+		if (enabled_TTSE_LUT)
 		{
-			// Use the saturation Lookup Table;
-			*rhosatLout=ApplySaturationLUT(SatLUT.iDL,SatLUT.iT,T);
-			*rhosatVout=ApplySaturationLUT(SatLUT.iDV,SatLUT.iT,T);
-			*psatLout=ApplySaturationLUT(SatLUT.iP,SatLUT.iT,T);
-			*psatVout=ApplySaturationLUT(SatLUT.iP,SatLUT.iT,T);
+			throw NotImplementedError(format("saturation_T not implemented for TTSE"));
 			return;
 		}
 		else
@@ -771,7 +748,7 @@ void Fluid::saturation_T(double T, bool UseLUT, double *psatLout, double *psatVo
 void Fluid::rhosatPure_Brent(double T, double *rhoLout, double *rhoVout, double *pout)
 {
 	/*
-	Use Brent's method around the critical point.  Slow but reliable
+	Use Brent's method around when Akasaka's method fails.  Slow but reliable
 	*/
 
 	class SatFuncClass : public FuncWrapper1D
@@ -800,11 +777,11 @@ void Fluid::rhosatPure_Brent(double T, double *rhoLout, double *rhoVout, double 
 	} SatFunc(T,this);
 
 	std::string errstr;
-	double ppmax = pressure_Trho(crit.T-0.01,crit.rho);
-	double pmax = pressure_Trho(crit.T-0.01,crit.rho)+1e-6;
+	double pmax = reduce.p;
 	double pmin = psatV_anc(T-0.1);
+	if (pmin < params.ptriple)
+		pmin = params.ptriple;
 	Brent(&SatFunc,pmin,pmax,DBL_EPSILON,1e-8,30,&errstr);
-
 }
 
 class rhosatPure_BrentrhoVResidClass : public FuncWrapper1D
@@ -831,7 +808,6 @@ public:
 
 void Fluid::rhosatPure_BrentrhoV(double T, double *rhoLout, double *rhoVout, double *pout)
 {
-
 	rhosatPure_BrentrhoVResidClass SF = rhosatPure_BrentrhoVResidClass(T,this);
 
 	std::string errstr;
@@ -840,7 +816,6 @@ void Fluid::rhosatPure_BrentrhoV(double T, double *rhoLout, double *rhoVout, dou
 	*rhoVout = SF.rhoV;
 	*pout = SF.p;
 }
-
 
 /// This function implements the method of Akasaka to do analytic Newton-Raphson for the 
 /// saturation calcs
@@ -901,7 +876,7 @@ void Fluid::rhosatPure_Akasaka(double T, double *rhoLout, double *rhoVout, doubl
 		stepL = gamma/DELTA*( (KV-KL)*dJV-(JV-JL)*dKV);
 		stepV = gamma/DELTA*( (KV-KL)*dJL-(JV-JL)*dKL);
 		
-		if (deltaL+stepL > 1 && deltaV+stepV < 1)
+		if (deltaL+stepL > 1 && deltaV+stepV < 1 && deltaV+stepV > 0)
 		{
 			deltaL += stepL;
 			deltaV += stepV;
@@ -986,64 +961,7 @@ bool isBetween(double x1,double x2, double x)
 	else if (x1>x2 && x<=x1 && x>=x2) return true;
 	else return false;
 }
-void Fluid::BuildSaturationLUT()
-{
-    int i;
-    double T_t,T_c,dT;
-    
-	// If the tables have already been built, don't do anything
-	if (SatLUT.built == true)
-		return;
 
-	if (debug()>2){
-		std::cout<<__FILE__<<": Building saturation lookup for "<<name<<std::endl;
-	}
-
-    // Linearly space the values from the triple point of the fluid to the just shy of the critical point
-    T_t=Props(name,"Tmin")+0.00001;
-    T_c=Props(name,"Tcrit")-0.01;
-    
-	SatLUT.T=std::vector<double>(SatLUT.N,0);
-	SatLUT.tau=std::vector<double>(SatLUT.N,0);
-	SatLUT.p=std::vector<double>(SatLUT.N,0);
-	SatLUT.logp=std::vector<double>(SatLUT.N,0);
-	SatLUT.rhoL=std::vector<double>(SatLUT.N,0);
-	SatLUT.rhoV=std::vector<double>(SatLUT.N,0);
-	SatLUT.hL=std::vector<double>(SatLUT.N,0);
-	SatLUT.hV=std::vector<double>(SatLUT.N,0);
-	SatLUT.sL=std::vector<double>(SatLUT.N,0);
-	SatLUT.sV=std::vector<double>(SatLUT.N,0);
-
-    dT=(T_c-T_t)/(SatLUT.N-1);
-    for (i=0;i<SatLUT.N;i++)
-    {
-        // Linearly space the elements
-        SatLUT.T[i]=T_t+i*dT;
-		// Build the tau vector - for better interpolation behavior
-		SatLUT.tau[i]=reduce.T/SatLUT.T[i];
-        // Calculate the saturation properties
-        rhosatPure_Akasaka(SatLUT.T[i], &(SatLUT.rhoL[i]), &(SatLUT.rhoV[i]), &(SatLUT.p[i]));
-		SatLUT.logp[i]=log(SatLUT.p[i]);
-        // Calculate the other saturation properties
-		SatLUT.hL[i]=enthalpy_Trho(SatLUT.T[i],SatLUT.rhoL[i]);
-        SatLUT.hV[i]=enthalpy_Trho(SatLUT.T[i],SatLUT.rhoV[i]);
-		SatLUT.sL[i]=entropy_Trho(SatLUT.T[i],SatLUT.rhoL[i]);
-        SatLUT.sV[i]=entropy_Trho(SatLUT.T[i],SatLUT.rhoV[i]);
-
-    }
-	// Get reversed copies for when you use temperature as an input because 
-	// temperature is monotonically increasing, but tau is monotonic decreasing
-	// so need to go "backwards" if temperature is an input
-	SatLUT.tau_reversed.assign(SatLUT.tau.rbegin(),SatLUT.tau.rend());
-	SatLUT.logp_reversed.assign(SatLUT.logp.rbegin(),SatLUT.logp.rend());
-	SatLUT.rhoL_reversed.assign(SatLUT.rhoL.rbegin(),SatLUT.rhoL.rend());
-	SatLUT.rhoV_reversed.assign(SatLUT.rhoV.rbegin(),SatLUT.rhoV.rend());
-	SatLUT.hL_reversed.assign(SatLUT.hL.rbegin(),SatLUT.hL.rend());
-	SatLUT.hV_reversed.assign(SatLUT.hV.rbegin(),SatLUT.hV.rend());
-	SatLUT.sL_reversed.assign(SatLUT.sL.rbegin(),SatLUT.sL.rend());
-	SatLUT.sV_reversed.assign(SatLUT.sV.rbegin(),SatLUT.sV.rend());
-	SatLUT.built=true;
-}   
 // Ancillary equations composed by interpolating within 50-point 
 // curve that is calculated once
 double Fluid::hsatV_anc(double T)
@@ -1070,119 +988,6 @@ double Fluid::ssatL_anc(double T)
 		s_ancillary->build(50);
 	return s_ancillary->interpolateL(T);
 }
-
-double Fluid::ApplySaturationLUT(long iOutProp,long iInProp,double InPropVal)
-{
-	bool _reverse;
-    double LUTVal;
-
-    // pointers to the x and y std::vectors for later
-	std::vector<double> *y,*x;
-	
-    // First try to build the LUT
-    BuildSaturationLUT();
-
-	
-	if (iInProp == SatLUT.iT)
-	{
-		x=&(SatLUT.tau_reversed);// from ~1 to Tc/Ttriple
-		LUTVal = reduce.T/InPropVal;
-		_reverse = true;
-	}
-	else if (iInProp == SatLUT.iP)
-	{
-		x=&(SatLUT.logp);
-		LUTVal = log(InPropVal);
-		_reverse = false;
-	}
-	else 
-	{
-		std::cout << format("iInProp [%d] to ApplySaturationLUT is invalid.  Valid values are iT [%d],iP [%d]\n",iInProp,iT,iP);
-		//throw AttributeError(format("iInProp [%d] to ApplySaturationLUT is invalid.  Valid values are iT [%d],iP [%d]",iInProp,iT,iP));
-		return 1000;
-	}
-
-	if (iOutProp == SatLUT.iDL)
-	{
-		if (_reverse)
-			y=&(SatLUT.rhoL_reversed);
-        else
-			y=&(SatLUT.rhoL);
-	}
-	else if (iOutProp == SatLUT.iDV)
-	{
-		if (_reverse)
-			y=&(SatLUT.rhoV_reversed);
-        else
-			y=&(SatLUT.rhoV);
-	}
-    else if (iOutProp == SatLUT.iP)
-	{
-		if (_reverse)
-			y=&(SatLUT.logp_reversed);
-        else
-			y=&(SatLUT.logp);
-	}
-	else if (iOutProp == SatLUT.iHL)
-	{
-		if (_reverse){
-			y=&(SatLUT.hL_reversed);
-		}
-		else{
-			y=&(SatLUT.hL);
-		}
-	}
-	else if (iOutProp == SatLUT.iHV)
-	{
-		if (_reverse)
-			y=&(SatLUT.hV_reversed);
-        else
-			y=&(SatLUT.hV);
-	}
-	else if (iOutProp == SatLUT.iSL)
-	{
-		if (_reverse){
-			y=&(SatLUT.sL_reversed);
-		}
-		else{
-			y=&(SatLUT.sL);
-		}
-	}
-	else if (iOutProp == SatLUT.iSV)
-	{
-		if (_reverse)
-			y=&(SatLUT.sV_reversed);
-        else
-			y=&(SatLUT.sV);
-	}
-	else if (iOutProp == SatLUT.iT)
-	{
-		if (_reverse)
-			y=&(SatLUT.tau_reversed);
-        else
-			y=&(SatLUT.tau);
-	}
-	else
-	{
-		std::cout << format("iOutProp [%d] to ApplySaturationLUT is invalid.\n",iOutProp);
-		//throw AttributeError(format("iOutProp [%d] to ApplySaturationLUT is invalid.",iOutProp));
-		return 1000;
-	}
-
-	// Actually interpolate
-    double y_LUT = interp1d(x,y,LUTVal);
-
-	if (iOutProp == SatLUT.iP)
-		// y_LUT has the value of log(p)
-		return exp(y_LUT);
-	else if (iOutProp == SatLUT.iT)
-		// yLUT has the value of Tc/T
-		return reduce.T/y_LUT;
-	else
-		return y_LUT;
-}
-
-
 
 double Fluid::_get_rho_guess(double T, double p)
 {
@@ -1347,7 +1152,7 @@ long Fluid::phase_Tp_indices(double T, double p, double *pL, double *pV, double 
 			// Actually have to use saturation information sadly
 			// For the given temperature, find the saturation state
 			// Run the saturation routines to determine the saturation densities and pressures
-			saturation_T(T,SaturationLUTStatus(),pL,pV,rhoL,rhoV);
+			saturation_T(T,enabled_TTSE_LUT,pL,pV,rhoL,rhoV);
 			if (p>(*pL+10*DBL_EPSILON)){
 				return iLiquid;
 			}
@@ -1405,7 +1210,7 @@ std::string Fluid::phase_Trho(double T, double rho, double *pL, double *pV, doub
 			// For the given temperature, find the saturation state
 			// Run the saturation routines to determine the saturation densities and pressures
 			// Use the passed in variables to save calls to the saturation routine so the values can be re-used again
-			saturation_T(T,SaturationLUTStatus(),pL,pV,rhoL,rhoV);
+			saturation_T(T,enabled_TTSE_LUT,pL,pV,rhoL,rhoV);
 			if (rho>*rhoL){
 				return std::string("Liquid");
 			}
@@ -1435,18 +1240,6 @@ std::string Fluid::phase_Trho(double T, double rho, double *pL, double *pV, doub
 	else{
 		return std::string("NotApplicable");
 	}
-}
-
-static void MatInv_2(double A[2][2] , double B[2][2])
-{
-    double Det;
-    //Using Cramer's Rule to solve
-
-    Det=A[0][0]*A[1][1]-A[1][0]*A[0][1];
-    B[0][0]=1.0/Det*A[1][1];
-    B[1][1]=1.0/Det*A[0][0];
-    B[1][0]=-1.0/Det*A[1][0];
-    B[0][1]=-1.0/Det*A[0][1];
 }
 
 void Fluid::temperature_ph(double p, double h, double *Tout, double *rhoout, double *rhoLout, double *rhoVout, double *TsatLout, double *TsatVout, double T0, double rho0)
@@ -1514,7 +1307,7 @@ void Fluid::temperature_ph(double p, double h, double *Tout, double *rhoout, dou
 					
 				}
 			}
-			else if (!SaturationLUTStatus())
+			else
 			{
 				//**************************************************
 				// Step 1: Try to just use the ancillary equations
@@ -1569,14 +1362,14 @@ void Fluid::temperature_ph(double p, double h, double *Tout, double *rhoout, dou
 				//**************************************************
 				// Step 2: Not far away from saturation (or it is two-phase) - need to solve saturation as a function of p :( - this is slow
 				//**************************************************
- 				CoolPropStateClass *sat = new CoolPropStateClass(name);
-				sat->update(iP,p,iQ,0);
-				rhoL = sat->rhoL();
-				rhoV = sat->rhoV();
-				hsatL = sat->hL();
-				hsatV = sat->hV();
-				TsatL = sat->TL();
-				TsatV = sat->TV();
+ 				CoolPropStateClass sat = CoolPropStateClass(name);
+				sat.update(iP,p,iQ,0);
+				rhoL = sat.rhoL();
+				rhoV = sat.rhoV();
+				hsatL = sat.hL();
+				hsatV = sat.hV();
+				TsatL = sat.TL();
+				TsatV = sat.TV();
 				*rhoLout = rhoL;
 				*rhoVout = rhoV;
 				*TsatLout = TsatL;
@@ -1615,10 +1408,8 @@ void Fluid::temperature_ph(double p, double h, double *Tout, double *rhoout, dou
 					*Tout = quality*TsatV+(1-quality)*TsatL;
 					double v = quality*(1/rhoV)+(1-quality)*1/rhoL;
 					*rhoout = 1/v;
-					delete sat;
 					return;
 				}
-				delete sat;
 			}
 		}
 	}
@@ -2108,7 +1899,7 @@ public:
 	double call(double T)
 	{
 		double psatL,psatV;
-		pFluid->saturation_T(T,SaturationLUTStatus(),&psatL,&psatV,&rhoL,&rhoV);
+		pFluid->saturation_T(T,pFluid->enabled_TTSE_LUT,&psatL,&psatV,&rhoL,&rhoV);
 		return psatL-this->p;
 	}
 };
@@ -2231,11 +2022,6 @@ double Fluid::Tsat(double p, double Q, double T_guess, bool UseLUT, double *rhoL
 	}
 	else
 	{
-		// Do reverse interpolation in the Saturation Lookup Table
-		if (isPure && UseLUT) 
-		{
-			return ApplySaturationLUT(SatLUT.iT,SatLUT.iP,p); 
-		}
 		
 		double x1=0,x2=0,y1=0,y2=0;
 		double Tc,Tmax,Tmin;
@@ -2292,332 +2078,6 @@ double Fluid::Tsat(double p, double Q, double T_guess, bool UseLUT, double *rhoL
 	}
 }
 
-void Fluid::BuildLookupTable()
-{
-    int i,j;
-	bool OldUseLUT,okval;
-    double T,p,rho,Tc;
-    
-	// Build the Lookup matrices, but only if they ar not already built
-	if (LUT.built==true)
-		return;
-	
-	if (debug()>5){
-		std::cout<<__FILE__<<": Building 1-phase lookup for "<<name<<std::endl;
-		std::cout << __FILE__<<": 1phase_LUT_params of ("<<","<<name<<","<<LUT.nT
-			<<","<<LUT.np<<","<<LUT.Tmin<<","<<LUT.Tmax<<","<<LUT.pmin<<","<<LUT.pmax<<")"<<std::endl;
-	}
-    Tc=reduce.T;
-
-	LUT.Tvec=std::vector<double> ( LUT.nT,0 );
-	LUT.pvec=std::vector<double> ( LUT.np,0 );
-	LUT.kmat=std::vector< std::vector<double> >( LUT.nT, std::vector<double> ( LUT.np, 0 ) );
-	LUT.kmat=std::vector< std::vector<double> >( LUT.nT, std::vector<double> ( LUT.np, 0 ) );
-	LUT.cpmat=std::vector< std::vector<double> >( LUT.nT, std::vector<double> ( LUT.np, 0 ) );
-	LUT.cp0mat=std::vector< std::vector<double> >( LUT.nT, std::vector<double> ( LUT.np, 0 ) );
-	LUT.cvmat=std::vector< std::vector<double> >( LUT.nT, std::vector<double> ( LUT.np, 0 ) );
-	LUT.pmat=std::vector< std::vector<double> >( LUT.nT, std::vector<double> ( LUT.np, 0 ) );
-	LUT.rhomat=std::vector< std::vector<double> >( LUT.nT, std::vector<double> ( LUT.np, 0 ) );
-	LUT.smat=std::vector< std::vector<double> >( LUT.nT, std::vector<double> ( LUT.np, 0 ) );
-	LUT.umat=std::vector< std::vector<double> >( LUT.nT, std::vector<double> ( LUT.np, 0 ) );
-	LUT.viscmat=std::vector< std::vector<double> >( LUT.nT, std::vector<double> ( LUT.np, 0 ) );
-	LUT.hmat=std::vector< std::vector<double> >( LUT.nT, std::vector<double> ( LUT.np, 0 ) );
-	LUT.rhomat=std::vector< std::vector<double> >( LUT.nT, std::vector<double> ( LUT.np, 0 ) );
-	LUT.hmat=std::vector< std::vector<double> >( LUT.nT, std::vector<double> ( LUT.np, 0 ) );
-	LUT.dpdTmat=std::vector< std::vector<double> >( LUT.nT, std::vector<double> ( LUT.np, 0 ) );
-    
-    // Properties evaluated at all points with X in the 
-    // following p-h plot:
-    
-    /*      Supercritical
-    ||X X X X X X X X X X X X X X X X X X X X X X
-    ||X X X X X X X X X X X X X X X X X X X X X X
-    ||X X X -------  X X X X X X X X X X X X
-    ||X X  /	   \  X X X X X X X X X X X
-p	||X  /		    | X X X X Superheated Gas
-    ||X /	Two     / X X X X X X X X X X X
-    || /  Phase	   /X X X X X X X X X X X X 
-    ||/		      / X X X X X X X X X X X X 
-    ||=	= = = = = = = = = = = = = = = = = = = = =
-                        Enthalpy										
-    */
-    
-	// Get the old value for the LUT flag
-	OldUseLUT=SinglePhaseLUTStatus();
-	
-	// Turn off the LUT so that it will use EOS to determine state
-    UseSinglePhaseLUT(false);
-
-    for (i=0;i<LUT.nT;i++)
-    {
-        LUT.Tvec[i]=LUT.Tmin+i*(LUT.Tmax-LUT.Tmin)/(LUT.nT-1);
-    }
-    for (j=0;j<LUT.np;j++)
-    {
-        LUT.pvec[j]=LUT.pmin+j*(LUT.pmax-LUT.pmin)/(LUT.np-1);
-    }
-    for (i=0;i<LUT.nT;i++)
-    {
-        for (j=0;j<LUT.np;j++)
-        {
-			T = LUT.Tvec[i];
-			p = LUT.pvec[j];
-
-			/*
-			For a given fluid, if the temperature is above the critical temperature, 
-			add an entry to the LUT matrix.  If temperature is below critical temp, need to
-			consider a few other options.
-
-			If it is a pure fluid, the saturated vapor and saturated liquid lines
-			collapse onto each other, resulting in only one pressure that yields an undefined value
-
-			If is is a pseudo-pure fluid, the bubble point (saturated liquid) pressure will ALWAYS 
-			be above that of the dew point (saturated vapor) pressure, so if the pressure is not between
-			the dewpoint and bubblepoint presssures, it is single phase
-			*/
-			okval=false;
-			if (T>Tc){
-				okval=true;
-			}
-			else if (isPure && (p>psat(T) || p<psat(T))){
-				okval=true;
-			}
-			else if (!isPure && (p>psatL(T) || p<psatV(T))){
-				okval=true;
-			}
-
-            if (okval)
-            {					
-                LUT.rhomat[i][j]=density_Tp(T,p);
-				rho=LUT.rhomat[i][j];
-                LUT.hmat[i][j]=enthalpy_Trho(T,rho);
-                LUT.smat[i][j]=entropy_Trho(T,rho);
-                LUT.umat[i][j]=internal_energy_Trho(T,rho);
-                LUT.cpmat[i][j]=specific_heat_p_Trho(T,rho);
-				LUT.cp0mat[i][j]=specific_heat_p_ideal_Trho(T);
-                LUT.cvmat[i][j]=specific_heat_v_Trho(T,rho);
-                LUT.viscmat[i][j]=viscosity_Trho(T,rho);
-                LUT.kmat[i][j]=conductivity_Trho(T,rho);
-				LUT.dpdTmat[i][j]=dpdT_Trho(T,rho);
-                LUT.pmat[i][j]=p;
-            }
-            else
-            {
-                LUT.rhomat[i][j]=_HUGE;
-                LUT.hmat[i][j]=_HUGE;
-                LUT.smat[i][j]=_HUGE;
-                LUT.umat[i][j]=_HUGE;
-                LUT.cpmat[i][j]=_HUGE;
-				LUT.cp0mat[i][j]=_HUGE;
-                LUT.cvmat[i][j]=_HUGE;
-                LUT.viscmat[i][j]=_HUGE;
-                LUT.kmat[i][j]=_HUGE;
-                LUT.pmat[i][j]=_HUGE;
-            }
-        }
-    }
-    UseSinglePhaseLUT(OldUseLUT);
-	LUT.built=true;
-    return;
-}
-
-std::vector<std::vector<double> >* Fluid::_get_LUT_ptr(std::string Prop)
-{
-	std::vector<std::vector<double> > *mat;
-	/* Depending on which property is desired, 
-    make the matrix "mat" a pointer to the 
-    desired property matrix */
-	if (Prop[0] == 'C')
-        mat=&LUT.cpmat;
-	else if (Prop[0] == 'C' && Prop[1]=='0')
-        mat=&LUT.cp0mat;
-    else if (Prop[0] == 'P')
-        mat=&LUT.pmat;
-	else if (Prop[0] == 'D')
-        mat=&LUT.rhomat;
-    else if (Prop[0] == 'O')
-        mat=&LUT.cvmat;
-    else if (Prop[0] == 'H')
-        mat=&LUT.hmat;
-    else if (Prop[0] == 'S')
-        mat=&LUT.smat;
-    else if (Prop[0] == 'U')
-        mat=&LUT.umat;
-    else if (Prop[0] == 'V')
-        mat=&LUT.viscmat;
-    else if (Prop[0] == 'L')
-        mat=&LUT.kmat;
-	else if (!Prop.compare("dpdT"))
-		mat=&LUT.dpdTmat;
-    else
-    {
-    	throw ValueError(format("Invalid output type [%s] in _get_LUT_ptr\n",Prop.c_str()));
-    }
-	return mat;
-}
-double Fluid::LookupValue_TP(std::string Prop, double T, double p)
-{
-    int iPlow, iPhigh, iTlow, iThigh;
-    double T1, T2, T3, P1, P2, P3, y1, y2, y3, a1, a2, a3;
-	std::vector<std::vector<double> > *mat;
-
-    // Build if needed
-    BuildLookupTable();
-    
-    if (T>LUT.Tmax || T<LUT.Tmin){
-		throw ValueError(format("Input temperature to LookupValue_TP(%g) is out of bounds [%g,%g]",T,LUT.Tmin,LUT.Tmax));
-        return _HUGE;
-    }
-
-    if (p>LUT.pmax || p<LUT.pmin)
-    {
-		throw ValueError(format("Input pressure to LookupValue_TP(%g) is out of bounds [%g,%g]",p,LUT.pmin,LUT.pmax));
-        return _HUGE;
-    }
-
-    iTlow=(int)floor((T-LUT.Tmin)/(LUT.Tmax-LUT.Tmin)*(LUT.nT-1));
-    iThigh=iTlow+1;
-
-    iPlow=(int)floor((p-LUT.pmin)/(LUT.pmax-LUT.pmin)*(LUT.np-1));
-    iPhigh=iPlow+1;
-
-	mat = _get_LUT_ptr(Prop);    
-    
-	if (iThigh==LUT.nT-1){
-		iThigh--;
-		iTlow--;
-	}
-
-	if (iPhigh==LUT.np-1){
-		iPhigh--;
-		iPlow--;
-	}
-    //At Low Temperature Index
-    y1=(*mat)[iTlow][iPlow];
-    y2=(*mat)[iTlow][iPhigh];
-    y3=(*mat)[iTlow][iPhigh+1];
-    P1=LUT.pvec[iPlow];
-    P2=LUT.pvec[iPhigh];
-    P3=LUT.pvec[iPhigh+1];
-    a1=QuadInterp(P1,P2,P3,y1,y2,y3,p);
-
-    //At High Temperature Index
-    y1=(*mat)[iThigh][iPlow];
-    y2=(*mat)[iThigh][iPhigh];
-    y3=(*mat)[iThigh][iPhigh+1];
-    a2=QuadInterp(P1,P2,P3,y1,y2,y3,p);
-
-    //At High Temperature Index+1 (for QuadInterp() )
-    y1=(*mat)[iThigh+1][iPlow];
-    y2=(*mat)[iThigh+1][iPhigh];
-    y3=(*mat)[iThigh+1][iPhigh+1];
-    a3=QuadInterp(P1,P2,P3,y1,y2,y3,p);
-
-    //At Final Interpolation
-    T1=LUT.Tvec[iTlow];
-    T2=LUT.Tvec[iThigh];
-    T3=LUT.Tvec[iThigh+1];
-
-	if (debug()>8){
-		std::cout << __FILE__<<"Lookup_TP for " << Prop << " with inputs T="<< T <<" and p="<< p <<std::endl;
-	}
-    return QuadInterp(T1,T2,T3,a1,a2,a3,T);
-}
-
-double Fluid::LookupValue_Trho(std::string Prop, double T, double rho)
-{
-	// Lookup a value in the lookup table using temperature and rho as the inputs
-
-    int irholow, irhohigh, iTlow, iThigh,L,R,M;
-    double T1, T2, T3, rho1, rho2, rho3, y1, y2, y3, a1, a2, a3;
-	std::vector<std::vector<double> > (*mat);
-    double Tmin,Tmax,rhomin,rhomax;
-
-    BuildLookupTable(); 
-    
-    Tmin=LUT.Tvec[0];
-    Tmax=LUT.Tvec[LUT.nT-1];
-
-    if (T>LUT.Tmax || T<LUT.Tmin){
-		throw ValueError(format("Input temperature to LookupValue_Trho(%g K) is out of bounds [%g K,%g K]",T,LUT.Tmin,LUT.Tmax));
-        return _HUGE;
-    }
-
-	iTlow=(int)floor((T-LUT.Tmin)/(LUT.Tmax-LUT.Tmin)*(LUT.nT-1));
-    iThigh=iTlow+1;
-	
-	if (iThigh==LUT.nT-1){
-		iThigh--;
-		iTlow--;
-	}
-
-    rhomin=LUT.rhomat[iThigh][0];
-    rhomax=LUT.rhomat[iTlow][LUT.np-1];
-
-	if (rho>rhomax || rho<rhomin)
-    {
-		throw ValueError(format("Input rho to LookupValue_Trho(%g kg/m3) for given T=%g K is out of bounds [%g kg/m3,%g kg/m3]",rho,T,rhomin,rhomax));
-        return _HUGE;
-    }
-
-	L=0;
-	R=LUT.np-1;
-	M=(L+R)/2;
-	// Use interval halving to find the indices which bracket the density of interest
-	while (R-L>1)
-	{
-		if (rho>=LUT.rhomat[iThigh][M])
-		{ L=M; M=(L+R)/2; continue;}
-		if (rho<LUT.rhomat[iTlow][M])
-		{ R=M; M=(L+R)/2; continue;}
-	}
-    irholow=L;
-    irhohigh=R;
-	
-	if (irhohigh==LUT.np-1){
-		irholow--;
-		irhohigh--;
-	}
-
-    mat = _get_LUT_ptr(Prop);
-    
-    //At Low Temperature Index
-    y1=(*mat)[iTlow][irholow];
-    y2=(*mat)[iTlow][irhohigh];
-    y3=(*mat)[iTlow][irhohigh+1];
-    rho1=LUT.rhomat[iTlow][irholow];
-    rho2=LUT.rhomat[iTlow][irhohigh];
-    rho3=LUT.rhomat[iTlow][irhohigh+1];
-    a1=QuadInterp(rho1,rho2,rho3,y1,y2,y3,rho);
-
-    //At High Temperature Index
-    y1=(*mat)[iThigh][irholow];
-    y2=(*mat)[iThigh][irhohigh];
-    y3=(*mat)[iThigh][irhohigh+1];
-    rho1=LUT.rhomat[iThigh][irholow];
-    rho2=LUT.rhomat[iThigh][irhohigh];
-    rho3=LUT.rhomat[iThigh][irhohigh+1];
-    a2=QuadInterp(rho1,rho2,rho3,y1,y2,y3,rho);
-
-    //At High Temperature Index+1 (for QuadInterp() )
-    y1=(*mat)[iThigh+1][irholow];
-    y2=(*mat)[iThigh+1][irhohigh];
-    y3=(*mat)[iThigh+1][irhohigh+1];
-    rho1=LUT.rhomat[iThigh+1][irholow];
-    rho2=LUT.rhomat[iThigh+1][irhohigh];
-    rho3=LUT.rhomat[iThigh+1][irhohigh+1];
-    a3=QuadInterp(rho1,rho2,rho3,y1,y2,y3,rho);
-
-    //At Final Interpolation
-    T1=LUT.Tvec[iTlow];
-    T2=LUT.Tvec[iThigh];
-    T3=LUT.Tvec[iThigh+1];
-
-	if (debug()>8){
-		std::cout << __FILE__<<"Lookup_Trho for" << Prop << "with inputs T="<< T <<" and rho="<< rho <<std::endl;
-	}
-    return QuadInterp(T1,T2,T3,a1,a2,a3,T);
-}
 
 //
 //int WriteLookup2File(int ILUT)
@@ -3111,35 +2571,27 @@ double Fluid::conductivity_ECS_Trho(double T, double rho, Fluid * ReferenceFluid
 	return lambda/1e3; //[kW/m/K]
 }
 
-bool Fluid::build_TTSE_LUT()
+bool Fluid::build_TTSE_LUT(bool force_build)
 {
-	if (!built_TTSE_LUT)
+	if (!built_TTSE_LUT || force_build)
 	{
 		// Turn off the use of LUT while you are building it, 
 		// otherwise you get an infinite recursion
 		enabled_TTSE_LUT = false;
+
 		TTSESatL = TTSETwoPhaseTableClass(this,0);
-		TTSESatL.set_size(500);
-		//TTSESatL.build(params.ptriple+1e-08,reduce.p);
+		TTSESatL.set_size(Nsat_TTSE);
 
 		TTSESatV = TTSETwoPhaseTableClass(this,1);
-		TTSESatV.set_size(500);
+		TTSESatV.set_size(Nsat_TTSE);
 		TTSESatV.build(params.ptriple+1e-08,reduce.p,&TTSESatL);
 
-		// Enthalpy at saturated liquid at triple point temperature
-		double hL = Props("H",'T',params.Ttriple+1e-8,'Q',0,get_name());
-		double hV = Props("H",'T',params.Ttriple+1e-8,'Q',1,get_name());
-		double hmin = hL;
-		double hmax = hL+(hV-hL)*2;
-		double pmin = params.ptriple;
-		double pmax = 2*reduce.p;
 		TTSESinglePhase = TTSESinglePhaseTableClass(this);
-		TTSESinglePhase.set_size(200,200);
+		TTSESinglePhase.set_size(Nh_TTSE,Np_TTSE);
 		TTSESinglePhase.SatL = &TTSESatL;
 		TTSESinglePhase.SatV = &TTSESatV;
-		TTSESinglePhase.build(hmin,hmax,pmin,pmax,&TTSESatL,&TTSESatV);
+		TTSESinglePhase.build(hmin_TTSE,hmax_TTSE,pmin_TTSE,pmax_TTSE,&TTSESatL,&TTSESatV);
 		
-		//TTSESinglePhase.write_dotdrawing_tofile("dot.txt");
 		built_TTSE_LUT = true;
 		enabled_TTSE_LUT = true;
 	}

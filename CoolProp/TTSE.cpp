@@ -9,6 +9,7 @@
 #include <sys/stat.h>
 #endif
 
+#include "CoolPropTools.h"
 #include "CoolProp.h"
 #include "CPState.h"
 #include "TTSE.h"
@@ -37,6 +38,8 @@ TTSESinglePhaseTableClass::TTSESinglePhaseTableClass(Fluid *pFluid)
 
 	// Seed the generator for random number generation
 	srand((unsigned int)time(NULL));
+	SatL = NULL;
+	SatV = NULL;
 }
 void TTSESinglePhaseTableClass::set_size(unsigned int Nh, unsigned int Np)
 {
@@ -286,13 +289,13 @@ bool TTSESinglePhaseTableClass::read_all_from_file(std::string root_path)
 	// Append a '/'
 	root_path += format("/");
 
-	if (!pathExists(root_path+format("Info.txt")))
+	if (!pathExists(root_path+format("Info_ph.txt")))
 	{
 		return false;
 	}
 
 	// Parse the info file to find the dimensions and boundaries and check that they are the same
-	std::string info = get_file_contents((root_path+format("Info.txt")).c_str());
+	std::string info = get_file_contents((root_path+format("Info_ph.txt")).c_str());
 
 	// Split into lines
 	std::vector<std::string> lines = strsplit(info,'\r');
@@ -354,6 +357,7 @@ bool TTSESinglePhaseTableClass::read_all_from_file(std::string root_path)
 	matrix_from_file(root_path + std::string("d2rhoTdhdp_ph.ttse"),&d2rhodhdp);
 
 	update_saturation_boundary_indices();
+	update_Trho_map();
 	return true;
 }
 void TTSESinglePhaseTableClass::write_all_to_file(std::string root_path)
@@ -480,8 +484,18 @@ double TTSESinglePhaseTableClass::build(double hmin, double hmax, double pmin, d
 					// Probably here you are close to the saturation boundary since TTSE says it is single phase, but no neighbors to lean on
 					CPS.flag_SinglePhase = true;
 
-					double hsatLTTSE = SatL->evaluate(iH,pval);
-					double hsatVTTSE = SatV->evaluate(iH,pval);
+					double hsatLTTSE,hsatVTTSE;
+					if (SatL == NULL || SatV == NULL){
+						// Not using TTSE method, use saturation (slow...)
+						CPS.update(iP,pval,iQ,0.5);
+						hsatLTTSE = CPS.hL();
+						hsatVTTSE = CPS.hV();
+					}	
+					else
+					{
+						hsatLTTSE = SatL->evaluate(iH,pval);
+						hsatVTTSE = SatV->evaluate(iH,pval);
+					}
 
 					if (fabs(hval-hsatLTTSE)<10)
 					{
@@ -583,16 +597,62 @@ double TTSESinglePhaseTableClass::build(double hmin, double hmax, double pmin, d
 	std::cout << elap << " to build single phase table" << std::endl;
 
 	update_saturation_boundary_indices();
+	update_Trho_map();
 	write_all_to_file(root_path);
 	return elap;
 }
+void TTSESinglePhaseTableClass::update_Trho_map()
+{
+	int ii,jj;
+	double Tmin,Tmax,rhomin,rhomax,rhoL,rhoV,TsatL,TsatV,dummy;
+	// Get the bounding values
+	pFluid->temperature_ph(pmin,hmin,&Tmin,&rhomax,&rhoL,&rhoV,&TsatL,&TsatV);
+	pFluid->temperature_ph(pmax,hmax,&Tmax,&dummy,&rhoL,&rhoV,&TsatL,&TsatV);
+	pFluid->temperature_ph(pmin,hmax,&dummy,&rhomin,&rhoL,&rhoV,&TsatL,&TsatV);
+	// Resize the arrays, using the same sizes as the base matrices
+	T_Trho.resize(Nh);
+	rho_Trho.resize(Np);
+	i_Trho.resize(Nh, std::vector<int>(Np, -1));
+	j_Trho.resize(Nh, std::vector<int>(Np, -1));
+	
+	for (unsigned int i = 0; i < Nh; i++)
+	{
+		double T = (Tmax-Tmin)/(Nh-1)*i+Tmin;
+		T_Trho[i] = T;
 
+		for (unsigned int j = 0; j < Np; j++)
+		{
+			double rho = (rhomax-rhomin)/(Np-1)*j+rhomin;
+			rho_Trho[j] = rho;
+
+			// T,rho --> p,h
+			double p = pFluid->pressure_Trho(T,rho);
+			double h = pFluid->enthalpy_Trho(T,rho);
+
+			// Find i,j from p,h
+			ii = (int)round(((h-hmin)/(hmax-hmin)*(Nh-1)));
+			jj = (int)round(((p-pmin)/(pmax-pmin)*(Np-1)));
+
+			// Only keep values that are within the range for the table
+			if ( ii>=0 && ii < (int)Nh && jj>=0 && jj< (int)Np)
+			{
+				i_Trho[i][j] = ii;
+				j_Trho[i][j] = jj;
+			}
+			else
+			{
+				i_Trho[i][j] = -1;
+				j_Trho[i][j] = -1;
+			}
+		}
+	}
+}
 void TTSESinglePhaseTableClass::update_saturation_boundary_indices()
 {
 	// Store some information about the phase boundaries so that we 
 	// can use other inputs than p,h more easily
 
-	for (unsigned int j = 0; j<Np; j++)
+	for (unsigned int j = 0; j < Np; j++)
 	{
 		if (p[j] < pFluid->reduce.p)
 		{
@@ -722,8 +782,11 @@ double TTSESinglePhaseTableClass::evaluate_randomly(long iParam, unsigned int N)
 		double p1 = ((double)rand()/(double)RAND_MAX)*(pmax-pmin)+pmin;
 		double h1 = ((double)rand()/(double)RAND_MAX)*(hmax-hmin)+hmin;
 
-		// Get the value from TTSE
-		evaluate(iParam,p1,h1);
+		if (p1 > pFluid->TTSESatL.pmax || h1 > pFluid->TTSESatV.evaluate(iH,p1) || h1 < pFluid->TTSESatL.evaluate(iH,p1))
+		{
+			// Get the value from TTSE
+			evaluate(iParam,p1,h1);
+		}
 	}
 	t2 = clock();
 	return (double)(t2-t1)/CLOCKS_PER_SEC/(double)N*1e6;
@@ -734,6 +797,10 @@ double TTSESinglePhaseTableClass::evaluate(long iParam, double p, double h)
 	int i = (int)round(((h-hmin)/(hmax-hmin)*(Nh-1)));
 	int j = (int)round(((p-pmin)/(pmax-pmin)*(Np-1)));
 	
+	if (i<0 || i>(int)Nh-1 || j<0 || j>(int)Np-1)
+	{
+		throw ValueError(format("Input to TTSE [p = %0.16g, h = %0.16g] is out of range",p,h));
+	}
 
 	// If the value at i,j is too close to the saturation boundary, the nearest point i,j 
 	// might be in the two-phase region which is not defined for single-phase table.  
@@ -764,7 +831,7 @@ bool isbetween(double x1, double x2, double x)
 	return ((x>=x1 && x <= x2) || (x>=x2 && x <= x1));
 }
 
-double TTSESinglePhaseTableClass::evaluate_other_inputs(long iInput1, double Input1, long iOther, double Other)
+double TTSESinglePhaseTableClass::evaluate_one_other_input(long iInput1, double Input1, long iOther, double Other)
 {
 	// My goal here is to find deltah
 	int L,R,M,i;
@@ -970,10 +1037,94 @@ double TTSESinglePhaseTableClass::evaluate_other_inputs(long iInput1, double Inp
 	return 0;
 }
 
+void TTSESinglePhaseTableClass::evaluate_two_other_inputs(long iInput1, double Input1, long iInput2, double Input2, double *pout, double *hout)
+{
+	if (iInput1 == iT && iInput2 == iD)
+	{
+		// Using the mapping of T,rho to indices in the matrices
+
+		// Get indices for T_Trho and rho_Trho matrices
+		int ii = (int)round(((Input1-T_Trho[0])/(T_Trho[Nh-1]-T_Trho[0])*(Nh-1)));
+		int jj = (int)round(((Input2-rho_Trho[0])/(rho_Trho[Np-1]-rho_Trho[0])*(Np-1)));
+
+		// Get the indices for T,rho,.... matrices
+		int i = i_Trho[ii][jj];
+		int j = j_Trho[ii][jj];
+
+		// Now we need to solve for deltah and deltap, but T and rho are quadratic in deltah and deltap in the expansion:
+		//
+		// T = T[i][j]+deltah*dTdh[i][j]+deltap*dTdp[i][j]+0.5*deltah*deltah*d2Tdh2[i][j]+0.5*deltap*deltap*d2Tdp2[i][j]+deltap*deltah*d2Tdhdp[i][j];
+		// rho = rho[i][j]+deltah*drhodh[i][j]+deltap*drhodp[i][j]+0.5*deltah*deltah*d2rhodh2[i][j]+0.5*deltap*deltap*d2rhodp2[i][j]+deltap*deltah*d2rhodhdp[i][j];
+		// 
+		// So we need to do a Newton-Raphson solve.  Two residuals are from T = .... and rho = ... from here.
+		//
+		// dr1_ddeltah = dTdh[i][j]+deltah*d2Tdh2[i][j]+deltap*d2Tdhdp[i][j]
+		double omega = 1, err_squared = 999, deltah = 0, deltap = 0;
+
+		// Pull out some values to save indexing time
+		double T = this->T[i][j];
+		double dTdh = this->dTdh[i][j];
+		double dTdp = this->dTdp[i][j];
+		double d2Tdh2 = this->d2Tdh2[i][j];
+		double d2Tdp2 = this->d2Tdp2[i][j];
+		double d2Tdhdp = this->d2Tdhdp[i][j];
+
+		double rho = this->rho[i][j];
+		double drhodh = this->drhodh[i][j];
+		double drhodp = this->drhodp[i][j];
+		double d2rhodh2 = this->d2rhodh2[i][j];
+		double d2rhodp2 = this->d2rhodp2[i][j];
+		double d2rhodhdp = this->d2rhodhdp[i][j];
+
+		double rT,rrho,drT_ddeltah,drT_ddeltap,drrho_ddeltah,drrho_ddeltap,det,diff_deltah,diff_deltap;
+		int iter = 0;
+		do{
+			// Residuals
+			rT = T+deltah*dTdh+deltap*dTdp+0.5*deltah*deltah*d2Tdh2+0.5*deltap*deltap*d2Tdp2+deltap*deltah*d2Tdhdp - Input1;
+			rrho = rho+deltah*drhodh+deltap*drhodp+0.5*deltah*deltah*d2rhodh2+0.5*deltap*deltap*d2rhodp2+deltap*deltah*d2rhodhdp - Input2;
+			
+			// Error at this step
+			err_squared = rT*rT+rrho*rrho;
+
+			// Jacobian
+			//First index is the row, second index is the column
+			// A[0][0]
+			drT_ddeltah=dTdh+deltah*d2Tdh2+deltap*d2Tdhdp;
+			// A[0][1
+			drT_ddeltap=dTdp+deltap*d2Tdp2+deltah*d2Tdhdp;
+			// A[1][0]
+			drrho_ddeltah=drhodh+deltah*d2rhodh2+deltap*d2rhodhdp;
+			// A[1][1];
+			drrho_ddeltap=drhodp+deltap*d2rhodp2+deltah*d2rhodhdp;
+
+			// Determinant of Jacobian matrix
+			det = drT_ddeltah*drrho_ddeltap-drT_ddeltap*drrho_ddeltah;
+
+			// Change in deltah and deltap from Cramer's rule
+			diff_deltah = (rT*drrho_ddeltap-drT_ddeltap*rrho)/det;
+			diff_deltap = (drT_ddeltah*rrho-rT*drrho_ddeltah)/det;
+
+			deltah -= omega*diff_deltah;
+			deltap -= omega*diff_deltap;
+
+			iter ++;
+		}
+		while (err_squared>5*DBL_EPSILON);
+
+		*hout = this->h[i]+deltah;
+		*pout = this->p[j]+deltap;
+	}
+}
+
 double TTSESinglePhaseTableClass::evaluate_first_derivative(long iOF, long iWRT, long iCONSTANT, double p, double h)
 {
 	int i = (int)round(((h-hmin)/(hmax-hmin)*(Nh-1)));
 	int j = (int)round(((p-pmin)/(pmax-pmin)*(Np-1)));
+
+	if (i<0 || i>Nh-1 || j<0 || j>Np-1)
+	{
+		throw ValueError(format("Input to TTSE deriv [p = %0.16g, h = %0.16g] is out of range",p,h));
+	}
 	
 	// If the value at i,j is too close to the saturation boundary, the nearest point i,j 
 	// might be in the two-phase region which is not defined for single-phase table.  

@@ -88,6 +88,10 @@ public:
 	// Uses the indices in CoolProp for the input parameters
 	void update(long iInput1, double Value1, long iInput2, double Value2);
 
+	// Returns an output based on the key provided
+	// where iInput is one of iT,iP,iH,iS,....
+	double keyed_output(long iInput);
+
 	// Property accessors for saturation parameters directly
 	// These all must be calculated every time if the state is saturated or two-phase
 	double rhoL(void){return rhosatL;};
@@ -101,8 +105,6 @@ public:
 	double hV(void);
 	double sL(void);
 	double sV(void);
-	// Derivatives along the saturation curve
-	void dvdp_dhdp_sat(double T, double *dvdpL, double *dvdpV, double *dhdpL, double *dhdpV, double *);
 
 	// Bulk properties accessors - temperature and density are directly calculated every time
 	// All other parameters are calculated on an as-needed basis
@@ -119,6 +121,7 @@ public:
 	double isobaric_expansion_coefficient(void);
 	double drhodh_constp(void);
 	double drhodp_consth(void);
+	double surface_tension(void);
 
 	// ----------------------------------------	
 	// TTSE LUT things

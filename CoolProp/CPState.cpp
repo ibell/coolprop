@@ -212,22 +212,17 @@ void CoolPropStateClass::update_twophase(long iInput1, double Value1, long iInpu
 	if (match_pair(iInput1,iInput2,iP,iQ)){
 		// Sort so they are in the order P, Q
 		sort_pair(&iInput1,&Value1,&iInput2,&Value2,iP,iQ);
+
+		// Out-of-range checks
+		if (Value1 < pFluid->params.ptriple || Value1 > pFluid->crit.p){ throw ValueError(format("Your saturation pressure [%f kPa] is out of range [%f kPa, %f kPa]",Value1,pFluid->params.ptriple,pFluid->crit.p ));}
+		if (Value2 > 1+10*DBL_EPSILON || Value2 < -10*DBL_EPSILON){ throw ValueError(format("Your quality [%f] is out of range (0, 1)",Value2 )); }
+
 		// Carry out the saturation call to get the temperature and density for each phases
 		if (pFluid->pure()){
-			if (SaturationLUTStatus()){
-				TsatL = pFluid->ApplySaturationLUT(pFluid->SatLUT.iT,pFluid->SatLUT.iP,Value1);
-				rhosatL = pFluid->ApplySaturationLUT(pFluid->SatLUT.iDL,pFluid->SatLUT.iP,Value1);
-				rhosatV = pFluid->ApplySaturationLUT(pFluid->SatLUT.iDV,pFluid->SatLUT.iP,Value1);
-				TsatV = TsatL;
-				psatV = Value1;
-				psatL = Value1;
-			}
-			else{
-				pFluid->saturation_p(Value1,SaturationLUTStatus(),&TsatL,&TsatV,&rhosatL,&rhosatV);
-				TsatV = TsatL;
-				psatV = Value1;
-				psatL = Value1;
-			}
+			pFluid->saturation_p(Value1,pFluid->enabled_TTSE_LUT,&TsatL,&TsatV,&rhosatL,&rhosatV);
+			TsatV = TsatL;
+			psatV = Value1;
+			psatL = Value1;
 		}
 		else{
 			TsatL = pFluid->Tsat_anc(Value1,0);
@@ -240,12 +235,18 @@ void CoolPropStateClass::update_twophase(long iInput1, double Value1, long iInpu
 		}
 	}
 	else{
+		
 		// Sort so they are in the order T, Q
 		sort_pair(&iInput1,&Value1,&iInput2,&Value2,iT,iQ);
+		
+		// Out-of-range checks
+		if (Value1 < pFluid->limits.Tmin || Value1 > pFluid->reduce.T){ throw ValueError(format("Your saturation temperature [%f K] is out of range [%f K, %f K]",Value1,pFluid->limits.Tmin, pFluid->reduce.T ));}
+		if (Value2 > 1+10*DBL_EPSILON || Value2 < -10*DBL_EPSILON){ throw ValueError(format("Your quality [%f] is out of range (0, 1)",Value2 )); }
+		
 		// Carry out the saturation call to get the temperature and density for each phases
 		// for the given temperature
 		if (pFluid->pure()){
-			pFluid->saturation_T(Value1,SaturationLUTStatus(),&psatL,&psatV,&rhosatL,&rhosatV);
+			pFluid->saturation_T(Value1,pFluid->enabled_TTSE_LUT,&psatL,&psatV,&rhosatL,&rhosatV);
 			TsatL = Value1;
 			TsatV = Value1;
 		}
@@ -494,7 +495,7 @@ void CoolPropStateClass::update_TTSE_LUT(long iInput1, double Value1, long iInpu
 		// Sort in the right order (P,T)
 		sort_pair(&iInput1,&Value1,&iInput2,&Value2,iP,iT);
 
-		_h = pFluid->TTSESinglePhase.evaluate_other_inputs(iP,Value1,iT,Value2);
+		_h = pFluid->TTSESinglePhase.evaluate_one_other_input(iP,Value1,iT,Value2);
 		_rho = pFluid->TTSESinglePhase.evaluate(iD,Value1,_h);
 		_p = Value1;
 		_T = Value2;
@@ -504,26 +505,168 @@ void CoolPropStateClass::update_TTSE_LUT(long iInput1, double Value1, long iInpu
 		// Sort in the right order (P,D)
 		sort_pair(&iInput1,&Value1,&iInput2,&Value2,iP,iD);
 
-		_h = pFluid->TTSESinglePhase.evaluate_other_inputs(iP,Value1,iD,Value2);
-		_T = pFluid->TTSESinglePhase.evaluate(iT,Value1,_h);
-		_p = Value1;
-		_rho = Value2;
+		double p = Value1;
+		double rho = Value2;
+
+		// If density is outside the saturation region, it is single-phase
+		if (p > pFluid->reduce.p || p < pFluid->params.ptriple ||  rho < pFluid->TTSESatV.evaluate(iD,p)  || rho > pFluid->TTSESatL.evaluate(iD,p))
+		{
+			TwoPhase = false;
+			SinglePhase = true;
+			_h = pFluid->TTSESinglePhase.evaluate_one_other_input(iP,p,iD,rho);
+			_T = pFluid->TTSESinglePhase.evaluate(iT,p,_h);
+			_p = Value1;
+			_rho = Value2;
+		}
+		else
+		{
+			TwoPhase = true;
+			SinglePhase = false;
+
+			double hsatL = pFluid->TTSESatL.evaluate(iH,p);
+			double hsatV = pFluid->TTSESatV.evaluate(iH,p);
+			rhosatL = pFluid->TTSESatL.evaluate(iD,p);
+			rhosatV = pFluid->TTSESatV.evaluate(iD,p);
+			TsatL = pFluid->TTSESatL.evaluate(iT,p);
+			TsatV = pFluid->TTSESatV.evaluate(iT,p);
+			psatL = p;
+			psatV = p;
+			
+			_Q = (1/rho-1/rhosatL)/(1/rhosatV-1/rhosatL);
+			_rho = rho;
+			_T = _Q*TsatV + (1-_Q)*TsatL;
+			_p = p;
+			_h = _Q*hsatV + (1-_Q)*hsatL;
+
+			check_saturated_quality(_Q);
+		}
 	}
 	else if (match_pair(iInput1,iInput2,iP,iS))
 	{
 		// Sort in the right order (P,S)
 		sort_pair(&iInput1,&Value1,&iInput2,&Value2,iP,iS);
+		
+		double p = Value1;
+		double s = Value2;
 
-		_h = pFluid->TTSESinglePhase.evaluate_other_inputs(iP,Value1,iS,Value2);
-		_T = pFluid->TTSESinglePhase.evaluate(iT,Value1,_h);
-		_rho = pFluid->TTSESinglePhase.evaluate(iT,Value1,_h);
-		_p = Value1;
-		_s = Value2;
+		_p = p;
+		_s = s;
+
+		// If entropy is outside the saturation region, it is single-phase
+		if (p > pFluid->reduce.p || p < pFluid->params.ptriple ||  s > pFluid->TTSESatV.evaluate(iS,p)  || s < pFluid->TTSESatL.evaluate(iS,p))
+		{
+			TwoPhase = false;
+			SinglePhase = true;
+			_h = pFluid->TTSESinglePhase.evaluate_one_other_input(iP,p,iS,s); // Get the enthalpy
+			_T = pFluid->TTSESinglePhase.evaluate(iT,p,_h);
+			_rho = pFluid->TTSESinglePhase.evaluate(iD,p,_h);
+		}
+		else
+		{
+			TwoPhase = true;
+			SinglePhase = false;
+
+			double hsatL = pFluid->TTSESatL.evaluate(iH,p);
+			double hsatV = pFluid->TTSESatV.evaluate(iH,p);
+			double ssatL = pFluid->TTSESatL.evaluate(iS,p);
+			double ssatV = pFluid->TTSESatV.evaluate(iS,p);
+			rhosatL = pFluid->TTSESatL.evaluate(iD,p);
+			rhosatV = pFluid->TTSESatV.evaluate(iD,p);
+			TsatL = pFluid->TTSESatL.evaluate(iT,p);
+			TsatV = pFluid->TTSESatV.evaluate(iT,p);
+			psatL = p;
+			psatV = p;
+			
+			_Q = (s-ssatL)/(ssatV-ssatL);
+			_rho = 1/(_Q/rhosatV+(1-_Q)/rhosatL);
+			_T = _Q*TsatV + (1-_Q)*TsatL;
+			_h = _Q*hsatV + (1-_Q)*hsatL;
+
+			check_saturated_quality(_Q);
+		}		
+	}
+	else if (match_pair(iInput1,iInput2,iT,iD))
+	{
+		// Sort in the right order (T,D)
+		sort_pair(&iInput1,&Value1,&iInput2,&Value2,iT,iD);
+
+		pFluid->TTSESinglePhase.evaluate_two_other_inputs(iT,Value1,iD,Value2,&_p,&_h);
+		_T = Value1;
+		_rho = Value2;
 	}
 	else
 	{
 		printf("Sorry your inputs[%d,%d] don't work for now with TTSE\n",iInput1,iInput2);
 		throw ValueError(format("Sorry your inputs don't work for now with TTSE"));
+	}
+}
+
+double CoolPropStateClass::keyed_output(long iOutput)
+{
+	switch (iOutput)
+	{
+		// --------------------------
+		// Fluid constants
+		// --------------------------
+		case iMM:
+			return pFluid->params.molemass;
+		case iPcrit:
+			return pFluid->crit.p;
+		case iTcrit:
+			return pFluid->crit.T;
+		case iTtriple:
+			return pFluid->params.Ttriple;
+		case iRhocrit:
+			return pFluid->crit.rho;
+		case iAccentric: 
+			return pFluid->params.accentricfactor;
+		case iTmin:
+			return pFluid->limits.Tmin;
+		// --------------------------
+		// Thermodynamic properties
+		// --------------------------
+		case iP:
+			return p();
+		case iH:
+			return h();
+		case iS:
+			return s();
+		case iU:
+			return h()-_p/_rho;
+		case iC:
+			return cp();
+		case iC0:
+			return pFluid->specific_heat_p_ideal_Trho(_T);
+		case iO:
+			return cv();
+		case iA:
+			return speed_sound();
+		case iG:
+			return h()-_T*s();
+		case iQ:
+			if (TwoPhase)
+				return _Q;
+			else
+				return -1;
+		// --------------------------
+		// Transport properties
+		// --------------------------
+		case iV:
+			return pFluid->viscosity_Trho(_T, _rho);
+		case iL:
+			return pFluid->conductivity_Trho(_T, _rho);
+		case iI:
+			return surface_tension();
+		// -----------------------------------
+		// A few grandfathered derivatives
+		// -----------------------------------
+		case iDpdT:
+			return dpdT_constrho();
+		case iDrhodT_p:
+			return drhodT_constp();
+		default:
+			throw ValueError(format("Invalid Output index to keyed_output: %d ",iOutput));
+			return _HUGE;
 	}
 }
 
@@ -777,6 +920,9 @@ double CoolPropStateClass::isobaric_expansion_coefficient(void){
 	{
 		return -1/(_rho*_rho)*drhodT_constp();
 	}
+}
+double CoolPropStateClass::surface_tension(void){
+	return pFluid->surface_tension_T(_T);
 }
 
 double CoolPropStateClass::drhodh_constp(void){
@@ -1144,165 +1290,165 @@ double CoolPropStateClass::drhodT_along_sat_liquid(void)
 	return SatL->drhodT_constp()+SatL->drhodp_constT()/dTdp_along_sat();
 }
 
-void CoolPropStateClass::dvdp_dhdp_sat(double T, double *dvdpL, double *dvdpV, double *dhdpL, double *dhdpV, double *d2hdp2V)
-{
-	CoolPropStateClass *sat = new CoolPropStateClass(pFluid);
-	sat->update(iT,T,iQ,0.5);
-	double vV =  1/sat->rhoV();
-	double vL =  1/sat->rhoL();
-	double hV =  sat->hV();
-	double hL =  sat->hL();
-	double rhoL = 1/vL;
-	double rhoV = 1/vV;
-	double TL = T;
-	double TV = T;
-	double tauL = pFluid->reduce.T/TL;
-	double tauV = pFluid->reduce.T/TV;
-	double deltaL = rhoL/pFluid->reduce.rho;
-	double deltaV = rhoV/pFluid->reduce.rho;
-
-	// For the liquid
-	double d2phir_dDelta_dTauL = sat->SatL->d2phir_dDelta_dTau(tauL,deltaL);
-	double dphir_dDeltaL = sat->SatL->dphir_dDelta(tauL,deltaL);
-	double d2phir_dDelta2L = sat->SatL->d2phir_dDelta2(tauL,deltaL);
-	double d2phi0_dTau2L = sat->SatL->d2phi0_dTau2(tauL,deltaL);
-	double d2phir_dTau2L = sat->SatL->d2phir_dTau2(tauL,deltaL);
-	// For the vapor
-	double d2phir_dDelta_dTauV = sat->SatV->d2phir_dDelta_dTau(tauV,deltaV);
-	double dphir_dDeltaV = sat->SatV->dphir_dDelta(tauV,deltaV);
-	double d2phir_dDelta2V = sat->SatV->d2phir_dDelta2(tauV,deltaV);
-	double d3phir_dDelta3V = sat->SatV->d3phir_dDelta3(tauV,deltaV);
-	double d3phir_dDelta2_dTauV = sat->SatV->d3phir_dDelta2_dTau(tauV,deltaV);
-	double d3phir_dDelta_dTau2V = sat->SatV->d3phir_dDelta_dTau2(tauV,deltaV);
-	double d3phi0_dTau3V = sat->SatV->d3phi0_dTau3(tauV,deltaV);
-	double d3phir_dTau3V = sat->SatV->d3phir_dTau3(tauV,deltaV);
-	double d2phi0_dTau2V = sat->SatV->d2phi0_dTau2(tauV,deltaV);
-	double d2phir_dTau2V = sat->SatV->d2phir_dTau2(tauV,deltaV);
-
-	double drhodTV_p = DerivTerms("drhodT|p",TV,rhoV,(char*)pFluid->get_name().c_str());
-
-	// Saturation derivatives at constant temperature
-	double dhdrhoL_T = SatL->dhdrho_constT();
-	double dhdrhoV_T = SatV->dhdrho_constT();
-	double dpdrhoL_T = SatL->dpdrho_constT();
-	double dpdrhoV_T = SatV->dpdrho_constT();
-	
-	// Saturation derivatives at constant density
-	double dhdTL_rho = SatL->dhdT_constrho();
-	double dhdTV_rho = SatV->dhdT_constrho();
-	double dpdTL_rho = SatL->dpdT_constrho();
-	double dpdTV_rho = SatV->dpdT_constrho();
-
-	// Now get dh/dp at constant T for saturated liquid and vapor
-	double dhdpL_T = SatL->dhdp_constT();
-	double dhdpV_T = SatV->dhdp_constT();
-
-	// Derivatives of enthalpy 
-	double dhdTL_p = SatL->dhdT_constp();
-	double dhdTV_p = SatV->dhdT_constp();
-
-	// Derivatives of specific volume (just to make thing easier)
-	double dvdrhoL = -1/(rhoL*rhoL);
-	double dvdrhoV = -1/(rhoV*rhoV);
-
-	// Derivatives of specific volume
-	double dvdpL_T = 1/dpdrhoL_T*dvdrhoL;
-	double dvdTL_p = -dpdTL_rho/dpdrhoL_T*dvdrhoL;
-	double dvdpV_T = 1/dpdrhoV_T*dvdrhoV;
-	double dvdTV_p = -dpdTV_rho/dpdrhoV_T*dvdrhoV;
-
-	double dTsigmadp = T*(vV-vL)/(hV-hL);
-	
-	// Derivatives along the saturation boundary
-	*dhdpL = dhdpL_T+dhdTL_p*dTsigmadp;
-	*dhdpV = dhdpV_T+dhdTV_p*dTsigmadp;
-	*dvdpL = dvdpL_T+dvdTL_p*dTsigmadp;
-	*dvdpV = dvdpV_T+dvdTV_p*dTsigmadp;
-
-	//double tau = Tc/T;
-	double dtaudT = -pFluid->reduce.T/T/T; //-tau/T
-	double d2Tsigma_dp2_T = ddp_dTdp_along_sat();  //T*((hV-hL)*(dvdpV_T-dvdpL_T)-(vV-vL)*(dhdpV_T-dhdpL_T))/pow(hV-hL,2);
-	double d2Tsigma_dpdT_p = ddT_dTdp_along_sat();  //T*((hV-hL)*(dvdTV_p-dvdTL_p)-(vV-vL)*(dhdTV_p-dhdTL_p))/pow(hV-hL,2)+(vV-vL)/(hV-hL);
-	double d2Tsigmadp2 = d2Tsigma_dp2_T+d2Tsigma_dpdT_p*dTsigmadp;
-
-	double d2pdrho2V_T = SatV->d2pdrho2_constT();
-	double d2pdrhodTV = SatV->d2pdrhodT();
-	double d2pdT2V_rho = SatV->d2pdT2_constrho();
-	double d2hdrho2V_T = SatV->d2hdrho2_constT();
-	double d2hdrhodTV = SatV->d2hdrhodT();
-	double d2hdT2V_rho = SatV->d2hdT2_constrho();
-	double d2hdp2V_T = SatV->d2hdp2_constT();
-	double d2hdTdpV = SatV->d2hdTdp();
-	double d2hdT2V_p = sat->SatV->d2hdT2_constp();
-
-	// derivative of dhdp along saturation with respect to p with constant T
-	double ddp_dhdpsigmaV = d2hdp2V_T+dhdTV_p*d2Tsigma_dp2_T+d2hdTdpV*dTsigmadp;
-	double ddT_dhdpsigmaV = d2hdTdpV+dhdTV_p*d2Tsigma_dpdT_p+d2hdT2V_p*dTsigmadp;
-	*d2hdp2V = ddp_dhdpsigmaV+ddT_dhdpsigmaV*dTsigmadp;
-
-	// ------ GOOD TO THIS POINT -------------
-	
-	double dd = 1e-3;
-	CoolPropStateClass CPS2 = CoolPropStateClass(pFluid);
-	CPS2.flag_SinglePhase=true;
-	CPS2.update(iT,_T,iD,rhoV+dd);
-
-	double d2hdTdpVn = (CPS2.dhdT_constp()-this->dhdT_constp())/(dd)/dpdrho_constT();
-	double d2pdT2Vn = (pFluid->pressure_Trho(TV-dd,rhoV)-2*pFluid->pressure_Trho(TV,rhoV)+pFluid->pressure_Trho(TV+dd,rhoV))/dd/dd;
-	double d2hdT2Vn = (pFluid->enthalpy_Trho(TV-dd,rhoV)-2*pFluid->enthalpy_Trho(TV,rhoV)+pFluid->enthalpy_Trho(TV+dd,rhoV))/dd/dd;
-	double d2pdrhodTVn = (pFluid->pressure_Trho(TV+dd,rhoV+dd)-pFluid->pressure_Trho(TV+dd,rhoV-dd)-pFluid->pressure_Trho(TV-dd,rhoV+dd)+pFluid->pressure_Trho(TV-dd,rhoV-dd))/dd/dd/4;
-
-	// Find T(p,rho)
-
-	/// A stub class to do the density(T,p) calculations for near the critical point using Brent solver
-	class TprhoResids : public FuncWrapper1D
-	{
-	private:
-		double p,rho;
-		Fluid *pFluid;
-	public:
-		TprhoResids(Fluid *pFluid, double rho, double p){this->pFluid = pFluid; this->p = p; this->rho = rho;};
-		~TprhoResids(){};
-		
-		double call(double T)
-		{
-			return this->p - pFluid->pressure_Trho(T,rho);
-		}
-	};
-
-	std::string errstr;
-	TprhoResids TPR1 = TprhoResids(pFluid,rhoV-dd,sat->pV());
-	double T1 = Secant(&TPR1,TV,1e-3,1e-10,100,&errstr);
-
-	TprhoResids TPR2 = TprhoResids(pFluid,rhoV,sat->pV());
-	double T2 = Secant(&TPR2,TV,1e-3,1e-10,100,&errstr);
-
-	TprhoResids TPR3 = TprhoResids(pFluid,rhoV+dd,sat->pV());
-	double T3 = Secant(&TPR3,TV,1e-3,1e-10,100,&errstr);
-
-	double p1 = pFluid->pressure_Trho(T1,rhoV-dd);
-	double p2 = pFluid->pressure_Trho(T2,rhoV);
-	double p3 = pFluid->pressure_Trho(T3,rhoV+dd);
-
-	double h1 = pFluid->enthalpy_Trho(T1,rhoV-dd);
-	double h2 = pFluid->enthalpy_Trho(T2,rhoV);
-	double h3 = pFluid->enthalpy_Trho(T3,rhoV+dd);
-
-	double dhdTV_rhon = (h2-h1)/(T2-T1);
-	double dhdTV_rhon2 = (h3-h2)/(T3-T2);
-	double d2hdT2V_pn = (dhdTV_rhon2-dhdTV_rhon)/(T3-T1)*2;
-
-	std::cout<<format("%g,%g,%g\n",T1,T2,T3);
-	std::cout<<format("%g,%g,%g\n",h1,h2,h3);
-	
-	CoolPropStateClass CPS3 = CoolPropStateClass(pFluid);
-	CPS3.flag_SinglePhase=true;
-	CPS3.update(iT,_T+dd,iD,rhoV);
-
-	double dT_dhdTn = (CPS3.dhdT_constp()-this->dhdT_constp())/(dd);
-
-	std::cout<<format("d2hsigmadp2V = %g\n",*d2hdp2V);
-}
+//void CoolPropStateClass::dvdp_dhdp_sat(double T, double *dvdpL, double *dvdpV, double *dhdpL, double *dhdpV, double *d2hdp2V)
+//{
+//	CoolPropStateClass *sat = new CoolPropStateClass(pFluid);
+//	sat->update(iT,T,iQ,0.5);
+//	double vV =  1/sat->rhoV();
+//	double vL =  1/sat->rhoL();
+//	double hV =  sat->hV();
+//	double hL =  sat->hL();
+//	double rhoL = 1/vL;
+//	double rhoV = 1/vV;
+//	double TL = T;
+//	double TV = T;
+//	double tauL = pFluid->reduce.T/TL;
+//	double tauV = pFluid->reduce.T/TV;
+//	double deltaL = rhoL/pFluid->reduce.rho;
+//	double deltaV = rhoV/pFluid->reduce.rho;
+//
+//	// For the liquid
+//	double d2phir_dDelta_dTauL = sat->SatL->d2phir_dDelta_dTau(tauL,deltaL);
+//	double dphir_dDeltaL = sat->SatL->dphir_dDelta(tauL,deltaL);
+//	double d2phir_dDelta2L = sat->SatL->d2phir_dDelta2(tauL,deltaL);
+//	double d2phi0_dTau2L = sat->SatL->d2phi0_dTau2(tauL,deltaL);
+//	double d2phir_dTau2L = sat->SatL->d2phir_dTau2(tauL,deltaL);
+//	// For the vapor
+//	double d2phir_dDelta_dTauV = sat->SatV->d2phir_dDelta_dTau(tauV,deltaV);
+//	double dphir_dDeltaV = sat->SatV->dphir_dDelta(tauV,deltaV);
+//	double d2phir_dDelta2V = sat->SatV->d2phir_dDelta2(tauV,deltaV);
+//	double d3phir_dDelta3V = sat->SatV->d3phir_dDelta3(tauV,deltaV);
+//	double d3phir_dDelta2_dTauV = sat->SatV->d3phir_dDelta2_dTau(tauV,deltaV);
+//	double d3phir_dDelta_dTau2V = sat->SatV->d3phir_dDelta_dTau2(tauV,deltaV);
+//	double d3phi0_dTau3V = sat->SatV->d3phi0_dTau3(tauV,deltaV);
+//	double d3phir_dTau3V = sat->SatV->d3phir_dTau3(tauV,deltaV);
+//	double d2phi0_dTau2V = sat->SatV->d2phi0_dTau2(tauV,deltaV);
+//	double d2phir_dTau2V = sat->SatV->d2phir_dTau2(tauV,deltaV);
+//
+//	double drhodTV_p = DerivTerms("drhodT|p",TV,rhoV,(char*)pFluid->get_name().c_str());
+//
+//	// Saturation derivatives at constant temperature
+//	double dhdrhoL_T = SatL->dhdrho_constT();
+//	double dhdrhoV_T = SatV->dhdrho_constT();
+//	double dpdrhoL_T = SatL->dpdrho_constT();
+//	double dpdrhoV_T = SatV->dpdrho_constT();
+//	
+//	// Saturation derivatives at constant density
+//	double dhdTL_rho = SatL->dhdT_constrho();
+//	double dhdTV_rho = SatV->dhdT_constrho();
+//	double dpdTL_rho = SatL->dpdT_constrho();
+//	double dpdTV_rho = SatV->dpdT_constrho();
+//
+//	// Now get dh/dp at constant T for saturated liquid and vapor
+//	double dhdpL_T = SatL->dhdp_constT();
+//	double dhdpV_T = SatV->dhdp_constT();
+//
+//	// Derivatives of enthalpy 
+//	double dhdTL_p = SatL->dhdT_constp();
+//	double dhdTV_p = SatV->dhdT_constp();
+//
+//	// Derivatives of specific volume (just to make thing easier)
+//	double dvdrhoL = -1/(rhoL*rhoL);
+//	double dvdrhoV = -1/(rhoV*rhoV);
+//
+//	// Derivatives of specific volume
+//	double dvdpL_T = 1/dpdrhoL_T*dvdrhoL;
+//	double dvdTL_p = -dpdTL_rho/dpdrhoL_T*dvdrhoL;
+//	double dvdpV_T = 1/dpdrhoV_T*dvdrhoV;
+//	double dvdTV_p = -dpdTV_rho/dpdrhoV_T*dvdrhoV;
+//
+//	double dTsigmadp = T*(vV-vL)/(hV-hL);
+//	
+//	// Derivatives along the saturation boundary
+//	*dhdpL = dhdpL_T+dhdTL_p*dTsigmadp;
+//	*dhdpV = dhdpV_T+dhdTV_p*dTsigmadp;
+//	*dvdpL = dvdpL_T+dvdTL_p*dTsigmadp;
+//	*dvdpV = dvdpV_T+dvdTV_p*dTsigmadp;
+//
+//	//double tau = Tc/T;
+//	double dtaudT = -pFluid->reduce.T/T/T; //-tau/T
+//	double d2Tsigma_dp2_T = ddp_dTdp_along_sat();  //T*((hV-hL)*(dvdpV_T-dvdpL_T)-(vV-vL)*(dhdpV_T-dhdpL_T))/pow(hV-hL,2);
+//	double d2Tsigma_dpdT_p = ddT_dTdp_along_sat();  //T*((hV-hL)*(dvdTV_p-dvdTL_p)-(vV-vL)*(dhdTV_p-dhdTL_p))/pow(hV-hL,2)+(vV-vL)/(hV-hL);
+//	double d2Tsigmadp2 = d2Tsigma_dp2_T+d2Tsigma_dpdT_p*dTsigmadp;
+//
+//	double d2pdrho2V_T = SatV->d2pdrho2_constT();
+//	double d2pdrhodTV = SatV->d2pdrhodT();
+//	double d2pdT2V_rho = SatV->d2pdT2_constrho();
+//	double d2hdrho2V_T = SatV->d2hdrho2_constT();
+//	double d2hdrhodTV = SatV->d2hdrhodT();
+//	double d2hdT2V_rho = SatV->d2hdT2_constrho();
+//	double d2hdp2V_T = SatV->d2hdp2_constT();
+//	double d2hdTdpV = SatV->d2hdTdp();
+//	double d2hdT2V_p = sat->SatV->d2hdT2_constp();
+//
+//	// derivative of dhdp along saturation with respect to p with constant T
+//	double ddp_dhdpsigmaV = d2hdp2V_T+dhdTV_p*d2Tsigma_dp2_T+d2hdTdpV*dTsigmadp;
+//	double ddT_dhdpsigmaV = d2hdTdpV+dhdTV_p*d2Tsigma_dpdT_p+d2hdT2V_p*dTsigmadp;
+//	*d2hdp2V = ddp_dhdpsigmaV+ddT_dhdpsigmaV*dTsigmadp;
+//
+//	// ------ GOOD TO THIS POINT -------------
+//	
+//	double dd = 1e-3;
+//	CoolPropStateClass CPS2 = CoolPropStateClass(pFluid);
+//	CPS2.flag_SinglePhase=true;
+//	CPS2.update(iT,_T,iD,rhoV+dd);
+//
+//	double d2hdTdpVn = (CPS2.dhdT_constp()-this->dhdT_constp())/(dd)/dpdrho_constT();
+//	double d2pdT2Vn = (pFluid->pressure_Trho(TV-dd,rhoV)-2*pFluid->pressure_Trho(TV,rhoV)+pFluid->pressure_Trho(TV+dd,rhoV))/dd/dd;
+//	double d2hdT2Vn = (pFluid->enthalpy_Trho(TV-dd,rhoV)-2*pFluid->enthalpy_Trho(TV,rhoV)+pFluid->enthalpy_Trho(TV+dd,rhoV))/dd/dd;
+//	double d2pdrhodTVn = (pFluid->pressure_Trho(TV+dd,rhoV+dd)-pFluid->pressure_Trho(TV+dd,rhoV-dd)-pFluid->pressure_Trho(TV-dd,rhoV+dd)+pFluid->pressure_Trho(TV-dd,rhoV-dd))/dd/dd/4;
+//
+//	// Find T(p,rho)
+//
+//	/// A stub class to do the density(T,p) calculations for near the critical point using Brent solver
+//	class TprhoResids : public FuncWrapper1D
+//	{
+//	private:
+//		double p,rho;
+//		Fluid *pFluid;
+//	public:
+//		TprhoResids(Fluid *pFluid, double rho, double p){this->pFluid = pFluid; this->p = p; this->rho = rho;};
+//		~TprhoResids(){};
+//		
+//		double call(double T)
+//		{
+//			return this->p - pFluid->pressure_Trho(T,rho);
+//		}
+//	};
+//
+//	std::string errstr;
+//	TprhoResids TPR1 = TprhoResids(pFluid,rhoV-dd,sat->pV());
+//	double T1 = Secant(&TPR1,TV,1e-3,1e-10,100,&errstr);
+//
+//	TprhoResids TPR2 = TprhoResids(pFluid,rhoV,sat->pV());
+//	double T2 = Secant(&TPR2,TV,1e-3,1e-10,100,&errstr);
+//
+//	TprhoResids TPR3 = TprhoResids(pFluid,rhoV+dd,sat->pV());
+//	double T3 = Secant(&TPR3,TV,1e-3,1e-10,100,&errstr);
+//
+//	double p1 = pFluid->pressure_Trho(T1,rhoV-dd);
+//	double p2 = pFluid->pressure_Trho(T2,rhoV);
+//	double p3 = pFluid->pressure_Trho(T3,rhoV+dd);
+//
+//	double h1 = pFluid->enthalpy_Trho(T1,rhoV-dd);
+//	double h2 = pFluid->enthalpy_Trho(T2,rhoV);
+//	double h3 = pFluid->enthalpy_Trho(T3,rhoV+dd);
+//
+//	double dhdTV_rhon = (h2-h1)/(T2-T1);
+//	double dhdTV_rhon2 = (h3-h2)/(T3-T2);
+//	double d2hdT2V_pn = (dhdTV_rhon2-dhdTV_rhon)/(T3-T1)*2;
+//
+//	std::cout<<format("%g,%g,%g\n",T1,T2,T3);
+//	std::cout<<format("%g,%g,%g\n",h1,h2,h3);
+//	
+//	CoolPropStateClass CPS3 = CoolPropStateClass(pFluid);
+//	CPS3.flag_SinglePhase=true;
+//	CPS3.update(iT,_T+dd,iD,rhoV);
+//
+//	double dT_dhdTn = (CPS3.dhdT_constp()-this->dhdT_constp())/(dd);
+//
+//	std::cout<<format("d2hsigmadp2V = %g\n",*d2hdp2V);
+//}
 
 // All the derivatives of the ideal-gas and residual Helmholtz energy
 double CoolPropStateClass::phi0(double tau, double delta){
