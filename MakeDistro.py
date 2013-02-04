@@ -154,9 +154,9 @@ if __name__=='__main__':
     
 ##     InstallPrereqs()  #This is optional if you think any of the pre-reqs have been updated
 
-##     DLL()
+    DLL()
 ##     Source()
-    Python()
+##     Python()
 ##     Csharp()
 ##     Octave()
 ##     MATLAB()

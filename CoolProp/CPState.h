@@ -49,11 +49,11 @@ protected:
 	// To be used to update internal variables if you know that your parameters are P,S
 	void update_ps(long iInput1, double Value1, long iInput2, double Value2);
 
-	// Check whether the quality corresponds to saturated liquid or vapor
-	void check_saturated_quality(double Q);
-
 	// Update using the TTSE lookup tables
 	void update_TTSE_LUT(long iInput1, double Value1, long iInput2, double Value2);
+
+	// Check whether the quality corresponds to saturated liquid or vapor
+	void check_saturated_quality(double Q);
 
 public:
 	Fluid * pFluid;
@@ -128,17 +128,17 @@ public:
 	// ----------------------------------------
 
 	/// Enable the TTSE
-	void enable_TTSE_LUT(void);
+	void enable_TTSE_LUT(void){pFluid->enable_TTSE_LUT();};
 	/// Check if TTSE is enabled
-	bool isenabled_TTSE_LUT(void);
+	bool isenabled_TTSE_LUT(void){return pFluid->isenabled_TTSE_LUT();};
 	/// Disable the TTSE
-	void disable_TTSE_LUT(void);
+	void disable_TTSE_LUT(void){pFluid->disable_TTSE_LUT();};
 	/// Over-ride the default size of both of the saturation LUT
-	void set_TTSESat_LUT_size(int);
+	void set_TTSESat_LUT_size(int N){pFluid->set_TTSESat_LUT_size(N);};
 	/// Over-ride the default size of the single-phase LUT
-	void set_TTSESinglePhase_LUT_size(int Np, int Nh);
+	void set_TTSESinglePhase_LUT_size(int Np, int Nh){pFluid->set_TTSESinglePhase_LUT_size(Np,Nh);};
 	/// Over-ride the default range of the single-phase LUT
-	void set_TTSESinglePhase_LUT_range(double hmin, double hmax, double pmin, double pmax);
+	void set_TTSESinglePhase_LUT_range(double hmin, double hmax, double pmin, double pmax){pFluid->set_TTSESinglePhase_LUT_range(hmin,hmax,pmin,pmax);};
 
 	/// Evaluate the B term from TTSE method
 	double B_TTSE(double _p, double _h);

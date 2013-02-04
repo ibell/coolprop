@@ -2,36 +2,6 @@
 cimport cython
 import cython
 
-cimport State2
-cimport State2_constants
- 
-iT = State2_constants.iT
-iP = State2_constants.iP
-iD = State2_constants.iD
-iQ = State2_constants.iQ
-iH = State2_constants.iH
-iS = State2_constants.iS
-iB = State2_constants.iB
-iC = State2_constants.iC
-iC0 = State2_constants.iC0
-iO = State2_constants.iO
-iU = State2_constants.iU
-iA = State2_constants.iA
-iG = State2_constants.iG
-iV = State2_constants.iV
-iL = State2_constants.iL
-iI = State2_constants.iI
-iMM = State2_constants.iMM
-iTcrit = State2_constants.iTcrit
-#iTtriple = State2_constants.iTriple
-iPcrit = State2_constants.iPcrit
-iRhocrit = State2_constants.iRhocrit
-iAccentric = State2_constants.iAccentric
-iDpdT = State2_constants.iDpdT
-iDrhodT_p = State2_constants.iDrhodT_p
-iTmin = State2_constants.iTmin
-iDipole = State2_constants.iDipole
-
 cdef class PureFluidClass:
     cdef CoolPropStateClass CPS     # hold a C++ instance which we're wrapping
     def __cinit__(self, string name):

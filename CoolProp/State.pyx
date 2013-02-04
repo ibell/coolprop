@@ -7,7 +7,6 @@ cdef extern from "CoolProp.h":
     double DerivTerms(char *, double, double, char*)
     char * get_errstringc()
     void get_errstring(char*)
-    int _set_1phase_LUT_params "set_1phase_LUT_params" (char*,int,int,double,double,double,double)
     void _debug "debug" (int)
     double _IProps "IProps" (long,long,double,long,double,long)
     long _get_param_index "get_param_index" (string param)
@@ -48,18 +47,6 @@ cdef dict paras = {iMM : 'M',
                    iS : 'S',
                    iU : 'U',
                    iDpdT : 'dpdT'}
-        
-cpdef int set_1phase_LUT_params(bytes Ref, int nT, int np, double Tmin, double Tmax, double pmin, double pmax):
-    """
-    Set the 
-    """
-    #Set the LUT parameters in CoolProp copy of the LUT table
-    CP.set_1phase_LUT_params(Ref, nT, np, Tmin, Tmax, pmin, pmax)
-    
-    #Set the LUT parameters in the local LUT copy build into the State module
-    _set_1phase_LUT_params(Ref, nT, np, Tmin, Tmax, pmin, pmax)
-
-    return 0
 
 cpdef int debug(int level):
     """

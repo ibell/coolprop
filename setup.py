@@ -222,7 +222,7 @@ if __name__=='__main__':
     #force cython to build by touching the cython sources
     cython_sources = [os.path.join('CoolProp','State.pyx'),
                       os.path.join('CoolProp','CoolProp.pyx'),
-                      os.path.join('CoolProp','State2.pyx'),
+##                       os.path.join('CoolProp','State2.pyx'),
                       ]
                       
     if useStaticLib:
@@ -244,14 +244,14 @@ if __name__=='__main__':
                             library_dirs=['lib'],
                             cython_c_in_temp = True
                             )
-        State2_module = CyExtension('CoolProp.State2',
-                            [os.path.join('CoolProp','State2.pyx')],
-                            include_dirs = include_dirs,
-                            language='c++',
-                            libraries=['CoolProp'],
-                            library_dirs=['lib'],
-                            cython_c_in_temp = True
-                            )
+##         State2_module = CyExtension('CoolProp.State2',
+##                             [os.path.join('CoolProp','State2.pyx')],
+##                             include_dirs = include_dirs,
+##                             language='c++',
+##                             libraries=['CoolProp'],
+##                             library_dirs=['lib'],
+##                             cython_c_in_temp = True
+##                             )
     else:
         CoolProp2_module = CyExtension('CoolProp.CoolProp',
                             [os.path.join('CoolProp','CoolProp.pyx')]+Sources,
@@ -260,12 +260,12 @@ if __name__=='__main__':
                             cython_c_in_temp = True
                             )
     
-        State2_module = CyExtension('CoolProp.State2',
-                                [os.path.join('CoolProp','State2.pyx')]+Sources,
-                                include_dirs = include_dirs,
-                                language='c++',
-                                cython_c_in_temp = True
-                                )
+##         State2_module = CyExtension('CoolProp.State2',
+##                                 [os.path.join('CoolProp','State2.pyx')]+Sources,
+##                                 include_dirs = include_dirs,
+##                                 language='c++',
+##                                 cython_c_in_temp = True
+##                                 )
                             
     #Collect all the header files into an include folder
     try:
@@ -284,7 +284,7 @@ if __name__=='__main__':
            url='http://coolprop.sourceforge.net',
            description = """Open-source thermodynamic and transport properties database""",
            packages = ['CoolProp','CoolProp.Plots','CoolProp.tests','CoolProp.GUI'],
-           ext_modules = [CoolProp2_module,State2_module],
+           ext_modules = [CoolProp2_module],#,State2_module],
            package_dir = {'CoolProp':'CoolProp',},
            package_data = {'CoolProp':['State.pxd','CoolProp.pxd','include/*.h']},
            cmdclass={'build_ext': build_ext},
@@ -314,3 +314,6 @@ if __name__=='__main__':
     shutil.rmtree(os.path.join('CoolProp','include'), ignore_errors = True)
             
     touch('setup.py')
+    
+    import CoolProp.CoolProp as C
+    print dir(C)

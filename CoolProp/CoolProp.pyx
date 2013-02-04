@@ -18,20 +18,38 @@ except ImportError:
 import cython
 import math
 
-## Variables for each of the possible variables
-cdef long iMM = _get_param_index('M')
-cdef long iT = _get_param_index('T')
-cdef long iD = _get_param_index('D')
-cdef long iH = _get_param_index('H')
-cdef long iP = _get_param_index('P')
-cdef long iC = _get_param_index('C')
-cdef long iC0 = _get_param_index('C0')
-cdef long iO = _get_param_index('O')
-cdef long iV = _get_param_index('V')
-cdef long iL = _get_param_index('L')
-cdef long iS = _get_param_index('S')
-cdef long iU = _get_param_index('U')
-cdef long iDpdT = _get_param_index('dpdT')
+from State2 cimport *
+include "State2.pyx"
+
+cimport State2_constants
+#TODO: put all these in a file that gets included
+
+iT = State2_constants.iT
+iP = State2_constants.iP
+iD = State2_constants.iD
+iQ = State2_constants.iQ
+iH = State2_constants.iH
+iS = State2_constants.iS
+iB = State2_constants.iB
+iC = State2_constants.iC
+iC0 = State2_constants.iC0
+iO = State2_constants.iO
+iU = State2_constants.iU
+iA = State2_constants.iA
+iG = State2_constants.iG
+iV = State2_constants.iV
+iL = State2_constants.iL
+iI = State2_constants.iI
+iMM = State2_constants.iMM
+iTcrit = State2_constants.iTcrit
+iTtriple = State2_constants.iTtriple
+iPcrit = State2_constants.iPcrit
+iRhocrit = State2_constants.iRhocrit
+iAccentric = State2_constants.iAccentric
+iDpdT = State2_constants.iDpdT
+iDrhodT_p = State2_constants.iDrhodT_p
+iTmin = State2_constants.iTmin
+iDipole = State2_constants.iDipole
 
 cpdef double _convert_to_desired_units(double value, bytes parameter_type, bytes desired_units) except *:
     """
@@ -321,52 +339,6 @@ cpdef string Phase(bytes Fluid, double T, double p):
     """
     return _Phase(Fluid,T,p)
 
-cpdef UseSaturationLUT(bint OnOff):
-    """
-    Turn the saturation lookup table on or off
-    
-    Parameters
-    ----------
-    OnOff : boolean
-        If ``True``, turn on saturation lookup table
-    """
-    _UseSaturationLUT(OnOff)
-    
-cpdef bint SaturationLUTStatus():
-    """
-    Get the saturation lookup table status
-    
-    Returns
-    -------
-    Status : boolean
-        ``True`` if saturation LUT is enabled, ``False`` otherwise
-    
-    """
-    return _SaturationLUTStatus()
-
-cpdef UseSinglePhaseLUT(bint OnOff):
-    """
-    Turn the SinglePhase lookup table on or off
-    
-    Parameters
-    ----------
-    OnOff : boolean
-        If ``True``, turn on SinglePhase lookup table
-    """
-    _UseSinglePhaseLUT(OnOff)
-    
-cpdef bint SinglePhaseLUTStatus():
-    """
-    Get the SinglePhase lookup table status
-    
-    Returns
-    -------
-    Status : boolean
-        ``True`` if SinglePhase LUT is enabled, ``False`` otherwise
-    
-    """
-    return _SinglePhaseLUTStatus()
-
 cpdef F2K(double T_F):
     """
     Convert temperature in degrees Fahrenheit to Kelvin
@@ -448,22 +420,6 @@ cpdef get_debug():
     Return the current debug level as integer
     """
     return _get_debug()
-
-cpdef PrintSaturationTable(bytes FileName, bytes Fluid, double Tmin, double Tmax):
-    """
-    Write a saturation table to a file for the given fluid
-    
-    Parameters
-    ----------
-    FileName : string
-    Fluid : string
-    Tmin : float
-        Minimum temp [K]
-    Tmax : float
-        Maximum temp [K]
-    
-    """
-    _PrintSaturationTable(FileName, Fluid, Tmin, Tmax)
     
 cpdef string get_EOSReference(bytes Fluid):
     """
@@ -476,45 +432,6 @@ cpdef string get_TransportReference(bytes Fluid):
     Return a string with the reference for the transport properties (thermal conductivity, viscosity, surface tension)
     """
     return _get_TransportReference(Fluid)
-
-cpdef int set_1phase_LUT_params(bytes Fluid, int nT, int np, double Tmin, double Tmax, double pmin, double pmax, bint rebuild=True):
-    """
-    Set the parameters for the lookup table in the single-phase region and optionally build the LUT
-    
-    Parameters
-    ----------
-    Fluid : string
-        Fluid name
-    nT : int
-        Number of points for T linearly spaced
-    np : int
-        Number of points for p linearly spaced
-    Tmin : float
-        Minimum temperature [K]
-    tmax : float
-        Maximum temperature [K]
-    pmin : float
-        Minimum pressure [kPa]
-    pmax : float
-        Maximum pressure [kPa]
-    rebuild : boolean
-        If ``True``, build the LUT right when the function is called
-    
-    """
-    return _set_1phase_LUT_params(Fluid,nT,np,Tmin,Tmax,pmin,pmax,rebuild)
-    
-cpdef dict get_1phase_LUT_params():
-    cdef int *nT = NULL, *np = NULL
-    cdef double *Tmin = NULL, *Tmax = NULL, *pmin = NULL, *pmax = NULL
-    _get_1phase_LUT_params(nT,np,Tmin,Tmax,pmin,pmax)
-    #In cython, nT[0] to dereference rather than *nT
-    return dict(nT = nT[0],
-                np = np[0],
-                Tmin = Tmin[0],
-                Tmax = Tmax[0],
-                pmin = pmin[0],
-                pmax = pmax[0]
-                )
     
 cpdef bint IsFluidType(bytes Ref, bytes Type):
     """
@@ -557,25 +474,8 @@ cpdef int debug(int level):
             10 : very annoying debugging output - every function call debugged
     """
     _debug(level)
-   
-cpdef int LUT(bint LUTval):
-    """
-    
-    LUTval : boolean
-        If ``True``, turn on the use of lookup table.  Parameters must have 
-        already been set through the use of set_1phase_LUT_params
-
-    """
-    if LUTval:
-        _LUT_Enabled = True
-        print 'Turning on singlephase LUT'
-        UseSinglePhaseLUT(True)
-    else:
-        _LUT_Enabled = False
-        UseSinglePhaseLUT(False)
         
 from math import pow as pow_
-cdef bint _LUT_Enabled
 
 #A dictionary mapping parameter index to string for use with non-CoolProp fluids
 cdef dict paras = {iMM : 'M',
@@ -901,3 +801,4 @@ def rebuildState(d):
     S.xL = d['xL']
     S.Liquid=d['Liquid']
     return S
+    

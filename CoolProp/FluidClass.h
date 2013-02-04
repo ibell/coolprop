@@ -457,17 +457,17 @@ class Fluid
 
 		/// Enable the TTSE
 		/// If you want to over-ride parameters, must be done before calling this function
-		void enable_TTSE_LUT(void);
+		void enable_TTSE_LUT(void){enabled_TTSE_LUT = true;};
 		/// Check if TTSE is enabled
-		bool isenabled_TTSE_LUT(void);
+		bool isenabled_TTSE_LUT(void){return enabled_TTSE_LUT;};
 		/// Disable the TTSE
-		void disable_TTSE_LUT(void);
+		void disable_TTSE_LUT(void){enabled_TTSE_LUT = false;};
 		/// Over-ride the default size of both of the saturation LUT
-		void set_TTSESat_LUT_size(int);
+		void set_TTSESat_LUT_size(int Nsat){Nsat_TTSE = Nsat;};
 		/// Over-ride the default size of the single-phase LUT
-		void set_TTSESinglePhase_LUT_size(int Np, int Nh);
+		void set_TTSESinglePhase_LUT_size(int Np, int Nh){Np_TTSE = Np; Nh_TTSE = Nh;};
 		/// Over-ride the default range of the single-phase LUT
-		void set_TTSESinglePhase_LUT_range(double hmin, double hmax, double pmin, double pmax);
+		void set_TTSESinglePhase_LUT_range(double hmin, double hmax, double pmin, double pmax){hmin_TTSE = hmin; hmax_TTSE = hmax; pmin_TTSE = pmin; pmax_TTSE = pmax;};
 
 		/// Build of the TTSE LUT
 		bool build_TTSE_LUT(bool force = false);

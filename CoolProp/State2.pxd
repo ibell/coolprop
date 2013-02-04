@@ -12,7 +12,7 @@ cdef extern from "CPState.h":
         ## Phase flags
         bool TwoPhase, SinglePhase
         
-        ## Constructor with fluid name
+        ## Nullary Constructor
         CoolPropStateClass()
         
         ## Constructor with fluid name

@@ -405,7 +405,6 @@ double rho_g(char *Gas, double T, double P)
 	double Value;
 
 	// Turn on the LUT
-	UseSinglePhaseLUT(1);
 	Value=Props('D','T',T,'P',P,Gas);
 	if (!ValidNumber(Value))
 	{
@@ -426,7 +425,6 @@ double h_g(char *Gas, double T, double P)
 	double Value;
 
 	// Turn on the LUT
-	UseSinglePhaseLUT(1);
     Value=Props('H','T',T,'P',P,Gas);
     if (!ValidNumber(Value))
     {
@@ -448,7 +446,6 @@ double u_g(char *Gas, double T, double P)
 	double Value;
 
 	// Turn on the LUT
-	UseSinglePhaseLUT(1);
 	Value=Props('U','T',T,'P',P,Gas);
 	if (!ValidNumber(Value))
 	{
@@ -469,7 +466,6 @@ double s_g(char *Gas, double T, double P)
 	int ii;
 
 	// Turn on the LUT
-	UseSinglePhaseLUT(1);
 	Value=Props('S','T',T,'P',P,Gas);
 	if (!ValidNumber(Value))
 	{
@@ -492,7 +488,6 @@ double c_v(char *Gas, double T, double P)
     double Value;
     
     // Turn on the LUT
-	UseSinglePhaseLUT(1);
 	Value=Props('O','T',T,'P',P,Gas);
 	if (!ValidNumber(Value))
 	{
@@ -515,7 +510,6 @@ double c_p(char *Gas, double T, double P)
     double Value;
 
 	// Turn on the LUT
-	UseSinglePhaseLUT(1);
 	Value=Props('C','T',T,'P',P,Gas);
 	if (!ValidNumber(Value))
 	{
@@ -538,7 +532,6 @@ double k_g(char *Gas, double T, double p)
     double Value;
 
 	// Turn on the LUT
-	UseSinglePhaseLUT(1);
 	Value=Props('L','T',T,'P',p,Gas);
 	if (!ValidNumber(Value))
 	{
@@ -561,7 +554,6 @@ double mu_g(char *Gas, double T, double p)
     double Value;
 
 	// Turn on the LUT
-	UseSinglePhaseLUT(1);
 	Value=Props('V','T',T,'P',p,Gas);
 	if (!ValidNumber(Value))
 	{

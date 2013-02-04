@@ -211,10 +211,8 @@ Fluid * FluidsContainer::get_fluid(std::string name)
 			return *it;
 		}
 	}
-
 	return NULL;
 }
-
 
 long FluidsContainer::get_fluid_index(Fluid* pFluid)
 {

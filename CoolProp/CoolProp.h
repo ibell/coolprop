@@ -10,7 +10,6 @@ Any functions that are exported to DLL must also add the "EXPORT_CODE function_n
 to the CoolProp.cpp implementation.  See the Props function for instance
 */
 
-
 /*! \mainpage CoolProp Core Code Documentation
 
 Welcome to the home page for the C++ sources of CoolProp.  This information may be useful for developers or just the plain inquisitive
@@ -79,6 +78,22 @@ You might want to start by looking at CoolProp.h
 	EXPORT_CODE double CONVENTION psatL_anc(char* Fluid, double T);
 	EXPORT_CODE double CONVENTION psatV_anc(char* Fluid, double T);
 
+	/// -------------------------------------------
+	///     TTSE Tabular Taylor Series Expansion
+	/// -------------------------------------------
+	/// Enable the TTSE
+	EXPORT_CODE void CONVENTION enable_TTSE_LUT(char *FluidName);
+	/// Check if TTSE is enabled
+	EXPORT_CODE bool CONVENTION isenabled_TTSE_LUT(char *FluidName);
+	/// Disable the TTSE
+	EXPORT_CODE void CONVENTION disable_TTSE_LUT(char *FluidName);
+	/// Over-ride the default size of both of the saturation LUT
+	EXPORT_CODE void CONVENTION set_TTSESat_LUT_size(char *FluidName, int);
+	/// Over-ride the default size of the single-phase LUT
+	EXPORT_CODE void CONVENTION set_TTSESinglePhase_LUT_size(char *FluidName, int Np, int Nh);
+	/// Over-ride the default range of the single-phase LUT
+	EXPORT_CODE void CONVENTION set_TTSESinglePhase_LUT_range(char *FluidName, double hmin, double hmax, double pmin, double pmax);
+
 	// ------------------------------------------------------------------------------------------------
 	// All the functions below this comment do NOT get exported to REFPROP DLL due to the fact that the 
 	// DLL MUST use extern "C" for all exported functions, which does not allow for function overloads 
@@ -119,6 +134,6 @@ You might want to start by looking at CoolProp.h
 	Fluid * get_fluid(long iFluid);
 
 	// Define some constants that will be used throughout
-	enum params {iB,iT,iP,iD,iC,iC0,iO,iU,iH,iS,iA,iG,iQ,iV,iL,iI,iMM,iTcrit,iTtriple,iPcrit,iRhocrit,iAccentric,iDpdT,iDrhodT_p,iTmin,iDipole};
+	enum params {iB,iT,iP,iD,iC,iC0,iO,iU,iH,iS,iA,iG,iQ,iV,iL,iI,iMM,iTcrit,iTtriple,iPtriple,iPcrit,iRhocrit,iAccentric,iDpdT,iDrhodT_p,iTmin,iDipole};
 	enum phases {iLiquid, iSupercritical, iGas, iTwoPhase};
 #endif
