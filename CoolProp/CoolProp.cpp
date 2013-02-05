@@ -842,14 +842,11 @@ EXPORT_CODE double CONVENTION DerivTerms(char *Term, double T, double rho, char 
 
 double DerivTerms(char *Term, double T, double rho, Fluid * pFluid)
 {
-	return DerivTerms(Term,T,rho,pFluid,false,false);
+	return DerivTerms(Term,T,rho,pFluid);
 }
 
 /// Calculate some interesting derivatives
-/// @param SinglePhase true if it is known to be single phase
-/// @param TwoPhase true if it is known to be two phase
-/// If phase is not known, set both SinglePhase and TwoPhase to false
-double DerivTerms(char *Term, double T, double rho, Fluid * pFluid, bool SinglePhase, bool TwoPhase)
+double DerivTerms(char *Term, double T, double rho, Fluid * pFluid)
 {
     double rhoc =pFluid->reduce.rho;
 	double delta=rho/rhoc;

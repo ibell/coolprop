@@ -180,8 +180,6 @@ void CoolPropStateClass::update(long iInput1, double Value1, long iInput2, doubl
 			add_saturation_states();
 		}
 	}
-	
-	
 
 	// Reduced parameters
 	delta = this->_rho/pFluid->reduce.rho;
@@ -296,7 +294,7 @@ void CoolPropStateClass::update_Trho(long iInput1, double Value1, long iInput2, 
 
 	if (_TwoPhase)
 	{
-		if (!flag_SinglePhase || flag_TwoPhase)
+		if (flag_TwoPhase)
 		{
 			pFluid->phase_Trho(_T,_rho,&psatL,&psatV,&rhosatL,&rhosatV);
 			TsatV = _T;
@@ -333,7 +331,19 @@ void CoolPropStateClass::update_Tp(long iInput1, double Value1, long iInput2, do
 
 	// If either SinglePhase or flag_SinglePhase is set to true, it will not make the call to the saturation routine
 	// SinglePhase is set by the class routines, and flag_SinglePhase is a flag that can be set externally
-	if (!SinglePhase && !flag_SinglePhase && !pFluid->phase_Tp(_T,_p,&psatL,&psatV,&rhosatL,&rhosatV).compare("Two-Phase"))
+	bool _TwoPhase;
+
+	if (flag_SinglePhase || SinglePhase){
+		_TwoPhase = false;
+	}
+	else if(flag_TwoPhase){
+		_TwoPhase = true;
+	}
+	else{
+		_TwoPhase = !pFluid->phase_Tp(_T,_p,&psatL,&psatV,&rhosatL,&rhosatV).compare("Two-Phase");
+	}
+
+	if (_TwoPhase)
 	{
 		// If it made it to the saturation routine and it is two-phase the saturation variables have been set
 		TwoPhase = true;

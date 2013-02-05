@@ -2,10 +2,6 @@ import pylab, numpy as np, CoolProp.CoolProp as cp
 from scipy.interpolate import interp1d
 import pylab
 
-#Turn off lookup for sure
-cp.UseSaturationLUT(0) 
-
-
 def InlineLabel(xv,yv,x = None, y= None, axis = None, fig = None):
     """
     This will give the coordinates and rotation required to align a label with
