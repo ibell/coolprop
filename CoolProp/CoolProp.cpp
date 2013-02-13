@@ -66,6 +66,7 @@ std::pair<std::string, long> map_data[] = {
 	std::make_pair(std::string("Tmin"),iTmin),
 	std::make_pair(std::string("t"),iTmin),
 	std::make_pair(std::string("Ttriple"),iTtriple),
+	std::make_pair(std::string("ptriple"),iPtriple),
 	std::make_pair(std::string("rhocrit"),iRhocrit),
 	std::make_pair(std::string("Tcrit"),iTcrit),
 
@@ -741,8 +742,6 @@ double _CoolProp_Fluid_Props(long iOutput, long iName1, double Prop1, long iName
 	// Check if it is an output that doesn't require a state input
     // Deal with it and return
 
-	if (iOutput<0)
-		throw ValueError("Input key is invalid");
 	switch (iOutput)
 	{
 		case iMM:
@@ -837,11 +836,6 @@ std::string FluidsList()
 EXPORT_CODE double CONVENTION DerivTerms(char *Term, double T, double rho, char * Ref)
 {
 	pFluid=Fluids.get_fluid(Ref);
-	return DerivTerms(Term,T,rho,pFluid);
-}
-
-double DerivTerms(char *Term, double T, double rho, Fluid * pFluid)
-{
 	return DerivTerms(Term,T,rho,pFluid);
 }
 
@@ -1025,6 +1019,9 @@ EXPORT_CODE void CONVENTION get_aliases(char* Ref, char *aliases)
 std::string get_aliases(std::string Ref)
 {
 	pFluid=Fluids.get_fluid(Ref);
+	if (pFluid == NULL){
+		return std::string("Fluid not found");
+	}
 	std::string s;
 	
 	std::vector<std::string> v = pFluid->get_aliases();

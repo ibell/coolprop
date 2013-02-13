@@ -74,7 +74,7 @@ def SimpleCycle(Ref,Te,Tc,DTsh,DTsc,eta_a,Ts_Ph='Ph',skipPlot=False,axis=None):
     s[4]=x*ssatV+(1-x)*ssatL
     T[4]=x*Te+(1-x)*Te
     
-    print COP,COPH
+    print(COP,COPH)
     if skipPlot==False:
         if axis==None:
             ax=pylab.gca()
@@ -187,18 +187,18 @@ def TwoStage(Ref,Q,Te,Tc,DTsh,DTsc,eta_oi,f_p,Tsat_ic,DTsh_ic,Ts_Ph='Ph',prints=
     RE=h[1]-h[6]
     
     if prints==True:
-        print 'x5:',x
-        print 'COP:', COP
-        print 'COPH', (Q+Wdot1+Wdot2)/(Wdot1+Wdot2)
-        print T[2]-273.15,T[4]-273.15,p[2]/p[1],p[4]/p[3]
-        print mdot,mdot*(h[4]-h[5]),pic
-        print 'Vdot1',mdot/rho1,'Vdisp',mdot/rho1/(3500/60.)*1e6/0.7
-        print 'Vdot2',mdot/rho3,'Vdisp',mdot/rho3/(3500/60.)*1e6/0.7
-        print mdot*(h[4]-h[5]),Tc-273.15
+        print('x5:',x)
+        print('COP:', COP)
+        print('COPH', (Q+Wdot1+Wdot2)/(Wdot1+Wdot2))
+        print(T[2]-273.15,T[4]-273.15,p[2]/p[1],p[4]/p[3])
+        print(mdot,mdot*(h[4]-h[5]),pic)
+        print('Vdot1',mdot/rho1,'Vdisp',mdot/rho1/(3500/60.)*1e6/0.7)
+        print('Vdot2',mdot/rho3,'Vdisp',mdot/rho3/(3500/60.)*1e6/0.7)
+        print(mdot*(h[4]-h[5]),Tc-273.15)
         for i in range(1,len(T)-1):
-            print '%d & %g & %g & %g & %g & %g \\\\' %(i,T[i]-273.15,p[i],h[i],s[i],rho[i])
+            print('%d & %g & %g & %g & %g & %g \\\\' %(i,T[i]-273.15,p[i],h[i],s[i],rho[i]))
     else:
-        print Tsat_ic,COP
+        print(Tsat_ic,COP)
     
     if skipPlot==False:
         if axis==None:
@@ -387,17 +387,17 @@ def EconomizedCycle(Ref,Qin,Te,Tc,DTsh,DTsc,eta_oi,f_p,Ti,Ts_Ph='Ts',skipPlot=Fa
             
     COP=m*(h[1]-h[9])/(m*(h[2]-h[1])+(m+x)*(h[4]-h[3]))
     for i in range(1,len(T)-1):
-            print '%d & %g & %g & %g & %g & %g \\\\' %(i,T[i]-273.15,p[i],h[i],s[i],rho[i])
-    print x,m*(h[1]-h[9]),(m*(h[2]-h[1])+(m+x)*(h[4]-h[3])),COP
+            print('%d & %g & %g & %g & %g & %g \\\\' %(i,T[i]-273.15,p[i],h[i],s[i],rho[i]))
+    print(x,m*(h[1]-h[9]),(m*(h[2]-h[1])+(m+x)*(h[4]-h[3])),COP)
     mdot=Qin/(h[1]-h[9])
     mdot_inj=x*mdot
-    print 'x9',x9,
-    print 'Qcond',(mdot+mdot_inj)*(h[4]-h[5]),'T4',T[4]-273.15
-    print mdot,mdot+mdot_inj
+    print('x9',x9,)
+    print('Qcond',(mdot+mdot_inj)*(h[4]-h[5]),'T4',T[4]-273.15)
+    print(mdot,mdot+mdot_inj)
     f=3500/60.
     eta_v=0.7
-    print 'Vdisp1: ',mdot/(rho[1]*f*eta_v)*1e6,'cm^3'
-    print 'Vdisp2: ',(mdot+mdot_inj)/(rho[1]*f*eta_v)*1e6,'cm^3'
+    print('Vdisp1: ',mdot/(rho[1]*f*eta_v)*1e6,'cm^3')
+    print('Vdisp2: ',(mdot+mdot_inj)/(rho[1]*f*eta_v)*1e6,'cm^3')
     return COP
 
 if __name__=='__main__':

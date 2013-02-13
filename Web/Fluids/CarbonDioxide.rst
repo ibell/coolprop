@@ -5,7 +5,7 @@ CarbonDioxide
 
 Aliases
 ================================================================================
-R744, co2, CO2, carbondioxide
+['R744', ' co2', ' CO2', ' carbondioxide']
 
 Equation of State Reference
 ===========================

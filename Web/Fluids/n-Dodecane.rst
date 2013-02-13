@@ -5,7 +5,7 @@ n-Dodecane
 
 Aliases
 ================================================================================
-nDodecane, Dodecane
+['nDodecane', ' Dodecane']
 
 Equation of State Reference
 ===========================

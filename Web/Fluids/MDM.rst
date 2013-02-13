@@ -5,7 +5,7 @@ MDM
 
 Aliases
 ================================================================================
-Octamethyltrisiloxane
+['Octamethyltrisiloxane']
 
 Equation of State Reference
 ===========================

@@ -294,12 +294,11 @@ void CoolPropStateClass::update_Trho(long iInput1, double Value1, long iInput2, 
 
 	if (_TwoPhase)
 	{
-		if (flag_TwoPhase)
-		{
+		if (flag_TwoPhase){
 			pFluid->phase_Trho(_T,_rho,&psatL,&psatV,&rhosatL,&rhosatV);
-			TsatV = _T;
-			TsatL = _T;
 		}
+		TsatV = _T;
+		TsatL = _T;
 		// If it made it to the saturation routine and it is two-phase the saturation variables have been set
 		TwoPhase = true;
 		SinglePhase = false;

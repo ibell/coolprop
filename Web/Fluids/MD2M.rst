@@ -5,7 +5,7 @@ MD2M
 
 Aliases
 ================================================================================
-Decamethyltetrasiloxane
+['Decamethyltetrasiloxane']
 
 Equation of State Reference
 ===========================

@@ -315,5 +315,11 @@ if __name__=='__main__':
             
     touch('setup.py')
     
-    import CoolProp.CoolProp as C
-    print dir(C)
+##     from CoolProp.CoolProp import FluidsList
+##     print(FluidsList())
+##     import CoolProp.CoolProp as C
+##     print(dir(C))
+##     print(C.Props(b'R134a',b'Tcrit'))
+##     print(C.get_EOSReference('R134a'))
+##     from CoolProp.HumidAirProp import HAProps
+##     print(HAProps('H','T',300,'R',0.5,'P',101))

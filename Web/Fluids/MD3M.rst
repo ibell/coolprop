@@ -5,7 +5,7 @@ MD3M
 
 Aliases
 ================================================================================
-Dodecamethylpentasiloxane
+['Dodecamethylpentasiloxane']
 
 Equation of State Reference
 ===========================

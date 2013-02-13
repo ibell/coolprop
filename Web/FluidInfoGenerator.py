@@ -317,9 +317,9 @@ Transport Properties Information
 {Transport:s}
     
 """.format(Fluid=Fluid,
-           Aliases = CP.get_aliases(Fluid),
-           Reference = CP.get_EOSReference(Fluid),
-           Transport = CP.get_TransportReference(Fluid)
+           Aliases = CP.get_aliases(str(Fluid)),
+           Reference = CP.get_EOSReference(str(Fluid)),
+           Transport = CP.get_TransportReference(str(Fluid))
            )
            )
     

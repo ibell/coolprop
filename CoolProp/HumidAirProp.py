@@ -1,5 +1,5 @@
 from __future__ import absolute_import
-from .CoolProp import __HAProps as _HAProps, __HAProps_Aux as _HAProps_Aux
+from .CoolProp import HAProps as _HAProps, HAProps_Aux as _HAProps_Aux
 #from matplotlib import docstring
 
 #@docstring.copy_dedent(_HAProps) #Use docs from HAProps

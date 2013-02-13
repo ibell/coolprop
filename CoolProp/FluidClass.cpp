@@ -1012,6 +1012,7 @@ double Fluid::_get_rho_guess(double T, double p)
 	{
 		// Start at the saturation state, with a known density, using the ancillary
 		double rhoL = rhosatL(T);
+		double pL = psatL_anc(T);
 		if (debug()>5){
 			std::cout<<format("%d:%d: pL = %g rhoL = %g rhoV %g \n",__FILE__,__LINE__,pL,rhoL, rhoV);
 		}

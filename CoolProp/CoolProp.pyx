@@ -18,6 +18,16 @@ except ImportError:
 import cython
 import math
 
+# Default string in Python 3.x is a unicode string (type str)
+# Default string in Python 2.x is a byte string(type bytes) 
+#
+# Create a fused type that allows for either unicode string or bytestring
+# We encode unicode strings using the ASCII encoding since we know they are all
+# ASCII strings
+ctypedef fused bytes_or_str:
+    cython.bytes
+    cython.str
+
 from State2 cimport *
 include "State2.pyx"
 
@@ -51,99 +61,68 @@ iDrhodT_p = State2_constants.iDrhodT_p
 iTmin = State2_constants.iTmin
 iDipole = State2_constants.iDipole
 
-cpdef double _convert_to_desired_units(double value, bytes parameter_type, bytes desired_units) except *:
+include "HumidAirProp.pyx"
+
+cdef double _convert_to_desired_units(double value, bytes_or_str parameter_type, bytes_or_str desired_units) except *:
     """
     A convenience function to convert a double value back to the units that
-    people
+    are desired by the user
     """
-    #Convert parameter string to index
+    # Convert to a byte-string
+    cdef bytes _parameter_type = parameter_type if bytes_or_str is bytes else parameter_type.encode('ascii')
+    cdef bytes _desired_units = desired_units if bytes_or_str is bytes else desired_units.encode('ascii')
+    # Convert parameter string to index
     cdef long index = _get_param_index(parameter_type)
-    #Get the units string by the index
+    # Get the units string by the index
     cdef bytes default_units = _get_index_units(index)
-    #Create the Quantity instance
+    # Create the Quantity instance
     old = pq.Quantity(value, default_units)
-    #Convert the units
-    old.units = desired_units
+    # Convert the units
+    old.units = _desired_units
     #Return the scaled units
     return old.magnitude
 
-cpdef _convert_to_default_units(bytes parameter_type, object parameter):
+cdef _convert_to_default_units(bytes_or_str parameter_type, object parameter):
     """
     A convenience function to convert a quantities instance to the default 
     units required for CoolProp
     """
+    cdef bytes _parameter_type = parameter_type if bytes_or_str is bytes else parameter_type.encode('ascii')
     #Convert parameter string to index
-    cdef long index = _get_param_index(parameter_type)
+    cdef long index = _get_param_index(_parameter_type)
     #Get the units string by the index
     cdef bytes default_units = _get_index_units(index)
-    #Rescale the units of the paramter to the default units
+    #Rescale the units of the parameter to the default units
     parameter.units = default_units
     #Return the scaled units
     return parameter
-     
-cpdef double __HAProps(bytes OutputName, bytes InputName1, double Input1, bytes Input2Name, double Input2, bytes Input3Name, double Input3):
-    """
-    Copyright Ian Bell, 2011 email: ian.h.bell@gmail.com
-
-    The function is called like
-
-    HAProps('H','T',298.15,'P',101.325,'R',0.5)
-
-    which will return the enthalpy of the air for a set of inputs of dry bulb temperature of 25C, atmospheric pressure, and a relative humidity of 50%.
-
-    This function implements humid air properties based on the analysis in ASHRAE RP-1845 which is available online: http://rp.ashrae.biz/page/ASHRAE-D-RP-1485-20091216.pdf
-
-    It employs real gas properties for both air and water, as well as the most accurate interaction parameters and enhancement factors.  The IAPWS-95 formulation for the properties of water is used throughout in preference to the industrial formulation.  It is unclear why the industrial formulation is used in the first place.
-
-    Since humid air is nominally a binary mixture, three variables are needed to fix the state.  At least one of the input parameters must be dry-bulb temperature, relative humidity, dew-point temperature, or humidity ratio.  The others will be calculated.  If the output variable is a transport property (conductivity or viscosity), the state must be able to be found directly - i.e. make sure you give temperature and relative humidity or humidity ratio.  The list of possible input variables are
-
-    ========  ========    ========================================
-    String    Aliases     Description
-    ========  ========    ========================================
-    T         Tdb         Dry-Bulb Temperature [K]
-    B         Twb         Wet-Bulb Temperature [K]
-    D         Tdp         Dew-Point Temperature [K]
-    P                     Pressure [kPa]
-    V         Vda         Mixture volume [m3/kg dry air]
-    R         RH          Relative humidity in (0,1) [-]
-    W         Omega       Humidity Ratio [kg water/kg dry air]
-    H         Hda         Mixture enthalpy [kJ/kg dry air]
-    C         cp          Mixture specific heat [kJ/kg dry air/K]
-    M         Visc        Mixture viscosity [Pa-s]
-    K                     Mixture thermal conductivity [W/m/K]
-    ========  ========    ========================================
-
-    There are also strings for the mixture volume and mixture enthalpy that will return the properties on a total humid air flow rate basis, they are given by 'Vha' [units of m^3/kg humid air] and 'Cha' [units of kJ/kg humid air/K] and 'Hha' [units of kJ/kg humid air] respectively.
-
-    For more information, go to http://coolprop.sourceforge.net
-    """
-    return _HAProps(OutputName,InputName1,Input1,Input2Name,Input2,Input3Name,Input3)
-
-cpdef tuple __HAProps_Aux(bytes OutputName, double T, double p, double w, bytes units):
-    """
-    Allows low-level access to some of the routines employed in HumidAirProps
-
-    Returns tuples of the form (Value, Units) where value is the actual value and Units is a string that describes the units
-
-    The list of possible inputs is
-
-    * Baa
-    * Caaa
-    * Bww
-    * Cwww
-    * Baw
-    * Caww
-    * Caaw
-    * beta_H
-    * kT
-    * vbar_ws
-    * p_ws
-    * f
-    """
-    output = _HAProps_Aux(OutputName,T,p,w,units)
-    return output,units
     
-cpdef double Props(bytes in1, bytes in2, in3=None, in4=None,in5=None,in6=None,in7=None) except *:
+cdef double Props0(bytes in1, bytes in2):
+    # Convert inputs to byte-strings
+    val = _Props1(in1, in2)
+    if math.isnan(val) or abs(val)>1e20:
+        raise ValueError(_get_errstring())
+    else:
+        return val
+
+cdef double Props2(bytes output, bytes in1, double val1, bytes in2, double val2, bytes Fluid) except +:
+    cdef double val
+    cdef char _in1, _in2
+    _in1 = <char>(in1[0])
+    _in2 = <char>(in2[0])
+    val = _Props(output,_in1,val1,_in2,val2,Fluid)
+    
+    if math.isinf(val) or math.isnan(val):
+        print(output,_in1,val1,_in2,val2,Fluid,val)
+        err_string = _get_errstring()
+        if not len(err_string) == 0:
+            raise ValueError(err_string)
+        else:
+            raise ValueError("Props failed ungracefully with inputs:\"{in1:s}\",'{in2:s}',{in3:0.16e},'{in4:s}',{in5:0.16e},\"{in6:s}\"; please file a ticket at https://sourceforge.net/p/coolprop/tickets/".format(in1=output,in2=in1,in3=val1,in4=in2,in5=val2,in6=Fluid))
+    else:
+        return val
+    
+cpdef double Props(bytes in1, bytes in2, in3=None, in4=None, in5=None, in6=None, in7=None) except +:
     """
     Call Type #1::
 
@@ -157,6 +136,7 @@ cpdef double Props(bytes in1, bytes in2, in3=None, in4=None,in5=None,in6=None,in
     ``rhocrit``    Critical density [kg/m3]
     ``molemass``   Molecular mass [kg/kmol]
     ``Ttriple``    Triple-point temperature [K]
+    ``Tmin``       Minimum temperature [K]
     ``ptriple``    Triple-point pressure [kPa]
     ``accentric``  Accentric factor [-]
     =============  ============================
@@ -218,48 +198,35 @@ cpdef double Props(bytes in1, bytes in2, in3=None, in4=None,in5=None,in6=None,in
     converted to the required units as long as it is dimensionally correct.  Otherwise a ValueError will 
     be raised by the conversion
     """
-    cdef char _in2
-    cdef char _in4
-    cdef bytes errs
-
-    if (in3 is None
-        and in4 is None
-        and in5 is None
-        and in6 is None
-        and in7 is None):
+    cdef bytes errs,_in1,_in2,_in3,_in4,_in5,_in6,_in7
         
-        val = _Props1(in1,in2)
-        if math.isnan(val) or abs(val)>1e20:
-            raise ValueError(_get_errstring())
-        else:
-            return val
+    if (in3 is None and in4 is None and in5 is None and in6 is None and in7 is None):
+#        _in1 = in1 if bytes_or_str is bytes else in1.encode('ascii')
+#        _in2 = in2 if bytes_or_str is bytes else in2.encode('ascii')
+        return Props0(in1, in2)
     else:
         if _quantities_supported:
             if isinstance(in3,pq.Quantity):
                 in3 = _convert_to_default_units(in2,in3).magnitude
             if isinstance(in5,pq.Quantity):
-                in5 = _convert_to_default_units(in4,in5).magnitude
-                
-        _in2 = <char>((<bytes>in2)[0])
-        _in4 = <char>((<bytes>in4)[0])
-        val = _Props(in1, _in2, in3, _in4, in5, in6)
-        if math.isnan(val) or abs(val)>1e20:
-            err_string = _get_errstring()
-            if not len(err_string) == 0:
-                raise ValueError(err_string)
-            else:
-                raise ValueError("Props failed ungracefully with inputs:\"{in1:s}\",'{in2:s}',{in3:0.16e},'{in4:s}',{in5:0.16e},\"{in6:s}\", ; please file a ticket at https://sourceforge.net/p/coolprop/tickets/".format(in1=in1,in2=in2,in3=in3,in4=in4,in5=in5,in6=in6))
+                in5 = _convert_to_default_units(<bytes?>in4,in5).magnitude
+
+#        _in1 = in1 if bytes_or_str is bytes else in1.encode('ascii')
+#        _in2 = in2 if bytes_or_str is bytes else in2.encode('ascii')
+#        _in4 = in4 if bytes_or_str is bytes else in4.encode('ascii')
+#        _in6 = in6 if bytes_or_str is bytes else in6.encode('ascii')
+#        _in7 = in6 if bytes_or_str is bytes else in6.encode('ascii')
+        val = Props2(in1, in2, in3, in4, in5, in6)
+            
+        if not _quantities_supported and in7 is not None:
+            raise ValueError("Cannot use output units because quantities package is not installed")
+        elif _quantities_supported and in7 is not None: #Then in7 contains a string representation of the units
+            #Convert the units to the units given by in7
+            return _convert_to_desired_units(val,in1,in7)
         else:
-            if not _quantities_supported:
-                return val
-            else:
-                if in7 is not None:
-                    #Convert the units to the units given by in7
-                    return _convert_to_desired_units(val,in1,in7)
-                else:
-                    return val
+            return val #Error raised by Props2 on failure
     
-cpdef double DerivTerms(bytes Output, double T, double rho, bytes Fluid):
+cpdef double DerivTerms(bytes_or_str Output, double T, double rho, bytes_or_str Fluid):
     """
 
     .. |cubed| replace:: \ :sup:`3`\ 
@@ -300,15 +267,19 @@ cpdef double DerivTerms(bytes Output, double T, double rho, bytes Fluid):
     |IC|                      Isothermal compressibility [1/kPa]
     ========================  =====================================================================================================================================
     """
-    return _DerivTerms(Output,T,rho,Fluid)
+    cdef bytes _Fluid = Fluid if bytes_or_str is bytes else Fluid.encode('ascii')
+    cdef bytes _Output = Output if bytes_or_str is bytes else Output.encode('ascii')
+    return _DerivTerms(_Output,T,rho,_Fluid)
 
-cpdef string Phase_Tp(bytes Fluid, double T, double p):
-    return _Phase_Tp(Fluid,T,p)
+cpdef string Phase_Tp(bytes_or_str Fluid, double T, double p):
+    cdef bytes _Fluid = Fluid if bytes_or_str is bytes else Fluid.encode('ascii')
+    return _Phase_Tp(_Fluid,T,p)
     
-cpdef string Phase_Trho(bytes Fluid, double T, double rho):
-    return _Phase_Trho(Fluid,T,rho)
+cpdef string Phase_Trho(bytes_or_str Fluid, double T, double rho):
+    cdef bytes _Fluid = Fluid if bytes_or_str is bytes else Fluid.encode('ascii')
+    return _Phase_Trho(_Fluid,T,rho)
     
-cpdef string Phase(bytes Fluid, double T, double p):
+cpdef string Phase(bytes_or_str Fluid, double T, double p):
     """
     Given a set of temperature and pressure, returns one of the following strings
 
@@ -337,7 +308,8 @@ cpdef string Phase(bytes Fluid, double T, double p):
            b: critical point
            a-b: Saturation line
     """
-    return _Phase(Fluid,T,p)
+    cdef bytes _Fluid = Fluid if bytes_or_str is bytes else Fluid.encode('ascii')
+    return _Phase(_Fluid,T,p)
 
 cpdef F2K(double T_F):
     """
@@ -370,15 +342,16 @@ cpdef list FluidsList():
        In [1]: FluidsList()
        
     """ 
-    return _FluidsList().split(',')
+    return (<str>_FluidsList()).split(',')
 
-cpdef get_aliases(bytes Fluid):
+cpdef get_aliases(bytes_or_str Fluid):
     """
     Return a comma separated string of aliases for the given fluid
     """
-    return _get_aliases(Fluid)
+    cdef bytes _Fluid = Fluid if bytes_or_str is bytes else Fluid.encode('ascii')
+    return (<str>_get_aliases(Fluid)).split(',')
     
-cpdef string get_REFPROPname(bytes Fluid):
+cpdef string get_REFPROPname(bytes_or_str Fluid):
     """
     Return the REFPROP compatible name for the fluid (only useful on windows)
     
@@ -394,7 +367,8 @@ cpdef string get_REFPROPname(bytes Fluid):
        
        In [2]: Props('D', 'T', 300, 'P', 300, Fluid)
     """
-    return _get_REFPROPname(Fluid)
+    cdef bytes _Fluid = Fluid if bytes_or_str is bytes else Fluid.encode('ascii')
+    return _get_REFPROPname(_Fluid)
 
 cpdef string get_errstr():
     """
@@ -421,19 +395,21 @@ cpdef get_debug():
     """
     return _get_debug()
     
-cpdef string get_EOSReference(bytes Fluid):
+cpdef string get_EOSReference(bytes_or_str Fluid):
     """
     Return a string with the reference for the equation of state
     """
-    return _get_EOSReference(Fluid)
+    cdef bytes _Fluid = Fluid if bytes_or_str is bytes else Fluid.encode('ascii')
+    return _get_EOSReference(_Fluid)
 
-cpdef string get_TransportReference(bytes Fluid):
+cpdef string get_TransportReference(bytes_or_str Fluid):
     """
     Return a string with the reference for the transport properties (thermal conductivity, viscosity, surface tension)
     """
-    return _get_TransportReference(Fluid)
+    cdef bytes _Fluid = Fluid if bytes_or_str is bytes else Fluid.encode('ascii')
+    return _get_TransportReference(_Fluid)
     
-cpdef bint IsFluidType(bytes Ref, bytes Type):
+cpdef bint IsFluidType(bytes_or_str Fluid, bytes_or_str Type):
     """
     Check if a fluid is of a given type
     
@@ -442,23 +418,28 @@ cpdef bint IsFluidType(bytes Ref, bytes Type):
     - PseudoPure (or equivalently PseudoPureFluid)
     - PureFluid
     """
-    if _IsFluidType(Ref,Type):
+    cdef bytes _Fluid = Fluid if bytes_or_str is bytes else Fluid.encode('ascii')
+    cdef bytes _Type = Type if bytes_or_str is bytes else Type.encode('ascii')
+    if _IsFluidType(_Fluid, _Type):
         return True
     else:
         return False
     
-cpdef rhosatL_anc(bytes Fluid, double T):
-    return _rhosatL_anc(Fluid,T)
+cpdef rhosatL_anc(bytes_or_str Fluid, double T):
+    cdef bytes _Fluid = Fluid if bytes_or_str is bytes else Fluid.encode('ascii')
+    return _rhosatL_anc(_Fluid,T)
 
-cpdef rhosatV_anc(bytes Fluid, double T):
-    return _rhosatV_anc(Fluid,T)
+cpdef rhosatV_anc(bytes_or_str Fluid, double T):
+    cdef bytes _Fluid = Fluid if bytes_or_str is bytes else Fluid.encode('ascii')
+    return _rhosatV_anc(_Fluid,T)
 
-cpdef psatL_anc(bytes Fluid, double T):
-    return _psatL_anc(Fluid,T)
+cpdef psatL_anc(bytes_or_str Fluid, double T):
+    cdef bytes _Fluid = Fluid if bytes_or_str is bytes else Fluid.encode('ascii')
+    return _psatL_anc(_Fluid,T)
 
-cpdef psatV_anc(bytes Fluid, double T):
-    return _psatV_anc(Fluid,T)
-    
+cpdef psatV_anc(bytes_or_str Fluid, double T):
+    cdef bytes _Fluid = Fluid if bytes_or_str is bytes else Fluid.encode('ascii')
+    return _psatV_anc(_Fluid,T)
 
 cpdef int debug(int level):
     """
@@ -496,16 +477,40 @@ cdef class __State:
     A class that contains all the code that represents a thermodynamic state
     """
     
-    def __cinit__(self, bytes FluidName, dict StateDict, double xL=-1.0, bytes Liquid = b'', bytes phase = b'none'):
+    def __cinit__(self, bytes Fluid, dict StateDict, double xL=-1.0, object Liquid = None, object phase = None):
         """ Allocate the CoolPropStateClass instance"""
-        self.CPS = new CoolPropStateClass(FluidName)
+        #cdef bytes _FluidName = FluidName if bytes_or_str is bytes else FluidName.encode('ascii')
+        self.CPS = new CoolPropStateClass(Fluid)
+        
     def __dealloc__(self):
         """ Deallocate the CoolPropStateClass instance"""
         del self.CPS
         
-    def __init__(self, bytes Fluid, dict StateDict, double xL=-1.0, bytes Liquid = b'', bytes phase = b'none'):
-        self.Fluid = Fluid
-        self.iFluid = _get_Fluid_index(Fluid)
+    def __init__(self, bytes Fluid, dict StateDict, double xL=-1.0, object Liquid = None, object phase = None):
+        #cdef bytes _Fluid = Fluid if bytes_or_str is bytes else Fluid.encode('ascii')
+        cdef bytes _Fluid = Fluid
+        cdef bytes _Liquid
+        
+        if Liquid is None:
+            _Liquid = b''
+        elif isinstance(Liquid,str):
+            _Liquid = Liquid.encode('ascii')
+        elif isinstance(Liquid,bytes):
+            _Liquid = Liquid
+        else:
+            raise TypeError()
+            
+        if phase is None:
+            _phase = b''
+        elif isinstance(phase,str):
+            _phase = phase.encode('ascii')
+        elif isinstance(phase,bytes):
+            _phase = phase
+        else:
+            raise TypeError()
+        
+        self.Fluid = _Fluid
+        self.iFluid = _get_Fluid_index(_Fluid)
         #Try to get the fluid from CoolProp
         if self.iFluid >= 0:
             #It is a CoolProp Fluid so we can use the faster integer passing function
@@ -513,8 +518,8 @@ cdef class __State:
         else:
             self.is_CPFluid = False
         self.xL = xL
-        self.Liquid = Liquid
-        self.phase = phase
+        self.Liquid = _Liquid
+        self.phase = _phase
         #Parse the inputs provided
         self.update(StateDict)
         #Set the phase flag
@@ -554,7 +559,7 @@ cdef class __State:
             if abs(T)<1e90:
                 self.T_=T
             else:
-                errstr = get_errstringc()
+                errstr = _get_errstring()
                 raise ValueError(errstr)
             self.rho_ = _Props('D','P',p,'H',h,self.Fluid)
             
@@ -620,7 +625,7 @@ cdef class __State:
                 if abs(rho) < 1e90:
                     self.rho_=rho
                 else:
-                    errstr = get_errstringc()
+                    errstr = _get_errstring()
                     raise ValueError(errstr)
             elif 'D' in params:
                 
@@ -634,8 +639,22 @@ cdef class __State:
                 if abs(p)<1e90:
                     self.p_=p
                 else:
-                    errstr = get_errstringc()
+                    errstr = _get_errstring()
                     raise ValueError(errstr+str(params))
+            elif 'Q' in params:
+                if self.is_CPFluid:
+                    self.rho_ = _IProps(iD,iT,self.T_,iQ,params['Q'],self.iFluid)
+                    self.p_ = _IProps(iP,iT,self.T_,iQ,params['Q'],self.iFluid)
+                else:
+                    p = _Props('P','T',self.T_,'Q',params['Q'],self.Fluid)
+                    self.rho_ = _Props('D','T',self.T_,'Q',params['Q'],self.Fluid)
+                
+                if abs(self.rho_)<1e90:
+                    pass
+                else:
+                    errstr = _get_errstring()
+                    raise ValueError(errstr+str(params))
+                
             else:
                 raise KeyError("Dictionary must contain the key 'T' and one of 'P' or 'D'")
             

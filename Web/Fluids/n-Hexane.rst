@@ -5,7 +5,7 @@ n-Hexane
 
 Aliases
 ================================================================================
-nHexane, Hexane
+['nHexane', ' Hexane']
 
 Equation of State Reference
 ===========================

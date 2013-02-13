@@ -5,7 +5,7 @@ trans-2-Butene
 
 Aliases
 ================================================================================
-Trans-2-Butene
+['Trans-2-Butene']
 
 Equation of State Reference
 ===========================

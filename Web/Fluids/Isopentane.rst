@@ -5,7 +5,7 @@ Isopentane
 
 Aliases
 ================================================================================
-ipentane
+['ipentane']
 
 Equation of State Reference
 ===========================

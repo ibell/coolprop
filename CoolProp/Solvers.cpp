@@ -213,7 +213,7 @@ double Brent(FuncWrapper1D *f, double a, double b, double macheps, double t, int
         tol=2*macheps*fabs(b)+t;
 		iter+=1;
 		if (iter>maxiter){
-			throw SolutionError(std::string("Reached maximum number of steps")); 
+			throw SolutionError(std::string("Reached maximum number of steps ")); 
 			return _HUGE;
 		}
 	}

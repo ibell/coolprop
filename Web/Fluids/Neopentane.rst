@@ -5,7 +5,7 @@ Neopentane
 
 Aliases
 ================================================================================
-neopentn
+['neopentn']
 
 Equation of State Reference
 ===========================
