@@ -9,45 +9,51 @@ File Type: DLL
   Section contains the following exports for CoolProp.dll
 
     00000000 characteristics
-    510FD87F time date stamp Mon Feb 04 16:49:19 2013
+    511CEE85 time date stamp Thu Feb 14 15:02:45 2013
         0.00 version
            1 ordinal base
-          31 number of functions
-          31 number of names
+          37 number of functions
+          37 number of names
 
     ordinal hint RVA      name
 
-          1    0 000047D0 _DerivTerms@24
-          2    1 000042B0 _F2K@8
-          3    2 00004770 _FluidsList@4
-          4    3 000667D0 _HAProps@40
-          5    4 00067BC0 _HAProps_Aux@32
-          6    5 00004060 _IProps@32
-          7    6 00001740 _IsFluidType@8
-          8    7 00004290 _K2F@8
-          9    8 00002100 _Phase@24
-         10    9 00002160 _Phase_Tp@24
-         11    A 000021C0 _Phase_Trho@24
-         12    B 000042D0 _PrintSaturationTable@24
-         13    C 000024D0 _Props1@8
-         14    D 00002CA0 _Props@32
+          1    0 00004720 _DerivTerms@24
+          2    1 00004200 _F2K@8
+          3    2 000046C0 _FluidsList@4
+          4    3 00066540 _HAProps@40
+          5    4 00067930 _HAProps_Aux@32
+          6    5 00003FB0 _IProps@32
+          7    6 00001A90 _IsFluidType@8
+          8    7 000041E0 _K2F@8
+          9    8 00002450 _Phase@24
+         10    9 000024B0 _Phase_Tp@24
+         11    A 00002510 _Phase_Trho@24
+         12    B 00004220 _PrintSaturationTable@24
+         13    C 00002820 _Props1@8
+         14    D 00002DC0 _Props@32
          15    E 00001090 _debug@4
-         16    F 000014E0 _get_Fluid_index@4
-         17   10 00005B00 _get_REFPROPname@8
-         18   11 00005950 _get_aliases@8
-         19   12 00001070 _get_debug@0
-         20   13 00001160 _get_errstring@4
-         21   14 000011F0 _get_errstring_copy@4
-         22   15 000011A0 _get_errstringc@0
-         23   16 000015D0 _get_index_units@8
-         24   17 00001710 _get_param_index@4
-         25   18 00001000 _get_svnrevision@0
-         26   19 00001010 _get_version@4
-         27   1A 00001CE0 _psatL_anc@12
-         28   1B 00001DA0 _psatV_anc@12
-         29   1C 00001B60 _rhosatL_anc@12
-         30   1D 00001C20 _rhosatV_anc@12
-         31   1E 00001240 _set_phase@4
+         16    F 00001370 _disable_TTSE_LUT@4
+         17   10 00001270 _enable_TTSE_LUT@4
+         18   11 00001830 _get_Fluid_index@4
+         19   12 00005A50 _get_REFPROPname@8
+         20   13 00005870 _get_aliases@8
+         21   14 00001070 _get_debug@0
+         22   15 00001160 _get_errstring@4
+         23   16 000011F0 _get_errstring_copy@4
+         24   17 000011A0 _get_errstringc@0
+         25   18 00001920 _get_index_units@8
+         26   19 00001A60 _get_param_index@4
+         27   1A 00001000 _get_svnrevision@0
+         28   1B 00001010 _get_version@4
+         29   1C 000012F0 _isenabled_TTSE_LUT@4
+         30   1D 00002030 _psatL_anc@12
+         31   1E 000020F0 _psatV_anc@12
+         32   1F 00001EB0 _rhosatL_anc@12
+         33   20 00001F70 _rhosatV_anc@12
+         34   21 000013F0 _set_TTSESat_LUT_size@8
+         35   22 00001510 _set_TTSESinglePhase_LUT_range@36
+         36   23 00001480 _set_TTSESinglePhase_LUT_size@12
+         37   24 00001240 _set_phase@4
 
   Summary
 
