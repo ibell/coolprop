@@ -1855,7 +1855,7 @@ public:
 		deltaV = x[0]; 
 		deltaL = x[1];
 		tau = x[2];
-		std::vector<std::vector<double>> out;
+		std::vector<std::vector<double> > out;
 		out.resize(x.size(),std::vector<double>(x.size(),0));
 		
 		out[0][0] = J_delta('V');
