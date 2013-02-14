@@ -31,35 +31,7 @@ ctypedef fused bytes_or_str:
 from State2 cimport *
 include "State2.pyx"
 
-cimport State2_constants
-#TODO: put all these in a file that gets included
-
-iT = State2_constants.iT
-iP = State2_constants.iP
-iD = State2_constants.iD
-iQ = State2_constants.iQ
-iH = State2_constants.iH
-iS = State2_constants.iS
-iB = State2_constants.iB
-iC = State2_constants.iC
-iC0 = State2_constants.iC0
-iO = State2_constants.iO
-iU = State2_constants.iU
-iA = State2_constants.iA
-iG = State2_constants.iG
-iV = State2_constants.iV
-iL = State2_constants.iL
-iI = State2_constants.iI
-iMM = State2_constants.iMM
-iTcrit = State2_constants.iTcrit
-iTtriple = State2_constants.iTtriple
-iPcrit = State2_constants.iPcrit
-iRhocrit = State2_constants.iRhocrit
-iAccentric = State2_constants.iAccentric
-iDpdT = State2_constants.iDpdT
-iDrhodT_p = State2_constants.iDrhodT_p
-iTmin = State2_constants.iTmin
-iDipole = State2_constants.iDipole
+from param_constants import *
 
 include "HumidAirProp.pyx"
 

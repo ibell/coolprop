@@ -93,6 +93,8 @@ You might want to start by looking at CoolProp.h
 	EXPORT_CODE void CONVENTION set_TTSESinglePhase_LUT_size(char *FluidName, int Np, int Nh);
 	/// Over-ride the default range of the single-phase LUT
 	EXPORT_CODE void CONVENTION set_TTSESinglePhase_LUT_range(char *FluidName, double hmin, double hmax, double pmin, double pmax);
+	/// Get the current range of the single-phase LUT
+	EXPORT_CODE void CONVENTION get_TTSESinglePhase_LUT_range(char *FluidName, double *hmin, double *hmax, double *pmin, double *pmax);
 
 	// ------------------------------------------------------------------------------------------------
 	// All the functions below this comment do NOT get exported to REFPROP DLL due to the fact that the 

@@ -1,4 +1,4 @@
-cdef extern from "CPState.h":
+cdef extern from "CoolProp.h":
     enum params:
         iT
         iP

@@ -462,12 +462,21 @@ class Fluid
 		bool isenabled_TTSE_LUT(void){return enabled_TTSE_LUT;};
 		/// Disable the TTSE
 		void disable_TTSE_LUT(void){enabled_TTSE_LUT = false;};
+		/// Enable the writing of TTSE tables to file
+		void enable_TTSE_LUT_writing(void){TTSESinglePhase.enable_writing_tables_to_files = true;};
+		/// Check if the writing of TTSE tables to file is enabled
+		bool isenabled_TTSE_LUT_writing(void){return TTSESinglePhase.enable_writing_tables_to_files;};
+		/// Disable the writing of TTSE tables to file
+		void disable_TTSE_LUT_writing(void){TTSESinglePhase.enable_writing_tables_to_files = false;};
 		/// Over-ride the default size of both of the saturation LUT
 		void set_TTSESat_LUT_size(int Nsat){Nsat_TTSE = Nsat;};
 		/// Over-ride the default size of the single-phase LUT
 		void set_TTSESinglePhase_LUT_size(int Np, int Nh){Np_TTSE = Np; Nh_TTSE = Nh;};
 		/// Over-ride the default range of the single-phase LUT
 		void set_TTSESinglePhase_LUT_range(double hmin, double hmax, double pmin, double pmax){hmin_TTSE = hmin; hmax_TTSE = hmax; pmin_TTSE = pmin; pmax_TTSE = pmax;};
+		/// Get the current range of the single-phase LUT
+		void get_TTSESinglePhase_LUT_range(double *hmin, double *hmax, double *pmin, double *pmax){*hmin = hmin_TTSE; *hmax = hmax_TTSE; *pmin = pmin_TTSE; *pmax = pmax_TTSE;};
+
 
 		/// Build of the TTSE LUT
 		bool build_TTSE_LUT(bool force = false);

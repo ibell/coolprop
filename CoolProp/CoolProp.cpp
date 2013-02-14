@@ -180,11 +180,29 @@ EXPORT_CODE bool CONVENTION isenabled_TTSE_LUT(char *FluidName){
 	pFluid = Fluids.get_fluid(iFluid);
 	return pFluid->isenabled_TTSE_LUT();
 }
-/// Disable the TTSE
+/// Disable the TTSE for this fluid
 EXPORT_CODE void CONVENTION disable_TTSE_LUT(char *FluidName){
 	long iFluid = get_Fluid_index(FluidName); if (iFluid<0){ throw ValueError(format("Fluid [%s] cannot use the TTSE method", FluidName)); };
 	pFluid = Fluids.get_fluid(iFluid);
 	pFluid->disable_TTSE_LUT();
+}
+/// Enable the writing of TTSE tables to file for this fluid
+EXPORT_CODE void CONVENTION enable_TTSE_LUT_writing(char *FluidName){
+	long iFluid = get_Fluid_index(FluidName); if (iFluid<0){ throw ValueError(format("Fluid [%s] cannot use the TTSE method",FluidName)); };
+	pFluid = Fluids.get_fluid(iFluid);
+	pFluid->enable_TTSE_LUT_writing();
+};
+/// Check if the writing of TTSE tables to file is enabled
+EXPORT_CODE bool CONVENTION isenabled_TTSE_LUT_writing(char *FluidName){
+	long iFluid = get_Fluid_index(FluidName); if (iFluid<0){ throw ValueError(format("Fluid [%s] cannot use the TTSE method",FluidName)); };
+	pFluid = Fluids.get_fluid(iFluid);
+	return pFluid->isenabled_TTSE_LUT_writing();
+}
+/// Disable the writing of TTSE tables to file for this fluid
+EXPORT_CODE void CONVENTION disable_TTSE_LUT_writing(char *FluidName){
+	long iFluid = get_Fluid_index(FluidName); if (iFluid<0){ throw ValueError(format("Fluid [%s] cannot use the TTSE method", FluidName)); };
+	pFluid = Fluids.get_fluid(iFluid);
+	pFluid->disable_TTSE_LUT_writing();
 }
 /// Over-ride the default size of both of the saturation LUT
 EXPORT_CODE void CONVENTION set_TTSESat_LUT_size(char *FluidName, int Nsat){
@@ -203,6 +221,12 @@ EXPORT_CODE void CONVENTION set_TTSESinglePhase_LUT_range(char *FluidName, doubl
 	long iFluid = get_Fluid_index(FluidName); if (iFluid<0){ throw ValueError(format("Fluid [%s] cannot use the TTSE method", FluidName)); };
 	pFluid = Fluids.get_fluid(iFluid);
 	pFluid->set_TTSESinglePhase_LUT_range(hmin,hmax,pmin,pmax);
+}
+/// Get the current range of the single-phase LUT
+EXPORT_CODE void CONVENTION get_TTSESinglePhase_LUT_range(char *FluidName, double *hmin, double *hmax, double *pmin, double *pmax){
+	long iFluid = get_Fluid_index(FluidName); if (iFluid<0){ throw ValueError(format("Fluid [%s] cannot use the TTSE method", FluidName)); };
+	pFluid = Fluids.get_fluid(iFluid);
+	pFluid->get_TTSESinglePhase_LUT_range(hmin,hmax,pmin,pmax);
 }
 
 void set_phase(std::string Phase_str){

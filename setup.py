@@ -222,7 +222,6 @@ if __name__=='__main__':
     #force cython to build by touching the cython sources
     cython_sources = [os.path.join('CoolProp','State.pyx'),
                       os.path.join('CoolProp','CoolProp.pyx'),
-##                       os.path.join('CoolProp','State2.pyx'),
                       ]
                       
     if useStaticLib:
@@ -244,14 +243,6 @@ if __name__=='__main__':
                             library_dirs=['lib'],
                             cython_c_in_temp = True
                             )
-##         State2_module = CyExtension('CoolProp.State2',
-##                             [os.path.join('CoolProp','State2.pyx')],
-##                             include_dirs = include_dirs,
-##                             language='c++',
-##                             libraries=['CoolProp'],
-##                             library_dirs=['lib'],
-##                             cython_c_in_temp = True
-##                             )
     else:
         CoolProp2_module = CyExtension('CoolProp.CoolProp',
                             [os.path.join('CoolProp','CoolProp.pyx')]+Sources,
@@ -259,20 +250,19 @@ if __name__=='__main__':
                             language='c++',
                             cython_c_in_temp = True
                             )
-    
-##         State2_module = CyExtension('CoolProp.State2',
-##                                 [os.path.join('CoolProp','State2.pyx')]+Sources,
-##                                 include_dirs = include_dirs,
-##                                 language='c++',
-##                                 cython_c_in_temp = True
-##                                 )
+        
+    param_constants_module = CyExtension('CoolProp.param_constants',
+                            [os.path.join('CoolProp','param_constants.pyx')],
+                            include_dirs = include_dirs,
+                            language='c++',
+                            cython_c_in_temp = True
+                            )
                             
     #Collect all the header files into an include folder
     try:
         os.mkdir(os.path.join('CoolProp','include'))
     except:
         pass
-    
     for header in glob.glob(os.path.join('CoolProp','*.h')):
         pth,fName = os.path.split(header)
         shutil.copy2(header,os.path.join('CoolProp','include',fName))
@@ -284,9 +274,9 @@ if __name__=='__main__':
            url='http://coolprop.sourceforge.net',
            description = """Open-source thermodynamic and transport properties database""",
            packages = ['CoolProp','CoolProp.Plots','CoolProp.tests','CoolProp.GUI'],
-           ext_modules = [CoolProp2_module],#,State2_module],
+           ext_modules = [CoolProp2_module,param_constants_module],
            package_dir = {'CoolProp':'CoolProp',},
-           package_data = {'CoolProp':['State.pxd','CoolProp.pxd','include/*.h']},
+           package_data = {'CoolProp':['State.pxd','CoolProp.pxd','param_constants.pxd','include/*.h']},
            cmdclass={'build_ext': build_ext},
            
            classifiers = [
@@ -315,11 +305,12 @@ if __name__=='__main__':
             
     touch('setup.py')
     
-##     from CoolProp.CoolProp import FluidsList
-##     print(FluidsList())
-##     import CoolProp.CoolProp as C
-##     print(dir(C))
-##     print(C.Props(b'R134a',b'Tcrit'))
-##     print(C.get_EOSReference('R134a'))
-##     from CoolProp.HumidAirProp import HAProps
-##     print(HAProps('H','T',300,'R',0.5,'P',101))
+    from CoolProp.CoolProp import FluidsList
+    print(FluidsList())
+    import CoolProp.CoolProp as C
+    print(dir(C))
+    print(C.Props(b'R134a',b'Tcrit'))
+    print(C.get_EOSReference('R134a'))
+    print(C.Props('D','T',300,'P',100,'Air'))
+    from CoolProp.HumidAirProp import HAProps
+    print(HAProps('H','T',300,'R',0.5,'P',101))

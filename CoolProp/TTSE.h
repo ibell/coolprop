@@ -83,6 +83,7 @@ public:
 	std::vector<double> TL,SL,DL,TV,SV,DV;
 
 	double hmin,hmax,pmin,pmax;
+	bool enable_writing_tables_to_files;
 
 	// Variables with h, p
 	std::vector<std::vector<double> > T,dTdh,dTdp,d2Tdh2,d2Tdp2,d2Tdhdp;
