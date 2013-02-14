@@ -9,5 +9,5 @@ cl /c /I../../CoolProp /MD /EHsc ../../CoolProp/purefluids/*.cpp
 cl /c /I../../CoolProp /MD /EHsc ../../CoolProp/pseudopurefluids/*.cpp
 cl /c /I../../CoolProp /MD /EHsc src/*.cpp
 
-lib CoolProp.obj *.obj /OUT:bin/VS2008/ExternalMediaLib.lib
+lib CoolProp.obj *.obj /OUT:bin/VS2008/CoolPropLib.lib
 erase *.obj
