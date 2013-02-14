@@ -5,8 +5,6 @@
 #include <iostream>
 #include "CPExceptions.h"
 #include "CoolPropTools.h"
-#include <algorithm>    // std::transform
-#include <functional>
 /**
 In this formulation of the Multi-Dimensional Newton-Raphson solver the Jacobian matrix is known.
 Therefore, the dx vector can be obtained from 
@@ -37,9 +35,13 @@ std::vector<double> NDNewtonRaphson_Jacobian(FuncWrapperND *f, std::vector<doubl
 		J = f->Jacobian(x0);
 		
 		// Negate f0
-		std::transform(f0.begin( ), f0.end( ), negative_f0.begin( ), std::negate<double>( ) );
-		
+		negative_f0 = f0;
+		for (unsigned int i = 0; i<f0.size(); i++){ negative_f0[i] *= -1;}
+		// find v from J*v = -f
 		v = linsolve_Gauss_Jordan(J, negative_f0);
+		// Update the guess
+		x0[0] += v[0];
+		x0[1] += v[1];
 		error = root_sum_square(f0);
 		if (iter>maxiter){
 			*errstring=std::string("reached maximum number of iterations");

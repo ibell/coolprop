@@ -2349,7 +2349,8 @@ std::vector<double> Fluid::ConformalTemperature(Fluid *InterestFluid, Fluid *Ref
 		J = CTR.Jacobian(x0);
 
 		// Negate f0
-		std::transform(f0.begin( ), f0.end( ), negative_f0.begin( ), std::negate<double>( ) );
+		negative_f0 = f0;
+		for (unsigned int i = 0; i<f0.size(); i++){ negative_f0[i] *= -1;}
 
 		v = linsolve_Gauss_Jordan(J,negative_f0);
 		v0 = v[0]; 

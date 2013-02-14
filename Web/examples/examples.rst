@@ -24,6 +24,8 @@ To use the Props function, import it and do some calls, do something like this
 
 Or go to the :ref:`Fluid-Properties` documentation.
 
+All the possible input and output parameters are listed in the :py:func:`CoolProp.CoolProp.Props` documentation
+
 Sample HAProps Code
 -------------------
 To use the HAProps function, import it and do some calls, do something like this
