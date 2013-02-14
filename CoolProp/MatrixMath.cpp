@@ -52,8 +52,8 @@ std::vector<double> linsolve_Gauss_Jordan(std::vector<std::vector<double> > A, s
 	Ab.resize(A.size(), std::vector<double>(A[0].size()+1, 0));
 	x.resize(A.size(), 0);
 
-	int Nrow = A.size();
-	int Ncol = A[0].size();
+	unsigned int Nrow = A.size();
+	unsigned int Ncol = A[0].size();
 
 	// Build the augmented matrix
 	for (unsigned int row = 0; row < Nrow; row++)

@@ -1126,7 +1126,7 @@ double TTSESinglePhaseTableClass::evaluate_first_derivative(long iOF, long iWRT,
 	int i = (int)round(((h-hmin)/(hmax-hmin)*(Nh-1)));
 	int j = (int)round(((p-pmin)/(pmax-pmin)*(Np-1)));
 
-	if (i<0 || i>Nh-1 || j<0 || j>Np-1)
+	if (i<0 || i>(int)Nh-1 || j<0 || j>(int)Np-1)
 	{
 		throw ValueError(format("Input to TTSE deriv [p = %0.16g, h = %0.16g] is out of range",p,h));
 	}

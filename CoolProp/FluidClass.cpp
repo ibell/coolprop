@@ -1,7 +1,13 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include "CoolPropTools.h"
 #ifdef __ISWINDOWS__
-#define _USE_MATH_DEFINES
+	#define _USE_MATH_DEFINES
+	#include "float.h"
+#else
+	#ifndef DBL_EPSILON
+		#include <limits>
+		#define DBL_EPSILON std::numeric_limits<double>::epsilon()
+	#endif
 #endif
 #include <stdlib.h>
 #include <string>
@@ -64,10 +70,7 @@
 
 using namespace std;
 
-#ifndef DBL_EPSILON
-	#include <limits>
-	#define DBL_EPSILON std::numeric_limits<double>::epsilon()
-#endif
+
 // ------------------------------
 // FluidsContainer Implementation
 // ------------------------------

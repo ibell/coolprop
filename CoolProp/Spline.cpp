@@ -19,6 +19,7 @@ bool SplineClass::build()
 		b = abcd[1];
 		c = abcd[2];
 		d = abcd[3];
+        return true;
 	}
 	else
 	{

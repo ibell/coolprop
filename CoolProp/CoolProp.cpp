@@ -9,6 +9,11 @@
 #if defined(__ISWINDOWS__)
 #include <windows.h>
 #include "REFPROP.h"
+#else
+#ifndef DBL_EPSILON
+	#include <limits>
+	#define DBL_EPSILON std::numeric_limits<double>::epsilon()
+#endif
 #endif
 
 #include <iostream>
@@ -26,10 +31,7 @@
 #include "IncompLiquid.h"
 #include "TTSE.h"
 
-#ifndef DBL_EPSILON
-	#include <limits>
-	#define DBL_EPSILON std::numeric_limits<double>::epsilon()
-#endif
+
 
 // Function prototypes
 double rho_TP(double T, double p);

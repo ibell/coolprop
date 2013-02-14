@@ -2,11 +2,15 @@
 #include "CPExceptions.h"
 #include "Solvers.h"
 #include "CPState.h"
-
-#ifndef DBL_EPSILON
-	#include <limits>
-	#define DBL_EPSILON std::numeric_limits<double>::epsilon()
+#include "CoolPropTools.h"
+#include "float.h"
+#ifndef __ISWINDOWS__
+	#ifndef DBL_EPSILON
+		#include <limits>
+		#define DBL_EPSILON std::numeric_limits<double>::epsilon()
+	#endif
 #endif
+
 #include <stdio.h>
 
 // Constructor with fluid name
