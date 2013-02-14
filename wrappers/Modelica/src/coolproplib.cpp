@@ -3,7 +3,7 @@
   PartialExternalTwoPhaseMedium.
 */
 
-#include "externalmedialib.h"
+#include "coolproplib.h"
 #include "basesolver.h"
 #include "solvermap.h"
 #include <math.h>

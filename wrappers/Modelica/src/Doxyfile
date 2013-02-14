@@ -3,7 +3,7 @@
 #---------------------------------------------------------------------------
 # Project related configuration options
 #---------------------------------------------------------------------------
-PROJECT_NAME           = ExternalMedia
+PROJECT_NAME           = CoolProp
 PROJECT_NUMBER         = 1.0
 OUTPUT_DIRECTORY       = ..\..\Documentation
 CREATE_SUBDIRS         = NO

@@ -11,6 +11,10 @@ class BaseSolver;
   from BaseSolver and that interfaces the external fluid property computation
   code. Only one instance is created for each external library.
 
+  Ian Bell
+  2012-2013
+  University of Liege, Liege, Belgium
+  
   Francesco Casella, Christoph Richter, Roberto Bonifetto
   2006-2012
   Copyright Politecnico di Milano, TU Braunschweig, Politecnico di Torino

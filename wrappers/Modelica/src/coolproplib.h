@@ -1,17 +1,21 @@
 /*! 
-  \file externalmedialib.h
+  \file coolproplib.h
   \brief Header file to be included in the Modelica tool, with external function interfaces
   
   C/C++ layer for external medium models extending from 
   PartialExternalTwoPhaseMedium.
 
+  Ian Bell (ian.bell@ulg.ac.be)
+  2012-2013
+  University of Liege, Liege, Belgium
+  
   Francesco Casella, Christoph Richter, Roberto Bonifetto
   2006-2012
   Copyright Politecnico di Milano, TU Braunschweig, Politecnico di Torino
 */
 
-#ifndef EXTERNALMEDIALIB_H_
-#define EXTERNALMEDIALIB_H_
+#ifndef COOLPROPLIB_H_
+#define COOLPROPLIB_H_
 
 // Constants for input choices (see ExternalMedia.Common.InputChoices)
 #define CHOICE_dT 1
@@ -168,4 +172,4 @@ extern "C" {
 }
 #endif // __cplusplus
 
-#endif /*EXTERNALMEDIALIB_H_*/
+#endif /*COOLPROPLIB_H_*/

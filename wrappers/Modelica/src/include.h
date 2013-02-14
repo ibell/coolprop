@@ -2,12 +2,16 @@
   \file include.h
   \brief Main include file
 
-  This is a main include file for the entire ExternalMediaPackage
+  This is a main include file for the entire CoolProp
   project. It defines some important preprocessor variables that might
   have to be changed by the user.
 
   Uncomment the define directives as appropriate
 
+  Ian Bell (ian.bell@ulg.ac.be)
+  2012-2013
+  University of Liege, Liege, Belgium
+  
   Francesco Casella, Christoph Richter, Roberto Bonifetto
   2006-2012
   Copyright Politecnico di Milano, TU Braunschweig, Politecnico di Torino

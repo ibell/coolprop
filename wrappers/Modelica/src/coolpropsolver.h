@@ -10,7 +10,8 @@
   libraryName = "CoolProp";
 
   Ian Bell (ian.h.bell@gmail.com)
-  2006-2012
+  2012-2013
+  University of Liege, Liege, Belgium
 */
 class CoolPropSolver : public BaseSolver{
 protected:
@@ -31,4 +32,4 @@ public:
 	virtual void setState_ps(double &p, double &s, int &phase, ExternalThermodynamicState *const properties);
 };
 
-#endif // TESTSOLVER_H_
+#endif // COOLPROPSOLVER_H_
