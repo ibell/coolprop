@@ -9,6 +9,15 @@
 #include <string.h>
 #include "CoolPropTools.h"
 
+double root_sum_square(std::vector<double> x)
+{
+	double sum = 0;
+	for (unsigned int i=0; i<x.size(); i++)
+	{
+		sum += pow(x[i],2);
+	}
+	return sqrt(sum);
+}
 std::string format(const char* fmt, ...)
 {
     int size = 512;

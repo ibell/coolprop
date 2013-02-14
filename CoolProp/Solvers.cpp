@@ -1,10 +1,12 @@
 #include <vector>
 #include "Solvers.h"
 #include "math.h"
-#include <Eigen/Dense>
+#include "MatrixMath.h"
 #include <iostream>
 #include "CPExceptions.h"
 #include "CoolPropTools.h"
+#include <algorithm>    // std::transform
+#include <functional>
 /**
 In this formulation of the Multi-Dimensional Newton-Raphson solver the Jacobian matrix is known.
 Therefore, the dx vector can be obtained from 
@@ -12,10 +14,7 @@ Therefore, the dx vector can be obtained from
 J(x)dx=-f(x)
 
 for a given value of x.  The pointer to the class FuncWrapperND that is passed in must implement the call() and Jacobian() 
-functions, each of which take the vector x. The data is managed using the Eigen class which is described in 
-http://eigen.tuxfamily.org/dox/TutorialLinearAlgebra.html.
-
-All the linear algebra functions are provided by the Eigen package. (see link above)
+functions, each of which take the vector x. The data is managed using std::vector<double> vectors
 
 @param f A pointer to an subclass of the FuncWrapperND class that implements the call() and Jacobian() functions
 @param x0 The initial guess value for the solution
@@ -24,40 +23,32 @@ All the linear algebra functions are provided by the Eigen package. (see link ab
 @param errstring  A string with the returned error.  If the length of errstring is zero, no errors were found
 @returns If no errors are found, the solution.  Otherwise, _HUGE, the value for infinity
 */
-Eigen::VectorXd NDNewtonRaphson_Jacobian(FuncWrapperND *f, Eigen::VectorXd x0, double tol, int maxiter, std::string *errstring)
+std::vector<double> NDNewtonRaphson_Jacobian(FuncWrapperND *f, std::vector<double> x0, double tol, int maxiter, std::string *errstring)
 {
 	int iter=0;
 	*errstring=std::string("");
-	Eigen::VectorXd f0;
-	Eigen::MatrixXd J;
+	std::vector<double> f0,v,negative_f0;
+	std::vector<std::vector<double> > J;
 	double error = 999;
 	while (iter==0 || fabs(error)>tol){
 		
-		double T =  x0(0), rho = x0(1);
+		double T =  x0[0], rho = x0[1];
 		f0 = f->call(x0);
 		J = f->Jacobian(x0);
-		x0 -= J.inverse()*f0;
-		error = sqrt(f0.array().square().sum());
-		//std::cout << J << std::endl << x0 << std::endl << error << std::endl;
+		
+		// Negate f0
+		std::transform(f0.begin( ), f0.end( ), negative_f0.begin( ), std::negate<double>( ) );
+		
+		v = linsolve_Gauss_Jordan(J, negative_f0);
+		error = root_sum_square(f0);
 		if (iter>maxiter){
 			*errstring=std::string("reached maximum number of iterations");
-			x0(0)=_HUGE;
+			x0[0]=_HUGE;
 		}
 		iter++;
 	}
 	return x0;
 }
-
-//double NDNewtonRaphson(FuncWrapperND *f,std::vector<double> x0, double tol, int maxiter, std::string *errstring)
-//{
-//	/*
-//	In this formulation, no Jacobian function is provided, thus we must calculate it numerically
-//	http://eigen.tuxfamily.org/dox/TutorialLinearAlgebra.html
-//	*/
-//	std::vector<double> f0;
-//	f0=f->call();
-//
-//}
 
 /**
 In the secant function, a 1-D Newton-Raphson solver is implemented.  An initial guess for the solution is provided.

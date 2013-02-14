@@ -1,4 +1,8 @@
 #define _CRT_SECURE_NO_WARNINGS
+#include "CoolPropTools.h"
+#ifdef __ISWINDOWS__
+#define _USE_MATH_DEFINES
+#endif
 #include <stdlib.h>
 #include <string>
 #include <vector>
@@ -9,11 +13,13 @@
 #include <iostream>
 #include <stdlib.h>
 #include <stdio.h>
+#include "math.h"
 
+#include "MatrixMath.h"
 #include "Helmholtz.h"
 #include "FluidClass.h"
 #include "CoolProp.h"
-#include "CoolPropTools.h"
+
 #include "PengRobinson.h"
 #include "Solvers.h"
 #include "CPState.h"
@@ -1825,7 +1831,7 @@ public:
 			return deltaV*d2ar_ddelta_dtauV+dar_dtauV;
 	}
 
-	Eigen::VectorXd call(Eigen::VectorXd x)
+	std::vector<double> call(std::vector<double> x)
 	{
 		
 		deltaV = x[0]; 
@@ -1835,28 +1841,29 @@ public:
 		// Calculate all the parameters that are needed for the derivatives
 		calculate_parameters(deltaV,deltaL,tau);
 
-		Eigen::Vector3d out;
-		out(0)=J('V')-J('L');
-		out(1)=K('V')-K('L');
-		out(2)=1+deltaV*dar_ddeltaV-p*tau/(R*Tc*deltaV*rhoc);
+		std::vector<double> out = std::vector<double>(3,0);
+		out[0]=J('V')-J('L');
+		out[1]=K('V')-K('L');
+		out[2]=1+deltaV*dar_ddeltaV-p*tau/(R*Tc*deltaV*rhoc);
 		return out;
 	}
-	Eigen::MatrixXd Jacobian(Eigen::VectorXd x)
+	std::vector<std::vector<double> > Jacobian(std::vector<double> x)
 	{
 		deltaV = x[0]; 
 		deltaL = x[1];
 		tau = x[2];
-		Eigen::MatrixXd out(x.rows(),x.rows());
+		std::vector<std::vector<double>> out;
+		out.resize(x.size(),std::vector<double>(x.size(),0));
 		
-		out(0,0) = J_delta('V');
-		out(0,1) = -J_delta('L');
-		out(0,2) = J_tau('V')-J_tau('L');
-		out(1,0) = K_delta('V');
-		out(1,1) = -K_delta('L');
-		out(1,2) = K_tau('V')-K_tau('L');
-		out(2,0) = deltaV*d2ar_ddelta2V+dar_ddeltaV+p*tau/(R*Tc*deltaV*deltaV*rhoc);
-		out(2,1) = 0;
-		out(2,2) = deltaV*d2ar_ddelta_dtauV-p/(R*Tc*deltaV*rhoc);
+		out[0][0] = J_delta('V');
+		out[0][1] = -J_delta('L');
+		out[0][2] = J_tau('V')-J_tau('L');
+		out[1][0] = K_delta('V');
+		out[1][1] = -K_delta('L');
+		out[1][2] = K_tau('V')-K_tau('L');
+		out[2][0] = deltaV*d2ar_ddelta2V+dar_ddeltaV+p*tau/(R*Tc*deltaV*deltaV*rhoc);
+		out[2][1] = 0;
+		out[2][2] = deltaV*d2ar_ddelta_dtauV-p/(R*Tc*deltaV*rhoc);
 		return out;
 	}
 };
@@ -2241,31 +2248,32 @@ public:
 		Z_j = _Z_j;
 	};
 	~ConformalTempResids(){};
-	Eigen::VectorXd call(Eigen::VectorXd x)
+	std::vector<double> call(std::vector<double> x)
 	{
-		double T0=x[0]; double rho0=x[1];
+		double T0 = x[0]; double rho0 = x[1];
 		double alpha_0 = DerivTerms("phir",T0,rho0,ReferenceFluid->get_namec());
 		double Z_0 = DerivTerms("Z",T0,rho0,ReferenceFluid->get_namec());
-		Eigen::Vector2d out;
-		out(0)=alpha_j-alpha_0;
-		out(1)=Z_j-Z_0;
+		std::vector<double> out = std::vector<double>(2,0);
+		out[0]=alpha_j-alpha_0;
+		out[1]=Z_j-Z_0;
 		return out;
 	}
-	Eigen::MatrixXd Jacobian(Eigen::VectorXd x)
+	std::vector<std::vector<double> > Jacobian(std::vector<double> x)
 	{
 		double T0=x[0]; double rho0=x[1];
 		double dtau_dT = -ReferenceFluid->reduce.T/T0/T0;
 		double ddelta_drho = 1/ReferenceFluid->reduce.rho;
-		Eigen::MatrixXd out(x.rows(),x.rows());
+		std::vector<std::vector<double> > out;
+		out.resize(x.size(),std::vector<double>(x.size(),0));
 		// Terms for the fluid of interest drop out
 		double dalpha_dT0 = -DerivTerms("dphir_dTau",T0,rho0,ReferenceFluid->get_namec())*dtau_dT;
-		out(0,0) = dalpha_dT0;
+		out[0][0] = dalpha_dT0;
 		double dalpha_drho0 = -DerivTerms("dphir_dDelta",T0,rho0,ReferenceFluid->get_namec())*ddelta_drho;
-		out(0,1) = dalpha_drho0;
+		out[0][1] = dalpha_drho0;
 		double dZ_dT0 = -DerivTerms("dZ_dTau",T0,rho0,ReferenceFluid->get_namec())*dtau_dT;
-		out(1,0) = dZ_dT0;
+		out[1][0] = dZ_dT0;
 		double dZ_drho0 = -DerivTerms("dZ_dDelta",T0,rho0,ReferenceFluid->get_namec())*ddelta_drho;
-		out(1,1) = dZ_drho0;
+		out[1][1] = dZ_drho0;
 
 		return out;
 	}
@@ -2280,14 +2288,16 @@ std::vector<double> Fluid::ConformalTemperature(Fluid *InterestFluid, Fluid *Ref
 	double alpha_j = DerivTerms("phir",T,rho,InterestFluid->get_namec());
 	double Z_j = DerivTerms("Z",T,rho,InterestFluid->get_namec());
 	
-	Eigen::Vector2d f0,v;
-	Eigen::MatrixXd J;
+	std::vector<double> f0,v,negative_f0;
+	std::vector<std::vector<double> > J;
 	ConformalTempResids CTR = ConformalTempResids(InterestFluid,ReferenceFluid,alpha_j,Z_j);
-	Eigen::Vector2d x0;
-	x0 << T0, rho0;
+	std::vector<double> x0 = std::vector<double>(2,0);
+	x0[0] = T0;
+	x0[1] = rho0;
 	
 	// Check whether the starting guess is already pretty good
-	error = sqrt(CTR.call(x0).array().square().sum());
+	error = root_sum_square(CTR.call(x0));
+
 	if (fabs(error)<1e-3){
 		// convert to STL vector to avoid Eigen library in header
 		std::vector<double> xout(2,x0[0]);
@@ -2295,14 +2305,14 @@ std::vector<double> Fluid::ConformalTemperature(Fluid *InterestFluid, Fluid *Ref
 		return xout;
 	}
 	// Make a copy so that if the calculations fail, we can return the original values
-	Eigen::Vector2d x0_initial=x0;
+	std::vector<double> x0_initial = x0;
 	
 	try{
 		// First naively try to just use the Newton-Raphson solver without any
 		// special checking of the values.
 		x0=NDNewtonRaphson_Jacobian(&CTR,x0_initial,1e-10,30,errstring);
-		error = sqrt(CTR.call(x0).array().square().sum());
-		if (fabs(error)>1e-2 || x0(0)<0.0  || x0(1)<0.0 || !ValidNumber(x0(0)) || !ValidNumber(x0(1))){
+		error = root_sum_square(CTR.call(x0));
+		if (fabs(error)>1e-2 || x0[0]<0.0  || x0[1]<0.0 || !ValidNumber(x0[0]) || !ValidNumber(x0[1])){
 			throw ValueError("Error calculating the conformal state for ECS");
 		}
 		// convert to STL vector to avoid Eigen library in header
@@ -2318,8 +2328,8 @@ std::vector<double> Fluid::ConformalTemperature(Fluid *InterestFluid, Fluid *Ref
 	x0 = x0_initial; // Start back at unity shape factors
 	while (iter<30 && fabs(error)>1e-6)
 	{
-		T = x0(0);
-		rho = x0(1);
+		T = x0[0];
+		rho = x0[1];
 		tau = reduce.T/T;
 		delta = rho/reduce.rho;
 		dp_drho=R()*T*(1+2*delta*dphir_dDelta(tau,delta)+delta*delta*d2phir_dDelta2(tau,delta));
@@ -2334,14 +2344,24 @@ std::vector<double> Fluid::ConformalTemperature(Fluid *InterestFluid, Fluid *Ref
 		//Try to take a step
 		f0 = CTR.call(x0);
 		J = CTR.Jacobian(x0);
-		v = J.inverse()*f0;
-		v0 = v(0); 
-		v1 = v(1);
-		if (x0(0)-v(0)>0 && x0(1)-v(1)>0)
-			x0 -= v;
+
+		// Negate f0
+		std::transform(f0.begin( ), f0.end( ), negative_f0.begin( ), std::negate<double>( ) );
+
+		v = linsolve_Gauss_Jordan(J,negative_f0);
+		v0 = v[0]; 
+		v1 = v[1];
+		if (x0[0]-v[0]>0 && x0[1]-v[1]>0)
+		{
+			x0[0] -= v[0];
+			x0[1] -= v[1];
+		}
 		else
-			x0 -= 1.05*x0;
-		error = sqrt(f0.array().square().sum());
+		{
+			x0[0] -= 1.05*x0[0];
+			x0[1] -= 1.05*x0[1];
+		}
+		error = root_sum_square(f0);
 		iter+=1;
 	}
 	// convert to STL vector to avoid Eigen library in header

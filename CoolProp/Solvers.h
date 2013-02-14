@@ -5,7 +5,6 @@
 
 #include <vector>
 #include <string>
-#include <Eigen/Dense>
 
 class FuncWrapper1D
 {
@@ -20,8 +19,8 @@ class FuncWrapperND
 public:
 	FuncWrapperND(){};
 	virtual ~FuncWrapperND(){};
-	virtual Eigen::VectorXd call(Eigen::VectorXd) = 0;// must be provided
-	virtual Eigen::MatrixXd Jacobian(Eigen::VectorXd){return Eigen::MatrixXd();}; // optional
+	virtual std::vector<double> call(std::vector<double>) = 0;// must be provided
+	virtual std::vector<std::vector<double> > Jacobian(std::vector<double>){std::vector<std::vector<double> > J; return J;}; // optional
 };
 
 // Single-Dimensional solvers
@@ -29,5 +28,5 @@ double Brent(FuncWrapper1D *f, double a, double b, double macheps, double t, int
 double Secant(FuncWrapper1D *f, double x0, double dx, double tol, int maxiter, std::string *errstring);
 
 // Multi-Dimensional solvers
-Eigen::VectorXd NDNewtonRaphson_Jacobian(FuncWrapperND *f, Eigen::VectorXd x0, double tol, int maxiter, std::string *errstring);
+std::vector<double> NDNewtonRaphson_Jacobian(FuncWrapperND *f, std::vector<double> x0, double tol, int maxiter, std::string *errstring);
 #endif
