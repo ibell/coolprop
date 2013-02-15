@@ -1352,7 +1352,6 @@ double TTSETwoPhaseTableClass::evaluate_T(long iParam, double T)
 
 	// Do interval halving over the whole range to find the nearest temperature
 	L = 0; R = N - 2; M = (L+R)/2;
-	double Rval = this->T[N-2];
 	if (isbetween(this->T[N-2],pFluid->reduce.T,T)){
 		L = N-1;
 	}
@@ -1385,9 +1384,9 @@ double TTSETwoPhaseTableClass::evaluate_T(long iParam, double T)
 	double p2 = exp(log_PI_PIi2+this->logp[L]);
 
 	// If only one is less than spacing of enthalpy, thats your solution
-	if (fabs(log_PI_PIi1)<logp_spacing && !(fabs(log_PI_PIi2)<logp_spacing))
+	if (fabs(log_PI_PIi1)<2*logp_spacing && !(fabs(log_PI_PIi2)<2*logp_spacing))
 		return p1;
-	else if (fabs(log_PI_PIi2)<logp_spacing && !(fabs(log_PI_PIi1)<logp_spacing))
+	else if (fabs(log_PI_PIi2)<2*logp_spacing && !(fabs(log_PI_PIi1)<2*logp_spacing))
 		return p2;
 	else
 		throw ValueError(format("More than one solution found[%g,%g] in evaluate_T for TTSE",p1,p2));

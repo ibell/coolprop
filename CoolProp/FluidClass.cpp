@@ -70,6 +70,81 @@
 
 using namespace std;
 
+static bool UseCriticalSpline = true;
+
+void rebuild_CriticalSplineConstants_T()
+{
+	UseCriticalSpline = false;
+	FluidsContainer Fluids = FluidsContainer();
+	std::vector<std::string> fluid_names = strsplit(Fluids.FluidList(),',');
+
+	double rhoL, rhoV, drhodTL, drhodTV;
+
+	FILE *fp;
+	fp = fopen("CriticalSplineConstants_T.h","w");
+
+	for (unsigned int i = 0; i< fluid_names.size(); i++)
+	{
+		CoolPropStateClass CPS = CoolPropStateClass(fluid_names[i]);
+		double Tc = CPS.pFluid->reduce.T;
+		double Tt = CPS.pFluid->params.Ttriple;
+		if (!CPS.pFluid->pure())
+		{
+			// Skip pseudo-pure fluids
+			continue;
+		}
+		double good;
+		try{
+			if (Tc-5>Tt)
+			{
+				CPS.update(iT,Tc-5,iQ,1);
+			}
+		}
+		catch(std::exception)
+		{
+			if (CPS.pFluid->reduce.T > 100)
+			{
+				std::cout << format("%s : failed at 5 K \n",fluid_names[i].c_str());
+				continue;
+			}
+			else
+			{
+				continue;
+			}
+		}
+		try{
+			CPS.update(iT,Tc-1,iQ,1);
+		}
+		catch(std::exception)
+		{
+			std::cout << format("%s : failed at 1 K \n",fluid_names[i].c_str());
+			continue;
+		}
+		
+		good = 1;
+		try{
+			for (double b = 1; b>0; b -= 0.01)
+			{
+				CPS.update(iT,Tc-b,iQ,1);
+				good = b;
+				rhoV = CPS.rhoV(); rhoL = CPS.rhoL();
+				drhodTV = CPS.drhodT_along_sat_vapor(); drhodTL = CPS.drhodT_along_sat_liquid();
+			}
+			for (double b = 0.01; b>0; b -= 0.0001)
+			{
+				CPS.update(iT,Tc-b,iQ,1);
+				good = b;
+				rhoV = CPS.rhoV(); rhoL = CPS.rhoL();
+				drhodTV = CPS.drhodT_along_sat_vapor(); drhodTL = CPS.drhodT_along_sat_liquid();
+			}
+		}
+		catch(std::exception){}
+		printf("%s %g\n",fluid_names[i].c_str(),good,CPS.drhodT_along_sat_liquid(),CPS.drhodT_along_sat_vapor());
+		fprintf(fp,"\tstd::make_pair(std::string(\"%s\"),CriticalSplineStruct_T(%0.12e,%0.12e,%0.12e,%0.12e,%0.12e) ),\n",fluid_names[i].c_str(),Tc-good,rhoL,rhoV,drhodTL,drhodTV);
+	}
+	UseCriticalSpline = true;
+}
+
 
 // ------------------------------
 // FluidsContainer Implementation
@@ -715,7 +790,8 @@ void Fluid::saturation_T(double T, bool UseLUT, double *psatLout, double *psatVo
 		}
 		else
 		{
-			if (ValidNumber(CriticalSpline_T.Tend) && T > CriticalSpline_T.Tend)
+
+			if (UseCriticalSpline && ValidNumber(CriticalSpline_T.Tend) && T > CriticalSpline_T.Tend)
 			{
 				//// Use the spline (or linear) interpolation since you are very close to the critical point
 				*rhosatLout = CriticalSpline_T.interpolate_rho(this,0,T);

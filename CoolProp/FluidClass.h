@@ -92,6 +92,9 @@ struct OnePhaseLUTStruct
 	bool built,forcebuild;
 };
 
+/// Rebuild the constants
+void rebuild_CriticalSplineConstants_T();
+
 /// Fluid is the abstract base class that is employed by all the other fluids
 class Fluid
 {
