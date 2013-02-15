@@ -17,11 +17,13 @@ public:
 	TTSETwoPhaseTableClass(){};
 	/// Instantiator
 	/// @param pFluid Pointer to an instance of a Fluid class
-	/// @param N Number of elements in arrays
 	/// @param Q Quality [kg/kg], in [0,1]
 	TTSETwoPhaseTableClass(Fluid *pFluid, double Q);
+	/// Destructor
 	~TTSETwoPhaseTableClass(){};
 
+	/// Set the size of the Two-Phase table
+	/// @param N Number of elements in arrays
 	void set_size(unsigned int N);
 
 	double pmin,pmax,Q,logpmin,logpmax;
@@ -39,10 +41,15 @@ public:
 	/// @param other TTSETwoPhaseTableClass for the other phase boundary (liquid for the vapor, or vice versa)
 	double build(double pmin, double pmax, TTSETwoPhaseTableClass *other = NULL);
 	
-	/// Evaluate a property in the two-phase region using the TTSE method
+	/// Evaluate a property in the two-phase region using the TTSE method with p as input
 	/// @param iParam Index of desired output
 	/// @param p Pressure (absolute) [kPa]
  	double evaluate(long iParam, double p);
+
+	/// Evaluate a property in the two-phase region using the TTSE method with p as input
+	/// @param iParam Index of desired output
+	/// @param T Temperature [K]
+ 	double evaluate_T(long iParam, double T);
 
 	/// Evaluate the derivative of a property along the saturation curve using the TTSE method
 	/// @param iParam Index of desired output

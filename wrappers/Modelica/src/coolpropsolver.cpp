@@ -252,7 +252,10 @@ void CoolPropSolver::setState_dT(double &d, double &T, int &phase, ExternalTherm
 	if (debug_level > 5)
 		std::cout << format("setState_dT(d=%0.16e,T=%0.16e)\n",d,T);
 
-	state->disable_TTSE_LUT();
+	if (enable_TTSE)
+		state->enable_TTSE_LUT();
+	else
+		state->disable_TTSE_LUT();
 	try{
 
 		// Update the internal variables in the state instance

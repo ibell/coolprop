@@ -1343,6 +1343,57 @@ double TTSETwoPhaseTableClass::evaluate(long iParam, double p)
 		throw ValueError();
 	}
 }
+double TTSETwoPhaseTableClass::evaluate_T(long iParam, double T)
+{
+	int L,R,M;
+	double a,b,c,pi,log_PI_PIi1,log_PI_PIi2,logp_spacing;
+
+	logp_spacing = this->logp[2]-this->logp[1];
+
+	// Do interval halving over the whole range to find the nearest temperature
+	L = 0; R = N - 2; M = (L+R)/2;
+	double Rval = this->T[N-2];
+	if (isbetween(this->T[N-2],pFluid->reduce.T,T)){
+		L = N-1;
+	}
+	else
+	{
+		while (R - L>1)
+		{
+			if (isbetween(this->T[M],this->T[R],T)){ 
+				L=M; M=(L+R)/2; continue;
+			}
+			else{ 
+				R=M; M=(L+R)/2; continue;
+			}
+		}
+	}
+	// T = T[i]+log_PI_PIi*pi*dTdp[i]*(1.0+0.5*log_PI_PIi)+0.5*log_PI_PIi*log_PI_PIi*d2Tdp2[i]*pi*pi;
+	// T = T[i]+log_PI_PIi*pi*dTdp[i]+ 0.5*log_PI_PIi^2*pi*dTdp[i]+0.5*log_PI_PIi*log_PI_PIi*d2Tdp2[i]*pi*pi;
+	// 0 = 0.5*log_PI_PIi^2*pi*dTdp[i]+0.5*log_PI_PIi^2*d2Tdp2[i]*pi*pi+log_PI_PIi*pi*dTdp[i]+T[i]-T;
+	pi = this->p[L];
+	a = 0.5*(pi*dTdp[L]+d2Tdp2[L]*pi*pi);
+	b = pi*dTdp[L];
+	c = this->T[L]-T;
+
+	// Solutions from quadratic equation
+	log_PI_PIi1 = (-b+sqrt(b*b-4*a*c))/(2*a);
+	log_PI_PIi2 = (-b-sqrt(b*b-4*a*c))/(2*a);
+
+	// Get the pressures
+	double p1 = exp(log_PI_PIi1+this->logp[L]);
+	double p2 = exp(log_PI_PIi2+this->logp[L]);
+
+	// If only one is less than spacing of enthalpy, thats your solution
+	if (fabs(log_PI_PIi1)<logp_spacing && !(fabs(log_PI_PIi2)<logp_spacing))
+		return p1;
+	else if (fabs(log_PI_PIi2)<logp_spacing && !(fabs(log_PI_PIi1)<logp_spacing))
+		return p2;
+	else
+		throw ValueError(format("More than one solution found[%g,%g] in evaluate_T for TTSE",p1,p2));
+
+	return 0;
+}
 double TTSETwoPhaseTableClass::evaluate_sat_derivative(long iParam, double p)
 {
 	double logp = log(p);
