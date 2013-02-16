@@ -5,4 +5,4 @@ CoolProp Module
     :members:
     :undoc-members:
     :show-inheritance:
-    
+    :exclude-members: State,HAProps,HAProps_Aux,PureFluidClass

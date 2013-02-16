@@ -309,9 +309,12 @@ if __name__=='__main__':
     print(FluidsList())
     import CoolProp.CoolProp as C
     print(dir(C))
-    print(C.Props(b'R134a',b'Tcrit'))
+    print(C.Props('R134a','Tcrit'))
     print(C.get_EOSReference('R134a'))
     print(C.Props('D','T',300,'P',100,'Air'))
     from CoolProp.HumidAirProp import HAProps
     print(HAProps('H','T',300,'R',0.5,'P',101))
+    from CoolProp.State import State
+    S = State('R134a',dict(T=300,D=0.005))
+    S.speed_test(10000)
     

@@ -85,7 +85,7 @@ cdef double Props2(bytes output, bytes in1, double val1, bytes in2, double val2,
     val = _Props(output,_in1,val1,_in2,val2,Fluid)
     
     if math.isinf(val) or math.isnan(val):
-        print(output,_in1,val1,_in2,val2,Fluid,val)
+        print('The inputs to Props that failed are',output,<bytes>_in1,val1,<bytes>_in2,val2,Fluid,val)
         err_string = _get_errstring()
         if not len(err_string) == 0:
             raise ValueError(err_string)
@@ -94,7 +94,7 @@ cdef double Props2(bytes output, bytes in1, double val1, bytes in2, double val2,
     else:
         return val
     
-cpdef double Props(bytes in1, bytes in2, in3=None, in4=None, in5=None, in6=None, in7=None) except +:
+cpdef double Props(str in1, str in2, in3 = None, in4 = None, in5 = None, in6 = None, in7 = None) except +:
     """
     Call Type #1::
 
@@ -172,10 +172,8 @@ cpdef double Props(bytes in1, bytes in2, in3=None, in4=None, in5=None, in6=None,
     """
     cdef bytes errs,_in1,_in2,_in3,_in4,_in5,_in6,_in7
         
-    if (in3 is None and in4 is None and in5 is None and in6 is None and in7 is None):
-#        _in1 = in1 if bytes_or_str is bytes else in1.encode('ascii')
-#        _in2 = in2 if bytes_or_str is bytes else in2.encode('ascii')
-        return Props0(in1, in2)
+    if (in4 is None and in6 is None and in7 is None):
+        return Props0(in1.encode('ascii'), in2.encode('ascii'))
     else:
         if _quantities_supported:
             if isinstance(in3,pq.Quantity):
@@ -183,12 +181,7 @@ cpdef double Props(bytes in1, bytes in2, in3=None, in4=None, in5=None, in6=None,
             if isinstance(in5,pq.Quantity):
                 in5 = _convert_to_default_units(<bytes?>in4,in5).magnitude
 
-#        _in1 = in1 if bytes_or_str is bytes else in1.encode('ascii')
-#        _in2 = in2 if bytes_or_str is bytes else in2.encode('ascii')
-#        _in4 = in4 if bytes_or_str is bytes else in4.encode('ascii')
-#        _in6 = in6 if bytes_or_str is bytes else in6.encode('ascii')
-#        _in7 = in6 if bytes_or_str is bytes else in6.encode('ascii')
-        val = Props2(in1, in2, in3, in4, in5, in6)
+        val = Props2(in1.encode('ascii'), in2.encode('ascii'), in3, in4.encode('ascii'), in5, in6.encode('ascii'))
             
         if not _quantities_supported and in7 is not None:
             raise ValueError("Cannot use output units because quantities package is not installed")
@@ -314,14 +307,15 @@ cpdef list FluidsList():
        In [1]: FluidsList()
        
     """ 
-    return (<str>_FluidsList()).split(',')
+    cdef string FL = _FluidsList()
+    return [F.encode('ascii') for F in FL.decode('ascii').split(',')]
 
 cpdef get_aliases(bytes_or_str Fluid):
     """
     Return a comma separated string of aliases for the given fluid
     """
     cdef bytes _Fluid = Fluid if bytes_or_str is bytes else Fluid.encode('ascii')
-    return (<str>_get_aliases(Fluid)).split(',')
+    return [F.encode('ascii') for F in (<str>_get_aliases(_Fluid)).decode('ascii').split(',')]
     
 cpdef string get_REFPROPname(bytes_or_str Fluid):
     """
@@ -397,6 +391,32 @@ cpdef bint IsFluidType(bytes_or_str Fluid, bytes_or_str Type):
     else:
         return False
     
+#: Enable the TTSE
+cpdef enable_TTSE_LUT(char *FluidName): _enable_TTSE_LUT(FluidName)
+#: Check if TTSE is enabled
+cpdef bint isenabled_TTSE_LUT(char *FluidName): return _isenabled_TTSE_LUT(FluidName)
+#: Disable the TTSE
+cpdef disable_TTSE_LUT(char *FluidName): _disable_TTSE_LUT(FluidName)
+#: Over-ride the default size of both of the saturation LUT
+cpdef set_TTSESat_LUT_size(char *FluidName, int N): _set_TTSESat_LUT_size(FluidName, N)
+#: Over-ride the default size of the single-phase LUT
+cpdef set_TTSESinglePhase_LUT_size(char *FluidName, int Np, int Nh): _set_TTSESinglePhase_LUT_size(FluidName, Np, Nh)
+#: Over-ride the default range of the single-phase LUT
+cpdef set_TTSESinglePhase_LUT_range(char *FluidName, double hmin, double hmax, double pmin, double pmax): _set_TTSESinglePhase_LUT_range(FluidName, hmin, hmax, pmin, pmax)
+
+cpdef get_TTSESinglePhase_LUT_range(char *FluidName):
+    """
+    Get the current range of the single-phase LUT
+    
+    Returns
+    -------
+    tuple of hmin,hmax,pmin,pmax
+    """
+    cdef double *hmin = NULL, *hmax = NULL, *pmin = NULL, *pmax = NULL
+    _get_TTSESinglePhase_LUT_range(FluidName,hmin,hmax,pmin,pmax)
+    #In cython, nT[0] to dereference rather than *nT
+    return (hmin[0], hmax[0], pmin[0], pmax[0])
+    
 cpdef rhosatL_anc(bytes_or_str Fluid, double T):
     cdef bytes _Fluid = Fluid if bytes_or_str is bytes else Fluid.encode('ascii')
     return _rhosatL_anc(_Fluid,T)
@@ -431,7 +451,8 @@ cpdef int debug(int level):
 from math import pow as pow_
 
 #A dictionary mapping parameter index to string for use with non-CoolProp fluids
-cdef dict paras = {iMM : 'M',
+cdef dict paras = {iD : 'D',
+                   iMM : 'M',
                    iT : 'T',
                    iH : 'H',
                    iP : 'P',
@@ -444,7 +465,9 @@ cdef dict paras = {iMM : 'M',
                    iU : 'U',
                    iDpdT : 'dpdT'}
 
-cdef class __State:
+cdef dict paras_inverse = {v:k for k,v in paras.iteritems()}
+
+cdef class State:
     """
     A class that contains all the code that represents a thermodynamic state
     """
@@ -538,13 +561,22 @@ cdef class __State:
     cpdef update_Trho(self, double T, double rho):
         """
         Just use the temperature and density directly for speed
+        
+        Parameters
+        ----------
+        T: float
+            Temperature [K]
+        rho: float
+            Density [kg/m^3]
+            
         """
+        cdef double p
         self.T_ = T
         self.rho_ = rho
-        cdef double p
         
         if self.is_CPFluid:
-            p = _IProps(iP,iT,T,iD,rho,self.iFluid)
+            self.CPS.update(iT,T,iD,rho)
+            p = self.CPS.p()
         else:
             p = _Props('P','T',T,'D',rho,self.Fluid)
         
@@ -575,24 +607,24 @@ cdef class __State:
             self.xL=0.0
             self.hasLiquid=False
         
-        #You passed in a dictionary, use the values to update the state
-        if 'T' not in params:
-            raise AttributeError('T must be provided in params dict in State.update')
-            
-        #Consume the 'T' key since it is required (TODO?)
-        self.T_=float(params.pop('T'))
-            
         #Given temperature and pressure, determine density of gas 
         # (or gas and oil if xL is provided)
         if abs(self.xL)<=1e-15:
+            
+            if self.is_CPFluid:
+                items = params.items()
+                iInput1 = paras_inverse[items[0][0]]
+                iInput2 = paras_inverse[items[1][0]]
+                self.CPS.update(iInput1, items[0][1], iInput2, items[1][1])
+                self.T_ = self.CPS.T()
+                self.p_ = self.CPS.p()
+                self.rho_ = self.CPS.rho()
+                return
+            
             #Get the density if T,P provided, or pressure if T,rho provided
             if 'P' in params:
                 self.p_=params['P']
-                
-                if self.is_CPFluid:
-                    rho = _IProps(iD,iT,self.T_,iP,self.p_,self.iFluid)
-                else:
-                    rho = _Props('D','T',self.T_,'P',self.p_,self.Fluid)
+                rho = _Props('D','T',self.T_,'P',self.p_,self.Fluid)
                 
                 if abs(rho) < 1e90:
                     self.rho_=rho
@@ -600,13 +632,8 @@ cdef class __State:
                     errstr = _get_errstring()
                     raise ValueError(errstr)
             elif 'D' in params:
-                
                 self.rho_=params['D']
-                
-                if self.is_CPFluid:
-                    p = _IProps(iP,iT,self.T_,iD,self.rho_,self.iFluid)
-                else:
-                    p = _Props('P','T',self.T_,'D',self.rho_,self.Fluid)
+                p = _Props('P','T',self.T_,'D',self.rho_,self.Fluid)
                 
                 if abs(p)<1e90:
                     self.p_=p
@@ -614,19 +641,14 @@ cdef class __State:
                     errstr = _get_errstring()
                     raise ValueError(errstr+str(params))
             elif 'Q' in params:
-                if self.is_CPFluid:
-                    self.rho_ = _IProps(iD,iT,self.T_,iQ,params['Q'],self.iFluid)
-                    self.p_ = _IProps(iP,iT,self.T_,iQ,params['Q'],self.iFluid)
-                else:
-                    p = _Props('P','T',self.T_,'Q',params['Q'],self.Fluid)
-                    self.rho_ = _Props('D','T',self.T_,'Q',params['Q'],self.Fluid)
+                p = _Props('P','T',self.T_,'Q',params['Q'],self.Fluid)
+                self.rho_ = _Props('D','T',self.T_,'Q',params['Q'],self.Fluid)
                 
                 if abs(self.rho_)<1e90:
                     pass
                 else:
                     errstr = _get_errstring()
                     raise ValueError(errstr+str(params))
-                
             else:
                 raise KeyError("Dictionary must contain the key 'T' and one of 'P' or 'D'")
             
@@ -640,7 +662,8 @@ cdef class __State:
             raise ValueError('Your output is invalid') 
         
         if self.is_CPFluid:
-            return _IProps(iOutput,iT,self.T_,iD,self.rho_,self.iFluid)
+            return self.CPS.keyed_output(iOutput)
+            #return _IProps(iOutput,iT,self.T_,iD,self.rho_,self.iFluid)
         else:
             return _Props(paras[iOutput],'T',self.T_,'D',self.rho_,self.Fluid)
             
@@ -729,9 +752,19 @@ cdef class __State:
         cdef long ID = 'D'
         import CoolProp as CP
         
+        print 'Call to the Python call layer'
+        print "'M' involves basically no computational effort and is a good measure of the function call overhead"
+        keys = ['H','P','S','U','C','O','V','L','M','C0','dpdT']
+        for key in keys:
+            t1=clock()
+            for i in range(N):
+                CP.Props(key,'T',self.T_,'D',self.rho_,Fluid)
+            t2=clock()
+            print 'Elapsed time for {0:d} calls for "{1:s}" at {2:g} us/call'.format(N,key,(t2-t1)/N*1e6)
+            
         print 'Direct c++ call to CoolProp without the Python call layer'
         print "'M' involves basically no computational effort and is a good measure of the function call overhead"
-        keys = ['H','P','S','U','C','O','V','L','M','C0']
+        keys = ['H','P','S','U','C','O','V','L','M','C0','dpdT']
         for key in keys:
             t1=clock()
             for i in range(N):
@@ -740,7 +773,7 @@ cdef class __State:
             print 'Elapsed time for {0:d} calls for "{1:s}" at {2:g} us/call'.format(N,key,(t2-t1)/N*1e6)
         
         print 'Call to the c++ layer using integers'
-        keys = [iH,iP,iS,iU,iC,iO,iV,iL,iMM,iC0]
+        keys = [iH,iP,iS,iU,iC,iO,iV,iL,iMM,iC0,iDpdT]
         for key in keys:
             t1=clock()
             for i in range(N):
@@ -748,15 +781,20 @@ cdef class __State:
             t2=clock()
             print 'Elapsed time for {0:d} calls for "{1:s}" at {2:g} us/call'.format(N,paras[key],(t2-t1)/N*1e6)
             
-        print 'Call to the Python call layer'
+        print 'Call using TTSE'
         print "'M' involves basically no computational effort and is a good measure of the function call overhead"
-        keys = ['H','P','S','U','C','O','V','L','M','C0']
+        keys = [iH,iP,iS,iU,iC,iO,iV,iL,iMM,iC0,iDpdT]
+        isenabled = _isenabled_TTSE_LUT(<bytes>Fluid)
+        _enable_TTSE_LUT(<bytes>Fluid)
+        _IProps(iH,iT,self.T_,iD,self.rho_,self.iFluid)
         for key in keys:
             t1=clock()
             for i in range(N):
-                CP.Props(key,'T',self.T_,'D',self.rho_,Fluid)
+                _IProps(key,iT,self.T_,iD,self.rho_,self.iFluid)
             t2=clock()
-            print 'Elapsed time for {0:d} calls for "{1:s}" at {2:g} us/call'.format(N,key,(t2-t1)/N*1e6)
+            print 'Elapsed time for {0:d} calls for "{1:s}" at {2:g} us/call'.format(N,paras[key],(t2-t1)/N*1e6)
+        if not isenabled:
+            _disable_TTSE_LUT(<bytes>Fluid)
     
     def __str__(self):
         """
@@ -784,11 +822,11 @@ cdef class __State:
     cpdef copy(self):
         cdef double T = self.T_*(1.0+1e-20)
         cdef double rho = self.rho_*(1.0+1e-20)
-        ST=__State(self.Fluid,{'T':T,'D':rho})
+        ST = State(self.Fluid,{'T':T,'D':rho})
         return ST
     
 def rebuildState(d):
-    S=__State(d['Fluid'],{'T':d['T'],'D':d['rho']})
+    S=State(d['Fluid'],{'T':d['T'],'D':d['rho']})
     S.xL = d['xL']
     S.Liquid=d['Liquid']
     return S

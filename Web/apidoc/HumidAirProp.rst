@@ -2,6 +2,6 @@ HumidAirProp Module
 ===================
 
 .. automodule:: CoolProp.HumidAirProp
-    :members:
+    :members: HAProps, HAProps_Aux
     :undoc-members:
     :show-inheritance:

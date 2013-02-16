@@ -112,6 +112,7 @@ public:
 	double T(void){return _T;};
 	double rho(void){return _rho;};
 	double p(void){return _p;};
+	double Q(void){return _Q;};
 	double h(void);
 	double s(void);
 	double cp(void);

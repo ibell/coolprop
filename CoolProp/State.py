@@ -1,4 +1,4 @@
 from __future__ import absolute_import
-#We made everything build into one module for simplicity as it makes the code much nicer to compile.  But we want to hide __State in the compiled CoolProp module
-from .CoolProp import __State as State, debug, Props
+#We made everything build into one module for simplicity as it makes the code much nicer to compile
+from .CoolProp import State, debug, Props, PureFluidClass
 

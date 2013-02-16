@@ -1328,7 +1328,7 @@ double TTSETwoPhaseTableClass::evaluate(long iParam, double p)
 	// If it is really out of the range, throw an error
 	if (i<0 || i>(int)N-1)
 	{
-		throw ValueError(format("p [%g] is out of range, yielded index of %d",p,i));
+		throw ValueError(format("p [%g] is out of range[%g,%g], yielded index of: %d",p,pmin,pmax,i));
 	}
 		
 	double log_PI_PIi = logp-this->logp[i];

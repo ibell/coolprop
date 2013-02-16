@@ -1,6 +1,6 @@
 State Module
 ============
 
-.. autoclass:: CoolProp.State.State 
-    :members:
+.. automodule:: CoolProp.State 
+    :members: State, PureFluidClass
     :undoc-members:

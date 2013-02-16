@@ -143,6 +143,16 @@ void CoolPropStateClass::update(long iInput1, double Value1, long iInput2, doubl
 		SatV = new CoolPropStateClass(pFluid);
 	}
 
+	// Pseudo-pure fluids cannot use T,Q as inputs if Q is not 0 or 1
+	if (!pFluid->pure() && match_pair(iInput1,iInput2,iT,iQ))
+	{
+		// Sort so they are in the order T, Q
+		sort_pair(&iInput1,&Value1,&iInput2,&Value2,iT,iQ);
+		if (!(abs(Value2) < 10*DBL_EPSILON) && !(abs(Value2-1) < 10*DBL_EPSILON)){
+			throw ValueError(format("Pseudo-pure fluids cannot use temperature-quality as inputs if Q is not 1 or 0"));
+		}
+	}
+
 	// Don't know if it is single phase or not, so assume it isn't
 	SinglePhase = false;
 	
@@ -237,7 +247,6 @@ void CoolPropStateClass::update_twophase(long iInput1, double Value1, long iInpu
 		}
 	}
 	else{
-		
 		// Sort so they are in the order T, Q
 		sort_pair(&iInput1,&Value1,&iInput2,&Value2,iT,iQ);
 		
@@ -474,6 +483,36 @@ void CoolPropStateClass::update_TTSE_LUT(long iInput1, double Value1, long iInpu
 		_p = Q*psatV+(1-Q)*psatL;
 		_Q = Q;
 	}
+	else if (match_pair(iInput1,iInput2,iT,iQ))
+	{
+		// We know it is a pure fluid since pseudo-pure can't get this far (see update function)
+		// Set phase flags
+		SinglePhase = false;
+		TwoPhase = true;
+		
+		// Sort in the right order (T,Q)
+		sort_pair(&iInput1,&Value1,&iInput2,&Value2,iT,iQ);
+
+		double T = Value1;
+		double Q = Value2;
+
+		// Check whether saturated liquid or vapor
+		check_saturated_quality(Q);
+
+		double p = pFluid->TTSESatL.evaluate_T(iP,T);
+		rhosatL = pFluid->TTSESatL.evaluate(iD,p);
+		rhosatV = pFluid->TTSESatV.evaluate(iD,p);
+		TsatL = pFluid->TTSESatL.evaluate(iT,p);
+		TsatV = pFluid->TTSESatV.evaluate(iT,p);
+		psatL = p;
+		psatV = p;
+
+		// Set internal variables
+		_T = Q*TsatV+(1-Q)*TsatL;
+		_rho = 1/(Q/rhosatV+(1-Q)/rhosatL);
+		_p = Q*psatV+(1-Q)*psatL;
+		_Q = Q;
+	}
 	else if (match_pair(iInput1,iInput2,iP,iH))
 	{
 		// Sort in the right order (P,H)
@@ -617,8 +656,29 @@ void CoolPropStateClass::update_TTSE_LUT(long iInput1, double Value1, long iInpu
 		sort_pair(&iInput1,&Value1,&iInput2,&Value2,iT,iD);
 
 		pFluid->TTSESinglePhase.evaluate_two_other_inputs(iT,Value1,iD,Value2,&_p,&_h);
-		_T = Value1;
+		_T = Value1;	
 		_rho = Value2;
+
+		// If density is outside the saturation region, it is single-phase
+		if (_p > pFluid->reduce.p || _p < pFluid->params.ptriple ||  Value2 < pFluid->TTSESatV.evaluate(iD,_p)  || Value2 > pFluid->TTSESatL.evaluate(iD,_p))
+		{
+			TwoPhase = false;
+			SinglePhase = true;
+		}
+		else
+		{
+			TwoPhase = true;
+			SinglePhase = false;
+
+			rhosatL = pFluid->TTSESatL.evaluate(iD,_p);
+			rhosatV = pFluid->TTSESatV.evaluate(iD,_p);
+			TsatL = pFluid->TTSESatL.evaluate(iT,_p);
+			TsatV = pFluid->TTSESatV.evaluate(iT,_p);
+			psatL = _p;
+			psatV = _p;
+			
+			_Q = (1/_rho-1/rhosatL)/(1/rhosatV-1/rhosatL);
+		}
 	}
 	else
 	{
@@ -795,8 +855,16 @@ double CoolPropStateClass::s(void){
 		}
 		else
 		{
-			// Use the EOS, using the cached value if possible
-			return pFluid->R()*(tau*(dphi0_dTau(tau,delta)+dphir_dTau(tau,delta))-phi0(tau,delta)-phir(tau,delta));
+			if (pFluid->enabled_TTSE_LUT)
+			{
+				pFluid->build_TTSE_LUT();
+				return pFluid->TTSESinglePhase.evaluate(iS,_p,_h);
+			}
+			else
+			{
+				// Use the EOS, using the cached value if possible
+				return pFluid->R()*(tau*(dphi0_dTau(tau,delta)+dphir_dTau(tau,delta))-phi0(tau,delta)-phir(tau,delta));
+			}
 		}
 	}
 }
