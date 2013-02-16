@@ -26,6 +26,8 @@
 #include <cerrno>
 #include <float.h>
 
+static bool transport_properties = true;
+
 double round(double r) {
     return (r > 0.0) ? floor(r + 0.5) : ceil(r - 0.5);
 }
@@ -566,6 +568,14 @@ double TTSESinglePhaseTableClass::build(double hmin, double hmax, double pmin, d
 				d2rhodh2[i][j]  = ddT_drhodh_p_constrho/CPS.dhdT_constp()+ddrho_drhodh_p_constT/CPS.dhdrho_constp();
 				d2rhodhdp[i][j] = ddT_drhodp_h_constrho/CPS.dhdT_constp()+ddrho_drhodp_h_constT/CPS.dhdrho_constp();
 				d2rhodp2[i][j]  = ddT_drhodp_h_constrho/CPS.dpdT_consth()+ddrho_drhodp_h_constT/CPS.dpdrho_consth();
+
+				/// Transport properties
+				///
+				if (transport_properties)
+				{
+
+				}
+
 			}
 			else
 			{

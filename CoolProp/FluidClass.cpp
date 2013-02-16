@@ -82,9 +82,9 @@ void rebuild_CriticalSplineConstants_T()
 
 	FILE *fp;
 	fp = fopen("CriticalSplineConstants_T.h","w");
-
-	for (unsigned int i = 0; i< fluid_names.size(); i++)
+	for (unsigned int i = 0; i < fluid_names.size(); i++)
 	{
+		std::cout << format("%s:\n",fluid_names[i].c_str());
 		CoolPropStateClass CPS = CoolPropStateClass(fluid_names[i]);
 		double Tc = CPS.pFluid->reduce.T;
 		double Tt = CPS.pFluid->params.Ttriple;
@@ -109,6 +109,7 @@ void rebuild_CriticalSplineConstants_T()
 			}
 			else
 			{
+				std::cout << format("%s : failed at 5 K \n",fluid_names[i].c_str());
 				continue;
 			}
 		}
@@ -128,20 +129,25 @@ void rebuild_CriticalSplineConstants_T()
 				CPS.update(iT,Tc-b,iQ,1);
 				good = b;
 				rhoV = CPS.rhoV(); rhoL = CPS.rhoL();
-				drhodTV = CPS.drhodT_along_sat_vapor(); drhodTL = CPS.drhodT_along_sat_liquid();
+				drhodTV = CPS.drhodT_along_sat_vapor(); 
+				drhodTL = CPS.drhodT_along_sat_liquid();
 			}
 			for (double b = 0.01; b>0; b -= 0.0001)
 			{
 				CPS.update(iT,Tc-b,iQ,1);
 				good = b;
 				rhoV = CPS.rhoV(); rhoL = CPS.rhoL();
-				drhodTV = CPS.drhodT_along_sat_vapor(); drhodTL = CPS.drhodT_along_sat_liquid();
+				drhodTV = CPS.drhodT_along_sat_vapor(); 
+				drhodTL = CPS.drhodT_along_sat_liquid();
 			}
 		}
-		catch(std::exception){}
+		catch(std::exception){
+			std::cout << format("%s : failed\n",fluid_names[i].c_str());
+		}
 		printf("%s %g\n",fluid_names[i].c_str(),good,CPS.drhodT_along_sat_liquid(),CPS.drhodT_along_sat_vapor());
 		fprintf(fp,"\tstd::make_pair(std::string(\"%s\"),CriticalSplineStruct_T(%0.12e,%0.12e,%0.12e,%0.12e,%0.12e) ),\n",fluid_names[i].c_str(),Tc-good,rhoL,rhoV,drhodTL,drhodTV);
 	}
+	fclose(fp);
 	UseCriticalSpline = true;
 }
 

@@ -96,6 +96,8 @@ public:
 	std::vector<std::vector<double> > T,dTdh,dTdp,d2Tdh2,d2Tdp2,d2Tdhdp;
 	std::vector<std::vector<double> > rho,drhodh,drhodp,d2rhodh2,d2rhodp2,d2rhodhdp;
 	std::vector<std::vector<double> > s,dsdh,dsdp,d2sdh2,d2sdp2,d2sdhdp;
+	std::vector<std::vector<double> > mu,dmudh,dmudp,d2mudh2,d2mudp2,d2mudhdp;
+	std::vector<std::vector<double> > k,dkdh,dkdp,d2kdh2,d2kdp2,d2kdhdp;
 	std::vector<double> h, p;
 	std::vector<int> iL, iV;
 
