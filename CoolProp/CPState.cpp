@@ -1163,6 +1163,15 @@ double CoolPropStateClass::d2rhodT2_constp(void)
 	double ddT_drhodT_p_constrho = (dpdT_constrho()*d2pdrhodT()-dpdrho_constT()*d2pdT2_constrho())/pow(dpdrho_constT(),2);
 	return ddT_drhodT_p_constrho+ddrho_drhodT_p_constT*drhodT_constp();
 }
+double CoolPropStateClass::d2rhodhdQ(void)
+{
+	return 2/_rho*pow(drhodh_constp(),2)*(hV() - hL());
+}
+double CoolPropStateClass::d2rhodpdQ(void)
+{
+	double d2vdhdp = 1/_T*d2Tdp2_along_sat() - pow(dTdp_along_sat()/_T,2);
+	return (2/_rho*drhodp_consth()*drhodh_constp()-pow(_rho,2)*d2vdhdp)*(hV() - hL());
+}
 
 /// SATURATION DERIVATIVES
 /// SATURATION DERIVATIVES

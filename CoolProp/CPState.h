@@ -170,6 +170,8 @@ public:
 	double d2rhodp2_constT(void);
 	double d2rhodTdp(void);
 	double d2rhodT2_constp(void);
+	double d2rhodhdQ(void);
+	double d2rhodpdQ(void);
 	
 	double dpdrho_constT(void);
 	double dpdrho_consth(void);

@@ -52,3 +52,7 @@ bool SplineClass::add_derivative_constraint(double x, double dydx)
 	Nconstraints++;
 	return true;
 }
+double SplineClass::evaluate(double x)
+{
+	return a*x*x*x+b*x*x+c*x+d;
+}

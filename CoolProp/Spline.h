@@ -18,6 +18,7 @@ public:
 	bool build(void);
 	bool add_value_constraint(double x, double y);
 	bool add_derivative_constraint(double x, double dydx);
+	double evaluate(double x);
 };
 
 #endif
