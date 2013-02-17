@@ -93,7 +93,7 @@ public:
 	double keyed_output(long iInput);
 
 	// Property accessors for saturation parameters directly
-	// These all must be calculated every time if the state is saturated or two-phase
+	// These all are calculated every time if the state is saturated or two-phase
 	double rhoL(void){return rhosatL;};
 	double rhoV(void){return rhosatV;};
 	double pL(void){return psatL;};
@@ -105,6 +105,12 @@ public:
 	double hV(void);
 	double sL(void);
 	double sV(void);
+	double cpL(void){return SatL->cp();};
+	double cpV(void){return SatV->cp();};
+	double viscL(void){return SatL->keyed_output(iV);};
+	double viscV(void){return SatV->keyed_output(iV);};
+	double condL(void){return SatL->keyed_output(iL);};
+	double condV(void){return SatV->keyed_output(iL);};
 
 	// Bulk properties accessors - temperature and density are directly calculated every time
 	// All other parameters are calculated on an as-needed basis

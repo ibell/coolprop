@@ -15,6 +15,7 @@ Originally developed for use in the programming language c, wrappers have been w
     examples/examples.rst
     Installation.rst
     EOS.rst
+    TTSE.rst
     Fluids/FluidInformation.rst
     HumidAir.rst
     apidoc/modules.rst

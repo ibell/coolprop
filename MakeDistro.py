@@ -156,7 +156,7 @@ if __name__=='__main__':
 
 ##     DLL()
 ##     Source()
-    Python()
+##     Python()
 ##     Csharp()
 ##     Octave()
 ##     MATLAB()
@@ -164,5 +164,5 @@ if __name__=='__main__':
 ##     PYPI()
 ##     UploadSourceForge()
 
-##     BuildDocs()
+    BuildDocs()
 ##     UploadDocs()
