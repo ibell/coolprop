@@ -171,64 +171,72 @@ EXPORT_CODE void CONVENTION set_phase(char *Phase_str){
 }
 
 /// Enable the TTSE for this fluid
-EXPORT_CODE void CONVENTION enable_TTSE_LUT(char *FluidName){
-	long iFluid = get_Fluid_index(FluidName); if (iFluid<0){ throw ValueError(format("Fluid [%s] cannot use the TTSE method",FluidName)); };
+EXPORT_CODE bool CONVENTION enable_TTSE_LUT(char *FluidName){
+	long iFluid = get_Fluid_index(FluidName); if (iFluid<0){ return false; };
 	pFluid = Fluids.get_fluid(iFluid);
 	pFluid->enable_TTSE_LUT();
+	return true;
 };
 /// Check if TTSE is enabled
 EXPORT_CODE bool CONVENTION isenabled_TTSE_LUT(char *FluidName){
-	long iFluid = get_Fluid_index(FluidName); if (iFluid<0){ throw ValueError(format("Fluid [%s] cannot use the TTSE method",FluidName)); };
+	long iFluid = get_Fluid_index(FluidName); if (iFluid<0){ return false; };
 	pFluid = Fluids.get_fluid(iFluid);
 	return pFluid->isenabled_TTSE_LUT();
 }
 /// Disable the TTSE for this fluid
-EXPORT_CODE void CONVENTION disable_TTSE_LUT(char *FluidName){
-	long iFluid = get_Fluid_index(FluidName); if (iFluid<0){ throw ValueError(format("Fluid [%s] cannot use the TTSE method", FluidName)); };
+EXPORT_CODE bool CONVENTION disable_TTSE_LUT(char *FluidName){
+	long iFluid = get_Fluid_index(FluidName); if (iFluid<0){ return false; };
 	pFluid = Fluids.get_fluid(iFluid);
 	pFluid->disable_TTSE_LUT();
+	return true;
 }
 /// Enable the writing of TTSE tables to file for this fluid
-EXPORT_CODE void CONVENTION enable_TTSE_LUT_writing(char *FluidName){
-	long iFluid = get_Fluid_index(FluidName); if (iFluid<0){ throw ValueError(format("Fluid [%s] cannot use the TTSE method",FluidName)); };
+EXPORT_CODE bool CONVENTION enable_TTSE_LUT_writing(char *FluidName){
+	long iFluid = get_Fluid_index(FluidName); if (iFluid<0){ return true;};
 	pFluid = Fluids.get_fluid(iFluid);
 	pFluid->enable_TTSE_LUT_writing();
+	return true;
 };
 /// Check if the writing of TTSE tables to file is enabled
 EXPORT_CODE bool CONVENTION isenabled_TTSE_LUT_writing(char *FluidName){
-	long iFluid = get_Fluid_index(FluidName); if (iFluid<0){ throw ValueError(format("Fluid [%s] cannot use the TTSE method",FluidName)); };
+	long iFluid = get_Fluid_index(FluidName); if (iFluid<0){ return false;};
 	pFluid = Fluids.get_fluid(iFluid);
 	return pFluid->isenabled_TTSE_LUT_writing();
 }
 /// Disable the writing of TTSE tables to file for this fluid
-EXPORT_CODE void CONVENTION disable_TTSE_LUT_writing(char *FluidName){
-	long iFluid = get_Fluid_index(FluidName); if (iFluid<0){ throw ValueError(format("Fluid [%s] cannot use the TTSE method", FluidName)); };
+EXPORT_CODE bool CONVENTION disable_TTSE_LUT_writing(char *FluidName){
+	long iFluid = get_Fluid_index(FluidName); if (iFluid<0){ return false;};
 	pFluid = Fluids.get_fluid(iFluid);
 	pFluid->disable_TTSE_LUT_writing();
+	return true;
 }
 /// Over-ride the default size of both of the saturation LUT
-EXPORT_CODE void CONVENTION set_TTSESat_LUT_size(char *FluidName, int Nsat){
-	long iFluid = get_Fluid_index(FluidName); if (iFluid<0){ throw ValueError(format("Fluid [%s] cannot use the TTSE method", FluidName)); };
+EXPORT_CODE bool CONVENTION set_TTSESat_LUT_size(char *FluidName, int Nsat){
+	long iFluid = get_Fluid_index(FluidName); if (iFluid<0){ return false; };
 	pFluid = Fluids.get_fluid(iFluid);
 	pFluid->set_TTSESat_LUT_size(Nsat);
+	return true;
 }
 /// Over-ride the default size of the single-phase LUT
-EXPORT_CODE void CONVENTION set_TTSESinglePhase_LUT_size(char *FluidName, int Np, int Nh){
-	long iFluid = get_Fluid_index(FluidName); if (iFluid<0){ throw ValueError(format("Fluid [%s] cannot use the TTSE method", FluidName)); };
+EXPORT_CODE bool CONVENTION set_TTSESinglePhase_LUT_size(char *FluidName, int Np, int Nh){
+	long iFluid = get_Fluid_index(FluidName); if (iFluid<0){ return false;};
 	pFluid = Fluids.get_fluid(iFluid);
 	pFluid->set_TTSESinglePhase_LUT_size(Np,Nh);
+	return true;
 }
 /// Over-ride the default range of the single-phase LUT
-EXPORT_CODE void CONVENTION set_TTSESinglePhase_LUT_range(char *FluidName, double hmin, double hmax, double pmin, double pmax){
-	long iFluid = get_Fluid_index(FluidName); if (iFluid<0){ throw ValueError(format("Fluid [%s] cannot use the TTSE method", FluidName)); };
+EXPORT_CODE bool CONVENTION set_TTSESinglePhase_LUT_range(char *FluidName, double hmin, double hmax, double pmin, double pmax){
+	long iFluid = get_Fluid_index(FluidName); if (iFluid<0){ return false;};
 	pFluid = Fluids.get_fluid(iFluid);
 	pFluid->set_TTSESinglePhase_LUT_range(hmin,hmax,pmin,pmax);
+	return true;
 }
 /// Get the current range of the single-phase LUT
-EXPORT_CODE void CONVENTION get_TTSESinglePhase_LUT_range(char *FluidName, double *hmin, double *hmax, double *pmin, double *pmax){
-	long iFluid = get_Fluid_index(FluidName); if (iFluid<0){ throw ValueError(format("Fluid [%s] cannot use the TTSE method", FluidName)); };
+EXPORT_CODE bool CONVENTION get_TTSESinglePhase_LUT_range(char *FluidName, double *hmin, double *hmax, double *pmin, double *pmax){
+	long iFluid = get_Fluid_index(FluidName); if (iFluid<0){ return false;};
 	pFluid = Fluids.get_fluid(iFluid);
 	pFluid->get_TTSESinglePhase_LUT_range(hmin,hmax,pmin,pmax);
+	return true;
 }
 
 void set_phase(std::string Phase_str){
@@ -576,8 +584,25 @@ std::string Phase_Tp(std::string Fluid, double T, double p)
 // All the function interfaces that point to the single-input Props function
 EXPORT_CODE double CONVENTION Props1(char* Ref, char * Output)
 {
+	FILE *fp;
+	fp = fopen("c:\\CoolProp\\log_Props1.txt", "a");
+	fprintf(fp,"%s %s\n",Ref,Output);
+	fclose(fp);
+
+	try{
 	// Redirect to the Props function - should have called it Props1 from the outset
 	return Props(Ref, Output);
+	}
+	catch(std::exception &e)
+	{
+		err_string = std::string("CoolProp error: ").append(e.what());
+		std::cout << err_string <<std::endl;
+		return _HUGE;
+	}
+	catch(...){
+		err_string = std::string("CoolProp error: Indeterminate error");
+		return _HUGE;
+	}
 }
 double Props1(std::string Ref, std::string Output)
 {
@@ -595,10 +620,12 @@ double Props(char *Fluid, char *Output)
 	pFluid = Fluids.get_fluid(Fluid);
 	if (pFluid != NULL)
 	{
-		// Convert all the parameters to integers
+		// It's a CoolProp fluid
+		// Convert the parameter to integer
 		long iOutput = get_param_index(Output);
-		if (iOutput < 0)
+		if (iOutput < 0){
 			throw ValueError(format("Your output key [%s] is not valid. (names are case sensitive)",Output));
+		}
 		// Get the output using the conventional function
 		return _CoolProp_Fluid_Props(iOutput,0,0,0,0,pFluid);
 	}
@@ -633,8 +660,15 @@ double Props(char *Fluid, char *Output)
 }
 EXPORT_CODE double CONVENTION Props(char *Output,char Name1, double Prop1, char Name2, double Prop2, char * Ref)
 {
+	double val = Props(std::string(Output),Name1,Prop1,Name2,Prop2,std::string(Ref));
+
+	FILE *fp;
+	fp = fopen("c:\\CoolProp\\log_Props.txt", "a");
+	fprintf(fp,"%s,%c,%g,%c,%g,%s-->%g\n",Output,Name1,Prop1,Name2,Prop2,Ref,val);
+	fclose(fp);
+
 	// Go to the std::string, std::string version
-	return Props(std::string(Output),Name1,Prop1,Name2,Prop2,std::string(Ref));
+	return val;
 }
 double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, char* Ref)
 {
@@ -648,11 +682,11 @@ double Props(std::string Output,char Name1, double Prop1, char Name2, double Pro
 		return _Props(Output,std::string(1,Name1),Prop1,std::string(1,Name2),Prop2,Ref);
 	}
 	catch(std::exception &e){
-		err_string=std::string("CoolProp error: ").append(e.what());
+		err_string = std::string("CoolProp error: ").append(e.what());
 		return _HUGE;
 	}
 	catch(...){
-		err_string=std::string("CoolProp error: Indeterminate error");
+		err_string = std::string("CoolProp error: Indeterminate error");
 		return _HUGE;
 	}
 }
@@ -763,7 +797,7 @@ double _CoolProp_Fluid_Props(long iOutput, long iName1, double Prop1, long iName
 	// This private method uses the indices directly for speed
 
 	// Generate a State instance wrapped around the Fluid instance
-	CoolPropStateClass CPS = CoolPropStateClass(pFluid);
+	CoolPropStateClass *CPS = new CoolPropStateClass(pFluid);
 
 	// Check if it is an output that doesn't require a state input
     // Deal with it and return
@@ -778,11 +812,17 @@ double _CoolProp_Fluid_Props(long iOutput, long iName1, double Prop1, long iName
 		case iRhocrit:
 		case iTmin:
 		case iAccentric:
-			return CPS.keyed_output(iOutput);
+			return CPS->keyed_output(iOutput);
 	}
 
-	CPS.update(iName1,Prop1,iName2,Prop2);
-	return CPS.keyed_output(iOutput);
+	// Update the class
+	CPS->update(iName1,Prop1,iName2,Prop2);
+	// Get the output
+	double val = CPS->keyed_output(iOutput);
+	// Delete the instance
+	delete CPS;
+	// Return the value
+	return val;
 }
 EXPORT_CODE double CONVENTION IProps(long iOutput, long iName1, double Prop1, long iName2, double Prop2, long iFluid)
 {

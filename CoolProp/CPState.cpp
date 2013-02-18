@@ -137,6 +137,10 @@ void CoolPropStateClass::update(long iInput1, double Value1, long iInput2, doubl
 	_rho = _HUGE;
 	_Q = _HUGE;
 
+	// Reset the cached values for _h and _s
+	s_cached = false;
+	h_cached = false;
+
 	if (SatL == NULL)
 	{
 		SatL = new CoolPropStateClass(pFluid);
@@ -396,6 +400,7 @@ void CoolPropStateClass::update_ph(long iInput1, double Value1, long iInput2, do
 	// Set internal variables
 	_p = Value1;
 	_h = Value2;
+	h_cached = true;
 
 	// Set the phase flags
 	if ( _T < pFluid->reduce.T && _rho < rhosatL && _rho > rhosatV)
@@ -429,6 +434,7 @@ void CoolPropStateClass::update_ps(long iInput1, double Value1, long iInput2, do
 	// Set internal variables
 	_p = Value1;
 	_s = Value2;
+	s_cached = true;
 
 	// Set the phase flags
 	if ( _T < pFluid->reduce.T && _rho < rhosatL && _rho > rhosatV)
@@ -716,16 +722,10 @@ double CoolPropStateClass::keyed_output(long iOutput)
 		// --------------------------
 		case iT:
 			return _T;
-		case iP:
-			return p();
-		case iH:
-			return h();
-		case iS:
-			return s();
 		case iD:
 			return _rho;
-		case iU:
-			return h()-_p/_rho;
+		case iP:
+			return p();
 		case iC:
 			return cp();
 		case iC0:
@@ -741,6 +741,14 @@ double CoolPropStateClass::keyed_output(long iOutput)
 				return _Q;
 			else
 				return -1;
+		case iH:
+			return h();
+		case iS:
+			return s();
+		
+		case iU:
+			return h()-_p/_rho;
+		
 		// --------------------------
 		// Transport properties
 		// --------------------------
@@ -831,7 +839,7 @@ double CoolPropStateClass::h(void){
 		return _Q*hV()+(1-_Q)*hL();
 	}
 	else{
-		if (ValidNumber(_h)){
+		if (h_cached){
 			// Use the pre-calculated value
 			return _h;
 		}
@@ -848,7 +856,7 @@ double CoolPropStateClass::s(void){
 		return _Q*sV()+(1-_Q)*sL();
 	}
 	else{
-		if (ValidNumber(_s))
+		if (s_cached)
 		{
 			// Use the pre-calculated value
 			return _s;

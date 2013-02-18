@@ -70,7 +70,7 @@ public:
 	double _rho,_T,_p,_Q,_h,_s, tau, delta;
 
 	// Phase flags
-	bool TwoPhase, SinglePhase;
+	bool TwoPhase, SinglePhase, s_cached, h_cached;
 	
 	// Default Constructor
 	CoolPropStateClass(){};
@@ -243,12 +243,12 @@ public:
 	double drhodT_along_sat_vapor(void);
 	double drhodT_along_sat_liquid(void);
 
-	/// Clear out all the cached values
-	void clear_cache(void);
-
 	// ----------------------------------------	
 	// Helmholtz Energy Derivatives
 	// ----------------------------------------
+	
+	/// Clear out all the cached values
+	void clear_cache(void);
 
 	double phi0(double tau, double delta);
 	double dphi0_dDelta(double tau, double delta);

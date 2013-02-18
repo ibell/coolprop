@@ -82,19 +82,25 @@ You might want to start by looking at CoolProp.h
 	///     TTSE Tabular Taylor Series Expansion
 	/// -------------------------------------------
 	/// Enable the TTSE
-	EXPORT_CODE void CONVENTION enable_TTSE_LUT(char *FluidName);
+	EXPORT_CODE bool CONVENTION enable_TTSE_LUT(char *FluidName);
 	/// Check if TTSE is enabled
 	EXPORT_CODE bool CONVENTION isenabled_TTSE_LUT(char *FluidName);
 	/// Disable the TTSE
-	EXPORT_CODE void CONVENTION disable_TTSE_LUT(char *FluidName);
+	EXPORT_CODE bool CONVENTION disable_TTSE_LUT(char *FluidName);
+	/// Enable the writing of TTSE tables to file for this fluid
+	EXPORT_CODE bool CONVENTION enable_TTSE_LUT_writing(char *FluidName);
+	/// Check if the writing of TTSE tables to file is enabled
+	EXPORT_CODE bool CONVENTION isenabled_TTSE_LUT_writing(char *FluidName);
+	/// Disable the writing of TTSE tables to file for this fluid
+	EXPORT_CODE bool CONVENTION disable_TTSE_LUT_writing(char *FluidName);
 	/// Over-ride the default size of both of the saturation LUT
-	EXPORT_CODE void CONVENTION set_TTSESat_LUT_size(char *FluidName, int);
+	EXPORT_CODE bool CONVENTION set_TTSESat_LUT_size(char *FluidName, int);
 	/// Over-ride the default size of the single-phase LUT
-	EXPORT_CODE void CONVENTION set_TTSESinglePhase_LUT_size(char *FluidName, int Np, int Nh);
+	EXPORT_CODE bool CONVENTION set_TTSESinglePhase_LUT_size(char *FluidName, int Np, int Nh);
 	/// Over-ride the default range of the single-phase LUT
-	EXPORT_CODE void CONVENTION set_TTSESinglePhase_LUT_range(char *FluidName, double hmin, double hmax, double pmin, double pmax);
+	EXPORT_CODE bool CONVENTION set_TTSESinglePhase_LUT_range(char *FluidName, double hmin, double hmax, double pmin, double pmax);
 	/// Get the current range of the single-phase LUT
-	EXPORT_CODE void CONVENTION get_TTSESinglePhase_LUT_range(char *FluidName, double *hmin, double *hmax, double *pmin, double *pmax);
+	EXPORT_CODE bool CONVENTION get_TTSESinglePhase_LUT_range(char *FluidName, double *hmin, double *hmax, double *pmin, double *pmax);
 
 	// ------------------------------------------------------------------------------------------------
 	// All the functions below this comment do NOT get exported to REFPROP DLL due to the fact that the 

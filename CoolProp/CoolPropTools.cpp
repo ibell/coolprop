@@ -45,7 +45,7 @@ std::vector<std::string> strsplit(std::string s, char del)
 	// Find the first instance of the delimiter
 	iR = s.find_first_of(del);
 	// Delimiter not found, return the same string again
-	if (iR<0){
+	if (iR < 0){
 		v.push_back(s);
 		return v;
 	}
@@ -91,25 +91,24 @@ double interp1d(std::vector<double> *x, std::vector<double> *y, double x0)
     }
 }
 
-static int isNAN(double x)
+static bool isNAN(double x)
 {
 	// recommendation from http://www.devx.com/tips/Tip/42853
 	return x != x;
 }
-static int isINFINITY(double x)
+static bool isINFINITY(double x)
 {
 	// recommendation from http://www.devx.com/tips/Tip/42853
-	if ((x == x) && ((x - x) != 0.0))
+	if ((x == x) && ((x - x) != 0.0)){
 		return 1;//return (x < 0.0 ? -1 : 1); // This will tell you whether positive or negative infinity
-	else
+	}
+	else{
 		return 0;
+	}
 }
-int ValidNumber(double x)
+bool ValidNumber(double x)
 {
-	if (!isNAN(x) && !isINFINITY(x))
-		return 1;
-	else
-		return 0;
+	return (!isNAN(x) && !isINFINITY(x));
 }
 double powInt(double x, int y)
 {

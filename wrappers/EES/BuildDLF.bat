@@ -1,14 +1,13 @@
 REM ******** set the variables ************
-call "C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\vcvarsall.bat"
+call "C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\vcvarsall.bat"
 
-cl /c /DEBUG /EHsc /I../../CoolProp main.cpp
-link /DEBUG /DLL main.obj CoolPropStaticLibrary.lib /OUT:COOLPROP_EES.dlf
+REM ******* compile all the sources from CoolProp***************
+cl /c /EHsc /I../../CoolProp /DEBUG ../../CoolProp/*.cpp
+cl /c /EHsc /I../../CoolProp /DEBUG ../../CoolProp/purefluids/*.cpp
+cl /c /EHsc /I../../CoolProp /DEBUG ../../CoolProp/pseudopurefluids/*.cpp
+cl /c /EHsc /I../../CoolProp /DEBUG main.cpp
+link /DLL main.obj ../../CoolProp/*.obj ../../CoolProp/purefluids/*.obj ../../CoolProp/pseudopurefluids/*.obj /OUT:COOLPROP_EES.dlf /WX
 
-copy CoolProp.lib c:\EES32\Userlib\CoolProp_EES
-copy CoolProp_EES.dlf c:\EES32\Userlib\CoolProp_EES
-
-erase COOLPROP_EES.exp
-erase COOLPROP_EES.ilk
+REM ~ erase COOLPROP_EES.exp
 erase COOLPROP_EES.lib
-erase COOLPROP_EES.pdb
-erase main.obj
+erase *.obj

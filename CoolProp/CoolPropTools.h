@@ -37,7 +37,7 @@
 	double powInt(double x, int y);
 	double QuadInterp(double x0, double x1, double x2, double f0, double f1, double f2, double x);
 	double CubicInterp( double x0, double x1, double x2, double x3, double f0, double f1, double f2, double f3, double x);
-	int ValidNumber(double x);
+	bool ValidNumber(double x);
 	
 
 #endif

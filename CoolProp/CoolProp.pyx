@@ -452,6 +452,7 @@ from math import pow as pow_
 
 #A dictionary mapping parameter index to string for use with non-CoolProp fluids
 cdef dict paras = {iD : 'D',
+                   iQ : 'Q',
                    iMM : 'M',
                    iT : 'T',
                    iH : 'H',

@@ -252,10 +252,9 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 		#else
 			RefpropdllInstance = LoadLibrary((LPCSTR)"refprop.dll");
 		#endif
-		if (RefpropdllInstance==NULL)
+		if (RefpropdllInstance == NULL)
 		{
-			printf("Could not load REFPROP, not in current location or found on system PATH.  Add location of REFPROP to the PATH environmental variable\n");
-			return -_HUGE;
+			throw ValueError(format("Could not load REFPROP, not in current location or found on system PATH.  Add location of REFPROP to the PATH environmental variable\n"));
 		}
 
 		// Then get pointers into the dll to the actual functions.
