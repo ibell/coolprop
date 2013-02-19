@@ -460,26 +460,25 @@ class Fluid
 
 		/// Enable the TTSE
 		/// If you want to over-ride parameters, must be done before calling this function
-		void enable_TTSE_LUT(void){enabled_TTSE_LUT = true;};
+		void enable_TTSE_LUT(void);
 		/// Check if TTSE is enabled
-		bool isenabled_TTSE_LUT(void){return enabled_TTSE_LUT;};
+		bool isenabled_TTSE_LUT(void);
 		/// Disable the TTSE
-		void disable_TTSE_LUT(void){enabled_TTSE_LUT = false;};
+		void disable_TTSE_LUT(void);
 		/// Enable the writing of TTSE tables to file
-		void enable_TTSE_LUT_writing(void){TTSESinglePhase.enable_writing_tables_to_files = true;};
+		void enable_TTSE_LUT_writing(void);
 		/// Check if the writing of TTSE tables to file is enabled
-		bool isenabled_TTSE_LUT_writing(void){return TTSESinglePhase.enable_writing_tables_to_files;};
+		bool isenabled_TTSE_LUT_writing(void);
 		/// Disable the writing of TTSE tables to file
-		void disable_TTSE_LUT_writing(void){TTSESinglePhase.enable_writing_tables_to_files = false;};
+		void disable_TTSE_LUT_writing(void);
 		/// Over-ride the default size of both of the saturation LUT
-		void set_TTSESat_LUT_size(int Nsat){Nsat_TTSE = Nsat;};
+		void set_TTSESat_LUT_size(int Nsat);
 		/// Over-ride the default size of the single-phase LUT
-		void set_TTSESinglePhase_LUT_size(int Np, int Nh){Np_TTSE = Np; Nh_TTSE = Nh;};
+		void set_TTSESinglePhase_LUT_size(int Np, int Nh);
 		/// Over-ride the default range of the single-phase LUT
-		void set_TTSESinglePhase_LUT_range(double hmin, double hmax, double pmin, double pmax){hmin_TTSE = hmin; hmax_TTSE = hmax; pmin_TTSE = pmin; pmax_TTSE = pmax;};
+		void set_TTSESinglePhase_LUT_range(double hmin, double hmax, double pmin, double pmax);
 		/// Get the current range of the single-phase LUT
-		void get_TTSESinglePhase_LUT_range(double *hmin, double *hmax, double *pmin, double *pmax){*hmin = hmin_TTSE; *hmax = hmax_TTSE; *pmin = pmin_TTSE; *pmax = pmax_TTSE;};
-
+		void get_TTSESinglePhase_LUT_range(double *hmin, double *hmax, double *pmin, double *pmax);
 
 		/// Build of the TTSE LUT
 		bool build_TTSE_LUT(bool force = false);

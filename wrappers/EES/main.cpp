@@ -37,7 +37,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 
 #include <stdio.h> 
-#include <string>
+#include <string.h>
 #include <vector>
 #include "CoolProp.h"
 #include "CoolPropTools.h"

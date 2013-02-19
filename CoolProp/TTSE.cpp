@@ -32,6 +32,8 @@ double round(double r) {
     return (r > 0.0) ? floor(r + 0.5) : ceil(r - 0.5);
 }
 
+TTSESinglePhaseTableClass::TTSESinglePhaseTableClass(){SatL = NULL; SatV = NULL;}
+
 TTSESinglePhaseTableClass::TTSESinglePhaseTableClass(Fluid *pFluid)
 {
 	this->pFluid = pFluid;

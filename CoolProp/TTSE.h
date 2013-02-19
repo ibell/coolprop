@@ -80,10 +80,10 @@ protected:
 	std::vector<double> T_Trho, rho_Trho;
 	std::vector<std::vector<int> > i_Trho, j_Trho;
 public:
-	TTSESinglePhaseTableClass(){SatL = NULL; SatV = NULL;};
+	TTSESinglePhaseTableClass();
 	TTSESinglePhaseTableClass(Fluid *pFluid);
 	TTSETwoPhaseTableClass *SatL, *SatV;
-	void set_size(unsigned int Nh=100, unsigned int Np=100);
+	void set_size(unsigned int Nh = 100, unsigned int Np = 100);
 	
 	std::string root_path;
 	std::vector<double> TL,SL,DL,TV,SV,DV;

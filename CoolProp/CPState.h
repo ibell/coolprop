@@ -105,12 +105,12 @@ public:
 	double hV(void);
 	double sL(void);
 	double sV(void);
-	double cpL(void){return SatL->cp();};
-	double cpV(void){return SatV->cp();};
-	double viscL(void){return SatL->keyed_output(iV);};
-	double viscV(void){return SatV->keyed_output(iV);};
-	double condL(void){return SatL->keyed_output(iL);};
-	double condV(void){return SatV->keyed_output(iL);};
+	double cpL(void);
+	double cpV(void);
+	double viscL(void);
+	double viscV(void);
+	double condL(void);
+	double condV(void);
 
 	// Bulk properties accessors - temperature and density are directly calculated every time
 	// All other parameters are calculated on an as-needed basis
@@ -135,25 +135,25 @@ public:
 	// ----------------------------------------
 
 	/// Enable the TTSE
-	void enable_TTSE_LUT(void){pFluid->enable_TTSE_LUT();};
+	void enable_TTSE_LUT(void);
 	/// Check if TTSE is enabled
-	bool isenabled_TTSE_LUT(void){return pFluid->isenabled_TTSE_LUT();};
+	bool isenabled_TTSE_LUT(void);
 	/// Disable the TTSE
-	void disable_TTSE_LUT(void){pFluid->disable_TTSE_LUT();};
+	void disable_TTSE_LUT(void);
 	/// Enable the writing of TTSE tables to file
-	void enable_TTSE_LUT_writing(void){pFluid->enable_TTSE_LUT_writing();};
+	void enable_TTSE_LUT_writing(void);
 	/// Check if the writing of TTSE tables to file is enabled
-	bool isenabled_TTSE_LUT_writing(void){return pFluid->isenabled_TTSE_LUT_writing();};
+	bool isenabled_TTSE_LUT_writing(void);
 	/// Disable the writing of TTSE tables to file
-	void disable_TTSE_LUT_writing(void){pFluid->disable_TTSE_LUT_writing();};
+	void disable_TTSE_LUT_writing(void);
 	/// Over-ride the default size of both of the saturation LUT
-	void set_TTSESat_LUT_size(int N){pFluid->set_TTSESat_LUT_size(N);};
+	void set_TTSESat_LUT_size(int N);
 	/// Over-ride the default size of the single-phase LUT
-	void set_TTSESinglePhase_LUT_size(int Np, int Nh){pFluid->set_TTSESinglePhase_LUT_size(Np,Nh);};
+	void set_TTSESinglePhase_LUT_size(int Np, int Nh);
 	/// Over-ride the default range of the single-phase LUT
-	void set_TTSESinglePhase_LUT_range(double hmin, double hmax, double pmin, double pmax){pFluid->set_TTSESinglePhase_LUT_range(hmin,hmax,pmin,pmax);};
+	void set_TTSESinglePhase_LUT_range(double hmin, double hmax, double pmin, double pmax);
 	/// Get the current range of the single-phase LUT
-	void get_TTSESinglePhase_LUT_range(double *hmin, double *hmax, double *pmin, double *pmax){pFluid->get_TTSESinglePhase_LUT_range(hmin,hmax,pmin,pmax);};
+	void get_TTSESinglePhase_LUT_range(double *hmin, double *hmax, double *pmin, double *pmax);
 
 	/// Evaluate the B term from TTSE method
 	double B_TTSE(double _p, double _h);

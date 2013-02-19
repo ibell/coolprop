@@ -367,8 +367,6 @@ Fluid::~Fluid()
 		delete phi0list.back();  
 		phi0list.pop_back();
 	}
-	EOSReference.clear();
-	TransportReference.clear();
 	delete h_ancillary;
 	delete s_ancillary;
 	delete cp_ancillary;
@@ -376,6 +374,7 @@ Fluid::~Fluid()
 }
 void Fluid::post_load(void)
 {
+	try{
 	// Set the reducing values from the pointer
 	reduce=*preduce;
 	// Set the triple-point pressure if not set in code
@@ -399,6 +398,9 @@ void Fluid::post_load(void)
 	hmax_TTSE = hL+(hV-hL)*2;
 	pmin_TTSE = params.ptriple;
 	pmax_TTSE = 2*reduce.p;
+	}
+	catch (...){
+	}
 }
 //--------------------------------------------
 //    Residual Part
@@ -2703,6 +2705,28 @@ bool Fluid::build_TTSE_LUT(bool force_build)
 	}
 	return true;
 }
+
+/// Enable the TTSE
+/// If you want to over-ride parameters, must be done before calling this function
+void Fluid::enable_TTSE_LUT(void){enabled_TTSE_LUT = true;};
+/// Check if TTSE is enabled
+bool Fluid::isenabled_TTSE_LUT(void){return enabled_TTSE_LUT;};
+/// Disable the TTSE
+void Fluid::disable_TTSE_LUT(void){enabled_TTSE_LUT = false;};
+/// Enable the writing of TTSE tables to file
+void Fluid::enable_TTSE_LUT_writing(void){TTSESinglePhase.enable_writing_tables_to_files = true;};
+/// Check if the writing of TTSE tables to file is enabled
+bool Fluid::isenabled_TTSE_LUT_writing(void){return TTSESinglePhase.enable_writing_tables_to_files;};
+/// Disable the writing of TTSE tables to file
+void Fluid::disable_TTSE_LUT_writing(void){TTSESinglePhase.enable_writing_tables_to_files = false;};
+/// Over-ride the default size of both of the saturation LUT
+void Fluid::set_TTSESat_LUT_size(int Nsat){Nsat_TTSE = Nsat;};
+/// Over-ride the default size of the single-phase LUT
+void Fluid::set_TTSESinglePhase_LUT_size(int Np, int Nh){Np_TTSE = Np; Nh_TTSE = Nh;};
+/// Over-ride the default range of the single-phase LUT
+void Fluid::set_TTSESinglePhase_LUT_range(double hmin, double hmax, double pmin, double pmax){hmin_TTSE = hmin; hmax_TTSE = hmax; pmin_TTSE = pmin; pmax_TTSE = pmax;};
+/// Get the current range of the single-phase LUT
+void Fluid::get_TTSESinglePhase_LUT_range(double *hmin, double *hmax, double *pmin, double *pmax){*hmin = hmin_TTSE; *hmax = hmax_TTSE; *pmin = pmin_TTSE; *pmax = pmax_TTSE;};
 
 void AncillaryCurveClass::update(Fluid *_pFluid, std::string Output)
 {

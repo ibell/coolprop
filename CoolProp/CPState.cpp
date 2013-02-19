@@ -4,6 +4,7 @@
 #include "CPState.h"
 #include "CoolPropTools.h"
 #include "float.h"
+#include "math.h"
 #ifndef __ISWINDOWS__
 	#ifndef DBL_EPSILON
 		#include <limits>
@@ -151,7 +152,7 @@ void CoolPropStateClass::update(long iInput1, double Value1, long iInput2, doubl
 	{
 		// Sort so they are in the order T, Q
 		sort_pair(&iInput1,&Value1,&iInput2,&Value2,iT,iQ);
-		if (!(abs(Value2) < 10*DBL_EPSILON) && !(abs(Value2-1) < 10*DBL_EPSILON)){
+		if (!(fabs(Value2) < 10*DBL_EPSILON) && !(fabs(Value2-1) < 10*DBL_EPSILON)){
 			throw ValueError(format("Pseudo-pure fluids cannot use temperature-quality as inputs if Q is not 1 or 0"));
 		}
 	}
@@ -830,6 +831,13 @@ double CoolPropStateClass::sV(void){
 		return SatV->s();
 	}
 }
+
+double CoolPropStateClass::cpL(void){return SatL->cp();};
+double CoolPropStateClass::cpV(void){return SatV->cp();};
+double CoolPropStateClass::viscL(void){return SatL->keyed_output(iV);};
+double CoolPropStateClass::viscV(void){return SatV->keyed_output(iV);};
+double CoolPropStateClass::condL(void){return SatL->keyed_output(iL);};
+double CoolPropStateClass::condV(void){return SatV->keyed_output(iL);};
 
 double CoolPropStateClass::h(void){
 	if (TwoPhase){
@@ -1625,3 +1633,24 @@ double CoolPropStateClass::d3phir_dDelta3(double tau, double delta){
 		return cachedval_d3phir_dDelta3;
 	}
 };
+
+/// Enable the TTSE
+void CoolPropStateClass::enable_TTSE_LUT(void){pFluid->enable_TTSE_LUT();};
+/// Check if TTSE is enabled
+bool CoolPropStateClass::isenabled_TTSE_LUT(void){return pFluid->isenabled_TTSE_LUT();};
+/// Disable the TTSE
+void CoolPropStateClass::disable_TTSE_LUT(void){pFluid->disable_TTSE_LUT();};
+/// Enable the writing of TTSE tables to file
+void CoolPropStateClass::enable_TTSE_LUT_writing(void){pFluid->enable_TTSE_LUT_writing();};
+/// Check if the writing of TTSE tables to file is enabled
+bool CoolPropStateClass::isenabled_TTSE_LUT_writing(void){return pFluid->isenabled_TTSE_LUT_writing();};
+/// Disable the writing of TTSE tables to file
+void CoolPropStateClass::disable_TTSE_LUT_writing(void){pFluid->disable_TTSE_LUT_writing();};
+/// Over-ride the default size of both of the saturation LUT
+void CoolPropStateClass::set_TTSESat_LUT_size(int N){pFluid->set_TTSESat_LUT_size(N);};
+/// Over-ride the default size of the single-phase LUT
+void CoolPropStateClass::set_TTSESinglePhase_LUT_size(int Np, int Nh){pFluid->set_TTSESinglePhase_LUT_size(Np,Nh);};
+/// Over-ride the default range of the single-phase LUT
+void CoolPropStateClass::set_TTSESinglePhase_LUT_range(double hmin, double hmax, double pmin, double pmax){pFluid->set_TTSESinglePhase_LUT_range(hmin,hmax,pmin,pmax);};
+/// Get the current range of the single-phase LUT
+void CoolPropStateClass::get_TTSESinglePhase_LUT_range(double *hmin, double *hmax, double *pmin, double *pmax){pFluid->get_TTSESinglePhase_LUT_range(hmin,hmax,pmin,pmax);};
