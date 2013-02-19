@@ -126,7 +126,6 @@ void CoolPropStateClass::update(long iInput1, double Value1, long iInput2, doubl
 	|  S,P
 	|  P,Q
 	|  T,Q
-	|
 	*/
 
 	// Reset all the internal variables to _HUGE
@@ -505,7 +504,7 @@ void CoolPropStateClass::update_TTSE_LUT(long iInput1, double Value1, long iInpu
 		// Check whether saturated liquid or vapor
 		check_saturated_quality(Q);
 
-		double p = pFluid->TTSESatL.evaluate_T(iP,T);
+		double p = pFluid->TTSESatL.evaluate_T(T);
 		rhosatL = pFluid->TTSESatL.evaluate(iD,p);
 		rhosatV = pFluid->TTSESatV.evaluate(iD,p);
 		TsatL = pFluid->TTSESatL.evaluate(iT,p);
@@ -767,7 +766,6 @@ double CoolPropStateClass::keyed_output(long iOutput)
 			return drhodT_constp();
 		default:
 			throw ValueError(format("Invalid Output index to keyed_output: %d ",iOutput));
-			return _HUGE;
 	}
 }
 
@@ -903,7 +901,6 @@ double CoolPropStateClass::B_TTSE(double p, double h){
 	double drhodp_h = pFluid->TTSESinglePhase.evaluate_first_derivative(iD,iP,iH,p,h);
 	double dsdh_p = pFluid->TTSESinglePhase.evaluate_first_derivative(iS,iH,iP,p,h);
 	double dsdp_h = pFluid->TTSESinglePhase.evaluate_first_derivative(iS,iP,iH,p,h);
-	double rho = pFluid->TTSESinglePhase.evaluate(iD,p,h);
 	return (drhodp_h*dsdh_p-drhodh_p*dsdp_h);
 }
 double CoolPropStateClass::B_over_D_TTSE(double p, double h)

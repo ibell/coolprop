@@ -537,7 +537,6 @@ double nOctaneClass::rhosatL(double T)
     {
         summer+=Ni[i]*pow(theta,ti[i]);
     }
-	double rho = reduce.rho*exp(summer);
     return reduce.rho*exp(summer);
 }
 double nOctaneClass::rhosatV(double T)
@@ -552,7 +551,6 @@ double nOctaneClass::rhosatV(double T)
     {
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
-	double rho = reduce.rho*exp(summer);
     return reduce.rho*exp(summer);
 }
 

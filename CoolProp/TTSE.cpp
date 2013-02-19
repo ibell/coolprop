@@ -839,7 +839,6 @@ double TTSESinglePhaseTableClass::evaluate(long iParam, double p, double h)
 	default:
 		throw ValueError();
 	}
-	return 0;
 }
 bool isbetween(double x1, double x2, double x)
 {
@@ -877,9 +876,6 @@ double TTSESinglePhaseTableClass::evaluate_one_other_input(long iInput1, double 
 			L = 0; R = Nh-1; M = (L+R)/2;
 			while (R-L>1)
 			{
-				double Lval = (*mat)[L][j];
-				double Mval = (*mat)[M][j];
-				double Rval = (*mat)[R][j];
 				if (isbetween((*mat)[M][j],(*mat)[R][j],Other))
 				{ 
 					L=M; M=(L+R)/2; continue;
@@ -930,9 +926,6 @@ double TTSESinglePhaseTableClass::evaluate_one_other_input(long iInput1, double 
 				// Its superheated
 				while (R-L>1)
 				{
-					double Lval = (*mat)[L][j];
-					double Mval = (*mat)[M][j];
-					double Rval = (*mat)[R][j];
 					if (isbetween((*mat)[M][j],(*mat)[R][j],Other))
 					{ 
 						L=M; M=(L+R)/2; continue;
@@ -1049,7 +1042,6 @@ double TTSESinglePhaseTableClass::evaluate_one_other_input(long iInput1, double 
 	{
 		throw ValueError("Neither enthalpy nor pressure provided as the first parameter");
 	}
-	return 0;
 }
 
 void TTSESinglePhaseTableClass::evaluate_two_other_inputs(long iInput1, double Input1, long iInput2, double Input2, double *pout, double *hout)
@@ -1191,8 +1183,6 @@ double TTSESinglePhaseTableClass::evaluate_first_derivative(long iOF, long iWRT,
 	else{
 		throw ValueError();
 	}
-	
-	return 0;
 }
 
 TTSETwoPhaseTableClass::TTSETwoPhaseTableClass(Fluid *pFluid, double Q)
@@ -1353,7 +1343,7 @@ double TTSETwoPhaseTableClass::evaluate(long iParam, double p)
 		throw ValueError();
 	}
 }
-double TTSETwoPhaseTableClass::evaluate_T(long iParam, double T)
+double TTSETwoPhaseTableClass::evaluate_T(double T)
 {
 	int L,R,M;
 	double a,b,c,pi,log_PI_PIi1,log_PI_PIi2,logp_spacing;
@@ -1400,8 +1390,6 @@ double TTSETwoPhaseTableClass::evaluate_T(long iParam, double T)
 		return p2;
 	else
 		throw ValueError(format("More than one solution found[%g,%g] in evaluate_T for TTSE",p1,p2));
-
-	return 0;
 }
 double TTSETwoPhaseTableClass::evaluate_sat_derivative(long iParam, double p)
 {
@@ -1417,7 +1405,6 @@ double TTSETwoPhaseTableClass::evaluate_sat_derivative(long iParam, double p)
 		throw ValueError(format("p [%g] is out of range",p));
 	}
 		
-	double log_PI_PIi = logp-this->logp[i];
 	double pi = this->p[i];
 	
 	switch (iParam)

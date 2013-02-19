@@ -364,11 +364,6 @@ static int IsCoolPropFluid(std::string FluidName)
 		return false;
 }
 
-static int IsCoolPropFluid(char* Fluid)
-{
-	return IsCoolPropFluid(std::string(Fluid));
-}
-
 static int IsBrine(char* Ref)
 {
 	// First check whether it is one of the Brines that does
@@ -790,7 +785,6 @@ double _Props(std::string Output,std::string Name1, double Prop1, std::string Na
 	{
 		throw ValueError(format("Your fluid name [%s] is not a CoolProp fluid, a REFPROP fluid, a brine or a liquid",Ref.c_str()));
 	}
-    return 0;
 }
 double _CoolProp_Fluid_Props(long iOutput, long iName1, double Prop1, long iName2, double Prop2, Fluid *pFluid, bool SinglePhase)
 {

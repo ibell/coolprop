@@ -52,8 +52,8 @@ struct EesParamRec {
 
 extern "C"  
 {
-	__declspec (dllexport) double COOLPROP_EES(char fluid[256], int mode, struct EesParamRec *input_rec)
-	{
+	__declspec (dllexport)  double COOLPROP_EES(char fluid[256], int mode, struct EesParamRec *input_rec)
+	{        
 		double In1, In2, out;  // Two inputs, one output
 		int NInputs;           // Ninputs is the number of inputs
 		char NInputs_string[3], err_str[1000];
@@ -84,7 +84,7 @@ extern "C"
 		// Check the number of inputs
 		NInputs=0;
 		EesParamRec * aninput_rec=input_rec;
-		while (aninput_rec!= 0)
+		while (aninput_rec != 0)
 		{
 			aninput_rec= aninput_rec->next;
 			NInputs++;
@@ -111,7 +111,6 @@ extern "C"
 		//~ // This redirect standard output to file2.txt
 		//~ freopen("file2.txt", "w", stdout);
 		//~ set_debug(10); // Maximum debugging
-		
 
 		out = Props(Outstr, In1str[0], In1, In2str[0], In2, Fluidstr);
 

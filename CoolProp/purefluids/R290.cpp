@@ -360,7 +360,7 @@ void R290Class::ECSParams(double *e_k, double *sigma)
 }
 double R290Class::viscosity_dilute(double T)
 {	
-	double sum=0,eta_star, a[]={0.25104574,-0.47271238,0,0.060836515,0};
+	double eta_star, a[]={0.25104574,-0.47271238,0,0.060836515,0};
 	double e_k = 263.88 /* K */, sigma = 0.49748, /* nm */ theta_star, Tstar;
 	
 	Tstar = T/e_k;
@@ -386,7 +386,7 @@ double R290Class::viscosity_dilute2(double T, double rho)
 double R290Class::viscosity_residual(double T, double rho)
 {
 	double sum=0,delta_0,DELTA_H_eta,tau,delta;
-	double e_k = 263.88 /* K */, sigma = 0.49748, /* nm */ Tstar, eta_r;
+	double e_k = 263.88 /* K */, Tstar, eta_r;
 	double g1 = 2.50053938863, g2 =	0.860516059264,f1 = 1616.88405374;
 	
 	double e[6][3];

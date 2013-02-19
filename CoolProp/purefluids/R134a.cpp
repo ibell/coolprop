@@ -288,7 +288,7 @@ void R134aClass::ECSParams(double *e_k, double *sigma)
 }
 double R134aClass::viscosity_dilute(double T)
 {	
-	double sum=0,eta_star, a[]={0.355404,-0.464337,0.257353e-1};
+	double eta_star, a[]={0.355404,-0.464337,0.257353e-1};
 	double e_k = 299.363, sigma = 0.468932, theta_star, Tstar;
 	Tstar = T/e_k;
 	theta_star = exp(a[0]*pow(log(Tstar),0)+a[1]*pow(log(Tstar),1)+a[2]*pow(log(Tstar),2));

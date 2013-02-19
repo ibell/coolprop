@@ -70,7 +70,7 @@
 
 using namespace std;
 
-static bool UseCriticalSpline = true;
+static bool UseCriticalSpline = false;
 
 void rebuild_CriticalSplineConstants_T()
 {
@@ -262,7 +262,7 @@ FluidsContainer::FluidsContainer()
 		(*it)->post_load();
 		// Load up entry in map
 		fluid_name_map[(*it)->get_name()] = *it;
-		// Load all the parameters related to the Critical point spline
+		//// Load all the parameters related to the Critical point spline
 		set_critical_spline_constants((*it));
 	}
 }
@@ -2685,6 +2685,7 @@ bool Fluid::build_TTSE_LUT(bool force_build)
 		enabled_TTSE_LUT = false;
 
 		TTSESatL = TTSETwoPhaseTableClass(this,0);
+		// Deference the pointer to the table
 		TTSESatL.set_size(Nsat_TTSE);
 
 		TTSESatV = TTSETwoPhaseTableClass(this,1);

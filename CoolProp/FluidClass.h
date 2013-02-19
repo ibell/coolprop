@@ -158,7 +158,7 @@ class Fluid
 		struct CriticalStruct * preduce; /// A pointer to the point that is used to reduce the T and rho for EOS
 		struct CriticalStruct reduce; /// The point that is used to reduce the T and rho for EOS
 
-		// The TTSE lookup tables
+		//// The TTSE lookup tables
 		TTSETwoPhaseTableClass TTSESatL;
 		TTSETwoPhaseTableClass TTSESatV;
 		TTSESinglePhaseTableClass TTSESinglePhase;
@@ -264,19 +264,19 @@ class Fluid
 		// Optional ancillary functions can be overloaded, will throw a NotImplementedError
 		// to be caught by calling function if not implemented
 		virtual double psat(double T){
-			throw NotImplementedError(std::string("psat not implemented for this fluid")); return _HUGE;
+			throw NotImplementedError(std::string("psat not implemented for this fluid"));
 		};
 		virtual double psatL(double T){
-			throw NotImplementedError(std::string("psatL not implemented for this fluid")); return _HUGE;
+			throw NotImplementedError(std::string("psatL not implemented for this fluid"));
 		};
 		virtual double psatV(double T){
-			throw NotImplementedError(std::string("psatV not implemented for this fluid")); return _HUGE;
+			throw NotImplementedError(std::string("psatV not implemented for this fluid"));
 		};
 		virtual double rhosatL(double T){
-			throw NotImplementedError(std::string("rhosatL not implemented for this fluid")); return _HUGE;
+			throw NotImplementedError(std::string("rhosatL not implemented for this fluid"));
 		};
 		virtual double rhosatV(double T){
-			throw NotImplementedError(std::string("rhosatV not implemented for this fluid")); return _HUGE;
+			throw NotImplementedError(std::string("rhosatV not implemented for this fluid"));
 		};
 		double psatL_anc(double T){
 			if (isPure)
@@ -350,7 +350,7 @@ class Fluid
 		/// @param T Temperature [K]
 		/// @param rho Density [kg/m3]
 		virtual double conductivity_background(double T, double rho){
-			throw NotImplementedError(std::string("conductivity_background not implemented for this fluid")); return _HUGE;
+			throw NotImplementedError(std::string("conductivity_background not implemented for this fluid"));
 		};
 
 		virtual double conductivity_critical(double T, double rho);
@@ -369,7 +369,7 @@ class Fluid
 		/// @param T Temperature [K]
 		/// @param rho Density [kg/m3]
 		virtual double viscosity_residual(double T, double rho){
-			throw NotImplementedError(std::string("viscosity_residual not implemented for this fluid")); return _HUGE;
+			throw NotImplementedError(std::string("viscosity_residual not implemented for this fluid"));
 		};
 		/// The background viscosity for the fluid.  The viscosity minus the critical contribution minus the dilute-gas contribution
 		/// This function is optional, and returns a NotImplementedError if the derived class does not implement it.
@@ -378,7 +378,7 @@ class Fluid
 		/// @param T Temperature [K]
 		/// @param rho Density [kg/m3]
 		virtual double viscosity_background(double T, double rho){
-			throw NotImplementedError(std::string("viscosity_background not implemented for this fluid")); return _HUGE;
+			throw NotImplementedError(std::string("viscosity_background not implemented for this fluid"));
 		};
 
 		virtual double surface_tension_T(double T);
@@ -392,7 +392,7 @@ class Fluid
 		/// @param rhoVout Saturated vapor density [kg/m3]
 		void saturation_T(double T, bool UseLUT, double *psatLout, double *psatVout, double *rhoLout, double *rhoVout);
 
-		/// Saturation pressure and saturated liquid and vapor densities as a function of the temperature.
+		/// Saturation temperature and saturated liquid and vapor densities as a function of the pressure.
 		/// @param p Pressure [kPa(abs)]
 		/// @param UseLUT If True, use the Saturation Lookup tables, otherwise use the EOS and the equal gibbs function and equal pressure criterion to determine saturation state
 		/// @param TsatLout Saturated liquid temperature [K]

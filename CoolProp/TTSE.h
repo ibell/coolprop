@@ -47,9 +47,8 @@ public:
  	double evaluate(long iParam, double p);
 
 	/// Evaluate a property in the two-phase region using the TTSE method with p as input
-	/// @param iParam Index of desired output
 	/// @param T Temperature [K]
- 	double evaluate_T(long iParam, double T);
+ 	double evaluate_T(double T);
 
 	/// Evaluate the derivative of a property along the saturation curve using the TTSE method
 	/// @param iParam Index of desired output
