@@ -188,18 +188,6 @@ class CoolPropPINVOKE {
   }
 
 
-  [DllImport("CoolProp", EntryPoint="CSharp_UseSaturationLUT")]
-  public static extern void UseSaturationLUT(bool jarg1);
-
-  [DllImport("CoolProp", EntryPoint="CSharp_SaturationLUTStatus")]
-  public static extern bool SaturationLUTStatus();
-
-  [DllImport("CoolProp", EntryPoint="CSharp_UseSinglePhaseLUT")]
-  public static extern void UseSinglePhaseLUT(bool jarg1);
-
-  [DllImport("CoolProp", EntryPoint="CSharp_SinglePhaseLUTStatus")]
-  public static extern bool SinglePhaseLUTStatus();
-
   [DllImport("CoolProp", EntryPoint="CSharp_IProps")]
   public static extern double IProps(int jarg1, int jarg2, double jarg3, int jarg4, double jarg5, int jarg6);
 
@@ -254,9 +242,6 @@ class CoolPropPINVOKE {
   [DllImport("CoolProp", EntryPoint="CSharp_get_index_units__SWIG_0")]
   public static extern void get_index_units__SWIG_0(int jarg1, string jarg2);
 
-  [DllImport("CoolProp", EntryPoint="CSharp_get_1phase_LUT_params")]
-  public static extern void get_1phase_LUT_params(HandleRef jarg1, HandleRef jarg2, HandleRef jarg3, HandleRef jarg4, HandleRef jarg5, HandleRef jarg6);
-
   [DllImport("CoolProp", EntryPoint="CSharp_get_debug")]
   public static extern int get_debug();
 
@@ -274,6 +259,36 @@ class CoolPropPINVOKE {
 
   [DllImport("CoolProp", EntryPoint="CSharp_psatV_anc")]
   public static extern double psatV_anc(string jarg1, double jarg2);
+
+  [DllImport("CoolProp", EntryPoint="CSharp_enable_TTSE_LUT")]
+  public static extern bool enable_TTSE_LUT(string jarg1);
+
+  [DllImport("CoolProp", EntryPoint="CSharp_isenabled_TTSE_LUT")]
+  public static extern bool isenabled_TTSE_LUT(string jarg1);
+
+  [DllImport("CoolProp", EntryPoint="CSharp_disable_TTSE_LUT")]
+  public static extern bool disable_TTSE_LUT(string jarg1);
+
+  [DllImport("CoolProp", EntryPoint="CSharp_enable_TTSE_LUT_writing")]
+  public static extern bool enable_TTSE_LUT_writing(string jarg1);
+
+  [DllImport("CoolProp", EntryPoint="CSharp_isenabled_TTSE_LUT_writing")]
+  public static extern bool isenabled_TTSE_LUT_writing(string jarg1);
+
+  [DllImport("CoolProp", EntryPoint="CSharp_disable_TTSE_LUT_writing")]
+  public static extern bool disable_TTSE_LUT_writing(string jarg1);
+
+  [DllImport("CoolProp", EntryPoint="CSharp_set_TTSESat_LUT_size")]
+  public static extern bool set_TTSESat_LUT_size(string jarg1, int jarg2);
+
+  [DllImport("CoolProp", EntryPoint="CSharp_set_TTSESinglePhase_LUT_size")]
+  public static extern bool set_TTSESinglePhase_LUT_size(string jarg1, int jarg2, int jarg3);
+
+  [DllImport("CoolProp", EntryPoint="CSharp_set_TTSESinglePhase_LUT_range")]
+  public static extern bool set_TTSESinglePhase_LUT_range(string jarg1, double jarg2, double jarg3, double jarg4, double jarg5);
+
+  [DllImport("CoolProp", EntryPoint="CSharp_get_TTSESinglePhase_LUT_range")]
+  public static extern bool get_TTSESinglePhase_LUT_range(string jarg1, HandleRef jarg2, HandleRef jarg3, HandleRef jarg4, HandleRef jarg5);
 
   [DllImport("CoolProp", EntryPoint="CSharp_Props__SWIG_0")]
   public static extern double Props__SWIG_0(string jarg1, string jarg2);

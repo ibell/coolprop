@@ -27,6 +27,7 @@ public enum _params {
   iMM,
   iTcrit,
   iTtriple,
+  iPtriple,
   iPcrit,
   iRhocrit,
   iAccentric,

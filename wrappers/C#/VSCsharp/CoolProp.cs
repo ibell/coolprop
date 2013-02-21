@@ -11,24 +11,6 @@ using System;
 using System.Runtime.InteropServices;
 
 public class CoolProp {
-  public static void UseSaturationLUT(bool OnOff) {
-    CoolPropPINVOKE.UseSaturationLUT(OnOff);
-  }
-
-  public static bool SaturationLUTStatus() {
-    bool ret = CoolPropPINVOKE.SaturationLUTStatus();
-    return ret;
-  }
-
-  public static void UseSinglePhaseLUT(bool OnOff) {
-    CoolPropPINVOKE.UseSinglePhaseLUT(OnOff);
-  }
-
-  public static bool SinglePhaseLUTStatus() {
-    bool ret = CoolPropPINVOKE.SinglePhaseLUTStatus();
-    return ret;
-  }
-
   public static double IProps(int iOutput, int iName1, double Prop1, int iName2, double Prop2, int iFluid) {
     double ret = CoolPropPINVOKE.IProps(iOutput, iName1, Prop1, iName2, Prop2, iFluid);
     return ret;
@@ -112,10 +94,6 @@ public class CoolProp {
     CoolPropPINVOKE.get_index_units__SWIG_0(param, units);
   }
 
-  public static void get_1phase_LUT_params(SWIGTYPE_p_int nT, SWIGTYPE_p_int np, SWIGTYPE_p_double Tmin, SWIGTYPE_p_double Tmax, SWIGTYPE_p_double pmin, SWIGTYPE_p_double pmax) {
-    CoolPropPINVOKE.get_1phase_LUT_params(SWIGTYPE_p_int.getCPtr(nT), SWIGTYPE_p_int.getCPtr(np), SWIGTYPE_p_double.getCPtr(Tmin), SWIGTYPE_p_double.getCPtr(Tmax), SWIGTYPE_p_double.getCPtr(pmin), SWIGTYPE_p_double.getCPtr(pmax));
-  }
-
   public static int get_debug() {
     int ret = CoolPropPINVOKE.get_debug();
     return ret;
@@ -142,6 +120,56 @@ public class CoolProp {
 
   public static double psatV_anc(string Fluid, double T) {
     double ret = CoolPropPINVOKE.psatV_anc(Fluid, T);
+    return ret;
+  }
+
+  public static bool enable_TTSE_LUT(string FluidName) {
+    bool ret = CoolPropPINVOKE.enable_TTSE_LUT(FluidName);
+    return ret;
+  }
+
+  public static bool isenabled_TTSE_LUT(string FluidName) {
+    bool ret = CoolPropPINVOKE.isenabled_TTSE_LUT(FluidName);
+    return ret;
+  }
+
+  public static bool disable_TTSE_LUT(string FluidName) {
+    bool ret = CoolPropPINVOKE.disable_TTSE_LUT(FluidName);
+    return ret;
+  }
+
+  public static bool enable_TTSE_LUT_writing(string FluidName) {
+    bool ret = CoolPropPINVOKE.enable_TTSE_LUT_writing(FluidName);
+    return ret;
+  }
+
+  public static bool isenabled_TTSE_LUT_writing(string FluidName) {
+    bool ret = CoolPropPINVOKE.isenabled_TTSE_LUT_writing(FluidName);
+    return ret;
+  }
+
+  public static bool disable_TTSE_LUT_writing(string FluidName) {
+    bool ret = CoolPropPINVOKE.disable_TTSE_LUT_writing(FluidName);
+    return ret;
+  }
+
+  public static bool set_TTSESat_LUT_size(string FluidName, int arg1) {
+    bool ret = CoolPropPINVOKE.set_TTSESat_LUT_size(FluidName, arg1);
+    return ret;
+  }
+
+  public static bool set_TTSESinglePhase_LUT_size(string FluidName, int Np, int Nh) {
+    bool ret = CoolPropPINVOKE.set_TTSESinglePhase_LUT_size(FluidName, Np, Nh);
+    return ret;
+  }
+
+  public static bool set_TTSESinglePhase_LUT_range(string FluidName, double hmin, double hmax, double pmin, double pmax) {
+    bool ret = CoolPropPINVOKE.set_TTSESinglePhase_LUT_range(FluidName, hmin, hmax, pmin, pmax);
+    return ret;
+  }
+
+  public static bool get_TTSESinglePhase_LUT_range(string FluidName, SWIGTYPE_p_double hmin, SWIGTYPE_p_double hmax, SWIGTYPE_p_double pmin, SWIGTYPE_p_double pmax) {
+    bool ret = CoolPropPINVOKE.get_TTSESinglePhase_LUT_range(FluidName, SWIGTYPE_p_double.getCPtr(hmin), SWIGTYPE_p_double.getCPtr(hmax), SWIGTYPE_p_double.getCPtr(pmin), SWIGTYPE_p_double.getCPtr(pmax));
     return ret;
   }
 

@@ -18,3 +18,7 @@ Part 3 (optional):
 1. If you have REFPROP installed, make sure you have a copy of REFPROP installed 
    in c:\Program Files\REFPROP, if not, copy your REFPROP to this location.
    Alternatively you can also modify the paths in the TestExcel.xlam file
+   
+Notes
+-----
+The DLL is built using the __stdcall calling convention

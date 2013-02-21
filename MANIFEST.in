@@ -15,4 +15,3 @@ prune dist
 prune dist_temp
 prune _deps
 prune _python
-graft CoolProp/Eigen

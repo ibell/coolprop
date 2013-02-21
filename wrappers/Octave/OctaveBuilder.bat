@@ -1,5 +1,5 @@
 call "C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\vcvarsall.bat"
-octave _OctaveBuilder.m
+"c:\Program Files (x86)\Octave-3.6.1\bin\octave" _OctaveBuilder.m
 move ..\..\CoolProp\CoolProp.oct 3.6.1\CoolProp.oct
 
 call "C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\vcvarsall.bat"

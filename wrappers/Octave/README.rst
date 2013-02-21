@@ -1,4 +1,11 @@
-This CoolProp.oct module is built using SWIG, and is built for octave for windows built with Visual Studio.  Separate versions are available for 3.6.1 and 3.6.2.
+A wrapper of CoolProp for the Octave programming language (an open-source version of MATLAB)
+
+This CoolProp.oct module is built using SWIG, and is built for octave for windows built with Visual Studio.  
+
+Installation
+=============
+Separate versions of the .oct file are available for 3.6.1 and 3.6.2.
+Put the .oct file for the version you have in somewhere in the octave path
 
 Developer Notes:
 ===============

@@ -15,6 +15,10 @@
     %ignore Props(char*, char, double, char, double, char*);
 #endif
 
+#ifdef SWIGOCTAVE
+    %ignore DerivTerms(char *Term, double T, double rho, Fluid * pFluid, bool SinglePhase, bool TwoPhase);
+#endif
+
 // This stuff will get included verbatim in CoolProp_wrap.cpp
 %{
 #include "CoolProp.h"

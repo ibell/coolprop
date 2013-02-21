@@ -33,7 +33,7 @@ def Source():
     python_install = PYTHONVERSIONS[0]
     print subprocess.check_output([python_install,'setup.py','sdist','--dist-dir=dist_temp/Python'],shell=True,cwd='.')
 
-def DLL():
+def DLL_and_Excel():
     """ Build a DLL using __stdcall calling convention """
     subprocess.check_output(['BuildDLL'],shell=True,cwd=os.path.join('wrappers','Excel'))
     #Collect the zip file and p
@@ -44,11 +44,10 @@ def DLL():
         
     shutil.copy2(os.path.join('lib','CoolProp.dll'),os.path.join('dist_temp','Excel and DLL','CoolProp.dll'))
     shutil.copy2(os.path.join('CoolProp','CoolProp.h'),os.path.join('dist_temp','Excel and DLL','CoolProp.h'))
-    shutil.copy2('DLLREADME.txt',os.path.join('dist_temp','Excel and DLL','README.txt'))
     shutil.copy2(os.path.join('wrappers','Excel','CoolProp.xlam'),os.path.join('dist_temp','Excel and DLL','CoolProp.xlam'))
     shutil.copy2(os.path.join('wrappers','Excel','CoolProp.xla'),os.path.join('dist_temp','Excel and DLL','CoolProp.xla'))
     shutil.copy2(os.path.join('wrappers','Excel','TestExcel.xlsx'),os.path.join('dist_temp','Excel and DLL','TestExcel.xlsx'))
-    shutil.copy2(os.path.join('wrappers','Excel','ExcelInstructions.txt'),os.path.join('dist_temp','Excel and DLL','ExcelInstructions.txt'))
+    shutil.copy2(os.path.join('wrappers','Excel','README.rst'),os.path.join('dist_temp','Excel and DLL','README.rst'))
     
 def Octave():
     try:
@@ -61,7 +60,7 @@ def Octave():
     shutil.copy2(os.path.join('wrappers','Octave','3.6.1','CoolProp.oct'),os.path.join('dist_temp','Octave','3.6.1','CoolProp.oct'))
     shutil.copy2(os.path.join('wrappers','Octave','3.6.2','CoolProp.oct'),os.path.join('dist_temp','Octave','3.6.2','CoolProp.oct'))
     shutil.copy2(os.path.join('wrappers','Octave','sample_code.m'),os.path.join('dist_temp','Octave','sample_code.m'))
-    shutil.copy2(os.path.join('wrappers','Octave','README.txt'),os.path.join('dist_temp','Octave','README.txt'))
+    shutil.copy2(os.path.join('wrappers','Octave','README.rst'),os.path.join('dist_temp','Octave','README.rst'))
     
 def Csharp():
     try:
@@ -85,9 +84,20 @@ def MATLAB():
     shutil.copy2(os.path.join('wrappers','MATLAB','HAProps.mexw64'),os.path.join('dist_temp','MATLAB','HAProps.mexw64'))
     shutil.copy2(os.path.join('wrappers','MATLAB','Props.mexw32'),os.path.join('dist_temp','MATLAB','Props.mexw32'))
     shutil.copy2(os.path.join('wrappers','MATLAB','HAProps.mexw32'),os.path.join('dist_temp','MATLAB','HAProps.mexw32'))
-    shutil.copy2(os.path.join('wrappers','MATLAB','README.txt'),os.path.join('dist_temp','MATLAB','README.txt'))
+    shutil.copy2(os.path.join('wrappers','MATLAB','README.rst'),os.path.join('dist_temp','MATLAB','README.rst'))
     shutil.copy2(os.path.join('wrappers','MATLAB','MATLAB_sample.m'),os.path.join('dist_temp','MATLAB','MATLAB_sample.m'))
     
+def Labview():
+    import CoolProp
+    version = CoolProp.__version__
+    try:
+        os.makedirs(os.path.join('dist_temp','Labview'))
+    except os.error: pass
+    
+    shutil.copy2(os.path.join('wrappers','Labview','CoolProp.dll'),os.path.join('dist_temp','Labview','CoolProp.dll'))
+    shutil.copy2(os.path.join('wrappers','Labview','CoolProp.vi'),os.path.join('dist_temp','Labview','CoolProp.vi'))
+    shutil.copy2(os.path.join('wrappers','Labview','README.rst'),os.path.join('dist_temp','Labview','README.rst'))
+
 def EES():
     import CoolProp
     version = CoolProp.__version__
@@ -113,6 +123,19 @@ def Python():
         print subprocess.check_output([python_install,'setup.py','bdist','--format=wininst','--dist-dir=dist_temp/Python'],shell=True,cwd='.')
     #For good measure, clean up after ourselves
     remove_coolprop_lib()
+    
+def Modelica():
+    try:
+        os.makedirs(os.path.join('dist_temp','Modelica'))
+    except os.error: pass
+        
+    process = subprocess.Popen(['BuildLIB-VS2008.bat'],shell=True,cwd=os.path.join('wrappers','Modelica')); process.wait()
+    process = subprocess.Popen(['BuildLIB-VS2010.bat'],shell=True,cwd=os.path.join('wrappers','Modelica')); process.wait()
+        
+    shutil.copy2(os.path.join('wrappers','Modelica','README.rst'),os.path.join('dist_temp','Modelica','README.rst'))
+    shutil.copy2(os.path.join('wrappers','Modelica','src_modelica','CoolProp2Modelica.mo'),os.path.join('dist_temp','Modelica','CoolProp2Modelica.mo'))
+    shutil.copytree(os.path.join('wrappers','Modelica','bin','VS2008'),os.path.join('dist_temp','Modelica','bin','VS2008'))
+    shutil.copytree(os.path.join('wrappers','Modelica','bin','VS2010'),os.path.join('dist_temp','Modelica','bin','VS2010'))
     
 def UploadSourceForge():
     #Rename folder to version number
@@ -154,15 +177,17 @@ if __name__=='__main__':
     
 ##     InstallPrereqs()  #This is optional if you think any of the pre-reqs have been updated
 
-##     DLL()
+##     DLL_and_Excel()
 ##     Source()
 ##     Python()
 ##     Csharp()
 ##     Octave()
 ##     MATLAB()
 ##     EES()
+##     Labview()
+##     Modelica()
 ##     PYPI()
 ##     UploadSourceForge()
 
-    BuildDocs()
+##     BuildDocs()
 ##     UploadDocs()
