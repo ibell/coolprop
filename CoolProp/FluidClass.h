@@ -261,6 +261,9 @@ class Fluid
 		/// Return the phase given the temperature and the density
 		std::string phase_Trho(double T, double rho, double *pL, double *pV, double *rhoL, double *rhoV);
 
+		/// Return the phase using the phase flags from phase enum in CoolProp.h
+		long phase_Trho_indices(double T, double rho, double *pL, double *pV, double *rhoL, double *rhoV);
+
 		// Optional ancillary functions can be overloaded, will throw a NotImplementedError
 		// to be caught by calling function if not implemented
 		virtual double psat(double T){

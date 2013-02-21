@@ -770,6 +770,12 @@ double CoolPropStateClass::keyed_output(long iOutput)
 	}
 }
 
+long CoolPropStateClass::phase(void)
+{
+	double pL,pV,rhoL,rhoV;
+	return pFluid->phase_Trho_indices(_T,_rho,&pL,&pV,&rhoL,&rhoV);
+}
+
 void CoolPropStateClass::add_saturation_states(void)
 {
 	// While SatL and SatV are technically two-phase, we consider 

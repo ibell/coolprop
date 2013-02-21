@@ -70,7 +70,7 @@
 
 using namespace std;
 
-static bool UseCriticalSpline = false;
+static bool UseCriticalSpline = true;
 
 void rebuild_CriticalSplineConstants_T()
 {
@@ -1260,6 +1260,30 @@ long Fluid::phase_Tp_indices(double T, double p, double *pL, double *pV, double 
 
 std::string Fluid::phase_Trho(double T, double rho, double *pL, double *pV, double *rhoL, double *rhoV)
 {
+	// Get the value from the long-output function
+	long iPhase = phase_Trho_indices(T, rho, pL, pV, rhoL, rhoV);
+	if (debug()>5){
+		std::cout<<__FILE__<<": phase index is " << iPhase <<std::endl;
+	}
+
+	// Convert it to a std::string
+	switch (iPhase)
+	{
+	case iTwoPhase:
+		return std::string("Two-Phase");
+	case iSupercritical:
+		return std::string("Supercritical");
+	case iGas:
+		return std::string("Gas");
+	case iLiquid:
+		return std::string("Liquid");
+	default:
+		return std::string("");
+	}
+}
+
+long Fluid::phase_Trho_indices(double T, double rho, double *pL, double *pV, double *rhoL, double *rhoV)
+{
 	/*
         |
 	    | Liquid
@@ -1292,10 +1316,10 @@ std::string Fluid::phase_Trho(double T, double rho, double *pL, double *pV, doub
 		// Ancillary equations are good to within 1% in pressure in general
 		// Some industrial fluids might not be within 3%
 		if (rho<0.95*rhosatV(T)){
-			return std::string("Gas");
+			return iGas;
 		}
 		else if (rho>1.05*rhosatL(T)){
-			return std::string("Liquid");
+			return iLiquid;
 		}
 		else{
 			// Actually have to use saturation information sadly
@@ -1304,13 +1328,13 @@ std::string Fluid::phase_Trho(double T, double rho, double *pL, double *pV, doub
 			// Use the passed in variables to save calls to the saturation routine so the values can be re-used again
 			saturation_T(T,enabled_TTSE_LUT,pL,pV,rhoL,rhoV);
 			if (rho>*rhoL){
-				return std::string("Liquid");
+				return iLiquid;
 			}
 			else if (rho<*rhoV){
-				return std::string("Gas");
+				return iGas;
 			}
 			else{
-				return std::string("Two-Phase");
+				return iTwoPhase;
 			}
 		}
 	}
@@ -1318,19 +1342,19 @@ std::string Fluid::phase_Trho(double T, double rho, double *pL, double *pV, doub
 	double p = pressure_Trho(T,rho);
 
 	if (T>reduce.T && p>reduce.p){
-		return std::string("Supercritical");
+		return iSupercritical;
 	}
 	else if (T>reduce.T && p<reduce.p){
-		return std::string("Gas");
+		return iGas;
 	}
 	else if (T<reduce.T && p>reduce.p){
-		return std::string("Liquid");
+		return iLiquid;
 	}
 	else if (p<params.ptriple){
-		return std::string("Gas");
+		return iGas;
 	}
 	else{
-		return std::string("NotApplicable");
+		return -1;
 	}
 }
 

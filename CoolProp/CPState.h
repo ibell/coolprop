@@ -112,6 +112,9 @@ public:
 	double condL(void);
 	double condV(void);
 
+	// The phase as an integer flag
+	long phase(void);
+
 	// Bulk properties accessors - temperature and density are directly calculated every time
 	// All other parameters are calculated on an as-needed basis
 	// If single-phase, just plug into the EOS, otherwise need to do two-phase analysis

@@ -347,7 +347,7 @@ double R404AClass::viscosity_Trho(double T, double rho)
 	// by Vladimir Geller, 
 	// 2000 Purdue Refrigeration conferences
 
-    // inputs in T [K], and p [kPa]
+    // inputs in T [K], and rho [kg/m^3]
     // output in Pa-s
 
    double 

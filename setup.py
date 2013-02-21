@@ -258,6 +258,13 @@ if __name__=='__main__':
                             cython_c_in_temp = True
                             )
                             
+    phase_constants_module = CyExtension('CoolProp.phase_constants',
+                            [os.path.join('CoolProp','phase_constants.pyx')],
+                            include_dirs = include_dirs,
+                            language='c++',
+                            cython_c_in_temp = True
+                            )
+                            
     #Collect all the header files into an include folder
     try:
         os.mkdir(os.path.join('CoolProp','include'))
@@ -274,7 +281,7 @@ if __name__=='__main__':
            url='http://coolprop.sourceforge.net',
            description = """Open-source thermodynamic and transport properties database""",
            packages = ['CoolProp','CoolProp.Plots','CoolProp.tests','CoolProp.GUI'],
-           ext_modules = [CoolProp2_module,param_constants_module],
+           ext_modules = [CoolProp2_module,param_constants_module,phase_constants_module],
            package_dir = {'CoolProp':'CoolProp',},
            package_data = {'CoolProp':['State.pxd','CoolProp.pxd','param_constants.pxd','include/*.h']},
            cmdclass={'build_ext': build_ext},
@@ -317,4 +324,8 @@ if __name__=='__main__':
     from CoolProp.State import State
     S = State('R134a',dict(T=300,D=0.005))
     S.speed_test(10000)
+    
+    import CoolProp.CoolProp
+    CoolProp.CoolProp.Props('H','T',300,'Q',0,'Propane')
+    print CoolProp.CoolProp.get_TTSESinglePhase_LUT_range("Propane")
     

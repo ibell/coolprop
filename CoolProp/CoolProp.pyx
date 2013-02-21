@@ -32,6 +32,7 @@ from State2 cimport *
 include "State2.pyx"
 
 from param_constants import *
+from phase_constants import *
 
 include "HumidAirProp.pyx"
 
@@ -392,7 +393,7 @@ cpdef bint IsFluidType(bytes_or_str Fluid, bytes_or_str Type):
         return False
     
 #: Enable the TTSE
-cpdef enable_TTSE_LUT(char *FluidName): _enable_TTSE_LUT(FluidName)
+cpdef bint enable_TTSE_LUT(char *FluidName): return _enable_TTSE_LUT(FluidName)
 #: Check if TTSE is enabled
 cpdef bint isenabled_TTSE_LUT(char *FluidName): return _isenabled_TTSE_LUT(FluidName)
 #: Disable the TTSE
@@ -404,7 +405,7 @@ cpdef set_TTSESinglePhase_LUT_size(char *FluidName, int Np, int Nh): _set_TTSESi
 #: Over-ride the default range of the single-phase LUT
 cpdef set_TTSESinglePhase_LUT_range(char *FluidName, double hmin, double hmax, double pmin, double pmax): _set_TTSESinglePhase_LUT_range(FluidName, hmin, hmax, pmin, pmax)
 
-cpdef get_TTSESinglePhase_LUT_range(char *FluidName):
+cpdef tuple get_TTSESinglePhase_LUT_range(char *FluidName):
     """
     Get the current range of the single-phase LUT
     
@@ -412,10 +413,13 @@ cpdef get_TTSESinglePhase_LUT_range(char *FluidName):
     -------
     tuple of hmin,hmax,pmin,pmax
     """
-    cdef double *hmin = NULL, *hmax = NULL, *pmin = NULL, *pmax = NULL
-    _get_TTSESinglePhase_LUT_range(FluidName,hmin,hmax,pmin,pmax)
-    #In cython, nT[0] to dereference rather than *nT
-    return (hmin[0], hmax[0], pmin[0], pmax[0])
+    cdef double hmin = 0, hmax = 0, pmin = 0, pmax = 0
+    #In cython, hmin[0] to get pointer rather than &hmin
+    cdef bool valsok = _get_TTSESinglePhase_LUT_range(FluidName, &hmin, &hmax, &pmin, &pmax)
+    if valsok:
+        return (hmin, hmax, pmin, pmax)
+    else:
+        return ()
     
 cpdef rhosatL_anc(bytes_or_str Fluid, double T):
     cdef bytes _Fluid = Fluid if bytes_or_str is bytes else Fluid.encode('ascii')
@@ -658,6 +662,12 @@ cdef class State:
         else:
             raise ValueError('xL must be between 0 and 1')
         
+    cpdef long Phase(self):
+        if self.is_CPFluid:
+            return self.CPS.phase()
+        else:
+            raise NotImplementedError("Phase not defined for fluids other than CoolProp fluids")
+        
     cpdef double Props(self, long iOutput):
         if iOutput<0:
             raise ValueError('Your output is invalid') 
@@ -668,6 +678,12 @@ cdef class State:
         else:
             return _Props(paras[iOutput],'T',self.T_,'D',self.rho_,self.Fluid)
             
+    cpdef double get_Q(self):
+        return self.Props(iQ)
+    property Q:
+        def __get__(self):
+            return self.get_Q()
+    
     cpdef double get_MM(self):
         return _Props1(self.Fluid,'molemass')
     
@@ -804,6 +820,7 @@ cdef class State:
         units={'T': 'K', 
                'p': 'kPa', 
                'rho': 'kg/m^3',
+               'Q':'kg/kg',
                'h':'kJ/kg',
                'u':'kJ/kg',
                's':'kJ/kg/K',
@@ -813,7 +830,7 @@ cdef class State:
                'cv':'kJ/kg/K',
                'dpdT':'kPa/K'}
         s=''
-        for k in ['T','p','rho','h','u','s','visc','k','cp','cv','dpdT','Prandtl']:
+        for k in ['T','p','rho','Q','h','u','s','visc','k','cp','cv','dpdT','Prandtl']:
             if k in units:
                 s+=k+' = '+str(getattr(self,k))+' '+units[k]+'\n'
             else:

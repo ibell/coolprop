@@ -40,19 +40,19 @@ cdef extern from "CoolProp.h":
     int _IsFluidType "IsFluidType"(char *Ref, char *Type)
     
     # Enable the TTSE
-    void _enable_TTSE_LUT "enable_TTSE_LUT"(char *FluidName)
+    bint _enable_TTSE_LUT "enable_TTSE_LUT"(char *FluidName)
     # Check if TTSE is enabled
     bint _isenabled_TTSE_LUT "isenabled_TTSE_LUT"(char *FluidName)
     # Disable the TTSE
-    void _disable_TTSE_LUT "disable_TTSE_LUT"(char *FluidName)
+    bint _disable_TTSE_LUT "disable_TTSE_LUT"(char *FluidName)
     # Over-ride the default size of both of the saturation LUT
-    void _set_TTSESat_LUT_size "set_TTSESat_LUT_size"(char *FluidName, int)
+    bint _set_TTSESat_LUT_size "set_TTSESat_LUT_size"(char *FluidName, int)
     # Over-ride the default size of the single-phase LUT
-    void _set_TTSESinglePhase_LUT_size "set_TTSESinglePhase_LUT_size"(char *FluidName, int Np, int Nh)
+    bint _set_TTSESinglePhase_LUT_size "set_TTSESinglePhase_LUT_size"(char *FluidName, int Np, int Nh)
     # Over-ride the default range of the single-phase LUT
-    void _set_TTSESinglePhase_LUT_range "set_TTSESinglePhase_LUT_range"(char *FluidName, double hmin, double hmax, double pmin, double pmax)
+    bint _set_TTSESinglePhase_LUT_range "set_TTSESinglePhase_LUT_range"(char *FluidName, double hmin, double hmax, double pmin, double pmax)
     # Get the current range of the single-phase LUT
-    void _get_TTSESinglePhase_LUT_range "get_TTSESinglePhase_LUT_range"(char *FluidName, double *hmin, double *hmax, double *pmin, double *pmax)
+    bint _get_TTSESinglePhase_LUT_range "get_TTSESinglePhase_LUT_range"(char *FluidName, double *hmin, double *hmax, double *pmin, double *pmax)
 
 cdef extern from "CPState.h":
     cdef cppclass CoolPropStateClass:
@@ -63,6 +63,8 @@ cdef extern from "CPState.h":
         double p()
         void update(long iInput1, double Value1, long iInput2, double Value2)
         double keyed_output(long iOutput)
+        long phase()
+        double Q()
         
 cdef extern from "HumidAirProp.h":
     double _HAProps "HAProps"(char *OutputName, char *Input1Name, double Input1, char *Input2Name, double Input2, char *Input3Name, double Input3)
@@ -82,7 +84,9 @@ cdef class State:
     cpdef update_Trho(self, double T, double rho)
     cpdef copy(self)
     cpdef double Props(self, long iOutput)
+    cpdef long Phase(self)
     
+    cpdef double get_Q(self)
     cpdef double get_T(self)
     cpdef double get_p(self)
     cpdef double get_h(self)

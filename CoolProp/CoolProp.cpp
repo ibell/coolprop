@@ -579,10 +579,10 @@ std::string Phase_Tp(std::string Fluid, double T, double p)
 // All the function interfaces that point to the single-input Props function
 EXPORT_CODE double CONVENTION Props1(char* Ref, char * Output)
 {
-	FILE *fp;
-	fp = fopen("c:\\CoolProp\\log_Props1.txt", "a");
-	fprintf(fp,"%s %s\n",Ref,Output);
-	fclose(fp);
+	//FILE *fp;
+	//fp = fopen("c:\\CoolProp\\log_Props1.txt", "a");
+	//fprintf(fp,"%s %s\n",Ref,Output);
+	//fclose(fp);
 
 	try{
 	// Redirect to the Props function - should have called it Props1 from the outset
@@ -657,10 +657,10 @@ EXPORT_CODE double CONVENTION Props(char *Output,char Name1, double Prop1, char 
 {
 	double val = Props(std::string(Output),Name1,Prop1,Name2,Prop2,std::string(Ref));
 
-	FILE *fp;
-	fp = fopen("c:\\CoolProp\\log_Props.txt", "a");
-	fprintf(fp,"%s,%c,%g,%c,%g,%s-->%g\n",Output,Name1,Prop1,Name2,Prop2,Ref,val);
-	fclose(fp);
+	//FILE *fp;
+	//fp = fopen("c:\\CoolProp\\log_Props.txt", "a");
+	//fprintf(fp,"%s,%c,%g,%c,%g,%s-->%g\n",Output,Name1,Prop1,Name2,Prop2,Ref,val);
+	//fclose(fp);
 
 	// Go to the std::string, std::string version
 	return val;
