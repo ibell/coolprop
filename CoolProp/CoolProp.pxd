@@ -45,6 +45,14 @@ cdef extern from "CoolProp.h":
     bint _isenabled_TTSE_LUT "isenabled_TTSE_LUT"(char *FluidName)
     # Disable the TTSE
     bint _disable_TTSE_LUT "disable_TTSE_LUT"(char *FluidName)
+    
+    # Enable the writing of TTSE tables to file for this fluid
+    bint _enable_TTSE_LUT_writing "enable_TTSE_LUT_writing"(char *FluidName)
+    # Check if the writing of TTSE tables to file is enabled
+    bint _isenabled_TTSE_LUT_writing "isenabled_TTSE_LUT_writing"(char *FluidName)
+    # Disable the writing of TTSE tables to file for this fluid
+    bint _disable_TTSE_LUT_writing "disable_TTSE_LUT_writing"(char *FluidName)
+    
     # Over-ride the default size of both of the saturation LUT
     bint _set_TTSESat_LUT_size "set_TTSESat_LUT_size"(char *FluidName, int)
     # Over-ride the default size of the single-phase LUT

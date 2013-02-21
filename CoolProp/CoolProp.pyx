@@ -397,13 +397,21 @@ cpdef bint enable_TTSE_LUT(char *FluidName): return _enable_TTSE_LUT(FluidName)
 #: Check if TTSE is enabled
 cpdef bint isenabled_TTSE_LUT(char *FluidName): return _isenabled_TTSE_LUT(FluidName)
 #: Disable the TTSE
-cpdef disable_TTSE_LUT(char *FluidName): _disable_TTSE_LUT(FluidName)
+cpdef bint disable_TTSE_LUT(char *FluidName): return _disable_TTSE_LUT(FluidName)
+
+#: Enable the TTSE
+cpdef bint enable_TTSE_LUT_writing(char *FluidName): return _enable_TTSE_LUT_writing(FluidName)
+#: Check if TTSE is enabled
+cpdef bint isenabled_TTSE_LUT_writing(char *FluidName): return _isenabled_TTSE_LUT_writing(FluidName)
+#: Disable the TTSE
+cpdef bint disable_TTSE_LUT_writing(char *FluidName): return _disable_TTSE_LUT_writing(FluidName)
+
 #: Over-ride the default size of both of the saturation LUT
-cpdef set_TTSESat_LUT_size(char *FluidName, int N): _set_TTSESat_LUT_size(FluidName, N)
+cpdef bint set_TTSESat_LUT_size(char *FluidName, int N): return _set_TTSESat_LUT_size(FluidName, N)
 #: Over-ride the default size of the single-phase LUT
-cpdef set_TTSESinglePhase_LUT_size(char *FluidName, int Np, int Nh): _set_TTSESinglePhase_LUT_size(FluidName, Np, Nh)
+cpdef bint set_TTSESinglePhase_LUT_size(char *FluidName, int Np, int Nh): return _set_TTSESinglePhase_LUT_size(FluidName, Np, Nh)
 #: Over-ride the default range of the single-phase LUT
-cpdef set_TTSESinglePhase_LUT_range(char *FluidName, double hmin, double hmax, double pmin, double pmax): _set_TTSESinglePhase_LUT_range(FluidName, hmin, hmax, pmin, pmax)
+cpdef bint set_TTSESinglePhase_LUT_range(char *FluidName, double hmin, double hmax, double pmin, double pmax): return _set_TTSESinglePhase_LUT_range(FluidName, hmin, hmax, pmin, pmax)
 
 cpdef tuple get_TTSESinglePhase_LUT_range(char *FluidName):
     """

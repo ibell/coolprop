@@ -1,7 +1,7 @@
 CoolProp Module
 ===============
 
-.. automodule:: CoolProp.CoolProp
+.. automodule:: CoolProp.CoolProp 
     :members:
     :undoc-members:
     :show-inheritance:
