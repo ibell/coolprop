@@ -975,9 +975,6 @@ double TTSESinglePhaseTableClass::evaluate_one_other_input(long iInput1, double 
 				// Its subcooled
 				while (R-L>1)
 				{
-					double Lval = (*mat)[L][j];
-					double Mval = (*mat)[M][j];
-					double Rval = (*mat)[R][j];
 					if (isbetween((*mat)[M][j],(*mat)[R][j],Other))
 					{ 
 						L=M; M=(L+R)/2; continue;
@@ -1468,7 +1465,6 @@ double TTSETwoPhaseTableClass::check_randomly(long iParam, unsigned int N, std::
 		CPS.update(iP,p1,iQ,this->Q);
 		double hEOS = CPS.h();
 		double sEOS = CPS.s();
-		double cpEOS = CPS.cp();
 		double TEOS = CPS.T();
 		double rhoEOS = CPS.rho();
 

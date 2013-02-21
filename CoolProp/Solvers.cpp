@@ -29,8 +29,6 @@ std::vector<double> NDNewtonRaphson_Jacobian(FuncWrapperND *f, std::vector<doubl
 	std::vector<std::vector<double> > J;
 	double error = 999;
 	while (iter==0 || fabs(error)>tol){
-		
-		double T =  x0[0], rho = x0[1];
 		f0 = f->call(x0);
 		J = f->Jacobian(x0);
 		

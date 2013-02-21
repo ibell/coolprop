@@ -2,14 +2,14 @@ Microsoft (R) COFF/PE Dumper Version 10.00.40219.01
 Copyright (C) Microsoft Corporation.  All rights reserved.
 
 
-Dump of file ../lib/CoolProp.dll
+Dump of file CoolProp.dll
 
 File Type: DLL
 
   Section contains the following exports for CoolProp.dll
 
     00000000 characteristics
-    51263D60 time date stamp Thu Feb 21 16:29:36 2013
+    51269847 time date stamp Thu Feb 21 22:57:27 2013
         0.00 version
            1 ordinal base
           41 number of functions

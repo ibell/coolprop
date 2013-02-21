@@ -41,13 +41,7 @@ class CriticalSplineStruct_T
 {
 public:
 	CriticalSplineStruct_T(){};
-	CriticalSplineStruct_T(double Tend, double rhoendL, double rhoendV, double drhoLdT_sat, double drhoVdT_sat){
-		this->Tend = Tend;
-		this->rhoendL = rhoendL;
-		this->rhoendV = rhoendV;
-		this->drhoLdT_sat = drhoLdT_sat;
-		this->drhoVdT_sat = drhoVdT_sat;
-	};
+	CriticalSplineStruct_T(double Tend, double rhoendL, double rhoendV, double drhoLdT_sat, double drhoVdT_sat);
 	/// Interpolate within the spline to get the density
 	/// @param pFluid Pointer to fluid of interest
 	/// @param phase Integer for phase (0=liquid, 1 = vapor)
@@ -141,7 +135,10 @@ class Fluid
 			Nsat_TTSE = 400;
 			Nh_TTSE = 200;
 			Np_TTSE = 200;
-
+			hmin_TTSE = _HUGE;
+			hmax_TTSE = _HUGE;
+			pmin_TTSE = _HUGE;
+			pmax_TTSE = _HUGE;
 			CriticalSpline_T.Tend = _HUGE;
 				
 			preduce = &crit; /// pointer to the reducing parameters
@@ -459,7 +456,7 @@ class Fluid
 		bool isAlias(std::string name);
 
 		/// Parameters for the Tabular Taylor Series Expansion (TTSE) Method
-		bool enabled_TTSE_LUT, built_TTSE_LUT;
+		bool enabled_TTSE_LUT, built_TTSE_LUT, enable_writing_tables_to_files;
 
 		/// Enable the TTSE
 		/// If you want to over-ride parameters, must be done before calling this function

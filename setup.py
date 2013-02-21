@@ -74,7 +74,6 @@ if __name__=='__main__':
         
     version_to_file()
     
-    quit()
     #This will generate HTML to show where there are still pythonic bits hiding out
     Cython.Compiler.Options.annotate = True
 

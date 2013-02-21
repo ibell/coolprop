@@ -70,7 +70,7 @@ cdef _convert_to_default_units(bytes_or_str parameter_type, object parameter):
     #Return the scaled units
     return parameter
     
-cdef double Props0(bytes in1, bytes in2):
+cdef double Props0(bytes in1, bytes in2) except +:
     # Convert inputs to byte-strings
     val = _Props1(in1, in2)
     if math.isnan(val) or abs(val)>1e20:
@@ -86,7 +86,6 @@ cdef double Props2(bytes output, bytes in1, double val1, bytes in2, double val2,
     val = _Props(output,_in1,val1,_in2,val2,Fluid)
     
     if math.isinf(val) or math.isnan(val):
-        print('The inputs to Props that failed are',output,<bytes>_in1,val1,<bytes>_in2,val2,Fluid,val)
         err_string = _get_errstring()
         if not len(err_string) == 0:
             raise ValueError(err_string)

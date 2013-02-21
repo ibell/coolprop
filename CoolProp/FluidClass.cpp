@@ -142,15 +142,21 @@ void rebuild_CriticalSplineConstants_T()
 			}
 		}
 		catch(std::exception){
-			std::cout << format("%s : failed\n",fluid_names[i].c_str());
 		}
-		printf("%s %g\n",fluid_names[i].c_str(),good,CPS.drhodT_along_sat_liquid(),CPS.drhodT_along_sat_vapor());
 		fprintf(fp,"\tstd::make_pair(std::string(\"%s\"),CriticalSplineStruct_T(%0.12e,%0.12e,%0.12e,%0.12e,%0.12e) ),\n",fluid_names[i].c_str(),Tc-good,rhoL,rhoV,drhodTL,drhodTV);
 	}
 	fclose(fp);
 	UseCriticalSpline = true;
 }
 
+
+CriticalSplineStruct_T::CriticalSplineStruct_T(double Tend, double rhoendL, double rhoendV, double drhoLdT_sat, double drhoVdT_sat){
+		this->Tend = Tend;
+		this->rhoendL = rhoendL;
+		this->rhoendV = rhoendV;
+		this->drhoLdT_sat = drhoLdT_sat;
+		this->drhoVdT_sat = drhoVdT_sat;
+	};
 
 // ------------------------------
 // FluidsContainer Implementation
@@ -258,12 +264,12 @@ FluidsContainer::FluidsContainer()
 	// Build the map of fluid names mapping to pointers to the Fluid class instances
 	for (std::vector<Fluid*>::iterator it = FluidsList.begin(); it != FluidsList.end(); it++)
 	{
+		//// Load all the parameters related to the Critical point spline
+		set_critical_spline_constants((*it));
 		// Call the post_load routine
 		(*it)->post_load();
 		// Load up entry in map
 		fluid_name_map[(*it)->get_name()] = *it;
-		//// Load all the parameters related to the Critical point spline
-		set_critical_spline_constants((*it));
 	}
 }
 
@@ -349,8 +355,6 @@ public:
 		return this->p - pFluid->pressure_Trho(T,rho);
 	}
 };
-
-
 // 
 
 // Destructor needs to free all dynamically allocated objects
@@ -374,7 +378,6 @@ Fluid::~Fluid()
 }
 void Fluid::post_load(void)
 {
-	try{
 	// Set the reducing values from the pointer
 	reduce=*preduce;
 	// Set the triple-point pressure if not set in code
@@ -389,18 +392,6 @@ void Fluid::post_load(void)
 	s_ancillary = new AncillaryCurveClass(this,std::string("S"));
 	cp_ancillary = new AncillaryCurveClass(this,std::string("C"));
 	drhodT_p_ancillary = new AncillaryCurveClass(this,std::string("drhodT|p"));
-
-	double psatL,psatV,rhoL,rhoV;
-	saturation_T(limits.Tmin,false,&psatL,&psatV,&rhoL,&rhoV);
-	double hL = enthalpy_Trho(limits.Tmin,rhoL);
-	double hV = enthalpy_Trho(limits.Tmin,rhoV);
-	hmin_TTSE = hL;
-	hmax_TTSE = hL+(hV-hL)*2;
-	pmin_TTSE = params.ptriple;
-	pmax_TTSE = 2*reduce.p;
-	}
-	catch (...){
-	}
 }
 //--------------------------------------------
 //    Residual Part
@@ -1082,8 +1073,7 @@ double Fluid::ssatL_anc(double T)
 
 double Fluid::_get_rho_guess(double T, double p)
 {
-    double eps=1e-10,Tc,rho_simple;
-    int counter=1;
+    double Tc,rho_simple;
 
 	Tc = reduce.T;
 
@@ -1592,8 +1582,7 @@ void Fluid::temperature_ph(double p, double h, double *Tout, double *rhoout, dou
 void Fluid::temperature_ps(double p, double s, double *Tout, double *rhoout, double *rhoLout, double *rhoVout, double *TsatLout, double *TsatVout)
 {
 	int iter;
-	bool failed = false;
-	double A[2][2], B[2][2],T_guess, omega =1.0;
+	double A[2][2], B[2][2],T_guess;
 	double dar_ddelta,da0_dtau,d2a0_dtau2,dar_dtau,d2ar_ddelta_dtau,d2ar_ddelta2,d2ar_dtau2,d2a0_ddelta_dtau,a0,ar,da0_ddelta;
 	double f1,f2,df1_dtau,df1_ddelta,df2_ddelta,df2_dtau;
     double rhoL, rhoV, ssatL,ssatV,TsatL,TsatV,tau,delta,worst_error;
@@ -1788,7 +1777,6 @@ double Fluid::Tsat_anc(double p, double Q)
 {
 	// This one only uses the ancillary equations
 
-    double x1=0,x2=0,y1=0,y2=0;
     double Tc,Tmax,Tmin,Tmid;
 
     Tc=reduce.T;
@@ -2139,8 +2127,6 @@ double Fluid::Tsat(double p, double Q, double T_guess, bool UseLUT, double *rhoL
 	}
 	else
 	{
-		
-		double x1=0,x2=0,y1=0,y2=0;
 		double Tc,Tmax,Tmin;
 
 		Tc=Props(name,"Tcrit");
@@ -2270,7 +2256,7 @@ double Fluid::viscosity_dilute(double T, double e_k, double sigma)
 	Ind. Eng. Chem. Res. 2003, 42, 3163-3178
 	*/
 
-	double sum=0,eta_star, Tstar, OMEGA_2_2, pi=3.141592654;
+	double eta_star, Tstar, OMEGA_2_2;
 	Tstar = T/e_k;
 	// From Neufeld, 1972, Journal of Chemical Physics - checked coefficients
 	OMEGA_2_2 = 1.16145*pow(Tstar,-0.14874)+ 0.52487*exp(-0.77320*Tstar)+2.16178*exp(-2.43787*Tstar);
@@ -2706,6 +2692,19 @@ bool Fluid::build_TTSE_LUT(bool force_build)
 {
 	if (!built_TTSE_LUT || force_build)
 	{
+		// No value has been set for the parameters
+		if (pmin_TTSE>1e100 && pmax_TTSE > 1e100 && hmin_TTSE > 1e00 && hmax_TTSE > 1e100)
+		{
+			double psatL,psatV,rhoL,rhoV;
+			saturation_T(limits.Tmin,false,&psatL,&psatV,&rhoL,&rhoV);// <<----------------- This is the problem with EES!
+			double hL = enthalpy_Trho(limits.Tmin,rhoL);
+			double hV = enthalpy_Trho(limits.Tmin,rhoV);
+			hmin_TTSE = hL;
+			hmax_TTSE = hL+(hV-hL)*2;
+			pmin_TTSE = params.ptriple;
+			pmax_TTSE = 2*reduce.p;
+		}
+
 		// Turn off the use of LUT while you are building it, 
 		// otherwise you get an infinite recursion
 		enabled_TTSE_LUT = false;
@@ -2719,6 +2718,7 @@ bool Fluid::build_TTSE_LUT(bool force_build)
 		TTSESatV.build(params.ptriple+1e-08,reduce.p,&TTSESatL);
 
 		TTSESinglePhase = TTSESinglePhaseTableClass(this);
+		TTSESinglePhase.enable_writing_tables_to_files = enable_writing_tables_to_files;
 		TTSESinglePhase.set_size(Nh_TTSE,Np_TTSE);
 		TTSESinglePhase.SatL = &TTSESatL;
 		TTSESinglePhase.SatV = &TTSESatV;
@@ -2738,11 +2738,11 @@ bool Fluid::isenabled_TTSE_LUT(void){return enabled_TTSE_LUT;};
 /// Disable the TTSE
 void Fluid::disable_TTSE_LUT(void){enabled_TTSE_LUT = false;};
 /// Enable the writing of TTSE tables to file
-void Fluid::enable_TTSE_LUT_writing(void){TTSESinglePhase.enable_writing_tables_to_files = true;};
+void Fluid::enable_TTSE_LUT_writing(void){enable_writing_tables_to_files = true;};
 /// Check if the writing of TTSE tables to file is enabled
-bool Fluid::isenabled_TTSE_LUT_writing(void){return TTSESinglePhase.enable_writing_tables_to_files;};
+bool Fluid::isenabled_TTSE_LUT_writing(void){return enable_writing_tables_to_files;};
 /// Disable the writing of TTSE tables to file
-void Fluid::disable_TTSE_LUT_writing(void){TTSESinglePhase.enable_writing_tables_to_files = false;};
+void Fluid::disable_TTSE_LUT_writing(void){enable_writing_tables_to_files = false;};
 /// Over-ride the default size of both of the saturation LUT
 void Fluid::set_TTSESat_LUT_size(int Nsat){Nsat_TTSE = Nsat;};
 /// Over-ride the default size of the single-phase LUT

@@ -673,7 +673,7 @@ double MolarEntropy(double T, double p, double psi_w, double v_bar)
 	// reference pressure in density calculation for water vapor molar entropy
     
     // vbar (molar volume) in m^3/kmol
-    double x1=0,x2=0,x3=0,y1=0,y2=0,eps=1e-8,change=999,f=999,R_bar_Lem=8.314510;
+    double x1=0,x2=0,x3=0,y1=0,y2=0,eps=1e-8,f=999,R_bar_Lem=8.314510;
     int iter=1;
     double sbar_0,sbar_a,sbar_w,sbar,R_bar=8.314472,vbar_a_guess, Baa, Caaa,vbar_a;
     double B,dBdT,C,dCdT;

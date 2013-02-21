@@ -8,6 +8,6 @@ cl /c /I. /EHsc /DCOOLPROP_LIB *.cpp
 cl /c /I. /EHsc /DCOOLPROP_LIB purefluids/*.cpp
 cl /c /I. /EHsc /DCOOLPROP_LIB pseudopurefluids/*.cpp
 
-link /DLL CoolProp.obj *.obj /OUT:../lib/CoolProp.dll
-dumpbin /EXPORTS ../lib/CoolProp.dll > ../wrappers/Excel/exports.txt
+link /DLL CoolProp.obj *.obj /OUT:CoolProp.dll
+dumpbin /EXPORTS CoolProp.dll > ../wrappers/Excel/exports.txt
 erase *.obj

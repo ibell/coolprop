@@ -31,8 +31,6 @@
 #include "IncompLiquid.h"
 #include "TTSE.h"
 
-
-
 // Function prototypes
 double rho_TP(double T, double p);
 double _Props(std::string Output,std::string Name1, double Prop1, std::string Name2, double Prop2, std::string Ref);
