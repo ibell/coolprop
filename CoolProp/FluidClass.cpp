@@ -738,10 +738,9 @@ double Fluid::density_Tp(double T, double p, double rho_guess)
         // Residual
         error=p_EOS-p;
         iter++;
-        if (iter>200)
+        if (iter>30)
         {
-			throw SolutionError(format("Number of steps in density_TP has exceeded 100 with inputs T=%g,p=%g,rho_guess=%g for fluid %s\n",T,p,rho_guess,name.c_str()));
-            return _HUGE;
+			throw SolutionError(format("Number of steps in density_TP has exceeded 30 with inputs T=%g,p=%g,rho_guess=%g for fluid %s\n",T,p,rho_guess,name.c_str()));
         }
     }	
 	if (debug()>8){
@@ -820,8 +819,15 @@ void Fluid::saturation_T(double T, bool UseLUT, double *psatLout, double *psatVo
 		// Pseudo-pure fluid
 		*psatLout = psatL(T);
 		*psatVout = psatV(T);
-		*rhosatLout = density_Tp(T, *psatLout, rhosatL(T));
-		*rhosatVout = density_Tp(T, *psatVout, rhosatV(T));
+		try{
+			*rhosatLout = density_Tp(T, *psatLout, rhosatL(T));
+			*rhosatVout = density_Tp(T, *psatVout, rhosatV(T));
+		}
+		catch (std::exception){
+			// Near the critical point, the behavior is not very nice, so we will just use the ancillary near the critical point
+			*rhosatLout = rhosatL(T);
+			*rhosatVout = rhosatV(T);
+		}
 		return;
 	}
 }

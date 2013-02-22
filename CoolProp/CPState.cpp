@@ -271,9 +271,17 @@ void CoolPropStateClass::update_twophase(long iInput1, double Value1, long iInpu
 			// Saturation pressures
 			psatL = pFluid->psatL_anc(TsatL);
 			psatV = pFluid->psatV_anc(TsatV);
+
+			try{
 			// Saturation densities
 			rhosatL = pFluid->density_Tp(TsatL, psatL, pFluid->rhosatL(TsatL));
 			rhosatV = pFluid->density_Tp(TsatV, psatV, pFluid->rhosatV(TsatV));
+			}
+			catch (std::exception){
+				// Near the critical point, the behavior is not very nice, so we will just use the ancillary near the critical point
+				rhosatL = pFluid->rhosatL(TsatL);
+				rhosatL = pFluid->rhosatV(TsatV);
+			}
 		}
 	}
 	// Set internal variables
