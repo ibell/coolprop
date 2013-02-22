@@ -18,6 +18,7 @@ protected:
 	class CoolPropStateClass *state;
 	bool enable_TTSE, calc_transport;
 	int debug_level;
+	double twophase_derivsmoothing_xend;
 public:
 	CoolPropSolver(const string &mediumName, const string &libraryName, const string &substanceName);
 	~CoolPropSolver(){};

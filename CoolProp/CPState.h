@@ -73,7 +73,7 @@ public:
 	bool TwoPhase, SinglePhase, s_cached, h_cached;
 	
 	// Default Constructor
-	CoolPropStateClass(){};
+	CoolPropStateClass(){SatL = NULL; SatV = NULL;};
 
 	// Constructor with fluid name
 	CoolPropStateClass(std::string FluidName);
@@ -131,6 +131,11 @@ public:
 	double isobaric_expansion_coefficient(void);
 	double drhodh_constp(void);
 	double drhodp_consth(void);
+	/// A smoothed version of the derivative using a spline curve in the region of x=0 to x=xend
+	double drhodh_constp_smoothed(double xend);
+	/// A smoothed version of the derivative using a spline curve in the region of x=0 to x=xend
+	double drhodp_consth_smoothed(double xend);
+
 	double surface_tension(void);
 
 	// ----------------------------------------	
@@ -182,6 +187,8 @@ public:
 	double d2rhodT2_constp(void);
 	double d2rhodhdQ(void);
 	double d2rhodpdQ(void);
+	double d2rhodhdp(void);
+	double d2rhodh2_constp(void);
 	
 	double dpdrho_constT(void);
 	double dpdrho_consth(void);

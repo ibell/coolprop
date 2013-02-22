@@ -5,6 +5,8 @@
 #include "CoolPropTools.h"
 #include "float.h"
 #include "math.h"
+#include "Spline.h"
+
 #ifndef __ISWINDOWS__
 	#ifndef DBL_EPSILON
 		#include <limits>
@@ -141,11 +143,8 @@ void CoolPropStateClass::update(long iInput1, double Value1, long iInput2, doubl
 	s_cached = false;
 	h_cached = false;
 
-	if (SatL == NULL)
-	{
-		SatL = new CoolPropStateClass(pFluid);
-		SatV = new CoolPropStateClass(pFluid);
-	}
+	if (SatL == NULL){SatL = new CoolPropStateClass(pFluid);}
+	if (SatV == NULL){SatV = new CoolPropStateClass(pFluid);}
 
 	// Pseudo-pure fluids cannot use T,Q as inputs if Q is not 0 or 1
 	if (!pFluid->pure() && match_pair(iInput1,iInput2,iT,iQ))
@@ -1069,6 +1068,52 @@ double CoolPropStateClass::drhodh_constp(void){
 	}
 }
 
+double CoolPropStateClass::drhodp_consth_smoothed(double xend){
+	// Make a state class instance
+	CoolPropStateClass CPS = CoolPropStateClass(pFluid);
+	SplineClass SC = SplineClass();
+	double hL = this->hL();
+	double hV = this->hV();
+	double hend = xend*hV+(1-xend)*hL;
+
+	// We do the interpolation in terms of enthalpy because it is a bit simpler to do
+	// The values at x = 0, but faking out CoolProp by using T,rho and enforcing singlephase
+	CPS.flag_SinglePhase = true;
+	CPS.update(iT,TsatL,iD,rhosatL);
+	SC.add_value_constraint(hL, CPS.drhodp_consth());
+	SC.add_derivative_constraint(hL, CPS.d2rhodhdp());
+	// The values at x = xend
+	CPS.flag_SinglePhase = false;
+	CPS.update(iT,TsatL,iQ,xend);
+	SC.add_value_constraint(hend, CPS.drhodp_consth());
+	double d2vdhdp = 1/CPS.T()*CPS.d2Tdp2_along_sat()-1*pow(CPS.dTdp_along_sat()/CPS.T(),2);
+	SC.add_derivative_constraint(hend, 2/CPS.rho()*CPS.drhodp_consth()*CPS.drhodh_constp()-pow(CPS.rho(),2)*d2vdhdp);
+	SC.build();
+	return SC.evaluate(_Q*hV+(1-_Q)*hL);
+}
+
+double CoolPropStateClass::drhodh_constp_smoothed(double xend){
+	// Make a state class instance
+	CoolPropStateClass CPS = CoolPropStateClass(pFluid);
+	SplineClass SC = SplineClass();
+	double hL = this->hL();
+	double hV = this->hV();
+	double hend = xend*hV+(1-xend)*hL;
+
+	// We do the interpolation in terms of enthalpy because it is a bit simpler to do
+	// The values at x = 0, but faking out CoolProp by using T,rho and enforcing singlephase
+	CPS.flag_SinglePhase = true;
+	CPS.update(iT,TsatL,iD,rhosatL);
+	SC.add_value_constraint(hL, CPS.drhodh_constp());
+	SC.add_derivative_constraint(hL, CPS.d2rhodh2_constp());
+	// The values at x = xend
+	CPS.update(iT,TsatL,iQ,xend);
+	SC.add_value_constraint(hend, CPS.drhodh_constp());
+	SC.add_derivative_constraint(hend, 2/CPS.rho()*CPS.drhodh_constp()*CPS.drhodh_constp());
+	SC.build();
+	return SC.evaluate(_Q*hV+(1-_Q)*hL);
+}
+
 double CoolPropStateClass::drhodp_consth(void){
 
 	if (pFluid->enabled_TTSE_LUT)
@@ -1117,6 +1162,23 @@ double CoolPropStateClass::drhodp_consth(void){
 	}
 }
 
+double CoolPropStateClass::d2rhodh2_constp(void){
+	double A = dpdT_constrho()*dhdrho_constT()-dpdrho_constT()*dhdT_constrho();
+	double dAdT_constrho = d2pdT2_constrho()*dhdrho_constT()+dpdT_constrho()*d2hdrhodT()-d2pdrhodT()*dhdT_constrho()-dpdrho_constT()*d2hdT2_constrho();
+	double dAdrho_constT = d2pdrhodT()*dhdrho_constT()+dpdT_constrho()*d2hdrho2_constT()-d2pdrho2_constT()*dhdT_constrho()-dpdrho_constT()*d2hdrhodT();
+	double ddT_drhodh_p_constrho = 1/A*d2pdT2_constrho()-1/(A*A)*dAdT_constrho*dpdT_constrho();
+	double ddrho_drhodh_p_constT = 1/A*d2pdrhodT()-1/(A*A)*dAdrho_constT*dpdT_constrho();
+	return ddT_drhodh_p_constrho/dhdT_constp()+ddrho_drhodh_p_constT/dhdrho_constp();
+}
+
+double CoolPropStateClass::d2rhodhdp(void){
+	double A = dpdT_constrho()*dhdrho_constT()-dpdrho_constT()*dhdT_constrho();
+	double dAdT_constrho = d2pdT2_constrho()*dhdrho_constT()+dpdT_constrho()*d2hdrhodT()-d2pdrhodT()*dhdT_constrho()-dpdrho_constT()*d2hdT2_constrho();
+	double dAdrho_constT = d2pdrhodT()*dhdrho_constT()+dpdT_constrho()*d2hdrho2_constT()-d2pdrho2_constT()*dhdT_constrho()-dpdrho_constT()*d2hdrhodT();
+	double ddT_drhodp_h_constrho = -1/A*d2hdT2_constrho()+1/(A*A)*dAdT_constrho*dhdT_constrho();
+	double ddrho_drhodp_h_constT = -1/A*d2hdrhodT()+1/(A*A)*dAdrho_constT*dhdT_constrho();
+	return ddT_drhodp_h_constrho/dhdT_constp()+ddrho_drhodp_h_constT/dhdrho_constp();
+}
 
 double CoolPropStateClass::drhodT_constp(void){
 	double dpdrho_T = pFluid->R()*_T*(1+2*delta*dphir_dDelta(tau,delta)+delta*delta*d2phir_dDelta2(tau,delta));

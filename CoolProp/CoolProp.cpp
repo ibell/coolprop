@@ -786,33 +786,44 @@ double _Props(std::string Output,std::string Name1, double Prop1, std::string Na
 }
 double _CoolProp_Fluid_Props(long iOutput, long iName1, double Prop1, long iName2, double Prop2, Fluid *pFluid, bool SinglePhase)
 {
+	double val = _HUGE;
 	// This private method uses the indices directly for speed
 
 	// Generate a State instance wrapped around the Fluid instance
 	CoolPropStateClass *CPS = new CoolPropStateClass(pFluid);
 
-	// Check if it is an output that doesn't require a state input
-    // Deal with it and return
+	try{
 
-	switch (iOutput)
-	{
-		case iMM:
-		case iPcrit:
-		case iTcrit:
-		case iTtriple:
-		case iPtriple:
-		case iRhocrit:
-		case iTmin:
-		case iAccentric:
-			return CPS->keyed_output(iOutput);
+		// Check if it is an output that doesn't require a state input
+		// Deal with it and return
+
+		switch (iOutput)
+		{
+			case iMM:
+			case iPcrit:
+			case iTcrit:
+			case iTtriple:
+			case iPtriple:
+			case iRhocrit:
+			case iTmin:
+			case iAccentric:
+				return CPS->keyed_output(iOutput);
+		}
+
+		// Update the class
+		CPS->update(iName1,Prop1,iName2,Prop2);
+		// Get the output
+		double val = CPS->keyed_output(iOutput);
+		// Delete the class you created
+		delete CPS;
 	}
-
-	// Update the class
-	CPS->update(iName1,Prop1,iName2,Prop2);
-	// Get the output
-	double val = CPS->keyed_output(iOutput);
-	// Delete the instance
-	delete CPS;
+	// Need this try-catch to ensure that if there is an error, the destructor gets called
+	catch(std::exception &e){
+		// Delete the class you created
+		delete CPS;
+		// Re-throw the error
+		throw e;
+	}
 	// Return the value
 	return val;
 }

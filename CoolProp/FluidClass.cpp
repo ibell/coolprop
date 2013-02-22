@@ -2702,9 +2702,12 @@ bool Fluid::build_TTSE_LUT(bool force_build)
 		if (pmin_TTSE>1e100 && pmax_TTSE > 1e100 && hmin_TTSE > 1e00 && hmax_TTSE > 1e100)
 		{
 			double psatL,psatV,rhoL,rhoV;
+			
+			this->disable_TTSE_LUT(); // Disable TTSE to do these calculations
 			saturation_T(limits.Tmin,false,&psatL,&psatV,&rhoL,&rhoV);// <<----------------- This is the problem with EES!
 			double hL = enthalpy_Trho(limits.Tmin,rhoL);
 			double hV = enthalpy_Trho(limits.Tmin,rhoV);
+			this->enable_TTSE_LUT(); // Re-enable TTSE to do these calculations
 			hmin_TTSE = hL;
 			hmax_TTSE = hL+(hV-hL)*2;
 			pmin_TTSE = params.ptriple;

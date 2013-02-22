@@ -26,6 +26,7 @@ CoolPropSolver::CoolPropSolver(const string &mediumName, const string &libraryNa
 	enable_TTSE = false;
 	debug_level = 0;
 	calc_transport = false;
+	twophase_derivsmoothing_xend = 0;
 
 	if (name_options.size()>1)
 	{
@@ -63,12 +64,19 @@ CoolPropSolver::CoolPropSolver(const string &mediumName, const string &libraryNa
 				else
 					errorMessage((char*)format("I don't know how to handle this option [%s]",name_options[i].c_str()).c_str());
 			}
+			else if (!param_val[0].compare("twophase_derivsmoothing_xend"))
+			{
+				twophase_derivsmoothing_xend = strtod(param_val[1].c_str(),NULL,NULL);
+				if (twophase_derivsmoothing_xend<0 || twophase_derivsmoothing_xend > 1)
+					errorMessage((char*)format("I don't know how to handle this twophase_derivsmoothing_xend value [%d]",param_val[0].c_str()).c_str());
+			}
 			else if (!param_val[0].compare("debug"))
 			{
 				debug_level = (int)strtol(param_val[1].c_str(),NULL,NULL);
 				if (debug_level<0 || debug_level > 1000)
 					errorMessage((char*)format("I don't know how to handle this debug level [%s]",param_val[0].c_str()).c_str());
 			}
+
 			else
 			{
 				errorMessage((char*)format("This option [%s] was not understood",name_options[i].c_str()).c_str());
@@ -128,7 +136,10 @@ void CoolPropSolver::setSat_T(double &T, ExternalSaturationProperties *const pro
 	if (debug_level > 5)
 		std::cout << format("setSat_T(%0.16e)\n",T);
 
-	state->disable_TTSE_LUT();
+	if (enable_TTSE)
+		state->enable_TTSE_LUT();
+	else
+		state->disable_TTSE_LUT();
 	try
 	{
 		state->update(iT,T,iQ,0); // Quality only matters for pseudo-pure fluids
@@ -191,8 +202,16 @@ void CoolPropSolver::setState_ph(double &p, double &h, int &phase, ExternalTherm
 		properties->cp = state->cp()*1000;
 		properties->cv = state->cv()*1000;
 		properties->a = state->speed_sound();
-		properties->ddph = state->drhodp_consth()/1000; // [1/(kJ/kg) -- > 1/(J/kg)]
-		properties->ddhp = state->drhodh_constp()/1000; // [1/kPa -- > 1/Pa]
+		if (state->TwoPhase && state->Q() >= 0 && state->Q() <= twophase_derivsmoothing_xend)
+		{
+			// Use the smoothed derivatives
+
+		}
+		else
+		{
+			properties->ddph = state->drhodp_consth()/1000; // [1/(kJ/kg) -- > 1/(J/kg)]
+			properties->ddhp = state->drhodh_constp()/1000; // [1/kPa -- > 1/Pa]
+		}
 		properties->kappa = state->isothermal_compressibility()/1000; // [1/kPa -- > 1/Pa]
 		properties->beta = state->isobaric_expansion_coefficient();
 		properties->eta = 0;//IProps(iV,iT,properties->T,iD,properties->d,iFluid);
