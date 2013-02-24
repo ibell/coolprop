@@ -139,6 +139,7 @@ class Fluid
 			hmax_TTSE = _HUGE;
 			pmin_TTSE = _HUGE;
 			pmax_TTSE = _HUGE;
+			enable_writing_tables_to_files = true;
 			CriticalSpline_T.Tend = _HUGE;
 				
 			preduce = &crit; /// pointer to the reducing parameters

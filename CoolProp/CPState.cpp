@@ -279,7 +279,7 @@ void CoolPropStateClass::update_twophase(long iInput1, double Value1, long iInpu
 			catch (std::exception){
 				// Near the critical point, the behavior is not very nice, so we will just use the ancillary near the critical point
 				rhosatL = pFluid->rhosatL(TsatL);
-				rhosatL = pFluid->rhosatV(TsatV);
+				rhosatV = pFluid->rhosatV(TsatV);
 			}
 		}
 	}
@@ -466,7 +466,6 @@ void CoolPropStateClass::update_ps(long iInput1, double Value1, long iInput2, do
 // Updater if you are using TTSE LUT
 void CoolPropStateClass::update_TTSE_LUT(long iInput1, double Value1, long iInput2, double Value2)
 {
-	
 	// If the inputs are P,Q or T,Q , it is guaranteed to be two-phase
 	if (match_pair(iInput1,iInput2,iP,iQ))
 	{
@@ -787,15 +786,15 @@ void CoolPropStateClass::add_saturation_states(void)
 {
 	// While SatL and SatV are technically two-phase, we consider 
 	// them to be single-phase to speed up the calcs and avoid saturation calls
-	SatL->flag_TwoPhase = true;
+	SatL->flag_SinglePhase = true;
 	SatL->update(iT,TsatL,iD,rhosatL);
-	SatL->flag_TwoPhase = false;
+	SatL->flag_SinglePhase = false;
 	SatL->SinglePhase = true;
 	SatL->TwoPhase = false;
 
-	SatV->flag_TwoPhase = true;
+	SatV->flag_SinglePhase = true;
 	SatV->update(iT,TsatV,iD,rhosatV);
-	SatV->flag_TwoPhase = false;
+	SatV->flag_SinglePhase = false;
 	SatV->SinglePhase = true;
 	SatV->TwoPhase = false;
 }
@@ -1150,9 +1149,7 @@ double CoolPropStateClass::drhodp_consth(void){
 			double dvdpV = -drhodp_along_sat_vapor()/rhosatV/rhosatV;
 			
 			double dxdp_h = (dhdpL+_Q*(dhdpV-dhdpL))/(hL()-hV());
-			
 			double dvdp_h = dvdpL+dxdp_h*(1/rhosatV-1/rhosatL)+_Q*(dvdpV-dvdpL);
-
 			return -_rho*_rho*dvdp_h;
 		}
 		else
@@ -1300,7 +1297,6 @@ double CoolPropStateClass::d2sdTdp(void)
 {
 	return 1/dpdrho_constT()*(d2sdrhodT()-dsdp_constT()*(drhodT_constp()*d2pdrho2_constT()+d2pdrhodT())+d2sdrho2_constT()*drhodT_constp());
 }
-
 
 double CoolPropStateClass::drhodp_constT(void)
 {

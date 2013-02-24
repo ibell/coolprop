@@ -32,7 +32,11 @@ double round(double r) {
     return (r > 0.0) ? floor(r + 0.5) : ceil(r - 0.5);
 }
 
-TTSESinglePhaseTableClass::TTSESinglePhaseTableClass(){SatL = NULL; SatV = NULL;}
+TTSESinglePhaseTableClass::TTSESinglePhaseTableClass(){
+	this->enable_writing_tables_to_files = true;
+	SatL = NULL; 
+	SatV = NULL;
+}
 
 TTSESinglePhaseTableClass::TTSESinglePhaseTableClass(Fluid *pFluid)
 {
@@ -42,6 +46,7 @@ TTSESinglePhaseTableClass::TTSESinglePhaseTableClass(Fluid *pFluid)
 
 	// Seed the generator for random number generation
 	srand((unsigned int)time(NULL));
+	this->enable_writing_tables_to_files = true;
 	SatL = NULL;
 	SatV = NULL;
 }
@@ -416,7 +421,7 @@ void TTSESinglePhaseTableClass::write_all_to_file(std::string root_path)
 	matrix_to_file(root_path + std::string("d2rhodp2_ph.ttse"),&d2rhodp2);
 	matrix_to_file(root_path + std::string("d2rhoTdhdp_ph.ttse"),&d2rhodhdp);
 	t2 = clock();
-	std::cout << "write time" << (double)(t2-t1)/CLOCKS_PER_SEC << std::endl;
+	std::cout << "write time: " << (double)(t2-t1)/CLOCKS_PER_SEC << std::endl;
 }
 
 double TTSESinglePhaseTableClass::build(double hmin, double hmax, double pmin, double pmax, TTSETwoPhaseTableClass *SatL, TTSETwoPhaseTableClass *SatV)
@@ -614,6 +619,7 @@ double TTSESinglePhaseTableClass::build(double hmin, double hmax, double pmin, d
 	update_Trho_map();
 	
 	if (enable_writing_tables_to_files){
+		
 		write_all_to_file(root_path);
 	}
 	return elap;

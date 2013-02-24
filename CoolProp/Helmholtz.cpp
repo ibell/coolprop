@@ -464,8 +464,9 @@ double phir_critical::dDelta3(double tau, double delta) throw()
 
 		dPSI3_dDelta3=2.0*C[i]*PSI*(-4*C[i]*C[i]*pow(delta-1.0,3)+6*C[i]*(delta-1));
 		dtheta_dDelta = A[i]/(2*beta[i])*pow(pow(delta-1,2),1/(2*beta[i])-1)*2*(delta-1);
-		PI = 4*B[i]*a[i]*(a[i]-1)*pow(delta-1,2*a[i]-4)+2*pow(A[i]/beta[i],2)*pow(delta-1,2/beta[i]-4)+4*A[i]*theta/beta[i]*(1/(2*beta[i])-1)*pow(delta-1,1/beta[i]-4);
-		dPI_dDelta = 8*B[i]*a[i]*(a[i]-1)*(a[i]-2)*pow(delta-1,2*a[i]-5)+8*pow(A[i]/beta[i],2)*(1/(2*beta[i])-2)*pow(delta-1,2/beta[i]-5)+(8*A[i]*theta)/beta[i]*(1/(2*beta[i])-1)*(1/(2*beta[i])-2)*pow(delta-1,1/beta[i]-5)+4*A[i]/beta[i]*(1/(2*beta[i])-1)*pow(delta-1,1/beta[i]-4)*dtheta_dDelta;
+
+		PI = 4*B[i]*a[i]*(a[i]-1)*pow((delta-1,2),a[i]-2)+2*pow(A[i]/beta[i],2)*pow(pow(delta-1,2),1/beta[i]-2)+4*A[i]*theta/beta[i]*(1/(2*beta[i])-1)*pow(pow(delta-1,2),1/(2*beta[i])-2);
+		dPI_dDelta = 8*B[i]*a[i]*(a[i]-1)*(a[i]-2)*pow(pow(delta-1,2),a[i]-5.0/2.0)+8*pow(A[i]/beta[i],2)*(1/(2*beta[i])-2)*pow(pow(delta-1,2),1/beta[i]-5.0/2.0)+(8*A[i]*theta)/beta[i]*(1/(2*beta[i])-1)*(1/(2*beta[i])-2)*pow(pow(delta-1,2),1/(2*beta[i])-5.0/2.0)+4*A[i]/beta[i]*(1/(2*beta[i])-1)*pow(pow(delta-1,2),1/(2*beta[i])-2)*dtheta_dDelta;
 		dDELTA3_dDelta3 = 1/(delta-1)*dDELTA2_dDelta2-1/pow(delta-1,2)*dDELTA_dDelta+pow(delta-1,2)*dPI_dDelta+2*(delta-1)*PI;
 		dDELTAbi3_dDelta3 = b[i]*(pow(DELTA,b[i]-1)*dDELTA3_dDelta3+dDELTA2_dDelta2*(b[i]-1)*pow(DELTA,b[i]-2)*dDELTA_dDelta+(b[i]-1)*(pow(DELTA,b[i]-2)*2*dDELTA_dDelta*dDELTA2_dDelta2+pow(dDELTA_dDelta,2)*(b[i]-2)*pow(DELTA,b[i]-3)*dDELTA_dDelta));
         

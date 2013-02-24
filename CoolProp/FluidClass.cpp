@@ -424,7 +424,9 @@ double Fluid::d3phir_dDelta3(double tau, double delta)
 {
 	double summer = 0;
 	for (list<phi_BC*>::iterator it = phirlist.begin(); it != phirlist.end(); it++)
+	{
 		summer += (*it)->dDelta3(tau,delta);
+	}
 	return summer;
 }
 double Fluid::d3phir_dDelta_dTau2(double tau, double delta)
@@ -742,6 +744,10 @@ double Fluid::density_Tp(double T, double p, double rho_guess)
         {
 			throw SolutionError(format("Number of steps in density_TP has exceeded 30 with inputs T=%g,p=%g,rho_guess=%g for fluid %s\n",T,p,rho_guess,name.c_str()));
         }
+		if (!ValidNumber(rho))
+		{
+			throw SolutionError(format("Non-numeric density obtained in density_TP with inputs T=%g,p=%g,rho_guess=%g for fluid %s\n",T,p,rho_guess,name.c_str()));
+		}
     }	
 	if (debug()>8){
 		std::cout<<__FILE__<<':'<<__LINE__<<": Fluid::density_Tp(double T, double p, double rho_guess): "<<T<<","<<p<<","<<rho_guess<<" = "<<rho<<std::endl;
@@ -788,7 +794,6 @@ void Fluid::saturation_T(double T, bool UseLUT, double *psatLout, double *psatVo
 		}
 		else
 		{
-
 			if (UseCriticalSpline && ValidNumber(CriticalSpline_T.Tend) && T > CriticalSpline_T.Tend)
 			{
 				//// Use the spline (or linear) interpolation since you are very close to the critical point

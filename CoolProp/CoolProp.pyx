@@ -70,31 +70,7 @@ cdef _convert_to_default_units(bytes_or_str parameter_type, object parameter):
     #Return the scaled units
     return parameter
     
-cdef double Props0(bytes in1, bytes in2) except +:
-    # Convert inputs to byte-strings
-    val = _Props1(in1, in2)
-    if math.isnan(val) or abs(val)>1e20:
-        raise ValueError(_get_errstring())
-    else:
-        return val
-
-cdef double Props2(bytes output, bytes in1, double val1, bytes in2, double val2, bytes Fluid) except +:
-    cdef double val
-    cdef char _in1, _in2
-    _in1 = <char>(in1[0])
-    _in2 = <char>(in2[0])
-    val = _Props(output,_in1,val1,_in2,val2,Fluid)
-    
-    if math.isinf(val) or math.isnan(val):
-        err_string = _get_errstring()
-        if not len(err_string) == 0:
-            raise ValueError(err_string)
-        else:
-            raise ValueError("Props failed ungracefully with inputs:\"{in1:s}\",'{in2:s}',{in3:0.16e},'{in4:s}',{in5:0.16e},\"{in6:s}\"; please file a ticket at https://sourceforge.net/p/coolprop/tickets/".format(in1=output,in2=in1,in3=val1,in4=in2,in5=val2,in6=Fluid))
-    else:
-        return val
-    
-cpdef double Props(str in1, str in2, in3 = None, in4 = None, in5 = None, in6 = None, in7 = None) except +:
+cpdef double Props(str in1, str in2, in3 = None, in4 = None, in5 = None, in6 = None, in7 = None) except *:
     """
     Call Type #1::
 
@@ -171,9 +147,18 @@ cpdef double Props(str in1, str in2, in3 = None, in4 = None, in5 = None, in6 = N
     be raised by the conversion
     """
     cdef bytes errs,_in1,_in2,_in3,_in4,_in5,_in6,_in7
+    cdef char in2_char, in4_char
         
     if (in4 is None and in6 is None and in7 is None):
-        return Props0(in1.encode('ascii'), in2.encode('ascii'))
+        val = _Props1(in1.encode('ascii'), in2.encode('ascii'))
+        if math.isinf(val) or math.isnan(val):
+            err_string = _get_errstring()
+            if not len(err_string) == 0:
+                raise ValueError(err_string)
+            else:
+                raise ValueError("Props failed ungracefully with inputs:\"{in1:s}\",\"{in2:s}\"; please file a ticket at https://sourceforge.net/p/coolprop/tickets/".format(in1=in1,in2=in2))
+        else:
+            return val
     else:
         if _quantities_supported:
             if isinstance(in3,pq.Quantity):
@@ -181,7 +166,15 @@ cpdef double Props(str in1, str in2, in3 = None, in4 = None, in5 = None, in6 = N
             if isinstance(in5,pq.Quantity):
                 in5 = _convert_to_default_units(<bytes?>in4,in5).magnitude
 
-        val = Props2(in1.encode('ascii'), in2.encode('ascii'), in3, in4.encode('ascii'), in5, in6.encode('ascii'))
+        in2_char = (<bytes>(in2.encode('ascii')))[0]
+        in4_char = (<bytes>(in4.encode('ascii')))[0]
+        val = _Props(in1.encode('ascii'), in2_char, in3, in4_char, in5, in6.encode('ascii'))
+        if math.isinf(val) or math.isnan(val):
+            err_string = _get_errstring()
+            if not len(err_string) == 0:
+                raise ValueError(err_string)
+            else:
+                raise ValueError("Props failed ungracefully with inputs:\"{in1:s}\",\'{in2:s}\',{in3:0.16e},\'{in4:s}\',{in5:0.16e},\"{in6:s}\"; please file a ticket at https://sourceforge.net/p/coolprop/tickets/".format(in1=in1,in2=in2,in3=in3,in4=in4,in5=in5,in6=in6))
             
         if not _quantities_supported and in7 is not None:
             raise ValueError("Cannot use output units because quantities package is not installed")
@@ -426,7 +419,7 @@ cpdef tuple get_TTSESinglePhase_LUT_range(char *FluidName):
     if valsok:
         return (hmin, hmax, pmin, pmax)
     else:
-        return ()
+        raise ValueError("Either your FluidName was invalid or LUT bounds not available since no call has been made to tables")
     
 cpdef rhosatL_anc(bytes_or_str Fluid, double T):
     cdef bytes _Fluid = Fluid if bytes_or_str is bytes else Fluid.encode('ascii')

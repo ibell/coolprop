@@ -134,8 +134,8 @@ def Modelica():
         
     shutil.copy2(os.path.join('wrappers','Modelica','README.rst'),os.path.join('dist_temp','Modelica','README.rst'))
     shutil.copy2(os.path.join('wrappers','Modelica','src_modelica','CoolProp2Modelica.mo'),os.path.join('dist_temp','Modelica','CoolProp2Modelica.mo'))
-    shutil.copytree(os.path.join('wrappers','Modelica','bin','VS2008'),os.path.join('dist_temp','Modelica','bin','VS2008'))
-    shutil.copytree(os.path.join('wrappers','Modelica','bin','VS2010'),os.path.join('dist_temp','Modelica','bin','VS2010'))
+    shutil.copytree(os.path.join('wrappers','Modelica','bin','VS2008'),os.path.join('dist_temp','Modelica','VS2008'))
+    shutil.copytree(os.path.join('wrappers','Modelica','bin','VS2010'),os.path.join('dist_temp','Modelica','VS2010'))
     
 def UploadSourceForge():
     #Rename folder to version number
@@ -177,7 +177,7 @@ if __name__=='__main__':
     
 ##     InstallPrereqs()  #This is optional if you think any of the pre-reqs have been updated
 
-    DLL_and_Excel()
+##     DLL_and_Excel()
 ##     Source()
 ##     Python()
 ##     Csharp()
@@ -185,7 +185,7 @@ if __name__=='__main__':
 ##     MATLAB()
 ##     EES()
 ##     Labview()
-##     Modelica()
+    Modelica()
 ##     PYPI()
 ##     UploadSourceForge()
 

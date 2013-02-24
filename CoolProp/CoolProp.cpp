@@ -234,7 +234,14 @@ EXPORT_CODE bool CONVENTION get_TTSESinglePhase_LUT_range(char *FluidName, doubl
 	long iFluid = get_Fluid_index(FluidName); if (iFluid<0){ return false;};
 	pFluid = Fluids.get_fluid(iFluid);
 	pFluid->get_TTSESinglePhase_LUT_range(hmin,hmax,pmin,pmax);
-	return true;
+	if (!ValidNumber(*hmin) && !ValidNumber(*hmax) && !ValidNumber(*pmin) && !ValidNumber(*pmax))
+	{
+		return false;
+	}
+	else
+	{	
+		return true;
+	}
 }
 
 void set_phase(std::string Phase_str){
@@ -789,6 +796,10 @@ double _CoolProp_Fluid_Props(long iOutput, long iName1, double Prop1, long iName
 	double val = _HUGE;
 	// This private method uses the indices directly for speed
 
+	if (debug()>5){
+		std::cout<<__FILE__<<" _CoolProp_Fluid_Props: "<<iOutput<<","<<iName1<<","<<Prop1<<","<<iName2<<","<<Prop2<<","<<pFluid->get_name().c_str()<<std::endl;
+	}
+
 	// Generate a State instance wrapped around the Fluid instance
 	CoolPropStateClass *CPS = new CoolPropStateClass(pFluid);
 
@@ -813,7 +824,7 @@ double _CoolProp_Fluid_Props(long iOutput, long iName1, double Prop1, long iName
 		// Update the class
 		CPS->update(iName1,Prop1,iName2,Prop2);
 		// Get the output
-		double val = CPS->keyed_output(iOutput);
+		val = CPS->keyed_output(iOutput);
 		// Delete the class you created
 		delete CPS;
 	}
@@ -823,6 +834,9 @@ double _CoolProp_Fluid_Props(long iOutput, long iName1, double Prop1, long iName
 		delete CPS;
 		// Re-throw the error
 		throw e;
+	}
+	if (debug()>5){
+		std::cout<<__FILE__<<" _CoolProp_Fluid_Props return: "<<val<<std::endl;
 	}
 	// Return the value
 	return val;
