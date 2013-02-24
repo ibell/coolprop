@@ -281,6 +281,7 @@ def Trho(Ref, Tmin=None, Tmax = None, show = False, axis = None, **kwargs):
         pylab.show()
         
 if __name__=='__main__':
+    Ph('Helium', show = True)
     Trho('R245fa', show = True)
     Prho('R245fa', show = True)
     Ps('R290', show = True)

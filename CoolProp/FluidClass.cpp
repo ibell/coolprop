@@ -98,6 +98,12 @@ void rebuild_CriticalSplineConstants_T()
 			if (Tc-5>Tt)
 			{
 				CPS.update(iT,Tc-5,iQ,1);
+				good = 5;
+			}
+			else
+			{
+				CPS.update(iT,Tc-1,iQ,1);
+				good = 1;
 			}
 		}
 		catch(std::exception)
@@ -113,18 +119,9 @@ void rebuild_CriticalSplineConstants_T()
 				continue;
 			}
 		}
-		try{
-			CPS.update(iT,Tc-1,iQ,1);
-		}
-		catch(std::exception)
-		{
-			std::cout << format("%s : failed at 1 K \n",fluid_names[i].c_str());
-			continue;
-		}
 		
-		good = 1;
 		try{
-			for (double b = 1; b>0; b -= 0.01)
+			for (double b = good; b>0; b -= 0.01)
 			{
 				CPS.update(iT,Tc-b,iQ,1);
 				good = b;

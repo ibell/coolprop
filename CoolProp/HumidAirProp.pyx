@@ -43,7 +43,7 @@ cpdef double HAProps(bytes_or_str OutputName, bytes_or_str Input1Name, double In
     cdef bytes _Input3Name = Input3Name if bytes_or_str is bytes else Input3Name.encode('ascii')
     return _HAProps(_OutputName,_Input1Name,Input1,_Input2Name,Input2,_Input3Name,Input3)
 
-cpdef tuple HAProps_Aux(bytes_or_str OutputName, double T, double p, double w, bytes_or_str units):
+cpdef tuple HAProps_Aux(bytes_or_str OutputName, double T, double p, double w):
     """
     Allows low-level access to some of the routines employed in HumidAirProps
 
@@ -65,7 +65,10 @@ cpdef tuple HAProps_Aux(bytes_or_str OutputName, double T, double p, double w, b
     * f
     """
     #Convert all strings to byte-strings
+    cdef bytes units = (' '*100).encode('ascii')
     cdef bytes _OutputName = OutputName if bytes_or_str is bytes else OutputName.encode('ascii')
-    cdef bytes _units = units if bytes_or_str is str else units.encode('ascii')
-    output = _HAProps_Aux(_OutputName,T,p,w,_units)
+    
+    output = _HAProps_Aux(_OutputName,T,p,w,units)
+    units = units.strip()
+    units = units[0:len(units)-1] #Leave off the null character
     return output, units

@@ -593,7 +593,8 @@ double IdealGasMolarEnthalpy_Water(double T, double v_bar)
     tau=Props("Water","Tcrit")/T;
     rhobar=1/v_bar; //[kmol/m^3]
     rho = rhobar * Props("Water","molemass");
-	hbar_w=hbar_w_0+R_bar*T*(1+tau*DerivTerms("dphi0_dTau",T,rho,"Water"));
+	Fluid * pWater = get_fluid(get_Fluid_index("Water"));
+	hbar_w=hbar_w_0+R_bar*T*(1+tau*pWater->dphi0_dTau(tau,rho/pWater->reduce.rho));
 	return hbar_w;
 }
 double IdealGasMolarEntropy_Water(double T, double p)

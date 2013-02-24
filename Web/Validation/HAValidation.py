@@ -11,11 +11,11 @@ print "{T:8s}{W:10s}{v:10s}{h:10s}{s:10s}".format(W=s5+' Ws',v=s5+'  v',h=s5+'h'
 print "{T:8s}{W:10s}{v:10s}{h:10s}{s:10s}".format(W='  kgw/kg_da',v='   m3/kgda',h='  kJ/kgda',s=' kJ/kgda/K',T='   C')
 print '----------------------------------------------------'
 for T in np.linspace(-60,0,13)+273.15:
-    h=HAProps('H','T',T,'R',1.0,'P',101.325)
-    Twb=HAProps('Twb','T',T,'R',1.0,'P',101.325)-273.15
-    W=HAProps('W','T',T,'R',1.0,'P',101.325)
-    v=HAProps('V','T',T,'R',1.0,'P',101.325)
-    s=HAProps('S','T',T,'R',1.0,'P',101.325)
+    h = HAProps('H','T',T,'R',1.0,'P',101.325)
+    Twb = HAProps('Twb','T',T,'R',1.0,'P',101.325)-273.15
+    W = HAProps('W','T',T,'R',1.0,'P',101.325)
+    v = HAProps('V','T',T,'R',1.0,'P',101.325)
+    s = HAProps('S','T',T,'R',1.0,'P',101.325)
     print "{T:8.0f}{W:10.7f}{v:10.4f}{h:10.3f}{s:10.4f}".format(W=W,T=T-273.15,v=v,h=h,s=s)
 print '===================================================='
 print ' '

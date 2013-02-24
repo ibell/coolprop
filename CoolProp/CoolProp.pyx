@@ -23,7 +23,7 @@ import math
 #
 # Create a fused type that allows for either unicode string or bytestring
 # We encode unicode strings using the ASCII encoding since we know they are all
-# ASCII strings
+# ASCII strings 
 ctypedef fused bytes_or_str:
     cython.bytes
     cython.str

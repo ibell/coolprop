@@ -931,31 +931,7 @@ double DerivTerms(char *Term, double T, double rho, Fluid * pFluid)
 	double R=pFluid->R();
 	double dtau_dT = -pFluid->reduce.T/T/T;
 
-	CoolPropStateClass CPS = CoolPropStateClass(pFluid);
-	CPS.update(iT,T,iD,rho);
-
-	if (!strcmp(Term,"dpdT") || !strcmp(Term,"dpdT|rho")){
-		return CPS.dpdT_constrho();
-	}
-    else if (!strcmp(Term,"dpdrho") || !strcmp(Term,"dpdrho|T")){
-		return CPS.dpdrho_constT();
-	}
-	else if (!strcmp(Term,"dhdT") || !strcmp(Term,"dhdT|rho")){
-		return CPS.dhdT_constrho();
-	}
-	else if (!strcmp(Term,"dhdrho") || !strcmp(Term,"dhdrho|T")){
-		return CPS.dhdrho_constT();
-	}
-	else if (!strcmp(Term,"drhodT|p")){
-		return CPS.drhodT_constp();
-	}
-	else if (!strcmp(Term,"drhodh|p")){
-		return CPS.drhodh_constp();
-	}
-	else if (!strcmp(Term,"drhodp|h")){
-		return CPS.drhodp_consth();
-	}
-	else if (!strcmp(Term,"dhdp|rho") || !strcmp(Term,"dhdp|v"))
+	if (!strcmp(Term,"dhdp|rho") || !strcmp(Term,"dhdp|v"))
 	{
 		// All the terms are re-calculated here in order to cut down on the number of calls
 		double dphir_dDelta = pFluid->dphir_dDelta(tau,delta);	
@@ -1066,6 +1042,31 @@ double DerivTerms(char *Term, double T, double rho, Fluid * pFluid)
     {
         return pFluid->d3phi0_dTau3(tau,delta);
     }
+
+	CoolPropStateClass CPS = CoolPropStateClass(pFluid);
+	CPS.update(iT,T,iD,rho);
+
+	if (!strcmp(Term,"dpdT") || !strcmp(Term,"dpdT|rho")){
+		return CPS.dpdT_constrho();
+	}
+    else if (!strcmp(Term,"dpdrho") || !strcmp(Term,"dpdrho|T")){
+		return CPS.dpdrho_constT();
+	}
+	else if (!strcmp(Term,"dhdT") || !strcmp(Term,"dhdT|rho")){
+		return CPS.dhdT_constrho();
+	}
+	else if (!strcmp(Term,"dhdrho") || !strcmp(Term,"dhdrho|T")){
+		return CPS.dhdrho_constT();
+	}
+	else if (!strcmp(Term,"drhodT|p")){
+		return CPS.drhodT_constp();
+	}
+	else if (!strcmp(Term,"drhodh|p")){
+		return CPS.drhodh_constp();
+	}
+	else if (!strcmp(Term,"drhodp|h")){
+		return CPS.drhodp_consth();
+	}
 	else if (!strcmp(Term,"IsothermalCompressibility")){
 		return CPS.isothermal_compressibility();
 	}
