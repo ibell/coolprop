@@ -659,7 +659,7 @@ CyclohexaneClass::CyclohexaneClass()
 	params.Ttriple = 279.47;
 	params.accentricfactor = 0.20926;
 	params.R_u = 8.314510;
-	params.ptriple = 5.25384210955;
+	params.ptriple = 5.2388581733699020;
 
 	// Limits of EOS
 	limits.Tmin = params.Ttriple;

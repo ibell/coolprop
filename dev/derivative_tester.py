@@ -69,7 +69,7 @@ print
 print '*******************************************'
 print 'CHECKING HELMHOLTZ DERIVATIVES'
 print '*******************************************'
-dx = 1e-8
+dx = 1e-10
 Tc = Props(fluid,'Tcrit')
 rhoc = Props(fluid,'rhocrit')
 delta = rho/rhoc
@@ -204,11 +204,11 @@ print 'd2sdp2|h'
 print d2s_dp2
 print d2s_dp2_num
 
-## d2s_dhdp = -(1/T/T)*dT_dp
-## d2s_dhdp_num = finite_diff('S','H',H,'P',P,fluid,1,2,4)
-## print 'd2s_dhdp'
-## print d2s_dhdp
-## print d2s_dhdp_num
+d2s_dhdp = -(1/T/T)*dT_dp
+d2s_dhdp_num = finite_diff('S','H',H,'P',P,fluid,1,2,4)
+print 'd2s_dhdp'
+print d2s_dhdp
+print d2s_dhdp_num
 
 ## d2s_dhdp = -(1/T/T)*dT_dp
 ## print d2s_dhdp

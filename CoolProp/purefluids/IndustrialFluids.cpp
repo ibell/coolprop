@@ -408,7 +408,7 @@ NeopentaneClass::NeopentaneClass()
     // Other fluid parameters
     params.molemass = 72.14878;
     params.Ttriple = 256.6;
-	params.ptriple = 35.4025457009;
+	params.ptriple = 35.400947327081248;
     params.accentricfactor = 0.1961;
     params.R_u = 8.314472;
 
@@ -682,7 +682,7 @@ XenonClass::XenonClass()
     // Other fluid parameters
     params.molemass = 131.293;
     params.Ttriple = 161.4;
-	params.ptriple = 81.7527231534;
+	params.ptriple = 81.747799073227597;
     params.accentricfactor = 0.00363;
     params.R_u = 8.314472;
 
@@ -863,7 +863,7 @@ NitrousOxideClass::NitrousOxideClass()
     // Other fluid parameters
     params.molemass = 44.0128;
     params.Ttriple = 182.33;
-	params.ptriple = 87.8428495079;
+	params.ptriple = 87.837439225777985;
     params.accentricfactor = 0.1613;
     params.R_u = 8.314472;
 

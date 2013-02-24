@@ -367,6 +367,7 @@ bool TTSESinglePhaseTableClass::read_all_from_file(std::string root_path)
 
 	update_saturation_boundary_indices();
 	update_Trho_map();
+	this->dp = pow(pmax/pmin,1/((double)Np-1));
 	return true;
 }
 void TTSESinglePhaseTableClass::write_all_to_file(std::string root_path)
@@ -440,7 +441,9 @@ double TTSESinglePhaseTableClass::build(double hmin, double hmax, double pmin, d
 	CoolPropStateClass CPS = CoolPropStateClass(pFluid);
 
 	dh = (hmax - hmin)/(Nh - 1);
-	dp = (pmax - pmin)/(Np - 1);
+	dp = pow(pmax/pmin,1/((double)Np-1));
+
+	this->dp = dp;
 
 	clock_t t1,t2;
 	t1 = clock();
@@ -450,11 +453,11 @@ double TTSESinglePhaseTableClass::build(double hmin, double hmax, double pmin, d
 		h[i] = hval;
 		for (unsigned int j = 0; j<Np; j++)
 		{
-			double pval = pmin + j*dp;
+			double pval = pmin*pow(dp,(int)j);
 			p[j] = pval;
 			
 			// Check whether the point is single phase
-			// If pressure between ptriple point and pcrit, might be two-phase or sigle phase, otherwise definitely single phase
+			// If pressure between ptriple point and pcrit, might be two-phase or single phase, otherwise definitely single phase
 			if (pval <= pFluid->reduce.p && pval >= pFluid->params.ptriple)
 			{
 				if (SatL == NULL || SatV == NULL){
@@ -546,7 +549,7 @@ double TTSESinglePhaseTableClass::build(double hmin, double hmax, double pmin, d
 				s[i][j] = CPS.s();
 				dsdh[i][j] = 1/T;
 				dsdp[i][j] = -1/(T*rho);
-
+				
 				// Matrices for second derivatives of entropy as a function of pressure and enthalpy
 				d2sdh2[i][j] = -1/(T*T)*dTdh[i][j];
 				d2sdhdp[i][j] = -1/(T*T)*dTdp[i][j];
@@ -629,9 +632,10 @@ void TTSESinglePhaseTableClass::update_Trho_map()
 	int ii,jj;
 	double Tmin,Tmax,rhomin,rhomax,rhoL,rhoV,TsatL,TsatV,dummy;
 	// Get the bounding values
-	pFluid->temperature_ph(pmin,hmin,&Tmin,&rhomax,&rhoL,&rhoV,&TsatL,&TsatV);
-	pFluid->temperature_ph(pmax,hmax,&Tmax,&dummy,&rhoL,&rhoV,&TsatL,&TsatV);
-	pFluid->temperature_ph(pmin,hmax,&dummy,&rhomin,&rhoL,&rhoV,&TsatL,&TsatV);
+	Tmin = T[0][0];
+	rhomax = rho[0][0];
+	Tmax = T[Nh-1][Np-1];
+	rhomin = rho[Nh-1][0];
 	// Resize the arrays, using the same sizes as the base matrices
 	T_Trho.resize(Nh);
 	rho_Trho.resize(Np);
@@ -654,7 +658,7 @@ void TTSESinglePhaseTableClass::update_Trho_map()
 
 			// Find i,j from p,h
 			ii = (int)round(((h-hmin)/(hmax-hmin)*(Nh-1)));
-			jj = (int)round(((p-pmin)/(pmax-pmin)*(Np-1)));
+			jj = (int)round((log(p/pmin)/log(this->dp)));
 
 			// Only keep values that are within the range for the table
 			if ( ii>=0 && ii < (int)Nh && jj>=0 && jj< (int)Np)
@@ -791,7 +795,7 @@ double TTSESinglePhaseTableClass::check_randomly(long iParam, unsigned int N, st
 			throw ValueError();
 		}
 		
-		std::cout << format("%g %g %g %g TTSE (h,p,EOS,TTSE)\n",h1,p1,(*EOS)[i],(*TTSE)[i]);
+		std::cout << format("%g %g %g %g %g (h,p,EOS,TTSE,diff)\n",h1,p1,(*EOS)[i],(*TTSE)[i],(*EOS)[i]-(*TTSE)[i]);
 	}
 	return val;
 }
@@ -818,7 +822,7 @@ double TTSESinglePhaseTableClass::evaluate_randomly(long iParam, unsigned int N)
 double TTSESinglePhaseTableClass::evaluate(long iParam, double p, double h)
 {
 	int i = (int)round(((h-hmin)/(hmax-hmin)*(Nh-1)));
-	int j = (int)round(((p-pmin)/(pmax-pmin)*(Np-1)));
+	int j = (int)round((log(p/pmin)/log(this->dp)));
 	
 	if (i<0 || i>(int)Nh-1 || j<0 || j>(int)Np-1)
 	{
@@ -875,7 +879,7 @@ double TTSESinglePhaseTableClass::evaluate_one_other_input(long iInput1, double 
 	{
 		p = Input1;
 		
-		int j = (int)round(((p-pmin)/(pmax-pmin)*(Np-1)));
+		int j = (int)round((log(p/pmin)/log(this->dp)));
 		double deltap = p-this->p[j];
 		if (p > pFluid->reduce.p)
 		{
@@ -1131,7 +1135,7 @@ void TTSESinglePhaseTableClass::evaluate_two_other_inputs(long iInput1, double I
 double TTSESinglePhaseTableClass::evaluate_first_derivative(long iOF, long iWRT, long iCONSTANT, double p, double h)
 {
 	int i = (int)round(((h-hmin)/(hmax-hmin)*(Nh-1)));
-	int j = (int)round(((p-pmin)/(pmax-pmin)*(Np-1)));
+	int j = (int)round((log(p/pmin)/log(this->dp)));
 
 	if (i<0 || i>(int)Nh-1 || j<0 || j>(int)Np-1)
 	{

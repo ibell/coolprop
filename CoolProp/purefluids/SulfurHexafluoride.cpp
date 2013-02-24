@@ -34,7 +34,7 @@ SulfurHexafluorideClass::SulfurHexafluorideClass()
 	// Other fluid parameters
 	params.molemass = 146.0554192;
 	params.Ttriple = 223.555;
-	params.ptriple = 231.429;
+	params.ptriple = 231.42447394906830;
 	params.accentricfactor = 0.21;
 	params.R_u = 8.314472;
 

@@ -229,7 +229,7 @@ void CoolPropStateClass::update_twophase(long iInput1, double Value1, long iInpu
 		sort_pair(&iInput1,&Value1,&iInput2,&Value2,iP,iQ);
 
 		// Out-of-range checks
-		if (Value1 < pFluid->params.ptriple || Value1 > pFluid->crit.p){ throw ValueError(format("Your saturation pressure [%f kPa] is out of range [%f kPa, %f kPa]",Value1,pFluid->params.ptriple,pFluid->crit.p ));}
+		if (Value1 < pFluid->params.ptriple-100*DBL_EPSILON || Value1 > pFluid->crit.p+100*DBL_EPSILON){ throw ValueError(format("Your saturation pressure [%f kPa] is out of range [%f kPa, %f kPa]",Value1,pFluid->params.ptriple,pFluid->crit.p ));}
 		if (Value2 > 1+10*DBL_EPSILON || Value2 < -10*DBL_EPSILON){ throw ValueError(format("Your quality [%f] is out of range (0, 1)",Value2 )); }
 
 		// Carry out the saturation call to get the temperature and density for each phases
@@ -825,7 +825,7 @@ double CoolPropStateClass::sL(void){
 	if (pFluid->enabled_TTSE_LUT)
 	{
 		pFluid->build_TTSE_LUT();
-		return pFluid->TTSESatL.evaluate(iH,psatL);
+		return pFluid->TTSESatL.evaluate(iS,psatL);
 	}
 	else
 	{

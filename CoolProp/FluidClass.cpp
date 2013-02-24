@@ -1116,7 +1116,7 @@ double Fluid::_get_rho_guess(double T, double p)
 		double drho_dp = 1/dp_drho;
 		rho_simple = rhoL-drho_dp*(pL-p);
 	}
-	else if (fabs(psatL(T)-p)<1e-8 || fabs(psatV(T)-p)<1e-8)
+	else if (fabs(psatL_anc(T)-p)<1e-8 || fabs(psatV_anc(T)-p)<1e-8)
 	{
 		throw ValueError(format("Input T [%0.16g] & p [%0.16g] are two-phase or saturated which is thermodynamically undefined\n",T,p));
 	}
@@ -2712,10 +2712,13 @@ bool Fluid::build_TTSE_LUT(bool force_build)
 			saturation_T(limits.Tmin,false,&psatL,&psatV,&rhoL,&rhoV);// <<----------------- This is the problem with EES!
 			double hL = enthalpy_Trho(limits.Tmin,rhoL);
 			double hV = enthalpy_Trho(limits.Tmin,rhoV);
-			this->enable_TTSE_LUT(); // Re-enable TTSE to do these calculations
 			hmin_TTSE = hL;
 			hmax_TTSE = hL+(hV-hL)*2;
 			pmin_TTSE = params.ptriple;
+			if (pmin_TTSE<psatL)
+			{
+				pmin_TTSE = psatL;
+			}
 			pmax_TTSE = 2*reduce.p;
 		}
 
@@ -2729,7 +2732,7 @@ bool Fluid::build_TTSE_LUT(bool force_build)
 
 		TTSESatV = TTSETwoPhaseTableClass(this,1);
 		TTSESatV.set_size(Nsat_TTSE);
-		TTSESatV.build(params.ptriple+1e-08,reduce.p,&TTSESatL);
+		TTSESatV.build(pmin_TTSE,crit.p,&TTSESatL);
 
 		TTSESinglePhase = TTSESinglePhaseTableClass(this);
 		TTSESinglePhase.enable_writing_tables_to_files = enable_writing_tables_to_files;
@@ -2737,7 +2740,9 @@ bool Fluid::build_TTSE_LUT(bool force_build)
 		TTSESinglePhase.SatL = &TTSESatL;
 		TTSESinglePhase.SatV = &TTSESatV;
 		TTSESinglePhase.build(hmin_TTSE,hmax_TTSE,pmin_TTSE,pmax_TTSE,&TTSESatL,&TTSESatV);
-		
+
+		//std::vector<double> h,p,EOS,TTSE;
+		//TTSESinglePhase.check_randomly(iS,1000,&h,&p,&EOS,&TTSE);
 		built_TTSE_LUT = true;
 		enabled_TTSE_LUT = true;
 	}
