@@ -356,6 +356,7 @@ class Fluid
 
 		virtual double conductivity_critical(double T, double rho);
 
+
 		/// This function returns the dilute portion of the viscosity
 		/// @param T Temperature [K]
 		/// @param e_k epsilon/k_B for the fluid [K]

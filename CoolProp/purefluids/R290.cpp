@@ -246,9 +246,10 @@ R290Class::R290Class()
 	limits.pmax = 1000000.0;
 	limits.rhomax = 20.6*params.molemass;
 	
-	EOSReference.assign("\"A International Standard Formulation for the Thermodynamic Properties of 1,1,1,2-Tetrafluoroethane" 
-					    "(HFC-134a) for Temperatures from 170 K to 455 K and Pressures up to 70 MPa\""
-						"by Reiner Tillner-Roth and Hans Dieter Baehr, J. Phys. Chem. Ref. Data, v. 23, 1994, pp 657-729");
+	EOSReference.assign("Lemmon, E.W., McLinden, M.O., Wagner, W., "
+						"\"Thermodynamic Properties of Propane.  III.  A Reference Equation of State"
+						"for Temperatures from the Melting Line to 650 K and Pressures up to 1000 MPa,\""
+						"J. Chem. Eng. Data, 54:3141-3180, 2009");
 	TransportReference.assign("Viscosity: E. Vogel, C. Kuchenmeister, and E. Bich, A. Laesecke,"
 							"\"Reference Correlation of the Viscosity of Propane\""
 							"J. Phys. Chem. Ref. Data, Vol. 27, No. 5, 1998");

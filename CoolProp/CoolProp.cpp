@@ -461,6 +461,19 @@ EXPORT_CODE int CONVENTION IsFluidType(char *Ref, char *Type)
         return 0;
     }
 }
+EXPORT_CODE double CONVENTION viscosity_dilute(char* FluidName, double T, double e_k, double sigma)
+{
+	long iFluid = get_Fluid_index(FluidName);
+	if (iFluid < 0)
+	{
+		return _HUGE;
+	}
+	else
+	{
+		Fluid *pFluid = get_fluid(iFluid);
+		return pFluid->viscosity_dilute(T,e_k,sigma);
+	}
+}
 
 EXPORT_CODE double CONVENTION rhosatL_anc(char* Fluid, double T)
 {

@@ -2189,69 +2189,6 @@ double Fluid::Tsat(double p, double Q, double T_guess, bool UseLUT, double *rhoL
 	}
 }
 
-
-//
-//int WriteLookup2File(int ILUT)
-//{
-//    int i,j;
-//    FILE *fp_h,*fp_s,*fp_rho,*fp_u,*fp_cp,*fp_cv,*fp_visc;
-//    fp_h=fopen("h.csv","w");
-//    fp_s=fopen("s.csv","w");
-//    fp_u=fopen("u.csv","w");
-//    fp_cp=fopen("cp.csv","w");
-//    fp_cv=fopen("cv.csv","w");
-//    fp_rho=fopen("rho.csv","w");
-//    fp_visc=fopen("visc.csv","w");
-//
-//    // Write the pressure header row
-//    for (j=0;j<nP;j++)
-//    {
-//        fprintf(fp_h,",%0.12f",pvec[j][ILUT]);
-//        fprintf(fp_s,",%0.12f",pvec[j][ILUT]);
-//        fprintf(fp_rho,",%0.12f",pvec[j][ILUT]);
-//        fprintf(fp_u,",%0.12f",pvec[j][ILUT]);
-//        fprintf(fp_cp,",%0.12f",pvec[j][ILUT]);
-//        fprintf(fp_cv,",%0.12f",pvec[j][ILUT]);
-//        fprintf(fp_visc,",%0.12f",pvec[j][ILUT]);
-//    }
-//    fprintf(fp_h,"\n");
-//    fprintf(fp_s,"\n");
-//    fprintf(fp_rho,"\n");
-//    fprintf(fp_u,"\n");
-//    fprintf(fp_cp,"\n");
-//    fprintf(fp_cv,"\n");
-//    fprintf(fp_visc,"\n");
-//    
-//    for (i=1;i<nT;i++)
-//    {
-//        fprintf(fp_h,"%0.12f",Tvec[i][ILUT]);
-//        fprintf(fp_s,"%0.12f",Tvec[i][ILUT]);
-//        fprintf(fp_rho,"%0.12f",Tvec[i][ILUT]);
-//        fprintf(fp_u,"%0.12f",Tvec[i][ILUT]);
-//        fprintf(fp_cp,"%0.12f",Tvec[i][ILUT]);
-//        fprintf(fp_cv,"%0.12f",Tvec[i][ILUT]);
-//        fprintf(fp_visc,"%0.12f",Tvec[i][ILUT]);
-//        for (j=0;j<nP;j++)
-//        {
-//            fprintf(fp_h,",%0.12f",hmat[i][j][ILUT]);
-//            fprintf(fp_s,",%0.12f",smat[i][j][ILUT]);
-//            fprintf(fp_rho,",%0.12f",rhomat[i][j][ILUT]);
-//            fprintf(fp_u,",%0.12f",umat[i][j][ILUT]);
-//            fprintf(fp_cp,",%0.12f",cpmat[i][j][ILUT]);
-//            fprintf(fp_cv,",%0.12f",cvmat[i][j][ILUT]);
-//            fprintf(fp_visc,",%0.12f",viscmat[i][j][ILUT]);
-//        }
-//        fprintf(fp_h,"\n");
-//        fprintf(fp_s,"\n");
-//        fprintf(fp_rho,"\n");
-//        fprintf(fp_u,"\n");
-//        fprintf(fp_cp,"\n");
-//        fprintf(fp_cv,"\n");
-//        fprintf(fp_visc,"\n");
-//    }
-//    return 1;
-//}
-
 double Fluid::viscosity_dilute(double T, double e_k, double sigma)
 {	
 	// T in [K], e_k in [K], sigma in [nm]

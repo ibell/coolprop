@@ -2,6 +2,11 @@ CoolProp is a property database and wrappers for a selection of programming envi
 
 Changelog:
 
+3.0 (revision 325)
+Added Tabular Taylor Series Expansion (see documentation)
+All the way to the critical point for almost all fluids
+Support added for Modelica, Python 3.x and Labview
+
 2.5 (revision 247)
 Added EES wrapper (r245-r247)
 Saturation derivatives dhdp and d2hdp2 (r244)

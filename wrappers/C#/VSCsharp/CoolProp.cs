@@ -206,18 +206,6 @@ public class CoolProp {
     return ret;
   }
 
-  public static int set_1phase_LUT_params(string Ref, int nT, int np, double Tmin, double Tmax, double pmin, double pmax, bool rebuild) {
-    int ret = CoolPropPINVOKE.set_1phase_LUT_params__SWIG_0(Ref, nT, np, Tmin, Tmax, pmin, pmax, rebuild);
-    if (CoolPropPINVOKE.SWIGPendingException.Pending) throw CoolPropPINVOKE.SWIGPendingException.Retrieve();
-    return ret;
-  }
-
-  public static int set_1phase_LUT_params(string Ref, int nT, int np, double Tmin, double Tmax, double pmin, double pmax) {
-    int ret = CoolPropPINVOKE.set_1phase_LUT_params__SWIG_1(Ref, nT, np, Tmin, Tmax, pmin, pmax);
-    if (CoolPropPINVOKE.SWIGPendingException.Pending) throw CoolPropPINVOKE.SWIGPendingException.Retrieve();
-    return ret;
-  }
-
   public static int debug() {
     int ret = CoolPropPINVOKE.debug__SWIG_1();
     return ret;

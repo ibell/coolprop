@@ -30,6 +30,9 @@ cdef extern from "CoolProp.h":
     double _rhosatL_anc "rhosatL_anc"(char*Fluid, double T)
     double _rhosatV_anc "rhosatV_anc"(char*Fluid, double T)
     
+    double _viscosity_dilute "viscosity_dilute"(char* FluidName, double T, double e_k, double sigma)
+    
+    
     int _get_debug "get_debug"()
     void _debug "debug"(int level)
     

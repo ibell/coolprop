@@ -161,6 +161,7 @@ public:
     double ECS_chi_conductivity(double rhor);
     double ECS_f_int(double T);
 	double surface_tension_T(double T);
+	double viscosity_Trho(double T, double rho);
 };
 
 class R41Class : public Fluid {

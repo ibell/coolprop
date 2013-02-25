@@ -308,12 +308,6 @@ class CoolPropPINVOKE {
   [DllImport("CoolProp", EntryPoint="CSharp_DerivTerms__SWIG_2")]
   public static extern double DerivTerms__SWIG_2(string jarg1, double jarg2, double jarg3, HandleRef jarg4, bool jarg5, bool jarg6);
 
-  [DllImport("CoolProp", EntryPoint="CSharp_set_1phase_LUT_params__SWIG_0")]
-  public static extern int set_1phase_LUT_params__SWIG_0(string jarg1, int jarg2, int jarg3, double jarg4, double jarg5, double jarg6, double jarg7, bool jarg8);
-
-  [DllImport("CoolProp", EntryPoint="CSharp_set_1phase_LUT_params__SWIG_1")]
-  public static extern int set_1phase_LUT_params__SWIG_1(string jarg1, int jarg2, int jarg3, double jarg4, double jarg5, double jarg6, double jarg7);
-
   [DllImport("CoolProp", EntryPoint="CSharp_debug__SWIG_1")]
   public static extern int debug__SWIG_1();
 

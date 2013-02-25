@@ -102,6 +102,8 @@ You might want to start by looking at CoolProp.h
 	/// Get the current range of the single-phase LUT
 	EXPORT_CODE bool CONVENTION get_TTSESinglePhase_LUT_range(char *FluidName, double *hmin, double *hmax, double *pmin, double *pmax);
 
+	EXPORT_CODE double CONVENTION viscosity_dilute(char* FluidName, double T, double e_k, double sigma);
+
 	// ------------------------------------------------------------------------------------------------
 	// All the functions below this comment do NOT get exported to REFPROP DLL due to the fact that the 
 	// DLL MUST use extern "C" for all exported functions, which does not allow for function overloads 
