@@ -1282,8 +1282,9 @@ double R245faClass::viscosity_Trho(double T, double rho)
     {
         throw ValueError(format("Your fluid does not implement ECSParams"));
     }
-
-    return viscosity_dilute(T,e_k,sigma) + DELTA_H_eta/1e6;
+	double eta_0 = viscosity_dilute(T,e_k,sigma);
+	double eta_r = DELTA_H_eta;
+    return eta_0 + eta_r;
 } 
 void R245faClass::ECSParams(double *e_k, double *sigma)
 {

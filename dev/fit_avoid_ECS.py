@@ -71,6 +71,7 @@ mod = Model(OBJECTIVE_fit)
 mydata = Data(XXX, mu_residual)
 myodr = ODR(mydata, mod, beta0=[1]*N)
 myoutput = myodr.run()
+print myoutput.pprint()
 YFIT = OBJECTIVE_fit(myoutput.beta,XXX)
 
 plt.plot(mu_residual,(YFIT+np.array(mu_dilute.vec))/np.array(mu.vec),'o')
@@ -120,7 +121,7 @@ def write_output(c):
                 sum += e[i][j]*pow(delta,i)/pow(tau,j);
             }}
         }}
-        DELTA_H_eta = sum + f1*(delta/(delta_0-delta)-delta/delta_0);
+        DELTA_H_eta = sum + f1*(delta/(delta_0-delta)-delta/delta_0); //[Pa-s]
         
         try{{
             // Get the ECS params for the fluid if it has them
@@ -131,7 +132,7 @@ def write_output(c):
             throw ValueError(format("Your fluid does not implement ECSParams"));
         }}
         
-        return viscosity_dilute(T,e_k,sigma) + DELTA_H_eta/1e6;
+        return viscosity_dilute(T,e_k,sigma) + DELTA_H_eta;
     }} 
     """
     )
