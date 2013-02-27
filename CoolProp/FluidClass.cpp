@@ -2340,12 +2340,12 @@ std::vector<double> Fluid::ConformalTemperature(Fluid *InterestFluid, Fluid *Ref
 	// Check whether the starting guess is already pretty good
 	error = root_sum_square(CTR.call(x0));
 
-	if (fabs(error)<1e-3){
-		// convert to STL vector to avoid Eigen library in header
-		std::vector<double> xout(2,x0[0]);
-		xout[1] = x0[1];
-		return xout;
-	}
+	//if (fabs(error)<1e-3){
+	//	// convert to STL vector to avoid Eigen library in header
+	//	std::vector<double> xout(2,x0[0]);
+	//	xout[1] = x0[1];
+	//	return xout;
+	//}
 	// Make a copy so that if the calculations fail, we can return the original values
 	std::vector<double> x0_initial = x0;
 	
@@ -2376,13 +2376,13 @@ std::vector<double> Fluid::ConformalTemperature(Fluid *InterestFluid, Fluid *Ref
 		delta = rho/reduce.rho;
 		dp_drho=R()*T*(1+2*delta*dphir_dDelta(tau,delta)+delta*delta*d2phir_dDelta2(tau,delta));
 		
-		/*if (dp_drho<0)
-		{
-			if (rho > ReferenceFluid->reduce.rho)
-				x0(1)*=1.04;
-			else
-				x0(0)*=0.96;
-		}*/
+		//if (dp_drho<0)
+		//{
+		//	if (rho > ReferenceFluid->reduce.rho)
+		//		x0(1)*=1.04;
+		//	else
+		//		x0(0)*=0.96;
+		//}
 		//Try to take a step
 		f0 = CTR.call(x0);
 		J = CTR.Jacobian(x0);
@@ -2405,9 +2405,14 @@ std::vector<double> Fluid::ConformalTemperature(Fluid *InterestFluid, Fluid *Ref
 			x0[1] -= 1.05*x0[1];
 		}
 		error = root_sum_square(f0);
-		iter+=1;
+		iter += 1;
+		if (iter>29)
+		{
+			*errstring = std::string("ConformalTemperature reached maximum number of steps without reaching solution");
+			return x0_initial;
+		}
 	}
-	// convert to STL vector to avoid Eigen library in header
+	// convert to STL vector
 	std::vector<double> xout(2,x0[0]);
 	xout[1] = x0[1];
 	return xout;

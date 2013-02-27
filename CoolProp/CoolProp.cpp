@@ -30,6 +30,8 @@
 #include "CPState.h"
 #include "IncompLiquid.h"
 #include "TTSE.h"
+#include "purefluids/R290.h"
+#include "purefluids/R134a.h"
 
 // Function prototypes
 double rho_TP(double T, double p);
@@ -461,12 +463,79 @@ EXPORT_CODE int CONVENTION IsFluidType(char *Ref, char *Type)
         return 0;
     }
 }
-EXPORT_CODE double CONVENTION viscosity_dilute(char* FluidName, double T, double e_k, double sigma)
+EXPORT_CODE double CONVENTION conformal_Trho(char* FluidName, char* ReferenceFluidName, double T, double rho, double *Tconform, double *rhoconform)
 {
 	long iFluid = get_Fluid_index(FluidName);
 	if (iFluid < 0)
 	{
 		return _HUGE;
+	}
+	else
+	{
+		Fluid *pFluid = get_fluid(iFluid);
+		double rhobar=rho/pFluid->params.molemass;
+		double rhocbar=pFluid->reduce.rho/pFluid->params.molemass;
+		double Tc=pFluid->reduce.T;
+		if (!strcmp(ReferenceFluidName,"Propane"))
+		{
+			R290Class pPropane = R290Class();
+			pPropane.post_load();
+			double Tc0 = pPropane.reduce.T;
+			double rhoc0bar=pPropane.reduce.rho/pPropane.params.molemass;
+			double T0=T*Tc0/Tc;
+			double rho0bar = rhobar*rhoc0bar/rhocbar;  // Must be the ratio of MOLAR densities!!
+			double rho0 = rho0bar*pPropane.params.molemass;
+			std::string errstring;
+			std::vector<double> Trho = pFluid->ConformalTemperature(pFluid,&pPropane,T,rho,T0,rho0,&errstring);
+			if (errstring.size()>0){
+				return _HUGE;
+			}
+			else{
+				*Tconform = Trho[0];
+				*rhoconform = Trho[1];
+				return 0;
+			}
+		}
+		else if (!strcmp(ReferenceFluidName,"R134a"))
+		{
+			R134aClass pR134a = R134aClass();
+			pR134a.post_load();
+			double Tc0 = pR134a.reduce.T;
+			double rhoc0bar=pR134a.reduce.rho/pR134a.params.molemass;
+			double T0=T*Tc0/Tc;
+			double rho0bar = rhobar*rhoc0bar/rhocbar;  // Must be the ratio of MOLAR densities!!
+			double rho0 = rho0bar*pR134a.params.molemass;
+			std::string errstring;
+			std::vector<double> Trho = pFluid->ConformalTemperature(pFluid,&pR134a,T,rho,T0,rho0,&errstring);
+			if (errstring.size()>0){
+				return _HUGE;
+			}
+			else{
+				*Tconform = Trho[0];
+				*rhoconform = Trho[1];
+				return 0;
+			}
+		}
+		else{
+			return _HUGE;
+		}
+	}
+	
+
+}
+
+EXPORT_CODE double CONVENTION viscosity_dilute(char* FluidName, double T, double rho, double e_k, double sigma)
+{
+	long iFluid = get_Fluid_index(FluidName);
+	if (iFluid < 0)
+	{
+		return _HUGE;
+	}
+	else if (iFluid == get_Fluid_index("Propane"))
+	{
+		R290Class pFluid = R290Class();
+		pFluid.post_load();
+		return pFluid.viscosity_dilute(T)+pFluid.viscosity_dilute2(T,rho);
 	}
 	else
 	{

@@ -398,7 +398,7 @@ double R290Class::viscosity_residual(double T, double rho)
 	e[5][0] = -9.59407868475; e[5][1] =  21.0726986598; e[5][2] = -14.3971968187;
 	
 	tau = T / 369.825;
-	delta = rho / reduce.rho; 
+	delta = rho / (44.0956*5); 
 	Tstar = T / e_k;
 
 	delta_0=g1*(1+g2*sqrt(tau)); //[no units]

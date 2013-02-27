@@ -421,9 +421,16 @@ cpdef tuple get_TTSESinglePhase_LUT_range(char *FluidName):
     else:
         raise ValueError("Either your FluidName was invalid or LUT bounds not available since no call has been made to tables")
     
-cpdef viscosity_dilute(bytes_or_str Fluid, double T, double e_k, double sigma):
+cpdef viscosity_dilute(bytes_or_str Fluid, double T, double rho, double e_k, double sigma):
     cdef bytes _Fluid = Fluid if bytes_or_str is bytes else Fluid.encode('ascii')
-    return _viscosity_dilute(_Fluid,T,e_k,sigma)
+    return _viscosity_dilute(_Fluid,T,rho,e_k,sigma)
+
+cpdef tuple conformal_Trho(bytes_or_str Fluid, bytes_or_str ReferenceFluid, double T, double rho):
+    cdef double T0 = 0,rho0= 0
+    cdef bytes _Fluid = Fluid if bytes_or_str is bytes else Fluid.encode('ascii')
+    cdef bytes _ReferenceFluid = ReferenceFluid if bytes_or_str is bytes else ReferenceFluid.encode('ascii')
+    _conformal_Trho(_Fluid,_ReferenceFluid,T,rho,&T0,&rho0)
+    return T0,rho0
 
 cpdef rhosatL_anc(bytes_or_str Fluid, double T):
     cdef bytes _Fluid = Fluid if bytes_or_str is bytes else Fluid.encode('ascii')
