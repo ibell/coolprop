@@ -279,8 +279,46 @@ def Trho(Ref, Tmin=None, Tmax = None, show = False, axis = None, **kwargs):
     ax.autoscale(enable=True)
     if show:
         pylab.show()
+
+def PT(Ref, Tmin=None, Tmax = None, show = False, axis = None, **kwargs):
+    
+    """
+    Make a Temperature-density plot for the given fluid
+    
+    Will plot in the current axis unless the optional parameter *axis* gives the name for the axis to use
+    """
+    ax = axis if axis is not None else pylab.gca()
+    if Tmin is None:
+        Tmin = cp.Props(Ref,'Tmin')
+    if Tmax is None:
+        Tmax = cp.Props(Ref,'Tcrit')-1e-5
+        
+    if Tmin > cp.Props(Ref,'Tcrit'):
+        raise ValueError('Tmin cannot be greater than fluid critical temperature')
+    if Tmax > cp.Props(Ref,'Tcrit'):
+        raise ValueError('Tmax cannot be greater than fluid critical temperature')
+    Tmin = max(Tmin, cp.Props(Ref,'Tmin')+0.01)
+    Tmax = min(Tmax, cp.Props(Ref,'Tcrit')-1e-5)
+    
+    Tsat = np.linspace(Tmin,Tmax,1000)
+    (psatL,psatV)=(0.0*Tsat,0.0*Tsat)
+    for i in range(len(Tsat)):
+        psatL[i] = cp.Props('P','T',Tsat[i],'Q',0,Ref)
+        psatV[i] = cp.Props('P','T',Tsat[i],'Q',1,Ref)
+
+    ax.plot(Tsat,psatL,'k')
+    ax.plot(Tsat,psatV,'k')
+    ax.plot(np.r_[Tsat[-1],Tsat[-1]],np.r_[psatL[-1],psatV[-1]],'k')
+    
+    ax.set_xlabel('Temperature [K]')
+    ax.set_ylabel('Pressure [kPa]')
+    ax.autoscale(enable=True)
+    if show:
+        pylab.show()
+
         
 if __name__=='__main__':
+    PT('R245fa', show = True)
     Ph('Helium', show = True)
     Trho('R245fa', show = True)
     Prho('R245fa', show = True)
@@ -288,3 +326,4 @@ if __name__=='__main__':
     Ps('R290', show = True)
     Ph('R290', show = True)
     Ts('R290', show = True)
+    

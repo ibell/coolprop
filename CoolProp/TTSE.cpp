@@ -365,9 +365,13 @@ bool TTSESinglePhaseTableClass::read_all_from_file(std::string root_path)
 	matrix_from_file(root_path + std::string("d2rhodp2_ph.ttse"),&d2rhodp2);
 	matrix_from_file(root_path + std::string("d2rhoTdhdp_ph.ttse"),&d2rhodhdp);
 
+	this->pratio = pow(pmax/pmin,1/((double)Np-1));
+	this->logpratio = log(pratio); // For speed since log() is a slow function
+	this->jpcrit_floor = (int)floor((log(pFluid->reduce.p)-logpmin)/logpratio);
+	this->jpcrit_ceil = (int)ceil((log(pFluid->reduce.p)-logpmin)/logpratio);
 	update_saturation_boundary_indices();
 	update_Trho_map();
-	this->dp = pow(pmax/pmin,1/((double)Np-1));
+	
 	return true;
 }
 void TTSESinglePhaseTableClass::write_all_to_file(std::string root_path)
@@ -433,6 +437,7 @@ double TTSESinglePhaseTableClass::build(double hmin, double hmax, double pmin, d
 	this->hmax = hmax;
 	this->pmin = pmin;
 	this->pmax = pmax;
+	this->logpmin = log(pmin);
 
 	// If we can read them, we are done and don't need to rebuild
 	if (read_all_from_file(root_path))
@@ -440,10 +445,9 @@ double TTSESinglePhaseTableClass::build(double hmin, double hmax, double pmin, d
 
 	CoolPropStateClass CPS = CoolPropStateClass(pFluid);
 
-	dh = (hmax - hmin)/(Nh - 1);
-	dp = pow(pmax/pmin,1/((double)Np-1));
-
-	this->dp = dp;
+	double dh = (hmax - hmin)/(Nh - 1);
+	pratio = pow(pmax/pmin,1/((double)Np-1));
+	logpratio = log(pratio);
 
 	clock_t t1,t2;
 	t1 = clock();
@@ -453,7 +457,7 @@ double TTSESinglePhaseTableClass::build(double hmin, double hmax, double pmin, d
 		h[i] = hval;
 		for (unsigned int j = 0; j<Np; j++)
 		{
-			double pval = pmin*pow(dp,(int)j);
+			double pval = pmin*pow(pratio,(int)j);
 			p[j] = pval;
 			
 			// Check whether the point is single phase
@@ -655,10 +659,14 @@ void TTSESinglePhaseTableClass::update_Trho_map()
 			// T,rho --> p,h
 			double p = pFluid->pressure_Trho(T,rho);
 			double h = pFluid->enthalpy_Trho(T,rho);
+			double rhooV = pFluid->rhosatV(T);
+			double rhooL = pFluid->rhosatL(T);
+			double pV = pFluid->psatV_anc(T);
+			double pp = pFluid->pressure_Trho(T,rhooV);
 
 			// Find i,j from p,h
 			ii = (int)round(((h-hmin)/(hmax-hmin)*(Nh-1)));
-			jj = (int)round((log(p/pmin)/log(this->dp)));
+			jj = (int)round((log(p)-logpmin)/logpratio);
 
 			// Only keep values that are within the range for the table
 			if ( ii>=0 && ii < (int)Nh && jj>=0 && jj< (int)Np)
@@ -822,7 +830,7 @@ double TTSESinglePhaseTableClass::evaluate_randomly(long iParam, unsigned int N)
 double TTSESinglePhaseTableClass::evaluate(long iParam, double p, double h)
 {
 	int i = (int)round(((h-hmin)/(hmax-hmin)*(Nh-1)));
-	int j = (int)round((log(p/pmin)/log(this->dp)));
+	int j = (int)round((log(p)-logpmin)/logpratio);
 	
 	if (i<0 || i>(int)Nh-1 || j<0 || j>(int)Np-1)
 	{
@@ -849,7 +857,7 @@ double TTSESinglePhaseTableClass::evaluate(long iParam, double p, double h)
 	case iD:
 		return rho[i][j]+deltah*drhodh[i][j]+deltap*drhodp[i][j]+0.5*deltah*deltah*d2rhodh2[i][j]+0.5*deltap*deltap*d2rhodp2[i][j]+deltap*deltah*d2rhodhdp[i][j]; break;
 	default:
-		throw ValueError();
+		throw ValueError(format("Output key value [%d] to evaluate is invalid",iParam));
 	}
 }
 bool isbetween(double x1, double x2, double x)
@@ -879,126 +887,177 @@ double TTSESinglePhaseTableClass::evaluate_one_other_input(long iInput1, double 
 	{
 		p = Input1;
 		
-		int j = (int)round((log(p/pmin)/log(this->dp)));
+		int j = (int)round((log(p)-logpmin)/logpratio);
 		double deltap = p-this->p[j];
-		if (p > pFluid->reduce.p)
+
+		if (j >= jpcrit_ceil) // Is is either supercritical pressure or just a little bit below critical pressure
 		{
-			// Do interval halving over the whole range since 
-			// there can't be any saturation curve
-			L = 0; R = Nh-1; M = (L+R)/2;
-			while (R-L>1)
+			// Very close to the boundary of the LUT, not 1-1 relationship between p-h and other
+			// sets of inputs, need to allow for a bit of raggedness here
+			if (   (iOther == iT && Other < 1.1*this->T[Np-1][j] && Other > this->T[Np-1][j])
+			    || (iOther == iS && Other < this->s[Np-1][j]+0.1 && Other > this->s[Np-1][j])
+			    || (iOther == iD && Other > 0.85*this->rho[Np-1][j] && Other < this->rho[Np-1][j])
+			    )
 			{
-				if (isbetween((*mat)[M][j],(*mat)[R][j],Other))
-				{ 
-					L=M; M=(L+R)/2; continue;
+				i = Np-1;
+			}
+			else
+			{
+				// Do interval halving over the whole range since 
+				// there can't be any saturation curve
+				L = 0; R = Nh-1; M = (L+R)/2;
+				while (R-L>1){
+					if (isbetween((*mat)[M][j],(*mat)[R][j],Other)){ 
+						L=M; M=(L+R)/2; continue;
+					}
+					else{ 
+						R=M; M=(L+R)/2; continue;
+					}
 				}
-				else
-				{ 
-					R=M; M=(L+R)/2; continue;
+				// Find which one of the bounds is closer
+				if (fabs((*mat)[L][j]-Other)<fabs((*mat)[R][j]-Other)){
+					i = L;
+				}
+				else{
+					i = R;
 				}
 			}
-			// Find which one of the bounds is closer
-			if (fabs((*mat)[L][j]-Other)<fabs((*mat)[R][j]-Other))
-				i = L;
-			else
-				i = R;
 		}
 		else
 		{
-			
-			// If it is between the saturation curve and the first point in the
-			// superheated region, just use the first point in the superheated region
-			if (   (iOther == iT && Other >= TV[j] && Other <= this->T[iV[j]+1][j]) 
-				|| (iOther == iS && Other >= SV[j] && Other <= this->s[iV[j]+1][j]) 
-				|| (iOther == iD && Other <= DV[j] && Other >= this->rho[iV[j]+1][j]))
-			{
-				i = iV[j]+1;
-			}
-			else if ((iOther == iT && Other > TV[j]) || (iOther == iS && Other > SV[j]) || (iOther == iD && Other < DV[j]))
+			if (   (iOther == iT && Other > SatV->evaluate(iT,p))
+				|| (iOther == iS && Other > SatV->evaluate(iS,p))
+				|| (iOther == iD && Other < SatV->evaluate(iD,p))
+				)
 			{
 				// SUPERHEATED!!
-				// Make sure it is in the bounds
-				switch (iOther)
+				//
+				// If it is within between the saturation curve and the first point in the SH region,
+				// just use the first point in the superheated region
+				if (   (iOther == iT && Other < this->T[iV[j]+1][j])
+				    || (iOther == iS && Other < this->s[iV[j]+1][j])
+					|| (iOther == iD && Other > this->rho[iV[j]+1][j])
+					)
 				{
-				case iT:
-					if (Other > this->T[Np-1][j]) 
-						throw ValueError(format("Input T [%g] is greater than max T [%g] at LUT pressure [%g]",Other,this->T[Np-1][j],this->p[j]));
-					break;
-				case iD:
-					if (Other > this->rho[Np-1][j]) 
-						throw ValueError(format("Input rho [%g] is less than minimum rho [%g] at LUT pressure [%g]",Other,this->rho[Np-1][j],this->p[j]));
-					break;
-				case iS:
-					if (Other > this->s[Np-1][j]) 
-						throw ValueError(format("Input s [%g] is greater than max s [%g] at LUT pressure [%g]",Other,this->s[Np-1][j],this->p[j]));
-					break;
+					i = iV[j]+1;
 				}
-				
-				L = iV[j]+1; R = Np-1; M = (L+R)/2;
-				// Its superheated
-				while (R-L>1)
+				// Very close to the boundary of the LUT, not 1-1 relationship between p-h and other
+				// sets of inputs, need to allow for a bit of raggedness here
+				else if (   (iOther == iT && Other < 1.1*this->T[Np-1][j] && Other > this->T[Np-1][j])
+				         || (iOther == iS && Other < this->s[Np-1][j]+0.1 && Other > this->s[Np-1][j])
+					     || (iOther == iD && Other > 0.85*this->rho[Np-1][j] && Other < this->rho[Np-1][j])
+					     )
 				{
-					if (isbetween((*mat)[M][j],(*mat)[R][j],Other))
-					{ 
-						L=M; M=(L+R)/2; continue;
-					}
-					else
-					{ 
-						R=M; M=(L+R)/2; continue;
-					}
+					i = Np-1;
 				}
-				// Find which one of the bounds is closer
-				if (fabs((*mat)[L][j]-Other)<fabs((*mat)[R][j]-Other))
-					i = L;
 				else
-					i = R;
+				{
+					double pmin = this->rho[Np-1][j];
+					// SUPERHEATED!! (and away from saturation)
+					// Make sure it is in the bounds
+					switch (iOther)
+					{
+					case iT:
+						if (Other > this->T[Np-1][j]) 
+							throw ValueError(format("Input T [%g] is greater than max T [%g] at LUT pressure [%g]",Other,this->T[Np-1][j],this->p[j]));
+						break;
+					case iD:
+						if (Other < this->rho[Np-1][j])
+							throw ValueError(format("Input rho [%g] is less than minimum rho [%g] at LUT pressure [%g]",Other,this->rho[Np-1][j],this->p[j]));
+						break;
+					case iS:
+						if (Other > this->s[Np-1][j]) 
+							throw ValueError(format("Input s [%g] is greater than max s [%g] at LUT pressure [%g]",Other,this->s[Np-1][j],this->p[j]));
+						break;
+					}
+					
+					L = iV[j]+1; R = Np-1; M = (L+R)/2;
+					while (R-L>1)
+					{
+						if (isbetween((*mat)[M][j],(*mat)[R][j],Other))
+						{ 
+							L=M; M=(L+R)/2; continue;
+						}
+						else
+						{ 
+							R=M; M=(L+R)/2; continue;
+						}
+					}
+					// Find which one of the bounds is closer
+					if (fabs((*mat)[L][j]-Other)<fabs((*mat)[R][j]-Other))
+						i = L;
+					else
+						i = R;
+				}
 			}
-			// If it is between the saturation curve and the first point in the
-			// subcooled region, just use the first point in the subcooled region
-			else if (   (iOther == iT && Other <= TL[j] && Other >= this->T[iL[j]-1][j]) 
-				     || (iOther == iS && Other <= SL[j] && Other >= this->s[iL[j]-1][j]) 
-				     || (iOther == iD && Other >= DL[j] && Other <= this->rho[iL[j]-1][j]))
+			else if (iL[j] < 2)
 			{
-				i = iL[j]-1;
+				// We are at low pressure, so we don't know how to calculate, going to just use the i==1 element
+				// if it is valid, or the i = 0 if not, otherwise, there are no values left and we have to fail
+				if (ValidNumber(this->T[1][j])){
+					i = 1;
+				}
+				else if (ValidNumber(this->T[0][j])){
+					i = 0;
+				}
+				else{
+					throw ValueError(format("Your inputs [%g,%g] do not yield a valid TTSE node",Input1,Other));
+				}
 			}
-			else if ((iOther == iT && Other < TL[j]) || (iOther == iS && Other < SL[j]) || (iOther == iD && Other > DL[j]))
+			
+			else if (   (iOther == iT && Other < SatL->evaluate(iT,p))
+				     || (iOther == iS && Other < SatL->evaluate(iS,p))
+					 || (iOther == iD && Other > SatL->evaluate(iD,p))
+					 )
 			{
 				// SUBCOOLED!!
-				// Make sure it is in the bounds of the LUT
-				switch (iOther)
+				//
+				// If it is within one spacing of the outlet variable of the saturation curve, 
+				// just use the first point in the subcooled region
+				if (   (iOther == iT && Other > this->T[iL[j]-1][j])
+				    || (iOther == iS && Other > this->s[iL[j]-1][j])
+					|| (iOther == iD && Other < this->rho[iL[j]-1][j])
+					)
 				{
-				case iT:
-					if (Other < this->T[0][j]) 
-						throw ValueError(format("Input T [%g] is less than min T [%g] at LUT pressure [%g]",Other,this->T[0][j],this->p[j]));
-					break;
-				case iD:
-					if (Other > this->rho[0][j]) 
-						throw ValueError(format("Input rho [%g] is greater than max rho [%g] at LUT pressure [%g]",Other,this->rho[0][j],this->p[j]));
-					break;
-				case iS:
-					if (Other < this->s[0][j])
-						throw ValueError(format("Input s [%g] is less than min s [%g] at LUT pressure [%g]",Other,this->s[0][j],this->p[j]));
-					break;
+					i = iL[j]-1;
 				}
-				
-				L = 0; R = iV[j]-1; M = (L+R)/2;
-				// Its subcooled
-				while (R-L>1)
-				{
-					if (isbetween((*mat)[M][j],(*mat)[R][j],Other))
-					{ 
-						L=M; M=(L+R)/2; continue;
+				else{
+					// Make sure it is in the bounds of the LUT
+					switch (iOther)
+					{
+					case iT:
+						if (Other < this->T[0][j]) 
+							throw ValueError(format("Input T [%g] is less than min T [%g] at LUT pressure [%g]",Other,this->T[0][j],this->p[j]));
+						break;
+					case iD:
+						if (Other > this->rho[0][j]) 
+							throw ValueError(format("Input rho [%g] is greater than max rho [%g] at LUT pressure [%g]",Other,this->rho[0][j],this->p[j]));
+						break;
+					case iS:
+						if (Other < this->s[0][j])
+							throw ValueError(format("Input s [%g] is less than min s [%g] at LUT pressure [%g]",Other,this->s[0][j],this->p[j]));
+						break;
 					}
+					
+					L = 0; R = iL[j]-1; M = (L+R)/2;
+					// Its subcooled
+					while (R-L>1)
+					{
+						if (isbetween((*mat)[M][j],(*mat)[R][j],Other))
+						{ 
+							L=M; M=(L+R)/2; continue;
+						}
+						else
+						{ 
+							R=M; M=(L+R)/2; continue;
+						}
+					}
+					// Find which one of the bounds is closer
+					if (fabs((*mat)[L][j]-Other)<fabs((*mat)[R][j]-Other))
+						i = L;
 					else
-					{ 
-						R=M; M=(L+R)/2; continue;
-					}
+						i = R;
 				}
-				// Find which one of the bounds is closer
-				if (fabs((*mat)[L][j]-Other)<fabs((*mat)[R][j]-Other))
-					i = L;
-				else
-					i = R;
 			}
 			else
 			{
@@ -1033,13 +1092,19 @@ double TTSESinglePhaseTableClass::evaluate_one_other_input(long iInput1, double 
 		dh1 = (-b+sqrt(b*b-4*a*c))/(2*a);
 		dh2 = (-b-sqrt(b*b-4*a*c))/(2*a);
 
-		// If only one is less than spacing of enthalpy, thats your solution
-		if (fabs(dh1)<(double)(hmax-hmin)/(Nh-1) && !(fabs(dh2)<(double)(hmax-hmin)/(Nh-1)))
+		double hspacing = (hmax-hmin)/((double)Nh-1);
+		// If only one is less than a multiple of enthalpy spacing, thats your solution
+		if (fabs(dh1) < 10*hspacing && !(fabs(dh2) < 10*hspacing) )
 			return dh1+this->h[i];
-		else if (fabs(dh2)<(double)(hmax-hmin)/(Nh-1) && !(fabs(dh1)<(double)(hmax-hmin)/(Nh-1)))
+		else if (fabs(dh2) < 10*hspacing && !(fabs(dh1) < 10*hspacing) )
 			return dh2+this->h[i];
-		else
-			throw ValueError();
+		else{
+			// Need to figure out which is the correct solution, try just the smaller one
+			if (fabs(dh1)<fabs(dh2))
+				return dh1+this->h[i];
+			else
+				return dh2+this->h[i];
+		}
 	}
 	// One is enthalpy, we are getting pressure
 	else if (iInput1 == iH)
@@ -1135,7 +1200,7 @@ void TTSESinglePhaseTableClass::evaluate_two_other_inputs(long iInput1, double I
 double TTSESinglePhaseTableClass::evaluate_first_derivative(long iOF, long iWRT, long iCONSTANT, double p, double h)
 {
 	int i = (int)round(((h-hmin)/(hmax-hmin)*(Nh-1)));
-	int j = (int)round((log(p/pmin)/log(this->dp)));
+	int j = (int)round((log(p)-logpmin)/logpratio);
 
 	if (i<0 || i>(int)Nh-1 || j<0 || j>(int)Np-1)
 	{
@@ -1190,7 +1255,7 @@ double TTSESinglePhaseTableClass::evaluate_first_derivative(long iOF, long iWRT,
 		return drhodp[i][j]+deltap*d2rhodp2[i][j]+deltah*d2rhodhdp[i][j];
 	}
 	else{
-		throw ValueError();
+		throw ValueError(format("Your inputs [%d,%d,%d,%g,%g] are invalid to evaluate_first_derivative",iOF,iWRT,iCONSTANT,p,h));
 	}
 }
 
@@ -1233,6 +1298,8 @@ double TTSETwoPhaseTableClass::build(double pmin, double pmax, TTSETwoPhaseTable
 	this->pmax = pmax;
 	this->logpmin = log(pmin);
 	this->logpmax = log(pmax);
+	this->pratio = pow(pmax/pmin,1/((double)N-1));
+	this->logpratio = log(pratio);
 
 	double dlogp = (logpmax-logpmin)/(N-1);
 	clock_t t1,t2;
@@ -1439,7 +1506,7 @@ double TTSETwoPhaseTableClass::evaluate_sat_derivative(long iParam, double p)
 			return drhodp[i]+(p-pi)*d2rhodp2[i];
 		}
 	default:
-		throw ValueError();
+		throw ValueError(format("Cannot use the key [%d] provided in evaluate_sat_derivative",iParam));
 	}
 }
 

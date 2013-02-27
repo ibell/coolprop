@@ -29,7 +29,7 @@ from distutils.dep_util import newer_group
 #This will generate HTML to show where there are still pythonic bits hiding out
 Cython.Compiler.Options.annotate = True
 
-version = '3.0'
+version = '3.0.1'
 
 if __name__=='__main__':
 

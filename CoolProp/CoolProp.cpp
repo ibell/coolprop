@@ -763,7 +763,7 @@ double Props(std::string Output,char Name1, double Prop1, char Name2, double Pro
 	try{
 		return _Props(Output,std::string(1,Name1),Prop1,std::string(1,Name2),Prop2,Ref);
 	}
-	catch(std::exception &e){
+	catch(const CoolPropBaseError& e){
 		err_string = std::string("CoolProp error: ").append(e.what());
 		return _HUGE;
 	}
@@ -911,7 +911,7 @@ double _CoolProp_Fluid_Props(long iOutput, long iName1, double Prop1, long iName
 		delete CPS;
 	}
 	// Need this try-catch to ensure that if there is an error, the destructor gets called
-	catch(std::exception &e){
+	catch(const CoolPropBaseError & e){
 		// Delete the class you created
 		delete CPS;
 		// Re-throw the error

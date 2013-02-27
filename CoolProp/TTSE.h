@@ -11,7 +11,7 @@ protected:
 	unsigned int N;
 	Fluid *pFluid;
 	double dh,dp;
-	
+	double pratio,logpratio;
 public:
 	/// Default Instantiator
 	TTSETwoPhaseTableClass(){};
@@ -76,7 +76,8 @@ class TTSESinglePhaseTableClass
 protected:
 	unsigned int Nh, Np;
 	Fluid *pFluid;
-	double dh,dp;
+	double pratio,logpratio,logpmin;
+	int jpcrit_floor, jpcrit_ceil;
 	std::vector<double> T_Trho, rho_Trho;
 	std::vector<std::vector<int> > i_Trho, j_Trho;
 public:
@@ -98,6 +99,9 @@ public:
 	std::vector<std::vector<double> > mu,dmudh,dmudp,d2mudh2,d2mudp2,d2mudhdp;
 	std::vector<std::vector<double> > k,dkdh,dkdp,d2kdh2,d2kdp2,d2kdhdp;
 	std::vector<double> h, p;
+
+	/// Indices of the last indices within the two-phase region for pressures 
+	/// from pmin to pmax.  If supercritical, iL and iV entries both -1
 	std::vector<int> iL, iV;
 
 	bool read_all_from_file(std::string root_path);

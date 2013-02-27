@@ -590,6 +590,7 @@ void CoolPropStateClass::update_TTSE_LUT(long iInput1, double Value1, long iInpu
 		{
 			TwoPhase = false;
 			SinglePhase = true;
+			// Saturation calls happen again inside evaluate_one_other_input - perhaps pass values
 			_h = pFluid->TTSESinglePhase.evaluate_one_other_input(iP,p,iD,rho);
 			_T = pFluid->TTSESinglePhase.evaluate(iT,p,_h);
 			_p = Value1;

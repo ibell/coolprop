@@ -6,10 +6,18 @@
 #include <exception>
 #include <iostream>
 
-class NotImplementedError: public std::exception
+class CoolPropBaseError: public std::exception
 {
-private:
+protected:
 	std::string err;
+public:
+	CoolPropBaseError() throw(){};
+	~CoolPropBaseError() throw(){};
+	virtual const char* what() const throw(){ return err.c_str(); }
+};
+
+class NotImplementedError: public CoolPropBaseError
+{
 public:
 	NotImplementedError() throw(){};
 	NotImplementedError(std::string errstring) throw(){err=errstring;};
@@ -17,10 +25,8 @@ public:
 	virtual const char* what() const throw(){ return err.c_str(); }
 };
 
-class SolutionError: public std::exception
+class SolutionError: public CoolPropBaseError
 {
-private:
-	std::string err;
 public:
 	SolutionError() throw(){};
 	SolutionError(std::string errstring) throw(){err=errstring;};
@@ -28,11 +34,8 @@ public:
 	virtual const char* what() const throw(){ return err.c_str(); }
 };
 
-
-class ValueError: public std::exception
+class ValueError: public CoolPropBaseError
 {
-private:
-	std::string err;
 public:
 	ValueError() throw(){};
 	ValueError(std::string errstring) throw(){err=errstring;};
@@ -40,10 +43,8 @@ public:
 	virtual const char* what() const throw(){ return err.c_str(); }
 };
 
-class AttributeError: public std::exception
+class AttributeError: public CoolPropBaseError
 {
-private:
-	std::string err;
 public:
 	AttributeError() throw(){};
 	AttributeError(std::string errstring) throw(){err=errstring;};
