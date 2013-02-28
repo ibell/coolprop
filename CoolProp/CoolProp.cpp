@@ -888,47 +888,29 @@ double _CoolProp_Fluid_Props(long iOutput, long iName1, double Prop1, long iName
 	}
 
 	// Generate a State instance wrapped around the Fluid instance
-	CoolPropStateClass *CPS = new CoolPropStateClass(pFluid);
+	CoolPropStateClass CPS = CoolPropStateClass(pFluid);
 
-	try{
+	// Check if it is an output that doesn't require a state input
+	// Deal with it and return
 
-		// Check if it is an output that doesn't require a state input
-		// Deal with it and return
-
-		switch (iOutput)
-		{
-			case iMM:
-			case iPcrit:
-			case iTcrit:
-			case iTtriple:
-			case iPtriple:
-			case iRhocrit:
-			case iTmin:
-			case iAccentric:
-				return CPS->keyed_output(iOutput);
-		}
-
-		// Update the class
-		CPS->update(iName1,Prop1,iName2,Prop2);
-		// Get the output
-		val = CPS->keyed_output(iOutput);
-		// Delete the class you created
-		delete CPS;
+	switch (iOutput)
+	{
+		case iMM:
+		case iPcrit:
+		case iTcrit:
+		case iTtriple:
+		case iPtriple:
+		case iRhocrit:
+		case iTmin:
+		case iAccentric:
+			return CPS.keyed_output(iOutput);
 	}
-	// Need this try-catch to ensure that if there is an error, the destructor gets called
-	catch(const CoolPropBaseError & e){
-		// Delete the class you created
-		delete CPS;
-		// Re-throw the error
-		throw e;
-	}
-	// Need this try-catch to ensure that if there is an error, the destructor gets called
-	catch(const std::exception & e){
-		// Delete the class you created
-		delete CPS;
-		// Re-throw the error
-		throw e;
-	}
+
+	// Update the class
+	CPS.update(iName1,Prop1,iName2,Prop2);
+	// Get the output
+	val = CPS.keyed_output(iOutput);
+	
 	if (debug()>5){
 		std::cout<<__FILE__<<" _CoolProp_Fluid_Props return: "<<val<<std::endl;
 	}

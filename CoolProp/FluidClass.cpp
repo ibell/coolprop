@@ -2137,9 +2137,9 @@ double Fluid::Tsat(double p, double Q, double T_guess, bool UseLUT, double *rhoL
 	{
 		double Tc,Tmax,Tmin;
 
-		Tc=Props(name,"Tcrit");
+		Tc=crit.T;
 		Tmax=Tc-0.001;
-		Tmin=Props(name,"Ttriple")+1;
+		Tmin=params.Ttriple+1;
 		if (Tmin <= limits.Tmin)
 			Tmin = limits.Tmin;
 	    
