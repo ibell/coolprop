@@ -221,9 +221,7 @@ if __name__=='__main__':
 
     #If library has been updated but the cython sources haven't been,
     #force cython to build by touching the cython sources
-    cython_sources = [os.path.join('CoolProp','State.pyx'),
-                      os.path.join('CoolProp','CoolProp.pyx'),
-                      ]
+    cython_sources = [os.path.join('CoolProp','CoolProp.pyx')]
                       
     if useStaticLib:
         CC = new_compiler()

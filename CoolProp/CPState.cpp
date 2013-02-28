@@ -131,6 +131,10 @@ void CoolPropStateClass::update(long iInput1, double Value1, long iInput2, doubl
 	|  T,Q
 	*/
 
+	if (debug()>3){
+		std::cout<<__FILE__<<" update: "<<iInput1<<","<<Value1<<","<<iInput2<<","<<Value2<<","<<pFluid->get_name().c_str()<<std::endl;
+	}
+
 	// Reset all the internal variables to _HUGE
 	_T = _HUGE;
 	_p = _HUGE;
@@ -186,7 +190,7 @@ void CoolPropStateClass::update(long iInput1, double Value1, long iInput2, doubl
 		}
 		else
 		{
-			throw ValueError(format("Sorry your inputs didn't work"));
+			throw ValueError(format("Sorry your inputs didn't work; valid pairs are P,Q, T,Q, T,D T,P P,H P,S"));
 		}
 		// Clear the cached derivative flags
 		this->clear_cache();
@@ -299,6 +303,9 @@ void CoolPropStateClass::update_Trho(long iInput1, double Value1, long iInput2, 
 	// Set internal variables
 	_T = Value1;
 	_rho = Value2;
+
+	if (Value1 < 0 ){ throw ValueError(format("Your temperature [%f K] is less than zero",Value1));}
+	if (Value2 < 0 ){ throw ValueError(format("Your density [%f kg/m^3] is less than zero",Value2));}
 
 	if (flag_SinglePhase && flag_TwoPhase) throw ValueError(format("Only one of flag_SinglePhase and flag_TwoPhase may be set to true"));
 

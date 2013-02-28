@@ -28,11 +28,13 @@ ctypedef fused bytes_or_str:
     cython.bytes
     cython.str
 
-from State2 cimport *
-include "State2.pyx"
+include "CyState.pyx"
 
 from param_constants import *
+from param_constants_header cimport *
+
 from phase_constants import *
+from phase_constants_header cimport *
 
 include "HumidAirProp.pyx"
 
@@ -154,7 +156,7 @@ cpdef double Props(str in1, str in2, in3 = None, in4 = None, in5 = None, in6 = N
         if math.isinf(val) or math.isnan(val):
             err_string = _get_errstring()
             if not len(err_string) == 0:
-                raise ValueError(err_string)
+                raise ValueError("{err:s} :: inputs were :\"{in1:s}\",\"{in2:s}\"".format(err= err_string,in1=in1,in2=in2))
             else:
                 raise ValueError("Props failed ungracefully with inputs:\"{in1:s}\",\"{in2:s}\"; please file a ticket at https://sourceforge.net/p/coolprop/tickets/".format(in1=in1,in2=in2))
         else:
@@ -172,7 +174,7 @@ cpdef double Props(str in1, str in2, in3 = None, in4 = None, in5 = None, in6 = N
         if math.isinf(val) or math.isnan(val):
             err_string = _get_errstring()
             if not len(err_string) == 0:
-                raise ValueError(err_string)
+                raise ValueError("{err:s} :: inputs were:\"{in1:s}\",\'{in2:s}\',{in3:0.16e},\'{in4:s}\',{in5:0.16e},\"{in6:s}\"".format(err=err_string,in1=in1,in2=in2,in3=in3,in4=in4,in5=in5,in6=in6))
             else:
                 raise ValueError("Props failed ungracefully with inputs:\"{in1:s}\",\'{in2:s}\',{in3:0.16e},\'{in4:s}\',{in5:0.16e},\"{in6:s}\"; please file a ticket at https://sourceforge.net/p/coolprop/tickets/".format(in1=in1,in2=in2,in3=in3,in4=in4,in5=in5,in6=in6))
             
@@ -415,7 +417,7 @@ cpdef tuple get_TTSESinglePhase_LUT_range(char *FluidName):
     """
     cdef double hmin = 0, hmax = 0, pmin = 0, pmax = 0
     #In cython, hmin[0] to get pointer rather than &hmin
-    cdef bool valsok = _get_TTSESinglePhase_LUT_range(FluidName, &hmin, &hmax, &pmin, &pmax)
+    cdef bint valsok = _get_TTSESinglePhase_LUT_range(FluidName, &hmin, &hmax, &pmin, &pmax)
     if valsok:
         return (hmin, hmax, pmin, pmax)
     else:
@@ -487,15 +489,9 @@ cdef class State:
     """
     A class that contains all the code that represents a thermodynamic state
     """
-    
     def __cinit__(self, bytes Fluid, dict StateDict, double xL=-1.0, object Liquid = None, object phase = None):
         """ Allocate the CoolPropStateClass instance"""
         #cdef bytes _FluidName = FluidName if bytes_or_str is bytes else FluidName.encode('ascii')
-        self.CPS = new CoolPropStateClass(Fluid)
-        
-    def __dealloc__(self):
-        """ Deallocate the CoolPropStateClass instance"""
-        del self.CPS
         
     def __init__(self, bytes Fluid, dict StateDict, double xL=-1.0, object Liquid = None, object phase = None):
         #cdef bytes _Fluid = Fluid if bytes_or_str is bytes else Fluid.encode('ascii')
@@ -526,6 +522,7 @@ cdef class State:
         if self.iFluid >= 0:
             #It is a CoolProp Fluid so we can use the faster integer passing function
             self.is_CPFluid = True
+            self.CPS = PureFluidClass(Fluid)
         else:
             self.is_CPFluid = False
         self.xL = xL
@@ -535,7 +532,10 @@ cdef class State:
         self.update(StateDict)
         #Set the phase flag
         if self.phase == str('Gas') or self.phase == str('Liquid') or self.phase == str('Supercritical'):
-            _set_phase(self.phase)
+            if self.is_CPFluid and (self.phase == str('Gas') or self.phase == str('Liquid')):
+                self.CPS.CPS.flag_SinglePhase = True
+            elif not self.is_CPFluid and self.phase is not None:
+                _set_phase(self.phase)
             
     def __reduce__(self):
         d={}
@@ -544,6 +544,7 @@ cdef class State:
         d['Fluid']=self.Fluid
         d['T']=self.T_
         d['rho']=self.rho_
+        d['phase'] = self.phase
         return rebuildState,(d,)
           
     cpdef update_ph(self, double p, double h):
@@ -599,7 +600,7 @@ cdef class State:
         if abs(p)<1e90:
             self.p_=p
         else:
-            errstr = get_errstringc()
+            errstr = _get_errstring()
             raise ValueError(errstr)
         
     cpdef update(self, dict params, double xL=-1.0):
@@ -610,6 +611,7 @@ cdef class State:
         """
             
         cdef double p
+        cdef long iInput1, iInput2
         cdef bytes errstr
         
         # If no value for xL is provided, it will have a value of -1 which is 
@@ -631,7 +633,10 @@ cdef class State:
                 items = params.items()
                 iInput1 = paras_inverse[items[0][0]]
                 iInput2 = paras_inverse[items[1][0]]
-                self.CPS.update(iInput1, items[0][1], iInput2, items[1][1])
+                try:
+                    self.CPS.update(iInput1, items[0][1], iInput2, items[1][1])
+                except:
+                    raise
                 self.T_ = self.CPS.T()
                 self.p_ = self.CPS.p()
                 self.rho_ = self.CPS.rho()
@@ -673,13 +678,13 @@ cdef class State:
         else:
             raise ValueError('xL must be between 0 and 1')
         
-    cpdef long Phase(self):
+    cpdef long Phase(self) except *:
         if self.is_CPFluid:
             return self.CPS.phase()
         else:
             raise NotImplementedError("Phase not defined for fluids other than CoolProp fluids")
         
-    cpdef double Props(self, long iOutput):
+    cpdef double Props(self, long iOutput) except *: 
         if iOutput<0:
             raise ValueError('Your output is invalid') 
         
@@ -689,75 +694,77 @@ cdef class State:
         else:
             return _Props(paras[iOutput],'T',self.T_,'D',self.rho_,self.Fluid)
             
-    cpdef double get_Q(self):
+    cpdef double get_Q(self) except *:
         return self.Props(iQ)
     property Q:
         def __get__(self):
             return self.get_Q()
     
-    cpdef double get_MM(self):
+    cpdef double get_MM(self) except *:
         return _Props1(self.Fluid,'molemass')
     
-    cpdef double get_rho(self): 
+    cpdef double get_rho(self) except *: 
         return self.rho_
     property rho:
         def __get__(self):
             return self.rho_
             
-    cpdef double get_p(self): 
+    cpdef double get_p(self) except *: 
         return self.p_
     property p:
         def __get__(self):
             return self.p_
     
-    cpdef double get_T(self): 
+    cpdef double get_T(self) except *: 
         return self.T_
     property T:
         def __get__(self):
             return self.T_
     
-    cpdef double get_h(self): 
+    cpdef double get_h(self) except *: 
         return self.Props(iH)
     property h:
         def __get__(self):
             return self.get_h()
           
-    cpdef double get_u(self): 
+    cpdef double get_u(self) except *: 
         return self.Props(iU)
     property u:
         def __get__(self):
             return self.get_u()
             
-    cpdef double get_s(self): 
+    cpdef double get_s(self) except *: 
         return self.Props(iS)
     property s:
         def __get__(self):
             return self.get_s()
     
-    cpdef double get_cp0(self):
+    cpdef double get_cp0(self) except *:
         return self.Props(iC0)
     
-    cpdef double get_cp(self): 
+    cpdef double get_cp(self) except *: 
         return self.Props(iC)
     property cp:
         def __get__(self):
             return self.get_cp()
             
-    cpdef double get_cv(self): 
+    cpdef double get_cv(self) except *: 
         return self.Props(iO)
     property cv:
         def __get__(self):
             return self.get_cv()
             
-    cpdef double get_visc(self):
+    cpdef double get_visc(self) except *:
         return self.Props(iV)
     property visc:
+        """ The viscosity, in [Pa-s]"""
         def __get__(self):
             return self.get_visc()
 
-    cpdef double get_cond(self):
+    cpdef double get_cond(self) except *:
         return self.Props(iL)
     property k:
+        """ The thermal conductivity, in [kW/m/K]"""
         def __get__(self):
             return self.get_cond()
             
@@ -840,7 +847,7 @@ cdef class State:
                'cp':'kJ/kg/K',
                'cv':'kJ/kg/K',
                'dpdT':'kPa/K'}
-        s=''
+        s='phase = '+self.phase+'\n'
         for k in ['T','p','rho','Q','h','u','s','visc','k','cp','cv','dpdT','Prandtl']:
             if k in units:
                 s+=k+' = '+str(getattr(self,k))+' '+units[k]+'\n'
@@ -849,13 +856,13 @@ cdef class State:
         return s.rstrip()
         
     cpdef copy(self):
-        cdef double T = self.T_*(1.0+1e-20)
-        cdef double rho = self.rho_*(1.0+1e-20)
-        ST = State(self.Fluid,{'T':T,'D':rho})
+        cdef double T = self.T_
+        cdef double rho = self.rho_
+        ST = State(self.Fluid,{'T':T,'D':rho},phase = self.phase)
         return ST
     
 def rebuildState(d):
-    S=State(d['Fluid'],{'T':d['T'],'D':d['rho']})
+    S=State(d['Fluid'],{'T':d['T'],'D':d['rho']},phase=d['phase'])
     S.xL = d['xL']
     S.Liquid=d['Liquid']
     return S

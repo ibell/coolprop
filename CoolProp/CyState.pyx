@@ -1,12 +1,8 @@
 
-cimport cython
-import cython
-
 cdef class PureFluidClass:
-    cdef CoolPropStateClass CPS     # hold a C++ instance which we're wrapping
     def __cinit__(self, string name):
         self.CPS = CoolPropStateClass(name)
-    def update(self, long iInput1, double Value1, long iInput2, double Value2):
+    cpdef update(self, long iInput1, double Value1, long iInput2, double Value2):
         self.CPS.update(iInput1,Value1,iInput2,Value2)
     
     cpdef double rhoL(self): 
@@ -50,6 +46,9 @@ cdef class PureFluidClass:
         return self.CPS.cv()
     cpdef double speed_sound(self):
         return self.CPS.speed_sound()
+    
+    cpdef double keyed_output(self, long iOutput):
+        return self.CPS.keyed_output(iOutput)
 
     ## ----------------------------------------	
     ##        TTSE LUT things
@@ -60,7 +59,7 @@ cdef class PureFluidClass:
         self.CPS.enable_TTSE_LUT()
         
     # Check if TTSE is enabled
-    cpdef bool isenabled_TTSE_LUT(self):
+    cpdef bint isenabled_TTSE_LUT(self):
         return self.CPS.isenabled_TTSE_LUT()
         
     # Disable the TTSE

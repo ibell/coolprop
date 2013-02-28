@@ -9,7 +9,7 @@
 class CoolPropBaseError: public std::exception
 {
 protected:
-	std::string err;
+	std::string err; // Can be accessed by subclasses since it is protected
 public:
 	CoolPropBaseError() throw(){};
 	~CoolPropBaseError() throw(){};

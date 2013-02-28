@@ -1,5 +1,173 @@
 from libcpp.string cimport string
 
+cdef extern from "CPState.h":
+    cdef cppclass CoolPropStateClass:
+
+        bint flag_SinglePhase, flag_TwoPhase
+
+        ## Bulk values
+        double _rho,_T,_p,_Q,_h,_s, tau, delta
+
+        ## Phase flags
+        bint TwoPhase, SinglePhase
+        
+        ## Nullary Constructor
+        CoolPropStateClass() except +
+        
+        ## Constructor with fluid name
+        CoolPropStateClass(string FluidName) except +
+
+        ## Property updater
+        ## Uses the indices in CoolProp for the input parameters
+        void update(long iInput1, double Value1, long iInput2, double Value2) except +ValueError
+
+        ## Property accessors for saturation parameters directly
+        ## These all must be calculated every time if the state is saturated or two-phase
+        double rhoL() except +
+        double rhoV() except +
+        double pL() except +
+        double pV() except +
+        double TL() except +
+        double TV() except +
+        ## Derived parameters for the saturation states
+        double hL() except +
+        double hV() except +
+        double sL() except +
+        double sV() except +
+
+        ## Bulk properties accessors - temperature and density are directly calculated every time
+        ## All other parameters are calculated on an as-needed basis
+        ## If single-phase, just plug into the EOS, otherwise need to do two-phase analysis
+        double T() except +
+        double rho() except +
+        double p() except +
+        double h() except +
+        double s() except +
+        double cp() except +
+        double cv() except +
+        double speed_sound() except +
+        double keyed_output(long iOutput) except +
+
+        ## ---------------------------------------- 
+        ## TTSE LUT things
+        ## ----------------------------------------
+
+        ## Enable the TTSE
+        void enable_TTSE_LUT() except +
+        ## Check if TTSE is enabled
+        bint isenabled_TTSE_LUT() except +
+        ## Disable the TTSE
+        void disable_TTSE_LUT() except +
+        ## Interpolate within the TTSE LUT
+        double interpolate_in_TTSE_LUT(long iParam, long iInput1, double Input1, long iInput2, double Input2) except +
+
+        ## ---------------------------------------- 
+        ## Derivatives of properties
+        ## ----------------------------------------
+
+        double dvdp_constT() except +
+        double dvdT_constp() except +
+
+        double drhodT_constp() except +
+        double drhodh_constp() except +
+        double drhodp_consth() except +
+        double drhodp_constT() except +
+        double d2rhodp2_constT() except +
+        double d2rhodTdp() except +
+        double d2rhodT2_constp() except +
+        
+        double dpdrho_constT() except +
+        double dpdrho_consth() except +
+        double dpdT_constrho() except +
+        double dpdT_consth() except +
+        double d2pdrho2_constT() except +
+        double d2pdrhodT() except +
+        double d2pdT2_constrho() except +
+
+        double dhdrho_constT() except +
+        double dhdrho_constp() except +
+        double dhdT_constrho() except +
+        double dhdT_constp() except +
+        double dhdp_constT() except +
+        double d2hdrho2_constT() except +
+        double d2hdrhodT() except +
+        double d2hdT2_constrho() except +
+        double d2hdT2_constp() except +
+        double d2hdp2_constT() except +
+        double d2hdTdp() except +
+
+        double dsdrho_constT() except +
+        double dsdT_constrho() except +
+        double dsdrho_constp() except +
+        double dsdT_constp() except +
+        double dsdp_constT() except +
+        double d2sdrho2_constT() except +
+        double d2sdrhodT() except +
+        double d2sdT2_constrho() except +
+        double d2sdT2_constp() except +
+        double d2sdp2_constT() except +
+        double d2sdTdp() except +
+
+        ## ---------------------------------------- 
+        ## Derivatives along the saturation curve
+        ## ----------------------------------------
+        
+        ## Derivative of temperature w.r.t. pressure along saturation curve
+        double dTdp_along_sat() except +ValueError
+        ## Second derivative of temperature w.r.t. pressure along saturation curve
+        double d2Tdp2_along_sat() except +ValueError
+        ## Partial derivative w.r.t. pressure of dTdp along saturation curve
+        double ddp_dTdp_along_sat() except +ValueError
+        ## Partial derivative w.r.t. temperature of dTdp along saturation curve
+        double ddT_dTdp_along_sat() except +ValueError
+
+        double dhdp_along_sat_vapor() except +ValueError
+        double dhdp_along_sat_liquid() except +ValueError
+        double d2hdp2_along_sat_vapor() except +ValueError
+        double d2hdp2_along_sat_liquid() except +ValueError
+
+        double dsdp_along_sat_vapor() except +ValueError
+        double dsdp_along_sat_liquid() except +ValueError
+        double d2sdp2_along_sat_vapor() except +ValueError
+        double d2sdp2_along_sat_liquid() except +ValueError
+
+        double drhodp_along_sat_vapor() except +ValueError
+        double drhodp_along_sat_liquid() except +ValueError
+        double d2rhodp2_along_sat_vapor() except +ValueError
+        double d2rhodp2_along_sat_liquid() except +ValueError
+
+        double drhodT_along_sat_vapor() except +ValueError
+        double drhodT_along_sat_liquid() except +ValueError
+
+        ## Clear out all the cached values
+        void clear_cache()
+
+        ## ---------------------------------------- 
+        ## Helmholtz Energy Derivatives
+        ## ----------------------------------------
+
+        double phi0(double tau, double delta)
+        double dphi0_dDelta(double tau, double delta)
+        double dphi0_dTau(double tau, double delta)
+        double d2phi0_dDelta2(double tau, double delta)
+        double d2phi0_dDelta_dTau(double tau, double delta)
+        double d2phi0_dTau2(double tau, double delta)
+        double d3phi0_dDelta3(double tau, double delta)
+        double d3phi0_dDelta2_dTau(double tau, double delta)
+        double d3phi0_dDelta_dTau2(double tau, double delta)
+        double d3phi0_dTau3(double tau, double delta)
+
+        double phir(double tau, double delta)
+        double dphir_dDelta(double tau, double delta)
+        double dphir_dTau(double tau, double delta)
+        double d2phir_dDelta2(double tau, double delta)
+        double d2phir_dDelta_dTau(double tau, double delta)
+        double d2phir_dTau2(double tau, double delta)
+        double d3phir_dDelta3(double tau, double delta)
+        double d3phir_dDelta2_dTau(double tau, double delta)
+        double d3phir_dDelta_dTau2(double tau, double delta)
+        double d3phir_dTau3(double tau, double delta)
+        
 cdef extern from "CoolProp.h":
     
     double _Props "Props"(string Output, char Name1, double Prop1, char Name2, double Prop2, string Ref)
@@ -65,25 +233,13 @@ cdef extern from "CoolProp.h":
     bint _set_TTSESinglePhase_LUT_range "set_TTSESinglePhase_LUT_range"(char *FluidName, double hmin, double hmax, double pmin, double pmax)
     # Get the current range of the single-phase LUT
     bint _get_TTSESinglePhase_LUT_range "get_TTSESinglePhase_LUT_range"(char *FluidName, double *hmin, double *hmax, double *pmin, double *pmax)
-
-cdef extern from "CPState.h":
-    cdef cppclass CoolPropStateClass:
-        CoolPropStateClass() except +
-        CoolPropStateClass(string FluidName) except +
-        double T()
-        double rho()
-        double p()
-        void update(long iInput1, double Value1, long iInput2, double Value2)
-        double keyed_output(long iOutput)
-        long phase()
-        double Q()
         
 cdef extern from "HumidAirProp.h":
     double _HAProps "HAProps"(char *OutputName, char *Input1Name, double Input1, char *Input2Name, double Input2, char *Input3Name, double Input3)
     double _HAProps_Aux "HAProps_Aux"(char* Name,double T, double p, double W, char *units)
        
 cdef class State:
-    cdef CoolPropStateClass *CPS      # hold a C++ instance which we're wrapping
+    cdef PureFluidClass CPS      # hold a PureFluidClass which is the Cython wrapper of CoolPropStateClass
     cdef readonly bint hasLiquid
     cdef readonly bytes Liquid, Fluid, phase
     cdef long iFluid,iParam1,iParam2,iOutput
@@ -95,21 +251,78 @@ cdef class State:
     cpdef update_ph(self, double p, double h)
     cpdef update_Trho(self, double T, double rho)
     cpdef copy(self)
-    cpdef double Props(self, long iOutput)
-    cpdef long Phase(self)
+    cpdef double Props(self, long iOutput) except *
+    cpdef long Phase(self) except *
     
-    cpdef double get_Q(self)
-    cpdef double get_T(self)
-    cpdef double get_p(self)
-    cpdef double get_h(self)
-    cpdef double get_rho(self)
-    cpdef double get_s(self)
-    cpdef double get_u(self)
-    cpdef double get_visc(self)
-    cpdef double get_cond(self)
-    cpdef double get_cp(self)
-    cpdef double get_cp0(self)
-    cpdef double get_cv(self)
-    cpdef double get_MM(self)
-    cpdef double get_dpdT(self)
+    cpdef double get_Q(self) except *
+    cpdef double get_T(self) except *
+    cpdef double get_p(self) except *
+    cpdef double get_h(self) except *
+    cpdef double get_rho(self) except *
+    cpdef double get_s(self) except *
+    cpdef double get_u(self) except *
+    cpdef double get_visc(self) except *
+    cpdef double get_cond(self) except *
+    cpdef double get_cp(self) except *
+    cpdef double get_cp0(self) except *
+    cpdef double get_cv(self) except *
+    cpdef double get_MM(self) except *
+    cpdef double get_dpdT(self) except *
     
+cdef class PureFluidClass:
+    cdef CoolPropStateClass CPS     # hold a C++ instance which we're wrapping
+    cpdef update(self, long iInput1, double Value1, long iInput2, double Value2)
+    cpdef double rhoL(self)
+    cpdef double rhoV(self)
+    cpdef double pL(self)
+    cpdef double pV(self)
+    cpdef double TL(self)
+    cpdef double TV(self)
+    cpdef double sL(self)
+    cpdef double sV(self)
+    cpdef double hL(self)
+    cpdef double hV(self)
+    cpdef double keyed_output(self, long iOutput)
+    
+    ## ---------------------------------------- 
+    ##        Fluid property accessors
+    ## ----------------------------------------
+    
+    cpdef double T(self)
+    cpdef double rho(self)
+    cpdef double p(self)
+    cpdef double h(self)
+    cpdef double s(self)
+    cpdef double cp(self)
+    cpdef double cv(self)
+    cpdef double speed_sound(self)
+
+    ## ---------------------------------------- 
+    ##        TTSE LUT things
+    ## ----------------------------------------
+
+    
+    cpdef enable_TTSE_LUT(self) # Enable the TTSE
+    cpdef bint isenabled_TTSE_LUT(self) # Check if TTSE is enabled
+    cpdef disable_TTSE_LUT(self) # Disable the TTSE
+
+    cpdef double dTdp_along_sat(self)
+    cpdef double d2Tdp2_along_sat(self)
+
+    cpdef double dhdp_along_sat_vapor(self)
+    cpdef double dhdp_along_sat_liquid(self)
+    cpdef double d2hdp2_along_sat_vapor(self)
+    cpdef double d2hdp2_along_sat_liquid(self)
+
+    cpdef double dsdp_along_sat_vapor(self)
+    cpdef double dsdp_along_sat_liquid(self)
+    cpdef double d2sdp2_along_sat_vapor(self)
+    cpdef double d2sdp2_along_sat_liquid(self)
+
+    cpdef double drhodp_along_sat_vapor(self)
+    cpdef double drhodp_along_sat_liquid(self)
+    cpdef double d2rhodp2_along_sat_vapor(self)
+    cpdef double d2rhodp2_along_sat_liquid(self)
+
+    cpdef double drhodT_along_sat_vapor(self)
+    cpdef double drhodT_along_sat_liquid(self)

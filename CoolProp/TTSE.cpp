@@ -952,21 +952,20 @@ double TTSESinglePhaseTableClass::evaluate_one_other_input(long iInput1, double 
 				}
 				else
 				{
-					double pmin = this->rho[Np-1][j];
 					// SUPERHEATED!! (and away from saturation)
 					// Make sure it is in the bounds
 					switch (iOther)
 					{
 					case iT:
-						if (Other > this->T[Np-1][j]) 
+						if (Other > this->T[Nh-1][j]) 
 							throw ValueError(format("Input T [%g] is greater than max T [%g] at LUT pressure [%g]",Other,this->T[Np-1][j],this->p[j]));
 						break;
 					case iD:
-						if (Other < this->rho[Np-1][j])
+						if (Other < this->rho[Nh-1][j])
 							throw ValueError(format("Input rho [%g] is less than minimum rho [%g] at LUT pressure [%g]",Other,this->rho[Np-1][j],this->p[j]));
 						break;
 					case iS:
-						if (Other > this->s[Np-1][j]) 
+						if (Other > this->s[Nh-1][j]) 
 							throw ValueError(format("Input s [%g] is greater than max s [%g] at LUT pressure [%g]",Other,this->s[Np-1][j],this->p[j]));
 						break;
 					}
@@ -1118,82 +1117,133 @@ double TTSESinglePhaseTableClass::evaluate_one_other_input(long iInput1, double 
 	}
 }
 
+void TTSESinglePhaseTableClass::ph_Trho(int i, int j, double Tvalue, double rhovalue, double *pout, double *hout)
+{
+	////// Now we need to solve for deltah and deltap, but T and rho are quadratic in deltah and deltap in the expansion:
+	//////
+	////// T = T[i][j]+deltah*dTdh[i][j]+deltap*dTdp[i][j]+0.5*deltah*deltah*d2Tdh2[i][j]+0.5*deltap*deltap*d2Tdp2[i][j]+deltap*deltah*d2Tdhdp[i][j];
+	////// rho = rho[i][j]+deltah*drhodh[i][j]+deltap*drhodp[i][j]+0.5*deltah*deltah*d2rhodh2[i][j]+0.5*deltap*deltap*d2rhodp2[i][j]+deltap*deltah*d2rhodhdp[i][j];
+	////// 
+	////// So we need to do a Newton-Raphson solve.  Two residuals are from T = .... and rho = ... from here.
+	//////
+	////// dr1_ddeltah = dTdh[i][j]+deltah*d2Tdh2[i][j]+deltap*d2Tdhdp[i][j]
+	double omega = 1, err_squared = 999, deltah = 0, deltap = 0;
+
+	// Pull out some values to save indexing time
+	double T = this->T[i][j];
+	double dTdh = this->dTdh[i][j];
+	double dTdp = this->dTdp[i][j];
+	double d2Tdh2 = this->d2Tdh2[i][j];
+	double d2Tdp2 = this->d2Tdp2[i][j];
+	double d2Tdhdp = this->d2Tdhdp[i][j];
+
+	double rho = this->rho[i][j];
+	double drhodh = this->drhodh[i][j];
+	double drhodp = this->drhodp[i][j];
+	double d2rhodh2 = this->d2rhodh2[i][j];
+	double d2rhodp2 = this->d2rhodp2[i][j];
+	double d2rhodhdp = this->d2rhodhdp[i][j];
+
+	double rT,rrho,drT_ddeltah,drT_ddeltap,drrho_ddeltah,drrho_ddeltap,det,diff_deltah,diff_deltap;
+	int iter = 0;
+	do{
+		// Residuals
+		rT = T+deltah*dTdh+deltap*dTdp+0.5*deltah*deltah*d2Tdh2+0.5*deltap*deltap*d2Tdp2+deltap*deltah*d2Tdhdp - Tvalue;
+		rrho = rho+deltah*drhodh+deltap*drhodp+0.5*deltah*deltah*d2rhodh2+0.5*deltap*deltap*d2rhodp2+deltap*deltah*d2rhodhdp - rhovalue;
+		
+		// Error at this step
+		err_squared = rT*rT+rrho*rrho;
+
+		// Jacobian
+		//First index is the row, second index is the column
+		// A[0][0]
+		drT_ddeltah=dTdh+deltah*d2Tdh2+deltap*d2Tdhdp;
+		// A[0][1
+		drT_ddeltap=dTdp+deltap*d2Tdp2+deltah*d2Tdhdp;
+		// A[1][0]
+		drrho_ddeltah=drhodh+deltah*d2rhodh2+deltap*d2rhodhdp;
+		// A[1][1];
+		drrho_ddeltap=drhodp+deltap*d2rhodp2+deltah*d2rhodhdp;
+
+		// Determinant of Jacobian matrix
+		det = drT_ddeltah*drrho_ddeltap-drT_ddeltap*drrho_ddeltah;
+
+		// Change in deltah and deltap from Cramer's rule
+		diff_deltah = (rT*drrho_ddeltap-drT_ddeltap*rrho)/det;
+		diff_deltap = (drT_ddeltah*rrho-rT*drrho_ddeltah)/det;
+
+		deltah -= omega*diff_deltah;
+		deltap -= omega*diff_deltap;
+
+		iter ++;
+	}
+	while (err_squared>5*DBL_EPSILON);
+
+	*hout = this->h[i]+deltah;
+	*pout = this->p[j]+deltap;
+}
 void TTSESinglePhaseTableClass::evaluate_two_other_inputs(long iInput1, double Input1, long iInput2, double Input2, double *pout, double *hout)
 {
+	int i,j,L,R,M;
 	if (iInput1 == iT && iInput2 == iD)
 	{
-		// Using the mapping of T,rho to indices in the matrices
+		double _T = Input1;
+		double _rho = Input2;
+		
+		pFluid->disable_TTSE_LUT();
+		double h = Props("H",'T',_T,'D',_rho,pFluid->get_name().c_str());
+		double p = Props("P",'T',_T,'D',_rho,pFluid->get_name().c_str());
+		int iii = (int)round(((h-hmin)/(hmax-hmin)*(Nh-1)));
+		int jjj = (int)round((log(p)-logpmin)/logpratio);
+		pFluid->enable_TTSE_LUT();
 
-		// Get indices for T_Trho and rho_Trho matrices
-		int ii = (int)round(((Input1-T_Trho[0])/(T_Trho[Nh-1]-T_Trho[0])*(Nh-1)));
-		int jj = (int)round(((Input2-rho_Trho[0])/(rho_Trho[Np-1]-rho_Trho[0])*(Np-1)));
+		double T1 = this->T[0][Np-1];
+		double T2 = this->T[0][Np/2];
+		double T3 = this->T[0][0];
+		double rho1 = this->rho[0][Np-1];
+		double rho2a = this->rho[0][2*Np/3];
+		double rho2 = this->rho[0][Np/2];
+		double rho2b = this->rho[0][Np/3];
+		double rho3 = this->rho[0][0];
+		double p1 = this->p[Np-1];
+		double p2 = this->p[Np/2];
+		double p3 = this->p[0];
+		double k1 = log(rho1)/log(p1);
+		double k2 = log(rho2)/log(p2);
+		double k3 = log(rho3)/log(p3);
+		std::cout << format("%g,%g,%g\n",rho1,rho2,rho3);
+		std::cout << format("%g,%g,%g\n",p1,p2,p3);
 
-		// Get the indices for T,rho,.... matrices
-		int i = i_Trho[ii][jj];
-		int j = j_Trho[ii][jj];
+		//Determine the starting point
+		if (_rho < pFluid->reduce.rho)
+		{
+			i = Nh-1;
 
-		// Now we need to solve for deltah and deltap, but T and rho are quadratic in deltah and deltap in the expansion:
-		//
-		// T = T[i][j]+deltah*dTdh[i][j]+deltap*dTdp[i][j]+0.5*deltah*deltah*d2Tdh2[i][j]+0.5*deltap*deltap*d2Tdp2[i][j]+deltap*deltah*d2Tdhdp[i][j];
-		// rho = rho[i][j]+deltah*drhodh[i][j]+deltap*drhodp[i][j]+0.5*deltah*deltah*d2rhodh2[i][j]+0.5*deltap*deltap*d2rhodp2[i][j]+deltap*deltah*d2rhodhdp[i][j];
-		// 
-		// So we need to do a Newton-Raphson solve.  Two residuals are from T = .... and rho = ... from here.
-		//
-		// dr1_ddeltah = dTdh[i][j]+deltah*d2Tdh2[i][j]+deltap*d2Tdhdp[i][j]
-		double omega = 1, err_squared = 999, deltah = 0, deltap = 0;
-
-		// Pull out some values to save indexing time
-		double T = this->T[i][j];
-		double dTdh = this->dTdh[i][j];
-		double dTdp = this->dTdp[i][j];
-		double d2Tdh2 = this->d2Tdh2[i][j];
-		double d2Tdp2 = this->d2Tdp2[i][j];
-		double d2Tdhdp = this->d2Tdhdp[i][j];
-
-		double rho = this->rho[i][j];
-		double drhodh = this->drhodh[i][j];
-		double drhodp = this->drhodp[i][j];
-		double d2rhodh2 = this->d2rhodh2[i][j];
-		double d2rhodp2 = this->d2rhodp2[i][j];
-		double d2rhodhdp = this->d2rhodhdp[i][j];
-
-		double rT,rrho,drT_ddeltah,drT_ddeltap,drrho_ddeltah,drrho_ddeltap,det,diff_deltah,diff_deltap;
-		int iter = 0;
-		do{
-			// Residuals
-			rT = T+deltah*dTdh+deltap*dTdp+0.5*deltah*deltah*d2Tdh2+0.5*deltap*deltap*d2Tdp2+deltap*deltah*d2Tdhdp - Input1;
-			rrho = rho+deltah*drhodh+deltap*drhodp+0.5*deltah*deltah*d2rhodh2+0.5*deltap*deltap*d2rhodp2+deltap*deltah*d2rhodhdp - Input2;
-			
-			// Error at this step
-			err_squared = rT*rT+rrho*rrho;
-
-			// Jacobian
-			//First index is the row, second index is the column
-			// A[0][0]
-			drT_ddeltah=dTdh+deltah*d2Tdh2+deltap*d2Tdhdp;
-			// A[0][1
-			drT_ddeltap=dTdp+deltap*d2Tdp2+deltah*d2Tdhdp;
-			// A[1][0]
-			drrho_ddeltah=drhodh+deltah*d2rhodh2+deltap*d2rhodhdp;
-			// A[1][1];
-			drrho_ddeltap=drhodp+deltap*d2rhodp2+deltah*d2rhodhdp;
-
-			// Determinant of Jacobian matrix
-			det = drT_ddeltah*drrho_ddeltap-drT_ddeltap*drrho_ddeltah;
-
-			// Change in deltah and deltap from Cramer's rule
-			diff_deltah = (rT*drrho_ddeltap-drT_ddeltap*rrho)/det;
-			diff_deltap = (drT_ddeltah*rrho-rT*drrho_ddeltah)/det;
-
-			deltah -= omega*diff_deltah;
-			deltap -= omega*diff_deltap;
-
-			iter ++;
+			L = 0; R = Np-1; M = (L+R)/2;
+			while (R-L>1)
+			{
+				if (isbetween(this->rho[Nh-1][M],this->rho[Nh-1][R],_rho))
+				{ 
+					L=M; M=(L+R)/2; continue;
+				}
+				else
+				{ 
+					R=M; M=(L+R)/2; continue;
+				}
+			}
+			j=M;
 		}
-		while (err_squared>5*DBL_EPSILON);
-
-		*hout = this->h[i]+deltah;
-		*pout = this->p[j]+deltap;
+		else
+		{
+			// Subcooled liquid or pseudo-liquid supercritical fluid
+			i = 0;
+			j = 92;
+		}
+		ph_Trho(i,j,Input1,Input2,&p,&h);
+		int ii = (int)round(((h-hmin)/(hmax-hmin)*(Nh-1)));
+		int jj = (int)round((log(p)-logpmin)/logpratio);
+		ph_Trho(ii,jj,Input1,Input2,pout,hout);
+		return;
 	}
 }
 

@@ -25,3 +25,4 @@ For Developers
 
 1. To regenerate DLL, run the build script (wrappers/Labview/BuildDLL.bat).  You will need to have Visual Studio 2010 installed, or change the path to vcvarsall.bat in build script
 2. Uses __cdecl in combination with extern "C" to make Labview happy
+3. For realtime targets, instructions are here: http://www.ni.com/white-paper/5694/en

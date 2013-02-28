@@ -80,6 +80,8 @@ protected:
 	int jpcrit_floor, jpcrit_ceil;
 	std::vector<double> T_Trho, rho_Trho;
 	std::vector<std::vector<int> > i_Trho, j_Trho;
+
+	void ph_Trho(int i, int j, double T, double rho, double *pout, double *hout);
 public:
 	TTSESinglePhaseTableClass();
 	TTSESinglePhaseTableClass(Fluid *pFluid);
@@ -115,6 +117,8 @@ public:
 	
 	/// Update the map from the values of T,rho to the indices i,j
 	void update_Trho_map();
+
+
 
 	/// Build the tables
 	/// @param hmin Minimum enthalpy [kJ/kg]

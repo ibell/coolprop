@@ -16,6 +16,7 @@
 #endif
 #endif
 
+
 #include <iostream>
 #include <stdlib.h>
 #include <vector>
@@ -767,6 +768,10 @@ double Props(std::string Output,char Name1, double Prop1, char Name2, double Pro
 		err_string = std::string("CoolProp error: ").append(e.what());
 		return _HUGE;
 	}
+	catch(const std::exception& e){
+			err_string = std::string("CoolProp error: ").append(e.what());
+			return _HUGE;
+		}
 	catch(...){
 		err_string = std::string("CoolProp error: Indeterminate error");
 		return _HUGE;
@@ -878,7 +883,7 @@ double _CoolProp_Fluid_Props(long iOutput, long iName1, double Prop1, long iName
 	double val = _HUGE;
 	// This private method uses the indices directly for speed
 
-	if (debug()>5){
+	if (debug()>3){
 		std::cout<<__FILE__<<" _CoolProp_Fluid_Props: "<<iOutput<<","<<iName1<<","<<Prop1<<","<<iName2<<","<<Prop2<<","<<pFluid->get_name().c_str()<<std::endl;
 	}
 
@@ -912,6 +917,13 @@ double _CoolProp_Fluid_Props(long iOutput, long iName1, double Prop1, long iName
 	}
 	// Need this try-catch to ensure that if there is an error, the destructor gets called
 	catch(const CoolPropBaseError & e){
+		// Delete the class you created
+		delete CPS;
+		// Re-throw the error
+		throw e;
+	}
+	// Need this try-catch to ensure that if there is an error, the destructor gets called
+	catch(const std::exception & e){
 		// Delete the class you created
 		delete CPS;
 		// Re-throw the error

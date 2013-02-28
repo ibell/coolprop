@@ -36,6 +36,7 @@ def Source():
 def DLL_and_Excel():
     """ Build a DLL using __stdcall calling convention """
     subprocess.check_output(['BuildDLL'],shell=True,cwd=os.path.join('wrappers','Excel'))
+    subprocess.check_output(['BuildDLL_x64'],shell=True,cwd=os.path.join('wrappers','Excel'))
     #Collect the zip file and p
     try:
         os.makedirs(os.path.join('dist_temp','Excel and DLL'))
@@ -44,6 +45,7 @@ def DLL_and_Excel():
     
     shutil.copy2(os.path.join('CoolProp','CoolProp.h'),os.path.join('dist_temp','Excel and DLL','CoolProp.h'))    
     shutil.copy2(os.path.join('wrappers','Excel','CoolProp.dll'),os.path.join('dist_temp','Excel and DLL','CoolProp.dll'))
+    shutil.copy2(os.path.join('wrappers','Excel','CoolProp_x64.dll'),os.path.join('dist_temp','Excel and DLL','CoolProp_x64.dll'))
     shutil.copy2(os.path.join('wrappers','Excel','CoolProp.xlam'),os.path.join('dist_temp','Excel and DLL','CoolProp.xlam'))
     shutil.copy2(os.path.join('wrappers','Excel','CoolProp.xla'),os.path.join('dist_temp','Excel and DLL','CoolProp.xla'))
     shutil.copy2(os.path.join('wrappers','Excel','TestExcel.xlsx'),os.path.join('dist_temp','Excel and DLL','TestExcel.xlsx'))
