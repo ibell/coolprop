@@ -1,0 +1,72 @@
+Microsoft (R) COFF/PE Dumper Version 10.00.40219.01
+Copyright (C) Microsoft Corporation.  All rights reserved.
+
+
+Dump of file CoolProp_x64.dll
+
+File Type: DLL
+
+  Section contains the following exports for CoolProp_x64.dll
+
+    00000000 characteristics
+    512F0ADA time date stamp Thu Feb 28 08:44:26 2013
+        0.00 version
+           1 ordinal base
+          43 number of functions
+          43 number of names
+
+    ordinal hint RVA      name
+
+          1    0 00005AB0 DerivTerms
+          2    1 00005450 F2K
+          3    2 00005A10 FluidsList
+          4    3 00084460 HAProps
+          5    4 00085D00 HAProps_Aux
+          6    5 00005290 IProps
+          7    6 00001CD0 IsFluidType
+          8    7 00005420 K2F
+          9    8 00002F30 Phase
+         10    9 00002FE0 Phase_Tp
+         11    A 00003090 Phase_Trho
+         12    B 00005480 PrintSaturationTable
+         13    C 00003A70 Props
+         14    D 00003440 Props1
+         15    E 00002180 conformal_Trho
+         16    F 000010C0 debug
+         17   10 000013F0 disable_TTSE_LUT
+         18   11 00001500 disable_TTSE_LUT_writing
+         19   12 00001340 enable_TTSE_LUT
+         20   13 00001450 enable_TTSE_LUT_writing
+         21   14 00001A10 get_Fluid_index
+         22   15 00006E60 get_REFPROPname
+         23   16 000016C0 get_TTSESinglePhase_LUT_range
+         24   17 00006BA0 get_aliases
+         25   18 000010A0 get_debug
+         26   19 000011C0 get_errstring
+         27   1A 00001290 get_errstring_copy
+         28   1B 00001220 get_errstringc
+         29   1C 00001B40 get_index_units
+         30   1D 00001C90 get_param_index
+         31   1E 00001000 get_svnrevision
+         32   1F 00001010 get_version
+         33   20 000013A0 isenabled_TTSE_LUT
+         34   21 000014B0 isenabled_TTSE_LUT_writing
+         35   22 00002960 psatL_anc
+         36   23 00002A00 psatV_anc
+         37   24 00002820 rhosatL_anc
+         38   25 000028C0 rhosatV_anc
+         39   26 00001560 set_TTSESat_LUT_size
+         40   27 00001630 set_TTSESinglePhase_LUT_range
+         41   28 000015C0 set_TTSESinglePhase_LUT_size
+         42   29 00001300 set_phase
+         43   2A 000026E0 viscosity_dilute
+
+  Summary
+
+        C000 .data
+       10000 .pdata
+       4D000 .rdata
+        3000 .reloc
+      12D000 .text
+        5000 data
+        2000 text
