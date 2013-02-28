@@ -20,7 +20,7 @@ for i=1:size(files)(1)
 	eval(['mkoctfile -v -c ', include_string,' -o ',o_file,' ',file])
 end
 
-eval(['mkoctfile -v  ', include_string,' -o CoolProp.oct ',o_files])
+eval(['mkoctfile -v -lgomp ', include_string,' -o CoolProp.oct ',o_files])
 
 % Clean up - remove the object files
 for i=1:size(files)(1)
@@ -30,8 +30,6 @@ for i=1:size(files)(1)
 	disp(['deleting the file ',o_file]);
 end
 
-unlink('CoolProp.exp')
-unlink('CoolProp.lib')
 unlink('CoolProp_wrap.o')
 unlink('CoolProp_wrap.cpp')
 
