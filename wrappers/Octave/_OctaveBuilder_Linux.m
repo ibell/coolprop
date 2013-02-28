@@ -20,7 +20,7 @@ for i=1:size(files)(1)
 	eval(['mkoctfile -v -c ', include_string,' -o ',o_file,' ',file])
 end
 
-eval(['mkoctfile -v -lgomp ', include_string,' -o CoolProp.oct CoolProp_wrap.cpp',o_files])
+eval(['mkoctfile -v  ', include_string,' -o CoolProp.oct ',o_files])
 
 % Clean up - remove the object files
 for i=1:size(files)(1)
