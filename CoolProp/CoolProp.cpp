@@ -664,40 +664,7 @@ std::string Phase_Tp(std::string Fluid, double T, double p)
 	return Phase(Fluid,T,p);
 }
 
-// All the function interfaces that point to the single-input Props function
-EXPORT_CODE double CONVENTION Props1(char* Ref, char * Output)
-{
-	//FILE *fp;
-	//fp = fopen("c:\\CoolProp\\log_Props1.txt", "a");
-	//fprintf(fp,"%s %s\n",Ref,Output);
-	//fclose(fp);
-
-	try{
-	// Redirect to the Props function - should have called it Props1 from the outset
-	return Props(Ref, Output);
-	}
-	catch(std::exception &e)
-	{
-		err_string = std::string("CoolProp error: ").append(e.what());
-		std::cout << err_string <<std::endl;
-		return _HUGE;
-	}
-	catch(...){
-		err_string = std::string("CoolProp error: Indeterminate error");
-		return _HUGE;
-	}
-}
-double Props1(std::string Ref, std::string Output)
-{
-	// Redirect to the Props function - should have called it Props1 from the outset
-	return Props((char*)Ref.c_str(), (char*)Output.c_str());
-}
-double Props(std::string Ref,std::string Output)
-{
-	return Props((char*)Ref.c_str(), (char*)Output.c_str());
-}
-
-double Props(char *Fluid, char *Output)
+double _Props1(char *Fluid, char *Output)
 {
 	// Try to load the CoolProp Fluid
 	pFluid = Fluids.get_fluid(Fluid);
@@ -741,6 +708,45 @@ double Props(char *Fluid, char *Output)
 		}
 	}
 }
+
+// All the function interfaces that point to the single-input Props function
+EXPORT_CODE double CONVENTION Props1(char* Ref, char * Output)
+{
+	//FILE *fp;
+	//fp = fopen("c:\\CoolProp\\log_Props1.txt", "a");
+	//fprintf(fp,"%s %s\n",Ref,Output);
+	//fclose(fp);
+
+	try{
+	// Redirect to the Props function - should have called it Props1 from the outset
+	return _Props1(Ref, Output);
+	}
+	catch(std::exception &e)
+	{
+		err_string = std::string("CoolProp error: ").append(e.what());
+		std::cout << err_string <<std::endl;
+		return _HUGE;
+	}
+	catch(...){
+		err_string = std::string("CoolProp error: Indeterminate error");
+		return _HUGE;
+	}
+}
+double Props1(std::string Ref, std::string Output)
+{
+	// Redirect to the Props function - should have called it Props1 from the outset
+	return Props1((char*)Ref.c_str(), (char*)Output.c_str());
+}
+double Props(std::string Ref, std::string Output)
+{
+	return Props1((char*)Ref.c_str(), (char*)Output.c_str());
+}
+double Props(char* Ref, char* Output)
+{
+	return Props1(Ref, Output);
+}
+
+
 EXPORT_CODE double CONVENTION Props(char *Output,char Name1, double Prop1, char Name2, double Prop2, char * Ref)
 {
 	double val = Props(std::string(Output),Name1,Prop1,Name2,Prop2,std::string(Ref));

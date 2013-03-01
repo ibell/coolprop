@@ -49,6 +49,8 @@ cdef class PureFluidClass:
     
     cpdef double keyed_output(self, long iOutput):
         return self.CPS.keyed_output(iOutput)
+    cpdef long phase(self):
+        return self.CPS.phase()
 
     ## ----------------------------------------	
     ##        TTSE LUT things

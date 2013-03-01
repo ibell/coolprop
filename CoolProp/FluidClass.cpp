@@ -2748,21 +2748,20 @@ double AncillaryCurveClass::interpolateV(double T){
 	return interp1d(&xV,&yV,T);
 }
 
-//Microsoft version of math.h doesn't include acosh.h
-#if defined(_MSC_VER)
+//Microsoft version of math.h doesn't include acosh or asinh, so we just define them here
 static double acosh(double x)
 {
  	return log(x + sqrt(x*x - 1.0) );
 }
-double asinh(double value){
-
- if(value>0)
-    return log(value + sqrt(value * value + 1));
- else
-    return -log(-value + sqrt(value * value + 1));
-
+static double asinh(double value)
+{
+	if(value>0){
+		return log(value + sqrt(value * value + 1));
+	}
+	else{
+		return -log(-value + sqrt(value * value + 1));
+	}
 }
-#endif
 
 double CriticalSplineStruct_T::interpolate_rho(Fluid *pFluid, int phase, double T)
 {

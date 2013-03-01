@@ -1,4 +1,4 @@
-﻿/*
+/*
 Properties for R134a.  
 by Ian Bell
 
@@ -24,6 +24,10 @@ by Reiner Tillner-Roth and Hans Dieter Baehr, J. Phys. Chem. Ref. Data, v. 23, 1
 #include "CoolProp.h"
 #include "FluidClass.h"
 #include "R134a.h"
+
+#ifndef M_PI
+#define M_PI acos(-1)
+#endif
 
 static const double a[]={
 	 0.0,			//[0]

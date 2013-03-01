@@ -522,7 +522,7 @@ cdef class State:
         if self.iFluid >= 0:
             #It is a CoolProp Fluid so we can use the faster integer passing function
             self.is_CPFluid = True
-            self.CPS = PureFluidClass(Fluid)
+            self.PFC = PureFluidClass(Fluid)
         else:
             self.is_CPFluid = False
         self.xL = xL
@@ -533,7 +533,7 @@ cdef class State:
         #Set the phase flag
         if self.phase == str('Gas') or self.phase == str('Liquid') or self.phase == str('Supercritical'):
             if self.is_CPFluid and (self.phase == str('Gas') or self.phase == str('Liquid')):
-                self.CPS.CPS.flag_SinglePhase = True
+                self.PFC.CPS.flag_SinglePhase = True
             elif not self.is_CPFluid and self.phase is not None:
                 _set_phase(self.phase)
             
@@ -563,9 +563,9 @@ cdef class State:
         cdef double T
         
         if self.is_CPFluid:
-            self.CPS.update(iP, p, iH, h)
-            self.T_ = self.CPS.T()
-            self.rho_ = self.CPS.rho()
+            self.PFC.update(iP, p, iH, h)
+            self.T_ = self.PFC.T()
+            self.rho_ = self.PFC.rho()
         else:
             T = _Props('T','P',p,'H',h,self.Fluid)
             if abs(T)<1e90:
@@ -592,8 +592,8 @@ cdef class State:
         self.rho_ = rho
         
         if self.is_CPFluid:
-            self.CPS.update(iT,T,iD,rho)
-            p = self.CPS.p()
+            self.PFC.update(iT,T,iD,rho)
+            p = self.PFC.p()
         else:
             p = _Props('P','T',T,'D',rho,self.Fluid)
         
@@ -605,9 +605,7 @@ cdef class State:
         
     cpdef update(self, dict params, double xL=-1.0):
         """
-        *params* is a list(or tuple) of strings that represent the parameters 
-        that have been updated and will be used to fix the rest of the state. 
-        ['T','P'] for temperature and pressure for instance
+        *params* is a dictionary of terms to be updated, with keys equal to 
         """
             
         cdef double p
@@ -634,12 +632,12 @@ cdef class State:
                 iInput1 = paras_inverse[items[0][0]]
                 iInput2 = paras_inverse[items[1][0]]
                 try:
-                    self.CPS.update(iInput1, items[0][1], iInput2, items[1][1])
+                    self.PFC.update(iInput1, items[0][1], iInput2, items[1][1])
                 except:
                     raise
-                self.T_ = self.CPS.T()
-                self.p_ = self.CPS.p()
-                self.rho_ = self.CPS.rho()
+                self.T_ = self.PFC.T()
+                self.p_ = self.PFC.p()
+                self.rho_ = self.PFC.rho()
                 return
             
             #Get the density if T,P provided, or pressure if T,rho provided
@@ -680,7 +678,7 @@ cdef class State:
         
     cpdef long Phase(self) except *:
         if self.is_CPFluid:
-            return self.CPS.phase()
+            return self.PFC.phase()
         else:
             raise NotImplementedError("Phase not defined for fluids other than CoolProp fluids")
         
@@ -689,7 +687,7 @@ cdef class State:
             raise ValueError('Your output is invalid') 
         
         if self.is_CPFluid:
-            return self.CPS.keyed_output(iOutput)
+            return self.PFC.keyed_output(iOutput)
             #return _IProps(iOutput,iT,self.T_,iD,self.rho_,self.iFluid)
         else:
             return _Props(paras[iOutput],'T',self.T_,'D',self.rho_,self.Fluid)

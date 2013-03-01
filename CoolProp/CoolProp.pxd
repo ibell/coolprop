@@ -47,6 +47,7 @@ cdef extern from "CPState.h":
         double cv() except +
         double speed_sound() except +
         double keyed_output(long iOutput) except +
+        long phase() except +
 
         ## ---------------------------------------- 
         ## TTSE LUT things
@@ -239,7 +240,7 @@ cdef extern from "HumidAirProp.h":
     double _HAProps_Aux "HAProps_Aux"(char* Name,double T, double p, double W, char *units)
        
 cdef class State:
-    cdef PureFluidClass CPS      # hold a PureFluidClass which is the Cython wrapper of CoolPropStateClass
+    cdef PureFluidClass PFC      # hold a PureFluidClass which is the Cython wrapper of CoolPropStateClass
     cdef readonly bint hasLiquid
     cdef readonly bytes Liquid, Fluid, phase
     cdef long iFluid,iParam1,iParam2,iOutput
@@ -283,6 +284,7 @@ cdef class PureFluidClass:
     cpdef double hL(self)
     cpdef double hV(self)
     cpdef double keyed_output(self, long iOutput)
+    cpdef long phase(self)
     
     ## ---------------------------------------- 
     ##        Fluid property accessors

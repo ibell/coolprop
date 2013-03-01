@@ -411,6 +411,8 @@ void CoolPropStateClass::update_ph(long iInput1, double Value1, long iInput2, do
 	// Solve for temperature and density with or without the guess values provided
 	pFluid->temperature_ph(Value1, Value2,&_T,&_rho,&rhosatL,&rhosatV,&TsatL,&TsatV, T0, rho0);
 
+	if (Value1 < 0 ){ throw ValueError(format("Your pressure [%g K] is less than zero",Value1));}
+
 	// Set internal variables
 	_p = Value1;
 	_h = Value2;
@@ -444,6 +446,8 @@ void CoolPropStateClass::update_ps(long iInput1, double Value1, long iInput2, do
 
 	// Solve for temperature and density
 	pFluid->temperature_ps(Value1, Value2,&_T,&_rho,&rhosatL,&rhosatV,&TsatL,&TsatV);
+
+	if (Value1 < 0 ){ throw ValueError(format("Your pressure [%g K] is less than zero",Value1));}
 
 	// Set internal variables
 	_p = Value1;
