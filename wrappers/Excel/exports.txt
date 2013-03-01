@@ -9,7 +9,7 @@ File Type: DLL
   Section contains the following exports for CoolProp.dll
 
     00000000 characteristics
-    512F09D2 time date stamp Thu Feb 28 08:40:02 2013
+    5131110A time date stamp Fri Mar 01 21:35:22 2013
         0.00 version
            1 ordinal base
           43 number of functions
@@ -17,20 +17,20 @@ File Type: DLL
 
     ordinal hint RVA      name
 
-          1    0 000050A0 _DerivTerms@24
-          2    1 00004B70 _F2K@8
-          3    2 00005030 _FluidsList@4
-          4    3 0005F4F0 _HAProps@40
-          5    4 000608E0 _HAProps_Aux@32
-          6    5 00004900 _IProps@32
+          1    0 000050C0 _DerivTerms@24
+          2    1 00004B90 _F2K@8
+          3    2 00005050 _FluidsList@4
+          4    3 00060550 _HAProps@40
+          5    4 00061940 _HAProps_Aux@32
+          6    5 00004920 _IProps@32
           7    6 00001AD0 _IsFluidType@8
-          8    7 00004B50 _K2F@8
+          8    7 00004B70 _K2F@8
           9    8 000029D0 _Phase@24
          10    9 00002A40 _Phase_Tp@24
          11    A 00002AB0 _Phase_Trho@24
-         12    B 00004B90 _PrintSaturationTable@24
-         13    C 00002DD0 _Props1@8
-         14    D 000034D0 _Props@32
+         12    B 00004BB0 _PrintSaturationTable@24
+         13    C 00003270 _Props1@8
+         14    D 000034F0 _Props@32
          15    E 00001EF0 _conformal_Trho@32
          16    F 00001090 _debug@4
          17   10 00001310 _disable_TTSE_LUT@4
@@ -38,9 +38,9 @@ File Type: DLL
          19   12 00001290 _enable_TTSE_LUT@4
          20   13 00001350 _enable_TTSE_LUT_writing@4
          21   14 00001860 _get_Fluid_index@4
-         22   15 000060E0 _get_REFPROPname@8
+         22   15 00006100 _get_REFPROPname@8
          23   16 00001520 _get_TTSESinglePhase_LUT_range@20
-         24   17 00005EF0 _get_aliases@8
+         24   17 00005F10 _get_aliases@8
          25   18 00001070 _get_debug@0
          26   19 00001160 _get_errstring@4
          27   1A 00001200 _get_errstring_copy@4

@@ -1,12 +1,13 @@
 import subprocess,os,shutil
 
 #These should be paths to python executables that you want want use to build versions of CoolProp
-PYTHONVERSIONS=['_python\py27\python.exe',
-                '_python\py27_x64\python.exe',
-                '_python\py32\python.exe',
-                '_python\py32_x64\python.exe',
-                '_python\py33\python.exe',
-                '_python\py33_x64\python.exe',
+#These paths are relative to the wrappers/Python folder
+PYTHONVERSIONS=['..\..\_python\py27\python.exe',
+                '..\..\_python\py27_x64\python.exe',
+                '..\..\_python\py32\python.exe',
+                '..\..\_python\py32_x64\python.exe',
+                '..\..\_python\py33\python.exe',
+                '..\..\_python\py33_x64\python.exe',
                 ]
 
 if not os.path.exists('_deps'):
@@ -14,8 +15,8 @@ if not os.path.exists('_deps'):
     
 def remove_coolprop_lib():
     #Force the remove of the CoolProp library if one exists
-    if os.path.exists(os.path.join('lib','CoolProp.lib')):
-        os.remove(os.path.join('lib','CoolProp.lib'))
+    if os.path.exists(os.path.join('wrappers','Python','lib','CoolProp.lib')):
+        os.remove(os.path.join('wrappers','Python','lib','CoolProp.lib'))
         
 def InstallPrereqs():
     """ Get the requirements for CoolProp """
@@ -30,13 +31,12 @@ def PYPI():
     subprocess.call(['python','setup.py','sdist','upload'])
     
 def Source():
-    python_install = PYTHONVERSIONS[0]
-    print subprocess.check_output([python_install,'setup.py','sdist','--dist-dir=dist_temp/Python'],shell=True,cwd='.')
+    print subprocess.check_output(['python','setup.py','sdist','--dist-dir=../../dist_temp/Python'],shell=True,cwd=os.path.join('wrappers','Python'))
 
 def DLL_and_Excel():
     """ Build a DLL using __stdcall calling convention """
     subprocess.check_output(['BuildDLL'],shell=True,cwd=os.path.join('wrappers','Excel'))
-    subprocess.check_output(['BuildDLL_x64'],shell=True,cwd=os.path.join('wrappers','Excel'))
+    subprocess.check_output(['BuildDLLx64'],shell=True,cwd=os.path.join('wrappers','Excel'))
     #Collect the zip file and p
     try:
         os.makedirs(os.path.join('dist_temp','Excel and DLL'))
@@ -122,7 +122,7 @@ def Python():
     
     for python_install in PYTHONVERSIONS:
         remove_coolprop_lib()
-        print subprocess.check_output([python_install,'setup.py','bdist','--format=wininst','--dist-dir=dist_temp/Python'],shell=True,cwd='.')
+        print subprocess.check_output([python_install,'setup.py','bdist','--format=wininst','--dist-dir=../../dist_temp/Python'],shell=True,cwd=os.path.join('wrappers','Python'))
     #For good measure, clean up after ourselves
     remove_coolprop_lib()
     
@@ -187,9 +187,9 @@ if __name__=='__main__':
 ##     MATLAB()
 ##     EES()
 ##     Labview()
-##     Modelica()
+    Modelica()
 ##     PYPI()
 ##     UploadSourceForge()
 
-    BuildDocs()
-    UploadDocs()
+##     BuildDocs()
+##     UploadDocs()
