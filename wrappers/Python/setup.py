@@ -29,7 +29,7 @@ from distutils.dep_util import newer_group
 #This will generate HTML to show where there are still pythonic bits hiding out
 Cython.Compiler.Options.annotate = True
 
-version = '3.0.1'
+version = open(os.path.join('..','..','version.txt'),'r').read().strip()
 
 if __name__=='__main__':
 
@@ -49,11 +49,11 @@ if __name__=='__main__':
                     rev = line.split(':')[1].strip()
                     svnstring = 'long svnrevision = '+rev+';'
                     #Check if it is different than the current version
-                    f = open('CoolProp/svnrevision.h','r')
+                    f = open('../../CoolProp/svnrevision.h','r')
                     current_svn = f.read()
                     f.close()
                     if not current_svn.strip() == svnstring.strip():                
-                        f = open('CoolProp/svnrevision.h','w')
+                        f = open('../../CoolProp/svnrevision.h','w')
                         f.write(svnstring)
                         f.close()
                     break
@@ -64,11 +64,11 @@ if __name__=='__main__':
 
     def version_to_file():
         string_for_file = 'char version [] ="{v:s}";'.format(v = version)
-        f = open('CoolProp/version.h','r')
+        f = open('../../CoolProp/version.h','r')
         current_version = f.read()
         f.close()
         if not current_version.strip() == string_for_file.strip():
-            f = open('CoolProp/version.h','w')
+            f = open('../../CoolProp/version.h','w')
             f.write(string_for_file)
             f.close()
         
@@ -110,7 +110,7 @@ if __name__=='__main__':
     #Unpack the __init__.py file template and add some things to the __init__ file
     lines=open('__init__.py.template','r').readlines()
 
-    f = open('CoolProp/svnrevision.h','r')
+    f = open('../../CoolProp/svnrevision.h','r')
     rev = f.read().strip().split('=')[1].strip(';').strip()
     f.close()
     svnstring = '__svnrevision__ ='+rev+'\n'
@@ -132,9 +132,9 @@ if __name__=='__main__':
     #This will automagically find all the fluid sources as long as they are in the right folders
     #Pure fluids should all be in the CoolProp/purefluids folder relative to setup.py
     #Pseudo-Pure fluids should all be in the CoolProp/pseudopurefluids folder relative to setup.py
-    purefluids=glob.glob(os.path.join('CoolProp','purefluids','*.cpp'))
-    pseudopurefluids=glob.glob(os.path.join('CoolProp','pseudopurefluids','*.cpp'))
-    others = glob.glob(os.path.join('CoolProp','*.cpp'))
+    purefluids=glob.glob(os.path.join('..','..','CoolProp','purefluids','*.cpp'))
+    pseudopurefluids=glob.glob(os.path.join('..','..','CoolProp','pseudopurefluids','*.cpp'))
+    others = glob.glob(os.path.join('..','..','CoolProp','*.cpp'))
     
 ##     #Remove the _wrap files from the build
 ##     for f in glob.glob(os.path.join('CoolProp','*_wrap.cpp')):
@@ -143,9 +143,9 @@ if __name__=='__main__':
     Sources=purefluids + pseudopurefluids + others
          
     ### Include folders for build
-    include_dirs = ['CoolProp',
-                    os.path.join('CoolProp','purefluids'),
-                    os.path.join('CoolProp','pseudopurefluids'),
+    include_dirs = [os.path.join('..','..','CoolProp'),
+                    os.path.join('..','..','CoolProp','purefluids'),
+                    os.path.join('..','..','CoolProp','pseudopurefluids'),
                     get_python_inc(False)]
 
     def StaticLibBuilder(sources,LibName='CoolProp',build_path='build_lib',lib_path='lib',force=False,DLL=True,StaticLib=True):
@@ -169,7 +169,8 @@ if __name__=='__main__':
                 MACROS = None
                 
         if not os.path.exists(build_path) or not os.path.exists(lib_path):
-            if not os.path.exists(build_path): os.mkdir(build_path)
+            #../../CoolProp ends up relative to build_path, which goes to the wrong place - this is hacky but works
+            if not os.path.exists(os.path.join(build_path,build_path,build_path)): os.makedirs(os.path.join(build_path,build_path,build_path)) 
             if not os.path.exists(lib_path): os.mkdir(lib_path)
             #Force rebuild of all
             buildCPLib=True
@@ -177,7 +178,8 @@ if __name__=='__main__':
             buildCPLib=True
         
         if buildCPLib or DLL:
-            objs=CC.compile(sources,build_path,MACROS,include_dirs=include_dirs,extra_postargs=extra_compile_args)
+            extended_build_path = os.path.join(build_path,build_path,build_path)
+            objs=CC.compile(sources,extended_build_path,MACROS,include_dirs=include_dirs,extra_postargs=extra_compile_args)
             CC.create_static_lib(objs, LibName,lib_path,target_lang='c++')
             print('Built the static library in',CPLibPath)
             if DLL:
@@ -310,21 +312,4 @@ if __name__=='__main__':
     shutil.rmtree(os.path.join('CoolProp','include'), ignore_errors = True)
             
     touch('setup.py')
-    
-##     from CoolProp.CoolProp import FluidsList
-##     print(FluidsList())
-##     import CoolProp.CoolProp as C
-##     print(dir(C))
-##     print(C.Props('R134a','Tcrit'))
-##     print(C.get_EOSReference('R134a'))
-##     print(C.Props('D','T',300,'P',100,'Air'))
-##     from CoolProp.HumidAirProp import HAProps
-##     print(HAProps('H','T',300,'R',0.5,'P',101))
-##     from CoolProp.State import State
-##     S = State('R134a',dict(T=300,D=0.005))
-##     S.speed_test(10000)
-##     
-##     import CoolProp.CoolProp
-##     CoolProp.CoolProp.Props('H','T',300,'Q',0,'Propane')
-##     print CoolProp.CoolProp.get_TTSESinglePhase_LUT_range("Propane")
     
