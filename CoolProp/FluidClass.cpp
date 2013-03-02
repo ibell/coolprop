@@ -2748,6 +2748,7 @@ double AncillaryCurveClass::interpolateV(double T){
 	return interp1d(&xV,&yV,T);
 }
 
+#ifndef __GNUC__ //We are not using a GCC compiler, so this block will compile
 //Microsoft version of math.h doesn't include acosh or asinh, so we just define them here
 static double acosh(double x)
 {
@@ -2762,6 +2763,7 @@ static double asinh(double value)
 		return -log(-value + sqrt(value * value + 1));
 	}
 }
+#endif
 
 double CriticalSplineStruct_T::interpolate_rho(Fluid *pFluid, int phase, double T)
 {
