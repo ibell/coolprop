@@ -251,7 +251,10 @@ void make_dirs(std::string file_path)
 					CreateDirectory((LPCSTR)path.c_str(),NULL);
 				#endif
 			#else 
-				mkdir(path.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+				#if defined(__powerpc__)
+				#else
+					mkdir(path.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+				#endif
 			#endif
 			}
 			if (i < pathsplit.size()-1)
