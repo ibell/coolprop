@@ -1,6 +1,7 @@
 #ifndef SOLVERMAP_H_
 #define SOLVERMAP_H_
 
+#include <stdio.h>
 #include "include.h"
 
 class BaseSolver;

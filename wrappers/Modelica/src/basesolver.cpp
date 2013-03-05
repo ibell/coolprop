@@ -1,6 +1,6 @@
 #include "basesolver.h"
 #include <math.h>
-#include "coolproplib.h"
+#include "CoolPropLib.h"
 
 //! Constructor.
 /*!
