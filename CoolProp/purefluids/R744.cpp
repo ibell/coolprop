@@ -27,6 +27,9 @@ R. Span and W. Wagner, J. Phys. Chem. Ref. Data, v. 25, 1996
 #include "R744.h"
 
 using namespace std;
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
 
 static double alpha[40],beta[43],GAMMA[40],epsilon[40],a[43],b[43],A[43],B[43],C[43],D[43],a0[9],theta0[9];
 static const double n[]={0,    

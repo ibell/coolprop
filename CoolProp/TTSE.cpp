@@ -776,10 +776,10 @@ double TTSESinglePhaseTableClass::check_randomly(long iParam, unsigned int N, st
 		double h1 = ((double)rand()/(double)RAND_MAX)*(hmax-hmin)+hmin;
 		
 		CPS.update(iH,h1,iP,p1);
-		double sEOSv = CPS.s();
-		double cpEOSv = CPS.cp();
-		double TEOSv = CPS.T();
-		double rhoEOSv = CPS.rho();
+		double sEOS = CPS.s();
+		double cpEOS = CPS.cp();
+		double TEOS = CPS.T();
+		double rhoEOS = CPS.rho();
 
 		// Store the inputs
 		(*h)[i] = h1;
