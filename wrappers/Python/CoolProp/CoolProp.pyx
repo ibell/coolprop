@@ -489,12 +489,23 @@ cdef class State:
     """
     A class that contains all the code that represents a thermodynamic state
     """
-    def __cinit__(self, bytes Fluid, dict StateDict, double xL=-1.0, object Liquid = None, object phase = None):
-        """ Allocate the CoolPropStateClass instance"""
-        #cdef bytes _FluidName = FluidName if bytes_or_str is bytes else FluidName.encode('ascii')
         
     def __init__(self, bytes Fluid, dict StateDict, double xL=-1.0, object Liquid = None, object phase = None):
-        #cdef bytes _Fluid = Fluid if bytes_or_str is bytes else Fluid.encode('ascii')
+        """
+        Parameters
+        ----------
+        Fluid, string
+        StateDict, dictionary
+            The state of the fluid - passed to the update function
+        phase, string
+            The phase of the fluid, it it is known.  One of 'Gas','Liquid','Supercritical','TwoPhase'
+        xL, float
+            Liquid mass fraction (not currently supported)
+        Liquid, string
+            The name of the liquid (not currently supported)
+        
+            
+        """
         cdef bytes _Fluid = Fluid
         cdef bytes _Liquid
         
@@ -605,7 +616,10 @@ cdef class State:
         
     cpdef update(self, dict params, double xL=-1.0):
         """
-        *params* is a dictionary of terms to be updated, with keys equal to 
+        Parameters
+        params, dictionary 
+            A dictionary of terms to be updated, with keys equal to single-char inputs to the Props function,
+            for instance ``dict(T=298, P = 101.325)`` would be one standard atmosphere
         """
             
         cdef double p
@@ -677,6 +691,14 @@ cdef class State:
             raise ValueError('xL must be between 0 and 1')
         
     cpdef long Phase(self) except *:
+        """
+        Returns an integer flag for the phase of the fluid, where the flag value
+        is one of iLiquid, iSupercritical, iGas, iTwoPhase
+        
+        These constants are defined in the phase_constants module, and are imported
+        into this module
+        """
+        
         if self.is_CPFluid:
             return self.PFC.phase()
         else:
@@ -688,71 +710,91 @@ cdef class State:
         
         if self.is_CPFluid:
             return self.PFC.keyed_output(iOutput)
-            #return _IProps(iOutput,iT,self.T_,iD,self.rho_,self.iFluid)
         else:
             return _Props(paras[iOutput],'T',self.T_,'D',self.rho_,self.Fluid)
             
     cpdef double get_Q(self) except *:
+        """ Get the quality [-] """
         return self.Props(iQ)
     property Q:
+        """ The quality [-] """
         def __get__(self):
             return self.get_Q()
     
     cpdef double get_MM(self) except *:
+        """ Get the mole mass [kg/kmol] or [g/mol] """
         return _Props1(self.Fluid,'molemass')
     
-    cpdef double get_rho(self) except *: 
+    cpdef double get_rho(self) except *:
+        """ Get the density [kg/m^3] """ 
         return self.rho_
     property rho:
+        """ The density [kg/m^3] """
         def __get__(self):
             return self.rho_
             
-    cpdef double get_p(self) except *: 
+    cpdef double get_p(self) except *:
+        """ Get the pressure [kPa] """ 
         return self.p_
     property p:
+        """ The pressure [K] """
         def __get__(self):
             return self.p_
     
     cpdef double get_T(self) except *: 
+        """ Get the temperature [K] """
         return self.T_
     property T:
+        """ The temperature [K] """
         def __get__(self):
             return self.T_
     
     cpdef double get_h(self) except *: 
+        """ Get the specific enthalpy [kJ/kg] """
         return self.Props(iH)
     property h:
+        """ The specific enthalpy [kJ/kg] """
         def __get__(self):
             return self.get_h()
           
     cpdef double get_u(self) except *: 
+        """ Get the specific internal energy [kJ/kg] """
         return self.Props(iU)
     property u:
+        """ The internal energy [kJ/kg] """
         def __get__(self):
             return self.get_u()
             
     cpdef double get_s(self) except *: 
+        """ Get the specific enthalpy [kJ/kg/K] """
         return self.Props(iS)
     property s:
+        """ The specific enthalpy [kJ/kg/K] """
         def __get__(self):
             return self.get_s()
     
     cpdef double get_cp0(self) except *:
+        """ Get the specific heat at constant pressure for the ideal gas [kJ/kg] """
         return self.Props(iC0)
     
     cpdef double get_cp(self) except *: 
+        """ Get the specific heat at constant pressure  [kJ/kg] """   
         return self.Props(iC)
     property cp:
+        """ The specific heat at constant pressure  [kJ/kg] """
         def __get__(self):
             return self.get_cp()
             
     cpdef double get_cv(self) except *: 
+        """ Get the specific heat at constant volume  [kJ/kg] """
         return self.Props(iO)
     property cv:
+        """ The specific heat at constant volume  [kJ/kg] """
         def __get__(self):
             return self.get_cv()
             
     cpdef double get_visc(self) except *:
+        """ Get the viscosity, in [Pa-s]"""
         return self.Props(iV)
     property visc:
         """ The viscosity, in [Pa-s]"""
@@ -760,6 +802,7 @@ cdef class State:
             return self.get_visc()
 
     cpdef double get_cond(self) except *:
+        """ Get the thermal conductivity, in [kW/m/K]"""
         return self.Props(iL)
     property k:
         """ The thermal conductivity, in [kW/m/K]"""
@@ -767,6 +810,7 @@ cdef class State:
             return self.get_cond()
             
     property Prandtl:
+        """ The Prandtl number (cp*mu/k) [-] """
         def __get__(self):
             return self.cp * self.visc / self.k
             
