@@ -20,6 +20,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "math.h"
+#include <cmath>
 
 #include "MatrixMath.h"
 #include "Helmholtz.h"
@@ -2752,7 +2753,7 @@ double AncillaryCurveClass::interpolateV(double T){
 	return interp1d(&xV,&yV,T);
 }
 
-#if !defined(__GNUC__) || defined(__powerpc__) || defined(__powerpc) || defined(powerpc) //This block will compile if using MSVC or compiling for PPC
+#if defined(_MSCVER)
 //Microsoft version of math.h doesn't include acosh or asinh, so we just define them here
 static double acosh(double x)
 {
