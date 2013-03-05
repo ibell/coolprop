@@ -3,7 +3,7 @@
 
 #include "include.h"
 #include "fluidconstants.h"
-#include "CoolPropLib.h"
+#include "coolproplib.h"
 
 struct FluidConstants;
 

@@ -1,6 +1,7 @@
 within ;
 package CoolProp2Modelica
   import SI = Modelica.SIunits;
+
   package Common "Package with common definitions"
     type InputChoice = enumeration(
         dT "(d,T) as inputs",
@@ -10,7 +11,9 @@ package CoolProp2Modelica
   end Common;
 
   package Media "Medium packages compatible with Modelica.Media"
+
     package ExternalTwoPhaseMedium "Generic external two phase medium package"
+
       extends Modelica.Media.Interfaces.PartialTwoPhaseMedium(
         mediumName = "ExternalMedium",
         singleState = false,
@@ -18,10 +21,12 @@ package CoolProp2Modelica
         smoothModel = false,
         fluidConstants = {externalFluidConstants});
       import CoolProp2Modelica.Common.InputChoice;
+
       constant String libraryName = "UnusableExternalMedium"
         "Name of the external fluid property computation library";
       final constant String substanceName = substanceNames[1]
         "Only one substance can be specified";
+
       constant FluidConstants externalFluidConstants = FluidConstants(
         iupacName=  "unknown",
         casRegistryNumber=  "unknown",
@@ -37,8 +42,10 @@ package CoolProp2Modelica
         meltingPoint=  280,
         normalBoilingPoint=  380.0,
         dipoleMoment=  2.0);
+
       constant InputChoice inputChoice=InputChoice.ph
         "Default choice of input variables for property computations";
+
       redeclare replaceable record extends ThermodynamicState
         PrandtlNumber Pr "prandtl number";
         Temperature T "temperature";
@@ -175,25 +182,25 @@ package CoolProp2Modelica
       replaceable partial function getMolarMass
         output MolarMass MM "molar mass";
         external "C" MM = TwoPhaseMedium_getMolarMass_(mediumName, libraryName, substanceName)
-          annotation(Include="#include <CoolPropLib.h>", Library="CoolPropLib");
+          annotation(Include="#include \"coolproplib.h\"", Library="CoolPropLib");
       end getMolarMass;
 
       replaceable partial function getCriticalTemperature
         output Temperature Tc "Critical temperature";
         external "C" Tc = TwoPhaseMedium_getCriticalTemperature_(mediumName, libraryName, substanceName)
-          annotation(Include="#include <CoolPropLib.h>", Library="CoolPropLib");
+          annotation(Include="#include \"coolproplib.h\"", Library="CoolPropLib");
       end getCriticalTemperature;
 
       replaceable partial function getCriticalPressure
         output AbsolutePressure pc "Critical temperature";
         external "C" pc = TwoPhaseMedium_getCriticalPressure_(mediumName, libraryName, substanceName)
-          annotation(Include="#include <CoolPropLib.h>", Library="CoolPropLib");
+          annotation(Include="#include \"coolproplib.h\"", Library="CoolPropLib");
       end getCriticalPressure;
 
       replaceable partial function getCriticalMolarVolume
         output MolarVolume vc "Critical molar volume";
         external "C" vc = TwoPhaseMedium_getCriticalMolarVolume_(mediumName, libraryName, substanceName)
-          annotation(Include="#include <CoolPropLib.h>", Library="CoolPropLib");
+          annotation(Include="#include \"coolproplib.h\"", Library="CoolPropLib");
       end getCriticalMolarVolume;
 
       redeclare replaceable function setState_ph
@@ -205,7 +212,7 @@ package CoolProp2Modelica
           "2 for two-phase, 1 for one-phase, 0 if not known";
         output ThermodynamicState state;
       external "C" TwoPhaseMedium_setState_ph_(p, h, phase, state, mediumName, libraryName, substanceName)
-        annotation(Include="#include <CoolPropLib.h>", Library="CoolPropLib");
+        annotation(Include="#include \"coolproplib.h\"", Library="CoolPropLib");
       end setState_ph;
 
       redeclare replaceable function setState_pT
@@ -217,7 +224,7 @@ package CoolProp2Modelica
           "2 for two-phase, 1 for one-phase, 0 if not known";
         output ThermodynamicState state;
       external "C" TwoPhaseMedium_setState_pT_(p, T, state, mediumName, libraryName, substanceName)
-        annotation(Include="#include <CoolPropLib.h>", Library="CoolPropLib");
+        annotation(Include="#include \"coolproplib.h\"", Library="CoolPropLib");
       end setState_pT;
 
       redeclare replaceable function setState_dT
@@ -229,7 +236,7 @@ package CoolProp2Modelica
           "2 for two-phase, 1 for one-phase, 0 if not known";
         output ThermodynamicState state;
       external "C" TwoPhaseMedium_setState_dT_(d, T, phase, state, mediumName, libraryName, substanceName)
-        annotation(Include="#include <CoolPropLib.h>", Library="CoolPropLib");
+        annotation(Include="#include \"coolproplib.h\"", Library="CoolPropLib");
       end setState_dT;
 
       redeclare replaceable function setState_ps
@@ -241,7 +248,7 @@ package CoolProp2Modelica
           "2 for two-phase, 1 for one-phase, 0 if not known";
         output ThermodynamicState state;
       external "C" TwoPhaseMedium_setState_ps_(p, s, phase, state, mediumName, libraryName, substanceName)
-        annotation(Include="#include <CoolPropLib.h>", Library="CoolPropLib");
+        annotation(Include="#include \"coolproplib.h\"", Library="CoolPropLib");
       end setState_ps;
 
       replaceable partial function setSat_p_state
@@ -255,7 +262,7 @@ package CoolProp2Modelica
         //Redeclare this function for more efficient implementations avoiding the repeated computation of saturation properties
       /*  // If special definition in "C"
   external "C" TwoPhaseMedium_setSat_p_state_(state, sat)
-    annotation(Include="#include <CoolPropLib.h>", Library="CoolPropLib");
+    annotation(Include="#include \"coolproplib.h\"", Library="CoolPropLib");
 */
         annotation(Inline = true);
       end setSat_p_state;
@@ -445,9 +452,10 @@ package CoolProp2Modelica
       end specificEnthalpy_ps;
 
       redeclare function extends prandtlNumber
+
         /*  // If special definition in "C"
   external "C" T=  TwoPhaseMedium_prandtlNumber_(state, mediumName, libraryName, substanceName)
-    annotation(Include="#include <CoolPropLib.h>", Library="CoolPropLib");
+    annotation(Include="#include \"coolproplib.h\"", Library="CoolPropLib");
 */
         annotation(Inline = true);
       end prandtlNumber;
@@ -459,8 +467,9 @@ package CoolProp2Modelica
         T := state.T;
         /*  // If special definition in "C"
   external "C" T=  TwoPhaseMedium_temperature_(state, mediumName, libraryName, substanceName)
-    annotation(Include="#include <CoolPropLib.h>", Library="CoolPropLib");
+    annotation(Include="#include \"coolproplib.h\"", Library="CoolPropLib");
 */
+
         annotation(Inline = true);
       end temperature;
 
@@ -471,8 +480,9 @@ package CoolProp2Modelica
         a := state.a;
         /*  // If special definition in "C"
   external "C" a=  TwoPhaseMedium_velocityOfSound_(state, mediumName, libraryName, substanceName)
-    annotation(Include="#include <CoolPropLib.h>", Library="CoolPropLib");
+    annotation(Include="#include \"coolproplib.h\"", Library="CoolPropLib");
 */
+
         annotation(Inline = true);
       end velocityOfSound;
 
@@ -483,8 +493,9 @@ package CoolProp2Modelica
         beta := state.beta;
         /*  // If special definition in "C"
   external "C" beta=  TwoPhaseMedium_isobaricExpansionCoefficient_(state, mediumName, libraryName, substanceName)
-    annotation(Include="#include <CoolPropLib.h>", Library="CoolPropLib");
+    annotation(Include="#include \"coolproplib.h\"", Library="CoolPropLib");
 */
+
         annotation(Inline = true);
       end isobaricExpansionCoefficient;
 
@@ -495,8 +506,9 @@ package CoolProp2Modelica
         cp := state.cp;
         /*  // If special definition in "C"
   external "C" cp=  TwoPhaseMedium_specificHeatCapacityCp_(state, mediumName, libraryName, substanceName)
-    annotation(Include="#include <CoolPropLib.h>", Library="CoolPropLib");
+    annotation(Include="#include \"coolproplib.h\"", Library="CoolPropLib");
 */
+
         annotation(Inline = true);
       end specificHeatCapacityCp;
 
@@ -507,8 +519,9 @@ package CoolProp2Modelica
         cv := state.cv;
         /*  // If special definition in "C"
   external "C" cv=  TwoPhaseMedium_specificHeatCapacityCv_(state, mediumName, libraryName, substanceName)
-    annotation(Include="#include <CoolPropLib.h>", Library="CoolPropLib");
+    annotation(Include="#include \"coolproplib.h\"", Library="CoolPropLib");
 */
+
         annotation(Inline = true);
       end specificHeatCapacityCv;
 
@@ -519,8 +532,9 @@ package CoolProp2Modelica
         d := state.d;
         /*  // If special definition in "C"
   external "C" d=  TwoPhaseMedium_density_(state, mediumName, libraryName, substanceName)
-    annotation(Include="#include <CoolPropLib.h>", Library="CoolPropLib");
+    annotation(Include="#include \"coolproplib.h\"", Library="CoolPropLib");
 */
+
         annotation(Inline = true);
       end density;
 
@@ -531,8 +545,9 @@ package CoolProp2Modelica
         ddhp := state.ddhp;
         /*  // If special definition in "C"
   external "C" ddhp=  TwoPhaseMedium_density_derh_p_(state, mediumName, libraryName, substanceName)
-    annotation(Include="#include <CoolPropLib.h>", Library="CoolPropLib");
+    annotation(Include="#include \"coolproplib.h\"", Library="CoolPropLib");
 */
+
         annotation(Inline = true);
       end density_derh_p;
 
@@ -543,8 +558,9 @@ package CoolProp2Modelica
         ddph := state.ddph;
         /*  // If special definition in "C"
   external "C" ddph=  TwoPhaseMedium_density_derp_h_(state, mediumName, libraryName, substanceName)
-    annotation(Include="#include <CoolPropLib.h>", Library="CoolPropLib");
+    annotation(Include="#include \"coolproplib.h\"", Library="CoolPropLib");
 */
+
         annotation(Inline = true);
       end density_derp_h;
 
@@ -555,8 +571,9 @@ package CoolProp2Modelica
         eta := state.eta;
         /*  // If special definition in "C"
   external "C" eta=  TwoPhaseMedium_dynamicViscosity_(state, mediumName, libraryName, substanceName)
-    annotation(Include="#include <CoolPropLib.h>", Library="CoolPropLib");
+    annotation(Include="#include \"coolproplib.h\"", Library="CoolPropLib");
 */
+
         annotation(Inline = true);
       end dynamicViscosity;
 
@@ -567,8 +584,9 @@ package CoolProp2Modelica
         h := state.h;
         /*  // If special definition in "C"
   external "C" h=  TwoPhaseMedium_specificEnthalpy_(state, mediumName, libraryName, substanceName)
-    annotation(Include="#include <CoolPropLib.h>", Library="CoolPropLib");
+    annotation(Include="#include \"coolproplib.h\"", Library="CoolPropLib");
 */
+
         annotation(Inline = true);
       end specificEnthalpy;
 
@@ -579,8 +597,9 @@ package CoolProp2Modelica
         kappa := state.kappa;
         /*  // If special definition in "C"
   external "C" kappa=  TwoPhaseMedium_isothermalCompressibility_(state, mediumName, libraryName, substanceName)
-    annotation(Include="#include <CoolPropLib.h>", Library="CoolPropLib");
+    annotation(Include="#include \"coolproplib.h\"", Library="CoolPropLib");
 */
+
         annotation(Inline = true);
       end isothermalCompressibility;
 
@@ -591,8 +610,9 @@ package CoolProp2Modelica
         lambda := state.lambda;
         /*  // If special definition in "C"
   external "C" lambda=  TwoPhaseMedium_thermalConductivity_(state, mediumName, libraryName, substanceName)
-    annotation(Include="#include <CoolPropLib.h>", Library="CoolPropLib");
+    annotation(Include="#include \"coolproplib.h\"", Library="CoolPropLib");
 */
+
         annotation(Inline = true);
       end thermalConductivity;
 
@@ -603,8 +623,9 @@ package CoolProp2Modelica
         p := state.p;
         /*  // If special definition in "C"
   external "C" p=  TwoPhaseMedium_pressure_(state, mediumName, libraryName, substanceName)
-    annotation(Include="#include <CoolPropLib.h>", Library="CoolPropLib");
+    annotation(Include="#include \"coolproplib.h\"", Library="CoolPropLib");
 */
+
         annotation(Inline = true);
       end pressure;
 
@@ -615,8 +636,9 @@ package CoolProp2Modelica
         s := state.s;
         /*  // If special definition in "C"
     external "C" s=  TwoPhaseMedium_specificEntropy_(state, mediumName, libraryName, substanceName)
-    annotation(Include="#include <CoolPropLib.h>", Library="CoolPropLib");
+    annotation(Include="#include \"coolproplib.h\"", Library="CoolPropLib");
 */
+
         annotation(Inline = true);
       end specificEntropy;
 
@@ -635,15 +657,16 @@ package CoolProp2Modelica
           p, h))*h_der;
         /*  // If special definition in "C"
   external "C" d_der=  TwoPhaseMedium_density_ph_der_(state, mediumName, libraryName, substanceName)
-    annotation(Include="#include <CoolPropLib.h>", Library="CoolPropLib");
+    annotation(Include="#include \"coolproplib.h\"", Library="CoolPropLib");
 */
+
         annotation(Inline = true);
       end density_ph_der;
 
       redeclare replaceable function extends isentropicEnthalpy
       external "C" h_is = TwoPhaseMedium_isentropicEnthalpy_(p_downstream, refState,
        mediumName, libraryName, substanceName)
-        annotation(Include="#include <CoolPropLib.h>", Library="CoolPropLib");
+        annotation(Include="#include \"coolproplib.h\"", Library="CoolPropLib");
       end isentropicEnthalpy;
 
       redeclare replaceable function setSat_p
@@ -652,7 +675,7 @@ package CoolProp2Modelica
         input AbsolutePressure p "pressure";
         output SaturationProperties sat "saturation property record";
       external "C" TwoPhaseMedium_setSat_p_(p, sat, mediumName, libraryName, substanceName)
-        annotation(Include="#include <CoolPropLib.h>", Library="CoolPropLib");
+        annotation(Include="#include \"coolproplib.h\"", Library="CoolPropLib");
       end setSat_p;
 
       redeclare replaceable function setSat_T
@@ -661,7 +684,7 @@ package CoolProp2Modelica
         input Temperature T "temperature";
         output SaturationProperties sat "saturation property record";
       external "C" TwoPhaseMedium_setSat_T_(T, sat, mediumName, libraryName, substanceName)
-        annotation(Include="#include <CoolPropLib.h>", Library="CoolPropLib");
+        annotation(Include="#include \"coolproplib.h\"", Library="CoolPropLib");
       end setSat_T;
 
       redeclare replaceable function extends setBubbleState
@@ -675,7 +698,7 @@ package CoolProp2Modelica
         state :=setState_ph(sat.psat, sat.hl, phase);
         /*  // If special definition in "C"
   external "C" TwoPhaseMedium_setBubbleState_(sat, phase, state, mediumName, libraryName, substanceName)
-    annotation(Include="#include <CoolPropLib.h>", Library="CoolPropLib");
+    annotation(Include="#include \"coolproplib.h\"", Library="CoolPropLib");
 */
         annotation(Inline = true);
       end setBubbleState;
@@ -691,7 +714,7 @@ package CoolProp2Modelica
         state :=setState_ph(sat.psat, sat.hv, phase);
         /*  // If special definition in "C"
   external "C" TwoPhaseMedium_setDewState_(sat, phase, state, mediumName, libraryName, substanceName)
-    annotation(Include="#include <CoolPropLib.h>", Library="CoolPropLib");
+    annotation(Include="#include \"coolproplib.h\"", Library="CoolPropLib");
 */
         annotation(Inline = true);
       end setDewState;
@@ -702,19 +725,20 @@ package CoolProp2Modelica
         T :=saturationTemperature_sat(setSat_p(p));
         /*  // If special definition in "C"
   external "C" T=  TwoPhaseMedium_saturationTemperature_(p, mediumName, libraryName, substanceName)
-    annotation(Include="#include <CoolPropLib.h>", Library="CoolPropLib");
+    annotation(Include="#include \"coolproplib.h\"", Library="CoolPropLib");
 */
         annotation(Inline = true);
       end saturationTemperature;
 
       redeclare function extends saturationTemperature_sat
+
         annotation(Inline = true);
       end saturationTemperature_sat;
 
       redeclare replaceable function extends saturationTemperature_derp "Returns derivative of saturation temperature w.r.t.. pressureBeing this function inefficient, it is strongly recommended to use saturationTemperature_derp_sat
      and never use saturationTemperature_derp directly"
       external "C" dTp = TwoPhaseMedium_saturationTemperature_derp_(p, mediumName, libraryName, substanceName)
-        annotation(Include="#include <CoolPropLib.h>", Library="CoolPropLib");
+        annotation(Include="#include \"coolproplib.h\"", Library="CoolPropLib");
       end saturationTemperature_derp;
 
       redeclare replaceable function saturationTemperature_derp_sat
@@ -727,8 +751,9 @@ package CoolProp2Modelica
         dTp := sat.dTp;
         /*  // If special definition in "C"
   external "C" dTp=  TwoPhaseMedium_saturationTemperature_derp_sat_(sat.psat, sat.Tsat, sat.uniqueID, mediumName, libraryName, substanceName)
-    annotation(Include="#include <CoolPropLib.h>", Library="CoolPropLib");
+    annotation(Include="#include \"coolproplib.h\"", Library="CoolPropLib");
 */
+
         annotation(Inline = true);
       end saturationTemperature_derp_sat;
 
@@ -739,8 +764,9 @@ package CoolProp2Modelica
         ddldp := sat.ddldp;
         /*  // If special definition in "C"
   external "C" ddldp=  TwoPhaseMedium_dBubbleDensity_dPressure_(sat, mediumName, libraryName, substanceName)
-    annotation(Include="#include <CoolPropLib.h>", Library="CoolPropLib");
+    annotation(Include="#include \"coolproplib.h\"", Library="CoolPropLib");
 */
+
         annotation(Inline = true);
       end dBubbleDensity_dPressure;
 
@@ -751,8 +777,9 @@ package CoolProp2Modelica
         ddvdp := sat.ddvdp;
         /*  // If special definition in "C"
   external "C" ddvdp=  TwoPhaseMedium_dDewDensity_dPressure_(sat, mediumName, libraryName, substanceName)
-    annotation(Include="#include <CoolPropLib.h>", Library="CoolPropLib");
+    annotation(Include="#include \"coolproplib.h\"", Library="CoolPropLib");
 */
+
         annotation(Inline = true);
       end dDewDensity_dPressure;
 
@@ -763,8 +790,9 @@ package CoolProp2Modelica
         dhldp := sat.dhldp;
         /*  // If special definition in "C"
   external "C" dhldp=  TwoPhaseMedium_dBubbleEnthalpy_dPressure_(sat, mediumName, libraryName, substanceName)
-    annotation(Include="#include <CoolPropLib.h>", Library="CoolPropLib");
+    annotation(Include="#include \"coolproplib.h\"", Library="CoolPropLib");
 */
+
         annotation(Inline = true);
       end dBubbleEnthalpy_dPressure;
 
@@ -775,8 +803,9 @@ package CoolProp2Modelica
         dhvdp := sat.dhvdp;
         /*  // If special definition in "C"
   external "C" dhvdp=  TwoPhaseMedium_dDewEnthalpy_dPressure_(sat, mediumName, libraryName, substanceName)
-    annotation(Include="#include <CoolPropLib.h>", Library="CoolPropLib");
+    annotation(Include="#include \"coolproplib.h\"", Library="CoolPropLib");
 */
+
         annotation(Inline = true);
       end dDewEnthalpy_dPressure;
 
@@ -787,8 +816,9 @@ package CoolProp2Modelica
         dl := sat.dl;
         /*  // If special definition in "C"
   external "C" dl=  TwoPhaseMedium_bubbleDensity_(sat, mediumName, libraryName, substanceName)
-    annotation(Include="#include <CoolPropLib.h>", Library="CoolPropLib");
+    annotation(Include="#include \"coolproplib.h\"", Library="CoolPropLib");
 */
+
         annotation(Inline = true);
       end bubbleDensity;
 
@@ -799,8 +829,9 @@ package CoolProp2Modelica
         dv := sat.dv;
         /*  // If special definition in "C"
   external "C" dv=  TwoPhaseMedium_dewDensity_(sat, mediumName, libraryName, substanceName)
-    annotation(Include="#include <CoolPropLib.h>", Library="CoolPropLib");
+    annotation(Include="#include \"coolproplib.h\"", Library="CoolPropLib");
 */
+
         annotation(Inline = true);
       end dewDensity;
 
@@ -811,8 +842,9 @@ package CoolProp2Modelica
         hl := sat.hl;
         /*  // If special definition in "C"
   external "C" hl=  TwoPhaseMedium_bubbleEnthalpy_(sat, mediumName, libraryName, substanceName)
-    annotation(Include="#include <CoolPropLib.h>", Library="CoolPropLib");
+    annotation(Include="#include \"coolproplib.h\"", Library="CoolPropLib");
 */
+
         annotation(Inline = true);
       end bubbleEnthalpy;
 
@@ -823,8 +855,9 @@ package CoolProp2Modelica
         hv := sat.hv;
         /*  // If special definition in "C"
   external "C" hv=  TwoPhaseMedium_dewEnthalpy_(sat, mediumName, libraryName, substanceName)
-    annotation(Include="#include <CoolPropLib.h>", Library="CoolPropLib");
+    annotation(Include="#include \"coolproplib.h\"", Library="CoolPropLib");
 */
+
         annotation(Inline = true);
       end dewEnthalpy;
 
@@ -834,7 +867,7 @@ package CoolProp2Modelica
         p :=saturationPressure_sat(setSat_T(T));
         /*  // If special definition in "C"
   external "C" p=  TwoPhaseMedium_saturationPressure_(T, mediumName, libraryName, substanceName)
-    annotation(Include="#include <CoolPropLib.h>", Library="CoolPropLib");
+    annotation(Include="#include \"coolproplib.h\"", Library="CoolPropLib");
 */
         annotation(Inline = false,
                    LateInline = true,
@@ -842,6 +875,7 @@ package CoolProp2Modelica
       end saturationPressure;
 
       redeclare function extends saturationPressure_sat
+
         annotation(Inline = true);
       end saturationPressure_sat;
 
@@ -852,8 +886,9 @@ package CoolProp2Modelica
         sigma := sat.sigma;
         /*  //If special definition in "C"
   external "C" sigma=  TwoPhaseMedium_surfaceTension_(sat, mediumName, libraryName, substanceName)
-    annotation(Include="#include <CoolPropLib.h>", Library="CoolPropLib");
+    annotation(Include="#include \"coolproplib.h\"", Library="CoolPropLib");
 */
+
         annotation(Inline = true);
       end surfaceTension;
 
@@ -864,8 +899,9 @@ package CoolProp2Modelica
         sl := specificEntropy(setBubbleState(sat));
         /*  //If special definition in "C"
   external "C" sl=  TwoPhaseMedium_bubbleEntropy_(sat, mediumName, libraryName, substanceName)
-    annotation(Include="#include <CoolPropLib.h>", Library="CoolPropLib");
+    annotation(Include="#include \"coolproplib.h\"", Library="CoolPropLib");
 */
+
         annotation(Inline = true);
       end bubbleEntropy;
 
@@ -876,8 +912,9 @@ package CoolProp2Modelica
         sv := specificEntropy(setDewState(sat));
         /*  //If special definition in "C"
   external "C" sv=  TwoPhaseMedium_dewEntropy_(sat, mediumName, libraryName, substanceName)
-    annotation(Include="#include <CoolPropLib.h>", Library="CoolPropLib");
+    annotation(Include="#include \"coolproplib.h\"", Library="CoolPropLib");
 */
+
         annotation(Inline = true);
       end dewEntropy;
 
@@ -895,9 +932,12 @@ package CoolProp2Modelica
     end ExternalTwoPhaseMedium;
 
     package FluidPropMedium "FluidProp medium package"
+
       extends ExternalTwoPhaseMedium;
+
       constant Real h_eps_sat = 1e-6
         "small delta h to ensure computation in the correct phase";
+
       redeclare replaceable function setBubbleState
         "Set the thermodynamic state on the bubble line"
         extends Modelica.Icons.Function;
@@ -915,7 +955,7 @@ package CoolProp2Modelica
         end if;
         /*  // If special definition in "C"
   external "C" TwoPhaseMedium_setBubbleState_(sat, phase, state, mediumName, libraryName, substanceName)
-    annotation(Include="#include <CoolPropLib.h>", Library="CoolPropLib");
+    annotation(Include="#include \"coolproplib.h\"", Library="CoolPropLib");
 */
         annotation(Inline = true);
       end setBubbleState;
@@ -937,7 +977,7 @@ package CoolProp2Modelica
         end if;
         /*  // If special definition in "C"
   external "C" TwoPhaseMedium_setDewState_(sat, phase, state, mediumName, libraryName, substanceName)
-    annotation(Include="#include <CoolPropLib.h>", Library="CoolPropLib");
+    annotation(Include="#include \"coolproplib.h\"", Library="CoolPropLib");
 */
         annotation(Inline = true);
       end setDewState;
@@ -972,15 +1012,6 @@ package CoolProp2Modelica
         libraryName = "TestMedium",
         ThermoStates = Modelica.Media.Interfaces.PartialMedium.Choices.IndependentVariables.pT);
     end TestMedium;
-
-    package Pentane_CP "Computation of Pentane Properties using CoolProp"
-      extends CoolProp2Modelica.Media.ExternalTwoPhaseMedium(
-        mediumName="TestMedium",
-        libraryName="CoolProp",
-        substanceName="pentane",
-        ThermoStates=Modelica.Media.Interfaces.PartialMedium.Choices.IndependentVariables.ph);
-      annotation ();
-    end Pentane_CP;
   end Media;
 
   package Examples "Examples of external medium models"
@@ -1058,6 +1089,7 @@ package CoolProp2Modelica
         //        This outputs the different calls received by CoolProp in the console window
         // enable_TTSE: set to 1 to enable interpolated properties as a function of p-h
         //              Involves about 2 more seconds at initialization but integration is about 40 times faster
+
       annotation ();
     end Solkatherm_debug;
 
@@ -1067,11 +1099,13 @@ package CoolProp2Modelica
         mediumName = "R245fa",
         libraryName = "CoolProp",
         substanceNames = {"R245fa"});
+
         redeclare function extends density_pT_der
         algorithm
         assert(false, "Error: R245fa.density_pT_der is not implemented");
         d_der := 0;
         end density_pT_der;
+
     end R245fa;
   end Examples;
 
@@ -1086,8 +1120,10 @@ package CoolProp2Modelica
         Medium.ThermodynamicState state2;
         Medium.SaturationProperties sat1;
         Medium.SaturationProperties sat2;
+
         Medium.Temperature Ts;
         Medium.AbsolutePressure ps;
+
         GenericModels.CompleteThermodynamicState completeState1(
           redeclare package Medium = Medium, state = state1);
         GenericModels.CompleteThermodynamicState completeState2(
@@ -1105,10 +1141,13 @@ package CoolProp2Modelica
         baseProperties1.h = 1e5;
         baseProperties2.p = 1e5;
         baseProperties2.h = 1e5 + 2e5*time;
+
         state1 = Medium.setState_ph(1e5 + 1e5*time, 1e5);
         state2 = Medium.setState_pT(1e5, 300+ 50*time);
+
         sat1 = Medium.setSat_p(1e5 + 1e5*time);
         sat2 = Medium.setSat_T(300 + 50 * time);
+
         Ts = Medium.saturationTemperature(1e5+1e5*time);
         ps = Medium.saturationPressure(300 + 50*time);
       end TestStatesSat;
@@ -1167,20 +1206,25 @@ package CoolProp2Modelica
         U = medium.u*M;
         der(M) = win - wout;
         der(U) = win*hin - wout*hout + Q;
+
         // Inlet pump equations
         medium.p - p_atm = 2e5 - (1e5/100^2)*win^2;
         hin = 1e5;
+
         // Outlet valve equation
         wout = Kv * sqrt(medium.d*(medium.p - p_atm));
         hout = medium.h;
+
         // Input variables
         Kv = if time<50 then Kv0 else Kv0*1.1;
         Q = if time < 1 then 0 else 1e7;
       initial equation
         // Initial conditions
+
         // Fixed initial states
         // medium.p = 2e5;
         // medium.h = 1e5;
+
         // Steady state equations
         der(medium.p) = 0;
         der(medium.h) = 0;
@@ -1190,10 +1234,12 @@ package CoolProp2Modelica
 
       package GenericModels
         "Contains generic models to use for thorough medium model testing"
+
         model CompleteFluidConstants
           "Compute all available medium fluid constants"
           replaceable package Medium =
               Modelica.Media.Interfaces.PartialTwoPhaseMedium;
+
           // Fluid constants
           Medium.Temperature Tc = Medium.fluidConstants[1].criticalTemperature;
           Medium.AbsolutePressure pc = Medium.fluidConstants[1].criticalPressure;
@@ -1205,8 +1251,10 @@ package CoolProp2Modelica
           "Compute all available two-phase medium properties from a ThermodynamicState model"
           replaceable package Medium =
               Modelica.Media.Interfaces.PartialTwoPhaseMedium;
+
           // ThermodynamicState record
           input Medium.ThermodynamicState state;
+
           // Medium properties
           Medium.AbsolutePressure p =                Medium.pressure(state);
           Medium.SpecificEnthalpy h =                Medium.specificEnthalpy(state);
@@ -1226,8 +1274,10 @@ package CoolProp2Modelica
           "Compute all available saturation properties from a SaturationProperties record"
           replaceable package Medium =
               Modelica.Media.Interfaces.PartialTwoPhaseMedium;
+
           // SaturationProperties record
           input Medium.SaturationProperties sat;
+
           // Saturation properties
           Medium.Temperature Ts =      Medium.saturationTemperature_sat(sat);
           Medium.Density dl =          Medium.bubbleDensity(sat);
@@ -1245,8 +1295,10 @@ package CoolProp2Modelica
           "Compute all available properties for dewpoint and bubble point states corresponding to a sat record"
           replaceable package Medium =
               Modelica.Media.Interfaces.PartialTwoPhaseMedium;
+
           // SaturationProperties record
           input Medium.SaturationProperties sat;
+
           CompleteThermodynamicState dewStateOnePhase(
             state=Medium.setDewState(sat, 1), redeclare package Medium = Medium);
           CompleteThermodynamicState dewStateTwoPhase(
@@ -1261,8 +1313,10 @@ package CoolProp2Modelica
           "Compute all available two-phase medium properties from a BaseProperties model"
           replaceable package Medium =
               Modelica.Media.Interfaces.PartialTwoPhaseMedium;
+
           // BaseProperties object
           Medium.BaseProperties baseProperties;
+
           // All the complete properties
           CompleteThermodynamicState completeState(
             redeclare package Medium = Medium, state=baseProperties.state);
@@ -1277,11 +1331,13 @@ package CoolProp2Modelica
     end TestMedium;
 
     package FluidProp "Test cases for FluidPropMedium"
+
       partial package GenericModels "Generic models for FluidProp media tests"
         model CompleteFluidConstants
           "Compute all available medium fluid constants"
           replaceable package Medium =
               Modelica.Media.Interfaces.PartialTwoPhaseMedium;
+
           // Fluid constants
           Medium.Temperature Tc = Medium.fluidConstants[1].criticalTemperature;
           Medium.AbsolutePressure pc = Medium.fluidConstants[1].criticalPressure;
@@ -1293,8 +1349,10 @@ package CoolProp2Modelica
           "Compute all available two-phase medium properties from a ThermodynamicState model"
           replaceable package Medium =
               Modelica.Media.Interfaces.PartialTwoPhaseMedium;
+
           // ThermodynamicState record
           input Medium.ThermodynamicState state;
+
           // Medium properties
           Medium.AbsolutePressure p =                Medium.pressure(state);
           Medium.SpecificEnthalpy h =                Medium.specificEnthalpy(state);
@@ -1315,8 +1373,10 @@ package CoolProp2Modelica
           "Compute all available saturation properties from a SaturationProperties record"
           replaceable package Medium =
               Modelica.Media.Interfaces.PartialTwoPhaseMedium;
+
           // SaturationProperties record
           input Medium.SaturationProperties sat;
+
           // Saturation properties
           Medium.Temperature Ts =      Medium.saturationTemperature_sat(sat);
           Medium.Density dl =          Medium.bubbleDensity(sat);
@@ -1334,8 +1394,10 @@ package CoolProp2Modelica
           "Compute all available properties for dewpoint and bubble point states corresponding to a sat record"
           replaceable package Medium =
               Modelica.Media.Interfaces.PartialTwoPhaseMedium;
+
           // SaturationProperties record
           input Medium.SaturationProperties sat;
+
           CompleteThermodynamicState dewStateOnePhase(state=
                 Medium.setDewState(sat, 1), redeclare package Medium = Medium);
           CompleteThermodynamicState dewStateTwoPhase(state=
@@ -1350,8 +1412,10 @@ package CoolProp2Modelica
           "Compute all available two-phase medium properties from a BaseProperties model"
           replaceable package Medium =
                 Modelica.Media.Interfaces.PartialTwoPhaseMedium;
+
           // BaseProperties object
           Medium.BaseProperties baseProperties;
+
           // All the complete properties
           CompleteThermodynamicState completeState(
             redeclare package Medium = Medium, state=baseProperties.state);
@@ -1367,19 +1431,23 @@ package CoolProp2Modelica
           "Test case with baseProperties and state + sat records"
           replaceable package Medium =
               Modelica.Media.Interfaces.PartialTwoPhaseMedium;
+
           Medium.AbsolutePressure p1;
           Medium.SpecificEnthalpy h1;
           Medium.AbsolutePressure p2;
           Medium.SpecificEnthalpy h2;
           Medium.Temperature T2;
+
           Medium.BaseProperties baseProperties1;
           Medium.BaseProperties baseProperties2;
           Medium.ThermodynamicState state1;
           Medium.ThermodynamicState state2;
           Medium.SaturationProperties sat1;
           Medium.SaturationProperties sat2;
+
           Medium.Temperature Ts;
           Medium.AbsolutePressure ps;
+
           CompleteThermodynamicState
             completeState1(redeclare package Medium = Medium, state=state1);
           CompleteThermodynamicState
@@ -1397,10 +1465,13 @@ package CoolProp2Modelica
           baseProperties1.h = h1;
           baseProperties2.p = p2;
           baseProperties2.h = h2;
+
           state1 = Medium.setState_ph(p1, h1);
           state2 = Medium.setState_pT(p2, T2);
+
           sat1 = Medium.setSat_p(p1);
           sat2 = Medium.setSat_T(T2);
+
           Ts = Medium.saturationTemperature(p1);
           ps = Medium.saturationPressure(T2);
         end TestStatesSat;
@@ -1472,9 +1543,11 @@ package CoolProp2Modelica
         U = medium.u*M;
         der(M) = win - wout;
         der(U) = win*hin - wout*hout + Q;
+
         // Outlet valve equation
         wout = Kv * sqrt(medium.d*(medium.p - p_atm));
         hout = medium.h;
+
       initial equation
         // Steady state equations
         der(medium.p) = 0;
@@ -1523,6 +1596,7 @@ package CoolProp2Modelica
           "Test case using BaseProperties and explicit equations"
           extends GenericModels.TestBasePropertiesExplicit(
             redeclare package Medium = CoolProp2Modelica.Examples.WaterIF95);
+
         equation
           p1 = 1e5+1e5*time;
           h1 = 1e5;
@@ -1552,6 +1626,7 @@ package CoolProp2Modelica
         // Inlet pump equations
         medium.p - p_atm = 2e5 - (1e5/100^2)*win^2;
         hin = 1e5;
+
         // Input variables
         Kv = if time<50 then Kv0 else Kv0*1.1;
         Q = if time < 1 then 0 else 1e7;
@@ -1589,6 +1664,7 @@ package CoolProp2Modelica
             pmax = 60e5,
             hmin = 1000e3,
             hmax = 2000e3);
+
         end CompareModelicaFluidProp_twophase;
 
         model CompareModelicaFluidProp_vapour
@@ -1602,11 +1678,14 @@ package CoolProp2Modelica
             pmax = 60e5,
             hmin = 2800e3,
             hmax = 3200e3);
+
         end CompareModelicaFluidProp_vapour;
       end IF95;
+
     end FluidProp;
 
     package WrongMedium "Test cases with wrong medium models"
+
     model TestWrongMedium
         "Test the error reporting messages for unsupported external media"
       package Medium = Media.ExternalTwoPhaseMedium;
@@ -1627,13 +1706,16 @@ package CoolProp2Modelica
         "Derivative of average density by enthalpy";
       Modelica.SIunits.DerDensityByPressure drdp
         "Derivative of average density by pressure";
+
     equation
       p = 1E5;
       h = 0 + time*1E6;
+
       fluid.p = p;
       fluid.h = h;
       drdp = wf.density_derp_h(fluid.state);
       drdh = wf.density_derh_p(fluid.state);
+
     end test_propane_coolprop;
 
     model test_propane_fluidprop
@@ -1646,13 +1728,16 @@ package CoolProp2Modelica
         "Derivative of average density by enthalpy";
       Modelica.SIunits.DerDensityByPressure drdp
         "Derivative of average density by pressure";
+
     equation
       p = 1E5;
       h = -7e5 + time*1E6;
+
       fluid.p = p;
       fluid.h = h;
       drdp = wf.density_derp_h(fluid.state);
       drdh = wf.density_derh_p(fluid.state);
+
     end test_propane_fluidprop;
 
     model test_propane_refprop
@@ -1665,13 +1750,16 @@ package CoolProp2Modelica
         "Derivative of average density by enthalpy";
       Modelica.SIunits.DerDensityByPressure drdp
         "Derivative of average density by pressure";
+
     equation
       p = 1E5;
       h = 0 + time*1E6;
+
       fluid.p = p;
       fluid.h = h;
       drdp = wf.density_derp_h(fluid.state);
       drdh = wf.density_derh_p(fluid.state);
+
     end test_propane_refprop;
 
     model test_solkatherm
@@ -1684,13 +1772,16 @@ package CoolProp2Modelica
         "Derivative of average density by enthalpy";
       Modelica.SIunits.DerDensityByPressure drdp
         "Derivative of average density by pressure";
+
     equation
       p = 1E5;
       h = 0 + time*1E5;
+
       fluid.p = p;
       fluid.h = h;
       drdp = wf.density_derp_h(fluid.state);
       drdh = wf.density_derh_p(fluid.state);
+
       annotation (experiment(StopTime=10, Algorithm="Dassl"),
           __Dymola_experimentSetupOutput);
     end test_solkatherm;
@@ -1706,13 +1797,16 @@ package CoolProp2Modelica
         "Derivative of average density by enthalpy";
       Modelica.SIunits.DerDensityByPressure drdp
         "Derivative of average density by pressure";
+
     equation
       p = 1E5;
       h = 0 + time*3e5;
+
       fluid.p = p;
       fluid.h = h;
       drdp = wf.density_derp_h(fluid.state);
       drdh = wf.density_derh_p(fluid.state);
+
       annotation (experiment(Algorithm="Dassl"), __Dymola_experimentSetupOutput);
     end test_solkatherm_debug;
   end Test;
