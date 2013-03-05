@@ -2752,7 +2752,7 @@ double AncillaryCurveClass::interpolateV(double T){
 	return interp1d(&xV,&yV,T);
 }
 
-#ifndef __GNUC__ //We are not using a GCC compiler, so this block will compile
+#if !defined(__GNUC__) || defined(__powerpc__) || defined(__powerpc) || defined(powerpc) //This block will compile if using MSVC or compiling for PPC
 //Microsoft version of math.h doesn't include acosh or asinh, so we just define them here
 static double acosh(double x)
 {
