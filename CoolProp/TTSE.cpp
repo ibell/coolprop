@@ -26,6 +26,11 @@
 #include <cerrno>
 #include <float.h>
 
+// An ugly hack to disable the timing function on PPC since the sysClkRate function not found
+#if defined(__powerpc__)
+#define CLOCKS_PER_SEC 1000
+#endif
+
 static bool transport_properties = true;
 
 double round(double r) {
