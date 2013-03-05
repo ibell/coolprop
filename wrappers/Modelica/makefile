@@ -36,7 +36,7 @@ SRCDIR     =./src
 # HEADINST   =$(DYMDIR)/source
 LIBINST    =/usr/local/lib
 HEADINST   =/usr/local/include
-BINDIR     =./bin
+BINDIR     =./bin/LinuxGCC
 
 COOLPROPDIR=../../CoolProp
 
@@ -140,15 +140,18 @@ coolprop       : $(COOLOBJ_FILES)
 .PHONY     : header
 header     : $(BINDIR)/$(HEADERFILE)$(HEADEREXTENSION)
 $(BINDIR)/$(HEADERFILE)$(HEADEREXTENSION): $(SRCDIR)/$(HEADERFILE)$(HEADEREXTENSION)
+	$(MK) $(BINDIR)
 	$(CP) $(SRCDIR)/$(HEADERFILE)$(HEADEREXTENSION) $(BINDIR)
 
 .PHONY     : library
 library    : $(BINDIR)/$(LIBRARY)$(LIBRARYEXTENSION)
 
 $(BINDIR)/$(LIBRARY).so: $(OBJS) $(COOLOBJ_FILES) $(SRCDIR)/$(LIBFILE).o
+	$(MK) $(BINDIR)
 	$(CPPC) $(LIBFLAGS) $(CPPFLAGS) -o $(BINDIR)/$(LIBRARY).so $(SRCDIR)/$(LIBFILE).o $(OBJS) 
 
 $(BINDIR)/$(LIBRARY).a: $(OBJS) $(COOLOBJ_FILES) $(SRCDIR)/$(LIBFILE).o
+	$(MK) $(BINDIR)
 	$(AR) $(BINDIR)/$(LIBRARY).a $^
 
 
