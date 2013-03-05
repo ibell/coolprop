@@ -2753,8 +2753,9 @@ double AncillaryCurveClass::interpolateV(double T){
 	return interp1d(&xV,&yV,T);
 }
 
-#if defined(_MSCVER)
-//Microsoft version of math.h doesn't include acosh or asinh, so we just define them here
+#if defined(_MSC_VER) || defined(__powerpc__)
+// Microsoft version of math.h doesn't include acosh or asinh, so we just define them here
+// Neither does the PPC version
 static double acosh(double x)
 {
  	return log(x + sqrt(x*x - 1.0) );
