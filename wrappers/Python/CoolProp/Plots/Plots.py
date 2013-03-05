@@ -167,6 +167,46 @@ def Ph(Ref, Tmin=None, Tmax = None, show = False, axis=None, **kwargs):
     if show:
         pylab.show()
     
+def hs(Ref, Tmin=None, Tmax = None, show = False, axis = None, **kwargs):
+    
+    """
+    Make a enthalpy-entropy plot for the given fluid
+    
+    Will plot in the current axis unless the optional parameter *axis* gives the name for the axis to use
+    """
+    ax = axis if axis is not None else pylab.gca()
+    if Tmin is None:
+        Tmin = cp.Props(Ref,'Tmin')
+    if Tmax is None:
+        Tmax = cp.Props(Ref,'Tcrit')-1e-10
+        
+    if Tmin > cp.Props(Ref,'Tcrit'):
+        raise ValueError('Tmin cannot be greater than fluid critical temperature')
+    if Tmax > cp.Props(Ref,'Tcrit'):
+        raise ValueError('Tmax cannot be greater than fluid critical temperature')
+        
+    Tmin = max(Tmin, cp.Props(Ref,'Tmin')+0.01)
+    Tmax = min(Tmax, cp.Props(Ref,'Tcrit')-1e-10)
+    
+    Tsat = np.linspace(Tmin,Tmax,1000)
+    (ssatL,hsatL,ssatV,hsatV)=(0.0*Tsat,0.0*Tsat,0.0*Tsat,0.0*Tsat)
+    for i in range(len(Tsat)):
+        ssatL[i] = cp.Props('S','T',Tsat[i],'Q',0,Ref)
+        ssatV[i] = cp.Props('S','T',Tsat[i],'Q',1,Ref)
+        hsatL[i] = cp.Props('H','T',Tsat[i],'Q',0,Ref)
+        hsatV[i] = cp.Props('H','T',Tsat[i],'Q',1,Ref)
+
+    ax.plot(ssatL,hsatL,'k')
+    ax.plot(ssatV,hsatV,'k')
+    ax.plot(ssatL[-1],hsatL[-1],'o')
+    ax.plot(np.r_[ssatL[-1],ssatV[-1]],np.r_[hsatL[-1],hsatV[-1]],'k')
+    
+    ax.set_xlabel('Entropy [kJ/kg/K]')
+    ax.set_ylabel('Enthalpy [kJ/kg]')
+    ax.autoscale(enable=True)
+    if show:
+        pylab.show()
+        
 def Ps(Ref, Tmin=None, Tmax = None, show = False, axis = None, **kwargs):
     
     """
@@ -308,6 +348,7 @@ def PT(Ref, Tmin=None, Tmax = None, show = False, axis = None, **kwargs):
 
     ax.plot(Tsat,psatL,'k')
     ax.plot(Tsat,psatV,'k')
+    
     ax.plot(np.r_[Tsat[-1],Tsat[-1]],np.r_[psatL[-1],psatV[-1]],'k')
     
     ax.set_xlabel('Temperature [K]')
@@ -318,6 +359,7 @@ def PT(Ref, Tmin=None, Tmax = None, show = False, axis = None, **kwargs):
 
         
 if __name__=='__main__':
+    hs('R245fa', show = True)
     PT('R245fa', show = True)
     Ph('Helium', show = True)
     Trho('R245fa', show = True)

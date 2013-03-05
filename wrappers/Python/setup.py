@@ -271,7 +271,7 @@ if __name__=='__main__':
         os.mkdir(os.path.join('CoolProp','include'))
     except:
         pass
-    for header in glob.glob(os.path.join('CoolProp','*.h')):
+    for header in glob.glob(os.path.join('..','..','CoolProp','*.h')):
         pth,fName = os.path.split(header)
         shutil.copy2(header,os.path.join('CoolProp','include',fName))
     
