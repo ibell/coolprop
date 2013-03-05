@@ -760,12 +760,12 @@ void TTSESinglePhaseTableClass::write_dotdrawing_tofile(char fName[])
 	fclose(fp);
 }
 
-double TTSESinglePhaseTableClass::check_randomly(long iParam, unsigned int N, std::vector<double> *h, std::vector<double> *p, std::vector<double> *EOS, std::vector<double> *TTSE)
+double TTSESinglePhaseTableClass::check_randomly(long iParam, unsigned int N, std::vector<double> *h, std::vector<double> *p, std::vector<double> *EOSv, std::vector<double> *TTSE)
 {	
 	double val=0;
 	h->resize(N);
 	p->resize(N);
-	EOS->resize(N);
+	EOSv->resize(N);
 	TTSE->resize(N);
 	
 	CoolPropStateClass CPS = CoolPropStateClass(pFluid);
@@ -776,10 +776,10 @@ double TTSESinglePhaseTableClass::check_randomly(long iParam, unsigned int N, st
 		double h1 = ((double)rand()/(double)RAND_MAX)*(hmax-hmin)+hmin;
 		
 		CPS.update(iH,h1,iP,p1);
-		double sEOS = CPS.s();
-		double cpEOS = CPS.cp();
-		double TEOS = CPS.T();
-		double rhoEOS = CPS.rho();
+		double sEOSv = CPS.s();
+		double cpEOSv = CPS.cp();
+		double TEOSv = CPS.T();
+		double rhoEOSv = CPS.rho();
 
 		// Store the inputs
 		(*h)[i] = h1;
@@ -792,18 +792,18 @@ double TTSESinglePhaseTableClass::check_randomly(long iParam, unsigned int N, st
 		switch (iParam)
 		{
 		case iS: 
-			(*EOS)[i] = sEOS; break;
+			(*EOSv)[i] = sEOS; break;
 		case iT:
-			(*EOS)[i] = TEOS; break;
+			(*EOSv)[i] = TEOS; break;
 		case iC:
-			(*EOS)[i] = cpEOS; break;
+			(*EOSv)[i] = cpEOS; break;
 		case iD:
-			(*EOS)[i] = rhoEOS; break;
+			(*EOSv)[i] = rhoEOS; break;
 		default:
 			throw ValueError();
 		}
 		
-		std::cout << format("%g %g %g %g %g (h,p,EOS,TTSE,diff)\n",h1,p1,(*EOS)[i],(*TTSE)[i],(*EOS)[i]-(*TTSE)[i]);
+		std::cout << format("%g %g %g %g %g (h,p,EOS,TTSE,diff)\n",h1,p1,(*EOSv)[i],(*TTSE)[i],(*EOSv)[i]-(*TTSE)[i]);
 	}
 	return val;
 }
@@ -1576,11 +1576,11 @@ double TTSETwoPhaseTableClass::evaluate_randomly(long iParam, unsigned int N)
 }
 
 
-double TTSETwoPhaseTableClass::check_randomly(long iParam, unsigned int N, std::vector<double> *p, std::vector<double> *EOS, std::vector<double> *TTSE)
+double TTSETwoPhaseTableClass::check_randomly(long iParam, unsigned int N, std::vector<double> *p, std::vector<double> *EOSv, std::vector<double> *TTSE)
 {	
 	double val=0;
 	p->resize(N);
-	EOS->resize(N);
+	EOSv->resize(N);
 	TTSE->resize(N);
 	
 	CoolPropStateClass CPS = CoolPropStateClass(pFluid);
@@ -1605,18 +1605,18 @@ double TTSETwoPhaseTableClass::check_randomly(long iParam, unsigned int N, std::
 		switch (iParam)
 		{
 		case iS: 
-			(*EOS)[i] = sEOS; break;
+			(*EOSv)[i] = sEOS; break;
 		case iT:
-			(*EOS)[i] = TEOS; break;
+			(*EOSv)[i] = TEOS; break;
 		case iH:
-			(*EOS)[i] = hEOS; break;
+			(*EOSv)[i] = hEOS; break;
 		case iD:
-			(*EOS)[i] = rhoEOS; break;
+			(*EOSv)[i] = rhoEOS; break;
 		default:
 			throw ValueError();
 		}
 		
-		std::cout << format("%g %g %g %g TTSE (p,EOS,TTSE, diff)\n",p1,(*EOS)[i],(*TTSE)[i],((*EOS)[i]-(*TTSE)[i]));
+		std::cout << format("%g %g %g %g TTSE (p,EOS,TTSE, diff)\n",p1,(*EOSv)[i],(*TTSE)[i],((*EOSv)[i]-(*TTSE)[i]));
 	}
 	return val;
 }

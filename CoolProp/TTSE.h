@@ -68,7 +68,7 @@ public:
 	/// @param TTSE std::vector of values from TTSE
 	///
 	/// Note: p,EOS, TTSE should be empty std::vector passed by reference
-	double check_randomly(long iParam, unsigned int N, std::vector<double> *p, std::vector<double> *EOS, std::vector<double> *TTSE);
+	double check_randomly(long iParam, unsigned int N, std::vector<double> *p, std::vector<double> *EOSv, std::vector<double> *TTSE);
 };
 
 class TTSESinglePhaseTableClass
@@ -155,7 +155,7 @@ public:
 	/// @param TTSE std::vector of values from TTSE
 	///
 	/// Note: h,p,EOS, TTSE should be empty std::vector passed by reference
-	double check_randomly(long iParam, unsigned int N, std::vector<double> *h, std::vector<double> *p, std::vector<double> *EOS, std::vector<double> *TTSE);
+	double check_randomly(long iParam, unsigned int N, std::vector<double> *h, std::vector<double> *p, std::vector<double> *EOSv, std::vector<double> *TTSE);
 
 	/// Write a representation of the ph surface to file with O in each "good" spot and "X" in each "bad" one or two-phase
 	void write_dotdrawing_tofile(char fName[]);
