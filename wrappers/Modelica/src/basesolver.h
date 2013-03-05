@@ -3,7 +3,7 @@
 
 #include "include.h"
 #include "fluidconstants.h"
-#include "CoolPropLib.h"
+#include "coolproplib.h"
 
 struct FluidConstants;
 
@@ -16,7 +16,7 @@ struct FluidConstants;
 
   Francesco Casella, Christoph Richter, Roberto Bonifetto
   2006-2012
-  Copyright Politecnico di Milano, TU Braunschweig, Politecnico
+  Copyright Politecnico di Milano, TU Braunschweig, Politecnico 
   di Torino
 */
 class BaseSolver{

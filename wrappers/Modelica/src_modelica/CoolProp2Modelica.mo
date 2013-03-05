@@ -6,7 +6,7 @@ package CoolProp2Modelica
         dT "(d,T) as inputs",
         ph "(p,h) as inputs",
         ps "(p,s) as inputs",
-        pT "(p,T) as inputs");
+        pT "(p,T) as inputs"); 
   end Common;
 
   package Media "Medium packages compatible with Modelica.Media"

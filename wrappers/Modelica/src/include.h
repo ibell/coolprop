@@ -46,11 +46,7 @@
   Set this preprocessor variable to 1 to include the interface to the
   FluidProp solver developed and maintained by Francesco Casella.
 */
-#if defined(WIN32) || defined(_WIN32)
-  #define FLUIDPROP 1
-#else
-  #define FLUIDPROP 0
-#endif
+#define FLUIDPROP 1
 
 // Selection of used external fluid property computation packages.
 //! CoolProp solver	
