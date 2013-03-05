@@ -2,7 +2,7 @@
 #include <math.h>
 #include "coolproplib.h"
 
-//! Constructor.
+//! Constructor. 
 /*!
   The constructor is copying the medium name, library name and substance name
   to the locally defined variables.

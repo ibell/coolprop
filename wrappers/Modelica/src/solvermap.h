@@ -13,7 +13,7 @@ class BaseSolver;
 
   Ian Bell
   2012-2013
-  University of Liege, Liege, Belgium
+  University of Liege, Liege, Belgium 
   
   Francesco Casella, Christoph Richter, Roberto Bonifetto
   2006-2012
