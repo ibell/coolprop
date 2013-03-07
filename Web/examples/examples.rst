@@ -11,7 +11,7 @@ To use the Props function, import it and do some calls, do something like this
     In [1]: from CoolProp.CoolProp import Props
     
     # print the currently used version of coolprop
-    In [1]: import CoolProp; print CoolProp.__version__
+    In [1]: import CoolProp; print(CoolProp.__version__)
     
     @suppress
     In [1]: from CoolProp.CoolProp import UseSinglePhaseLUT; UseSinglePhaseLUT(0)
