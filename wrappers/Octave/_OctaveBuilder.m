@@ -5,10 +5,8 @@ include_string = '-I.'
 
 system('erase *_wrap.cpp')
 system('call swig -octave -c++ -o CoolProp_wrap.cpp CoolProp.i')
-pure_fluids = glob('purefluids/*.cpp'); 
-ppure_fluids = glob('pseudopurefluids/*.cpp');
 main_files = glob('*.cpp');
-files=[pure_fluids; ppure_fluids; main_files];
+files=[main_files];
 o_files = ''
 cpp_files = ''
 

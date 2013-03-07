@@ -12,10 +12,6 @@ else
 end
  
 %List of files to be compiled to object files
-pure_fluids = dir([path_to_src,'purefluids/*.cpp']);
-pure_fluids = cellfun(@(x) fullfile(path_to_src, 'purefluids', x), {pure_fluids.name}, 'uniformoutput', false)';
-ppure_fluids = dir([path_to_src,'pseudopurefluids/*.cpp']);
-ppure_fluids = cellfun(@(x) fullfile(path_to_src, 'pseudopurefluids', x), {ppure_fluids.name}, 'uniformoutput', false)';
 main_files = dir([path_to_src,'*.cpp']);
 main_files = cellfun(@(x) x, {main_files.name}, 'uniformoutput', false)';
 
@@ -24,7 +20,7 @@ for i=1:size(main_files,1)
     main_files{i,1} = [path_to_src,main_files{i,1}];
 end
     
-files=[pure_fluids; ppure_fluids; main_files];
+files=[main_files];
 o_files = '';
 cpp_files = '';
 

@@ -132,21 +132,12 @@ if __name__=='__main__':
     #This will automagically find all the fluid sources as long as they are in the right folders
     #Pure fluids should all be in the CoolProp/purefluids folder relative to setup.py
     #Pseudo-Pure fluids should all be in the CoolProp/pseudopurefluids folder relative to setup.py
-    #purefluids=glob.glob(os.path.join('..','..','CoolProp','purefluids','*.cpp'))
-    #pseudopurefluids=glob.glob(os.path.join('..','..','CoolProp','pseudopurefluids','*.cpp'))
     others = glob.glob(os.path.join('..','..','CoolProp','*.cpp'))
     
-##     #Remove the _wrap files from the build
-##     for f in glob.glob(os.path.join('CoolProp','*_wrap.cpp')):
-##         others.remove(f)
-    
-    Sources= others #+ pseudopurefluids+purefluids  +
+    Sources= others
          
     ### Include folders for build
-    include_dirs = [os.path.join('..','..','CoolProp'),
-                    #os.path.join('..','..','CoolProp','purefluids'),
-                    #os.path.join('..','..','CoolProp','pseudopurefluids'),
-                    get_python_inc(False)]
+    include_dirs = [os.path.join('..','..','CoolProp'),get_python_inc(False)]
 
     def StaticLibBuilder(sources,LibName='CoolProp',build_path='build_lib',lib_path='lib',force=False,DLL=True,StaticLib=True):
         CC = new_compiler(verbose=True)
