@@ -112,6 +112,9 @@ if __name__=='__main__':
     fp.close()
 
     Sources = glob.glob(os.path.join('..','..','CoolProp','*.cpp'))
+    
+    ### Include folders for build
+    include_dirs = [os.path.join('..','..','CoolProp'),get_python_inc(False)]
 
     def touch(fname):
         open(fname, 'a').close()
@@ -121,15 +124,15 @@ if __name__=='__main__':
     #force cython to build by touching the cython sources
     cython_sources = [os.path.join('CoolProp','CoolProp.pyx')]
                       
-    if useStaticLib:
-        CC = new_compiler()
-        CPLibPath=CC.library_filename(os.path.join('lib','CoolProp'),lib_type='static')
-        if not newer_group(cython_sources, CPLibPath):
-            for source in cython_sources:
-                print('touching',source)
-                touch(source)
-        else:
-            print('no touching of cython sources needed')
+##     if useStaticLib:
+##         CC = new_compiler()
+##         CPLibPath=CC.library_filename(os.path.join('lib','CoolProp'),lib_type='static')
+##         if not newer_group(cython_sources, CPLibPath):
+##             for source in cython_sources:
+##                 print('touching',source)
+##                 touch(source)
+##         else:
+##             print('no touching of cython sources needed')
 
     CoolProp_module = CyExtension('CoolProp.CoolProp',
                         [os.path.join('CoolProp','CoolProp.pyx')]+Sources,

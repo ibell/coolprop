@@ -742,7 +742,6 @@ double Props(char* Ref, char* Output)
 	return Props1(Ref, Output);
 }
 
-
 EXPORT_CODE double CONVENTION Props(char *Output,char Name1, double Prop1, char Name2, double Prop2, char * Ref)
 {
 	double val = Props(std::string(Output),Name1,Prop1,Name2,Prop2,std::string(Ref));

@@ -12,11 +12,6 @@ PYTHONVERSIONS=['..\..\_python\py27\python.exe',
 
 if not os.path.exists('_deps'):
     os.mkdir('_deps')
-    
-def remove_coolprop_lib():
-    #Force the remove of the CoolProp library if one exists
-    if os.path.exists(os.path.join('wrappers','Python','lib','CoolProp.lib')):
-        os.remove(os.path.join('wrappers','Python','lib','CoolProp.lib'))
         
 def InstallPrereqs():
     """ Get the requirements for CoolProp """
@@ -181,13 +176,13 @@ if __name__=='__main__':
 
 ##     DLL_and_Excel()
 ##     Source()
-##     Python()
+    Python()
 ##     Csharp()
 ##     Octave()
 ##     MATLAB()
 ##     EES()
 ##     Labview()
-    Modelica()
+##     Modelica()
 ##     PYPI()
 ##     UploadSourceForge()
 

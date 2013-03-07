@@ -139,15 +139,15 @@ double phir_power::dDelta_dTau2(double tau, double delta) throw()
 }
 double phir_power::dDelta(double tau, double delta) throw()
 {
-	double summer=0, log_tau = log(tau), log_delta = log(delta);
+	double summer=0, log_tau = log(tau), log_delta = log(delta), pow_delta_li;
 	for (unsigned int i=iStart;i<=iEnd;i++)
 	{	
 		if (l[i]>0){
-			double pow_delta_li = pow(delta,l[i]);
-			summer+=n[i]*(d[i]-l[i]*pow_delta_li)*exp(t[i]*log_tau+(d[i]-1)*log_delta-pow_delta_li);
+			pow_delta_li = pow(delta,l[i]);
+			summer += n[i]*(d[i]-l[i]*pow_delta_li)*exp(t[i]*log_tau+(d[i]-1)*log_delta-pow_delta_li);
 		}
 		else
-			summer+=n[i]*d[i]*exp(t[i]*log_tau+(d[i]-1)*log_delta);
+			summer += n[i]*d[i]*exp(t[i]*log_tau+(d[i]-1)*log_delta);
 	}
 	return summer;
 }
@@ -193,7 +193,7 @@ double phir_power::dDelta2_dTau(double tau, double delta) throw()
 			summer+=n[i]*t[i]*(((d[i]-l[i]*pow_delta_li))*(d[i]-1-l[i]*pow_delta_li)-l[i]*l[i]*pow_delta_li)*exp((t[i]-1)*log_tau+(d[i]-2)*log_delta-pow_delta_li);
 		}
 		else
-			summer+=n[i]*d[i]*t[i]*(d[i]-1)*exp((t[i]-1)*log_tau+(d[i]-2)*log_delta);;
+			summer+=n[i]*d[i]*t[i]*(d[i]-1)*exp((t[i]-1)*log_tau+(d[i]-2)*log_delta);
 	}
 	return summer;
 }

@@ -212,13 +212,10 @@ R290Class::R290Class()
         +a0[5]*log(1-exp(-b0[5]*tau))
         +a0[6]*log(1-exp(-b0[6]*tau));
 	*/
-	phi_BC * phi0_lead_ = new phi0_lead(a0[1],a0[2]);
-	phi_BC * phi0_logtau_ = new phi0_logtau(3.0);
-	phi_BC * phi0_Planck_Einstein_ = new phi0_Planck_Einstein(a0_v,b0_v,3,6);
 
-	phi0list.push_back(phi0_lead_);
-	phi0list.push_back(phi0_logtau_);
-	phi0list.push_back(phi0_Planck_Einstein_);
+	phi0list.push_back(new phi0_lead(a0[1],a0[2]));
+	phi0list.push_back(new phi0_logtau(3.0));
+	phi0list.push_back(new phi0_Planck_Einstein(a0_v,b0_v,3,6));
 
 	// Critical parameters
 	crit.rho = 220.4781;
