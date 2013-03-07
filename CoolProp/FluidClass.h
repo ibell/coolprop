@@ -118,8 +118,8 @@ class Fluid
     public:
 		SatLUTStruct SatLUT; /// The private Saturation lookup structure
 
-		std::list <phi_BC*> phirlist; /// A list of instances of the phi_BC classes for the residual Helmholtz energy contribution
-		std::list <phi_BC*> phi0list; /// A list of instances of the phi_BC classes for the ideal-gas Helmholtz energy contribution
+		std::vector <phi_BC*> phirlist; /// A list of instances of the phi_BC classes for the residual Helmholtz energy contribution
+		std::vector <phi_BC*> phi0list; /// A list of instances of the phi_BC classes for the ideal-gas Helmholtz energy contribution
 
 		/// Constructor for the Fluid class.  This is an abstract base class that 
 		/// is not meant to be instantiated directly.  Rather it should be subclassed

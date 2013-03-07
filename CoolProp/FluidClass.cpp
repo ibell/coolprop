@@ -402,14 +402,14 @@ void Fluid::post_load(void)
 double Fluid::phir(double tau, double delta)
 {
 	double summer = 0;
-	for (list<phi_BC*>::iterator it = phirlist.begin(); it != phirlist.end(); it++)
+	for (std::vector<phi_BC*>::iterator it = phirlist.begin(); it != phirlist.end(); it++)
 		summer += (*it)->base(tau,delta);
 	return summer;
 }
 double Fluid::dphir_dDelta(double tau, double delta)
 {
 	double summer = 0;
-	for (list<phi_BC*>::iterator it = phirlist.begin(); it != phirlist.end(); it++)
+	for (std::vector<phi_BC*>::iterator it = phirlist.begin(); it != phirlist.end(); it++)
 	{
 		summer += (*it)->dDelta(tau,delta);
 	}
@@ -418,14 +418,14 @@ double Fluid::dphir_dDelta(double tau, double delta)
 double Fluid::d2phir_dDelta2(double tau, double delta)
 {
 	double summer = 0;
-	for (list<phi_BC*>::iterator it = phirlist.begin(); it != phirlist.end(); it++)
+	for (std::vector<phi_BC*>::iterator it = phirlist.begin(); it != phirlist.end(); it++)
 		summer += (*it)->dDelta2(tau,delta);
 	return summer;
 }
 double Fluid::d3phir_dDelta3(double tau, double delta)
 {
 	double summer = 0;
-	for (list<phi_BC*>::iterator it = phirlist.begin(); it != phirlist.end(); it++)
+	for (std::vector<phi_BC*>::iterator it = phirlist.begin(); it != phirlist.end(); it++)
 	{
 		summer += (*it)->dDelta3(tau,delta);
 	}
@@ -434,28 +434,28 @@ double Fluid::d3phir_dDelta3(double tau, double delta)
 double Fluid::d3phir_dDelta_dTau2(double tau, double delta)
 {
 	double summer = 0;
-	for (list<phi_BC*>::iterator it = phirlist.begin(); it != phirlist.end(); it++)
+	for (std::vector<phi_BC*>::iterator it = phirlist.begin(); it != phirlist.end(); it++)
 		summer += (*it)->dDelta_dTau2(tau,delta);
 	return summer;
 }
 double Fluid::dphir_dTau(double tau, double delta)
 {
 	double summer = 0;
-	for (list<phi_BC*>::iterator it = phirlist.begin(); it != phirlist.end(); it++)
+	for (std::vector<phi_BC*>::iterator it = phirlist.begin(); it != phirlist.end(); it++)
 		summer += (*it)->dTau(tau,delta);
 	return summer;
 }
 double Fluid::d2phir_dTau2(double tau, double delta)
 {
 	double summer = 0;
-	for (list<phi_BC*>::iterator it = phirlist.begin(); it != phirlist.end(); it++)
+	for (std::vector<phi_BC*>::iterator it = phirlist.begin(); it != phirlist.end(); it++)
 		summer += (*it)->dTau2(tau,delta);
 	return summer;
 }
 double Fluid::d3phir_dTau3(double tau, double delta)
 {
 	double summer = 0;
-	for (list<phi_BC*>::iterator it = phirlist.begin(); it != phirlist.end(); it++)
+	for (std::vector<phi_BC*>::iterator it = phirlist.begin(); it != phirlist.end(); it++)
 		summer += (*it)->dTau3(tau,delta);
 	return summer;
 }
@@ -463,14 +463,14 @@ double Fluid::d3phir_dTau3(double tau, double delta)
 double Fluid::d2phir_dDelta_dTau(double tau, double delta)
 {
 	double summer = 0;
-	for (list<phi_BC*>::iterator it = phirlist.begin(); it != phirlist.end(); it++)
+	for (std::vector<phi_BC*>::iterator it = phirlist.begin(); it != phirlist.end(); it++)
 		summer += (*it)->dDelta_dTau(tau,delta);
 	return summer;
 }
 double Fluid::d3phir_dDelta2_dTau(double tau, double delta)
 {
 	double summer = 0;
-	for (list<phi_BC*>::iterator it = phirlist.begin(); it != phirlist.end(); it++)
+	for (std::vector<phi_BC*>::iterator it = phirlist.begin(); it != phirlist.end(); it++)
 		summer += (*it)->dDelta2_dTau(tau,delta);
 	return summer;
 }
@@ -481,7 +481,7 @@ double Fluid::d3phir_dDelta2_dTau(double tau, double delta)
 double Fluid::phi0(double tau, double delta)
 {
 	double summer = 0;
-	for (list<phi_BC*>::iterator it = phi0list.begin(); it != phi0list.end(); it++){
+	for (std::vector<phi_BC*>::iterator it = phi0list.begin(); it != phi0list.end(); it++){
 		summer += (*it)->base(tau,delta);
 	}	
 	return summer;
@@ -489,21 +489,21 @@ double Fluid::phi0(double tau, double delta)
 double Fluid::dphi0_dDelta(double tau, double delta)
 {
 	double summer = 0;
-	for (list<phi_BC*>::iterator it = phi0list.begin(); it != phi0list.end(); it++)
+	for (std::vector<phi_BC*>::iterator it = phi0list.begin(); it != phi0list.end(); it++)
 		summer += (*it)->dDelta(tau,delta);
 	return summer;
 }
 double Fluid::d2phi0_dDelta2(double tau, double delta)
 {
 	double summer = 0;
-	for (list<phi_BC*>::iterator it = phi0list.begin(); it != phi0list.end(); it++)
+	for (std::vector<phi_BC*>::iterator it = phi0list.begin(); it != phi0list.end(); it++)
 		summer += (*it)->dDelta2(tau,delta);
 	return summer;
 }
 double Fluid::dphi0_dTau(double tau, double delta)
 {
 	double summer = 0;
-	for (list<phi_BC*>::iterator it = phi0list.begin(); it != phi0list.end(); it++){
+	for (std::vector<phi_BC*>::iterator it = phi0list.begin(); it != phi0list.end(); it++){
 		summer += (*it)->dTau(tau,delta);
 	}
 	return summer;
@@ -511,7 +511,7 @@ double Fluid::dphi0_dTau(double tau, double delta)
 double Fluid::d2phi0_dTau2(double tau, double delta)
 {
 	double summer = 0;
-	for (list<phi_BC*>::iterator it = phi0list.begin(); it != phi0list.end(); it++){
+	for (std::vector<phi_BC*>::iterator it = phi0list.begin(); it != phi0list.end(); it++){
 		summer += (*it)->dTau2(tau,delta);
 	}
 	return summer;
@@ -519,7 +519,7 @@ double Fluid::d2phi0_dTau2(double tau, double delta)
 double Fluid::d3phi0_dTau3(double tau, double delta)
 {
 	double summer = 0;
-	for (list<phi_BC*>::iterator it = phi0list.begin(); it != phi0list.end(); it++){
+	for (std::vector<phi_BC*>::iterator it = phi0list.begin(); it != phi0list.end(); it++){
 		summer += (*it)->dTau3(tau,delta);
 	}
 	return summer;
@@ -527,7 +527,7 @@ double Fluid::d3phi0_dTau3(double tau, double delta)
 double Fluid::d2phi0_dDelta_dTau(double tau, double delta)
 {
 	double summer = 0;
-	for (list<phi_BC*>::iterator it = phi0list.begin(); it != phi0list.end(); it++)
+	for (std::vector<phi_BC*>::iterator it = phi0list.begin(); it != phi0list.end(); it++)
 		summer += (*it)->dDelta_dTau(tau,delta);
 	return summer;
 }
