@@ -5,7 +5,7 @@ n-Pentane
 
 Aliases
 ================================================================================
-['nPentane', ' Pentane']
+``nPentane``, ``Pentane``
 
 Equation of State Reference
 ===========================

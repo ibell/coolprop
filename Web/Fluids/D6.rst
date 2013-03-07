@@ -5,7 +5,7 @@ D6
 
 Aliases
 ================================================================================
-['Dodecamethylcyclohexasiloxane']
+``Dodecamethylcyclohexasiloxane``
 
 Equation of State Reference
 ===========================

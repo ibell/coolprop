@@ -5,11 +5,11 @@ Propane
 
 Aliases
 ================================================================================
-['propane', ' R290', ' C3H8']
+``propane``, ``R290``, ``C3H8``
 
 Equation of State Reference
 ===========================
-"A International Standard Formulation for the Thermodynamic Properties of 1,1,1,2-Tetrafluoroethane(HFC-134a) for Temperatures from 170 K to 455 K and Pressures up to 70 MPa"by Reiner Tillner-Roth and Hans Dieter Baehr, J. Phys. Chem. Ref. Data, v. 23, 1994, pp 657-729
+Lemmon, E.W., McLinden, M.O., Wagner, W., "Thermodynamic Properties of Propane.  III.  A Reference Equation of Statefor Temperatures from the Melting Line to 650 K and Pressures up to 1000 MPa,"J. Chem. Eng. Data, 54:3141-3180, 2009
 
 Transport Properties Information
 ================================

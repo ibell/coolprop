@@ -5,7 +5,7 @@ n-Heptane
 
 Aliases
 ================================================================================
-['nHeptane', ' Heptane']
+``nHeptane``, ``Heptane``
 
 Equation of State Reference
 ===========================

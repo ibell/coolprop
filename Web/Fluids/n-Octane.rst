@@ -5,7 +5,7 @@ n-Octane
 
 Aliases
 ================================================================================
-['nOctane', ' Octane']
+``nOctane``, ``Octane``
 
 Equation of State Reference
 ===========================

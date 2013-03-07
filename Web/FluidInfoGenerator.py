@@ -298,6 +298,9 @@ def index_file(Fluids):
 """.format(FluidList))
     
 def fluid_header(Fluid):
+    aliases = CP.get_aliases(str(Fluid))
+    aliases = ', '.join(['``'+a.strip()+'``' for a in aliases])
+    
     return textwrap.dedent(
 """
 ********************
@@ -317,7 +320,7 @@ Transport Properties Information
 {Transport:s}
     
 """.format(Fluid=Fluid,
-           Aliases = CP.get_aliases(str(Fluid)),
+           Aliases = aliases,
            Reference = CP.get_EOSReference(str(Fluid)),
            Transport = CP.get_TransportReference(str(Fluid))
            )

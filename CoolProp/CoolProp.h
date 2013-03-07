@@ -32,6 +32,11 @@ You might want to start by looking at CoolProp.h
 		#endif
 	#endif
 
+	// Hack for PowerPC compilation to only use extern "C"
+	#if defined(__powerpc__)
+	#define EXPORT_CODE extern "C"
+	#endif
+
 	#include "FluidClass.h"
 	
 	// Functions with the call type like

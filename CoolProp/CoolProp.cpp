@@ -16,7 +16,6 @@
 #endif
 #endif
 
-
 #include <iostream>
 #include <stdlib.h>
 #include <vector>
@@ -40,13 +39,12 @@ double _Props(std::string Output,std::string Name1, double Prop1, std::string Na
 double _CoolProp_Fluid_Props(long iOutput, long iName1, double Value1, long iName2, double Value2, Fluid *pFluid, bool SinglePhase = false);
 
 static std::string err_string;
-int debug_level=0;
-
-Fluid * pFluid;
+static int debug_level=0;
+static Fluid * pFluid;
 
 // This is very hacky, but pull the subversion revision from the file
 #include "svnrevision.h" // Contents are like "long svnrevision = 286;"
-#include "version.h" // Contents are like "char version [] ="2.5";"
+#include "version.h" // Contents are like "static char version [] ="2.5";"
 
 int global_Phase = -1;
 bool global_SinglePhase = false;
@@ -521,8 +519,6 @@ EXPORT_CODE double CONVENTION conformal_Trho(char* FluidName, char* ReferenceFlu
 			return _HUGE;
 		}
 	}
-	
-
 }
 
 EXPORT_CODE double CONVENTION viscosity_dilute(char* FluidName, double T, double rho, double e_k, double sigma)

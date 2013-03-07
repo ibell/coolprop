@@ -5,7 +5,7 @@ MD4M
 
 Aliases
 ================================================================================
-['Tetradecamethylhexasiloxane']
+``Tetradecamethylhexasiloxane``
 
 Equation of State Reference
 ===========================

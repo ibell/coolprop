@@ -10,7 +10,7 @@ for Fluid in CoolProp.__fluids__:
     REFPROPname = CoolProp.CoolProp.get_REFPROPname(Fluid)
     Tc = CoolProp.CoolProp.Props(Fluid,'Tcrit')
     Tt = CoolProp.CoolProp.Props(Fluid,'Ttriple')
-    print Fluid
+    print(Fluid)
     try:
         err = []
         tL = []
@@ -24,18 +24,18 @@ for Fluid in CoolProp.__fluids__:
             
         errdict[Fluid]=(err,tL)
         if Fluid=='Isopentane':
-            print IR
-            print IC
-            print err
+            print(IR)
+            print(IC)
+            print(err)
         
     except ValueError:
-        print 'Error with',Fluid
+        print('Error with',Fluid)
     
 import matplotlib.pyplot as plt
 fig = plt.figure()
-print '{:20s}{:s}'.format('Fluid','Max abs error (up to 90% of critical)')
+print('{:20s}{:s}'.format('Fluid','Max abs error (up to 90% of critical)'))
 for k,(v,tL) in errdict.iteritems():
-    print '{:20s}{:f} %'.format(k,max([abs(_) for _ in v]))
+    print('{:20s}{:f} %'.format(k,max([abs(_) for _ in v])))
     if k=='R717':
         plt.plot(tL,v,'-o')
     

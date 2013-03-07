@@ -62,11 +62,11 @@ class PsychOptions(wx.Dialog):
         self.layout()
         
     def build_contents(self):
-        self.p_label = wx.StaticText(self,label=u'Pressure [kPa (absolute)]')
+        self.p_label = wx.StaticText(self,label='Pressure [kPa (absolute)]')
         self.p = wx.TextCtrl(self,value = '101.325')
-        self.Tmin_label = wx.StaticText(self,label=u'Minimum dry bulb temperature [\xb0 C]')
+        self.Tmin_label = wx.StaticText(self,label='Minimum dry bulb temperature [\xb0 C]')
         self.Tmin = wx.TextCtrl(self,value = '-10')
-        self.Tmax_label = wx.StaticText(self,label=u'Maximum dry bulb temperature [\xb0 C]')
+        self.Tmax_label = wx.StaticText(self,label='Maximum dry bulb temperature [\xb0 C]')
         self.Tmax = wx.TextCtrl(self,value = '60')
         self.GoButton = wx.Button(self,label='Accept')
         self.GoButton.Bind(wx.EVT_BUTTON,self.OnAccept)
@@ -165,8 +165,6 @@ class PHPlotFrame(wx.Frame):
     
     def overlay_cycle(self):
         pass
-        
-    
 
 class SimpleGrid(wx.grid.Grid):
     def __init__(self, parent, ncol = 20, nrow = 8):
@@ -324,14 +322,13 @@ class SaturationTable(wx.Frame):
         self.File.AppendItem(mnuItem1)
         self.File.AppendItem(mnuItem2)
         self.MenuBar.Append(self.File, "Edit")
-        self.Bind(wx.EVT_MENU, lambda(event): self.tbl.SelectAll(), mnuItem0)
+        self.Bind(wx.EVT_MENU, lambda event: self.tbl.SelectAll(), mnuItem0)
         self.Bind(wx.EVT_MENU, self.OnCopy, mnuItem1)
         self.Bind(wx.EVT_MENU, self.OnCopyHeaders, mnuItem2)
         
         self.SetMenuBar(self.MenuBar)
         
     def OnCopy(self, event = None):
-        print "Copy method"
         
         # Number of rows and cols
         rows = self.tbl.GetSelectionBlockBottomRight()[0][0] - self.tbl.GetSelectionBlockTopLeft()[0][0] + 1
@@ -360,9 +357,7 @@ class SaturationTable(wx.Frame):
             wx.MessageBox("Can't open the clipboard", "Error")
         event.Skip()
         
-    def OnCopyHeaders(self, event = None):
-        print "Copy method w/ headers"
-        
+    def OnCopyHeaders(self, event = None):        
         self.tbl.SelectAll()
         # Number of rows and cols
         rows = self.tbl.GetSelectionBlockBottomRight()[0][0] - self.tbl.GetSelectionBlockTopLeft()[0][0] + 1
@@ -418,11 +413,11 @@ class MainFrame(wx.Frame):
         for Fluid in sorted(CP.__fluids__):
             mnuItem  = wx.MenuItem(self.PHPlot, -1, Fluid, "", wx.ITEM_NORMAL)
             self.PHPlot.AppendItem(mnuItem)
-            self.Bind(wx.EVT_MENU, lambda(event): self.OnPHPlot(event, mnuItem), mnuItem)
+            self.Bind(wx.EVT_MENU, lambda event: self.OnPHPlot(event, mnuItem), mnuItem)
             
             mnuItem  = wx.MenuItem(self.TSPlot, -1, Fluid, "", wx.ITEM_NORMAL)
             self.TSPlot.AppendItem(mnuItem)
-            self.Bind(wx.EVT_MENU, lambda(event): self.OnTSPlot(event, mnuItem), mnuItem)
+            self.Bind(wx.EVT_MENU, lambda event: self.OnTSPlot(event, mnuItem), mnuItem)
         
         self.MenuBar.Append(self.plots, "Plots")
         self.plots.AppendItem(self.PsychPlot)

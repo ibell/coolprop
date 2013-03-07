@@ -9,7 +9,7 @@ def Tdp(Tmin = 260,Tmax = 300, wmin = 0, wmax = 0.01):
         WW = []
         for w in np.linspace(wmin,wmax,100):
             v = HAP.HAProps('D','T',T,'P',101.325,'W',w)
-            print T,w,v
+            print(T,w,v)
             TT.append(v)
             WW.append(w)
         

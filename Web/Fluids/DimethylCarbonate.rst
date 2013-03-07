@@ -5,7 +5,7 @@ DimethylCarbonate
 
 Aliases
 ================================================================================
-['DMC', ' dimethylcarbonate']
+``DMC``, ``dimethylcarbonate``
 
 Equation of State Reference
 ===========================
