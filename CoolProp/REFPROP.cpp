@@ -9,8 +9,15 @@
 
 #if defined(__ISWINDOWS__)
 #include <windows.h>
+#include "REFPROP_lib.h"
+#include "REFPROP.h"
+#elif defined(__ISLINUX__)
+#include <dlfcn.h>
+#include "REFPROP_lib.h"
 #include "REFPROP.h"
 #endif
+
+
 
 #include <stdlib.h>
 #include "string.h"
@@ -26,204 +33,447 @@
 #define numparams 72 
 #define maxcoefs 50
 
+
 #if defined(__ISWINDOWS__)
-// For C calling conventions, replaced all "double &" with "double *", and "long &" with "long *"
-typedef void (__stdcall *fp_ABFL1dllTYPE)(double *,double *,double *,long *,double *,double *,double *,double *,double *,double *,long *,char*,long );
-typedef void (__stdcall *fp_ABFL2dllTYPE)(double *,double *,double *,long *,long *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,long *,char*,long );
-typedef void (__stdcall *fp_ACTVYdllTYPE)(double *,double *,double *,double *);
-typedef void (__stdcall *fp_AGdllTYPE)(double *,double *,double *,double *,double *);
-typedef void (__stdcall *fp_CCRITdllTYPE)(double *,double *,double *,double *,double *,double *,double *,double *,double *,long *,char*,long );
-typedef void (__stdcall *fp_CP0dllTYPE)(double *,double *,double *);
-typedef void (__stdcall *fp_CRITPdllTYPE)(double *,double *,double *,double *,long *,char*,long );
-typedef void (__stdcall *fp_CSATKdllTYPE)(long *,double *,long *,double *,double *,double *,long *,char*,long );
-typedef void (__stdcall *fp_CV2PKdllTYPE)(long *,double *,double *,double *,double *,long *,char*,long );
-typedef void (__stdcall *fp_CVCPKdllTYPE)(long *,double *,double *,double *,double *);
-typedef void (__stdcall *fp_CVCPdllTYPE)(double *,double *,double *,double *,double *);
-typedef void (__stdcall *fp_DBDTdllTYPE)(double *,double *,double *);
-typedef void (__stdcall *fp_DBFL1dllTYPE)(double *,double *,double *,double *,double *,double *,long *,char*,long );
-typedef void (__stdcall *fp_DBFL2dllTYPE)(double *,double *,double *,long *,double *,double *,double *,double *,double *,double *,double *,double *,long *,char*,long );
-typedef void (__stdcall *fp_DDDPdllTYPE)(double *,double *,double *,double *);
-typedef void (__stdcall *fp_DDDTdllTYPE)(double *,double *,double *,double *);
-typedef void (__stdcall *fp_DEFLSHdllTYPE)(double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,long *,char*,long );
-typedef void (__stdcall *fp_DHD1dllTYPE)(double *,double *,double *,double *,double *,double *,double *,double *,double *);
-typedef void (__stdcall *fp_DHFLSHdllTYPE)(double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,long *,char*,long );
-typedef void (__stdcall *fp_DIELECdllTYPE)(double *,double *,double *,double *);
-typedef void (__stdcall *fp_DOTFILLdllTYPE)(long *,double *,double *,double *,long *,char*,long );
-typedef void (__stdcall *fp_DPDD2dllTYPE)(double *,double *,double *,double *);
-typedef void (__stdcall *fp_DPDDKdllTYPE)(long *,double *,double *,double *);
-typedef void (__stdcall *fp_DPDDdllTYPE)(double *,double *,double *,double *);
-typedef void (__stdcall *fp_DPDTKdllTYPE)(long *,double *,double *,double *);
-typedef void (__stdcall *fp_DPDTdllTYPE)(double *,double *,double *,double *);
-typedef void (__stdcall *fp_DPTSATKdllTYPE)(long *,double *,long *,double *,double *,double *,double *,long *,char*,long );
-typedef void (__stdcall *fp_DSFLSHdllTYPE)(double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,long *,char*,long );
-typedef void (__stdcall *fp_ENTHALdllTYPE)(double *,double *,double *,double *);
-typedef void (__stdcall *fp_ENTROdllTYPE)(double *,double *,double *,double *);
-typedef void (__stdcall *fp_ESFLSHdllTYPE)(double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,long *,char*,long );
-typedef void (__stdcall *fp_FGCTYdllTYPE)(double *,double *,double *,double *);
-typedef void (__stdcall *fp_FPVdllTYPE)(double *,double *,double *,double *,double *);
-typedef void (__stdcall *fp_GERG04dllTYPE)(long *,long *,long *,char*,long );
-typedef void (__stdcall *fp_GETFIJdllTYPE)(char*,double *,char*,char*,long ,long ,long );
-typedef void (__stdcall *fp_GETKTVdllTYPE)(long *,long *,char*,double *,char*,char*,char*,char*,long ,long ,long ,long ,long );
-typedef void (__stdcall *fp_GIBBSdllTYPE)(double *,double *,double *,double *,double *);
-typedef void (__stdcall *fp_HSFLSHdllTYPE)(double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,long *,char*,long );
-typedef void (__stdcall *fp_INFOdllTYPE)(long *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *);
-typedef void (__stdcall *fp_LIMITKdllTYPE)(char*,long *,double *,double *,double *,double *,double *,double *,double *,long *,char*,long ,long );
-typedef void (__stdcall *fp_LIMITSdllTYPE)(char*,double *,double *,double *,double *,double *,long );
-typedef void (__stdcall *fp_LIMITXdllTYPE)(char*,double *,double *,double *,double *,double *,double *,double *,double *,long *,char*,long ,long );
-typedef void (__stdcall *fp_MELTPdllTYPE)(double *,double *,double *,long *,char*,long );
-typedef void (__stdcall *fp_MELTTdllTYPE)(double *,double *,double *,long *,char*,long );
-typedef void (__stdcall *fp_MLTH2OdllTYPE)(double *,double *,double *);
-typedef void (__stdcall *fp_NAMEdllTYPE)(long *,char*,char*,char*,long ,long ,long );
-typedef void (__stdcall *fp_PDFL1dllTYPE)(double *,double *,double *,double *,long *,char*,long );
-typedef void (__stdcall *fp_PDFLSHdllTYPE)(double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,long *,char*,long );
-typedef void (__stdcall *fp_PEFLSHdllTYPE)(double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,long *,char*,long );
-typedef void (__stdcall *fp_PHFL1dllTYPE)(double *,double *,double *,long *,double *,double *,long *,char*,long );
-typedef void (__stdcall *fp_PHFLSHdllTYPE)(double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,long *,char*,long );
-typedef void (__stdcall *fp_PQFLSHdllTYPE)(double *,double *,double *,long *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,long *,char*,long );
-typedef void (__stdcall *fp_PREOSdllTYPE)(long *);
-typedef void (__stdcall *fp_PRESSdllTYPE)(double *,double *,double *,double *);
-typedef void (__stdcall *fp_PSFL1dllTYPE)(double *,double *,double *,long *,double *,double *,long *,char*,long );
-typedef void (__stdcall *fp_PSFLSHdllTYPE)(double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,long *,char*,long );
-typedef void (__stdcall *fp_PUREFLDdllTYPE)(long *);
-typedef void (__stdcall *fp_QMASSdllTYPE)(double *,double *,double *,double *,double *,double *,double *,double *,long *,char*,long );
-typedef void (__stdcall *fp_QMOLEdllTYPE)(double *,double *,double *,double *,double *,double *,double *,double *,long *,char*,long );
-typedef void (__stdcall *fp_SATDdllTYPE)(double *,double *,long *,long *,double *,double *,double *,double *,double *,double *,long *,char*,long );
-typedef void (__stdcall *fp_SATEdllTYPE)(double *,double *,long *,long *,long *,double *,double *,double *,long *,double *,double *,double *,long *,char*,long );
-typedef void (__stdcall *fp_SATHdllTYPE)(double *,double *,long *,long *,long *,double *,double *,double *,long *,double *,double *,double *,long *,char*,long );
-typedef void (__stdcall *fp_SATPdllTYPE)(double *,double *,long *,double *,double *,double *,double *,double *,long *,char*,long );
-typedef void (__stdcall *fp_SATSdllTYPE)(double *,double *,long *,long *,long *,double *,double *,double *,long *,double *,double *,double *,long *,double *,double *,double *,long *,char*,long );
-// subroutine SATT (t,x,kph,p,rhol,rhov,xliq,xvap,ierr,herr)
-typedef void (__stdcall *fp_SATTdllTYPE)(double *,double *,long *,double *,double *,double *,double *,double *,long *,char*,long );
-typedef void (__stdcall *fp_SETAGAdllTYPE)(long *,char*,long );
-typedef void (__stdcall *fp_SETKTVdllTYPE)(long *,long *,char*,double *,char*,long *,char*,long ,long ,long );
-typedef void (__stdcall *fp_SETMIXdllTYPE)(char*,char*,char*,long *,char*,double *,long *,char*,long ,long ,long ,long ,long );
-typedef void (__stdcall *fp_SETMODdllTYPE)(long *,char*,char*,char*,long *,char*,long ,long ,long ,long );
-typedef void (__stdcall *fp_SETREFdllTYPE)(char*,long *,double *,double *,double *,double *,double *,long *,char*,long ,long );
-typedef void (__stdcall *fp_SETUPdllTYPE)(long *,char*,char*,char*,long *,char*,long ,long ,long ,long );
-typedef void (__stdcall *fp_SPECGRdllTYPE)(double *,double *,double *,double *);
-typedef void (__stdcall *fp_SUBLPdllTYPE)(double *,double *,double *,long *,char*,long );
-typedef void (__stdcall *fp_SUBLTdllTYPE)(double *,double *,double *,long *,char*,long );
-typedef void (__stdcall *fp_SURFTdllTYPE)(double *,double *,double *,double *,long *,char*,long );
-typedef void (__stdcall *fp_SURTENdllTYPE)(double *,double *,double *,double *,double *,double *,long *,char*,long );
-typedef void (__stdcall *fp_TDFLSHdllTYPE)(double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,long *,char*,long );
-typedef void (__stdcall *fp_TEFLSHdllTYPE)(double *,double *,double *,long *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,long *,char*,long );
-typedef void (__stdcall *fp_THERM0dllTYPE)(double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *);
-typedef void (__stdcall *fp_THERM2dllTYPE)(double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *);
-typedef void (__stdcall *fp_THERM3dllTYPE)(double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *);
-typedef void (__stdcall *fp_THERMdllTYPE)(double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *);
-typedef void (__stdcall *fp_THFLSHdllTYPE)(double *,double *,double *,long *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,long *,char*,long );
-typedef void (__stdcall *fp_TPFLSHdllTYPE)(double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,long *,char*,long );
-typedef void (__stdcall *fp_TPRHOdllTYPE)(double *,double *,double *,long *,long *,double *,long *,char*,long );
-typedef void (__stdcall *fp_TQFLSHdllTYPE)(double *,double *,double *,long *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,long *,char*,long );
-typedef void (__stdcall *fp_TRNPRPdllTYPE)(double *,double *,double *,double *,double *,long *,char*,long );
-typedef void (__stdcall *fp_TSFLSHdllTYPE)(double *,double *,double *,long *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,long *,char*,long );
-typedef void (__stdcall *fp_VIRBdllTYPE)(double *,double *,double *);
-typedef void (__stdcall *fp_VIRCdllTYPE)(double *,double *,double *);
-typedef void (__stdcall *fp_WMOLdllTYPE)(double *,double *);
-typedef void (__stdcall *fp_XMASSdllTYPE)(double *,double *,double *);
-typedef void (__stdcall *fp_XMOLEdllTYPE)(double *,double *,double *);
-
-//Define explicit function pointers
-fp_ABFL1dllTYPE ABFL1dll;
-fp_ABFL2dllTYPE ABFL2dll;
-fp_ACTVYdllTYPE ACTVYdll;
-fp_AGdllTYPE AGdll;
-fp_CCRITdllTYPE CCRITdll;
-fp_CP0dllTYPE CP0dll;
-fp_CRITPdllTYPE CRITPdll;
-fp_CSATKdllTYPE CSATKdll;
-fp_CV2PKdllTYPE CV2PKdll;
-fp_CVCPKdllTYPE CVCPKdll;
-fp_CVCPdllTYPE CVCPdll;
-fp_DBDTdllTYPE DBDTdll;
-fp_DBFL1dllTYPE DBFL1dll;
-fp_DBFL2dllTYPE DBFL2dll;
-fp_DDDPdllTYPE DDDPdll;
-fp_DDDTdllTYPE DDDTdll;
-fp_DEFLSHdllTYPE DEFLSHdll;
-fp_DHD1dllTYPE DHD1dll;
-fp_DHFLSHdllTYPE DHFLSHdll;
-fp_DIELECdllTYPE DIELECdll;
-fp_DOTFILLdllTYPE DOTFILLdll;
-fp_DPDD2dllTYPE DPDD2dll;
-fp_DPDDKdllTYPE DPDDKdll;
-fp_DPDDdllTYPE DPDDdll;
-fp_DPDTKdllTYPE DPDTKdll;
-fp_DPDTdllTYPE DPDTdll;
-fp_DPTSATKdllTYPE DPTSATKdll;
-fp_DSFLSHdllTYPE DSFLSHdll;
-fp_ENTHALdllTYPE ENTHALdll;
-fp_ENTROdllTYPE ENTROdll;
-fp_ESFLSHdllTYPE ESFLSHdll;
-fp_FGCTYdllTYPE FGCTYdll;
-fp_FPVdllTYPE FPVdll;
-fp_GERG04dllTYPE GERG04dll;
-fp_GETFIJdllTYPE GETFIJdll;
-fp_GETKTVdllTYPE GETKTVdll;
-fp_GIBBSdllTYPE GIBBSdll;
-fp_HSFLSHdllTYPE HSFLSHdll;
-fp_INFOdllTYPE INFOdll;
-fp_LIMITKdllTYPE LIMITKdll;
-fp_LIMITSdllTYPE LIMITSdll;
-fp_LIMITXdllTYPE LIMITXdll;
-fp_MELTPdllTYPE MELTPdll;
-fp_MELTTdllTYPE MELTTdll;
-fp_MLTH2OdllTYPE MLTH2Odll;
-fp_NAMEdllTYPE NAMEdll;
-fp_PDFL1dllTYPE PDFL1dll;
-fp_PDFLSHdllTYPE PDFLSHdll;
-fp_PEFLSHdllTYPE PEFLSHdll;
-fp_PHFL1dllTYPE PHFL1dll;
-fp_PHFLSHdllTYPE PHFLSHdll;
-fp_PQFLSHdllTYPE PQFLSHdll;
-fp_PREOSdllTYPE PREOSdll;
-fp_PRESSdllTYPE PRESSdll;
-fp_PSFL1dllTYPE PSFL1dll;
-fp_PSFLSHdllTYPE PSFLSHdll;
-fp_PUREFLDdllTYPE PUREFLDdll;
-fp_QMASSdllTYPE QMASSdll;
-fp_QMOLEdllTYPE QMOLEdll;
-fp_SATDdllTYPE SATDdll;
-fp_SATEdllTYPE SATEdll;
-fp_SATHdllTYPE SATHdll;
-fp_SATPdllTYPE SATPdll;
-fp_SATSdllTYPE SATSdll;
-fp_SATTdllTYPE SATTdll;
-fp_SETAGAdllTYPE SETAGAdll;
-fp_SETKTVdllTYPE SETKTVdll;
-fp_SETMIXdllTYPE SETMIXdll;
-fp_SETMODdllTYPE SETMODdll;
-fp_SETREFdllTYPE SETREFdll;
-fp_SETUPdllTYPE SETUPdll;
-fp_SPECGRdllTYPE SPECGRdll;
-fp_SUBLPdllTYPE SUBLPdll;
-fp_SUBLTdllTYPE SUBLTdll;
-fp_SURFTdllTYPE SURFTdll;
-fp_SURTENdllTYPE SURTENdll;
-fp_TDFLSHdllTYPE TDFLSHdll;
-fp_TEFLSHdllTYPE TEFLSHdll;
-fp_THERM0dllTYPE THERM0dll;
-fp_THERM2dllTYPE THERM2dll;
-fp_THERM3dllTYPE THERM3dll;
-fp_THERMdllTYPE THERMdll;
-fp_THFLSHdllTYPE THFLSHdll;
-fp_TPFLSHdllTYPE TPFLSHdll;
-fp_TPRHOdllTYPE TPRHOdll;
-fp_TQFLSHdllTYPE TQFLSHdll;
-fp_TRNPRPdllTYPE TRNPRPdll;
-fp_TSFLSHdllTYPE TSFLSHdll;
-fp_VIRBdllTYPE VIRBdll;
-fp_VIRCdllTYPE VIRCdll;
-fp_WMOLdllTYPE WMOLdll;
-fp_XMASSdllTYPE XMASSdll;
-fp_XMOLEdllTYPE XMOLEdll;
-
-
 std::string LoadedREFPROPRef;
 HINSTANCE RefpropdllInstance=NULL;
+#elif defined(__ISLINUX__)
+std::string LoadedREFPROPRef;
+void *RefpropdllInstance=NULL;
+#endif
+
+#if defined(__ISWINDOWS__)||defined(__ISLINUX__)
+// Define functions as pointers and initialise them to NULL
+// Declare the functions for direct access
+ RPVersion_POINTER RPVersion;
+ SETPATHdll_POINTER SETPATHdll;
+ ABFL1dll_POINTER ABFL1dll;
+ ABFL2dll_POINTER ABFL2dll;
+ ACTVYdll_POINTER ACTVYdll;
+ AGdll_POINTER AGdll;
+ CCRITdll_POINTER CCRITdll;
+ CP0dll_POINTER CP0dll;
+ CRITPdll_POINTER CRITPdll;
+ CSATKdll_POINTER CSATKdll;
+ CV2PKdll_POINTER CV2PKdll;
+ CVCPKdll_POINTER CVCPKdll;
+ CVCPdll_POINTER CVCPdll;
+ DBDTdll_POINTER DBDTdll;
+ DBFL1dll_POINTER DBFL1dll;
+ DBFL2dll_POINTER DBFL2dll;
+ DDDPdll_POINTER DDDPdll;
+ DDDTdll_POINTER DDDTdll;
+ DEFLSHdll_POINTER DEFLSHdll;
+ DHD1dll_POINTER DHD1dll;
+ DHFLSHdll_POINTER DHFLSHdll;
+ DHFL1dll_POINTER DHFL1dll;
+ DHFL2dll_POINTER DHFL2dll;
+ DIELECdll_POINTER DIELECdll;
+ DOTFILLdll_POINTER DOTFILLdll;
+ DPDD2dll_POINTER DPDD2dll;
+ DPDDKdll_POINTER DPDDKdll;
+ DPDDdll_POINTER DPDDdll;
+ DPDTKdll_POINTER DPDTKdll;
+ DPDTdll_POINTER DPDTdll;
+ DPTSATKdll_POINTER DPTSATKdll;
+ DSFLSHdll_POINTER DSFLSHdll;
+ DSFL1dll_POINTER DSFL1dll;
+ DSFL2dll_POINTER DSFL2dll;
+ ENTHALdll_POINTER ENTHALdll;
+ ENTROdll_POINTER ENTROdll;
+ ESFLSHdll_POINTER ESFLSHdll;
+ FGCTYdll_POINTER FGCTYdll;
+ FPVdll_POINTER FPVdll;
+ GERG04dll_POINTER GERG04dll;
+ GETFIJdll_POINTER GETFIJdll;
+ GETKTVdll_POINTER GETKTVdll;
+ GIBBSdll_POINTER GIBBSdll;
+ HSFLSHdll_POINTER HSFLSHdll;
+ INFOdll_POINTER INFOdll;
+ LIMITKdll_POINTER LIMITKdll;
+ LIMITSdll_POINTER LIMITSdll;
+ LIMITXdll_POINTER LIMITXdll;
+ MELTPdll_POINTER MELTPdll;
+ MELTTdll_POINTER MELTTdll;
+ MLTH2Odll_POINTER MLTH2Odll;
+ NAMEdll_POINTER NAMEdll;
+ PDFL1dll_POINTER PDFL1dll;
+ PDFLSHdll_POINTER PDFLSHdll;
+ PEFLSHdll_POINTER PEFLSHdll;
+ PHFL1dll_POINTER PHFL1dll;
+ PHFLSHdll_POINTER PHFLSHdll;
+ PQFLSHdll_POINTER PQFLSHdll;
+ PREOSdll_POINTER PREOSdll;
+ PRESSdll_POINTER PRESSdll;
+ PSFL1dll_POINTER PSFL1dll;
+ PSFLSHdll_POINTER PSFLSHdll;
+ PUREFLDdll_POINTER PUREFLDdll;
+ QMASSdll_POINTER QMASSdll;
+ QMOLEdll_POINTER QMOLEdll;
+ SATDdll_POINTER SATDdll;
+ SATEdll_POINTER SATEdll;
+ SATHdll_POINTER SATHdll;
+ SATPdll_POINTER SATPdll;
+ SATSdll_POINTER SATSdll;
+ SATTdll_POINTER SATTdll;
+ SETAGAdll_POINTER SETAGAdll;
+ SETKTVdll_POINTER SETKTVdll;
+ SETMIXdll_POINTER SETMIXdll;
+ SETMODdll_POINTER SETMODdll;
+ SETREFdll_POINTER SETREFdll;
+ SETUPdll_POINTER SETUPdll;
+//  SPECGRdll_POINTER SPECGRdll; // not found in library
+ SUBLPdll_POINTER SUBLPdll;
+ SUBLTdll_POINTER SUBLTdll;
+ SURFTdll_POINTER SURFTdll;
+ SURTENdll_POINTER SURTENdll;
+ TDFLSHdll_POINTER TDFLSHdll;
+ TEFLSHdll_POINTER TEFLSHdll;
+ THERM0dll_POINTER THERM0dll;
+ THERM2dll_POINTER THERM2dll;
+ THERM3dll_POINTER THERM3dll;
+ THERMdll_POINTER THERMdll;
+ THFLSHdll_POINTER THFLSHdll;
+ TPFLSHdll_POINTER TPFLSHdll;
+ TPFL2dll_POINTER TPFL2dll;
+ TPRHOdll_POINTER TPRHOdll;
+ TQFLSHdll_POINTER TQFLSHdll;
+ TRNPRPdll_POINTER TRNPRPdll;
+ TSFLSHdll_POINTER TSFLSHdll;
+ VIRBdll_POINTER VIRBdll;
+ VIRCdll_POINTER VIRCdll;
+ WMOLdll_POINTER WMOLdll;
+ XMASSdll_POINTER XMASSdll;
+ XMOLEdll_POINTER XMOLEdll;
+
+void *getFunctionPointer(char * name)
+{
+	#if defined(__ISWINDOWS__)
+		return GetProcAddress(RefpropdllInstance,name);
+	#elif defined(__ISLINUX__)
+		return dlsym(RefpropdllInstance,name);
+    #endif
+}
+//extern void *dlsym (void *__restrict __handle,
+//		    __const char *__restrict __name) __THROW __nonnull ((2));
+
+//Moved pointer handling to a function, helps to maintain
+//an overview and structures OS dependent parts
+int setFunctionPointers()
+{
+	if (RefpropdllInstance==NULL)
+	{
+		printf("REFPROP is not loaded, make sure you call this function after loading the library.\n");
+		return -_HUGE;
+	}
+	// set the pointers, platform independent
+	ABFL1dll = (ABFL1dll_POINTER) getFunctionPointer(ABFL1dll_NAME);
+	ABFL2dll = (ABFL2dll_POINTER) getFunctionPointer(ABFL2dll_NAME);
+	ACTVYdll = (ACTVYdll_POINTER) getFunctionPointer(ACTVYdll_NAME);
+	AGdll = (AGdll_POINTER) getFunctionPointer(AGdll_NAME);
+	CCRITdll = (CCRITdll_POINTER) getFunctionPointer(CCRITdll_NAME);
+	CP0dll = (CP0dll_POINTER) getFunctionPointer(CP0dll_NAME);
+	CRITPdll = (CRITPdll_POINTER) getFunctionPointer(CRITPdll_NAME);
+	CSATKdll = (CSATKdll_POINTER) getFunctionPointer(CSATKdll_NAME);
+	CV2PKdll = (CV2PKdll_POINTER) getFunctionPointer(CV2PKdll_NAME);
+	CVCPKdll = (CVCPKdll_POINTER) getFunctionPointer(CVCPKdll_NAME);
+	CVCPdll = (CVCPdll_POINTER) getFunctionPointer(CVCPdll_NAME);
+	DBDTdll = (DBDTdll_POINTER) getFunctionPointer(DBDTdll_NAME);
+	DBFL1dll = (DBFL1dll_POINTER) getFunctionPointer(DBFL1dll_NAME);
+	DBFL2dll = (DBFL2dll_POINTER) getFunctionPointer(DBFL2dll_NAME);
+	DDDPdll = (DDDPdll_POINTER) getFunctionPointer(DDDPdll_NAME);
+	DDDTdll = (DDDTdll_POINTER) getFunctionPointer(DDDTdll_NAME);
+	DEFLSHdll = (DEFLSHdll_POINTER) getFunctionPointer(DEFLSHdll_NAME);
+	DHD1dll = (DHD1dll_POINTER) getFunctionPointer(DHD1dll_NAME);
+	DHFLSHdll = (DHFLSHdll_POINTER) getFunctionPointer(DHFLSHdll_NAME);
+	DIELECdll = (DIELECdll_POINTER) getFunctionPointer(DIELECdll_NAME);
+	DOTFILLdll = (DOTFILLdll_POINTER) getFunctionPointer(DOTFILLdll_NAME);
+	DPDD2dll = (DPDD2dll_POINTER) getFunctionPointer(DPDD2dll_NAME);
+	DPDDKdll = (DPDDKdll_POINTER) getFunctionPointer(DPDDKdll_NAME);
+	DPDDdll = (DPDDdll_POINTER) getFunctionPointer(DPDDdll_NAME);
+	DPDTKdll = (DPDTKdll_POINTER) getFunctionPointer(DPDTKdll_NAME);
+	DPDTdll = (DPDTdll_POINTER) getFunctionPointer(DPDTdll_NAME);
+	DPTSATKdll = (DPTSATKdll_POINTER) getFunctionPointer(DPTSATKdll_NAME);
+	DSFLSHdll = (DSFLSHdll_POINTER) getFunctionPointer(DSFLSHdll_NAME);
+	ENTHALdll = (ENTHALdll_POINTER) getFunctionPointer(ENTHALdll_NAME);
+	ENTROdll = (ENTROdll_POINTER) getFunctionPointer(ENTROdll_NAME);
+	ESFLSHdll = (ESFLSHdll_POINTER) getFunctionPointer(ESFLSHdll_NAME);
+	FGCTYdll = (FGCTYdll_POINTER) getFunctionPointer(FGCTYdll_NAME);
+	FPVdll = (FPVdll_POINTER) getFunctionPointer(FPVdll_NAME);
+	GERG04dll = (GERG04dll_POINTER) getFunctionPointer(GERG04dll_NAME);
+	GETFIJdll = (GETFIJdll_POINTER) getFunctionPointer(GETFIJdll_NAME);
+	GETKTVdll = (GETKTVdll_POINTER) getFunctionPointer(GETKTVdll_NAME);
+	GIBBSdll = (GIBBSdll_POINTER) getFunctionPointer(GIBBSdll_NAME);
+	HSFLSHdll = (HSFLSHdll_POINTER) getFunctionPointer(HSFLSHdll_NAME);
+	INFOdll = (INFOdll_POINTER) getFunctionPointer(INFOdll_NAME);
+	LIMITKdll = (LIMITKdll_POINTER) getFunctionPointer(LIMITKdll_NAME);
+	LIMITSdll = (LIMITSdll_POINTER) getFunctionPointer(LIMITSdll_NAME);
+	LIMITXdll = (LIMITXdll_POINTER) getFunctionPointer(LIMITXdll_NAME);
+	MELTPdll = (MELTPdll_POINTER) getFunctionPointer(MELTPdll_NAME);
+	MELTTdll = (MELTTdll_POINTER) getFunctionPointer(MELTTdll_NAME);
+	MLTH2Odll = (MLTH2Odll_POINTER) getFunctionPointer(MLTH2Odll_NAME);
+	NAMEdll = (NAMEdll_POINTER) getFunctionPointer(NAMEdll_NAME);
+	PDFL1dll = (PDFL1dll_POINTER) getFunctionPointer(PDFL1dll_NAME);
+	PDFLSHdll = (PDFLSHdll_POINTER) getFunctionPointer(PDFLSHdll_NAME);
+	PEFLSHdll = (PEFLSHdll_POINTER) getFunctionPointer(PEFLSHdll_NAME);
+	PHFL1dll = (PHFL1dll_POINTER) getFunctionPointer(PHFL1dll_NAME);
+	PHFLSHdll = (PHFLSHdll_POINTER) getFunctionPointer(PHFLSHdll_NAME);
+	PQFLSHdll = (PQFLSHdll_POINTER) getFunctionPointer(PQFLSHdll_NAME);
+	PREOSdll = (PREOSdll_POINTER) getFunctionPointer(PREOSdll_NAME);
+	PRESSdll = (PRESSdll_POINTER) getFunctionPointer(PRESSdll_NAME);
+	PSFL1dll = (PSFL1dll_POINTER) getFunctionPointer(PSFL1dll_NAME);
+	PSFLSHdll = (PSFLSHdll_POINTER) getFunctionPointer(PSFLSHdll_NAME);
+	PUREFLDdll = (PUREFLDdll_POINTER) getFunctionPointer(PUREFLDdll_NAME);
+	QMASSdll = (QMASSdll_POINTER) getFunctionPointer(QMASSdll_NAME);
+	QMOLEdll = (QMOLEdll_POINTER) getFunctionPointer(QMOLEdll_NAME);
+	SATDdll = (SATDdll_POINTER) getFunctionPointer(SATDdll_NAME);
+	SATEdll = (SATEdll_POINTER) getFunctionPointer(SATEdll_NAME);
+	SATHdll = (SATHdll_POINTER) getFunctionPointer(SATHdll_NAME);
+	SATPdll = (SATPdll_POINTER) getFunctionPointer(SATPdll_NAME);
+	SATSdll = (SATSdll_POINTER) getFunctionPointer(SATSdll_NAME);
+	SATTdll = (SATTdll_POINTER) getFunctionPointer(SATTdll_NAME);
+	SETAGAdll = (SETAGAdll_POINTER) getFunctionPointer(SETAGAdll_NAME);
+	SETKTVdll = (SETKTVdll_POINTER) getFunctionPointer(SETKTVdll_NAME);
+	SETMIXdll = (SETMIXdll_POINTER) getFunctionPointer(SETMIXdll_NAME);
+	SETMODdll = (SETMODdll_POINTER) getFunctionPointer(SETMODdll_NAME);
+	SETREFdll = (SETREFdll_POINTER) getFunctionPointer(SETREFdll_NAME);
+	SETUPdll = (SETUPdll_POINTER) getFunctionPointer(SETUPdll_NAME);
+//		SPECGRdll = (SPECGRdll_POINTER) getFunctionPointer(SPECGRdll_NAME); // not in library
+	SUBLPdll = (SUBLPdll_POINTER) getFunctionPointer(SUBLPdll_NAME);
+	SUBLTdll = (SUBLTdll_POINTER) getFunctionPointer(SUBLTdll_NAME);
+	SURFTdll = (SURFTdll_POINTER) getFunctionPointer(SURFTdll_NAME);
+	SURTENdll = (SURTENdll_POINTER) getFunctionPointer(SURTENdll_NAME);
+	TDFLSHdll = (TDFLSHdll_POINTER) getFunctionPointer(TDFLSHdll_NAME);
+	TEFLSHdll = (TEFLSHdll_POINTER) getFunctionPointer(TEFLSHdll_NAME);
+	THERM0dll = (THERM0dll_POINTER) getFunctionPointer(THERM0dll_NAME);
+	THERM2dll = (THERM2dll_POINTER) getFunctionPointer(THERM2dll_NAME);
+	THERM3dll = (THERM3dll_POINTER) getFunctionPointer(THERM3dll_NAME);
+	THERMdll = (THERMdll_POINTER) getFunctionPointer(THERMdll_NAME);
+	THFLSHdll = (THFLSHdll_POINTER) getFunctionPointer(THFLSHdll_NAME);
+	TPFLSHdll = (TPFLSHdll_POINTER) getFunctionPointer(TPFLSHdll_NAME);
+	TPRHOdll = (TPRHOdll_POINTER) getFunctionPointer(TPRHOdll_NAME);
+	TQFLSHdll = (TQFLSHdll_POINTER) getFunctionPointer(TQFLSHdll_NAME);
+	TRNPRPdll = (TRNPRPdll_POINTER) getFunctionPointer(TRNPRPdll_NAME);
+	TSFLSHdll = (TSFLSHdll_POINTER) getFunctionPointer(TSFLSHdll_NAME);
+	VIRBdll = (VIRBdll_POINTER) getFunctionPointer(VIRBdll_NAME);
+	VIRCdll = (VIRCdll_POINTER) getFunctionPointer(VIRCdll_NAME);
+	WMOLdll = (WMOLdll_POINTER) getFunctionPointer(WMOLdll_NAME);
+	XMASSdll = (XMASSdll_POINTER) getFunctionPointer(XMASSdll_NAME);
+	XMOLEdll = (XMOLEdll_POINTER) getFunctionPointer(XMOLEdll_NAME);
+
+//	#if defined(__ISWINDOWS__)
+//		ABFL1dll = (ABFL1dll_POINTER) GetProcAddress(RefpropdllInstance,ABFL1dll_NAME);
+//		ABFL2dll = (ABFL2dll_POINTER) GetProcAddress(RefpropdllInstance,ABFL2dll_NAME);
+//		ACTVYdll = (ACTVYdll_POINTER) GetProcAddress(RefpropdllInstance,ACTVYdll_NAME);
+//		AGdll = (AGdll_POINTER) GetProcAddress(RefpropdllInstance,AGdll_NAME);
+//		CCRITdll = (CCRITdll_POINTER) GetProcAddress(RefpropdllInstance,CCRITdll_NAME);
+//		CP0dll = (CP0dll_POINTER) GetProcAddress(RefpropdllInstance,CP0dll_NAME);
+//		CRITPdll = (CRITPdll_POINTER) GetProcAddress(RefpropdllInstance,CRITPdll_NAME);
+//		CSATKdll = (CSATKdll_POINTER) GetProcAddress(RefpropdllInstance,CSATKdll_NAME);
+//		CV2PKdll = (CV2PKdll_POINTER) GetProcAddress(RefpropdllInstance,CV2PKdll_NAME);
+//		CVCPKdll = (CVCPKdll_POINTER) GetProcAddress(RefpropdllInstance,CVCPKdll_NAME);
+//		CVCPdll = (CVCPdll_POINTER) GetProcAddress(RefpropdllInstance,CVCPdll_NAME);
+//		DBDTdll = (DBDTdll_POINTER) GetProcAddress(RefpropdllInstance,DBDTdll_NAME);
+//		DBFL1dll = (DBFL1dll_POINTER) GetProcAddress(RefpropdllInstance,DBFL1dll_NAME);
+//		DBFL2dll = (DBFL2dll_POINTER) GetProcAddress(RefpropdllInstance,DBFL2dll_NAME);
+//		DDDPdll = (DDDPdll_POINTER) GetProcAddress(RefpropdllInstance,DDDPdll_NAME);
+//		DDDTdll = (DDDTdll_POINTER) GetProcAddress(RefpropdllInstance,DDDTdll_NAME);
+//		DEFLSHdll = (DEFLSHdll_POINTER) GetProcAddress(RefpropdllInstance,DEFLSHdll_NAME);
+//		DHD1dll = (DHD1dll_POINTER) GetProcAddress(RefpropdllInstance,DHD1dll_NAME);
+//		DHFLSHdll = (DHFLSHdll_POINTER) GetProcAddress(RefpropdllInstance,DHFLSHdll_NAME);
+//		DIELECdll = (DIELECdll_POINTER) GetProcAddress(RefpropdllInstance,DIELECdll_NAME);
+//		DOTFILLdll = (DOTFILLdll_POINTER) GetProcAddress(RefpropdllInstance,DOTFILLdll_NAME);
+//		DPDD2dll = (DPDD2dll_POINTER) GetProcAddress(RefpropdllInstance,DPDD2dll_NAME);
+//		DPDDKdll = (DPDDKdll_POINTER) GetProcAddress(RefpropdllInstance,DPDDKdll_NAME);
+//		DPDDdll = (DPDDdll_POINTER) GetProcAddress(RefpropdllInstance,DPDDdll_NAME);
+//		DPDTKdll = (DPDTKdll_POINTER) GetProcAddress(RefpropdllInstance,DPDTKdll_NAME);
+//		DPDTdll = (DPDTdll_POINTER) GetProcAddress(RefpropdllInstance,DPDTdll_NAME);
+//		DPTSATKdll = (DPTSATKdll_POINTER) GetProcAddress(RefpropdllInstance,DPTSATKdll_NAME);
+//		DSFLSHdll = (DSFLSHdll_POINTER) GetProcAddress(RefpropdllInstance,DSFLSHdll_NAME);
+//		ENTHALdll = (ENTHALdll_POINTER) GetProcAddress(RefpropdllInstance,ENTHALdll_NAME); //**
+//		ENTROdll = (ENTROdll_POINTER) GetProcAddress(RefpropdllInstance,ENTROdll_NAME);
+//		ESFLSHdll = (ESFLSHdll_POINTER) GetProcAddress(RefpropdllInstance,ESFLSHdll_NAME);
+//		FGCTYdll = (FGCTYdll_POINTER) GetProcAddress(RefpropdllInstance,FGCTYdll_NAME);
+//		FPVdll = (FPVdll_POINTER) GetProcAddress(RefpropdllInstance,FPVdll_NAME);
+//		GERG04dll = (GERG04dll_POINTER) GetProcAddress(RefpropdllInstance,GERG04dll_NAME);
+//		GETFIJdll = (GETFIJdll_POINTER) GetProcAddress(RefpropdllInstance,GETFIJdll_NAME);
+//		GETKTVdll = (GETKTVdll_POINTER) GetProcAddress(RefpropdllInstance,GETKTVdll_NAME);
+//		GIBBSdll = (GIBBSdll_POINTER) GetProcAddress(RefpropdllInstance,GIBBSdll_NAME);
+//		HSFLSHdll = (HSFLSHdll_POINTER) GetProcAddress(RefpropdllInstance,HSFLSHdll_NAME);
+//		INFOdll = (INFOdll_POINTER) GetProcAddress(RefpropdllInstance,INFOdll_NAME);
+//		LIMITKdll = (LIMITKdll_POINTER) GetProcAddress(RefpropdllInstance,LIMITKdll_NAME);
+//		LIMITSdll = (LIMITSdll_POINTER) GetProcAddress(RefpropdllInstance,LIMITSdll_NAME);
+//		LIMITXdll = (LIMITXdll_POINTER) GetProcAddress(RefpropdllInstance,LIMITXdll_NAME);
+//		MELTPdll = (MELTPdll_POINTER) GetProcAddress(RefpropdllInstance,MELTPdll_NAME);
+//		MELTTdll = (MELTTdll_POINTER) GetProcAddress(RefpropdllInstance,MELTTdll_NAME);
+//		MLTH2Odll = (MLTH2Odll_POINTER) GetProcAddress(RefpropdllInstance,MLTH2Odll_NAME);
+//		NAMEdll = (NAMEdll_POINTER) GetProcAddress(RefpropdllInstance,NAMEdll_NAME);
+//		PDFL1dll = (PDFL1dll_POINTER) GetProcAddress(RefpropdllInstance,PDFL1dll_NAME);
+//		PDFLSHdll = (PDFLSHdll_POINTER) GetProcAddress(RefpropdllInstance,PDFLSHdll_NAME);
+//		PEFLSHdll = (PEFLSHdll_POINTER) GetProcAddress(RefpropdllInstance,PEFLSHdll_NAME);
+//		PHFL1dll = (PHFL1dll_POINTER) GetProcAddress(RefpropdllInstance,PHFL1dll_NAME);
+//		PHFLSHdll = (PHFLSHdll_POINTER) GetProcAddress(RefpropdllInstance,PHFLSHdll_NAME);
+//		PQFLSHdll = (PQFLSHdll_POINTER) GetProcAddress(RefpropdllInstance,PQFLSHdll_NAME);
+//		PREOSdll = (PREOSdll_POINTER) GetProcAddress(RefpropdllInstance,PREOSdll_NAME);
+//		PRESSdll = (PRESSdll_POINTER) GetProcAddress(RefpropdllInstance,PRESSdll_NAME);
+//		PSFL1dll = (PSFL1dll_POINTER) GetProcAddress(RefpropdllInstance,PSFL1dll_NAME);
+//		PSFLSHdll = (PSFLSHdll_POINTER) GetProcAddress(RefpropdllInstance,PSFLSHdll_NAME);
+//		PUREFLDdll = (PUREFLDdll_POINTER) GetProcAddress(RefpropdllInstance,PUREFLDdll_NAME);
+//		QMASSdll = (QMASSdll_POINTER) GetProcAddress(RefpropdllInstance,QMASSdll_NAME);
+//		QMOLEdll = (QMOLEdll_POINTER) GetProcAddress(RefpropdllInstance,QMOLEdll_NAME);
+//		SATDdll = (SATDdll_POINTER) GetProcAddress(RefpropdllInstance,SATDdll_NAME);
+//		SATEdll = (SATEdll_POINTER) GetProcAddress(RefpropdllInstance,SATEdll_NAME);
+//		SATHdll = (SATHdll_POINTER) GetProcAddress(RefpropdllInstance,SATHdll_NAME);
+//		SATPdll = (SATPdll_POINTER) GetProcAddress(RefpropdllInstance,SATPdll_NAME);
+//		SATSdll = (SATSdll_POINTER) GetProcAddress(RefpropdllInstance,SATSdll_NAME);
+//		SATTdll = (SATTdll_POINTER) GetProcAddress(RefpropdllInstance,SATTdll_NAME);
+//		SETAGAdll = (SETAGAdll_POINTER) GetProcAddress(RefpropdllInstance,SETAGAdll_NAME);
+//		SETKTVdll = (SETKTVdll_POINTER) GetProcAddress(RefpropdllInstance,SETKTVdll_NAME);
+//		SETMIXdll = (SETMIXdll_POINTER) GetProcAddress(RefpropdllInstance,SETMIXdll_NAME);
+//		SETMODdll = (SETMODdll_POINTER) GetProcAddress(RefpropdllInstance,SETMODdll_NAME);
+//		SETREFdll = (SETREFdll_POINTER) GetProcAddress(RefpropdllInstance,SETREFdll_NAME);
+//		SETUPdll = (SETUPdll_POINTER) GetProcAddress(RefpropdllInstance,SETUPdll_NAME);
+////		SPECGRdll = (SPECGRdll_POINTER) GetProcAddress(RefpropdllInstance,SPECGRdll_NAME); // not in library
+//		SUBLPdll = (SUBLPdll_POINTER) GetProcAddress(RefpropdllInstance,SUBLPdll_NAME);
+//		SUBLTdll = (SUBLTdll_POINTER) GetProcAddress(RefpropdllInstance,SUBLTdll_NAME);
+//		SURFTdll = (SURFTdll_POINTER) GetProcAddress(RefpropdllInstance,SURFTdll_NAME);
+//		SURTENdll = (SURTENdll_POINTER) GetProcAddress(RefpropdllInstance,SURTENdll_NAME);
+//		TDFLSHdll = (TDFLSHdll_POINTER) GetProcAddress(RefpropdllInstance,TDFLSHdll_NAME);
+//		TEFLSHdll = (TEFLSHdll_POINTER) GetProcAddress(RefpropdllInstance,TEFLSHdll_NAME);
+//		THERM0dll = (THERM0dll_POINTER) GetProcAddress(RefpropdllInstance,THERM0dll_NAME);
+//		THERM2dll = (THERM2dll_POINTER) GetProcAddress(RefpropdllInstance,THERM2dll_NAME);
+//		THERM3dll = (THERM3dll_POINTER) GetProcAddress(RefpropdllInstance,THERM3dll_NAME);
+//		THERMdll = (THERMdll_POINTER) GetProcAddress(RefpropdllInstance,THERMdll_NAME);
+//		THFLSHdll = (THFLSHdll_POINTER) GetProcAddress(RefpropdllInstance,THFLSHdll_NAME);
+//		TPFLSHdll = (TPFLSHdll_POINTER) GetProcAddress(RefpropdllInstance,TPFLSHdll_NAME);
+//		TPRHOdll = (TPRHOdll_POINTER) GetProcAddress(RefpropdllInstance,TPRHOdll_NAME);
+//		TQFLSHdll = (TQFLSHdll_POINTER) GetProcAddress(RefpropdllInstance,TQFLSHdll_NAME);
+//		TRNPRPdll = (TRNPRPdll_POINTER) GetProcAddress(RefpropdllInstance,TRNPRPdll_NAME);
+//		TSFLSHdll = (TSFLSHdll_POINTER) GetProcAddress(RefpropdllInstance,TSFLSHdll_NAME);
+//		VIRBdll = (VIRBdll_POINTER) GetProcAddress(RefpropdllInstance,VIRBdll_NAME);
+//		VIRCdll = (VIRCdll_POINTER) GetProcAddress(RefpropdllInstance,VIRCdll_NAME);
+//		WMOLdll = (WMOLdll_POINTER) GetProcAddress(RefpropdllInstance,WMOLdll_NAME);
+//		XMASSdll = (XMASSdll_POINTER) GetProcAddress(RefpropdllInstance,XMASSdll_NAME);
+//		XMOLEdll = (XMOLEdll_POINTER) GetProcAddress(RefpropdllInstance,XMOLEdll_NAME);
+//		//  typedef void (__stdcall *fp_XMOLEdllTYPE)(double *,double *,double *);
+//		//  fp_XMOLEdllTYPE XMOLEdll;
+//	#elif defined(__ISLINUX__)
+//		ABFL1dll = (ABFL1dll_POINTER) dlsym(RefpropdllInstance,ABFL1dll_NAME);
+//		ABFL2dll = (ABFL2dll_POINTER) dlsym(RefpropdllInstance,ABFL2dll_NAME);
+//		ACTVYdll = (ACTVYdll_POINTER) dlsym(RefpropdllInstance,ACTVYdll_NAME);
+//		AGdll = (AGdll_POINTER) dlsym(RefpropdllInstance,AGdll_NAME);
+//		CCRITdll = (CCRITdll_POINTER) dlsym(RefpropdllInstance,CCRITdll_NAME);
+//		CP0dll = (CP0dll_POINTER) dlsym(RefpropdllInstance,CP0dll_NAME);
+//		CRITPdll = (CRITPdll_POINTER) dlsym(RefpropdllInstance,CRITPdll_NAME);
+//		CSATKdll = (CSATKdll_POINTER) dlsym(RefpropdllInstance,CSATKdll_NAME);
+//		CV2PKdll = (CV2PKdll_POINTER) dlsym(RefpropdllInstance,CV2PKdll_NAME);
+//		CVCPKdll = (CVCPKdll_POINTER) dlsym(RefpropdllInstance,CVCPKdll_NAME);
+//		CVCPdll = (CVCPdll_POINTER) dlsym(RefpropdllInstance,CVCPdll_NAME);
+//		DBDTdll = (DBDTdll_POINTER) dlsym(RefpropdllInstance,DBDTdll_NAME);
+//		DBFL1dll = (DBFL1dll_POINTER) dlsym(RefpropdllInstance,DBFL1dll_NAME);
+//		DBFL2dll = (DBFL2dll_POINTER) dlsym(RefpropdllInstance,DBFL2dll_NAME);
+//		DDDPdll = (DDDPdll_POINTER) dlsym(RefpropdllInstance,DDDPdll_NAME);
+//		DDDTdll = (DDDTdll_POINTER) dlsym(RefpropdllInstance,DDDTdll_NAME);
+//		DEFLSHdll = (DEFLSHdll_POINTER) dlsym(RefpropdllInstance,DEFLSHdll_NAME);
+//		DHD1dll = (DHD1dll_POINTER) dlsym(RefpropdllInstance,DHD1dll_NAME);
+//		DHFLSHdll = (DHFLSHdll_POINTER) dlsym(RefpropdllInstance,DHFLSHdll_NAME);
+//		DIELECdll = (DIELECdll_POINTER) dlsym(RefpropdllInstance,DIELECdll_NAME);
+//		DOTFILLdll = (DOTFILLdll_POINTER) dlsym(RefpropdllInstance,DOTFILLdll_NAME);
+//		DPDD2dll = (DPDD2dll_POINTER) dlsym(RefpropdllInstance,DPDD2dll_NAME);
+//		DPDDKdll = (DPDDKdll_POINTER) dlsym(RefpropdllInstance,DPDDKdll_NAME);
+//		DPDDdll = (DPDDdll_POINTER) dlsym(RefpropdllInstance,DPDDdll_NAME);
+//		DPDTKdll = (DPDTKdll_POINTER) dlsym(RefpropdllInstance,DPDTKdll_NAME);
+//		DPDTdll = (DPDTdll_POINTER) dlsym(RefpropdllInstance,DPDTdll_NAME);
+//		DPTSATKdll = (DPTSATKdll_POINTER) dlsym(RefpropdllInstance,DPTSATKdll_NAME);
+//		DSFLSHdll = (DSFLSHdll_POINTER) dlsym(RefpropdllInstance,DSFLSHdll_NAME);
+//		ENTHALdll = (ENTHALdll_POINTER) dlsym(RefpropdllInstance,ENTHALdll_NAME); //**
+//		ENTROdll = (ENTROdll_POINTER) dlsym(RefpropdllInstance,ENTROdll_NAME);
+//		ESFLSHdll = (ESFLSHdll_POINTER) dlsym(RefpropdllInstance,ESFLSHdll_NAME);
+//		FGCTYdll = (FGCTYdll_POINTER) dlsym(RefpropdllInstance,FGCTYdll_NAME);
+//		FPVdll = (FPVdll_POINTER) dlsym(RefpropdllInstance,FPVdll_NAME);
+//		GERG04dll = (GERG04dll_POINTER) dlsym(RefpropdllInstance,GERG04dll_NAME);
+//		GETFIJdll = (GETFIJdll_POINTER) dlsym(RefpropdllInstance,GETFIJdll_NAME);
+//		GETKTVdll = (GETKTVdll_POINTER) dlsym(RefpropdllInstance,GETKTVdll_NAME);
+//		GIBBSdll = (GIBBSdll_POINTER) dlsym(RefpropdllInstance,GIBBSdll_NAME);
+//		HSFLSHdll = (HSFLSHdll_POINTER) dlsym(RefpropdllInstance,HSFLSHdll_NAME);
+//		INFOdll = (INFOdll_POINTER) dlsym(RefpropdllInstance,INFOdll_NAME);
+//		LIMITKdll = (LIMITKdll_POINTER) dlsym(RefpropdllInstance,LIMITKdll_NAME);
+//		LIMITSdll = (LIMITSdll_POINTER) dlsym(RefpropdllInstance,LIMITSdll_NAME);
+//		LIMITXdll = (LIMITXdll_POINTER) dlsym(RefpropdllInstance,LIMITXdll_NAME);
+//		MELTPdll = (MELTPdll_POINTER) dlsym(RefpropdllInstance,MELTPdll_NAME);
+//		MELTTdll = (MELTTdll_POINTER) dlsym(RefpropdllInstance,MELTTdll_NAME);
+//		MLTH2Odll = (MLTH2Odll_POINTER) dlsym(RefpropdllInstance,MLTH2Odll_NAME);
+//		NAMEdll = (NAMEdll_POINTER) dlsym(RefpropdllInstance,NAMEdll_NAME);
+//		PDFL1dll = (PDFL1dll_POINTER) dlsym(RefpropdllInstance,PDFL1dll_NAME);
+//		PDFLSHdll = (PDFLSHdll_POINTER) dlsym(RefpropdllInstance,PDFLSHdll_NAME);
+//		PEFLSHdll = (PEFLSHdll_POINTER) dlsym(RefpropdllInstance,PEFLSHdll_NAME);
+//		PHFL1dll = (PHFL1dll_POINTER) dlsym(RefpropdllInstance,PHFL1dll_NAME);
+//		PHFLSHdll = (PHFLSHdll_POINTER) dlsym(RefpropdllInstance,PHFLSHdll_NAME);
+//		PQFLSHdll = (PQFLSHdll_POINTER) dlsym(RefpropdllInstance,PQFLSHdll_NAME);
+//		PREOSdll = (PREOSdll_POINTER) dlsym(RefpropdllInstance,PREOSdll_NAME);
+//		PRESSdll = (PRESSdll_POINTER) dlsym(RefpropdllInstance,PRESSdll_NAME);
+//		PSFL1dll = (PSFL1dll_POINTER) dlsym(RefpropdllInstance,PSFL1dll_NAME);
+//		PSFLSHdll = (PSFLSHdll_POINTER) dlsym(RefpropdllInstance,PSFLSHdll_NAME);
+//		PUREFLDdll = (PUREFLDdll_POINTER) dlsym(RefpropdllInstance,PUREFLDdll_NAME);
+//		QMASSdll = (QMASSdll_POINTER) dlsym(RefpropdllInstance,QMASSdll_NAME);
+//		QMOLEdll = (QMOLEdll_POINTER) dlsym(RefpropdllInstance,QMOLEdll_NAME);
+//		SATDdll = (SATDdll_POINTER) dlsym(RefpropdllInstance,SATDdll_NAME);
+//		SATEdll = (SATEdll_POINTER) dlsym(RefpropdllInstance,SATEdll_NAME);
+//		SATHdll = (SATHdll_POINTER) dlsym(RefpropdllInstance,SATHdll_NAME);
+//		SATPdll = (SATPdll_POINTER) dlsym(RefpropdllInstance,SATPdll_NAME);
+//		SATSdll = (SATSdll_POINTER) dlsym(RefpropdllInstance,SATSdll_NAME);
+//		SATTdll = (SATTdll_POINTER) dlsym(RefpropdllInstance,SATTdll_NAME);
+//		SETAGAdll = (SETAGAdll_POINTER) dlsym(RefpropdllInstance,SETAGAdll_NAME);
+//		SETKTVdll = (SETKTVdll_POINTER) dlsym(RefpropdllInstance,SETKTVdll_NAME);
+//		SETMIXdll = (SETMIXdll_POINTER) dlsym(RefpropdllInstance,SETMIXdll_NAME);
+//		SETMODdll = (SETMODdll_POINTER) dlsym(RefpropdllInstance,SETMODdll_NAME);
+//		SETREFdll = (SETREFdll_POINTER) dlsym(RefpropdllInstance,SETREFdll_NAME);
+//		SETUPdll = (SETUPdll_POINTER) dlsym(RefpropdllInstance,SETUPdll_NAME);
+////		SPECGRdll = (SPECGRdll_POINTER) dlsym(RefpropdllInstance,SPECGRdll_NAME); // not in library
+//		SUBLPdll = (SUBLPdll_POINTER) dlsym(RefpropdllInstance,SUBLPdll_NAME);
+//		SUBLTdll = (SUBLTdll_POINTER) dlsym(RefpropdllInstance,SUBLTdll_NAME);
+//		SURFTdll = (SURFTdll_POINTER) dlsym(RefpropdllInstance,SURFTdll_NAME);
+//		SURTENdll = (SURTENdll_POINTER) dlsym(RefpropdllInstance,SURTENdll_NAME);
+//		TDFLSHdll = (TDFLSHdll_POINTER) dlsym(RefpropdllInstance,TDFLSHdll_NAME);
+//		TEFLSHdll = (TEFLSHdll_POINTER) dlsym(RefpropdllInstance,TEFLSHdll_NAME);
+//		THERM0dll = (THERM0dll_POINTER) dlsym(RefpropdllInstance,THERM0dll_NAME);
+//		THERM2dll = (THERM2dll_POINTER) dlsym(RefpropdllInstance,THERM2dll_NAME);
+//		THERM3dll = (THERM3dll_POINTER) dlsym(RefpropdllInstance,THERM3dll_NAME);
+//		THERMdll = (THERMdll_POINTER) dlsym(RefpropdllInstance,THERMdll_NAME);
+//		THFLSHdll = (THFLSHdll_POINTER) dlsym(RefpropdllInstance,THFLSHdll_NAME);
+//		TPFLSHdll = (TPFLSHdll_POINTER) dlsym(RefpropdllInstance,TPFLSHdll_NAME);
+//		TPRHOdll = (TPRHOdll_POINTER) dlsym(RefpropdllInstance,TPRHOdll_NAME);
+//		TQFLSHdll = (TQFLSHdll_POINTER) dlsym(RefpropdllInstance,TQFLSHdll_NAME);
+//		TRNPRPdll = (TRNPRPdll_POINTER) dlsym(RefpropdllInstance,TRNPRPdll_NAME);
+//		TSFLSHdll = (TSFLSHdll_POINTER) dlsym(RefpropdllInstance,TSFLSHdll_NAME);
+//		VIRBdll = (VIRBdll_POINTER) dlsym(RefpropdllInstance,VIRBdll_NAME);
+//		VIRCdll = (VIRCdll_POINTER) dlsym(RefpropdllInstance,VIRCdll_NAME);
+//		WMOLdll = (WMOLdll_POINTER) dlsym(RefpropdllInstance,WMOLdll_NAME);
+//		XMASSdll = (XMASSdll_POINTER) dlsym(RefpropdllInstance,XMASSdll_NAME);
+//		XMOLEdll = (XMOLEdll_POINTER) dlsym(RefpropdllInstance,XMOLEdll_NAME);
+//		//  typedef void (CALLCONV XMOLEdll_TYPE)(double *,double *,double *);
+//		//  XMOLEdll_TYPE XMOLEdll;
+//		//  typedef XMOLEdll_TYPE * XMOLEdll_POINTER
+//		char herr[errormessagelength+1];
+//		if ((herr = dlerror()) != NULL)  {
+//			fputs(herr, stderr);
+//		    exit(1);
+//		}
+//	#endif //defined(__ISLINUX__)
+	return OK;
+}
+
+
+
 long i;
-char hfmix[] = "hmx.bnc";
+char hfmix[] = "HMX.BNC";
 char hrf[] = "DEF";
+
+#if defined(__ISWINDOWS__)
+char refpropPath[] = "";
+#elif defined(__ISLINUX__)
+char refpropPath[] = "/opt/refprop";
+#endif
 
 double REFPROP(char Output, char Name1, double Prop1, char Name2, double Prop2, char * Ref)
 {
@@ -240,6 +490,10 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 		uv,pl,pv,hjt,eta,tcx,Q,Tcrit,pcrit,dcrit,rho,sigma;
 	std::string sRef;
 	std::string RefString;
+	std::string rpPath (refpropPath);
+
+	std::string fdPath = rpPath + std::string("/fluids/");
+
 	// First create a pointer to an instance of the library
 	// Then have windows load the library.
 	
@@ -247,110 +501,30 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 	if (RefpropdllInstance==NULL)
 	{
 		// Load it
-		#if defined(UNICODE)
-			RefpropdllInstance = LoadLibrary((LPCWSTR)"refprop.dll");
-		#else
-			RefpropdllInstance = LoadLibrary((LPCSTR)"refprop.dll");
+		#if defined(__ISWINDOWS__)
+			#if defined(UNICODE)
+				RefpropdllInstance = LoadLibrary((LPCWSTR)"refprop.dll");
+			#else
+				RefpropdllInstance = LoadLibrary((LPCSTR)"refprop.dll");
+			#endif
+		#elif defined(__ISLINUX__)
+			RefpropdllInstance = dlopen ("librefprop.so", RTLD_LAZY);
 		#endif
-		if (RefpropdllInstance == NULL)
+
+		if (RefpropdllInstance==NULL)
 		{
-			throw ValueError(format("Could not load REFPROP, not in current location or found on system PATH.  Add location of REFPROP to the PATH environmental variable\n"));
+			#if defined(__ISLINUX__)
+				fputs (dlerror(), stderr);
+			#endif
+			printf("Could not load REFPROP, not in current location or found on system PATH. Add location of REFPROP to the PATH environmental variable\n");
+			return -_HUGE;
 		}
 
-		// Then get pointers into the dll to the actual functions.
-		ABFL1dll = (fp_ABFL1dllTYPE) GetProcAddress(RefpropdllInstance,"ABFL1dll");
-		ABFL2dll = (fp_ABFL2dllTYPE) GetProcAddress(RefpropdllInstance,"ABFL2dll");
-		ACTVYdll = (fp_ACTVYdllTYPE) GetProcAddress(RefpropdllInstance,"ACTVYdll");
-		AGdll = (fp_AGdllTYPE) GetProcAddress(RefpropdllInstance,"AGdll");
-		CCRITdll = (fp_CCRITdllTYPE) GetProcAddress(RefpropdllInstance,"CCRITdll");
-		CP0dll = (fp_CP0dllTYPE) GetProcAddress(RefpropdllInstance,"CP0dll");
-		CRITPdll = (fp_CRITPdllTYPE) GetProcAddress(RefpropdllInstance,"CRITPdll");
-		CSATKdll = (fp_CSATKdllTYPE) GetProcAddress(RefpropdllInstance,"CSATKdll");
-		CV2PKdll = (fp_CV2PKdllTYPE) GetProcAddress(RefpropdllInstance,"CV2PKdll");
-		CVCPKdll = (fp_CVCPKdllTYPE) GetProcAddress(RefpropdllInstance,"CVCPKdll");
-		CVCPdll = (fp_CVCPdllTYPE) GetProcAddress(RefpropdllInstance,"CVCPdll"); 
-		DBDTdll = (fp_DBDTdllTYPE) GetProcAddress(RefpropdllInstance,"DBDTdll");
-		DBFL1dll = (fp_DBFL1dllTYPE) GetProcAddress(RefpropdllInstance,"DBFL1dll");
-		DBFL2dll = (fp_DBFL2dllTYPE) GetProcAddress(RefpropdllInstance,"DBFL2dll");
-		DDDPdll = (fp_DDDPdllTYPE) GetProcAddress(RefpropdllInstance,"DDDPdll");
-		DDDTdll = (fp_DDDTdllTYPE) GetProcAddress(RefpropdllInstance,"DDDTdll");
-		DEFLSHdll = (fp_DEFLSHdllTYPE) GetProcAddress(RefpropdllInstance,"DEFLSHdll");
-		DHD1dll = (fp_DHD1dllTYPE) GetProcAddress(RefpropdllInstance,"DHD1dll");
-		DHFLSHdll = (fp_DHFLSHdllTYPE) GetProcAddress(RefpropdllInstance,"DHFLSHdll");
-		DIELECdll = (fp_DIELECdllTYPE) GetProcAddress(RefpropdllInstance,"DIELECdll");
-		DOTFILLdll = (fp_DOTFILLdllTYPE) GetProcAddress(RefpropdllInstance,"DOTFILLdll");
-		DPDD2dll = (fp_DPDD2dllTYPE) GetProcAddress(RefpropdllInstance,"DPDD2dll");
-		DPDDKdll = (fp_DPDDKdllTYPE) GetProcAddress(RefpropdllInstance,"DPDDKdll");
-		DPDDdll = (fp_DPDDdllTYPE) GetProcAddress(RefpropdllInstance,"DPDDdll");
-		DPDTKdll = (fp_DPDTKdllTYPE) GetProcAddress(RefpropdllInstance,"DPDTKdll");
-		DPDTdll = (fp_DPDTdllTYPE) GetProcAddress(RefpropdllInstance,"DPDTdll");
-		DPTSATKdll = (fp_DPTSATKdllTYPE) GetProcAddress(RefpropdllInstance,"DPTSATKdll");
-		DSFLSHdll = (fp_DSFLSHdllTYPE) GetProcAddress(RefpropdllInstance,"DSFLSHdll");
-		ENTHALdll = (fp_ENTHALdllTYPE) GetProcAddress(RefpropdllInstance,"ENTHALdll"); //**
-		ENTROdll = (fp_ENTROdllTYPE) GetProcAddress(RefpropdllInstance,"ENTROdll");
-		ESFLSHdll = (fp_ESFLSHdllTYPE) GetProcAddress(RefpropdllInstance,"ESFLSHdll");
-		FGCTYdll = (fp_FGCTYdllTYPE) GetProcAddress(RefpropdllInstance,"FGCTYdll");
-		FPVdll = (fp_FPVdllTYPE) GetProcAddress(RefpropdllInstance,"FPVdll");
-		GERG04dll = (fp_GERG04dllTYPE) GetProcAddress(RefpropdllInstance,"GERG04dll");
-		GETFIJdll = (fp_GETFIJdllTYPE) GetProcAddress(RefpropdllInstance,"GETFIJdll");
-		GETKTVdll = (fp_GETKTVdllTYPE) GetProcAddress(RefpropdllInstance,"GETKTVdll");
-		GIBBSdll = (fp_GIBBSdllTYPE) GetProcAddress(RefpropdllInstance,"GIBBSdll");
-		HSFLSHdll = (fp_HSFLSHdllTYPE) GetProcAddress(RefpropdllInstance,"HSFLSHdll");
-		INFOdll = (fp_INFOdllTYPE) GetProcAddress(RefpropdllInstance,"INFOdll");
-		LIMITKdll = (fp_LIMITKdllTYPE) GetProcAddress(RefpropdllInstance,"LIMITKdll");
-		LIMITSdll = (fp_LIMITSdllTYPE) GetProcAddress(RefpropdllInstance,"LIMITSdll");
-		LIMITXdll = (fp_LIMITXdllTYPE) GetProcAddress(RefpropdllInstance,"LIMITXdll");
-		MELTPdll = (fp_MELTPdllTYPE) GetProcAddress(RefpropdllInstance,"MELTPdll");
-		MELTTdll = (fp_MELTTdllTYPE) GetProcAddress(RefpropdllInstance,"MELTTdll");
-		MLTH2Odll = (fp_MLTH2OdllTYPE) GetProcAddress(RefpropdllInstance,"MLTH2Odll");
-		NAMEdll = (fp_NAMEdllTYPE) GetProcAddress(RefpropdllInstance,"NAMEdll");
-		PDFL1dll = (fp_PDFL1dllTYPE) GetProcAddress(RefpropdllInstance,"PDFL1dll");
-		PDFLSHdll = (fp_PDFLSHdllTYPE) GetProcAddress(RefpropdllInstance,"PDFLSHdll");
-		PEFLSHdll = (fp_PEFLSHdllTYPE) GetProcAddress(RefpropdllInstance,"PEFLSHdll");
-		PHFL1dll = (fp_PHFL1dllTYPE) GetProcAddress(RefpropdllInstance,"PHFL1dll");
-		PHFLSHdll = (fp_PHFLSHdllTYPE) GetProcAddress(RefpropdllInstance,"PHFLSHdll");
-		PQFLSHdll = (fp_PQFLSHdllTYPE) GetProcAddress(RefpropdllInstance,"PQFLSHdll");
-		PREOSdll = (fp_PREOSdllTYPE) GetProcAddress(RefpropdllInstance,"PREOSdll");
-		PRESSdll = (fp_PRESSdllTYPE) GetProcAddress(RefpropdllInstance,"PRESSdll");
-		PSFL1dll = (fp_PSFL1dllTYPE) GetProcAddress(RefpropdllInstance,"PSFL1dll");
-		PSFLSHdll = (fp_PSFLSHdllTYPE) GetProcAddress(RefpropdllInstance,"PSFLSHdll");
-		PUREFLDdll = (fp_PUREFLDdllTYPE) GetProcAddress(RefpropdllInstance,"PUREFLDdll");
-		QMASSdll = (fp_QMASSdllTYPE) GetProcAddress(RefpropdllInstance,"QMASSdll");
-		QMOLEdll = (fp_QMOLEdllTYPE) GetProcAddress(RefpropdllInstance,"QMOLEdll");
-		SATDdll = (fp_SATDdllTYPE) GetProcAddress(RefpropdllInstance,"SATDdll");
-		SATEdll = (fp_SATEdllTYPE) GetProcAddress(RefpropdllInstance,"SATEdll");
-		SATHdll = (fp_SATHdllTYPE) GetProcAddress(RefpropdllInstance,"SATHdll");
-		SATPdll = (fp_SATPdllTYPE) GetProcAddress(RefpropdllInstance,"SATPdll");
-		SATSdll = (fp_SATSdllTYPE) GetProcAddress(RefpropdllInstance,"SATSdll");
-		SATTdll = (fp_SATTdllTYPE) GetProcAddress(RefpropdllInstance,"SATTdll");
-		SETAGAdll = (fp_SETAGAdllTYPE) GetProcAddress(RefpropdllInstance,"SETAGAdll");
-		SETKTVdll = (fp_SETKTVdllTYPE) GetProcAddress(RefpropdllInstance,"SETKTVdll");
-		SETMIXdll = (fp_SETMIXdllTYPE) GetProcAddress(RefpropdllInstance,"SETMIXdll");
-		SETMODdll = (fp_SETMODdllTYPE) GetProcAddress(RefpropdllInstance,"SETMODdll");
-		SETREFdll = (fp_SETREFdllTYPE) GetProcAddress(RefpropdllInstance,"SETREFdll");
-		SETUPdll = (fp_SETUPdllTYPE) GetProcAddress(RefpropdllInstance,"SETUPdll");
-		SPECGRdll = (fp_SPECGRdllTYPE) GetProcAddress(RefpropdllInstance,"SPECGRdll");
-		SUBLPdll = (fp_SUBLPdllTYPE) GetProcAddress(RefpropdllInstance,"SUBLPdll");
-		SUBLTdll = (fp_SUBLTdllTYPE) GetProcAddress(RefpropdllInstance,"SUBLTdll");
-		SURFTdll = (fp_SURFTdllTYPE) GetProcAddress(RefpropdllInstance,"SURFTdll");
-		SURTENdll = (fp_SURTENdllTYPE) GetProcAddress(RefpropdllInstance,"SURTENdll");
-		TDFLSHdll = (fp_TDFLSHdllTYPE) GetProcAddress(RefpropdllInstance,"TDFLSHdll");
-		TEFLSHdll = (fp_TEFLSHdllTYPE) GetProcAddress(RefpropdllInstance,"TEFLSHdll");
-		THERM0dll = (fp_THERM0dllTYPE) GetProcAddress(RefpropdllInstance,"THERM0dll");
-		THERM2dll = (fp_THERM2dllTYPE) GetProcAddress(RefpropdllInstance,"THERM2dll");
-		THERM3dll = (fp_THERM3dllTYPE) GetProcAddress(RefpropdllInstance,"THERM3dll");
-		THERMdll = (fp_THERMdllTYPE) GetProcAddress(RefpropdllInstance,"THERMdll");
-		THFLSHdll = (fp_THFLSHdllTYPE) GetProcAddress(RefpropdllInstance,"THFLSHdll");
-		TPFLSHdll = (fp_TPFLSHdllTYPE) GetProcAddress(RefpropdllInstance,"TPFLSHdll");
-		TPRHOdll = (fp_TPRHOdllTYPE) GetProcAddress(RefpropdllInstance,"TPRHOdll");
-		TQFLSHdll = (fp_TQFLSHdllTYPE) GetProcAddress(RefpropdllInstance,"TQFLSHdll");
-		TRNPRPdll = (fp_TRNPRPdllTYPE) GetProcAddress(RefpropdllInstance,"TRNPRPdll");
-		TSFLSHdll = (fp_TSFLSHdllTYPE) GetProcAddress(RefpropdllInstance,"TSFLSHdll");
-		VIRBdll = (fp_VIRBdllTYPE) GetProcAddress(RefpropdllInstance,"VIRBdll");
-		VIRCdll = (fp_VIRCdllTYPE) GetProcAddress(RefpropdllInstance,"VIRCdll");
-		WMOLdll = (fp_WMOLdllTYPE) GetProcAddress(RefpropdllInstance,"WMOLdll");
-		XMASSdll = (fp_XMASSdllTYPE) GetProcAddress(RefpropdllInstance,"XMASSdll");
-		XMOLEdll = (fp_XMOLEdllTYPE) GetProcAddress(RefpropdllInstance,"XMOLEdll");
+		if (setFunctionPointers()!=OK)
+		{
+			printf("There was an error setting the REFPROP function pointers, check types and names in header file.\n");
+			return -_HUGE;
+		}
 	}
 	
 	
@@ -371,6 +545,8 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 	// that of the currently loaded refrigerant
 	if (LoadedREFPROPRef.compare(Ref))
 	{
+//		std::string refpropFluidPath(refpropfluidpath);
+//		std::string hfmixStr = refpropFluidPath + std::string(hfmix);
 		if (!strncmp(sRef.c_str(),"MIX",3))
 		{
 			// Sample sRef is "MIX:R32[0.697615]&R125[0.302385]" -  this is R410A
@@ -391,10 +567,10 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 				
 				// Build the refrigerant string
 				if (j == 0){
-					RefString = comp_fraction[0]+".fld";
+					RefString = fdPath + comp_fraction[0]+".fld";
 				}
 				else{
-					RefString += "|"+comp_fraction[0]+".fld";
+					RefString += "|" + fdPath + comp_fraction[0]+".fld";
 				}
 				// Convert the mole fraction (as string) to a number
 				x[j] = strtod(comp_fraction[1].c_str(),NULL);
@@ -406,7 +582,7 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 		else if (!sRef.compare("Air") || !sRef.compare("R507A") || !sRef.compare("R404A") || !sRef.compare("R410A") || !sRef.compare("R407C") || !sRef.compare("SES36"))
 		{
 			i=1;
-			RefString = std::string(sRef)+std::string(".ppf");
+			RefString = fdPath + std::string(sRef)+std::string(".ppf");
 			x[0]=1.0;     //Pseudo-Pure fluid
 		}
 		/*else if (!strcmp(Ref,"R507A"))
@@ -442,17 +618,32 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 		else
 		{
 			i=1;
-			RefString = std::string(sRef)+std::string(".fld");
+			RefString = fdPath + std::string(sRef)+std::string(".fld");
 			x[0]=1.0;     //Pure fluid
 		}
 
 		strcpy(hf,RefString.c_str());
 
 		ierr=999;
+		// Set path to fluid files
+//		// std::string rpPath (refpropfluidpath);
+//		if (rpPath.length()>0)
+//		{
+//			printf("Setting REFPROP path to: %s\n",rpPath.c_str());
+//			char refproppath[refpropcharlength+1];
+//			strcpy(refproppath,rpPath.c_str());
+//			SETPATHdll(refproppath);
+//			free(refproppath);
+//		}
+
 		//...Call SETUP to initialize the program
-		SETUPdll(&i, hf, hfmix, hrf, &ierr, herr,
-			refpropcharlength*ncmax,refpropcharlength,
-			lengthofreference,errormessagelength);
+		char* hfm = (char*) calloc(refpropcharlength+8, sizeof(char));
+		strcpy(hfm,fdPath.c_str());
+		strcat(hfm,hfmix);
+		SETUPdll(&i, hf, hfm, hrf, &ierr, herr,
+				refpropcharlength*ncmax,refpropcharlength,
+				lengthofreference,errormessagelength);
+
 		if (ierr != 0) printf("REFPROP setup gives this error during SETUP: %s\n",herr);
 		//Copy the name of the loaded refrigerant back into the temporary holder
 		LoadedREFPROPRef = std::string(Ref);
@@ -859,4 +1050,4 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 	else
 		return _HUGE;
 }
-#endif
+#endif //#if defined(__ISWINDOWS__)||defined(__ISLINUX__)

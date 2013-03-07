@@ -1,63 +1,82 @@
 within ;
-package CoolProp2Modelica
-  import SI = Modelica.SIunits;
+package CoolProp2Modelica 
+import SI = Modelica.SIunits;
+
+
   package Common "Package with common definitions"
     type InputChoice = enumeration(
-        dT "(d,T) as inputs",
-        ph "(p,h) as inputs",
-        ps "(p,s) as inputs",
-        pT "(p,T) as inputs"); 
+      dT "(d,T) as inputs",
+      ph "(p,h) as inputs",
+      ps "(p,s) as inputs",
+      pT "(p,T) as inputs");
+    type InputChoiceMixture = enumeration(
+      dTX "(d,T,X) as inputs",
+      phX "(p,h,X) as inputs",
+      psX "(p,s,X) as inputs",
+      pTX "(p,T,X) as inputs");
   end Common;
 
-  package Media "Medium packages compatible with Modelica.Media"
-    package ExternalTwoPhaseMedium "Generic external two phase medium package"
+
+  package Interfaces
+  "Interface definitions for compatibility to other packages like ExternalMedia"
+  extends Modelica.Icons.InterfacesPackage;
+    partial package ExternalTwoPhaseMedium
+    "Generic external two phase medium package"
       extends Modelica.Media.Interfaces.PartialTwoPhaseMedium(
         mediumName = "ExternalMedium",
         singleState = false,
         onePhase = false,
         smoothModel = false,
         fluidConstants = {externalFluidConstants});
-      import CoolProp2Modelica.Common.InputChoice;
+    import CoolProp2Modelica.Common.InputChoice;
       constant String libraryName = "UnusableExternalMedium"
-        "Name of the external fluid property computation library";
-      final constant String substanceName = substanceNames[1]
-        "Only one substance can be specified";
+      "Name of the external fluid property computation library";
+      constant String substanceName = substanceNames[1]
+      "Only one substance can be specified";
+
+      redeclare record extends FluidConstants "external fluid constants"
+        MolarMass molarMass "molecular mass";
+        Temperature criticalTemperature "critical temperature";
+        AbsolutePressure criticalPressure "critical pressure";
+        MolarVolume criticalMolarVolume "critical molar Volume";
+      end FluidConstants;
+
       constant FluidConstants externalFluidConstants = FluidConstants(
-        iupacName=  "unknown",
-        casRegistryNumber=  "unknown",
-        chemicalFormula=  "unknown",
-        structureFormula=  "unknown",
-        molarMass=  getMolarMass(),
+        iupacName=            "unknown",
+        casRegistryNumber=    "unknown",
+        chemicalFormula=      "unknown",
+        structureFormula=     "unknown",
+        molarMass=            getMolarMass(),
         criticalTemperature=  getCriticalTemperature(),
-        criticalPressure=  getCriticalPressure(),
+        criticalPressure=     getCriticalPressure(),
         criticalMolarVolume=  getCriticalMolarVolume(),
-        acentricFactor=  0,
+        acentricFactor=       0,
         triplePointTemperature=  280.0,
         triplePointPressure=  500.0,
-        meltingPoint=  280,
-        normalBoilingPoint=  380.0,
-        dipoleMoment=  2.0);
+        meltingPoint=         280,
+        normalBoilingPoint=   380.0,
+        dipoleMoment=         2.0);
+
       constant InputChoice inputChoice=InputChoice.ph
-        "Default choice of input variables for property computations";
+      "Default choice of input variables for property computations";
       redeclare replaceable record extends ThermodynamicState
         PrandtlNumber Pr "prandtl number";
         Temperature T "temperature";
         VelocityOfSound a "velocity of sound";
         Modelica.SIunits.CubicExpansionCoefficient beta
-          "isobaric expansion coefficient";
+        "isobaric expansion coefficient";
         SpecificHeatCapacity cp "specific heat capacity cp";
         SpecificHeatCapacity cv "specific heat capacity cv";
         Density d "density";
         DerDensityByEnthalpy ddhp
-          "derivative of density wrt enthalpy at constant pressure";
+        "derivative of density wrt enthalpy at constant pressure";
         DerDensityByPressure ddph
-          "derivative of density wrt pressure at constant enthalpy";
+        "derivative of density wrt pressure at constant enthalpy";
         DynamicViscosity eta "dynamic viscosity";
         SpecificEnthalpy h "specific enthalpy";
         Modelica.SIunits.Compressibility kappa "compressibility";
         ThermalConductivity lambda "thermal conductivity";
         AbsolutePressure p "pressure";
-        Integer phase "phase flag: 2 for two-phase, 1 for one-phase";
         SpecificEntropy s "specific entropy";
       end ThermodynamicState;
 
@@ -71,7 +90,7 @@ package CoolProp2Modelica
         Density dl "density at bubble line (for pressure ps)";
         Density dv "density at dew line (for pressure ps)";
         SpecificEnthalpy hl
-          "specific enthalpy at bubble line (for pressure ps)";
+        "specific enthalpy at bubble line (for pressure ps)";
         SpecificEnthalpy hv "specific enthalpy at dew line (for pressure ps)";
         AbsolutePressure psat "saturation pressure";
         SurfaceTension sigma "surface tension";
@@ -95,17 +114,17 @@ package CoolProp2Modelica
         d(stateSelect = if preferredMediumStates and
                            basePropertiesInputChoice == InputChoice.dT then
                              StateSelect.prefer else StateSelect.default))
-        import CoolProp2Modelica.Common.InputChoice;
+      import CoolProp2Modelica.Common.InputChoice;
         parameter InputChoice basePropertiesInputChoice=inputChoice
-          "Choice of input variables for property computations";
+        "Choice of input variables for property computations";
         FixedPhase phaseInput
-          "Phase input for property computation functions, 2 for two-phase, 1 for one-phase, 0 if not known";
+        "Phase input for property computation functions, 2 for two-phase, 1 for one-phase, 0 if not known";
         Integer phaseOutput
-          "Phase output for medium, 2 for two-phase, 1 for one-phase";
+        "Phase output for medium, 2 for two-phase, 1 for one-phase";
         SpecificEntropy s(
           stateSelect = if basePropertiesInputChoice == InputChoice.ps then
                            StateSelect.prefer else StateSelect.default)
-          "Specific entropy";
+        "Specific entropy";
         SaturationProperties sat "saturation property record";
       equation
         MM = externalFluidConstants.molarMass;
@@ -197,55 +216,55 @@ package CoolProp2Modelica
       end getCriticalMolarVolume;
 
       redeclare replaceable function setState_ph
-        "Return thermodynamic state record from p and h"
+      "Return thermodynamic state record from p and h"
         extends Modelica.Icons.Function;
         input AbsolutePressure p "pressure";
         input SpecificEnthalpy h "specific enthalpy";
         input FixedPhase phase = 0
-          "2 for two-phase, 1 for one-phase, 0 if not known";
+        "2 for two-phase, 1 for one-phase, 0 if not known";
         output ThermodynamicState state;
       external "C" TwoPhaseMedium_setState_ph_(p, h, phase, state, mediumName, libraryName, substanceName)
         annotation(Include="#include <CoolPropLib.h>", Library="CoolPropLib");
       end setState_ph;
 
       redeclare replaceable function setState_pT
-        "Return thermodynamic state record from p and T"
+      "Return thermodynamic state record from p and T"
         extends Modelica.Icons.Function;
         input AbsolutePressure p "pressure";
         input Temperature T "temperature";
         input FixedPhase phase = 0
-          "2 for two-phase, 1 for one-phase, 0 if not known";
+        "2 for two-phase, 1 for one-phase, 0 if not known";
         output ThermodynamicState state;
       external "C" TwoPhaseMedium_setState_pT_(p, T, state, mediumName, libraryName, substanceName)
         annotation(Include="#include <CoolPropLib.h>", Library="CoolPropLib");
       end setState_pT;
 
       redeclare replaceable function setState_dT
-        "Return thermodynamic state record from d and T"
+      "Return thermodynamic state record from d and T"
         extends Modelica.Icons.Function;
         input Density d "density";
         input Temperature T "temperature";
         input FixedPhase phase = 0
-          "2 for two-phase, 1 for one-phase, 0 if not known";
+        "2 for two-phase, 1 for one-phase, 0 if not known";
         output ThermodynamicState state;
       external "C" TwoPhaseMedium_setState_dT_(d, T, phase, state, mediumName, libraryName, substanceName)
         annotation(Include="#include <CoolPropLib.h>", Library="CoolPropLib");
       end setState_dT;
 
       redeclare replaceable function setState_ps
-        "Return thermodynamic state record from p and s"
+      "Return thermodynamic state record from p and s"
         extends Modelica.Icons.Function;
         input AbsolutePressure p "pressure";
         input SpecificEntropy s "specific entropy";
         input FixedPhase phase = 0
-          "2 for two-phase, 1 for one-phase, 0 if not known";
+        "2 for two-phase, 1 for one-phase, 0 if not known";
         output ThermodynamicState state;
       external "C" TwoPhaseMedium_setState_ps_(p, s, phase, state, mediumName, libraryName, substanceName)
         annotation(Include="#include <CoolPropLib.h>", Library="CoolPropLib");
       end setState_ps;
 
       replaceable partial function setSat_p_state
-        "Return saturation properties from the state"
+      "Return saturation properties from the state"
         extends Modelica.Icons.Function;
         input ThermodynamicState state;
         output SaturationProperties sat "saturation property record";
@@ -289,7 +308,7 @@ package CoolProp2Modelica
         input AbsolutePressure p "Pressure";
         input SpecificEnthalpy h "Specific enthalpy";
         input FixedPhase phase = 0
-          "2 for two-phase, 1 for one-phase, 0 if not known";
+        "2 for two-phase, 1 for one-phase, 0 if not known";
         output Density d "Density";
       algorithm
         d := density(setState_ph(p, h, phase));
@@ -301,12 +320,12 @@ package CoolProp2Modelica
       end density_ph;
 
       redeclare replaceable function temperature_ph
-        "Return temperature from p and h"
+      "Return temperature from p and h"
         extends Modelica.Icons.Function;
         input AbsolutePressure p "Pressure";
         input SpecificEnthalpy h "Specific enthalpy";
         input FixedPhase phase = 0
-          "2 for two-phase, 1 for one-phase, 0 if not known";
+        "2 for two-phase, 1 for one-phase, 0 if not known";
         output Temperature T "Temperature";
       algorithm
         T := temperature(setState_ph(p, h, phase));
@@ -314,12 +333,12 @@ package CoolProp2Modelica
       end temperature_ph;
 
       replaceable function specificEntropy_ph
-        "Return specific entropy from p and h"
+      "Return specific entropy from p and h"
         extends Modelica.Icons.Function;
         input AbsolutePressure p "Pressure";
         input SpecificEnthalpy h "Specific enthalpy";
         input FixedPhase phase = 0
-          "2 for two-phase, 1 for one-phase, 0 if not known";
+        "2 for two-phase, 1 for one-phase, 0 if not known";
         output SpecificEntropy s "specific entropy";
       algorithm
         s := specificEntropy(setState_ph(p, h, phase));
@@ -331,7 +350,7 @@ package CoolProp2Modelica
         input AbsolutePressure p "Pressure";
         input Temperature T "Temperature";
         input FixedPhase phase = 0
-          "2 for two-phase, 1 for one-phase, 0 if not known";
+        "2 for two-phase, 1 for one-phase, 0 if not known";
         output Density d "Density";
       algorithm
         d := density(setState_pT(p, T, phase));
@@ -340,12 +359,12 @@ package CoolProp2Modelica
       end density_pT;
 
       replaceable partial function density_pT_der
-        "Total derivative of density_pT"
+      "Total derivative of density_pT"
         extends Modelica.Icons.Function;
         input AbsolutePressure p "Pressure";
         input Temperature T "Temperature";
         input FixedPhase phase
-          "2 for two-phase, 1 for one-phase, 0 if not known";
+        "2 for two-phase, 1 for one-phase, 0 if not known";
         input Real p_der;
         input Real T_der;
         output Real d_der;
@@ -354,12 +373,12 @@ package CoolProp2Modelica
       end density_pT_der;
 
       redeclare replaceable function specificEnthalpy_pT
-        "Return specific enthalpy from p and T"
+      "Return specific enthalpy from p and T"
         extends Modelica.Icons.Function;
         input AbsolutePressure p "Pressure";
         input Temperature T "Temperature";
         input FixedPhase phase = 0
-          "2 for two-phase, 1 for one-phase, 0 if not known";
+        "2 for two-phase, 1 for one-phase, 0 if not known";
         output SpecificEnthalpy h "specific enthalpy";
       algorithm
         h := specificEnthalpy(setState_pT(p, T, phase));
@@ -371,7 +390,7 @@ package CoolProp2Modelica
         input Density d "Density";
         input Temperature T "Temperature";
         input FixedPhase phase = 0
-          "2 for two-phase, 1 for one-phase, 0 if not known";
+        "2 for two-phase, 1 for one-phase, 0 if not known";
         output AbsolutePressure p "Pressure";
       algorithm
         p := pressure(setState_dT(d, T, phase));
@@ -379,12 +398,12 @@ package CoolProp2Modelica
       end pressure_dT;
 
       redeclare replaceable function specificEnthalpy_dT
-        "Return specific enthalpy from d and T"
+      "Return specific enthalpy from d and T"
         extends Modelica.Icons.Function;
         input Density d "Density";
         input Temperature T "Temperature";
         input FixedPhase phase = 0
-          "2 for two-phase, 1 for one-phase, 0 if not known";
+        "2 for two-phase, 1 for one-phase, 0 if not known";
         output SpecificEnthalpy h "specific enthalpy";
       algorithm
         h := specificEnthalpy(setState_dT(d, T, phase));
@@ -396,7 +415,7 @@ package CoolProp2Modelica
         input AbsolutePressure p "Pressure";
         input SpecificEntropy s "Specific entropy";
         input FixedPhase phase = 0
-          "2 for two-phase, 1 for one-phase, 0 if not known";
+        "2 for two-phase, 1 for one-phase, 0 if not known";
         output Density d "Density";
       algorithm
         d := density(setState_ps(p, s, phase));
@@ -405,12 +424,12 @@ package CoolProp2Modelica
       end density_ps;
 
       replaceable partial function density_ps_der
-        "Total derivative of density_ps"
+      "Total derivative of density_ps"
         extends Modelica.Icons.Function;
         input AbsolutePressure p "Pressure";
         input SpecificEntropy s "Specific entropy";
         input FixedPhase phase
-          "2 for two-phase, 1 for one-phase, 0 if not known";
+        "2 for two-phase, 1 for one-phase, 0 if not known";
         input Real p_der;
         input Real h_der;
         output Real d_der;
@@ -419,12 +438,12 @@ package CoolProp2Modelica
       end density_ps_der;
 
       redeclare replaceable function temperature_ps
-        "Return temperature from p and s"
+      "Return temperature from p and s"
         extends Modelica.Icons.Function;
         input AbsolutePressure p "Pressure";
         input SpecificEntropy s "Specific entropy";
         input FixedPhase phase = 0
-          "2 for two-phase, 1 for one-phase, 0 if not known";
+        "2 for two-phase, 1 for one-phase, 0 if not known";
         output Temperature T "Temperature";
       algorithm
         T := temperature(setState_ps(p, s, phase));
@@ -432,12 +451,12 @@ package CoolProp2Modelica
       end temperature_ps;
 
       redeclare replaceable function specificEnthalpy_ps
-        "Return specific enthalpy from p and s"
+      "Return specific enthalpy from p and s"
         extends Modelica.Icons.Function;
         input AbsolutePressure p "Pressure";
         input SpecificEntropy s "Specific entropy";
         input FixedPhase phase = 0
-          "2 for two-phase, 1 for one-phase, 0 if not known";
+        "2 for two-phase, 1 for one-phase, 0 if not known";
         output SpecificEnthalpy h "specific enthalpy";
       algorithm
         h := specificEnthalpy(setState_ps(p,s, phase));
@@ -453,7 +472,7 @@ package CoolProp2Modelica
       end prandtlNumber;
 
       redeclare replaceable function extends temperature
-        "Return temperature from state"
+      "Return temperature from state"
         // Standard definition
       algorithm
         T := state.T;
@@ -465,7 +484,7 @@ package CoolProp2Modelica
       end temperature;
 
       redeclare replaceable function extends velocityOfSound
-        "Return velocity of sound from state"
+      "Return velocity of sound from state"
         // Standard definition
       algorithm
         a := state.a;
@@ -477,7 +496,7 @@ package CoolProp2Modelica
       end velocityOfSound;
 
       redeclare replaceable function extends isobaricExpansionCoefficient
-        "Return isobaric expansion coefficient from state"
+      "Return isobaric expansion coefficient from state"
         // Standard definition
       algorithm
         beta := state.beta;
@@ -489,7 +508,7 @@ package CoolProp2Modelica
       end isobaricExpansionCoefficient;
 
       redeclare replaceable function extends specificHeatCapacityCp
-        "Return specific heat capacity cp from state"
+      "Return specific heat capacity cp from state"
         // Standard definition
       algorithm
         cp := state.cp;
@@ -501,7 +520,7 @@ package CoolProp2Modelica
       end specificHeatCapacityCp;
 
       redeclare replaceable function extends specificHeatCapacityCv
-        "Return specific heat capacity cv from state"
+      "Return specific heat capacity cv from state"
         // Standard definition
       algorithm
         cv := state.cv;
@@ -513,7 +532,7 @@ package CoolProp2Modelica
       end specificHeatCapacityCv;
 
       redeclare replaceable function extends density
-        "Return density from state"
+      "Return density from state"
         // Standard definition
       algorithm
         d := state.d;
@@ -525,7 +544,7 @@ package CoolProp2Modelica
       end density;
 
       redeclare replaceable function extends density_derh_p
-        "Return derivative of density wrt enthalpy at constant pressure from state"
+      "Return derivative of density wrt enthalpy at constant pressure from state"
         // Standard definition
       algorithm
         ddhp := state.ddhp;
@@ -537,7 +556,7 @@ package CoolProp2Modelica
       end density_derh_p;
 
       redeclare replaceable function extends density_derp_h
-        "Return derivative of density wrt pressure at constant enthalpy from state"
+      "Return derivative of density wrt pressure at constant enthalpy from state"
         // Standard definition
       algorithm
         ddph := state.ddph;
@@ -549,7 +568,7 @@ package CoolProp2Modelica
       end density_derp_h;
 
       redeclare replaceable function extends dynamicViscosity
-        "Return dynamic viscosity from state"
+      "Return dynamic viscosity from state"
         // Standard definition
       algorithm
         eta := state.eta;
@@ -561,7 +580,7 @@ package CoolProp2Modelica
       end dynamicViscosity;
 
       redeclare replaceable function extends specificEnthalpy
-        "Return specific enthalpy from state"
+      "Return specific enthalpy from state"
         // Standard definition
       algorithm
         h := state.h;
@@ -573,7 +592,7 @@ package CoolProp2Modelica
       end specificEnthalpy;
 
       redeclare replaceable function extends isothermalCompressibility
-        "Return isothermal compressibility from state"
+      "Return isothermal compressibility from state"
         // Standard definition
       algorithm
         kappa := state.kappa;
@@ -585,7 +604,7 @@ package CoolProp2Modelica
       end isothermalCompressibility;
 
       redeclare replaceable function extends thermalConductivity
-        "Return thermal conductivity from state"
+      "Return thermal conductivity from state"
         // Standard definition
       algorithm
         lambda := state.lambda;
@@ -597,7 +616,7 @@ package CoolProp2Modelica
       end thermalConductivity;
 
       redeclare replaceable function extends pressure
-        "Return pressure from state"
+      "Return pressure from state"
         // Standard definition
       algorithm
         p := state.p;
@@ -609,7 +628,7 @@ package CoolProp2Modelica
       end pressure;
 
       redeclare replaceable function extends specificEntropy
-        "Return specific entropy from state"
+      "Return specific entropy from state"
         // Standard definition
       algorithm
         s := state.s;
@@ -625,7 +644,7 @@ package CoolProp2Modelica
         input AbsolutePressure p "Pressure";
         input SpecificEnthalpy h "Specific enthalpy";
         input FixedPhase phase
-          "2 for two-phase, 1 for one-phase, 0 if not known";
+        "2 for two-phase, 1 for one-phase, 0 if not known";
         input Real p_der;
         input Real h_der;
         output Real d_der;
@@ -647,7 +666,7 @@ package CoolProp2Modelica
       end isentropicEnthalpy;
 
       redeclare replaceable function setSat_p
-        "Return saturation properties from p"
+      "Return saturation properties from p"
         extends Modelica.Icons.Function;
         input AbsolutePressure p "pressure";
         output SaturationProperties sat "saturation property record";
@@ -656,7 +675,7 @@ package CoolProp2Modelica
       end setSat_p;
 
       redeclare replaceable function setSat_T
-        "Return saturation properties from p"
+      "Return saturation properties from p"
         extends Modelica.Icons.Function;
         input Temperature T "temperature";
         output SaturationProperties sat "saturation property record";
@@ -665,7 +684,7 @@ package CoolProp2Modelica
       end setSat_T;
 
       redeclare replaceable function extends setBubbleState
-        "set the thermodynamic state on the bubble line"
+      "set the thermodynamic state on the bubble line"
         extends Modelica.Icons.Function;
         input SaturationProperties sat "saturation point";
         input FixedPhase phase =  1 "phase: default is one phase";
@@ -681,7 +700,7 @@ package CoolProp2Modelica
       end setBubbleState;
 
       redeclare replaceable function extends setDewState
-        "set the thermodynamic state on the dew line"
+      "set the thermodynamic state on the dew line"
         extends Modelica.Icons.Function;
         input SaturationProperties sat "saturation point";
         input FixedPhase phase =  1 "phase: default is one phase";
@@ -708,6 +727,7 @@ package CoolProp2Modelica
       end saturationTemperature;
 
       redeclare function extends saturationTemperature_sat
+
         annotation(Inline = true);
       end saturationTemperature_sat;
 
@@ -718,7 +738,7 @@ package CoolProp2Modelica
       end saturationTemperature_derp;
 
       redeclare replaceable function saturationTemperature_derp_sat
-        "Returns derivative of saturation temperature w.r.t.. pressure"
+      "Returns derivative of saturation temperature w.r.t.. pressure"
         extends Modelica.Icons.Function;
         input SaturationProperties sat "saturation property record";
         output Real dTp "derivative of saturation temperature w.r.t. pressure";
@@ -733,7 +753,7 @@ package CoolProp2Modelica
       end saturationTemperature_derp_sat;
 
       redeclare replaceable function extends dBubbleDensity_dPressure
-        "Returns bubble point density derivative"
+      "Returns bubble point density derivative"
         // Standard definition
       algorithm
         ddldp := sat.ddldp;
@@ -745,7 +765,7 @@ package CoolProp2Modelica
       end dBubbleDensity_dPressure;
 
       redeclare replaceable function extends dDewDensity_dPressure
-        "Returns dew point density derivative"
+      "Returns dew point density derivative"
         // Standard definition
       algorithm
         ddvdp := sat.ddvdp;
@@ -757,7 +777,7 @@ package CoolProp2Modelica
       end dDewDensity_dPressure;
 
       redeclare replaceable function extends dBubbleEnthalpy_dPressure
-        "Returns bubble point specific enthalpy derivative"
+      "Returns bubble point specific enthalpy derivative"
         // Standard definition
       algorithm
         dhldp := sat.dhldp;
@@ -769,7 +789,7 @@ package CoolProp2Modelica
       end dBubbleEnthalpy_dPressure;
 
       redeclare replaceable function extends dDewEnthalpy_dPressure
-        "Returns dew point specific enthalpy derivative"
+      "Returns dew point specific enthalpy derivative"
         // Standard definition
       algorithm
         dhvdp := sat.dhvdp;
@@ -781,7 +801,7 @@ package CoolProp2Modelica
       end dDewEnthalpy_dPressure;
 
       redeclare replaceable function extends bubbleDensity
-        "Returns bubble point density"
+      "Returns bubble point density"
         // Standard definition
       algorithm
         dl := sat.dl;
@@ -793,7 +813,7 @@ package CoolProp2Modelica
       end bubbleDensity;
 
       redeclare replaceable function extends dewDensity
-        "Returns dew point density"
+      "Returns dew point density"
         // Standard definition
       algorithm
         dv := sat.dv;
@@ -805,7 +825,7 @@ package CoolProp2Modelica
       end dewDensity;
 
       redeclare replaceable function extends bubbleEnthalpy
-        "Returns bubble point specific enthalpy"
+      "Returns bubble point specific enthalpy"
         // Standard definition
       algorithm
         hl := sat.hl;
@@ -817,7 +837,7 @@ package CoolProp2Modelica
       end bubbleEnthalpy;
 
       redeclare replaceable function extends dewEnthalpy
-        "Returns dew point specific enthalpy"
+      "Returns dew point specific enthalpy"
         // Standard definition
       algorithm
         hv := sat.hv;
@@ -842,11 +862,12 @@ package CoolProp2Modelica
       end saturationPressure;
 
       redeclare function extends saturationPressure_sat
+
         annotation(Inline = true);
       end saturationPressure_sat;
 
       redeclare replaceable function extends surfaceTension
-        "Returns surface tension sigma in the two phase region"
+      "Returns surface tension sigma in the two phase region"
         //Standard definition
       algorithm
         sigma := sat.sigma;
@@ -858,7 +879,7 @@ package CoolProp2Modelica
       end surfaceTension;
 
       redeclare replaceable function extends bubbleEntropy
-        "Returns bubble point specific entropy"
+      "Returns bubble point specific entropy"
         //Standard definition
       algorithm
         sl := specificEntropy(setBubbleState(sat));
@@ -870,7 +891,7 @@ package CoolProp2Modelica
       end bubbleEntropy;
 
       redeclare replaceable function extends dewEntropy
-        "Returns dew point specific entropy"
+      "Returns dew point specific entropy"
         //Standard definition
       algorithm
         sv := specificEntropy(setDewState(sat));
@@ -882,7 +903,7 @@ package CoolProp2Modelica
       end dewEntropy;
 
       function saturationPressure_der
-        "Return saturation pressure time derivative"
+      "Return saturation pressure time derivative"
         extends Modelica.Icons.Function;
         input Temperature T "temperature";
         input Real T_der "Temperature derivative";
@@ -894,12 +915,12 @@ package CoolProp2Modelica
       end saturationPressure_der;
     end ExternalTwoPhaseMedium;
 
-    package FluidPropMedium "FluidProp medium package"
-      extends ExternalTwoPhaseMedium;
+    partial package FluidPropMedium "FluidProp medium package"
+      extends CoolProp2Modelica.Interfaces.ExternalTwoPhaseMedium;
       constant Real h_eps_sat = 1e-6
-        "small delta h to ensure computation in the correct phase";
+      "small delta h to ensure computation in the correct phase";
       redeclare replaceable function setBubbleState
-        "Set the thermodynamic state on the bubble line"
+      "Set the thermodynamic state on the bubble line"
         extends Modelica.Icons.Function;
         input SaturationProperties sat "saturation point";
         input FixedPhase phase = 0 "phase flag";
@@ -921,7 +942,7 @@ package CoolProp2Modelica
       end setBubbleState;
 
       redeclare replaceable function setDewState
-        "Set the thermodynamic state on the dew line"
+      "Set the thermodynamic state on the dew line"
         extends Modelica.Icons.Function;
         input SaturationProperties sat "saturation point";
         input FixedPhase phase = 0 "phase flag";
@@ -960,99 +981,231 @@ package CoolProp2Modelica
         extends Modelica.Icons.Function;
         input SaturationProperties sat "saturation property record";
         output SurfaceTension sigma
-          "Surface tension sigma in the two phase region";
+        "Surface tension sigma in the two phase region";
       algorithm
         assert(false, "FluidProp interface does not provide surface tension");
       end surfaceTension;
     end FluidPropMedium;
 
-    package TestMedium "Simple water medium model for debugging and testing"
+    partial package CoolPropMedium
       extends ExternalTwoPhaseMedium(
-        mediumName = "TestMedium",
-        libraryName = "TestMedium",
-        ThermoStates = Modelica.Media.Interfaces.PartialMedium.Choices.IndependentVariables.pT);
-    end TestMedium;
+      mediumName = "CoolPropMedium",
+      final libraryName = "CoolProp");
+    end CoolPropMedium;
+  end Interfaces;
 
-    package Pentane_CP "Computation of Pentane Properties using CoolProp"
-      extends CoolProp2Modelica.Media.ExternalTwoPhaseMedium(
-        mediumName="TestMedium",
-        libraryName="CoolProp",
-        substanceName="pentane",
-        ThermoStates=Modelica.Media.Interfaces.PartialMedium.Choices.IndependentVariables.ph);
-      annotation ();
-    end Pentane_CP;
-  end Media;
 
   package Examples "Examples of external medium models"
-    package WaterIF95
-      extends CoolProp2Modelica.Media.FluidPropMedium(
-        mediumName="Water",
-        libraryName="FluidProp.RefProp",
-        substanceNames={"H2O"},
-        ThermoStates=Modelica.Media.Interfaces.PartialMedium.Choices.IndependentVariables.ph);
-    end WaterIF95;
+  extends Modelica.Icons.ExamplesPackage;
 
-    package WaterTPSI
-      extends CoolProp2Modelica.Media.FluidPropMedium(
-        mediumName="Water",
-        libraryName="FluidProp.TPSI",
-        substanceNames={"H2O"},
-        ThermoStates=Modelica.Media.Interfaces.PartialMedium.Choices.IndependentVariables.ph);
-    end WaterTPSI;
 
-    package CarbonDioxide
-      extends CoolProp2Modelica.Media.FluidPropMedium(
-        mediumName="Carbon Dioxide",
-        libraryName="FluidProp.RefProp",
-        substanceNames={"CO2"},
-        ThermoStates=Modelica.Media.Interfaces.PartialMedium.Choices.IndependentVariables.ph);
-    end CarbonDioxide;
+    model CompressibleValveSystem "A valve between a source and a sink"
+      extends Modelica.Icons.Example;
 
-    package Propane_CoolProp "Computation of Propane Properties using CoolProp"
-      extends CoolProp2Modelica.Media.ExternalTwoPhaseMedium(
-        mediumName="TestMedium",
-        libraryName="CoolProp",
-        substanceName="propane",
-        ThermoStates=Modelica.Media.Interfaces.PartialMedium.Choices.IndependentVariables.ph);
+      Modelica.Fluid.Valves.ValveCompressible valveCompressible(
+        m_flow_nominal=0.2,
+        redeclare package Medium = WorkingFluid,
+        dp_nominal=200000,
+        p_nominal=1000000)
+        annotation (Placement(transformation(extent={{-10,-10},{10,10}})));
+      Modelica.Fluid.Sources.FixedBoundary source(
+      nPorts=1,
+      p=2*system.p_ambient,
+      T=system.T_ambient,
+      redeclare package Medium = WorkingFluid)
+        annotation (Placement(transformation(extent={{-80,-10},{-60,10}})));
+
+    replaceable package WorkingFluid = CoolProp2Modelica.Media.R410a_debug
+      constrainedby Modelica.Media.Interfaces.PartialMedium
+                                                  annotation (choicesAllMatching=true);
+    replaceable package HeatingFluid =
+          Modelica.Media.Incompressible.Examples.Essotherm650 constrainedby
+      Modelica.Media.Interfaces.PartialMedium     annotation (choicesAllMatching=true);
+    replaceable package CoolingFluid = CoolProp2Modelica.Media.R718_CP
+      constrainedby Modelica.Media.Interfaces.PartialMedium
+                                                  annotation (choicesAllMatching=true);
+
+      Modelica.Fluid.Sources.FixedBoundary sink(
+      nPorts=1,
+      redeclare package Medium = WorkingFluid,
+      p=system.p_ambient,
+      T=system.T_ambient)
+        annotation (Placement(transformation(extent={{80,-10},{60,10}})));
+      Modelica.Blocks.Sources.Sine sine(freqHz=2, offset=1)
+        annotation (Placement(transformation(extent={{-30,60},{-10,80}})));
+      inner Modelica.Fluid.System system
+        annotation (Placement(transformation(extent={{-80,40},{-60,60}})));
+    equation
+    connect(source.ports[1], valveCompressible.port_a)     annotation (Line(
+          points={{-60,6.66134e-16},{-36,6.66134e-16},{-36,6.10623e-16},{-10,
+            6.10623e-16}},
+          color={0,127,255},
+          smooth=Smooth.None));
+
+    connect(valveCompressible.port_b, sink.ports[1])        annotation (Line(
+          points={{10,6.10623e-16},{36,6.10623e-16},{36,6.66134e-16},{60,
+            6.66134e-16}},
+          color={0,127,255},
+          smooth=Smooth.None));
+
+      connect(sine.y, valveCompressible.opening) annotation (Line(
+          points={{-9,70},{6.66134e-16,70},{6.66134e-16,8}},
+          color={0,0,127},
+          smooth=Smooth.None));
+      annotation (Diagram(graphics));
+    end CompressibleValveSystem;
+
+  end Examples;
+
+
+  package Media "Medium packages compatible with Modelica.Media"
+
+    package TestMedium "Simple water medium model for debugging and testing"
+      extends CoolProp2Modelica.Interfaces.ExternalTwoPhaseMedium(
+      mediumName="TestMedium",
+      libraryName="TestMedium",
+      ThermoStates=Modelica.Media.Interfaces.PartialMedium.Choices.IndependentVariables.pT);
+    end TestMedium;
+
+    package R245fa_CP "R245fa properties from CoolProp"
+    //  extends Modelica.Media.Water.StandardWater;
+      extends CoolProp2Modelica.Interfaces.ExternalTwoPhaseMedium(
+      mediumName="R245fa",
+      libraryName="CoolProp",
+      substanceNames={"R245fa"});
+        redeclare function extends density_pT_der
+        algorithm
+        assert(false, "Error: R245fa.density_pT_der is not implemented");
+        d_der := 0;
+        end density_pT_der;
+    end R245fa_CP;
+
+    package R290_CP "R290, computation of Propane Properties using CoolProp"
+      extends CoolProp2Modelica.Interfaces.ExternalTwoPhaseMedium(
+      mediumName="TestMedium",
+      libraryName="CoolProp",
+      substanceName="propane",
+      ThermoStates=Modelica.Media.Interfaces.PartialMedium.Choices.IndependentVariables.ph);
       annotation ();
-    end Propane_CoolProp;
+    end R290_CP;
 
-    package Propane_Refprop
-      "Propane properties using Refprop through FluidProp (requires the full version of FluidProp)"
-      extends CoolProp2Modelica.Media.ExternalTwoPhaseMedium(
-        mediumName="TestMedium",
-        libraryName="FluidProp.RefProp",
-        substanceName="propane",
-        ThermoStates=Modelica.Media.Interfaces.PartialMedium.Choices.IndependentVariables.ph);
+    package R600_CP "R600, n-Butane properties using CoolProp"
+      extends CoolProp2Modelica.Interfaces.ExternalTwoPhaseMedium(
+      mediumName="n-Butane",
+      libraryName="CoolProp",
+      substanceNames={"n-Butane"},
+      ThermoStates=Modelica.Media.Interfaces.PartialMedium.Choices.IndependentVariables.ph);
       annotation ();
-    end Propane_Refprop;
+    end R600_CP;
 
-    package Propane_FluidProp
-      "Propane properties using the StanMix library of FluidProp"
-      extends CoolProp2Modelica.Media.ExternalTwoPhaseMedium(
-        mediumName="TestMedium",
-        libraryName="FluidProp.StanMix",
-        substanceName="propane",
-        ThermoStates=Modelica.Media.Interfaces.PartialMedium.Choices.IndependentVariables.ph);
+    package R600a_CP "R600a, Isobutane properties using CoolProp"
+      extends CoolProp2Modelica.Interfaces.ExternalTwoPhaseMedium(
+      mediumName="Isobutane",
+      libraryName="CoolProp",
+      substanceNames={"IsoButane"},
+      ThermoStates=Modelica.Media.Interfaces.PartialMedium.Choices.IndependentVariables.ph);
       annotation ();
-    end Propane_FluidProp;
+    end R600a_CP;
 
-    package Solkatherm "Solkatherm properties using CoolProp"
-      extends CoolProp2Modelica.Media.ExternalTwoPhaseMedium(
-        mediumName="SES36",
-        libraryName="CoolProp",
-        substanceName="SES36",
-        ThermoStates=Modelica.Media.Interfaces.PartialMedium.Choices.IndependentVariables.ph);
+    package R601_CP "R601, n-Pentane properties using CoolProp"
+      extends CoolProp2Modelica.Interfaces.ExternalTwoPhaseMedium(
+      mediumName="n-Pentane",
+      libraryName="CoolProp",
+      substanceNames={"n-Pentane"},
+      ThermoStates=Modelica.Media.Interfaces.PartialMedium.Choices.IndependentVariables.ph);
       annotation ();
-    end Solkatherm;
+    end R601_CP;
+
+    package R601a_CP "R601a, Isopentane properties using CoolProp"
+      extends CoolProp2Modelica.Interfaces.ExternalTwoPhaseMedium(
+      mediumName="Isopentane",
+      libraryName="CoolProp",
+      substanceNames={"IsoPentane"},
+      ThermoStates=Modelica.Media.Interfaces.PartialMedium.Choices.IndependentVariables.ph);
+      annotation ();
+    end R601a_CP;
+
+    package R718_CP "R718, water IAPWS 95 properties using CoolProp"
+      extends CoolProp2Modelica.Interfaces.ExternalTwoPhaseMedium(
+      mediumName="Water",
+      libraryName="CoolProp",
+      substanceNames={"Water"},
+      ThermoStates=Modelica.Media.Interfaces.PartialMedium.Choices.IndependentVariables.ph);
+      annotation ();
+    end R718_CP;
+
+    package SES36_CP "Solkatherm properties using CoolProp"
+      extends CoolProp2Modelica.Interfaces.ExternalTwoPhaseMedium(
+      mediumName="SES36",
+      libraryName="CoolProp",
+      substanceName="SES36",
+      ThermoStates=Modelica.Media.Interfaces.PartialMedium.Choices.IndependentVariables.ph);
+      annotation ();
+    end SES36_CP;
+
+    package R290_FPST
+    "Propane properties using the StanMix library of FluidProp"
+      extends CoolProp2Modelica.Interfaces.ExternalTwoPhaseMedium(
+      mediumName="TestMedium",
+      libraryName="FluidProp.StanMix",
+      substanceName="propane",
+      ThermoStates=Modelica.Media.Interfaces.PartialMedium.Choices.IndependentVariables.ph);
+      annotation ();
+    end R290_FPST;
+
+    package R290_FPRP
+    "Propane properties using Refprop through FluidProp (requires the full version of FluidProp)"
+      extends CoolProp2Modelica.Interfaces.ExternalTwoPhaseMedium(
+      mediumName="TestMedium",
+      libraryName="FluidProp.RefProp",
+      substanceName="propane",
+      ThermoStates=Modelica.Media.Interfaces.PartialMedium.Choices.IndependentVariables.ph);
+      annotation ();
+    end R290_FPRP;
+
+
+    package R744_FPRP "Carbon-Dioxide from Refprop via FluidProp"
+      extends CoolProp2Modelica.Interfaces.FluidPropMedium(
+      mediumName="Carbon Dioxide",
+      libraryName="FluidProp.RefProp",
+      substanceNames={"CO2"},
+      ThermoStates=Modelica.Media.Interfaces.PartialMedium.Choices.IndependentVariables.ph);
+    end R744_FPRP;
+
+    package WaterTPSI_FP
+      extends CoolProp2Modelica.Interfaces.FluidPropMedium(
+      mediumName="Water",
+      libraryName="FluidProp.TPSI",
+      substanceNames={"H2O"},
+      ThermoStates=Modelica.Media.Interfaces.PartialMedium.Choices.IndependentVariables.ph);
+    end WaterTPSI_FP;
+
+    package WaterIF95_FP
+      extends CoolProp2Modelica.Interfaces.FluidPropMedium(
+      mediumName="Water",
+      libraryName="FluidProp.RefProp",
+      substanceNames={"H2O"},
+      ThermoStates=Modelica.Media.Interfaces.PartialMedium.Choices.IndependentVariables.ph);
+    end WaterIF95_FP;
+
+
+
+    package R410a_debug "R410a, properties using Refprop via CoolProp"
+      extends CoolProp2Modelica.Interfaces.ExternalTwoPhaseMedium(
+      mediumName="R410a",
+      libraryName="CoolProp",
+      substanceNames={"REFPROP-MIX:R32[0.697615]&R125[0.302385]|debug=1"},
+      ThermoStates=Modelica.Media.Interfaces.PartialMedium.Choices.IndependentVariables.ph);
+      annotation ();
+    end R410a_debug;
 
     package Solkatherm_debug
-      "Solkatherm properties using CoolProp with debug option"
-      extends CoolProp2Modelica.Media.ExternalTwoPhaseMedium(
-        mediumName="SES36",
-        libraryName="CoolProp",
-        substanceName="SES36|calc_transport=0|debug=1|enable_TTSE=1",
-        ThermoStates=Modelica.Media.Interfaces.PartialMedium.Choices.IndependentVariables.ph);
+    "Solkatherm properties using CoolProp with debug option"
+      extends CoolProp2Modelica.Interfaces.ExternalTwoPhaseMedium(
+      mediumName="SES36",
+      libraryName="CoolProp",
+      substanceName="SES36|calc_transport=0|debug=1|enable_TTSE=1",
+      ThermoStates=Modelica.Media.Interfaces.PartialMedium.Choices.IndependentVariables.ph);
         // calc_transport: set to one to compute the transport properties (not yet implemented in January 2013)
         // debug: integer from 0 to 10. 0 corresponds to no debut, while 10 is maximum debug.
         //        This outputs the different calls received by CoolProp in the console window
@@ -1060,25 +1213,13 @@ package CoolProp2Modelica
         //              Involves about 2 more seconds at initialization but integration is about 40 times faster
       annotation ();
     end Solkatherm_debug;
+  end Media;
 
-    package R245fa
-    //  extends Modelica.Media.Water.StandardWater;
-      extends CoolProp2Modelica.Media.ExternalTwoPhaseMedium(
-        mediumName = "R245fa",
-        libraryName = "CoolProp",
-        substanceNames = {"R245fa"});
-        redeclare function extends density_pT_der
-        algorithm
-        assert(false, "Error: R245fa.density_pT_der is not implemented");
-        d_der := 0;
-        end density_pT_der;
-    end R245fa;
-  end Examples;
 
   package Test "Test models"
     package TestMedium "Test cases for TestMedium"
       model TestStatesSat
-        "Test case using TestMedium, with baseProperties and state + sat records without explicit uniqueID handling"
+      "Test case using TestMedium, with baseProperties and state + sat records without explicit uniqueID handling"
         replaceable package Medium = Media.TestMedium;
         Medium.BaseProperties baseProperties1;
         Medium.BaseProperties baseProperties2;
@@ -1114,14 +1255,14 @@ package CoolProp2Modelica
       end TestStatesSat;
 
       model TestBasePropertiesExplicit
-        "Test case using TestMedium and BaseProperties with explicit equations"
+      "Test case using TestMedium and BaseProperties with explicit equations"
         replaceable package Medium = Media.TestMedium;
         CoolProp2Modelica.Test.TestMedium.GenericModels.CompleteBaseProperties medium1(
-            redeclare package Medium = Medium)
-          "Constant pressure, varying enthalpy";
+          redeclare package Medium = Medium)
+        "Constant pressure, varying enthalpy";
         CoolProp2Modelica.Test.TestMedium.GenericModels.CompleteBaseProperties medium2(
-            redeclare package Medium = Medium)
-          "Varying pressure, constant enthalpy";
+          redeclare package Medium = Medium)
+        "Varying pressure, constant enthalpy";
       equation
         medium1.baseProperties.p = 1e5+1e5*time;
         medium1.baseProperties.h = 1e5;
@@ -1130,14 +1271,14 @@ package CoolProp2Modelica
       end TestBasePropertiesExplicit;
 
       model TestBasePropertiesImplicit
-        "Test case using TestMedium and BaseProperties with implicit equations"
+      "Test case using TestMedium and BaseProperties with implicit equations"
         replaceable package Medium = Media.TestMedium;
         CoolProp2Modelica.Test.TestMedium.GenericModels.CompleteBaseProperties medium1(
-            redeclare package Medium = Medium, baseProperties(h(start=1e5)))
-          "Constant pressure, varying enthalpy";
+          redeclare package Medium = Medium, baseProperties(h(start=1e5)))
+        "Constant pressure, varying enthalpy";
         CoolProp2Modelica.Test.TestMedium.GenericModels.CompleteBaseProperties medium2(
-            redeclare package Medium = Medium, baseProperties(h(start=1e5)))
-          "Varying pressure, constant enthalpy";
+          redeclare package Medium = Medium, baseProperties(h(start=1e5)))
+        "Varying pressure, constant enthalpy";
       equation
         medium1.baseProperties.p = 1e5*time;
         medium1.baseProperties.T = 300 + 25*time;
@@ -1146,7 +1287,7 @@ package CoolProp2Modelica
       end TestBasePropertiesImplicit;
 
       model TestBasePropertiesDynamic
-        "Test case using TestMedium and dynamic equations"
+      "Test case using TestMedium and dynamic equations"
         replaceable package Medium = Media.TestMedium;
         parameter SI.Volume V = 1 "Storage Volume";
         parameter Real p_atm = 101325 "Atmospheric pressure";
@@ -1189,9 +1330,9 @@ package CoolProp2Modelica
       end TestBasePropertiesDynamic;
 
       package GenericModels
-        "Contains generic models to use for thorough medium model testing"
+      "Contains generic models to use for thorough medium model testing"
         model CompleteFluidConstants
-          "Compute all available medium fluid constants"
+        "Compute all available medium fluid constants"
           replaceable package Medium =
               Modelica.Media.Interfaces.PartialTwoPhaseMedium;
           // Fluid constants
@@ -1202,7 +1343,7 @@ package CoolProp2Modelica
         end CompleteFluidConstants;
 
         model CompleteThermodynamicState
-          "Compute all available two-phase medium properties from a ThermodynamicState model"
+        "Compute all available two-phase medium properties from a ThermodynamicState model"
           replaceable package Medium =
               Modelica.Media.Interfaces.PartialTwoPhaseMedium;
           // ThermodynamicState record
@@ -1223,7 +1364,7 @@ package CoolProp2Modelica
         end CompleteThermodynamicState;
 
         model CompleteSaturationProperties
-          "Compute all available saturation properties from a SaturationProperties record"
+        "Compute all available saturation properties from a SaturationProperties record"
           replaceable package Medium =
               Modelica.Media.Interfaces.PartialTwoPhaseMedium;
           // SaturationProperties record
@@ -1242,7 +1383,7 @@ package CoolProp2Modelica
         end CompleteSaturationProperties;
 
         model CompleteBubbleDewStates
-          "Compute all available properties for dewpoint and bubble point states corresponding to a sat record"
+        "Compute all available properties for dewpoint and bubble point states corresponding to a sat record"
           replaceable package Medium =
               Modelica.Media.Interfaces.PartialTwoPhaseMedium;
           // SaturationProperties record
@@ -1258,7 +1399,7 @@ package CoolProp2Modelica
         end CompleteBubbleDewStates;
 
         model CompleteBaseProperties
-          "Compute all available two-phase medium properties from a BaseProperties model"
+        "Compute all available two-phase medium properties from a BaseProperties model"
           replaceable package Medium =
               Modelica.Media.Interfaces.PartialTwoPhaseMedium;
           // BaseProperties object
@@ -1279,7 +1420,7 @@ package CoolProp2Modelica
     package FluidProp "Test cases for FluidPropMedium"
       partial package GenericModels "Generic models for FluidProp media tests"
         model CompleteFluidConstants
-          "Compute all available medium fluid constants"
+        "Compute all available medium fluid constants"
           replaceable package Medium =
               Modelica.Media.Interfaces.PartialTwoPhaseMedium;
           // Fluid constants
@@ -1290,7 +1431,7 @@ package CoolProp2Modelica
         end CompleteFluidConstants;
 
         model CompleteThermodynamicState
-          "Compute all available two-phase medium properties from a ThermodynamicState model"
+        "Compute all available two-phase medium properties from a ThermodynamicState model"
           replaceable package Medium =
               Modelica.Media.Interfaces.PartialTwoPhaseMedium;
           // ThermodynamicState record
@@ -1312,7 +1453,7 @@ package CoolProp2Modelica
         end CompleteThermodynamicState;
 
         model CompleteSaturationProperties
-          "Compute all available saturation properties from a SaturationProperties record"
+        "Compute all available saturation properties from a SaturationProperties record"
           replaceable package Medium =
               Modelica.Media.Interfaces.PartialTwoPhaseMedium;
           // SaturationProperties record
@@ -1331,7 +1472,7 @@ package CoolProp2Modelica
         end CompleteSaturationProperties;
 
         model CompleteBubbleDewStates
-          "Compute all available properties for dewpoint and bubble point states corresponding to a sat record"
+        "Compute all available properties for dewpoint and bubble point states corresponding to a sat record"
           replaceable package Medium =
               Modelica.Media.Interfaces.PartialTwoPhaseMedium;
           // SaturationProperties record
@@ -1347,7 +1488,7 @@ package CoolProp2Modelica
         end CompleteBubbleDewStates;
 
         model CompleteBaseProperties
-          "Compute all available two-phase medium properties from a BaseProperties model"
+        "Compute all available two-phase medium properties from a BaseProperties model"
           replaceable package Medium =
                 Modelica.Media.Interfaces.PartialTwoPhaseMedium;
           // BaseProperties object
@@ -1364,7 +1505,7 @@ package CoolProp2Modelica
         end CompleteBaseProperties;
 
         partial model TestStatesSat
-          "Test case with baseProperties and state + sat records"
+        "Test case with baseProperties and state + sat records"
           replaceable package Medium =
               Modelica.Media.Interfaces.PartialTwoPhaseMedium;
           Medium.AbsolutePressure p1;
@@ -1406,13 +1547,13 @@ package CoolProp2Modelica
         end TestStatesSat;
 
         partial model TestBasePropertiesExplicit
-          "Test case using BaseProperties and explicit equations"
+        "Test case using BaseProperties and explicit equations"
           replaceable package Medium =
               Modelica.Media.Interfaces.PartialTwoPhaseMedium;
           CompleteBaseProperties medium1(redeclare package Medium = Medium)
-            "Constant pressure, varying enthalpy";
+          "Constant pressure, varying enthalpy";
           CompleteBaseProperties medium2(redeclare package Medium = Medium)
-            "Varying pressure, constant enthalpy";
+          "Varying pressure, constant enthalpy";
           Medium.AbsolutePressure p1;
           Medium.AbsolutePressure p2;
           Medium.SpecificEnthalpy h1;
@@ -1425,17 +1566,17 @@ package CoolProp2Modelica
         end TestBasePropertiesExplicit;
 
         partial model TestBasePropertiesImplicit
-          "Test case using BaseProperties and implicit equations"
+        "Test case using BaseProperties and implicit equations"
           replaceable package Medium =
               Modelica.Media.Interfaces.PartialTwoPhaseMedium;
           parameter Medium.SpecificEnthalpy hstart
-            "Start value for specific enthalpy";
+          "Start value for specific enthalpy";
           CompleteBaseProperties medium1(redeclare package Medium = Medium,
                                          baseProperties(h(start = hstart)))
-            "Constant pressure, varying enthalpy";
+          "Constant pressure, varying enthalpy";
           CompleteBaseProperties medium2(redeclare package Medium = Medium,
                                          baseProperties(h(start = hstart)))
-            "Varying pressure, constant enthalpy";
+          "Varying pressure, constant enthalpy";
           Medium.AbsolutePressure p1;
           Medium.AbsolutePressure p2;
           Medium.Temperature T1;
@@ -1448,7 +1589,7 @@ package CoolProp2Modelica
         end TestBasePropertiesImplicit;
 
       partial model TestBasePropertiesDynamic
-          "Test case using BaseProperties and dynamic equations"
+        "Test case using BaseProperties and dynamic equations"
         replaceable package Medium =
               Modelica.Media.Interfaces.PartialTwoPhaseMedium;
         parameter SI.Volume V = 1 "Storage Volume";
@@ -1484,16 +1625,16 @@ package CoolProp2Modelica
       end TestBasePropertiesDynamic;
 
         partial model CompareModelicaFluidProp
-          "Comparison between Modelica and FluidProp models"
+        "Comparison between Modelica and FluidProp models"
           replaceable package ModelicaMedium =
               Modelica.Media.Interfaces.PartialTwoPhaseMedium;
           replaceable package FluidPropMedium =
-              CoolProp2Modelica.Media.FluidPropMedium;
+              CoolProp2Modelica.Interfaces.FluidPropMedium;
           CompleteBaseProperties modelicaMedium(
             redeclare package Medium = ModelicaMedium) "Modelica medium model";
           CompleteBaseProperties fluidPropMedium(
             redeclare package Medium = FluidPropMedium)
-            "FluidProp medium model";
+          "FluidProp medium model";
           parameter Modelica.SIunits.Pressure pmin;
           parameter Modelica.SIunits.Pressure pmax;
           parameter Modelica.SIunits.SpecificEnthalpy hmin;
@@ -1508,9 +1649,9 @@ package CoolProp2Modelica
 
       package IF95 "Test suite for the FluidProp-Refprop IF95 medium model"
         model TestStatesSat
-          "Test case with baseProperties and state + sat records"
+        "Test case with baseProperties and state + sat records"
           extends GenericModels.TestStatesSat(
-            redeclare package Medium = CoolProp2Modelica.Examples.WaterIF95);
+            redeclare package Medium = CoolProp2Modelica.Media.WaterIF95_FP);
         equation
           p1 = 1e5 + time*1e5;
           h1 = 1e5;
@@ -1520,9 +1661,9 @@ package CoolProp2Modelica
         end TestStatesSat;
 
         model TestBasePropertiesExplicit
-          "Test case using BaseProperties and explicit equations"
+        "Test case using BaseProperties and explicit equations"
           extends GenericModels.TestBasePropertiesExplicit(
-            redeclare package Medium = CoolProp2Modelica.Examples.WaterIF95);
+            redeclare package Medium = CoolProp2Modelica.Media.WaterIF95_FP);
         equation
           p1 = 1e5+1e5*time;
           h1 = 1e5;
@@ -1531,9 +1672,9 @@ package CoolProp2Modelica
         end TestBasePropertiesExplicit;
 
         model TestBasePropertiesImplicit
-          "Test case using BaseProperties and implicit equations"
+        "Test case using BaseProperties and implicit equations"
           extends GenericModels.TestBasePropertiesImplicit(
-            redeclare package Medium = CoolProp2Modelica.Examples.WaterIF95,
+            redeclare package Medium = CoolProp2Modelica.Media.WaterIF95_FP,
             hstart = 1e5);
         equation
           p1 = 1e5+1e5*time;
@@ -1543,9 +1684,9 @@ package CoolProp2Modelica
         end TestBasePropertiesImplicit;
 
       model TestBasePropertiesDynamic
-          "Test case using BaseProperties and dynamic equations"
+        "Test case using BaseProperties and dynamic equations"
         extends GenericModels.TestBasePropertiesDynamic(
-          redeclare package Medium = CoolProp2Modelica.Examples.WaterIF95,
+          redeclare package Medium = CoolProp2Modelica.Media.WaterIF95_FP,
           Tstart = 300,
           Kv0 = 1.00801e-2);
       equation
@@ -1560,18 +1701,18 @@ package CoolProp2Modelica
       end TestBasePropertiesDynamic;
 
         model TestBasePropertiesExplicit_ModelicaIF97
-          "Test case using FluidProp IF95 and explicit equations"
+        "Test case using FluidProp IF95 and explicit equations"
           extends TestBasePropertiesExplicit(
             redeclare package Medium = Modelica.Media.Water.StandardWater);
         end TestBasePropertiesExplicit_ModelicaIF97;
 
         model CompareModelicaFluidProp_liquid
-          "Comparison between Modelica IF97 and FluidProp IF95 models - liquid"
+        "Comparison between Modelica IF97 and FluidProp IF95 models - liquid"
           extends GenericModels.CompareModelicaFluidProp(
             redeclare package ModelicaMedium =
                 Modelica.Media.Water.StandardWater,
             redeclare package FluidPropMedium =
-                CoolProp2Modelica.Examples.WaterIF95,
+                CoolProp2Modelica.Media.WaterIF95_FP,
             pmin = 1e5,
             pmax = 1e5,
             hmin = 1e5,
@@ -1579,12 +1720,12 @@ package CoolProp2Modelica
         end CompareModelicaFluidProp_liquid;
 
         model CompareModelicaFluidProp_twophase
-          "Comparison between Modelica IF97 and FluidProp IF95 models - liquid"
+        "Comparison between Modelica IF97 and FluidProp IF95 models - liquid"
           extends GenericModels.CompareModelicaFluidProp(
             redeclare package ModelicaMedium =
                 Modelica.Media.Water.StandardWater,
             redeclare package FluidPropMedium =
-                CoolProp2Modelica.Examples.WaterIF95,
+                CoolProp2Modelica.Media.WaterIF95_FP,
             pmin = 60e5,
             pmax = 60e5,
             hmin = 1000e3,
@@ -1592,12 +1733,12 @@ package CoolProp2Modelica
         end CompareModelicaFluidProp_twophase;
 
         model CompareModelicaFluidProp_vapour
-          "Comparison between Modelica IF97 and FluidProp IF95 models - liquid"
+        "Comparison between Modelica IF97 and FluidProp IF95 models - liquid"
           extends GenericModels.CompareModelicaFluidProp(
             redeclare package ModelicaMedium =
                 Modelica.Media.Water.StandardWater,
             redeclare package FluidPropMedium =
-                CoolProp2Modelica.Examples.WaterIF95,
+                CoolProp2Modelica.Media.WaterIF95_FP,
             pmin = 60e5,
             pmax = 60e5,
             hmin = 2800e3,
@@ -1608,8 +1749,8 @@ package CoolProp2Modelica
 
     package WrongMedium "Test cases with wrong medium models"
     model TestWrongMedium
-        "Test the error reporting messages for unsupported external media"
-      package Medium = Media.ExternalTwoPhaseMedium;
+      "Test the error reporting messages for unsupported external media"
+      package Medium = CoolProp2Modelica.Interfaces.ExternalTwoPhaseMedium;
       Medium.BaseProperties medium;
     equation
       medium.p = 1e5;
@@ -1618,15 +1759,15 @@ package CoolProp2Modelica
     end WrongMedium;
 
     model test_propane_coolprop
-      replaceable package wf = CoolProp2Modelica.Examples.Propane_CoolProp constrainedby
-        Modelica.Media.Interfaces.PartialMedium "Medium model";
+      replaceable package wf = CoolProp2Modelica.Media.R290_CP constrainedby
+      Modelica.Media.Interfaces.PartialMedium "Medium model";
       wf.BaseProperties fluid "Properties of the two-phase fluid";
       Modelica.SIunits.SpecificEnthalpy h;
       Modelica.SIunits.Pressure p;
       Modelica.SIunits.DerDensityByEnthalpy drdh
-        "Derivative of average density by enthalpy";
+      "Derivative of average density by enthalpy";
       Modelica.SIunits.DerDensityByPressure drdp
-        "Derivative of average density by pressure";
+      "Derivative of average density by pressure";
     equation
       p = 1E5;
       h = 0 + time*1E6;
@@ -1637,15 +1778,15 @@ package CoolProp2Modelica
     end test_propane_coolprop;
 
     model test_propane_fluidprop
-      replaceable package wf = CoolProp2Modelica.Examples.Propane_FluidProp constrainedby
-        Modelica.Media.Interfaces.PartialMedium "Medium model";
+      replaceable package wf = CoolProp2Modelica.Media.R290_FPST constrainedby
+      Modelica.Media.Interfaces.PartialMedium "Medium model";
       wf.BaseProperties fluid "Properties of the two-phase fluid";
       Modelica.SIunits.SpecificEnthalpy h;
       Modelica.SIunits.Pressure p;
       Modelica.SIunits.DerDensityByEnthalpy drdh
-        "Derivative of average density by enthalpy";
+      "Derivative of average density by enthalpy";
       Modelica.SIunits.DerDensityByPressure drdp
-        "Derivative of average density by pressure";
+      "Derivative of average density by pressure";
     equation
       p = 1E5;
       h = -7e5 + time*1E6;
@@ -1656,15 +1797,15 @@ package CoolProp2Modelica
     end test_propane_fluidprop;
 
     model test_propane_refprop
-      replaceable package wf = CoolProp2Modelica.Examples.Propane_Refprop constrainedby
-        Modelica.Media.Interfaces.PartialMedium "Medium model";
+      replaceable package wf = CoolProp2Modelica.Media.R290_FPRP constrainedby
+      Modelica.Media.Interfaces.PartialMedium "Medium model";
       wf.BaseProperties fluid "Properties of the two-phase fluid";
       Modelica.SIunits.SpecificEnthalpy h;
       Modelica.SIunits.Pressure p;
       Modelica.SIunits.DerDensityByEnthalpy drdh
-        "Derivative of average density by enthalpy";
+      "Derivative of average density by enthalpy";
       Modelica.SIunits.DerDensityByPressure drdp
-        "Derivative of average density by pressure";
+      "Derivative of average density by pressure";
     equation
       p = 1E5;
       h = 0 + time*1E6;
@@ -1675,15 +1816,16 @@ package CoolProp2Modelica
     end test_propane_refprop;
 
     model test_solkatherm
-      replaceable package wf = CoolProp2Modelica.Examples.Solkatherm constrainedby
-        Modelica.Media.Interfaces.PartialMedium "Medium model";
+      replaceable package wf = CoolProp2Modelica.Media.SES36_CP
+                                                             constrainedby
+      Modelica.Media.Interfaces.PartialMedium "Medium model";
       wf.BaseProperties fluid "Properties of the two-phase fluid";
       Modelica.SIunits.SpecificEnthalpy h;
       Modelica.SIunits.Pressure p;
       Modelica.SIunits.DerDensityByEnthalpy drdh
-        "Derivative of average density by enthalpy";
+      "Derivative of average density by enthalpy";
       Modelica.SIunits.DerDensityByPressure drdp
-        "Derivative of average density by pressure";
+      "Derivative of average density by pressure";
     equation
       p = 1E5;
       h = 0 + time*1E5;
@@ -1697,15 +1839,15 @@ package CoolProp2Modelica
 
     model test_solkatherm_debug "Please note that the debug information appears in the DOS window only. Run 'dymosim >> log.txt' from the cmd to log the 
   debug information in a file"
-      replaceable package wf = CoolProp2Modelica.Examples.Solkatherm_debug constrainedby
-        Modelica.Media.Interfaces.PartialMedium "Medium model";
+      replaceable package wf = CoolProp2Modelica.Media.Solkatherm_debug
+      constrainedby Modelica.Media.Interfaces.PartialMedium "Medium model";
       wf.BaseProperties fluid "Properties of the two-phase fluid";
       Modelica.SIunits.SpecificEnthalpy h;
       Modelica.SIunits.Pressure p;
       Modelica.SIunits.DerDensityByEnthalpy drdh
-        "Derivative of average density by enthalpy";
+      "Derivative of average density by enthalpy";
       Modelica.SIunits.DerDensityByPressure drdp
-        "Derivative of average density by pressure";
+      "Derivative of average density by pressure";
     equation
       p = 1E5;
       h = 0 + time*3e5;
@@ -1715,7 +1857,28 @@ package CoolProp2Modelica
       drdh = wf.density_derh_p(fluid.state);
       annotation (experiment(Algorithm="Dassl"), __Dymola_experimentSetupOutput);
     end test_solkatherm_debug;
+
+    model test_pentane_coolprop
+      replaceable package wf = CoolProp2Modelica.Media.R601_CP constrainedby
+      Modelica.Media.Interfaces.PartialMedium "Medium model";
+      wf.BaseProperties fluid "Properties of the two-phase fluid";
+      Modelica.SIunits.SpecificEnthalpy h;
+      Modelica.SIunits.Pressure p;
+      Modelica.SIunits.DerDensityByEnthalpy drdh
+      "Derivative of average density by enthalpy";
+      Modelica.SIunits.DerDensityByPressure drdp
+      "Derivative of average density by pressure";
+    equation
+      p = 1E5;
+      h = 0 + time*1E6;
+      fluid.p = p;
+      fluid.h = h;
+      drdp = wf.density_derp_h(fluid.state);
+      drdh = wf.density_derh_p(fluid.state);
+    end test_pentane_coolprop;
   end Test;
+
+
   annotation (uses(Modelica(version="3.2")), Documentation(info="<html>
 <p><h4><font color=\"#008000\">CoolProp2Modelica</font></h4></p>
 <p>The CoolProp2Modelica library provides an interface between the CoolProp thermodynamic library and Modelica. It is based on a modified version of ExternalMedia. The old functionalities of ExternalMedia, such as coupling with Fluidprop have been maintained and can still be used with CoolProp2Modelica.</p>
