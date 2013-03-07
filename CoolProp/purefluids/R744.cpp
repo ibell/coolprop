@@ -26,276 +26,253 @@ R. Span and W. Wagner, J. Phys. Chem. Ref. Data, v. 25, 1996
 #include "FluidClass.h"
 #include "R744.h"
 
-using namespace std;
-#ifndef M_PI
-#define M_PI 3.14159265358979323846
-#endif
-
-static double alpha[40],beta[43],GAMMA[40],epsilon[40],a[43],b[43],A[43],B[43],C[43],D[43],a0[9],theta0[9];
-static const double n[]={0,    
- 0.388568232032E+00,
- 0.293854759427E+01,
--0.558671885350E+01,
--0.767531995925E+00,
- 0.317290055804E+00,
- 0.548033158978E+00,
- 0.122794112203E+00,
- 
- 0.216589615432E+01,
- 0.158417351097E+01,
--0.231327054055E+00,
- 0.581169164314E-01,
--0.553691372054E-00,
- 0.489466159094E-00,
--0.242757398435E-01,
- 0.624947905017E-01,
--0.121758602252E+00,
--0.370556852701E+00,
--0.167758797004E-01,
--0.119607366380E+00,
--0.456193625088E-01,
- 0.356127892703E-01, 
--0.744277271321E-02,
--0.173957049024E-02,
--0.218101212895E-01,
- 0.243321665592E-01,
--0.374401334235E-01,
- 0.143387157569E-00,
--0.134919690833E-00,
--0.231512250535E-01,
- 0.123631254929E-01,
- 0.210583219729E-02,
--0.339585190264E-03,
- 0.559936517716E-02,
--0.303351180556E-03,
-
--0.213654886883E+03,
- 0.266415691493E+05,
--0.240272122046E+05,
--0.283416034240E+03,
- 0.212472844002E+03,
- 
--0.666422765408E+00,
- 0.726086323499E+00,
- 0.550686686128E-01};
-
-static const int d[]={0,
-1,
-1,
-1,
-1,
-2,
-2,
-3,
-1,
-2,
-4,
-5,
-5,
-5,
-6,
-6,
-6,
-1,
-1,
-4,
-4,
-4,
-7,
-8,
-2,
-3,
-3,
-5,
-5,
-6,
-7,
-8,
-10,
-4,
-8,
-2,
-2,
-2,
-3,
-3};
-
-static const double t[]={0.00,
-0.00,
-0.75,
-1.00,
-2.00,
-0.75,
-2.00,
-0.75,
-1.50,
-1.50,
-2.50,
-0.00,
-1.50,
-2.00,
-0.00,
-1.00,
-2.00,
-3.00,
-6.00,
-3.00,
-6.00,
-8.00,
-6.00,
-0.00,
-7.00,
-12.00,
-16.00,
-22.00,
-24.00,
-16.00,
-24.00,
-8.00,
-2.00,
-28.00,
-14.00,
-1.00,
-0.00,
-1.00,
-3.00,
-3.00};
-
-static const int c[]={0,0,0,0,0,0,0,0,
-1,
-1,
-1,
-1,
-1,
-1,
-1,
-1,
-1,
-2,
-2,
-2,
-2,
-2,
-2,
-2,
-3,
-3,
-3,
-4,
-4,
-4,
-4,
-4,
-4,
-5,
-6};
-
-void setCoeffs(void)
-{
-alpha[35]=25.0;
-alpha[36]=25.0;
-alpha[37]=25.0;
-alpha[38]=15.0;
-alpha[39]=20.0;
-
-beta[35]=325.0;
-beta[36]=300.0;
-beta[37]=300.0;
-beta[38]=275.0;
-beta[39]=275.0;
-
-GAMMA[35]=1.16;
-GAMMA[36]=1.19;
-GAMMA[37]=1.19;
-GAMMA[38]=1.25;
-GAMMA[39]=1.22;
-
-epsilon[35]=1.00;
-epsilon[36]=1.00;
-epsilon[37]=1.00;
-epsilon[38]=1.00;
-epsilon[39]=1.00;
-
-a[40]=3.5;
-a[41]=3.5;
-a[42]=3.0;
-
-b[40]=0.875;
-b[41]=0.925;
-b[42]=0.875;
-
-beta[40]=0.300;
-beta[41]=0.300;
-beta[42]=0.300;
-
-A[40]=0.700;
-A[41]=0.700;
-A[42]=0.700;
-
-B[40]=0.3;
-B[41]=0.3;
-B[42]=1.0;
-
-C[40]=10.0;
-C[41]=10.0;
-C[42]=12.5;
-
-D[40]=275.0;
-D[41]=275.0;
-D[42]=275.0;
-
-//Constants for ideal gas expression
-a0[1]=8.37304456;
-a0[2]=-3.70454304;
-a0[3]=2.500000;
-a0[4]=1.99427042;
-a0[5]=0.62105248;
-a0[6]=0.41195293;
-a0[7]=1.04028922;
-a0[8]=0.08327678;
-
-theta0[4]=3.15163;
-theta0[5]=6.11190;
-theta0[6]=6.77708;
-theta0[7]=11.32384;
-theta0[8]=27.08792;
-}
-
 R744Class::R744Class()
 {
-	setCoeffs();
-	vector<double> n_v(n,n+sizeof(n)/sizeof(double));
-	vector<double> d_v(d,d+sizeof(d)/sizeof(int));
-	vector<double> t_v(t,t+sizeof(t)/sizeof(double));
-	vector<double> l_v(c,c+sizeof(c)/sizeof(int));
-	vector<double> alpha_v(alpha,alpha+sizeof(alpha)/sizeof(double));
-	vector<double> beta_v(beta,beta+sizeof(beta)/sizeof(double));
-	vector<double> gamma_v(GAMMA,GAMMA+sizeof(GAMMA)/sizeof(double));
-	vector<double> epsilon_v(epsilon,epsilon+sizeof(epsilon)/sizeof(double));
-	vector<double> a_v(a,a+sizeof(a)/sizeof(double));
-	vector<double> b_v(b,b+sizeof(b)/sizeof(double));
-	vector<double> A_v(A,A+sizeof(A)/sizeof(double));
-	vector<double> B_v(B,B+sizeof(B)/sizeof(double));
-	vector<double> C_v(C,C+sizeof(C)/sizeof(double));
-	vector<double> D_v(D,D+sizeof(D)/sizeof(double));
-	vector<double> a0_v(a0,a0+sizeof(a0)/sizeof(double));
-	vector<double> theta0_v(theta0,theta0+sizeof(theta0)/sizeof(double));
 
-	phi_BC * phir_ = new phir_power(n_v,d_v,t_v,l_v,1,34);
-	phi_BC * phirg_ = new phir_gaussian(n_v,d_v,t_v,alpha_v,epsilon_v,beta_v,gamma_v,35,39);
-	phi_BC * phirc_ = new phir_critical(n_v,d_v,t_v,a_v,b_v,beta_v,A_v,B_v,C_v,D_v,40,42);
+	static double alpha[40],beta[43],GAMMA[40],epsilon[40],a[43],b[43],A[43],B[43],C[43],D[43],a0[9],theta0[9];
+	static double n[]={0,    
+	 0.388568232032E+00,
+	 0.293854759427E+01,
+	-0.558671885350E+01,
+	-0.767531995925E+00,
+	 0.317290055804E+00,
+	 0.548033158978E+00,
+	 0.122794112203E+00,
+	 
+	 0.216589615432E+01,
+	 0.158417351097E+01,
+	-0.231327054055E+00,
+	 0.581169164314E-01,
+	-0.553691372054E-00,
+	 0.489466159094E-00,
+	-0.242757398435E-01,
+	 0.624947905017E-01,
+	-0.121758602252E+00,
+	-0.370556852701E+00,
+	-0.167758797004E-01,
+	-0.119607366380E+00,
+	-0.456193625088E-01,
+	 0.356127892703E-01, 
+	-0.744277271321E-02,
+	-0.173957049024E-02,
+	-0.218101212895E-01,
+	 0.243321665592E-01,
+	-0.374401334235E-01,
+	 0.143387157569E-00,
+	-0.134919690833E-00,
+	-0.231512250535E-01,
+	 0.123631254929E-01,
+	 0.210583219729E-02,
+	-0.339585190264E-03,
+	 0.559936517716E-02,
+	-0.303351180556E-03,
 
-	phirlist.push_back(phir_);
-	phirlist.push_back(phirg_);
-	phirlist.push_back(phirc_);
+	-0.213654886883E+03,
+	 0.266415691493E+05,
+	-0.240272122046E+05,
+	-0.283416034240E+03,
+	 0.212472844002E+03,
+	 
+	-0.666422765408E+00,
+	 0.726086323499E+00,
+	 0.550686686128E-01};
 
-	phi_BC * phi0_lead_ = new phi0_lead(a0[1],a0[2]);
-	phi_BC * phi0_logtau_ = new phi0_logtau(a0[3]);
-	phi_BC * phi0_PE_ = new phi0_Planck_Einstein(a0_v,theta0_v,4,8);
+	static double d[]={0,
+	1,
+	1,
+	1,
+	1,
+	2,
+	2,
+	3,
+	1,
+	2,
+	4,
+	5,
+	5,
+	5,
+	6,
+	6,
+	6,
+	1,
+	1,
+	4,
+	4,
+	4,
+	7,
+	8,
+	2,
+	3,
+	3,
+	5,
+	5,
+	6,
+	7,
+	8,
+	10,
+	4,
+	8,
+	2,
+	2,
+	2,
+	3,
+	3};
+
+	static double t[]={0.00,
+	0.00,
+	0.75,
+	1.00,
+	2.00,
+	0.75,
+	2.00,
+	0.75,
+	1.50,
+	1.50,
+	2.50,
+	0.00,
+	1.50,
+	2.00,
+	0.00,
+	1.00,
+	2.00,
+	3.00,
+	6.00,
+	3.00,
+	6.00,
+	8.00,
+	6.00,
+	0.00,
+	7.00,
+	12.00,
+	16.00,
+	22.00,
+	24.00,
+	16.00,
+	24.00,
+	8.00,
+	2.00,
+	28.00,
+	14.00,
+	1.00,
+	0.00,
+	1.00,
+	3.00,
+	3.00};
+
+	static double c[]={0,0,0,0,0,0,0,0,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	2,
+	2,
+	2,
+	2,
+	2,
+	2,
+	2,
+	3,
+	3,
+	3,
+	4,
+	4,
+	4,
+	4,
+	4,
+	4,
+	5,
+	6};
+
+	alpha[35]=25.0;
+	alpha[36]=25.0;
+	alpha[37]=25.0;
+	alpha[38]=15.0;
+	alpha[39]=20.0;
+
+	beta[35]=325.0;
+	beta[36]=300.0;
+	beta[37]=300.0;
+	beta[38]=275.0;
+	beta[39]=275.0;
+
+	GAMMA[35]=1.16;
+	GAMMA[36]=1.19;
+	GAMMA[37]=1.19;
+	GAMMA[38]=1.25;
+	GAMMA[39]=1.22;
+
+	epsilon[35]=1.00;
+	epsilon[36]=1.00;
+	epsilon[37]=1.00;
+	epsilon[38]=1.00;
+	epsilon[39]=1.00;
+
+	a[40]=3.5;
+	a[41]=3.5;
+	a[42]=3.0;
+
+	b[40]=0.875;
+	b[41]=0.925;
+	b[42]=0.875;
+
+	beta[40]=0.300;
+	beta[41]=0.300;
+	beta[42]=0.300;
+
+	A[40]=0.700;
+	A[41]=0.700;
+	A[42]=0.700;
+
+	B[40]=0.3;
+	B[41]=0.3;
+	B[42]=1.0;
+
+	C[40]=10.0;
+	C[41]=10.0;
+	C[42]=12.5;
+
+	D[40]=275.0;
+	D[41]=275.0;
+	D[42]=275.0;
+
+	//Constants for ideal gas expression
+	a0[1]=8.37304456;
+	a0[2]=-3.70454304;
+	a0[3]=2.500000;
+	a0[4]=1.99427042;
+	a0[5]=0.62105248;
+	a0[6]=0.41195293;
+	a0[7]=1.04028922;
+	a0[8]=0.08327678;
+
+	theta0[4]=3.15163;
+	theta0[5]=6.11190;
+	theta0[6]=6.77708;
+	theta0[7]=11.32384;
+	theta0[8]=27.08792;
+
+	std::vector<double> a_v(a,a+sizeof(a)/sizeof(double));
+	std::vector<double> b_v(b,b+sizeof(b)/sizeof(double));
+	std::vector<double> A_v(A,A+sizeof(A)/sizeof(double));
+	std::vector<double> B_v(B,B+sizeof(B)/sizeof(double));
+	std::vector<double> C_v(C,C+sizeof(C)/sizeof(double));
+	std::vector<double> D_v(D,D+sizeof(D)/sizeof(double));
+
+	phirlist.push_back(new phir_power(n,d,t,c,1,34,35));
+	phirlist.push_back(new phir_gaussian(n,d,t,alpha,epsilon,beta,GAMMA,35,39,40));
+	phirlist.push_back(new phir_critical(n,d,t,a,b,beta,A,B,C,D,40,42,43));
+
+	std::vector<double> a0_v(a0,a0+sizeof(a0)/sizeof(double));
+	std::vector<double> theta0_v(theta0,theta0+sizeof(theta0)/sizeof(double));
 	
-	phi0list.push_back(phi0_lead_);
-	phi0list.push_back(phi0_logtau_);
-	phi0list.push_back(phi0_PE_);
+	phi0list.push_back(new phi0_lead(a0[1],a0[2]));
+	phi0list.push_back(new phi0_logtau(a0[3]));
+	phi0list.push_back(new phi0_Planck_Einstein(a0,theta0,4,8,9));
 
 	// Critical parameters
 	crit.rho = 44.0098*10.6249063;
@@ -453,7 +430,6 @@ double R744Class::psat(double T)
     const double ai[]={0,-7.0602087,1.9391218,-1.6463597,-3.2995634};
     double summer=0;
     int i;
-    setCoeffs();
     for (i=1;i<=4;i++)
     {
         summer=summer+ai[i]*pow(1-T/crit.T,ti[i]);

@@ -2,7 +2,6 @@
 by Ian Bell
 */
 
-
 #if defined(_MSC_VER)
 #define _CRTDBG_MAP_ALLOC
 #define _CRT_SECURE_NO_WARNINGS
@@ -19,113 +18,105 @@ by Ian Bell
 #include "FluidClass.h"
 #include "Air.h"
 
-static const double N[]={0,
- 0.118160747229,//[1]
- 0.713116392079,//[2]
--0.161824192067e1,//[3]
- 0.714140178971e-1,//[4]
--0.865421396646e-1,//[5]
- 0.134211176704,//[6]
- 0.112626704218e-1,//[7]
--0.420533228842e-1,//[8]
- 0.349008431982e-1,//[9]
- 0.164957183186e-3,//[10]
--0.101365037912,//[11]
--0.173813690970,//[12]
--0.472103183731e-1,//[13]
--0.122523554253e-1,//[14]
--0.146629609713,//[15]
--0.316055879821e-1,//[16]
- 0.233594806142e-3,//[17]
- 0.148287891978e-1,//[18]
--0.938782884667e-2//[19]
-};
-
-static const int d[]={0,
-1,//[1]
-1,//[2]
-1,//[3]
-2,//[4]
-3,//[5]
-3,//[6]
-4,//[7]
-4,//[8]
-4,//[9]
-6,//[10]
-1,//[11]
-3,//[12]
-5,//[13]
-6,//[14]
-1,//[15]
-3,//[16]
-11,//[17]
-1,//[18]
-3//[19]
-};
-
-static const double t[]={0.00,
-0,//[1]
-0.33,//[2]
-1.01,//[3]
-0,//[4]
-0,//[5]
-0.15,//[6]
-0,//[7]
-0.2,//[8]
-0.35,//[9]
-1.35,//[10]
-1.6,//[11]
-0.8,//[12]
-0.95,//[13]
-1.25,//[14]
-3.6,//[15]
-6,//[16]
-3.25,//[17]
-3.5,//[18]
-15//[19]
-};
-
-static const int l[]={
-0,0,0,0,0,0,0,0,0,0,0, // indices [0-10]
-1,//[11]
-1,//[12]
-1,//[13]
-1,//[14]
-2,//[15]
-2,//[16]
-2,//[17]
-3,//[18]
-3,//[19]
-};
-
-//Constants for ideal gas expression
-static const double N0[]={0.0,
- 0.605719400e-7,//[1]
--0.210274769e-4,//[2]
--0.158860716e-3,//[3]
--13.841928076,//[4]
- 17.275266575,//[5]
--0.195363420e-3,//[6]
- 2.490888032,//[7]
- 0.791309509,//[8]
- 0.212236768,//[9]
--0.197938904,//[10]
- 25.36365,//[11]
- 16.90741,//[12]
- 87.31279//[13]
-};
-
 AirClass::AirClass()
 {
-	std::vector<double> n_v(N,N+sizeof(N)/sizeof(double));
-	std::vector<double> d_v(d,d+sizeof(d)/sizeof(int));
-	std::vector<double> t_v(t,t+sizeof(t)/sizeof(double));
-	std::vector<double> l_v(l,l+sizeof(l)/sizeof(int));
-	std::vector<double> N0_v(N0,N0+sizeof(N0)/sizeof(double));
-	std::vector<double> theta0_v(N0,N0+sizeof(N0)/sizeof(double));
+	static const double N[]={0,
+	 0.118160747229,//[1]
+	 0.713116392079,//[2]
+	-0.161824192067e1,//[3]
+	 0.714140178971e-1,//[4]
+	-0.865421396646e-1,//[5]
+	 0.134211176704,//[6]
+	 0.112626704218e-1,//[7]
+	-0.420533228842e-1,//[8]
+	 0.349008431982e-1,//[9]
+	 0.164957183186e-3,//[10]
+	-0.101365037912,//[11]
+	-0.173813690970,//[12]
+	-0.472103183731e-1,//[13]
+	-0.122523554253e-1,//[14]
+	-0.146629609713,//[15]
+	-0.316055879821e-1,//[16]
+	 0.233594806142e-3,//[17]
+	 0.148287891978e-1,//[18]
+	-0.938782884667e-2//[19]
+	};
 
-	phi_BC * phir_ = new phir_power(n_v,d_v,t_v,l_v,1,19);
-	phirlist.push_back(phir_);
+	static const double d[]={0,
+	1,//[1]
+	1,//[2]
+	1,//[3]
+	2,//[4]
+	3,//[5]
+	3,//[6]
+	4,//[7]
+	4,//[8]
+	4,//[9]
+	6,//[10]
+	1,//[11]
+	3,//[12]
+	5,//[13]
+	6,//[14]
+	1,//[15]
+	3,//[16]
+	11,//[17]
+	1,//[18]
+	3//[19]
+	};
+
+	static const double t[]={0.00,
+	0,//[1]
+	0.33,//[2]
+	1.01,//[3]
+	0,//[4]
+	0,//[5]
+	0.15,//[6]
+	0,//[7]
+	0.2,//[8]
+	0.35,//[9]
+	1.35,//[10]
+	1.6,//[11]
+	0.8,//[12]
+	0.95,//[13]
+	1.25,//[14]
+	3.6,//[15]
+	6,//[16]
+	3.25,//[17]
+	3.5,//[18]
+	15//[19]
+	};
+
+	static const double l[]={
+	0,0,0,0,0,0,0,0,0,0,0, // indices [0-10]
+	1,//[11]
+	1,//[12]
+	1,//[13]
+	1,//[14]
+	2,//[15]
+	2,//[16]
+	2,//[17]
+	3,//[18]
+	3,//[19]
+	};
+
+	//Constants for ideal gas expression
+	static const double N0[]={0.0,
+	 0.605719400e-7,//[1]
+	-0.210274769e-4,//[2]
+	-0.158860716e-3,//[3]
+	-13.841928076,//[4]
+	 17.275266575,//[5]
+	-0.195363420e-3,//[6]
+	 2.490888032,//[7]
+	 0.791309509,//[8]
+	 0.212236768,//[9]
+	-0.197938904,//[10]
+	 25.36365,//[11]
+	 16.90741,//[12]
+	 87.31279//[13]
+	};
+
+	phirlist.push_back(new phir_power(N,d,t,l,1,19,20));
 	
 	/*
 	phi0=log(delta);
@@ -140,6 +131,8 @@ AirClass::AirClass()
     }
     phi0+=N0[10]*log(2.0/3.0+exp(N0[13]*tau));
 	*/
+	std::vector<double> N0_v(N0,N0+sizeof(N0)/sizeof(double));
+	std::vector<double> theta0_v(N0,N0+sizeof(N0)/sizeof(double));
 	// Set some constants
 	theta0_v[1]=1-4;
 	theta0_v[2]=2-4;
@@ -357,62 +350,62 @@ double AirClass::conductivity_Trho(double T, double rho)
 	return (lambda0+lambdar+lambdac)/1e6;
 }
 
-
-double phi0_Air(double tau, double delta)
-{
-    double phi0=0;
-    int k;
-    
-    phi0=log(delta);
-    for (k=1;k<=5;k++)
-    {
-        phi0=phi0+N0[k]*powInt(tau,k-4);
-    }
-    phi0+=N0[6]*pow(tau,1.5)+N0[7]*log(tau);
-    for (k=8;k<=9;k++)
-    {
-        phi0+=N0[k]*log(1.0-exp(-N0[k+3]*tau));
-    }
-    phi0+=N0[10]*log(2.0/3.0+exp(N0[13]*tau));
-    return phi0;
-}
-
-double dphi0_dDelta_Air(double tau, double delta)
-{
-    return 1/delta;
-}
-
-double dphi02_dDelta2_Air(double tau, double delta)
-{
-    return -1.0/powInt(delta,2);
-}
-
-double dphi0_dTau_Air(double tau, double delta)
-{
-    double dphi0_dTau=0; int k;
-    for (k=1;k<=5;k++)
-    {
-        dphi0_dTau+=N0[k]*(k-4)*powInt(tau,k-5);
-    }
-    dphi0_dTau+=1.5*N0[6]*sqrt(tau)+N0[7]/tau;
-    dphi0_dTau+=N0[8]*N0[11]/(exp(N0[11]*tau)-1)+N0[9]*N0[12]/(exp(N0[12]*tau)-1);
-    dphi0_dTau+=N0[10]*N0[13]/(2.0/3.0*exp(-N0[13]*tau)+1);
-    
-    return dphi0_dTau;
-}
-
-double dphi02_dTau2_Air(double tau, double delta)
-{
-    double dphi02_dTau2=0;
-    int k;
-    
-    for (k=1;k<=5;k++)
-    {
-        dphi02_dTau2+=N0[k]*(k-4)*(k-5)*powInt(tau,k-6);
-    }
-    dphi02_dTau2+=0.75*N0[6]*pow(tau,-0.5)-N0[7]/(tau*tau);
-    dphi02_dTau2+=-N0[8]*N0[11]*N0[11]*exp(N0[11]*tau)/powInt(exp(N0[11]*tau)-1,2);
-    dphi02_dTau2+=-N0[9]*N0[12]*N0[12]*exp(N0[12]*tau)/powInt(exp(N0[12]*tau)-1,2);
-    dphi02_dTau2+=-(2.0/3.0)*N0[10]*N0[13]*N0[13]*exp(-N0[13]*tau)/powInt((2.0/3.0)*exp(-N0[13]*tau)+1,2);
-    return dphi02_dTau2;
-}
+//
+//double phi0_Air(double tau, double delta)
+//{
+//    double phi0=0;
+//    int k;
+//    
+//    phi0=log(delta);
+//    for (k=1;k<=5;k++)
+//    {
+//        phi0=phi0+N0[k]*powInt(tau,k-4);
+//    }
+//    phi0+=N0[6]*pow(tau,1.5)+N0[7]*log(tau);
+//    for (k=8;k<=9;k++)
+//    {
+//        phi0+=N0[k]*log(1.0-exp(-N0[k+3]*tau));
+//    }
+//    phi0+=N0[10]*log(2.0/3.0+exp(N0[13]*tau));
+//    return phi0;
+//}
+//
+//double dphi0_dDelta_Air(double tau, double delta)
+//{
+//    return 1/delta;
+//}
+//
+//double dphi02_dDelta2_Air(double tau, double delta)
+//{
+//    return -1.0/powInt(delta,2);
+//}
+//
+//double dphi0_dTau_Air(double tau, double delta)
+//{
+//    double dphi0_dTau=0; int k;
+//    for (k=1;k<=5;k++)
+//    {
+//        dphi0_dTau+=N0[k]*(k-4)*powInt(tau,k-5);
+//    }
+//    dphi0_dTau+=1.5*N0[6]*sqrt(tau)+N0[7]/tau;
+//    dphi0_dTau+=N0[8]*N0[11]/(exp(N0[11]*tau)-1)+N0[9]*N0[12]/(exp(N0[12]*tau)-1);
+//    dphi0_dTau+=N0[10]*N0[13]/(2.0/3.0*exp(-N0[13]*tau)+1);
+//    
+//    return dphi0_dTau;
+//}
+//
+//double dphi02_dTau2_Air(double tau, double delta)
+//{
+//    double dphi02_dTau2=0;
+//    int k;
+//    
+//    for (k=1;k<=5;k++)
+//    {
+//        dphi02_dTau2+=N0[k]*(k-4)*(k-5)*powInt(tau,k-6);
+//    }
+//    dphi02_dTau2+=0.75*N0[6]*pow(tau,-0.5)-N0[7]/(tau*tau);
+//    dphi02_dTau2+=-N0[8]*N0[11]*N0[11]*exp(N0[11]*tau)/powInt(exp(N0[11]*tau)-1,2);
+//    dphi02_dTau2+=-N0[9]*N0[12]*N0[12]*exp(N0[12]*tau)/powInt(exp(N0[12]*tau)-1,2);
+//    dphi02_dTau2+=-(2.0/3.0)*N0[10]*N0[13]*N0[13]*exp(-N0[13]*tau)/powInt((2.0/3.0)*exp(-N0[13]*tau)+1,2);
+//    return dphi02_dTau2;
+//}

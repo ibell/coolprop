@@ -12,137 +12,126 @@ by Ian Bell
 #include "FluidClass.h"
 #include "Hydrogen.h"
 
-static const double n[]={0,
--6.93643,
-0.01,
-2.1101,
-4.52059,
-0.732564,
--1.34086,
-0.130985,
--0.777414,
-0.351944,
--0.0211716,
-0.0226312,
-0.032187,
--0.0231752,
-0.0557346
-};
 
-static const int d[]={0,
-1, //[ 1]
-4, //[ 2]
-1, //[ 3]
-1, //[ 4]
-2, //[ 5]
-2, //[ 6]
-3, //[ 7]
-1, //[ 8]
-3, //[ 9]
-2, //[10]
-1, //[11]
-3, //[12]
-1, //[13]
-1, //[14]
-};
-
-static const double t[]={0.00, //offset for natural indices
-0.6844,
-1.0,
-0.989,
-0.489,
-0.803,
-1.1444,
-1.409,
-1.754,
-1.311,
-4.187,
-5.646,
-0.791,
-7.249,
-2.986
-};
-
-static const int c[]={
-0,0,0,0,0,0,0,0, // indices [0-7]
-1,
-1
-};
-
-// alpha instead of eta is used here for consistency with the definitions in R744.c upon which R290.c is based
-static const double phi[]={
-0,0,0,0,0,0,0,0,0,0, // indices [0-9]
-1.685,
-0.489,
-0.103,
-2.506,
-1.607
-};
-
-static const double beta[]={
-0,0,0,0,0,0,0,0,0,0, // indices [0-9]
-0.171,
-0.2245,
-0.1304,
-0.2785,
-0.3967
-};
-
-static const double GAMMA[]={
-0,0,0,0,0,0,0,0,0,0, // indices [0-9]
-0.7164,
-1.3444,
-1.4517,
-0.7204,
-1.5445
-};
-
-static const double D[]={
-0,0,0,0,0,0,0,0,0,0, // indices [0-9]
-1.506,
-0.156,
-1.736,
-0.67,
-1.662
-};
-
-//Constants for ideal gas expression
-static const double a0[]={0.0,
-	-1.4579856475,
-	1.888076782,
-	1.616,
-	-0.4117,
-	-0.792,
-	0.758,
-	1.217
-};
-
-static const double b0[]={0.0,
-    0,0, //[1 and 2 are not used]
-    16.0205159149,
-	22.6580178006,
-	60.0090511389,
-	74.9434303817,
-	206.9392065168
-};
 
 HydrogenClass::HydrogenClass()
 {
-	std::vector<double> n_v(n,n+sizeof(n)/sizeof(double));
-	std::vector<double> d_v(d,d+sizeof(d)/sizeof(int));
-	std::vector<double> t_v(t,t+sizeof(t)/sizeof(double));
-	std::vector<double> l_v(c,c+sizeof(c)/sizeof(int));
-	std::vector<double> alpha_v(phi,phi+sizeof(phi)/sizeof(double));
-	std::vector<double> beta_v(beta,beta+sizeof(beta)/sizeof(double));
-	std::vector<double> gamma_v(GAMMA,GAMMA+sizeof(GAMMA)/sizeof(double));
-	std::vector<double> epsilon_v(D,D+sizeof(D)/sizeof(double));
-	std::vector<double> a0_v(a0,a0+sizeof(a0)/sizeof(double));
-	std::vector<double> b0_v(b0,b0+sizeof(b0)/sizeof(double));
+	static const double n[]={0,
+	-6.93643,
+	0.01,
+	2.1101,
+	4.52059,
+	0.732564,
+	-1.34086,
+	0.130985,
+	-0.777414,
+	0.351944,
+	-0.0211716,
+	0.0226312,
+	0.032187,
+	-0.0231752,
+	0.0557346
+	};
 
-	phi_BC * phir_ = new phir_power(n_v,d_v,t_v,l_v,1,9);
-	phi_BC * phirg_ = new phir_gaussian(n_v,d_v,t_v,alpha_v,epsilon_v,beta_v,gamma_v,10,14);
-	phirlist.push_back(phir_);
-	phirlist.push_back(phirg_);
+	static const double d[]={0,
+	1, //[ 1]
+	4, //[ 2]
+	1, //[ 3]
+	1, //[ 4]
+	2, //[ 5]
+	2, //[ 6]
+	3, //[ 7]
+	1, //[ 8]
+	3, //[ 9]
+	2, //[10]
+	1, //[11]
+	3, //[12]
+	1, //[13]
+	1, //[14]
+	};
+
+	static const double t[]={0.00, //offset for natural indices
+	0.6844,
+	1.0,
+	0.989,
+	0.489,
+	0.803,
+	1.1444,
+	1.409,
+	1.754,
+	1.311,
+	4.187,
+	5.646,
+	0.791,
+	7.249,
+	2.986
+	};
+
+	static const double c[]={
+	0,0,0,0,0,0,0,0, // indices [0-7]
+	1,
+	1
+	};
+
+	// alpha instead of eta is used here for consistency with the definitions in R744.c upon which R290.c is based
+	static const double alpha[]={ // phi from paper
+	0,0,0,0,0,0,0,0,0,0, // indices [0-9]
+	1.685,
+	0.489,
+	0.103,
+	2.506,
+	1.607
+	};
+
+	static const double beta[]={
+	0,0,0,0,0,0,0,0,0,0, // indices [0-9]
+	0.171,
+	0.2245,
+	0.1304,
+	0.2785,
+	0.3967
+	};
+
+	static const double GAMMA[]={
+	0,0,0,0,0,0,0,0,0,0, // indices [0-9]
+	0.7164,
+	1.3444,
+	1.4517,
+	0.7204,
+	1.5445
+	};
+
+	static const double epsilon[]={ // D from paper
+	0,0,0,0,0,0,0,0,0,0, // indices [0-9]
+	1.506,
+	0.156,
+	1.736,
+	0.67,
+	1.662
+	};
+
+	//Constants for ideal gas expression
+	static const double a0[]={0.0,
+		-1.4579856475,
+		1.888076782,
+		1.616,
+		-0.4117,
+		-0.792,
+		0.758,
+		1.217
+	};
+
+	static const double b0[]={0.0,
+		0,0, //[1 and 2 are not used]
+		16.0205159149,
+		22.6580178006,
+		60.0090511389,
+		74.9434303817,
+		206.9392065168
+	};
+
+	phirlist.push_back(new phir_power(n,d,t,c,1,9,10));
+	phirlist.push_back(new phir_gaussian(n,d,t,alpha,epsilon,beta,GAMMA,10,14,15));
 
 	/* phi0=log(delta)+1.5*log(tau)+a0[1]+a0[2]*tau
         +a0[3]*log(1-exp(-b0[3]*tau))
@@ -153,13 +142,9 @@ HydrogenClass::HydrogenClass()
 	*/
 
 	//lead term of the form log(delta)+a1+a2*tau
-	phi_BC * phi0_lead_ = new phi0_lead(a0[1],a0[2]);
-	phi_BC * phi0_logtau_ = new phi0_logtau(1.5);
-	phi_BC * phi0_Planck_Einstein_ = new phi0_Planck_Einstein(a0_v,b0_v,3,7);
-
-	phi0list.push_back(phi0_lead_);
-	phi0list.push_back(phi0_logtau_);
-	phi0list.push_back(phi0_Planck_Einstein_);
+	phi0list.push_back(new phi0_lead(a0[1],a0[2]));
+	phi0list.push_back(new phi0_logtau(1.5));
+	phi0list.push_back(new phi0_Planck_Einstein(a0,b0,3,7,8));
 
 	// Critical parameters
 	crit.rho = 15.508*2.01588;
@@ -276,33 +261,21 @@ double HydrogenClass::surface_tension_T(double T)
 	return 0.005369*pow(1-T/reduce.T,1.065);
 }
 
-
-
 ParaHydrogenClass::ParaHydrogenClass()
 {
-	double _n [] = {0, -7.33375, 0.01, 2.60375, 4.66279, 0.68239, -1.47078, 0.135801, -1.05327, 0.328239, -0.0577833, 0.0449743, 0.0703464, -0.0401766, 0.11951};
-	double _t [] = {0, 0.6855, 1, 1, 0.489, 0.774, 1.133, 1.386, 1.619, 1.162, 3.96, 5.276, 0.99, 6.791, 3.19};
-	double _d [] = {0, 1, 4, 1, 1, 2, 2, 3, 1, 3, 2, 1, 3, 1, 1};
-	double _c [] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0};
-	double _a0 [] = {0, -1.4485891134, 1.884521239, 4.30256, 13.0289, -47.7365, 50.0013, -18.6261, 0.993973, 0.536078};
-	double _b0 [] = {0, 0, 0, -15.14967511472, -25.0925982148, -29.4735563787, -35.4059141417, -40.724998482, -163.7925799988, -309.2173173842};
-	double _phi[] = {0,0,0,0,0,0,0,0,0,0,1.7437, 0.5516, 0.0634, 2.1341, 1.777};
-	double _beta[] = {0,0,0,0,0,0,0,0,0,0,0.194, 0.2019, 0.0301, 0.2383, 0.3253};
-	double _GAMMA[] = {0,0,0,0,0,0,0,0,0,0,0.8048, 1.5248, 0.6648, 0.6832, 1.493};
-	double _D[] = {0,0,0,0,0,0,0,0,0,0,1.5487, 0.1785, 1.28, 0.6319, 1.7104};
-	std::vector<double> n_v(_n,_n+sizeof(_n)/sizeof(double));
-	std::vector<double> d_v(_d,_d+sizeof(_d)/sizeof(double));
-	std::vector<double> t_v(_t,_t+sizeof(_t)/sizeof(double));
-	std::vector<double> l_v(_c,_c+sizeof(_c)/sizeof(double));
-	std::vector<double> alpha_v(_phi,_phi+sizeof(_phi)/sizeof(double));
-	std::vector<double> epsilon_v(_D,_D+sizeof(_D)/sizeof(double));
-	std::vector<double> beta_v(_beta,_beta+sizeof(_beta)/sizeof(double));
-	std::vector<double> gamma_v(_GAMMA,_GAMMA+sizeof(_GAMMA)/sizeof(double));
-	std::vector<double> a0_v(_a0,_a0+sizeof(_a0)/sizeof(double));
-	std::vector<double> b0_v(_b0,_b0+sizeof(_b0)/sizeof(double));
+	double n [] = {0, -7.33375, 0.01, 2.60375, 4.66279, 0.68239, -1.47078, 0.135801, -1.05327, 0.328239, -0.0577833, 0.0449743, 0.0703464, -0.0401766, 0.11951};
+	double t [] = {0, 0.6855, 1, 1, 0.489, 0.774, 1.133, 1.386, 1.619, 1.162, 3.96, 5.276, 0.99, 6.791, 3.19};
+	double d [] = {0, 1, 4, 1, 1, 2, 2, 3, 1, 3, 2, 1, 3, 1, 1};
+	double c [] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0};
+	double a0 [] = {0, -1.4485891134, 1.884521239, 4.30256, 13.0289, -47.7365, 50.0013, -18.6261, 0.993973, 0.536078};
+	double b0 [] = {0, 0, 0, -15.14967511472, -25.0925982148, -29.4735563787, -35.4059141417, -40.724998482, -163.7925799988, -309.2173173842};
+	double alpha[] = {0,0,0,0,0,0,0,0,0,0,1.7437, 0.5516, 0.0634, 2.1341, 1.777}; // phi from paper
+	double beta[] = {0,0,0,0,0,0,0,0,0,0,0.194, 0.2019, 0.0301, 0.2383, 0.3253};
+	double GAMMA[] = {0,0,0,0,0,0,0,0,0,0,0.8048, 1.5248, 0.6648, 0.6832, 1.493};
+	double epsilon[] = {0,0,0,0,0,0,0,0,0,0,1.5487, 0.1785, 1.28, 0.6319, 1.7104}; // D from paper
 
-	phirlist.push_back(new phir_power(n_v,d_v,t_v,l_v,1,9));
-	phirlist.push_back(new phir_gaussian(n_v,d_v,t_v,alpha_v,epsilon_v,beta_v,gamma_v,10,14));
+	phirlist.push_back(new phir_power(n,d,t,c,1,9,10));
+	phirlist.push_back(new phir_gaussian(n,d,t,alpha,epsilon,beta,GAMMA,10,14,15));
 
 	/* phi0=log(delta)+1.5*log(tau)+a0[1]+a0[2]*tau
         +a0[3]*log(1-exp(-b0[3]*tau))
@@ -315,7 +288,7 @@ ParaHydrogenClass::ParaHydrogenClass()
 	//lead term of the form log(delta)+a1+a2*tau
 	phi_BC * phi0_lead_ = new phi0_lead(a0[1],a0[2]);
 	phi_BC * phi0_logtau_ = new phi0_logtau(1.5);
-	phi_BC * phi0_Planck_Einstein_ = new phi0_Planck_Einstein(a0_v,b0_v,3,7);
+	phi_BC * phi0_Planck_Einstein_ = new phi0_Planck_Einstein(a0,b0,3,7,8);
 
 	phi0list.push_back(phi0_lead_);
 	phi0list.push_back(phi0_logtau_);

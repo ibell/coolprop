@@ -30,157 +30,143 @@ The original paper has a typographical error that shows a positive coefficient
 instead of negative.  The correct value should be -0.3497111e-01.
 */
 
-static const double a[]={
-	 0.0,			//[0]
-	 0.4554431e-1, 	//[1]
-	 0.7238548e+0,	//[2]
-	 0.1229470e-1,	//[3]
-	-0.1858814e+1,	//[4]
-	 0.2141882e-10,	//[5]
-	-0.1430020e-1,	//[6]
-	 0.3441324e+0,	//[7]
-	-0.2873571e+0,	//[8]
-	 0.2352589e-4,	//[9]
-	-0.3497111e-1,	//[10]
-	 0.2397852e-1,	//[11]
-	 0.1831117e-2,	//[12]
-	-0.4085375e-1,	//[13]
-	 0.2379275e+0,	//[14]
- 	-0.3548972e-1,	//[15]
-	-0.1823729e+0,	//[16]
-	 0.2281556e-1,	//[17]
-	-0.6663444e-2,	//[18]
-	-0.8847486e-2,	//[19]
-	 0.2272635e-2,	//[20]
-	-0.5588655e-3,	//[21]
-};
-
-static const int d[]={
-	0,			//[0]
-	2, 			//[1]
-	1, 			//[2]
-	4, 			//[3]
-	1, 			//[4]
-	15, 		//[5]
-	3, 			//[6]
-	3, 			//[7]
-	1, 			//[8]
-	8, 			//[9]
-	2, 			//[10]
-	1, 			//[11]
-	8, 			//[12]
-	1, 			//[13]
-	2, 			//[14]
-	3, 			//[15]
-	2, 			//[16]
-	4, 			//[17]
-	3, 			//[18]
-	1, 			//[19]
-	2, 			//[20]
-	4 			//[21]
-};
-
-static const double t[]={
-	0.0,		//[0]
-	-1.0/2.0,	//[1]
-	1.0/2.0,	//[2]
-	1.0,		//[3]
-	3.0/2.0,	//[4]
-	3.0,		//[5]
-	0.0,		//[6]
-	3.0,		//[7]
-	4.0,		//[8]
-	4.0,		//[9]
-	5.0,		//[10]
-	3.0,		//[11]
-	5.0,		//[12]
-	6.0, 		//[13]
-	8.0,		//[14]
-	8.0,		//[15]
-	10.0,		//[16]
-	10.0,		//[17]
-	5.0,		//[18]
-	15.0/2.0,	//[19]
-	15.0,		//[20]
-	30.0		//[21]
-};
-
-static const double c[]={
-	0.0,		//[0]
-	0.0,		//[1]
-	0.0,		//[2]
-	0.0,		//[3]
-	0.0,		//[4]
-	0.0,		//[5]
-	1.0,		//[6]
-	1.0,		//[7]
-	1.0,		//[8]
-	1.0,		//[9]
-	1.0,		//[10]
-	2.0,		//[11]
-	2.0,		//[12]
-	2.0, 		//[13]
-	2.0,		//[14]
-	2.0,		//[15]
-	2.0,		//[16]
-	2.0,		//[17]
-	3.0,		//[18]
-	3.0,		//[19]
-	3.0,		//[20]
-	3.0			//[21]
-};
-
-static const int N[]={
-	5,			//[0]
-	10,			//[1]
-	17,			//[2]
-	21,			//[3]
-	21			//[4]
-};
-
-static const double a0[]={
-	0.0,		//[0]
-	-15.815020,	//[1]
-	4.255726,	//[2]
-	11.474340,	//[3]
-	-1.296211,	//[4]
-	0.5706757	//[5]
-};
-static const double t0[]={
-	0.0,		//[0]
-	0.0,		//[1]
-	0.0,		//[2]
-	1.0/3.0,	//[3]
-	-3.0/2.0,	//[4]
-	-7.0/4.0	//[5]
-};
-
-static const double M=17.03; //[kg/kmol]
-static const double Tc=405.40; //[K]
-static const double rhoc=225; //[kg/m^3]
-static const double pc=11333; //[kPa]s
-static const double _Ttriple=195.5; //[K]
-
 R717Class::R717Class()
 {
-	std::vector<double> n_v(a,a+sizeof(a)/sizeof(double));
-	std::vector<double> d_v(d,d+sizeof(d)/sizeof(int));
-	std::vector<double> t_v(t,t+sizeof(t)/sizeof(double));
-	std::vector<double> l_v(c,c+sizeof(c)/sizeof(int));
+
+	static const double n[]={
+		 0.0,			//[0]
+		 0.4554431e-1, 	//[1]
+		 0.7238548e+0,	//[2]
+		 0.1229470e-1,	//[3]
+		-0.1858814e+1,	//[4]
+		 0.2141882e-10,	//[5]
+		-0.1430020e-1,	//[6]
+		 0.3441324e+0,	//[7]
+		-0.2873571e+0,	//[8]
+		 0.2352589e-4,	//[9]
+		-0.3497111e-1,	//[10]
+		 0.2397852e-1,	//[11]
+		 0.1831117e-2,	//[12]
+		-0.4085375e-1,	//[13]
+		 0.2379275e+0,	//[14]
+ 		-0.3548972e-1,	//[15]
+		-0.1823729e+0,	//[16]
+		 0.2281556e-1,	//[17]
+		-0.6663444e-2,	//[18]
+		-0.8847486e-2,	//[19]
+		 0.2272635e-2,	//[20]
+		-0.5588655e-3,	//[21]
+	};
+
+	static const double d[]={
+		0,			//[0]
+		2, 			//[1]
+		1, 			//[2]
+		4, 			//[3]
+		1, 			//[4]
+		15, 		//[5]
+		3, 			//[6]
+		3, 			//[7]
+		1, 			//[8]
+		8, 			//[9]
+		2, 			//[10]
+		1, 			//[11]
+		8, 			//[12]
+		1, 			//[13]
+		2, 			//[14]
+		3, 			//[15]
+		2, 			//[16]
+		4, 			//[17]
+		3, 			//[18]
+		1, 			//[19]
+		2, 			//[20]
+		4 			//[21]
+	};
+
+	static const double t[]={
+		0.0,		//[0]
+		-1.0/2.0,	//[1]
+		1.0/2.0,	//[2]
+		1.0,		//[3]
+		3.0/2.0,	//[4]
+		3.0,		//[5]
+		0.0,		//[6]
+		3.0,		//[7]
+		4.0,		//[8]
+		4.0,		//[9]
+		5.0,		//[10]
+		3.0,		//[11]
+		5.0,		//[12]
+		6.0, 		//[13]
+		8.0,		//[14]
+		8.0,		//[15]
+		10.0,		//[16]
+		10.0,		//[17]
+		5.0,		//[18]
+		15.0/2.0,	//[19]
+		15.0,		//[20]
+		30.0		//[21]
+	};
+
+	static const double c[]={
+		0.0,		//[0]
+		0.0,		//[1]
+		0.0,		//[2]
+		0.0,		//[3]
+		0.0,		//[4]
+		0.0,		//[5]
+		1.0,		//[6]
+		1.0,		//[7]
+		1.0,		//[8]
+		1.0,		//[9]
+		1.0,		//[10]
+		2.0,		//[11]
+		2.0,		//[12]
+		2.0, 		//[13]
+		2.0,		//[14]
+		2.0,		//[15]
+		2.0,		//[16]
+		2.0,		//[17]
+		3.0,		//[18]
+		3.0,		//[19]
+		3.0,		//[20]
+		3.0			//[21]
+	};
+
+	static const double N[]={
+		5,			//[0]
+		10,			//[1]
+		17,			//[2]
+		21,			//[3]
+		21			//[4]
+	};
+
+	static const double a0[]={
+		0.0,		//[0]
+		-15.815020,	//[1]
+		4.255726,	//[2]
+		11.474340,	//[3]
+		-1.296211,	//[4]
+		0.5706757	//[5]
+	};
+	static const double t0[]={
+		0.0,		//[0]
+		0.0,		//[1]
+		0.0,		//[2]
+		1.0/3.0,	//[3]
+		-3.0/2.0,	//[4]
+		-7.0/4.0	//[5]
+	};
+
 	std::vector<double> a0_v(a0,a0+sizeof(a0)/sizeof(double));
 	std::vector<double> t0_v(t0,t0+sizeof(t0)/sizeof(double));
 
-	phi_BC * phir_ = new phir_power(n_v,d_v,t_v,l_v,1,21);
-	phirlist.push_back(phir_);
+	phirlist.push_back(new phir_power(n,d,t,c,1,21,22));
 
 	// phi0=log(delta)+a0[1]+a0[2]*tau-log(tau)+a0[3]*pow(tau,1.0/3.0)+a0[4]*pow(tau,-3.0/2.0)+a0[5]*pow(tau,-7.0/4.0);
-	phi_BC * phi0_lead_ = new phi0_lead(a0[1],a0[2]);
-	phi_BC * phi0_logtau_ = new phi0_logtau(-1);
-	phi_BC * phi0_power_ = new phi0_power(a0_v,t0_v,3,5);
-
-	phi0list.push_back(phi0_lead_);
-	phi0list.push_back(phi0_logtau_);
-	phi0list.push_back(phi0_power_);
+	phi0list.push_back(new phi0_lead(a0[1],a0[2]));
+	phi0list.push_back(new phi0_logtau(-1));
+	phi0list.push_back(new phi0_power(a0_v,t0_v,3,5));
 
 	// Critical parameters
 	crit.rho = 225;
@@ -267,7 +253,7 @@ double R717Class::conductivity_Trho(double T, double rho)
 	
 	if (0)//(T>Tc)
 	{
-		t=fabs((T-Tc)/Tc);
+		t=fabs((T-reduce.T)/reduce.T);
 		a_chi=a_zeta/0.7;
 		eta_B=(2.60*1.6*t)*1e-5;
 		dPdT=(2.18-0.12/exp(17.8*t))*1e5; //[Pa-K]
@@ -275,7 +261,7 @@ double R717Class::conductivity_Trho(double T, double rho)
 		// Along the critical isochore (only a function of temperature) (Eq. 9)
 		DELTA_lambda_i=LAMBDA*(k_B*T*T)/(6*pi*eta_B*(zeta_0_plus*pow(t,-nu)*(1+a_zeta*pow(t,DELTA))))*dPdT*dPdT*GAMMA_0_plus*pow(t,-gamma)*(1+a_chi*pow(t,DELTA));
 		DELTA_lambda_id=DELTA_lambda_i*exp(-36*t*t);
-		if (rho<0.6*rhoc)
+		if (rho<0.6*reduce.rho)
 		{
 			DELTA_lambda=DELTA_lambda_id*(X_T*X_T)/(X_T*X_T+powInt(0.6*rhoc_visc-0.96*rhoc_visc,2))*powInt(rho,2)/powInt(0.6*rhoc_visc,2);
 		}
@@ -354,24 +340,24 @@ double R717Class::psat(double T)
 {
 	double theta,phi;
 
-	phi=T/Tc;
+	phi=T/reduce.T;
 	theta=1-phi;
 
-	return pc*exp(5.64633073E-04 - 7.13654961E+00*theta-2.46962841E+00*theta*theta-2.56218797E+01*powInt(theta,3)+4.02270547E+01*powInt(theta,4)-6.72626052E+01*powInt(theta,5));
+	return reduce.p*exp(5.64633073E-04 - 7.13654961E+00*theta-2.46962841E+00*theta*theta-2.56218797E+01*powInt(theta,3)+4.02270547E+01*powInt(theta,4)-6.72626052E+01*powInt(theta,5));
 }
 double R717Class::rhosatL(double T)
 {
 	double theta, THETA;
-	theta=T/Tc;
+	theta=T/reduce.T;
 	THETA=1-theta;
 	// |Error| is < 0.1% between 197.6 and 396.2 K
-	return exp(1.485*pow(THETA,0.2524)-0.0753)*rhoc;
+	return exp(1.485*pow(THETA,0.2524)-0.0753)*reduce.rho;
 }
 double R717Class::rhosatV(double T)
 {
 	double theta, THETA;
 	double a1,a2,a3,a4,a5,a6,b1,b2,b3,b4,b5,b6,rhog_hat;
-	theta=T/Tc;
+	theta=T/reduce.T;
 	THETA=1-theta;
 
 	// |Error| is < 0.1% between 225 and 375 K (approximately)
@@ -390,17 +376,7 @@ double R717Class::rhosatV(double T)
 	b6 = 2.333;  
 	
 	rhog_hat = a1*pow(THETA,b1)+a2*pow(THETA,b2)+a3*pow(THETA,b3)+a4*pow(THETA,b4)+a5*pow(THETA,b5)+a6*pow(THETA,b6);
-	return rhoc*exp(rhog_hat);
-}
-
-double psat_R717(double T)
-{
-	double theta,phi;
-
-	phi=T/Tc;
-	theta=1-phi;
-
-	return pc*exp(5.64633073E-04 - 7.13654961E+00*theta-2.46962841E+00*theta*theta-2.56218797E+01*powInt(theta,3)+4.02270547E+01*powInt(theta,4)-6.72626052E+01*powInt(theta,5));
+	return reduce.rho*exp(rhog_hat);
 }
 double R717Class::surface_tension_T(double T)
 {

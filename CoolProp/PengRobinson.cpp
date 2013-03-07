@@ -1,5 +1,6 @@
 #include "FluidClass.h"
 #include <complex>
+#include <cmath>
 #include "PengRobinson.h"
 
 std::vector<double> PRGuess_rho(Fluid * pFluid, double T, double p)

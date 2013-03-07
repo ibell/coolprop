@@ -4,8 +4,6 @@
 #include "FluidClass.h"
 #include "Xylene_EthylBenzene.h"
 
-static char EOSstr [] = "Yong Zhou, Jiangtao Wu, Eric W. Lemmon, \"Thermodynamic Properties of o-Xylene, m-Xylene, p-Xylene, and Ethylbenzene\", J. Phys. Chem. Ref. Data, Vol. 41, No. 2, 2012";
-
 oXyleneClass::oXyleneClass()
 {
 	double n[] = {0.0, 0.0036765156, -0.13918171, 0.014104203, 1.5398899, -2.3600925, -0.44359159, 0.19596977, -1.0909408, -0.21890801, 1.1179223, -0.93563815, -0.018102996, 1.4172368, -0.57134695, -0.081944041, -40.682878};
@@ -50,7 +48,7 @@ oXyleneClass::oXyleneClass()
 
 	phi0list.push_back(new phi0_Planck_Einstein(v0_v,u0_v,1,4));
 
-	EOSReference.assign(EOSstr);
+	EOSReference.assign("Yong Zhou, Jiangtao Wu, Eric W. Lemmon, \"Thermodynamic Properties of o-Xylene, m-Xylene, p-Xylene, and Ethylbenzene\", J. Phys. Chem. Ref. Data, Vol. 41, No. 2, 2012");
 	TransportReference.assign("Using ECS in fully predictive mode");
 
 	name.assign("o-Xylene");
@@ -145,7 +143,7 @@ mXyleneClass::mXyleneClass()
 
 	phi0list.push_back(new phi0_Planck_Einstein(v0_v,u0_v,1,4));
 
-	EOSReference.assign(EOSstr);
+	EOSReference.assign("Yong Zhou, Jiangtao Wu, Eric W. Lemmon, \"Thermodynamic Properties of o-Xylene, m-Xylene, p-Xylene, and Ethylbenzene\", J. Phys. Chem. Ref. Data, Vol. 41, No. 2, 2012");
 	TransportReference.assign("Using ECS in fully predictive mode");
 
 	name.assign("m-Xylene");
@@ -240,7 +238,7 @@ pXyleneClass::pXyleneClass()
 
 	phi0list.push_back(new phi0_Planck_Einstein(v0_v,u0_v,1,4));
 
-	EOSReference.assign(EOSstr);
+	EOSReference.assign("Yong Zhou, Jiangtao Wu, Eric W. Lemmon, \"Thermodynamic Properties of o-Xylene, m-Xylene, p-Xylene, and Ethylbenzene\", J. Phys. Chem. Ref. Data, Vol. 41, No. 2, 2012");
 	TransportReference.assign("Using ECS in fully predictive mode");
 
 	name.assign("p-Xylene");
@@ -340,7 +338,7 @@ EthylBenzeneClass::EthylBenzeneClass()
 
 	phi0list.push_back(new phi0_Planck_Einstein(v0_v,u0_v,1,3));
 
-	EOSReference.assign(EOSstr);
+	EOSReference.assign("Yong Zhou, Jiangtao Wu, Eric W. Lemmon, \"Thermodynamic Properties of o-Xylene, m-Xylene, p-Xylene, and Ethylbenzene\", J. Phys. Chem. Ref. Data, Vol. 41, No. 2, 2012");
 	TransportReference.assign("Using ECS in fully predictive mode");
 
 	name.assign("EthylBenzene");

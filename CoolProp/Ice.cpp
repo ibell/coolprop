@@ -2,7 +2,7 @@
 // Further information on mixing languages: http://www.cae.tntech.edu/help/programming/mixed_languages/view
 // And information on how to use the complex library in Visual Studio: http://msdn.microsoft.com/en-us/library/ayweczx2.aspx
 
-
+#include <cmath>
 #include <complex>
 #include <iostream>
 #include "Ice.h"

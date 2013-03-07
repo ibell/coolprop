@@ -7,7 +7,7 @@
 #include "FluidClass.h"
 #include "Span_Short.h"
 
-static double d_nonpolar[] =
+static double d_nonpolar_SpanShort[] =
 {
 0,
 1.0, //[1]
@@ -24,7 +24,7 @@ static double d_nonpolar[] =
 4.0, //[12]
 };
 
-static double t_nonpolar[] =
+static double t_nonpolar_SpanShort[] =
 {
 0,
 0.25,  //[1]
@@ -41,7 +41,7 @@ static double t_nonpolar[] =
 12.0,  //[12]
 };
 
-static double c_nonpolar[] =
+static double c_nonpolar_SpanShort[] =
 {
 0,
 0.0, //[1]
@@ -58,7 +58,7 @@ static double c_nonpolar[] =
 3.0, //[12]
 };
 
-static double d_polar[] =
+static double d_polar_SpanShort[] =
 {
 0,
 1.0, //[1]
@@ -75,7 +75,7 @@ static double d_polar[] =
 2.0, //[12]
 };
 
-static double t_polar[] =
+static double t_polar_SpanShort[] =
 {
 0,
 0.25,  //[1]
@@ -92,7 +92,7 @@ static double t_polar[] =
 12.5,  //[12]
 };
 
-static double c_polar[] =
+static double c_polar_SpanShort[] =
 {
 0,
 0.0, //[1]
@@ -109,15 +109,13 @@ static double c_polar[] =
 3.0, //[12]
 };
 
-static char EOSstr [] = "Span, R. and W. Wagner, \"Equations of State for Technical Applications. II. Results for Nonpolar Fluids\", International Journal of Thermophysics, Vol. 24, No. 1, January 2003. \n\nCp0: Jaeschke, M. and P. Schley,\"Ideal-Gas Thermodynamic Properties for Natural-Gas Applications\", Int. J. Thermophys. v 16, n6 1995";
-
 nPentaneClass::nPentaneClass()
 {
 const double n[] = {0.0, 1.0968643, -2.9988888, 0.99516887, -0.16170709, 0.1133446, 0.00026760595, 0.40979882, -0.040876423, -0.38169482, -0.10931957, -0.032073223, 0.016877016};
 std::vector<double> n_v(n,n+sizeof(n)/sizeof(double));
-std::vector<double> t_v(t_nonpolar,t_nonpolar+sizeof(t_nonpolar)/sizeof(double));
-std::vector<double> d_v(d_nonpolar,d_nonpolar+sizeof(d_nonpolar)/sizeof(double));
-std::vector<double> l_v(c_nonpolar,c_nonpolar+sizeof(c_nonpolar)/sizeof(double));
+std::vector<double> t_v(t_nonpolar_SpanShort,t_nonpolar_SpanShort+sizeof(t_nonpolar_SpanShort)/sizeof(double));
+std::vector<double> d_v(d_nonpolar_SpanShort,d_nonpolar_SpanShort+sizeof(d_nonpolar_SpanShort)/sizeof(double));
+std::vector<double> l_v(c_nonpolar_SpanShort,c_nonpolar_SpanShort+sizeof(c_nonpolar_SpanShort)/sizeof(double));
 
 //Critical parameters
 crit.rho = 232; //[kg/m^3]
@@ -169,7 +167,7 @@ std::vector<double> a1_v(a1,a1+sizeof(a1)/sizeof(double));
 phi0list.push_back(new phi0_cp0_AlyLee(a0_v,crit.T,T0,params.R_u));
 phi0list.push_back(new phi0_cp0_AlyLee(a1_v,crit.T,T0,params.R_u));
 
-EOSReference.assign(EOSstr);
+EOSReference.assign("Span, R. and W. Wagner, \"Equations of State for Technical Applications. II. Results for Nonpolar Fluids\", International Journal of Thermophysics, Vol. 24, No. 1, January 2003. \n\nCp0: Jaeschke, M. and P. Schley,\"Ideal-Gas Thermodynamic Properties for Natural-Gas Applications\", Int. J. Thermophys. v 16, n6 1995");
 TransportReference.assign("Using ECS in fully predictive mode");
 
 name.assign("n-Pentane");
@@ -226,9 +224,9 @@ nHexaneClass::nHexaneClass()
 {
 const double n[] = {0.0, 1.0553238, -2.6120616, 0.76613883, -0.29770321, 0.11879908, 0.00027922861, 0.4634759, 0.011433197, -0.48256969, -0.093750559, -0.0067273247, -0.0051141584};
 std::vector<double> n_v(n,n+sizeof(n)/sizeof(double));
-std::vector<double> t_v(t_nonpolar,t_nonpolar+sizeof(t_nonpolar)/sizeof(double));
-std::vector<double> d_v(d_nonpolar,d_nonpolar+sizeof(d_nonpolar)/sizeof(double));
-std::vector<double> l_v(c_nonpolar,c_nonpolar+sizeof(c_nonpolar)/sizeof(double));
+std::vector<double> t_v(t_nonpolar_SpanShort,t_nonpolar_SpanShort+sizeof(t_nonpolar_SpanShort)/sizeof(double));
+std::vector<double> d_v(d_nonpolar_SpanShort,d_nonpolar_SpanShort+sizeof(d_nonpolar_SpanShort)/sizeof(double));
+std::vector<double> l_v(c_nonpolar_SpanShort,c_nonpolar_SpanShort+sizeof(c_nonpolar_SpanShort)/sizeof(double));
 
 //Critical parameters
 crit.rho = 233.18; //[kg/m^3]
@@ -280,7 +278,7 @@ std::vector<double> a1_v(a1,a1+sizeof(a1)/sizeof(double));
 phi0list.push_back(new phi0_cp0_AlyLee(a0_v,crit.T,T0,params.R_u));
 phi0list.push_back(new phi0_cp0_AlyLee(a1_v,crit.T,T0,params.R_u));
 
-EOSReference.assign(EOSstr);
+EOSReference.assign("Span, R. and W. Wagner, \"Equations of State for Technical Applications. II. Results for Nonpolar Fluids\", International Journal of Thermophysics, Vol. 24, No. 1, January 2003. \n\nCp0: Jaeschke, M. and P. Schley,\"Ideal-Gas Thermodynamic Properties for Natural-Gas Applications\", Int. J. Thermophys. v 16, n6 1995");
 TransportReference.assign("Using ECS in fully predictive mode");
 
 name.assign("n-Hexane");
@@ -338,9 +336,9 @@ nHeptaneClass::nHeptaneClass()
 {
 const double n[] = {0.0, 1.0543748, -2.6500682, 0.81730048, -0.30451391, 0.12253869, 0.00027266473, 0.49865826, -0.00071432815, -0.54236896, -0.13801822, -0.0061595287, 0.0004860251};
 std::vector<double> n_v(n,n+sizeof(n)/sizeof(double));
-std::vector<double> t_v(t_nonpolar,t_nonpolar+sizeof(t_nonpolar)/sizeof(double));
-std::vector<double> d_v(d_nonpolar,d_nonpolar+sizeof(d_nonpolar)/sizeof(double));
-std::vector<double> l_v(c_nonpolar,c_nonpolar+sizeof(c_nonpolar)/sizeof(double));
+std::vector<double> t_v(t_nonpolar_SpanShort,t_nonpolar_SpanShort+sizeof(t_nonpolar_SpanShort)/sizeof(double));
+std::vector<double> d_v(d_nonpolar_SpanShort,d_nonpolar_SpanShort+sizeof(d_nonpolar_SpanShort)/sizeof(double));
+std::vector<double> l_v(c_nonpolar_SpanShort,c_nonpolar_SpanShort+sizeof(c_nonpolar_SpanShort)/sizeof(double));
 
 //Critical parameters
 crit.rho = 232; //[kg/m^3]
@@ -392,7 +390,7 @@ std::vector<double> a1_v(a1,a1+sizeof(a1)/sizeof(double));
 phi0list.push_back(new phi0_cp0_AlyLee(a0_v,crit.T,T0,params.R_u));
 phi0list.push_back(new phi0_cp0_AlyLee(a1_v,crit.T,T0,params.R_u));
 
-EOSReference.assign(EOSstr);
+EOSReference.assign("Span, R. and W. Wagner, \"Equations of State for Technical Applications. II. Results for Nonpolar Fluids\", International Journal of Thermophysics, Vol. 24, No. 1, January 2003. \n\nCp0: Jaeschke, M. and P. Schley,\"Ideal-Gas Thermodynamic Properties for Natural-Gas Applications\", Int. J. Thermophys. v 16, n6 1995");
 TransportReference.assign("Using ECS in fully predictive mode");
 
 name.assign("n-Heptane");
@@ -448,9 +446,9 @@ nOctaneClass::nOctaneClass()
 {
 	const double n[] = {0.0, 1.0722545, -2.4632951, 0.65386674, -0.36324974, 0.1271327, 0.00030713573, 0.52656857, 0.019362863, -0.58939427, -0.14069964, -0.0078966331, 0.0033036598};
 	std::vector<double> n_v(n,n+sizeof(n)/sizeof(double));
-	std::vector<double> t_v(t_nonpolar,t_nonpolar+sizeof(t_nonpolar)/sizeof(double));
-	std::vector<double> d_v(d_nonpolar,d_nonpolar+sizeof(d_nonpolar)/sizeof(double));
-	std::vector<double> l_v(c_nonpolar,c_nonpolar+sizeof(c_nonpolar)/sizeof(double));
+	std::vector<double> t_v(t_nonpolar_SpanShort,t_nonpolar_SpanShort+sizeof(t_nonpolar_SpanShort)/sizeof(double));
+	std::vector<double> d_v(d_nonpolar_SpanShort,d_nonpolar_SpanShort+sizeof(d_nonpolar_SpanShort)/sizeof(double));
+	std::vector<double> l_v(c_nonpolar_SpanShort,c_nonpolar_SpanShort+sizeof(c_nonpolar_SpanShort)/sizeof(double));
 
 	//Critical parameters
 	crit.rho = 234.9; //[kg/m^3]
@@ -502,7 +500,7 @@ nOctaneClass::nOctaneClass()
 	phi0list.push_back(new phi0_cp0_AlyLee(a0_v,crit.T,T0,params.R_u));
 	phi0list.push_back(new phi0_cp0_AlyLee(a1_v,crit.T,T0,params.R_u));
 
-	EOSReference.assign(EOSstr);
+	EOSReference.assign("Span, R. and W. Wagner, \"Equations of State for Technical Applications. II. Results for Nonpolar Fluids\", International Journal of Thermophysics, Vol. 24, No. 1, January 2003. \n\nCp0: Jaeschke, M. and P. Schley,\"Ideal-Gas Thermodynamic Properties for Natural-Gas Applications\", Int. J. Thermophys. v 16, n6 1995");
 	TransportReference.assign("Using ECS in fully predictive mode");
 
 	name.assign("n-Octane");
@@ -667,7 +665,7 @@ CyclohexaneClass::CyclohexaneClass()
 	limits.pmax = 100000.0;
 	limits.rhomax = 1000000.0*params.molemass;
 
-	phirlist.push_back(new phir_power( n,d_nonpolar,t_nonpolar,c_nonpolar,1,12,13));
+	phirlist.push_back(new phir_power( n,d_nonpolar_SpanShort,t_nonpolar_SpanShort,c_nonpolar_SpanShort,1,12,13));
 
 	double T0 = 353.885834409,
 	R_ = 8.314510/params.molemass,

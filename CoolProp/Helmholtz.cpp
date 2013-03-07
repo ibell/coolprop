@@ -46,7 +46,25 @@ phir_power::phir_power(const double n_in[], const double d_in[], const double t_
 	iStart=iStart_in;
 	iEnd=iEnd_in;
 }
+phir_power::phir_power(double n_in[], double d_in[], double t_in[],int iStart_in,int iEnd_in, int N)
+{
+	n=std::vector<double>(n_in,n_in+N);
+	d=std::vector<double>(d_in,d_in+N);
+	t=std::vector<double>(t_in,t_in+N);
+	l.assign(d.size(),0.0);
+	iStart=iStart_in;
+	iEnd=iEnd_in;
+}
 phir_power::phir_power(double n_in[], double d_in[], double t_in[], double l_in[], int iStart_in,int iEnd_in, int N)
+{
+	n=std::vector<double>(n_in,n_in+N);
+	d=std::vector<double>(d_in,d_in+N);
+	t=std::vector<double>(t_in,t_in+N);
+	l=std::vector<double>(l_in,l_in+N);
+	iStart=iStart_in;
+	iEnd=iEnd_in;
+}
+phir_power::phir_power(const double n_in[], const double d_in[], const double t_in[], const double l_in[], int iStart_in,int iEnd_in, int N)
 {
 	n=std::vector<double>(n_in,n_in+N);
 	d=std::vector<double>(d_in,d_in+N);
@@ -110,9 +128,10 @@ double phir_power::dDelta_dTau2(double tau, double delta) throw()
 	double summer=0, log_tau = log(tau), log_delta = log(delta);
 	for (unsigned int i=iStart;i<=iEnd;i++)
 	{
-		double pow_delta_li = pow(delta,l[i]);
-		if (l[i]>0)
-			summer+=n[i]*t[i]*(t[i]-1)*(d[i]-l[i]*pow_delta_li)*exp((t[i]-2)*log_tau+(d[i]-1)*log_delta-pow(delta,l[i]));
+		if (l[i]>0){
+			double pow_delta_li = pow(delta,l[i]);
+			summer+=n[i]*t[i]*(t[i]-1)*(d[i]-l[i]*pow_delta_li)*exp((t[i]-2)*log_tau+(d[i]-1)*log_delta-pow_delta_li);
+		}
 		else
 			summer+=n[i]*t[i]*(t[i]-1)*d[i]*exp((t[i]-2)*log_tau+(d[i]-1)*log_delta);
 	}
@@ -122,10 +141,11 @@ double phir_power::dDelta(double tau, double delta) throw()
 {
 	double summer=0, log_tau = log(tau), log_delta = log(delta);
 	for (unsigned int i=iStart;i<=iEnd;i++)
-	{
-		double pow_delta_li = pow(delta,l[i]);
-		if (l[i]>0)
+	{	
+		if (l[i]>0){
+			double pow_delta_li = pow(delta,l[i]);
 			summer+=n[i]*(d[i]-l[i]*pow_delta_li)*exp(t[i]*log_tau+(d[i]-1)*log_delta-pow_delta_li);
+		}
 		else
 			summer+=n[i]*d[i]*exp(t[i]*log_tau+(d[i]-1)*log_delta);
 	}
@@ -136,9 +156,11 @@ double phir_power::dDelta2(double tau, double delta) throw()
 	double summer=0, log_tau = log(tau), log_delta = log(delta);
 	for (unsigned int i=iStart;i<=iEnd;i++)
 	{
-		double pow_delta_li = pow(delta,l[i]);
-		if (l[i]>0)
-			summer+=n[i]*((d[i]-l[i]*pow_delta_li)*(d[i]-1.0-l[i]*pow_delta_li) - l[i]*l[i]*pow_delta_li)*exp(t[i]*log_tau+(d[i]-2)*log_delta-pow(delta,l[i]));
+		
+		if (l[i]>0){
+			double pow_delta_li = pow(delta,l[i]);
+			summer+=n[i]*((d[i]-l[i]*pow_delta_li)*(d[i]-1.0-l[i]*pow_delta_li) - l[i]*l[i]*pow_delta_li)*exp(t[i]*log_tau+(d[i]-2)*log_delta-pow_delta_li);
+		}
 		else
 			summer+=n[i]*d[i]*(d[i]-1.0)*exp(t[i]*log_tau+(d[i]-2)*log_delta);
 	}
@@ -149,11 +171,11 @@ double phir_power::dDelta3(double tau, double delta) throw()
 	double summer=0, log_tau = log(tau), log_delta = log(delta);
 	for (unsigned int i=iStart;i<=iEnd;i++)
 	{
-		double pow_delta_li = pow(delta,l[i]);
 		if (l[i]>0)
 		{
+			double pow_delta_li = pow(delta,l[i]);
 			double bracket = (d[i]*(d[i]-1)*(d[i]-2)+pow_delta_li*(-2*l[i]+6*d[i]*l[i]-3*d[i]*d[i]*l[i]-3*d[i]*l[i]*l[i]+3*l[i]*l[i]-l[i]*l[i]*l[i])+pow_delta_li*pow_delta_li*(3*d[i]*l[i]*l[i]-3*l[i]*l[i]+3*l[i]*l[i]*l[i])-l[i]*l[i]*l[i]*pow_delta_li*pow_delta_li*pow_delta_li);
-			summer+=n[i]*bracket*exp(t[i]*log_tau+(d[i]-3)*log_delta-pow(delta,l[i]));
+			summer+=n[i]*bracket*exp(t[i]*log_tau+(d[i]-3)*log_delta-pow_delta_li);
 		}
 		else
 			summer+=n[i]*d[i]*(d[i]-1.0)*(d[i]-2)*exp(t[i]*log_tau+(d[i]-3)*log_delta);
@@ -166,9 +188,10 @@ double phir_power::dDelta2_dTau(double tau, double delta) throw()
 	double summer=0, log_tau = log(tau), log_delta = log(delta);
 	for (unsigned int i=iStart;i<=iEnd;i++)
 	{
-		double pow_delta_li = pow(delta,l[i]);
-		if (l[i]>0)
-			summer+=n[i]*t[i]*(((d[i]-l[i]*pow_delta_li))*(d[i]-1-l[i]*pow_delta_li)-l[i]*l[i]*pow_delta_li)*exp((t[i]-1)*log_tau+(d[i]-2)*log_delta-pow(delta,l[i]));
+		if (l[i]>0){
+			double pow_delta_li = pow(delta,l[i]);
+			summer+=n[i]*t[i]*(((d[i]-l[i]*pow_delta_li))*(d[i]-1-l[i]*pow_delta_li)-l[i]*l[i]*pow_delta_li)*exp((t[i]-1)*log_tau+(d[i]-2)*log_delta-pow_delta_li);
+		}
 		else
 			summer+=n[i]*d[i]*t[i]*(d[i]-1)*exp((t[i]-1)*log_tau+(d[i]-2)*log_delta);;
 	}
@@ -179,9 +202,10 @@ double phir_power::dDelta_dTau(double tau, double delta) throw()
 	double summer=0, log_tau = log(tau), log_delta = log(delta);
 	for (unsigned int i=iStart;i<=iEnd;i++)
 	{
-		double pow_delta_li = pow(delta,l[i]);
-		if (l[i]>0)
+		if (l[i]>0){
+			double pow_delta_li = pow(delta,l[i]);
 			summer+=n[i]*t[i]*(d[i]-l[i]*pow_delta_li)*exp((t[i]-1)*log_tau+(d[i]-1)*log_delta-pow_delta_li);
+		}
 		else
 			summer+=n[i]*d[i]*t[i]*exp((t[i]-1)*log_tau+(d[i]-1)*log_delta);
 	}
@@ -205,6 +229,20 @@ phir_gaussian::phir_gaussian(vector<double> n_in, vector<double> d_in,vector<dou
 
 phir_gaussian::phir_gaussian(double n_in[], double d_in[],double t_in[], double alpha_in[], 
 							 double epsilon_in[], double beta_in[], double gamma_in[],
+							 unsigned int iStart_in, unsigned int iEnd_in, unsigned int N)
+{
+	n=std::vector<double>(n_in,n_in+N);
+	d=std::vector<double>(d_in,d_in+N);
+	t=std::vector<double>(t_in,t_in+N);
+	alpha=std::vector<double>(alpha_in,alpha_in+N);
+	epsilon=std::vector<double>(epsilon_in,epsilon_in+N);
+	beta=std::vector<double>(beta_in,beta_in+N);
+	gamma=std::vector<double>(gamma_in,gamma_in+N);
+	iStart=iStart_in;
+	iEnd=iEnd_in;
+}
+phir_gaussian::phir_gaussian(const double n_in[], const double d_in[], const double t_in[], const double alpha_in[], 
+							 const double epsilon_in[], const double beta_in[], const double gamma_in[],
 							 unsigned int iStart_in, unsigned int iEnd_in, unsigned int N)
 {
 	n=std::vector<double>(n_in,n_in+N);
@@ -343,6 +381,26 @@ phir_critical::phir_critical(std::vector<double> n_in, std::vector<double> d_in,
 	D=D_in;
 	iStart=iStart_in;
 	iEnd=iEnd_in;
+}
+
+phir_critical::phir_critical(double n[], double d[], double t[], 
+							 double a[], double b[], double beta[],
+							 double A[], double B[], double C[], 
+							 double D[], int iStart, int iEnd, 
+							 int N)
+{
+	this->n=std::vector<double>(n,n+N);
+	this->d=std::vector<double>(d,d+N);
+	this->t=std::vector<double>(t,t+N);
+	this->a=std::vector<double>(a,a+N);
+	this->b=std::vector<double>(b,b+N);
+	this->beta=std::vector<double>(beta,beta+N);
+	this->A=std::vector<double>(A,A+N);
+	this->B=std::vector<double>(B,B+N);
+	this->C=std::vector<double>(C,C+N);
+	this->D=std::vector<double>(D,D+N);
+	this->iStart=iStart;
+	this->iEnd=iEnd;
 }
 
 double phir_critical::base(double tau, double delta) throw()

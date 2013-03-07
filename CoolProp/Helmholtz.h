@@ -74,7 +74,10 @@ public:
 	phir_power(std::vector<double>,std::vector<double>,std::vector<double>,std::vector<double>,int,int);
 	// Add a dummy value at the end of the function since compiler sees std::vector<double> and double[] as being the same type
 	phir_power(const double[],const double[],const double[],int,int,int);
+	phir_power(double[], double[], double[],int,int,int);
+	phir_power(const double[], const double[], const double[], const double[],int,int,int);
 	phir_power(double[],double[],double[],double[],int,int,int);
+	
 
 	///< Destructor for the phir_power class.  No implementation
 	~phir_power(){};
@@ -120,6 +123,14 @@ public:
 				  double beta_in[], 
 				  double gamma_in[],
 		unsigned int iStart_in, unsigned int iEnd_in, unsigned int N);
+	phir_gaussian(const double a_in[],	
+				  const double d_in[],
+				  const double t_in[], 
+				  const double alpha_in[], 
+				  const double epsilon_in[], 
+				  const double beta_in[], 
+				  const double gamma_in[],
+		unsigned int iStart_in, unsigned int iEnd_in, unsigned int N);
 
 	// Destructor
 	~phir_gaussian(){};
@@ -154,6 +165,11 @@ public:
 		std::vector<double> a_in, std::vector<double> b_in, std::vector<double> beta_in,
 		std::vector<double> A_in, std::vector<double> B_in, std::vector<double> C_in, 
 		std::vector<double> D_in, int iStart_in, int iEnd_in);
+
+	phir_critical(double n[], double d[], double t[], 
+				  double a[], double b[], double beta[],
+				  double A[], double B[], double C[], 
+				  double D[], int iStart, int iEnd, int N);
 
 	//Destructor
 	~phir_critical(){};
@@ -243,6 +259,18 @@ public:
 	{
 		a=a_in; theta=theta_in; iStart = iStart_in; iEnd = iEnd_in;
 	};
+	phi0_Planck_Einstein(double a_in[], double theta_in[], int iStart_in, int iEnd_in, int N)
+	{
+		a=std::vector<double>(a_in,a_in+N);
+		theta=std::vector<double>(theta_in,theta_in+N);
+		iStart = iStart_in; iEnd = iEnd_in;
+	};
+	phi0_Planck_Einstein(const double a_in[], const double theta_in[], int iStart_in, int iEnd_in, int N)
+	{
+		a=std::vector<double>(a_in,a_in+N);
+		theta=std::vector<double>(theta_in,theta_in+N);
+		iStart = iStart_in; iEnd = iEnd_in;
+	};
 	// Constructor with doubles
 	phi0_Planck_Einstein(double a_in, double theta_in)
 	{
@@ -306,16 +334,33 @@ class phi0_power : public phi_BC{
 	/*
 	Term is of the form a_0*tau^b_0
 	Constructor:
-		phi0_power(std::vector<double> a_in, std::vector<double> theta_in, int iStart_in, int iEnd_in)
+		phi0_power(std::vector<double> a, std::vector<double> theta, int iStart, int iEnd)
 	*/
 private:
 	std::vector<double> a,b; // Use these variables internally
 	int iStart, iEnd;
 public:
 	// Constructor
-	phi0_power(std::vector<double> a_in, std::vector<double> theta_in, int iStart_in, int iEnd_in)
+	phi0_power(std::vector<double> a, std::vector<double> theta, int iStart, int iEnd)
 	{
-		a=a_in; b=theta_in; iStart = iStart_in; iEnd = iEnd_in;
+		this->a=a; 
+		this->b=theta; 
+		this->iStart = iStart; 
+		this->iEnd = iEnd;
+	};
+	phi0_power(double a[], double theta[], int iStart, int iEnd, int N)
+	{
+		this->a = std::vector<double>(a,a+N);
+		this->b = std::vector<double>(theta,theta+N);
+		this->iStart = iStart; 
+		this->iEnd = iEnd;
+	};
+	phi0_power(const double a[], const double theta[], int iStart, int iEnd, int N)
+	{
+		this->a = std::vector<double>(a,a+N);
+		this->b = std::vector<double>(theta,theta+N);
+		this->iStart = iStart; 
+		this->iEnd = iEnd;
 	};
 	// Constructor with just double values
 	phi0_power(double a_in, double theta_in)
