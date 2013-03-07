@@ -4,6 +4,7 @@
 #include "CPState.h"
 #include <iostream>
 #include <string>
+#include <stdlib.h>
 
 /*
 Remaining issues:
@@ -66,7 +67,7 @@ CoolPropSolver::CoolPropSolver(const string &mediumName, const string &libraryNa
 			}
 			else if (!param_val[0].compare("twophase_derivsmoothing_xend"))
 			{
-				twophase_derivsmoothing_xend = strtod(param_val[1].c_str(),NULL,NULL);
+				twophase_derivsmoothing_xend = strtod(param_val[1].c_str(),NULL);
 				if (twophase_derivsmoothing_xend<0 || twophase_derivsmoothing_xend > 1)
 					errorMessage((char*)format("I don't know how to handle this twophase_derivsmoothing_xend value [%d]",param_val[0].c_str()).c_str());
 			}

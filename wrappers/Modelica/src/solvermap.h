@@ -1,6 +1,7 @@
 #ifndef SOLVERMAP_H_
 #define SOLVERMAP_H_
 
+#include <stdio.h>
 #include "include.h"
 
 class BaseSolver;
@@ -13,7 +14,7 @@ class BaseSolver;
 
   Ian Bell
   2012-2013
-  University of Liege, Liege, Belgium 
+  University of Liege, Liege, Belgium
   
   Francesco Casella, Christoph Richter, Roberto Bonifetto
   2006-2012
