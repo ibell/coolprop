@@ -1193,6 +1193,7 @@ void TTSESinglePhaseTableClass::ph_Trho(int i, int j, double Tvalue, double rhov
 void TTSESinglePhaseTableClass::evaluate_two_other_inputs(long iInput1, double Input1, long iInput2, double Input2, double *pout, double *hout)
 {
 	int i,j,L,R,M;
+	return;
 	if (iInput1 == iT && iInput2 == iD)
 	{
 		double _T = Input1;
@@ -1219,8 +1220,8 @@ void TTSESinglePhaseTableClass::evaluate_two_other_inputs(long iInput1, double I
 		double k1 = log(rho1)/log(p1);
 		double k2 = log(rho2)/log(p2);
 		double k3 = log(rho3)/log(p3);
-		std::cout << format("%g,%g,%g\n",rho1,rho2,rho3);
-		std::cout << format("%g,%g,%g\n",p1,p2,p3);
+		/*std::cout << format("%g,%g,%g\n",rho1,rho2,rho3);
+		std::cout << format("%g,%g,%g\n",p1,p2,p3);*/
 
 		//Determine the starting point
 		if (_rho < pFluid->reduce.rho)
