@@ -5,7 +5,7 @@ CycloHexane
 
 Aliases
 ================================================================================
-['Cyclohexane']
+``Cyclohexane``
 
 Equation of State Reference
 ===========================

@@ -154,8 +154,6 @@ void *getFunctionPointer(char * name)
 		return dlsym(RefpropdllInstance,name);
     #endif
 }
-//extern void *dlsym (void *__restrict __handle,
-//		    __const char *__restrict __name) __THROW __nonnull ((2));
 
 //Moved pointer handling to a function, helps to maintain
 //an overview and structures OS dependent parts
@@ -316,8 +314,12 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 		{
 			#if defined(__ISLINUX__)
 				fputs (dlerror(), stderr);
+				printf("Please make sure that REFPROP is available on your system.\n");
+				printf("You can find instructions on how to install it as a Linux library at: \n");
+				printf("https://github.com/jowr/librefprop.so\n\n");
 			#endif
-			printf("Could not load REFPROP, not in current location or found on system PATH. Add location of REFPROP to the PATH environmental variable\n");
+			printf("Could not load REFPROP, neither found in current location nor found in system PATH.\n");
+			printf("Add location of REFPROP to the PATH environmental variable.\n");
 			return -_HUGE;
 		}
 

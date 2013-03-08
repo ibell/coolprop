@@ -5,69 +5,67 @@
 #include "FluidClass.h"
 #include "Siloxanes.h"
 
-static double d[] =
-{
-0,
-1.0, //[1]
-1.0, //[2]
-1.0, //[3]
-2.0, //[4]
-3.0, //[5]
-7.0, //[6]
-2.0, //[7]
-5.0, //[8]
-1.0, //[9]
-4.0, //[10]
-3.0, //[11]
-4.0, //[12]
-};
 
-static double t[] =
-{
-0,
-0.25,  //[1]
-1.125, //[2]
-1.5,   //[3]
-1.375, //[4]
-0.25,  //[5]
-0.875, //[6]
-0.625, //[7]
-1.75,  //[8]
-3.625, //[9]
-3.625, //[10]
-14.5,  //[11]
-12.0,  //[12]
-};
-
-static double l[] =
-{
-0,
-0.0, //[1]
-0.0, //[2]
-0.0, //[3]
-0.0, //[4]
-0.0, //[5]
-0.0, //[6]
-1.0, //[7]
-1.0, //[8]
-2.0, //[9]
-2.0, //[10]
-3.0, //[11]
-3.0, //[12]
-};
 
 
 
 //MDM
 OctamethyltrisiloxaneClass::OctamethyltrisiloxaneClass()
 {
+	const double d[] =
+	{
+	0,
+	1.0, //[1]
+	1.0, //[2]
+	1.0, //[3]
+	2.0, //[4]
+	3.0, //[5]
+	7.0, //[6]
+	2.0, //[7]
+	5.0, //[8]
+	1.0, //[9]
+	4.0, //[10]
+	3.0, //[11]
+	4.0, //[12]
+	};
+
+	const double t[] =
+	{
+	0,
+	0.25,  //[1]
+	1.125, //[2]
+	1.5,   //[3]
+	1.375, //[4]
+	0.25,  //[5]
+	0.875, //[6]
+	0.625, //[7]
+	1.75,  //[8]
+	3.625, //[9]
+	3.625, //[10]
+	14.5,  //[11]
+	12.0,  //[12]
+	};
+
+	const double l[] =
+	{
+	0,
+	0.0, //[1]
+	0.0, //[2]
+	0.0, //[3]
+	0.0, //[4]
+	0.0, //[5]
+	0.0, //[6]
+	1.0, //[7]
+	1.0, //[8]
+	2.0, //[9]
+	2.0, //[10]
+	3.0, //[11]
+	3.0, //[12]
+	};
     const double n[]={0.0,1.19735372,-2.40380622,0.3256564,-0.19971259,0.11206277,0.00015893999,0.51234323,-0.020660361,-0.38978114,-0.1186931,-0.037203537,0.018359984};
     const double u0[]={0.0,275.1,612.9,1829.6,413.0,802.6};
-	std::vector<double> n_v(n,n+sizeof(n)/sizeof(double));
+
 	std::vector<double> u0_v(u0,u0+sizeof(u0)/sizeof(double));
-	std::vector<double> d_v(d,d+sizeof(d)/sizeof(double));
-	std::vector<double> t_v(t,t+sizeof(t)/sizeof(double));
-	std::vector<double> l_v(l,l+sizeof(l)/sizeof(double));
 
     // Critical parameters
     crit.rho = 256.739908797209;
@@ -88,8 +86,7 @@ OctamethyltrisiloxaneClass::OctamethyltrisiloxaneClass()
     limits.pmax = 100000.0;
     limits.rhomax = 1000000.0*params.molemass;    
 
-    phi_BC * phir_ = new phir_power(n_v,d_v,t_v,l_v,1,12);
-    phirlist.push_back(phir_);
+    phirlist.push_back(new phir_power(n,d,t,l,1,12,13));
 
 	double T0 = 425.676967,
 		   R_ = 8.314472/params.molemass,
@@ -159,13 +156,60 @@ double OctamethyltrisiloxaneClass::psat(double T)
 //MD2M
 DecamethyltetrasiloxaneClass::DecamethyltetrasiloxaneClass()
 {
+	const double d[] =
+	{
+	0,
+	1.0, //[1]
+	1.0, //[2]
+	1.0, //[3]
+	2.0, //[4]
+	3.0, //[5]
+	7.0, //[6]
+	2.0, //[7]
+	5.0, //[8]
+	1.0, //[9]
+	4.0, //[10]
+	3.0, //[11]
+	4.0, //[12]
+	};
+
+	const double t[] =
+	{
+	0,
+	0.25,  //[1]
+	1.125, //[2]
+	1.5,   //[3]
+	1.375, //[4]
+	0.25,  //[5]
+	0.875, //[6]
+	0.625, //[7]
+	1.75,  //[8]
+	3.625, //[9]
+	3.625, //[10]
+	14.5,  //[11]
+	12.0,  //[12]
+	};
+
+	const double l[] =
+	{
+	0,
+	0.0, //[1]
+	0.0, //[2]
+	0.0, //[3]
+	0.0, //[4]
+	0.0, //[5]
+	0.0, //[6]
+	1.0, //[7]
+	1.0, //[8]
+	2.0, //[9]
+	2.0, //[10]
+	3.0, //[11]
+	3.0, //[12]
+	};
     const double n[]={0.0,1.33840331,-2.62939393,0.4398383,-0.53496715,0.1818844,0.00040774609,1.13444506,0.05774631,-0.5917498,-0.11020225,-0.034942635,0.007646298};
     const double u0[]={0.0,331.9,777.1,1813.8,521.4,795.1};
-	std::vector<double> n_v(n,n+sizeof(n)/sizeof(double));
+
 	std::vector<double> u0_v(u0,u0+sizeof(u0)/sizeof(double));
-	std::vector<double> d_v(d,d+sizeof(d)/sizeof(double));
-	std::vector<double> t_v(t,t+sizeof(t)/sizeof(double));
-	std::vector<double> l_v(l,l+sizeof(l)/sizeof(double));
 
     // Critical parameters
     crit.rho=284.171639662027;
@@ -186,8 +230,7 @@ DecamethyltetrasiloxaneClass::DecamethyltetrasiloxaneClass()
     limits.pmax = 100000.0;
     limits.rhomax = 1000000.0*params.molemass;    
 
-    phi_BC * phir_ = new phir_power(n_v,d_v,t_v,l_v,1,12);
-    phirlist.push_back(phir_);
+    phirlist.push_back(new phir_power(n,d,t,l,1,12,13));
 
 	double T0 = 467.506025761878,
 		   rho0 = 666.100681528704,
@@ -257,13 +300,60 @@ double DecamethyltetrasiloxaneClass::psat(double T)
 //MD3M
 DodecamethylpentasiloxaneClass::DodecamethylpentasiloxaneClass()
 {
+	const double d[] =
+	{
+	0,
+	1.0, //[1]
+	1.0, //[2]
+	1.0, //[3]
+	2.0, //[4]
+	3.0, //[5]
+	7.0, //[6]
+	2.0, //[7]
+	5.0, //[8]
+	1.0, //[9]
+	4.0, //[10]
+	3.0, //[11]
+	4.0, //[12]
+	};
+
+	const double t[] =
+	{
+	0,
+	0.25,  //[1]
+	1.125, //[2]
+	1.5,   //[3]
+	1.375, //[4]
+	0.25,  //[5]
+	0.875, //[6]
+	0.625, //[7]
+	1.75,  //[8]
+	3.625, //[9]
+	3.625, //[10]
+	14.5,  //[11]
+	12.0,  //[12]
+	};
+
+	const double l[] =
+	{
+	0,
+	0.0, //[1]
+	0.0, //[2]
+	0.0, //[3]
+	0.0, //[4]
+	0.0, //[5]
+	0.0, //[6]
+	1.0, //[7]
+	1.0, //[8]
+	2.0, //[9]
+	2.0, //[10]
+	3.0, //[11]
+	3.0, //[12]
+	};
     const double n[]={0.0,1.20540386,-2.42914797,0.69016432,-0.69268041,0.18506046,0.00031161436,0.99862519,0.074229034,-0.80259136,-0.20865337,-0.036461791,0.019174051};
     const double u0[]={0.0,463.2,957.2,2117.1,738.3,908.5};
-	std::vector<double> n_v(n,n+sizeof(n)/sizeof(double));
+
 	std::vector<double> u0_v(u0,u0+sizeof(u0)/sizeof(double));
-	std::vector<double> d_v(d,d+sizeof(d)/sizeof(double));
-	std::vector<double> t_v(t,t+sizeof(t)/sizeof(double));
-	std::vector<double> l_v(l,l+sizeof(l)/sizeof(double));
 
     // Critical parameters
     crit.rho=263.921879135305;
@@ -284,8 +374,7 @@ DodecamethylpentasiloxaneClass::DodecamethylpentasiloxaneClass()
     limits.pmax = 100000.0;
     limits.rhomax = 1000000.0*params.molemass;    
 
-    phi_BC * phir_ = new phir_power(n_v,d_v,t_v,l_v,1,12);
-    phirlist.push_back(phir_);
+    phirlist.push_back(new phir_power(n,d,t,l,1,12,13));
 
 	double T0 = 503.022623775204,
 		   rho0 = 653.620754664036,
@@ -355,13 +444,61 @@ double DodecamethylpentasiloxaneClass::psat(double T)
 //D6
 DodecamethylcyclohexasiloxaneClass::DodecamethylcyclohexasiloxaneClass()
 {
+	const double d[] =
+	{
+	0,
+	1.0, //[1]
+	1.0, //[2]
+	1.0, //[3]
+	2.0, //[4]
+	3.0, //[5]
+	7.0, //[6]
+	2.0, //[7]
+	5.0, //[8]
+	1.0, //[9]
+	4.0, //[10]
+	3.0, //[11]
+	4.0, //[12]
+	};
+
+	const double t[] =
+	{
+	0,
+	0.25,  //[1]
+	1.125, //[2]
+	1.5,   //[3]
+	1.375, //[4]
+	0.25,  //[5]
+	0.875, //[6]
+	0.625, //[7]
+	1.75,  //[8]
+	3.625, //[9]
+	3.625, //[10]
+	14.5,  //[11]
+	12.0,  //[12]
+	};
+
+	const double l[] =
+	{
+	0,
+	0.0, //[1]
+	0.0, //[2]
+	0.0, //[3]
+	0.0, //[4]
+	0.0, //[5]
+	0.0, //[6]
+	1.0, //[7]
+	1.0, //[8]
+	2.0, //[9]
+	2.0, //[10]
+	3.0, //[11]
+	3.0, //[12]
+	};
     const double n[]={0.0,1.69156186,-3.37962568,0.38609039,0.064598995,0.10589012,0.000045456825,0.74169279,-0.088102648,-0.17373336,-0.10951368,-0.062695695,0.037459986};
     const double u0[]={0.0,468.7,981.2,1792.1,686.7,786.8};
-	std::vector<double> n_v(n,n+sizeof(n)/sizeof(double));
+
 	std::vector<double> u0_v(u0,u0+sizeof(u0)/sizeof(double));
-	std::vector<double> d_v(d,d+sizeof(d)/sizeof(double));
-	std::vector<double> t_v(t,t+sizeof(t)/sizeof(double));
-	std::vector<double> l_v(l,l+sizeof(l)/sizeof(double));
+
 
     // Critical parameters
 	crit.rho=279.095729841367;
@@ -382,8 +519,7 @@ DodecamethylcyclohexasiloxaneClass::DodecamethylcyclohexasiloxaneClass()
     limits.pmax = 100000.0;
     limits.rhomax = 1000000.0*params.molemass;    
 
-    phi_BC * phir_ = new phir_power(n_v,d_v,t_v,l_v,1,12);
-    phirlist.push_back(phir_);
+    phirlist.push_back(new phir_power(n,d,t,l,1,12,13));
 
 	double T0 = 518.109977174843,
 		   rho0 = 704.948896461078,
@@ -453,16 +589,63 @@ double DodecamethylcyclohexasiloxaneClass::psat(double T)
 //MM
 HexamethyldisiloxaneClass::HexamethyldisiloxaneClass()
 {
+	const double d[] =
+	{
+	0,
+	1.0, //[1]
+	1.0, //[2]
+	1.0, //[3]
+	2.0, //[4]
+	3.0, //[5]
+	7.0, //[6]
+	2.0, //[7]
+	5.0, //[8]
+	1.0, //[9]
+	4.0, //[10]
+	3.0, //[11]
+	4.0, //[12]
+	};
+
+	const double t[] =
+	{
+	0,
+	0.25,  //[1]
+	1.125, //[2]
+	1.5,   //[3]
+	1.375, //[4]
+	0.25,  //[5]
+	0.875, //[6]
+	0.625, //[7]
+	1.75,  //[8]
+	3.625, //[9]
+	3.625, //[10]
+	14.5,  //[11]
+	12.0,  //[12]
+	};
+
+	const double l[] =
+	{
+	0,
+	0.0, //[1]
+	0.0, //[2]
+	0.0, //[3]
+	0.0, //[4]
+	0.0, //[5]
+	0.0, //[6]
+	1.0, //[7]
+	1.0, //[8]
+	2.0, //[9]
+	2.0, //[10]
+	3.0, //[11]
+	3.0, //[12]
+	};
     const double n[]={0.0,1.01686012,-2.19713029,0.75443188,-0.68003426,0.19082162,0.0010530133,0.6284595,0.030903042,-0.83948727,-0.20262381,-0.035131597,0.025902341};
     // divided by R_u to give cp0/R_u terms like in Lemmon 2000
 	const double u0[]={0.0,6.24140654992885,0.0891626070783569,-5.00332432414229E-05,8.41905535312405E-09};
 	const double n0[]={0.0,0,1,2,3};
-	std::vector<double> n_v(n,n+sizeof(n)/sizeof(double));
+
 	std::vector<double> u0_v(u0,u0+sizeof(u0)/sizeof(double));
 	std::vector<double> n0_v(n0,n0+sizeof(n0)/sizeof(double));
-	std::vector<double> d_v(d,d+sizeof(d)/sizeof(double));
-	std::vector<double> t_v(t,t+sizeof(t)/sizeof(double));
-	std::vector<double> l_v(l,l+sizeof(l)/sizeof(double));
 
     // Critical parameters
 	crit.rho = 258.151840734;
@@ -491,8 +674,7 @@ HexamethyldisiloxaneClass::HexamethyldisiloxaneClass()
     limits.pmax = 100000.0;
     limits.rhomax = 1000000.0*params.molemass;    
 
-    phi_BC * phir_ = new phir_power(n_v,d_v,t_v,l_v,1,12);
-    phirlist.push_back(phir_);
+    phirlist.push_back(new phir_power(n,d,t,l,1,12,13));
 
 	double T0 = 373.400735665744,
 		   rho0 = 681.39621296599,
@@ -562,16 +744,63 @@ double HexamethyldisiloxaneClass::psat(double T)
 //MD4M
 TetradecamethylhexasiloxaneClass::TetradecamethylhexasiloxaneClass()
 {
+	const double d[] =
+	{
+	0,
+	1.0, //[1]
+	1.0, //[2]
+	1.0, //[3]
+	2.0, //[4]
+	3.0, //[5]
+	7.0, //[6]
+	2.0, //[7]
+	5.0, //[8]
+	1.0, //[9]
+	4.0, //[10]
+	3.0, //[11]
+	4.0, //[12]
+	};
+
+	const double t[] =
+	{
+	0,
+	0.25,  //[1]
+	1.125, //[2]
+	1.5,   //[3]
+	1.375, //[4]
+	0.25,  //[5]
+	0.875, //[6]
+	0.625, //[7]
+	1.75,  //[8]
+	3.625, //[9]
+	3.625, //[10]
+	14.5,  //[11]
+	12.0,  //[12]
+	};
+
+	const double l[] =
+	{
+	0,
+	0.0, //[1]
+	0.0, //[2]
+	0.0, //[3]
+	0.0, //[4]
+	0.0, //[5]
+	0.0, //[6]
+	1.0, //[7]
+	1.0, //[8]
+	2.0, //[9]
+	2.0, //[10]
+	3.0, //[11]
+	3.0, //[12]
+	};
     const double n[]={0.0,1.18492421,-1.87465636,-0.06571351,-0.61812689,0.19535804,0.0005067874,1.23544082,0.049462708,-0.73685283,-0.19991438,-0.055118673,0.028325885};
     // divided by R_u to give cp0/R_u terms like in Lemmon 2000
 	const double u0[]={0.0,-2.41398371417933,0.268026640777671,-0.000157724988429812,3.44219091723443E-08};
 	const double n0[]={0.0,0,1,2,3};
-	std::vector<double> n_v(n,n+sizeof(n)/sizeof(double));
+
 	std::vector<double> u0_v(u0,u0+sizeof(u0)/sizeof(double));
 	std::vector<double> n0_v(n0,n0+sizeof(n0)/sizeof(double));
-	std::vector<double> d_v(d,d+sizeof(d)/sizeof(double));
-	std::vector<double> t_v(t,t+sizeof(t)/sizeof(double));
-	std::vector<double> l_v(l,l+sizeof(l)/sizeof(double));
 
     // Critical parameters
 	crit.rho = 278.177742672768;
@@ -602,8 +831,7 @@ TetradecamethylhexasiloxaneClass::TetradecamethylhexasiloxaneClass()
     limits.pmax = 100000.0;
     limits.rhomax = 1000000.0*params.molemass;    
 
-    phi_BC * phir_ = new phir_power(n_v,d_v,t_v,l_v,1,12);
-    phirlist.push_back(phir_);
+    phirlist.push_back(new phir_power(n,d,t,l,1,12,13));
 
 	double T0 = 532.723355998617,
 		   rho0 = 651.644500503887,
@@ -675,16 +903,63 @@ double TetradecamethylhexasiloxaneClass::psat(double T)
 //D4
 OctamethylcyclotetrasiloxaneClass::OctamethylcyclotetrasiloxaneClass()
 {
+	const double d[] =
+	{
+	0,
+	1.0, //[1]
+	1.0, //[2]
+	1.0, //[3]
+	2.0, //[4]
+	3.0, //[5]
+	7.0, //[6]
+	2.0, //[7]
+	5.0, //[8]
+	1.0, //[9]
+	4.0, //[10]
+	3.0, //[11]
+	4.0, //[12]
+	};
+
+	const double t[] =
+	{
+	0,
+	0.25,  //[1]
+	1.125, //[2]
+	1.5,   //[3]
+	1.375, //[4]
+	0.25,  //[5]
+	0.875, //[6]
+	0.625, //[7]
+	1.75,  //[8]
+	3.625, //[9]
+	3.625, //[10]
+	14.5,  //[11]
+	12.0,  //[12]
+	};
+
+	const double l[] =
+	{
+	0,
+	0.0, //[1]
+	0.0, //[2]
+	0.0, //[3]
+	0.0, //[4]
+	0.0, //[5]
+	0.0, //[6]
+	1.0, //[7]
+	1.0, //[8]
+	2.0, //[9]
+	2.0, //[10]
+	3.0, //[11]
+	3.0, //[12]
+	};
     const double n[]={0.0,1.05392408,-2.22981918,0.77573923,-0.6937405,0.18721557,0.0004219333,0.70301835,0.047851888,-0.8025348,-0.18968872,-0.022211781,0.0060103354};
     // divided by R_u to give cp0/R_u terms like in Lemmon 2000
 	const double u0[]={0.0,-2.19568963609475,0.171652511428266,-0.000119093551580906,3.60816657991031E-08};
 	const double n0[]={0.0,0,1,2,3};
-	std::vector<double> n_v(n,n+sizeof(n)/sizeof(double));
+
 	std::vector<double> u0_v(u0,u0+sizeof(u0)/sizeof(double));
 	std::vector<double> n0_v(n0,n0+sizeof(n0)/sizeof(double));
-	std::vector<double> d_v(d,d+sizeof(d)/sizeof(double));
-	std::vector<double> t_v(t,t+sizeof(t)/sizeof(double));
-	std::vector<double> l_v(l,l+sizeof(l)/sizeof(double));
 
     // Critical parameters
 	crit.rho = 305.78949222528007;
@@ -714,8 +989,7 @@ OctamethylcyclotetrasiloxaneClass::OctamethylcyclotetrasiloxaneClass()
     limits.pmax = 100000.0;
     limits.rhomax = 1000000.0*params.molemass;    
 
-    phi_BC * phir_ = new phir_power(n_v,d_v,t_v,l_v,1,12);
-    phirlist.push_back(phir_);
+    phirlist.push_back(new phir_power(n,d,t,l,1,12,13));
 
 	double T0 = 448.503917912145,
 		   rho0 = 764.965030584005,
@@ -787,6 +1061,56 @@ double OctamethylcyclotetrasiloxaneClass::psat(double T)
 //D5
 DecamethylcyclopentasiloxaneClass::DecamethylcyclopentasiloxaneClass()
 {
+	const double d[] =
+	{
+	0,
+	1.0, //[1]
+	1.0, //[2]
+	1.0, //[3]
+	2.0, //[4]
+	3.0, //[5]
+	7.0, //[6]
+	2.0, //[7]
+	5.0, //[8]
+	1.0, //[9]
+	4.0, //[10]
+	3.0, //[11]
+	4.0, //[12]
+	};
+
+	const double t[] =
+	{
+	0,
+	0.25,  //[1]
+	1.125, //[2]
+	1.5,   //[3]
+	1.375, //[4]
+	0.25,  //[5]
+	0.875, //[6]
+	0.625, //[7]
+	1.75,  //[8]
+	3.625, //[9]
+	3.625, //[10]
+	14.5,  //[11]
+	12.0,  //[12]
+	};
+
+	const double l[] =
+	{
+	0,
+	0.0, //[1]
+	0.0, //[2]
+	0.0, //[3]
+	0.0, //[4]
+	0.0, //[5]
+	0.0, //[6]
+	1.0, //[7]
+	1.0, //[8]
+	2.0, //[9]
+	2.0, //[10]
+	3.0, //[11]
+	3.0, //[12]
+	};
     const double n[]={0.0,1.40844725,-2.29248044,0.42851607,-0.73506382,0.16103808,0.00029643278,0.82412481,0.15214274,-0.6849589,-0.055703624,0.013055391,-0.031853761};
     // divided by R_u to give cp0/R_u terms like in Lemmon 2000
 	const double u0[]={0.0,-4.19725991019033,0.223886736283434,-0.000168790032608204,6.01361096651718E-08};
@@ -827,8 +1151,7 @@ DecamethylcyclopentasiloxaneClass::DecamethylcyclopentasiloxaneClass()
     limits.pmax = 100000.0;
     limits.rhomax = 1000000.0*params.molemass;    
 
-    phi_BC * phir_ = new phir_power(n_v,d_v,t_v,l_v,1,12);
-    phirlist.push_back(phir_);
+    phirlist.push_back(new phir_power(n,d,t,l,1,12,13));
 
 	double T0 = 484.050286854327,
 		   rho0 = 727.981991948461,

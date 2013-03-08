@@ -12,10 +12,10 @@ def test_TSP():
                 Tchk = Props("T",'S',s,'P',p,"R134a")
                 err = Tchk - T
                 if abs(err)>1e-8:
-                    print Tsat,DT,T,s,p,Tchk,err
+                    print (Tsat,DT,T,s,p,Tchk,err)
             except ValueError as e:
-                print DT,Tsat
-                print e
+                print (DT,Tsat)
+                print (e)
                 raise
                 
 if __name__=='__main__':

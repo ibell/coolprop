@@ -1,4 +1,4 @@
-
+from __future__ import print_function
 #Check for cython >= 0.17 due to the use of STL containers
 try:
     import Cython
@@ -83,19 +83,6 @@ if __name__=='__main__':
         #sys.argv+=['build','--compiler=mingw32','install']
         sys.argv+=['install']
         
-    if '--DLL' in sys.argv:
-        packDLL = True
-        sys.argv.pop(sys.argv.index('--DLL'))
-    else:
-        packDLL = False
-        
-    if '--no-static-lib' in sys.argv or 'sdist' in sys.argv:
-        useStaticLib = False
-        if '--no-static-lib' in sys.argv:
-            sys.argv.remove('--no-static-lib')
-    else:
-        useStaticLib=True
-        
     badfiles = [os.path.join('CoolProp','__init__.pyc'),os.path.join('CoolProp','__init__.py')]
     for file in badfiles:
         try:
@@ -124,98 +111,10 @@ if __name__=='__main__':
         fp.write(line)
     fp.close()
 
-    ################################
-    ##  CoolProp Static Library ####
-    ################################
-    ## Build a static library of CoolProp
-
-    #This will automagically find all the fluid sources as long as they are in the right folders
-    #Pure fluids should all be in the CoolProp/purefluids folder relative to setup.py
-    #Pseudo-Pure fluids should all be in the CoolProp/pseudopurefluids folder relative to setup.py
-    purefluids=glob.glob(os.path.join('..','..','CoolProp','purefluids','*.cpp'))
-    pseudopurefluids=glob.glob(os.path.join('..','..','CoolProp','pseudopurefluids','*.cpp'))
-    others = glob.glob(os.path.join('..','..','CoolProp','*.cpp'))
+    Sources = glob.glob(os.path.join('..','..','CoolProp','*.cpp'))
     
-##     #Remove the _wrap files from the build
-##     for f in glob.glob(os.path.join('CoolProp','*_wrap.cpp')):
-##         others.remove(f)
-    
-    Sources=purefluids + pseudopurefluids + others
-         
     ### Include folders for build
-    include_dirs = [os.path.join('..','..','CoolProp'),
-                    os.path.join('..','..','CoolProp','purefluids'),
-                    os.path.join('..','..','CoolProp','pseudopurefluids'),
-                    get_python_inc(False)]
-
-    def StaticLibBuilder(sources,LibName='CoolProp',build_path='build_lib',lib_path='lib',force=False,DLL=True,StaticLib=True):
-        CC = new_compiler(verbose=True)
-        #Default to not build
-        buildCPLib=False
-        # The full path to the library to be built
-        CPLibPath=CC.library_filename(os.path.join(lib_path,LibName),lib_type='static')    
-        
-        if sys.platform.startswith('linux'):
-            extra_compile_args=['-fPIC']
-            MACROS = None
-        elif sys.platform.startswith('darwin'):
-            extra_compile_args=['']
-            MACROS = None
-        else:
-            extra_compile_args=['/EHsc']
-            if DLL:
-                MACROS = [('COOLPROP_LIB',None)]
-            else:
-                MACROS = None
-                
-        if not os.path.exists(build_path) or not os.path.exists(lib_path):
-            #../../CoolProp ends up relative to build_path, which goes to the wrong place - this is hacky but works
-            if not os.path.exists(os.path.join(build_path,build_path,build_path)): os.makedirs(os.path.join(build_path,build_path,build_path)) 
-            if not os.path.exists(lib_path): os.mkdir(lib_path)
-            #Force rebuild of all
-            buildCPLib=True
-        elif newer_group(sources,CPLibPath):
-            buildCPLib=True
-        
-        if buildCPLib or DLL:
-            extended_build_path = os.path.join(build_path,build_path,build_path)
-            objs=CC.compile(sources,extended_build_path,MACROS,include_dirs=include_dirs,extra_postargs=extra_compile_args)
-            CC.create_static_lib(objs, LibName,lib_path,target_lang='c++')
-            print('Built the static library in',CPLibPath)
-            if DLL:
-                CC.link_shared_lib(objs, LibName,lib_path,target_lang='c++')
-                print('Built the shared library in',os.path.join(lib_path,LibName))
-        else:
-            print('No build of CoolProp static library required.')
-      
-    if useStaticLib or packDLL:
-        StaticLibBuilder(Sources,DLL=packDLL)
-        
-    if packDLL:
-        ZIPfilePath = 'dist/CoolPropDLL-'+version+'.zip'
-        from zipfile import ZipFile
-        with ZipFile(ZIPfilePath,'w') as z:
-            z.write(os.path.join('lib','CoolProp.dll'),arcname='CoolProp.dll')
-            z.write(os.path.join('CoolProp','CoolProp.h'),arcname='CoolProp.h')
-            z.write(os.path.join('Examples','CoolPropDLL.py'),arcname='CoolPropDLL.py')
-            z.write('DLLREADME.txt',arcname='README.txt')
-        print('DLL file has been packed into file', ZIPfilePath)
-        quit()
-
-    print('UseStaticLib is',useStaticLib)
-    ##Now come in and build the modules themselves
-        
-    if useStaticLib==True:
-        FloodProp_module = Extension('CoolProp._FloodProp',
-                               sources=[os.path.join('CoolProp','FloodProp_wrap.cpp')],
-                               include_dirs = include_dirs,language='c++',
-                               libraries=['CoolProp'],library_dirs=['lib']
-                               )
-    else:
-        FloodProp_module = Extension('CoolProp._FloodProp',
-                               sources=[os.path.join('CoolProp','FloodProp_wrap.cpp')]+Sources,
-                               include_dirs = include_dirs,language='c++'
-                               )
+    include_dirs = [os.path.join('..','..','CoolProp'),get_python_inc(False)]
 
     def touch(fname):
         open(fname, 'a').close()
@@ -225,32 +124,22 @@ if __name__=='__main__':
     #force cython to build by touching the cython sources
     cython_sources = [os.path.join('CoolProp','CoolProp.pyx')]
                       
-    if useStaticLib:
-        CC = new_compiler()
-        CPLibPath=CC.library_filename(os.path.join('lib','CoolProp'),lib_type='static')
-        if not newer_group(cython_sources, CPLibPath):
-            for source in cython_sources:
-                print('touching',source)
-                touch(source)
-        else:
-            print('no touching of cython sources needed')
+##     if useStaticLib:
+##         CC = new_compiler()
+##         CPLibPath=CC.library_filename(os.path.join('lib','CoolProp'),lib_type='static')
+##         if not newer_group(cython_sources, CPLibPath):
+##             for source in cython_sources:
+##                 print('touching',source)
+##                 touch(source)
+##         else:
+##             print('no touching of cython sources needed')
 
-    if useStaticLib==True:
-        CoolProp2_module = CyExtension('CoolProp.CoolProp',
-                            [os.path.join('CoolProp','CoolProp.pyx')],
-                            include_dirs = include_dirs,
-                            language='c++',
-                            libraries=['CoolProp'],
-                            library_dirs=['lib'],
-                            cython_c_in_temp = True
-                            )
-    else:
-        CoolProp2_module = CyExtension('CoolProp.CoolProp',
-                            [os.path.join('CoolProp','CoolProp.pyx')]+Sources,
-                            include_dirs = include_dirs,
-                            language='c++',
-                            cython_c_in_temp = True
-                            )
+    CoolProp_module = CyExtension('CoolProp.CoolProp',
+                        [os.path.join('CoolProp','CoolProp.pyx')]+Sources,
+                        include_dirs = include_dirs,
+                        language='c++',
+                        cython_c_in_temp = True
+                        )
         
     param_constants_module = CyExtension('CoolProp.param_constants',
                             [os.path.join('CoolProp','param_constants.pyx')],
@@ -266,11 +155,12 @@ if __name__=='__main__':
                             cython_c_in_temp = True
                             )
                             
-    #Collect all the header files into an include folder
+    #Collect all the header files in the main folder into an include folder
     try:
         os.mkdir(os.path.join('CoolProp','include'))
     except:
         pass
+        
     for header in glob.glob(os.path.join('..','..','CoolProp','*.h')):
         pth,fName = os.path.split(header)
         shutil.copy2(header,os.path.join('CoolProp','include',fName))
@@ -282,7 +172,7 @@ if __name__=='__main__':
            url='http://coolprop.sourceforge.net',
            description = """Open-source thermodynamic and transport properties database""",
            packages = ['CoolProp','CoolProp.Plots','CoolProp.tests','CoolProp.GUI'],
-           ext_modules = [CoolProp2_module,param_constants_module,phase_constants_module],
+           ext_modules = [CoolProp_module,param_constants_module,phase_constants_module],
            package_dir = {'CoolProp':'CoolProp',},
            package_data = {'CoolProp':['State.pxd','CoolProp.pxd','param_constants.pxd','include/*.h']},
            cmdclass={'build_ext': build_ext},
@@ -297,19 +187,15 @@ if __name__=='__main__':
             "Topic :: Software Development :: Libraries :: Python Modules"
             ],
            )
-
-    badfiles = [os.path.join('CoolProp','__init__.pyc'),
-                os.path.join('CoolProp','__init__.py'),
-                os.path.join('CoolProp','HumidAirProp_wrap.cpp'),
-                os.path.join('CoolProp','FloodProp_wrap.cpp'),
-                os.path.join('CoolProp','State.cpp')
-                ]
-    for file in badfiles:
-        try:
-            os.remove(file)
-        except:
-            pass
+    
+    #Clean up the include folder
     shutil.rmtree(os.path.join('CoolProp','include'), ignore_errors = True)
-            
+    
+    for file in glob.glob(os.path.join('CoolProp','__init__.*')):
+            try:
+                os.remove(file)
+            except:
+                pass
+    
     touch('setup.py')
     

@@ -123,8 +123,8 @@ all        : header library
 ############################################################
 ##  Compile coolprop sources to static files
 ############################################################	
-COOLCPP_FILES  := $(shell find $(COOLPROPDIR)/ -type f -name '*.cpp')
-#COOLCPP_FILES  := $(wildcard $(COOLPROPDIR)/*.cpp)
+#COOLCPP_FILES  := $(shell find $(COOLPROPDIR)/ -type f -name '*.cpp')
+COOLCPP_FILES  := $(wildcard $(COOLPROPDIR)/*.cpp)
 COOLOBJ_FILES  := $(addprefix $(SRCDIR)/,$(notdir $(COOLCPP_FILES:.cpp=.o)))
 
 # Define search path for prerequisite files

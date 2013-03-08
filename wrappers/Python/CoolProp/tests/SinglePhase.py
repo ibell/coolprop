@@ -38,6 +38,6 @@ if __name__=='__main__':
     for args in test_superheated():
         try:
             args[0](*args[1::])
-        except AssertionError,a:
+        except AssertionError as a:
             pass
     

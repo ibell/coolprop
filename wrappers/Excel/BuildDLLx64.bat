@@ -3,8 +3,6 @@ call "C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\vcvarsall.bat" amd6
 
 REM ******* compile all the sources ***************
 cl /c /I../../CoolProp /EHsc /DCOOLPROP_LIB ../../CoolProp/*.cpp
-cl /c /I../../CoolProp /EHsc /DCOOLPROP_LIB ../../CoolProp/purefluids/*.cpp
-cl /c /I../../CoolProp /EHsc /DCOOLPROP_LIB ../../CoolProp/pseudopurefluids/*.cpp
 
 link /DLL CoolProp.obj *.obj /OUT:CoolProp_x64.dll
 dumpbin /EXPORTS CoolProp_x64.dll > exports_x64.txt

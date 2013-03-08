@@ -4,8 +4,6 @@
 #include "FluidClass.h"
 #include "R23.h"
 
-static char EOSstr [] = "Steven G. Penoncello,Eric W. Lemmon,Richard T Jacobsen,Zhengjun Shan, \"A Fundamental Equation for Trifluoromethane (R-23)\", J. Phys. Chem. Ref. Data, Vol. 32, No. 4, 2003";
-
 R23Class::R23Class()
 {
 	double n[] = {0.0, 7.041529, -8.259512, 0.008053040, -0.08617615, 0.006333410, -0.1863285, 0.3280510, 0.5191023, 0.06916144, -0.005045875, -0.01744221, -0.05003972, 0.04729813, -0.06164031, 0.01583585, -0.001795790, -0.001099007};
@@ -45,7 +43,7 @@ R23Class::R23Class()
 
 	phi0list.push_back(new phi0_Planck_Einstein(v0_v,u0_v,1,4));
 
-	EOSReference.assign(EOSstr);
+	EOSReference.assign("Steven G. Penoncello,Eric W. Lemmon,Richard T Jacobsen,Zhengjun Shan, \"A Fundamental Equation for Trifluoromethane (R-23)\", J. Phys. Chem. Ref. Data, Vol. 32, No. 4, 2003");
 	TransportReference.assign("Using ECS in fully predictive mode");
 
 	name.assign("R23");

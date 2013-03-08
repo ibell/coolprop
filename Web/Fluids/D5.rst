@@ -5,7 +5,7 @@ D5
 
 Aliases
 ================================================================================
-['Decamethylcyclopentasiloxane']
+``Decamethylcyclopentasiloxane``
 
 Equation of State Reference
 ===========================

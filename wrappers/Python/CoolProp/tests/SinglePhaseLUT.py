@@ -25,7 +25,7 @@ for key in ['D','H','U','C','O','dpdT']:
             TT[i,j]=T
             PP[i,j]=p
             YY1[i,j]=CP.Props(key,'T',T,'P',p,"Air")
-    print key,'Worst Error is ', np.max(np.abs(YY1/YY2-1)),' %'
+    print(key,'Worst Error is ', np.max(np.abs(YY1/YY2-1)),' %')
 
 ST.LUT(True)
 ST.debug(0)
@@ -35,6 +35,6 @@ for i,T in enumerate(np.linspace(291,355,2*N+1)):
         TT[i,j]=T
         PP[i,j]=p
         S.update(dict(T=T,P=p))
-        print S
+        print(S)
         #YY2[i,j]=CP.Props(key,'T',T,'P',p,"Air")
     

@@ -857,6 +857,17 @@ cdef class State:
                 _IProps(key,iT,self.T_,iD,self.rho_,self.iFluid)
             t2=clock()
             print 'Elapsed time for {0:d} calls for "{1:s}" at {2:g} us/call'.format(N,paras[key],(t2-t1)/N*1e6)
+        
+        
+        print 'Using CoolPropStateClass'
+        keys = [iH,iP,iC,iO,iDpdT]
+        t1=clock()
+        for i in range(N):
+            self.PFC.update(iT,self.T_,iD,self.rho_)
+            for key in keys:
+                self.PFC.keyed_output(key)
+        t2=clock()
+        print 'Elapsed time for {0:d} calls of iH,iP,iC,iO,iDpdT takes {1:g} us/call'.format(N,(t2-t1)/N*1e6)
             
         print 'Call using TTSE'
         print "'M' involves basically no computational effort and is a good measure of the function call overhead"

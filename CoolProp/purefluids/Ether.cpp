@@ -4,59 +4,6 @@
 #include "FluidClass.h"
 #include "Ether.h"
 
-static double d[] =
-{
-0,
-1.0, //[1]
-1.0, //[2]
-1.0, //[3]
-2.0, //[4]
-3.0, //[5]
-7.0, //[6]
-2.0, //[7]
-5.0, //[8]
-1.0, //[9]
-4.0, //[10]
-3.0, //[11]
-4.0, //[12]
-};
-
-static double t[] =
-{
-0,
-0.12,  //[1]
-1.3, //[2]
-1.74,   //[3]
-2.1, //[4]
-0.28,  //[5]
-0.69, //[6]
-0.75, //[7]
-2.0,  //[8]
-4.4, //[9]
-4.7, //[10]
-15.0,  //[11]
-14.0,  //[12]
-};
-
-static double c[] =
-{
-0,
-0.0, //[1]
-0.0, //[2]
-0.0, //[3]
-0.0, //[4]
-0.0, //[5]
-0.0, //[6]
-1.0, //[7]
-1.0, //[8]
-2.0, //[9]
-2.0, //[10]
-3.0, //[11]
-3.0, //[12]
-};
-
-static char EOSstr [] = "Jiangtao Wu, Yong Zhou, Eric W. Lemmon, \"An Equation of State for the Thermodynamic Properties of Dimethyl Ether\", J. Phys. Chem. Ref. Data, Vol. 40, No. 2, 2011";
-
 DimethylEtherClass::DimethylEtherClass()
 {
 	double n[] = {0.0, 0.029814139, 1.43517, -2.64964, -0.29515532, 0.17035607, -0.94642918, -0.099250514, 1.1264071, -0.76936548, -0.020717696, 0.24527037, 1.1863438, -0.49398368, -0.16388716, -0.027583584};
@@ -101,7 +48,7 @@ DimethylEtherClass::DimethylEtherClass()
 
 	phi0list.push_back(new phi0_Planck_Einstein(v0_v,u0_v,1,4));
 
-	EOSReference.assign(EOSstr);
+	EOSReference.assign("Jiangtao Wu, Yong Zhou, Eric W. Lemmon, \"An Equation of State for the Thermodynamic Properties of Dimethyl Ether\", J. Phys. Chem. Ref. Data, Vol. 40, No. 2, 2011");
 	TransportReference.assign("Using ECS in fully predictive mode");
 
 	name.assign("DimethylEther");

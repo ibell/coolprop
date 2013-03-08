@@ -5,7 +5,7 @@ D4
 
 Aliases
 ================================================================================
-['Octamethylcyclotetrasiloxane']
+``Octamethylcyclotetrasiloxane``
 
 Equation of State Reference
 ===========================

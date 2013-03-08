@@ -10,7 +10,7 @@ def test_THP():
             Tchk = Props("T",'H',h,'P',p,"R134a")
             err = Tchk - T
             if abs(err)>1e-8:
-                print Tsat,DT,T,h,Tchk,err
+                print(Tsat,DT,T,h,Tchk,err)
                 
 if __name__=='__main__':
     test_THP()

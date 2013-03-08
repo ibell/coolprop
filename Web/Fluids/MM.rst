@@ -5,7 +5,7 @@ MM
 
 Aliases
 ================================================================================
-['Hexamethyldisiloxane']
+``Hexamethyldisiloxane``
 
 Equation of State Reference
 ===========================

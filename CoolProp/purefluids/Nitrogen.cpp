@@ -36,237 +36,228 @@ Note: Critical enhancement included
 #include "FluidClass.h"
 #include "Nitrogen.h"
 
-static const double Tc=126.192, rhoc=313.3, Pc=3395.8, M_Nitrogen=28.01348, _Ttriple=63.151;
-             //          K           kg/m^3       kPa              g/mol              K
-static const double n[]={0,    
-0.924803575275,//[1]
--0.492448489428,//[2]
-0.661883336938,//[3]
--1.92902649201,//[4]
--0.0622469309629,//[5]
-0.349943957581,//[6]
-0.564857472498,//[7]
--1.61720005987,//[8]
--0.481395031883,//[9]
-0.421150636384,//[10]
--0.0161962230825,//[11]
-0.172100994165,//[12]
-0.00735448924933,//[13]
-0.0168077305479,//[14]
--0.00107626664179,//[15]
--0.0137318088513,//[16]
-0.000635466899859,//[17]
-0.00304432279419,//[18]
--0.0435762336045,//[19]
--0.0723174889316,//[20]
-0.0389644315272,//[21]
--0.021220136391,//[22]
-0.00408822981509,//[23]
--0.0000551990017984,//[24]
--0.0462016716479,//[25]
--0.00300311716011,//[26]
-0.0368825891208,//[27]
--0.0025585684622,//[28]
-0.00896915264558,//[29]
--0.0044151337035,//[30]
-0.00133722924858,//[31]
-0.000264832491957,//[32]
-19.6688194015,//[33]
--20.911560073,//[34]
-0.0167788306989,//[35]
-2627.67566274//[36]
-};
-
-// d used for consistency with CO2 correlation (corresponds to i from Span)
-static const int d[]={0,
-1,//[1]
-1,//[2]
-2,//[3]
-2,//[4]
-3,//[5]
-3,//[6]
-1,//[7]
-1,//[8]
-1,//[9]
-3,//[10]
-3,//[11]
-4,//[12]
-6,//[13]
-6,//[14]
-7,//[15]
-7,//[16]
-8,//[17]
-8,//[18]
-1,//[19]
-2,//[20]
-3,//[21]
-4,//[22]
-5,//[23]
-8,//[24]
-4,//[25]
-5,//[26]
-5,//[27]
-8,//[28]
-3,//[29]
-5,//[30]
-6,//[31]
-9,//[32]
-1,//[33]
-1,//[34]
-3,//[35]
-2//[36]
-};
-
-// t used for consistency with CO2 correlation (corresponds to j from Span)
-static const double t[]={0.00,
-0.25,//[1]
-0.875,//[2]
-0.5,//[3]
-0.875,//[4]
-0.375,//[5]
-0.75,//[6]
-0.5,//[7]
-0.75,//[8]
-2,//[9]
-1.25,//[10]
-3.5,//[11]
-1,//[12]
-0.5,//[13]
-3,//[14]
-0,//[15]
-2.75,//[16]
-0.75,//[17]
-2.5,//[18]
-4,//[19]
-6,//[20]
-6,//[21]
-3,//[22]
-3,//[23]
-6,//[24]
-16,//[25]
-11,//[26]
-15,//[27]
-12,//[28]
-12,//[29]
-7,//[30]
-4,//[31]
-16,//[32]
-0,//[33]
-1,//[34]
-2,//[35]
-3//[36]
-};
-
-// c used for consistency with CO2 correlation (corresponds to l from Span)
-static const int c[]={0,
-0,//[1]
-0,//[2]
-0,//[3]
-0,//[4]
-0,//[5]
-0,//[6]
-1,//[7]
-1,//[8]
-1,//[9]
-1,//[10]
-1,//[11]
-1,//[12]
-1,//[13]
-1,//[14]
-1,//[15]
-1,//[16]
-1,//[17]
-1,//[18]
-2,//[19]
-2,//[20]
-2,//[21]
-2,//[22]
-2,//[23]
-2,//[24]
-3,//[25]
-3,//[26]
-3,//[27]
-3,//[28]
-4,//[29]
-4,//[30]
-4,//[31]
-4,//[32]
-2,//[33]
-2,//[34]
-2,//[35]
-2//[36]
-};
-
-// alpha is used here for consistency with the definitions in R744.c upon which Nitrogen.c is based
-// is phi_k from Span
-static const double alpha[]={
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, // indices [0-32]
-20,
-20,
-15,
-25
-};
-
-static const double beta[]={
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, // indices [0-32]
-325,
-325,
-300,
-275
-};
-
-// epsilon is used here for consistency with the definitions in R744.c upon which Nitrogen.c is based
-// is the value unity in Span
-static const double epsilon[]={
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, // indices [0-32]
-1,
-1,
-1,
-1
-};
 
 
-// GAMMA is used here for consistency with the definitions in R744.c upon which Nitrogen.c is based
-static const double GAMMA[]={
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, // indices [0-32]
-1.16,
-1.16,
-1.13,
-1.25
-};
-
-//Constants for ideal gas expression
-static const double a0[]={0.0,
-	2.5,
-	-12.76952708,
-	-0.00784163,
-	-1.934819e-4,
-	-1.247742e-5,
-	6.678326e-8,
-	1.012941,
-	26.65788
-};
 
 NitrogenClass::NitrogenClass()
 {
-	std::vector<double> n_v(n,n+sizeof(n)/sizeof(double));
-	std::vector<double> d_v(d,d+sizeof(d)/sizeof(int));
-	std::vector<double> t_v(t,t+sizeof(t)/sizeof(double));
-	std::vector<double> l_v(c,c+sizeof(c)/sizeof(int));
-	std::vector<double> alpha_v(alpha,alpha+sizeof(alpha)/sizeof(double));
-	std::vector<double> beta_v(beta,beta+sizeof(beta)/sizeof(double));
-	std::vector<double> gamma_v(GAMMA,GAMMA+sizeof(GAMMA)/sizeof(double));
-	std::vector<double> epsilon_v(epsilon,epsilon+sizeof(epsilon)/sizeof(double));
-	std::vector<double> a0_v(a0,a0+sizeof(a0)/sizeof(double));
-	std::vector<double> n0_v(sizeof(a0)/sizeof(double),0);
 
-	phi_BC * phir_ = new phir_power(n_v,d_v,t_v,l_v,1,32);
-	phi_BC * phirg_ = new phir_gaussian(n_v,d_v,t_v,alpha_v,epsilon_v,beta_v,gamma_v,33,36);
+	static const double n[]={0,    
+	0.924803575275,//[1]
+	-0.492448489428,//[2]
+	0.661883336938,//[3]
+	-1.92902649201,//[4]
+	-0.0622469309629,//[5]
+	0.349943957581,//[6]
+	0.564857472498,//[7]
+	-1.61720005987,//[8]
+	-0.481395031883,//[9]
+	0.421150636384,//[10]
+	-0.0161962230825,//[11]
+	0.172100994165,//[12]
+	0.00735448924933,//[13]
+	0.0168077305479,//[14]
+	-0.00107626664179,//[15]
+	-0.0137318088513,//[16]
+	0.000635466899859,//[17]
+	0.00304432279419,//[18]
+	-0.0435762336045,//[19]
+	-0.0723174889316,//[20]
+	0.0389644315272,//[21]
+	-0.021220136391,//[22]
+	0.00408822981509,//[23]
+	-0.0000551990017984,//[24]
+	-0.0462016716479,//[25]
+	-0.00300311716011,//[26]
+	0.0368825891208,//[27]
+	-0.0025585684622,//[28]
+	0.00896915264558,//[29]
+	-0.0044151337035,//[30]
+	0.00133722924858,//[31]
+	0.000264832491957,//[32]
+	19.6688194015,//[33]
+	-20.911560073,//[34]
+	0.0167788306989,//[35]
+	2627.67566274//[36]
+	};
 
-	phirlist.push_back(phir_);
-	phirlist.push_back(phirg_);
+	// d used for consistency with CO2 correlation (corresponds to i from Span)
+	static const double d[]={0,
+	1,//[1]
+	1,//[2]
+	2,//[3]
+	2,//[4]
+	3,//[5]
+	3,//[6]
+	1,//[7]
+	1,//[8]
+	1,//[9]
+	3,//[10]
+	3,//[11]
+	4,//[12]
+	6,//[13]
+	6,//[14]
+	7,//[15]
+	7,//[16]
+	8,//[17]
+	8,//[18]
+	1,//[19]
+	2,//[20]
+	3,//[21]
+	4,//[22]
+	5,//[23]
+	8,//[24]
+	4,//[25]
+	5,//[26]
+	5,//[27]
+	8,//[28]
+	3,//[29]
+	5,//[30]
+	6,//[31]
+	9,//[32]
+	1,//[33]
+	1,//[34]
+	3,//[35]
+	2//[36]
+	};
+
+	// t used for consistency with CO2 correlation (corresponds to j from Span)
+	static const double t[]={0.00,
+	0.25,//[1]
+	0.875,//[2]
+	0.5,//[3]
+	0.875,//[4]
+	0.375,//[5]
+	0.75,//[6]
+	0.5,//[7]
+	0.75,//[8]
+	2,//[9]
+	1.25,//[10]
+	3.5,//[11]
+	1,//[12]
+	0.5,//[13]
+	3,//[14]
+	0,//[15]
+	2.75,//[16]
+	0.75,//[17]
+	2.5,//[18]
+	4,//[19]
+	6,//[20]
+	6,//[21]
+	3,//[22]
+	3,//[23]
+	6,//[24]
+	16,//[25]
+	11,//[26]
+	15,//[27]
+	12,//[28]
+	12,//[29]
+	7,//[30]
+	4,//[31]
+	16,//[32]
+	0,//[33]
+	1,//[34]
+	2,//[35]
+	3//[36]
+	};
+
+	// c used for consistency with CO2 correlation (corresponds to l from Span)
+	static const double c[]={0,
+	0,//[1]
+	0,//[2]
+	0,//[3]
+	0,//[4]
+	0,//[5]
+	0,//[6]
+	1,//[7]
+	1,//[8]
+	1,//[9]
+	1,//[10]
+	1,//[11]
+	1,//[12]
+	1,//[13]
+	1,//[14]
+	1,//[15]
+	1,//[16]
+	1,//[17]
+	1,//[18]
+	2,//[19]
+	2,//[20]
+	2,//[21]
+	2,//[22]
+	2,//[23]
+	2,//[24]
+	3,//[25]
+	3,//[26]
+	3,//[27]
+	3,//[28]
+	4,//[29]
+	4,//[30]
+	4,//[31]
+	4,//[32]
+	2,//[33]
+	2,//[34]
+	2,//[35]
+	2//[36]
+	};
+
+	// alpha is used here for consistency with the definitions in R744.c upon which Nitrogen.c is based
+	// is phi_k from Span
+	static const double alpha[]={
+	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, // indices [0-32]
+	20,
+	20,
+	15,
+	25
+	};
+
+	static const double beta[]={
+	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, // indices [0-32]
+	325,
+	325,
+	300,
+	275
+	};
+
+	// epsilon is used here for consistency with the definitions in R744.c upon which Nitrogen.c is based
+	// is the value unity in Span
+	static const double epsilon[]={
+	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, // indices [0-32]
+	1,
+	1,
+	1,
+	1
+	};
+
+
+	// GAMMA is used here for consistency with the definitions in R744.c upon which Nitrogen.c is based
+	static const double GAMMA[]={
+	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, // indices [0-32]
+	1.16,
+	1.16,
+	1.13,
+	1.25
+	};
+
+	//Constants for ideal gas expression
+	static const double a0[]={0.0,
+		2.5,
+		-12.76952708,
+		-0.00784163,
+		-1.934819e-4,
+		-1.247742e-5,
+		6.678326e-8,
+		1.012941,
+		26.65788
+	};
+	
+
+	phirlist.push_back(new phir_power(n,d,t,c,1,32,33));
+	phirlist.push_back(new phir_gaussian(n,d,t,alpha,epsilon,beta,GAMMA,33,36,37));
 
 	// phi0=log(delta)+a0[1]*log(tau)+a0[2]+a0[3]*tau+a0[4]/tau+a0[5]/tau/tau+a0[6]/tau/tau/tau+a0[7]*log(1-exp(-a0[8]*tau));
+	std::vector<double> a0_v(a0,a0+sizeof(a0)/sizeof(double));
+	std::vector<double> n0_v(sizeof(a0)/sizeof(double),0);
 	n0_v[4]=-1.0;
 	n0_v[5]=-2.0;
 	n0_v[6]=-3.0;
@@ -320,9 +311,9 @@ double NitrogenClass::X_tilde(double T,double tau,double delta)
 	// X_tilde is dimensionless
 	// Equation 11 slightly rewritten
 	double drho_dp,R_Nitrogen;
-	R_Nitrogen=params.R_u/M_Nitrogen;
+	R_Nitrogen=params.R_u/params.molemass;
 	drho_dp=1.0/(R_Nitrogen*T*(1+2*delta*dphir_dDelta(tau,delta)+delta*delta*d2phir_dDelta2(tau,delta)));
-	return Pc*delta/rhoc*drho_dp;
+	return reduce.p*delta/reduce.rho*drho_dp;
 }
 
 double NitrogenClass::conductivity_Trho(double T, double rho)
@@ -344,8 +335,8 @@ double NitrogenClass::conductivity_Trho(double T, double rho)
 	double l[]={0,0,0,0,0,0,1,2,2,2};
 	double g[]={0,0,0,0,0,0,1,1,1,1};
 	
-	delta=rho/rhoc;
-	tau=Tc/T;
+	delta=rho/reduce.rho;
+	tau=reduce.T/T;
 	Tstar=T/(e_k);
 
 	OMEGA=exp(b[0]*powInt(log(Tstar),0)
@@ -354,7 +345,7 @@ double NitrogenClass::conductivity_Trho(double T, double rho)
 			 +b[3]*powInt(log(Tstar),3)
 		     +b[4]*powInt(log(Tstar),4));
 
-	eta0=0.0266958*sqrt(M_Nitrogen*T)/(sigma*sigma*OMEGA);
+	eta0=0.0266958*sqrt(params.molemass*T)/(sigma*sigma*OMEGA);
 	lambda0=N[1]*eta0+N[2]*pow(tau,t[2])+N[3]*pow(tau,t[3]);
 
 	lambdar=N[4]*pow(tau,t[4])*pow(delta,d[4])*exp(-g[4]*pow(delta,l[4]))
@@ -369,7 +360,7 @@ double NitrogenClass::conductivity_Trho(double T, double rho)
 	gamma=1.2415;
 	k=1.380658e-23; //[J/K]
 
-	num=X_tilde(T,Tc/T,delta)-X_tilde(Tref,Tc/Tref,delta)*Tref/T;
+	num=X_tilde(T,reduce.T/T,delta)-X_tilde(Tref,reduce.T/Tref,delta)*Tref/T;
 
 	// no critical enhancement if numerator of Eq. 10 is negative
 	if (num<0)
@@ -399,8 +390,8 @@ double NitrogenClass::viscosity_Trho(double T, double rho)
 	double l[]={0,0,1,1,2,3};
 	double g[]={0,0,1,1,1,1};
 
-	delta=rho/rhoc;
-	tau=Tc/T;
+	delta=rho/reduce.rho;
+	tau=reduce.T/T;
 	Tstar=T/(e_k);
 	OMEGA=exp(b[0]*powInt(log(Tstar),0)
 			 +b[1]*powInt(log(Tstar),1)
@@ -408,7 +399,7 @@ double NitrogenClass::viscosity_Trho(double T, double rho)
 			 +b[3]*powInt(log(Tstar),3)
 		     +b[4]*powInt(log(Tstar),4));
 
-	eta0=0.0266958*sqrt(M_Nitrogen*T)/(sigma*sigma*OMEGA);
+	eta0=0.0266958*sqrt(params.molemass*T)/(sigma*sigma*OMEGA);
 	etar=N[1]*pow(tau,t[1])*pow(delta,d[1])*exp(-g[1]*pow(delta,l[1]))
 		+N[2]*pow(tau,t[2])*pow(delta,d[2])*exp(-g[2]*pow(delta,l[2]))
 		+N[3]*pow(tau,t[3])*pow(delta,d[3])*exp(-g[3]*pow(delta,l[3]))
@@ -425,9 +416,9 @@ double NitrogenClass::psat(double T)
     int i;
     for (i=1;i<=4;i++)
     {
-        summer=summer+Ni[i]*pow(1-T/Tc,ti[i]);
+        summer=summer+Ni[i]*pow(1-T/reduce.T,ti[i]);
     }
-    return Pc*exp(Tc/T*summer);
+	return reduce.p*exp(reduce.T/T*summer);
 }
 double NitrogenClass::rhosatL(double T)
 {
@@ -437,9 +428,9 @@ double NitrogenClass::rhosatL(double T)
     int i;
     for (i=1;i<=4;i++)
     {
-        summer=summer+Ni[i]*pow(1.0-T/Tc,ti[i]);
+        summer=summer+Ni[i]*pow(1.0-T/reduce.T,ti[i]);
     }
-    return rhoc*exp(summer);
+	return reduce.rho*exp(summer);
 }
 double NitrogenClass::rhosatV(double T)
 {
@@ -449,9 +440,9 @@ double NitrogenClass::rhosatV(double T)
     int i;
     for (i=1;i<=5;i++)
     {
-        summer=summer+Ni[i]*pow(1.0-T/Tc,ti[i]);
+        summer=summer+Ni[i]*pow(1.0-T/reduce.T,ti[i]);
     }
-    return rhoc*exp(Tc/T*summer);
+    return reduce.rho*exp(reduce.T/T*summer);
 }
 double NitrogenClass::surface_tension_T(double T)
 {

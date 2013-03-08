@@ -18,95 +18,89 @@ by Ian Bell, 2012
 #include "FluidClass.h"
 #include "R1234ze.h"
 
-static const double n[]={0,0.0555630,1.66927,-2.53408,-0.475075,0.190055,-1.25154,-0.742195,0.537902,-0.741246,-0.0355064,1.58506,-0.502086,-0.191360,-0.975576};
 
-// d used for consistency with CO2 correlation (corresponds to i from Span)
-static const double d[]={0,
-4, //[1]
-1, //[2]
-1, //[3]
-2, //[4]
-3, //[5]
-1, //[6]
-3, //[7]
-2, //[8]
-2, //[9]
-7, //[10]
-1, //[11]
-1, //[12]
-3, //[13]
-3, //[14]
-};
-
-static const double t[]={0.00, 1.00,0.34,0.91,1.23,0.46,2.26,2.50,2.00,2.24,0.90,1.06,1.79,3.75,0.92};
-
-// c used for consistency with CO2 correlation (corresponds to l from Span)
-static const double c[]={0,
-0, //[1]
-0, //[2]
-0, //[3]
-0, //[4]
-0, //[5]
-2, //[6]
-2, //[7]
-1, //[8]
-2, //[9]
-1, //[10]
-};
-
-
-static const double eta[]={
-0,0,0,0,0,0,0,0,0,0,0, // indices [0-10]
-1.02, //[11]
-1.34, //[12]
-1.08, //[13]
-6.41, //[14]
-};
-
-static const double GAMMA[]={
-0,0,0,0,0,0,0,0,0,0,0, // indices [0-10]
-1.140, //[11]
-0.667, //[12]
-0.505, //[13]
-1.220, //[14]
-};
-
-// epsilon is used here for consistency with the definitions in R744.c upon which Nitrogen.c is based
-// is the value unity in Span
-static const double beta[]={
-0,0,0,0,0,0,0,0,0,0,0, // indices [0-10]
-1.19, //[11]
-2.29, //[12]
-1.15, //[13]
-131.8, //[14]
-};
-
-// GAMMA is used here for consistency with the definitions in R744.c upon which Nitrogen.c is based
-static const double epsilon[]={
-0,0,0,0,0,0,0,0,0,0,0, // indices [0-10]
-0.711, //[11]
-0.914, //[12]
-0.694, //[13]
-0.731, //[14]
-};
-
-//Constants for ideal gas expression
-static const double a0[] = {0.0,5.8887,7.0804,9.3371,2.5577};
-static const double b0[] = {0.0,0.0,620/382.52,1570/382.520,3953/382.52}; // Terms divided by critical temp
 
 R1234zeClass::R1234zeClass()
 {
-	std::vector<double> n_v(n,n+sizeof(n)/sizeof(double));
-	std::vector<double> d_v(d,d+sizeof(d)/sizeof(double));
-	std::vector<double> t_v(t,t+sizeof(t)/sizeof(double));
-	std::vector<double> l_v(c,c+sizeof(c)/sizeof(double));
-	std::vector<double> eta_v(eta,eta+sizeof(eta)/sizeof(double));
-	std::vector<double> epsilon_v(epsilon,epsilon+sizeof(epsilon)/sizeof(double));
-	std::vector<double> beta_v(beta,beta+sizeof(beta)/sizeof(double));
-	std::vector<double> gamma_v(GAMMA,GAMMA+sizeof(GAMMA)/sizeof(double));	
 
-	phirlist.push_back(new phir_power(n_v,d_v,t_v,l_v,1,10));
-	phirlist.push_back(new phir_gaussian(n_v,d_v,t_v,eta_v,epsilon_v,beta_v,gamma_v,11,14));
+	static const double n[]={0,0.0555630,1.66927,-2.53408,-0.475075,0.190055,-1.25154,-0.742195,0.537902,-0.741246,-0.0355064,1.58506,-0.502086,-0.191360,-0.975576};
+
+	// d used for consistency with CO2 correlation (corresponds to i from Span)
+	static const double d[]={0,
+	4, //[1]
+	1, //[2]
+	1, //[3]
+	2, //[4]
+	3, //[5]
+	1, //[6]
+	3, //[7]
+	2, //[8]
+	2, //[9]
+	7, //[10]
+	1, //[11]
+	1, //[12]
+	3, //[13]
+	3, //[14]
+	};
+
+	static const double t[]={0.00, 1.00,0.34,0.91,1.23,0.46,2.26,2.50,2.00,2.24,0.90,1.06,1.79,3.75,0.92};
+
+	// c used for consistency with CO2 correlation (corresponds to l from Span)
+	static const double c[]={0,
+	0, //[1]
+	0, //[2]
+	0, //[3]
+	0, //[4]
+	0, //[5]
+	2, //[6]
+	2, //[7]
+	1, //[8]
+	2, //[9]
+	1, //[10]
+	};
+
+
+	static const double eta[]={
+	0,0,0,0,0,0,0,0,0,0,0, // indices [0-10]
+	1.02, //[11]
+	1.34, //[12]
+	1.08, //[13]
+	6.41, //[14]
+	};
+
+	static const double GAMMA[]={
+	0,0,0,0,0,0,0,0,0,0,0, // indices [0-10]
+	1.140, //[11]
+	0.667, //[12]
+	0.505, //[13]
+	1.220, //[14]
+	};
+
+	// epsilon is used here for consistency with the definitions in R744.c upon which Nitrogen.c is based
+	// is the value unity in Span
+	static const double beta[]={
+	0,0,0,0,0,0,0,0,0,0,0, // indices [0-10]
+	1.19, //[11]
+	2.29, //[12]
+	1.15, //[13]
+	131.8, //[14]
+	};
+
+	// GAMMA is used here for consistency with the definitions in R744.c upon which Nitrogen.c is based
+	static const double epsilon[]={
+	0,0,0,0,0,0,0,0,0,0,0, // indices [0-10]
+	0.711, //[11]
+	0.914, //[12]
+	0.694, //[13]
+	0.731, //[14]
+	};
+
+	//Constants for ideal gas expression
+	static const double a0[] = {0.0,5.8887,7.0804,9.3371,2.5577};
+	static const double b0[] = {0.0,0.0,620/382.52,1570/382.520,3953/382.52}; // Terms divided by critical temp
+
+	phirlist.push_back(new phir_power(n,d,t,c,1,10,11));
+	phirlist.push_back(new phir_gaussian(n,d,t,eta,epsilon,beta,GAMMA,11,14,15));
 
 	// phi0=log(delta)+a0[1]*log(tau)+a0[2]*log(1-exp(-b0*tau));
 	phi0list.push_back(new phi0_lead(0,0)); // phi0_lead is like log(delta)+a1+a2*tau with a1=0, a2=0

@@ -4,7 +4,7 @@
 #include "FluidClass.h"
 #include "Butenes.h"
 
-static double d[] =
+static double d_BUTENES[] =
 {
 0,
 1.0, //[1]
@@ -21,7 +21,7 @@ static double d[] =
 4.0, //[12]
 };
 
-static double t[] =
+static double t_BUTENES[] =
 {
 0,
 0.12,  //[1]
@@ -38,7 +38,7 @@ static double t[] =
 14.0,  //[12]
 };
 
-static double c[] =
+static double c_BUTENES[] =
 {
 0,
 0.0, //[1]
@@ -55,7 +55,7 @@ static double c[] =
 3.0, //[12]
 };
 
-static char EOSstr [] = "Eric W. Lemmon, E. Christian Ihmels, \"Thermodynamic properties of the butenes Part II. Short fundamental equations of state\", Fluid Phase Equilibria 228-229 (2005) 173-187";
+static char EOSstr_BUTENES [] = "Eric W. Lemmon, E. Christian Ihmels, \"Thermodynamic properties of the butenes Part II. Short fundamental equations of state\", Fluid Phase Equilibria 228-229 (2005) 173-187";
 
 OneButeneClass::OneButeneClass()
 {
@@ -80,7 +80,7 @@ OneButeneClass::OneButeneClass()
 	limits.pmax = 100000.0;
 	limits.rhomax = 1000000.0*params.molemass;
 
-	phirlist.push_back(new phir_power( n,d,t,c,1,12,13));
+	phirlist.push_back(new phir_power( n,d_BUTENES,t_BUTENES,c_BUTENES,1,12,13));
 
 	const double a1 = -0.00101126, a2 = 2.3869174, c0 = 3.9197;
 	phi0list.push_back(new phi0_lead(a1,a2));
@@ -93,7 +93,7 @@ OneButeneClass::OneButeneClass()
 
 	phi0list.push_back(new phi0_Planck_Einstein(v0_v,u0_v,1,4));
 
-	EOSReference.assign(EOSstr);
+	EOSReference.assign(EOSstr_BUTENES);
 	TransportReference.assign("Using ECS in fully predictive mode");
 
 	name.assign("1-Butene");
@@ -168,7 +168,7 @@ IsoButeneClass::IsoButeneClass()
 	limits.pmax = 100000.0;
 	limits.rhomax = 1000000.0*params.molemass;
 
-	phirlist.push_back(new phir_power( n,d,t,c,1,12,13));
+	phirlist.push_back(new phir_power( n,d_BUTENES,t_BUTENES,c_BUTENES,1,12,13));
 
 	const double a1 = -0.12737888, a2 = 2.3125128, c0 = 4.0000;
 	phi0list.push_back(new phi0_lead(a1,a2));
@@ -181,7 +181,7 @@ IsoButeneClass::IsoButeneClass()
 
 	phi0list.push_back(new phi0_Planck_Einstein(v0_v,u0_v,1,4));
 
-	EOSReference.assign(EOSstr);
+	EOSReference.assign(EOSstr_BUTENES);
 	TransportReference.assign("Using ECS in fully predictive mode");
 
 	name.assign("IsoButene");
@@ -257,7 +257,7 @@ Cis2ButeneClass::Cis2ButeneClass()
 	limits.pmax = 100000.0;
 	limits.rhomax = 1000000.0*params.molemass;
 
-	phirlist.push_back(new phir_power( n,d,t,c,1,12,13));
+	phirlist.push_back(new phir_power( n,d_BUTENES,t_BUTENES,c_BUTENES,1,12,13));
 
 	const double a1 = 0.2591542, a2 = 2.4189888, c0 = 3.9687;
 	phi0list.push_back(new phi0_lead(a1,a2));
@@ -270,7 +270,7 @@ Cis2ButeneClass::Cis2ButeneClass()
 
 	phi0list.push_back(new phi0_Planck_Einstein(v0_v,u0_v,1,4));
 
-	EOSReference.assign(EOSstr);
+	EOSReference.assign(EOSstr_BUTENES);
 	TransportReference.assign("Using ECS in fully predictive mode");
 
 	name.assign("cis-2-Butene");
@@ -344,7 +344,7 @@ Trans2ButeneClass::Trans2ButeneClass()
 	limits.pmax = 100000.0;
 	limits.rhomax = 1000000.0*params.molemass;
 
-	phirlist.push_back(new phir_power( n,d,t,c,1,12,13));
+	phirlist.push_back(new phir_power( n,d_BUTENES,t_BUTENES,c_BUTENES,1,12,13));
 
 	const double a1 = 0.5917816, a2 = 2.1427758, c0 = 3.9988;
 	phi0list.push_back(new phi0_lead(a1,a2));
@@ -357,7 +357,7 @@ Trans2ButeneClass::Trans2ButeneClass()
 
 	phi0list.push_back(new phi0_Planck_Einstein(v0_v,u0_v,1,4));
 
-	EOSReference.assign(EOSstr);
+	EOSReference.assign(EOSstr_BUTENES);
 	TransportReference.assign("Using ECS in fully predictive mode");
 
 	name.assign("trans-2-Butene");

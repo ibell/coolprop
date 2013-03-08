@@ -8,9 +8,6 @@ cl /c /I../../CoolProp /EHsc CoolProp_wrap.cxx
 
 REM ******* compile all the sources ***************
 cl /c /I../../CoolProp /EHsc ../../CoolProp/*.cpp
-cl /c /I../../CoolProp /EHsc ../../CoolProp/purefluids/*.cpp
-cl /c /I../../CoolProp /EHsc ../../CoolProp/pseudopurefluids/*.cpp
-
 link /DLL CoolProp_wrap.obj *.obj /OUT:CoolProp.dll
 dumpbin /EXPORTS CoolProp.dll > exports.txt
 erase *.obj

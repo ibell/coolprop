@@ -4,7 +4,7 @@ from scipy.interpolate import UnivariateSpline,interp1d
 from matplotlib import pyplot as plt
 import CoolProp
 
-print CoolProp.__pure_fluids__.split(',')
+print(CoolProp.__pure_fluids__.split(','))
 for Fluid in CoolProp.__pure_fluids__.split(','):
     if Fluid=='R32':
         continue
@@ -20,7 +20,7 @@ for Fluid in CoolProp.__pure_fluids__.split(','):
         UseSaturationLUT(1)
         rho_fit[i] = Props('D','T',T,'Q',0.0,Fluid)
     errperc=np.max(np.abs(rho_fit/rho_EOS*100-100))
-    print 'Worst error with CoolProp is {0} % for {1}'.format(errperc,Fluid)
+    print('Worst error with CoolProp is {0} % for {1}'.format(errperc,Fluid))
     
     if errperc>1.0:
         plt.plot(TLUT,rho_EOS,TLUT,rho_fit)
