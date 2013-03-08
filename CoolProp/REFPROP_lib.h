@@ -458,7 +458,8 @@ extern "C" {
   typedef void (CALLCONV XMASSdll_TYPE)(double *,double *,double *);
   typedef void (CALLCONV XMOLEdll_TYPE)(double *,double *,double *);
   //
-//  // Declare the functions for direct access
+  // Diabled because we prefer pointers here!
+//  // Declare the functions for direct access,
 //  RPVersion_TYPE RPVersion;
 //  SETPATHdll_TYPE SETPATHdll;
 //  ABFL1dll_TYPE ABFL1dll;

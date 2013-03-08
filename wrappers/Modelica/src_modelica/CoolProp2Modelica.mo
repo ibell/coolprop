@@ -998,7 +998,6 @@ import SI = Modelica.SIunits;
   package Examples "Examples of external medium models"
   extends Modelica.Icons.ExamplesPackage;
 
-
     model CompressibleValveSystem "A valve between a source and a sink"
       extends Modelica.Icons.Example;
 
@@ -1015,7 +1014,7 @@ import SI = Modelica.SIunits;
       redeclare package Medium = WorkingFluid)
         annotation (Placement(transformation(extent={{-80,-10},{-60,10}})));
 
-    replaceable package WorkingFluid = CoolProp2Modelica.Media.R410a_debug
+    replaceable package WorkingFluid = CoolProp2Modelica.Media.R601_CP
       constrainedby Modelica.Media.Interfaces.PartialMedium
                                                   annotation (choicesAllMatching=true);
     replaceable package HeatingFluid =
@@ -1059,6 +1058,7 @@ import SI = Modelica.SIunits;
 
 
   package Media "Medium packages compatible with Modelica.Media"
+  extends Modelica.Icons.VariantsPackage;
 
     package TestMedium "Simple water medium model for debugging and testing"
       extends CoolProp2Modelica.Interfaces.ExternalTwoPhaseMedium(
@@ -1163,7 +1163,6 @@ import SI = Modelica.SIunits;
       annotation ();
     end R290_FPRP;
 
-
     package R744_FPRP "Carbon-Dioxide from Refprop via FluidProp"
       extends CoolProp2Modelica.Interfaces.FluidPropMedium(
       mediumName="Carbon Dioxide",
@@ -1187,8 +1186,6 @@ import SI = Modelica.SIunits;
       substanceNames={"H2O"},
       ThermoStates=Modelica.Media.Interfaces.PartialMedium.Choices.IndependentVariables.ph);
     end WaterIF95_FP;
-
-
 
     package R410a_debug "R410a, properties using Refprop via CoolProp"
       extends CoolProp2Modelica.Interfaces.ExternalTwoPhaseMedium(

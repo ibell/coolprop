@@ -535,7 +535,7 @@ EXPORT_CODE double CONVENTION viscosity_dilute(char* FluidName, double T, double
 	{
 		return _HUGE;
 	}
-	else if (iFluid == get_Fluid_index("Propane"))
+	else if (iFluid == get_Fluid_index((char*)"Propane"))
 	{
 		R290Class pFluid = R290Class();
 		pFluid.post_load();
