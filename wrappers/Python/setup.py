@@ -188,8 +188,14 @@ if __name__=='__main__':
             ],
            )
     
-    #Clean up the 
+    #Clean up the include folder
     shutil.rmtree(os.path.join('CoolProp','include'), ignore_errors = True)
-            
+    
+    for file in glob.glob(os.path.join('CoolProp','__init__.*')):
+            try:
+                os.remove(file)
+            except:
+                pass
+    
     touch('setup.py')
     
