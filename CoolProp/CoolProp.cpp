@@ -6,9 +6,12 @@
 
 #include "CoolProp.h"
 
+#if defined(__ISWINDOWS__)||defined(__ISLINUX__)
+#include "REFPROP.h"
+#endif
+
 #if defined(__ISWINDOWS__)
 #include <windows.h>
-#include "REFPROP.h"
 #else
 #ifndef DBL_EPSILON
 	#include <limits>
@@ -528,7 +531,7 @@ EXPORT_CODE double CONVENTION viscosity_dilute(char* FluidName, double T, double
 	{
 		return _HUGE;
 	}
-	else if (iFluid == get_Fluid_index("Propane"))
+	else if (iFluid == get_Fluid_index((char*)"Propane"))
 	{
 		R290Class pFluid = R290Class();
 		pFluid.post_load();
@@ -807,7 +810,7 @@ double _Props(std::string Output,std::string Name1, double Prop1, std::string Na
     */
     else if (IsREFPROP(Ref))  // First eight characters match "REFPROP-"
     {
-        #if defined(__ISWINDOWS__)
+        #if defined(__ISWINDOWS__)||defined(__ISLINUX__)
 		return REFPROP(Output,Name1,Prop1,Name2,Prop2,Ref);
 		#else
         throw AttributeError(format("Your refrigerant [%s] is from REFPROP, but REFPROP not supported on this platform",Ref.c_str()));

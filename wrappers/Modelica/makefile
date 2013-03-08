@@ -31,11 +31,11 @@ THETEST          =coolPropLibTest
 #  binary files created in this makefile. 
 ###########################################################
 SRCDIR     =./src
-# DYMDIR     =/opt/dymola
-# LIBINST    =$(DYMDIR)/bin/lib
-# HEADINST   =$(DYMDIR)/source
-LIBINST    =/usr/local/lib
-HEADINST   =/usr/local/include
+DYMDIR     =/opt/dymola
+LIBINST    =$(DYMDIR)/bin/lib
+HEADINST   =$(DYMDIR)/source
+# LIBINST    =/usr/local/lib
+# HEADINST   =/usr/local/include
 BINDIR     =./bin/LinuxGCC
 
 COOLPROPDIR=../../CoolProp
@@ -123,7 +123,8 @@ all        : header library
 ############################################################
 ##  Compile coolprop sources to static files
 ############################################################	
-COOLCPP_FILES  := $(shell find $(COOLPROPDIR)/ -type f -name '*.cpp')
+#COOLCPP_FILES  := $(shell find $(COOLPROPDIR)/ -type f -name '*.cpp')
+COOLCPP_FILES  := $(wildcard $(COOLPROPDIR)/*.cpp)
 COOLOBJ_FILES  := $(addprefix $(SRCDIR)/,$(notdir $(COOLCPP_FILES:.cpp=.o)))
 
 # Define search path for prerequisite files
