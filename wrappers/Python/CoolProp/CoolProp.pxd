@@ -283,8 +283,8 @@ cdef class PureFluidClass:
     cpdef double sV(self)
     cpdef double hL(self)
     cpdef double hV(self)
-    cpdef double keyed_output(self, long iOutput)
-    cpdef long phase(self)
+    cpdef double keyed_output(self, long iOutput) except *
+    cpdef long phase(self) except *
     
     ## ---------------------------------------- 
     ##        Fluid property accessors

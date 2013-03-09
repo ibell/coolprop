@@ -179,8 +179,8 @@ class Fluid
 		double R(){return params.R_u/params.molemass;};
 
 		// These MUST be implemented by derived class
-        double conductivity_Trho(double T, double rho);
-		double viscosity_Trho(double T, double rho);
+        virtual double conductivity_Trho(double T, double rho);
+		virtual double viscosity_Trho(double T, double rho);
 		
 		// These Helmholtz energy terms are provided by the base class
 		double phir(double tau, double delta);

@@ -67,7 +67,7 @@ public:
 	bool flag_TwoPhase;
 
 	// Bulk values
-	double _rho,_T,_p,_Q,_h,_s, tau, delta;
+	double _rho,_T,_p,_Q,_h,_s,_logp, tau, delta;
 
 	// Phase flags
 	bool TwoPhase, SinglePhase, s_cached, h_cached;
