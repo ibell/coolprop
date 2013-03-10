@@ -1,17 +1,4 @@
-recursive-include Plots *.*
-
-include *.template
-include *.h *.cpp *.i *.pxd
-include fluids.txt
-include svnrevision.txt
-
-recursive-include CoolProp *.h *.cpp *.i *.pxd
-exclude *_wrap.*
-
-prune CoolPropBuilder
-prune Vault
-prune wrappers
-prune dist
-prune dist_temp
-prune _deps
-prune _python
+recursive-include CoolProp *.*
+recursive-include CoolPropSource
+include version.txt
+include __init__.py.template

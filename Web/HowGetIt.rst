@@ -17,13 +17,17 @@ Nightly build installers are also available at https://sourceforge.net/projects/
 Option 2 (a tiny bit harder)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-CoolProp is now on `PyPI <http://pypi.python.org/pypi/CoolProp>`_.  If you already have `cython <http://www.cython.org>`_ (version > 0.16) installed and your default compiler is already configured (see below), you can just do::
+CoolProp is now on `PyPI <http://pypi.python.org/pypi/CoolProp>`_.  If you already have `cython <http://www.cython.org>`_ (version > 0.17) installed and your default compiler is already configured (see below), you can just do::
 
     easy_install CoolProp
     
 Or if you already have CoolProp installed, you can upgrade it with::
 
     easy_install -U CoolProp
+    
+Or using pip::
+
+    pip install CoolProp
     
 Option 3 (developers)
 ^^^^^^^^^^^^^^^^^^^^^
