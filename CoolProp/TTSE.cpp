@@ -31,6 +31,9 @@
 #define CLOCKS_PER_SEC 1000
 #endif
 
+// The revision of the TTSE tables, only use tables with the same revision.  Update this macro if any non-forward compatible changes are made
+#define TTSEREV 1
+
 double round(double r) {
     return (r > 0.0) ? floor(r + 0.5) : ceil(r - 0.5);
 }
@@ -83,23 +86,6 @@ void TTSESinglePhaseTableClass::set_size_ph(unsigned int Np, unsigned int Nh)
 	d2rhodh2.resize(Nh, std::vector<double>(Np, _HUGE));	
 	d2rhodp2.resize(Nh, std::vector<double>(Np, _HUGE));
 	d2rhodhdp.resize(Nh, std::vector<double>(Np, _HUGE));
-
-	if (enable_transport)
-	{
-		mu.resize(Nh, std::vector<double>(Np, _HUGE));
-		dmudh.resize(Nh, std::vector<double>(Np, _HUGE));
-		dmudp.resize(Nh, std::vector<double>(Np, _HUGE));
-		d2mudh2.resize(Nh, std::vector<double>(Np, _HUGE));	
-		d2mudp2.resize(Nh, std::vector<double>(Np, _HUGE));
-		d2mudhdp.resize(Nh, std::vector<double>(Np, _HUGE));
-
-		k.resize(Nh, std::vector<double>(Np, _HUGE));
-		dkdh.resize(Nh, std::vector<double>(Np, _HUGE));
-		dkdp.resize(Nh, std::vector<double>(Np, _HUGE));
-		d2kdh2.resize(Nh, std::vector<double>(Np, _HUGE));	
-		d2kdp2.resize(Nh, std::vector<double>(Np, _HUGE));
-		d2kdhdp.resize(Nh, std::vector<double>(Np, _HUGE));
-	}
 
 	IL.resize(Np);
 	IV.resize(Np);
@@ -376,7 +362,7 @@ std::string get_file_contents(std::string filename)
 bool TTSESinglePhaseTableClass::read_all_from_file(std::string root_path)
 {
 	std::string Fluid;
-	double hmin,hmax,pmin,pmax;
+	double hmin,hmax,pmin,pmax,_TTSERev;
 	int Np, Nh;
 
 	// Replace any '\' with '/' in the path
@@ -440,6 +426,8 @@ bool TTSESinglePhaseTableClass::read_all_from_file(std::string root_path)
 			NT = (int)strtol(line[1].c_str(),NULL,0);}
 		else if (line[0].find("Nrho")!=  std::string::npos) {	
 			Nrho = (int)strtol(line[1].c_str(),NULL,0);}
+		else if (line[0].find("TTSERev")!=  std::string::npos) {
+			_TTSERev = (int)strtol(line[1].c_str(),NULL,0);}
 	}
 	
 	// Didn't work since at least one of the parameters was different
@@ -457,6 +445,7 @@ bool TTSESinglePhaseTableClass::read_all_from_file(std::string root_path)
 		  && fabs(Tmax - this->Tmax)<10*DBL_EPSILON 
 		  && fabs(rhomin - this->rhomin)<10*DBL_EPSILON 
 		  && fabs(rhomax - this->rhomax)<10*DBL_EPSILON
+		  && _TTSERev == TTSEREV
 		)) return false;
 
 	// Read all the data from the binary files
@@ -517,6 +506,9 @@ bool TTSESinglePhaseTableClass::read_all_from_file(std::string root_path)
 	this->pratio = pow(pmax/pmin,1/((double)Np-1));
 	this->logpratio = log(pratio); // For speed since log() is a slow function
 	this->logpmin = log(pmin);
+	this->rhoratio = pow(rhomax/rhomin,1/((double)Nrho-1));
+	this->logrhoratio = log(rhoratio); // For speed since log() is a slow function
+	this->logrhomin = log(rhomin);
 	this->jpcrit_floor = (int)floor((log(pFluid->reduce.p)-logpmin)/logpratio);
 	this->jpcrit_ceil = (int)ceil((log(pFluid->reduce.p)-logpmin)/logpratio);
 	update_saturation_boundary_indices();
@@ -542,7 +534,7 @@ void TTSESinglePhaseTableClass::write_all_to_file(std::string root_path)
 
 	std::string header = std::string("Data for the TTSE method\nDO NOT CHANGE ANY OF THESE PARAMETERS FOR ANY REASON!\n\n");
 		
-	header += format("Fluid:%s\npmin:%23.19g\npmax:%23.19g\nNp:%25d\nhmin:%23.19g\nhmax:%23.19g\nNh:%25d\nTmin:%23.19g\nTmax:%23.19g\nNT:%25d\nrhomin:%23.19g\nrhomax:%23.19g\nNrho:%25d\n",pFluid->get_name().c_str(),pmin,pmax,Np,hmin,hmax,Nh,Tmin,Tmax,NT,rhomin,rhomax,Nrho);
+	header += format("TTSERev:%d\nFluid:%s\npmin:%23.19g\npmax:%23.19g\nNp:%25d\nhmin:%23.19g\nhmax:%23.19g\nNh:%25d\nTmin:%23.19g\nTmax:%23.19g\nNT:%25d\nrhomin:%23.19g\nrhomax:%23.19g\nNrho:%25d\n",TTSEREV,pFluid->get_name().c_str(),pmin,pmax,Np,hmin,hmax,Nh,Tmin,Tmax,NT,rhomin,rhomax,Nrho);
 	
 	clock_t t1,t2;
 	t1 = clock();
@@ -763,80 +755,6 @@ double TTSESinglePhaseTableClass::build_ph(double hmin, double hmax, double pmin
 				d2rhodh2[i][j]  = ddT_drhodh_p_constrho/CPS.dhdT_constp()+ddrho_drhodh_p_constT/CPS.dhdrho_constp();
 				d2rhodhdp[i][j] = ddT_drhodp_h_constrho/CPS.dhdT_constp()+ddrho_drhodp_h_constT/CPS.dhdrho_constp();
 				d2rhodp2[i][j]  = ddT_drhodp_h_constrho/CPS.dpdT_consth()+ddrho_drhodp_h_constT/CPS.dpdrho_consth();
-
-				if (false && enable_transport && pval > 0.1) // At really low pressure, we can't do the finite difference, so just fill low pressure values with _HUGE
-				{
-					// Using second-order centered finite differences to calculate the transport property derivatives
-					double deltah = 1e-4, deltap = 1e-4;
-					
-					double dummy1 = 0, dummy2 = 0, dummy3 = 0, dummy4 = 0, Tplush,Tminush,Tplusp,Tminusp,
-						rhoplush,rhominush,rhoplusp,rhominusp,Tplusp_plush,Tplusp_minush,Tminusp_plush,Tminusp_minush,
-						rhoplusp_plush,rhoplusp_minush,rhominusp_plush,rhominusp_minush;
-					// Vary only one variable
-					pFluid->temperature_ph(pval+deltap,hval,&Tplusp,&rhoplusp,&dummy1,&dummy2,&dummy3,&dummy4);
-					pFluid->temperature_ph(pval,hval+deltah,&Tplush,&rhoplush,&dummy1,&dummy2,&dummy3,&dummy4);
-					pFluid->temperature_ph(pval-deltap,hval,&Tminusp,&rhominusp,&dummy1,&dummy2,&dummy3,&dummy4);
-					pFluid->temperature_ph(pval,hval-deltah,&Tminush,&rhominush,&dummy1,&dummy2,&dummy3,&dummy4);
-					// All the "corner" values
-					pFluid->temperature_ph(pval+deltap,hval+deltah,&Tplusp_plush,&rhoplusp_plush,&dummy1,&dummy2,&dummy3,&dummy4);
-					pFluid->temperature_ph(pval+deltap,hval-deltah,&Tplusp_minush,&rhoplusp_minush,&dummy1,&dummy2,&dummy3,&dummy4);
-					pFluid->temperature_ph(pval-deltap,hval+deltah,&Tminusp_plush,&rhominusp_plush,&dummy1,&dummy2,&dummy3,&dummy4);
-					pFluid->temperature_ph(pval-deltap,hval-deltah,&Tminusp_minush,&rhominusp_minush,&dummy1,&dummy2,&dummy3,&dummy4);
-
-					// The thermal conductivity values
-					double kval = IProps(iL,iT,T,iD,rho,iFluid);
-					double kplusp = IProps(iL,iT,Tplusp,iD,rhoplusp,iFluid);
-					double kplush = IProps(iL,iT,Tplush,iD,rhoplush,iFluid);
-					double kminusp = IProps(iL,iT,Tminusp,iD,rhominusp,iFluid);
-					double kminush = IProps(iL,iT,Tminush,iD,rhominush,iFluid);
-
-					double kplusp_plush = IProps(iL,iT,Tplusp_plush,iD,rhoplusp_plush,iFluid);
-					double kplusp_minush = IProps(iL,iT,Tplusp_minush,iD,rhoplusp_minush,iFluid);
-					double kminusp_plush = IProps(iL,iT,Tminusp_plush,iD,rhominusp_plush,iFluid);
-					double kminusp_minush = IProps(iL,iT,Tminusp_minush,iD,rhominusp_minush,iFluid);
-
-					k[i][j] = kval;
-					dkdp[i][j] = (-kminusp + kplusp)/(2*deltap);
-					dkdh[i][j] = (-kminush + kplush)/(2*deltah);
-					d2kdp2[i][j] = (kminusp - 2*kval + kplusp)/(deltap*deltap);
-					d2kdh2[i][j] = (kminush - 2*kval + kplush)/(deltah*deltah);
-					d2kdhdp[i][j] = (kplusp_plush - kplusp_minush - kminusp_plush + kminusp_minush)/(2*deltah*deltap);
-
-					// The viscosity values
-					double muval = IProps(iV,iT,T,iD,rho,iFluid);
-					double muplusp = IProps(iV,iT,Tplusp,iD,rhoplusp,iFluid);
-					double muplush = IProps(iV,iT,Tplush,iD,rhoplush,iFluid);
-					double muminusp = IProps(iV,iT,Tminusp,iD,rhominusp,iFluid);
-					double muminush = IProps(iV,iT,Tminush,iD,rhominush,iFluid);
-
-					double muplusp_plush = IProps(iV,iT,Tplusp_plush,iD,rhoplusp_plush,iFluid);
-					double muplusp_minush = IProps(iV,iT,Tplusp_minush,iD,rhoplusp_minush,iFluid);
-					double muminusp_plush = IProps(iV,iT,Tminusp_plush,iD,rhominusp_plush,iFluid);
-					double muminusp_minush = IProps(iV,iT,Tminusp_minush,iD,rhominusp_minush,iFluid);
-
-					mu[i][j] = muval;
-					dmudp[i][j] = (-muminusp + muplusp)/(2*deltap);
-					dmudh[i][j] = (-muminush + muplush)/(2*deltah);
-					d2mudp2[i][j] = (muminusp - 2*muval + muplusp)/(deltap*deltap);
-					d2mudh2[i][j] = (muminush - 2*muval + muplush)/(deltah*deltah);
-					d2mudhdp[i][j] = (muplusp_plush - muplusp_minush - muminusp_plush + muminusp_minush)/(2*deltah*deltap);
-				}
-				else
-				{
-					this->mu[i][j] = _HUGE;
-					dmudh[i][j] = _HUGE;
-					dmudp[i][j] = _HUGE;
-					d2mudh2[i][j]  = _HUGE;
-					d2mudhdp[i][j] = _HUGE;
-					d2mudp2[i][j]  = _HUGE;
-
-					this->k[i][j] = _HUGE;
-					dkdh[i][j] = _HUGE;
-					dkdp[i][j] = _HUGE;
-					d2kdh2[i][j]  = _HUGE;
-					d2kdhdp[i][j] = _HUGE;
-					d2kdp2[i][j]  = _HUGE;
-				}
 			}
 			else
 			{
@@ -861,19 +779,7 @@ double TTSESinglePhaseTableClass::build_ph(double hmin, double hmax, double pmin
 				d2rhodhdp[i][j] = _HUGE;
 				d2rhodp2[i][j]  = _HUGE;
 
-				this->mu[i][j] = _HUGE;
-				dmudh[i][j] = _HUGE;
-				dmudp[i][j] = _HUGE;
-				d2mudh2[i][j]  = _HUGE;
-				d2mudhdp[i][j] = _HUGE;
-				d2mudp2[i][j]  = _HUGE;
 
-				this->k[i][j] = _HUGE;
-				dkdh[i][j] = _HUGE;
-				dkdp[i][j] = _HUGE;
-				d2kdh2[i][j]  = _HUGE;
-				d2kdhdp[i][j] = _HUGE;
-				d2kdp2[i][j]  = _HUGE;
 			}
 		}
 	}
@@ -889,8 +795,6 @@ double TTSESinglePhaseTableClass::build_ph(double hmin, double hmax, double pmin
 double TTSESinglePhaseTableClass::build_Trho(double Tmin, double Tmax, double rhomin, double rhomax, TTSETwoPhaseTableClass *SatL, TTSETwoPhaseTableClass *SatV)
 {
 	bool SinglePhase = false;
-
-
 
 	if (Tmin < 0 && Tmax < 0 && rhomin < 0 && rhomax < 0)
 	{
@@ -922,13 +826,16 @@ double TTSESinglePhaseTableClass::build_Trho(double Tmin, double Tmax, double rh
 	this->Tmax = Tmax;
 	this->rhomin = rhomin;
 	this->rhomax = rhomax;
+	this->logrhomin = log(rhomin);
+
+	rhoratio = pow(rhomax/rhomin,1/((double)Nrho-1));
+	logrhoratio = log(rhoratio);
 
 	CoolPropStateClass CPS = CoolPropStateClass(pFluid);
 
 	long iFluid = get_Fluid_index(pFluid->get_name());
 
 	double dT = (Tmax - Tmin)/((double)NT - 1);
-	double drho = (rhomax - rhomin)/((double)Nrho - 1);
 
 	clock_t t1,t2;
 	t1 = clock();
@@ -938,7 +845,7 @@ double TTSESinglePhaseTableClass::build_Trho(double Tmin, double Tmax, double rh
 		T_Trho[i] = Tval;
 		for (unsigned int j = 0; j<Nrho; j++)
 		{
-			double rhoval = rhomin + j*drho;
+			double rhoval = rhomin*pow(rhoratio,(int)j);
 			rho_Trho[j] = rhoval;
 			
 			// Check whether the point is single phase
@@ -990,64 +897,47 @@ double TTSESinglePhaseTableClass::build_Trho(double Tmin, double Tmax, double rh
 
 				/// Transport properties
 				///
-				if (enable_transport) // At really low pressure, we can't do the finite difference, so just fill low pressure values with _HUGE
-				{
-					// Using second-order centered finite differences to calculate the transport property derivatives
-					double deltaT = 1e-4, deltarho = 1e-4;
+				// Using second-order centered finite differences to calculate the transport property derivatives
+				double deltaT = 1e-3, deltarho = 1e-4;
 
-					// The viscosity values
-					double muval = IProps(iV,iT,Tval,iD,rhoval,iFluid);
-					double muplusrho = IProps(iV,iT,Tval,iD,rhoval+deltarho,iFluid);
-					double muplusT = IProps(iV,iT,Tval+deltaT,iD,rhoval,iFluid);
-					double muminusrho = IProps(iV,iT,Tval,iD,rhoval-deltarho,iFluid);
-					double muminusT = IProps(iV,iT,Tval-deltaT,iD,rhoval,iFluid);
-					double muplusT_plusrho = IProps(iV,iT,Tval+deltaT,iD,rhoval-deltarho,iFluid);
-					double muplusT_minusrho = IProps(iV,iT,Tval+deltaT,iD,rhoval-deltarho,iFluid);
-					double muminusT_plusrho = IProps(iV,iT,Tval-deltaT,iD,rhoval-deltarho,iFluid);
-					double muminusT_minusrho = IProps(iV,iT,Tval-deltaT,iD,rhoval-deltarho,iFluid);
+				if (deltarho > rhoval)
+					deltarho = rhoval/100;
 
-					mu_Trho[i][j] = muval;
-					dmudT_Trho[i][j] = (-muminusT + muplusT)/(2*deltaT);
-					dmudrho_Trho[i][j] = (-muminusrho + muplusrho)/(2*deltarho);
-					d2mudT2_Trho[i][j] = (muminusT - 2*muval + muplusT)/(deltaT*deltaT);
-					d2mudrho2_Trho[i][j] = (muminusrho - 2*muval + muplusrho)/(deltarho*deltarho);
-					d2mudTdrho_Trho[i][j] = (muplusT_plusrho - muplusT_minusrho - muminusT_plusrho + muminusT_minusrho)/(2*deltaT*deltarho);
+				// The viscosity values
+				double muval =             IProps(iV,iT,Tval,       iD,rhoval,         iFluid);
+				double muplusrho =         IProps(iV,iT,Tval,       iD,rhoval+deltarho,iFluid);
+				double muminusrho =        IProps(iV,iT,Tval,       iD,rhoval-deltarho,iFluid);
+				double muplusT =           IProps(iV,iT,Tval+deltaT,iD,rhoval,         iFluid);
+				double muminusT =          IProps(iV,iT,Tval-deltaT,iD,rhoval,         iFluid);
+				double muplusT_plusrho =   IProps(iV,iT,Tval+deltaT,iD,rhoval+deltarho,iFluid);
+				double muplusT_minusrho =  IProps(iV,iT,Tval+deltaT,iD,rhoval-deltarho,iFluid);
+				double muminusT_plusrho =  IProps(iV,iT,Tval-deltaT,iD,rhoval+deltarho,iFluid);
+				double muminusT_minusrho = IProps(iV,iT,Tval-deltaT,iD,rhoval-deltarho,iFluid);
 
-					// The thermal conductivity values
-					double kval = IProps(iL,iT,Tval,iD,rhoval,iFluid);
-					double kplusrho = IProps(iL,iT,Tval,iD,rhoval+deltarho,iFluid);
-					double kplusT = IProps(iL,iT,Tval+deltaT,iD,rhoval,iFluid);
-					double kminusrho = IProps(iL,iT,Tval,iD,rhoval-deltarho,iFluid);
-					double kminusT = IProps(iL,iT,Tval-deltaT,iD,rhoval,iFluid);
-					double kplusT_plusrho = IProps(iL,iT,Tval+deltaT,iD,rhoval-deltarho,iFluid);
-					double kplusT_minusrho = IProps(iL,iT,Tval+deltaT,iD,rhoval-deltarho,iFluid);
-					double kminusT_plusrho = IProps(iL,iT,Tval-deltaT,iD,rhoval-deltarho,iFluid);
-					double kminusT_minusrho = IProps(iL,iT,Tval-deltaT,iD,rhoval-deltarho,iFluid);
+				mu_Trho[i][j] = muval;
+				dmudT_Trho[i][j] = (-muminusT + muplusT)/(2*deltaT);
+				dmudrho_Trho[i][j] = (-muminusrho + muplusrho)/(2*deltarho);
+				d2mudT2_Trho[i][j] = (muminusT - 2*muval + muplusT)/(deltaT*deltaT);
+				d2mudrho2_Trho[i][j] = (muminusrho - 2*muval + muplusrho)/(deltarho*deltarho);
+				d2mudTdrho_Trho[i][j] = (muplusT_plusrho - muplusT_minusrho - muminusT_plusrho + muminusT_minusrho)/(2*deltaT*deltarho);
 
-					k_Trho[i][j] = kval;
-					dkdT_Trho[i][j] = (-kminusT + kplusT)/(2*deltaT);
-					dkdrho_Trho[i][j] = (-kminusrho + kplusrho)/(2*deltarho);
-					d2kdT2_Trho[i][j] = (kminusT - 2*kval + kplusT)/(deltaT*deltaT);
-					d2kdrho2_Trho[i][j] = (kminusrho - 2*kval + kplusrho)/(deltarho*deltarho);
-					d2kdTdrho_Trho[i][j] = (kplusT_plusrho - kplusT_minusrho - kminusT_plusrho + kminusT_minusrho)/(2*deltaT*deltarho);
-					
-				}
-				else
-				{
-					mu_Trho[i][j] = _HUGE;
-					dmudT_Trho[i][j] = _HUGE;
-					dmudrho_Trho[i][j] = _HUGE;
-					d2mudT2_Trho[i][j] = _HUGE;
-					d2mudTdrho_Trho[i][j] = _HUGE;
-					d2mudrho2_Trho[i][j] = _HUGE;
+				// The thermal conductivity values
+				double kval =             IProps(iL,iT,Tval,       iD,rhoval,         iFluid);
+				double kplusrho =         IProps(iL,iT,Tval,       iD,rhoval+deltarho,iFluid);
+				double kminusrho =        IProps(iL,iT,Tval,       iD,rhoval-deltarho,iFluid);
+				double kplusT =           IProps(iL,iT,Tval+deltaT,iD,rhoval,         iFluid);
+				double kminusT =          IProps(iL,iT,Tval-deltaT,iD,rhoval,         iFluid);
+				double kplusT_plusrho =   IProps(iL,iT,Tval+deltaT,iD,rhoval+deltarho,iFluid);
+				double kplusT_minusrho =  IProps(iL,iT,Tval+deltaT,iD,rhoval-deltarho,iFluid);
+				double kminusT_plusrho =  IProps(iL,iT,Tval-deltaT,iD,rhoval+deltarho,iFluid);
+				double kminusT_minusrho = IProps(iL,iT,Tval-deltaT,iD,rhoval-deltarho,iFluid);
 
-					k_Trho[i][j] = _HUGE;
-					dkdT_Trho[i][j] = _HUGE;
-					dkdrho_Trho[i][j] = _HUGE;
-					d2kdT2_Trho[i][j] = _HUGE;
-					d2kdTdrho_Trho[i][j] = _HUGE;
-					d2kdrho2_Trho[i][j] = _HUGE;
-				}
+				k_Trho[i][j] = kval;
+				dkdT_Trho[i][j] = (-kminusT + kplusT)/(2*deltaT);
+				dkdrho_Trho[i][j] = (-kminusrho + kplusrho)/(2*deltarho);
+				d2kdT2_Trho[i][j] = (kminusT - 2*kval + kplusT)/(deltaT*deltaT);
+				d2kdrho2_Trho[i][j] = (kminusrho - 2*kval + kplusrho)/(deltarho*deltarho);
+				d2kdTdrho_Trho[i][j] = (kplusT_plusrho - kplusT_minusrho - kminusT_plusrho + kminusT_minusrho)/(2*deltaT*deltarho);
 			}
 			else
 			{
@@ -1064,6 +954,13 @@ double TTSESinglePhaseTableClass::build_Trho(double Tmin, double Tmax, double rh
 				d2hdT2_Trho[i][j] = _HUGE;
 				d2hdTdrho_Trho[i][j] = _HUGE;
 				d2hdrho2_Trho[i][j] = _HUGE;
+
+				p_Trho[i][j] = _HUGE;
+				dpdT_Trho[i][j] = _HUGE;
+				dpdrho_Trho[i][j] = _HUGE;
+				d2pdT2_Trho[i][j] = _HUGE;
+				d2pdTdrho_Trho[i][j] = _HUGE;
+				d2pdrho2_Trho[i][j] = _HUGE;
 
 				mu_Trho[i][j] = _HUGE;
 				dmudT_Trho[i][j] = _HUGE;
@@ -1576,48 +1473,47 @@ double TTSESinglePhaseTableClass::evaluate_one_other_input(long iInput1, double 
 	}
 }
 
-double TTSESinglePhaseTableClass::evaluate_two_other_inputs(long iOutput, long iInput1, double Input1, long iInput2, double Input2)
+double TTSESinglePhaseTableClass::evaluate_Trho(long iOutput, double T, double rho, double logrho)
 {
-	if (iInput1 == iT && iInput2 == iD)
+	int i = (int)round((T-Tmin)/(Tmax-Tmin)*(NT-1));
+	int j = (int)round((logrho-logrhomin)/logrhoratio);
+	
+	if (i<0 || i>(int)NT-1 || j<0 || j>(int)Nrho-1)
 	{
-		int i = (int)round(((Input1-Tmin)/(Tmax-Tmin)*(NT-1)));
-		int j = (int)round(((Input2-rhomin)/(rhomax-rhomin)*(Nrho-1)));
-		
-		if (i<0 || i>(int)NT-1 || j<0 || j>(int)Nrho-1)
-		{
-			throw ValueError(format("Input to TTSE [T = %0.16g, rho = %0.16g] is out of range",Input1,Input2));
-		}
-
-		// If the value at i,j is too close to the saturation boundary, the nearest point i,j 
-		// might be in the two-phase region which is not defined for single-phase table.  
-		// Therefore, search around its neighbors for a better choice
-		if (!ValidNumber(s_Trho[i][j])){
-			nearest_good_neighbor_Trho(&i,&j);
-		}
-
-		// Distances from the node
-		double deltaT = Input1 - this->T_Trho[i];
-		double deltarho = Input2 - this->rho_Trho[j];
-		
-		switch (iOutput)
-		{
-		case iS:
-			return s_Trho[i][j]+deltaT*dsdT_Trho[i][j]+deltarho*dsdrho_Trho[i][j]+0.5*deltaT*deltaT*d2sdT2_Trho[i][j]+0.5*deltarho*deltarho*d2sdrho2_Trho[i][j]+deltaT*deltarho*d2sdTdrho_Trho[i][j]; break;
-		case iP:
-			return p_Trho[i][j]+deltaT*dpdT_Trho[i][j]+deltarho*dpdrho_Trho[i][j]+0.5*deltaT*deltaT*d2pdT2_Trho[i][j]+0.5*deltarho*deltarho*d2pdrho2_Trho[i][j]+deltaT*deltarho*d2pdTdrho_Trho[i][j]; break;
-		case iH:
-			return h_Trho[i][j]+deltaT*dhdT_Trho[i][j]+deltarho*dhdrho_Trho[i][j]+0.5*deltaT*deltaT*d2hdT2_Trho[i][j]+0.5*deltarho*deltarho*d2hdrho2_Trho[i][j]+deltaT*deltarho*d2hdTdrho_Trho[i][j]; break;
-		case iV:
-			return mu_Trho[i][j]+deltaT*dmudT_Trho[i][j]+deltarho*dmudrho_Trho[i][j]+0.5*deltaT*deltaT*d2mudT2_Trho[i][j]+0.5*deltarho*deltarho*d2mudrho2_Trho[i][j]+deltaT*deltarho*d2mudTdrho_Trho[i][j]; break;
-		case iL:
-			return k_Trho[i][j]+deltaT*dkdT_Trho[i][j]+deltarho*dkdrho_Trho[i][j]+0.5*deltaT*deltaT*d2kdT2_Trho[i][j]+0.5*deltarho*deltarho*d2kdrho2_Trho[i][j]+deltaT*deltarho*d2kdTdrho_Trho[i][j]; break;
-		default:
-			throw ValueError(format("Output key value [%d] to evaluate is invalid",iOutput));
-		}
+		throw ValueError(format("Input to TTSE [T = %0.16g, rho = %0.16g] is out of range",T,rho));
 	}
-	else
+
+	// If the value at i,j is too close to the saturation boundary, the nearest point i,j 
+	// might be in the two-phase region which is not defined for single-phase table.  
+	// Therefore, search around its neighbors for a better choice
+	if (!ValidNumber(mu_Trho[i][j])){
+		nearest_good_neighbor_Trho(&i,&j);
+	}
+
+	// Distances from the node
+	double deltaT = T - this->T_Trho[i];
+	double deltarho = rho - this->rho_Trho[j];
+	
+	double t1 = mu_Trho[i][j];
+	double t2 = dmudT_Trho[i][j];
+	double t3 = dmudrho_Trho[i][j];
+	double t4 = d2mudT2_Trho[i][j];
+	double t5 = d2mudrho2_Trho[i][j];
+	double t6 = d2mudTdrho_Trho[i][j];
+	switch (iOutput)
 	{
-		throw ValueError(format("Inputs to evaluate_two_other_inputs are invalid"));
+	case iS:
+		return s_Trho[i][j]+deltaT*dsdT_Trho[i][j]+deltarho*dsdrho_Trho[i][j]+0.5*deltaT*deltaT*d2sdT2_Trho[i][j]+0.5*deltarho*deltarho*d2sdrho2_Trho[i][j]+deltaT*deltarho*d2sdTdrho_Trho[i][j]; break;
+	case iP:
+		return p_Trho[i][j]+deltaT*dpdT_Trho[i][j]+deltarho*dpdrho_Trho[i][j]+0.5*deltaT*deltaT*d2pdT2_Trho[i][j]+0.5*deltarho*deltarho*d2pdrho2_Trho[i][j]+deltaT*deltarho*d2pdTdrho_Trho[i][j]; break;
+	case iH:
+		return h_Trho[i][j]+deltaT*dhdT_Trho[i][j]+deltarho*dhdrho_Trho[i][j]+0.5*deltaT*deltaT*d2hdT2_Trho[i][j]+0.5*deltarho*deltarho*d2hdrho2_Trho[i][j]+deltaT*deltarho*d2hdTdrho_Trho[i][j]; break;
+	case iV:
+		return mu_Trho[i][j]+deltaT*dmudT_Trho[i][j]+deltarho*dmudrho_Trho[i][j]+0.5*deltaT*deltaT*d2mudT2_Trho[i][j]+0.5*deltarho*deltarho*d2mudrho2_Trho[i][j]+deltaT*deltarho*d2mudTdrho_Trho[i][j]; break;
+	case iL:
+		return k_Trho[i][j]+deltaT*dkdT_Trho[i][j]+deltarho*dkdrho_Trho[i][j]+0.5*deltaT*deltaT*d2kdT2_Trho[i][j]+0.5*deltarho*deltarho*d2kdrho2_Trho[i][j]+deltaT*deltarho*d2kdTdrho_Trho[i][j]; break;
+	default:
+		throw ValueError(format("Output key value [%d] to evaluate is invalid",iOutput));
 	}
 }
 

@@ -291,7 +291,11 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 	std::string RefString;
 	std::string rpPath (refpropPath);
 
+	#ifdef __ISWINDOWS__
+	std::string fdPath = rpPath;
+	#elif __ISLINUX__
 	std::string fdPath = rpPath + std::string("/fluids/");
+	#endif
 
 	// First create a pointer to an instance of the library
 	// Then have windows load the library.

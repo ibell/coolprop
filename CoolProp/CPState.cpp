@@ -142,6 +142,7 @@ void CoolPropStateClass::update(long iInput1, double Value1, long iInput2, doubl
 	_h = _HUGE;
 	_s = _HUGE;
 	_rho = _HUGE;
+	_logrho = _HUGE;
 	_Q = _HUGE;
 
 	// Reset the cached values for _h and _s
@@ -173,6 +174,7 @@ void CoolPropStateClass::update(long iInput1, double Value1, long iInput2, doubl
 		update_TTSE_LUT(iInput1,Value1,iInput2,Value2);
 		// Calculate the log of the pressure since a lot of terms need it and log() is a very slow function
 		if (!ValidNumber(_logp)) _logp = log(_p);
+		if (!ValidNumber(_logrho)) _logrho = log(_rho);
 	}
 	else
 	{
@@ -690,6 +692,7 @@ void CoolPropStateClass::update_TTSE_LUT(long iInput1, double Value1, long iInpu
 
 		_T = Value1;
 		_rho = Value2;
+		_logrho = log(_rho);
 
 		// If density is outside the saturation region, it is single-phase
 		if (Value1 > pFluid->crit.T || Value1 < pFluid->params.Ttriple){
@@ -711,7 +714,7 @@ void CoolPropStateClass::update_TTSE_LUT(long iInput1, double Value1, long iInpu
 			TwoPhase = false;
 			SinglePhase = true;
 
-			_p = pFluid->TTSESinglePhase.evaluate_two_other_inputs(iP,iT,Value1,iD,Value2);
+			_p = pFluid->TTSESinglePhase.evaluate_Trho(iP,Value1,Value2,_logrho);
 		}
 		else
 		{
@@ -900,7 +903,7 @@ double CoolPropStateClass::h(void){
 		{
 			if (pFluid->enabled_TTSE_LUT)
 			{
-				return pFluid->TTSESinglePhase.evaluate_two_other_inputs(iH,iT,_T,iD,_rho);
+				return pFluid->TTSESinglePhase.evaluate_Trho(iH,_T,_rho,_logrho);
 			}
 			else
 			{
@@ -925,7 +928,7 @@ double CoolPropStateClass::s(void){
 		{
 			if (pFluid->enabled_TTSE_LUT)
 			{
-				return pFluid->TTSESinglePhase.evaluate_two_other_inputs(iS,iT,_T,iD,_rho);
+				return pFluid->TTSESinglePhase.evaluate_Trho(iS,_T,_rho,_logrho);
 			}
 			else
 			{
@@ -958,19 +961,19 @@ double CoolPropStateClass::cp(void){
 }
 
 double CoolPropStateClass::viscosity(void){
-	if (pFluid->enabled_TTSE_LUT)
-	{
-		if (TwoPhase && _Q > 0 && _Q < 1)
+	if (TwoPhase){
+		// Adams formulation for two-phase viscosity
+		return 1/(_Q/viscV()+(1-_Q)/viscL());
+	}
+	else{
+		if (pFluid->enabled_TTSE_LUT)
 		{
-			return -1;
+			return pFluid->TTSESinglePhase.evaluate_Trho(iV,_T,_rho,_logrho);
 		}
 		else
 		{
-			return pFluid->TTSESinglePhase.evaluate_two_other_inputs(iV,iT,_T,iD,_rho);
+			return pFluid->viscosity_Trho(_T,_rho);
 		}
-	}
-	else{
-		return pFluid->viscosity_Trho(_T,_rho);
 	}
 }
 
@@ -983,7 +986,7 @@ double CoolPropStateClass::conductivity(void){
 		}
 		else
 		{
-			return pFluid->TTSESinglePhase.evaluate_two_other_inputs(iL,iT,_T,iD,_rho);
+			return pFluid->TTSESinglePhase.evaluate_Trho(iL,_T,_rho,_logrho);
 		}
 	}
 	else{
