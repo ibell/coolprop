@@ -501,6 +501,18 @@ bool TTSESinglePhaseTableClass::read_all_from_file(std::string root_path)
 	matrix_from_file(root_path + std::string("d2hdT2_Trho.ttse"),&d2hdT2_Trho);
 	matrix_from_file(root_path + std::string("d2hdrho2_Trho.ttse"),&d2hdrho2_Trho);
 	matrix_from_file(root_path + std::string("d2hdTdrho_Trho.ttse"),&d2hdTdrho_Trho);
+	matrix_from_file(root_path + std::string("mu_Trho.ttse"),&mu_Trho);
+	matrix_from_file(root_path + std::string("dmudT_Trho.ttse"),&dmudT_Trho);
+	matrix_from_file(root_path + std::string("dmudrho_Trho.ttse"),&dmudrho_Trho);
+	matrix_from_file(root_path + std::string("d2mudT2_Trho.ttse"),&d2mudT2_Trho);
+	matrix_from_file(root_path + std::string("d2mudrho2_Trho.ttse"),&d2mudrho2_Trho);
+	matrix_from_file(root_path + std::string("d2mudTdrho_Trho.ttse"),&d2mudTdrho_Trho);
+	matrix_from_file(root_path + std::string("k_Trho.ttse"),&k_Trho);
+	matrix_from_file(root_path + std::string("dkdT_Trho.ttse"),&dkdT_Trho);
+	matrix_from_file(root_path + std::string("dkdrho_Trho.ttse"),&dkdrho_Trho);
+	matrix_from_file(root_path + std::string("d2kdT2_Trho.ttse"),&d2kdT2_Trho);
+	matrix_from_file(root_path + std::string("d2kdrho2_Trho.ttse"),&d2kdrho2_Trho);
+	matrix_from_file(root_path + std::string("d2kdTdrho_Trho.ttse"),&d2kdTdrho_Trho);
 
 	this->pratio = pow(pmax/pmin,1/((double)Np-1));
 	this->logpratio = log(pratio); // For speed since log() is a slow function
