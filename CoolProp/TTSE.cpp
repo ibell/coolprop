@@ -31,14 +31,13 @@
 #define CLOCKS_PER_SEC 1000
 #endif
 
-static bool transport_properties = true;
-
 double round(double r) {
     return (r > 0.0) ? floor(r + 0.5) : ceil(r - 0.5);
 }
 
 TTSESinglePhaseTableClass::TTSESinglePhaseTableClass(){
 	this->enable_writing_tables_to_files = true;
+	this->enable_transport = true;
 	SatL = NULL; 
 	SatV = NULL;
 }
@@ -52,6 +51,7 @@ TTSESinglePhaseTableClass::TTSESinglePhaseTableClass(Fluid *pFluid)
 	// Seed the generator for random number generation
 	srand((unsigned int)time(NULL));
 	this->enable_writing_tables_to_files = true;
+	this->enable_transport = true;
 	SatL = NULL;
 	SatV = NULL;
 }
@@ -84,8 +84,25 @@ void TTSESinglePhaseTableClass::set_size_ph(unsigned int Np, unsigned int Nh)
 	d2rhodp2.resize(Nh, std::vector<double>(Np, _HUGE));
 	d2rhodhdp.resize(Nh, std::vector<double>(Np, _HUGE));
 
-	iL.resize(Np);
-	iV.resize(Np);
+	if (enable_transport)
+	{
+		mu.resize(Nh, std::vector<double>(Np, _HUGE));
+		dmudh.resize(Nh, std::vector<double>(Np, _HUGE));
+		dmudp.resize(Nh, std::vector<double>(Np, _HUGE));
+		d2mudh2.resize(Nh, std::vector<double>(Np, _HUGE));	
+		d2mudp2.resize(Nh, std::vector<double>(Np, _HUGE));
+		d2mudhdp.resize(Nh, std::vector<double>(Np, _HUGE));
+
+		k.resize(Nh, std::vector<double>(Np, _HUGE));
+		dkdh.resize(Nh, std::vector<double>(Np, _HUGE));
+		dkdp.resize(Nh, std::vector<double>(Np, _HUGE));
+		d2kdh2.resize(Nh, std::vector<double>(Np, _HUGE));	
+		d2kdp2.resize(Nh, std::vector<double>(Np, _HUGE));
+		d2kdhdp.resize(Nh, std::vector<double>(Np, _HUGE));
+	}
+
+	IL.resize(Np);
+	IV.resize(Np);
 	TL.resize(Np);
 	TV.resize(Np);
 	SL.resize(Np);
@@ -122,6 +139,20 @@ void TTSESinglePhaseTableClass::set_size_Trho(unsigned int NT, unsigned int Nrho
 	d2hdT2_Trho.resize(NT, std::vector<double>(Nrho, _HUGE));	
 	d2hdrho2_Trho.resize(NT, std::vector<double>(Nrho, _HUGE));
 	d2hdTdrho_Trho.resize(NT, std::vector<double>(Nrho, _HUGE));
+
+	k_Trho.resize(NT, std::vector<double>(Nrho, _HUGE));
+	dkdT_Trho.resize(NT, std::vector<double>(Nrho, _HUGE));
+	dkdrho_Trho.resize(NT, std::vector<double>(Nrho, _HUGE));
+	d2kdT2_Trho.resize(NT, std::vector<double>(Nrho, _HUGE));	
+	d2kdrho2_Trho.resize(NT, std::vector<double>(Nrho, _HUGE));
+	d2kdTdrho_Trho.resize(NT, std::vector<double>(Nrho, _HUGE));
+
+	mu_Trho.resize(NT, std::vector<double>(Nrho, _HUGE));
+	dmudT_Trho.resize(NT, std::vector<double>(Nrho, _HUGE));
+	dmudrho_Trho.resize(NT, std::vector<double>(Nrho, _HUGE));
+	d2mudT2_Trho.resize(NT, std::vector<double>(Nrho, _HUGE));	
+	d2mudrho2_Trho.resize(NT, std::vector<double>(Nrho, _HUGE));
+	d2mudTdrho_Trho.resize(NT, std::vector<double>(Nrho, _HUGE));
 }
 
 void TTSESinglePhaseTableClass::nearest_good_neighbor(int *i, int *j)
@@ -397,6 +428,18 @@ bool TTSESinglePhaseTableClass::read_all_from_file(std::string root_path)
 			Np = (int)strtol(line[1].c_str(),NULL,0);}
 		else if (line[0].find("Nh")!=  std::string::npos) {	
 			Nh = (int)strtol(line[1].c_str(),NULL,0);}
+		else if (line[0].find("Tmin")!=  std::string::npos) {
+			Tmin = strtod(line[1].c_str(),NULL);}
+		else if (line[0].find("Tmax")!=  std::string::npos) {	
+			Tmax = strtod(line[1].c_str(),NULL);}
+		else if (line[0].find("rhomin")!=  std::string::npos) {	
+			rhomin = strtod(line[1].c_str(),NULL);}
+		else if (line[0].find("rhomax")!=  std::string::npos) {	
+			rhomax = strtod(line[1].c_str(),NULL);}
+		else if (line[0].find("NT")!=  std::string::npos) {	
+			NT = (int)strtol(line[1].c_str(),NULL,0);}
+		else if (line[0].find("Nrho")!=  std::string::npos) {	
+			Nrho = (int)strtol(line[1].c_str(),NULL,0);}
 	}
 	
 	// Didn't work since at least one of the parameters was different
@@ -408,6 +451,12 @@ bool TTSESinglePhaseTableClass::read_all_from_file(std::string root_path)
 		  && fabs(pmax - this->pmax)<10*DBL_EPSILON 
 		  && fabs(hmin - this->hmin)<10*DBL_EPSILON 
 		  && fabs(hmax - this->hmax)<10*DBL_EPSILON
+		  && Nh == this->NT
+		  && Np == this->Nrho
+		  && fabs(Tmin - this->Tmin)<10*DBL_EPSILON
+		  && fabs(Tmax - this->Tmax)<10*DBL_EPSILON 
+		  && fabs(rhomin - this->rhomin)<10*DBL_EPSILON 
+		  && fabs(rhomax - this->rhomax)<10*DBL_EPSILON
 		)) return false;
 
 	// Read all the data from the binary files
@@ -432,8 +481,30 @@ bool TTSESinglePhaseTableClass::read_all_from_file(std::string root_path)
 	matrix_from_file(root_path + std::string("d2rhodp2_ph.ttse"),&d2rhodp2);
 	matrix_from_file(root_path + std::string("d2rhoTdhdp_ph.ttse"),&d2rhodhdp);
 
+	vector_from_file(root_path + std::string("T_Trho.ttse"),NT,&T_Trho);
+	vector_from_file(root_path + std::string("rho_Trho.ttse"),Nrho,&rho_Trho);
+	matrix_from_file(root_path + std::string("p_Trho.ttse"),&p_Trho);
+	matrix_from_file(root_path + std::string("dpdT_Trho.ttse"),&dpdT_Trho);
+	matrix_from_file(root_path + std::string("dpdrho_Trho.ttse"),&dpdrho_Trho);
+	matrix_from_file(root_path + std::string("d2pdT2_Trho.ttse"),&d2pdT2_Trho);
+	matrix_from_file(root_path + std::string("d2pdrho2_Trho.ttse"),&d2pdrho2_Trho);
+	matrix_from_file(root_path + std::string("d2pdTdrho_Trho.ttse"),&d2pdTdrho_Trho);
+	matrix_from_file(root_path + std::string("s_Trho.ttse"),&s_Trho);
+	matrix_from_file(root_path + std::string("dsdT_Trho.ttse"),&dsdT_Trho);
+	matrix_from_file(root_path + std::string("dsdrho_Trho.ttse"),&dsdrho_Trho);
+	matrix_from_file(root_path + std::string("d2sdT2_Trho.ttse"),&d2sdT2_Trho);
+	matrix_from_file(root_path + std::string("d2sdrho2_Trho.ttse"),&d2sdrho2_Trho);
+	matrix_from_file(root_path + std::string("d2sdTdrho_Trho.ttse"),&d2sdTdrho_Trho);
+	matrix_from_file(root_path + std::string("h_Trho.ttse"),&h_Trho);
+	matrix_from_file(root_path + std::string("dhdT_Trho.ttse"),&dhdT_Trho);
+	matrix_from_file(root_path + std::string("dhdrho_Trho.ttse"),&dhdrho_Trho);
+	matrix_from_file(root_path + std::string("d2hdT2_Trho.ttse"),&d2hdT2_Trho);
+	matrix_from_file(root_path + std::string("d2hdrho2_Trho.ttse"),&d2hdrho2_Trho);
+	matrix_from_file(root_path + std::string("d2hdTdrho_Trho.ttse"),&d2hdTdrho_Trho);
+
 	this->pratio = pow(pmax/pmin,1/((double)Np-1));
 	this->logpratio = log(pratio); // For speed since log() is a slow function
+	this->logpmin = log(pmin);
 	this->jpcrit_floor = (int)floor((log(pFluid->reduce.p)-logpmin)/logpratio);
 	this->jpcrit_ceil = (int)ceil((log(pFluid->reduce.p)-logpmin)/logpratio);
 	update_saturation_boundary_indices();
@@ -459,7 +530,7 @@ void TTSESinglePhaseTableClass::write_all_to_file(std::string root_path)
 
 	std::string header = std::string("Data for the TTSE method\nDO NOT CHANGE ANY OF THESE PARAMETERS FOR ANY REASON!\n\n");
 		
-	header += format("Fluid:%s\npmin:%23.19g\npmax:%23.19g\nNp:%25d\nhmin:%23.19g\nhmax:%23.19g\nNh:%25d\n",pFluid->get_name().c_str(),pmin,pmax,Np,hmin,hmax,Nh);
+	header += format("Fluid:%s\npmin:%23.19g\npmax:%23.19g\nNp:%25d\nhmin:%23.19g\nhmax:%23.19g\nNh:%25d\nTmin:%23.19g\nTmax:%23.19g\nNT:%25d\nrhomin:%23.19g\nrhomax:%23.19g\nNrho:%25d\n",pFluid->get_name().c_str(),pmin,pmax,Np,hmin,hmax,Nh,Tmin,Tmax,NT,rhomin,rhomax,Nrho);
 	
 	clock_t t1,t2;
 	t1 = clock();
@@ -491,6 +562,40 @@ void TTSESinglePhaseTableClass::write_all_to_file(std::string root_path)
 	matrix_to_file(root_path + std::string("d2rhodh2_ph.ttse"),&d2rhodh2);
 	matrix_to_file(root_path + std::string("d2rhodp2_ph.ttse"),&d2rhodp2);
 	matrix_to_file(root_path + std::string("d2rhoTdhdp_ph.ttse"),&d2rhodhdp);
+	
+	vector_to_file(root_path + std::string("T_Trho.ttse"),&T_Trho);
+	vector_to_file(root_path + std::string("rho_Trho.ttse"),&rho_Trho);
+	matrix_to_file(root_path + std::string("p_Trho.ttse"),&p_Trho);
+	matrix_to_file(root_path + std::string("dpdT_Trho.ttse"),&dpdT_Trho);
+	matrix_to_file(root_path + std::string("dpdrho_Trho.ttse"),&dpdrho_Trho);
+	matrix_to_file(root_path + std::string("d2pdT2_Trho.ttse"),&d2pdT2_Trho);
+	matrix_to_file(root_path + std::string("d2pdrho2_Trho.ttse"),&d2pdrho2_Trho);
+	matrix_to_file(root_path + std::string("d2pdTdrho_Trho.ttse"),&d2pdTdrho_Trho);
+	matrix_to_file(root_path + std::string("s_Trho.ttse"),&s_Trho);
+	matrix_to_file(root_path + std::string("dsdT_Trho.ttse"),&dsdT_Trho);
+	matrix_to_file(root_path + std::string("dsdrho_Trho.ttse"),&dsdrho_Trho);
+	matrix_to_file(root_path + std::string("d2sdT2_Trho.ttse"),&d2sdT2_Trho);
+	matrix_to_file(root_path + std::string("d2sdrho2_Trho.ttse"),&d2sdrho2_Trho);
+	matrix_to_file(root_path + std::string("d2sdTdrho_Trho.ttse"),&d2sdTdrho_Trho);
+	matrix_to_file(root_path + std::string("h_Trho.ttse"),&h_Trho);
+	matrix_to_file(root_path + std::string("dhdT_Trho.ttse"),&dhdT_Trho);
+	matrix_to_file(root_path + std::string("dhdrho_Trho.ttse"),&dhdrho_Trho);
+	matrix_to_file(root_path + std::string("d2hdT2_Trho.ttse"),&d2hdT2_Trho);
+	matrix_to_file(root_path + std::string("d2hdrho2_Trho.ttse"),&d2hdrho2_Trho);
+	matrix_to_file(root_path + std::string("d2hdTdrho_Trho.ttse"),&d2hdTdrho_Trho);
+	matrix_to_file(root_path + std::string("k_Trho.ttse"),&k_Trho);
+	matrix_to_file(root_path + std::string("dkdT_Trho.ttse"),&dkdT_Trho);
+	matrix_to_file(root_path + std::string("dkdrho_Trho.ttse"),&dkdrho_Trho);
+	matrix_to_file(root_path + std::string("d2kdT2_Trho.ttse"),&d2kdT2_Trho);
+	matrix_to_file(root_path + std::string("d2kdrho2_Trho.ttse"),&d2kdrho2_Trho);
+	matrix_to_file(root_path + std::string("d2kdTdrho_Trho.ttse"),&d2kdTdrho_Trho);
+	matrix_to_file(root_path + std::string("mu_Trho.ttse"),&mu_Trho);
+	matrix_to_file(root_path + std::string("dmudT_Trho.ttse"),&dmudT_Trho);
+	matrix_to_file(root_path + std::string("dmudrho_Trho.ttse"),&dmudrho_Trho);
+	matrix_to_file(root_path + std::string("d2mudT2_Trho.ttse"),&d2mudT2_Trho);
+	matrix_to_file(root_path + std::string("d2mudrho2_Trho.ttse"),&d2mudrho2_Trho);
+	matrix_to_file(root_path + std::string("d2mudTdrho_Trho.ttse"),&d2mudTdrho_Trho);
+
 	t2 = clock();
 	std::cout << "write time: " << (double)(t2-t1)/CLOCKS_PER_SEC << std::endl;
 }
@@ -505,11 +610,9 @@ double TTSESinglePhaseTableClass::build_ph(double hmin, double hmax, double pmin
 	this->pmax = pmax;
 	this->logpmin = log(pmin);
 
-	// If we can read them, we are done and don't need to rebuild
-	if (read_all_from_file(root_path))
-		return 0;
-
 	CoolPropStateClass CPS = CoolPropStateClass(pFluid);
+
+	long iFluid = get_Fluid_index(CPS.pFluid->get_name());
 
 	double dh = (hmax - hmin)/(Nh - 1);
 	pratio = pow(pmax/pmin,1/((double)Np-1));
@@ -649,11 +752,78 @@ double TTSESinglePhaseTableClass::build_ph(double hmin, double hmax, double pmin
 				d2rhodhdp[i][j] = ddT_drhodp_h_constrho/CPS.dhdT_constp()+ddrho_drhodp_h_constT/CPS.dhdrho_constp();
 				d2rhodp2[i][j]  = ddT_drhodp_h_constrho/CPS.dpdT_consth()+ddrho_drhodp_h_constT/CPS.dpdrho_consth();
 
-				/// Transport properties
-				///
-				if (transport_properties)
+				if (false && enable_transport && pval > 0.1) // At really low pressure, we can't do the finite difference, so just fill low pressure values with _HUGE
 				{
+					// Using second-order centered finite differences to calculate the transport property derivatives
+					double deltah = 1e-4, deltap = 1e-4;
+					
+					double dummy1 = 0, dummy2 = 0, dummy3 = 0, dummy4 = 0, Tplush,Tminush,Tplusp,Tminusp,
+						rhoplush,rhominush,rhoplusp,rhominusp,Tplusp_plush,Tplusp_minush,Tminusp_plush,Tminusp_minush,
+						rhoplusp_plush,rhoplusp_minush,rhominusp_plush,rhominusp_minush;
+					// Vary only one variable
+					pFluid->temperature_ph(pval+deltap,hval,&Tplusp,&rhoplusp,&dummy1,&dummy2,&dummy3,&dummy4);
+					pFluid->temperature_ph(pval,hval+deltah,&Tplush,&rhoplush,&dummy1,&dummy2,&dummy3,&dummy4);
+					pFluid->temperature_ph(pval-deltap,hval,&Tminusp,&rhominusp,&dummy1,&dummy2,&dummy3,&dummy4);
+					pFluid->temperature_ph(pval,hval-deltah,&Tminush,&rhominush,&dummy1,&dummy2,&dummy3,&dummy4);
+					// All the "corner" values
+					pFluid->temperature_ph(pval+deltap,hval+deltah,&Tplusp_plush,&rhoplusp_plush,&dummy1,&dummy2,&dummy3,&dummy4);
+					pFluid->temperature_ph(pval+deltap,hval-deltah,&Tplusp_minush,&rhoplusp_minush,&dummy1,&dummy2,&dummy3,&dummy4);
+					pFluid->temperature_ph(pval-deltap,hval+deltah,&Tminusp_plush,&rhominusp_plush,&dummy1,&dummy2,&dummy3,&dummy4);
+					pFluid->temperature_ph(pval-deltap,hval-deltah,&Tminusp_minush,&rhominusp_minush,&dummy1,&dummy2,&dummy3,&dummy4);
 
+					// The thermal conductivity values
+					double kval = IProps(iL,iT,T,iD,rho,iFluid);
+					double kplusp = IProps(iL,iT,Tplusp,iD,rhoplusp,iFluid);
+					double kplush = IProps(iL,iT,Tplush,iD,rhoplush,iFluid);
+					double kminusp = IProps(iL,iT,Tminusp,iD,rhominusp,iFluid);
+					double kminush = IProps(iL,iT,Tminush,iD,rhominush,iFluid);
+
+					double kplusp_plush = IProps(iL,iT,Tplusp_plush,iD,rhoplusp_plush,iFluid);
+					double kplusp_minush = IProps(iL,iT,Tplusp_minush,iD,rhoplusp_minush,iFluid);
+					double kminusp_plush = IProps(iL,iT,Tminusp_plush,iD,rhominusp_plush,iFluid);
+					double kminusp_minush = IProps(iL,iT,Tminusp_minush,iD,rhominusp_minush,iFluid);
+
+					k[i][j] = kval;
+					dkdp[i][j] = (-kminusp + kplusp)/(2*deltap);
+					dkdh[i][j] = (-kminush + kplush)/(2*deltah);
+					d2kdp2[i][j] = (kminusp - 2*kval + kplusp)/(deltap*deltap);
+					d2kdh2[i][j] = (kminush - 2*kval + kplush)/(deltah*deltah);
+					d2kdhdp[i][j] = (kplusp_plush - kplusp_minush - kminusp_plush + kminusp_minush)/(2*deltah*deltap);
+
+					// The viscosity values
+					double muval = IProps(iV,iT,T,iD,rho,iFluid);
+					double muplusp = IProps(iV,iT,Tplusp,iD,rhoplusp,iFluid);
+					double muplush = IProps(iV,iT,Tplush,iD,rhoplush,iFluid);
+					double muminusp = IProps(iV,iT,Tminusp,iD,rhominusp,iFluid);
+					double muminush = IProps(iV,iT,Tminush,iD,rhominush,iFluid);
+
+					double muplusp_plush = IProps(iV,iT,Tplusp_plush,iD,rhoplusp_plush,iFluid);
+					double muplusp_minush = IProps(iV,iT,Tplusp_minush,iD,rhoplusp_minush,iFluid);
+					double muminusp_plush = IProps(iV,iT,Tminusp_plush,iD,rhominusp_plush,iFluid);
+					double muminusp_minush = IProps(iV,iT,Tminusp_minush,iD,rhominusp_minush,iFluid);
+
+					mu[i][j] = muval;
+					dmudp[i][j] = (-muminusp + muplusp)/(2*deltap);
+					dmudh[i][j] = (-muminush + muplush)/(2*deltah);
+					d2mudp2[i][j] = (muminusp - 2*muval + muplusp)/(deltap*deltap);
+					d2mudh2[i][j] = (muminush - 2*muval + muplush)/(deltah*deltah);
+					d2mudhdp[i][j] = (muplusp_plush - muplusp_minush - muminusp_plush + muminusp_minush)/(2*deltah*deltap);
+				}
+				else
+				{
+					this->mu[i][j] = _HUGE;
+					dmudh[i][j] = _HUGE;
+					dmudp[i][j] = _HUGE;
+					d2mudh2[i][j]  = _HUGE;
+					d2mudhdp[i][j] = _HUGE;
+					d2mudp2[i][j]  = _HUGE;
+
+					this->k[i][j] = _HUGE;
+					dkdh[i][j] = _HUGE;
+					dkdp[i][j] = _HUGE;
+					d2kdh2[i][j]  = _HUGE;
+					d2kdhdp[i][j] = _HUGE;
+					d2kdp2[i][j]  = _HUGE;
 				}
 			}
 			else
@@ -678,6 +848,20 @@ double TTSESinglePhaseTableClass::build_ph(double hmin, double hmax, double pmin
 				d2rhodh2[i][j]  = _HUGE;
 				d2rhodhdp[i][j] = _HUGE;
 				d2rhodp2[i][j]  = _HUGE;
+
+				this->mu[i][j] = _HUGE;
+				dmudh[i][j] = _HUGE;
+				dmudp[i][j] = _HUGE;
+				d2mudh2[i][j]  = _HUGE;
+				d2mudhdp[i][j] = _HUGE;
+				d2mudp2[i][j]  = _HUGE;
+
+				this->k[i][j] = _HUGE;
+				dkdh[i][j] = _HUGE;
+				dkdp[i][j] = _HUGE;
+				d2kdh2[i][j]  = _HUGE;
+				d2kdhdp[i][j] = _HUGE;
+				d2kdp2[i][j]  = _HUGE;
 			}
 		}
 	}
@@ -688,14 +872,13 @@ double TTSESinglePhaseTableClass::build_ph(double hmin, double hmax, double pmin
 	// Update the boundaries of the points within the single-phase regions
 	update_saturation_boundary_indices();
 	
-	if (enable_writing_tables_to_files){
-		write_all_to_file(root_path);
-	}
 	return elap;
 }
 double TTSESinglePhaseTableClass::build_Trho(double Tmin, double Tmax, double rhomin, double rhomax, TTSETwoPhaseTableClass *SatL, TTSETwoPhaseTableClass *SatV)
 {
 	bool SinglePhase = false;
+
+
 
 	if (Tmin < 0 && Tmax < 0 && rhomin < 0 && rhomax < 0)
 	{
@@ -729,6 +912,8 @@ double TTSESinglePhaseTableClass::build_Trho(double Tmin, double Tmax, double rh
 	this->rhomax = rhomax;
 
 	CoolPropStateClass CPS = CoolPropStateClass(pFluid);
+
+	long iFluid = get_Fluid_index(pFluid->get_name());
 
 	double dT = (Tmax - Tmin)/((double)NT - 1);
 	double drho = (rhomax - rhomin)/((double)Nrho - 1);
@@ -793,9 +978,63 @@ double TTSESinglePhaseTableClass::build_Trho(double Tmin, double Tmax, double rh
 
 				/// Transport properties
 				///
-				if (transport_properties)
+				if (enable_transport) // At really low pressure, we can't do the finite difference, so just fill low pressure values with _HUGE
 				{
+					// Using second-order centered finite differences to calculate the transport property derivatives
+					double deltaT = 1e-4, deltarho = 1e-4;
 
+					// The viscosity values
+					double muval = IProps(iV,iT,Tval,iD,rhoval,iFluid);
+					double muplusrho = IProps(iV,iT,Tval,iD,rhoval+deltarho,iFluid);
+					double muplusT = IProps(iV,iT,Tval+deltaT,iD,rhoval,iFluid);
+					double muminusrho = IProps(iV,iT,Tval,iD,rhoval-deltarho,iFluid);
+					double muminusT = IProps(iV,iT,Tval-deltaT,iD,rhoval,iFluid);
+					double muplusT_plusrho = IProps(iV,iT,Tval+deltaT,iD,rhoval-deltarho,iFluid);
+					double muplusT_minusrho = IProps(iV,iT,Tval+deltaT,iD,rhoval-deltarho,iFluid);
+					double muminusT_plusrho = IProps(iV,iT,Tval-deltaT,iD,rhoval-deltarho,iFluid);
+					double muminusT_minusrho = IProps(iV,iT,Tval-deltaT,iD,rhoval-deltarho,iFluid);
+
+					mu_Trho[i][j] = muval;
+					dmudT_Trho[i][j] = (-muminusT + muplusT)/(2*deltaT);
+					dmudrho_Trho[i][j] = (-muminusrho + muplusrho)/(2*deltarho);
+					d2mudT2_Trho[i][j] = (muminusT - 2*muval + muplusT)/(deltaT*deltaT);
+					d2mudrho2_Trho[i][j] = (muminusrho - 2*muval + muplusrho)/(deltarho*deltarho);
+					d2mudTdrho_Trho[i][j] = (muplusT_plusrho - muplusT_minusrho - muminusT_plusrho + muminusT_minusrho)/(2*deltaT*deltarho);
+
+					// The thermal conductivity values
+					double kval = IProps(iL,iT,Tval,iD,rhoval,iFluid);
+					double kplusrho = IProps(iL,iT,Tval,iD,rhoval+deltarho,iFluid);
+					double kplusT = IProps(iL,iT,Tval+deltaT,iD,rhoval,iFluid);
+					double kminusrho = IProps(iL,iT,Tval,iD,rhoval-deltarho,iFluid);
+					double kminusT = IProps(iL,iT,Tval-deltaT,iD,rhoval,iFluid);
+					double kplusT_plusrho = IProps(iL,iT,Tval+deltaT,iD,rhoval-deltarho,iFluid);
+					double kplusT_minusrho = IProps(iL,iT,Tval+deltaT,iD,rhoval-deltarho,iFluid);
+					double kminusT_plusrho = IProps(iL,iT,Tval-deltaT,iD,rhoval-deltarho,iFluid);
+					double kminusT_minusrho = IProps(iL,iT,Tval-deltaT,iD,rhoval-deltarho,iFluid);
+
+					k_Trho[i][j] = kval;
+					dkdT_Trho[i][j] = (-kminusT + kplusT)/(2*deltaT);
+					dkdrho_Trho[i][j] = (-kminusrho + kplusrho)/(2*deltarho);
+					d2kdT2_Trho[i][j] = (kminusT - 2*kval + kplusT)/(deltaT*deltaT);
+					d2kdrho2_Trho[i][j] = (kminusrho - 2*kval + kplusrho)/(deltarho*deltarho);
+					d2kdTdrho_Trho[i][j] = (kplusT_plusrho - kplusT_minusrho - kminusT_plusrho + kminusT_minusrho)/(2*deltaT*deltarho);
+					
+				}
+				else
+				{
+					mu_Trho[i][j] = _HUGE;
+					dmudT_Trho[i][j] = _HUGE;
+					dmudrho_Trho[i][j] = _HUGE;
+					d2mudT2_Trho[i][j] = _HUGE;
+					d2mudTdrho_Trho[i][j] = _HUGE;
+					d2mudrho2_Trho[i][j] = _HUGE;
+
+					k_Trho[i][j] = _HUGE;
+					dkdT_Trho[i][j] = _HUGE;
+					dkdrho_Trho[i][j] = _HUGE;
+					d2kdT2_Trho[i][j] = _HUGE;
+					d2kdTdrho_Trho[i][j] = _HUGE;
+					d2kdrho2_Trho[i][j] = _HUGE;
 				}
 			}
 			else
@@ -814,12 +1053,19 @@ double TTSESinglePhaseTableClass::build_Trho(double Tmin, double Tmax, double rh
 				d2hdTdrho_Trho[i][j] = _HUGE;
 				d2hdrho2_Trho[i][j] = _HUGE;
 
-				p_Trho[i][j] = _HUGE;
-				dpdT_Trho[i][j] = _HUGE;
-				dpdrho_Trho[i][j] = _HUGE;
-				d2pdT2_Trho[i][j] = _HUGE;
-				d2pdTdrho_Trho[i][j] = _HUGE;
-				d2pdrho2_Trho[i][j] = _HUGE;
+				mu_Trho[i][j] = _HUGE;
+				dmudT_Trho[i][j] = _HUGE;
+				dmudrho_Trho[i][j] = _HUGE;
+				d2mudT2_Trho[i][j] = _HUGE;
+				d2mudTdrho_Trho[i][j] = _HUGE;
+				d2mudrho2_Trho[i][j] = _HUGE;
+
+				k_Trho[i][j] = _HUGE;
+				dkdT_Trho[i][j] = _HUGE;
+				dkdrho_Trho[i][j] = _HUGE;
+				d2kdT2_Trho[i][j] = _HUGE;
+				d2kdTdrho_Trho[i][j] = _HUGE;
+				d2kdrho2_Trho[i][j] = _HUGE;
 			}
 		}
 	}
@@ -829,10 +1075,7 @@ double TTSESinglePhaseTableClass::build_Trho(double Tmin, double Tmax, double rh
 
 	// Update the boundaries of the points within the single-phase regions
 	update_saturation_boundary_indices();
-	
-	if (enable_writing_tables_to_files){
-		write_all_to_file(root_path);
-	}
+
 	return elap;
 }
 //void TTSESinglePhaseTableClass::update_Trho_map()
@@ -895,23 +1138,23 @@ void TTSESinglePhaseTableClass::update_saturation_boundary_indices()
 	{
 		if (p[j] < pFluid->reduce.p)
 		{
-			iL[j] = -1;
+			IL[j] = -1;
 			// Sweep left to right to find a phase boundary, use the first one that fails in the saturation region
 			for (unsigned int i = 0; i < Nh; i++)
 			{
 				if (!ValidNumber(T[i][j]))
 				{
-					iL[j] = i;
+					IL[j] = i;
 					break;
 				}
 			}
-			iV[j] = -1;
+			IV[j] = -1;
 			// Sweep right to left to find a phase boundary, use the first one that fails in the saturation region
 			for (int i = Nh-1; i > 0; i--)
 			{
 				if (!ValidNumber(T[i][j]))
 				{
-					iV[j] = i;
+					IV[j] = i;
 					break;	
 				}
 			}
@@ -931,8 +1174,8 @@ void TTSESinglePhaseTableClass::update_saturation_boundary_indices()
 		}
 		else
 		{
-			iL[j] = -1;
-			iV[j] = -1;
+			IL[j] = -1;
+			IV[j] = -1;
 			TL[j] = _HUGE;
 			SL[j] = _HUGE;
 			DL[j] = _HUGE;
@@ -990,7 +1233,7 @@ double TTSESinglePhaseTableClass::check_randomly(long iParam, unsigned int N, st
 		(*p)[i] = p1;
 
 		// Get the value from TTSE
-		(*TTSE)[i] = evaluate(iParam,p1,h1);
+		(*TTSE)[i] = evaluate(iParam,p1,CPS._logp,h1);
 		
 		// Get the value from EOS
 		switch (iParam)
@@ -1024,17 +1267,17 @@ double TTSESinglePhaseTableClass::evaluate_randomly(long iParam, unsigned int N)
 		if (p1 > pFluid->TTSESatL.pmax || h1 > pFluid->TTSESatV.evaluate(iH,p1) || h1 < pFluid->TTSESatL.evaluate(iH,p1))
 		{
 			// Get the value from TTSE
-			evaluate(iParam,p1,h1);
+			evaluate(iParam,p1,log(p1),h1); 
 		}
 	}
 	t2 = clock();
 	return (double)(t2-t1)/CLOCKS_PER_SEC/(double)N*1e6;
 }
 
-double TTSESinglePhaseTableClass::evaluate(long iParam, double p, double h)
+double TTSESinglePhaseTableClass::evaluate(long iParam, double p, double logp, double h)
 {
 	int i = (int)round(((h-hmin)/(hmax-hmin)*(Nh-1)));
-	int j = (int)round((log(p)-logpmin)/logpratio);
+	int j = (int)round((logp-logpmin)/logpratio);
 	
 	if (i<0 || i>(int)Nh-1 || j<0 || j>(int)Np-1)
 	{
@@ -1138,12 +1381,12 @@ double TTSESinglePhaseTableClass::evaluate_one_other_input(long iInput1, double 
 				//
 				// If it is within between the saturation curve and the first point in the SH region,
 				// just use the first point in the superheated region
-				if (   (iOther == iT && Other < this->T[iV[j]+1][j])
-				    || (iOther == iS && Other < this->s[iV[j]+1][j])
-					|| (iOther == iD && Other > this->rho[iV[j]+1][j])
+				if (   (iOther == iT && Other < this->T[IV[j]+1][j])
+				    || (iOther == iS && Other < this->s[IV[j]+1][j])
+					|| (iOther == iD && Other > this->rho[IV[j]+1][j])
 					)
 				{
-					i = iV[j]+1;
+					i = IV[j]+1;
 				}
 				// Very close to the boundary of the LUT, not 1-1 relationship between p-h and other
 				// sets of inputs, need to allow for a bit of raggedness here
@@ -1174,7 +1417,7 @@ double TTSESinglePhaseTableClass::evaluate_one_other_input(long iInput1, double 
 						break;
 					}
 					
-					L = iV[j]+1; R = Np-1; M = (L+R)/2;
+					L = IV[j]+1; R = Np-1; M = (L+R)/2;
 					while (R-L>1)
 					{
 						if (isbetween((*mat)[M][j],(*mat)[R][j],Other))
@@ -1193,7 +1436,7 @@ double TTSESinglePhaseTableClass::evaluate_one_other_input(long iInput1, double 
 						i = R;
 				}
 			}
-			else if (iL[j] < 2)
+			else if (IL[j] < 2)
 			{
 				// We are at low pressure, so we don't know how to calculate, going to just use the i==1 element
 				// if it is valid, or the i = 0 if not, otherwise, there are no values left and we have to fail
@@ -1217,12 +1460,12 @@ double TTSESinglePhaseTableClass::evaluate_one_other_input(long iInput1, double 
 				//
 				// If it is within one spacing of the outlet variable of the saturation curve, 
 				// just use the first point in the subcooled region
-				if (   (iOther == iT && Other > this->T[iL[j]-1][j])
-				    || (iOther == iS && Other > this->s[iL[j]-1][j])
-					|| (iOther == iD && Other < this->rho[iL[j]-1][j])
+				if (   (iOther == iT && Other > this->T[IL[j]-1][j])
+				    || (iOther == iS && Other > this->s[IL[j]-1][j])
+					|| (iOther == iD && Other < this->rho[IL[j]-1][j])
 					)
 				{
-					i = iL[j]-1;
+					i = IL[j]-1;
 				}
 				else{
 					// Make sure it is in the bounds of the LUT
@@ -1242,7 +1485,7 @@ double TTSESinglePhaseTableClass::evaluate_one_other_input(long iInput1, double 
 						break;
 					}
 					
-					L = 0; R = iL[j]-1; M = (L+R)/2;
+					L = 0; R = IL[j]-1; M = (L+R)/2;
 					// Its subcooled
 					while (R-L>1)
 					{
@@ -1352,13 +1595,17 @@ double TTSESinglePhaseTableClass::evaluate_two_other_inputs(long iOutput, long i
 			return p_Trho[i][j]+deltaT*dpdT_Trho[i][j]+deltarho*dpdrho_Trho[i][j]+0.5*deltaT*deltaT*d2pdT2_Trho[i][j]+0.5*deltarho*deltarho*d2pdrho2_Trho[i][j]+deltaT*deltarho*d2pdTdrho_Trho[i][j]; break;
 		case iH:
 			return h_Trho[i][j]+deltaT*dhdT_Trho[i][j]+deltarho*dhdrho_Trho[i][j]+0.5*deltaT*deltaT*d2hdT2_Trho[i][j]+0.5*deltarho*deltarho*d2hdrho2_Trho[i][j]+deltaT*deltarho*d2hdTdrho_Trho[i][j]; break;
+		case iV:
+			return mu_Trho[i][j]+deltaT*dmudT_Trho[i][j]+deltarho*dmudrho_Trho[i][j]+0.5*deltaT*deltaT*d2mudT2_Trho[i][j]+0.5*deltarho*deltarho*d2mudrho2_Trho[i][j]+deltaT*deltarho*d2mudTdrho_Trho[i][j]; break;
+		case iL:
+			return k_Trho[i][j]+deltaT*dkdT_Trho[i][j]+deltarho*dkdrho_Trho[i][j]+0.5*deltaT*deltaT*d2kdT2_Trho[i][j]+0.5*deltarho*deltarho*d2kdrho2_Trho[i][j]+deltaT*deltarho*d2kdTdrho_Trho[i][j]; break;
 		default:
 			throw ValueError(format("Output key value [%d] to evaluate is invalid",iOutput));
 		}
 	}
 	else
 	{
-
+		throw ValueError(format("Inputs to evaluate_two_other_inputs are invalid"));
 	}
 }
 

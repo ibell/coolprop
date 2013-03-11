@@ -89,26 +89,27 @@ public:
 
 	double hmin,hmax,pmin,pmax,Tmin,Tmax,rhomin,rhomax;
 	bool enable_writing_tables_to_files;
+	bool enable_transport;
 
 	// Variables with h, p as inputs
 	std::vector<std::vector<double> > T,dTdh,dTdp,d2Tdh2,d2Tdp2,d2Tdhdp;
 	std::vector<std::vector<double> > rho,drhodh,drhodp,d2rhodh2,d2rhodp2,d2rhodhdp;
 	std::vector<std::vector<double> > s,dsdh,dsdp,d2sdh2,d2sdp2,d2sdhdp;
-	/*std::vector<std::vector<double> > mu,dmudh,dmudp,d2mudh2,d2mudp2,d2mudhdp;
-	std::vector<std::vector<double> > k,dkdh,dkdp,d2kdh2,d2kdp2,d2kdhdp;*/
+	std::vector<std::vector<double> > mu,dmudh,dmudp,d2mudh2,d2mudp2,d2mudhdp;
+	std::vector<std::vector<double> > k,dkdh,dkdp,d2kdh2,d2kdp2,d2kdhdp;
 	std::vector<double> h, p;
 
 	// Variables with T, rho as inputs
 	std::vector<std::vector<double> > s_Trho, dsdT_Trho, dsdrho_Trho, d2sdT2_Trho, d2sdrho2_Trho, d2sdTdrho_Trho;
 	std::vector<std::vector<double> > p_Trho, dpdT_Trho, dpdrho_Trho, d2pdT2_Trho, d2pdrho2_Trho, d2pdTdrho_Trho;
 	std::vector<std::vector<double> > h_Trho, dhdT_Trho, dhdrho_Trho, d2hdT2_Trho, d2hdrho2_Trho, d2hdTdrho_Trho;
-	/*std::vector<std::vector<double> > mu,dmudh,dmudp,d2mudh2,d2mudp2,d2mudhdp;
-	std::vector<std::vector<double> > k,dkdh,dkdp,d2kdh2,d2kdp2,d2kdhdp;*/
+	std::vector<std::vector<double> > mu_Trho,dmudT_Trho,dmudrho_Trho,d2mudT2_Trho,d2mudrho2_Trho,d2mudTdrho_Trho;
+	std::vector<std::vector<double> > k_Trho,dkdT_Trho,dkdrho_Trho,d2kdT2_Trho,d2kdrho2_Trho,d2kdTdrho_Trho;
 	std::vector<double> T_Trho, rho_Trho;
 
 	/// Indices of the last indices within the two-phase region for pressures 
-	/// from pmin to pmax.  If supercritical, iL and iV entries both -1
-	std::vector<int> iL, iV;
+	/// from pmin to pmax.  If supercritical, IL and IV entries both -1
+	std::vector<int> IL, IV;
 
 	bool read_all_from_file(std::string root_path);
 	void write_all_to_file(std::string root_path = std::string());
@@ -145,8 +146,9 @@ public:
 	/// Evaluate a property in the single-phase region
 	/// @param iParam Index of desired output
 	/// @param p Pressure (absolute) [kPa]
+	/// @param logp Natural logarithm of pressure
 	/// @param h Enthalpy [kJ/kg]
-	double evaluate(long iParam, double p, double h);
+	double evaluate(long iParam, double p, double logp, double h);
 
 	/// Evaluate the TTSE using P,S or P,T
 	double evaluate_one_other_input(long iInput1, double Param1, long iOther, double Other);
@@ -189,8 +191,6 @@ public:
 	/// @param i Index in T
 	/// @param j Index in rho
 	void nearest_good_neighbor_Trho(int *i, int *j);
-
-	void get_partner(int i, int j, double p, double h, int *ipartner, int *jpartner);
 
 	/// Evaluate the first partial derivative
 	/// @param iOF Index in numerator

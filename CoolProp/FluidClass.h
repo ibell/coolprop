@@ -309,7 +309,7 @@ class Fluid
 		std::vector<double> ConformalTemperature(Fluid *InterestFluid, Fluid *ReferenceFluid,double T, double rho, double T0, double rho0, std::string *errstring);
 		// Extended corresponding states functions for fluids that do not have their own high-accuracy
 		// transport property implementation
-		void ECSParams(double *e_k, double *sigma){
+		virtual void ECSParams(double *e_k, double *sigma){
 			throw NotImplementedError("ECSParams not implemented for this fluid");
 		};
 		/// This function is optional, and returns a NotImplementedError if the derived class does not implement it.
@@ -350,7 +350,7 @@ class Fluid
 		/// @see viscosity_Trho
 		/// @param T Temperature [K]
 		/// @param rho Density [kg/m3]
-		double conductivity_background(double T, double rho){
+		virtual double conductivity_background(double T, double rho){
 			throw NotImplementedError(std::string("conductivity_background not implemented for this fluid"));
 		};
 
@@ -379,7 +379,7 @@ class Fluid
 		/// @see viscosity_Trho
 		/// @param T Temperature [K]
 		/// @param rho Density [kg/m3]
-		double viscosity_background(double T, double rho){
+		virtual double viscosity_background(double T, double rho){
 			throw NotImplementedError(std::string("viscosity_background not implemented for this fluid"));
 		};
 

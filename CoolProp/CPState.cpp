@@ -138,6 +138,7 @@ void CoolPropStateClass::update(long iInput1, double Value1, long iInput2, doubl
 	// Reset all the internal variables to _HUGE
 	_T = _HUGE;
 	_p = _HUGE;
+	_logp = _HUGE;
 	_h = _HUGE;
 	_s = _HUGE;
 	_rho = _HUGE;
@@ -165,12 +166,13 @@ void CoolPropStateClass::update(long iInput1, double Value1, long iInput2, doubl
 	
 	if (pFluid->enabled_TTSE_LUT)
 	{
+		
 		// Build the tables
 		pFluid->build_TTSE_LUT();
 		// Update using the LUT
 		update_TTSE_LUT(iInput1,Value1,iInput2,Value2);
-		// Calculate the log of the pressure since a lot of terms need it
-		_logp = log(_p);
+		// Calculate the log of the pressure since a lot of terms need it and log() is a very slow function
+		if (!ValidNumber(_logp)) _logp = log(_p);
 	}
 	else
 	{
@@ -551,9 +553,9 @@ void CoolPropStateClass::update_TTSE_LUT(long iInput1, double Value1, long iInpu
 		{
 			TwoPhase = false;
 			SinglePhase = true;
-
-			_rho = pFluid->TTSESinglePhase.evaluate(iD,p,h);
-			_T = pFluid->TTSESinglePhase.evaluate(iT,p,h);
+			_logp = log(p);
+			_rho = pFluid->TTSESinglePhase.evaluate(iD,p,_logp,h);
+			_T = pFluid->TTSESinglePhase.evaluate(iT,p,_logp,h);
 			_p = p;
 			_h = h;
 		}
@@ -587,8 +589,9 @@ void CoolPropStateClass::update_TTSE_LUT(long iInput1, double Value1, long iInpu
 		// Sort in the right order (P,T)
 		sort_pair(&iInput1,&Value1,&iInput2,&Value2,iP,iT);
 
+		_logp = log(Value1);
 		_h = pFluid->TTSESinglePhase.evaluate_one_other_input(iP,Value1,iT,Value2);
-		_rho = pFluid->TTSESinglePhase.evaluate(iD,Value1,_h);
+		_rho = pFluid->TTSESinglePhase.evaluate(iD,Value1,_logp, _h);
 		_p = Value1;
 		_T = Value2;
 	}
@@ -605,9 +608,10 @@ void CoolPropStateClass::update_TTSE_LUT(long iInput1, double Value1, long iInpu
 		{
 			TwoPhase = false;
 			SinglePhase = true;
+			_logp = log(p);
 			// Saturation calls happen again inside evaluate_one_other_input - perhaps pass values
 			_h = pFluid->TTSESinglePhase.evaluate_one_other_input(iP,p,iD,rho);
-			_T = pFluid->TTSESinglePhase.evaluate(iT,p,_h);
+			_T = pFluid->TTSESinglePhase.evaluate(iT,p,_logp,_h);
 			_p = Value1;
 			_rho = Value2;
 		}
@@ -650,9 +654,10 @@ void CoolPropStateClass::update_TTSE_LUT(long iInput1, double Value1, long iInpu
 		{
 			TwoPhase = false;
 			SinglePhase = true;
+			_logp = log(p);
 			_h = pFluid->TTSESinglePhase.evaluate_one_other_input(iP,p,iS,s); // Get the enthalpy
-			_T = pFluid->TTSESinglePhase.evaluate(iT,p,_h);
-			_rho = pFluid->TTSESinglePhase.evaluate(iD,p,_h);
+			_T = pFluid->TTSESinglePhase.evaluate(iT,p,_logp,_h);
+			_rho = pFluid->TTSESinglePhase.evaluate(iD,p,_logp,_h);
 		}
 		else
 		{
@@ -789,9 +794,9 @@ double CoolPropStateClass::keyed_output(long iOutput)
 		// Transport properties
 		// --------------------------
 		case iV:
-			return pFluid->viscosity_Trho(_T, _rho);
+			return viscosity();
 		case iL:
-			return pFluid->conductivity_Trho(_T, _rho);
+			return conductivity();
 		case iI:
 			return surface_tension();
 		// -----------------------------------
@@ -802,7 +807,7 @@ double CoolPropStateClass::keyed_output(long iOutput)
 		case iDrhodT_p:
 			return drhodT_constp();
 		default:
-			throw ValueError(format("Invalid Output index to keyed_output: %d ",iOutput));
+			throw ValueError(format("Invalid Output index to CPState function keyed_output: %d ",iOutput));
 	}
 }
 
@@ -951,6 +956,41 @@ double CoolPropStateClass::cp(void){
 		return pFluid->R()*(-pow(tau,2)*(d2phi0_dTau2(tau,delta)+d2phir_dTau2(tau,delta))+c1/c2);
 	}
 }
+
+double CoolPropStateClass::viscosity(void){
+	if (pFluid->enabled_TTSE_LUT)
+	{
+		if (TwoPhase && _Q > 0 && _Q < 1)
+		{
+			return -1;
+		}
+		else
+		{
+			return pFluid->TTSESinglePhase.evaluate_two_other_inputs(iV,iT,_T,iD,_rho);
+		}
+	}
+	else{
+		return pFluid->viscosity_Trho(_T,_rho);
+	}
+}
+
+double CoolPropStateClass::conductivity(void){
+	if (pFluid->enabled_TTSE_LUT)
+	{
+		if (TwoPhase && _Q > 0 && _Q < 1)
+		{
+			return -1;
+		}
+		else
+		{
+			return pFluid->TTSESinglePhase.evaluate_two_other_inputs(iL,iT,_T,iD,_rho);
+		}
+	}
+	else{
+		return pFluid->conductivity_Trho(_T,_rho);
+	}
+}
+
 double CoolPropStateClass::B_TTSE(double p, double h){
 	// Slightly modified, doesn't use specific volume at all, also sign switched
 	double drhodh_p = pFluid->TTSESinglePhase.evaluate_first_derivative(iD,iH,iP,_p,_logp,h);
@@ -980,7 +1020,7 @@ double CoolPropStateClass::cv(void){
 		{
 			// cv is also given by -B*T/D which is tabulated (indirectly)
 			_h = h();
-			return -B_over_D_TTSE(_p,_h)*pFluid->TTSESinglePhase.evaluate(iT,_p,_h);
+			return -B_over_D_TTSE(_p,_h)*pFluid->TTSESinglePhase.evaluate(iT,_p,_logp,_h);
 		}
 	}
 	else
@@ -1035,7 +1075,7 @@ double CoolPropStateClass::isothermal_compressibility(void){
 			double drhodh__p = pFluid->TTSESinglePhase.evaluate_first_derivative(iD,iH,iP,_p,_logp,_h);
 			double drhodp__h = pFluid->TTSESinglePhase.evaluate_first_derivative(iD,iP,iH,_p,_logp,_h);
 
-			double rho = pFluid->TTSESinglePhase.evaluate(iD,_p,_h);
+			double rho = pFluid->TTSESinglePhase.evaluate(iD,_p,_logp,_h);
 			/// 1000 is needed to convert from kJ & kPa to J & Pa
 			return 1/rho*(drhodp__h-drhodh__p*dTdp__h/dTdh__p)/1000;
 		}
@@ -1061,7 +1101,7 @@ double CoolPropStateClass::isobaric_expansion_coefficient(void){
 			// isobaric expansion coefficient given by kappa = 1/v*dvdT|p = -1/rho*drhodT|p
 			double dTdh__p = pFluid->TTSESinglePhase.evaluate_first_derivative(iT,iH,iP,_p,_logp,_h);
 			double drhodh__p = pFluid->TTSESinglePhase.evaluate_first_derivative(iD,iH,iP,_p,_logp,_h);
-			double rho = pFluid->TTSESinglePhase.evaluate(iD,_p,_h);
+			double rho = pFluid->TTSESinglePhase.evaluate(iD,_p,_logp,_h);
 			return -1/rho*drhodh__p/dTdh__p;
 		}
 	}
