@@ -1,4 +1,6 @@
+
 #cython: embedsignature = True
+from __future__ import division
 #
 #
 # This file provides wrapper functions of all the CoolProp functions
@@ -723,7 +725,7 @@ cdef class State:
     
     cpdef double get_MM(self) except *:
         """ Get the mole mass [kg/kmol] or [g/mol] """
-        return _Props1(self.Fluid,'molemass')
+        return self.Props(iMM)
     
     cpdef double get_rho(self) except *:
         """ Get the density [kg/m^3] """ 
@@ -814,7 +816,7 @@ cdef class State:
         def __get__(self):
             return self.cp * self.visc / self.k
             
-    cpdef double get_dpdT(self):
+    cpdef double get_dpdT(self) except *:
         return self.Props(iDpdT)
     property dpdT:
         def __get__(self):
@@ -824,6 +826,7 @@ cdef class State:
         from time import clock
         cdef int i
         cdef char * k
+        cdef long ikey
         cdef string Fluid = self.Fluid
         cdef long IT = 'T'
         cdef long ID = 'D'
@@ -849,7 +852,7 @@ cdef class State:
             t2=clock()
             print 'Elapsed time for {0:d} calls for "{1:s}" at {2:g} us/call'.format(N,key,(t2-t1)/N*1e6)
         
-        print 'Call to the c++ layer using integers'
+        print 'Call to the c++ layer through IProps'
         keys = [iH,iP,iS,iU,iC,iO,iV,iL,iMM,iC0,iDpdT]
         for key in keys:
             t1=clock()
@@ -857,9 +860,18 @@ cdef class State:
                 _IProps(key,iT,self.T_,iD,self.rho_,self.iFluid)
             t2=clock()
             print 'Elapsed time for {0:d} calls for "{1:s}" at {2:g} us/call'.format(N,paras[key],(t2-t1)/N*1e6)
+            
+        print 'Call to the c++ layer using integers'
+        keys = [iH,iP,iS,iU,iC,iO,iV,iL,iMM,iC0,iDpdT]
+        for key in keys:
+            t1=clock()
+            self.PFC.update(iT,self.T_,iD,self.rho_)
+            for i in range(N):
+                self.PFC.keyed_output(key)
+            t2=clock()
+            print 'Elapsed time for {0:d} calls for "{1:s}" at {2:g} us/call'.format(N,paras[key],(t2-t1)/N*1e6)
         
-        
-        print 'Using CoolPropStateClass'
+        print 'Using CoolPropStateClass with T,rho'
         keys = [iH,iP,iC,iO,iDpdT]
         t1=clock()
         for i in range(N):
@@ -869,18 +881,43 @@ cdef class State:
         t2=clock()
         print 'Elapsed time for {0:d} calls of iH,iP,iC,iO,iDpdT takes {1:g} us/call'.format(N,(t2-t1)/N*1e6)
             
-        print 'Call using TTSE'
-        print "'M' involves basically no computational effort and is a good measure of the function call overhead"
+        
         keys = [iH,iP,iS,iU,iC,iO,iV,iL,iMM,iC0,iDpdT]
         isenabled = _isenabled_TTSE_LUT(<bytes>Fluid)
         _enable_TTSE_LUT(<bytes>Fluid)
         _IProps(iH,iT,self.T_,iD,self.rho_,self.iFluid)
-        for key in keys:
+        
+        print 'Call using TTSE with T,rho'
+        print "'M' involves basically no computational effort and is a good measure of the function call overhead"
+        for ikey in keys:
             t1=clock()
+            self.PFC.update(iT,self.T_,iD,self.rho_)
             for i in range(N):
-                _IProps(key,iT,self.T_,iD,self.rho_,self.iFluid)
+                self.PFC.keyed_output(ikey)
             t2=clock()
-            print 'Elapsed time for {0:d} calls for "{1:s}" at {2:g} us/call'.format(N,paras[key],(t2-t1)/N*1e6)
+            print 'Elapsed time for {0:d} calls for "{1:s}" at {2:g} us/call'.format(N,paras[ikey],(t2-t1)/N*1e6)
+            
+        print 'Call using TTSE with p,h'
+        print "'M' involves basically no computational effort and is a good measure of the function call overhead"
+        cdef double hh = self.h
+        for ikey in keys:
+            t1=clock()
+            self.PFC.update(iP,self.p_,iH,hh)
+            for i in range(N):
+                self.PFC.keyed_output(ikey)
+            t2=clock()
+            print 'Elapsed time for {0:d} calls for "{1:s}" at {2:g} us/call'.format(N,paras[ikey],(t2-t1)/N*1e6)
+        
+        print 'Using CoolPropStateClass with T,rho with LUT'
+        keys = [iH,iP,iC,iO,iDpdT]
+        t1=clock()
+        for i in range(N):
+            self.PFC.update(iT,self.T_,iD,self.rho_)
+            for ikey in keys:
+                self.PFC.keyed_output(ikey)
+        t2=clock()
+        print 'Elapsed time for {0:d} calls of iH,iP,iC,iO,iDpdT takes {1:g} us/call'.format(N,(t2-t1)/N*1e6)
+        
         if not isenabled:
             _disable_TTSE_LUT(<bytes>Fluid)
     

@@ -4,11 +4,12 @@ How to get it?
 Option 1 (easiest)
 ^^^^^^^^^^^^^^^^^^
 
-To grab a zip file with the CoolProp DLL or a Python module, head to https://sourceforge.net/projects/coolprop/files/CoolProp and download the most recent version.  Or to pull CoolProp source code or Python installer files.  All the files are already compiled and should work out of the box.
+To grab wrappers for your favorite programming language, head to https://sourceforge.net/projects/coolprop/files/CoolProp and download the most recent version.  Or to pull CoolProp source code or installer files.  All the files are already compiled and should work out of the box.
 
 Option 1a
 ^^^^^^^^^
-Nightly build installers are also available at https://sourceforge.net/projects/coolprop/files/CoolProp/Nightly for a limited subset of configurations and are updated every night to be current with the main developer's personal codebase.
+
+Nightly build installers are also available at https://sourceforge.net/projects/coolprop/files/CoolProp/Nightly for a limited subset of python configurations and are updated every night to be current with the main developer's personal codebase.
 
 .. warning::
 
@@ -17,7 +18,7 @@ Nightly build installers are also available at https://sourceforge.net/projects/
 Option 2 (a tiny bit harder)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-CoolProp is now on `PyPI <http://pypi.python.org/pypi/CoolProp>`_.  If you already have `cython <http://www.cython.org>`_ (version > 0.16) installed and your default compiler is already configured (see below), you can just do::
+CoolProp is now on `PyPI <http://pypi.python.org/pypi/CoolProp>`_.  If you already have `cython <http://www.cython.org>`_ (version > 0.17) installed and your default compiler is already configured (see below), you can just do::
 
     easy_install CoolProp
     
@@ -25,16 +26,22 @@ Or if you already have CoolProp installed, you can upgrade it with::
 
     easy_install -U CoolProp
     
+Or using pip::
+
+    pip install CoolProp
+    
 Option 3 (developers)
 ^^^^^^^^^^^^^^^^^^^^^
 
 CoolProp is an open-source project, and is actively looking for developers.  The project is hosted in a subversion repository at::
 
-    https://coolprop.svn.sourceforge.net/svnroot/coolprop
+    svn+ssh://svn.code.sf.net/p/coolprop/code/trunk
+    
+and you can check out the sources by doing::
 
-or if you want to just browse the repository, you can go to http://coolprop.svn.sourceforge.net/viewvc/coolprop/trunk/ .  
+    svn checkout svn://svn.code.sf.net/p/coolprop/code/trunk coolprop-code
 
-In order to download the sources, click on the "Download GNU tarball" at the bottom of the page.  To unpack the tarball, `7-zip <http://www.7-zip.org>`_  is recommended.
+or if you want to just browse the repository, you can go to https://sourceforge.net/p/coolprop/code/.
 
 Compiler Configuration
 ======================

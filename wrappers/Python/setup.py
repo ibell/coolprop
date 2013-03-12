@@ -16,7 +16,18 @@ while minor[iEnd].isdigit():
 minor = int(minor[0:iEnd])
 if not(major > 0 or minor >= 17):
     raise ImportError('Cython version >= 0.17 required due to the use of STL wrappers.  Please update your version of cython')
-    
+
+try:
+    import psutil
+    for proc in psutil.get_process_list():
+        cmdline = proc.cmdline
+        if cmdline and ''.join(cmdline).find('pycompletionserver.py') > 0:
+            proc.terminate()
+            print('Python completion server killed')
+            break
+except ImportError:
+    print('psutil was not found, it is used to kill the python completion server in Eclipse which keeps CoolProp from building sometimes.  psutils can be easy_install-ed')
+        
 from distutils.core import setup, Extension
 import subprocess,shutil,os,sys,glob
 from Cython.Build import cythonize
@@ -29,7 +40,24 @@ from distutils.dep_util import newer_group
 #This will generate HTML to show where there are still pythonic bits hiding out
 Cython.Compiler.Options.annotate = True
 
-version = open(os.path.join('..','..','version.txt'),'r').read().strip()
+# Two options for the location of the C++ files.  Either in the normal ../../CoolProp folder
+# or they are in the CoolPropSource folder in this folder
+
+# For PYPI purposes
+if 'sdist' in sys.argv:
+    CProot = '.'
+    shutil.copy2(os.path.join('..','..','version.txt'),'version.txt')
+    shutil.copytree(os.path.join('..','..','CoolProp'),'CoolPropSource')
+else:
+    CProot = os.path.join('..','..')
+    
+if os.path.exists('CoolPropSource'):
+    CPSourceDir = 'CoolPropSource'
+    CProot = '.'
+else:
+    CPSourceDir = os.path.join(CProot,'CoolProp')
+    
+version = open(os.path.join(CProot,'version.txt'),'r').read().strip()
 
 if __name__=='__main__':
 
@@ -49,11 +77,11 @@ if __name__=='__main__':
                     rev = line.split(':')[1].strip()
                     svnstring = 'long svnrevision = '+rev+';'
                     #Check if it is different than the current version
-                    f = open('../../CoolProp/svnrevision.h','r')
+                    f = open(os.path.join(CPSourceDir,'svnrevision.h'),'r')
                     current_svn = f.read()
                     f.close()
                     if not current_svn.strip() == svnstring.strip():                
-                        f = open('../../CoolProp/svnrevision.h','w')
+                        f = open(os.path.join(CPSourceDir,'svnrevision.h'),'w')
                         f.write(svnstring)
                         f.close()
                     break
@@ -64,11 +92,11 @@ if __name__=='__main__':
 
     def version_to_file():
         string_for_file = 'char version [] ="{v:s}";'.format(v = version)
-        f = open('../../CoolProp/version.h','r')
+        f = open(os.path.join(CPSourceDir,'version.h'),'r')
         current_version = f.read()
         f.close()
         if not current_version.strip() == string_for_file.strip():
-            f = open('../../CoolProp/version.h','w')
+            f = open(os.path.join(CPSourceDir,'version.h'),'w')
             f.write(string_for_file)
             f.close()
         
@@ -83,7 +111,8 @@ if __name__=='__main__':
         #sys.argv+=['build','--compiler=mingw32','install']
         sys.argv+=['install']
         
-    badfiles = [os.path.join('CoolProp','__init__.pyc'),os.path.join('CoolProp','__init__.py')]
+    badfiles = [os.path.join('CoolProp','__init__.pyc'),
+                os.path.join('CoolProp','__init__.py')]
     for file in badfiles:
         try:
             os.remove(file)
@@ -97,7 +126,7 @@ if __name__=='__main__':
     #Unpack the __init__.py file template and add some things to the __init__ file
     lines=open('__init__.py.template','r').readlines()
 
-    f = open('../../CoolProp/svnrevision.h','r')
+    f = open(os.path.join(CPSourceDir,'svnrevision.h'),'r')
     rev = f.read().strip().split('=')[1].strip(';').strip()
     f.close()
     svnstring = '__svnrevision__ ='+rev+'\n'
@@ -111,10 +140,10 @@ if __name__=='__main__':
         fp.write(line)
     fp.close()
 
-    Sources = glob.glob(os.path.join('..','..','CoolProp','*.cpp'))
+    Sources = glob.glob(os.path.join(CPSourceDir,'*.cpp'))
     
     ### Include folders for build
-    include_dirs = [os.path.join('..','..','CoolProp'),get_python_inc(False)]
+    include_dirs = [os.path.join(CPSourceDir),get_python_inc(False)]
 
     def touch(fname):
         open(fname, 'a').close()
@@ -123,37 +152,22 @@ if __name__=='__main__':
     #If library has been updated but the cython sources haven't been,
     #force cython to build by touching the cython sources
     cython_sources = [os.path.join('CoolProp','CoolProp.pyx')]
-                      
-##     if useStaticLib:
-##         CC = new_compiler()
-##         CPLibPath=CC.library_filename(os.path.join('lib','CoolProp'),lib_type='static')
-##         if not newer_group(cython_sources, CPLibPath):
-##             for source in cython_sources:
-##                 print('touching',source)
-##                 touch(source)
-##         else:
-##             print('no touching of cython sources needed')
 
+    common_args = dict(include_dirs = include_dirs,
+                        language='c++',
+                        cython_c_in_temp = True)
+                        
     CoolProp_module = CyExtension('CoolProp.CoolProp',
                         [os.path.join('CoolProp','CoolProp.pyx')]+Sources,
-                        include_dirs = include_dirs,
-                        language='c++',
-                        cython_c_in_temp = True
-                        )
+                        **common_args)
         
     param_constants_module = CyExtension('CoolProp.param_constants',
                             [os.path.join('CoolProp','param_constants.pyx')],
-                            include_dirs = include_dirs,
-                            language='c++',
-                            cython_c_in_temp = True
-                            )
+                            **common_args)
                             
     phase_constants_module = CyExtension('CoolProp.phase_constants',
                             [os.path.join('CoolProp','phase_constants.pyx')],
-                            include_dirs = include_dirs,
-                            language='c++',
-                            cython_c_in_temp = True
-                            )
+                            **common_args)
                             
     #Collect all the header files in the main folder into an include folder
     try:
@@ -161,7 +175,7 @@ if __name__=='__main__':
     except:
         pass
         
-    for header in glob.glob(os.path.join('..','..','CoolProp','*.h')):
+    for header in glob.glob(os.path.join(CPSourceDir,'*.h')):
         pth,fName = os.path.split(header)
         shutil.copy2(header,os.path.join('CoolProp','include',fName))
     
@@ -192,10 +206,13 @@ if __name__=='__main__':
     shutil.rmtree(os.path.join('CoolProp','include'), ignore_errors = True)
     
     for file in glob.glob(os.path.join('CoolProp','__init__.*')):
-            try:
-                os.remove(file)
-            except:
-                pass
+        try:
+            os.remove(file)
+        except:
+            pass
     
+    if 'sdist' in sys.argv:
+        shutil.rmtree('CoolPropSource')
+        os.remove('version.txt')
     touch('setup.py')
     

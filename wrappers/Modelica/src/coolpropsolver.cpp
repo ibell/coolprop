@@ -6,11 +6,6 @@
 #include <string>
 #include <stdlib.h>
 
-/*
-Remaining issues:
-- ECS is very very slow, so transport properties are not currently being calculated - are commented out
-*/
-
 long iFluid;
 CoolPropSolver::CoolPropSolver(const string &mediumName, const string &libraryName, const string &substanceName)
 	: BaseSolver(mediumName, libraryName, substanceName){
@@ -89,7 +84,7 @@ CoolPropSolver::CoolPropSolver(const string &mediumName, const string &libraryNa
 	}
 
 	if (enable_TTSE && twophase_derivsmoothing_xend>0){
-		errorMessage((char*)format("It is currently not allowed to mix TTSE and derivative smooothing ").c_str());
+		errorMessage((char*)format("Sorry but it is currently not allowed to mix TTSE and derivative smooothing").c_str());
 	}
 
 	state = new CoolPropStateClass(name_options[0]);
@@ -209,19 +204,23 @@ void CoolPropSolver::setState_ph(double &p, double &h, int &phase, ExternalTherm
 		properties->a = state->speed_sound();
 		if (state->TwoPhase && state->Q() >= 0 && state->Q() <= twophase_derivsmoothing_xend)
 		{
-			// Use the smoothed derivatives
-
+			// Use the smoothed derivatives between a quality of 0 and twophase_derivsmoothing_xend
+            properties->ddhp = state->drhodh_constp_smoothed(twophase_derivsmoothing_xend)/1000; // [1/kPa -- > 1/Pa]
+            properties->ddph = state->drhodp_consth_smoothed(twophase_derivsmoothing_xend)/1000; // [1/(kJ/kg) -- > 1/(J/kg)]
 		}
 		else
 		{
+            properties->ddhp = state->drhodh_constp()/1000; // [1/kPa -- > 1/Pa]
 			properties->ddph = state->drhodp_consth()/1000; // [1/(kJ/kg) -- > 1/(J/kg)]
-			properties->ddhp = state->drhodh_constp()/1000; // [1/kPa -- > 1/Pa]
 		}
 		properties->kappa = state->isothermal_compressibility()/1000; // [1/kPa -- > 1/Pa]
 		properties->beta = state->isobaric_expansion_coefficient();
-		properties->eta = 0;//IProps(iV,iT,properties->T,iD,properties->d,iFluid);
-		properties->lambda = 0;//IProps(iL,iT,properties->T,iD,properties->d,iFluid)*1000; //[kW/m/K --> W/m/K]
-		properties->Pr = 0;//properties->cp*properties->eta/properties->lambda;
+		if (calc_transport)
+        {
+            properties->eta = state->viscosity();
+            properties->lambda = state->conductivity()*1000; //[kW/m/K --> W/m/K]
+            properties->Pr = properties->cp*properties->eta/properties->lambda;
+        }
 	}
 	catch(std::exception &e)
 	{
@@ -254,13 +253,25 @@ void CoolPropSolver::setState_pT(double &p, double &T, ExternalThermodynamicStat
 		properties->cp = state->cp()*1000;
 		properties->cv = state->cv()*1000;
 		properties->a = state->speed_sound();
-		properties->ddph = state->drhodp_consth()/1000; // [1/(kJ/kg) -- > 1/(J/kg)]
-		properties->ddhp = state->drhodh_constp()/1000; // [1/kPa -- > 1/Pa]
+		if (state->TwoPhase && state->Q() >= 0 && state->Q() <= twophase_derivsmoothing_xend)
+		{
+			// Use the smoothed derivatives between a quality of 0 and twophase_derivsmoothing_xend
+            properties->ddhp = state->drhodh_constp_smoothed(twophase_derivsmoothing_xend)/1000; // [1/kPa -- > 1/Pa]
+            properties->ddph = state->drhodp_consth_smoothed(twophase_derivsmoothing_xend)/1000; // [1/(kJ/kg) -- > 1/(J/kg)]
+		}
+		else
+		{
+            properties->ddhp = state->drhodh_constp()/1000; // [1/kPa -- > 1/Pa]
+			properties->ddph = state->drhodp_consth()/1000; // [1/(kJ/kg) -- > 1/(J/kg)]
+		}
 		properties->kappa = properties->d/properties->p/state->dpdrho_constT()/1000; // [1/kPa -- > 1/Pa]  
 		properties->beta = -1/properties->d*state->drhodT_constp();
-		properties->eta = 0;//state->viscosity();
-		properties->lambda = 0;//state->conductivity()*1000; //[kW/m/K --> W/m/K]
-		properties->Pr = 0;//properties->cp*properties->eta/properties->lambda;
+		if (calc_transport)
+        {
+            properties->eta = state->viscosity();
+            properties->lambda = state->conductivity()*1000; //[kW/m/K --> W/m/K]
+            properties->Pr = properties->cp*properties->eta/properties->lambda;
+        }
 	}
 	catch(std::exception &e)
 	{
@@ -300,13 +311,25 @@ void CoolPropSolver::setState_dT(double &d, double &T, int &phase, ExternalTherm
 		properties->cp = state->cp()*1000;
 		properties->cv = state->cv()*1000;
 		properties->a = state->speed_sound();
-		properties->ddph = state->drhodp_consth()/1000; // [1/(kJ/kg) -- > 1/(J/kg)]
-		properties->ddhp = state->drhodh_constp()/1000; // [1/kPa -- > 1/Pa]
+		if (state->TwoPhase && state->Q() >= 0 && state->Q() <= twophase_derivsmoothing_xend)
+		{
+			// Use the smoothed derivatives between a quality of 0 and twophase_derivsmoothing_xend
+            properties->ddhp = state->drhodh_constp_smoothed(twophase_derivsmoothing_xend)/1000; // [1/kPa -- > 1/Pa]
+            properties->ddph = state->drhodp_consth_smoothed(twophase_derivsmoothing_xend)/1000; // [1/(kJ/kg) -- > 1/(J/kg)]
+		}
+		else
+		{
+            properties->ddhp = state->drhodh_constp()/1000; // [1/kPa -- > 1/Pa]
+			properties->ddph = state->drhodp_consth()/1000; // [1/(kJ/kg) -- > 1/(J/kg)]
+		}
 		properties->kappa = properties->d/properties->p/state->dpdrho_constT()/1000; // [1/kPa -- > 1/Pa]  
 		properties->beta = -1/properties->d*state->drhodT_constp();
-		properties->eta = 0;//state->viscosity();
-		properties->lambda = 0;//state->conductivity()*1000; //[kW/m/K --> W/m/K]
-		properties->Pr = 0;//properties->cp*properties->eta/properties->lambda;
+		if (calc_transport)
+        {
+            properties->eta = state->viscosity();
+            properties->lambda = state->conductivity()*1000; //[kW/m/K --> W/m/K]
+            properties->Pr = properties->cp*properties->eta/properties->lambda;
+        }
 	}
 	catch(std::exception &e)
 	{
@@ -341,13 +364,25 @@ void CoolPropSolver::setState_ps(double &p, double &s, int &phase, ExternalTherm
 		properties->cp = state->cp()*1000;
 		properties->cv = state->cv()*1000;
 		properties->a = state->speed_sound();
-		properties->ddph = state->drhodp_consth()/1000; // [1/(kJ/kg) -- > 1/(J/kg)]
-		properties->ddhp = state->drhodh_constp()/1000; // [1/kPa -- > 1/Pa]
+        if (state->TwoPhase && state->Q() >= 0 && state->Q() <= twophase_derivsmoothing_xend)
+		{
+			// Use the smoothed derivatives between a quality of 0 and twophase_derivsmoothing_xend
+            properties->ddhp = state->drhodh_constp_smoothed(twophase_derivsmoothing_xend)/1000; // [1/kPa -- > 1/Pa]
+            properties->ddph = state->drhodp_consth_smoothed(twophase_derivsmoothing_xend)/1000; // [1/(kJ/kg) -- > 1/(J/kg)]
+		}
+		else
+		{
+            properties->ddhp = state->drhodh_constp()/1000; // [1/kPa -- > 1/Pa]
+			properties->ddph = state->drhodp_consth()/1000; // [1/(kJ/kg) -- > 1/(J/kg)]
+		}
 		properties->kappa = properties->d/properties->p/state->dpdrho_constT()/1000; // [1/kPa -- > 1/Pa]  
 		properties->beta = -1/properties->d*state->drhodT_constp();
-		properties->eta = 0;//state->viscosity();
-		properties->lambda = 0;//state->conductivity()*1000; //[kW/m/K --> W/m/K]
-		properties->Pr = 0;//properties->cp*properties->eta/properties->lambda;
+        if (calc_transport)
+        {
+            properties->eta = state->viscosity();
+            properties->lambda = state->conductivity()*1000; //[kW/m/K --> W/m/K]
+            properties->Pr = properties->cp*properties->eta/properties->lambda;
+        }
 	}
 	catch(std::exception &e)
 	{

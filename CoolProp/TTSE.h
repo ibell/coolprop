@@ -46,8 +46,9 @@ public:
 	/// @param p Pressure (absolute) [kPa]
  	double evaluate(long iParam, double p);
 
-	/// Evaluate a property in the two-phase region using the TTSE method with p as input
+	/// Evaluate a property in the two-phase region using the TTSE method with T as input
 	/// @param T Temperature [K]
+	/// @return Pressure [kPa]
  	double evaluate_T(double T);
 
 	/// Evaluate the derivative of a property along the saturation curve using the TTSE method
@@ -74,37 +75,40 @@ public:
 class TTSESinglePhaseTableClass
 {
 protected:
-	unsigned int Nh, Np;
+	unsigned int Nh, Np,NT,Nrho;
 	Fluid *pFluid;
 	double pratio,logpratio,logpmin;
+	double rhoratio,logrhoratio,logrhomin;
 	int jpcrit_floor, jpcrit_ceil;
-	std::vector<double> T_Trho, rho_Trho;
-	std::vector<std::vector<int> > i_Trho, j_Trho;
-
-	void ph_Trho(int i, int j, double T, double rho, double *pout, double *hout);
 public:
 	TTSESinglePhaseTableClass();
 	TTSESinglePhaseTableClass(Fluid *pFluid);
 	TTSETwoPhaseTableClass *SatL, *SatV;
-	void set_size(unsigned int Nh = 100, unsigned int Np = 100);
 	
 	std::string root_path;
 	std::vector<double> TL,SL,DL,TV,SV,DV;
 
-	double hmin,hmax,pmin,pmax;
+	double hmin,hmax,pmin,pmax,Tmin,Tmax,rhomin,rhomax;
 	bool enable_writing_tables_to_files;
+	bool enable_transport;
 
-	// Variables with h, p
+	// Variables with h, p as inputs
 	std::vector<std::vector<double> > T,dTdh,dTdp,d2Tdh2,d2Tdp2,d2Tdhdp;
 	std::vector<std::vector<double> > rho,drhodh,drhodp,d2rhodh2,d2rhodp2,d2rhodhdp;
 	std::vector<std::vector<double> > s,dsdh,dsdp,d2sdh2,d2sdp2,d2sdhdp;
-	std::vector<std::vector<double> > mu,dmudh,dmudp,d2mudh2,d2mudp2,d2mudhdp;
-	std::vector<std::vector<double> > k,dkdh,dkdp,d2kdh2,d2kdp2,d2kdhdp;
 	std::vector<double> h, p;
 
+	// Variables with T, rho as inputs
+	std::vector<std::vector<double> > s_Trho, dsdT_Trho, dsdrho_Trho, d2sdT2_Trho, d2sdrho2_Trho, d2sdTdrho_Trho;
+	std::vector<std::vector<double> > p_Trho, dpdT_Trho, dpdrho_Trho, d2pdT2_Trho, d2pdrho2_Trho, d2pdTdrho_Trho;
+	std::vector<std::vector<double> > h_Trho, dhdT_Trho, dhdrho_Trho, d2hdT2_Trho, d2hdrho2_Trho, d2hdTdrho_Trho;
+	std::vector<std::vector<double> > mu_Trho, dmudT_Trho, dmudrho_Trho, d2mudT2_Trho, d2mudrho2_Trho, d2mudTdrho_Trho;
+	std::vector<std::vector<double> > k_Trho, dkdT_Trho, dkdrho_Trho, d2kdT2_Trho, d2kdrho2_Trho, d2kdTdrho_Trho;
+	std::vector<double> T_Trho, rho_Trho;
+
 	/// Indices of the last indices within the two-phase region for pressures 
-	/// from pmin to pmax.  If supercritical, iL and iV entries both -1
-	std::vector<int> iL, iV;
+	/// from pmin to pmax.  If supercritical, IL and IV entries both -1
+	std::vector<int> IL, IV;
 
 	bool read_all_from_file(std::string root_path);
 	void write_all_to_file(std::string root_path = std::string());
@@ -113,33 +117,46 @@ public:
 	void vector_from_file(std::string fName, int N, std::vector<double> *A);
 	void matrix_from_file(std::string fName, std::vector< std::vector<double> > *A);
 
+	/// Set the sizes of the matrices with h,p as inputs
+	void set_size_ph(unsigned int Np = 100, unsigned int Nh = 100);
+	/// Set the sizes of the matrices with Trho as inputs
+	void set_size_Trho(unsigned int NT = 100, unsigned int Nrho = 100);
+
 	void update_saturation_boundary_indices();
-	
-	/// Update the map from the values of T,rho to the indices i,j
-	void update_Trho_map();
 
-
-
-	/// Build the tables
+	/// Build the tables with p,h as the independent variables
 	/// @param hmin Minimum enthalpy [kJ/kg]
 	/// @param hmax Maximum enthalpy [kJ/kg]
 	/// @param pmin Minimum pressure [kJ/kg]
 	/// @param pmax Maximum pressure [kJ/kg]
 	/// @param TTSESatL Saturated liquid TTSE LUT
 	/// @param TTSESatV Saturated vapor TTSE LUT
-	double build(double hmin, double hmax, double pmin, double pmax, TTSETwoPhaseTableClass *SatL = NULL, TTSETwoPhaseTableClass *SatV = NULL);
+	double build_ph(double hmin, double hmax, double pmin, double pmax, TTSETwoPhaseTableClass *SatL = NULL, TTSETwoPhaseTableClass *SatV = NULL);
+
+	/// Build the tables with T,rho as the independent variables
+	/// @param Tmin Minimum temperature [K]
+	/// @param Tmax Maximum temperature [K]
+	/// @param rhomin Minimum density [kg/m^3]
+	/// @param rhomax Maximum density [kg/m^3]
+	/// @param TTSESatL Saturated liquid TTSE LUT
+	/// @param TTSESatV Saturated vapor TTSE LUT
+	double build_Trho(double Tmin, double Tmax, double rhomin, double rhomax, TTSETwoPhaseTableClass *SatL, TTSETwoPhaseTableClass *SatV);
 	
-	/// Evaluate a property in the single-phase region
+	/// Evaluate a property in the single-phase region with p,h as inputs
 	/// @param iParam Index of desired output
 	/// @param p Pressure (absolute) [kPa]
+	/// @param logp Natural logarithm of pressure
 	/// @param h Enthalpy [kJ/kg]
-	double evaluate(long iParam, double p, double h);
+	double evaluate(long iParam, double p, double logp, double h);
 
 	/// Evaluate the TTSE using P,S or P,T
 	double evaluate_one_other_input(long iInput1, double Param1, long iOther, double Other);
 	
-	/// Evaluate the TTSE using T,D or XXX to give P,H
-	void evaluate_two_other_inputs(long iInput1, double Input1, long iInput2, double Input2, double *pout, double *hout);
+	/// Evaluate a property in the single-phase region with T,rho as inputs
+	/// @param iParam Index of desired output
+	/// @param T Temperature [K]
+	/// @param rho Density [kg/m^3]
+	double evaluate_Trho(long iOutput, double T, double rho, double logrho);
 
 	/// Randomly evaluate a property in the single phase region using the TTSE method
 	/// @param iParam Index of desired output
@@ -165,25 +182,29 @@ public:
 	/// @param j Index in p
 	/// @param T0 Temperature
 	/// @param rho0 Density
-	void nearest_neighbor(int i, int j, double *T0, double *rho0);
+	void nearest_neighbor_ph(int i, int j, double *T0, double *rho0);
 
 	/// Find the nearest neighbor indices that have good values if i,j are not good
 	/// @param i Index in h
 	/// @param j Index in p
 	void nearest_good_neighbor(int *i, int *j);
 
-	void get_partner(int i, int j, double p, double h, int *ipartner, int *jpartner);
+	/// Find the nearest neighbor indices that have good values if i,j are not good for T,rho
+	/// @param i Index in T
+	/// @param j Index in rho
+	void nearest_good_neighbor_Trho(int *i, int *j);
 
 	/// Evaluate the first partial derivative
 	/// @param iOF Index in numerator
 	/// @param iWRT Index of denominator
 	/// @param iCONSTANT Index of property held constant
 	/// @param p Pressure [kPa]
+	/// @param logp The natural logarithm of pressure
 	/// @param h Enthalpy [kJ/kg]
-	double evaluate_first_derivative(long iOF, long iWRT, long iCONSTANT, double p, double h);
+	double evaluate_first_derivative(long iOF, long iWRT, long iCONSTANT, double p, double logp, double h);
 
 };
 
-
+double matrix_vector_product(std::vector<double> *x, std::vector<double> *y, double yy);
 
 #endif

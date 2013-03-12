@@ -67,7 +67,7 @@ public:
 	bool flag_TwoPhase;
 
 	// Bulk values
-	double _rho,_T,_p,_Q,_h,_s, tau, delta;
+	double _rho,_T,_p,_Q,_h,_s,_logp, _logrho, tau, delta;
 
 	// Phase flags
 	bool TwoPhase, SinglePhase, s_cached, h_cached;
@@ -135,6 +135,8 @@ public:
 	double drhodh_constp_smoothed(double xend);
 	/// A smoothed version of the derivative using a spline curve in the region of x=0 to x=xend
 	double drhodp_consth_smoothed(double xend);
+	double viscosity(void);
+	double conductivity(void);
 
 	double surface_tension(void);
 

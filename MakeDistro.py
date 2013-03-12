@@ -23,7 +23,7 @@ def InstallPrereqs():
             print subprocess.check_output([python_install, 'setup.py', 'install'], cwd = cwd)
     
 def PYPI():
-    subprocess.call(['python','setup.py','sdist','upload'])
+    subprocess.call(['python','setup.py','sdist','upload'],cwd=os.path.join('wrappers','Python'))
     
 def Source():
     print subprocess.check_output(['python','setup.py','sdist','--dist-dir=../../dist_temp/Python'],shell=True,cwd=os.path.join('wrappers','Python'))
@@ -176,7 +176,7 @@ if __name__=='__main__':
 
 ##     DLL_and_Excel()
 ##     Source()
-    Python()
+##     Python()
 ##     Csharp()
 ##     Octave()
 ##     MATLAB()
@@ -186,5 +186,5 @@ if __name__=='__main__':
 ##     PYPI()
 ##     UploadSourceForge()
 
-##     BuildDocs()
+    BuildDocs()
 ##     UploadDocs()

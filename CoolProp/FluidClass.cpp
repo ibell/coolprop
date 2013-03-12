@@ -587,7 +587,7 @@ double Fluid::specific_heat_v_Trho(double T, double rho)
     R=params.R_u/params.molemass;
 	tau=reduce.T/T;
 	delta=rho/reduce.rho;
-    return -R*pow(tau,2)*(d2phi0_dTau2(tau,delta)+d2phir_dTau2(tau,delta));
+    return -R*tau*tau*(d2phi0_dTau2(tau,delta)+d2phir_dTau2(tau,delta));
 }
 double Fluid::specific_heat_p_Trho(double T, double rho)
 {
@@ -761,7 +761,7 @@ double Fluid::density_Tp(double T, double p, double rho_guess)
 double Fluid::viscosity_Trho( double T, double rho)
 {
 	// Use R134a as the reference
-	Fluid * ReferenceFluid = new R134aClass();
+	Fluid * ReferenceFluid = new R134aClass(); 
 	ReferenceFluid->post_load();
 	// Calculate the ECS
 	double mu = viscosity_ECS_Trho(T, rho, ReferenceFluid);
@@ -1584,7 +1584,6 @@ void Fluid::temperature_ph(double p, double h, double *Tout, double *rhoout, dou
 			*Tout = _HUGE;
             *rhoout = _HUGE;
 		}
-		
     }
 
 	//std::cout<<"Temperature_ph took "<<iter-1<<" steps\n";
@@ -2676,17 +2675,33 @@ bool Fluid::build_TTSE_LUT(bool force_build)
 
 		TTSESatV = TTSETwoPhaseTableClass(this,1);
 		TTSESatV.set_size(Nsat_TTSE);
-		TTSESatV.build(pmin_TTSE,crit.p,&TTSESatL);
+		TTSESatV.build(pmin_TTSE,crit.p-1e-15,&TTSESatL);
 
 		TTSESinglePhase = TTSESinglePhaseTableClass(this);
 		TTSESinglePhase.enable_writing_tables_to_files = enable_writing_tables_to_files;
-		TTSESinglePhase.set_size(Nh_TTSE,Np_TTSE);
+		TTSESinglePhase.set_size_ph(Np_TTSE,Nh_TTSE);
+		// T,rho will mirror the size and range of h,p
+		TTSESinglePhase.set_size_Trho(Np_TTSE, Nh_TTSE);
+		TTSESinglePhase.hmin = hmin_TTSE;
+		TTSESinglePhase.hmax = hmax_TTSE;
+		TTSESinglePhase.pmin = pmin_TTSE;
+		TTSESinglePhase.pmax = pmax_TTSE;
 		TTSESinglePhase.SatL = &TTSESatL;
 		TTSESinglePhase.SatV = &TTSESatV;
-		TTSESinglePhase.build(hmin_TTSE,hmax_TTSE,pmin_TTSE,pmax_TTSE,&TTSESatL,&TTSESatV);
 
-		//std::vector<double> h,p,EOS,TTSE;
-		//TTSESinglePhase.check_randomly(iS,1000,&h,&p,&EOS,&TTSE);
+		// If we can read the LUT from file, we are done and don't need to rebuild
+		if (!TTSESinglePhase.read_all_from_file(TTSESinglePhase.root_path))
+		{
+			// Build (or load) all the files
+			TTSESinglePhase.build_ph(hmin_TTSE, hmax_TTSE, pmin_TTSE, pmax_TTSE, &TTSESatL, &TTSESatV);
+			TTSESinglePhase.build_Trho(-1, -1, -1, -1, &TTSESatL, &TTSESatV);// Allow method to figure out the range using h,p since -1 passed for T and rho limits
+
+			// Write all the matrices and arrays to files
+			if (TTSESinglePhase.enable_writing_tables_to_files){
+				TTSESinglePhase.write_all_to_file(TTSESinglePhase.root_path);
+			}
+		}
+
 		built_TTSE_LUT = true;
 		enabled_TTSE_LUT = true;
 	}

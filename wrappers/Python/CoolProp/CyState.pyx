@@ -2,6 +2,7 @@
 cdef class PureFluidClass:
     def __cinit__(self, string name):
         self.CPS = CoolPropStateClass(name)
+    
     cpdef update(self, long iInput1, double Value1, long iInput2, double Value2):
         self.CPS.update(iInput1,Value1,iInput2,Value2)
     
@@ -30,26 +31,26 @@ cdef class PureFluidClass:
     ##        Fluid property accessors
     ## ----------------------------------------
     
-    cpdef double T(self):
+    cpdef double T(self) except *:
         return self.CPS.T()    
-    cpdef double rho(self):
+    cpdef double rho(self) except *:
         return self.CPS.rho()
-    cpdef double p(self):
+    cpdef double p(self) except *:
         return self.CPS.p()
-    cpdef double h(self):
+    cpdef double h(self) except *:
         return self.CPS.h()
-    cpdef double s(self):
+    cpdef double s(self) except *:
         return self.CPS.s()
-    cpdef double cp(self):
+    cpdef double cp(self) except *:
         return self.CPS.cp()
-    cpdef double cv(self):
+    cpdef double cv(self) except *:
         return self.CPS.cv()
-    cpdef double speed_sound(self):
+    cpdef double speed_sound(self) except *:
         return self.CPS.speed_sound()
     
-    cpdef double keyed_output(self, long iOutput):
+    cpdef double keyed_output(self, long iOutput) except *:
         return self.CPS.keyed_output(iOutput)
-    cpdef long phase(self):
+    cpdef long phase(self) except *:
         return self.CPS.phase()
 
     ## ----------------------------------------	
@@ -67,7 +68,6 @@ cdef class PureFluidClass:
     # Disable the TTSE
     cpdef disable_TTSE_LUT(self):
         self.CPS.disable_TTSE_LUT()
-        
 
     cpdef double dTdp_along_sat(self):
         return self.CPS.dTdp_along_sat()
@@ -83,25 +83,25 @@ cdef class PureFluidClass:
     cpdef double d2hdp2_along_sat_liquid(self):
         return self.CPS.d2hdp2_along_sat_liquid()
 
-    cpdef double dsdp_along_sat_vapor(self):
+    cpdef double dsdp_along_sat_vapor(self) except *:
         return self.CPS.dsdp_along_sat_vapor()
-    cpdef double dsdp_along_sat_liquid(self):
+    cpdef double dsdp_along_sat_liquid(self) except *:
         return self.CPS.dsdp_along_sat_liquid()
-    cpdef double d2sdp2_along_sat_vapor(self):
+    cpdef double d2sdp2_along_sat_vapor(self) except *:
         return self.CPS.d2sdp2_along_sat_vapor()
-    cpdef double d2sdp2_along_sat_liquid(self):
+    cpdef double d2sdp2_along_sat_liquid(self) except *:
         return self.CPS.d2sdp2_along_sat_liquid()
 
-    cpdef double drhodp_along_sat_vapor(self):
+    cpdef double drhodp_along_sat_vapor(self) except *:
         return self.CPS.drhodp_along_sat_vapor()
-    cpdef double drhodp_along_sat_liquid(self):
+    cpdef double drhodp_along_sat_liquid(self) except *:
         return self.CPS.drhodp_along_sat_liquid()
-    cpdef double d2rhodp2_along_sat_vapor(self):
+    cpdef double d2rhodp2_along_sat_vapor(self) except *:
         return self.CPS.d2rhodp2_along_sat_vapor()
-    cpdef double d2rhodp2_along_sat_liquid(self):
+    cpdef double d2rhodp2_along_sat_liquid(self) except *:
         return self.CPS.d2rhodp2_along_sat_liquid()
 
-    cpdef double drhodT_along_sat_vapor(self):
+    cpdef double drhodT_along_sat_vapor(self) except *:
         return self.CPS.drhodT_along_sat_vapor()
-    cpdef double drhodT_along_sat_liquid(self):
+    cpdef double drhodT_along_sat_liquid(self) except *:
         return self.CPS.drhodT_along_sat_liquid()
