@@ -1056,6 +1056,7 @@ import SI = Modelica.SIunits;
   end Examples;
 
   package Media "Medium packages compatible with Modelica.Media"
+  extends Modelica.Icons.VariantsPackage;
 
     package TestMedium "Simple water medium model for debugging and testing"
       extends CoolProp2Modelica.Interfaces.ExternalTwoPhaseMedium(
