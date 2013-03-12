@@ -291,9 +291,9 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 	std::string RefString;
 	std::string rpPath (refpropPath);
 
-	#ifdef __ISWINDOWS__
+	#if defined(__ISWINDOWS__)
 	std::string fdPath = rpPath;
-	#elif __ISLINUX__
+	#elif defined(__ISLINUX__)
 	std::string fdPath = rpPath + std::string("/fluids/");
 	#endif
 
