@@ -1157,7 +1157,12 @@ double CoolPropStateClass::drhodp_consth_smoothed(double xend){
 	// We do the interpolation in terms of enthalpy because it is a bit simpler to do
 	// The values at x = 0, but faking out CoolProp by using T,rho and enforcing singlephase
 	CPS.flag_SinglePhase = true;
-	CPS.update(iT,TsatL,iD,rhosatL);
+	if (isenabled_TTSE_LUT()){
+		CPS.update(iP,psatL,iH,hL);
+	}
+	else{
+		CPS.update(iT,TsatL,iD,rhosatL);	
+	}
 	SC.add_value_constraint(hL, CPS.drhodp_consth());
 	SC.add_derivative_constraint(hL, CPS.d2rhodhdp());
 	// The values at x = xend
@@ -1182,18 +1187,14 @@ double CoolPropStateClass::drhodh_constp_smoothed(double xend){
 	// The values at x = 0, but faking out CoolProp by using T,rho and enforcing singlephase
 	CPS.flag_SinglePhase = true;
 	// Get the value at the saturated liquid part
-	if (isenabled_TTSE_LUT())
-	{
+	if (isenabled_TTSE_LUT()){
 		CPS.update(iP,psatL,iH,hL);
-		SC.add_value_constraint(hL, CPS.drhodh_constp());
-		SC.add_derivative_constraint(hL, CPS.d2rhodh2_constp());
 	}
-	else
-	{
-		CPS.update(iT,TsatL,iD,rhosatL);
-		SC.add_value_constraint(hL, CPS.drhodh_constp());
-		SC.add_derivative_constraint(hL, CPS.d2rhodh2_constp());
+	else{
+		CPS.update(iT,TsatL,iD,rhosatL);	
 	}
+	SC.add_value_constraint(hL, CPS.drhodh_constp());
+	SC.add_derivative_constraint(hL, CPS.d2rhodh2_constp());
 	// The values at x = xend
 	CPS.update(iT,TsatL,iQ,xend);
 	SC.add_value_constraint(hend, CPS.drhodh_constp());

@@ -83,10 +83,6 @@ CoolPropSolver::CoolPropSolver(const string &mediumName, const string &libraryNa
 		}
 	}
 
-	if (enable_TTSE && twophase_derivsmoothing_xend>0){
-		errorMessage((char*)format("Sorry but it is currently not allowed to mix TTSE and derivative smooothing").c_str());
-	}
-
 	state = new CoolPropStateClass(name_options[0]);
 }
 
