@@ -2692,7 +2692,7 @@ bool Fluid::build_TTSE_LUT(bool force_build)
 		// If we can read the LUT from file, we are done and don't need to rebuild
 		if (!TTSESinglePhase.read_all_from_file(TTSESinglePhase.root_path))
 		{
-			// Build (or load) all the files
+			// Build all the tables
 			TTSESinglePhase.build_ph(hmin_TTSE, hmax_TTSE, pmin_TTSE, pmax_TTSE, &TTSESatL, &TTSESatV);
 			TTSESinglePhase.build_Trho(-1, -1, -1, -1, &TTSESatL, &TTSESatV);// Allow method to figure out the range using h,p since -1 passed for T and rho limits
 

@@ -34,7 +34,31 @@
 // The revision of the TTSE tables, only use tables with the same revision.  Increment this macro if any non-forward compatible changes are made
 #define TTSEREV 1
 
-
+std::string get_home_dir(void)
+{
+	// See http://stackoverflow.com/questions/2552416/how-can-i-find-the-users-home-dir-in-a-cross-platform-manner-using-c
+	#if defined(__ISLINUX__)
+	std::string home = getenv("HOME");
+	#else
+	char * pUSERPROFILE = getenv("USERPROFILE");
+	if (pUSERPROFILE != NULL){
+		return std::string(pUSERPROFILE);
+	}
+	else
+	{
+		char * pHOMEDRIVE = getenv("HOMEDRIVE");
+		char * pHOMEPATH = getenv("HOMEPATH");
+		if (pHOMEDRIVE != NULL && pHOMEPATH != NULL)
+		{
+			return std::string(pHOMEDRIVE) + std::string(pHOMEPATH);
+		}
+		else
+		{
+			return std::string("");
+		}
+	}
+	#endif
+}
 
 /// The inverse of the A matrix for the bicubic interpolation (http://en.wikipedia.org/wiki/Bicubic_interpolation)
 static double Ainv[16][16] = {
@@ -86,7 +110,11 @@ TTSESinglePhaseTableClass::TTSESinglePhaseTableClass(Fluid *pFluid)
 {
 	this->pFluid = pFluid;
 	// The default data location for the LUT
-	this->root_path = std::string(format("TTSEData/%s",pFluid->get_name().c_str()));
+	#if defined(__ISWINDOWS__)
+	this->root_path = get_home_dir()+std::string("\\.CoolProp-TTSEData\\")+pFluid->get_name();
+	#else
+	this->root_path = get_home_dir()+std::string("/.CoolProp-TTSEData/")+pFluid->get_name();
+	#endif
 
 	// Seed the generator for random number generation
 	srand((unsigned int)time(NULL));
