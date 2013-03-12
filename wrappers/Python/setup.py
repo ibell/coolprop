@@ -16,7 +16,18 @@ while minor[iEnd].isdigit():
 minor = int(minor[0:iEnd])
 if not(major > 0 or minor >= 17):
     raise ImportError('Cython version >= 0.17 required due to the use of STL wrappers.  Please update your version of cython')
-    
+
+try:
+    import psutil
+    for proc in psutil.get_process_list():
+        cmdline = proc.cmdline
+        if cmdline and ''.join(cmdline).find('pycompletionserver.py') > 0:
+            proc.terminate()
+            print('Python completion server killed')
+            break
+except ImportError:
+    print('psutil was not found, it is used to kill the python completion server in Eclipse which keeps CoolProp from building sometimes.  psutils can be easy_install-ed')
+        
 from distutils.core import setup, Extension
 import subprocess,shutil,os,sys,glob
 from Cython.Build import cythonize
