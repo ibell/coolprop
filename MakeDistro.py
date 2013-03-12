@@ -1,13 +1,12 @@
 import subprocess,os,shutil
 
 #These should be paths to python executables that you want want use to build versions of CoolProp
-#These paths are relative to the wrappers/Python folder
-PYTHONVERSIONS=['..\..\_python\py27\python.exe',
-                '..\..\_python\py27_x64\python.exe',
-                '..\..\_python\py32\python.exe',
-                '..\..\_python\py32_x64\python.exe',
-                '..\..\_python\py33\python.exe',
-                '..\..\_python\py33_x64\python.exe',
+PYTHONVERSIONS=['python.exe', #This is python 2.7 on my computer
+                'c:\\python\\py27_x64\\python.exe',
+                'c:\\python\\py32\\python.exe',
+                'c:\\python\\py32_x64\\python.exe',
+                'c:\\python\\py33\\python.exe',
+                'c:\\python\\py33_x64\\python.exe',
                 ]
 
 if not os.path.exists('_deps'):
@@ -15,12 +14,17 @@ if not os.path.exists('_deps'):
         
 def InstallPrereqs():
     """ Get the requirements for CoolProp """
-    #Collect the source for Cython and put in _deps/cython
-    subprocess.call(['easy_install','-U','--editable','--build-directory','_deps','Cython'], shell = True, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
-        
+    #Collect the source for Cython and put in _deps/cython-master
+    import urllib,zipfile
+    print 'getting cython sources'
+    urllib.urlretrieve('https://github.com/cython/cython/archive/master.zip', filename = 'master.zip')
+    with zipfile.ZipFile('master.zip', 'r') as myzip:
+        myzip.extractall(path='_deps')
+    os.remove('master.zip')
     for python_install in PYTHONVERSIONS:
-        for cwd in ['_deps/cython']:
+        for cwd in ['_deps/cython-master']:
             print subprocess.check_output([python_install, 'setup.py', 'install'], cwd = cwd)
+            
     
 def PYPI():
     subprocess.call(['python','setup.py','sdist','upload'],cwd=os.path.join('wrappers','Python'))
@@ -116,10 +120,7 @@ def EES():
 def Python():
     
     for python_install in PYTHONVERSIONS:
-        remove_coolprop_lib()
         print subprocess.check_output([python_install,'setup.py','bdist','--format=wininst','--dist-dir=../../dist_temp/Python'],shell=True,cwd=os.path.join('wrappers','Python'))
-    #For good measure, clean up after ourselves
-    remove_coolprop_lib()
     
 def Modelica():
     try:
@@ -176,7 +177,7 @@ if __name__=='__main__':
 
 ##     DLL_and_Excel()
 ##     Source()
-##     Python()
+    Python()
 ##     Csharp()
 ##     Octave()
 ##     MATLAB()
@@ -186,5 +187,5 @@ if __name__=='__main__':
 ##     PYPI()
 ##     UploadSourceForge()
 
-    BuildDocs()
+##     BuildDocs()
 ##     UploadDocs()
