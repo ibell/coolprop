@@ -550,8 +550,8 @@ void CoolPropStateClass::update_TTSE_LUT(long iInput1, double Value1, long iInpu
 		double p = Value1; 
 		double h = Value2;
 
-		// If enthalpy is outside the saturation region, it is single-phase
-		if (p > pFluid->reduce.p || p < pFluid->params.ptriple ||  h < pFluid->TTSESatL.evaluate(iH,p)  || h > pFluid->TTSESatV.evaluate(iH,p))
+		// If enthalpy is outside the saturation region or flag_SinglePhase is set, it is single-phase
+		if (p > pFluid->reduce.p || p < pFluid->params.ptriple ||  h < pFluid->TTSESatL.evaluate(iH,p)  || h > pFluid->TTSESatV.evaluate(iH,p) || !flag_SinglePhase)
 		{
 			TwoPhase = false;
 			SinglePhase = true;
@@ -1181,9 +1181,19 @@ double CoolPropStateClass::drhodh_constp_smoothed(double xend){
 	// We do the interpolation in terms of enthalpy because it is a bit simpler to do
 	// The values at x = 0, but faking out CoolProp by using T,rho and enforcing singlephase
 	CPS.flag_SinglePhase = true;
-	CPS.update(iT,TsatL,iD,rhosatL);
-	SC.add_value_constraint(hL, CPS.drhodh_constp());
-	SC.add_derivative_constraint(hL, CPS.d2rhodh2_constp());
+	// Get the value at the saturated liquid part
+	if (isenabled_TTSE_LUT())
+	{
+		CPS.update(iP,psatL,iH,hL);
+		SC.add_value_constraint(hL, CPS.drhodh_constp());
+		SC.add_derivative_constraint(hL, CPS.d2rhodh2_constp());
+	}
+	else
+	{
+		CPS.update(iT,TsatL,iD,rhosatL);
+		SC.add_value_constraint(hL, CPS.drhodh_constp());
+		SC.add_derivative_constraint(hL, CPS.d2rhodh2_constp());
+	}
 	// The values at x = xend
 	CPS.update(iT,TsatL,iQ,xend);
 	SC.add_value_constraint(hend, CPS.drhodh_constp());

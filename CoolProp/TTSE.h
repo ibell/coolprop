@@ -205,6 +205,6 @@ public:
 
 };
 
-
+double matrix_vector_product(std::vector<double> *x, std::vector<double> *y, double yy);
 
 #endif

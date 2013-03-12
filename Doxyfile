@@ -32,7 +32,7 @@ PROJECT_NAME           = CoolProp
 # This could be handy for archiving the generated documentation or 
 # if some version control system is used.
 
-PROJECT_NUMBER                  = 3.0.1
+PROJECT_NUMBER         = 3.0.1
 
 # Using the PROJECT_BRIEF tag one can provide an optional one line description 
 # for a project that appears at the top of each page and should give viewer 
@@ -52,7 +52,7 @@ PROJECT_LOGO           =
 # If a relative path is entered, it will be relative to the location 
 # where doxygen was started. If left blank the current directory will be used.
 
-OUTPUT_DIRECTORY       = C:/Users/Belli/Documents/Code/PythonModules/CoolPropSource/Web/_static/doxygen
+OUTPUT_DIRECTORY       = Web/_static/doxygen
 
 # If the CREATE_SUBDIRS tag is set to YES, then doxygen will create 
 # 4096 sub-directories (in 2 levels) under the output directory of each output 
@@ -665,7 +665,7 @@ WARN_LOGFILE           =
 # directories like "/usr/src/myproject". Separate the files or directories 
 # with spaces.
 
-INPUT                  = C:/Users/Belli/Documents/Code/PythonModules/CoolPropSource/CoolProp \
+INPUT                  = CoolProp \
                          C:/Users/Belli/Documents/Code/PythonModules/CoolPropSource/CoolProp/purefluids \
                          C:/Users/Belli/Documents/Code/PythonModules/CoolPropSource/CoolProp/pseudopurefluids
 
@@ -723,7 +723,7 @@ FILE_PATTERNS          = *.c \
 # should be searched for input files as well. Possible values are YES and NO. 
 # If left blank NO is used.
 
-RECURSIVE              = NO
+RECURSIVE              = YES
 
 # The EXCLUDE tag can be used to specify files and/or directories that should be 
 # excluded from the INPUT source files. This way you can easily exclude a 
@@ -1255,7 +1255,7 @@ SERVER_BASED_SEARCH    = NO
 # If the GENERATE_LATEX tag is set to YES (the default) Doxygen will 
 # generate Latex output.
 
-GENERATE_LATEX         = YES
+GENERATE_LATEX         = NO
 
 # The LATEX_OUTPUT tag is used to specify where the LaTeX docs will be put. 
 # If a relative path is entered the value of OUTPUT_DIRECTORY will be 

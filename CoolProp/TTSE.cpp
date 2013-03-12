@@ -31,11 +31,48 @@
 #define CLOCKS_PER_SEC 1000
 #endif
 
-// The revision of the TTSE tables, only use tables with the same revision.  Update this macro if any non-forward compatible changes are made
+// The revision of the TTSE tables, only use tables with the same revision.  Increment this macro if any non-forward compatible changes are made
 #define TTSEREV 1
+
+
+
+/// The inverse of the A matrix for the bicubic interpolation (http://en.wikipedia.org/wiki/Bicubic_interpolation)
+static double Ainv[16][16] = {
+	{1 ,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+	{0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+	{-3, 3, 0, 0, -2, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+	{2, -2, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+	{0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0},
+	{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
+	{0, 0, 0, 0, 0, 0, 0, 0, -3, 3, 0, 0, -2, -1, 0, 0},
+	{0, 0, 0, 0, 0, 0, 0, 0, 2, -2, 0, 0, 1, 1, 0, 0},
+	{-3, 0, 3, 0, 0, 0, 0, 0, -2, 0, -1, 0, 0, 0, 0, 0},
+	{0, 0, 0, 0, -3, 0, 3, 0, 0, 0, 0, 0, -2, 0, -1, 0},
+	{9, -9, -9, 9, 6, 3, -6, -3, 6, -6, 3, -3, 4, 2, 2, 1},
+	{-6, 6, 6, -6, -3, -3, 3, 3, -4, 4, -2, 2, -2, -2, -1, -1},
+	{2, 0, -2, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0},
+	{0, 0, 0, 0, 2, 0, -2, 0, 0, 0, 0, 0, 1, 0, 1, 0},
+	{-6, 6, 6, -6, -4, -2, 4, 2, -3, 3, -3, 3, -2, -1, -2, -1},
+	{4, -4, -4, 4, 2, 2, -2, -2, 2, -2, 2, -2, 1, 1, 1, 1}
+	};
 
 double round(double r) {
     return (r > 0.0) ? floor(r + 0.5) : ceil(r - 0.5);
+}
+
+double matrix_vector_product(std::vector<double> *x, std::vector<double> *y, double yy)
+{
+	double sum;
+	for (unsigned int i = 0; i < 16; i++)
+	{
+		sum = 0;
+		for (unsigned int j = 0; j < 16; j++)
+		{
+			sum += Ainv[i][j]*(*x)[j];
+		}
+		//(*y)[i] = sum;
+	}
+	return yy;
 }
 
 TTSESinglePhaseTableClass::TTSESinglePhaseTableClass(){
@@ -362,8 +399,8 @@ std::string get_file_contents(std::string filename)
 bool TTSESinglePhaseTableClass::read_all_from_file(std::string root_path)
 {
 	std::string Fluid;
-	double hmin,hmax,pmin,pmax,_TTSERev;
-	int Np, Nh;
+	double hmin,hmax,pmin,pmax;
+	int Np, Nh, TTSERev;
 
 	// Replace any '\' with '/' in the path
 	for (unsigned int i = 0; i<root_path.length(); i++)
@@ -427,7 +464,7 @@ bool TTSESinglePhaseTableClass::read_all_from_file(std::string root_path)
 		else if (line[0].find("Nrho")!=  std::string::npos) {	
 			Nrho = (int)strtol(line[1].c_str(),NULL,0);}
 		else if (line[0].find("TTSERev")!=  std::string::npos) {
-			_TTSERev = (int)strtol(line[1].c_str(),NULL,0);}
+			TTSERev = (int)strtol(line[1].c_str(),NULL,0);}
 	}
 	
 	// Didn't work since at least one of the parameters was different
@@ -445,7 +482,7 @@ bool TTSESinglePhaseTableClass::read_all_from_file(std::string root_path)
 		  && fabs(Tmax - this->Tmax)<10*DBL_EPSILON 
 		  && fabs(rhomin - this->rhomin)<10*DBL_EPSILON 
 		  && fabs(rhomax - this->rhomax)<10*DBL_EPSILON
-		  && _TTSERev == TTSEREV
+		  && TTSERev == TTSEREV
 		)) return false;
 
 	// Read all the data from the binary files
@@ -1494,12 +1531,6 @@ double TTSESinglePhaseTableClass::evaluate_Trho(long iOutput, double T, double r
 	double deltaT = T - this->T_Trho[i];
 	double deltarho = rho - this->rho_Trho[j];
 	
-	double t1 = mu_Trho[i][j];
-	double t2 = dmudT_Trho[i][j];
-	double t3 = dmudrho_Trho[i][j];
-	double t4 = d2mudT2_Trho[i][j];
-	double t5 = d2mudrho2_Trho[i][j];
-	double t6 = d2mudTdrho_Trho[i][j];
 	switch (iOutput)
 	{
 	case iS:

@@ -725,7 +725,7 @@ cdef class State:
     
     cpdef double get_MM(self) except *:
         """ Get the mole mass [kg/kmol] or [g/mol] """
-        return _Props1(self.Fluid,'molemass')
+        return self.Props(iMM)
     
     cpdef double get_rho(self) except *:
         """ Get the density [kg/m^3] """ 
