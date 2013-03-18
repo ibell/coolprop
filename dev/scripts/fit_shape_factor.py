@@ -13,7 +13,7 @@ molemass_REF = CP.Props(fluid_REF,'molemass')
 rhocrit_REF = CP.Props(fluid_REF,'rhocrit')
 Zcrit_REF = CP.DerivTerms('Z',Tcrit_REF,rhocrit_REF,fluid_REF)
 
-fluid = 'R32'
+fluid = 'DimethylEther'
 molemass = CP.Props(fluid,'molemass')
 Ttriple = CP.Props(fluid,'Ttriple')
 Tcrit = CP.Props(fluid,'Tcrit')

@@ -23,7 +23,7 @@ EXPORT_CODE double CONVENTION HAProps(char *OutputName, char *Input1Name, double
 // -----------------------
 // Extra I/O function
 // -----------------------
-EXPORT_CODE double CONVENTION HAProps_Aux(char* Name,double T, double p, double W, char *units);
+EXPORT_CODE double CONVENTION HAProps_Aux(char* OutputName, double T, double p, double W, char *units);
 
 // Properties for Ice Ih at temperatures below 273.16 K
 double IceProps(char* Name, double T, double p);

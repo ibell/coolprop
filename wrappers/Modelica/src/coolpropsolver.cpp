@@ -72,7 +72,6 @@ CoolPropSolver::CoolPropSolver(const string &mediumName, const string &libraryNa
 				if (debug_level<0 || debug_level > 1000)
 					errorMessage((char*)format("I don't know how to handle this debug level [%s]",param_val[0].c_str()).c_str());
 			}
-
 			else
 			{
 				errorMessage((char*)format("This option [%s] was not understood",name_options[i].c_str()).c_str());

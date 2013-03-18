@@ -1269,18 +1269,18 @@ double R245faClass::viscosity_Trho(double T, double rho)
     tau = reduce.T/T;
     delta = rho/reduce.rho;
 
-    R134aClass R134a = R134aClass();
-    R134a.post_load();
-    delta_omega = params.accentricfactor-R134a.params.accentricfactor;
+	long iR134a = get_Fluid_index(std::string("R134a"));
+    Fluid* R134a = get_fluid(iR134a);
+    delta_omega = params.accentricfactor-R134a->params.accentricfactor;
 
     Zc = reduce.p/(reduce.rho*R()*reduce.T);
-    Zc0 = R134a.reduce.p/(R134a.reduce.rho*R134a.R()*R134a.reduce.T);
+    Zc0 = R134a->reduce.p/(R134a->reduce.rho*R134a->R()*R134a->reduce.T);
     Tc = reduce.T;
-    Tc0 = R134a.reduce.T;
+    Tc0 = R134a->reduce.T;
     rhoc = reduce.rho;
-    rhoc0 = R134a.reduce.rho;
+    rhoc0 = R134a->reduce.rho;
     M = params.molemass;
-    M0 = R134a.params.molemass;
+    M0 = R134a->params.molemass;
 
     rhobar = rho/M;
 
@@ -1316,7 +1316,7 @@ double R245faClass::viscosity_Trho(double T, double rho)
     f = T/T0;
     F_eta = sqrt(f)*pow(h,-2.0/3.0)*sqrt(M/M0);
     ECSParams(&e_k,&sigma);
-    return viscosity_dilute(T,e_k,sigma) + R134a.viscosity_background(T0,rho0*psi)*F_eta;
+    return viscosity_dilute(T,e_k,sigma) + R134a->viscosity_background(T0,rho0*psi)*F_eta;
 } 
 void R245faClass::ECSParams(double *e_k, double *sigma)
 {

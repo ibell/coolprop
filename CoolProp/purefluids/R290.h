@@ -18,6 +18,7 @@
 		double viscosity_background(double T, double rho);
 		double conductivity_background(double T, double rho);
 		void ECSParams(double *e_k, double *sigma);
+		double surface_tension_T(double T);
 	};
 
 #endif

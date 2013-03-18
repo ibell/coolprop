@@ -450,6 +450,7 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 		SETUPdll(&i, hf, hfm, hrf, &ierr, herr,
 				refpropcharlength*ncmax,refpropcharlength,
 				lengthofreference,errormessagelength);
+		free (hfm);
 
 		if (ierr != 0) printf("REFPROP setup gives this error during SETUP: %s\n",herr);
 		//Copy the name of the loaded refrigerant back into the temporary holder

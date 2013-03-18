@@ -850,7 +850,7 @@ double TTSESinglePhaseTableClass::build_ph(double hmin, double hmax, double pmin
 	}
 	t2 = clock();
 	double elap = (double)(t2-t1)/CLOCKS_PER_SEC;
-	std::cout << elap << " to build single phase table" << std::endl;
+	std::cout << elap << " to build single phase table with p,h" << std::endl;
 
 	// Update the boundaries of the points within the single-phase regions
 	update_saturation_boundary_indices();
@@ -1041,6 +1041,7 @@ double TTSESinglePhaseTableClass::build_Trho(double Tmin, double Tmax, double rh
 				d2kdTdrho_Trho[i][j] = _HUGE;
 				d2kdrho2_Trho[i][j] = _HUGE;
 			}
+			//std::cout << format("%d %d\n",i,j);
 		}
 	}
 	t2 = clock();

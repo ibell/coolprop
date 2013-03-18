@@ -453,3 +453,7 @@ double R290Class::rhosatV(double T)
     }
     return reduce.rho*exp(summer);
 }
+double R290Class::surface_tension_T(double T)
+{
+	return 0.05334*pow(1-T/reduce.T,1.235)-0.01748*pow(1-T/reduce.T,4.404);
+}

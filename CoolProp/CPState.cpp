@@ -5,7 +5,7 @@
 #include "CoolPropTools.h"
 #include "float.h"
 #include "math.h"
-#include "Spline.h"
+#include "Spline.h" 
 
 #ifndef __ISWINDOWS__
 	#ifndef DBL_EPSILON
@@ -167,7 +167,6 @@ void CoolPropStateClass::update(long iInput1, double Value1, long iInput2, doubl
 	
 	if (pFluid->enabled_TTSE_LUT)
 	{
-		
 		// Build the tables
 		pFluid->build_TTSE_LUT();
 		// Update using the LUT
@@ -417,7 +416,7 @@ void CoolPropStateClass::update_ph(long iInput1, double Value1, long iInput2, do
 	// Solve for temperature and density with or without the guess values provided
 	pFluid->temperature_ph(Value1, Value2,&_T,&_rho,&rhosatL,&rhosatV,&TsatL,&TsatV, T0, rho0);
 
-	if (Value1 < 0 ){ throw ValueError(format("Your pressure [%g K] is less than zero",Value1));}
+	if (Value1 < 0 ){ throw ValueError(format("Your pressure [%g kPa] is less than zero",Value1));}
 
 	// Set internal variables
 	_p = Value1;
@@ -453,7 +452,7 @@ void CoolPropStateClass::update_ps(long iInput1, double Value1, long iInput2, do
 	// Solve for temperature and density
 	pFluid->temperature_ps(Value1, Value2,&_T,&_rho,&rhosatL,&rhosatV,&TsatL,&TsatV);
 
-	if (Value1 < 0 ){ throw ValueError(format("Your pressure [%g K] is less than zero",Value1));}
+	if (Value1 < 0 ){ throw ValueError(format("Your pressure [%g kPa] is less than zero",Value1));}
 
 	// Set internal variables
 	_p = Value1;
@@ -551,7 +550,7 @@ void CoolPropStateClass::update_TTSE_LUT(long iInput1, double Value1, long iInpu
 		double h = Value2;
 
 		// If enthalpy is outside the saturation region or flag_SinglePhase is set, it is single-phase
-		if (p > pFluid->reduce.p || p < pFluid->params.ptriple ||  h < pFluid->TTSESatL.evaluate(iH,p)  || h > pFluid->TTSESatV.evaluate(iH,p) || !flag_SinglePhase)
+		if (p > pFluid->reduce.p || p < pFluid->params.ptriple ||  h < pFluid->TTSESatL.evaluate(iH,p)  || h > pFluid->TTSESatV.evaluate(iH,p) || flag_SinglePhase)
 		{
 			TwoPhase = false;
 			SinglePhase = true;

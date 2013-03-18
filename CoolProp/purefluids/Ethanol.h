@@ -9,7 +9,7 @@ public:
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
-
+	double surface_tension_T(double);
 };
 
 #endif

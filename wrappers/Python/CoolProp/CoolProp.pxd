@@ -240,7 +240,7 @@ cdef extern from "HumidAirProp.h":
     double _HAProps_Aux "HAProps_Aux"(char* Name,double T, double p, double W, char *units)
        
 cdef class State:
-    cdef PureFluidClass PFC      # hold a PureFluidClass which is the Cython wrapper of CoolPropStateClass
+    cdef public PureFluidClass PFC      # hold a PureFluidClass which is the Cython wrapper of CoolPropStateClass
     cdef readonly bint hasLiquid
     cdef readonly bytes Liquid, Fluid, phase
     cdef long iFluid,iParam1,iParam2,iOutput
