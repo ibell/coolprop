@@ -2515,8 +2515,8 @@ double Fluid::viscosity_ECS_Trho(double T, double rho, Fluid * ReferenceFluid)
 		rho0=x0[1];
 	}
 	rho0bar = rho0/M0;
-	h=rho0bar/rhobar;
-	f=T/T0;
+	h = rho0bar/rhobar;
+	f = T/T0;
 
 	eta_resid = ReferenceFluid->viscosity_background(T0,rho0*psi);
 	F_eta = sqrt(f)*pow(h,-2.0/3.0)*sqrt(M/M0);
@@ -2593,7 +2593,7 @@ double Fluid::conductivity_ECS_Trho(double T, double rho, Fluid * ReferenceFluid
 	double tau = reduce.T/T;
 	double Z = 1+delta*dphir_dDelta(tau,delta);
 	double p0 = Z*R()*T0*rho0;
-	if (Z<0.3 || p0>1.1*ReferenceFluid->reduce.p || rho0>ReferenceFluid->reduce.rho){
+	if (Z<0.3 || p0 > 1.1*ReferenceFluid->reduce.p || rho0 > ReferenceFluid->reduce.rho){
 		// Use the code to calculate the conformal state
 		x0=ConformalTemperature(this,ReferenceFluid,T,rho,T0,rho0,&errstring);
 		T0=x0[0];

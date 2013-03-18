@@ -198,13 +198,12 @@ void CoolPropStateClass::update(long iInput1, double Value1, long iInput2, doubl
 			throw ValueError(format("Sorry your inputs didn't work; valid pairs are P,Q, T,Q, T,D T,P P,H P,S"));
 		}
 		// Clear the cached derivative flags
-		this->clear_cache();
-
-		if (TwoPhase && !flag_TwoPhase)
-		{
-			// Update temperature and density for SatL and SatV
-			add_saturation_states();
-		}
+		this->clear_cache();	
+	}
+	if (TwoPhase && !flag_TwoPhase)
+	{
+		// Update temperature and density for SatL and SatV
+		add_saturation_states();
 	}
 
 	// Reduced parameters
