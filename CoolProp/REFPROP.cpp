@@ -331,6 +331,9 @@ bool set_REFPROP_fluid(std::string Ref)
 	std::string RefString;
 	std::string fdPath = get_REFPROP_fluid_path();
 
+	// Load REFPROP if it isn't loaded yet
+	load_REFPROP();
+
 	// If the fluid name does not start with the string "REFPROP-"
 	if (Ref.find("REFPROP-") == std::string::npos)
 	{
@@ -881,6 +884,7 @@ REFPROPFluidClass::REFPROPFluidClass(std::string FluidName, std::vector<double> 
 {
 	long ierr,ic;
 	char herr[errormessagelength+1];
+	std::vector<double> xliq = std::vector<double>(1,1),xvap = std::vector<double>(1,1);
 	double Tcrit,dcrit,pcrit,MW,Ttriple,tnbpt,acf,Zcrit,dip,Rgas, dummy1, dummy2;
 	
 	// Copy the molar fractions
@@ -908,7 +912,7 @@ REFPROPFluidClass::REFPROPFluidClass(std::string FluidName, std::vector<double> 
 	limits.Tmin = Ttriple;
 	
 	ic = 1;
-	SATTdll(&(Ttriple),&(xmol[0]),&(ic),&(params.ptriple),&dummy1,&dummy2,&(xmol[0]),&(xmol[0]),&ierr,herr,errormessagelength);
+	SATTdll(&(Ttriple),&(xmol[0]),&(ic),&(params.ptriple),&dummy1,&dummy2,&(xliq[0]),&(xvap[0]),&ierr,herr,errormessagelength);
 
 	name.assign(FluidName);
 	//aliases.push_back(FluidName);
