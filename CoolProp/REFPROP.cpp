@@ -1050,6 +1050,16 @@ void REFPROPFluidClass::temperature_ph(double p, double h, double *Tout, double 
 	*rhoLout *= params.molemass;
 	*rhoVout *= params.molemass;
 }
+void REFPROPFluidClass::temperature_ps(double p, double s, double *Tout, double *rhoout, double *rhoLout, double *rhoVout, double *TsatLout, double *TsatVout, double T0, double rho0)
+{
+	long ierr;
+	char herr[errormessagelength+1];
+	double q,e,s,cv,cp,w;
+	PSFLSHdll(&p,&h,&(xmol[0]),Tout,rhoout,rhoLout,rhoVout,&(xmol[0]),&(xmol[0]),&q,&e,&s,&cv,&cp,&w,&ierr,herr,errormessagelength);
+	*rhoout *= params.molemass;
+	*rhoLout *= params.molemass;
+	*rhoVout *= params.molemass;
+}
 double REFPROPFluidClass::density_Tp(double T, double p)
 {
 	return this->density_Tp(T,p,0);
