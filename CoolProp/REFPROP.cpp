@@ -946,6 +946,18 @@ double REFPROPFluidClass::dphir_dTau(double tau, double delta)
 	RESIDUALdll(&T,&rhobar,&(xmol[0]),&pr,&er,&hr,&sr,&cvr,&cpr,&Ar,&Gr);
 	return er/(R*T*tau)/params.molemass;
 }
+double REFPROPFluidClass::d2phi0_dTau2(double tau, double delta)
+{
+	double T,rho,R,rhobar,p0,e0,h0,s0,cv0,cp0,w0,A0,G0;
+
+	R = params.R_u/params.molemass;
+	rho = delta*reduce.rho;
+	rhobar = rho/params.molemass;
+	T = reduce.T/tau;
+	
+	THERM0dll(&T,&rhobar,&(xmol[0]),&p0,&e0,&h0,&s0,&cv0,&cp0,&w0,&A0,&G0);
+	return -cv0/(R*tau*tau)/params.molemass;
+}
 double REFPROPFluidClass::d2phir_dTau2(double tau, double delta)
 {
 	double T,rho,R,rhobar,pr,er,hr,sr,cvr,cpr,Ar,Gr;
@@ -957,6 +969,31 @@ double REFPROPFluidClass::d2phir_dTau2(double tau, double delta)
 	
 	RESIDUALdll(&T,&rhobar,&(xmol[0]),&pr,&er,&hr,&sr,&cvr,&cpr,&Ar,&Gr);
 	return -cvr/(R*tau*tau)/params.molemass;
+}
+
+double REFPROPFluidClass::d2phir_dDelta_dTau(double tau, double delta)
+{
+	double T,rho,R,rhobar,dpdT_constrho;
+
+	R = params.R_u/params.molemass;
+	rho = delta*reduce.rho;
+	rhobar = rho/params.molemass;
+	T = reduce.T/tau;
+	
+	DPDTdll(&T, &rhobar, &(xmol[0]), &dpdT_constrho);
+	return -1/(delta*tau)*(1/(rho*R)*dpdT_constrho-1-delta*this->dphir_dDelta(tau,delta));
+}
+double REFPROPFluidClass::d2phir_dDelta2(double tau, double delta)
+{
+	double T,rho,R,rhobar,dpdrhobar_constT;
+
+	R = params.R_u/params.molemass;
+	rho = delta*reduce.rho;
+	rhobar = rho/params.molemass;
+	T = reduce.T/tau;
+	
+	DPDDdll(&T, &rhobar, &(xmol[0]), &dpdrhobar_constT);
+	return 1/(delta*delta)*(1/(params.R_u*T)*dpdrhobar_constT-1-2*delta*this->dphir_dDelta(tau,delta));
 }
 double REFPROPFluidClass::phir(double tau, double delta)
 {
@@ -1047,11 +1084,12 @@ void REFPROPFluidClass::temperature_ph(double p, double h, double *Tout, double 
 	long ierr;
 	char herr[errormessagelength+1];
 	std::vector<double> xliq = std::vector<double>(1,1),xvap = std::vector<double>(1,1);
-	double q,e,s,cv,cp,w,hbar = h*params.molemass;
+	double q,e,s,cv,cp,w,hbar = h*params.molemass, dummy1, dummy2;
 	PHFLSHdll(&p,&hbar,&(xmol[0]),Tout,rhoout,rhoLout,rhoVout,&(xliq[0]),&(xvap[0]),&q,&e,&s,&cv,&cp,&w,&ierr,herr,errormessagelength);
 	*rhoout *= params.molemass;
 	*rhoLout *= params.molemass;
 	*rhoVout *= params.molemass;
+	this->saturation_p(p,false,TsatLout,TsatVout,&dummy1,&dummy2);
 }
 void REFPROPFluidClass::temperature_ps(double p, double s, double *Tout, double *rhoout, double *rhoLout, double *rhoVout, double *TsatLout, double *TsatVout)
 {
@@ -1083,7 +1121,7 @@ double REFPROPFluidClass::psat(double T)
 	long ierr,ic;
 	char herr[errormessagelength+1];
 	std::vector<double> xliq = std::vector<double>(1,1),xvap = std::vector<double>(1,1);
-	double q,e,s,cv,cp,w,h,rho,rhoL,rhoV,dummy1,dummy2,psatval;
+	double dummy1,dummy2,psatval;
 
 	ic=1;
 	SATTdll(&T,&(xmol[0]),&ic,&psatval,&dummy1,&dummy2,&(xliq[0]),&(xvap[0]),&ierr,herr,errormessagelength);

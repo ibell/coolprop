@@ -16,10 +16,13 @@
 		double phir(double tau, double delta);
 		double dphir_dDelta(double tau, double delta);
 		double dphir_dTau(double tau, double delta);
+		double d2phir_dDelta_dTau(double tau, double delta);
+		double d2phir_dDelta2(double tau, double delta);
 		double d2phir_dTau2(double tau, double delta);
 
 		double phi0(double tau, double delta);
 		double dphi0_dTau(double tau, double delta);
+		double d2phi0_dTau2(double tau, double delta);
 
 		double viscosity_Trho(double T, double rho);
 		double conductivity_Trho(double T, double rho);
