@@ -18,6 +18,9 @@
 
 // Constructor with fluid name
 CoolPropStateClass::CoolPropStateClass(std::string Fluid){
+	// If a refprop fluid, add the fluid to the list of fluids
+	if (Fluid.find("REFPROP-")==0){ add_REFPROP_fluid(Fluid); }
+
 	// Try to get the index of the fluid
 	long iFluid = get_Fluid_index(Fluid);
 	// If iFluid is greater than -1, it is a CoolProp Fluid, otherwise not
