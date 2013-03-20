@@ -98,33 +98,33 @@ double DimethylEtherClass::rhosatV(double T)
     return reduce.rho*exp(summer);
 }
 
-double DimethylEtherClass::viscosity_Trho(double T, double rho)
-{
-	return REFPROP(std::string("V"),std::string("T"),T,std::string("D"),rho,std::string("REFPROP-DME"));
-
-	//double sigma = 0.446704; //[nm]
-	//double M = 46.06844; //[kg/kmol]
-	//double tau = T/reduce.T;
-	//double delta = rho/reduce.rho;
-	//double Tstar = T/317.937;
-	//double log_Tstar = log(Tstar);
-	//double log_theta_star = 0.294261-0.377826*log_Tstar-0.491673*log_Tstar*log_Tstar;
-	//double eta_0 = 0.021375*sqrt(M*T)/(sigma*sigma*exp(log_theta_star)); //[uPa-s]
-	//
-	//double n[] = {-2.70002,4.44583,-104.998,78.27474,41.3751,-175.055,62.81975,0.21302,112.3219,6.50681};
-	//double t[] = {-5.92,-4.36,-2.93,-1.64,-7.86,-4.25,-4.79,-5.87,-3.11,-0.45};
-	//double d[] = {3,3,3,4,5,2,2,5,2,1};
-	//double p[] = {0,0,1,1,2,1,1,0,2,0};
-
-	//double eta_r = n[0]*pow(tau,t[0])*pow(delta,d[0])+n[1]*pow(tau,t[1])*pow(delta,d[1]);
-	//for (unsigned int i = 2; i<=9; i++)
-	//{
-	//	eta_r += n[i]*pow(tau,t[i])*pow(delta,d[i])*exp(-pow(delta,p[i]));
-	//}
-	//return (eta_r+eta_0)/1e6;
-}
-
-double DimethylEtherClass::conductivity_Trho(double T, double rho)
-{
-	return REFPROP(std::string("L"),std::string("T"),T,std::string("D"),rho,std::string("REFPROP-DME"));
-}
+//double DimethylEtherClass::viscosity_Trho(double T, double rho)
+//{
+//	return REFPROP(std::string("V"),std::string("T"),T,std::string("D"),rho,std::string("REFPROP-DME"));
+//
+//	//double sigma = 0.446704; //[nm]
+//	//double M = 46.06844; //[kg/kmol]
+//	//double tau = T/reduce.T;
+//	//double delta = rho/reduce.rho;
+//	//double Tstar = T/317.937;
+//	//double log_Tstar = log(Tstar);
+//	//double log_theta_star = 0.294261-0.377826*log_Tstar-0.491673*log_Tstar*log_Tstar;
+//	//double eta_0 = 0.021375*sqrt(M*T)/(sigma*sigma*exp(log_theta_star)); //[uPa-s]
+//	//
+//	//double n[] = {-2.70002,4.44583,-104.998,78.27474,41.3751,-175.055,62.81975,0.21302,112.3219,6.50681};
+//	//double t[] = {-5.92,-4.36,-2.93,-1.64,-7.86,-4.25,-4.79,-5.87,-3.11,-0.45};
+//	//double d[] = {3,3,3,4,5,2,2,5,2,1};
+//	//double p[] = {0,0,1,1,2,1,1,0,2,0};
+//
+//	//double eta_r = n[0]*pow(tau,t[0])*pow(delta,d[0])+n[1]*pow(tau,t[1])*pow(delta,d[1]);
+//	//for (unsigned int i = 2; i<=9; i++)
+//	//{
+//	//	eta_r += n[i]*pow(tau,t[i])*pow(delta,d[i])*exp(-pow(delta,p[i]));
+//	//}
+//	//return (eta_r+eta_0)/1e6;
+//}
+//
+//double DimethylEtherClass::conductivity_Trho(double T, double rho)
+//{
+//	return REFPROP(std::string("L"),std::string("T"),T,std::string("D"),rho,std::string("REFPROP-DME"));
+//}
