@@ -1074,5 +1074,25 @@ double REFPROPFluidClass::psat(double T)
 
 	return psatval;
 }
+double REFPROPFluidClass::rhosatV(double T)
+{
+	long ierr,ic;
+	char herr[errormessagelength+1];
+	double rhoV,dummy1,psatval;
+
+	ic=2;
+	SATTdll(&T,&(xmol[0]),&ic,&psatval,&dummy1,&rhoV,&(xmol[0]),&(xmol[0]),&ierr,herr,errormessagelength);
+	return rhoV;
+}
+double REFPROPFluidClass::rhosatL(double T)
+{
+	long ierr,ic;
+	char herr[errormessagelength+1];
+	double rhoL,dummy1,psatval;
+
+	ic=1;
+	SATTdll(&T,&(xmol[0]),&ic,&psatval,&rhoL, &dummy1,&(xmol[0]),&(xmol[0]),&ierr,herr,errormessagelength);
+	return rhoL;
+}
 
 #endif //#if defined(__ISWINDOWS__)||defined(__ISLINUX__)

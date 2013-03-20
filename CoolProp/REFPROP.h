@@ -33,6 +33,8 @@
 		double density_Tp(double T, double p, double rho_guess);
 
 		double psat(double T);
+		double rhosatL(double T);
+		double rhosatV(double T);
 
 	};
 	bool set_REFPROP_fluid(std::string Ref);
