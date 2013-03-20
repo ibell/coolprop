@@ -74,6 +74,17 @@ cdef _convert_to_default_units(bytes_or_str parameter_type, object parameter):
     #Return the scaled units
     return parameter
     
+cpdef add_REFPROP_fluid(str FluidName):
+    """
+    Add a REFPROP fluid to CoolProp internal structure
+    
+    example::
+    
+        add_REFPROP_fluid("REFPROP-PROPANE")
+         
+    """
+    _add_REFPROP_fluid(FluidName)
+    
 cpdef double Props(str in1, str in2, in3 = None, in4 = None, in5 = None, in6 = None, in7 = None) except *:
     """
     Call Type #1::

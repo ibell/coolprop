@@ -202,6 +202,7 @@ cdef extern from "CoolProp.h":
     double _viscosity_dilute "viscosity_dilute"(char* FluidName, double T, double rho, double e_k, double sigma)
     double _conformal_Trho "conformal_Trho"(char* FluidName, char* ReferenceFluidName, double T, double rho, double *Tconform, double *rhoconform)
     
+    string _add_REFPROP_fluid "add_REFPROP_fluid"(string FluidName)
     
     int _get_debug "get_debug"()
     void _debug "debug"(int level)

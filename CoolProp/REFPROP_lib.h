@@ -86,6 +86,7 @@
 #  define PUREFLDdll PUREFLDdll
 #  define QMASSdll QMASSdll
 #  define QMOLEdll QMOLEdll
+#  define RESIDUALdll RESIDUALdll
 #  define SATDdll SATDdll
 #  define SATEdll SATEdll
 #  define SATHdll SATHdll
@@ -199,6 +200,7 @@
 #  define PUREFLDdll pureflddll_
 #  define QMASSdll qmassdll_
 #  define QMOLEdll qmoledll_
+#  define RESIDUALdll residualdll_
 #  define SATDdll satddll_
 #  define SATEdll satedll_
 #  define SATHdll sathdll_
@@ -310,6 +312,7 @@
 #define PUREFLDdll_NAME FUNCTION_NAME(PUREFLDdll)
 #define QMASSdll_NAME FUNCTION_NAME(QMASSdll)
 #define QMOLEdll_NAME FUNCTION_NAME(QMOLEdll)
+#define RESIDUALdll_NAME FUNCTION_NAME(RESIDUALdll)
 #define SATDdll_NAME FUNCTION_NAME(SATDdll)
 #define SATEdll_NAME FUNCTION_NAME(SATEdll)
 #define SATHdll_NAME FUNCTION_NAME(SATHdll)
@@ -421,6 +424,7 @@ extern "C" {
   typedef void (CALLCONV PUREFLDdll_TYPE)(long *);
   typedef void (CALLCONV QMASSdll_TYPE)(double *,double *,double *,double *,double *,double *,double *,double *,long *,char*,long );
   typedef void (CALLCONV QMOLEdll_TYPE)(double *,double *,double *,double *,double *,double *,double *,double *,long *,char*,long );
+  typedef void (CALLCONV RESIDUALdll_TYPE)(double *,double *,double *,double *,double *,double *,double *,double *,double *,double *,double *);
   typedef void (CALLCONV SATDdll_TYPE)(double *,double *,long *,long *,double *,double *,double *,double *,double *,double *,long *,char*,long );
   typedef void (CALLCONV SATEdll_TYPE)(double *,double *,long *,long *,long *,double *,double *,double *,long *,double *,double *,double *,long *,char*,long );
   typedef void (CALLCONV SATHdll_TYPE)(double *,double *,long *,long *,long *,double *,double *,double *,long *,double *,double *,double *,long *,char*,long );
@@ -627,6 +631,7 @@ extern "C" {
   typedef PUREFLDdll_TYPE * PUREFLDdll_POINTER;
   typedef QMASSdll_TYPE * QMASSdll_POINTER;
   typedef QMOLEdll_TYPE * QMOLEdll_POINTER;
+  typedef RESIDUALdll_TYPE * RESIDUALdll_POINTER;
   typedef SATDdll_TYPE * SATDdll_POINTER;
   typedef SATEdll_TYPE * SATEdll_POINTER;
   typedef SATHdll_TYPE * SATHdll_POINTER;

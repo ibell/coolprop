@@ -143,6 +143,10 @@ class Fluid
 			CriticalSpline_T.Tend = _HUGE;
 				
 			preduce = &crit; /// pointer to the reducing parameters
+			h_ancillary = NULL;
+			s_ancillary = NULL;
+			cp_ancillary = NULL;
+			drhodT_p_ancillary = NULL;
 		};
 		virtual ~Fluid();
 
@@ -183,32 +187,32 @@ class Fluid
 		virtual double viscosity_Trho(double T, double rho);
 		
 		// These Helmholtz energy terms are provided by the base class
-		double phir(double tau, double delta);
+		virtual double phir(double tau, double delta);
 		// First derivative
-		double dphir_dDelta(double tau, double delta);
-		double dphir_dTau(double tau, double delta);
+		virtual double dphir_dDelta(double tau, double delta);
+		virtual double dphir_dTau(double tau, double delta);
 		// Second derivative
-		double d2phir_dDelta2(double tau, double delta);
-		double d2phir_dDelta_dTau(double tau, double delta);
-		double d2phir_dTau2(double tau, double delta);
+		virtual double d2phir_dDelta2(double tau, double delta);
+		virtual double d2phir_dDelta_dTau(double tau, double delta);
+		virtual double d2phir_dTau2(double tau, double delta);
 		// Third derivative
-		double d3phir_dDelta3(double tau, double delta);
-		double d3phir_dDelta2_dTau(double tau, double delta);
-		double d3phir_dDelta_dTau2(double tau, double delta);
-		double d3phir_dTau3(double tau, double delta);
+		virtual double d3phir_dDelta3(double tau, double delta);
+		virtual double d3phir_dDelta2_dTau(double tau, double delta);
+		virtual double d3phir_dDelta_dTau2(double tau, double delta);
+		virtual double d3phir_dTau3(double tau, double delta);
 		
-		double phi0(double tau, double delta);
-		double dphi0_dDelta(double tau, double delta);
-		double dphi0_dTau(double tau, double delta);
+		virtual double phi0(double tau, double delta);
+		virtual double dphi0_dDelta(double tau, double delta);
+		virtual double dphi0_dTau(double tau, double delta);
 
-		double d2phi0_dDelta2(double tau, double delta);
-		double d2phi0_dDelta_dTau(double tau, double delta);
-		double d2phi0_dTau2(double tau, double delta);
+		virtual double d2phi0_dDelta2(double tau, double delta);
+		virtual double d2phi0_dDelta_dTau(double tau, double delta);
+		virtual double d2phi0_dTau2(double tau, double delta);
 
-		double d3phi0_dDelta3(double tau, double delta){throw NotImplementedError();};
-		double d3phi0_dDelta2_dTau(double tau, double delta){return 0;};
-		double d3phi0_dDelta_dTau2(double tau, double delta){return 0;};
-		double d3phi0_dTau3(double tau, double delta);
+		virtual double d3phi0_dDelta3(double tau, double delta){throw NotImplementedError();};
+		virtual double d3phi0_dDelta2_dTau(double tau, double delta){return 0;};
+		virtual double d3phi0_dDelta_dTau2(double tau, double delta){return 0;};
+		virtual double d3phi0_dTau3(double tau, double delta);
 
 		// These thermodynamic properties as a function of temperature and density are
 		// provided by the base class
@@ -227,8 +231,8 @@ class Fluid
 		// Get the density using the Soave EOS
 		double density_Tp_Soave(double T, double p, int iValue = 0);
 
-		double density_Tp(double T, double p);
-		double density_Tp(double T, double p, double rho_guess);
+		virtual double density_Tp(double T, double p);
+		virtual double density_Tp(double T, double p, double rho_guess);
 
 		/// Temperature as a function of pressure and entropy
 		/// @param p Pressure [kPa]
@@ -237,7 +241,7 @@ class Fluid
 		/// @param rhoout Density [kg/m^3]
 		/// @param rhoL Saturated liquid density [kg/m^3]
 		/// @param rhoV Saturated vapor density [kg/m^3]
-		void temperature_ps(double p, double s, double *Tout, double *rhoout, double *rhoL, double *rhoV, double *TsatLout, double *TsatVout);
+		virtual void temperature_ps(double p, double s, double *Tout, double *rhoout, double *rhoL, double *rhoV, double *TsatLout, double *TsatVout);
 		
 		/// Temperature as a function of pressure and enthalpy
 		/// @param p Pressure [kPa]
@@ -248,7 +252,7 @@ class Fluid
 		/// @param rhoV Saturated vapor density [kg/m^3]
 		/// @param T0 Starting temperature for the solver
 		/// @param rho0 Starting density value for the solver
-		void temperature_ph(double p, double h, double *Tout, double *rhoout, double *rhoL, double *rhoV, double *TsatLout, double *TsatVout, double T0 = -1, double rho0 = -1);
+		virtual void temperature_ph(double p, double h, double *Tout, double *rhoout, double *rhoL, double *rhoV, double *TsatLout, double *TsatVout, double T0 = -1, double rho0 = -1);
 		
 		/// Return the phase given the temperature and pressure
 		std::string phase_Tp(double T, double p, double *pL, double *pV, double *rhoL, double *rhoV);
@@ -380,7 +384,7 @@ class Fluid
 			throw NotImplementedError(std::string("viscosity_background not implemented for this fluid"));
 		};
 
-		double surface_tension_T(double T);
+		virtual double surface_tension_T(double T);
 
 		/// Saturation pressure and saturated liquid and vapor densities as a function of the temperature.
 		/// @param T Temperature [K]
@@ -389,7 +393,7 @@ class Fluid
 		/// @param psatVout Saturated vapor pressure [kPa(abs)]
 		/// @param rhoLout Saturated liquid density [kg/m3]
 		/// @param rhoVout Saturated vapor density [kg/m3]
-		void saturation_T(double T, bool UseLUT, double *psatLout, double *psatVout, double *rhoLout, double *rhoVout);
+		virtual void saturation_T(double T, bool UseLUT, double *psatLout, double *psatVout, double *rhoLout, double *rhoVout);
 
 		/// Saturation temperature and saturated liquid and vapor densities as a function of the pressure.
 		/// @param p Pressure [kPa(abs)]
@@ -398,7 +402,7 @@ class Fluid
 		/// @param TsatVout Saturated vapor temperature [K]
 		/// @param rhoLout Saturated liquid density [kg/m3]
 		/// @param rhoVout Saturated vapor density [kg/m3]
-		void saturation_p(double p, bool UseLUT, double *TsatLout, double *TsatVout, double *rhoLout, double *rhoVout);
+		virtual void saturation_p(double p, bool UseLUT, double *TsatLout, double *TsatVout, double *rhoLout, double *rhoVout);
 		
 		/// NB: Only valid for pure fluids - no pseudo-pure or mixtures.
 		/// Get the saturated liquid, vapor densities and the saturated pressure
@@ -508,6 +512,11 @@ class Fluid
 		/// Accessor.  Throws a NotImplementedError if the fluid index is invalid
 		/// @param name Fluid index to be used
 		Fluid * get_fluid(long iFluid);
+
+		/// Add a REFPROP fluid to the container
+		/// @param FluidName 
+		/// @param xmol std::vector of mole fractions - must add to 1
+		bool add_REFPROP_fluid(std::string FluidName, std::vector<double> xmol);
 		
 		/// Get the index of the fluid name
 		/// @param pFluid pointer to Fluid instance

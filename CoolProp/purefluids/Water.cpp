@@ -617,7 +617,8 @@ double WaterClass::rhosatV(double T)
 
 double WaterClass::surface_tension_T(double T)
 {
-	return 0.2358*pow(1-T/reduce.T,1.256)*(1-0.625*(1-T/reduce.T));
+	// From Mulero, 2012
+	return -0.1306*pow(1-T/reduce.T,2.471)+0.2151*pow(1-T/reduce.T,1.233);
 }
 
 //double WaterClass::IsothermCompress_Water(double T, double p)

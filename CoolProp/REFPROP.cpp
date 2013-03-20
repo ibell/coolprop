@@ -17,8 +17,6 @@
 #include "REFPROP.h"
 #endif
 
-
-
 #include <stdlib.h>
 #include "string.h"
 #include <stdio.h>
@@ -110,6 +108,7 @@ void *RefpropdllInstance=NULL;
  PUREFLDdll_POINTER PUREFLDdll;
  QMASSdll_POINTER QMASSdll;
  QMOLEdll_POINTER QMOLEdll;
+ RESIDUALdll_POINTER RESIDUALdll;
  SATDdll_POINTER SATDdll;
  SATEdll_POINTER SATEdll;
  SATHdll_POINTER SATHdll;
@@ -222,6 +221,7 @@ double setFunctionPointers()
 	PSFL1dll = (PSFL1dll_POINTER) getFunctionPointer((char *)PSFL1dll_NAME);
 	PSFLSHdll = (PSFLSHdll_POINTER) getFunctionPointer((char *)PSFLSHdll_NAME);
 	PUREFLDdll = (PUREFLDdll_POINTER) getFunctionPointer((char *)PUREFLDdll_NAME);
+	RESIDUALdll = (RESIDUALdll_POINTER) getFunctionPointer((char *)RESIDUALdll_NAME);
 	QMASSdll = (QMASSdll_POINTER) getFunctionPointer((char *)QMASSdll_NAME);
 	QMOLEdll = (QMOLEdll_POINTER) getFunctionPointer((char *)QMOLEdll_NAME);
 	SATDdll = (SATDdll_POINTER) getFunctionPointer((char *)SATDdll_NAME);
@@ -274,32 +274,17 @@ char refpropPath[] = "";
 char refpropPath[] = "/opt/refprop";
 #endif
 
-double REFPROP(char Output, char Name1, double Prop1, char Name2, double Prop2, char * Ref)
+std::string get_REFPROP_fluid_path()
 {
-	return REFPROP(std::string(1,Output),std::string(1,Name1),Prop1,std::string(1,Name2),Prop2,std::string(Ref));
-}
-double REFPROP(std::string Output, std::string Name1, double Prop1, std::string Name2, double Prop2, std::string Ref)
-{
-	long ierr=0,iOutput,iName1,iName2;
-	char hf[refpropcharlength*ncmax], herr[errormessagelength+1];
-	
-	double x[ncmax],xliq[ncmax],xvap[ncmax];
-	
-	double T,p=0,d,dl,dv,dl_,dv_,q,e,h,s,cv,cp,w,MW,hl,hv,sl,sv,ul,
-		uv,pl,pv,hjt,eta,tcx,Q,Tcrit,pcrit,dcrit,rho,sigma;
-	std::string sRef;
-	std::string RefString;
 	std::string rpPath (refpropPath);
-
 	#if defined(__ISWINDOWS__)
-	std::string fdPath = rpPath;
+	return rpPath;
 	#elif defined(__ISLINUX__)
-	std::string fdPath = rpPath + std::string("/fluids/");
+	return rpPath + std::string("/fluids/");
 	#endif
-
-	// First create a pointer to an instance of the library
-	// Then have windows load the library.
-	
+}
+bool load_REFPROP()
+{
 	// If REFPROP is not loaded
 	if (RefpropdllInstance==NULL)
 	{
@@ -324,17 +309,28 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 			#endif
 			printf("Could not load REFPROP, neither found in current location nor found in system PATH.\n");
 			printf("Add location of REFPROP to the PATH environmental variable.\n");
-			return -_HUGE;
+			return false;
 		}
 
 		if (setFunctionPointers()!=OK)
 		{
 			printf("There was an error setting the REFPROP function pointers, check types and names in header file.\n");
-			return -_HUGE;
+			return false;
 		}
+		return true;
 	}
-	
-	
+	return true;
+}
+
+bool set_REFPROP_fluid(std::string Ref)
+{
+	double x[ncmax];
+	long ierr=0;
+	char hf[refpropcharlength*ncmax], herr[errormessagelength+1];
+	std::string sRef;
+	std::string RefString;
+	std::string fdPath = get_REFPROP_fluid_path();
+
 	// If the fluid name does not start with the string "REFPROP-"
 	if (Ref.find("REFPROP-") == std::string::npos)
 	{
@@ -428,7 +424,7 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 			RefString = fdPath + std::string(sRef)+std::string(".fld");
 			x[0]=1.0;     //Pure fluid
 		}
-
+		
 		strcpy(hf,RefString.c_str());
 
 		ierr=999;
@@ -447,15 +443,37 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 		char* hfm = (char*) calloc(refpropcharlength+8, sizeof(char));
 		strcpy(hfm,fdPath.c_str());
 		strcat(hfm,hfmix);
+
 		SETUPdll(&i, hf, hfm, hrf, &ierr, herr,
 				refpropcharlength*ncmax,refpropcharlength,
 				lengthofreference,errormessagelength);
 		free (hfm);
+		
 
 		if (ierr != 0) printf("REFPROP setup gives this error during SETUP: %s\n",herr);
 		//Copy the name of the loaded refrigerant back into the temporary holder
 		LoadedREFPROPRef = std::string(Ref);
+		return true;
 	}
+	return true;
+}
+double REFPROP(char Output, char Name1, double Prop1, char Name2, double Prop2, char * Ref)
+{
+	return REFPROP(std::string(1,Output),std::string(1,Name1),Prop1,std::string(1,Name2),Prop2,std::string(Ref));
+}
+double REFPROP(std::string Output, std::string Name1, double Prop1, std::string Name2, double Prop2, std::string Ref)
+{
+	long ierr=0,iOutput,iName1,iName2;
+	char herr[errormessagelength+1];
+	double x[ncmax],xliq[ncmax],xvap[ncmax];
+	
+	double T,p=0,d,dl,dv,dl_,dv_,q,e,h,s,cv,cp,w,MW,hl,hv,sl,sv,ul,
+		uv,pl,pv,hjt,eta,tcx,Q,Tcrit,pcrit,dcrit,rho,sigma;
+
+	// First create a pointer to an instance of the library
+	load_REFPROP();
+	
+	set_REFPROP_fluid(Ref);
 	
 	strcpy(herr,"Ok");
 	
@@ -858,4 +876,199 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 	else
 		return _HUGE;
 }
+
+REFPROPFluidClass::REFPROPFluidClass(std::string FluidName, std::vector<double> xmol)
+{
+	long ierr,ic;
+	char herr[errormessagelength+1];
+	double Tcrit,dcrit,pcrit,MW,Ttriple,tnbpt,acf,Zcrit,dip,Rgas, dummy1, dummy2;
+	
+	// Copy the molar fractions
+	this->xmol = xmol;
+
+	// Load REFPROP if not already loaded
+	load_REFPROP();
+
+	// Set the fluid
+	set_REFPROP_fluid(FluidName);
+
+	// Molar mass
+	WMOLdll(&(xmol[0]),&MW);
+	params.molemass = MW;
+
+	// Other parameters
+	INFOdll(&i,&MW,&Ttriple,&tnbpt,&Tcrit,&pcrit,&dcrit,&Zcrit,&acf,&dip,&Rgas);
+	crit.T = Tcrit;
+	crit.rho = dcrit*MW;
+	crit.p = pcrit;
+
+	params.accentricfactor = acf;
+	params.R_u = Rgas;
+	params.Ttriple = Ttriple;
+	limits.Tmin = Ttriple;
+	
+	ic = 1;
+	SATTdll(&(Ttriple),&(xmol[0]),&(ic),&(params.ptriple),&dummy1,&dummy2,&(xmol[0]),&(xmol[0]),&ierr,herr,errormessagelength);
+
+	name.assign(FluidName);
+	//aliases.push_back(FluidName);
+	REFPROPname.assign(FluidName);
+
+	// Set the reducing values from the pointer
+	reduce = *preduce;
+}
+
+double REFPROPFluidClass::dphir_dDelta(double tau, double delta)
+{
+	double p,T,rho,R,rhobar;
+
+	R = params.R_u/params.molemass;
+	rho = delta*reduce.rho;
+	rhobar = rho/params.molemass;
+	T = reduce.T/tau;
+	
+	PRESSdll(&T,&rhobar,&(xmol[0]),&p);
+	return 1/delta*(p/(rho*R*T)-1);
+}
+double REFPROPFluidClass::dphir_dTau(double tau, double delta)
+{
+	double T,rho,R,rhobar,pr,er,hr,sr,cvr,cpr,Ar,Gr;
+
+	R = params.R_u/params.molemass;
+	rho = delta*reduce.rho;
+	rhobar = rho/params.molemass;
+	T = reduce.T/tau;
+	
+	RESIDUALdll(&T,&rhobar,&(xmol[0]),&pr,&er,&hr,&sr,&cvr,&cpr,&Ar,&Gr);
+	return er/(R*T*tau)/params.molemass;
+}
+double REFPROPFluidClass::d2phir_dTau2(double tau, double delta)
+{
+	double T,rho,R,rhobar,pr,er,hr,sr,cvr,cpr,Ar,Gr;
+
+	R = params.R_u/params.molemass;
+	rho = delta*reduce.rho;
+	rhobar = rho/params.molemass;
+	T = reduce.T/tau;
+	
+	RESIDUALdll(&T,&rhobar,&(xmol[0]),&pr,&er,&hr,&sr,&cvr,&cpr,&Ar,&Gr);
+	return -cvr/(R*tau*tau)/params.molemass;
+}
+double REFPROPFluidClass::phir(double tau, double delta)
+{
+	double T,rho,R,rhobar,pr,er,hr,sr,cvr,cpr,Ar,Gr;
+
+	R = params.R_u/params.molemass;
+	rho = delta*reduce.rho;
+	rhobar = rho/params.molemass;
+	T = reduce.T/tau;
+	
+	RESIDUALdll(&T,&rhobar,&(xmol[0]),&pr,&er,&hr,&sr,&cvr,&cpr,&Ar,&Gr);
+
+	return tau*this->dphir_dTau(tau,delta)-sr/R/params.molemass;
+}
+double REFPROPFluidClass::dphi0_dTau(double tau, double delta)
+{
+	double T,rho,R,rhobar,p0,e0,h0,s0,cv0,cp0,w0,A0,G0;
+
+	R = params.R_u/params.molemass;
+	rho = delta*reduce.rho;
+	rhobar = rho/params.molemass;
+	T = reduce.T/tau;
+	
+	THERM0dll(&T,&rhobar,&(xmol[0]),&p0,&e0,&h0,&s0,&cv0,&cp0,&w0,&A0,&G0);
+	return e0/(R*T*tau)/params.molemass;
+}
+double REFPROPFluidClass::phi0(double tau, double delta)
+{
+	double T,rho,R,rhobar,p0,e0,h0,s0,cv0,cp0,w0,A0,G0;
+
+	R = params.R_u/params.molemass;
+	rho = delta*reduce.rho;
+	rhobar = rho/params.molemass;
+	T = reduce.T/tau;
+	
+	THERM0dll(&T,&rhobar,&(xmol[0]),&p0,&e0,&h0,&s0,&cv0,&cp0,&w0,&A0,&G0);
+
+	return (h0-T*s0)/params.molemass/R/T-1;
+}
+
+double REFPROPFluidClass::viscosity_Trho(double T, double rho)
+{
+	long ierr = 0;
+	char herr[errormessagelength+1];
+	double eta,tcx,rhobar = rho/params.molemass;;
+	
+	TRNPRPdll(&T,&rhobar,&(xmol[0]),&eta,&tcx,&ierr,herr,errormessagelength);
+	return eta/1e6;
+}
+double REFPROPFluidClass::conductivity_Trho(double T, double rho)
+{
+	long ierr = 0;
+	char herr[errormessagelength+1];
+	double eta,tcx,rhobar = rho/params.molemass;
+	
+	TRNPRPdll(&T,&rhobar,&(xmol[0]),&eta,&tcx,&ierr,herr,errormessagelength);
+	return tcx/1e3;
+}
+
+void REFPROPFluidClass::saturation_T(double T, bool UseLUT, double *psatLout, double *psatVout, double *rhosatLout, double *rhosatVout)
+{
+	long ic,ierr;
+	char herr[errormessagelength+1];
+	double dummy;
+	ic=1;
+	SATTdll(&T,&(xmol[0]),&ic,psatLout,rhosatLout,&dummy,&(xmol[0]),&(xmol[0]),&ierr,herr,errormessagelength);
+	ic=2;
+	SATTdll(&T,&(xmol[0]),&ic,psatVout,&dummy,rhosatVout,&(xmol[0]),&(xmol[0]),&ierr,herr,errormessagelength);
+	*rhosatLout *= params.molemass;
+	*rhosatVout *= params.molemass;
+}
+void REFPROPFluidClass::saturation_p(double p, bool UseLUT, double *TsatLout, double *TsatVout, double *rhosatLout, double *rhosatVout)
+{
+	long ic,ierr;
+	char herr[errormessagelength+1];
+	double dummy;
+	ic=1;
+	SATPdll(&p,&(xmol[0]),&ic,TsatLout,rhosatLout,&dummy,&(xmol[0]),&(xmol[0]),&ierr,herr,errormessagelength);
+	ic=2;
+	SATPdll(&p,&(xmol[0]),&ic,TsatVout,&dummy,rhosatVout,&(xmol[0]),&(xmol[0]),&ierr,herr,errormessagelength);
+	*rhosatLout *= params.molemass;
+	*rhosatVout *= params.molemass;
+}
+void REFPROPFluidClass::temperature_ph(double p, double h, double *Tout, double *rhoout, double *rhoLout, double *rhoVout, double *TsatLout, double *TsatVout, double T0, double rho0)
+{
+	long ierr;
+	char herr[errormessagelength+1];
+	double q,e,s,cv,cp,w;
+	PHFLSHdll(&p,&h,&(xmol[0]),Tout,rhoout,rhoLout,rhoVout,&(xmol[0]),&(xmol[0]),&q,&e,&s,&cv,&cp,&w,&ierr,herr,errormessagelength);
+	*rhoout *= params.molemass;
+	*rhoLout *= params.molemass;
+	*rhoVout *= params.molemass;
+}
+double REFPROPFluidClass::density_Tp(double T, double p)
+{
+	return this->density_Tp(T,p,0);
+}
+double REFPROPFluidClass::density_Tp(double T, double p, double rho_guess)
+{
+	long ierr;
+	char herr[errormessagelength+1];
+	double q,e,s,cv,cp,w,h,rho,rhoL,rhoV;
+	TPFLSHdll(&T,&p,&(xmol[0]),&rho,&rhoL,&rhoV,&(xmol[0]),&(xmol[0]),&q,&e,&h,&s,&cv,&cp,&w,&ierr,herr,errormessagelength);
+
+	return rho*params.molemass;
+}
+double REFPROPFluidClass::psat(double T)
+{
+	long ierr,ic;
+	char herr[errormessagelength+1];
+	double q,e,s,cv,cp,w,h,rho,rhoL,rhoV,dummy1,dummy2,psatval;
+
+	ic=1;
+	SATTdll(&T,&(xmol[0]),&ic,&psatval,&dummy1,&dummy2,&(xmol[0]),&(xmol[0]),&ierr,herr,errormessagelength);
+
+	return psatval;
+}
+
 #endif //#if defined(__ISWINDOWS__)||defined(__ISLINUX__)

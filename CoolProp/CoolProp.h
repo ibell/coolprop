@@ -139,6 +139,7 @@ You might want to start by looking at CoolProp.h
 	std::string get_REFPROPname(std::string Ref);
 	std::string get_errstring(void);
 	std::string get_version(void);
+	bool add_REFPROP_fluid(std::string FluidName);
 
 	long get_param_index(std::string param);
 	long get_Fluid_index(std::string param);
