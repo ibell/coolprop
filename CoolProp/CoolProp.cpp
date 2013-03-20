@@ -309,6 +309,20 @@ EXPORT_CODE long CONVENTION get_Fluid_index(char * param)
 	return get_Fluid_index(std::string(param));
 }
 
+bool add_REFPROP_fluid(std::string FluidName)
+{
+	// Starts with REFPROP- keep going
+	if (!(FluidName.find("REFPROP-") == 0)) return false;
+	// Try to load this fluid, index >= 0 if already added
+	long iFluid = get_Fluid_index(FluidName);
+	// If not added yet, and a valid fluid, then continue
+	if (iFluid < 0 && set_REFPROP_fluid(FluidName)) // If you can set the fluid, it's a valid fluid
+	{
+		Fluids.add_REFPROP_fluid(FluidName,std::vector<double>(1,1));
+		std::cout << format("Added the fluid %s\n",FluidName.c_str());
+	}
+	
+}
 std::string get_index_units(long index)
 {
 	std::map<long, std::string>::iterator it;

@@ -28,6 +28,7 @@
 #include "CoolProp.h"
 
 #include "PengRobinson.h"
+#include "REFPROP.h"
 #include "Solvers.h"
 #include "CPState.h"
 #include "Brine.h"
@@ -263,6 +264,8 @@ FluidsContainer::FluidsContainer()
 	FluidsList.push_back(new R407CClass());
 	FluidsList.push_back(new R507AClass());
 
+	
+
 	// Build the map of fluid names mapping to pointers to the Fluid class instances
 	for (std::vector<Fluid*>::iterator it = FluidsList.begin(); it != FluidsList.end(); it++)
 	{
@@ -283,6 +286,16 @@ FluidsContainer::~FluidsContainer()
 		delete FluidsList.back();
 		FluidsList.pop_back();
 	}
+}
+
+bool FluidsContainer::add_REFPROP_fluid(std::string FluidName, std::vector<double> xmol)
+{
+	// Some fluids from REFPROP that are not included in CoolProp due to not having a Helmholtz energy EOS
+	Fluid * pREFPROPFluid = new REFPROPFluidClass(FluidName,xmol);
+	FluidsList.push_back(pREFPROPFluid);
+	// Add entry to the fluid name map
+	fluid_name_map.insert(std::pair<std::string,Fluid*>(FluidName,pREFPROPFluid));
+	return true;
 }
 
 Fluid * FluidsContainer::get_fluid(long iFluid)
@@ -373,10 +386,10 @@ Fluid::~Fluid()
 		delete phi0list.back();  
 		phi0list.pop_back();
 	}
-	delete h_ancillary;
-	delete s_ancillary;
-	delete cp_ancillary;
-	delete drhodT_p_ancillary;
+	if (h_ancillary != NULL){ delete h_ancillary; h_ancillary = NULL;}
+	if (s_ancillary != NULL){ delete s_ancillary; s_ancillary = NULL;}
+	if (cp_ancillary != NULL){ delete cp_ancillary; cp_ancillary = NULL;}
+	if (drhodT_p_ancillary != NULL){ delete drhodT_p_ancillary; drhodT_p_ancillary = NULL;}
 }
 void Fluid::post_load(void)
 {
