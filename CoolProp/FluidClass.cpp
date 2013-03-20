@@ -386,10 +386,10 @@ Fluid::~Fluid()
 		delete phi0list.back();  
 		phi0list.pop_back();
 	}
-	if (h_ancillary != NULL) delete h_ancillary;
-	if (s_ancillary != NULL) delete s_ancillary;
-	if (cp_ancillary != NULL) delete cp_ancillary;
-	if (drhodT_p_ancillary != NULL) delete drhodT_p_ancillary;
+	if (h_ancillary != NULL){ delete h_ancillary; h_ancillary = NULL;}
+	if (s_ancillary != NULL){ delete s_ancillary; s_ancillary = NULL;}
+	if (cp_ancillary != NULL){ delete cp_ancillary; cp_ancillary = NULL;}
+	if (drhodT_p_ancillary != NULL){ delete drhodT_p_ancillary; drhodT_p_ancillary = NULL;}
 }
 void Fluid::post_load(void)
 {
