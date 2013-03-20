@@ -1099,7 +1099,7 @@ double REFPROPFluidClass::rhosatV(double T)
 
 	ic=2;
 	SATTdll(&T,&(xmol[0]),&ic,&psatval,&dummy1,&rhoV,&(xliq[0]),&(xvap[0]),&ierr,herr,errormessagelength);
-	return rhoV;
+	return rhoV*params.molemass;
 }
 double REFPROPFluidClass::rhosatL(double T)
 {
@@ -1110,7 +1110,7 @@ double REFPROPFluidClass::rhosatL(double T)
 
 	ic=1;
 	SATTdll(&T,&(xmol[0]),&ic,&psatval,&rhoL, &dummy1,&(xliq[0]),&(xvap[0]),&ierr,herr,errormessagelength);
-	return rhoL;
+	return rhoL*params.molemass;
 }
 
 #endif //#if defined(__ISWINDOWS__)||defined(__ISLINUX__)
