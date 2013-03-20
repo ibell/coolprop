@@ -1047,8 +1047,8 @@ void REFPROPFluidClass::temperature_ph(double p, double h, double *Tout, double 
 	long ierr;
 	char herr[errormessagelength+1];
 	std::vector<double> xliq = std::vector<double>(1,1),xvap = std::vector<double>(1,1);
-	double q,e,s,cv,cp,w;
-	PHFLSHdll(&p,&h,&(xmol[0]),Tout,rhoout,rhoLout,rhoVout,&(xliq[0]),&(xvap[0]),&q,&e,&s,&cv,&cp,&w,&ierr,herr,errormessagelength);
+	double q,e,s,cv,cp,w,hbar = h*params.molemass;
+	PHFLSHdll(&p,&hbar,&(xmol[0]),Tout,rhoout,rhoLout,rhoVout,&(xliq[0]),&(xvap[0]),&q,&e,&s,&cv,&cp,&w,&ierr,herr,errormessagelength);
 	*rhoout *= params.molemass;
 	*rhoLout *= params.molemass;
 	*rhoVout *= params.molemass;
@@ -1058,8 +1058,8 @@ void REFPROPFluidClass::temperature_ps(double p, double s, double *Tout, double 
 	long ierr;
 	char herr[errormessagelength+1];
 	std::vector<double> xliq = std::vector<double>(1,1),xvap = std::vector<double>(1,1);
-	double q,e,h,cv,cp,w;
-	PSFLSHdll(&p,&s,&(xmol[0]),Tout,rhoout,rhoLout,rhoVout,&(xliq[0]),&(xvap[0]),&q,&e,&h,&cv,&cp,&w,&ierr,herr,errormessagelength);
+	double q,e,h,cv,cp,w,sbar = s*params.molemass;
+	PSFLSHdll(&p,&sbar,&(xmol[0]),Tout,rhoout,rhoLout,rhoVout,&(xliq[0]),&(xvap[0]),&q,&e,&h,&cv,&cp,&w,&ierr,herr,errormessagelength);
 	*rhoout *= params.molemass;
 	*rhoLout *= params.molemass;
 	*rhoVout *= params.molemass;
