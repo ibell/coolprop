@@ -205,7 +205,7 @@ class Fluid
 		double d2phi0_dDelta_dTau(double tau, double delta);
 		double d2phi0_dTau2(double tau, double delta);
 
-		double d3phi0_dDelta3(double tau, double delta){return 0;};
+		double d3phi0_dDelta3(double tau, double delta){throw NotImplementedError();};
 		double d3phi0_dDelta2_dTau(double tau, double delta){return 0;};
 		double d3phi0_dDelta_dTau2(double tau, double delta){return 0;};
 		double d3phi0_dTau3(double tau, double delta);
@@ -312,23 +312,20 @@ class Fluid
 		virtual void ECSParams(double *e_k, double *sigma){
 			throw NotImplementedError("ECSParams not implemented for this fluid");
 		};
-		/// This function is optional, and returns a NotImplementedError if the derived class does not implement it.
-		/// Hopefully the calling function catches the error
+		/// This function is optional, the default value of 1.0 is used otherwise
 		///@param rhor The reduced density where rhor = rho/rhoc
 		double ECS_psi_viscosity(double rhor){
-			throw NotImplementedError("ECS_psi_viscosity not implemented for this fluid");
+			return 1.0;
 		};
-		/// This function is optional, and returns a NotImplementedError if the derived class does not implement it.
-		/// Hopefully the calling function catches the error
+		/// This function is optional, the default value of 1.0 is used otherwise
 		///@param rhor The reduced density where rhor = rho/rhoc
 		double ECS_chi_conductivity(double rhor){
-			throw NotImplementedError("ECS_chi_conductivity not implemented for this fluid");
+			return 1.0;
 		};
-		/// This function is optional, and returns a NotImplementedError if the derived class does not implement it.
-		/// Hopefully the calling function catches the error
+		/// This function is optional, the default value of 1.32e-3 is used otherwise
 		///@param T The temperature
 		double ECS_f_int(double T){
-			throw NotImplementedError("ECS_f_int not implemented for this fluid");
+			return 1.32e-3;
 		};
 		/// This function is optional, and returns a NotImplementedError if the derived class does not implement it.
 		/// Hopefully the calling function catches the error
@@ -481,7 +478,6 @@ class Fluid
 		void set_TTSESinglePhase_LUT_range(double hmin, double hmax, double pmin, double pmax);
 		/// Get the current range of the single-phase LUT
 		void get_TTSESinglePhase_LUT_range(double *hmin, double *hmax, double *pmin, double *pmax);
-
 		/// Build of the TTSE LUT
 		bool build_TTSE_LUT(bool force = false);
 		/// Interpolate within the TTSE LUT

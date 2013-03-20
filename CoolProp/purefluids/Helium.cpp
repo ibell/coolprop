@@ -377,5 +377,5 @@ double HeliumClass::rhosatV(double T)
 }
 double HeliumClass::surface_tension_T(double T)
 {
-	return 0.389057*(1-T/reduce.T)+0.521410*pow(1-T/reduce.T,2)-0.579737*pow(1-T/reduce.T,3);
+	return (0.389057*(1-T/	reduce.T)+0.521410*pow(1-T/reduce.T,2)-0.579737*pow(1-T/reduce.T,3))*1000;
 }

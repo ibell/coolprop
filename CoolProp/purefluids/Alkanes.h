@@ -29,6 +29,9 @@ public:
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
+	void ECSParams(double *e_k, double *sigma){*e_k = 280.51; *sigma = 0.573;}; // From Chichester NISTIR 6650}
+	//double viscosity_Trho(double, double);
+	//double conductivity_Trho(double, double);
 };
 
 class IsoButaneClass : public Fluid {

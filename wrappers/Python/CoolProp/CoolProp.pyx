@@ -18,7 +18,7 @@ except ImportError:
     _quantities_supported = False
 
 import cython
-import math
+import math 
 
 # Default string in Python 3.x is a unicode string (type str)
 # Default string in Python 2.x is a byte string(type bytes) 
@@ -312,7 +312,7 @@ cpdef get_aliases(bytes_or_str Fluid):
     Return a comma separated string of aliases for the given fluid
     """
     cdef bytes _Fluid = Fluid if bytes_or_str is bytes else Fluid.encode('ascii')
-    return [F.encode('ascii') for F in (<str>_get_aliases(_Fluid)).decode('ascii').split(',')]
+    return [F.encode('ascii') for F in (_get_aliases(_Fluid).encode('ascii')).decode('ascii').split(',')]
     
 cpdef string get_REFPROPname(bytes_or_str Fluid):
     """

@@ -5,7 +5,7 @@
 #include "CoolPropTools.h"
 #include "float.h"
 #include "math.h"
-#include "Spline.h"
+#include "Spline.h" 
 
 #ifndef __ISWINDOWS__
 	#ifndef DBL_EPSILON
@@ -167,7 +167,6 @@ void CoolPropStateClass::update(long iInput1, double Value1, long iInput2, doubl
 	
 	if (pFluid->enabled_TTSE_LUT)
 	{
-		
 		// Build the tables
 		pFluid->build_TTSE_LUT();
 		// Update using the LUT
@@ -199,13 +198,12 @@ void CoolPropStateClass::update(long iInput1, double Value1, long iInput2, doubl
 			throw ValueError(format("Sorry your inputs didn't work; valid pairs are P,Q, T,Q, T,D T,P P,H P,S"));
 		}
 		// Clear the cached derivative flags
-		this->clear_cache();
-
-		if (TwoPhase && !flag_TwoPhase)
-		{
-			// Update temperature and density for SatL and SatV
-			add_saturation_states();
-		}
+		this->clear_cache();	
+	}
+	if (TwoPhase && !flag_TwoPhase)
+	{
+		// Update temperature and density for SatL and SatV
+		add_saturation_states();
 	}
 
 	// Reduced parameters
@@ -417,7 +415,7 @@ void CoolPropStateClass::update_ph(long iInput1, double Value1, long iInput2, do
 	// Solve for temperature and density with or without the guess values provided
 	pFluid->temperature_ph(Value1, Value2,&_T,&_rho,&rhosatL,&rhosatV,&TsatL,&TsatV, T0, rho0);
 
-	if (Value1 < 0 ){ throw ValueError(format("Your pressure [%g K] is less than zero",Value1));}
+	if (Value1 < 0 ){ throw ValueError(format("Your pressure [%g kPa] is less than zero",Value1));}
 
 	// Set internal variables
 	_p = Value1;
@@ -453,7 +451,7 @@ void CoolPropStateClass::update_ps(long iInput1, double Value1, long iInput2, do
 	// Solve for temperature and density
 	pFluid->temperature_ps(Value1, Value2,&_T,&_rho,&rhosatL,&rhosatV,&TsatL,&TsatV);
 
-	if (Value1 < 0 ){ throw ValueError(format("Your pressure [%g K] is less than zero",Value1));}
+	if (Value1 < 0 ){ throw ValueError(format("Your pressure [%g kPa] is less than zero",Value1));}
 
 	// Set internal variables
 	_p = Value1;
@@ -551,7 +549,7 @@ void CoolPropStateClass::update_TTSE_LUT(long iInput1, double Value1, long iInpu
 		double h = Value2;
 
 		// If enthalpy is outside the saturation region or flag_SinglePhase is set, it is single-phase
-		if (p > pFluid->reduce.p || p < pFluid->params.ptriple ||  h < pFluid->TTSESatL.evaluate(iH,p)  || h > pFluid->TTSESatV.evaluate(iH,p) || !flag_SinglePhase)
+		if (p > pFluid->reduce.p || p < pFluid->params.ptriple ||  h < pFluid->TTSESatL.evaluate(iH,p)  || h > pFluid->TTSESatV.evaluate(iH,p) || flag_SinglePhase)
 		{
 			TwoPhase = false;
 			SinglePhase = true;
@@ -1157,7 +1155,12 @@ double CoolPropStateClass::drhodp_consth_smoothed(double xend){
 	// We do the interpolation in terms of enthalpy because it is a bit simpler to do
 	// The values at x = 0, but faking out CoolProp by using T,rho and enforcing singlephase
 	CPS.flag_SinglePhase = true;
-	CPS.update(iT,TsatL,iD,rhosatL);
+	if (isenabled_TTSE_LUT()){
+		CPS.update(iP,psatL,iH,hL);
+	}
+	else{
+		CPS.update(iT,TsatL,iD,rhosatL);	
+	}
 	SC.add_value_constraint(hL, CPS.drhodp_consth());
 	SC.add_derivative_constraint(hL, CPS.d2rhodhdp());
 	// The values at x = xend
@@ -1182,18 +1185,14 @@ double CoolPropStateClass::drhodh_constp_smoothed(double xend){
 	// The values at x = 0, but faking out CoolProp by using T,rho and enforcing singlephase
 	CPS.flag_SinglePhase = true;
 	// Get the value at the saturated liquid part
-	if (isenabled_TTSE_LUT())
-	{
+	if (isenabled_TTSE_LUT()){
 		CPS.update(iP,psatL,iH,hL);
-		SC.add_value_constraint(hL, CPS.drhodh_constp());
-		SC.add_derivative_constraint(hL, CPS.d2rhodh2_constp());
 	}
-	else
-	{
-		CPS.update(iT,TsatL,iD,rhosatL);
-		SC.add_value_constraint(hL, CPS.drhodh_constp());
-		SC.add_derivative_constraint(hL, CPS.d2rhodh2_constp());
+	else{
+		CPS.update(iT,TsatL,iD,rhosatL);	
 	}
+	SC.add_value_constraint(hL, CPS.drhodh_constp());
+	SC.add_derivative_constraint(hL, CPS.d2rhodh2_constp());
 	// The values at x = xend
 	CPS.update(iT,TsatL,iQ,xend);
 	SC.add_value_constraint(hend, CPS.drhodh_constp());

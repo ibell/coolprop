@@ -638,7 +638,7 @@ double Fluid::dpdT_Trho(double T,double rho)
 }
 double Fluid::drhodT_p_Trho(double T,double rho)
 {
-	return DerivTerms("drhodT|p",T,rho,(char*)name.c_str());
+	return DerivTerms("drhodT|p",T,rho,this);
 }
 
 //class SoaveSaturationTResids : public FuncWrapper1D
@@ -760,24 +760,16 @@ double Fluid::density_Tp(double T, double p, double rho_guess)
 
 double Fluid::viscosity_Trho( double T, double rho)
 {
-	// Use R134a as the reference
-	Fluid * ReferenceFluid = new R134aClass(); 
-	ReferenceFluid->post_load();
+	long iR134a = get_Fluid_index(std::string("R134a"));
 	// Calculate the ECS
-	double mu = viscosity_ECS_Trho(T, rho, ReferenceFluid);
-	// Delete the reference fluid instance
-	delete ReferenceFluid;
+	double mu = viscosity_ECS_Trho(T, rho, get_fluid(iR134a));
 	return mu;
 }
 double Fluid::conductivity_Trho( double T, double rho)
 {
-	// Use R134a as the reference
-	Fluid * ReferenceFluid = new R134aClass();
-	ReferenceFluid->post_load();
+	long iR134a = get_Fluid_index(std::string("R134a"));
 	// Calculate the ECS
-	double lambda = conductivity_ECS_Trho(T, rho, ReferenceFluid);
-	// Delete the reference fluid instance
-	delete ReferenceFluid;
+	double lambda = conductivity_ECS_Trho(T, rho, get_fluid(iR134a));
 	return lambda;
 }
 
@@ -1454,7 +1446,7 @@ void Fluid::temperature_ph(double p, double h, double *Tout, double *rhoout, dou
 					T_guess = TsatV+(h-hsatV)/cpV;
 					// Volume expansivity at saturated vapor using the ancillaries
 					// Can't use an ancillary since it diverges at the critical point
-					double drhodT = DerivTerms("drhodT|p",TsatV,rhoV,(char*)name.c_str());
+					double drhodT = DerivTerms("drhodT|p",TsatV,rhoV,this);
 					// Extrapolate to get new density guess
 					double rho = rhoV+drhodT*(h-hsatV)/cpV;
 					// If the guess is negative for the density, need to make it positive
@@ -1676,14 +1668,14 @@ void Fluid::temperature_ps(double p, double s, double *Tout, double *rhoout, dou
 			//**************************************************
 			// Step 2: Not far away from saturation (or it is two-phase) - need to solve saturation as a function of p :( - this is slow
 			//**************************************************
-			CoolPropStateClass *sat = new CoolPropStateClass(name);
-			sat->update(get_param_index("P"),p,get_param_index("Q"),0);
-			rhoL = sat->rhoL();
-			rhoV = sat->rhoV();
-			ssatL = sat->sL();
-			ssatV = sat->sV();
-			TsatL = sat->TL();
-			TsatV = sat->TV();
+			CoolPropStateClass sat = CoolPropStateClass(name);
+			sat.update(get_param_index("P"),p,get_param_index("Q"),0);
+			rhoL = sat.rhoL();
+			rhoV = sat.rhoV();
+			ssatL = sat.sL();
+			ssatV = sat.sV();
+			TsatL = sat.TL();
+			TsatV = sat.TV();
 			*rhoLout = rhoL;
 			*rhoVout = rhoV;
 			*TsatLout = TsatL;
@@ -2287,18 +2279,18 @@ private:
 	Fluid * InterestFluid, * ReferenceFluid;
 	double alpha_j, Z_j;
 public:
-	ConformalTempResids(Fluid *InterestFluid_, Fluid *ReferenceFluid_, double _alpha_j, double _Z_j){
-		InterestFluid=InterestFluid_;
-		ReferenceFluid=ReferenceFluid_;
-		alpha_j = _alpha_j;
-		Z_j = _Z_j;
+	ConformalTempResids(Fluid *InterestFluid, Fluid *ReferenceFluid, double alpha_j, double Z_j){
+		this->InterestFluid = InterestFluid;
+		this->ReferenceFluid = ReferenceFluid;
+		this->alpha_j = alpha_j;
+		this->Z_j = Z_j;
 	};
 	~ConformalTempResids(){};
 	std::vector<double> call(std::vector<double> x)
 	{
 		double T0 = x[0]; double rho0 = x[1];
-		double alpha_0 = DerivTerms("phir",T0,rho0,ReferenceFluid->get_namec());
-		double Z_0 = DerivTerms("Z",T0,rho0,ReferenceFluid->get_namec());
+		double alpha_0 = DerivTerms("phir",T0,rho0,ReferenceFluid);
+		double Z_0 = DerivTerms("Z",T0,rho0,ReferenceFluid);
 		std::vector<double> out = std::vector<double>(2,0);
 		out[0]=alpha_j-alpha_0;
 		out[1]=Z_j-Z_0;
@@ -2312,13 +2304,13 @@ public:
 		std::vector<std::vector<double> > out;
 		out.resize(x.size(),std::vector<double>(x.size(),0));
 		// Terms for the fluid of interest drop out
-		double dalpha_dT0 = -DerivTerms("dphir_dTau",T0,rho0,ReferenceFluid->get_namec())*dtau_dT;
+		double dalpha_dT0 = -DerivTerms("dphir_dTau",T0,rho0,ReferenceFluid)*dtau_dT;
 		out[0][0] = dalpha_dT0;
-		double dalpha_drho0 = -DerivTerms("dphir_dDelta",T0,rho0,ReferenceFluid->get_namec())*ddelta_drho;
+		double dalpha_drho0 = -DerivTerms("dphir_dDelta",T0,rho0,ReferenceFluid)*ddelta_drho;
 		out[0][1] = dalpha_drho0;
-		double dZ_dT0 = -DerivTerms("dZ_dTau",T0,rho0,ReferenceFluid->get_namec())*dtau_dT;
+		double dZ_dT0 = -DerivTerms("dZ_dTau",T0,rho0,ReferenceFluid)*dtau_dT;
 		out[1][0] = dZ_dT0;
-		double dZ_drho0 = -DerivTerms("dZ_dDelta",T0,rho0,ReferenceFluid->get_namec())*ddelta_drho;
+		double dZ_drho0 = -DerivTerms("dZ_dDelta",T0,rho0,ReferenceFluid)*ddelta_drho;
 		out[1][1] = dZ_drho0;
 
 		return out;
@@ -2331,8 +2323,8 @@ std::vector<double> Fluid::ConformalTemperature(Fluid *InterestFluid, Fluid *Ref
 	double error,v0,v1,delta,tau,dp_drho;
 	
 	//The values for the fluid of interest that are the target
-	double alpha_j = DerivTerms("phir",T,rho,InterestFluid->get_namec());
-	double Z_j = DerivTerms("Z",T,rho,InterestFluid->get_namec());
+	double alpha_j = DerivTerms("phir",T,rho,InterestFluid);
+	double Z_j = DerivTerms("Z",T,rho,InterestFluid);
 	
 	std::vector<double> f0,v,negative_f0;
 	std::vector<std::vector<double> > J;
@@ -2344,12 +2336,6 @@ std::vector<double> Fluid::ConformalTemperature(Fluid *InterestFluid, Fluid *Ref
 	// Check whether the starting guess is already pretty good
 	error = root_sum_square(CTR.call(x0));
 
-	//if (fabs(error)<1e-3){
-	//	// convert to STL vector to avoid Eigen library in header
-	//	std::vector<double> xout(2,x0[0]);
-	//	xout[1] = x0[1];
-	//	return xout;
-	//}
 	// Make a copy so that if the calculations fail, we can return the original values
 	std::vector<double> x0_initial = x0;
 	
@@ -2445,19 +2431,21 @@ double Fluid::viscosity_ECS_Trho(double T, double rho, Fluid * ReferenceFluid)
 	M = params.molemass;
 	rhocbar=rhoc/M;
 	rhobar=rho/M;
+	
+	try{
+		// Get the ECS parameters from the reference fluid
+		ReferenceFluid->ECSParams(&e0_k,&sigma0);
+	}
+	catch (const NotImplementedError &){
+		// Doesn't have e_k and sigma for reference fluid
+		throw NotImplementedError(format("Your reference fluid for ECS [%s] does not have an implementation of ECSParams",(char *)ReferenceFluid->get_name().c_str()));
+	}
+
 	try{
 		// Get the ECS params for the fluid if it has them
 		ECSParams(&e_k,&sigma);
 	}
-	catch(NotImplementedError){
-		try{
-			// Get the ECS parameters from the reference fluid
-			ReferenceFluid->ECSParams(&e0_k,&sigma0);
-		}
-		catch (NotImplementedError){
-			// Doesn't have e_k and sigma for reference fluid
-			throw NotImplementedError(format("Your reference fluid for ECS [%s] does not have an implementation of ECSParams",(char *)ReferenceFluid->get_name().c_str()));
-		}
+	catch (const NotImplementedError &){ 
 		//Estimate the ECS parameters from Huber and Ely, 2003
 		e_k = e0_k*Tc/Tc0;
 		sigma = sigma0*pow(rhoc/rhoc0,1.0/3.0);
@@ -2504,12 +2492,8 @@ double Fluid::viscosity_ECS_Trho(double T, double rho, Fluid * ReferenceFluid)
 		phi = pow(Zc,pow(1-Tstar,2.0/7.0))/pow(Zc0,pow(1-Tstar/theta,2.0/7.0));
 	}
 
-	try{
-		psi = ECS_psi_viscosity(rho/reduce.rho);
-	}
-	catch(NotImplementedError){
-		psi = 1.0;
-	}
+	psi = ECS_psi_viscosity(rho/reduce.rho);
+
 	f=Tc/Tc0*theta;
 	//Must be the ratio of MOLAR densities!!
 	h=rhoc0bar/rhocbar*phi;
@@ -2531,8 +2515,8 @@ double Fluid::viscosity_ECS_Trho(double T, double rho, Fluid * ReferenceFluid)
 		rho0=x0[1];
 	}
 	rho0bar = rho0/M0;
-	h=rho0bar/rhobar;
-	f=T/T0;
+	h = rho0bar/rhobar;
+	f = T/T0;
 
 	eta_resid = ReferenceFluid->viscosity_background(T0,rho0*psi);
 	F_eta = sqrt(f)*pow(h,-2.0/3.0)*sqrt(M/M0);
@@ -2567,39 +2551,30 @@ double Fluid::conductivity_ECS_Trho(double T, double rho, Fluid * ReferenceFluid
 	rhocbar=rhoc/M;
 	rhobar=rho/M;
 	try{
+		//Estimate the ECS parameters from Huber and Ely, 2003
+		ReferenceFluid->ECSParams(&e0_k,&sigma0);
+	}
+	catch (NotImplementedError &){
+		// Doesn't have e_k and sigma for reference fluid
+		throw NotImplementedError(format("Your reference fluid for ECS [%s] does not have an implementation of ECSParams",(char *)ReferenceFluid->get_name().c_str()));
+	}
+		
+	try{
 		// Get the ECS params for the fluid if it has them
 		ECSParams(&e_k,&sigma);
 	}
-	catch(NotImplementedError){
-		try{
-			//Estimate the ECS parameters from Huber and Ely, 2003
-			ReferenceFluid->ECSParams(&e0_k,&sigma0);
-		}
-		catch (NotImplementedError){
-			// Doesn't have e_k and sigma for reference fluid
-			throw NotImplementedError(format("Your reference fluid for ECS [%s] does not have an implementation of ECSParams",(char *)ReferenceFluid->get_name().c_str()));
-		}
+	catch(NotImplementedError &){
 		e_k = e0_k*Tc/Tc0;
 		sigma = sigma0*pow(rhoc/rhoc0,1.0/3.0);
 	}
+
 	// The dilute portion is for the fluid of interest, not for the reference fluid
 	// It is the viscosity in the limit of zero density
 	// It has units of Pa-s here
 	eta_dilute = viscosity_dilute(T,e_k,sigma);
 	
-	try{
-		chi = ECS_chi_conductivity(rho/reduce.rho);
-	}
-	catch(NotImplementedError){
-		chi = 1.0;
-	}
-
-	try{
-		f_int = ECS_f_int(T);
-	}
-	catch(NotImplementedError){
-		f_int = 1.32e-3;
-	}
+	chi = ECS_chi_conductivity(rho/reduce.rho);
+	f_int = ECS_f_int(T);
 
 	// Get the conformal temperature.  To start out here, assume that the shape factors are unity
 	theta=1.0;
@@ -2618,7 +2593,7 @@ double Fluid::conductivity_ECS_Trho(double T, double rho, Fluid * ReferenceFluid
 	double tau = reduce.T/T;
 	double Z = 1+delta*dphir_dDelta(tau,delta);
 	double p0 = Z*R()*T0*rho0;
-	if (Z<0.3 || p0>1.1*ReferenceFluid->reduce.p || rho0>ReferenceFluid->reduce.rho){
+	if (Z<0.3 || p0 > 1.1*ReferenceFluid->reduce.p || rho0 > ReferenceFluid->reduce.rho){
 		// Use the code to calculate the conformal state
 		x0=ConformalTemperature(this,ReferenceFluid,T,rho,T0,rho0,&errstring);
 		T0=x0[0];
@@ -2692,7 +2667,7 @@ bool Fluid::build_TTSE_LUT(bool force_build)
 		// If we can read the LUT from file, we are done and don't need to rebuild
 		if (!TTSESinglePhase.read_all_from_file(TTSESinglePhase.root_path))
 		{
-			// Build (or load) all the files
+			// Build all the tables
 			TTSESinglePhase.build_ph(hmin_TTSE, hmax_TTSE, pmin_TTSE, pmax_TTSE, &TTSESatL, &TTSESatV);
 			TTSESinglePhase.build_Trho(-1, -1, -1, -1, &TTSESatL, &TTSESatV);// Allow method to figure out the range using h,p since -1 passed for T and rho limits
 

@@ -11,8 +11,8 @@ import textwrap
 #e_k = 263.88
 #sigma = 0.49748
 #
-fluid = 'R245fa'
-Rfluid = 'REFPROP-R245fa'
+fluid = 'DimethylEther'
+Rfluid = 'REFPROP-DME'
 e_k = 329.72
 sigma = 0.5529
 molemass = CP.Props(fluid,'molemass')
@@ -28,7 +28,7 @@ N = (n-1)*(m+1)+3+Nb
 
 mu,mu_dilute,RHO,TTT = Collector(),Collector(),Collector(),Collector()
 
-rhomax = CP.Props('D','T',Ttriple,'Q',0,'R245fa')
+rhomax = CP.Props('D','T',Ttriple,'Q',0,fluid)
 #Build a database of "experimental" data
 for T in np.linspace(Ttriple,Tcrit+30,400):
     for rho in np.linspace(1e-10,rhomax,400):

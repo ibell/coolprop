@@ -105,3 +105,7 @@ double EthanolClass::psat(double T)
 	p = exp(RHS)*reduce.p;
 	return p;
 }
+double EthanolClass::surface_tension_T(double T)
+{
+	return 0.05*pow(1-T/reduce.T,0.952);
+}

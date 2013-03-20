@@ -4,6 +4,7 @@
 #include "CPExceptions.h"
 #include "FluidClass.h"
 #include "Alkanes.h"
+#include "REFPROP.h"
 
 MethaneClass::MethaneClass()
 {
@@ -526,6 +527,14 @@ double nButaneClass::psat(double T)
 	p = exp(reduce.T/T*RHS)*pc;
 	return p;
 }
+//double nButaneClass::viscosity_Trho(double T, double rho) 
+//{
+//	return REFPROP(std::string("V"),std::string("T"),T,std::string("D"),rho,std::string("REFPROP-BUTANE"));
+//}
+//double nButaneClass::conductivity_Trho(double T, double rho)
+//{
+//	return REFPROP(std::string("L"),std::string("T"),T,std::string("D"),rho,std::string("REFPROP-DME"));
+//}
 
 IsoButaneClass::IsoButaneClass()
 {

@@ -8,3 +8,5 @@ cl /c /I../../CoolProp /EHsc /DCOOLPROP_LIB ../../CoolProp/*.cpp
 link /DLL CoolProp.obj *.obj /OUT:CoolProp.dll
 dumpbin /EXPORTS CoolProp.dll > exports.txt
 erase *.obj
+erase *.exp
+erase *.lib
