@@ -319,8 +319,9 @@ bool add_REFPROP_fluid(std::string FluidName)
 	if (iFluid < 0 && set_REFPROP_fluid(FluidName)) // If you can set the fluid, it's a valid fluid
 	{
 		Fluids.add_REFPROP_fluid(FluidName,std::vector<double>(1,1));
+		std::cout << format("Added the fluid %s\n",FluidName.c_str());
 	}
-	std::cout << format("Added the fluid %s\n",FluidName.c_str());
+	
 }
 std::string get_index_units(long index)
 {
