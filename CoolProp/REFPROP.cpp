@@ -1020,11 +1020,12 @@ void REFPROPFluidClass::saturation_T(double T, bool UseLUT, double *psatLout, do
 {
 	long ic,ierr;
 	char herr[errormessagelength+1];
+	std::vector<double> xliq = std::vector<double>(1,1),xvap = std::vector<double>(1,1);
 	double dummy;
 	ic=1;
-	SATTdll(&T,&(xmol[0]),&ic,psatLout,rhosatLout,&dummy,&(xmol[0]),&(xmol[0]),&ierr,herr,errormessagelength);
+	SATTdll(&T,&(xmol[0]),&ic,psatLout,rhosatLout,&dummy,&(xliq[0]),&(xvap[0]),&ierr,herr,errormessagelength);
 	ic=2;
-	SATTdll(&T,&(xmol[0]),&ic,psatVout,&dummy,rhosatVout,&(xmol[0]),&(xmol[0]),&ierr,herr,errormessagelength);
+	SATTdll(&T,&(xmol[0]),&ic,psatVout,&dummy,rhosatVout,&(xliq[0]),&(xvap[0]),&ierr,herr,errormessagelength);
 	*rhosatLout *= params.molemass;
 	*rhosatVout *= params.molemass;
 }
@@ -1032,11 +1033,12 @@ void REFPROPFluidClass::saturation_p(double p, bool UseLUT, double *TsatLout, do
 {
 	long ic,ierr;
 	char herr[errormessagelength+1];
+	std::vector<double> xliq = std::vector<double>(1,1),xvap = std::vector<double>(1,1);
 	double dummy;
 	ic=1;
-	SATPdll(&p,&(xmol[0]),&ic,TsatLout,rhosatLout,&dummy,&(xmol[0]),&(xmol[0]),&ierr,herr,errormessagelength);
+	SATPdll(&p,&(xmol[0]),&ic,TsatLout,rhosatLout,&dummy,&(xliq[0]),&(xvap[0]),&ierr,herr,errormessagelength);
 	ic=2;
-	SATPdll(&p,&(xmol[0]),&ic,TsatVout,&dummy,rhosatVout,&(xmol[0]),&(xmol[0]),&ierr,herr,errormessagelength);
+	SATPdll(&p,&(xmol[0]),&ic,TsatVout,&dummy,rhosatVout,&(xliq[0]),&(xvap[0]),&ierr,herr,errormessagelength);
 	*rhosatLout *= params.molemass;
 	*rhosatVout *= params.molemass;
 }
@@ -1044,18 +1046,20 @@ void REFPROPFluidClass::temperature_ph(double p, double h, double *Tout, double 
 {
 	long ierr;
 	char herr[errormessagelength+1];
+	std::vector<double> xliq = std::vector<double>(1,1),xvap = std::vector<double>(1,1);
 	double q,e,s,cv,cp,w;
-	PHFLSHdll(&p,&h,&(xmol[0]),Tout,rhoout,rhoLout,rhoVout,&(xmol[0]),&(xmol[0]),&q,&e,&s,&cv,&cp,&w,&ierr,herr,errormessagelength);
+	PHFLSHdll(&p,&h,&(xmol[0]),Tout,rhoout,rhoLout,rhoVout,&(xliq[0]),&(xvap[0]),&q,&e,&s,&cv,&cp,&w,&ierr,herr,errormessagelength);
 	*rhoout *= params.molemass;
 	*rhoLout *= params.molemass;
 	*rhoVout *= params.molemass;
 }
-void REFPROPFluidClass::temperature_ps(double p, double s, double *Tout, double *rhoout, double *rhoLout, double *rhoVout, double *TsatLout, double *TsatVout, double T0, double rho0)
+void REFPROPFluidClass::temperature_ps(double p, double s, double *Tout, double *rhoout, double *rhoLout, double *rhoVout, double *TsatLout, double *TsatVout)
 {
 	long ierr;
 	char herr[errormessagelength+1];
-	double q,e,s,cv,cp,w;
-	PSFLSHdll(&p,&h,&(xmol[0]),Tout,rhoout,rhoLout,rhoVout,&(xmol[0]),&(xmol[0]),&q,&e,&s,&cv,&cp,&w,&ierr,herr,errormessagelength);
+	std::vector<double> xliq = std::vector<double>(1,1),xvap = std::vector<double>(1,1);
+	double q,e,h,cv,cp,w;
+	PSFLSHdll(&p,&h,&(xmol[0]),Tout,rhoout,rhoLout,rhoVout,&(xliq[0]),&(xvap[0]),&q,&e,&h,&cv,&cp,&w,&ierr,herr,errormessagelength);
 	*rhoout *= params.molemass;
 	*rhoLout *= params.molemass;
 	*rhoVout *= params.molemass;
@@ -1068,8 +1072,9 @@ double REFPROPFluidClass::density_Tp(double T, double p, double rho_guess)
 {
 	long ierr;
 	char herr[errormessagelength+1];
+	std::vector<double> xliq = std::vector<double>(1,1),xvap = std::vector<double>(1,1);
 	double q,e,s,cv,cp,w,h,rho,rhoL,rhoV;
-	TPFLSHdll(&T,&p,&(xmol[0]),&rho,&rhoL,&rhoV,&(xmol[0]),&(xmol[0]),&q,&e,&h,&s,&cv,&cp,&w,&ierr,herr,errormessagelength);
+	TPFLSHdll(&T,&p,&(xmol[0]),&rho,&rhoL,&rhoV,&(xliq[0]),&(xvap[0]),&q,&e,&h,&s,&cv,&cp,&w,&ierr,herr,errormessagelength);
 
 	return rho*params.molemass;
 }
@@ -1077,10 +1082,11 @@ double REFPROPFluidClass::psat(double T)
 {
 	long ierr,ic;
 	char herr[errormessagelength+1];
+	std::vector<double> xliq = std::vector<double>(1,1),xvap = std::vector<double>(1,1);
 	double q,e,s,cv,cp,w,h,rho,rhoL,rhoV,dummy1,dummy2,psatval;
 
 	ic=1;
-	SATTdll(&T,&(xmol[0]),&ic,&psatval,&dummy1,&dummy2,&(xmol[0]),&(xmol[0]),&ierr,herr,errormessagelength);
+	SATTdll(&T,&(xmol[0]),&ic,&psatval,&dummy1,&dummy2,&(xliq[0]),&(xvap[0]),&ierr,herr,errormessagelength);
 
 	return psatval;
 }
@@ -1088,20 +1094,22 @@ double REFPROPFluidClass::rhosatV(double T)
 {
 	long ierr,ic;
 	char herr[errormessagelength+1];
+	std::vector<double> xliq = std::vector<double>(1,1),xvap = std::vector<double>(1,1);
 	double rhoV,dummy1,psatval;
 
 	ic=2;
-	SATTdll(&T,&(xmol[0]),&ic,&psatval,&dummy1,&rhoV,&(xmol[0]),&(xmol[0]),&ierr,herr,errormessagelength);
+	SATTdll(&T,&(xmol[0]),&ic,&psatval,&dummy1,&rhoV,&(xliq[0]),&(xvap[0]),&ierr,herr,errormessagelength);
 	return rhoV;
 }
 double REFPROPFluidClass::rhosatL(double T)
 {
 	long ierr,ic;
 	char herr[errormessagelength+1];
+	std::vector<double> xliq = std::vector<double>(1,1),xvap = std::vector<double>(1,1);
 	double rhoL,dummy1,psatval;
 
 	ic=1;
-	SATTdll(&T,&(xmol[0]),&ic,&psatval,&rhoL, &dummy1,&(xmol[0]),&(xmol[0]),&ierr,herr,errormessagelength);
+	SATTdll(&T,&(xmol[0]),&ic,&psatval,&rhoL, &dummy1,&(xliq[0]),&(xvap[0]),&ierr,herr,errormessagelength);
 	return rhoL;
 }
 
