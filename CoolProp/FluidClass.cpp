@@ -84,7 +84,7 @@ void rebuild_CriticalSplineConstants_T()
 	FluidsContainer Fluids = FluidsContainer();
 	std::vector<std::string> fluid_names = strsplit(Fluids.FluidList(),',');
 
-	double rhoL, rhoV, drhodTL, drhodTV;
+	double rhoL=0, rhoV=0, drhodTL=0, drhodTV=0;
 
 	FILE *fp;
 	fp = fopen("CriticalSplineConstants_T.h","w");
@@ -713,6 +713,10 @@ double Fluid::density_Tp_Soave(double T, double p, int iValue)
 		{
 			Y = *std::max_element(solns, solns+3);
 		}
+		else
+		{
+			throw ValueError(format("iValue [%d] should be either 0 or 1",iValue));
+		}
 		
 		rho = p/(R*T*(Y+1.0/3.0));
 		return rho;
@@ -931,7 +935,7 @@ void Fluid::rhosatPure_Akasaka(double T, double *rhoLout, double *rhoVout, doubl
 	Ancillary equations are used to get a sensible starting point
 	*/
 	double rhoL,rhoV,dphirL,dphirV,ddphirL,ddphirV,phirL,phirV,JL,JV,KL,KV,dJL,dJV,dKL,dKV;
-	double DELTA, deltaL, deltaV, tau, gamma = 1, error, PL, PV, stepL, stepV;
+	double DELTA, deltaL=0, deltaV=0, tau=0, gamma = 1, error, PL, PV, stepL, stepV;
 	int iter=0;
 	// Use the density ancillary function as the starting point for the solver
     try
@@ -999,7 +1003,7 @@ void Fluid::rhosatPure(double T, double *rhoLout, double *rhoVout, double *pout)
 {
     // Only works for pure fluids (no blends)
     // At equilibrium, saturated vapor and saturated liquid are at the same pressure and the same Gibbs energy
-    double rhoL,rhoV,p,error=999,x1,x2,x3,y1,y2,f,p_guess;
+    double rhoL,rhoV,p,error=999,x1=0,x2=0,x3,y1=0,y2,f,p_guess;
     int iter;
 
     if (T>=crit.T || T<(params.Ttriple-0.0001))
@@ -1008,15 +1012,9 @@ void Fluid::rhosatPure(double T, double *rhoLout, double *rhoVout, double *pout)
     }
 
     // Use the density ancillary function as the starting point for the secant solver
-    try
-	{
-		rhoL=rhosatL(T);
-		rhoV=rhosatV(T);
-	}
-	catch(NotImplementedError &e)
-	{
-		std::cout << e.what() << "Ancillary not provided" << std::endl;
-	}
+    rhoL=rhosatL(T);
+	rhoV=rhosatV(T);
+	
     p_guess=pressure_Trho(T,rhoV);
 
     iter=1;
@@ -1024,15 +1022,15 @@ void Fluid::rhosatPure(double T, double *rhoLout, double *rhoVout, double *pout)
     while ((iter<=3 || fabs(error)>1e-10) && iter<100)
     {
         if (iter==1){x1=p_guess; p=x1;}
-        if (iter==2){x2=1.0001*p_guess; p=x2;}
-        if (iter>2) {p=x2;}
+        else if (iter==2){x2=1.0001*p_guess; p=x2;}
+        else {p=x2;}
             //Recalculate the densities based on the current pressure
             rhoL=density_Tp(T,p,rhoL);
             rhoV=density_Tp(T,p,rhoV);
             // Residual between saturated liquid and saturated vapor gibbs function
             f=gibbs_Trho(T,rhoL)-gibbs_Trho(T,rhoV);
         if (iter==1){y1=f;}
-        if (iter>1)
+        else //(iter>1)
         {
             y2=f;
             x3=x2-y2/(y2-y1)*(x2-x1);
@@ -1571,7 +1569,7 @@ void Fluid::temperature_ph(double p, double h, double *Tout, double *rhoout, dou
 		A[1][0]=df2_dtau;
 		A[1][1]=df2_ddelta;
 
-		double det = A[0][0]*A[1][1]-A[1][0]*A[0][1];
+		//double det = A[0][0]*A[1][1]-A[1][0]*A[0][1];
 
 		MatInv_2(A,B);
 		tau -= omega*(B[0][0]*f1+B[0][1]*f2);
@@ -1859,6 +1857,10 @@ double Fluid::Tsat_anc(double p, double Q)
 			logp_min = log(psatL_anc(Tmin));
 			logp_mid = log(psatL_anc(Tmid));
 			logp_max = log(psatL_anc(Tmax));
+		}
+		else
+		{
+			throw ValueError(format("Quality [%g] must be either 1 or 0",Q));
 		}
 		
 		// plotting tc/t versus log(p) tends to give very close to straight line
@@ -2789,7 +2791,6 @@ double CriticalSplineStruct_T::interpolate_rho(Fluid *pFluid, int phase, double 
 	double Tc = pFluid->reduce.T;
 	double tauend = Tc/Tend, tau = Tc/T;
 
-	double tau_difference = tau-tauend;
 	double k1,k2,R,Rend,a,b,c,d,rhoend;
 	// If you are within a microKelvin of critical point, return critical point
 	if (fabs(T-Tc)<1e-6)
@@ -2836,9 +2837,6 @@ double CriticalSplineStruct_T::interpolate_rho(Fluid *pFluid, int phase, double 
 	c = 0;
 	d = 1-tau;
 
-	double b1_error = a11*a+a12*b-b1;
-	double b2_error = a21*a+a22*b-b2;
-
 	// Discriminant
 	double DELTA = 18*a*b*c*d-4*b*b*b*d+b*b*c*c-4*a*c*c*c-27*a*a*d*d;
 
@@ -2860,17 +2858,12 @@ double CriticalSplineStruct_T::interpolate_rho(Fluid *pFluid, int phase, double 
 		}
 		R = t0-b/(3*a);
 	}
-	else if (DELTA>0)
+	else //(DELTA>0)
 	{
 		// Three real roots
-
-		double arg_arccos = 3*q/(2*p)*sqrt(-3/p);
 		double t0 = 2.0*sqrt(-p/3.0)*cos(1.0/3.0*acos(3.0*q/(2.0*p)*sqrt(-3.0/p))-0*2.0*M_PI/3.0);
 		double t1 = 2.0*sqrt(-p/3.0)*cos(1.0/3.0*acos(3.0*q/(2.0*p)*sqrt(-3.0/p))-1*2.0*M_PI/3.0);
 		double t2 = 2.0*sqrt(-p/3.0)*cos(1.0/3.0*acos(3.0*q/(2.0*p)*sqrt(-3.0/p))-2*2.0*M_PI/3.0);
-		double t0_check = t0*t0*t0+p*t0+q;
-		double t1_check = t1*t1*t1+p*t1+q;
-		double t2_check = t2*t2*t2+p*t2+q;
 
 		double R0 = t0-b/(3*a);
 		double R1 = t1-b/(3*a);
@@ -2888,6 +2881,10 @@ double CriticalSplineStruct_T::interpolate_rho(Fluid *pFluid, int phase, double 
 		else if (R2*Rend > 0 && fabs(R2)<=fabs(Rend))
 		{
 			R = R2;
+		}
+		else
+		{
+			throw ValueError(format("No solution found for R"));
 		}
 	}
 

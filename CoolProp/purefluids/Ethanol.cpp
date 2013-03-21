@@ -48,7 +48,6 @@ EthanolClass::EthanolClass()
 		   p0 = 1.0, 
 		   rho0 = p0/(params.R_u/params.molemass*T0),
 		   m, c,
-		   R_u = params.R_u,
 		   R_ = params.R_u/params.molemass,
 		   H0 = -28.200895800653548,
 		   S0 = -0.13719644488861227,

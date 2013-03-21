@@ -358,11 +358,11 @@ double R744Class::conductivity_critical(double T, double rho)
 double R744Class::conductivity_Trho(double T, double rho)
 {
 	double e_k=251.196,Tstar;
-	double a[]={0.235156,-0.491266,5.211155e-2,5.347906e-2,-1.537102e-2};
+	//double a[]={0.235156,-0.491266,5.211155e-2,5.347906e-2,-1.537102e-2};
 	double b[]={0.4226159,0.6280115,-0.5387661,0.6735941,0,0,-0.4362677,0.2255388};
 	double c[]={0,2.387869e-2,4.350794,-10.33404,7.981590,-1.940558};
 	double d[]={0,2.447164e-2,8.705605e-5,-6.547950e-8,6.594919e-11};
-	double e[]={0,3.635074e-3,7.209997e-5, 0,0,0,0,3.00306e-20};
+	//double e[]={0,3.635074e-3,7.209997e-5, 0,0,0,0,3.00306e-20};
 
 	//Vesovic Eq. 31 [no units]
 	double summer = 0;
@@ -401,7 +401,7 @@ double R744Class::viscosity_Trho(double T, double rho)
 	double a[]={0.235156,-0.491266,5.211155e-2,5.347906e-2,-1.537102e-2};
 	double e[]={0,3.635074e-3,7.209997e-5, 0,0,0,0,3.00306e-20};
 
-	double d11=0.4071119e-2,d21=0.7198037e-4,d64=0.2411697e-16,d81=0.2971072e-22,d82=-0.1627888e-22;
+	//double d11=0.4071119e-2,d21=0.7198037e-4,d64=0.2411697e-16,d81=0.2971072e-22,d82=-0.1627888e-22;
 	double summer=0;
 	Tstar=T/e_k;
 	for (i=0;i<=4;i++)
@@ -416,13 +416,13 @@ double R744Class::viscosity_Trho(double T, double rho)
 	double delta_eta_g = summer;
 
 	// No critical enhancement in viscosity
-	double delta_eta_c = 0.0;
+	//double delta_eta_c = 0.0;
 
-	double B = 18.56 + 0.014*T;
-	double V0 = 7.41e-4 - 3.3e-7*T;
-	double eta_l = delta_eta_c+1/(B*(1/rho-V0));
+	//double B = 18.56 + 0.014*T;
+	//double V0 = 7.41e-4 - 3.3e-7*T;
+	//double eta_l = delta_eta_c+1/(B*(1/rho-V0));
 
-	return (eta0+delta_eta_g)/1e6;
+	return (eta0+delta_eta_g)/1e6;	
 }
 double R744Class::psat(double T)
 {

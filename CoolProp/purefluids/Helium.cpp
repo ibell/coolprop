@@ -209,14 +209,10 @@ HeliumClass::HeliumClass()
 	params.accentricfactor = -0.385 ;
 	params.R_u = 8.314472;
 
-	double T0 = 4.222, 
-		   p0 = 101.325, 
-		   R_u = 8.314472,
-		   R_ = R_u/params.molemass,
+	double T0 = 4.222,
 		   rho0 = 124.95883288439697,
 		   m,
 		   c,
-		   Tc = crit.T,
 		   tau0 = crit.T/T0,
 		   delta0 = rho0/crit.rho;
 	
