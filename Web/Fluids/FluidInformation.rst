@@ -38,7 +38,7 @@ You can also use any of the aliases of the fluids that are the listed on the flu
 
 REFPROP Fluids and Mixtures
 ---------------------------
-If you are on Windows and have REFPROP installed, you can use it with CoolProp.  REFPROP needs to be installed in c:\Program Files\REFPROP.  If it is somewhere else, just copy it to this location.
+If you are on Windows and have REFPROP installed, you can use it with CoolProp.  REFPROP needs to be installed in c:\\Program Files\\REFPROP.  If it is somewhere else, just copy it to this location.
 
 It is also possible to use REFPROP on Linux.  Please follow the instructions from https://github.com/jowr/librefprop.so to install the library from Fortran sources.  Additionally, you also need to copy the fluid and mixture files to /opt/refprop. 
 

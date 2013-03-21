@@ -9,7 +9,7 @@ File Type: DLL
   Section contains the following exports for CoolProp.dll
 
     00000000 characteristics
-    51484B91 time date stamp Tue Mar 19 12:27:13 2013
+    514A5A4B time date stamp Thu Mar 21 01:54:35 2013
         0.00 version
            1 ordinal base
           43 number of functions
@@ -17,53 +17,53 @@ File Type: DLL
 
     ordinal hint RVA      name
 
-          1    0 000050C0 _DerivTerms@24
-          2    1 00004B90 _F2K@8
-          3    2 00005050 _FluidsList@4
-          4    3 0008F1A0 _HAProps@40
-          5    4 00090590 _HAProps_Aux@32
-          6    5 00004920 _IProps@32
-          7    6 00001AD0 _IsFluidType@8
-          8    7 00004B70 _K2F@8
-          9    8 000029D0 _Phase@24
-         10    9 00002A40 _Phase_Tp@24
-         11    A 00002AB0 _Phase_Trho@24
-         12    B 00004BB0 _PrintSaturationTable@24
-         13    C 00003270 _Props1@8
-         14    D 000034F0 _Props@32
-         15    E 00001EF0 _conformal_Trho@32
+          1    0 00005230 _DerivTerms@24
+          2    1 00004D00 _F2K@8
+          3    2 000051C0 _FluidsList@4
+          4    3 0008F620 _HAProps@40
+          5    4 00090A10 _HAProps_Aux@32
+          6    5 00004A90 _IProps@32
+          7    6 00001C40 _IsFluidType@8
+          8    7 00004CE0 _K2F@8
+          9    8 00002B40 _Phase@24
+         10    9 00002BB0 _Phase_Tp@24
+         11    A 00002C20 _Phase_Trho@24
+         12    B 00004D20 _PrintSaturationTable@24
+         13    C 000033E0 _Props1@8
+         14    D 00003660 _Props@32
+         15    E 00002060 _conformal_Trho@32
          16    F 00001090 _debug@4
          17   10 00001310 _disable_TTSE_LUT@4
          18   11 000013D0 _disable_TTSE_LUT_writing@4
          19   12 00001290 _enable_TTSE_LUT@4
          20   13 00001350 _enable_TTSE_LUT_writing@4
          21   14 00001860 _get_Fluid_index@4
-         22   15 00006100 _get_REFPROPname@8
+         22   15 00006310 _get_REFPROPname@8
          23   16 00001520 _get_TTSESinglePhase_LUT_range@20
-         24   17 00005F10 _get_aliases@8
+         24   17 00006120 _get_aliases@8
          25   18 00001070 _get_debug@0
          26   19 00001160 _get_errstring@4
          27   1A 00001200 _get_errstring_copy@4
          28   1B 000011B0 _get_errstringc@0
-         29   1C 00001950 _get_index_units@8
-         30   1D 00001AA0 _get_param_index@4
+         29   1C 00001AC0 _get_index_units@8
+         30   1D 00001C10 _get_param_index@4
          31   1E 00001000 _get_svnrevision@0
          32   1F 00001010 _get_version@4
          33   20 000012D0 _isenabled_TTSE_LUT@4
          34   21 00001390 _isenabled_TTSE_LUT_writing@4
-         35   22 00002540 _psatL_anc@12
-         36   23 00002600 _psatV_anc@12
-         37   24 000023C0 _rhosatL_anc@12
-         38   25 00002480 _rhosatV_anc@12
+         35   22 000026B0 _psatL_anc@12
+         36   23 00002770 _psatV_anc@12
+         37   24 00002530 _rhosatL_anc@12
+         38   25 000025F0 _rhosatV_anc@12
          39   26 00001410 _set_TTSESat_LUT_size@8
          40   27 000014B0 _set_TTSESinglePhase_LUT_range@36
          41   28 00001460 _set_TTSESinglePhase_LUT_size@12
          42   29 00001260 _set_phase@4
-         43   2A 000022C0 _viscosity_dilute@36
+         43   2A 00002430 _viscosity_dilute@36
 
   Summary
 
         C000 .data
-       39000 .rdata
-        E000 .reloc
+       3C000 .rdata
+        F000 .reloc
        DC000 .text

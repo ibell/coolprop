@@ -15,6 +15,10 @@ Transport Properties Information
 ================================
 Viscosity: E. Vogel, C. Kuchenmeister, and E. Bich, A. Laesecke,"Reference Correlation of the Viscosity of Propane"J. Phys. Chem. Ref. Data, Vol. 27, No. 5, 1998
 
+Conductivity: Kenneth N. Marsh, Richard A. Perkins, and Maria L. V. Ramires "Measurement and Correlation of the Thermal Conductivity ofPropane from 86 K to 600 K at Pressures to 70 MPa",J. Chem. Eng. Data 2002, 47, 932-940
+
+Surface Tension: A. Mulero and I. Cachadiña and M. I. Parra"Recommended Correlations for the Surface Tension of Common Fluids", J. Phys. Chem. Ref. Data, Vol. 41, No. 4, 2012
+
 
 Fluid Data
 ==========
@@ -24,14 +28,14 @@ Fluid Parameters
 =========================  ==============================
 Mole Mass [kg/kmol]        44.09562
 Triple Point Temp. [K]     85.525
-Triple Point Press. [kPa]  0.000
+Triple Point Press. [kPa]  1.713140901e-07
 Minimum temperature [K]    85.525
 =========================  ==============================
 
 Critical Parameters
 
 ==============================  ==============================
-Temperature [K]                 369.89
+Temperature [K]                 369.890
 Density [kg/m\ :sup:`3`\ ]      220.478100
 Pressure [kPa]                  4251.20000
 ==============================  ==============================
@@ -64,6 +68,8 @@ Saturated Vapor Deviations
     s0 = Props('S','T',(Tt+Tc)/2.0,'Q',1,Fluid)
     s = array([Props('S','T',T,'Q',1,Fluid)-s0 for T in Tv])   
     sigma = array([Props('I','T',T,'Q',1,Fluid) for T in Tv])
+    visc = array([Props('V','T',T,'Q',1,Fluid) for T in Tv])
+    cond = array([Props('L','T',T,'Q',1,Fluid) for T in Tv])
 
     Rp = array([Props('P','T',T,'Q',1,RPFluid) for T in Tv])
     Rrho = array([Props('D','T',T,'Q',1,RPFluid) for T in Tv])
@@ -74,6 +80,8 @@ Saturated Vapor Deviations
     Rs0 = Props('S','T',(Tt+Tc)/2.0,'Q',1,RPFluid)
     Rs = array([Props('S','T',T,'Q',1,RPFluid)-Rs0 for T in Tv])
     Rsigma = array([Props('I','T',T,'Q',1,RPFluid) for T in Tv])
+    Rvisc = array([Props('V','T',T,'Q',1,RPFluid) for T in Tv])
+    Rcond = array([Props('L','T',T,'Q',1,RPFluid) for T in Tv])
 
     fig = plt.figure()
 
@@ -83,8 +91,10 @@ Saturated Vapor Deviations
     ax.semilogy(Tv/Tc,abs(cp/Rcp-1)*100,'o',label='Specific heat (cp)')
     ax.semilogy(Tv/Tc,abs(cv/Rcv-1)*100,'o',label='Specific heat (cv)')
     ax.semilogy(Tv/Tc,abs(h/Rh-1)*100,'o',label='Enthalpy')
-    ax.semilogy(Tv/Tc,abs(s/Rs-1)*100,'o',label='Entropy')  
-    ax.semilogy(Tv/Tc,abs(sigma/Rsigma-1)*100,'o',label='Surface tension')
+    ax.semilogy(Tv/Tc,abs(s/Rs-1)*100,'o',label='Entropy')
+    ax.semilogy(Tv/Tc,abs(visc/Rvisc-1)*100,'^',label='Viscosity')
+    ax.semilogy(Tv/Tc,abs(cond/Rcond-1)*100,'s',label='Conductivity')
+    ax.semilogy(Tv/Tc,abs(sigma/Rsigma-1)*100,'p',label='Surface tension')
     ax.set_ylim(1e-16,100)
     ax.set_title('Saturated Vapor Deviations from REFPROP 9.0')
     ax.set_xlabel('Reduced temperature T/Tc')
@@ -118,6 +128,8 @@ Saturated Liquid Deviations
     h = array([Props('H','T',T,'Q',0,Fluid)-h0 for T in Tv])
     s0 = Props('S','T',(Tt+Tc)/2.0,'Q',0,Fluid)
     s = array([Props('S','T',T,'Q',0,Fluid)-s0 for T in Tv])    
+    visc = array([Props('V','T',T,'Q',0,Fluid) for T in Tv])
+    cond = array([Props('L','T',T,'Q',0,Fluid) for T in Tv])
     sigma = array([Props('I','T',T,'Q',0,Fluid) for T in Tv])
 
     Rp = array([Props('P','T',T,'Q',0,RPFluid) for T in Tv])
@@ -128,6 +140,8 @@ Saturated Liquid Deviations
     Rh = array([Props('H','T',T,'Q',0,RPFluid)-Rh0 for T in Tv])
     Rs0 = Props('S','T',(Tt+Tc)/2.0,'Q',0,RPFluid)
     Rs = array([Props('S','T',T,'Q',0,RPFluid)-Rs0 for T in Tv])
+    Rvisc = array([Props('V','T',T,'Q',0,RPFluid) for T in Tv])
+    Rcond = array([Props('L','T',T,'Q',0,RPFluid) for T in Tv])
     Rsigma = array([Props('I','T',T,'Q',0,RPFluid) for T in Tv])
 
     fig = plt.figure()
@@ -139,7 +153,9 @@ Saturated Liquid Deviations
     ax.semilogy(Tv/Tc,abs(cv/Rcv-1)*100,'o',label='Specific heat (cv)')
     ax.semilogy(Tv/Tc,abs(h/Rh-1)*100,'o',label='Enthalpy')
     ax.semilogy(Tv/Tc,abs(s/Rs-1)*100,'o',label='Entropy')
-    ax.semilogy(Tv/Tc,abs(sigma/Rsigma-1)*100,'o',label='Surface tension')
+    ax.semilogy(Tv/Tc,abs(visc/Rvisc-1)*100,'^',label='Viscosity')
+    ax.semilogy(Tv/Tc,abs(cond/Rcond-1)*100,'s',label='Conductivity')
+    ax.semilogy(Tv/Tc,abs(sigma/Rsigma-1)*100,'p',label='Surface tension')
     ax.set_ylim(1e-16,100)
     ax.set_title('Saturated Liquid Deviations from REFPROP 9.0')
     ax.set_xlabel('Reduced temperature T/Tc')
@@ -173,6 +189,7 @@ Along the critical isotherm where T=T\ :sub:`c`
     s0 = Props('S','T',0.95*Tc,'Q',1,Fluid)
     s = array([Props('S','T',Tc,'D',D,Fluid)-s0 for D in rhov])
     visc = array([Props('V','T',Tc,'D',D,Fluid) for D in rhov])
+    cond = array([Props('L','T',Tc,'D',D,Fluid) for D in rhov])
 
     Rp = array([Props('P','T',Tc,'D',D,RPFluid) for D in rhov])
     Rrho = array([Props('D','T',Tc,'D',D,RPFluid) for D in rhov])
@@ -183,6 +200,7 @@ Along the critical isotherm where T=T\ :sub:`c`
     Rs0 = Props('S','T',0.95*Tc,'Q',1,RPFluid)
     Rs = array([Props('S','T',Tc,'D',D,RPFluid)-Rs0 for D in rhov])
     Rvisc = array([Props('V','T',Tc,'D',D,RPFluid) for D in rhov])
+    Rcond = array([Props('L','T',Tc,'D',D,RPFluid) for D in rhov])
 
     fig = plt.figure()
 
@@ -192,7 +210,8 @@ Along the critical isotherm where T=T\ :sub:`c`
     ax.semilogy(rhov/rhoc,abs(cv/Rcv-1)*100,'o',label='Specific heat (cv)')
     ax.semilogy(rhov/rhoc,abs(h/Rh-1)*100,'o',label='Enthalpy')
     ax.semilogy(rhov/rhoc,abs(s/Rs-1)*100,'o',label='Entropy') 
-    ax.semilogy(rhov/rhoc,abs(visc/Rvisc-1)*100,'o',label='Viscosity')
+    ax.semilogy(rhov/rhoc,abs(visc/Rvisc-1)*100,'^',label='Viscosity')
+    ax.semilogy(rhov/rhoc,abs(cond/Rcond-1)*100,'s',label='Conductivity')
     ax.set_ylim(1e-16,100)
     ax.set_title('Critical isotherm Deviations from REFPROP 9.0')
     ax.set_xlabel(r'Reduced density $\rho/\rho_c$')

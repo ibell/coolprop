@@ -355,7 +355,11 @@ class Fluid
 			throw NotImplementedError(std::string("conductivity_background not implemented for this fluid"));
 		};
 
-		double conductivity_critical(double T, double rho);
+		/// The critical term for the thermal conductivity from Olchowy and Sengers
+		/// @param T Temperature [K]
+		/// @param rho Density [kg/m^3]
+		/// @param qd qd term in term [1/m]
+		double conductivity_critical(double T, double rho, double qd = 2e9);
 
 
 		/// This function returns the dilute portion of the viscosity

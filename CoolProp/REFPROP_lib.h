@@ -1,11 +1,12 @@
 
 #ifndef REFPROP_LIB_H
 #define REFPROP_LIB_H
+
 /*
 // The idea here is to have a common header for Windows
-// and Linux systems. The Windows branch should cover the
-// functions provided by the .dll and the Linux part covers
-// the compiled .so file. Name changes caused by gfortran
+// and gcc-like systems. The Windows branch should cover the
+// functions provided by the .dll and the gcc part covers
+// the compiled .so/.dym file. Name changes caused by gfortran
 // are respected and should be accounted for.
 */
 // Get the platform identifiers
@@ -13,7 +14,7 @@
 
 // Do some manual changes to the function names
 // if needed, uses CoolProp platform detection.
-#if defined __ISWINDOWS__
+#if defined(__ISWINDOWS__)
 // Define compiler specific calling conventions
 // for the shared library.
 #  define CALLCONV __stdcall // __declspec(dllexport)
@@ -122,7 +123,7 @@
 #  define WMOLdll WMOLdll
 #  define XMASSdll XMASSdll
 #  define XMOLEdll XMOLEdll
-#elif defined __ISLINUX__ // defined __ISWINDOWS__
+#elif defined(__ISLINUX__) // defined(__ISWINDOWS__)
 // Define compiler specific calling conventions
 // for the shared library.
 #  define CALLCONV
@@ -236,9 +237,12 @@
 #  define WMOLdll wmoldll_
 #  define XMASSdll xmassdll_
 #  define XMOLEdll xmoledll_
-#endif // defined __ISLINUX__
+#endif // defined(__ISLINUX__)
 //
 //
+// Only continue if function names have been defined.
+// We might want to include some more tests here...
+#if defined(RPVersion)
 // define new macros for function names
 // http://stackoverflow.com/questions/195975/how-to-make-a-char-string-from-a-c-macros-value
 #include <string.h>
@@ -669,6 +673,6 @@ extern "C" {
   typedef XMOLEdll_TYPE * XMOLEdll_POINTER;
 #ifdef __cplusplus
 } // extern "C"
-#endif
-// REFPROP_LIB_H
-#endif
+#endif // __cplusplus
+#endif // defined(RPversion)
+#endif // REFPROP_LIB_H
