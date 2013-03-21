@@ -1,11 +1,12 @@
 
 #ifndef REFPROP_LIB_H
 #define REFPROP_LIB_H
+
 /*
 // The idea here is to have a common header for Windows
-// and Linux systems. The Windows branch should cover the
-// functions provided by the .dll and the Linux part covers
-// the compiled .so file. Name changes caused by gfortran
+// and gcc-like systems. The Windows branch should cover the
+// functions provided by the .dll and the gcc part covers
+// the compiled .so/.dym file. Name changes caused by gfortran
 // are respected and should be accounted for.
 */
 // Get the platform identifiers
@@ -13,7 +14,7 @@
 
 // Do some manual changes to the function names
 // if needed, uses CoolProp platform detection.
-#if defined __ISWINDOWS__
+#if defined(__ISWINDOWS__)
 // Define compiler specific calling conventions
 // for the shared library.
 #  define CALLCONV __stdcall // __declspec(dllexport)
@@ -122,7 +123,7 @@
 #  define WMOLdll WMOLdll
 #  define XMASSdll XMASSdll
 #  define XMOLEdll XMOLEdll
-#elif defined __ISLINUX__ // defined __ISWINDOWS__
+#elif defined(__ISLINUX__) // defined(__ISWINDOWS__)
 // Define compiler specific calling conventions
 // for the shared library.
 #  define CALLCONV
@@ -236,9 +237,116 @@
 #  define WMOLdll wmoldll_
 #  define XMASSdll xmassdll_
 #  define XMOLEdll xmoledll_
-#endif // defined __ISLINUX__
+#else // #elif defined(__ISLINUX__)
+// Set some dummy names for the compiler
+#  define CALLCONV
+#  define RPVersion NOTAVAILABLE
+#  define SETPATHdll setpathdll
+#  define ABFL1dll abfl1dll
+#  define ABFL2dll abfl2dll
+#  define ACTVYdll actvydll
+#  define AGdll agdll
+#  define CCRITdll ccritdll
+#  define CP0dll cp0dll
+#  define CRITPdll critpdll
+#  define CSATKdll csatkdll
+#  define CV2PKdll cv2pkdll
+#  define CVCPKdll cvcpkdll
+#  define CVCPdll cvcpdll
+#  define DBDTdll dbdtdll
+#  define DBFL1dll dbfl1dll
+#  define DBFL2dll dbfl2dll
+#  define DDDPdll dddpdll
+#  define DDDTdll dddtdll
+#  define DEFLSHdll deflshdll
+#  define DHD1dll dhd1dll
+#  define DHFL1dll dhfl1dll
+#  define DHFL2dll dhfl2dll
+#  define DHFLSHdll dhflshdll
+#  define DIELECdll dielecdll
+#  define DOTFILLdll dotfilldll
+#  define DPDD2dll dpdd2dll
+#  define DPDDKdll dpddkdll
+#  define DPDDdll dpdddll
+#  define DPDTKdll dpdtkdll
+#  define DPDTdll dpdtdll
+#  define DPTSATKdll dptsatkdll
+#  define DSFLSHdll dsflshdll
+#  define DSFL1dll dsfl1dll
+#  define DSFL2dll dsfl2dll
+#  define ENTHALdll enthaldll
+#  define ENTROdll entrodll
+#  define ESFLSHdll esflshdll
+#  define FGCTYdll fgctydll
+#  define FPVdll fpvdll
+#  define GERG04dll gerg04dll
+#  define GETFIJdll getfijdll
+#  define GETKTVdll getktvdll
+#  define GIBBSdll gibbsdll
+#  define HSFLSHdll hsflshdll
+#  define INFOdll infodll
+#  define LIMITKdll limitkdll
+#  define LIMITSdll limitsdll
+#  define LIMITXdll limitxdll
+#  define MELTPdll meltpdll
+#  define MELTTdll melttdll
+#  define MLTH2Odll mlth2odll
+#  define NAMEdll namedll
+#  define PDFL1dll pdfl1dll
+#  define PDFLSHdll pdflshdll
+#  define PEFLSHdll peflshdll
+#  define PHFL1dll phfl1dll
+#  define PHFLSHdll phflshdll
+#  define PQFLSHdll pqflshdll
+#  define PREOSdll preosdll
+#  define PRESSdll pressdll
+#  define PSFL1dll psfl1dll
+#  define PSFLSHdll psflshdll
+#  define PUREFLDdll pureflddll
+#  define QMASSdll qmassdll
+#  define QMOLEdll qmoledll
+#  define RESIDUALdll residualdll
+#  define SATDdll satddll
+#  define SATEdll satedll
+#  define SATHdll sathdll
+#  define SATPdll satpdll
+#  define SATSdll satsdll
+#  define SATTdll sattdll
+#  define SETAGAdll setagadll
+#  define SETKTVdll setktvdll
+#  define SETMIXdll setmixdll
+#  define SETMODdll setmoddll
+#  define SETREFdll setrefdll
+#  define SETUPdll setupdll
+//#  define SPECGRdll specgrdll // not found in library
+#  define SUBLPdll sublpdll
+#  define SUBLTdll subltdll
+#  define SURFTdll surftdll
+#  define SURTENdll surtendll
+#  define TDFLSHdll tdflshdll
+#  define TEFLSHdll teflshdll
+#  define THERM0dll therm0dll
+#  define THERM2dll therm2dll
+#  define THERM3dll therm3dll
+#  define THERMdll thermdll
+#  define THFLSHdll thflshdll
+#  define TPFLSHdll tpflshdll
+#  define TPFL2dll tpfl2dll
+#  define TPRHOdll tprhodll
+#  define TQFLSHdll tqflshdll
+#  define TRNPRPdll trnprpdll
+#  define TSFLSHdll tsflshdll
+#  define VIRBdll virbdll
+#  define VIRCdll vircdll
+#  define WMOLdll wmoldll
+#  define XMASSdll xmassdll
+#  define XMOLEdll xmoledll
+#endif // else branch
 //
 //
+// Only continue if function names have been defined.
+// We might want to include some more tests here...
+#if defined(RPVersion)
 // define new macros for function names
 // http://stackoverflow.com/questions/195975/how-to-make-a-char-string-from-a-c-macros-value
 #include <string.h>
@@ -669,6 +777,6 @@ extern "C" {
   typedef XMOLEdll_TYPE * XMOLEdll_POINTER;
 #ifdef __cplusplus
 } // extern "C"
-#endif
-// REFPROP_LIB_H
-#endif
+#endif // __cplusplus
+#endif // defined(RPversion)
+#endif // REFPROP_LIB_H

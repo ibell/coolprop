@@ -9,13 +9,12 @@
 
 #if defined(__ISWINDOWS__)
 #include <windows.h>
-#include "REFPROP_lib.h"
-#include "REFPROP.h"
 #elif defined(__ISLINUX__)
 #include <dlfcn.h>
+#endif
+
 #include "REFPROP_lib.h"
 #include "REFPROP.h"
-#endif
 
 #include <stdlib.h>
 #include "string.h"
@@ -31,16 +30,14 @@
 #define numparams 72 
 #define maxcoefs 50
 
+std::string LoadedREFPROPRef;
 
 #if defined(__ISWINDOWS__)
-std::string LoadedREFPROPRef;
 HINSTANCE RefpropdllInstance=NULL;
 #elif defined(__ISLINUX__)
-std::string LoadedREFPROPRef;
 void *RefpropdllInstance=NULL;
 #endif
 
-#if defined(__ISWINDOWS__)||defined(__ISLINUX__)
 // Define functions as pointers and initialise them to NULL
 // Declare the functions for direct access
  RPVersion_POINTER RPVersion;
@@ -164,6 +161,7 @@ double setFunctionPointers()
 		return -_HUGE;
 	}
 	// set the pointers, platform independent
+	RPVersion = (RPVersion_POINTER) getFunctionPointer((char *)RPVersion_NAME);
 	ABFL1dll = (ABFL1dll_POINTER) getFunctionPointer((char *)ABFL1dll_NAME);
 	ABFL2dll = (ABFL2dll_POINTER) getFunctionPointer((char *)ABFL2dll_NAME);
 	ACTVYdll = (ACTVYdll_POINTER) getFunctionPointer((char *)ACTVYdll_NAME);
@@ -258,7 +256,6 @@ double setFunctionPointers()
 	WMOLdll = (WMOLdll_POINTER) getFunctionPointer((char *)WMOLdll_NAME);
 	XMASSdll = (XMASSdll_POINTER) getFunctionPointer((char *)XMASSdll_NAME);
 	XMOLEdll = (XMOLEdll_POINTER) getFunctionPointer((char *)XMOLEdll_NAME);
-
 	return OK;
 }
 
@@ -301,14 +298,25 @@ bool load_REFPROP()
 
 		if (RefpropdllInstance==NULL)
 		{
-			#if defined(__ISLINUX__)
+			#if defined(__ISWINDOWS)
+//				int  dw            = ::GetLastError();
+//				char lpBuffer[256] = _T("?");
+//				if(dwLastError != 0) {
+//				    ::FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM,       // Has to be a system error
+//				                     NULL,                            // No formatter
+//				                     dw,                              // Get error message for this int
+//				                     MAKELANGID(LANG_NEUTRAL,SUBLANG_DEFAULT),  // Use system language
+//				                     lpBuffer,                        // Write output
+//				                     STR_ELEMS(lpBuffer)-1,           // Length of output
+//				                     NULL);
+//				}
+//				printf(lpBuffer);
+//				printf("\n");
+				printf("Could not load refprop.dll\n\n");
+			#elif defined(__ISLINUX__)
 				fputs (dlerror(), stderr);
-				printf("Please make sure that REFPROP is available on your system.\n");
-				printf("You can find instructions on how to install it as a Linux library at: \n");
-				printf("https://github.com/jowr/librefprop.so\n\n");
+				printf("Could not load librefprop.so\n\n");
 			#endif
-			printf("Could not load REFPROP, neither found in current location nor found in system PATH.\n");
-			printf("Add location of REFPROP to the PATH environmental variable.\n");
 			return false;
 		}
 
@@ -330,6 +338,11 @@ bool set_REFPROP_fluid(std::string Ref)
 	std::string sRef;
 	std::string RefString;
 	std::string fdPath = get_REFPROP_fluid_path();
+
+	// Check platform support
+	if(!REFPROPFluidClass::refpropSupported()){
+		throw NotImplementedError("You cannot use the REFPROPFluidClass.");
+	}
 
 	// Load REFPROP if it isn't loaded yet
 	load_REFPROP();
@@ -466,6 +479,11 @@ double REFPROP(char Output, char Name1, double Prop1, char Name2, double Prop2, 
 }
 double REFPROP(std::string Output, std::string Name1, double Prop1, std::string Name2, double Prop2, std::string Ref)
 {
+	if(!REFPROPFluidClass::refpropSupported()){
+		printf("You cannot use REFPROP, returning.");
+		return _HUGE;
+	}
+
 	long ierr=0,iOutput,iName1,iName2;
 	char herr[errormessagelength+1];
 	double x[ncmax],xliq[ncmax],xvap[ncmax];
@@ -514,7 +532,7 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 	{
 		// Minimum temperature
 		double tmin,tmax,Dmax,pmax;
-		LIMITSdll("EOS",x,&tmin,&tmax,&Dmax,&pmax,255);
+		LIMITSdll((char *)"EOS",x,&tmin,&tmax,&Dmax,&pmax,255);
 		return tmin;
 	}
 	else if (iOutput == iAccentric)
@@ -882,11 +900,17 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 
 REFPROPFluidClass::REFPROPFluidClass(std::string FluidName, std::vector<double> xmol)
 {
+
 	long ierr,ic;
 	char herr[errormessagelength+1];
 	std::vector<double> xliq = std::vector<double>(1,1),xvap = std::vector<double>(1,1);
 	double Tcrit,dcrit,pcrit,MW,Ttriple,tnbpt,acf,Zcrit,dip,Rgas, dummy1, dummy2;
 	
+	// Check platform support
+	if(!REFPROPFluidClass::refpropSupported()){
+	    throw NotImplementedError("You cannot use the REFPROPFluidClass.");
+	  }
+
 	// Copy the molar fractions
 	this->xmol = xmol;
 
@@ -920,6 +944,51 @@ REFPROPFluidClass::REFPROPFluidClass(std::string FluidName, std::vector<double> 
 
 	// Set the reducing values from the pointer
 	reduce = *preduce;
+}
+
+bool REFPROPFluidClass::supported = true; // initialise with true
+bool REFPROPFluidClass::refpropSupported () {
+	/*
+	 * Here we build the bridge from macro definitions
+	 * into the actual code. This is also going to be
+	 * the central place to handle error messages on
+	 * unsupported platforms.
+	 */
+
+	// Abort check if Refprop has been loaded.
+	if (RefpropdllInstance!=NULL) return true;
+
+	// Store result of previous check.
+	if (REFPROPFluidClass::supported) {
+		// Either Refprop is supported or it is the first check.
+		std::string rpv(RPVersion_NAME);
+		if (rpv.compare("NOTAVAILABLE")!=0) {
+			// Function names were defined in "REFPROP_lib.h",
+			// This platform theoretically supports Refprop.
+			if (load_REFPROP()) {
+				return true;
+			}
+			else {
+				printf("Good news: It is possible to use REFPROP on your system! However, the library \n");
+				printf("could not be loaded. Please make sure that REFPROP is available on your system.\n\n");
+				printf("Neither found in current location nor found in system PATH.\n");
+				printf("If you already obtained a copy of REFPROP from http://www.nist.gov/srd/, \n");
+				printf("add location of REFPROP to the PATH environment variable or your library path.\n\n");
+				printf("In case you do not use Windows, have a look at https://github.com/jowr/librefprop.so \n");
+				printf("to find instructions on how to compile your own version of the REFPROP library.\n\n");
+				REFPROPFluidClass::supported = false;
+				return false;
+			}
+		} else {
+			// No definition of function names, we do not expect
+			// the Refprop library to be available.
+			REFPROPFluidClass::supported = false;
+			return false;
+		}
+	} else {
+		return false;
+	}
+	return false;
 }
 
 double REFPROPFluidClass::dphir_dDelta(double tau, double delta)
@@ -1149,5 +1218,3 @@ double REFPROPFluidClass::rhosatL(double T)
 	SATTdll(&T,&(xmol[0]),&ic,&psatval,&rhoL, &dummy1,&(xliq[0]),&(xvap[0]),&ierr,herr,errormessagelength);
 	return rhoL*params.molemass;
 }
-
-#endif //#if defined(__ISWINDOWS__)||defined(__ISLINUX__)

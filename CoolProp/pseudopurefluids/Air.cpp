@@ -338,9 +338,9 @@ double AirClass::conductivity_Trho(double T, double rho)
 	if (num<0)
 		return (lambda0+lambdar)/1e6;
 
-	cp=Props('C','T',T,'D',rho,"Air");
-	cv=Props('O','T',T,'D',rho,"Air");
-	mu=Props('V','T',T,'D',rho,"Air")*1e6; //[uPa-s]
+	cp=Props('C','T',T,'D',rho,(char *)"Air");
+	cv=Props('O','T',T,'D',rho,(char *)"Air");
+	mu=Props('V','T',T,'D',rho,(char *)"Air")*1e6; //[uPa-s]
 
 	zeta=zeta0*pow(num/LAMBDA,nu/gamma); //[nm]
 	OMEGA_tilde=2.0/pi*((cp-cv)/cp*atan(zeta/q_D)+cv/cp*(zeta/q_D));

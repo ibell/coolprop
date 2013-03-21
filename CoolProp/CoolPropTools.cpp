@@ -62,6 +62,7 @@ std::vector<std::string> strsplit(std::string s, char del)
 			return v;
 		}
 	}
+	return v;
 }
     
 double interp1d(std::vector<double> *x, std::vector<double> *y, double x0)
