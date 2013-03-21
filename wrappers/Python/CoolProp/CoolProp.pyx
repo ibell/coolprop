@@ -541,6 +541,9 @@ cdef class State:
             raise TypeError()
         
         self.Fluid = _Fluid
+        if self.Fluid.startswith('REFPROP-'):
+            add_REFPROP_fluid(self.Fluid.encode('ascii'))
+            
         self.iFluid = _get_Fluid_index(_Fluid)
         #Try to get the fluid from CoolProp
         if self.iFluid >= 0:
@@ -658,7 +661,7 @@ cdef class State:
                 items = params.items()
                 iInput1 = paras_inverse[items[0][0]]
                 iInput2 = paras_inverse[items[1][0]]
-                try:
+                try: 
                     self.PFC.update(iInput1, items[0][1], iInput2, items[1][1])
                 except:
                     raise

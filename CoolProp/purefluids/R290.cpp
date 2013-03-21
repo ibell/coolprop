@@ -242,7 +242,14 @@ R290Class::R290Class()
 						"J. Chem. Eng. Data, 54:3141-3180, 2009");
 	TransportReference.assign("Viscosity: E. Vogel, C. Kuchenmeister, and E. Bich, A. Laesecke,"
 							"\"Reference Correlation of the Viscosity of Propane\""
-							"J. Phys. Chem. Ref. Data, Vol. 27, No. 5, 1998");
+							"J. Phys. Chem. Ref. Data, Vol. 27, No. 5, 1998\n\n"
+							"Conductivity: Kenneth N. Marsh, Richard A. Perkins, and Maria L. V. Ramires "
+							"\"Measurement and Correlation of the Thermal Conductivity of"
+							"Propane from 86 K to 600 K at Pressures to 70 MPa\","
+							"J. Chem. Eng. Data 2002, 47, 932-940 (Olchowy-Sengers)\n\n"
+							"Surface Tension: A. Mulero and I. Cachadiña and M. I. Parra"
+							"\"Recommended Correlations for the Surface Tension of Common Fluids\""
+							", J. Phys. Chem. Ref. Data, Vol. 41, No. 4, 2012");
 
 	name.assign("Propane");
 	aliases.push_back("propane");
@@ -300,19 +307,19 @@ double R290Class::conductivity_Trho(double T, double rho)
     //Set constants required
     double B1[]={
         0.0,			//[0]
-        -3.51153e-2,	//[1]
-         1.70890e-1,	//[2]
-        -1.47688e-1,	//[3]
-         5.19283e-2,	//[4]
-        -6.18662e-3		//[5]
+        -3.69500e-2,	//[1]
+         1.48658e-1,	//[2]
+        -1.19986e-1,	//[3]
+         4.12431e-2,	//[4]
+        -4.86905e-3		//[5]
     };
     double B2[]={
         0.0,			//[0]
-         4.69195e-2,	//[1]
-        -1.48616e-1,	//[2]
-         1.32457e-1,	//[3]
-        -4.85636e-2,	//[4]
-         6.60414e-3		//[5]
+         4.82798e-2,	//[1]
+        -1.35636e-1,	//[2]
+         1.17588e-1,	//[3]
+        -4.36911e-2,	//[4]
+         6.16079e-3		//[5]
     };
     double C[]={
         0.0,			//[0]
@@ -334,17 +341,16 @@ double R290Class::conductivity_Trho(double T, double rho)
 	// The finite-density contribution
 	for(i=1;i<=5;i++)
     {
-        sum+=(B1[i]+B2[i]/tau)*pow(delta,(double)i);
+        sum+=(B1[i]+B2[i]/tau)*pow(delta,i);
     }
     lambdar=sum;
 
-	// The critical region contribution
-    DELTAT_c=(1.0/tau-1.0);
-    DELTArho_c=delta-1.0;
-    lambdac=C[1]/(C[2]+fabs(DELTAT_c))*exp(-(C[3]*DELTArho_c)*(C[3]*DELTArho_c));
+	// Critical term from Olchowy and Sengers using the value of qd^-1 from Marsh
+	lambdac = this->conductivity_critical(T,rho,1/7.16635e-10)*1000;
 
     return (lambda0+lambdar+lambdac)/1000.0;
 }
+
 void R290Class::ECSParams(double *e_k, double *sigma)
 {
 	*e_k = 263.88;  *sigma = 0.49748;

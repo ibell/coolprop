@@ -1030,7 +1030,6 @@ double REFPROPFluidClass::phi0(double tau, double delta)
 	T = reduce.T/tau;
 	
 	THERM0dll(&T,&rhobar,&(xmol[0]),&p0,&e0,&h0,&s0,&cv0,&cp0,&w0,&A0,&G0);
-
 	return (h0-T*s0)/params.molemass/R/T-1;
 }
 

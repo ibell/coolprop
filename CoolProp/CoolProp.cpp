@@ -801,8 +801,20 @@ double _Props(std::string Output,std::string Name1, double Prop1, std::string Na
 	if (debug()>5){
 		std::cout<<__FILE__<<": "<<Output<<","<<Name1<<","<<Prop1<<","<<Name2<<","<<Prop2<<","<<Ref<<std::endl;
 	}
-
-	if (IsCoolPropFluid(Ref))
+	/* 
+    If the fluid name is not actually a refrigerant name, but a string beginning with "REFPROP-",
+    then REFPROP is used to calculate the desired property.
+    */
+    if (IsREFPROP(Ref))  // First eight characters match "REFPROP-"
+    {
+        #if defined(__ISWINDOWS__)||defined(__ISLINUX__)
+		return REFPROP(Output,Name1,Prop1,Name2,Prop2,Ref);
+		#else
+        throw AttributeError(format("Your refrigerant [%s] is from REFPROP, but REFPROP not supported on this platform",Ref.c_str()));
+        return -_HUGE;
+        #endif
+    }
+	else if (IsCoolPropFluid(Ref))
 	{
 		pFluid = Fluids.get_fluid(Ref);
 		// Convert all the parameters to integers
@@ -818,19 +830,7 @@ double _Props(std::string Output,std::string Name1, double Prop1, std::string Na
 		// Call the internal method that uses the parameters converted to longs
 		return _CoolProp_Fluid_Props(iOutput,iName1,Prop1,iName2,Prop2,pFluid);
 	}
-    /* 
-    If the fluid name is not actually a refrigerant name, but a string beginning with "REFPROP-",
-    then REFPROP is used to calculate the desired property.
-    */
-    else if (IsREFPROP(Ref))  // First eight characters match "REFPROP-"
-    {
-        #if defined(__ISWINDOWS__)||defined(__ISLINUX__)
-		return REFPROP(Output,Name1,Prop1,Name2,Prop2,Ref);
-		#else
-        throw AttributeError(format("Your refrigerant [%s] is from REFPROP, but REFPROP not supported on this platform",Ref.c_str()));
-        return -_HUGE;
-        #endif
-    }
+    
 
     // It's a brine, call the brine routine
 	else if (IsBrine((char*)Ref.c_str()))

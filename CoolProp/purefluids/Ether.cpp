@@ -128,3 +128,8 @@ double DimethylEtherClass::rhosatV(double T)
 //{
 //	return REFPROP(std::string("L"),std::string("T"),T,std::string("D"),rho,std::string("REFPROP-DME"));
 //}
+
+double DimethylEtherClass::surface_tension_T(double T)
+{
+	return 0.063157*pow(1-T/reduce.T,1.2595);
+}
