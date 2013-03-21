@@ -299,7 +299,7 @@ double R290Class::conductivity_Trho(double T, double rho)
     // output in kW/m-K
 
     double delta,lambda0,lambdar,lambdac,sum=0,tau;
-    double DELTAT_c,DELTArho_c,rhoc,Tc;
+    double rhoc,Tc;
     int i;
 	rhoc=reduce.rho;
 	Tc=reduce.T;

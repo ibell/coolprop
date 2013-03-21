@@ -50,7 +50,8 @@ DimethylEtherClass::DimethylEtherClass()
 	phi0list.push_back(new phi0_Planck_Einstein(v0_v,u0_v,1,4));
 
 	EOSReference.assign("Jiangtao Wu, Yong Zhou, Eric W. Lemmon, \"An Equation of State for the Thermodynamic Properties of Dimethyl Ether\", J. Phys. Chem. Ref. Data, Vol. 40, No. 2, 2011");
-	TransportReference.assign("Using ECS in fully predictive mode");
+	TransportReference.assign("Using ECS in fully predictive mode\n\n"
+		"Lennard-Jones parameters from Chichester NISTIR 6650");
 
 	name.assign("DimethylEther");
 	REFPROPname.assign("DME");
@@ -98,6 +99,24 @@ double DimethylEtherClass::rhosatV(double T)
     return reduce.rho*exp(summer);
 }
 
+double DimethylEtherClass::conductivity_Trho(double T, double rho)
+{
+	long iPropane = get_Fluid_index(std::string("Propane"));
+	// Calculate the ECS
+	double lambda = conductivity_ECS_Trho(T, rho, get_fluid(iPropane));
+	return lambda;
+}
+double DimethylEtherClass::viscosity_Trho(double T, double rho)
+{
+	long iPropane = get_Fluid_index(std::string("Propane"));
+	// Calculate the ECS
+	double mu = viscosity_ECS_Trho(T, rho, get_fluid(iPropane));
+	return mu;
+}
+void DimethylEtherClass::ECSParams(double *e_k, double *sigma)
+{
+	*e_k = 395; *sigma =0.4307;
+}
 //double DimethylEtherClass::viscosity_Trho(double T, double rho)
 //{
 //	return REFPROP(std::string("V"),std::string("T"),T,std::string("D"),rho,std::string("REFPROP-DME"));

@@ -15,6 +15,10 @@ Transport Properties Information
 ================================
 Viscosity: E. Vogel, C. Kuchenmeister, and E. Bich, A. Laesecke,"Reference Correlation of the Viscosity of Propane"J. Phys. Chem. Ref. Data, Vol. 27, No. 5, 1998
 
+Conductivity: Kenneth N. Marsh, Richard A. Perkins, and Maria L. V. Ramires "Measurement and Correlation of the Thermal Conductivity ofPropane from 86 K to 600 K at Pressures to 70 MPa",J. Chem. Eng. Data 2002, 47, 932-940
+
+Surface Tension: A. Mulero and I. Cachadiña and M. I. Parra"Recommended Correlations for the Surface Tension of Common Fluids", J. Phys. Chem. Ref. Data, Vol. 41, No. 4, 2012
+
 
 Fluid Data
 ==========
@@ -87,7 +91,7 @@ Saturated Vapor Deviations
     ax.semilogy(Tv/Tc,abs(cp/Rcp-1)*100,'o',label='Specific heat (cp)')
     ax.semilogy(Tv/Tc,abs(cv/Rcv-1)*100,'o',label='Specific heat (cv)')
     ax.semilogy(Tv/Tc,abs(h/Rh-1)*100,'o',label='Enthalpy')
-    ax.semilogy(Tv/Tc,abs(s/Rs-1)*100,'o',label='Entropy')  
+    ax.semilogy(Tv/Tc,abs(s/Rs-1)*100,'o',label='Entropy')
     ax.semilogy(Tv/Tc,abs(visc/Rvisc-1)*100,'^',label='Viscosity')
     ax.semilogy(Tv/Tc,abs(cond/Rcond-1)*100,'s',label='Conductivity')
     ax.semilogy(Tv/Tc,abs(sigma/Rsigma-1)*100,'p',label='Surface tension')
@@ -149,9 +153,9 @@ Saturated Liquid Deviations
     ax.semilogy(Tv/Tc,abs(cv/Rcv-1)*100,'o',label='Specific heat (cv)')
     ax.semilogy(Tv/Tc,abs(h/Rh-1)*100,'o',label='Enthalpy')
     ax.semilogy(Tv/Tc,abs(s/Rs-1)*100,'o',label='Entropy')
-    ax.semilogy(Tv/Tc,abs(visc/Rvisc-1)*100,'^',mfc='none',label='Viscosity')
-    ax.semilogy(Tv/Tc,abs(cond/Rcond-1)*100,'s',mfc='none',label='Conductivity')
-    ax.semilogy(Tv/Tc,abs(sigma/Rsigma-1)*100,'p',mfc='none',label='Surface tension')
+    ax.semilogy(Tv/Tc,abs(visc/Rvisc-1)*100,'^',label='Viscosity')
+    ax.semilogy(Tv/Tc,abs(cond/Rcond-1)*100,'s',label='Conductivity')
+    ax.semilogy(Tv/Tc,abs(sigma/Rsigma-1)*100,'p',label='Surface tension')
     ax.set_ylim(1e-16,100)
     ax.set_title('Saturated Liquid Deviations from REFPROP 9.0')
     ax.set_xlabel('Reduced temperature T/Tc')
