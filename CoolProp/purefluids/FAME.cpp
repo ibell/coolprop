@@ -24,7 +24,7 @@ MethylPalmitateClass::MethylPalmitateClass()
 	crit.v = 1/crit.rho; 
 
 	// Other fluid parameters
-	params.molemass = 270.45066; // From REFPROP, not provided in paper (but should be!!)
+	params.molemass = 270.45066; // http://pubchem.ncbi.nlm.nih.gov/summary/summary.cgi?cid=8181#x27 (not provided in reference paper)
 	params.Ttriple = 302.71; // From REFPROP, not provided in paper
 	params.accentricfactor = 0.910316178;
 	params.R_u = 8.314472;
@@ -50,7 +50,7 @@ MethylPalmitateClass::MethylPalmitateClass()
 	phi0list.push_back(new phi0_cp0_poly(120.529/params.R_u,0.0801627,crit.T,298));
 	phi0list.push_back(new phi0_Planck_Einstein(v0_v,u0_v,1,3));
 
-	EOSReference.assign("Marcia L. Huber, Eric W. Lemmon, Andrei Kazakov, Lisa S. Ott and Thomas J. Bruno, \"Model for the Thermodynamic Properties of a Biodiesel Fuel\", Energy & Fuels 2009, 23, 3790–3797");
+	EOSReference.assign("Marcia L. Huber, Eric W. Lemmon, Andrei Kazakov, Lisa S. Ott and Thomas J. Bruno, \"Model for the Thermodynamic Properties of a Biodiesel Fuel\", Energy & Fuels 2009, 23, 3790ï¿½3797");
 	TransportReference.assign("Using ECS in fully predictive mode");
 
 	name.assign("MethylPalmitate");
@@ -146,7 +146,7 @@ MethylStearateClass::MethylStearateClass()
 	phi0list.push_back(new phi0_cp0_poly(247.115/params.R_u,-0.0916606,crit.T,298));
 	phi0list.push_back(new phi0_Planck_Einstein(v0_v,u0_v,1,3));
 
-	EOSReference.assign("Marcia L. Huber, Eric W. Lemmon, Andrei Kazakov, Lisa S. Ott and Thomas J. Bruno, \"Model for the Thermodynamic Properties of a Biodiesel Fuel\", Energy & Fuels 2009, 23, 3790–3797");
+	EOSReference.assign("Marcia L. Huber, Eric W. Lemmon, Andrei Kazakov, Lisa S. Ott and Thomas J. Bruno, \"Model for the Thermodynamic Properties of a Biodiesel Fuel\", Energy & Fuels 2009, 23, 3790ï¿½3797");
 	TransportReference.assign("Using ECS in fully predictive mode");
 
 	name.assign("MethylStearate");
@@ -241,7 +241,7 @@ MethylOleateClass::MethylOleateClass()
 	phi0list.push_back(new phi0_cp0_poly(90.2385/params.R_u,0.146118,crit.T,298));
 	phi0list.push_back(new phi0_Planck_Einstein(v0_v,u0_v,1,3));
 
-	EOSReference.assign("Marcia L. Huber, Eric W. Lemmon, Andrei Kazakov, Lisa S. Ott and Thomas J. Bruno, \"Model for the Thermodynamic Properties of a Biodiesel Fuel\", Energy & Fuels 2009, 23, 3790–3797");
+	EOSReference.assign("Marcia L. Huber, Eric W. Lemmon, Andrei Kazakov, Lisa S. Ott and Thomas J. Bruno, \"Model for the Thermodynamic Properties of a Biodiesel Fuel\", Energy & Fuels 2009, 23, 3790ï¿½3797");
 	TransportReference.assign("Using ECS in fully predictive mode");
 
 	name.assign("MethylOleate");
@@ -336,7 +336,7 @@ MethylLinoleateClass::MethylLinoleateClass()
 	phi0list.push_back(new phi0_cp0_poly(190.986/params.R_u,0.020213,crit.T,298));
 	phi0list.push_back(new phi0_Planck_Einstein(v0_v,u0_v,1,3));
 
-	EOSReference.assign("Marcia L. Huber, Eric W. Lemmon, Andrei Kazakov, Lisa S. Ott and Thomas J. Bruno, \"Model for the Thermodynamic Properties of a Biodiesel Fuel\", Energy & Fuels 2009, 23, 3790–3797");
+	EOSReference.assign("Marcia L. Huber, Eric W. Lemmon, Andrei Kazakov, Lisa S. Ott and Thomas J. Bruno, \"Model for the Thermodynamic Properties of a Biodiesel Fuel\", Energy & Fuels 2009, 23, 3790ï¿½3797");
 	TransportReference.assign("Using ECS in fully predictive mode");
 
 	name.assign("MethylLinoleate");
@@ -432,7 +432,7 @@ MethylLinolenateClass::MethylLinolenateClass()
 	phi0list.push_back(new phi0_cp0_poly(79.5913/params.R_u,0.214648,crit.T,298));
 	phi0list.push_back(new phi0_Planck_Einstein(v0_v,u0_v,1,3));
 
-	EOSReference.assign("Marcia L. Huber, Eric W. Lemmon, Andrei Kazakov, Lisa S. Ott and Thomas J. Bruno, \"Model for the Thermodynamic Properties of a Biodiesel Fuel\", Energy & Fuels 2009, 23, 3790–3797");
+	EOSReference.assign("Marcia L. Huber, Eric W. Lemmon, Andrei Kazakov, Lisa S. Ott and Thomas J. Bruno, \"Model for the Thermodynamic Properties of a Biodiesel Fuel\", Energy & Fuels 2009, 23, 3790ï¿½3797");
 	TransportReference.assign("Using ECS in fully predictive mode");
 
 	name.assign("MethylLinolenate");

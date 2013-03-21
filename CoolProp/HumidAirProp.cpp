@@ -25,43 +25,43 @@ double f_factor(double T, double p);
 // A couple of convenience functions that are needed quite a lot
 static double MM_Air(void)
 {
-	return Props('M','T',0,'P',0,"Air");
+	return Props('M','T',0,'P',0,(char *)"Air");
 }
 static double MM_Water(void)
 {
-	return Props('M','T',0,'P',0,"Water");
+	return Props('M','T',0,'P',0,(char *)"Water");
 }
 static double B_Air(double T)
 {
-    return DerivTerms("B",T,1e-12,"Air");
+    return DerivTerms((char *)"B",T,1e-12,(char *)"Air");
 }
 static double dBdT_Air(double T)
 {
-    return DerivTerms("dBdT",T,1e-12,"Air");
+    return DerivTerms((char *)"dBdT",T,1e-12,(char *)"Air");
 }
 static double B_Water(double T)
 {
-    return DerivTerms("B",T,1e-12,"Water");
+    return DerivTerms((char *)"B",T,1e-12,(char *)"Water");
 }
 static double dBdT_Water(double T)
 {
-    return DerivTerms("dBdT",T,1e-12,"Water");
+    return DerivTerms((char *)"dBdT",T,1e-12,(char *)"Water");
 }
 static double C_Air(double T)
 {
-    return DerivTerms("C",T,1e-12,"Air");
+    return DerivTerms((char *)"C",T,1e-12,(char *)"Air");
 }
 static double dCdT_Air(double T)
 {
-    return DerivTerms("dCdT",T,1e-12,"Air");
+    return DerivTerms((char *)"dCdT",T,1e-12,(char *)"Air");
 }
 static double C_Water(double T)
 {
-    return DerivTerms("C",T,1e-12,"Water");
+    return DerivTerms((char *)"C",T,1e-12,(char *)"Water");
 }
 static double dCdT_Water(double T)
 {
-    return DerivTerms("dCdT",T,1e-12,"Water");
+    return DerivTerms((char *)"dCdT",T,1e-12,(char *)"Water");
 }
 void UseVirialCorrelations(int flag)
 {
@@ -119,7 +119,7 @@ static double Brent_HAProps_T(char *OutputName, char *Input1Name, double Input1,
 		~BrentSolverResids(){};
 		
 		double call(double T){
-			return HAProps(OutputName,"T",T,Input1Name,Input1,Input2Name,Input2)-TargetVal;
+			return HAProps(OutputName,(char *)"T",T,Input1Name,Input1,Input2Name,Input2)-TargetVal;
 		}
 	};
 
@@ -143,7 +143,7 @@ static double Secant_HAProps_T(char *OutputName, char *Input1Name, double Input1
 		if (iter==1){x1=T_guess; T=x1;}
 		if (iter==2){x2=T_guess+0.001; T=x2;}
 		if (iter>2) {T=x2;}
-			f=HAProps(OutputName,"T",T,Input1Name,Input1,Input2Name,Input2)-TargetVal;
+			f=HAProps(OutputName,(char *)"T",T,Input1Name,Input1,Input2Name,Input2)-TargetVal;
 		if (iter==1){y1=f;}
 		if (iter>1)
 		{
@@ -168,7 +168,7 @@ static double Secant_HAProps_W(char *OutputName, char *Input1Name, double Input1
 		if (iter==1){x1=W_guess; W=x1;}
 		if (iter==2){x2=W_guess+0.001; W=x2;}
 		if (iter>2) {W=x2;}
-			f=HAProps(OutputName,"W",W,Input1Name,Input1,Input2Name,Input2)-TargetVal;
+			f=HAProps(OutputName,(char *)"W",W,Input1Name,Input1,Input2Name,Input2)-TargetVal;
 		if (iter==1){y1=f;}
 		if (iter>1)
 		{
@@ -260,7 +260,7 @@ static double B_m(double T, double psi_w)
     // NDG for fluid EOS for virial terms
     Tj=132.6312;
     tau_Air=Tj/T;
-    tau_Water=Props(ITc,'T',0,'P',0,"Water")/T;
+    tau_Water=Props(ITc,'T',0,'P',0,(char *)"Water")/T;
     if (FlagUseVirialCorrelations==1)
     {
         B_aa=-0.000721183853646 +1.142682674467e-05*T -8.838228412173e-08*pow(T,2) 
@@ -287,7 +287,7 @@ static double dB_m_dT(double T, double psi_w)
     // NDG for fluid EOS for virial terms
     Tj=132.6312;
     tau_Air=Tj/T;
-    tau_Water=Props(ITc,'T',0,'P',0,"Water")/T;
+    tau_Water=Props(ITc,'T',0,'P',0,(char *)"Water")/T;
     if (FlagUseVirialCorrelations)
     {
         dB_dT_aa=1.65159324353e-05 -3.026130954749e-07*T +2.558323847166e-09*pow(T,2) -1.250695660784e-11*pow(T,3) +3.759401946106e-14*pow(T,4) -6.889086380822e-17*pow(T,5) +7.089457032972e-20*pow(T,6) -3.149942145971e-23*pow(T,7);
@@ -309,7 +309,7 @@ static double C_m(double T, double psi_w)
     // NDG for fluid EOS for virial terms
     Tj=132.6312;
     tau_Air=Tj/T;
-    tau_Water=Props(ITc,'T',0,'P',0,"Water")/T;
+    tau_Water=Props(ITc,'T',0,'P',0,(char *)"Water")/T;
     if (FlagUseVirialCorrelations)
     {
         C_aaa=1.29192158975e-08 -1.776054020409e-10*T +1.359641176409e-12*pow(T,2) 
@@ -337,7 +337,7 @@ static double dC_m_dT(double T, double psi_w)
     // NDG for fluid EOS for virial terms
     Tj=132.6312;
     tau_Air=Tj/T;
-    tau_Water=Props(ITc,'T',0,'P',0,"Water")/T;
+    tau_Water=Props(ITc,'T',0,'P',0,(char *)"Water")/T;
     if (FlagUseVirialCorrelations)
     {
         dC_dT_aaa=-2.46582342273e-10 +4.425401935447e-12*T -3.669987371644e-14*pow(T,2) +1.765891183964e-16*pow(T,3) -5.240097805744e-19*pow(T,4) +9.502177003614e-22*pow(T,5) -9.694252610339e-25*pow(T,6) +4.276261986741e-28*pow(T,7);
@@ -359,7 +359,7 @@ static double HenryConstant(double T)
     double p_ws,beta_N2,beta_O2,beta_Ar,beta_a,tau,Tr,Tc=647.096;
     Tr=T/Tc; 
     tau=1-Tr;
-    p_ws=Props('P','T',T,'Q',1.0,"Water"); //[kPa]
+    p_ws=Props('P','T',T,'Q',1.0,(char *)"Water"); //[kPa]
     beta_N2=p_ws*exp(-9.67578/Tr+4.72162*pow(tau,0.355)/Tr+11.70585*pow(Tr,-0.41)*exp(tau));
     beta_O2=p_ws*exp(-9.44833/Tr+4.43822*pow(tau,0.355)/Tr+11.42005*pow(Tr,-0.41)*exp(tau));
     beta_Ar=p_ws*exp(-8.40954/Tr+4.29587*pow(tau,0.355)/Tr+10.52779*pow(Tr,-0.41)*exp(tau));
@@ -383,7 +383,7 @@ double f_factor(double T, double p)
     if (T>273.15)
     {
         // It is liquid water
-        p_ws=Props('P','T',T,'Q',0,"Water")*1000;
+        p_ws=Props('P','T',T,'Q',0,(char *)"Water")*1000;
 		if (FlagUseIsothermCompressCorrelation)
 		{
 			k_T = 1.6261876614E-22*pow(T,6) - 3.3016385196E-19*pow(T,5) + 2.7978984577E-16*pow(T,4)
@@ -391,11 +391,11 @@ double f_factor(double T, double p)
 		}
         else
 		{
-            double rho = Props('D','T',T,'P',p/1000,"Water");
-			k_T=DerivTerms("IsothermalCompressibility",T,rho,"Water")/1000; //[1/Pa]
+            double rho = Props('D','T',T,'P',p/1000,(char *)"Water");
+			k_T=DerivTerms((char *)"IsothermalCompressibility",T,rho,(char *)"Water")/1000; //[1/Pa]
 		}
         beta_H=HenryConstant(T); //[1/Pa]
-        vbar_ws=1.0/Props('D','T',T,'Q',0,"Water")*MM_Water()/1000; //[m^3/mol]
+        vbar_ws=1.0/Props('D','T',T,'Q',0,(char *)"Water")*MM_Water()/1000; //[m^3/mol]
     }
     else
     {
@@ -416,7 +416,7 @@ double f_factor(double T, double p)
     // NDG for fluid EOS for virial terms
     Tj=132.6312;
     tau_Air=Tj/T;
-    tau_Water=Props(ITc,'T',0,'P',0,"Water")/T;
+    tau_Water=Props(ITc,'T',0,'P',0,(char *)"Water")/T;
 	if (FlagUseVirialCorrelations)
 	{
 		B_aa=-0.000721183853646 +1.142682674467e-05*T -8.838228412173e-08*pow(T,2) 
@@ -517,9 +517,9 @@ double Viscosity(double T, double p, double psi_w)
     Mw=MM_Water();
     Ma=MM_Air();
     // Viscosity of dry air at dry-bulb temp and total pressure
-    mu_a=Props('V','T',T,'P',p,"Air");
+    mu_a=Props('V','T',T,'P',p,(char *)"Air");
     // Viscosity of pure saturated water at dry-bulb temperature
-    mu_w=Props('V','P',p,'Q',1,"Water");
+    mu_w=Props('V','P',p,'Q',1,(char *)"Water");
     Phi_av=sqrt(2.0)/4.0*pow(1+Ma/Mw,-0.5)*pow(1+sqrt(mu_a/mu_w)*pow(Mw/Ma,0.25),2); //[-]
     Phi_va=sqrt(2.0)/4.0*pow(1+Mw/Ma,-0.5)*pow(1+sqrt(mu_w/mu_a)*pow(Ma/Mw,0.25),2); //[-]
     return (1-psi_w)*mu_a/((1-psi_w)+psi_w*Phi_av)+psi_w*mu_w/(psi_w+(1-psi_w)*Phi_va);
@@ -537,11 +537,11 @@ double Conductivity(double T, double p, double psi_w)
     Mw=MM_Water();
     Ma=MM_Air();
     // Viscosity of dry air at dry-bulb temp and total pressure
-    k_a=Props('L','T',T,'P',p,"Air");
-    mu_a=Props('V','T',T,'P',p,"Air");
+    k_a=Props('L','T',T,'P',p,(char *)"Air");
+    mu_a=Props('V','T',T,'P',p,(char *)"Air");
     // Viscosity of pure saturated water vapor at dry-bulb temperature
-    k_w=Props('L','P',p,'Q',1,"Water");
-    mu_w=Props('V','P',p,'Q',1,"Water");
+    k_w=Props('L','P',p,'Q',1,(char *)"Water");
+    mu_w=Props('V','P',p,'Q',1,(char *)"Water");
     Phi_av=sqrt(2.0)/4.0*pow(1+Ma/Mw,-0.5)*pow(1+sqrt(mu_a/mu_w)*pow(Mw/Ma,0.25),2); //[-]
     Phi_va=sqrt(2.0)/4.0*pow(1+Mw/Ma,-0.5)*pow(1+sqrt(mu_w/mu_a)*pow(Ma/Mw,0.25),2); //[-]
     return (1-psi_w)*k_a/((1-psi_w)+psi_w*Phi_av)+psi_w*k_w/(psi_w+(1-psi_w)*Phi_va);
@@ -590,10 +590,10 @@ double IdealGasMolarEnthalpy_Water(double T, double v_bar)
 	double hbar_w_0,tau,rhobar,hbar_w,rho;
 	// Ideal-Gas contribution to enthalpy of water
     hbar_w_0=-0.01102303806;//[kJ/kmol]
-    tau=Props("Water","Tcrit")/T;
+    tau=Props((char *)"Water",(char *)"Tcrit")/T;
     rhobar=1/v_bar; //[kmol/m^3]
-    rho = rhobar * Props("Water","molemass");
-	Fluid * pWater = get_fluid(get_Fluid_index("Water"));
+    rho = rhobar * Props((char *)"Water",(char *)"molemass");
+	Fluid * pWater = get_fluid(get_Fluid_index((char *)"Water"));
 	hbar_w=hbar_w_0+R_bar*T*(1+tau*pWater->dphi0_dTau(tau,rho/pWater->reduce.rho));
 	return hbar_w;
 }
@@ -601,9 +601,9 @@ double IdealGasMolarEntropy_Water(double T, double p)
 {
 	double sbar_w,tau,R_bar,rho,p0=101.325;
 	R_bar = 8.314371; //[kJ/kmol/K]
-    tau=Props("Water","Tcrit")/T;
+    tau=Props((char *)"Water",(char *)"Tcrit")/T;
 	rho = p/(R_bar/MM_Water()*T); //[kg/m^3]
-	sbar_w=R_bar*(tau*DerivTerms("dphi0_dTau",T,rho,"Water")-DerivTerms("phi0",T,rho,"Water")); //[kJ/kmol/K]
+	sbar_w=R_bar*(tau*DerivTerms((char *)"dphi0_dTau",T,rho,(char *)"Water")-DerivTerms((char *)"phi0",T,rho,(char *)"Water")); //[kJ/kmol/K]
 	return sbar_w; 
 }
 double IdealGasMolarEnthalpy_Air(double T, double v_bar)
@@ -614,9 +614,9 @@ double IdealGasMolarEnthalpy_Air(double T, double v_bar)
     //Tj and rhoj are given by 132.6312 and 302.5507652 respectively
     tau=132.6312/T;
     rhobar=1/v_bar; //[kmol/m^3]
-	rho = rhobar * Props("Air","molemass");
+	rho = rhobar * Props((char *)"Air",(char *)"molemass");
     R_bar_Lemmon=8.314510; //[kJ/kmol/K]
-    hbar_a=hbar_a_0+R_bar_Lemmon*T*(1+tau*DerivTerms("dphi0_dTau",T,rho,"Air")); //[kJ/kmol]
+    hbar_a=hbar_a_0+R_bar_Lemmon*T*(1+tau*DerivTerms((char *)"dphi0_dTau",T,rho,(char *)"Air")); //[kJ/kmol]
 	return hbar_a;
 }
 double IdealGasMolarEntropy_Air(double T, double v_bar_a)
@@ -629,11 +629,11 @@ double IdealGasMolarEntropy_Air(double T, double v_bar_a)
     tau=132.6312/T; //[no units]
 	v_0 = R_bar_Lemmon/MM_Air()*T0/p0; //[m^3/kg]
 	rho_bar_a = 1/v_bar_a;
-	rho_a = rho_bar_a * Props("Air","molemass");
+	rho_a = rho_bar_a * Props((char *)"Air",(char *)"molemass");
 	v_bar_0 = R_bar_Lemmon*T0/p0; //[m^3/kmol]
 	rho_bar_0 = 1/v_bar_0;
-	rho_0 = rho_bar_0 * Props("Air","molemass");
-    sbar_a=sbar_0_Lem+R_bar_Lemmon*(tau*DerivTerms("dphi0_dTau",T,rho_0,"Air")-DerivTerms("phi0",T,rho_0,"Air"))+R_bar_Lemmon*log(v_bar_a/v_bar_0); //[kJ/kmol/K]
+	rho_0 = rho_bar_0 * Props((char *)"Air",(char *)"molemass");
+    sbar_a=sbar_0_Lem+R_bar_Lemmon*(tau*DerivTerms((char *)"dphi0_dTau",T,rho_0,(char *)"Air")-DerivTerms((char *)"phi0",T,rho_0,(char *)"Air"))+R_bar_Lemmon*log(v_bar_a/v_bar_0); //[kJ/kmol/K]
 	return sbar_a; //[kJ/kmol/K]
 }
 
@@ -752,7 +752,7 @@ double DewpointTemperature(double T, double p, double psi_w)
 
 	// 0.61165... is the triple point pressure of water in kPa
 	if (p_w > 0.6116547241637944){
-		T0 = Props('T','P',p_w,'Q',1.0,"Water");
+		T0 = Props('T','P',p_w,'Q',1.0,(char *)"Water");
 	}
 	else{
 		T0 = 268;
@@ -770,7 +770,7 @@ double DewpointTemperature(double T, double p, double psi_w)
             if (Tdp >= 273.15)
             {
                 // Saturation pressure at dewpoint [kPa]
-                p_ws_dp=Props('P','T',Tdp,'Q',0,"Water");
+                p_ws_dp=Props('P','T',Tdp,'Q',0,(char *)"Water");
             }
             else
             {
@@ -820,7 +820,7 @@ public:
         if (Twb>273.15)
         {
             // Saturation pressure at wetbulb temperature [kPa]
-            p_ws_wb=Props('P','T',Twb,'Q',0,"Water");
+            p_ws_wb=Props('P','T',Twb,'Q',0,(char *)"Water");
         }
         else
         {
@@ -837,7 +837,7 @@ public:
         if (Twb>273.15)
         {
             // Enthalpy of water [kJ/kg_water]
-            h_w=Props('H','T',Twb,'P',_p,"Water");
+            h_w=Props('H','T',Twb,'P',_p,(char *)"Water");
         }
         else
         {
@@ -867,7 +867,7 @@ double WetbulbTemperature(double T, double p, double psi_w)
 	// If the temperature is above the saturation temperature corresponding to the atmospheric pressure,
 	// then the maximum value for the wetbulb temperature is the saturation temperature
 	double Tmax = T;
-	double Tsat = Props('T','P',p,'Q',1.0,"Water");
+	double Tsat = Props('T','P',p,'Q',1.0,(char *)"Water");
 	if (T > Tsat)
 	{
 		Tmax = Tsat-0.1;
@@ -940,7 +940,7 @@ double MoleFractionWater(double T, double p, int HumInput, double InVal)
         if (T>=273.16)
         {
             // Saturation pressure [kPa]
-			p_ws=Props('P','T',T,'Q',0,"Water");
+			p_ws=Props('P','T',T,'Q',0,(char *)"Water");
         }
         else
         {
@@ -963,7 +963,7 @@ double MoleFractionWater(double T, double p, int HumInput, double InVal)
         // Saturation pressure at dewpoint [kPa]
 		if (Tdp>=273.16)
 		{
-			p_ws_dp=Props('P','T',Tdp,'Q',0,"Water");
+			p_ws_dp=Props('P','T',Tdp,'Q',0,(char *)"Water");
 		}
 		else{
 			// Sublimation pressure [kPa]
@@ -992,7 +992,7 @@ double RelativeHumidity(double T, double p, double psi_w)
     if (T>=273.15)
     {
         // Saturation pressure [kPa]
-        p_ws=Props('P','T',T,'Q',0,"Water");
+        p_ws=Props('P','T',T,'Q',0,(char *)"Water");
     }
     else
     {
@@ -1081,7 +1081,7 @@ EXPORT_CODE double CONVENTION HAProps(char *OutputName, char *Input1Name, double
             }
             // Find the value for W
             W_guess=0.001;
-            W=Secant_HAProps_W(SecondaryInputName,"P",p,"T",T,SecondaryInputValue,W_guess);
+            W=Secant_HAProps_W(SecondaryInputName,(char *)"P",p,(char *)"T",T,SecondaryInputValue,W_guess);
             // Mole fraction of water
             psi_w=MoleFractionWater(T,p,GIVEN_HUMRAT,W);
             // And on to output...
@@ -1157,13 +1157,13 @@ EXPORT_CODE double CONVENTION HAProps(char *OutputName, char *Input1Name, double
 		double T_max = 450;
 
 		// First try to use the secant solver to find T
-        T = Secant_HAProps_T(SecondaryInputName,"P",p,MainInputName,MainInputValue,SecondaryInputValue,T_guess);
+        T = Secant_HAProps_T(SecondaryInputName,(char *)"P",p,MainInputName,MainInputValue,SecondaryInputValue,T_guess);
 
 		// If that fails, we can fall back to a Brent's method which is more robust but also slower
-		if (!ValidNumber(T) || !(T_min < T && T < T_max) || fabs(HAProps(SecondaryInputName,"T",T,"P",p,MainInputName,MainInputValue)-SecondaryInputValue)>1e-6)
+		if (!ValidNumber(T) || !(T_min < T && T < T_max) || fabs(HAProps(SecondaryInputName,(char *)"T",T,(char *)"P",p,MainInputName,MainInputValue)-SecondaryInputValue)>1e-6)
 		{
 			// Use the Brent's method solver to find T
-			T = Brent_HAProps_T(SecondaryInputName,"P",p,MainInputName,MainInputValue,SecondaryInputValue,T_min,T_max);
+			T = Brent_HAProps_T(SecondaryInputName,(char *)"P",p,MainInputName,MainInputValue,SecondaryInputValue,T_min,T_max);
 		}
         
         // If you want the temperature, return it
@@ -1172,7 +1172,7 @@ EXPORT_CODE double CONVENTION HAProps(char *OutputName, char *Input1Name, double
         else
         {
             // Otherwise, find psi_w for further calculations in the following section
-            W=HAProps("W","T",T,"P",p,MainInputName,MainInputValue);
+            W=HAProps((char *)"W",(char *)"T",T,(char *)"P",p,MainInputName,MainInputValue);
             psi_w=MoleFractionWater(T,p,GIVEN_HUMRAT,W);
         }
     }
@@ -1280,7 +1280,7 @@ EXPORT_CODE double CONVENTION HAProps_Aux(char* Name,double T, double p, double 
     
     Tj=132.6312;
     tau_Air=Tj/T;
-    tau_Water=Props(ITc,'T',0,'P',0,"Water")/T;
+    tau_Water=Props(ITc,'T',0,'P',0,(char *)"Water")/T;
     
 	try{
     if (!strcmp(Name,"Baa"))
@@ -1377,8 +1377,8 @@ EXPORT_CODE double CONVENTION HAProps_Aux(char* Name,double T, double p, double 
         strcpy(units,"1/Pa");
         if (T>273.15)
         {
-            double rho = Props('D','T',T,'P',p,"Water");
-            return DerivTerms("IsothermalCompressibility",T,rho,"Water")/1000; //[1/Pa]
+            double rho = Props('D','T',T,'P',p,(char *)"Water");
+            return DerivTerms((char *)"IsothermalCompressibility",T,rho,(char *)"Water")/1000; //[1/Pa]
         }
         else
             return IsothermCompress_Ice(T,p); //[1/Pa]
@@ -1387,7 +1387,7 @@ EXPORT_CODE double CONVENTION HAProps_Aux(char* Name,double T, double p, double 
     {
         strcpy(units,"kPa");
         if (T>273.15)
-            return Props('P','T',T,'Q',0,"Water");
+            return Props('P','T',T,'Q',0,(char *)"Water");
         else
             return psub_Ice(T);
     }
@@ -1397,7 +1397,7 @@ EXPORT_CODE double CONVENTION HAProps_Aux(char* Name,double T, double p, double 
         if (T>273.15)
         {
             // It is liquid water
-            return 1.0/Props('D','T',T,'Q',0,"Water")*MM_Water()/1000; //[m^3/mol]
+            return 1.0/Props('D','T',T,'Q',0,(char *)"Water")*MM_Water()/1000; //[m^3/mol]
         }
         else
         {
@@ -1430,14 +1430,14 @@ EXPORT_CODE double CONVENTION HAProps_Aux(char* Name,double T, double p, double 
     else if (!strcmp(Name,"ha"))
     {
         delta=1.1/322; tau=132/T;
-        return 1+tau*DerivTerms("dphi0_dTau",tau,delta,"Water");
+        return 1+tau*DerivTerms((char *)"dphi0_dTau",tau,delta,(char *)"Water");
     }
     else if (!strcmp(Name,"hw"))
     {
         //~ return Props('D','T',T,'P',p,"Water")/322; tau=647/T;
         delta=1000/322; tau=647/T;
         //~ delta=rho_Water(T,p,TYPE_TP);tau=647/T;
-        return 1+tau*DerivTerms("dphi0_dTau",tau,delta,"Water");
+        return 1+tau*DerivTerms((char *)"dphi0_dTau",tau,delta,(char *)"Water");
     }
 	else if (!strcmp(Name,"hbaro_w"))
 	{

@@ -38,7 +38,6 @@ HINSTANCE RefpropdllInstance=NULL;
 void *RefpropdllInstance=NULL;
 #endif
 
-#if defined(RPVersion)
 // Define functions as pointers and initialise them to NULL
 // Declare the functions for direct access
  RPVersion_POINTER RPVersion;
@@ -142,7 +141,6 @@ void *RefpropdllInstance=NULL;
  WMOLdll_POINTER WMOLdll;
  XMASSdll_POINTER XMASSdll;
  XMOLEdll_POINTER XMOLEdll;
-#endif // defined(RPVersion)
 
 void *getFunctionPointer(char * name)
 {
@@ -157,7 +155,6 @@ void *getFunctionPointer(char * name)
 //an overview and structures OS dependent parts
 double setFunctionPointers()
 {
-	#if defined(RPVersion)
 	if (RefpropdllInstance==NULL)
 	{
 		printf("REFPROP is not loaded, make sure you call this function after loading the library.\n");
@@ -260,8 +257,6 @@ double setFunctionPointers()
 	XMASSdll = (XMASSdll_POINTER) getFunctionPointer((char *)XMASSdll_NAME);
 	XMOLEdll = (XMOLEdll_POINTER) getFunctionPointer((char *)XMOLEdll_NAME);
 	return OK;
-	#endif // defined(RPVersion)
-	return FAIL;
 }
 
 
@@ -343,6 +338,11 @@ bool set_REFPROP_fluid(std::string Ref)
 	std::string sRef;
 	std::string RefString;
 	std::string fdPath = get_REFPROP_fluid_path();
+
+	// Check platform support
+	if(!REFPROPFluidClass::refpropSupported()){
+		throw NotImplementedError("You cannot use the REFPROPFluidClass.");
+	}
 
 	// Load REFPROP if it isn't loaded yet
 	load_REFPROP();
@@ -908,7 +908,7 @@ REFPROPFluidClass::REFPROPFluidClass(std::string FluidName, std::vector<double> 
 	
 	// Check platform support
 	if(!REFPROPFluidClass::refpropSupported()){
-	    throw new std::string("You cannot use the REFPROPFluidClass.");
+	    throw NotImplementedError("You cannot use the REFPROPFluidClass.");
 	  }
 
 	// Copy the molar fractions
@@ -959,9 +959,10 @@ bool REFPROPFluidClass::refpropSupported () {
 	if (RefpropdllInstance!=NULL) return true;
 
 	// Store result of previous check.
-	if (supported) {
+	if (REFPROPFluidClass::supported) {
 		// Either Refprop is supported or it is the first check.
-		#if defined(RPVersion)
+		std::string rpv(RPVersion_NAME);
+		if (rpv.compare("NOTAVAILABLE")!=0) {
 			// Function names were defined in "REFPROP_lib.h",
 			// This platform theoretically supports Refprop.
 			if (load_REFPROP()) {
@@ -971,19 +972,19 @@ bool REFPROPFluidClass::refpropSupported () {
 				printf("Good news: It is possible to use REFPROP on your system! However, the library \n");
 				printf("could not be loaded. Please make sure that REFPROP is available on your system.\n\n");
 				printf("Neither found in current location nor found in system PATH.\n");
-				printf("If you already obatined a copy of REFPROP from http://www.nist.gov/srd/, \n");
+				printf("If you already obtained a copy of REFPROP from http://www.nist.gov/srd/, \n");
 				printf("add location of REFPROP to the PATH environment variable or your library path.\n\n");
 				printf("In case you do not use Windows, have a look at https://github.com/jowr/librefprop.so \n");
 				printf("to find instructions on how to compile your own version of the REFPROP library.\n\n");
-				supported = false;
+				REFPROPFluidClass::supported = false;
 				return false;
 			}
-		#else
+		} else {
 			// No definition of function names, we do not expect
 			// the Refprop library to be available.
-			supported = false;
+			REFPROPFluidClass::supported = false;
 			return false;
-		#endif
+		}
 	} else {
 		return false;
 	}
