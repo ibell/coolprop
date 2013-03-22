@@ -2,11 +2,11 @@
 #define _CRT_SECURE_NO_WARNINGS
 #endif
 
-#if defined(_WIN32)
+#if defined(__ISWINDOWS__)
 #include <windows.h> // for the CreateDirectory function
-#else
-#include <sys/types.h>
-#include <sys/stat.h>
+#elif defined(__ISAPPLE__)
+#include <pwd.h>
+#include <unistd.h>
 #endif
 
 #include "CoolPropTools.h"
@@ -36,9 +36,20 @@
 
 std::string get_home_dir(void)
 {
+	char *home = NULL;
 	// See http://stackoverflow.com/questions/2552416/how-can-i-find-the-users-home-dir-in-a-cross-platform-manner-using-c
 	#if defined(__ISLINUX__)
-	std::string home = getenv("HOME");
+		home = getenv("HOME");
+		return std::string(home);
+	#elif defined(__ISAPPLE__)
+//		home = getenv("HOME");
+//		if (home==NULL) {
+//		struct passwd* pwd = getpwuid(getuid());
+//		if (pwd) {
+//			home = pwd->pw_dir;
+//		}}
+		throw NotImplementedError("This function is not defined for your platform.");
+	return home;
 	return home;
 	#else
 	char * pUSERPROFILE = getenv("USERPROFILE");
@@ -423,6 +434,17 @@ std::string get_file_contents(std::string filename)
 	std::ifstream in(filename.c_str(), std::ios::in | std::ios::binary);
 	if (in)
 	{
+<<<<<<< .working
+//		std::string contents;
+//		in.seekg(0, std::ios::end);
+//		contents.resize((int)in.tellg());
+//		in.seekg(0, std::ios::beg);
+//		in.read(&contents[0], contents.size());
+
+		std::istreambuf_iterator<char> eos;
+		std::string contents(std::istreambuf_iterator<char>(in), eos);
+
+=======
 
 //		std::string contents;
 //		in.seekg(0, std::ios::end);
@@ -433,6 +455,7 @@ std::string get_file_contents(std::string filename)
 		std::istreambuf_iterator<char> eos;
 		std::string contents(std::istreambuf_iterator<char>(in), eos);
 
+>>>>>>> .merge-right.r425
 		in.close();
 		return(contents);
 	}

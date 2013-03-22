@@ -11,6 +11,8 @@
 #include <windows.h>
 #elif defined(__ISLINUX__)
 #include <dlfcn.h>
+#elif defined(__ISAPPLE__)
+#include <dlfcn.h>
 #endif
 
 #include "REFPROP_lib.h"
@@ -35,6 +37,8 @@ std::string LoadedREFPROPRef;
 #if defined(__ISWINDOWS__)
 HINSTANCE RefpropdllInstance=NULL;
 #elif defined(__ISLINUX__)
+void *RefpropdllInstance=NULL;
+#elif defined(__ISAPPLE__)
 void *RefpropdllInstance=NULL;
 #else
 void *RefpropdllInstance=NULL;
@@ -152,7 +156,7 @@ void *getFunctionPointer(char * name)
 		return dlsym(RefpropdllInstance,name);
 	#else
 		throw NotImplementedError("This function should not be called.");
-		return ;
+		return NULL;
     #endif
 }
 
@@ -274,6 +278,8 @@ char hrf[] = "DEF";
 char refpropPath[] = "";
 #elif defined(__ISLINUX__)
 char refpropPath[] = "/opt/refprop";
+#elif defined(__ISAPPLE__)
+char refpropPath[] = "/opt/refprop";
 #else
 char refpropPath[] = "";
 #endif
@@ -287,7 +293,7 @@ std::string get_REFPROP_fluid_path()
 		return rpPath + std::string("/fluids/");
 	#else
 		throw NotImplementedError("This function should not be called.");
-		return rpPrpPath;
+		return rpPath;
 	#endif
 }
 bool load_REFPROP()
@@ -304,6 +310,8 @@ bool load_REFPROP()
 			#endif
 		#elif defined(__ISLINUX__)
 			RefpropdllInstance = dlopen ("librefprop.so", RTLD_LAZY);
+		#elif defined(__ISAPPLE__)
+			RefpropdllInstance = dlopen ("librefprop.dylib", RTLD_LAZY);
 		#else
 			throw NotImplementedError("We should not reach this point.");
 			RefpropdllInstance = NULL;
