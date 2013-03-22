@@ -19,7 +19,7 @@
 #include <iostream>
 #include <fstream>
 #include <streambuf>
-#include "time.h"
+#include <time.h>
 #include <sys/types.h>
 #include <sys/stat.h>	
 #include <errno.h>
@@ -39,6 +39,7 @@ std::string get_home_dir(void)
 	// See http://stackoverflow.com/questions/2552416/how-can-i-find-the-users-home-dir-in-a-cross-platform-manner-using-c
 	#if defined(__ISLINUX__)
 	std::string home = getenv("HOME");
+	return home;
 	#else
 	char * pUSERPROFILE = getenv("USERPROFILE");
 	if (pUSERPROFILE != NULL){
@@ -360,7 +361,7 @@ void TTSESinglePhaseTableClass::vector_from_file(std::string fName, int N, std::
 }
 bool pathExists(std::string path)
 {
-	#if defined(_WIN32) // Defined for 32-bit and 64-bit windows
+	#if defined(__ISWINDOWS__) // Defined for 32-bit and 64-bit windows
 		struct _stat buf;
 		// Get data associated with path using the windows libraries, 
 		// and if you can (result == 0), the path exists
@@ -368,6 +369,15 @@ bool pathExists(std::string path)
 			return true;
 		else
 			return false;
+	#elif defined(__ISLINUX__)
+		struct stat st;
+		if(stat(path.c_str(),&st) == 0)
+		    if(st.st_mode & S_IFDIR != 0)
+		        return true;
+
+		return false;
+	#else
+		throw NotImplementedError("This function is not defined for your platform.");
 	#endif
 }
 bool fileExists(const char *fileName)
@@ -413,11 +423,16 @@ std::string get_file_contents(std::string filename)
 	std::ifstream in(filename.c_str(), std::ios::in | std::ios::binary);
 	if (in)
 	{
-		std::string contents;
-		in.seekg(0, std::ios::end);
-		contents.resize(in.tellg());
-		in.seekg(0, std::ios::beg);
-		in.read(&contents[0], contents.size());
+
+//		std::string contents;
+//		in.seekg(0, std::ios::end);
+//		contents.resize(in.tellg());
+//		in.seekg(0, std::ios::beg);
+//		in.read(&contents[0], contents.size());
+
+		std::istreambuf_iterator<char> eos;
+		std::string contents(std::istreambuf_iterator<char>(in), eos);
+
 		in.close();
 		return(contents);
 	}

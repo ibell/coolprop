@@ -5,10 +5,8 @@
 #endif
 
 #include "CoolProp.h"
-
-#if defined(__ISWINDOWS__)||defined(__ISLINUX__)
 #include "REFPROP.h"
-#endif
+
 
 #if defined(__ISWINDOWS__)
 #include <windows.h>
