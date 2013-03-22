@@ -369,8 +369,8 @@ static double HenryConstant(double T)
 
 double f_factor(double T, double p)
 {
-    double f,Rbar=8.314371,eps=1e-8,Tj;
-    double x1,x2,x3,y1,y2,change;
+    double f=0,Rbar=8.314371,eps=1e-8,Tj;
+    double x1=0,x2=0,x3,y1=0,y2,change=_HUGE;
     int iter=1;
     double p_ws,tau_Air,tau_Water,B_aa,B_aw,B_ww,C_aaa,C_aaw,C_aww,C_www,
         line1,line2,line3,line4,line5,line6,line7,line8,k_T,beta_H,LHS,RHS,psi_ws,
@@ -550,7 +550,7 @@ double MolarVolume(double T, double p, double psi_w)
 {
     // Output in m^3/mol
     int iter;
-    double v_bar0, v_bar, R_bar=8.314472,x1,x2,x3,y1,y2,resid,eps,Bm,Cm;
+    double v_bar0, v_bar=0, R_bar=8.314472,x1=0,x2=0,x3,y1=0,y2,resid,eps,Bm,Cm;
     
     // -----------------------------
     // Iteratively find molar volume
@@ -599,7 +599,7 @@ double IdealGasMolarEnthalpy_Water(double T, double v_bar)
 }
 double IdealGasMolarEntropy_Water(double T, double p)
 {
-	double sbar_w,tau,R_bar,rho,p0=101.325;
+	double sbar_w,tau,R_bar,rho;
 	R_bar = 8.314371; //[kJ/kmol/K]
     tau=Props((char *)"Water",(char *)"Tcrit")/T;
 	rho = p/(R_bar/MM_Water()*T); //[kg/m^3]
@@ -676,7 +676,7 @@ double MolarEntropy(double T, double p, double psi_w, double v_bar)
     // vbar (molar volume) in m^3/kmol
     double x1=0,x2=0,x3=0,y1=0,y2=0,eps=1e-8,f=999,R_bar_Lem=8.314510;
     int iter=1;
-    double sbar_0,sbar_a,sbar_w,sbar,R_bar=8.314472,vbar_a_guess, Baa, Caaa,vbar_a;
+    double sbar_0,sbar_a=0,sbar_w=0,sbar,R_bar=8.314472,vbar_a_guess, Baa, Caaa,vbar_a=0;
     double B,dBdT,C,dCdT;
     // Constant for entropy
     sbar_0=0.02366427495;  //[kJ/kmol/K]
@@ -733,7 +733,7 @@ double MolarEntropy(double T, double p, double psi_w, double v_bar)
 double DewpointTemperature(double T, double p, double psi_w)
 {
     int iter;
-    double p_w,eps,resid,Tdp,x1,x2,x3,y1,y2,T0;
+    double p_w,eps,resid,Tdp=0,x1=0,x2=0,x3,y1=0,y2,T0;
     double p_ws_dp,f_dp;
     
     // Make sure it isn't dry air, return an impossible temperature otherwise
@@ -1079,6 +1079,9 @@ EXPORT_CODE double CONVENTION HAProps(char *OutputName, char *Input1Name, double
                 strcpy(SecondaryInputName,Input3Name);
                 SecondaryInputValue=Input3;
             }
+			else{
+				return _HUGE;
+			}
             // Find the value for W
             W_guess=0.001;
             W=Secant_HAProps_W(SecondaryInputName,(char *)"P",p,(char *)"T",T,SecondaryInputValue,W_guess);
@@ -1118,6 +1121,9 @@ EXPORT_CODE double CONVENTION HAProps(char *OutputName, char *Input1Name, double
             strcpy(Name2,Input2Name);
             Value2=Input2;
         }
+		else{
+		return _HUGE;
+		}
             
         // Get the integer type codes
         Type1=Name2Type(Name1);
