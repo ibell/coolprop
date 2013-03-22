@@ -19,7 +19,7 @@
 #include <iostream>
 #include <fstream>
 #include <streambuf>
-#include "time.h"
+#include <time.h>
 #include <sys/types.h>
 #include <sys/stat.h>	
 #include <errno.h>
@@ -39,6 +39,7 @@ std::string get_home_dir(void)
 	// See http://stackoverflow.com/questions/2552416/how-can-i-find-the-users-home-dir-in-a-cross-platform-manner-using-c
 	#if defined(__ISLINUX__)
 	std::string home = getenv("HOME");
+	return home;
 	#else
 	char * pUSERPROFILE = getenv("USERPROFILE");
 	if (pUSERPROFILE != NULL){
@@ -413,11 +414,16 @@ std::string get_file_contents(std::string filename)
 	std::ifstream in(filename.c_str(), std::ios::in | std::ios::binary);
 	if (in)
 	{
+
 		std::string contents;
 		in.seekg(0, std::ios::end);
 		contents.resize(in.tellg());
 		in.seekg(0, std::ios::beg);
 		in.read(&contents[0], contents.size());
+
+//		std::istreambuf_iterator<char> eos;
+//		std::string contents(std::istreambuf_iterator<char>(in), eos);
+
 		in.close();
 		return(contents);
 	}

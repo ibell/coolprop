@@ -31,7 +31,7 @@ Example in Python
     #import CoolProp module
     In [0]: import CoolProp.CoolProp as CP
     
-    #This will enable the TTSE method for Propane
+    #This will disable the TTSE method for Propane
     In [1]: CP.disable_TTSE_LUT_writing('Propane')
     
     #This will enable the TTSE method for Propane
