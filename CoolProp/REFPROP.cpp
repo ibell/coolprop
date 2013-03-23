@@ -1187,11 +1187,12 @@ void REFPROPFluidClass::temperature_ps(double p, double s, double *Tout, double 
 	long ierr;
 	char herr[errormessagelength+1];
 	std::vector<double> xliq = std::vector<double>(1,1),xvap = std::vector<double>(1,1);
-	double q,e,h,cv,cp,w,sbar = s*params.molemass;
+	double q,e,h,cv,cp,w,sbar = s*params.molemass, dummy1, dummy2;
 	PSFLSHdll(&p,&sbar,&(xmol[0]),Tout,rhoout,rhoLout,rhoVout,&(xliq[0]),&(xvap[0]),&q,&e,&h,&cv,&cp,&w,&ierr,herr,errormessagelength);
 	*rhoout *= params.molemass;
 	*rhoLout *= params.molemass;
 	*rhoVout *= params.molemass;
+	this->saturation_p(p,false,TsatLout,TsatVout,&dummy1,&dummy2);
 }
 double REFPROPFluidClass::density_Tp(double T, double p)
 {
