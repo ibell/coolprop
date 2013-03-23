@@ -434,28 +434,13 @@ std::string get_file_contents(std::string filename)
 	std::ifstream in(filename.c_str(), std::ios::in | std::ios::binary);
 	if (in)
 	{
-<<<<<<< .working
-//		std::string contents;
-//		in.seekg(0, std::ios::end);
-//		contents.resize((int)in.tellg());
-//		in.seekg(0, std::ios::beg);
-//		in.read(&contents[0], contents.size());
-
-		std::istreambuf_iterator<char> eos;
-		std::string contents(std::istreambuf_iterator<char>(in), eos);
-
-=======
-
 //		std::string contents;
 //		in.seekg(0, std::ios::end);
 //		contents.resize(in.tellg());
 //		in.seekg(0, std::ios::beg);
 //		in.read(&contents[0], contents.size());
-
 		std::istreambuf_iterator<char> eos;
 		std::string contents(std::istreambuf_iterator<char>(in), eos);
-
->>>>>>> .merge-right.r425
 		in.close();
 		return(contents);
 	}
