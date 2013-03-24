@@ -55,11 +55,13 @@
 #include "purefluids/Siloxanes.h"
 #include "purefluids/R22.h"
 #include "purefluids/Hydrogen.h"
+#include "purefluids/Propylene.h"
 #include "purefluids/Oxygen.h"
 #include "purefluids/Helium.h"
 #include "purefluids/Ethylene.h"
 #include "purefluids/SulfurHexafluoride.h"
 #include "purefluids/Ethanol.h"
+#include "purefluids/Cyclopentane.h"
 #include "purefluids/Span_Short.h"
 #include "purefluids/R1234ze.h"
 #include "purefluids/Butenes.h"
@@ -69,6 +71,8 @@
 #include "purefluids/DMC.h"
 #include "purefluids/R23.h"
 #include "purefluids/Xylene_EthylBenzene.h"
+#include "purefluids/R236FA.h"
+#include "purefluids/R236EA.h"
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -194,6 +198,10 @@ FluidsContainer::FluidsContainer()
 	FluidsList.push_back(new R143AClass());	
 	FluidsList.push_back(new R23Class());
 	FluidsList.push_back(new nDodecaneClass());	
+	FluidsList.push_back(new PropyleneClass());	
+	FluidsList.push_back(new CyclopentaneClass());	
+	FluidsList.push_back(new R236FAClass());
+	FluidsList.push_back(new R236EAClass());
 
 	// The industrial fluids
 	FluidsList.push_back(new R245faClass());

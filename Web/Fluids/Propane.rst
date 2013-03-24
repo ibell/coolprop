@@ -15,7 +15,7 @@ Transport Properties Information
 ================================
 Viscosity: E. Vogel, C. Kuchenmeister, and E. Bich, A. Laesecke,"Reference Correlation of the Viscosity of Propane"J. Phys. Chem. Ref. Data, Vol. 27, No. 5, 1998
 
-Conductivity: Kenneth N. Marsh, Richard A. Perkins, and Maria L. V. Ramires "Measurement and Correlation of the Thermal Conductivity ofPropane from 86 K to 600 K at Pressures to 70 MPa",J. Chem. Eng. Data 2002, 47, 932-940
+Conductivity: Kenneth N. Marsh, Richard A. Perkins, and Maria L. V. Ramires "Measurement and Correlation of the Thermal Conductivity ofPropane from 86 K to 600 K at Pressures to 70 MPa",J. Chem. Eng. Data 2002, 47, 932-940 (Olchowy-Sengers)
 
 Surface Tension: A. Mulero and I. Cachadiña and M. I. Parra"Recommended Correlations for the Surface Tension of Common Fluids", J. Phys. Chem. Ref. Data, Vol. 41, No. 4, 2012
 

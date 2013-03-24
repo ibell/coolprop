@@ -15,6 +15,8 @@ Transport Properties Information
 ================================
 Using ECS in fully predictive mode
 
+Lennard-Jones parameters from Chichester NISTIR 6650
+
 
 Fluid Data
 ==========

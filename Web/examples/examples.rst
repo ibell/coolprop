@@ -13,9 +13,6 @@ To use the Props function, import it and do some calls, do something like this
     # print the currently used version of coolprop
     In [1]: import CoolProp; print(CoolProp.__version__)
     
-    @suppress
-    In [1]: from CoolProp.CoolProp import UseSinglePhaseLUT; UseSinglePhaseLUT(0)
-    
     #Density of carbon dioxide (R744) at 100 bar and 25C
     In [2]: Props('D','T',298.15,'P',10000,'R744')
     

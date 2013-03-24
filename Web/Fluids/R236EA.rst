@@ -1,19 +1,21 @@
 
 ********************
-MethylOleate
+R236EA
 ********************
 
 Aliases
 ================================================================================
-````
+``R236ea``
 
 Equation of State Reference
 ===========================
-Marcia L. Huber, Eric W. Lemmon, Andrei Kazakov, Lisa S. Ott and Thomas J. Bruno, "Model for the Thermodynamic Properties of a Biodiesel Fuel", Energy & Fuels 2009, 23, 3790�3797
+Xinfang Rui and Jiang Pan and Yugang Wang, "An equation of state for the thermodynamic properties of 1,1,1,2,3,3-hexafluoropropane (R236ea)", Fluid Phase Equilibria 341 (2013) 78-85
+
+Note: REFPROP 9.0 does not use this EOS, they use thermodynamic corresponding states
 
 Transport Properties Information
 ================================
-Using ECS in fully predictive mode
+Using ECS in fully predictive mode.
 
 
 Fluid Data
@@ -22,18 +24,18 @@ Fluid Data
 Fluid Parameters
 
 =========================  ==============================
-Mole Mass [kg/kmol]        296.48794
-Triple Point Temp. [K]     253.470
-Triple Point Press. [kPa]  3.766688869e-10
-Minimum temperature [K]    253.470
+Mole Mass [kg/kmol]        152.03840
+Triple Point Temp. [K]     170.000
+Triple Point Press. [kPa]  17.5258071
+Minimum temperature [K]    240.000
 =========================  ==============================
 
 Critical Parameters
 
 ==============================  ==============================
-Temperature [K]                 782.000
-Density [kg/m\ :sup:`3`\ ]      241.000222
-Pressure [kPa]                  1246.00000
+Temperature [K]                 412.440
+Density [kg/m\ :sup:`3`\ ]      565.000000
+Pressure [kPa]                  3420.00000
 ==============================  ==============================
 
 
@@ -42,8 +44,8 @@ Saturated Vapor Deviations
 
 .. plot::
 
-    Fluid = "MethylOleate"
-    RPFluid = "REFPROP-MOLEATE"
+    Fluid = "R236EA"
+    RPFluid = "REFPROP-R236EA"
 
     #Saturated Vapor
     from CoolProp.CoolProp import Props
@@ -103,8 +105,8 @@ Saturated Liquid Deviations
 
 .. plot::
 
-    Fluid = "MethylOleate"
-    RPFluid = "REFPROP-MOLEATE"
+    Fluid = "R236EA"
+    RPFluid = "REFPROP-R236EA"
 
     #Saturated Liquid
     from CoolProp.CoolProp import Props
@@ -163,8 +165,8 @@ Along the critical isotherm where T=T\ :sub:`c`
 ================================================
 .. plot::
 
-    Fluid = "MethylOleate"
-    RPFluid = "REFPROP-MOLEATE"
+    Fluid = "R236EA"
+    RPFluid = "REFPROP-R236EA"
 
     #Critical isotherm
     from CoolProp.CoolProp import Props
@@ -224,7 +226,7 @@ Check of p,h and p,s as inputs (X: Failure .: Success)
     from matplotlib import pyplot as plt
     import numpy as np
 
-    Ref = "MethylOleate"
+    Ref = "R236EA"
     fig = plt.figure(figsize=(10,5))
     ax1 = fig.add_subplot(121)
     ax2 = fig.add_subplot(122)
@@ -237,8 +239,8 @@ Check of p,h and p,s as inputs (X: Failure .: Success)
     smin = Props('S','T',Tmin,'Q',0,Ref)
     smax = 2*Props('S','T',Props(Ref,'Tcrit')-1,'Q',1,Ref)-smin
 
-    Ph(Ref, axis = ax1, Tmin = Tmin, Tmax = 781.990000)
-    Ps(Ref, axis = ax2, Tmin = Tmin, Tmax = 781.990000)
+    Ph(Ref, axis = ax1, Tmin = Tmin, Tmax = 412.430000)
+    Ps(Ref, axis = ax2, Tmin = Tmin, Tmax = 412.430000)
 
     for p in np.linspace(pmin,pmax,10):
         for h in np.linspace(hmin,hmax):
