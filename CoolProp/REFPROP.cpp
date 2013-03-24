@@ -151,7 +151,7 @@ void *RefpropdllInstance=NULL;
 void *getFunctionPointer(char * name)
 {
 	#if defined(__ISWINDOWS__)
-		return GetProcAddress(RefpropdllInstance,name);
+		return (void *) GetProcAddress(RefpropdllInstance,name);
 	#elif defined(__ISLINUX__)
 		return dlsym(RefpropdllInstance,name);
 	#else
