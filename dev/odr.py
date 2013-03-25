@@ -47,13 +47,13 @@ def example2(Ref, ClassName,  N = 4, addTr = True, Llog = True):
     def f_p(B, x):
         # B is a vector of the parameters.
         # x is an array of the current x values.
-        return B[0]*x + B[1]*x**1.5 + B[2]*x**2.3 + B[3]*x**3.6 + B[4]*x**5.2 + B[5]*x**7.3
+        return B[0]*x + B[1]*x**1.5 + B[2]*x**2.3 + B[3]*x**3.6 + B[4]*x**5.2 + B[5]*x**7.3 + B[6]*x**9
     x = 1.0-TT/Tc
     y = logppc
     
     linear = Model(f_p)
     mydata = Data(x, y)
-    myodr = ODR(mydata, linear, beta0=[0, 0, 0, 0, 0, 0])
+    myodr = ODR(mydata, linear, beta0=[0, 0, 0, 0, 0, 0, 0])
     myoutput = myodr.run()
     
     psat_N = str(list(myoutput.beta)).lstrip('[').rstrip(']')
@@ -142,7 +142,7 @@ def example2(Ref, ClassName,  N = 4, addTr = True, Llog = True):
     double {name:s}Class::psat(double T)
     {{
         // Maximum absolute error is {psat_error:f} % between {Tmin:f} K and {Tmax:f} K
-        const double ti[]={{0,1.0,1.5,2.3,3.6,5.2,7.3}};
+        const double ti[]={{0,1.0,1.5,2.3,3.6,5.2,7.3,9}};
         const double Ni[]={{0,{psat_N:s} }};
         double summer=0,theta;
         int i;
@@ -212,10 +212,9 @@ def example2(Ref, ClassName,  N = 4, addTr = True, Llog = True):
 ## example2('REFPROP-HEPTANE','nHeptane',N = 5)
 #example2('REFPROP-CYCLOHEX','Cyclohexane', N = 5)
 #example2('REFPROP-SES36','SES36', N = 5)
-example2('REFPROP-CYCLOPEN','CycloPentane', N = 5)
-example2('REFPROP-R236EA','R236EA', N = 5)
-example2('REFPROP-R227EA','R227EA', N = 5)
-example2('REFPROP-R365MFC','R365MFC', N = 5)
+#example2('REFPROP-R236EA','R236EA', N = 7)
+example2('REFPROP-R227EA','R227EA', N = 8)
+example2('REFPROP-R365MFC','R365MFC', N = 8)
 #example2('REFPROP-PROPYLEN','Propylene', N = 5)
 
 #example2('REFPROP-DMC','DMC',N = 5)

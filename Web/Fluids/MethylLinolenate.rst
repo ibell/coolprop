@@ -9,7 +9,7 @@ Aliases
 
 Equation of State Reference
 ===========================
-Marcia L. Huber, Eric W. Lemmon, Andrei Kazakov, Lisa S. Ott and Thomas J. Bruno, "Model for the Thermodynamic Properties of a Biodiesel Fuel", Energy & Fuels 2009, 23, 3790–3797
+Marcia L. Huber, Eric W. Lemmon, Andrei Kazakov, Lisa S. Ott and Thomas J. Bruno, "Model for the Thermodynamic Properties of a Biodiesel Fuel", Energy & Fuels 2009, 23, 3790ï¿½3797
 
 Transport Properties Information
 ================================

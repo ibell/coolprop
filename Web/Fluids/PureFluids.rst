@@ -13,6 +13,7 @@ Pure Fluids
     CarbonMonoxide.rst
     CarbonylSulfide.rst
     CycloHexane.rst
+    Cyclopentane.rst
     D4.rst
     D5.rst
     D6.rst
@@ -48,6 +49,7 @@ Pure Fluids
     Oxygen.rst
     ParaHydrogen.rst
     Propane.rst
+    Propylene.rst
     R116.rst
     R1234yf.rst
     R1234ze.rst
@@ -58,6 +60,8 @@ Pure Fluids
     R218.rst
     R22.rst
     R23.rst
+    R236EA.rst
+    R236FA.rst
     R245fa.rst
     R32.rst
     R41.rst

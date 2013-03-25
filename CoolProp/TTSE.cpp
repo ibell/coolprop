@@ -2,6 +2,8 @@
 #define _CRT_SECURE_NO_WARNINGS
 #endif
 
+#include "CoolPropTools.h"
+
 #if defined(__ISWINDOWS__)
 #include <windows.h> // for the CreateDirectory function
 #elif defined(__ISAPPLE__)
@@ -9,7 +11,6 @@
 #include <unistd.h>
 #endif
 
-#include "CoolPropTools.h"
 #include "CoolProp.h"
 #include "CPState.h"
 #include "TTSE.h"

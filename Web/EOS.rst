@@ -17,7 +17,7 @@ Sample Code
     In [1]: print CP.__svnrevision__
     
     #Import the things you need 
-    In [1]: from CoolProp.CoolProp import Props, UseSaturationLUT,UseSinglePhaseLUT
+    In [1]: from CoolProp.CoolProp import Props
     
     In [1]: import timeit
     

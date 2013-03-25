@@ -416,6 +416,31 @@ double SecFluids(char Output, double T, double p, char * Ref)
 // inputs in C, percent mass,
 // outputs in kg/m^3, J/kg-K, mW/m-K, Pa-s, J/kg, J/kg/K
 int Brine(char * Mix, double T, double C, /*in --- out */double *Tfreeze, double *Tmax, double *rho, double *cp, double *k, double *visc, double *u, double *s)
+//{
+//	quantity<temperature> _T(0*kelvin); 
+//	quantity<temperature> _Tfreeze(0*kelvin); 
+//	quantity<temperature> _Tmax(0*kelvin);
+//	quantity<mass_density> _rho(0*kilogram_per_cubic_meter); 
+//	quantity<specific_heat_capacity> _cp(0*joule_per_kilogram_kelvin);
+//	quantity<thermal_conductivity> _k(0*watt_per_meter_kelvin);
+//	quantity<dynamic_viscosity> _visc(0*pascal_second); 
+//	quantity<specific_energy> _u(0*joule_per_kilogram);
+//	quantity<entropy> _s(0*joule_per_kilogram_kelvin);
+//	Brine(Mix,_T,C,_Tfreeze, _Tmax, _rho, _cp, _k, _visc, _u, _s);
+//}
+//
+//int Brine(char * Mix, 
+//		  quantity<temperature> T, 
+//		  double C, 
+//		  /*in --- out */ 
+//		  quantity<temperature> *Tfreeze, 
+//		  quantity<temperature> *Tmax, 
+//		  quantity<mass_density> *rho, 
+//		  quantity<specific_heat_capacity> *cp, 
+//		  quantity<thermal_conductivity> *k, 
+//		  quantity<dynamic_viscosity> *visc, 
+//		  quantity<specific_energy> *u, 
+//		  quantity<entropy> *s)
 {
 
 	double (*A)[18][5];
