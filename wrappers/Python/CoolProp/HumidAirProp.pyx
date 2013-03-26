@@ -1,6 +1,6 @@
 #This file gets directly included in CoolProp.pyx, separate here for cleanness of code
 
-cpdef double HAProps(bytes_or_str OutputName, bytes_or_str Input1Name, double Input1, bytes_or_str Input2Name, double Input2, bytes_or_str Input3Name, double Input3):
+cpdef double HAProps(str OutputName, str Input1Name, double Input1, str Input2Name, double Input2, str Input3Name, double Input3):
     """
     Copyright Ian Bell, 2011 email: ian.h.bell@gmail.com
 
@@ -37,36 +37,36 @@ cpdef double HAProps(bytes_or_str OutputName, bytes_or_str Input1Name, double In
     For more information, go to http://coolprop.sourceforge.net
     """
     #Convert all strings to byte-strings
-    cdef bytes _OutputName = OutputName if bytes_or_str is bytes else OutputName.encode('ascii')
-    cdef bytes _Input1Name = Input1Name if bytes_or_str is bytes else Input1Name.encode('ascii')
-    cdef bytes _Input2Name = Input2Name if bytes_or_str is bytes else Input2Name.encode('ascii')
-    cdef bytes _Input3Name = Input3Name if bytes_or_str is bytes else Input3Name.encode('ascii')
+    cdef bytes _OutputName = OutputName.encode('ascii')
+    cdef bytes _Input1Name = Input1Name.encode('ascii')
+    cdef bytes _Input2Name = Input2Name.encode('ascii')
+    cdef bytes _Input3Name = Input3Name.encode('ascii')
     return _HAProps(_OutputName,_Input1Name,Input1,_Input2Name,Input2,_Input3Name,Input3)
 
-cpdef tuple HAProps_Aux(bytes_or_str OutputName, double T, double p, double w):
+cpdef tuple HAProps_Aux(str OutputName, double T, double p, double w):
     """
     Allows low-level access to some of the routines employed in HumidAirProps
 
-    Returns tuples of the form (Value, Units) where value is the actual value and Units is a string that describes the units
+    Returns tuples of the form ``(Value, Units)`` where ``Value`` is the actual value and ``Units`` is a string that describes the units
 
     The list of possible inputs is
 
-    * Baa
-    * Caaa
-    * Bww
-    * Cwww
-    * Baw
-    * Caww
-    * Caaw
-    * beta_H
+    * Baa [First virial air-air coefficient]
+    * Caaa [Second virial air coefficient]
+    * Bww [First virial water-water coefficient]
+    * Cwww [Second virial water coefficient]
+    * Baw [First cross virial coefficient]
+    * Caww [Second air-water-water virial coefficient]
+    * Caaw [Second air-air-water virial coefficient]
+    * beta_H 
     * kT
-    * vbar_ws
-    * p_ws
-    * f
+    * vbar_ws [Molar saturated volume of water vapor]
+    * p_ws [Saturated vapor pressure of pure water (>=0.01C) or ice (<0.01 C)]
+    * f [Enhancement factor]
     """
     #Convert all strings to byte-strings
     cdef bytes units = (' '*100).encode('ascii')
-    cdef bytes _OutputName = OutputName if bytes_or_str is bytes else OutputName.encode('ascii')
+    cdef bytes _OutputName = OutputName.encode('ascii')
     
     output = _HAProps_Aux(_OutputName,T,p,w,units)
     units = units.strip()
