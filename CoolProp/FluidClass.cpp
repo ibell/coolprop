@@ -73,6 +73,7 @@
 #include "purefluids/Xylene_EthylBenzene.h"
 #include "purefluids/R236FA.h"
 #include "purefluids/R236EA.h"
+#include "purefluids/R227EA_R365MFC.h"
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -202,6 +203,7 @@ FluidsContainer::FluidsContainer()
 	FluidsList.push_back(new CyclopentaneClass());	
 	FluidsList.push_back(new R236FAClass());
 	FluidsList.push_back(new R236EAClass());
+	FluidsList.push_back(new R227EAClass());
 
 	// The industrial fluids
 	FluidsList.push_back(new R245faClass());
