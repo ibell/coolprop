@@ -11,6 +11,8 @@ Equation of State Reference
 ===========================
 Xinfang Rui and Jiang Pan and Yugang Wang, "An equation of state for the thermodynamic properties of 1,1,1,2,3,3-hexafluoropropane (R236ea)", Fluid Phase Equilibria 341 (2013) 78-85
 
+Note: Erratum in paper: a1 should be -17.5983849 and a2 should be 8.87150449
+
 Note: REFPROP 9.0 does not use this EOS, they use thermodynamic corresponding states
 
 Transport Properties Information
@@ -27,14 +29,14 @@ Fluid Parameters
 Mole Mass [kg/kmol]        152.03840
 Triple Point Temp. [K]     170.000
 Triple Point Press. [kPa]  17.5258071
-Minimum temperature [K]    240.000
+Minimum temperature [K]    243.000
 =========================  ==============================
 
 Critical Parameters
 
 ==============================  ==============================
 Temperature [K]                 412.440
-Density [kg/m\ :sup:`3`\ ]      565.000000
+Density [kg/m\ :sup:`3`\ ]      564.974694
 Pressure [kPa]                  3420.00000
 ==============================  ==============================
 

@@ -257,5 +257,6 @@ double R32Class::conductivity_Trho(double T, double rho)
 }
 double R32Class::surface_tension_T(double T)
 {
-	return 0.0705581*pow(1-T/reduce.T,1.234);
+	// From Mulero, 2012, JPCRD
+	return 0.07147*pow(1-T/reduce.T,1.246);
 }

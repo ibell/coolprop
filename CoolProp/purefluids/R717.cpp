@@ -372,5 +372,5 @@ double R717Class::rhosatV(double T)
 }
 double R717Class::surface_tension_T(double T)
 {
-	return 0.10175*pow(1-T/reduce.T,1.21703);
+	return 0.1028*pow(1-T/reduce.T,1.211)-0.09453*pow(1-T/reduce.T,5.585);
 }

@@ -59,6 +59,7 @@ Pure Fluids
     R143a.rst
     R218.rst
     R22.rst
+    R227EA.rst
     R23.rst
     R236EA.rst
     R236FA.rst

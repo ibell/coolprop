@@ -10,6 +10,10 @@ public:
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
+	double surface_tension_T(double T){
+		// From Mulero, 2012 JPCRD
+		return 0.02843*pow(1-T/reduce.T,1.148);
+	};
 
 };
 
@@ -21,6 +25,11 @@ public:
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
+	double surface_tension_T(double T)
+	{
+		// From Mulero, 2012 JPCRD
+		return 0.07246*pow(1-T/reduce.T,1.407);
+	}
 
 };
 
@@ -32,7 +41,11 @@ public:
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
-
+	double surface_tension_T(double T)
+	{
+		// From Mulero, 2012 JPCRD
+		return 0.05473*pow(1-T/reduce.T,1.29);
+	}
 };
 
 class HydrogenSulfideClass : public Fluid {
@@ -43,6 +56,11 @@ public:
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
+	double surface_tension_T(double T)
+	{
+		// From Mulero, 2012, JPCRD
+		return 0.078557*pow(1-T/reduce.T,1.2074);
+	}
 
 };
 
@@ -54,6 +72,11 @@ public:
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
+	double surface_tension_T(double T)
+	{
+		// From Mulero, 2012, JPCRD
+		return 0.051*pow(1-T/reduce.T,1.209);
+	}
 
 };
 
@@ -76,6 +99,11 @@ public:
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
+	double surface_tension_T(double T)
+	{
+		// From Mulero, 2012, JPCRD
+		return 0.05024*pow(1-T/reduce.T,1.194);
+	}
 
 };
 
@@ -87,6 +115,11 @@ public:
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
+	double surface_tension_T(double T)
+	{
+		// From Mulero, 2012, JPCRD
+		return 0.0447*pow(1-T/reduce.T,1.245);
+	}
 
 };
 
@@ -98,7 +131,11 @@ public:
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
-
+	double surface_tension_T(double T)
+	{
+		// From Mulero, 2012, JPCRD
+		return 0.05388*pow(1-T/reduce.T,1.262);
+	}
 };
 
 class TolueneClass : public Fluid {
@@ -109,6 +146,11 @@ public:
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
+	double surface_tension_T(double T)
+	{
+		// From Mulero, 2012, JPCRD
+		return 0.06897*pow(1-T/reduce.T,1.291);
+	}
 
 };
 
@@ -120,7 +162,11 @@ public:
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
-
+	double surface_tension_T(double T)
+	{
+		// From Mulero, 2012, JPCRD
+		return -0.11538*pow(1-T/reduce.T,1.0512)+0.16598*pow(1-T/reduce.T,1.098);
+	}
 };
 
 class R116Class : public Fluid {
@@ -135,6 +181,12 @@ public:
     double ECS_psi_viscosity(double rhor);
     double ECS_chi_conductivity(double rhor);
     double ECS_f_int(double T);
+	double surface_tension_T(double T)
+	{
+		// From Mulero, 2012, JPCRD
+		return 0.047593*pow(1-T/reduce.T,1.2666)-0.0073402*pow(1-T/reduce.T,1.9892);
+	}
+
 };
 
 class AcetoneClass : public Fluid {
@@ -145,7 +197,10 @@ public:
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
-
+	double surface_tension_T(double T){
+		// From Mulero, 2012, JPCRD
+		return 0.0633*pow(1-T/reduce.T,1.16);
+	};
 };
 
 class R245faClass : public Fluid {
@@ -172,7 +227,10 @@ public:
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
-
+	double surface_tension_T(double T){
+		// From Mulero, 2012, JPCRD
+		return 0.05049*pow(1-T/reduce.T,1.242);
+	};
 };
 
 class NitrousOxideClass : public Fluid {
@@ -183,7 +241,10 @@ public:
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
-
+	double surface_tension_T(double T){
+		// From Mulero, 2012, JPCRD
+		return 0.07087*pow(1-T/reduce.T,1.204);
+	};
 };
 
 class SulfurDioxideClass : public Fluid {
@@ -194,7 +255,10 @@ public:
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
-
+	double surface_tension_T(double T){
+		// From Mulero, 2012, JPCRD
+		return 0.0803*pow(1-T/reduce.T,0.928)+0.0139*pow(1-T/reduce.T,1.57)-0.0114*pow(1-T/reduce.T,0.364);
+	};
 };
 
 class R141bClass : public Fluid {
@@ -209,6 +273,10 @@ public:
     double ECS_psi_viscosity(double rhor);
     double ECS_chi_conductivity(double rhor);
     double ECS_f_int(double T);
+	double surface_tension_T(double T){
+		// From Mulero, 2012, JPCRD
+		return 0.000073958*pow(1-T/reduce.T,0.066331)+0.059941*pow(1-T/reduce.T,1.2214);
+	};
 };
 
 class R142bClass : public Fluid {
@@ -223,6 +291,10 @@ public:
     double ECS_psi_viscosity(double rhor);
     double ECS_chi_conductivity(double rhor);
     double ECS_f_int(double T);
+	double surface_tension_T(double T){
+		// From Mulero, 2012, JPCRD
+		return 0.05685*pow(1-T/reduce.T,1.237);
+	};
 };
 
 class R218Class : public Fluid {
@@ -237,6 +309,10 @@ public:
     double ECS_psi_viscosity(double rhor);
     double ECS_chi_conductivity(double rhor);
     double ECS_f_int(double T);
+	double surface_tension_T(double T){
+		// From Mulero, 2012, JPCRD
+		return 0.04322*pow(1-T/reduce.T,1.224);
+	};
 };
 
 

@@ -10,6 +10,11 @@ public:
     double rhosatL(double);
     double rhosatV(double);
 	void ECSParams(double *e_k, double *sigma){*e_k = 341.1; *sigma = 0.5784;};
+	double surface_tension_T(double T)
+	{
+		// From Mulero, 2012, JPCRD
+		return 0.08015*pow(1-T/reduce.T,1.408)+0.004384*pow(1-T/reduce.T,1.031)+-0.03437*pow(1-T/reduce.T,1.818);
+	}
 };
 
 class nHexaneClass : public Fluid {
@@ -21,6 +26,11 @@ public:
     double rhosatL(double);
     double rhosatV(double);
 	void ECSParams(double *e_k, double *sigma){*e_k = 399.3; *sigma = 0.5949;};
+	double surface_tension_T(double T)
+	{
+		// From Mulero, 2012, JPCRD
+		return 0.210952*pow(1-T/reduce.T,1.0962)+-0.158485*pow(1-T/reduce.T,1.05893);
+	}
 };
 
 class nHeptaneClass : public Fluid {
@@ -32,6 +42,11 @@ public:
     double rhosatL(double);
     double rhosatV(double);
 	void ECSParams(double *e_k, double *sigma){*e_k = 400; *sigma = 0.64947;};
+	double surface_tension_T(double T)
+	{
+		// From Mulero, 2012, JPCRD
+		return 0.07765*pow(1-T/reduce.T,1.319)+-0.02599*pow(1-T/reduce.T,1.6);
+	}
 };
 
 class nOctaneClass : public Fluid {
@@ -43,6 +58,11 @@ public:
     double rhosatL(double);
     double rhosatV(double);
 	void ECSParams(double *e_k, double *sigma){*e_k = 452.09; *sigma = 0.63617;};
+	double surface_tension_T(double T)
+	{
+		// From Mulero, 2012, JPCRD
+		return 0.34338*pow(1-T/reduce.T,1.6607)+-0.50634*pow(1-T/reduce.T,1.9632)+0.2238*pow(1-T/reduce.T,2.3547);
+	}
 };
 
 class nDodecaneClass : public Fluid {
@@ -54,6 +74,11 @@ public:
     double rhosatL(double);
     double rhosatV(double);
 	//void ECSParams(double *e_k, double *sigma){*e_k = 452.09; *sigma = 0.63617;};
+	double surface_tension_T(double T)
+	{
+		// From Mulero, 2012, JPCRD
+		return 0.0154*pow(1-T/reduce.T,4.18)+0.048*pow(1-T/reduce.T,1.17);
+	}
 };
 
 class CyclohexaneClass : public Fluid {
@@ -65,6 +90,11 @@ public:
     double rhosatL(double);
     double rhosatV(double);
 	void ECSParams(double *e_k, double *sigma){*e_k = 297.1; *sigma = 0.6182;};
+	double surface_tension_T(double T)
+	{
+		// From Mulero, 2012, JPCRD
+		return 0.06485*pow(1-T/reduce.T,1.263);
+	}
 };
 
 

@@ -449,6 +449,6 @@ double OxygenClass::rhosatL(double T)
 }
 double OxygenClass::surface_tension_T(double T)
 {
-	
-	return 0.038612652*pow(1-T/reduce.T,1.228);
+	// From Mulero, 2012, JPCRD
+	return 0.03843*pow(1-T/reduce.T,1.225);
 }

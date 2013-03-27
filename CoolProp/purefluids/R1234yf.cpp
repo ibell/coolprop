@@ -280,5 +280,6 @@ double R1234yfClass::rhosatV(double T)
 }
 double R1234yfClass::surface_tension_T(double T)
 {
-	return 0.05983*pow(1-T/reduce.T,1.367);
+	// From Mulero, 2012, JPCRD
+	return 0.06274*pow(1-T/reduce.T,1.394);
 }

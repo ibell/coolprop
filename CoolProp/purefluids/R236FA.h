@@ -11,7 +11,10 @@ public:
     double rhosatV(double);
 	void ECSParams(double *e_k, double *sigma){// From Chichester NISTIR report 6650
 		*e_k = 307.24; *sigma = 0.5644;};
-	//double surface_tension_T(double T);
+	double surface_tension_T(double T){
+		// From Mulero, 2012, JPCRD
+		return 0.05389*pow(1-T/reduce.T,1.249);
+	};
 };
 
 #endif
