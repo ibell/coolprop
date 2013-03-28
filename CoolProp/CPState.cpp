@@ -43,6 +43,7 @@ CoolPropStateClass::CoolPropStateClass(std::string Fluid){
 
 	SatL = NULL;
 	SatV = NULL;
+	_noSatLSatV = false;
 }
 
 // Constructor with pointer to fluid
@@ -58,6 +59,7 @@ CoolPropStateClass::CoolPropStateClass(Fluid * pFluid){
 
 	SatL = NULL;
 	SatV = NULL;
+	_noSatLSatV = false;
 }
 
 CoolPropStateClass::~CoolPropStateClass()
@@ -122,7 +124,6 @@ void CoolPropStateClass::clear_cache(void)
 	cached_d3phir_dTau3 = false;
 }
 
-
 // Main updater function
 void CoolPropStateClass::update(long iInput1, double Value1, long iInput2, double Value2){
 	/* Options for inputs (in either order) are:
@@ -153,8 +154,17 @@ void CoolPropStateClass::update(long iInput1, double Value1, long iInput2, doubl
 	s_cached = false;
 	h_cached = false;
 
-	if (SatL == NULL){SatL = new CoolPropStateClass(pFluid);}
-	if (SatV == NULL){SatV = new CoolPropStateClass(pFluid);}
+	// Only build the Saturation classes if this is a top-level CPState for which no_SatLSatV() has not been called
+	if (!_noSatLSatV){
+		if (SatL == NULL){
+			SatL = new CoolPropStateClass(pFluid);
+			SatL->no_SatLSatV(); // Kill the recursive building of the saturation classes
+		}
+		if (SatV == NULL){
+			SatV = new CoolPropStateClass(pFluid);
+			SatV->no_SatLSatV(); // Kill the recursive building of the saturation classes
+		}
+	}
 
 	// Pseudo-pure fluids cannot use T,Q as inputs if Q is not 0 or 1
 	if (!pFluid->pure() && match_pair(iInput1,iInput2,iT,iQ))
@@ -223,7 +233,7 @@ void CoolPropStateClass::update(long iInput1, double Value1, long iInput2, doubl
 		if (!ValidNumber(_logrho)) _logrho = log(_rho);
 	}
 	
-	if (TwoPhase && !flag_TwoPhase)
+	if (!_noSatLSatV && TwoPhase && !flag_TwoPhase)
 	{
 		// Update temperature and density for SatL and SatV
 		add_saturation_states();
@@ -860,6 +870,7 @@ void CoolPropStateClass::add_saturation_states(void)
 	// While SatL and SatV are technically two-phase, we consider 
 	// them to be single-phase to speed up the calcs and avoid saturation calls
 	SatL->flag_SinglePhase = true;
+	SatL->flag_TwoPhase = false;
 	SatL->update(iT,TsatL,iD,rhosatL);
 	SatL->flag_SinglePhase = false;
 	SatL->SinglePhase = true;

@@ -22,7 +22,7 @@ protected:
 
 	std::string _Fluid;
 	
-	bool SaturatedL,SaturatedV;
+	bool SaturatedL,SaturatedV,_noSatLSatV;
 
 	// Saturation values
 	double rhosatL, rhosatV, psatL, psatV, TsatL, TsatV;
@@ -58,6 +58,8 @@ protected:
 	/// Check whether within the TTSE range
 	bool within_TTSE_range(long iInput1, double Value1, long iInput2, double Value2);
 
+	
+
 public:
 	Fluid * pFluid;
 
@@ -86,6 +88,9 @@ public:
 
 	// Destructor to clear SatL and SatV
 	~CoolPropStateClass();
+
+	/// Stop it from adding the SatL and SatV class pointers
+	void no_SatLSatV(void){_noSatLSatV = true;};
 
 	// Property updater
 	// Uses the indices in CoolProp for the input parameters
