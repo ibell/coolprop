@@ -133,6 +133,7 @@ void CoolPropStateClass::update(long iInput1, double Value1, long iInput2, doubl
 	|  P,Q
 	|  T,Q
 	*/
+	bool using_EOS = true;
 
 	if (debug()>3){
 		std::cout<<__FILE__<<" update: "<<iInput1<<","<<Value1<<","<<iInput2<<","<<Value2<<","<<pFluid->get_name().c_str()<<std::endl;
@@ -168,17 +169,27 @@ void CoolPropStateClass::update(long iInput1, double Value1, long iInput2, doubl
 	// Don't know if it is single phase or not, so assume it isn't
 	SinglePhase = false;
 	
-	if (pFluid->enabled_TTSE_LUT)
+	// Determine whether the EOS or the TTSE will be used
+	if (!pFluid->enabled_TTSE_LUT)
 	{
-		// Build the tables
-		pFluid->build_TTSE_LUT();
-		// Update using the LUT
-		update_TTSE_LUT(iInput1,Value1,iInput2,Value2);
-		// Calculate the log of the pressure since a lot of terms need it and log() is a very slow function
-		if (!ValidNumber(_logp)) _logp = log(_p);
-		if (!ValidNumber(_logrho)) _logrho = log(_rho);
+		using_EOS = true;
 	}
 	else
+	{
+		// Try to build the EOS
+		pFluid->build_TTSE_LUT();
+
+		// If inputs are in range of LUT, use it, otherwise just use the EOS
+		if (within_TTSE_range(iInput1,Value1,iInput2,Value2)){
+			using_EOS = false;
+		}
+		else
+		{
+			using_EOS = true;
+		}
+	}
+
+	if (using_EOS)
 	{
 		// If the inputs are P,Q or T,Q , it is guaranteed to require a call to the saturation routine
 		if (match_pair(iInput1,iInput2,iP,iQ) || match_pair(iInput1,iInput2,iT,iQ)){
@@ -203,6 +214,15 @@ void CoolPropStateClass::update(long iInput1, double Value1, long iInput2, doubl
 		// Clear the cached derivative flags
 		this->clear_cache();	
 	}
+	else
+	{
+		// Update using the LUT
+		update_TTSE_LUT(iInput1, Value1, iInput2, Value2);
+		// Calculate the log of the pressure since a lot of terms need it and log() is a very slow function
+		if (!ValidNumber(_logp)) _logp = log(_p);
+		if (!ValidNumber(_logrho)) _logrho = log(_rho);
+	}
+	
 	if (TwoPhase && !flag_TwoPhase)
 	{
 		// Update temperature and density for SatL and SatV
@@ -212,6 +232,20 @@ void CoolPropStateClass::update(long iInput1, double Value1, long iInput2, doubl
 	// Reduced parameters
 	delta = this->_rho/pFluid->reduce.rho;
 	tau = pFluid->reduce.T/this->_T;	
+}
+
+bool CoolPropStateClass::within_TTSE_range(long iInput1, double Value1, long iInput2, double Value2)
+{
+	// For now, only allow p,h to use values outside of the TTSE table
+	if (match_pair(iInput1,iInput2,iP,iH)){
+		// Sort in the order p,h
+		sort_pair(&iInput1,&Value1,&iInput2,&Value2,iP,iH);
+
+		double hmin = 0, hmax = 0, pmin = 0, pmax = 0;
+		pFluid->get_TTSESinglePhase_LUT_range(&hmin,&hmax,&pmin,&pmax);
+		return (Value1 > pmin && Value1 < pmax && Value2 > hmin && Value2 < hmax);
+	}
+	return true;
 }
 
 void CoolPropStateClass::update_twophase(long iInput1, double Value1, long iInput2, double Value2)
