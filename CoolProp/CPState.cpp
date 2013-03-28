@@ -1152,7 +1152,7 @@ double CoolPropStateClass::surface_tension(void){
 
 double CoolPropStateClass::drhodh_constp(void){
 
-	if (pFluid->enabled_TTSE_LUT)
+	if (pFluid->enabled_TTSE_LUT && within_TTSE_range(iP,p(),iH,h()) )
 	{
 		if (TwoPhase && _Q>0 && _Q < 1)
 		{
@@ -1238,7 +1238,7 @@ double CoolPropStateClass::drhodh_constp_smoothed(double xend){
 
 double CoolPropStateClass::drhodp_consth(void){
 
-	if (pFluid->enabled_TTSE_LUT)
+	if (pFluid->enabled_TTSE_LUT && within_TTSE_range(iP,p(),iH,h()) )
 	{
 		if (TwoPhase && _Q>0 && _Q < 1)
 		{
