@@ -231,7 +231,7 @@ void CoolPropStateClass::update(long iInput1, double Value1, long iInput2, doubl
 
 	// Reduced parameters
 	delta = this->_rho/pFluid->reduce.rho;
-	tau = pFluid->reduce.T/this->_T;	
+	tau = pFluid->reduce.T/this->_T;
 }
 
 bool CoolPropStateClass::within_TTSE_range(long iInput1, double Value1, long iInput2, double Value2)
@@ -930,7 +930,7 @@ double CoolPropStateClass::h(void){
 		return _Q*hV()+(1-_Q)*hL();
 	}
 	else{
-		if (h_cached && ValidNumber(_h) && !pFluid->enabled_TTSE_LUT){
+		if (h_cached && ValidNumber(_h)){
 			// Use the pre-calculated value
 			return _h;
 		}
@@ -1001,7 +1001,7 @@ double CoolPropStateClass::viscosity(void){
 		return 1/(_Q/viscV()+(1-_Q)/viscL());
 	}
 	else{
-		if (pFluid->enabled_TTSE_LUT)
+		if (pFluid->enabled_TTSE_LUT && within_TTSE_range(iP,p(),iH,h()))
 		{
 			return pFluid->TTSESinglePhase.evaluate_Trho(iV,_T,_rho,_logrho);
 		}
@@ -1013,19 +1013,17 @@ double CoolPropStateClass::viscosity(void){
 }
 
 double CoolPropStateClass::conductivity(void){
-	if (pFluid->enabled_TTSE_LUT)
-	{
-		if (TwoPhase && _Q > 0 && _Q < 1)
-		{
-			return -1;
-		}
-		else
+	if (TwoPhase){
+		return _Q*condV()+(1-_Q)*condL();
+	}
+	else{
+		if (pFluid->enabled_TTSE_LUT  && within_TTSE_range(iP,p(),iH,h()))
 		{
 			return pFluid->TTSESinglePhase.evaluate_Trho(iL,_T,_rho,_logrho);
 		}
-	}
-	else{
-		return pFluid->conductivity_Trho(_T,_rho);
+		else{
+			return pFluid->conductivity_Trho(_T,_rho);
+		}
 	}
 }
 
