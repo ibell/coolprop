@@ -180,6 +180,7 @@ void CoolPropSolver::setState_ph(double &p, double &h, int &phase, ExternalTherm
 		{
 			throw ValueError(format("p-h [%g, %g] failed for update",p,h));
 		}
+		std::cout << format("Updated ok\n");
 		// Set the values in the output structure
 		properties->p = p*1000;
 		properties->h = h*1000;
@@ -187,6 +188,8 @@ void CoolPropSolver::setState_ph(double &p, double &h, int &phase, ExternalTherm
 		properties->d = state->rho();
 		properties->T = state->T();
 		properties->s = state->s()*1000;
+
+		std::cout << format("d,T,s ok\n");
 		
 		if (state->TwoPhase){
 			properties->phase = 2; 
@@ -210,6 +213,7 @@ void CoolPropSolver::setState_ph(double &p, double &h, int &phase, ExternalTherm
 		}
 		properties->kappa = state->isothermal_compressibility()/1000; // [1/kPa -- > 1/Pa]
 		properties->beta = state->isobaric_expansion_coefficient();
+		std::cout << format("derivs ok\n");
 		if (calc_transport)
         {
             properties->eta = state->viscosity();

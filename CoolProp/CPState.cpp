@@ -219,7 +219,7 @@ void CoolPropStateClass::update(long iInput1, double Value1, long iInput2, doubl
 		}
 		else
 		{
-			throw ValueError(format("Sorry your inputs didn't work; valid pairs are P,Q, T,Q, T,D T,P P,H P,S"));
+			throw ValueError(format("Sorry your inputs didn't work; valid pairs are P,Q T,Q T,D T,P P,H P,S"));
 		}
 		// Clear the cached derivative flags
 		this->clear_cache();	
@@ -486,6 +486,13 @@ void CoolPropStateClass::update_ph(long iInput1, double Value1, long iInput2, do
 		SinglePhase = true;
 		SaturatedL = false;
 		SaturatedV = true;
+
+		if (_rho > rhosatL){
+			_Q = -1;
+		}
+		else if (_rho < rhosatV){
+			_Q = 2;
+		}
 	}
 }
 
