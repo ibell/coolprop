@@ -961,7 +961,7 @@ double CoolPropStateClass::s(void){
 		}
 		else
 		{
-			if (pFluid->enabled_TTSE_LUT)
+			if (pFluid->enabled_TTSE_LUT && within_TTSE_range(iP, p(), iH, h()) )
 			{
 				return pFluid->TTSESinglePhase.evaluate_Trho(iS,_T,_rho,_logrho);
 			}
@@ -974,7 +974,7 @@ double CoolPropStateClass::s(void){
 	}
 }
 double CoolPropStateClass::cp(void){
-	if (pFluid->enabled_TTSE_LUT)
+	if (pFluid->enabled_TTSE_LUT && within_TTSE_range(iP, p(), iH, h()) )
 	{
 		if (TwoPhase && _Q > 0 && _Q < 1)
 		{
@@ -1046,7 +1046,7 @@ double CoolPropStateClass::B_over_D_TTSE(double p, double h)
 	return (drhodh_p*dsdp_h-drhodp_h*dsdh_p)/(dTdh_p*drhodp_h-dTdp_h*drhodh_p);
 }
 double CoolPropStateClass::cv(void){
-	if (pFluid->enabled_TTSE_LUT)
+	if (pFluid->enabled_TTSE_LUT && within_TTSE_range(iP, p(), iH, h()) )
 	{
 		if (TwoPhase && _Q>0 && _Q < 1)
 		{
@@ -1065,7 +1065,7 @@ double CoolPropStateClass::cv(void){
 	}
 }
 double CoolPropStateClass::speed_sound(void){
-	if (pFluid->enabled_TTSE_LUT)
+	if (pFluid->enabled_TTSE_LUT && within_TTSE_range(iP, p(), iH, h()) )
 	{
 		if (TwoPhase && _Q>0 && _Q < 1)
 		{
@@ -1095,7 +1095,7 @@ double CoolPropStateClass::speed_sound(void){
 
 double CoolPropStateClass::isothermal_compressibility(void){
 
-	if (pFluid->enabled_TTSE_LUT)
+	if (pFluid->enabled_TTSE_LUT && within_TTSE_range(iP, p(), iH, h()) )
 	{
 		if (TwoPhase && _Q>0 && _Q < 1)
 		{
@@ -1124,7 +1124,7 @@ double CoolPropStateClass::isothermal_compressibility(void){
 
 double CoolPropStateClass::isobaric_expansion_coefficient(void){
 
-	if (pFluid->enabled_TTSE_LUT)
+	if (pFluid->enabled_TTSE_LUT && within_TTSE_range(iP, p(), iH, h()) )
 	{
 		if (TwoPhase && _Q>0 && _Q < 1)
 		{
