@@ -486,13 +486,6 @@ void CoolPropStateClass::update_ph(long iInput1, double Value1, long iInput2, do
 		SinglePhase = true;
 		SaturatedL = false;
 		SaturatedV = true;
-
-		if (_rho > rhosatL){
-			_Q = -1;
-		}
-		else if (_rho < rhosatV){
-			_Q = 2;
-		}
 	}
 }
 

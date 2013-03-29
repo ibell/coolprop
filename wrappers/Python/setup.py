@@ -85,7 +85,7 @@ if __name__=='__main__':
                         f.write(svnstring)
                         f.close()
                     break
-        except subprocess.CalledProcessError:
+        except (subprocess.CalledProcessError,OSError):
             pass
         
     svnrev_to_file()

@@ -24,15 +24,32 @@ depending on where your VS is installed
 Building on Linux (Ubuntu in this case)
 ---------------------------------------
 1. You will need to run 
-      sudo apt-get install swig
-      sudo apt-get install octave
-      sudo apt-get install liboctave-dev
-   to install the necesary dependencies.  The install of octave might not be necessary
+      sudo apt-get update
+      sudo apt-get install octave liboctave-dev swig subversion
+   to install the necesary dependencies.  The install of octave and subversion might not be necessary but it cant hurt
 2. Check out the full source for coolprop from subversion
-3. Change into the trunk/wrappers/Octave folder
+      svn checkout svn://svn.code.sf.net/p/coolprop/code/trunk coolprop-code
+3. Change into the coolprop-code/wrappers/Octave folder
+      cd coolprop-code/wrappers/Octave
 4. Call
       octave _OctaveBuilder_Linux.m
 5. Call
       octave sample_code.m
    to run the sample
+   
+Building on Raspberry PI
+------------------------
+1. You will need to run
+      sudo aptitude update
+      sudo aptitude install octave liboctave-dev swig subversion
+2. Download all the sources from subversion using
+      svn checkout svn://svn.code.sf.net/p/coolprop/code/trunk coolprop-code
+3. Change into the folder
+      cd coolprop-code/wrappers/Octave
+4. Run the build script
+      octave _OctaveBuilder_Linux.m
+5. Call 
+      octave sample_code.m
+    to run the sample
+    
 

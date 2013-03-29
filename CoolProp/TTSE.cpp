@@ -33,7 +33,7 @@
 #endif
 
 // The revision of the TTSE tables, only use tables with the same revision.  Increment this macro if any non-forward compatible changes are made
-#define TTSEREV 1
+#define TTSEREV 2
 
 std::string get_home_dir(void)
 {
