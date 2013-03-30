@@ -320,7 +320,7 @@ bool add_REFPROP_fluid(std::string FluidName)
 	{
 		Fluids.add_REFPROP_fluid(FluidName,std::vector<double>(1,1));
 		return true;
-		std::cout << format("Added the fluid %s\n",FluidName.c_str());
+		std::cout << format("Added the fluid %s\n",FluidName.c_str()).c_str();
 	}
 	return true;
 }
@@ -360,7 +360,7 @@ long get_param_index(std::string param)
 	}
 	else
 	{
-		std::cout << "Didn't match parameter: " << param << std::endl;
+		std::cout << "Didn't match parameter: " << param.c_str() << std::endl;
 		return -1;
 	}
 }
@@ -717,7 +717,7 @@ double _Props1(char *Fluid, char *Output)
 		// Catch any error that subclasses the std::exception
 		catch(std::exception &e){
 			err_string = std::string("CoolProp error: ").append(e.what());
-			std::cout << err_string <<std::endl;
+			std::cout << err_string.c_str() <<std::endl;
 			return _HUGE;
 		}
 	}
@@ -738,7 +738,7 @@ EXPORT_CODE double CONVENTION Props1(char* Ref, char * Output)
 	catch(std::exception &e)
 	{
 		err_string = std::string("CoolProp error: ").append(e.what());
-		std::cout << err_string <<std::endl;
+		std::cout << err_string.c_str() <<std::endl;
 		return _HUGE;
 	}
 	catch(...){
@@ -800,7 +800,7 @@ double Props(std::string Output,char Name1, double Prop1, char Name2, double Pro
 double _Props(std::string Output,std::string Name1, double Prop1, std::string Name2, double Prop2, std::string Ref)
 {
 	if (debug()>5){
-		std::cout<<__FILE__<<": "<<Output<<","<<Name1<<","<<Prop1<<","<<Name2<<","<<Prop2<<","<<Ref<<std::endl;
+		std::cout<<__FILE__<<": "<<Output.c_str()<<","<<Name1.c_str()<<","<<Prop1<<","<<Name2.c_str()<<","<<Prop2<<","<<Ref.c_str()<<std::endl;
 	}
 	/* 
     If the fluid name is not actually a refrigerant name, but a string beginning with "REFPROP-",

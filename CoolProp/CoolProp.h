@@ -26,14 +26,20 @@ You might want to start by looking at CoolProp.h
 		#define CONVENTION __stdcall
 	#endif
 	#else
-		#define EXPORT_CODE
+        #ifndef EXPORT_CODE
+            #if defined(EXTERNC)
+                #define EXPORT_CODE extern "C"
+            #else
+                #define EXPORT_CODE
+            #endif
+        #endif
 		#ifndef CONVENTION
 			#define CONVENTION
 		#endif
 	#endif
 
 	// Hack for PowerPC compilation to only use extern "C"
-	#if defined(__powerpc__)
+	#if defined(__powerpc__) || defined(EXTERNC)
 	#define EXPORT_CODE extern "C"
 	#endif
 

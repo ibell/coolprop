@@ -374,7 +374,7 @@ bool set_REFPROP_fluid(std::string Ref)
 	if (Ref.find("REFPROP-") == std::string::npos)
 	{
 		// Fail and give error
-		std::cout << "Invalid REFPROP string: " << Ref << std::endl;
+		std::cout << "Invalid REFPROP string: " << Ref.c_str() << std::endl;
 	}
 	// Chop off the "REFPROP-"
 	else 

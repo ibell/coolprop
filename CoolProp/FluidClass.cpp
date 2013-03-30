@@ -95,7 +95,7 @@ void rebuild_CriticalSplineConstants_T()
 	fp = fopen("CriticalSplineConstants_T.h","w");
 	for (unsigned int i = 0; i < fluid_names.size(); i++)
 	{
-		std::cout << format("%s:\n",fluid_names[i].c_str());
+		std::cout << format("%s:\n",fluid_names[i].c_str()).c_str();
 		CoolPropStateClass CPS = CoolPropStateClass(fluid_names[i]);
 		double Tc = CPS.pFluid->reduce.T;
 		double Tt = CPS.pFluid->params.Ttriple;
@@ -121,12 +121,12 @@ void rebuild_CriticalSplineConstants_T()
 		{
 			if (CPS.pFluid->reduce.T > 100)
 			{
-				std::cout << format("%s : failed at 5 K \n",fluid_names[i].c_str());
+				std::cout << format("%s : failed at 5 K \n",fluid_names[i].c_str()).c_str();
 				continue;
 			}
 			else
 			{
-				std::cout << format("%s : failed at 5 K \n",fluid_names[i].c_str());
+				std::cout << format("%s : failed at 5 K \n",fluid_names[i].c_str()).c_str();
 				continue;
 			}
 		}
@@ -804,7 +804,7 @@ void Fluid::saturation_T(double T, bool UseLUT, double *psatLout, double *psatVo
 {
 	double rhoL, rhoV, p;
 	if (debug()>5){
-		std::cout<<format("%s:%d: Fluid::saturation_T(%g,%d) \n",__FILE__,__LINE__,T,UseLUT);
+		std::cout<<format("%s:%d: Fluid::saturation_T(%g,%d) \n",__FILE__,__LINE__,T,UseLUT).c_str();
 	}
 	if (isPure==true)
 	{
@@ -963,7 +963,7 @@ void Fluid::rhosatPure_Akasaka(double T, double *rhoLout, double *rhoVout, doubl
 
 	do{
 		if (debug()>5){
-			std::cout << format("%s:%d: right before the derivs with deltaL = %g deltaV = %g tau = %g\n",__FILE__,__LINE__,deltaL, deltaV, tau);
+			std::cout << format("%s:%d: right before the derivs with deltaL = %g deltaV = %g tau = %g\n",__FILE__,__LINE__,deltaL, deltaV, tau).c_str();
 		}
 		// Calculate once to save on calls to EOS
 		dphirL = dphir_dDelta(tau,deltaL);
@@ -1109,7 +1109,7 @@ double Fluid::_get_rho_guess(double T, double p)
 	long phase = phase_Tp_indices(T,p,&pL,&pV,&rhoL,&rhoV);
 	
 	if (debug()>5){
-		std::cout<<__FILE__<<format(": Fluid::_get_rho_guess(%g,%g) phase =%d\n",T,p,phase);
+		std::cout<<__FILE__<<format(": Fluid::_get_rho_guess(%g,%g) phase =%d\n",T,p,phase).c_str();
 	}
 	// These are very simplistic guesses for the density, but they work ok
 	if (phase == iGas || phase == iSupercritical)
@@ -1123,7 +1123,7 @@ double Fluid::_get_rho_guess(double T, double p)
 		double rhoL = rhosatL(T);
 		double pL = psatL_anc(T);
 		if (debug()>5){
-			std::cout<<format("%d:%d: pL = %g rhoL = %g rhoV %g \n",__FILE__,__LINE__,pL,rhoL, rhoV);
+			std::cout<<format("%d:%d: pL = %g rhoL = %g rhoV %g \n",__FILE__,__LINE__,pL,rhoL, rhoV).c_str();
 		}
 		double delta = rhoL / reduce.rho;
 		double tau = reduce.T/T;
@@ -1224,7 +1224,7 @@ long Fluid::phase_Tp_indices(double T, double p, double *pL, double *pV, double 
 	*/
 
 	if (debug()>5){
-		std::cout<<__FILE__<<format(": phase_Tp_indices(%g,%g)\n",T,p);
+		std::cout<<__FILE__<<format(": phase_Tp_indices(%g,%g)\n",T,p).c_str();
 	}
 
 	if (T>crit.T && p>crit.p){
@@ -2057,7 +2057,7 @@ void Fluid::saturation_p(double p, bool UseLUT, double *TsatL, double *TsatV, do
 	}
 
 	if (debug()>5){
-		std::cout<<format("%s:%d: Fluid::saturation_p(%g,%d) \n",__FILE__,__LINE__,p,UseLUT);
+		std::cout<<format("%s:%d: Fluid::saturation_p(%g,%d) \n",__FILE__,__LINE__,p,UseLUT).c_str();
 	}
 	if (isPure==true)
 	{

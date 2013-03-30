@@ -1270,7 +1270,7 @@ double TTSESinglePhaseTableClass::check_randomly(long iParam, unsigned int N, st
 			throw ValueError();
 		}
 		
-		std::cout << format("%g %g %g %g %g (h,p,EOS,TTSE,diff)\n",h1,p1,(*EOSv)[i],(*TTSE)[i],(*EOSv)[i]-(*TTSE)[i]);
+		std::cout << format("%g %g %g %g %g (h,p,EOS,TTSE,diff)\n",h1,p1,(*EOSv)[i],(*TTSE)[i],(*EOSv)[i]-(*TTSE)[i]).c_str();
 	}
 	return val;
 }
@@ -1991,7 +1991,7 @@ double TTSETwoPhaseTableClass::check_randomly(long iParam, unsigned int N, std::
 			throw ValueError();
 		}
 		
-		std::cout << format("%g %g %g %g TTSE (p,EOS,TTSE, diff)\n",p1,(*EOSv)[i],(*TTSE)[i],((*EOSv)[i]-(*TTSE)[i]));
+		std::cout << format("%g %g %g %g TTSE (p,EOS,TTSE, diff)\n",p1,(*EOSv)[i],(*TTSE)[i],((*EOSv)[i]-(*TTSE)[i])).c_str();
 	}
 	return val;
 }
