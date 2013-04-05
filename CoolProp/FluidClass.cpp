@@ -157,7 +157,6 @@ void rebuild_CriticalSplineConstants_T()
 	UseCriticalSpline = true;
 }
 
-
 CriticalSplineStruct_T::CriticalSplineStruct_T(double Tend, double rhoendL, double rhoendV, double drhoLdT_sat, double drhoVdT_sat){
 		this->Tend = Tend;
 		this->rhoendL = rhoendL;
@@ -798,6 +797,71 @@ double Fluid::conductivity_Trho( double T, double rho)
 	// Calculate the ECS
 	double lambda = conductivity_ECS_Trho(T, rho, get_fluid(iR134a));
 	return lambda;
+}
+
+
+
+void Fluid::saturation_s(double s, int Q, double *Tsatout, double *rhoout)
+{
+	class SatFuncClass : public FuncWrapper1D
+	{
+	private:
+		int Q;
+		double s;
+		Fluid * pFluid;
+	public:
+		double rho,pL,pV,rhoL,rhoV;
+		SatFuncClass(double s, int Q, Fluid *pFluid){
+			this->s = s;
+			this->Q = Q;
+			this->pFluid = pFluid;
+		};
+		double call(double T){
+			pFluid->saturation_T(T, false, &pL, &pV, &rhoL, &rhoV);
+			if (Q == 0){
+				this->rho = rhoL;
+				return pFluid->entropy_Trho(T,rhoL) - this->s;
+			}
+			else if (Q == 1){
+				this->rho = rhoV;
+				return pFluid->entropy_Trho(T,rhoV) - this->s;
+			}
+		};
+	} SatFunc(s, Q, this);
+
+	if (debug()>5){
+		std::cout<<format("%s:%d: Fluid::saturation_s(%g,%d) \n",__FILE__,__LINE__,s,Q).c_str();
+	}
+	if (isPure==true)
+	{
+		if (enabled_TTSE_LUT)
+		{
+			throw NotImplementedError(format("saturation_s not implemented for TTSE"));
+			return;
+		}
+		else
+		{
+			std::string errstr;
+			*Tsatout = Brent(&SatFunc,params.Ttriple,crit.T,1e-16,1e-8,100,&errstr);
+			*rhoout = SatFunc.rho;
+		}
+	}
+	else
+	{ 
+		//// Pseudo-pure fluid
+		//*psatLout = psatL(T);
+		//*psatVout = psatV(T);
+		//try{
+		//	*rhosatLout = density_Tp(T, *psatLout, rhosatL(T));
+		//	*rhosatVout = density_Tp(T, *psatVout, rhosatV(T));
+		//}
+		//catch (std::exception){
+		//	// Near the critical point, the behavior is not very nice, so we will just use the ancillary near the critical point
+		//	*rhosatLout = rhosatL(T);
+		//	*rhosatVout = rhosatV(T);
+		//}
+		//return;
+	}
 }
 
 void Fluid::saturation_T(double T, bool UseLUT, double *psatLout, double *psatVout, double *rhosatLout, double *rhosatVout)
@@ -1798,6 +1862,144 @@ void Fluid::temperature_ps(double p, double s, double *Tout, double *rhoout, dou
 	*rhoout = delta*reduce.rho;
 }
 
+void Fluid::temperature_hs(double h, double s, double *Tout, double *rhoout, double *rhoLout, double *rhoVout, double *TsatLout, double *TsatVout)
+{
+	int iter;
+	double A[2][2], B[2][2], T_guess;
+	double dar_ddelta,da0_dtau,d2a0_dtau2,dar_dtau,d2ar_ddelta_dtau,d2ar_ddelta2,d2ar_dtau2,d2a0_ddelta_dtau,a0,ar,da0_ddelta;
+	double f1,f2,df1_dtau,df1_ddelta,df2_ddelta,df2_dtau;
+    double rhoL, rhoV, ssatL,ssatV,TsatL,TsatV,tau,delta,worst_error;
+	double s_guess, sc, rho_guess;
+	double ssat_tol = 0.1;
+	std::string errstr;
+
+	double scrit = entropy_Trho(crit.T, crit.rho);
+	double hcrit = enthalpy_Trho(crit.T, crit.rho);
+
+	class SatFuncClass : public FuncWrapper1D
+	{
+	private:
+		double h, s, Q;
+		Fluid * pFluid;
+	public:
+		double rho,pL,pV,rhoL,rhoV,hL,hV,sL,sV;
+		SatFuncClass(double h, double s, Fluid *pFluid){
+			this->h = h;
+			this->s = s;
+			this->pFluid = pFluid;
+		};
+		double call(double T){
+			// Try to find a Tsat that yields the same quality when considering enthalpy and entropy
+			pFluid->saturation_T(T, false, &pL, &pV, &rhoL, &rhoV);
+			hL = pFluid->enthalpy_Trho(T,rhoL);
+			hV = pFluid->enthalpy_Trho(T,rhoV);
+			sL = pFluid->entropy_Trho(T,rhoL);
+			sV = pFluid->entropy_Trho(T,rhoV);
+			double r = (this->h-hL)/(hV-hL)-(this->s-sL)/(sV-sL);
+			Q = (this->s-sL)/(sV-sL);
+			rho = 1/(Q/rhoV+(1-Q)/rhoL);
+			return r;
+		};
+	} SatFunc(h, s, this);
+
+	if (s < scrit)
+	{
+		// Check the saturated liquid enthalpy for the given value of the entropy
+		this->saturation_s(s, 0, TsatLout, rhoLout);
+		double hsatL = this->enthalpy_Trho(*TsatLout, *rhoLout);
+
+		if (h <= hsatL)
+		{
+			// It is two-phase, we are done, but we need to do a saturation solver using enthalpy and entropy
+			if (!s_ancillary->built) 
+				s_ancillary->build(50);
+			T_guess = s_ancillary->reverseinterpolateL(s);
+			if (SatFunc.call(params.Ttriple)<0){throw ValueError(format("Value for h,s [%g,%g] is solid",h,s));}
+			*Tout = Brent(&SatFunc,params.Ttriple,reduce.T-1e-5,1e-16,1e-8,100,&errstr);
+			//*Tout = Secant(&SatFunc,T_guess,1e-1,1e-8,100,&errstr);
+			*rhoout = SatFunc.rho;
+			*rhoLout = SatFunc.rhoL;
+			*rhoVout = SatFunc.rhoV;
+			*TsatLout = *Tout;
+			*TsatVout = *Tout;
+			return;
+		}
+		else
+		{
+			// It is single-phase, either subcooled liquid or supercritical, but we don't know which yet
+			// Use the saturation boundary as the start value
+			double cpL = this->specific_heat_p_Trho(*TsatLout,*rhoLout);
+			if (cpL > 10) cpL = 10; // Near critical point cp goes to infinity
+			T_guess = *TsatLout + (h-hsatL)/cpL;
+			rho_guess = *rhoLout;
+		}
+	}
+	else
+	{
+		throw ValueError("s > scrit not supported yet");
+	}
+
+	tau = reduce.T/T_guess;
+	delta = rho_guess/reduce.rho;
+
+	//// Now we enter into a Jacobian loop that attempts to simultaneously solve 
+	//// for temperature and density using Newton-Raphson
+    worst_error=999;
+    iter=0;
+    while (worst_error>1e-6)
+    {
+    	// All the required partial derivatives
+		a0 = phi0(tau,delta);
+    	da0_dtau = dphi0_dTau(tau,delta);
+    	d2a0_dtau2 = d2phi0_dTau2(tau,delta);
+    	da0_ddelta = dphi0_dDelta(tau,delta);
+		d2a0_ddelta_dtau = 0.0;
+
+    	ar = phir(tau,delta);
+		dar_dtau = dphir_dTau(tau,delta);
+		d2ar_dtau2 = d2phir_dTau2(tau,delta);
+		dar_ddelta = dphir_dDelta(tau,delta);
+		d2ar_ddelta2 = d2phir_dDelta2(tau,delta);
+		d2ar_ddelta_dtau = d2phir_dDelta_dTau(tau,delta);
+		
+		// Residual and derivatives thereof for entropy
+		f1 = tau*(da0_dtau+dar_dtau)-ar-a0-s/R();	
+		df1_dtau = tau*(d2a0_dtau2 + d2ar_dtau2)+(da0_dtau+dar_dtau)-dar_dtau-da0_dtau;
+		df1_ddelta = tau*(d2a0_ddelta_dtau+d2ar_ddelta_dtau)-dar_ddelta-da0_ddelta;
+
+		// Residual and derivatives thereof for enthalpy
+		f2 = (1+delta*dar_ddelta)+tau*(da0_dtau+dar_dtau)-tau*h/(R()*reduce.T);
+		df2_dtau = delta*d2ar_ddelta_dtau+da0_dtau+dar_dtau+tau*(d2a0_dtau2+d2ar_dtau2)-h/(R()*reduce.T);
+		df2_ddelta = (dar_ddelta+delta*d2ar_ddelta2)+tau*(d2a0_ddelta_dtau+d2ar_ddelta_dtau);
+
+		//First index is the row, second index is the column
+		A[0][0]=df1_dtau;
+		A[0][1]=df1_ddelta;
+		A[1][0]=df2_dtau;
+		A[1][1]=df2_ddelta;
+
+		MatInv_2(A,B);
+		tau -= B[0][0]*f1+B[0][1]*f2;
+		delta -= B[1][0]*f1+B[1][1]*f2;
+		
+        if (fabs(f1)>fabs(f2))
+            worst_error=fabs(f1);
+        else
+            worst_error=fabs(f2);
+
+		iter+=1;
+		if (iter>100)
+		{
+			throw SolutionError(format("Ths did not converge with inputs h=%g s=%g for fluid %s",h,s,(char*)name.c_str()));
+			*Tout = _HUGE;
+            *rhoout = _HUGE;
+		}
+    }
+
+	*Tout = reduce.T/tau;
+	*rhoout = delta*reduce.rho;
+}
+
 double Fluid::Tsat_anc(double p, double Q)
 {
 	// This one only uses the ancillary equations
@@ -2765,6 +2967,14 @@ double AncillaryCurveClass::interpolateL(double T){
 
 double AncillaryCurveClass::interpolateV(double T){
 	return interp1d(&xV,&yV,T);
+}
+
+double AncillaryCurveClass::reverseinterpolateL(double y){
+	return interp1d(&yL,&xL,y);
+}
+
+double AncillaryCurveClass::reverseinterpolateV(double y){
+	return interp1d(&yV,&xV,y);
 }
 
 #if defined(_MSC_VER) || defined(__powerpc__)

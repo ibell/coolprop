@@ -74,6 +74,8 @@ public:
 	Fluid * pFluid;
 	double interpolateL(double T);
 	double interpolateV(double T);
+	double reverseinterpolateL(double y);
+	double reverseinterpolateV(double y);
 	bool built;
 };
 
@@ -233,6 +235,15 @@ class Fluid
 
 		virtual double density_Tp(double T, double p);
 		virtual double density_Tp(double T, double p, double rho_guess);
+
+		/// Temperature as a function of pressure and entropy
+		/// @param h Enthalpy [kJ/kg/K]
+		/// @param s Entropy [kJ/kg/K]
+		/// @param Tout Temperature [K]
+		/// @param rhoout Density [kg/m^3]
+		/// @param rhoL Saturated liquid density [kg/m^3]
+		/// @param rhoV Saturated vapor density [kg/m^3]
+		virtual void temperature_hs(double h, double s, double *Tout, double *rhoout, double *rhoL, double *rhoV, double *TsatLout, double *TsatVout);
 
 		/// Temperature as a function of pressure and entropy
 		/// @param p Pressure [kPa]
@@ -407,6 +418,13 @@ class Fluid
 		/// @param rhoLout Saturated liquid density [kg/m3]
 		/// @param rhoVout Saturated vapor density [kg/m3]
 		virtual void saturation_p(double p, bool UseLUT, double *TsatLout, double *TsatVout, double *rhoLout, double *rhoVout);
+
+		/// Saturation temperature and saturated liquid and vapor densities as a function of the entropy. (The phase must be provided)
+		/// @param s Entropy [kJ/kg/K]
+		/// @param Q quality [kg/kg]
+		/// @param Tsatout Saturated temperature [K]
+		/// @param rhoout Saturated density [kg/m3]
+		virtual void saturation_s(double s, int Q, double *Tsatout, double *rhoout);
 		
 		/// NB: Only valid for pure fluids - no pseudo-pure or mixtures.
 		/// Get the saturated liquid, vapor densities and the saturated pressure
