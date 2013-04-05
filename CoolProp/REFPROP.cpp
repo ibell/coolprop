@@ -1233,6 +1233,18 @@ void REFPROPFluidClass::temperature_ps(double p, double s, double *Tout, double 
 	*rhoVout *= params.molemass;
 	this->saturation_p(p,false,TsatLout,TsatVout,&dummy1,&dummy2);
 }
+void REFPROPFluidClass::temperature_hs(double h, double s, double *Tout, double *rhoout, double *rhoLout, double *rhoVout, double *TsatLout, double *TsatVout)
+{
+	long ierr;
+	char herr[errormessagelength+1];
+	std::vector<double> xliq = std::vector<double>(1,1),xvap = std::vector<double>(1,1);
+	double q,e,cv,cp,w,p,sbar = s*params.molemass, hbar = h*params.molemass, dummy1, dummy2;
+	HSFLSHdll(&hbar,&sbar,&(xmol[0]),Tout,&p,rhoout,rhoLout,rhoVout,&(xliq[0]),&(xvap[0]),&q,&e,&cv,&cp,&w,&ierr,herr,errormessagelength);
+	*rhoout *= params.molemass;
+	*rhoLout *= params.molemass;
+	*rhoVout *= params.molemass;
+	this->saturation_p(p,false,TsatLout,TsatVout,&dummy1,&dummy2);
+}
 double REFPROPFluidClass::density_Tp(double T, double p)
 {
 	return this->density_Tp(T,p,0);

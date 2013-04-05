@@ -217,6 +217,9 @@ void CoolPropStateClass::update(long iInput1, double Value1, long iInput2, doubl
 		else if (match_pair(iInput1,iInput2,iP,iS)){
 			update_ps(iInput1,Value1,iInput2,Value2);
 		}
+		else if (match_pair(iInput1,iInput2,iH,iS)){
+			update_hs(iInput1,Value1,iInput2,Value2);
+		}
 		else
 		{
 			throw ValueError(format("Sorry your inputs didn't work; valid pairs are P,Q T,Q T,D T,P P,H P,S"));
@@ -459,10 +462,10 @@ void CoolPropStateClass::update_ph(long iInput1, double Value1, long iInput2, do
 	// Get them in the right order
 	sort_pair(&iInput1,&Value1,&iInput2,&Value2,iP,iH);
 
+	if (Value1 < 0 ){ throw ValueError(format("Your pressure [%g kPa] is less than zero",Value1));}
+
 	// Solve for temperature and density with or without the guess values provided
 	pFluid->temperature_ph(Value1, Value2,&_T,&_rho,&rhosatL,&rhosatV,&TsatL,&TsatV, T0, rho0);
-
-	if (Value1 < 0 ){ throw ValueError(format("Your pressure [%g kPa] is less than zero",Value1));}
 
 	// Set internal variables
 	_p = Value1;
@@ -495,15 +498,51 @@ void CoolPropStateClass::update_ps(long iInput1, double Value1, long iInput2, do
 	// Get them in the right order
 	sort_pair(&iInput1,&Value1,&iInput2,&Value2,iP,iS);
 
+	if (Value1 < 0 ){ throw ValueError(format("Your pressure [%g kPa] is less than zero",Value1));}
+
 	// Solve for temperature and density
 	pFluid->temperature_ps(Value1, Value2,&_T,&_rho,&rhosatL,&rhosatV,&TsatL,&TsatV);
-
-	if (Value1 < 0 ){ throw ValueError(format("Your pressure [%g kPa] is less than zero",Value1));}
 
 	// Set internal variables
 	_p = Value1;
 	_s = Value2;
 	s_cached = true;
+
+	// Set the phase flags
+	if ( _T < pFluid->reduce.T && _rho < rhosatL && _rho > rhosatV)
+	{
+		TwoPhase = true;
+		SinglePhase = false;
+		_Q = (1/_rho-1/rhosatL)/(1/rhosatV-1/rhosatL);
+		check_saturated_quality(_Q);
+
+		psatL = _p;
+		psatV = _p;
+	}
+	else
+	{
+		TwoPhase = false;
+		SinglePhase = true;
+		SaturatedL = false;
+		SaturatedV = true;
+	}
+}
+
+// Updater if h,s are inputs
+void CoolPropStateClass::update_hs(long iInput1, double Value1, long iInput2, double Value2)
+{
+	// Get them in the right order
+	sort_pair(&iInput1,&Value1,&iInput2,&Value2,iH,iS);
+
+	// Solve for temperature and density
+	pFluid->temperature_hs(Value1, Value2,&_T,&_rho,&rhosatL,&rhosatV,&TsatL,&TsatV);
+
+	// Set internal variables
+	_h = Value1;
+	_s = Value2;
+	h_cached = true;
+	s_cached = true;
+	_p = pFluid->pressure_Trho(_T,_rho); // Evaluate the EOS directly to find pressure without a saturation call
 
 	// Set the phase flags
 	if ( _T < pFluid->reduce.T && _rho < rhosatL && _rho > rhosatV)

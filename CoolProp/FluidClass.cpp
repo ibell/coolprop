@@ -1879,10 +1879,10 @@ void Fluid::temperature_hs(double h, double s, double *Tout, double *rhoout, dou
 	class SatFuncClass : public FuncWrapper1D
 	{
 	private:
-		double h, s, Q;
+		double h, s;
 		Fluid * pFluid;
 	public:
-		double rho,pL,pV,rhoL,rhoV,hL,hV,sL,sV;
+		double rho,pL,pV,rhoL,rhoV,hL,hV,sL,sV,Q;
 		SatFuncClass(double h, double s, Fluid *pFluid){
 			this->h = h;
 			this->s = s;
@@ -1902,42 +1902,44 @@ void Fluid::temperature_hs(double h, double s, double *Tout, double *rhoout, dou
 		};
 	} SatFunc(h, s, this);
 
-	if (s < scrit)
-	{
-		// Check the saturated liquid enthalpy for the given value of the entropy
-		this->saturation_s(s, 0, TsatLout, rhoLout);
-		double hsatL = this->enthalpy_Trho(*TsatLout, *rhoLout);
+	if (SatFunc.call(params.Ttriple)<0){throw ValueError(format("Value for h,s [%g,%g] is solid",h,s));}
 
-		if (h <= hsatL)
-		{
-			// It is two-phase, we are done, but we need to do a saturation solver using enthalpy and entropy
-			if (!s_ancillary->built) 
-				s_ancillary->build(50);
-			T_guess = s_ancillary->reverseinterpolateL(s);
-			if (SatFunc.call(params.Ttriple)<0){throw ValueError(format("Value for h,s [%g,%g] is solid",h,s));}
-			*Tout = Brent(&SatFunc,params.Ttriple,reduce.T-1e-5,1e-16,1e-8,100,&errstr);
-			//*Tout = Secant(&SatFunc,T_guess,1e-1,1e-8,100,&errstr);
-			*rhoout = SatFunc.rho;
-			*rhoLout = SatFunc.rhoL;
-			*rhoVout = SatFunc.rhoV;
-			*TsatLout = *Tout;
-			*TsatVout = *Tout;
-			return;
-		}
-		else
-		{
-			// It is single-phase, either subcooled liquid or supercritical, but we don't know which yet
-			// Use the saturation boundary as the start value
-			double cpL = this->specific_heat_p_Trho(*TsatLout,*rhoLout);
-			if (cpL > 10) cpL = 10; // Near critical point cp goes to infinity
-			T_guess = *TsatLout + (h-hsatL)/cpL;
-			rho_guess = *rhoLout;
-		}
+	try{
+		*Tout = Brent(&SatFunc,params.Ttriple,reduce.T-1e-5,1e-16,1e-8,100,&errstr);
+		if (SatFunc.Q >1 || SatFunc.Q < 0){ throw ValueError("Solution must be within the two-phase region"); } 
+		// It is two-phase, we are done, no exceptions were raised
+		*rhoout = SatFunc.rho;
+		*rhoLout = SatFunc.rhoL;
+		*rhoVout = SatFunc.rhoV;
+		*TsatLout = *Tout;
+		*TsatVout = *Tout;
+		return;
 	}
-	else
+	catch(ValueError)
 	{
-		throw ValueError("s > scrit not supported yet");
+		double Tsat, rhosat, cp, hsat;
+		// It is single-phase, either liquid, gas, or supercritical, but we don't know which yet
+		try{
+			if (s < scrit){ this->saturation_s(s, 0, &Tsat, &rhosat);	}
+			else{ this->saturation_s(s, 1, &Tsat, &rhosat); }
+
+			// Check the saturated enthalpy for the given value of the entropy
+			hsat = this->enthalpy_Trho(Tsat, rhosat);
+			cp = this->specific_heat_p_Trho(Tsat, rhosat);
+			if (cp > 10) cp = 10; // Near critical point cp goes to infinity, clip it
+			T_guess = Tsat + (h-hsat)/cp;
+			rho_guess = rhosat;
+		}
+		catch(ValueError)
+		{
+			double cp0 = specific_heat_p_ideal_Trho(reduce.T);
+			T_guess = 298;
+			rho_guess = 0.001;
+		}
+		
 	}
+
+	
 
 	tau = reduce.T/T_guess;
 	delta = rho_guess/reduce.rho;

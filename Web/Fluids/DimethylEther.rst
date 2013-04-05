@@ -13,7 +13,11 @@ Jiangtao Wu, Yong Zhou, Eric W. Lemmon, "An Equation of State for the Thermodyna
 
 Transport Properties Information
 ================================
-Using ECS in fully predictive mode
+Viscosity: Xianyang Meng, Jianbo Zhang, Jiangtao Wu, and Zhigang Liu, " Experimental Measurement and Modeling of the Viscosity of Dimethyl Ether" J. Chem. Eng.Data 2012, 57, 988-993
+
+Erratum: Limits for deltaeta_r sums should be 0-3 and 4-9.  The correct order of terms based on the original indices are 0,1,7,9,2,3,4,5,6,8
+
+Using ECS in fully predictive mode for viscosity
 
 Lennard-Jones parameters from Chichester NISTIR 6650
 
@@ -227,9 +231,11 @@ Check of p,h and p,s as inputs (X: Failure .: Success)
     import numpy as np
 
     Ref = "DimethylEther"
-    fig = plt.figure(figsize=(10,5))
-    ax1 = fig.add_subplot(121)
-    ax2 = fig.add_subplot(122)
+    fig = plt.figure(figsize=(10,10))
+    ax1 = fig.add_subplot(221)
+    ax2 = fig.add_subplot(222)
+    ax3 = fig.add_subplot(223)
+    ax4 = fig.add_subplot(224)
 
     Tmin = Props(Ref,'Tmin')+3
     pmin = Props('P','T',Tmin,'Q',0,Ref)
@@ -241,6 +247,7 @@ Check of p,h and p,s as inputs (X: Failure .: Success)
 
     Ph(Ref, axis = ax1, Tmin = Tmin, Tmax = 400.368000)
     Ps(Ref, axis = ax2, Tmin = Tmin, Tmax = 400.368000)
+    hs(Ref, axis = ax3, Tmin = Tmin, Tmax = 400.368000)
 
     for p in np.linspace(pmin,pmax,10):
         for h in np.linspace(hmin,hmax):
@@ -269,5 +276,20 @@ Check of p,h and p,s as inputs (X: Failure .: Success)
                 ax2.plot(s,p,'x',ms = 10)
             else:
                 ax2.plot(s,p,'k.', ms = 1)
+
+    for s in np.linspace(smin,smax,10):
+        for h in np.linspace(hmin,hmax):
+            _bad = False
+            try:
+                rho = Props('D','H',h,'S',s,Ref)
+                T = Props('T','H',h,'S',s,Ref)
+                hEOS = Props('H','T',T,'D',rho,Ref)
+                sEOS = Props('S','T',T,'D',rho,Ref)
+            except ValueError:
+                _bad = True
+            if _bad or abs(hEOS/h-1)>1e-6 or abs(sEOS/s-1)>1e-6:
+                ax3.plot(h,p,'x',ms = 10)
+            else:
+                ax3.plot(h,p,'k.', ms = 1)
 
     plt.tight_layout()

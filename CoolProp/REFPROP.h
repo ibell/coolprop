@@ -34,6 +34,7 @@
 		// Flash routines
 		void temperature_ph(double p, double h, double *Tout, double *rhoout, double *rhoLout, double *rhoVout, double *TsatLout, double *TsatVout, double T0, double rho0);
 		void temperature_ps(double p, double s, double *Tout, double *rhoout, double *rhoLout, double *rhoVout, double *TsatLout, double *TsatVout);
+		void temperature_hs(double h, double s, double *Tout, double *rhoout, double *rhoLout, double *rhoVout, double *TsatLout, double *TsatVout);
 		double density_Tp(double T, double p);
 		double density_Tp(double T, double p, double rho_guess);
 
