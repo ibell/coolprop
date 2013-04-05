@@ -58,8 +58,6 @@ protected:
 	/// Check whether within the TTSE range
 	bool within_TTSE_range(long iInput1, double Value1, long iInput2, double Value2);
 
-	
-
 public:
 	Fluid * pFluid;
 
@@ -172,8 +170,6 @@ public:
 	void set_TTSESinglePhase_LUT_range(double hmin, double hmax, double pmin, double pmax);
 	/// Get the current range of the single-phase LUT
 	void get_TTSESinglePhase_LUT_range(double *hmin, double *hmax, double *pmin, double *pmax);
-
-	
 
 	/// Evaluate the B term from TTSE method
 	double B_TTSE(double _p, double _h);

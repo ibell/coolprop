@@ -91,6 +91,11 @@ std::pair<std::string, long> map_data[] = {
 	std::make_pair(std::string("dpdT"),iDpdT),
 	std::make_pair(std::string("drhodT|p"),iDrhodT_p),
 	std::make_pair(std::string("M"),iMM),
+	std::make_pair(std::string("Phase"),iPhase),
+	std::make_pair(std::string("PHASE_LIQUID"),iPHASE_LIQUID),
+	std::make_pair(std::string("PHASE_GAS"),iPHASE_GAS),
+	std::make_pair(std::string("PHASE_SUPERCRITICAL"),iPHASE_SUPERCRITICAL),
+	std::make_pair(std::string("PHASE_TWOPHASE"),iPHASE_TWOPHASE),
 };
 //Now actually construct the map
 std::map<std::string, long> param_map(map_data,
@@ -923,6 +928,10 @@ double _CoolProp_Fluid_Props(long iOutput, long iName1, double Prop1, long iName
 		case iRhocrit:
 		case iTmin:
 		case iAccentric:
+		case iPHASE_LIQUID:
+		case iPHASE_GAS:
+		case iPHASE_SUPERCRITICAL:
+		case iPHASE_TWOPHASE:
 			return CPS.keyed_output(iOutput);
 	}
 

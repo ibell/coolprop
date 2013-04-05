@@ -807,6 +807,19 @@ double CoolPropStateClass::keyed_output(long iOutput)
 			return pFluid->params.accentricfactor;
 		case iTmin:
 			return pFluid->limits.Tmin;
+
+		// --------------------------
+		// Phase Constants
+		// --------------------------
+		case iPHASE_LIQUID:
+			return iLiquid;
+		case iPHASE_GAS:
+			return iGas;
+		case iPHASE_SUPERCRITICAL:
+			return iSupercritical;
+		case iPHASE_TWOPHASE:
+			return iTwoPhase;
+
 		// --------------------------
 		// Thermodynamic properties
 		// --------------------------
@@ -837,6 +850,9 @@ double CoolPropStateClass::keyed_output(long iOutput)
 			return s();
 		case iU:
 			return h()-_p/_rho;
+
+		case iPhase:
+			return phase();
 		
 		// --------------------------
 		// Transport properties

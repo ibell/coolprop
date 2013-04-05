@@ -678,6 +678,10 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 		{
 			return cv/MW;
 		}
+		else if (iOutput == iQ)
+		{
+			return q;
+		}
 		else if (iOutput==iV) 
 		{
 			TRNPRPdll(&T,&rho,x,&eta,&tcx,&ierr,herr,errormessagelength);
@@ -697,13 +701,15 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 	}
 	else if ((iName1==iT && iName2==iQ) || (iName2==iT && iName1==iQ))
 	{
-
+		
 		long ic;
 		if (iName2 == iT){
 			std::swap(Prop1,Prop2);
 		}
 		T = Prop1; Q = Prop2;
 		
+		if (iOutput == iQ){return Q;}
+
 		// Saturation Density
 		ic=1;
 		SATTdll(&T,x,&ic,&pl,&dl,&dv_,xliq,xvap,&ierr,herr,errormessagelength);
@@ -777,6 +783,7 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 			std::swap(Prop1,Prop2);
 		}
 		p = Prop1; Q = Prop2;
+		if (iOutput == iQ){return Q;}
 
 		double dummy;
 		
