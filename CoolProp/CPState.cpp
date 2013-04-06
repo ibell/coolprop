@@ -217,6 +217,9 @@ void CoolPropStateClass::update(long iInput1, double Value1, long iInput2, doubl
 		else if (match_pair(iInput1,iInput2,iP,iS)){
 			update_ps(iInput1,Value1,iInput2,Value2);
 		}
+		else if (match_pair(iInput1,iInput2,iP,iD)){
+			update_prho(iInput1,Value1,iInput2,Value2);
+		}
 		else if (match_pair(iInput1,iInput2,iH,iS)){
 			update_hs(iInput1,Value1,iInput2,Value2);
 		}
@@ -400,6 +403,64 @@ void CoolPropStateClass::update_Trho(long iInput1, double Value1, long iInput2, 
 		SaturatedL = false;
 		SaturatedV = false;
 		_p = pFluid->pressure_Trho(_T,_rho);
+	}
+}
+
+// Updater if p,rho are inputs
+void CoolPropStateClass::update_prho(long iInput1, double Value1, long iInput2, double Value2)
+{
+	double T;
+
+	// Get them in the right order
+	sort_pair(&iInput1,&Value1,&iInput2,&Value2,iP,iD);
+
+	// Set internal variables
+	_p = Value1;
+	_rho = Value2;
+
+	if (Value1 < 0 ){ throw ValueError(format("Your pressure [%f kPa] is less than zero",Value1));}
+	if (Value2 < 0 ){ throw ValueError(format("Your density [%f kg/m^3] is less than zero",Value2));}
+
+	if (flag_SinglePhase && flag_TwoPhase) throw ValueError(format("Only one of flag_SinglePhase and flag_TwoPhase may be set to true"));
+
+	// If either SinglePhase or flag_SinglePhase is set to true, it will not make the call to the saturation routine
+	// SinglePhase is set by the class routines, and flag_SinglePhase is a flag that can be set externally
+	bool _TwoPhase;
+
+	if (flag_SinglePhase || SinglePhase){
+		_TwoPhase = false;
+	}
+	else if(flag_TwoPhase){
+		_TwoPhase = true;
+	}
+	else{
+		_TwoPhase = (pFluid->phase_prho_indices(_p,_rho,&T,&TsatL,&TsatV,&rhosatL,&rhosatV) == iTwoPhase);
+	}
+
+	if (_TwoPhase)
+	{
+		if (flag_TwoPhase){
+			pFluid->phase_prho_indices(_p,_rho,&T,&TsatL,&TsatV,&rhosatL,&rhosatV);
+		}
+		TsatV = _T;
+		TsatL = _T;
+		// If it made it to the saturation routine and it is two-phase the saturation variables have been set
+		TwoPhase = true;
+		SinglePhase = false;
+
+		// Get the quality and pressure
+		_Q = (1/_rho-1/rhosatL)/(1/rhosatV-1/rhosatL);
+		_p = _Q*psatV+(1-_Q)*psatL;
+		
+		check_saturated_quality(_Q);
+	}
+	else{
+		TwoPhase = false;
+		SinglePhase = true;
+		SaturatedL = false;
+		SaturatedV = false;
+		double T0 = pFluid->temperature_prho_VanDerWaals(_p,_rho);
+		_T = pFluid->temperature_prho(_p, _rho, T0);
 	}
 }
 

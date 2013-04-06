@@ -265,6 +265,10 @@ class Fluid
 		/// @param rho0 Starting density value for the solver
 		virtual void temperature_ph(double p, double h, double *Tout, double *rhoout, double *rhoL, double *rhoV, double *TsatLout, double *TsatVout, double T0 = -1, double rho0 = -1);
 		
+		double temperature_prho(double p, double rho, double T0);
+
+		double temperature_prho_VanDerWaals(double p, double rho);
+
 		/// Return the phase given the temperature and pressure
 		std::string phase_Tp(double T, double p, double *pL, double *pV, double *rhoL, double *rhoV);
 		
@@ -276,6 +280,8 @@ class Fluid
 
 		/// Return the phase using the phase flags from phase enum in CoolProp.h
 		long phase_Trho_indices(double T, double rho, double *pL, double *pV, double *rhoL, double *rhoV);
+
+		long phase_prho_indices(double p, double rho, double *T, double *TL, double *TV, double *rhoL, double *rhoV);
 
 		// Optional ancillary functions can be overloaded, will throw a NotImplementedError
 		// to be caught by calling function if not implemented

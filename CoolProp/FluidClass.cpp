@@ -663,18 +663,6 @@ double Fluid::drhodT_p_Trho(double T,double rho)
 	return DerivTerms((char *)"drhodT|p",T,rho,this);
 }
 
-//class SoaveSaturationTResids : public FuncWrapper1D
-//{
-//private:
-//	double p,T;
-//	Fluid *pFluid;
-//public:
-//	DensityTpResids(Fluid *pFluid, double T, double p){this->pFluid = pFluid; this->p = p; this->T = T;};
-//	~DensityTpResids(){};
-//	
-//	double call(double rho){ return this->p - pFluid->pressure_Trho(T,rho);	}
-//};
-
 /// Get the density using the Soave EOS
 double Fluid::density_Tp_Soave(double T, double p, int iValue)
 {
@@ -731,6 +719,16 @@ double Fluid::density_Tp_Soave(double T, double p, int iValue)
 		return rho;
 	}
 }
+
+double Fluid::temperature_prho_VanDerWaals(double p, double rho)
+{
+	double R = 8.314472;
+	double a = 27*pow(R*reduce.T,2)/(64*reduce.p);
+	double b = 8.314472*reduce.T/(8*reduce.p);
+	double Vm = 1/rho*params.molemass;
+	return 1.0/R*(p+a/Vm/Vm)*(Vm-b);
+}
+
 double Fluid::density_Tp(double T, double p)
 {
 	// If the guess value is not provided, calculate the guess density using Peng-Robinson
@@ -1436,6 +1434,83 @@ long Fluid::phase_Trho_indices(double T, double rho, double *pL, double *pV, dou
 	else{
 		return -1;
 	}
+}
+
+long Fluid::phase_prho_indices(double p, double rho, double *T, double *TL, double *TV, double *rhoL, double *rhoV)
+{
+	/*
+        |
+	    | Liquid
+		|
+	    | ---
+		|     \
+		|      \
+	rho	|       a
+		|      /
+		|     /
+		|  --
+		|
+		| Gas
+		|
+		|------------------------
+
+		           T
+
+	   a: triple point
+	   b: critical point
+	   a-b: Saturation line
+
+	*/
+
+	// If temperature is below the critical temperature, it is either 
+	// subcooled liquid, superheated vapor, or two-phase
+	if (p < crit.p)
+	{	
+		// Actually have to use saturation information sadly
+		// For the given temperature, find the saturation state
+		// Run the saturation routines to determine the saturation densities and pressures
+		// Use the passed in variables to save calls to the saturation routine so the values can be re-used again
+		saturation_p(p,false,TL,TV,rhoL,rhoV);
+		if (rho>*rhoL){
+			return iLiquid;
+		}
+		else if (rho<*rhoV){
+			return iGas;
+		}
+		else{
+			return iTwoPhase;
+		}
+	}
+	// Now check the states above the critical pressure
+	double T0 = temperature_prho_VanDerWaals(p,rho);
+	*T = temperature_prho(p, rho, T0);
+
+	if (*T > crit.T){
+		return iSupercritical;
+	}
+	else if (*T < crit.T){
+		return iLiquid;
+	}
+}
+double Fluid::temperature_prho(double p, double rho, double T0)
+{
+	// solve for T to yield the desired pressure
+	double error, T, drdT,r;
+	CoolPropStateClass CPS = CoolPropStateClass(this);
+
+	T = T0;
+	CPS.update(iT,T,iD,rho);
+
+	do
+	{
+		r = CPS.p()-p;
+		drdT = CPS.dpdT_constrho();
+		T -= r/drdT;
+		CPS.update(iT,T,iD,rho);
+		error = fabs(r);
+	}
+	while (error > 1e-8);
+	return T;
 }
 
 void Fluid::temperature_ph(double p, double h, double *Tout, double *rhoout, double *rhoLout, double *rhoVout, double *TsatLout, double *TsatVout, double T0, double rho0)
