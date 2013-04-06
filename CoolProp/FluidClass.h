@@ -268,6 +268,7 @@ class Fluid
 		double temperature_prho(double p, double rho, double T0);
 
 		double temperature_prho_VanDerWaals(double p, double rho);
+		double temperature_prho_PengRobinson(double p, double rho);
 
 		/// Return the phase given the temperature and pressure
 		std::string phase_Tp(double T, double p, double *pL, double *pV, double *rhoL, double *rhoV);

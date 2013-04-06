@@ -434,23 +434,20 @@ void CoolPropStateClass::update_prho(long iInput1, double Value1, long iInput2, 
 		_TwoPhase = true;
 	}
 	else{
-		_TwoPhase = (pFluid->phase_prho_indices(_p,_rho,&T,&TsatL,&TsatV,&rhosatL,&rhosatV) == iTwoPhase);
+		_TwoPhase = (pFluid->phase_prho_indices(_p,_rho,&_T,&TsatL,&TsatV,&rhosatL,&rhosatV) == iTwoPhase);
 	}
 
 	if (_TwoPhase)
 	{
 		if (flag_TwoPhase){
-			pFluid->phase_prho_indices(_p,_rho,&T,&TsatL,&TsatV,&rhosatL,&rhosatV);
+			pFluid->phase_prho_indices(_p,_rho,&_T,&TsatL,&TsatV,&rhosatL,&rhosatV);
 		}
-		TsatV = _T;
-		TsatL = _T;
 		// If it made it to the saturation routine and it is two-phase the saturation variables have been set
 		TwoPhase = true;
 		SinglePhase = false;
 
 		// Get the quality and pressure
 		_Q = (1/_rho-1/rhosatL)/(1/rhosatV-1/rhosatL);
-		_p = _Q*psatV+(1-_Q)*psatL;
 		
 		check_saturated_quality(_Q);
 	}
@@ -459,8 +456,10 @@ void CoolPropStateClass::update_prho(long iInput1, double Value1, long iInput2, 
 		SinglePhase = true;
 		SaturatedL = false;
 		SaturatedV = false;
-		double T0 = pFluid->temperature_prho_VanDerWaals(_p,_rho);
-		_T = pFluid->temperature_prho(_p, _rho, T0);
+		if (!ValidNumber(_T)){
+			double T0 = pFluid->temperature_prho_PengRobinson(_p,_rho);
+			_T = pFluid->temperature_prho(_p, _rho, T0);
+		}
 	}
 }
 

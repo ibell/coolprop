@@ -670,7 +670,7 @@ double Fluid::density_Tp_Soave(double T, double p, int iValue)
 	omega = params.accentricfactor;
 	R = params.R_u/params.molemass;
 	m = 0.480+1.574*omega-0.176*omega*omega;
-	a = 0.42747*R*R*crit.T*crit.T/crit.p*pow(1+m*sqrt(1-T/crit.T),2);
+	a = 0.42747*R*R*crit.T*crit.T/crit.p*pow(1+m*(1-sqrt(T/reduce.T)),2);
 	b = 0.08664*R*crit.T/crit.p;
 	A = a*p/(R*R*T*T);
 	B = b*p/(R*T);
@@ -718,6 +718,29 @@ double Fluid::density_Tp_Soave(double T, double p, int iValue)
 		rho = p/(R*T*(Y+1.0/3.0));
 		return rho;
 	}
+}
+
+double Fluid::temperature_prho_PengRobinson(double p, double rho)
+{
+	double omega, R, kappa, a, b, A, B, C, r, q, D, u, Y, Y1, Y2, Y3, theta, phi, V= 1/rho;
+	omega = params.accentricfactor;
+	R = params.R_u/params.molemass;
+
+	kappa = 0.37464+1.54226*omega-0.26992*omega*omega;
+	a = 0.457235*R*R*crit.T*crit.T/crit.p;
+	b = 0.077796*R*crit.T/crit.p;
+	double den = V*V+2*b*V-b*b;
+
+	// A sqrt(Tr)^2 + B sqrt(Tr) + C = 0
+	A = R*reduce.T/(V-b)-a*kappa*kappa/(den);
+	B = +2*a*kappa*(1+kappa)/(den);
+	C = -a*(1+2*kappa+kappa*kappa)/(den)-p;
+
+	D = B*B-4*A*C;
+
+	double sqrt_Tr1 = (-B+sqrt(B*B-4*A*C))/(2*A);
+	double sqrt_Tr2 = (-B-sqrt(B*B-4*A*C))/(2*A);
+	return sqrt_Tr1*sqrt_Tr1*reduce.T;
 }
 
 double Fluid::temperature_prho_VanDerWaals(double p, double rho)
@@ -1438,29 +1461,6 @@ long Fluid::phase_Trho_indices(double T, double rho, double *pL, double *pV, dou
 
 long Fluid::phase_prho_indices(double p, double rho, double *T, double *TL, double *TV, double *rhoL, double *rhoV)
 {
-	/*
-        |
-	    | Liquid
-		|
-	    | ---
-		|     \
-		|      \
-	rho	|       a
-		|      /
-		|     /
-		|  --
-		|
-		| Gas
-		|
-		|------------------------
-
-		           T
-
-	   a: triple point
-	   b: critical point
-	   a-b: Saturation line
-
-	*/
 
 	// If temperature is below the critical temperature, it is either 
 	// subcooled liquid, superheated vapor, or two-phase
@@ -1478,11 +1478,12 @@ long Fluid::phase_prho_indices(double p, double rho, double *T, double *TL, doub
 			return iGas;
 		}
 		else{
+			*T = *TL;
 			return iTwoPhase;
 		}
 	}
 	// Now check the states above the critical pressure
-	double T0 = temperature_prho_VanDerWaals(p,rho);
+	double T0 = temperature_prho_PengRobinson(p,rho);
 	*T = temperature_prho(p, rho, T0);
 
 	if (*T > crit.T){
@@ -1496,6 +1497,7 @@ double Fluid::temperature_prho(double p, double rho, double T0)
 {
 	// solve for T to yield the desired pressure
 	double error, T, drdT,r;
+	int iter = 0;
 	CoolPropStateClass CPS = CoolPropStateClass(this);
 
 	T = T0;
@@ -1508,8 +1510,11 @@ double Fluid::temperature_prho(double p, double rho, double T0)
 		T -= r/drdT;
 		CPS.update(iT,T,iD,rho);
 		error = fabs(r);
+		iter++;
+		if (iter > 100)
+			throw SolutionError(format("temperature_prho failed with inputs T=%g rho=%g T0=%g for fluid %s",p,rho,T0,name.c_str()));
 	}
-	while (error > 1e-8);
+	while (error > 1e-8 );
 	return T;
 }
 
