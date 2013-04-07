@@ -236,6 +236,9 @@ FluidsContainer::FluidsContainer()
 	FluidsList.push_back(new nHeptaneClass());
 	FluidsList.push_back(new nOctaneClass());
 	FluidsList.push_back(new CyclohexaneClass());
+	// Span Polar
+	FluidsList.push_back(new R152AClass());
+	FluidsList.push_back(new R123Class());
 
 	// The Siloxanes
 	FluidsList.push_back(new OctamethyltrisiloxaneClass()); //MDM
@@ -720,9 +723,28 @@ double Fluid::density_Tp_Soave(double T, double p, int iValue)
 	}
 }
 
+/*!
+
+\[\begin{array}{l}
+p = \frac{{RT}}{{v - b}} - \frac{{a\alpha }}{{v\left( {v + b} \right)}}\\
+\alpha  = \left( {1 + \kappa \left( {1 - \sqrt {{T_r}} } \right)} \right)\left( {1 + \kappa \left( {1 - \sqrt {{T_r}} } \right)} \right) = 1 + 2\kappa \left( {1 - \sqrt {{T_r}} } \right) + {\kappa ^2}{\left( {1 - \sqrt {{T_r}} } \right)^2}\\
+\alpha  = 1 + 2\kappa \left( {1 - \sqrt {{T_r}} } \right) + {\kappa ^2}{\left( {1 - \sqrt {{T_r}} } \right)^2}\\
+\alpha  = 1 + 2\kappa  - 2\kappa \sqrt {{T_r}}  + {\kappa ^2}\left[ {1 - 2\sqrt {{T_r}}  + {T_r}} \right]\\
+T = {T_r}{T_c}\\
+p = \frac{{R{T_r}{T_c}}}{{v - b}} - \frac{{a\left( {1 + 2\kappa  - 2\kappa \sqrt {{T_r}}  + {\kappa ^2}\left[ {1 - 2\sqrt {{T_r}}  + {T_r}} \right]} \right)}}{{v\left( {v + b} \right)}}\\
+\\
+{\rm{Factor in terms of }}\sqrt {{T_r}} \\
+\\
+p = \frac{{R{T_r}{T_c}}}{{v - b}} - \frac{{a\left( {1 + 2\kappa  + {\kappa ^2} - 2\kappa \sqrt {{T_r}}  + {\kappa ^2}\left[ { - 2\sqrt {{T_r}}  + {T_r}} \right]} \right)}}{{v\left( {v + b} \right)}}\\
+p = \frac{{R{T_r}{T_c}}}{{v - b}} - \frac{{a\left( {1 + 2\kappa  + {\kappa ^2} - 2\kappa (1 + \kappa )\sqrt {{T_r}}  + {\kappa ^2}{T_r}} \right)}}{{v\left( {v + b} \right)}}\\
+p = \frac{{R{T_r}{T_c}}}{{v - b}} - \frac{{a\left( {1 + 2\kappa  + {\kappa ^2}} \right)}}{{v\left( {v + b} \right)}} + \frac{{2a\kappa (1 + \kappa )}}{{v\left( {v + b} \right)}}\sqrt {{T_r}}  - \frac{{a{\kappa ^2}}}{{v\left( {v + b} \right)}}{T_r}\\
+0 = \left[ {\frac{{R{T_c}}}{{v - b}} - \frac{{a{\kappa ^2}}}{{v\left( {v + b} \right)}}} \right]{T_r} + \frac{{2a\kappa (1 + \kappa )}}{{v\left( {v + b} \right)}}\sqrt {{T_r}}  - \frac{{a\left( {1 + 2\kappa  + {\kappa ^2}} \right)}}{{v\left( {v + b} \right)}} - p
+\end{array}\]
+
+*/
 double Fluid::temperature_prho_PengRobinson(double p, double rho)
 {
-	double omega, R, kappa, a, b, A, B, C, r, q, D, u, Y, Y1, Y2, Y3, theta, phi, V= 1/rho;
+	double omega, R, kappa, a, b, A, B, C, D, V= 1/rho;
 	omega = params.accentricfactor;
 	R = params.R_u/params.molemass;
 
@@ -846,6 +868,9 @@ void Fluid::saturation_s(double s, int Q, double *Tsatout, double *rhoout)
 			else if (Q == 1){
 				this->rho = rhoV;
 				return pFluid->entropy_Trho(T,rhoV) - this->s;
+			}
+			else{
+				throw ValueError("Q must be 0 or 1");
 			}
 		};
 	} SatFunc(s, Q, this);
@@ -1489,7 +1514,7 @@ long Fluid::phase_prho_indices(double p, double rho, double *T, double *TL, doub
 	if (*T > crit.T){
 		return iSupercritical;
 	}
-	else if (*T < crit.T){
+	else{ // T < crit.T
 		return iLiquid;
 	}
 }
@@ -1948,8 +1973,7 @@ void Fluid::temperature_hs(double h, double s, double *Tout, double *rhoout, dou
 	double A[2][2], B[2][2], T_guess;
 	double dar_ddelta,da0_dtau,d2a0_dtau2,dar_dtau,d2ar_ddelta_dtau,d2ar_ddelta2,d2ar_dtau2,d2a0_ddelta_dtau,a0,ar,da0_ddelta;
 	double f1,f2,df1_dtau,df1_ddelta,df2_ddelta,df2_dtau;
-    double rhoL, rhoV, ssatL,ssatV,TsatL,TsatV,tau,delta,worst_error;
-	double s_guess, sc, rho_guess;
+    double tau,delta,worst_error,rho_guess;
 	double ssat_tol = 0.1;
 	std::string errstr;
 

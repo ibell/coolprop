@@ -9,7 +9,7 @@ File Type: DLL
   Section contains the following exports for CoolProp.dll
 
     00000000 characteristics
-    5152D6A2 time date stamp Wed Mar 27 12:23:14 2013
+    5161DFC2 time date stamp Sun Apr 07 23:06:10 2013
         0.00 version
            1 ordinal base
           43 number of functions
@@ -17,20 +17,20 @@ File Type: DLL
 
     ordinal hint RVA      name
 
-          1    0 00005350 _DerivTerms@24
-          2    1 00004E20 _F2K@8
-          3    2 000052E0 _FluidsList@4
-          4    3 000933E0 _HAProps@40
-          5    4 000947F0 _HAProps_Aux@32
-          6    5 00004BB0 _IProps@32
+          1    0 000053A0 _DerivTerms@24
+          2    1 00004E70 _F2K@8
+          3    2 00005330 _FluidsList@4
+          4    3 00096FB0 _HAProps@40
+          5    4 000983C0 _HAProps_Aux@32
+          6    5 00004C00 _IProps@32
           7    6 00001C80 _IsFluidType@8
-          8    7 00004E00 _K2F@8
-          9    8 00002B80 _Phase@24
-         10    9 00002BF0 _Phase_Tp@24
-         11    A 00002C60 _Phase_Trho@24
-         12    B 00004E40 _PrintSaturationTable@24
-         13    C 00003420 _Props1@8
-         14    D 000036A0 _Props@32
+          8    7 00004E50 _K2F@8
+          9    8 00002B90 _Phase@24
+         10    9 00002C00 _Phase_Tp@24
+         11    A 00002C70 _Phase_Trho@24
+         12    B 00004E90 _PrintSaturationTable@24
+         13    C 00003430 _Props1@8
+         14    D 000036B0 _Props@32
          15    E 000020A0 _conformal_Trho@32
          16    F 00001090 _debug@4
          17   10 00001310 _disable_TTSE_LUT@4
@@ -38,9 +38,9 @@ File Type: DLL
          19   12 00001290 _enable_TTSE_LUT@4
          20   13 00001350 _enable_TTSE_LUT_writing@4
          21   14 00001860 _get_Fluid_index@4
-         22   15 00006430 _get_REFPROPname@8
+         22   15 00006480 _get_REFPROPname@8
          23   16 00001520 _get_TTSESinglePhase_LUT_range@20
-         24   17 00006240 _get_aliases@8
+         24   17 00006290 _get_aliases@8
          25   18 00001070 _get_debug@0
          26   19 00001160 _get_errstring@4
          27   1A 00001200 _get_errstring_copy@4
@@ -51,8 +51,8 @@ File Type: DLL
          32   1F 00001010 _get_version@4
          33   20 000012D0 _isenabled_TTSE_LUT@4
          34   21 00001390 _isenabled_TTSE_LUT_writing@4
-         35   22 000026F0 _psatL_anc@12
-         36   23 000027B0 _psatV_anc@12
+         35   22 00002700 _psatL_anc@12
+         36   23 000027C0 _psatV_anc@12
          37   24 00002570 _rhosatL_anc@12
          38   25 00002630 _rhosatV_anc@12
          39   26 00001410 _set_TTSESat_LUT_size@8
@@ -63,7 +63,7 @@ File Type: DLL
 
   Summary
 
-        B000 .data
-       3D000 .rdata
+        C000 .data
+       3E000 .rdata
         F000 .reloc
-       E0000 .text
+       E4000 .text

@@ -1,19 +1,21 @@
 
 ********************
-R1234ze
+R152A
 ********************
 
 Aliases
 ================================================================================
-``R1234ZE``
+``R152a``
 
 Equation of State Reference
 ===========================
-Mark O. McLinden, Monika Thol, Eric W. Lemmon, "Thermodynamic Properties of trans-1,3,3,3-tetrafluoropropene [R1234ze(E)]: Measurements of Density and Vapor Pressure and a Comprehensive Equation of State", International Refrigeration and Air Conditioning Conference at Purdue, July 12-15, 2010,  
+Span, R. and W. Wagner, "Equations of State for Technical Applications. III. Results for Polar Fluids", International Journal of Thermophysics, Vol. 24, No. 1, January 2003. 
+
+Cp0: R. Tillner-Roth "A Fundamental Equation of State for 1,1-Difluoroethane (HFC-152a)" International Journal of Thermophysics. vol. 16. No. 1 1995
 
 Transport Properties Information
 ================================
-Using ECS in fully predictive mode
+Using ECS in fully predictive mode. 
 
 
 Fluid Data
@@ -22,18 +24,18 @@ Fluid Data
 Fluid Parameters
 
 =========================  ==============================
-Mole Mass [kg/kmol]        114.04159
-Triple Point Temp. [K]     168.620
-Triple Point Press. [kPa]  0.23
-Minimum temperature [K]    168.620
+Mole Mass [kg/kmol]        66.05100
+Triple Point Temp. [K]     154.560
+Triple Point Press. [kPa]  76.64304213
+Minimum temperature [K]    154.560
 =========================  ==============================
 
 Critical Parameters
 
 ==============================  ==============================
-Temperature [K]                 382.520
-Density [kg/m\ :sup:`3`\ ]      489.238433
-Pressure [kPa]                  3636.25000
+Temperature [K]                 386.410
+Density [kg/m\ :sup:`3`\ ]      368.000000
+Pressure [kPa]                  4520.00000
 ==============================  ==============================
 
 
@@ -42,8 +44,8 @@ Saturated Vapor Deviations
 
 .. plot::
 
-    Fluid = "R1234ze"
-    RPFluid = "REFPROP-R1234ze"
+    Fluid = "R152A"
+    RPFluid = "REFPROP-R152A"
 
     #Saturated Vapor
     from CoolProp.CoolProp import Props
@@ -103,8 +105,8 @@ Saturated Liquid Deviations
 
 .. plot::
 
-    Fluid = "R1234ze"
-    RPFluid = "REFPROP-R1234ze"
+    Fluid = "R152A"
+    RPFluid = "REFPROP-R152A"
 
     #Saturated Liquid
     from CoolProp.CoolProp import Props
@@ -163,8 +165,8 @@ Along the critical isotherm where T=T\ :sub:`c`
 ================================================
 .. plot::
 
-    Fluid = "R1234ze"
-    RPFluid = "REFPROP-R1234ze"
+    Fluid = "R152A"
+    RPFluid = "REFPROP-R152A"
 
     #Critical isotherm
     from CoolProp.CoolProp import Props
@@ -224,7 +226,7 @@ Check of p,h and p,s as inputs (X: Failure .: Success)
     from matplotlib import pyplot as plt
     import numpy as np
 
-    Ref = "R1234ze"
+    Ref = "R152A"
     fig = plt.figure(figsize=(10,10))
     ax1 = fig.add_subplot(221)
     ax2 = fig.add_subplot(222)
@@ -239,9 +241,9 @@ Check of p,h and p,s as inputs (X: Failure .: Success)
     smin = Props('S','T',Tmin,'Q',0,Ref)
     smax = 2*Props('S','T',Props(Ref,'Tcrit')-1,'Q',1,Ref)-smin
 
-    Ph(Ref, axis = ax1, Tmin = Tmin, Tmax = 382.510000)
-    Ps(Ref, axis = ax2, Tmin = Tmin, Tmax = 382.510000)
-    hs(Ref, axis = ax3, Tmin = Tmin, Tmax = 382.510000)
+    Ph(Ref, axis = ax1, Tmin = Tmin, Tmax = 386.400000)
+    Ps(Ref, axis = ax2, Tmin = Tmin, Tmax = 386.400000)
+    hs(Ref, axis = ax3, Tmin = Tmin, Tmax = 386.400000)
 
     for p in np.linspace(pmin,pmax,10):
         for h in np.linspace(hmin,hmax):

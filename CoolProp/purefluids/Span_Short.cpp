@@ -58,56 +58,56 @@ static double c_nonpolar_SpanShort[] =
 3.0, //[12]
 };
 
-//static double d_polar_SpanShort[] =
-//{
-//0,
-//1.0, //[1]
-//1.0, //[2]
-//1.0, //[3]
-//3.0, //[4]
-//7.0, //[5]
-//1.0, //[6]
-//2.0, //[7]
-//5.0, //[8]
-//1.0, //[9]
-//1.0, //[10]
-//4.0, //[11]
-//2.0, //[12]
-//};
-//
-//static double t_polar_SpanShort[] =
-//{
-//0,
-//0.25,  //[1]
-//1.25,  //[2]
-//1.5,   //[3]
-//0.25,  //[4]
-//0.875, //[5]
-//2.375, //[6]
-//2.0,   //[7]
-//2.125, //[8]
-//3.5,   //[9]
-//6.5,   //[10]
-//4.75,  //[11]
-//12.5,  //[12]
-//};
-//
-//static double c_polar_SpanShort[] =
-//{
-//0,
-//0.0, //[1]
-//0.0, //[2]
-//0.0, //[3]
-//0.0, //[4]
-//0.0, //[5]
-//1.0, //[6]
-//1.0, //[7]
-//1.0, //[8]
-//2.0, //[9]
-//2.0, //[10]
-//2.0, //[11]
-//3.0, //[12]
-//};
+static double d_polar_SpanShort[] =
+{
+0,
+1.0, //[1]
+1.0, //[2]
+1.0, //[3]
+3.0, //[4]
+7.0, //[5]
+1.0, //[6]
+2.0, //[7]
+5.0, //[8]
+1.0, //[9]
+1.0, //[10]
+4.0, //[11]
+2.0, //[12]
+};
+
+static double t_polar_SpanShort[] =
+{
+0,
+0.25,  //[1]
+1.25,  //[2]
+1.5,   //[3]
+0.25,  //[4]
+0.875, //[5]
+2.375, //[6]
+2.0,   //[7]
+2.125, //[8]
+3.5,   //[9]
+6.5,   //[10]
+4.75,  //[11]
+12.5,  //[12]
+};
+
+static double c_polar_SpanShort[] =
+{
+0,
+0.0, //[1]
+0.0, //[2]
+0.0, //[3]
+0.0, //[4]
+0.0, //[5]
+1.0, //[6]
+1.0, //[7]
+1.0, //[8]
+2.0, //[9]
+2.0, //[10]
+2.0, //[11]
+3.0, //[12]
+};
 
 nPentaneClass::nPentaneClass()
 {
@@ -745,6 +745,176 @@ double CyclohexaneClass::rhosatV(double T)
     int i;
     theta=1.0-T/reduce.T;
     for (i=1;i<=5;i++)
+    {
+        summer=summer+Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.rho*exp(crit.T/T*summer);
+}
+
+R152AClass::R152AClass()
+{
+	double n[] = {0.0, 0.95702326, -2.3707196, 0.18748463, 0.063800843, 0.00016625977, 0.082208165, 0.57243518, 0.0039476701, -0.23848654, -0.080711618, -0.073103558, -0.015538724};
+
+	double a0[] = {0,-20.78887,-0.6539092,0.03342831};
+	double n0[] = {0,-1.0/4.0,-2,-4};
+	//Critical parameters
+	crit.rho = 368.0; //[kg/m^3]
+	crit.p = 4520; //[kPa]
+	crit.T = 386.41; //[K]
+	crit.v = 1/crit.rho; 
+
+	// Other fluid parameters
+	params.molemass = 66.051;
+	params.Ttriple = 154.56;
+	params.accentricfactor = 0.27521711453209896;
+	params.R_u = 8.314510;
+	params.ptriple = 76.643042131172479;
+
+	// Limits of EOS
+	limits.Tmin = params.Ttriple;
+	limits.Tmax = 500.0;
+	limits.pmax = 100000.0;
+	limits.rhomax = 1000000.0*params.molemass;
+
+	phirlist.push_back(new phir_power( n,d_polar_SpanShort,t_polar_SpanShort,c_polar_SpanShort,1,12,13));
+
+	phi0list.push_back(new phi0_lead(10.87227,6.839515));
+	phi0list.push_back(new phi0_logtau(-1.0));
+	phi0list.push_back(new phi0_power(a0,n0,1,3,4));
+
+	static char EOSstr [] = "Span, R. and W. Wagner, \"Equations of State for Technical Applications. III. Results for Polar Fluids\", International Journal of Thermophysics, Vol. 24, No. 1, January 2003. \n\nCp0: R. Tillner-Roth \"A Fundamental Equation of State for 1,1-Difluoroethane (HFC-152a)\" International Journal of Thermophysics. vol. 16. No. 1 1995\n\nNote: REFPROP 9.0 uses the less accurate MWBR formulation";
+	EOSReference.assign(EOSstr);
+	TransportReference.assign("Using ECS in fully predictive mode. ");
+
+	name.assign("R152A");
+	aliases.push_back("R152a");
+	REFPROPname.assign("R152A");
+}
+double R152AClass::psat(double T)
+{
+    // Maximum absolute error is 0.040697 % between 154.560001 K and 386.410990 K
+    const double ti[]={0,1.0,1.5,2.3,3.6,5.2,7.3,9};
+    const double Ni[]={0,-7.5183210509323537, 2.2667633168445649, -2.9745826359338392, 2.3313114019766128, -9.5143559559629267, 12.699734081556912, -9.5537989669345524 };
+    double summer=0,theta;
+    int i;
+    theta=1-T/reduce.T;
+    for (i=1;i<=6;i++)
+    {
+        summer=summer+Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.p*exp(reduce.T/T*summer);
+}
+double R152AClass::rhosatL(double T)
+{
+    // Maximum absolute error is 0.396356 % between 154.560001 K and 386.410990 K
+    const double ti[]={0,0.36433465612787069, 1.3395245009162089, 1.1775553689273002, 1.2736011086820553, 1.39293878426836, 1.5006057434930407};
+    const double Ni[]={0,2.2629063243095731, -8137.3963531047102, -739.48710570556011, 4453.3069484532643, 4994.763056241005, -572.05896753939112};
+    double summer=0;
+    int i;
+    double theta;
+    theta=1-T/reduce.T;
+    for (i=1;i<=6;i++)
+    {
+        summer+=Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.rho*exp(summer);
+}
+double R152AClass::rhosatV(double T)
+{
+    // Maximum absolute error is 0.432737 % between 154.560001 K and 386.410990 K
+    const double ti[]={0,0.39328996069016242, 1.34023805881669, 2.3366092114916186, 2.1283456467084836, 9.8954288172996652, 6.1580648207424966};
+    const double Ni[]={0,-3.1436325184683249, -6.4620390519723454, -24.354179218952048, 25.871731405407377, 4.4935034132951062, -4.3621465013237293};
+    double summer=0,theta;
+    int i;
+    theta=1.0-T/reduce.T;
+    for (i=1;i<=6;i++)
+    {
+        summer=summer+Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.rho*exp(crit.T/T*summer);
+}
+
+R123Class::R123Class()
+{
+	double n[] = {0.0, 1.116973, -3.074593, 0.51063873, 0.094478812, 0.00029532752, 0.66974438, 0.96438575, -0.014865424, -0.49221959, -0.022831038, -0.1407486, -0.025117301};
+
+	double a0[] = {0,2.046009,22.231991/456.82,-11.658491/456.82/456.82,2.691665/456.82/456.82/456.82}; // Fit is in terms of Tr = T/Tc
+	double n0[] = {0,0,1,2,3};
+	std::vector<double> a0_v(a0,a0+sizeof(a0)/sizeof(double));
+	std::vector<double> n0_v(n0,n0+sizeof(n0)/sizeof(double));
+	
+	//Critical parameters
+	crit.rho = 553.0; //[kg/m^3]
+	crit.p = 3672; //[kPa]
+	crit.T = 456.82; //[K]
+	crit.v = 1/crit.rho; 
+
+	// Other fluid parameters
+	params.molemass = 152.931;
+	params.Ttriple = 166;
+	params.accentricfactor = 0.28192249703635186;
+	params.R_u = 8.314510;
+	params.ptriple = 6.6870785940409405;
+
+	// Limits of EOS
+	limits.Tmin = params.Ttriple;
+	limits.Tmax = 500.0;
+	limits.pmax = 100000.0;
+	limits.rhomax = 1000000.0*params.molemass;
+
+	phirlist.push_back(new phir_power( n,d_polar_SpanShort,t_polar_SpanShort,c_polar_SpanShort,1,12,13));
+
+	phi0list.push_back(new phi0_lead(0,0));
+	phi0list.push_back(new phi0_logtau(-1.0));
+	phi0list.push_back(new phi0_cp0_constant(a0[1],crit.T,298));
+	phi0list.push_back(new phi0_cp0_poly(a0_v,n0_v,crit.T,298,2,4));
+
+	static char EOSstr [] = "Span, R. and W. Wagner, \"Equations of State for Technical Applications. III. Results for Polar Fluids\", International Journal of Thermophysics, Vol. 24, No. 1, January 2003. \n\nCp0: Ben A. Younglove \"An International Standard Equation of State for the Thermodynamic Properties of Refrigerant 123 (2,2-Dichloro-1,1,1-Trifluoroethane)\" J. Phys. Chem Ref. Data Vol 23, no 5, 1994\n\nNote: REFPROP 9.0 uses the less accurate MWBR formulation";
+	EOSReference.assign(EOSstr);
+	TransportReference.assign("Using ECS in fully predictive mode. ");
+
+	name.assign("R123");
+	aliases.push_back("R123");
+	REFPROPname.assign("R123");
+}
+double R123Class::psat(double T)
+{
+    // Maximum absolute error is 0.014209 % between 166.000001 K and 456.830990 K
+    const double ti[]={0,1.0,1.5,2.3,3.6,5.2,7.3,9};
+    const double Ni[]={0,-7.4849207348463391, 2.1531543385109324, -2.82304801818721, 1.4302672539730645, -9.5217923675635188, 14.152141293153656, -11.358606061743817 };
+    double summer=0,theta;
+    int i;
+    theta=1-T/reduce.T;
+    for (i=1;i<=6;i++)
+    {
+        summer=summer+Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.p*exp(reduce.T/T*summer);
+}
+double R123Class::rhosatL(double T)
+{
+    // Maximum absolute error is 0.654849 % between 166.000001 K and 456.830990 K
+    const double ti[]={0,0.30743229169537528, 0.87399412478482197, 1.9671212656736285, 3.0665054723952703, 3.2018449236245567, 12.488775734339216};
+    const double Ni[]={0,1.4776907822440624, -0.29754626202706141, 0.27387548048866328, -0.049678358639705204, -0.084295473834870918, 0.94874134293977097};
+    double summer=0;
+    int i;
+    double theta;
+    theta=1-T/reduce.T;
+    for (i=1;i<=6;i++)
+    {
+        summer+=Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.rho*exp(summer);
+}
+double R123Class::rhosatV(double T)
+{
+    // Maximum absolute error is 0.380809 % between 166.000001 K and 456.830990 K
+    const double ti[]={0,0.3710753253662657, 0.99737420197935067, 2.4907753660845278, 2.4502133576900036, 5.7155851722158673, 5.5801547336714199};
+    const double Ni[]={0,-2.6538294990283555, -3.3646950507257558, -52.040952256899757, 50.119495080874337, 27.532607566785945, -30.476267355520982};
+    double summer=0,theta;
+    int i;
+    theta=1.0-T/reduce.T;
+    for (i=1;i<=6;i++)
     {
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }

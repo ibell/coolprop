@@ -5,7 +5,7 @@ IsoButane
 
 Aliases
 ================================================================================
-``isobutane``
+``isobutane``, ``Isobutane``
 
 Equation of State Reference
 ===========================

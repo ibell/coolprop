@@ -409,8 +409,6 @@ void CoolPropStateClass::update_Trho(long iInput1, double Value1, long iInput2, 
 // Updater if p,rho are inputs
 void CoolPropStateClass::update_prho(long iInput1, double Value1, long iInput2, double Value2)
 {
-	double T;
-
 	// Get them in the right order
 	sort_pair(&iInput1,&Value1,&iInput2,&Value2,iP,iD);
 
