@@ -22,7 +22,7 @@ protected:
 
 	std::string _Fluid;
 	
-	bool SaturatedL,SaturatedV;
+	bool SaturatedL,SaturatedV,_noSatLSatV;
 
 	// Saturation values
 	double rhosatL, rhosatV, psatL, psatV, TsatL, TsatV;
@@ -49,11 +49,20 @@ protected:
 	// To be used to update internal variables if you know that your parameters are P,S
 	void update_ps(long iInput1, double Value1, long iInput2, double Value2);
 
+	// To be used to update internal variables if you know that your parameters are P,D
+	void update_prho(long iInput1, double Value1, long iInput2, double Value2);
+
+	// To be used to update internal variables if you know that your parameters are H,S
+	void update_hs(long iInput1, double Value1, long iInput2, double Value2);
+
 	// Update using the TTSE lookup tables
 	void update_TTSE_LUT(long iInput1, double Value1, long iInput2, double Value2);
 
 	// Check whether the quality corresponds to saturated liquid or vapor
 	void check_saturated_quality(double Q);
+
+	/// Check whether within the TTSE range
+	bool within_TTSE_range(long iInput1, double Value1, long iInput2, double Value2);
 
 public:
 	Fluid * pFluid;
@@ -83,6 +92,9 @@ public:
 
 	// Destructor to clear SatL and SatV
 	~CoolPropStateClass();
+
+	/// Stop it from adding the SatL and SatV class pointers
+	void no_SatLSatV(void){_noSatLSatV = true;};
 
 	// Property updater
 	// Uses the indices in CoolProp for the input parameters

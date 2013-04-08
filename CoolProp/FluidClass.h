@@ -74,6 +74,8 @@ public:
 	Fluid * pFluid;
 	double interpolateL(double T);
 	double interpolateV(double T);
+	double reverseinterpolateL(double y);
+	double reverseinterpolateV(double y);
 	bool built;
 };
 
@@ -235,6 +237,15 @@ class Fluid
 		virtual double density_Tp(double T, double p, double rho_guess);
 
 		/// Temperature as a function of pressure and entropy
+		/// @param h Enthalpy [kJ/kg/K]
+		/// @param s Entropy [kJ/kg/K]
+		/// @param Tout Temperature [K]
+		/// @param rhoout Density [kg/m^3]
+		/// @param rhoL Saturated liquid density [kg/m^3]
+		/// @param rhoV Saturated vapor density [kg/m^3]
+		virtual void temperature_hs(double h, double s, double *Tout, double *rhoout, double *rhoL, double *rhoV, double *TsatLout, double *TsatVout);
+
+		/// Temperature as a function of pressure and entropy
 		/// @param p Pressure [kPa]
 		/// @param s Entropy [kJ/kg/K]
 		/// @param Tout Temperature [K]
@@ -254,6 +265,11 @@ class Fluid
 		/// @param rho0 Starting density value for the solver
 		virtual void temperature_ph(double p, double h, double *Tout, double *rhoout, double *rhoL, double *rhoV, double *TsatLout, double *TsatVout, double T0 = -1, double rho0 = -1);
 		
+		double temperature_prho(double p, double rho, double T0);
+
+		double temperature_prho_VanDerWaals(double p, double rho);
+		double temperature_prho_PengRobinson(double p, double rho);
+
 		/// Return the phase given the temperature and pressure
 		std::string phase_Tp(double T, double p, double *pL, double *pV, double *rhoL, double *rhoV);
 		
@@ -265,6 +281,8 @@ class Fluid
 
 		/// Return the phase using the phase flags from phase enum in CoolProp.h
 		long phase_Trho_indices(double T, double rho, double *pL, double *pV, double *rhoL, double *rhoV);
+
+		long phase_prho_indices(double p, double rho, double *T, double *TL, double *TV, double *rhoL, double *rhoV);
 
 		// Optional ancillary functions can be overloaded, will throw a NotImplementedError
 		// to be caught by calling function if not implemented
@@ -407,6 +425,13 @@ class Fluid
 		/// @param rhoLout Saturated liquid density [kg/m3]
 		/// @param rhoVout Saturated vapor density [kg/m3]
 		virtual void saturation_p(double p, bool UseLUT, double *TsatLout, double *TsatVout, double *rhoLout, double *rhoVout);
+
+		/// Saturation temperature and saturated liquid and vapor densities as a function of the entropy. (The phase must be provided)
+		/// @param s Entropy [kJ/kg/K]
+		/// @param Q quality [kg/kg]
+		/// @param Tsatout Saturated temperature [K]
+		/// @param rhoout Saturated density [kg/m3]
+		virtual void saturation_s(double s, int Q, double *Tsatout, double *rhoout);
 		
 		/// NB: Only valid for pure fluids - no pseudo-pure or mixtures.
 		/// Get the saturated liquid, vapor densities and the saturated pressure

@@ -14,5 +14,10 @@
 		double ECS_chi_conductivity(double rhor);
 		double ECS_f_int(double T);
 		double ECS_psi_viscosity(double rhor);
+		double surface_tension_T(double T)
+		{
+			// From Mulero, 2012, JPCRD
+			return 3.0587*pow(1-T/reduce.T,1.41809)+-2.99856*pow(1-T/reduce.T,1.42291);
+		};
 	};
 #endif

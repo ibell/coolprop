@@ -1,4 +1,3 @@
-
 #cython: embedsignature = True
 from __future__ import division
 #
@@ -18,7 +17,7 @@ except ImportError:
     _quantities_supported = False
 
 import cython
-import math 
+import math
 
 # Default string in Python 3.x is a unicode string (type str)
 # Default string in Python 2.x is a byte string(type bytes) 

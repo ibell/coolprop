@@ -1340,8 +1340,8 @@ double R245faClass::ECS_chi_conductivity(double rhor)
 }
 double R245faClass::surface_tension_T(double T)
 {
-	double t = 1-T/crit.T;
-    return 0.054784*pow(t,1.26)*(1+0.921*sqrt(t)-1.15*t);
+	// From Mulero, 2012, JPCRD
+	return 0.073586*pow(1-T/reduce.T,1.0983)+0.0103*pow(1-T/reduce.T,0.60033)-0.02663*pow(1-T/reduce.T,0.72765);
 }
 
 R41Class::R41Class()

@@ -51,14 +51,17 @@ Pure Fluids
     Propane.rst
     Propylene.rst
     R116.rst
+    R123.rst
     R1234yf.rst
     R1234ze.rst
     R134a.rst
     R141b.rst
     R142b.rst
     R143a.rst
+    R152A.rst
     R218.rst
     R22.rst
+    R227EA.rst
     R23.rst
     R236EA.rst
     R236FA.rst

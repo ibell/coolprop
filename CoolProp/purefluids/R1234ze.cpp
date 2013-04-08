@@ -131,6 +131,7 @@ R1234zeClass::R1234zeClass()
 	EOSReference.assign("Mark O. McLinden, Monika Thol, Eric W. Lemmon, \"Thermodynamic Properties of trans-1,3,3,3-tetrafluoropropene [R1234ze(E)]: Measurements of Density and Vapor Pressure and a Comprehensive Equation of State\", International Refrigeration and Air Conditioning Conference at Purdue, July 12-15, 2010,  ");
 	TransportReference.assign("Using ECS in fully predictive mode");
 
+	aliases.push_back("R1234ZE");
 	name.assign("R1234ze");
 }
 double R1234zeClass::psat(double T)

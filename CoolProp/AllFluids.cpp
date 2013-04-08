@@ -37,3 +37,4 @@
 #include "purefluids/SulfurHexafluoride.cpp"
 #include "purefluids/Water.cpp"
 #include "purefluids/Xylene_EthylBenzene.cpp"
+#include "purefluids/R227EA_R365MFC.cpp"

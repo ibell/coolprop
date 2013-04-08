@@ -374,7 +374,7 @@ bool set_REFPROP_fluid(std::string Ref)
 	if (Ref.find("REFPROP-") == std::string::npos)
 	{
 		// Fail and give error
-		std::cout << "Invalid REFPROP string: " << Ref << std::endl;
+		std::cout << "Invalid REFPROP string: " << Ref.c_str() << std::endl;
 	}
 	// Chop off the "REFPROP-"
 	else 
@@ -678,6 +678,10 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 		{
 			return cv/MW;
 		}
+		else if (iOutput == iQ)
+		{
+			return q;
+		}
 		else if (iOutput==iV) 
 		{
 			TRNPRPdll(&T,&rho,x,&eta,&tcx,&ierr,herr,errormessagelength);
@@ -697,13 +701,15 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 	}
 	else if ((iName1==iT && iName2==iQ) || (iName2==iT && iName1==iQ))
 	{
-
+		
 		long ic;
 		if (iName2 == iT){
 			std::swap(Prop1,Prop2);
 		}
 		T = Prop1; Q = Prop2;
 		
+		if (iOutput == iQ){return Q;}
+
 		// Saturation Density
 		ic=1;
 		SATTdll(&T,x,&ic,&pl,&dl,&dv_,xliq,xvap,&ierr,herr,errormessagelength);
@@ -777,6 +783,7 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 			std::swap(Prop1,Prop2);
 		}
 		p = Prop1; Q = Prop2;
+		if (iOutput == iQ){return Q;}
 
 		double dummy;
 		
@@ -895,6 +902,38 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 		
 		// Use flash routine to find properties
 		PSFLSHdll(&p,&s,x,&T,&d,&dl,&dv,xliq,xvap,&q,&e,&h,&cv,&cp,&w,&ierr,herr,errormessagelength);
+		if (iOutput==iH) return h/MW;
+		else if (iOutput==iT) return T;
+		else if (iOutput==iD) return d*MW;
+		else if (iOutput==iS) return s/MW;
+		else if (iOutput==iU) return e/MW;
+		else if (iOutput==iC) return cp/MW;
+		else if (iOutput==iO) return cv/MW;
+		else if (iOutput==iP) return p;
+		else if (iOutput==iA) return w;
+		else if (iOutput==iV) 
+		{
+			TRNPRPdll(&T,&d,x,&eta,&tcx,&ierr,herr,errormessagelength);
+			return eta/1.0e6; //uPa-s to Pa-s
+		} 
+		else if (iOutput==iL)
+		{
+			TRNPRPdll(&T,&d,x,&eta,&tcx,&ierr,herr,errormessagelength);
+			return tcx/1000.0; //W/m-K to kW/m-K
+		}
+		else
+			return _HUGE;
+	}
+	else if ((iName1==iH && iName2==iS) || (iName2==iH && iName1==iS))
+	{
+		// H in kJ/kg, s in kJ/kg/K
+		if (iName2 == iH){
+			std::swap(Prop1,Prop2);
+		}
+		h = Prop1*MW; s = Prop2*MW;
+		
+		// Use flash routine to find properties
+		HSFLSHdll(&h,&s,x,&T,&p,&d,&dl,&dv,xliq,xvap,&q,&e,&cv,&cp,&w,&ierr,herr,errormessagelength);
 		if (iOutput==iH) return h/MW;
 		else if (iOutput==iT) return T;
 		else if (iOutput==iD) return d*MW;
@@ -1192,6 +1231,18 @@ void REFPROPFluidClass::temperature_ps(double p, double s, double *Tout, double 
 	*rhoout *= params.molemass;
 	*rhoLout *= params.molemass;
 	*rhoVout *= params.molemass;
+}
+void REFPROPFluidClass::temperature_hs(double h, double s, double *Tout, double *rhoout, double *rhoLout, double *rhoVout, double *TsatLout, double *TsatVout)
+{
+	long ierr;
+	char herr[errormessagelength+1];
+	std::vector<double> xliq = std::vector<double>(1,1),xvap = std::vector<double>(1,1);
+	double q,e,cv,cp,w,p,sbar = s*params.molemass, hbar = h*params.molemass, dummy1, dummy2;
+	HSFLSHdll(&hbar,&sbar,&(xmol[0]),Tout,&p,rhoout,rhoLout,rhoVout,&(xliq[0]),&(xvap[0]),&q,&e,&cv,&cp,&w,&ierr,herr,errormessagelength);
+	*rhoout *= params.molemass;
+	*rhoLout *= params.molemass;
+	*rhoVout *= params.molemass;
+	this->saturation_p(p,false,TsatLout,TsatVout,&dummy1,&dummy2);
 }
 double REFPROPFluidClass::density_Tp(double T, double p)
 {

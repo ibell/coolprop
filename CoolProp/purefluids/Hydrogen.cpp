@@ -258,7 +258,7 @@ double HydrogenClass::viscosity_Trho(double T, double rho)
 
 double HydrogenClass::surface_tension_T(double T)
 {
-	return 0.005369*pow(1-T/reduce.T,1.065);
+	return -1.4165*pow(1-T/reduce.T,0.63882)+0.746383*pow(1-T/reduce.T,0.659804)+0.675625*pow(1-T/reduce.T,0.619149);
 }
 
 ParaHydrogenClass::ParaHydrogenClass()

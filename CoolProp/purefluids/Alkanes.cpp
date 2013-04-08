@@ -592,6 +592,7 @@ IsoButaneClass::IsoButaneClass()
 
 	name.assign("IsoButane");
 	aliases.push_back("isobutane");
+	aliases.push_back("Isobutane");
 	REFPROPname.assign("ISOBUTAN");
 }
 double IsoButaneClass::rhosatL(double T)

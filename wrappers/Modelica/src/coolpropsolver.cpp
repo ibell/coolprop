@@ -210,6 +210,7 @@ void CoolPropSolver::setState_ph(double &p, double &h, int &phase, ExternalTherm
 		}
 		properties->kappa = state->isothermal_compressibility()/1000; // [1/kPa -- > 1/Pa]
 		properties->beta = state->isobaric_expansion_coefficient();
+
 		if (calc_transport)
         {
             properties->eta = state->viscosity();

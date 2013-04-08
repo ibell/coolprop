@@ -446,5 +446,6 @@ double NitrogenClass::rhosatV(double T)
 }
 double NitrogenClass::surface_tension_T(double T)
 {
-	return 0.029324108*pow(1-T/reduce.T,1.259);
+	// From Mulero, 2012, JPCRD
+	return 0.02898*pow(1-T/reduce.T,1.246);
 }

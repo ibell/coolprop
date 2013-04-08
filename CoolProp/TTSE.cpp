@@ -33,7 +33,7 @@
 #endif
 
 // The revision of the TTSE tables, only use tables with the same revision.  Increment this macro if any non-forward compatible changes are made
-#define TTSEREV 1
+#define TTSEREV 2
 
 std::string get_home_dir(void)
 {
@@ -241,6 +241,27 @@ void TTSESinglePhaseTableClass::nearest_good_neighbor(int *i, int *j)
 		*j += 1;
 		return;
 	}
+	// Two Left
+	if (*i>1 && ValidNumber(rho[*i-2][*j]) && ValidNumber(T[*i-2][*j])){
+		*i -= 2;
+		return;
+	}
+	// Two Right
+	else if (*i<(int)Nh-2 && ValidNumber(rho[*i+2][*j]) && ValidNumber(T[*i+2][*j])){
+		*i += 2;
+		return;
+	}
+	// Two Down
+	else if (*j>1 && ValidNumber(rho[*i][*j-2]) && ValidNumber(T[*i][*j-2])){
+		*j -= 2;
+		return;
+	}
+	// Two Up
+	else if (*j<(int)Np-2 && ValidNumber(rho[*i][*j+2]) && ValidNumber(T[*i][*j+2])){
+		*j += 2;
+		return;
+	}
+
 	else
 	{
 		throw ValueError(format("No neighbors found for %d,%d",i,j));
@@ -1249,7 +1270,7 @@ double TTSESinglePhaseTableClass::check_randomly(long iParam, unsigned int N, st
 			throw ValueError();
 		}
 		
-		std::cout << format("%g %g %g %g %g (h,p,EOS,TTSE,diff)\n",h1,p1,(*EOSv)[i],(*TTSE)[i],(*EOSv)[i]-(*TTSE)[i]);
+		std::cout << format("%g %g %g %g %g (h,p,EOS,TTSE,diff)\n",h1,p1,(*EOSv)[i],(*TTSE)[i],(*EOSv)[i]-(*TTSE)[i]).c_str();
 	}
 	return val;
 }
@@ -1970,7 +1991,7 @@ double TTSETwoPhaseTableClass::check_randomly(long iParam, unsigned int N, std::
 			throw ValueError();
 		}
 		
-		std::cout << format("%g %g %g %g TTSE (p,EOS,TTSE, diff)\n",p1,(*EOSv)[i],(*TTSE)[i],((*EOSv)[i]-(*TTSE)[i]));
+		std::cout << format("%g %g %g %g TTSE (p,EOS,TTSE, diff)\n",p1,(*EOSv)[i],(*TTSE)[i],((*EOSv)[i]-(*TTSE)[i])).c_str();
 	}
 	return val;
 }

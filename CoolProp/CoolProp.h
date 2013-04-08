@@ -26,14 +26,20 @@ You might want to start by looking at CoolProp.h
 		#define CONVENTION __stdcall
 	#endif
 	#else
-		#define EXPORT_CODE
+        #ifndef EXPORT_CODE
+            #if defined(EXTERNC)
+                #define EXPORT_CODE extern "C"
+            #else
+                #define EXPORT_CODE
+            #endif
+        #endif
 		#ifndef CONVENTION
 			#define CONVENTION
 		#endif
 	#endif
 
 	// Hack for PowerPC compilation to only use extern "C"
-	#if defined(__powerpc__)
+	#if defined(__powerpc__) || defined(EXTERNC)
 	#define EXPORT_CODE extern "C"
 	#endif
 
@@ -148,6 +154,6 @@ You might want to start by looking at CoolProp.h
 	Fluid * get_fluid(long iFluid);
 
 	// Define some constants that will be used throughout
-	enum params {iB,iT,iP,iD,iC,iC0,iO,iU,iH,iS,iA,iG,iQ,iV,iL,iI,iMM,iTcrit,iTtriple,iPtriple,iPcrit,iRhocrit,iAccentric,iDpdT,iDrhodT_p,iTmin,iDipole};
+	enum params {iB,iT,iP,iD,iC,iC0,iO,iU,iH,iS,iA,iG,iQ,iV,iL,iI,iMM,iTcrit,iTtriple,iPtriple,iPcrit,iRhocrit,iAccentric,iDpdT,iDrhodT_p,iTmin,iDipole,iPhase,iPHASE_LIQUID,iPHASE_GAS,iPHASE_SUPERCRITICAL,iPHASE_TWOPHASE};
 	enum phases {iLiquid, iSupercritical, iGas, iTwoPhase};
 #endif

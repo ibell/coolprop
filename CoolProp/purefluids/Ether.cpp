@@ -50,9 +50,9 @@ DimethylEtherClass::DimethylEtherClass()
 	phi0list.push_back(new phi0_Planck_Einstein(v0_v,u0_v,1,4));
 
 	EOSReference.assign("Jiangtao Wu, Yong Zhou, Eric W. Lemmon, \"An Equation of State for the Thermodynamic Properties of Dimethyl Ether\", J. Phys. Chem. Ref. Data, Vol. 40, No. 2, 2011");
-	TransportReference.assign("Using ECS in fully predictive mode\n\n"
+	TransportReference.assign("Viscosity: Xianyang Meng, Jianbo Zhang, Jiangtao Wu, and Zhigang Liu, \" Experimental Measurement and Modeling of the Viscosity of Dimethyl Ether\" J. Chem. Eng.Data 2012, 57, 988-993\n\nErratum: Limits for deltaeta_r sums should be 0-3 and 4-9.  The correct order of terms based on the original indices are 0,1,7,9,2,3,4,5,6,8\n\n"
+		"Using ECS in fully predictive mode for viscosity\n\n"
 		"Lennard-Jones parameters from Chichester NISTIR 6650");
-
 	name.assign("DimethylEther");
 	REFPROPname.assign("DME");
 }
@@ -106,47 +106,42 @@ double DimethylEtherClass::conductivity_Trho(double T, double rho)
 	double lambda = conductivity_ECS_Trho(T, rho, get_fluid(iPropane));
 	return lambda;
 }
-double DimethylEtherClass::viscosity_Trho(double T, double rho)
-{
-	long iPropane = get_Fluid_index(std::string("Propane"));
-	// Calculate the ECS
-	double mu = viscosity_ECS_Trho(T, rho, get_fluid(iPropane));
-	return mu;
-}
+//double DimethylEtherClass::viscosity_Trho(double T, double rho)
+//{
+//	long iPropane = get_Fluid_index(std::string("Propane"));
+//	// Calculate the ECS
+//	double mu = viscosity_ECS_Trho(T, rho, get_fluid(iPropane));
+//	return mu;
+//}
 void DimethylEtherClass::ECSParams(double *e_k, double *sigma)
 {
 	*e_k = 395; *sigma =0.4307;
 }
-//double DimethylEtherClass::viscosity_Trho(double T, double rho)
-//{
-//	return REFPROP(std::string("V"),std::string("T"),T,std::string("D"),rho,std::string("REFPROP-DME"));
-//
-//	//double sigma = 0.446704; //[nm]
-//	//double M = 46.06844; //[kg/kmol]
-//	//double tau = T/reduce.T;
-//	//double delta = rho/reduce.rho;
-//	//double Tstar = T/317.937;
-//	//double log_Tstar = log(Tstar);
-//	//double log_theta_star = 0.294261-0.377826*log_Tstar-0.491673*log_Tstar*log_Tstar;
-//	//double eta_0 = 0.021375*sqrt(M*T)/(sigma*sigma*exp(log_theta_star)); //[uPa-s]
-//	//
-//	//double n[] = {-2.70002,4.44583,-104.998,78.27474,41.3751,-175.055,62.81975,0.21302,112.3219,6.50681};
-//	//double t[] = {-5.92,-4.36,-2.93,-1.64,-7.86,-4.25,-4.79,-5.87,-3.11,-0.45};
-//	//double d[] = {3,3,3,4,5,2,2,5,2,1};
-//	//double p[] = {0,0,1,1,2,1,1,0,2,0};
-//
-//	//double eta_r = n[0]*pow(tau,t[0])*pow(delta,d[0])+n[1]*pow(tau,t[1])*pow(delta,d[1]);
-//	//for (unsigned int i = 2; i<=9; i++)
-//	//{
-//	//	eta_r += n[i]*pow(tau,t[i])*pow(delta,d[i])*exp(-pow(delta,p[i]));
-//	//}
-//	//return (eta_r+eta_0)/1e6;
-//}
-//
-//double DimethylEtherClass::conductivity_Trho(double T, double rho)
-//{
-//	return REFPROP(std::string("L"),std::string("T"),T,std::string("D"),rho,std::string("REFPROP-DME"));
-//}
+double DimethylEtherClass::viscosity_Trho(double T, double rho)
+{
+	//return REFPROP(std::string("V"),std::string("T"),T,std::string("D"),rho,std::string("REFPROP-DME"));
+
+	double sigma = 0.446704; //[nm]
+	double M = 46.06844; //[kg/kmol]
+	double tau = T/reduce.T;
+	double delta = rho/reduce.rho;
+	double Tstar = T/317.937;
+	double log_Tstar = log(Tstar);
+	double log_theta_star = 0.294261-0.377826*log_Tstar-0.491673*log_Tstar*log_Tstar;
+	double eta_0 = 0.021375*sqrt(M*T)/(sigma*sigma*exp(log_theta_star)); //[uPa-s]
+	
+	double n[] = {-2.70002,4.44583,0.21302,6.50681,-104.998,78.27474,41.3751,-175.055,62.81975,112.3219};
+	double t[] = {-5.92,-4.36,-5.87,-0.45,-2.93,-1.64,-7.86,-4.25,-4.79,-3.11};
+	double d[] = {3,3,5,1,3,4,5,2,2,2};
+	double p[] = {0,0,0,0,1,1,2,1,1,2};
+
+	double eta_r = n[0]*pow(tau,t[0])*pow(delta,d[0])+n[1]*pow(tau,t[1])*pow(delta,d[1])+n[2]*pow(tau,t[2])*pow(delta,d[2])+n[3]*pow(tau,t[3])*pow(delta,d[3]);
+	for (unsigned int i = 4; i<=9; i++)
+	{
+		eta_r += n[i]*pow(tau,t[i])*pow(delta,d[i])*exp(-pow(delta,p[i]));
+	}
+	return (eta_r+eta_0)/1e6;
+}
 
 double DimethylEtherClass::surface_tension_T(double T)
 {

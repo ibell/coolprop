@@ -376,7 +376,7 @@ double R134aClass::rhosatV(double T)
 }
 double R134aClass::surface_tension_T(double T)
 {
-	return 0.0604278*pow(1-T/reduce.T,1.272);
+	return 0.05801*pow(1-T/crit.T,1.241);
 }
 
 

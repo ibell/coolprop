@@ -16,7 +16,7 @@ R236EAClass::R236EAClass()
 	double epsilon[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.7119, 0.9102, 0.678, 0.7091, 1.727};
 
 	//Critical parameters
-	crit.rho = 565; //[kg/m^3]
+	crit.rho = 3.716*152.0384; //[kg/m^3]
 	crit.p = 3420; //[kPa]
 	crit.T = 412.44; //[K]
 	crit.v = 1/crit.rho; 
@@ -29,7 +29,7 @@ R236EAClass::R236EAClass()
 	params.ptriple = 17.525807103151166; // At Tmin of 243
 
 	// Limits of EOS
-	limits.Tmin = 240;
+	limits.Tmin = 243;
 	limits.Tmax = 500.0;
 	limits.pmax = 100000.0;
 	limits.rhomax = 1000000.0*params.molemass;
@@ -37,7 +37,7 @@ R236EAClass::R236EAClass()
 	phirlist.push_back(new phir_power( n,d,t,c,1,10,16));
 	phirlist.push_back(new phir_gaussian( n,d,t, eta, epsilon, beta, gamma, 11,15,16));
 
-	const double n5 = -23.2316247542, n6 = 13.866778869, n0 = 3.762;
+	const double n5 = -14.1214241350, n6 = 10.2355589225, n0 = 3.762;
 	phi0list.push_back(new phi0_lead(n5,n6));
 	phi0list.push_back(new phi0_logtau(n0-1));
 
@@ -48,7 +48,7 @@ R236EAClass::R236EAClass()
 
 	phi0list.push_back(new phi0_Planck_Einstein(v0_v,u0_v,1,4));
 
-	EOSReference.assign("Xinfang Rui and Jiang Pan and Yugang Wang, \"An equation of state for the thermodynamic properties of 1,1,1,2,3,3-hexafluoropropane (R236ea)\", Fluid Phase Equilibria 341 (2013) 78-85\n\nNote: REFPROP 9.0 does not use this EOS, they use thermodynamic corresponding states");
+	EOSReference.assign("Xinfang Rui and Jiang Pan and Yugang Wang, \"An equation of state for the thermodynamic properties of 1,1,1,2,3,3-hexafluoropropane (R236ea)\", Fluid Phase Equilibria 341 (2013) 78-85\n\nNote: Erratum in paper: a1 should be -17.5983849 and a2 should be 8.87150449\n\nNote: REFPROP 9.0 does not use this EOS, they use thermodynamic corresponding states");
 	TransportReference.assign("Using ECS in fully predictive mode.");
 
 	name.assign("R236EA");

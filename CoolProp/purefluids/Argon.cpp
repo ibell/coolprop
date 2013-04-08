@@ -423,5 +423,6 @@ double ArgonClass::rhosatV(double T)
 }
 double ArgonClass::surface_tension_T(double T)
 {
-	return 0.037898063*pow(1-T/reduce.T,1.278);
+	// From Mulero, 2012, JPCRD
+	return 0.037*pow(1-T/reduce.T,1.25);
 }
