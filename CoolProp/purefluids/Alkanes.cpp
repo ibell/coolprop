@@ -64,6 +64,9 @@ MethaneClass::MethaneClass()
 	name.assign("Methane");
 	aliases.push_back("CH4");
 	REFPROPname.assign("METHANE");
+
+	BibTeXKeys.EOS = "Setzmann-JPCRD-1991";
+	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
 }
 double MethaneClass::rhosatL(double T)
 {
@@ -384,6 +387,11 @@ double gamma [] =
 
 	name.assign("Ethane");
 	REFPROPname.assign("ETHANE");
+
+	BibTeXKeys.EOS = "Buecker-JPCRD-2006";
+	BibTeXKeys.VISCOSITY = "__Friend-JPCRD-1991";
+	BibTeXKeys.CONDUCTIVITY = "__Friend-JPCRD-1991";
+	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
 }
 double EthaneClass::rhosatL(double T)
 {
@@ -487,6 +495,11 @@ nButaneClass::nButaneClass()
 	name.assign("n-Butane");
 	aliases.push_back("nButane");
 	REFPROPname.assign("BUTANE");
+
+	BibTeXKeys.EOS = "Buecker-JPCRD-2006";
+	BibTeXKeys.VISCOSITY = "__Vogel-HTHP-1999";
+	BibTeXKeys.CONDUCTIVITY = "__Perkins-JCED-2002A";
+	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
 }
 double nButaneClass::rhosatL(double T)
 {
@@ -594,6 +607,11 @@ IsoButaneClass::IsoButaneClass()
 	aliases.push_back("isobutane");
 	aliases.push_back("Isobutane");
 	REFPROPname.assign("ISOBUTAN");
+
+	BibTeXKeys.EOS = "Buecker-JPCRD-2006";
+	BibTeXKeys.VISCOSITY = "__Vogel-IJT-2000";
+	BibTeXKeys.CONDUCTIVITY = "__Perkins-JCED-2002B";
+	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
 }
 double IsoButaneClass::rhosatL(double T)
 {

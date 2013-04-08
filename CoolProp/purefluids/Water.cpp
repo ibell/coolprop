@@ -398,7 +398,7 @@ WaterClass::WaterClass()
 	
 	EOSReference.assign("\"The IAPWS Formulation 1995 for the Thermodynamic Properties"
 						"of Ordinary Water Substance for General and Scientific Use\"," 
-						"W. Wagner and A. Pruss, J. Phys. Chem. Ref. Data, v. 31, 2000");
+						"W. Wagner and A. Pruss, J. Phys. Chem. Ref. Data, v. 31, 2002");
 		
 	TransportReference.assign("Thermal Conductivity: Release on the IAPWS Formulation 2011 for the Thermal Conductivity of Ordinary Water Substance\n\n"
 		"Viscosity: Release on the IAPWS Formulation 2008 for the Viscosity of Ordinary Water Substance\n\n"
@@ -408,6 +408,12 @@ WaterClass::WaterClass()
 	aliases.push_back("water");
 	aliases.push_back("H2O");
 	aliases.push_back("h2o");
+
+	BibTeXKeys.EOS = "Wagner-JPCRD-2002";
+	BibTeXKeys.VISCOSITY = "Huber-JPCRD-2009";
+	BibTeXKeys.CONDUCTIVITY = "Huber-JPCRD-2012";
+	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
+	BibTeXKeys.ECS_LENNARD_JONES = "Poling-BOOK-2001";
 }
 static void visc_Helper(double Tbar, double rhobar, double *mubar_0, double *mubar_1)
 {

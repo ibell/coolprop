@@ -295,15 +295,16 @@ OxygenClass::OxygenClass()
 	TransportReference.assign("Viscosity and Thermal Conductivity: \"Viscosity and Thermal Conductivity Equations for"
 							  "Nitrogen, Oxygen, Argon, and Air\""
 							  "E. W. Lemmon and R. T Jacobsen"
-							  "International Journal of Thermophysics, Vol. 25, No. 1, January 2004"
-							  "\n\n"
-							  "Surface Tension: Lemmon, E.W. and Penoncello, S.G., "
-							  "\"The Surface Tension of Air and Air Component Mixtures,\" "
-                              "Adv. Cryo. Eng., 39:1927-1934, 1994.");
+							  "International Journal of Thermophysics, Vol. 25, No. 1, January 2004");
 
 	name.assign("Oxygen");
 	aliases.push_back("oxygen");
 	aliases.push_back("O2");
+
+	BibTeXKeys.EOS = "Stewart-JPCRD-1991";
+	BibTeXKeys.VISCOSITY = "Lemmon-IJT-2004";
+	BibTeXKeys.CONDUCTIVITY = "Lemmon-IJT-2004";
+	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
 }
 
 double OxygenClass::X_tilde(double T,double tau,double delta)

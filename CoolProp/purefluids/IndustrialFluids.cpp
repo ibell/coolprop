@@ -169,6 +169,10 @@ CarbonMonoxideClass::CarbonMonoxideClass()
     name.assign("CarbonMonoxide");
     aliases.push_back(std::string("CO")); 
     REFPROPname.assign("CO");
+
+	BibTeXKeys.EOS = "Lemmon-JCED-2006";
+	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
+	BibTeXKeys.ECS_LENNARD_JONES = "Poling-BOOK-2001";
 }
 
 CarbonylSulfideClass::CarbonylSulfideClass()
@@ -224,6 +228,10 @@ CarbonylSulfideClass::CarbonylSulfideClass()
     name.assign("CarbonylSulfide");
     aliases.push_back(std::string("COS")); 
     REFPROPname.assign("COS");
+
+	BibTeXKeys.EOS = "Lemmon-JCED-2006";
+	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
+	BibTeXKeys.ECS_LENNARD_JONES = "Poling-BOOK-2001";
 }
 
 DecaneClass::DecaneClass()
@@ -279,6 +287,10 @@ DecaneClass::DecaneClass()
     name.assign("Decane");
     aliases.push_back(std::string("decane")); 
     REFPROPname.assign("decane");
+
+	BibTeXKeys.EOS = "Lemmon-JCED-2006";
+	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
+	BibTeXKeys.ECS_LENNARD_JONES = "Chichester-NIST-2008";
 }
 
 HydrogenSulfideClass::HydrogenSulfideClass()
@@ -335,6 +347,10 @@ HydrogenSulfideClass::HydrogenSulfideClass()
     name.assign("HydrogenSulfide");
     aliases.push_back(std::string("H2S")); 
     REFPROPname.assign("H2S");
+
+	BibTeXKeys.EOS = "Lemmon-JCED-2006";
+	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
+	BibTeXKeys.ECS_LENNARD_JONES = "Poling-BOOK-2001";
 }
 
 IsopentaneClass::IsopentaneClass()
@@ -390,6 +406,10 @@ IsopentaneClass::IsopentaneClass()
     name.assign("Isopentane");
     aliases.push_back(std::string("ipentane")); 
     REFPROPname.assign("ipentane");
+
+	BibTeXKeys.EOS = "Lemmon-JCED-2006";
+	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
+	BibTeXKeys.ECS_LENNARD_JONES = "Chichester-NIST-2008";
 }
 
 NeopentaneClass::NeopentaneClass()
@@ -445,6 +465,9 @@ NeopentaneClass::NeopentaneClass()
     name.assign("Neopentane");
     aliases.push_back(std::string("neopentn")); 
     REFPROPname.assign("neopentn");
+
+	BibTeXKeys.EOS = "Lemmon-JCED-2006";
+	BibTeXKeys.ECS_LENNARD_JONES = "Chichester-NIST-2008";
 }
 
 IsohexaneClass::IsohexaneClass()
@@ -490,7 +513,6 @@ IsohexaneClass::IsohexaneClass()
     phi_BC * phi0_logtau_ = new phi0_logtau(4.0-1);
     phi0list.push_back(phi0_logtau_);
 
-
     phi_BC * phi0_Planck_Einstein_ = new phi0_Planck_Einstein(v0_v,u0_v,1,v0_v.size()-1);
 	phi0list.push_back(phi0_Planck_Einstein_);
 
@@ -500,6 +522,10 @@ IsohexaneClass::IsohexaneClass()
     name.assign("Isohexane");
     aliases.push_back(std::string("ihexane")); 
     REFPROPname.assign("ihexane");
+
+	BibTeXKeys.EOS = "Lemmon-JCED-2006";
+	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
+	BibTeXKeys.ECS_LENNARD_JONES = "Chichester-NIST-2008";
 }
 
 KryptonClass::KryptonClass()
@@ -545,15 +571,16 @@ KryptonClass::KryptonClass()
     phi_BC * phi0_logtau_ = new phi0_logtau(2.5-1);
     phi0list.push_back(phi0_logtau_);
 
-
-
-
     EOSReference.assign("Lemmon, E.W., and R. Span, \"Short Fundamental Equations of State for 20 Industrial Fluids,\", J. Chem. Eng. Data, 51:785-850, 2006.");
     TransportReference.assign("Using ECS");
 
     name.assign("Krypton");
     aliases.push_back(std::string("krypton")); 
     REFPROPname.assign("krypton");
+
+	BibTeXKeys.EOS = "Lemmon-JCED-2006";
+	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
+	BibTeXKeys.ECS_LENNARD_JONES = "Poling-BOOK-2001";
 }
 
 NonaneClass::NonaneClass()
@@ -609,6 +636,10 @@ NonaneClass::NonaneClass()
     name.assign("Nonane");
     aliases.push_back(std::string("nonane")); 
     REFPROPname.assign("nonane");
+
+	BibTeXKeys.EOS = "Lemmon-JCED-2006";
+	BibTeXKeys.ECS_LENNARD_JONES = "Chichester-NIST-2008";
+	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
 }
 
 TolueneClass::TolueneClass()
@@ -654,7 +685,6 @@ TolueneClass::TolueneClass()
     phi_BC * phi0_logtau_ = new phi0_logtau(4.0-1);
     phi0list.push_back(phi0_logtau_);
 
-
     phi_BC * phi0_Planck_Einstein_ = new phi0_Planck_Einstein(v0_v,u0_v,1,v0_v.size()-1);
 	phi0list.push_back(phi0_Planck_Einstein_);
 
@@ -664,6 +694,10 @@ TolueneClass::TolueneClass()
     name.assign("Toluene");
     aliases.push_back(std::string("toluene")); 
     REFPROPname.assign("toluene");
+
+	BibTeXKeys.EOS = "Lemmon-JCED-2006";
+	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
+	BibTeXKeys.VISCOSITY = "__Assael-IJT-2001";
 }
 
 XenonClass::XenonClass()
@@ -709,15 +743,17 @@ XenonClass::XenonClass()
     phi_BC * phi0_logtau_ = new phi0_logtau(2.5-1);
     phi0list.push_back(phi0_logtau_);
 
-
-
-
     EOSReference.assign("Lemmon, E.W., and R. Span, \"Short Fundamental Equations of State for 20 Industrial Fluids,\", J. Chem. Eng. Data, 51:785-850, 2006.");
     TransportReference.assign("Using ECS");
 
     name.assign("Xenon");
     aliases.push_back(std::string("Xe")); aliases.push_back(std::string("xenon")); 
     REFPROPname.assign("xenon");
+
+	BibTeXKeys.EOS = "Lemmon-JCED-2006";
+	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
+	BibTeXKeys.ECS_LENNARD_JONES = "Poling-BOOK-2001";
+
 }
 
 R116Class::R116Class()
@@ -773,6 +809,11 @@ R116Class::R116Class()
     name.assign("R116");
 
     REFPROPname.assign("R116");
+
+	BibTeXKeys.EOS = "Lemmon-JCED-2006";
+	BibTeXKeys.ECS_FITS = "Huber-IECR-2003";
+	BibTeXKeys.ECS_LENNARD_JONES = "Huber-IECR-2003";
+	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
 }
 void R116Class::ECSParams(double *e_k, double *sigma)
 {
@@ -844,6 +885,10 @@ AcetoneClass::AcetoneClass()
     name.assign("Acetone");
     aliases.push_back(std::string("acetone")); 
     REFPROPname.assign("acetone");
+
+	BibTeXKeys.EOS = "Lemmon-JCED-2006";
+	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
+	BibTeXKeys.ECS_LENNARD_JONES = "Poling-BOOK-2001";
 }
 
 
@@ -900,6 +945,10 @@ NitrousOxideClass::NitrousOxideClass()
     name.assign("NitrousOxide");
     aliases.push_back(std::string("N2O")); 
     REFPROPname.assign("N2O");
+
+	BibTeXKeys.EOS = "Lemmon-JCED-2006";
+	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
+	BibTeXKeys.ECS_LENNARD_JONES = "Poling-BOOK-2001";
 }
 
 
@@ -957,6 +1006,10 @@ SulfurDioxideClass::SulfurDioxideClass()
     name.assign("SulfurDioxide");
     aliases.push_back(std::string("SO2")); 
     REFPROPname.assign("SO2");
+
+	BibTeXKeys.EOS = "Lemmon-JCED-2006";
+	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
+	BibTeXKeys.ECS_LENNARD_JONES = "Poling-BOOK-2001";
 }
 
 
@@ -1013,6 +1066,11 @@ R141bClass::R141bClass()
     name.assign("R141b");
 
     REFPROPname.assign("R141b");
+
+	BibTeXKeys.EOS = "Lemmon-JCED-2006";
+	BibTeXKeys.ECS_FITS = "Huber-IECR-2003";
+	BibTeXKeys.ECS_LENNARD_JONES = "Huber-IECR-2003";
+	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
 }
 void R141bClass::ECSParams(double *e_k, double *sigma)
 {
@@ -1086,6 +1144,11 @@ R142bClass::R142bClass()
     name.assign("R142b");
 
     REFPROPname.assign("R142b");
+
+	BibTeXKeys.EOS = "Lemmon-JCED-2006";
+	BibTeXKeys.ECS_FITS = "Huber-IECR-2003";
+	BibTeXKeys.ECS_LENNARD_JONES = "Huber-IECR-2003";
+	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
 }
 void R142bClass::ECSParams(double *e_k, double *sigma)
 {
@@ -1159,6 +1222,11 @@ R218Class::R218Class()
     name.assign("R218");
 
     REFPROPname.assign("R218");
+
+	BibTeXKeys.EOS = "Lemmon-JCED-2006";
+	BibTeXKeys.ECS_FITS = "Huber-IECR-2003";
+	BibTeXKeys.ECS_LENNARD_JONES = "Huber-IECR-2003";
+	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
 }
 
 void R218Class::ECSParams(double *e_k, double *sigma)
@@ -1243,6 +1311,12 @@ R245faClass::R245faClass()
     name.assign("R245fa");
 	aliases.push_back("R245FA");
 	REFPROPname.assign("R245fa");
+
+	BibTeXKeys.EOS = "Lemmon-JCED-2006";
+	BibTeXKeys.ECS_FITS = "Huber-IECR-2003";
+	BibTeXKeys.ECS_LENNARD_JONES = "Huber-IECR-2003";
+	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
+
 }
 //double R245faClass::viscosity_Trho(double T, double rho)
 //{ 
@@ -1321,7 +1395,7 @@ R245faClass::R245faClass()
 //} 
 void R245faClass::ECSParams(double *e_k, double *sigma)
 {
-	// From Chichester NISTIR 6650
+	// From Huber (2003)
     *e_k = 329.72; *sigma = 0.5529;
 }
 double R245faClass::ECS_f_int(double T)
@@ -1411,6 +1485,10 @@ R41Class::R41Class()
     name.assign("R41");
 
     REFPROPname.assign("R41");
+
+	BibTeXKeys.EOS = "Lemmon-JCED-2006";
+	BibTeXKeys.ECS_LENNARD_JONES = "Chichester-NIST-2008";
+	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
 }
 
 // --------------------
@@ -1720,21 +1798,7 @@ double R245faClass::psat(double T)
     }
     return reduce.p*exp(reduce.T/T*summer);
 }
-//double R245faClass::rhosatL(double T)
-//{
-//    // Maximum absolute error is 100.000000 % between 171.050001 K and 427.159999 K
-//    const double ti[]={0,0.27693090083315086, -1.4025248198906601, 3.272629636964723, 3.2506863808943436, 3.2910804431261043};
-//    const double Ni[]={0,1.3320595187721502, -4.4520940178003259e-08, 599.15455788284294, -274.91018529580305, -324.15959831342224};
-//    double summer=0;
-//    int i;
-//    double theta;
-//    theta=1-T/reduce.T;
-//    for (i=1;i<=5;i++)
-//    {
-//        summer+=Ni[i]*pow(theta,ti[i]);
-//    }
-//    return reduce.rho*exp(summer);
-//}
+
 double R245faClass::rhosatV(double T)
 {
     // Maximum absolute error is 0.236320 % between 171.050001 K and 427.159999 K
@@ -2072,21 +2136,6 @@ double IsohexaneClass::psat(double T)
     }
     return reduce.p*exp(reduce.T/T*summer);
 }
-//double IsohexaneClass::rhosatL(double T)
-//{
-//    // Maximum absolute error is 100.000000 % between 119.600001 K and 497.699999 K
-//    const double ti[]={0,0.38741720877237773, 0.64489852383389468, -0.62850971090632879, 0.96387798104707323, 5.8195252011033674};
-//    const double Ni[]={0,2.6903597481863968, -2.1807843451672779, -0.00020797768707719061, 0.82279828297613955, 0.077310109570527946};
-//    double summer=0;
-//    int i;
-//    double theta;
-//    theta=1-T/reduce.T;
-//    for (i=1;i<=5;i++)
-//    {
-//        summer+=Ni[i]*pow(theta,ti[i]);
-//    }
-//    return reduce.rho*exp(summer);
-//}
 double IsohexaneClass::rhosatV(double T)
 {
     // Maximum absolute error is 0.605575 % between 119.600001 K and 497.699999 K

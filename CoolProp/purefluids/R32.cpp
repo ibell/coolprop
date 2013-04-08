@@ -180,6 +180,11 @@ R32Class::R32Class()
 	TransportReference.assign("Surface Tension: R. Heide, \"The surface tension of HFC refrigerants and mixtures\", Int J. Refrig. Vol. 20, No. 7, pp. 496-503, 1997");
 
 	name.assign("R32");
+
+	BibTeXKeys.EOS = "TillnerRoth-JPCRD-1997";
+	BibTeXKeys.ECS_LENNARD_JONES = "McLinden-IJR-2000";
+	BibTeXKeys.ECS_FITS = "McLinden-IJR-2000";
+	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
 }
 double R32Class::psat(double T)
 {

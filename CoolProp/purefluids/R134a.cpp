@@ -195,10 +195,16 @@ R134aClass::R134aClass()
 							"Including a New Correlation for the Viscosity of R134a\"A Reference "
 							"Ind. Eng. Chem. Res. 2003, 42, 3163-3178\n\n"
 							"Conductivity: McLinden, M.O., and S.A. Klein and R.A. Perkins, \"An extended corresponding states model for the thermal conductivity of refrigerants and refrigerant mixtures\", International Journal of Refrigeration, 23 (2000) 43-63.\nSeveral typos: Table A1- a1 should be 8.00892e-5, R0 should be 1.03 . Eqn A5 - chi*(Tref,rho) should be multiplied by Tref/T. Eqn A4 - epsilon should be eta (viscosity)\n\n"
-							"Surface Tension: R. Heide, \"The surface tension of HFC refrigerants and mixtures\", Int J. Refrig. Vol. 20, No. 7, pp. 496-503, 1997");
+							"Surface Tension: Mulero, JPCRD, 2012");
 
 	name.assign("R134a");
 	aliases.push_back("R134A");
+
+	BibTeXKeys.EOS = "TillnerRoth-JPCRD-1994";
+	BibTeXKeys.VISCOSITY = "Huber-IECR-2003";
+	BibTeXKeys.CONDUCTIVITY = "McLinden-IJR-2000";
+	BibTeXKeys.ECS_LENNARD_JONES = "Huber-IECR-2003";
+	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
 }
 double R134aClass::conductivity_dilute(double T)
 {
@@ -273,6 +279,7 @@ double R134aClass::conductivity_Trho(double T, double rho)
 }
 void R134aClass::ECSParams(double *e_k, double *sigma)
 {
+	// Huber, 2003
 	*e_k = 299.363;  *sigma = 0.468932;
 }
 double R134aClass::viscosity_dilute(double T)

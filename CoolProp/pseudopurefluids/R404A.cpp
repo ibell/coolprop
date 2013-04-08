@@ -216,6 +216,11 @@ R404AClass::R404AClass()
 
 	name.assign("R404A");
 	aliases.push_back("R404a");
+
+	BibTeXKeys.EOS = "Lemmon-IJT-2003";
+	BibTeXKeys.VISCOSITY = "Geller-PURDUE-2000";
+	BibTeXKeys.CONDUCTIVITY = "Geller-IJT-2001";
+	BibTeXKeys.SURFACE_TENSION ="Heide-IJR-1997";
 }
 
 double R404AClass::conductivity_Trho(double T, double rho)

@@ -18,8 +18,6 @@ by Ian Bell, 2012
 #include "FluidClass.h"
 #include "R1234ze.h"
 
-
-
 R1234zeClass::R1234zeClass()
 {
 
@@ -133,6 +131,9 @@ R1234zeClass::R1234zeClass()
 
 	aliases.push_back("R1234ZE");
 	name.assign("R1234ze");
+
+	BibTeXKeys.EOS = "McLinden-PURDUE-2010";
+
 }
 double R1234zeClass::psat(double T)
 {
@@ -177,9 +178,3 @@ double R1234zeClass::rhosatV(double T)
     }
     return reduce.rho*exp(crit.T/T*summer);
 }
-//
-//double SES36Class::surface_tension_T(double T)
-//{
-//	double sigma0 = 0.04193, sigma1 = 1.188, sigma2 = -1.462;
-//	return sigma0*pow(1-T/reduce.T,1.26)*(1+sigma1*pow(1-T/reduce.T,0.5)+sigma2*(1-T/reduce.T));
-//}

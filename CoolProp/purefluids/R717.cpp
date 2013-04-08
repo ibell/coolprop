@@ -201,6 +201,11 @@ R717Class::R717Class()
 	aliases.push_back("ammonia");
 	aliases.push_back("R717");
 	REFPROPname.assign("AMMONIA");
+
+	BibTeXKeys.EOS = "TillnerRoth-DKV-1993";
+	BibTeXKeys.VISCOSITY = "Fenghour-JPCRD-1995";
+	BibTeXKeys.CONDUCTIVITY = "Tufeu-BBPC-1984";
+	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
 }
 double R717Class::conductivity_Trho(double T, double rho)
 {

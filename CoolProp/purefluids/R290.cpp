@@ -256,6 +256,12 @@ R290Class::R290Class()
 	aliases.push_back("R290");
 	aliases.push_back("C3H8");
 	REFPROPname.assign("PROPANE");
+
+	BibTeXKeys.EOS = "Lemmon-JCED-2009";
+	BibTeXKeys.VISCOSITY = "Vogel-JPCRD-1998";
+	BibTeXKeys.CONDUCTIVITY = "Marsh-JCED-2002";
+	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
+	BibTeXKeys.ECS_LENNARD_JONES = "Chichester-NIST-2008";
 }
 double R290Class::conductivity_background(double T, double rho)
 {

@@ -62,6 +62,11 @@ EthyleneClass::EthyleneClass()
 
 	name.assign("Ethylene");
 	REFPROPname.assign("ETHYLENE");
+
+	BibTeXKeys.EOS = "Smukala-JPCRD-2000";
+	BibTeXKeys.ECS_LENNARD_JONES = "Poling-BOOK-2001";
+	BibTeXKeys.VISCOSITY = "__Holland-JPCRD-1983";
+	BibTeXKeys.CONDUCTIVITY = "__Holland-JPCRD-1983";
 }
 double EthyleneClass::psat(double T)
 {

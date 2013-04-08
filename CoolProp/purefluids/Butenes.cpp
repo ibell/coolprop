@@ -55,7 +55,7 @@ static double c_BUTENES[] =
 3.0, //[12]
 };
 
-static char EOSstr_BUTENES [] = "Eric W. Lemmon, E. Christian Ihmels, \"Thermodynamic properties of the butenes Part II. Short fundamental equations of state\", Fluid Phase Equilibria 228-229 (2005) 173-187";
+static char EOSstr_BUTENES [] = "Eric W. Lemmon, E. Christian Ihmels, \"Thermodynamic properties of the butenes Part II. Short fundamental equations of state\", Fluid Phase Equilibria v. 228-229 (2005) 173-187";
 
 OneButeneClass::OneButeneClass()
 {
@@ -99,6 +99,8 @@ OneButeneClass::OneButeneClass()
 	name.assign("1-Butene");
 	aliases.push_back(std::string("1Butene"));
 	REFPROPname.assign("1BUTENE");
+
+	BibTeXKeys.EOS = "Lemmon-FPE-2005";
 }
 
 double OneButeneClass::psat(double T)
@@ -187,6 +189,8 @@ IsoButeneClass::IsoButeneClass()
 	name.assign("IsoButene");
 	aliases.push_back(std::string("Isobutene"));
 	REFPROPname.assign("IBUTENE");
+
+	BibTeXKeys.EOS = "Lemmon-FPE-2005";
 }
 
 double IsoButeneClass::psat(double T)
@@ -276,6 +280,8 @@ Cis2ButeneClass::Cis2ButeneClass()
 	name.assign("cis-2-Butene");
 	aliases.push_back(std::string("Cis-2-Butene"));
 	REFPROPname.assign("C2BUTENE");
+
+	BibTeXKeys.EOS = "Lemmon-FPE-2005";
 }
 double Cis2ButeneClass::psat(double T)
 {
@@ -363,6 +369,8 @@ Trans2ButeneClass::Trans2ButeneClass()
 	name.assign("trans-2-Butene");
 	aliases.push_back(std::string("Trans-2-Butene"));
 	REFPROPname.assign("T2BUTENE");
+
+	BibTeXKeys.EOS = "Lemmon-FPE-2005";
 }
 double Trans2ButeneClass::psat(double T)
 {

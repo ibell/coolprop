@@ -9,7 +9,6 @@ public:
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
-	//void ECSParams(double *e_k, double *sigma){*e_k = 341.1; *sigma = 0.5784;};
 };
 
 class IsoButeneClass : public Fluid {
@@ -25,7 +24,6 @@ public:
 		// From Mulero, 2012, JPCRD
 		return 0.0545*pow(1-T/reduce.T,1.23);
 	};
-	//void ECSParams(double *e_k, double *sigma){*e_k = 400; *sigma = 0.64947;};
 };
 
 class Cis2ButeneClass : public Fluid {
@@ -36,7 +34,6 @@ public:
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
-	//void ECSParams(double *e_k, double *sigma){*e_k = 399.3; *sigma = 0.5949;};
 };
 
 class Trans2ButeneClass : public Fluid {
@@ -47,7 +44,6 @@ public:
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
-	//void ECSParams(double *e_k, double *sigma){*e_k = 452.09; *sigma = 0.63617;};
 };
 
 #endif

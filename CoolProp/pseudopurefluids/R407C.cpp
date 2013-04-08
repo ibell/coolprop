@@ -189,6 +189,11 @@ R407CClass::R407CClass()
 
 	name.assign("R407C");
 	aliases.push_back("R407c");
+
+	BibTeXKeys.EOS = "Lemmon-IJT-2003";
+	BibTeXKeys.VISCOSITY = "Geller-PURDUE-2000";
+	BibTeXKeys.CONDUCTIVITY = "Geller-IJT-2001";
+	BibTeXKeys.SURFACE_TENSION = "Heide-IJR-1997";
 }
 
 double R407CClass::psatL(double T)

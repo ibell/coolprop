@@ -174,6 +174,12 @@ name.assign("n-Pentane");
 aliases.push_back(std::string("nPentane"));
 aliases.push_back(std::string("Pentane"));
 REFPROPname.assign("PENTANE");
+
+BibTeXKeys.EOS = "Span-IJT-2003B";
+BibTeXKeys.CP0 = "Jaeschke-IJT-1995";
+BibTeXKeys.ECS_LENNARD_JONES = "Poling-BOOK-2001";
+BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
+
 }
 
 double nPentaneClass::psat(double T)
@@ -286,6 +292,11 @@ aliases.push_back("nHexane");
 aliases.push_back("Hexane");
 REFPROPname.assign("HEXANE");
 
+BibTeXKeys.EOS = "Span-IJT-2003B";
+BibTeXKeys.CP0 = "Jaeschke-IJT-1995";
+BibTeXKeys.ECS_LENNARD_JONES = "Poling-BOOK-2001";
+BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
+
 }
 double nHexaneClass::psat(double T)
 {
@@ -397,6 +408,11 @@ name.assign("n-Heptane");
 aliases.push_back("nHeptane");
 aliases.push_back("Heptane");
 REFPROPname.assign("HEPTANE");
+
+BibTeXKeys.EOS = "Span-IJT-2003B";
+BibTeXKeys.CP0 = "Jaeschke-IJT-1995";
+BibTeXKeys.ECS_LENNARD_JONES = "Chichester-NIST-2008";
+BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
 }
 double nHeptaneClass::psat(double T)
 {
@@ -507,6 +523,11 @@ nOctaneClass::nOctaneClass()
 	aliases.push_back("nOctane");
 	aliases.push_back("Octane");
 	REFPROPname.assign("OCTANE");
+
+	BibTeXKeys.EOS = "Span-IJT-2003B";
+	BibTeXKeys.CP0 = "Jaeschke-IJT-1995";
+	BibTeXKeys.ECS_LENNARD_JONES = "Chichester-NIST-2008";
+	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
 }
 double nOctaneClass::psat(double T)
 {
@@ -597,6 +618,8 @@ nDodecaneClass::nDodecaneClass()
 	aliases.push_back("nDodecane");
 	aliases.push_back("Dodecane");
 	REFPROPname.assign("C12");
+
+	BibTeXKeys.EOS = "";
 }
 double nDodecaneClass::psat(double T)
 {
@@ -706,6 +729,11 @@ CyclohexaneClass::CyclohexaneClass()
 	name.assign("CycloHexane");
 	aliases.push_back("Cyclohexane");
 	REFPROPname.assign("CYCLOHEX");
+
+	BibTeXKeys.EOS = "Span-IJT-2003B";
+	BibTeXKeys.CP0 = "Penoncello-IJT-1995";
+	BibTeXKeys.ECS_LENNARD_JONES = "Chichester-NIST-2008";
+	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
 }
 double CyclohexaneClass::psat(double T)
 {
@@ -782,13 +810,17 @@ R152AClass::R152AClass()
 	phi0list.push_back(new phi0_logtau(-1.0));
 	phi0list.push_back(new phi0_power(a0,n0,1,3,4));
 
-	static char EOSstr [] = "Span, R. and W. Wagner, \"Equations of State for Technical Applications. III. Results for Polar Fluids\", International Journal of Thermophysics, Vol. 24, No. 1, January 2003. \n\nCp0: R. Tillner-Roth \"A Fundamental Equation of State for 1,1-Difluoroethane (HFC-152a)\" International Journal of Thermophysics. vol. 16. No. 1 1995\n\nNote: REFPROP 9.0 uses the less accurate MWBR formulation";
+	static char EOSstr [] = "Span, R. and W. Wagner, \"Equations of State for Technical Applications. III. Results for Polar Fluids\", International Journal of Thermophysics, Vol. 24, No. 1, January 2003. \n\nCp0: R. Tillner-Roth \"A Fundamental Equation of State for 1,1-Difluoroethane (HFC-152a)\" International Journal of Thermophysics. vol. 16. No. 1 1995\n\nNote: REFPROP 9.0 uses the MWBR formulation";
 	EOSReference.assign(EOSstr);
 	TransportReference.assign("Using ECS in fully predictive mode. ");
 
 	name.assign("R152A");
 	aliases.push_back("R152a");
 	REFPROPname.assign("R152A");
+
+	BibTeXKeys.EOS = "Span-IJT-2003C";
+	BibTeXKeys.CP0 = "TillnerRoth-IJT-1995";
+	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
 }
 double R152AClass::psat(double T)
 {
@@ -876,6 +908,10 @@ R123Class::R123Class()
 	name.assign("R123");
 	aliases.push_back("R123");
 	REFPROPname.assign("R123");
+
+	BibTeXKeys.EOS = "Span-IJT-2003C";
+	BibTeXKeys.CP0 = "Younglove-JPCRD-1994";
+	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
 }
 double R123Class::psat(double T)
 {

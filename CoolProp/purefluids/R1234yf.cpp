@@ -24,8 +24,6 @@ by Reiner Tillner-Roth and Hans Dieter Baehr, J. Chem. Eng. Data, v. 56, 2011, p
 #include "FluidClass.h"
 #include "R1234yf.h"
 
-
-
 R1234yfClass::R1234yfClass()
 {
 	static const double n[]={
@@ -226,14 +224,10 @@ R1234yfClass::R1234yfClass()
 	TransportReference.assign("Surface Tension: Katsuyuki Tanaka, Yukihiro Higashi, \"Thermodynamic properties of HFO-1234yf (2,3,3,3-tetrafluoropropene)\", International Journal of Refrigeration 33 (2010) 474-479");
 	aliases.push_back("R1234YF");
 	name.assign("R1234yf");
-}
-double R1234yfClass::conductivity_Trho(double T, double rho)
-{
-	return _HUGE;
-}
-double R1234yfClass::viscosity_Trho(double T, double rho)
-{
-	return _HUGE;
+
+	BibTeXKeys.EOS = "Richter-JCED-2011";
+	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
+
 }
 double R1234yfClass::psat(double T)
 {

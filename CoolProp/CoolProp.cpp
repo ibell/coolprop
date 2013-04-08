@@ -1181,6 +1181,26 @@ double DerivTerms(char *Term, double T, double rho, Fluid * pFluid)
 		return _HUGE;
 	}
 }
+
+std::string get_BibTeXKey(std::string Ref, std::string item)
+{
+	pFluid=Fluids.get_fluid(Ref);
+	if (pFluid!=NULL)
+	{
+		if (!item.compare("EOS")){ return pFluid->BibTeXKeys.EOS; }
+		else if (!item.compare("CP0")){ return pFluid->BibTeXKeys.CP0; }
+		else if (!item.compare("VISCOSITY")){ return pFluid->BibTeXKeys.VISCOSITY; }
+		else if (!item.compare("CONDUCTIVITY")){ return pFluid->BibTeXKeys.CONDUCTIVITY; }
+		else if (!item.compare("ECS_LENNARD_JONES")){ return pFluid->BibTeXKeys.ECS_LENNARD_JONES; }
+		else if (!item.compare("ECS_FITS")){ return pFluid->BibTeXKeys.ECS_FITS; }
+		else if (!item.compare("SURFACE_TENSION")){ return pFluid->BibTeXKeys.SURFACE_TENSION; }
+		else{ return "Bad key";}
+	}
+	else{
+		return std::string("");
+	}
+}
+
 std::string get_EOSReference(std::string Ref)
 {
 	pFluid=Fluids.get_fluid(Ref);

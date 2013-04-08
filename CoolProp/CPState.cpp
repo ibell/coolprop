@@ -1407,6 +1407,7 @@ double CoolPropStateClass::drhodp_consth(void){
 }
 
 double CoolPropStateClass::d2rhodh2_constp(void){
+	if (TwoPhase) { throw ValueError("TwoPhase not supported for d2rhodh2_constp");}
 	double A = dpdT_constrho()*dhdrho_constT()-dpdrho_constT()*dhdT_constrho();
 	double dAdT_constrho = d2pdT2_constrho()*dhdrho_constT()+dpdT_constrho()*d2hdrhodT()-d2pdrhodT()*dhdT_constrho()-dpdrho_constT()*d2hdT2_constrho();
 	double dAdrho_constT = d2pdrhodT()*dhdrho_constT()+dpdT_constrho()*d2hdrho2_constT()-d2pdrho2_constT()*dhdT_constrho()-dpdrho_constT()*d2hdrhodT();
@@ -1416,6 +1417,7 @@ double CoolPropStateClass::d2rhodh2_constp(void){
 }
 
 double CoolPropStateClass::d2rhodhdp(void){
+	if (TwoPhase) { throw ValueError("TwoPhase not supported for d2rhodhdp");}
 	double A = dpdT_constrho()*dhdrho_constT()-dpdrho_constT()*dhdT_constrho();
 	double dAdT_constrho = d2pdT2_constrho()*dhdrho_constT()+dpdT_constrho()*d2hdrhodT()-d2pdrhodT()*dhdT_constrho()-dpdrho_constT()*d2hdT2_constrho();
 	double dAdrho_constT = d2pdrhodT()*dhdrho_constT()+dpdT_constrho()*d2hdrho2_constT()-d2pdrho2_constT()*dhdT_constrho()-dpdrho_constT()*d2hdrhodT();

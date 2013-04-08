@@ -13,7 +13,7 @@ public:
 	double surface_tension_T(double T)
 	{
 		// From Mulero, 2012, JPCRD
-		return 0.08015*pow(1-T/reduce.T,1.408)+0.004384*pow(1-T/reduce.T,1.031)+-0.03437*pow(1-T/reduce.T,1.818);
+		return 0.08015*pow(1-T/reduce.T,1.408)+0.004384*pow(1-T/reduce.T,1.031)-0.03437*pow(1-T/reduce.T,1.818);
 	}
 };
 
@@ -41,7 +41,10 @@ public:
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
-	void ECSParams(double *e_k, double *sigma){*e_k = 400; *sigma = 0.64947;};
+	void ECSParams(double *e_k, double *sigma){
+		// Chichester, 2008
+		*e_k = 400; *sigma = 0.64947;
+	};
 	double surface_tension_T(double T)
 	{
 		// From Mulero, 2012, JPCRD
@@ -57,11 +60,15 @@ public:
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
-	void ECSParams(double *e_k, double *sigma){*e_k = 452.09; *sigma = 0.63617;};
+	void ECSParams(double *e_k, double *sigma){
+		// Chichester 2008
+		*e_k = 452.09; *sigma = 0.63617;
+	};
+
 	double surface_tension_T(double T)
 	{
 		// From Mulero, 2012, JPCRD
-		return 0.34338*pow(1-T/reduce.T,1.6607)+-0.50634*pow(1-T/reduce.T,1.9632)+0.2238*pow(1-T/reduce.T,2.3547);
+		return 0.34338*pow(1-T/reduce.T,1.6607)-0.50634*pow(1-T/reduce.T,1.9632)+0.2238*pow(1-T/reduce.T,2.3547);
 	}
 };
 
@@ -73,7 +80,6 @@ public:
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
-	//void ECSParams(double *e_k, double *sigma){*e_k = 452.09; *sigma = 0.63617;};
 	double surface_tension_T(double T)
 	{
 		// From Mulero, 2012, JPCRD
@@ -89,7 +95,10 @@ public:
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
-	void ECSParams(double *e_k, double *sigma){*e_k = 297.1; *sigma = 0.6182;};
+	void ECSParams(double *e_k, double *sigma){
+		// Poling
+		*e_k = 297.1; *sigma = 0.6182;
+	};
 	double surface_tension_T(double T)
 	{
 		// From Mulero, 2012, JPCRD
@@ -105,7 +114,6 @@ public:
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
-	//void ECSParams(double *e_k, double *sigma){*e_k = 297.1; *sigma = 0.6182;};
 	double surface_tension_T(double T)
 	{
 		// From Mulero, 2012, JPCRD
@@ -121,7 +129,6 @@ public:
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
-	//void ECSParams(double *e_k, double *sigma){*e_k = 297.1; *sigma = 0.6182;};
 	double surface_tension_T(double T)
 	{
 		// From Mulero, 2012, JPCRD

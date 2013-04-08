@@ -207,6 +207,7 @@ cdef extern from "CoolProp.h":
     int _get_debug "get_debug"()
     void _debug "debug"(int level)
     
+    string _get_BibTeXKey "get_BibTeXKey"(string Ref, string key)
     string _get_EOSReference "get_EOSReference"(string Ref)
     string _get_TransportReference "get_TransportReference"(string Ref)
     
