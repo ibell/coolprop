@@ -1241,6 +1241,7 @@ R245faClass::R245faClass()
 	TransportReference.assign("Using ECS\n\nSurface Tension:\nJames W Schmidt, Ernesto Carrillo-Nava, Michael R Moldover \"Partially halogenated hydrocarbons CHFCl-CF3, CF3-CH3, CF3-CHF-CHF2, CF3-CH2-CF3, CHF2-CF2-CH2F, CF3-CH2-CHF2, CF3-O-CHF2: critical temperature, refractive indices, surface tension and estimates of liquid, vapor and critical densities\" Fluid Phase Equilibria, Volume 122, Issues 1–2, 31 July 1996, Pages 187–206 http://dx.doi.org/10.1016/0378-3812(96)03044-0");
 
     name.assign("R245fa");
+	aliases.push_back("R245FA");
 	REFPROPname.assign("R245fa");
 }
 //double R245faClass::viscosity_Trho(double T, double rho)
