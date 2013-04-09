@@ -57,6 +57,8 @@ DimethylCarbonateClass::DimethylCarbonateClass()
 	aliases.push_back(std::string("DMC"));
 	aliases.push_back(std::string("dimethylcarbonate"));
 	REFPROPname.assign("DMC");
+
+	BibTeXKeys.EOS = "Zhou-JPCRD-2011";
 }
 
 double DimethylCarbonateClass::psat(double T)

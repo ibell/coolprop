@@ -48,6 +48,10 @@ R23Class::R23Class()
 
 	name.assign("R23");
 	REFPROPname.assign("R23");
+
+	BibTeXKeys.EOS = "Penoncello-JPCRD-2003";
+	BibTeXKeys.ECS_LENNARD_JONES = "Chichester-NIST-2008";
+	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
 }
 
 double R23Class::psat(double T)
