@@ -15,6 +15,7 @@
 #include "purefluids/Ethylene.cpp"
 #include "purefluids/FAME.cpp"
 #include "purefluids/Helium.cpp"
+#include "purefluids/HFE143m.cpp"
 #include "purefluids/Hydrogen.cpp"
 #include "purefluids/IndustrialFluids.cpp"
 #include "purefluids/Nitrogen.cpp"

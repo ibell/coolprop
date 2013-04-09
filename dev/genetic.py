@@ -19,8 +19,8 @@ class GeneticHelloWorld(object):
                num_selected = 20, # Have 10 chromos in the selected group
                mutation_factor = 3, # Randomly mutate 1/n of the chromosomes
                num_powers = 6, # How many powers in the fit
-               Ref = 'REFPROP-R236EA',
-               value = 'rhoV',
+               Ref = 'REFPROP-R161',
+               value = 'rhoL',
                addTr = False
                 ):
         self.num_samples = num_samples
