@@ -43,7 +43,7 @@ Saturated Vapor Deviations
 .. plot::
 
     Fluid = "R365MFC"
-    RPFluid = "REFPROP-R365MC"
+    RPFluid = "REFPROP-R365MFC"
 
     #Saturated Vapor
     from CoolProp.CoolProp import Props
@@ -104,7 +104,7 @@ Saturated Liquid Deviations
 .. plot::
 
     Fluid = "R365MFC"
-    RPFluid = "REFPROP-R365MC"
+    RPFluid = "REFPROP-R365MFC"
 
     #Saturated Liquid
     from CoolProp.CoolProp import Props
@@ -164,7 +164,7 @@ Along the critical isotherm where T=T\ :sub:`c`
 .. plot::
 
     Fluid = "R365MFC"
-    RPFluid = "REFPROP-R365MC"
+    RPFluid = "REFPROP-R365MFC"
 
     #Critical isotherm
     from CoolProp.CoolProp import Props
