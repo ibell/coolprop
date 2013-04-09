@@ -13,6 +13,8 @@ Span, R. and W. Wagner, "Equations of State for Technical Applications. III. Res
 
 Cp0: R. Tillner-Roth "A Fundamental Equation of State for 1,1-Difluoroethane (HFC-152a)" International Journal of Thermophysics. vol. 16. No. 1 1995
 
+Note: REFPROP 9.0 uses the MWBR formulation
+
 Transport Properties Information
 ================================
 Using ECS in fully predictive mode. 

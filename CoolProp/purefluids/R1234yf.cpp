@@ -227,6 +227,7 @@ R1234yfClass::R1234yfClass()
 
 	BibTeXKeys.EOS = "Richter-JCED-2011";
 	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
+	BibTeXKeys.CONDUCTIVITY = "Perkins-JCED-2011";
 
 }
 double R1234yfClass::psat(double T)
@@ -276,4 +277,23 @@ double R1234yfClass::surface_tension_T(double T)
 {
 	// From Mulero, 2012, JPCRD
 	return 0.06274*pow(1-T/reduce.T,1.394);
+}
+double R1234yfClass::conductivity_Trho(double T, double rho)
+{
+	double sumresid = 0;
+	double A[] = {-0.0102778, 0.0291098, 0.000860643};
+	double B1[] = {0, -0.0368219, 0.0883226, -0.0705909, 0.0259026, -0.00322950};
+	double B2[] = {0, 0.0397166, -0.0772390, 0.0664707, -0.0249071, 0.00336228};
+
+	double lambda_0 = A[0]*pow(T/reduce.T,0)+A[1]*pow(T/reduce.T,1)+A[2]*pow(T/reduce.T,2);
+
+	for (int i = 1; i <= 5; i++)
+	{
+		sumresid += (B1[i]+B2[i]*T/reduce.T)*pow(rho/reduce.rho,i);
+	}
+	double lambda_r = sumresid;
+
+	double lambda_c = this->conductivity_critical(T,rho,1/(0.585e-9))*1000;
+
+	return (lambda_0+lambda_r+lambda_c)/1000;
 }

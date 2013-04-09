@@ -619,7 +619,10 @@ nDodecaneClass::nDodecaneClass()
 	aliases.push_back("Dodecane");
 	REFPROPname.assign("C12");
 
-	BibTeXKeys.EOS = "";
+	BibTeXKeys.EOS = "Lemmon-EF-2004";
+	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
+	BibTeXKeys.VISCOSITY = "__Huber-EF-2004";
+	BibTeXKeys.CONDUCTIVITY = "__Huber-EF-2004";
 }
 double nDodecaneClass::psat(double T)
 {

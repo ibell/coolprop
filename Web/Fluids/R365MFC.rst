@@ -1,24 +1,19 @@
 
 ********************
-Water
+R365MFC
 ********************
 
 Aliases
 ================================================================================
-``water``, ``H2O``, ``h2o``
+``R365mfc``
 
 Equation of State Reference
 ===========================
-"The IAPWS Formulation 1995 for the Thermodynamic Propertiesof Ordinary Water Substance for General and Scientific Use",W. Wagner and A. Pruss, J. Phys. Chem. Ref. Data, v. 31, 2002
+Mark O. McLinden, Eric W. Lemmon, " Thermodynamic Properties of R-227ea, R-365mfc, R-115, and R-13I1" Preprint provided by Eric Lemmon
 
 Transport Properties Information
 ================================
-Thermal Conductivity: Release on the IAPWS Formulation 2011 for the Thermal Conductivity of Ordinary Water Substance
-
-Viscosity: Release on the IAPWS Formulation 2008 for the Viscosity of Ordinary Water Substance
-
-Surface Tension: International Representation of the Surface Tension of Ordinary Water Substance 1994
-
+Using ECS in fully predictive mode. Lennard-Jones parameters from NISTIR 6650
 
 
 Fluid Data
@@ -27,18 +22,18 @@ Fluid Data
 Fluid Parameters
 
 =========================  ==============================
-Mole Mass [kg/kmol]        18.01527
-Triple Point Temp. [K]     273.160
-Triple Point Press. [kPa]  0.6116992237
-Minimum temperature [K]    273.160
+Mole Mass [kg/kmol]        148.07452
+Triple Point Temp. [K]     239.000
+Triple Point Press. [kPa]  3.249179367
+Minimum temperature [K]    239.000
 =========================  ==============================
 
 Critical Parameters
 
 ==============================  ==============================
-Temperature [K]                 647.096
-Density [kg/m\ :sup:`3`\ ]      322.000000
-Pressure [kPa]                  22064.00000
+Temperature [K]                 460.000
+Density [kg/m\ :sup:`3`\ ]      473.838464
+Pressure [kPa]                  3266.00000
 ==============================  ==============================
 
 
@@ -47,8 +42,8 @@ Saturated Vapor Deviations
 
 .. plot::
 
-    Fluid = "Water"
-    RPFluid = "REFPROP-Water"
+    Fluid = "R365MFC"
+    RPFluid = "REFPROP-R365MC"
 
     #Saturated Vapor
     from CoolProp.CoolProp import Props
@@ -108,8 +103,8 @@ Saturated Liquid Deviations
 
 .. plot::
 
-    Fluid = "Water"
-    RPFluid = "REFPROP-Water"
+    Fluid = "R365MFC"
+    RPFluid = "REFPROP-R365MC"
 
     #Saturated Liquid
     from CoolProp.CoolProp import Props
@@ -168,8 +163,8 @@ Along the critical isotherm where T=T\ :sub:`c`
 ================================================
 .. plot::
 
-    Fluid = "Water"
-    RPFluid = "REFPROP-Water"
+    Fluid = "R365MFC"
+    RPFluid = "REFPROP-R365MC"
 
     #Critical isotherm
     from CoolProp.CoolProp import Props
@@ -229,7 +224,7 @@ Check of p,h and p,s as inputs (X: Failure .: Success)
     from matplotlib import pyplot as plt
     import numpy as np
 
-    Ref = "Water"
+    Ref = "R365MFC"
     fig = plt.figure(figsize=(10,10))
     ax1 = fig.add_subplot(221)
     ax2 = fig.add_subplot(222)
@@ -244,9 +239,9 @@ Check of p,h and p,s as inputs (X: Failure .: Success)
     smin = Props('S','T',Tmin,'Q',0,Ref)
     smax = 2*Props('S','T',Props(Ref,'Tcrit')-1,'Q',1,Ref)-smin
 
-    Ph(Ref, axis = ax1, Tmin = Tmin, Tmax = 647.086000)
-    Ps(Ref, axis = ax2, Tmin = Tmin, Tmax = 647.086000)
-    hs(Ref, axis = ax3, Tmin = Tmin, Tmax = 647.086000)
+    Ph(Ref, axis = ax1, Tmin = Tmin, Tmax = 459.990000)
+    Ps(Ref, axis = ax2, Tmin = Tmin, Tmax = 459.990000)
+    hs(Ref, axis = ax3, Tmin = Tmin, Tmax = 459.990000)
 
     for p in np.linspace(pmin,pmax,10):
         for h in np.linspace(hmin,hmax):

@@ -18,7 +18,7 @@ Viscosity: Marcia L. Huber, Arno Laesecke, and Richard A. Perkins, "Model for th
 Conductivity: McLinden, M.O., and S.A. Klein and R.A. Perkins, "An extended corresponding states model for the thermal conductivity of refrigerants and refrigerant mixtures", International Journal of Refrigeration, 23 (2000) 43-63.
 Several typos: Table A1- a1 should be 8.00892e-5, R0 should be 1.03 . Eqn A5 - chi*(Tref,rho) should be multiplied by Tref/T. Eqn A4 - epsilon should be eta (viscosity)
 
-Surface Tension: R. Heide, "The surface tension of HFC refrigerants and mixtures", Int J. Refrig. Vol. 20, No. 7, pp. 496-503, 1997
+Surface Tension: Mulero, JPCRD, 2012
 
 
 Fluid Data

@@ -203,6 +203,7 @@ FluidsContainer::FluidsContainer()
 	FluidsList.push_back(new R236FAClass());
 	FluidsList.push_back(new R236EAClass());
 	FluidsList.push_back(new R227EAClass());
+	FluidsList.push_back(new R365MFCClass());
 
 	// The industrial fluids
 	FluidsList.push_back(new R245faClass());

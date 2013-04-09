@@ -15,7 +15,7 @@ Note: Using the EOS constants from REFPROP by permission while awaiting Ortiz-Ve
 
 Transport Properties Information
 ================================
-Viscosity & Surface Tension: Arp, V.D., McCarty, R.D., and Friend, D.G., "Thermophysical Properties of Helium-4 from 0.8 to 1500 K with Pressures to 2000 MPa", NIST Technical Note 1334 (revised), 1998.
+Viscosity: Arp, V.D., McCarty, R.D., and Friend, D.G., "Thermophysical Properties of Helium-4 from 0.8 to 1500 K with Pressures to 2000 MPa", NIST Technical Note 1334 (revised), 1998.
 
 Thermal Conductivity: Hands, B.A. and Arp, V.D., "A Correlation of Thermal Conductivity Data for Helium," Cryogenics, 21(12):697-703, 1981. 
 

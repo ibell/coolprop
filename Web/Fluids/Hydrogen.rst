@@ -13,7 +13,7 @@ Equation of State Reference
 
 Transport Properties Information
 ================================
-Viscosity & Surface Tension: McCarty, R.D. and Weber, L.A., "Thermophysical properties of parahydrogen from the freezing liquid line to 5000 R for pressures to 10,000 psia," Natl. Bur. Stand., Tech. Note 617, 1972.
+Conductivity: Assael, JPCRD, 2011
 
 
 Fluid Data

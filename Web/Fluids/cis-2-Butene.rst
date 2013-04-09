@@ -9,7 +9,7 @@ Aliases
 
 Equation of State Reference
 ===========================
-Eric W. Lemmon, E. Christian Ihmels, "Thermodynamic properties of the butenes Part II. Short fundamental equations of state", Fluid Phase Equilibria 228-229 (2005) 173-187
+Eric W. Lemmon, E. Christian Ihmels, "Thermodynamic properties of the butenes Part II. Short fundamental equations of state", Fluid Phase Equilibria v. 228-229 (2005) 173-187
 
 Transport Properties Information
 ================================

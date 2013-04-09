@@ -73,6 +73,10 @@ EthanolClass::EthanolClass()
     name.assign("Ethanol");
     //aliases.push_back(std::string("C2H6O")); 
     REFPROPname.assign("ETHANOL");
+
+	BibTeXKeys.EOS = "Dillon-IJT-2004";
+	BibTeXKeys.VISCOSITY = "__Kiselev-IECR-2005";
+	BibTeXKeys.CONDUCTIVITY = "__Kiselev-IECR-2005";
 }
 double EthanolClass::rhosatL(double T)
 {
