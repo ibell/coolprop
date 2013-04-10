@@ -13,11 +13,11 @@
 #if (BUILD_DLL == 0)
 // This implementation uses the Dymola log and error window to report errors
 void errorMessage(char *errorMessage){
-	ModelicaError(errorMessage);
+	//ModelicaError(errorMessage);
 }
 
 void warningMessage(char *warningMessage){
-	ModelicaMessage(warningMessage);
+	//ModelicaMessage(warningMessage);
 }
 #else
 // The Dymola specific implementation does currently not work for dynmic link libraries

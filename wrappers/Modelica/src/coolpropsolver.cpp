@@ -23,6 +23,7 @@ CoolPropSolver::CoolPropSolver(const string &mediumName, const string &libraryNa
 	debug_level = 0;
 	calc_transport = false;
 	twophase_derivsmoothing_xend = 0;
+	rho_smoothing_xend = 0;
 
 	if (name_options.size()>1)
 	{
@@ -65,6 +66,12 @@ CoolPropSolver::CoolPropSolver(const string &mediumName, const string &libraryNa
 				twophase_derivsmoothing_xend = strtod(param_val[1].c_str(),NULL);
 				if (twophase_derivsmoothing_xend<0 || twophase_derivsmoothing_xend > 1)
 					errorMessage((char*)format("I don't know how to handle this twophase_derivsmoothing_xend value [%d]",param_val[0].c_str()).c_str());
+			}
+			else if (!param_val[0].compare("rho_smoothing_xend"))
+			{
+				rho_smoothing_xend = strtod(param_val[1].c_str(),NULL);
+				if (rho_smoothing_xend<0 || rho_smoothing_xend > 1)
+					errorMessage((char*)format("I don't know how to handle this rho_smoothing_xend value [%d]",param_val[0].c_str()).c_str());
 			}
 			else if (!param_val[0].compare("debug"))
 			{
@@ -200,8 +207,19 @@ void CoolPropSolver::setState_ph(double &p, double &h, int &phase, ExternalTherm
 		if (state->TwoPhase && state->Q() >= 0 && state->Q() <= twophase_derivsmoothing_xend)
 		{
 			// Use the smoothed derivatives between a quality of 0 and twophase_derivsmoothing_xend
-            properties->ddhp = state->drhodh_constp_smoothed(twophase_derivsmoothing_xend)/1000; // [1/kPa -- > 1/Pa]
-            properties->ddph = state->drhodp_consth_smoothed(twophase_derivsmoothing_xend)/1000; // [1/(kJ/kg) -- > 1/(J/kg)]
+			properties->ddhp = state->drhodh_constp_smoothed(twophase_derivsmoothing_xend)/1000; // [1/kPa -- > 1/Pa]
+			properties->ddph = state->drhodp_consth_smoothed(twophase_derivsmoothing_xend)/1000; // [1/(kJ/kg) -- > 1/(J/kg)]
+		} 
+		else if (state->TwoPhase && state->Q() >= 0 && state->Q() <= rho_smoothing_xend)
+		{
+			// Use the smoothed density between a quality of 0 and rho_smoothing_xend 
+			double rho_spline;
+			double dsplinedh;
+			double dsplinedp;
+			state->rho_smoothed(rho_smoothing_xend, &rho_spline, &dsplinedh, &dsplinedp) ;
+            properties->ddhp = dsplinedh/1000; // [1/kPa -- > 1/Pa]
+            properties->ddph = dsplinedp/1000; // [1/(kJ/kg) -- > 1/(J/kg)]
+			properties->d = rho_spline;
 		}
 		else
 		{

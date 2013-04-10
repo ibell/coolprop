@@ -147,6 +147,8 @@ public:
 	double drhodh_constp_smoothed(double xend);
 	/// A smoothed version of the derivative using a spline curve in the region of x=0 to x=xend
 	double drhodp_consth_smoothed(double xend);
+	/// Density corresponding to the smoothed derivatives in the region of x=0 to x=xend
+	void rho_smoothed(double xend, double *rho_spline, double *dsplinedh, double *dsplinedp);
 	double viscosity(void);
 	double conductivity(void);
 
