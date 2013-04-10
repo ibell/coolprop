@@ -4,8 +4,6 @@
 #include "FluidClass.h"
 #include "FAME.h"
 
-
-
 MethylPalmitateClass::MethylPalmitateClass()
 {
 	double n[] = {0.0, 0.4282821e-01, 0.2443162e01, -0.3757540e01, -0.1588526, 0.4055990e-01, -0.1524090e01, -0.7686167, 0.1799950e01, -0.1590967e01, -0.1267681e-01, 0.2198347e01, -0.7737211, -0.4314520};
@@ -50,11 +48,13 @@ MethylPalmitateClass::MethylPalmitateClass()
 	phi0list.push_back(new phi0_cp0_poly(120.529/params.R_u,0.0801627,crit.T,298));
 	phi0list.push_back(new phi0_Planck_Einstein(v0_v,u0_v,1,3));
 
-	EOSReference.assign("Marcia L. Huber, Eric W. Lemmon, Andrei Kazakov, Lisa S. Ott and Thomas J. Bruno, \"Model for the Thermodynamic Properties of a Biodiesel Fuel\", Energy & Fuels 2009, 23, 3790�3797");
+	EOSReference.assign("Marcia L. Huber, Eric W. Lemmon, Andrei Kazakov, Lisa S. Ott and Thomas J. Bruno, \"Model for the Thermodynamic Properties of a Biodiesel Fuel\", Energy & Fuels 2009, 23, 3790-3797");
 	TransportReference.assign("Using ECS in fully predictive mode");
 
 	name.assign("MethylPalmitate");
 	REFPROPname.assign("MPALMITA");
+
+	BibTeXKeys.EOS = "Huber-EF-2009";
 }
 double MethylPalmitateClass::psat(double T)
 {
@@ -100,8 +100,6 @@ double MethylPalmitateClass::rhosatV(double T)
     return reduce.rho*exp(crit.T/T*summer);
 }
 
-
-
 MethylStearateClass::MethylStearateClass()
 {
 	double n[] = {0.0, 0.3959635e-01, 0.2466654e01, -0.3895950e01, -0.1167375, 0.4127229e-01, -0.1403734e01, -0.6465264, 0.1934675e01, -0.1608124e01, -0.1113813e-01, 0.2125325e01, -0.7772671, -0.4183684};
@@ -146,11 +144,13 @@ MethylStearateClass::MethylStearateClass()
 	phi0list.push_back(new phi0_cp0_poly(247.115/params.R_u,-0.0916606,crit.T,298));
 	phi0list.push_back(new phi0_Planck_Einstein(v0_v,u0_v,1,3));
 
-	EOSReference.assign("Marcia L. Huber, Eric W. Lemmon, Andrei Kazakov, Lisa S. Ott and Thomas J. Bruno, \"Model for the Thermodynamic Properties of a Biodiesel Fuel\", Energy & Fuels 2009, 23, 3790�3797");
+	EOSReference.assign("Marcia L. Huber, Eric W. Lemmon, Andrei Kazakov, Lisa S. Ott and Thomas J. Bruno, \"Model for the Thermodynamic Properties of a Biodiesel Fuel\", Energy & Fuels 2009, 23, 3790-3797");
 	TransportReference.assign("Using ECS in fully predictive mode");
 
 	name.assign("MethylStearate");
 	REFPROPname.assign("MSTEARAT");
+
+	BibTeXKeys.EOS = "Huber-EF-2009";
 }
 double MethylStearateClass::psat(double T)
 {
@@ -196,7 +196,6 @@ double MethylStearateClass::rhosatV(double T)
     return reduce.rho*exp(crit.T/T*summer);
 }
 
-
 MethylOleateClass::MethylOleateClass()
 {
 	double n[] = {0.0, 0.4596121e-01, 0.2295400e01, -0.3554366e01, -0.2291674, 0.6854534e-01, -0.1535778e01, -0.7334697, 0.1712700e01, -0.1471394e01, -0.1724678e-01, 0.2115470e01, -0.7555374, -0.4134269};
@@ -241,11 +240,13 @@ MethylOleateClass::MethylOleateClass()
 	phi0list.push_back(new phi0_cp0_poly(90.2385/params.R_u,0.146118,crit.T,298));
 	phi0list.push_back(new phi0_Planck_Einstein(v0_v,u0_v,1,3));
 
-	EOSReference.assign("Marcia L. Huber, Eric W. Lemmon, Andrei Kazakov, Lisa S. Ott and Thomas J. Bruno, \"Model for the Thermodynamic Properties of a Biodiesel Fuel\", Energy & Fuels 2009, 23, 3790�3797");
+	EOSReference.assign("Marcia L. Huber, Eric W. Lemmon, Andrei Kazakov, Lisa S. Ott and Thomas J. Bruno, \"Model for the Thermodynamic Properties of a Biodiesel Fuel\", Energy & Fuels 2009, 23, 3790-3797");
 	TransportReference.assign("Using ECS in fully predictive mode");
 
 	name.assign("MethylOleate");
 	REFPROPname.assign("MOLEATE");
+
+	BibTeXKeys.EOS = "Huber-EF-2009";
 }
 double MethylOleateClass::psat(double T)
 {
@@ -291,7 +292,6 @@ double MethylOleateClass::rhosatV(double T)
     return reduce.rho*exp(crit.T/T*summer);
 }
 
-
 MethylLinoleateClass::MethylLinoleateClass()
 {
 	double n[] = {0.0, 0.3183187e-01, 0.1927286e01, -0.3685053e01, 0, 0.8449312e-01, -0.9766643, -0.4323178, 0.2000470e01, -0.1752030e01, -0.1726895e-01, 0.2116515e01, -0.7884271, -0.3811699};
@@ -336,11 +336,13 @@ MethylLinoleateClass::MethylLinoleateClass()
 	phi0list.push_back(new phi0_cp0_poly(190.986/params.R_u,0.020213,crit.T,298));
 	phi0list.push_back(new phi0_Planck_Einstein(v0_v,u0_v,1,3));
 
-	EOSReference.assign("Marcia L. Huber, Eric W. Lemmon, Andrei Kazakov, Lisa S. Ott and Thomas J. Bruno, \"Model for the Thermodynamic Properties of a Biodiesel Fuel\", Energy & Fuels 2009, 23, 3790�3797");
+	EOSReference.assign("Marcia L. Huber, Eric W. Lemmon, Andrei Kazakov, Lisa S. Ott and Thomas J. Bruno, \"Model for the Thermodynamic Properties of a Biodiesel Fuel\", Energy & Fuels 2009, 23, 3790-3797");
 	TransportReference.assign("Using ECS in fully predictive mode");
 
 	name.assign("MethylLinoleate");
 	REFPROPname.assign("MLINOLEA");
+
+	BibTeXKeys.EOS = "Huber-EF-2009";
 }
 double MethylLinoleateClass::psat(double T)
 {
@@ -387,7 +389,6 @@ double MethylLinoleateClass::rhosatV(double T)
     return reduce.rho*exp(summer);
 }
 
-
 MethylLinolenateClass::MethylLinolenateClass()
 {
 	double n[] = {0.0, 0.4070829e-01, 0.2412375e01, -0.3756194e01, -0.1526466, 0.4682918e-01, -0.1470958e01, -0.7645500, 0.1908964e01, -0.1629366e01, -0.1242073e-01, 0.2180707e01, -0.7537264, -0.4347781};
@@ -432,11 +433,13 @@ MethylLinolenateClass::MethylLinolenateClass()
 	phi0list.push_back(new phi0_cp0_poly(79.5913/params.R_u,0.214648,crit.T,298));
 	phi0list.push_back(new phi0_Planck_Einstein(v0_v,u0_v,1,3));
 
-	EOSReference.assign("Marcia L. Huber, Eric W. Lemmon, Andrei Kazakov, Lisa S. Ott and Thomas J. Bruno, \"Model for the Thermodynamic Properties of a Biodiesel Fuel\", Energy & Fuels 2009, 23, 3790�3797");
+	EOSReference.assign("Marcia L. Huber, Eric W. Lemmon, Andrei Kazakov, Lisa S. Ott and Thomas J. Bruno, \"Model for the Thermodynamic Properties of a Biodiesel Fuel\", Energy & Fuels 2009, 23, 3790-3797");
 	TransportReference.assign("Using ECS in fully predictive mode");
 
 	name.assign("MethylLinolenate");
 	REFPROPname.assign("MLINOLEN");
+
+	BibTeXKeys.EOS = "Huber-EF-2009";
 }
 double MethylLinolenateClass::psat(double T)
 {

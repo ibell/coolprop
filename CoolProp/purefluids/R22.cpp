@@ -265,6 +265,12 @@ R22Class::R22Class()
 						"International Journal of Thermophysics, Vol 16, No. 5, 1995 ");
 	TransportReference.assign("Using ECS");
 	name.assign("R22");
+
+	BibTeXKeys.EOS = "Kamei-IJT-1995";
+	BibTeXKeys.ECS_LENNARD_JONES = "McLinden-IJR-2000";
+	BibTeXKeys.ECS_FITS = "McLinden-IJR-2000";
+	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
+
 }
 double R22Class::rhosatL(double T) 
 {

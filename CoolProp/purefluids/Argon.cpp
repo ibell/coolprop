@@ -281,6 +281,11 @@ ArgonClass::ArgonClass()
 
 	name.assign("Argon");
 	aliases.push_back("argon");
+
+	BibTeXKeys.EOS = "Tegeler-JPCRD-1999";
+	BibTeXKeys.VISCOSITY = "Lemmon-IJT-2004";
+	BibTeXKeys.CONDUCTIVITY = "Lemmon-IJT-2004";
+	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
 }
 double ArgonClass::X_tilde(double T,double tau,double delta)
 {

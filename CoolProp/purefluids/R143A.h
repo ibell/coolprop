@@ -9,6 +9,12 @@ public:
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
+	void ECSParams(double *e_k, double *sigma)
+	{
+		// McLinden, 2000
+		*e_k = 267.10;
+		*sigma = 0.5025;
+	};
 	double surface_tension_T(double T)
 	{
 		// From Mulero, 2012, JPCRD

@@ -46,6 +46,10 @@ R143AClass::R143AClass()
 	name.assign("R143a");
 	aliases.push_back("R143A");
 	REFPROPname.assign("R143A");
+
+	BibTeXKeys.EOS = "LemmonJacobsen-JPCRD-2000";
+	BibTeXKeys.ECS_LENNARD_JONES = "McLinden-IJR-2000";
+	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
 }
 double R143AClass::psat(double T)
 {

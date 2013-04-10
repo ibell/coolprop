@@ -9,6 +9,7 @@
 		double psat(double);
 		double rhosatL(double);
 		double rhosatV(double);
+		double conductivity_Trho(double T, double rho);
 	};
 
 #endif

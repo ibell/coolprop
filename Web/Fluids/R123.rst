@@ -13,6 +13,8 @@ Span, R. and W. Wagner, "Equations of State for Technical Applications. III. Res
 
 Cp0: Ben A. Younglove "An International Standard Equation of State for the Thermodynamic Properties of Refrigerant 123 (2,2-Dichloro-1,1,1-Trifluoroethane)" J. Phys. Chem Ref. Data Vol 23, no 5, 1994
 
+Note: REFPROP 9.0 uses the less accurate MWBR formulation
+
 Transport Properties Information
 ================================
 Using ECS in fully predictive mode. 

@@ -74,6 +74,8 @@
 #include "purefluids/R236FA.h"
 #include "purefluids/R236EA.h"
 #include "purefluids/R227EA_R365MFC.h"
+#include "purefluids/R161.h"
+#include "purefluids/HFE143m.h"
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -203,6 +205,9 @@ FluidsContainer::FluidsContainer()
 	FluidsList.push_back(new R236FAClass());
 	FluidsList.push_back(new R236EAClass());
 	FluidsList.push_back(new R227EAClass());
+	FluidsList.push_back(new R365MFCClass());
+	FluidsList.push_back(new R161Class());
+	FluidsList.push_back(new HFE143mClass());
 
 	// The industrial fluids
 	FluidsList.push_back(new R245faClass());

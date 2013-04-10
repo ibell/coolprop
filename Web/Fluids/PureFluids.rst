@@ -67,6 +67,7 @@ Pure Fluids
     R236FA.rst
     R245fa.rst
     R32.rst
+    R365MFC.rst
     R41.rst
     SulfurDioxide.rst
     SulfurHexafluoride.rst

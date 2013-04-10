@@ -240,6 +240,11 @@ R507AClass::R507AClass()
 
 	name.assign("R507A");
 	aliases.push_back("R507a");
+
+	BibTeXKeys.EOS = "Lemmon-IJT-2003";
+	BibTeXKeys.VISCOSITY = "Geller-PURDUE-2000";
+	BibTeXKeys.CONDUCTIVITY = "Geller-IJT-2001";
+	
 }
 double R507AClass::psatL(double T)
 {

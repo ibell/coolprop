@@ -55,6 +55,11 @@ DimethylEtherClass::DimethylEtherClass()
 		"Lennard-Jones parameters from Chichester NISTIR 6650");
 	name.assign("DimethylEther");
 	REFPROPname.assign("DME");
+
+	BibTeXKeys.EOS = "Wu-JPCRD-2011";
+	BibTeXKeys.VISCOSITY = "Meng-JCED-2012";
+	BibTeXKeys.ECS_LENNARD_JONES = "Chichester-BOOK-2001";
+	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
 }
 
 double DimethylEtherClass::psat(double T)

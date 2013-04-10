@@ -15,8 +15,6 @@ Transport Properties Information
 ================================
 Viscosity and Thermal Conductivity: "Viscosity and Thermal Conductivity Equations forNitrogen, Oxygen, Argon, and Air"E. W. Lemmon and R. T JacobsenInternational Journal of Thermophysics, Vol. 25, No. 1, January 2004
 
-Surface Tension: Lemmon, E.W. and Penoncello, S.G., "The Surface Tension of Air and Air Component Mixtures," Adv. Cryo. Eng., 39:1927-1934, 1994.
-
 
 Fluid Data
 ==========

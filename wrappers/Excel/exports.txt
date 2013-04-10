@@ -9,7 +9,7 @@ File Type: DLL
   Section contains the following exports for CoolProp.dll
 
     00000000 characteristics
-    5161DFC2 time date stamp Sun Apr 07 23:06:10 2013
+    51642CAF time date stamp Tue Apr 09 16:58:55 2013
         0.00 version
            1 ordinal base
           43 number of functions
@@ -20,8 +20,8 @@ File Type: DLL
           1    0 000053A0 _DerivTerms@24
           2    1 00004E70 _F2K@8
           3    2 00005330 _FluidsList@4
-          4    3 00096FB0 _HAProps@40
-          5    4 000983C0 _HAProps_Aux@32
+          4    3 000991E0 _HAProps@40
+          5    4 0009A5F0 _HAProps_Aux@32
           6    5 00004C00 _IProps@32
           7    6 00001C80 _IsFluidType@8
           8    7 00004E50 _K2F@8
@@ -38,9 +38,9 @@ File Type: DLL
          19   12 00001290 _enable_TTSE_LUT@4
          20   13 00001350 _enable_TTSE_LUT_writing@4
          21   14 00001860 _get_Fluid_index@4
-         22   15 00006480 _get_REFPROPname@8
+         22   15 000067C0 _get_REFPROPname@8
          23   16 00001520 _get_TTSESinglePhase_LUT_range@20
-         24   17 00006290 _get_aliases@8
+         24   17 000065D0 _get_aliases@8
          25   18 00001070 _get_debug@0
          26   19 00001160 _get_errstring@4
          27   1A 00001200 _get_errstring_copy@4
@@ -64,6 +64,6 @@ File Type: DLL
   Summary
 
         C000 .data
-       3E000 .rdata
+       40000 .rdata
         F000 .reloc
-       E4000 .text
+       E6000 .text

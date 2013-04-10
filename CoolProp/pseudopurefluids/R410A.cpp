@@ -198,6 +198,10 @@ R410AClass::R410AClass()
 
 	name.assign("R410A");
 	aliases.push_back("R410a");
+
+	BibTeXKeys.EOS = "Lemmon-IJT-2003";
+	BibTeXKeys.VISCOSITY = "Geller-PURDUE-2000";
+	BibTeXKeys.CONDUCTIVITY = "Geller-IJT-2001";
 }
 double R410AClass::psatL(double T)
 {

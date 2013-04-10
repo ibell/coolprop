@@ -6,11 +6,10 @@
 	public:
 		R1234yfClass();
 		~R1234yfClass(){};
-		virtual double conductivity_Trho(double, double);
-		virtual double viscosity_Trho(double, double);
 		double psat(double);
 		double rhosatL(double);
 		double rhosatV(double);
+		double conductivity_Trho(double T, double rho);
 		double surface_tension_T(double T);
 	};
 #endif

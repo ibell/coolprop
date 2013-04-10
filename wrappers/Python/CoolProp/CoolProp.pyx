@@ -343,6 +343,28 @@ cpdef string get_REFPROPname(bytes_or_str Fluid):
     cdef bytes _Fluid = Fluid if bytes_or_str is bytes else Fluid.encode('ascii')
     return _get_REFPROPname(_Fluid)
 
+cpdef string get_BibTeXKey(str Fluid, str key):
+    """
+    Return the BibTeX key for the given fluid.
+    
+    The possible keys are
+    * ``EOS``
+    * ``CP0``
+    * ``VISCOSITY``
+    * ``CONDUCTIVITY``
+    * ``ECS_LENNARD_JONES``
+    * ``ECS_FITS``
+    * ``SURFACE_TENSION``
+    
+    BibTeX keys refer to the BibTeX file in the trunk/CoolProp folder
+    
+    Returns
+    -------
+    key, string
+         empty string if Fluid not in CoolProp, "Bad key" if key is invalid
+    """
+    return _get_BibTeXKey(Fluid.encode('ascii'), key.encode('ascii'))
+
 cpdef string get_errstr():
     """
     Return the current error string

@@ -187,6 +187,11 @@ AirClass::AirClass()
 
 	name.assign("Air");
 	aliases.push_back("air");
+
+	BibTeXKeys.EOS = "Lemmon-JPCRD-2000";
+	BibTeXKeys.VISCOSITY = "Lemmon-IJT-2004";
+	BibTeXKeys.CONDUCTIVITY = "Lemmon-IJT-2004";
+	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
 }
 
 double AirClass::rhosatL(double T)

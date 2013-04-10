@@ -12,8 +12,6 @@ by Ian Bell
 #include "FluidClass.h"
 #include "Hydrogen.h"
 
-
-
 HydrogenClass::HydrogenClass()
 {
 	static const double n[]={0,
@@ -168,16 +166,20 @@ HydrogenClass::HydrogenClass()
 	EOSReference.assign("\"Fundamental Equations of State for Parahydrogen, Normal Hydrogen, and Orthohydrogen\""
 						"by J.W. Leachman and R.T. Jacobsen and S.G. Penoncello and E.W. Lemmon"
 						", J. Phys. Chem. Ref. Data, Vol. 38, No. 3, 2009, pp 721-748");
-	TransportReference.assign("Viscosity & Surface Tension: McCarty, R.D. and Weber, L.A., "
-							  "\"Thermophysical properties of parahydrogen from the freezing liquid line to "
-							  "5000 R for pressures to 10,000 psia,\" "
-                              "Natl. Bur. Stand., Tech. Note 617, 1972.");
+	TransportReference.assign("Conductivity: Assael, JPCRD, 2011");
 
 	name.assign("Hydrogen");
 	aliases.push_back("hydrogen");
 	aliases.push_back("H2");
 	aliases.push_back("R702");
 	REFPROPname.assign("hydrogen");
+
+	BibTeXKeys.EOS = "Leachman-JPCRD-2009";
+	BibTeXKeys.VISCOSITY = "__Muzny-JCED-2013";
+	BibTeXKeys.CONDUCTIVITY = "Assael-JPCRD-2011";
+	BibTeXKeys.ECS_LENNARD_JONES = "Poling-BOOK-2001";
+	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
+
 }
 
 double HydrogenClass::psat(double T)
@@ -221,14 +223,35 @@ double HydrogenClass::rhosatV(double T)
 
 double HydrogenClass::conductivity_Trho(double T, double rho)
 {
-	double e_k = 59.7,
-		   sigma = 0.2827;
-	double eta_dilute = viscosity_dilute(T,e_k,sigma);
-	return 15e-3*R()*(eta_dilute*1e6)/4.0/1000;
+	double sumnum = 0, sumden = 0, sumresid = 0;
+	double A1[] = {-3.40976e-1, 4.58820e0, -1.45080e0, 3.26394e-1, 3.16939e-3, 1.90592e-4, -1.13900e-6};
+	double A2[] = {1.38497e2, -2.21878e1, 4.57151e0, 1.00000e0};
+	double B1[] = {0, 3.63081e-2, -2.07629e-2, 3.14810e-2, -1.43097e-2, 1.74980e-3};
+	double B2[] = {0, 1.83370e-3, -8.86716e-3, 1.58260e-2, -1.06283e-2, 2.80673e-3};
+
+	for (int i = 0; i<= 6; i++){		
+		sumnum += A1[i]*pow(T/reduce.T,i);
+	}
+	for (int i = 0; i<= 3; i++){		
+		sumden += A2[i]*pow(T/reduce.T,i);
+	}
+
+	double lambda_0 = sumnum/sumden; // [W/m/K]
+
+	for (int i = 1; i<= 5; i++){		
+		sumresid += (B1[i]+B2[i]*(T/reduce.T))*pow(rho/reduce.rho,i);
+	}
+
+	double lambda_r = sumresid; // [W/m/K]
+
+	double lambda_c = this->conductivity_critical(T,rho,1.0/(4.0e-10))*1000; // [W/m/K]
+
+	return (lambda_0+lambda_r+lambda_c)/1000;
 }
 double HydrogenClass::viscosity_Trho(double T, double rho)
 {
 	double A,B,eta_0,eta_E,e_k,sigma;
+
 
     if (T < 100){
         // Dilute gas contribution
@@ -323,6 +346,11 @@ ParaHydrogenClass::ParaHydrogenClass()
 
 	name.assign("ParaHydrogen");
 	REFPROPname.assign("PARAHYD");
+
+	BibTeXKeys.EOS = "Leachman-JPCRD-2009";
+	BibTeXKeys.VISCOSITY = "__Muzny-JCED-2013";
+	BibTeXKeys.CONDUCTIVITY = "Assael-JPCRD-2011";
+	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
 }
 
 double ParaHydrogenClass::psat(double T)
@@ -367,10 +395,31 @@ double ParaHydrogenClass::rhosatV(double T)
 
 double ParaHydrogenClass::conductivity_Trho(double T, double rho)
 {
-	double e_k = 59.7,
-		   sigma = 0.2827;
-	double eta_dilute = viscosity_dilute(T,e_k,sigma);
-	return 15e-3*R()*(eta_dilute*1e6)/4.0/1000;
+	double sumnum = 0, sumden = 0, sumresid = 0;
+	double A1[] = {-1.24500e0, 3.10212e2, -3.31004e2, 2.46016e2, -6.57810e1, 1.08260e1, -5.19659e-1, 1.43979e-2};
+	double A2[] = {1.42304e4, -1.93922e4, 1.58379e4, -4.81812e3, 7.28639e2, -3.57365e1, 1.00000e0};
+	double B1[] = {0, 2.65975e-2, -1.33826e-3, 1.30219e-2, -5.67678e-3, -9.23380e-5};
+	double B2[] = {0, -1.21727e-3, 3.66663e-3, 3.88715e-3, -9.21055e-3, 4.00723e-3};
+
+	for (int i = 0; i<= 7; i++){		
+		sumnum += A1[i]*pow(T/reduce.T,i);
+	}
+	for (int i = 0; i<= 6; i++){		
+		sumden += A2[i]*pow(T/reduce.T,i);
+	}
+
+	double lambda_0 = sumnum/sumden; // [W/m/K]
+
+	for (int i = 1; i<= 5; i++){		
+		sumresid += (B1[i]+B2[i]*(T/reduce.T))*pow(rho/reduce.rho,i);
+	}
+
+	double lambda_r = sumresid; // [W/m/K]
+
+	double lambda_c = this->conductivity_critical(T,rho,1.0/(5.0e-10))*1000; // [W/m/K]
+
+	return (lambda_0+lambda_r+lambda_c)/1000;
+
 }
 double ParaHydrogenClass::viscosity_Trho(double T, double rho)
 {

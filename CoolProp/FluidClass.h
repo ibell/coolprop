@@ -91,6 +91,18 @@ struct OnePhaseLUTStruct
 /// Rebuild the constants
 void rebuild_CriticalSplineConstants_T();
 
+struct BibTeXKeysStruct
+{
+	std::string EOS;
+	std::string CP0;
+	std::string VISCOSITY;
+	std::string CONDUCTIVITY;
+	std::string ECS_LENNARD_JONES;
+	std::string ECS_FITS;
+	std::string SURFACE_TENSION;
+	
+};
+
 /// Fluid is the abstract base class that is employed by all the other fluids
 class Fluid
 {
@@ -119,6 +131,8 @@ class Fluid
 		unsigned int Nsat_TTSE, Nh_TTSE, Np_TTSE;
     public:
 		SatLUTStruct SatLUT; /// The private Saturation lookup structure
+
+		BibTeXKeysStruct BibTeXKeys;
 
 		std::vector <phi_BC*> phirlist; /// A list of instances of the phi_BC classes for the residual Helmholtz energy contribution
 		std::vector <phi_BC*> phi0list; /// A list of instances of the phi_BC classes for the ideal-gas Helmholtz energy contribution

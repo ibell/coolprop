@@ -39,7 +39,10 @@ public:
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
-	void ECSParams(double *e_k, double *sigma){*e_k = 280.51; *sigma = 0.573;}; // From Chichester NISTIR 6650}
+	void ECSParams(double *e_k, double *sigma){
+		// From Chichester NISTIR 6650
+		*e_k = 280.51; *sigma = 0.573;
+	};
 	double surface_tension_T(double T)
 	{
 		// From Mulero, 2012, JPCRD

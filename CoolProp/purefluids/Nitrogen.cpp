@@ -304,6 +304,11 @@ NitrogenClass::NitrogenClass()
 	name.assign("Nitrogen");
 	aliases.push_back("nitrogen");
 	aliases.push_back("N2");
+
+	BibTeXKeys.EOS = "Span-JPCRD-2000";
+	BibTeXKeys.VISCOSITY = "Lemmon-IJT-2004";
+	BibTeXKeys.CONDUCTIVITY = "Lemmon-IJT-2004";
+	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
 }
 
 double NitrogenClass::X_tilde(double T,double tau,double delta)

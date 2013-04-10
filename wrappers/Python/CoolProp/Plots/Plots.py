@@ -95,7 +95,7 @@ def show():
     
 def Ts(Ref,Tmin = None, Tmax = None, show=False, axis=None, **kwargs):
     """
-    Make a temperature- entropy plot for the given fluid
+    Make a temperature-entropy plot for the given fluid
     
     Will plot in the current axis unless the optional parameter *axis* gives the name for the axis to use
     """
@@ -287,7 +287,7 @@ def Prho(Ref, Tmin=None, Tmax = None, show = False, axis = None, **kwargs):
 def Trho(Ref, Tmin=None, Tmax = None, show = False, axis = None, **kwargs):
     
     """
-    Make a Temperature-density plot for the given fluid
+    Make a temperature-density plot for the given fluid
     
     Will plot in the current axis unless the optional parameter *axis* gives the name for the axis to use
     """
@@ -323,7 +323,7 @@ def Trho(Ref, Tmin=None, Tmax = None, show = False, axis = None, **kwargs):
 def PT(Ref, Tmin=None, Tmax = None, show = False, axis = None, **kwargs):
     
     """
-    Make a Temperature-density plot for the given fluid
+    Make a pressure-temperature plot for the given fluid
     
     Will plot in the current axis unless the optional parameter *axis* gives the name for the axis to use
     """

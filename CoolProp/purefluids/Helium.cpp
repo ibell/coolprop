@@ -251,7 +251,7 @@ HeliumClass::HeliumClass()
 						"Interim equation to be published in Int. J. Thermophys., 2010."
 						"\n\nNote: Using the EOS constants from REFPROP by permission while awaiting Ortiz-Vega publication in JPCRD");
 		
-	TransportReference.assign("Viscosity & Surface Tension: Arp, V.D., McCarty, R.D., and Friend, D.G., "
+	TransportReference.assign("Viscosity: Arp, V.D., McCarty, R.D., and Friend, D.G., "
 							  "\"Thermophysical Properties of Helium-4 from 0.8 to 1500 K with Pressures to 2000 MPa\", "
 							  "NIST Technical Note 1334 (revised), 1998.\n\n"
 							  "Thermal Conductivity: Hands, B.A. and Arp, V.D., "
@@ -303,15 +303,11 @@ double HeliumClass::viscosity_Trho(double T, double rho)
 		eta_0 = 196*pow(T,0.71938)*exp(12.451/T-295.67/T/T-4.1249);
 		return (exp(ln_eta)+eta_0-exp(eta_0_slash))/10.0/1e6;
 	}
-	
-	return -1;
 }
 double HeliumClass::conductivity_Trho(double T, double rho)
 {
 	/*
-
 	What an incredibly annoying formulation!  Implied coefficients?? Not cool.
-
 	*/
 	double rhoc = 68.0, lambda_e, lambda_c;
 	double summer = 3.739232544/T-2.620316969e1/T/T+5.982252246e1/T/T/T-4.926397634e1/T/T/T/T;

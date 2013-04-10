@@ -9,7 +9,7 @@ Aliases
 
 Equation of State Reference
 ===========================
-Mark O. McLinden, Monika Thol, Eric W. Lemmon, "Thermodynamic Properties of trans-1,3,3,3-tetrafluoropropene [R1234ze(E)]: Measurements of Density and Vapor Pressure and a Comprehensive Equation of State", International Refrigeration and Air Conditioning Conference at Purdue, July 12-15, 2010,  
+Mark O. McLinden, Monika Thol, Eric W. Lemmon, "Thermodynamic Properties of trans-1,3,3,3-tetrafluoropropene [R1234ze(E)]: Measurements of Density and Vapor Pressure and a Comprehensive Equation of State", International Refrigeration and Air Conditioning Conference at Purdue, July 12-15, 2010
 
 Transport Properties Information
 ================================

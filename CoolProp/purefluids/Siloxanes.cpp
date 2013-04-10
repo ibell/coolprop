@@ -5,10 +5,6 @@
 #include "FluidClass.h"
 #include "Siloxanes.h"
 
-
-
-
-
 //MDM
 OctamethyltrisiloxaneClass::OctamethyltrisiloxaneClass()
 {
@@ -121,6 +117,9 @@ OctamethyltrisiloxaneClass::OctamethyltrisiloxaneClass()
     name.assign("MDM");
     aliases.push_back(std::string("Octamethyltrisiloxane")); 
     REFPROPname.assign("MDM");
+
+	BibTeXKeys.EOS = "Colonna-FPE-2008";
+	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
 }
 double OctamethyltrisiloxaneClass::rhosatL(double T) 
 {
@@ -265,6 +264,9 @@ DecamethyltetrasiloxaneClass::DecamethyltetrasiloxaneClass()
     name.assign("MD2M");
     aliases.push_back(std::string("Decamethyltetrasiloxane")); 
     REFPROPname.assign("MD2M");
+
+	BibTeXKeys.EOS = "Colonna-FPE-2008";
+	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
 }
 double DecamethyltetrasiloxaneClass::rhosatL(double T) 
 {
@@ -409,6 +411,9 @@ DodecamethylpentasiloxaneClass::DodecamethylpentasiloxaneClass()
     name.assign("MD3M");
     aliases.push_back(std::string("Dodecamethylpentasiloxane")); 
     REFPROPname.assign("MD3M");
+
+	BibTeXKeys.EOS = "Colonna-FPE-2008";
+	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
 }
 double DodecamethylpentasiloxaneClass::rhosatL(double T) 
 {
@@ -554,6 +559,9 @@ DodecamethylcyclohexasiloxaneClass::DodecamethylcyclohexasiloxaneClass()
     name.assign("D6");
     aliases.push_back(std::string("Dodecamethylcyclohexasiloxane")); 
     REFPROPname.assign("D6");
+
+	BibTeXKeys.EOS = "Colonna-FPE-2008";
+	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
 }
 double DodecamethylcyclohexasiloxaneClass::rhosatL(double T) 
 {
@@ -709,6 +717,9 @@ HexamethyldisiloxaneClass::HexamethyldisiloxaneClass()
     name.assign("MM");
     aliases.push_back(std::string("Hexamethyldisiloxane")); 
     REFPROPname.assign("MM");
+
+	BibTeXKeys.EOS = "Colonna-FPE-2006";
+	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
 }
 double HexamethyldisiloxaneClass::rhosatL(double T) 
 {
@@ -868,6 +879,9 @@ TetradecamethylhexasiloxaneClass::TetradecamethylhexasiloxaneClass()
     name.assign("MD4M");
     aliases.push_back(std::string("Tetradecamethylhexasiloxane")); 
     REFPROPname.assign("MD4M");
+
+	BibTeXKeys.EOS = "Colonna-FPE-2006";
+	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
 }
 double TetradecamethylhexasiloxaneClass::rhosatL(double T) 
 {
@@ -1026,6 +1040,9 @@ OctamethylcyclotetrasiloxaneClass::OctamethylcyclotetrasiloxaneClass()
     name.assign("D4");
     aliases.push_back(std::string("Octamethylcyclotetrasiloxane")); 
     REFPROPname.assign("D4");
+
+	BibTeXKeys.EOS = "Colonna-FPE-2006";
+	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
 }
 double OctamethylcyclotetrasiloxaneClass::rhosatL(double T) 
 {
@@ -1188,6 +1205,9 @@ DecamethylcyclopentasiloxaneClass::DecamethylcyclopentasiloxaneClass()
     name.assign("D5");
     aliases.push_back(std::string("Decamethylcyclopentasiloxane")); 
     REFPROPname.assign("D5");
+
+	BibTeXKeys.EOS = "Colonna-FPE-2006";
+	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
 }
 double DecamethylcyclopentasiloxaneClass::rhosatL(double T) 
 {

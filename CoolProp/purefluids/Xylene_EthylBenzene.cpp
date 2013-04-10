@@ -54,6 +54,8 @@ oXyleneClass::oXyleneClass()
 	name.assign("o-Xylene");
 	aliases.push_back("oXylene");
 	REFPROPname.assign("OXYLENE");
+
+	BibTeXKeys.EOS = "Zhou-JPCRD-2012";
 }
 double oXyleneClass::psat(double T)
 {
@@ -149,6 +151,8 @@ mXyleneClass::mXyleneClass()
 	name.assign("m-Xylene");
 	aliases.push_back("mXylene");
 	REFPROPname.assign("MXYLENE");
+
+	BibTeXKeys.EOS = "Zhou-JPCRD-2012";
 }
 double mXyleneClass::psat(double T)
 {
@@ -244,6 +248,8 @@ pXyleneClass::pXyleneClass()
 	name.assign("p-Xylene");
 	aliases.push_back("pXylene");
 	REFPROPname.assign("PXYLENE");
+
+	BibTeXKeys.EOS = "Zhou-JPCRD-2012";
 }
 double pXyleneClass::psat(double T)
 {
@@ -343,6 +349,8 @@ EthylBenzeneClass::EthylBenzeneClass()
 
 	name.assign("EthylBenzene");
 	REFPROPname.assign("EBENZENE");
+
+	BibTeXKeys.EOS = "Zhou-JPCRD-2012";
 }
 double EthylBenzeneClass::psat(double T)
 {
