@@ -76,6 +76,7 @@
 #include "purefluids/R227EA_R365MFC.h"
 #include "purefluids/R161.h"
 #include "purefluids/HFE143m.h"
+#include "purefluids/Benzene.h"
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -208,6 +209,7 @@ FluidsContainer::FluidsContainer()
 	FluidsList.push_back(new R365MFCClass());
 	FluidsList.push_back(new R161Class());
 	FluidsList.push_back(new HFE143mClass());
+	FluidsList.push_back(new BenzeneClass());
 
 	// The industrial fluids
 	FluidsList.push_back(new R245faClass());

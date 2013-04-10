@@ -7,6 +7,7 @@
 
 #include "purefluids/Argon.cpp"
 #include "purefluids/Alkanes.cpp"
+#include "purefluids/Benzene.cpp"
 #include "purefluids/Butenes.cpp"
 #include "purefluids/Cyclopentane.cpp"
 #include "purefluids/DMC.cpp"

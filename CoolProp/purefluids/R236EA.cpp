@@ -54,6 +54,11 @@ R236EAClass::R236EAClass()
 	name.assign("R236EA");
 	aliases.push_back(std::string("R236ea"));
 	REFPROPname.assign("R236EA");
+
+	BibTeXKeys.EOS = "Rui-FPE-2013";
+	BibTeXKeys.ECS_FITS = "Huber-IECR-2003";
+	BibTeXKeys.ECS_LENNARD_JONES = "Huber-IECR-2003";
+	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
 }
 
 double R236EAClass::psat(double T)
