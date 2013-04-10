@@ -182,7 +182,7 @@ FluidsContainer::FluidsContainer()
 	FluidsList.push_back(new OxygenClass());
 	FluidsList.push_back(new HydrogenClass());
 	FluidsList.push_back(new ParaHydrogenClass());
-	//FluidsList.push_back(new OrthoHydrogenClass());  NOT WORKING
+	FluidsList.push_back(new OrthoHydrogenClass());
 	FluidsList.push_back(new ArgonClass());
 	FluidsList.push_back(new R744Class());
 	FluidsList.push_back(new NitrogenClass());

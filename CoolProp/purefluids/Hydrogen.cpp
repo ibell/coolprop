@@ -290,7 +290,7 @@ ParaHydrogenClass::ParaHydrogenClass()
 	double d [] = {0, 1, 4, 1, 1, 2, 2, 3, 1, 3, 2, 1, 3, 1, 1};
 	double c [] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0};
 	double a0 [] = {0, -1.4485891134, 1.884521239, 4.30256, 13.0289, -47.7365, 50.0013, -18.6261, 0.993973, 0.536078};
-	double b0 [] = {0, 0, 0, -15.14967511472, -25.0925982148, -29.4735563787, -35.4059141417, -40.724998482, -163.7925799988, -309.2173173842};
+	double b0 [] = {0, 0, 0, 15.14967511472, 25.0925982148, 29.4735563787, 35.4059141417, 40.724998482, 163.7925799988, 309.2173173842};
 	double alpha[] = {0,0,0,0,0,0,0,0,0,0,1.7437, 0.5516, 0.0634, 2.1341, 1.777}; // phi from paper
 	double beta[] = {0,0,0,0,0,0,0,0,0,0,0.194, 0.2019, 0.0301, 0.2383, 0.3253};
 	double GAMMA[] = {0,0,0,0,0,0,0,0,0,0,0.8048, 1.5248, 0.6648, 0.6832, 1.493};
@@ -310,7 +310,7 @@ ParaHydrogenClass::ParaHydrogenClass()
 	//lead term of the form log(delta)+a1+a2*tau
 	phi_BC * phi0_lead_ = new phi0_lead(a0[1],a0[2]);
 	phi_BC * phi0_logtau_ = new phi0_logtau(1.5);
-	phi_BC * phi0_Planck_Einstein_ = new phi0_Planck_Einstein(a0,b0,3,7,8);
+	phi_BC * phi0_Planck_Einstein_ = new phi0_Planck_Einstein(a0,b0,3,9,10);
 
 	phi0list.push_back(phi0_lead_);
 	phi0list.push_back(phi0_logtau_);
@@ -347,7 +347,6 @@ ParaHydrogenClass::ParaHydrogenClass()
 	REFPROPname.assign("PARAHYD");
 
 	BibTeXKeys.EOS = "Leachman-JPCRD-2009";
-	BibTeXKeys.VISCOSITY = "__Muzny-JCED-2013";
 	BibTeXKeys.CONDUCTIVITY = "Assael-JPCRD-2011";
 	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
 }
@@ -449,163 +448,116 @@ double ParaHydrogenClass::viscosity_Trho(double T, double rho)
 		return viscosity_dilute(T,e_k,sigma);
     }
 }
-
 double ParaHydrogenClass::surface_tension_T(double T)
 {
+	// Mulero, JPCRD 2012
 	return 0.005369*pow(1-T/reduce.T,1.065);
 }
 
-//OrthoHydrogenClass::OrthoHydrogenClass()
-//{
-//	double _n [] = {0, -6.83148, 0.01, 2.11505, 4.38353, 0.211292, -1.00939, 0.142086, -0.87696, 0.804927, -0.710775, 0.0639688, 0.0710858, -0.087654, 0.647088};
-//	double _t [] = {0, 0.7333, 1, 1.1372, 0.5136, 0.5638, 1.6248, 1.829, 2.404, 2.105, 4.1, 7.658, 1.259, 7.589, 3.946};
-//	double _d [] = {0, 1, 4, 1, 1, 2, 2, 3, 1, 3, 2, 1, 3, 1, 1};
-//	double _c [] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0};
-//	double _a0 [] = {0, -1.4675442336, 1.8845068862, 2.54151, -2.3661, 1.00365, 1.22447};
-//	double _b0 [] = {0, 0, 0, -25.7676098736, -43.4677904877, -66.0445514750, -209.7531607465};
-//    double _phi[] = {0,0,0,0,0,0,0,0,0,0,1.169, 0.894, 0.04, 2.072, 1.306};
-//    double _beta[] = {0,0,0,0,0,0,0,0,0,0,0.4555, 0.4046, 0.0869, 0.4415, 0.5743};
-//    double _GAMMA[] = {0,0,0,0,0,0,0,0,0,0,1.5444, 0.6627, 0.763, 0.6587, 1.4327};
-//    double _D[] = {0,0,0,0,0,0,0,0,0,0,0.6366, 0.3876, 0.9437, 0.3976, 0.9626};
-//	std::vector<double> n_v(_n,_n+sizeof(_n)/sizeof(double));
-//	std::vector<double> d_v(_d,_d+sizeof(_d)/sizeof(double));
-//	std::vector<double> t_v(_t,_t+sizeof(_t)/sizeof(double));
-//	std::vector<double> l_v(_c,_c+sizeof(_c)/sizeof(double));
-//	std::vector<double> alpha_v(_phi,_phi+sizeof(_phi)/sizeof(double));
-//	std::vector<double> beta_v(_beta,_beta+sizeof(_beta)/sizeof(double));
-//	std::vector<double> gamma_v(_GAMMA,_GAMMA+sizeof(_GAMMA)/sizeof(double));
-//	std::vector<double> epsilon_v(_D,_D+sizeof(_D)/sizeof(double));
-//	std::vector<double> a0_v(_a0,_a0+sizeof(_a0)/sizeof(double));
-//	std::vector<double> b0_v(_b0,_b0+sizeof(_b0)/sizeof(double));
-//
-//	phirlist.push_back(new phir_power(n_v,d_v,t_v,l_v,1,9));
-//	phirlist.push_back(new phir_gaussian(n_v,d_v,t_v,alpha_v,epsilon_v,beta_v,gamma_v,10,14));
-//
-//	/* phi0=log(delta)+1.5*log(tau)+a0[1]+a0[2]*tau
-//        +a0[3]*log(1-exp(-b0[3]*tau))
-//        +a0[4]*log(1-exp(-b0[4]*tau))
-//        +a0[5]*log(1-exp(-b0[5]*tau))
-//        +a0[6]*log(1-exp(-b0[6]*tau))
-//        +a0[7]*log(1-exp(-b0[7]*tau));
-//	*/
-//
-//	//lead term of the form log(delta)+a1+a2*tau
-//	phi_BC * phi0_lead_ = new phi0_lead(a0[1],a0[2]);
-//	phi_BC * phi0_logtau_ = new phi0_logtau(1.5);
-//	phi_BC * phi0_Planck_Einstein_ = new phi0_Planck_Einstein(a0_v,b0_v,3,7);
-//
-//	phi0list.push_back(phi0_lead_);
-//	phi0list.push_back(phi0_logtau_);
-//	phi0list.push_back(phi0_Planck_Einstein_);
-//
-//	// Critical parameters
-//	crit.rho = 15.445*2.01588;
-//	crit.p = 1310.65;
-//	crit.T = 33.22;
-//	crit.v = 1.0/crit.rho;
-//
-//	// Other fluid parameters
-//	params.molemass = 2.01594;
-//	params.Ttriple = 14.008;
-//	params.ptriple = 7.461;
-//	params.accentricfactor = -0.219;
-//	params.R_u = 8.314472;
-//
-//	// Limits of EOS
-//	limits.Tmin = params.Ttriple;
-//	limits.Tmax = 1000.0;
-//	limits.pmax = 2000000.0;
-//	limits.rhomax = 102.0*params.molemass;
-//	
-//	EOSReference.assign("\"Fundamental Equations of State for Parahydrogen, Normal Hydrogen, and Orthohydrogen\""
-//						"by J.W. Leachman and R.T. Jacobsen and S.G. Penoncello and E.W. Lemmon"
-//						", J. Phys. Chem. Ref. Data, Vol. 38, No. 3, 2009, pp 721-748");
-//	TransportReference.assign("Viscosity & Surface Tension: McCarty, R.D. and Weber, L.A., "
-//							  "\"Thermophysical properties of parahydrogen from the freezing liquid line to "
-//							  "5000 R for pressures to 10,000 psia,\" "
-//                              "Natl. Bur. Stand., Tech. Note 617, 1972.");
-//
-//	name.assign("OrthoHydrogen");
-//	REFPROPname.assign("ORTHOHYD");
-//}
-//
-//double OrthoHydrogenClass::psat(double T)
-//{
-//	const double ti[]={0,1.0,1.5,2.7,6.2};
-//    const double Ni[]={0,-4.88684,1.05310,0.856947,-0.185355};
-//    double summer=0,theta;
-//    int i;
-//    theta=1-T/reduce.T;
-//    for (i=1;i<=4;i++)
-//    {
-//        summer=summer+Ni[i]*pow(theta,ti[i]);
-//    }
-//    return reduce.p*exp(reduce.T/T*summer);
-//}
-//double OrthoHydrogenClass::rhosatL(double T)
-//{
-//	double theta = 1-T/reduce.T;
-//	double RHS,rho;
-//	// Max error is 1.585900 %
-//	RHS = +1.093049*pow(theta,0.3)
-//		  +0.260558*pow(theta,0.9)
-//		  -0.543586*pow(theta,1.5)
-//		  +0.333107*pow(theta,3.2);
-//	rho = exp(RHS)*reduce.rho;	
-//	return rho;
-//
-//}
-//double OrthoHydrogenClass::rhosatV(double T)
-//{
-//	double theta = 1-T/reduce.T;
-//	double RHS,rho;
-//	// Max error is 2.044809 %
-//	RHS = -1.120772*pow(theta,0.3)
-//          -4.767213*pow(theta,0.9)
-//          +1.108207*pow(theta,1.5)
-//          -11.752668*pow(theta,3.2);
-//	rho = exp(RHS)*reduce.rho;
-//	return rho;
-//}
-//
-//double OrthoHydrogenClass::conductivity_Trho(double T, double rho)
-//{
-//	double e_k = 59.7,
-//		   sigma = 0.2827;
-//	double eta_dilute = viscosity_dilute(T,e_k,sigma);
-//	return 15e-3*R()*(eta_dilute*1e6)/4.0/1000;
-//}
-//double OrthoHydrogenClass::viscosity_Trho(double T, double rho)
-//{
-//	double A,B,eta_0,eta_E,e_k,sigma;
-//
-//    if (T < 100){
-//        // Dilute gas contribution
-//        eta_0 = 8.5558 * (pow(T,1.5)/(T+19.55)) * ((T+650.39)/(T+1175.9));
-//
-//		//For the excess part, density is in units of g/cm3, so need to divide by 1000
-//		rho /= 1000;
-//
-//        A = (306.4636*rho - 3350.628*rho*rho+3868.092*rho*rho*rho)/(1.0-18.47830*rho+110.915*rho*rho+25.3542*rho*rho*rho);
-//
-//        B = 10.0 + 7.2*(pow(rho/0.07,6)-pow(rho/0.07,1.5))-17.63/exp(58.75*pow(rho/0.07,3));
-//
-//        // Excess viscosity
-//        eta_E = A * exp(B/T);
-//
-//		// Correlation in units of g/cm-s x 10e-6, so to get Pa-s, need to divide by 10 and divide by 1e6
-//		
-//		return (eta_0 + eta_E) / 1e7;
-//    }
-//    else{
-//		// Use dilute gas properties
-//		e_k = 59.7;
-//		sigma = 0.2827;
-//		return viscosity_dilute(T,e_k,sigma);
-//    }
-//}
-//
-//double OrthoHydrogenClass::surface_tension_T(double T)
-//{
-//	return 0.005369*pow(1-T/reduce.T,1.065);
-//}
+OrthoHydrogenClass::OrthoHydrogenClass()
+{
+	double n [] = {0, -6.83148, 0.01, 2.11505, 4.38353, 0.211292, -1.00939, 0.142086, -0.87696, 0.804927, -0.710775, 0.0639688, 0.0710858, -0.087654, 0.647088};
+	double t [] = {0, 0.7333, 1, 1.1372, 0.5136, 0.5638, 1.6248, 1.829, 2.404, 2.105, 4.1, 7.658, 1.259, 7.589, 3.946};
+	double d [] = {0, 1, 4, 1, 1, 2, 2, 3, 1, 3, 2, 1, 3, 1, 1};
+	double l [] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0};
+	
+    double alpha[] = {0,0,0,0,0,0,0,0,0,0,1.169, 0.894, 0.04, 2.072, 1.306}; // Originally phi in the paper
+    double beta[] = {0,0,0,0,0,0,0,0,0,0,0.4555, 0.4046, 0.0869, 0.4415, 0.5743};
+    double gamma[] = {0,0,0,0,0,0,0,0,0,0,1.5444, 0.6627, 0.763, 0.6587, 1.4327};
+    double epsilon[] = {0,0,0,0,0,0,0,0,0,0,0.6366, 0.3876, 0.9437, 0.3976, 0.9626}; // Originally D in the paper	
+
+	phirlist.push_back(new phir_power(n,d,t,l,1,9,15));
+	phirlist.push_back(new phir_gaussian(n,d,t,alpha,epsilon,beta,gamma,10,14,15));
+
+	/* phi0=log(delta)+1.5*log(tau)+a0[1]+a0[2]*tau
+        +a0[3]*log(1-exp(-b0[3]*tau))
+        +a0[4]*log(1-exp(-b0[4]*tau))
+        +a0[5]*log(1-exp(-b0[5]*tau))
+        +a0[6]*log(1-exp(-b0[6]*tau))
+        +a0[7]*log(1-exp(-b0[7]*tau));
+	*/
+
+	double a0 [] = {0, -1.4675442336, 1.8845068862, 2.54151, -2.3661, 1.00365, 1.22447};
+	double b0 [] = {0, 0, 0, 25.7676098736, 43.4677904877, 66.0445514750, 209.7531607465};
+
+	//lead term of the form log(delta)+a1+a2*tau
+	phi0list.push_back(new phi0_lead(a0[1],a0[2]));
+	phi0list.push_back(new phi0_logtau(1.5));
+	phi0list.push_back(new phi0_Planck_Einstein(a0,b0,3,6,7));
+
+	// Critical parameters
+	crit.rho = 15.445*2.01588;
+	crit.p = 1310.65;
+	crit.T = 33.22;
+	crit.v = 1.0/crit.rho;
+
+	// Other fluid parameters
+	params.molemass = 2.01594;
+	params.Ttriple = 14.008;
+	params.ptriple = 7.461;
+	params.accentricfactor = -0.219;
+	params.R_u = 8.314472;
+
+	// Limits of EOS
+	limits.Tmin = params.Ttriple;
+	limits.Tmax = 1000.0;
+	limits.pmax = 2000000.0;
+	limits.rhomax = 102.0*params.molemass;
+	
+	EOSReference.assign("\"Fundamental Equations of State for Parahydrogen, Normal Hydrogen, and Orthohydrogen\""
+						"by J.W. Leachman and R.T. Jacobsen and S.G. Penoncello and E.W. Lemmon"
+						", J. Phys. Chem. Ref. Data, Vol. 38, No. 3, 2009, pp 721-748");
+	TransportReference.assign("Viscosity & Surface Tension: McCarty, R.D. and Weber, L.A., "
+							  "\"Thermophysical properties of parahydrogen from the freezing liquid line to "
+							  "5000 R for pressures to 10,000 psia,\" "
+                              "Natl. Bur. Stand., Tech. Note 617, 1972.");
+
+	name.assign("OrthoHydrogen");
+	REFPROPname.assign("ORTHOHYD");
+
+	BibTeXKeys.EOS = "Leachman-JPCRD-2009";
+}
+
+double OrthoHydrogenClass::psat(double T)
+{
+    // Maximum absolute error is 0.047173 % between 14.008001 K and 33.219990 K
+    const double ti[]={0,1.0,1.5,2.3,3.6,5.2,7.3,9};
+    const double Ni[]={0,-4.883749429447434, 1.0220050049954641, 0.42875096887440467, 0.98888734869446038, -1.5316011040287143, 2.617979751694254, -2.4386324886230284 };
+    double summer=0,theta;
+    int i;
+    theta=1-T/reduce.T;
+    for (i=1;i<=6;i++)
+    {
+        summer=summer+Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.p*exp(reduce.T/T*summer);
+}
+double OrthoHydrogenClass::rhosatL(double T)
+{
+    // Maximum absolute error is 0.898525 % between 14.008001 K and 33.219990 K
+    const double ti[]={0,0.44474280444194492, 0.75146340805936485, 1.4887993676087643, 2.5830154027036798, 2.6777147409416382, 3.7537296061337075};
+    const double Ni[]={0,2.5493992312992853, -2.168729482271587, 1.1414905046089598, -0.45527343384150787, -0.48960090300149495, 0.4904521362247205};
+    double summer=0;
+    int i;
+    double theta;
+    theta=1-T/reduce.T;
+    for (i=1;i<=6;i++)
+    {
+        summer+=Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.rho*exp(summer);
+}
+double OrthoHydrogenClass::rhosatV(double T)
+{
+    // Maximum absolute error is 0.558198 % between 14.008001 K and 33.219990 K
+    const double ti[]={0,0.47329684677466771, 1.1913159863668648, 1.8991992477616062, 2.494090628975616, 3.6361782580222841, 24.83499518232826};
+    const double Ni[]={0,-2.8790193675821163, -0.32069213937243635, -1.6289408828391703, 3.4288996368340423, -1.5495479021680494, -303.61663521542357};
+    double summer=0,theta;
+    int i;
+    theta=1.0-T/reduce.T;
+    for (i=1;i<=6;i++)
+    {
+        summer=summer+Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.rho*exp(crit.T/T*summer);
+}
