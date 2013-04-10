@@ -623,6 +623,7 @@ nDodecaneClass::nDodecaneClass()
 	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
 	BibTeXKeys.VISCOSITY = "Huber-EF-2004";
 	BibTeXKeys.CONDUCTIVITY = "Huber-EF-2004";
+	BibTeXKeys.ECS_LENNARD_JONES = "Huber-EF-2004";
 }
 double nDodecaneClass::psat(double T)
 {

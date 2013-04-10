@@ -175,11 +175,10 @@ HydrogenClass::HydrogenClass()
 	REFPROPname.assign("hydrogen");
 
 	BibTeXKeys.EOS = "Leachman-JPCRD-2009";
-	BibTeXKeys.VISCOSITY = "__Muzny-JCED-2013";
+	BibTeXKeys.VISCOSITY = "Muzny-JCED-2013";
 	BibTeXKeys.CONDUCTIVITY = "Assael-JPCRD-2011";
 	BibTeXKeys.ECS_LENNARD_JONES = "Poling-BOOK-2001";
 	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
-
 }
 
 double HydrogenClass::psat(double T)
@@ -250,33 +249,33 @@ double HydrogenClass::conductivity_Trho(double T, double rho)
 }
 double HydrogenClass::viscosity_Trho(double T, double rho)
 {
-	double A,B,eta_0,eta_E,e_k,sigma;
+	// Note, ECS L-J constants do not agree with Poling, 2001
+	double sigma = 0.297, e_k = 30.41;
+	
+	// Dilute gas
+	this->ECSParams(&e_k, &sigma);
+	double Tstar = T/e_k;
+	double a[] = {2.09630e-1, -4.55274e-1, 1.43602e-1, -3.35325e-2, 2.76981e-3};
+	double S_star = exp(a[0]+a[1]*log(Tstar)+a[2]*log(Tstar)*log(Tstar)+a[3]*pow(log(Tstar),3)+a[4]*pow(log(Tstar),4));
+	double lambda_0 = 0.021357*sqrt(params.molemass*T)/(sigma*sigma*S_star); //[uPa-s]
 
+	// Initial-density
+	double b[] = {-0.1870, 2.4871, 3.7151, -11.0972, 9.0965, -3.8292, 0.5166};
+	double sumBstar = 0;
+	for (int i = 0; i<= 6; i++){ sumBstar += b[i]/Tstar; }
+	double Bstar = sumBstar;
+	double N_A = 6.02214129e23;
+	double B = N_A*pow(sigma/1e9,3)*Bstar;
 
-    if (T < 100){
-        // Dilute gas contribution
-        eta_0 = 8.5558 * (pow(T,1.5)/(T+19.55)) * ((T+650.39)/(T+1175.9));
+	// Residual
+	double c[] = {0, 6.43449673, 4.56334068e-2, 2.32797868e-1, 9.58326120e-1, 1.27941189e-1, 3.63576595e-1};
+	double Tr = T/crit.T;
+	double rhor = rho/90.5; 
+	double lambda_r = c[1]*rhor*rhor*exp(c[2]*Tr+c[3]/Tr+(c[4]*rhor*rhor)/(c[5]+Tr)+c[6]*pow(rhor,6));
 
-		//For the excess part, density is in units of g/cm3, so need to divide by 1000
-		rho /= 1000;
+	double rhobar = rho/params.molemass*1000;
+	return (lambda_0*(1+B*rhobar)+lambda_r)/1e6;
 
-        A = (306.4636*rho - 3350.628*rho*rho+3868.092*rho*rho*rho)/(1.0-18.47830*rho+110.915*rho*rho+25.3542*rho*rho*rho);
-
-        B = 10.0 + 7.2*(pow(rho/0.07,6)-pow(rho/0.07,1.5))-17.63/exp(58.75*pow(rho/0.07,3));
-
-        // Excess viscosity
-        eta_E = A * exp(B/T);
-
-		// Correlation in units of g/cm-s x 10e-6, so to get Pa-s, need to divide by 10 and divide by 1e6
-		
-		return (eta_0 + eta_E) / 1e7;
-    }
-    else{
-		// Use dilute gas properties
-		e_k = 59.7;
-		sigma = 0.2827;
-		return viscosity_dilute(T,e_k,sigma);
-    }
 }
 
 double HydrogenClass::surface_tension_T(double T)
