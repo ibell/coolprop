@@ -959,3 +959,98 @@ double R123Class::rhosatV(double T)
     }
     return reduce.rho*exp(crit.T/T*summer);
 }
+
+
+R11Class::R11Class()
+{
+	const double n[] = {0.0, 1.0656383, -3.2495206, 0.87823894, 0.087611569, 0.00029950049, 0.42896949, 0.70828452, -0.017391823, -0.37626522, 0.011605284, -0.089550567, -0.030063991};
+
+	//Critical parameters
+	crit.rho = 565; //[kg/m^3]
+	crit.p = 4394; //[kPa]
+	crit.T = 471.06; //[K]
+	crit.v = 1/crit.rho; 
+
+	// Other fluid parameters
+	params.molemass = 137.368;
+	params.Ttriple = 162.68;
+	params.accentricfactor = 0.18875064825280830;
+	params.R_u = 8.314510;
+	params.ptriple = 0.0065100898612854546;
+
+	// Limits of EOS
+	limits.Tmin = params.Ttriple;
+	limits.Tmax = 500.0;
+	limits.pmax = 100000.0;
+	limits.rhomax = 1000000.0*params.molemass;
+
+	phirlist.push_back(new phir_power( n,d_polar_SpanShort,t_polar_SpanShort,c_polar_SpanShort,1,12,13));
+
+	phi0list.push_back(new phi0_lead(0,0));
+	phi0list.push_back(new phi0_logtau(-1.0));
+	phi0list.push_back(new phi0_cp0_constant(4.0+0.0469706/(params.R_u),471.11,298));
+	phi0list.push_back(new phi0_cp0_poly(0.0018532/(params.R_u),1,471.11,298));
+
+	double a[] = {0,1,2,1,2,1,2};
+	double A[] = {0,1085,847,535.2,398,349.5,241};
+	for (int i = 1; i<=6; i++) {A[i] *= 1.43878/471.11; };
+	std::vector<double> A_v(A,A+sizeof(A)/sizeof(double));
+	std::vector<double> a_v(a,a+sizeof(a)/sizeof(double));
+
+	phi0list.push_back(new phi0_Planck_Einstein(a_v,A_v,1,6));
+
+	static char EOSstr [] = "Span, R. and W. Wagner, \"Equations of State for Technical Applications. III. Results for Polar Fluids\", International Journal of Thermophysics, Vol. 24, No. 1, January 2003. \n\nCp0: Jacobsen et al. \"A Fundamental Equation for Trichlorofluoromethane (R-11) Fluid Phase Equilibria, 1992\"";
+	EOSReference.assign(EOSstr);
+	TransportReference.assign("Using ECS in fully predictive mode. ");
+
+	name.assign("R11");
+	REFPROPname.assign("R11");
+
+	BibTeXKeys.EOS = "Span-IJT-2003C";
+	BibTeXKeys.CP0 = "Jacobsen-FPE-1992";
+	BibTeXKeys.ECS_LENNARD_JONES = "McLinden-IJR-2000";
+	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
+}
+double R11Class::psat(double T)
+{
+    // Maximum absolute error is 0.027723 % between 162.680001 K and 471.109990 K
+    const double ti[]={0,1.0,1.5,2.3,3.6,5.2,7.3,9};
+    const double Ni[]={0,-6.9842594500439841, 1.9949514517876727, -2.6756240798963944, 2.7529403356933746, -9.6524000993633337, 11.060092872347456, -6.562902306656925 };
+    double summer=0,theta;
+    int i;
+    theta=1-T/reduce.T;
+    for (i=1;i<=6;i++)
+    {
+        summer=summer+Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.p*exp(reduce.T/T*summer);
+}
+double R11Class::rhosatL(double T)
+{
+    // Maximum absolute error is 0.640969 % between 162.680001 K and 471.109990 K
+    const double ti[]={0,0.31711655198600947, 2.386599099642229, 4.7641939829730999, 2.7315041965328546, 2.5659045017736379, 2.708610202341649};
+    const double Ni[]={0,1.4404203855929976, -283.11338343074442, -1.9406629812881828, 5539.3265123468946, 1502.4727656910707, -6756.9516728640647};
+    double summer=0;
+    int i;
+    double theta;
+    theta=1-T/reduce.T;
+    for (i=1;i<=6;i++)
+    {
+        summer+=Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.rho*exp(summer);
+}
+double R11Class::rhosatV(double T)
+{
+    // Maximum absolute error is 0.160920 % between 162.680001 K and 471.109990 K
+    const double ti[]={0,0.39053986513205363, 0.83611295633898408, 9.9719972057837776, 1.9950924867352773, 4.5981579093735867, 35.112059187237747};
+    const double Ni[]={0,-2.4471080122765287, -2.4741964754898671, 3.2431722423582214, -0.58671668574610747, -4.8549864160069811, -7703.9456818455419};
+    double summer=0,theta;
+    int i;
+    theta=1.0-T/reduce.T;
+    for (i=1;i<=6;i++)
+    {
+        summer=summer+Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.rho*exp(crit.T/T*summer);
+}

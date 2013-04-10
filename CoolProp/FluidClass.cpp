@@ -246,6 +246,8 @@ FluidsContainer::FluidsContainer()
 	// Span Polar
 	FluidsList.push_back(new R152AClass());
 	FluidsList.push_back(new R123Class());
+	FluidsList.push_back(new R11Class());
+
 
 	// The Siloxanes
 	FluidsList.push_back(new OctamethyltrisiloxaneClass()); //MDM
