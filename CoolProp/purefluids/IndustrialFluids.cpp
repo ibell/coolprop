@@ -696,8 +696,27 @@ TolueneClass::TolueneClass()
     REFPROPname.assign("toluene");
 
 	BibTeXKeys.EOS = "Lemmon-JCED-2006";
-	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
 	BibTeXKeys.VISCOSITY = "__Assael-IJT-2001";
+	BibTeXKeys.CONDUCTIVITY = "ASSAEL-JPCRD-2012B";
+	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
+}
+double TolueneClass::conductivity_Trho(double T, double rho)
+{
+	double sumresid = 0;
+	double B1[] = {0, -5.18530e-2, 1.33846e-1, -1.20446e-1, 5.30211e-2, -1.00604e-2, 6.33457e-4};
+	double B2[] = {0, 5.17449e-2, -1.21902e-1, 1.37748e-1, -7.32792e-2, 1.72914e-2, -1.38585e-3};
+
+	double lambda_0 = (5.8808-6.1693e-2*T+3.4151e-4*T*T-3.0420e-7*T*T*T+1.2868e-10*T*T*T*T-2.1303e-14*T*T*T*T*T)/1000;
+
+	for (int i = 1; i <= 6; i++)
+	{
+		sumresid += (B1[i]+B2[i]*T/crit.T)*pow(rho/crit.rho,i);
+	}
+	double lambda_r = sumresid;
+
+	double lambda_c = this->conductivity_critical(T,rho,1/(6.2e-10))*1000; //[W/m/K]
+
+	return (lambda_0 + lambda_r + lambda_c)/1000; //[kW/m/K]
 }
 
 XenonClass::XenonClass()
@@ -2282,6 +2301,7 @@ double TolueneClass::rhosatV(double T)
     }
     return reduce.rho*exp(crit.T/T*summer);
 }
+
 
 double XenonClass::psat(double T)
 {

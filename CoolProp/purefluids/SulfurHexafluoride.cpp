@@ -66,7 +66,7 @@ SulfurHexafluorideClass::SulfurHexafluorideClass()
 	
 	BibTeXKeys.EOS = "Guder-JPCRD-2009";
 	BibTeXKeys.VISCOSITY = "__QuinonesCisneros-JPCRD-2012";
-	BibTeXKeys.CONDUCTIVITY = "__Assael-JPCRD-2012";
+	BibTeXKeys.CONDUCTIVITY = "Assael-JPCRD-2012";
 	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
 	BibTeXKeys.ECS_LENNARD_JONES = "Poling-BOOK-2001";
 }

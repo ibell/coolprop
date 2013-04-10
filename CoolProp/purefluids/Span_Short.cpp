@@ -621,8 +621,8 @@ nDodecaneClass::nDodecaneClass()
 
 	BibTeXKeys.EOS = "Lemmon-EF-2004";
 	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
-	BibTeXKeys.VISCOSITY = "__Huber-EF-2004";
-	BibTeXKeys.CONDUCTIVITY = "__Huber-EF-2004";
+	BibTeXKeys.VISCOSITY = "Huber-EF-2004";
+	BibTeXKeys.CONDUCTIVITY = "Huber-EF-2004";
 }
 double nDodecaneClass::psat(double T)
 {
@@ -666,6 +666,60 @@ double nDodecaneClass::rhosatV(double T)
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
     return reduce.rho*exp(crit.T/T*summer);
+}
+void nDodecaneClass::ECSParams(double *e_k, double *sigma)
+{
+	// Huber 2004
+	*e_k = 522.592;
+	*sigma = 0.735639;
+}
+double nDodecaneClass::viscosity_Trho(double T, double rho)
+{
+	double sigma, e_k;
+	
+	// Dilute gas
+	this->ECSParams(&e_k, &sigma);
+	double Tstar = T/e_k;
+	double delta = rho/crit.rho;
+	double a[] = {0.382987, -0.561050, 0.313962e-1};
+	double S_star = exp(a[0]+a[1]*log(Tstar)+a[2]*log(Tstar)*log(Tstar));
+	double lambda_0 = 0.021357*sqrt(params.molemass*T)/(sigma*sigma*S_star); //[uPa-s]
+
+	// Initial-density
+	double b[] = {-19.572881, 219.73999, -1015.3226, 2471.0125, -3375.1717, 2491.6597, -787.26086, 14.085455, -0.34664158};
+	double t[] = {0, -0.25, -0.50, -0.75, -1.00, -1.25, -1.50, -2.50, -5.50};
+	double sumBstar = 0;
+	for (int i = 0; i<= 8; i++){ sumBstar += b[i]*pow(Tstar,t[i]); }
+	double Bstar = sumBstar;
+	double N_A = 6.02214129e23;
+	double B = N_A*pow(sigma/1e9,3)*Bstar;
+
+	// Residual
+	double a21 = -0.471703e-1, a31 = 0.827816e-2, a22 = 0.298429e-1, a32 = -0.134156e-1;
+	double c[] = {0, 0.503109, 2.32661, 2.23089};
+	double tau = T/crit.T;
+	double delta_0 = c[2]+c[3]*sqrt(tau);
+	double lambda_r = 1000*(a21*pow(delta,2)/tau+a31*pow(delta,3)/tau+a22*pow(delta,2)/pow(tau,2)+a32*pow(delta,3)/pow(tau,2)+c[1]*delta*(1/(delta_0-delta)-1/delta_0));
+
+	double rhobar = rho/params.molemass*1000;
+	return (lambda_0*(1+B*rhobar)+lambda_r)/1e6;
+}
+double nDodecaneClass::conductivity_Trho(double T, double rho)
+{
+	double sumresid = 0;
+	double lambda_0 = 0.436343e-2-0.264054e-1*T/crit.T+0.922394e-1*pow(T/crit.T,2)-0.291756e-1*pow(T/crit.T,3); //W/m/K
+
+	double B1[] = {0, 0.693347e-1, -0.331695e-1, 0.676165e-2};
+	double B2[] = {0, -0.280792e-1, 0.173922e-2, 0.309558e-2};
+	for (int i = 1; i <= 3; i++)
+	{
+		sumresid += (B1[i]+B2[i]*T/crit.T)*pow(rho/crit.rho,i);
+	}
+	double lambda_r = sumresid; // W/m/K
+
+	double lambda_c = this->conductivity_critical(T,rho,1/(1.52e-9))*1000; //[W/m/K]
+
+	return (lambda_0 + lambda_r + lambda_c)/1000; //[kW/m/K]
 }
 
 CyclohexaneClass::CyclohexaneClass()
