@@ -94,3 +94,22 @@ double SulfurHexafluorideClass::psat(double T)
 	double p = reduce.p*exp(reduce.T/T*(-7.09634642*pow(theta,1.0)+1.676662*pow(theta,1.5)-2.3921599*pow(theta,2.5)+5.86078302*pow(theta,4.0)-9.02978735*pow(theta,4.5)));
 	return p;
 }
+
+double SulfurHexafluorideClass::conductivity_Trho(double T, double rho)
+{
+	double sumresid = 0;
+	double B1[] = {0, -2.83746e-2, 2.07472e-2, -5.57180e-3, 5.32890e-3, -1.61688e-3};
+	double B2[] = {0, 3.52768e-2, -4.33053e-2, 5.12084e-2, -2.90262e-2, 5.98438e-3};
+	// Assael JPCRD 2012
+	double lambda_0 = (1461860 - 18539.4*T+77.7891*T*T+0.0241059*T*T*T)/(29661.7+505.67*T+T*T)/1000; //[W/m/K]
+
+	for (int i = 1; i <= 5; i++)
+	{
+		sumresid += (B1[i]+B2[i]*T/crit.T)*pow(rho/crit.rho,i);
+	}
+	double lambda_r = sumresid; //[W/m/K]
+
+	double lambda_c = this->conductivity_critical(T,rho,1/(3.5e-10))*1000; //[W/m/K]
+
+	return (lambda_0 + lambda_r + lambda_c)/1000; //[kW/m/K]
+}
