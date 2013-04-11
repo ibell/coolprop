@@ -39,6 +39,7 @@
 #include "purefluids/Siloxanes.cpp"
 #include "purefluids/Span_Short.cpp"
 #include "purefluids/SulfurHexafluoride.cpp"
+#include "purefluids/Undecane.cpp"
 #include "purefluids/Water.cpp"
 #include "purefluids/Xylene_EthylBenzene.cpp"
 

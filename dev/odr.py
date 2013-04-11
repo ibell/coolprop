@@ -215,7 +215,7 @@ def example2(Ref, ClassName,  N = 4, addTr = True, Llog = True):
 #example2('REFPROP-R236EA','R236EA', N = 7)
 #example2('REFPROP-R227EA','R227EA', N = 8)
 #example2('REFPROP-R365MFC','R365MFC', N = 8)
-example2('REFPROP-ORTHOHYD','OrthoHydrogen', N = 6)
+example2('REFPROP-C11','Undecane', N = 6)
 #example2('REFPROP-PROPYLEN','Propylene', N = 5)
 
 #example2('REFPROP-DMC','DMC',N = 5)

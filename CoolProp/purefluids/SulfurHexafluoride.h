@@ -9,12 +9,13 @@ public:
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
+	double viscosity_Trho(double T, double rho);
 	double conductivity_Trho(double T, double rho);
 	void ECSParams(double *e_k, double *sigma)
 	{
-		// Poling
-		*e_k = 222.1;
-		*sigma = 0.5128;
+		// QuinonesCisneros-JPCRD-2012
+		*e_k = 215;
+		*sigma = 0.5205;
 	}
 	double surface_tension_T(double T)
 	{

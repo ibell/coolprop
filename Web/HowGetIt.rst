@@ -1,5 +1,8 @@
+Downloading CoolProp
+====================
+
 How to get it?
-==============
+--------------
 
 Option 1 (easiest)
 ^^^^^^^^^^^^^^^^^^
@@ -44,7 +47,7 @@ and you can check out the sources by doing::
 or if you want to just browse the repository, you can go to https://sourceforge.net/p/coolprop/code/.
 
 Compiler Configuration
-======================
+----------------------
 If you are on OSX or linux/unix, you probably don't have to do anything at all since python will just use the most recent version of gcc.
 
 If you are a windows user and you have installed Visual Studio 2008 (even the `free express version <http://www.microsoft.com/visualstudio/en-us/products/2008-editions/express>`_ works) python will default to this compiler and everything should go just fine.  Make sure you do not install the 2010 version since python 2.x versions are compiled with Visual Studio 2008 compiler.  Yes I know that is annoying.
@@ -59,5 +62,5 @@ Or if you want to use ``easy_install``, you need to create a distutils configura
     compiler = mingw32
 
 Uninstall
-=========
+---------
 If you don't want CoolProp anymore, just delete the CoolProp folder in the Lib/site-packages folder for your distribution, as well as the CoolProp .egg file in Lib/site-packages

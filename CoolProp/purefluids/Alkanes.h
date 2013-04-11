@@ -49,7 +49,7 @@ public:
 		return 0.05138*pow(1-T/reduce.T,1.209);
 	}
 	//double viscosity_Trho(double, double);
-	//double conductivity_Trho(double, double);
+	double conductivity_Trho(double, double);
 };
 
 class IsoButaneClass : public Fluid {
@@ -60,11 +60,14 @@ public:
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
+	void ECSParams(double *e_k, double *sigma);
 	double surface_tension_T(double T)
 	{
 		// From Mulero, 2012, JPCRD
 		return -0.01639*pow(1-T/reduce.T,2.102)+0.06121*pow(1-T/reduce.T,1.304);
 	}
+	double viscosity_Trho(double, double);
+	double conductivity_Trho(double, double);
 };
 
 
