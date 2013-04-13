@@ -32,9 +32,9 @@ def finite_diff(Output,Input1,Val1,Input2,Val2,Fluid,  index,deriv,order,type = 
 ## P = Props('P','T',T,'D',rho,fluid)
 ## print T,rho,H,P
 
-fluid = 'Propane'
-T = 182.94915691527495#300
-rho = 635.26714710276121#1.5
+fluid = 'R125'
+T = 300
+rho = 1.5
 H = Props('H','T',T,'D',rho,fluid)
 P = Props('P','T',T,'D',rho,fluid)
 print T,rho,H,P

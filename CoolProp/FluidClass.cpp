@@ -78,6 +78,7 @@
 #include "purefluids/HFE143m.h"
 #include "purefluids/Benzene.h"
 #include "purefluids/Undecane.h"
+#include "purefluids/R125.h"
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -212,6 +213,7 @@ FluidsContainer::FluidsContainer()
 	FluidsList.push_back(new HFE143mClass());
 	FluidsList.push_back(new BenzeneClass());
 	FluidsList.push_back(new UndecaneClass());
+	FluidsList.push_back(new R125Class());
 
 	// The industrial fluids
 	FluidsList.push_back(new R245faClass());

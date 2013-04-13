@@ -96,11 +96,17 @@ public:
 	double dTau3(double tau, double delta) throw();
 };
 
+/*!
+
+Terms are of the form 
+\f[
+\phi_r = a \delta ^d \tau^t \exp(-\alpha(\delta-\epsilon)^2-\beta(\tau-\gamma)^2)
+\f]
+
+*/
 class phir_gaussian : public phi_BC{
 	/*
 	Terms are of the form a * delta ^d * tau^t * exp(-alpha*(delta-epsilon)^2-beta*(tau-gamma)^2)
-
-	Constructor must be called with std::vector instances of double type
 	*/
 private:
 	std::vector<double> n,d,t,alpha,epsilon,beta,gamma;
@@ -175,6 +181,55 @@ public:
 	~phir_critical(){};
 
 	// Term and its derivatives
+	double base(double tau, double delta) throw();
+	double dDelta(double tau, double delta) throw();
+	double dTau(double tau, double delta) throw();
+	
+	double dDelta2(double tau, double delta) throw();
+	double dDelta_dTau(double tau, double delta) throw();
+	double dTau2(double tau, double delta) throw();
+	
+	double dDelta3(double tau, double delta) throw();
+	double dDelta2_dTau(double tau, double delta) throw();
+	double dDelta_dTau2(double tau, double delta) throw();
+	double dTau3(double tau, double delta) throw();
+};
+
+/*! 
+
+This class implements residual Helmholtz Energy terms of the form  
+
+\f[
+\phi_r = n  \delta^d  \tau^t  exp(-\delta^l) exp(-\tau^m)
+\f]
+
+*/
+
+class phir_Lemmon2005 : public phi_BC{
+	/*
+	Terms are of the form 
+	n * delta ^d * tau^t if l == 0 and m == 0
+	n * delta ^d * tau^t * exp(-delta^l) if l != 0  and m = 0
+	n * delta ^d * tau^t * exp(-delta^l) * exp(-tau^m) if l != 0 and m != 0
+	Constructor must be called with std::vector instances of double type
+	*/
+private:
+	std::vector<double> n, ///< The coefficients multiplying each term
+		                d, ///< The power for the delta terms
+						t, ///< The powers for the tau terms
+						l, ///< The powers for delta in the exp terms
+						m; ///< The powers for tau in the exp terms
+	unsigned int iStart,iEnd;
+public:
+	// Constructors
+	phir_Lemmon2005(std::vector<double>,std::vector<double>,std::vector<double>,std::vector<double>,std::vector<double>,int,int);
+	// Add a dummy value at the end of the function since compiler sees std::vector<double> and double[] as being the same type
+	phir_Lemmon2005(const double[], const double[], const double[], const double[],const double[],int,int,int);
+	phir_Lemmon2005(double[],double[],double[],double[],double[],int,int,int);
+
+	///< Destructor for the phir_Lemmon2005 class.  No implementation
+	~phir_Lemmon2005(){};
+
 	double base(double tau, double delta) throw();
 	double dDelta(double tau, double delta) throw();
 	double dTau(double tau, double delta) throw();

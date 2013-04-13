@@ -696,7 +696,7 @@ TolueneClass::TolueneClass()
     REFPROPname.assign("toluene");
 
 	BibTeXKeys.EOS = "Lemmon-JCED-2006";
-	BibTeXKeys.VISCOSITY = "__Assael-IJT-2001";
+	BibTeXKeys.VISCOSITY = "";
 	BibTeXKeys.CONDUCTIVITY = "ASSAEL-JPCRD-2012B";
 	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
 }
