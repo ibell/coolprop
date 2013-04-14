@@ -107,7 +107,7 @@ double EthanolClass::rhosatV(double T)
 
 double EthanolClass::viscosity_Trho(double T, double rho)
 {
-	double eta_0 = -1.03116 + 3.48379e-2*T - 6.50264e-6*T*T;
+	double eta_0 = -1.03116 + 3.48379e-2*T - 6.50264e-6*T*T; //uPa-s
 
 	// Rainwater-Friend for initial density dependence
 	double e_k, sigma;
@@ -115,9 +115,7 @@ double EthanolClass::viscosity_Trho(double T, double rho)
 	double Tstar = T/e_k;
 	double b[] = {-19.572881, 219.73999, -1015.3226, 2471.01251, -3375.1717, 2491.6597, -787.26086, 14.085455, -0.34664158};
 	double Bstar = b[0]*pow(Tstar,-0.25*0)+b[1]*pow(Tstar,-0.25*1)+b[2]*pow(Tstar,-0.25*2)+b[3]*pow(Tstar,-0.25*3)+b[4]*pow(Tstar,-0.25*4)+b[5]*pow(Tstar,-0.25*5)+b[6]*pow(Tstar,-0.25*6)+b[7]*pow(Tstar,-2.5)+b[8]*pow(Tstar,-5.5);
-	double N_A = 6.0221415e23;
-
-	double B = Bstar*N_A*sigma*sigma*sigma/1e27/1000;
+	double B = Bstar*0.60221415*sigma*sigma*sigma;
 
 	double e[4][3]; // init with zeros
 	
@@ -131,7 +129,7 @@ double EthanolClass::viscosity_Trho(double T, double rho)
 	double c1 = 23.7222995, c2 = -3.38264465, c3 = 12.7568864;
 
 	double sumresid = 0;
-	double tau = T/513.9, delta = rho/5.991/46.06844;
+	double tau = T/513.9, delta = rho/(5.991*46.06844);
 	for (int j = 2; j<=3; j++)
 	{
 		for (int k = 0; k <= 2; k++)
@@ -139,7 +137,7 @@ double EthanolClass::viscosity_Trho(double T, double rho)
 			sumresid += e[j][k]*pow(delta,j)/pow(tau,k);
 		}
 	}
-	double delta_0 = c2 + c3*sqrt(T/crit.T);
+	double delta_0 = c2 + c3*sqrt(T/513.9);
 	double eta_r = (sumresid + c1*(delta/(delta_0-delta)-delta/delta_0))*1000; // uPa-s
 
 	double rhobar = rho/params.molemass; // [mol/L]
