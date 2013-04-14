@@ -67,10 +67,8 @@ public:
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
-	void ECSParams(double *e_k, double *sigma){
-		// Poling
-		*e_k = 301; *sigma = 0.3623; 
-	};
+	void ECSParams(double *e_k, double *sigma);
+	double viscosity_Trho(double T, double rho);
 	double surface_tension_T(double T)
 	{
 		// From Mulero, 2012, JPCRD

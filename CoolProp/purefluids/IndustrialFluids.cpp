@@ -414,7 +414,56 @@ HydrogenSulfideClass::HydrogenSulfideClass()
 
 	BibTeXKeys.EOS = "Lemmon-JCED-2006";
 	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
-	BibTeXKeys.ECS_LENNARD_JONES = "Poling-BOOK-2001";
+	BibTeXKeys.ECS_LENNARD_JONES = "QuinonesCisneros-JCED-2012";
+	BibTeXKeys.VISCOSITY = "QuinonesCisneros-JCED-2012";
+}
+void HydrogenSulfideClass::ECSParams(double *e_k, double *sigma)
+{
+	*e_k = 355.8;
+	*sigma = 0.3565;
+}
+double HydrogenSulfideClass::viscosity_Trho(double T, double rho)
+{
+	double Tr = T/crit.T;	
+
+	// Dilute
+	double a[] = {0.53242, 0.93715, -0.69339, 1.16432, -0.84306, 0.20534};
+	double Sstar = 0;
+	for (int i = 0; i <= 5; i++) {Sstar += a[i]/pow(T/276.0,i); }
+	double eta_0 = 0.87721*sqrt(T)/Sstar; // uPa-s
+
+	// Rainwater-Friend for initial density dependence
+	double e_k, sigma;
+	this->ECSParams(&e_k,&sigma);
+	double Tstar = T/e_k;
+	double rhobar = rho/params.molemass; // mol/L
+
+	double b[] = {-19.572881, 219.73999, -1015.3226, 2471.01251, -3375.1717, 2491.6597, -787.26086, 14.085455, -0.34664158};
+	double Bstar = b[0]*pow(Tstar,-0.25*0)+b[1]*pow(Tstar,-0.25*1)+b[2]*pow(Tstar,-0.25*2)+b[3]*pow(Tstar,-0.25*3)+b[4]*pow(Tstar,-0.25*4)+b[5]*pow(Tstar,-0.25*5)+b[6]*pow(Tstar,-0.25*6)+b[7]*pow(Tstar,-2.5)+b[8]*pow(Tstar,-5.5);
+	double B = Bstar*0.60221415*sigma*sigma*sigma; // L/mol
+	
+	double eta_i = eta_0*B*rhobar; // uPa-s
+
+	// Residual part
+	double psi1 = exp(crit.T/T);
+	double psi2 = exp(crit.T*crit.T/T/T);
+	double a0 = 68.9659e-6, b0 = 153.406e-6, A0 =  0.782380e-9, B0 = -9.75792e-9;
+	double a1 = -22.0494e-6, b1 = 8.45198e-6, A1 = -0.64717e-9, B1 = -3.19303e-9;
+	double a2 = -42.6126e-6, b2 = -113.967e-6, A2 = 1.39066e-9, B2 = 12.4263e-9;
+	double ka = (a0 + a1*psi1 + a2*psi2)*crit.T/T;
+	double kr = (b0 + b1*psi1 + b2*psi2)*crit.T/T;
+	double kaa = (A0 + A1*psi1 + A2*psi2)*crit.T/T;
+	double krr = (B0 + B1*psi1 + B2*psi2)*crit.T/T;
+
+	double p = this->pressure_Trho(T,rho)/100; // kPa -> bar
+	double pr = T*this->dpdT_Trho(T,rho)/100; // kPa-> bar
+	double pa = p - pr;
+	double pid = rho * R() * T / 100; // kPa -> bar
+	double deltapr = pr - pid;
+
+	double eta_f = (ka*pa + kr*deltapr + kaa*pa*pa + krr*pr*pr)/1000; //mPa-s --> uPa-s
+
+	return (eta_0 + eta_i + eta_f)/1e6;
 }
 
 IsopentaneClass::IsopentaneClass()
