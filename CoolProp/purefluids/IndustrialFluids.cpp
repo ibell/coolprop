@@ -290,7 +290,71 @@ DecaneClass::DecaneClass()
 
 	BibTeXKeys.EOS = "Lemmon-JCED-2006";
 	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
-	BibTeXKeys.ECS_LENNARD_JONES = "Chichester-NIST-2008";
+	BibTeXKeys.ECS_LENNARD_JONES = "Huber-FPE-2004";
+	BibTeXKeys.VISCOSITY = "Huber-FPE-2004";
+	BibTeXKeys.CONDUCTIVITY = "Huber-FPE-2005";
+}
+void DecaneClass::ECSParams(double *e_k, double *sigma)
+{
+	// From Huber 2004
+	*e_k = 490.510;
+	*sigma = 0.68600;
+}
+double DecaneClass::viscosity_Trho(double T, double rho)
+{
+	// Rainwater-Friend for initial density dependence
+	double e_k, sigma;
+	this->ECSParams(&e_k,&sigma);
+	double Tstar = T/e_k;
+
+	// Dilute gas
+	double eta_0 = 0.021357*sqrt(params.molemass*T)/(sigma*sigma*exp(0.343267-0.460514*log(Tstar))); // uPa-s
+
+	// Initial density dependence from Rainwater-Friend
+	double b[] = {-19.572881, 219.73999, -1015.3226, 2471.01251, -3375.1717, 2491.6597, -787.26086, 14.085455, -0.34664158};
+	double Bstar = b[0]*pow(Tstar,-0.25*0)+b[1]*pow(Tstar,-0.25*1)+b[2]*pow(Tstar,-0.25*2)+b[3]*pow(Tstar,-0.25*3)+b[4]*pow(Tstar,-0.25*4)+b[5]*pow(Tstar,-0.25*5)+b[6]*pow(Tstar,-0.25*6)+b[7]*pow(Tstar,-2.5)+b[8]*pow(Tstar,-5.5);
+	double B = Bstar*0.60221415*sigma*sigma*sigma; // L/mol
+
+	double e[4][3]; // init with zeros
+	e[2][1] = -0.402094e-1;
+	e[2][2] =  0.404435e-1;	
+	e[3][1] =  0;
+	e[3][2] = -0.142063e-1;
+
+	double c[] = {0, 0.453387, 2.55105, 1.71465, 0};
+
+	double sumresid = 0;
+	double tau = T/crit.T, delta = rho/crit.rho;
+	for (int j = 2; j <= 3; j++)
+	{
+		for (int k = 1; k <= 2; k++)
+		{
+			sumresid += e[j][k]*pow(delta,j)/pow(tau,k);
+		}
+	}
+	double delta_0 = c[2] + c[3]*sqrt(tau) + c[4]*tau;
+	double eta_r = (sumresid + c[1]*(delta/(delta_0-delta)-delta/delta_0))*1000; // uPa-s
+
+	double rhobar = rho/params.molemass; // [mol/L]
+	return (eta_0*(1+B*rhobar) + eta_r)/1e6;
+}
+double DecaneClass::conductivity_Trho(double T, double rho)
+{
+	double lambda_0 = 1.05542680e-2 - 5.14530090e-2*(T/crit.T) + 1.18978971e-1*pow(T/crit.T,2) - 3.72442104e-2*pow(T/crit.T,3); // W/m/K
+
+	double sumresid = 0;
+	double B1[] = {0, -2.94394112e-2, 4.99245356e-2, -1.42700394e-2, 1.50827597e-3};
+	double B2[] = {0, 1.50509474e-2, 0, -1.38857133e-2, 4.33326339e-3};
+
+	for (int i = 1; i<= 4; i++){
+		sumresid += (B1[i]+B2[i]*(T/reduce.T))*pow(rho/reduce.rho,i);
+	}
+
+	double lambda_r = sumresid; // [W/m/K]
+
+	double lambda_c = this->conductivity_critical(T,rho,1.41115586e9)*1000; // [W/m/K]
+
+	return (lambda_0+lambda_r+lambda_c)/1000;
 }
 
 HydrogenSulfideClass::HydrogenSulfideClass()
@@ -638,8 +702,72 @@ NonaneClass::NonaneClass()
     REFPROPname.assign("nonane");
 
 	BibTeXKeys.EOS = "Lemmon-JCED-2006";
-	BibTeXKeys.ECS_LENNARD_JONES = "Chichester-NIST-2008";
 	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
+	BibTeXKeys.ECS_LENNARD_JONES = "Huber-FPE-2004";
+	BibTeXKeys.VISCOSITY = "Huber-FPE-2004";
+	BibTeXKeys.CONDUCTIVITY = "Huber-FPE-2005";
+}
+void NonaneClass::ECSParams(double *e_k, double *sigma)
+{
+	// From Huber 2004
+	*e_k = 472.127;
+	*sigma = 0.66383;
+}
+double NonaneClass::viscosity_Trho(double T, double rho)
+{
+	// Rainwater-Friend for initial density dependence
+	double e_k, sigma;
+	this->ECSParams(&e_k,&sigma);
+	double Tstar = T/e_k;
+
+	// Dilute gas
+	double eta_0 = 0.021357*sqrt(params.molemass*T)/(sigma*sigma*exp(0.340344-0.466455*log(Tstar))); // uPa-s
+
+	// Initial density dependence from Rainwater-Friend
+	double b[] = {-19.572881, 219.73999, -1015.3226, 2471.01251, -3375.1717, 2491.6597, -787.26086, 14.085455, -0.34664158};
+	double Bstar = b[0]*pow(Tstar,-0.25*0)+b[1]*pow(Tstar,-0.25*1)+b[2]*pow(Tstar,-0.25*2)+b[3]*pow(Tstar,-0.25*3)+b[4]*pow(Tstar,-0.25*4)+b[5]*pow(Tstar,-0.25*5)+b[6]*pow(Tstar,-0.25*6)+b[7]*pow(Tstar,-2.5)+b[8]*pow(Tstar,-5.5);
+	double B = Bstar*0.60221415*sigma*sigma*sigma; // L/mol
+
+	double e[4][3]; // init with zeros
+	e[2][1] = -0.314367e-1;		
+	e[2][2] =  0.326258e-1;	
+	e[3][1] =  0.639384e-2;
+	e[3][2] = -0.108922e-1;
+
+	double c[] = {0, 0.192935, 2.66987, 1.32137, 0};
+
+	double sumresid = 0;
+	double tau = T/crit.T, delta = rho/crit.rho;
+	for (int j = 2; j <= 3; j++)
+	{
+		for (int k = 1; k <= 2; k++)
+		{
+			sumresid += e[j][k]*pow(delta,j)/pow(tau,k);
+		}
+	}
+	double delta_0 = c[2] + c[3]*sqrt(tau) + c[4]*tau;
+	double eta_r = (sumresid + c[1]*(delta/(delta_0-delta)-delta/delta_0))*1000; // uPa-s
+
+	double rhobar = rho/params.molemass; // [mol/L]
+	return (eta_0*(1+B*rhobar) + eta_r)/1e6;
+}
+double NonaneClass::conductivity_Trho(double T, double rho)
+{
+	double lambda_0 = 8.7877e-3 - 4.1351e-2*(T/crit.T) + 1.0479e-1*pow(T/crit.T,2) - 3.2003e-2*pow(T/crit.T,3); // W/m/K
+
+	double sumresid = 0;
+	double B1[] = {0, 4.90087596e-3, -8.07305471e-3, 5.57430614e-3, 0};
+	double B2[] = {0, 9.96486280e-3, 0 , 0, 0};
+
+	for (int i = 1; i<= 4; i++){
+		sumresid += (B1[i]+B2[i]*(T/reduce.T))*pow(rho/reduce.rho,i);
+	}
+
+	double lambda_r = sumresid; // [W/m/K]
+
+	double lambda_c = this->conductivity_critical(T,rho,9.58722814e8)*1000; // [W/m/K]
+
+	return (lambda_0+lambda_r+lambda_c)/1000;
 }
 
 TolueneClass::TolueneClass()

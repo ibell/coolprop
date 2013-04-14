@@ -5,11 +5,11 @@ Ethanol
 
 Aliases
 ================================================================================
-````
+``C2H6O``
 
 Equation of State Reference
 ===========================
-Dillon, H.E., and S. G. Penoncello, "A Fundamental Equation for Calculation of the Thermodynamic Properties of Ethanol,", International Journal of Thermophysics, Vol. 25, No. 2, March 2004.
+Schroeder Idaho Thesis, 2011
 
 Transport Properties Information
 ================================
@@ -24,16 +24,16 @@ Fluid Parameters
 =========================  ==============================
 Mole Mass [kg/kmol]        46.06844
 Triple Point Temp. [K]     159.100
-Triple Point Press. [kPa]  8.8e-07
+Triple Point Press. [kPa]  7.2e-07
 Minimum temperature [K]    159.100
 =========================  ==============================
 
 Critical Parameters
 
 ==============================  ==============================
-Temperature [K]                 513.900
-Density [kg/m\ :sup:`3`\ ]      275.996024
-Pressure [kPa]                  6148.00000
+Temperature [K]                 514.710
+Density [kg/m\ :sup:`3`\ ]      273.185849
+Pressure [kPa]                  6268.00000
 ==============================  ==============================
 
 
@@ -239,9 +239,9 @@ Check of p,h and p,s as inputs (X: Failure .: Success)
     smin = Props('S','T',Tmin,'Q',0,Ref)
     smax = 2*Props('S','T',Props(Ref,'Tcrit')-1,'Q',1,Ref)-smin
 
-    Ph(Ref, axis = ax1, Tmin = Tmin, Tmax = 513.890000)
-    Ps(Ref, axis = ax2, Tmin = Tmin, Tmax = 513.890000)
-    hs(Ref, axis = ax3, Tmin = Tmin, Tmax = 513.890000)
+    Ph(Ref, axis = ax1, Tmin = Tmin, Tmax = 514.700000)
+    Ps(Ref, axis = ax2, Tmin = Tmin, Tmax = 514.700000)
+    hs(Ref, axis = ax3, Tmin = Tmin, Tmax = 514.700000)
 
     for p in np.linspace(pmin,pmax,10):
         for h in np.linspace(hmin,hmax):

@@ -624,7 +624,7 @@ IsoButaneClass::IsoButaneClass()
 
 	BibTeXKeys.EOS = "Buecker-JPCRD-2006";
 	BibTeXKeys.VISCOSITY = "Vogel-IJT-2000";
-	BibTeXKeys.ECS_LENNARD_JONES = "Vogel_IJT-2000";
+	BibTeXKeys.ECS_LENNARD_JONES = "Vogel-IJT-2000";
 	BibTeXKeys.CONDUCTIVITY = "Perkins-JCED-2002B";
 	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
 }

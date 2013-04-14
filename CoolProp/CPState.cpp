@@ -925,7 +925,7 @@ double CoolPropStateClass::keyed_output(long iOutput)
 		case iD:
 			return _rho;
 		case iP:
-			return p();
+			return _p;
 		case iC:
 			return cp();
 		case iC0:

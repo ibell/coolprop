@@ -526,8 +526,10 @@ nOctaneClass::nOctaneClass()
 
 	BibTeXKeys.EOS = "Span-IJT-2003B";
 	BibTeXKeys.CP0 = "Jaeschke-IJT-1995";
-	BibTeXKeys.ECS_LENNARD_JONES = "Chichester-NIST-2008";
 	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
+	BibTeXKeys.ECS_LENNARD_JONES = "Huber-FPE-2004";
+	BibTeXKeys.VISCOSITY = "Huber-FPE-2004";
+	BibTeXKeys.CONDUCTIVITY = "Huber-FPE-2005";
 }
 double nOctaneClass::psat(double T)
 {
@@ -571,6 +573,68 @@ double nOctaneClass::rhosatV(double T)
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
     return reduce.rho*exp(summer);
+}
+void nOctaneClass::ECSParams(double *e_k, double *sigma)
+{
+	// From Huber 2004
+	*e_k = 452.090;
+	*sigma = 0.63617;
+}
+double nOctaneClass::viscosity_Trho(double T, double rho)
+{
+	// Rainwater-Friend for initial density dependence
+	double e_k, sigma;
+	this->ECSParams(&e_k,&sigma);
+	double Tstar = T/e_k;
+
+	// Dilute gas
+	double eta_0 = 0.021357*sqrt(params.molemass*T)/(sigma*sigma*exp(0.335103-0.467898*log(Tstar))); // uPa-s
+
+	// Initial density dependence from Rainwater-Friend
+	double b[] = {-19.572881, 219.73999, -1015.3226, 2471.01251, -3375.1717, 2491.6597, -787.26086, 14.085455, -0.34664158};
+	double Bstar = b[0]*pow(Tstar,-0.25*0)+b[1]*pow(Tstar,-0.25*1)+b[2]*pow(Tstar,-0.25*2)+b[3]*pow(Tstar,-0.25*3)+b[4]*pow(Tstar,-0.25*4)+b[5]*pow(Tstar,-0.25*5)+b[6]*pow(Tstar,-0.25*6)+b[7]*pow(Tstar,-2.5)+b[8]*pow(Tstar,-5.5);
+	double B = Bstar*0.60221415*sigma*sigma*sigma; // L/mol
+
+	double e[4][3]; // init with zeros
+	e[2][1] = -0.103924;
+	e[2][2] =   9.92302e-2;	
+	e[3][1] =   1.13327e-2;
+	e[3][2] =  -3.22455e-2;
+
+	double c[] = {0, 0.606122, 2.0651, 3.07843, -0.879088};
+
+	double sumresid = 0;
+	double tau = T/crit.T, delta = rho/crit.rho;
+	for (int j = 2; j <= 3; j++)
+	{
+		for (int k = 1; k <= 2; k++)
+		{
+			sumresid += e[j][k]*pow(delta,j)/pow(tau,k);
+		}
+	}
+	double delta_0 = c[2] + c[3]*sqrt(tau) + c[4]*tau;
+	double eta_r = (sumresid + c[1]*(delta/(delta_0-delta)-delta/delta_0))*1000; // uPa-s
+
+	double rhobar = rho/params.molemass; // [mol/L]
+	return (eta_0*(1+B*rhobar) + eta_r)/1e6;
+}
+double nOctaneClass::conductivity_Trho(double T, double rho)
+{
+	double lambda_0 = 7.7293e-3-3.7114e-2*(T/crit.T) + 9.7758e-2*pow(T/crit.T,2) - 2.8871e-2*pow(T/crit.T,3); // W/m/K
+
+	double sumresid = 0;
+	double B1[] = {0, 0.285553e-1, -0.171398e-1, 0.659971e-2, 0};
+	double B2[] = {0, -0.926155e-2, 0, 0.153496e-2, 0};
+
+	for (int i = 1; i<= 4; i++){
+		sumresid += (B1[i]+B2[i]*(T/reduce.T))*pow(rho/reduce.rho,i);
+	}
+
+	double lambda_r = sumresid; // [W/m/K]
+
+	double lambda_c = this->conductivity_critical(T,rho,0.145713e10)*1000; // [W/m/K]
+
+	return (lambda_0+lambda_r+lambda_c)/1000;
 }
 
 nDodecaneClass::nDodecaneClass()
@@ -964,12 +1028,14 @@ R123Class::R123Class()
 	TransportReference.assign("Using ECS in fully predictive mode. ");
 
 	name.assign("R123");
-	aliases.push_back("R123");
 	REFPROPname.assign("R123");
 
 	BibTeXKeys.EOS = "Span-IJT-2003C";
 	BibTeXKeys.CP0 = "Younglove-JPCRD-1994";
 	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
+	BibTeXKeys.CONDUCTIVITY = "Laesecke-IJR-1996";
+	BibTeXKeys.VISCOSITY = "Tanaka-IJT-1996";
+	BibTeXKeys.ECS_LENNARD_JONES = "Tanaka-IJT-1996";
 }
 double R123Class::psat(double T)
 {
@@ -1014,6 +1080,50 @@ double R123Class::rhosatV(double T)
     }
     return reduce.rho*exp(crit.T/T*summer);
 }
+void R123Class::ECSParams(double *e_k, double *sigma)
+{
+	// From Tanaka 1996
+	*e_k = 340;
+	*sigma = 0.56;
+}
+double R123Class::viscosity_Trho(double T, double rho)
+{
+	// From Tanaka 1996
+	double eta_0 = -2.273638 + 5.099859e-2*T - 2.402786e-5*T*T;
+	
+	double eta_1 = -2.226486e-2 + 5.550623e-5*T;
+
+	double rho0 = 1.828263e3, a0 = -3.222951e5, a1 = -1.009812e-1, a2 = 6.161902e-5, a3 = -8.84048e-8;
+
+	double eta_r = a0/(rho-rho0)+a0/rho0+a1*rho+a2*rho*rho+a3*rho*rho*rho;
+
+	return (eta_0 + eta_1*rho + eta_r)/1e6;
+
+}
+double R123Class::conductivity_Trho(double T, double rho)
+{
+	double tau = 456.831/T, delta = rho/550;
+
+	double lambda_0 = 5.695e-5*T-0.00778; // [W/m/K]
+
+	double d[] = {0, 1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4};
+	double t[] = {0, 1.5, 2, 6, 0, 0.5, 1.5, 0, 0.5, 1.5, 0, 0.5, 1.5};
+	double a[] = {0, 0.642894e-1, -0.530474e-1, 0.453522e-4, -0.139928, 0.166540, -0.162656e-1, 0.136819, -0.183291, 0.357146e-1, -0.231210e-1, 0.341945e-1, -0.757341e-2};
+	double a13 = 0.486742e-2, a14 = -100, a15 = -7.08535;
+
+	double sumresid = 0;
+
+	for (int i = 1; i <= 12; i++)
+	{
+		sumresid += a[i]*pow(delta,d[i])*pow(tau,t[i]);
+	}
+	double lambda_r = sumresid; // W/m/K
+
+	double lambda_c = a13*exp(a14*pow(tau-1,4)+a15*pow(delta-1,2));
+
+	return (lambda_0 + lambda_r + lambda_c)/1000; // kW/m/K
+}
+
 
 
 R11Class::R11Class()

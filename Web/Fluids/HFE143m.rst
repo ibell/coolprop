@@ -1,23 +1,19 @@
 
 ********************
-R123
+HFE143m
 ********************
 
 Aliases
 ================================================================================
-````
+``HFE-143m``, ``HFE143M``, ``HFE-143M``, ``RE143A``, ``RE143a``
 
 Equation of State Reference
 ===========================
-Span, R. and W. Wagner, "Equations of State for Technical Applications. III. Results for Polar Fluids", International Journal of Thermophysics, Vol. 24, No. 1, January 2003. 
-
-Cp0: Ben A. Younglove "An International Standard Equation of State for the Thermodynamic Properties of Refrigerant 123 (2,2-Dichloro-1,1,1-Trifluoroethane)" J. Phys. Chem Ref. Data Vol 23, no 5, 1994
-
-Note: REFPROP 9.0 uses the less accurate MWBR formulation
+Ryo Akasaka and Yohei Kayukawa " A fundamental equation of state for trifluoromethyl methyl ether (HFE-143m) and its application to refrigeration cycle analysis " International Journal of Refrigeration 35 (2012) 1003-1013 
 
 Transport Properties Information
 ================================
-Using ECS in fully predictive mode. 
+Using ECS in fully predictive mode.
 
 
 Fluid Data
@@ -26,18 +22,18 @@ Fluid Data
 Fluid Parameters
 
 =========================  ==============================
-Mole Mass [kg/kmol]        152.93100
-Triple Point Temp. [K]     166.000
-Triple Point Press. [kPa]  6.687078594
-Minimum temperature [K]    166.000
+Mole Mass [kg/kmol]        100.04000
+Triple Point Temp. [K]     130.000
+Triple Point Press. [kPa]  0.000919756264
+Minimum temperature [K]    130.000
 =========================  ==============================
 
 Critical Parameters
 
 ==============================  ==============================
-Temperature [K]                 456.820
-Density [kg/m\ :sup:`3`\ ]      553.000000
-Pressure [kPa]                  3672.00000
+Temperature [K]                 377.921
+Density [kg/m\ :sup:`3`\ ]      465.000000
+Pressure [kPa]                  3635.00000
 ==============================  ==============================
 
 
@@ -46,8 +42,8 @@ Saturated Vapor Deviations
 
 .. plot::
 
-    Fluid = "R123"
-    RPFluid = "REFPROP-R123"
+    Fluid = "HFE143m"
+    RPFluid = "REFPROP-RE143A"
 
     #Saturated Vapor
     from CoolProp.CoolProp import Props
@@ -107,8 +103,8 @@ Saturated Liquid Deviations
 
 .. plot::
 
-    Fluid = "R123"
-    RPFluid = "REFPROP-R123"
+    Fluid = "HFE143m"
+    RPFluid = "REFPROP-RE143A"
 
     #Saturated Liquid
     from CoolProp.CoolProp import Props
@@ -167,8 +163,8 @@ Along the critical isotherm where T=T\ :sub:`c`
 ================================================
 .. plot::
 
-    Fluid = "R123"
-    RPFluid = "REFPROP-R123"
+    Fluid = "HFE143m"
+    RPFluid = "REFPROP-RE143A"
 
     #Critical isotherm
     from CoolProp.CoolProp import Props
@@ -228,7 +224,7 @@ Check of p,h and p,s as inputs (X: Failure .: Success)
     from matplotlib import pyplot as plt
     import numpy as np
 
-    Ref = "R123"
+    Ref = "HFE143m"
     fig = plt.figure(figsize=(10,10))
     ax1 = fig.add_subplot(221)
     ax2 = fig.add_subplot(222)
@@ -243,9 +239,9 @@ Check of p,h and p,s as inputs (X: Failure .: Success)
     smin = Props('S','T',Tmin,'Q',0,Ref)
     smax = 2*Props('S','T',Props(Ref,'Tcrit')-1,'Q',1,Ref)-smin
 
-    Ph(Ref, axis = ax1, Tmin = Tmin, Tmax = 456.810000)
-    Ps(Ref, axis = ax2, Tmin = Tmin, Tmax = 456.810000)
-    hs(Ref, axis = ax3, Tmin = Tmin, Tmax = 456.810000)
+    Ph(Ref, axis = ax1, Tmin = Tmin, Tmax = 377.911000)
+    Ps(Ref, axis = ax2, Tmin = Tmin, Tmax = 377.911000)
+    hs(Ref, axis = ax3, Tmin = Tmin, Tmax = 377.911000)
 
     for p in np.linspace(pmin,pmax,10):
         for h in np.linspace(hmin,hmax):

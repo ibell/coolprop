@@ -6,21 +6,25 @@
 
 EthanolClass::EthanolClass()
 {
-    double _n[]= {0, 1.14008942201e1, -3.95227128302e1, 4.13063408370e1, -1.88892923721e1, 4.72310314140, -7.78322827052e-3, 1.71707850032e-1, -1.53758307602, 1.42405508571, 1.32732097050e-1, -1.14231649761e-1, 3.27686088736e-6, 4.95699527725e-4, -7.01090149558e-5, -2.25019381648e-6, -2.55406026981e-1, -6.32036870646e-2, -3.14882729522e-2, 2.56187828185e-2, -3.08694499382e-2, 7.22046283076e-3, 2.99286406225e-3, 9.72795913095e-4};
-	double _d[] = {0, 1, 1, 1, 1, 1, 1, 2, 2, 2, 3, 3, 6, 7, 8, 8, 1, 3, 3, 6, 7, 8, 2, 7};
-	double _t[] = {0, -0.5, 0, 0.5, 1.5, 2, 5, -0.5, 1, 2, 0, 2.5, 6, 2, 2, 4, 5, 3, 7, 5.5, 4, 1, 22, 23};
-	double _l[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 4, 4};
-    
+    double n[]= {0, 5.8200796E-02, 9.4391227E-01, -8.0941908E-01, 5.5359038E-01, -1.4269032E+00, 1.3448717E-01, 4.2671978E-01, -1.1700261E+00, -9.2405872E-01, 3.4891808E-01, -9.1327720E-01, 2.2629481E-02, -1.5513423E-01, 2.1055146E-01, -2.1997690E-01, -6.5857238E-03, 7.5564749E-01, 1.0694110E-01, -6.9533844E-02, -2.4947395E-01, 2.7177891E-02, -9.0539530E-04, -1.2310953E-01, -8.9779710E-02, -3.9512601E-01};
+	double d[] = {0, 4, 1, 1, 2, 2, 3, 1, 1, 1, 3, 3, 2, 2, 6, 6, 8, 1, 1, 2, 3, 3, 2, 2, 2, 1};
+	double t[] = {0, 1.00, 1.04, 2.72, 1.174, 1.329, 0.195, 2.43, 1.274, 4.16, 3.30, 4.177, 2.50, 0.81, 2.02, 1.606, 0.86, 2.50, 3.72, 1.19, 3.25, 3.00, 2.00, 2.00, 1.00, 1.00};
+	double l[] = {0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 1, 2, 1, 2, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+	double alpha[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1.075, 0.463, 0.876, 1.108, 0.741, 4.032, 2.453, 2.300, 3.143};
+	double beta[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1.207, 0.0895, 0.581, 0.947, 2.356, 27.01, 4.542, 1.287, 3.090};
+	double gamma[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1.194, 1.986, 1.583, 0.756, 0.495, 1.002, 1.077, 1.493, 1.542};
+	double epsilon[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.779, 0.805, 1.869, 0.694, 1.312, 2.054, 0.441, 0.793, 0.313};
+
     // Critical parameters
-    crit.rho = 5.991*46.06844;
-    crit.p = 6148.0;
-    crit.T = 513.9;
+    crit.rho = 5.93*46.06844;
+    crit.p = 6268.0;
+    crit.T = 514.71;
     crit.v = 1.0/crit.rho;
 
     // Other fluid parameters
     params.molemass = 46.06844;
     params.Ttriple = 159.1;
-	params.ptriple = 0.00000088;
+	params.ptriple = 7.2e-7;
     params.accentricfactor = 0.644;
     params.R_u = 8.314472;
 
@@ -31,83 +35,117 @@ EthanolClass::EthanolClass()
     limits.rhomax = 1000000.0*params.molemass;    
 
 	// Residual part
-    std::vector<double> n_v(_n, _n+sizeof(_n)/sizeof(double));
-    std::vector<double> d_v(_d, _d+sizeof(_d)/sizeof(double));
-    std::vector<double> t_v(_t, _t+sizeof(_t)/sizeof(double));
-    std::vector<double> l_v(_l, _l+sizeof(_l)/sizeof(double));
-    phirlist.push_back(new phir_power(n_v,d_v,t_v,l_v,1,23));
+    phirlist.push_back(new phir_power(n,d,t,l,1,16,26));
+	phirlist.push_back(new phir_gaussian(n,d,t,alpha,epsilon,beta,gamma,17,25,26));
 
 	// Ideal-gas part
-	const double u0[]={0.0, 6.41129, 1.95989, 7.60084, 3.89583, 4.23238};
-    const double v0[]={0.0, 0, 694, 1549, 2911, 4659};
-	std::vector<double> u0_v(u0, u0+sizeof(u0)/sizeof(double));
-    std::vector<double> v0_v(v0, v0+sizeof(v0)/sizeof(double));
-	for (unsigned int i=1;i<v0_v.size();i++) { v0_v[i]/=crit.T; }
+	const double a[]={0.0, 3.43069, -12.7531, 9.39094, 2.14326, 5.09206, 6.60138, 5.70777};
+    const double b[]={0.0, 0, 0, 0, 0.816771, 2.59175, 3.80408, 8.58736};
+	std::vector<double> a_v(a, a+sizeof(a)/sizeof(double));
+    std::vector<double> b_v(b, b+sizeof(b)/sizeof(double));
+	//for (unsigned int i=1;i<v0_v.size();i++) { v0_v[i]/=crit.T; }
 
-	double T0 = 273.15, 
-		   p0 = 1.0, 
-		   rho0 = p0/(params.R_u/params.molemass*T0),
-		   m, c,
-		   R_ = params.R_u/params.molemass,
-		   H0 = -28.200895800653548,
-		   S0 = -0.13719644488861227,
-		   tau0 = crit.T/T0, 
-		   delta0 = rho0/crit.rho;
-	
-	// log(delta)+c+m*tau
-	
-	/// c is the constant term
-	c=-S0/R_-1+log(tau0/delta0); /*<< from the leading term*/
+	phi0list.push_back(new phi0_lead(a[2], a[3]));
+	phi0list.push_back(new phi0_logtau(a[1]));
+	phi0list.push_back(new phi0_Planck_Einstein(a_v,b_v,4,7));
 
-	/// m multiplies the tau term in the leading term (slope)
-	m=H0/(R_*crit.T); /*<< from the leading term */
-
-	phi0list.push_back(new phi0_lead(c, m));
-	phi0list.push_back(new phi0_logtau(-1));
-	phi0list.push_back(new phi0_cp0_constant(u0_v[1],crit.T,T0));
-	phi0list.push_back(new phi0_Planck_Einstein(u0_v,v0_v,2,5));
-
-    EOSReference.assign("Dillon, H.E., and S. G. Penoncello, \"A Fundamental Equation for Calculation of the Thermodynamic Properties of Ethanol,\", International Journal of Thermophysics, Vol. 25, No. 2, March 2004.");
+    EOSReference.assign("Schroeder Idaho Thesis, 2011");
     TransportReference.assign("Using ECS");
 
     name.assign("Ethanol");
-    //aliases.push_back(std::string("C2H6O")); 
+    aliases.push_back(std::string("C2H6O")); 
     REFPROPname.assign("ETHANOL");
 
-	BibTeXKeys.EOS = "Dillon-IJT-2004";
-	BibTeXKeys.VISCOSITY = "__Kiselev-IECR-2005";
+	BibTeXKeys.EOS = "Schroeder-MSTHESIS-2011"; 
+	BibTeXKeys.VISCOSITY = "Kiselev-IECR-2005";
+	BibTeXKeys.ECS_LENNARD_JONES = "Kiselev-IECR-2005";
 	BibTeXKeys.CONDUCTIVITY = "__Kiselev-IECR-2005";
-}
-double EthanolClass::rhosatL(double T)
-{
-	double theta = 1-T/reduce.T;
-	double RHS,rho;
-
-	// Max error is 0.484219 %
-	RHS = +0.205104*pow(theta,0.000000)-15.416759*pow(theta,0.714104)+15.243853*pow(theta,0.646579)+0.133914*pow(theta,8.236855)-0.198413*pow(theta,7.134261);
-	rho = exp(RHS*reduce.T/T)*reduce.rho;
-	return rho;
-}
-double EthanolClass::rhosatV(double T)
-{
-	double theta = 1-T/reduce.T;
-	double RHS,rho;
-
-	// Max error is 0.662657 %
-	RHS = -0.486696*pow(theta,0.000000)-5.679398*pow(theta,0.656847)-3.890921*pow(theta,2.162034)-1.665655*pow(theta,3.649010)-0.477865*pow(theta,5.342953)+0.180460*pow(theta,6.372113)+0.563563*pow(theta,7.253718);
-	rho = exp(RHS*reduce.T/T)*reduce.rho;
-	return rho;
+	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
 }
 double EthanolClass::psat(double T)
 {
-	double theta = 1-T/reduce.T;
-	double RHS,p;
+    const double ti[]={0, 1.0, 1.5, 3.4, 3.7};
+    const double Ni[]={0, -8.94161, 1.61761, -51.1428, 53.1360};
 
-	// Max error is 2.196317 %
-	RHS = -11.227298*pow(theta,1.081329)-30.349599*pow(theta,3.427789)-8.178391*pow(theta,3.426262)-5.420801*pow(theta,3.380834)-3.447215*pow(theta,6.181072);
-	p = exp(RHS)*reduce.p;
-	return p;
+    double summer=0,theta;
+    int i;
+    theta=1-T/reduce.T;
+    for (i=1;i<=4;i++)
+    {
+        summer=summer+Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.p*exp(reduce.T/T*summer);
 }
+double EthanolClass::rhosatL(double T)
+{
+    const double ti[] = {0, 0.5, 0.8, 1.1, 1.5, 3.3};
+    const double Ni[] = {0, 9.00921, -23.1668, 30.9092, -16.5459, 3.64294};
+    double summer=0;
+    int i;
+    double theta;
+    theta=1-T/reduce.T;
+    for (i=1;i<=5;i++)
+    {
+        summer += Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.rho*(summer+1);
+}
+double EthanolClass::rhosatV(double T)
+{
+    const double ti[]={0, 0.21, 1.1, 3.4, 10.};
+    const double Ni[]={0, -1.75362, -10.5323, -37.6407, -129.762};
+
+    double summer=0,theta;
+    int i;
+    theta=1.0-T/reduce.T;
+    for (i=1; i<=4; i++)
+    {
+        summer=summer+Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.rho*exp(summer);
+}
+
+double EthanolClass::viscosity_Trho(double T, double rho)
+{
+	double eta_0 = -1.03116 + 3.48379e-2*T - 6.50264e-6*T*T;
+
+	// Rainwater-Friend for initial density dependence
+	double e_k, sigma;
+	this->ECSParams(&e_k,&sigma);
+	double Tstar = T/e_k;
+	double b[] = {-19.572881, 219.73999, -1015.3226, 2471.01251, -3375.1717, 2491.6597, -787.26086, 14.085455, -0.34664158};
+	double Bstar = b[0]*pow(Tstar,-0.25*0)+b[1]*pow(Tstar,-0.25*1)+b[2]*pow(Tstar,-0.25*2)+b[3]*pow(Tstar,-0.25*3)+b[4]*pow(Tstar,-0.25*4)+b[5]*pow(Tstar,-0.25*5)+b[6]*pow(Tstar,-0.25*6)+b[7]*pow(Tstar,-2.5)+b[8]*pow(Tstar,-5.5);
+	double N_A = 6.0221415e23;
+
+	double B = Bstar*N_A*sigma*sigma*sigma/1e27/1000;
+
+	double e[4][3]; // init with zeros
+	
+	e[2][0] = 0.131194057;
+	e[2][1] = -0.382240694; 
+	e[2][2] = 0;
+	e[3][0] = -0.0805700894;
+	e[3][1] = 0.153811778;
+	e[3][2] = -0.110578307;
+
+	double c1 = 23.7222995, c2 = -3.38264465, c3 = 12.7568864;
+
+	double sumresid = 0;
+	double tau = T/513.9, delta = rho/5.991/46.06844;
+	for (int j = 2; j<=3; j++)
+	{
+		for (int k = 0; k <= 2; k++)
+		{
+			sumresid += e[j][k]*pow(delta,j)/pow(tau,k);
+		}
+	}
+	double delta_0 = c2 + c3*sqrt(T/crit.T);
+	double eta_r = (sumresid + c1*(delta/(delta_0-delta)-delta/delta_0))*1000; // uPa-s
+
+	double rhobar = rho/params.molemass; // [mol/L]
+	return (eta_0*(1+B*rhobar)+eta_r)/1e6;
+}
+
 double EthanolClass::surface_tension_T(double T)
 {
 	return 0.05*pow(1-T/reduce.T,0.952);

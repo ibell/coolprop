@@ -58,6 +58,7 @@ Pure Fluids
     R123.rst
     R1234yf.rst
     R1234ze.rst
+    R125.rst
     R134a.rst
     R141b.rst
     R142b.rst
@@ -77,6 +78,7 @@ Pure Fluids
     SulfurDioxide.rst
     SulfurHexafluoride.rst
     Toluene.rst
+    Undecane.rst
     Water.rst
     Xenon.rst
     cis-2-Butene.rst
