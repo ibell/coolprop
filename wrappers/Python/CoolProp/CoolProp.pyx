@@ -144,10 +144,12 @@ cpdef double Props(str in1, str in2, in3 = None, in4 = None, in5 = None, in6 = N
     =========================  ======================================
     ``T``                      ``P``
     ``T``                      ``D``
+    ``P``                      ``D``
     ``T``                      ``Q``
     ``P``                      ``Q``
     ``H``                      ``P``
     ``S``                      ``P``
+    ``S``                      ``H``
     =========================  ======================================
     
     
@@ -845,6 +847,70 @@ cdef class State:
         """ The thermal conductivity, in [kW/m/K]"""
         def __get__(self):
             return self.get_cond()
+        
+    cpdef get_Tsat(self, double Q = 1):
+        """ 
+        Get the saturation temperature, in [K]
+        
+        Returns ``None`` if pressure is not within the two-phase pressure range 
+        """
+        import CoolProp as CP
+        if self.p_ > CP.Props(self.Fluid,'pcrit') or self.p_ < CP.Props(self.Fluid,'ptriple'):
+            return None 
+        else:
+            return CP.Props('T', 'P', self.p_, 'Q', Q, self.Fluid)
+    property Tsat:
+        """ 
+        The saturation temperature, in [K]
+        
+        Returns ``None`` if pressure is not within the two-phase pressure range 
+        """
+        def __get__(self):
+            return self.get_Tsat()
+        
+    cpdef get_superheat(self):
+        """ 
+        Get the amount of superheat above the saturation temperature corresponding to the pressure, in [K]
+        
+        Returns ``None`` if pressure is not within the two-phase pressure range 
+        """
+        
+        Tsat = self.get_Tsat(1) #dewpoint temp
+        
+        if Tsat is not None:
+            return self.T_-Tsat
+        else:
+            return None
+    property superheat:
+        """ 
+        The amount of superheat above the saturation temperature corresponding to the pressure, in [K]
+        
+        Returns ``None`` if pressure is not within the two-phase pressure range 
+        """
+        def __get__(self):    
+            return self.get_superheat()
+        
+    cpdef get_subcooling(self):
+        """ 
+        Get the amount of subcooling below the saturation temperature corresponding to the pressure, in [K]
+        
+        Returns ``None`` if pressure is not within the two-phase pressure range 
+        """
+        
+        Tsat = self.get_Tsat(0) #bubblepoint temp
+        
+        if Tsat is not None:
+            return Tsat - self.T_
+        else:
+            return None
+    property subcooling:
+        """ 
+        The amount of subcooling below the saturation temperature corresponding to the pressure, in [K]
+        
+        Returns ``None`` if pressure is not within the two-phase pressure range 
+        """
+        def __get__(self):    
+            return self.get_subcooling()
             
     property Prandtl:
         """ The Prandtl number (cp*mu/k) [-] """
@@ -971,9 +1037,13 @@ cdef class State:
                'k':'kW/m/K',
                'cp':'kJ/kg/K',
                'cv':'kJ/kg/K',
-               'dpdT':'kPa/K'}
+               'dpdT':'kPa/K',
+               'Tsat':'K',
+               'superheat':'K',
+               'subcooling':'K',
+        }
         s='phase = '+self.phase+'\n'
-        for k in ['T','p','rho','Q','h','u','s','visc','k','cp','cv','dpdT','Prandtl']:
+        for k in ['T','p','rho','Q','h','u','s','visc','k','cp','cv','dpdT','Prandtl','Tsat','superheat','subcooling']:
             if k in units:
                 s+=k+' = '+str(getattr(self,k))+' '+units[k]+'\n'
             else:

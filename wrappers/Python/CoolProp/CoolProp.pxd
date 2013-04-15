@@ -271,6 +271,9 @@ cdef class State:
     cpdef double get_cv(self) except *
     cpdef double get_MM(self) except *
     cpdef double get_dpdT(self) except *
+    cpdef get_Tsat(self, double Q = *)
+    cpdef get_subcooling(self)
+    cpdef get_superheat(self)
     
 cdef class PureFluidClass:
     cdef CoolPropStateClass CPS     # hold a C++ instance which we're wrapping
