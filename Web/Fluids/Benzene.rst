@@ -1,23 +1,19 @@
 
 ********************
-R123
+Benzene
 ********************
 
 Aliases
 ================================================================================
-````
+``benzene``
 
 Equation of State Reference
 ===========================
-Span, R. and W. Wagner, "Equations of State for Technical Applications. III. Results for Polar Fluids", International Journal of Thermophysics, Vol. 24, No. 1, January 2003. 
-
-Cp0: Ben A. Younglove "An International Standard Equation of State for the Thermodynamic Properties of Refrigerant 123 (2,2-Dichloro-1,1,1-Trifluoroethane)" J. Phys. Chem Ref. Data Vol 23, no 5, 1994
-
-Note: REFPROP 9.0 uses the less accurate MWBR formulation
+Monika Thol and Eric W. Lemmon and Roland Span, "Equation of state for benzene for temperatures from the melting line up to 725 K with pressures up to 500 MPa", High Temperatures-High Pressures, Vol. 41, pp. 81–97
 
 Transport Properties Information
 ================================
-Using ECS in fully predictive mode. 
+
 
 
 Fluid Data
@@ -26,18 +22,18 @@ Fluid Data
 Fluid Parameters
 
 =========================  ==============================
-Mole Mass [kg/kmol]        152.93100
-Triple Point Temp. [K]     166.000
-Triple Point Press. [kPa]  6.687078594
-Minimum temperature [K]    166.000
+Mole Mass [kg/kmol]        78.11180
+Triple Point Temp. [K]     278.674
+Triple Point Press. [kPa]  4.783772579
+Minimum temperature [K]    278.674
 =========================  ==============================
 
 Critical Parameters
 
 ==============================  ==============================
-Temperature [K]                 456.820
-Density [kg/m\ :sup:`3`\ ]      553.000000
-Pressure [kPa]                  3672.00000
+Temperature [K]                 562.020
+Density [kg/m\ :sup:`3`\ ]      304.792244
+Pressure [kPa]                  4894.00000
 ==============================  ==============================
 
 
@@ -46,8 +42,8 @@ Saturated Vapor Deviations
 
 .. plot::
 
-    Fluid = "R123"
-    RPFluid = "REFPROP-R123"
+    Fluid = "Benzene"
+    RPFluid = "REFPROP-BENZENE"
 
     #Saturated Vapor
     from CoolProp.CoolProp import Props
@@ -107,8 +103,8 @@ Saturated Liquid Deviations
 
 .. plot::
 
-    Fluid = "R123"
-    RPFluid = "REFPROP-R123"
+    Fluid = "Benzene"
+    RPFluid = "REFPROP-BENZENE"
 
     #Saturated Liquid
     from CoolProp.CoolProp import Props
@@ -167,8 +163,8 @@ Along the critical isotherm where T=T\ :sub:`c`
 ================================================
 .. plot::
 
-    Fluid = "R123"
-    RPFluid = "REFPROP-R123"
+    Fluid = "Benzene"
+    RPFluid = "REFPROP-BENZENE"
 
     #Critical isotherm
     from CoolProp.CoolProp import Props
@@ -228,7 +224,7 @@ Check of p,h and p,s as inputs (X: Failure .: Success)
     from matplotlib import pyplot as plt
     import numpy as np
 
-    Ref = "R123"
+    Ref = "Benzene"
     fig = plt.figure(figsize=(10,10))
     ax1 = fig.add_subplot(221)
     ax2 = fig.add_subplot(222)
@@ -243,9 +239,9 @@ Check of p,h and p,s as inputs (X: Failure .: Success)
     smin = Props('S','T',Tmin,'Q',0,Ref)
     smax = 2*Props('S','T',Props(Ref,'Tcrit')-1,'Q',1,Ref)-smin
 
-    Ph(Ref, axis = ax1, Tmin = Tmin, Tmax = 456.810000)
-    Ps(Ref, axis = ax2, Tmin = Tmin, Tmax = 456.810000)
-    hs(Ref, axis = ax3, Tmin = Tmin, Tmax = 456.810000)
+    Ph(Ref, axis = ax1, Tmin = Tmin, Tmax = 562.010000)
+    Ps(Ref, axis = ax2, Tmin = Tmin, Tmax = 562.010000)
+    hs(Ref, axis = ax3, Tmin = Tmin, Tmax = 562.010000)
 
     for p in np.linspace(pmin,pmax,10):
         for h in np.linspace(hmin,hmax):

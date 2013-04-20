@@ -65,10 +65,10 @@ SulfurHexafluorideClass::SulfurHexafluorideClass()
 	REFPROPname.assign("SF6");
 	
 	BibTeXKeys.EOS = "Guder-JPCRD-2009";
-	BibTeXKeys.VISCOSITY = "__QuinonesCisneros-JPCRD-2012";
-	BibTeXKeys.CONDUCTIVITY = "__Assael-JPCRD-2012";
+	BibTeXKeys.VISCOSITY = "QuinonesCisneros-JPCRD-2012";
+	BibTeXKeys.CONDUCTIVITY = "Assael-JPCRD-2012";
 	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
-	BibTeXKeys.ECS_LENNARD_JONES = "Poling-BOOK-2001";
+	BibTeXKeys.ECS_LENNARD_JONES = "QuinonesCisneros-JPCRD-2012";
 }
 double SulfurHexafluorideClass::rhosatL(double T)
 {
@@ -93,4 +93,62 @@ double SulfurHexafluorideClass::psat(double T)
 	double theta = 1-T/reduce.T;
 	double p = reduce.p*exp(reduce.T/T*(-7.09634642*pow(theta,1.0)+1.676662*pow(theta,1.5)-2.3921599*pow(theta,2.5)+5.86078302*pow(theta,4.0)-9.02978735*pow(theta,4.5)));
 	return p;
+}
+double SulfurHexafluorideClass::viscosity_Trho(double T, double rho)
+{
+	double Tr = T/crit.T;
+
+	// Dilute
+	double d[] = {0.118561, -0.378103, 0.416428, -0.165295, 0.0245381};
+	double eta_0 = d[0] + d[1]* pow(Tr,0.25) + d[2]*sqrt(Tr) + d[3]*pow(Tr,0.75) + d[4]*Tr; // mPa-s
+	
+	//// Initial density
+	double c[] = {5.38783e-5, 1.63805e-6, -2.08160e-5};
+	double psi1 = exp(1/Tr)-1;
+	double psi2 = exp(1/Tr/Tr)-1;
+	double ki = (c[0] + c[1]*psi1 + c[2]*psi2)/Tr;
+	//double B = params.R_u*T/eta_0*ki;
+
+	// Residual part
+	double a0 = -6.87811e-4, b0 =  1.72737e-4, A0 =  9.99563e-8, B0 = -8.98256e-8;
+	double a1 =  8.22661e-4, b1 = -2.02448e-4, A1 = -9.64167e-9, B1 = -8.49428e-8;
+	double a2 = -3.54867e-4, b2 =  1.95952e-4, A2 = -7.54196e-9, B2 = 0;
+	double C0 = -8.53432e-6, D0 = 0,           E0 = 0;
+	double C1 =  1.14404e-5, D1 = 0,           E1 = -5.69402e-11;
+	double C2 = -5.65762e-6, D2 = 2.27980e-11, E2 = 2.92190e-11;
+	double ka = (a0 + a1*psi1 + a2*psi2)/Tr;
+	double kr = (b0 + b1*psi1 + b2*psi2)/Tr;
+	double kaa = (A0 + A1*psi1 + A2*psi2)/Tr/Tr/Tr;
+	double krr = (B0 + B1*psi1 + B2*psi2)/Tr/Tr/Tr;
+	double kii = (C0 + C1*psi1 + C2*psi2)/Tr/Tr/Tr;
+	double krrr = (D0 + D1*psi1 + D2*psi2)/Tr;
+	double kaaa = (E0 + E1*psi1 + E2*psi2)/Tr;
+
+	double p = this->pressure_Trho(T,rho)/100; // kPa -> bar
+	double pr = T*this->dpdT_Trho(T,rho)/100; // kPa-> bar
+	double pa = p - pr;
+	double pid = rho * R() * T / 100; // kPa -> bar
+	double deltapr = pr - pid;
+
+	double eta_f = ka*pa + kr*deltapr + ki*pid + kaa*pa*pa + krr*deltapr*deltapr + kii*pid*pid + krrr*pr*pr*pr + kaaa*pa*pa*pa;
+
+	return (eta_0 + eta_f)/1000;
+}
+double SulfurHexafluorideClass::conductivity_Trho(double T, double rho)
+{
+	double sumresid = 0;
+	double B1[] = {0, -2.83746e-2, 2.07472e-2, -5.57180e-3, 5.32890e-3, -1.61688e-3};
+	double B2[] = {0, 3.52768e-2, -4.33053e-2, 5.12084e-2, -2.90262e-2, 5.98438e-3};
+	// Assael JPCRD 2012
+	double lambda_0 = (1461860 - 18539.4*T+77.7891*T*T+0.0241059*T*T*T)/(29661.7+505.67*T+T*T)/1000; //[W/m/K]
+
+	for (int i = 1; i <= 5; i++)
+	{
+		sumresid += (B1[i]+B2[i]*T/crit.T)*pow(rho/crit.rho,i);
+	}
+	double lambda_r = sumresid; //[W/m/K]
+
+	double lambda_c = this->conductivity_critical(T,rho,1/(3.5e-10))*1000; //[W/m/K]
+
+	return (lambda_0 + lambda_r + lambda_c)/1000; //[kW/m/K]
 }

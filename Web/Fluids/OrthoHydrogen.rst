@@ -1,6 +1,6 @@
 
 ********************
-R123
+OrthoHydrogen
 ********************
 
 Aliases
@@ -9,15 +9,11 @@ Aliases
 
 Equation of State Reference
 ===========================
-Span, R. and W. Wagner, "Equations of State for Technical Applications. III. Results for Polar Fluids", International Journal of Thermophysics, Vol. 24, No. 1, January 2003. 
-
-Cp0: Ben A. Younglove "An International Standard Equation of State for the Thermodynamic Properties of Refrigerant 123 (2,2-Dichloro-1,1,1-Trifluoroethane)" J. Phys. Chem Ref. Data Vol 23, no 5, 1994
-
-Note: REFPROP 9.0 uses the less accurate MWBR formulation
+"Fundamental Equations of State for Parahydrogen, Normal Hydrogen, and Orthohydrogen"by J.W. Leachman and R.T. Jacobsen and S.G. Penoncello and E.W. Lemmon, J. Phys. Chem. Ref. Data, Vol. 38, No. 3, 2009, pp 721-748
 
 Transport Properties Information
 ================================
-Using ECS in fully predictive mode. 
+Viscosity & Surface Tension: McCarty, R.D. and Weber, L.A., "Thermophysical properties of parahydrogen from the freezing liquid line to 5000 R for pressures to 10,000 psia," Natl. Bur. Stand., Tech. Note 617, 1972.
 
 
 Fluid Data
@@ -26,18 +22,18 @@ Fluid Data
 Fluid Parameters
 
 =========================  ==============================
-Mole Mass [kg/kmol]        152.93100
-Triple Point Temp. [K]     166.000
-Triple Point Press. [kPa]  6.687078594
-Minimum temperature [K]    166.000
+Mole Mass [kg/kmol]        2.01594
+Triple Point Temp. [K]     14.008
+Triple Point Press. [kPa]  7.461
+Minimum temperature [K]    14.008
 =========================  ==============================
 
 Critical Parameters
 
 ==============================  ==============================
-Temperature [K]                 456.820
-Density [kg/m\ :sup:`3`\ ]      553.000000
-Pressure [kPa]                  3672.00000
+Temperature [K]                 33.220
+Density [kg/m\ :sup:`3`\ ]      31.135267
+Pressure [kPa]                  1310.65000
 ==============================  ==============================
 
 
@@ -46,8 +42,8 @@ Saturated Vapor Deviations
 
 .. plot::
 
-    Fluid = "R123"
-    RPFluid = "REFPROP-R123"
+    Fluid = "OrthoHydrogen"
+    RPFluid = "REFPROP-ORTHOHYD"
 
     #Saturated Vapor
     from CoolProp.CoolProp import Props
@@ -107,8 +103,8 @@ Saturated Liquid Deviations
 
 .. plot::
 
-    Fluid = "R123"
-    RPFluid = "REFPROP-R123"
+    Fluid = "OrthoHydrogen"
+    RPFluid = "REFPROP-ORTHOHYD"
 
     #Saturated Liquid
     from CoolProp.CoolProp import Props
@@ -167,8 +163,8 @@ Along the critical isotherm where T=T\ :sub:`c`
 ================================================
 .. plot::
 
-    Fluid = "R123"
-    RPFluid = "REFPROP-R123"
+    Fluid = "OrthoHydrogen"
+    RPFluid = "REFPROP-ORTHOHYD"
 
     #Critical isotherm
     from CoolProp.CoolProp import Props
@@ -228,7 +224,7 @@ Check of p,h and p,s as inputs (X: Failure .: Success)
     from matplotlib import pyplot as plt
     import numpy as np
 
-    Ref = "R123"
+    Ref = "OrthoHydrogen"
     fig = plt.figure(figsize=(10,10))
     ax1 = fig.add_subplot(221)
     ax2 = fig.add_subplot(222)
@@ -243,9 +239,9 @@ Check of p,h and p,s as inputs (X: Failure .: Success)
     smin = Props('S','T',Tmin,'Q',0,Ref)
     smax = 2*Props('S','T',Props(Ref,'Tcrit')-1,'Q',1,Ref)-smin
 
-    Ph(Ref, axis = ax1, Tmin = Tmin, Tmax = 456.810000)
-    Ps(Ref, axis = ax2, Tmin = Tmin, Tmax = 456.810000)
-    hs(Ref, axis = ax3, Tmin = Tmin, Tmax = 456.810000)
+    Ph(Ref, axis = ax1, Tmin = Tmin, Tmax = 33.210000)
+    Ps(Ref, axis = ax2, Tmin = Tmin, Tmax = 33.210000)
+    hs(Ref, axis = ax3, Tmin = Tmin, Tmax = 33.210000)
 
     for p in np.linspace(pmin,pmax,10):
         for h in np.linspace(hmin,hmax):

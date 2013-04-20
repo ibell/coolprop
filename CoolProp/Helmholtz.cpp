@@ -212,6 +212,258 @@ double phir_power::dDelta_dTau(double tau, double delta) throw()
 	return summer;
 }
 
+// Constructors
+phir_Lemmon2005::phir_Lemmon2005(std::vector<double> n,std::vector<double> d,std::vector<double> t, std::vector<double> l, std::vector< double> m, int iStart_in,int iEnd_in)
+{
+	this->n = n;
+	this->d = d;
+	this->t = t;
+	this->l = l;
+	this->m = m;
+	iStart=iStart_in;
+	iEnd=iEnd_in;
+}
+phir_Lemmon2005::phir_Lemmon2005(double n[], double d[], double t[], double l[], double m[], int iStart_in,int iEnd_in, int N)
+{
+	this->n=std::vector<double>(n,n+N);
+	this->d=std::vector<double>(d,d+N);
+	this->t=std::vector<double>(t,t+N);
+	this->l=std::vector<double>(l,l+N);
+	this->m=std::vector<double>(m,m+N);
+	iStart=iStart_in;
+	iEnd=iEnd_in;
+}
+phir_Lemmon2005::phir_Lemmon2005(const double n[], const double d[], const double t[], const double l[], const double m[], int iStart_in,int iEnd_in, int N)
+{
+	this->n=std::vector<double>(n,n+N);
+	this->d=std::vector<double>(d,d+N);
+	this->t=std::vector<double>(t,t+N);
+	this->l=std::vector<double>(l,l+N);
+	this->m=std::vector<double>(m,m+N);
+	iStart=iStart_in;
+	iEnd=iEnd_in;
+}
+
+// Term and its derivatives
+double phir_Lemmon2005::base(double tau, double delta) throw()
+{
+	double summer=0, log_tau = log(tau), log_delta = log(delta);
+	for (unsigned int i=iStart;i<=iEnd;i++)
+	{
+		if (l[i] != 0 && m[i] != 0)
+			summer += n[i]*exp(t[i]*log_tau+d[i]*log_delta-pow(delta,l[i])-pow(tau,m[i]));
+		else if (l[i] != 0 && m[i] == 0)
+			summer += n[i]*exp(t[i]*log_tau+d[i]*log_delta-pow(delta,l[i]));
+		else
+			summer += n[i]*exp(t[i]*log_tau+d[i]*log_delta);
+	}
+	return summer;
+}
+double phir_Lemmon2005::dTau(double tau, double delta) throw()
+{
+	double summer=0, log_tau = log(tau), log_delta = log(delta), pow_tau_mi;
+	for (unsigned int i=iStart;i<=iEnd;i++)
+	{
+		if (l[i] != 0 && m[i] != 0){
+			pow_tau_mi = pow(tau,m[i]);
+			summer += n[i]*(t[i]-m[i]*pow_tau_mi)*exp((t[i]-1)*log_tau+d[i]*log_delta-pow(delta,l[i])-pow_tau_mi);
+		}
+		else if (l[i] != 0 && m[i] == 0)
+			summer += n[i]*t[i]*exp((t[i]-1)*log_tau+d[i]*log_delta-pow(delta,l[i]));
+		else
+			summer += n[i]*t[i]*exp((t[i]-1)*log_tau+d[i]*log_delta);
+	}
+	return summer;
+}
+double phir_Lemmon2005::dTau2(double tau, double delta) throw()
+{
+	double summer=0, log_tau = log(tau), log_delta = log(delta), pow_tau_mi;
+	for (unsigned int i=iStart;i<=iEnd;i++)
+	{
+		if (l[i] != 0 && m[i] != 0){
+			pow_tau_mi = pow(tau,m[i]);
+			double bracket = (t[i]-m[i]*pow_tau_mi)*(t[i]-1-m[i]*pow_tau_mi)-m[i]*m[i]*pow_tau_mi;
+			summer+=n[i]*bracket*exp((t[i]-2)*log_tau+d[i]*log_delta-pow(delta,l[i])-pow_tau_mi);
+		}
+		else if (l[i] != 0 && m[i] == 0)
+			summer+=n[i]*t[i]*(t[i]-1)*exp((t[i]-2)*log_tau+d[i]*log_delta-pow(delta,l[i]));
+		else
+			summer+=n[i]*t[i]*(t[i]-1)*exp((t[i]-2)*log_tau+d[i]*log_delta);
+	}
+	return summer;
+}
+
+/*!
+
+\f[
+\frac{{{\partial ^2}{\alpha ^r}}}{{\partial {\tau ^2}}} = {N_k}{\delta ^{{d_k}}}{\tau ^{{t_k} - 2}}\exp \left( { - {\delta ^{{l_k}}}} \right)\exp \left( { - {\tau ^{{m_k}}}} \right)\left[ {\left( {{t_k} - {m_k}{\tau ^{{m_k}}}} \right)\left( {{t_k} - 1 - {m_k}{\tau ^{{m_k}}}} \right) - m_k^2{\tau ^{{m_k}}}} \right]\\
+\f]
+\f[
+\frac{{{\partial ^2}{\alpha ^r}}}{{\partial {\tau ^2}}} = {N_k}{\delta ^{{d_k}}}\exp \left( { - {\delta ^{{l_k}}}} \right){\tau ^{{t_k} - 2}}\exp \left( { - {\tau ^{{m_k}}}} \right)\left[ {\left( {{t_k} - {m_k}{\tau ^{{m_k}}}} \right)\left( {{t_k} - 1 - {m_k}{\tau ^{{m_k}}}} \right) - m_k^2{\tau ^{{m_k}}}} \right]\\
+\f]
+Group all the terms that don't depend on \$ \tau \$
+\f[
+\frac{{{\partial ^2}{\alpha ^r}}}{{\partial {\tau ^2}}} = A{\tau ^{{t_k} - 2}}\exp \left( { - {\tau ^{{m_k}}}} \right)\left[ {\left( {{t_k} - {m_k}{\tau ^{{m_k}}}} \right)\left( {{t_k} - 1 - {m_k}{\tau ^{{m_k}}}} \right) - m_k^2{\tau ^{{m_k}}}} \right]\\
+\f]
+\f[
+\frac{1}{A}\frac{{{\partial ^3}{\alpha ^r}}}{{\partial {\tau ^3}}} = {\tau ^{{t_k} - 2}}\exp \left( { - {\tau ^{{m_k}}}} \right)\frac{\partial }{{\partial \tau }}\left[ {\left( {{t_k} - {m_k}{\tau ^{{m_k}}}} \right)\left( {{t_k} - 1 - {m_k}{\tau ^{{m_k}}}} \right) - m_k^2{\tau ^{{m_k}}}} \right] + \frac{\partial }{{\partial \tau }}\left[ {{\tau ^{{t_k} - 2}}\exp \left( { - {\tau ^{{m_k}}}} \right)} \right]\left[ {\left( {{t_k} - {m_k}{\tau ^{{m_k}}}} \right)\left( {{t_k} - 1 - {m_k}{\tau ^{{m_k}}}} \right) - m_k^2{\tau ^{{m_k}}}} \right]\\
+\f]
+\f[
+\frac{\partial }{{\partial \tau }}\left[ {{\tau ^{{t_k} - 2}}\exp \left( { - {\tau ^{{m_k}}}} \right)} \right] = ({t_k} - 2){\tau ^{{t_k} - 3}}\exp \left( { - {\tau ^{{m_k}}}} \right) + {\tau ^{{t_k} - 2}}\exp \left( { - {\tau ^{{m_k}}}} \right)( - {m_k}{\tau ^{{m_k} - 1}}) = \exp \left( { - {\tau ^{{m_k}}}} \right)\left( {({t_k} - 2){\tau ^{{t_k} - 3}} - {\tau ^{{t_k} - 2}}{m_k}{\tau ^{{m_k} - 1}}} \right)\\
+\f]
+\f[
+\frac{\partial }{{\partial \tau }}\left[ {\left( {{t_k} - {m_k}{\tau ^{{m_k}}}} \right)\left( {{t_k} - 1 - {m_k}{\tau ^{{m_k}}}} \right) - m_k^2{\tau ^{{m_k}}}} \right] = \left( {{t_k} - {m_k}{\tau ^{{m_k}}}} \right)\left( { - m_k^2{\tau ^{{m_k} - 1}}} \right) + \left( { - m_k^2{\tau ^{{m_k} - 1}}} \right)\left( {{t_k} - 1 - {m_k}{\tau ^{{m_k}}}} \right) - m_k^3{\tau ^{{m_k} - 1}} =  - m_k^2{\tau ^{{m_k} - 1}}\left[ {{t_k} - {m_k}{\tau ^{{m_k}}} + {t_k} - 1 - {m_k}{\tau ^{{m_k}}} + {m_k}} \right] =  - m_k^2{\tau ^{{m_k} - 1}}\left[ {2{t_k} - 2{m_k}{\tau ^{{m_k}}} - 1 + {m_k}} \right]\\
+\f]
+\f[
+\frac{1}{A}\frac{{{\partial ^3}{\alpha ^r}}}{{\partial {\tau ^3}}} = {\tau ^{{t_k} - 2}}\exp \left( { - {\tau ^{{m_k}}}} \right)\left( { - m_k^2{\tau ^{{m_k} - 1}}\left[ {2{t_k} - 2{m_k}{\tau ^{{m_k}}} - 1 + {m_k}} \right]} \right) + \exp \left( { - {\tau ^{{m_k}}}} \right)\left( {({t_k} - 2){\tau ^{{t_k} - 3}} - {\tau ^{{t_k} - 2}}{m_k}{\tau ^{{m_k} - 1}}} \right)\left[ {\left( {{t_k} - {m_k}{\tau ^{{m_k}}}} \right)\left( {{t_k} - 1 - {m_k}{\tau ^{{m_k}}}} \right) - m_k^2{\tau ^{{m_k}}}} \right]\\
+\f]
+\f[
+\frac{1}{A}\frac{{{\partial ^3}{\alpha ^r}}}{{\partial {\tau ^3}}} = \exp \left( { - {\tau ^{{m_k}}}} \right)\left[ { - {\tau ^{{t_k} - 2}}m_k^2{\tau ^{{m_k} - 1}}\left[ {2{t_k} - 2{m_k}{\tau ^{{m_k}}} - 1 + {m_k}} \right] + \left( {({t_k} - 2){\tau ^{{t_k} - 3}} - {\tau ^{{t_k} - 2}}{m_k}{\tau ^{{m_k} - 1}}} \right)\left[ {\left( {{t_k} - {m_k}{\tau ^{{m_k}}}} \right)\left( {{t_k} - 1 - {m_k}{\tau ^{{m_k}}}} \right) - m_k^2{\tau ^{{m_k}}}} \right]} \right]
+\f]
+*/
+double phir_Lemmon2005::dTau3(double tau, double delta) throw()
+{
+	double summer=0, log_tau = log(tau), log_delta = log(delta),pow_delta_li, pow_tau_mi, bracket;
+	for (unsigned int i=iStart;i<=iEnd;i++)
+	{
+		if (l[i] != 0 && m[i] != 0){
+			pow_delta_li = pow(delta,l[i]);
+			pow_tau_mi = pow(tau,m[i]);
+			bracket = -pow(tau,t[i]+m[i]-3)*m[i]*m[i]*(2*t[i]-2*m[i]*pow_tau_mi-1-m[i])+((t[i]-2)*pow(tau,t[i]-3)-pow(tau,t[i]-2)*m[i]*pow(tau,m[i]-1))*((t[i]-m[i]*pow_tau_mi)*(t[i]-1-m[i]*pow_tau_mi)-m[i]*m[i]*pow_tau_mi);
+			summer += n[i]*t[i]*(t[i]-1)*(t[i]-2)*exp((t[i]-3)*log_tau+d[i]*log_delta-pow_delta_li-pow_tau_mi);
+		}
+		else if (l[i] != 0 && m[i] == 0){
+			summer += n[i]*t[i]*(t[i]-1)*(t[i]-2)*exp((t[i]-3)*log_tau+d[i]*log_delta-pow(delta,l[i]));
+		}
+		else
+			summer += n[i]*t[i]*(t[i]-1)*(t[i]-2)*exp((t[i]-3)*log_tau+d[i]*log_delta);
+	}
+	return summer;
+}
+double phir_Lemmon2005::dDelta_dTau2(double tau, double delta) throw()
+{
+	double summer=0, log_tau = log(tau), log_delta = log(delta), pow_delta_li, pow_tau_mi, bracket;
+	for (unsigned int i=iStart;i<=iEnd;i++)
+	{
+		if (l[i] != 0 && m[i] != 0){
+			pow_delta_li = pow(delta,l[i]);
+			pow_tau_mi = pow(tau,m[i]);
+			// delta derivative of second tau derivative
+			bracket = ((t[i]-m[i]*pow_tau_mi)*(t[i]-1-m[i]*pow_tau_mi)-m[i]*m[i]*pow_tau_mi)*(d[i]-l[i]*pow_delta_li);
+			summer+=n[i]*bracket*exp((t[i]-2)*log_tau+(d[i]-1)*log_delta-pow_delta_li-pow_tau_mi);
+		}
+		else if (l[i] != 0 && m[i] == 0){
+			pow_delta_li = pow(delta,l[i]);
+			summer+=n[i]*t[i]*(t[i]-1)*(d[i]-l[i]*pow_delta_li)*exp((t[i]-2)*log_tau+(d[i]-1)*log_delta-pow_delta_li);
+		}
+		else
+			summer+=n[i]*t[i]*(t[i]-1)*d[i]*exp((t[i]-2)*log_tau+(d[i]-1)*log_delta);
+	}
+	return summer;
+}
+double phir_Lemmon2005::dDelta(double tau, double delta) throw()
+{
+	double summer=0, log_tau = log(tau), log_delta = log(delta), pow_delta_li, pow_tau_mi;
+	for (unsigned int i=iStart;i<=iEnd;i++)
+	{	
+		if (l[i] != 0 && m[i] != 0){
+			pow_delta_li = pow(delta,l[i]);
+			pow_tau_mi = pow(tau,m[i]);
+			summer += n[i]*(d[i]-l[i]*pow_delta_li)*exp(t[i]*log_tau+(d[i]-1)*log_delta-pow_delta_li-pow_tau_mi);
+		}
+		else if (l[i]>0 && m[i] == 0){
+			pow_delta_li = pow(delta,l[i]);
+			summer += n[i]*(d[i]-l[i]*pow_delta_li)*exp(t[i]*log_tau+(d[i]-1)*log_delta-pow_delta_li);
+		}
+		else
+			summer += n[i]*d[i]*exp(t[i]*log_tau+(d[i]-1)*log_delta);
+	}
+	return summer;
+}
+double phir_Lemmon2005::dDelta2(double tau, double delta) throw()
+{
+	double summer=0, log_tau = log(tau), log_delta = log(delta), pow_delta_li, pow_tau_mi;
+	for (unsigned int i=iStart;i<=iEnd;i++)
+	{
+		if (l[i] != 0 && m[i] != 0){	
+			pow_delta_li = pow(delta,l[i]);
+			pow_tau_mi = pow(tau,m[i]);
+			summer+=n[i]*((d[i]-l[i]*pow_delta_li)*(d[i]-1.0-l[i]*pow_delta_li) - l[i]*l[i]*pow_delta_li)*exp(t[i]*log_tau+(d[i]-2)*log_delta-pow_delta_li-pow_tau_mi);
+		}
+		
+		else if (l[i] != 0 && m[i] == 0){
+			pow_delta_li = pow(delta,l[i]);
+			summer+=n[i]*((d[i]-l[i]*pow_delta_li)*(d[i]-1.0-l[i]*pow_delta_li) - l[i]*l[i]*pow_delta_li)*exp(t[i]*log_tau+(d[i]-2)*log_delta-pow_delta_li);
+		}
+		else
+			summer+=n[i]*d[i]*(d[i]-1.0)*exp(t[i]*log_tau+(d[i]-2)*log_delta);
+	}
+	return summer;
+}
+double phir_Lemmon2005::dDelta3(double tau, double delta) throw()
+{
+	double summer=0, log_tau = log(tau), log_delta = log(delta), pow_delta_li, pow_tau_mi, bracket;
+	for (unsigned int i=iStart;i<=iEnd;i++)
+	{
+		if (l[i] != 0 && m[i] != 0){
+			pow_delta_li = pow(delta,l[i]);
+			pow_tau_mi = pow(tau,m[i]);
+			bracket = (d[i]*(d[i]-1)*(d[i]-2)+pow_delta_li*(-2*l[i]+6*d[i]*l[i]-3*d[i]*d[i]*l[i]-3*d[i]*l[i]*l[i]+3*l[i]*l[i]-l[i]*l[i]*l[i])+pow_delta_li*pow_delta_li*(3*d[i]*l[i]*l[i]-3*l[i]*l[i]+3*l[i]*l[i]*l[i])-l[i]*l[i]*l[i]*pow_delta_li*pow_delta_li*pow_delta_li);
+			summer+=n[i]*bracket*exp(t[i]*log_tau+(d[i]-3)*log_delta-pow_delta_li-pow_tau_mi);
+		}
+		else if (l[i] != 0 && m[i] == 0)
+		{
+			pow_delta_li = pow(delta,l[i]);
+			bracket = (d[i]*(d[i]-1)*(d[i]-2)+pow_delta_li*(-2*l[i]+6*d[i]*l[i]-3*d[i]*d[i]*l[i]-3*d[i]*l[i]*l[i]+3*l[i]*l[i]-l[i]*l[i]*l[i])+pow_delta_li*pow_delta_li*(3*d[i]*l[i]*l[i]-3*l[i]*l[i]+3*l[i]*l[i]*l[i])-l[i]*l[i]*l[i]*pow_delta_li*pow_delta_li*pow_delta_li);
+			summer+=n[i]*bracket*exp(t[i]*log_tau+(d[i]-3)*log_delta-pow_delta_li);
+		}
+		else
+			summer+=n[i]*d[i]*(d[i]-1.0)*(d[i]-2)*exp(t[i]*log_tau+(d[i]-3)*log_delta);
+	}
+	return summer;
+}
+
+double phir_Lemmon2005::dDelta2_dTau(double tau, double delta) throw()
+{
+	double summer=0, log_tau = log(tau), log_delta = log(delta), bracket, pow_tau_mi, pow_delta_li;
+	for (unsigned int i=iStart;i<=iEnd;i++)
+	{
+		if (l[i] != 0 && m[i] != 0){
+			pow_delta_li = pow(delta,l[i]);
+			pow_tau_mi = pow(tau,m[i]);
+			bracket = (t[i]-m[i]*pow_tau_mi)*(((d[i]-l[i]*pow_delta_li))*(d[i]-1-l[i]*pow_delta_li)-l[i]*l[i]*pow_delta_li);
+			summer += n[i]*bracket*exp((t[i]-1)*log_tau+(d[i]-2)*log_delta-pow_delta_li-pow_tau_mi);
+		}
+		else if (l[i] != 0 && m[i] == 0){
+			pow_delta_li = pow(delta,l[i]);
+			bracket = t[i]*(((d[i]-l[i]*pow_delta_li))*(d[i]-1-l[i]*pow_delta_li)-l[i]*l[i]*pow_delta_li);
+			summer += n[i]*bracket*exp((t[i]-1)*log_tau+(d[i]-2)*log_delta-pow_delta_li);
+		}
+		else
+			summer += n[i]*d[i]*t[i]*(d[i]-1)*exp((t[i]-1)*log_tau+(d[i]-2)*log_delta);
+	}
+	return summer;
+}
+double phir_Lemmon2005::dDelta_dTau(double tau, double delta) throw()
+{
+	double summer=0, log_tau = log(tau), log_delta = log(delta), pow_delta_li, pow_tau_mi;
+	for (unsigned int i=iStart;i<=iEnd;i++)
+	{
+		if (l[i] != 0 && m[i] != 0){
+			pow_delta_li = pow(delta,l[i]);
+			pow_tau_mi = pow(tau,m[i]);
+			summer+=n[i]*(d[i]-l[i]*pow_delta_li)*(t[i]-m[i]*pow_tau_mi)*exp((t[i]-1)*log_tau+(d[i]-1)*log_delta-pow_delta_li-pow_tau_mi);
+		}
+		else if (l[i] != 0 && m[i] == 0){
+			double pow_delta_li = pow(delta,l[i]);
+			summer+=n[i]*t[i]*(d[i]-l[i]*pow_delta_li)*exp((t[i]-1)*log_tau+(d[i]-1)*log_delta-pow_delta_li);
+		}
+		else
+			summer+=n[i]*d[i]*t[i]*exp((t[i]-1)*log_tau+(d[i]-1)*log_delta);
+	}
+	return summer;
+}
+
 phir_gaussian::phir_gaussian(vector<double> n_in, vector<double> d_in,vector<double> t_in, 
 	vector<double> alpha_in, vector<double> epsilon_in, vector<double> beta_in, vector<double> gamma_in,
 	unsigned int iStart_in, unsigned int iEnd_in)

@@ -60,11 +60,9 @@ public:
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
-	void ECSParams(double *e_k, double *sigma){
-		// Chichester 2008
-		*e_k = 452.09; *sigma = 0.63617;
-	};
-
+	void ECSParams(double *e_k, double *sigma);
+	double viscosity_Trho(double, double);
+	double conductivity_Trho(double, double);
 	double surface_tension_T(double T)
 	{
 		// From Mulero, 2012, JPCRD
@@ -80,6 +78,9 @@ public:
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
+	double viscosity_Trho(double T, double rho);
+	double conductivity_Trho(double T, double rho);
+	void ECSParams(double *e_k, double *sigma);
 	double surface_tension_T(double T)
 	{
 		// From Mulero, 2012, JPCRD
@@ -129,11 +130,34 @@ public:
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
+	void ECSParams(double *e_k, double *sigma);
+	double viscosity_Trho(double T, double rho);
+	double conductivity_Trho(double T, double rho);
 	double surface_tension_T(double T)
 	{
 		// From Mulero, 2012, JPCRD
 		return 0.056151*pow(1-T/reduce.T,1.2367);
 	}
+};
+
+class R11Class : public Fluid {
+
+public:
+    R11Class();
+    ~R11Class(){};
+    double psat(double);
+    double rhosatL(double);
+    double rhosatV(double);
+	void ECSParams(double *e_k, double *sigma){
+		// McLinden 2000
+		*e_k = 363.61; *sigma = 0.5447;
+	};
+	double surface_tension_T(double T)
+	{
+		// From Mulero, 2012, JPCRD
+		return 0.06212*pow(1-T/reduce.T, 1.247);
+	}
+
 };
 
 

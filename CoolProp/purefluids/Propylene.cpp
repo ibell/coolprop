@@ -54,6 +54,11 @@ PropyleneClass::PropyleneClass()
 	name.assign("Propylene");
 	aliases.push_back(std::string("propylene"));
 	REFPROPname.assign("PROPYLEN");
+
+	BibTeXKeys.EOS = "Lemmon-PROPYLENE-2013";
+	BibTeXKeys.ECS_LENNARD_JONES = "Huber-IECR-2003";
+	BibTeXKeys.ECS_FITS = "Huber-IECR-2003";
+	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
 }
 
 double PropyleneClass::psat(double T)

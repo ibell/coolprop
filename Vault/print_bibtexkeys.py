@@ -30,12 +30,11 @@ for fluid in CoolProp.__fluids__:
             print>>f, ' ',' & ',
     print>>f, '\\\\'
     
-## import time
-## time.sleep(1.0)
-##     
-## import subprocess
-## subprocess.check_call(['pdflatex','ReferenceListing.tex'],shell=True)
-## subprocess.check_call(['pdflatex','ReferenceListing.tex'],shell=True)
-## subprocess.check_call(['bibtex','ReferenceListing.aux'],shell=True)
-## subprocess.check_call(['pdflatex','ReferenceListing.tex'],shell=True)
-## subprocess.check_call(['pdflatex','ReferenceListing.tex'],shell=True)
+f.close()
+    
+import subprocess
+subprocess.check_call(['pdflatex','ReferenceListing.tex'],shell=True)
+subprocess.check_call(['pdflatex','ReferenceListing.tex'],shell=True)
+subprocess.check_call(['bibtex','ReferenceListing.aux'],shell=True)
+subprocess.check_call(['pdflatex','ReferenceListing.tex'],shell=True)
+subprocess.check_call(['pdflatex','ReferenceListing.tex'],shell=True)

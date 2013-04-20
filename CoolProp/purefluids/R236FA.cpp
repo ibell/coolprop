@@ -54,6 +54,11 @@ R236FAClass::R236FAClass()
 	name.assign("R236FA");
 	aliases.push_back(std::string("R236fa"));
 	REFPROPname.assign("R236FA");
+
+	BibTeXKeys.EOS = "Pan-FPE-2012";
+	BibTeXKeys.ECS_LENNARD_JONES = "Huber-IECR-2003";
+	BibTeXKeys.ECS_FITS = "Huber-IECR-2003";
+	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
 }
 
 double R236FAClass::psat(double T)

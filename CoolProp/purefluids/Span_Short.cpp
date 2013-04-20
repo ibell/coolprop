@@ -526,8 +526,10 @@ nOctaneClass::nOctaneClass()
 
 	BibTeXKeys.EOS = "Span-IJT-2003B";
 	BibTeXKeys.CP0 = "Jaeschke-IJT-1995";
-	BibTeXKeys.ECS_LENNARD_JONES = "Chichester-NIST-2008";
 	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
+	BibTeXKeys.ECS_LENNARD_JONES = "Huber-FPE-2004";
+	BibTeXKeys.VISCOSITY = "Huber-FPE-2004";
+	BibTeXKeys.CONDUCTIVITY = "Huber-FPE-2005";
 }
 double nOctaneClass::psat(double T)
 {
@@ -571,6 +573,68 @@ double nOctaneClass::rhosatV(double T)
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
     return reduce.rho*exp(summer);
+}
+void nOctaneClass::ECSParams(double *e_k, double *sigma)
+{
+	// From Huber 2004
+	*e_k = 452.090;
+	*sigma = 0.63617;
+}
+double nOctaneClass::viscosity_Trho(double T, double rho)
+{
+	// Rainwater-Friend for initial density dependence
+	double e_k, sigma;
+	this->ECSParams(&e_k,&sigma);
+	double Tstar = T/e_k;
+
+	// Dilute gas
+	double eta_0 = 0.021357*sqrt(params.molemass*T)/(sigma*sigma*exp(0.335103-0.467898*log(Tstar))); // uPa-s
+
+	// Initial density dependence from Rainwater-Friend
+	double b[] = {-19.572881, 219.73999, -1015.3226, 2471.01251, -3375.1717, 2491.6597, -787.26086, 14.085455, -0.34664158};
+	double Bstar = b[0]*pow(Tstar,-0.25*0)+b[1]*pow(Tstar,-0.25*1)+b[2]*pow(Tstar,-0.25*2)+b[3]*pow(Tstar,-0.25*3)+b[4]*pow(Tstar,-0.25*4)+b[5]*pow(Tstar,-0.25*5)+b[6]*pow(Tstar,-0.25*6)+b[7]*pow(Tstar,-2.5)+b[8]*pow(Tstar,-5.5);
+	double B = Bstar*0.60221415*sigma*sigma*sigma; // L/mol
+
+	double e[4][3]; // init with zeros
+	e[2][1] = -0.103924;
+	e[2][2] =   9.92302e-2;	
+	e[3][1] =   1.13327e-2;
+	e[3][2] =  -3.22455e-2;
+
+	double c[] = {0, 0.606122, 2.0651, 3.07843, -0.879088};
+
+	double sumresid = 0;
+	double tau = T/crit.T, delta = rho/crit.rho;
+	for (int j = 2; j <= 3; j++)
+	{
+		for (int k = 1; k <= 2; k++)
+		{
+			sumresid += e[j][k]*pow(delta,j)/pow(tau,k);
+		}
+	}
+	double delta_0 = c[2] + c[3]*sqrt(tau) + c[4]*tau;
+	double eta_r = (sumresid + c[1]*(delta/(delta_0-delta)-delta/delta_0))*1000; // uPa-s
+
+	double rhobar = rho/params.molemass; // [mol/L]
+	return (eta_0*(1+B*rhobar) + eta_r)/1e6;
+}
+double nOctaneClass::conductivity_Trho(double T, double rho)
+{
+	double lambda_0 = 7.7293e-3-3.7114e-2*(T/crit.T) + 9.7758e-2*pow(T/crit.T,2) - 2.8871e-2*pow(T/crit.T,3); // W/m/K
+
+	double sumresid = 0;
+	double B1[] = {0, 0.285553e-1, -0.171398e-1, 0.659971e-2, 0};
+	double B2[] = {0, -0.926155e-2, 0, 0.153496e-2, 0};
+
+	for (int i = 1; i<= 4; i++){
+		sumresid += (B1[i]+B2[i]*(T/reduce.T))*pow(rho/reduce.rho,i);
+	}
+
+	double lambda_r = sumresid; // [W/m/K]
+
+	double lambda_c = this->conductivity_critical(T,rho,0.145713e10)*1000; // [W/m/K]
+
+	return (lambda_0+lambda_r+lambda_c)/1000;
 }
 
 nDodecaneClass::nDodecaneClass()
@@ -621,8 +685,9 @@ nDodecaneClass::nDodecaneClass()
 
 	BibTeXKeys.EOS = "Lemmon-EF-2004";
 	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
-	BibTeXKeys.VISCOSITY = "__Huber-EF-2004";
-	BibTeXKeys.CONDUCTIVITY = "__Huber-EF-2004";
+	BibTeXKeys.VISCOSITY = "Huber-EF-2004";
+	BibTeXKeys.CONDUCTIVITY = "Huber-EF-2004";
+	BibTeXKeys.ECS_LENNARD_JONES = "Huber-EF-2004";
 }
 double nDodecaneClass::psat(double T)
 {
@@ -666,6 +731,60 @@ double nDodecaneClass::rhosatV(double T)
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
     return reduce.rho*exp(crit.T/T*summer);
+}
+void nDodecaneClass::ECSParams(double *e_k, double *sigma)
+{
+	// Huber 2004
+	*e_k = 522.592;
+	*sigma = 0.735639;
+}
+double nDodecaneClass::viscosity_Trho(double T, double rho)
+{
+	double sigma, e_k;
+	
+	// Dilute gas
+	this->ECSParams(&e_k, &sigma);
+	double Tstar = T/e_k;
+	double delta = rho/crit.rho;
+	double a[] = {0.382987, -0.561050, 0.313962e-1};
+	double S_star = exp(a[0]+a[1]*log(Tstar)+a[2]*log(Tstar)*log(Tstar));
+	double lambda_0 = 0.021357*sqrt(params.molemass*T)/(sigma*sigma*S_star); //[uPa-s]
+
+	// Initial-density
+	double b[] = {-19.572881, 219.73999, -1015.3226, 2471.0125, -3375.1717, 2491.6597, -787.26086, 14.085455, -0.34664158};
+	double t[] = {0, -0.25, -0.50, -0.75, -1.00, -1.25, -1.50, -2.50, -5.50};
+	double sumBstar = 0;
+	for (int i = 0; i<= 8; i++){ sumBstar += b[i]*pow(Tstar,t[i]); }
+	double Bstar = sumBstar;
+	double N_A = 6.02214129e23;
+	double B = N_A*pow(sigma/1e9,3)*Bstar;
+
+	// Residual
+	double a21 = -0.471703e-1, a31 = 0.827816e-2, a22 = 0.298429e-1, a32 = -0.134156e-1;
+	double c[] = {0, 0.503109, 2.32661, 2.23089};
+	double tau = T/crit.T;
+	double delta_0 = c[2]+c[3]*sqrt(tau);
+	double lambda_r = 1000*(a21*pow(delta,2)/tau+a31*pow(delta,3)/tau+a22*pow(delta,2)/pow(tau,2)+a32*pow(delta,3)/pow(tau,2)+c[1]*delta*(1/(delta_0-delta)-1/delta_0));
+
+	double rhobar = rho/params.molemass*1000;
+	return (lambda_0*(1+B*rhobar)+lambda_r)/1e6;
+}
+double nDodecaneClass::conductivity_Trho(double T, double rho)
+{
+	double sumresid = 0;
+	double lambda_0 = 0.436343e-2-0.264054e-1*T/crit.T+0.922394e-1*pow(T/crit.T,2)-0.291756e-1*pow(T/crit.T,3); //W/m/K
+
+	double B1[] = {0, 0.693347e-1, -0.331695e-1, 0.676165e-2};
+	double B2[] = {0, -0.280792e-1, 0.173922e-2, 0.309558e-2};
+	for (int i = 1; i <= 3; i++)
+	{
+		sumresid += (B1[i]+B2[i]*T/crit.T)*pow(rho/crit.rho,i);
+	}
+	double lambda_r = sumresid; // W/m/K
+
+	double lambda_c = this->conductivity_critical(T,rho,1/(1.52e-9))*1000; //[W/m/K]
+
+	return (lambda_0 + lambda_r + lambda_c)/1000; //[kW/m/K]
 }
 
 CyclohexaneClass::CyclohexaneClass()
@@ -909,12 +1028,14 @@ R123Class::R123Class()
 	TransportReference.assign("Using ECS in fully predictive mode. ");
 
 	name.assign("R123");
-	aliases.push_back("R123");
 	REFPROPname.assign("R123");
 
 	BibTeXKeys.EOS = "Span-IJT-2003C";
 	BibTeXKeys.CP0 = "Younglove-JPCRD-1994";
 	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
+	BibTeXKeys.CONDUCTIVITY = "Laesecke-IJR-1996";
+	BibTeXKeys.VISCOSITY = "Tanaka-IJT-1996";
+	BibTeXKeys.ECS_LENNARD_JONES = "Tanaka-IJT-1996";
 }
 double R123Class::psat(double T)
 {
@@ -950,6 +1071,146 @@ double R123Class::rhosatV(double T)
     // Maximum absolute error is 0.380809 % between 166.000001 K and 456.830990 K
     const double ti[]={0,0.3710753253662657, 0.99737420197935067, 2.4907753660845278, 2.4502133576900036, 5.7155851722158673, 5.5801547336714199};
     const double Ni[]={0,-2.6538294990283555, -3.3646950507257558, -52.040952256899757, 50.119495080874337, 27.532607566785945, -30.476267355520982};
+    double summer=0,theta;
+    int i;
+    theta=1.0-T/reduce.T;
+    for (i=1;i<=6;i++)
+    {
+        summer=summer+Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.rho*exp(crit.T/T*summer);
+}
+void R123Class::ECSParams(double *e_k, double *sigma)
+{
+	// From Tanaka 1996
+	*e_k = 340;
+	*sigma = 0.56;
+}
+double R123Class::viscosity_Trho(double T, double rho)
+{
+	// From Tanaka 1996
+	double eta_0 = -2.273638 + 5.099859e-2*T - 2.402786e-5*T*T;
+	
+	double eta_1 = -2.226486e-2 + 5.550623e-5*T;
+
+	double rho0 = 1.828263e3, a0 = -3.222951e5, a1 = -1.009812e-1, a2 = 6.161902e-5, a3 = -8.84048e-8;
+
+	double eta_r = a0/(rho-rho0)+a0/rho0+a1*rho+a2*rho*rho+a3*rho*rho*rho;
+
+	return (eta_0 + eta_1*rho + eta_r)/1e6;
+
+}
+double R123Class::conductivity_Trho(double T, double rho)
+{
+	double tau = 456.831/T, delta = rho/550;
+
+	double lambda_0 = 5.695e-5*T-0.00778; // [W/m/K]
+
+	double d[] = {0, 1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4};
+	double t[] = {0, 1.5, 2, 6, 0, 0.5, 1.5, 0, 0.5, 1.5, 0, 0.5, 1.5};
+	double a[] = {0, 0.642894e-1, -0.530474e-1, 0.453522e-4, -0.139928, 0.166540, -0.162656e-1, 0.136819, -0.183291, 0.357146e-1, -0.231210e-1, 0.341945e-1, -0.757341e-2};
+	double a13 = 0.486742e-2, a14 = -100, a15 = -7.08535;
+
+	double sumresid = 0;
+
+	for (int i = 1; i <= 12; i++)
+	{
+		sumresid += a[i]*pow(delta,d[i])*pow(tau,t[i]);
+	}
+	double lambda_r = sumresid; // W/m/K
+
+	double lambda_c = a13*exp(a14*pow(tau-1,4)+a15*pow(delta-1,2));
+
+	return (lambda_0 + lambda_r + lambda_c)/1000; // kW/m/K
+}
+
+
+
+R11Class::R11Class()
+{
+	const double n[] = {0.0, 1.0656383, -3.2495206, 0.87823894, 0.087611569, 0.00029950049, 0.42896949, 0.70828452, -0.017391823, -0.37626522, 0.011605284, -0.089550567, -0.030063991};
+
+	//Critical parameters
+	crit.rho = 565; //[kg/m^3]
+	crit.p = 4394; //[kPa]
+	crit.T = 471.06; //[K]
+	crit.v = 1/crit.rho; 
+
+	// Other fluid parameters
+	params.molemass = 137.368;
+	params.Ttriple = 162.68;
+	params.accentricfactor = 0.18875064825280830;
+	params.R_u = 8.314510;
+	params.ptriple = 0.0065100898612854546;
+
+	// Limits of EOS
+	limits.Tmin = params.Ttriple;
+	limits.Tmax = 500.0;
+	limits.pmax = 100000.0;
+	limits.rhomax = 1000000.0*params.molemass;
+
+	phirlist.push_back(new phir_power( n,d_polar_SpanShort,t_polar_SpanShort,c_polar_SpanShort,1,12,13));
+
+	phi0list.push_back(new phi0_lead(0,0));
+	phi0list.push_back(new phi0_logtau(-1.0));
+	phi0list.push_back(new phi0_cp0_constant(4.0+0.0469706/(params.R_u),471.11,298));
+	phi0list.push_back(new phi0_cp0_poly(0.0018532/(params.R_u),1,471.11,298));
+
+	// TODO: Add Marx cp0 relationship
+	double a[] = {0,1,2,1,2,1,2};
+	double A[] = {0,1085,847,535.2,398,349.5,241};
+	for (int i = 1; i<=6; i++) {A[i] *= 1.43878/471.11; };
+	std::vector<double> A_v(A,A+sizeof(A)/sizeof(double));
+	std::vector<double> a_v(a,a+sizeof(a)/sizeof(double));
+
+	phi0list.push_back(new phi0_Planck_Einstein(a_v,A_v,1,6));
+
+	static char EOSstr [] = "Span, R. and W. Wagner, \"Equations of State for Technical Applications. III. Results for Polar Fluids\", International Journal of Thermophysics, Vol. 24, No. 1, January 2003. \n\nCp0: Jacobsen et al. \"A Fundamental Equation for Trichlorofluoromethane (R-11) Fluid Phase Equilibria, 1992\"";
+	EOSReference.assign(EOSstr);
+	TransportReference.assign("Using ECS in fully predictive mode. ");
+
+	name.assign("R11");
+	REFPROPname.assign("R11");
+
+	BibTeXKeys.EOS = "Span-IJT-2003C";
+	BibTeXKeys.CP0 = "Jacobsen-FPE-1992";
+	BibTeXKeys.ECS_LENNARD_JONES = "McLinden-IJR-2000";
+	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
+}
+double R11Class::psat(double T)
+{
+    // Maximum absolute error is 0.027723 % between 162.680001 K and 471.109990 K
+    const double ti[]={0,1.0,1.5,2.3,3.6,5.2,7.3,9};
+    const double Ni[]={0,-6.9842594500439841, 1.9949514517876727, -2.6756240798963944, 2.7529403356933746, -9.6524000993633337, 11.060092872347456, -6.562902306656925 };
+    double summer=0,theta;
+    int i;
+    theta=1-T/reduce.T;
+    for (i=1;i<=6;i++)
+    {
+        summer=summer+Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.p*exp(reduce.T/T*summer);
+}
+double R11Class::rhosatL(double T)
+{
+    // Maximum absolute error is 0.640969 % between 162.680001 K and 471.109990 K
+    const double ti[]={0,0.31711655198600947, 2.386599099642229, 4.7641939829730999, 2.7315041965328546, 2.5659045017736379, 2.708610202341649};
+    const double Ni[]={0,1.4404203855929976, -283.11338343074442, -1.9406629812881828, 5539.3265123468946, 1502.4727656910707, -6756.9516728640647};
+    double summer=0;
+    int i;
+    double theta;
+    theta=1-T/reduce.T;
+    for (i=1;i<=6;i++)
+    {
+        summer+=Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.rho*exp(summer);
+}
+double R11Class::rhosatV(double T)
+{
+    // Maximum absolute error is 0.160920 % between 162.680001 K and 471.109990 K
+    const double ti[]={0,0.39053986513205363, 0.83611295633898408, 9.9719972057837776, 1.9950924867352773, 4.5981579093735867, 35.112059187237747};
+    const double Ni[]={0,-2.4471080122765287, -2.4741964754898671, 3.2431722423582214, -0.58671668574610747, -4.8549864160069811, -7703.9456818455419};
     double summer=0,theta;
     int i;
     theta=1.0-T/reduce.T;

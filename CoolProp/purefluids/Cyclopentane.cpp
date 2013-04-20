@@ -55,6 +55,9 @@ CyclopentaneClass::CyclopentaneClass()
 	aliases.push_back(std::string("CycloPentane"));
 	aliases.push_back(std::string("cyclopentane"));
 	REFPROPname.assign("CYCLOPEN");
+
+	BibTeXKeys.EOS = "Gedanitz-PREPRINT-2013";
+
 }
 
 double CyclopentaneClass::psat(double T)

@@ -58,7 +58,7 @@ DimethylEtherClass::DimethylEtherClass()
 
 	BibTeXKeys.EOS = "Wu-JPCRD-2011";
 	BibTeXKeys.VISCOSITY = "Meng-JCED-2012";
-	BibTeXKeys.ECS_LENNARD_JONES = "Chichester-BOOK-2001";
+	BibTeXKeys.ECS_LENNARD_JONES = "Chichester-NIST-2008";
 	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
 }
 

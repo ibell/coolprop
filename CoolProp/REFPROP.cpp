@@ -353,9 +353,8 @@ bool load_REFPROP()
 	return true;
 }
 
-bool set_REFPROP_fluid(std::string Ref)
+bool set_REFPROP_fluid(std::string Ref, double *x)
 {
-	double x[ncmax];
 	long ierr=0;
 	char hf[refpropcharlength*ncmax], herr[errormessagelength+1];
 	std::string sRef;
@@ -517,7 +516,7 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 	// First create a pointer to an instance of the library
 	load_REFPROP();
 	
-	set_REFPROP_fluid(Ref);
+	set_REFPROP_fluid(Ref, x);
 	
 	strcpy(herr,"Ok");
 	
@@ -980,7 +979,7 @@ REFPROPFluidClass::REFPROPFluidClass(std::string FluidName, std::vector<double> 
 	load_REFPROP();
 
 	// Set the fluid
-	set_REFPROP_fluid(FluidName);
+	set_REFPROP_fluid(FluidName, &(xmol[0]));
 
 	// Molar mass
 	WMOLdll(&(xmol[0]),&MW);

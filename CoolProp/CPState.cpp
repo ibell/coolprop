@@ -925,7 +925,7 @@ double CoolPropStateClass::keyed_output(long iOutput)
 		case iD:
 			return _rho;
 		case iP:
-			return p();
+			return _p;
 		case iC:
 			return cp();
 		case iC0:
@@ -1359,6 +1359,106 @@ double CoolPropStateClass::drhodh_constp_smoothed(double xend){
 	SC.build();
 	return SC.evaluate(_Q*hV+(1-_Q)*hL);
 }
+
+
+void CoolPropStateClass::rho_smoothed(double xend, double *rho_spline, double *dsplinedh, double *dsplinedp){
+	// Make a state class instance in two-phase at the junction point (end):
+	CoolPropStateClass CPS = CoolPropStateClass(pFluid);
+	CPS.update(iT,TsatL,iQ,xend);
+
+	// A few necessary properties:
+	double h_l = this->hL();
+	double h_v = this->hV();
+	double rho_l = this->rhoL();
+	double rho_v = this->rhoV();
+	double x = _Q;
+	double h_end = xend * h_v + (1-xend)*h_l;
+	double rho_end = (rho_l * rho_v)/(xend * rho_l + (1-xend)*rho_v);
+
+	// Getting the total derivatives along the saturation lines:
+	double drholdp = CPS.drhodp_along_sat_liquid();
+	double dhldp = CPS.dhdp_along_sat_liquid();
+	double drhovdp = CPS.drhodp_along_sat_vapor();
+	double dhvdp = CPS.dhdp_along_sat_vapor();
+
+	// Getting the required partial derivatives just outside the two-phase zone (faking single-phase fluid):
+	double drhodh_l = CPS.SatL->drhodh_constp();
+	double drhodhdp_l = CPS.SatL->d2rhodhdp();
+	double drhodh_v = CPS.SatV->drhodh_constp();
+
+	// Partial derivatives at the junction (end):
+	double drhodh_end_temp = CPS.drhodh_constp();
+	double drhodp_end_temp = CPS.drhodp_consth();
+	double drhodhdp_end_temp = CPS.d2rhodhdp();
+
+	// Same as above, but detailed:
+	double dxdp = ((xend - 1 )* dhldp - xend* dhvdp)/(h_v - h_l);
+	double drhodh_end = pow(rho_end,2)/(rho_l*rho_v) * (rho_v - rho_l)/(h_v - h_l);
+	double dvdh_end = (1/rho_v - 1/rho_l)/(h_v - h_l);
+	double dvdp_end = (-1/pow(rho_l,2) * drholdp + dxdp * (1/rho_v - 1/rho_l) + xend * (-1/pow(rho_v,2) * drhovdp + 1/pow(rho_l,2) * drholdp));
+	double drhodp_end = -pow(rho_end,2) * dvdp_end;
+	double dvdhdp_end = 1/(h_v - h_l) * (-1/pow(rho_v,2)*drhovdp + 1/pow(rho_l,2) * drholdp) - (1/rho_v - 1/rho_l) / pow((h_v - h_l),2) * (dhvdp - dhldp);
+	double drhodhdp_end = -2 * rho_end * dvdh_end * drhodp_end -pow(rho_end,2)*dvdhdp_end;
+
+	// Derivative at constant quality (xend):
+	double drhoxdp =  pow(rho_end,2)*(xend / pow(rho_v,2) * drhovdp + (1-xend)/pow(rho_l,2) * drholdp);
+
+	//Checking that the derivatives are ok:
+	//double pend = CPS._p;
+	//double step = 0.1;
+	//CPS.update(iH,h_end+step,iP,pend);
+	//double rho_hplus = CPS._rho;
+	//CPS.update(iH,h_end+step,iP,pend+step);
+	//double rho_hplus_pplus = CPS._rho;
+	//CPS.update(iH,h_end,iP,pend+step);
+	//double rho_pplus = CPS._rho;
+	//double dvdh_end_pplus = (1/CPS.rhoV() - 1/CPS.rhoL())/(CPS.hV() - CPS.hL());
+	//double drhodh_check_pplus = -rho_pplus*rho_pplus * dvdh_end_pplus;
+	//double drhodh_check2_pplus = CPS.drhodh_constp();
+	//CPS.update(iH,h_end+step,iP,pend-step);
+	//double rho_hplus_pminus = CPS._rho;
+	//CPS.update(iH,h_end-step,iP,pend+step);
+	//double rho_hminus_pplus = CPS._rho;
+	//CPS.update(iH,h_end-step,iP,pend-step);
+	//double rho_hminus_pminus = CPS._rho;
+	//double dvdhdp_check = (dvdh_end_pplus - dvdh_end)/step;
+	//double drhodhdp_check = -rho_end*rho_end * dvdhdp_check;
+	//double drhodhdp_check2 = (drhodh_check2_pplus - drhodh_end)/step;
+	//double drhodp_hend = (rho_pplus - rho_end)/step;
+	//double drhodp_hplus = (rho_hplus_pplus - rho_hplus)/step;
+	//double drhodh_pend = (rho_hplus - rho_end)/step;
+	//double drhodh_pplus = (rho_hplus_pplus - rho_pplus)/step;
+	//double drhodhdp_1 = (drhodp_hplus - drhodp_hend)/step;
+	//double drhodhdp_2 = (drhodh_pplus - drhodh_pend)/step;	
+	//double drhodhdp_3 = (rho_hplus_pplus + rho_hminus_pminus - rho_hplus_pminus - rho_hminus_pplus)/(4*step*step);
+	//double dvdhdp_3 = (1/rho_hplus_pplus + 1/rho_hminus_pminus - 1/rho_hplus_pminus - 1/rho_hminus_pplus)/(4*step*step);
+
+	// Arguments of the spline function (rho is smoothed as a function of h):
+	double delta = x * (h_v - h_l);
+	double delta_end = h_end - h_l;
+	double ddeltaxdp = xend * (dhvdp - dhldp);
+	double ddeltadp = -dhldp;
+
+	// Coefficients of the spline function
+	double a = 1/pow(delta_end,3) * (2*rho_l - 2*rho_end + delta_end * (drhodh_l + drhodh_end));
+	double b = 3/pow(delta_end,2) * (-rho_l + rho_end) - 1/delta_end * (drhodh_end + 2 * drhodh_l);
+	double c = drhodh_l;
+	double d = rho_l;
+
+	// First pressure derivative of the coefficients
+	double dadp = -6/pow(delta_end,4) *  ddeltaxdp * (rho_l - rho_end) + 2/pow(delta_end,3) * (drholdp - drhoxdp) + 1/pow(delta_end,2) * (drhodhdp_l + drhodhdp_end) -2/pow(delta_end,3) * (drhodh_l + drhodh_end)*ddeltaxdp;
+	double dbdp = -6/pow(delta_end,3) * ddeltaxdp * (-rho_l + rho_end) + 3/pow(delta_end,2) * (-drholdp + drhoxdp) + 1/pow(delta_end,2) * ddeltaxdp * (drhodh_end + 2 * drhodh_l) - 1/delta_end * (drhodhdp_end + 2 * drhodhdp_l);
+	double dcdp = drhodhdp_l;
+	double dddp = drholdp;
+
+	// Computing the final useful values:
+	*rho_spline = a * pow(delta,3) + b * pow(delta,2) + c * delta + d;
+	*dsplinedp = (3*a * pow(delta,2)  +2* b * delta + c)* ddeltadp + pow(delta,3) * dadp + pow(delta,2) * dbdp + delta * dcdp + dddp;
+	*dsplinedh = 3 * a * pow(delta,2) + 2*b * delta + c;
+	
+}
+
+
 
 double CoolPropStateClass::drhodp_consth(void){
 

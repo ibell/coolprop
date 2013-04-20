@@ -9,6 +9,7 @@ Pure Fluids
     Acetone.rst
     Ammonia.rst
     Argon.rst
+    Benzene.rst
     CarbonDioxide.rst
     CarbonMonoxide.rst
     CarbonylSulfide.rst
@@ -24,6 +25,7 @@ Pure Fluids
     Ethanol.rst
     EthylBenzene.rst
     Ethylene.rst
+    HFE143m.rst
     Helium.rst
     Hydrogen.rst
     HydrogenSulfide.rst
@@ -46,19 +48,23 @@ Pure Fluids
     Nitrogen.rst
     NitrousOxide.rst
     Nonane.rst
+    OrthoHydrogen.rst
     Oxygen.rst
     ParaHydrogen.rst
     Propane.rst
     Propylene.rst
+    R11.rst
     R116.rst
     R123.rst
     R1234yf.rst
     R1234ze.rst
+    R125.rst
     R134a.rst
     R141b.rst
     R142b.rst
     R143a.rst
     R152A.rst
+    R161.rst
     R218.rst
     R22.rst
     R227EA.rst
@@ -72,6 +78,7 @@ Pure Fluids
     SulfurDioxide.rst
     SulfurHexafluoride.rst
     Toluene.rst
+    Undecane.rst
     Water.rst
     Xenon.rst
     cis-2-Butene.rst

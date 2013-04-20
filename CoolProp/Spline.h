@@ -9,11 +9,11 @@
 class SplineClass
 {
 protected:
-	double a,b,c,d;
 	int Nconstraints;
 	std::vector<std::vector<double> > A;
 	std::vector<double> B;
 public:
+	double a,b,c,d;
 	SplineClass();
 	bool build(void);
 	bool add_value_constraint(double x, double y);

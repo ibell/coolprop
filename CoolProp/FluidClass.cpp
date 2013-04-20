@@ -76,6 +76,9 @@
 #include "purefluids/R227EA_R365MFC.h"
 #include "purefluids/R161.h"
 #include "purefluids/HFE143m.h"
+#include "purefluids/Benzene.h"
+#include "purefluids/Undecane.h"
+#include "purefluids/R125.h"
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -181,7 +184,7 @@ FluidsContainer::FluidsContainer()
 	FluidsList.push_back(new OxygenClass());
 	FluidsList.push_back(new HydrogenClass());
 	FluidsList.push_back(new ParaHydrogenClass());
-	//FluidsList.push_back(new OrthoHydrogenClass());  NOT WORKING
+	FluidsList.push_back(new OrthoHydrogenClass());
 	FluidsList.push_back(new ArgonClass());
 	FluidsList.push_back(new R744Class());
 	FluidsList.push_back(new NitrogenClass());
@@ -208,6 +211,9 @@ FluidsContainer::FluidsContainer()
 	FluidsList.push_back(new R365MFCClass());
 	FluidsList.push_back(new R161Class());
 	FluidsList.push_back(new HFE143mClass());
+	FluidsList.push_back(new BenzeneClass());
+	FluidsList.push_back(new UndecaneClass());
+	FluidsList.push_back(new R125Class());
 
 	// The industrial fluids
 	FluidsList.push_back(new R245faClass());
@@ -244,6 +250,8 @@ FluidsContainer::FluidsContainer()
 	// Span Polar
 	FluidsList.push_back(new R152AClass());
 	FluidsList.push_back(new R123Class());
+	FluidsList.push_back(new R11Class());
+
 
 	// The Siloxanes
 	FluidsList.push_back(new OctamethyltrisiloxaneClass()); //MDM
