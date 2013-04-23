@@ -10,7 +10,7 @@
   @param libraryName Name of the external fluid property library
   @param substanceName Substance name
 */
-BaseSolver::BaseSolver(const string &mediumName, const string &libraryName, const string &substanceName)
+BaseSolver::BaseSolver(const std::string &mediumName, const std::string &libraryName, const std::string &substanceName)
 	: mediumName(mediumName), libraryName(libraryName), substanceName(substanceName){
 }
 
