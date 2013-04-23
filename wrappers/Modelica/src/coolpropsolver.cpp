@@ -7,7 +7,7 @@
 #include <stdlib.h>
 
 long iFluid;
-CoolPropSolver::CoolPropSolver(const string &mediumName, const string &libraryName, const string &substanceName)
+CoolPropSolver::CoolPropSolver(const std::string &mediumName, const std::string &libraryName, const std::string &substanceName)
 	: BaseSolver(mediumName, libraryName, substanceName){
 	setFluidConstants();
 
@@ -16,7 +16,7 @@ CoolPropSolver::CoolPropSolver(const string &mediumName, const string &libraryNa
 	// Fluid name can be used to pass in other parameters.  
 	// The string can be composed like "Propane|enable_TTSE=1|calc_transport=0"
 
-	std::vector<string> name_options = strsplit(substanceName,'|');
+	std::vector<std::string> name_options = strsplit(substanceName,'|');
 	
 	// Set the defaults
 	enable_TTSE = false;
@@ -30,7 +30,7 @@ CoolPropSolver::CoolPropSolver(const string &mediumName, const string &libraryNa
 		for (unsigned int i = 1; i<name_options.size(); i++)
 		{
 			// Split around the equals sign
-			std::vector<string> param_val = strsplit(name_options[i],'=');
+			std::vector<std::string> param_val = strsplit(name_options[i],'=');
 			if (param_val.size() != 2)
 			{
 				errorMessage((char*)format("Could not parse the option [%s], must be in the form param=value",name_options[i].c_str()).c_str());
@@ -75,7 +75,7 @@ CoolPropSolver::CoolPropSolver(const string &mediumName, const string &libraryNa
 			}
 			else if (!param_val[0].compare("debug"))
 			{
-				debug_level = (int)strtol(param_val[1].c_str(),NULL,NULL);
+				debug_level = (int)strtol(param_val[1].c_str(),NULL,0);
 				if (debug_level<0 || debug_level > 1000)
 					errorMessage((char*)format("I don't know how to handle this debug level [%s]",param_val[0].c_str()).c_str());
 			}

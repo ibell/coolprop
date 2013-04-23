@@ -4,6 +4,7 @@
 #include "include.h"
 #include "fluidconstants.h"
 #include "CoolPropLib.h"
+#include <string>
 
 struct FluidConstants;
 
@@ -21,7 +22,7 @@ struct FluidConstants;
 */
 class BaseSolver{
 public:
-	BaseSolver(const string &mediumName, const string &libraryName, const string &substanceName);
+	BaseSolver(const std::string &mediumName, const std::string &libraryName, const std::string &substanceName);
 	virtual ~BaseSolver();
 
     double molarMass() const;
@@ -85,11 +86,11 @@ public:
 	virtual double Tsat(ExternalSaturationProperties *const properties);
 
 	//! Medium name
-	string mediumName;
+	std::string mediumName;
 	//! Library name
-	string libraryName;
+	std::string libraryName;
 	//! Substance name
-	string substanceName;
+	std::string substanceName;
 
 protected:
 	//! Fluid constants

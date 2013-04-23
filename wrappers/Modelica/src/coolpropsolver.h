@@ -21,7 +21,7 @@ protected:
 	double twophase_derivsmoothing_xend;
 	double rho_smoothing_xend;
 public:
-	CoolPropSolver(const string &mediumName, const string &libraryName, const string &substanceName);
+	CoolPropSolver(const std::string &mediumName, const std::string &libraryName, const std::string &substanceName);
 	~CoolPropSolver(){};
 	virtual void setFluidConstants();
 
