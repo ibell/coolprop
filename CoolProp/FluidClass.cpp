@@ -2600,8 +2600,8 @@ double Fluid::surface_tension_T(double T)
 
 	sigma in [mN/m]-->[N/m]
 	*/
-	double N_A = 6.02214129e23,    //[-]
-		k = params.R_u/N_A,         //[J/K]
+	double N_A = 6.02214129e23,     //[-] CODATA 2010
+		k = 1.3806488e-23,          //[J/K] CODATA 2010
 		w = params.accentricfactor, //[-]
 		Vc,                         //[cm^3/mol]
 		Tc,                         //[K]
