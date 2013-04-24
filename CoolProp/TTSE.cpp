@@ -546,14 +546,14 @@ bool TTSESinglePhaseTableClass::read_all_from_file(std::string root_path)
 		  && Nh == this->Nh
 		  && Np == this->Np
 		  && fabs(pmin - this->pmin)<10*DBL_EPSILON
-		  && fabs(pmax - this->pmax)<10*DBL_EPSILON 
-		  && fabs(hmin - this->hmin)<10*DBL_EPSILON 
+		  && fabs(pmax - this->pmax)<10*DBL_EPSILON
+		  && fabs(hmin - this->hmin)<10*DBL_EPSILON
 		  && fabs(hmax - this->hmax)<10*DBL_EPSILON
 		  && Nh == this->NT
 		  && Np == this->Nrho
 		  && fabs(Tmin - this->Tmin)<10*DBL_EPSILON
-		  && fabs(Tmax - this->Tmax)<10*DBL_EPSILON 
-		  && fabs(rhomin - this->rhomin)<10*DBL_EPSILON 
+		  && fabs(Tmax - this->Tmax)<10*DBL_EPSILON
+		  && fabs(rhomin - this->rhomin)<10*DBL_EPSILON
 		  && fabs(rhomax - this->rhomax)<10*DBL_EPSILON
 		  && TTSERev == TTSEREV
 		)) return false;
