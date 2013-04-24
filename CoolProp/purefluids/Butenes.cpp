@@ -105,15 +105,15 @@ OneButeneClass::OneButeneClass()
 
 double OneButeneClass::psat(double T)
 {
-    // Maximum absolute error is 1.022546 % between 87.800001 K and 419.289990 K
-    const double ti[]={0,1.0,1.5,2.3,3.6,5.2,7.3};
-    const double Ni[]={0,-7.0814140059671473, 1.9062730263678234, -1.3293052637695406, -1.9040218085232175, -0.60763295188888677, -0.85716914055264981 };
+    // Maximum absolute error is 0.162304 % between 87.800001 K and 419.289990 K
+    const double ti[]={0,1.0,1.5,2.3,3.6,5.2,7.3,9};
+    const double Ni[]={0,-7.1450182048398165, 2.2562618900495846, -2.36160856975917, 0.73673176213172731, -5.6018424878741815, 6.121828365893009, -4.2551550478203906 };
     double summer=0,theta;
     int i;
     theta=1-T/reduce.T;
-    for (i=1;i<=6;i++)
+    for (i=1;i<=7;i++)
     {
-        summer=summer+Ni[i]*pow(theta,ti[i]);
+        summer += Ni[i]*pow(theta,ti[i]);
     }
     return reduce.p*exp(reduce.T/T*summer);
 }

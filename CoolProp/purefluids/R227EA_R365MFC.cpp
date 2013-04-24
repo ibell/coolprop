@@ -68,7 +68,7 @@ double R227EAClass::psat(double T)
     double summer=0,theta;
     int i;
     theta=1-T/reduce.T;
-    for (i=1;i<=6;i++)
+    for (i=1;i<=7;i++)
     {
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
@@ -171,7 +171,6 @@ double R365MFCClass::psat(double T)
     {
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
-	double p = reduce.p*exp(reduce.T/T*summer);
     return reduce.p*exp(reduce.T/T*summer);
 }
 double R365MFCClass::rhosatL(double T)

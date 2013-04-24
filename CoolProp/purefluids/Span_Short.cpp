@@ -910,7 +910,7 @@ R152AClass::R152AClass()
 	//Critical parameters
 	crit.rho = 368.0; //[kg/m^3]
 	crit.p = 4520; //[kPa]
-	crit.T = 386.41; //[K]
+	crit.T = 386.411; //[K]
 	crit.v = 1/crit.rho; 
 
 	// Other fluid parameters
@@ -952,7 +952,7 @@ double R152AClass::psat(double T)
     double summer=0,theta;
     int i;
     theta=1-T/reduce.T;
-    for (i=1;i<=6;i++)
+    for (i=1;i<=7;i++)
     {
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
@@ -1045,7 +1045,7 @@ double R123Class::psat(double T)
     double summer=0,theta;
     int i;
     theta=1-T/reduce.T;
-    for (i=1;i<=6;i++)
+    for (i=1;i<=7;i++)
     {
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
@@ -1185,7 +1185,7 @@ double R11Class::psat(double T)
     double summer=0,theta;
     int i;
     theta=1-T/reduce.T;
-    for (i=1;i<=6;i++)
+    for (i=1;i<=7;i++)
     {
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
