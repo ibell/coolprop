@@ -296,13 +296,14 @@ double MethylOleateClass::rhosatV(double T)
 
 MethylLinoleateClass::MethylLinoleateClass()
 {
-	double n[] = {0.0, 0.3183187e-01, 0.1927286e01, -0.3685053e01, 0, 0.8449312e-01, -0.9766643, -0.4323178, 0.2000470e01, -0.1752030e01, -0.1726895e-01, 0.2116515e01, -0.7884271, -0.3811699};
-	double d[] = {0.0, 4, 1, 1, 2, 3, 1, 3, 2, 2, 7, 1, 1, 3};
-	double t[] = {0.0, 1, 0.2, 1.2, 1, 1, 2.2, 2.5, 1.8, 1.92, 1.47, 1.7, 2.3, 2.1};
-	double c[] = {0.0, 0, 0, 0, 2, 3, 1, 3, 2, 2, 7, 1, 2, 2};
+	// Typo in the paper, coefficients for n,d,t,c taken from REFPROP
+	double n[] = {0.0, 0.3183187e-01, 0.1927286e01, -0.3685053e01, 0.8449312e-01, -0.9766643, -0.4323178, 0.2000470e01, -0.1752030e01, -0.1726895e-01, 0.2116515e01, -0.7884271, -0.3811699};
+	double d[] = {0.0, 4, 1, 1, 3, 1, 3, 2, 2, 7, 1, 1, 3};
+	double t[] = {0.0, 1, 0.2, 1.2, 1, 2.2, 2.5, 1.8, 1.92, 1.47, 1.7, 2.3, 2.1};
+	double c[] = {0.0, 0, 0, 0, 0, 2, 2, 1, 2, 1, 2, 2, 2};
 	static double eta[] = {0,0,0,0,0,0,0,0,0,0,0,1.1,1.6,1.1};
 	static double beta[] = {0,0,0,0,0,0,0,0,0,0,0,0.9,0.65,0.75};
-	static double _gamma[] = {0,0,0,0,0,0,0,0,0,0,0,1.14,0.65,0.77};
+	static double gamma[] = {0,0,0,0,0,0,0,0,0,0,0,1.14,0.65,0.77};
 	static double epsilon[] = {0,0,0,0,0,0,0,0,0,0,0,0.79,0.90,0.76};
 
 	//Critical parameters
@@ -325,7 +326,7 @@ MethylLinoleateClass::MethylLinoleateClass()
 	limits.rhomax = 1000000.0*params.molemass;
 
 	phirlist.push_back(new phir_power( n,d,t,c,1,10,14));
-	phirlist.push_back(new phir_gaussian(n,d,t,eta,epsilon,beta,_gamma,11,13,14));
+	phirlist.push_back(new phir_gaussian(n,d,t,eta,epsilon,beta,gamma,11,13,14));
 
 	phi0list.push_back(new phi0_lead(-1,0));
 	phi0list.push_back(new phi0_logtau(-1));
