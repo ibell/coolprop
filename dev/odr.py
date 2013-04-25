@@ -239,7 +239,7 @@ def saturation_pressure(Ref,ClassName):
     f.close()
     return
                       
-for RPFluid,Fluid in [('REFPROP-Ammonia','Ammonia')
+for RPFluid,Fluid in [('REFPROP-HEPTANE','nHeptane')
                     ]:
     saturation_pressure(RPFluid, Fluid)
     saturation_density(RPFluid, Fluid, form='A', LV='L')

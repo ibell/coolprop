@@ -335,45 +335,47 @@ double R717Class::viscosity_Trho(double T, double rho)
 }
 double R717Class::psat(double T)
 {
-	double theta,phi;
-
-	phi=T/reduce.T;
-	theta=1-phi;
-
-	return reduce.p*exp(5.64633073E-04 - 7.13654961E+00*theta-2.46962841E+00*theta*theta-2.56218797E+01*powInt(theta,3)+4.02270547E+01*powInt(theta,4)-6.72626052E+01*powInt(theta,5));
+    // Maximum absolute error is 0.055212 % between 195.495001 K and 405.399990 K
+    const double t[]={0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 16, 20, 26};
+    const double N[]={0, 0.04909506379170004, -8.5985591284104057, 22.98850790970738, -222.28840209935356, 1491.9401420842644, -6641.0811040366289, 19697.275454679908, -38321.157974702161, 45841.962482923009, -27382.278742352592, 6743.9692067905371, -2077.8944819332091, 1272.2022925639299, -597.49829753755705};
+    double summer=0,theta;
+    int i;
+    theta=1-T/reduce.T;
+    for (i=1;i<=14;i++)
+    {
+        summer += N[i]*pow(theta,t[i]/2);
+    }
+    return reduce.p*exp(reduce.T/T*summer);
 }
+
 double R717Class::rhosatL(double T)
 {
-	double theta, THETA;
-	theta=T/reduce.T;
-	THETA=1-theta;
-	// |Error| is < 0.1% between 197.6 and 396.2 K
-	return exp(1.485*pow(THETA,0.2524)-0.0753)*reduce.rho;
+    // Maximum absolute error is 0.264196 % between 195.495001 K and 405.399990 K
+    const double t[] = {0, 0.16666666666666666, 0.3333333333333333, 0.5, 0.6666666666666666, 0.8333333333333334, 1.0, 1.1666666666666667, 1.3333333333333333, 1.5, 2.1666666666666665};
+    const double N[] = {0, 3.2591904910225704, -41.687339030964814, 246.43755287753763, -837.61113396671999, 2080.7279064276067, -3935.4817672564195, 5171.1096164456239, -4027.6487405218049, 1387.0671995039477, -43.611646611054738};
+    double summer=0,theta;
+    int i;
+    theta=1-T/reduce.T;	
+	for (i=1; i<=10; i++)
+	{
+		summer += N[i]*pow(theta,t[i]);
+	}
+	return reduce.rho*(summer+1);
 }
+
 double R717Class::rhosatV(double T)
 {
-	double theta, THETA;
-	double a1,a2,a3,a4,a5,a6,b1,b2,b3,b4,b5,b6,rhog_hat;
-	theta=T/reduce.T;
-	THETA=1-theta;
-
-	// |Error| is < 0.1% between 225 and 375 K (approximately)
-
-	a1 = -0.1912;
-	a2 = -5.934;
-	a3 = -17.75;  
-	a4 = -18.07;  
-	a5 = -18.08;  
-	a6 = -13.59;  
-	b1 = 0.02903; 
-	b2 = 0.6403;  
-	b3 = 4.829;  
-	b4 = 6.766;  
-	b5 = 6.767;  
-	b6 = 2.333;  
-	
-	rhog_hat = a1*pow(THETA,b1)+a2*pow(THETA,b2)+a3*pow(THETA,b3)+a4*pow(THETA,b4)+a5*pow(THETA,b5)+a6*pow(THETA,b6);
-	return reduce.rho*exp(rhog_hat);
+    // Maximum absolute error is 0.123990 % between 195.495001 K and 405.399990 K
+    const double t[] = {0, 0.3333333333333333, 0.5, 0.6666666666666666, 0.8333333333333334, 1.0, 1.1666666666666667, 1.3333333333333333, 1.5, 1.8333333333333333};
+    const double N[] = {0, -62.065663192057258, 869.56245921894947, -5338.5660401310852, 18273.366873938554, -38074.430040623774, 48944.180419243385, -36862.534086957254, 13256.30649363281, -1014.8176862674514};
+    double summer=0,theta;
+    int i;
+    theta=1-T/reduce.T;
+	for (i=1; i<=9; i++)
+	{
+		summer += N[i]*pow(theta,t[i]);
+	}
+	return reduce.rho*exp(reduce.T/T*summer);
 }
 double R717Class::surface_tension_T(double T)
 {
