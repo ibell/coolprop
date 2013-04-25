@@ -69,7 +69,7 @@ double R236FAClass::psat(double T)
     double summer=0,theta;
     int i;
     theta=1-T/reduce.T;
-    for (i=1;i<=6;i++)
+    for (i=1;i<=7;i++)
     {
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }

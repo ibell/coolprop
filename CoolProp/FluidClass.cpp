@@ -142,7 +142,7 @@ void rebuild_CriticalSplineConstants_T()
 				CPS.update(iT,Tc-b,iQ,1);
 				good = b;
 				rhoV = CPS.rhoV(); rhoL = CPS.rhoL();
-				drhodTV = CPS.drhodT_along_sat_vapor(); 
+				drhodTV = CPS.drhodT_along_sat_vapor();
 				drhodTL = CPS.drhodT_along_sat_liquid();
 			}
 			for (double b = 0.01; b>0; b -= 0.0001)
@@ -273,7 +273,7 @@ FluidsContainer::FluidsContainer()
 	FluidsList.push_back(new MethylPalmitateClass());
 	FluidsList.push_back(new MethylStearateClass());
 	FluidsList.push_back(new MethylOleateClass());
-	//FluidsList.push_back(new MethylLinoleateClass());// Something wrong with this fluid NOT WORKING
+	FluidsList.push_back(new MethylLinoleateClass());
 	FluidsList.push_back(new MethylLinolenateClass());
 
 	// Xylene isomers and EthylBenzene
@@ -2553,6 +2553,8 @@ double Fluid::viscosity_dilute(double T, double e_k, double sigma)
 }
 double Fluid::conductivity_critical(double T, double rho, double qd)
 {
+	// Olchowy and Sengers cross-over term
+
 	double k=1.380658e-23, //[J/K]
 		R0=1.03,
 		gamma=1.239,

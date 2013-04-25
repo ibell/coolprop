@@ -244,9 +244,14 @@ public:
 	double dTau3(double tau, double delta) throw();
 };
 
+/*!
+
+/f[
+\phi_0 = \log(\delta)+a_1+a_2\tau
+/f]
+*/
 class phi0_lead : public phi_BC{
 	/*
-	Term is of the form log(delta)+a1+a2*tau
 	constructor: phi0_lead(double a1, double a2)
 	*/
 private:
@@ -271,6 +276,12 @@ public:
 	double dDelta3(double tau, double delta){return 2/delta/delta/delta;};
 };
 
+/*!
+	Term is of the form 
+	\f[
+	\phi_0 = a_1 \log(\tau)
+	\f]
+*/
 class phi0_logtau : public phi_BC{
 	/*
 	Term is of the form a1*log(tau)

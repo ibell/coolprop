@@ -1,33 +1,156 @@
+from __future__ import division
 import numpy as np
 from scipy.odr import *
 import scipy.optimize, random
+import matplotlib.pyplot as plt
+import textwrap
 
-def example1():
-    #The simplest example, fit slope and intercept to data that is a line
-    def f(B, x):
-        ''' Linear function y = m*x + b '''
-        return B[0]*x + B[1]
+def rsquared(x, y):
+    """ 
+    Return R^2 where x and y are array-like.
+    
+    from http://stackoverflow.com/questions/893657/how-do-i-calculate-r-squared-using-python-and-numpy
+    """
+    import scipy.stats
+    slope, intercept, r_value, p_value, std_err = scipy.stats.linregress(x, y)
+    return r_value**2
 
-        # B is a vector of the parameters.
-        # x is an array of the current x values.
-        # x is same format as the x passed to Data or RealData.
-
-        # Return an array in the same format as y passed to Data or RealData.
+def saturation_density(Ref, ClassName, form = 'A', LV = 'L', perc_error_allowed = 0.3):
+    """
+    
+    Parameters
+    ----------
+    Ref : string
+        The fluid name for the fluid that will be used to generate the saturation data
+    ClassName : The name of the class that will be used in the C++ code
+    form : string
+        If ``'A'``, use a term of the form 
+    """
+    
+    from CoolProp.CoolProp import Props
+    
+    Tc = Props(Ref,'Tcrit')
+    pc = Props(Ref,'pcrit')
+    rhoc = Props(Ref,'rhocrit')
+    Tmin = Props(Ref,'Tmin')
+    
+    TT = np.linspace(Tmin+1e-6, Tc-0.00001, 1000)
+    p = np.array([Props('P','T',T,'Q',0,Ref) for T in TT])
+    rhoL = np.array([Props('D','T',T,'Q',0,Ref) for T in TT])
+    rhoV = np.array([Props('D','T',T,'Q',1,Ref) for T in TT])
+    
+    # Start with a large library of potential powers
+    n = [i/6.0 for i in range(1,200)]#+[0.35+i/200.0 for i in range(1,70)]+[0.05+0.01*i for i in range(1,70)]
+    
+    max_abserror = 0
+    while len(n) > 3:
+    
+        def f_p(B, x):
+            # B is a vector of the parameters.
+            # x is an array of the current x values.
+            return sum([_B*x**(_n) for _B,_n in zip(B,n)])
+        x = 1.0-TT/Tc
+        if form == 'A' and LV == 'L':
+            y = np.array(rhoL)/rhoc-1
+        elif form == 'A' and LV == 'V':
+            y = np.array(rhoV)/rhoc-1
+        elif form == 'B' and LV == 'L':
+            y = (np.log(rhoL)-np.log(rhoc))*TT/Tc
+        elif form == 'B' and LV == 'V':
+            y = (np.log(rhoV)-np.log(rhoc))*TT/Tc
+        else:
+            raise ValueError
         
-    linear = Model(f)
+        linear = Model(f_p)
+        mydata = Data(x, y)
+        myodr = ODR(mydata, linear, beta0=[0]*len(n))
+        myoutput = myodr.run()
+        
+        beta = myoutput.beta
+        sd = myoutput.sd_beta
+        
+        if form == 'A':
+            rho_fit = (f_p(myoutput.beta,x)+1)*rhoc
+        elif form == 'B':
+            rho_fit = np.exp(f_p(myoutput.beta,x)*Tc/TT)*rhoc
+        else:
+            raise ValueError
+        
+        if LV == 'L':
+            max_abserror = np.max(np.abs(rho_fit/rhoL-1))*100
+        else:
+            max_abserror = np.max(np.abs(rho_fit/rhoV-1))*100
+            
+        dropped_indices = [i for i in range(len(n)) if abs(sd[i])<1e-15 ]
+        if dropped_indices:
+            print 'want to drop', random.choice(dropped_indices)
+            for i in reversed(sorted(dropped_indices)):
+                n.pop(i)
+            print 'popping...', len(n), 'terms remaining'
+            continue
+        
+        if max_abserror > perc_error_allowed:
+            break # The last good run will be used
+        else:
+            print max_abserror
+            Ncoeffs = str(list(myoutput.beta)).lstrip('[').rstrip(']')
+            tcoeffs = str(n).lstrip('[').rstrip(']')
+            maxerror = max_abserror
+            if form == 'A':
+                code_template = textwrap.dedent(
+                """
+                for (i=1; i<={count:d}; i++)
+                {{
+                    summer += N[i]*pow(theta,t[i]);
+                }}
+                return reduce.rho*(summer+1);
+                """.format(count = len(n))
+                )
+            elif form == 'B':
+                code_template = textwrap.dedent(
+                """
+                for (i=1; i<={count:d}; i++)
+                {{
+                    summer += N[i]*pow(theta,t[i]);
+                }}
+                return reduce.rho*exp(reduce.T/T*summer);
+                """.format(count = len(n))
+                )
+            else:
+                raise ValueError
+            
+        # Find the least significant entry (the one with the largest relative standard error)
+        # and remove it
+        n.pop(np.argmax(np.abs(sd/beta)))
+        
+        #Remove elements that are not 
+    template = textwrap.dedent(
+    """
+    double {name:s}Class::rhosat{LV:s}(double T)
+    {{
+        // Maximum absolute error is {error:f} % between {Tmin:f} K and {Tmax:f} K
+        const double t[] = {{0, {tcoeffs:s}}};
+        const double N[] = {{0, {Ncoeffs:s}}};
+        double summer=0,theta;
+        int i;
+        theta=1-T/reduce.T;
+        \t{code:s}
+    }}
+    """)
+    f = open('anc.txt','a')
+    f.write(template.format(tcoeffs = tcoeffs,
+                            Ncoeffs = Ncoeffs,
+                            name = ClassName,
+                            Tmin = TT[0],
+                            Tmax = TT[-1],
+                            error = maxerror,
+                            code = code_template,
+                            LV = LV
+                            ))
+    f.close()
+    return
 
-    x = np.linspace(0.01,1000,300)
-    y = 1.5*x+3
-    mydata = Data(x, y)
-
-    myodr = ODR(mydata, linear, beta0=[1., 2.])
-
-    myoutput = myodr.run()
-
-    myoutput.pprint()
-    
-    
-def example2(Ref, ClassName,  N = 4, addTr = True, Llog = True):
+def saturation_pressure(Ref,ClassName):
     
     from CoolProp.CoolProp import Props
     
@@ -40,185 +163,84 @@ def example2(Ref, ClassName,  N = 4, addTr = True, Llog = True):
     p = [Props('P','T',T,'Q',0,Ref) for T in TT]
     rhoL = [Props('D','T',T,'Q',0,Ref) for T in TT]
     rhoV = [Props('D','T',T,'Q',1,Ref) for T in TT]
-    logppc = (np.log(p)-np.log(pc))*TT/Tc
-    logrhoLrhoc = np.log(rhoL)-np.log(rhoc)
-    logrhoVrhoc = np.log(rhoV)-np.log(rhoc)
         
-    def f_p(B, x):
-        # B is a vector of the parameters.
-        # x is an array of the current x values.
-        return B[0]*x + B[1]*x**1.5 + B[2]*x**2.3 + B[3]*x**3.6 + B[4]*x**5.2 + B[5]*x**7.3 + B[6]*x**9
-    x = 1.0-TT/Tc
-    y = logppc
-    
-    linear = Model(f_p)
-    mydata = Data(x, y)
-    myodr = ODR(mydata, linear, beta0=[0, 0, 0, 0, 0, 0, 0])
-    myoutput = myodr.run()
-    
-    psat_N = str(list(myoutput.beta)).lstrip('[').rstrip(']')
-    p_fit = np.exp(f_p(myoutput.beta,x)*Tc/TT)*pc
-    max_abserror = np.max(np.abs((p_fit/p)-1)*100)
-    print max_abserror
-    psat_error = max_abserror
-    
-    x = 1.0-TT/Tc
-            
-    t = 0
+    Np = 30
+    n = range(1,Np)
     max_abserror = 0
-
-    if addTr:
-        Tr = TT/Tc
-    else:
-        Tr = 1
-        
-    y = np.log(np.array(rhoV)/rhoc)*Tr
+    while len(n) > 3:
     
-    def f_coeffs(n, x):
-        global t, max_abserror
-
-        def f_rho(B, x):
-            return sum([_B*x**_n for _B,_n in zip(B,n)])
-        linear = Model(f_rho)
+        def f_p(B, x):
+            # B is a vector of the parameters.
+            # x is an array of the current x values.
+            return sum([_B*x**(_n/2.0) for _B,_n in zip(B,n)])
+        x = 1.0-TT/Tc
+        y = (np.log(p)-np.log(pc))*TT/Tc
+        
+        linear = Model(f_p)
         mydata = Data(x, y)
-        myodr = ODR(mydata, linear, beta0=[1]*N)
-        myoutput = myodr.run()
-    
-        rho_fit = np.exp(f_rho(myoutput.beta,x)/Tr)*rhoc
-        max_abserror = np.max(np.abs((rho_fit/rhoV)-1)*100)
-        
-        t = myoutput.beta
-        print Ref, 'rhoV SSE =', myoutput.sum_square, max_abserror,'%', list(myoutput.beta), list(n)
-        return myoutput.sum_square
-        
-    n0 = [0.345]+range(1,N)
-    assert(len(n0) == N)
-    n0 = scipy.optimize.minimize(f_coeffs,n0, args=(x,), method = 'Powell').x
-    max_abserror = globals()['max_abserror']
-    t = globals()['t']
-    rhosatV_t = str(list(t)).lstrip('[').rstrip(']')
-    rhosatV_N = str(list(n0)).lstrip('[').rstrip(']')
-    rhosatV_error = max_abserror
-    
-    if Llog:
-        y = np.log(np.array(rhoL)/rhoc)
-    else:
-        y = np.array(rhoL)/rhoc-1
-        
-    beta0 = [1]*N
-    def f_coeffs(n,x):
-        global t, max_abserror, beta0
-        def f_rho(B, x):
-            return sum([_B*x**_n for _B,_n in zip(B,n)])
-            
-        linear = Model(f_rho)
-        mydata = Data(x, y)
-        myodr = ODR(mydata, linear, beta0=[1]*N)
+        myodr = ODR(mydata, linear, beta0=[0]*len(n))
         myoutput = myodr.run()
         
-        if Llog:
-            rho_fit = np.exp(f_rho(myoutput.beta,x))*rhoc
+        beta = myoutput.beta
+        sd = myoutput.sd_beta
+        
+        p_fit = np.exp(f_p(myoutput.beta,x)*Tc/TT)*pc
+        max_abserror = np.max(np.abs((p_fit/p)-1)*100)
+        print max_abserror
+        psat_error = max_abserror
+        
+        dropped_indices = [i for i in range(len(n)) if abs(sd[i])<1e-15 ]
+        if dropped_indices:
+            #for i in reversed(dropped_indices):
+            # randomly drop one of them
+            n.pop(random.choice(dropped_indices))
+            continue
+        
+        if max_abserror < 0.1: #Max error is 0.1%
+            Ncoeffs = str(list(myoutput.beta)).lstrip('[').rstrip(']')
+            tcoeffs = str(n).lstrip('[').rstrip(']')
+            maxerror = max_abserror
+            N = len(n)
         else:
-            rho_fit = (f_rho(myoutput.beta,x)+1)*rhoc
-            
-        max_abserror = np.max(np.abs((rho_fit/rhoL)-1)*100)
+            break
         
-        t = myoutput.beta
-        print Ref, 'rhoL SSE =', myoutput.sum_square, max_abserror,'%', list(myoutput.beta), list(n), max_abserror,'%'
-        return myoutput.sum_square
-    
-    n0 = [0.345]+list(0.75*np.array(range(1,N)))
-    assert(len(n0) == N)
-    n0 = scipy.optimize.minimize(f_coeffs,n0, args=(x,), method = 'Powell').x
-    max_abserror = globals()['max_abserror']
-    t = globals()['t']
-    rhosatL_t = str(list(t)).lstrip('[').rstrip(']')
-    rhosatL_N = str(list(n0)).lstrip('[').rstrip(']')
-    rhosatL_error = max_abserror
-    
+        # Find the least significant entry (the one with the largest standard error)
+        # and remove it
+        n.pop(np.argmax(sd))
+        
+        #Remove elements that are not 
     import textwrap
     template = textwrap.dedent(
     """
     double {name:s}Class::psat(double T)
     {{
         // Maximum absolute error is {psat_error:f} % between {Tmin:f} K and {Tmax:f} K
-        const double ti[]={{0,1.0,1.5,2.3,3.6,5.2,7.3,9}};
-        const double Ni[]={{0,{psat_N:s} }};
+        const double t[]={{0, {tcoeffs:s}}};
+        const double N[]={{0, {Ncoeffs:s}}};
         double summer=0,theta;
         int i;
         theta=1-T/reduce.T;
-        for (i=1;i<=6;i++)
+        for (i=1;i<={N:d};i++)
         {{
-            summer=summer+Ni[i]*pow(theta,ti[i]);
+            summer += N[i]*pow(theta,t[i]/2);
         }}
         return reduce.p*exp(reduce.T/T*summer);
     }}
-    double {name:s}Class::rhosatL(double T)
-    {{
-        // Maximum absolute error is {rhosatL_error:f} % between {Tmin:f} K and {Tmax:f} K
-        const double ti[]={{0,{rhosatL_N:s}}};
-        const double Ni[]={{0,{rhosatL_t:s}}};
-        double summer=0;
-        int i;
-        double theta;
-        theta=1-T/reduce.T;
-        for (i=1;i<={N:d};i++)
-        {{
-            summer+=Ni[i]*pow(theta,ti[i]);
-        }}
-        return reduce.rho*exp(summer);
-    }}
-    double {name:s}Class::rhosatV(double T)
-    {{
-        // Maximum absolute error is {rhosatV_error:f} % between {Tmin:f} K and {Tmax:f} K
-        const double ti[]={{0,{rhosatV_N:s}}};
-        const double Ni[]={{0,{rhosatV_t:s}}};
-        double summer=0,theta;
-        int i;
-        theta=1.0-T/reduce.T;
-        for (i=1;i<={N:d};i++)
-        {{
-            summer=summer+Ni[i]*pow(theta,ti[i]);
-        }}
-        return reduce.rho*exp(crit.T/T*summer);
-    }}
     """)
-    
     f = open('anc.txt','a')
     f.write(template.format(N = N,
-                            psat_N = psat_N,
-                            rhosatL_t = rhosatL_t,
-                            rhosatL_N = rhosatL_N,
-                            rhosatV_t = rhosatV_t,
-                            rhosatV_N = rhosatV_N,
+                            tcoeffs = tcoeffs,
+                            Ncoeffs = Ncoeffs,
                             name = ClassName,
                             Tmin = TT[0],
                             Tmax = TT[-1],
-                            psat_error = psat_error,
-                            rhosatL_error = rhosatL_error,
-                            rhosatV_error = rhosatV_error
+                            psat_error = maxerror,
                             ))
     f.close()
-                            
-    
-#example1()
-
-## example2('REFPROP-pentane','nPentane',N = 4)
-## example2('REFPROP-HEXANE','nHexane',N = 5)
-## example2('REFPROP-T2Butene','Trans2Butene',N = 5)
-## example2('REFPROP-1Butene','1Butene',N = 5)
-## example2('REFPROP-C2BUTENE','Cis2Butene',N = 5)
-## example2('REFPROP-IBUTENE','IsoButene',N = 5)
-## example2('REFPROP-HEPTANE','nHeptane',N = 5)
-#example2('REFPROP-CYCLOHEX','Cyclohexane', N = 5)
-#example2('REFPROP-SES36','SES36', N = 5)
-#example2('REFPROP-R236EA','R236EA', N = 7)
-#example2('REFPROP-R227EA','R227EA', N = 8)
-#example2('REFPROP-R365MFC','R365MFC', N = 8)
-example2('REFPROP-C11','Undecane', N = 6)
-#example2('REFPROP-PROPYLEN','Propylene', N = 5)
-
-#example2('REFPROP-DMC','DMC',N = 5)
-#example2('REFPROP-MXYLENE','mXylene',N = 5)
-#example2('REFPROP-PXYLENE','pXylene',N = 5)
-#example2('REFPROP-EBENZENE','EthylBenzene',N = 5)
+    return
+                      
+for RPFluid,Fluid in [('REFPROP-Ammonia','Ammonia')
+                    ]:
+    saturation_pressure(RPFluid, Fluid)
+    saturation_density(RPFluid, Fluid, form='A', LV='L')
+    saturation_density(RPFluid, Fluid, form='B', LV='V')

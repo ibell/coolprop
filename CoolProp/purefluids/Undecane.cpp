@@ -20,9 +20,9 @@ UndecaneClass::UndecaneClass()
 	// Other fluid parameters
 	params.molemass = 156.31;
 	params.Ttriple = 247.541;
-	params.accentricfactor = _HUGE;
+	params.accentricfactor = 0.53903710137185668;
 	params.R_u = 8.314472;
-	params.ptriple = _HUGE;
+	params.ptriple = 0.00044605108038132317;
 
 	// Limits of EOS
 	limits.Tmin = 243;
@@ -44,10 +44,11 @@ UndecaneClass::UndecaneClass()
 
 	phi0list.push_back(new phi0_cp0_poly(alpha_v, beta_v, crit.T, 298.15, 0, 4));
 
-	EOSReference.assign("I. S. Aleksandrov and A. A. Gerasimov and B. A. Grigor’ev \"Using Fundamental Equations of State for Calculating the Thermodynamic Properties of Normal Undecane\" Thermal Engineering, 2011, Vol. 58, No. 8, pp. 691–698");
+	EOSReference.assign("Aleksandrov, I. S. and A. A. Gerasimov and B. A. Grigor’ev \"Using Fundamental Equations of State for Calculating the Thermodynamic Properties of Normal Undecane\" Thermal Engineering, 2011, Vol. 58, No. 8, pp. 691–698");
 	TransportReference.assign("Using ECS in fully predictive mode.");
 
-	name.assign("Undecane");
+	name.assign("n-Undecane");
+	aliases.push_back("Undecane");
 	aliases.push_back("C11");
 	REFPROPname.assign("C11");
 

@@ -62,47 +62,54 @@ EthanolClass::EthanolClass()
 	BibTeXKeys.CONDUCTIVITY = "__Kiselev-IECR-2005";
 	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
 }
+
 double EthanolClass::psat(double T)
 {
-    const double ti[]={0, 1.0, 1.5, 3.4, 3.7};
-    const double Ni[]={0, -8.94161, 1.61761, -51.1428, 53.1360};
-
+    // Maximum absolute error is 0.049039 % between 159.000001 K and 514.709990 K
+    const double t[]={0, 1, 2, 3, 4, 5, 7, 10, 12, 20, 29};
+    const double N[]={0, -0.075818069149825001, -7.7448823729682985, -4.5515296488692663, 19.789200573819908, -35.839811025062396, 37.318806908870094, -57.147969051116043, 44.527860526639977, -15.896759939203806, 10.79757895413991};
     double summer=0,theta;
     int i;
     theta=1-T/reduce.T;
-    for (i=1;i<=4;i++)
+    for (i=1;i<=10;i++)
     {
-        summer=summer+Ni[i]*pow(theta,ti[i]);
+        summer += N[i]*pow(theta,t[i]/2);
     }
     return reduce.p*exp(reduce.T/T*summer);
 }
+
 double EthanolClass::rhosatL(double T)
 {
-    const double ti[] = {0, 0.5, 0.8, 1.1, 1.5, 3.3};
-    const double Ni[] = {0, 9.00921, -23.1668, 30.9092, -16.5459, 3.64294};
-    double summer=0;
-    int i;
-    double theta;
-    theta=1-T/reduce.T;
-    for (i=1;i<=5;i++)
-    {
-        summer += Ni[i]*pow(theta,ti[i]);
-    }
-    return reduce.rho*(summer+1);
-}
-double EthanolClass::rhosatV(double T)
-{
-    const double ti[]={0, 0.21, 1.1, 3.4, 10.};
-    const double Ni[]={0, -1.75362, -10.5323, -37.6407, -129.762};
-
+    // Maximum absolute error is 0.121983 % between 159.000001 K and 514.709990 K
+    const double t[] = {0, 0.16666666666666666, 0.3333333333333333, 0.5, 0.6666666666666666, 0.8333333333333334, 1.0, 1.1666666666666667, 1.5, 1.8333333333333333, 2.1666666666666665, 2.6666666666666665, 3.0};
+    const double N[] = {0, 3.5573356580555995, -115.94068902907544, 1164.8482158801778, -5411.3846003602521, 12919.948271386753, -14718.337097208585, 4955.9389804136181, 6233.4802540917681, -10696.921112569838, 7841.2862300742336, -3088.2381629744345, 915.08823423558681};
     double summer=0,theta;
     int i;
-    theta=1.0-T/reduce.T;
-    for (i=1; i<=4; i++)
-    {
-        summer=summer+Ni[i]*pow(theta,ti[i]);
-    }
-    return reduce.rho*exp(summer);
+    theta=1-T/reduce.T;
+    	
+for (i=1; i<=12; i++)
+{
+    summer += N[i]*pow(theta,t[i]);
+}
+return reduce.rho*(summer+1);
+
+}
+
+double EthanolClass::rhosatV(double T)
+{
+    // Maximum absolute error is 0.249190 % between 159.000001 K and 514.709990 K
+    const double t[] = {0, 0.16666666666666666, 0.3333333333333333, 0.5, 0.6666666666666666, 0.8333333333333334, 1.0, 1.1666666666666667, 1.5, 1.8333333333333333, 2.1666666666666665, 2.6666666666666665, 3.0, 3.5, 4.0, 4.833333333333333, 5.666666666666667, 6.5, 7.5};
+    const double N[] = {0, -715.73679606003213, 27174.368520137847, -363760.44006316864, 2497623.4505360974, -9887215.6886598319, 22668282.538672678, -25633604.436509725, 26893871.018254004, -39217522.13402579, 42918084.402004614, -54504033.86915829, 54184715.632529818, -30631923.511888951, 13790730.526646532, -3790817.9701093137, 1376091.7531195069, -369423.82245897013, 42454.025141831691};
+    double summer=0,theta;
+    int i;
+    theta=1-T/reduce.T;
+    	
+for (i=1; i<=18; i++)
+{
+    summer += N[i]*pow(theta,t[i]);
+}
+return reduce.rho*exp(reduce.T/T*summer);
+
 }
 
 double EthanolClass::viscosity_Trho(double T, double rho)
