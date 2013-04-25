@@ -28,9 +28,7 @@ def check_T(Fluid, T):
     pmin = Props(Fluid,'ptriple')
     pmax = Props('P','T',Props(Fluid,'Tcrit'),'D',Props(Fluid,'rhocrit'),Fluid)
     psat = Props('P', 'T', T, 'Q', 1, Fluid)
-    if psat >= pmin and psat <= pmax:
-        pass
-    else:
+    if not (psat >= pmin and psat <= pmax):
         raise AssertionError('psat: {psat:g} pmin: {pmin:g} pmax: {pmax:g}'.format(**locals()))
     
 if __name__=='__main__':
