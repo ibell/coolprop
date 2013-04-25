@@ -16,11 +16,11 @@ def test_subcooled():
             for T in np.linspace(Props(Fluid,'Tmin')+1e-5,Tsat-1e-5,20):
                 yield check_rho,Fluid,T,p
     
-## def test_supercritical():
-##     for Fluid in CoolProp.__fluids__:
-##         for p in np.linspace(Props(Fluid,'pcrit'),Props(Fluid,'pcrit')*2,20):
-##             for T in np.linspace(Props(Fluid,'Tcrit')+0.1,0.95*Props(Fluid,'Tcrit'),20):
-##                 yield check_rho,Fluid,T,p
+def test_supercritical():
+    for Fluid in CoolProp.__fluids__:
+        for p in np.linspace(Props(Fluid,'pcrit'),Props(Fluid,'pcrit')*5,20):
+            for T in np.linspace(Props(Fluid,'Tmin')+1e-5,2*Props(Fluid,'Tcrit'),20):
+                yield check_rho,Fluid,T,p
 
 def check_rho(Fluid,T,p):
     rhoEOS = Props('D','T',T,'P',p,Fluid)
