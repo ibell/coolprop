@@ -25,7 +25,7 @@ UndecaneClass::UndecaneClass()
 	params.ptriple = 0.00044605108038132317;
 
 	// Limits of EOS
-	limits.Tmin = 243;
+	limits.Tmin = params.Ttriple;
 	limits.Tmax = 500.0;
 	limits.pmax = 100000.0;
 	limits.rhomax = 1000000.0*params.molemass;

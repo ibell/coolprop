@@ -362,7 +362,7 @@ params.molemass = 100.204;
 params.Ttriple = 182.55;
 params.accentricfactor = 0.349;
 params.R_u = 8.314510;
-params.ptriple = 0.0019889200572;
+params.ptriple = 0.00017548675253297369;
 
 // Limits of EOS
 limits.Tmin = params.Ttriple;
@@ -920,7 +920,7 @@ R152AClass::R152AClass()
 	params.Ttriple = 154.56;
 	params.accentricfactor = 0.27521711453209896;
 	params.R_u = 8.314510;
-	params.ptriple = 76.643042131172479;
+	params.ptriple = 0.064089867936946279;
 
 	// Limits of EOS
 	limits.Tmin = params.Ttriple;
@@ -1010,7 +1010,7 @@ R123Class::R123Class()
 	params.Ttriple = 166;
 	params.accentricfactor = 0.28192249703635186;
 	params.R_u = 8.314510;
-	params.ptriple = 6.6870785940409405;
+	params.ptriple = 0.0041534426564210506;
 
 	// Limits of EOS
 	limits.Tmin = params.Ttriple;

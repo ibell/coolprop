@@ -674,7 +674,7 @@ HexamethyldisiloxaneClass::HexamethyldisiloxaneClass()
 	params.Ttriple=204.93;
 	params.accentricfactor=0.418;
     params.R_u = 8.314472;
-	params.ptriple = 6.05765237413746;
+	params.ptriple = 1.3169852229396559;
 
     // Limits of EOS
     limits.Tmin = 273;
@@ -830,10 +830,10 @@ TetradecamethylhexasiloxaneClass::TetradecamethylhexasiloxaneClass()
     // Other fluid parameters
 	params.molemass=458.99328;
 	params.Ttriple=214.15;
-	params.accentricfactor=0.836;
+	params.accentricfactor=0.82464714726429245;
     params.R_u = 8.314472;
-	// Caution calculated at 300 K
-	params.ptriple = 0.00109337695354083;
+	// Caution calculated at Tmin
+	params.ptriple = 4.5904570360324528e-005;
 
 
     // Limits of EOS
@@ -994,8 +994,8 @@ OctamethylcyclotetrasiloxaneClass::OctamethylcyclotetrasiloxaneClass()
 	params.Ttriple=290.25;
 	params.accentricfactor=0.592;
     params.R_u = 8.314472;
-	// Caution calculated at 300 K 
-	params.ptriple = 0.147791735066714;
+	// Caution calculated at Tmin
+	params.ptriple = 0.069609237623675213;
 
     // Limits of EOS
 	limits.Tmin = params.Ttriple;
@@ -1159,8 +1159,8 @@ DecamethylcyclopentasiloxaneClass::DecamethylcyclopentasiloxaneClass()
 	params.accentricfactor=0.658;
     params.R_u = 8.314472;
 
-	// Caution calculated at 300 K since Ttriple below min temp
-	params.ptriple = 0.0275116652817263;
+	// Calculated at Tmin
+	params.ptriple = 0.0023224722375495980;
 
     // Limits of EOS
     limits.Tmin = 273;
