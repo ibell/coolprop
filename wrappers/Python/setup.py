@@ -107,9 +107,10 @@ if __name__=='__main__':
 
     ## If the file is run directly without any parameters, build and install
     if len(sys.argv)==1:
-        #sys.argv+=['build_ext','--inplace']
-        #sys.argv+=['build','--compiler=mingw32','install']
-        sys.argv+=['clean','install']
+        #sys.argv += ['build_ext','--inplace']
+        #sys.argv += ['build','--compiler=mingw32','install']
+        sys.argv += ['clean','install']
+        #sys.argv += ['install']
         
     badfiles = [os.path.join('CoolProp','__init__.pyc'),
                 os.path.join('CoolProp','__init__.py')]
@@ -178,6 +179,7 @@ if __name__=='__main__':
     for header in glob.glob(os.path.join(CPSourceDir,'*.h')):
         pth,fName = os.path.split(header)
         shutil.copy2(header,os.path.join('CoolProp','include',fName))
+    shutil.copy2(os.path.join(CPSourceDir,'CoolPropBibTeXLibrary.bib'),os.path.join('CoolProp','CoolPropBibTeXLibrary.bib'))
     
     setup (name = 'CoolProp',
            version = version, #look above for the definition of version variable - don't modify it here
@@ -188,7 +190,7 @@ if __name__=='__main__':
            packages = ['CoolProp','CoolProp.Plots','CoolProp.tests','CoolProp.GUI'],
            ext_modules = [CoolProp_module,param_constants_module,phase_constants_module],
            package_dir = {'CoolProp':'CoolProp',},
-           package_data = {'CoolProp':['State.pxd','CoolProp.pxd','param_constants.pxd','include/*.h']},
+           package_data = {'CoolProp':['State.pxd','CoolProp.pxd','param_constants.pxd','include/*.h','CoolPropBibTeXLibrary.bib']},
            cmdclass={'build_ext': build_ext},
            
            classifiers = [
@@ -204,6 +206,7 @@ if __name__=='__main__':
     
     #Clean up the include folder
     shutil.rmtree(os.path.join('CoolProp','include'), ignore_errors = True)
+    os.remove(os.path.join('CoolProp','CoolPropBibTeXLibrary.bib'))
     
     for file in glob.glob(os.path.join('CoolProp','__init__.*')):
         try:

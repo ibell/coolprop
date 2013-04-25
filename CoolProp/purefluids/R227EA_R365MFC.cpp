@@ -26,7 +26,7 @@ R227EAClass::R227EAClass()
 	params.Ttriple = 146.35;
 	params.accentricfactor = 0.35760476022557541;
 	params.R_u = 8.314472;
-	params.ptriple = 53.562609721353056;
+	params.ptriple = 0.0073315669242655281;
 
 	// Limits of EOS
 	limits.Tmin = params.Ttriple;
@@ -127,7 +127,7 @@ R365MFCClass::R365MFCClass()
 	params.Ttriple = 239;
 	params.accentricfactor = 0.37741704621544692;
 	params.R_u = 8.314472;
-	params.ptriple = 3.2491793667462319;
+	params.ptriple = 2.4784182018851801;
 
 	// Limits of EOS
 	limits.Tmin = params.Ttriple;

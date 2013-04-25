@@ -70,29 +70,49 @@ SulfurHexafluorideClass::SulfurHexafluorideClass()
 	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
 	BibTeXKeys.ECS_LENNARD_JONES = "QuinonesCisneros-JPCRD-2012";
 }
-double SulfurHexafluorideClass::rhosatL(double T)
-{
-	double theta = 1-T/reduce.T;
-	double RHS,rho;
-	RHS = +2.31174688*pow(theta,0.355) -1.12912486*pow(theta,1.0/2.0) -1.439347*pow(theta,8.0/6.0) +0.282489982*pow(theta,10.0/6.0);
-	rho = exp(RHS*reduce.T/T)*reduce.rho;
-	return rho;
-}
-double SulfurHexafluorideClass::rhosatV(double T)
-{
-	double rhoc = reduce.rho;
-	double theta = 1-T/reduce.T;
-	double RHS,rho;
-
-	RHS = 23.6806342*pow(theta,0.348)+0.513062232*pow(theta,1.0/6.0)-24.4706238*pow(theta,2.0/6.0)-4.6715244*pow(theta,4.0/6.0)-1.7536843*pow(theta,16.0/6.0)-6.65585369*pow(theta,34.0/6.0);
-	rho = exp(RHS*reduce.T/T)*rhoc;
-	return rho;
-}
 double SulfurHexafluorideClass::psat(double T)
 {
-	double theta = 1-T/reduce.T;
-	double p = reduce.p*exp(reduce.T/T*(-7.09634642*pow(theta,1.0)+1.676662*pow(theta,1.5)-2.3921599*pow(theta,2.5)+5.86078302*pow(theta,4.0)-9.02978735*pow(theta,4.5)));
-	return p;
+    // Maximum absolute error is 0.020570 % between 223.555001 K and 318.723190 K
+    const double t[]={0, 1, 2, 3, 6};
+    const double N[]={0, -0.0087978014446881223, -6.9786635371802852, 1.2429125042516707, -2.5810326181235714};
+    double summer=0,theta;
+    int i;
+    theta=1-T/reduce.T;
+    for (i=1;i<=4;i++)
+    {
+        summer += N[i]*pow(theta,t[i]/2);
+    }
+    return reduce.p*exp(reduce.T/T*summer);
+}
+
+double SulfurHexafluorideClass::rhosatL(double T)
+{
+    // Maximum absolute error is 0.144211 % between 223.555001 K and 318.723190 K
+    const double t[] = {0, 0.5, 0.6666666666666666, 0.8333333333333334, 1.0, 1.1666666666666667};
+    const double N[] = {0, 14.005984855994196, -44.97667319923324, 74.392487901972885, -60.452498335429304, 19.684763024871778};
+    double summer=0,theta;
+    int i;
+    theta=1-T/reduce.T;
+	for (i=1; i<=5; i++)
+	{
+		summer += N[i]*pow(theta,t[i]);
+	}
+	return reduce.rho*(summer+1);
+}
+
+double SulfurHexafluorideClass::rhosatV(double T)
+{
+    // Maximum absolute error is 0.038534 % between 223.555001 K and 318.723190 K
+    const double t[] = {0, 0.6666666666666666, 0.8333333333333334, 1.0, 1.1666666666666667, 1.3333333333333333, 1.5, 1.8333333333333333};
+    const double N[] = {0, -143.71556224434678, 955.84084676133841, -2974.3911165244631, 5116.1229629656846, -4874.2285072102668, 2143.8511434952561, -231.58521696825781};
+    double summer=0,theta;
+    int i;
+    theta=1-T/reduce.T;	
+	for (i=1; i<=7; i++)
+	{
+		summer += N[i]*pow(theta,t[i]);
+	}
+	return reduce.rho*exp(reduce.T/T*summer);
 }
 double SulfurHexafluorideClass::viscosity_Trho(double T, double rho)
 {

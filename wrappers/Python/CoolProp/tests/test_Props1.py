@@ -16,13 +16,17 @@ class Props1BadInputParameters(unittest.TestCase):
     def testBadParam(self):
         self.assertRaises(ValueError,Props,'R134a','R134a')
         
-class Props1CheckInputs(unittest.TestCase):
-    def testAllCoolPropPairs(self):
-        for fluid in CoolProp.__fluids__:
-            for param in ["Ttriple","Tcrit","pcrit","Tmin","molemass","rhocrit","accentric"]:
-                val = Props(fluid,param)
-                self.assertGreater(val, -1)
-                self.assertLess(val, 1e9)
-    
+def testAllCoolPropPairs():
+    for fluid in CoolProp.__fluids__:
+        for param in ["Ttriple","Tcrit","pcrit","ptriple","Tmin",
+                      "molemass","rhocrit","accentric","PHASE_LIQUID",
+                      "PHASE_GAS","PHASE_SUPERCRITICAL","PHASE_TWOPHASE"]:
+            yield check_param,fluid,param
+
+def check_param(fluid, param):
+    val = Props(fluid,param)
+    assert val > -1
+    assert val < 1e9
+
 if __name__=='__main__':
     unittest.main()

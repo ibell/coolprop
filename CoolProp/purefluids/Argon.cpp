@@ -263,11 +263,11 @@ ArgonClass::ArgonClass()
 	params.molemass = 39.948;
 	params.Ttriple = 83.806;
 	params.ptriple = 68.9004210852;
-	params.accentricfactor = -0.00219 ;
+	params.accentricfactor = -0.00219;
 	params.R_u = 8.31451;
 
 	// Limits of EOS
-	limits.Tmin = 83.8058;
+	limits.Tmin = params.Ttriple;
 	limits.Tmax = 2000.0;
 	limits.pmax = 1000000.0;
 	limits.rhomax = 50.65*params.molemass;

@@ -24,7 +24,7 @@ R161Class::R161Class()
 	// Other fluid parameters
 	params.molemass = 48.0595;
 	params.Ttriple = 130;
-	params.accentricfactor = 0.22;
+	params.accentricfactor = 0.21624284106618674;
 	params.R_u = 8.314472;
 	params.ptriple = 0.005512;
 

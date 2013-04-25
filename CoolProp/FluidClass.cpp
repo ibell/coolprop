@@ -137,25 +137,26 @@ void rebuild_CriticalSplineConstants_T()
 		}
 		
 		try{
-			for (double b = good; b>0; b -= 0.01)
+			for (double b = good; b>0; b -= 0.03)
 			{
 				CPS.update(iT,Tc-b,iQ,1);
-				good = b;
 				rhoV = CPS.rhoV(); rhoL = CPS.rhoL();
 				drhodTV = CPS.drhodT_along_sat_vapor();
 				drhodTL = CPS.drhodT_along_sat_liquid();
+				good = b;
 			}
-			for (double b = 0.01; b>0; b -= 0.0001)
+			for (double b = good; b>0; b -= 0.0001)
 			{
 				CPS.update(iT,Tc-b,iQ,1);
-				good = b;
 				rhoV = CPS.rhoV(); rhoL = CPS.rhoL();
 				drhodTV = CPS.drhodT_along_sat_vapor(); 
 				drhodTL = CPS.drhodT_along_sat_liquid();
+				good = b;
 			}
 		}
 		catch(std::exception){
 		}
+		std::cout << good << std::endl;
 		fprintf(fp,"\tstd::make_pair(std::string(\"%s\"),CriticalSplineStruct_T(%0.12e,%0.12e,%0.12e,%0.12e,%0.12e) ),\n",fluid_names[i].c_str(),Tc-good,rhoL,rhoV,drhodTL,drhodTV);
 	}
 	fclose(fp);

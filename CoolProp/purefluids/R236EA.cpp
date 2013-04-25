@@ -24,7 +24,7 @@ R236EAClass::R236EAClass()
 	// Other fluid parameters
 	params.molemass = 152.0384;
 	params.Ttriple = 170;
-	params.accentricfactor = 0.37931311018074476;
+	params.accentricfactor = 0.36878238039914035;
 	params.R_u = 8.314472;
 	params.ptriple = 17.525807103151166; // At Tmin of 243
 
