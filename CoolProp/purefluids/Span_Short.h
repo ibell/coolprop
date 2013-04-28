@@ -42,6 +42,7 @@ public:
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
+	double conductivity_Trho(double, double);
 	void ECSParams(double *e_k, double *sigma){
 		// Chichester, 2008
 		*e_k = 400; *sigma = 0.64947;
