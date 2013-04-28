@@ -945,6 +945,8 @@ R152AClass::R152AClass()
 	BibTeXKeys.EOS = "Span-IJT-2003C";
 	BibTeXKeys.CP0 = "TillnerRoth-IJT-1995";
 	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
+	BibTeXKeys.VISCOSITY = "Krauss-IJT-1996";
+	BibTeXKeys.CONDUCTIVITY = "Krauss-IJT-1996";
 }
 double R152AClass::psat(double T)
 {
@@ -988,6 +990,49 @@ double R152AClass::rhosatV(double T)
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
     return reduce.rho*exp(crit.T/T*summer);
+}
+void R152AClass::ECSParams(double *e_k, double *sigma)
+{
+	// Krauss 1996
+	*e_k = 354.84; *sigma = 0.46115;
+}
+double R152AClass::viscosity_Trho(double T, double rho)
+{
+	// Krauss 1996
+	double sigma, e_k;
+	
+	// Dilute gas
+	this->ECSParams(&e_k, &sigma);
+	double Tstar = T/e_k;
+	double delta = rho/crit.rho;
+	double a[] = {0.4425728, -0.5138403,0.1547566,-0.02821844,0.001578286};
+	double logTstar = log(Tstar);
+	double S_star = exp(a[0]+a[1]*logTstar+a[2]*pow(logTstar,2)+a[3]*pow(logTstar,3)+a[4]*pow(logTstar,4));
+	double eta_0 = 0.2169614*sqrt(T)/(sigma*sigma*S_star); //[uPa-s]
+
+	// Initial-density
+	double E[] = {0, -0.0737927,0.517924,-0.308875,0.108049,-0.408387,2.91733};
+	double eta_r = 0;
+	for (int i = 1; i<= 4; i++){ eta_r += E[i]*pow(rho/reduce.rho,i); }
+	double Hc = 51.12;
+	eta_r = Hc*(eta_r+E[5]/(rho/reduce.rho-E[6])+E[5]/E[6]); // [uPa-s]
+
+	return (eta_0+eta_r)/1e6;
+}
+double R152AClass::conductivity_Trho(double T, double rho)
+{
+	// Krauss 1996
+	double L[] = {0,9.18090,11.8577,-5.44730,1.71379};
+	double lambda_0 = -14.9420+0.0973283*T; // [mW/m/K]
+
+	// Residual part
+	double summer = 0;
+	for (int i = 1; i<= 4; i++){ summer += L[i]*pow(rho/reduce.rho,i); }
+	double lambda_r = 1.155*summer; // [mW/m/K]
+
+	double lambda_c = this->conductivity_critical(T,rho,1/(4.37e-10))*1e6; //[mW/m/K]
+
+	return (lambda_0+lambda_r+lambda_c)/1e6; // [kW/m/K]
 }
 
 R123Class::R123Class()

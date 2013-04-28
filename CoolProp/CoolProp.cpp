@@ -343,7 +343,6 @@ std::string get_index_units(long index)
 	}
 	else
 	{
-		std::cout << "Didn't match parameter: " << index << std::endl;
 		return std::string("Didn't match parameter");
 	}
 }
@@ -366,7 +365,6 @@ long get_param_index(std::string param)
 	}
 	else
 	{
-		std::cout << "Didn't match parameter: " << param.c_str() << std::endl;
 		return -1;
 	}
 }
@@ -723,7 +721,6 @@ double _Props1(char *Fluid, char *Output)
 		// Catch any error that subclasses the std::exception
 		catch(std::exception &e){
 			err_string = std::string("CoolProp error: ").append(e.what());
-			std::cout << err_string.c_str() <<std::endl;
 			return _HUGE;
 		}
 	}
@@ -744,7 +741,6 @@ EXPORT_CODE double CONVENTION Props1(char* Ref, char * Output)
 	catch(std::exception &e)
 	{
 		err_string = std::string("CoolProp error: ").append(e.what());
-		std::cout << err_string.c_str() <<std::endl;
 		return _HUGE;
 	}
 	catch(...){

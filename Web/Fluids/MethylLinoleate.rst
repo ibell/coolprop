@@ -5,11 +5,11 @@ MethylLinoleate
 
 Aliases
 ================================================================================
-
+````
 
 Equation of State Reference
 ===========================
-Marcia L. Huber, Eric W. Lemmon, Andrei Kazakov, Lisa S. Ott and Thomas J. Bruno, "Model for the Thermodynamic Properties of a Biodiesel Fuel", Energy & Fuels 2009, 23, 3790–3797
+Marcia L. Huber, Eric W. Lemmon, Andrei Kazakov, Lisa S. Ott and Thomas J. Bruno, "Model for the Thermodynamic Properties of a Biodiesel Fuel", Energy & Fuels 2009, 23, 3790-3797
 
 Transport Properties Information
 ================================
@@ -24,14 +24,14 @@ Fluid Parameters
 =========================  ==============================
 Mole Mass [kg/kmol]        294.47206
 Triple Point Temp. [K]     238.100
-Triple Point Press. [kPa]  0.000
+Triple Point Press. [kPa]  7.719886181e-12
 Minimum temperature [K]    238.100
 =========================  ==============================
 
 Critical Parameters
 
 ==============================  ==============================
-Temperature [K]                 799.00
+Temperature [K]                 799.000
 Density [kg/m\ :sup:`3`\ ]      238.051213
 Pressure [kPa]                  1341.00000
 ==============================  ==============================
@@ -64,6 +64,8 @@ Saturated Vapor Deviations
     s0 = Props('S','T',(Tt+Tc)/2.0,'Q',1,Fluid)
     s = array([Props('S','T',T,'Q',1,Fluid)-s0 for T in Tv])   
     sigma = array([Props('I','T',T,'Q',1,Fluid) for T in Tv])
+    visc = array([Props('V','T',T,'Q',1,Fluid) for T in Tv])
+    cond = array([Props('L','T',T,'Q',1,Fluid) for T in Tv])
 
     Rp = array([Props('P','T',T,'Q',1,RPFluid) for T in Tv])
     Rrho = array([Props('D','T',T,'Q',1,RPFluid) for T in Tv])
@@ -74,6 +76,8 @@ Saturated Vapor Deviations
     Rs0 = Props('S','T',(Tt+Tc)/2.0,'Q',1,RPFluid)
     Rs = array([Props('S','T',T,'Q',1,RPFluid)-Rs0 for T in Tv])
     Rsigma = array([Props('I','T',T,'Q',1,RPFluid) for T in Tv])
+    Rvisc = array([Props('V','T',T,'Q',1,RPFluid) for T in Tv])
+    Rcond = array([Props('L','T',T,'Q',1,RPFluid) for T in Tv])
 
     fig = plt.figure()
 
@@ -83,8 +87,10 @@ Saturated Vapor Deviations
     ax.semilogy(Tv/Tc,abs(cp/Rcp-1)*100,'o',label='Specific heat (cp)')
     ax.semilogy(Tv/Tc,abs(cv/Rcv-1)*100,'o',label='Specific heat (cv)')
     ax.semilogy(Tv/Tc,abs(h/Rh-1)*100,'o',label='Enthalpy')
-    ax.semilogy(Tv/Tc,abs(s/Rs-1)*100,'o',label='Entropy')  
-    ax.semilogy(Tv/Tc,abs(sigma/Rsigma-1)*100,'o',label='Surface tension')
+    ax.semilogy(Tv/Tc,abs(s/Rs-1)*100,'o',label='Entropy')
+    ax.semilogy(Tv/Tc,abs(visc/Rvisc-1)*100,'^',label='Viscosity')
+    ax.semilogy(Tv/Tc,abs(cond/Rcond-1)*100,'s',label='Conductivity')
+    ax.semilogy(Tv/Tc,abs(sigma/Rsigma-1)*100,'p',label='Surface tension')
     ax.set_ylim(1e-16,100)
     ax.set_title('Saturated Vapor Deviations from REFPROP 9.0')
     ax.set_xlabel('Reduced temperature T/Tc')
@@ -118,6 +124,8 @@ Saturated Liquid Deviations
     h = array([Props('H','T',T,'Q',0,Fluid)-h0 for T in Tv])
     s0 = Props('S','T',(Tt+Tc)/2.0,'Q',0,Fluid)
     s = array([Props('S','T',T,'Q',0,Fluid)-s0 for T in Tv])    
+    visc = array([Props('V','T',T,'Q',0,Fluid) for T in Tv])
+    cond = array([Props('L','T',T,'Q',0,Fluid) for T in Tv])
     sigma = array([Props('I','T',T,'Q',0,Fluid) for T in Tv])
 
     Rp = array([Props('P','T',T,'Q',0,RPFluid) for T in Tv])
@@ -128,6 +136,8 @@ Saturated Liquid Deviations
     Rh = array([Props('H','T',T,'Q',0,RPFluid)-Rh0 for T in Tv])
     Rs0 = Props('S','T',(Tt+Tc)/2.0,'Q',0,RPFluid)
     Rs = array([Props('S','T',T,'Q',0,RPFluid)-Rs0 for T in Tv])
+    Rvisc = array([Props('V','T',T,'Q',0,RPFluid) for T in Tv])
+    Rcond = array([Props('L','T',T,'Q',0,RPFluid) for T in Tv])
     Rsigma = array([Props('I','T',T,'Q',0,RPFluid) for T in Tv])
 
     fig = plt.figure()
@@ -139,7 +149,9 @@ Saturated Liquid Deviations
     ax.semilogy(Tv/Tc,abs(cv/Rcv-1)*100,'o',label='Specific heat (cv)')
     ax.semilogy(Tv/Tc,abs(h/Rh-1)*100,'o',label='Enthalpy')
     ax.semilogy(Tv/Tc,abs(s/Rs-1)*100,'o',label='Entropy')
-    ax.semilogy(Tv/Tc,abs(sigma/Rsigma-1)*100,'o',label='Surface tension')
+    ax.semilogy(Tv/Tc,abs(visc/Rvisc-1)*100,'^',label='Viscosity')
+    ax.semilogy(Tv/Tc,abs(cond/Rcond-1)*100,'s',label='Conductivity')
+    ax.semilogy(Tv/Tc,abs(sigma/Rsigma-1)*100,'p',label='Surface tension')
     ax.set_ylim(1e-16,100)
     ax.set_title('Saturated Liquid Deviations from REFPROP 9.0')
     ax.set_xlabel('Reduced temperature T/Tc')
@@ -173,6 +185,7 @@ Along the critical isotherm where T=T\ :sub:`c`
     s0 = Props('S','T',0.95*Tc,'Q',1,Fluid)
     s = array([Props('S','T',Tc,'D',D,Fluid)-s0 for D in rhov])
     visc = array([Props('V','T',Tc,'D',D,Fluid) for D in rhov])
+    cond = array([Props('L','T',Tc,'D',D,Fluid) for D in rhov])
 
     Rp = array([Props('P','T',Tc,'D',D,RPFluid) for D in rhov])
     Rrho = array([Props('D','T',Tc,'D',D,RPFluid) for D in rhov])
@@ -183,6 +196,7 @@ Along the critical isotherm where T=T\ :sub:`c`
     Rs0 = Props('S','T',0.95*Tc,'Q',1,RPFluid)
     Rs = array([Props('S','T',Tc,'D',D,RPFluid)-Rs0 for D in rhov])
     Rvisc = array([Props('V','T',Tc,'D',D,RPFluid) for D in rhov])
+    Rcond = array([Props('L','T',Tc,'D',D,RPFluid) for D in rhov])
 
     fig = plt.figure()
 
@@ -192,7 +206,8 @@ Along the critical isotherm where T=T\ :sub:`c`
     ax.semilogy(rhov/rhoc,abs(cv/Rcv-1)*100,'o',label='Specific heat (cv)')
     ax.semilogy(rhov/rhoc,abs(h/Rh-1)*100,'o',label='Enthalpy')
     ax.semilogy(rhov/rhoc,abs(s/Rs-1)*100,'o',label='Entropy') 
-    ax.semilogy(rhov/rhoc,abs(visc/Rvisc-1)*100,'o',label='Viscosity')
+    ax.semilogy(rhov/rhoc,abs(visc/Rvisc-1)*100,'^',label='Viscosity')
+    ax.semilogy(rhov/rhoc,abs(cond/Rcond-1)*100,'s',label='Conductivity')
     ax.set_ylim(1e-16,100)
     ax.set_title('Critical isotherm Deviations from REFPROP 9.0')
     ax.set_xlabel(r'Reduced density $\rho/\rho_c$')
@@ -210,9 +225,11 @@ Check of p,h and p,s as inputs (X: Failure .: Success)
     import numpy as np
 
     Ref = "MethylLinoleate"
-    fig = plt.figure(figsize=(10,5))
-    ax1 = fig.add_subplot(121)
-    ax2 = fig.add_subplot(122)
+    fig = plt.figure(figsize=(10,10))
+    ax1 = fig.add_subplot(221)
+    ax2 = fig.add_subplot(222)
+    ax3 = fig.add_subplot(223)
+    ax4 = fig.add_subplot(224)
 
     Tmin = Props(Ref,'Tmin')+3
     pmin = Props('P','T',Tmin,'Q',0,Ref)
@@ -224,6 +241,7 @@ Check of p,h and p,s as inputs (X: Failure .: Success)
 
     Ph(Ref, axis = ax1, Tmin = Tmin, Tmax = 798.990000)
     Ps(Ref, axis = ax2, Tmin = Tmin, Tmax = 798.990000)
+    hs(Ref, axis = ax3, Tmin = Tmin, Tmax = 798.990000)
 
     for p in np.linspace(pmin,pmax,10):
         for h in np.linspace(hmin,hmax):
@@ -252,5 +270,20 @@ Check of p,h and p,s as inputs (X: Failure .: Success)
                 ax2.plot(s,p,'x',ms = 10)
             else:
                 ax2.plot(s,p,'k.', ms = 1)
+
+    for s in np.linspace(smin,smax,10):
+        for h in np.linspace(hmin,hmax):
+            _bad = False
+            try:
+                rho = Props('D','H',h,'S',s,Ref)
+                T = Props('T','H',h,'S',s,Ref)
+                hEOS = Props('H','T',T,'D',rho,Ref)
+                sEOS = Props('S','T',T,'D',rho,Ref)
+            except ValueError:
+                _bad = True
+            if _bad or abs(hEOS/h-1)>1e-6 or abs(sEOS/s-1)>1e-6:
+                ax3.plot(h,p,'x',ms = 10)
+            else:
+                ax3.plot(h,p,'k.', ms = 1)
 
     plt.tight_layout()

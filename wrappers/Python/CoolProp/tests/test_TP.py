@@ -30,4 +30,3 @@ def check_rho(Fluid,T,p):
 if __name__=='__main__':
     import nose
     nose.runmodule()
-    

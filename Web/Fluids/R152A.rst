@@ -28,14 +28,14 @@ Fluid Parameters
 =========================  ==============================
 Mole Mass [kg/kmol]        66.05100
 Triple Point Temp. [K]     154.560
-Triple Point Press. [kPa]  76.64304213
+Triple Point Press. [kPa]  0.06408986794
 Minimum temperature [K]    154.560
 =========================  ==============================
 
 Critical Parameters
 
 ==============================  ==============================
-Temperature [K]                 386.410
+Temperature [K]                 386.411
 Density [kg/m\ :sup:`3`\ ]      368.000000
 Pressure [kPa]                  4520.00000
 ==============================  ==============================
@@ -243,9 +243,9 @@ Check of p,h and p,s as inputs (X: Failure .: Success)
     smin = Props('S','T',Tmin,'Q',0,Ref)
     smax = 2*Props('S','T',Props(Ref,'Tcrit')-1,'Q',1,Ref)-smin
 
-    Ph(Ref, axis = ax1, Tmin = Tmin, Tmax = 386.400000)
-    Ps(Ref, axis = ax2, Tmin = Tmin, Tmax = 386.400000)
-    hs(Ref, axis = ax3, Tmin = Tmin, Tmax = 386.400000)
+    Ph(Ref, axis = ax1, Tmin = Tmin, Tmax = 386.401000)
+    Ps(Ref, axis = ax2, Tmin = Tmin, Tmax = 386.401000)
+    hs(Ref, axis = ax3, Tmin = Tmin, Tmax = 386.401000)
 
     for p in np.linspace(pmin,pmax,10):
         for h in np.linspace(hmin,hmax):

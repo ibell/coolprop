@@ -41,4 +41,4 @@ def check_accentric(Fluid):
     
 if __name__=='__main__':
     import nose
-    nose.main()
+    nose.runmodule()

@@ -21,16 +21,14 @@ def check_p(Fluid, p):
 
 def test_T():
     for Fluid in CoolProp.__fluids__:
-        for T in np.linspace(Props(Fluid,'Tmin')+1, Props(Fluid,'Tcrit')-1e-5):
+        for T in np.linspace(Props(Fluid,'Tmin')+1e-5, Props(Fluid,'Tcrit')-1e-5):
             yield check_T,Fluid,T
         
 def check_T(Fluid, T):
     pmin = Props(Fluid,'ptriple')
     pmax = Props('P','T',Props(Fluid,'Tcrit'),'D',Props(Fluid,'rhocrit'),Fluid)
     psat = Props('P', 'T', T, 'Q', 1, Fluid)
-    if not (psat >= pmin and psat <= pmax):
-        raise AssertionError('psat: {psat:g} pmin: {pmin:g} pmax: {pmax:g}'.format(**locals()))
     
 if __name__=='__main__':
     import nose
-    nose.main()
+    nose.runmodule()
