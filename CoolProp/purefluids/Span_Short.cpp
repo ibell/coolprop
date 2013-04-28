@@ -296,6 +296,7 @@ BibTeXKeys.EOS = "Span-IJT-2003B";
 BibTeXKeys.CP0 = "Jaeschke-IJT-1995";
 BibTeXKeys.ECS_LENNARD_JONES = "Poling-BOOK-2001";
 BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
+BibTeXKeys.CONDUCTIVITY = "Assael-JPCRD-2013B";
 
 }
 double nHexaneClass::psat(double T)
@@ -340,6 +341,25 @@ double nHexaneClass::rhosatV(double T)
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
     return reduce.rho*exp(crit.T/T*summer);
+}
+double nHexaneClass::conductivity_Trho(double T, double rho)
+{
+	double Tr = T/reduce.T;
+	double lambda_0 = 6.6742-23.7619*Tr+72.0155*Tr*Tr-18.3714*Tr*Tr*Tr; // mW/m/K
+
+	double sumresid = 0;
+	double B1[] = {0, -3.01408e-2, 1.67975e-1, -1.29739e-1, 3.82833e-2, -3.70294e-3};
+	double B2[] = {0, 2.18208e-2, -1.00833e-1, 7.74180e-2, -2.15945e-2, 2.12487e-3};
+
+	for (int i = 1; i<= 5; i++){		
+		sumresid += (B1[i]+B2[i]*(T/reduce.T))*pow(rho/reduce.rho,i);
+	}
+
+	double lambda_r = sumresid; // [W/m/K]
+
+	double lambda_c = this->conductivity_critical(T,rho,1.0/(7.37e-10)); // [kW/m/K]
+
+	return (lambda_0+lambda_r*1e3+lambda_c*1e6)/1e6;
 }
 
 

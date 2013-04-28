@@ -25,6 +25,7 @@ public:
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
+	double conductivity_Trho(double, double);
 	void ECSParams(double *e_k, double *sigma){*e_k = 399.3; *sigma = 0.5949;};
 	double surface_tension_T(double T)
 	{
