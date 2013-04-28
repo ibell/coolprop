@@ -59,7 +59,7 @@ EthanolClass::EthanolClass()
 	BibTeXKeys.EOS = "Schroeder-MSTHESIS-2011"; 
 	BibTeXKeys.VISCOSITY = "Kiselev-IECR-2005";
 	BibTeXKeys.ECS_LENNARD_JONES = "Kiselev-IECR-2005";
-	BibTeXKeys.CONDUCTIVITY = "__Kiselev-IECR-2005";
+	BibTeXKeys.CONDUCTIVITY = "Assael-JPCRD-2013A";
 	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
 }
 
@@ -86,13 +86,11 @@ double EthanolClass::rhosatL(double T)
     double summer=0,theta;
     int i;
     theta=1-T/reduce.T;
-    	
-for (i=1; i<=12; i++)
-{
-    summer += N[i]*pow(theta,t[i]);
-}
-return reduce.rho*(summer+1);
-
+	for (i=1; i<=12; i++)
+	{
+		summer += N[i]*pow(theta,t[i]);
+	}
+	return reduce.rho*(summer+1);
 }
 
 double EthanolClass::rhosatV(double T)
@@ -103,13 +101,11 @@ double EthanolClass::rhosatV(double T)
     double summer=0,theta;
     int i;
     theta=1-T/reduce.T;
-    	
-for (i=1; i<=18; i++)
-{
-    summer += N[i]*pow(theta,t[i]);
-}
-return reduce.rho*exp(reduce.T/T*summer);
-
+	for (i=1; i<=18; i++)
+	{
+		summer += N[i]*pow(theta,t[i]);
+	}
+	return reduce.rho*exp(reduce.T/T*summer);
 }
 
 double EthanolClass::viscosity_Trho(double T, double rho)
@@ -150,7 +146,26 @@ double EthanolClass::viscosity_Trho(double T, double rho)
 	double rhobar = rho/params.molemass; // [mol/L]
 	return (eta_0*(1+B*rhobar)+eta_r)/1e6;
 }
+double EthanolClass::conductivity_Trho(double T, double rho)
+{
+	double Tr = T/reduce.T;
+	double lambda_0 = (-2.09575 + 19.9045*Tr-53.964*Tr*Tr+82.1223*Tr*Tr*Tr-1.98864*Tr*Tr*Tr*Tr-0.495513*Tr*Tr*Tr*Tr*Tr)/(0.17223-0.078273*Tr+Tr*Tr); // [mW/m/K]
 
+	double sumresid = 0;
+	double B1[] = {0, 2.67222e-2, 1.48279e-1, -1.30429e-1, 3.46232e-2, -2.44293e-3};
+	double B2[] = {0, 1.77166e-2, -8.93088e-2, 6.84664e-2, -1.45702e-2, 8.09189e-4};
+
+	for (int i = 1; i<= 5; i++){		
+		sumresid += (B1[i]+B2[i]*(T/reduce.T))*pow(rho/reduce.rho,i);
+	}
+
+	double lambda_r = sumresid; // [W/m/K]
+
+	double lambda_c = this->conductivity_critical(T,rho,1.0/(5.3e-10)); // [kW/m/K]
+
+	return (lambda_0+lambda_r*1e3+lambda_c*1e6)/1e6;
+
+}
 double EthanolClass::surface_tension_T(double T)
 {
 	return 0.05*pow(1-T/reduce.T,0.952);

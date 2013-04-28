@@ -10,6 +10,7 @@ public:
     double rhosatL(double);
     double rhosatV(double);
 	double viscosity_Trho(double T, double rho);
+	double conductivity_Trho(double T, double rho);
 	void ECSParams(double *e_k, double *sigma)
 	{
 		// from Kiselev 2005
