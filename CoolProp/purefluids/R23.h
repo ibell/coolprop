@@ -9,6 +9,8 @@ public:
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
+	double viscosity_Trho(double, double);
+	double conductivity_Trho(double, double);
 	double surface_tension_T(double T)
 	{
 		// From Mulero, 2012, JPCRD
