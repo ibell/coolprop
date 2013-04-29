@@ -7,13 +7,16 @@ Aliases
 ================================================================================
 ``oxygen``, ``O2``
 
-Equation of State Reference
-===========================
-"Thermodynamic Properties of Oxygen from the Triple point to 300 K with pressures to 80 MPa", Richard B. Stewart, Richard T. Jacobsen, and W. Wagner, J. Phys. Chem. Ref. Data, v. 20, n. 5, 1991
+Bibliographic Information
+=========================
+**Equation of State**: Richard B. Stewart and Richard T. Jacobsen and W. Wagner, 1991, Thermodynamic Properties of Oxygen from the Triple Point to 300 K with Pressures to 80 MPa, *J. Phys. Chem. Ref. Data*, 20:917-1021
 
-Transport Properties Information
-================================
-Viscosity and Thermal Conductivity: "Viscosity and Thermal Conductivity Equations forNitrogen, Oxygen, Argon, and Air"E. W. Lemmon and R. T JacobsenInternational Journal of Thermophysics, Vol. 25, No. 1, January 2004
+**Surface Tension**: A. Mulero and I. Cachadi\~na and M. I. Parra, 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
+
+**Viscosity**: E. W. Lemmon and R. T Jacobsen, 2004, Viscosity and Thermal Conductivity Equations for Nitrogen, Oxygen, Argon, and Air, *International Journal of Thermophysics*, 25:21-69
+
+**Conductivity**: E. W. Lemmon and R. T Jacobsen, 2004, Viscosity and Thermal Conductivity Equations for Nitrogen, Oxygen, Argon, and Air, *International Journal of Thermophysics*, 25:21-69
+
 
 
 Fluid Data

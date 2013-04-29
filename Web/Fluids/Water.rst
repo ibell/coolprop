@@ -7,17 +7,17 @@ Aliases
 ================================================================================
 ``water``, ``H2O``, ``h2o``
 
-Equation of State Reference
-===========================
-"The IAPWS Formulation 1995 for the Thermodynamic Propertiesof Ordinary Water Substance for General and Scientific Use",W. Wagner and A. Pruss, J. Phys. Chem. Ref. Data, v. 31, 2002
+Bibliographic Information
+=========================
+**Equation of State**: W. Wagner and A. Pruss, 2002, The IAPWS Formulation 1995 for the Thermodynamic Properties of Ordinary Water Substance for General and Scientific Use, *J. Phys. Chem. Ref. Data*, 31:387-535
 
-Transport Properties Information
-================================
-Thermal Conductivity: Release on the IAPWS Formulation 2011 for the Thermal Conductivity of Ordinary Water Substance
+**Surface Tension**: A. Mulero and I. Cachadi\~na and M. I. Parra, 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
 
-Viscosity: Release on the IAPWS Formulation 2008 for the Viscosity of Ordinary Water Substance
+**Viscosity**: M.L. Huber and R.A. Perkins and A. Laesecke and D.G. Friend and J.V. Sengers and M.J Assael and I.M. Metaxa and E. Vogel and R. Mare\v s and K. Miyagawa, 2009, New International Formulation for the Viscosity of H2O, *J. Phys. Chem. Ref. Data*, 38:101-125
 
-Surface Tension: International Representation of the Surface Tension of Ordinary Water Substance 1994
+**Conductivity**: M. L. Huber and R. A. Perkins and D. G. Friend and J. V. Sengers and M. J. Assael and I. N. Metaxa and K. Miyagawa and R. Hellmann and E. Vogel, 2012, New International Formulation for the Thermal Conductivity of H2O, *J. Phys. Chem Ref. Data*, 41:033102-1:23
+
+**Lennard-Jones Parameters for ECS**: Bruce E. Poling and John M. Prausnitz and John P. O'Connell, 2001, *The Properties of Gases and Liquids, 5th edition*, McGraw Hill
 
 
 

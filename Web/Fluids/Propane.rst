@@ -7,17 +7,18 @@ Aliases
 ================================================================================
 ``propane``, ``R290``, ``C3H8``
 
-Equation of State Reference
-===========================
-Lemmon, E.W., McLinden, M.O., Wagner, W., "Thermodynamic Properties of Propane.  III.  A Reference Equation of Statefor Temperatures from the Melting Line to 650 K and Pressures up to 1000 MPa,"J. Chem. Eng. Data, 54:3141-3180, 2009
+Bibliographic Information
+=========================
+**Equation of State**: Eric W. Lemmon and Mark O. McLinden and Wolfgang Wagner, 2009, Thermodynamic Properties of Propane. III. A Reference Equation of State for Temperatures from the Melting Line to 650 K and Pressures up to 1000 MPa, *Journal of Chemical Engineering Data*, 54:3141-3180
 
-Transport Properties Information
-================================
-Viscosity: E. Vogel, C. Kuchenmeister, and E. Bich, A. Laesecke,"Reference Correlation of the Viscosity of Propane"J. Phys. Chem. Ref. Data, Vol. 27, No. 5, 1998
+**Surface Tension**: A. Mulero and I. Cachadi\~na and M. I. Parra, 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
 
-Conductivity: Kenneth N. Marsh, Richard A. Perkins, and Maria L. V. Ramires "Measurement and Correlation of the Thermal Conductivity ofPropane from 86 K to 600 K at Pressures to 70 MPa",J. Chem. Eng. Data 2002, 47, 932-940 (Olchowy-Sengers)
+**Viscosity**: E. Vogel and C. K\"uchenmeister and E. Bich and A. Laesecke, 1998, Reference Correlation of the Viscosity of Propane, *J. Phys. Chem. Ref. Data*, 27:947-970
 
-Surface Tension: A. Mulero and I. Cachadiña and M. I. Parra"Recommended Correlations for the Surface Tension of Common Fluids", J. Phys. Chem. Ref. Data, Vol. 41, No. 4, 2012
+**Conductivity**: Kenneth N. Marsh and Richard A. Perkins and Maria L. V. Ramires, 2002, Measurement and Correlation of the Thermal Conductivity of Propane from 86 K to 600 K at Pressures to 70 MPa, *J. Chem. Eng. Data*, 47:932-940
+
+**Lennard-Jones Parameters for ECS**: Justin C. Chichester and Marcia L. Huber, June 2008, *NISTIR 6650: Documentation and Assessment of the Transport Property Model for Mixtures Implemented in NIST REFPROP (Version 8.0)*, National Institute of Standards and Technology (NIST)
+
 
 
 Fluid Data

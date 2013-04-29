@@ -7,13 +7,16 @@ Aliases
 ================================================================================
 ````
 
-Equation of State Reference
-===========================
-Kamei, A., and S. W. Beyerlein, and R. T Jacobsen "Application of Nonlinear Regression in the Development of a Wide Range Formulation for HCFC-22"International Journal of Thermophysics, Vol 16, No. 5, 1995 
+Bibliographic Information
+=========================
+**Equation of State**: A. Kamei and S. W. Beyerlein and R. T Jacobsen, 1995, Application of Nonlinear Regression in the Development of a Wide Range Formulation for HCFC-22, *International Journal of Thermophysics*, 16:1155-1164
 
-Transport Properties Information
-================================
-Using ECS
+**Surface Tension**: A. Mulero and I. Cachadi\~na and M. I. Parra, 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
+
+**Lennard-Jones Parameters for ECS**: Mark O. McLinden and Sanford A. Klein and Richard A. Perkins, 2000, An extended corresponding states model for the thermal conductivity of refrigerants and refrigerant mixtures, *Int. J. Refrig.*, 23:43-63
+
+**ECS Correction Fit**: Mark O. McLinden and Sanford A. Klein and Richard A. Perkins, 2000, An extended corresponding states model for the thermal conductivity of refrigerants and refrigerant mixtures, *Int. J. Refrig.*, 23:43-63
+
 
 
 Fluid Data

@@ -7,14 +7,16 @@ Aliases
 ================================================================================
 ``argon``
 
-Equation of State Reference
-===========================
-"A New Equation of State for Argon Covering the Fluid Region for Temperatures From the Melting Line to 700 K at Pressures up to 1000 MPa" Ch. Tegeler, R. Span, and W. Wagner, J. Phys. Chem. Ref. Data, Vol. 28, No. 3, 1999
+Bibliographic Information
+=========================
+**Equation of State**: Ch. Tegeler and R. Span and W. Wagner, 1999, A New Equation of State for Argon Covering the Fluid Region for Temperatures From the Melting Line to 700 K at Pressures up to 1000 MPa, *J. Phys. Chem. Ref. Data*, 28:779-850
 
-Transport Properties Information
-================================
-"Viscosity and Thermal Conductivity Equations for Nitrogen, Oxygen, Argon, and Air" E. W. Lemmon and R. T Jacobsen International Journal of Thermophysics, Vol. 25, No. 1, January 2004 
-Note: Critical enhancement included
+**Surface Tension**: A. Mulero and I. Cachadi\~na and M. I. Parra, 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
+
+**Viscosity**: E. W. Lemmon and R. T Jacobsen, 2004, Viscosity and Thermal Conductivity Equations for Nitrogen, Oxygen, Argon, and Air, *International Journal of Thermophysics*, 25:21-69
+
+**Conductivity**: E. W. Lemmon and R. T Jacobsen, 2004, Viscosity and Thermal Conductivity Equations for Nitrogen, Oxygen, Argon, and Air, *International Journal of Thermophysics*, 25:21-69
+
 
 
 Fluid Data

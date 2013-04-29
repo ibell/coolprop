@@ -7,23 +7,16 @@ Aliases
 ================================================================================
 ``NH3``, ``ammonia``, ``R717``
 
-Equation of State Reference
-===========================
-"Eine neue Fundamentalgleichung fur Ammoniak (A new Equation of State for Ammonia)" R. Tillner-Roth and F. Harms-Watzenberg and H.D. Baehr, Deutscher Kaelte- und Klimatechnischer Verein Tagung 1993
+Bibliographic Information
+=========================
+**Equation of State**: R. Tillner-Roth and F. Harms-Watzenberg and H.D. Baehr, 1993, Eine neue Fundamentalgleichung fur Ammoniak (A new Fundamental Equation of State for Ammonia), *Deutscher Kaelte- und Klimatechnischer Verein Tagung 1993*
 
-Transport Properties Information
-================================
-Viscosity: "The Viscosity of Ammonia", A. Fenghour and W.A. Wakeham and V. Vesovic and J.T.R. Watson and J. Millat and E. VogelJ. Phys. Chem. Ref. Data, Vol. 24, No. 5, 1995 
+**Surface Tension**: A. Mulero and I. Cachadi\~na and M. I. Parra, 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
 
-Conductivity: "Thermal Conductivity of Ammonia in a LargeTemperature and Pressure Range Including the Critical Region"by R. Tufeu, D.Y. Ivanov, Y. Garrabos, B. Le Neindre, Bereicht der Bunsengesellschaft Phys. Chem. 88 (1984) 422-427
+**Viscosity**: A. Fenghour and W.A. Wakeham and V. Vesovic and J.T.R. Watson and J. Millat and E. Vogel, 1995, The Viscosity of Ammonia, *J. Phys. Chem. Ref. Data*, 24:1649-1667
 
-Does not include the critical enhancement.  Comparison of EES (without enhancement) and Refprop (with enhancement) give errors in saturated liquid and saturated vapor conductivities of 
+**Conductivity**: R. Tufeu and D.Y. Ivanov and Y. Garrabos and B. Le Neindre, 1984, Thermal Conductivity of Ammonia in a LargeTemperature and Pressure Range Including the Critical Region, *Bereicht der Bunsengesellschaft Phys. Chem.*, 88:422-427
 
-T < 325K, error < 0.1%
-325K < T < 355 K, error <1%
-
-Most practical conditions will be in the <325K range
-Surface tension:  Michael Kleiber and Ralph Joh, "VDI Heat Atlas 2010 Chapter D3.1 Liquids and Gases" 
 
 
 Fluid Data

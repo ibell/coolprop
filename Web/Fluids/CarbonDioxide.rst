@@ -7,13 +7,16 @@ Aliases
 ================================================================================
 ``R744``, ``co2``, ``CO2``, ``carbondioxide``
 
-Equation of State Reference
-===========================
-"A New Equation of State for Carbon Dioxide Covering the Fluid Region from the Triple Point Temperature to 1100 K at Pressures up to 800 MPa", R. Span and W. Wagner, J. Phys. Chem. Ref. Data, v. 25, 1996
+Bibliographic Information
+=========================
+**Equation of State**: R. Span and W. Wagner, 1996, A New Equation of State for Carbon Dioxide Covering the Fluid Region from the Triple Point Temperature to 1100 K at Pressures up to 800 MPa, *J. Phys. Chem. Ref. Data*, 25:1509-1596
 
-Transport Properties Information
-================================
-"The Transport Properties of Carbon Dioxide", V. Vesovic and W.A. Wakeham and G.A. Olchowy and J.V. Sengers and J.T.R. Watson and J. MillatJ. Phys. Chem. Ref. Data, v. 19, 1990
+**Surface Tension**: A. Mulero and I. Cachadi\~na and M. I. Parra, 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
+
+**Viscosity**: V. Vesovic and W.A. Wakeham and G.A. Olchowy and J.V. Sengers and J.T.R. Watson and J. Millat, 1990, The Transport Properties of Carbon Dioxide, *J. Phys. Chem. Ref. Data*, 19:763--808
+
+**Conductivity**: V. Vesovic and W.A. Wakeham and G.A. Olchowy and J.V. Sengers and J.T.R. Watson and J. Millat, 1990, The Transport Properties of Carbon Dioxide, *J. Phys. Chem. Ref. Data*, 19:763--808
+
 
 
 Fluid Data

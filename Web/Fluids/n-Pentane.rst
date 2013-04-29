@@ -7,15 +7,16 @@ Aliases
 ================================================================================
 ``nPentane``, ``Pentane``
 
-Equation of State Reference
-===========================
-Span, R. and W. Wagner, "Equations of State for Technical Applications. II. Results for Nonpolar Fluids", International Journal of Thermophysics, Vol. 24, No. 1, January 2003. 
+Bibliographic Information
+=========================
+**Equation of State**: R. Span and W. Wagner, 2003, Equations of State for Technical Applications. II. Results for Nonpolar Fluids, *International Journal of Thermophysics*, 24:41-109
 
-Cp0: Jaeschke, M. and P. Schley,"Ideal-Gas Thermodynamic Properties for Natural-Gas Applications", Int. J. Thermophys. v 16, n6 1995
+**Ideal-gas Specific Heat**: M. Jaeschke and P. Schley, 1995, Ideal-Gas Thermodynamic Properties for Natural-Gas Applications, *Int. J. Thermophys.*, 16:1381-1392
 
-Transport Properties Information
-================================
-Using ECS in fully predictive mode
+**Surface Tension**: A. Mulero and I. Cachadi\~na and M. I. Parra, 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
+
+**Lennard-Jones Parameters for ECS**: Bruce E. Poling and John M. Prausnitz and John P. O'Connell, 2001, *The Properties of Gases and Liquids, 5th edition*, McGraw Hill
+
 
 
 Fluid Data

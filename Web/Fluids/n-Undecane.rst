@@ -7,13 +7,10 @@ Aliases
 ================================================================================
 ``Undecane``, ``C11``
 
-Equation of State Reference
-===========================
-Aleksandrov, I. S. and A. A. Gerasimov and B. A. Grigor’ev "Using Fundamental Equations of State for Calculating the Thermodynamic Properties of Normal Undecane" Thermal Engineering, 2011, Vol. 58, No. 8, pp. 691–698
+Bibliographic Information
+=========================
+**Equation of State**: I. S. Aleksandrov and A. A. Gerasimov and B. A. Grigor’ev, 2011, Using Fundamental Equations of State for Calculating the Thermodynamic Properties of Normal Undecane, *Thermal Engineering*, 58:691–698
 
-Transport Properties Information
-================================
-Using ECS in fully predictive mode.
 
 
 Fluid Data

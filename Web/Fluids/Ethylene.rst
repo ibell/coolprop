@@ -7,13 +7,16 @@ Aliases
 ================================================================================
 ````
 
-Equation of State Reference
-===========================
-Smukala, J., R. Span, and W. Wagner, "New Equation of State for Ethylene Covering the Fluid Region for Temperatures From the Melting Line to 450 K at Pressures up to 300 MPa," J. Phys. Chem. Ref. Data, Vol. 29, No. 5, 2000
+Bibliographic Information
+=========================
+**Equation of State**: J. Smukala and R. Span and W. Wagner, 2000, New Equation of State for Ethylene Covering the Fluid Region for Temperatures From the Melting Line to 450 K at Pressures up to 300 MPa, *J. Phys. Chem. Ref. Data*, 29:1053-1121
 
-Transport Properties Information
-================================
-Using ECS in fully predictive mode
+**Viscosity**: 
+
+**Conductivity**: 
+
+**Lennard-Jones Parameters for ECS**: Bruce E. Poling and John M. Prausnitz and John P. O'Connell, 2001, *The Properties of Gases and Liquids, 5th edition*, McGraw Hill
+
 
 
 Fluid Data

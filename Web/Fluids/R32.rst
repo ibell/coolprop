@@ -7,13 +7,16 @@ Aliases
 ================================================================================
 ````
 
-Equation of State Reference
-===========================
-Tillner-Roth, R. and Yokozeki, A., "An international standard equation of state for difluoromethane (R-32) for temperatures from the triple point at 136.34 K to 435 K and pressures up to 70 MPa," J. Phys. Chem. Ref. Data, 26(6):1273-1328, 1997.
+Bibliographic Information
+=========================
+**Equation of State**: R. Tillner-Roth and A. Yokozeki, 1997, An international standard equation of state for difluoromethane (R-32) for temperatures from the triple point at 136.34 K to 435 K and pressures up to 70 MPa, *J. Phys. Chem. Ref. Data*, 26:1273-1328
 
-Transport Properties Information
-================================
-Surface Tension: R. Heide, "The surface tension of HFC refrigerants and mixtures", Int J. Refrig. Vol. 20, No. 7, pp. 496-503, 1997
+**Surface Tension**: A. Mulero and I. Cachadi\~na and M. I. Parra, 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
+
+**Lennard-Jones Parameters for ECS**: Mark O. McLinden and Sanford A. Klein and Richard A. Perkins, 2000, An extended corresponding states model for the thermal conductivity of refrigerants and refrigerant mixtures, *Int. J. Refrig.*, 23:43-63
+
+**ECS Correction Fit**: Mark O. McLinden and Sanford A. Klein and Richard A. Perkins, 2000, An extended corresponding states model for the thermal conductivity of refrigerants and refrigerant mixtures, *Int. J. Refrig.*, 23:43-63
+
 
 
 Fluid Data

@@ -7,15 +7,8 @@ Aliases
 ================================================================================
 ````
 
-Equation of State Reference
-===========================
-Unpublished report: Monika Thol, Eric W. Lemmon, Roland Span, "Equation of State for a Refrigerant Mixture of R365mfc (1,1,1,3,3-Pentafluorobutane) and Galden® HT 55 (Perfluoropolyether)",  
-
-Transport Properties Information
-================================
-Using ECS in predictive mode
-
-Surface Tension: A. P. Fröba, H. Kremer, A. Leipertz, F. Flohr and C. Meurer, "Thermophysical Properties of a Refrigerant Mixture of R365mfc (1,1,1,3,3-Pentafluorobutane) and Galden® HT 55 (Perfluoropolyether)", International Journal of Thermophysics, Volume 28, Number 2 (2007), 449-480, DOI: 10.1007/s10765-007-0178-y
+Bibliographic Information
+=========================
 
 
 Fluid Data

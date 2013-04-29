@@ -7,19 +7,16 @@ Aliases
 ================================================================================
 ````
 
-Equation of State Reference
-===========================
-Jiangtao Wu, Yong Zhou, Eric W. Lemmon, "An Equation of State for the Thermodynamic Properties of Dimethyl Ether", J. Phys. Chem. Ref. Data, Vol. 40, No. 2, 2011
+Bibliographic Information
+=========================
+**Equation of State**: Jiangtao Wu and Yong Zhou and Eric W. Lemmon, 2011, An Equation of State for the Thermodynamic Properties of Dimethyl Ether, *J. Phys. Chem. Ref. Data*, 40:023104-1:16
 
-Transport Properties Information
-================================
-Viscosity: Xianyang Meng, Jianbo Zhang, Jiangtao Wu, and Zhigang Liu, " Experimental Measurement and Modeling of the Viscosity of Dimethyl Ether" J. Chem. Eng.Data 2012, 57, 988-993
+**Surface Tension**: A. Mulero and I. Cachadi\~na and M. I. Parra, 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
 
-Erratum: Limits for deltaeta_r sums should be 0-3 and 4-9.  The correct order of terms based on the original indices are 0,1,7,9,2,3,4,5,6,8
+**Viscosity**: Xianyang Meng and Jianbo Zhang and Jiangtao Wu and Zhigang Liu, 2012, Experimental Measurement and Modeling of the Viscosity of Dimethyl Ether, *J. Chem. Eng. Data*, 57:988-993
 
-Using ECS in fully predictive mode for viscosity
+**Lennard-Jones Parameters for ECS**: Justin C. Chichester and Marcia L. Huber, June 2008, *NISTIR 6650: Documentation and Assessment of the Transport Property Model for Mixtures Implemented in NIST REFPROP (Version 8.0)*, National Institute of Standards and Technology (NIST)
 
-Lennard-Jones parameters from Chichester NISTIR 6650
 
 
 Fluid Data

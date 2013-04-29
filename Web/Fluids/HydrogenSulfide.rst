@@ -7,13 +7,16 @@ Aliases
 ================================================================================
 ``H2S``
 
-Equation of State Reference
-===========================
-Lemmon, E.W., and R. Span, "Short Fundamental Equations of State for 20 Industrial Fluids,", J. Chem. Eng. Data, 51:785-850, 2006.
+Bibliographic Information
+=========================
+**Equation of State**: E.W. Lemmon and R. Span, 2006, Short Fundamental Equations of State for 20 Industrial Fluids, *J. Chem. Eng. Data*, 51:785-850
 
-Transport Properties Information
-================================
-Using ECS
+**Surface Tension**: A. Mulero and I. Cachadi\~na and M. I. Parra, 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
+
+**Viscosity**: Sergio E. Qui\~nones-Cisneros and Kurt A. G. Schmidt and Binod R. Giri and Pierre Blais and Robert A. Marriott, 2012, Reference Correlation for the Viscosity Surface of Hydrogen Sulfide, *J. Chem. Eng. Data*, 57:3014-3018
+
+**Lennard-Jones Parameters for ECS**: Sergio E. Qui\~nones-Cisneros and Kurt A. G. Schmidt and Binod R. Giri and Pierre Blais and Robert A. Marriott, 2012, Reference Correlation for the Viscosity Surface of Hydrogen Sulfide, *J. Chem. Eng. Data*, 57:3014-3018
+
 
 
 Fluid Data

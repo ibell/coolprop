@@ -7,17 +7,20 @@ Aliases
 ================================================================================
 ````
 
-Equation of State Reference
-===========================
-Span, R. and W. Wagner, "Equations of State for Technical Applications. III. Results for Polar Fluids", International Journal of Thermophysics, Vol. 24, No. 1, January 2003. 
+Bibliographic Information
+=========================
+**Equation of State**: R. Span and W. Wagner, 2003, Equations of State for Technical Applications. III. Results for Polar Fluids, *International Journal of Thermophysics*, 24:111-162
 
-Cp0: Ben A. Younglove "An International Standard Equation of State for the Thermodynamic Properties of Refrigerant 123 (2,2-Dichloro-1,1,1-Trifluoroethane)" J. Phys. Chem Ref. Data Vol 23, no 5, 1994
+**Ideal-gas Specific Heat**: Ben A. Younglove, 1994, An International Standard Equation of State for the Thermodynamic Properties of Refrigerant 123 (2,2-Dichloro-1,1,1-Trifluoroethane), *J. Phys. Chem Ref. Data*, 23:731-779
 
-Note: REFPROP 9.0 uses the less accurate MWBR formulation
+**Surface Tension**: A. Mulero and I. Cachadi\~na and M. I. Parra, 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
 
-Transport Properties Information
-================================
-Using ECS in fully predictive mode. 
+**Viscosity**: Y. Tanaka and T. Sotani, 1996, Thermal Conductivity and Viscosity of 2,2-Dichloro-1,1,1-Trifluoroethane (HCFC-123), *International Journal of Thermophysics*, 17:293-328
+
+**Conductivity**: Arno Laesecke and Richard A. Perkins and John B. Howley, 1996, An improved correlation for the thermal conductivity of HCFC123 (2,2-dichloro-1,1,1-trifluoroethane), *Int J. Refrig.*, 19:231-238
+
+**Lennard-Jones Parameters for ECS**: Y. Tanaka and T. Sotani, 1996, Thermal Conductivity and Viscosity of 2,2-Dichloro-1,1,1-Trifluoroethane (HCFC-123), *International Journal of Thermophysics*, 17:293-328
+
 
 
 Fluid Data

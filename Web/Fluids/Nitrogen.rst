@@ -7,13 +7,16 @@ Aliases
 ================================================================================
 ``nitrogen``, ``N2``
 
-Equation of State Reference
-===========================
-"A Reference Equation of State for the Thermodynamic Propertiesof Nitrogen for Temperatures from 63.151 to 1000 K and Pressures to 2200 MPa", R. Span and E.W. Lemmon and R.T. Jacobsen and W. Wagner and A. Yokozeki, J. Phys. Chem. Ref. Data, v. 29, n. 6, 2000
+Bibliographic Information
+=========================
+**Equation of State**: Roland Span and Eric W. Lemmon and Richard T. Jacobsen and Wolfgang Wagner and Akimichi Yokozeki, 2000, A Reference Equation of State for the Thermodynamic Properties of Nitrogen for Temperatures from 63.151 to 1000 K and Pressures to 2200 MPa, *J. Phys. Chem. Ref. Data*, 29:1361-1433
 
-Transport Properties Information
-================================
-"Viscosity and Thermal Conductivity Equations forNitrogen, Oxygen, Argon, and Air"E. W. Lemmon and R. T JacobsenInternational Journal of Thermophysics, Vol. 25, No. 1, January 2004
+**Surface Tension**: A. Mulero and I. Cachadi\~na and M. I. Parra, 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
+
+**Viscosity**: E. W. Lemmon and R. T Jacobsen, 2004, Viscosity and Thermal Conductivity Equations for Nitrogen, Oxygen, Argon, and Air, *International Journal of Thermophysics*, 25:21-69
+
+**Conductivity**: E. W. Lemmon and R. T Jacobsen, 2004, Viscosity and Thermal Conductivity Equations for Nitrogen, Oxygen, Argon, and Air, *International Journal of Thermophysics*, 25:21-69
+
 
 
 Fluid Data

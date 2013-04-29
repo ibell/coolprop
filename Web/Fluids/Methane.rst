@@ -7,13 +7,12 @@ Aliases
 ================================================================================
 ``CH4``
 
-Equation of State Reference
-===========================
-Setzmann, U. and Wagner, W., "A New Equation of State and Tables of Thermodynamic Properties for Methane Covering the Range from the Melting Line to 625 K at Pressures up to 1000 MPa," J. Phys. Chem. Ref. Data, 20(6):1061-1151, 1991.
+Bibliographic Information
+=========================
+**Equation of State**: U. Setzmann and W. Wagner, 1991, A New Equation of State and Tables of Thermodynamic Properties for Methane Covering the Range from the Melting Line to 625 K at Pressures up to 1000 MPa, *J. Phys. Chem. Ref. Data*, 20:1061-1151
 
-Transport Properties Information
-================================
-Using ECS in fully predictive mode
+**Surface Tension**: A. Mulero and I. Cachadi\~na and M. I. Parra, 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
+
 
 
 Fluid Data

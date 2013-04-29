@@ -7,13 +7,18 @@ Aliases
 ================================================================================
 ``hydrogen``, ``H2``, ``R702``
 
-Equation of State Reference
-===========================
-"Fundamental Equations of State for Parahydrogen, Normal Hydrogen, and Orthohydrogen"by J.W. Leachman and R.T. Jacobsen and S.G. Penoncello and E.W. Lemmon, J. Phys. Chem. Ref. Data, Vol. 38, No. 3, 2009, pp 721-748
+Bibliographic Information
+=========================
+**Equation of State**: J.W. Leachman and R.T. Jacobsen and S.G. Penoncello and E.W. Lemmon, 2009, Fundamental Equations of State for Parahydrogen, Normal Hydrogen, and Orthohydrogen, *J. Phys. Chem. Ref. Data*, 38:721-748
 
-Transport Properties Information
-================================
-Conductivity: Assael, JPCRD, 2011
+**Surface Tension**: A. Mulero and I. Cachadi\~na and M. I. Parra, 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
+
+**Viscosity**: Chris D. Muzny and Marcia L. Huber and Andrei F. Kazakov, 2013, Correlation for the Viscosity of Normal Hydrogen Obtained from Symbolic Regression, *J. Chem. Eng. Data*, :
+
+**Conductivity**: M. J. Assael and J.-A. M. Assael and M. L. Huber and R. A. Perkins and Y. Takata, 2011, Correlation of the Thermal Conductivity of Normal and Parahydrogen from the Triple Point to 1000 K and up to 100 MPa, *J. Phys. Chem. Ref. Data*, 40:033101-1:13
+
+**Lennard-Jones Parameters for ECS**: Bruce E. Poling and John M. Prausnitz and John P. O'Connell, 2001, *The Properties of Gases and Liquids, 5th edition*, McGraw Hill
+
 
 
 Fluid Data

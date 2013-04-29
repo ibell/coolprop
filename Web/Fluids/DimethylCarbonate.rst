@@ -7,13 +7,10 @@ Aliases
 ================================================================================
 ``DMC``, ``dimethylcarbonate``
 
-Equation of State Reference
-===========================
-Yong Zhou, Jiangtao Wu and Eric W. Lemmon, "Thermodynamic Properties of Dimethyl Carbonate", J. Phys. Chem. Ref. Data, Vol. 40, No. 4, 2011
+Bibliographic Information
+=========================
+**Equation of State**: Yong Zhou and Jiangtao Wu and Eric W. Lemmon, 2011, Thermodynamic Properties of Dimethyl Carbonate, *J. Phys. Chem. Ref. Data*, 40:043106-1:11
 
-Transport Properties Information
-================================
-Using ECS in fully predictive mode
 
 
 Fluid Data

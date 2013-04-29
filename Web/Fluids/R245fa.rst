@@ -7,16 +7,16 @@ Aliases
 ================================================================================
 ``R245FA``
 
-Equation of State Reference
-===========================
-Lemmon, E.W., and R. Span, "Short Fundamental Equations of State for 20 Industrial Fluids,", J. Chem. Eng. Data, 51:785-850, 2006.
+Bibliographic Information
+=========================
+**Equation of State**: E.W. Lemmon and R. Span, 2006, Short Fundamental Equations of State for 20 Industrial Fluids, *J. Chem. Eng. Data*, 51:785-850
 
-Transport Properties Information
-================================
-Using ECS
+**Surface Tension**: A. Mulero and I. Cachadi\~na and M. I. Parra, 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
 
-Surface Tension:
-James W Schmidt, Ernesto Carrillo-Nava, Michael R Moldover "Partially halogenated hydrocarbons CHFCl-CF3, CF3-CH3, CF3-CHF-CHF2, CF3-CH2-CF3, CHF2-CF2-CH2F, CF3-CH2-CHF2, CF3-O-CHF2: critical temperature, refractive indices, surface tension and estimates of liquid, vapor and critical densities" Fluid Phase Equilibria, Volume 122, Issues 1–2, 31 July 1996, Pages 187–206 http://dx.doi.org/10.1016/0378-3812(96)03044-0
+**Lennard-Jones Parameters for ECS**: Marcia L. Huber and Arno Laesecke and Richard A. Perkins, 2003, Model for the Viscosity and Thermal Conductivity of Refrigerants, Including a New Correlation for the Viscosity of R134a, *Ind. Eng. Chem. Res.*, 42:3163-3178
+
+**ECS Correction Fit**: Marcia L. Huber and Arno Laesecke and Richard A. Perkins, 2003, Model for the Viscosity and Thermal Conductivity of Refrigerants, Including a New Correlation for the Viscosity of R134a, *Ind. Eng. Chem. Res.*, 42:3163-3178
+
 
 
 Fluid Data

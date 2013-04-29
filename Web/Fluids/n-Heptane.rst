@@ -7,15 +7,18 @@ Aliases
 ================================================================================
 ``nHeptane``, ``Heptane``
 
-Equation of State Reference
-===========================
-Span, R. and W. Wagner, "Equations of State for Technical Applications. II. Results for Nonpolar Fluids", International Journal of Thermophysics, Vol. 24, No. 1, January 2003. 
+Bibliographic Information
+=========================
+**Equation of State**: R. Span and W. Wagner, 2003, Equations of State for Technical Applications. II. Results for Nonpolar Fluids, *International Journal of Thermophysics*, 24:41-109
 
-Cp0: Jaeschke, M. and P. Schley,"Ideal-Gas Thermodynamic Properties for Natural-Gas Applications", Int. J. Thermophys. v 16, n6 1995
+**Ideal-gas Specific Heat**: M. Jaeschke and P. Schley, 1995, Ideal-Gas Thermodynamic Properties for Natural-Gas Applications, *Int. J. Thermophys.*, 16:1381-1392
 
-Transport Properties Information
-================================
-Using ECS in fully predictive mode
+**Surface Tension**: A. Mulero and I. Cachadi\~na and M. I. Parra, 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
+
+**Conductivity**: M. J. Assael and I. Bogdanou and S. K. Mylona and M. L. Huber and R. A. Perkins and V. Vesovic, 2013, Reference Correlation of the Thermal Conductivity of n-Heptane from the Triple Point to 600 K and up to 250 MPa, *J. Phys. Chem Ref. Data*, 42:023101-1:9
+
+**Lennard-Jones Parameters for ECS**: Justin C. Chichester and Marcia L. Huber, June 2008, *NISTIR 6650: Documentation and Assessment of the Transport Property Model for Mixtures Implemented in NIST REFPROP (Version 8.0)*, National Institute of Standards and Technology (NIST)
+
 
 
 Fluid Data
