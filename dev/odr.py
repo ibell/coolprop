@@ -150,7 +150,7 @@ def saturation_density(Ref, ClassName, form = 'A', LV = 'L', perc_error_allowed 
     f.close()
     return
 
-def saturation_pressure(Ref,ClassName):
+def saturation_pressure(Ref, ClassName):
     
     from CoolProp.CoolProp import Props
     
@@ -159,12 +159,12 @@ def saturation_pressure(Ref,ClassName):
     rhoc = Props(Ref,'rhocrit')
     Tmin = Props(Ref,'Tmin')
     
-    TT = np.linspace(Tmin+1e-6, Tc-0.00001,300)
+    TT = np.linspace(Tmin+1e-6, Tc-0.00001, 300)
     p = [Props('P','T',T,'Q',0,Ref) for T in TT]
     rhoL = [Props('D','T',T,'Q',0,Ref) for T in TT]
     rhoV = [Props('D','T',T,'Q',1,Ref) for T in TT]
         
-    Np = 30
+    Np = 60
     n = range(1,Np)
     max_abserror = 0
     while len(n) > 3:
@@ -196,7 +196,7 @@ def saturation_pressure(Ref,ClassName):
             n.pop(random.choice(dropped_indices))
             continue
         
-        if max_abserror < 0.1: #Max error is 0.1%
+        if max_abserror < 0.3: #Max error is 0.1%
             Ncoeffs = str(list(myoutput.beta)).lstrip('[').rstrip(']')
             tcoeffs = str(n).lstrip('[').rstrip(']')
             maxerror = max_abserror
@@ -228,7 +228,7 @@ def saturation_pressure(Ref,ClassName):
     }}
     """)
     f = open('anc.txt','a')
-    f.write(template.format(N = N,
+    f.write(template.format(N = len(n),
                             tcoeffs = tcoeffs,
                             Ncoeffs = Ncoeffs,
                             name = ClassName,
@@ -239,7 +239,7 @@ def saturation_pressure(Ref,ClassName):
     f.close()
     return
                       
-for RPFluid,Fluid in [('REFPROP-HEPTANE','nHeptane')
+for RPFluid,Fluid in [('REFPROP-CYCLOPRO','CycloPropane')
                     ]:
     saturation_pressure(RPFluid, Fluid)
     saturation_density(RPFluid, Fluid, form='A', LV='L')

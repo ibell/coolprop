@@ -10,6 +10,7 @@
 #include "purefluids/Benzene.cpp"
 #include "purefluids/Butenes.cpp"
 #include "purefluids/Cyclopentane.cpp"
+#include "purefluids/CycloPropane_Propyne.cpp"
 #include "purefluids/DMC.cpp"
 #include "purefluids/Ethanol.cpp"
 #include "purefluids/Ether.cpp"

@@ -537,15 +537,15 @@ private:
 	int iStart, iEnd;
 public:
 	/// Constructor with just a single double value
-	phi0_cp0_poly(double a_, double t_, double Tc_, double T0_) {
-		a=std::vector<double>(1,a_);
-		tv=std::vector<double>(1,t_);
-		Tc=Tc_; T0=T0_; iStart=0; iEnd=0; tau0=Tc/T0;
+	phi0_cp0_poly(double a, double t, double Tc, double T0) {
+		this->a=std::vector<double>(1,a);
+		this->tv=std::vector<double>(1,t);
+		this->Tc=Tc; this->T0=T0; iStart=0; iEnd=0; tau0=Tc/T0;
 	};
 
 	/// Constructor with std::vectors
-	phi0_cp0_poly(std::vector<double> a_, std::vector<double> t_, double Tc_, double T0_, int iStart_, int iEnd_) { 
-		a=a_; tv=t_; Tc = Tc_; T0=T0_; iStart=iStart_; iEnd=iEnd_; tau0=Tc/T0;
+	phi0_cp0_poly(std::vector<double> a, std::vector<double> t, double Tc, double T0, int iStart, int iEnd) { 
+		this->a=a; this->tv=t; this->Tc = Tc; this->T0=T0; this->iStart=iStart; this->iEnd=iEnd; tau0=Tc/T0;
 	};
 
 	/// Destructor
