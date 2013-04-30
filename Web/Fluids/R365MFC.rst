@@ -7,13 +7,12 @@ Aliases
 ================================================================================
 ``R365mfc``
 
-Equation of State Reference
-===========================
-Mark O. McLinden, Eric W. Lemmon, " Thermodynamic Properties of R-227ea, R-365mfc, R-115, and R-13I1" Preprint provided by Eric Lemmon
+Bibliographic Information
+=========================
+**Equation of State**: M.O. McLinden and E.W. Lemmon, To be submitted, Thermodynamic Properties of R-227ea, R-365mfc, R-115, and R-13I1, *J. Chem. Eng. Data*, :
 
-Transport Properties Information
-================================
-Using ECS in fully predictive mode. Lennard-Jones parameters from NISTIR 6650
+**Surface Tension**: A. Mulero and I. Cachadi\~na and M. I. Parra, 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
+
 
 
 Fluid Data
@@ -24,7 +23,7 @@ Fluid Parameters
 =========================  ==============================
 Mole Mass [kg/kmol]        148.07452
 Triple Point Temp. [K]     239.000
-Triple Point Press. [kPa]  3.249179367
+Triple Point Press. [kPa]  2.478418202
 Minimum temperature [K]    239.000
 =========================  ==============================
 

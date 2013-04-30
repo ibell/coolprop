@@ -7,13 +7,18 @@ Aliases
 ================================================================================
 ``nDodecane``, ``Dodecane``
 
-Equation of State Reference
-===========================
-Eric W. Lemmon and Marcia L. Huber, "Thermodynamic Properties of n-Dodecane" Energy & Fuels 2004, 18, 960-967
+Bibliographic Information
+=========================
+**Equation of State**: Eric W. Lemmon and Marcia L. Huber, 2004, Thermodynamic Properties of n-Dodecane, *Energy \& Fuels*, 18:960-967
 
-Transport Properties Information
-================================
-Using ECS in fully predictive mode
+**Surface Tension**: A. Mulero and I. Cachadi\~na and M. I. Parra, 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
+
+**Viscosity**: Marcia L. Huber and Arno Laesecke and Richard Perkins, 2004, Transport Properties of n-Dodecane, *Energy \& Fuels*, 18:968-975
+
+**Conductivity**: Marcia L. Huber and Arno Laesecke and Richard Perkins, 2004, Transport Properties of n-Dodecane, *Energy \& Fuels*, 18:968-975
+
+**Lennard-Jones Parameters for ECS**: Marcia L. Huber and Arno Laesecke and Richard Perkins, 2004, Transport Properties of n-Dodecane, *Energy \& Fuels*, 18:968-975
+
 
 
 Fluid Data

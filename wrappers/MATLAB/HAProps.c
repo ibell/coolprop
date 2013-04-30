@@ -1,7 +1,7 @@
-#include "mex.h"   //--This one is required
+#include "mex.h"   /*--This one is required*/
 
-// Prototype for the Props function to be called.  Can't use the CoolProp.h header because there are a lot of
-// c++ parts in the header that cannot be easily hidden when compiling 
+/* Prototype for the Props function to be called.  Can't use the CoolProp.h header because there are a lot of
+   c++ parts in the header that cannot be easily hidden when compiling */
 double HAProps(char *Output, char* Name1, double Prop1, char* Name2, double Prop2, char* Name3, double Prop3);
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
@@ -19,12 +19,12 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     if (nrhs == 7 && mxIsChar (prhs[0]) && mxIsChar (prhs[1]) && mxIsChar (prhs[3]) && mxIsChar (prhs[5]))
     {
         
-        // Get the output (it is a string) (+1 for the NULL terminator)
+        /* Get the output (it is a string) (+1 for the NULL terminator)*/
         Output_len=(mxGetM(prhs[0]) * mxGetN(prhs[0])) + 1;
         Output = mxCalloc(Output_len, sizeof(char));
         status = mxGetString(prhs[0], Output, Output_len);
         
-        // Get the output (it is a string) (+1 for the NULL terminator)
+        /* Get the output (it is a string) (+1 for the NULL terminator)*/
         Name1_len=(mxGetM(prhs[1]) * mxGetN(prhs[1])) + 1;
         Name1 = mxCalloc(Name1_len, sizeof(char));
         mxGetString(prhs[1], Name1, Name1_len);

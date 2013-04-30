@@ -7,17 +7,16 @@ Aliases
 ================================================================================
 ``Cyclohexane``
 
-Equation of State Reference
-===========================
-Span, R. and W. Wagner, "Equations of State for Technical Applications. II. Results for Nonpolar Fluids", International Journal of Thermophysics, Vol. 24, No. 1, January 2003. 
+Bibliographic Information
+=========================
+**Equation of State**: R. Span and W. Wagner, 2003, Equations of State for Technical Applications. II. Results for Nonpolar Fluids, *International Journal of Thermophysics*, 24:41-109
 
-Cp0: Penoncello, S.G., R.T. Jacobsen, A.R.H. Goodwin,"A Thermodynamic Property Formulation for Cyclohexane " International Journal of Thermophysics. vol. 16. No. 2, 1995
+**Ideal-gas Specific Heat**: S. G. Penoncello and R. T Jacobsen and A. R. H. Goodwin, 1995, A Thermodynamic Property Formulation for Cyclohexane, *Int. J. Thermophys.*, 16:519-531
 
-Note: Results do not agree(01/15/2013) with REFPROP, but it seems REFPROP is in error based on validation data in Span
+**Surface Tension**: A. Mulero and I. Cachadi\~na and M. I. Parra, 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
 
-Transport Properties Information
-================================
-Using ECS in fully predictive mode. 
+**Lennard-Jones Parameters for ECS**: Justin C. Chichester and Marcia L. Huber, June 2008, *NISTIR 6650: Documentation and Assessment of the Transport Property Model for Mixtures Implemented in NIST REFPROP (Version 8.0)*, National Institute of Standards and Technology (NIST)
+
 
 
 Fluid Data

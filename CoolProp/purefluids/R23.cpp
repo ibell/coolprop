@@ -50,8 +50,10 @@ R23Class::R23Class()
 	REFPROPname.assign("R23");
 
 	BibTeXKeys.EOS = "Penoncello-JPCRD-2003";
-	BibTeXKeys.ECS_LENNARD_JONES = "Chichester-NIST-2008";
+	BibTeXKeys.ECS_LENNARD_JONES = "Shan-ASHRAE-2000";
 	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
+	BibTeXKeys.CONDUCTIVITY = "Shan-ASHRAE-2000";
+	BibTeXKeys.VISCOSITY = "Shan-ASHRAE-2000";
 }
 
 double R23Class::psat(double T)
@@ -94,4 +96,61 @@ double R23Class::rhosatV(double T)
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
     return reduce.rho*exp(summer);
+}
+
+double R23Class::viscosity_Trho(double T, double rho)
+{
+	double C1 = 1.3163, //
+		   C2 = 0.1832,
+		   DeltaGstar = 771.23,
+		   rhoL = 32.174,
+		   rhocbar = 7.5114,
+		   DELTAeta_max = 3.967,
+		   k =	1.380658e-23,
+		   N_A = 6.022137e23,
+		   pi = 3.141592654,
+		   Ru = 8.31451;
+
+	double a[] = {0.4425728, -0.5138403, 0.1547566, -0.02821844, 0.001578286};
+	double e_k, sigma;
+	this->ECSParams(&e_k,&sigma);
+	double Tstar = T/e_k;
+	double logTstar = log(Tstar);
+	double Omega = exp(a[0]+a[1]*logTstar+a[2]*pow(logTstar,2)+a[3]*pow(logTstar,3)+a[4]*pow(logTstar,4));
+	double eta_DG = 5.0/16.0*sqrt(params.molemass*k*T/(1000*pi*N_A))*1e24/(sigma*sigma*Omega); // uPa-s
+
+	double rhobar = rho/params.molemass; // [mol/L]
+	double eta_L = C2*(rhoL*rhoL)/(rhoL-rhobar)*sqrt(T)*exp(rhobar/(rhoL-rhobar)*DeltaGstar/(Ru*T));
+
+	double chi = rhobar - rhocbar;
+	double tau = T - reduce.T;
+
+	double DELTAeta_c = 4*DELTAeta_max/((exp(chi)+exp(-chi))*(exp(tau)+exp(-tau)));
+
+	return (pow((rhoL-rhobar)/rhoL,C1)*eta_DG+pow(rhobar/rhoL,C1)*eta_L+DELTAeta_c)/1e6;
+}
+
+double R23Class::conductivity_Trho(double T, double rho)
+{
+	double B1 = -2.5370, //
+		   B2 = 0.05366,
+		   C1 = 0.94215,
+		   C2 = 0.14914,
+		   DeltaGstar = 2508.58,
+		   rhoL = 68.345,
+		   rhocbar = 7.5114,
+		   DELTAlambda_max = 25,
+		   Ru = 8.31451;
+
+	double lambda_DG = B1 + B2*T;
+
+	double rhobar = rho/params.molemass; // [mol/L]
+	double lambda_L = C2*(rhoL*rhoL)/(rhoL-rhobar)*sqrt(T)*exp(rhobar/(rhoL-rhobar)*DeltaGstar/(Ru*T));
+
+	double chi = rhobar - rhocbar;
+	double tau = T - reduce.T;
+
+	double DELTAlambda_c = 4*DELTAlambda_max/((exp(chi)+exp(-chi))*(exp(tau)+exp(-tau)));
+
+	return (pow((rhoL-rhobar)/rhoL,C1)*lambda_DG+pow(rhobar/rhoL,C1)*lambda_L+DELTAlambda_c)/1e6;
 }

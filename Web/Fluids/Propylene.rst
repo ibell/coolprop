@@ -7,15 +7,16 @@ Aliases
 ================================================================================
 ``propylene``
 
-Equation of State Reference
-===========================
-Lemmon, E.W., Overhoff, U., McLinden, M.O., Wagner, W. to be submitted to J. Phys. Chem. Ref. Data, 2010. Coefficients from REFPROP with permission
+Bibliographic Information
+=========================
+**Equation of State**: E.W. Lemmon and U. Overhoff and M.O. McLinden and W. Wagner, 2010, Equation of state for propylene, note: Personal communication with Eric Lemmon
 
-Transport Properties Information
-================================
-Using ECS in fully predictive mode.  Lennard-Jones parameters from Chichester NISTIR 6650
+**Surface Tension**: A. Mulero and I. Cachadi\~na and M. I. Parra, 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
 
-Surface Tension: Mulero "Recommended Correlations for the Surface Tension of Common Fluids", 2012
+**Lennard-Jones Parameters for ECS**: Marcia L. Huber and Arno Laesecke and Richard A. Perkins, 2003, Model for the Viscosity and Thermal Conductivity of Refrigerants, Including a New Correlation for the Viscosity of R134a, *Ind. Eng. Chem. Res.*, 42:3163-3178
+
+**ECS Correction Fit**: Marcia L. Huber and Arno Laesecke and Richard A. Perkins, 2003, Model for the Viscosity and Thermal Conductivity of Refrigerants, Including a New Correlation for the Viscosity of R134a, *Ind. Eng. Chem. Res.*, 42:3163-3178
+
 
 
 Fluid Data

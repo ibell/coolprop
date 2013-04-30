@@ -296,6 +296,7 @@ BibTeXKeys.EOS = "Span-IJT-2003B";
 BibTeXKeys.CP0 = "Jaeschke-IJT-1995";
 BibTeXKeys.ECS_LENNARD_JONES = "Poling-BOOK-2001";
 BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
+BibTeXKeys.CONDUCTIVITY = "Assael-JPCRD-2013B";
 
 }
 double nHexaneClass::psat(double T)
@@ -340,6 +341,25 @@ double nHexaneClass::rhosatV(double T)
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
     return reduce.rho*exp(crit.T/T*summer);
+}
+double nHexaneClass::conductivity_Trho(double T, double rho)
+{
+	double Tr = T/reduce.T;
+	double lambda_0 = 6.6742-23.7619*Tr+72.0155*Tr*Tr-18.3714*Tr*Tr*Tr; // mW/m/K
+
+	double sumresid = 0;
+	double B1[] = {0, -3.01408e-2, 1.67975e-1, -1.29739e-1, 3.82833e-2, -3.70294e-3};
+	double B2[] = {0, 2.18208e-2, -1.00833e-1, 7.74180e-2, -2.15945e-2, 2.12487e-3};
+
+	for (int i = 1; i<= 5; i++){		
+		sumresid += (B1[i]+B2[i]*(T/reduce.T))*pow(rho/reduce.rho,i);
+	}
+
+	double lambda_r = sumresid; // [W/m/K]
+
+	double lambda_c = this->conductivity_critical(T,rho,1.0/(7.37e-10)); // [kW/m/K]
+
+	return (lambda_0+lambda_r*1e3+lambda_c*1e6)/1e6;
 }
 
 
@@ -413,6 +433,7 @@ BibTeXKeys.EOS = "Span-IJT-2003B";
 BibTeXKeys.CP0 = "Jaeschke-IJT-1995";
 BibTeXKeys.ECS_LENNARD_JONES = "Chichester-NIST-2008";
 BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
+BibTeXKeys.CONDUCTIVITY = "Assael-JPCRD-2013C";
 }
 double nHeptaneClass::psat(double T)
 {
@@ -458,6 +479,25 @@ double nHeptaneClass::rhosatV(double T)
 		summer += N[i]*pow(theta,t[i]);
 	}
 	return reduce.rho*exp(reduce.T/T*summer);
+}
+double nHeptaneClass::conductivity_Trho(double T, double rho)
+{
+	double Tr = T/reduce.T;
+	double lambda_0 = (-1.83367 + 16.2572*Tr - 39.0996*Tr*Tr + 47.8594*Tr*Tr*Tr + 15.1925*Tr*Tr*Tr*Tr - 3.39115*Tr*Tr*Tr*Tr*Tr)/(0.250611 - 0.320871*Tr + Tr*Tr); // mW/m/K
+
+	double sumresid = 0;
+	double B1[] = {0, 5.17785e-2, -9.24052e-2, 5.11484e-2, -7.76896e-3, 1.21637e-4};
+	double B2[] = {0, -7.72433e-3, 2.18899e-2, 1.71725e-3, -7.91642e-3, 1.83379e-3};
+
+	for (int i = 1; i<= 5; i++){
+		sumresid += (B1[i]+B2[i]*(T/reduce.T))*pow(rho/reduce.rho,i);
+	}
+
+	double lambda_r = sumresid; // [W/m/K]
+
+	double lambda_c = this->conductivity_critical(T,rho,1.0/(8.0e-10),0.0586,2.45e-10); // [kW/m/K]
+
+	return (lambda_0+lambda_r*1e3+lambda_c*1e6)/1e6;
 }
 
 nOctaneClass::nOctaneClass()
@@ -945,6 +985,8 @@ R152AClass::R152AClass()
 	BibTeXKeys.EOS = "Span-IJT-2003C";
 	BibTeXKeys.CP0 = "TillnerRoth-IJT-1995";
 	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
+	BibTeXKeys.VISCOSITY = "Krauss-IJT-1996";
+	BibTeXKeys.CONDUCTIVITY = "Krauss-IJT-1996";
 }
 double R152AClass::psat(double T)
 {
@@ -988,6 +1030,49 @@ double R152AClass::rhosatV(double T)
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
     return reduce.rho*exp(crit.T/T*summer);
+}
+void R152AClass::ECSParams(double *e_k, double *sigma)
+{
+	// Krauss 1996
+	*e_k = 354.84; *sigma = 0.46115;
+}
+double R152AClass::viscosity_Trho(double T, double rho)
+{
+	// Krauss 1996
+	double sigma, e_k;
+	
+	// Dilute gas
+	this->ECSParams(&e_k, &sigma);
+	double Tstar = T/e_k;
+	double delta = rho/crit.rho;
+	double a[] = {0.4425728, -0.5138403,0.1547566,-0.02821844,0.001578286};
+	double logTstar = log(Tstar);
+	double S_star = exp(a[0]+a[1]*logTstar+a[2]*pow(logTstar,2)+a[3]*pow(logTstar,3)+a[4]*pow(logTstar,4));
+	double eta_0 = 0.2169614*sqrt(T)/(sigma*sigma*S_star); //[uPa-s]
+
+	// Initial-density
+	double E[] = {0, -0.0737927,0.517924,-0.308875,0.108049,-0.408387,2.91733};
+	double eta_r = 0;
+	for (int i = 1; i<= 4; i++){ eta_r += E[i]*pow(rho/reduce.rho,i); }
+	double Hc = 51.12;
+	eta_r = Hc*(eta_r+E[5]/(rho/reduce.rho-E[6])+E[5]/E[6]); // [uPa-s]
+
+	return (eta_0+eta_r)/1e6;
+}
+double R152AClass::conductivity_Trho(double T, double rho)
+{
+	// Krauss 1996
+	double L[] = {0,9.18090,11.8577,-5.44730,1.71379};
+	double lambda_0 = -14.9420+0.0973283*T; // [mW/m/K]
+
+	// Residual part
+	double summer = 0;
+	for (int i = 1; i<= 4; i++){ summer += L[i]*pow(rho/reduce.rho,i); }
+	double lambda_r = 1.155*summer; // [mW/m/K]
+
+	double lambda_c = this->conductivity_critical(T,rho,1/(4.37e-10))*1e6; //[mW/m/K]
+
+	return (lambda_0+lambda_r+lambda_c)/1e6; // [kW/m/K]
 }
 
 R123Class::R123Class()

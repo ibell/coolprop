@@ -7,15 +7,16 @@ Aliases
 ================================================================================
 ``R236fa``
 
-Equation of State Reference
-===========================
-Jiang Pan and Xinfang Rui and Xiaodong Zhao and Liming Qiu, "An equation of state for the thermodynamic properties of 1,1,1,3,3,3-hexafluoropropane (HFC-236fa)", Fluid Phase Equilibria 321 (2012) 10--16
+Bibliographic Information
+=========================
+**Equation of State**: Jiang Pan and Xinfang Rui and Xiaodong Zhao and Liming Qiu, 2012, An equation of state for the thermodynamic properties of 1,1,1,3,3,3-hexafluoropropane (HFC-236fa), *Fluid Phase Equilibria*, 321:10-16
 
-Note: REFPROP 9.0 does not use this EOS, they use thermodynamic corresponding states
+**Surface Tension**: A. Mulero and I. Cachadi\~na and M. I. Parra, 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
 
-Transport Properties Information
-================================
-Using ECS in fully predictive mode.
+**Lennard-Jones Parameters for ECS**: Marcia L. Huber and Arno Laesecke and Richard A. Perkins, 2003, Model for the Viscosity and Thermal Conductivity of Refrigerants, Including a New Correlation for the Viscosity of R134a, *Ind. Eng. Chem. Res.*, 42:3163-3178
+
+**ECS Correction Fit**: Marcia L. Huber and Arno Laesecke and Richard A. Perkins, 2003, Model for the Viscosity and Thermal Conductivity of Refrigerants, Including a New Correlation for the Viscosity of R134a, *Ind. Eng. Chem. Res.*, 42:3163-3178
+
 
 
 Fluid Data

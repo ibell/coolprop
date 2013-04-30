@@ -7,13 +7,10 @@ Aliases
 ================================================================================
 ``mXylene``
 
-Equation of State Reference
-===========================
-Yong Zhou, Jiangtao Wu, Eric W. Lemmon, "Thermodynamic Properties of o-Xylene, m-Xylene, p-Xylene, and Ethylbenzene", J. Phys. Chem. Ref. Data, Vol. 41, No. 2, 2012
+Bibliographic Information
+=========================
+**Equation of State**: Yong Zhou and Jiangtao Wu and Eric W. Lemmon, 2012, Thermodynamic Properties of o-Xylene, m-Xylene, p-Xylene, and Ethylbenzene, *J. Phys. Chem. Ref. Data*, 41:023103-1 -- 023103-26
 
-Transport Properties Information
-================================
-Using ECS in fully predictive mode
 
 
 Fluid Data

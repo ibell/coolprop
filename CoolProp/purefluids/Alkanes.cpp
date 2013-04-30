@@ -496,7 +496,7 @@ nButaneClass::nButaneClass()
 	aliases.push_back("nButane");
 	REFPROPname.assign("BUTANE");
 
-	BibTeXKeys.EOS = "Buecker-JPCRD-2006";
+	BibTeXKeys.EOS = "Buecker-JPCRD-2006B";
 	BibTeXKeys.VISCOSITY = "__Vogel-HTHP-1999";
 	BibTeXKeys.CONDUCTIVITY = "Perkins-JCED-2002A";
 	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
@@ -622,7 +622,7 @@ IsoButaneClass::IsoButaneClass()
 	aliases.push_back("Isobutane");
 	REFPROPname.assign("ISOBUTAN");
 
-	BibTeXKeys.EOS = "Buecker-JPCRD-2006";
+	BibTeXKeys.EOS = "Buecker-JPCRD-2006B";
 	BibTeXKeys.VISCOSITY = "Vogel-IJT-2000";
 	BibTeXKeys.ECS_LENNARD_JONES = "Vogel-IJT-2000";
 	BibTeXKeys.CONDUCTIVITY = "Perkins-JCED-2002B";

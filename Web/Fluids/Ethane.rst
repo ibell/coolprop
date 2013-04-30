@@ -7,13 +7,16 @@ Aliases
 ================================================================================
 ````
 
-Equation of State Reference
-===========================
-Buecker, D. and Wagner, W. "A Reference Equation of State for the Thermodynamic Properties of Ethane for Temperatures from the Melting Line to 675 K and Pressures up to 900 MPa," J. Phys. Chem. Ref. Data, 35(1):205-266, 2006.
+Bibliographic Information
+=========================
+**Equation of State**: D. Buecker and W. Wagner, 2006, A Reference Equation of State for the Thermodynamic Properties of Ethane for Temperatures from the Melting Line to 675 K and Pressures up to 900 MPa, *J. Phys. Chem. Ref. Data*, 35:205-266
 
-Transport Properties Information
-================================
-Using ECS in fully predictive mode
+**Surface Tension**: A. Mulero and I. Cachadi\~na and M. I. Parra, 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
+
+**Viscosity**: 
+
+**Conductivity**: 
+
 
 
 Fluid Data

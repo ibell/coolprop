@@ -2,6 +2,7 @@ import CoolProp.CoolProp as CP
 import CoolProp
 import textwrap
 import os
+from parse_bib import BibTeXerClass
 
 def PropertyConsistency(Fluid):
     
@@ -334,6 +335,32 @@ def fluid_header(Fluid):
     aliases = CP.get_aliases(str(Fluid))
     aliases = ', '.join(['``'+a.strip()+'``' for a in aliases])
     
+    BTC = BibTeXerClass()
+    
+    EOSkey = CP.get_BibTeXKey(Fluid, "EOS")
+    CP0key = CP.get_BibTeXKey(Fluid, "CP0")
+    SURFACE_TENSIONkey = CP.get_BibTeXKey(Fluid, "SURFACE_TENSION")
+    VISCOSITYkey = CP.get_BibTeXKey(Fluid, "VISCOSITY")
+    CONDUCTIVITYkey = CP.get_BibTeXKey(Fluid, "CONDUCTIVITY")
+    ECS_LENNARD_JONESkey = CP.get_BibTeXKey(Fluid, "ECS_LENNARD_JONES")
+    ECS_FITSkey = CP.get_BibTeXKey(Fluid, "ECS_FITS")
+    
+    BibInfo = ''
+    if EOSkey:
+        BibInfo += '**Equation of State**: ' + BTC.entry2rst(EOSkey) + '\n\n'
+    if CP0key:
+        BibInfo += '**Ideal-gas Specific Heat**: ' + BTC.entry2rst(CP0key) + '\n\n'
+    if SURFACE_TENSIONkey:
+        BibInfo += '**Surface Tension**: ' + BTC.entry2rst(SURFACE_TENSIONkey) + '\n\n'
+    if VISCOSITYkey:
+        BibInfo += '**Viscosity**: ' + BTC.entry2rst(VISCOSITYkey) + '\n\n'
+    if CONDUCTIVITYkey:
+        BibInfo += '**Conductivity**: ' + BTC.entry2rst(CONDUCTIVITYkey) + '\n\n'
+    if ECS_LENNARD_JONESkey:
+        BibInfo += '**Lennard-Jones Parameters for ECS**: ' + BTC.entry2rst(ECS_LENNARD_JONESkey) + '\n\n'
+    if ECS_FITSkey:
+        BibInfo += '**ECS Correction Fit**: ' + BTC.entry2rst(ECS_FITSkey) + '\n\n'
+    
     return textwrap.dedent(
 """
 ********************
@@ -344,18 +371,12 @@ Aliases
 ================================================================================
 {Aliases:s}
 
-Equation of State Reference
-===========================
+Bibliographic Information
+=========================
 {Reference:s}
-
-Transport Properties Information
-================================
-{Transport:s}
-    
 """.format(Fluid=Fluid,
            Aliases = aliases,
-           Reference = CP.get_EOSReference(str(Fluid)),
-           Transport = CP.get_TransportReference(str(Fluid))
+           Reference = BibInfo,
            )
            )
     

@@ -29,4 +29,5 @@ def check_param(fluid, param):
     assert val < 1e9
 
 if __name__=='__main__':
-    unittest.main()
+    import nose
+    nose.runmodule()

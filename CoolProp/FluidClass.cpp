@@ -79,6 +79,7 @@
 #include "purefluids/Benzene.h"
 #include "purefluids/Undecane.h"
 #include "purefluids/R125.h"
+#include "purefluids/CycloPropane_Propyne.h"
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -215,6 +216,7 @@ FluidsContainer::FluidsContainer()
 	FluidsList.push_back(new BenzeneClass());
 	FluidsList.push_back(new UndecaneClass());
 	FluidsList.push_back(new R125Class());
+	FluidsList.push_back(new CycloPropaneClass());
 
 	// The industrial fluids
 	FluidsList.push_back(new R245faClass());
@@ -2552,7 +2554,7 @@ double Fluid::viscosity_dilute(double T, double e_k, double sigma)
 	eta_star = 26.692e-3*sqrt(params.molemass*T)/(pow(sigma,2)*OMEGA_2_2)/1e6;
 	return eta_star;
 }
-double Fluid::conductivity_critical(double T, double rho, double qd)
+double Fluid::conductivity_critical(double T, double rho, double qd, double GAMMA, double zeta0)
 {
 	// Olchowy and Sengers cross-over term
 
@@ -2562,8 +2564,6 @@ double Fluid::conductivity_critical(double T, double rho, double qd)
 		nu=0.63,
 		Pcrit = reduce.p, //[kPa]
 		Tref = 1.5*reduce.T, //[K]
-		GAMMA = 0.0496,
-		zeta0=1.94e-10, //[m]
 		cp,cv,delta,num,zeta,mu,
 		OMEGA_tilde,OMEGA_tilde0,pi=M_PI,tau;
 

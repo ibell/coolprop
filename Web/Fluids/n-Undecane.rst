@@ -1,15 +1,15 @@
 
 ********************
-MethylLinolenate
+n-Undecane
 ********************
 
 Aliases
 ================================================================================
-````
+``Undecane``, ``C11``
 
 Bibliographic Information
 =========================
-**Equation of State**: Marcia L. Huber and Eric W. Lemmon and Andrei Kazakov and Lisa S. Ott and Thomas J. Bruno, 2009, Model for the Thermodynamic Properties of a Biodiesel Fuel, *Energy \& Fuels*, 23:3790-3797
+**Equation of State**: I. S. Aleksandrov and A. A. Gerasimov and B. A. Grigor’ev, 2011, Using Fundamental Equations of State for Calculating the Thermodynamic Properties of Normal Undecane, *Thermal Engineering*, 58:691–698
 
 
 
@@ -19,18 +19,18 @@ Fluid Data
 Fluid Parameters
 
 =========================  ==============================
-Mole Mass [kg/kmol]        292.45618
-Triple Point Temp. [K]     218.650
-Triple Point Press. [kPa]  8.281386442e-15
-Minimum temperature [K]    218.650
+Mole Mass [kg/kmol]        156.31000
+Triple Point Temp. [K]     247.541
+Triple Point Press. [kPa]  0.0004460510804
+Minimum temperature [K]    247.541
 =========================  ==============================
 
 Critical Parameters
 
 ==============================  ==============================
-Temperature [K]                 772.000
-Density [kg/m\ :sup:`3`\ ]      247.798121
-Pressure [kPa]                  1369.00000
+Temperature [K]                 638.800
+Density [kg/m\ :sup:`3`\ ]      236.794019
+Pressure [kPa]                  1990.40000
 ==============================  ==============================
 
 
@@ -39,8 +39,8 @@ Saturated Vapor Deviations
 
 .. plot::
 
-    Fluid = "MethylLinolenate"
-    RPFluid = "REFPROP-MLINOLEN"
+    Fluid = "n-Undecane"
+    RPFluid = "REFPROP-C11"
 
     #Saturated Vapor
     from CoolProp.CoolProp import Props
@@ -100,8 +100,8 @@ Saturated Liquid Deviations
 
 .. plot::
 
-    Fluid = "MethylLinolenate"
-    RPFluid = "REFPROP-MLINOLEN"
+    Fluid = "n-Undecane"
+    RPFluid = "REFPROP-C11"
 
     #Saturated Liquid
     from CoolProp.CoolProp import Props
@@ -160,8 +160,8 @@ Along the critical isotherm where T=T\ :sub:`c`
 ================================================
 .. plot::
 
-    Fluid = "MethylLinolenate"
-    RPFluid = "REFPROP-MLINOLEN"
+    Fluid = "n-Undecane"
+    RPFluid = "REFPROP-C11"
 
     #Critical isotherm
     from CoolProp.CoolProp import Props
@@ -221,7 +221,7 @@ Check of p,h and p,s as inputs (X: Failure .: Success)
     from matplotlib import pyplot as plt
     import numpy as np
 
-    Ref = "MethylLinolenate"
+    Ref = "n-Undecane"
     fig = plt.figure(figsize=(10,10))
     ax1 = fig.add_subplot(221)
     ax2 = fig.add_subplot(222)
@@ -236,9 +236,9 @@ Check of p,h and p,s as inputs (X: Failure .: Success)
     smin = Props('S','T',Tmin,'Q',0,Ref)
     smax = 2*Props('S','T',Props(Ref,'Tcrit')-1,'Q',1,Ref)-smin
 
-    Ph(Ref, axis = ax1, Tmin = Tmin, Tmax = 771.990000)
-    Ps(Ref, axis = ax2, Tmin = Tmin, Tmax = 771.990000)
-    hs(Ref, axis = ax3, Tmin = Tmin, Tmax = 771.990000)
+    Ph(Ref, axis = ax1, Tmin = Tmin, Tmax = 638.790000)
+    Ps(Ref, axis = ax2, Tmin = Tmin, Tmax = 638.790000)
+    hs(Ref, axis = ax3, Tmin = Tmin, Tmax = 638.790000)
 
     for p in np.linspace(pmin,pmax,10):
         for h in np.linspace(hmin,hmax):

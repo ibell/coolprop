@@ -19,12 +19,6 @@ Hands, B.A. and Arp, V.D.,
 "A Correlation of Thermal Conductivity Data for Helium,"
 Cryogenics, 21(12):697-703, 1981.
 
-Arp, V.D., McCarty, R.D., and Friend, D.G.,
-"Thermophysical properties of helium-4 from 0.8 to 1500 K with pressures
-to 2000 MPa,"
-National Institute of Standards and Technology,
-NIST Technical Note 1334 (revised), 1998.
-
 */
 
 #if defined(_MSC_VER)

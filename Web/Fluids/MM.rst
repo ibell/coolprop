@@ -7,13 +7,12 @@ Aliases
 ================================================================================
 ``Hexamethyldisiloxane``
 
-Equation of State Reference
-===========================
-Colonna, P., N.R. Nannan, A. Guardone, E.W. Lemmon, "Multiparameter equations of state for selected siloxanes", Fluid Phase Equilibria 244 (2006) 193–211.
+Bibliographic Information
+=========================
+**Equation of State**: P. Colonna and N.R. Nannan and A. Guardone and E.W. Lemmon, 2006, Multiparameter equations of state for selected siloxanes, *Fluid Phase Equilibria*, 244:193-211
 
-Transport Properties Information
-================================
-Using ECS in fully predictive mode
+**Surface Tension**: A. Mulero and I. Cachadi\~na and M. I. Parra, 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
+
 
 
 Fluid Data
@@ -24,7 +23,7 @@ Fluid Parameters
 =========================  ==============================
 Mole Mass [kg/kmol]        162.37752
 Triple Point Temp. [K]     204.930
-Triple Point Press. [kPa]  6.057652374
+Triple Point Press. [kPa]  1.316985223
 Minimum temperature [K]    273.000
 =========================  ==============================
 

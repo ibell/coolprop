@@ -7,13 +7,14 @@ Aliases
 ================================================================================
 ````
 
-Equation of State Reference
-===========================
-Steven G. Penoncello,Eric W. Lemmon,Richard T Jacobsen,Zhengjun Shan, "A Fundamental Equation for Trifluoromethane (R-23)", J. Phys. Chem. Ref. Data, Vol. 32, No. 4, 2003
+Bibliographic Information
+=========================
+**Equation of State**: Steven G. Penoncello and Eric W. Lemmon and Richard T Jacobsen and Zhengjun Shan, 2003, A Fundamental Equation for Trifluoromethane (R-23), *J. Phys. Chem. Ref. Data*, 32:1473-1499
 
-Transport Properties Information
-================================
-Using ECS in fully predictive mode
+**Surface Tension**: A. Mulero and I. Cachadi\~na and M. I. Parra, 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
+
+**Lennard-Jones Parameters for ECS**: Justin C. Chichester and Marcia L. Huber, June 2008, *NISTIR 6650: Documentation and Assessment of the Transport Property Model for Mixtures Implemented in NIST REFPROP (Version 8.0)*, National Institute of Standards and Technology (NIST)
+
 
 
 Fluid Data

@@ -7,13 +7,12 @@ Aliases
 ================================================================================
 ``R1234ZE``
 
-Equation of State Reference
-===========================
-Mark O. McLinden, Monika Thol, Eric W. Lemmon, "Thermodynamic Properties of trans-1,3,3,3-tetrafluoropropene [R1234ze(E)]: Measurements of Density and Vapor Pressure and a Comprehensive Equation of State", International Refrigeration and Air Conditioning Conference at Purdue, July 12-15, 2010
+Bibliographic Information
+=========================
+**Equation of State**: Mark O. McLinden and Monika Thol and Eric W. Lemmon, 2010, Thermodynamic Properties of trans-1,3,3,3-tetrafluoropropene [R1234ze(E)]: Measurements of Density and Vapor Pressure and a Comprehensive Equation of State, **
 
-Transport Properties Information
-================================
-Using ECS in fully predictive mode
+**Conductivity**: Richard A. Perkins and Marcia L. Huber, 2011, Measurement and Correlation of the Thermal Conductivity of 2,3,3,3-Tetrafluoroprop-1-ene (R1234yf) and trans-1,3,3,3-Tetrafluoropropene (R1234ze(E)), *Journal of Chemical Engineering Data*, 56:4868-4874
+
 
 
 Fluid Data

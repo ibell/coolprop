@@ -7,17 +7,18 @@ Aliases
 ================================================================================
 ``R152a``
 
-Equation of State Reference
-===========================
-Span, R. and W. Wagner, "Equations of State for Technical Applications. III. Results for Polar Fluids", International Journal of Thermophysics, Vol. 24, No. 1, January 2003. 
+Bibliographic Information
+=========================
+**Equation of State**: R. Span and W. Wagner, 2003, Equations of State for Technical Applications. III. Results for Polar Fluids, *International Journal of Thermophysics*, 24:111-162
 
-Cp0: R. Tillner-Roth "A Fundamental Equation of State for 1,1-Difluoroethane (HFC-152a)" International Journal of Thermophysics. vol. 16. No. 1 1995
+**Ideal-gas Specific Heat**: R. Tillner-Roth, 1995, A Fundamental Equation of State for 1,1-Difluoroethane (HFC-152a), *Int. J. Thermophys.*, 16:91-100
 
-Note: REFPROP 9.0 uses the MWBR formulation
+**Surface Tension**: A. Mulero and I. Cachadi\~na and M. I. Parra, 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
 
-Transport Properties Information
-================================
-Using ECS in fully predictive mode. 
+**Viscosity**: R. Krauss and I V. C. Weiss and T. A. Edison and J. V. Sengers and K. Stephan, 1996, Transport Properties of 1,1-Difluoroethane (R152a), *Int. J. Thermophys*, 17:731-757
+
+**Conductivity**: R. Krauss and I V. C. Weiss and T. A. Edison and J. V. Sengers and K. Stephan, 1996, Transport Properties of 1,1-Difluoroethane (R152a), *Int. J. Thermophys*, 17:731-757
+
 
 
 Fluid Data
@@ -28,14 +29,14 @@ Fluid Parameters
 =========================  ==============================
 Mole Mass [kg/kmol]        66.05100
 Triple Point Temp. [K]     154.560
-Triple Point Press. [kPa]  76.64304213
+Triple Point Press. [kPa]  0.06408986794
 Minimum temperature [K]    154.560
 =========================  ==============================
 
 Critical Parameters
 
 ==============================  ==============================
-Temperature [K]                 386.410
+Temperature [K]                 386.411
 Density [kg/m\ :sup:`3`\ ]      368.000000
 Pressure [kPa]                  4520.00000
 ==============================  ==============================
@@ -243,9 +244,9 @@ Check of p,h and p,s as inputs (X: Failure .: Success)
     smin = Props('S','T',Tmin,'Q',0,Ref)
     smax = 2*Props('S','T',Props(Ref,'Tcrit')-1,'Q',1,Ref)-smin
 
-    Ph(Ref, axis = ax1, Tmin = Tmin, Tmax = 386.400000)
-    Ps(Ref, axis = ax2, Tmin = Tmin, Tmax = 386.400000)
-    hs(Ref, axis = ax3, Tmin = Tmin, Tmax = 386.400000)
+    Ph(Ref, axis = ax1, Tmin = Tmin, Tmax = 386.401000)
+    Ps(Ref, axis = ax2, Tmin = Tmin, Tmax = 386.401000)
+    hs(Ref, axis = ax3, Tmin = Tmin, Tmax = 386.401000)
 
     for p in np.linspace(pmin,pmax,10):
         for h in np.linspace(hmin,hmax):

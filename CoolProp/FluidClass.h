@@ -391,7 +391,9 @@ class Fluid
 		/// @param T Temperature [K]
 		/// @param rho Density [kg/m^3]
 		/// @param qd qd term in term [1/m]
-		double conductivity_critical(double T, double rho, double qd = 2e9);
+		/// @param GAMMA Gamma term
+		/// @param zeta0 zeta0 term in crossover
+		double conductivity_critical(double T, double rho, double qd = 2e9, double GAMMA = 0.0496, double zeta0 = 1.94e-10);
 
 
 		/// This function returns the dilute portion of the viscosity

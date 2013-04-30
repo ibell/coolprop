@@ -7,13 +7,18 @@ Aliases
 ================================================================================
 ``SF6``
 
-Equation of State Reference
-===========================
-Guder C., and W. Wagner, "A Reference Equation of State for the Thermodynamic Properties of Sulfur Hexafluoride SF6 for Temperatures from the Melting Line to 625 K and Pressures up to 150 MPa," J. Phys. Chem. Ref. Data, Vol. 38, No. 1, 2009
+Bibliographic Information
+=========================
+**Equation of State**: C. Guder and W. Wagner, 2009, A Reference Equation of State for the Thermodynamic Properties of Sulfur Hexafluoride SF6 for Temperatures from the Melting Line to 625 K and Pressures up to 150 MPa, *J. Phys. Chem. Ref. Data*, 38:33-94
 
-Transport Properties Information
-================================
-Using ECS in fully predictive mode
+**Surface Tension**: A. Mulero and I. Cachadi\~na and M. I. Parra, 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
+
+**Viscosity**: S.E. Qui\~nones-Cisneros and M.L. Huber and U.K. Deiters, 2012, Correlation for the Viscosity of Sulfur Hexafluoride (SF6) from the Triple Point to 1000 K and Pressures to 50 MPa, *Journal of Physical and Chemical Reference Data*, 41:023102-1:11
+
+**Conductivity**: M. J. Assael and I. A. Koini and K. D. Antoniadis and M. L. Huber and I. M. Abdulagatov and R. A. Perkins, 2012, Reference Correlation of the Thermal Conductivity of Sulfur Hexafluoride from the Triple Point to 1000 K and up to 150 MPa, *Journal of Physical and Chemical Reference Data*, 41:023104-1:9
+
+**Lennard-Jones Parameters for ECS**: S.E. Qui\~nones-Cisneros and M.L. Huber and U.K. Deiters, 2012, Correlation for the Viscosity of Sulfur Hexafluoride (SF6) from the Triple Point to 1000 K and Pressures to 50 MPa, *Journal of Physical and Chemical Reference Data*, 41:023102-1:11
+
 
 
 Fluid Data

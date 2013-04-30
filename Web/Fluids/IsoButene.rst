@@ -7,13 +7,10 @@ Aliases
 ================================================================================
 ``Isobutene``
 
-Equation of State Reference
-===========================
-Eric W. Lemmon, E. Christian Ihmels, "Thermodynamic properties of the butenes Part II. Short fundamental equations of state", Fluid Phase Equilibria v. 228-229 (2005) 173-187
+Bibliographic Information
+=========================
+**Equation of State**: Eric W. Lemmon and E. Christian Ihmels, 2005, Thermodynamic properties of the butenes Part II. Short fundamental equations of state, *Fluid Phase Equilibria*, 228-229:173-187
 
-Transport Properties Information
-================================
-Using ECS in fully predictive mode
 
 
 Fluid Data

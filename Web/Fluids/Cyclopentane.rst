@@ -7,13 +7,10 @@ Aliases
 ================================================================================
 ``CycloPentane``, ``cyclopentane``
 
-Equation of State Reference
-===========================
-Holger Gedanitz, María J. Dávila, Eric W. Lemmon " Speed of sound measurements and a fundamental equation of state for cyclopentane" Preprint provided by Eric Lemmon
+Bibliographic Information
+=========================
+**Equation of State**: Holger Gedanitz and Mar\'ia J. D\'avila and Eric W. Lemmon, To be published, preprint provided by Eric Lemmon, Speed of sound measurements and a fundamental equation of state for cyclopentane, **, :
 
-Transport Properties Information
-================================
-Using ECS in fully predictive mode.
 
 
 Fluid Data

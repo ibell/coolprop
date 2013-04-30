@@ -23,6 +23,7 @@ On OSX/Linux, the same idea.  Do this::
 
     svn checkout svn://svn.code.sf.net/p/coolprop/code/trunk coolprop-code
     cd coolprop-code/wrappers/MATLAB
+    # Change line 6 MATLABBuilder_OSX.m according to instructions in file.
     matlab -r MATLABBuilder_OSX.m
 
 Please send an email to ian.h.bell@gmail.com if it works or if you have problems

@@ -7,13 +7,14 @@ Aliases
 ================================================================================
 ``toluene``
 
-Equation of State Reference
-===========================
-Lemmon, E.W., and R. Span, "Short Fundamental Equations of State for 20 Industrial Fluids,", J. Chem. Eng. Data, 51:785-850, 2006.
+Bibliographic Information
+=========================
+**Equation of State**: E.W. Lemmon and R. Span, 2006, Short Fundamental Equations of State for 20 Industrial Fluids, *J. Chem. Eng. Data*, 51:785-850
 
-Transport Properties Information
-================================
-Using ECS
+**Surface Tension**: A. Mulero and I. Cachadi\~na and M. I. Parra, 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
+
+**Conductivity**: 
+
 
 
 Fluid Data

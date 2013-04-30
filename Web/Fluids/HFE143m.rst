@@ -7,13 +7,10 @@ Aliases
 ================================================================================
 ``HFE-143m``, ``HFE143M``, ``HFE-143M``, ``RE143A``, ``RE143a``
 
-Equation of State Reference
-===========================
-Ryo Akasaka and Yohei Kayukawa " A fundamental equation of state for trifluoromethyl methyl ether (HFE-143m) and its application to refrigeration cycle analysis " International Journal of Refrigeration 35 (2012) 1003-1013 
+Bibliographic Information
+=========================
+**Equation of State**: Ryo Akasaka and Yohei Kayukawa, 2012, A fundamental equation of state for trifluoromethyl methyl ether (HFE-143m) and its application to refrigeration cycle analysis, *International Journal of Refrigeration*, 35:1003-1013
 
-Transport Properties Information
-================================
-Using ECS in fully predictive mode.
 
 
 Fluid Data

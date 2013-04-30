@@ -7,13 +7,10 @@ Aliases
 ================================================================================
 ````
 
-Equation of State Reference
-===========================
-"Fundamental Equations of State for Parahydrogen, Normal Hydrogen, and Orthohydrogen"by J.W. Leachman and R.T. Jacobsen and S.G. Penoncello and E.W. Lemmon, J. Phys. Chem. Ref. Data, Vol. 38, No. 3, 2009, pp 721-748
+Bibliographic Information
+=========================
+**Equation of State**: J.W. Leachman and R.T. Jacobsen and S.G. Penoncello and E.W. Lemmon, 2009, Fundamental Equations of State for Parahydrogen, Normal Hydrogen, and Orthohydrogen, *J. Phys. Chem. Ref. Data*, 38:721-748
 
-Transport Properties Information
-================================
-Viscosity & Surface Tension: McCarty, R.D. and Weber, L.A., "Thermophysical properties of parahydrogen from the freezing liquid line to 5000 R for pressures to 10,000 psia," Natl. Bur. Stand., Tech. Note 617, 1972.
 
 
 Fluid Data
