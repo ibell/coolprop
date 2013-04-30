@@ -9,7 +9,7 @@ Aliases
 
 Bibliographic Information
 =========================
-**Equation of State**: D. Buecker and W. Wagner, 2006, A Reference Equation of State for the Thermodynamic Properties of Ethane for Temperatures from the Melting Line to 675 K and Pressures up to 900 MPa, *J. Phys. Chem. Ref. Data*, 35:205-266
+**Equation of State**: D. Buecker and W. Wagner, 2006, Reference Equations of State for the Thermodynamic Properties of Fluid Phase n-Butane and Isobutane, *J. Phys. Chem. Ref. Data*, 35:929-1019
 
 **Surface Tension**: A. Mulero and I. Cachadi\~na and M. I. Parra, 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
 
@@ -36,7 +36,7 @@ Minimum temperature [K]    113.730
 Critical Parameters
 
 ==============================  ==============================
-Temperature [K]                 407.810
+Temperature [K]                 407.817
 Density [kg/m\ :sup:`3`\ ]      225.500000
 Pressure [kPa]                  3629.00000
 ==============================  ==============================
@@ -244,9 +244,9 @@ Check of p,h and p,s as inputs (X: Failure .: Success)
     smin = Props('S','T',Tmin,'Q',0,Ref)
     smax = 2*Props('S','T',Props(Ref,'Tcrit')-1,'Q',1,Ref)-smin
 
-    Ph(Ref, axis = ax1, Tmin = Tmin, Tmax = 407.800000)
-    Ps(Ref, axis = ax2, Tmin = Tmin, Tmax = 407.800000)
-    hs(Ref, axis = ax3, Tmin = Tmin, Tmax = 407.800000)
+    Ph(Ref, axis = ax1, Tmin = Tmin, Tmax = 407.807000)
+    Ps(Ref, axis = ax2, Tmin = Tmin, Tmax = 407.807000)
+    hs(Ref, axis = ax3, Tmin = Tmin, Tmax = 407.807000)
 
     for p in np.linspace(pmin,pmax,10):
         for h in np.linspace(hmin,hmax):

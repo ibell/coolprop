@@ -2781,21 +2781,20 @@ double Fluid::viscosity_ECS_Trho(double T, double rho, Fluid * ReferenceFluid)
 	M = params.molemass;
 	rhocbar=rhoc/M;
 	rhobar=rho/M;
-	
-	try{
-		// Get the ECS parameters from the reference fluid
-		ReferenceFluid->ECSParams(&e0_k,&sigma0);
-	}
-	catch (const NotImplementedError &){
-		// Doesn't have e_k and sigma for reference fluid
-		throw NotImplementedError(format("Your reference fluid for ECS [%s] does not have an implementation of ECSParams",(char *)ReferenceFluid->get_name().c_str()));
-	}
 
 	try{
 		// Get the ECS params for the fluid if it has them
 		ECSParams(&e_k,&sigma);
 	}
 	catch (const NotImplementedError &){ 
+		try{
+		// Get the ECS parameters from the reference fluid
+		ReferenceFluid->ECSParams(&e0_k,&sigma0);
+		}
+		catch (const NotImplementedError &){
+			// Doesn't have e_k and sigma for reference fluid
+			throw NotImplementedError(format("Your reference fluid for ECS [%s] does not have an implementation of ECSParams",(char *)ReferenceFluid->get_name().c_str()));
+		}
 		//Estimate the ECS parameters from Huber and Ely, 2003
 		e_k = e0_k*Tc/Tc0;
 		sigma = sigma0*pow(rhoc/rhoc0,1.0/3.0);
@@ -2803,7 +2802,7 @@ double Fluid::viscosity_ECS_Trho(double T, double rho, Fluid * ReferenceFluid)
 
 	// The dilute portion is for the fluid of interest, not for the reference fluid
 	// It is the viscosity in the limit of zero density
-	eta_dilute = viscosity_dilute(T,e_k,sigma);
+	eta_dilute = viscosity_dilute(T,e_k,sigma); //[uPa-s]
 
 	if (1)//(T>reduce.T)
 	{
@@ -2858,12 +2857,12 @@ double Fluid::viscosity_ECS_Trho(double T, double rho, Fluid * ReferenceFluid)
 	double tau = reduce.T/T;
 	double Z = 1+delta*dphir_dDelta(tau,delta);
 	double p0 = Z*R()*T0*rho0;
-	if (Z<0.3 || p0>1.1*ReferenceFluid->reduce.p || rho0>ReferenceFluid->reduce.rho){
-		// Use the code to calculate the conformal state
+	//if (Z<0.3 || p0>1.1*ReferenceFluid->reduce.p || rho0>ReferenceFluid->reduce.rho){
+	//	// Use the code to calculate the conformal state
 		x0=ConformalTemperature(this,ReferenceFluid,T,rho,T0,rho0,&errstring);
 		T0=x0[0];
 		rho0=x0[1];
-	}
+	//}
 	rho0bar = rho0/M0;
 	h = rho0bar/rhobar;
 	f = T/T0;
@@ -2900,20 +2899,20 @@ double Fluid::conductivity_ECS_Trho(double T, double rho, Fluid * ReferenceFluid
 	M = params.molemass;
 	rhocbar=rhoc/M;
 	rhobar=rho/M;
-	try{
-		//Estimate the ECS parameters from Huber and Ely, 2003
-		ReferenceFluid->ECSParams(&e0_k,&sigma0);
-	}
-	catch (NotImplementedError &){
-		// Doesn't have e_k and sigma for reference fluid
-		throw NotImplementedError(format("Your reference fluid for ECS [%s] does not have an implementation of ECSParams",(char *)ReferenceFluid->get_name().c_str()));
-	}
-		
+	
 	try{
 		// Get the ECS params for the fluid if it has them
 		ECSParams(&e_k,&sigma);
 	}
 	catch(NotImplementedError &){
+		try{
+			//Estimate the ECS parameters from Huber and Ely, 2003
+			ReferenceFluid->ECSParams(&e0_k,&sigma0);
+		}
+		catch (NotImplementedError &){
+			// Doesn't have e_k and sigma for reference fluid
+			throw NotImplementedError(format("Your reference fluid for ECS [%s] does not have an implementation of ECSParams",(char *)ReferenceFluid->get_name().c_str()));
+		}
 		e_k = e0_k*Tc/Tc0;
 		sigma = sigma0*pow(rhoc/rhoc0,1.0/3.0);
 	}
@@ -2943,12 +2942,12 @@ double Fluid::conductivity_ECS_Trho(double T, double rho, Fluid * ReferenceFluid
 	double tau = reduce.T/T;
 	double Z = 1+delta*dphir_dDelta(tau,delta);
 	double p0 = Z*R()*T0*rho0;
-	if (Z<0.3 || p0 > 1.1*ReferenceFluid->reduce.p || rho0 > ReferenceFluid->reduce.rho){
+	//if (Z<0.3 || p0 > 1.1*ReferenceFluid->reduce.p || rho0 > ReferenceFluid->reduce.rho){
 		// Use the code to calculate the conformal state
 		x0=ConformalTemperature(this,ReferenceFluid,T,rho,T0,rho0,&errstring);
 		T0=x0[0];
 		rho0=x0[1];
-	}
+	//}
 	
 	rho0bar = rho0/M0;
 	h=rho0bar/rhobar;

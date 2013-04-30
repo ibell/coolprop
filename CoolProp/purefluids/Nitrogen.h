@@ -8,9 +8,19 @@
 		~NitrogenClass(){};
 		virtual double conductivity_Trho(double, double);
 		virtual double viscosity_Trho(double, double);
+		double viscosity_dilute(double T, double rho);
+		double viscosity_background(double T, double rho);
+		double conductivity_dilute(double T);
+		double conductivity_background(double T, double rho);
+		double conductivity_critical(double T, double rho);
 		double psat(double);
 		double rhosatL(double);
 		double rhosatV(double);
+		void ECSParams(double *e_k, double *sigma){
+			// From Poling
+			*e_k = 71.4;	
+			*sigma = 0.3798;
+		};
 
 		double X_tilde(double T,double tau,double delta);
 		double surface_tension_T(double T);

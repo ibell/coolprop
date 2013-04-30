@@ -13,7 +13,11 @@ Bibliographic Information
 
 **Surface Tension**: A. Mulero and I. Cachadi\~na and M. I. Parra, 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
 
-**Lennard-Jones Parameters for ECS**: Justin C. Chichester and Marcia L. Huber, June 2008, *NISTIR 6650: Documentation and Assessment of the Transport Property Model for Mixtures Implemented in NIST REFPROP (Version 8.0)*, National Institute of Standards and Technology (NIST)
+**Viscosity**: Zhengjun Shan and Steven G. Penoncello and Richard T. Jacobsen, 2000, A Generalized Model for Viscosity and Thermal Conductivity of Trifluoromethane (R-23), *ASHRAE Transactions*, :DA-00-10-2
+
+**Conductivity**: Zhengjun Shan and Steven G. Penoncello and Richard T. Jacobsen, 2000, A Generalized Model for Viscosity and Thermal Conductivity of Trifluoromethane (R-23), *ASHRAE Transactions*, :DA-00-10-2
+
+**Lennard-Jones Parameters for ECS**: Zhengjun Shan and Steven G. Penoncello and Richard T. Jacobsen, 2000, A Generalized Model for Viscosity and Thermal Conductivity of Trifluoromethane (R-23), *ASHRAE Transactions*, :DA-00-10-2
 
 
 

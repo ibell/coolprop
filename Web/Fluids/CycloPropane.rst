@@ -1,23 +1,17 @@
 
 ********************
-n-Butane
+CycloPropane
 ********************
 
 Aliases
 ================================================================================
-``nButane``
+``cyclopropane``, ``Cyclopropane``
 
 Bibliographic Information
 =========================
-**Equation of State**: D. Buecker and W. Wagner, 2006, Reference Equations of State for the Thermodynamic Properties of Fluid Phase n-Butane and Isobutane, *J. Phys. Chem. Ref. Data*, 35:929-1019
+**Equation of State**: Axel Polt and Bernhard Platzer and Gerd Maurer, 1992, Parameter der thermischen Zustandsgleichung von Bender f\"u 14 mehratomige reine Stoffe, *Chem. Technik*, 22:216-224
 
-**Surface Tension**: A. Mulero and I. Cachadi\~na and M. I. Parra, 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
-
-**Viscosity**: E. Vogel and C. Kuechenmeister and E. Bich, 1999, Viscosity for n-Butane in the Fluid Region, *High Temp. - High Pressures*, 31:173-186
-
-**Conductivity**: R.A. Perkins and M.L.V. Ramires and C.A. Nieto de Castro and L. Cusco, 2002., Measurement and Correlation of the Thermal Conductivity of Butane from 135 K to 600 K at Pressures to 70 MPa, *J. Chem. Eng. Data*, 47:1263-1271
-
-**Lennard-Jones Parameters for ECS**: E. Vogel and C. Kuechenmeister and E. Bich, 1999, Viscosity for n-Butane in the Fluid Region, *High Temp. - High Pressures*, 31:173-186
+**Ideal-gas Specific Heat**: Axel Polt and Bernhard Platzer and Gerd Maurer, 1992, Parameter der thermischen Zustandsgleichung von Bender f\"u 14 mehratomige reine Stoffe, *Chem. Technik*, 22:216-224
 
 
 
@@ -27,18 +21,18 @@ Fluid Data
 Fluid Parameters
 
 =========================  ==============================
-Mole Mass [kg/kmol]        58.12220
-Triple Point Temp. [K]     134.895
-Triple Point Press. [kPa]  0.0006657858341
-Minimum temperature [K]    134.895
+Mole Mass [kg/kmol]        42.08100
+Triple Point Temp. [K]     145.700
+Triple Point Press. [kPa]  342.7069228
+Minimum temperature [K]    145.700
 =========================  ==============================
 
 Critical Parameters
 
 ==============================  ==============================
-Temperature [K]                 425.125
-Density [kg/m\ :sup:`3`\ ]      228.000000
-Pressure [kPa]                  3796.00000
+Temperature [K]                 398.300
+Density [kg/m\ :sup:`3`\ ]      258.500000
+Pressure [kPa]                  5579.70000
 ==============================  ==============================
 
 
@@ -47,8 +41,8 @@ Saturated Vapor Deviations
 
 .. plot::
 
-    Fluid = "n-Butane"
-    RPFluid = "REFPROP-BUTANE"
+    Fluid = "CycloPropane"
+    RPFluid = "REFPROP-CYCLOPRO"
 
     #Saturated Vapor
     from CoolProp.CoolProp import Props
@@ -108,8 +102,8 @@ Saturated Liquid Deviations
 
 .. plot::
 
-    Fluid = "n-Butane"
-    RPFluid = "REFPROP-BUTANE"
+    Fluid = "CycloPropane"
+    RPFluid = "REFPROP-CYCLOPRO"
 
     #Saturated Liquid
     from CoolProp.CoolProp import Props
@@ -168,8 +162,8 @@ Along the critical isotherm where T=T\ :sub:`c`
 ================================================
 .. plot::
 
-    Fluid = "n-Butane"
-    RPFluid = "REFPROP-BUTANE"
+    Fluid = "CycloPropane"
+    RPFluid = "REFPROP-CYCLOPRO"
 
     #Critical isotherm
     from CoolProp.CoolProp import Props
@@ -229,7 +223,7 @@ Check of p,h and p,s as inputs (X: Failure .: Success)
     from matplotlib import pyplot as plt
     import numpy as np
 
-    Ref = "n-Butane"
+    Ref = "CycloPropane"
     fig = plt.figure(figsize=(10,10))
     ax1 = fig.add_subplot(221)
     ax2 = fig.add_subplot(222)
@@ -244,9 +238,9 @@ Check of p,h and p,s as inputs (X: Failure .: Success)
     smin = Props('S','T',Tmin,'Q',0,Ref)
     smax = 2*Props('S','T',Props(Ref,'Tcrit')-1,'Q',1,Ref)-smin
 
-    Ph(Ref, axis = ax1, Tmin = Tmin, Tmax = 425.115000)
-    Ps(Ref, axis = ax2, Tmin = Tmin, Tmax = 425.115000)
-    hs(Ref, axis = ax3, Tmin = Tmin, Tmax = 425.115000)
+    Ph(Ref, axis = ax1, Tmin = Tmin, Tmax = 398.290000)
+    Ps(Ref, axis = ax2, Tmin = Tmin, Tmax = 398.290000)
+    hs(Ref, axis = ax3, Tmin = Tmin, Tmax = 398.290000)
 
     for p in np.linspace(pmin,pmax,10):
         for h in np.linspace(hmin,hmax):

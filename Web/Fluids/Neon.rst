@@ -1,23 +1,19 @@
 
 ********************
-n-Butane
+Neon
 ********************
 
 Aliases
 ================================================================================
-``nButane``
+``neon``
 
 Bibliographic Information
 =========================
-**Equation of State**: D. Buecker and W. Wagner, 2006, Reference Equations of State for the Thermodynamic Properties of Fluid Phase n-Butane and Isobutane, *J. Phys. Chem. Ref. Data*, 35:929-1019
+**Equation of State**: R. Katti and R.T. Jacobsen and R.B. Stewart and M. Jehangiri, 1986, Thermodynamic Properties of Neon for Temperatures from the Triple Point to 700 K at Pressures to 700 MPa, *Advances in Cryogenic Engineering*, 31:1189-1197
 
 **Surface Tension**: A. Mulero and I. Cachadi\~na and M. I. Parra, 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
 
-**Viscosity**: E. Vogel and C. Kuechenmeister and E. Bich, 1999, Viscosity for n-Butane in the Fluid Region, *High Temp. - High Pressures*, 31:173-186
-
-**Conductivity**: R.A. Perkins and M.L.V. Ramires and C.A. Nieto de Castro and L. Cusco, 2002., Measurement and Correlation of the Thermal Conductivity of Butane from 135 K to 600 K at Pressures to 70 MPa, *J. Chem. Eng. Data*, 47:1263-1271
-
-**Lennard-Jones Parameters for ECS**: E. Vogel and C. Kuechenmeister and E. Bich, 1999, Viscosity for n-Butane in the Fluid Region, *High Temp. - High Pressures*, 31:173-186
+**Lennard-Jones Parameters for ECS**: Bruce E. Poling and John M. Prausnitz and John P. O'Connell, 2001, *The Properties of Gases and Liquids, 5th edition*, McGraw Hill
 
 
 
@@ -27,18 +23,18 @@ Fluid Data
 Fluid Parameters
 
 =========================  ==============================
-Mole Mass [kg/kmol]        58.12220
-Triple Point Temp. [K]     134.895
-Triple Point Press. [kPa]  0.0006657858341
-Minimum temperature [K]    134.895
+Mole Mass [kg/kmol]        20.17900
+Triple Point Temp. [K]     24.560
+Triple Point Press. [kPa]  0.04338
+Minimum temperature [K]    24.560
 =========================  ==============================
 
 Critical Parameters
 
 ==============================  ==============================
-Temperature [K]                 425.125
-Density [kg/m\ :sup:`3`\ ]      228.000000
-Pressure [kPa]                  3796.00000
+Temperature [K]                 44.492
+Density [kg/m\ :sup:`3`\ ]      481.914878
+Pressure [kPa]                  2680.00000
 ==============================  ==============================
 
 
@@ -47,8 +43,8 @@ Saturated Vapor Deviations
 
 .. plot::
 
-    Fluid = "n-Butane"
-    RPFluid = "REFPROP-BUTANE"
+    Fluid = "Neon"
+    RPFluid = "REFPROP-Neon"
 
     #Saturated Vapor
     from CoolProp.CoolProp import Props
@@ -108,8 +104,8 @@ Saturated Liquid Deviations
 
 .. plot::
 
-    Fluid = "n-Butane"
-    RPFluid = "REFPROP-BUTANE"
+    Fluid = "Neon"
+    RPFluid = "REFPROP-Neon"
 
     #Saturated Liquid
     from CoolProp.CoolProp import Props
@@ -168,8 +164,8 @@ Along the critical isotherm where T=T\ :sub:`c`
 ================================================
 .. plot::
 
-    Fluid = "n-Butane"
-    RPFluid = "REFPROP-BUTANE"
+    Fluid = "Neon"
+    RPFluid = "REFPROP-Neon"
 
     #Critical isotherm
     from CoolProp.CoolProp import Props
@@ -229,7 +225,7 @@ Check of p,h and p,s as inputs (X: Failure .: Success)
     from matplotlib import pyplot as plt
     import numpy as np
 
-    Ref = "n-Butane"
+    Ref = "Neon"
     fig = plt.figure(figsize=(10,10))
     ax1 = fig.add_subplot(221)
     ax2 = fig.add_subplot(222)
@@ -244,9 +240,9 @@ Check of p,h and p,s as inputs (X: Failure .: Success)
     smin = Props('S','T',Tmin,'Q',0,Ref)
     smax = 2*Props('S','T',Props(Ref,'Tcrit')-1,'Q',1,Ref)-smin
 
-    Ph(Ref, axis = ax1, Tmin = Tmin, Tmax = 425.115000)
-    Ps(Ref, axis = ax2, Tmin = Tmin, Tmax = 425.115000)
-    hs(Ref, axis = ax3, Tmin = Tmin, Tmax = 425.115000)
+    Ph(Ref, axis = ax1, Tmin = Tmin, Tmax = 44.481800)
+    Ps(Ref, axis = ax2, Tmin = Tmin, Tmax = 44.481800)
+    hs(Ref, axis = ax3, Tmin = Tmin, Tmax = 44.481800)
 
     for p in np.linspace(pmin,pmax,10):
         for h in np.linspace(hmin,hmax):

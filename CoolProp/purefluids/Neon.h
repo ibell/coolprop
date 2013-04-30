@@ -18,5 +18,7 @@
 			*sigma = 0.282;
 		}
 		double surface_tension_T(double T);
+		double viscosity_Trho(double T, double rho);
+		double conductivity_Trho(double T, double rho);
 	};
 #endif

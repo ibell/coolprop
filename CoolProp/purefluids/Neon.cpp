@@ -18,6 +18,7 @@
 #include "Helmholtz.h"
 #include "FluidClass.h"
 #include "Neon.h"
+#include "Nitrogen.h"
 
 using namespace std;
 
@@ -51,8 +52,7 @@ NeonClass::NeonClass()
 
 	//Constants for ideal gas expression
 	phi0list.push_back(new phi0_lead(0,0));
-	phi0list.push_back(new phi0_logtau(-1));
-	phi0list.push_back(new phi0_cp0_constant(5.0/2.0*R(),crit.T,298.15));
+	phi0list.push_back(new phi0_logtau(1.5));
 
 	name.assign("Neon");
 	aliases.push_back("neon");
@@ -103,4 +103,27 @@ double NeonClass::surface_tension_T(double T)
 {
 	// From Mulero, 2012, JPCRD
 	return 0.012254*pow(1-T/reduce.T,1.4136)+ 0.02728*pow(1-T/reduce.T,1.4517) - 0.025715*pow(1-T/reduce.T,1.6567);
+}
+
+double NeonClass::viscosity_Trho(double T, double rho)
+{
+	// Use nitrogen as the reference
+	Fluid * ReferenceFluid = new NitrogenClass();
+	ReferenceFluid->post_load();
+	// Calculate the ECS
+	double mu = viscosity_ECS_Trho(T, rho, ReferenceFluid);
+	// Delete the reference fluid instance
+	delete ReferenceFluid;
+	return mu;
+}
+double NeonClass::conductivity_Trho(double T, double rho)
+{
+	// Use nitrogen as the reference
+	Fluid * ReferenceFluid = new NitrogenClass();
+	ReferenceFluid->post_load();
+	// Calculate the ECS
+	double cond = conductivity_ECS_Trho(T, rho, ReferenceFluid);
+	// Delete the reference fluid instance
+	delete ReferenceFluid;
+	return cond;
 }

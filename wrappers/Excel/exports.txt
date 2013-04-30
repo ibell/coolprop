@@ -9,7 +9,7 @@ File Type: DLL
   Section contains the following exports for CoolProp.dll
 
     00000000 characteristics
-    5165B8C1 time date stamp Wed Apr 10 21:08:49 2013
+    5180416C time date stamp Wed May 01 00:10:52 2013
         0.00 version
            1 ordinal base
           43 number of functions
@@ -17,20 +17,20 @@ File Type: DLL
 
     ordinal hint RVA      name
 
-          1    0 000053A0 _DerivTerms@24
-          2    1 00004E70 _F2K@8
-          3    2 00005330 _FluidsList@4
-          4    3 0009F5D0 _HAProps@40
-          5    4 000A09E0 _HAProps_Aux@32
-          6    5 00004C00 _IProps@32
+          1    0 00005360 _DerivTerms@24
+          2    1 00004E30 _F2K@8
+          3    2 000052F0 _FluidsList@4
+          4    3 000ACAA0 _HAProps@40
+          5    4 000ADEB0 _HAProps_Aux@32
+          6    5 00004BC0 _IProps@32
           7    6 00001C80 _IsFluidType@8
-          8    7 00004E50 _K2F@8
+          8    7 00004E10 _K2F@8
           9    8 00002B90 _Phase@24
          10    9 00002C00 _Phase_Tp@24
          11    A 00002C70 _Phase_Trho@24
-         12    B 00004E90 _PrintSaturationTable@24
-         13    C 00003430 _Props1@8
-         14    D 000036B0 _Props@32
+         12    B 00004E50 _PrintSaturationTable@24
+         13    C 00003410 _Props1@8
+         14    D 00003670 _Props@32
          15    E 000020A0 _conformal_Trho@32
          16    F 00001090 _debug@4
          17   10 00001310 _disable_TTSE_LUT@4
@@ -38,14 +38,14 @@ File Type: DLL
          19   12 00001290 _enable_TTSE_LUT@4
          20   13 00001350 _enable_TTSE_LUT_writing@4
          21   14 00001860 _get_Fluid_index@4
-         22   15 000067C0 _get_REFPROPname@8
+         22   15 00006780 _get_REFPROPname@8
          23   16 00001520 _get_TTSESinglePhase_LUT_range@20
-         24   17 000065D0 _get_aliases@8
+         24   17 00006590 _get_aliases@8
          25   18 00001070 _get_debug@0
          26   19 00001160 _get_errstring@4
          27   1A 00001200 _get_errstring_copy@4
          28   1B 000011B0 _get_errstringc@0
-         29   1C 00001B00 _get_index_units@8
+         29   1C 00001B30 _get_index_units@8
          30   1D 00001C50 _get_param_index@4
          31   1E 00001000 _get_svnrevision@0
          32   1F 00001010 _get_version@4
@@ -64,6 +64,6 @@ File Type: DLL
   Summary
 
         C000 .data
-       41000 .rdata
-       10000 .reloc
-       EC000 .text
+       44000 .rdata
+       11000 .reloc
+       FB000 .text
