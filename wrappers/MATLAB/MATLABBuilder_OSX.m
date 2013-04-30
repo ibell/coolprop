@@ -3,7 +3,9 @@
 path_to_src = '../../CoolProp/'
 
 %All the include folders we need
-include_string = [' -I',path_to_src];
+include_string = [' -I',path_to_src]; 
+% Add ",' -ldl'" to the above in order to compile with refprop support on 
+% Linux: include_string = [' -I',path_to_src,' -ldl']; 
  
 %List of files to be compiled to object files
 bare_files = dir([path_to_src,'*.cpp']);
