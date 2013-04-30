@@ -2057,44 +2057,6 @@ Functions to obtain fluid properties from the currently active state.
 <p>This file illustrates how CoolProp2Modelica can be used with standard components from the Modelica.Fluid library. You can redeclare the WorkingFluid package with any other fluid that matches the PartialMedium interface. Changes will automatically propagate to all components.</p>
 </html>"));
     end CompressibleValveSystem;
-
-    model TTSEerror "Wrong output from TTSE"
-      extends Modelica.Icons.Example;
-      package WorkingFluidOne =
-        CoolProp2Modelica.Interfaces.ExternalTwoPhaseMedium (
-           mediumName="water",
-           libraryName="CoolProp",
-           substanceName="water|calc_transport=0|debug=1|enable_TTSE=1",
-           ThermoStates=Modelica.Media.Interfaces.PartialMedium.Choices.IndependentVariables.ph);
-      package WorkingFluidTwo =
-        CoolProp2Modelica.Interfaces.ExternalTwoPhaseMedium (
-           mediumName="water",
-           libraryName="CoolProp",
-           substanceName="water|calc_transport=0|debug=1|enable_TTSE=0",
-           ThermoStates=Modelica.Media.Interfaces.PartialMedium.Choices.IndependentVariables.ph);
-
-      Modelica.SIunits.AbsolutePressure pOne;
-      Modelica.SIunits.AbsolutePressure pTwo;
-      Modelica.SIunits.SpecificEnthalpy hOne;
-      Modelica.SIunits.SpecificEnthalpy hTwo;
-      Modelica.SIunits.Temperature TOne;
-      Modelica.SIunits.Temperature TTwo;
-    //   Modelica.SIunits.SpecificEntropy sOne_a;
-    //   Modelica.SIunits.SpecificEntropy sTwo_a;
-    //   Modelica.SIunits.SpecificEntropy sOne_b;
-    //   Modelica.SIunits.SpecificEntropy sTwo_b;
-
-    equation
-        pOne = 1e5;
-        pTwo = pOne;
-        hOne = 200e3 + 100e3*time;
-        hTwo = hOne;
-
-        TOne = WorkingFluidOne.temperature_ph(pOne, hOne);
-        TTwo = WorkingFluidTwo.temperature_ph(pTwo, hTwo);
-        // sOne = WorkingFluidOne.specificEntropy_ph(port_a.p, inStream(port_a.h_outflow), inStream(port_a.Xi_outflow));
-
-    end TTSEerror;
   end Examples;
 
 
