@@ -40,15 +40,15 @@ public:
     double rhosatL(double);
     double rhosatV(double);
 	void ECSParams(double *e_k, double *sigma){
-		// From Chichester NISTIR 6650
-		*e_k = 280.51; *sigma = 0.573;
+		// From Vogel HTHP 1999
+		*e_k = 280.51; *sigma = 0.57335;
 	};
 	double surface_tension_T(double T)
 	{
 		// From Mulero, 2012, JPCRD
 		return 0.05138*pow(1-T/reduce.T,1.209);
 	}
-	//double viscosity_Trho(double, double);
+	double viscosity_Trho(double, double);
 	double conductivity_Trho(double, double);
 };
 

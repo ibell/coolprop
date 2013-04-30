@@ -497,9 +497,10 @@ nButaneClass::nButaneClass()
 	REFPROPname.assign("BUTANE");
 
 	BibTeXKeys.EOS = "Buecker-JPCRD-2006B";
-	BibTeXKeys.VISCOSITY = "__Vogel-HTHP-1999";
+	BibTeXKeys.VISCOSITY = "Vogel-HTHP-1999";
 	BibTeXKeys.CONDUCTIVITY = "Perkins-JCED-2002A";
 	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
+	BibTeXKeys.ECS_LENNARD_JONES = "Vogel-HTHP-1999";
 }
 double nButaneClass::rhosatL(double T)
 {
@@ -540,10 +541,45 @@ double nButaneClass::psat(double T)
 	p = exp(reduce.T/T*RHS)*pc;
 	return p;
 }
-//double nButaneClass::viscosity_Trho(double T, double rho) 
-//{
-//	return REFPROP(std::string("V"),std::string("T"),T,std::string("D"),rho,std::string("REFPROP-BUTANE"));
-//}
+double nButaneClass::viscosity_Trho(double T, double rho)
+{
+	double a[] = {0.17067154, -0.48879666, 0.039038856};
+	double b[] = {-19.572881, 219.73999, -1015.3226, 2471.01251, -3375.1717, 2491.6597, -787.26086, 14.085455, -0.34664158};
+
+	double e_k, sigma;
+	this->ECSParams(&e_k,&sigma);
+	double Tstar = T/e_k;
+	double Gstar = exp(a[0]+a[1]*log(Tstar)+a[2]*log(Tstar)*log(Tstar));
+	double eta_0 = 0.021357*sqrt(params.molemass*T)/(sigma*sigma*Gstar); // uPa-s
+
+	//Rainwater-Friend initial density term
+	double Bstar = b[0]*pow(Tstar,-0.25*0)+b[1]*pow(Tstar,-0.25*1)+b[2]*pow(Tstar,-0.25*2)+b[3]*pow(Tstar,-0.25*3)+b[4]*pow(Tstar,-0.25*4)+b[5]*pow(Tstar,-0.25*5)+b[6]*pow(Tstar,-0.25*6)+b[7]*pow(Tstar,-2.5)+b[8]*pow(Tstar,-5.5);
+	double B = Bstar*0.6022137*sigma*sigma*sigma; // [L/mol]
+
+	double e[6][2]; // init with zeros
+	e[2][0] = -54.7737770846; e[2][1] = 58.0898623034;
+	e[3][0] = 35.2658446259; e[3][1] = -39.6682203832;
+	e[4][0] = -1.83729542151; e[4][1] = 0;
+	e[5][0] = -0.833262985358; e[5][1] = 1.93837020663;
+	double f1 = 188.075903903;
+	double g1 = 2.30873963359, g2 = 0.881017652640;
+
+	double sumresid = 0;
+	double tau = T/crit.T, delta = rho/(3.920*58.1222);
+	for (int i = 2; i<=5; i++)
+	{
+		for (int j = 0; j< 2; j++)
+		{
+			sumresid += e[i][j]*pow(delta,i)/pow(tau,j);
+		}
+	}
+
+	double delta_0 = g1*(1+g2*sqrt(tau));
+	double eta_r = sumresid + f1*(delta/(delta_0-delta)-delta/delta_0); // uPa-s
+	
+	double rhobar = rho/params.molemass; //mol/L
+	return (eta_0*(1+B*rhobar)+eta_r)/1e6;
+}
 double nButaneClass::conductivity_Trho(double T, double rho)
 {
 	double lambda_0 = 1.62676e-3+9.75703e-4*(T/crit.T) + 2.89887e-2*pow(T/crit.T,2); // W/m/K
@@ -585,7 +621,7 @@ IsoButaneClass::IsoButaneClass()
 	//Critical parameters
 	crit.rho = 225.5; //[kg/m^3]
 	crit.p = 3629; //[kPa]
-	crit.T = 407.81; //[K]
+	crit.T = 407.817; //[K]
 	crit.v = 1/crit.rho; 
 
 	// Other fluid parameters
@@ -686,7 +722,7 @@ double IsoButaneClass::viscosity_Trho(double T, double rho)
 
 	//Rainwater-Friend
 	double Bstar = b[0]*pow(Tstar,-0.25*0)+b[1]*pow(Tstar,-0.25*1)+b[2]*pow(Tstar,-0.25*2)+b[3]*pow(Tstar,-0.25*3)+b[4]*pow(Tstar,-0.25*4)+b[5]*pow(Tstar,-0.25*5)+b[6]*pow(Tstar,-0.25*6)+b[7]*pow(Tstar,-2.5)+b[8]*pow(Tstar,-5.5);
-	double B = Bstar*0.6022137*sigma*sigma*sigma;
+	double B = Bstar*0.602214129*sigma*sigma*sigma; // [L/mol]
 
 	double e[6][3]; // init with zeros
 	e[2][0] = 103.511763411; e[2][1] = -312.670896234;
@@ -699,20 +735,20 @@ double IsoButaneClass::viscosity_Trho(double T, double rho)
 	double g1 = 2.33859774637, g2 = 1.00596672174;
 
 	double sumresid = 0;
-	double tau = T/crit.T, delta = rho/crit.rho;
-	for (int i = 2; i<=5; i++)
+	double tau = T/crit.T, delta = rho/(3.860*58.1222);
+	for (int i = 2; i < 6; i++)
 	{
-		for (int j = 0; j< 2; j++)
+		for (int j = 0; j < 3; j++)
 		{
 			sumresid += e[i][j]*pow(delta,i)/pow(tau,j);
 		}
 	}
 
-	double delta_0 = g1*(1+g2*pow(crit.T/T,(2.0-1.0)/2.0));
+	double delta_0 = g1*(1+g2*sqrt(tau));
 	double eta_r = sumresid + f1*(delta/(delta_0-delta)-delta/delta_0); // uPa-s
 	
-	double rhobar = rho/params.molemass/1000;
-	return eta_0*(1+B*rhobar)+eta_r;
+	double rhobar = rho/params.molemass;
+	return (eta_0*(1+B*rhobar)+eta_r)/1e6;
 }
 double IsoButaneClass::conductivity_Trho(double T, double rho)
 {
