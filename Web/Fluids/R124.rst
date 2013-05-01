@@ -1,21 +1,19 @@
 
 ********************
-R407C
+R124
 ********************
 
 Aliases
 ================================================================================
-``R407c``
+````
 
 Bibliographic Information
 =========================
-**Equation of State**: E.W. Lemmon, 2003, Pseudo-Pure Fluid Equations of State for the Refrigerant Blends R-410A, R-404A, R-507A, and R-407C, *Int. J. Thermophys.*, 24:991-1006
+**Equation of State**: B. de Vries and R. Tillner-Roth and H.D. Baehr, 1995, Thermodynamic Properties of HCFC 124, *19th International Congress of Refrigeration, The Hague, The Netherlands*
 
-**Surface Tension**: R. Heide, 1997, The surface tension of HFC refrigerants and mixtures, *Int J. Refrig.*, 20:496-503
+**Surface Tension**: A. Mulero and I. Cachadi\~na and M. I. Parra, 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
 
-**Viscosity**: V. Geller, 2000, Viscosity of Mixed Refrigerants R404A, R407C, R410A, and R507A, *2000 International Refrigeration Conferences at Purdue University*
-
-**Conductivity**: V.Z. Geller and B.Z. Nemzer and U.V. Cheremnykh, 2001, Thermal Conductivity of the Refrigerant mixtures R404A, R407C, R410A, and R507A, *Int. J. Thermophys.*, 22:1034-1043
+**Lennard-Jones Parameters for ECS**: Justin C. Chichester and Marcia L. Huber, June 2008, *NISTIR 6650: Documentation and Assessment of the Transport Property Model for Mixtures Implemented in NIST REFPROP (Version 8.0)*, National Institute of Standards and Technology (NIST)
 
 
 
@@ -25,18 +23,18 @@ Fluid Data
 Fluid Parameters
 
 =========================  ==============================
-Mole Mass [kg/kmol]        86.20360
-Triple Point Temp. [K]     200.000
-Triple Point Press. [kPa]  11.31234364
-Minimum temperature [K]    200.000
+Mole Mass [kg/kmol]        136.47620
+Triple Point Temp. [K]     75.000
+Triple Point Press. [kPa]  2.673861394e-05
+Minimum temperature [K]    75.000
 =========================  ==============================
 
 Critical Parameters
 
 ==============================  ==============================
-Temperature [K]                 359.345
-Density [kg/m\ :sup:`3`\ ]      453.430940
-Pressure [kPa]                  4631.70000
+Temperature [K]                 395.425
+Density [kg/m\ :sup:`3`\ ]      560.000000
+Pressure [kPa]                  3624.29500
 ==============================  ==============================
 
 
@@ -45,8 +43,8 @@ Saturated Vapor Deviations
 
 .. plot::
 
-    Fluid = "R407C"
-    RPFluid = "REFPROP-R407C"
+    Fluid = "R124"
+    RPFluid = "REFPROP-R124"
 
     #Saturated Vapor
     from CoolProp.CoolProp import Props
@@ -106,8 +104,8 @@ Saturated Liquid Deviations
 
 .. plot::
 
-    Fluid = "R407C"
-    RPFluid = "REFPROP-R407C"
+    Fluid = "R124"
+    RPFluid = "REFPROP-R124"
 
     #Saturated Liquid
     from CoolProp.CoolProp import Props
@@ -166,8 +164,8 @@ Along the critical isotherm where T=T\ :sub:`c`
 ================================================
 .. plot::
 
-    Fluid = "R407C"
-    RPFluid = "REFPROP-R407C"
+    Fluid = "R124"
+    RPFluid = "REFPROP-R124"
 
     #Critical isotherm
     from CoolProp.CoolProp import Props
@@ -227,7 +225,7 @@ Check of p,h and p,s as inputs (X: Failure .: Success)
     from matplotlib import pyplot as plt
     import numpy as np
 
-    Ref = "R407C"
+    Ref = "R124"
     fig = plt.figure(figsize=(10,10))
     ax1 = fig.add_subplot(221)
     ax2 = fig.add_subplot(222)
@@ -242,9 +240,9 @@ Check of p,h and p,s as inputs (X: Failure .: Success)
     smin = Props('S','T',Tmin,'Q',0,Ref)
     smax = 2*Props('S','T',Props(Ref,'Tcrit')-1,'Q',1,Ref)-smin
 
-    Ph(Ref, axis = ax1, Tmin = Tmin, Tmax = 359.335000)
-    Ps(Ref, axis = ax2, Tmin = Tmin, Tmax = 359.335000)
-    hs(Ref, axis = ax3, Tmin = Tmin, Tmax = 359.335000)
+    Ph(Ref, axis = ax1, Tmin = Tmin, Tmax = 395.415000)
+    Ps(Ref, axis = ax2, Tmin = Tmin, Tmax = 395.415000)
+    hs(Ref, axis = ax3, Tmin = Tmin, Tmax = 395.415000)
 
     for p in np.linspace(pmin,pmax,10):
         for h in np.linspace(hmin,hmax):

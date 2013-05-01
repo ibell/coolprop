@@ -61,6 +61,7 @@ Pure Fluids
     R123.rst
     R1234yf.rst
     R1234ze.rst
+    R124.rst
     R125.rst
     R134a.rst
     R141b.rst

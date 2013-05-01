@@ -219,3 +219,6 @@ if __name__=='__main__':
         os.remove('version.txt')
     touch('setup.py')
     
+    import CoolProp
+    CoolProp.test()
+    

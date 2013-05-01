@@ -41,7 +41,7 @@ NeonClass::NeonClass()
 	params.molemass = 20.179;
 	params.Ttriple = 24.56;
 	params.ptriple = 0.04338;
-	params.accentricfactor = _HUGE;
+	params.accentricfactor = -0.038449299273685900;
 	params.R_u = 8.31434;
 
 	// Limits of EOS
