@@ -25,7 +25,7 @@ CycloPropaneClass::CycloPropaneClass()
 	params.ptriple = 342.70692277003945;
 
 	// Limits of EOS
-	limits.Tmin = params.Ttriple;
+	limits.Tmin = 273;
 	limits.Tmax = 500.0;
 	limits.pmax = 100000.0;
 	limits.rhomax = 1000000.0*params.molemass;
