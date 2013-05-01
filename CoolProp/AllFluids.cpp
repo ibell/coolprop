@@ -24,6 +24,7 @@
 #include "purefluids/Nitrogen.cpp"
 #include "purefluids/Oxygen.cpp"
 #include "purefluids/Propylene.cpp"
+#include "purefluids/R124.cpp"
 #include "purefluids/R125.cpp"
 #include "purefluids/R1234yf.cpp"
 #include "purefluids/R1234ze.cpp"
