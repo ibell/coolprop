@@ -2372,7 +2372,7 @@ void Fluid::saturation_p(double p, bool UseLUT, double *TsatL, double *TsatV, do
 
 	// Pseudo-critical pressure based on critical density and temperature
 	// The highest pressure that be achieved with a temperature <= Tc
-	// Some EOS, pc != p(Tc,rhoc)
+	// For some EOS, pc != p(Tc,rhoc)
 	double pc_EOS = pressure_Trho(reduce.T,reduce.rho);
 
 	if (fabs(p-reduce.p)<DBL_EPSILON || p > pc_EOS)

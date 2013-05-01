@@ -64,36 +64,42 @@ NeonClass::NeonClass()
 }
 double NeonClass::psat(double T)
 {
-	const double ti[]={0,(1.0-3)/2.0,(2.0-3)/2.0,(3.0-3)/2.0,(7.0-3)/2.0,(8.0-3)/2.0};
-    const double ai[]={0,0.1505372469e-1,-0.5852196160e1, 0.1249346079e1, 0.4136402803e0, -0.1587236185e1};
-    double summer=0;
-    int i;
-    for (i=1;i<=5;i++)
+    // Maximum absolute error is 0.090446 % between 24.556001 K and 44.491790 K
+    const double t[]={0, 1, 2, 3, 6};
+    const double N[]={0, 0.030056278177045211, -5.9517425005604085, 1.4556263648417147, -0.72769727713194987};
+    double summer=0,theta;
+    theta=1-T/reduce.T;
+    for (int i=1;i<=3;i++)
     {
-        summer += ai[i]*pow(reduce.T/T-1,ti[i]);
+        summer += N[i]*pow(theta,t[i]/2);
     }
-	double r = reduce.p*exp(reduce.T/T*summer);
-	return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p*exp(reduce.T/T*summer);
 }
+
 double NeonClass::rhosatL(double T)
 {
-    double summer=0;
-    summer +=  0.9256541069e2*pow(reduce.T/T-1,(2+1)/3.0);
-	summer += -0.3557640388e2*pow(reduce.T/T-1,(4+1)/3.0);
-	summer +=  0.3496671874e1*pow(reduce.T/T-1,(8+1)/3.0);
-	summer +=  0.8652011555e2*log(T/reduce.T);
-	summer +=  0.1216513966e1*pow(reduce.T/T-1,0.325);
-    return reduce.rho*(1 + summer);
+    // Maximum absolute error is 0.184674 % between 24.556001 K and 44.491790 K
+    const double t[] = {0, 0.16666666666666666, 0.3333333333333333, 0.5, 0.6666666666666666, 0.8333333333333334, 1.0, 1.1666666666666667, 1.3333333333333333, 1.5, 1.8333333333333333};
+    const double N[] = {0, -7.2369686484173252, 211.94763997778651, -2354.4170363141825, 13773.297638494711, -47566.671061179397, 101604.99338894009, -134063.9401911686, 103055.345207873, -37489.598569658992, 2840.9862970955251};
+    double summer=0,theta;
+
+    theta=1-T/reduce.T;
+	for (int i=1; i<=10; i++)
+	{
+		summer += N[i]*pow(theta,t[i]);
+	}
+	return reduce.rho*(summer+1);
 }
+
 double NeonClass::rhosatV(double T)
 {
     // Maximum absolute error is 0.152314 % between 24.556001 K and 44.491790 K
     const double t[] = {0, 0.16666666666666666, 0.3333333333333333, 0.5, 0.6666666666666666, 0.8333333333333334, 1.0, 1.1666666666666667, 1.3333333333333333};
     const double N[] = {0, -0.42110191619014642, 9.2190373809956672, -72.08994032423108, 243.69954118084271, -458.84607430631803, 462.45011147675018, -229.64665885151433, 41.165593531034638};
     double summer=0,theta;
-    int i;
+
     theta=1-T/reduce.T;
-	for (i=1; i<=8; i++)
+	for (int i=1; i<=8; i++)
 	{
 		summer += N[i]*pow(theta,t[i]);
 	}

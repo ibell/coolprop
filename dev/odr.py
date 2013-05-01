@@ -99,7 +99,7 @@ def saturation_density(Ref, ClassName, form = 'A', LV = 'L', perc_error_allowed 
             if form == 'A':
                 code_template = textwrap.dedent(
                 """
-                for (i=1; i<={count:d}; i++)
+                for (int i=1; i<={count:d}; i++)
                 {{
                     summer += N[i]*pow(theta,t[i]);
                 }}
@@ -109,7 +109,7 @@ def saturation_density(Ref, ClassName, form = 'A', LV = 'L', perc_error_allowed 
             elif form == 'B':
                 code_template = textwrap.dedent(
                 """
-                for (i=1; i<={count:d}; i++)
+                for (int i=1; i<={count:d}; i++)
                 {{
                     summer += N[i]*pow(theta,t[i]);
                 }}
@@ -132,7 +132,6 @@ def saturation_density(Ref, ClassName, form = 'A', LV = 'L', perc_error_allowed 
         const double t[] = {{0, {tcoeffs:s}}};
         const double N[] = {{0, {Ncoeffs:s}}};
         double summer=0,theta;
-        int i;
         theta=1-T/reduce.T;
         \t{code:s}
     }}
@@ -218,9 +217,8 @@ def saturation_pressure(Ref, ClassName):
         const double t[]={{0, {tcoeffs:s}}};
         const double N[]={{0, {Ncoeffs:s}}};
         double summer=0,theta;
-        int i;
         theta=1-T/reduce.T;
-        for (i=1;i<={N:d};i++)
+        for (int i=1;i<={N:d};i++)
         {{
             summer += N[i]*pow(theta,t[i]/2);
         }}
@@ -239,7 +237,7 @@ def saturation_pressure(Ref, ClassName):
     f.close()
     return
                       
-for RPFluid,Fluid in [('REFPROP-R124','R124')
+for RPFluid,Fluid in [('REFPROP-Neon','Neon')
                     ]:
     saturation_pressure(RPFluid, Fluid)
     saturation_density(RPFluid, Fluid, form='A', LV='L')

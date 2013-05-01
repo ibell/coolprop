@@ -6,15 +6,13 @@ import numpy as np
 
 def test_p():
     for Fluid in CoolProp.__fluids__:
-        prange = (Props(Fluid,'ptriple')+1e-5, Props(Fluid,'pcrit'))
-        for p in [random.uniform(*prange) for i in range(50)]:
+        for p in np.linspace(Props(Fluid,'ptriple')+1e-5, Props(Fluid,'pcrit')-1e-5,50):
             yield check_p,Fluid,p
         
 def check_p(Fluid, p):
-    Tmin = Props(Fluid,'Ttriple')
+    Tmin = Props(Fluid,'Tmin')
     Tcrit = Props(Fluid,'Tcrit')
     Tsat = Props('T', 'P', p, 'Q', 1, Fluid)
-    assert Tsat >= Tmin and Tsat <= Tcrit
     
 ###############################################################################
 ###############################################################################
