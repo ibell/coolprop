@@ -40,6 +40,7 @@ R124Class::R124Class()
 	REFPROPname.assign("R124");
 
 	BibTeXKeys.EOS = "deVries-ICR-1995";
+	BibTeXKeys.ECS_LENNARD_JONES = "Chichester-NIST-2008";
 	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
 }
 double R124Class::psat(double T)

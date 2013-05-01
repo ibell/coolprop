@@ -14,6 +14,12 @@ public:
 		// Mulero, JPCRD 2012
 		return 0.05175*pow(1-T/reduce.T,1.197);
 	}
+	void ECSParams(double *e_k, double *sigma)
+	{
+		// Chichester
+		*e_k = 275.80;
+		*sigma = 0.5501;
+	}
 };
 
 #endif
