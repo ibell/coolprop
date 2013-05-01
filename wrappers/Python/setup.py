@@ -219,6 +219,12 @@ if __name__=='__main__':
         os.remove('version.txt')
     touch('setup.py')
     
-    import CoolProp
-    CoolProp.test()
+    try:
+        import nose
+        import CoolProp
+        CoolProp.test()
+    except ImportError:
+        print("Could not run tests, nose not installed")
+        
+        
     

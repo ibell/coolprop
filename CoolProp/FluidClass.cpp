@@ -1249,6 +1249,8 @@ double Fluid::_get_rho_guess(double T, double p)
 	}
 	else if (phase == iLiquid)
 	{
+		
+
 		// Start at the saturation state, with a known density, using the ancillary
 		double rhoL = rhosatL(T);
 		double pL = psatL_anc(T);
@@ -1260,6 +1262,10 @@ double Fluid::_get_rho_guess(double T, double p)
 		double dp_drho = R()*T*(1+2*delta*dphir_dDelta(tau,delta)+delta*delta*d2phir_dDelta2(tau,delta));
 		double drho_dp = 1/dp_drho;
 		rho_simple = rhoL-drho_dp*(pL-p);
+
+		if (rho_simple < 0 || !ValidNumber(rho_simple)){
+			rho_simple = density_Tp_Soave(T,p);
+		}
 	}
 	else if (fabs(psatL_anc(T)-p)<1e-8 || fabs(psatV_anc(T)-p)<1e-8)
 	{
@@ -1357,7 +1363,7 @@ long Fluid::phase_Tp_indices(double T, double p, double *pL, double *pV, double 
 		std::cout<<__FILE__<<format(": phase_Tp_indices(%g,%g)\n",T,p).c_str();
 	}
 
-	if (T>crit.T && p>crit.p){
+	if (T>crit.T && p>=crit.p){
 		return iSupercritical;
 	}
 	else if (T>crit.T && p<crit.p){
@@ -1391,6 +1397,7 @@ long Fluid::phase_Tp_indices(double T, double p, double *pL, double *pV, double 
 			// For the given temperature, find the saturation state
 			// Run the saturation routines to determine the saturation densities and pressures
 			saturation_T(T,enabled_TTSE_LUT,pL,pV,rhoL,rhoV);
+			
 			if (p>(*pL+10*DBL_EPSILON)){
 				return iLiquid;
 			}

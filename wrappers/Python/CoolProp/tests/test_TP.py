@@ -11,10 +11,12 @@ def test_superheated():
     
 def test_subcooled():
     for Fluid in CoolProp.__fluids__:
-        for Tsat in np.linspace(Props(Fluid,'Tmin')+1e-5,Props(Fluid,'Tcrit')-1e-5,5):
-            p = Props('P','T',Tsat,'Q',1.0,Fluid)
-            for T in np.linspace(Props(Fluid,'Tmin')+1e-5,Tsat-1e-5,5):
-                yield check_rho,Fluid,T,p
+        Tmin = Props(Fluid,'Tmin')+1e-5
+        for Tsat in np.linspace(Tmin, Props(Fluid,'Tcrit')-1e-5, 5):
+            p = Props('P', 'T', Tsat, 'Q', 0, Fluid)
+            for T in np.linspace(Tmin, Tsat-1e-5, 5):
+                if T > Tmin and T < Tsat:
+                    yield check_rho,Fluid,T,p
     
 def test_supercritical():
     for Fluid in CoolProp.__fluids__:
@@ -25,7 +27,8 @@ def test_supercritical():
 def check_rho(Fluid,T,p):
     rhoEOS = Props('D','T',T,'P',p,Fluid)
     pEOS = Props('P','T',T,'D',rhoEOS,Fluid)
-    assert (abs(pEOS/p-1)<1e-1)
+    if abs(pEOS/p-1) > 1e-1 and p>1e-6:
+        raise AssertionError('{pEOS:g} {p:g}'.format(pEOS = pEOS, p = p))
     
 if __name__=='__main__':
     import nose
