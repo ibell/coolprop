@@ -99,12 +99,6 @@ double NeonClass::rhosatV(double T)
 	}
 	return reduce.rho*exp(reduce.T/T*summer);
 }
-double NeonClass::surface_tension_T(double T)
-{
-	// From Mulero, 2012, JPCRD
-	return 0.012254*pow(1-T/reduce.T,1.4136)+ 0.02728*pow(1-T/reduce.T,1.4517) - 0.025715*pow(1-T/reduce.T,1.6567);
-}
-
 double NeonClass::viscosity_Trho(double T, double rho)
 {
 	// Use nitrogen as the reference

@@ -451,7 +451,7 @@ double ParaHydrogenClass::viscosity_Trho(double T, double rho)
 double ParaHydrogenClass::surface_tension_T(double T)
 {
 	// Mulero, JPCRD 2012
-	return 0.005369*pow(1-T/reduce.T,1.065);
+	return 0.005314*pow(1-T/reduce.T,1.06);
 }
 
 OrthoHydrogenClass::OrthoHydrogenClass()

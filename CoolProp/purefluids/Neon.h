@@ -17,7 +17,11 @@
 			*e_k = 32.8;
 			*sigma = 0.282;
 		}
-		double surface_tension_T(double T);
+		double surface_tension_T(double T)
+		{
+			// From Mulero, 2012, JPCRD
+			return 0.012254*pow(1-T/reduce.T,1.4136)+ 0.02728*pow(1-T/reduce.T,1.4517) - 0.025715*pow(1-T/reduce.T,1.6567);
+		}
 		double viscosity_Trho(double T, double rho);
 		double conductivity_Trho(double T, double rho);
 	};

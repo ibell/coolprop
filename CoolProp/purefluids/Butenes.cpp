@@ -98,9 +98,11 @@ OneButeneClass::OneButeneClass()
 
 	name.assign("1-Butene");
 	aliases.push_back(std::string("1Butene"));
+	aliases.push_back(std::string("Butene"));
 	REFPROPname.assign("1BUTENE");
 
 	BibTeXKeys.EOS = "Lemmon-FPE-2005";
+	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
 }
 
 double OneButeneClass::psat(double T)
@@ -191,6 +193,7 @@ IsoButeneClass::IsoButeneClass()
 	REFPROPname.assign("IBUTENE");
 
 	BibTeXKeys.EOS = "Lemmon-FPE-2005";
+	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
 }
 
 double IsoButeneClass::psat(double T)
