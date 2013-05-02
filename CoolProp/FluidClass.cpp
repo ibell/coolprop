@@ -961,12 +961,20 @@ void Fluid::saturation_T(double T, bool UseLUT, double *psatLout, double *psatVo
 				return;
 			}
 			catch (std::exception){
-				rhosatPure_Brent(T,&rhoL,&rhoV,&p);
-				*rhosatLout = rhoL;
-				*rhosatVout = rhoV;
-				*psatLout = p;
-				*psatVout = p;
-				return;
+				try{
+
+					rhosatPure(T,rhosatLout,rhosatVout,&p);
+					*psatLout = p;
+					*psatVout = p;
+				}
+				catch (std::exception){
+
+					rhosatPure_Brent(T,&rhoL,&rhoV,&p);
+					*psatLout = p;
+					*psatVout = p;
+				
+					return;
+				}
 			}
 		}
 	}
@@ -1136,6 +1144,11 @@ void Fluid::rhosatPure_Akasaka(double T, double *rhoLout, double *rhoVout, doubl
 	*rhoVout = deltaV*reduce.rho;
 	PL = pressure_Trho(T,*rhoLout);
 	PV = pressure_Trho(T,*rhoVout);
+
+	if (fabs(PL-PV)/PV > 1e-6)
+	{
+		throw ValueError("not close enough pressures from Akasaka");
+	}
 	*pout = 0.5*(PL+PV);
 	return;
 }
@@ -1249,23 +1262,24 @@ double Fluid::_get_rho_guess(double T, double p)
 	}
 	else if (phase == iLiquid)
 	{
-		
+		//// Start at the saturation state, with a known density, using the ancillary
+		//double rhoL = rhosatL(T);
+		//double pL = psatL_anc(T);
+		//if (debug()>5){
+		//	std::cout<<format("%d:%d: pL = %g rhoL = %g rhoV %g \n",__FILE__,__LINE__,pL,rhoL, rhoV).c_str();
+		//}
+		//double delta = rhoL / reduce.rho;
+		//double tau = reduce.T/T;
+		//double dp_drho = R()*T*(1+2*delta*dphir_dDelta(tau,delta)+delta*delta*d2phir_dDelta2(tau,delta));
+		//double drho_dp = 1/dp_drho;
+		//rho_simple = rhoL-drho_dp*(pL-p);
 
-		// Start at the saturation state, with a known density, using the ancillary
-		double rhoL = rhosatL(T);
-		double pL = psatL_anc(T);
-		if (debug()>5){
-			std::cout<<format("%d:%d: pL = %g rhoL = %g rhoV %g \n",__FILE__,__LINE__,pL,rhoL, rhoV).c_str();
-		}
-		double delta = rhoL / reduce.rho;
-		double tau = reduce.T/T;
-		double dp_drho = R()*T*(1+2*delta*dphir_dDelta(tau,delta)+delta*delta*d2phir_dDelta2(tau,delta));
-		double drho_dp = 1/dp_drho;
-		rho_simple = rhoL-drho_dp*(pL-p);
+		rho_simple = density_Tp_Soave(T,p);
+		double p_guess = pressure_Trho(T,rho_simple);
 
-		if (rho_simple < 0 || !ValidNumber(rho_simple)){
+		/*if (rho_simple < 0 || !ValidNumber(rho_simple) || fabs(p_guess-p)/p_guess > 0.3) {
 			rho_simple = density_Tp_Soave(T,p);
-		}
+		}*/
 	}
 	else if (fabs(psatL_anc(T)-p)<1e-8 || fabs(psatV_anc(T)-p)<1e-8)
 	{
@@ -1281,32 +1295,6 @@ double Fluid::_get_rho_guess(double T, double p)
 		std::cout<<__FILE__<<": _get_rho_guess = "<<rho_simple<<std::endl;
 	}
 	return rho_simple;
-
-	//// Try to use Peng-Robinson to get a guess value for the density
-	//std::vector<double> rholist= PRGuess_rho(this,T,p);
-	//if (rholist.size()==0){
-	//	throw SolutionError(format("PengRobinson could not yield any solutions"));
-	//}
-	//else if (rholist.size()==1){
-	//	rho_guess = rholist[0];
-	//}
-	//else{
-	//	// A list of ok solutions
-	//	std::vector<double> goodrholist;
-	//	for (unsigned int i=0;i<rholist.size();i++){
-	//		pEOS=Props(std::string("P"),'T',T,'D',rholist[i],name.c_str());
-	//		if (fabs(pEOS/p-1)<0.03){
-	//			goodrholist.push_back(rholist[i]);
-	//		}
-	//	}
-	//	if (goodrholist.size()==1){
-	//		rho_guess = goodrholist[0];
-	//	}
-	//	else{
-	//		rho_guess = rho_simple;
-	//	}
-	//}
-	//return rho_guess;
 }
 
 
@@ -1384,6 +1372,9 @@ long Fluid::phase_Tp_indices(double T, double p, double *pL, double *pV, double 
 			return iGas;
 		}
 		else if (isPure && p>1.06*psat(T)){
+			double psattt = psat(T);
+			saturation_T(T,enabled_TTSE_LUT,pL,pV,rhoL,rhoV);
+			double rr = psattt/ *pL;
 			return iLiquid;
 		}
 		else if (!isPure && p<0.94*psatV(T)){

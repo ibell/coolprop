@@ -487,23 +487,6 @@ void CoolPropStateClass::update_Tp(long iInput1, double Value1, long iInput2, do
 
 	if (_TwoPhase)
 	{
-		//// If it made it to the saturation routine and it is two-phase the saturation variables have been set
-		//TwoPhase = true;
-		//SinglePhase = false;
-
-		//// Get the quality and pressure
-		//_Q = (1/_rho-1/rhosatL)/(1/rhosatV-1/rhosatL);
-		//_p = _Q*psatV+(1-_Q)*psatL;
-		//
-		//check_saturated_quality(_Q);
-		//if (pFluid->pure()){
-		//	TsatL = _T;
-		//	TsatV = _T;
-		//}
-		//else{
-		//	TsatL = _T;
-		//	TsatV = _T;
-		//}
 		throw ValueError(format("TwoPhase is not possible with T,P as inputs"));
 	}
 	else{
