@@ -598,7 +598,7 @@ IsohexaneClass::IsohexaneClass()
     // Other fluid parameters
     params.molemass = 86.17536;
     params.Ttriple = 119.6;
-	params.ptriple = 7.80272777499e-09;
+	params.ptriple = 7.67397444618e-09;
     params.accentricfactor = 0.2797;
     params.R_u = 8.314472;
 

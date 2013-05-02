@@ -72,7 +72,7 @@ OneButeneClass::OneButeneClass()
 	params.Ttriple = 87.8;
 	params.accentricfactor = 0.191860647355;
 	params.R_u = 8.314472;
-	params.ptriple = 7.0203935730670058e-010;
+	params.ptriple = 5.94529945955e-10;
 
 	// Limits of EOS
 	limits.Tmin = params.Ttriple;

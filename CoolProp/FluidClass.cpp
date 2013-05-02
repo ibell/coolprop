@@ -722,6 +722,11 @@ double Fluid::density_Tp_Soave(double T, double p, int iValue)
 		Y2 = 2*pow(theta,1.0/3.0)*cos(phi/3.0+2.0*M_PI/3.0);
 		Y3 = 2*pow(theta,1.0/3.0)*cos(phi/3.0+4.0*M_PI/3.0);
 
+		double rho1 = p/(R*T*(Y1+1.0/3.0));
+		double rho2 = p/(R*T*(Y2+1.0/3.0));
+		double rho3 = p/(R*T*(Y3+1.0/3.0));
+
+
 		double solns [] = {Y1, Y2, Y3};
 
 		// Find the solution that you want to use if there are multiple solutions
@@ -966,6 +971,7 @@ void Fluid::saturation_T(double T, bool UseLUT, double *psatLout, double *psatVo
 					rhosatPure(T,rhosatLout,rhosatVout,&p);
 					*psatLout = p;
 					*psatVout = p;
+					return;
 				}
 				catch (std::exception){
 
@@ -1145,7 +1151,7 @@ void Fluid::rhosatPure_Akasaka(double T, double *rhoLout, double *rhoVout, doubl
 	PL = pressure_Trho(T,*rhoLout);
 	PV = pressure_Trho(T,*rhoVout);
 
-	if (fabs(PL-PV)/PV > 1e-6)
+	if (fabs(PL-PV)/PV > 1e-6 && T<0.5*reduce.T)
 	{
 		throw ValueError("not close enough pressures from Akasaka");
 	}
@@ -1262,24 +1268,22 @@ double Fluid::_get_rho_guess(double T, double p)
 	}
 	else if (phase == iLiquid)
 	{
-		//// Start at the saturation state, with a known density, using the ancillary
-		//double rhoL = rhosatL(T);
-		//double pL = psatL_anc(T);
-		//if (debug()>5){
-		//	std::cout<<format("%d:%d: pL = %g rhoL = %g rhoV %g \n",__FILE__,__LINE__,pL,rhoL, rhoV).c_str();
-		//}
-		//double delta = rhoL / reduce.rho;
-		//double tau = reduce.T/T;
-		//double dp_drho = R()*T*(1+2*delta*dphir_dDelta(tau,delta)+delta*delta*d2phir_dDelta2(tau,delta));
-		//double drho_dp = 1/dp_drho;
-		//rho_simple = rhoL-drho_dp*(pL-p);
-
-		rho_simple = density_Tp_Soave(T,p);
+		rho_simple = density_Tp_Soave(T,p,1);
 		double p_guess = pressure_Trho(T,rho_simple);
 
-		/*if (rho_simple < 0 || !ValidNumber(rho_simple) || fabs(p_guess-p)/p_guess > 0.3) {
-			rho_simple = density_Tp_Soave(T,p);
-		}*/
+		if (rho_simple < 0 || !ValidNumber(rho_simple) || fabs(p_guess-p)/p_guess > 0.3) {
+			// Start at the saturation state, with a known density, using the ancillary
+			double rhoL = rhosatL(T);
+			double pL = psatL_anc(T);
+			if (debug()>5){
+				std::cout<<format("%d:%d: pL = %g rhoL = %g rhoV %g \n",__FILE__,__LINE__,pL,rhoL, rhoV).c_str();
+			}
+			double delta = rhoL / reduce.rho;
+			double tau = reduce.T/T;
+			double dp_drho = R()*T*(1+2*delta*dphir_dDelta(tau,delta)+delta*delta*d2phir_dDelta2(tau,delta));
+			double drho_dp = 1/dp_drho;
+			rho_simple = rhoL-drho_dp*(pL-p);
+		}
 	}
 	else if (fabs(psatL_anc(T)-p)<1e-8 || fabs(psatV_anc(T)-p)<1e-8)
 	{
@@ -1372,9 +1376,6 @@ long Fluid::phase_Tp_indices(double T, double p, double *pL, double *pV, double 
 			return iGas;
 		}
 		else if (isPure && p>1.06*psat(T)){
-			double psattt = psat(T);
-			saturation_T(T,enabled_TTSE_LUT,pL,pV,rhoL,rhoV);
-			double rr = psattt/ *pL;
 			return iLiquid;
 		}
 		else if (!isPure && p<0.94*psatV(T)){
