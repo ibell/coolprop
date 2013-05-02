@@ -686,6 +686,7 @@ double Fluid::drhodT_p_Trho(double T,double rho)
 	return DerivTerms((char *)"drhodT|p",T,rho,this);
 }
 
+
 /// Get the density using the Soave EOS
 double Fluid::density_Tp_Soave(double T, double p, int iValue)
 {
@@ -726,24 +727,16 @@ double Fluid::density_Tp_Soave(double T, double p, int iValue)
 		double rho2 = p/(R*T*(Y2+1.0/3.0));
 		double rho3 = p/(R*T*(Y3+1.0/3.0));
 
+		double p1 = pressure_Trho(T,rho1);
+		double p2 = pressure_Trho(T,rho2);
+		double p3 = pressure_Trho(T,rho3);
 
-		double solns [] = {Y1, Y2, Y3};
-
-		// Find the solution that you want to use if there are multiple solutions
-		if (iValue == 0)
-		{
-			Y = *std::min_element(solns, solns+3);
-		}
-		else if (iValue == 1)
-		{
-			Y = *std::max_element(solns, solns+3);
-		}
-		else
-		{
-			throw ValueError(format("iValue [%d] should be either 0 or 1",iValue));
-		}
+		double min_error = 9e50;
 		
-		rho = p/(R*T*(Y+1.0/3.0));
+		if (ValidNumber(p1) && fabs(p1-p) < min_error){min_error = fabs(p1-p); rho = rho1;}
+		if (ValidNumber(p2) && fabs(p2-p) < min_error){min_error = fabs(p2-p); rho = rho2;}
+		if (ValidNumber(p3) && fabs(p3-p) < min_error){min_error = fabs(p3-p); rho = rho3;}
+		
 		return rho;
 	}
 }
@@ -1263,12 +1256,12 @@ double Fluid::_get_rho_guess(double T, double p)
 	// These are very simplistic guesses for the density, but they work ok
 	if (phase == iGas || phase == iSupercritical)
 	{
-		// Guess that it is ideal gas
-		rho_simple = p/(R()*T);
+		// Use Soave to get first guess
+		rho_simple = density_Tp_Soave(T,p);
 	}
 	else if (phase == iLiquid)
 	{
-		rho_simple = density_Tp_Soave(T,p,1);
+		rho_simple = density_Tp_Soave(T,p);
 		double p_guess = pressure_Trho(T,rho_simple);
 
 		if (rho_simple < 0 || !ValidNumber(rho_simple) || fabs(p_guess-p)/p_guess > 0.3) {
