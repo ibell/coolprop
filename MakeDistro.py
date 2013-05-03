@@ -95,6 +95,8 @@ def Labview():
         os.makedirs(os.path.join('dist_temp','Labview'))
     except os.error: pass
     
+    process = subprocess.Popen(['BuildDLL.bat'],shell=True,cwd=os.path.join('wrappers','Labview'))
+    process.wait()
     shutil.copy2(os.path.join('wrappers','Labview','CoolProp.dll'),os.path.join('dist_temp','Labview','CoolProp.dll'))
     shutil.copy2(os.path.join('wrappers','Labview','CoolProp.vi'),os.path.join('dist_temp','Labview','CoolProp.vi'))
     shutil.copy2(os.path.join('wrappers','Labview','README.rst'),os.path.join('dist_temp','Labview','README.rst'))
@@ -180,12 +182,11 @@ if __name__=='__main__':
 ##     Python()
 ##     Csharp()
 ##     Octave()
-    MATLAB()
+##     MATLAB()
 ##     EES()
 ##     Labview()
 ##     Modelica()
 ##     PYPI()
 ##     UploadSourceForge()
-
 ##     BuildDocs()
 ##     UploadDocs()

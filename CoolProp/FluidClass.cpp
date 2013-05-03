@@ -933,6 +933,7 @@ void Fluid::saturation_T(double T, bool UseLUT, double *psatLout, double *psatVo
 	if (debug()>5){
 		std::cout<<format("%s:%d: Fluid::saturation_T(%g,%d) \n",__FILE__,__LINE__,T,UseLUT).c_str();
 	}
+	if (T < limits.Tmin){ throw ValueError(format("Your temperature to saturation_T [%g K] is below the minimum temp [%g K]",T,limits.Tmin));} 
 	if (isPure==true)
 	{
 		if (enabled_TTSE_LUT)
@@ -2132,8 +2133,8 @@ double Fluid::Tsat_anc(double p, double Q)
     double Tc,Tmax,Tmin,Tmid;
 
     Tc=reduce.T;
-    Tmax=Tc-10*DBL_EPSILON;
-	Tmin=params.Ttriple+10*DBL_EPSILON;
+    Tmax=Tc;
+	Tmin=limits.Tmin;
 	if (Tmin <= limits.Tmin)
 		Tmin = limits.Tmin;
 	
@@ -2995,12 +2996,10 @@ bool Fluid::build_TTSE_LUT(bool force_build)
 		enabled_TTSE_LUT = false;
 
 		TTSESatL = TTSETwoPhaseTableClass(this,0);
-		// Deference the pointer to the table
 		TTSESatL.set_size(Nsat_TTSE);
-
 		TTSESatV = TTSETwoPhaseTableClass(this,1);
 		TTSESatV.set_size(Nsat_TTSE);
-		TTSESatV.build(pmin_TTSE,crit.p-1e-15,&TTSESatL);
+		TTSESatV.build(pmin_TTSE,crit.p,&TTSESatL);
 
 		TTSESinglePhase = TTSESinglePhaseTableClass(this);
 		TTSESinglePhase.enable_writing_tables_to_files = enable_writing_tables_to_files;

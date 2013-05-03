@@ -186,7 +186,7 @@ void CoolPropStateClass::update(long iInput1, double Value1, long iInput2, doubl
 	}
 	else
 	{
-		// Try to build the EOS
+		// Try to build the LUT
 		pFluid->build_TTSE_LUT();
 
 		// If inputs are in range of LUT, use it, otherwise just use the EOS

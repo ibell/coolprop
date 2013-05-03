@@ -6,7 +6,7 @@ import numpy as np
 
 def test_p():
     for Fluid in CoolProp.__fluids__:
-        for p in np.linspace(Props(Fluid,'ptriple')+1e-5, Props(Fluid,'pcrit')-1e-5,50):
+        for p in np.linspace(Props(Fluid,'ptriple')+1e-5, Props(Fluid,'pcrit')-1e-5,250):
             yield check_p,Fluid,p
         
 def check_p(Fluid, p):

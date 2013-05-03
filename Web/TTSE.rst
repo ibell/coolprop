@@ -22,7 +22,7 @@ When the single phase tables are constructed, a default range is employed, which
 
 If you do not like that default range, BEFORE you call enable_TTSE_LUT(), call ``set_TTSESinglePhase_LUT_range(FluidName,hmin,hmax,pmin,pmax)``
 
-The single-phase (but not the two-phase) tables are stored in binary form in files for faster loading in the TTSEData/*FluidName* folder relative to the current working directory.  If you do not want to save the tables to file, you can call the function disable_TTSE_LUT_writing() to disable the writing of the single phase tables to file
+The single-phase (but not the two-phase) tables are stored in binary form in files for faster loading in the HOME/CoolProp-TTSEData/*FluidName* folder where HOME is your home folder.  If you do not want to save the tables to file, you can call the function disable_TTSE_LUT_writing() to disable the writing of the single phase tables to file
 
 Example in Python
 -----------------

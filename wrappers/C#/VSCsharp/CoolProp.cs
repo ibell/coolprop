@@ -173,6 +173,16 @@ public class CoolProp {
     return ret;
   }
 
+  public static double viscosity_dilute(string FluidName, double T, double rho, double e_k, double sigma) {
+    double ret = CoolPropPINVOKE.viscosity_dilute(FluidName, T, rho, e_k, sigma);
+    return ret;
+  }
+
+  public static double conformal_Trho(string FluidName, string ReferenceFluidName, double T, double rho, SWIGTYPE_p_double Tconform, SWIGTYPE_p_double rhoconform) {
+    double ret = CoolPropPINVOKE.conformal_Trho(FluidName, ReferenceFluidName, T, rho, SWIGTYPE_p_double.getCPtr(Tconform), SWIGTYPE_p_double.getCPtr(rhoconform));
+    return ret;
+  }
+
   public static double Props(string Fluid, string Output) {
     double ret = CoolPropPINVOKE.Props__SWIG_0(Fluid, Output);
     if (CoolPropPINVOKE.SWIGPendingException.Pending) throw CoolPropPINVOKE.SWIGPendingException.Retrieve();
@@ -238,6 +248,12 @@ public class CoolProp {
     return ret;
   }
 
+  public static string get_BibTeXKey(string Ref, string item) {
+    string ret = CoolPropPINVOKE.get_BibTeXKey(Ref, item);
+    if (CoolPropPINVOKE.SWIGPendingException.Pending) throw CoolPropPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
   public static string get_EOSReference(string Ref) {
     string ret = CoolPropPINVOKE.get_EOSReference(Ref);
     if (CoolPropPINVOKE.SWIGPendingException.Pending) throw CoolPropPINVOKE.SWIGPendingException.Retrieve();
@@ -274,6 +290,12 @@ public class CoolProp {
 
   public static string get_version() {
     string ret = CoolPropPINVOKE.get_version__SWIG_1();
+    return ret;
+  }
+
+  public static bool add_REFPROP_fluid(string FluidName) {
+    bool ret = CoolPropPINVOKE.add_REFPROP_fluid(FluidName);
+    if (CoolPropPINVOKE.SWIGPendingException.Pending) throw CoolPropPINVOKE.SWIGPendingException.Retrieve();
     return ret;
   }
 
