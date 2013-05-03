@@ -21,7 +21,7 @@ def test_superheated():
 #    
 def test_supercritical():
     for Fluid in CoolProp.__fluids__:
-        for p in np.linspace(Props(Fluid,'pcrit'),Props(Fluid,'pcrit')*5,5):
+        for p in np.linspace(Props(Fluid,'pcrit')*1.01,Props(Fluid,'pcrit')*2,5):
             for T in np.linspace(Props(Fluid,'Tmin')+1e-5,2*Props(Fluid,'Tcrit'),5):
                 yield check_rho,Fluid,T,p
 

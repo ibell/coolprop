@@ -240,7 +240,6 @@ double IsoButeneClass::rhosatV(double T)
     return reduce.rho*exp(crit.T/T*summer);
 }
 
-
 Cis2ButeneClass::Cis2ButeneClass()
 {
 	double n[] = {0.0, 0.77827, -2.8064, 1.0030, 0.013762, 0.085514, 0.00021268, 0.22962, -0.072442, -0.23722, -0.074071, -0.026547, 0.012032};
