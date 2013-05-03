@@ -28,7 +28,7 @@ DimethylCarbonateClass::DimethylCarbonateClass()
 	params.Ttriple = 277.06;
 	params.accentricfactor = 0.346;
 	params.R_u = 8.314472;
-	params.ptriple = 2.2;
+	params.ptriple = 2.2265237265924869;
 
 	// Limits of EOS
 	limits.Tmin = params.Ttriple;

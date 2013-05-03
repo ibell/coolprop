@@ -519,7 +519,7 @@ nOctaneClass::nOctaneClass()
 	params.Ttriple = 216.37;
 	params.accentricfactor = 0.395;
 	params.R_u = 8.314510;
-	params.ptriple = 0.000175490394469;
+	params.ptriple = 0.0019888768508328075;
 
 	// Limits of EOS
 	limits.Tmin = params.Ttriple;
@@ -1228,7 +1228,7 @@ R11Class::R11Class()
 	params.Ttriple = 162.68;
 	params.accentricfactor = 0.18875064825280830;
 	params.R_u = 8.314510;
-	params.ptriple = 0.0065100898612854546;
+	params.ptriple = 0.0066915477602794626;
 
 	// Limits of EOS
 	limits.Tmin = params.Ttriple;

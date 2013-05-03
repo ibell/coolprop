@@ -494,7 +494,7 @@ OrthoHydrogenClass::OrthoHydrogenClass()
 	// Other fluid parameters
 	params.molemass = 2.01594;
 	params.Ttriple = 14.008;
-	params.ptriple = 7.461;
+	params.ptriple = 7.5598823410394012;
 	params.accentricfactor = -0.219;
 	params.R_u = 8.314472;
 
