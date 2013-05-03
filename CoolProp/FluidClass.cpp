@@ -686,7 +686,6 @@ double Fluid::drhodT_p_Trho(double T,double rho)
 	return DerivTerms((char *)"drhodT|p",T,rho,this);
 }
 
-
 /// Get the density using the Soave EOS
 double Fluid::density_Tp_Soave(double T, double p, int iValue)
 {
@@ -1254,27 +1253,35 @@ double Fluid::_get_rho_guess(double T, double p)
 		std::cout<<__FILE__<<format(": Fluid::_get_rho_guess(%g,%g) phase =%d\n",T,p,phase).c_str();
 	}
 	// These are very simplistic guesses for the density, but they work ok
-	if (phase == iGas || phase == iSupercritical)
+	if (phase == iGas)
 	{
+		// Perfect gas relation for initial guess
+		rho_simple = p/(R()*T);
+	}
+	else if (phase == iSupercritical)
+	{
+
 		// Use Soave to get first guess
 		rho_simple = density_Tp_Soave(T,p);
 	}
 	else if (phase == iLiquid)
 	{
-		rho_simple = density_Tp_Soave(T,p);
-		double p_guess = pressure_Trho(T,rho_simple);
-
-		if (rho_simple < 0 || !ValidNumber(rho_simple) || fabs(p_guess-p)/p_guess > 0.3) {
-			// Start at the saturation state, with a known density, using the ancillary
-			double rhoL = rhosatL(T);
-			double pL = psatL_anc(T);
-			if (debug()>5){
-				std::cout<<format("%d:%d: pL = %g rhoL = %g rhoV %g \n",__FILE__,__LINE__,pL,rhoL, rhoV).c_str();
-			}
-			double delta = rhoL / reduce.rho;
-			double tau = reduce.T/T;
-			double dp_drho = R()*T*(1+2*delta*dphir_dDelta(tau,delta)+delta*delta*d2phir_dDelta2(tau,delta));
-			double drho_dp = 1/dp_drho;
+		// Start at the saturation state, with a known density, using the ancillary
+		double rhoL = rhosatL(T);
+		double pL = psatL_anc(T);
+		if (debug()>5){
+			std::cout<<format("%d:%d: pL = %g rhoL = %g rhoV %g \n",__FILE__,__LINE__,pL,rhoL, rhoV).c_str();
+		}
+		double delta = rhoL / reduce.rho;
+		double tau = reduce.T/T;
+		double dp_drho = R()*T*(1+2*delta*dphir_dDelta(tau,delta)+delta*delta*d2phir_dDelta2(tau,delta));
+		double drho_dp = 1/dp_drho;
+		if (drho_dp*(pL-p)> rhoL)
+		{
+			rho_simple = rhoL;
+		}
+		else
+		{
 			rho_simple = rhoL-drho_dp*(pL-p);
 		}
 	}

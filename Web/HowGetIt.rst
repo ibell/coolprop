@@ -7,10 +7,10 @@ How to get it?
 Option 1 (easiest)
 ^^^^^^^^^^^^^^^^^^
 
-To grab wrappers for your favorite programming language, head to https://sourceforge.net/projects/coolprop/files/CoolProp and download the most recent version.  Or to pull CoolProp source code or installer files.  All the files are already compiled and should work out of the box.
+Head to https://sourceforge.net/projects/coolprop/files/CoolProp and download the most recent version.  Each language has instructions on what you should do.  All the files are already compiled and should work out of the box.
 
-Option 1a
-^^^^^^^^^
+Option 1a (for Python users)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Nightly build installers are also available at https://sourceforge.net/projects/coolprop/files/CoolProp/Nightly for a limited subset of python configurations and are updated every night to be current with the main developer's personal codebase.
 
@@ -18,8 +18,8 @@ Nightly build installers are also available at https://sourceforge.net/projects/
 
     Nightly build may break your code, give wacky results, or otherwise. Use at your own risk.
 
-Option 2 (a tiny bit harder)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Option 2 (for Python users)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 CoolProp is now on `PyPI <http://pypi.python.org/pypi/CoolProp>`_.  If you already have `cython <http://www.cython.org>`_ (version > 0.17) installed and your default compiler is already configured (see below), you can just do::
 
@@ -33,8 +33,8 @@ Or using pip::
 
     pip install CoolProp
     
-Option 3 (developers)
-^^^^^^^^^^^^^^^^^^^^^
+Option 3 (developers and the courageous)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 CoolProp is an open-source project, and is actively looking for developers.  The project is hosted in a subversion repository at::
 

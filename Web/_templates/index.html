@@ -1,11 +1,10 @@
 {% extends "layout.html" %}
 {% set title = 'CoolProp: Fluid properties for the masses' %}
 
-
 {% block body %}
   <h1>Intro</h1>
 
-  <p>CoolProp is an open-source, cross-platform, free property database based in C++ that includes pure fluids, pseudo-pure fluids, and humid air properties.  It is designed to be trivially simple to use from the Python programming language, and possible to use from other languages as well.  Wrappers are currently available for <a> EES </a "href=http://www.fchart.com/ees">, Python, Microsoft Excel, C#, Octave, MATLAB and a DLL for other windows applications.  Go to <a> Downloads </a href="http://sourceforge.net/projects/coolprop/files/CoolProp"> to get started </p>
+  <p>CoolProp is an open-source, cross-platform, free property database based in C++ that includes pure fluids, pseudo-pure fluids, and humid air properties.  It is designed to be trivially simple to use from the Python programming language, and possible to use from other languages as well.  Wrappers are currently available for <a href="http://www.fchart.com/ees"> EES </a>, Python, Microsoft Excel, C#, Octave, MATLAB and a DLL for other windows applications.  Go to <a href="http://sourceforge.net/projects/coolprop/files/CoolProp"> Downloads </a > to get started </p>
 
 <p> To see how simple this is, go to <a href="examples/examples.html">the examples</a>
 
@@ -13,15 +12,23 @@
 
 <h2> Documentation </h2>
 
-<p> The documentation for Cool prop is available as <a href="_static/CoolPropdoc.pdf">pdf</a> or <a href="contents.html"> html </a>.  </p>
+<p> <a href="contents.html"> CoolProp Documentation </a>  </p>
 
-<p> To see the documented C++ source files for CoolProp go to <a href="_static/doxygen/html/index.html"> Doxygen c++ sources </a>
+<p> <a href="_static/doxygen/html/index.html"> Documentation of C++ sources </a>
 
-<p> A good number of fluids are included; to see which fluids, go to <a href="Fluids/FluidInformation.html"> Fluid listing </a>
+<p> As of May 3, 2013, 98 <a href="Fluids/FluidInformation.html"> pure and pseudo-pure fluids </a>  are included
 
 <h3> Getting Help </h3>
-If you have found a problem with CoolProp, please file a ticket at <a href="https://sourceforge.net/p/coolprop/tickets/"> CoolProp support ticket </a> and we will do our best for a speedy response
+If you have found a problem with CoolProp, please file a ticket at <a href="https://sourceforge.net/p/coolprop/tickets/"> CoolProp support ticket </a> and we will do our best for a speedy response (usually less than 24 hours)
 
-Otherwise, email ian.h.bell@gmail.com
+Otherwise, email <a href="mailto:ian.h.bell@gmail.com"> Ian Bell </a>
+
+<h3> Main Developers </h3>
+
+The primary developers are:
+
+<p> <a href="mailto:ian.h.bell@gmail.com"> Ian Bell </a>, University of Liege, Liege, Belgium
+<p> <a href="mailto:squoilin@ulg.ac.be"> Sylvain Quoilin </a>, University of Liege, Liege, Belgium
+<p> <a href="mailto:jowr@mek.dtu.dk"> Jorrit Wronski </a>, Danish Technical University, Copenhagen, Denmark
 
 {% endblock %}

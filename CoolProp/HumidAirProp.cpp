@@ -352,6 +352,10 @@ static double dC_m_dT(double T, double psi_w)
     dC_dT_aww=_dC_aww_dT(T)/1e6; //[dm^6/mol] to [m^6/mol^2]
     return pow(1-psi_w,3)*dC_dT_aaa+3*pow(1-psi_w,2)*psi_w*dC_dT_aaw+3*(1-psi_w)*psi_w*psi_w*dC_dT_aww+pow(psi_w,3)*dC_dT_www;
 }
+double HumidityRatio(double psi_w)
+{
+    return psi_w*epsilon/(1-psi_w);
+}
 
 static double HenryConstant(double T)
 {
@@ -665,6 +669,14 @@ double MolarEnthalpy(double T, double p, double psi_w, double v_bar)
     hbar=hbar_0+(1-psi_w)*hbar_a+psi_w*hbar_w+R_bar*T*((B_m(T,psi_w)-T*dB_m_dT(T,psi_w))/v_bar+(C_m(T,psi_w)-T/2.0*dC_m_dT(T,psi_w))/(v_bar*v_bar));
     return hbar; //[kJ/kmol]
 }
+double MassEnthalpy(double T, double p, double psi_w)
+{
+	double v_bar = MolarVolume(T, p, psi_w); //[m^3/mol_ha]
+    double h_bar = MolarEnthalpy(T, p, psi_w, v_bar); //[kJ/kmol_ha]
+	double W = HumidityRatio(psi_w); //[kg_w/kg_da]
+	double M_ha = MM_Water()*psi_w+(1-psi_w)*28.966;
+    return h_bar*(1+W)/M_ha; //[kJ/kg_da]
+}
 
 double MolarEntropy(double T, double p, double psi_w, double v_bar)
 {
@@ -868,24 +880,30 @@ double WetbulbTemperature(double T, double p, double psi_w)
 	// then the maximum value for the wetbulb temperature is the saturation temperature
 	double Tmax = T;
 	double Tsat = Props('T','P',p,'Q',1.0,(char *)"Water");
-	if (T > Tsat)
+	if (T >= Tsat)
 	{
-		Tmax = Tsat-0.1;
+		Tmax = Tsat;
 	}
-	double Tmin = Tmax;
-	// The lowest wetbulb temperature that is possible for a given dry bulb temperature 
-	// is the saturated air temperature which yields the enthalpy of dry air at dry bulb temperature
-	// Easier just to keep decreasing lower limit until safe
 
 	// Instantiate the solver container class
 	WetBulbSolver WBS = WetBulbSolver(T,p,psi_w);
 
-	// Decrease the lower bound until you get below the actual wet-bulb temperature
-	while (WBS.call(Tmin)*WBS.call(Tmax)>0){
-		Tmin-=10;
-	}
 	std::string errstr;
-    double return_val = Brent(&WBS,Tmin,Tmax,1e-14,1e-14,30,&errstr);
+	double return_val;
+	try{
+		return_val = Secant(&WBS,Tmax,0.0001,1e-8,50,&errstr);
+	}
+	catch(std::exception)
+	{
+		// The lowest wetbulb temperature that is possible for a given dry bulb temperature 
+		// is the saturated air temperature which yields the enthalpy of dry air at dry bulb temperature
+
+		double hair_dry = MassEnthalpy(T,p,psi_w);
+		double Tmin = HAProps("T","H",hair_dry,"P",p,"R",1);
+
+		// Need to allow the +0.1 for Tmax because Tmax can be the solution if saturated
+		return_val = Brent(&WBS,Tmin,Tmax,1e-12,1e-12,50,&errstr);
+	}
 	return return_val;	
 }
 static int Name2Type(char *Name)
@@ -982,10 +1000,7 @@ double MoleFractionWater(double T, double p, int HumInput, double InVal)
         return -1000000;
     }
 }
-double HumidityRatio(double psi_w)
-{
-    return psi_w*epsilon/(1-psi_w);
-}
+
 double RelativeHumidity(double T, double p, double psi_w)
 {
     double p_ws,f,p_s,W;
@@ -1205,10 +1220,7 @@ EXPORT_CODE double CONVENTION HAProps(char *OutputName, char *Input1Name, double
     }
     else if (!strcmp(OutputName,"Hda") || !strcmp(OutputName,"H"))
     {
-        v_bar=MolarVolume(T,p,psi_w); //[m^3/mol_ha]
-        h_bar=MolarEnthalpy(T,p,psi_w,v_bar); //[kJ/kmol_ha]
-        W=HumidityRatio(psi_w); //[kg_w/kg_da]
-        return h_bar*(1+W)/M_ha; //[kJ/kg_da]
+		return MassEnthalpy(T,p,psi_w);
     }
     else if (!strcmp(OutputName,"Hha"))
     {
