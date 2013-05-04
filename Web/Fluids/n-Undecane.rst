@@ -9,7 +9,7 @@ Aliases
 
 Bibliographic Information
 =========================
-**Equation of State**: I. S. Aleksandrov and A. A. Gerasimov and B. A. Grigor’ev, 2011, Using Fundamental Equations of State for Calculating the Thermodynamic Properties of Normal Undecane, *Thermal Engineering*, 58:691–698
+**Equation of State**: I. S. Aleksandrov and A. A. Gerasimov and B. A. Grigor'ev, 2011, Using Fundamental Equations of State for Calculating the Thermodynamic Properties of Normal Undecane, *Thermal Engineering*, 58:691-698
 
 
 
@@ -222,7 +222,7 @@ Check of p,h and p,s as inputs (X: Failure .: Success)
     import numpy as np
 
     Ref = "n-Undecane"
-    fig = plt.figure(figsize=(10,10))
+    fig = plt.figure(figsize=(10,5))
     ax1 = fig.add_subplot(121)
     ax2 = fig.add_subplot(122)
 

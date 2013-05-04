@@ -898,7 +898,7 @@ double WetbulbTemperature(double T, double p, double psi_w)
 		// The lowest wetbulb temperature that is possible for a given dry bulb temperature 
 		// is the saturated air temperature which yields the enthalpy of dry air at dry bulb temperature
 
-		double hair_dry = MassEnthalpy(T,p,psi_w);
+		double hair_dry = MassEnthalpy(T,p,0);
 		double Tmin = HAProps("T","H",hair_dry,"P",p,"R",1);
 
 		// Need to allow the +0.1 for Tmax because Tmax can be the solution if saturated

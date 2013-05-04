@@ -15,11 +15,11 @@ Bibliographic Information
 
 **Surface Tension**: A. Mulero and I. Cachadi\~na and M. I. Parra, 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
 
-**Viscosity**: Marcia L. Huber and Arno Laesecke and Hong Wei Xiang, 2004, Viscosity correlations for minor constituent fluids in natural gas: n-octane, n-nonane and n-decane, *Fluid Phase Equilibria*, 224:263–270
+**Viscosity**: Marcia L. Huber and Arno Laesecke and Hong Wei Xiang, 2004, Viscosity correlations for minor constituent fluids in natural gas: n-octane, n-nonane and n-decane, *Fluid Phase Equilibria*, 224:263-270
 
-**Conductivity**: M.L. Huber and R.A. Perkins, 2005, Thermal conductivity correlations for minor constituent fluids in natural gas: n-octane, n-nonane and n-decane, *Fluid Phase Equilibria*, 227:47–55
+**Conductivity**: M.L. Huber and R.A. Perkins, 2005, Thermal conductivity correlations for minor constituent fluids in natural gas: n-octane, n-nonane and n-decane, *Fluid Phase Equilibria*, 227:47-55
 
-**Lennard-Jones Parameters for ECS**: Marcia L. Huber and Arno Laesecke and Hong Wei Xiang, 2004, Viscosity correlations for minor constituent fluids in natural gas: n-octane, n-nonane and n-decane, *Fluid Phase Equilibria*, 224:263–270
+**Lennard-Jones Parameters for ECS**: Marcia L. Huber and Arno Laesecke and Hong Wei Xiang, 2004, Viscosity correlations for minor constituent fluids in natural gas: n-octane, n-nonane and n-decane, *Fluid Phase Equilibria*, 224:263-270
 
 
 
@@ -232,7 +232,7 @@ Check of p,h and p,s as inputs (X: Failure .: Success)
     import numpy as np
 
     Ref = "n-Octane"
-    fig = plt.figure(figsize=(10,10))
+    fig = plt.figure(figsize=(10,5))
     ax1 = fig.add_subplot(121)
     ax2 = fig.add_subplot(122)
 

@@ -230,7 +230,7 @@ Check of p,h and p,s as inputs (X: Failure .: Success)
     import numpy as np
 
     Ref = "Hydrogen"
-    fig = plt.figure(figsize=(10,10))
+    fig = plt.figure(figsize=(10,5))
     ax1 = fig.add_subplot(121)
     ax2 = fig.add_subplot(122)
 

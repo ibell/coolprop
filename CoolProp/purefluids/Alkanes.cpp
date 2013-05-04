@@ -389,8 +389,9 @@ double gamma [] =
 	REFPROPname.assign("ETHANE");
 
 	BibTeXKeys.EOS = "Buecker-JPCRD-2006";
-	BibTeXKeys.VISCOSITY = "__Friend-JPCRD-1991";
-	BibTeXKeys.CONDUCTIVITY = "__Friend-JPCRD-1991";
+	BibTeXKeys.VISCOSITY = "Friend-JPCRD-1991";
+	BibTeXKeys.CONDUCTIVITY = "Friend-JPCRD-1991";
+	BibTeXKeys.ECS_LENNARD_JONES = "Friend-JPCRD-1991";
 	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
 }
 double EthaneClass::rhosatL(double T)
@@ -437,6 +438,72 @@ double EthaneClass::psat(double T)
 }
 
 
+double EthaneClass::viscosity_dilute(double T)
+{
+	double C[] = {0, -3.0328138281, 16.918880086, -37.189364917, 41.288861858, -24.615921140, 8.9488430959, -1.8739245042, 0.20966101390, -9.6570437074e-3};
+	double OMEGA_2_2 = 0, e_k, sigma, Tstar;
+
+	// Get the L-J parameters
+	this->ECSParams(&e_k,&sigma);
+
+	Tstar = T/e_k;
+	for (int i = 1; i<= 9; i++)
+	{
+		OMEGA_2_2 += C[i]*pow(Tstar,(i-1)/3.0-1);
+	}
+
+	return 12.0085*sqrt(Tstar)*OMEGA_2_2/1e6; //[Pa-s]
+}
+double EthaneClass::viscosity_residual(double T, double rho)
+{
+	double r[] = {0,1,1,2,2,2,3,3,4,4,1,1};
+	double s[] = {0,0,1,0,1,1.5,0,2,0,1,0,1};
+	double g[] = {0, 0.47177003, -0.23950311, 0.39808301, -0.27343335, 0.35192260, -0.21101308, -0.00478579, 0.07378129, -0.030435255, -0.30435286, 0.001215675};
+
+	double sum1 = 0, sum2 = 0, tau = 305.33/T, delta = rho/(6.87*30.070);
+
+	for (int i = 1; i<= 9; i++)
+	{
+		sum1 += g[i]*pow(delta,r[i])*pow(tau,s[i]);
+	}
+	for (int i = 10; i<= 11; i++)
+	{
+		sum2 += g[i]*pow(delta,r[i])*pow(tau,s[i]);
+	}
+	return 15.977*sum1/(1+sum2)/1e6;
+}
+double EthaneClass::viscosity_Trho(double T, double rho)
+{
+	return this->viscosity_dilute(T) + this->viscosity_residual(T,rho);
+}
+double EthaneClass::conductivity_dilute(double T)
+{
+	double e_k, sigma;
+	// Get the L-J parameters
+	this->ECSParams(&e_k,&sigma);
+
+	double tau = 305.33/T, Tstar = T/e_k;
+	double fint = 1.7104147-0.6936482/Tstar;
+	return 0.276505*(this->viscosity_dilute(T)*1e6)*(3.75-fint*(tau*tau*this->d2phi0_dTau2(tau,0)+1.5))/1e6; //[kW/m/K]
+}
+double EthaneClass::conductivity_residual(double T, double rho)
+{
+	double r[] = {0,1,2,3,4,5,1,3};
+	double s[] = {0,0,0,0,0,0,1.5,1};
+	double j[] = {0,0.96084322,2.7500235,-0.026609289,-0.078146729,0.21881339,2.3849563,-0.75113971};
+
+	double sum1 = 0, tau = 305.33/T, delta = rho/(6.87*30.070);
+
+	for (int i = 1; i<= 7; i++)
+	{
+		sum1 += j[i]*pow(delta,r[i])*pow(tau,s[i]);
+	}
+	return 4.41786*sum1/1e6; //[kW/m/K]
+}
+double EthaneClass::conductivity_Trho(double T, double rho)
+{
+	return this->conductivity_dilute(T) + this->conductivity_residual(T,rho) + this->conductivity_critical(T,rho,1/(0.545e-9),0.0563,0.19e-9);
+}
 
 nButaneClass::nButaneClass()
 {
