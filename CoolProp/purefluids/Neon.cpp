@@ -108,22 +108,35 @@ double NeonClass::rhosatV(double T)
 double NeonClass::viscosity_Trho(double T, double rho)
 {
 	// Use nitrogen as the reference
+	double mu;
 	Fluid * ReferenceFluid = new NitrogenClass();
 	ReferenceFluid->post_load();
-	// Calculate the ECS
-	double mu = viscosity_ECS_Trho(T, rho, ReferenceFluid);
-	// Delete the reference fluid instance
-	delete ReferenceFluid;
+	try{
+		// Calculate the ECS
+		mu = viscosity_ECS_Trho(T, rho, ReferenceFluid);
+		// Delete the reference fluid instance
+		delete ReferenceFluid;
+	}
+	catch(std::exception){
+		if (ReferenceFluid){ delete ReferenceFluid;}
+	}
+	
 	return mu;
 }
 double NeonClass::conductivity_Trho(double T, double rho)
 {
 	// Use nitrogen as the reference
+	double cond;
 	Fluid * ReferenceFluid = new NitrogenClass();
 	ReferenceFluid->post_load();
-	// Calculate the ECS
-	double cond = conductivity_ECS_Trho(T, rho, ReferenceFluid);
-	// Delete the reference fluid instance
-	delete ReferenceFluid;
+	try{
+		// Calculate the ECS
+		cond = conductivity_ECS_Trho(T, rho, ReferenceFluid);
+		// Delete the reference fluid instance
+		delete ReferenceFluid;
+	}
+	catch(std::exception){
+		if (ReferenceFluid){ delete ReferenceFluid;}
+	}
 	return cond;
 }

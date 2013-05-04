@@ -1121,17 +1121,12 @@ double CoolPropStateClass::viscosity(void){
 }
 
 double CoolPropStateClass::conductivity(void){
-	if (TwoPhase){
-		return _Q*condV()+(1-_Q)*condL();
+	if (pFluid->enabled_TTSE_LUT  && within_TTSE_range(iP,p(),iH,h()))
+	{
+		return pFluid->TTSESinglePhase.evaluate_Trho(iL,_T,_rho,_logrho);
 	}
 	else{
-		if (pFluid->enabled_TTSE_LUT  && within_TTSE_range(iP,p(),iH,h()))
-		{
-			return pFluid->TTSESinglePhase.evaluate_Trho(iL,_T,_rho,_logrho);
-		}
-		else{
-			return pFluid->conductivity_Trho(_T,_rho);
-		}
+		return pFluid->conductivity_Trho(_T,_rho);
 	}
 }
 
