@@ -20,7 +20,7 @@ def PropertyConsistency(Fluid):
         import numpy as np
 
         Ref = "{Fluid:s}"
-        fig = plt.figure(figsize=(10,10))
+        fig = plt.figure(figsize=(10,5))
         ax1 = fig.add_subplot(121)
         ax2 = fig.add_subplot(122)
 

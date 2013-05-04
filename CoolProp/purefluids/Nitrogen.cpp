@@ -350,6 +350,7 @@ double NitrogenClass::conductivity_dilute(double T)
 double NitrogenClass::conductivity_background(double T, double rho)
 {
 	double tau, delta, lambdar;
+	double N[]={0,1.511,2.117,-3.332,8.862,31.11,-73.13,20.03,-0.7096,0.2672};
 	double t[]={0,0,-1.0,-0.7,0.0,0.03,0.2,0.8,0.6,1.9};
 	double d[]={0,0,0,0,1,2,3,4,8,10};
 	double l[]={0,0,0,0,0,0,1,2,2,2};
@@ -387,7 +388,8 @@ double NitrogenClass::conductivity_critical(double T, double rho)
 	num=X_tilde(T,reduce.T/T,delta)-X_tilde(Tref,reduce.T/Tref,delta)*Tref/T;
 
 	// no critical enhancement if numerator of Eq. 10 is negative
-	return 0;
+	if (num<0)
+		return 0;
 
 	cp=Props('C','T',T,'D',rho,(char*)"Nitrogen");
 	cv=Props('O','T',T,'D',rho,(char*)"Nitrogen");
@@ -410,12 +412,6 @@ double NitrogenClass::viscosity_dilute(double T, double rho)
 		   sigma=0.3656; //[nm]
 	double eta0,OMEGA,Tstar;
 	double b[]={0.431,-0.4623,0.08406,0.005341,-0.00331};
-
-	double N[]={0,10.72,0.03989,0.001208,-7.402,4.620};
-	double t[]={0,0.1,0.25,3.2,0.9,0.3};
-	double d[]={0,2,10,12,2,1};
-	double l[]={0,0,1,1,2,3};
-	
 	
 	Tstar=T/(e_k);
 	OMEGA=exp(b[0]*powInt(log(Tstar),0)
@@ -432,7 +428,11 @@ double NitrogenClass::viscosity_background(double T, double rho)
 	double etar, tau, delta;
 	delta=rho/reduce.rho;
 	tau=reduce.T/T;
+	double N[]={0,10.72,0.03989,0.001208,-7.402,4.620};
 	double g[]={0,0,1,1,1,1};
+	double t[]={0,0.1,0.25,3.2,0.9,0.3};
+	double d[]={0,2,10,12,2,1};
+	double l[]={0,0,1,1,2,3};
 
 	etar=N[1]*pow(tau,t[1])*pow(delta,d[1])*exp(-g[1]*pow(delta,l[1]))
 		+N[2]*pow(tau,t[2])*pow(delta,d[2])*exp(-g[2]*pow(delta,l[2]))

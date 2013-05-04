@@ -139,16 +139,16 @@ def Modelica():
     
 def UploadSourceForge():
     #Rename folder to version number
-    from setup import version
+    import CoolProp
     try:
-        shutil.copytree('dist_temp',version)
+        shutil.copytree('dist_temp',CoolProp.__version__)
     except WindowsError: pass
     
     call_str = ['pscp','README.txt','ibell,coolprop@frs.sf.net:/home/pfs/project/c/co/coolprop/CoolProp/']
     print 'Calling: '+' '.join(call_str)
     print subprocess.check_output(call_str,shell=True)
     
-    call_str = ['pscp','-r','-v',version,'ibell,coolprop@frs.sf.net:/home/pfs/project/c/co/coolprop/CoolProp/']
+    call_str = ['pscp','-r','-v',CoolProp.__version__,'ibell,coolprop@frs.sf.net:/home/pfs/project/c/co/coolprop/CoolProp/']
     print 'Calling: '+' '.join(call_str)
     print subprocess.check_output(call_str,shell=True)
     
@@ -177,16 +177,16 @@ def UploadDocs():
 if __name__=='__main__':
     
 ##     InstallPrereqs()  #This is optional if you think any of the pre-reqs have been updated
-    DLL_and_Excel()
-    Source()
-    Python()
-    Csharp()
-    Octave()
-    MATLAB()
-    EES()
-    Labview()
-    Modelica()
-    PYPI()
-    UploadSourceForge()
+##     DLL_and_Excel()
+##     Source()
+##     Python()
+##     Csharp()
+##     Octave()
+##     MATLAB()
+##     EES()
+##     Labview()
+##     Modelica()
+##     PYPI()
+##     UploadSourceForge()
     BuildDocs()
-    UploadDocs()
+##     UploadDocs()
