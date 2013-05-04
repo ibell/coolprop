@@ -108,6 +108,81 @@ double MethaneClass::psat(double T)
 	p = exp(reduce.T/T*RHS)*pc;
 	return p;
 }
+double MethaneClass::viscosity_dilute(double T)
+{
+	double C[] = {0, -3.0328138281, 16.918880086, -37.189364917, 41.288861858, -24.615921140, 8.9488430959, -1.8739245042, 0.20966101390, -9.6570437074e-3};
+	double OMEGA_2_2 = 0, e_k, sigma, Tstar;
+
+	// Get the L-J parameters
+	this->ECSParams(&e_k,&sigma);
+
+	Tstar = T/e_k;
+	for (int i = 1; i <= 9; i++){
+		OMEGA_2_2 += C[i]*pow(Tstar,(i-1)/3.0-1);
+	}
+
+	return 10.50*sqrt(Tstar)*OMEGA_2_2/1e6; //[Pa-s]
+}
+double MethaneClass::viscosity_residual(double T, double rho)
+{
+	double r[] = {0,1,1,2,2,2,3,3,4,4,1,1};
+	double s[] = {0,0,1,0,1,1.5,0,2,0,1,0,1};
+	double g[] = {0, 0.41250137, -0.14390912, 0.10366993, 0.40287464, -0.24903524, -0.12953131, 0.06575776, 0.02566628, -0.03716526, -0.38798341, 0.03533815};
+	
+	double sum1 = 0, sum2 = 0, tau = 190.551/T, delta = rho/(10.139*16.043);
+
+	for (int i = 1; i<= 9; i++)
+	{
+		sum1 += g[i]*pow(delta,r[i])*pow(tau,s[i]);
+	}
+	for (int i = 10; i<= 11; i++)
+	{
+		sum2 += g[i]*pow(delta,r[i])*pow(tau,s[i]);
+	}
+	return 12.149*sum1/(1+sum2)/1e6;
+}
+double MethaneClass::viscosity_Trho(double T, double rho)
+{
+	return this->viscosity_dilute(T) + this->viscosity_residual(T,rho);
+}
+double MethaneClass::conductivity_dilute(double T)
+{
+	double e_k, sigma;
+	// Get the L-J parameters
+	this->ECSParams(&e_k,&sigma);
+
+	double tau = 190.551/T, Tstar = T/e_k;
+	double fint = 1.458850-0.4377162/Tstar;
+	return 0.51826*(this->viscosity_dilute(T)*1e6)*(3.75-fint*(tau*tau*this->d2phi0_dTau2(tau,0)+1.5))/1e6; //[kW/m/K]
+}
+double MethaneClass::conductivity_residual(double T, double rho)
+{
+	double delta_sigma_star;
+	double r[] = {0,1,2,3,4,5,5,2};
+	double s[] = {0,0,0,0,1,0,1,0};
+
+	if (T < 190.551 && rho < 10.139*16.043){
+		delta_sigma_star = rhosatV(T)/(10.139*16.043);
+	}
+	else{
+		delta_sigma_star = 11;
+	}
+
+	double j[] = {0, 2.4149207, 0.55166331, -0.52837734, 0.073809553, 0.24465507, -0.047613626, 1.5554612};
+
+	double sum1 = 0, tau = 190.551/T, delta = rho/(10.139*16.043);
+
+	for (int i = 1; i <= 6; i++)
+	{
+		sum1 += j[i]*pow(delta,r[i])*pow(tau,s[i]);
+	}
+	sum1 += j[7]*delta*delta/delta_sigma_star;
+	return 6.29638*sum1/1e6; //[kW/m/K]
+}
+double MethaneClass::conductivity_Trho(double T, double rho)
+{
+	return this->conductivity_dilute(T) + this->conductivity_residual(T,rho) + this->conductivity_critical(T,rho,1/(0.545e-9),0.0563,0.19e-9);
+}
 
 EthaneClass::EthaneClass()
 {
