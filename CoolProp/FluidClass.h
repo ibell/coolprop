@@ -350,17 +350,17 @@ class Fluid
 		};
 		/// This function is optional, the default value of 1.0 is used otherwise
 		///@param rhor The reduced density where rhor = rho/rhoc
-		double ECS_psi_viscosity(double rhor){
+		virtual double ECS_psi_viscosity(double rhor){
 			return 1.0;
 		};
 		/// This function is optional, the default value of 1.0 is used otherwise
 		///@param rhor The reduced density where rhor = rho/rhoc
-		double ECS_chi_conductivity(double rhor){
+		virtual double ECS_chi_conductivity(double rhor){
 			return 1.0;
 		};
 		/// This function is optional, the default value of 1.32e-3 is used otherwise
 		///@param T The temperature
-		double ECS_f_int(double T){
+		virtual double ECS_f_int(double T){
 			return 1.32e-3;
 		};
 		/// This function is optional, and returns a NotImplementedError if the derived class does not implement it.
