@@ -2959,12 +2959,12 @@ double Fluid::conductivity_ECS_Trho(double T, double rho, Fluid * ReferenceFluid
 	double cpstar = specific_heat_p_ideal_Trho(T);
 	lambda_star = 15e-3*R()*(eta_dilute*1e6)/4.0; //[W/m/K]
 	lambda_int = f_int*(eta_dilute*1e6)*(cpstar-5.0/2.0*R() ); //[W/m/K]
-	F_lambda = sqrt(f)*pow(h,-2.0/3.0)*sqrt(M0/M);
+	F_lambda = sqrt(f)*pow(h,-2.0/3.0)*sqrt(M0/M); //[-]
 	
 	//Get the background viscosity from the reference fluid
 	lambda_resid = ReferenceFluid->conductivity_background(T0,rho0*chi)*1e3 ;//[W/m/K]
-	lambda_crit = conductivity_critical(T,rho);
-	lambda = lambda_int+lambda_star+lambda_resid*F_lambda+lambda_crit;
+	lambda_crit = conductivity_critical(T,rho)*1000; //[W/m/K]
+	lambda = lambda_int+lambda_star+lambda_resid*F_lambda+lambda_crit; //[W/m/K]
 	return lambda/1e3; //[kW/m/K]
 }
 
