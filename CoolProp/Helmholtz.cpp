@@ -1074,7 +1074,18 @@ double phi0_cp0_poly::dTau(double tau, double delta)
 	double sum=0;
 	for (int i = iStart; i<=iEnd; i++){
 		double t=tv[i];
-		sum+=a[i]*pow(Tc,t)*pow(tau,-t-1)/(t+1)-a[i]*pow(Tc,t)/(pow(tau0,t+1)*(t+1));
+		if (fabs(t)<10*DBL_EPSILON)
+		{
+			sum += a[i]/tau-a[i]/tau0;
+		}
+		else if (fabs(t+1) < 10*DBL_EPSILON)
+		{
+			sum += a[i]/Tc*log(tau0/tau)+2*a[i]/Tc;
+		}
+		else
+		{
+			sum+=a[i]*pow(Tc,t)*pow(tau,-t-1)/(t+1)-a[i]*pow(Tc,t)/(pow(tau0,t+1)*(t+1));
+		}
 	}
 	return sum;
 }
@@ -1083,7 +1094,19 @@ double phi0_cp0_poly::dTau2(double tau, double delta)
 {
 	double sum=0;
 	for (int i = iStart; i<=iEnd; i++){
-		sum += -a[i]*pow(Tc/tau,tv[i])/(tau*tau);
+		double t = tv[i];
+		if (fabs(t)<10*DBL_EPSILON)
+		{
+			sum += -a[i]/(tau*tau);
+		}
+		else if (fabs(t+1) < 10*DBL_EPSILON)
+		{
+			sum += -a[i]/(tau*Tc);
+		}
+		else
+		{
+			sum += -a[i]*pow(Tc/tau,tv[i])/(tau*tau);
+		}
 	}
 	return sum;
 }
@@ -1092,7 +1115,19 @@ double phi0_cp0_poly::dTau3(double tau, double delta)
 {
 	double sum=0;
 	for (int i = iStart; i<=iEnd; i++){
-		sum += a[i]*pow(Tc/tau,tv[i])*(tv[i]+2)/(tau*tau*tau);
+		double t = tv[i];
+		if (fabs(t)<10*DBL_EPSILON)
+		{
+			sum += 2*a[i]/(tau*tau*tau);
+		}
+		else if (fabs(t+1) < 10*DBL_EPSILON)
+		{
+			sum += a[i]/(tau*tau*Tc);
+		}
+		else
+		{
+			sum += a[i]*pow(Tc/tau,tv[i])*(tv[i]+2)/(tau*tau*tau);
+		}
 	}
 	return sum;
 }

@@ -5,6 +5,16 @@
 #include <vector>
 #include "math.h"
 
+#ifdef __ISWINDOWS__
+	#define _USE_MATH_DEFINES
+	#include "float.h"
+#else
+	#ifndef DBL_EPSILON
+		#include <limits>
+		#define DBL_EPSILON std::numeric_limits<double>::epsilon()
+	#endif
+#endif
+
 /// This is the abstract base class upon which each residual Helmholtz energy class is built
 class phi_BC{
 public:
@@ -200,7 +210,7 @@ public:
 This class implements residual Helmholtz Energy terms of the form  
 
 \f[
-\phi_r = n  \delta^d  \tau^t  exp(-\delta^l) exp(-\tau^m)
+\phi_r = n  \delta^d  \tau^t  \exp(-\delta^l) \exp(-\tau^m)
 \f]
 
 */
@@ -246,9 +256,9 @@ public:
 
 /*!
 
-/f[
+\f[
 \phi_0 = \log(\delta)+a_1+a_2\tau
-/f]
+\f]
 */
 class phi0_lead : public phi_BC{
 	/*
@@ -530,6 +540,37 @@ public:
 };
 
 /// Term in the ideal-gas specific heat equation that is polynomial term
+
+/*!
+
+for a term of the form
+\f[
+    \frac{c_p^0}{R}=cT^t, t \neq 0
+\f]
+the contribution is found from 
+\f[
+    \frac{1}{T}\int_{T_0}^T c T^t dT-\int_{T_0}^T \frac{c T^t}{T}dT
+\f]    
+\f[
+    \frac{c}{T}\left(\frac{T^{t+1}}{t+1}-\frac{T_0^{t+1}}{t+1}\right)-c\left(\frac{T^{t}}{t}-\frac{T_0^{t}}{t}\right)
+\f]
+\f[
+    cT^{t}\left(\frac{1}{t+1}-\frac{1}{t}\right)-c\frac{T_0^{t+1}}{T(t+1)}+c\frac{T_0^t}{t}
+\f]
+or in terms of \$$\tau\$$ 
+\f[
+    cT_c^{t}\tau^{-t}\left(\frac{1}{t+1}-\frac{1}{t}\right)-c\frac{T_0^{t+1}\tau}{T_c(t+1)}+c\frac{T_0^t}{t}
+\f]
+if t = 0
+\f[
+\frac{1}{T}\int_{{T_0}}^T c dT - \int_{{T_0}}^T {\frac{c}{T}} dT = \frac{{c(T - {T_0})}}{T} - c\ln \left( {\frac{T}{{{T_0}}}} \right) = c\left( {1 - \frac{\tau }{{{\tau _0}}}} \right) - c\ln \left( {\frac{{{\tau _0}}}{\tau }} \right)
+\f]
+if t = 1
+\f[
+\frac{1}{T}\int_{{T_0}}^T {\frac{c}{T}} dT - \int_{{T_0}}^T {\frac{c}{{{T^2}}}} dT = \frac{c}{T}\ln \left( {\frac{T}{{{T_0}}}} \right) + c\left( {\frac{1}{T} - \frac{1}{{{T_0}}}} \right) = \frac{{c\tau }}{{{T_c}}}\ln \left( {\frac{{{\tau _0}}}{\tau }} \right) + \frac{c}{{{T_c}}}\left( {\tau  - {\tau _0}} \right)
+\f]
+
+*/
 class phi0_cp0_poly : public phi_BC{
 private:
 	std::vector<double> a,tv;
@@ -556,7 +597,18 @@ public:
 		double sum=0;
 		for (int i = iStart; i<=iEnd; i++){
 			double t=tv[i];
-			sum+=-a[i]*pow(Tc,t)*pow(tau,-t)/(t*(t+1))-a[i]*pow(T0,t+1)*tau/(Tc*(t+1))+a[i]*pow(T0,t)/t;
+			if (fabs(t)<10*DBL_EPSILON)
+			{
+				sum += a[i]-a[i]*tau/tau0+a[i]*log(tau/tau0);
+			}
+			else if (fabs(t+1) < 10*DBL_EPSILON)
+			{
+				sum += a[i]*tau/Tc*log(tau0/tau)+a[i]/Tc*(tau-tau0);
+			}
+			else
+			{
+				sum += -a[i]*pow(Tc,t)*pow(tau,-t)/(t*(t+1))-a[i]*pow(T0,t+1)*tau/(Tc*(t+1))+a[i]*pow(T0,t)/t;
+			}
 		}
 		return sum;
 	};
