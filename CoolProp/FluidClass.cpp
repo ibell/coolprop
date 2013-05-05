@@ -846,16 +846,16 @@ double Fluid::density_Tp(double T, double p, double rho_guess)
 
 double Fluid::viscosity_Trho( double T, double rho)
 {
-	long iR134a = get_Fluid_index(std::string("R134a"));
+	long iFluid = get_Fluid_index(ECSReferenceFluid);
 	// Calculate the ECS
-	double mu = viscosity_ECS_Trho(T, rho, get_fluid(iR134a));
+	double mu = viscosity_ECS_Trho(T, rho, get_fluid(iFluid));
 	return mu;
 }
 double Fluid::conductivity_Trho( double T, double rho)
 {
-	long iR134a = get_Fluid_index(std::string("R134a"));
+	long iFluid = get_Fluid_index(ECSReferenceFluid);
 	// Calculate the ECS
-	double lambda = conductivity_ECS_Trho(T, rho, get_fluid(iR134a));
+	double lambda = conductivity_ECS_Trho(T, rho, get_fluid(iFluid));
 	return lambda;
 }
 

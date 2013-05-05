@@ -181,6 +181,8 @@ R32Class::R32Class()
 
 	name.assign("R32");
 
+	ECSReferenceFluid = "Propane";
+
 	BibTeXKeys.EOS = "TillnerRoth-JPCRD-1997";
 	BibTeXKeys.ECS_LENNARD_JONES = "McLinden-IJR-2000";
 	BibTeXKeys.ECS_FITS = "McLinden-IJR-2000";
@@ -231,34 +233,12 @@ double R32Class::ECS_f_int(double T)
 }
 double R32Class::ECS_chi_conductivity(double rhor)
 {
-	return 1.29424-0.0924549*rhor;
+	return 1.2942-0.0924549*rhor;
 }
 void R32Class::ECSParams(double *e_k, double *sigma)
 {
 	*e_k = 289.65;
 	*sigma = 0.4098;
-}
-double R32Class::viscosity_Trho(double T, double rho)
-{
-	// Use propane as the reference
-	Fluid * ReferenceFluid = new R290Class();
-	ReferenceFluid->post_load();
-	// Calculate the ECS
-	double mu = viscosity_ECS_Trho(T, rho, ReferenceFluid);
-	// Delete the reference fluid instance
-	delete ReferenceFluid;
-	return mu;
-}
-double R32Class::conductivity_Trho(double T, double rho)
-{
-	// Use propane as the reference
-	Fluid * ReferenceFluid = new R290Class();
-	ReferenceFluid->post_load();
-	// Calculate the ECS
-	double cond = conductivity_ECS_Trho(T, rho, ReferenceFluid);
-	// Delete the reference fluid instance
-	delete ReferenceFluid;
-	return cond;
 }
 double R32Class::surface_tension_T(double T)
 {

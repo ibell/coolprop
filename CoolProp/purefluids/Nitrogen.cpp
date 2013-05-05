@@ -406,7 +406,7 @@ double NitrogenClass::conductivity_Trho(double T, double rho)
 {
 	return conductivity_dilute(T) + conductivity_background(T,rho) + conductivity_critical(T,rho);
 }
-double NitrogenClass::viscosity_dilute(double T, double rho)
+double NitrogenClass::viscosity_dilute(double T)
 {
 	double e_k=98.94, //[K]
 		   sigma=0.3656; //[nm]
@@ -444,7 +444,7 @@ double NitrogenClass::viscosity_background(double T, double rho)
 }
 double NitrogenClass::viscosity_Trho(double T, double rho)
 {
-	return this->viscosity_dilute(T, rho)+this->viscosity_background(T, rho);
+	return this->viscosity_dilute(T)+this->viscosity_background(T, rho);
 }
 double NitrogenClass::psat(double T)
 {

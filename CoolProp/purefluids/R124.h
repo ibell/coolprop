@@ -16,9 +16,24 @@ public:
 	}
 	void ECSParams(double *e_k, double *sigma)
 	{
-		// Chichester
+		// From Huber (2003)
 		*e_k = 275.80;
 		*sigma = 0.5501;
+	}
+	double ECS_f_int(double T)
+	{
+		// From Huber (2003)
+		return 1.17690e-3+6.78397-7*T;
+	}
+	double ECS_psi_viscosity(double rhor)
+	{
+		// From Huber (2003)
+		return 1.04253+1.38528e-3*rhor;
+	}
+	double ECS_chi_conductivity(double rhor)
+	{
+		// From Huber (2003)
+		return 1.0898-1.54229e-2*rhor;
 	}
 };
 

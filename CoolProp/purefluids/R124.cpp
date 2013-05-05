@@ -39,8 +39,11 @@ R124Class::R124Class()
 	name.assign("R124");
 	REFPROPname.assign("R124");
 
+	ECSReferenceFluid = "Propane";
+
 	BibTeXKeys.EOS = "deVries-ICR-1995";
-	BibTeXKeys.ECS_LENNARD_JONES = "Chichester-NIST-2008";
+	BibTeXKeys.ECS_FITS = "Huber-IECR-2003";
+	BibTeXKeys.ECS_LENNARD_JONES = "Huber-IECR-2003";
 	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
 }
 double R124Class::psat(double T)

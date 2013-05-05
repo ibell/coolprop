@@ -80,8 +80,14 @@ public:
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
+
 	double viscosity_Trho(double T, double rho);
 	double conductivity_Trho(double T, double rho);
+	double viscosity_dilute(double T);
+	double viscosity_background(double T, double rho);
+	double conductivity_dilute(double T);
+	double conductivity_background(double T, double rho);
+
 	void ECSParams(double *e_k, double *sigma);
 	double surface_tension_T(double T)
 	{

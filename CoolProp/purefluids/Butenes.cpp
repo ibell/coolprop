@@ -101,6 +101,8 @@ OneButeneClass::OneButeneClass()
 	aliases.push_back(std::string("Butene"));
 	REFPROPname.assign("1BUTENE");
 
+	ECSReferenceFluid = "Propane";
+
 	BibTeXKeys.EOS = "Lemmon-FPE-2005";
 	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
 }
@@ -191,6 +193,8 @@ IsoButeneClass::IsoButeneClass()
 	name.assign("IsoButene");
 	aliases.push_back(std::string("Isobutene"));
 	REFPROPname.assign("IBUTENE");
+
+	ECSReferenceFluid = "Propane";
 
 	BibTeXKeys.EOS = "Lemmon-FPE-2005";
 	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
@@ -283,6 +287,8 @@ Cis2ButeneClass::Cis2ButeneClass()
 	aliases.push_back(std::string("Cis-2-Butene"));
 	REFPROPname.assign("C2BUTENE");
 
+	ECSReferenceFluid = "Propane";
+
 	BibTeXKeys.EOS = "Lemmon-FPE-2005";
 }
 double Cis2ButeneClass::psat(double T)
@@ -371,6 +377,8 @@ Trans2ButeneClass::Trans2ButeneClass()
 	name.assign("trans-2-Butene");
 	aliases.push_back(std::string("Trans-2-Butene"));
 	REFPROPname.assign("T2BUTENE");
+
+	ECSReferenceFluid = "Propane";
 
 	BibTeXKeys.EOS = "Lemmon-FPE-2005";
 }

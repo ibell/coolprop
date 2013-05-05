@@ -412,6 +412,8 @@ HydrogenSulfideClass::HydrogenSulfideClass()
     aliases.push_back(std::string("H2S")); 
     REFPROPname.assign("H2S");
 
+	ECSReferenceFluid = "Nitrogen";
+
 	BibTeXKeys.EOS = "Lemmon-JCED-2006";
 	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
 	BibTeXKeys.ECS_LENNARD_JONES = "QuinonesCisneros-JCED-2012";
@@ -946,6 +948,8 @@ XenonClass::XenonClass()
     aliases.push_back(std::string("Xe")); aliases.push_back(std::string("xenon")); 
     REFPROPname.assign("xenon");
 
+	ECSReferenceFluid = "Propane";
+
 	BibTeXKeys.EOS = "Lemmon-JCED-2006";
 	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
 	BibTeXKeys.ECS_LENNARD_JONES = "Poling-BOOK-2001";
@@ -1142,6 +1146,8 @@ NitrousOxideClass::NitrousOxideClass()
     aliases.push_back(std::string("N2O")); 
     REFPROPname.assign("N2O");
 
+	ECSReferenceFluid = "Nitrogen";
+
 	BibTeXKeys.EOS = "Lemmon-JCED-2006";
 	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
 	BibTeXKeys.ECS_LENNARD_JONES = "Poling-BOOK-2001";
@@ -1263,6 +1269,8 @@ R141bClass::R141bClass()
 
     REFPROPname.assign("R141b");
 
+	ECSReferenceFluid = "Propane";
+
 	BibTeXKeys.EOS = "Lemmon-JCED-2006";
 	BibTeXKeys.ECS_FITS = "Huber-IECR-2003";
 	BibTeXKeys.ECS_LENNARD_JONES = "Huber-IECR-2003";
@@ -1338,8 +1346,9 @@ R142bClass::R142bClass()
     TransportReference.assign("Using ECS");
 
     name.assign("R142b");
-
     REFPROPname.assign("R142b");
+
+	ECSReferenceFluid = "Propane";
 
 	BibTeXKeys.EOS = "Lemmon-JCED-2006";
 	BibTeXKeys.ECS_FITS = "Huber-IECR-2003";
@@ -1416,8 +1425,9 @@ R218Class::R218Class()
     TransportReference.assign("Using ECS");
 
     name.assign("R218");
-
     REFPROPname.assign("R218");
+
+	ECSReferenceFluid = "Propane";
 
 	BibTeXKeys.EOS = "Lemmon-JCED-2006";
 	BibTeXKeys.ECS_FITS = "Huber-IECR-2003";

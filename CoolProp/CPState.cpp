@@ -1104,19 +1104,13 @@ double CoolPropStateClass::cp(void){
 }
 
 double CoolPropStateClass::viscosity(void){
-	if (TwoPhase){
-		// Adams formulation for two-phase viscosity
-		return 1/(_Q/viscV()+(1-_Q)/viscL());
+	if (pFluid->enabled_TTSE_LUT && within_TTSE_range(iP,p(),iH,h()))
+	{
+		return pFluid->TTSESinglePhase.evaluate_Trho(iV,_T,_rho,_logrho);
 	}
-	else{
-		if (pFluid->enabled_TTSE_LUT && within_TTSE_range(iP,p(),iH,h()))
-		{
-			return pFluid->TTSESinglePhase.evaluate_Trho(iV,_T,_rho,_logrho);
-		}
-		else
-		{
-			return pFluid->viscosity_Trho(_T,_rho);
-		}
+	else
+	{
+		return pFluid->viscosity_Trho(_T,_rho);
 	}
 }
 

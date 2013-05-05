@@ -110,6 +110,7 @@ class Fluid
 		std::string name; /// The name of the fluid
 		std::string REFPROPname; /// The REFPROP-compliant name if REFPROP-"name" is not a compatible fluid name.  If not included, "name" is assumed to be a valid name for REFPROP
 		std::vector <std::string> aliases; /// A list of aliases of names for the Fluid, each element is a std::string instance
+		std::string ECSReferenceFluid; /// A string that gives the name of the fluids that should be used for the ECS method for transport properties
 		
 		std::string EOSReference; /// A std::string that contains a reference for thermo properties for the fluid
 		std::string TransportReference; /// A std::string that contains a reference for the transport properties of the fluid
@@ -163,6 +164,7 @@ class Fluid
 			s_ancillary = NULL;
 			cp_ancillary = NULL;
 			drhodT_p_ancillary = NULL;
+			ECSReferenceFluid = "R134a";
 		};
 		virtual ~Fluid();
 
@@ -175,6 +177,8 @@ class Fluid
 		struct OtherParameters params;
 		struct CriticalStruct * preduce; /// A pointer to the point that is used to reduce the T and rho for EOS
 		struct CriticalStruct reduce; /// The point that is used to reduce the T and rho for EOS
+
+		
 
 		//// The TTSE lookup tables
 		TTSETwoPhaseTableClass TTSESatL;
