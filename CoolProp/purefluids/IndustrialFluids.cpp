@@ -170,6 +170,8 @@ CarbonMonoxideClass::CarbonMonoxideClass()
     aliases.push_back(std::string("CO")); 
     REFPROPname.assign("CO");
 
+	ECSReferenceFluid = "Propane";
+
 	BibTeXKeys.EOS = "Lemmon-JCED-2006";
 	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
 	BibTeXKeys.ECS_LENNARD_JONES = "Poling-BOOK-2001";
@@ -412,7 +414,7 @@ HydrogenSulfideClass::HydrogenSulfideClass()
     aliases.push_back(std::string("H2S")); 
     REFPROPname.assign("H2S");
 
-	ECSReferenceFluid = "Nitrogen";
+	ECSReferenceFluid = "Propane";
 
 	BibTeXKeys.EOS = "Lemmon-JCED-2006";
 	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
@@ -449,7 +451,7 @@ double HydrogenSulfideClass::viscosity_Trho(double T, double rho)
 	// Residual part
 	double psi1 = exp(crit.T/T);
 	double psi2 = exp(crit.T*crit.T/T/T);
-	double a0 = 68.9659e-6, b0 = 153.406e-6, A0 =  0.782380e-9, B0 = -9.75792e-9;
+	double a0 = 68.9659e-6, b0 = 153.406e-6, A0 = 0.782380e-9, B0 = -9.75792e-9;
 	double a1 = -22.0494e-6, b1 = 8.45198e-6, A1 = -0.64717e-9, B1 = -3.19303e-9;
 	double a2 = -42.6126e-6, b2 = -113.967e-6, A2 = 1.39066e-9, B2 = 12.4263e-9;
 	double ka = (a0 + a1*psi1 + a2*psi2)*crit.T/T;
@@ -463,7 +465,7 @@ double HydrogenSulfideClass::viscosity_Trho(double T, double rho)
 	double pid = rho * R() * T / 100; // kPa -> bar
 	double deltapr = pr - pid;
 
-	double eta_f = (ka*pa + kr*deltapr + kaa*pa*pa + krr*pr*pr)/1000; //mPa-s --> uPa-s
+	double eta_f = (ka*pa + kr*deltapr + kaa*pa*pa + krr*pr*pr)*1000; //mPa-s --> uPa-s
 
 	return (eta_0 + eta_i + eta_f)/1e6;
 }

@@ -58,6 +58,8 @@ DimethylCarbonateClass::DimethylCarbonateClass()
 	aliases.push_back(std::string("dimethylcarbonate"));
 	REFPROPname.assign("DMC");
 
+	ECSReferenceFluid = "Propane";
+
 	BibTeXKeys.EOS = "Zhou-JPCRD-2011";
 }
 
