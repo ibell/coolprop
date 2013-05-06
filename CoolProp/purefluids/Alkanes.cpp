@@ -37,7 +37,7 @@ MethaneClass::MethaneClass()
 	params.Ttriple = 90.6941;
 	params.ptriple = 11.696;
 	params.accentricfactor = 0.01142;
-	params.R_u = 8.314472;
+	params.R_u = 8.31451;
 
 	// Limits of EOS
 	limits.Tmin = params.Ttriple;

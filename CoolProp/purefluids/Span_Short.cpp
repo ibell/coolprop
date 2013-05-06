@@ -124,7 +124,7 @@ crit.T = 469.7; //[K]
 crit.v = 1/crit.rho; 
 
 // Other fluid parameters
-params.molemass = 72.15;
+params.molemass = 72.14878;
 params.Ttriple = 143.47;
 params.accentricfactor = 0.251;
 params.R_u = 8.314510;
@@ -241,7 +241,7 @@ crit.T = 507.82; //[K]
 crit.v = 1/crit.rho; 
 
 // Other fluid parameters
-params.molemass = 86.177;
+params.molemass = 86.17536;
 params.Ttriple = 177.83;
 params.accentricfactor = 0.299;
 params.R_u = 8.314510;
@@ -378,7 +378,7 @@ crit.T = 540.13; //[K]
 crit.v = 1/crit.rho; 
 
 // Other fluid parameters
-params.molemass = 100.204;
+params.molemass = 100.202;
 params.Ttriple = 182.55;
 params.accentricfactor = 0.349;
 params.R_u = 8.314510;
@@ -509,13 +509,13 @@ nOctaneClass::nOctaneClass()
 	std::vector<double> l_v(c_nonpolar_SpanShort,c_nonpolar_SpanShort+sizeof(c_nonpolar_SpanShort)/sizeof(double));
 
 	//Critical parameters
-	crit.rho = 234.9; //[kg/m^3]
+	crit.rho = 2.0564*114.2285; //[kg/m^3]
 	crit.p = 2497; //[kPa]
 	crit.T = 569.32; //[K]
 	crit.v = 1/crit.rho; 
 
 	// Other fluid parameters
-	params.molemass = 114.231;
+	params.molemass = 114.2285;
 	params.Ttriple = 216.37;
 	params.accentricfactor = 0.395;
 	params.R_u = 8.314510;

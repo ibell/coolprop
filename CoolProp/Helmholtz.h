@@ -67,10 +67,15 @@ public:
 ///	l==0, then n * delta ^d * tau^t
 class phir_power : public phi_BC{
 	/*
-	Terms are of the form n * delta ^d * tau^t * exp(-delta^l) if l>0 or if
-	l==0, then n * delta ^d * tau^t
-
-	Constructor must be called with std::vector instances of double type
+	Terms are of the form 
+	\f[
+	\phi_r = n delta ^d tau^t \exp(-delta^l)
+	\f]
+	if l>0 or 
+	if l==0, then 
+	\f[
+	\phi_r = n delta ^d tau^t
+	\f]
 	*/
 private:
 	std::vector<double> n, ///< The coefficients multiplying each term
@@ -91,6 +96,46 @@ public:
 
 	///< Destructor for the phir_power class.  No implementation
 	~phir_power(){};
+
+	double base(double tau, double delta) throw();
+	double dDelta(double tau, double delta) throw();
+	double dTau(double tau, double delta) throw();
+	
+	double dDelta2(double tau, double delta) throw();
+	double dDelta_dTau(double tau, double delta) throw();
+	double dTau2(double tau, double delta) throw();
+	
+	double dDelta3(double tau, double delta) throw();
+	double dDelta2_dTau(double tau, double delta) throw();
+	double dDelta_dTau2(double tau, double delta) throw();
+	double dTau3(double tau, double delta) throw();
+};
+
+
+/*!
+
+Terms are of the form 
+\f[
+\phi_r = n delta ^d tau^t \exp(-gamma*delta^l)
+\f]
+
+*/
+class phir_exponential : public phi_BC{
+private:
+	std::vector<double> n, ///< The coefficients multiplying each term
+		                d, ///< The power for the delta terms
+						t, ///< The powers for the tau terms
+						l, ///< The powers for delta in the exp terms
+						g; ///< Gamma in the exponential term
+	unsigned int iStart,iEnd;
+public:
+	// Constructors
+	phir_exponential(std::vector<double>,std::vector<double>,std::vector<double>,std::vector<double>,std::vector<double>,int,int);
+	phir_exponential(const double[], const double[], const double[], const double[],const double[],int,int,int);
+	phir_exponential(double[],double[],double[],double[],double[],int,int,int);
+	
+	///< Destructor for the phir_power class.  No implementation
+	~phir_exponential(){};
 
 	double base(double tau, double delta) throw();
 	double dDelta(double tau, double delta) throw();
@@ -545,7 +590,7 @@ public:
 
 for a term of the form
 \f[
-    \frac{c_p^0}{R}=cT^t, t \neq 0
+    \frac{c_p^0}{R}=cT^t, t \neq 0,-1
 \f]
 the contribution is found from 
 \f[
@@ -565,7 +610,7 @@ if t = 0
 \f[
 \frac{1}{T}\int_{{T_0}}^T c dT - \int_{{T_0}}^T {\frac{c}{T}} dT = \frac{{c(T - {T_0})}}{T} - c\ln \left( {\frac{T}{{{T_0}}}} \right) = c\left( {1 - \frac{\tau }{{{\tau _0}}}} \right) - c\ln \left( {\frac{{{\tau _0}}}{\tau }} \right)
 \f]
-if t = 1
+if t = -1
 \f[
 \frac{1}{T}\int_{{T_0}}^T {\frac{c}{T}} dT - \int_{{T_0}}^T {\frac{c}{{{T^2}}}} dT = \frac{c}{T}\ln \left( {\frac{T}{{{T_0}}}} \right) + c\left( {\frac{1}{T} - \frac{1}{{{T_0}}}} \right) = \frac{{c\tau }}{{{T_c}}}\ln \left( {\frac{{{\tau _0}}}{\tau }} \right) + \frac{c}{{{T_c}}}\left( {\tau  - {\tau _0}} \right)
 \f]

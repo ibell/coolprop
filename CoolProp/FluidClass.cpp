@@ -221,6 +221,7 @@ FluidsContainer::FluidsContainer()
 	FluidsList.push_back(new CycloPropaneClass());
 	FluidsList.push_back(new NeonClass());
 	FluidsList.push_back(new R124Class());
+	FluidsList.push_back(new PropyneClass());
 
 	// The industrial fluids
 	FluidsList.push_back(new R245faClass());
@@ -431,7 +432,14 @@ void Fluid::post_load(void)
 	// Use the dewpoint pressure for pseudo-pure fluids
 	if ( fabs(params.ptriple)>1e9 ){
 		double pL, pV, rhoL, rhoV;
-		saturation_T(params.Ttriple,false,&pL,&pV,&rhoL,&rhoV);
+		if (params.Ttriple <= limits.Tmin)
+		{
+			saturation_T(limits.Tmin,false,&pL,&pV,&rhoL,&rhoV);
+		}
+		else
+		{
+			saturation_T(params.Ttriple,false,&pL,&pV,&rhoL,&rhoV);
+		}
 		params.ptriple = pV;
 	}
 	//// Instantiate the ancillary curve classes

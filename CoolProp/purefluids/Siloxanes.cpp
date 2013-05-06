@@ -670,17 +670,17 @@ HexamethyldisiloxaneClass::HexamethyldisiloxaneClass()
     crit.v = 1.0/crit.rho;
 
 	// Load up a new structure with reducing parameters
-	reduce.rho = 304.404388825315;
+	reduce.rho = 1.87467076*162.37752;
 	reduce.p = 1939.39;
-	reduce.T = 518.7;
+	reduce.T = 518.69997204;
     reduce.v = 1.0/reduce.rho;
 	
 	preduce = &reduce;
 
     // Other fluid parameters
-	params.molemass=162.37752;
-	params.Ttriple=204.93;
-	params.accentricfactor=0.418;
+	params.molemass = 162.37752;
+	params.Ttriple = 204.93;
+	params.accentricfactor = 0.418;
     params.R_u = 8.314472;
 	params.ptriple = 1.3169852229396559;
 

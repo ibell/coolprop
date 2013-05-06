@@ -13,9 +13,11 @@ Bibliographic Information
 
 **Surface Tension**: A. Mulero and I. Cachadi\~na and M. I. Parra, 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
 
-**Viscosity**: 
+**Viscosity**: Daniel G. Friend and Hepburn Ingham and James F. Ely, 1991, Thermophysical Properties of Ethane, *J. Phys. Chem. Ref. Data*, 20:275-347
 
-**Conductivity**: 
+**Conductivity**: Daniel G. Friend and Hepburn Ingham and James F. Ely, 1991, Thermophysical Properties of Ethane, *J. Phys. Chem. Ref. Data*, 20:275-347
+
+**Lennard-Jones Parameters for ECS**: Daniel G. Friend and Hepburn Ingham and James F. Ely, 1991, Thermophysical Properties of Ethane, *J. Phys. Chem. Ref. Data*, 20:275-347
 
 
 

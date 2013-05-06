@@ -18,7 +18,7 @@ UndecaneClass::UndecaneClass()
 	crit.v = 1/crit.rho; 
 
 	// Other fluid parameters
-	params.molemass = 156.31;
+	params.molemass = 156.30826;
 	params.Ttriple = 247.541;
 	params.accentricfactor = 0.53903710137185668;
 	params.R_u = 8.314472;
@@ -50,6 +50,8 @@ UndecaneClass::UndecaneClass()
 	aliases.push_back("Undecane");
 	aliases.push_back("C11");
 	REFPROPname.assign("C11");
+	
+	ECSReferenceFluid = "n-Dodecane";
 
 	BibTeXKeys.EOS = "Aleksandrov-TE-2011";
 }

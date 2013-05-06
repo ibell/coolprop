@@ -11,4 +11,14 @@ public:
     double rhosatV(double);
 };
 
+class PropyneClass : public Fluid {
+
+public:
+    PropyneClass();
+    ~PropyneClass(){};
+    double psat(double);
+    double rhosatL(double);
+    double rhosatV(double);
+};
+
 #endif
