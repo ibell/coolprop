@@ -56,6 +56,7 @@ Pure Fluids
     ParaHydrogen.rst
     Propane.rst
     Propylene.rst
+    Propyne.rst
     R11.rst
     R116.rst
     R123.rst

@@ -29,7 +29,7 @@ Fluid Data
 Fluid Parameters
 
 =========================  ==============================
-Mole Mass [kg/kmol]        114.23100
+Mole Mass [kg/kmol]        114.22850
 Triple Point Temp. [K]     216.370
 Triple Point Press. [kPa]  0.001988876851
 Minimum temperature [K]    216.370
@@ -39,7 +39,7 @@ Critical Parameters
 
 ==============================  ==============================
 Temperature [K]                 569.320
-Density [kg/m\ :sup:`3`\ ]      234.900000
+Density [kg/m\ :sup:`3`\ ]      234.899487
 Pressure [kPa]                  2497.00000
 ==============================  ==============================
 

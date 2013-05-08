@@ -9,7 +9,7 @@ File Type: DLL
   Section contains the following exports for CoolProp.dll
 
     00000000 characteristics
-    51840E38 time date stamp Fri May 03 21:21:28 2013
+    518A0F46 time date stamp Wed May 08 10:39:34 2013
         0.00 version
            1 ordinal base
           43 number of functions
@@ -20,8 +20,8 @@ File Type: DLL
           1    0 00005360 _DerivTerms@24
           2    1 00004E30 _F2K@8
           3    2 000052F0 _FluidsList@4
-          4    3 000AEF70 _HAProps@40
-          5    4 000B0310 _HAProps_Aux@32
+          4    3 000B2D40 _HAProps@40
+          5    4 000B40E0 _HAProps_Aux@32
           6    5 00004BC0 _IProps@32
           7    6 00001C80 _IsFluidType@8
           8    7 00004E10 _K2F@8
@@ -65,5 +65,5 @@ File Type: DLL
 
         C000 .data
        45000 .rdata
-       11000 .reloc
-       FD000 .text
+       12000 .reloc
+      101000 .text

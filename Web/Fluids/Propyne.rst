@@ -1,23 +1,17 @@
 
 ********************
-n-Heptane
+Propyne
 ********************
 
 Aliases
 ================================================================================
-``nHeptane``, ``Heptane``
+``Propyne``, ``Propyne``
 
 Bibliographic Information
 =========================
-**Equation of State**: R. Span and W. Wagner, 2003, Equations of State for Technical Applications. II. Results for Nonpolar Fluids, *International Journal of Thermophysics*, 24:41-109
+**Equation of State**: Axel Polt and Bernhard Platzer and Gerd Maurer, 1992, Parameter der thermischen Zustandsgleichung von Bender f\"u 14 mehratomige reine Stoffe, *Chem. Technik*, 22:216-224
 
-**Ideal-gas Specific Heat**: M. Jaeschke and P. Schley, 1995, Ideal-Gas Thermodynamic Properties for Natural-Gas Applications, *Int. J. Thermophys.*, 16:1381-1392
-
-**Surface Tension**: A. Mulero and I. Cachadi\~na and M. I. Parra, 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
-
-**Conductivity**: M. J. Assael and I. Bogdanou and S. K. Mylona and M. L. Huber and R. A. Perkins and V. Vesovic, 2013, Reference Correlation of the Thermal Conductivity of n-Heptane from the Triple Point to 600 K and up to 250 MPa, *J. Phys. Chem Ref. Data*, 42:023101-1:9
-
-**Lennard-Jones Parameters for ECS**: Justin C. Chichester and Marcia L. Huber, June 2008, *NISTIR 6650: Documentation and Assessment of the Transport Property Model for Mixtures Implemented in NIST REFPROP (Version 8.0)*, National Institute of Standards and Technology (NIST)
+**Ideal-gas Specific Heat**: Axel Polt and Bernhard Platzer and Gerd Maurer, 1992, Parameter der thermischen Zustandsgleichung von Bender f\"u 14 mehratomige reine Stoffe, *Chem. Technik*, 22:216-224
 
 
 
@@ -27,18 +21,18 @@ Fluid Data
 Fluid Parameters
 
 =========================  ==============================
-Mole Mass [kg/kmol]        100.20200
-Triple Point Temp. [K]     182.550
-Triple Point Press. [kPa]  0.0001754867525
-Minimum temperature [K]    182.550
+Mole Mass [kg/kmol]        40.06000
+Triple Point Temp. [K]     170.500
+Triple Point Press. [kPa]  0.1863
+Minimum temperature [K]    273.000
 =========================  ==============================
 
 Critical Parameters
 
 ==============================  ==============================
-Temperature [K]                 540.130
-Density [kg/m\ :sup:`3`\ ]      232.000000
-Pressure [kPa]                  2736.00000
+Temperature [K]                 402.380
+Density [kg/m\ :sup:`3`\ ]      244.900000
+Pressure [kPa]                  5626.00000
 ==============================  ==============================
 
 
@@ -47,8 +41,8 @@ Saturated Vapor Deviations
 
 .. plot::
 
-    Fluid = "n-Heptane"
-    RPFluid = "REFPROP-HEPTANE"
+    Fluid = "Propyne"
+    RPFluid = "REFPROP-PROPYNE"
 
     #Saturated Vapor
     from CoolProp.CoolProp import Props
@@ -108,8 +102,8 @@ Saturated Liquid Deviations
 
 .. plot::
 
-    Fluid = "n-Heptane"
-    RPFluid = "REFPROP-HEPTANE"
+    Fluid = "Propyne"
+    RPFluid = "REFPROP-PROPYNE"
 
     #Saturated Liquid
     from CoolProp.CoolProp import Props
@@ -168,8 +162,8 @@ Along the critical isotherm where T=T\ :sub:`c`
 ================================================
 .. plot::
 
-    Fluid = "n-Heptane"
-    RPFluid = "REFPROP-HEPTANE"
+    Fluid = "Propyne"
+    RPFluid = "REFPROP-PROPYNE"
 
     #Critical isotherm
     from CoolProp.CoolProp import Props
@@ -229,7 +223,7 @@ Check of p,h and p,s as inputs (X: Failure .: Success)
     from matplotlib import pyplot as plt
     import numpy as np
 
-    Ref = "n-Heptane"
+    Ref = "Propyne"
     fig = plt.figure(figsize=(10,5))
     ax1 = fig.add_subplot(121)
     ax2 = fig.add_subplot(122)
@@ -242,8 +236,8 @@ Check of p,h and p,s as inputs (X: Failure .: Success)
     smin = Props('S','T',Tmin,'Q',0,Ref)
     smax = 2*Props('S','T',Props(Ref,'Tcrit')-1,'Q',1,Ref)-smin
 
-    Ph(Ref, axis = ax1, Tmin = Tmin, Tmax = 540.120000)
-    Ps(Ref, axis = ax2, Tmin = Tmin, Tmax = 540.120000)
+    Ph(Ref, axis = ax1, Tmin = Tmin, Tmax = 402.370000)
+    Ps(Ref, axis = ax2, Tmin = Tmin, Tmax = 402.370000)
 
     for p in np.linspace(pmin,pmax,10):
         for h in np.linspace(hmin,hmax):

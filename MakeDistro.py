@@ -156,7 +156,7 @@ def UploadSourceForge():
     os.remove(version)
     
 def BuildDocs():
-    #Open Doxyfile, and update the version number in the file
+    # Open Doxyfile, and update the version number in the file
     lines = open('Doxyfile','r').readlines()
     import CoolProp
     for i in range(len(lines)):
@@ -165,6 +165,19 @@ def BuildDocs():
             lines[i]=line
             break
     open('Doxyfile','w').write(''.join(lines))
+    
+    # Inject the revision number into the docs main pages for the link
+    lines = open('Web/_templates/index.html','r').readlines()
+    import CoolProp
+    languages = ['Python','Modelica','Labview','MATLAB','EES','Octave','Excel','C#']
+    for i in range(len(lines)):
+        if (lines[i].find('http://sourceforge.net/projects/coolprop/files/CoolProp/') > -1
+            and any([lines[i].find(a) > -1 for a in languages])
+                ):
+            oldVersion = lines[i].split('http://sourceforge.net/projects/coolprop/files/CoolProp/')[1].split('/',1)[0]
+            lines[i] = lines[i][:].replace(oldVersion,CoolProp.__version__)
+    open('Web/_templates/index.html','w').write(''.join(lines))
+    
     print subprocess.check_output(['doxygen','Doxyfile'],shell=True)
     shutil.rmtree(os.path.join('Web','_build'),ignore_errors = True)
     print subprocess.check_output(['BuildCPDocs.bat'],shell=True,cwd='Web')

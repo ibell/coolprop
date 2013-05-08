@@ -143,8 +143,7 @@ PropyneClass::PropyneClass()
 	TransportReference.assign("Using ECS in fully predictive mode");
 
 	name.assign("Propyne");
-	aliases.push_back(std::string("Propyne"));
-	aliases.push_back(std::string("Propyne"));
+	aliases.push_back(std::string("propyne"));
 	REFPROPname.assign("PROPYNE");
   
 	ECSReferenceFluid = "Propane";
@@ -154,13 +153,12 @@ PropyneClass::PropyneClass()
 }
 double PropyneClass::psat(double T)
 {
-    // Maximum absolute error is 0.058428 % between 273.000001 K and 402.379990 K
-    const double t[]={0, 1, 2, 3, 7};
-    const double N[]={0, -0.0064125853696993685, -6.8243990527455569, 0.7209626970691978, -0.51952084490286898};
+    // Maximum absolute error is 0.079152 % between 273.000001 K and 402.379990 K
+    const double t[]={0, 1, 2, 3, 5};
+    const double N[]={0, -0.0023415876841627464, -6.8708367701991246, 0.86028907870072446, -0.38264142140219393};
     double summer=0,theta;
-    int i;
     theta=1-T/reduce.T;
-    for (i=1;i<=3;i++)
+    for (int i=1;i<=3;i++)
     {
         summer += N[i]*pow(theta,t[i]/2);
     }
@@ -169,31 +167,33 @@ double PropyneClass::psat(double T)
 
 double PropyneClass::rhosatL(double T)
 {
-    // Maximum absolute error is 0.126203 % between 273.000001 K and 402.379990 K
+    // Maximum absolute error is 0.135668 % between 273.000001 K and 402.379990 K
     const double t[] = {0, 0.16666666666666666, 0.3333333333333333, 0.5, 0.6666666666666666, 0.8333333333333334, 1.0, 1.1666666666666667, 1.3333333333333333, 1.8333333333333333, 2.1666666666666665};
-    const double N[] = {0, 4.0434726582869249, -31.189422913936159, 68.555265694482571, 209.65666040673665, -1446.9272712891047, 3427.0000532850067, -4065.0391509043716, 2098.6288299939783, -400.20063454356421, 141.93833949828849};
+    const double N[] = {0, 4.0417756773327778, -31.191719018579267, 68.399467163263139, 211.93208284987557, -1457.8363818716066, 3452.436253269464, -4095.4407531126485, 2114.2042391704863, -402.8056702552895, 142.73254644405606};
     double summer=0,theta;
-    int i;
     theta=1-T/reduce.T;
-	for (i=1; i<=10; i++)
-	{
-		summer += N[i]*pow(theta,t[i]);
-	}
-	return reduce.rho*(summer+1);
+    	
+for (int i=1; i<=10; i++)
+{
+    summer += N[i]*pow(theta,t[i]);
+}
+return reduce.rho*(summer+1);
+
 }
 
 double PropyneClass::rhosatV(double T)
 {
-    // Maximum absolute error is 0.058384 % between 273.000001 K and 402.379990 K
+    // Maximum absolute error is 0.071856 % between 273.000001 K and 402.379990 K
     const double t[] = {0, 0.16666666666666666, 0.3333333333333333, 0.6666666666666666, 0.8333333333333334, 1.0, 1.1666666666666667, 1.3333333333333333, 1.5, 1.8333333333333333};
-    const double N[] = {0, -3.247356661315155, 21.032480035171591, -499.92815044636194, 2331.3544924983121, -5555.0311630324813, 7897.7172502284338, -6595.1414649864946, 2653.8699614585994, -257.78270300881718};
+    const double N[] = {0, -3.2611479340583425, 21.113350221071236, -500.60815996337084, 2331.103035511363, -5545.9781937510725, 7874.0174835532853, -6568.2932354931727, 2641.1681543521377, -256.41310994446786};
     double summer=0,theta;
-    int i;
     theta=1-T/reduce.T;
-	for (i=1; i<=9; i++)
-	{
-		summer += N[i]*pow(theta,t[i]);
-	}
-	return reduce.rho*exp(reduce.T/T*summer);
+    	
+for (int i=1; i<=9; i++)
+{
+    summer += N[i]*pow(theta,t[i]);
+}
+double rho = reduce.rho*exp(reduce.T/T*summer);
+return reduce.rho*exp(reduce.T/T*summer);
 
 }
