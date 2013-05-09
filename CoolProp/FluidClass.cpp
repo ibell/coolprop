@@ -17,6 +17,7 @@
 #include <list>
 #include <exception>
 #include <iostream>
+#include <fstream>
 #include <stdlib.h>
 #include <stdio.h>
 #include "math.h"
@@ -88,6 +89,71 @@
 #endif
 
 using namespace std;
+
+// This obfuscated code is required since C++ doesn't know about the order of instantiation of static variables
+// See also http://stackoverflow.com/questions/13353519/access-violation-when-inserting-element-into-global-map
+// It is the equivalent of the (not-working) code: std::map<std::string,std::map<std::string, double> > syaml_environmental_map
+std::map<std::string,std::map<std::string, double> >& syaml_environmental_map()
+{
+	static std::map<std::string, std::map<std::string, double> > my_map;
+	return my_map;
+}
+
+void syaml_build(std::string file_name)
+{
+	std::ifstream  fin(file_name.c_str());
+	std::string    file_line;
+	int level = 0;
+	std::string entry_name;
+	std::map<std::string, double> fluid_map;
+	
+	while(std::getline(fin, file_line))
+	{
+		// Strip off all the whitespace
+		file_line = strstrip(file_line);
+
+		if (!(file_line[0] == '#') && strstrip(file_line).size() > 0)
+		{	
+			int iend = file_line.size()-1;
+
+			if (file_line[iend] == ':')
+			{
+				// End of block, put in the terms you have collected for the previous term
+				if (fluid_map.size()>0){
+					syaml_environmental_map()[entry_name] = fluid_map;
+				}
+				entry_name = file_line.substr(0,iend);
+				fluid_map.clear();
+			}
+			else
+			{	
+				// Its a value in the dictionary
+				std::vector<std::string> key_value = strsplit(file_line,':');
+				std::string key = strstrip(key_value[0]);
+				double value = strtod(key_value[1].c_str(),NULL);
+				fluid_map.insert(std::pair<std::string,double>(key,value));
+			}
+		}
+	}
+	if (fluid_map.size() > 0)
+		syaml_environmental_map()[entry_name] = fluid_map;
+}
+
+double syaml_lookup(std::string fluid, std::string key)
+{
+	if (syaml_environmental_map().size() == 0)
+		syaml_build("../../CoolProp/EnvironmentalData.dat");
+
+	std::map<std::string,std::map<std::string, double> >::iterator it1 = syaml_environmental_map().find(fluid);
+
+	if (it1 == syaml_environmental_map().end()) {std::cout << "Unable to find the fluid " << fluid << std::endl; return _HUGE;}
+	
+	std::map<std::string, double>::iterator it2 = it1->second.find(key);
+
+	if (it2 == it1->second.end()) {std::cout << "Unable to find the parameter " << key << " for the fluid " << fluid << std::endl;}
+
+	return it2->second;
+}
 
 static bool UseCriticalSpline = true;
 
@@ -447,6 +513,15 @@ void Fluid::post_load(void)
 	s_ancillary = new AncillaryCurveClass(this,std::string("S"));
 	cp_ancillary = new AncillaryCurveClass(this,std::string("C"));
 	drhodT_p_ancillary = new AncillaryCurveClass(this,std::string("drhodT|p"));
+
+	// Load up environmental factors for this fluid including ODP, GWP, etc.
+	environment.ODP = syaml_lookup(this->name,"ODP");
+	environment.GWP20 = syaml_lookup(this->name,"GWP20");
+	environment.GWP100 = syaml_lookup(this->name,"GWP100");
+	environment.GWP500 = syaml_lookup(this->name,"GWP500");
+	environment.HH = syaml_lookup(this->name,"HH");
+	environment.FH = syaml_lookup(this->name,"FH");
+	environment.PH = syaml_lookup(this->name,"PH");
 }
 //--------------------------------------------
 //    Residual Part

@@ -185,7 +185,7 @@ def BuildDocs():
 def UploadDocs():
     call_str = ['pscp','-r','-v','Web/_build/html/*.*','ibell@web.sourceforge.net:/home/groups/coolprop/htdocs']
     print 'Calling: '+' '.join(call_str)
-    print subprocess.check_output(call_str,shell=True)
+    print subprocess.check_output(call_str, shell = True)
     
 if __name__=='__main__':
     
@@ -201,5 +201,5 @@ if __name__=='__main__':
 ##     Modelica()
 ##     PYPI()
 ##     UploadSourceForge()
-    BuildDocs()
-##     UploadDocs()
+##     BuildDocs()
+    UploadDocs()

@@ -45,7 +45,7 @@ static Fluid * pFluid;
 
 // This is very hacky, but pull the subversion revision from the file
 #include "svnrevision.h" // Contents are like "long svnrevision = 286;"
-#include "version.h" // Contents are like "static char version [] ="2.5";"
+#include "version.h" // Contents are like "char version [] ="2.5";"
 
 int global_Phase = -1;
 bool global_SinglePhase = false;

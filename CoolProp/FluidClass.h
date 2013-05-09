@@ -103,6 +103,13 @@ struct BibTeXKeysStruct
 	
 };
 
+struct EnvironmentalFactorsStruct
+{
+	double GWP20, GWP100, GWP500, ODP, HH, PH, FH;
+};
+
+double syaml_lookup(std::string key1, std::string key2);
+
 /// Fluid is the abstract base class that is employed by all the other fluids
 class Fluid
 {
@@ -134,6 +141,7 @@ class Fluid
 		SatLUTStruct SatLUT; /// The private Saturation lookup structure
 
 		BibTeXKeysStruct BibTeXKeys;
+		EnvironmentalFactorsStruct environment;
 
 		std::vector <phi_BC*> phirlist; /// A list of instances of the phi_BC classes for the residual Helmholtz energy contribution
 		std::vector <phi_BC*> phi0list; /// A list of instances of the phi_BC classes for the ideal-gas Helmholtz energy contribution

@@ -245,7 +245,6 @@ phir_exponential::phir_exponential(const double n[], const double d[], const dou
 }
 
 // Term and its derivatives
-//CHECKED
 double phir_exponential::base(double tau, double delta) throw()
 {
 	double summer=0, log_tau = log(tau), log_delta = log(delta);
@@ -255,7 +254,6 @@ double phir_exponential::base(double tau, double delta) throw()
 	}
 	return summer;
 }
-//CHECKED
 double phir_exponential::dTau(double tau, double delta) throw()
 {
 	double summer=0, log_tau = log(tau), log_delta = log(delta);
@@ -265,7 +263,6 @@ double phir_exponential::dTau(double tau, double delta) throw()
 	}
 	return summer;
 }
-//CHECKED
 double phir_exponential::dTau2(double tau, double delta) throw()
 {
 	double summer=0, log_tau = log(tau), log_delta = log(delta);
@@ -275,7 +272,6 @@ double phir_exponential::dTau2(double tau, double delta) throw()
 	}
 	return summer;
 }
-//CHECKED
 double phir_exponential::dTau3(double tau, double delta) throw()
 {
 	double summer=0, log_tau = log(tau), log_delta = log(delta);
@@ -285,7 +281,6 @@ double phir_exponential::dTau3(double tau, double delta) throw()
 	}
 	return summer;
 }
-//CHECKED
 double phir_exponential::dDelta_dTau2(double tau, double delta) throw()
 {
 	double summer=0, log_tau = log(tau), log_delta = log(delta);
@@ -296,7 +291,6 @@ double phir_exponential::dDelta_dTau2(double tau, double delta) throw()
 	}
 	return summer;
 }
-//CHECKED
 double phir_exponential::dDelta(double tau, double delta) throw()
 {
 	double summer=0, log_tau = log(tau), log_delta = log(delta), pow_delta_li;
@@ -307,7 +301,6 @@ double phir_exponential::dDelta(double tau, double delta) throw()
 	}
 	return summer;
 }
-//CHECKED
 double phir_exponential::dDelta2(double tau, double delta) throw()
 {
 	double summer=0, log_tau = log(tau), log_delta = log(delta);
@@ -330,7 +323,6 @@ double phir_exponential::dDelta3(double tau, double delta) throw()
 	}
 	return summer;
 }
-//CHECKED
 double phir_exponential::dDelta2_dTau(double tau, double delta) throw()
 {
 	double summer=0, log_tau = log(tau), log_delta = log(delta);
@@ -341,7 +333,6 @@ double phir_exponential::dDelta2_dTau(double tau, double delta) throw()
 	}
 	return summer;
 }
-//CHECKED
 double phir_exponential::dDelta_dTau(double tau, double delta) throw()
 {
 	double summer=0, log_tau = log(tau), log_delta = log(delta);

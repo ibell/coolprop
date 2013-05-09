@@ -344,6 +344,7 @@ ParaHydrogenClass::ParaHydrogenClass()
                               "Natl. Bur. Stand., Tech. Note 617, 1972.");
 
 	name.assign("ParaHydrogen");
+	aliases.push_back("Parahydrogen");
 	REFPROPname.assign("PARAHYD");
 
 	BibTeXKeys.EOS = "Leachman-JPCRD-2009";
@@ -513,6 +514,7 @@ OrthoHydrogenClass::OrthoHydrogenClass()
                               "Natl. Bur. Stand., Tech. Note 617, 1972.");
 
 	name.assign("OrthoHydrogen");
+	aliases.push_back("Orthohydrogen");
 	REFPROPname.assign("ORTHOHYD");
 
 	BibTeXKeys.EOS = "Leachman-JPCRD-2009";
