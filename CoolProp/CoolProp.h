@@ -79,6 +79,7 @@ You might want to start by looking at CoolProp.h
 	EXPORT_CODE long CONVENTION get_version(char * pversion);
 	EXPORT_CODE long CONVENTION get_param_index(char * param);
 	EXPORT_CODE long CONVENTION get_Fluid_index(char * param);
+	EXPORT_CODE long CONVENTION get_ASHRAE34(char * fluid, char *output);
 	EXPORT_CODE void CONVENTION get_index_units(long param, char * units);
 
 	EXPORT_CODE int CONVENTION get_debug();
@@ -141,6 +142,7 @@ You might want to start by looking at CoolProp.h
 	std::string get_BibTeXKey(std::string Ref, std::string item);
 	std::string get_EOSReference(std::string Ref);
 	std::string get_TransportReference(std::string Ref);
+	std::string get_ASHRAE34(std::string Ref);
 	std::string FluidsList(void);
 	std::string get_aliases(std::string Ref);
 	std::string get_REFPROPname(std::string Ref);

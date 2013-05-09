@@ -191,6 +191,7 @@ cdef extern from "CoolProp.h":
     long _get_Fluid_index "get_Fluid_index" (string Fluid)
     long _get_param_index "get_param_index" (string param)
     string _get_index_units "get_index_units" (long index)
+    string _get_ASHRAE34 "get_ASHRAE34"(string Fluid)
     char * get_errstringc()
     
     #Ancillary equations

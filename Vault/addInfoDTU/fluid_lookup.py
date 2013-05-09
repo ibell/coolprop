@@ -32,8 +32,8 @@ ETHYLENE	ethene	Ethylene	282.35	R-1150	N/A	6.8	N/A	-	-	-	3.45	1	1	1	1.0E+00	6.4E
 FLUORINE	fluorine	Fluorine	CoolProp error: Your fluid name [Fluorine] is not a CoolProp fluid, a REFPROP fluid, a brine or a liquid		-	-	-	-	-	-	4.86	-	-	-	-	-	-	-	-	-	-	-	-	-
 H2S	hydrogen sulfide	HydrogenSulfide	373.1		-	-	-	-	-	-	6.89	-	-	-	-	2.2E-01	-	-	-	-	-	2.3E+09	-	-
 HELIUM	helium	Helium	5.1953	R-704	-	-	-	-	-	-	N/A	-	-	-		-	-	-	-	-	-	-	-	-
-HEPTANE	heptane	Heptane	540.13		*	*	*	-	-	-	2.58	0.5	0.5	0.592		-	-	-	-	-	-	-	-	-
-HEXANE	hexane	Hexane	507.82		*	3.1	*	-	-	-	2.57	0.5	0.4	0.495	4.94E-01	-	-	-	-	-	-	-	-	-
+HEPTANE	heptane	n-Heptane	540.13		*	*	*	-	-	-	2.58	0.5	0.5	0.592		-	-	-	-	-	-	-	-	-
+HEXANE	hexane	n-Hexane	507.82		*	3.1	*	-	-	-	2.57	0.5	0.4	0.495	4.94E-01	-	-	-	-	-	-	-	-	-
 HMXBNC	-				-	-	-	-	-	-		-	-	-		-	-	-	-	-	-	-	-	-
 HYDROGEN		Hydrogen	33.145	R-702	-	-	-	-	-	-	N/A	-	-	-	4.94E-01	-	-	-	-	-	-	-	-	-
 IBUTENE	2-methyl-1-propene/methylpropene/isobutene/isobutylene	Isobutene	418.09		*	*	*	-	-	-	N/A	0.6	0.6		6.27E-01	-	-	-	-	-	-	6.67E+04		
@@ -58,12 +58,12 @@ NEON	neon	Neon	44.4918	R-720	-	-	-	-	-	-	N/A	N/A	N/A	N/A	N/A	-	-	-	-	-	-	-	-	-
 NEOPENTN	neopentane (2,2-dimethylpropane)	Neopentane	433.74		*	*	*	-	-	-	2.25	-	-	-	1.73E-01	-	-	-	-	-	-	-	-	-
 NF3	nitrogen trifluoride	NitrogenTrifluoride	CoolProp error: Your fluid name [NitrogenTrifluoride] is not a CoolProp fluid, a REFPROP fluid, a brine or a liquid		12300	17200	20700	-	-	-	N/A	-	-	-		-	-	-	-	-	-	-	-	-
 NITROGEN	nitrogen	Nitrogen	126.192	R-728	-	-	-	-	-	-	N/A	-	-	-		-	-	-	-	-	-	-	-	-
-NONANE	nonane	Nonane	594.55		*	*	*	-	-	-	2.29	0.4	0.5	0.463	4.14E-01	-	-	-	-	-	-	-	-	-
-OCTANE	octane	Octane	569.32		*	*	*	-	-	-	2.41	0.5	0.5	0.544	4.53E-01	-	-	-	-	-	-	-	-	-
+NONANE	nonane	n-Nonane	594.55		*	*	*	-	-	-	2.29	0.4	0.5	0.463	4.14E-01	-	-	-	-	-	-	-	-	-
+OCTANE	octane	n-Octane	569.32		*	*	*	-	-	-	2.41	0.5	0.5	0.544	4.53E-01	-	-	-	-	-	-	-	-	-
 ORTHOHYD	orthohydrogen	OrthoHydrogen	33.22		-	-	-	-	-	-	N/A	-	-	-	-	-	-	-	-	-	-	-	-	-
 OXYGEN	oxygen	Oxygen	154.581		-	-	-	-	-	-	N/A	-	-	-	-	-	-	-	-	-	-	-	-	-
 PARAHYD	parahydrogen	ParaHydrogen	32.938		-	-	-	-	-	-	N/A	-	-	-	-	-	-	-	-	-	-	-	-	-
-PENTANE	pentane	Pentane	469.7	R-601	*	*	*	-	-	-	N/A	0.3	0.4	0.387	3.95E-01	-	-	-	-	-	-	-	-	-
+PENTANE	pentane	n-Pentane	469.7	R-601	*	*	*	-	-	-	N/A	0.3	0.4	0.387	3.95E-01	-	-	-	-	-	-	-	-	-
 PROPANE	propane	Propane	369.89	R-290	*	3	*	-	-	-	2.24	0.5	0.4	0.518	1.76E-01	-	-	-	-	-	-	-	-	-
 PROPYLEN	propylene	Propylene	364.211		*	3.1	*	-	-	-	2.64	0.6	1	1.06	1.12E+00	-	-	-	-	-	-	-	-	-
 PROPYNE	propyne/methylacetylene	Propyne	CoolProp error: Your fluid name [Propyne] is not a CoolProp fluid, a REFPROP fluid, a brine or a liquid		*	*	*	-	-	-	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A
@@ -155,11 +155,13 @@ ARGON	A1
 CO2	A1
 SO2	B1
 ETHYLENE	A3
-PROPYLEN	A3"""
+PROPYLEN	A3
+R404A	A1
+R507A	A1
+R410A	A1
+R407C	A1"""
 
 ASHRAE34_dict = {}
 for row in ASHRAE34data.split('\n'):
     a = row.split('\t')
     ASHRAE34_dict[a[0]] = a[1]
-    
-print ASHRAE34_dict

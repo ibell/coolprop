@@ -98,24 +98,40 @@ std::map<std::string,std::map<std::string, double> >& syaml_environmental_map()
 	static std::map<std::string, std::map<std::string, double> > my_map;
 	return my_map;
 }
+std::map<std::string,std::string>&  ASHRAE34_map()
+{
+	static std::map<std::string, std::string > my_map;
+	return my_map;
+}
 
-// This included file includes all the environmental constants
+// This included file includes all the environmental constants, including the function syaml_build
 #include "EnvironmentalData.h"
 
 double syaml_lookup(std::string fluid, std::string key)
 {
 	if (syaml_environmental_map().size() == 0)
-		syaml_build("../../CoolProp/EnvironmentalData.dat");
+		syaml_build();
 
 	std::map<std::string,std::map<std::string, double> >::iterator it1 = syaml_environmental_map().find(fluid);
 
-	if (it1 == syaml_environmental_map().end()) {std::cout << "Unable to find the fluid " << fluid << std::endl; return _HUGE;}
+	if (it1 == syaml_environmental_map().end()) {return _HUGE;}
 	
 	std::map<std::string, double>::iterator it2 = it1->second.find(key);
 
-	if (it2 == it1->second.end()) {std::cout << "Unable to find the parameter " << key << " for the fluid " << fluid << std::endl;}
+	if (it2 == it1->second.end()) {return _HUGE;}
 
 	return it2->second;
+}
+std::string ASHRAE34_lookup(std::string fluid)
+{
+	if (ASHRAE34_map().size() == 0)
+		syaml_build();
+
+	std::map<std::string, std::string >::iterator it1 = ASHRAE34_map().find(fluid);
+
+	if (it1 == ASHRAE34_map().end()) {return "UNKNOWN";}
+
+	return it1->second;
 }
 
 static bool UseCriticalSpline = true;
@@ -485,21 +501,7 @@ void Fluid::post_load(void)
 	environment.HH = syaml_lookup(this->name,"HH");
 	environment.FH = syaml_lookup(this->name,"FH");
 	environment.PH = syaml_lookup(this->name,"PH");
-
-	double A34_AB = syaml_lookup(this->name,"ASHRAE34_AB");
-	double A34_123 = syaml_lookup(this->name,"ASHRAE34_123");
-	if (fabs(A34_AB-0) < 10*DBL_EPSILON && fabs(A34_123-1) < 10*DBL_EPSILON)
-		environment.ASHRAE34 = "A1";
-	else if (fabs(A34_AB-0) < 10*DBL_EPSILON && fabs(A34_123-2) < 10*DBL_EPSILON)
-		environment.ASHRAE34 = "A2";
-	else if (fabs(A34_AB-0) < 10*DBL_EPSILON && fabs(A34_123-3) < 10*DBL_EPSILON)
-		environment.ASHRAE34 = "A3";
-	else if (fabs(A34_AB-1) < 10*DBL_EPSILON && fabs(A34_123-1) < 10*DBL_EPSILON)
-		environment.ASHRAE34 = "B1";
-	else if (fabs(A34_AB-1) < 10*DBL_EPSILON && fabs(A34_123-2) < 10*DBL_EPSILON)
-		environment.ASHRAE34 = "B2";
-	else
-		environment.ASHRAE34 = "UNKNOWN";
+	environment.ASHRAE34 = ASHRAE34_lookup(this->name);
 }
 //--------------------------------------------
 //    Residual Part

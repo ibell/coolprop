@@ -357,6 +357,25 @@ EXPORT_CODE void CONVENTION get_index_units(long param, char * units)
 	return;
 }
 
+std::string get_ASHRAE34(std::string fluid)
+{
+	long iFluid = get_Fluid_index(fluid);
+	if (iFluid > -1)
+	{
+		Fluid *pFluid = get_fluid(iFluid);
+		return pFluid->environment.ASHRAE34;
+	}
+	else
+	{
+		return "Fluid name invalid";
+	}
+}
+EXPORT_CODE long CONVENTION get_ASHRAE34(char* fluid, char *value)
+{
+	strcpy(value, (char*)get_ASHRAE34(fluid).c_str());
+	return 1;
+}
+
 long get_param_index(std::string param)
 {
 	std::map<std::string,long>::iterator it;

@@ -750,7 +750,7 @@ NonaneClass::NonaneClass()
     EOSReference.assign("Lemmon, E.W., and R. Span, \"Short Fundamental Equations of State for 20 Industrial Fluids,\", J. Chem. Eng. Data, 51:785-850, 2006.");
     TransportReference.assign("Using ECS");
 
-    name.assign("Nonane");
+    name.assign("n-Nonane");
     aliases.push_back(std::string("nonane")); 
     REFPROPname.assign("nonane");
 

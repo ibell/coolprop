@@ -2,7 +2,7 @@ header = """// This file contains the environmental data provided by the Danish 
 //  
 //
 
-void syaml_build(std::string file_name)
+void syaml_build()
 {
     std::map<std::string, double> fluid_map;
     
@@ -109,7 +109,7 @@ HH_dict = {k:v for k,v in zip(pp_fluids,pp_HH)}
 FH_dict = {k:v for k,v in zip(pp_fluids,pp_FH)}
 PH_dict = {k:v for k,v in zip(pp_fluids,pp_PH)}
     
-f = open('output.dat','w')
+f = open('../../CoolProp/EnvironmentalData.h','w')
 
 f.write(header)
 
@@ -121,8 +121,7 @@ template = """    fluid_map.clear();
     fluid_map["GWP100"] = {GWP100:s};
     fluid_map["GWP500"] = {GWP500:s};
     fluid_map["ODP"] = {ODP:s};
-    fluid_map["ASHRAE34_AB"] = {ASHRAE34_AB:s};
-    fluid_map["ASHRAE34_123"] = {ASHRAE34_123:s};
+    ASHRAE34_map()["{fluid:s}"] = "{ASHRAE34:s}";
     syaml_environmental_map()["{fluid:s}"] = fluid_map;
 
 """
@@ -150,16 +149,9 @@ for fluid in pp_fluids:
         if a['ODP'] == '_HUGE': a['ODP'] = '0'
             
         if fluid in ASHRAE34_dict:
-            ashrae34 = ASHRAE34_dict[fluid]
-            if ashrae34[0] == 'A':
-                a['ASHRAE34_AB'] = '0'
-            else:
-                a['ASHRAE34_AB'] = '1'
-            a['ASHRAE34_123'] = str(ashrae34[1])
+            a['ASHRAE34'] = ASHRAE34_dict[fluid]
         else:
-            a['ASHRAE34_AB'] = '-1'
-            a['ASHRAE34_123'] = '-1'
-            
+            a['ASHRAE34'] = 'UNKNOWN'
         
         chunk = template.format(fluid = name_dict[fluid],
                                 HH = a['HH'],
@@ -169,8 +161,7 @@ for fluid in pp_fluids:
                                 GWP20 = a['GWP20'],
                                 GWP100 = a['GWP100'],
                                 GWP500 = a['GWP500'],
-                                ASHRAE34_AB = a['ASHRAE34_AB'],
-                                ASHRAE34_123 = a['ASHRAE34_123']
+                                ASHRAE34 = a['ASHRAE34'],
                                 )
         f.write(chunk)
                             
