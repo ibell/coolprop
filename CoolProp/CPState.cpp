@@ -902,6 +902,18 @@ double CoolPropStateClass::keyed_output(long iOutput)
 			return iTwoPhase;
 
 		// --------------------------
+		// Environmental properties
+		// --------------------------
+		case iODP:
+			return pFluid->environment.ODP;
+		case iGWP20:
+			return pFluid->environment.GWP20;
+		case iGWP100:
+			return pFluid->environment.GWP100;
+		case iGWP500:
+			return pFluid->environment.GWP500;
+
+		// --------------------------
 		// Thermodynamic properties
 		// --------------------------
 		case iT:

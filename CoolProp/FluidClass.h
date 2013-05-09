@@ -106,6 +106,7 @@ struct BibTeXKeysStruct
 struct EnvironmentalFactorsStruct
 {
 	double GWP20, GWP100, GWP500, ODP, HH, PH, FH;
+	std::string ASHRAE34;
 };
 
 double syaml_lookup(std::string key1, std::string key2);

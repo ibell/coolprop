@@ -118,5 +118,48 @@ for row in fluid_lookup.split('\n'):
     GWP20_dict[a[0].strip()] = a[5].strip()
     GWP100_dict[a[0].strip()] = a[6].strip()
     GWP500_dict[a[0].strip()] = a[7].strip()
+    
+ASHRAE34data = """R11	A1
+R12	A1
+R13	A1
+R21	B1
+R22	A1
+R23	A1
+R30	B2
+R32	A2
+R40	B2
+METHANE	A3
+R113	A1
+R114	A1
+R115	A1
+R116	A1
+R123	B1
+R124	A1
+R125F	A1
+R134A	A1
+R142B	A2
+R143A	A2
+R152A	A2
+ETHANE	A3
+DME	A3
+BUTANE	A3
+ISOBUTANE	A3
+IPENTANE	A3
+HYDROGEN	A3
+HELIUM	A1
+AMMONIA	B2
+WATER	A1
+NEON	A1
+NITROGEN	A1
+ARGON	A1
+CO2	A1
+SO2	B1
+ETHYLENE	A3
+PROPYLEN	A3"""
 
-print GWP20_dict
+ASHRAE34_dict = {}
+for row in ASHRAE34data.split('\n'):
+    a = row.split('\t')
+    ASHRAE34_dict[a[0]] = a[1]
+    
+print ASHRAE34_dict

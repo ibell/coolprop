@@ -99,45 +99,8 @@ std::map<std::string,std::map<std::string, double> >& syaml_environmental_map()
 	return my_map;
 }
 
-void syaml_build(std::string file_name)
-{
-	std::ifstream  fin(file_name.c_str());
-	std::string    file_line;
-	int level = 0;
-	std::string entry_name;
-	std::map<std::string, double> fluid_map;
-	
-	while(std::getline(fin, file_line))
-	{
-		// Strip off all the whitespace
-		file_line = strstrip(file_line);
-
-		if (!(file_line[0] == '#') && strstrip(file_line).size() > 0)
-		{	
-			int iend = file_line.size()-1;
-
-			if (file_line[iend] == ':')
-			{
-				// End of block, put in the terms you have collected for the previous term
-				if (fluid_map.size()>0){
-					syaml_environmental_map()[entry_name] = fluid_map;
-				}
-				entry_name = file_line.substr(0,iend);
-				fluid_map.clear();
-			}
-			else
-			{	
-				// Its a value in the dictionary
-				std::vector<std::string> key_value = strsplit(file_line,':');
-				std::string key = strstrip(key_value[0]);
-				double value = strtod(key_value[1].c_str(),NULL);
-				fluid_map.insert(std::pair<std::string,double>(key,value));
-			}
-		}
-	}
-	if (fluid_map.size() > 0)
-		syaml_environmental_map()[entry_name] = fluid_map;
-}
+// This included file includes all the environmental constants
+#include "EnvironmentalData.h"
 
 double syaml_lookup(std::string fluid, std::string key)
 {
@@ -522,6 +485,21 @@ void Fluid::post_load(void)
 	environment.HH = syaml_lookup(this->name,"HH");
 	environment.FH = syaml_lookup(this->name,"FH");
 	environment.PH = syaml_lookup(this->name,"PH");
+
+	double A34_AB = syaml_lookup(this->name,"ASHRAE34_AB");
+	double A34_123 = syaml_lookup(this->name,"ASHRAE34_123");
+	if (fabs(A34_AB-0) < 10*DBL_EPSILON && fabs(A34_123-1) < 10*DBL_EPSILON)
+		environment.ASHRAE34 = "A1";
+	else if (fabs(A34_AB-0) < 10*DBL_EPSILON && fabs(A34_123-2) < 10*DBL_EPSILON)
+		environment.ASHRAE34 = "A2";
+	else if (fabs(A34_AB-0) < 10*DBL_EPSILON && fabs(A34_123-3) < 10*DBL_EPSILON)
+		environment.ASHRAE34 = "A3";
+	else if (fabs(A34_AB-1) < 10*DBL_EPSILON && fabs(A34_123-1) < 10*DBL_EPSILON)
+		environment.ASHRAE34 = "B1";
+	else if (fabs(A34_AB-1) < 10*DBL_EPSILON && fabs(A34_123-2) < 10*DBL_EPSILON)
+		environment.ASHRAE34 = "B2";
+	else
+		environment.ASHRAE34 = "UNKNOWN";
 }
 //--------------------------------------------
 //    Residual Part

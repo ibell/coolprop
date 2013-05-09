@@ -96,6 +96,11 @@ std::pair<std::string, long> map_data[] = {
 	std::make_pair(std::string("PHASE_GAS"),iPHASE_GAS),
 	std::make_pair(std::string("PHASE_SUPERCRITICAL"),iPHASE_SUPERCRITICAL),
 	std::make_pair(std::string("PHASE_TWOPHASE"),iPHASE_TWOPHASE),
+	std::make_pair(std::string("ODP"),iODP),
+	std::make_pair(std::string("GWP20"),iGWP20),
+	std::make_pair(std::string("GWP100"),iGWP100),
+	std::make_pair(std::string("GWP500"),iGWP500),
+	std::make_pair(std::string("ASHRAE34"),iASHRAE34),
 };
 //Now actually construct the map
 std::map<std::string, long> param_map(map_data,
@@ -929,6 +934,11 @@ double _CoolProp_Fluid_Props(long iOutput, long iName1, double Prop1, long iName
 		case iPHASE_GAS:
 		case iPHASE_SUPERCRITICAL:
 		case iPHASE_TWOPHASE:
+		case iASHRAE34:
+		case iGWP20:
+		case iGWP100:
+		case iGWP500:
+		case iODP:
 			return CPS.keyed_output(iOutput);
 	}
 

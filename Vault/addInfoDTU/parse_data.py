@@ -1,11 +1,11 @@
-header = """## This file contains the environmental data provided by the Danish Techological University (DTU)
-## It implements a format similar to yaml, but is parsed manually
-##
-##
-## Implementation:
-## - Lines starting with '#' or empty lines are skipped
-## - One grouping is a fluid name line that ends in :, followed by each parameter that is of the form 'key : value' (whitespace is stripped)
+header = """// This file contains the environmental data provided by the Danish Techological University (DTU)
+//  
+//
 
+void syaml_build(std::string file_name)
+{
+    std::map<std::string, double> fluid_map;
+    
 """
 
 fluids = """:'1BUTENE.FLD','ACETONE.FLD','AIR.PPF','AMMONIA.FLD','ARGON.FLD',
@@ -113,14 +113,18 @@ f = open('output.dat','w')
 
 f.write(header)
 
-template = """{fluid:s}:
-    HH: {HH:s}
-    FH: {FH:s}
-    PH: {PH:s}
-    GWP20: {GWP20:s}
-    GWP100: {GWP100:s}
-    GWP500: {GWP500:s}
-    ODP: {ODP:s}
+template = """    fluid_map.clear();
+    fluid_map["HH"] = {HH:s};
+    fluid_map["FH"] = {FH:s};
+    fluid_map["PH"] = {PH:s};
+    fluid_map["GWP20"] = {GWP20:s};
+    fluid_map["GWP100"] = {GWP100:s};
+    fluid_map["GWP500"] = {GWP500:s};
+    fluid_map["ODP"] = {ODP:s};
+    fluid_map["ASHRAE34_AB"] = {ASHRAE34_AB:s};
+    fluid_map["ASHRAE34_123"] = {ASHRAE34_123:s};
+    syaml_environmental_map()["{fluid:s}"] = fluid_map;
+
 """
 
 from fluid_lookup import *
@@ -141,10 +145,21 @@ for fluid in pp_fluids:
             try:
                 a[k] = str(float(v))
             except ValueError:
-                a[k] = '2e1000'
-                print fluid,v
+                a[k] = '_HUGE'
         
-        if a['ODP'] == '2e1000': a['ODP'] = '0'
+        if a['ODP'] == '_HUGE': a['ODP'] = '0'
+            
+        if fluid in ASHRAE34_dict:
+            ashrae34 = ASHRAE34_dict[fluid]
+            if ashrae34[0] == 'A':
+                a['ASHRAE34_AB'] = '0'
+            else:
+                a['ASHRAE34_AB'] = '1'
+            a['ASHRAE34_123'] = str(ashrae34[1])
+        else:
+            a['ASHRAE34_AB'] = '-1'
+            a['ASHRAE34_123'] = '-1'
+            
         
         chunk = template.format(fluid = name_dict[fluid],
                                 HH = a['HH'],
@@ -153,9 +168,11 @@ for fluid in pp_fluids:
                                 ODP = a['ODP'],
                                 GWP20 = a['GWP20'],
                                 GWP100 = a['GWP100'],
-                                GWP500 = a['GWP500']
+                                GWP500 = a['GWP500'],
+                                ASHRAE34_AB = a['ASHRAE34_AB'],
+                                ASHRAE34_123 = a['ASHRAE34_123']
                                 )
         f.write(chunk)
                             
-
+f.write('}')
 f.close()
