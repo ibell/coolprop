@@ -20,7 +20,8 @@ def testAllCoolPropPairs():
     for fluid in CoolProp.__fluids__:
         for param in ["Ttriple","Tcrit","pcrit","ptriple","Tmin",
                       "molemass","rhocrit","accentric","PHASE_LIQUID",
-                      "PHASE_GAS","PHASE_SUPERCRITICAL","PHASE_TWOPHASE"]:
+                      "PHASE_GAS","PHASE_SUPERCRITICAL","PHASE_TWOPHASE",
+                      "ODP","GWP20","GWP100","GWP500"]:
             yield check_param,fluid,param
 
 def check_param(fluid, param):

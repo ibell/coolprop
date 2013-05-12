@@ -461,4 +461,90 @@ Second Derivative
     \frac{{{d^2}}}{{d{\tau ^2}}}\left[ { - \frac{\tau }{R}\int_{{\tau _0}}^\tau  {\frac{{c_p^0}}{{{\tau ^2}}}d\tau }  + \frac{1}{R}\int_{{\tau _0}}^\tau  {\frac{{c_p^0}}{\tau }d\tau } } \right] = \frac{d}{{d\tau }}\left[ { - \frac{1}{R}\int_{{\tau _0}}^\tau  {\frac{{c_p^0}}{{{\tau ^2}}}d\tau } } \right] =  - \frac{{c_p^0}}{{{\tau ^2}R}}
 
 
+Converting Bender and mBWR EOS
+==============================
+
+If the EOS is of the form
+
+.. math::
+
+    \frac{p}{{\rho RT}} = Z\left( {T,\rho } \right) = 1 + \sum\limits_i {{n_i}{T^{{s_i}}}{\rho ^{{r_i}}}}  + \sum\limits_i {{n_i}{T^{{s_i}}}{\rho ^{{r_i}}}} \exp \left( { - {\gamma _i}{{\left( {\frac{\rho }{{{\rho _c}}}} \right)}^2}} \right)
+
+To convert to standard power form in CoolProp, use
+
+.. math::
+
+    \delta \sum\limits_i {{d_i}{a_i}{\tau ^{{t_i}}}{\delta ^{{d_i} - 1}}}  = \sum\limits_i {{n_i}{T^{{s_i}}}{\rho ^{{r_i}}}}  = \sum\limits_i {{n_i}{{\left( {\frac{{{T_c}}}{\tau }} \right)}^{{s_i}}}{{\left( {{\rho _c}\delta } \right)}^{{r_i}}}}  = \sum\limits_i {{n_i}T_c^{{s_i}}\rho _c^{{r_i}}{\tau ^{ - {s_i}}}{\delta ^{{r_i}}}}
+
+The left-hand-side is the derivative of the residual Helmholtz energy with respect 
+to delta times the reduced density since 
+
+.. math::
+
+    \frac{p}{\rho RT}=1+\delta\left(\frac{\partial \alpha^r}{\partial \delta}\right)_{\tau}
+
+where
+
+.. math::
+
+    \delta : {d_i} - 1 + 1 = {r_i} \Rightarrow {d_i} = {r_i}
     
+.. math::
+
+    \tau : {t_i} =  - {s_i}
+
+.. math::
+
+    c : {d_i}{a_i} = {n_i}T_c^{{s_i}}\rho _c^{{r_i}}
+
+.. math::
+
+    p = \rho RT + \sum\limits_i {{n_i}{T^{{s_i}}}{\rho ^{{r_i}}}}  + \sum\limits_i {{n_i}{T^{{s_i}}}{\rho ^{{r_i}}}} \exp \left( { - {\gamma _i}{{\left( {\frac{\rho }{{{\rho _c}}}} \right)}^2}} \right){\rm{   (Eq 3}}{\rm{.28)}}
+    
+.. math::
+
+    \frac{p}{{\rho RT}} = 1 + \sum\limits_i {\frac{{{n_i}}}{R}{T^{{s_i} - 1}}{\rho ^{{r_i} - 1}}}  + \sum\limits_i {\frac{{{n_i}}}{R}{T^{{s_i} - 1}}{\rho ^{{r_i} - 1}}} \exp \left( { - {\gamma _i}{{\left( {\frac{\rho }{{{\rho _c}}}} \right)}^2}} \right)
+    
+.. math::
+    
+    \delta \sum\limits_i {{d_i}{a_i}{\tau ^{{t_i}}}{\delta ^{{d_i} - 1}}}  = \sum\limits_i {\frac{{{n_i}}}{R}{{\left( {\frac{{{T_c}}}{\tau }} \right)}^{{s_i} - 1}}{{\left( {{\rho _c}\delta } \right)}^{{r_i} - 1}}}  = \sum\limits_i {\frac{{{n_i}}}{R}T_c^{{s_i} - 1}\rho _c^{{r_i} - 1}{\tau ^{ - ({s_i} - 1)}}{\delta ^{{r_i} - 1}}} 
+
+.. math::
+
+    \delta :1 + {d_i} - 1 = {r_i} - 1
+
+.. math::
+
+    \tau :{t_i} =  - \left( {s_i - 1} \right)
+    
+.. math::
+    
+    c:{d_i}{a_i} = \frac{{{n_i}}}{R}T_c^{{s_i} - 1}\rho _c^{{r_i} - 1}
+    
+In the Bender EOS, for the exponential part you have terms that can be converted to reduced form
+
+.. math::
+    
+    a_i\delta^{d_i}\tau^{t_i}\exp(-\gamma \delta^2)
+    
+which yields the terms in the following table (from Span, 2000)
+
+.. math::
+
+    \begin{array}{*{4}{c}|*{4}{c}}
+    \multicolumn{4}{c}{\mbox{From Bender}} & \multicolumn{4}{c}{\mbox{Power term}}\\
+    {i}&{d_i}&{t_i}&{\gamma_i}&{n_i}&{d_i}&{t_i}&{\gamma_i}\\\hline
+    {14}&2&3&\gamma &{{n_{14}}/(2\gamma)  + {n_{17}}/(2{\gamma ^2})}&0&3&0\\
+    {15}&2&4&\gamma &{{n_{15}}/(2\gamma)  + {n_{17}}/(2{\gamma ^2})}&0&4&0\\
+    {16}&2&5&\gamma &{{n_{16}}/(2\gamma)  + {n_{17}}/(2{\gamma ^2})}&0&5&0\\
+    {17}&4&3&\gamma &{ - {n_{14}}/(2\gamma)  - {n_{17}}/(2{\gamma ^2})}&0&3&\gamma \\
+    {18}&4&4&\gamma &{ - {n_{15}}/(2\gamma)  - {n_{18}}/(2{\gamma ^2})}&0&4&\gamma \\
+    {19}&4&5&\gamma &{ - {n_{16}}/(2\gamma)  - {n_{19}}/(2{\gamma ^2})}&0&5&\gamma \\
+    {20}&{}&{}&{}&{ - {n_{17}}/(2{\gamma})}&2&3&\gamma \\
+    {21}&{}&{}&{}&{ - {n_{18}}/(2{\gamma})}&2&4&\gamma \\
+    {22}&{}&{}&{}&{ - {n_{19}}/(2{\gamma})}&2&5&\gamma 
+    \end{array}
+    
+.. warning::
+
+    If the terms in the EOS are in terms of :math:`T` and :math:`\rho` rather than :math:`\tau` and :math:`\delta`, make sure to multiply appropriately by the critical densities in the exponential term.  For instance in Polt paper, the first constant should be :math:`n_{14}\rho_c^2/(2\gamma)+n_{17}\rho_c^4/(2\gamma^2)/T_c^3` Be careful!

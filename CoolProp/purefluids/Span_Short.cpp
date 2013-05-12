@@ -124,7 +124,7 @@ crit.T = 469.7; //[K]
 crit.v = 1/crit.rho; 
 
 // Other fluid parameters
-params.molemass = 72.15;
+params.molemass = 72.14878;
 params.Ttriple = 143.47;
 params.accentricfactor = 0.251;
 params.R_u = 8.314510;
@@ -241,7 +241,7 @@ crit.T = 507.82; //[K]
 crit.v = 1/crit.rho; 
 
 // Other fluid parameters
-params.molemass = 86.177;
+params.molemass = 86.17536;
 params.Ttriple = 177.83;
 params.accentricfactor = 0.299;
 params.R_u = 8.314510;
@@ -378,7 +378,7 @@ crit.T = 540.13; //[K]
 crit.v = 1/crit.rho; 
 
 // Other fluid parameters
-params.molemass = 100.204;
+params.molemass = 100.202;
 params.Ttriple = 182.55;
 params.accentricfactor = 0.349;
 params.R_u = 8.314510;
@@ -509,17 +509,17 @@ nOctaneClass::nOctaneClass()
 	std::vector<double> l_v(c_nonpolar_SpanShort,c_nonpolar_SpanShort+sizeof(c_nonpolar_SpanShort)/sizeof(double));
 
 	//Critical parameters
-	crit.rho = 234.9; //[kg/m^3]
+	crit.rho = 2.0564*114.2285; //[kg/m^3]
 	crit.p = 2497; //[kPa]
 	crit.T = 569.32; //[K]
 	crit.v = 1/crit.rho; 
 
 	// Other fluid parameters
-	params.molemass = 114.231;
+	params.molemass = 114.2285;
 	params.Ttriple = 216.37;
 	params.accentricfactor = 0.395;
 	params.R_u = 8.314510;
-	params.ptriple = 0.000175490394469;
+	params.ptriple = 0.0019888768508328075;
 
 	// Limits of EOS
 	limits.Tmin = params.Ttriple;
@@ -780,22 +780,33 @@ void nDodecaneClass::ECSParams(double *e_k, double *sigma)
 	*e_k = 522.592;
 	*sigma = 0.735639;
 }
-double nDodecaneClass::viscosity_Trho(double T, double rho)
+
+double nDodecaneClass::viscosity_dilute(double T)
 {
 	double sigma, e_k;
-	
+	// Dilute gas
+	this->ECSParams(&e_k, &sigma);
+	double Tstar = T/e_k;
+	double a[] = {0.382987, -0.561050, 0.313962e-1};
+	double S_star = exp(a[0]+a[1]*log(Tstar)+a[2]*log(Tstar)*log(Tstar));
+	double eta_0 = 0.021357*sqrt(params.molemass*T)/(sigma*sigma*S_star); //[uPa-s]
+	return eta_0/1e6;
+}
+double nDodecaneClass::viscosity_background(double T, double rho)
+{
+	double sigma, e_k;
 	// Dilute gas
 	this->ECSParams(&e_k, &sigma);
 	double Tstar = T/e_k;
 	double delta = rho/crit.rho;
-	double a[] = {0.382987, -0.561050, 0.313962e-1};
-	double S_star = exp(a[0]+a[1]*log(Tstar)+a[2]*log(Tstar)*log(Tstar));
-	double lambda_0 = 0.021357*sqrt(params.molemass*T)/(sigma*sigma*S_star); //[uPa-s]
+
+	// Dilute viscosity
+	double eta_0 = this->viscosity_dilute(T); //[Pa-s]
 
 	// Initial-density
 	double b[] = {-19.572881, 219.73999, -1015.3226, 2471.0125, -3375.1717, 2491.6597, -787.26086, 14.085455, -0.34664158};
 	double t[] = {0, -0.25, -0.50, -0.75, -1.00, -1.25, -1.50, -2.50, -5.50};
-	double sumBstar = 0;
+	double sumBstar = 0;	
 	for (int i = 0; i<= 8; i++){ sumBstar += b[i]*pow(Tstar,t[i]); }
 	double Bstar = sumBstar;
 	double N_A = 6.02214129e23;
@@ -806,16 +817,20 @@ double nDodecaneClass::viscosity_Trho(double T, double rho)
 	double c[] = {0, 0.503109, 2.32661, 2.23089};
 	double tau = T/crit.T;
 	double delta_0 = c[2]+c[3]*sqrt(tau);
-	double lambda_r = 1000*(a21*pow(delta,2)/tau+a31*pow(delta,3)/tau+a22*pow(delta,2)/pow(tau,2)+a32*pow(delta,3)/pow(tau,2)+c[1]*delta*(1/(delta_0-delta)-1/delta_0));
+	double eta_r = 1000*(a21*pow(delta,2)/tau+a31*pow(delta,3)/tau+a22*pow(delta,2)/pow(tau,2)+a32*pow(delta,3)/pow(tau,2)+c[1]*delta*(1/(delta_0-delta)-1/delta_0));
 
 	double rhobar = rho/params.molemass*1000;
-	return (lambda_0*(1+B*rhobar)+lambda_r)/1e6;
+	return eta_0*B*rhobar+eta_r/1e6; //[Pa-s]
 }
-double nDodecaneClass::conductivity_Trho(double T, double rho)
+
+double nDodecaneClass::viscosity_Trho(double T, double rho)
+{
+	return this->viscosity_dilute(T) + this->viscosity_background(T,rho);
+}
+
+double nDodecaneClass::conductivity_background(double T, double rho)
 {
 	double sumresid = 0;
-	double lambda_0 = 0.436343e-2-0.264054e-1*T/crit.T+0.922394e-1*pow(T/crit.T,2)-0.291756e-1*pow(T/crit.T,3); //W/m/K
-
 	double B1[] = {0, 0.693347e-1, -0.331695e-1, 0.676165e-2};
 	double B2[] = {0, -0.280792e-1, 0.173922e-2, 0.309558e-2};
 	for (int i = 1; i <= 3; i++)
@@ -823,7 +838,12 @@ double nDodecaneClass::conductivity_Trho(double T, double rho)
 		sumresid += (B1[i]+B2[i]*T/crit.T)*pow(rho/crit.rho,i);
 	}
 	double lambda_r = sumresid; // W/m/K
-
+	return lambda_r/1000;
+}
+double nDodecaneClass::conductivity_Trho(double T, double rho)
+{
+	double lambda_0 = 0.436343e-2-0.264054e-1*T/crit.T+0.922394e-1*pow(T/crit.T,2)-0.291756e-1*pow(T/crit.T,3); //W/m/K
+	double lambda_r = this->conductivity_background(T,rho)*1000; //[W/m/K]
 	double lambda_c = this->conductivity_critical(T,rho,1/(1.52e-9))*1000; //[W/m/K]
 
 	return (lambda_0 + lambda_r + lambda_c)/1000; //[kW/m/K]
@@ -1228,7 +1248,7 @@ R11Class::R11Class()
 	params.Ttriple = 162.68;
 	params.accentricfactor = 0.18875064825280830;
 	params.R_u = 8.314510;
-	params.ptriple = 0.0065100898612854546;
+	params.ptriple = 0.0066915477602794626;
 
 	// Limits of EOS
 	limits.Tmin = params.Ttriple;

@@ -113,8 +113,13 @@ double Brent(FuncWrapper1D *f, double a, double b, double macheps, double t, int
 	int iter;
 	*errstr=std::string("");
 	double fa,fb,c,fc,m,tol,d,e,p,q,s,r;
-    fa=f->call(a);
-    fb=f->call(b);
+    fa = f->call(a);
+    fb = f->call(b);
+
+	// If one of the boundaries is to within tolerance, just stop
+	if (fabs(fb) < t) { return b;}
+	if (fabs(fa) < t) { return a;}
+
 	if (fa*fb>0)
 	{
 		throw ValueError(format("Inputs in Brent [%f,%f] do not bracket the root.  Function values are [%f,%f]",a,b,fa,fb));

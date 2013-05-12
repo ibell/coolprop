@@ -253,23 +253,25 @@ double AirClass::viscosity_Trho(double T, double rho)
 		   sigma=0.360; //[nm]
 	double eta0,etar,OMEGA,delta,tau,Tstar;
 	double b[]={0.431,-0.4623,0.08406,0.005341,-0.00331};
-
-	double N[]={0,10.72,1.122,0.002019,-8.876,-0.02916};
-	double t[]={0,0.2,0.05,2.4,0.6,3.6};
-	double d[]={0,1,4,9,1,8};
-	double l[]={0,0,0,0,1,1};
-	double g[]={0,0,0,0,1,1};
-
-	delta=rho/crit.rho;
-	tau=crit.T/T;
-	Tstar=T/(e_k);
+	
+	// Ideal-gas part
+	Tstar = T/(e_k);
 	OMEGA=exp(b[0]*powInt(log(Tstar),0)
 			 +b[1]*powInt(log(Tstar),1)
 		     +b[2]*powInt(log(Tstar),2)
 			 +b[3]*powInt(log(Tstar),3)
 		     +b[4]*powInt(log(Tstar),4));
 
-	eta0=0.0266958*sqrt(params.molemass*T)/(sigma*sigma*OMEGA);
+	eta0=0.0266958*sqrt(28.9586*T)/(sigma*sigma*OMEGA);
+
+	// Residual part
+	double N[]={0,10.72,1.122,0.002019,-8.876,-0.02916};
+	double t[]={0,0.2,0.05,2.4,0.6,3.6};
+	double d[]={0,1,4,9,1,8};
+	double l[]={0,0,0,0,1,1};
+	double g[]={0,0,0,0,1,1};
+	delta = rho/(10.4477*28.9586);
+	tau = 132.6312/T;
 	etar=N[1]*pow(tau,t[1])*pow(delta,d[1])*exp(-g[1]*pow(delta,l[1]))
 		+N[2]*pow(tau,t[2])*pow(delta,d[2])*exp(-g[2]*pow(delta,l[2]))
 		+N[3]*pow(tau,t[3])*pow(delta,d[3])*exp(-g[3]*pow(delta,l[3]))
@@ -312,8 +314,8 @@ double AirClass::conductivity_Trho(double T, double rho)
 	double l[]={0,0,0,0,0,0,2,2,2,2};
 	double g[]={0,0,0,0,0,0,1,1,1,1};
 	
-	delta=rho/crit.rho;
-	tau=crit.T/T;
+	delta=rho/(10.4477*28.9586);
+	tau=132.6312/T;
 	Tstar=T/(e_k);
 
 	OMEGA=exp(b[0]*powInt(log(Tstar),0)
@@ -322,7 +324,7 @@ double AirClass::conductivity_Trho(double T, double rho)
 			 +b[3]*powInt(log(Tstar),3)
 		     +b[4]*powInt(log(Tstar),4));
 
-	eta0=0.0266958*sqrt(params.molemass*T)/(sigma*sigma*OMEGA);
+	eta0=0.0266958*sqrt(28.9586*T)/(sigma*sigma*OMEGA);
 	lambda0=N[1]*eta0+N[2]*pow(tau,t[2])+N[3]*pow(tau,t[3]);
 
 	lambdar=N[4]*pow(tau,t[4])*pow(delta,d[4])*exp(-g[4]*pow(delta,l[4]))

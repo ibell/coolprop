@@ -55,6 +55,8 @@ R227EAClass::R227EAClass()
 	aliases.push_back(std::string("R227ea"));
 	REFPROPname.assign("R227EA");
 
+	ECSReferenceFluid = "Propane";
+
 	BibTeXKeys.EOS = "McLinden-PREPRINT-2013";
 	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
 	BibTeXKeys.ECS_LENNARD_JONES = "Huber-IECR-2003";
@@ -155,6 +157,8 @@ R365MFCClass::R365MFCClass()
 	name.assign("R365MFC");
 	aliases.push_back(std::string("R365mfc"));
 	REFPROPname.assign("R365MFC");
+
+	ECSReferenceFluid = "Propane";
 
 	BibTeXKeys.EOS = "McLinden-PREPRINT-2013";
 	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";

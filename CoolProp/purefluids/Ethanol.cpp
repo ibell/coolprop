@@ -24,7 +24,7 @@ EthanolClass::EthanolClass()
     // Other fluid parameters
     params.molemass = 46.06844;
     params.Ttriple = 159.1;
-	params.ptriple = 7.2e-7;
+	params.ptriple = 7.3504707747213536e-007;
     params.accentricfactor = 0.644;
     params.R_u = 8.314472;
 

@@ -325,6 +325,13 @@ cpdef get_aliases(bytes_or_str Fluid):
     """
     cdef bytes _Fluid = Fluid if bytes_or_str is bytes else Fluid.encode('ascii')
     return [F.encode('ascii') for F in (_get_aliases(_Fluid).encode('ascii')).decode('ascii').split(',')]
+
+cpdef get_ASHRAE34(str Fluid):
+    """
+    Return the safety code for the fluid from ASHRAE34 if it is in ASHRAE34
+    """
+    cdef bytes _Fluid = Fluid.encode('ascii')
+    return _get_ASHRAE34(_Fluid)
     
 cpdef string get_REFPROPname(bytes_or_str Fluid):
     """
@@ -463,11 +470,14 @@ cpdef viscosity_dilute(bytes_or_str Fluid, double T, double rho, double e_k, dou
     cdef bytes _Fluid = Fluid if bytes_or_str is bytes else Fluid.encode('ascii')
     return _viscosity_dilute(_Fluid,T,rho,e_k,sigma)
 
-cpdef tuple conformal_Trho(bytes_or_str Fluid, bytes_or_str ReferenceFluid, double T, double rho):
+cpdef tuple conformal_Trho(str Fluid, str ReferenceFluid, double T, double rho):
+    """
+    
+    """    
     cdef double T0 = 0,rho0= 0
-    cdef bytes _Fluid = Fluid if bytes_or_str is bytes else Fluid.encode('ascii')
-    cdef bytes _ReferenceFluid = ReferenceFluid if bytes_or_str is bytes else ReferenceFluid.encode('ascii')
-    _conformal_Trho(_Fluid,_ReferenceFluid,T,rho,&T0,&rho0)
+    cdef bytes _Fluid = Fluid.encode('ascii')
+    cdef bytes _ReferenceFluid = ReferenceFluid.encode('ascii')
+    _conformal_Trho(_Fluid, _ReferenceFluid, T, rho, &T0, &rho0)
     return T0,rho0
 
 cpdef rhosatL_anc(bytes_or_str Fluid, double T):

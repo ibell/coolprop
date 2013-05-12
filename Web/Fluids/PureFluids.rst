@@ -14,6 +14,7 @@ Pure Fluids
     CarbonMonoxide.rst
     CarbonylSulfide.rst
     CycloHexane.rst
+    CycloPropane.rst
     Cyclopentane.rst
     D4.rst
     D5.rst
@@ -45,6 +46,7 @@ Pure Fluids
     MethylOleate.rst
     MethylPalmitate.rst
     MethylStearate.rst
+    Neon.rst
     Neopentane.rst
     Nitrogen.rst
     NitrousOxide.rst
@@ -54,11 +56,13 @@ Pure Fluids
     ParaHydrogen.rst
     Propane.rst
     Propylene.rst
+    Propyne.rst
     R11.rst
     R116.rst
     R123.rst
     R1234yf.rst
     R1234ze.rst
+    R124.rst
     R125.rst
     R134a.rst
     R141b.rst

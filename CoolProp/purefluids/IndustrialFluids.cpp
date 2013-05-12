@@ -170,6 +170,8 @@ CarbonMonoxideClass::CarbonMonoxideClass()
     aliases.push_back(std::string("CO")); 
     REFPROPname.assign("CO");
 
+	ECSReferenceFluid = "Propane";
+
 	BibTeXKeys.EOS = "Lemmon-JCED-2006";
 	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
 	BibTeXKeys.ECS_LENNARD_JONES = "Poling-BOOK-2001";
@@ -412,6 +414,8 @@ HydrogenSulfideClass::HydrogenSulfideClass()
     aliases.push_back(std::string("H2S")); 
     REFPROPname.assign("H2S");
 
+	ECSReferenceFluid = "Propane";
+
 	BibTeXKeys.EOS = "Lemmon-JCED-2006";
 	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
 	BibTeXKeys.ECS_LENNARD_JONES = "QuinonesCisneros-JCED-2012";
@@ -447,7 +451,7 @@ double HydrogenSulfideClass::viscosity_Trho(double T, double rho)
 	// Residual part
 	double psi1 = exp(crit.T/T);
 	double psi2 = exp(crit.T*crit.T/T/T);
-	double a0 = 68.9659e-6, b0 = 153.406e-6, A0 =  0.782380e-9, B0 = -9.75792e-9;
+	double a0 = 68.9659e-6, b0 = 153.406e-6, A0 = 0.782380e-9, B0 = -9.75792e-9;
 	double a1 = -22.0494e-6, b1 = 8.45198e-6, A1 = -0.64717e-9, B1 = -3.19303e-9;
 	double a2 = -42.6126e-6, b2 = -113.967e-6, A2 = 1.39066e-9, B2 = 12.4263e-9;
 	double ka = (a0 + a1*psi1 + a2*psi2)*crit.T/T;
@@ -461,7 +465,7 @@ double HydrogenSulfideClass::viscosity_Trho(double T, double rho)
 	double pid = rho * R() * T / 100; // kPa -> bar
 	double deltapr = pr - pid;
 
-	double eta_f = (ka*pa + kr*deltapr + kaa*pa*pa + krr*pr*pr)/1000; //mPa-s --> uPa-s
+	double eta_f = (ka*pa + kr*deltapr + kaa*pa*pa + krr*pr*pr)*1000; //mPa-s --> uPa-s
 
 	return (eta_0 + eta_i + eta_f)/1e6;
 }
@@ -598,7 +602,7 @@ IsohexaneClass::IsohexaneClass()
     // Other fluid parameters
     params.molemass = 86.17536;
     params.Ttriple = 119.6;
-	params.ptriple = 7.80272777499e-09;
+	params.ptriple = 7.67397444618e-09;
     params.accentricfactor = 0.2797;
     params.R_u = 8.314472;
 
@@ -746,7 +750,7 @@ NonaneClass::NonaneClass()
     EOSReference.assign("Lemmon, E.W., and R. Span, \"Short Fundamental Equations of State for 20 Industrial Fluids,\", J. Chem. Eng. Data, 51:785-850, 2006.");
     TransportReference.assign("Using ECS");
 
-    name.assign("Nonane");
+    name.assign("n-Nonane");
     aliases.push_back(std::string("nonane")); 
     REFPROPname.assign("nonane");
 
@@ -946,6 +950,8 @@ XenonClass::XenonClass()
     aliases.push_back(std::string("Xe")); aliases.push_back(std::string("xenon")); 
     REFPROPname.assign("xenon");
 
+	ECSReferenceFluid = "Propane";
+
 	BibTeXKeys.EOS = "Lemmon-JCED-2006";
 	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
 	BibTeXKeys.ECS_LENNARD_JONES = "Poling-BOOK-2001";
@@ -1142,6 +1148,8 @@ NitrousOxideClass::NitrousOxideClass()
     aliases.push_back(std::string("N2O")); 
     REFPROPname.assign("N2O");
 
+	ECSReferenceFluid = "Nitrogen";
+
 	BibTeXKeys.EOS = "Lemmon-JCED-2006";
 	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
 	BibTeXKeys.ECS_LENNARD_JONES = "Poling-BOOK-2001";
@@ -1263,6 +1271,8 @@ R141bClass::R141bClass()
 
     REFPROPname.assign("R141b");
 
+	ECSReferenceFluid = "Propane";
+
 	BibTeXKeys.EOS = "Lemmon-JCED-2006";
 	BibTeXKeys.ECS_FITS = "Huber-IECR-2003";
 	BibTeXKeys.ECS_LENNARD_JONES = "Huber-IECR-2003";
@@ -1338,8 +1348,9 @@ R142bClass::R142bClass()
     TransportReference.assign("Using ECS");
 
     name.assign("R142b");
-
     REFPROPname.assign("R142b");
+
+	ECSReferenceFluid = "Propane";
 
 	BibTeXKeys.EOS = "Lemmon-JCED-2006";
 	BibTeXKeys.ECS_FITS = "Huber-IECR-2003";
@@ -1416,8 +1427,9 @@ R218Class::R218Class()
     TransportReference.assign("Using ECS");
 
     name.assign("R218");
-
     REFPROPname.assign("R218");
+
+	ECSReferenceFluid = "Propane";
 
 	BibTeXKeys.EOS = "Lemmon-JCED-2006";
 	BibTeXKeys.ECS_FITS = "Huber-IECR-2003";

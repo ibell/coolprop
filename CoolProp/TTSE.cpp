@@ -932,6 +932,7 @@ double TTSESinglePhaseTableClass::build_Trho(double Tmin, double Tmax, double rh
 			}
 		}
 	}
+	if (Tmin < pFluid->limits.Tmin){ Tmin = pFluid->limits.Tmin; }
 	this->Tmin = Tmin;
 	this->Tmax = Tmax;
 	this->rhomin = rhomin;

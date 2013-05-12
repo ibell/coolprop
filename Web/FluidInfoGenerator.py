@@ -20,11 +20,9 @@ def PropertyConsistency(Fluid):
         import numpy as np
 
         Ref = "{Fluid:s}"
-        fig = plt.figure(figsize=(10,10))
-        ax1 = fig.add_subplot(221)
-        ax2 = fig.add_subplot(222)
-        ax3 = fig.add_subplot(223)
-        ax4 = fig.add_subplot(224)
+        fig = plt.figure(figsize=(10,5))
+        ax1 = fig.add_subplot(121)
+        ax2 = fig.add_subplot(122)
 
         Tmin = Props(Ref,'Tmin')+3
         pmin = Props('P','T',Tmin,'Q',0,Ref)
@@ -36,7 +34,6 @@ def PropertyConsistency(Fluid):
             
         Ph(Ref, axis = ax1, Tmin = Tmin, Tmax = {Tmax:f})
         Ps(Ref, axis = ax2, Tmin = Tmin, Tmax = {Tmax:f})
-        hs(Ref, axis = ax3, Tmin = Tmin, Tmax = {Tmax:f})
 
         for p in np.linspace(pmin,pmax,10):
             for h in np.linspace(hmin,hmax):
@@ -65,21 +62,6 @@ def PropertyConsistency(Fluid):
                     ax2.plot(s,p,'x',ms = 10)
                 else:
                     ax2.plot(s,p,'k.', ms = 1)
-                    
-        for s in np.linspace(smin,smax,10):
-            for h in np.linspace(hmin,hmax):
-                _bad = False
-                try:
-                    rho = Props('D','H',h,'S',s,Ref)
-                    T = Props('T','H',h,'S',s,Ref)
-                    hEOS = Props('H','T',T,'D',rho,Ref)
-                    sEOS = Props('S','T',T,'D',rho,Ref)
-                except ValueError:
-                    _bad = True
-                if _bad or abs(hEOS/h-1)>1e-6 or abs(sEOS/s-1)>1e-6:
-                    ax3.plot(h,p,'x',ms = 10)
-                else:
-                    ax3.plot(h,p,'k.', ms = 1)
                     
         plt.tight_layout()
     """.format(Fluid=Fluid,Tmax = Tmax))
@@ -138,7 +120,7 @@ def CriticalIsotherm(Fluid):
         ax.semilogy(rhov/rhoc,abs(visc/Rvisc-1)*100,'^',label='Viscosity')
         ax.semilogy(rhov/rhoc,abs(cond/Rcond-1)*100,'s',label='Conductivity')
         ax.set_ylim(1e-16,100)
-        ax.set_title('Critical isotherm Deviations from REFPROP 9.0')
+        ax.set_title('Critical isotherm Deviations from REFPROP 9.1')
         ax.set_xlabel(r'Reduced density $\\rho/\\rho_c$')
         ax.set_ylabel('Absolute deviation [%]')
         ax.legend(numpoints=1,loc='best')
@@ -204,7 +186,7 @@ def SatVaporParity(Fluid):
         ax.semilogy(Tv/Tc,abs(cond/Rcond-1)*100,'s',label='Conductivity')
         ax.semilogy(Tv/Tc,abs(sigma/Rsigma-1)*100,'p',label='Surface tension')
         ax.set_ylim(1e-16,100)
-        ax.set_title('Saturated Vapor Deviations from REFPROP 9.0')
+        ax.set_title('Saturated Vapor Deviations from REFPROP 9.1')
         ax.set_xlabel('Reduced temperature T/Tc')
         ax.set_ylabel('Absolute deviation [%]')
         ax.legend(numpoints=1,loc='best')
@@ -270,7 +252,7 @@ def SatLiquidParity(Fluid):
         ax.semilogy(Tv/Tc,abs(cond/Rcond-1)*100,'s',label='Conductivity')
         ax.semilogy(Tv/Tc,abs(sigma/Rsigma-1)*100,'p',label='Surface tension')
         ax.set_ylim(1e-16,100)
-        ax.set_title('Saturated Liquid Deviations from REFPROP 9.0')
+        ax.set_title('Saturated Liquid Deviations from REFPROP 9.1')
         ax.set_xlabel('Reduced temperature T/Tc')
         ax.set_ylabel('Absolute deviation [%]')
         ax.legend(numpoints=1,loc='best')

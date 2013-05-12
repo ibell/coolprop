@@ -95,6 +95,8 @@ def Labview():
         os.makedirs(os.path.join('dist_temp','Labview'))
     except os.error: pass
     
+    process = subprocess.Popen(['BuildDLL.bat'],shell=True,cwd=os.path.join('wrappers','Labview'))
+    process.wait()
     shutil.copy2(os.path.join('wrappers','Labview','CoolProp.dll'),os.path.join('dist_temp','Labview','CoolProp.dll'))
     shutil.copy2(os.path.join('wrappers','Labview','CoolProp.vi'),os.path.join('dist_temp','Labview','CoolProp.vi'))
     shutil.copy2(os.path.join('wrappers','Labview','README.rst'),os.path.join('dist_temp','Labview','README.rst'))
@@ -137,16 +139,16 @@ def Modelica():
     
 def UploadSourceForge():
     #Rename folder to version number
-    from setup import version
+    import CoolProp
     try:
-        shutil.copytree('dist_temp',version)
+        shutil.copytree('dist_temp',CoolProp.__version__)
     except WindowsError: pass
     
     call_str = ['pscp','README.txt','ibell,coolprop@frs.sf.net:/home/pfs/project/c/co/coolprop/CoolProp/']
     print 'Calling: '+' '.join(call_str)
     print subprocess.check_output(call_str,shell=True)
     
-    call_str = ['pscp','-r','-v',version,'ibell,coolprop@frs.sf.net:/home/pfs/project/c/co/coolprop/CoolProp/']
+    call_str = ['pscp','-r','-v',CoolProp.__version__,'ibell,coolprop@frs.sf.net:/home/pfs/project/c/co/coolprop/CoolProp/']
     print 'Calling: '+' '.join(call_str)
     print subprocess.check_output(call_str,shell=True)
     
@@ -154,7 +156,7 @@ def UploadSourceForge():
     os.remove(version)
     
 def BuildDocs():
-    #Open Doxyfile, and update the version number in the file
+    # Open Doxyfile, and update the version number in the file
     lines = open('Doxyfile','r').readlines()
     import CoolProp
     for i in range(len(lines)):
@@ -163,29 +165,41 @@ def BuildDocs():
             lines[i]=line
             break
     open('Doxyfile','w').write(''.join(lines))
+    
+    # Inject the revision number into the docs main pages for the link
+    lines = open('Web/_templates/index.html','r').readlines()
+    import CoolProp
+    languages = ['Python','Modelica','Labview','MATLAB','EES','Octave','Excel','C#']
+    for i in range(len(lines)):
+        if (lines[i].find('http://sourceforge.net/projects/coolprop/files/CoolProp/') > -1
+            and any([lines[i].find(a) > -1 for a in languages])
+                ):
+            oldVersion = lines[i].split('http://sourceforge.net/projects/coolprop/files/CoolProp/')[1].split('/',1)[0]
+            lines[i] = lines[i][:].replace(oldVersion,CoolProp.__version__)
+    open('Web/_templates/index.html','w').write(''.join(lines))
+    
     print subprocess.check_output(['doxygen','Doxyfile'],shell=True)
+    shutil.rmtree(os.path.join('Web','_build'),ignore_errors = True)
     print subprocess.check_output(['BuildCPDocs.bat'],shell=True,cwd='Web')
     
 def UploadDocs():
     call_str = ['pscp','-r','-v','Web/_build/html/*.*','ibell@web.sourceforge.net:/home/groups/coolprop/htdocs']
     print 'Calling: '+' '.join(call_str)
-    print subprocess.check_output(call_str,shell=True)
+    print subprocess.check_output(call_str, shell = True)
     
 if __name__=='__main__':
     
 ##     InstallPrereqs()  #This is optional if you think any of the pre-reqs have been updated
-
 ##     DLL_and_Excel()
 ##     Source()
 ##     Python()
 ##     Csharp()
 ##     Octave()
-    MATLAB()
+##     MATLAB()
 ##     EES()
 ##     Labview()
 ##     Modelica()
 ##     PYPI()
 ##     UploadSourceForge()
-
 ##     BuildDocs()
-##     UploadDocs()
+    UploadDocs()

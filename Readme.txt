@@ -1,6 +1,22 @@
 CoolProp is a property database and wrappers for a selection of programming environments
 
 Changelog:
+3.1.1 (revision 544)
+Added the fluid Propyne
+Fixed ECS core code
+Added ECS parameters and changed reference fluids for a lot of fluids
+Fixed Air and H2S transport equations
+Fixed compilation bug for sources
+
+3.1 (revision 534)
+Added the fluids Propylene, Cyclopentane, R236FA, R236EA, R227EA, R123, R152A, R227EA, R365MFC, R161, HFE143M, Benzene, R11, Undecane, R125, Cyclopropane, Neon, R124
+Added the viscosity and conductivity correlations for a lot of fluids
+Added surface tension, Lennard-Jones parameters for a lot of fluids
+Added enthalpy, entropy as inputs
+Added pressure, density as inputs
+CoolProp builds on Raspberry PI
+CoolProp works in MATLAB on OSX
+Python unit tests have been added in wrappers/CoolProp/CoolProp/tests - a work in progress
 
 3.0 (revision 325)
 Added Tabular Taylor Series Expansion (see documentation)

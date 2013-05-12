@@ -55,6 +55,8 @@ PropyleneClass::PropyleneClass()
 	aliases.push_back(std::string("propylene"));
 	REFPROPname.assign("PROPYLEN");
 
+	ECSReferenceFluid = "Propane";
+
 	BibTeXKeys.EOS = "Lemmon-PROPYLENE-2013";
 	BibTeXKeys.ECS_LENNARD_JONES = "Huber-IECR-2003";
 	BibTeXKeys.ECS_FITS = "Huber-IECR-2003";

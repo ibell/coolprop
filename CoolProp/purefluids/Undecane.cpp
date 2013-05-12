@@ -18,7 +18,7 @@ UndecaneClass::UndecaneClass()
 	crit.v = 1/crit.rho; 
 
 	// Other fluid parameters
-	params.molemass = 156.31;
+	params.molemass = 156.30826;
 	params.Ttriple = 247.541;
 	params.accentricfactor = 0.53903710137185668;
 	params.R_u = 8.314472;
@@ -34,15 +34,14 @@ UndecaneClass::UndecaneClass()
 
 	phi0list.push_back(new phi0_lead(0, 0));
 	phi0list.push_back(new phi0_logtau(-1));
-	phi0list.push_back(new phi0_cp0_constant(-119.4274,crit.T,298.15));
 
-	double alpha[] = {-1158848, 20321.8, 0.4284215, -4.157728e-4, 1.61828e-7};
-	double beta[] = {-2, -1, 1, 2, 3};
+	double alpha[] = {-1158848, 20321.8, -119.4274, 0.4284215, -4.157728e-4, 1.61828e-7};
+	double beta[] = {-2, -1, 0, 1, 2, 3};
 
 	std::vector<double> alpha_v(alpha, alpha+sizeof(alpha)/sizeof(double));
 	std::vector<double> beta_v(beta, beta+sizeof(beta)/sizeof(double));
 
-	phi0list.push_back(new phi0_cp0_poly(alpha_v, beta_v, crit.T, 298.15, 0, 4));
+	phi0list.push_back(new phi0_cp0_poly(alpha_v, beta_v, crit.T, 298.15, 0, 5));
 
 	EOSReference.assign("Aleksandrov, I. S. and A. A. Gerasimov and B. A. Grigor’ev \"Using Fundamental Equations of State for Calculating the Thermodynamic Properties of Normal Undecane\" Thermal Engineering, 2011, Vol. 58, No. 8, pp. 691–698");
 	TransportReference.assign("Using ECS in fully predictive mode.");
@@ -51,6 +50,8 @@ UndecaneClass::UndecaneClass()
 	aliases.push_back("Undecane");
 	aliases.push_back("C11");
 	REFPROPname.assign("C11");
+	
+	ECSReferenceFluid = "n-Dodecane";
 
 	BibTeXKeys.EOS = "Aleksandrov-TE-2011";
 }

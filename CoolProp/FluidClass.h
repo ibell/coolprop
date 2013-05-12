@@ -103,6 +103,14 @@ struct BibTeXKeysStruct
 	
 };
 
+struct EnvironmentalFactorsStruct
+{
+	double GWP20, GWP100, GWP500, ODP, HH, PH, FH;
+	std::string ASHRAE34;
+};
+
+double syaml_lookup(std::string key1, std::string key2);
+
 /// Fluid is the abstract base class that is employed by all the other fluids
 class Fluid
 {
@@ -110,6 +118,7 @@ class Fluid
 		std::string name; /// The name of the fluid
 		std::string REFPROPname; /// The REFPROP-compliant name if REFPROP-"name" is not a compatible fluid name.  If not included, "name" is assumed to be a valid name for REFPROP
 		std::vector <std::string> aliases; /// A list of aliases of names for the Fluid, each element is a std::string instance
+		std::string ECSReferenceFluid; /// A string that gives the name of the fluids that should be used for the ECS method for transport properties
 		
 		std::string EOSReference; /// A std::string that contains a reference for thermo properties for the fluid
 		std::string TransportReference; /// A std::string that contains a reference for the transport properties of the fluid
@@ -133,6 +142,7 @@ class Fluid
 		SatLUTStruct SatLUT; /// The private Saturation lookup structure
 
 		BibTeXKeysStruct BibTeXKeys;
+		EnvironmentalFactorsStruct environment;
 
 		std::vector <phi_BC*> phirlist; /// A list of instances of the phi_BC classes for the residual Helmholtz energy contribution
 		std::vector <phi_BC*> phi0list; /// A list of instances of the phi_BC classes for the ideal-gas Helmholtz energy contribution
@@ -163,6 +173,7 @@ class Fluid
 			s_ancillary = NULL;
 			cp_ancillary = NULL;
 			drhodT_p_ancillary = NULL;
+			ECSReferenceFluid = "R134a";
 		};
 		virtual ~Fluid();
 
@@ -175,6 +186,8 @@ class Fluid
 		struct OtherParameters params;
 		struct CriticalStruct * preduce; /// A pointer to the point that is used to reduce the T and rho for EOS
 		struct CriticalStruct reduce; /// The point that is used to reduce the T and rho for EOS
+
+		
 
 		//// The TTSE lookup tables
 		TTSETwoPhaseTableClass TTSESatL;
@@ -350,17 +363,17 @@ class Fluid
 		};
 		/// This function is optional, the default value of 1.0 is used otherwise
 		///@param rhor The reduced density where rhor = rho/rhoc
-		double ECS_psi_viscosity(double rhor){
+		virtual double ECS_psi_viscosity(double rhor){
 			return 1.0;
 		};
 		/// This function is optional, the default value of 1.0 is used otherwise
 		///@param rhor The reduced density where rhor = rho/rhoc
-		double ECS_chi_conductivity(double rhor){
+		virtual double ECS_chi_conductivity(double rhor){
 			return 1.0;
 		};
 		/// This function is optional, the default value of 1.32e-3 is used otherwise
 		///@param T The temperature
-		double ECS_f_int(double T){
+		virtual double ECS_f_int(double T){
 			return 1.32e-3;
 		};
 		/// This function is optional, and returns a NotImplementedError if the derived class does not implement it.

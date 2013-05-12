@@ -47,6 +47,7 @@ public:
 		// From Mulero, 2012, JPCRD
 		return 0.0534*pow(1-T/reduce.T,1.210);
 	};
+
 };
 
 #endif

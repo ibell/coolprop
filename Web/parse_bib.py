@@ -59,7 +59,7 @@ class BibTeXerClass:
             return entry['author'] + ', ' + entry['year'] + ', ' + entry['title'] + ', *' + entry['journal'] + '*, ' + entry['volume'] + ':' + entry['pages']
         elif entry['family'] == 'CONFERENCE':
             if 'journal' not in entry: entry['journal'] = ''
-            return entry['author'] + ', ' + entry['year'] + ', ' + entry['title'] + ', *' + entry['journal'] + '*'
+            return entry['author'] + ', ' + entry['year'] + ', ' + entry['title'] + ', *' + entry['booktitle'] + '*'
         elif entry['family'] == 'MASTERSTHESIS':
             return entry['author'] + ', ' + entry['year'] + ', ' + entry['title'] + ', *' + entry['school'] + '*'
         elif entry['family'] == 'UNPUBLISHED':

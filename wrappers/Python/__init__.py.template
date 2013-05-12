@@ -6,7 +6,14 @@ from . import State
 
 __fluids__ = CoolProp.FluidsList()
 
- 
+
+def test():
+    """
+    Run the tests in the test folder
+    """
+    from .tests import runner
+    runner.run()
+
 def get_include_directory():
     """
     Get the include directory for CoolProp header files that are needed if you want

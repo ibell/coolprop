@@ -109,7 +109,7 @@ if __name__=='__main__':
     if len(sys.argv)==1:
         #sys.argv += ['build_ext','--inplace']
         #sys.argv += ['build','--compiler=mingw32','install']
-        sys.argv += ['clean','install']
+        sys.argv += ['build','--force','install']
         #sys.argv += ['install']
         
     badfiles = [os.path.join('CoolProp','__init__.pyc'),
@@ -218,4 +218,13 @@ if __name__=='__main__':
         shutil.rmtree('CoolPropSource')
         os.remove('version.txt')
     touch('setup.py')
+    
+#    try:
+#        import nose
+#        import CoolProp
+#        CoolProp.test()
+#    except ImportError:
+#        print("Could not run tests, nose not installed")
+        
+        
     

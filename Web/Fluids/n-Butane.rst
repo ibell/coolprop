@@ -9,13 +9,15 @@ Aliases
 
 Bibliographic Information
 =========================
-**Equation of State**: D. Buecker and W. Wagner, 2006, A Reference Equation of State for the Thermodynamic Properties of Ethane for Temperatures from the Melting Line to 675 K and Pressures up to 900 MPa, *J. Phys. Chem. Ref. Data*, 35:205-266
+**Equation of State**: D. Buecker and W. Wagner, 2006, Reference Equations of State for the Thermodynamic Properties of Fluid Phase n-Butane and Isobutane, *J. Phys. Chem. Ref. Data*, 35:929-1019
 
 **Surface Tension**: A. Mulero and I. Cachadi\~na and M. I. Parra, 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
 
-**Viscosity**: 
+**Viscosity**: E. Vogel and C. Kuechenmeister and E. Bich, 1999, Viscosity for n-Butane in the Fluid Region, *High Temp. - High Pressures*, 31:173-186
 
 **Conductivity**: R.A. Perkins and M.L.V. Ramires and C.A. Nieto de Castro and L. Cusco, 2002., Measurement and Correlation of the Thermal Conductivity of Butane from 135 K to 600 K at Pressures to 70 MPa, *J. Chem. Eng. Data*, 47:1263-1271
+
+**Lennard-Jones Parameters for ECS**: E. Vogel and C. Kuechenmeister and E. Bich, 1999, Viscosity for n-Butane in the Fluid Region, *High Temp. - High Pressures*, 31:173-186
 
 
 
@@ -95,7 +97,7 @@ Saturated Vapor Deviations
     ax.semilogy(Tv/Tc,abs(cond/Rcond-1)*100,'s',label='Conductivity')
     ax.semilogy(Tv/Tc,abs(sigma/Rsigma-1)*100,'p',label='Surface tension')
     ax.set_ylim(1e-16,100)
-    ax.set_title('Saturated Vapor Deviations from REFPROP 9.0')
+    ax.set_title('Saturated Vapor Deviations from REFPROP 9.1')
     ax.set_xlabel('Reduced temperature T/Tc')
     ax.set_ylabel('Absolute deviation [%]')
     ax.legend(numpoints=1,loc='best')
@@ -156,7 +158,7 @@ Saturated Liquid Deviations
     ax.semilogy(Tv/Tc,abs(cond/Rcond-1)*100,'s',label='Conductivity')
     ax.semilogy(Tv/Tc,abs(sigma/Rsigma-1)*100,'p',label='Surface tension')
     ax.set_ylim(1e-16,100)
-    ax.set_title('Saturated Liquid Deviations from REFPROP 9.0')
+    ax.set_title('Saturated Liquid Deviations from REFPROP 9.1')
     ax.set_xlabel('Reduced temperature T/Tc')
     ax.set_ylabel('Absolute deviation [%]')
     ax.legend(numpoints=1,loc='best')
@@ -212,7 +214,7 @@ Along the critical isotherm where T=T\ :sub:`c`
     ax.semilogy(rhov/rhoc,abs(visc/Rvisc-1)*100,'^',label='Viscosity')
     ax.semilogy(rhov/rhoc,abs(cond/Rcond-1)*100,'s',label='Conductivity')
     ax.set_ylim(1e-16,100)
-    ax.set_title('Critical isotherm Deviations from REFPROP 9.0')
+    ax.set_title('Critical isotherm Deviations from REFPROP 9.1')
     ax.set_xlabel(r'Reduced density $\rho/\rho_c$')
     ax.set_ylabel('Absolute deviation [%]')
     ax.legend(numpoints=1,loc='best')
@@ -228,11 +230,9 @@ Check of p,h and p,s as inputs (X: Failure .: Success)
     import numpy as np
 
     Ref = "n-Butane"
-    fig = plt.figure(figsize=(10,10))
-    ax1 = fig.add_subplot(221)
-    ax2 = fig.add_subplot(222)
-    ax3 = fig.add_subplot(223)
-    ax4 = fig.add_subplot(224)
+    fig = plt.figure(figsize=(10,5))
+    ax1 = fig.add_subplot(121)
+    ax2 = fig.add_subplot(122)
 
     Tmin = Props(Ref,'Tmin')+3
     pmin = Props('P','T',Tmin,'Q',0,Ref)
@@ -244,7 +244,6 @@ Check of p,h and p,s as inputs (X: Failure .: Success)
 
     Ph(Ref, axis = ax1, Tmin = Tmin, Tmax = 425.115000)
     Ps(Ref, axis = ax2, Tmin = Tmin, Tmax = 425.115000)
-    hs(Ref, axis = ax3, Tmin = Tmin, Tmax = 425.115000)
 
     for p in np.linspace(pmin,pmax,10):
         for h in np.linspace(hmin,hmax):
@@ -273,20 +272,5 @@ Check of p,h and p,s as inputs (X: Failure .: Success)
                 ax2.plot(s,p,'x',ms = 10)
             else:
                 ax2.plot(s,p,'k.', ms = 1)
-
-    for s in np.linspace(smin,smax,10):
-        for h in np.linspace(hmin,hmax):
-            _bad = False
-            try:
-                rho = Props('D','H',h,'S',s,Ref)
-                T = Props('T','H',h,'S',s,Ref)
-                hEOS = Props('H','T',T,'D',rho,Ref)
-                sEOS = Props('S','T',T,'D',rho,Ref)
-            except ValueError:
-                _bad = True
-            if _bad or abs(hEOS/h-1)>1e-6 or abs(sEOS/s-1)>1e-6:
-                ax3.plot(h,p,'x',ms = 10)
-            else:
-                ax3.plot(h,p,'k.', ms = 1)
 
     plt.tight_layout()

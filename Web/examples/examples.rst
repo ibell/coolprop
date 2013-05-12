@@ -1,6 +1,10 @@
 Examples
 ========
  
+The following examples are written in Python to demonstrate some of the 
+functionalities of CoolProp.  Similar calling conventions are used in the wrappers
+for other programming languages
+
 Sample Props Code
 -------------------
 To use the Props function, import it and do some calls, do something like this
@@ -41,7 +45,6 @@ To use the HAProps function, import it and do some calls, do something like this
     
     #Temperature of saturated air - order of inputs doesn't matter
     In [2]: T=HAProps('T','H',h,'R',1.0,'P',101.325); print T
-    
     
 Or go to the :ref:`Humid-Air` documentation.
 

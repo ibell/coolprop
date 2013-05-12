@@ -186,7 +186,7 @@ void CoolPropStateClass::update(long iInput1, double Value1, long iInput2, doubl
 	}
 	else
 	{
-		// Try to build the EOS
+		// Try to build the LUT
 		pFluid->build_TTSE_LUT();
 
 		// If inputs are in range of LUT, use it, otherwise just use the EOS
@@ -487,23 +487,7 @@ void CoolPropStateClass::update_Tp(long iInput1, double Value1, long iInput2, do
 
 	if (_TwoPhase)
 	{
-		// If it made it to the saturation routine and it is two-phase the saturation variables have been set
-		TwoPhase = true;
-		SinglePhase = false;
-
-		// Get the quality and pressure
-		_Q = (1/_rho-1/rhosatL)/(1/rhosatV-1/rhosatL);
-		_p = _Q*psatV+(1-_Q)*psatL;
-		
-		check_saturated_quality(_Q);
-		if (pFluid->pure()){
-			TsatL = _T;
-			TsatV = _T;
-		}
-		else{
-			TsatL = _T;
-			TsatV = _T;
-		}
+		throw ValueError(format("TwoPhase is not possible with T,P as inputs"));
 	}
 	else{
 		TwoPhase = false;
@@ -918,6 +902,18 @@ double CoolPropStateClass::keyed_output(long iOutput)
 			return iTwoPhase;
 
 		// --------------------------
+		// Environmental properties
+		// --------------------------
+		case iODP:
+			return pFluid->environment.ODP;
+		case iGWP20:
+			return pFluid->environment.GWP20;
+		case iGWP100:
+			return pFluid->environment.GWP100;
+		case iGWP500:
+			return pFluid->environment.GWP500;
+
+		// --------------------------
 		// Thermodynamic properties
 		// --------------------------
 		case iT:
@@ -1120,34 +1116,23 @@ double CoolPropStateClass::cp(void){
 }
 
 double CoolPropStateClass::viscosity(void){
-	if (TwoPhase){
-		// Adams formulation for two-phase viscosity
-		return 1/(_Q/viscV()+(1-_Q)/viscL());
+	if (pFluid->enabled_TTSE_LUT && within_TTSE_range(iP,p(),iH,h()))
+	{
+		return pFluid->TTSESinglePhase.evaluate_Trho(iV,_T,_rho,_logrho);
 	}
-	else{
-		if (pFluid->enabled_TTSE_LUT && within_TTSE_range(iP,p(),iH,h()))
-		{
-			return pFluid->TTSESinglePhase.evaluate_Trho(iV,_T,_rho,_logrho);
-		}
-		else
-		{
-			return pFluid->viscosity_Trho(_T,_rho);
-		}
+	else
+	{
+		return pFluid->viscosity_Trho(_T,_rho);
 	}
 }
 
 double CoolPropStateClass::conductivity(void){
-	if (TwoPhase){
-		return _Q*condV()+(1-_Q)*condL();
+	if (pFluid->enabled_TTSE_LUT  && within_TTSE_range(iP,p(),iH,h()))
+	{
+		return pFluid->TTSESinglePhase.evaluate_Trho(iL,_T,_rho,_logrho);
 	}
 	else{
-		if (pFluid->enabled_TTSE_LUT  && within_TTSE_range(iP,p(),iH,h()))
-		{
-			return pFluid->TTSESinglePhase.evaluate_Trho(iL,_T,_rho,_logrho);
-		}
-		else{
-			return pFluid->conductivity_Trho(_T,_rho);
-		}
+		return pFluid->conductivity_Trho(_T,_rho);
 	}
 }
 

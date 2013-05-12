@@ -2064,35 +2064,36 @@ Functions to obtain fluid properties from the currently active state.
         CoolProp2Modelica.Interfaces.ExternalTwoPhaseMedium (
            mediumName="water",
            libraryName="CoolProp",
-           substanceName="water|calc_transport=0|debug=1|enable_TTSE=1",
+           substanceName="water|calc_transport=0|debug=1|enable_TTSE=0",
            ThermoStates=Modelica.Media.Interfaces.PartialMedium.Choices.IndependentVariables.ph);
       package WorkingFluidTwo =
         CoolProp2Modelica.Interfaces.ExternalTwoPhaseMedium (
            mediumName="water",
            libraryName="CoolProp",
-           substanceName="water|calc_transport=0|debug=1|enable_TTSE=0",
+           substanceName="water|calc_transport=0|debug=1|enable_TTSE=1",
            ThermoStates=Modelica.Media.Interfaces.PartialMedium.Choices.IndependentVariables.ph);
 
       Modelica.SIunits.AbsolutePressure pOne;
-      Modelica.SIunits.AbsolutePressure pTwo;
       Modelica.SIunits.SpecificEnthalpy hOne;
-      Modelica.SIunits.SpecificEnthalpy hTwo;
       Modelica.SIunits.Temperature TOne;
+      Modelica.SIunits.SpecificEnthalpy hOne_b;
+
+    // Second set of variables
+      Modelica.SIunits.AbsolutePressure pTwo;
+      Modelica.SIunits.SpecificEnthalpy hTwo;
       Modelica.SIunits.Temperature TTwo;
-    //   Modelica.SIunits.SpecificEntropy sOne_a;
-    //   Modelica.SIunits.SpecificEntropy sTwo_a;
-    //   Modelica.SIunits.SpecificEntropy sOne_b;
-    //   Modelica.SIunits.SpecificEntropy sTwo_b;
+      Modelica.SIunits.SpecificEnthalpy hTwo_b;
 
     equation
-        pOne = 1e5;
-        pTwo = pOne;
-        hOne = 200e3 + 100e3*time;
-        hTwo = hOne;
+      pOne = 1.5e5;
+      hOne = 200e3 + 100e3*time;
+      TOne = WorkingFluidOne.temperature_ph(pOne, hOne);
+      hOne_b = WorkingFluidOne.specificEnthalpy_pT(pOne, TOne);
 
-        TOne = WorkingFluidOne.temperature_ph(pOne, hOne);
-        TTwo = WorkingFluidTwo.temperature_ph(pTwo, hTwo);
-        // sOne = WorkingFluidOne.specificEntropy_ph(port_a.p, inStream(port_a.h_outflow), inStream(port_a.Xi_outflow));
+      pTwo = pOne;
+      hTwo = hOne;
+      TTwo = WorkingFluidTwo.temperature_ph(pTwo, hTwo);
+      hTwo_b = WorkingFluidTwo.specificEnthalpy_pT(pTwo, TTwo);
 
     end TTSEerror;
   end Examples;

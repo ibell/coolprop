@@ -45,7 +45,7 @@ static Fluid * pFluid;
 
 // This is very hacky, but pull the subversion revision from the file
 #include "svnrevision.h" // Contents are like "long svnrevision = 286;"
-#include "version.h" // Contents are like "static char version [] ="2.5";"
+#include "version.h" // Contents are like "char version [] ="2.5";"
 
 int global_Phase = -1;
 bool global_SinglePhase = false;
@@ -96,6 +96,11 @@ std::pair<std::string, long> map_data[] = {
 	std::make_pair(std::string("PHASE_GAS"),iPHASE_GAS),
 	std::make_pair(std::string("PHASE_SUPERCRITICAL"),iPHASE_SUPERCRITICAL),
 	std::make_pair(std::string("PHASE_TWOPHASE"),iPHASE_TWOPHASE),
+	std::make_pair(std::string("ODP"),iODP),
+	std::make_pair(std::string("GWP20"),iGWP20),
+	std::make_pair(std::string("GWP100"),iGWP100),
+	std::make_pair(std::string("GWP500"),iGWP500),
+	std::make_pair(std::string("ASHRAE34"),iASHRAE34),
 };
 //Now actually construct the map
 std::map<std::string, long> param_map(map_data,
@@ -350,6 +355,25 @@ EXPORT_CODE void CONVENTION get_index_units(long param, char * units)
 {
 	strcpy(units, (char*)get_index_units(param).c_str());
 	return;
+}
+
+std::string get_ASHRAE34(std::string fluid)
+{
+	long iFluid = get_Fluid_index(fluid);
+	if (iFluid > -1)
+	{
+		Fluid *pFluid = get_fluid(iFluid);
+		return pFluid->environment.ASHRAE34;
+	}
+	else
+	{
+		return "Fluid name invalid";
+	}
+}
+EXPORT_CODE long CONVENTION get_ASHRAE34(char* fluid, char *value)
+{
+	strcpy(value, (char*)get_ASHRAE34(fluid).c_str());
+	return 1;
 }
 
 long get_param_index(std::string param)
@@ -929,6 +953,11 @@ double _CoolProp_Fluid_Props(long iOutput, long iName1, double Prop1, long iName
 		case iPHASE_GAS:
 		case iPHASE_SUPERCRITICAL:
 		case iPHASE_TWOPHASE:
+		case iASHRAE34:
+		case iGWP20:
+		case iGWP100:
+		case iGWP500:
+		case iODP:
 			return CPS.keyed_output(iOutput);
 	}
 

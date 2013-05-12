@@ -34,5 +34,10 @@ public enum _params {
   iDpdT,
   iDrhodT_p,
   iTmin,
-  iDipole
+  iDipole,
+  iPhase,
+  iPHASE_LIQUID,
+  iPHASE_GAS,
+  iPHASE_SUPERCRITICAL,
+  iPHASE_TWOPHASE
 }

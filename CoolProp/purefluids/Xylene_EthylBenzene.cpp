@@ -51,6 +51,8 @@ oXyleneClass::oXyleneClass()
 	EOSReference.assign("Yong Zhou, Jiangtao Wu, Eric W. Lemmon, \"Thermodynamic Properties of o-Xylene, m-Xylene, p-Xylene, and Ethylbenzene\", J. Phys. Chem. Ref. Data, Vol. 41, No. 2, 2012");
 	TransportReference.assign("Using ECS in fully predictive mode");
 
+	ECSReferenceFluid = "Propane";
+
 	name.assign("o-Xylene");
 	aliases.push_back("oXylene");
 	REFPROPname.assign("OXYLENE");
@@ -152,6 +154,8 @@ mXyleneClass::mXyleneClass()
 	aliases.push_back("mXylene");
 	REFPROPname.assign("MXYLENE");
 
+	ECSReferenceFluid = "Propane";
+
 	BibTeXKeys.EOS = "Zhou-JPCRD-2012";
 }
 double mXyleneClass::psat(double T)
@@ -249,6 +253,8 @@ pXyleneClass::pXyleneClass()
 	aliases.push_back("pXylene");
 	REFPROPname.assign("PXYLENE");
 
+	ECSReferenceFluid = "Propane";
+
 	BibTeXKeys.EOS = "Zhou-JPCRD-2012";
 }
 double pXyleneClass::psat(double T)
@@ -294,11 +300,6 @@ double pXyleneClass::rhosatV(double T)
     }
     return reduce.rho*exp(crit.T/T*summer);
 }
-
-
-
-
-
 
 EthylBenzeneClass::EthylBenzeneClass()
 {
@@ -349,6 +350,8 @@ EthylBenzeneClass::EthylBenzeneClass()
 
 	name.assign("EthylBenzene");
 	REFPROPname.assign("EBENZENE");
+
+	ECSReferenceFluid = "Propane";
 
 	BibTeXKeys.EOS = "Zhou-JPCRD-2012";
 }

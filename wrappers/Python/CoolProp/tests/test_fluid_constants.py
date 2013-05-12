@@ -25,7 +25,7 @@ def check_ptriple(Fluid):
     Tmin = max(Props(Fluid,'Tmin'), Props(Fluid,'Ttriple'))
     ptriple = Props(Fluid,'ptriple')
     ptripleEOS = Props('P','T',Tmin,'Q',1,Fluid)
-    assert (ptriple/ptripleEOS-1) < 0.01
+    assert abs(ptriple/ptripleEOS-1) < 0.01
 
 ###############################################################################
 ###############################################################################

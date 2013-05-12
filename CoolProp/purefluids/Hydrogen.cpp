@@ -344,6 +344,7 @@ ParaHydrogenClass::ParaHydrogenClass()
                               "Natl. Bur. Stand., Tech. Note 617, 1972.");
 
 	name.assign("ParaHydrogen");
+	aliases.push_back("Parahydrogen");
 	REFPROPname.assign("PARAHYD");
 
 	BibTeXKeys.EOS = "Leachman-JPCRD-2009";
@@ -451,7 +452,7 @@ double ParaHydrogenClass::viscosity_Trho(double T, double rho)
 double ParaHydrogenClass::surface_tension_T(double T)
 {
 	// Mulero, JPCRD 2012
-	return 0.005369*pow(1-T/reduce.T,1.065);
+	return 0.005314*pow(1-T/reduce.T,1.06);
 }
 
 OrthoHydrogenClass::OrthoHydrogenClass()
@@ -494,7 +495,7 @@ OrthoHydrogenClass::OrthoHydrogenClass()
 	// Other fluid parameters
 	params.molemass = 2.01594;
 	params.Ttriple = 14.008;
-	params.ptriple = 7.461;
+	params.ptriple = 7.5598823410394012;
 	params.accentricfactor = -0.219;
 	params.R_u = 8.314472;
 
@@ -513,6 +514,7 @@ OrthoHydrogenClass::OrthoHydrogenClass()
                               "Natl. Bur. Stand., Tech. Note 617, 1972.");
 
 	name.assign("OrthoHydrogen");
+	aliases.push_back("Orthohydrogen");
 	REFPROPname.assign("ORTHOHYD");
 
 	BibTeXKeys.EOS = "Leachman-JPCRD-2009";

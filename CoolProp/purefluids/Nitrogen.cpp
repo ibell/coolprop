@@ -309,6 +309,7 @@ NitrogenClass::NitrogenClass()
 	BibTeXKeys.VISCOSITY = "Lemmon-IJT-2004";
 	BibTeXKeys.CONDUCTIVITY = "Lemmon-IJT-2004";
 	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
+	BibTeXKeys.ECS_LENNARD_JONES = "Poling-BOOK-2001";
 }
 
 double NitrogenClass::X_tilde(double T,double tau,double delta)
@@ -321,26 +322,18 @@ double NitrogenClass::X_tilde(double T,double tau,double delta)
 	return reduce.p*delta/reduce.rho*drho_dp;
 }
 
-double NitrogenClass::conductivity_Trho(double T, double rho)
+double NitrogenClass::conductivity_dilute(double T)
 {
 	double e_k=98.94, //[K]
 		   sigma=0.3656, //[nm]
-		   Tref=252.384, //[K]
-		   zeta0=0.17, //[nm]
-		   LAMBDA=0.055,
-		   q_D=0.40; //[nm]
-	double eta0,OMEGA,delta,tau,Tstar,lambda0,lambdar,num,
-		cp,cv,OMEGA_tilde,OMEGA_tilde0,zeta,nu,gamma,R0,lambdac,k,
-		pi=3.141592654,mu;
+		   Tstar, OMEGA, eta0, lambda0, tau;
+	
 	double b[]={0.431,-0.4623,0.08406,0.005341,-0.00331};
 
 	double N[]={0,1.511,2.117,-3.332,8.862,31.11,-73.13,20.03,-0.7096,0.2672};
 	double t[]={0,0,-1.0,-0.7,0.0,0.03,0.2,0.8,0.6,1.9};
 	double d[]={0,0,0,0,1,2,3,4,8,10};
-	double l[]={0,0,0,0,0,0,1,2,2,2};
-	double g[]={0,0,0,0,0,0,1,1,1,1};
 	
-	delta=rho/reduce.rho;
 	tau=reduce.T/T;
 	Tstar=T/(e_k);
 
@@ -352,6 +345,19 @@ double NitrogenClass::conductivity_Trho(double T, double rho)
 
 	eta0=0.0266958*sqrt(params.molemass*T)/(sigma*sigma*OMEGA);
 	lambda0=N[1]*eta0+N[2]*pow(tau,t[2])+N[3]*pow(tau,t[3]);
+	return lambda0/1e6; //[Pa-s]
+}
+double NitrogenClass::conductivity_background(double T, double rho)
+{
+	double tau, delta, lambdar;
+	double N[]={0,1.511,2.117,-3.332,8.862,31.11,-73.13,20.03,-0.7096,0.2672};
+	double t[]={0,0,-1.0,-0.7,0.0,0.03,0.2,0.8,0.6,1.9};
+	double d[]={0,0,0,0,1,2,3,4,8,10};
+	double l[]={0,0,0,0,0,0,1,2,2,2};
+	double g[]={0,0,0,0,0,0,1,1,1,1};
+	
+	delta=rho/reduce.rho;
+	tau=reduce.T/T;
 
 	lambdar=N[4]*pow(tau,t[4])*pow(delta,d[4])*exp(-g[4]*pow(delta,l[4]))
 		   +N[5]*pow(tau,t[5])*pow(delta,d[5])*exp(-g[5]*pow(delta,l[5]))
@@ -359,17 +365,31 @@ double NitrogenClass::conductivity_Trho(double T, double rho)
 		   +N[7]*pow(tau,t[7])*pow(delta,d[7])*exp(-g[7]*pow(delta,l[7]))
 	 	   +N[8]*pow(tau,t[8])*pow(delta,d[8])*exp(-g[8]*pow(delta,l[8]))
 		   +N[9]*pow(tau,t[9])*pow(delta,d[9])*exp(-g[9]*pow(delta,l[9]));
+	return lambdar/1e6; // [Pa-s]
+}
 
+double NitrogenClass::conductivity_critical(double T, double rho)
+{
+	double num,delta,
+		cp,cv,OMEGA_tilde,OMEGA_tilde0,zeta,nu,gamma,R0,lambdac,k,
+		pi=3.141592654,mu,
+		Tref=252.384, //[K]
+	   zeta0=0.17, //[nm]
+	   LAMBDA=0.055,
+	   q_D=0.40; //[nm];
+	
 	R0=1.01;
 	nu=0.63;
 	gamma=1.2415;
 	k=1.380658e-23; //[J/K]
 
+	delta=rho/reduce.rho;
+
 	num=X_tilde(T,reduce.T/T,delta)-X_tilde(Tref,reduce.T/Tref,delta)*Tref/T;
 
 	// no critical enhancement if numerator of Eq. 10 is negative
 	if (num<0)
-		return (lambda0+lambdar)/1e6;
+		return 0;
 
 	cp=Props('C','T',T,'D',rho,(char*)"Nitrogen");
 	cv=Props('O','T',T,'D',rho,(char*)"Nitrogen");
@@ -380,23 +400,19 @@ double NitrogenClass::conductivity_Trho(double T, double rho)
 	OMEGA_tilde0=2.0/pi*(1.-exp(-1./(q_D/zeta+1.0/3.0*(zeta/q_D)*(zeta/q_D)/delta/delta)));
 	lambdac=rho*(cp*1000.0)*k*R0*T/(6*pi*zeta*mu)*(OMEGA_tilde-OMEGA_tilde0)*1e18; // 1e18 is conversion to mW/m-K (not described in paper)
 
-	return (lambda0+lambdar+lambdac)/1e6;
+	return lambdac/1e6; //[Pa-s]
 }
-double NitrogenClass::viscosity_Trho(double T, double rho)
+double NitrogenClass::conductivity_Trho(double T, double rho)
+{
+	return conductivity_dilute(T) + conductivity_background(T,rho) + conductivity_critical(T,rho);
+}
+double NitrogenClass::viscosity_dilute(double T)
 {
 	double e_k=98.94, //[K]
 		   sigma=0.3656; //[nm]
-	double eta0,etar,OMEGA,delta,tau,Tstar;
+	double eta0,OMEGA,Tstar;
 	double b[]={0.431,-0.4623,0.08406,0.005341,-0.00331};
-
-	double N[]={0,10.72,0.03989,0.001208,-7.402,4.620};
-	double t[]={0,0.1,0.25,3.2,0.9,0.3};
-	double d[]={0,2,10,12,2,1};
-	double l[]={0,0,1,1,2,3};
-	double g[]={0,0,1,1,1,1};
-
-	delta=rho/reduce.rho;
-	tau=reduce.T/T;
+	
 	Tstar=T/(e_k);
 	OMEGA=exp(b[0]*powInt(log(Tstar),0)
 			 +b[1]*powInt(log(Tstar),1)
@@ -404,14 +420,31 @@ double NitrogenClass::viscosity_Trho(double T, double rho)
 			 +b[3]*powInt(log(Tstar),3)
 		     +b[4]*powInt(log(Tstar),4));
 
-	eta0=0.0266958*sqrt(params.molemass*T)/(sigma*sigma*OMEGA);
+	eta0=0.0266958*sqrt(params.molemass*T)/(sigma*sigma*OMEGA); //[Pa-s]
+	return eta0/1e6; //[Pa-s]
+}
+double NitrogenClass::viscosity_background(double T, double rho)
+{
+	double etar, tau, delta;
+	delta=rho/reduce.rho;
+	tau=reduce.T/T;
+	double N[]={0,10.72,0.03989,0.001208,-7.402,4.620};
+	double g[]={0,0,1,1,1,1};
+	double t[]={0,0.1,0.25,3.2,0.9,0.3};
+	double d[]={0,2,10,12,2,1};
+	double l[]={0,0,1,1,2,3};
+
 	etar=N[1]*pow(tau,t[1])*pow(delta,d[1])*exp(-g[1]*pow(delta,l[1]))
 		+N[2]*pow(tau,t[2])*pow(delta,d[2])*exp(-g[2]*pow(delta,l[2]))
 		+N[3]*pow(tau,t[3])*pow(delta,d[3])*exp(-g[3]*pow(delta,l[3]))
 		+N[4]*pow(tau,t[4])*pow(delta,d[4])*exp(-g[4]*pow(delta,l[4]))
 		+N[5]*pow(tau,t[5])*pow(delta,d[5])*exp(-g[5]*pow(delta,l[5]));
 
-	return (eta0+etar)/1e6; // uPa-s to Pa-s
+	return etar/1e6; // uPa-s to Pa-s
+}
+double NitrogenClass::viscosity_Trho(double T, double rho)
+{
+	return this->viscosity_dilute(T)+this->viscosity_background(T, rho);
 }
 double NitrogenClass::psat(double T)
 {

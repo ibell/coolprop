@@ -17,6 +17,7 @@
 #include <list>
 #include <exception>
 #include <iostream>
+#include <fstream>
 #include <stdlib.h>
 #include <stdio.h>
 #include "math.h"
@@ -80,12 +81,58 @@
 #include "purefluids/Undecane.h"
 #include "purefluids/R125.h"
 #include "purefluids/CycloPropane_Propyne.h"
+#include "purefluids/Neon.h"
+#include "purefluids/R124.h"
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
 
 using namespace std;
+
+// This obfuscated code is required since C++ doesn't know about the order of instantiation of static variables
+// See also http://stackoverflow.com/questions/13353519/access-violation-when-inserting-element-into-global-map
+// It is the equivalent of the (not-working) code: std::map<std::string,std::map<std::string, double> > syaml_environmental_map
+std::map<std::string,std::map<std::string, double> >& syaml_environmental_map()
+{
+	static std::map<std::string, std::map<std::string, double> > my_map;
+	return my_map;
+}
+std::map<std::string,std::string>&  ASHRAE34_map()
+{
+	static std::map<std::string, std::string > my_map;
+	return my_map;
+}
+
+// This included file includes all the environmental constants, including the function syaml_build
+#include "EnvironmentalData.h"
+
+double syaml_lookup(std::string fluid, std::string key)
+{
+	if (syaml_environmental_map().size() == 0)
+		syaml_build();
+
+	std::map<std::string,std::map<std::string, double> >::iterator it1 = syaml_environmental_map().find(fluid);
+
+	if (it1 == syaml_environmental_map().end()) {return _HUGE;}
+	
+	std::map<std::string, double>::iterator it2 = it1->second.find(key);
+
+	if (it2 == it1->second.end()) {return _HUGE;}
+
+	return it2->second;
+}
+std::string ASHRAE34_lookup(std::string fluid)
+{
+	if (ASHRAE34_map().size() == 0)
+		syaml_build();
+
+	std::map<std::string, std::string >::iterator it1 = ASHRAE34_map().find(fluid);
+
+	if (it1 == ASHRAE34_map().end()) {return "UNKNOWN";}
+
+	return it1->second;
+}
 
 static bool UseCriticalSpline = true;
 
@@ -217,6 +264,9 @@ FluidsContainer::FluidsContainer()
 	FluidsList.push_back(new UndecaneClass());
 	FluidsList.push_back(new R125Class());
 	FluidsList.push_back(new CycloPropaneClass());
+	FluidsList.push_back(new NeonClass());
+	FluidsList.push_back(new R124Class());
+	FluidsList.push_back(new PropyneClass());
 
 	// The industrial fluids
 	FluidsList.push_back(new R245faClass());
@@ -427,7 +477,14 @@ void Fluid::post_load(void)
 	// Use the dewpoint pressure for pseudo-pure fluids
 	if ( fabs(params.ptriple)>1e9 ){
 		double pL, pV, rhoL, rhoV;
-		saturation_T(params.Ttriple,false,&pL,&pV,&rhoL,&rhoV);
+		if (params.Ttriple <= limits.Tmin)
+		{
+			saturation_T(limits.Tmin,false,&pL,&pV,&rhoL,&rhoV);
+		}
+		else
+		{
+			saturation_T(params.Ttriple,false,&pL,&pV,&rhoL,&rhoV);
+		}
 		params.ptriple = pV;
 	}
 	//// Instantiate the ancillary curve classes
@@ -435,6 +492,16 @@ void Fluid::post_load(void)
 	s_ancillary = new AncillaryCurveClass(this,std::string("S"));
 	cp_ancillary = new AncillaryCurveClass(this,std::string("C"));
 	drhodT_p_ancillary = new AncillaryCurveClass(this,std::string("drhodT|p"));
+
+	// Load up environmental factors for this fluid including ODP, GWP, etc.
+	environment.ODP = syaml_lookup(this->name,"ODP");
+	environment.GWP20 = syaml_lookup(this->name,"GWP20");
+	environment.GWP100 = syaml_lookup(this->name,"GWP100");
+	environment.GWP500 = syaml_lookup(this->name,"GWP500");
+	environment.HH = syaml_lookup(this->name,"HH");
+	environment.FH = syaml_lookup(this->name,"FH");
+	environment.PH = syaml_lookup(this->name,"PH");
+	environment.ASHRAE34 = ASHRAE34_lookup(this->name);
 }
 //--------------------------------------------
 //    Residual Part
@@ -718,23 +785,20 @@ double Fluid::density_Tp_Soave(double T, double p, int iValue)
 		Y2 = 2*pow(theta,1.0/3.0)*cos(phi/3.0+2.0*M_PI/3.0);
 		Y3 = 2*pow(theta,1.0/3.0)*cos(phi/3.0+4.0*M_PI/3.0);
 
-		double solns [] = {Y1, Y2, Y3};
+		double rho1 = p/(R*T*(Y1+1.0/3.0));
+		double rho2 = p/(R*T*(Y2+1.0/3.0));
+		double rho3 = p/(R*T*(Y3+1.0/3.0));
 
-		// Find the solution that you want to use if there are multiple solutions
-		if (iValue == 0)
-		{
-			Y = *std::min_element(solns, solns+3);
-		}
-		else if (iValue == 1)
-		{
-			Y = *std::max_element(solns, solns+3);
-		}
-		else
-		{
-			throw ValueError(format("iValue [%d] should be either 0 or 1",iValue));
-		}
+		double p1 = pressure_Trho(T,rho1);
+		double p2 = pressure_Trho(T,rho2);
+		double p3 = pressure_Trho(T,rho3);
+
+		double min_error = 9e50;
 		
-		rho = p/(R*T*(Y+1.0/3.0));
+		if (ValidNumber(p1) && fabs(p1-p) < min_error){min_error = fabs(p1-p); rho = rho1;}
+		if (ValidNumber(p2) && fabs(p2-p) < min_error){min_error = fabs(p2-p); rho = rho2;}
+		if (ValidNumber(p3) && fabs(p3-p) < min_error){min_error = fabs(p3-p); rho = rho3;}
+		
 		return rho;
 	}
 }
@@ -845,16 +909,16 @@ double Fluid::density_Tp(double T, double p, double rho_guess)
 
 double Fluid::viscosity_Trho( double T, double rho)
 {
-	long iR134a = get_Fluid_index(std::string("R134a"));
+	long iFluid = get_Fluid_index(ECSReferenceFluid);
 	// Calculate the ECS
-	double mu = viscosity_ECS_Trho(T, rho, get_fluid(iR134a));
+	double mu = viscosity_ECS_Trho(T, rho, get_fluid(iFluid));
 	return mu;
 }
 double Fluid::conductivity_Trho( double T, double rho)
 {
-	long iR134a = get_Fluid_index(std::string("R134a"));
+	long iFluid = get_Fluid_index(ECSReferenceFluid);
 	// Calculate the ECS
-	double lambda = conductivity_ECS_Trho(T, rho, get_fluid(iR134a));
+	double lambda = conductivity_ECS_Trho(T, rho, get_fluid(iFluid));
 	return lambda;
 }
 
@@ -932,6 +996,7 @@ void Fluid::saturation_T(double T, bool UseLUT, double *psatLout, double *psatVo
 	if (debug()>5){
 		std::cout<<format("%s:%d: Fluid::saturation_T(%g,%d) \n",__FILE__,__LINE__,T,UseLUT).c_str();
 	}
+	if (T < limits.Tmin){ throw ValueError(format("Your temperature to saturation_T [%g K] is below the minimum temp [%g K]",T,limits.Tmin));} 
 	if (isPure==true)
 	{
 		if (enabled_TTSE_LUT)
@@ -957,12 +1022,21 @@ void Fluid::saturation_T(double T, bool UseLUT, double *psatLout, double *psatVo
 				return;
 			}
 			catch (std::exception){
-				rhosatPure_Brent(T,&rhoL,&rhoV,&p);
-				*rhosatLout = rhoL;
-				*rhosatVout = rhoV;
-				*psatLout = p;
-				*psatVout = p;
-				return;
+				try{
+
+					rhosatPure(T,rhosatLout,rhosatVout,&p);
+					*psatLout = p;
+					*psatVout = p;
+					return;
+				}
+				catch (std::exception){
+
+					rhosatPure_Brent(T,&rhoL,&rhoV,&p);
+					*psatLout = p;
+					*psatVout = p;
+				
+					return;
+				}
 			}
 		}
 	}
@@ -1132,6 +1206,11 @@ void Fluid::rhosatPure_Akasaka(double T, double *rhoLout, double *rhoVout, doubl
 	*rhoVout = deltaV*reduce.rho;
 	PL = pressure_Trho(T,*rhoLout);
 	PV = pressure_Trho(T,*rhoVout);
+
+	if (fabs(PL-PV)/PV > 1e-6 && T<0.5*reduce.T)
+	{
+		throw ValueError("not close enough pressures from Akasaka");
+	}
 	*pout = 0.5*(PL+PV);
 	return;
 }
@@ -1238,10 +1317,16 @@ double Fluid::_get_rho_guess(double T, double p)
 		std::cout<<__FILE__<<format(": Fluid::_get_rho_guess(%g,%g) phase =%d\n",T,p,phase).c_str();
 	}
 	// These are very simplistic guesses for the density, but they work ok
-	if (phase == iGas || phase == iSupercritical)
+	if (phase == iGas)
 	{
-		// Guess that it is ideal gas
+		// Perfect gas relation for initial guess
 		rho_simple = p/(R()*T);
+	}
+	else if (phase == iSupercritical)
+	{
+
+		// Use Soave to get first guess
+		rho_simple = density_Tp_Soave(T,p);
 	}
 	else if (phase == iLiquid)
 	{
@@ -1255,7 +1340,14 @@ double Fluid::_get_rho_guess(double T, double p)
 		double tau = reduce.T/T;
 		double dp_drho = R()*T*(1+2*delta*dphir_dDelta(tau,delta)+delta*delta*d2phir_dDelta2(tau,delta));
 		double drho_dp = 1/dp_drho;
-		rho_simple = rhoL-drho_dp*(pL-p);
+		if (drho_dp*(pL-p)> rhoL)
+		{
+			rho_simple = rhoL;
+		}
+		else
+		{
+			rho_simple = rhoL-drho_dp*(pL-p);
+		}
 	}
 	else if (fabs(psatL_anc(T)-p)<1e-8 || fabs(psatV_anc(T)-p)<1e-8)
 	{
@@ -1271,32 +1363,6 @@ double Fluid::_get_rho_guess(double T, double p)
 		std::cout<<__FILE__<<": _get_rho_guess = "<<rho_simple<<std::endl;
 	}
 	return rho_simple;
-
-	//// Try to use Peng-Robinson to get a guess value for the density
-	//std::vector<double> rholist= PRGuess_rho(this,T,p);
-	//if (rholist.size()==0){
-	//	throw SolutionError(format("PengRobinson could not yield any solutions"));
-	//}
-	//else if (rholist.size()==1){
-	//	rho_guess = rholist[0];
-	//}
-	//else{
-	//	// A list of ok solutions
-	//	std::vector<double> goodrholist;
-	//	for (unsigned int i=0;i<rholist.size();i++){
-	//		pEOS=Props(std::string("P"),'T',T,'D',rholist[i],name.c_str());
-	//		if (fabs(pEOS/p-1)<0.03){
-	//			goodrholist.push_back(rholist[i]);
-	//		}
-	//	}
-	//	if (goodrholist.size()==1){
-	//		rho_guess = goodrholist[0];
-	//	}
-	//	else{
-	//		rho_guess = rho_simple;
-	//	}
-	//}
-	//return rho_guess;
 }
 
 
@@ -1353,7 +1419,7 @@ long Fluid::phase_Tp_indices(double T, double p, double *pL, double *pV, double 
 		std::cout<<__FILE__<<format(": phase_Tp_indices(%g,%g)\n",T,p).c_str();
 	}
 
-	if (T>crit.T && p>crit.p){
+	if (T>crit.T && p>=crit.p){
 		return iSupercritical;
 	}
 	else if (T>crit.T && p<crit.p){
@@ -1387,6 +1453,7 @@ long Fluid::phase_Tp_indices(double T, double p, double *pL, double *pV, double 
 			// For the given temperature, find the saturation state
 			// Run the saturation routines to determine the saturation densities and pressures
 			saturation_T(T,enabled_TTSE_LUT,pL,pV,rhoL,rhoV);
+			
 			if (p>(*pL+10*DBL_EPSILON)){
 				return iLiquid;
 			}
@@ -2129,8 +2196,8 @@ double Fluid::Tsat_anc(double p, double Q)
     double Tc,Tmax,Tmin,Tmid;
 
     Tc=reduce.T;
-    Tmax=Tc-10*DBL_EPSILON;
-	Tmin=params.Ttriple+10*DBL_EPSILON;
+    Tmax=Tc;
+	Tmin=limits.Tmin;
 	if (Tmin <= limits.Tmin)
 		Tmin = limits.Tmin;
 	
@@ -2368,7 +2435,7 @@ void Fluid::saturation_p(double p, bool UseLUT, double *TsatL, double *TsatV, do
 
 	// Pseudo-critical pressure based on critical density and temperature
 	// The highest pressure that be achieved with a temperature <= Tc
-	// Some EOS, pc != p(Tc,rhoc)
+	// For some EOS, pc != p(Tc,rhoc)
 	double pc_EOS = pressure_Trho(reduce.T,reduce.rho);
 
 	if (fabs(p-reduce.p)<DBL_EPSILON || p > pc_EOS)
@@ -2779,21 +2846,20 @@ double Fluid::viscosity_ECS_Trho(double T, double rho, Fluid * ReferenceFluid)
 	M = params.molemass;
 	rhocbar=rhoc/M;
 	rhobar=rho/M;
-	
-	try{
-		// Get the ECS parameters from the reference fluid
-		ReferenceFluid->ECSParams(&e0_k,&sigma0);
-	}
-	catch (const NotImplementedError &){
-		// Doesn't have e_k and sigma for reference fluid
-		throw NotImplementedError(format("Your reference fluid for ECS [%s] does not have an implementation of ECSParams",(char *)ReferenceFluid->get_name().c_str()));
-	}
 
 	try{
 		// Get the ECS params for the fluid if it has them
 		ECSParams(&e_k,&sigma);
 	}
 	catch (const NotImplementedError &){ 
+		try{
+		// Get the ECS parameters from the reference fluid
+		ReferenceFluid->ECSParams(&e0_k,&sigma0);
+		}
+		catch (const NotImplementedError &){
+			// Doesn't have e_k and sigma for reference fluid
+			throw NotImplementedError(format("Your reference fluid for ECS [%s] does not have an implementation of ECSParams",(char *)ReferenceFluid->get_name().c_str()));
+		}
 		//Estimate the ECS parameters from Huber and Ely, 2003
 		e_k = e0_k*Tc/Tc0;
 		sigma = sigma0*pow(rhoc/rhoc0,1.0/3.0);
@@ -2801,7 +2867,7 @@ double Fluid::viscosity_ECS_Trho(double T, double rho, Fluid * ReferenceFluid)
 
 	// The dilute portion is for the fluid of interest, not for the reference fluid
 	// It is the viscosity in the limit of zero density
-	eta_dilute = viscosity_dilute(T,e_k,sigma);
+	eta_dilute = viscosity_dilute(T,e_k,sigma); //[uPa-s]
 
 	if (1)//(T>reduce.T)
 	{
@@ -2898,20 +2964,20 @@ double Fluid::conductivity_ECS_Trho(double T, double rho, Fluid * ReferenceFluid
 	M = params.molemass;
 	rhocbar=rhoc/M;
 	rhobar=rho/M;
-	try{
-		//Estimate the ECS parameters from Huber and Ely, 2003
-		ReferenceFluid->ECSParams(&e0_k,&sigma0);
-	}
-	catch (NotImplementedError &){
-		// Doesn't have e_k and sigma for reference fluid
-		throw NotImplementedError(format("Your reference fluid for ECS [%s] does not have an implementation of ECSParams",(char *)ReferenceFluid->get_name().c_str()));
-	}
-		
+	
 	try{
 		// Get the ECS params for the fluid if it has them
 		ECSParams(&e_k,&sigma);
 	}
 	catch(NotImplementedError &){
+		try{
+			//Estimate the ECS parameters from Huber and Ely, 2003
+			ReferenceFluid->ECSParams(&e0_k,&sigma0);
+		}
+		catch (NotImplementedError &){
+			// Doesn't have e_k and sigma for reference fluid
+			throw NotImplementedError(format("Your reference fluid for ECS [%s] does not have an implementation of ECSParams",(char *)ReferenceFluid->get_name().c_str()));
+		}
 		e_k = e0_k*Tc/Tc0;
 		sigma = sigma0*pow(rhoc/rhoc0,1.0/3.0);
 	}
@@ -2956,12 +3022,12 @@ double Fluid::conductivity_ECS_Trho(double T, double rho, Fluid * ReferenceFluid
 	double cpstar = specific_heat_p_ideal_Trho(T);
 	lambda_star = 15e-3*R()*(eta_dilute*1e6)/4.0; //[W/m/K]
 	lambda_int = f_int*(eta_dilute*1e6)*(cpstar-5.0/2.0*R() ); //[W/m/K]
-	F_lambda = sqrt(f)*pow(h,-2.0/3.0)*sqrt(M0/M);
+	F_lambda = sqrt(f)*pow(h,-2.0/3.0)*sqrt(M0/M); //[-]
 	
 	//Get the background viscosity from the reference fluid
 	lambda_resid = ReferenceFluid->conductivity_background(T0,rho0*chi)*1e3 ;//[W/m/K]
-	lambda_crit = conductivity_critical(T,rho);
-	lambda = lambda_int+lambda_star+lambda_resid*F_lambda+lambda_crit;
+	lambda_crit = conductivity_critical(T,rho)*1000; //[W/m/K]
+	lambda = lambda_int+lambda_star+lambda_resid*F_lambda+lambda_crit; //[W/m/K]
 	return lambda/1e3; //[kW/m/K]
 }
 
@@ -2993,12 +3059,10 @@ bool Fluid::build_TTSE_LUT(bool force_build)
 		enabled_TTSE_LUT = false;
 
 		TTSESatL = TTSETwoPhaseTableClass(this,0);
-		// Deference the pointer to the table
 		TTSESatL.set_size(Nsat_TTSE);
-
 		TTSESatV = TTSETwoPhaseTableClass(this,1);
 		TTSESatV.set_size(Nsat_TTSE);
-		TTSESatV.build(pmin_TTSE,crit.p-1e-15,&TTSESatL);
+		TTSESatV.build(pmin_TTSE,crit.p,&TTSESatL);
 
 		TTSESinglePhase = TTSESinglePhaseTableClass(this);
 		TTSESinglePhase.enable_writing_tables_to_files = enable_writing_tables_to_files;
