@@ -21,7 +21,7 @@ AR    := ar rvs
 
 # used for the output
 MAJORVERSION     =3
-MINORVERSION     =0
+MINORVERSION     =1
 THENAME          =CoolPropLib
 LIBRARYEXTENSION =.a
 THETEST          =coolPropLibTest

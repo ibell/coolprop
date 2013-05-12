@@ -80,7 +80,7 @@
 #include "purefluids/Benzene.h"
 #include "purefluids/Undecane.h"
 #include "purefluids/R125.h"
-#include "purefluids/CycloPropane_Propyne.h"
+#include "purefluids/Cyclopropane_Propyne.h"
 #include "purefluids/Neon.h"
 #include "purefluids/R124.h"
 

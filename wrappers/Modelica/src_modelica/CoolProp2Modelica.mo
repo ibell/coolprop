@@ -2018,9 +2018,24 @@ Functions to obtain fluid properties from the currently active state.
       T=system.T_ambient,
       redeclare package Medium = WorkingFluid)
         annotation (Placement(transformation(extent={{-80,-10},{-60,10}})));
-    replaceable package WorkingFluid = CoolProp2Modelica.Media.R601_CP
+    replaceable package WorkingFluid =
+          CoolProp2Modelica.Interfaces.ExternalTwoPhaseMedium (
+           mediumName="n-Pentane",
+           libraryName="CoolProp",
+           substanceName="REFPROP-PENTANE|calc_transport=1|debug=1|enable_TTSE=0",
+           ThermoStates=Modelica.Media.Interfaces.PartialMedium.Choices.IndependentVariables.ph)
       constrainedby Modelica.Media.Interfaces.PartialMedium
                                                   annotation (choicesAllMatching=true);
+
+    //  replaceable package WorkingFluid =
+    //        CoolProp2Modelica.Interfaces.ExternalTwoPhaseMedium (
+    //         mediumName="mixture",
+    //         libraryName="CoolProp",
+    //         substanceName="REFPROP-MIX:PENTANE[0.7]&BUTANE[0.3]|calc_transport=1|debug=1|enable_TTSE=0",
+    //         ThermoStates=Modelica.Media.Interfaces.PartialMedium.Choices.IndependentVariables.ph)
+    //    constrainedby Modelica.Media.Interfaces.PartialMedium
+    //                                                annotation (choicesAllMatching=true);
+
     replaceable package HeatingFluid =
           Modelica.Media.Incompressible.Examples.Essotherm650 constrainedby
       Modelica.Media.Interfaces.PartialMedium     annotation (choicesAllMatching=true);
