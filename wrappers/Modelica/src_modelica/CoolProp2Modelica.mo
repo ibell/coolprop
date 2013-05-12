@@ -2018,9 +2018,24 @@ Functions to obtain fluid properties from the currently active state.
       T=system.T_ambient,
       redeclare package Medium = WorkingFluid)
         annotation (Placement(transformation(extent={{-80,-10},{-60,10}})));
-    replaceable package WorkingFluid = CoolProp2Modelica.Media.R601_CP
+    replaceable package WorkingFluid =
+          CoolProp2Modelica.Interfaces.ExternalTwoPhaseMedium (
+           mediumName="n-Pentane",
+           libraryName="CoolProp",
+           substanceName="REFPROP-PENTANE|calc_transport=1|debug=1|enable_TTSE=0",
+           ThermoStates=Modelica.Media.Interfaces.PartialMedium.Choices.IndependentVariables.ph)
       constrainedby Modelica.Media.Interfaces.PartialMedium
                                                   annotation (choicesAllMatching=true);
+
+    //  replaceable package WorkingFluid =
+    //        CoolProp2Modelica.Interfaces.ExternalTwoPhaseMedium (
+    //         mediumName="mixture",
+    //         libraryName="CoolProp",
+    //         substanceName="REFPROP-MIX:PENTANE[0.7]&BUTANE[0.3]|calc_transport=1|debug=1|enable_TTSE=0",
+    //         ThermoStates=Modelica.Media.Interfaces.PartialMedium.Choices.IndependentVariables.ph)
+    //    constrainedby Modelica.Media.Interfaces.PartialMedium
+    //                                                annotation (choicesAllMatching=true);
+
     replaceable package HeatingFluid =
           Modelica.Media.Incompressible.Examples.Essotherm650 constrainedby
       Modelica.Media.Interfaces.PartialMedium     annotation (choicesAllMatching=true);
@@ -2057,6 +2072,45 @@ Functions to obtain fluid properties from the currently active state.
 <p>This file illustrates how CoolProp2Modelica can be used with standard components from the Modelica.Fluid library. You can redeclare the WorkingFluid package with any other fluid that matches the PartialMedium interface. Changes will automatically propagate to all components.</p>
 </html>"));
     end CompressibleValveSystem;
+
+    model TTSEerror "Wrong output from TTSE"
+      extends Modelica.Icons.Example;
+      package WorkingFluidOne =
+        CoolProp2Modelica.Interfaces.ExternalTwoPhaseMedium (
+           mediumName="water",
+           libraryName="CoolProp",
+           substanceName="water|calc_transport=0|debug=1|enable_TTSE=0",
+           ThermoStates=Modelica.Media.Interfaces.PartialMedium.Choices.IndependentVariables.ph);
+      package WorkingFluidTwo =
+        CoolProp2Modelica.Interfaces.ExternalTwoPhaseMedium (
+           mediumName="water",
+           libraryName="CoolProp",
+           substanceName="water|calc_transport=0|debug=1|enable_TTSE=1",
+           ThermoStates=Modelica.Media.Interfaces.PartialMedium.Choices.IndependentVariables.ph);
+
+      Modelica.SIunits.AbsolutePressure pOne;
+      Modelica.SIunits.SpecificEnthalpy hOne;
+      Modelica.SIunits.Temperature TOne;
+      Modelica.SIunits.SpecificEnthalpy hOne_b;
+
+    // Second set of variables
+      Modelica.SIunits.AbsolutePressure pTwo;
+      Modelica.SIunits.SpecificEnthalpy hTwo;
+      Modelica.SIunits.Temperature TTwo;
+      Modelica.SIunits.SpecificEnthalpy hTwo_b;
+
+    equation
+      pOne = 1.5e5;
+      hOne = 200e3 + 100e3*time;
+      TOne = WorkingFluidOne.temperature_ph(pOne, hOne);
+      hOne_b = WorkingFluidOne.specificEnthalpy_pT(pOne, TOne);
+
+      pTwo = pOne;
+      hTwo = hOne;
+      TTwo = WorkingFluidTwo.temperature_ph(pTwo, hTwo);
+      hTwo_b = WorkingFluidTwo.specificEnthalpy_pT(pTwo, TTwo);
+
+    end TTSEerror;
   end Examples;
 
 
