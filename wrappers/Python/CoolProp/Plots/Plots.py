@@ -1,8 +1,9 @@
-import pylab, numpy as np
+import numpy as np
 import CoolProp.CoolProp as cp
 from scipy.interpolate import interp1d
-import pylab
 from types import NoneType
+from matplotlib import pylab
+import math
 
 def InlineLabel(xv,yv,x = None, y= None, axis = None, fig = None):
     """
@@ -96,82 +97,241 @@ def show():
     pylab.show()
     
 
-#def drawIsoLines(which='', plot='', axis=None, fig=None):
-#    
-#    if axis is None:
-#        axis=pylab.gca()
-#        
-#    if fig is None:
-#        fig=pylab.gcf()
-#    
-#    # define which isolines are allowed for the different plots
-#    plots = {
-#      'ts'   : ['p','h','v'],
-#      'ph'   : ['s','t','v'],
-#      'hs'   : ['p','t','v'],
-#      'ps'   : ['t','h','v'],
-#      'prho' : ['t','s','h'],
-#      'trho' : ['s','p','h'],
-#      'pt'   : ['s','p','v']
-#    }
-#    
-#    plot = 'ts'
-#    which='p'
-#    
-#    if type(plot)!=NoneType:
-#        plot = str(plot).strip().lower()
-#        if plot in plots:
-#            if type(which)!=NoneType:
-#                which = str(which).strip().lower()
-#                if which in plots[plot]:
-#                    lines = getLines(which,plot,axis)
-#                    for line in lines:
-#                        axis.plot(line['x'],line['y'],'k')
-#                elif which=='all':
-#                    for l in plots[plot]:
-#                        drawIsoLines(which=l, plot=plot, axis=axis, fig=fig)
-#                else:
-#                    which=False
-#            else:
-#                which=False
-#        else:
-#            plot = False
-#    else: 
-#        plot = False
-#    
-#    if not plot:
-#        raise ValueError('You have to specify the kind of plot, use Ts, Ph, hs, Ps, Prho, Trho or PT.')
-#    
-#    if not which:
-#        raise ValueError('This kind of line is not supported for your plot. Please choose another one.')
+def drawIsoLines(Ref, iMin, iMax, which='', plot='', axis=None, fig=None):
     
-#def getLines(which,plot,axis):
-#    
-##    patterns = {
-##      'p' : [10.,1.,2.5,5],
-##      'v' : [1.,2.5,5],
-##      'h' : [1.,2.5,5],
-##      't' : [1.],
-##      's' : [1.,2.5,5]
-##    }
-##    
-##    
-##    [Axmin,Axmax]=axis.get_xlim()
-##    [Aymin,Aymax]=axis.get_ylim()
-#    
+    if axis is None:
+        axis=pylab.gca()
+        
+    if fig is None:
+        fig=pylab.gcf()
+    
+    # define which isolines are allowed for the different plots
+    plots = {
+      'ts'   : ['p','h','d'],
+      'ph'   : ['s','t','d'],
+      'hs'   : ['p','t','d'],
+      'ps'   : ['t','h','d'],
+      'prho' : ['t','s','h'],
+      'trho' : ['s','p','h'],
+      'pt'   : ['s','p','d']
+    }
+    
+    plot = 'ts'
+    which='p'
+    
+    if type(plot)!=NoneType:
+        plot = str(plot).strip().lower()
+        if plot in plots:
+            if type(which)!=NoneType:
+                which = str(which).strip().lower()
+                if which in plots[plot]:
+                    lines = getLines(Ref, iMin, iMax, which, plot, axis)
+                    for line in lines:
+                        axis.plot(line['x'],line['y'],color=line['colour'])
+                elif which=='all':
+                    for l in plots[plot]:
+                        drawIsoLines(Ref, which=l, plot=plot, axis=axis, fig=fig)
+                else:
+                    which=False
+            else:
+                which=False
+        else:
+            plot = False
+    else: 
+        plot = False
+    
+    if not plot:
+        raise ValueError('You have to specify the kind of plot, use Ts, Ph, hs, Ps, Prho, Trho or PT.')
+    
+    if not which:
+        raise ValueError('This kind of line is not supported for your plot. Please choose another one.')
+    
+def getLines(Ref, iMin, iMax, which, plot, axis):
+    
+    # Get strings to feed to Props function
+    yName = str(plot[0] ).upper()
+    xName = str(plot[1:]).upper()
+    iName = str(which[0]).upper()
+    
+    # Get current axis limits, be sure to set those before drawing isolines
+    [Axmin,Axmax]=axis.get_xlim()
+    [Aymin,Aymax]=axis.get_ylim()
+    
+    # Determine x range for plotting
+    samples = 100
+    x0 = np.linspace(Axmin,Axmax,samples)
+    
+#    patterns = {
+#      'P' : [1.,2.5,5],
+#      'D' : [1.,2.5,5],
+#      'H' : [1.,2.5,5],
+#      'T' : [1.],
+#      'S' : [1.,2.5,5]
+#    }
+    
+    numberOfLines = 10
+    patterns = {
+      'P' : (lambda x: np.around(np.logspace(math.log10(x[0]), math.log10(x[1]), num=numberOfLines),decimals=-2)),
+      'D' : [1.,2.5,5],
+      'H' : [1.,2.5,5],
+      'T' : (lambda x: np.around(np.linspace(x[0], x[1], num=numberOfLines))+273.15),
+      'S' : [1.,2.5,5]
+    }
+    
+    # Use the y range to determine spacing of isolines    
+#    iVal = [cp.Props(iName,yName,Aymin,xName,Axmin,Ref),
+#            cp.Props(iName,yName,Aymax,xName,Axmin,Ref),
+#            cp.Props(iName,yName,Aymin,xName,Axmax,Ref),
+#            cp.Props(iName,yName,Aymax,xName,Axmax,Ref) ]
+#    iVal = patterns[iName]([np.min(iVal),np.max(iVal)]) 
+    iVal = patterns[iName]([iMin,iMax]) 
+    
+    # TODO: Determine saturation state if two phase region present
+    xVal = [x0 for i in iVal]
+    
+    (Y,X) = _getI_YX(Ref,iName,xName,yName,iVal,xVal)
+    
+    lines = []
+    for j,a in enumerate(X):
+        line = {
+          'x' : X[j],
+          'y' : Y[j],
+          'label' : getIsoLineLabel(iName,iVal[j]),
+          'colour': getIsoLineColour(iName)
+          }
+        lines.append(line)
+        
+    return lines
+        
 #    line1 = {
 #      'x' : [2,4],
 #      'y' : [9,14],
-#      'label' : '1st label'
+#      'label' : '1st label',
+#      'colour': getIsoLineColour('p')
 #    }
 #    line2 = {
 #      'x' : [3,5],
 #      'y' : [12,15],
-#      'label' : '2nd label'
+#      'label' : '2nd label',
+#      'colour': getIsoLineColour('t')
 #    }
 #    return [line1,line2]
-#    
-#    
+
+def _getI_YX(Ref,iName,xName,yName,iVal,xVal):
+    
+    if (len(iVal)!=len(xVal)):
+        raise ValueError('We need the same number of x value arrays as iso quantities.')
+    
+    y  = []
+    x  = []
+    for j in range(len(iVal)):
+        jiVal = iVal[j] #constant quantity
+        jxVal = xVal[j] #x-axis array
+        Y = np.array([cp.Props(yName,iName,jiVal,xName,ijxVal,Ref) for ijxVal in jxVal])
+        y.append(Y)
+        x.append(jxVal)
+        
+    return x,y
+
+
+#def getP_TS(Ref, pVals, x0):
+#    """ Get isobars for a Ts-plot """
+#    y  = []
+#    x  = []   
+#    for iVal in pVals:
+#        xi = x0
+#        if (iVal < cp.Props(Ref,'pcrit')):
+#            xi = np.append(xi, [cp.Props('S','P',iVal,'Q',0,Ref), cp.Props('S','P',iVal,'Q',1,Ref)])
+#            xi = np.sort(xi)
+#        (Y,X) = _getI_YX(Ref,'P','S','T',[iVal],[xi])
+#        y.append(Y)
+#        x.append(X)
+#    return x,y
+#
+#def getH_TS():
+#    return [[1],[2]]
+#
+#def getD_TS():
+#    return [[1],[2]]
+#
+#def getS_PH():
+#    return [[1],[2]]
+#
+#def getT_PH():
+#    return [[1],[2]]
+#
+#def getD_PH():
+#    return [[1],[2]]
+#
+#def getP_HS():
+#    return [[1],[2]]
+#
+#def getT_HS():
+#    return [[1],[2]]
+#
+#def getD_HS():
+#    return [[1],[2]]
+#
+#def getT_PS():
+#    return [[1],[2]]
+#
+#def getH_PS():
+#    return [[1],[2]]
+#
+#def getD_PS():
+#    return [[1],[2]]
+#
+#def getT_PRHO():
+#    return [[1],[2]]
+#
+#def getS_PRHO():
+#    return [[1],[2]]
+#
+#def getH_PRHO():
+#    return [[1],[2]]
+#
+#def getS_TRHO():
+#    return [[1],[2]]
+#
+#def getP_TRHO():
+#    return [[1],[2]]
+#
+#def getH_TRHO():
+#    return [[1],[2]]
+#
+#def getS_PT():
+#    return [[1],[2]]
+#
+#def getP_PT():
+#    return [[1],[2]]
+#
+#def getD_PT():
+#    return [[1],[2]]
+   
+      
+
+def getIsoLineColour(which):
+    colourMap = {                 
+      't' : 'red',
+      'p' : 'grey',
+      'h' : 'green',
+      'd' : 'blue',
+      's' : 'yellow'
+    }
+    return colourMap[str(which).lower()]
+
+def getIsoLineLabel(which,num):
+    labelMap = {                 
+      't' : [r'$T = ','$ K'],
+      'p' : [r'$p = ','$ kPa'],
+      'h' : [r'$h = ','$ kJ/kg'],
+      'd' : [r'$\rho = ','$ kg/m$^3$'],
+      's' : [r'$s = ','$ kJ/kg-K']
+    }
+    l = labelMap[str(which).lower()]
+    return l[0]+str(num)+l[1]
+
+
 ##    if len(pressures)==0:
 ##        #Calculate pressures
 ##        [Axmin,Axmax]=axis.get_xlim()
