@@ -4,6 +4,7 @@ from scipy.interpolate import interp1d
 from types import NoneType
 from matplotlib import pylab
 import math
+import re
 
 def InlineLabel(xv,yv,x = None, y= None, axis = None, fig = None):
     """
@@ -97,127 +98,12 @@ def show():
     pylab.show()
     
 
-def drawIsoLines(Ref, iMin, iMax, which='', plot='', axis=None, fig=None):
-    
-    if axis is None:
-        axis=pylab.gca()
-        
-    if fig is None:
-        fig=pylab.gcf()
-    
-    # define which isolines are allowed for the different plots
-    plots = {
-      'ts'   : ['p','h','d'],
-      'ph'   : ['s','t','d'],
-      'hs'   : ['p','t','d'],
-      'ps'   : ['t','h','d'],
-      'prho' : ['t','s','h'],
-      'trho' : ['s','p','h'],
-      'pt'   : ['s','p','d']
-    }
-    
-    plot = 'ts'
-    which='p'
-    
-    if type(plot)!=NoneType:
-        plot = str(plot).strip().lower()
-        if plot in plots:
-            if type(which)!=NoneType:
-                which = str(which).strip().lower()
-                if which in plots[plot]:
-                    lines = getLines(Ref, iMin, iMax, which, plot, axis)
-                    for line in lines:
-                        axis.plot(line['x'],line['y'],color=line['colour'])
-                elif which=='all':
-                    for l in plots[plot]:
-                        drawIsoLines(Ref, which=l, plot=plot, axis=axis, fig=fig)
-                else:
-                    which=False
-            else:
-                which=False
-        else:
-            plot = False
-    else: 
-        plot = False
-    
-    if not plot:
-        raise ValueError('You have to specify the kind of plot, use Ts, Ph, hs, Ps, Prho, Trho or PT.')
-    
-    if not which:
-        raise ValueError('This kind of line is not supported for your plot. Please choose another one.')
-    
-def getLines(Ref, iMin, iMax, which, plot, axis):
-    
-    # Get strings to feed to Props function
-    yName = str(plot[0] ).upper()
-    xName = str(plot[1:]).upper()
-    iName = str(which[0]).upper()
-    
-    # Get current axis limits, be sure to set those before drawing isolines
-    [Axmin,Axmax]=axis.get_xlim()
-    [Aymin,Aymax]=axis.get_ylim()
-    
-    # Determine x range for plotting
-    samples = 100
-    x0 = np.linspace(Axmin,Axmax,samples)
-    
-#    patterns = {
-#      'P' : [1.,2.5,5],
-#      'D' : [1.,2.5,5],
-#      'H' : [1.,2.5,5],
-#      'T' : [1.],
-#      'S' : [1.,2.5,5]
-#    }
-    
-    numberOfLines = 10
-    patterns = {
-      'P' : (lambda x: np.around(np.logspace(math.log10(x[0]), math.log10(x[1]), num=numberOfLines),decimals=-2)),
-      'D' : [1.,2.5,5],
-      'H' : [1.,2.5,5],
-      'T' : (lambda x: np.around(np.linspace(x[0], x[1], num=numberOfLines))+273.15),
-      'S' : [1.,2.5,5]
-    }
-    
-    # Use the y range to determine spacing of isolines    
-#    iVal = [cp.Props(iName,yName,Aymin,xName,Axmin,Ref),
-#            cp.Props(iName,yName,Aymax,xName,Axmin,Ref),
-#            cp.Props(iName,yName,Aymin,xName,Axmax,Ref),
-#            cp.Props(iName,yName,Aymax,xName,Axmax,Ref) ]
-#    iVal = patterns[iName]([np.min(iVal),np.max(iVal)]) 
-    iVal = patterns[iName]([iMin,iMax]) 
-    
-    # TODO: Determine saturation state if two phase region present
-    xVal = [x0 for i in iVal]
-    
-    (Y,X) = _getI_YX(Ref,iName,xName,yName,iVal,xVal)
-    
-    lines = []
-    for j,a in enumerate(X):
-        line = {
-          'x' : X[j],
-          'y' : Y[j],
-          'label' : getIsoLineLabel(iName,iVal[j]),
-          'colour': getIsoLineColour(iName)
-          }
-        lines.append(line)
-        
-    return lines
-        
-#    line1 = {
-#      'x' : [2,4],
-#      'y' : [9,14],
-#      'label' : '1st label',
-#      'colour': getIsoLineColour('p')
-#    }
-#    line2 = {
-#      'x' : [3,5],
-#      'y' : [12,15],
-#      'label' : '2nd label',
-#      'colour': getIsoLineColour('t')
-#    }
-#    return [line1,line2]
-
 def _getI_YX(Ref,iName,xName,yName,iVal,xVal):
+    """
+    Calculates lines for constant iName (iVal) over an interval of xName (xVal). 
+    
+    Returns (x[],y[]) - a tuple of arrays containing the values in x and y dimensions.    
+    """
     
     if (len(iVal)!=len(xVal)):
         raise ValueError('We need the same number of x value arrays as iso quantities.')
@@ -234,115 +120,301 @@ def _getI_YX(Ref,iName,xName,yName,iVal,xVal):
     return x,y
 
 
-#def getP_TS(Ref, pVals, x0):
-#    """ Get isobars for a Ts-plot """
-#    y  = []
-#    x  = []   
-#    for iVal in pVals:
-#        xi = x0
-#        if (iVal < cp.Props(Ref,'pcrit')):
-#            xi = np.append(xi, [cp.Props('S','P',iVal,'Q',0,Ref), cp.Props('S','P',iVal,'Q',1,Ref)])
-#            xi = np.sort(xi)
-#        (Y,X) = _getI_YX(Ref,'P','S','T',[iVal],[xi])
-#        y.append(Y)
-#        x.append(X)
-#    return x,y
-#
-#def getH_TS():
-#    return [[1],[2]]
-#
-#def getD_TS():
-#    return [[1],[2]]
-#
-#def getS_PH():
-#    return [[1],[2]]
-#
-#def getT_PH():
-#    return [[1],[2]]
-#
-#def getD_PH():
-#    return [[1],[2]]
-#
-#def getP_HS():
-#    return [[1],[2]]
-#
-#def getT_HS():
-#    return [[1],[2]]
-#
-#def getD_HS():
-#    return [[1],[2]]
-#
-#def getT_PS():
-#    return [[1],[2]]
-#
-#def getH_PS():
-#    return [[1],[2]]
-#
-#def getD_PS():
-#    return [[1],[2]]
-#
-#def getT_PRHO():
-#    return [[1],[2]]
-#
-#def getS_PRHO():
-#    return [[1],[2]]
-#
-#def getH_PRHO():
-#    return [[1],[2]]
-#
-#def getS_TRHO():
-#    return [[1],[2]]
-#
-#def getP_TRHO():
-#    return [[1],[2]]
-#
-#def getH_TRHO():
-#    return [[1],[2]]
-#
-#def getS_PT():
-#    return [[1],[2]]
-#
-#def getP_PT():
-#    return [[1],[2]]
-#
-#def getD_PT():
-#    return [[1],[2]]
-   
-      
+def drawIsoLines(Ref, iMin, iMax, numberOfLines=5, which=None, plot=None, axis=None, fig=None):
+    
+    if axis is None:
+        axis=pylab.gca()
+        
+    if fig is None:
+        fig=pylab.gcf()
+    
+    if not plot is None:
+        xName,yName,plot = _plotXY(plot)
+        if not which is None:
+            if which in getIsoLineIds(plot):
+                lines = getIsoLines(Ref, plot, which, iMin, iMax, numberOfLines, axis)
+                for line in lines:
+                    axis.plot(line['x'],line['y'],color=line['colour'])
+#            elif which=='all':
+#                for l in getIsoLineIds(plot):
+#                    drawIsoLines(Ref, iMin, iMax, which=l, plot=plot, axis=axis, fig=fig)
+            else:
+                which=False
+        else:
+            which=False
+    else: 
+        plot = False
+    
+    if not plot:
+        raise ValueError('You have to specify the kind of plot.')
+    
+    if not which:
+        raise ValueError('This kind of isoline is not supported for a '+str(plot)+'-plot. Please choose from '+str(getIsoLineIds(plot))+'.')
+    
+    
+def satBounds(Ref,kind,xmin=None,xmax=None):
+    """
+    Generates limits for the saturation line in either T or p determined by 'kind'. 
+    If xmin or xmax are provided, values will be checked against the allowable 
+    range for the EOS and an error might be generated. 
+    
+    Returns a tuple containing (xmin,xmax)
+    """
+    
+    kind = str(kind).upper()
+    name = ''
+    minKey = ''
+    if (str(kind)=='P'):
+        kind = 'p'
+        name = 'pressure'
+        minKey = 'ptriple'
+    elif (str(kind)=='T'):
+        name = 'temperature'
+        minKey = 'Tmin'
+    else:
+        raise ValueError('Saturation curves can only be computed for T or p.')
+    
+    if xmin is None:
+        xmin = cp.Props(Ref,str(minKey)     ) + 1e-5
+    if xmax is None:
+        xmax = cp.Props(Ref,str(kind)+'crit') - 1e-5
+        
+    if xmin > cp.Props(Ref,str(kind)+'crit'):
+        raise ValueError('Minimum '+str(name)+' cannot be greater than fluid critical '+str(name)+'.')
+    if xmax > cp.Props(Ref,str(kind)+'crit'):
+        raise ValueError('Maximum '+str(name)+' cannot be greater than fluid critical '+str(name)+'.')
+    
+    xmin = max(xmin, cp.Props(Ref,str(minKey)    )  + 1e-5)
+    xmax = min(xmax, cp.Props(Ref,str(kind)+'crit') - 1e-5)
+    
+    return (xmin,xmax)
+
+
+def getSatLines(Ref, plot, kind=None, kmin=None, kmax=None):
+    """
+    Calculates bubble and dew line in the quantities for your plot. 
+    
+    You can specify if you need evenly spaced entries in either 
+    pressure or temperature by supplying kind='p' and kind='T' 
+    (default), respectively.
+    
+    Limits can be set with kmin (default: minimum from EOS) and 
+    kmax (default: critical value). 
+    
+    Returns (x[],y[]) - a 2D tuple of arrays containing x and y coordinates for bubble and dew line.
+    """
+    
+    xName,yName,plot = _plotXY(plot)
+    
+    if (str(kind).lower()=='p'):
+        kind = 'P'
+    else:
+        kind = 'T' 
+    
+    (kmin,kmax) = satBounds(Ref, kind, xmin=kmin, xmax=kmax)   
+    k0          = np.linspace(kmin,kmax,1000)
+    
+    iName       = 'Q'
+    iVal        = [0.,1.]
+    kVal        = [k0 for i in iVal]
+    
+    if xName!=kind:
+        (Xx,Yx) = _getI_YX(Ref,iName,kind,xName,iVal,kVal)
+    else:
+        (Xx,Yx) = (kVal,kVal)
+    
+    if yName!=kind:
+        (Xy,Yy) = _getI_YX(Ref,iName,kind,yName,iVal,kVal)
+    else:
+        (Xy,Yy) = (kVal,kVal)
+    
+    # Merge the two lines capital Y holds important information, we merge on X values
+    # Every entry, eg. Xy, contains two arrays of values.
+    x = []
+    y = []
+    for i in range(len(Yx)): # two dimensions: i = {0,1} 
+        x.append(np.array(Yx[i]))
+        y.append(np.array(Yy[i]))
+            
+    return x,y
+
+
+def getIsoLines(Ref, plot, iName, iMin, iMax, numberOfLines, axis):
+    
+    xName,yName,plot = _plotXY(plot)   
+    
+    # Problematic inputs that cannot be handled by the 
+    # internal CoolProp solver have to be avoided. 
+    # Converting everything to TD values:
+    switchXY = False
+    if plot=='TS':
+        if iName=='D':
+            switchXY = True # TD is defined, SD is not
+    elif plot=='PH':
+        if iName=='S':
+            switchXY = True # PS is more stable than HS
+        if iName=='T':
+            switchXY = True # PT is defined, HT is not
+        if iName=='D':
+            switchXY = True # PD is defined, HD is not
+    elif plot=='HS':
+        if iName=='T':
+            raise ValueError('You should not reach this point!')
+        if iName=='D':
+            raise ValueError('You should not reach this point!')
+    elif plot=='PS':
+        if iName=='T':
+            switchXY = True # PT is defined, ST is not
+        if iName=='D':
+            switchXY = True # PD is defined, SD is not
+    elif plot=='PD':
+        if iName=='S':
+            switchXY = True # PS is defined, DS is not
+        if iName=='H':
+            switchXY = True # PH is defined, DH is not
+    elif plot=='TD':
+        if iName=='S':
+            raise ValueError('You should not reach this point!')
+        if iName=='H':
+            raise ValueError('You should not reach this point!')
+    elif plot=='PT':
+        if iName=='S':
+            switchXY = True # PS is defined, TS is not
+
+    # Get current axis limits, be sure to set those before drawing isolines
+    if switchXY:
+        [Axmin,Axmax]=axis.get_ylim()
+        #[Aymin,Aymax]=axis.get_xlim()
+        tmpName = yName
+        yName = xName
+        xName = tmpName
+    else:
+        [Axmin,Axmax]=axis.get_xlim()
+        #[Aymin,Aymax]=axis.get_ylim()
+        
+    
+    # Determine x range for plotting
+    x0 = np.linspace(Axmin,Axmax,1000)
+    
+#    patterns = {
+#      'P' : [1.,2.5,5],
+#      'D' : [1.,2.5,5],
+#      'H' : [1.,2.5,5],
+#      'T' : [1.],
+#      'S' : [1.,2.5,5]
+#    }
+
+    patterns = {
+      'P' : (lambda x: np.around(np.logspace(math.log10(x[0]), math.log10(x[1]), num=numberOfLines),decimals=-2)),
+      'D' : (lambda x: np.around(np.logspace(math.log(x[0],2), math.log(x[1],2), num=numberOfLines, base=2),decimals=2)),
+      'H' : (lambda x: np.around(np.linspace(x[0], x[1], num=numberOfLines))),
+      'T' : (lambda x: np.around(np.linspace(x[0], x[1], num=numberOfLines))),
+      'S' : (lambda x: np.around(np.linspace(x[0], x[1], num=numberOfLines)))
+    }
+    
+    # Use the y range to determine spacing of isolines    
+#    iVal = [cp.Props(iName,yName,Aymin,xName,Axmin,Ref),
+#            cp.Props(iName,yName,Aymax,xName,Axmin,Ref),
+#            cp.Props(iName,yName,Aymin,xName,Axmax,Ref),
+#            cp.Props(iName,yName,Aymax,xName,Axmax,Ref) ]
+#    iVal = patterns[iName]([np.min(iVal),np.max(iVal)]) 
+    iVal = patterns[iName]([iMin,iMax]) 
+    
+    # TODO: Determine saturation state if two phase region present
+    xVal = [x0 for i in iVal]
+    
+    (X,Y) = _getI_YX(Ref,iName,xName,yName,iVal,xVal)
+    
+    if switchXY:
+        tmpY = Y
+        Y    = X
+        X    = tmpY
+        
+    lines = []
+    for j,a in enumerate(X):
+        line = {
+          'x' : X[j],
+          'y' : Y[j],
+          'label' : getIsoLineLabel(iName,iVal[j]),
+          'colour': getIsoLineColour(iName)
+          }
+        lines.append(line)
+        
+    return lines
+
+
+def _plotXY(plot):
+    """
+    Creates strings for the x and y-axis values from a given plot 
+    name like Ts, Ph, hs, Ps, Prho, Trho and PT.
+    """
+    
+    # check if plot has the right format    
+    plots = ['TS','PH','HS','PS','PD','TD','PT']
+    
+    rhoPat = re.compile("rho", re.IGNORECASE)
+    plot = rhoPat.sub("D", plot).upper()
+    
+    if not plot in plots:
+        raise ValueError('You have to specify the kind of plot, use Ts, Ph, hs, Ps, Prho, Trho or PT.')
+    
+    # Get strings to feed to Props function
+    yName = str(plot[0] )
+    xName = str(plot[1:])
+    
+    return xName,yName,yName+xName
+
+
+def getIsoLineIds(plot):
+    # define which isolines are allowed for the different plots
+#    plots = {
+#      'TS' : ['P','H'],#,'D'],
+#      'PH' : ['S'],#,'T','D'],
+#      'HS' : ['P'],#,'T','D'],
+#      'PS' : ['H'],#,'T','D'],
+#      'PD' : ['T'],#,'S','H'],
+#      'TD' : ['P'],#,'S','H'],
+#      'PT' : ['D','P']#,'S']
+#    }
+    # Changing the XY coordinates allows for more
+    # combinations of isolines.
+    plots = {
+      'TS' : ['P','D'],#,'S'],
+      'PH' : ['S','T','D'],
+      'HS' : ['P'],#,'T','D'],
+      'PS' : ['H','T','D'],
+      'PD' : ['T','S','H'],
+      'TD' : ['P'],#,'S','H'],
+      'PT' : ['D','P','S']
+    }
+    return plots[str(plot)]
+
 
 def getIsoLineColour(which):
     colourMap = {                 
-      't' : 'red',
-      'p' : 'grey',
-      'h' : 'green',
-      'd' : 'blue',
-      's' : 'yellow'
+      'T' : 'red',
+      'P' : 'grey',
+      'H' : 'green',
+      'D' : 'blue',
+      'S' : 'yellow'
     }
-    return colourMap[str(which).lower()]
+    return colourMap[str(which)]
+
 
 def getIsoLineLabel(which,num):
     labelMap = {                 
-      't' : [r'$T = ','$ K'],
-      'p' : [r'$p = ','$ kPa'],
-      'h' : [r'$h = ','$ kJ/kg'],
-      'd' : [r'$\rho = ','$ kg/m$^3$'],
-      's' : [r'$s = ','$ kJ/kg-K']
+      'T' : [r'$T = ','$ K'],
+      'P' : [r'$p = ','$ kPa'],
+      'H' : [r'$h = ','$ kJ/kg'],
+      'D' : [r'$\rho = ','$ kg/m$^3$'],
+      'S' : [r'$s = ','$ kJ/kg-K']
     }
-    l = labelMap[str(which).lower()]
-    return l[0]+str(num)+l[1]
-
-
-##    if len(pressures)==0:
-##        #Calculate pressures
-##        [Axmin,Axmax]=axis.get_xlim()
-##        [Aymin,Aymax]=axis.get_ylim()
-#
-##def drawIsobars(pressures=[], plot='', axis=None, fig=None):
-    
+    l = labelMap[str(which)]
+    val = l[0]+str(num)+l[1]
+    return val
 
     
-    
-def Ts(Ref,Tmin = None, Tmax = None, show=False, axis=None, **kwargs):
+def Ts(Ref,Tmin=None, Tmax=None, show=False, axis=None, **kwargs):
     """
     Make a temperature-entropy plot for the given fluid
     
@@ -350,22 +422,11 @@ def Ts(Ref,Tmin = None, Tmax = None, show=False, axis=None, **kwargs):
     """
 
     ax = axis if axis is not None else pylab.gca()
-    if Tmin is None:
-        Tmin = cp.Props(Ref,'Tmin')
-    if Tmax is None:
-        Tmax = cp.Props(Ref,'Tcrit')-1e-5
-        
-    if Tmin > cp.Props(Ref,'Tcrit'):
-        raise ValueError('Tmin cannot be greater than fluid critical temperature')
-    if Tmax > cp.Props(Ref,'Tcrit'):
-        raise ValueError('Tmax cannot be greater than fluid critical temperature')
-    Tmin = max(Tmin, cp.Props(Ref,'Tmin')+0.01)
-    Tmax = min(Tmax, cp.Props(Ref,'Tcrit')-1e-5)
-    Tsat = np.linspace(Tmin,Tmax,1000)
-    (ssatL,ssatV)=(0.0*Tsat,0.0*Tsat)
-    for i in range(len(Tsat)):
-        ssatL[i] = cp.Props('S','T',Tsat[i],'Q',0,Ref)
-        ssatV[i] = cp.Props('S','T',Tsat[i],'Q',1,Ref)
+    
+    (x,y) = getSatLines(Ref, 'S', 'T', kind='T', kmin=Tmin, kmax=Tmax)
+    Tsat  = y[0]
+    ssatL = x[0] # bubble line
+    ssatV = x[1] # dew line
         
     ax.plot(ssatL,Tsat,'k')
     ax.plot(ssatV,Tsat,'k')
@@ -380,8 +441,8 @@ def Ts(Ref,Tmin = None, Tmax = None, show=False, axis=None, **kwargs):
     if show:
         pylab.show()
 
+
 def Ph(Ref, Tmin=None, Tmax = None, show = False, axis=None, **kwargs):
-    
     """
     Make a pressure-enthalpy plot for the given fluid
     
@@ -389,25 +450,12 @@ def Ph(Ref, Tmin=None, Tmax = None, show = False, axis=None, **kwargs):
     """
     
     ax = axis if axis is not None else pylab.gca()
-    if Tmin is None:
-        Tmin = cp.Props(Ref,'Tmin')
-    if Tmax is None:
-        Tmax = cp.Props(Ref,'Tcrit')-1e-5
-        
-    if Tmin > cp.Props(Ref,'Tcrit'):
-        raise ValueError('Tmin cannot be greater than fluid critical temperature')
-    if Tmax > cp.Props(Ref,'Tcrit'):
-        raise ValueError('Tmax cannot be greater than fluid critical temperature')
-    Tmin = max(Tmin, cp.Props(Ref,'Tmin')+0.01)
-    Tmax = min(Tmax, cp.Props(Ref,'Tcrit')-1e-5)
     
-    Tsat = np.linspace(Tmin,Tmax,1000)
-    (hsatL,psatL,hsatV,psatV)=(0.0*Tsat,0.0*Tsat,0.0*Tsat,0.0*Tsat)
-    for i in range(len(Tsat)):
-        hsatL[i] = cp.Props('H','T',Tsat[i],'Q',0,Ref)
-        hsatV[i] = cp.Props('H','T',Tsat[i],'Q',1,Ref)
-        psatL[i] = cp.Props('P','T',Tsat[i],'Q',0,Ref)
-        psatV[i] = cp.Props('P','T',Tsat[i],'Q',1,Ref)
+    (x,y) = getSatLines(Ref, 'H', 'P', kind='T', kmin=Tmin, kmax=Tmax)
+    hsatL = x[0] # bubble line
+    hsatV = x[1] # dew line
+    psatL = y[0]
+    psatV = y[1]
 
     ax.plot(hsatL,psatL,'k')
     ax.plot(hsatV,psatV,'k')
@@ -423,34 +471,21 @@ def Ph(Ref, Tmin=None, Tmax = None, show = False, axis=None, **kwargs):
     if show:
         pylab.show()
     
-def hs(Ref, Tmin=None, Tmax = None, show = False, axis = None, **kwargs):
     
+def hs(Ref, Tmin=None, Tmax = None, show = False, axis = None, **kwargs):
     """
     Make a enthalpy-entropy plot for the given fluid
     
     Will plot in the current axis unless the optional parameter *axis* gives the name for the axis to use
     """
-    ax = axis if axis is not None else pylab.gca()
-    if Tmin is None:
-        Tmin = cp.Props(Ref,'Tmin')
-    if Tmax is None:
-        Tmax = cp.Props(Ref,'Tcrit')-1e-5
-        
-    if Tmin > cp.Props(Ref,'Tcrit'):
-        raise ValueError('Tmin cannot be greater than fluid critical temperature')
-    if Tmax > cp.Props(Ref,'Tcrit'):
-        raise ValueError('Tmax cannot be greater than fluid critical temperature')
-        
-    Tmin = max(Tmin, cp.Props(Ref,'Tmin')+0.01)
-    Tmax = min(Tmax, cp.Props(Ref,'Tcrit')-1e-5)
     
-    Tsat = np.linspace(Tmin,Tmax,1000)
-    (ssatL,hsatL,ssatV,hsatV)=(0.0*Tsat,0.0*Tsat,0.0*Tsat,0.0*Tsat)
-    for i in range(len(Tsat)):
-        ssatL[i] = cp.Props('S','T',Tsat[i],'Q',0,Ref)
-        ssatV[i] = cp.Props('S','T',Tsat[i],'Q',1,Ref)
-        hsatL[i] = cp.Props('H','T',Tsat[i],'Q',0,Ref)
-        hsatV[i] = cp.Props('H','T',Tsat[i],'Q',1,Ref)
+    ax = axis if axis is not None else pylab.gca()
+    
+    (x,y) = getSatLines(Ref, 'S', 'H', kind='T', kmin=Tmin, kmax=Tmax)
+    ssatL = x[0] # bubble line
+    ssatV = x[1] # dew line
+    hsatL = y[0]
+    hsatV = y[1]
 
     ax.plot(ssatL,hsatL,'k')
     ax.plot(ssatV,hsatV,'k')
@@ -467,34 +502,21 @@ def hs(Ref, Tmin=None, Tmax = None, show = False, axis = None, **kwargs):
     if show:
         pylab.show()
         
+        
 def Ps(Ref, Tmin=None, Tmax = None, show = False, axis = None, **kwargs):
-    
     """
     Make a pressure-entropy plot for the given fluid
     
     Will plot in the current axis unless the optional parameter *axis* gives the name for the axis to use
     """
-    ax = axis if axis is not None else pylab.gca()
-    if Tmin is None:
-        Tmin = cp.Props(Ref,'Tmin')
-    if Tmax is None:
-        Tmax = cp.Props(Ref,'Tcrit')-1e-5
-        
-    if Tmin > cp.Props(Ref,'Tcrit'):
-        raise ValueError('Tmin cannot be greater than fluid critical temperature')
-    if Tmax > cp.Props(Ref,'Tcrit'):
-        raise ValueError('Tmax cannot be greater than fluid critical temperature')
-        
-    Tmin = max(Tmin, cp.Props(Ref,'Tmin')+0.01)
-    Tmax = min(Tmax, cp.Props(Ref,'Tcrit')-1e-5)
     
-    Tsat = np.linspace(Tmin,Tmax,1000)
-    (ssatL,psatL,ssatV,psatV)=(0.0*Tsat,0.0*Tsat,0.0*Tsat,0.0*Tsat)
-    for i in range(len(Tsat)):
-        ssatL[i] = cp.Props('S','T',Tsat[i],'Q',0,Ref)
-        ssatV[i] = cp.Props('S','T',Tsat[i],'Q',1,Ref)
-        psatL[i] = cp.Props('P','T',Tsat[i],'Q',0,Ref)
-        psatV[i] = cp.Props('P','T',Tsat[i],'Q',1,Ref)
+    ax = axis if axis is not None else pylab.gca()
+        
+    (x,y) = getSatLines(Ref, 'S', 'P', kind='T', kmin=Tmin, kmax=Tmax)
+    ssatL = x[0] # bubble line
+    ssatV = x[1] # dew line
+    psatL = y[0]
+    psatV = y[1]
 
     ax.plot(ssatL,psatL,'k')
     ax.plot(ssatV,psatV,'k')
@@ -510,33 +532,21 @@ def Ps(Ref, Tmin=None, Tmax = None, show = False, axis = None, **kwargs):
     if show:
         pylab.show()
         
+        
 def Prho(Ref, Tmin=None, Tmax = None, show = False, axis = None, **kwargs):
-    
     """
     Make a pressure-density plot for the given fluid
     
     Will plot in the current axis unless the optional parameter *axis* gives the name for the axis to use
     """
-    ax = axis if axis is not None else pylab.gca()
-    if Tmin is None:
-        Tmin = cp.Props(Ref,'Tmin')
-    if Tmax is None:
-        Tmax = cp.Props(Ref,'Tcrit')-1e-5
-        
-    if Tmin > cp.Props(Ref,'Tcrit'):
-        raise ValueError('Tmin cannot be greater than fluid critical temperature')
-    if Tmax > cp.Props(Ref,'Tcrit'):
-        raise ValueError('Tmax cannot be greater than fluid critical temperature')
-    Tmin = max(Tmin, cp.Props(Ref,'Tmin')+0.01)
-    Tmax = min(Tmax, cp.Props(Ref,'Tcrit')-1e-5)
     
-    Tsat = np.linspace(Tmin,Tmax,1000)
-    (rhosatL,psatL,rhosatV,psatV)=(0.0*Tsat,0.0*Tsat,0.0*Tsat,0.0*Tsat)
-    for i in range(len(Tsat)):
-        rhosatL[i] = cp.Props('D','T',Tsat[i],'Q',0,Ref)
-        rhosatV[i] = cp.Props('D','T',Tsat[i],'Q',1,Ref)
-        psatL[i] = cp.Props('P','T',Tsat[i],'Q',0,Ref)
-        psatV[i] = cp.Props('P','T',Tsat[i],'Q',1,Ref)
+    ax = axis if axis is not None else pylab.gca()
+        
+    (x,y) = getSatLines(Ref, 'D', 'P', kind='T', kmin=Tmin, kmax=Tmax)
+    rhosatL = x[0] # bubble line
+    rhosatV = x[1] # dew line
+    psatL = y[0]
+    psatV = y[1]
 
     ax.plot(rhosatL,psatL,'k')
     ax.plot(rhosatV,psatV,'k')
@@ -552,31 +562,20 @@ def Prho(Ref, Tmin=None, Tmax = None, show = False, axis = None, **kwargs):
     if show:
         pylab.show()
         
+        
 def Trho(Ref, Tmin=None, Tmax = None, show = False, axis = None, **kwargs):
-    
     """
     Make a temperature-density plot for the given fluid
     
     Will plot in the current axis unless the optional parameter *axis* gives the name for the axis to use
     """
-    ax = axis if axis is not None else pylab.gca()
-    if Tmin is None:
-        Tmin = cp.Props(Ref,'Tmin')
-    if Tmax is None:
-        Tmax = cp.Props(Ref,'Tcrit')-1e-5
-        
-    if Tmin > cp.Props(Ref,'Tcrit'):
-        raise ValueError('Tmin cannot be greater than fluid critical temperature')
-    if Tmax > cp.Props(Ref,'Tcrit'):
-        raise ValueError('Tmax cannot be greater than fluid critical temperature')
-    Tmin = max(Tmin, cp.Props(Ref,'Tmin')+0.01)
-    Tmax = min(Tmax, cp.Props(Ref,'Tcrit')-1e-5)
     
-    Tsat = np.linspace(Tmin,Tmax,1000)
-    (rhosatL,rhosatV)=(0.0*Tsat,0.0*Tsat)
-    for i in range(len(Tsat)):
-        rhosatL[i] = cp.Props('D','T',Tsat[i],'Q',0,Ref)
-        rhosatV[i] = cp.Props('D','T',Tsat[i],'Q',1,Ref)
+    ax = axis if axis is not None else pylab.gca()
+        
+    (x,y) = getSatLines(Ref, 'D', 'T', kind='T', kmin=Tmin, kmax=Tmax)
+    rhosatL = x[0] # bubble line
+    rhosatV = x[1] # dew line
+    Tsat  = y[0]
 
     ax.plot(rhosatL,Tsat,'k')
     ax.plot(rhosatV,Tsat,'k')
@@ -592,31 +591,20 @@ def Trho(Ref, Tmin=None, Tmax = None, show = False, axis = None, **kwargs):
     if show:
         pylab.show()
 
+
 def PT(Ref, Tmin=None, Tmax = None, show = False, axis = None, **kwargs):
-    
     """
     Make a pressure-temperature plot for the given fluid
     
     Will plot in the current axis unless the optional parameter *axis* gives the name for the axis to use
     """
-    ax = axis if axis is not None else pylab.gca()
-    if Tmin is None:
-        Tmin = cp.Props(Ref,'Tmin')
-    if Tmax is None:
-        Tmax = cp.Props(Ref,'Tcrit')-1e-5
-        
-    if Tmin > cp.Props(Ref,'Tcrit'):
-        raise ValueError('Tmin cannot be greater than fluid critical temperature')
-    if Tmax > cp.Props(Ref,'Tcrit'):
-        raise ValueError('Tmax cannot be greater than fluid critical temperature')
-    Tmin = max(Tmin, cp.Props(Ref,'Tmin')+0.01)
-    Tmax = min(Tmax, cp.Props(Ref,'Tcrit')-1e-5)
     
-    Tsat = np.linspace(Tmin,Tmax,1000)
-    (psatL,psatV)=(0.0*Tsat,0.0*Tsat)
-    for i in range(len(Tsat)):
-        psatL[i] = cp.Props('P','T',Tsat[i],'Q',0,Ref)
-        psatV[i] = cp.Props('P','T',Tsat[i],'Q',1,Ref)
+    ax = axis if axis is not None else pylab.gca()
+        
+    (x,y) = getSatLines(Ref, 'T', 'P', kind='T', kmin=Tmin, kmax=Tmax)
+    Tsat  = x[0] # bubble line
+    psatL = y[0]
+    psatV = y[1]
 
     ax.plot(Tsat,psatL,'k')
     ax.plot(Tsat,psatV,'k')
@@ -634,13 +622,25 @@ def PT(Ref, Tmin=None, Tmax = None, show = False, axis = None, **kwargs):
 
         
 if __name__=='__main__':
-    hs('R245fa', show = True)
-    PT('R245fa', show = True)
-    Ph('Helium', show = True)
-    Trho('R245fa', show = True)
-    Prho('R245fa', show = True)
-    Ps('R290', show = True)
-    Ps('R290', show = True)
-    Ph('R290', show = True)
-    Ts('R290', show = True)
+#    hs('R245fa', show = True)
+#    PT('R245fa', show = True)
+#    Ph('Helium', show = True)
+#    Trho('R245fa', show = True)
+#    Prho('R245fa', show = True)
+#    Ps('R290', show = True)
+#    Ps('R290', show = True)
+#    Ph('R290', show = True)
+#    Ts('R290', show = True)
+#    Trho('n-Pentane', show = True)
+
+    # Example for getSatLines
+    ax = pylab.gca()
+    (x,y) = getSatLines('n-Pentane', 'ph')
+    ax.plot(x[0],y[0],'k') # bubble line
+    ax.plot(x[1],y[1],'k') # dew line
+#    ax.set_xlim([-0.5,1.5])
+#    ax.set_ylim([300,450])
+    drawIsoLines('n-Pentane', -0.5,  1.5, numberOfLines=2, which='S', plot='ph', axis=ax)
+    pylab.show()
+    
     
