@@ -63,20 +63,21 @@ public:
 	virtual double dDelta3(double tau, double delta) = 0;
 };
 
-/// This class implements residual Helmholtz Energy terms of the form  n * delta ^d * tau^t * exp(-gamma*delta^l) if l>0 or if
-///	l==0, then n * delta ^d * tau^t
+/*!
+
+Terms are of the form 
+\f[
+\phi_r = n delta ^d tau^t \exp(-delta^l)
+\f]
+if l>0 or 
+if l==0, then 
+\f[
+\phi_r = n delta ^d tau^t
+\f]
+
+*/
 class phir_power : public phi_BC{
-	/*
-	Terms are of the form 
-	\f[
-	\phi_r = n delta ^d tau^t \exp(-delta^l)
-	\f]
-	if l>0 or 
-	if l==0, then 
-	\f[
-	\phi_r = n delta ^d tau^t
-	\f]
-	*/
+	
 private:
 	std::vector<double> n, ///< The coefficients multiplying each term
 		                d, ///< The power for the delta terms
@@ -116,7 +117,7 @@ public:
 
 Terms are of the form 
 \f[
-\phi_r = n delta ^d tau^t \exp(-gamma*delta^l)
+\phi_r = n \delta ^d \tau^t \exp(-\gamma*\delta^l)
 \f]
 
 */
@@ -155,14 +156,50 @@ public:
 
 Terms are of the form 
 \f[
+\phi_r = n \delta ^d \exp(\alpha\tau - \gamma \delta^l)
+\f]
+
+*/
+class phir_exponential2 : public phi_BC{
+private:
+	std::vector<double> n, ///< The coefficients multiplying each term
+		                d, ///< The power for the delta terms
+						l, ///< The power of delta in the exponential term
+						a, ///< Alpha in the exponential term
+						g; ///< Gamma in the exponential term
+	unsigned int iStart,iEnd;
+public:
+	// Constructors
+	phir_exponential2(std::vector<double>,std::vector<double>,std::vector<double>,std::vector<double>,std::vector<double>,int,int);
+	phir_exponential2(const double[], const double[], const double[], const double[],const double[],int,int,int);
+	phir_exponential2(double[],double[],double[],double[],double[],int,int,int);
+	
+	///< Destructor for the phir_power class.  No implementation
+	~phir_exponential2(){};
+
+	double base(double tau, double delta) throw();
+	double dDelta(double tau, double delta) throw();
+	double dTau(double tau, double delta) throw();
+	
+	double dDelta2(double tau, double delta) throw();
+	double dDelta_dTau(double tau, double delta) throw();
+	double dTau2(double tau, double delta) throw();
+	
+	double dDelta3(double tau, double delta) throw();
+	double dDelta2_dTau(double tau, double delta) throw();
+	double dDelta_dTau2(double tau, double delta) throw();
+	double dTau3(double tau, double delta) throw();
+};
+
+/*!
+
+Terms are of the form 
+\f[
 \phi_r = a \delta ^d \tau^t \exp(-\alpha(\delta-\epsilon)^2-\beta(\tau-\gamma)^2)
 \f]
 
 */
 class phir_gaussian : public phi_BC{
-	/*
-	Terms are of the form a * delta ^d * tau^t * exp(-alpha*(delta-epsilon)^2-beta*(tau-gamma)^2)
-	*/
 private:
 	std::vector<double> n,d,t,alpha,epsilon,beta,gamma;
 	unsigned int iStart,iEnd;
@@ -212,11 +249,14 @@ public:
 	
 };
 
+/*!
+
+The critical term, used for Water and Carbon Dioxide
+It is truly horrible to implement
+
+*/
 class phir_critical : public phi_BC{
-	/*
-	The critical term, used for Water and Carbon Dioxide
-	It is truly horrible
-	*/
+	
 private:
 	std::vector<double> n,d,t,a,b,A,B,C,D,beta;
 	int iStart,iEnd;
@@ -449,6 +489,58 @@ public:
 	double dDelta_dTau(double tau, double delta){return 0.0;};
 	double dDelta_dTau2(double tau, double delta){return 0.0;};
 	double dDelta3(double tau, double delta){return 0.0;};
+};
+
+class phi0_Planck_Einstein3 : public phi_BC{
+	/*
+	Term is of the form a_0*log(exp(theta*tau)-1)
+	Constructors: 
+		phi0_Planck_Einstein(std::vector<double> a_in, std::vector<double> theta_in, int iStart_in, int iEnd_in)
+		phi0_Planck_Einstein(double a_in, double theta_in)
+	*/
+private:
+	std::vector<double> a,theta; // Use these variables internally
+	int iStart, iEnd;
+public:
+	// Constructor with std::vector instances
+	phi0_Planck_Einstein3(std::vector<double> a_in, std::vector<double> theta_in, int iStart_in, int iEnd_in)
+	{
+		a=a_in; theta=theta_in; iStart = iStart_in; iEnd = iEnd_in;
+	};
+	phi0_Planck_Einstein3(double a_in[], double theta_in[], int iStart_in, int iEnd_in, int N)
+	{
+		a=std::vector<double>(a_in,a_in+N);
+		theta=std::vector<double>(theta_in,theta_in+N);
+		iStart = iStart_in; iEnd = iEnd_in;
+	};
+	phi0_Planck_Einstein3(const double a_in[], const double theta_in[], int iStart_in, int iEnd_in, int N)
+	{
+		a=std::vector<double>(a_in,a_in+N);
+		theta=std::vector<double>(theta_in,theta_in+N);
+		iStart = iStart_in; iEnd = iEnd_in;
+	};
+	// Constructor with doubles
+	phi0_Planck_Einstein3(double a_in, double theta_in)
+	{
+		a=std::vector<double> (1,a_in); 
+		theta=std::vector<double> (1,theta_in); 
+		iStart = 0; iEnd = 0;
+	};
+
+	//Destructor
+	~phi0_Planck_Einstein3(){};
+
+	// Term and its derivatives
+	double base(double tau, double delta);
+	double dTau(double tau, double delta);
+	double dTau2(double tau, double delta);
+	double dTau3(double tau, double delta);
+	double dDelta(double tau, double delta){return 0.0;};
+	double dDelta2(double tau, double delta){return 0.0;};
+	double dDelta2_dTau(double tau, double delta){return 0.0;};
+	double dDelta_dTau(double tau, double delta){return 0.0;};
+	double dDelta_dTau2(double tau, double delta){return 0.0;};
+	double dDelta3(double tau, double delta){return 0;};
 };
 
 class phi0_power : public phi_BC{

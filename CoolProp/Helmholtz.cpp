@@ -345,6 +345,137 @@ double phir_exponential::dDelta_dTau(double tau, double delta) throw()
 }
 
 // Constructors
+phir_exponential2::phir_exponential2(std::vector<double> n, std::vector<double> d, std::vector<double> l, std::vector<double> a, std::vector<double> g, int iStart_in,int iEnd_in)
+{
+	this->n = n;
+	this->d = d;
+	this->l = l;
+	this->a = a;
+	this->g = g;
+	iStart=iStart_in;
+	iEnd=iEnd_in;
+}
+phir_exponential2::phir_exponential2(double n[], double d[], double l[], double a[], double g[], int iStart_in,int iEnd_in, int N)
+{
+	this->n=std::vector<double>(n, n+N);
+	this->d=std::vector<double>(d, d+N);
+	this->a=std::vector<double>(a, a+N);
+	this->l=std::vector<double>(l, l+N);
+	this->g=std::vector<double>(g, g+N);
+	iStart=iStart_in;
+	iEnd=iEnd_in;
+}
+phir_exponential2::phir_exponential2(const double n[], const double d[], const double l[], const double a[], const double g[], int iStart_in,int iEnd_in, int N)
+{
+	this->n = std::vector<double>(n, n+N);
+	this->d = std::vector<double>(d, d+N);
+	this->a = std::vector<double>(a, a+N);
+	this->l = std::vector<double>(l, l+N);
+	this->g = std::vector<double>(g, g+N);
+	iStart = iStart_in;
+	iEnd = iEnd_in;
+}
+
+// Term and its derivatives
+double phir_exponential2::base(double tau, double delta) throw()
+{
+	double summer=0;
+	for (unsigned int i=iStart;i<=iEnd;i++)
+	{
+		summer += n[i]*pow(delta,d[i])*exp(a[i]*tau-g[i]*pow(delta,l[i]));
+	}
+	return summer;
+}
+double phir_exponential2::dTau(double tau, double delta) throw()
+{
+	double summer=0;
+	for (unsigned int i=iStart;i<=iEnd;i++)
+	{
+		summer += n[i]*pow(delta,d[i])*a[i]*exp(a[i]*tau-g[i]*pow(delta,l[i]));
+	}
+	return summer;
+}
+double phir_exponential2::dTau2(double tau, double delta) throw()
+{
+	double summer = 0;
+	for (unsigned int i=iStart;i<=iEnd;i++)
+	{
+		summer += n[i]*pow(delta,d[i])*a[i]*a[i]*exp(a[i]*tau-g[i]*pow(delta,l[i]));
+	}
+	return summer;
+}
+double phir_exponential2::dTau3(double tau, double delta) throw()
+{
+	double summer = 0;
+	for (unsigned int i=iStart;i<=iEnd;i++)
+	{
+		summer += n[i]*pow(delta,d[i])*a[i]*a[i]*a[i]*exp(a[i]*tau-g[i]*pow(delta,l[i]));
+	}
+	return summer;
+}
+double phir_exponential2::dDelta_dTau2(double tau, double delta) throw()
+{
+	double summer = 0;
+	for (unsigned int i=iStart;i<=iEnd;i++)
+	{
+		double pow_delta_li = pow(delta,l[i]);
+		summer += n[i]*a[i]*a[i]*pow(delta,d[i]-1)*(d[i]-g[i]*l[i]*pow_delta_li)*exp(a[i]*tau-g[i]*pow_delta_li);
+	}
+	return summer;
+}
+double phir_exponential2::dDelta(double tau, double delta) throw()
+{
+	double summer=0, pow_delta_li;
+	for (unsigned int i=iStart;i<=iEnd;i++)
+	{	
+		pow_delta_li = pow(delta,l[i]);
+		summer += n[i]*pow(delta,d[i]-1)*(d[i]-g[i]*l[i]*pow_delta_li)*exp(a[i]*tau-g[i]*pow_delta_li);
+	}
+	return summer;
+}
+double phir_exponential2::dDelta2(double tau, double delta) throw()
+{
+	double summer = 0;
+	for (unsigned int i=iStart;i<=iEnd;i++)
+	{
+		double pow_delta_li = pow(delta,l[i]);
+		summer += n[i]*pow(delta,d[i]-2)*((d[i]-g[i]*l[i]*pow_delta_li)*(d[i]-1.0-g[i]*l[i]*pow_delta_li) - g[i]*g[i]*l[i]*l[i]*pow_delta_li)*exp(a[i]*tau-g[i]*pow_delta_li);
+	}
+	return summer;
+}
+double phir_exponential2::dDelta3(double tau, double delta) throw()
+{
+	double summer = 0;
+	for (unsigned int i=iStart;i<=iEnd;i++)
+	{
+		double pow_delta_li = pow(delta,l[i]);
+		double bracket = (d[i]*(d[i]-1)*(d[i]-2)+pow_delta_li*(-2*l[i]*g[i]+6*d[i]*l[i]*g[i]-3*d[i]*d[i]*l[i]*g[i]-3*d[i]*l[i]*l[i]*g[i]*g[i]+3*l[i]*l[i]*g[i]*g[i]-l[i]*l[i]*l[i]*pow(g[i],3))+pow_delta_li*pow_delta_li*(3*d[i]*l[i]*l[i]*g[i]*g[i]-3*l[i]*l[i]*g[i]*g[i]+3*l[i]*l[i]*l[i]*pow(g[i],3))-l[i]*l[i]*l[i]*pow(g[i],3)*pow_delta_li*pow_delta_li*pow_delta_li);
+		summer+=n[i]*bracket*exp(a[i]*tau-g[i]*pow(delta,l[i]));
+	}
+	return summer;
+}
+double phir_exponential2::dDelta2_dTau(double tau, double delta) throw()
+{
+	double summer = 0;
+	for (unsigned int i=iStart;i<=iEnd;i++)
+	{
+		double pow_delta_li = pow(delta,l[i]);
+		summer += n[i]*a[i]*pow(delta,d[i])*((d[i]-g[i]*l[i]*pow_delta_li)*(d[i]-1.0-g[i]*l[i]*pow_delta_li) - g[i]*g[i]*l[i]*l[i]*pow_delta_li)*exp(a[i]*tau-g[i]*pow_delta_li);
+	}
+	return summer;
+}
+double phir_exponential2::dDelta_dTau(double tau, double delta) throw()
+{
+	double summer=0;
+	for (unsigned int i=iStart;i<=iEnd;i++)
+	{
+		double pow_delta_li = pow(delta,l[i]);
+		summer += n[i]*a[i]*pow(delta,d[i])*(d[i]-g[i]*l[i]*pow_delta_li)*exp(a[i]*tau-g[i]*pow_delta_li);
+	}
+	return summer;
+}
+
+// Constructors
 phir_Lemmon2005::phir_Lemmon2005(std::vector<double> n,std::vector<double> d,std::vector<double> t, std::vector<double> l, std::vector< double> m, int iStart_in,int iEnd_in)
 {
 	this->n = n;
@@ -1128,6 +1259,43 @@ double phi0_Planck_Einstein2::dTau3(double tau, double delta)
 	for (int i=iStart;i<=iEnd;i++)
 	{
 		summer += a[i]*pow(theta[i],2.0)*c[i]*(-theta[i])*exp(theta[i]*tau)*(exp(theta[i]*tau)-c[i])/pow(exp(theta[i]*tau)+c[i],3.0);
+	}
+	return summer;
+}
+
+double phi0_Planck_Einstein3::base(double tau, double delta)
+{
+	double summer=0;
+	for (int i=iStart;i<=iEnd;i++)
+	{
+		summer += a[i]*log(exp(theta[i]*tau)-1);
+	}
+	return summer;
+}
+double phi0_Planck_Einstein3::dTau(double tau, double delta)
+{
+	double summer=0;
+	for (int i=iStart;i<=iEnd;i++)
+	{
+		summer += a[i]*theta[i]*exp(theta[i]*tau)/(exp(theta[i]*tau)-1);
+	}
+	return summer;
+}
+double phi0_Planck_Einstein3::dTau2(double tau, double delta)
+{
+	double summer=0;
+	for (int i=iStart;i<=iEnd;i++)
+	{
+		summer += -a[i]*pow(theta[i],2.0)*exp(theta[i]*tau)/pow(exp(theta[i]*tau)-1,2.0);
+	}
+	return summer;
+}
+double phi0_Planck_Einstein3::dTau3(double tau, double delta)
+{
+	double summer=0;
+	for (int i=iStart;i<=iEnd;i++)
+	{
+		summer += a[i]*pow(theta[i],3.0)*theta[i]*exp(theta[i]*tau)*(exp(theta[i]*tau)+1)/pow(exp(theta[i]*tau)-1,3.0);
 	}
 	return summer;
 }

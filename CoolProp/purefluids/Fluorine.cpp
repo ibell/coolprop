@@ -52,7 +52,6 @@ FluorineClass::FluorineClass()
 
 	BibTeXKeys.EOS = "deReuck-BOOK-1990";
 	BibTeXKeys.CP0 = "deReuck-BOOK-1990";
-	//BibTeXKeys.ECS_LENNARD_JONES = "Kiselev-IECR-2005";
 	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
 }
 

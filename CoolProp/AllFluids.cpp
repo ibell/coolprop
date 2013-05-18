@@ -21,6 +21,7 @@
 #include "purefluids/HFE143m.cpp"
 #include "purefluids/Hydrogen.cpp"
 #include "purefluids/IndustrialFluids.cpp"
+#include "purefluids/Methanol.cpp"
 #include "purefluids/Neon.cpp"
 #include "purefluids/Nitrogen.cpp"
 #include "purefluids/Oxygen.cpp"

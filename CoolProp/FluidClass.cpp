@@ -84,6 +84,7 @@
 #include "purefluids/Neon.h"
 #include "purefluids/R124.h"
 #include "purefluids/Fluorine.h"
+#include "purefluids/Methanol.h"
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -277,6 +278,7 @@ FluidsContainer::FluidsContainer()
 	FluidsList.push_back(new R124Class());
 	FluidsList.push_back(new PropyneClass());
 	FluidsList.push_back(new FluorineClass());
+	FluidsList.push_back(new MethanolClass());
 
 	// The industrial fluids
 	FluidsList.push_back(new R245faClass());
