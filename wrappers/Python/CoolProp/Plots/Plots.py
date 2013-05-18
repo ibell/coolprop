@@ -212,7 +212,6 @@ def Ts(Ref,Tmin = None, Tmax = None, show=False, axis=None, **kwargs):
     
     if Tmax>cp.Props(Ref,'Tcrit')-2e-5:
         ax.plot(np.r_[ssatL[-1],ssatV[-1]],np.r_[Tsat[-1],Tsat[-1]],'k')
-        ax.plot((ssatL[-1]+ssatV[-1])/2.,Tsat[-1],'o')
 
     ax.set_xlabel('Entropy [kJ/kg$\cdot$K]')
     ax.set_ylabel('Temperature [K]')
@@ -254,7 +253,7 @@ def Ph(Ref, Tmin=None, Tmax = None, show = False, axis=None, **kwargs):
 
     if Tmax>cp.Props(Ref,'Tcrit')-2e-5:
         ax.plot(np.r_[hsatL[-1],hsatV[-1]],np.r_[psatL[-1],psatV[-1]],'k')
-        ax.plot((hsatL[-1]+hsatV[-1])/2.,(psatL[-1]+psatV[-1])/2.,'o')
+        #ax.plot((hsatL[-1]+hsatV[-1])/2.,(psatL[-1]+psatV[-1])/2.,'o')
         #ax.plot(np.r_[hsatL[-1],hsatV[-1]],np.r_[psatL[-1],psatV[-1]],'k')
     
     ax.set_xlabel('Enthalpy [kJ/kg]')
@@ -297,7 +296,7 @@ def hs(Ref, Tmin=None, Tmax = None, show = False, axis = None, **kwargs):
 
     if Tmax>cp.Props(Ref,'Tcrit')-2e-5:
         ax.plot(np.r_[ssatL[-1],ssatV[-1]],np.r_[hsatL[-1],hsatV[-1]],'k')
-        ax.plot((ssatL[-1]+ssatV[-1])/2.,(hsatL[-1]+hsatV[-1])/2.,'o')
+        #ax.plot((ssatL[-1]+ssatV[-1])/2.,(hsatL[-1]+hsatV[-1])/2.,'o')
         #ax.plot(ssatL[-1],hsatL[-1],'o')
         #ax.plot(np.r_[ssatL[-1],ssatV[-1]],np.r_[hsatL[-1],hsatV[-1]],'k')
     
@@ -341,7 +340,7 @@ def Ps(Ref, Tmin=None, Tmax = None, show = False, axis = None, **kwargs):
 
     if Tmax>cp.Props(Ref,'Tcrit')-2e-5:
         ax.plot(np.r_[ssatL[-1],ssatV[-1]],np.r_[psatL[-1],psatV[-1]],'k')
-        ax.plot((ssatL[-1]+ssatV[-1])/2.,(psatL[-1]+psatV[-1])/2.,'o')
+        #ax.plot((ssatL[-1]+ssatV[-1])/2.,(psatL[-1]+psatV[-1])/2.,'o')
         #ax.plot(np.r_[ssatL[-1],ssatV[-1]],np.r_[psatL[-1],psatV[-1]],'k')
     
     ax.set_xlabel('Entropy [kJ/kg/K]')
@@ -383,7 +382,7 @@ def Prho(Ref, Tmin=None, Tmax = None, show = False, axis = None, **kwargs):
 
     if Tmax>cp.Props(Ref,'Tcrit')-2e-5:
         ax.plot(np.r_[rhosatL[-1],rhosatV[-1]],np.r_[psatL[-1],psatV[-1]],'k')
-        ax.plot((rhosatL[-1]+rhosatV[-1])/2.,(psatL[-1]+psatV[-1])/2.,'o')
+        #ax.plot((rhosatL[-1]+rhosatV[-1])/2.,(psatL[-1]+psatV[-1])/2.,'o')
         #ax.plot(np.r_[rhosatL[-1],rhosatV[-1]],np.r_[psatL[-1],psatV[-1]],'k')
     
     ax.set_xlabel('Density [kg/m$^3$]')
@@ -463,7 +462,7 @@ def PT(Ref, Tmin=None, Tmax = None, show = False, axis = None, **kwargs):
 
     if Tmax>cp.Props(Ref,'Tcrit')-2e-5:
         ax.plot(np.r_[Tsat[-1],Tsat[-1]],np.r_[psatL[-1],psatV[-1]],'k')
-        ax.plot(Tsat[-1],(psatL[-1]+psatV[-1])/2.,'o')
+        #ax.plot(Tsat[-1],(psatL[-1]+psatV[-1])/2.,'o')
         #ax.plot(np.r_[Tsat[-1],Tsat[-1]],np.r_[psatL[-1],psatV[-1]],'k')
     
     ax.set_xlabel('Temperature [K]')

@@ -97,7 +97,6 @@ double CycloPropaneClass::rhosatV(double T)
 	return reduce.rho*exp(reduce.T/T*summer);
 }
 
-
 PropyneClass::PropyneClass()
 {
 	double n[] = {0, -9.86950667682466E-01, 4.59528109357232E+00, -8.86063623531859E+00, 5.56346955560542E+00, -1.57450028544218E+00, -1.59068753573430E-01, 2.35738270184042E-01, 4.40755494598713E-01, 1.96126150614333E-01, -3.67759650330219E-01, 7.92931851007852E-03, 2.47509085735293E-03, 8.32903610194452E-03, 1.02590136933231E+00, -2.20786016506394E+00, 1.07889905203761E+00, -3.82188466985900E+00, 8.30345065618981E+00, -4.48323072602860E+00, -1.02590136933231E+00, 2.20786016506394E+00, -1.07889905203761E+00};
@@ -115,7 +114,7 @@ PropyneClass::PropyneClass()
 	// Other fluid parameters
 	params.molemass = 40.06;
 	params.Ttriple = 170.5;
-	params.accentricfactor = _HUGE;
+	params.accentricfactor = 0.204;
 	params.R_u = 8.3143;
 	params.ptriple = 0.1863;
 
@@ -172,13 +171,11 @@ double PropyneClass::rhosatL(double T)
     const double N[] = {0, 4.0417756773327778, -31.191719018579267, 68.399467163263139, 211.93208284987557, -1457.8363818716066, 3452.436253269464, -4095.4407531126485, 2114.2042391704863, -402.8056702552895, 142.73254644405606};
     double summer=0,theta;
     theta=1-T/reduce.T;
-    	
-for (int i=1; i<=10; i++)
-{
-    summer += N[i]*pow(theta,t[i]);
-}
-return reduce.rho*(summer+1);
-
+	for (int i=1; i<=10; i++)
+	{
+		summer += N[i]*pow(theta,t[i]);
+	}
+	return reduce.rho*(summer+1);
 }
 
 double PropyneClass::rhosatV(double T)
@@ -186,14 +183,12 @@ double PropyneClass::rhosatV(double T)
     // Maximum absolute error is 0.071856 % between 273.000001 K and 402.379990 K
     const double t[] = {0, 0.16666666666666666, 0.3333333333333333, 0.6666666666666666, 0.8333333333333334, 1.0, 1.1666666666666667, 1.3333333333333333, 1.5, 1.8333333333333333};
     const double N[] = {0, -3.2611479340583425, 21.113350221071236, -500.60815996337084, 2331.103035511363, -5545.9781937510725, 7874.0174835532853, -6568.2932354931727, 2641.1681543521377, -256.41310994446786};
-    double summer=0,theta;
-    theta=1-T/reduce.T;
-    	
-for (int i=1; i<=9; i++)
-{
-    summer += N[i]*pow(theta,t[i]);
-}
-double rho = reduce.rho*exp(reduce.T/T*summer);
-return reduce.rho*exp(reduce.T/T*summer);
-
+    double summer = 0, theta;
+    theta = 1-T/reduce.T;
+	for (int i=1; i<=9; i++)
+	{
+		summer += N[i]*pow(theta,t[i]);
+	}
+	double rho = reduce.rho*exp(reduce.T/T*summer);
+	return reduce.rho*exp(reduce.T/T*summer);
 }

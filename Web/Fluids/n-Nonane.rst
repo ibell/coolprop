@@ -1,15 +1,23 @@
 
 ********************
-OrthoHydrogen
+n-Nonane
 ********************
 
 Aliases
 ================================================================================
-``Orthohydrogen``
+``nonane``
 
 Bibliographic Information
 =========================
-**Equation of State**: J.W. Leachman and R.T. Jacobsen and S.G. Penoncello and E.W. Lemmon, 2009, Fundamental Equations of State for Parahydrogen, Normal Hydrogen, and Orthohydrogen, *J. Phys. Chem. Ref. Data*, 38:721-748
+**Equation of State**: E.W. Lemmon and R. Span, 2006, Short Fundamental Equations of State for 20 Industrial Fluids, *J. Chem. Eng. Data*, 51:785-850
+
+**Surface Tension**: A. Mulero and I. Cachadi\~na and M. I. Parra, 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
+
+**Viscosity**: Marcia L. Huber and Arno Laesecke and Hong Wei Xiang, 2004, Viscosity correlations for minor constituent fluids in natural gas: n-octane, n-nonane and n-decane, *Fluid Phase Equilibria*, 224:263-270
+
+**Conductivity**: M.L. Huber and R.A. Perkins, 2005, Thermal conductivity correlations for minor constituent fluids in natural gas: n-octane, n-nonane and n-decane, *Fluid Phase Equilibria*, 227:47-55
+
+**Lennard-Jones Parameters for ECS**: Marcia L. Huber and Arno Laesecke and Hong Wei Xiang, 2004, Viscosity correlations for minor constituent fluids in natural gas: n-octane, n-nonane and n-decane, *Fluid Phase Equilibria*, 224:263-270
 
 
 
@@ -19,18 +27,18 @@ Fluid Data
 Fluid Parameters
 
 =========================  ==============================
-Mole Mass [kg/kmol]        2.01594
-Triple Point Temp. [K]     14.008
-Triple Point Press. [kPa]  7.559882341
-Minimum temperature [K]    14.008
+Mole Mass [kg/kmol]        128.25510
+Triple Point Temp. [K]     219.700
+Triple Point Press. [kPa]  0.0004445435924
+Minimum temperature [K]    219.700
 =========================  ==============================
 
 Critical Parameters
 
 ==============================  ==============================
-Temperature [K]                 33.220
-Density [kg/m\ :sup:`3`\ ]      31.135267
-Pressure [kPa]                  1310.65000
+Temperature [K]                 594.550
+Density [kg/m\ :sup:`3`\ ]      232.141731
+Pressure [kPa]                  2281.00000
 ==============================  ==============================
 
 
@@ -39,8 +47,8 @@ Saturated Vapor Deviations
 
 .. plot::
 
-    Fluid = "OrthoHydrogen"
-    RPFluid = "REFPROP-ORTHOHYD"
+    Fluid = "n-Nonane"
+    RPFluid = "REFPROP-nonane"
 
     #Saturated Vapor
     from CoolProp.CoolProp import Props
@@ -100,8 +108,8 @@ Saturated Liquid Deviations
 
 .. plot::
 
-    Fluid = "OrthoHydrogen"
-    RPFluid = "REFPROP-ORTHOHYD"
+    Fluid = "n-Nonane"
+    RPFluid = "REFPROP-nonane"
 
     #Saturated Liquid
     from CoolProp.CoolProp import Props
@@ -160,8 +168,8 @@ Along the critical isotherm where T=T\ :sub:`c`
 ================================================
 .. plot::
 
-    Fluid = "OrthoHydrogen"
-    RPFluid = "REFPROP-ORTHOHYD"
+    Fluid = "n-Nonane"
+    RPFluid = "REFPROP-nonane"
 
     #Critical isotherm
     from CoolProp.CoolProp import Props
@@ -221,7 +229,7 @@ Check of p,h and p,s as inputs (X: Failure .: Success)
     from matplotlib import pyplot as plt
     import numpy as np
 
-    Ref = "OrthoHydrogen"
+    Ref = "n-Nonane"
     fig = plt.figure(figsize=(10,5))
     ax1 = fig.add_subplot(121)
     ax2 = fig.add_subplot(122)
@@ -234,8 +242,8 @@ Check of p,h and p,s as inputs (X: Failure .: Success)
     smin = Props('S','T',Tmin,'Q',0,Ref)
     smax = 2*Props('S','T',Props(Ref,'Tcrit')-1,'Q',1,Ref)-smin
 
-    Ph(Ref, axis = ax1, Tmin = Tmin, Tmax = 33.210000)
-    Ps(Ref, axis = ax2, Tmin = Tmin, Tmax = 33.210000)
+    Ph(Ref, axis = ax1, Tmin = Tmin, Tmax = 594.540000)
+    Ps(Ref, axis = ax2, Tmin = Tmin, Tmax = 594.540000)
 
     for p in np.linspace(pmin,pmax,10):
         for h in np.linspace(hmin,hmax):

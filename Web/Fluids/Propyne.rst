@@ -5,7 +5,7 @@ Propyne
 
 Aliases
 ================================================================================
-``Propyne``, ``Propyne``
+``propyne``
 
 Bibliographic Information
 =========================

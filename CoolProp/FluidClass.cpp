@@ -83,6 +83,7 @@
 #include "purefluids/Cyclopropane_Propyne.h"
 #include "purefluids/Neon.h"
 #include "purefluids/R124.h"
+#include "purefluids/Fluorine.h"
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -159,10 +160,10 @@ void rebuild_CriticalSplineConstants_T()
 		}
 		double good;
 		try{
-			if (Tc-5>Tt)
+			if (Tc-20>Tt)
 			{
-				CPS.update(iT,Tc-5,iQ,1);
-				good = 5;
+				CPS.update(iT,Tc-20,iQ,1);
+				good = 10;
 			}
 			else
 			{
@@ -174,12 +175,12 @@ void rebuild_CriticalSplineConstants_T()
 		{
 			if (CPS.pFluid->reduce.T > 100)
 			{
-				std::cout << format("%s : failed at 5 K \n",fluid_names[i].c_str()).c_str();
+				std::cout << format("%s : failed at 20 K \n",fluid_names[i].c_str()).c_str();
 				continue;
 			}
 			else
 			{
-				std::cout << format("%s : failed at 5 K \n",fluid_names[i].c_str()).c_str();
+				std::cout << format("%s : failed at 1 K \n",fluid_names[i].c_str()).c_str();
 				continue;
 			}
 		}
@@ -194,6 +195,14 @@ void rebuild_CriticalSplineConstants_T()
 				good = b;
 			}
 			for (double b = good; b>0; b -= 0.0001)
+			{
+				CPS.update(iT,Tc-b,iQ,1);
+				rhoV = CPS.rhoV(); rhoL = CPS.rhoL();
+				drhodTV = CPS.drhodT_along_sat_vapor(); 
+				drhodTL = CPS.drhodT_along_sat_liquid();
+				good = b;
+			}
+			for (double b = good; b>0; b -= 0.00001)
 			{
 				CPS.update(iT,Tc-b,iQ,1);
 				rhoV = CPS.rhoV(); rhoL = CPS.rhoL();
@@ -267,6 +276,7 @@ FluidsContainer::FluidsContainer()
 	FluidsList.push_back(new NeonClass());
 	FluidsList.push_back(new R124Class());
 	FluidsList.push_back(new PropyneClass());
+	FluidsList.push_back(new FluorineClass());
 
 	// The industrial fluids
 	FluidsList.push_back(new R245faClass());
@@ -889,7 +899,7 @@ double Fluid::density_Tp(double T, double p, double rho_guess)
         rho = rho-(p_EOS-p)/dpdrho;
 		change = fabs((p_EOS-p)/dpdrho);
         // Residual
-        error=p_EOS-p;
+        error = p_EOS-p;
         iter++;
         if (iter>30)
         {
@@ -1200,6 +1210,10 @@ void Fluid::rhosatPure_Akasaka(double T, double *rhoLout, double *rhoVout, doubl
 			throw ValueError(format("rhosatPure_Akasaka failed"));
 		}
 		iter=iter+1;
+		if (iter > 100)
+		{
+			throw SolutionError(format("Akasaka solver did not converge after 100 iterations"));
+		}
 	}
 	while (error > 1e-10);
 	*rhoLout = deltaL*reduce.rho;
@@ -1237,13 +1251,13 @@ void Fluid::rhosatPure(double T, double *rhoLout, double *rhoVout, double *pout)
     while ((iter<=3 || fabs(error)>1e-10) && iter<100)
     {
         if (iter==1){x1=p_guess; p=x1;}
-        else if (iter==2){x2=1.0001*p_guess; p=x2;}
+        else if (iter==2){x2=1.000001*p_guess; p=x2;}
         else {p=x2;}
             //Recalculate the densities based on the current pressure
-            rhoL=density_Tp(T,p,rhoL);
-            rhoV=density_Tp(T,p,rhoV);
+            rhoL = density_Tp(T,p,rhoL);
+            rhoV = density_Tp(T,p,rhoV);
             // Residual between saturated liquid and saturated vapor gibbs function
-            f=gibbs_Trho(T,rhoL)-gibbs_Trho(T,rhoV);
+            f = gibbs_Trho(T,rhoL) - gibbs_Trho(T,rhoV);
         if (iter==1){y1=f;}
         else //(iter>1)
         {
