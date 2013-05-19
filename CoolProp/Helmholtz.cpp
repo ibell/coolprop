@@ -493,9 +493,15 @@ double phir_exponential2::dDelta3(double tau, double delta) throw()
 	double summer = 0;
 	for (unsigned int i=iStart;i<=iEnd;i++)
 	{
+		// >> Code for sympy: (same result for bracketed term as phir_exponential
+		// >> n_i, tau, t_i, d_i, delta, g_i, l_i, alpha_i = symbols(' n_i tau t_i d_i delta g_i l_i, alpha_i');
+		// >> phir = n_i*delta**d_i*exp(alpha_i*tau-g_i*pow(delta,l_i))
+		// >> simplify(diff(diff(diff(phir,delta),delta),delta))
 		double pow_delta_li = pow(delta,l[i]);
-		double bracket = (d[i]*(d[i]-1)*(d[i]-2)+pow_delta_li*(-2*l[i]*g[i]+6*d[i]*l[i]*g[i]-3*d[i]*d[i]*l[i]*g[i]-3*d[i]*l[i]*l[i]*g[i]*g[i]+3*l[i]*l[i]*g[i]*g[i]-l[i]*l[i]*l[i]*pow(g[i],3))+pow_delta_li*pow_delta_li*(3*d[i]*l[i]*l[i]*g[i]*g[i]-3*l[i]*l[i]*g[i]*g[i]+3*l[i]*l[i]*l[i]*pow(g[i],3))-l[i]*l[i]*l[i]*pow(g[i],3)*pow_delta_li*pow_delta_li*pow_delta_li);
-		summer+=n[i]*bracket*exp(a[i]*tau-g[i]*pow(delta,l[i]));
+		double pow_delta_2li = pow(delta,2*l[i]);
+		double pow_delta_3li = pow(delta,3*l[i]);
+		double bracket = d[i]*d[i]*d[i] - 3*d[i]*d[i]*pow_delta_li*g[i]*l[i] - 3*d[i]*d[i] + 3*d[i]*pow_delta_2li*g[i]*g[i]*l[i]*l[i] - 3*d[i]*pow_delta_li*g[i]*l[i]*l[i] + 6*d[i]*pow_delta_li*g[i]*l[i] + 2*d[i] - pow_delta_3li*g[i]*g[i]*g[i]*l[i]*l[i]*l[i] + 3*pow_delta_2li*g[i]*g[i]*l[i]*l[i]*l[i] - 3*pow_delta_2li*g[i]*g[i]*l[i]*l[i] - pow_delta_li*g[i]*l[i]*l[i]*l[i] + 3*pow_delta_li*g[i]*l[i]*l[i] - 2*pow_delta_li*g[i]*l[i];
+		summer += n[i]*bracket*exp(a[i]*tau-g[i]*pow(delta,l[i]));
 	}
 	return summer;
 }
