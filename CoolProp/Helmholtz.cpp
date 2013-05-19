@@ -18,6 +18,37 @@ using namespace std;
 #include "Helmholtz.h"
 #include "CoolPropTools.h"
 
+
+void check_derivatives(phi_BC * phi, double tau, double delta, double ddelta, double dtau)
+{
+	double dphir_dDelta_a = (phi->base(tau,delta+ddelta)-phi->base(tau,delta-ddelta))/(2*ddelta);
+	double dphir_dDelta_e = phi->dDelta(tau,delta);
+
+	double d2phir_dDelta2_a = (phi->dDelta(tau,delta+ddelta)-phi->dDelta(tau,delta-ddelta))/(2*ddelta);
+	double d2phir_dDelta2_e = phi->dDelta2(tau,delta);
+
+	double d2phir_dDelta_dTau_a = (phi->dDelta(tau+dtau,delta)-phi->dDelta(tau-dtau,delta))/(2*dtau);
+	double d2phir_dDelta_dTau_e = phi->dDelta_dTau(tau,delta);
+
+	double d3phir_dDelta2_dTau_a = (phi->dDelta_dTau(tau,delta+ddelta)-phi->dDelta_dTau(tau,delta-ddelta))/(2*ddelta);
+	double d3phir_dDelta2_dTau_e = phi->dDelta2_dTau(tau,delta);
+
+	double d3phir_dDelta3_a = (phi->dDelta2(tau,delta+ddelta)-phi->dDelta2(tau,delta-ddelta))/(2*ddelta);
+	double d3phir_dDelta3_e = phi->dDelta3(tau,delta);
+
+	double dphir_dTau_a = (phi->base(tau+dtau,delta)-phi->base(tau-dtau,delta))/(2*dtau);
+	double dphir_dTau_e = phi->dTau(tau,delta);
+
+	double d2phir_dTau2_a = (phi->dTau(tau+dtau,delta)-phi->dTau(tau-dtau,delta))/(2*dtau);
+	double d2phir_dTau2_e = phi->dTau2(tau,delta);
+
+	double d3phir_dTau3_a = (phi->dTau2(tau+dtau,delta)-phi->dTau2(tau-dtau,delta))/(2*dtau);
+	double d3phir_dTau3_e = phi->dTau3(tau,delta);
+
+	double d2phir_dDelta2 = 0;
+}
+
+
 // Constructors
 phir_power::phir_power(std::vector<double> n_in,std::vector<double> d_in,std::vector<double> t_in, std::vector<double> l_in, int iStart_in,int iEnd_in)
 {

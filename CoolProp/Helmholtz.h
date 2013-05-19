@@ -15,6 +15,8 @@
 	#endif
 #endif
 
+
+
 /// This is the abstract base class upon which each residual Helmholtz energy class is built
 class phi_BC{
 public:
@@ -62,6 +64,11 @@ public:
 	/// @param delta Reduced pressure where delta = rho / rhoc 
 	virtual double dDelta3(double tau, double delta) = 0;
 };
+
+/// Check the derivatives for a Helmholtz energy term
+/// Fluid *fl = get_fluid(get_Fluid_index("Methanol"));
+/// check_derivatives(fl->phirlist.at(2),0.5,0.3);
+void check_derivatives(phi_BC * phi, double tau, double delta, double ddelta = 1e-10, double dtau = 1e-10);
 
 /*!
 

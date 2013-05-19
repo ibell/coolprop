@@ -42,6 +42,7 @@
 #include "purefluids/R32.cpp"
 #include "purefluids/R717.cpp"
 #include "purefluids/R744.cpp"
+#include "purefluids/RC318_R21_R114_R13_R14.cpp"
 #include "purefluids/Siloxanes.cpp"
 #include "purefluids/Span_Short.cpp"
 #include "purefluids/SulfurHexafluoride.cpp"
