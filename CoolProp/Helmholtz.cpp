@@ -303,11 +303,13 @@ double phir_exponential::dDelta(double tau, double delta) throw()
 }
 double phir_exponential::dDelta2(double tau, double delta) throw()
 {
-	double summer=0, log_tau = log(tau), log_delta = log(delta);
+	double summer=0, log_tau = log(tau), log_delta = log(delta), pow_delta_li;
 	for (unsigned int i=iStart;i<=iEnd;i++)
-	{
-		double pow_delta_li = pow(delta,l[i]);
-		summer+=n[i]*((d[i]-g[i]*l[i]*pow_delta_li)*(d[i]-1.0-g[i]*l[i]*pow_delta_li) - g[i]*g[i]*l[i]*l[i]*pow_delta_li)*exp(t[i]*log_tau+(d[i]-2)*log_delta-g[i]*pow_delta_li);
+	{	
+		pow_delta_li = pow(delta,l[i]);
+		// Typo in Span, 2000, re-derived from Sympy
+		double bracket = d[i]*d[i] - 2*d[i]*pow(delta,l[i])*g[i]*l[i] - d[i] + pow(delta,2*l[i])*g[i]*g[i]*l[i]*l[i] - pow(delta,l[i])*g[i]*l[i]*l[i] + pow(delta,l[i])*g[i]*l[i];
+		summer += n[i]*bracket*exp(t[i]*log_tau+(d[i]-2)*log_delta-g[i]*pow_delta_li);
 	}
 	return summer;
 }
@@ -329,7 +331,9 @@ double phir_exponential::dDelta2_dTau(double tau, double delta) throw()
 	for (unsigned int i=iStart;i<=iEnd;i++)
 	{
 		double pow_delta_li = pow(delta,l[i]);
-		summer+=n[i]*t[i]*((d[i]-g[i]*l[i]*pow_delta_li)*(d[i]-1.0-g[i]*l[i]*pow_delta_li) - g[i]*g[i]*l[i]*l[i]*pow_delta_li)*exp((t[i]-1)*log_tau+(d[i]-2)*log_delta-pow_delta_li);
+		// Typo in Span, 2000, re-derived from Sympy
+		double bracket = d[i]*d[i] - 2*d[i]*pow(delta,l[i])*g[i]*l[i] - d[i] + pow(delta,2*l[i])*g[i]*g[i]*l[i]*l[i] - pow(delta,l[i])*g[i]*l[i]*l[i] + pow(delta,l[i])*g[i]*l[i];
+		summer += n[i]*t[i]*bracket*exp((t[i]-1)*log_tau+(d[i]-2)*log_delta-g[i]*pow_delta_li);
 	}
 	return summer;
 }
@@ -439,7 +443,9 @@ double phir_exponential2::dDelta2(double tau, double delta) throw()
 	for (unsigned int i=iStart;i<=iEnd;i++)
 	{
 		double pow_delta_li = pow(delta,l[i]);
-		summer += n[i]*pow(delta,d[i]-2)*((d[i]-g[i]*l[i]*pow_delta_li)*(d[i]-1.0-g[i]*l[i]*pow_delta_li) - g[i]*g[i]*l[i]*l[i]*pow_delta_li)*exp(a[i]*tau-g[i]*pow_delta_li);
+		// Typo in Span, 2000, re-derived from Sympy
+		double bracket = d[i]*d[i] - 2*d[i]*pow(delta,l[i])*g[i]*l[i] - d[i] + pow(delta,2*l[i])*g[i]*g[i]*l[i]*l[i] - pow(delta,l[i])*g[i]*l[i]*l[i] + pow(delta,l[i])*g[i]*l[i];
+		summer += n[i]*pow(delta,d[i]-2)*bracket*exp(a[i]*tau-g[i]*pow_delta_li);
 	}
 	return summer;
 }
@@ -460,7 +466,9 @@ double phir_exponential2::dDelta2_dTau(double tau, double delta) throw()
 	for (unsigned int i=iStart;i<=iEnd;i++)
 	{
 		double pow_delta_li = pow(delta,l[i]);
-		summer += n[i]*a[i]*pow(delta,d[i])*((d[i]-g[i]*l[i]*pow_delta_li)*(d[i]-1.0-g[i]*l[i]*pow_delta_li) - g[i]*g[i]*l[i]*l[i]*pow_delta_li)*exp(a[i]*tau-g[i]*pow_delta_li);
+		// Typo in Span, 2000, re-derived from Sympy
+		double bracket = d[i]*d[i] - 2*d[i]*pow(delta,l[i])*g[i]*l[i] - d[i] + pow(delta,2*l[i])*g[i]*g[i]*l[i]*l[i] - pow(delta,l[i])*g[i]*l[i]*l[i] + pow(delta,l[i])*g[i]*l[i];
+		summer += n[i]*a[i]*pow(delta,d[i]-2)*bracket*exp(a[i]*tau-g[i]*pow_delta_li);
 	}
 	return summer;
 }
@@ -470,7 +478,7 @@ double phir_exponential2::dDelta_dTau(double tau, double delta) throw()
 	for (unsigned int i=iStart;i<=iEnd;i++)
 	{
 		double pow_delta_li = pow(delta,l[i]);
-		summer += n[i]*a[i]*pow(delta,d[i])*(d[i]-g[i]*l[i]*pow_delta_li)*exp(a[i]*tau-g[i]*pow_delta_li);
+		summer += n[i]*a[i]*pow(delta,d[i]-1)*(d[i]-g[i]*l[i]*pow_delta_li)*exp(a[i]*tau-g[i]*pow_delta_li);
 	}
 	return summer;
 }

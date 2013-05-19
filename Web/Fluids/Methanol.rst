@@ -1,17 +1,15 @@
 
 ********************
-Fluorine
+Methanol
 ********************
 
 Aliases
 ================================================================================
-``fluorine``
+``Methanol``
 
 Bibliographic Information
 =========================
-**Equation of State**: K.M. de Reuck, 1990, *Fluorine: International Thermodynamic Tables of the Fluid State - 11*, Blackwell Scientific Publications
-
-**Ideal-gas Specific Heat**: K.M. de Reuck, 1990, *Fluorine: International Thermodynamic Tables of the Fluid State - 11*, Blackwell Scientific Publications
+**Equation of State**: K.M. de Reuck and R.J.B. Craven, 1993, *Methanol: International Thermodynamic Tables of the Fluid State - 12*, Blackwell Scientific Publications
 
 **Surface Tension**: A. Mulero and I. Cachadi\~na and M. I. Parra, 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
 
@@ -23,18 +21,18 @@ Fluid Data
 Fluid Parameters
 
 =========================  ==============================
-Mole Mass [kg/kmol]        37.99681
-Triple Point Temp. [K]     53.481
-Triple Point Press. [kPa]  0.23881
-Minimum temperature [K]    53.481
+Mole Mass [kg/kmol]        32.04216
+Triple Point Temp. [K]     175.610
+Triple Point Press. [kPa]  0.00018629
+Minimum temperature [K]    175.610
 =========================  ==============================
 
 Critical Parameters
 
 ==============================  ==============================
-Temperature [K]                 144.414
-Density [kg/m\ :sup:`3`\ ]      592.864226
-Pressure [kPa]                  5172.40000
+Temperature [K]                 512.600
+Density [kg/m\ :sup:`3`\ ]      275.562576
+Pressure [kPa]                  8103.50000
 ==============================  ==============================
 
 
@@ -43,8 +41,8 @@ Saturated Vapor Deviations
 
 .. plot::
 
-    Fluid = "Fluorine"
-    RPFluid = "REFPROP-FLUORINE"
+    Fluid = "Methanol"
+    RPFluid = "REFPROP-METHANOL"
 
     #Saturated Vapor
     from CoolProp.CoolProp import Props
@@ -104,8 +102,8 @@ Saturated Liquid Deviations
 
 .. plot::
 
-    Fluid = "Fluorine"
-    RPFluid = "REFPROP-FLUORINE"
+    Fluid = "Methanol"
+    RPFluid = "REFPROP-METHANOL"
 
     #Saturated Liquid
     from CoolProp.CoolProp import Props
@@ -164,8 +162,8 @@ Along the critical isotherm where T=T\ :sub:`c`
 ================================================
 .. plot::
 
-    Fluid = "Fluorine"
-    RPFluid = "REFPROP-FLUORINE"
+    Fluid = "Methanol"
+    RPFluid = "REFPROP-METHANOL"
 
     #Critical isotherm
     from CoolProp.CoolProp import Props
@@ -225,7 +223,7 @@ Check of p,h and p,s as inputs (X: Failure .: Success)
     from matplotlib import pyplot as plt
     import numpy as np
 
-    Ref = "Fluorine"
+    Ref = "Methanol"
     fig = plt.figure(figsize=(10,5))
     ax1 = fig.add_subplot(121)
     ax2 = fig.add_subplot(122)
@@ -238,8 +236,8 @@ Check of p,h and p,s as inputs (X: Failure .: Success)
     smin = Props('S','T',Tmin,'Q',0,Ref)
     smax = 2*Props('S','T',Props(Ref,'Tcrit')-1,'Q',1,Ref)-smin
 
-    Ph(Ref, axis = ax1, Tmin = Tmin, Tmax = 144.404000)
-    Ps(Ref, axis = ax2, Tmin = Tmin, Tmax = 144.404000)
+    Ph(Ref, axis = ax1, Tmin = Tmin, Tmax = 512.590000)
+    Ps(Ref, axis = ax2, Tmin = Tmin, Tmax = 512.590000)
 
     for p in np.linspace(pmin,pmax,10):
         for h in np.linspace(hmin,hmax):

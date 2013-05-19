@@ -42,6 +42,7 @@ Pure Fluids
     MDM.rst
     MM.rst
     Methane.rst
+    Methanol.rst
     MethylLinoleate.rst
     MethylLinolenate.rst
     MethylOleate.rst

@@ -36,15 +36,12 @@ FluorineClass::FluorineClass()
 	phirlist.push_back(new phir_exponential(n,d,t,c,g,14,31,32));
 
 	// Ideal-gas part
-	const double a[]={0.0, 3.5011231, -0.60936946e-4/pow(crit.T,4), 0.63196690e-3/pow(crit.T,3), -0.74069617e-4*pow(crit.T,2), 1.012767, 8.9238556};
-    const double b[]={0.0, 0, 4, 3, -2};
-	std::vector<double> a_v(a, a+sizeof(a)/sizeof(double));
-    std::vector<double> b_v(b, b+sizeof(b)/sizeof(double));
-
-	phi0list.push_back(new phi0_lead(0,0));
-	phi0list.push_back(new phi0_logtau(-1));
-	phi0list.push_back(new phi0_cp0_poly(a_v,b_v,crit.T,298,1,4));
-	phi0list.push_back(new phi0_Planck_Einstein(a[5],a[6]));
+	double f0[]={0.0, 3.0717001e-6, -5.2985762e-5, -16.372517, 3.6884682e-5, 2.5011231, 1.0127670, 8.9057501, 4.3887271};
+	double g0[] = {0, -4, -3, 1, 2, 0, 0, 0, 0};
+	phi0list.push_back(new phi0_power(f0, g0,1,4,9));
+	phi0list.push_back(new phi0_logtau(f0[5]));
+	phi0list.push_back(new phi0_Planck_Einstein3(f0[6],f0[7]));
+	phi0list.push_back(new phi0_power(f0[8], 0));
 
     name.assign("Fluorine");
     aliases.push_back(std::string("fluorine"));

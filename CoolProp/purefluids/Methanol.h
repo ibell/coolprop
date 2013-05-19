@@ -17,7 +17,7 @@ public:
 	//	*e_k = 362.6;
 	//	*sigma = 0.453;
 	//};
-	double surface_tension_T(double);
+	double surface_tension_T(double T);
 };
 
 #endif
