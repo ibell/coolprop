@@ -1263,7 +1263,6 @@ R11Class::R11Class()
 	phi0list.push_back(new phi0_cp0_constant(4.0+0.0469706/(params.R_u),471.11,298));
 	phi0list.push_back(new phi0_cp0_poly(0.0018532/(params.R_u),1,471.11,298));
 
-	// TODO: Add Marx cp0 relationship
 	double a[] = {0,1,2,1,2,1,2};
 	double A[] = {0,1085,847,535.2,398,349.5,241};
 	for (int i = 1; i<=6; i++) {A[i] *= 1.43878/471.11; };

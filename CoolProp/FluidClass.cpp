@@ -2236,8 +2236,6 @@ double Fluid::Tsat_anc(double p, double Q)
     Tc=reduce.T;
     Tmax=Tc;
 	Tmin=limits.Tmin;
-	if (Tmin <= limits.Tmin)
-		Tmin = limits.Tmin;
 	
 	Tmid = (Tmax+Tmin)/2.0;
 	

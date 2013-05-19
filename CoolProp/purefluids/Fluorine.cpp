@@ -42,6 +42,7 @@ FluorineClass::FluorineClass()
 	phi0list.push_back(new phi0_logtau(f0[5]));
 	phi0list.push_back(new phi0_Planck_Einstein3(f0[6],f0[7]));
 	phi0list.push_back(new phi0_power(f0[8], 0));
+	phi0list.push_back(new phi0_lead(0,0)); // This terms is needed, but not listed in Fluorine book
 
     name.assign("Fluorine");
     aliases.push_back(std::string("fluorine"));
@@ -54,16 +55,15 @@ FluorineClass::FluorineClass()
 
 double FluorineClass::psat(double T)
 {
-    // Maximum absolute error is 0.271996 % between 53.481101 K and 144.413990 K
-    const double t[]={0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 15, 17, 19, 23, 27, 30, 34, 39, 45};
-    const double N[]={0, 39.766789528099764, -3195.9994386396493, 112125.30646045343, -2289983.2435957235, 30524951.137652785, -282498200.63334149, 1880909335.4262767, -9185010257.6764565, 33103942124.324303, -87405206965.736526, 164501761128.9436, -206121775065.31271, 140272273147.70923, -64043585466.793396, 46073822724.952675, -24600191084.522541, 10929015687.894222, -12112436365.177746, 10838391013.322668, -5425836754.3918419, 1975405029.3848128, -450071720.05528659};
+    const double t[]={0, 1, 1.5, 2, 3.5, 4.5};
+    const double N[]={0, -6.1843496, 1.2095388, -6.1708665, -0.30963258, 0.068976007};
     double summer=0,theta;
-    theta=1-T/reduce.T;
-    for (int i=1;i<=21;i++)
+    theta=reduce.T/T-1;
+    for (int i=1;i<=5;i++)
     {
-        summer += N[i]*pow(theta,t[i]/2);
+        summer += N[i]*pow(theta,t[i]);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p*exp(T/reduce.T*summer);
 }
 
 double FluorineClass::rhosatL(double T)
