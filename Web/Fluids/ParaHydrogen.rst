@@ -5,7 +5,7 @@ ParaHydrogen
 
 Aliases
 ================================================================================
-````
+``Parahydrogen``
 
 Bibliographic Information
 =========================

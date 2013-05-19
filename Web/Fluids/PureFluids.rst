@@ -26,6 +26,7 @@ Pure Fluids
     Ethanol.rst
     EthylBenzene.rst
     Ethylene.rst
+    Fluorine.rst
     HFE143m.rst
     Helium.rst
     Hydrogen.rst
@@ -41,6 +42,7 @@ Pure Fluids
     MDM.rst
     MM.rst
     Methane.rst
+    Methanol.rst
     MethylLinoleate.rst
     MethylLinolenate.rst
     MethylOleate.rst
@@ -50,7 +52,6 @@ Pure Fluids
     Neopentane.rst
     Nitrogen.rst
     NitrousOxide.rst
-    Nonane.rst
     OrthoHydrogen.rst
     Oxygen.rst
     ParaHydrogen.rst
@@ -91,6 +92,7 @@ Pure Fluids
     n-Dodecane.rst
     n-Heptane.rst
     n-Hexane.rst
+    n-Nonane.rst
     n-Octane.rst
     n-Pentane.rst
     n-Undecane.rst

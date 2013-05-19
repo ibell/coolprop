@@ -42,24 +42,29 @@ def saturation_density(Ref, ClassName, form = 'A', LV = 'L', perc_error_allowed 
     # Start with a large library of potential powers
     n = [i/6.0 for i in range(1,200)]#+[0.35+i/200.0 for i in range(1,70)]+[0.05+0.01*i for i in range(1,70)]
     
+    x = 1.0-TT/Tc
+    if form == 'A' and LV == 'L':
+        y = np.array(rhoL)/rhoc-1
+    elif form == 'A' and LV == 'V':
+        y = np.array(rhoV)/rhoc-1
+    elif form == 'B' and LV == 'L':
+        y = (np.log(rhoL)-np.log(rhoc))*TT/Tc
+    elif form == 'B' and LV == 'V':
+        y = (np.log(rhoV)-np.log(rhoc))*TT/Tc
+    else:
+        raise ValueError
+    
+    plt.plot(x,y)
+    plt.show()
+        
     max_abserror = 0
     while len(n) > 3:
+        print max_abserror, len(n)
     
         def f_p(B, x):
             # B is a vector of the parameters.
             # x is an array of the current x values.
             return sum([_B*x**(_n) for _B,_n in zip(B,n)])
-        x = 1.0-TT/Tc
-        if form == 'A' and LV == 'L':
-            y = np.array(rhoL)/rhoc-1
-        elif form == 'A' and LV == 'V':
-            y = np.array(rhoV)/rhoc-1
-        elif form == 'B' and LV == 'L':
-            y = (np.log(rhoL)-np.log(rhoc))*TT/Tc
-        elif form == 'B' and LV == 'V':
-            y = (np.log(rhoV)-np.log(rhoc))*TT/Tc
-        else:
-            raise ValueError
         
         linear = Model(f_p)
         mydata = Data(x, y)
@@ -81,9 +86,8 @@ def saturation_density(Ref, ClassName, form = 'A', LV = 'L', perc_error_allowed 
         else:
             max_abserror = np.max(np.abs(rho_fit/rhoV-1))*100
             
-        dropped_indices = [i for i in range(len(n)) if abs(sd[i])<1e-15 ]
+        dropped_indices = [i for i in range(len(n)//2) if abs(sd[i])<1e-15 ]
         if dropped_indices:
-            print 'want to drop', random.choice(dropped_indices)
             for i in reversed(sorted(dropped_indices)):
                 n.pop(i)
             print 'popping...', len(n), 'terms remaining'
@@ -195,7 +199,7 @@ def saturation_pressure(Ref, ClassName):
             n.pop(random.choice(dropped_indices))
             continue
         
-        if max_abserror < 0.3: #Max error is 0.1%
+        if max_abserror < 0.1: #Max error is 0.1%
             Ncoeffs = str(list(myoutput.beta)).lstrip('[').rstrip(']')
             tcoeffs = str(n).lstrip('[').rstrip(']')
             maxerror = max_abserror
@@ -237,8 +241,8 @@ def saturation_pressure(Ref, ClassName):
     f.close()
     return
                       
-for RPFluid,Fluid in [('REFPROP-PROPYNE','Propyne')
+for RPFluid,Fluid in [('REFPROP-Methanol','Methanol')
                     ]:
-    saturation_pressure(RPFluid, Fluid)
-    saturation_density(RPFluid, Fluid, form='A', LV='L')
-    saturation_density(RPFluid, Fluid, form='B', LV='V')
+#    saturation_pressure(RPFluid, Fluid)
+#    saturation_density(RPFluid, Fluid, form='A', LV='L')
+    saturation_density(RPFluid, Fluid, form='B', LV='V', perc_error_allowed = 0.4)

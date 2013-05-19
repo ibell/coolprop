@@ -113,39 +113,10 @@ R124
 
 :: 3.1.1 ::
 PROPYNE
+FLUORINE
 
 :::::::::::: QUEUE :::::::::::::
-Ethylene
-    visc & cond: Holland 1983
-Methane
-    visc & cond: Friend 1989 (check these results)
-NF3:
-    MBWR
-R13:
-    MBWR
-    
----------------------------------------------------------- CANT BE DONE YET
-D2
-    Deuterium preprint en route
-R114 & R14 & R21 & RC318
-    (Platzer)
-    http://www.worldcat.org/search?q=ti%3AThermophysical+properties+of+refrigerants&fq=x0%3Abook
-Full EOS:
-Span 2006c
-    R11 
-    R12 (Marx[5])
-    R113 (Marx[5])
-        V. Marx, A. Pruß, and W. Wagner, Neue Zustandsgleichungen für R-12, R-22, R-11 und
-        R-113, Beschreibung des thermodynamischen Zustandsverhalten bei Temperaturen bis
-        525 K und Drücken bis 200 MPa, Fortschr.-Ber. VDI, Reihe 6, 57 (1992).
 
-Univ Lyon, Paris:
------------------
-FLUORINE
-    de Reuck, K.M.,
-    "International Thermodynamic Tables of the Fluid State-11 Fluorine,"
-    International Union of Pure and Applied Chemistry, Pergamon Press,
-    Oxford, 1990.
 METHANOL
     de Reuck, K.M. and Craven, R.J.B.,
     "Methanol, International Thermodynamic Tables of the Fluid State - 12,"
@@ -153,12 +124,33 @@ METHANOL
     
     visc: Xiang (not very nice)
 
+Full EOS:
+Span 2006c
+    R11 
+    R12 (Marx[5])
+    R113 (Marx[5])
+        V. Marx, A.h Pruß, and W. Wagner, Neue Zustandsgleichungen für R-12, R-22, R-11 und
+        R-113, Beschreibung des thermodynamischen Zustandsverhalten bei Temperaturen bis
+        525 K und Drücken bis 200 MPa, Fortschr.-Ber. VDI, Reihe 6, 57 (1992).
+R114 & R13 & R14 & R21 & RC318
+    (Platzer)
+Ethylene
+    visc & cond: Holland 1983
+Methane
+    visc & cond: Friend 1989 (check these results)
+NF3:
+    MBWR
+    
+---------------------------------------------------------- CANT BE DONE YET
+D2
+    Deuterium preprint en route at some point
+D2O
+    New EOS in a few months
+
 Unpublished:
 C1CC6
 C3CC6
-
 No Helmholtz:
-D2O (a funny form)
 C4F10 (ECS)
 C5F12 (ECS)
 R245CA (ECS)
