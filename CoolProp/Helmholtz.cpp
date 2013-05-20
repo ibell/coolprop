@@ -22,11 +22,9 @@ void check_derivatives(phi_BC * phi, double tau, double delta, double ddelta, do
 {
 	double dphir_dDelta_a = (phi->base(tau,delta+ddelta)-phi->base(tau,delta-ddelta))/(2*ddelta);
 	double dphir_dDelta_e = phi->dDelta(tau,delta);
-	double e1 = dphir_dDelta_a/dphir_dDelta_e;
 
 	double d2phir_dDelta2_a = (phi->dDelta(tau,delta+ddelta)-phi->dDelta(tau,delta-ddelta))/(2*ddelta);
 	double d2phir_dDelta2_e = phi->dDelta2(tau,delta);
-	double e2 = d2phir_dDelta2_a/d2phir_dDelta2_e;
 
 	double d2phir_dDelta_dTau_a = (phi->dDelta(tau+dtau,delta)-phi->dDelta(tau-dtau,delta))/(2*dtau);
 	double d2phir_dDelta_dTau_e = phi->dDelta_dTau(tau,delta);

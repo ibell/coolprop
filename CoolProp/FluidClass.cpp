@@ -86,6 +86,7 @@
 #include "purefluids/Fluorine.h"
 #include "purefluids/Methanol.h"
 #include "purefluids/RC318_R21_R114_R13_R14.h"
+#include "purefluids/R12_R113.h"
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -197,7 +198,25 @@ void rebuild_CriticalSplineConstants_T()
 		}
 		
 		try{
-			for (double b = good; b>0; b -= 0.03)
+			for (double b = good; b>0; b -= 0.5)
+			{
+				CPS.update(iT,Tc-b,iQ,1);
+				rhoV = CPS.rhoV(); rhoL = CPS.rhoL();
+				drhodTV = CPS.drhodT_along_sat_vapor();
+				drhodTL = CPS.drhodT_along_sat_liquid();
+				if (!ValidNumber(drhodTV) || !ValidNumber(drhodTL) || drhodTV*drhodTL > 0){throw ValueError();}
+				good = b;
+			}
+			for (double b = good; b>0; b -= 0.01)
+			{
+				CPS.update(iT,Tc-b,iQ,1);
+				rhoV = CPS.rhoV(); rhoL = CPS.rhoL();
+				drhodTV = CPS.drhodT_along_sat_vapor();
+				drhodTL = CPS.drhodT_along_sat_liquid();
+				if (!ValidNumber(drhodTV) || !ValidNumber(drhodTL) || drhodTV*drhodTL > 0){throw ValueError();}
+				good = b;
+			}
+			for (double b = good; b>0; b -= 0.001)
 			{
 				CPS.update(iT,Tc-b,iQ,1);
 				rhoV = CPS.rhoV(); rhoL = CPS.rhoL();
@@ -215,7 +234,25 @@ void rebuild_CriticalSplineConstants_T()
 				if (!ValidNumber(drhodTV) || !ValidNumber(drhodTL) || drhodTV*drhodTL > 0){throw ValueError();}
 				good = b;
 			}
-			for (double b = good; b>0; b -= 0.00001)
+			for (double b = good; b>0; b -= 0.000001)
+			{
+				CPS.update(iT,Tc-b,iQ,1);
+				rhoV = CPS.rhoV(); rhoL = CPS.rhoL();
+				drhodTV = CPS.drhodT_along_sat_vapor(); 
+				drhodTL = CPS.drhodT_along_sat_liquid();
+				if (!ValidNumber(drhodTV) || !ValidNumber(drhodTL) || drhodTV*drhodTL > 0){throw ValueError();}
+				good = b;
+			}
+			for (double b = good; b>0; b -= 0.00000001)
+			{
+				CPS.update(iT,Tc-b,iQ,1);
+				rhoV = CPS.rhoV(); rhoL = CPS.rhoL();
+				drhodTV = CPS.drhodT_along_sat_vapor(); 
+				drhodTL = CPS.drhodT_along_sat_liquid();
+				if (!ValidNumber(drhodTV) || !ValidNumber(drhodTL) || drhodTV*drhodTL > 0){throw ValueError();}
+				good = b;
+			}
+			for (double b = good; b>0; b -= 0.0000000001)
 			{
 				CPS.update(iT,Tc-b,iQ,1);
 				rhoV = CPS.rhoV(); rhoL = CPS.rhoL();
@@ -301,6 +338,8 @@ FluidsContainer::FluidsContainer()
 	FluidsList.push_back(new R114Class());
 	FluidsList.push_back(new R13Class());
 	FluidsList.push_back(new R14Class());
+	FluidsList.push_back(new R12Class());
+	FluidsList.push_back(new R113Class());
 
 	// The industrial fluids
 	FluidsList.push_back(new R245faClass());

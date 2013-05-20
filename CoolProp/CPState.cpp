@@ -888,6 +888,8 @@ double CoolPropStateClass::keyed_output(long iOutput)
 			return pFluid->params.accentricfactor;
 		case iTmin:
 			return pFluid->limits.Tmin;
+		case iCritSplineT:
+			return pFluid->CriticalSpline_T.Tend;
 
 		// --------------------------
 		// Phase Constants
