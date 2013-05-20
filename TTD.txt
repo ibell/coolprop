@@ -122,18 +122,13 @@ R13
 R14
 R21
 RC318
+R12
+R113
 
 :::::::::::: QUEUE :::::::::::::
+ECS params for new fluids
 Methanol
     visc: Xiang
-Full EOS:
-Span 2006c
-    R11 
-    R12 (Marx[5])
-    R113 (Marx[5])
-        V. Marx, A.h Pruß, and W. Wagner, Neue Zustandsgleichungen für R-12, R-22, R-11 und
-        R-113, Beschreibung des thermodynamischen Zustandsverhalten bei Temperaturen bis
-        525 K und Drücken bis 200 MPa, Fortschr.-Ber. VDI, Reihe 6, 57 (1992).
 Ethylene
     visc & cond: Holland 1983
 Methane

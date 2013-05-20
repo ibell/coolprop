@@ -82,7 +82,7 @@ is given below. Note the different ways to invoke drawIsoLines:
 .. plot::
     :include-source:
      
-    from CoolProp.Plots import Ts,drawIsoLines
+    from CoolProp.Plots.Plots import Ts,drawIsoLines
     Ref = 'n-Pentane'
     ax = Ts(Ref)
     ax.set_xlim([-0.5,1.5])
