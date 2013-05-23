@@ -3,17 +3,6 @@ from CoolProp.CoolProp import Props
 from scipy.optimize import newton
 import pylab,numpy as np
 
-params = {'axes.labelsize': 12,
-          'text.fontsize': 10,
-          'legend.fontsize': 8,
-          'legend.labelspacing':0.2,
-          'xtick.labelsize': 10,
-          'ytick.labelsize': 10,
-          'lines.linewidth': 0.5,
-          'text.usetex': False,
-          'font.family':'Times New Roman'}
-pylab.rcParams.update(params)
-
 def SimpleCycle(Ref,Te,Tc,DTsh,DTsc,eta_a,Ts_Ph='Ph',skipPlot=False,axis=None):
     """
     This function plots a simple four-component cycle, on the current axis, or that given by the optional parameter *axis*

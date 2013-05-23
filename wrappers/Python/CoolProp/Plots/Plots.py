@@ -154,7 +154,7 @@ def drawLines(Ref,lines,axis):
         Tmax = min(bubble['kmax'],dew['kmax'])
         if Tmax>cp.Props(Ref,'Tcrit')-2e-5:
             axis.plot(np.r_[bubble['x'][-1],dew['x'][-1]],np.r_[bubble['y'][-1],dew['y'][-1]],**bubble['opts'])
-            axis.plot((bubble['x'][-1]+dew['x'][-1])/2.,(bubble['y'][-1]+dew['y'][-1])/2.,'o')
+            axis.plot((bubble['x'][-1]+dew['x'][-1])/2.,(bubble['y'][-1]+dew['y'][-1])/2.,'o',color='Tomato')
     else:
         for line in lines:
             line, = axis.plot(line['x'],line['y'],**line['opts'])
@@ -306,7 +306,7 @@ def getIsoLines(Ref, plot, iName, iValues=[], num=0, axis=None):
           'x' : X[j],
           'y' : Y[j],
           'label' : _getIsoLineLabel(iName,iVal[j]),
-          'opts': { 'color':_getIsoLineColour(iName), 'lw':1, 'alpha':0.25 }
+          'opts': { 'color':getIsoLineColour(iName), 'lw':0.75, 'alpha':0.5 }
           }
         lines.append(line)
         
@@ -401,13 +401,13 @@ def _getSatLines(Ref, plot, kind=None, kmin=None, kmax=None, x=[0.,1.]):
           }
         if iVal[j]==0.:
             line['label'] = 'bubble line'
-            line['opts'] = { 'color':_getIsoLineColour(iName), 'lw':1 }
+            line['opts'] = { 'color':getIsoLineColour(iName), 'lw':0.75 }
         elif iVal[j]==1.:
             line['label'] = 'dew line'
-            line['opts'] = { 'color':_getIsoLineColour(iName), 'lw':1 }
+            line['opts'] = { 'color':getIsoLineColour(iName), 'lw':0.75 }
         else:
             line['label'] = _getIsoLineLabel(iName,iVal[j]),
-            line['opts'] = { 'color':_getIsoLineColour(iName), 'lw':1, 'alpha':0.25}
+            line['opts'] = { 'color':getIsoLineColour(iName), 'lw':0.75, 'alpha':0.5}
         
         lines.append(line)
         
@@ -483,7 +483,7 @@ def _getIsoLineIds(plot):
     return plots[str(plot)]
 
 
-def _getIsoLineColour(which):
+def getIsoLineColour(which):
 #    colourMap = {                 
 #      'T' : 'red',
 #      'P' : 'cyan',
