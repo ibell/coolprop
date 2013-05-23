@@ -53,9 +53,6 @@ def saturation_density(Ref, ClassName, form = 'A', LV = 'L', perc_error_allowed 
         y = (np.log(rhoV)-np.log(rhoc))*TT/Tc
     else:
         raise ValueError
-    
-    plt.plot(x,y)
-    plt.show()
         
     max_abserror = 0
     while len(n) > 3:
@@ -86,7 +83,7 @@ def saturation_density(Ref, ClassName, form = 'A', LV = 'L', perc_error_allowed 
         else:
             max_abserror = np.max(np.abs(rho_fit/rhoV-1))*100
             
-        dropped_indices = [i for i in range(len(n)//2) if abs(sd[i])<1e-15 ]
+        dropped_indices = [i for i in range(len(n)) if abs(sd[i])<1e-15 ]
         if dropped_indices:
             for i in reversed(sorted(dropped_indices)):
                 n.pop(i)
@@ -241,8 +238,9 @@ def saturation_pressure(Ref, ClassName):
     f.close()
     return
                       
-for RPFluid,Fluid in [('REFPROP-Methanol','Methanol')
+for RPFluid,Fluid in [('REFPROP-R12','R12'),
+                      ('REFPROP-R113','R113')
                     ]:
-#    saturation_pressure(RPFluid, Fluid)
-#    saturation_density(RPFluid, Fluid, form='A', LV='L')
+    saturation_pressure(RPFluid, Fluid)
+    saturation_density(RPFluid, Fluid, form='A', LV='L')
     saturation_density(RPFluid, Fluid, form='B', LV='V', perc_error_allowed = 0.4)

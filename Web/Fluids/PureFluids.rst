@@ -59,18 +59,22 @@ Pure Fluids
     Propylene.rst
     Propyne.rst
     R11.rst
+    R114.rst
     R116.rst
     R123.rst
     R1234yf.rst
     R1234ze.rst
     R124.rst
     R125.rst
+    R13.rst
     R134a.rst
+    R14.rst
     R141b.rst
     R142b.rst
     R143a.rst
     R152A.rst
     R161.rst
+    R21.rst
     R218.rst
     R22.rst
     R227EA.rst
@@ -81,6 +85,7 @@ Pure Fluids
     R32.rst
     R365MFC.rst
     R41.rst
+    RC318.rst
     SulfurDioxide.rst
     SulfurHexafluoride.rst
     Toluene.rst

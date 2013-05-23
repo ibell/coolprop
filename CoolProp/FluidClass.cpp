@@ -85,6 +85,8 @@
 #include "purefluids/R124.h"
 #include "purefluids/Fluorine.h"
 #include "purefluids/Methanol.h"
+#include "purefluids/RC318_R21_R114_R13_R14.h"
+#include "purefluids/R12_R113.h"
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -108,6 +110,7 @@ std::map<std::string,std::string>&  ASHRAE34_map()
 
 // This included file includes all the environmental constants, including the function syaml_build
 #include "EnvironmentalData.h"
+
 
 double syaml_lookup(std::string fluid, std::string key)
 {
@@ -161,14 +164,22 @@ void rebuild_CriticalSplineConstants_T()
 		}
 		double good;
 		try{
-			if (Tc-20>Tt)
+			if (Tc-5>Tt)
 			{
-				CPS.update(iT,Tc-20,iQ,1);
-				good = 10;
+				CPS.update(iT,Tc-5,iQ,1);
+				rhoV = CPS.rhoV(); rhoL = CPS.rhoL();
+				drhodTV = CPS.drhodT_along_sat_vapor();
+				drhodTL = CPS.drhodT_along_sat_liquid();
+				if (!ValidNumber(drhodTV) || !ValidNumber(drhodTL)){throw ValueError();}
+				good = 5;
 			}
 			else
 			{
 				CPS.update(iT,Tc-1,iQ,1);
+				rhoV = CPS.rhoV(); rhoL = CPS.rhoL();
+				drhodTV = CPS.drhodT_along_sat_vapor();
+				drhodTL = CPS.drhodT_along_sat_liquid();
+				if (!ValidNumber(drhodTV) || !ValidNumber(drhodTL)){throw ValueError();}
 				good = 1;
 			}
 		}
@@ -187,12 +198,31 @@ void rebuild_CriticalSplineConstants_T()
 		}
 		
 		try{
-			for (double b = good; b>0; b -= 0.03)
+			for (double b = good; b>0; b -= 0.5)
 			{
 				CPS.update(iT,Tc-b,iQ,1);
 				rhoV = CPS.rhoV(); rhoL = CPS.rhoL();
 				drhodTV = CPS.drhodT_along_sat_vapor();
 				drhodTL = CPS.drhodT_along_sat_liquid();
+				if (!ValidNumber(drhodTV) || !ValidNumber(drhodTL) || drhodTV*drhodTL > 0){throw ValueError();}
+				good = b;
+			}
+			for (double b = good; b>0; b -= 0.01)
+			{
+				CPS.update(iT,Tc-b,iQ,1);
+				rhoV = CPS.rhoV(); rhoL = CPS.rhoL();
+				drhodTV = CPS.drhodT_along_sat_vapor();
+				drhodTL = CPS.drhodT_along_sat_liquid();
+				if (!ValidNumber(drhodTV) || !ValidNumber(drhodTL) || drhodTV*drhodTL > 0){throw ValueError();}
+				good = b;
+			}
+			for (double b = good; b>0; b -= 0.001)
+			{
+				CPS.update(iT,Tc-b,iQ,1);
+				rhoV = CPS.rhoV(); rhoL = CPS.rhoL();
+				drhodTV = CPS.drhodT_along_sat_vapor();
+				drhodTL = CPS.drhodT_along_sat_liquid();
+				if (!ValidNumber(drhodTV) || !ValidNumber(drhodTL) || drhodTV*drhodTL > 0){throw ValueError();}
 				good = b;
 			}
 			for (double b = good; b>0; b -= 0.0001)
@@ -201,20 +231,44 @@ void rebuild_CriticalSplineConstants_T()
 				rhoV = CPS.rhoV(); rhoL = CPS.rhoL();
 				drhodTV = CPS.drhodT_along_sat_vapor(); 
 				drhodTL = CPS.drhodT_along_sat_liquid();
+				if (!ValidNumber(drhodTV) || !ValidNumber(drhodTL) || drhodTV*drhodTL > 0){throw ValueError();}
 				good = b;
 			}
-			for (double b = good; b>0; b -= 0.00001)
+			for (double b = good; b>0; b -= 0.000001)
 			{
 				CPS.update(iT,Tc-b,iQ,1);
 				rhoV = CPS.rhoV(); rhoL = CPS.rhoL();
 				drhodTV = CPS.drhodT_along_sat_vapor(); 
 				drhodTL = CPS.drhodT_along_sat_liquid();
+				if (!ValidNumber(drhodTV) || !ValidNumber(drhodTL) || drhodTV*drhodTL > 0){throw ValueError();}
+				good = b;
+			}
+			for (double b = good; b>0; b -= 0.00000001)
+			{
+				CPS.update(iT,Tc-b,iQ,1);
+				rhoV = CPS.rhoV(); rhoL = CPS.rhoL();
+				drhodTV = CPS.drhodT_along_sat_vapor(); 
+				drhodTL = CPS.drhodT_along_sat_liquid();
+				if (!ValidNumber(drhodTV) || !ValidNumber(drhodTL) || drhodTV*drhodTL > 0){throw ValueError();}
+				good = b;
+			}
+			for (double b = good; b>0; b -= 0.0000000001)
+			{
+				CPS.update(iT,Tc-b,iQ,1);
+				rhoV = CPS.rhoV(); rhoL = CPS.rhoL();
+				drhodTV = CPS.drhodT_along_sat_vapor(); 
+				drhodTL = CPS.drhodT_along_sat_liquid();
+				if (!ValidNumber(drhodTV) || !ValidNumber(drhodTL) || drhodTV*drhodTL > 0){throw ValueError();}
 				good = b;
 			}
 		}
 		catch(std::exception){
 		}
-		std::cout << good << std::endl;
+		std::cout << good << " " << drhodTL << " " << ValidNumber(drhodTL) << std::endl;
+		CPS.update(iT,Tc-good,iQ,1);
+		rhoV = CPS.rhoV(); rhoL = CPS.rhoL();
+		drhodTV = CPS.drhodT_along_sat_vapor(); 
+		drhodTL = CPS.drhodT_along_sat_liquid();
 		fprintf(fp,"\tstd::make_pair(std::string(\"%s\"),CriticalSplineStruct_T(%0.12e,%0.12e,%0.12e,%0.12e,%0.12e) ),\n",fluid_names[i].c_str(),Tc-good,rhoL,rhoV,drhodTL,drhodTV);
 	}
 	fclose(fp);
@@ -279,6 +333,13 @@ FluidsContainer::FluidsContainer()
 	FluidsList.push_back(new PropyneClass());
 	FluidsList.push_back(new FluorineClass());
 	FluidsList.push_back(new MethanolClass());
+	FluidsList.push_back(new RC318Class());
+	FluidsList.push_back(new R21Class());
+	FluidsList.push_back(new R114Class());
+	FluidsList.push_back(new R13Class());
+	FluidsList.push_back(new R14Class());
+	FluidsList.push_back(new R12Class());
+	FluidsList.push_back(new R113Class());
 
 	// The industrial fluids
 	FluidsList.push_back(new R245faClass());
@@ -2214,8 +2275,6 @@ double Fluid::Tsat_anc(double p, double Q)
     Tc=reduce.T;
     Tmax=Tc;
 	Tmin=limits.Tmin;
-	if (Tmin <= limits.Tmin)
-		Tmin = limits.Tmin;
 	
 	Tmid = (Tmax+Tmin)/2.0;
 	

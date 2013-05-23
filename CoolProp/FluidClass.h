@@ -91,6 +91,8 @@ struct OnePhaseLUTStruct
 /// Rebuild the constants
 void rebuild_CriticalSplineConstants_T();
 
+
+
 struct BibTeXKeysStruct
 {
 	std::string EOS;

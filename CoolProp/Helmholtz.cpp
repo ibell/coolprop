@@ -18,6 +18,39 @@ using namespace std;
 #include "Helmholtz.h"
 #include "CoolPropTools.h"
 
+void check_derivatives(phi_BC * phi, double tau, double delta, double ddelta, double dtau)
+{
+	double dphir_dDelta_a = (phi->base(tau,delta+ddelta)-phi->base(tau,delta-ddelta))/(2*ddelta);
+	double dphir_dDelta_e = phi->dDelta(tau,delta);
+
+	double d2phir_dDelta2_a = (phi->dDelta(tau,delta+ddelta)-phi->dDelta(tau,delta-ddelta))/(2*ddelta);
+	double d2phir_dDelta2_e = phi->dDelta2(tau,delta);
+
+	double d2phir_dDelta_dTau_a = (phi->dDelta(tau+dtau,delta)-phi->dDelta(tau-dtau,delta))/(2*dtau);
+	double d2phir_dDelta_dTau_e = phi->dDelta_dTau(tau,delta);
+
+	double d3phir_dDelta2_dTau_a = (phi->dDelta_dTau(tau,delta+ddelta)-phi->dDelta_dTau(tau,delta-ddelta))/(2*ddelta);
+	double d3phir_dDelta2_dTau_e = phi->dDelta2_dTau(tau,delta);
+
+	double d3phir_dDelta_dTau2_a = (phi->dDelta_dTau(tau+dtau,delta)-phi->dDelta_dTau(tau-dtau,delta))/(2*dtau);
+	double d3phir_dDelta_dTau2_e = phi->dDelta_dTau2(tau,delta);
+
+	double d3phir_dDelta3_a = (phi->dDelta2(tau,delta+ddelta)-phi->dDelta2(tau,delta-ddelta))/(2*ddelta);
+	double d3phir_dDelta3_e = phi->dDelta3(tau,delta);
+
+	double dphir_dTau_a = (phi->base(tau+dtau,delta)-phi->base(tau-dtau,delta))/(2*dtau);
+	double dphir_dTau_e = phi->dTau(tau,delta);
+
+	double d2phir_dTau2_a = (phi->dTau(tau+dtau,delta)-phi->dTau(tau-dtau,delta))/(2*dtau);
+	double d2phir_dTau2_e = phi->dTau2(tau,delta);
+
+	double d3phir_dTau3_a = (phi->dTau2(tau+dtau,delta)-phi->dTau2(tau-dtau,delta))/(2*dtau);
+	double d3phir_dTau3_e = phi->dTau3(tau,delta);
+
+	double d2phir_dDelta2 = 0;
+}
+
+
 // Constructors
 phir_power::phir_power(std::vector<double> n_in,std::vector<double> d_in,std::vector<double> t_in, std::vector<double> l_in, int iStart_in,int iEnd_in)
 {
@@ -313,15 +346,19 @@ double phir_exponential::dDelta2(double tau, double delta) throw()
 	}
 	return summer;
 }
-//??
 double phir_exponential::dDelta3(double tau, double delta) throw()
 {
 	double summer=0, log_tau = log(tau), log_delta = log(delta);
 	for (unsigned int i=iStart;i<=iEnd;i++)
 	{
+		// >> n_i, tau, t_i, d_i, delta, g_i, l_i = symbols(' n_i tau t_i d_i delta g_i l_i')
+		// >> phir = n_i*tau**t_i*delta**d_i*exp(-g_i*pow(delta,l_i))
+		// >> simplify(diff(diff(diff(phir,delta),delta),delta))
 		double pow_delta_li = pow(delta,l[i]);
-		double bracket = (d[i]*(d[i]-1)*(d[i]-2)+pow_delta_li*(-2*l[i]*g[i]+6*d[i]*l[i]*g[i]-3*d[i]*d[i]*l[i]*g[i]-3*d[i]*l[i]*l[i]*g[i]*g[i]+3*l[i]*l[i]*g[i]*g[i]-l[i]*l[i]*l[i]*pow(g[i],3))+pow_delta_li*pow_delta_li*(3*d[i]*l[i]*l[i]*g[i]*g[i]-3*l[i]*l[i]*g[i]*g[i]+3*l[i]*l[i]*l[i]*pow(g[i],3))-l[i]*l[i]*l[i]*pow(g[i],3)*pow_delta_li*pow_delta_li*pow_delta_li);
-		summer+=n[i]*bracket*exp(t[i]*log_tau+(d[i]-3)*log_delta-g[i]*pow_delta_li);
+		double pow_delta_2li = pow(delta,2*l[i]);
+		double pow_delta_3li = pow(delta,3*l[i]);
+		double bracket = d[i]*d[i]*d[i] - 3*d[i]*d[i]*pow_delta_li*g[i]*l[i] - 3*d[i]*d[i] + 3*d[i]*pow_delta_2li*g[i]*g[i]*l[i]*l[i] - 3*d[i]*pow_delta_li*g[i]*l[i]*l[i] + 6*d[i]*pow_delta_li*g[i]*l[i] + 2*d[i] - pow_delta_3li*g[i]*g[i]*g[i]*l[i]*l[i]*l[i] + 3*pow_delta_2li*g[i]*g[i]*l[i]*l[i]*l[i] - 3*pow_delta_2li*g[i]*g[i]*l[i]*l[i] - pow_delta_li*g[i]*l[i]*l[i]*l[i] + 3*pow_delta_li*g[i]*l[i]*l[i] - 2*pow_delta_li*g[i]*l[i];
+		summer += n[i]*bracket*exp(t[i]*log_tau+(d[i]-3)*log_delta-g[i]*pow_delta_li);
 	}
 	return summer;
 }
@@ -454,9 +491,15 @@ double phir_exponential2::dDelta3(double tau, double delta) throw()
 	double summer = 0;
 	for (unsigned int i=iStart;i<=iEnd;i++)
 	{
+		// >> Code for sympy: (same result for bracketed term as phir_exponential
+		// >> n_i, tau, t_i, d_i, delta, g_i, l_i, alpha_i = symbols(' n_i tau t_i d_i delta g_i l_i, alpha_i');
+		// >> phir = n_i*delta**d_i*exp(alpha_i*tau-g_i*pow(delta,l_i))
+		// >> simplify(diff(diff(diff(phir,delta),delta),delta))
 		double pow_delta_li = pow(delta,l[i]);
-		double bracket = (d[i]*(d[i]-1)*(d[i]-2)+pow_delta_li*(-2*l[i]*g[i]+6*d[i]*l[i]*g[i]-3*d[i]*d[i]*l[i]*g[i]-3*d[i]*l[i]*l[i]*g[i]*g[i]+3*l[i]*l[i]*g[i]*g[i]-l[i]*l[i]*l[i]*pow(g[i],3))+pow_delta_li*pow_delta_li*(3*d[i]*l[i]*l[i]*g[i]*g[i]-3*l[i]*l[i]*g[i]*g[i]+3*l[i]*l[i]*l[i]*pow(g[i],3))-l[i]*l[i]*l[i]*pow(g[i],3)*pow_delta_li*pow_delta_li*pow_delta_li);
-		summer+=n[i]*bracket*exp(a[i]*tau-g[i]*pow(delta,l[i]));
+		double pow_delta_2li = pow(delta,2*l[i]);
+		double pow_delta_3li = pow(delta,3*l[i]);
+		double bracket = d[i]*d[i]*d[i] - 3*d[i]*d[i]*pow_delta_li*g[i]*l[i] - 3*d[i]*d[i] + 3*d[i]*pow_delta_2li*g[i]*g[i]*l[i]*l[i] - 3*d[i]*pow_delta_li*g[i]*l[i]*l[i] + 6*d[i]*pow_delta_li*g[i]*l[i] + 2*d[i] - pow_delta_3li*g[i]*g[i]*g[i]*l[i]*l[i]*l[i] + 3*pow_delta_2li*g[i]*g[i]*l[i]*l[i]*l[i] - 3*pow_delta_2li*g[i]*g[i]*l[i]*l[i] - pow_delta_li*g[i]*l[i]*l[i]*l[i] + 3*pow_delta_li*g[i]*l[i]*l[i] - 2*pow_delta_li*g[i]*l[i];
+		summer += n[i]*bracket*exp(a[i]*tau-g[i]*pow(delta,l[i]));
 	}
 	return summer;
 }
@@ -1047,7 +1090,7 @@ double phir_critical::dDelta3(double tau, double delta) throw()
 		dtheta_dDelta = A[i]/(2*beta[i])*pow(pow(delta-1,2),1/(2*beta[i])-1)*2*(delta-1);
 
 		PI = 4*B[i]*a[i]*(a[i]-1)*pow(pow(delta-1,2),a[i]-2)+2*pow(A[i]/beta[i],2)*pow(pow(delta-1,2),1/beta[i]-2)+4*A[i]*theta/beta[i]*(1/(2*beta[i])-1)*pow(pow(delta-1,2),1/(2*beta[i])-2);
-		dPI_dDelta = 8*B[i]*a[i]*(a[i]-1)*(a[i]-2)*pow(pow(delta-1,2),a[i]-5.0/2.0)+8*pow(A[i]/beta[i],2)*(1/(2*beta[i])-2)*pow(pow(delta-1,2),1/beta[i]-5.0/2.0)+(8*A[i]*theta)/beta[i]*(1/(2*beta[i])-1)*(1/(2*beta[i])-2)*pow(pow(delta-1,2),1/(2*beta[i])-5.0/2.0)+4*A[i]/beta[i]*(1/(2*beta[i])-1)*pow(pow(delta-1,2),1/(2*beta[i])-2)*dtheta_dDelta;
+		dPI_dDelta = -8*B[i]*a[i]*(a[i]-1)*(a[i]-2)*pow(pow(delta-1,2),a[i]-5.0/2.0)-8*pow(A[i]/beta[i],2)*(1/(2*beta[i])-1)*pow(pow(delta-1,2),1/beta[i]-5.0/2.0)-(8*A[i]*theta)/beta[i]*(1/(2*beta[i])-1)*(1/(2*beta[i])-2)*pow(pow(delta-1,2),1/(2*beta[i])-5.0/2.0)+4*A[i]/beta[i]*(1/(2*beta[i])-1)*pow(pow(delta-1,2),1/(2*beta[i])-2)*dtheta_dDelta;
 		dDELTA3_dDelta3 = 1/(delta-1)*dDELTA2_dDelta2-1/pow(delta-1,2)*dDELTA_dDelta+pow(delta-1,2)*dPI_dDelta+2*(delta-1)*PI;
 		dDELTAbi3_dDelta3 = b[i]*(pow(DELTA,b[i]-1)*dDELTA3_dDelta3+dDELTA2_dDelta2*(b[i]-1)*pow(DELTA,b[i]-2)*dDELTA_dDelta+(b[i]-1)*(pow(DELTA,b[i]-2)*2*dDELTA_dDelta*dDELTA2_dDelta2+pow(dDELTA_dDelta,2)*(b[i]-2)*pow(DELTA,b[i]-3)*dDELTA_dDelta));
         
@@ -1062,7 +1105,7 @@ double phir_critical::dDelta2_dTau(double tau, double delta) throw()
 	double theta,DELTA,PSI,dPSI_dDelta,dDELTA_dDelta,dDELTAbi_dDelta,dPSI2_dDelta2,dDELTAbi2_dDelta2,dDELTA2_dDelta2;
     double dPSI2_dDelta_dTau, dDELTAbi2_dDelta_dTau, dPSI_dTau, dDELTAbi_dTau;
     double Line1,Line2,Line3,dDELTA2_dDelta_dTau,dDELTA3_dDelta2_dTau,dDELTAbim1_dTau,dDELTAbim2_dTau;
-    double dDELTA_dTau,dDELTAbi3_dDelta2_dTau;
+    double dDELTA_dTau,dDELTAbi3_dDelta2_dTau,dPSI3_dDelta2_dTau;
 
 	for (int i=iStart;i<=iEnd;i++)
 	{
@@ -1085,20 +1128,21 @@ double phir_critical::dDelta2_dTau(double tau, double delta) throw()
         dDELTAbi2_dDelta_dTau=-A[i]*b[i]*2.0/beta[i]*pow(DELTA,b[i]-1.0)*(delta-1.0)*pow(pow(delta-1.0,2),1.0/(2.0*beta[i])-1.0)-2.0*theta*b[i]*(b[i]-1.0)*pow(DELTA,b[i]-2.0)*dDELTA_dDelta;
 	
 		//Following Terms added for this derivative
-		dDELTA_dTau=-2*((1-tau)+A[i]*pow(pow(delta-1,2),1/(2*beta[i])-1)+2*B[i]*a[i]*pow(pow(delta-1,2),a[i]-1));
-		dDELTA2_dDelta_dTau=-(delta-1)*A[i]*(2/beta[i])*pow(pow(delta-1,2),1/(2*beta[i])-1);
-		dDELTA3_dDelta2_dTau=1/(delta-1)*dDELTA2_dDelta_dTau-pow(delta-1,2)*A[i]*(4/beta[i])*(1/(2*beta[i])-1)*pow(pow(delta-1,2),1/(2*beta[i])-2);
+		dPSI3_dDelta2_dTau = (2.0*C[i]*pow(delta-1.0,2)-1.0)*2.0*C[i]*dPSI_dTau;
+		dDELTA_dTau = -2*theta;
+		dDELTA2_dDelta_dTau = 2.0*A[i]/(beta[i])*pow(pow(delta-1,2),1.0/(2.0*beta[i])-0.5);
+		dDELTA3_dDelta2_dTau = 2.0*A[i]*(beta[i]-1)/(beta[i]*beta[i])*pow(pow(delta-1,2),1/(2*beta[i])-1.0);
 		
-		dDELTAbim1_dTau=(b[i]-1)*pow(DELTA,b[i]-2)*dDELTA_dTau;
-		dDELTAbim2_dTau=(b[i]-2)*pow(DELTA,b[i]-3)*dDELTA_dTau;
-		Line1=dDELTAbim1_dTau*dDELTA2_dDelta2+pow(DELTA,b[i]-1)*dDELTA3_dDelta2_dTau;
-		Line2=(b[i]-1)*(dDELTAbim2_dTau*pow(dDELTA_dDelta,2)+pow(DELTA,b[i]-2)*2*dDELTA2_dDelta_dTau*dDELTA_dDelta);
-		dDELTAbi3_dDelta2_dTau=b[i]*(Line1+Line2);
+		dDELTAbim1_dTau = (b[i]-1)*pow(DELTA,b[i]-2)*dDELTA_dTau;
+		dDELTAbim2_dTau = (b[i]-2)*pow(DELTA,b[i]-3)*dDELTA_dTau;
+		Line1 = dDELTAbim1_dTau*dDELTA2_dDelta2 + pow(DELTA,b[i]-1)*dDELTA3_dDelta2_dTau;
+		Line2 = (b[i]-1)*(dDELTAbim2_dTau*pow(dDELTA_dDelta,2)+pow(DELTA,b[i]-2)*2*dDELTA_dDelta*dDELTA2_dDelta_dTau);
+		dDELTAbi3_dDelta2_dTau = b[i]*(Line1+Line2);
 		
-		Line1=pow(DELTA,b[i])*(2*delta*dPSI2_dDelta_dTau+delta*dDELTA3_dDelta2_dTau)+dDELTAbi_dTau*(2*dPSI_dDelta+delta*dPSI2_dDelta2);
-		Line2=2*dDELTAbi2_dDelta_dTau*(PSI+delta*dPSI_dDelta)+2*dDELTAbi_dDelta*(dPSI_dTau+delta*dPSI2_dDelta_dTau);
-		Line3=dDELTAbi3_dDelta2_dTau*delta*PSI+dDELTAbi2_dDelta2*delta*dPSI_dTau;
-        summer+=n[i]*(Line1+Line2+Line3);
+		Line1 = pow(DELTA,b[i])*(2*dPSI2_dDelta_dTau+delta*dPSI3_dDelta2_dTau)+dDELTAbi_dTau*(2*dPSI_dDelta+delta*dPSI2_dDelta2);
+		Line2 = 2*dDELTAbi_dDelta*(dPSI_dTau+delta*dPSI2_dDelta_dTau)+2*dDELTAbi2_dDelta_dTau*(PSI+delta*dPSI_dDelta);
+		Line3 = dDELTAbi2_dDelta2*delta*dPSI_dTau + dDELTAbi3_dDelta2_dTau*delta*PSI;
+        summer += n[i]*(Line1+Line2+Line3);
     }
 	return summer;
 }

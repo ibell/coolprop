@@ -113,27 +113,22 @@ R124
 
 :: 3.1.1 ::
 PROPYNE
+
+:: 3.2 ::
 FLUORINE
+METHANOL
+R114
+R13
+R14
+R21
+RC318
+R12
+R113
 
 :::::::::::: QUEUE :::::::::::::
-
-METHANOL
-    de Reuck, K.M. and Craven, R.J.B.,
-    "Methanol, International Thermodynamic Tables of the Fluid State - 12,"
-    IUPAC, Blackwell Scientific Publications, London, 1993.
-    
-    visc: Xiang (not very nice)
-
-Full EOS:
-Span 2006c
-    R11 
-    R12 (Marx[5])
-    R113 (Marx[5])
-        V. Marx, A.h Pruß, and W. Wagner, Neue Zustandsgleichungen für R-12, R-22, R-11 und
-        R-113, Beschreibung des thermodynamischen Zustandsverhalten bei Temperaturen bis
-        525 K und Drücken bis 200 MPa, Fortschr.-Ber. VDI, Reihe 6, 57 (1992).
-R114 & R13 & R14 & R21 & RC318
-    (Platzer)
+ECS params for new fluids
+Methanol
+    visc: Xiang
 Ethylene
     visc & cond: Holland 1983
 Methane

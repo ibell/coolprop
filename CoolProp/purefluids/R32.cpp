@@ -154,7 +154,7 @@ R32Class::R32Class()
 	phi0list.push_back(new phi0_Planck_Einstein(a0_v,n0_v,3,6));
 
 	// Critical parameters
-	crit.rho = 424;
+	crit.rho = 8.1500846*52.024;
 	crit.p = 5782;
 	crit.T = 351.255;
 	crit.v = 1.0/crit.rho;
@@ -184,8 +184,8 @@ R32Class::R32Class()
 	ECSReferenceFluid = "Propane";
 
 	BibTeXKeys.EOS = "TillnerRoth-JPCRD-1997";
-	BibTeXKeys.ECS_LENNARD_JONES = "McLinden-IJR-2000";
-	BibTeXKeys.ECS_FITS = "McLinden-IJR-2000";
+	BibTeXKeys.ECS_LENNARD_JONES = "Huber-IECR-2003";
+	BibTeXKeys.ECS_FITS = "Huber-IECR-2003";
 	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
 }
 double R32Class::psat(double T)

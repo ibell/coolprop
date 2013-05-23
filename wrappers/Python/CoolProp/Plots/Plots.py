@@ -1,7 +1,6 @@
 import numpy as np
 import CoolProp.CoolProp as cp
 from scipy.interpolate import interp1d
-from types import NoneType
 from matplotlib import pylab
 import math
 import re
@@ -485,12 +484,20 @@ def _getIsoLineIds(plot):
 
 
 def _getIsoLineColour(which):
+#    colourMap = {                 
+#      'T' : 'red',
+#      'P' : 'cyan',
+#      'H' : 'green',
+#      'D' : 'blue',
+#      'S' : 'yellow',
+#      'Q' : 'black'
+#    }
     colourMap = {                 
-      'T' : 'red',
-      'P' : 'cyan',
-      'H' : 'green',
-      'D' : 'blue',
-      'S' : 'yellow',
+      'T' : 'Darkred',
+      'P' : 'DarkCyan',
+      'H' : 'DarkGreen',
+      'D' : 'DarkBlue',
+      'S' : 'DarkOrange',
       'Q' : 'black'
     }
     return colourMap[str(which)]

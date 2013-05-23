@@ -20,7 +20,7 @@ MethanolClass::MethanolClass()
     crit.v = 1.0/crit.rho;
 
 	reduce.rho = 8.78517*32.04216;
-    reduce.p = 8103.5;
+    reduce.p = 8215.85;
     reduce.T = 513.38;
     reduce.v = 1.0/crit.rho;
 
@@ -51,6 +51,7 @@ MethanolClass::MethanolClass()
 	phi0list.push_back(new phi0_power(f0[3], 1));
 	phi0list.push_back(new phi0_logtau(f0[2]));
 	phi0list.push_back(new phi0_Planck_Einstein3(f0,g0,4,10,11));
+	phi0list.push_back(new phi0_lead(0,0)); // This terms is needed, but not listed in Methanol book
 
     name.assign("Methanol");
     aliases.push_back(std::string("Methanol"));
