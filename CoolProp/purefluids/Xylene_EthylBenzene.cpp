@@ -55,6 +55,7 @@ oXyleneClass::oXyleneClass()
 
 	name.assign("o-Xylene");
 	aliases.push_back("oXylene");
+	aliases.push_back("o-xylene");
 	REFPROPname.assign("OXYLENE");
 
 	BibTeXKeys.EOS = "Zhou-JPCRD-2012";
@@ -152,6 +153,7 @@ mXyleneClass::mXyleneClass()
 
 	name.assign("m-Xylene");
 	aliases.push_back("mXylene");
+	aliases.push_back("m-xylene");
 	REFPROPname.assign("MXYLENE");
 
 	ECSReferenceFluid = "Propane";
@@ -251,6 +253,7 @@ pXyleneClass::pXyleneClass()
 
 	name.assign("p-Xylene");
 	aliases.push_back("pXylene");
+	aliases.push_back("p-xylene");
 	REFPROPname.assign("PXYLENE");
 
 	ECSReferenceFluid = "Propane";
@@ -349,6 +352,7 @@ EthylBenzeneClass::EthylBenzeneClass()
 	TransportReference.assign("Using ECS in fully predictive mode");
 
 	name.assign("EthylBenzene");
+	aliases.push_back("ethylbenzene");
 	REFPROPname.assign("EBENZENE");
 
 	ECSReferenceFluid = "Propane";

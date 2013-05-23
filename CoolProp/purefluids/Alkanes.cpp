@@ -63,6 +63,7 @@ MethaneClass::MethaneClass()
 
 	name.assign("Methane");
 	aliases.push_back("CH4");
+	aliases.push_back("methane");
 	REFPROPname.assign("METHANE");
 
 	BibTeXKeys.EOS = "Setzmann-JPCRD-1991";
@@ -461,6 +462,7 @@ double gamma [] =
 	TransportReference.assign("Using ECS in fully predictive mode");
 
 	name.assign("Ethane");
+	aliases.push_back("ethane");
 	REFPROPname.assign("ETHANE");
 
 	BibTeXKeys.EOS = "Buecker-JPCRD-2006";
@@ -636,6 +638,7 @@ nButaneClass::nButaneClass()
 
 	name.assign("n-Butane");
 	aliases.push_back("nButane");
+	aliases.push_back("butane");
 	REFPROPname.assign("BUTANE");
 
 	BibTeXKeys.EOS = "Buecker-JPCRD-2006B";

@@ -19,7 +19,7 @@ HFE143mClass::HFE143mClass()
 
 	// Other fluid parameters
 	params.molemass = 100.04;
-	params.Ttriple = 130;
+	params.Ttriple = 240;
 	params.accentricfactor = 0.28887136567003235;
 	params.R_u = 8.314472;
 	params.ptriple = 0.00091975626399793732;

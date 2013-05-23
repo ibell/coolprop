@@ -9,7 +9,7 @@ File Type: DLL
   Section contains the following exports for CoolProp.dll
 
     00000000 characteristics
-    519A0732 time date stamp Mon May 20 13:21:22 2013
+    519DD7FE time date stamp Thu May 23 10:49:02 2013
         0.00 version
            1 ordinal base
           44 number of functions
@@ -17,20 +17,20 @@ File Type: DLL
 
     ordinal hint RVA      name
 
-          1    0 000054A0 _DerivTerms@24
-          2    1 00004F70 _F2K@8
-          3    2 00005430 _FluidsList@4
-          4    3 000D7660 _HAProps@40
-          5    4 000D8A00 _HAProps_Aux@32
-          6    5 00004D00 _IProps@32
+          1    0 00005550 _DerivTerms@24
+          2    1 00005020 _F2K@8
+          3    2 000054E0 _FluidsList@4
+          4    3 000D7A30 _HAProps@40
+          5    4 000D8DD0 _HAProps_Aux@32
+          6    5 00004DB0 _IProps@32
           7    6 00001DC0 _IsFluidType@8
-          8    7 00004F50 _K2F@8
+          8    7 00005000 _K2F@8
           9    8 00002CD0 _Phase@24
          10    9 00002D40 _Phase_Tp@24
          11    A 00002DB0 _Phase_Trho@24
-         12    B 00004F90 _PrintSaturationTable@24
-         13    C 00003550 _Props1@8
-         14    D 000037B0 _Props@32
+         12    B 00005040 _PrintSaturationTable@24
+         13    C 00003600 _Props1@8
+         14    D 00003860 _Props@32
          15    E 000021E0 _conformal_Trho@32
          16    F 00001090 _debug@4
          17   10 00001310 _disable_TTSE_LUT@4
@@ -39,9 +39,9 @@ File Type: DLL
          20   13 00001350 _enable_TTSE_LUT_writing@4
          21   14 00001C60 _get_ASHRAE34@8
          22   15 00001860 _get_Fluid_index@4
-         23   16 000068C0 _get_REFPROPname@8
+         23   16 00006970 _get_REFPROPname@8
          24   17 00001520 _get_TTSESinglePhase_LUT_range@20
-         25   18 000066D0 _get_aliases@8
+         25   18 00006780 _get_aliases@8
          26   19 00001070 _get_debug@0
          27   1A 00001160 _get_errstring@4
          28   1B 00001200 _get_errstring_copy@4
@@ -67,4 +67,4 @@ File Type: DLL
         C000 .data
        4C000 .rdata
        14000 .reloc
-      128000 .text
+      129000 .text

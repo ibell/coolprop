@@ -59,8 +59,10 @@ Pure Fluids
     Propylene.rst
     Propyne.rst
     R11.rst
+    R113.rst
     R114.rst
     R116.rst
+    R12.rst
     R123.rst
     R1234yf.rst
     R1234ze.rst

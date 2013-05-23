@@ -9,9 +9,9 @@ Aliases
 
 Bibliographic Information
 =========================
-**Equation of State**: 
+**Equation of State**: B. Platzer and A. Polt and G. Maurer, 1990, *Thermophysical Properties of Refrigerants*, Springer-Verlag
 
-**Ideal-gas Specific Heat**: 
+**Ideal-gas Specific Heat**: B. Platzer and A. Polt and G. Maurer, 1990, *Thermophysical Properties of Refrigerants*, Springer-Verlag
 
 **Surface Tension**: A. Mulero and I. Cachadi\~na and M. I. Parra, 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
 
@@ -26,7 +26,7 @@ Fluid Parameters
 Mole Mass [kg/kmol]        104.45900
 Triple Point Temp. [K]     92.000
 Triple Point Press. [kPa]  0.0003288
-Minimum temperature [K]    92.000
+Minimum temperature [K]    98.150
 =========================  ==============================
 
 Critical Parameters

@@ -1218,7 +1218,7 @@ void Fluid::rhosatPure_Akasaka(double T, double *rhoLout, double *rhoVout, doubl
 	Ancillary equations are used to get a sensible starting point
 	*/
 	double rhoL,rhoV,dphirL,dphirV,ddphirL,ddphirV,phirL,phirV,JL,JV,KL,KV,dJL,dJV,dKL,dKV;
-	double DELTA, deltaL=0, deltaV=0, tau=0, gamma = 1, error, PL, PV, stepL, stepV;
+	double DELTA, deltaL=0, deltaV=0, tau=0, gamma = 1, error, PL, PV, stepL, stepV, dP;
 	int iter=0;
 	// Use the density ancillary function as the starting point for the solver
     try
@@ -1245,6 +1245,10 @@ void Fluid::rhosatPure_Akasaka(double T, double *rhoLout, double *rhoVout, doubl
 		ddphirV = d2phir_dDelta2(tau,deltaV);
 		phirL = phir(tau,deltaL);
 		phirV = phir(tau,deltaV);
+		
+		PL = R()*T*deltaL*reduce.rho*(1.0+deltaL*dphirL);
+		PV = R()*T*deltaV*reduce.rho*(1.0+deltaV*dphirV);
+		dP = PL-PV;
 
 		JL = deltaL * (1 + deltaL*dphirL);
 		JV = deltaV * (1 + deltaV*dphirV);

@@ -61,6 +61,7 @@ EthyleneClass::EthyleneClass()
 	TransportReference.assign("Using ECS in fully predictive mode");
 
 	name.assign("Ethylene");
+	aliases.push_back(std::string("ethylene")); 
 	REFPROPname.assign("ETHYLENE");
 
 	BibTeXKeys.EOS = "Smukala-JPCRD-2000";
