@@ -84,6 +84,18 @@ cpdef add_REFPROP_fluid(str FluidName):
     """
     _add_REFPROP_fluid(FluidName)
     
+cpdef long get_Fluid_index(str Fluid):
+    """
+    
+    """
+    return _get_Fluid_index(Fluid.encode('ascii'))
+    
+cpdef double IProps(long iOutput, long iInput1, double Input1, long iInput2, double Input2, long iFluid):
+    """
+    
+    """
+    return _IProps(iOutput, iInput1, Input2, iInput2, Input2, iFluid)
+    
 cpdef double Props(str in1, str in2, in3 = None, in4 = None, in5 = None, in6 = None, in7 = None) except *:
     """
     Call Type #1::

@@ -1,6 +1,6 @@
 
 ********************
-R21
+R113
 ********************
 
 Aliases
@@ -9,9 +9,7 @@ Aliases
 
 Bibliographic Information
 =========================
-**Equation of State**: B. Platzer and A. Polt and G. Maurer, 1990, *Thermophysical Properties of Refrigerants*, Springer-Verlag
-
-**Ideal-gas Specific Heat**: B. Platzer and A. Polt and G. Maurer, 1990, *Thermophysical Properties of Refrigerants*, Springer-Verlag
+**Equation of State**: Volker Marx and Andreas Pruss and Wolfgang Wagner, 1992, *Neue Zustandsgleichung f\"ur R 12, R 22, R 11 und R 113 - Beschreibung des therodynamischen Zustandsverhaltens bei Temperaturen bis 525 K und Dru\"ucken bis 200 MPa*, VDI Verlag
 
 **Surface Tension**: A. Mulero and I. Cachadi\~na and M. I. Parra, 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
 
@@ -23,18 +21,18 @@ Fluid Data
 Fluid Parameters
 
 =========================  ==============================
-Mole Mass [kg/kmol]        102.92270
-Triple Point Temp. [K]     142.800
-Triple Point Press. [kPa]  6.828e-05
-Minimum temperature [K]    200.000
+Mole Mass [kg/kmol]        187.37500
+Triple Point Temp. [K]     236.930
+Triple Point Press. [kPa]  1.87
+Minimum temperature [K]    236.930
 =========================  ==============================
 
 Critical Parameters
 
 ==============================  ==============================
-Temperature [K]                 451.480
-Density [kg/m\ :sup:`3`\ ]      526.013795
-Pressure [kPa]                  5181.20000
+Temperature [K]                 487.210
+Density [kg/m\ :sup:`3`\ ]      560.000000
+Pressure [kPa]                  4988.50000
 ==============================  ==============================
 
 
@@ -43,8 +41,8 @@ Saturated Vapor Deviations
 
 .. plot::
 
-    Fluid = "R21"
-    RPFluid = "REFPROP-R21"
+    Fluid = "R113"
+    RPFluid = "REFPROP-R113"
 
     #Saturated Vapor
     from CoolProp.CoolProp import Props
@@ -104,8 +102,8 @@ Saturated Liquid Deviations
 
 .. plot::
 
-    Fluid = "R21"
-    RPFluid = "REFPROP-R21"
+    Fluid = "R113"
+    RPFluid = "REFPROP-R113"
 
     #Saturated Liquid
     from CoolProp.CoolProp import Props
@@ -164,8 +162,8 @@ Along the critical isotherm where T=T\ :sub:`c`
 ================================================
 .. plot::
 
-    Fluid = "R21"
-    RPFluid = "REFPROP-R21"
+    Fluid = "R113"
+    RPFluid = "REFPROP-R113"
 
     #Critical isotherm
     from CoolProp.CoolProp import Props
@@ -225,7 +223,7 @@ Check of p,h and p,s as inputs (X: Failure .: Success)
     from matplotlib import pyplot as plt
     import numpy as np
 
-    Ref = "R21"
+    Ref = "R113"
     fig = plt.figure(figsize=(10,5))
     ax1 = fig.add_subplot(121)
     ax2 = fig.add_subplot(122)
@@ -238,8 +236,8 @@ Check of p,h and p,s as inputs (X: Failure .: Success)
     smin = Props('S','T',Tmin,'Q',0,Ref)
     smax = 2*Props('S','T',Props(Ref,'Tcrit')-1,'Q',1,Ref)-smin
 
-    Ph(Ref, axis = ax1, Tmin = Tmin, Tmax = 451.470000)
-    Ps(Ref, axis = ax2, Tmin = Tmin, Tmax = 451.470000)
+    Ph(Ref, axis = ax1, Tmin = Tmin, Tmax = 487.200000)
+    Ps(Ref, axis = ax2, Tmin = Tmin, Tmax = 487.200000)
 
     for p in np.linspace(pmin,pmax,10):
         for h in np.linspace(hmin,hmax):

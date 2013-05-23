@@ -118,7 +118,7 @@ R21Class::R21Class()
 	params.ptriple = 0.00006828;
 
 	// Limits of EOS
-	limits.Tmin = 142.8;
+	limits.Tmin = 200;
 	limits.Tmax = 500.0;
 	limits.pmax = 100000.0;
 	limits.rhomax = 1000000.0*params.molemass;
@@ -302,7 +302,7 @@ R13Class::R13Class()
 	params.ptriple = 0.0003288;
 
 	// Limits of EOS
-	limits.Tmin = params.Ttriple;
+	limits.Tmin = 98.15;
 	limits.Tmax = 500.0;
 	limits.pmax = 100000.0;
 	limits.rhomax = 1000000.0*params.molemass;

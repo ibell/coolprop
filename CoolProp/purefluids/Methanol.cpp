@@ -54,7 +54,7 @@ MethanolClass::MethanolClass()
 	phi0list.push_back(new phi0_lead(0,0)); // This terms is needed, but not listed in Methanol book
 
     name.assign("Methanol");
-    aliases.push_back(std::string("Methanol"));
+    aliases.push_back("methanol");
     REFPROPname.assign("METHANOL");
 
 	BibTeXKeys.EOS = "deReuck-BOOK-1993";

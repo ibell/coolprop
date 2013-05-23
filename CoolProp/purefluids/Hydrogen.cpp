@@ -345,6 +345,7 @@ ParaHydrogenClass::ParaHydrogenClass()
 
 	name.assign("ParaHydrogen");
 	aliases.push_back("Parahydrogen");
+	aliases.push_back("parahydrogen");
 	REFPROPname.assign("PARAHYD");
 
 	BibTeXKeys.EOS = "Leachman-JPCRD-2009";
@@ -515,6 +516,7 @@ OrthoHydrogenClass::OrthoHydrogenClass()
 
 	name.assign("OrthoHydrogen");
 	aliases.push_back("Orthohydrogen");
+	aliases.push_back("orthohydrogen");
 	REFPROPname.assign("ORTHOHYD");
 
 	BibTeXKeys.EOS = "Leachman-JPCRD-2009";

@@ -721,7 +721,7 @@ double _Props1(char *Fluid, char *Output)
 		// Get the output using the conventional function
 		return _CoolProp_Fluid_Props(iOutput,0,0,0,0,pFluid);
 	}
-	else
+	else if (IsREFPROP(Fluid))
 	{
 		// REFPROP fluid, or something else that is invalid
 		try{
@@ -747,6 +747,10 @@ double _Props1(char *Fluid, char *Output)
 			err_string = std::string("CoolProp error: ").append(e.what());
 			return _HUGE;
 		}
+	}
+	else
+	{
+		throw ValueError(format("Fluid \"%s\" is an invalid fluid",Fluid));
 	}
 }
 
