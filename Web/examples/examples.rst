@@ -56,7 +56,7 @@ To make a Temperature-entropy plot for propane (R290), you can just do this
 .. plot::
     :include-source:
     
-    from CoolProp.Plots import Ts
+    from CoolProp.Plots.Plots import Ts
     Ts('R290')
     
 or for a pressure-enthalpy plot of R410A
@@ -64,7 +64,7 @@ or for a pressure-enthalpy plot of R410A
 .. plot::
     :include-source:
     
-    from CoolProp.Plots import Ph
+    from CoolProp.Plots.Plots import Ph
     Ph('R410A')
     
 and to overlay a simple four-component cycle on a R410A P-h plot.
@@ -72,7 +72,7 @@ and to overlay a simple four-component cycle on a R410A P-h plot.
 .. plot::
     :include-source:
     
-    from CoolProp.Plots import Ph,SimpleCycle
+    from CoolProp.Plots.Plots import Ph,SimpleCycle
     Ph('R410A')
     SimpleCycle('R410A',250,300,5,5,0.7)
 
