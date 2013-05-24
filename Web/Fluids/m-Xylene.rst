@@ -5,7 +5,7 @@ m-Xylene
 
 Aliases
 ================================================================================
-``mXylene``
+``mXylene``, ``m-xylene``
 
 Bibliographic Information
 =========================

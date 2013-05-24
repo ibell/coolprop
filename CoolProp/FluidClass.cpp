@@ -2718,6 +2718,7 @@ double Fluid::conductivity_critical(double T, double rho, double qd, double GAMM
 	tau = reduce.T/T;
 	double dp_drho=R()*T*(1+2*delta*dphir_dDelta(tau,delta)+delta*delta*d2phir_dDelta2(tau,delta));
 	double X = Pcrit/pow(reduce.rho,2)*rho/dp_drho;
+
 	tau = reduce.T/Tref;
 	double dp_drho_ref=R()*Tref*(1+2*delta*dphir_dDelta(tau,delta)+delta*delta*d2phir_dDelta2(tau,delta));
 	double Xref = Pcrit/pow(reduce.rho,2)*rho/dp_drho_ref*Tref/T;
@@ -2729,9 +2730,9 @@ double Fluid::conductivity_critical(double T, double rho, double qd, double GAMM
 	else
 		zeta=zeta0*pow(num/GAMMA,nu/gamma); //[m]
 
-	cp=specific_heat_p_Trho(T,rho); //[kJ/kg/K]
-	cv=specific_heat_v_Trho(T,rho); //[kJ/kg/K]
-	mu=viscosity_Trho(T,rho)*1e6; //[uPa-s]
+	cp = specific_heat_p_Trho(T,rho); //[kJ/kg/K]
+	cv = specific_heat_v_Trho(T,rho); //[kJ/kg/K]
+	mu = viscosity_Trho(T,rho)*1e6; //[uPa-s]
 
 	OMEGA_tilde=2.0/pi*((cp-cv)/cp*atan(zeta*qd)+cv/cp*(zeta*qd)); //[-]
 	OMEGA_tilde0=2.0/pi*(1.0-exp(-1.0/(1.0/(qd*zeta)+1.0/3.0*(zeta*qd)*(zeta*qd)/delta/delta))); //[-]
@@ -3103,8 +3104,9 @@ double Fluid::conductivity_ECS_Trho(double T, double rho, Fluid * ReferenceFluid
 	lambda_int = f_int*(eta_dilute*1e6)*(cpstar-5.0/2.0*R() ); //[W/m/K]
 	F_lambda = sqrt(f)*pow(h,-2.0/3.0)*sqrt(M0/M); //[-]
 	
-	//Get the background viscosity from the reference fluid
+	//Get the background conductivity from the reference fluid
 	lambda_resid = ReferenceFluid->conductivity_background(T0,rho0*chi)*1e3 ;//[W/m/K]
+
 	lambda_crit = conductivity_critical(T,rho)*1000; //[W/m/K]
 	lambda = lambda_int+lambda_star+lambda_resid*F_lambda+lambda_crit; //[W/m/K]
 	return lambda/1e3; //[kW/m/K]

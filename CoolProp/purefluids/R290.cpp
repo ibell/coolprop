@@ -265,27 +265,29 @@ R290Class::R290Class()
 }
 double R290Class::conductivity_background(double T, double rho)
 {
-	double sum=0;
+	double sum=0, delta, tau;
 	int i;
+	double rhoc = reduce.rho;
+	double Tc = 369.85;
 	//Set constants required
     double B1[]={
         0.0,			//[0]
-        -3.51153e-2,	//[1]
-         1.70890e-1,	//[2]
-        -1.47688e-1,	//[3]
-         5.19283e-2,	//[4]
-        -6.18662e-3		//[5]
+        -3.69500e-2,	//[1]
+         1.48658e-1,	//[2]
+        -1.19986e-1,	//[3]
+         4.12431e-2,	//[4]
+        -4.86905e-3		//[5]
     };
     double B2[]={
         0.0,			//[0]
-         4.69195e-2,	//[1]
-        -1.48616e-1,	//[2]
-         1.32457e-1,	//[3]
-        -4.85636e-2,	//[4]
-         6.60414e-3		//[5]
+         4.82798e-2,	//[1]
+        -1.35636e-1,	//[2]
+         1.17588e-1,	//[3]
+        -4.36911e-2,	//[4]
+         6.16079e-3		//[5]
     };
-    double delta=rho/reduce.rho;
-    double tau=reduce.T/T;
+    delta=rho/rhoc;
+    tau=Tc/T;
 	for(i=1;i<=5;i++)
     {
         sum+=(B1[i]+B2[i]/tau)*pow(delta,(double)i);
@@ -304,48 +306,16 @@ double R290Class::conductivity_Trho(double T, double rho)
     
     // output in kW/m-K
 
-    double delta,lambda0,lambdar,lambdac,sum=0,tau;
-    double rhoc,Tc;
-    int i;
-	rhoc=reduce.rho;
-	Tc=reduce.T;
-
-    //Set constants required
-    double B1[]={
-        0.0,			//[0]
-        -3.69500e-2,	//[1]
-         1.48658e-1,	//[2]
-        -1.19986e-1,	//[3]
-         4.12431e-2,	//[4]
-        -4.86905e-3		//[5]
-    };
-    double B2[]={
-        0.0,			//[0]
-         4.82798e-2,	//[1]
-        -1.35636e-1,	//[2]
-         1.17588e-1,	//[3]
-        -4.36911e-2,	//[4]
-         6.16079e-3		//[5]
-    };
-    double A[]={
-         0.0,			//[0]
-        -1.24778e-3,	//[1]
-         8.16371e-3,	//[2]
-         1.99374e-2,	//[3]
-    };
-    delta=rho/rhoc;
-    tau=Tc/T;
-	// The dilute gas contribution
-    lambda0=A[1]+A[2]/tau+A[3]/(tau*tau);
+    double delta,lambda0,lambdar,lambdac,sum=0,tau = 369.85/T;
     
-	// The finite-density contribution
-	for(i=1;i<=5;i++)
-    {
-        sum+=(B1[i]+B2[i]/tau)*pow(delta,i);
-    }
-    lambdar=sum;
+	// The dilute gas contribution [W/m/K]
+	double A[]={0.0, -1.24778e-3, 8.16371e-3, 1.99374e-2};
+    lambda0 = A[1]+A[2]/tau+A[3]/(tau*tau);
+    
+	// The background contribution [W/m/K]
+	lambdar = this->conductivity_background(T,rho)*1000;
 
-	// Critical term from Olchowy and Sengers using the value of qd^-1 from Marsh
+	// Critical term from Olchowy and Sengers using the value of qd^-1 from Marsh [W/m/K]
 	lambdac = this->conductivity_critical(T,rho,1/7.16635e-10)*1000;
 
     return (lambda0+lambdar+lambdac)/1000.0;
@@ -362,12 +332,12 @@ double R290Class::viscosity_dilute(double T)
 	
 	Tstar = T/e_k;
 	theta_star = exp(a[0]*pow(log(Tstar),0)+a[1]*pow(log(Tstar),1)+a[3]*pow(log(Tstar),3));
-	eta_star = 0.021357*sqrt(params.molemass*T)/(pow(sigma,2)*theta_star)/1e6;
+	eta_star = 0.141824*sqrt(T)/(pow(sigma,2)*theta_star)/1e6;
 	return eta_star;
 }
 double R290Class::viscosity_dilute2(double T, double rho)
 {
-	double e_k = 263.88 /* K */, sigma = 0.49748, /* nm */ Tstar,N_A=6.02214129e23;
+	double e_k = 263.88 /* K */, sigma = 0.49748, /* nm */ Tstar, rhobar;
 	double B_eta_star,B_eta,eta_1,sum=0; 
 	Tstar = T/e_k;
 	double b[]={-19.572881,219.73999,-1015.3226,2471.01251,-3375.1717,2491.6597,-787.26086,14.085455,-0.34664158};
@@ -375,15 +345,15 @@ double R290Class::viscosity_dilute2(double T, double rho)
 		sum += b[i]*pow(Tstar,-0.25*i);
 	}
 	B_eta_star = sum+b[7]*pow(Tstar,-2.5)+b[8]*pow(Tstar,-5.5); //[no units]
-	B_eta = N_A*pow(sigma/1e9,3)*B_eta_star; //[m3/mol]
+	B_eta = 0.602214129*pow(sigma,3)*B_eta_star; //[L/mol]
+	rhobar = rho/params.molemass;
 	eta_1 = viscosity_dilute(T) * B_eta;
 	// B_eta*rho needs to be non-dimensional [m3/mol]*[kg/m3] so need divide by mole mass and multiply by 1000
-	return eta_1*rho/params.molemass*1000;
+	return eta_1*rhobar;
 }
-double R290Class::viscosity_residual(double T, double rho)
+double R290Class::viscosity_higher_order(double T, double rho)
 {
-	double sum=0,delta_0,DELTA_H_eta,tau,delta;
-	double e_k = 263.88 /* K */, Tstar, eta_r;
+	double sum=0,delta_0,DELTA_H_eta,tau,delta,eta_r;
 	double g1 = 2.50053938863, g2 =	0.860516059264,f1 = 1616.88405374;
 	
 	double e[6][3];
@@ -392,9 +362,8 @@ double R290Class::viscosity_residual(double T, double rho)
 	e[4][0] =  58.9491587759; e[4][1] = -129.740033100; e[4][2] =  76.6280419971;
 	e[5][0] = -9.59407868475; e[5][1] =  21.0726986598; e[5][2] = -14.3971968187;
 	
-	tau = T / 369.825;
-	delta = rho / (44.0956*5); 
-	Tstar = T / e_k;
+	tau = T / 369.82;
+	delta = rho / (44.09562*5); 
 
 	delta_0=g1*(1+g2*sqrt(tau)); //[no units]
 	sum=0;
@@ -408,9 +377,13 @@ double R290Class::viscosity_residual(double T, double rho)
 	eta_r = DELTA_H_eta/1e6;
 	return eta_r;
 }
+double R290Class::viscosity_residual(double T, double rho)
+{
+	return viscosity_background(T,rho);
+}
 double R290Class::viscosity_background(double T, double rho)
 {
-	return viscosity_dilute2(T,rho)+viscosity_residual(T,rho);
+	return viscosity_dilute2(T,rho)+viscosity_higher_order(T,rho);
 }
 double R290Class::viscosity_Trho(double T, double rho)
 {

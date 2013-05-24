@@ -5,7 +5,7 @@ n-Butane
 
 Aliases
 ================================================================================
-``nButane``
+``nButane``, ``butane``
 
 Bibliographic Information
 =========================

@@ -5,7 +5,7 @@ OrthoHydrogen
 
 Aliases
 ================================================================================
-``Orthohydrogen``
+``Orthohydrogen``, ``orthohydrogen``
 
 Bibliographic Information
 =========================

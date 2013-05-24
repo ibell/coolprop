@@ -5,7 +5,7 @@ Methanol
 
 Aliases
 ================================================================================
-``Methanol``
+``methanol``
 
 Bibliographic Information
 =========================

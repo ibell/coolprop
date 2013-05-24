@@ -567,23 +567,59 @@ EXPORT_CODE double CONVENTION conformal_Trho(char* FluidName, char* ReferenceFlu
 	}
 }
 
-EXPORT_CODE double CONVENTION viscosity_dilute(char* FluidName, double T, double rho, double e_k, double sigma)
+EXPORT_CODE double CONVENTION viscosity_dilute(char* FluidName, double T)
 {
 	long iFluid = get_Fluid_index(FluidName);
 	if (iFluid < 0)
 	{
 		return _HUGE;
 	}
-	else if (iFluid == get_Fluid_index((char*)"Propane"))
+	else
 	{
-		R290Class pFluid = R290Class();
-		pFluid.post_load();
-		return pFluid.viscosity_dilute(T)+pFluid.viscosity_dilute2(T,rho);
+		double e_k, sigma;
+		Fluid *pFluid = get_fluid(iFluid);
+		pFluid->ECSParams(&e_k, &sigma);
+		return pFluid->viscosity_dilute(T,e_k,sigma);
+	}
+}
+EXPORT_CODE double CONVENTION viscosity_residual(char* FluidName, double T, double rho)
+{
+	long iFluid = get_Fluid_index(FluidName);
+	if (iFluid < 0)
+	{
+		return _HUGE;
 	}
 	else
 	{
 		Fluid *pFluid = get_fluid(iFluid);
-		return pFluid->viscosity_dilute(T,e_k,sigma);
+		return pFluid->viscosity_residual(T,rho);
+	}
+}
+
+EXPORT_CODE double CONVENTION conductivity_critical(char* FluidName, double T, double rho)
+{
+	long iFluid = get_Fluid_index(FluidName);
+	if (iFluid < 0)
+	{
+		return _HUGE;
+	}
+	else
+	{
+		Fluid *pFluid = get_fluid(iFluid);
+		return pFluid->conductivity_critical(T,rho);
+	}
+}
+EXPORT_CODE double CONVENTION conductivity_background(char* FluidName, double T, double rho)
+{
+	long iFluid = get_Fluid_index(FluidName);
+	if (iFluid < 0)
+	{
+		return _HUGE;
+	}
+	else
+	{
+		Fluid *pFluid = get_fluid(iFluid);
+		return pFluid->conductivity_background(T,rho);
 	}
 }
 

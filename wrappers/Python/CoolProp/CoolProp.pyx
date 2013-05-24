@@ -113,6 +113,8 @@ cpdef double Props(str in1, str in2, in3 = None, in4 = None, in5 = None, in6 = N
     ``Tmin``       Minimum temperature [K]
     ``ptriple``    Triple-point pressure [kPa]
     ``accentric``  Accentric factor [-]
+    ``GWP100``     Global Warming Potential 100 yr
+    ``ODP``        Ozone Depletion Potential
     =============  ============================
    
     This type of call is used to get fluid-specific parameters that are not 
@@ -369,6 +371,7 @@ cpdef string get_BibTeXKey(str Fluid, str key):
     Return the BibTeX key for the given fluid.
     
     The possible keys are
+    
     * ``EOS``
     * ``CP0``
     * ``VISCOSITY``
@@ -477,10 +480,6 @@ cpdef tuple get_TTSESinglePhase_LUT_range(char *FluidName):
         return (hmin, hmax, pmin, pmax)
     else:
         raise ValueError("Either your FluidName was invalid or LUT bounds not available since no call has been made to tables")
-    
-cpdef viscosity_dilute(bytes_or_str Fluid, double T, double rho, double e_k, double sigma):
-    cdef bytes _Fluid = Fluid if bytes_or_str is bytes else Fluid.encode('ascii')
-    return _viscosity_dilute(_Fluid,T,rho,e_k,sigma)
 
 cpdef tuple conformal_Trho(str Fluid, str ReferenceFluid, double T, double rho):
     """
@@ -507,6 +506,22 @@ cpdef psatL_anc(bytes_or_str Fluid, double T):
 cpdef psatV_anc(bytes_or_str Fluid, double T):
     cdef bytes _Fluid = Fluid if bytes_or_str is bytes else Fluid.encode('ascii')
     return _psatV_anc(_Fluid,T)
+
+cpdef viscosity_residual(str Fluid, double T, double rho):
+    cdef _Fluid = Fluid.encode('ascii')
+    return _viscosity_residual(_Fluid, T, rho)
+
+cpdef viscosity_dilute(str Fluid, double T):
+    cdef _Fluid = Fluid.encode('ascii')
+    return _viscosity_dilute(_Fluid,T)
+
+cpdef conductivity_background(str Fluid, double T, double rho):
+    cdef _Fluid = Fluid.encode('ascii')
+    return _conductivity_background(_Fluid,T, rho)
+
+cpdef conductivity_critical(str Fluid, double T, double rho):
+    cdef _Fluid = Fluid.encode('ascii')
+    return _conductivity_critical(_Fluid,T, rho)
 
 cpdef int debug(int level):
     """

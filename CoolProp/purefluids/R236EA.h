@@ -31,7 +31,7 @@ public:
 	double ECS_chi_conductivity(double rhor)
 	{
 		// From Huber (2003)
-		return 0.9617-3.37897e-2*rhor;
+		return 0.9617+3.37897e-2*rhor;
 	}
 };
 
