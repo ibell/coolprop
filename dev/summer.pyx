@@ -1,6 +1,9 @@
 
 cimport cython
 
+import numpy as np
+
+
 @cython.boundscheck(False)
 cpdef  sum_function( double [:] B, double [:] x, double [:] n, double [:] out):
 

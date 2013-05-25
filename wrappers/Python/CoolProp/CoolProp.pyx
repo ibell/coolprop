@@ -15,6 +15,14 @@ try:
     _quantities_supported = True
 except ImportError:
     _quantities_supported = False
+    
+#Check for the existence of numpy
+cdef bint _numpy_supported
+try:
+    import numpy as np
+    _numpy_supported = True
+except ImportError:
+    _numpy_supported = False
 
 import cython
 import math
@@ -96,7 +104,7 @@ cpdef double IProps(long iOutput, long iInput1, double Input1, long iInput2, dou
     """
     return _IProps(iOutput, iInput1, Input2, iInput2, Input2, iFluid)
     
-cpdef double Props(str in1, str in2, in3 = None, in4 = None, in5 = None, in6 = None, in7 = None) except *:
+cpdef Props(str in1, str in2, in3 = None, in4 = None, in5 = None, in6 = None, in7 = None):
     """
     Call Type #1::
 
@@ -176,7 +184,8 @@ cpdef double Props(str in1, str in2, in3 = None, in4 = None, in5 = None, in6 = N
     converted to the required units as long as it is dimensionally correct.  Otherwise a ValueError will 
     be raised by the conversion
     """
-    cdef bytes errs,_in1,_in2,_in3,_in4,_in5,_in6,_in7
+    cdef bytes errs,_in1,_in2,_in4,_in6,_in7
+    cdef double _in3, _in5
     cdef char in2_char, in4_char
         
     if (in4 is None and in6 is None and in7 is None):
@@ -198,21 +207,84 @@ cpdef double Props(str in1, str in2, in3 = None, in4 = None, in5 = None, in6 = N
 
         in2_char = (<bytes>(in2.encode('ascii')))[0]
         in4_char = (<bytes>(in4.encode('ascii')))[0]
-        val = _Props(in1.encode('ascii'), in2_char, in3, in4_char, in5, in6.encode('ascii'))
-        if math.isinf(val) or math.isnan(val):
-            err_string = _get_errstring()
-            if not len(err_string) == 0:
-                raise ValueError("{err:s} :: inputs were:\"{in1:s}\",\'{in2:s}\',{in3:0.16e},\'{in4:s}\',{in5:0.16e},\"{in6:s}\"".format(err=err_string,in1=in1,in2=in2,in3=in3,in4=in4,in5=in5,in6=in6))
-            else:
-                raise ValueError("Props failed ungracefully with inputs:\"{in1:s}\",\'{in2:s}\',{in3:0.16e},\'{in4:s}\',{in5:0.16e},\"{in6:s}\"; please file a ticket at https://sourceforge.net/p/coolprop/tickets/".format(in1=in1,in2=in2,in3=in3,in4=in4,in5=in5,in6=in6))
+        
+        if isinstance(in3, (int, long, float, complex)) and isinstance(in5, (int, long, float, complex)):
+            val = _Props(in1.encode('ascii'), in2_char, in3, in4_char, in5, in6.encode('ascii'))
+        
+            if math.isinf(val) or math.isnan(val):
+                err_string = _get_errstring()
+                if not len(err_string) == 0:
+                    raise ValueError("{err:s} :: inputs were:\"{in1:s}\",\'{in2:s}\',{in3:0.16e},\'{in4:s}\',{in5:0.16e},\"{in6:s}\"".format(err=err_string,in1=in1,in2=in2,in3=in3,in4=in4,in5=in5,in6=in6))
+                else:
+                    raise ValueError("Props failed ungracefully with inputs:\"{in1:s}\",\'{in2:s}\',{in3:0.16e},\'{in4:s}\',{in5:0.16e},\"{in6:s}\"; please file a ticket at https://sourceforge.net/p/coolprop/tickets/".format(in1=in1,in2=in2,in3=in3,in4=in4,in5=in5,in6=in6))
             
-        if not _quantities_supported and in7 is not None:
-            raise ValueError("Cannot use output units because quantities package is not installed")
-        elif _quantities_supported and in7 is not None: #Then in7 contains a string representation of the units
-            #Convert the units to the units given by in7
-            return _convert_to_desired_units(val,in1,in7)
+            if not _quantities_supported and in7 is not None:
+                raise ValueError("Cannot use output units because quantities package is not installed")
+            elif _quantities_supported and in7 is not None: #Then in7 contains a string representation of the units
+                #Convert the units to the units given by in7
+                return _convert_to_desired_units(val,in1,in7)
+            else:
+                return val #Error raised by Props2 on failure
+            
+        elif isinstance(in3, (int, long, float, complex)): #in5 can be an iterable
+            vals = []
+            for _in5 in in5:
+                val = _Props(in1.encode('ascii'), in2_char, in3, in4_char, _in5, in6.encode('ascii'))
+            
+                if math.isinf(val) or math.isnan(val):
+                    err_string = _get_errstring()
+                    if not len(err_string) == 0:
+                        raise ValueError("{err:s} :: inputs were:\"{in1:s}\",\'{in2:s}\',{in3:0.16e},\'{in4:s}\',{in5:0.16e},\"{in6:s}\"".format(err=err_string,in1=in1,in2=in2,in3=in3,in4=in4,in5=_in5,in6=in6))
+                    else:
+                        raise ValueError("Props failed ungracefully with inputs:\"{in1:s}\",\'{in2:s}\',{in3:0.16e},\'{in4:s}\',{in5:0.16e},\"{in6:s}\"; please file a ticket at https://sourceforge.net/p/coolprop/tickets/".format(in1=in1,in2=in2,in3=in3,in4=in4,in5=_in5,in6=in6))
+                
+                if not _quantities_supported and in7 is not None:
+                    raise ValueError("Cannot use output units because quantities package is not installed")
+                elif _quantities_supported and in7 is not None: #Then in7 contains a string representation of the units
+                    #Convert the units to the units given by in7
+                    val = _convert_to_desired_units(val,in1,in7)
+                
+                vals.append(val)
+                
+            if _numpy_supported and isinstance(in5, np.ndarray):
+                return np.array(vals).reshape(in5.shape)
+            else:
+                return type(in5)(vals)
+        
+        elif isinstance(in5, (int, long, float, complex)): #in3 can be an iterable
+            vals = []
+            for _in3 in in3:
+                val = _Props(in1.encode('ascii'), in2_char, _in3, in4_char, in5, in6.encode('ascii'))
+            
+                if math.isinf(val) or math.isnan(val):
+                    err_string = _get_errstring()
+                    if not len(err_string) == 0:
+                        raise ValueError("{err:s} :: inputs were:\"{in1:s}\",\'{in2:s}\',{in3:0.16e},\'{in4:s}\',{in5:0.16e},\"{in6:s}\"".format(err=err_string,in1=in1,in2=in2,in3=_in3,in4=in4,in5=in5,in6=in6))
+                    else:
+                        raise ValueError("Props failed ungracefully with inputs:\"{in1:s}\",\'{in2:s}\',{in3:0.16e},\'{in4:s}\',{in5:0.16e},\"{in6:s}\"; please file a ticket at https://sourceforge.net/p/coolprop/tickets/".format(in1=in1,in2=in2,in3=_in3,in4=in4,in5=in5,in6=in6))
+                
+                if not _quantities_supported and in7 is not None:
+                    raise ValueError("Cannot use output units because quantities package is not installed")
+                elif _quantities_supported and in7 is not None: #Then in7 contains a string representation of the units
+                    #Convert the units to the units given by in7
+                    val = _convert_to_desired_units(val,in1,in7)
+                
+                vals.append(val)
+                
+            if _numpy_supported and isinstance(in3, np.ndarray):
+                return np.array(vals).reshape(in3.shape)
+            else:
+                return type(in3)(vals)
+        
         else:
-            return val #Error raised by Props2 on failure
+            return TypeError('Numerical inputs to Props must be ints, floats, lists, or numpy arrays')
+            
+            
+            
+        
+        
+            
+        
     
 cpdef double DerivTerms(bytes_or_str Output, double T, double rho, bytes_or_str Fluid):
     """
