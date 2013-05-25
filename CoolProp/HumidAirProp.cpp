@@ -384,7 +384,7 @@ double f_factor(double T, double p)
     p*=1000;
     
     // Saturation pressure [Pa]
-    if (T>273.15)
+    if (T>273.16)
     {
         // It is liquid water
         p_ws=Props('P','T',T,'Q',0,(char *)"Water")*1000;

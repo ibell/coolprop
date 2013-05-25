@@ -25,7 +25,7 @@ HFE143mClass::HFE143mClass()
 	params.ptriple = 0.00091975626399793732;
 
 	// Limits of EOS
-	limits.Tmin = 130;
+	limits.Tmin = 240;
 	limits.Tmax = 500.0;
 	limits.pmax = 100000.0;
 	limits.rhomax = 1000000.0*params.molemass;

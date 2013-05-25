@@ -847,7 +847,7 @@ TetradecamethylhexasiloxaneClass::TetradecamethylhexasiloxaneClass()
 
 
     // Limits of EOS
-    limits.Tmin = 273;
+    limits.Tmin = 300;
     limits.Tmax = 500.0;
     limits.pmax = 100000.0;
     limits.rhomax = 1000000.0*params.molemass;    
@@ -1177,7 +1177,7 @@ DecamethylcyclopentasiloxaneClass::DecamethylcyclopentasiloxaneClass()
 	params.ptriple = 0.0023224722375495980;
 
     // Limits of EOS
-    limits.Tmin = 273;
+    limits.Tmin = 300;
     limits.Tmax = 500.0;
     limits.pmax = 100000.0;
     limits.rhomax = 1000000.0*params.molemass;    

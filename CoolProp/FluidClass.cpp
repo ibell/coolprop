@@ -2704,7 +2704,7 @@ double Fluid::conductivity_critical(double T, double rho, double qd, double GAMM
 {
 	// Olchowy and Sengers cross-over term
 
-	double k=1.380658e-23, //[J/K]
+	double k=1.3806488e-23, //[J/K]
 		R0=1.03,
 		gamma=1.239,
 		nu=0.63,

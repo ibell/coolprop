@@ -15,12 +15,12 @@ class Sample(object):
     
 class GeneticHelloWorld(object):
     def __init__(self,
-               num_samples = 60, # Have 60 chromos in the sample group
+               num_samples = 80, # Have 60 chromos in the sample group
                num_selected = 20, # Have 10 chromos in the selected group
-               mutation_factor = 3, # Randomly mutate 1/n of the chromosomes
-               num_powers = 6, # How many powers in the fit
-               Ref = 'REFPROP-R161',
-               value = 'rhoL',
+               mutation_factor = 2, # Randomly mutate 1/n of the chromosomes
+               num_powers = 4, # How many powers in the fit
+               Ref = 'REFPROP-R134a',
+               value = 'rhoV',
                addTr = False
                 ):
         self.num_samples = num_samples
@@ -38,7 +38,7 @@ class GeneticHelloWorld(object):
         self.rhoc = Props(Ref,'rhocrit')
         self.Tmin = Props(Ref,'Tmin')
         
-        self.T = np.linspace(self.Tmin+1e-6, self.Tc-0.000001,10000)
+        self.T = np.linspace(self.Tmin+1e-6, self.Tc-0.000001,200)
         self.p = [Props('P','T',T,'Q',0,Ref) for T in self.T]
         self.rhoL = [Props('D','T',T,'Q',0,Ref) for T in self.T]
         self.rhoV = [Props('D','T',T,'Q',1,Ref) for T in self.T]
@@ -69,45 +69,56 @@ class GeneticHelloWorld(object):
             LHS = self.logrhoLrhoc
         elif self.value == 'rhoV':
             LHS = self.logrhoVrhoc
+        elif self.value == 'rhoLnoexp':
+            LHS = self.rhoLrhoc-1
             
         if self.addTr:
             LHS *= self.T/self.Tc
-        
-        def f_coeffs(n,x):
-        # The outer optimizer that will find the coefficients
-        
-            def f_RHS(B, x, n):
-                return sum_function(B,x,np.array(chromo.v))
             
-            linear = Model(f_RHS, extra_args = (n,))
-            mydata = Data(x, LHS)
-            myodr = ODR(mydata, linear, beta0=[0.0]*self.num_powers)
-            myoutput = myodr.run()
-            
-            chromo.beta = myoutput.beta
+        output = np.zeros_like(self.T)
         
-            if self.addTr:
-                RHS = f_RHS(myoutput.beta,x,n)*self.Tc/self.T
-            else:
-                RHS = f_RHS(myoutput.beta,x,n)
+        def f_RHS(B, x):
+            sum_function(B,x,np.array(chromo.v),output)
+            return output
+        
+        linear = Model(f_RHS)
+        mydata = Data(x, LHS)
+        myodr = ODR(mydata, linear, beta0=[0.0]*self.num_powers)
+        myoutput = myodr.run()
+        
+        chromo.beta = myoutput.beta
+    
+        if self.addTr:
+            RHS = f_RHS(myoutput.beta,x)*self.Tc/self.T
+        else:
+            RHS = f_RHS(myoutput.beta,x)
+            
+        if self.value == 'p':
+            fit_value = np.exp(RHS)*self.pc
+            EOS_value = self.p
+        elif self.value in ['rhoL','rhoV']:
+            fit_value = np.exp(RHS)*self.rhoc
+            if self.value == 'rhoL':
+                EOS_value = self.rhoL
+            elif self.value == 'rhoV':
+                EOS_value = self.rhoV
+        else:
+            fit_value = self.rhoc*(1+RHS)
+            EOS_value = self.rhoL
                 
-            if self.value == 'p':
-                fit_value = np.exp(RHS)*self.pc
-                EOS_value = self.p
-            elif self.value in ['rhoL','rhoV']:
-                fit_value = np.exp(RHS)*self.rhoc
-                if self.value == 'rhoL':
-                    EOS_value = self.rhoL
-                else:
-                    EOS_value = self.rhoV
-                    
-            max_abserror = np.max(np.abs((fit_value/EOS_value)-1)*100)
-            
-            #print self.Ref, 'rhoL SSE =', myoutput.sum_square, myoutput.beta, max_abserror,'%'
-            print '.',
-            return (myoutput.sum_square, max_abserror)
+        max_abserror = np.max(np.abs((fit_value/EOS_value)-1)*100)
         
-        chromo.fitness,chromo.max_abserror = f_coeffs(chromo,x)
+#        import matplotlib.pyplot as plt
+#        plt.plot(x,fit_value,x,EOS_value)
+#        plt.show()
+        
+        chromo.fitness = max_abserror
+        chromo.sum_square = myoutput.sum_square
+        chromo.max_abserror = max_abserror
+        
+        #print self.Ref, 'rhoL SSE =', myoutput.sum_square, myoutput.beta, max_abserror,'%'
+        print '.',
+        
         return chromo.fitness
 
     def tourny_select_chromo(self, samples):
@@ -124,7 +135,7 @@ class GeneticHelloWorld(object):
 
     def breed(self, a, b):
         ''' 
-        Breed two chromosomes by splicng them in a random spot and combining
+        Breed two chromosomes by splicing them in a random spot and combining
         them together to form two new chromos.
         '''
         splice_pos = random.randrange(len(a.v))
@@ -167,12 +178,12 @@ class GeneticHelloWorld(object):
         # Main loop: each generation select a subset of the sample and breed from
         # them.
         generation = -1
-        while generation < 0 or samples[0].fitness > 1e-5 or generation < 3 and generation < 35:
+        while generation < 0 or samples[0].fitness > 0.1 or generation < 3 and generation < 15:
             generation += 1
                 
-            # Generate the selected group from sample- take the top 5% of samples
+            # Generate the selected group from sample- take the top 10% of samples
             # and tourny select to generate the rest of selected.
-            ten_percent = int(len(samples)*.05)
+            ten_percent = int(len(samples)*.1)
             selected = samples[:ten_percent]
             while len(selected) < self.num_selected:
                 selected.append(self.tourny_select_chromo(samples))

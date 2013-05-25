@@ -27,6 +27,7 @@ cpdef double HAProps(str OutputName, str Input1Name, double Input1, str Input2Na
     R         RH          Relative humidity in (0,1) [-]
     W         Omega       Humidity Ratio [kg water/kg dry air]
     H         Hda         Mixture enthalpy [kJ/kg dry air]
+    S         Sda         Mixture entropy [kJ/kg dry air/K]
     C         cp          Mixture specific heat [kJ/kg dry air/K]
     M         Visc        Mixture viscosity [Pa-s]
     K                     Mixture thermal conductivity [W/m/K]

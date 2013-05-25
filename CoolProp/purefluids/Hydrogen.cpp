@@ -355,42 +355,44 @@ ParaHydrogenClass::ParaHydrogenClass()
 
 double ParaHydrogenClass::psat(double T)
 {
-	const double ti[]={0,1.0,1.5,2.65,7.4};
-    const double Ni[]={0,-4.87767,1.03359,0.82668,-0.129412};
+    // Maximum absolute error is 0.082549 % between 13.803301 K and 32.937990 K
+    const double t[]={0, 1, 2, 4, 9};
+    const double N[]={0, -0.027049627458554038, -4.5916407242885207, 1.4698246592126478, 0.1132067430467493};
     double summer=0,theta;
-    int i;
     theta=1-T/reduce.T;
-    for (i=1;i<=4;i++)
+    for (int i=1;i<=3;i++)
     {
-        summer=summer+Ni[i]*pow(theta,ti[i]);
+        summer += N[i]*pow(theta,t[i]/2);
     }
-    double rho = reduce.p*exp(reduce.T/T*summer);
-	return rho;
+    return reduce.p*exp(reduce.T/T*summer);
 }
+
 double ParaHydrogenClass::rhosatL(double T)
 {
-	double theta = 1-T/reduce.T;
-	double RHS,rho;
-	// Max error is 1.585900 %
-	RHS = +1.093049*pow(theta,0.3)
-		  +0.260558*pow(theta,0.9)
-		  -0.543586*pow(theta,1.5)
-		  +0.333107*pow(theta,3.2);
-	rho = exp(RHS)*reduce.rho;	
-	return rho;
-
+    // Maximum absolute error is 0.112227 % between 13.803301 K and 32.937990 K
+    const double t[] = {0, 0.6666666666666666, 0.8333333333333334, 1.0, 1.1666666666666667, 1.3333333333333333};
+    const double N[] = {0, 32.575128830119098, -105.60522773310021, 145.38945707541046, -93.098356183908166, 22.448904889155894};
+    double summer=0,theta;
+    theta=1-T/reduce.T;
+	for (int i=1; i<=5; i++)
+	{
+		summer += N[i]*pow(theta,t[i]);
+	}
+	return reduce.rho*(summer+1);
 }
+
 double ParaHydrogenClass::rhosatV(double T)
 {
-	double theta = 1-T/reduce.T;
-	double RHS,rho;
-	// Max error is 2.044809 %
-	RHS = -1.120772*pow(theta,0.3)
-          -4.767213*pow(theta,0.9)
-          +1.108207*pow(theta,1.5)
-          -11.752668*pow(theta,3.2);
-	rho = exp(RHS)*reduce.rho;
-	return rho;
+    // Maximum absolute error is 0.163592 % between 13.803301 K and 32.937990 K
+    const double t[] = {0, 0.5, 0.8333333333333334, 1.0, 1.1666666666666667, 1.3333333333333333, 1.5};
+    const double N[] = {0, -2.7167780467748908, -49.191957630489391, 215.58236480120095, -363.62448142119348, 273.22233911564393, -76.054568441190639};
+    double summer=0,theta;
+    theta=1-T/reduce.T;    	
+	for (int i=1; i<=6; i++)
+	{
+		summer += N[i]*pow(theta,t[i]);
+	}
+	return reduce.rho*exp(reduce.T/T*summer);
 }
 
 double ParaHydrogenClass::conductivity_Trho(double T, double rho)
