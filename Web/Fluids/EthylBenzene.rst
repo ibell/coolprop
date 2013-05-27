@@ -5,7 +5,7 @@ EthylBenzene
 
 Aliases
 ================================================================================
-````
+``ethylbenzene``
 
 Bibliographic Information
 =========================

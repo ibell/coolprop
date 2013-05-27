@@ -122,6 +122,7 @@ class Fluid
 		std::vector <std::string> aliases; /// A list of aliases of names for the Fluid, each element is a std::string instance
 		std::string ECSReferenceFluid; /// A string that gives the name of the fluids that should be used for the ECS method for transport properties
 		
+		double ECS_qd; /// The critical qd parameter for the Olchowy-Sengers cross-over term
 		std::string EOSReference; /// A std::string that contains a reference for thermo properties for the fluid
 		std::string TransportReference; /// A std::string that contains a reference for the transport properties of the fluid
 		bool isPure; /// True if it is a pure fluid, false otherqwise
@@ -176,6 +177,7 @@ class Fluid
 			cp_ancillary = NULL;
 			drhodT_p_ancillary = NULL;
 			ECSReferenceFluid = "R134a";
+			ECS_qd = 1/(0.5e-9);
 		};
 		virtual ~Fluid();
 
@@ -410,13 +412,12 @@ class Fluid
 		/// @param zeta0 zeta0 term in crossover
 		double conductivity_critical(double T, double rho, double qd = 2e9, double GAMMA = 0.0496, double zeta0 = 1.94e-10);
 
-
 		/// This function returns the dilute portion of the viscosity
 		/// @param T Temperature [K]
 		/// @param e_k epsilon/k_B for the fluid [K]
 		/// @param sigma [nm]
 		/// @returns mu Dilute-gas viscosity in the limit of zero density [Pa-s]
-		double viscosity_dilute(double T, double e_k, double sigma);
+		virtual double viscosity_dilute(double T, double e_k, double sigma);
 
 		/// The residual viscosity for the fluid.  The sum of the background and critical contributions. 
 		/// This function is optional, and returns a NotImplementedError if the derived class does not implement it.
@@ -424,7 +425,7 @@ class Fluid
 		/// @see viscosity_Trho
 		/// @param T Temperature [K]
 		/// @param rho Density [kg/m3]
-		double viscosity_residual(double T, double rho){
+		virtual double viscosity_residual(double T, double rho){
 			throw NotImplementedError(std::string("viscosity_residual not implemented for this fluid"));
 		};
 		/// The background viscosity for the fluid.  The viscosity minus the critical contribution minus the dilute-gas contribution

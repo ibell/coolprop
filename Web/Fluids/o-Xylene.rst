@@ -5,7 +5,7 @@ o-Xylene
 
 Aliases
 ================================================================================
-``oXylene``
+``oXylene``, ``o-xylene``
 
 Bibliographic Information
 =========================

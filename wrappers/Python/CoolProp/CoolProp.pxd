@@ -200,7 +200,10 @@ cdef extern from "CoolProp.h":
     double _rhosatL_anc "rhosatL_anc"(char*Fluid, double T)
     double _rhosatV_anc "rhosatV_anc"(char*Fluid, double T)
     
-    double _viscosity_dilute "viscosity_dilute"(char* FluidName, double T, double rho, double e_k, double sigma)
+    double _viscosity_dilute "viscosity_dilute"(char* FluidName, double T)
+    double _viscosity_residual "viscosity_residual"(char* FluidName, double T, double rho)
+    double _conductivity_background "conductivity_background"(char* FluidName, double T, double rho)
+    double _conductivity_critical "conductivity_critical"(char* FluidName, double T, double rho)
     double _conformal_Trho "conformal_Trho"(char* FluidName, char* ReferenceFluidName, double T, double rho, double *Tconform, double *rhoconform)
     
     string _add_REFPROP_fluid "add_REFPROP_fluid"(string FluidName)

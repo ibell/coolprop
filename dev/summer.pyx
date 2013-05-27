@@ -1,18 +1,22 @@
 
+cimport cython
+
 import numpy as np
-cimport numpy as np
 
-cpdef np.ndarray[np.float_t, ndim=1] sum_function(np.ndarray[np.float_t, ndim=1] B, np.ndarray[np.float_t, ndim=1] x, np.ndarray[np.float_t, ndim=1] n):
 
-    cdef np.ndarray[np.float_t, ndim=1] out = np.zeros_like(x)
+@cython.boundscheck(False)
+cpdef  sum_function( double [:] B, double [:] x, double [:] n, double [:] out):
+
+    
     cdef int i,j
+    cdef double aa
     cdef double do
     cdef int Nx = len(x)
     cdef int Nn = len(n)
     
+    out[:] = 0
+    
     for i in xrange(Nx):
         for j in range(Nn):
             out[i] += B[j]*x[i]**n[j]
-            
-    return out
         

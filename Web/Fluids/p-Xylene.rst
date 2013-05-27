@@ -5,7 +5,7 @@ p-Xylene
 
 Aliases
 ================================================================================
-``pXylene``
+``pXylene``, ``p-xylene``
 
 Bibliographic Information
 =========================

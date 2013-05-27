@@ -9,58 +9,61 @@ File Type: DLL
   Section contains the following exports for CoolProp.dll
 
     00000000 characteristics
-    519DD7FE time date stamp Thu May 23 10:49:02 2013
+    51A0B9C4 time date stamp Sat May 25 15:16:52 2013
         0.00 version
            1 ordinal base
-          44 number of functions
-          44 number of names
+          47 number of functions
+          47 number of names
 
     ordinal hint RVA      name
 
-          1    0 00005550 _DerivTerms@24
-          2    1 00005020 _F2K@8
-          3    2 000054E0 _FluidsList@4
-          4    3 000D7A30 _HAProps@40
-          5    4 000D8DD0 _HAProps_Aux@32
-          6    5 00004DB0 _IProps@32
-          7    6 00001DC0 _IsFluidType@8
-          8    7 00005000 _K2F@8
-          9    8 00002CD0 _Phase@24
-         10    9 00002D40 _Phase_Tp@24
-         11    A 00002DB0 _Phase_Trho@24
-         12    B 00005040 _PrintSaturationTable@24
-         13    C 00003600 _Props1@8
-         14    D 00003860 _Props@32
-         15    E 000021E0 _conformal_Trho@32
-         16    F 00001090 _debug@4
-         17   10 00001310 _disable_TTSE_LUT@4
-         18   11 000013D0 _disable_TTSE_LUT_writing@4
-         19   12 00001290 _enable_TTSE_LUT@4
-         20   13 00001350 _enable_TTSE_LUT_writing@4
-         21   14 00001C60 _get_ASHRAE34@8
-         22   15 00001860 _get_Fluid_index@4
-         23   16 00006970 _get_REFPROPname@8
-         24   17 00001520 _get_TTSESinglePhase_LUT_range@20
-         25   18 00006780 _get_aliases@8
-         26   19 00001070 _get_debug@0
-         27   1A 00001160 _get_errstring@4
-         28   1B 00001200 _get_errstring_copy@4
-         29   1C 000011B0 _get_errstringc@0
-         30   1D 00001B30 _get_index_units@8
-         31   1E 00001D90 _get_param_index@4
-         32   1F 00001000 _get_svnrevision@0
-         33   20 00001010 _get_version@4
-         34   21 000012D0 _isenabled_TTSE_LUT@4
-         35   22 00001390 _isenabled_TTSE_LUT_writing@4
-         36   23 00002840 _psatL_anc@12
-         37   24 00002900 _psatV_anc@12
-         38   25 000026B0 _rhosatL_anc@12
-         39   26 00002770 _rhosatV_anc@12
-         40   27 00001410 _set_TTSESat_LUT_size@8
-         41   28 000014B0 _set_TTSESinglePhase_LUT_range@36
-         42   29 00001460 _set_TTSESinglePhase_LUT_size@12
-         43   2A 00001260 _set_phase@4
-         44   2B 000025B0 _viscosity_dilute@36
+          1    0 00005620 _DerivTerms@24
+          2    1 000050F0 _F2K@8
+          3    2 000055B0 _FluidsList@4
+          4    3 000D6C00 _HAProps@40
+          5    4 000D7FA0 _HAProps_Aux@32
+          6    5 00004E80 _IProps@32
+          7    6 00001DD0 _IsFluidType@8
+          8    7 000050D0 _K2F@8
+          9    8 00002DA0 _Phase@24
+         10    9 00002E10 _Phase_Tp@24
+         11    A 00002E80 _Phase_Trho@24
+         12    B 00005110 _PrintSaturationTable@24
+         13    C 000036D0 _Props1@8
+         14    D 00003930 _Props@32
+         15    E 00002720 _conductivity_background@20
+         16    F 000026A0 _conductivity_critical@20
+         17   10 000021F0 _conformal_Trho@32
+         18   11 000010A0 _debug@4
+         19   12 00001320 _disable_TTSE_LUT@4
+         20   13 000013E0 _disable_TTSE_LUT_writing@4
+         21   14 000012A0 _enable_TTSE_LUT@4
+         22   15 00001360 _enable_TTSE_LUT_writing@4
+         23   16 00001C70 _get_ASHRAE34@8
+         24   17 00001870 _get_Fluid_index@4
+         25   18 00006A40 _get_REFPROPname@8
+         26   19 00001530 _get_TTSESinglePhase_LUT_range@20
+         27   1A 00006850 _get_aliases@8
+         28   1B 00001080 _get_debug@0
+         29   1C 00001170 _get_errstring@4
+         30   1D 00001210 _get_errstring_copy@4
+         31   1E 000011C0 _get_errstringc@0
+         32   1F 00001B40 _get_index_units@8
+         33   20 00001DA0 _get_param_index@4
+         34   21 00001010 _get_svnrevision@0
+         35   22 00001020 _get_version@4
+         36   23 000012E0 _isenabled_TTSE_LUT@4
+         37   24 000013A0 _isenabled_TTSE_LUT_writing@4
+         38   25 00002910 _psatL_anc@12
+         39   26 000029D0 _psatV_anc@12
+         40   27 00002780 _rhosatL_anc@12
+         41   28 00002840 _rhosatV_anc@12
+         42   29 00001420 _set_TTSESat_LUT_size@8
+         43   2A 000014C0 _set_TTSESinglePhase_LUT_range@36
+         44   2B 00001470 _set_TTSESinglePhase_LUT_size@12
+         45   2C 00001270 _set_phase@4
+         46   2D 000025C0 _viscosity_dilute@12
+         47   2E 00002640 _viscosity_residual@20
 
   Summary
 

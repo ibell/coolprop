@@ -4,6 +4,7 @@ from scipy.odr import *
 import scipy.optimize, random
 import matplotlib.pyplot as plt
 import textwrap
+import random
 
 def rsquared(x, y):
     """ 
@@ -14,6 +15,7 @@ def rsquared(x, y):
     import scipy.stats
     slope, intercept, r_value, p_value, std_err = scipy.stats.linregress(x, y)
     return r_value**2
+
 
 def saturation_density(Ref, ClassName, form = 'A', LV = 'L', perc_error_allowed = 0.3):
     """
@@ -150,6 +152,65 @@ def saturation_density(Ref, ClassName, form = 'A', LV = 'L', perc_error_allowed 
     f.close()
     return
 
+def saturation_pressure_brute(Ref, ClassName):
+    
+    from CoolProp.CoolProp import Props
+    
+    Tc = Props(Ref,'Tcrit')
+    pc = Props(Ref,'pcrit')
+    rhoc = Props(Ref,'rhocrit')
+    Tmin = Props(Ref,'Tmin')
+    
+    TT = np.linspace(Tmin+1e-6, Tc-0.00001, 300)
+    p = np.array([Props('P','T',T,'Q',0,Ref) for T in TT])
+    rhoL = np.array([Props('D','T',T,'Q',0,Ref) for T in TT])
+    rhoV = np.array([Props('D','T',T,'Q',1,Ref) for T in TT])
+        
+    Np = 10
+    
+    max_abserror = 99999
+    bbest = []
+    
+    x = 1.0-TT/Tc
+    y = (np.log(rhoL)-np.log(rhoc))*TT/Tc
+        
+    def f_p(B, x):
+        # B is a vector of the parameters.
+        # x is an array of the current x values.
+        return sum([_B*x**(_n) for _B,_n in zip(B,b)])
+    
+    linear = Model(f_p)
+    mydata = Data(x, y)
+        
+    for attempt in range(300):
+        
+        n = [i/6.0 for i in range(1,100)]+[0.35+i/200.0 for i in range(1,70)]+[0.05+0.01*i for i in range(1,70)]
+        b = []
+        for _ in range(6):
+            i = random.randint(0,len(n)-1)
+            b.append(n.pop(i))
+        
+        myodr = ODR(mydata, linear, beta0 = [1]*len(b))
+        myoutput = myodr.run()
+        
+        b = np.array(b)
+        
+        keepers = np.abs(myoutput.sd_beta/myoutput.beta) < 0.1
+        if any(keepers):
+            b = b[keepers]
+        
+        myodr = ODR(mydata, linear, beta0 = [1]*len(b))
+        myoutput = myodr.run()
+        
+        rho_fit = np.exp(f_p(myoutput.beta, x)*Tc/TT)*rhoc
+        abserror = np.max(np.abs(rho_fit/rhoL-1))*100
+        print '.'
+        if abserror < max_abserror:
+            max_abserror = abserror
+            bbest = b
+            betabest = myoutput.beta
+            print abserror, myoutput.sum_square, myoutput.sd_beta/myoutput.beta
+        
 def saturation_pressure(Ref, ClassName):
     
     from CoolProp.CoolProp import Props
@@ -238,9 +299,10 @@ def saturation_pressure(Ref, ClassName):
     f.close()
     return
                       
-for RPFluid,Fluid in [('REFPROP-R12','R12'),
-                      ('REFPROP-R113','R113')
+                      
+for RPFluid,Fluid in [('REFPROP-R22','ParaHydrogen'),
                     ]:
-    saturation_pressure(RPFluid, Fluid)
-    saturation_density(RPFluid, Fluid, form='A', LV='L')
-    saturation_density(RPFluid, Fluid, form='B', LV='V', perc_error_allowed = 0.4)
+    saturation_pressure_brute(RPFluid, Fluid)
+#    saturation_pressure(RPFluid, Fluid)
+#    saturation_density(RPFluid, Fluid, form='A', LV='L')
+#    saturation_density(RPFluid, Fluid, form='B', LV='V', perc_error_allowed = 0.4)

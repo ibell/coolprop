@@ -114,8 +114,11 @@ You might want to start by looking at CoolProp.h
 	/// Get the current range of the single-phase LUT
 	EXPORT_CODE bool CONVENTION get_TTSESinglePhase_LUT_range(char *FluidName, double *hmin, double *hmax, double *pmin, double *pmax);
 
-	EXPORT_CODE double CONVENTION viscosity_dilute(char* FluidName, double T, double rho, double e_k, double sigma);
-
+	// Expose some functions that are useful for ECS debugging
+	EXPORT_CODE double CONVENTION viscosity_dilute(char* FluidName, double T);
+	EXPORT_CODE double CONVENTION viscosity_residual(char* FluidName, double T, double rho);
+	EXPORT_CODE double CONVENTION conductivity_critical(char* FluidName, double T, double rho);
+	EXPORT_CODE double CONVENTION conductivity_background(char* FluidName, double T, double rho);
 	EXPORT_CODE double CONVENTION conformal_Trho(char* FluidName, char* ReferenceFluidName, double T, double rho, double *Tconform, double *rhoconform);
 
 	// ------------------------------------------------------------------------------------------------

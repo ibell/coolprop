@@ -11,3 +11,4 @@ setup(
     ext_modules = cythonize('summer.pyx'), # accepts a glob pattern
     include_dirs = [numpy.get_include()]
 )
+

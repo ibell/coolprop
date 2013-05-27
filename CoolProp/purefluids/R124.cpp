@@ -23,7 +23,7 @@ R124Class::R124Class()
 	params.ptriple = 6.81291620381e-14;
 
 	// Limits of EOS
-	limits.Tmin = params.Ttriple;
+	limits.Tmin = 120;
 	limits.Tmax = 500.0;
 	limits.pmax = 100000.0;
 	limits.rhomax = 1000000.0*params.molemass;
