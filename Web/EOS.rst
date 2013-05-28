@@ -462,7 +462,7 @@ Second Derivative
 
 
 Converting Bender and mBWR EOS
-==============================
+------------------------------
 
 If the EOS is of the form
 

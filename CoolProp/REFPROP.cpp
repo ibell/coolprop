@@ -319,7 +319,7 @@ bool load_REFPROP()
 
 		if (RefpropdllInstance==NULL)
 		{
-			#if defined(__ISWINDOWS)
+			#if defined(__ISWINDOWS__)
 //				int  dw            = ::GetLastError();
 //				char lpBuffer[256] = _T("?");
 //				if(dwLastError != 0) {
