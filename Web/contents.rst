@@ -17,4 +17,5 @@ Originally developed for use in the programming language c, wrappers have been w
     TTSE.rst
     Fluids/FluidInformation.rst
     HumidAir.rst
+    changelog.rst
     apidoc/modules.rst

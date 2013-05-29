@@ -201,5 +201,5 @@ if __name__=='__main__':
 ##     Modelica()
 ##     PYPI()
 ##     UploadSourceForge()
-##     BuildDocs()
+    BuildDocs()
     UploadDocs()

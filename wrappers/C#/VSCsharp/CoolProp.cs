@@ -90,6 +90,11 @@ public class CoolProp {
     return ret;
   }
 
+  public static int get_ASHRAE34(string fluid, string output) {
+    int ret = CoolPropPINVOKE.get_ASHRAE34__SWIG_0(fluid, output);
+    return ret;
+  }
+
   public static void get_index_units(int param, string units) {
     CoolPropPINVOKE.get_index_units__SWIG_0(param, units);
   }
@@ -173,8 +178,23 @@ public class CoolProp {
     return ret;
   }
 
-  public static double viscosity_dilute(string FluidName, double T, double rho, double e_k, double sigma) {
-    double ret = CoolPropPINVOKE.viscosity_dilute(FluidName, T, rho, e_k, sigma);
+  public static double viscosity_dilute(string FluidName, double T) {
+    double ret = CoolPropPINVOKE.viscosity_dilute(FluidName, T);
+    return ret;
+  }
+
+  public static double viscosity_residual(string FluidName, double T, double rho) {
+    double ret = CoolPropPINVOKE.viscosity_residual(FluidName, T, rho);
+    return ret;
+  }
+
+  public static double conductivity_critical(string FluidName, double T, double rho) {
+    double ret = CoolPropPINVOKE.conductivity_critical(FluidName, T, rho);
+    return ret;
+  }
+
+  public static double conductivity_background(string FluidName, double T, double rho) {
+    double ret = CoolPropPINVOKE.conductivity_background(FluidName, T, rho);
     return ret;
   }
 
@@ -262,6 +282,12 @@ public class CoolProp {
 
   public static string get_TransportReference(string Ref) {
     string ret = CoolPropPINVOKE.get_TransportReference(Ref);
+    if (CoolPropPINVOKE.SWIGPendingException.Pending) throw CoolPropPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
+  public static string get_ASHRAE34(string Ref) {
+    string ret = CoolPropPINVOKE.get_ASHRAE34__SWIG_1(Ref);
     if (CoolPropPINVOKE.SWIGPendingException.Pending) throw CoolPropPINVOKE.SWIGPendingException.Retrieve();
     return ret;
   }

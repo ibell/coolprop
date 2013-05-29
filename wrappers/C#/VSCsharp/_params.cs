@@ -39,5 +39,10 @@ public enum _params {
   iPHASE_LIQUID,
   iPHASE_GAS,
   iPHASE_SUPERCRITICAL,
-  iPHASE_TWOPHASE
+  iPHASE_TWOPHASE,
+  iODP,
+  iGWP20,
+  iGWP100,
+  iGWP500,
+  iCritSplineT
 }

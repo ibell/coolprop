@@ -239,6 +239,9 @@ class CoolPropPINVOKE {
   [DllImport("CoolProp", EntryPoint="CSharp_get_version__SWIG_0")]
   public static extern int get_version__SWIG_0(string jarg1);
 
+  [DllImport("CoolProp", EntryPoint="CSharp_get_ASHRAE34__SWIG_0")]
+  public static extern int get_ASHRAE34__SWIG_0(string jarg1, string jarg2);
+
   [DllImport("CoolProp", EntryPoint="CSharp_get_index_units__SWIG_0")]
   public static extern void get_index_units__SWIG_0(int jarg1, string jarg2);
 
@@ -291,7 +294,16 @@ class CoolPropPINVOKE {
   public static extern bool get_TTSESinglePhase_LUT_range(string jarg1, HandleRef jarg2, HandleRef jarg3, HandleRef jarg4, HandleRef jarg5);
 
   [DllImport("CoolProp", EntryPoint="CSharp_viscosity_dilute")]
-  public static extern double viscosity_dilute(string jarg1, double jarg2, double jarg3, double jarg4, double jarg5);
+  public static extern double viscosity_dilute(string jarg1, double jarg2);
+
+  [DllImport("CoolProp", EntryPoint="CSharp_viscosity_residual")]
+  public static extern double viscosity_residual(string jarg1, double jarg2, double jarg3);
+
+  [DllImport("CoolProp", EntryPoint="CSharp_conductivity_critical")]
+  public static extern double conductivity_critical(string jarg1, double jarg2, double jarg3);
+
+  [DllImport("CoolProp", EntryPoint="CSharp_conductivity_background")]
+  public static extern double conductivity_background(string jarg1, double jarg2, double jarg3);
 
   [DllImport("CoolProp", EntryPoint="CSharp_conformal_Trho")]
   public static extern double conformal_Trho(string jarg1, string jarg2, double jarg3, double jarg4, HandleRef jarg5, HandleRef jarg6);
@@ -340,6 +352,9 @@ class CoolPropPINVOKE {
 
   [DllImport("CoolProp", EntryPoint="CSharp_get_TransportReference")]
   public static extern string get_TransportReference(string jarg1);
+
+  [DllImport("CoolProp", EntryPoint="CSharp_get_ASHRAE34__SWIG_1")]
+  public static extern string get_ASHRAE34__SWIG_1(string jarg1);
 
   [DllImport("CoolProp", EntryPoint="CSharp_FluidsList__SWIG_1")]
   public static extern string FluidsList__SWIG_1();
