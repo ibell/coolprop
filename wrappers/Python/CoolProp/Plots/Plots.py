@@ -1,9 +1,9 @@
-import numpy as np
-import CoolProp.CoolProp as cp
+
+import numpy, matplotlib, math, re
 from scipy.interpolate import interp1d
-from matplotlib import pylab
-import math
-import re
+
+import CoolProp.CoolProp as CP
+
 
 def InlineLabel(xv,yv,x = None, y= None, axis = None, fig = None):
     """
@@ -50,10 +50,10 @@ def InlineLabel(xv,yv,x = None, y= None, axis = None, fig = None):
         return x,y
     
     if axis is None:
-        axis=pylab.gca()
+        axis=matplotlib.pyplot.gca()
     
     if fig is None:
-        fig=pylab.gcf()
+        fig=matplotlib.pyplot.gcf()
     
     
     
@@ -68,7 +68,7 @@ def InlineLabel(xv,yv,x = None, y= None, axis = None, fig = None):
         y = f(x)
         h = 0.001*x
         dy_dx = (f(x+h)-f(x-h))/(2*h)
-        rot = np.arctan(dy_dx)/np.pi*180.
+        rot = numpy.arctan(dy_dx)/numpy.pi*180.
         
     elif x is None and y is not None:
         #y is provided, but x isn't
@@ -85,7 +85,7 @@ def InlineLabel(xv,yv,x = None, y= None, axis = None, fig = None):
         y = f(x)
         h = 0.001*x
         dy_dx = (f(x+h)-f(x-h))/(2*h)
-        rot = np.arctan(dy_dx)/np.pi*180.
+        rot = numpy.arctan(dy_dx)/numpy.pi*180.
         
     (x,y)=ToDataCoords(x,y,axis,fig)
     return (x,y,rot)
@@ -94,7 +94,7 @@ def show():
     """
     A convenience function to call pylab.show()
     """
-    pylab.show()
+    matplotlib.pyplot.show()
     
 
 def drawIsoLines(Ref, plot, which, iValues=[], num=0, axis=None, fig=None):
@@ -107,10 +107,10 @@ def drawIsoLines(Ref, plot, which, iValues=[], num=0, axis=None, fig=None):
     """
     
     if axis is None:
-        axis=pylab.gca()
+        axis=matplotlib.pyplot.gca()
         
     if fig is None:
-        fig=pylab.gcf()
+        fig=matplotlib.pyplot.gcf()
     
     if not plot is None:
         if not which is None:
@@ -152,8 +152,8 @@ def drawLines(Ref,lines,axis):
         plottedLines.extend([line])
         # Do we need to test if this is T or p?
         Tmax = min(bubble['kmax'],dew['kmax'])
-        if Tmax>cp.Props(Ref,'Tcrit')-2e-5:
-            axis.plot(np.r_[bubble['x'][-1],dew['x'][-1]],np.r_[bubble['y'][-1],dew['y'][-1]],**bubble['opts'])
+        if Tmax>CP.Props(Ref,'Tcrit')-2e-5:
+            axis.plot(numpy.r_[bubble['x'][-1],dew['x'][-1]],numpy.r_[bubble['y'][-1],dew['y'][-1]],**bubble['opts'])
             #axis.plot((bubble['x'][-1]+dew['x'][-1])/2.,(bubble['y'][-1]+dew['y'][-1])/2.,'o',color='Tomato')
     else:
         for line in lines:
@@ -180,7 +180,7 @@ def getIsoLines(Ref, plot, iName, iValues=[], num=0, axis=None):
     the keys 'label' and 'opts', those can be used for plotting as well.
     """
     if axis is None:
-        axis=pylab.gca()
+        axis=matplotlib.pyplot.gca()
         
     which = False
     if not plot is None:
@@ -253,37 +253,37 @@ def getIsoLines(Ref, plot, iName, iValues=[], num=0, axis=None):
     
     # Determine x range for plotting
     if xName=='T': #Sacrifice steps 
-        Axmin = max(cp.Props(Ref,'Tmin'), Axmin)
+        Axmin = max(CP.Props(Ref,'Tmin'), Axmin)
         #Axmax = Axmax + 273.15 
-    x0 = np.linspace(Axmin,Axmax,1000)
+    x0 = numpy.linspace(Axmin,Axmax,1000)
 
     patterns = {
-      'P' : (lambda x: np.logspace(math.log(x[0],2), math.log(x[1],2), num=x[2], base=2)),
-      'D' : (lambda x: np.logspace(math.log(x[0],2), math.log(x[1],2), num=x[2], base=2)),
-      'H' : (lambda x: np.linspace(x[0], x[1], num=x[2])),
-      'T' : (lambda x: np.linspace(x[0], x[1], num=x[2])),
-      'S' : (lambda x: np.linspace(x[0], x[1], num=x[2])),
-      'Q' : (lambda x: np.linspace(x[0], x[1], num=x[2]))
+      'P' : (lambda x: numpy.logspace(math.log(x[0],2), math.log(x[1],2), num=x[2], base=2)),
+      'D' : (lambda x: numpy.logspace(math.log(x[0],2), math.log(x[1],2), num=x[2], base=2)),
+      'H' : (lambda x: numpy.linspace(x[0], x[1], num=x[2])),
+      'T' : (lambda x: numpy.linspace(x[0], x[1], num=x[2])),
+      'S' : (lambda x: numpy.linspace(x[0], x[1], num=x[2])),
+      'Q' : (lambda x: numpy.linspace(x[0], x[1], num=x[2]))
     }
     
     # TODO: Use the y range to determine spacing of isolines    
-#    iVal = [cp.Props(iName,yName,Aymin,xName,Axmin,Ref),
-#            cp.Props(iName,yName,Aymax,xName,Axmin,Ref),
-#            cp.Props(iName,yName,Aymin,xName,Axmax,Ref),
-#            cp.Props(iName,yName,Aymax,xName,Axmax,Ref) ]
-#    iVal = patterns[iName]([np.min(iVal),np.max(iVal)]) 
+#    iVal = [CP.Props(iName,yName,Aymin,xName,Axmin,Ref),
+#            CP.Props(iName,yName,Aymax,xName,Axmin,Ref),
+#            CP.Props(iName,yName,Aymin,xName,Axmax,Ref),
+#            CP.Props(iName,yName,Aymax,xName,Axmax,Ref) ]
+#    iVal = patterns[iName]([numpy.min(iVal),numpy.max(iVal)]) 
     
     # Determine whether we need to calculate the spacing or not. 
-    iMin = np.min(iValues)
-    iMax = np.max(iValues)
-    iVal = np.sort(iValues)[1:-1] # min and max gets added later
+    iMin = numpy.min(iValues)
+    iMax = numpy.max(iValues)
+    iVal = numpy.sort(iValues)[1:-1] # min and max gets added later
     if len(iValues)<num: # We need more lines
         iNum = num - len(iValues) + 2 # + 2 for min and max
-        iVal = np.append(iVal,patterns[iName]([iMin,iMax,iNum]))
+        iVal = numpy.append(iVal,patterns[iName]([iMin,iMax,iNum]))
     else: 
-        iVal = np.append(iVal,[iMin,iMax])
+        iVal = numpy.append(iVal,[iMin,iMax])
         
-    iVal = np.sort(iVal) # sort again
+    iVal = numpy.sort(iVal) # sort again
         
     
     if iName=='Q':
@@ -335,17 +335,17 @@ def _satBounds(Ref,kind,xmin=None,xmax=None):
         raise ValueError('Saturation curves can only be computed for T or p.')
     
     if xmin is None:
-        xmin = cp.Props(Ref,str(minKey)     ) + 1e-5
+        xmin = CP.Props(Ref,str(minKey)     ) + 1e-5
     if xmax is None:
-        xmax = cp.Props(Ref,str(kind)+'crit') - 1e-5
+        xmax = CP.Props(Ref,str(kind)+'crit') - 1e-5
         
-    if xmin > cp.Props(Ref,str(kind)+'crit'):
+    if xmin > CP.Props(Ref,str(kind)+'crit'):
         raise ValueError('Minimum '+str(name)+' cannot be greater than fluid critical '+str(name)+'.')
-    if xmax > cp.Props(Ref,str(kind)+'crit'):
+    if xmax > CP.Props(Ref,str(kind)+'crit'):
         raise ValueError('Maximum '+str(name)+' cannot be greater than fluid critical '+str(name)+'.')
     
-    xmin = max(xmin, cp.Props(Ref,str(minKey)    )  + 1e-5)
-    xmax = min(xmax, cp.Props(Ref,str(kind)+'crit') - 1e-5)
+    xmin = max(xmin, CP.Props(Ref,str(minKey)    )  + 1e-5)
+    xmax = min(xmax, CP.Props(Ref,str(kind)+'crit') - 1e-5)
     
     return (xmin,xmax)
 
@@ -374,7 +374,7 @@ def _getSatLines(Ref, plot, kind=None, kmin=None, kmax=None, x=[0.,1.]):
         kind = 'T' 
     
     (kmin,kmax) = _satBounds(Ref, kind, xmin=kmin, xmax=kmax)   
-    k0          = np.linspace(kmin,kmax,1000)
+    k0          = numpy.linspace(kmin,kmax,1000)
     
     iName       = 'Q'
     iVal        = x
@@ -429,7 +429,7 @@ def _getI_YX(Ref,iName,xName,yName,iVal,xVal):
     for j in range(len(iVal)):
         jiVal = iVal[j] #constant quantity
         jxVal = xVal[j] #x-axis array
-        Y = np.array([cp.Props(yName,iName,jiVal,xName,ijxVal,Ref) for ijxVal in jxVal])
+        Y = numpy.array([CP.Props(yName,iName,jiVal,xName,ijxVal,Ref) for ijxVal in jxVal])
         y.append(Y)
         x.append(jxVal)
         
@@ -524,7 +524,7 @@ def Ts(Ref,Tmin=None, Tmax=None, show=False, axis=None, **kwargs):
     Will plot in the current axis unless the optional parameter *axis* gives the name for the axis to use
     """
 
-    ax = axis if axis is not None else pylab.gca()
+    ax = axis if axis is not None else matplotlib.pyplot.gca()
     lines = _getSatLines(Ref, 'Ts', kind='T', kmin=Tmin, kmax=Tmax)  
     drawLines(Ref,lines,ax)
     # or alternatively:
@@ -534,7 +534,7 @@ def Ts(Ref,Tmin=None, Tmax=None, show=False, axis=None, **kwargs):
     ax.set_ylabel('Temperature [K]')
     ax.autoscale(enable=True)
     if show:
-        pylab.show()
+        matplotlib.pyplot.show()
     return ax
 
 
@@ -545,7 +545,7 @@ def Ph(Ref, Tmin=None, Tmax = None, show = False, axis=None, **kwargs):
     Will plot in the current axis unless the optional parameter *axis* gives the name for the axis to use
     """
     
-    ax = axis if axis is not None else pylab.gca()
+    ax = axis if axis is not None else matplotlib.pyplot.gca()
     lines  = _getSatLines(Ref, 'ph', kind='T', kmin=Tmin, kmax=Tmax)  
     drawLines(Ref,lines,ax)
     
@@ -553,7 +553,7 @@ def Ph(Ref, Tmin=None, Tmax = None, show = False, axis=None, **kwargs):
     ax.set_ylabel('Pressure [kPa]')
     ax.autoscale(enable=True)
     if show:
-        pylab.show()
+        matplotlib.pyplot.show()
     return ax
     
     
@@ -564,7 +564,7 @@ def hs(Ref, Tmin=None, Tmax = None, show = False, axis = None, **kwargs):
     Will plot in the current axis unless the optional parameter *axis* gives the name for the axis to use
     """
     
-    ax = axis if axis is not None else pylab.gca()
+    ax = axis if axis is not None else matplotlib.pyplot.gca()
     lines  = _getSatLines(Ref, 'hs', kind='T', kmin=Tmin, kmax=Tmax)  
     drawLines(Ref,lines,ax)
     
@@ -572,7 +572,7 @@ def hs(Ref, Tmin=None, Tmax = None, show = False, axis = None, **kwargs):
     ax.set_ylabel('Enthalpy [kJ/kg]')
     ax.autoscale(enable=True)
     if show:
-        pylab.show()
+        matplotlib.pyplot.show()
     return ax
         
         
@@ -583,7 +583,7 @@ def Ps(Ref, Tmin=None, Tmax = None, show = False, axis = None, **kwargs):
     Will plot in the current axis unless the optional parameter *axis* gives the name for the axis to use
     """
     
-    ax = axis if axis is not None else pylab.gca()
+    ax = axis if axis is not None else matplotlib.pyplot.gca()
     lines  = _getSatLines(Ref, 'ps', kind='T', kmin=Tmin, kmax=Tmax)  
     drawLines(Ref,lines,ax)
     
@@ -591,7 +591,7 @@ def Ps(Ref, Tmin=None, Tmax = None, show = False, axis = None, **kwargs):
     ax.set_ylabel('Pressure [kPa]')
     ax.autoscale(enable=True)
     if show:
-        pylab.show()
+        matplotlib.pyplot.show()
     return ax
         
         
@@ -602,7 +602,7 @@ def Prho(Ref, Tmin=None, Tmax = None, show = False, axis = None, **kwargs):
     Will plot in the current axis unless the optional parameter *axis* gives the name for the axis to use
     """
     
-    ax = axis if axis is not None else pylab.gca()
+    ax = axis if axis is not None else matplotlib.pyplot.gca()
     lines  = _getSatLines(Ref, 'pd', kind='T', kmin=Tmin, kmax=Tmax)  
     drawLines(Ref,lines,ax)
     
@@ -610,7 +610,7 @@ def Prho(Ref, Tmin=None, Tmax = None, show = False, axis = None, **kwargs):
     ax.set_ylabel('Pressure [kPa]')
     ax.autoscale(enable=True)
     if show:
-        pylab.show()
+        matplotlib.pyplot.show()
     return ax
         
         
@@ -621,7 +621,7 @@ def Trho(Ref, Tmin=None, Tmax = None, show = False, axis = None, **kwargs):
     Will plot in the current axis unless the optional parameter *axis* gives the name for the axis to use
     """
     
-    ax = axis if axis is not None else pylab.gca()
+    ax = axis if axis is not None else matplotlib.pyplot.gca()
     lines  = _getSatLines(Ref, 'Td', kind='T', kmin=Tmin, kmax=Tmax)  
     drawLines(Ref,lines,ax)
     
@@ -629,7 +629,7 @@ def Trho(Ref, Tmin=None, Tmax = None, show = False, axis = None, **kwargs):
     ax.set_ylabel('Temperature [K]')
     ax.autoscale(enable=True)
     if show:
-        pylab.show()
+        matplotlib.pyplot.show()
     return ax
 
 
@@ -640,7 +640,7 @@ def PT(Ref, Tmin=None, Tmax = None, show = False, axis = None, **kwargs):
     Will plot in the current axis unless the optional parameter *axis* gives the name for the axis to use
     """
     
-    ax = axis if axis is not None else pylab.gca()
+    ax = axis if axis is not None else matplotlib.pyplot.gca()
     lines  = _getSatLines(Ref, 'pT', kind='T', kmin=Tmin, kmax=Tmax)  
     drawLines(Ref,lines,ax)
     
@@ -648,7 +648,7 @@ def PT(Ref, Tmin=None, Tmax = None, show = False, axis = None, **kwargs):
     ax.set_ylabel('Pressure [kPa]')
     ax.autoscale(enable=True)
     if show:
-        pylab.show()
+        matplotlib.pyplot.show()
     return ax
 
         

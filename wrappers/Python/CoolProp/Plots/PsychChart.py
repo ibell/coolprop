@@ -4,33 +4,30 @@ This file implements a psychrometric chart for air at 1 atm
 
 from CoolProp.HumidAirProp import HAProps
 from CoolProp.Plots.Plots import InlineLabel 
-import matplotlib.pyplot as plt
-import numpy as np
-import textwrap
+import matplotlib, numpy, textwrap
 
 import_template=(
 """
-import numpy as np
-import matplotlib.pyplot as plt
+import numpy, matplotlib
 from CoolProp.HumidAirProp import HAProps
 from CoolProp.Plots.Plots import InlineLabel 
 
 p = 101.325
-Tdb = np.linspace(-10,60,100)+273.15
+Tdb = numpy.linspace(-10,60,100)+273.15
 
 #Make the figure and the axes
-fig=plt.figure(figsize=(10,8))
+fig=matplotlib.pyplot.figure(figsize=(10,8))
 ax=fig.add_axes((0.1,0.1,0.85,0.85))
 """
 )
 
 closure_template=(
 """
-plt.show()
+matplotlib.pyplot.show()
 """                  
 )
 
-Tdb = np.linspace(-10,60,100)+273.15
+Tdb = numpy.linspace(-10,60,100)+273.15
 p = 101.325
 
 class PlotFormatting(object):
@@ -124,7 +121,7 @@ class EnthalpyLines(object):
             T0 = HAProps('T','H',H,'P',p,'R',0.0)-273.15
             w1 = HAProps('W','H',H,'P',p,'R',1.0)
             w0 = HAProps('W','H',H,'P',p,'R',0.0)
-            ax.plot(np.r_[T1,T0],np.r_[w1,w0],'r',lw=1)
+            ax.plot(numpy.r_[T1,T0],numpy.r_[w1,w0],'r',lw=1)
         
     def __str__(self):
         return textwrap.dedent("""
@@ -135,12 +132,12 @@ class EnthalpyLines(object):
                    T0 = HAProps('T','H',H,'P',p,'R',0.0)-273.15
                    w1 = HAProps('W','H',H,'P',p,'R',1.0)
                    w0 = HAProps('W','H',H,'P',p,'R',0.0)
-                   ax.plot(np.r_[T1,T0],np.r_[w1,w0],'r',lw=1)
+                   ax.plot(numpy.r_[T1,T0],numpy.r_[w1,w0],'r',lw=1)
                """.format(HValues=str(self.H_values))
                )
     
 if __name__=='__main__':
-    fig=plt.figure(figsize=(10,8))
+    fig=matplotlib.pyplot.figure(figsize=(10,8))
     ax=fig.add_axes((0.1,0.1,0.85,0.85))
     ax.set_xlim(Tdb[0]-273.15,Tdb[-1]-273.15)
     ax.set_ylim(0,0.03)
@@ -162,7 +159,7 @@ if __name__=='__main__':
     PF = PlotFormatting()
     PF.plot(ax)
 
-    plt.show()
+    matplotlib.pyplot.show()
 
     fp = open('PsychScript.py','w')
     for chunk in [import_template,SL,RHL,HL,PF,RHLabels,closure_template]:
