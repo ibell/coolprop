@@ -18,6 +18,7 @@ class Fluid;
 struct OtherParameters
 {
 	double molemass, Ttriple, ptriple, accentricfactor, R_u;
+	std::string CAS;
 };
 struct CriticalStruct
 {

@@ -2,7 +2,6 @@
 #include "CPExceptions.h"
 #include "Solvers.h"
 #include "CPState.h"
-#include "CoolPropTools.h"
 #include "float.h"
 #include "math.h"
 #include "Spline.h" 

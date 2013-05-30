@@ -1,14 +1,5 @@
 #define _CRT_SECURE_NO_WARNINGS
-#include "CoolPropTools.h"
-#ifdef __ISWINDOWS__
-	#define _USE_MATH_DEFINES
-	#include "float.h"
-#else
-	#ifndef DBL_EPSILON
-		#include <limits>
-		#define DBL_EPSILON std::numeric_limits<double>::epsilon()
-	#endif
-#endif
+
 #include <stdlib.h>
 #include <string>
 #include <vector>
@@ -34,6 +25,17 @@
 #include "CPState.h"
 #include "Brine.h"
 #include "CriticalSplineConstants.h"
+#include "rapidjson/document.h"
+
+#ifdef __ISWINDOWS__
+	#define _USE_MATH_DEFINES
+	#include "float.h"
+#else
+	#ifndef DBL_EPSILON
+		#include <limits>
+		#define DBL_EPSILON std::numeric_limits<double>::epsilon()
+	#endif
+#endif
 
 #include "pseudopurefluids/Air.h"
 #include "pseudopurefluids/R410A.h"
@@ -93,6 +95,32 @@
 #endif
 
 using namespace std;
+
+// Includes the C++ JSON code for the CAS codes for all the fluids - shame we can't actually compile in the JSON code
+// Creates the variable CAS_values as a JSON formatted string
+#include "../CoolProp/CAS_values.h"
+
+std::string CAS_lookup(std::string FluidName)
+{
+	rapidjson::Document d;
+	d.Parse<0>(CAS_values);
+
+	if (d.HasMember(FluidName.c_str()))
+	{
+		if (d[FluidName.c_str()].IsString())
+		{
+			return d[FluidName.c_str()].GetString();
+		}
+		else
+		{
+			return "";
+		}
+	}
+	else
+	{
+		return "";
+	}
+}
 
 // This obfuscated code is required since C++ doesn't know about the order of instantiation of static variables
 // See also http://stackoverflow.com/questions/13353519/access-violation-when-inserting-element-into-global-map
@@ -575,6 +603,8 @@ void Fluid::post_load(void)
 	environment.FH = syaml_lookup(this->name,"FH");
 	environment.PH = syaml_lookup(this->name,"PH");
 	environment.ASHRAE34 = ASHRAE34_lookup(this->name);
+
+	params.CAS = CAS_lookup(this->name);
 }
 //--------------------------------------------
 //    Residual Part

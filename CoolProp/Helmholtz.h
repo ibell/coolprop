@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 #include "math.h"
+#include "CoolPropTools.h"
 
 #ifdef __ISWINDOWS__
 	#define _USE_MATH_DEFINES

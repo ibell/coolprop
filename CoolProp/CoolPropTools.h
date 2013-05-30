@@ -34,6 +34,8 @@
 	#include <functional> 
 	#include <cctype>
 	#include <locale>
+	#include <fstream>
+	#include <cerrno>
 
 	/// The following code for the trim functions was taken from http://stackoverflow.com/questions/216823/whats-the-best-way-to-trim-stdstring
 	// trim from start
@@ -50,6 +52,10 @@
 	inline std::string &strstrip(std::string &s) {
 			return strlstrip(strrstrip(s));
 	}
+
+	// Get all the contents of a file and dump into a STL string
+	// Thanks to http://stackoverflow.com/questions/2602013/read-whole-ascii-file-into-c-stdstring
+	std::string get_file_contents(const char *filename);
 
     //missing string printf
     std::string format(const char* fmt, ...);

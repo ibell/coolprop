@@ -4,7 +4,6 @@
 #include "CPExceptions.h"
 #include "FluidClass.h"
 #include "Alkanes.h"
-#include "REFPROP.h"
 
 MethaneClass::MethaneClass()
 {

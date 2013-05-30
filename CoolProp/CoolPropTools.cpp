@@ -186,3 +186,20 @@ void MatInv_2(double A[2][2] , double B[2][2])
 	B[1][0]=-1.0/Det*A[1][0];
 	B[0][1]=-1.0/Det*A[0][1];
 }
+
+
+std::string get_file_contents(const char *filename)
+{
+	std::ifstream in(filename, std::ios::in | std::ios::binary);
+	if (in)
+	{
+		std::string contents;
+		in.seekg(0, std::ios::end);
+		contents.resize(in.tellg());
+		in.seekg(0, std::ios::beg);
+		in.read(&contents[0], contents.size());
+		in.close();
+		return(contents);
+	}
+	throw(errno);
+}

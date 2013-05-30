@@ -375,6 +375,24 @@ EXPORT_CODE long CONVENTION get_ASHRAE34(char* fluid, char *value)
 	strcpy(value, (char*)get_ASHRAE34(fluid).c_str());
 	return 1;
 }
+std::string get_CAS_code(std::string fluid)
+{
+	long iFluid = get_Fluid_index(fluid);
+	if (iFluid > -1)
+	{
+		Fluid *pFluid = get_fluid(iFluid);
+		return pFluid->params.CAS;
+	}
+	else
+	{
+		return "Fluid name invalid";
+	}
+}
+EXPORT_CODE long CONVENTION get_CAS_code(char* fluid, char *value)
+{
+	strcpy(value, (char*)get_CAS_code(fluid).c_str());
+	return 1;
+}
 
 long get_param_index(std::string param)
 {
@@ -511,27 +529,28 @@ EXPORT_CODE int CONVENTION IsFluidType(char *Ref, char *Type)
 EXPORT_CODE double CONVENTION conformal_Trho(char* FluidName, char* ReferenceFluidName, double T, double rho, double *Tconform, double *rhoconform)
 {
 	long iFluid = get_Fluid_index(FluidName);
-	if (iFluid < 0)
+	long iRefFluid = get_Fluid_index(ReferenceFluidName);
+	if (iFluid < 0 || iRefFluid < 0)
 	{
 		return _HUGE;
 	}
 	else
 	{
-		Fluid *pFluid = get_fluid(iFluid);
-		double rhobar=rho/pFluid->params.molemass;
-		double rhocbar=pFluid->reduce.rho/pFluid->params.molemass;
-		double Tc=pFluid->reduce.T;
-		if (!strcmp(ReferenceFluidName,"Propane"))
-		{
-			R290Class pPropane = R290Class();
-			pPropane.post_load();
-			double Tc0 = pPropane.reduce.T;
-			double rhoc0bar=pPropane.reduce.rho/pPropane.params.molemass;
+		try{
+			Fluid *pFluid = get_fluid(iFluid);
+			Fluid *pRefFluid = get_fluid(iRefFluid);
+
+			double rhobar=rho/pFluid->params.molemass;
+			double rhocbar=pFluid->reduce.rho/pFluid->params.molemass;
+			double Tc=pFluid->reduce.T;
+
+			double Tc0 = pRefFluid->reduce.T;
+			double rhoc0bar=pRefFluid->reduce.rho/pRefFluid->params.molemass;
 			double T0=T*Tc0/Tc;
 			double rho0bar = rhobar*rhoc0bar/rhocbar;  // Must be the ratio of MOLAR densities!!
-			double rho0 = rho0bar*pPropane.params.molemass;
+			double rho0 = rho0bar*pRefFluid->params.molemass;
 			std::string errstring;
-			std::vector<double> Trho = pFluid->ConformalTemperature(pFluid,&pPropane,T,rho,T0,rho0,&errstring);
+			std::vector<double> Trho = pFluid->ConformalTemperature(pFluid,pRefFluid,T,rho,T0,rho0,&errstring);
 			if (errstring.size()>0){
 				return _HUGE;
 			}
@@ -541,27 +560,7 @@ EXPORT_CODE double CONVENTION conformal_Trho(char* FluidName, char* ReferenceFlu
 				return 0;
 			}
 		}
-		else if (!strcmp(ReferenceFluidName,"R134a"))
-		{
-			R134aClass pR134a = R134aClass();
-			pR134a.post_load();
-			double Tc0 = pR134a.reduce.T;
-			double rhoc0bar=pR134a.reduce.rho/pR134a.params.molemass;
-			double T0=T*Tc0/Tc;
-			double rho0bar = rhobar*rhoc0bar/rhocbar;  // Must be the ratio of MOLAR densities!!
-			double rho0 = rho0bar*pR134a.params.molemass;
-			std::string errstring;
-			std::vector<double> Trho = pFluid->ConformalTemperature(pFluid,&pR134a,T,rho,T0,rho0,&errstring);
-			if (errstring.size()>0){
-				return _HUGE;
-			}
-			else{
-				*Tconform = Trho[0];
-				*rhoconform = Trho[1];
-				return 0;
-			}
-		}
-		else{
+		catch (std::exception){
 			return _HUGE;
 		}
 	}
