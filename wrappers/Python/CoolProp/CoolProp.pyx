@@ -440,6 +440,15 @@ cpdef get_ASHRAE34(str Fluid):
     """
     cdef bytes _Fluid = Fluid.encode('ascii')
     return _get_ASHRAE34(_Fluid)
+
+cpdef get_CAS_code(str Fluid):
+    """
+    Return the CAS registry number (sort of like the serial number) of the working fluid. 
+    See `CAS <http://en.wikipedia.org/wiki/CAS_registry_number>`_ for more information 
+    about CAS numbers  
+    """
+    cdef bytes _Fluid = Fluid.encode('ascii')
+    return _get_CAS_code(_Fluid)
     
 cpdef string get_REFPROPname(bytes_or_str Fluid):
     """
