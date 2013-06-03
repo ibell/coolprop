@@ -930,6 +930,47 @@ double phir_gaussian::dDelta_dTau2(double tau, double delta) throw()
 	return summer;
 }
 
+phir_GERG_gaussian::phir_GERG_gaussian(vector<double> n_in, vector<double> d_in,vector<double> t_in, 
+	vector<double> eta_in, vector<double> epsilon_in, vector<double> beta_in, vector<double> gamma_in,
+	unsigned int iStart_in, unsigned int iEnd_in)
+{
+	n=n_in;
+	d=d_in;
+	t=t_in;
+	eta=eta_in;
+	epsilon=epsilon_in;
+	beta=beta_in;
+	gamma=gamma_in;
+	iStart=iStart_in;
+	iEnd=iEnd_in;
+}
+
+phir_GERG_gaussian::phir_GERG_gaussian(double n_in[], double d_in[],double t_in[], double eta_in[], 
+							 double epsilon_in[], double beta_in[], double gamma_in[],
+							 unsigned int iStart_in, unsigned int iEnd_in, unsigned int N)
+{
+	n=std::vector<double>(n_in, n_in+N);
+	d=std::vector<double>(d_in, d_in+N);
+	t=std::vector<double>(t_in, t_in+N);
+	eta=std::vector<double>(eta_in, eta_in+N);
+	epsilon=std::vector<double>(epsilon_in, epsilon_in+N);
+	beta=std::vector<double>(beta_in, beta_in+N);
+	gamma=std::vector<double>(gamma_in, gamma_in+N);
+	iStart=iStart_in;
+	iEnd=iEnd_in;
+}
+double phir_GERG_gaussian::dDelta(double tau, double delta)
+{
+	double summer = 0, psi;
+	for (unsigned int i=iStart;i<=iEnd;i++)
+	{
+		psi = exp(-eta[i]*pow(delta-epsilon[i],2)-beta[i]*(delta-gamma[i]));
+		summer += n[i]*pow(tau,t[i])*pow(delta,d[i])*psi*(d[i]/delta-2*eta[i]*(delta-epsilon[i])-beta[i]);
+	}
+	return summer;
+}
+
+
 phir_critical::phir_critical(std::vector<double> n_in, std::vector<double> d_in, std::vector<double> t_in, 
 		std::vector<double> a_in, std::vector<double> b_in, std::vector<double> beta_in,
 		std::vector<double> A_in, std::vector<double> B_in, std::vector<double> C_in, 

@@ -29,7 +29,7 @@ except ImportError:
     print('psutil was not found, it is used to kill the python completion server in Eclipse which keeps CoolProp from building sometimes.  psutils can be easy_install-ed')
         
 from distutils.core import setup, Extension
-import subprocess,shutil,os,sys,glob
+import subprocess, shutil, os, sys, glob
 from Cython.Build import cythonize
 from Cython.Distutils import build_ext
 from Cython.Distutils.extension import Extension as CyExtension

@@ -574,6 +574,10 @@ void Fluid::post_load(void)
 {
 	// Set the reducing values from the pointer
 	reduce=*preduce;
+
+	// Get the critical molar density in mol/L or mol/dm^3 (mol/L or mol/dm^3 are equivalent)
+	reduce.rhobar = reduce.rho/params.molemass;
+	crit.rhobar = crit.rho/params.molemass;
 	// Set the triple-point pressure if not set in code
 	// Use the dewpoint pressure for pseudo-pure fluids
 	if ( fabs(params.ptriple)>1e9 ){
@@ -2797,6 +2801,15 @@ double Fluid::surface_tension_T(double T)
 	// k*Tc has units of J, or N-m
 	sigma = k*Tc*pow(N_A/Vc,2.0/3.0)*(4.35+4.14*w)*pow(t,1.26)*(1+0.19*sqrt(t)-0.25*t);
 	return sigma;
+}
+
+void Fluid::ECSParams(double *e_k, double *sigma)
+{
+	// The default ECS parameters that are used if none are coded for the fluid by overloading this function.
+	// Applies the method of Chung;
+	double rhobarc = reduce.rho/params.molemass;
+	*e_k  = reduce.T/1.2593;
+	*sigma = 0.809/pow(rhobarc,1.0/3.0);
 }
 class ConformalTempResids : public FuncWrapperND
 {

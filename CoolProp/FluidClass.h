@@ -22,7 +22,7 @@ struct OtherParameters
 };
 struct CriticalStruct
 {
-	double rho, T, p, v;
+	double rho, T, p, v, rhobar;
 };
 struct FluidLimits
 {
@@ -363,9 +363,8 @@ class Fluid
 		std::vector<double> ConformalTemperature(Fluid *InterestFluid, Fluid *ReferenceFluid,double T, double rho, double T0, double rho0, std::string *errstring);
 		// Extended corresponding states functions for fluids that do not have their own high-accuracy
 		// transport property implementation
-		virtual void ECSParams(double *e_k, double *sigma){
-			throw NotImplementedError("ECSParams not implemented for this fluid");
-		};
+		virtual void ECSParams(double *e_k, double *sigma);
+
 		/// This function is optional, the default value of 1.0 is used otherwise
 		///@param rhor The reduced density where rhor = rho/rhoc
 		virtual double ECS_psi_viscosity(double rhor){

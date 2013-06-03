@@ -10,6 +10,7 @@
 		virtual double viscosity_Trho(double, double);
 		
 		double viscosity_dilute(double T);
+		double viscosity_residual(double T, double rho);
 		double viscosity_background(double T, double rho);
 		double conductivity_dilute(double T);
 		double conductivity_background(double T, double rho);

@@ -48,10 +48,13 @@ RC318Class::RC318Class()
 	name.assign("RC318");
 	REFPROPname.assign("RC318");
   
-	ECSReferenceFluid = "R134a";
+	ECSReferenceFluid = "Propane";
+	ECS_qd = 1/(0.356085e-9);
 
 	BibTeXKeys.EOS = "Platzer-BOOK-1990";
 	BibTeXKeys.CP0 = "Platzer-BOOK-1990";
+	BibTeXKeys.ECS_LENNARD_JONES = "Huber-IECR-2003";
+	BibTeXKeys.ECS_FITS = "Huber-IECR-2003";
 	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
 }
 double RC318Class::psat(double T)
@@ -324,10 +327,13 @@ R13Class::R13Class()
 	name.assign("R13");
 	REFPROPname.assign("R13");
   
-	ECSReferenceFluid = "R134a";
+	ECSReferenceFluid = "Propane";
+	ECS_qd = 1/(0.349636e-9);
 
 	BibTeXKeys.EOS = "Platzer-BOOK-1990";
 	BibTeXKeys.CP0 = "Platzer-BOOK-1990";
+	BibTeXKeys.ECS_LENNARD_JONES = "Huber-IECR-2003";
+	BibTeXKeys.ECS_FITS = "Huber-IECR-2003";
 	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
 }
 double R13Class::psat(double T)
@@ -418,10 +424,13 @@ R14Class::R14Class()
 	name.assign("R14");
 	REFPROPname.assign("R14");
   
-	ECSReferenceFluid = "R134a";
+	ECSReferenceFluid = "Nitrogen";
+	ECS_qd = 1/(0.226566e-9);
 
 	BibTeXKeys.EOS = "Platzer-BOOK-1990";
 	BibTeXKeys.CP0 = "Platzer-BOOK-1990";
+	BibTeXKeys.ECS_LENNARD_JONES = "Huber-IECR-2003";
+	BibTeXKeys.ECS_FITS = "Huber-IECR-2003";
 	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
 }
 double R14Class::psat(double T)

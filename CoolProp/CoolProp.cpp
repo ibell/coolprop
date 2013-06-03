@@ -591,7 +591,13 @@ EXPORT_CODE double CONVENTION viscosity_residual(char* FluidName, double T, doub
 	else
 	{
 		Fluid *pFluid = get_fluid(iFluid);
-		return pFluid->viscosity_residual(T,rho);
+		try{
+			return pFluid->viscosity_residual(T,rho);
+		}
+		catch (NotImplementedError)
+		{
+			return _HUGE;
+		}
 	}
 }
 
