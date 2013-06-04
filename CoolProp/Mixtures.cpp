@@ -16,9 +16,9 @@ Mixture::Mixture(std::vector<Fluid *> pFluids)
 	gamma_T.resize(x.size(),std::vector<double>(x.size(),0));
 	
 	/// For now, only one combination is supported - binary Methane/Ethane
-	for (int i = 0; i < x.size(); i++)
+	for (unsigned int i = 0; i < x.size(); i++)
 	{
-		for (int j = 0; j < x.size(); j++)
+		for (unsigned int j = 0; j < x.size(); j++)
 		{
 			if ((!pFluids[i]->get_name().compare("Methane") && !pFluids[j]->get_name().compare("Ethane")) || 
 				(!pFluids[j]->get_name().compare("Methane") && !pFluids[i]->get_name().compare("Ethane"))
@@ -35,13 +35,14 @@ Mixture::Mixture(std::vector<Fluid *> pFluids)
 	STLMatrix F;
 	F.resize(x.size(),std::vector<double>(x.size(),1.0));
 	/// Methane-Ethane
-	GERGReducingFunction pRed = GERGReducingFunction(pFluids, beta_v, gamma_v, beta_T, gamma_T);
-	GERGDepartureFunction Excess = GERGDepartureFunction(F);
-	IdealMixture IdealMix = IdealMixture(pFluids);
+	pReducing = new GERGReducingFunction(pFluids, beta_v, gamma_v, beta_T, gamma_T);
+	pExcess = new GERGDepartureFunction(F);
+	pResidualIdealMix = new ResidualIdealMixture(pFluids);
 
-	double Tr = pRed.Tr(x);
-	double rhorbar = pRed.rhorbar(x);
-	double dTr_dxi = pRed.dTr_dxi(x,0);
+	double Tr = pReducing->Tr(x);
+	double rhorbar = pReducing->rhorbar(x);
+	double dTr_dxi = pReducing->dTr_dxi(x,1);
+	double rhorbar_dxi = pReducing->drhorbar_dxi(x,1);
 
 	double T = 300;
 	double rhobar = 0.5;
@@ -49,23 +50,77 @@ Mixture::Mixture(std::vector<Fluid *> pFluids)
 	double Rbar = 8.314472;
 	double delta = rhobar/rhorbar;
 
-	double dphir_dDelta = Excess.dphir_dDelta(tau,delta,x) + IdealMix.dphir_dDelta(tau,delta,x);
-	double p = Rbar*rhobar*T*(1 + delta*dphir_dDelta);
+	double _dphir_dDelta = dphir_dDelta(tau,delta,x);
+	double p = Rbar*rhobar*T*(1 + delta*_dphir_dDelta);
 
+	double f0 = fugacity(tau, delta, x,0);
+	double f1 = fugacity(tau, delta, x,1);
 	double rr = 0;
 }
+double Mixture::fugacity(double tau, double delta, std::vector<double> x, int i)
+{
+	double Tr = pReducing->Tr(x);
+	double rhorbar = pReducing->rhorbar(x);
+	double T = Tr/tau, rhobar = rhorbar*delta, Rbar = 8.314472;
+	// Fugacity
+
+	double summer_term1 = 0;
+	for (unsigned int k = 0; k < x.size(); k++)
+	{
+		summer_term1 += x[k]*pReducing->drhorbar_dxi(x,k);
+	}
+	double term1 = delta*dphir_dDelta(tau,delta,x)*(1-1/rhorbar*(pReducing->drhorbar_dxi(x,i)-summer_term1));
+
+	// The second line
+	double summer_term2 = 0;
+	for (unsigned int k = 0; k < x.size(); k++)
+	{
+		summer_term2 += x[k]*pReducing->dTr_dxi(x,k);
+	}
+	double term2 = tau*dphir_dTau(tau,delta,x)*(pReducing->dTr_dxi(x,i)-summer_term2)/Tr;
+
+	// The third line
+	double term3 = dphir_dxi(tau,delta,x,i);
+	for (unsigned int k = 0; k < x.size(); k++)
+	{
+		term3 -= x[k]*dphir_dxi(tau,delta,x,k);
+	}
+
+	double dnphir_dni = phir(tau,delta,x) + term1 + term2 + term3;
+
+	double f_i = x[i]*rhobar*Rbar*T*exp(dnphir_dni);
+	return f_i;
+}
+
+double Mixture::phir(double tau, double delta, std::vector<double> x)
+{
+	return pResidualIdealMix->phir(tau,delta,x) + pExcess->phir(tau,delta,x);
+}
+double Mixture::dphir_dxi(double tau, double delta, std::vector<double> x, int i)
+{	
+	return pFluids[i]->phir(tau,delta) + pExcess->dphir_dxi(tau,delta,x,i);
+}
+double Mixture::dphir_dDelta(double tau, double delta, std::vector<double> x)
+{
+	return pResidualIdealMix->dphir_dDelta(tau,delta,x) + pExcess->dphir_dDelta(tau,delta,x);
+}
+double Mixture::dphir_dTau(double tau, double delta, std::vector<double> x)
+{
+	return pResidualIdealMix->dphir_dTau(tau,delta,x) + pExcess->dphir_dTau(tau,delta,x);
+}
+
 
 double GERGReducingFunction::Tr(std::vector<double> x)
 {
 	double Tr = 0;
-	for (int i = 0; i < x.size(); i++)
+	for (unsigned int i = 0; i < x.size(); i++)
 	{
 		double xi = x[i];
 		Tr += xi*xi*pFluids[i]->reduce.T;
 	}
-	for (int i = 0; i < x.size()-1; i++)
+	for (unsigned int i = 0; i < x.size()-1; i++)
 	{
-		for (int j = i+1; j < x.size(); j++)
+		for (unsigned int j = i+1; j < x.size(); j++)
 		{
 			double xi = x[i], xj = x[j], beta_T_ij = beta_T[i][j];
 			Tr += 2*xi*xj*beta_T_ij*gamma_T[i][j]*(xi+xj)/(beta_T_ij*beta_T_ij*xi+xj)*sqrt(pFluids[i]->reduce.T*pFluids[j]->reduce.T);
@@ -85,7 +140,7 @@ double GERGReducingFunction::dTr_dxi(std::vector<double> x, int i)
 		double term = xk*(xk+xi)/(beta_T_ki*beta_T_ki*xk+xi)+xk*xi/(beta_T_ki*beta_T_ki*xk+xi)*(1-(xk+xi)/(beta_T_ki*beta_T_ki*xk+xi));
 		dTr_dxi += 2*beta_T_ki*gamma_T_ki*Tr_ki*term;
 	}
-	for (int k = i+1; k < x.size(); k++)
+	for (unsigned int k = i+1; k < x.size(); k++)
 	{
 		double xk = x[k], beta_T_ik = beta_T[i][k], gamma_T_ik = gamma_T[i][k];
 		double Tr_ik = sqrt(pFluids[i]->reduce.T*pFluids[k]->reduce.T);
@@ -94,17 +149,39 @@ double GERGReducingFunction::dTr_dxi(std::vector<double> x, int i)
 	}
 	return dTr_dxi;
 }
+double GERGReducingFunction::drhorbar_dxi(std::vector<double> x, int i)
+{
+	// See Table B9 from Kunz Wagner 2012 (GERG 2008)
+	double xi = x[i];
+	double dvrbar_dxi = 2*xi/pFluids[i]->reduce.rhobar;
+	for (int k = 0; k < i; k++)
+	{
+		double xk = x[k], beta_v_ki = beta_v[i][k], gamma_v_ki = gamma_v[i][k];
+		double vrbar_ki = 1.0/8.0*pow(pow(pFluids[i]->reduce.rhobar,-1.0/3.0) + pow(pFluids[k]->reduce.rhobar,-1.0/3.0),3.0);
+		double term = xk*(xk+xi)/(beta_v_ki*beta_v_ki*xk+xi)+xk*xi/(beta_v_ki*beta_v_ki*xk+xi)*(1-(xk+xi)/(beta_v_ki*beta_v_ki*xk+xi));
+		dvrbar_dxi += 2*beta_v_ki*gamma_v_ki*vrbar_ki*term;
+	}
+	for (unsigned int k = i+1; k < x.size(); k++)
+	{
+		double xk = x[k], beta_v_ik = beta_v[i][k], gamma_v_ik = gamma_v[i][k];
+		double vrbar_ik = 1.0/8.0*pow(pow(pFluids[i]->reduce.rhobar,-1.0/3.0) + pow(pFluids[k]->reduce.rhobar,-1.0/3.0),3.0);
+		double term = xk*(xi+xk)/(beta_v_ik*beta_v_ik*xi+xk)+xi*xk/(beta_v_ik*beta_v_ik*xi+xk)*(1-beta_v_ik*beta_v_ik*(xi+xk)/(beta_v_ik*beta_v_ik*xi+xk));
+		dvrbar_dxi += 2*beta_v_ik*gamma_v_ik*vrbar_ik*term;
+	}
+	return -pow(rhorbar(x),2)*dvrbar_dxi;
+}
+
 double GERGReducingFunction::rhorbar(std::vector<double> x)
 {
 	double vrbar = 0;
-	for (int i = 0; i < x.size(); i++)
+	for (unsigned int i = 0; i < x.size(); i++)
 	{
 		double xi = x[i];
 		vrbar += xi*xi/pFluids[i]->reduce.rhobar;
 	}
-	for (int i = 0; i < x.size()-1; i++)
+	for (unsigned int i = 0; i < x.size()-1; i++)
 	{
-		for (int j = i+1; j < x.size(); j++)
+		for (unsigned int j = i+1; j < x.size(); j++)
 		{
 			double xi = x[i], xj = x[j], beta_v_ij = beta_v[i][j];
 			vrbar += 2*xi*xj*beta_v_ij*gamma_v[i][j]*(xi+xj)/(beta_v_ij*beta_v_ij*xi+xj)/8.0*pow(pow(pFluids[i]->reduce.rhobar,-1.0/3.0)+pow(pFluids[j]->reduce.rhobar,-1.0/3.0),3.0);
@@ -133,9 +210,9 @@ double GERGDepartureFunction::phir(double tau, double delta, std::vector<double>
 {
 	double term = phi1.base(tau, delta) + phi2.base(tau, delta);
 	double summer = 0;
-	for (int i = 0; i < x.size()-1; i++)
+	for (unsigned int i = 0; i < x.size()-1; i++)
 	{
-		for (int j = i + 1; j < x.size(); j++)
+		for (unsigned int j = i + 1; j < x.size(); j++)
 		{	
 			summer += x[i]*x[j]*F[i][j]*term;
 		}
@@ -146,26 +223,70 @@ double GERGDepartureFunction::dphir_dDelta(double tau, double delta, std::vector
 {
 	double term = phi1.dDelta(tau, delta) + phi2.dDelta(tau, delta);
 	double summer = 0;
-	for (int i = 0; i < x.size()-1; i++)
+	for (unsigned int i = 0; i < x.size()-1; i++)
 	{
-		for (int j = i + 1; j < x.size(); j++)
+		for (unsigned int j = i + 1; j < x.size(); j++)
 		{	
 			summer += x[i]*x[j]*F[i][j]*term;
 		}
 	}
 	return summer;
 }
+double GERGDepartureFunction::dphir_dTau(double tau, double delta, std::vector<double> x)
+{
+	double term = phi1.dTau(tau, delta) + phi2.dTau(tau, delta);
+	double summer = 0;
+	for (unsigned int i = 0; i < x.size()-1; i++)
+	{
+		for (unsigned int j = i + 1; j < x.size(); j++)
+		{	
+			summer += x[i]*x[j]*F[i][j]*term;
+		}
+	}
+	return summer;
+}
+double GERGDepartureFunction::dphir_dxi(double tau, double delta, std::vector<double> x, int i)
+{
+	double summer = 0;
+	double term = phi1.base(tau, delta) + phi2.base(tau, delta);
+	for (unsigned int k = 0; k < x.size(); k++)
+	{
+		if (i != k)
+		{
+			summer += x[k]*F[i][k]*term;
+		}
+	}
+	return summer;
+}
 
-IdealMixture::IdealMixture(std::vector<Fluid*> pFluids)
+ResidualIdealMixture::ResidualIdealMixture(std::vector<Fluid*> pFluids)
 {
 	this->pFluids = pFluids;
 }
-double IdealMixture::dphir_dDelta(double tau, double delta, std::vector<double> x)
+double ResidualIdealMixture::phir(double tau, double delta, std::vector<double> x)
 {
 	double summer = 0;
-	for (int i = 0; i< x.size(); i++)
+	for (unsigned int i = 0; i < x.size(); i++)
+	{
+		summer += x[i]*pFluids[i]->phir(tau,delta);
+	}
+	return summer;
+}
+double ResidualIdealMixture::dphir_dDelta(double tau, double delta, std::vector<double> x)
+{
+	double summer = 0;
+	for (unsigned int i = 0; i < x.size(); i++)
 	{
 		summer += x[i]*pFluids[i]->dphir_dDelta(tau,delta);
+	}
+	return summer;
+}
+double ResidualIdealMixture::dphir_dTau(double tau, double delta, std::vector<double> x)
+{
+	double summer = 0;
+	for (unsigned int i = 0; i < x.size(); i++)
+	{
+		summer += x[i]*pFluids[i]->dphir_dTau(tau,delta);
 	}
 	return summer;
 }

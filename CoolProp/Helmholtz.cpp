@@ -959,6 +959,16 @@ phir_GERG_gaussian::phir_GERG_gaussian(double n_in[], double d_in[],double t_in[
 	iStart=iStart_in;
 	iEnd=iEnd_in;
 }
+double phir_GERG_gaussian::base(double tau, double delta)
+{
+	double summer = 0, psi;
+	for (unsigned int i=iStart;i<=iEnd;i++)
+	{
+		psi = exp(-eta[i]*pow(delta-epsilon[i],2)-beta[i]*(delta-gamma[i]));
+		summer += n[i]*pow(tau,t[i])*pow(delta,d[i])*psi;
+	}
+	return summer;
+}
 double phir_GERG_gaussian::dDelta(double tau, double delta)
 {
 	double summer = 0, psi;
@@ -966,6 +976,16 @@ double phir_GERG_gaussian::dDelta(double tau, double delta)
 	{
 		psi = exp(-eta[i]*pow(delta-epsilon[i],2)-beta[i]*(delta-gamma[i]));
 		summer += n[i]*pow(tau,t[i])*pow(delta,d[i])*psi*(d[i]/delta-2*eta[i]*(delta-epsilon[i])-beta[i]);
+	}
+	return summer;
+}
+double phir_GERG_gaussian::dTau(double tau, double delta)
+{
+	double summer = 0, psi;
+	for (unsigned int i=iStart;i<=iEnd;i++)
+	{
+		psi = exp(-eta[i]*pow(delta-epsilon[i],2)-beta[i]*(delta-gamma[i]));
+		summer += n[i]*t[i]*pow(tau,t[i]-1)*pow(delta,d[i])*psi;
 	}
 	return summer;
 }

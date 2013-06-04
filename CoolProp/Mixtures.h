@@ -16,15 +16,18 @@ typedef std::vector<std::vector<double> > STLMatrix;
 class ReducingFunction
 {
 public:
+	ReducingFunction(){};
+	virtual ~ReducingFunction(){};
 	virtual double Tr(std::vector<double> x) = 0;
 	virtual double dTr_dxi(std::vector<double> x, int i) = 0;
 	virtual double rhorbar(std::vector<double> x) = 0;
 	virtual double drhorbar_dxi(std::vector<double> x, int i) = 0;
 };
 
-/// The Reducing parameter model used by the GERG-2004 and GERG-2008 
-/// formulations
-class GERGReducingFunction
+/* 
+The Reducing parameter model used by the GERG-2008 formulation
+*/
+class GERGReducingFunction : public ReducingFunction
 {
 protected:
 	STLMatrix beta_v; /// \f$ \beta_{v,ij} \f$ from GERG-2008
@@ -41,6 +44,7 @@ public:
 		this->beta_T = beta_T;
 		this->gamma_T = gamma_T;
 	};
+	~GERGReducingFunction(){};
 	double Tr(std::vector<double> x);
 	double dTr_dxi(std::vector<double> x, int i);
 	double rhorbar(std::vector<double> x);
@@ -54,7 +58,9 @@ public:
 
 
 
-/// The ABC for departure functions for the excess part of the Helmholtz energy
+/*! 
+The ABC for departure functions for the excess part of the Helmholtz energy
+*/
 class DepartureFunction
 {
 protected:
@@ -63,33 +69,39 @@ public:
 	DepartureFunction(){};
 	/// Instantiator for the ABC for the DepartureFunction
 	DepartureFunction(std::vector<Fluid *> pFluids);
+	virtual ~DepartureFunction(){};
 	
 	/// The excess Helmholtz energy of the binary pair
 	/// Pure-virtual function (must be implemented in derived class
 	virtual double phir(double tau, double delta, std::vector<double> x) = 0;
 	virtual double dphir_dDelta(double tau, double delta, std::vector<double> x) = 0;
-	//virtual double dphir_dxi(double tau, double delta, std::vector<double> x, int i) = 0;
+	virtual double dphir_dTau(double tau, double delta, std::vector<double> x) = 0;
+	virtual double dphir_dxi(double tau, double delta, std::vector<double> x, int i) = 0;
 };
 
-class GERGDepartureFunction : DepartureFunction
+class GERGDepartureFunction : public DepartureFunction
 {
 protected:
 	phir_power phi1;
 	phir_GERG_gaussian phi2;
 public:
 	GERGDepartureFunction(STLMatrix F);
+	~GERGDepartureFunction(){};
 	double phir(double tau, double delta, std::vector<double> x);
 	double dphir_dDelta(double tau, double delta, std::vector<double> x);
-	//double dphir_dxi(double tau, double delta, std::vector<double> x, int i);
+	double dphir_dTau(double tau, double delta, std::vector<double> x);
+	double dphir_dxi(double tau, double delta, std::vector<double> x, int i);
 };
 
-class IdealMixture
+class ResidualIdealMixture
 {
 protected:
 	std::vector<Fluid*> pFluids;
 public:
-	IdealMixture(std::vector<Fluid*> pFluids);
+	ResidualIdealMixture(std::vector<Fluid*> pFluids);
+	double phir(double tau, double delta, std::vector<double> x);
 	double dphir_dDelta(double tau, double delta, std::vector<double> x);
+	double dphir_dTau(double tau, double delta, std::vector<double> x);
 };
 
 
@@ -107,9 +119,23 @@ class Mixture
 {
 protected:
 	std::vector<Fluid *> pFluids;
+	ReducingFunction * pReducing;
+	DepartureFunction * pExcess;
+	ResidualIdealMixture * pResidualIdealMix;
+
 public:
 	Mixture(std::vector<Fluid *> pFluids);
+	~Mixture(){
+		if (pReducing){delete pReducing;}
+		if (pExcess){delete pExcess;}
+		if (pResidualIdealMix){delete pResidualIdealMix;}
+		};
+	double phir(double tau, double delta, std::vector<double> x);
 	double dphir_dDelta(double tau, double delta, std::vector<double> x);
+	double dphir_dTau(double tau, double delta, std::vector<double> x);
+	double dphir_dxi(double tau, double delta, std::vector<double> x, int i);
+	double fugacity(double tau, double delta, std::vector<double> x, int i);
 };
+
 
 #endif
