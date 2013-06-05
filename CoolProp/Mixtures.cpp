@@ -91,7 +91,17 @@ double Mixture::fugacity(double tau, double delta, std::vector<double> x, int i)
 	double Tr = pReducing->Tr(x);
 	double rhorbar = pReducing->rhorbar(x);
 	double T = Tr/tau, rhobar = rhorbar*delta, Rbar = 8.314472;
-	// Fugacity
+
+	double dnphir_dni = phir(tau,delta,x) + ndphir_dni(tau,delta,x,i);
+
+	double f_i = x[i]*rhobar*Rbar*T*exp(dnphir_dni);
+	return f_i;
+}
+double Mixture::ndphir_dni(double tau, double delta, std::vector<double> x, int i)
+{
+	double Tr = pReducing->Tr(x);
+	double rhorbar = pReducing->rhorbar(x);
+	double T = Tr/tau, rhobar = rhorbar*delta, Rbar = 8.314472;
 
 	double summer_term1 = 0;
 	for (unsigned int k = 0; k < x.size(); k++)
@@ -114,11 +124,7 @@ double Mixture::fugacity(double tau, double delta, std::vector<double> x, int i)
 	{
 		term3 -= x[k]*dphir_dxi(tau,delta,x,k);
 	}
-
-	double dnphir_dni = phir(tau,delta,x) + term1 + term2 + term3;
-
-	double f_i = x[i]*rhobar*Rbar*T*exp(dnphir_dni);
-	return f_i;
+	return term1 + term2 + term3;
 }
 
 double Mixture::phir(double tau, double delta, std::vector<double> x)
@@ -199,7 +205,7 @@ double Mixture::TpzFlash(double T, double p, std::vector<double> z)
 	// Evaluate the fugacities of each component
 	double Tr = pReducing->Tr(x);
 	double rhorbar = pReducing->rhorbar(x);
-	double tau = Tr/T, delta = rhobar/rhorbar;
+	//double tau = Tr/T, delta = rhobar/rhorbar;
 
 	return g_RR_0;
 }

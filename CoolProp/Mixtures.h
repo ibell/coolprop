@@ -133,11 +133,10 @@ public:
 	Mixture(std::vector<Fluid *> pFluids);
 	~Mixture();
 
-	/*! Returns the natural logarithm of K for component i as in
+	/*! Returns the natural logarithm of K for component i using the method from Wilson as in
 	\f[
 	\ln K = \ln\left(\frac{p_{c,i}}{p}\right)+5.373(1+\omega_i)\left(1-\frac{T_{c,i}}{T}\right)
 	\f]
-	using the method from Wilson
 	@param T Temperature [K]
 	@param p Pressure [kPa]
 	@param i Index of component [-]
@@ -150,29 +149,35 @@ public:
 	/// Returns the fugacity for the given component for the given total reduced density and reciprocal reduced temperature
 	double fugacity(double tau, double delta, std::vector<double> x, int i);
 	
-	/*!
-	Temperature-pressure-bulk mole fraction flash calculation
-
+	/*! Temperature-pressure-bulk mole fraction flash calculation
 	@param T Temperature [K]
 	@param p Pressure [kPa]
 	@param z Bulk mole fractions [-]
 	*/
 	double TpzFlash(double T, double p, std::vector<double> z);
 
-	/*!
-	Objective function from Rachford-Rice
-
-	Not to be confused with the Gibbs function
-
+	/*! Objective function from Rachford-Rice (Not to be confused with the Gibbs function)
 	\f[
 	g(\beta) = \sum_i(y_i-x_i) = \sum_i z_i\frac{K_i-1}{1-\beta+\beta K_i}
 	\f]
-	
 	@param z Bulk mole fractions [-]
 	@param lnK Logarithm of the K factor [-]
 	@param beta Molar fraction in the gas phase [-]
 	*/
 	double g_RachfordRice(std::vector<double> z, std::vector<double> lnK, double beta);
+
+	/*! The derivative term
+	\f[
+	n\left(\frac{\partial \phi^r}{\partial n_i} \right)_{T,V,n_j}
+	\f]
+	which is equal to
+	\f{eqnarray*}{
+	n\left(\frac{\partial \phi^r}{\partial n_i} \right)_{T,V,n_j} &=& \delta \phi^r_{\delta}\left[ 1-\frac{1}{\rho_r}\left[\left(\frac{\partial \rho_r}{\partial x_i}\right)_{x_j} - \sum_{k=1}^N x_k\left(\frac{\partial \rho_r}{\partial x_k}\right)_{x_j}  \right]\right]\\
+	&& +\tau \phi^r_{\tau}\frac{1}{T_r}\left[\left(\frac{\partial T_r}{\partial x_i}\right)_{x_j} - \sum_{k=1}^N x_k\left(\frac{\partial T_r}{\partial x_k}\right)_{x_j}  \right]\\
+	&& +\phi^r_{x_i}-\sum_{k=1}^{N}x_k\phi^r_{x_k}
+	\f}
+	*/
+	double ndphir_dni(double tau, double delta, std::vector<double> x, int i);
 };
 
 
