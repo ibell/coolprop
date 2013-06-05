@@ -1,5 +1,6 @@
 
 #include "Mixtures.h"
+#include "Solvers.h"
 
 Mixture::Mixture(std::vector<Fluid *> pFluids)
 {
@@ -32,6 +33,15 @@ Mixture::Mixture(std::vector<Fluid *> pFluids)
 		}
 	}
 
+	//// R32/R134a using form from Lemmon
+	//double F_ij = 1.0; // -
+	//double zeta_ij = 7.909; // K
+	//double xi_ij = -0.002039; // [dm^3/mol] or [L/mol]
+	//double N[] = {0,0.22909, 0.094074, 0.00039876, 0.021113};
+	//double t[] = {0,1.9, 0.25, 0.07, 2.0};
+	//double d[] = {0,1,3,8,1};
+	//double l[] = {0,1,1,1,2};
+
 	STLMatrix F;
 	F.resize(x.size(),std::vector<double>(x.size(),1.0));
 	/// Methane-Ethane
@@ -44,7 +54,7 @@ Mixture::Mixture(std::vector<Fluid *> pFluids)
 	double dTr_dxi = pReducing->dTr_dxi(x,1);
 	double rhorbar_dxi = pReducing->drhorbar_dxi(x,1);
 
-	double T = 300;
+	double T = 200;
 	double rhobar = 0.5;
 	double tau = Tr/T;
 	double Rbar = 8.314472;
@@ -53,9 +63,28 @@ Mixture::Mixture(std::vector<Fluid *> pFluids)
 	double _dphir_dDelta = dphir_dDelta(tau,delta,x);
 	double p = Rbar*rhobar*T*(1 + delta*_dphir_dDelta);
 
-	double f0 = fugacity(tau, delta, x,0);
-	double f1 = fugacity(tau, delta, x,1);
+	TpzFlash(T,p,x);
+
+	double f0 = fugacity(tau, delta, x, 0);
+	double f1 = fugacity(tau, delta, x, 1);
+
 	double rr = 0;
+}
+Mixture::~Mixture()
+{
+	if (pReducing != NULL){
+		delete pReducing; pReducing = NULL;
+	}
+	if (pExcess != NULL){
+		delete pExcess; pExcess = NULL;
+	}
+	if (pResidualIdealMix != NULL){
+		delete pResidualIdealMix; pResidualIdealMix = NULL;
+	}
+}
+double Mixture::Wilson_lnK_factor(double T, double p, int i)
+{
+	return log(pFluids[i]->reduce.p/p)+5.373*(1+pFluids[i]->params.accentricfactor)*(1-pFluids[i]->reduce.T/T);
 }
 double Mixture::fugacity(double tau, double delta, std::vector<double> x, int i)
 {
@@ -109,6 +138,82 @@ double Mixture::dphir_dTau(double tau, double delta, std::vector<double> x)
 	return pResidualIdealMix->dphir_dTau(tau,delta,x) + pExcess->dphir_dTau(tau,delta,x);
 }
 
+/// A wrapper function around the Rachford-Rice residual
+class gRR_resid : public FuncWrapper1D
+{
+public:
+	std::vector<double> z,lnK;
+	Mixture *Mix;
+
+	gRR_resid(Mixture *Mix, std::vector<double> z, std::vector<double> lnK){ this->z=z; this->lnK = lnK; this->Mix = Mix; };
+	double call(double beta){return Mix->g_RachfordRice(z, lnK, beta); };
+};
+
+double Mixture::TpzFlash(double T, double p, std::vector<double> z)
+{
+	int N = z.size();
+	double beta;
+	std::vector<double> lnK(N), x(N), y(N);
+
+	// Wilson k-factors for each component
+	for (unsigned int i = 0; i < N; i++)
+	{
+		lnK[i] = Wilson_lnK_factor(T, p, i);
+	}
+
+	// Check which phase we are in using Wilson estimations
+	double g_RR_0 = g_RachfordRice(z, lnK, 0);
+	if (g_RR_0 < 0)
+	{
+		// Subcooled liquid - done
+		return _HUGE;
+	}
+	else
+	{
+		double g_RR_1 = g_RachfordRice(z, lnK, 1);
+		if (g_RR_1 > 0)
+		{
+			// Superheated vapor - done
+			return _HUGE;
+		}
+	}
+	// TODO: How do you know that you aren't in the two-phase region? Safety factor needed?
+	
+	// Now find the value of beta that satisfies Rachford-Rice
+
+	gRR_resid Resid(this,z,lnK);
+	std::string errstr;
+	beta = Brent(&Resid,0,1,1e-16,1e-10,300,&errstr);
+
+	// Evaluate mole fractions in liquid and vapor
+	for (unsigned int i = 0; i < N; i++)
+	{
+		double Ki = exp(lnK[i]);
+		double den = (1 - beta + beta*Ki); // Common denominator
+		// Liquid mole fraction of component i
+		x[i] = z[i]/den;
+		// Vapor mole fraction of component i
+		y[i] = Ki*z[i]/den;
+	}
+
+	// Evaluate the fugacities of each component
+	double Tr = pReducing->Tr(x);
+	double rhorbar = pReducing->rhorbar(x);
+	double tau = Tr/T, delta = rhobar/rhorbar;
+
+	return g_RR_0;
+}
+double Mixture::g_RachfordRice(std::vector<double> z, std::vector<double> lnK, double beta)
+{
+	// g function from Rashford-Rice
+	double summer = 0;
+	for (unsigned int i = 0; i < z.size(); i++)
+	{
+		double Ki = exp(lnK[i]);
+		summer += z[i]*(Ki-1)/(1-beta+beta*Ki);
+	}
+	return summer;
+}
 
 double GERGReducingFunction::Tr(std::vector<double> x)
 {
