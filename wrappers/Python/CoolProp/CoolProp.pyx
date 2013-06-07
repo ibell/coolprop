@@ -103,6 +103,73 @@ cpdef double IProps(long iOutput, long iInput1, double Input1, long iInput2, dou
     
     """
     return _IProps(iOutput, iInput1, Input2, iInput2, Input2, iFluid)
+
+def get_factorSICP(what):
+    """Get the conversion factor between SI and CoolProp units. 
+    Returns a tuple of the factor and a boolean telling you if 
+    the given key matches with a fluid constant. 
+    """
+    factors = {
+      "Q"  : 1.      ,#Quality [-]
+      "T"  : 1.      ,#Temperature [K]
+      "P"  : 1./1000.,#Pressure [kPa]
+      "D"  : 1.      ,#Density [kg/m3]
+      "C0" : 1./1000.,#Ideal-gas specific heat at constant pressure [kJ/kg]
+      "C"  : 1./1000.,#Specific heat at constant pressure [kJ/kg]
+      "O"  : 1./1000.,#Specific heat at constant volume [kJ/kg]
+      "U"  : 1./1000.,#Internal energy [kJ/kg]
+      "H"  : 1./1000.,#Enthalpy [kJ/kg]
+      "S"  : 1./1000.,#Entropy [kJ/kg/K]
+      "A"  : 1.      ,#Speed of sound [m/s]
+      "G"  : 1./1000.,#Gibbs function [kJ/kg]
+      "V"  : 1.      ,#Viscosity [Pa-s]
+      "L"  : 1./1000.,#Thermal conductivity [kW/m/K]
+      "I"  : 1.      ,#
+      "SurfaceTension" : 1.,#Surface Tension [N/m]
+      "w"  : 1.       #
+    }
+    altFactors = {
+      "Tcrit"     : 1.      ,#Critical temperature [K]
+      "pcrit"     : 1./1000.,#Critical pressure [kPa]
+      "rhocrit"   : 1.      ,#Critical density [kg/m3]
+      "molemass"  : 1./1000.,#Molecular mass [kg/kmol]
+      "Ttriple"   : 1.      ,#Triple-point temperature [K]
+      "Tmin"      : 1.      ,#Minimum temperature [K]
+      "ptriple"   : 1./1000.,#Triple-point pressure [kPa]
+      "accentric" : 1.      ,#Accentric factor [-]
+      "GWP100"    : 1.      ,#Global Warming Potential 100 yr
+      "ODP"       : 1.       #Ozone Depletion Potential
+    }
+    if what in factors:
+        return factors[what],False
+    elif what in altFactors:
+        return altFactors[what],True
+    else:
+        msg = 'Your input '+str(what)+' does not match any of the stored keys '+str(list(factors.keys()))+'.'
+        print msg
+        raise ValueError(msg)
+
+def PropsU(in1, in2, in3 = None, in4 = None, in5 = None, in6 = None, in7 = None):
+    """Make the Props function handle different kinds of unit sets. Use 
+    kSI or SI to identify your desired unit system. Both input and output 
+    values have to be from the same unit set.  
+    """
+    if in7 is None or in7 == 'kSI':
+        return Props(in1, in2, in3, in4, in5, in6)
+    elif in7 == 'SI':
+        in2Factor,constant = get_factorSICP(in2)
+        if constant: # We ask for a fluid constant
+            return Props(in1, in2, in3, in4, in5, in6)/in2Factor
+        else:
+            in1Factor,constant = get_factorSICP(in1)
+            #in2Factor,constant = conversionFactorSICP(in2)
+            in4Factor,constant = get_factorSICP(in4)
+            return Props(in1, in2, in3*in2Factor, in4, in5*in4Factor, in6)/in1Factor
+    else:
+        msg = 'Your requested unit set '+str(in7)+' is not supported, valid unit definitions are kSI and SI only.'
+        #print msg
+        raise ValueError(msg)
+    
     
 cpdef Props(str in1, str in2, in3 = None, in4 = None, in5 = None, in6 = None, in7 = None):
     """
@@ -440,15 +507,6 @@ cpdef get_ASHRAE34(str Fluid):
     """
     cdef bytes _Fluid = Fluid.encode('ascii')
     return _get_ASHRAE34(_Fluid)
-
-cpdef get_CAS_code(str Fluid):
-    """
-    Return the CAS registry number (sort of like the serial number) of the working fluid. 
-    See `CAS <http://en.wikipedia.org/wiki/CAS_registry_number>`_ for more information 
-    about CAS numbers  
-    """
-    cdef bytes _Fluid = Fluid.encode('ascii')
-    return _get_CAS_code(_Fluid)
     
 cpdef string get_REFPROPname(bytes_or_str Fluid):
     """
@@ -971,10 +1029,6 @@ cdef class State:
         """ The specific heat at constant volume  [kJ/kg] """
         def __get__(self):
             return self.get_cv()
-        
-    cpdef double get_speed_sound(self) except *: 
-        """ Get the speed of sound  [m/s] """
-        return self.Props(iA)
             
     cpdef double get_visc(self) except *:
         """ Get the viscosity, in [Pa-s]"""
