@@ -6,20 +6,20 @@ Mixture::Mixture(std::vector<Fluid *> pFluids)
 {
 	this->pFluids = pFluids;
 	
-	std::vector<double> x(2, 0.5);
+	std::vector<double> z(2, 0.5);
 
 	STLMatrix beta_v, gamma_v, beta_T, gamma_T;
 
 	/// Resize reducing parameter matrices to be the same size as x in both directions
-	beta_v.resize(x.size(),std::vector<double>(x.size(),0));
-	gamma_v.resize(x.size(),std::vector<double>(x.size(),0));
-	beta_T.resize(x.size(),std::vector<double>(x.size(),0));
-	gamma_T.resize(x.size(),std::vector<double>(x.size(),0));
+	beta_v.resize(z.size(),std::vector<double>(z.size(),0));
+	gamma_v.resize(z.size(),std::vector<double>(z.size(),0));
+	beta_T.resize(z.size(),std::vector<double>(z.size(),0));
+	gamma_T.resize(z.size(),std::vector<double>(z.size(),0));
 	
 	/// For now, only one combination is supported - binary Methane/Ethane
-	for (unsigned int i = 0; i < x.size(); i++)
+	for (unsigned int i = 0; i < z.size(); i++)
 	{
-		for (unsigned int j = 0; j < x.size(); j++)
+		for (unsigned int j = 0; j < z.size(); j++)
 		{
 			if ((!pFluids[i]->get_name().compare("Methane") && !pFluids[j]->get_name().compare("Ethane")) || 
 				(!pFluids[j]->get_name().compare("Methane") && !pFluids[i]->get_name().compare("Ethane"))
@@ -43,16 +43,16 @@ Mixture::Mixture(std::vector<Fluid *> pFluids)
 	//double l[] = {0,1,1,1,2};
 
 	STLMatrix F;
-	F.resize(x.size(),std::vector<double>(x.size(),1.0));
+	F.resize(z.size(),std::vector<double>(z.size(),1.0));
 	/// Methane-Ethane
 	pReducing = new GERGReducingFunction(pFluids, beta_v, gamma_v, beta_T, gamma_T);
 	pExcess = new GERGDepartureFunction(F);
 	pResidualIdealMix = new ResidualIdealMixture(pFluids);
 
-	double Tr = pReducing->Tr(x);
-	double rhorbar = pReducing->rhorbar(x);
-	double dTr_dxi = pReducing->dTr_dxi(x,1);
-	double rhorbar_dxi = pReducing->drhorbar_dxi(x,1);
+	double Tr = pReducing->Tr(z);
+	double rhorbar = pReducing->rhorbar(z);
+	double dTr_dxi = pReducing->dTr_dxi(z,1);
+	double rhorbar_dxi = pReducing->drhorbar_dxi(z,1);
 
 	double T = 200;
 	double rhobar = 0.5;
@@ -60,10 +60,12 @@ Mixture::Mixture(std::vector<Fluid *> pFluids)
 	double Rbar = 8.314472;
 	double delta = rhobar/rhorbar;
 
-	double _dphir_dDelta = dphir_dDelta(tau,delta,x);
+	double _dphir_dDelta = dphir_dDelta(tau,delta,z);
 	double p = Rbar*rhobar*T*(1 + delta*_dphir_dDelta);
 
-	TpzFlash(T,p,x);
+	p = 595.61824;
+	std::vector<double> x,y;
+	TpzFlash(T,p,z,&rhobar,&x,&y);
 
 	double f0 = fugacity(tau, delta, x, 0);
 	double f1 = fugacity(tau, delta, x, 1);
@@ -155,11 +157,43 @@ public:
 	double call(double beta){return Mix->g_RachfordRice(z, lnK, beta); };
 };
 
-double Mixture::TpzFlash(double T, double p, std::vector<double> z)
+/// A wrapper function around the density(T,p,x) residual
+class rho_Tpz_resid : public FuncWrapper1D
+{
+protected:
+	double T, p, Rbar, tau, Tr, rhorbar;
+public:
+	std::vector<double> x;
+	Mixture *Mix;
+
+	rho_Tpz_resid(Mixture *Mix, double T, double p, std::vector<double> x){ 
+		this->x=x; this->T = T; this->p = p; this->Mix = Mix;
+		Tr = Mix->pReducing->Tr(x);
+		rhorbar = Mix->pReducing->rhorbar(x);
+		tau = Tr/T;
+		Rbar = 8.314472; // kJ/kmol/K
+	};
+	double call(double rhobar){	
+		double delta = rhobar/rhorbar;
+		double resid = Rbar*rhobar*T*(1 + delta*Mix->dphir_dDelta(tau, delta, x))-p;
+		return resid;
+	}
+};
+double Mixture::rhobar_Tpz(double T, double p, std::vector<double> x, double rhobar0)
+{
+	rho_Tpz_resid Resid(this,T,p,x);
+	std::string errstr;
+	return Secant(&Resid, rhobar0, 0.00001, 1e-8, 100, &errstr);
+}
+void Mixture::TpzFlash(double T, double p, std::vector<double> z, double *rhobar, std::vector<double> *x, std::vector<double> *y)
 {
 	int N = z.size();
-	double beta;
-	std::vector<double> lnK(N), x(N), y(N);
+	double beta, change;
+	std::vector<double> lnK(N);
+	double Rbar = 8.314472;
+	
+	(*x).resize(N);
+	(*y).resize(N);
 
 	// Wilson k-factors for each component
 	for (unsigned int i = 0; i < N; i++)
@@ -172,7 +206,8 @@ double Mixture::TpzFlash(double T, double p, std::vector<double> z)
 	if (g_RR_0 < 0)
 	{
 		// Subcooled liquid - done
-		return _HUGE;
+		*rhobar = rhobar_Tpz(T,p,z,30);
+		return;
 	}
 	else
 	{
@@ -180,12 +215,15 @@ double Mixture::TpzFlash(double T, double p, std::vector<double> z)
 		if (g_RR_1 > 0)
 		{
 			// Superheated vapor - done
-			return _HUGE;
+			*rhobar = rhobar_Tpz(T,p,z,0.01);
+			return;
 		}
 	}
-	// TODO: How do you know that you aren't in the two-phase region? Safety factor needed?
+	// TODO: How can you be sure that you aren't in the two-phase region? Safety factor needed?
 	
-	// Now find the value of beta that satisfies Rachford-Rice
+	do
+	{
+	// Now find the value of beta that satisfies Rachford-Rice using Brent's method
 
 	gRR_resid Resid(this,z,lnK);
 	std::string errstr;
@@ -197,17 +235,45 @@ double Mixture::TpzFlash(double T, double p, std::vector<double> z)
 		double Ki = exp(lnK[i]);
 		double den = (1 - beta + beta*Ki); // Common denominator
 		// Liquid mole fraction of component i
-		x[i] = z[i]/den;
+		(*x)[i] = z[i]/den;
 		// Vapor mole fraction of component i
-		y[i] = Ki*z[i]/den;
+		(*y)[i] = Ki*z[i]/den;
 	}
 
 	// Evaluate the fugacities of each component
-	double Tr = pReducing->Tr(x);
-	double rhorbar = pReducing->rhorbar(x);
-	//double tau = Tr/T, delta = rhobar/rhorbar;
+	double Tr_liq = pReducing->Tr(*x);
+	double rhorbar_liq = pReducing->rhorbar(*x);
+	double Tr_vap = pReducing->Tr(*y);
+	double rhorbar_vap = pReducing->rhorbar(*y);
+	double tau_liq = Tr_liq/T;
+	double tau_vap = Tr_vap/T;
 
-	return g_RR_0;
+	double rhobar_liq = rhobar_Tpz(T, p, *x, 18); // TODO: hard coded guess densities
+	double rhobar_vap = rhobar_Tpz(T, p, *y, 0.1); // TODO: hard coded guess densities
+	
+	double phir_liq =this->phir(tau_liq,rhobar_liq/rhorbar_liq,*x); 
+	double phir_vap =this->phir(tau_vap,rhobar_vap/rhorbar_vap,*y); 
+
+	double Z_liq = p/(Rbar*rhobar_liq*T);
+	double Z_vap = p/(Rbar*rhobar_vap*T);
+	
+	// Evaluate fugacity coefficients in liquid and vapor
+	for (unsigned int i = 0; i < N; i++)
+	{
+		double ln_phi_liq = phir_liq + this->ndphir_dni(tau_liq,rhobar_liq/rhorbar_liq,*x,i)-log(Z_liq);
+		double ln_phi_vap = phir_vap + this->ndphir_dni(tau_vap,rhobar_vap/rhorbar_vap,*y,i)-log(Z_vap);
+		
+		double lnKold = lnK[i];
+		// Recalculate the K-factor (log(exp(ln_phi_liq)/exp(ln_phi_vap)))
+		lnK[i] = ln_phi_liq - ln_phi_vap;
+
+		change = lnK[i] - lnKold;
+	}
+	double rr = 0;
+	}
+	while( abs(change) > 1e-7);
+
+	return;
 }
 double Mixture::g_RachfordRice(std::vector<double> z, std::vector<double> lnK, double beta)
 {

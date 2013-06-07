@@ -124,14 +124,17 @@ This is the class that actually implements the mixture properties
 
 class Mixture
 {
-protected:
+	
+public:
+
+	Mixture(std::vector<Fluid *> pFluids);
+	~Mixture();
+
+
 	std::vector<Fluid *> pFluids;
 	ReducingFunction * pReducing;
 	DepartureFunction * pExcess;
 	ResidualIdealMixture * pResidualIdealMix;
-public:
-	Mixture(std::vector<Fluid *> pFluids);
-	~Mixture();
 
 	/*! Returns the natural logarithm of K for component i using the method from Wilson as in
 	\f[
@@ -149,12 +152,22 @@ public:
 	/// Returns the fugacity for the given component for the given total reduced density and reciprocal reduced temperature
 	double fugacity(double tau, double delta, std::vector<double> x, int i);
 	
-	/*! Temperature-pressure-bulk mole fraction flash calculation
+	/*! Density and friends as a function of T,p,x
 	@param T Temperature [K]
 	@param p Pressure [kPa]
 	@param z Bulk mole fractions [-]
 	*/
-	double TpzFlash(double T, double p, std::vector<double> z);
+	double rhobar_Tpz(double T, double p, std::vector<double> x, double rhobar0);
+
+	/*! Temperature-pressure-bulk mole fraction flash calculation
+	@param T Temperature [K]
+	@param p Pressure [kPa]
+	@param z Bulk mole fractions [-]
+	@param rhobar Molar density [mol/L]
+	@param x Liquid mole fractions [-] (if saturated)
+	@param y Vapor mole fractions [-] (if saturated)
+	*/
+	void TpzFlash(double T, double p, std::vector<double> z, double *rhobar, std::vector<double> *x, std::vector<double> *y);
 
 	/*! Objective function from Rachford-Rice (Not to be confused with the Gibbs function)
 	\f[
