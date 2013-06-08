@@ -989,6 +989,26 @@ double phir_GERG_gaussian::dTau(double tau, double delta)
 	}
 	return summer;
 }
+double phir_GERG_gaussian::dTau2(double tau, double delta)
+{
+	double summer = 0, psi;
+	for (unsigned int i=iStart;i<=iEnd;i++)
+	{
+		psi = exp(-eta[i]*pow(delta-epsilon[i],2)-beta[i]*(delta-gamma[i]));
+		summer += n[i]*t[i]*(t[i]-1)*pow(tau,t[i]-2)*pow(delta,d[i])*psi;
+	}
+	return summer;
+}
+double phir_GERG_gaussian::dDelta_dTau(double tau, double delta)
+{
+	double summer = 0, psi;
+	for (unsigned int i=iStart;i<=iEnd;i++)
+	{
+		psi = exp(-eta[i]*pow(delta-epsilon[i],2)-beta[i]*(delta-gamma[i]));
+		summer += n[i]*t[i]*pow(tau,t[i]-1)*pow(delta,d[i])*psi*(d[i]/delta-2*eta[i]*(delta-epsilon[i])-beta[i]);
+	}
+	return summer;
+}
 
 
 phir_critical::phir_critical(std::vector<double> n_in, std::vector<double> d_in, std::vector<double> t_in, 

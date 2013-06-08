@@ -4,6 +4,7 @@
 
 Mixture::Mixture(std::vector<Fluid *> pFluids)
 {
+	Rbar = 8.314472;
 	this->pFluids = pFluids;
 	
 	std::vector<double> z(2, 0.5);
@@ -63,12 +64,17 @@ Mixture::Mixture(std::vector<Fluid *> pFluids)
 	double _dphir_dDelta = dphir_dDelta(tau,delta,z);
 	double p = Rbar*rhobar*T*(1 + delta*_dphir_dDelta);
 
+
+	double tau_liq = 0.5;
+	double delta_liq  = 0.5;
+	double dd1 = (phir(tau_liq+0.0001,delta_liq,z)- phir(tau_liq-0.0001,delta_liq,z) )/(2*0.0001);
+	double dd2 = dphir_dTau(tau_liq+0.0001,delta_liq,z);
+
 	p = 595.61824;
 	std::vector<double> x,y;
-	TpzFlash(T,p,z,&rhobar,&x,&y);
+	TpzFlash(T, p, z, &rhobar, &x, &y);
 
-	double f0 = fugacity(tau, delta, x, 0);
-	double f1 = fugacity(tau, delta, x, 1);
+	saturation_p(TYPE_DEWPOINT, 600, z);
 
 	double rr = 0;
 }
@@ -129,6 +135,36 @@ double Mixture::ndphir_dni(double tau, double delta, std::vector<double> x, int 
 	return term1 + term2 + term3;
 }
 
+double Mixture::dndphir_dni_dTau(double tau, double delta, std::vector<double> x, int i)
+{
+	double Tr = pReducing->Tr(x);
+	double rhorbar = pReducing->rhorbar(x);
+	double T = Tr/tau, rhobar = rhorbar*delta, Rbar = 8.314472;
+
+	double summer_term1 = 0;
+	for (unsigned int k = 0; k < x.size(); k++)
+	{
+		summer_term1 += x[k]*pReducing->drhorbar_dxi(x,k);
+	}
+	double term1 = delta*d2phir_dDelta_dTau(tau,delta,x)*(1-1/rhorbar*(pReducing->drhorbar_dxi(x,i)-summer_term1));
+
+	// The second line
+	double summer_term2 = 0;
+	for (unsigned int k = 0; k < x.size(); k++)
+	{
+		summer_term2 += x[k]*pReducing->dTr_dxi(x,k);
+	}
+	double term2 = (tau*d2phir_dTau2(tau,delta,x)+dphir_dTau(tau,delta,x))*(pReducing->dTr_dxi(x,i)-summer_term2)/Tr;
+
+	// The third line
+	double term3 = d2phir_dxi_dTau(tau,delta,x,i);
+	for (unsigned int k = 0; k < x.size(); k++)
+	{
+		term3 -= x[k]*d2phir_dxi_dTau(tau,delta,x,k);
+	}
+	return term1 + term2 + term3;
+}
+
 double Mixture::phir(double tau, double delta, std::vector<double> x)
 {
 	return pResidualIdealMix->phir(tau,delta,x) + pExcess->phir(tau,delta,x);
@@ -137,9 +173,21 @@ double Mixture::dphir_dxi(double tau, double delta, std::vector<double> x, int i
 {	
 	return pFluids[i]->phir(tau,delta) + pExcess->dphir_dxi(tau,delta,x,i);
 }
+double Mixture::d2phir_dxi_dTau(double tau, double delta, std::vector<double> x, int i)
+{	
+	return pFluids[i]->dphir_dTau(tau,delta) + pExcess->d2phir_dxi_dTau(tau,delta,x,i);
+}
 double Mixture::dphir_dDelta(double tau, double delta, std::vector<double> x)
 {
 	return pResidualIdealMix->dphir_dDelta(tau,delta,x) + pExcess->dphir_dDelta(tau,delta,x);
+}
+double Mixture::d2phir_dDelta_dTau(double tau, double delta, std::vector<double> x)
+{
+	return pResidualIdealMix->d2phir_dDelta_dTau(tau,delta,x) + pExcess->d2phir_dDelta_dTau(tau,delta,x);
+}
+double Mixture::d2phir_dTau2(double tau, double delta, std::vector<double> x)
+{
+	return pResidualIdealMix->d2phir_dTau2(tau,delta,x) + pExcess->d2phir_dTau2(tau,delta,x);
 }
 double Mixture::dphir_dTau(double tau, double delta, std::vector<double> x)
 {
@@ -185,6 +233,195 @@ double Mixture::rhobar_Tpz(double T, double p, std::vector<double> x, double rho
 	std::string errstr;
 	return Secant(&Resid, rhobar0, 0.00001, 1e-8, 100, &errstr);
 }
+
+/*! A wrapper function around the residual to find the initial guess for the bubble point temperature
+\f[
+r = \sum_i \left[z_i K_i\right] - 1 
+\f]
+*/
+class bubblepoint_WilsonK_resid : public FuncWrapper1D
+{
+public:
+	double p;
+	std::vector<double> z;
+	Mixture *Mix;
+
+	bubblepoint_WilsonK_resid(Mixture *Mix, double p, std::vector<double> z){ 
+		this->z=z; this->p = p; this->Mix = Mix; 
+	};
+	double call(double T){
+		double summer = 0;
+		for (unsigned int i = 0; i< z.size(); i++) { summer += z[i]*exp(Mix->Wilson_lnK_factor(T,p,i)); }
+		return summer - 1; // 1 comes from the sum of the z_i which must sum to 1
+	};
+};
+/*! A wrapper function around the residual to find the initial guess for the dew point temperature
+\f[
+r = 1- \sum_i \left[z_i/K_i\right]
+\f]
+*/
+class dewpoint_WilsonK_resid : public FuncWrapper1D
+{
+public:
+	double p;
+	std::vector<double> z;
+	Mixture *Mix;
+
+	dewpoint_WilsonK_resid(Mixture *Mix, double p, std::vector<double> z){ 
+		this->z=z; this->p = p; this->Mix = Mix; 
+	};
+	double call(double T){
+		double summer = 0;
+		for (unsigned int i = 0; i< z.size(); i++) { summer += z[i]*(1-1/exp(Mix->Wilson_lnK_factor(T,p,i))); }
+		return summer;
+	};
+};
+void Mixture::saturation_p(int type, double p, std::vector<double> z)
+{
+	int iter = 0;
+	double change, T, f, dfdT;
+	std::vector<double> K(z.size()), x(z.size()), y(z.size()), ln_phi_liq(z.size()), ln_phi_vap(z.size());
+
+	if (type == TYPE_BUBBLEPOINT)
+	{
+		// Liquid is at the bulk composition
+		x = z;
+		// Find first guess for T using Wilson K-factors
+		bubblepoint_WilsonK_resid Resid(this,p,z); //sum(z_i*K_i) - 1
+		std::string errstr;
+		T = Secant(&Resid, pReducing->Tr(z)*0.8, 0.00001, 1e-10, 100, &errstr);
+	}
+	else if (type == TYPE_DEWPOINT)
+	{
+		// Vapor is at the bulk composition
+		y = z;
+		// Find first guess for T using Wilson K-factors
+		dewpoint_WilsonK_resid Resid(this,p,z); //1-sum(z_i/K_i)
+		std::string errstr;
+		T = Secant(&Resid, pReducing->Tr(z)*0.8, 0.00001, 1e-10, 100, &errstr);
+	}
+	else
+	{
+		throw ValueError("Invalid type to saturation_p");
+	}
+
+	// Calculate the K factors for each component
+	for (unsigned int i = 0; i < z.size(); i++)
+	{
+		K[i] = exp(Wilson_lnK_factor(T,p,i));
+	}	
+
+	// Initial guess for mole fractions in the other phase
+	if (type == TYPE_BUBBLEPOINT)
+	{
+		// Calculate the vapor molar fractions using the K factor and Rachford-Rice
+		for (unsigned int i = 0; i < z.size(); i++)
+		{
+			y[i] = K[i]*z[i];
+		}
+	}
+	else
+	{
+		// Calculate the liquid molar fractions using the K factor and Rachford-Rice
+		for (unsigned int i = 0; i < z.size(); i++)
+		{
+			x[i] = z[i]/K[i];
+		}
+	}
+
+	//T = T - 2;
+	do
+	{
+		
+		double rhobar_liq = rhobar_Tpz(T, p, x, 25);
+		double rhobar_vap = rhobar_Tpz(T, p, y, 0.52);
+		double Tr_liq = pReducing->Tr(x);
+		double Tr_vap = pReducing->Tr(y); 
+		double tau_liq = pReducing->Tr(x)/T;
+		double tau_vap = pReducing->Tr(y)/T;
+		double rhorbar_liq = pReducing->rhorbar(x);
+		double rhorbar_vap = pReducing->rhorbar(y);
+		double delta_liq = rhobar_liq/rhorbar_liq; 
+		double delta_vap = rhobar_vap/rhorbar_vap; 
+		double dtau_dT_liq = -Tr_liq/T/T;
+		double dtau_dT_vap = -Tr_vap/T/T;
+
+		double Z_liq = p/(Rbar*rhobar_liq*T);
+		double Z_vap = p/(Rbar*rhobar_vap*T);
+
+		double dZ_liq_dT = -p/(Rbar*rhobar_liq*T*T);
+		double dZ_vap_dT = -p/(Rbar*rhobar_vap*T*T);
+
+		double phir_liq = phir(tau_liq, delta_liq, x);
+		double phir_vap = phir(tau_vap, delta_vap, y);
+
+		double dphir_liq_dT = dphir_dTau(tau_liq, delta_liq, x)*dtau_dT_liq;
+		double dphir_vap_dT = dphir_dTau(tau_vap, delta_vap, y)*dtau_dT_vap;
+
+		f = 0;
+		dfdT = 0;
+		for (unsigned int i=0; i < z.size(); i++)
+		{
+			ln_phi_liq[i] = phir_liq + ndphir_dni(tau_liq,delta_liq,x,i)-log(Z_liq);
+			ln_phi_vap[i] = phir_vap + ndphir_dni(tau_vap,delta_vap,y,i)-log(Z_vap);
+
+			double dln_phi_liq_dT = dphir_liq_dT + dndphir_dni_dTau(tau_liq, delta_liq, x, i)*dtau_dT_liq-1/Z_liq*dZ_liq_dT;
+			double dln_phi_vap_dT = dphir_vap_dT + dndphir_dni_dTau(tau_vap, delta_vap, y, i)*dtau_dT_vap-1/Z_vap*dZ_vap_dT;
+
+			double Ki = exp(ln_phi_liq[i] - ln_phi_vap[i]);
+			
+			if (type == TYPE_BUBBLEPOINT){
+				f += z[i]*(Ki-1);
+				dfdT += z[i]*Ki*(dln_phi_liq_dT-dln_phi_vap_dT);
+			}
+			else{
+				f += z[i]*(1-1/Ki);
+				dfdT += z[i]/Ki*(dln_phi_liq_dT-dln_phi_vap_dT);
+			}
+		}
+
+		change = -f/dfdT;
+
+		T += -f/dfdT;
+		if (type == TYPE_BUBBLEPOINT)
+		{
+			// Calculate the vapor molar fractions using the K factor and Rachford-Rice
+			double sumy = 0;
+			for (unsigned int i = 0; i < z.size(); i++)
+			{
+				y[i] = z[i]*exp(ln_phi_liq[i])/exp(ln_phi_vap[i]);
+				sumy += y[i];
+			}
+			// Normalize the components
+			for (unsigned int i = 0; i < z.size(); i++)
+			{
+				y[i] /= sumy;
+			}
+		}
+		else
+		{
+			double sumx = 0;
+			for (unsigned int i = 0; i < z.size(); i++)
+			{
+				x[i] = z[i]/exp(ln_phi_liq[i])*exp(ln_phi_vap[i]);
+				sumx += x[i];
+			}
+			// Normalize the components
+			for (unsigned int i = 0; i < z.size(); i++)
+			{
+				x[i] /= sumx;
+			}
+
+		}
+
+		iter += 1;
+		if (iter > 50)
+		{
+			throw ValueError(format("saturation_p was unable to reach a solution within 50 iterations"));
+		}
+	}
+	while(abs(f) > 1e-8);
+}
 void Mixture::TpzFlash(double T, double p, std::vector<double> z, double *rhobar, std::vector<double> *x, std::vector<double> *y)
 {
 	int N = z.size();
@@ -220,7 +457,7 @@ void Mixture::TpzFlash(double T, double p, std::vector<double> z, double *rhobar
 		}
 	}
 	// TODO: How can you be sure that you aren't in the two-phase region? Safety factor needed?
-	
+	// TODO: Calculate the dewpoint density
 	do
 	{
 	// Now find the value of beta that satisfies Rachford-Rice using Brent's method
@@ -240,28 +477,27 @@ void Mixture::TpzFlash(double T, double p, std::vector<double> z, double *rhobar
 		(*y)[i] = Ki*z[i]/den;
 	}
 
-	// Evaluate the fugacities of each component
-	double Tr_liq = pReducing->Tr(*x);
-	double rhorbar_liq = pReducing->rhorbar(*x);
-	double Tr_vap = pReducing->Tr(*y);
-	double rhorbar_vap = pReducing->rhorbar(*y);
-	double tau_liq = Tr_liq/T;
-	double tau_vap = Tr_vap/T;
-
+	// Reducing parameters for each phase
+	double tau_liq = pReducing->Tr(*x)/T;
+	double tau_vap = pReducing->Tr(*y)/T;
 	double rhobar_liq = rhobar_Tpz(T, p, *x, 18); // TODO: hard coded guess densities
 	double rhobar_vap = rhobar_Tpz(T, p, *y, 0.1); // TODO: hard coded guess densities
-	
-	double phir_liq =this->phir(tau_liq,rhobar_liq/rhorbar_liq,*x); 
-	double phir_vap =this->phir(tau_vap,rhobar_vap/rhorbar_vap,*y); 
+	double rhorbar_liq = pReducing->rhorbar(*x);
+	double rhorbar_vap = pReducing->rhorbar(*y);
+	double delta_liq = rhobar_liq/rhorbar_liq; 
+	double delta_vap = rhobar_vap/rhorbar_vap; 
 
 	double Z_liq = p/(Rbar*rhobar_liq*T);
 	double Z_vap = p/(Rbar*rhobar_vap*T);
 	
+	double phir_liq =this->phir(tau_liq, delta_liq, *x); 
+	double phir_vap =this->phir(tau_vap, delta_vap, *y);
+	
 	// Evaluate fugacity coefficients in liquid and vapor
 	for (unsigned int i = 0; i < N; i++)
 	{
-		double ln_phi_liq = phir_liq + this->ndphir_dni(tau_liq,rhobar_liq/rhorbar_liq,*x,i)-log(Z_liq);
-		double ln_phi_vap = phir_vap + this->ndphir_dni(tau_vap,rhobar_vap/rhorbar_vap,*y,i)-log(Z_vap);
+		double ln_phi_liq = phir_liq + this->ndphir_dni(tau_liq,delta_liq,*x,i)-log(Z_liq);
+		double ln_phi_vap = phir_vap + this->ndphir_dni(tau_vap,delta_vap,*y,i)-log(Z_vap);
 		
 		double lnKold = lnK[i];
 		// Recalculate the K-factor (log(exp(ln_phi_liq)/exp(ln_phi_vap)))
@@ -269,7 +505,7 @@ void Mixture::TpzFlash(double T, double p, std::vector<double> z, double *rhobar
 
 		change = lnK[i] - lnKold;
 	}
-	double rr = 0;
+	
 	}
 	while( abs(change) > 1e-7);
 
@@ -409,9 +645,35 @@ double GERGDepartureFunction::dphir_dDelta(double tau, double delta, std::vector
 	}
 	return summer;
 }
+double GERGDepartureFunction::d2phir_dDelta_dTau(double tau, double delta, std::vector<double> x)
+{
+	double term = phi1.dDelta_dTau(tau, delta) + phi2.dDelta_dTau(tau, delta);
+	double summer = 0;
+	for (unsigned int i = 0; i < x.size()-1; i++)
+	{
+		for (unsigned int j = i + 1; j < x.size(); j++)
+		{	
+			summer += x[i]*x[j]*F[i][j]*term;
+		}
+	}
+	return summer;
+}
 double GERGDepartureFunction::dphir_dTau(double tau, double delta, std::vector<double> x)
 {
 	double term = phi1.dTau(tau, delta) + phi2.dTau(tau, delta);
+	double summer = 0;
+	for (unsigned int i = 0; i < x.size()-1; i++)
+	{
+		for (unsigned int j = i + 1; j < x.size(); j++)
+		{	
+			summer += x[i]*x[j]*F[i][j]*term;
+		}
+	}
+	return summer;
+}
+double GERGDepartureFunction::d2phir_dTau2(double tau, double delta, std::vector<double> x)
+{
+	double term = phi1.dTau2(tau, delta) + phi2.dTau2(tau, delta);
 	double summer = 0;
 	for (unsigned int i = 0; i < x.size()-1; i++)
 	{
@@ -426,6 +688,19 @@ double GERGDepartureFunction::dphir_dxi(double tau, double delta, std::vector<do
 {
 	double summer = 0;
 	double term = phi1.base(tau, delta) + phi2.base(tau, delta);
+	for (unsigned int k = 0; k < x.size(); k++)
+	{
+		if (i != k)
+		{
+			summer += x[k]*F[i][k]*term;
+		}
+	}
+	return summer;
+}
+double GERGDepartureFunction::d2phir_dxi_dTau(double tau, double delta, std::vector<double> x, int i)
+{
+	double summer = 0;
+	double term = phi1.dTau(tau, delta) + phi2.dTau(tau, delta);
 	for (unsigned int k = 0; k < x.size(); k++)
 	{
 		if (i != k)
@@ -458,12 +733,30 @@ double ResidualIdealMixture::dphir_dDelta(double tau, double delta, std::vector<
 	}
 	return summer;
 }
+double ResidualIdealMixture::d2phir_dDelta_dTau(double tau, double delta, std::vector<double> x)
+{
+	double summer = 0;
+	for (unsigned int i = 0; i < x.size(); i++)
+	{
+		summer += x[i]*pFluids[i]->d2phir_dDelta_dTau(tau,delta);
+	}
+	return summer;
+}
 double ResidualIdealMixture::dphir_dTau(double tau, double delta, std::vector<double> x)
 {
 	double summer = 0;
 	for (unsigned int i = 0; i < x.size(); i++)
 	{
 		summer += x[i]*pFluids[i]->dphir_dTau(tau,delta);
+	}
+	return summer;
+}
+double ResidualIdealMixture::d2phir_dTau2(double tau, double delta, std::vector<double> x)
+{
+	double summer = 0;
+	for (unsigned int i = 0; i < x.size(); i++)
+	{
+		summer += x[i]*pFluids[i]->d2phir_dTau2(tau,delta);
 	}
 	return summer;
 }

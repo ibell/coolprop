@@ -4,6 +4,8 @@
 #include "Helmholtz.h"
 #include "FluidClass.h"
 
+enum mix_sat_types {TYPE_BUBBLEPOINT, TYPE_DEWPOINT};
+
 typedef std::vector<std::vector<double> > STLMatrix;
 
 /*! 
@@ -83,8 +85,11 @@ public:
 	/// Pure-virtual function (must be implemented in derived class
 	virtual double phir(double tau, double delta, std::vector<double> x) = 0;
 	virtual double dphir_dDelta(double tau, double delta, std::vector<double> x) = 0;
+	virtual double d2phir_dDelta_dTau(double tau, double delta, std::vector<double> x) = 0;
 	virtual double dphir_dTau(double tau, double delta, std::vector<double> x) = 0;
 	virtual double dphir_dxi(double tau, double delta, std::vector<double> x, int i) = 0;
+	virtual double d2phir_dTau2(double tau, double delta, std::vector<double> x) = 0;
+	virtual double d2phir_dxi_dTau(double tau, double delta, std::vector<double> x, int i) = 0;
 };
 
 class GERGDepartureFunction : public DepartureFunction
@@ -97,8 +102,11 @@ public:
 	~GERGDepartureFunction(){};
 	double phir(double tau, double delta, std::vector<double> x);
 	double dphir_dDelta(double tau, double delta, std::vector<double> x);
+	double d2phir_dDelta_dTau(double tau, double delta, std::vector<double> x);
 	double dphir_dTau(double tau, double delta, std::vector<double> x);
+	double d2phir_dTau2(double tau, double delta, std::vector<double> x);
 	double dphir_dxi(double tau, double delta, std::vector<double> x, int i);
+	double d2phir_dxi_dTau(double tau, double delta, std::vector<double> x, int i);
 };
 
 class ResidualIdealMixture
@@ -109,6 +117,8 @@ public:
 	ResidualIdealMixture(std::vector<Fluid*> pFluids);
 	double phir(double tau, double delta, std::vector<double> x);
 	double dphir_dDelta(double tau, double delta, std::vector<double> x);
+	double d2phir_dDelta_dTau(double tau, double delta, std::vector<double> x);
+	double d2phir_dTau2(double tau, double delta, std::vector<double> x);
 	double dphir_dTau(double tau, double delta, std::vector<double> x);
 };
 
@@ -130,6 +140,7 @@ public:
 	Mixture(std::vector<Fluid *> pFluids);
 	~Mixture();
 
+	double Rbar;
 
 	std::vector<Fluid *> pFluids;
 	ReducingFunction * pReducing;
@@ -146,9 +157,12 @@ public:
 	*/
 	double Wilson_lnK_factor(double T, double p, int i);
 	double phir(double tau, double delta, std::vector<double> x);
+	double d2phir_dDelta_dTau(double tau, double delta, std::vector<double> x);
+	double d2phir_dTau2(double tau, double delta, std::vector<double> x);
 	double dphir_dDelta(double tau, double delta, std::vector<double> x);
 	double dphir_dTau(double tau, double delta, std::vector<double> x);
 	double dphir_dxi(double tau, double delta, std::vector<double> x, int i);
+	double d2phir_dxi_dTau(double tau, double delta, std::vector<double> x, int i);
 	/// Returns the fugacity for the given component for the given total reduced density and reciprocal reduced temperature
 	double fugacity(double tau, double delta, std::vector<double> x, int i);
 	
@@ -191,6 +205,21 @@ public:
 	\f}
 	*/
 	double ndphir_dni(double tau, double delta, std::vector<double> x, int i);
+
+	/*! The derivative term
+	\f[
+	\frac{\partial }{\partial \tau} \left( n\left(\frac{\partial \phi^r}{\partial n_i} \right)_{T,V,n_j} \right)
+	\f]
+	which is equal to
+	\f{eqnarray*}{
+	\frac{\partial }{\partial \tau} \left( n\left(\frac{\partial \phi^r}{\partial n_i} \right)_{T,V,n_j} \right) &=& \delta \phi^r_{\delta\tau}\left[ 1-\frac{1}{\rho_r}\left[\left(\frac{\partial \rho_r}{\partial x_i}\right)_{x_j} - \sum_{k=1}^N x_k\left(\frac{\partial \rho_r}{\partial x_k}\right)_{x_j}  \right]\right]\\
+	&& +(\tau \phi^r_{\tau\tau}+\phi^r_{\tau})\frac{1}{T_r}\left[\left(\frac{\partial T_r}{\partial x_i}\right)_{x_j} - \sum_{k=1}^N x_k\left(\frac{\partial T_r}{\partial x_k}\right)_{x_j}  \right]\\
+	&& +\phi^r_{x_i\tau}-\sum_{k=1}^{N}x_k\phi^r_{x_k\tau}
+	\f}
+	*/
+	double dndphir_dni_dTau(double tau, double delta, std::vector<double> x, int i);
+
+	void saturation_p(int type, double p, std::vector<double> z);
 };
 
 
