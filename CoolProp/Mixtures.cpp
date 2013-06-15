@@ -10,9 +10,8 @@ Mixture::Mixture(std::vector<Fluid *> pFluids)
 	
 	std::vector<double> z(2, 0.5);
 
-	//z[0] = 1e-10;
-	//z[1] = 1-1e-10;
-
+	z[0] = 0.5;
+	z[1] = 1-z[0];
 
 	STLMatrix beta_v, gamma_v, beta_T, gamma_T;
 
@@ -79,7 +78,17 @@ Mixture::Mixture(std::vector<Fluid *> pFluids)
 	std::vector<double> x,y;
 	TpzFlash(T, p, z, &rhobar, &x, &y);
 
-	saturation_p(TYPE_DEWPOINT, 1200, z);
+	double Tsat;
+	for (double x0 = 0; x0 <= 1; x0 += 0.1)
+	{
+		z[0] = x0; z[1] = 1-x0;
+		Tsat = saturation_p(TYPE_BUBBLEPOINT, 2000, z, &x, &y);
+		std::cout << format("%g %g %g %g",x0,Tsat,y[0],y[1]);
+		Tsat = saturation_p(TYPE_DEWPOINT, 2000, z, &x, &y);
+		std::cout << format(" %g %g %g",Tsat,x[0],x[1]);
+			
+		std::cout << std::endl;
+	}
 
 	double rr = 0;
 }
@@ -281,16 +290,19 @@ public:
 		return summer;
 	};
 };
-void Mixture::saturation_p(int type, double p, std::vector<double> z)
+double Mixture::saturation_p(int type, double p, std::vector<double> z, std::vector<double> *x, std::vector<double> *y)
 {
 	int iter = 0;
 	double change, T, f, dfdT;
-	std::vector<double> K(z.size()), x(z.size()), y(z.size()), ln_phi_liq(z.size()), ln_phi_vap(z.size());
+	std::vector<double> K(z.size()), ln_phi_liq(z.size()), ln_phi_vap(z.size());
+
+	(*x).resize(z.size());
+	(*y).resize(z.size());
 
 	if (type == TYPE_BUBBLEPOINT)
 	{
 		// Liquid is at the bulk composition
-		x = z;
+		*x = z;
 		// Find first guess for T using Wilson K-factors
 		bubblepoint_WilsonK_resid Resid(this,p,z); //sum(z_i*K_i) - 1
 		std::string errstr;
@@ -299,7 +311,7 @@ void Mixture::saturation_p(int type, double p, std::vector<double> z)
 	else if (type == TYPE_DEWPOINT)
 	{
 		// Vapor is at the bulk composition
-		y = z;
+		*y = z;
 		// Find first guess for T using Wilson K-factors
 		dewpoint_WilsonK_resid Resid(this,p,z); //1-sum(z_i/K_i)
 		std::string errstr;
@@ -322,7 +334,7 @@ void Mixture::saturation_p(int type, double p, std::vector<double> z)
 		// Calculate the vapor molar fractions using the K factor and Rachford-Rice
 		for (unsigned int i = 0; i < z.size(); i++)
 		{
-			y[i] = K[i]*z[i];
+			(*y)[i] = K[i]*z[i];
 		}
 	}
 	else
@@ -330,20 +342,20 @@ void Mixture::saturation_p(int type, double p, std::vector<double> z)
 		// Calculate the liquid molar fractions using the K factor and Rachford-Rice
 		for (unsigned int i = 0; i < z.size(); i++)
 		{
-			x[i] = z[i]/K[i];
+			(*x)[i] = z[i]/K[i];
 		}
 	}
 
 	do
 	{
-		double rhobar_liq = rhobar_Tpz(T, p, x, 25);
-		double rhobar_vap = rhobar_Tpz(T, p, y, 0.52);
-		double Tr_liq = pReducing->Tr(x);
-		double Tr_vap = pReducing->Tr(y); 
-		double tau_liq = pReducing->Tr(x)/T;
-		double tau_vap = pReducing->Tr(y)/T;
-		double rhorbar_liq = pReducing->rhorbar(x);
-		double rhorbar_vap = pReducing->rhorbar(y);
+		double rhobar_liq = rhobar_Tpz(T, p, *x, rhobar_pengrobinson(T,p,*x,PR_SATL));
+		double rhobar_vap = rhobar_Tpz(T, p, *y, rhobar_pengrobinson(T,p,*y,PR_SATV));
+		double Tr_liq = pReducing->Tr(*x);
+		double Tr_vap = pReducing->Tr(*y); 
+		double tau_liq = pReducing->Tr(*x)/T;
+		double tau_vap = pReducing->Tr(*y)/T;
+		double rhorbar_liq = pReducing->rhorbar(*x);
+		double rhorbar_vap = pReducing->rhorbar(*y);
 		double delta_liq = rhobar_liq/rhorbar_liq; 
 		double delta_vap = rhobar_vap/rhorbar_vap; 
 		double dtau_dT_liq = -Tr_liq/T/T;
@@ -355,21 +367,21 @@ void Mixture::saturation_p(int type, double p, std::vector<double> z)
 		double dZ_liq_dT = -p/(Rbar*rhobar_liq*T*T);
 		double dZ_vap_dT = -p/(Rbar*rhobar_vap*T*T);
 
-		double phir_liq = phir(tau_liq, delta_liq, x);
-		double phir_vap = phir(tau_vap, delta_vap, y);
+		double phir_liq = phir(tau_liq, delta_liq, *x);
+		double phir_vap = phir(tau_vap, delta_vap, *y);
 
-		double dphir_liq_dT = dphir_dTau(tau_liq, delta_liq, x)*dtau_dT_liq;
-		double dphir_vap_dT = dphir_dTau(tau_vap, delta_vap, y)*dtau_dT_vap;
+		double dphir_liq_dT = dphir_dTau(tau_liq, delta_liq, *x)*dtau_dT_liq;
+		double dphir_vap_dT = dphir_dTau(tau_vap, delta_vap, *y)*dtau_dT_vap;
 
 		f = 0;
 		dfdT = 0;
 		for (unsigned int i=0; i < z.size(); i++)
 		{
-			ln_phi_liq[i] = phir_liq + ndphir_dni(tau_liq,delta_liq,x,i)-log(Z_liq);
-			ln_phi_vap[i] = phir_vap + ndphir_dni(tau_vap,delta_vap,y,i)-log(Z_vap);
+			ln_phi_liq[i] = phir_liq + ndphir_dni(tau_liq,delta_liq,*x,i)-log(Z_liq);
+			ln_phi_vap[i] = phir_vap + ndphir_dni(tau_vap,delta_vap,*y,i)-log(Z_vap);
 
-			double dln_phi_liq_dT = dphir_liq_dT + dndphir_dni_dTau(tau_liq, delta_liq, x, i)*dtau_dT_liq-1/Z_liq*dZ_liq_dT;
-			double dln_phi_vap_dT = dphir_vap_dT + dndphir_dni_dTau(tau_vap, delta_vap, y, i)*dtau_dT_vap-1/Z_vap*dZ_vap_dT;
+			double dln_phi_liq_dT = dphir_liq_dT + dndphir_dni_dTau(tau_liq, delta_liq, *x, i)*dtau_dT_liq-1/Z_liq*dZ_liq_dT;
+			double dln_phi_vap_dT = dphir_vap_dT + dndphir_dni_dTau(tau_vap, delta_vap, *y, i)*dtau_dT_vap-1/Z_vap*dZ_vap_dT;
 
 			double Ki = exp(ln_phi_liq[i] - ln_phi_vap[i]);
 			
@@ -392,13 +404,13 @@ void Mixture::saturation_p(int type, double p, std::vector<double> z)
 			double sumy = 0;
 			for (unsigned int i = 0; i < z.size(); i++)
 			{
-				y[i] = z[i]*exp(ln_phi_liq[i])/exp(ln_phi_vap[i]);
-				sumy += y[i];
+				(*y)[i] = z[i]*exp(ln_phi_liq[i])/exp(ln_phi_vap[i]);
+				sumy += (*y)[i];
 			}
 			// Normalize the components
 			for (unsigned int i = 0; i < z.size(); i++)
 			{
-				y[i] /= sumy;
+				(*y)[i] /= sumy;
 			}
 		}
 		else
@@ -406,13 +418,13 @@ void Mixture::saturation_p(int type, double p, std::vector<double> z)
 			double sumx = 0;
 			for (unsigned int i = 0; i < z.size(); i++)
 			{
-				x[i] = z[i]/exp(ln_phi_liq[i])*exp(ln_phi_vap[i]);
-				sumx += x[i];
+				(*x)[i] = z[i]/exp(ln_phi_liq[i])*exp(ln_phi_vap[i]);
+				sumx += (*x)[i];
 			}
 			// Normalize the components
 			for (unsigned int i = 0; i < z.size(); i++)
 			{
-				x[i] /= sumx;
+				(*x)[i] /= sumx;
 			}
 		}
 
@@ -423,6 +435,8 @@ void Mixture::saturation_p(int type, double p, std::vector<double> z)
 		}
 	}
 	while(abs(f) > 1e-8);
+	
+	return T;
 }
 void Mixture::TpzFlash(double T, double p, std::vector<double> z, double *rhobar, std::vector<double> *x, std::vector<double> *y)
 {
@@ -444,7 +458,7 @@ void Mixture::TpzFlash(double T, double p, std::vector<double> z, double *rhobar
 	if (g_RR_0 < 0)
 	{
 		// Subcooled liquid - done
-		*rhobar = rhobar_Tpz(T,p,z,30);
+		*rhobar = rhobar_Tpz(T,p,z,rhobar_pengrobinson(T,p,z,PR_SATL));
 		return;
 	}
 	else
@@ -533,14 +547,7 @@ double Mixture::rhobar_pengrobinson(double T, double p, std::vector<double> x, i
 
 			A += x[i]*x[j]*sqrt(a_i*a_j)*p/(Rbar*Rbar*T*T)/1000;
 		}
-		
 	}
-
-	rhobar = 17.605524827298879;
-	double vbar = 1/rhobar;
-	double p_check = Rbar*T/(vbar-b)-a/(vbar*vbar+2*b*vbar-b*b);
-	//double Z = 0.97574247324388430;
-	//double r = Z*Z*Z - Z*Z*(1-B) + Z*(A-3*B*B-2*B) -A*B+B*B+B*B*B;
 
 	std::vector<double> solns = solve_cubic(1, -1+B, A-3*B*B-2*B, -A*B+B*B+B*B*B);
 

@@ -219,7 +219,7 @@ public:
 	*/
 	double dndphir_dni_dTau(double tau, double delta, std::vector<double> x, int i);
 
-	void saturation_p(int type, double p, std::vector<double> z);
+	double saturation_p(int type, double p, std::vector<double> z, std::vector<double> *x, std::vector<double> *y);
 
 	/*! Calculate the mixture molar density based on the use of the Peng-Robinson equation of state
 	*/
