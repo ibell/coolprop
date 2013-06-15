@@ -90,6 +90,93 @@
 #include "purefluids/RC318_R21_R114_R13_R14.h"
 #include "purefluids/R12_R113.h"
 
+class R290Gas : public R290Class
+{
+public:
+	R290Gas()
+	{
+		name.assign("PropaneGas");
+		aliases.clear(); aliases.push_back("propaneGas"); aliases.push_back("R290Gas"); aliases.push_back("C3H8Gas"); 
+	};
+	double phir(double tau, double delta)
+	{
+		double N[] = {0.49816825,-0.82873029,-0.89707375,-0.09619942,0.34085427,0.01574351,0.22971395,-0.55878676,0.32574155};
+		return delta*(N[0]+N[1]*tau+N[2]*tau*tau)+delta*delta*(N[3]+N[4]*tau+N[5]*tau*tau)+delta*delta*delta*(N[6]+N[7]*tau+N[8]*tau*tau);
+	};
+	double dphir_dDelta(double tau, double delta)
+	{
+		double N[] = {0.49816825,-0.82873029,-0.89707375,-0.09619942,0.34085427,0.01574351,0.22971395,-0.55878676,0.32574155};
+		return (N[0]+N[1]*tau+N[2]*tau*tau)+2*delta*(N[3]+N[4]*tau+N[5]*tau*tau)+3*delta*delta*(N[6]+N[7]*tau+N[8]*tau*tau);
+	};
+	double d2phir_dDelta2(double tau, double delta)
+	{
+		double N[] = {0.49816825,-0.82873029,-0.89707375,-0.09619942,0.34085427,0.01574351,0.22971395,-0.55878676,0.32574155};
+		return 2*(N[3]+N[4]*tau+N[5]*tau*tau)+6*delta*(N[6]+N[7]*tau+N[8]*tau*tau);
+	};
+	double d3phir_dDelta3(double tau, double delta)
+	{
+		double N[] = {0.49816825,-0.82873029,-0.89707375,-0.09619942,0.34085427,0.01574351,0.22971395,-0.55878676,0.32574155};
+		return 6*(N[6]+N[7]*tau+N[8]*tau*tau);
+	};
+	double dphir_dTau(double tau, double delta)
+	{
+		double N[] = {0.49816825,-0.82873029,-0.89707375,-0.09619942,0.34085427,0.01574351,0.22971395,-0.55878676,0.32574155};
+		return delta*(N[1]+2*N[2]*tau)+delta*delta*(N[4]+2*N[5]*tau)+delta*delta*delta*(N[7]+2*N[8]*tau);
+	};
+	double d2phir_dTau2(double tau, double delta)
+	{
+		double N[] = {0.49816825,-0.82873029,-0.89707375,-0.09619942,0.34085427,0.01574351,0.22971395,-0.55878676,0.32574155};
+		return delta*(2*N[2])+delta*delta*(2*N[5])+delta*delta*delta*(2*N[8]);
+	};
+	double d3phir_dTau3(double tau, double delta)
+	{
+		return 0;
+	};
+	double d2phir_dDelta_dTau(double tau, double delta)
+	{
+		double N[] = {0.49816825,-0.82873029,-0.89707375,-0.09619942,0.34085427,0.01574351,0.22971395,-0.55878676,0.32574155};
+		return (N[1]+2*N[2]*tau)+2*delta*(N[4]+2*N[5]*tau)+3*delta*delta*(N[7]+2*N[8]*tau);
+	};
+	double d3phir_dDelta_dTau2(double tau, double delta)
+	{
+		double N[] = {0.49816825,-0.82873029,-0.89707375,-0.09619942,0.34085427,0.01574351,0.22971395,-0.55878676,0.32574155};
+		return (2*N[2])+2*delta*(2*N[5])+3*delta*delta*(2*N[8]);
+	};
+	double d3phir_dDelta2_dTau(double tau, double delta)
+	{
+		double N[] = {0.49816825,-0.82873029,-0.89707375,-0.09619942,0.34085427,0.01574351,0.22971395,-0.55878676,0.32574155};
+		return 2*(N[4]+2*N[5]*tau)+6*delta*(N[7]+2*N[8]*tau);
+	};
+	double phi0(double tau, double delta)
+	{
+		double M[] = {-31.5949936, 75.91710847, -86.62292559, 53.06122035, -12.98320078};
+		return log(delta) + M[0] + M[1]*tau + M[2]*tau*tau + M[3]*tau*tau*tau + M[4]*tau*tau*tau*tau;
+	};
+	double dphi0_dDelta(double tau, double delta)
+	{
+		return 1/delta;
+	};
+	double d2phi0_dDelta2(double tau, double delta)
+	{
+		return -1/delta/delta;
+	};
+	double dphi0_dTau(double tau, double delta)
+	{
+		double M[] = {-31.5949936, 75.91710847, -86.62292559, 53.06122035, -12.98320078};
+		return M[1] + 2*M[2]*tau + 3*M[3]*tau*tau + 4*M[4]*tau*tau*tau;
+	};
+	double d2phi0_dTau2(double tau, double delta)
+	{
+		double M[] = {-31.5949936, 75.91710847, -86.62292559, 53.06122035, -12.98320078};
+		return 2*M[2] + 6*M[3]*tau + 12*M[4]*tau*tau;
+	};
+	double d2phi0_dDelta_dTau(double tau, double delta)
+	{
+		return 0;
+	};
+
+};
+
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
@@ -442,6 +529,9 @@ FluidsContainer::FluidsContainer()
 	FluidsList.push_back(new R410AClass());
 	FluidsList.push_back(new R407CClass());
 	FluidsList.push_back(new R507AClass());
+
+	// The gas-only EOS
+	FluidsList.push_back(new R290Gas());
 
 	
 
@@ -3286,24 +3376,6 @@ double AncillaryCurveClass::reverseinterpolateL(double y){
 double AncillaryCurveClass::reverseinterpolateV(double y){
 	return interp1d(&yV,&xV,y);
 }
-
-#if defined(_MSC_VER) || defined(__powerpc__)
-// Microsoft version of math.h doesn't include acosh or asinh, so we just define them here
-// Neither does the PPC version
-static double acosh(double x)
-{
- 	return log(x + sqrt(x*x - 1.0) );
-}
-static double asinh(double value)
-{
-	if(value>0){
-		return log(value + sqrt(value * value + 1));
-	}
-	else{
-		return -log(-value + sqrt(value * value + 1));
-	}
-}
-#endif
 
 double CriticalSplineStruct_T::interpolate_rho(Fluid *pFluid, int phase, double T)
 {

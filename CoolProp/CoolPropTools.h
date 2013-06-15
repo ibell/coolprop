@@ -30,6 +30,24 @@
 		#endif
 	#endif
 
+	#if defined(_MSC_VER) || defined(__powerpc__)
+	// Microsoft version of math.h doesn't include acosh or asinh, so we just define them here
+	// Neither does the PPC version
+	static double acosh(double x)
+	{
+ 		return log(x + sqrt(x*x - 1.0) );
+	}
+	static double asinh(double value)
+	{
+		if(value>0){
+			return log(value + sqrt(value * value + 1));
+		}
+		else{
+			return -log(-value + sqrt(value * value + 1));
+		}
+	}
+	#endif
+
 	#include <algorithm> 
 	#include <functional> 
 	#include <cctype>
@@ -74,5 +92,6 @@
 	double CubicInterp( double x0, double x1, double x2, double x3, double f0, double f1, double f2, double f3, double x);
 	bool ValidNumber(double x);
 
+	std::vector<double> solve_cubic(double a, double b, double c, double d);
 
 #endif

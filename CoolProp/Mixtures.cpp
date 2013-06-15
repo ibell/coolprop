@@ -2,12 +2,17 @@
 #include "Mixtures.h"
 #include "Solvers.h"
 
+enum PengRobinsonOptions{PR_SATL, PR_SATV};
 Mixture::Mixture(std::vector<Fluid *> pFluids)
 {
 	Rbar = 8.314472;
 	this->pFluids = pFluids;
 	
 	std::vector<double> z(2, 0.5);
+
+	//z[0] = 1e-10;
+	//z[1] = 1-1e-10;
+
 
 	STLMatrix beta_v, gamma_v, beta_T, gamma_T;
 
@@ -74,7 +79,7 @@ Mixture::Mixture(std::vector<Fluid *> pFluids)
 	std::vector<double> x,y;
 	TpzFlash(T, p, z, &rhobar, &x, &y);
 
-	saturation_p(TYPE_DEWPOINT, 600, z);
+	saturation_p(TYPE_DEWPOINT, 1200, z);
 
 	double rr = 0;
 }
@@ -329,10 +334,8 @@ void Mixture::saturation_p(int type, double p, std::vector<double> z)
 		}
 	}
 
-	//T = T - 2;
 	do
 	{
-		
 		double rhobar_liq = rhobar_Tpz(T, p, x, 25);
 		double rhobar_vap = rhobar_Tpz(T, p, y, 0.52);
 		double Tr_liq = pReducing->Tr(x);
@@ -411,7 +414,6 @@ void Mixture::saturation_p(int type, double p, std::vector<double> z)
 			{
 				x[i] /= sumx;
 			}
-
 		}
 
 		iter += 1;
@@ -427,7 +429,6 @@ void Mixture::TpzFlash(double T, double p, std::vector<double> z, double *rhobar
 	int N = z.size();
 	double beta, change;
 	std::vector<double> lnK(N);
-	double Rbar = 8.314472;
 	
 	(*x).resize(N);
 	(*y).resize(N);
@@ -452,7 +453,7 @@ void Mixture::TpzFlash(double T, double p, std::vector<double> z, double *rhobar
 		if (g_RR_1 > 0)
 		{
 			// Superheated vapor - done
-			*rhobar = rhobar_Tpz(T,p,z,0.01);
+			*rhobar = rhobar_Tpz(T,p,z,rhobar_pengrobinson(T,p,z,PR_SATV));
 			return;
 		}
 	}
@@ -480,8 +481,9 @@ void Mixture::TpzFlash(double T, double p, std::vector<double> z, double *rhobar
 	// Reducing parameters for each phase
 	double tau_liq = pReducing->Tr(*x)/T;
 	double tau_vap = pReducing->Tr(*y)/T;
-	double rhobar_liq = rhobar_Tpz(T, p, *x, 18); // TODO: hard coded guess densities
-	double rhobar_vap = rhobar_Tpz(T, p, *y, 0.1); // TODO: hard coded guess densities
+	
+	double rhobar_liq = rhobar_Tpz(T, p, *x, rhobar_pengrobinson(T,p,*x,PR_SATL));
+	double rhobar_vap = rhobar_Tpz(T, p, *y, rhobar_pengrobinson(T,p,*y,PR_SATV));
 	double rhorbar_liq = pReducing->rhorbar(*x);
 	double rhorbar_vap = pReducing->rhorbar(*y);
 	double delta_liq = rhobar_liq/rhorbar_liq; 
@@ -510,6 +512,74 @@ void Mixture::TpzFlash(double T, double p, std::vector<double> z, double *rhobar
 	while( abs(change) > 1e-7);
 
 	return;
+}
+double Mixture::rhobar_pengrobinson(double T, double p, std::vector<double> x, int solution)
+{
+	double k_ij = 0, A  = 0, B = 0, m_i, m_j, a_i, a_j, b_i, b_j, a = 0, b = 0, Z, rhobar;
+
+	for (unsigned int i = 0; i < x.size(); i++)
+	{
+		m_i = 0.37464 + 1.54226*pFluids[i]->params.accentricfactor-0.26992*pow(pFluids[i]->params.accentricfactor,2);
+		b_i = 0.077796074*(Rbar*pFluids[i]->reduce.T)/(pFluids[i]->reduce.p);
+
+		B += x[i]*b_i*p/(Rbar*T);
+
+		for (unsigned int j = 0; j < x.size(); j++)
+		{
+			
+			m_j = 0.37464 + 1.54226*pFluids[j]->params.accentricfactor-0.26992*pow(pFluids[j]->params.accentricfactor,2);
+			a_i = 0.45724*pow(Rbar*pFluids[i]->reduce.T,2)/pFluids[i]->reduce.p*pow(1+m_i*(1-sqrt(T/pFluids[i]->reduce.T)),2)*1000;
+			a_j = 0.45724*pow(Rbar*pFluids[j]->reduce.T,2)/pFluids[j]->reduce.p*pow(1+m_j*(1-sqrt(T/pFluids[j]->reduce.T)),2)*1000;	
+
+			A += x[i]*x[j]*sqrt(a_i*a_j)*p/(Rbar*Rbar*T*T)/1000;
+		}
+		
+	}
+
+	rhobar = 17.605524827298879;
+	double vbar = 1/rhobar;
+	double p_check = Rbar*T/(vbar-b)-a/(vbar*vbar+2*b*vbar-b*b);
+	//double Z = 0.97574247324388430;
+	//double r = Z*Z*Z - Z*Z*(1-B) + Z*(A-3*B*B-2*B) -A*B+B*B+B*B*B;
+
+	std::vector<double> solns = solve_cubic(1, -1+B, A-3*B*B-2*B, -A*B+B*B+B*B*B);
+
+	// Erase negative solutions and unstable solutions
+	// Stable solutions are those for which dpdrho is positive
+	for (int i = (int)solns.size()-1; i >= 0; i--)
+	{
+		
+		if (solns[i] < 0)
+		{
+			solns.erase(solns.begin()+i);
+		}
+		else
+		{
+			double v = (solns[i]*Rbar*T)/p; //[mol/L]
+			double dpdrho = -v*v*(-Rbar*T/pow(v-b,2)+a*(2*v+2*b)/pow(v*v+2*b*v-b*b,2));
+			if (dpdrho < 0)
+			{
+				solns.erase(solns.begin()+i);
+			}
+		}
+	}
+
+	if (solution == PR_SATL)
+	{
+		Z = *std::min_element(solns.begin(), solns.end());
+	}
+	else if (solution == PR_SATV)
+	{
+		Z = *std::max_element(solns.begin(), solns.end());
+	}
+	else 
+	{
+		throw ValueError();
+	}
+
+	rhobar = p/(Z*Rbar*T);
+
+	return rhobar;
 }
 double Mixture::g_RachfordRice(std::vector<double> z, std::vector<double> lnK, double beta)
 {
