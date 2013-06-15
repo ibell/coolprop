@@ -1134,7 +1134,6 @@ EXPORT_CODE double CONVENTION HAProps(char *OutputName, char *Input1Name, double
         // Need to iterate to find dry bulb temperature since temperature is not provided
         
         // Pick one input, and alter T to match the other input
-        T_guess=278.15;
         
         // Get the variables and their values that are NOT pressure for simplicity
         // because you know you need pressure as an input and you already have
@@ -1201,11 +1200,26 @@ EXPORT_CODE double CONVENTION HAProps(char *OutputName, char *Input1Name, double
 		double T_min = 210;
 		double T_max = 450;
 
-		// First try to use the secant solver to find T
-        T = Secant_HAProps_T(SecondaryInputName,(char *)"P",p,MainInputName,MainInputValue,SecondaryInputValue,T_guess);
+		T = -1;
 
-		// If that fails, we can fall back to a Brent's method which is more robust but also slower
-		if (!ValidNumber(T) || !(T_min < T && T < T_max) || fabs(HAProps(SecondaryInputName,(char *)"T",T,(char *)"P",p,MainInputName,MainInputValue)-SecondaryInputValue)>1e-6)
+		// First try to use the secant solver to find T at a few different temperatures
+		for (T_guess = 210; T_guess < 450; T_guess += 60)
+		{
+			try{
+				T = Secant_HAProps_T(SecondaryInputName,(char *)"P",p,MainInputName,MainInputValue,SecondaryInputValue,T_guess);
+				if (!ValidNumber(T) || !(T_min < T && T < T_max) || fabs(HAProps(SecondaryInputName,(char *)"T",T,(char *)"P",p,MainInputName,MainInputValue)-SecondaryInputValue)>1e-6)
+				{ 
+					throw ValueError(); 
+				}
+				else
+				{
+					break;
+				}
+			}
+			catch (std::exception){};
+		}
+		
+		if (T < 0) // No solution found using secant
 		{
 			// Use the Brent's method solver to find T
 			T = Brent_HAProps_T(SecondaryInputName,(char *)"P",p,MainInputName,MainInputValue,SecondaryInputValue,T_min,T_max);
