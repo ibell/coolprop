@@ -94,9 +94,9 @@ Mixture::Mixture(std::vector<Fluid *> pFluids)
 	for (double x0 = 0; x0 <= 1; x0 += 0.1)
 	{
 		z[0] = x0; z[1] = 1-x0;
-		Tsat = saturation_p(TYPE_BUBBLEPOINT, 2000, &z, &x, &y);
+		Tsat = saturation_p(TYPE_BUBBLEPOINT, 500, &z, &x, &y);
 		std::cout << format("%g %g %g %g",x0,Tsat,y[0],y[1]);
-		Tsat = saturation_p(TYPE_DEWPOINT, 2000, &z, &x, &y);
+		Tsat = saturation_p(TYPE_DEWPOINT, 500, &z, &x, &y);
 		std::cout << format(" %g %g %g",Tsat,x[0],x[1]);
 			
 		std::cout << std::endl;
@@ -542,7 +542,7 @@ void Mixture::TpzFlash(double T, double p, std::vector<double> *z, double *rhoba
 }
 double Mixture::rhobar_pengrobinson(double T, double p, std::vector<double> *x, int solution)
 {
-	double k_ij = 0, A  = 0, B = 0, m_i, m_j, a_i, a_j, b_i, b_j, a = 0, b = 0, Z, rhobar;
+	double k_ij = 0, A  = 0, B = 0, m_i, m_j, a_i, a_j, b_i, a = 0, b = 0, Z, rhobar;
 
 	for (unsigned int i = 0; i < (*x).size(); i++)
 	{

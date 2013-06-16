@@ -35,7 +35,7 @@ reducing parameters \f$ \bar\rho_r \f$ and \f$ T_r \f$ and derivatives thereof
 class GERGReducingFunction : public ReducingFunction
 {
 protected:
-	int N;
+	unsigned int N;
 	STLMatrix beta_v; //!< \f$ \beta_{v,ij} \f$ from GERG-2008
 	STLMatrix gamma_v; //!< \f$ \gamma_{v,ij} \f$ from GERG-2008
 	STLMatrix beta_T; //!< \f$ \beta_{T,ij} \f$ from GERG-2008
