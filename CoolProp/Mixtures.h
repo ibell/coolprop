@@ -19,13 +19,13 @@ public:
 	ReducingFunction(){};
 	virtual ~ReducingFunction(){};
 	/// The reduced temperature
-	virtual double Tr(std::vector<double> x) = 0;
+	virtual double Tr(std::vector<double> *x) = 0;
 	/// The derivative of reduced temperature with respect to component i mole fraction
-	virtual double dTr_dxi(std::vector<double> x, int i) = 0;
+	virtual double dTr_dxi(std::vector<double> *x, int i) = 0;
 	/// The molar reducing density
-	virtual double rhorbar(std::vector<double> x) = 0;
+	virtual double rhorbar(std::vector<double> *x) = 0;
 	///Derivative of the molar reducing density with respect to component i mole fraction
-	virtual double drhorbar_dxi(std::vector<double> x, int i) = 0;
+	virtual double drhorbar_dxi(std::vector<double> *x, int i) = 0;
 };
 
 /*! 
@@ -35,6 +35,7 @@ reducing parameters \f$ \bar\rho_r \f$ and \f$ T_r \f$ and derivatives thereof
 class GERGReducingFunction : public ReducingFunction
 {
 protected:
+	int N;
 	STLMatrix beta_v; //!< \f$ \beta_{v,ij} \f$ from GERG-2008
 	STLMatrix gamma_v; //!< \f$ \gamma_{v,ij} \f$ from GERG-2008
 	STLMatrix beta_T; //!< \f$ \beta_{T,ij} \f$ from GERG-2008
@@ -48,17 +49,18 @@ public:
 		this->gamma_v = gamma_v;
 		this->beta_T = beta_T;
 		this->gamma_T = gamma_T;
+		this->N = pFluids.size();
 	};
 	/// Default destructor
 	~GERGReducingFunction(){};
 	/// The reduced temperature
-	double Tr(std::vector<double> x);
+	double Tr(std::vector<double> *x);
 	/// The derivative of reduced temperature with respect to component i mole fraction
-	double dTr_dxi(std::vector<double> x, int i);
+	double dTr_dxi(std::vector<double> *x, int i);
 	/// The molar reducing density
-	double rhorbar(std::vector<double> x);
+	double rhorbar(std::vector<double> *x);
 	///Derivative of the molar reducing density with respect to component i mole fraction
-	double drhorbar_dxi(std::vector<double> x, int i);
+	double drhorbar_dxi(std::vector<double> *x, int i);
 };
 
 
@@ -83,13 +85,13 @@ public:
 	
 	/// The excess Helmholtz energy of the binary pair
 	/// Pure-virtual function (must be implemented in derived class
-	virtual double phir(double tau, double delta, std::vector<double> x) = 0;
-	virtual double dphir_dDelta(double tau, double delta, std::vector<double> x) = 0;
-	virtual double d2phir_dDelta_dTau(double tau, double delta, std::vector<double> x) = 0;
-	virtual double dphir_dTau(double tau, double delta, std::vector<double> x) = 0;
-	virtual double dphir_dxi(double tau, double delta, std::vector<double> x, int i) = 0;
-	virtual double d2phir_dTau2(double tau, double delta, std::vector<double> x) = 0;
-	virtual double d2phir_dxi_dTau(double tau, double delta, std::vector<double> x, int i) = 0;
+	virtual double phir(double tau, double delta, std::vector<double> *x) = 0;
+	virtual double dphir_dDelta(double tau, double delta, std::vector<double> *x) = 0;
+	virtual double d2phir_dDelta_dTau(double tau, double delta, std::vector<double> *x) = 0;
+	virtual double dphir_dTau(double tau, double delta, std::vector<double> *x) = 0;
+	virtual double dphir_dxi(double tau, double delta, std::vector<double> *x, int i) = 0;
+	virtual double d2phir_dTau2(double tau, double delta, std::vector<double> *x) = 0;
+	virtual double d2phir_dxi_dTau(double tau, double delta, std::vector<double> *x, int i) = 0;
 };
 
 class GERGDepartureFunction : public DepartureFunction
@@ -100,13 +102,13 @@ protected:
 public:
 	GERGDepartureFunction(STLMatrix F);
 	~GERGDepartureFunction(){};
-	double phir(double tau, double delta, std::vector<double> x);
-	double dphir_dDelta(double tau, double delta, std::vector<double> x);
-	double d2phir_dDelta_dTau(double tau, double delta, std::vector<double> x);
-	double dphir_dTau(double tau, double delta, std::vector<double> x);
-	double d2phir_dTau2(double tau, double delta, std::vector<double> x);
-	double dphir_dxi(double tau, double delta, std::vector<double> x, int i);
-	double d2phir_dxi_dTau(double tau, double delta, std::vector<double> x, int i);
+	double phir(double tau, double delta, std::vector<double> *x);
+	double dphir_dDelta(double tau, double delta, std::vector<double> *x);
+	double d2phir_dDelta_dTau(double tau, double delta, std::vector<double> *x);
+	double dphir_dTau(double tau, double delta, std::vector<double> *x);
+	double d2phir_dTau2(double tau, double delta, std::vector<double> *x);
+	double dphir_dxi(double tau, double delta, std::vector<double> *x, int i);
+	double d2phir_dxi_dTau(double tau, double delta, std::vector<double> *x, int i);
 };
 
 class ResidualIdealMixture
@@ -115,11 +117,11 @@ protected:
 	std::vector<Fluid*> pFluids;
 public:
 	ResidualIdealMixture(std::vector<Fluid*> pFluids);
-	double phir(double tau, double delta, std::vector<double> x);
-	double dphir_dDelta(double tau, double delta, std::vector<double> x);
-	double d2phir_dDelta_dTau(double tau, double delta, std::vector<double> x);
-	double d2phir_dTau2(double tau, double delta, std::vector<double> x);
-	double dphir_dTau(double tau, double delta, std::vector<double> x);
+	double phir(double tau, double delta, std::vector<double> *x);
+	double dphir_dDelta(double tau, double delta, std::vector<double> *x);
+	double d2phir_dDelta_dTau(double tau, double delta, std::vector<double> *x);
+	double d2phir_dTau2(double tau, double delta, std::vector<double> *x);
+	double dphir_dTau(double tau, double delta, std::vector<double> *x);
 };
 
 
@@ -156,22 +158,22 @@ public:
 	@param i Index of component [-]
 	*/
 	double Wilson_lnK_factor(double T, double p, int i);
-	double phir(double tau, double delta, std::vector<double> x);
-	double d2phir_dDelta_dTau(double tau, double delta, std::vector<double> x);
-	double d2phir_dTau2(double tau, double delta, std::vector<double> x);
-	double dphir_dDelta(double tau, double delta, std::vector<double> x);
-	double dphir_dTau(double tau, double delta, std::vector<double> x);
-	double dphir_dxi(double tau, double delta, std::vector<double> x, int i);
-	double d2phir_dxi_dTau(double tau, double delta, std::vector<double> x, int i);
+	double phir(double tau, double delta, std::vector<double> *x);
+	double d2phir_dDelta_dTau(double tau, double delta, std::vector<double> *x);
+	double d2phir_dTau2(double tau, double delta, std::vector<double> *x);
+	double dphir_dDelta(double tau, double delta, std::vector<double> *x);
+	double dphir_dTau(double tau, double delta, std::vector<double> *x);
+	double dphir_dxi(double tau, double delta, std::vector<double> *x, int i);
+	double d2phir_dxi_dTau(double tau, double delta, std::vector<double> *x, int i);
 	/// Returns the fugacity for the given component for the given total reduced density and reciprocal reduced temperature
-	double fugacity(double tau, double delta, std::vector<double> x, int i);
+	double fugacity(double tau, double delta, std::vector<double> *x, int i);
 	
 	/*! Density and friends as a function of T,p,x
 	@param T Temperature [K]
 	@param p Pressure [kPa]
 	@param z Bulk mole fractions [-]
 	*/
-	double rhobar_Tpz(double T, double p, std::vector<double> x, double rhobar0);
+	double rhobar_Tpz(double T, double p, std::vector<double> *x, double rhobar0);
 
 	/*! Temperature-pressure-bulk mole fraction flash calculation
 	@param T Temperature [K]
@@ -181,7 +183,7 @@ public:
 	@param x Liquid mole fractions [-] (if saturated)
 	@param y Vapor mole fractions [-] (if saturated)
 	*/
-	void TpzFlash(double T, double p, std::vector<double> z, double *rhobar, std::vector<double> *x, std::vector<double> *y);
+	void TpzFlash(double T, double p, std::vector<double> *z, double *rhobar, std::vector<double> *x, std::vector<double> *y);
 
 	/*! Objective function from Rachford-Rice (Not to be confused with the Gibbs function)
 	\f[
@@ -191,7 +193,7 @@ public:
 	@param lnK Logarithm of the K factor [-]
 	@param beta Molar fraction in the gas phase [-]
 	*/
-	double g_RachfordRice(std::vector<double> z, std::vector<double> lnK, double beta);
+	double g_RachfordRice(std::vector<double> *z, std::vector<double> *lnK, double beta);
 
 	/*! The derivative term
 	\f[
@@ -204,7 +206,7 @@ public:
 	&& +\phi^r_{x_i}-\sum_{k=1}^{N}x_k\phi^r_{x_k}
 	\f}
 	*/
-	double ndphir_dni(double tau, double delta, std::vector<double> x, int i);
+	double ndphir_dni(double tau, double delta, std::vector<double> *x, int i);
 
 	/*! The derivative term
 	\f[
@@ -217,13 +219,13 @@ public:
 	&& +\phi^r_{x_i\tau}-\sum_{k=1}^{N}x_k\phi^r_{x_k\tau}
 	\f}
 	*/
-	double dndphir_dni_dTau(double tau, double delta, std::vector<double> x, int i);
+	double dndphir_dni_dTau(double tau, double delta, std::vector<double> *x, int i);
 
-	double saturation_p(int type, double p, std::vector<double> z, std::vector<double> *x, std::vector<double> *y);
+	double saturation_p(int type, double p, std::vector<double> *z, std::vector<double> *x, std::vector<double> *y);
 
 	/*! Calculate the mixture molar density based on the use of the Peng-Robinson equation of state
 	*/
-	double rhobar_pengrobinson(double T, double p, std::vector<double> x, int solution);
+	double rhobar_pengrobinson(double T, double p, std::vector<double> *x, int solution);
 };
 
 
