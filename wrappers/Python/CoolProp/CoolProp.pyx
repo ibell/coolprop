@@ -220,7 +220,7 @@ cpdef Props(str in1, str in2, in3 = None, in4 = None, in5 = None, in6 = None, in
     ``S``                       Entropy [kJ/kg/K]
     ``A``                       Speed of sound [m/s]
     ``G``                       Gibbs function [kJ/kg]
-    ``V``                       Viscosity [Pa-s]
+    ``V``                       Dynamic viscosity [Pa-s]
     ``L``                       Thermal conductivity [kW/m/K]
     ``I`` or `SurfaceTension`   Surface Tension [N/m]
     ``w`` or `accentric`        Accentric Factor [-]
