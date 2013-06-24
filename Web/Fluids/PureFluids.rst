@@ -56,6 +56,7 @@ Pure Fluids
     Oxygen.rst
     ParaHydrogen.rst
     Propane.rst
+    PropaneGas.rst
     Propylene.rst
     Propyne.rst
     R11.rst
@@ -65,7 +66,8 @@ Pure Fluids
     R12.rst
     R123.rst
     R1234yf.rst
-    R1234ze.rst
+    R1234ze(E).rst
+    R1234ze(Z).rst
     R124.rst
     R125.rst
     R13.rst

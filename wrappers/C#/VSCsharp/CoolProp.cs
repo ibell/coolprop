@@ -95,6 +95,11 @@ public class CoolProp {
     return ret;
   }
 
+  public static int get_CAS_code(string fluid, string output) {
+    int ret = CoolPropPINVOKE.get_CAS_code__SWIG_0(fluid, output);
+    return ret;
+  }
+
   public static void get_index_units(int param, string units) {
     CoolPropPINVOKE.get_index_units__SWIG_0(param, units);
   }
@@ -288,6 +293,12 @@ public class CoolProp {
 
   public static string get_ASHRAE34(string Ref) {
     string ret = CoolPropPINVOKE.get_ASHRAE34__SWIG_1(Ref);
+    if (CoolPropPINVOKE.SWIGPendingException.Pending) throw CoolPropPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
+  public static string get_CAS_code(string Ref) {
+    string ret = CoolPropPINVOKE.get_CAS_code__SWIG_1(Ref);
     if (CoolPropPINVOKE.SWIGPendingException.Pending) throw CoolPropPINVOKE.SWIGPendingException.Retrieve();
     return ret;
   }

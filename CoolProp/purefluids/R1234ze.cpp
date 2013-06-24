@@ -133,8 +133,11 @@ R1234zeClass::R1234zeClass()
 	EOSReference.assign("Mark O. McLinden, Monika Thol, Eric W. Lemmon, \"Thermodynamic Properties of trans-1,3,3,3-tetrafluoropropene [R1234ze(E)]: Measurements of Density and Vapor Pressure and a Comprehensive Equation of State\", International Refrigeration and Air Conditioning Conference at Purdue, July 12-15, 2010");
 	TransportReference.assign("Using ECS in fully predictive mode");
 
-	aliases.push_back("R1234ZE");
-	name.assign("R1234ze");
+	
+	name.assign("R1234ze(E)");
+	aliases.push_back("R1234ZEE");
+	aliases.push_back("R1234zeE");
+	REFPROPname.assign("R1234ZE");
 
 	BibTeXKeys.EOS = "McLinden-PURDUE-2010";
 	BibTeXKeys.CONDUCTIVITY = "Perkins-JCED-2011";
@@ -201,4 +204,106 @@ double R1234zeClass::conductivity_Trho(double T, double rho)
 	double lambda_c = this->conductivity_critical(T,rho,1/(0.585e-9))*1000;
 
 	return (lambda_0+lambda_r+lambda_c)/1000;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+R1234zeZClass::R1234zeZClass()
+{
+
+	double n[] = {0, 0.77652368e01, -0.87025756e01, -0.28352251e00, 0.14534501e00, 0.92092105e-02, -0.24997382e00, 0.96674360e-01, 0.24685924e-01, -0.13255083e-01, -0.64231330e-01, 0.36638206e00, -0.25548847e00, -0.95592361e-01, 0.86271444e-01, 0.15997412e-01, -0.13127234e-01, 0.42293990e-02};
+	double t[] = {0, 0.685, 0.8494, 1.87, 2., 0.142, 4.2, 0.08, 0.0, 1.1, 5.5, 6.6, 8.4, 7.2, 7.6, 8.5, 23.0, 18.};
+	double d[] = {0, 1, 1, 1, 2, 5, 1, 3, 5, 7, 1, 2, 2, 3, 4, 2, 3, 5};
+	double l[] = {0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 2, 3, 3, 3};
+	
+	phirlist.push_back(new phir_power(n,d,t,l,1,17,18));
+	
+	//Constants for ideal gas expression
+	double t0[] = {0.0,0,1,2,3};
+	double c0[] = {0.0,-1.6994, 24.527/423.27, -9.9249/423.27/423.27, 1.5158/423.27/423.27/423.27}; // Terms divided by critical temp
+	std::vector<double> t0_v(t0,t0+sizeof(t0)/sizeof(double));
+	std::vector<double> c0_v(c0,c0+sizeof(c0)/sizeof(double));
+	phi0list.push_back(new phi0_lead(0,0)); // phi0_lead is like log(delta)+a1+a2*tau with a1=0, a2=0
+	phi0list.push_back(new phi0_logtau(-1));
+	phi0list.push_back(new phi0_cp0_poly(c0_v,t0_v,423.27,298,1,4));
+
+	// Critical parameters
+	crit.rho = 470;
+	crit.p = 3533;
+	crit.T = 423.27;
+	crit.v = 1.0/crit.rho;
+
+	// Reducing parameters used in EOS
+	reduce.p = crit.p;
+	reduce.T = crit.T;
+	reduce.rho = 470.615;
+	reduce.v = 1.0/reduce.rho;
+
+	preduce = &reduce;
+
+	// Other fluid parameters
+	params.molemass = 114.0415928;
+	params.Ttriple = 273;
+	params.ptriple = 67.8216;
+	params.accentricfactor = 0.3274;
+	params.R_u = 8.314472;
+
+	// Limits of EOS
+	limits.Tmin = params.Ttriple;
+	limits.Tmax = 2000.0;
+	limits.pmax = 2200000.0;
+	limits.rhomax = 53.15*params.molemass;
+
+	aliases.push_back("R1234ze(Z)");
+	name.assign("R1234ze(Z)");
+}
+double R1234zeZClass::psat(double T)
+{
+    // Maximum absolute error is 0.092456 % between 273.000000 K and 423.207000 K
+    const double t[]={0, 1, 2, 3, 7};
+    const double N[]={0, -0.046787485835219293, -7.2639320231259275, 0.72400611949866267, -3.6201632587245687};
+    double summer=0,theta;
+    theta=1-T/reduce.T;
+    for (int i=1;i<=3;i++)
+    {
+        summer += N[i]*pow(theta,t[i]/2);
+    }
+    return reduce.p*exp(reduce.T/T*summer);
+}
+
+double R1234zeZClass::rhosatL(double T)
+{
+    // Maximum absolute error is 0.109896 % between 273.000000 K and 423.207000 K
+    const double t[] = {0, 0.16666666666666666, 0.3333333333333333, 0.5, 0.6666666666666666, 0.8333333333333334, 1.1666666666666667, 1.3333333333333333, 1.5};
+    const double N[] = {0, 0.67225813646270216, -11.145228554195773, 77.35643204523889, -213.21240955222734, 262.97937232802644, -360.33055287979818, 362.6944623022427, -116.36985864325474};
+    double summer=0,theta;
+    theta=1-T/reduce.T;	
+	for (int i=1; i<=8; i++)
+	{
+		summer += N[i]*pow(theta,t[i]);
+	}
+	return reduce.rho*(summer+1);
+}
+
+double R1234zeZClass::rhosatV(double T)
+{
+    // Maximum absolute error is 0.255509 % between 273.000000 K and 423.207000 K
+    const double t[] = {0, 0.5, 0.6666666666666666, 0.8333333333333334, 1.0, 1.1666666666666667, 1.3333333333333333, 1.6666666666666667, 1.8333333333333333};
+    const double N[] = {0, 20.724125232917633, -334.7988571883364, 1630.4602570459422, -4085.9839380536523, 5626.8672277784344, -3717.4680060891073, 1458.3036712606865, -607.34248139716851};
+    double summer=0,theta;
+    theta=1-T/reduce.T;	
+	for (int i=1; i<=8; i++)
+	{
+		summer += N[i]*pow(theta,t[i]);
+	}
+	return reduce.rho*exp(reduce.T/T*summer);
 }

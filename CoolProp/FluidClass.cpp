@@ -90,92 +90,92 @@
 #include "purefluids/RC318_R21_R114_R13_R14.h"
 #include "purefluids/R12_R113.h"
 
-class R290Gas : public R290Class
-{
-public:
-	R290Gas()
-	{
-		name.assign("PropaneGas");
-		aliases.clear(); aliases.push_back("propaneGas"); aliases.push_back("R290Gas"); aliases.push_back("C3H8Gas"); 
-	};
-	double phir(double tau, double delta)
-	{
-		double N[] = {0.49816825,-0.82873029,-0.89707375,-0.09619942,0.34085427,0.01574351,0.22971395,-0.55878676,0.32574155};
-		return delta*(N[0]+N[1]*tau+N[2]*tau*tau)+delta*delta*(N[3]+N[4]*tau+N[5]*tau*tau)+delta*delta*delta*(N[6]+N[7]*tau+N[8]*tau*tau);
-	};
-	double dphir_dDelta(double tau, double delta)
-	{
-		double N[] = {0.49816825,-0.82873029,-0.89707375,-0.09619942,0.34085427,0.01574351,0.22971395,-0.55878676,0.32574155};
-		return (N[0]+N[1]*tau+N[2]*tau*tau)+2*delta*(N[3]+N[4]*tau+N[5]*tau*tau)+3*delta*delta*(N[6]+N[7]*tau+N[8]*tau*tau);
-	};
-	double d2phir_dDelta2(double tau, double delta)
-	{
-		double N[] = {0.49816825,-0.82873029,-0.89707375,-0.09619942,0.34085427,0.01574351,0.22971395,-0.55878676,0.32574155};
-		return 2*(N[3]+N[4]*tau+N[5]*tau*tau)+6*delta*(N[6]+N[7]*tau+N[8]*tau*tau);
-	};
-	double d3phir_dDelta3(double tau, double delta)
-	{
-		double N[] = {0.49816825,-0.82873029,-0.89707375,-0.09619942,0.34085427,0.01574351,0.22971395,-0.55878676,0.32574155};
-		return 6*(N[6]+N[7]*tau+N[8]*tau*tau);
-	};
-	double dphir_dTau(double tau, double delta)
-	{
-		double N[] = {0.49816825,-0.82873029,-0.89707375,-0.09619942,0.34085427,0.01574351,0.22971395,-0.55878676,0.32574155};
-		return delta*(N[1]+2*N[2]*tau)+delta*delta*(N[4]+2*N[5]*tau)+delta*delta*delta*(N[7]+2*N[8]*tau);
-	};
-	double d2phir_dTau2(double tau, double delta)
-	{
-		double N[] = {0.49816825,-0.82873029,-0.89707375,-0.09619942,0.34085427,0.01574351,0.22971395,-0.55878676,0.32574155};
-		return delta*(2*N[2])+delta*delta*(2*N[5])+delta*delta*delta*(2*N[8]);
-	};
-	double d3phir_dTau3(double tau, double delta)
-	{
-		return 0;
-	};
-	double d2phir_dDelta_dTau(double tau, double delta)
-	{
-		double N[] = {0.49816825,-0.82873029,-0.89707375,-0.09619942,0.34085427,0.01574351,0.22971395,-0.55878676,0.32574155};
-		return (N[1]+2*N[2]*tau)+2*delta*(N[4]+2*N[5]*tau)+3*delta*delta*(N[7]+2*N[8]*tau);
-	};
-	double d3phir_dDelta_dTau2(double tau, double delta)
-	{
-		double N[] = {0.49816825,-0.82873029,-0.89707375,-0.09619942,0.34085427,0.01574351,0.22971395,-0.55878676,0.32574155};
-		return (2*N[2])+2*delta*(2*N[5])+3*delta*delta*(2*N[8]);
-	};
-	double d3phir_dDelta2_dTau(double tau, double delta)
-	{
-		double N[] = {0.49816825,-0.82873029,-0.89707375,-0.09619942,0.34085427,0.01574351,0.22971395,-0.55878676,0.32574155};
-		return 2*(N[4]+2*N[5]*tau)+6*delta*(N[7]+2*N[8]*tau);
-	};
-	double phi0(double tau, double delta)
-	{
-		double M[] = {-31.5949936, 75.91710847, -86.62292559, 53.06122035, -12.98320078};
-		return log(delta) + M[0] + M[1]*tau + M[2]*tau*tau + M[3]*tau*tau*tau + M[4]*tau*tau*tau*tau;
-	};
-	double dphi0_dDelta(double tau, double delta)
-	{
-		return 1/delta;
-	};
-	double d2phi0_dDelta2(double tau, double delta)
-	{
-		return -1/delta/delta;
-	};
-	double dphi0_dTau(double tau, double delta)
-	{
-		double M[] = {-31.5949936, 75.91710847, -86.62292559, 53.06122035, -12.98320078};
-		return M[1] + 2*M[2]*tau + 3*M[3]*tau*tau + 4*M[4]*tau*tau*tau;
-	};
-	double d2phi0_dTau2(double tau, double delta)
-	{
-		double M[] = {-31.5949936, 75.91710847, -86.62292559, 53.06122035, -12.98320078};
-		return 2*M[2] + 6*M[3]*tau + 12*M[4]*tau*tau;
-	};
-	double d2phi0_dDelta_dTau(double tau, double delta)
-	{
-		return 0;
-	};
-
-};
+//class R290Gas : public R290Class
+//{
+//public:
+//	R290Gas()
+//	{
+//		name.assign("PropaneGas");
+//		aliases.clear(); aliases.push_back("propaneGas"); aliases.push_back("R290Gas"); aliases.push_back("C3H8Gas"); 
+//	};
+//	double phir(double tau, double delta)
+//	{
+//		double N[] = {0.49816825,-0.82873029,-0.89707375,-0.09619942,0.34085427,0.01574351,0.22971395,-0.55878676,0.32574155};
+//		return delta*(N[0]+N[1]*tau+N[2]*tau*tau)+delta*delta*(N[3]+N[4]*tau+N[5]*tau*tau)+delta*delta*delta*(N[6]+N[7]*tau+N[8]*tau*tau);
+//	};
+//	double dphir_dDelta(double tau, double delta)
+//	{
+//		double N[] = {0.49816825,-0.82873029,-0.89707375,-0.09619942,0.34085427,0.01574351,0.22971395,-0.55878676,0.32574155};
+//		return (N[0]+N[1]*tau+N[2]*tau*tau)+2*delta*(N[3]+N[4]*tau+N[5]*tau*tau)+3*delta*delta*(N[6]+N[7]*tau+N[8]*tau*tau);
+//	};
+//	double d2phir_dDelta2(double tau, double delta)
+//	{
+//		double N[] = {0.49816825,-0.82873029,-0.89707375,-0.09619942,0.34085427,0.01574351,0.22971395,-0.55878676,0.32574155};
+//		return 2*(N[3]+N[4]*tau+N[5]*tau*tau)+6*delta*(N[6]+N[7]*tau+N[8]*tau*tau);
+//	};
+//	double d3phir_dDelta3(double tau, double delta)
+//	{
+//		double N[] = {0.49816825,-0.82873029,-0.89707375,-0.09619942,0.34085427,0.01574351,0.22971395,-0.55878676,0.32574155};
+//		return 6*(N[6]+N[7]*tau+N[8]*tau*tau);
+//	};
+//	double dphir_dTau(double tau, double delta)
+//	{
+//		double N[] = {0.49816825,-0.82873029,-0.89707375,-0.09619942,0.34085427,0.01574351,0.22971395,-0.55878676,0.32574155};
+//		return delta*(N[1]+2*N[2]*tau)+delta*delta*(N[4]+2*N[5]*tau)+delta*delta*delta*(N[7]+2*N[8]*tau);
+//	};
+//	double d2phir_dTau2(double tau, double delta)
+//	{
+//		double N[] = {0.49816825,-0.82873029,-0.89707375,-0.09619942,0.34085427,0.01574351,0.22971395,-0.55878676,0.32574155};
+//		return delta*(2*N[2])+delta*delta*(2*N[5])+delta*delta*delta*(2*N[8]);
+//	};
+//	double d3phir_dTau3(double tau, double delta)
+//	{
+//		return 0;
+//	};
+//	double d2phir_dDelta_dTau(double tau, double delta)
+//	{
+//		double N[] = {0.49816825,-0.82873029,-0.89707375,-0.09619942,0.34085427,0.01574351,0.22971395,-0.55878676,0.32574155};
+//		return (N[1]+2*N[2]*tau)+2*delta*(N[4]+2*N[5]*tau)+3*delta*delta*(N[7]+2*N[8]*tau);
+//	};
+//	double d3phir_dDelta_dTau2(double tau, double delta)
+//	{
+//		double N[] = {0.49816825,-0.82873029,-0.89707375,-0.09619942,0.34085427,0.01574351,0.22971395,-0.55878676,0.32574155};
+//		return (2*N[2])+2*delta*(2*N[5])+3*delta*delta*(2*N[8]);
+//	};
+//	double d3phir_dDelta2_dTau(double tau, double delta)
+//	{
+//		double N[] = {0.49816825,-0.82873029,-0.89707375,-0.09619942,0.34085427,0.01574351,0.22971395,-0.55878676,0.32574155};
+//		return 2*(N[4]+2*N[5]*tau)+6*delta*(N[7]+2*N[8]*tau);
+//	};
+//	double phi0(double tau, double delta)
+//	{
+//		double M[] = {-31.5949936, 75.91710847, -86.62292559, 53.06122035, -12.98320078};
+//		return log(delta) + M[0] + M[1]*tau + M[2]*tau*tau + M[3]*tau*tau*tau + M[4]*tau*tau*tau*tau;
+//	};
+//	double dphi0_dDelta(double tau, double delta)
+//	{
+//		return 1/delta;
+//	};
+//	double d2phi0_dDelta2(double tau, double delta)
+//	{
+//		return -1/delta/delta;
+//	};
+//	double dphi0_dTau(double tau, double delta)
+//	{
+//		double M[] = {-31.5949936, 75.91710847, -86.62292559, 53.06122035, -12.98320078};
+//		return M[1] + 2*M[2]*tau + 3*M[3]*tau*tau + 4*M[4]*tau*tau*tau;
+//	};
+//	double d2phi0_dTau2(double tau, double delta)
+//	{
+//		double M[] = {-31.5949936, 75.91710847, -86.62292559, 53.06122035, -12.98320078};
+//		return 2*M[2] + 6*M[3]*tau + 12*M[4]*tau*tau;
+//	};
+//	double d2phi0_dDelta_dTau(double tau, double delta)
+//	{
+//		return 0;
+//	};
+//
+//};
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -187,21 +187,48 @@ using namespace std;
 // Creates the variable CAS_values as a JSON formatted string
 #include "../CoolProp/CAS_values.h"
 
+static char JSON_string[] = "";
+
+double JSON_lookup_double(std::string FluidName, std::string key)
+{
+	rapidjson::Document d;
+	d.Parse<0>(JSON_string);
+
+	if (d.HasMember(FluidName.c_str()) && d[FluidName.c_str()].IsDouble())
+	{
+		return d[FluidName.c_str()].GetDouble();
+	}
+	else
+	{
+		return _HUGE;
+	}
+}
+
+std::string JSON_lookup_string(std::string FluidName, std::string key)
+{
+	rapidjson::Document d;
+	d.Parse<0>(JSON_string);
+
+	if (d.HasMember(FluidName.c_str()) && d[FluidName.c_str()].IsString())
+	{
+		return d[FluidName.c_str()].GetString();
+	}
+	else
+	{
+		return "";
+	}
+}
+
+
+
 std::string CAS_lookup(std::string FluidName)
 {
 	rapidjson::Document d;
 	d.Parse<0>(CAS_values);
 
-	if (d.HasMember(FluidName.c_str()))
+	if (d.HasMember(FluidName.c_str()) && d[FluidName.c_str()].IsString())
 	{
-		if (d[FluidName.c_str()].IsString())
-		{
-			return d[FluidName.c_str()].GetString();
-		}
-		else
-		{
-			return "";
-		}
+		return d[FluidName.c_str()].GetString();
 	}
 	else
 	{
@@ -311,79 +338,42 @@ void rebuild_CriticalSplineConstants_T()
 				continue;
 			}
 		}
+		bool valid = false;
 		
-		try{
-			for (double b = good; b>0; b -= 0.5)
+		for (double step = 0.5; step > 1e-10; step /= 100.0)
+		{
+			valid = true;
+			for (double b = good; b>0; b -= step)
 			{
-				CPS.update(iT,Tc-b,iQ,1);
-				rhoV = CPS.rhoV(); rhoL = CPS.rhoL();
-				drhodTV = CPS.drhodT_along_sat_vapor();
-				drhodTL = CPS.drhodT_along_sat_liquid();
-				if (!ValidNumber(drhodTV) || !ValidNumber(drhodTL) || drhodTV*drhodTL > 0){throw ValueError();}
-				good = b;
+				try{
+					CPS.update(iT, Tc - b, iQ, 1);
+					rhoV = CPS.rhoV(); rhoL = CPS.rhoL();
+					drhodTV = CPS.drhodT_along_sat_vapor();
+					drhodTL = CPS.drhodT_along_sat_liquid();
+				}
+				catch(std::exception){ 
+					valid = false; 
+					break;
+				}
+				if (!ValidNumber(drhodTV) || !ValidNumber(drhodTL) || drhodTV*drhodTL > 0){
+					std::cout << format("%0.20g",good) << std::endl;
+					valid = false; 
+					break;
+				}
+				else
+				{
+					good = b;
+				}
 			}
-			for (double b = good; b>0; b -= 0.01)
-			{
-				CPS.update(iT,Tc-b,iQ,1);
-				rhoV = CPS.rhoV(); rhoL = CPS.rhoL();
-				drhodTV = CPS.drhodT_along_sat_vapor();
-				drhodTL = CPS.drhodT_along_sat_liquid();
-				if (!ValidNumber(drhodTV) || !ValidNumber(drhodTL) || drhodTV*drhodTL > 0){throw ValueError();}
-				good = b;
-			}
-			for (double b = good; b>0; b -= 0.001)
-			{
-				CPS.update(iT,Tc-b,iQ,1);
-				rhoV = CPS.rhoV(); rhoL = CPS.rhoL();
-				drhodTV = CPS.drhodT_along_sat_vapor();
-				drhodTL = CPS.drhodT_along_sat_liquid();
-				if (!ValidNumber(drhodTV) || !ValidNumber(drhodTL) || drhodTV*drhodTL > 0){throw ValueError();}
-				good = b;
-			}
-			for (double b = good; b>0; b -= 0.0001)
-			{
-				CPS.update(iT,Tc-b,iQ,1);
-				rhoV = CPS.rhoV(); rhoL = CPS.rhoL();
-				drhodTV = CPS.drhodT_along_sat_vapor(); 
-				drhodTL = CPS.drhodT_along_sat_liquid();
-				if (!ValidNumber(drhodTV) || !ValidNumber(drhodTL) || drhodTV*drhodTL > 0){throw ValueError();}
-				good = b;
-			}
-			for (double b = good; b>0; b -= 0.000001)
-			{
-				CPS.update(iT,Tc-b,iQ,1);
-				rhoV = CPS.rhoV(); rhoL = CPS.rhoL();
-				drhodTV = CPS.drhodT_along_sat_vapor(); 
-				drhodTL = CPS.drhodT_along_sat_liquid();
-				if (!ValidNumber(drhodTV) || !ValidNumber(drhodTL) || drhodTV*drhodTL > 0){throw ValueError();}
-				good = b;
-			}
-			for (double b = good; b>0; b -= 0.00000001)
-			{
-				CPS.update(iT,Tc-b,iQ,1);
-				rhoV = CPS.rhoV(); rhoL = CPS.rhoL();
-				drhodTV = CPS.drhodT_along_sat_vapor(); 
-				drhodTL = CPS.drhodT_along_sat_liquid();
-				if (!ValidNumber(drhodTV) || !ValidNumber(drhodTL) || drhodTV*drhodTL > 0){throw ValueError();}
-				good = b;
-			}
-			for (double b = good; b>0; b -= 0.0000000001)
-			{
-				CPS.update(iT,Tc-b,iQ,1);
-				rhoV = CPS.rhoV(); rhoL = CPS.rhoL();
-				drhodTV = CPS.drhodT_along_sat_vapor(); 
-				drhodTL = CPS.drhodT_along_sat_liquid();
-				if (!ValidNumber(drhodTV) || !ValidNumber(drhodTL) || drhodTV*drhodTL > 0){throw ValueError();}
-				good = b;
+			if (!valid){
+				break;
 			}
 		}
-		catch(std::exception){
-		}
-		std::cout << good << " " << drhodTL << " " << ValidNumber(drhodTL) << std::endl;
-		CPS.update(iT,Tc-good,iQ,1);
-		rhoV = CPS.rhoV(); rhoL = CPS.rhoL();
-		drhodTV = CPS.drhodT_along_sat_vapor(); 
-		drhodTL = CPS.drhodT_along_sat_liquid();
+		CoolPropStateClass CPS2 = CoolPropStateClass(fluid_names[i]);
+		CPS2.update(iT,Tc-good,iQ,1.0);
+		rhoV = CPS2.rhoV(); rhoL = CPS2.rhoL();
+		drhodTV = CPS2.drhodT_along_sat_vapor(); 
+		drhodTL = CPS2.drhodT_along_sat_liquid();
 		fprintf(fp,"\tstd::make_pair(std::string(\"%s\"),CriticalSplineStruct_T(%0.12e,%0.12e,%0.12e,%0.12e,%0.12e) ),\n",fluid_names[i].c_str(),Tc-good,rhoL,rhoV,drhodTL,drhodTV);
 	}
 	fclose(fp);
@@ -455,6 +445,7 @@ FluidsContainer::FluidsContainer()
 	FluidsList.push_back(new R14Class());
 	FluidsList.push_back(new R12Class());
 	FluidsList.push_back(new R113Class());
+	FluidsList.push_back(new R1234zeZClass());
 
 	// The industrial fluids
 	FluidsList.push_back(new R245faClass());
@@ -531,7 +522,7 @@ FluidsContainer::FluidsContainer()
 	FluidsList.push_back(new R507AClass());
 
 	// The gas-only EOS
-	FluidsList.push_back(new R290Gas());
+	//FluidsList.push_back(new R290Gas());
 
 	
 
@@ -996,8 +987,73 @@ double Fluid::density_Tp_Soave(double T, double p, int iValue)
 		if (ValidNumber(p2) && fabs(p2-p) < min_error){min_error = fabs(p2-p); rho = rho2;}
 		if (ValidNumber(p3) && fabs(p3-p) < min_error){min_error = fabs(p3-p); rho = rho3;}
 		
+		if (iValue > -1)
+		{
+			if (iValue == 0)
+			{
+				return rho1;
+			}
+			else if (iValue == 1)
+			{
+				return rho3;
+			}
+		}
 		return rho;
 	}
+}
+
+double Fluid::density_Tp_PengRobinson(double T, double p, int solution)
+{
+	double A, B, m, a, b, Z, rhobar;
+
+	double Rbar = 8.314472;
+
+	b = 0.077796074*(Rbar*reduce.T)/(reduce.p)*1000;
+	B = 0.077796074*p/reduce.p*reduce.T/T;
+
+	m = 0.37464 + 1.54226*params.accentricfactor-0.26992*pow(params.accentricfactor,2);
+	a = 0.45724*pow(Rbar*reduce.T,2)/reduce.p*pow(1+m*(1-sqrt(T/reduce.T)),2)*1000;
+	A = a*p/(Rbar*Rbar*T*T)/1000;
+
+	std::vector<double> solns = solve_cubic(1, -1+B, A-3*B*B-2*B, -A*B+B*B+B*B*B);
+
+	// Erase negative solutions and unstable solutions
+	// Stable solutions are those for which dpdrho is positive
+	for (int i = (int)solns.size()-1; i >= 0; i--)
+	{
+		if (solns[i] < 0)
+		{
+			solns.erase(solns.begin()+i);
+		}
+		else
+		{
+			double v = (solns[i]*Rbar*T)/p; //[mol/L]
+			double dpdrho = -v*v*(-Rbar*T/pow(v-b,2)+a*(2*v+2*b)/pow(v*v+2*b*v-b*b,2));
+			if (dpdrho < 0)
+			{
+				solns.erase(solns.begin()+i);
+			}
+		}
+	}
+
+	if (solution == 0)
+	{
+		Z = *std::min_element(solns.begin(), solns.end());
+	}
+	else if (solution == 1)
+	{
+		Z = *std::max_element(solns.begin(), solns.end());
+	}
+	else 
+	{
+		throw ValueError();
+	}
+
+	rhobar = p/(Z*Rbar*T); //[mol/L]
+	double vbar = 1/rhobar;
+	double p_check = Rbar*T/(vbar-b)-a/(vbar*vbar+2*b*vbar-b*b);
+
+	return rhobar*params.molemass;
 }
 
 /*!
@@ -1189,7 +1245,7 @@ void Fluid::saturation_s(double s, int Q, double *Tsatout, double *rhoout)
 
 void Fluid::saturation_T(double T, bool UseLUT, double *psatLout, double *psatVout, double *rhosatLout, double *rhosatVout)
 {
-	double rhoL, rhoV, p;
+	double p;
 	if (debug()>5){
 		std::cout<<format("%s:%d: Fluid::saturation_T(%g,%d) \n",__FILE__,__LINE__,T,UseLUT).c_str();
 	}
@@ -1228,7 +1284,7 @@ void Fluid::saturation_T(double T, bool UseLUT, double *psatLout, double *psatVo
 				}
 				catch (std::exception){
 
-					rhosatPure_Brent(T,&rhoL,&rhoV,&p);
+					rhosatPure_Brent(T,rhosatLout,rhosatVout,&p);
 					*psatLout = p;
 					*psatVout = p;
 				
@@ -1349,6 +1405,7 @@ void Fluid::rhosatPure_Akasaka(double T, double *rhoLout, double *rhoVout, doubl
 	{
 		rhoL=rhosatL(T);
 		rhoV=rhosatV(T);
+
 		deltaL = rhoL/reduce.rho;
 		deltaV = rhoV/reduce.rho;
 		tau = reduce.T/T;
@@ -1357,9 +1414,12 @@ void Fluid::rhosatPure_Akasaka(double T, double *rhoLout, double *rhoVout, doubl
 	{
 		std::cout << e.what() << "Ancillary not provided" << std::endl;
 	}
+	if (debug()>5){
+			std::cout << format("%s:%d: Akasaka guess values deltaL = %g deltaV = %g tau = %g\n",__FILE__,__LINE__,deltaL, deltaV, tau).c_str();
+		}
 
 	do{
-		if (debug()>5){
+		if (debug()>8){
 			std::cout << format("%s:%d: right before the derivs with deltaL = %g deltaV = %g tau = %g\n",__FILE__,__LINE__,deltaL, deltaV, tau).c_str();
 		}
 		// Calculate once to save on calls to EOS
@@ -1406,17 +1466,21 @@ void Fluid::rhosatPure_Akasaka(double T, double *rhoLout, double *rhoVout, doubl
 			throw SolutionError(format("Akasaka solver did not converge after 100 iterations"));
 		}
 	}
-	while (error > 1e-10);
-	*rhoLout = deltaL*reduce.rho;
-	*rhoVout = deltaV*reduce.rho;
-	PL = pressure_Trho(T,*rhoLout);
-	PV = pressure_Trho(T,*rhoVout);
-
+	while (error > 1e-10 || fabs(dP)/PL > 0.01);
+	
+	*pout = 0.5*(PL+PV);
 	if (fabs(PL-PV)/PV > 1e-6 && T<0.5*reduce.T)
 	{
-		throw ValueError("not close enough pressures from Akasaka");
+		// Using the average pressure, re-calculate the densities
+		*rhoLout = density_Tp(T,*pout,deltaL*reduce.rho);
+		*rhoVout = density_Tp(T,*pout,deltaV*reduce.rho);
 	}
-	*pout = 0.5*(PL+PV);
+	else
+	{
+		*rhoLout = deltaL*reduce.rho;
+		*rhoVout = deltaV*reduce.rho;
+	}
+	
 	return;
 }
 void Fluid::rhosatPure(double T, double *rhoLout, double *rhoVout, double *pout)
@@ -1861,8 +1925,8 @@ void Fluid::temperature_ph(double p, double h, double *Tout, double *rhoout, dou
 				T_guess = crit.T+30;
 				h_guess = enthalpy_Trho(T_guess,crit.rho);
 				T_guess = (crit.T-T_guess)/(hc-h_guess)*(h-h_guess)+T_guess;
-				
-				delta = p/(R()*T_guess)/reduce.rho;
+				rho_guess = density_Tp(T_guess,p);
+				delta = rho_guess/reduce.rho;
 			}
 			else
 			{
@@ -1928,9 +1992,12 @@ void Fluid::temperature_ph(double p, double h, double *Tout, double *rhoout, dou
 					// Extrapolate to get new density guess
 					double rho = rhoV+drhodT*(h-hsatV)/cpV;
 					// If the guess is negative for the density, need to make it positive
-					if (rho<0)
-						rho = 0.1;
+					if (rho < 0){
+						rho = rhoV;
+					}
 					delta = rho / reduce.rho;
+					double hcheck = enthalpy_Trho(T_guess,rho);
+					double retre = 0;
 				}
 				else if (h < hsatL - hsat_tol) 
 				{
@@ -2268,6 +2335,9 @@ void Fluid::temperature_hs(double h, double s, double *Tout, double *rhoout, dou
 	double scrit = entropy_Trho(crit.T, crit.rho);
 	double hcrit = enthalpy_Trho(crit.T, crit.rho);
 
+	/// This class is used to match the desired enthalpy/entropy 
+	/// pair by adjusting the saturation temperature until
+	/// the enthalpy/entropy pair is satisfied.
 	class SatFuncClass : public FuncWrapper1D
 	{
 	private:
@@ -2294,10 +2364,34 @@ void Fluid::temperature_hs(double h, double s, double *Tout, double *rhoout, dou
 		};
 	} SatFunc(h, s, this);
 
-	if (SatFunc.call(params.Ttriple)<0){throw ValueError(format("Value for h,s [%g,%g] is solid",h,s));}
+	// Evaluate the function at the minimum temperature which is 
+	// usually the triple point temperature
+	double Ttriple_func = SatFunc.call(limits.Tmin);
+
+	FILE *fp = fopen("rr.txt","w");
+	for (double T = limits.Tmin; T < 300; T += 1)
+	{
+		double f = SatFunc.call(T);
+		fprintf(fp, "%g %g %g\n",T,f,SatFunc.Q);
+	}
+	fclose(fp);
+	
+	// If using the minimum temperature yields the h/s pair, quit
+	if (fabs(Ttriple_func)<DBL_EPSILON*10)
+	{
+		*Tout = limits.Tmin;
+		*rhoout = SatFunc.rho;
+		*rhoLout = SatFunc.rhoL;
+		*rhoVout = SatFunc.rhoV;
+		*TsatLout = *Tout;
+		*TsatVout = *Tout;
+		return;
+	}
+	else if (Ttriple_func < 0){throw ValueError(format("Value for h,s [%g,%g] is solid",h,s));}
 
 	try{
-		*Tout = Brent(&SatFunc,params.Ttriple,reduce.T-1e-5,1e-16,1e-8,100,&errstr);
+		//*Tout = Brent(&SatFunc,limits.Tmin,reduce.T-100,1e-16,1e-8,100,&errstr);
+		*Tout = Secant(&SatFunc,limits.Tmin,1,1e-8,100,&errstr);
 		if (SatFunc.Q >1 || SatFunc.Q < 0){ throw ValueError("Solution must be within the two-phase region"); } 
 		// It is two-phase, we are done, no exceptions were raised
 		*rhoout = SatFunc.rho;

@@ -360,6 +360,8 @@ class Fluid
 		/// @param Q Vapor quality in the range [0,1]
 		double Tsat_anc(double p, double Q);
 
+		double density_Tp_PengRobinson(double T, double p, int solution);
+
 		std::vector<double> ConformalTemperature(Fluid *InterestFluid, Fluid *ReferenceFluid,double T, double rho, double T0, double rho0, std::string *errstring);
 		// Extended corresponding states functions for fluids that do not have their own high-accuracy
 		// transport property implementation

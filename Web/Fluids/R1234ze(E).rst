@@ -1,23 +1,17 @@
 
 ********************
-R13
+R1234ze(E)
 ********************
 
 Aliases
 ================================================================================
-````
+``R1234ZEE``, ``R1234zeE``
 
 Bibliographic Information
 =========================
-**Equation of State**: B. Platzer and A. Polt and G. Maurer, 1990, *Thermophysical Properties of Refrigerants*, Springer-Verlag
+**Equation of State**: Mark O. McLinden and Monika Thol and Eric W. Lemmon, 2010, Thermodynamic Properties of trans-1,3,3,3-tetrafluoropropene [R1234ze(E)]: Measurements of Density and Vapor Pressure and a Comprehensive Equation of State, *International Refrigeration and Air Conditioning Conference at Purdue, July 12-15, 2010*
 
-**Ideal-gas Specific Heat**: B. Platzer and A. Polt and G. Maurer, 1990, *Thermophysical Properties of Refrigerants*, Springer-Verlag
-
-**Surface Tension**: A. Mulero and I. Cachadi\~na and M. I. Parra, 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
-
-**Lennard-Jones Parameters for ECS**: Marcia L. Huber and Arno Laesecke and Richard A. Perkins, 2003, Model for the Viscosity and Thermal Conductivity of Refrigerants, Including a New Correlation for the Viscosity of R134a, *Ind. Eng. Chem. Res.*, 42:3163-3178
-
-**ECS Correction Fit**: Marcia L. Huber and Arno Laesecke and Richard A. Perkins, 2003, Model for the Viscosity and Thermal Conductivity of Refrigerants, Including a New Correlation for the Viscosity of R134a, *Ind. Eng. Chem. Res.*, 42:3163-3178
+**Conductivity**: Richard A. Perkins and Marcia L. Huber, 2011, Measurement and Correlation of the Thermal Conductivity of 2,3,3,3-Tetrafluoroprop-1-ene (R1234yf) and trans-1,3,3,3-Tetrafluoropropene (R1234ze(E)), *Journal of Chemical Engineering Data*, 56:4868-4874
 
 
 
@@ -27,18 +21,18 @@ Fluid Data
 Fluid Parameters
 
 =========================  ==============================
-Mole Mass [kg/kmol]        104.45900
-Triple Point Temp. [K]     92.000
-Triple Point Press. [kPa]  0.0003288
-Minimum temperature [K]    98.150
+Mole Mass [kg/kmol]        114.04159
+Triple Point Temp. [K]     168.620
+Triple Point Press. [kPa]  0.23
+Minimum temperature [K]    168.620
 =========================  ==============================
 
 Critical Parameters
 
 ==============================  ==============================
-Temperature [K]                 302.000
-Density [kg/m\ :sup:`3`\ ]      582.881220
-Pressure [kPa]                  3879.00000
+Temperature [K]                 382.520
+Density [kg/m\ :sup:`3`\ ]      489.238433
+Pressure [kPa]                  3636.25000
 ==============================  ==============================
 
 
@@ -47,8 +41,8 @@ Saturated Vapor Deviations
 
 .. plot::
 
-    Fluid = "R13"
-    RPFluid = "REFPROP-R13"
+    Fluid = "R1234ze(E)"
+    RPFluid = "REFPROP-R1234ZE"
 
     #Saturated Vapor
     from CoolProp.CoolProp import Props
@@ -108,8 +102,8 @@ Saturated Liquid Deviations
 
 .. plot::
 
-    Fluid = "R13"
-    RPFluid = "REFPROP-R13"
+    Fluid = "R1234ze(E)"
+    RPFluid = "REFPROP-R1234ZE"
 
     #Saturated Liquid
     from CoolProp.CoolProp import Props
@@ -168,8 +162,8 @@ Along the critical isotherm where T=T\ :sub:`c`
 ================================================
 .. plot::
 
-    Fluid = "R13"
-    RPFluid = "REFPROP-R13"
+    Fluid = "R1234ze(E)"
+    RPFluid = "REFPROP-R1234ZE"
 
     #Critical isotherm
     from CoolProp.CoolProp import Props
@@ -229,7 +223,7 @@ Check of p,h and p,s as inputs (X: Failure .: Success)
     from matplotlib import pyplot as plt
     import numpy as np
 
-    Ref = "R13"
+    Ref = "R1234ze(E)"
     fig = plt.figure(figsize=(10,5))
     ax1 = fig.add_subplot(121)
     ax2 = fig.add_subplot(122)
@@ -242,8 +236,8 @@ Check of p,h and p,s as inputs (X: Failure .: Success)
     smin = Props('S','T',Tmin,'Q',0,Ref)
     smax = 2*Props('S','T',Props(Ref,'Tcrit')-1,'Q',1,Ref)-smin
 
-    Ph(Ref, axis = ax1, Tmin = Tmin, Tmax = 301.990000)
-    Ps(Ref, axis = ax2, Tmin = Tmin, Tmax = 301.990000)
+    Ph(Ref, axis = ax1, Tmin = Tmin, Tmax = 382.510000)
+    Ps(Ref, axis = ax2, Tmin = Tmin, Tmax = 382.510000)
 
     for p in np.linspace(pmin,pmax,10):
         for h in np.linspace(hmin,hmax):
