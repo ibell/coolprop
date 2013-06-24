@@ -1903,7 +1903,7 @@ void Fluid::temperature_ph(double p, double h, double *Tout, double *rhoout, dou
 	double dar_ddelta,da0_dtau,d2a0_dtau2,dar_dtau,d2ar_ddelta_dtau,d2ar_ddelta2,d2ar_dtau2,d2a0_ddelta_dtau;
 	double f1,f2,df1_dtau,df1_ddelta,df2_ddelta,df2_dtau;
     double rhoL, rhoV, hsatL,hsatV,TsatL,TsatV,tau,delta,worst_error;
-	double h_guess, hc, rho_guess;
+	double h_guess, hc, rho_guess, T1, T2, h1, h2, rho, rho1, rho2, hcheck;
 	double hsat_tol = 0.5;
 	
 	// A starting set of temperature and pressure are provided, use them as the guess value
@@ -1981,23 +1981,24 @@ void Fluid::temperature_ph(double p, double h, double *Tout, double *rhoout, dou
 
 				if (h > hsatV + hsat_tol)
 				{
-					// Using ideal gas cp is a bit faster
-					// Can't use an ancillary since it diverges at the critical point
-					double cpV = specific_heat_p_ideal_Trho(TsatV);
-					//Superheated vapor
-					T_guess = TsatV+(h-hsatV)/cpV;
-					// Volume expansivity at saturated vapor using the ancillaries
-					// Can't use an ancillary since it diverges at the critical point
-					double drhodT = DerivTerms((char *)"drhodT|p",TsatV,rhoV,this);
-					// Extrapolate to get new density guess
-					double rho = rhoV+drhodT*(h-hsatV)/cpV;
-					// If the guess is negative for the density, need to make it positive
-					if (rho < 0){
-						rho = rhoV;
+					// Start at saturated vapor
+					rho1 = rhoV;
+					T1 = TsatV;
+					T2 = 1.1*TsatV;
+					h1 = hsatV;
+					do{
+						rho2 = density_Tp(T2,p,rho1);
+						h2 = enthalpy_Trho(T2,rho2);
+						T2 *= 1.1;
 					}
-					delta = rho / reduce.rho;
-					double hcheck = enthalpy_Trho(T_guess,rho);
-					double retre = 0;
+					while (h2 <= h);
+
+					// Linearly interpolate in each parameter to guess the solution
+					T_guess = (T2-T1)/(h2-h1)*(h-h1)+T1;
+					rho_guess = (rho2-rho1)/(h2-h1)*(h-h1)+rho1;
+
+					// Reduced density
+					delta = rho_guess/reduce.rho;
 				}
 				else if (h < hsatL - hsat_tol) 
 				{
@@ -2033,11 +2034,24 @@ void Fluid::temperature_ph(double p, double h, double *Tout, double *rhoout, dou
 				
 				if (h>hsatV)
 				{
-					T_guess = TsatV+30;
-					h_guess = enthalpy_Trho(T_guess,rhoV);
-					T_guess = (TsatV-T_guess)/(hsatV-h_guess)*(h - h_guess)+T_guess;
-					
-					delta = p/(R()*T_guess)/reduce.rho;
+					// Start at saturated vapor
+					rho1 = rhoV;
+					T1 = TsatV;
+					T2 = 1.1*TsatV;
+					h1 = hsatV;
+					do{
+						rho2 = density_Tp(T2,p,rho1);
+						h2 = enthalpy_Trho(T2,rho2);
+						T2 *= 1.1;
+					}
+					while (h2 <= h);
+
+					// Linearly interpolate in each parameter to guess the solution
+					T_guess = (T2-T1)/(h2-h1)*(h-h1)+T1;
+					rho_guess = (rho2-rho1)/(h2-h1)*(h-h1)+rho1;
+
+					// Reduced density
+					delta = rho_guess/reduce.rho;
 				}
 				else if (h<hsatL)
 				{
