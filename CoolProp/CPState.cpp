@@ -877,6 +877,10 @@ double CoolPropStateClass::keyed_output(long iOutput)
 			return pFluid->crit.p;
 		case iTcrit:
 			return pFluid->crit.T;
+		case iScrit:
+			return pFluid->crit.s;
+		case iHcrit:
+			return pFluid->crit.h;
 		case iTtriple:
 			return pFluid->params.Ttriple;
 		case iPtriple:

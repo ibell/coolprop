@@ -13,8 +13,21 @@
 #include "Helmholtz.h"
 #include "TTSE.h"
 
+#include "rapidjson/rapidjson.h"
+#include "rapidjson/document.h"
+#include "rapidjson/filestream.h"	// wrapper of C stream for prettywriter as output
+#include "rapidjson/prettywriter.h"	// for stringify JSON
+
 class Fluid;
 
+/*! A data structure to hold some information for the enthalpy-entropy solver that can be useful
+*/
+struct HSContainer
+{
+	double hmax,T_hmax,rho_hmax, sV_Tmin;
+	std::vector<double> a_hs_satL;
+	std::vector<int> n_hs_satL;
+};
 struct OtherParameters
 {
 	double molemass, Ttriple, ptriple, accentricfactor, R_u;
@@ -22,7 +35,7 @@ struct OtherParameters
 };
 struct CriticalStruct
 {
-	double rho, T, p, v, rhobar;
+	double rho, T, p, v, h, s, rhobar;
 };
 struct FluidLimits
 {
@@ -126,7 +139,7 @@ class Fluid
 		double ECS_qd; /// The critical qd parameter for the Olchowy-Sengers cross-over term
 		std::string EOSReference; /// A std::string that contains a reference for thermo properties for the fluid
 		std::string TransportReference; /// A std::string that contains a reference for the transport properties of the fluid
-		bool isPure; /// True if it is a pure fluid, false otherqwise
+		bool isPure; /// True if it is a pure fluid, false otherwise
 
 		// The structures that hold onto ancillary data for the fluid
 		AncillaryCurveClass *h_ancillary;
@@ -183,7 +196,7 @@ class Fluid
 		virtual ~Fluid();
 
 		// Some post-loading things happen here
-		void post_load(void);
+		void post_load(rapidjson::Document &JSON);
 
 		// Fluid-specific parameters
 		struct CriticalStruct crit;
@@ -191,8 +204,7 @@ class Fluid
 		struct OtherParameters params;
 		struct CriticalStruct * preduce; /// A pointer to the point that is used to reduce the T and rho for EOS
 		struct CriticalStruct reduce; /// The point that is used to reduce the T and rho for EOS
-
-		
+		struct HSContainer HS; ///< Values for the enthalpy-entropy solver
 
 		//// The TTSE lookup tables
 		TTSETwoPhaseTableClass TTSESatL;
@@ -556,10 +568,12 @@ class Fluid
 	class FluidsContainer
 	{
 	private:
+		rapidjson::Document JSON;
 		std::map<std::string,long> fluid_index_map; ///< maps fluid names to 0-based index
 		std::map<std::string,Fluid*> fluid_name_map; ///< maps fluid names to pointers to the fluid
 		std::vector <Fluid*> FluidsList; ///< A list of pointers to the instances of the fluids
 	public:
+		
 		/// Constructor for the FluidsContainer class
 		/// @see FluidsContainer
 		FluidsContainer();

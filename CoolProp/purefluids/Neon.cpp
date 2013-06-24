@@ -58,6 +58,8 @@ NeonClass::NeonClass()
 	aliases.push_back("neon");
 	REFPROPname.assign("Neon");
 
+	ECSReferenceFluid = "Nitrogen";
+
 	BibTeXKeys.EOS = "Katti-ACE-1986";
 	BibTeXKeys.ECS_LENNARD_JONES = "Poling-BOOK-2001";
 	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
@@ -104,39 +106,4 @@ double NeonClass::rhosatV(double T)
 		summer += N[i]*pow(theta,t[i]);
 	}
 	return reduce.rho*exp(reduce.T/T*summer);
-}
-double NeonClass::viscosity_Trho(double T, double rho)
-{
-	// Use nitrogen as the reference
-	double mu;
-	Fluid * ReferenceFluid = new NitrogenClass();
-	ReferenceFluid->post_load();
-	try{
-		// Calculate the ECS
-		mu = viscosity_ECS_Trho(T, rho, ReferenceFluid);
-		// Delete the reference fluid instance
-		delete ReferenceFluid;
-	}
-	catch(std::exception){
-		if (ReferenceFluid){ delete ReferenceFluid;}
-	}
-	
-	return mu;
-}
-double NeonClass::conductivity_Trho(double T, double rho)
-{
-	// Use nitrogen as the reference
-	double cond;
-	Fluid * ReferenceFluid = new NitrogenClass();
-	ReferenceFluid->post_load();
-	try{
-		// Calculate the ECS
-		cond = conductivity_ECS_Trho(T, rho, ReferenceFluid);
-		// Delete the reference fluid instance
-		delete ReferenceFluid;
-	}
-	catch(std::exception){
-		if (ReferenceFluid){ delete ReferenceFluid;}
-	}
-	return cond;
 }
