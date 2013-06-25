@@ -1,7 +1,9 @@
+import matplotlib,numpy
+
 from CoolProp.Plots import Ph,Ts
 from CoolProp.CoolProp import Props
 from scipy.optimize import newton
-import pylab,numpy as np
+
 
 def SimpleCycle(Ref,Te,Tc,DTsh,DTsc,eta_a,Ts_Ph='Ph',skipPlot=False,axis=None):
     """
@@ -23,10 +25,10 @@ def SimpleCycle(Ref,Te,Tc,DTsh,DTsc,eta_a,Ts_Ph='Ph',skipPlot=False,axis=None):
     * skipPlot : If True, won't actually plot anything, just print COP
     
     """
-    T=np.zeros((6))
-    h=np.zeros_like(T)
-    p=np.zeros_like(T)
-    s=np.zeros_like(T)
+    T=numpy.zeros((6))
+    h=numpy.zeros_like(T)
+    p=numpy.zeros_like(T)
+    s=numpy.zeros_like(T)
     T[1]=Te+DTsh
     pe=Props('P','T',Te,'Q',1.0,Ref)
     pc=Props('P','T',Tc,'Q',1.0,Ref)
@@ -49,7 +51,7 @@ def SimpleCycle(Ref,Te,Tc,DTsh,DTsc,eta_a,Ts_Ph='Ph',skipPlot=False,axis=None):
     h[5]=h[1]
     s[5]=s[1]
     T[5]=T[1]
-    p=[np.nan,pe,pc,pc,pe,pe]
+    p=[numpy.nan,pe,pc,pc,pe,pe]
     COP=(h[1]-h[4])/(h[2]-h[1])
     COPH=(h[2]-h[3])/(h[2]-h[1])
     
@@ -66,7 +68,7 @@ def SimpleCycle(Ref,Te,Tc,DTsh,DTsc,eta_a,Ts_Ph='Ph',skipPlot=False,axis=None):
     print(COP,COPH)
     if skipPlot==False:
         if axis==None:
-            ax=pylab.gca()
+            ax=matplotlib.pyplot.gca()
         if Ts_Ph in ['ph','Ph']:
             ax.plot(h,p)
         elif Ts_Ph in ['Ts','ts']:
@@ -108,13 +110,13 @@ def TwoStage(Ref,Q,Te,Tc,DTsh,DTsc,eta_oi,f_p,Tsat_ic,DTsh_ic,Ts_Ph='Ph',prints=
     
     """
     
-    T=np.zeros((8))
-    h=np.zeros_like(T)
-    p=np.zeros_like(T)
-    s=np.zeros_like(T)
-    rho=np.zeros_like(T)
-    T[0]=np.NAN
-    s[0]=np.NAN
+    T=numpy.zeros((8))
+    h=numpy.zeros_like(T)
+    p=numpy.zeros_like(T)
+    s=numpy.zeros_like(T)
+    rho=numpy.zeros_like(T)
+    T[0]=numpy.NAN
+    s[0]=numpy.NAN
     T[1]=Te+DTsh
     pe=Props('P','T',Te,'Q',1.0,Ref)
     pc=Props('P','T',Tc,'Q',1.0,Ref)
@@ -171,7 +173,7 @@ def TwoStage(Ref,Q,Te,Tc,DTsh,DTsc,eta_oi,f_p,Tsat_ic,DTsh_ic,Ts_Ph='Ph',prints=
     h[7]=h[1]
     s[7]=s[1]
     T[7]=T[1]
-    p=[np.nan,pe,pic,pic,pc,pc,pe,pe]
+    p=[numpy.nan,pe,pic,pic,pc,pc,pe,pe]
     COP=Q/(Wdot1+Wdot2)
     RE=h[1]-h[6]
     
@@ -191,7 +193,7 @@ def TwoStage(Ref,Q,Te,Tc,DTsh,DTsc,eta_oi,f_p,Tsat_ic,DTsh_ic,Ts_Ph='Ph',prints=
     
     if skipPlot==False:
         if axis==None:
-            ax=pylab.gca()
+            ax=matplotlib.pyplot.gca()
         else:
             ax=axis
         if Ts_Ph in ['ph','Ph']:
@@ -247,14 +249,14 @@ def EconomizedCycle(Ref,Qin,Te,Tc,DTsh,DTsc,eta_oi,f_p,Ti,Ts_Ph='Ts',skipPlot=Fa
     
     m=1
     
-    T=np.zeros((11))
-    h=np.zeros_like(T)
-    p=np.zeros_like(T)
-    s=np.zeros_like(T)
-    rho=np.zeros_like(T)
+    T=numpy.zeros((11))
+    h=numpy.zeros_like(T)
+    p=numpy.zeros_like(T)
+    s=numpy.zeros_like(T)
+    rho=numpy.zeros_like(T)
     
-    T[0]=np.NAN
-    s[0]=np.NAN
+    T[0]=numpy.NAN
+    s[0]=numpy.NAN
     T[1]=Te+DTsh
     pe=Props('P','T',Te,'Q',1.0,Ref)
     pc=Props('P','T',Tc,'Q',1.0,Ref)
@@ -343,14 +345,14 @@ def EconomizedCycle(Ref,Qin,Te,Tc,DTsh,DTsc,eta_oi,f_p,Ti,Ts_Ph='Ts',skipPlot=Fa
     Wdot2=(m+x)*wdot2
     if skipPlot==False:
         if axis==None:
-            ax=pylab.gca()
+            ax=matplotlib.pyplot.gca()
         else:
             ax=axis
         if Ts_Ph in ['ph','Ph']:
             ax.plot(h,p)
             ax.set_yscale('log')
         elif Ts_Ph in ['Ts','ts']:
-            ax.plot(np.r_[s[7],s[3]],np.r_[T[7],T[3]],'b')
+            ax.plot(numpy.r_[s[7],s[3]],numpy.r_[T[7],T[3]],'b')
             s_copy=s.copy()
             T_copy=T.copy()
             dT=[0,-5,5,-12,5,12,-12,0,0,0]
@@ -392,30 +394,30 @@ def EconomizedCycle(Ref,Qin,Te,Tc,DTsh,DTsc,eta_oi,f_p,Ti,Ts_Ph='Ts',skipPlot=Fa
 if __name__=='__main__':
     
     Ref='R290'
-    fig=pylab.figure(figsize=(4,3))
+    fig=matplotlib.pyplot.figure(figsize=(4,3))
     ax=fig.add_axes((0.15,0.15,0.8,0.8))
     Ph(Ref,Tmin=273.15-30,hbounds=[0,600],axis=ax)
     COP=TwoStage('Propane',10000,273.15-5,273.15+43.3,5,7,0.7,0.3,15+273.15,3,prints = True)
-    pylab.show()
+    matplotlib.pyplot.show()
     
     Ref='R290'
-    fig=pylab.figure(figsize=(4,3))
+    fig=matplotlib.pyplot.figure(figsize=(4,3))
     ax=fig.add_axes((0.15,0.15,0.8,0.8))
     Ph(Ref,Tmin=273.15-30,hbounds=[0,600],axis=ax)
     COP=SimpleCycle(Ref,273.15-5,273.15+45,5,7,0.7,Ts_Ph='Ph')
-    pylab.show()
+    matplotlib.pyplot.show()
     
     Ref='R410A'
-    fig=pylab.figure(figsize=(4,3))
+    fig=matplotlib.pyplot.figure(figsize=(4,3))
     ax=fig.add_axes((0.15,0.15,0.8,0.8))
     Ts(Ref,Tmin=273.15-100,sbounds=[0,600],axis=ax)
     COP=SimpleCycle(Ref,273.15-5,273.15+45,5,7,0.7,Ts_Ph='Ts')
-    pylab.show()    
+    matplotlib.pyplot.show()    
     
     
     
     
-##     for x in np.linspace(0,1):
+##     for x in numpy.linspace(0,1):
 ##         Ref='REFPROP-MIX:R152A[%g]&R32[%g]' %(x,1-x)
 ##         COP=SimpleCycle(273.15+8,273.15+44,5,7,0.7,skipPlot=True,Ts_Ph='Ph')
-##     pylab.show()
+##     matplotlib.pyplot.show()

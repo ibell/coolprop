@@ -1,14 +1,13 @@
 
-import numpy as np
-import matplotlib.pyplot as plt
+import numpy, matplotlib
 from CoolProp.HumidAirProp import HAProps
 from CoolProp.Plots.Plots import InlineLabel 
 
 p = 101.325
-Tdb = np.linspace(-10,60,100)+273.15
+Tdb = numpy.linspace(-10,60,100)+273.15
 
 #Make the figure and the axes
-fig=plt.figure(figsize=(10,8))
+fig=matplotlib.pyplot.figure(figsize=(10,8))
 ax=fig.add_axes((0.1,0.1,0.85,0.85))
 
 # Saturation line
@@ -28,7 +27,7 @@ for H in [-20, -10, 0, 10, 20, 30, 40, 50, 60, 70, 80, 90]:
     T0 = HAProps('T','H',H,'P',p,'R',0.0)-273.15
     w1 = HAProps('W','H',H,'P',p,'R',1.0)
     w0 = HAProps('W','H',H,'P',p,'R',0.0)
-    ax.plot(np.r_[T1,T0],np.r_[w1,w0],'r',lw=1)
+    ax.plot(numpy.r_[T1,T0],numpy.r_[w1,w0],'r',lw=1)
 
 ax.set_xlim(Tdb[0]-273.15,Tdb[-1]-273.15)
 ax.set_ylim(0,0.03)
@@ -44,4 +43,4 @@ for RH in [0.05, 0.1, 0.15, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]:
     bbox_opts = dict(boxstyle='square,pad=0.0',fc='white',ec='None',alpha = 0.5)
     ax.text(T_K-273.15,w,string,rotation = rot,ha ='center',va='center',bbox=bbox_opts)
 
-plt.show()
+matplotlib.pyplot.show()
