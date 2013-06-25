@@ -2308,7 +2308,7 @@ void Fluid::temperature_ps(double p, double s, double *Tout, double *rhoout, dou
 class HSSatFuncClass : public FuncWrapper1D
 {
 private:
-	double h, s;
+	double h, s, r;
 	Fluid * pFluid;
 public:
 	double rho,pL,pV,rhoL,rhoV,hL,hV,sL,sV,Q;
@@ -2324,7 +2324,7 @@ public:
 		hV = pFluid->enthalpy_Trho(T,rhoV);
 		sL = pFluid->entropy_Trho(T,rhoL);
 		sV = pFluid->entropy_Trho(T,rhoV);
-		double r = (this->h-hL)/(hV-hL)-(this->s-sL)/(sV-sL);
+		r = (this->h-hL)/(hV-hL)-(this->s-sL)/(sV-sL);
 		Q = (this->s-sL)/(sV-sL);
 		rho = 1/(Q/rhoV+(1-Q)/rhoL);
 		return r;
@@ -2515,13 +2515,13 @@ void Fluid::temperature_hs(double h, double s, double *Tout, double *rhoout, dou
 		}
 	}
 	// Branch #4 Triangle formed by sv_Tmin, crit.s and triple point h-s line
-	else if (s < HS.sV_Tmin && h > htriple_s)
+	else if (s < HS.sV_Tmin && h >= htriple_s)
 	{
 		double Tsat, rhosat, Tmax;
 		if ( HS.hV_Tmin < crit.h)
 		{
-			// Get the saturated vapor state for the given enthalpy
-			this->saturation_h(h, limits.Tmin, HS.T_hmax, 0, &Tsat, &rhosat);
+			// Get the saturated vapor state for the given entropy
+			this->saturation_s(s, 1, &Tsat, &rhosat);
 			Tmax = Tsat;
 		}
 		else
@@ -2531,8 +2531,10 @@ void Fluid::temperature_hs(double h, double s, double *Tout, double *rhoout, dou
 		// First check for two-phase
 		HSSatFuncClass SatFunc(h,s,this);
 		try{
-			*Tout = Brent(&SatFunc, limits.Tmin, Tmax, 1e-16, 1e-8, 100, &errstr);
-			if (SatFunc.Q >1 || SatFunc.Q < 0){ throw ValueError("Solution must be within the two-phase region"); } 
+			*Tout = Brent(&SatFunc, limits.Tmin, Tmax, 1e-16, 1e-12, 100, &errstr);
+			if (SatFunc.Q > 1 + 1e-10 || SatFunc.Q-1e-10 < 0){ 
+				throw ValueError("Solution must be within the two-phase region"); 
+			} 
 			// It is two-phase, we are done, no exceptions were raised
 			*rhoout = SatFunc.rho;
 			*rhoLout = SatFunc.rhoL;
