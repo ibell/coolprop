@@ -1123,7 +1123,7 @@ void Fluid::saturation_s(double s, int Q, double *Tsatout, double *rhoout)
 		else
 		{
 			std::string errstr;
-			*Tsatout = Brent(&SatFunc,params.Ttriple,crit.T,1e-16,1e-8,100,&errstr);
+			*Tsatout = Brent(&SatFunc,limits.Tmin,crit.T,1e-16,1e-8,100,&errstr);
 			*rhoout = SatFunc.rho;
 		}
 	}
@@ -1219,7 +1219,7 @@ void Fluid::saturation_T(double T, bool UseLUT, double *psatLout, double *psatVo
 		std::cout<<format("%s:%d: Fluid::saturation_T(%g,%d) \n",__FILE__,__LINE__,T,UseLUT).c_str();
 	}
 	if (T < limits.Tmin){ throw ValueError(format("Your temperature to saturation_T [%g K] is below the minimum temp [%g K]",T,limits.Tmin));} 
-	if (isPure==true)
+	if (isPure==true) 
 	{
 		if (enabled_TTSE_LUT)
 		{
@@ -2337,7 +2337,7 @@ void Fluid::temperature_hs(double h, double s, double *Tout, double *rhoout, dou
 	double A[2][2], B[2][2], T_guess;
 	double dar_ddelta,da0_dtau,d2a0_dtau2,dar_dtau,d2ar_ddelta_dtau,d2ar_ddelta2,d2ar_dtau2,d2a0_ddelta_dtau,a0,ar,da0_ddelta;
 	double f1,f2,df1_dtau,df1_ddelta,df2_ddelta,df2_dtau;
-    double tau,delta,worst_error,rho_guess, hL, hsat, ssat, htriple_s;
+    double tau,delta,worst_error,rho_guess, hsat, ssat, htriple_s;
 	double ssat_tol = 0.1;
 	std::string errstr;
 
@@ -2345,10 +2345,35 @@ void Fluid::temperature_hs(double h, double s, double *Tout, double *rhoout, dou
 	// Might not be in the two-phase region
 	htriple_s = (HS.hV_Tmin-HS.hL_Tmin)/(HS.sV_Tmin-HS.sL_Tmin)*(s-HS.sL_Tmin)+HS.hL_Tmin;
 
+	// If above the critical enthalpy, no need to do any saturation calls, just determine 
+	// your state using interval bisection on the pressure using the p-h code (slow)
+	if (h > HS.hmax)
+	{
+		int iter = 0;
+		double logpL, logpR, logpM, TM,rhoM,dummy, sM;
+		logpL = log(1e-10);
+		logpR = log(100*crit.p);
+		
+		do
+		{
+			logpM = (logpL + logpR)/2;
+			temperature_ph(exp(logpM),h,&TM,&rhoM,&dummy,&dummy,&dummy,&dummy);
+			sM = entropy_Trho(TM,rhoM);
+			if (sM < s) 
+				{logpR = logpM;} // Keep the left half of the domain
+			else
+				{logpL = logpM;}// Keep the right half of the domain
+			iter += 1;
+		}
+		while (iter < 10);
+
+		rho_guess = rhoM;
+		T_guess = TM;
+	}
 	// Branch #1
 	// In the range between sL_Tmin and crit.s it is possible that there is a two-phase 
 	// solution, a liquid solution, a vapor solution or perhaps a solid solution (not allowed)
-	if (s < crit.s && s > HS.sL_Tmin)
+	else if (s < crit.s && s > HS.sL_Tmin)
 	{
 		double Tsat,rhosat;
 		// Get the saturated liquid state for the given entropy
@@ -2413,8 +2438,27 @@ void Fluid::temperature_hs(double h, double s, double *Tout, double *rhoout, dou
 		}
 		else // It's subcooled liquid
 		{
-			rho_guess = rhosat;
-			T_guess = Tsat;
+			int iter = 0;
+			double logpL, logpR, logpM,TM,rhoM,dummy, sM;
+			
+			logpL = log(pressure_Trho(Tsat,rhosat));
+			logpR = log(10*crit.p);
+			
+			do
+			{
+				logpM = (logpL + logpR)/2;
+				temperature_ph(exp(logpM),h,&TM,&rhoM,&dummy,&dummy,&dummy,&dummy);
+				sM = entropy_Trho(TM,rhoM);
+				if (sM < s) 
+					{logpR = logpM;} // Keep the left half of the domain
+				else
+					{logpL = logpM;}// Keep the right half of the domain
+				iter += 1;
+			}
+			while (iter < 10);
+
+			rho_guess = rhoM;
+			T_guess = TM;
 		}
 	}
 	// Branch #3 between hmax and the triple point along the vapor curve
@@ -2448,20 +2492,46 @@ void Fluid::temperature_hs(double h, double s, double *Tout, double *rhoout, dou
 		}
 		else // It's superheated vapor
 		{
-			rho_guess = rhosat;
-			T_guess = Tsat;
+			int iter = 0;
+			double logpL, logpR, logpM, TM,rhoM,dummy,sM;
+			logpL = log(1e-10);
+			logpR = log(pressure_Trho(Tsat,rhosat));
+			
+			do
+			{
+				logpM = (logpL + logpR)/2;
+				temperature_ph(exp(logpM),h,&TM,&rhoM,&dummy,&dummy,&dummy,&dummy);
+				sM = entropy_Trho(TM,rhoM);
+				if (sM < s) 
+					{logpR = logpM;} // Keep the left half of the domain
+				else
+					{logpL = logpM;}// Keep the right half of the domain
+				iter += 1;
+			}
+			while (iter < 10);
+
+			rho_guess = rhoM;
+			T_guess = TM;
 		}
 	}
 	// Branch #4 Triangle formed by sv_Tmin, crit.s and triple point h-s line
 	else if (s < HS.sV_Tmin && h > htriple_s)
 	{
-		double Tsat,rhosat;
-		// Get the saturated vapor state for the given enthalpy
-		this->saturation_h(h, limits.Tmin, HS.T_hmax, 0, &Tsat, &rhosat);
+		double Tsat, rhosat, Tmax;
+		if ( HS.hV_Tmin < crit.h)
+		{
+			// Get the saturated vapor state for the given enthalpy
+			this->saturation_h(h, limits.Tmin, HS.T_hmax, 0, &Tsat, &rhosat);
+			Tmax = Tsat;
+		}
+		else
+		{
+			Tmax = crit.T;
+		}
 		// First check for two-phase
 		HSSatFuncClass SatFunc(h,s,this);
 		try{
-			*Tout = Brent(&SatFunc, limits.Tmin, Tsat, 1e-16, 1e-8, 100, &errstr);
+			*Tout = Brent(&SatFunc, limits.Tmin, Tmax, 1e-16, 1e-8, 100, &errstr);
 			if (SatFunc.Q >1 || SatFunc.Q < 0){ throw ValueError("Solution must be within the two-phase region"); } 
 			// It is two-phase, we are done, no exceptions were raised
 			*rhoout = SatFunc.rho;

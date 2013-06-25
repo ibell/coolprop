@@ -1,1 +1,1 @@
-long svnrevision = 606;
+long svnrevision = 610;
