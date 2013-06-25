@@ -192,6 +192,7 @@ cdef extern from "CoolProp.h":
     long _get_param_index "get_param_index" (string param)
     string _get_index_units "get_index_units" (long index)
     string _get_ASHRAE34 "get_ASHRAE34"(string Fluid)
+    string _get_CAS_code "get_CAS_code"(string Fluid)
     char * get_errstringc()
     
     #Ancillary equations
@@ -275,6 +276,7 @@ cdef class State:
     cpdef double get_cv(self) except *
     cpdef double get_MM(self) except *
     cpdef double get_dpdT(self) except *
+    cpdef double get_speed_sound(self) except *
     cpdef get_Tsat(self, double Q = *)
     cpdef get_subcooling(self)
     cpdef get_superheat(self)

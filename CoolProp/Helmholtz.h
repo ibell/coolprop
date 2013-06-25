@@ -4,6 +4,8 @@
 #include <iostream>
 #include <vector>
 #include "math.h"
+#include "CoolPropTools.h"
+#include "CPExceptions.h"
 
 #ifdef __ISWINDOWS__
 	#define _USE_MATH_DEFINES
@@ -92,6 +94,8 @@ private:
 						l; ///< The powers for delta in the exp terms
 	unsigned int iStart,iEnd;
 public:
+	// Default Constructor
+	phir_power(){};
 	// Constructors
 	phir_power(std::vector<double>,std::vector<double>,std::vector<double>,int,int);
 	phir_power(std::vector<double>,std::vector<double>,std::vector<double>,std::vector<double>,int,int);
@@ -211,6 +215,8 @@ private:
 	std::vector<double> n,d,t,alpha,epsilon,beta,gamma;
 	unsigned int iStart,iEnd;
 public:
+	// Default Constructor
+	phir_gaussian(){};
 	// Constructors
 	phir_gaussian(std::vector<double> a_in, 
 				  std::vector<double> d_in,
@@ -254,6 +260,68 @@ public:
 	double dDelta_dTau2(double tau, double delta) throw();
 	double dTau3(double tau, double delta) throw();
 	
+};
+
+/*!
+The Gaussian term from the GERG mixture
+\f[
+\phi_r = a \delta ^d \tau^t \exp(-\eta(\delta-\epsilon)^2-\beta(\delta-\gamma))
+\f]
+
+*/
+class phir_GERG_gaussian : public phi_BC{
+private:
+	std::vector<double> n,d,t,eta,epsilon,beta,gamma;
+	unsigned int iStart,iEnd;
+public:
+	// Default Constructor
+	phir_GERG_gaussian(){};
+	// Constructors
+	phir_GERG_gaussian(std::vector<double> a_in, 
+				  std::vector<double> d_in,
+				  std::vector<double> t_in, 
+				  std::vector<double> eta_in, 
+				  std::vector<double> epsilon_in, 
+				  std::vector<double> beta_in, 
+				  std::vector<double> gamma_in,
+		unsigned int iStart_in, unsigned int iEnd_in);
+	phir_GERG_gaussian(double a_in[], 
+				  double d_in[],
+				  double t_in[], 
+				  double eta_in[], 
+				  double epsilon_in[], 
+				  double beta_in[], 
+				  double gamma_in[],
+					unsigned int iStart_in, 
+					unsigned int iEnd_in, 
+					unsigned int N);
+	phir_GERG_gaussian(const double a_in[],	
+						const double d_in[],
+						const double t_in[], 
+						const double eta_in[], 
+						const double epsilon_in[], 
+						const double beta_in[], 
+						const double gamma_in[],
+						unsigned int iStart_in, 
+						unsigned int iEnd_in, 
+						unsigned int N);
+
+	// Destructor
+	~phir_GERG_gaussian(){};
+
+	// Term and its derivatives
+	double base(double tau, double delta);
+	double dDelta(double tau, double delta);
+	double dTau(double tau, double delta);
+	
+	double dDelta2(double tau, double delta){throw ValueError();};
+	double dDelta_dTau(double tau, double delta);
+	double dTau2(double tau, double delta);
+	
+	double dDelta3(double tau, double delta){throw ValueError();};
+	double dDelta2_dTau(double tau, double delta){throw ValueError();};
+	double dDelta_dTau2(double tau, double delta){throw ValueError();};
+	double dTau3(double tau, double delta){throw ValueError();};
 };
 
 /*!

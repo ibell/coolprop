@@ -812,7 +812,7 @@ private:
 	double _T,_p,_W,LHS,v_bar_w,M_ha;
 public:
 	WetBulbSolver(double T, double p, double psi_w){
-		_T = p;
+		_T = T;
 		_p = p;
 		_W = epsilon*psi_w/(1-psi_w);
 
@@ -860,14 +860,32 @@ public:
         
         M_ha_wb=MM_Water()*psi_wb+(1-psi_wb)*28.966;
         v_bar_wb=MolarVolume(Twb,_p,psi_wb);
-        // Error between target and actual pressure [kJ/kg_da]
-        return LHS-(MolarEnthalpy(Twb,_p,psi_wb,v_bar_wb)*(1+W_s_wb)/M_ha_wb+(_W-W_s_wb)*h_w);
+        double RHS = (MolarEnthalpy(Twb,_p,psi_wb,v_bar_wb)*(1+W_s_wb)/M_ha_wb+(_W-W_s_wb)*h_w);
+		if (!ValidNumber(LHS-RHS)){throw ValueError();}
+        return LHS - RHS;
+	}
+};
+
+class WetBulbTminSolver : public FuncWrapper1D
+{
+public:
+	double p,hair_dry;
+	WetBulbTminSolver(double p, double hair_dry){
+		this->p = p;
+		this->hair_dry = hair_dry;
+	};
+	~WetBulbTminSolver(){};
+	double call(double Ts)
+	{
+		double RHS = HAProps("H","T",Ts,"P",p,"R",1);
+
+		if (!ValidNumber(RHS)){throw ValueError();}
+        return RHS - this->hair_dry;
 	}
 };
 
 double WetbulbTemperature(double T, double p, double psi_w)
 {
-    
     // ------------------------------------------
     // Iteratively find the wetbulb temperature
     // ------------------------------------------
@@ -886,12 +904,16 @@ double WetbulbTemperature(double T, double p, double psi_w)
 	}
 
 	// Instantiate the solver container class
-	WetBulbSolver WBS = WetBulbSolver(T,p,psi_w);
+	WetBulbSolver WBS(T,p,psi_w);
 
 	std::string errstr;
+	
 	double return_val;
 	try{
 		return_val = Secant(&WBS,Tmax,0.0001,1e-8,50,&errstr);
+		
+		// Solution obtained is out of range (T>Tmax)
+		if (return_val > Tmax) {throw ValueError();}
 	}
 	catch(std::exception)
 	{
@@ -899,9 +921,11 @@ double WetbulbTemperature(double T, double p, double psi_w)
 		// is the saturated air temperature which yields the enthalpy of dry air at dry bulb temperature
 
 		double hair_dry = MassEnthalpy(T,p,0);
-		double Tmin = HAProps("T","H",hair_dry,"P",p,"R",1);
 
-		// Need to allow the +0.1 for Tmax because Tmax can be the solution if saturated
+		// Directly solve for the saturated temperature that yields the enthalpy desired
+		WetBulbTminSolver WBTS(p,hair_dry);
+		double Tmin = Brent(&WBTS,210,Tsat-1,1e-12,1e-12,50,&errstr);
+
 		return_val = Brent(&WBS,Tmin,Tmax,1e-12,1e-12,50,&errstr);
 	}
 	return return_val;	
@@ -1110,7 +1134,6 @@ EXPORT_CODE double CONVENTION HAProps(char *OutputName, char *Input1Name, double
         // Need to iterate to find dry bulb temperature since temperature is not provided
         
         // Pick one input, and alter T to match the other input
-        T_guess=278.15;
         
         // Get the variables and their values that are NOT pressure for simplicity
         // because you know you need pressure as an input and you already have
@@ -1177,11 +1200,26 @@ EXPORT_CODE double CONVENTION HAProps(char *OutputName, char *Input1Name, double
 		double T_min = 210;
 		double T_max = 450;
 
-		// First try to use the secant solver to find T
-        T = Secant_HAProps_T(SecondaryInputName,(char *)"P",p,MainInputName,MainInputValue,SecondaryInputValue,T_guess);
+		T = -1;
 
-		// If that fails, we can fall back to a Brent's method which is more robust but also slower
-		if (!ValidNumber(T) || !(T_min < T && T < T_max) || fabs(HAProps(SecondaryInputName,(char *)"T",T,(char *)"P",p,MainInputName,MainInputValue)-SecondaryInputValue)>1e-6)
+		// First try to use the secant solver to find T at a few different temperatures
+		for (T_guess = 210; T_guess < 450; T_guess += 60)
+		{
+			try{
+				T = Secant_HAProps_T(SecondaryInputName,(char *)"P",p,MainInputName,MainInputValue,SecondaryInputValue,T_guess);
+				if (!ValidNumber(T) || !(T_min < T && T < T_max) || fabs(HAProps(SecondaryInputName,(char *)"T",T,(char *)"P",p,MainInputName,MainInputValue)-SecondaryInputValue)>1e-6)
+				{ 
+					throw ValueError(); 
+				}
+				else
+				{
+					break;
+				}
+			}
+			catch (std::exception){};
+		}
+		
+		if (T < 0) // No solution found using secant
 		{
 			// Use the Brent's method solver to find T
 			T = Brent_HAProps_T(SecondaryInputName,(char *)"P",p,MainInputName,MainInputValue,SecondaryInputValue,T_min,T_max);

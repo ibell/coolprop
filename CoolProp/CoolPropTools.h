@@ -30,10 +30,30 @@
 		#endif
 	#endif
 
+	#if defined(_MSC_VER) || defined(__powerpc__)
+	// Microsoft version of math.h doesn't include acosh or asinh, so we just define them here
+	// Neither does the PPC version
+	static double acosh(double x)
+	{
+ 		return log(x + sqrt(x*x - 1.0) );
+	}
+	static double asinh(double value)
+	{
+		if(value>0){
+			return log(value + sqrt(value * value + 1));
+		}
+		else{
+			return -log(-value + sqrt(value * value + 1));
+		}
+	}
+	#endif
+
 	#include <algorithm> 
 	#include <functional> 
 	#include <cctype>
 	#include <locale>
+	#include <fstream>
+	#include <cerrno>
 
 	/// The following code for the trim functions was taken from http://stackoverflow.com/questions/216823/whats-the-best-way-to-trim-stdstring
 	// trim from start
@@ -50,6 +70,10 @@
 	inline std::string &strstrip(std::string &s) {
 			return strlstrip(strrstrip(s));
 	}
+
+	// Get all the contents of a file and dump into a STL string
+	// Thanks to http://stackoverflow.com/questions/2602013/read-whole-ascii-file-into-c-stdstring
+	std::string get_file_contents(const char *filename);
 
     //missing string printf
     std::string format(const char* fmt, ...);
@@ -68,5 +92,6 @@
 	double CubicInterp( double x0, double x1, double x2, double x3, double f0, double f1, double f2, double f3, double x);
 	bool ValidNumber(double x);
 
+	std::vector<double> solve_cubic(double a, double b, double c, double d);
 
 #endif

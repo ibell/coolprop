@@ -423,6 +423,10 @@ double NitrogenClass::viscosity_dilute(double T)
 	eta0=0.0266958*sqrt(params.molemass*T)/(sigma*sigma*OMEGA); //[Pa-s]
 	return eta0/1e6; //[Pa-s]
 }
+double NitrogenClass::viscosity_residual(double T, double rho)
+{
+	return viscosity_background(T,rho);
+}
 double NitrogenClass::viscosity_background(double T, double rho)
 {
 	double etar, tau, delta;

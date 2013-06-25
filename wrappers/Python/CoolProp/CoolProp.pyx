@@ -220,7 +220,7 @@ cpdef Props(str in1, str in2, in3 = None, in4 = None, in5 = None, in6 = None, in
     ``S``                       Entropy [kJ/kg/K]
     ``A``                       Speed of sound [m/s]
     ``G``                       Gibbs function [kJ/kg]
-    ``V``                       Viscosity [Pa-s]
+    ``V``                       Dynamic viscosity [Pa-s]
     ``L``                       Thermal conductivity [kW/m/K]
     ``I`` or `SurfaceTension`   Surface Tension [N/m]
     ``w`` or `accentric`        Accentric Factor [-]
@@ -374,7 +374,20 @@ cpdef Props(str in1, str in2, in3 = None, in4 = None, in5 = None, in6 = None, in
             except TypeError:   
                 raise TypeError('Numerical inputs to Props must be ints, floats, lists, or 1D numpy arrays.')
         
-    
+
+def DerivTermsU(in1, T, rho, fluid, units = None):
+    """Make the DerivTerms function handle different kinds of unit sets. Use 
+    kSI or SI to identify your desired unit system. Both input and output 
+    values have to be from the same unit set.  
+    """
+    if units is None or units == 'kSI':
+        return DerivTermsU(in1, T, rho, fluid)
+    else:
+        msg = 'Your requested unit set '+str(in7)+' is not supported, valid unit definitions are kSI and SI only.'
+        msg = 'Sorry, unit selection is not implemented for this function.'
+        #print msg
+        raise ValueError(msg)
+   
 cpdef double DerivTerms(bytes_or_str Output, double T, double rho, bytes_or_str Fluid):
     """
 

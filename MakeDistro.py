@@ -187,6 +187,29 @@ def UploadDocs():
     print 'Calling: '+' '.join(call_str)
     print subprocess.check_output(call_str, shell = True)
     
+def Superpacks():
+    
+    subprocess.check_call(['svn','export','.','sources'])
+    subprocess.check_call(['7z','a','-r','dist_temp/sources.zip','sources/*.*'])
+    shutil.rmtree('sources',ignore_errors= True)
+    
+    ## Windows superpack
+    try:
+        os.mkdir(os.path.join('dist_temp','windows_superpack'))
+    except WindowsError:
+        pass
+    shutil.copy2(os.path.join('dist_temp','sources.zip'),os.path.join('dist_temp','windows_superpack','sources.zip'))
+    shutil.copytree(os.path.join('dist_temp','Excel and DLL'), os.path.join('dist_temp','windows_superpack','Excel and DLL'))
+    shutil.copytree(os.path.join('dist_temp','Python'), os.path.join('dist_temp','windows_superpack','Python'))
+    shutil.copytree(os.path.join('dist_temp','C#'), os.path.join('dist_temp','windows_superpack','C#'))
+    shutil.copytree(os.path.join('dist_temp','Octave'), os.path.join('dist_temp','windows_superpack','Octave'))
+    shutil.copytree(os.path.join('dist_temp','MATLAB'), os.path.join('dist_temp','windows_superpack','MATLAB'))
+    shutil.copytree(os.path.join('dist_temp','EES'), os.path.join('dist_temp','windows_superpack','EES'))
+    shutil.copytree(os.path.join('dist_temp','Labview'), os.path.join('dist_temp','windows_superpack','Labview'))
+    shutil.copytree(os.path.join('dist_temp','Modelica'), os.path.join('dist_temp','windows_superpack','Modelica'))
+    
+    subprocess.check_call(['7z','a','-r','dist_temp/windows_superpack.zip','dist_temp/windows_superpack/*.*'])
+    
 if __name__=='__main__':
     
 ##     InstallPrereqs()  #This is optional if you think any of the pre-reqs have been updated
@@ -201,5 +224,6 @@ if __name__=='__main__':
 ##     Modelica()
 ##     PYPI()
 ##     UploadSourceForge()
-    BuildDocs()
-    UploadDocs()
+    Superpacks()
+##     BuildDocs()
+##     UploadDocs()

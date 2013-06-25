@@ -1,14 +1,5 @@
 #define _CRT_SECURE_NO_WARNINGS
-#include "CoolPropTools.h"
-#ifdef __ISWINDOWS__
-	#define _USE_MATH_DEFINES
-	#include "float.h"
-#else
-	#ifndef DBL_EPSILON
-		#include <limits>
-		#define DBL_EPSILON std::numeric_limits<double>::epsilon()
-	#endif
-#endif
+
 #include <stdlib.h>
 #include <string>
 #include <vector>
@@ -34,6 +25,17 @@
 #include "CPState.h"
 #include "Brine.h"
 #include "CriticalSplineConstants.h"
+
+
+#ifdef __ISWINDOWS__
+	#define _USE_MATH_DEFINES
+	#include "float.h"
+#else
+	#ifndef DBL_EPSILON
+		#include <limits>
+		#define DBL_EPSILON std::numeric_limits<double>::epsilon()
+	#endif
+#endif
 
 #include "pseudopurefluids/Air.h"
 #include "pseudopurefluids/R410A.h"
@@ -94,49 +96,66 @@
 
 using namespace std;
 
-// This obfuscated code is required since C++ doesn't know about the order of instantiation of static variables
-// See also http://stackoverflow.com/questions/13353519/access-violation-when-inserting-element-into-global-map
-// It is the equivalent of the (not-working) code: std::map<std::string,std::map<std::string, double> > syaml_environmental_map
-std::map<std::string,std::map<std::string, double> >& syaml_environmental_map()
+double JSON_lookup_double(rapidjson::Document &root, std::string FluidName, std::string key)
 {
-	static std::map<std::string, std::map<std::string, double> > my_map;
-	return my_map;
+	if (root.HasMember(FluidName.c_str()) && root[FluidName.c_str()][key.c_str()].IsDouble()){
+		return root[FluidName.c_str()][key.c_str()].GetDouble();
+	}
+	else if (root.HasMember(FluidName.c_str()) && root[FluidName.c_str()][key.c_str()].IsInt()){
+		return root[FluidName.c_str()][key.c_str()].GetInt();
+	}
+	else{
+		return _HUGE;
+	}
 }
-std::map<std::string,std::string>&  ASHRAE34_map()
+
+std::string JSON_lookup_string(rapidjson::Document &root, std::string FluidName, std::string key)
 {
-	static std::map<std::string, std::string > my_map;
-	return my_map;
+	if (root.HasMember(FluidName.c_str()) && root[FluidName.c_str()][key.c_str()].IsString()){
+		return root[FluidName.c_str()][key.c_str()].GetString();
+	}
+	else{
+		return "";
+	}
 }
 
-// This included file includes all the environmental constants, including the function syaml_build
-#include "EnvironmentalData.h"
-
-
-double syaml_lookup(std::string fluid, std::string key)
+std::vector<double> JSON_lookup_dblvector(rapidjson::Document &root, std::string FluidName, std::string key)
 {
-	if (syaml_environmental_map().size() == 0)
-		syaml_build();
+	std::vector<double> v;
 
-	std::map<std::string,std::map<std::string, double> >::iterator it1 = syaml_environmental_map().find(fluid);
+	if (root.HasMember(FluidName.c_str()) && root[FluidName.c_str()][key.c_str()].IsArray()){
+		rapidjson::Value& arr = root[FluidName.c_str()][key.c_str()];
+		v.resize(arr.Size());
 
-	if (it1 == syaml_environmental_map().end()) {return _HUGE;}
-	
-	std::map<std::string, double>::iterator it2 = it1->second.find(key);
-
-	if (it2 == it1->second.end()) {return _HUGE;}
-
-	return it2->second;
+		for (rapidjson::SizeType i = 0; i < arr.Size(); i++)
+		{
+			v[i] = arr[i].GetDouble();
+		}
+		return v;
+	}
+	else{
+		v.resize(0);
+		return v;
+	}
 }
-std::string ASHRAE34_lookup(std::string fluid)
+std::vector<int> JSON_lookup_intvector(rapidjson::Document &root, std::string FluidName, std::string key)
 {
-	if (ASHRAE34_map().size() == 0)
-		syaml_build();
+	std::vector<int> v;
 
-	std::map<std::string, std::string >::iterator it1 = ASHRAE34_map().find(fluid);
+	if (root.HasMember(FluidName.c_str()) && root[FluidName.c_str()][key.c_str()].IsArray()){
+		rapidjson::Value& arr = root[FluidName.c_str()][key.c_str()];
+		v.resize(arr.Size());
 
-	if (it1 == ASHRAE34_map().end()) {return "UNKNOWN";}
-
-	return it1->second;
+		for (rapidjson::SizeType i = 0; i < arr.Size(); i++)
+		{
+			v[i] = arr[i].GetInt();
+		}
+		return v;
+	}
+	else{
+		v.resize(0);
+		return v;
+	}
 }
 
 static bool UseCriticalSpline = true;
@@ -196,79 +215,42 @@ void rebuild_CriticalSplineConstants_T()
 				continue;
 			}
 		}
+		bool valid = false;
 		
-		try{
-			for (double b = good; b>0; b -= 0.5)
+		for (double step = 0.5; step > 1e-10; step /= 100.0)
+		{
+			valid = true;
+			for (double b = good; b>0; b -= step)
 			{
-				CPS.update(iT,Tc-b,iQ,1);
-				rhoV = CPS.rhoV(); rhoL = CPS.rhoL();
-				drhodTV = CPS.drhodT_along_sat_vapor();
-				drhodTL = CPS.drhodT_along_sat_liquid();
-				if (!ValidNumber(drhodTV) || !ValidNumber(drhodTL) || drhodTV*drhodTL > 0){throw ValueError();}
-				good = b;
+				try{
+					CPS.update(iT, Tc - b, iQ, 1);
+					rhoV = CPS.rhoV(); rhoL = CPS.rhoL();
+					drhodTV = CPS.drhodT_along_sat_vapor();
+					drhodTL = CPS.drhodT_along_sat_liquid();
+				}
+				catch(std::exception){ 
+					valid = false; 
+					break;
+				}
+				if (!ValidNumber(drhodTV) || !ValidNumber(drhodTL) || drhodTV*drhodTL > 0){
+					std::cout << format("%0.20g",good) << std::endl;
+					valid = false; 
+					break;
+				}
+				else
+				{
+					good = b;
+				}
 			}
-			for (double b = good; b>0; b -= 0.01)
-			{
-				CPS.update(iT,Tc-b,iQ,1);
-				rhoV = CPS.rhoV(); rhoL = CPS.rhoL();
-				drhodTV = CPS.drhodT_along_sat_vapor();
-				drhodTL = CPS.drhodT_along_sat_liquid();
-				if (!ValidNumber(drhodTV) || !ValidNumber(drhodTL) || drhodTV*drhodTL > 0){throw ValueError();}
-				good = b;
-			}
-			for (double b = good; b>0; b -= 0.001)
-			{
-				CPS.update(iT,Tc-b,iQ,1);
-				rhoV = CPS.rhoV(); rhoL = CPS.rhoL();
-				drhodTV = CPS.drhodT_along_sat_vapor();
-				drhodTL = CPS.drhodT_along_sat_liquid();
-				if (!ValidNumber(drhodTV) || !ValidNumber(drhodTL) || drhodTV*drhodTL > 0){throw ValueError();}
-				good = b;
-			}
-			for (double b = good; b>0; b -= 0.0001)
-			{
-				CPS.update(iT,Tc-b,iQ,1);
-				rhoV = CPS.rhoV(); rhoL = CPS.rhoL();
-				drhodTV = CPS.drhodT_along_sat_vapor(); 
-				drhodTL = CPS.drhodT_along_sat_liquid();
-				if (!ValidNumber(drhodTV) || !ValidNumber(drhodTL) || drhodTV*drhodTL > 0){throw ValueError();}
-				good = b;
-			}
-			for (double b = good; b>0; b -= 0.000001)
-			{
-				CPS.update(iT,Tc-b,iQ,1);
-				rhoV = CPS.rhoV(); rhoL = CPS.rhoL();
-				drhodTV = CPS.drhodT_along_sat_vapor(); 
-				drhodTL = CPS.drhodT_along_sat_liquid();
-				if (!ValidNumber(drhodTV) || !ValidNumber(drhodTL) || drhodTV*drhodTL > 0){throw ValueError();}
-				good = b;
-			}
-			for (double b = good; b>0; b -= 0.00000001)
-			{
-				CPS.update(iT,Tc-b,iQ,1);
-				rhoV = CPS.rhoV(); rhoL = CPS.rhoL();
-				drhodTV = CPS.drhodT_along_sat_vapor(); 
-				drhodTL = CPS.drhodT_along_sat_liquid();
-				if (!ValidNumber(drhodTV) || !ValidNumber(drhodTL) || drhodTV*drhodTL > 0){throw ValueError();}
-				good = b;
-			}
-			for (double b = good; b>0; b -= 0.0000000001)
-			{
-				CPS.update(iT,Tc-b,iQ,1);
-				rhoV = CPS.rhoV(); rhoL = CPS.rhoL();
-				drhodTV = CPS.drhodT_along_sat_vapor(); 
-				drhodTL = CPS.drhodT_along_sat_liquid();
-				if (!ValidNumber(drhodTV) || !ValidNumber(drhodTL) || drhodTV*drhodTL > 0){throw ValueError();}
-				good = b;
+			if (!valid){
+				break;
 			}
 		}
-		catch(std::exception){
-		}
-		std::cout << good << " " << drhodTL << " " << ValidNumber(drhodTL) << std::endl;
-		CPS.update(iT,Tc-good,iQ,1);
-		rhoV = CPS.rhoV(); rhoL = CPS.rhoL();
-		drhodTV = CPS.drhodT_along_sat_vapor(); 
-		drhodTL = CPS.drhodT_along_sat_liquid();
+		CoolPropStateClass CPS2 = CoolPropStateClass(fluid_names[i]);
+		CPS2.update(iT,Tc-good,iQ,1.0);
+		rhoV = CPS2.rhoV(); rhoL = CPS2.rhoL();
+		drhodTV = CPS2.drhodT_along_sat_vapor(); 
+		drhodTL = CPS2.drhodT_along_sat_liquid();
 		fprintf(fp,"\tstd::make_pair(std::string(\"%s\"),CriticalSplineStruct_T(%0.12e,%0.12e,%0.12e,%0.12e,%0.12e) ),\n",fluid_names[i].c_str(),Tc-good,rhoL,rhoV,drhodTL,drhodTV);
 	}
 	fclose(fp);
@@ -340,6 +322,7 @@ FluidsContainer::FluidsContainer()
 	FluidsList.push_back(new R14Class());
 	FluidsList.push_back(new R12Class());
 	FluidsList.push_back(new R113Class());
+	FluidsList.push_back(new R1234zeZClass());
 
 	// The industrial fluids
 	FluidsList.push_back(new R245faClass());
@@ -415,7 +398,13 @@ FluidsContainer::FluidsContainer()
 	FluidsList.push_back(new R407CClass());
 	FluidsList.push_back(new R507AClass());
 
-	
+	// The gas-only EOS
+	//FluidsList.push_back(new R290Gas());
+
+	// Includes the C++ JSON code for all the fluids as the variable JSON_code
+	#include "../CoolProp/JSON_code.h"
+
+	JSON.Parse<0>(JSON_code);
 
 	// Build the map of fluid names mapping to pointers to the Fluid class instances
 	for (std::vector<Fluid*>::iterator it = FluidsList.begin(); it != FluidsList.end(); it++)
@@ -423,7 +412,7 @@ FluidsContainer::FluidsContainer()
 		//// Load all the parameters related to the Critical point spline
 		set_critical_spline_constants((*it));
 		// Call the post_load routine
-		(*it)->post_load();
+		(*it)->post_load(JSON);
 		// Load up entry in map
 		fluid_name_map[(*it)->get_name()] = *it;
 	}
@@ -542,21 +531,32 @@ Fluid::~Fluid()
 	if (cp_ancillary != NULL){ delete cp_ancillary; cp_ancillary = NULL;}
 	if (drhodT_p_ancillary != NULL){ delete drhodT_p_ancillary; drhodT_p_ancillary = NULL;}
 }
-void Fluid::post_load(void)
+void Fluid::post_load(rapidjson::Document &JSON)
 {
 	// Set the reducing values from the pointer
-	reduce=*preduce;
+	reduce = *preduce;
+
+	// Get the critical molar density in mol/L or mol/dm^3 (mol/L or mol/dm^3 are equivalent)
+	reduce.rhobar = reduce.rho/params.molemass;
+	crit.rhobar = crit.rho/params.molemass;
+
+	// Set the enthalpy and entropy at the critical point and the reducing point
+	crit.h = enthalpy_Trho(crit.T, crit.rho);
+	crit.s = entropy_Trho(crit.T, crit.rho);
+	reduce.h = enthalpy_Trho(reduce.T, reduce.rho);
+	reduce.s = entropy_Trho(reduce.T, reduce.rho);
+
 	// Set the triple-point pressure if not set in code
 	// Use the dewpoint pressure for pseudo-pure fluids
 	if ( fabs(params.ptriple)>1e9 ){
 		double pL, pV, rhoL, rhoV;
 		if (params.Ttriple <= limits.Tmin)
 		{
-			saturation_T(limits.Tmin,false,&pL,&pV,&rhoL,&rhoV);
+			saturation_T(limits.Tmin, false, &pL, &pV, &rhoL, &rhoV);
 		}
 		else
 		{
-			saturation_T(params.Ttriple,false,&pL,&pV,&rhoL,&rhoV);
+			saturation_T(params.Ttriple, false, &pL, &pV, &rhoL, &rhoV);
 		}
 		params.ptriple = pV;
 	}
@@ -567,14 +567,20 @@ void Fluid::post_load(void)
 	drhodT_p_ancillary = new AncillaryCurveClass(this,std::string("drhodT|p"));
 
 	// Load up environmental factors for this fluid including ODP, GWP, etc.
-	environment.ODP = syaml_lookup(this->name,"ODP");
-	environment.GWP20 = syaml_lookup(this->name,"GWP20");
-	environment.GWP100 = syaml_lookup(this->name,"GWP100");
-	environment.GWP500 = syaml_lookup(this->name,"GWP500");
-	environment.HH = syaml_lookup(this->name,"HH");
-	environment.FH = syaml_lookup(this->name,"FH");
-	environment.PH = syaml_lookup(this->name,"PH");
-	environment.ASHRAE34 = ASHRAE34_lookup(this->name);
+	environment.ODP = JSON_lookup_double(JSON,this->name,"ODP");
+	environment.GWP20 = JSON_lookup_double(JSON,this->name,"GWP20");
+	environment.GWP100 = JSON_lookup_double(JSON,this->name,"GWP100");
+	environment.GWP500 = JSON_lookup_double(JSON,this->name,"GWP500");
+	environment.HH = JSON_lookup_double(JSON,this->name,"HH");
+	environment.FH = JSON_lookup_double(JSON,this->name,"FH");
+	environment.PH = JSON_lookup_double(JSON,this->name,"PH");
+	environment.ASHRAE34 = JSON_lookup_string(JSON,this->name,"ASHRAE34");
+
+	HS.hmax = JSON_lookup_double(JSON,this->name,"hsatVmax");
+	HS.a_hs_satL = JSON_lookup_dblvector(JSON,this->name,"a_hs_satL");
+	HS.n_hs_satL = JSON_lookup_intvector(JSON,this->name,"n_hs_satL");
+
+	params.CAS = JSON_lookup_string(JSON,this->name,"CAS");
 }
 //--------------------------------------------
 //    Residual Part
@@ -872,8 +878,73 @@ double Fluid::density_Tp_Soave(double T, double p, int iValue)
 		if (ValidNumber(p2) && fabs(p2-p) < min_error){min_error = fabs(p2-p); rho = rho2;}
 		if (ValidNumber(p3) && fabs(p3-p) < min_error){min_error = fabs(p3-p); rho = rho3;}
 		
+		if (iValue > -1)
+		{
+			if (iValue == 0)
+			{
+				return rho1;
+			}
+			else if (iValue == 1)
+			{
+				return rho3;
+			}
+		}
 		return rho;
 	}
+}
+
+double Fluid::density_Tp_PengRobinson(double T, double p, int solution)
+{
+	double A, B, m, a, b, Z, rhobar;
+
+	double Rbar = 8.314472;
+
+	b = 0.077796074*(Rbar*reduce.T)/(reduce.p)*1000;
+	B = 0.077796074*p/reduce.p*reduce.T/T;
+
+	m = 0.37464 + 1.54226*params.accentricfactor-0.26992*pow(params.accentricfactor,2);
+	a = 0.45724*pow(Rbar*reduce.T,2)/reduce.p*pow(1+m*(1-sqrt(T/reduce.T)),2)*1000;
+	A = a*p/(Rbar*Rbar*T*T)/1000;
+
+	std::vector<double> solns = solve_cubic(1, -1+B, A-3*B*B-2*B, -A*B+B*B+B*B*B);
+
+	// Erase negative solutions and unstable solutions
+	// Stable solutions are those for which dpdrho is positive
+	for (int i = (int)solns.size()-1; i >= 0; i--)
+	{
+		if (solns[i] < 0)
+		{
+			solns.erase(solns.begin()+i);
+		}
+		else
+		{
+			double v = (solns[i]*Rbar*T)/p; //[mol/L]
+			double dpdrho = -v*v*(-Rbar*T/pow(v-b,2)+a*(2*v+2*b)/pow(v*v+2*b*v-b*b,2));
+			if (dpdrho < 0)
+			{
+				solns.erase(solns.begin()+i);
+			}
+		}
+	}
+
+	if (solution == 0)
+	{
+		Z = *std::min_element(solns.begin(), solns.end());
+	}
+	else if (solution == 1)
+	{
+		Z = *std::max_element(solns.begin(), solns.end());
+	}
+	else 
+	{
+		throw ValueError();
+	}
+
+	rhobar = p/(Z*Rbar*T); //[mol/L]
+	double vbar = 1/rhobar;
+	double p_check = Rbar*T/(vbar-b)-a/(vbar*vbar+2*b*vbar-b*b);
+
+	return rhobar*params.molemass;
 }
 
 /*!
@@ -1065,7 +1136,7 @@ void Fluid::saturation_s(double s, int Q, double *Tsatout, double *rhoout)
 
 void Fluid::saturation_T(double T, bool UseLUT, double *psatLout, double *psatVout, double *rhosatLout, double *rhosatVout)
 {
-	double rhoL, rhoV, p;
+	double p;
 	if (debug()>5){
 		std::cout<<format("%s:%d: Fluid::saturation_T(%g,%d) \n",__FILE__,__LINE__,T,UseLUT).c_str();
 	}
@@ -1104,7 +1175,7 @@ void Fluid::saturation_T(double T, bool UseLUT, double *psatLout, double *psatVo
 				}
 				catch (std::exception){
 
-					rhosatPure_Brent(T,&rhoL,&rhoV,&p);
+					rhosatPure_Brent(T,rhosatLout,rhosatVout,&p);
 					*psatLout = p;
 					*psatVout = p;
 				
@@ -1225,6 +1296,7 @@ void Fluid::rhosatPure_Akasaka(double T, double *rhoLout, double *rhoVout, doubl
 	{
 		rhoL=rhosatL(T);
 		rhoV=rhosatV(T);
+
 		deltaL = rhoL/reduce.rho;
 		deltaV = rhoV/reduce.rho;
 		tau = reduce.T/T;
@@ -1233,9 +1305,12 @@ void Fluid::rhosatPure_Akasaka(double T, double *rhoLout, double *rhoVout, doubl
 	{
 		std::cout << e.what() << "Ancillary not provided" << std::endl;
 	}
+	if (debug()>5){
+			std::cout << format("%s:%d: Akasaka guess values deltaL = %g deltaV = %g tau = %g\n",__FILE__,__LINE__,deltaL, deltaV, tau).c_str();
+		}
 
 	do{
-		if (debug()>5){
+		if (debug()>8){
 			std::cout << format("%s:%d: right before the derivs with deltaL = %g deltaV = %g tau = %g\n",__FILE__,__LINE__,deltaL, deltaV, tau).c_str();
 		}
 		// Calculate once to save on calls to EOS
@@ -1282,17 +1357,21 @@ void Fluid::rhosatPure_Akasaka(double T, double *rhoLout, double *rhoVout, doubl
 			throw SolutionError(format("Akasaka solver did not converge after 100 iterations"));
 		}
 	}
-	while (error > 1e-10);
-	*rhoLout = deltaL*reduce.rho;
-	*rhoVout = deltaV*reduce.rho;
-	PL = pressure_Trho(T,*rhoLout);
-	PV = pressure_Trho(T,*rhoVout);
-
+	while (error > 1e-10 || fabs(dP)/PL > 0.01);
+	
+	*pout = 0.5*(PL+PV);
 	if (fabs(PL-PV)/PV > 1e-6 && T<0.5*reduce.T)
 	{
-		throw ValueError("not close enough pressures from Akasaka");
+		// Using the average pressure, re-calculate the densities
+		*rhoLout = density_Tp(T,*pout,deltaL*reduce.rho);
+		*rhoVout = density_Tp(T,*pout,deltaV*reduce.rho);
 	}
-	*pout = 0.5*(PL+PV);
+	else
+	{
+		*rhoLout = deltaL*reduce.rho;
+		*rhoVout = deltaV*reduce.rho;
+	}
+	
 	return;
 }
 void Fluid::rhosatPure(double T, double *rhoLout, double *rhoVout, double *pout)
@@ -1715,7 +1794,7 @@ void Fluid::temperature_ph(double p, double h, double *Tout, double *rhoout, dou
 	double dar_ddelta,da0_dtau,d2a0_dtau2,dar_dtau,d2ar_ddelta_dtau,d2ar_ddelta2,d2ar_dtau2,d2a0_ddelta_dtau;
 	double f1,f2,df1_dtau,df1_ddelta,df2_ddelta,df2_dtau;
     double rhoL, rhoV, hsatL,hsatV,TsatL,TsatV,tau,delta,worst_error;
-	double h_guess, hc, rho_guess;
+	double h_guess, hc, rho_guess, T1, T2, h1, h2, rho1, rho2;
 	double hsat_tol = 0.5;
 	
 	// A starting set of temperature and pressure are provided, use them as the guess value
@@ -1737,8 +1816,8 @@ void Fluid::temperature_ph(double p, double h, double *Tout, double *rhoout, dou
 				T_guess = crit.T+30;
 				h_guess = enthalpy_Trho(T_guess,crit.rho);
 				T_guess = (crit.T-T_guess)/(hc-h_guess)*(h-h_guess)+T_guess;
-				
-				delta = p/(R()*T_guess)/reduce.rho;
+				rho_guess = density_Tp(T_guess,p);
+				delta = rho_guess/reduce.rho;
 			}
 			else
 			{
@@ -1768,8 +1847,6 @@ void Fluid::temperature_ph(double p, double h, double *Tout, double *rhoout, dou
 				// If TTSE is enabled and we have gotten to this point
 				if (h>hsatV || h<hsatL)
 				{
-					
-					
 				}
 			}
 			else
@@ -1793,20 +1870,24 @@ void Fluid::temperature_ph(double p, double h, double *Tout, double *rhoout, dou
 
 				if (h > hsatV + hsat_tol)
 				{
-					// Using ideal gas cp is a bit faster
-					// Can't use an ancillary since it diverges at the critical point
-					double cpV = specific_heat_p_ideal_Trho(TsatV);
-					//Superheated vapor
-					T_guess = TsatV+(h-hsatV)/cpV;
-					// Volume expansivity at saturated vapor using the ancillaries
-					// Can't use an ancillary since it diverges at the critical point
-					double drhodT = DerivTerms((char *)"drhodT|p",TsatV,rhoV,this);
-					// Extrapolate to get new density guess
-					double rho = rhoV+drhodT*(h-hsatV)/cpV;
-					// If the guess is negative for the density, need to make it positive
-					if (rho<0)
-						rho = 0.1;
-					delta = rho / reduce.rho;
+					// Start at saturated vapor
+					rho1 = rhoV;
+					T1 = TsatV;
+					T2 = 1.1*TsatV;
+					h1 = hsatV;
+					do{
+						rho2 = density_Tp(T2,p,rho1);
+						h2 = enthalpy_Trho(T2,rho2);
+						T2 *= 1.1;
+					}
+					while (h2 <= h);
+
+					// Linearly interpolate in each parameter to guess the solution
+					T_guess = (T2-T1)/(h2-h1)*(h-h1)+T1;
+					rho_guess = (rho2-rho1)/(h2-h1)*(h-h1)+rho1;
+
+					// Reduced density
+					delta = rho_guess/reduce.rho;
 				}
 				else if (h < hsatL - hsat_tol) 
 				{
@@ -1840,13 +1921,26 @@ void Fluid::temperature_ph(double p, double h, double *Tout, double *rhoout, dou
 				*TsatLout = TsatL;
 				*TsatVout = TsatV;
 				
-				if (h>hsatV)
+				if (h > hsatV)
 				{
-					T_guess = TsatV+30;
-					h_guess = enthalpy_Trho(T_guess,rhoV);
-					T_guess = (TsatV-T_guess)/(hsatV-h_guess)*(h - h_guess)+T_guess;
-					
-					delta = p/(R()*T_guess)/reduce.rho;
+					// Start at saturated vapor
+					rho1 = rhoV;
+					T1 = TsatV;
+					T2 = 1.1*TsatV;
+					h1 = hsatV;
+					do{
+						rho2 = density_Tp(T2,p,rho1);
+						h2 = enthalpy_Trho(T2,rho2);
+						T2 *= 1.1;
+					}
+					while (h2 <= h);
+
+					// Linearly interpolate in each parameter to guess the solution
+					T_guess = (T2-T1)/(h2-h1)*(h-h1)+T1;
+					rho_guess = (rho2-rho1)/(h2-h1)*(h-h1)+rho1;
+
+					// Reduced density
+					delta = rho_guess/reduce.rho;
 				}
 				else if (h<hsatL)
 				{
@@ -2111,7 +2205,6 @@ void Fluid::temperature_ps(double p, double s, double *Tout, double *rhoout, dou
 		MatInv_2(A,B);
 		tau -= B[0][0]*f1+B[0][1]*f2;
 		delta -= B[1][0]*f1+B[1][1]*f2;
-
 		
         if (fabs(f1)>fabs(f2))
             worst_error=fabs(f1);
@@ -2137,13 +2230,13 @@ void Fluid::temperature_hs(double h, double s, double *Tout, double *rhoout, dou
 	double A[2][2], B[2][2], T_guess;
 	double dar_ddelta,da0_dtau,d2a0_dtau2,dar_dtau,d2ar_ddelta_dtau,d2ar_ddelta2,d2ar_dtau2,d2a0_ddelta_dtau,a0,ar,da0_ddelta;
 	double f1,f2,df1_dtau,df1_ddelta,df2_ddelta,df2_dtau;
-    double tau,delta,worst_error,rho_guess;
+    double tau,delta,worst_error,rho_guess, hL, sL;
 	double ssat_tol = 0.1;
 	std::string errstr;
 
-	double scrit = entropy_Trho(crit.T, crit.rho);
-	double hcrit = enthalpy_Trho(crit.T, crit.rho);
-
+	/// This class is used to match the desired enthalpy/entropy 
+	/// pair by adjusting the saturation temperature until
+	/// the enthalpy/entropy pair is satisfied.
 	class SatFuncClass : public FuncWrapper1D
 	{
 	private:
@@ -2170,10 +2263,50 @@ void Fluid::temperature_hs(double h, double s, double *Tout, double *rhoout, dou
 		};
 	} SatFunc(h, s, this);
 
-	if (SatFunc.call(params.Ttriple)<0){throw ValueError(format("Value for h,s [%g,%g] is solid",h,s));}
+	// Evaluate the function at the minimum temperature which is 
+	// usually the triple point temperature
+	double Ttriple_func = SatFunc.call(limits.Tmin);
+
+	/*FILE *fp = fopen("rr.txt","w");
+	for (double T = limits.Tmin; T < 300; T += 1)
+	{
+		double f = SatFunc.call(T);
+		fprintf(fp, "%g %g %g\n",T,f,SatFunc.Q);
+	}
+	fclose(fp);*/
+	
+	// If using the minimum temperature yields the h/s pair, quit
+	if (fabs(Ttriple_func)<DBL_EPSILON*10)
+	{
+		*Tout = limits.Tmin;
+		*rhoout = SatFunc.rho;
+		*rhoLout = SatFunc.rhoL;
+		*rhoVout = SatFunc.rhoV;
+		*TsatLout = *Tout;
+		*TsatVout = *Tout;
+		return;
+	}
+	else if (Ttriple_func < 0){throw ValueError(format("Value for h,s [%g,%g] is solid",h,s));}
+
+	// Next, see if s < scrit and h > hL(s) ( this means you are in the liquid phase)
+	//
+	if (s < crit.s)
+	{
+		// Start with the ancillary curve if the fluid has one which gives hL as a function of sL
+		if (HS.a_hs_satL.size() == 5)
+		{
+			hL = HS.a_hs_satL[0]*s*s*s*s + HS.a_hs_satL[1]*s*s*s + HS.a_hs_satL[2]*s*s + HS.a_hs_satL[3]*s + HS.a_hs_satL[4];
+		}
+		else
+		{
+			// Need to do the saturation calls using the FULL EOS which will be very slow
+
+		}
+	}
 
 	try{
-		*Tout = Brent(&SatFunc,params.Ttriple,reduce.T-1e-5,1e-16,1e-8,100,&errstr);
+		//*Tout = Brent(&SatFunc,limits.Tmin,reduce.T-100,1e-16,1e-8,100,&errstr);
+		*Tout = Secant(&SatFunc,limits.Tmin,1,1e-8,100,&errstr);
 		if (SatFunc.Q >1 || SatFunc.Q < 0){ throw ValueError("Solution must be within the two-phase region"); } 
 		// It is two-phase, we are done, no exceptions were raised
 		*rhoout = SatFunc.rho;
@@ -2188,7 +2321,7 @@ void Fluid::temperature_hs(double h, double s, double *Tout, double *rhoout, dou
 		double Tsat, rhosat, cp, hsat;
 		// It is single-phase, either liquid, gas, or supercritical, but we don't know which yet
 		try{
-			if (s < scrit){ this->saturation_s(s, 0, &Tsat, &rhosat);	}
+			if (s < crit.s){ this->saturation_s(s, 0, &Tsat, &rhosat);	}
 			else{ this->saturation_s(s, 1, &Tsat, &rhosat); }
 
 			// Check the saturated enthalpy for the given value of the entropy
@@ -2203,16 +2336,13 @@ void Fluid::temperature_hs(double h, double s, double *Tout, double *rhoout, dou
 			double cp0 = specific_heat_p_ideal_Trho(reduce.T);
 			T_guess = 298;
 			rho_guess = 0.001;
-		}
-		
+		}	
 	}
-
-	
 
 	tau = reduce.T/T_guess;
 	delta = rho_guess/reduce.rho;
 
-	//// Now we enter into a Jacobian loop that attempts to simultaneously solve 
+	//// Now we enter into a loop that attempts to simultaneously solve 
 	//// for temperature and density using Newton-Raphson
     worst_error=999;
     iter=0;
@@ -2768,6 +2898,15 @@ double Fluid::surface_tension_T(double T)
 	sigma = k*Tc*pow(N_A/Vc,2.0/3.0)*(4.35+4.14*w)*pow(t,1.26)*(1+0.19*sqrt(t)-0.25*t);
 	return sigma;
 }
+
+void Fluid::ECSParams(double *e_k, double *sigma)
+{
+	// The default ECS parameters that are used if none are coded for the fluid by overloading this function.
+	// Applies the method of Chung;
+	double rhobarc = reduce.rho/params.molemass;
+	*e_k  = reduce.T/1.2593;
+	*sigma = 0.809/pow(rhobarc,1.0/3.0);
+}
 class ConformalTempResids : public FuncWrapperND
 {
 private:
@@ -3243,24 +3382,6 @@ double AncillaryCurveClass::reverseinterpolateL(double y){
 double AncillaryCurveClass::reverseinterpolateV(double y){
 	return interp1d(&yV,&xV,y);
 }
-
-#if defined(_MSC_VER) || defined(__powerpc__)
-// Microsoft version of math.h doesn't include acosh or asinh, so we just define them here
-// Neither does the PPC version
-static double acosh(double x)
-{
- 	return log(x + sqrt(x*x - 1.0) );
-}
-static double asinh(double value)
-{
-	if(value>0){
-		return log(value + sqrt(value * value + 1));
-	}
-	else{
-		return -log(-value + sqrt(value * value + 1));
-	}
-}
-#endif
 
 double CriticalSplineStruct_T::interpolate_rho(Fluid *pFluid, int phase, double T)
 {

@@ -451,24 +451,6 @@ void make_dirs(std::string file_path)
 	}
 }
 
-std::string get_file_contents(std::string filename)
-{
-	std::ifstream in(filename.c_str(), std::ios::in | std::ios::binary);
-	if (in)
-	{
-//		std::string contents;
-//		in.seekg(0, std::ios::end);
-//		contents.resize(in.tellg());
-//		in.seekg(0, std::ios::beg);
-//		in.read(&contents[0], contents.size());
-		std::istreambuf_iterator<char> eos;
-		std::string contents(std::istreambuf_iterator<char>(in), eos);
-		in.close();
-		return(contents);
-	}
-	throw(errno);
-}
-
 bool TTSESinglePhaseTableClass::read_all_from_file(std::string root_path)
 {
 	std::string Fluid;

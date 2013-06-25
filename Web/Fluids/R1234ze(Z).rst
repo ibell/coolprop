@@ -1,18 +1,14 @@
 
 ********************
-R1234ze
+R1234ze(Z)
 ********************
 
 Aliases
 ================================================================================
-``R1234ZE``
+``R1234ze(Z)``
 
 Bibliographic Information
 =========================
-**Equation of State**: Mark O. McLinden and Monika Thol and Eric W. Lemmon, 2010, Thermodynamic Properties of trans-1,3,3,3-tetrafluoropropene [R1234ze(E)]: Measurements of Density and Vapor Pressure and a Comprehensive Equation of State, *International Refrigeration and Air Conditioning Conference at Purdue, July 12-15, 2010*
-
-**Conductivity**: Richard A. Perkins and Marcia L. Huber, 2011, Measurement and Correlation of the Thermal Conductivity of 2,3,3,3-Tetrafluoroprop-1-ene (R1234yf) and trans-1,3,3,3-Tetrafluoropropene (R1234ze(E)), *Journal of Chemical Engineering Data*, 56:4868-4874
-
 
 
 Fluid Data
@@ -22,17 +18,17 @@ Fluid Parameters
 
 =========================  ==============================
 Mole Mass [kg/kmol]        114.04159
-Triple Point Temp. [K]     168.620
-Triple Point Press. [kPa]  0.23
-Minimum temperature [K]    168.620
+Triple Point Temp. [K]     273.000
+Triple Point Press. [kPa]  67.8216
+Minimum temperature [K]    273.000
 =========================  ==============================
 
 Critical Parameters
 
 ==============================  ==============================
-Temperature [K]                 382.520
-Density [kg/m\ :sup:`3`\ ]      489.238433
-Pressure [kPa]                  3636.25000
+Temperature [K]                 423.270
+Density [kg/m\ :sup:`3`\ ]      470.000000
+Pressure [kPa]                  3533.00000
 ==============================  ==============================
 
 
@@ -41,8 +37,8 @@ Saturated Vapor Deviations
 
 .. plot::
 
-    Fluid = "R1234ze"
-    RPFluid = "REFPROP-R1234ze"
+    Fluid = "R1234ze(Z)"
+    RPFluid = "REFPROP-R1234ze(Z)"
 
     #Saturated Vapor
     from CoolProp.CoolProp import Props
@@ -102,8 +98,8 @@ Saturated Liquid Deviations
 
 .. plot::
 
-    Fluid = "R1234ze"
-    RPFluid = "REFPROP-R1234ze"
+    Fluid = "R1234ze(Z)"
+    RPFluid = "REFPROP-R1234ze(Z)"
 
     #Saturated Liquid
     from CoolProp.CoolProp import Props
@@ -162,8 +158,8 @@ Along the critical isotherm where T=T\ :sub:`c`
 ================================================
 .. plot::
 
-    Fluid = "R1234ze"
-    RPFluid = "REFPROP-R1234ze"
+    Fluid = "R1234ze(Z)"
+    RPFluid = "REFPROP-R1234ze(Z)"
 
     #Critical isotherm
     from CoolProp.CoolProp import Props
@@ -223,7 +219,7 @@ Check of p,h and p,s as inputs (X: Failure .: Success)
     from matplotlib import pyplot as plt
     import numpy as np
 
-    Ref = "R1234ze"
+    Ref = "R1234ze(Z)"
     fig = plt.figure(figsize=(10,5))
     ax1 = fig.add_subplot(121)
     ax2 = fig.add_subplot(122)
@@ -236,8 +232,8 @@ Check of p,h and p,s as inputs (X: Failure .: Success)
     smin = Props('S','T',Tmin,'Q',0,Ref)
     smax = 2*Props('S','T',Props(Ref,'Tcrit')-1,'Q',1,Ref)-smin
 
-    Ph(Ref, axis = ax1, Tmin = Tmin, Tmax = 382.510000)
-    Ps(Ref, axis = ax2, Tmin = Tmin, Tmax = 382.510000)
+    Ph(Ref, axis = ax1, Tmin = Tmin, Tmax = 423.260000)
+    Ps(Ref, axis = ax2, Tmin = Tmin, Tmax = 423.260000)
 
     for p in np.linspace(pmin,pmax,10):
         for h in np.linspace(hmin,hmax):

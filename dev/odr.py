@@ -17,7 +17,7 @@ def rsquared(x, y):
     return r_value**2
 
 
-def saturation_density(Ref, ClassName, form = 'A', LV = 'L', perc_error_allowed = 0.3):
+def saturation_density(Ref, ClassName, form = 'A', LV = 'L', perc_error_allowed = 0.3, fName = None):
     """
     
     Parameters
@@ -31,15 +31,31 @@ def saturation_density(Ref, ClassName, form = 'A', LV = 'L', perc_error_allowed 
     
     from CoolProp.CoolProp import Props
     
-    Tc = Props(Ref,'Tcrit')
-    pc = Props(Ref,'pcrit')
-    rhoc = Props(Ref,'rhocrit')
-    Tmin = Props(Ref,'Tmin')
-    
-    TT = np.linspace(Tmin+1e-6, Tc-0.00001, 1000)
-    p = np.array([Props('P','T',T,'Q',0,Ref) for T in TT])
-    rhoL = np.array([Props('D','T',T,'Q',0,Ref) for T in TT])
-    rhoV = np.array([Props('D','T',T,'Q',1,Ref) for T in TT])
+    if fName is None:
+        Tc = Props(Ref,'Tcrit')
+        pc = Props(Ref,'pcrit')
+        rhoc = Props(Ref,'rhocrit')
+        Tmin = Props(Ref,'Tmin')
+        
+        TT = np.linspace(Tmin+1e-6, Tc-0.00001, 300)
+        p = [Props('P','T',T,'Q',0,Ref) for T in TT]
+        rhoL = [Props('D','T',T,'Q',0,Ref) for T in TT]
+        rhoV = [Props('D','T',T,'Q',1,Ref) for T in TT]
+    else:
+        Tc = 423.27
+        pc = 3533
+        rhoc = 470
+        Tmin = 273
+        lines = open(fName,'r').readlines()
+        TT,p,rhoL,rhoV = [],[],[],[]
+        for line in lines:
+            _T,_p,_rhoL,_rhoV = line.split(' ')
+            TT.append(float(_T))
+            p.append(float(_p))
+            rhoL.append(float(_rhoL))
+            rhoV.append(float(_rhoV))
+            
+        TT = np.array(TT)
     
     # Start with a large library of potential powers
     n = [i/6.0 for i in range(1,200)]#+[0.35+i/200.0 for i in range(1,70)]+[0.05+0.01*i for i in range(1,70)]
@@ -143,7 +159,7 @@ def saturation_density(Ref, ClassName, form = 'A', LV = 'L', perc_error_allowed 
     f.write(template.format(tcoeffs = tcoeffs,
                             Ncoeffs = Ncoeffs,
                             name = ClassName,
-                            Tmin = TT[0],
+                            Tmin = Tmin,
                             Tmax = TT[-1],
                             error = maxerror,
                             code = code_template,
@@ -211,19 +227,35 @@ def saturation_pressure_brute(Ref, ClassName):
             betabest = myoutput.beta
             print abserror, myoutput.sum_square, myoutput.sd_beta/myoutput.beta
         
-def saturation_pressure(Ref, ClassName):
+def saturation_pressure(Ref, ClassName, fName):
     
     from CoolProp.CoolProp import Props
     
-    Tc = Props(Ref,'Tcrit')
-    pc = Props(Ref,'pcrit')
-    rhoc = Props(Ref,'rhocrit')
-    Tmin = Props(Ref,'Tmin')
-    
-    TT = np.linspace(Tmin+1e-6, Tc-0.00001, 300)
-    p = [Props('P','T',T,'Q',0,Ref) for T in TT]
-    rhoL = [Props('D','T',T,'Q',0,Ref) for T in TT]
-    rhoV = [Props('D','T',T,'Q',1,Ref) for T in TT]
+    if fName is None:
+        Tc = Props(Ref,'Tcrit')
+        pc = Props(Ref,'pcrit')
+        rhoc = Props(Ref,'rhocrit')
+        Tmin = Props(Ref,'Tmin')
+        
+        TT = np.linspace(Tmin+1e-6, Tc-0.00001, 300)
+        p = [Props('P','T',T,'Q',0,Ref) for T in TT]
+        rhoL = [Props('D','T',T,'Q',0,Ref) for T in TT]
+        rhoV = [Props('D','T',T,'Q',1,Ref) for T in TT]
+    else:
+        Tc = 423.27
+        pc = 3533
+        rhoc = 470
+        Tmin = 273
+        lines = open(fName,'r').readlines()
+        TT,p,rhoL,rhoV = [],[],[],[]
+        for line in lines:
+            _T,_p,_rhoL,_rhoV = line.split(' ')
+            TT.append(float(_T))
+            p.append(float(_p))
+            rhoL.append(float(_rhoL))
+            rhoV.append(float(_rhoV))
+            
+        TT = np.array(TT)
         
     Np = 60
     n = range(1,Np)
@@ -234,6 +266,7 @@ def saturation_pressure(Ref, ClassName):
             # B is a vector of the parameters.
             # x is an array of the current x values.
             return sum([_B*x**(_n/2.0) for _B,_n in zip(B,n)])
+
         x = 1.0-TT/Tc
         y = (np.log(p)-np.log(pc))*TT/Tc
         
@@ -292,7 +325,7 @@ def saturation_pressure(Ref, ClassName):
                             tcoeffs = tcoeffs,
                             Ncoeffs = Ncoeffs,
                             name = ClassName,
-                            Tmin = TT[0],
+                            Tmin = Tmin,
                             Tmax = TT[-1],
                             psat_error = maxerror,
                             ))
@@ -300,9 +333,9 @@ def saturation_pressure(Ref, ClassName):
     return
                       
                       
-for RPFluid,Fluid in [('REFPROP-R22','ParaHydrogen'),
+for RPFluid,Fluid in [('REFPROP-R22','R1234zeZ'),
                     ]:
-    saturation_pressure_brute(RPFluid, Fluid)
-#    saturation_pressure(RPFluid, Fluid)
-#    saturation_density(RPFluid, Fluid, form='A', LV='L')
-#    saturation_density(RPFluid, Fluid, form='B', LV='V', perc_error_allowed = 0.4)
+    #saturation_pressure_brute(RPFluid, Fluid
+    saturation_pressure(RPFluid, Fluid, fName = 'R1234zeZ.txt')
+    saturation_density(RPFluid, Fluid, form='A', LV='L', fName = 'R1234zeZ.txt')
+    saturation_density(RPFluid, Fluid, form='B', LV='V', perc_error_allowed = 0.4, fName = 'R1234zeZ.txt')

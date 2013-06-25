@@ -2,7 +2,6 @@
 #include "CPExceptions.h"
 #include "Solvers.h"
 #include "CPState.h"
-#include "CoolPropTools.h"
 #include "float.h"
 #include "math.h"
 #include "Spline.h" 
@@ -878,6 +877,10 @@ double CoolPropStateClass::keyed_output(long iOutput)
 			return pFluid->crit.p;
 		case iTcrit:
 			return pFluid->crit.T;
+		case iScrit:
+			return pFluid->crit.s;
+		case iHcrit:
+			return pFluid->crit.h;
 		case iTtriple:
 			return pFluid->params.Ttriple;
 		case iPtriple:

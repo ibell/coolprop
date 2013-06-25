@@ -25,14 +25,6 @@ by Reiner Tillner-Roth and Hans Dieter Baehr, J. Phys. Chem. Ref. Data, v. 23, 1
 #include "FluidClass.h"
 #include "R134a.h"
 
-//Microsoft version of math.h doesn't include acosh.h
-#if defined(_MSC_VER)
-static double acosh(double x)
-{
- 	return log(x + sqrt(x*x - 1.0) );
-}
-#endif
-
 R134aClass::R134aClass()
 {
 

@@ -242,6 +242,9 @@ class CoolPropPINVOKE {
   [DllImport("CoolProp", EntryPoint="CSharp_get_ASHRAE34__SWIG_0")]
   public static extern int get_ASHRAE34__SWIG_0(string jarg1, string jarg2);
 
+  [DllImport("CoolProp", EntryPoint="CSharp_get_CAS_code__SWIG_0")]
+  public static extern int get_CAS_code__SWIG_0(string jarg1, string jarg2);
+
   [DllImport("CoolProp", EntryPoint="CSharp_get_index_units__SWIG_0")]
   public static extern void get_index_units__SWIG_0(int jarg1, string jarg2);
 
@@ -355,6 +358,9 @@ class CoolPropPINVOKE {
 
   [DllImport("CoolProp", EntryPoint="CSharp_get_ASHRAE34__SWIG_1")]
   public static extern string get_ASHRAE34__SWIG_1(string jarg1);
+
+  [DllImport("CoolProp", EntryPoint="CSharp_get_CAS_code__SWIG_1")]
+  public static extern string get_CAS_code__SWIG_1(string jarg1);
 
   [DllImport("CoolProp", EntryPoint="CSharp_FluidsList__SWIG_1")]
   public static extern string FluidsList__SWIG_1();

@@ -10,6 +10,11 @@ public:
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
+	double ECS_psi_viscosity(double rhor)
+	{
+		// Fit of saturated liquid data from DIPPR 801
+		return 1.42859-0.144404*rhor;
+	};
 };
 
 //MD2M
@@ -54,6 +59,11 @@ public:
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
+	double ECS_psi_viscosity(double rhor)
+	{
+		// Fit of saturated liquid datasets from DIPPR 801
+		return 1.35719-0.127828*rhor;
+	};
 };
 
 //MD4M
