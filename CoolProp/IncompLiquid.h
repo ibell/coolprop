@@ -326,46 +326,46 @@ public:
 };
 
 
-class DPELiquidClass : public IncompressibleLiquid{
-
-public:
-
-    double h0 = 0.;
-    double s0 = 0.;
-    double t0 = 273.15;
-
-    // Constructor
-    DPELiquidClass(){
-        name = std::string("DPE");
-        description = std::string("Diphenylethane  mixture");
-        reference = std::string("Dowtherm Q Dow Chemical Co. - from product data sheet");
-    };
-
-    ///< Destructor.  No implementation
-    ~DPELiquidClass(){};
-
-    double rho(double T_K){
-        return 1187.-206.51*(T_K/t0);
-    }
-    double cp(double T_K){
-        return 0.8264*(T_K/t0)+0.7702;
-    }
-
-//    double u(double T_K){
-//    	double h = h0+(0.0015*T_K^2.+0.7702*T_K)-(0.0015*t0^2.+0.7702*t0);
-//    	return h-p/rho(T_K);
+//class DPELiquidClass : public IncompressibleLiquid{
+//
+//public:
+//
+//    double h0 = 0.;
+//    double s0 = 0.;
+//    double t0 = 273.15;
+//
+//    // Constructor
+//    DPELiquidClass(){
+//        name = std::string("DPE");
+//        description = std::string("Diphenylethane  mixture");
+//        reference = std::string("Dowtherm Q Dow Chemical Co. - from product data sheet");
+//    };
+//
+//    ///< Destructor.  No implementation
+//    ~DPELiquidClass(){};
+//
+//    double rho(double T_K){
+//        return 1187.-206.51*(T_K/t0);
 //    }
-
-    double s(double T_K){
-        return s0+0.003*(T_K-t0)+0.7702*log(T_K/t0);
-    }
-    double visc(double T_K){
-        return 0.324802737*(T_K-273.15)^(-1.3097804465);
-    }
-    double cond(double T_K){
-        return 0.1651-0.0398*(T_K/t0);
-    }
-};
+//    double cp(double T_K){
+//        return 0.8264*(T_K/t0)+0.7702;
+//    }
+//
+////    double u(double T_K){
+////    	double h = h0+(0.0015*T_K^2.+0.7702*T_K)-(0.0015*t0^2.+0.7702*t0);
+////    	return h-p/rho(T_K);
+////    }
+//
+//    double s(double T_K){
+//        return s0+0.003*(T_K-t0)+0.7702*log(T_K/t0);
+//    }
+//    double visc(double T_K){
+//        return 0.324802737*(T_K-273.15)^(-1.3097804465);
+//    }
+//    double cond(double T_K){
+//        return 0.1651-0.0398*(T_K/t0);
+//    }
+//};
 
 
 #endif
