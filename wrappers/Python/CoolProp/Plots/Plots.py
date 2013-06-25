@@ -255,11 +255,11 @@ def getIsoLines(Ref, plot, iName, iValues=[], num=0, axis=None):
     if xName=='T': #Sacrifice steps 
         Axmin = max(CP.Props(Ref,'Tmin'), Axmin)
         #Axmax = Axmax + 273.15 
-    x0 = numpy.linspace(Axmin,Axmax,1000)
+    x0 = numpy.linspace(Axmin,Axmax,1000.)
 
     patterns = {
-      'P' : (lambda x: numpy.logspace(math.log(x[0],2), math.log(x[1],2), num=x[2], base=2)),
-      'D' : (lambda x: numpy.logspace(math.log(x[0],2), math.log(x[1],2), num=x[2], base=2)),
+      'P' : (lambda x: numpy.logspace(math.log(x[0],2.), math.log(x[1],2.), num=x[2], base=2.)),
+      'D' : (lambda x: numpy.logspace(math.log(x[0],2.), math.log(x[1],2.), num=x[2], base=2.)),
       'H' : (lambda x: numpy.linspace(x[0], x[1], num=x[2])),
       'T' : (lambda x: numpy.linspace(x[0], x[1], num=x[2])),
       'S' : (lambda x: numpy.linspace(x[0], x[1], num=x[2])),
@@ -274,14 +274,16 @@ def getIsoLines(Ref, plot, iName, iValues=[], num=0, axis=None):
 #    iVal = patterns[iName]([numpy.min(iVal),numpy.max(iVal)]) 
     
     # Determine whether we need to calculate the spacing or not. 
+    #iValues = numpy.array(iValues) * 1. 
     iMin = numpy.min(iValues)
     iMax = numpy.max(iValues)
     iVal = numpy.sort(iValues)[1:-1] # min and max gets added later
-    if len(iValues)<num: # We need more lines
-        iNum = num - len(iValues) + 2 # + 2 for min and max
+    if 3<len(iValues)<num: # We need more lines
+        iNum = num - len(iVal) + 2. # + 2 for min and max
         iVal = numpy.append(iVal,patterns[iName]([iMin,iMax,iNum]))
-    else: 
-        iVal = numpy.append(iVal,[iMin,iMax])
+    else:
+        iNum = len(iValues)
+        iVal = numpy.array(iValues)
         
     iVal = numpy.sort(iVal) # sort again
         
@@ -429,7 +431,7 @@ def _getI_YX(Ref,iName,xName,yName,iVal,xVal):
     for j in range(len(iVal)):
         jiVal = iVal[j] #constant quantity
         jxVal = xVal[j] #x-axis array
-        Y = numpy.array([CP.Props(yName,iName,jiVal,xName,ijxVal,Ref) for ijxVal in jxVal])
+        Y = numpy.array([CP.Props(yName,iName,[jiVal],xName,ijxVal,Ref) for ijxVal in jxVal])
         y.append(Y)
         x.append(jxVal)
         
