@@ -20,9 +20,9 @@ Fluid Parameters
 
 =========================  ==============================
 Mole Mass [kg/kmol]        294.47206
-Triple Point Temp. [K]     238.100
+Triple Point Temp. [K]     260.000
 Triple Point Press. [kPa]  7.719886181e-12
-Minimum temperature [K]    238.100
+Minimum temperature [K]    260.000
 =========================  ==============================
 
 Critical Parameters
