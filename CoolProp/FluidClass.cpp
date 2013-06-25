@@ -2129,7 +2129,10 @@ void Fluid::temperature_ps(double p, double s, double *Tout, double *rhoout, dou
 			s_guess = entropy_Trho(T_guess,crit.rho);
 			T_guess = (crit.T-T_guess)/(sc-s_guess)*(s-s_guess)+T_guess;
 			
-			delta = p/(R()*T_guess)/reduce.rho;
+			// Solve for the density
+			rho_guess = density_Tp(T_guess,p);
+			
+			delta = rho_guess/reduce.rho;
 		}
 		else
 		{
