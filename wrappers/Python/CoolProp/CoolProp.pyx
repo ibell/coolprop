@@ -1042,6 +1042,10 @@ cdef class State:
         """ The specific heat at constant volume  [kJ/kg] """
         def __get__(self):
             return self.get_cv()
+        
+    cpdef double get_speed_sound(self) except *: 
+        """ Get the speed of sound  [m/s] """
+        return self.Props(iA)
             
     cpdef double get_visc(self) except *:
         """ Get the viscosity, in [Pa-s]"""
