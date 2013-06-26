@@ -44,5 +44,7 @@ public enum _params {
   iGWP20,
   iGWP100,
   iGWP500,
-  iCritSplineT
+  iCritSplineT,
+  iHcrit,
+  iScrit
 }
