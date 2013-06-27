@@ -9,7 +9,7 @@ File Type: DLL
   Section contains the following exports for CoolProp.dll
 
     00000000 characteristics
-    51CB6FB9 time date stamp Thu Jun 27 00:48:25 2013
+    51CCB591 time date stamp Thu Jun 27 23:58:41 2013
         0.00 version
            1 ordinal base
           48 number of functions
@@ -20,8 +20,8 @@ File Type: DLL
           1    0 000056A0 _DerivTerms@24
           2    1 00005170 _F2K@8
           3    2 00005630 _FluidsList@4
-          4    3 000CC0A0 _HAProps@40
-          5    4 000CD590 _HAProps_Aux@32
+          4    3 000CCA00 _HAProps@40
+          5    4 000CDEF0 _HAProps_Aux@32
           6    5 00004F00 _IProps@32
           7    6 00001F00 _IsFluidType@8
           8    7 00005150 _K2F@8

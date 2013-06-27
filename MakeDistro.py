@@ -199,7 +199,7 @@ def Superpacks():
         os.mkdir(os.path.join('dist_temp','windows_superpack'))
     except WindowsError:
         pass
-    shutil.copy2(os.path.join('dist_temp','source_code.zip'),os.path.join('dist_temp','windows_superpack','source_code.zip'))
+    shutil.copy2(os.path.join('dist_temp/CoolProp-'+CoolProp.__version__+'-source_code.zip'),os.path.join('dist_temp','windows_superpack','CoolProp-'+CoolProp.__version__+'-source_code.zip'))
     shutil.copytree(os.path.join('dist_temp','Excel and DLL'), os.path.join('dist_temp','windows_superpack','Excel and DLL'))
     shutil.copytree(os.path.join('dist_temp','Python'), os.path.join('dist_temp','windows_superpack','Python'))
     shutil.copytree(os.path.join('dist_temp','C#'), os.path.join('dist_temp','windows_superpack','C#'))
@@ -229,4 +229,4 @@ if __name__=='__main__':
 ##     UploadSourceForge()
     
 ##     BuildDocs()
-    UploadDocs()
+##     UploadDocs()
