@@ -176,9 +176,15 @@ if __name__=='__main__':
     except:
         pass
         
-    for header in glob.glob(os.path.join(CPSourceDir,'*.h')):
-        pth,fName = os.path.split(header)
-        shutil.copy2(header,os.path.join('CoolProp','include',fName))
+    for folder in [os.path.join(CPSourceDir)]:
+        for header in glob.glob(os.path.join(folder,'*.h')):
+            pth,fName = os.path.split(header)
+            shutil.copy2(header,os.path.join('CoolProp','include',fName))
+    
+    try:
+        shutil.copytree(os.path.join(CPSourceDir,'rapidjson'),os.path.join('CoolProp','include','rapidjson'))
+    except:
+        pass
     shutil.copy2(os.path.join(CPSourceDir,'CoolPropBibTeXLibrary.bib'),os.path.join('CoolProp','CoolPropBibTeXLibrary.bib'))
     
     setup (name = 'CoolProp',
@@ -190,7 +196,7 @@ if __name__=='__main__':
            packages = ['CoolProp','CoolProp.Plots','CoolProp.tests','CoolProp.GUI'],
            ext_modules = [CoolProp_module,param_constants_module,phase_constants_module],
            package_dir = {'CoolProp':'CoolProp',},
-           package_data = {'CoolProp':['State.pxd','CoolProp.pxd','param_constants.pxd','include/*.h','CoolPropBibTeXLibrary.bib']},
+           package_data = {'CoolProp':['State.pxd','CoolProp.pxd','param_constants.pxd','include/*.h','include/rapidjson/*.h','include/rapidjson/internal/*.h','CoolPropBibTeXLibrary.bib']},
            cmdclass={'build_ext': build_ext},
            
            classifiers = [

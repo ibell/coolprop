@@ -1513,7 +1513,7 @@ double phi0_cp0_poly::dTau(double tau, double delta)
 		}
 		else if (fabs(t+1) < 10*DBL_EPSILON)
 		{
-			sum += a[i]/Tc*log(tau0/tau)+2*a[i]/Tc;
+			sum += a[i]/Tc*log(tau0/tau);
 		}
 		else
 		{

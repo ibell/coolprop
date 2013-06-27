@@ -24,7 +24,7 @@ class Fluid;
 */
 struct HSContainer
 {
-	double hmax,T_hmax,rho_hmax, sV_Tmin;
+	double hmax,T_hmax,rho_hmax,s_hmax, sV_Tmin, sL_Tmin, hV_Tmin, hL_Tmin;
 	std::vector<double> a_hs_satL;
 	std::vector<int> n_hs_satL;
 };
@@ -471,6 +471,15 @@ class Fluid
 		/// @param rhoLout Saturated liquid density [kg/m3]
 		/// @param rhoVout Saturated vapor density [kg/m3]
 		virtual void saturation_p(double p, bool UseLUT, double *TsatLout, double *TsatVout, double *rhoLout, double *rhoVout);
+
+		/// Saturation temperature and saturated liquid and vapor densities as a function of the enthalpy. (The phase must be provided)
+		/// @param h Enthalpy [kJ/kg/K]
+		/// @param Tmin Minimum temperature [K]
+		/// @param Tmax Maximum temperature [K]
+		/// @param Q Quality [kg/kg]
+		/// @param Tsatout Saturated temperature [K]
+		/// @param rhoout Saturated density [kg/m3]
+		virtual void saturation_h(double h, double Tmin, double Tmax, int Q, double *Tsatout, double *rhoout);
 
 		/// Saturation temperature and saturated liquid and vapor densities as a function of the entropy. (The phase must be provided)
 		/// @param s Entropy [kJ/kg/K]

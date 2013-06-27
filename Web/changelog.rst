@@ -1,6 +1,19 @@
 Changelog for CoolProp
 ======================
 
+3.2.0 (revision 617)
+--------------------
+* Added the function PropsU to python wrapper which allows for use of SI of kSI set of units
+* Both inputs to Props can be iterables
+* Added the fluid R1234ze(Z)
+* Renamed R1234ze to R1234ze(E)
+* H-S works
+* P-H, P-S fixed
+* Fixed n-Undecane entropy
+* Fixes to wetbulb temperature
+* First code for Mixtures - not exposed through API
+* CAS numbers added for all fluids - retrieve using the function ``get_CAS_code``
+
 3.1.2 (revision 577)
 --------------------
 

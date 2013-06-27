@@ -1,1 +1,1 @@
-char version [] ="3.1.2";
+char version [] ="3.2.0";

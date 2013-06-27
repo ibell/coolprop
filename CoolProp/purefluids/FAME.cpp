@@ -320,7 +320,7 @@ MethylLinoleateClass::MethylLinoleateClass()
 
 	// Other fluid parameters
 	params.molemass = 294.47206; // From REFPROP, not provided in paper (but should be!!)
-	params.Ttriple = 238.1; // From REFPROP, not provided in paper
+	params.Ttriple = 260;
 	params.accentricfactor = 0.80540638705564849;
 	params.R_u = 8.314472;
 	params.ptriple = 7.7198861810445706e-012;
@@ -418,7 +418,7 @@ MethylLinolenateClass::MethylLinolenateClass()
 
 	// Other fluid parameters
 	params.molemass = 292.45618; // From REFPROP, not provided in paper (but should be!!)
-	params.Ttriple = 218.65; // From REFPROP, not provided in paper
+	params.Ttriple = 260;
 	params.accentricfactor = 1.1426052586734956;
 	params.R_u = 8.314472;
 	params.ptriple = 8.2813864418489102e-015;

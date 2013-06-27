@@ -37,30 +37,30 @@ class IncompLiquidFit(object):
     def setParams(self,fluid):
         if fluid=='init':
             # initial parameters for the different fits
-            self._cDensity =        [+7.5e+2, -0.7e+0, -1.3e-4, -2.1e-6]
-            self._cHeatCapacity =   [+2.0e+0, +3.8e-3, +2.1e-6, -1.1e-8, +3.9e-11]
-            self._cTConductivity =  [+1.1e-1, +1.5e-4, -1.6e-7]
-            self._cViscosity =      [+5.3e+2, +1.5e+2, -2.7e+0]
-            self._cPsat =           [-3.6e+3, +1.9e+2, +1.4e+1]
+            self._cDensity =        [+9.2e+2, -0.5e+0, +2.8e-4, -1.1e-6]
+            self._cHeatCapacity =   [+1.0e+3, +2.9e+0, +2.5e-3, +3.2e-6, -9.8e-9]
+            self._cTConductivity =  [+1.1e-1, +7.8e-5, -3.5e-7]
+            self._cViscosity =      [+7.1e+4, +2.3e+3, +3.4e+1]
+            self._cPsat =           [-5.3e+5, +3.2e+3, -1.6e+2]
             
-        elif fluid=='TherminolD12inCelsius':
-            self._cDensity =        [776.257 ,  -0.696982, -0.000131384, -0.00000209079]
-            self._cHeatCapacity =   [2.01422 , 0.00386884,   2.05029e-6, -1.12621e-8, 3.86282e-11]
-            self._cTConductivity =  [0.112994, 0.00014781,  -1.61429e-7]
-            self._cViscosity =      [530.944, 146.4, -2.68168]
-            self._cPsat =           [-3562.69, 194, 13.8526]
-            self._Tmin =     -85.0 + 273.15
-            self._TminPsat =  40.0 + 273.15
-            self._Tmax =     260.0 + 273.15
-        elif fluid=='TherminolD12':
-            self._cDensity =        [1.08315084e+04,-8.21176568e+01,2.23399244e-01,  -2.03753274e-04]
-            self._cHeatCapacity =   [2.01422 , 0.00386884,   2.05029e-6, -1.12621e-8, 3.86282e-11]
-            self._cTConductivity =  [0.112994, 0.00014781,  -1.61429e-7]
-            self._cViscosity =      [530.944, 146.4, -2.68168]
-            self._cPsat =           [-3562.69, 194, 13.8526]
-            self._Tmin =     -85.0 + 273.15
-            self._TminPsat =  40.0 + 273.15
-            self._Tmax =     260.0 + 273.15
+#        elif fluid=='TherminolD12inCelsius':
+#            self._cDensity =        [776.257 ,  -0.696982, -0.000131384, -0.00000209079]
+#            self._cHeatCapacity =   [2.01422 , 0.00386884,   2.05029e-6, -1.12621e-8, 3.86282e-11]
+#            self._cTConductivity =  [0.112994, 0.00014781,  -1.61429e-7]
+#            self._cViscosity =      [530.944, 146.4, -2.68168]
+#            self._cPsat =           [-3562.69, 194, 13.8526]
+#            self._Tmin =     -85.0 + 273.15
+#            self._TminPsat =  40.0 + 273.15
+#            self._Tmax =     260.0 + 273.15
+#        elif fluid=='TherminolD12':
+#            self._cDensity =        [1.08315084e+04,-8.21176568e+01,2.23399244e-01,  -2.03753274e-04]
+#            self._cHeatCapacity =   [2.01422 , 0.00386884,   2.05029e-6, -1.12621e-8, 3.86282e-11]
+#            self._cTConductivity =  [0.112994, 0.00014781,  -1.61429e-7]
+#            self._cViscosity =      [530.944, 146.4, -2.68168]
+#            self._cPsat =           [-3562.69, 194, 13.8526]
+#            self._Tmin =     -85.0 + 273.15
+#            self._TminPsat =  40.0 + 273.15
+#            self._Tmax =     260.0 + 273.15
 
         else:
             raise (ValueError("No coefficients available for "+str(fluid)))
@@ -92,7 +92,7 @@ class IncompLiquidFit(object):
         """
         result = 0.
         for i in range(len(coefficients)): 
-            result = result + coefficients[i] * x**i
+            result += coefficients[i] * x**i
         return result 
 
     def _baseExponential(self,coefficients,x,num=3):
@@ -214,65 +214,86 @@ class IncompLiquidFit(object):
             raise (ValueError("Error: You should use at least "+str(self._minPoints)+" points."))
         
         def fun(coefficients,xName,T,xData):
-            calculated = numpy.array([self._PropsFit(coefficients,xName,T=Ti) for Ti in T])
-            data = numpy.array(xData)
+            # Values for conductivity are very small,
+            # algorithms prefer larger values
+            if xName=='L':
+                calculated = numpy.array([self._PropsFit(coefficients,xName,T=Ti) for Ti in T])*1e4
+                data       = numpy.array(xData)*1e4
+            # Fit logarithms for viscosity and saturation pressure
+            elif xName=='V' or xName=='Psat':
+                calculated = numpy.log([self._PropsFit(coefficients,xName,T=Ti) for Ti in T])
+                data       = numpy.log(xData)
+            else:
+                calculated = numpy.array([self._PropsFit(coefficients,xName,T=Ti) for Ti in T])
+                data       = numpy.array(xData)
+            
             res = numpy.sum((calculated-data)**2.)
             return res 
         
         initValues = self.getCoefficients(xName)[:]
         arguments  = (xName,T,xData)
         options    = {'maxiter': 1e4, 'maxfev': 1e6}
-        res = minimize(fun, initValues, method='Powell', args=arguments, options=options)
+        res = minimize(fun, initValues, method='Powell', args=arguments, tol=1e-15, options=options)
         if res.success:
             return res.x
         else:
             print res
             return False 
-        
-    
-### Some test case 
 
+
+### Load the data 
+from data_incompressible import Example as DataContainer
+data = DataContainer()
+
+
+### Some test case 
 liqObj = IncompLiquidFit()
 liqObj.setParams("init")
-liqObj.setTmin(    -85 + 273.15)
-liqObj.setTminPsat( 40 + 273.15)
-liqObj.setTmax(    260 + 273.15)    
+liqObj.setTmin(data.Tmin)
+liqObj.setTminPsat(data.TminPsat)
+liqObj.setTmax(data.Tmax)    
 
-T      = numpy.array([   50,    60,    70,    80,    90,   100,   110,   120,   130,   140,   150])+273.15
-rho    = numpy.array([  740,   733,   726,   717,   710,   702,   695,   687,   679,   670,   662])
-c_p    = numpy.array([ 2235,  2280,  2326,  2361,  2406,  2445,  2485,  2528,  2571,  2607,  2645])
-lam    = numpy.array([0.105, 0.104, 0.102, 0.100, 0.098, 0.096, 0.095, 0.093, 0.091, 0.089, 0.087])
-mu_dyn = numpy.array([0.804, 0.704, 0.623, 0.556, 0.498, 0.451, 0.410, 0.374, 0.346, 0.317, 0.289])/1000. 
-psat   = numpy.array([  0.5,   0.9,   1.4,   2.3,   3.9,   6.0,   8.7,  12.4,  17.6,  24.4,  33.2])*1000.  
-
+### This is the actual fitting
+tData = data.T
 inVal = 'D'
-xData = rho
+xData = data.rho
 oldCoeffs = liqObj.getCoefficients(inVal)
-newCoeffs = liqObj.fitCoefficients(inVal,T=T,xData=xData)
+newCoeffs = liqObj.fitCoefficients(inVal,T=tData,xData=xData)
 print "Density, old: "+str(oldCoeffs)
 print "Density, new: "+str(newCoeffs)
 print 
 
 inVal = 'C'
-xData = c_p
+xData = data.c_p
 oldCoeffs = liqObj.getCoefficients(inVal)
-newCoeffs = liqObj.fitCoefficients(inVal,T=T,xData=xData)
+newCoeffs = liqObj.fitCoefficients(inVal,T=tData,xData=xData)
 print "Heat c., old: "+str(oldCoeffs)
 print "Heat c., new: "+str(newCoeffs)
 print 
 
 inVal = 'L'
-xData = lam
+xData = data.lam
 oldCoeffs = liqObj.getCoefficients(inVal)
-newCoeffs = liqObj.fitCoefficients(inVal,T=T,xData=xData)
+newCoeffs = liqObj.fitCoefficients(inVal,T=tData,xData=xData)
 print "Th. Co., old: "+str(oldCoeffs)
 print "Th. Co., new: "+str(newCoeffs)
 print 
 
 inVal = 'V'
-xData = mu_dyn
+xData = data.mu_dyn
 oldCoeffs = liqObj.getCoefficients(inVal)
-newCoeffs = liqObj.fitCoefficients(inVal,T=T,xData=xData)
+newCoeffs = liqObj.fitCoefficients(inVal,T=tData,xData=xData)
 print "Viscos., old: "+str(oldCoeffs)
 print "Viscos., new: "+str(newCoeffs)
 print 
+
+inVal = 'Psat'
+xData = data.psat
+oldCoeffs = liqObj.getCoefficients(inVal)
+newCoeffs = liqObj.fitCoefficients(inVal,T=tData,xData=xData)
+print "P sat. , old: "+str(oldCoeffs)
+print "P sat. , new: "+str(newCoeffs)
+print 
+
+# TODO: We should plot some graphs to control fit quality
+
