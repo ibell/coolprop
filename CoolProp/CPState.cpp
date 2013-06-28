@@ -1099,18 +1099,15 @@ double CoolPropStateClass::s(void){
 	}
 }
 double CoolPropStateClass::cp(void){
-	if (pFluid->enabled_TTSE_LUT && within_TTSE_range(iP, p(), iH, h()) )
+	if (TwoPhase && _Q > 0 && _Q < 1)
 	{
-		if (TwoPhase && _Q > 0 && _Q < 1)
-		{
-			return -1;
-		}
-		else
-		{
-			// cp is also given by (dh/dT)|p, or 1/((dT/dh)|p) which is tabulated
-			_h = h();
-			return 1/pFluid->TTSESinglePhase.evaluate_first_derivative(iT,iH,iP,_p,_logp,_h);
-		}
+		return _HUGE;
+	}
+	else if (pFluid->enabled_TTSE_LUT && within_TTSE_range(iP, p(), iH, h()) )
+	{
+		// cp is also given by (dh/dT)|p, or 1/((dT/dh)|p) which is tabulated
+		_h = h();
+		return 1/pFluid->TTSESinglePhase.evaluate_first_derivative(iT,iH,iP,_p,_logp,_h);
 	}
 	else
 	{

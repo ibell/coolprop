@@ -1063,7 +1063,7 @@ cdef class State:
         def __get__(self):
             return self.get_cond()
         
-    cpdef get_Tsat(self, double Q = 1):
+    cpdef double get_Tsat(self, double Q = 1):
         """ 
         Get the saturation temperature, in [K]
         
@@ -1083,7 +1083,7 @@ cdef class State:
         def __get__(self):
             return self.get_Tsat()
         
-    cpdef get_superheat(self):
+    cpdef double get_superheat(self):
         """ 
         Get the amount of superheat above the saturation temperature corresponding to the pressure, in [K]
         
@@ -1105,7 +1105,7 @@ cdef class State:
         def __get__(self):    
             return self.get_superheat()
         
-    cpdef get_subcooling(self):
+    cpdef double get_subcooling(self):
         """ 
         Get the amount of subcooling below the saturation temperature corresponding to the pressure, in [K]
         

@@ -228,5 +228,5 @@ if __name__=='__main__':
 ##     PYPI()
 ##     UploadSourceForge()
     
-##     BuildDocs()
-##     UploadDocs()
+    BuildDocs()
+    UploadDocs()

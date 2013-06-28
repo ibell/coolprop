@@ -71,7 +71,7 @@ public:
 
 
 /*! 
-The abstract base clas for departure functions for the excess part of the Helmholtz energy
+The abstract base class for departure functions for the excess part of the Helmholtz energy
 */
 class DepartureFunction
 {
@@ -168,12 +168,13 @@ public:
 	/// Returns the fugacity for the given component for the given total reduced density and reciprocal reduced temperature
 	double fugacity(double tau, double delta, std::vector<double> *x, int i);
 	
-	/*! Density and friends as a function of T,p,x
+	/*! Density as a function of T,p,z
 	@param T Temperature [K]
 	@param p Pressure [kPa]
 	@param z Bulk mole fractions [-]
+	@param rhobar0 Guess value for molar density [mol/L]
 	*/
-	double rhobar_Tpz(double T, double p, std::vector<double> *x, double rhobar0);
+	double rhobar_Tpz(double T, double p, std::vector<double> *z, double rhobar0);
 
 	/*! Temperature-pressure-bulk mole fraction flash calculation
 	@param T Temperature [K]
