@@ -22,6 +22,7 @@
 #define CHOICE_ph 2
 #define CHOICE_ps 3
 #define CHOICE_pT 4
+#define CHOICE_hs 5
 
 // Define struct
 //! ExternalThermodynamicState property struct
@@ -130,6 +131,7 @@ extern "C" {
 	EXPORT void TwoPhaseMedium_setState_pT_(double p, double T, ExternalThermodynamicState *state, const char *mediumName, const char *libraryName, const char *substanceName);
 	EXPORT void TwoPhaseMedium_setState_dT_(double d, double T, int phase, ExternalThermodynamicState *state, const char *mediumName, const char *libraryName, const char *substanceName);
 	EXPORT void TwoPhaseMedium_setState_ps_(double p, double s, int phase, ExternalThermodynamicState *state, const char *mediumName, const char *libraryName, const char *substanceName);
+	EXPORT void TwoPhaseMedium_setState_hs_(double h, double s, int phase, ExternalThermodynamicState *state, const char *mediumName, const char *libraryName, const char *substanceName);
 	
 	EXPORT double TwoPhaseMedium_prandtlNumber_(ExternalThermodynamicState *state, const char *mediumName, const char *libraryName, const char *substanceName);
 	EXPORT double TwoPhaseMedium_temperature_(ExternalThermodynamicState *state, const char *mediumName, const char *libraryName, const char *substanceName);

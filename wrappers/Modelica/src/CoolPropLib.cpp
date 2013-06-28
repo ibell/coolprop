@@ -5,6 +5,7 @@
 
 #include "CoolPropLib.h"
 #include "basesolver.h"
+#include "coolpropsolver.h"
 #include "solvermap.h"
 #include <math.h>
 
@@ -123,6 +124,24 @@ void TwoPhaseMedium_setState_ps_(double p, double s, int phase, ExternalThermody
 								 const char *mediumName, const char *libraryName, const char *substanceName){
 	BaseSolver *solver = SolverMap::getSolver(mediumName, libraryName, substanceName);
     solver->setState_ps(p, s, phase, state);
+}
+
+//! Compute properties from h, s, and phase
+/*!
+  This function computes the properties for the specified inputs.
+  @param h Specific enthalpy
+  @param s Specific entropy
+  @param phase Phase (2 for two-phase, 1 for one-phase, 0 if not known)
+  @param ExternalThermodynamicState Pointer to return values for ExternalThermodynamicState struct
+  @param mediumName Medium name
+  @param libraryName Library name
+  @param substanceName Substance name
+*/
+void TwoPhaseMedium_setState_hs_(double h, double s, int phase, ExternalThermodynamicState *state,
+								 const char *mediumName, const char *libraryName, const char *substanceName){
+//	Cat&    catRef2 = dynamic_cast<Cat&>(AnimalRed2);  // Works
+	CoolPropSolver* solver = dynamic_cast<CoolPropSolver*>(SolverMap::getSolver(mediumName, libraryName, substanceName));
+    solver->setState_hs(h, s, phase, state);
 }
 
 //! Return Prandtl number of specified medium
