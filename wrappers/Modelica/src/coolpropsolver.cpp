@@ -404,3 +404,57 @@ void CoolPropSolver::setState_ps(double &p, double &s, int &phase, ExternalTherm
 	}
 }
 
+
+// Note: the phase input is currently not supported
+void CoolPropSolver::setState_hs(double &h, double &s, int &phase, ExternalThermodynamicState *const properties){
+	//Convert to CoolProp inputs
+	s /= 1000; // [J/kg/K --> kJ/kg/K]
+	h /= 1000; // [J/kg/K --> kJ/kg/K]
+
+	if (debug_level > 5)
+		std::cout << format("setState_hs(h=%0.16e,s=%0.16e)\n",h,s);
+
+	if (enable_TTSE)
+		state->enable_TTSE_LUT();
+	else
+		state->disable_TTSE_LUT();
+	try{
+		// Update the internal variables in the state instance
+		state->update(iH,h,iS,s);
+
+		// Set the values in the output structure
+		properties->h = h*1000; //[kJ/kg/K --> J/kg/K]
+		properties->s = s*1000; // [kJ/kg/K --> J/kg/K]
+		properties->d = state->rho();
+		properties->T = state->T();
+		properties->p = state->p()*1000; // [kPa --> Pa]
+		properties->phase = 1; // with pT input, always one-phase conditions!
+		properties->cp = state->cp()*1000;
+		properties->cv = state->cv()*1000;
+		properties->a = state->speed_sound();
+        if (state->TwoPhase && state->Q() >= 0 && state->Q() <= twophase_derivsmoothing_xend)
+		{
+			// Use the smoothed derivatives between a quality of 0 and twophase_derivsmoothing_xend
+            properties->ddhp = state->drhodh_constp_smoothed(twophase_derivsmoothing_xend)/1000; // [1/kPa -- > 1/Pa]
+            properties->ddph = state->drhodp_consth_smoothed(twophase_derivsmoothing_xend)/1000; // [1/(kJ/kg) -- > 1/(J/kg)]
+		}
+		else
+		{
+            properties->ddhp = state->drhodh_constp()/1000; // [1/kPa -- > 1/Pa]
+			properties->ddph = state->drhodp_consth()/1000; // [1/(kJ/kg) -- > 1/(J/kg)]
+		}
+		properties->kappa = properties->d/properties->p/state->dpdrho_constT()/1000; // [1/kPa -- > 1/Pa]
+		properties->beta = -1/properties->d*state->drhodT_constp();
+        if (calc_transport)
+        {
+            properties->eta = state->viscosity();
+            properties->lambda = state->conductivity()*1000; //[kW/m/K --> W/m/K]
+            properties->Pr = properties->cp*properties->eta/properties->lambda;
+        }
+	}
+	catch(std::exception &e)
+	{
+		errorMessage((char*)e.what());
+	}
+}
+
