@@ -1,6 +1,7 @@
 
 #include "Mixtures.h"
 #include "Solvers.h"
+#include "CPExceptions.h"
 
 enum PengRobinsonOptions{PR_SATL, PR_SATV};
 Mixture::Mixture(std::vector<Fluid *> pFluids)
@@ -91,15 +92,24 @@ Mixture::Mixture(std::vector<Fluid *> pFluids)
 	//TpzFlash(T, p, z, &rhobar, &x, &y);
 
 	double Tsat;
-	for (double x0 = 0; x0 <= 1; x0 += 0.1)
+	for (double x0 = 0; x0 <= 1.000000000000001; x0 += 0.01)
 	{
 		z[0] = x0; z[1] = 1-x0;
-		Tsat = saturation_p(TYPE_BUBBLEPOINT, 500, &z, &x, &y);
+		Tsat = saturation_p(TYPE_BUBBLEPOINT, 1000, &z, &x, &y);
 		std::cout << format("%g %g %g %g",x0,Tsat,y[0],y[1]);
-		Tsat = saturation_p(TYPE_DEWPOINT, 500, &z, &x, &y);
+		Tsat = saturation_p(TYPE_DEWPOINT, 1000, &z, &x, &y);
 		std::cout << format(" %g %g %g",Tsat,x[0],x[1]);
 			
 		std::cout << std::endl;
+	}
+
+	for (double p = 100; p <= 1e9; p *= 1.1)
+	{
+		double x0 = 0.5;
+		z[0] = x0; z[1] = 1-x0;
+		Tsat = saturation_p(TYPE_BUBBLEPOINT, p, &z, &x, &y);
+		if (!ValidNumber(Tsat)){break;}
+		std::cout << format("%g %g %g %g\n",x0,Tsat,y[0],y[1]);
 	}
 
 	double rr = 0;
@@ -260,6 +270,15 @@ double Mixture::rhobar_Tpz(double T, double p, std::vector<double> *x, double rh
 	return Secant(&Resid, rhobar0, 0.00001, 1e-8, 100, &errstr);
 }
 
+
+
+//double Mixture::saturation_p_NewtonRaphson(int type, double T, double p, std::vector<double> *z, std::vector<double> *ln_phi_liq, std::vector<double> *ln_phi_vap, std::vector<double> *x, std::vector<double> *y)
+//{
+//
+//	
+//}
+
+
 /*! A wrapper function around the residual to find the initial guess for the bubble point temperature
 \f[
 r = \sum_i \left[z_i K_i\right] - 1 
@@ -302,6 +321,7 @@ public:
 		return summer;
 	};
 };
+
 double Mixture::saturation_p(int type, double p, std::vector<double> *z, std::vector<double> *x, std::vector<double> *y)
 {
 	int iter = 0;
@@ -319,7 +339,16 @@ double Mixture::saturation_p(int type, double p, std::vector<double> *z, std::ve
 		// Find first guess for T using Wilson K-factors
 		bubblepoint_WilsonK_resid Resid(this,p,z); //sum(z_i*K_i) - 1
 		std::string errstr;
-		T = Secant(&Resid, pReducing->Tr(z)*0.8, 0.00001, 1e-10, 100, &errstr);
+		double Tr = pReducing->Tr(z);
+		// Try a range of different values for the temperature, hopefully one works
+		for (double T_guess = Tr*0.9; T_guess > 0; T_guess -= Tr*0.1)
+		{
+			try{
+				T = Secant(&Resid, T_guess, 0.001, 1e-10, 100, &errstr);
+				if (!ValidNumber(T)){throw ValueError();}
+				break;
+			} catch (CoolPropBaseError) {}
+		}
 	}
 	else if (type == TYPE_DEWPOINT)
 	{
@@ -328,7 +357,16 @@ double Mixture::saturation_p(int type, double p, std::vector<double> *z, std::ve
 		// Find first guess for T using Wilson K-factors
 		dewpoint_WilsonK_resid Resid(this,p,z); //1-sum(z_i/K_i)
 		std::string errstr;
-		T = Secant(&Resid, pReducing->Tr(z)*0.8, 0.00001, 1e-10, 100, &errstr);
+		double Tr = pReducing->Tr(z);
+		// Try a range of different values for the temperature, hopefully one works
+		for (double T_guess = Tr*0.9; T_guess > 0; T_guess -= Tr*0.1)
+		{
+			try{
+				T = Secant(&Resid, T_guess, 0.001, 1e-10, 100, &errstr);
+				if (!ValidNumber(T)){throw ValueError();}
+				break;
+			} catch (CoolPropBaseError) {}
+		}
 	}
 	else
 	{
@@ -444,11 +482,12 @@ double Mixture::saturation_p(int type, double p, std::vector<double> *z, std::ve
 		iter += 1;
 		if (iter > 50)
 		{
-			throw ValueError(format("saturation_p was unable to reach a solution within 50 iterations"));
+			return _HUGE;
+			//throw ValueError(format("saturation_p was unable to reach a solution within 50 iterations"));
 		}
 	}
 	while(abs(f) > 1e-8);
-	
+	//std::cout << iter << std::endl;
 	return T;
 }
 void Mixture::TpzFlash(double T, double p, std::vector<double> *z, double *rhobar, std::vector<double> *x, std::vector<double> *y)

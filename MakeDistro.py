@@ -189,8 +189,9 @@ def UploadDocs():
     
 def Superpacks():
     
+    import CoolProp
     subprocess.check_call(['svn','export','.','sources'])
-    subprocess.check_call(['7z','a','-r','dist_temp/source_code.zip','sources/*.*'])
+    subprocess.check_call(['7z','a','-r','dist_temp/CoolProp-'+CoolProp.__version__+'-source_code.zip','sources/*.*'])
     shutil.rmtree('sources',ignore_errors= True)
     
     ## Windows superpack
@@ -198,7 +199,7 @@ def Superpacks():
         os.mkdir(os.path.join('dist_temp','windows_superpack'))
     except WindowsError:
         pass
-    shutil.copy2(os.path.join('dist_temp','source_code.zip'),os.path.join('dist_temp','windows_superpack','source_code.zip'))
+    shutil.copy2(os.path.join('dist_temp/CoolProp-'+CoolProp.__version__+'-source_code.zip'),os.path.join('dist_temp','windows_superpack','CoolProp-'+CoolProp.__version__+'-source_code.zip'))
     shutil.copytree(os.path.join('dist_temp','Excel and DLL'), os.path.join('dist_temp','windows_superpack','Excel and DLL'))
     shutil.copytree(os.path.join('dist_temp','Python'), os.path.join('dist_temp','windows_superpack','Python'))
     shutil.copytree(os.path.join('dist_temp','C#'), os.path.join('dist_temp','windows_superpack','C#'))
@@ -208,23 +209,24 @@ def Superpacks():
     shutil.copytree(os.path.join('dist_temp','Labview'), os.path.join('dist_temp','windows_superpack','Labview'))
     shutil.copytree(os.path.join('dist_temp','Modelica'), os.path.join('dist_temp','windows_superpack','Modelica'))
     
-    subprocess.check_call(['7z','a','-r','dist_temp/windows_superpack.zip','dist_temp/windows_superpack/*.*'])
+    subprocess.check_call(['7z','a','-r','dist_temp/CoolProp-'+CoolProp.__version__+'-windows_superpack.zip','dist_temp/windows_superpack/*.*'])
+    shutil.rmtree(os.path.join('dist_temp','windows_superpack'))
     
 if __name__=='__main__':
     
 ##     InstallPrereqs()  #This is optional if you think any of the pre-reqs have been updated
-    DLL_and_Excel()
-    Source()
-    Python()
-    Csharp()
-    Octave()
-    MATLAB()
-    EES()
-    Labview()
-    Modelica()
-    Superpacks()
+##     DLL_and_Excel()
+##     Source()
+##     Python()
+##     Csharp()
+##     Octave()
+##     MATLAB()
+##     EES()
+##     Labview()
+##     Modelica()
+##     Superpacks()
 ##     PYPI()
-    UploadSourceForge()
+##     UploadSourceForge()
     
-##     BuildDocs()
-##     UploadDocs()
+    BuildDocs()
+    UploadDocs()

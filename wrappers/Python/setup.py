@@ -17,6 +17,11 @@ minor = int(minor[0:iEnd])
 if not(major > 0 or minor >= 17):
     raise ImportError('Cython version >= 0.17 required due to the use of STL wrappers.  Please update your version of cython')
 
+if minor >= 20:
+    _profiling_enabled = True
+else:
+    _profiling_enabled = False
+
 try:
     import psutil
     for proc in psutil.get_process_list():
@@ -154,9 +159,17 @@ if __name__=='__main__':
     #force cython to build by touching the cython sources
     cython_sources = [os.path.join('CoolProp','CoolProp.pyx')]
 
+    if _profiling_enabled:
+        cython_directives = dict(profile = True,
+                                 embed_signature = True)
+    else:
+        cython_directives = dict(embed_signature = True)
+        
     common_args = dict(include_dirs = include_dirs,
                         language='c++',
-                        cython_c_in_temp = True)
+                        cython_c_in_temp = True,
+                        cython_directives = cython_directives
+                       )
                         
     CoolProp_module = CyExtension('CoolProp.CoolProp',
                         [os.path.join('CoolProp','CoolProp.pyx')]+Sources,

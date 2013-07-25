@@ -218,7 +218,7 @@ class IncompLiquidFit(object):
             # algorithms prefer larger values
             if xName=='L':
                 calculated = numpy.array([self._PropsFit(coefficients,xName,T=Ti) for Ti in T])*1e4
-                data       = numpy.array(xData)*1e4
+                data       = numpy.array(xData)*1e6
             # Fit logarithms for viscosity and saturation pressure
             elif xName=='V' or xName=='Psat':
                 calculated = numpy.log([self._PropsFit(coefficients,xName,T=Ti) for Ti in T])
@@ -242,7 +242,7 @@ class IncompLiquidFit(object):
 
 
 ### Load the data 
-from data_incompressible import Example as DataContainer
+from data_incompressible import TherminolD12 as DataContainer
 data = DataContainer()
 
 

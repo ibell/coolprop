@@ -869,7 +869,7 @@ public:
 class WetBulbTminSolver : public FuncWrapper1D
 {
 public:
-	double p,hair_dry;
+	double p,hair_dry,r, RHS;
 	WetBulbTminSolver(double p, double hair_dry){
 		this->p = p;
 		this->hair_dry = hair_dry;
@@ -877,10 +877,10 @@ public:
 	~WetBulbTminSolver(){};
 	double call(double Ts)
 	{
-		double RHS = HAProps("H","T",Ts,"P",p,"R",1);
-
+		RHS = HAProps("H","T",Ts,"P",p,"R",1);
 		if (!ValidNumber(RHS)){throw ValueError();}
-        return RHS - this->hair_dry;
+		r = RHS - this->hair_dry;
+        return r;
 	}
 };
 
@@ -920,13 +920,19 @@ double WetbulbTemperature(double T, double p, double psi_w)
 		// The lowest wetbulb temperature that is possible for a given dry bulb temperature 
 		// is the saturated air temperature which yields the enthalpy of dry air at dry bulb temperature
 
-		double hair_dry = MassEnthalpy(T,p,0);
+		try{
+			double hair_dry = MassEnthalpy(T,p,0);
 
-		// Directly solve for the saturated temperature that yields the enthalpy desired
-		WetBulbTminSolver WBTS(p,hair_dry);
-		double Tmin = Brent(&WBTS,210,Tsat-1,1e-12,1e-12,50,&errstr);
+			// Directly solve for the saturated temperature that yields the enthalpy desired
+			WetBulbTminSolver WBTS(p,hair_dry);
+			double Tmin = Brent(&WBTS,210,Tsat-1,1e-12,1e-12,50,&errstr);
 
-		return_val = Brent(&WBS,Tmin,Tmax,1e-12,1e-12,50,&errstr);
+			return_val = Brent(&WBS,Tmin-30,Tmax-1,1e-12,1e-12,50,&errstr);
+		}
+		catch(std::exception)
+		{
+			return_val = _HUGE;
+		}
 	}
 	return return_val;	
 }

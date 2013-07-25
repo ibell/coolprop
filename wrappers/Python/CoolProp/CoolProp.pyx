@@ -735,6 +735,27 @@ cdef dict paras_inverse = {v:k for k,v in paras.iteritems()}
 cdef class State:
     """
     A class that contains all the code that represents a thermodynamic state
+    
+    The motivation for this class is that it is useful to be able to define the
+    state once using whatever state inputs you like and then be able to calculate
+    other thermodynamic properties with the minimum of computational work.
+    
+    Let's suppose that you have inputs of pressure and temperature and you want
+    to calculate the enthalpy and pressure.  Since the Equations of State are
+    all explicit in temperature and density, each time you call something like
+    
+        h = Props('H','T',T','P',P,Fluid)
+        s = Props('S','T',T','P',P,Fluid)
+        
+    the solver is used to carry out the T-P flash calculation. And if you wanted
+    entropy as well you could either intermediately calculate ``T``,``rho`` and then use
+    ``T``, ``rho`` in the EOS in a manner like
+    
+        rho = Props('D','T',T','P',P,Fluid)
+        h = Props('H','T',T','D',rho,Fluid)
+        s = Props('S','T',T','D',rho,Fluid)
+        
+    Instead in this class all that is handled internally. 
     """
         
     def __init__(self, bytes Fluid, dict StateDict, double xL=-1.0, object Liquid = None, object phase = None):
@@ -750,11 +771,14 @@ cdef class State:
             Liquid mass fraction (not currently supported)
         Liquid, string
             The name of the liquid (not currently supported)
-        
-            
         """
         cdef bytes _Fluid = Fluid
         cdef bytes _Liquid
+        
+        if Fluid == 'none':
+            return
+        else:
+            self.set_Fluid(Fluid)
         
         if Liquid is None:
             _Liquid = b''
@@ -774,18 +798,6 @@ cdef class State:
         else:
             raise TypeError()
         
-        self.Fluid = _Fluid
-        if self.Fluid.startswith('REFPROP-'):
-            add_REFPROP_fluid(self.Fluid.encode('ascii'))
-            
-        self.iFluid = _get_Fluid_index(_Fluid)
-        #Try to get the fluid from CoolProp
-        if self.iFluid >= 0:
-            #It is a CoolProp Fluid so we can use the faster integer passing function
-            self.is_CPFluid = True
-            self.PFC = PureFluidClass(Fluid)
-        else:
-            self.is_CPFluid = False
         self.xL = xL
         self.Liquid = _Liquid
         self.phase = _phase
@@ -808,6 +820,22 @@ cdef class State:
         d['phase'] = self.phase
         return rebuildState,(d,)
           
+    cpdef set_Fluid(self, bytes Fluid):
+        self.Fluid = Fluid
+        if self.Fluid.startswith('REFPROP-'):
+            add_REFPROP_fluid(self.Fluid.encode('ascii'))
+        self.iFluid = _get_Fluid_index(Fluid)
+        
+        #  Try to get the fluid from CoolProp
+        if self.iFluid >= 0:
+            #  It is a CoolProp Fluid so we can use the faster integer passing function
+            self.is_CPFluid = True
+            #  Instantiate the C++ State class
+            self.PFC = PureFluidClass(Fluid)
+        else:
+            #  It is not a CoolProp fluid, have to use the slower calls
+            self.is_CPFluid = False
+        
     cpdef update_ph(self, double p, double h):
         """
         Use the pressure and enthalpy directly
@@ -1063,7 +1091,7 @@ cdef class State:
         def __get__(self):
             return self.get_cond()
         
-    cpdef get_Tsat(self, double Q = 1):
+    cpdef double get_Tsat(self, double Q = 1):
         """ 
         Get the saturation temperature, in [K]
         
@@ -1083,7 +1111,7 @@ cdef class State:
         def __get__(self):
             return self.get_Tsat()
         
-    cpdef get_superheat(self):
+    cpdef double get_superheat(self):
         """ 
         Get the amount of superheat above the saturation temperature corresponding to the pressure, in [K]
         
@@ -1105,7 +1133,7 @@ cdef class State:
         def __get__(self):    
             return self.get_superheat()
         
-    cpdef get_subcooling(self):
+    cpdef double get_subcooling(self):
         """ 
         Get the amount of subcooling below the saturation temperature corresponding to the pressure, in [K]
         
@@ -1265,11 +1293,14 @@ cdef class State:
                 s+=k+' = '+str(getattr(self,k))+' NO UNITS'+'\n'
         return s.rstrip()
         
-    cpdef copy(self):
-        cdef double T = self.T_
-        cdef double rho = self.rho_
-        ST = State(self.Fluid,{'T':T,'D':rho},phase = self.phase)
-        return ST
+    cpdef State copy(self):
+        """
+        Make a copy of this State class
+        """
+        cdef State S = State.__new__(State)
+        S.set_Fluid(self.Fluid)
+        S.update_Trho(self.T_, self.rho_)
+        return S
     
 def rebuildState(d):
     S=State(d['Fluid'],{'T':d['T'],'D':d['rho']},phase=d['phase'])

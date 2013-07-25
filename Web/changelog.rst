@@ -1,7 +1,7 @@
 Changelog for CoolProp
 ======================
 
-3.2.0 (revision 617)
+3.2.0 (revision 619)
 --------------------
 * Added the function PropsU to python wrapper which allows for use of SI of kSI set of units
 * Both inputs to Props can be iterables
