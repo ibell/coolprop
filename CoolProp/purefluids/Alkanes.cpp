@@ -800,6 +800,8 @@ IsoButaneClass::IsoButaneClass()
 	name.assign("IsoButane");
 	aliases.push_back("isobutane");
 	aliases.push_back("Isobutane");
+	aliases.push_back("R600A");
+	aliases.push_back("R600a");
 	REFPROPname.assign("ISOBUTAN");
 
 	BibTeXKeys.EOS = "Buecker-JPCRD-2006B";

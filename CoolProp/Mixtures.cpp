@@ -92,7 +92,7 @@ Mixture::Mixture(std::vector<Fluid *> pFluids)
 	//TpzFlash(T, p, z, &rhobar, &x, &y);
 
 	double Tsat;
-	for (double x0 = 0; x0 <= 1; x0 += 0.1)
+	for (double x0 = 0; x0 <= 1.000000000000001; x0 += 0.01)
 	{
 		z[0] = x0; z[1] = 1-x0;
 		Tsat = saturation_p(TYPE_BUBBLEPOINT, 1000, &z, &x, &y);
@@ -108,6 +108,7 @@ Mixture::Mixture(std::vector<Fluid *> pFluids)
 		double x0 = 0.5;
 		z[0] = x0; z[1] = 1-x0;
 		Tsat = saturation_p(TYPE_BUBBLEPOINT, p, &z, &x, &y);
+		if (!ValidNumber(Tsat)){break;}
 		std::cout << format("%g %g %g %g\n",x0,Tsat,y[0],y[1]);
 	}
 
@@ -269,6 +270,15 @@ double Mixture::rhobar_Tpz(double T, double p, std::vector<double> *x, double rh
 	return Secant(&Resid, rhobar0, 0.00001, 1e-8, 100, &errstr);
 }
 
+
+
+//double Mixture::saturation_p_NewtonRaphson(int type, double T, double p, std::vector<double> *z, std::vector<double> *ln_phi_liq, std::vector<double> *ln_phi_vap, std::vector<double> *x, std::vector<double> *y)
+//{
+//
+//	
+//}
+
+
 /*! A wrapper function around the residual to find the initial guess for the bubble point temperature
 \f[
 r = \sum_i \left[z_i K_i\right] - 1 
@@ -311,6 +321,7 @@ public:
 		return summer;
 	};
 };
+
 double Mixture::saturation_p(int type, double p, std::vector<double> *z, std::vector<double> *x, std::vector<double> *y)
 {
 	int iter = 0;
@@ -329,6 +340,7 @@ double Mixture::saturation_p(int type, double p, std::vector<double> *z, std::ve
 		bubblepoint_WilsonK_resid Resid(this,p,z); //sum(z_i*K_i) - 1
 		std::string errstr;
 		double Tr = pReducing->Tr(z);
+		// Try a range of different values for the temperature, hopefully one works
 		for (double T_guess = Tr*0.9; T_guess > 0; T_guess -= Tr*0.1)
 		{
 			try{
@@ -346,6 +358,7 @@ double Mixture::saturation_p(int type, double p, std::vector<double> *z, std::ve
 		dewpoint_WilsonK_resid Resid(this,p,z); //1-sum(z_i/K_i)
 		std::string errstr;
 		double Tr = pReducing->Tr(z);
+		// Try a range of different values for the temperature, hopefully one works
 		for (double T_guess = Tr*0.9; T_guess > 0; T_guess -= Tr*0.1)
 		{
 			try{
@@ -474,7 +487,7 @@ double Mixture::saturation_p(int type, double p, std::vector<double> *z, std::ve
 		}
 	}
 	while(abs(f) > 1e-8);
-	
+	//std::cout << iter << std::endl;
 	return T;
 }
 void Mixture::TpzFlash(double T, double p, std::vector<double> *z, double *rhobar, std::vector<double> *x, std::vector<double> *y)

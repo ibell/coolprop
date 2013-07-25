@@ -254,11 +254,12 @@ cdef class State:
     cdef double T_, rho_, p_, xL
     cdef readonly bint is_CPFluid
     
+    cpdef set_Fluid(self, bytes Fluid)
     cpdef speed_test(self, int N)
     cpdef update(self,dict params, double xL=*)
     cpdef update_ph(self, double p, double h)
     cpdef update_Trho(self, double T, double rho)
-    cpdef copy(self)
+    cpdef State copy(self)
     cpdef double Props(self, long iOutput) except *
     cpdef long Phase(self) except *
     
