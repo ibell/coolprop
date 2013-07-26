@@ -1,4 +1,4 @@
-import numpy
+import numpy, matplotlib.pyplot
 from scipy.optimize._minimize import minimize
 
 class IncompLiquidFit(object):
@@ -11,6 +11,7 @@ class IncompLiquidFit(object):
     2) Heat capacity
     3) Thermal conductivity
     4) Viscosity
+    5) Vapour pressure
     """
     
     def __init__(self):
@@ -18,7 +19,7 @@ class IncompLiquidFit(object):
         
         # parameters for the different fits
         self._cDensity = numpy.ones(4)       # Typically 4 parameters
-        self._cHeatCapacity = numpy.ones(5)  # Typically 5 parameters
+        self._cHeatCapacity = numpy.ones(4)  # Typically 4 parameters
         self._cTConductivity = numpy.ones(3) # Typically 3 parameters
         self._cViscosity = numpy.ones(3)     # Typically 3 parameters
         self._cPsat = numpy.ones(3)          # Typically 3 parameters
@@ -38,7 +39,7 @@ class IncompLiquidFit(object):
         if fluid=='init':
             # initial parameters for the different fits
             self._cDensity =        [+9.2e+2, -0.5e+0, +2.8e-4, -1.1e-6]
-            self._cHeatCapacity =   [+1.0e+3, +2.9e+0, +2.5e-3, +3.2e-6, -9.8e-9]
+            self._cHeatCapacity =   [+1.0e+0, +2.9e-3, -2.5e-7, +3.2e-9]
             self._cTConductivity =  [+1.1e-1, +7.8e-5, -3.5e-7]
             self._cViscosity =      [+7.1e+4, +2.3e+3, +3.4e+1]
             self._cPsat =           [-5.3e+5, +3.2e+3, -1.6e+2]
@@ -114,7 +115,7 @@ class IncompLiquidFit(object):
             return self._basePolynomial(self._cHeatCapacity,T)
         elif out=='L':
             self._checkTP(T=T,P=P)
-            return self._basePolynomial(self._cThermalConductivity,T)
+            return self._basePolynomial(self._cTConductivity,T)
         elif out=='V':
             self._checkTP(T=T,P=P)
             return self._baseExponential(self._cViscosity,T)
@@ -217,7 +218,7 @@ class IncompLiquidFit(object):
             # Values for conductivity are very small,
             # algorithms prefer larger values
             if xName=='L':
-                calculated = numpy.array([self._PropsFit(coefficients,xName,T=Ti) for Ti in T])*1e4
+                calculated = numpy.array([self._PropsFit(coefficients,xName,T=Ti) for Ti in T])*1e6
                 data       = numpy.array(xData)*1e6
             # Fit logarithms for viscosity and saturation pressure
             elif xName=='V' or xName=='Psat':
@@ -253,15 +254,35 @@ liqObj.setTmin(data.Tmin)
 liqObj.setTminPsat(data.TminPsat)
 liqObj.setTmax(data.Tmax)    
 
+numpy.set_printoptions(formatter={'float': lambda x: format(x, '+1.10E')})
+
+print "minimum T: "+str(data.Tmin)
+print "maximum T: "+str(data.Tmax)
+print "min T pSat:"+str(data.TminPsat)
+print 
+
+# row and column sharing for test plots
+f, ((ax1, ax2), (ax3, ax4), (ax5, ax6)) = matplotlib.pyplot.subplots(3, 2, sharex='col')
+f.set_size_inches(matplotlib.pyplot.figaspect(1.2)*1.5)
+
 ### This is the actual fitting
 tData = data.T
+cData = tData - 273.15 
+Pin = 1000e5 # Dummy pressure
+
 inVal = 'D'
 xData = data.rho
 oldCoeffs = liqObj.getCoefficients(inVal)
 newCoeffs = liqObj.fitCoefficients(inVal,T=tData,xData=xData)
 print "Density, old: "+str(oldCoeffs)
 print "Density, new: "+str(newCoeffs)
-print 
+print
+liqObj.setCoefficients(inVal,newCoeffs)
+fData = numpy.array([liqObj.Props(inVal, T=Tin, P=Pin) for Tin in tData])
+ax1.plot(cData, fData, label="CoolProp")
+ax1.plot(cData, xData, label="Data Sheet")
+ax1.set_ylabel(r'$\mathregular{Density\/(kg\/m^{-3})}$')
+
 
 inVal = 'C'
 xData = data.c_p
@@ -270,6 +291,12 @@ newCoeffs = liqObj.fitCoefficients(inVal,T=tData,xData=xData)
 print "Heat c., old: "+str(oldCoeffs)
 print "Heat c., new: "+str(newCoeffs)
 print 
+liqObj.setCoefficients(inVal,newCoeffs)
+fData = numpy.array([liqObj.Props(inVal, T=Tin, P=Pin) for Tin in tData])
+ax2.plot(cData, fData, label="CoolProp")
+ax2.plot(cData, xData, label="Data Sheet")
+ax2.set_ylabel(r'$\mathregular{Heat\/Cap.\/(kJ\/kg^{-1}\/K^{-1})}$')
+
 
 inVal = 'L'
 xData = data.lam
@@ -278,6 +305,12 @@ newCoeffs = liqObj.fitCoefficients(inVal,T=tData,xData=xData)
 print "Th. Co., old: "+str(oldCoeffs)
 print "Th. Co., new: "+str(newCoeffs)
 print 
+liqObj.setCoefficients(inVal,newCoeffs)
+fData = numpy.array([liqObj.Props(inVal, T=Tin, P=Pin) for Tin in tData])
+ax3.plot(cData, fData*1e6 , label="CoolProp")
+ax3.plot(cData, xData*1e6 , label="Data Sheet")
+ax3.set_ylabel(r'$\mathregular{Th.\/Cond.\/(mW\/m^{-1}\/K^{-1})}$')
+
 
 inVal = 'V'
 xData = data.mu_dyn
@@ -286,6 +319,13 @@ newCoeffs = liqObj.fitCoefficients(inVal,T=tData,xData=xData)
 print "Viscos., old: "+str(oldCoeffs)
 print "Viscos., new: "+str(newCoeffs)
 print 
+liqObj.setCoefficients(inVal,newCoeffs)
+fData = numpy.array([liqObj.Props(inVal, T=Tin, P=Pin) for Tin in tData])
+ax4.plot(cData, fData*1e3, label="CoolProp")
+ax4.plot(cData, xData*1e3, label="Data Sheet")
+ax4.set_ylabel(r'$\mathregular{Dyn.\/Viscosity\/(mPa\/s)}$')
+ax4.set_yscale('log')
+
 
 inVal = 'Psat'
 xData = data.psat
@@ -294,6 +334,18 @@ newCoeffs = liqObj.fitCoefficients(inVal,T=tData,xData=xData)
 print "P sat. , old: "+str(oldCoeffs)
 print "P sat. , new: "+str(newCoeffs)
 print 
+liqObj.setCoefficients(inVal,newCoeffs)
+fData = numpy.array([liqObj.Props(inVal, T=Tin, P=Pin) for Tin in tData])
+ax5.plot(cData, fData, label="CoolProp")
+ax5.plot(cData, xData, label="Data Sheet")
+ax5.set_ylabel(r'$\mathregular{Vap.\/Pressure\/(kPa)}$')
+ax5.set_yscale('log')
 
-# TODO: We should plot some graphs to control fit quality
+
+ax5.set_xlabel(ur'$\mathregular{Temperature\/(\u00B0C)}$')
+ax6.set_xlabel(ur'$\mathregular{Temperature\/(\u00B0C)}$')
+
+ax1.legend(loc=3)
+matplotlib.pyplot.tight_layout()
+matplotlib.pyplot.savefig(data.Name+"_std.pdf")
 

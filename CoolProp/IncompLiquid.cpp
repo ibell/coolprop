@@ -22,8 +22,16 @@ private:
 	std::map<std::string,IncompressibleLiquid*> liquid_map;
 public:
 	LiquidsContainer(){
-		LiquidsList.push_back(new ExampleClass());
-		LiquidsList.push_back(new TherminolD12());
+		LiquidsList.push_back(new DEBLiquidClass());
+		LiquidsList.push_back(new HCMLiquidClass());
+		LiquidsList.push_back(new HFELiquidClass());
+		LiquidsList.push_back(new PMS1LiquidClass());
+		LiquidsList.push_back(new PMS2LiquidClass());
+		LiquidsList.push_back(new SABLiquidClass());
+		LiquidsList.push_back(new HCBLiquidClass());
+		LiquidsList.push_back(new TCOLiquidClass());
+		// Add new fluids based on data sheets
+		LiquidsList.push_back(new TherminolD12Class());
 
 		// Build the map of fluid names mapping to pointers to the Fluid class instances
 		for (std::vector<IncompressibleLiquid*>::iterator it = LiquidsList.begin(); it != LiquidsList.end(); it++)
