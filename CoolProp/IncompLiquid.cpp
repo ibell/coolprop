@@ -30,6 +30,10 @@ public:
 		LiquidsList.push_back(new SABLiquidClass());
 		LiquidsList.push_back(new HCBLiquidClass());
 		LiquidsList.push_back(new TCOLiquidClass());
+		// Add new fluids based on data sheets
+		LiquidsList.push_back(new TherminolD12Class());
+		LiquidsList.push_back(new TherminolVP1Class());
+		LiquidsList.push_back(new Therminol72Class());
 
 		// Build the map of fluid names mapping to pointers to the Fluid class instances
 		for (std::vector<IncompressibleLiquid*>::iterator it = LiquidsList.begin(); it != LiquidsList.end(); it++)
@@ -88,23 +92,23 @@ double pIncompLiquid(long iOutput, double T, double p, IncompressibleLiquid *pLi
 		case iP:
 			return p; break;
 		case iD:
-			return pLiquid->rho(T); break;
+			return pLiquid->rho(T,p); break;
 		case iC:
-			return pLiquid->cp(T); break;
+			return pLiquid->cp(T,p); break;
 		case iS:
-			return pLiquid->s(T); break;
+			return pLiquid->s(T,p); break;
 		case iU:
-			return pLiquid->u(T); break;
+			return pLiquid->u(T,p); break;
 		case iH:
 			return pLiquid->h(T,p); break;
 		case iV:
-			return pLiquid->visc(T); break;
+			return pLiquid->visc(T,p); break;
 		case iL:
-			return pLiquid->cond(T); break;
+			return pLiquid->cond(T,p); break;
 		default:
 			throw ValueError(format("Your index [%d] is invalid for IncompLiquid",iOutput)); break;
 	}
-	return pLiquid->rho(T);
+	return pLiquid->rho(T,p);
 }
 
 double IncompLiquid(long iOutput, double T, double p, std::string name)
