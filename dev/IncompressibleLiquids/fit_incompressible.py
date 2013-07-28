@@ -28,6 +28,7 @@ class IncompLiquidFit(object):
         self._Tmin = None
         self._TminPsat = None 
         self._Tmax = None 
+        self._Tref = 273.15 + 25. 
         
         # some flags to set
         self._TinC = False   # Temperature in Celsius
@@ -39,7 +40,7 @@ class IncompLiquidFit(object):
         if fluid=='init':
             # initial parameters for the different fits
             self._cDensity =        [+9.2e+2, -0.5e+0, +2.8e-4, -1.1e-6]
-            self._cHeatCapacity =   [+1.0e+0, +2.9e-3, -2.5e-7, +3.2e-9]
+            self._cHeatCapacity =   [+1.0e+0, +3.6e-3, -2.9e-7, +1.7e-9]
             self._cTConductivity =  [+1.1e-1, +7.8e-5, -3.5e-7]
             self._cViscosity =      [+7.1e+4, +2.3e+3, +3.4e+1]
             self._cPsat =           [-5.3e+5, +3.2e+3, -1.6e+2]
@@ -95,15 +96,27 @@ class IncompLiquidFit(object):
         for i in range(len(coefficients)): 
             result += coefficients[i] * x**i
         return result 
+    
+    def _basePolynomialInt(self,coefficients,x1,x0=-1):
+        """ Base function to produce the integral of
+        order len(coefficients) with coefficients from
+        x0 to x1.
+        """
+        if x0==-1: x0 = self._Tref
+        result = 0. 
+        for i in range(len(coefficients)): 
+            result += 1./(i+1.) * coefficients[i] * (x1**(i+1.) - x0**(i+1.))
+        return result 
 
-    def _baseExponential(self,coefficients,x,num=3):
+    def _baseExponential(self,coefficients,x,num):
         """ Base function to produce exponential 
         with defined coefficients
         """
-        if len(coefficients)==num:
-            if num==3: return numpy.exp(coefficients[0]/(x+coefficients[1]) - coefficients[2])
-        else:
-            print "Error!"
+        #if len(coefficients)==num:
+        if num==1: return numpy.exp(coefficients[0]/(x+coefficients[1]) - coefficients[2])
+        if num==2: return numpy.exp(self._basePolynomial(coefficients, x))
+        #else:
+        #    print "Error!"
 
 
     def Props(self,out,T=0,P=0):
@@ -118,7 +131,7 @@ class IncompLiquidFit(object):
             return self._basePolynomial(self._cTConductivity,T)
         elif out=='V':
             self._checkTP(T=T,P=P)
-            return self._baseExponential(self._cViscosity,T)
+            return self._baseExponential(self._cViscosity,T,1)
 #            visc = self._baseExponential(self._cViscosity,T)
 #            if not self._DynVisc: return visc * self.Props('D',T=T,P=P)
 #            else: return visc
@@ -126,7 +139,7 @@ class IncompLiquidFit(object):
             self._checkT(T=T)
             if T<self._TminPsat:
                 return 1e-14
-            return self._baseExponential(self._cPsat,T)
+            return self._baseExponential(self._cPsat,T,1)
         elif out=='Tmin':
             return self._Tmin
         elif out=='Tmax':
@@ -153,12 +166,12 @@ class IncompLiquidFit(object):
             return self._basePolynomial(coefficients,T)
         elif inVal=='V':
             self._checkT(T=T)
-            return self._baseExponential(coefficients,T)
+            return self._baseExponential(coefficients,T,1)
         elif inVal=='Psat':
             self._checkT(T=T)
             if T<self._TminPsat:
                 return 1e-14
-            return self._baseExponential(coefficients,T)
+            return self._baseExponential(coefficients,T,1)
         else:
             raise (ValueError("Error: You used an unknown property qualifier."))
         
@@ -205,7 +218,9 @@ class IncompLiquidFit(object):
     
     def setTminPsat(self,T):
         self._TminPsat = T
-        
+    
+    def setTref(self,T):
+        self._Tref = T    
         
     def fitCoefficients(self,xName,T=[],xData=[]):
         
@@ -233,7 +248,7 @@ class IncompLiquidFit(object):
         
         initValues = self.getCoefficients(xName)[:]
         arguments  = (xName,T,xData)
-        options    = {'maxiter': 1e4, 'maxfev': 1e6}
+        options    = {'maxiter': 1e5, 'maxfev': 1e7}
         res = minimize(fun, initValues, method='Powell', args=arguments, tol=1e-15, options=options)
         if res.success:
             return res.x
@@ -243,7 +258,7 @@ class IncompLiquidFit(object):
 
 
 ### Load the data 
-from data_incompressible import TherminolD12 as DataContainer
+from data_incompressible import Therminol72 as DataContainer
 data = DataContainer()
 
 
@@ -268,7 +283,7 @@ f.set_size_inches(matplotlib.pyplot.figaspect(1.2)*1.5)
 ### This is the actual fitting
 tData = data.T
 cData = tData - 273.15 
-Pin = 1000e5 # Dummy pressure
+Pin = 1e20 # Dummy pressure
 
 inVal = 'D'
 xData = data.rho

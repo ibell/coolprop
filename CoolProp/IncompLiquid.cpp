@@ -32,6 +32,8 @@ public:
 		LiquidsList.push_back(new TCOLiquidClass());
 		// Add new fluids based on data sheets
 		LiquidsList.push_back(new TherminolD12Class());
+		LiquidsList.push_back(new TherminolVP1Class());
+		LiquidsList.push_back(new Therminol72Class());
 
 		// Build the map of fluid names mapping to pointers to the Fluid class instances
 		for (std::vector<IncompressibleLiquid*>::iterator it = LiquidsList.begin(); it != LiquidsList.end(); it++)

@@ -588,6 +588,13 @@ cpdef get_debug():
     """
     return _get_debug()
     
+cpdef string get_CAS_code(bytes_or_str Fluid):
+    """
+    Return a string with the CAS number for the fluids
+    """
+    cdef bytes _Fluid = Fluid if bytes_or_str is bytes else Fluid.encode('ascii')
+    return _get_CAS_code(_Fluid)
+    
 cpdef string get_EOSReference(bytes_or_str Fluid):
     """
     Return a string with the reference for the equation of state

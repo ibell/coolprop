@@ -264,6 +264,8 @@ def params_table(Fluid):
                   Tt = CP.Props(Fluid,'Ttriple'),
                   pt = CP.Props(Fluid,'ptriple'),
                   Tmin = CP.Props(Fluid,'Tmin'),
+                  CAS = CP.get_CAS_code(Fluid),
+                  ASHRAE = CP.get_ASHRAE34(Fluid)
                   )
     
     return textwrap.dedent(
@@ -278,6 +280,8 @@ def params_table(Fluid):
     Triple Point Temp. [K]     {Tt:0.3f}
     Triple Point Press. [kPa]  {pt:0.10g}
     Minimum temperature [K]    {Tmin:0.3f}
+    CAS number                 {CAS:s}
+    ASHRAE classification      {ASHRAE:s}
     =========================  ==============================
     """.format(**params))
     

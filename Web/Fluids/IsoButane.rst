@@ -5,7 +5,7 @@ IsoButane
 
 Aliases
 ================================================================================
-``isobutane``, ``Isobutane``
+``isobutane``, ``Isobutane``, ``R600A``, ``R600a``
 
 Bibliographic Information
 =========================
@@ -31,6 +31,8 @@ Mole Mass [kg/kmol]        58.12220
 Triple Point Temp. [K]     113.730
 Triple Point Press. [kPa]  2.28968759e-05
 Minimum temperature [K]    113.730
+CAS number                 75-28-5
+ASHRAE classification      UNKNOWN
 =========================  ==============================
 
 Critical Parameters

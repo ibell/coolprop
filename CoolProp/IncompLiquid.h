@@ -22,7 +22,7 @@ class IncompressibleLiquid{
 	
 protected:
 	std::string name,description,reference;
-	double Tmin, TminPsat, Tmax;
+	double Tmin, TminPsat, Tmax, Tref;
 
 public:
 	// Constructor
@@ -30,6 +30,7 @@ public:
 		Tmin = -1.;
 		Tmax = -1.;
 		TminPsat = -1.;
+		Tref = 273.15 + 25. ;
 	};
 
 	// Destructor.  No implementation
@@ -71,8 +72,7 @@ protected:
 	/// Enthalpy from u,p and rho.
 	/** Calculate enthalpy as a function of temperature and
 	 *  pressure employing functions for internal energy and
-	 *  density. Can be used if there are no coefficients
-	 *  available. */
+	 *  density. Provides consistent formulations. */
 	double h_u(double T_K, double p) {
 		return u(T_K,p)+p/rho(T_K,p);
 	};
@@ -80,36 +80,12 @@ protected:
 	/// Internal energy from h,p and rho.
 	/** Calculate internal energy as a function of temperature
 	 *  and pressure employing functions for enthalpy and
-	 *  density. Can be used if there are no coefficients
-	 *  available. */
+	 *  density. Provides consistent formulations. */
 	double u_h(double T_K, double p) {
 		return h(T_K,p)-p/rho(T_K,p);
 	};
+
 	
-	/*
-	This function implements a 1-D bounded solver using the algorithm from Brent, R. P.,
-	Algorithms for Minimization Without Derivatives.
-	Englewood Cliffs, NJ: Prentice-Hall, 1973. Ch. 3-4.
-
-	a and b must bound the solution of interest and f(a) and f(b) must have opposite signs.
-	If the function is continuous, there must be at least one solution in the interval [a,b].
-
-	@param f A pointer to an instance of the FuncWrapper1D class that must implement the class() function
-	@param a The minimum bound for the solution of f=0
-	@param b The maximum bound for the solution of f=0
-	@param macheps The machine precision
-	@param t Tolerance (absolute)
-	@param maxiter Maximum numer of steps allowed.  Will throw a SolutionError if the solution cannot be found
-	@param errstr A pointer to the error string returned.  If length is zero, no errors found.
-	*/
-//double Brent(FuncWrapper1D *f, double a, double b, double macheps, double t, int maxiter, std::string *errstr)
-
-
-
-
-
-
-
 	/*
 	 * Some more functions to provide a single implementation
 	 * of important routines.
@@ -180,22 +156,74 @@ protected:
 		}
 	}
 
+	/// Integrated polynomial function generator.
+	/** Base function to produce integrals of n-th order
+	 *  polynomials based on the length of the coefficients
+	 *  vector. Integrates from x0 to x1.
+	 *  Starts with only the first coefficient at x^0 */
+	double basePolynomialInt(std::vector<double> coefficients, double x1, double x0){
+		double result = 0.;
+		for(unsigned int i=0; i<coefficients.size();i++) {
+			result += 1./(i+1.) * coefficients[i] * (pow(x1,(i+1.)) - pow(x0,(i+1.)));
+		}
+		return result;
+	}
+
+	/// Integrated polynomial function generator with check.
+	/** Calls the base function but checks the vector
+	 *  length against parameter n. */
+	double basePolynomialInt(std::vector<double> coefficients, double x1, double x0, unsigned int n){
+		if (coefficients.size() == n){
+			return basePolynomialInt(coefficients, x1, x0);
+		} else {
+			throw ValueError(format("The number of coefficients %d does not match with %d. ",coefficients.size(),n));
+		}
+	}
+
+	/// Integrated fraction generator.
+	/** Base function to produce integrals of n-th order
+	 *  polynomials divided by their variable based on
+	 *  the length of the coefficients vector.
+	 *  Integrates from x0 to x1, starts with only the
+	 *  first coefficient at x^0 */
+	double baseFractionInt(std::vector<double> coefficients, double x1, double x0){
+		double result = coefficients[0] * log(x1/x0);
+		if (coefficients.size() > 1) {
+			std::vector<double> newCoeffs(coefficients.begin() + 1, coefficients.end());
+			result += basePolynomialInt(newCoeffs,x1,x0);
+		}
+		return result;
+	}
+
+	/// Integrated fraction generator with check.
+	/** Calls the base function but checks the vector
+	 *  length against parameter n before. */
+	double baseFractionInt(std::vector<double> coefficients, double x1, double x0, unsigned int n){
+		if (coefficients.size() == n){
+			return baseFractionInt(coefficients, x1, x0);
+		} else {
+			throw ValueError(format("The number of coefficients %d does not match with %d. ",coefficients.size(),n));
+		}
+	}
+
 	/// Exponential function generator.
 	/** Base function to produce exponential functions
-	 *  based on the length of the coefficients vector.
-	 *  An extra check is performed to compare the length
-	 *  of the vector to the input n. */
-	double baseExponential(std::vector<double> coefficients, double x, unsigned int n){
+	 *  based on the input n.
+	 *  An extra check is performed for the length
+	 *  of the vector according to the chosen function. */
+	double baseExponential(std::vector<double> coefficients, double x, int n){
 		double result = 0.;
-	    if (coefficients.size() == n){
-	    	if (n==3) {
-	    		result = exp(coefficients[0]/(x+coefficients[1]) - coefficients[2]);
-	    	} else {
-	        	throw ValueError(format("There is no function defined for this number of coefficients (%d). ",coefficients.size()));
-	        }
-	    } else {
-	    	throw ValueError(format("The number of coefficients %d does not match with %d. ",coefficients.size(),n));
-	    }
+		if (n==1) {
+			int c = 3;
+			if (coefficients.size() != c) throw ValueError(format("The number of coefficients %d does not match with %d. ",coefficients.size(),c));
+			result = exp(coefficients[0]/(x+coefficients[1]) - coefficients[2]);
+		} else if (n==2) {
+			int c = 3;
+			if (coefficients.size() != c) throw ValueError(format("The number of coefficients %d does not match with %d. ",coefficients.size(),c));
+			result = exp(basePolynomial(coefficients, x, c));
+		} else {
+			throw ValueError(format("There is no function defined for this input (%d). ",n));
+		}
 	    return result;
 	}
 };
@@ -205,8 +233,7 @@ double IncompLiquid(long iOutput, double T, double p, long iFluid);
 double IncompLiquid(long iOutput, double T, double p, std::string name);
 
 /// Base class for simplified models
-/** Base class following the structure initially developed by Ian
- *  to fit the data from Melinder-BOOK-2010. Only needs a reduced
+/** Employs the base functions implemented above, only needs a reduced
  *  set of coefficients for density and heat capacity. The other
  *  quantities are calculated from combinations of the coefficients.
  *  Additionally, extra parameters are used for viscosity and
@@ -222,44 +249,45 @@ protected:
 public:
     double rho(double T_K, double p){
     	if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
-    	return basePolynomial(cRho, T_K, 2);
+    	return basePolynomial(cRho, T_K);
     }
     double cp(double T_K, double p){
     	if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
-    	return basePolynomial(cCp, T_K, 2);
+    	return basePolynomial(cCp, T_K);
     }
-    double u(double T_K, double p){
+    double h(double T_K, double p){
     	if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
-    	if (cCp.size() != 2) throw ValueError(format("Wrong number of coefficients: %d instead of %d. ",cCp.size(),2));
-    	checkP(T_K, p);
-        return cCp[1]*(T_K*T_K-298.15*298.15)/2.0 + cCp[0]*(T_K-298.15);
+    	return basePolynomialInt(cCp, T_K, Tref);
 	}
 	double s(double T_K, double p){
 		if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
-		if (cCp.size() != 2) throw ValueError(format("Wrong number of coefficients: %d instead of %d. ",cCp.size(),2));
-		return cCp[1]*(T_K-298.15)/2.0 + cCp[0]*log(T_K/298.15);
+		return baseFractionInt(cCp, T_K, Tref);
 	}
 	double visc(double T_K, double p){
 		if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
-		return exp(basePolynomial(cVisc, T_K, 3));
+		return baseExponential(cVisc, T_K, 1);
 	}
 	double cond(double T_K, double p){
 		if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
-		return basePolynomial(cCond, T_K, 2);
+		return basePolynomial(cCond, T_K);
 	}
-    double h(double T_K, double p){
-    	return h_u(T_K,p);
+    double u(double T_K, double p){
+    	return u_h(T_K,p);
     }
     double psat(double T_K){
     	if (!checkT(T_K)) throw ValueError(format("T=%f is out of range.",T_K));
     	if (T_K<TminPsat || TminPsat<0){
     		return -1.;
     	} else {
-    		return baseExponential(cPsat, T_K, 3);
+    		return baseExponential(cPsat, T_K, 1);
     	}
     };
 };
 
+/*
+ * The next classes follow the structure initially developed by Ian
+ * to fit the data from Melinder-BOOK-2010.
+ */
 class DEBLiquidClass : public SimpleIncompressible{
 public:
 	DEBLiquidClass(){
@@ -287,6 +315,13 @@ public:
         cCond.push_back(0.000189132);
         cCond.push_back(-2.06364e-07);
     };
+    double visc(double T_K, double p){
+		if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
+		return baseExponential(cVisc, T_K, 2);
+	}
+    double h(double T_K, double p){
+		return h_u(T_K,p);
+	}
 };
 
 class HCMLiquidClass : public SimpleIncompressible{
@@ -316,6 +351,17 @@ public:
         cCond.push_back(0.000153716);
         cCond.push_back(-1.51212e-07);
     };
+    double u(double T_K, double p){
+    	if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
+    	return basePolynomialInt(cCp, T_K, Tref);
+	}
+    double visc(double T_K, double p){
+		if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
+		return baseExponential(cVisc, T_K, 2);
+	}
+    double h(double T_K, double p){
+		return h_u(T_K,p);
+	}
 };
 
 class HFELiquidClass : public SimpleIncompressible{
@@ -345,6 +391,17 @@ public:
         cCond.push_back(9.92958e-05);
         cCond.push_back(-8.33333e-08);
     };
+    double u(double T_K, double p){
+    	if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
+    	return basePolynomialInt(cCp, T_K, Tref);
+	}
+    double visc(double T_K, double p){
+		if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
+		return baseExponential(cVisc, T_K, 2);
+	}
+    double h(double T_K, double p){
+		return h_u(T_K,p);
+	}
 };
 
 class PMS1LiquidClass : public SimpleIncompressible{
@@ -374,6 +431,17 @@ public:
         cCond.push_back(0.000207526);
         cCond.push_back(-2.84167e-07);
     };
+    double u(double T_K, double p){
+    	if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
+    	return basePolynomialInt(cCp, T_K, Tref);
+	}
+    double visc(double T_K, double p){
+		if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
+		return baseExponential(cVisc, T_K, 2);
+	}
+    double h(double T_K, double p){
+		return h_u(T_K,p);
+	}
 };
 
 class PMS2LiquidClass : public SimpleIncompressible{
@@ -403,6 +471,17 @@ public:
         cCond.push_back(0.000172305);
         cCond.push_back(-2.11212e-07);
     };
+    double u(double T_K, double p){
+    	if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
+    	return basePolynomialInt(cCp, T_K, Tref);
+	}
+    double visc(double T_K, double p){
+		if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
+		return baseExponential(cVisc, T_K, 2);
+	}
+    double h(double T_K, double p){
+		return h_u(T_K,p);
+	}
 };
 
 class SABLiquidClass : public SimpleIncompressible{
@@ -432,6 +511,17 @@ public:
         cCond.push_back(0.000208374);
         cCond.push_back(-2.61667e-07);
     };
+    double u(double T_K, double p){
+    	if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
+    	return basePolynomialInt(cCp, T_K, Tref);
+	}
+    double visc(double T_K, double p){
+		if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
+		return baseExponential(cVisc, T_K, 2);
+	}
+    double h(double T_K, double p){
+		return h_u(T_K,p);
+	}
 };
 
 class HCBLiquidClass : public SimpleIncompressible{
@@ -461,6 +551,17 @@ public:
         cCond.push_back(0.000203186);
         cCond.push_back(-2.3869e-07);
     };
+    double u(double T_K, double p){
+    	if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
+    	return basePolynomialInt(cCp, T_K, Tref);
+	}
+    double visc(double T_K, double p){
+		if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
+		return baseExponential(cVisc, T_K, 2);
+	}
+    double h(double T_K, double p){
+		return h_u(T_K,p);
+	}
 };
 
 class TCOLiquidClass : public SimpleIncompressible{
@@ -490,10 +591,37 @@ public:
         cCond.push_back(0.000174156);
         cCond.push_back(-1.85052e-07);
     };
+    double u(double T_K, double p){
+    	if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
+    	return basePolynomialInt(cCp, T_K, Tref);
+	}
+    double visc(double T_K, double p){
+		if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
+		return baseExponential(cVisc, T_K, 2);
+	}
+    double h(double T_K, double p){
+		return h_u(T_K,p);
+	}
 };
 
-//Therminol fluids: Therminol2007
 
+/// New fluids added with more coefficients
+/** New data for a few fluids. Most of these models employ
+ *  an extended set of parameters consisting of a
+ *  3rd order polynomial for density and heat capacity, a
+ *  2nd order polynomial for thermal conductivity as well as
+ *  an exponential function for viscosity.
+ *  I rewrote the base class to match this new form since I
+ *  expect all the new fluids to follow this pattern. The
+ *  "dev" folder contains Python scripts to fit functions to
+ *  data. Have a look there and you will see how easy it is
+ *  to extend the fluid database. */
+
+/// Therminol Fluids
+/** Data sheets for most Therminol (Solutia) fluids are
+ *  available from their homepage and we will implement
+ *  some of them as liquid only (!) and incompressible
+ *  heat transfer media. */
 class TherminolD12Class : public SimpleIncompressible{
 public:
 	TherminolD12Class(){
@@ -507,20 +635,25 @@ public:
 
         cRho.clear();
         cRho.push_back(+9.8912069747E+02);
-        cRho.push_back(-7.8062728911E-01);
+        cRho.push_back(-9.2980872967E-01);
+        cRho.push_back(+1.0537501330E-03);
+        cRho.push_back(-1.5498115143E-06);
 
         cCp.clear();
-        cCp.push_back(+9.0795582424E-01);
-        cCp.push_back(+4.0657921324E-03);
+        cCp.push_back(+1.0054715109E+00);
+        cCp.push_back(+3.6645441085E-03);
+        cCp.push_back(-3.5878725087E-07);
+        cCp.push_back(+1.7370907291E-09);
 
         cCond.clear();
-        cCond.push_back(+1.5921846605E-04);
-        cCond.push_back(-1.7117124580E-07);
+        cCond.push_back(+1.4137409270E-04);
+        cCond.push_back(-5.9980348657E-08);
+        cCond.push_back(-1.6084318930E-10);
 
         cVisc.clear();
-        cVisc.push_back(+8.9025486215E+00);
-        cVisc.push_back(-7.7561437403E-02);
-        cVisc.push_back(+8.6542890469E-05);
+        cVisc.push_back(+5.6521090296E+02);
+        cVisc.push_back(-1.2468427867E+02);
+        cVisc.push_back(+1.0064677591E+01);
 
         cPsat.clear();
         cPsat.push_back(-3.4575358244E+03);
@@ -528,42 +661,85 @@ public:
         cPsat.push_back(-1.3662144073E+01);
     };
 };
-//
-//class TherminolD12 : public IncompressibleLiquid{
-//public:
-//	TherminolD12(){
-//        name = std::string("TD12");
-//        description = std::string("Therminol D12");
-//        reference = std::string("BibTex Key");
-//    };
-//
-//    double rho(double T_K, double p){
-//    	std::vector<double> cDensity;
-//    	cDensity.push_back( 776.257);
-//    	cDensity.push_back(-0.696982);
-//    	cDensity.push_back(-0.000131384);
-//    	cDensity.push_back(-0.00000209079);
-//    	return basePolynomial(cDensity, (T_K-273.15));
-//    }
-//    double cp(double T_K, double p){
-//        return 0.00287576*T_K+0.999729;
-//    }
-//    double u(double T_K, double p){
-//        return 0.00287576*(T_K*T_K-298*298)/2.0+0.999729*(T_K-298);
-//    }
-//    double s(double T_K, double p){
-//        return 0.00287576*(T_K-298)/2.0+0.999729*log(T_K/298);
-//    }
-//    double visc(double T_K, double p){
-//        return exp(7.03331e-05*T_K*T_K+-0.0566396*T_K+3.5503);
-//    }
-//    double cond(double T_K, double p){
-//        return -2.06364e-07*T_K+0.000189132;
-//    }
-//    double h(double T_K, double p){
-//    	return h_u(T_K,p);
-//    }
-//};
 
+class TherminolVP1Class : public SimpleIncompressible{
+public:
+	TherminolVP1Class(){
+        name = std::string("TVP1");
+        description = std::string("Therminol VP-1");
+        reference = std::string("Therminol2007");
+
+		Tmin     = 285.15;
+		Tmax     = 670.15;
+		TminPsat = 285.15;
+
+        cRho.clear();
+        cRho.push_back(+1.4027135186E+03);
+        cRho.push_back(-1.6132555941E+00);
+        cRho.push_back(+2.1378377260E-03);
+        cRho.push_back(-1.9310694457E-06);
+
+        cCp.clear();
+        cCp.push_back(+6.8006101123E-01);
+        cCp.push_back(+3.2230860459E-03);
+        cCp.push_back(-1.0974690747E-06);
+        cCp.push_back(+8.1520085319E-10);
+
+        cCond.clear();
+        cCond.push_back(+1.4898820998E-04);
+        cCond.push_back(+7.4237593304E-09);
+        cCond.push_back(-1.7298441018E-10);
+
+        cVisc.clear();
+        cVisc.push_back(+1.0739262832E+03);
+        cVisc.push_back(-8.3841430000E+01);
+        cVisc.push_back(+1.0616847342E+01);
+
+        cPsat.clear();
+        cPsat.push_back(-4.3138714899E+03);
+        cPsat.push_back(-8.7431401773E+01);
+        cPsat.push_back(-1.4358490536E+01);
+    };
+};
+
+class Therminol72Class : public SimpleIncompressible{
+public:
+	Therminol72Class(){
+        name = std::string("T72");
+        description = std::string("Therminol 72");
+        reference = std::string("Therminol2007");
+
+		Tmin     = 263.15;
+		Tmax     = 653.15;
+		TminPsat = 263.15;
+
+        cRho.clear();
+        cRho.push_back(+1.3673153689E+03);
+        cRho.push_back(-1.0611213813E+00);
+        cRho.push_back(+3.3724996764E-04);
+        cRho.push_back(-2.3561359575E-07);
+
+        cCp.clear();
+        cCp.push_back(+6.9155653776E-01);
+        cCp.push_back(+3.1812352525E-03);
+        cCp.push_back(-1.0707667973E-06);
+        cCp.push_back(+7.8051070556E-10);
+
+        cCond.clear();
+        cCond.push_back(+1.7514206629E-04);
+        cCond.push_back(-1.2131347168E-07);
+        cCond.push_back(-4.0980786601E-14);
+
+        cVisc.clear();
+        cVisc.push_back(+6.8390609525E+02);
+        cVisc.push_back(-1.8024922198E+02);
+        cVisc.push_back(+1.0066296789E+01);
+
+        cPsat.clear();
+        cPsat.push_back(-1.7535987063E+06);
+        cPsat.push_back(+9.8874585029E+03);
+        cPsat.push_back(-1.7271828471E+02);
+    };
+};
 
 #endif
