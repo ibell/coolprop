@@ -20,6 +20,7 @@ Pure Fluids
     D5.rst
     D6.rst
     Decane.rst
+    Deuterium.rst
     DimethylCarbonate.rst
     DimethylEther.rst
     Ethane.rst
@@ -52,8 +53,10 @@ Pure Fluids
     Neopentane.rst
     Nitrogen.rst
     NitrousOxide.rst
+    OrthoDeuterium.rst
     OrthoHydrogen.rst
     Oxygen.rst
+    ParaDeuterium.rst
     ParaHydrogen.rst
     Propane.rst
     Propylene.rst

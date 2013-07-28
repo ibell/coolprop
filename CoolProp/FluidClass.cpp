@@ -89,6 +89,7 @@
 #include "purefluids/Methanol.h"
 #include "purefluids/RC318_R21_R114_R13_R14.h"
 #include "purefluids/R12_R113.h"
+#include "purefluids/Deuterium.h"
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -391,12 +392,19 @@ FluidsContainer::FluidsContainer()
 	FluidsList.push_back(new pXyleneClass());
 	FluidsList.push_back(new EthylBenzeneClass());
 
+	// Deuterium and spin isomers
+	FluidsList.push_back(new DeuteriumClass());
+	FluidsList.push_back(new ParaDeuteriumClass());
+	FluidsList.push_back(new OrthoDeuteriumClass());
+
 	// The pseudo-pure fluids
 	FluidsList.push_back(new AirClass());
 	FluidsList.push_back(new R404AClass());
 	FluidsList.push_back(new R410AClass());
 	FluidsList.push_back(new R407CClass());
 	FluidsList.push_back(new R507AClass());
+
+
 
 	// The gas-only EOS
 	//FluidsList.push_back(new R290Gas());

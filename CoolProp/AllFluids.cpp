@@ -11,6 +11,7 @@
 #include "purefluids/Butenes.cpp"
 #include "purefluids/Cyclopentane.cpp"
 #include "purefluids/Cyclopropane_Propyne.cpp"
+#include "purefluids/Deuterium.cpp"
 #include "purefluids/DMC.cpp"
 #include "purefluids/Ethanol.cpp"
 #include "purefluids/Ether.cpp"

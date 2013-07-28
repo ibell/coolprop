@@ -31,6 +31,8 @@ Mole Mass [kg/kmol]        146.05542
 Triple Point Temp. [K]     223.555
 Triple Point Press. [kPa]  231.4244739
 Minimum temperature [K]    223.555
+CAS number                 2551-62-4
+ASHRAE classification      UNKNOWN
 =========================  ==============================
 
 Critical Parameters
