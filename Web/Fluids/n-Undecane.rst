@@ -9,7 +9,7 @@ Aliases
 
 Bibliographic Information
 =========================
-**Equation of State**: I. S. Aleksandrov and A. A. Gerasimov and B. A. Grigor'ev, 2011, Using Fundamental Equations of State for Calculating the Thermodynamic Properties of Normal Undecane, *Thermal Engineering*, 58:691-698
+**Equation of State**: Aleksandrov, I. S.; Gerasimov, A. A.; Grigor'ev, B. A., 2011, Using Fundamental Equations of State for Calculating the Thermodynamic Properties of Normal Undecane, *Thermal Engineering*, 58:691-698
 
 
 

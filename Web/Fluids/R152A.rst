@@ -9,15 +9,15 @@ Aliases
 
 Bibliographic Information
 =========================
-**Equation of State**: R. Span and W. Wagner, 2003, Equations of State for Technical Applications. III. Results for Polar Fluids, *International Journal of Thermophysics*, 24:111-162
+**Equation of State**: Span, R.; Wagner, W., 2003, Equations of State for Technical Applications. III. Results for Polar Fluids, *International Journal of Thermophysics*, 24:111-162
 
-**Ideal-gas Specific Heat**: R. Tillner-Roth, 1995, A Fundamental Equation of State for 1,1-Difluoroethane (HFC-152a), *Int. J. Thermophys.*, 16:91-100
+**Ideal-gas Specific Heat**: Tillner-Roth, R., 1995, A Fundamental Equation of State for 1,1-Difluoroethane (HFC-152a), *Int. J. Thermophys.*, 16:91-100
 
-**Surface Tension**: A. Mulero and I. Cachadi\~na and M. I. Parra, 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
+**Surface Tension**: Mulero, A.; Cachadiña, I.; Parra, M. I., 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
 
-**Viscosity**: R. Krauss and I V. C. Weiss and T. A. Edison and J. V. Sengers and K. Stephan, 1996, Transport Properties of 1,1-Difluoroethane (R152a), *Int. J. Thermophys*, 17:731-757
+**Viscosity**: Krauss, R.; Weiss, I V. C.; Edison, T. A.; Sengers, J. V.; Stephan, K., 1996, Transport Properties of 1,1-Difluoroethane (R152a), *Int. J. Thermophys*, 17:731-757
 
-**Conductivity**: R. Krauss and I V. C. Weiss and T. A. Edison and J. V. Sengers and K. Stephan, 1996, Transport Properties of 1,1-Difluoroethane (R152a), *Int. J. Thermophys*, 17:731-757
+**Conductivity**: Krauss, R.; Weiss, I V. C.; Edison, T. A.; Sengers, J. V.; Stephan, K., 1996, Transport Properties of 1,1-Difluoroethane (R152a), *Int. J. Thermophys*, 17:731-757
 
 
 

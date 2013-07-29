@@ -9,15 +9,15 @@ Aliases
 
 Bibliographic Information
 =========================
-**Equation of State**: D. Buecker and W. Wagner, 2006, A Reference Equation of State for the Thermodynamic Properties of Ethane for Temperatures from the Melting Line to 675 K and Pressures up to 900 MPa, *J. Phys. Chem. Ref. Data*, 35:205-266
+**Equation of State**: Buecker, D.; Wagner, W., 2006, A Reference Equation of State for the Thermodynamic Properties of Ethane for Temperatures from the Melting Line to 675 K and Pressures up to 900 MPa, *J. Phys. Chem. Ref. Data*, 35:205-266
 
-**Surface Tension**: A. Mulero and I. Cachadi\~na and M. I. Parra, 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
+**Surface Tension**: Mulero, A.; Cachadiña, I.; Parra, M. I., 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
 
-**Viscosity**: Daniel G. Friend and Hepburn Ingham and James F. Ely, 1991, Thermophysical Properties of Ethane, *J. Phys. Chem. Ref. Data*, 20:275-347
+**Viscosity**: Friend, Daniel G.; Ingham, Hepburn; Ely, James F., 1991, Thermophysical Properties of Ethane, *J. Phys. Chem. Ref. Data*, 20:275-347
 
-**Conductivity**: Daniel G. Friend and Hepburn Ingham and James F. Ely, 1991, Thermophysical Properties of Ethane, *J. Phys. Chem. Ref. Data*, 20:275-347
+**Conductivity**: Friend, Daniel G.; Ingham, Hepburn; Ely, James F., 1991, Thermophysical Properties of Ethane, *J. Phys. Chem. Ref. Data*, 20:275-347
 
-**Lennard-Jones Parameters for ECS**: Daniel G. Friend and Hepburn Ingham and James F. Ely, 1991, Thermophysical Properties of Ethane, *J. Phys. Chem. Ref. Data*, 20:275-347
+**Lennard-Jones Parameters for ECS**: Friend, Daniel G.; Ingham, Hepburn; Ely, James F., 1991, Thermophysical Properties of Ethane, *J. Phys. Chem. Ref. Data*, 20:275-347
 
 
 

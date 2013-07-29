@@ -9,13 +9,13 @@ Aliases
 
 Bibliographic Information
 =========================
-**Equation of State**: M. Thol and E.W. Lemmon and R. Span, 2012, Equation of state for benzene for temperatures from the melting line up to 725 K with pressures up to 500 MPa, *High Temperatures-High Pressures*, 41:81-97
+**Equation of State**: Thol, M.; Lemmon, E.W.; Span, R., 2012, Equation of state for benzene for temperatures from the melting line up to 725 K with pressures up to 500 MPa, *High Temperatures-High Pressures*, 41:81-97
 
-**Surface Tension**: A. Mulero and I. Cachadi\~na and M. I. Parra, 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
+**Surface Tension**: Mulero, A.; Cachadiña, I.; Parra, M. I., 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
 
-**Conductivity**: M.J. Assael and E. Mihailidou and M.L. Huber and R.A. Perkins, 2012, Reference Correlation of the Thermal Conductivity of Benzene from the Triple Point to 725 K and up to 500 MPa, *J. Phys. Chem Ref. Data*, 41:043102-1:9
+**Conductivity**: Assael, M.J.; Mihailidou, E.; Huber, M.L.; Perkins, R.A., 2012, Reference Correlation of the Thermal Conductivity of Benzene from the Triple Point to 725 K and up to 500 MPa, *J. Phys. Chem Ref. Data*, 41:043102-1:9
 
-**Lennard-Jones Parameters for ECS**: Bruce E. Poling and John M. Prausnitz and John P. O'Connell, 2001, *The Properties of Gases and Liquids, 5th edition*, McGraw Hill
+**Lennard-Jones Parameters for ECS**: Poling, Bruce E.; Prausnitz, John M.; O'Connell, John P., 2001, *The Properties of Gases and Liquids, 5th edition*, McGraw Hill
 
 
 

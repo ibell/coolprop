@@ -9,15 +9,15 @@ Aliases
 
 Bibliographic Information
 =========================
-**Equation of State**: Steven G. Penoncello and Eric W. Lemmon and Richard T Jacobsen and Zhengjun Shan, 2003, A Fundamental Equation for Trifluoromethane (R-23), *J. Phys. Chem. Ref. Data*, 32:1473-1499
+**Equation of State**: Penoncello, Steven G.; Lemmon, Eric W.; Jacobsen, Richard T; Shan, Zhengjun, 2003, A Fundamental Equation for Trifluoromethane (R-23), *J. Phys. Chem. Ref. Data*, 32:1473-1499
 
-**Surface Tension**: A. Mulero and I. Cachadi\~na and M. I. Parra, 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
+**Surface Tension**: Mulero, A.; Cachadiña, I.; Parra, M. I., 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
 
-**Viscosity**: Zhengjun Shan and Steven G. Penoncello and Richard T. Jacobsen, 2000, A Generalized Model for Viscosity and Thermal Conductivity of Trifluoromethane (R-23), *ASHRAE Transactions*, :DA-00-10-2
+**Viscosity**: Shan, Zhengjun; Penoncello, Steven G.; Jacobsen, Richard T., 2000, A Generalized Model for Viscosity and Thermal Conductivity of Trifluoromethane (R-23), *ASHRAE Transactions*, :DA-00-10-2
 
-**Conductivity**: Zhengjun Shan and Steven G. Penoncello and Richard T. Jacobsen, 2000, A Generalized Model for Viscosity and Thermal Conductivity of Trifluoromethane (R-23), *ASHRAE Transactions*, :DA-00-10-2
+**Conductivity**: Shan, Zhengjun; Penoncello, Steven G.; Jacobsen, Richard T., 2000, A Generalized Model for Viscosity and Thermal Conductivity of Trifluoromethane (R-23), *ASHRAE Transactions*, :DA-00-10-2
 
-**Lennard-Jones Parameters for ECS**: Zhengjun Shan and Steven G. Penoncello and Richard T. Jacobsen, 2000, A Generalized Model for Viscosity and Thermal Conductivity of Trifluoromethane (R-23), *ASHRAE Transactions*, :DA-00-10-2
+**Lennard-Jones Parameters for ECS**: Shan, Zhengjun; Penoncello, Steven G.; Jacobsen, Richard T., 2000, A Generalized Model for Viscosity and Thermal Conductivity of Trifluoromethane (R-23), *ASHRAE Transactions*, :DA-00-10-2
 
 
 

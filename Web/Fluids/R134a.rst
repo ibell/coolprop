@@ -9,15 +9,15 @@ Aliases
 
 Bibliographic Information
 =========================
-**Equation of State**: Reiner Tillner-Roth and Hans Dieter Baehr, 1994, A International Standard Formulation for the Thermodynamic Properties of 1,1,1,2-Tetrafluoroethane (HFC-134a) for Temperatures from 170 K to 455 K and Pressures up to 70 MPa, *J. Phys. Chem. Ref. Data*, 23:657-729
+**Equation of State**: Tillner-Roth, Reiner; Baehr, Hans Dieter, 1994, A International Standard Formulation for the Thermodynamic Properties of 1,1,1,2-Tetrafluoroethane (HFC-134a) for Temperatures from 170 K to 455 K and Pressures up to 70 MPa, *J. Phys. Chem. Ref. Data*, 23:657-729
 
-**Surface Tension**: A. Mulero and I. Cachadi\~na and M. I. Parra, 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
+**Surface Tension**: Mulero, A.; Cachadiña, I.; Parra, M. I., 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
 
-**Viscosity**: Marcia L. Huber and Arno Laesecke and Richard A. Perkins, 2003, Model for the Viscosity and Thermal Conductivity of Refrigerants, Including a New Correlation for the Viscosity of R134a, *Ind. Eng. Chem. Res.*, 42:3163-3178
+**Viscosity**: Huber, Marcia L.; Laesecke, Arno; Perkins, Richard A., 2003, Model for the Viscosity and Thermal Conductivity of Refrigerants, Including a New Correlation for the Viscosity of R134a, *Ind. Eng. Chem. Res.*, 42:3163-3178
 
-**Conductivity**: Mark O. McLinden and Sanford A. Klein and Richard A. Perkins, 2000, An extended corresponding states model for the thermal conductivity of refrigerants and refrigerant mixtures, *Int. J. Refrig.*, 23:43-63
+**Conductivity**: McLinden, Mark O.; Klein, Sanford A.; Perkins, Richard A., 2000, An extended corresponding states model for the thermal conductivity of refrigerants and refrigerant mixtures, *Int. J. Refrig.*, 23:43-63
 
-**Lennard-Jones Parameters for ECS**: Marcia L. Huber and Arno Laesecke and Richard A. Perkins, 2003, Model for the Viscosity and Thermal Conductivity of Refrigerants, Including a New Correlation for the Viscosity of R134a, *Ind. Eng. Chem. Res.*, 42:3163-3178
+**Lennard-Jones Parameters for ECS**: Huber, Marcia L.; Laesecke, Arno; Perkins, Richard A., 2003, Model for the Viscosity and Thermal Conductivity of Refrigerants, Including a New Correlation for the Viscosity of R134a, *Ind. Eng. Chem. Res.*, 42:3163-3178
 
 
 

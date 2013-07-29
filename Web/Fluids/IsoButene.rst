@@ -9,9 +9,9 @@ Aliases
 
 Bibliographic Information
 =========================
-**Equation of State**: Eric W. Lemmon and E. Christian Ihmels, 2005, Thermodynamic properties of the butenes Part II. Short fundamental equations of state, *Fluid Phase Equilibria*, 228-229:173-187
+**Equation of State**: Lemmon, Eric W.; Ihmels, E. Christian, 2005, Thermodynamic properties of the butenes Part II. Short fundamental equations of state, *Fluid Phase Equilibria*, 228-229:173-187
 
-**Surface Tension**: A. Mulero and I. Cachadi\~na and M. I. Parra, 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
+**Surface Tension**: Mulero, A.; Cachadiña, I.; Parra, M. I., 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
 
 
 

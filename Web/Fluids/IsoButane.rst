@@ -9,15 +9,15 @@ Aliases
 
 Bibliographic Information
 =========================
-**Equation of State**: D. Buecker and W. Wagner, 2006, Reference Equations of State for the Thermodynamic Properties of Fluid Phase n-Butane and Isobutane, *J. Phys. Chem. Ref. Data*, 35:929-1019
+**Equation of State**: Buecker, D.; Wagner, W., 2006, Reference Equations of State for the Thermodynamic Properties of Fluid Phase n-Butane and Isobutane, *J. Phys. Chem. Ref. Data*, 35:929-1019
 
-**Surface Tension**: A. Mulero and I. Cachadi\~na and M. I. Parra, 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
+**Surface Tension**: Mulero, A.; Cachadiña, I.; Parra, M. I., 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
 
-**Viscosity**: E. Vogel and C. Kuechenmeister and E. Bich, 2000, Viscosity Correlation for Isobutane over Wide Ranges of the Fluid Region, *Int. J. Thermophys*, 21:343-356
+**Viscosity**: Vogel, E.; Kuechenmeister, C.; Bich, E., 2000, Viscosity Correlation for Isobutane over Wide Ranges of the Fluid Region, *Int. J. Thermophys*, 21:343-356
 
-**Conductivity**: R.A. Perkins, 2002, Measurement and Correlation of the Thermal Conductivity of Isobutane from 114 K to 600 K at Pressures to 70 MPa, *J. Chem. Eng. Data*, 47:1272-1279
+**Conductivity**: Perkins, R.A., 2002, Measurement and Correlation of the Thermal Conductivity of Isobutane from 114 K to 600 K at Pressures to 70 MPa, *J. Chem. Eng. Data*, 47:1272-1279
 
-**Lennard-Jones Parameters for ECS**: E. Vogel and C. Kuechenmeister and E. Bich, 2000, Viscosity Correlation for Isobutane over Wide Ranges of the Fluid Region, *Int. J. Thermophys*, 21:343-356
+**Lennard-Jones Parameters for ECS**: Vogel, E.; Kuechenmeister, C.; Bich, E., 2000, Viscosity Correlation for Isobutane over Wide Ranges of the Fluid Region, *Int. J. Thermophys*, 21:343-356
 
 
 

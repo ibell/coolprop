@@ -9,13 +9,13 @@ Aliases
 
 Bibliographic Information
 =========================
-**Equation of State**: E.W. Lemmon and U. Overhoff and M.O. McLinden and W. Wagner, 2010, Equation of state for propylene, note: Personal communication with Eric Lemmon
+**Equation of State**: Lemmon, E.W.; Overhoff, U.; McLinden, M.O.; Wagner, W., 2010, Equation of state for propylene, note: Personal communication with Eric Lemmon
 
-**Surface Tension**: A. Mulero and I. Cachadi\~na and M. I. Parra, 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
+**Surface Tension**: Mulero, A.; Cachadiña, I.; Parra, M. I., 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
 
-**Lennard-Jones Parameters for ECS**: Marcia L. Huber and Arno Laesecke and Richard A. Perkins, 2003, Model for the Viscosity and Thermal Conductivity of Refrigerants, Including a New Correlation for the Viscosity of R134a, *Ind. Eng. Chem. Res.*, 42:3163-3178
+**Lennard-Jones Parameters for ECS**: Huber, Marcia L.; Laesecke, Arno; Perkins, Richard A., 2003, Model for the Viscosity and Thermal Conductivity of Refrigerants, Including a New Correlation for the Viscosity of R134a, *Ind. Eng. Chem. Res.*, 42:3163-3178
 
-**ECS Correction Fit**: Marcia L. Huber and Arno Laesecke and Richard A. Perkins, 2003, Model for the Viscosity and Thermal Conductivity of Refrigerants, Including a New Correlation for the Viscosity of R134a, *Ind. Eng. Chem. Res.*, 42:3163-3178
+**ECS Correction Fit**: Huber, Marcia L.; Laesecke, Arno; Perkins, Richard A., 2003, Model for the Viscosity and Thermal Conductivity of Refrigerants, Including a New Correlation for the Viscosity of R134a, *Ind. Eng. Chem. Res.*, 42:3163-3178
 
 
 

@@ -9,7 +9,7 @@ Aliases
 
 Bibliographic Information
 =========================
-**Equation of State**: Yong Zhou and Jiangtao Wu and Eric W. Lemmon, 2011, Thermodynamic Properties of Dimethyl Carbonate, *J. Phys. Chem. Ref. Data*, 40:043106-1:11
+**Equation of State**: Zhou, Yong; Wu, Jiangtao; Lemmon, Eric W., 2011, Thermodynamic Properties of Dimethyl Carbonate, *J. Phys. Chem. Ref. Data*, 40:043106-1:11
 
 
 

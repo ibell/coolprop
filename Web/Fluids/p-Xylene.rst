@@ -9,7 +9,7 @@ Aliases
 
 Bibliographic Information
 =========================
-**Equation of State**: Yong Zhou and Jiangtao Wu and Eric W. Lemmon, 2012, Thermodynamic Properties of o-Xylene, m-Xylene, p-Xylene, and Ethylbenzene, *J. Phys. Chem. Ref. Data*, 41:023103-1 -- 023103-26
+**Equation of State**: Zhou, Yong; Wu, Jiangtao; Lemmon, Eric W., 2012, Thermodynamic Properties of o-Xylene, m-Xylene, p-Xylene, and Ethylbenzene, *J. Phys. Chem. Ref. Data*, 41:023103-1 -- 023103-26
 
 
 

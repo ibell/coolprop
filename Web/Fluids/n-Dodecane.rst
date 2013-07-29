@@ -9,15 +9,15 @@ Aliases
 
 Bibliographic Information
 =========================
-**Equation of State**: Eric W. Lemmon and Marcia L. Huber, 2004, Thermodynamic Properties of n-Dodecane, *Energy \& Fuels*, 18:960-967
+**Equation of State**: Lemmon, Eric W.; Huber, Marcia L., 2004, Thermodynamic Properties of n-Dodecane, *Energy \& Fuels*, 18:960-967
 
-**Surface Tension**: A. Mulero and I. Cachadi\~na and M. I. Parra, 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
+**Surface Tension**: Mulero, A.; Cachadiña, I.; Parra, M. I., 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
 
-**Viscosity**: Marcia L. Huber and Arno Laesecke and Richard Perkins, 2004, Transport Properties of n-Dodecane, *Energy \& Fuels*, 18:968-975
+**Viscosity**: Huber, Marcia L.; Laesecke, Arno; Perkins, Richard, 2004, Transport Properties of n-Dodecane, *Energy \& Fuels*, 18:968-975
 
-**Conductivity**: Marcia L. Huber and Arno Laesecke and Richard Perkins, 2004, Transport Properties of n-Dodecane, *Energy \& Fuels*, 18:968-975
+**Conductivity**: Huber, Marcia L.; Laesecke, Arno; Perkins, Richard, 2004, Transport Properties of n-Dodecane, *Energy \& Fuels*, 18:968-975
 
-**Lennard-Jones Parameters for ECS**: Marcia L. Huber and Arno Laesecke and Richard Perkins, 2004, Transport Properties of n-Dodecane, *Energy \& Fuels*, 18:968-975
+**Lennard-Jones Parameters for ECS**: Huber, Marcia L.; Laesecke, Arno; Perkins, Richard, 2004, Transport Properties of n-Dodecane, *Energy \& Fuels*, 18:968-975
 
 
 

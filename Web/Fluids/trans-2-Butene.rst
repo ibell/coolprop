@@ -9,7 +9,7 @@ Aliases
 
 Bibliographic Information
 =========================
-**Equation of State**: Eric W. Lemmon and E. Christian Ihmels, 2005, Thermodynamic properties of the butenes Part II. Short fundamental equations of state, *Fluid Phase Equilibria*, 228-229:173-187
+**Equation of State**: Lemmon, Eric W.; Ihmels, E. Christian, 2005, Thermodynamic properties of the butenes Part II. Short fundamental equations of state, *Fluid Phase Equilibria*, 228-229:173-187
 
 
 

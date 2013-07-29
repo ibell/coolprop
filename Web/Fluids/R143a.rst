@@ -9,11 +9,11 @@ Aliases
 
 Bibliographic Information
 =========================
-**Equation of State**: Eric W. Lemmon and Richard T. Jacobsen, 2000, An International Standard Formulation for the Thermodynamic Properties of 1,1,1-Trifluoroethane (HFC-143a) for Temperatures From 161 to 450 K and Pressures to 50 MPa, *J. Phys. Chem. Ref. Data*, 29:521-552
+**Equation of State**: Lemmon, Eric W.; Jacobsen, Richard T., 2000, An International Standard Formulation for the Thermodynamic Properties of 1,1,1-Trifluoroethane (HFC-143a) for Temperatures From 161 to 450 K and Pressures to 50 MPa, *J. Phys. Chem. Ref. Data*, 29:521-552
 
-**Surface Tension**: A. Mulero and I. Cachadi\~na and M. I. Parra, 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
+**Surface Tension**: Mulero, A.; Cachadiña, I.; Parra, M. I., 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
 
-**Lennard-Jones Parameters for ECS**: Mark O. McLinden and Sanford A. Klein and Richard A. Perkins, 2000, An extended corresponding states model for the thermal conductivity of refrigerants and refrigerant mixtures, *Int. J. Refrig.*, 23:43-63
+**Lennard-Jones Parameters for ECS**: McLinden, Mark O.; Klein, Sanford A.; Perkins, Richard A., 2000, An extended corresponding states model for the thermal conductivity of refrigerants and refrigerant mixtures, *Int. J. Refrig.*, 23:43-63
 
 
 

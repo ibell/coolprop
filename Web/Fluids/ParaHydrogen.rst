@@ -9,11 +9,11 @@ Aliases
 
 Bibliographic Information
 =========================
-**Equation of State**: J.W. Leachman and R.T. Jacobsen and S.G. Penoncello and E.W. Lemmon, 2009, Fundamental Equations of State for Parahydrogen, Normal Hydrogen, and Orthohydrogen, *J. Phys. Chem. Ref. Data*, 38:721-748
+**Equation of State**: Leachman, J.W.; Jacobsen, R.T.; Penoncello, S.G.; Lemmon, E.W., 2009, Fundamental Equations of State for Parahydrogen, Normal Hydrogen, and Orthohydrogen, *J. Phys. Chem. Ref. Data*, 38:721-748
 
-**Surface Tension**: A. Mulero and I. Cachadi\~na and M. I. Parra, 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
+**Surface Tension**: Mulero, A.; Cachadiña, I.; Parra, M. I., 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
 
-**Conductivity**: M. J. Assael and J.-A. M. Assael and M. L. Huber and R. A. Perkins and Y. Takata, 2011, Correlation of the Thermal Conductivity of Normal and Parahydrogen from the Triple Point to 1000 K and up to 100 MPa, *J. Phys. Chem. Ref. Data*, 40:033101-1:13
+**Conductivity**: Assael, M. J.; Assael, J.-A. M.; Huber, M. L.; Perkins, R. A.; Takata, Y., 2011, Correlation of the Thermal Conductivity of Normal and Parahydrogen from the Triple Point to 1000 K and up to 100 MPa, *J. Phys. Chem. Ref. Data*, 40:033101-1:13
 
 
 

@@ -9,9 +9,9 @@ Aliases
 
 Bibliographic Information
 =========================
-**Equation of State**: P. Colonna and N.R. Nannan and A. Guardone, 2008, Multiparameter equations of state for siloxanes: [(CH3)3-Si-O1/2]2-[O-Si-(CH3)2]i=1,...,3, and [O-Si-(CH3)2]6, *Fluid Phase Equilibria*, 263:115-130
+**Equation of State**: Colonna, P.; Nannan, N.R.; Guardone, A., 2008, Multiparameter equations of state for siloxanes: [(CH3)3-Si-O1/2]2-[O-Si-(CH3)2]i=1,...,3, and [O-Si-(CH3)2]6, *Fluid Phase Equilibria*, 263:115-130
 
-**Surface Tension**: A. Mulero and I. Cachadi\~na and M. I. Parra, 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
+**Surface Tension**: Mulero, A.; Cachadiña, I.; Parra, M. I., 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
 
 
 

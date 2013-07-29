@@ -9,11 +9,11 @@ Aliases
 
 Bibliographic Information
 =========================
-**Equation of State**: E.W. Lemmon, 2003, Pseudo-Pure Fluid Equations of State for the Refrigerant Blends R-410A, R-404A, R-507A, and R-407C, *Int. J. Thermophys.*, 24:991-1006
+**Equation of State**: Lemmon, E.W., 2003, Pseudo-Pure Fluid Equations of State for the Refrigerant Blends R-410A, R-404A, R-507A, and R-407C, *Int. J. Thermophys.*, 24:991-1006
 
-**Viscosity**: V. Geller, 2000, Viscosity of Mixed Refrigerants R404A, R407C, R410A, and R507A, *2000 International Refrigeration Conferences at Purdue University*
+**Viscosity**: Geller, V., 2000, Viscosity of Mixed Refrigerants R404A, R407C, R410A, and R507A, *2000 International Refrigeration Conferences at Purdue University*
 
-**Conductivity**: V.Z. Geller and B.Z. Nemzer and U.V. Cheremnykh, 2001, Thermal Conductivity of the Refrigerant mixtures R404A, R407C, R410A, and R507A, *Int. J. Thermophys.*, 22:1034-1043
+**Conductivity**: Geller, V.Z.; Nemzer, B.Z.; Cheremnykh, U.V., 2001, Thermal Conductivity of the Refrigerant mixtures R404A, R407C, R410A, and R507A, *Int. J. Thermophys.*, 22:1034-1043
 
 
 

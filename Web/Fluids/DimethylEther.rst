@@ -9,13 +9,13 @@ Aliases
 
 Bibliographic Information
 =========================
-**Equation of State**: Jiangtao Wu and Yong Zhou and Eric W. Lemmon, 2011, An Equation of State for the Thermodynamic Properties of Dimethyl Ether, *J. Phys. Chem. Ref. Data*, 40:023104-1:16
+**Equation of State**: Wu, Jiangtao; Zhou, Yong; Lemmon, Eric W., 2011, An Equation of State for the Thermodynamic Properties of Dimethyl Ether, *J. Phys. Chem. Ref. Data*, 40:023104-1:16
 
-**Surface Tension**: A. Mulero and I. Cachadi\~na and M. I. Parra, 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
+**Surface Tension**: Mulero, A.; Cachadiña, I.; Parra, M. I., 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
 
-**Viscosity**: Xianyang Meng and Jianbo Zhang and Jiangtao Wu and Zhigang Liu, 2012, Experimental Measurement and Modeling of the Viscosity of Dimethyl Ether, *J. Chem. Eng. Data*, 57:988-993
+**Viscosity**: Meng, Xianyang; Zhang, Jianbo; Wu, Jiangtao; Liu, Zhigang, 2012, Experimental Measurement and Modeling of the Viscosity of Dimethyl Ether, *J. Chem. Eng. Data*, 57:988-993
 
-**Lennard-Jones Parameters for ECS**: Justin C. Chichester and Marcia L. Huber, June 2008, *NISTIR 6650: Documentation and Assessment of the Transport Property Model for Mixtures Implemented in NIST REFPROP (Version 8.0)*, National Institute of Standards and Technology (NIST)
+**Lennard-Jones Parameters for ECS**: Chichester, Justin C.; Huber, Marcia L., June 2008, *NISTIR 6650: Documentation and Assessment of the Transport Property Model for Mixtures Implemented in NIST REFPROP (Version 8.0)*, National Institute of Standards and Technology (NIST)
 
 
 

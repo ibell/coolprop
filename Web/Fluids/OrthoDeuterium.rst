@@ -9,7 +9,7 @@ Aliases
 
 Bibliographic Information
 =========================
-**Equation of State**: I.A. Richardson and J.W. Leachman and E.W. Lemmon, 2013, Fundamental Equation of State for Deuterium, *J. Phys. Chem Ref. Data*, In Press:
+**Equation of State**: Richardson, I.A.; Leachman, J.W.; Lemmon, E.W., 2013, Fundamental Equation of State for Deuterium, *J. Phys. Chem Ref. Data*, In Press:
 
 
 

@@ -9,13 +9,13 @@ Aliases
 
 Bibliographic Information
 =========================
-**Equation of State**: Richard B. Stewart and Richard T. Jacobsen and W. Wagner, 1991, Thermodynamic Properties of Oxygen from the Triple Point to 300 K with Pressures to 80 MPa, *J. Phys. Chem. Ref. Data*, 20:917-1021
+**Equation of State**: Stewart, Richard B.; Jacobsen, Richard T.; Wagner, W., 1991, Thermodynamic Properties of Oxygen from the Triple Point to 300 K with Pressures to 80 MPa, *J. Phys. Chem. Ref. Data*, 20:917-1021
 
-**Surface Tension**: A. Mulero and I. Cachadi\~na and M. I. Parra, 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
+**Surface Tension**: Mulero, A.; Cachadiña, I.; Parra, M. I., 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
 
-**Viscosity**: E. W. Lemmon and R. T Jacobsen, 2004, Viscosity and Thermal Conductivity Equations for Nitrogen, Oxygen, Argon, and Air, *International Journal of Thermophysics*, 25:21-69
+**Viscosity**: Lemmon, E. W.; Jacobsen, R. T, 2004, Viscosity and Thermal Conductivity Equations for Nitrogen, Oxygen, Argon, and Air, *International Journal of Thermophysics*, 25:21-69
 
-**Conductivity**: E. W. Lemmon and R. T Jacobsen, 2004, Viscosity and Thermal Conductivity Equations for Nitrogen, Oxygen, Argon, and Air, *International Journal of Thermophysics*, 25:21-69
+**Conductivity**: Lemmon, E. W.; Jacobsen, R. T, 2004, Viscosity and Thermal Conductivity Equations for Nitrogen, Oxygen, Argon, and Air, *International Journal of Thermophysics*, 25:21-69
 
 
 

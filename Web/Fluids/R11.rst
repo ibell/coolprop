@@ -9,13 +9,13 @@ Aliases
 
 Bibliographic Information
 =========================
-**Equation of State**: R. Span and W. Wagner, 2003, Equations of State for Technical Applications. III. Results for Polar Fluids, *International Journal of Thermophysics*, 24:111-162
+**Equation of State**: Span, R.; Wagner, W., 2003, Equations of State for Technical Applications. III. Results for Polar Fluids, *International Journal of Thermophysics*, 24:111-162
 
-**Ideal-gas Specific Heat**: R.T Jacobsen, S.G. Penoncello and E.W. Lemmon, 1992, A Fundamental Equation for Trichlorofluoromethane (R-11), *Fluid Phase Equilibria*, 80:45-56
+**Ideal-gas Specific Heat**: R.T Jacobsen, S.G. Penoncello; Lemmon, E.W., 1992, A Fundamental Equation for Trichlorofluoromethane (R-11), *Fluid Phase Equilibria*, 80:45-56
 
-**Surface Tension**: A. Mulero and I. Cachadi\~na and M. I. Parra, 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
+**Surface Tension**: Mulero, A.; Cachadiña, I.; Parra, M. I., 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
 
-**Lennard-Jones Parameters for ECS**: Mark O. McLinden and Sanford A. Klein and Richard A. Perkins, 2000, An extended corresponding states model for the thermal conductivity of refrigerants and refrigerant mixtures, *Int. J. Refrig.*, 23:43-63
+**Lennard-Jones Parameters for ECS**: McLinden, Mark O.; Klein, Sanford A.; Perkins, Richard A., 2000, An extended corresponding states model for the thermal conductivity of refrigerants and refrigerant mixtures, *Int. J. Refrig.*, 23:43-63
 
 
 

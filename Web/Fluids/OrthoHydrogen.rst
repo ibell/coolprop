@@ -9,7 +9,7 @@ Aliases
 
 Bibliographic Information
 =========================
-**Equation of State**: J.W. Leachman and R.T. Jacobsen and S.G. Penoncello and E.W. Lemmon, 2009, Fundamental Equations of State for Parahydrogen, Normal Hydrogen, and Orthohydrogen, *J. Phys. Chem. Ref. Data*, 38:721-748
+**Equation of State**: Leachman, J.W.; Jacobsen, R.T.; Penoncello, S.G.; Lemmon, E.W., 2009, Fundamental Equations of State for Parahydrogen, Normal Hydrogen, and Orthohydrogen, *J. Phys. Chem. Ref. Data*, 38:721-748
 
 
 

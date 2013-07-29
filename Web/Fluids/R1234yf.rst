@@ -9,11 +9,11 @@ Aliases
 
 Bibliographic Information
 =========================
-**Equation of State**: M. Richter and M.O. McLinden and E.W. Lemmon, 2011, Thermodynamic Properties of 2,3,3,3-Tetrafluoroprop-1-ene (R1234yf): Vapor Pressure and p-rho-T Measurements and an Equation of State, *J. Chem. Eng. Data*, 56:3254-3264
+**Equation of State**: Richter, M.; McLinden, M.O.; Lemmon, E.W., 2011, Thermodynamic Properties of 2,3,3,3-Tetrafluoroprop-1-ene (R1234yf): Vapor Pressure and p-rho-T Measurements and an Equation of State, *J. Chem. Eng. Data*, 56:3254-3264
 
-**Surface Tension**: A. Mulero and I. Cachadi\~na and M. I. Parra, 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
+**Surface Tension**: Mulero, A.; Cachadiña, I.; Parra, M. I., 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
 
-**Conductivity**: Richard A. Perkins and Marcia L. Huber, 2011, Measurement and Correlation of the Thermal Conductivity of 2,3,3,3-Tetrafluoroprop-1-ene (R1234yf) and trans-1,3,3,3-Tetrafluoropropene (R1234ze(E)), *Journal of Chemical Engineering Data*, 56:4868-4874
+**Conductivity**: Perkins, Richard A.; Huber, Marcia L., 2011, Measurement and Correlation of the Thermal Conductivity of 2,3,3,3-Tetrafluoroprop-1-ene (R1234yf) and trans-1,3,3,3-Tetrafluoropropene (R1234ze(E)), *Journal of Chemical Engineering Data*, 56:4868-4874
 
 
 

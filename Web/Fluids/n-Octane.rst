@@ -9,17 +9,17 @@ Aliases
 
 Bibliographic Information
 =========================
-**Equation of State**: R. Span and W. Wagner, 2003, Equations of State for Technical Applications. II. Results for Nonpolar Fluids, *International Journal of Thermophysics*, 24:41-109
+**Equation of State**: Span, R.; Wagner, W., 2003, Equations of State for Technical Applications. II. Results for Nonpolar Fluids, *International Journal of Thermophysics*, 24:41-109
 
-**Ideal-gas Specific Heat**: M. Jaeschke and P. Schley, 1995, Ideal-Gas Thermodynamic Properties for Natural-Gas Applications, *Int. J. Thermophys.*, 16:1381-1392
+**Ideal-gas Specific Heat**: Jaeschke, M.; Schley, P., 1995, Ideal-Gas Thermodynamic Properties for Natural-Gas Applications, *Int. J. Thermophys.*, 16:1381-1392
 
-**Surface Tension**: A. Mulero and I. Cachadi\~na and M. I. Parra, 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
+**Surface Tension**: Mulero, A.; Cachadiña, I.; Parra, M. I., 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
 
-**Viscosity**: Marcia L. Huber and Arno Laesecke and Hong Wei Xiang, 2004, Viscosity correlations for minor constituent fluids in natural gas: n-octane, n-nonane and n-decane, *Fluid Phase Equilibria*, 224:263-270
+**Viscosity**: Huber, Marcia L.; Laesecke, Arno; Xiang, Hong Wei, 2004, Viscosity correlations for minor constituent fluids in natural gas: n-octane, n-nonane and n-decane, *Fluid Phase Equilibria*, 224:263-270
 
-**Conductivity**: M.L. Huber and R.A. Perkins, 2005, Thermal conductivity correlations for minor constituent fluids in natural gas: n-octane, n-nonane and n-decane, *Fluid Phase Equilibria*, 227:47-55
+**Conductivity**: Huber, M.L.; Perkins, R.A., 2005, Thermal conductivity correlations for minor constituent fluids in natural gas: n-octane, n-nonane and n-decane, *Fluid Phase Equilibria*, 227:47-55
 
-**Lennard-Jones Parameters for ECS**: Marcia L. Huber and Arno Laesecke and Hong Wei Xiang, 2004, Viscosity correlations for minor constituent fluids in natural gas: n-octane, n-nonane and n-decane, *Fluid Phase Equilibria*, 224:263-270
+**Lennard-Jones Parameters for ECS**: Huber, Marcia L.; Laesecke, Arno; Xiang, Hong Wei, 2004, Viscosity correlations for minor constituent fluids in natural gas: n-octane, n-nonane and n-decane, *Fluid Phase Equilibria*, 224:263-270
 
 
 

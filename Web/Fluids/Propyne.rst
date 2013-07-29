@@ -9,9 +9,9 @@ Aliases
 
 Bibliographic Information
 =========================
-**Equation of State**: Axel Polt and Bernhard Platzer and Gerd Maurer, 1992, Parameter der thermischen Zustandsgleichung von Bender f\"u 14 mehratomige reine Stoffe, *Chem. Technik*, 22:216-224
+**Equation of State**: Polt, Axel; Platzer, Bernhard; Maurer, Gerd, 1992, Parameter der thermischen Zustandsgleichung von Bender f{\"u} 14 mehratomige reine Stoffe, *Chem. Technik*, 22:216-224
 
-**Ideal-gas Specific Heat**: Axel Polt and Bernhard Platzer and Gerd Maurer, 1992, Parameter der thermischen Zustandsgleichung von Bender f\"u 14 mehratomige reine Stoffe, *Chem. Technik*, 22:216-224
+**Ideal-gas Specific Heat**: Polt, Axel; Platzer, Bernhard; Maurer, Gerd, 1992, Parameter der thermischen Zustandsgleichung von Bender f{\"u} 14 mehratomige reine Stoffe, *Chem. Technik*, 22:216-224
 
 
 

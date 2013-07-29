@@ -9,9 +9,9 @@ Aliases
 
 Bibliographic Information
 =========================
-**Equation of State**: I.A. Richardson and J.W. Leachman and E.W. Lemmon, 2013, Fundamental Equation of State for Deuterium, *J. Phys. Chem Ref. Data*, In Press:
+**Equation of State**: Richardson, I.A.; Leachman, J.W.; Lemmon, E.W., 2013, Fundamental Equation of State for Deuterium, *J. Phys. Chem Ref. Data*, In Press:
 
-**Surface Tension**: A. Mulero and I. Cachadi\~na and M. I. Parra, 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
+**Surface Tension**: Mulero, A.; Cachadiña, I.; Parra, M. I., 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
 
 
 

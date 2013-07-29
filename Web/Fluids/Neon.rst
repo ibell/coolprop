@@ -9,11 +9,11 @@ Aliases
 
 Bibliographic Information
 =========================
-**Equation of State**: R. Katti and R.T. Jacobsen and R.B. Stewart and M. Jehangiri, 1986, Thermodynamic Properties of Neon for Temperatures from the Triple Point to 700 K at Pressures to 700 MPa, *Advances in Cryogenic Engineering*, 31:1189-1197
+**Equation of State**: Katti, R.; Jacobsen, R.T.; Stewart, R.B.; Jehangiri, M., 1986, Thermodynamic Properties of Neon for Temperatures from the Triple Point to 700 K at Pressures to 700 MPa, *Advances in Cryogenic Engineering*, 31:1189-1197
 
-**Surface Tension**: A. Mulero and I. Cachadi\~na and M. I. Parra, 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
+**Surface Tension**: Mulero, A.; Cachadiña, I.; Parra, M. I., 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
 
-**Lennard-Jones Parameters for ECS**: Bruce E. Poling and John M. Prausnitz and John P. O'Connell, 2001, *The Properties of Gases and Liquids, 5th edition*, McGraw Hill
+**Lennard-Jones Parameters for ECS**: Poling, Bruce E.; Prausnitz, John M.; O'Connell, John P., 2001, *The Properties of Gases and Liquids, 5th edition*, McGraw Hill
 
 
 

@@ -9,15 +9,15 @@ Aliases
 
 Bibliographic Information
 =========================
-**Equation of State**: D. Buecker and W. Wagner, 2006, Reference Equations of State for the Thermodynamic Properties of Fluid Phase n-Butane and Isobutane, *J. Phys. Chem. Ref. Data*, 35:929-1019
+**Equation of State**: Buecker, D.; Wagner, W., 2006, Reference Equations of State for the Thermodynamic Properties of Fluid Phase n-Butane and Isobutane, *J. Phys. Chem. Ref. Data*, 35:929-1019
 
-**Surface Tension**: A. Mulero and I. Cachadi\~na and M. I. Parra, 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
+**Surface Tension**: Mulero, A.; Cachadiña, I.; Parra, M. I., 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
 
-**Viscosity**: E. Vogel and C. Kuechenmeister and E. Bich, 1999, Viscosity for n-Butane in the Fluid Region, *High Temp. - High Pressures*, 31:173-186
+**Viscosity**: Vogel, E.; Kuechenmeister, C.; Bich, E., 1999, Viscosity for n-Butane in the Fluid Region, *High Temp. - High Pressures*, 31:173-186
 
-**Conductivity**: R.A. Perkins and M.L.V. Ramires and C.A. Nieto de Castro and L. Cusco, 2002., Measurement and Correlation of the Thermal Conductivity of Butane from 135 K to 600 K at Pressures to 70 MPa, *J. Chem. Eng. Data*, 47:1263-1271
+**Conductivity**: Perkins, R.A.; Ramires, M.L.V.; de Castro, C.A. Nieto; Cusco, L., 2002., Measurement and Correlation of the Thermal Conductivity of Butane from 135 K to 600 K at Pressures to 70 MPa, *J. Chem. Eng. Data*, 47:1263-1271
 
-**Lennard-Jones Parameters for ECS**: E. Vogel and C. Kuechenmeister and E. Bich, 1999, Viscosity for n-Butane in the Fluid Region, *High Temp. - High Pressures*, 31:173-186
+**Lennard-Jones Parameters for ECS**: Vogel, E.; Kuechenmeister, C.; Bich, E., 1999, Viscosity for n-Butane in the Fluid Region, *High Temp. - High Pressures*, 31:173-186
 
 
 

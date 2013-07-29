@@ -9,7 +9,7 @@ Aliases
 
 Bibliographic Information
 =========================
-**Equation of State**: Ryo Akasaka and Yohei Kayukawa, 2012, A fundamental equation of state for trifluoromethyl methyl ether (HFE-143m) and its application to refrigeration cycle analysis, *International Journal of Refrigeration*, 35:1003-1013
+**Equation of State**: Akasaka, Ryo; Kayukawa, Yohei, 2012, A fundamental equation of state for trifluoromethyl methyl ether (HFE-143m) and its application to refrigeration cycle analysis, *International Journal of Refrigeration*, 35:1003-1013
 
 
 

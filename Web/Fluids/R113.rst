@@ -9,9 +9,9 @@ Aliases
 
 Bibliographic Information
 =========================
-**Equation of State**: Volker Marx and Andreas Pruss and Wolfgang Wagner, 1992, *Neue Zustandsgleichung f\"ur R 12, R 22, R 11 und R 113 - Beschreibung des therodynamischen Zustandsverhaltens bei Temperaturen bis 525 K und Dru\"ucken bis 200 MPa*, VDI Verlag
+**Equation of State**: Marx, Volker; Pruss, Andreas; Wagner, Wolfgang, 1992, *Neue Zustandsgleichung f{\"u}r R 12, R 22, R 11 und R 113 - Beschreibung des therodynamischen Zustandsverhaltens bei Temperaturen bis 525 K und Dru{\"u}cken bis 200 MPa*, VDI Verlag
 
-**Surface Tension**: A. Mulero and I. Cachadi\~na and M. I. Parra, 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
+**Surface Tension**: Mulero, A.; Cachadiña, I.; Parra, M. I., 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
 
 
 

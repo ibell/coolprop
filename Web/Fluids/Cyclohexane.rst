@@ -9,13 +9,13 @@ Aliases
 
 Bibliographic Information
 =========================
-**Equation of State**: R. Span and W. Wagner, 2003, Equations of State for Technical Applications. II. Results for Nonpolar Fluids, *International Journal of Thermophysics*, 24:41-109
+**Equation of State**: Span, R.; Wagner, W., 2003, Equations of State for Technical Applications. II. Results for Nonpolar Fluids, *International Journal of Thermophysics*, 24:41-109
 
-**Ideal-gas Specific Heat**: S. G. Penoncello and R. T Jacobsen and A. R. H. Goodwin, 1995, A Thermodynamic Property Formulation for Cyclohexane, *Int. J. Thermophys.*, 16:519-531
+**Ideal-gas Specific Heat**: Penoncello, S. G.; Jacobsen, R. T; Goodwin, A. R. H., 1995, A Thermodynamic Property Formulation for Cyclohexane, *Int. J. Thermophys.*, 16:519-531
 
-**Surface Tension**: A. Mulero and I. Cachadi\~na and M. I. Parra, 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
+**Surface Tension**: Mulero, A.; Cachadiña, I.; Parra, M. I., 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
 
-**Lennard-Jones Parameters for ECS**: Justin C. Chichester and Marcia L. Huber, June 2008, *NISTIR 6650: Documentation and Assessment of the Transport Property Model for Mixtures Implemented in NIST REFPROP (Version 8.0)*, National Institute of Standards and Technology (NIST)
+**Lennard-Jones Parameters for ECS**: Chichester, Justin C.; Huber, Marcia L., June 2008, *NISTIR 6650: Documentation and Assessment of the Transport Property Model for Mixtures Implemented in NIST REFPROP (Version 8.0)*, National Institute of Standards and Technology (NIST)
 
 
 

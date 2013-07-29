@@ -9,13 +9,13 @@ Aliases
 
 Bibliographic Information
 =========================
-**Equation of State**: J. Smukala and R. Span and W. Wagner, 2000, New Equation of State for Ethylene Covering the Fluid Region for Temperatures From the Melting Line to 450 K at Pressures up to 300 MPa, *J. Phys. Chem. Ref. Data*, 29:1053-1121
+**Equation of State**: Smukala, J.; Span, R.; Wagner, W., 2000, New Equation of State for Ethylene Covering the Fluid Region for Temperatures From the Melting Line to 450 K at Pressures up to 300 MPa, *J. Phys. Chem. Ref. Data*, 29:1053-1121
 
 **Viscosity**: 
 
 **Conductivity**: 
 
-**Lennard-Jones Parameters for ECS**: Bruce E. Poling and John M. Prausnitz and John P. O'Connell, 2001, *The Properties of Gases and Liquids, 5th edition*, McGraw Hill
+**Lennard-Jones Parameters for ECS**: Poling, Bruce E.; Prausnitz, John M.; O'Connell, John P., 2001, *The Properties of Gases and Liquids, 5th edition*, McGraw Hill
 
 
 

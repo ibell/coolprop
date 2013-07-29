@@ -9,9 +9,9 @@ Aliases
 
 Bibliographic Information
 =========================
-**Equation of State**: P. Colonna and N.R. Nannan and A. Guardone and E.W. Lemmon, 2006, Multiparameter equations of state for selected siloxanes, *Fluid Phase Equilibria*, 244:193-211
+**Equation of State**: Colonna, P.; Nannan, N.R.; Guardone, A.; Lemmon, E.W., 2006, Multiparameter equations of state for selected siloxanes, *Fluid Phase Equilibria*, 244:193-211
 
-**Surface Tension**: A. Mulero and I. Cachadi\~na and M. I. Parra, 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
+**Surface Tension**: Mulero, A.; Cachadiña, I.; Parra, M. I., 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
 
 
 

@@ -9,9 +9,9 @@ Aliases
 
 Bibliographic Information
 =========================
-**Equation of State**: Jiangtao Wu and Yong Zhou, 2012, An Equation of State for Fluoroethane (R161), *Int J Thermophys*, 33:220-234
+**Equation of State**: Wu, Jiangtao; Zhou, Yong, 2012, An Equation of State for Fluoroethane (R161), *Int J Thermophys*, 33:220-234
 
-**Surface Tension**: A. Mulero and I. Cachadi\~na and M. I. Parra, 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
+**Surface Tension**: Mulero, A.; Cachadiña, I.; Parra, M. I., 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
 
 
 

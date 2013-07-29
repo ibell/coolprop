@@ -9,15 +9,15 @@ Aliases
 
 Bibliographic Information
 =========================
-**Equation of State**: R. Span and W. Wagner, 2003, Equations of State for Technical Applications. II. Results for Nonpolar Fluids, *International Journal of Thermophysics*, 24:41-109
+**Equation of State**: Span, R.; Wagner, W., 2003, Equations of State for Technical Applications. II. Results for Nonpolar Fluids, *International Journal of Thermophysics*, 24:41-109
 
-**Ideal-gas Specific Heat**: M. Jaeschke and P. Schley, 1995, Ideal-Gas Thermodynamic Properties for Natural-Gas Applications, *Int. J. Thermophys.*, 16:1381-1392
+**Ideal-gas Specific Heat**: Jaeschke, M.; Schley, P., 1995, Ideal-Gas Thermodynamic Properties for Natural-Gas Applications, *Int. J. Thermophys.*, 16:1381-1392
 
-**Surface Tension**: A. Mulero and I. Cachadi\~na and M. I. Parra, 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
+**Surface Tension**: Mulero, A.; Cachadiña, I.; Parra, M. I., 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
 
-**Conductivity**: M. J. Assael and I. Bogdanou and S. K. Mylona and M. L. Huber and R. A. Perkins and V. Vesovic, 2013, Reference Correlation of the Thermal Conductivity of n-Heptane from the Triple Point to 600 K and up to 250 MPa, *J. Phys. Chem Ref. Data*, 42:023101-1:9
+**Conductivity**: Assael, M. J.; Bogdanou, I.; Mylona, S. K.; Huber, M. L.; Perkins, R. A.; Vesovic, V., 2013, Reference Correlation of the Thermal Conductivity of n-Heptane from the Triple Point to 600 K and up to 250 MPa, *J. Phys. Chem Ref. Data*, 42:023101-1:9
 
-**Lennard-Jones Parameters for ECS**: Justin C. Chichester and Marcia L. Huber, June 2008, *NISTIR 6650: Documentation and Assessment of the Transport Property Model for Mixtures Implemented in NIST REFPROP (Version 8.0)*, National Institute of Standards and Technology (NIST)
+**Lennard-Jones Parameters for ECS**: Chichester, Justin C.; Huber, Marcia L., June 2008, *NISTIR 6650: Documentation and Assessment of the Transport Property Model for Mixtures Implemented in NIST REFPROP (Version 8.0)*, National Institute of Standards and Technology (NIST)
 
 
 

@@ -9,13 +9,13 @@ Aliases
 
 Bibliographic Information
 =========================
-**Equation of State**: Ch. Tegeler and R. Span and W. Wagner, 1999, A New Equation of State for Argon Covering the Fluid Region for Temperatures From the Melting Line to 700 K at Pressures up to 1000 MPa, *J. Phys. Chem. Ref. Data*, 28:779-850
+**Equation of State**: Tegeler, Ch.; Span, R.; Wagner, W., 1999, A New Equation of State for Argon Covering the Fluid Region for Temperatures From the Melting Line to 700 K at Pressures up to 1000 MPa, *J. Phys. Chem. Ref. Data*, 28:779-850
 
-**Surface Tension**: A. Mulero and I. Cachadi\~na and M. I. Parra, 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
+**Surface Tension**: Mulero, A.; Cachadiña, I.; Parra, M. I., 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
 
-**Viscosity**: E. W. Lemmon and R. T Jacobsen, 2004, Viscosity and Thermal Conductivity Equations for Nitrogen, Oxygen, Argon, and Air, *International Journal of Thermophysics*, 25:21-69
+**Viscosity**: Lemmon, E. W.; Jacobsen, R. T, 2004, Viscosity and Thermal Conductivity Equations for Nitrogen, Oxygen, Argon, and Air, *International Journal of Thermophysics*, 25:21-69
 
-**Conductivity**: E. W. Lemmon and R. T Jacobsen, 2004, Viscosity and Thermal Conductivity Equations for Nitrogen, Oxygen, Argon, and Air, *International Journal of Thermophysics*, 25:21-69
+**Conductivity**: Lemmon, E. W.; Jacobsen, R. T, 2004, Viscosity and Thermal Conductivity Equations for Nitrogen, Oxygen, Argon, and Air, *International Journal of Thermophysics*, 25:21-69
 
 
 

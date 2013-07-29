@@ -9,13 +9,13 @@ Aliases
 
 Bibliographic Information
 =========================
-**Equation of State**: R. Span and W. Wagner, 1996, A New Equation of State for Carbon Dioxide Covering the Fluid Region from the Triple Point Temperature to 1100 K at Pressures up to 800 MPa, *J. Phys. Chem. Ref. Data*, 25:1509-1596
+**Equation of State**: Span, R.; Wagner, W., 1996, A New Equation of State for Carbon Dioxide Covering the Fluid Region from the Triple Point Temperature to 1100 K at Pressures up to 800 MPa, *J. Phys. Chem. Ref. Data*, 25:1509-1596
 
-**Surface Tension**: A. Mulero and I. Cachadi\~na and M. I. Parra, 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
+**Surface Tension**: Mulero, A.; Cachadiña, I.; Parra, M. I., 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
 
-**Viscosity**: V. Vesovic and W.A. Wakeham and G.A. Olchowy and J.V. Sengers and J.T.R. Watson and J. Millat, 1990, The Transport Properties of Carbon Dioxide, *J. Phys. Chem. Ref. Data*, 19:763--808
+**Viscosity**: Vesovic, V.; Wakeham, W.A.; Olchowy, G.A.; Sengers, J.V.; Watson, J.T.R.; Millat, J., 1990, The Transport Properties of Carbon Dioxide, *J. Phys. Chem. Ref. Data*, 19:763--808
 
-**Conductivity**: V. Vesovic and W.A. Wakeham and G.A. Olchowy and J.V. Sengers and J.T.R. Watson and J. Millat, 1990, The Transport Properties of Carbon Dioxide, *J. Phys. Chem. Ref. Data*, 19:763--808
+**Conductivity**: Vesovic, V.; Wakeham, W.A.; Olchowy, G.A.; Sengers, J.V.; Watson, J.T.R.; Millat, J., 1990, The Transport Properties of Carbon Dioxide, *J. Phys. Chem. Ref. Data*, 19:763--808
 
 
 

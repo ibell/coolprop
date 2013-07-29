@@ -9,13 +9,13 @@ Aliases
 
 Bibliographic Information
 =========================
-**Equation of State**: R. Tillner-Roth and F. Harms-Watzenberg and H.D. Baehr, 1993, Eine neue Fundamentalgleichung fur Ammoniak (A new Fundamental Equation of State for Ammonia), *Deutscher Kaelte- und Klimatechnischer Verein Tagung 1993*
+**Equation of State**: Tillner-Roth, R.; Harms-Watzenberg, F.; Baehr, H.D., 1993, Eine neue Fundamentalgleichung fur Ammoniak (A new Fundamental Equation of State for Ammonia), *Deutscher Kaelte- und Klimatechnischer Verein Tagung 1993*
 
-**Surface Tension**: A. Mulero and I. Cachadi\~na and M. I. Parra, 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
+**Surface Tension**: Mulero, A.; Cachadiña, I.; Parra, M. I., 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
 
-**Viscosity**: A. Fenghour and W.A. Wakeham and V. Vesovic and J.T.R. Watson and J. Millat and E. Vogel, 1995, The Viscosity of Ammonia, *J. Phys. Chem. Ref. Data*, 24:1649-1667
+**Viscosity**: Fenghour, A.; Wakeham, W.A.; Vesovic, V.; Watson, J.T.R.; Millat, J.; Vogel, E., 1995, The Viscosity of Ammonia, *J. Phys. Chem. Ref. Data*, 24:1649-1667
 
-**Conductivity**: R. Tufeu and D.Y. Ivanov and Y. Garrabos and B. Le Neindre, 1984, Thermal Conductivity of Ammonia in a LargeTemperature and Pressure Range Including the Critical Region, *Bereicht der Bunsengesellschaft Phys. Chem.*, 88:422-427
+**Conductivity**: Tufeu, R.; Ivanov, D.Y.; Garrabos, Y.; Neindre, B. Le, 1984, Thermal Conductivity of Ammonia in a LargeTemperature and Pressure Range Including the Critical Region, *Bereicht der Bunsengesellschaft Phys. Chem.*, 88:422-427
 
 
 

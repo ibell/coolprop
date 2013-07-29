@@ -9,15 +9,15 @@ Aliases
 
 Bibliographic Information
 =========================
-**Equation of State**: Eric W. Lemmon and Richard T Jacobsen, 2005, A New Functional Form and New Fitting Techniques for Equations of State with Application to Pentafluoroethane (HFC-125), *J. Phys. Chem. Ref. Data*, 34:69-108
+**Equation of State**: Lemmon, Eric W.; Jacobsen, Richard T, 2005, A New Functional Form and New Fitting Techniques for Equations of State with Application to Pentafluoroethane (HFC-125), *J. Phys. Chem. Ref. Data*, 34:69-108
 
-**Surface Tension**: A. Mulero and I. Cachadi\~na and M. I. Parra, 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
+**Surface Tension**: Mulero, A.; Cachadiña, I.; Parra, M. I., 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
 
-**Viscosity**: Marcia L. Huber and Arno Laesecke, 2006, Correlation for the Viscosity of Pentafluoroethane (R125) from the Triple Point to 500 K at Pressures up to 60 MPa, *Ind. Eng. Chem. Res.*, 45:4447-4453
+**Viscosity**: Huber, Marcia L.; Laesecke, Arno, 2006, Correlation for the Viscosity of Pentafluoroethane (R125) from the Triple Point to 500 K at Pressures up to 60 MPa, *Ind. Eng. Chem. Res.*, 45:4447-4453
 
-**Conductivity**: Richard A. Perkins and Marcia L. Huber, 2006, Measurement and Correlation of the Thermal Conductivity of Pentafluoroethane (R125) from 190 K to 512 K at Pressures to 70 MPa, *J. Chem. Eng. Data*, 51:898-904
+**Conductivity**: Perkins, Richard A.; Huber, Marcia L., 2006, Measurement and Correlation of the Thermal Conductivity of Pentafluoroethane (R125) from 190 K to 512 K at Pressures to 70 MPa, *J. Chem. Eng. Data*, 51:898-904
 
-**Lennard-Jones Parameters for ECS**: Marcia L. Huber and Arno Laesecke, 2006, Correlation for the Viscosity of Pentafluoroethane (R125) from the Triple Point to 500 K at Pressures up to 60 MPa, *Ind. Eng. Chem. Res.*, 45:4447-4453
+**Lennard-Jones Parameters for ECS**: Huber, Marcia L.; Laesecke, Arno, 2006, Correlation for the Viscosity of Pentafluoroethane (R125) from the Triple Point to 500 K at Pressures up to 60 MPa, *Ind. Eng. Chem. Res.*, 45:4447-4453
 
 
 

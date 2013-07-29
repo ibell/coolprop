@@ -9,11 +9,11 @@ Aliases
 
 Bibliographic Information
 =========================
-**Equation of State**: E.W. Lemmon and R. Span, 2006, Short Fundamental Equations of State for 20 Industrial Fluids, *J. Chem. Eng. Data*, 51:785-850
+**Equation of State**: Lemmon, E.W.; Span, R., 2006, Short Fundamental Equations of State for 20 Industrial Fluids, *J. Chem. Eng. Data*, 51:785-850
 
-**Surface Tension**: A. Mulero and I. Cachadi\~na and M. I. Parra, 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
+**Surface Tension**: Mulero, A.; Cachadiña, I.; Parra, M. I., 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
 
-**Lennard-Jones Parameters for ECS**: Bruce E. Poling and John M. Prausnitz and John P. O'Connell, 2001, *The Properties of Gases and Liquids, 5th edition*, McGraw Hill
+**Lennard-Jones Parameters for ECS**: Poling, Bruce E.; Prausnitz, John M.; O'Connell, John P., 2001, *The Properties of Gases and Liquids, 5th edition*, McGraw Hill
 
 
 

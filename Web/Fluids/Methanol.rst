@@ -9,9 +9,9 @@ Aliases
 
 Bibliographic Information
 =========================
-**Equation of State**: K.M. de Reuck and R.J.B. Craven, 1993, *Methanol: International Thermodynamic Tables of the Fluid State - 12*, Blackwell Scientific Publications
+**Equation of State**: de Reuck, K.M.; Craven, R.J.B., 1993, *Methanol: International Thermodynamic Tables of the Fluid State - 12*, Blackwell Scientific Publications
 
-**Surface Tension**: A. Mulero and I. Cachadi\~na and M. I. Parra, 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
+**Surface Tension**: Mulero, A.; Cachadiña, I.; Parra, M. I., 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
 
 
 

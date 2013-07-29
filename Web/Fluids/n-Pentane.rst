@@ -9,13 +9,13 @@ Aliases
 
 Bibliographic Information
 =========================
-**Equation of State**: R. Span and W. Wagner, 2003, Equations of State for Technical Applications. II. Results for Nonpolar Fluids, *International Journal of Thermophysics*, 24:41-109
+**Equation of State**: Span, R.; Wagner, W., 2003, Equations of State for Technical Applications. II. Results for Nonpolar Fluids, *International Journal of Thermophysics*, 24:41-109
 
-**Ideal-gas Specific Heat**: M. Jaeschke and P. Schley, 1995, Ideal-Gas Thermodynamic Properties for Natural-Gas Applications, *Int. J. Thermophys.*, 16:1381-1392
+**Ideal-gas Specific Heat**: Jaeschke, M.; Schley, P., 1995, Ideal-Gas Thermodynamic Properties for Natural-Gas Applications, *Int. J. Thermophys.*, 16:1381-1392
 
-**Surface Tension**: A. Mulero and I. Cachadi\~na and M. I. Parra, 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
+**Surface Tension**: Mulero, A.; Cachadiña, I.; Parra, M. I., 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
 
-**Lennard-Jones Parameters for ECS**: Bruce E. Poling and John M. Prausnitz and John P. O'Connell, 2001, *The Properties of Gases and Liquids, 5th edition*, McGraw Hill
+**Lennard-Jones Parameters for ECS**: Poling, Bruce E.; Prausnitz, John M.; O'Connell, John P., 2001, *The Properties of Gases and Liquids, 5th edition*, McGraw Hill
 
 
 

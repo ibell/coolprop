@@ -9,7 +9,7 @@ Aliases
 
 Bibliographic Information
 =========================
-**Equation of State**: Holger Gedanitz and Mar\'ia J. D\'avila and Eric W. Lemmon, To be published, preprint provided by Eric Lemmon, Speed of sound measurements and a fundamental equation of state for cyclopentane, **, :
+**Equation of State**: Gedanitz, Holger; Dávila, María J.; Lemmon, Eric W., To be published, preprint provided by Eric Lemmon, Speed of sound measurements and a fundamental equation of state for cyclopentane, **, :
 
 
 

@@ -1,3 +1,24 @@
+# coding: utf-8
+
+from pybtex.database.input import bibtex
+
+def accent_substitutions(name):
+
+    mapping = [('{\\~n}','\xf1'), # ñ
+               ('{\\`e}','\xe8'), # è
+               ("{\\'e}",'\xe9'), # é
+               ("{\\'a}",'\xe1'), # á
+               ("{\\`a}",'\xe0'), # à
+               ("{\\'i}",'\xed'), # í
+               ("{\\'i}",'\xed'), # í
+               ('{\\"o}','\xf6'), # ö
+               ('{\\"u}','\xfc'), # ü
+               ('{\\v s}','\x161'), # š
+               ]
+    for old, new in mapping:
+        name = name.replace(old, new)
+    return name
+
 def count_substr(s, ss):
     c = 0
     for e in s:
@@ -5,82 +26,75 @@ def count_substr(s, ss):
             c += 1
     return c
 
+def DE(s):
+    return s.decode('ascii').encode('utf-8')
+    
 class BibTeXerClass:
     
     def __init__(self, fName = '../CoolProp/CoolPropBibTeXLibrary.bib'):
-        self.parse(fName)
-        
-    def _entries(self, lines):
-        entries = []
-        i = 0
-        while i < len(lines):
-            line = lines[i]
-            entry = []
-            if line.startswith('@') and not line.startswith('@comment'):
-                iEnd = i
-                openbrackets = count_substr(lines[iEnd],'{')-count_substr(lines[iEnd],'}')
-                while openbrackets > 0:
-                    openbrackets += count_substr(lines[iEnd+1],'{')-count_substr(lines[iEnd+1],'}')
-                    iEnd += 1
-                
-                entry = ''.join(lines[i:iEnd+1]).replace('\n','').replace('\t',' ')
-                head,kwargs = entry.split(',',1)
-                d = {}
-                
-                d['family'], d['key'] = head.replace('@','').split('{')
-                
-                kwargs  = kwargs.rstrip('}')
-                kwargs = kwargs.split('},')
-                
-                for kwarg in kwargs:
-                    k,v = kwarg.split('= {')
-                    
-                    d[k.strip()] = v.replace('{','').replace('}','')
-                    
-                entries.append(d)
-                
-                i = iEnd+1
-            else:
-                i += 1
-        return entries
+        parser = bibtex.Parser()
+        bib_data = parser.parse_file('../CoolProp/CoolPropBibTeXLibrary.bib')
+        self.entries = bib_data.entries
                 
     def entry2rst(self, key):
         
-        entry = self.findentry(key)
+        if key.startswith('__'):
+            return ''
+        
+        entry = self.entries[key]
         
         if entry is None:
             return ''
-        
-        if entry['family'] == 'ARTICLE':
-            if 'journal' not in entry: entry['journal'] = ''
-            if 'volume' not in entry: entry['volume'] = ''
-            if 'pages' not in entry: entry['pages'] = ''
             
-            return entry['author'] + ', ' + entry['year'] + ', ' + entry['title'] + ', *' + entry['journal'] + '*, ' + entry['volume'] + ':' + entry['pages']
-        elif entry['family'] == 'CONFERENCE':
-            if 'journal' not in entry: entry['journal'] = ''
-            return entry['author'] + ', ' + entry['year'] + ', ' + entry['title'] + ', *' + entry['booktitle'] + '*'
-        elif entry['family'] == 'MASTERSTHESIS':
-            return entry['author'] + ', ' + entry['year'] + ', ' + entry['title'] + ', *' + entry['school'] + '*'
-        elif entry['family'] == 'UNPUBLISHED':
-            return entry['author'] + ', ' + entry['year'] + ', ' + entry['title'] + ', note: ' + entry['note']
-        elif entry['family'] == 'BOOK':
-            return entry['author'] + ', ' + entry['year'] + ', *' + entry['title'] + '*, ' + entry['publisher']
-        elif entry['family'] == 'TECHREPORT':
-            return entry['author'] + ', ' + entry['year'] + ', *' + entry['title'] + '*, ' + entry['institution']
+        authors = '; '.join([accent_substitutions(unicode(author).decode('ascii').encode('utf-8')) for author in entry.persons['author']])
+            
+        if authors.find('{') > -1:
+            print authors
+            raise ValueError
+            
+        fields = entry.fields
+            
+        # Strip off the opening and closing brackets
+        fields['title'] = fields['title'].strip()
+        if fields['title'].startswith('{') and fields['title'].endswith('}'):
+            fields['title'] = fields['title'][1:len(entry.fields['title'])-1]
+        
+        f = fields
+        for key in f:
+            f[key] = DE(f[key])
+        authors = str(authors)
+        
+        if entry.type == 'article':
+            if 'journal' not in fields: fields['journal'] = ''
+            if 'volume' not in fields: fields['volume'] = ''
+            if 'pages' not in fields: fields['pages'] = ''
+                
+            return authors + ', ' + f['year'] + ', ' + f['title'] + ', *' + f['journal'] + '*, ' + f['volume'] + ':' + f['pages']
+        
+        elif entry.type == 'conference':
+            if 'journal' not in f: f['journal'] = ''
+            return authors + ', ' + f['year'] + ', ' + f['title'] + ', *' + f['booktitle'] + '*'
+            
+        elif entry.type == 'mastersthesis':
+            return authors + ', ' + f['year'] + ', ' + f['title'] + ', *' + f['school'] + '*'
+        
+        elif entry.type == 'unpublished':
+            return authors + ', ' + f['year'] + ', ' + f['title'] + ', note: ' + f['note']
+        
+        elif entry.type == 'book':
+            return authors + ', ' + f['year'] + ', *' + f['title'] + '*, ' + f['publisher']
+        
+        elif entry.type == 'techreport':
+            return authors + ', ' + f['year'] + ', *' + f['title'] + '*, ' + f['institution']
+        
         else:
             print entry
-            raise ValueError(entry['family'])
         
     def findentry(self, key):
         for entry in self.entries:
             if entry['key'] == key:
                 return entry
-            
-    def parse(self, fName):
-        lines = open(fName,'r').readlines()
-        self.entries = self._entries(lines)
 
 if __name__=='__main__':
     B = BibTeXerClass()
-    print B.entry2rst('Assael-JPCRD-2013A')
+    print B.entry2rst('Mulero-JPCRD-2012')

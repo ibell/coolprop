@@ -9,15 +9,15 @@ Aliases
 
 Bibliographic Information
 =========================
-**Equation of State**: Roland Span and Eric W. Lemmon and Richard T. Jacobsen and Wolfgang Wagner and Akimichi Yokozeki, 2000, A Reference Equation of State for the Thermodynamic Properties of Nitrogen for Temperatures from 63.151 to 1000 K and Pressures to 2200 MPa, *J. Phys. Chem. Ref. Data*, 29:1361-1433
+**Equation of State**: Span, Roland; Lemmon, Eric W.; Jacobsen, Richard T.; Wagner, Wolfgang; Yokozeki, Akimichi, 2000, A Reference Equation of State for the Thermodynamic Properties of Nitrogen for Temperatures from 63.151 to 1000 K and Pressures to 2200 MPa, *J. Phys. Chem. Ref. Data*, 29:1361-1433
 
-**Surface Tension**: A. Mulero and I. Cachadi\~na and M. I. Parra, 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
+**Surface Tension**: Mulero, A.; Cachadiña, I.; Parra, M. I., 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
 
-**Viscosity**: E. W. Lemmon and R. T Jacobsen, 2004, Viscosity and Thermal Conductivity Equations for Nitrogen, Oxygen, Argon, and Air, *International Journal of Thermophysics*, 25:21-69
+**Viscosity**: Lemmon, E. W.; Jacobsen, R. T, 2004, Viscosity and Thermal Conductivity Equations for Nitrogen, Oxygen, Argon, and Air, *International Journal of Thermophysics*, 25:21-69
 
-**Conductivity**: E. W. Lemmon and R. T Jacobsen, 2004, Viscosity and Thermal Conductivity Equations for Nitrogen, Oxygen, Argon, and Air, *International Journal of Thermophysics*, 25:21-69
+**Conductivity**: Lemmon, E. W.; Jacobsen, R. T, 2004, Viscosity and Thermal Conductivity Equations for Nitrogen, Oxygen, Argon, and Air, *International Journal of Thermophysics*, 25:21-69
 
-**Lennard-Jones Parameters for ECS**: Bruce E. Poling and John M. Prausnitz and John P. O'Connell, 2001, *The Properties of Gases and Liquids, 5th edition*, McGraw Hill
+**Lennard-Jones Parameters for ECS**: Poling, Bruce E.; Prausnitz, John M.; O'Connell, John P., 2001, *The Properties of Gases and Liquids, 5th edition*, McGraw Hill
 
 
 

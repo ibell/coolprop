@@ -9,11 +9,11 @@ Aliases
 
 Bibliographic Information
 =========================
-**Equation of State**: K.M. de Reuck, 1990, *Fluorine: International Thermodynamic Tables of the Fluid State - 11*, Blackwell Scientific Publications
+**Equation of State**: de Reuck, K.M., 1990, *Fluorine: International Thermodynamic Tables of the Fluid State - 11*, Blackwell Scientific Publications
 
-**Ideal-gas Specific Heat**: K.M. de Reuck, 1990, *Fluorine: International Thermodynamic Tables of the Fluid State - 11*, Blackwell Scientific Publications
+**Ideal-gas Specific Heat**: de Reuck, K.M., 1990, *Fluorine: International Thermodynamic Tables of the Fluid State - 11*, Blackwell Scientific Publications
 
-**Surface Tension**: A. Mulero and I. Cachadi\~na and M. I. Parra, 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
+**Surface Tension**: Mulero, A.; Cachadiña, I.; Parra, M. I., 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
 
 
 

@@ -9,15 +9,15 @@ Aliases
 
 Bibliographic Information
 =========================
-**Equation of State**: Jacob Armin Schroeder, 2011, A New Fundamental Equation for Ethanol, *University of Idaho*
+**Equation of State**: Schroeder, Jacob Armin, 2011, A New Fundamental Equation for Ethanol, *University of Idaho*
 
-**Surface Tension**: A. Mulero and I. Cachadi\~na and M. I. Parra, 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
+**Surface Tension**: Mulero, A.; Cachadiña, I.; Parra, M. I., 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
 
-**Viscosity**: S. B. Kiselev and J. F. Ely and I. M. Abdulagatov and M. L. Huber, 2005, Generalized SAFT-DFT/DMT Model for the Thermodynamic, Interfacial, and Transport Properties of Associating Fluids: Application for n-Alkanols, *Ind. Eng. Chem. Res.*, 44:6916-6927
+**Viscosity**: Kiselev, S. B.; Ely, J. F.; Abdulagatov, I. M.; Huber, M. L., 2005, Generalized SAFT-DFT/DMT Model for the Thermodynamic, Interfacial, and Transport Properties of Associating Fluids: Application for n-Alkanols, *Ind. Eng. Chem. Res.*, 44:6916-6927
 
-**Conductivity**: M. J. Assael and E. A. Sykioti and M. L. Huber and R. A. Perkins, 2013, Reference Correlation of the Thermal Conductivity of Ethanol from the Triple Point to 600 K and up to 245 MPa, *J. Phys. Chem Ref. Data*, 42:023102-1:10
+**Conductivity**: Assael, M. J.; Sykioti, E. A.; Huber, M. L.; Perkins, R. A., 2013, Reference Correlation of the Thermal Conductivity of Ethanol from the Triple Point to 600 K and up to 245 MPa, *J. Phys. Chem Ref. Data*, 42:023102-1:10
 
-**Lennard-Jones Parameters for ECS**: S. B. Kiselev and J. F. Ely and I. M. Abdulagatov and M. L. Huber, 2005, Generalized SAFT-DFT/DMT Model for the Thermodynamic, Interfacial, and Transport Properties of Associating Fluids: Application for n-Alkanols, *Ind. Eng. Chem. Res.*, 44:6916-6927
+**Lennard-Jones Parameters for ECS**: Kiselev, S. B.; Ely, J. F.; Abdulagatov, I. M.; Huber, M. L., 2005, Generalized SAFT-DFT/DMT Model for the Thermodynamic, Interfacial, and Transport Properties of Associating Fluids: Application for n-Alkanols, *Ind. Eng. Chem. Res.*, 44:6916-6927
 
 
 
