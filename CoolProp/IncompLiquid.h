@@ -742,4 +742,84 @@ public:
     };
 };
 
+class DowthermJClass : public SimpleIncompressible{
+public:
+	DowthermJClass(){
+        name = std::string("DowJ");
+        description = std::string("Dowtherm J");
+        reference = std::string("Dow Chemicals data sheet");
+
+        Tmin     = 193.15;
+        Tmax     = 618.15;
+        TminPsat = 323.15;
+
+        cRho.clear();
+        cRho.push_back(+1.1413344279E+03);
+        cRho.push_back(-1.4313342250E+00);
+        cRho.push_back(+2.4904467725E-03);
+        cRho.push_back(-2.9222650181E-06);
+
+        cCp.clear();
+        cCp.push_back(+1.1465102196E+00);
+        cCp.push_back(+2.1016260744E-03);
+        cCp.push_back(-2.2151557961E-07);
+        cCp.push_back(+3.5493927846E-09);
+
+        cCond.clear();
+        cCond.push_back(+1.8990894157E-04);
+        cCond.push_back(-2.0921055014E-07);
+        cCond.push_back(-3.2093835108E-12);
+
+        cVisc.clear();
+        cVisc.push_back(+7.0617903908E+02);
+        cVisc.push_back(-6.4144266810E+01);
+        cVisc.push_back(+1.0083412137E+01);
+
+        cPsat.clear();
+        cPsat.push_back(-3.1876260646E+03);
+        cPsat.push_back(-9.7927481216E+01);
+        cPsat.push_back(-1.3576473644E+01);
+    };
+};
+
+class DowthermQClass : public SimpleIncompressible{
+public:
+	DowthermQClass(){
+        name = std::string("DowQ");
+        description = std::string("Dowtherm Q");
+        reference = std::string("Dow Chemicals data sheet");
+
+        Tmin     = 238.15;
+        Tmax     = 633.15;
+        TminPsat = 393.15;
+
+        cRho.clear();
+        cRho.push_back(+1.2033276517E+03);
+        cRho.push_back(-8.6829872708E-01);
+        cRho.push_back(+2.4832944517E-04);
+        cRho.push_back(-1.7756195502E-07);
+
+        cCp.clear();
+        cCp.push_back(+6.5777357045E-01);
+        cCp.push_back(+3.6209780444E-03);
+        cCp.push_back(-8.3411429568E-07);
+        cCp.push_back(+2.2428632290E-10);
+
+        cCond.clear();
+        cCond.push_back(+1.5381076522E-04);
+        cCond.push_back(-9.0635332826E-08);
+        cCond.push_back(-6.2655520375E-11);
+
+        cVisc.clear();
+        cVisc.push_back(+8.2860901385E+02);
+        cVisc.push_back(-1.2328762577E+02);
+        cVisc.push_back(+1.0441389876E+01);
+
+        cPsat.clear();
+        cPsat.push_back(-2.8419253596E+03);
+        cPsat.push_back(-1.7104225035E+02);
+        cPsat.push_back(-1.2287974574E+01);
+    };
+};
+
 #endif

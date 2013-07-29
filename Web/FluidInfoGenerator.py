@@ -486,7 +486,7 @@ Fluid Name                   Description
 ``TCO``                      Terpene from citrus oils
 ==========================   ===================================================
 
-There are also a few high temperature heat transfer fluids with individual temperature ranges. Please refer to the file IncompLiquid.h for a complete overview.
+There are also a few high temperature heat transfer fluids with individual temperature ranges. Please refer to the file IncompLiquid.h for a complete overview. For these fluids, information from commercial data sheets was used to obtain coefficients.
 
 ==========================   ===================================================
 Fluid Name                   Description
@@ -494,6 +494,8 @@ Fluid Name                   Description
 ``TD12``                     Therminol D12 (-85 to +230 C)
 ``TVP1``                     Therminol VP-1 (+12 to +397 C)
 ``T72``                      Therminol 72 (-10 to +380 C)
+``DowJ``                     Dowtherm J (-80 to +345 C)
+``DowQ``                     Dowtherm Q (-35 to +360 C)
 ==========================   ===================================================
 
 All fluids are implemented with polynomials for density and heat capacity with typically 4 coefficients C and hence a third order polynomial. Thermal conductivity is a second order polynomial and viscosity and vapour pressure are exponential functions. 
