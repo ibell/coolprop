@@ -822,4 +822,47 @@ public:
     };
 };
 
+
+class Texatherm22Class : public SimpleIncompressible{
+public:
+	Texatherm22Class(){
+        name = std::string("TX22");
+        description = std::string("Texatherm22");
+        reference = std::string("Texaco data sheet");
+
+        Tmin     = 273.15;
+        Tmax     = 623.15;
+        TminPsat = 313.15;
+
+        cRho.clear();
+        cRho.push_back(+1.0828544822E+03);
+        cRho.push_back(-9.4455188837E-01);
+        cRho.push_back(+9.2414382570E-04);
+        cRho.push_back(-9.5365432963E-07);
+
+        cCp.clear();
+        cCp.push_back(+7.5687081085E-01);
+        cCp.push_back(+3.9761218594E-03);
+        cCp.push_back(-5.5667939231E-07);
+        cCp.push_back(+2.5261546566E-10);
+
+        cCond.clear();
+        cCond.push_back(+1.5246860039E-04);
+        cCond.push_back(-5.9875212755E-08);
+        cCond.push_back(-1.4202281813E-11);
+
+        cVisc.clear();
+        cVisc.push_back(+8.8295946693E+02);
+        cVisc.push_back(-1.7261015850E+02);
+        cVisc.push_back(+9.6466061591E+00);
+
+        cPsat.clear();
+        cPsat.push_back(-8.8967639918E+03);
+        cPsat.push_back(-4.3465054898E+01);
+        cPsat.push_back(-1.7472312925E+01);
+    };
+};
+
+
+
 #endif

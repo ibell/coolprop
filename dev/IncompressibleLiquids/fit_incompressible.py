@@ -33,7 +33,7 @@ class IncompLiquidFit(object):
         # some flags to set
         self._TinC = False   # Temperature in Celsius
         self._DynVisc = True # Data for dynamic viscosity
-        self._minPoints = 5 
+        self._minPoints = 3 
         
         
     def setParams(self,fluid):
@@ -258,7 +258,7 @@ class IncompLiquidFit(object):
 
 
 ### Load the data 
-from data_incompressible import DowthermQ as DataContainer
+from data_incompressible import Texatherm22 as DataContainer
 data = DataContainer()
 
 
@@ -282,7 +282,7 @@ f.set_size_inches(matplotlib.pyplot.figaspect(1.2)*1.5)
 
 ### This is the actual fitting
 tData = data.T
-cData = tData - 273.15 
+tDat1 = numpy.linspace(numpy.min(tData), numpy.max(tData), 100)
 Pin = 1e20 # Dummy pressure
 
 inVal = 'D'
@@ -293,9 +293,9 @@ print "Density, old: "+str(oldCoeffs)
 print "Density, new: "+str(newCoeffs)
 print
 liqObj.setCoefficients(inVal,newCoeffs)
-fData = numpy.array([liqObj.Props(inVal, T=Tin, P=Pin) for Tin in tData])
-ax1.plot(cData, fData, label="CoolProp")
-ax1.plot(cData, xData, label="Data Sheet")
+fData = numpy.array([liqObj.Props(inVal, T=Tin, P=Pin) for Tin in tDat1])
+ax1.plot(tData-273.15, xData, 'o', label="Data Sheet")
+ax1.plot(tDat1-273.15, fData, label="CoolProp")
 ax1.set_ylabel(r'$\mathregular{Density\/(kg\/m^{-3})}$')
 
 
@@ -307,9 +307,9 @@ print "Heat c., old: "+str(oldCoeffs)
 print "Heat c., new: "+str(newCoeffs)
 print 
 liqObj.setCoefficients(inVal,newCoeffs)
-fData = numpy.array([liqObj.Props(inVal, T=Tin, P=Pin) for Tin in tData])
-ax2.plot(cData, fData, label="CoolProp")
-ax2.plot(cData, xData, label="Data Sheet")
+fData = numpy.array([liqObj.Props(inVal, T=Tin, P=Pin) for Tin in tDat1])
+ax2.plot(tData-273.15, xData, 'o', label="Data Sheet")
+ax2.plot(tDat1-273.15, fData, label="CoolProp")
 ax2.set_ylabel(r'$\mathregular{Heat\/Cap.\/(kJ\/kg^{-1}\/K^{-1})}$')
 
 
@@ -321,41 +321,42 @@ print "Th. Co., old: "+str(oldCoeffs)
 print "Th. Co., new: "+str(newCoeffs)
 print 
 liqObj.setCoefficients(inVal,newCoeffs)
-fData = numpy.array([liqObj.Props(inVal, T=Tin, P=Pin) for Tin in tData])
-ax3.plot(cData, fData*1e6 , label="CoolProp")
-ax3.plot(cData, xData*1e6 , label="Data Sheet")
+fData = numpy.array([liqObj.Props(inVal, T=Tin, P=Pin) for Tin in tDat1])
+ax3.plot(tData-273.15, xData*1e6 , 'o', label="Data Sheet")
+ax3.plot(tDat1-273.15, fData*1e6 , label="CoolProp")
 ax3.set_ylabel(r'$\mathregular{Th.\/Cond.\/(mW\/m^{-1}\/K^{-1})}$')
 
 
 inVal = 'V'
-xData = data.mu_dyn
+tData = data.T[data.mu_dyn > 0]
+tDat1 = numpy.linspace(numpy.min(tData), numpy.max(tData), 100)
+xData = data.mu_dyn[data.mu_dyn > 0]
 oldCoeffs = liqObj.getCoefficients(inVal)
 newCoeffs = liqObj.fitCoefficients(inVal,T=tData,xData=xData)
 print "Viscos., old: "+str(oldCoeffs)
 print "Viscos., new: "+str(newCoeffs)
 print 
 liqObj.setCoefficients(inVal,newCoeffs)
-fData = numpy.array([liqObj.Props(inVal, T=Tin, P=Pin) for Tin in tData])
-ax4.plot(cData, fData*1e3, label="CoolProp")
-ax4.plot(cData, xData*1e3, label="Data Sheet")
+fData = numpy.array([liqObj.Props(inVal, T=Tin, P=Pin) for Tin in tDat1])
+ax4.plot(tData-273.15, xData*1e3, 'o', label="Data Sheet")
+ax4.plot(tDat1-273.15, fData*1e3, label="CoolProp")
 ax4.set_ylabel(r'$\mathregular{Dyn.\/Viscosity\/(mPa\/s)}$')
 ax4.set_yscale('log')
 
 
 inVal = 'Psat'
-tData = data.T[data.T >= data.TminPsat]
-cData = tData - 273.15 
-
-xData = data.psat[data.T >= data.TminPsat]
+tData = data.T[data.psat > 0]
+tDat1 = numpy.linspace(numpy.min(tData), numpy.max(tData), 100)
+xData = data.psat[data.psat > 0]
 oldCoeffs = liqObj.getCoefficients(inVal)
 newCoeffs = liqObj.fitCoefficients(inVal,T=tData,xData=xData)
 print "P sat. , old: "+str(oldCoeffs)
 print "P sat. , new: "+str(newCoeffs)
 print 
 liqObj.setCoefficients(inVal,newCoeffs)
-fData = numpy.array([liqObj.Props(inVal, T=Tin, P=Pin) for Tin in tData])
-ax5.plot(cData, fData, label="CoolProp")
-ax5.plot(cData, xData, label="Data Sheet")
+fData = numpy.array([liqObj.Props(inVal, T=Tin, P=Pin) for Tin in tDat1])
+ax5.plot(tData-273.15, xData, 'o', label="Data Sheet")
+ax5.plot(tDat1-273.15, fData, label="CoolProp")
 ax5.set_ylabel(r'$\mathregular{Vap.\/Pressure\/(kPa)}$')
 ax5.set_yscale('log')
 
