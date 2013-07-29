@@ -128,6 +128,7 @@ Fluid Name                   Description
 ``T72``                      Therminol 72 (-10 to +380 C)
 ``DowJ``                     Dowtherm J (-80 to +345 C)
 ``DowQ``                     Dowtherm Q (-35 to +360 C)
+``TX22``                     Texatherm 22 (+0 to +350 C)
 ==========================   ===================================================
 
 All fluids are implemented with polynomials for density and heat capacity with typically 4 coefficients C and hence a third order polynomial. Thermal conductivity is a second order polynomial and viscosity and vapour pressure are exponential functions. 

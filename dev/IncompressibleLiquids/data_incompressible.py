@@ -138,4 +138,21 @@ class DowthermQ(LiquidData):
     Name    = "DowthermQ"
     
     
+class Texatherm22(LiquidData):
+    """ 
+    Heat transfer fluid Texatherm 22 by Texaco
+    Source: Texaco data sheet
+    """
+    T       = numpy.array([+0.00000E+0, +4.00000E+1, +5.00000E+1, +1.00000E+2, +1.50000E+2, +2.00000E+2, +2.50000E+2, +3.00000E+2, +3.50000E+2])+273.15  # Kelvin
+    rho     = numpy.array([+8.74500E+2, +8.47300E+2, +8.42500E+2, +8.10500E+2, +7.76300E+2, +7.41600E+2, +7.03200E+2, +6.68000E+2, +6.21500E+2])         # kg/m3
+    c_p     = numpy.array([+1.81000E+0, +1.95000E+0, +1.99000E+0, +2.18000E+0, +2.36000E+0, +2.54000E+0, +2.72000E+0, +2.90000E+0, +3.08000E+0])         # kJ/kg-K
+    lam     = numpy.array([+1.35000E-1, +1.32000E-1, +1.32000E-1, +1.28000E-1, +1.25000E-1, +1.21000E-1, +1.17100E-1, +1.13000E-1, +1.10000E-1])/1000.   # kW/m-K
+    mu_dyn  = numpy.array([+4.19760E+2, +0.00000E+0, +2.31688E+1, +0.00000E+0, +2.09601E+0, +1.26072E+0, +0.00000E+0, +0.00000E+0, +0.00000E+0])/1000.   # Pa-s
+    psat    = numpy.array([+0.00000E+0, +5.3300E-10, +4.00000E-8, +2.67000E-7, +2.27000E-5, +4.67000E-4, +6.67000E-3, +2.13000E-2, +5.33000E-2])*100.    # kPa 
+    Tmin    = numpy.min(T)
+    Tmax    = numpy.max(T)
+    TminPsat= 40 + 273.15 
+    Name    = "Texatherm22"
+    
+    
     
