@@ -128,7 +128,7 @@ def drawIsoLines(Ref, plot, which, iValues=[], num=0, axis=None, fig=None):
                     drawIsoLines(Ref, plot, l, iValues=iValues[c], num=num, axis=axis, fig=fig)
     
     
-def drawLines(Ref,lines,axis):
+def drawLines(Ref,lines,axis,plt_kwargs=None):
     """
     Just an internal method to systematically plot values from
     the generated 'line' dicts, method is able to cover the whole
@@ -139,6 +139,9 @@ def drawLines(Ref,lines,axis):
     Returns the an array of line objects that can be used to change 
     the colour or style afterwards.  
     """
+    if not plt_kwargs is None:
+        for line in lines:
+            line['opts'] = plt_kwargs
     plottedLines = []
     if len(lines)==2 and (
       'bubble' in str(lines[0]['label']).lower() 
@@ -240,20 +243,24 @@ def getIsoLines(Ref, plot, iName, iValues=[], num=0, axis=None):
         if iName=='S':
             switchXY = True # PS is defined, TS is not
 
-    # Get current axis limits, be sure to set those before drawing isolines
+    # Enforce the bounds!
+    ((Axmin,Axmax), (Aymin,Aymax)) = _setBounds(Ref, plot, axis=axis)
+    
     if switchXY:
-        [Axmin,Axmax]=axis.get_ylim()
+        #[Axmin,Axmax]=axis.get_ylim()
         #[Aymin,Aymax]=axis.get_xlim()
+        Axmin = Aymin
+        Axmax = Aymax
         tmpName = yName
         yName = xName
         xName = tmpName
-    else:
-        [Axmin,Axmax]=axis.get_xlim()
+    #else:
+        #[Axmin,Axmax]=axis.get_xlim()
         #[Aymin,Aymax]=axis.get_ylim()    
     
     # Determine x range for plotting
-    if xName=='T': #Sacrifice steps 
-        Axmin = max(CP.Props(Ref,'Tmin'), Axmin)
+    #if xName=='T': #Sacrifice steps 
+    #    Axmin = max(CP.Props(Ref,'Tmin'), Axmin)
         #Axmax = Axmax + 273.15 
     x0 = numpy.linspace(Axmin,Axmax,1000.)
 
@@ -350,6 +357,54 @@ def _satBounds(Ref,kind,xmin=None,xmax=None):
     xmax = min(xmax, CP.Props(Ref,str(kind)+'crit') - 1e-5)
     
     return (xmin,xmax)
+
+
+def _setBounds(Ref, plot, axis=None):
+    """
+    Generates limits for the axes in terms of x,y defined by 'plot'
+    based on temperature and pressure.  
+    
+    Returns a tuple containing ((xmin,xmax), (ymin,ymax))    
+    """
+    
+    xName,yName,plot = _plotXY(plot)
+    
+    # Get current axis limits, be sure to set those before drawing isolines
+    # if no limits are set, use triple point and 2x critical conditions
+    X = []
+    X.append(CP.Props(xName,'T',1.5*CP.Props(Ref,'Tcrit'), 'P',   CP.Props(Ref,'ptriple'),Ref))
+    X.append(CP.Props(xName,'T',    CP.Props(Ref,'Tmin') , 'P', 1.5*CP.Props(Ref,'pcrit'),Ref))
+    X.append(CP.Props(xName,'T',1.5*CP.Props(Ref,'Tcrit'), 'P', 1.5*CP.Props(Ref,'pcrit'),Ref))
+    X.append(CP.Props(xName,'T',    CP.Props(Ref,'Tmin') , 'P',   CP.Props(Ref,'ptriple'),Ref))
+    Y = []
+    Y.append(CP.Props(yName,'T',1.5*CP.Props(Ref,'Tcrit'), 'P',   CP.Props(Ref,'ptriple'),Ref))
+    Y.append(CP.Props(yName,'T',    CP.Props(Ref,'Tmin') , 'P', 1.5*CP.Props(Ref,'pcrit'),Ref))
+    Y.append(CP.Props(yName,'T',1.5*CP.Props(Ref,'Tcrit'), 'P', 1.5*CP.Props(Ref,'pcrit'),Ref))
+    Y.append(CP.Props(yName,'T',    CP.Props(Ref,'Tmin') , 'P',   CP.Props(Ref,'ptriple'),Ref))
+    
+    minX = numpy.min(X)
+    maxX = numpy.max(X)
+    minY = numpy.min(Y)
+    maxY = numpy.max(Y)
+    
+    if axis.get_autoscalex_on():
+        axis.set_xlim([minX,maxX])
+    else:
+        [cuiX,cuaX] = axis.get_xlim()
+        axis.set_xlim(left=numpy.max([minX,cuiX]))
+        #axis.set_xlim(right=numpy.min(maxX,cuaX))
+        
+    if axis.get_autoscaley_on():
+        axis.set_ylim([minY,maxY])
+    else:
+        [cuiY,cuaY] = axis.get_ylim()
+        axis.set_ylim(bottom=numpy.max([minY,cuiY]))
+        #axis.set_ylim(right=numpy.min(maxY,cuaY))
+    
+    [cuiX,cuaX] = axis.get_xlim()
+    [cuiY,cuaY] = axis.get_ylim()
+    
+    return ((cuiX,cuaX),(cuiY,cuaY))
 
 
 def _getSatLines(Ref, plot, kind=None, kmin=None, kmax=None, x=[0.,1.]):
