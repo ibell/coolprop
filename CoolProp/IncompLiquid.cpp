@@ -40,6 +40,8 @@ public:
 
 		LiquidsList.push_back(new Texatherm22Class());
 
+		LiquidsList.push_back(new NitrateSaltClass());
+
 		// Build the map of fluid names mapping to pointers to the Fluid class instances
 		for (std::vector<IncompressibleLiquid*>::iterator it = LiquidsList.begin(); it != LiquidsList.end(); it++)
 		{

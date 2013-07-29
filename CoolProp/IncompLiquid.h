@@ -864,5 +864,42 @@ public:
 };
 
 
+class NitrateSaltClass : public SimpleIncompressible{
+public:
+	NitrateSaltClass(){
+        name = std::string("NaK");
+        description = std::string("60% NaNO3 and 40% KNO3");
+        reference = std::string("Solar Power Tower Design Basis Document,  Alexis B. Zavoico, Sandia Labs, USA");
+
+        Tmin     = 573.15;
+        Tmax     = 873.15;
+        TminPsat = 873.15;
+
+        cRho.clear();
+        cRho.push_back(+2.3537711479E+03);
+        cRho.push_back(-1.0161832139E+00);
+        cRho.push_back(+5.2992982291E-04);
+        cRho.push_back(-2.4393584453E-07);
+
+        cCp.clear();
+        cCp.push_back(+1.3960182000E+00);
+        cCp.push_back(+1.7200000001E-04);
+        cCp.push_back(-9.4083072373E-18);
+        cCp.push_back(+4.3126550326E-21);
+
+        cCond.clear();
+        cCond.push_back(+3.9112042040E-04);
+        cCond.push_back(+1.8994695528E-07);
+        cCond.push_back(-1.7231213093E-14);
+
+        cVisc.clear();
+        cVisc.push_back(+4.7467257729E+02);
+        cVisc.push_back(-3.3943569667E+02);
+        cVisc.push_back(+7.7431109317E+00);
+
+        cPsat.clear();
+    };
+};
+
 
 #endif

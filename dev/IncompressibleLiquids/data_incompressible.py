@@ -155,4 +155,30 @@ class Texatherm22(LiquidData):
     Name    = "Texatherm22"
     
     
+class NitrateSalt(LiquidData):
+    """ 
+    Heat transfer fluid based on 60% NaNO3 and 40% KNO3
+    Source: Solar Power Tower Design Basis Document,  Alexis B. Zavoico, Sandia Labs, USA
+    """
+    temp = numpy.linspace(300, 600, 25) # Celsius temperaure
+    def f_rho(T_C):
+        return 2090 - 0.636 * T_C
+    def f_cp( T_C):
+        return 1443 + 0.172 * T_C
+    def f_mu( T_C):
+        return 22.714 - 0.120 * T_C + 2.281 * 1e-4 * T_C*T_C - 1.474 * 1e-7 * T_C*T_C*T_C 
+    def f_lam( T_C):
+        return 0.443 + 1.9e-4 * T_C 
+    
+    T       = temp + 273.15   # Kelvin
+    rho     = f_rho(temp)     # kg/m3
+    c_p     = f_cp(temp)/1e3  # kJ/kg-K
+    lam     = f_lam(temp)/1e3 # kW/m-K
+    mu_dyn  = f_mu(temp)/1e3  # Pa-s
+    psat    = temp * 0.       # kPa 
+    Tmin    = numpy.min(T)
+    Tmax    = numpy.max(T)
+    TminPsat= Tmax 
+    Name    = "NitrateSalt"
+    
     
