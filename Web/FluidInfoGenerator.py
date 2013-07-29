@@ -512,7 +512,7 @@ All fluids are implemented with polynomials for density and heat capacity with t
              \\cdot \\left( T^{i+1} - T_0^{i+1} \\right)
              
     s      = C_{c_p}[0] \\cdot \\ln\\left(\\frac{T}{T_0}\\right) 
-             + \\sum_{i=1}^n \\frac{1}{i+1} \\cdot C_{c_p}[i] 
+             + \\sum_{i=0}^{n-1} \\frac{1}{i+1} \\cdot C_{c_p}[i+1] 
              \\cdot \\left( T^{i+1} - T_0^{i+1} \\right)
              
     \\lambda= \\sum_{i=0}^n C_{\\lambda}[i] \\cdot T^i
