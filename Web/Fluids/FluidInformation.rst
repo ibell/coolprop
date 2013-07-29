@@ -91,9 +91,19 @@ To use them the fluid name is something like ``"EG-20%"`` which is a 20% by mass
     #Specific heat 20% mass ethylene glycol solution at 300 K and 1 atm.
     In [1]: Props('C','T',300,'P',101.325,'EG-20%')
     
-Liquids
--------
-There are also a selection of incompressible liquids implemented from Melinder 2010.  The list of fluids implemented are
+Incompressible Liquids
+----------------------
+There is also a selection of incompressible liquids implemented.  These only allow for calls with temperature and pressure as input and provide only a subset of thermophysical properties, namely: density, heat capacity, internal energy, enthalpy, entropy, viscosity and thermal conductivity.
+
+.. ipython::
+
+    In [1]: from CoolProp.CoolProp import Props
+    
+    #Density of HFE-7100 at 300 K and 1 atm.
+    In [1]: Props('D','T',300,'P',101.325,'HFE')
+ 
+
+For refrigeration applications, 8 fluids were implemented from Melinder 2010 and coefficients are obtained from a fit between -80 and +100 degrees Celsius. The reference point for 0 entropy and 0 internal energy is 25 degrees Celsius. 
 
 ==========================   ===================================================
 Fluid Name                   Description
@@ -108,10 +118,34 @@ Fluid Name                   Description
 ``TCO``                      Terpene from citrus oils
 ==========================   ===================================================
 
-.. ipython::
+There are also a few high temperature heat transfer fluids with individual temperature ranges. Please refer to the file IncompLiquid.h for a complete overview.
 
-    In [1]: from CoolProp.CoolProp import Props
+==========================   ===================================================
+Fluid Name                   Description
+==========================   ===================================================
+``TD12``                     Therminol D12 (-85 to +230 C)
+``TVP1``                     Therminol VP-1 (+12 to +397 C)
+``T72``                      Therminol 72 (-10 to +380 C)
+==========================   ===================================================
+
+All fluids are implemented with polynomials for density and heat capacity with typically 4 coefficients C and hence a third order polynomial. Thermal conductivity is a second order polynomial and viscosity and vapour pressure are exponential functions. 
+
+.. math::
+
+    \rho   = \sum_{i=0}^n C_{\rho}[i] \cdot T^i
     
-    #Density of HFE-7100 at 300 K and 1 atm.
-    In [1]: Props('D','T',300,'P',101.325,'HFE')
+    c_p    = \sum_{i=0}^n C_{c_p}[i] \cdot T^i
+    
+    h      = \sum_{i=0}^n \frac{1}{i+1} \cdot C_{c_p}[i] 
+             \cdot \left( T^{i+1} - T_0^{i+1} \right)
+             
+    s      = C_{c_p}[0] \cdot \ln\left(\frac{T}{T_0}\right) 
+             + \sum_{i=1}^n \frac{1}{i+1} \cdot C_{c_p}[i] 
+             \cdot \left( T^{i+1} - T_0^{i+1} \right)
+             
+    \lambda= \sum_{i=0}^n C_{\lambda}[i] \cdot T^i
+    
+    \mu    = \exp\left( \frac{C_{\mu}[0]}{T+C_{\mu}[1]} - C_{\mu}[2] \right)
+    
+    p_{sat}= \exp\left( \frac{C_{sat}[0]}{T+C_{sat}[1]} - C_{sat}[2] \right)
 
