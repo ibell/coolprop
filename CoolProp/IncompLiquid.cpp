@@ -35,6 +35,9 @@ public:
 		LiquidsList.push_back(new TherminolVP1Class());
 		LiquidsList.push_back(new Therminol72Class());
 
+		LiquidsList.push_back(new DowthermJClass());
+		LiquidsList.push_back(new DowthermQClass());
+
 		// Build the map of fluid names mapping to pointers to the Fluid class instances
 		for (std::vector<IncompressibleLiquid*>::iterator it = LiquidsList.begin(); it != LiquidsList.end(); it++)
 		{

@@ -248,7 +248,7 @@ class IncompLiquidFit(object):
         
         initValues = self.getCoefficients(xName)[:]
         arguments  = (xName,T,xData)
-        options    = {'maxiter': 1e5, 'maxfev': 1e7}
+        options    = {'maxiter': 1e3, 'maxfev': 1e5}
         res = minimize(fun, initValues, method='Powell', args=arguments, tol=1e-15, options=options)
         if res.success:
             return res.x
@@ -258,7 +258,7 @@ class IncompLiquidFit(object):
 
 
 ### Load the data 
-from data_incompressible import Therminol72 as DataContainer
+from data_incompressible import DowthermQ as DataContainer
 data = DataContainer()
 
 
@@ -343,7 +343,10 @@ ax4.set_yscale('log')
 
 
 inVal = 'Psat'
-xData = data.psat
+tData = data.T[data.T >= data.TminPsat]
+cData = tData - 273.15 
+
+xData = data.psat[data.T >= data.TminPsat]
 oldCoeffs = liqObj.getCoefficients(inVal)
 newCoeffs = liqObj.fitCoefficients(inVal,T=tData,xData=xData)
 print "P sat. , old: "+str(oldCoeffs)
@@ -356,11 +359,49 @@ ax5.plot(cData, xData, label="Data Sheet")
 ax5.set_ylabel(r'$\mathregular{Vap.\/Pressure\/(kPa)}$')
 ax5.set_yscale('log')
 
-
 ax5.set_xlabel(ur'$\mathregular{Temperature\/(\u00B0C)}$')
 ax6.set_xlabel(ur'$\mathregular{Temperature\/(\u00B0C)}$')
 
 ax1.legend(loc=3)
 matplotlib.pyplot.tight_layout()
 matplotlib.pyplot.savefig(data.Name+"_std.pdf")
+
+### Print the output for the C++ file
+print "name = std::string(\"\");"
+print "description = std::string(\""+data.Name+"\");"
+print "reference = std::string(\"\");"
+print ""
+print "Tmin     = "+str(data.Tmin)+";"
+print "Tmax     = "+str(data.Tmax)+";"
+print "TminPsat = "+str(data.TminPsat)+";"
+print ""
+print "cRho.clear();"
+C = liqObj.getCoefficients('D')
+for Ci in C:
+    print "cRho.push_back(%+1.10E);" %(Ci)
+    
+print ""
+print "cCp.clear();"
+C = liqObj.getCoefficients('C')
+for Ci in C:
+    print "cCp.push_back(%+1.10E);" %(Ci)
+
+print ""
+print "cCond.clear();"
+C = liqObj.getCoefficients('L')
+for Ci in C:
+    print "cCond.push_back(%+1.10E);" %(Ci)
+
+print ""
+print "cVisc.clear();"
+C = liqObj.getCoefficients('V')
+for Ci in C:
+    print "cVisc.push_back(%+1.10E);" %(Ci)
+
+print ""
+print "cPsat.clear();"
+C = liqObj.getCoefficients('Psat')
+for Ci in C:
+    print "cPsat.push_back(%+1.10E);" %(Ci)
+
 

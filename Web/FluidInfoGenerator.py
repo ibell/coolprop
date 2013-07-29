@@ -486,7 +486,7 @@ Fluid Name                   Description
 ``TCO``                      Terpene from citrus oils
 ==========================   ===================================================
 
-There are also a few high temperature heat transfer fluids with individual temperature ranges. Please refer to the file IncompLiquid.h for a complete overview.
+There are also a few high temperature heat transfer fluids with individual temperature ranges. Please refer to the file IncompLiquid.h for a complete overview. For these fluids, information from commercial data sheets was used to obtain coefficients.
 
 ==========================   ===================================================
 Fluid Name                   Description
