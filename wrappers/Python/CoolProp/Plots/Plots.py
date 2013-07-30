@@ -175,7 +175,7 @@ def getIsoLines(Ref, plot, iName, iValues=[], num=0, axis=None):
     'iValues' is an array-like object holding at least one element. Lines 
     are calculated for every entry in 'iValues'. If the input 'num' is 
     larger than the amount of entries in 'iValues', an internally defined 
-    pattern is used to calculate an apropriate line spacing between the maximum
+    pattern is used to calculate an appropriate line spacing between the maximum
     and minimum values provided in 'iValues'. 
     
     Returns lines[num] - an array of dicts containing 'x' and 'y' 
@@ -205,11 +205,41 @@ def getIsoLines(Ref, plot, iName, iValues=[], num=0, axis=None):
     if not which:
         raise ValueError('This kind of isoline is not supported for a '+str(plot)+'-plot. Please choose from '+str(_getIsoLineIds(plot))+' or Q.')
      
-    # Problematic inputs that cannot be handled by the 
-    # internal CoolProp solver have to be avoided. 
-    # Converting everything to TD values:
+    # Enforce the bounds!
+    ((Axmin,Axmax), (Aymin,Aymax)) = _setBounds(Ref, plot, axis=axis)
     switchXY = False
+#    # Problematic inputs that cannot be handled by the 
+#    # internal CoolProp solver have to be avoided. 
+#    # Converting everything to TD values:
+#    rho_0 =  CP.Props(Ref,'rhocrit')
+#    T_0   = (CP.Props(Ref,'Tcrit')+CP.Props(Ref,'Tmin'))/2. 
+#    # Promote to lists for the 4 corners of the plot
+#    rho_c = [rho_0, rho_0, rho_0, rho_0]
+#    T_c   = [T_0  , T_0  , T_0  , T_0]
+#    # find s from T and D inputs, solve for D
+#    bounds_rho = (0.0                 , 1e10)
+#    bounds_T   = (CP.Props(Ref,'Tmin'), 1e10)
     if plot=='TS':
+#        # SciPy for scalar functions
+#        from scipy.optimize._minimize import minimize_scalar        
+#        # residual from known x and y to find i 
+#        def f(i,x,y): return numpy.power((CP.Props('S','T',y,'D',i,Ref)-x),2)
+#        # first case, upper right corner
+#        res = minimize_scalar(f, rho_0, bounds=bounds_rho, args=(Axmax, Aymax), method='bounded')
+#        T_c[0]   = Aymax
+#        rho_c[0] = res.x
+#        # second case, upper left corner
+#        res = minimize_scalar(f, rho_0, bounds=bounds_rho, args=(Axmin, Aymax), method='bounded')
+#        T_c[1]   = Aymax
+#        rho_c[1] = res.x
+#        # third case, lower left corner
+#        res = minimize_scalar(f, rho_0, bounds=bounds_rho, args=(Axmin, Aymin), method='bounded')
+#        T_c[2]   = Aymin
+#        rho_c[2] = res.x
+#        # fourth case, lower right corner
+#        res = minimize_scalar(f, rho_0, bounds=bounds_rho, args=(Axmax, Aymin), method='bounded')
+#        T_c[3]   = Aymin
+#        rho_c[3] = res.x
         if iName=='D':
             switchXY = True # TD is defined, SD is not
     elif plot=='PH':
@@ -242,27 +272,19 @@ def getIsoLines(Ref, plot, iName, iValues=[], num=0, axis=None):
     elif plot=='PT':
         if iName=='S':
             switchXY = True # PS is defined, TS is not
-
-    # Enforce the bounds!
-    ((Axmin,Axmax), (Aymin,Aymax)) = _setBounds(Ref, plot, axis=axis)
     
     if switchXY:
-        #[Axmin,Axmax]=axis.get_ylim()
-        #[Aymin,Aymax]=axis.get_xlim()
-        Axmin = Aymin
-        Axmax = Aymax
+        xmin = Aymin
+        xmax = Aymax
         tmpName = yName
         yName = xName
         xName = tmpName
-    #else:
-        #[Axmin,Axmax]=axis.get_xlim()
-        #[Aymin,Aymax]=axis.get_ylim()    
-    
-    # Determine x range for plotting
-    #if xName=='T': #Sacrifice steps 
-    #    Axmin = max(CP.Props(Ref,'Tmin'), Axmin)
-        #Axmax = Axmax + 273.15 
-    x0 = numpy.linspace(Axmin,Axmax,1000.)
+    else:
+        xmin = Axmin
+        xmax = Axmax
+
+    # Calculate the points
+    x0 = numpy.linspace(xmin,xmax,1000.)
 
     patterns = {
       'P' : (lambda x: numpy.logspace(math.log(x[0],2.), math.log(x[1],2.), num=x[2], base=2.)),
@@ -273,25 +295,18 @@ def getIsoLines(Ref, plot, iName, iValues=[], num=0, axis=None):
       'Q' : (lambda x: numpy.linspace(x[0], x[1], num=x[2]))
     }
     
-    # TODO: Use the y range to determine spacing of isolines    
-#    iVal = [CP.Props(iName,yName,Aymin,xName,Axmin,Ref),
-#            CP.Props(iName,yName,Aymax,xName,Axmin,Ref),
-#            CP.Props(iName,yName,Aymin,xName,Axmax,Ref),
-#            CP.Props(iName,yName,Aymax,xName,Axmax,Ref) ]
-#    iVal = patterns[iName]([numpy.min(iVal),numpy.max(iVal)]) 
-    
-    # Determine whether we need to calculate the spacing or not. 
-    #iValues = numpy.array(iValues) * 1. 
-    iMin = numpy.min(iValues)
-    iMax = numpy.max(iValues)
-    iVal = numpy.sort(iValues)[1:-1] # min and max gets added later
-    if 3<len(iValues)<num: # We need more lines
-        iNum = num - len(iVal) + 2. # + 2 for min and max
-        iVal = numpy.append(iVal,patterns[iName]([iMin,iMax,iNum]))
-    else:
-        iNum = len(iValues)
+    # Get isoline spacing while honouring the inputs
+    if len(iValues)<1: # No values given, use plot boundaries to determine limits
+        raise ValueError('Automatic interval detection for isoline boundaries is not supported yet, use the iValues=[min, max] parameter.')
+        iVal = [CP.Props(iName,'T',T_c[i],'D',rho_c[i],Ref) for i in range(len(T_c))]
+        iVal = patterns[iName]([numpy.min(iVal),numpy.max(iVal),num]) 
+    elif 1<len(iValues)<num: # We need more numbers
+        iNum = num - len(iValues) 
+        iVal = patterns[iName]([numpy.min(iValues),numpy.max(iValues),iNum+2]) # include min and max
+        iVal = numpy.append(iVal[1:-1],iValues) # exclude min and max again
+    else: # Either len(iValues)==1 or len(iValues)>=num
         iVal = numpy.array(iValues)
-        
+         
     iVal = numpy.sort(iVal) # sort again
         
     
@@ -370,17 +385,17 @@ def _setBounds(Ref, plot, axis=None):
     xName,yName,plot = _plotXY(plot)
     
     # Get current axis limits, be sure to set those before drawing isolines
-    # if no limits are set, use triple point and 2x critical conditions
+    # if no limits are set, use triple point and critical conditions
     X = []
     X.append(CP.Props(xName,'T',1.5*CP.Props(Ref,'Tcrit'), 'P',   CP.Props(Ref,'ptriple'),Ref))
-    X.append(CP.Props(xName,'T',    CP.Props(Ref,'Tmin') , 'P', 1.5*CP.Props(Ref,'pcrit'),Ref))
+    X.append(CP.Props(xName,'T',1.1*CP.Props(Ref,'Tmin') , 'P', 1.5*CP.Props(Ref,'pcrit'),Ref))
     X.append(CP.Props(xName,'T',1.5*CP.Props(Ref,'Tcrit'), 'P', 1.5*CP.Props(Ref,'pcrit'),Ref))
-    X.append(CP.Props(xName,'T',    CP.Props(Ref,'Tmin') , 'P',   CP.Props(Ref,'ptriple'),Ref))
+    X.append(CP.Props(xName,'T',1.1*CP.Props(Ref,'Tmin') , 'P',   CP.Props(Ref,'ptriple'),Ref))
     Y = []
     Y.append(CP.Props(yName,'T',1.5*CP.Props(Ref,'Tcrit'), 'P',   CP.Props(Ref,'ptriple'),Ref))
-    Y.append(CP.Props(yName,'T',    CP.Props(Ref,'Tmin') , 'P', 1.5*CP.Props(Ref,'pcrit'),Ref))
-    Y.append(CP.Props(yName,'T',1.5*CP.Props(Ref,'Tcrit'), 'P', 1.5*CP.Props(Ref,'pcrit'),Ref))
-    Y.append(CP.Props(yName,'T',    CP.Props(Ref,'Tmin') , 'P',   CP.Props(Ref,'ptriple'),Ref))
+    Y.append(CP.Props(yName,'T',1.1*CP.Props(Ref,'Tmin') , 'P', 1.5*CP.Props(Ref,'pcrit'),Ref))
+    Y.append(CP.Props(yName,'T',1.1*CP.Props(Ref,'Tcrit'), 'P', 1.5*CP.Props(Ref,'pcrit'),Ref))
+    Y.append(CP.Props(yName,'T',1.5*CP.Props(Ref,'Tmin') , 'P',   CP.Props(Ref,'ptriple'),Ref))
     
     minX = numpy.min(X)
     maxX = numpy.max(X)
@@ -710,6 +725,37 @@ def PT(Ref, Tmin=None, Tmax = None, show = False, axis = None, **kwargs):
 
         
 if __name__=='__main__':
+#    import matplotlib
+#    matplotlib.use('Qt4Agg')
+#    
+#    import matplotlib.pyplot
+#    
+#    fluid = "n-Pentane"
+#    # define custom styles
+#    plt_kwargs_1 = {"color": "green","linewidth": 1.5}
+#    plt_kwargs_2 = {"color": "red","linewidth": 0.75}
+#    
+#    raw_input("Press Enter to draw quality lines...")
+#    fig, ((ax1, ax2)) = matplotlib.pyplot.subplots(1, 2, sharey='row')
+#    drawIsoLines(fluid, 'Ts', 'Q', [0.0, 1.0], axis=ax1) # for predefined styles
+#    drawIsoLines(fluid, 'Ts', 'Q', [0.3, 0.7], axis=ax1) # for predefined styles
+#    # Get the data points
+#    saturation = getIsoLines(fluid, 'Ts', 'Q', [0.0,  1.0 ], axis=ax2)
+#    quality    = getIsoLines(fluid, 'Ts', 'Q', [0.3,  0.7 ], axis=ax2)
+#    # and draw the lines
+#    drawLines(fluid,saturation[:],ax2,plt_kwargs=plt_kwargs_1)
+#    drawLines(fluid,quality[:],ax2,plt_kwargs=plt_kwargs_2)
+#    matplotlib.pyplot.show()
+#    raw_input("Press Enter to draw more lines...")
+#    fig, (ax1) = matplotlib.pyplot.subplots(1, 1)
+#    drawLines(fluid,saturation,ax1)
+#    drawIsoLines(fluid, 'Ts', 'Q', [0.0, 1.0], axis=ax1) # for predefined styles
+#    drawIsoLines(fluid, 'Ts', 'Q', [0.25, 0.75], num=3, axis=ax1) # for predefined styles
+#    drawIsoLines(fluid, 'Ts', 'H', [50,  100], num=10, axis=ax1) # for predefined styles
+#    drawIsoLines(fluid, 'Ts', 'P', [10,  5000], num=10, axis=ax1) # for predefined styles
+#    matplotlib.pyplot.show()
+#    hs('n-Pentane', show = True)
+#    raw_input("Press Enter to continue...")
     hs('R245fa', show = True)
     raw_input("Press Enter to continue...")
     PT('R245fa', show = True)
