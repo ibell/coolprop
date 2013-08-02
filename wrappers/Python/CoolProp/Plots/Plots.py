@@ -1,5 +1,5 @@
 
-import numpy, matplotlib, math, re
+import numpy, matplotlib, matplotlib.pyplot, math, re
 from scipy.interpolate import interp1d
 
 import CoolProp.CoolProp as CP

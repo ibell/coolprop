@@ -36,6 +36,6 @@ fpath = glob.glob('dist_tmp/*.msi')[0]
 fName = fpath.split(os.sep,1)[1]
 call_str = ['pscp',fpath,'ibell,coolprop@frs.sf.net:/home/pfs/project/c/co/coolprop/CoolProp/Nightly/'+fName]
 print 'Calling: '+' '.join(call_str)
-print subprocess.call(call_str,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+print subprocess.check_output(call_str)
 
 delete_temp_folder()

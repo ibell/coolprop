@@ -102,7 +102,7 @@ protected:
 			throw ValueError("Please specify the minimum temperature.");
 		} else if( Tmax < 0.) {
 			throw ValueError("Please specify the maximum temperature.");
-		} else if ( (Tmin>T_K) or (T_K>Tmax) ) {
+		} else if ( (Tmin>T_K) || (T_K>Tmax) ) {
 			throw ValueError(format("Your temperature %f is not between %f and %f.",T_K,Tmin,Tmax));
 		} else {
 			return true;
@@ -128,7 +128,7 @@ protected:
 
 	/// Check validity of temperature and pressure input.
 	bool checkTP(double T, double p) {
-		return (checkT(T) and checkP(T,p));
+		return (checkT(T) && checkP(T,p));
 	}
 
 	/// Polynomial function generator.
@@ -138,7 +138,7 @@ protected:
 	double basePolynomial(std::vector<double> coefficients, double x){
 	    double result = 0.;
 	    for(unsigned int i=0; i<coefficients.size();i++) {
-	    	result += coefficients[i] * pow(x,i);
+	    	result += coefficients[i] * pow(x,(int)i);
 	    }
 	    return result;
 	}
