@@ -35,6 +35,7 @@
 // The revision of the TTSE tables, only use tables with the same revision.  Increment this macro if any non-forward compatible changes are made
 #define TTSEREV 2
 
+
 std::string get_home_dir(void)
 {
 	char *home = NULL;
@@ -74,7 +75,7 @@ std::string get_home_dir(void)
 }
 
 /// The inverse of the A matrix for the bicubic interpolation (http://en.wikipedia.org/wiki/Bicubic_interpolation)
-static double Ainv[16][16] = {
+const static double Ainv[16][16] = {
 	{1 ,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 	{0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 	{-3, 3, 0, 0, -2, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -97,7 +98,7 @@ double round(double r) {
     return (r > 0.0) ? floor(r + 0.5) : ceil(r - 0.5);
 }
 
-double matrix_vector_product(std::vector<double> *x, std::vector<double> *y, double yy)
+void matrix_vector_product(std::vector<double> *x, std::vector<double> *y)
 {
 	double sum;
 	for (unsigned int i = 0; i < 16; i++)
@@ -107,9 +108,8 @@ double matrix_vector_product(std::vector<double> *x, std::vector<double> *y, dou
 		{
 			sum += Ainv[i][j]*(*x)[j];
 		}
-		//(*y)[i] = sum;
+		(*y)[i] = sum;
 	}
-	return yy;
 }
 
 TTSESinglePhaseTableClass::TTSESinglePhaseTableClass(){
@@ -135,6 +135,11 @@ TTSESinglePhaseTableClass::TTSESinglePhaseTableClass(Fluid *pFluid)
 	this->enable_transport = true;
 	SatL = NULL;
 	SatV = NULL;
+
+	// Instantiate the storage vectors for bicubic interpolation
+	alpha_bicubic = std::vector<double>(16);
+	z_bicubic = std::vector<double>(16);
+
 }
 void TTSESinglePhaseTableClass::set_size_ph(unsigned int Np, unsigned int Nh)
 {
@@ -173,6 +178,13 @@ void TTSESinglePhaseTableClass::set_size_ph(unsigned int Np, unsigned int Nh)
 	SV.resize(Np);
 	DL.resize(Np);
 	DV.resize(Np);
+
+	// Instantiate the cell matrices for the bicubic interpolation
+	bicubic_cells = BiCubicCellsContainerClass();
+
+	for(unsigned int i = 0; i < Nh; i++){
+		bicubic_cells.cells.push_back(std::vector<BiCubicCellClass>(Np));
+	}
 }
 
 void TTSESinglePhaseTableClass::set_size_Trho(unsigned int NT, unsigned int Nrho)
@@ -1310,6 +1322,138 @@ double TTSESinglePhaseTableClass::evaluate(long iParam, double p, double logp, d
 		throw ValueError(format("Output key value [%d] to evaluate is invalid",iParam));
 	}
 }
+
+/*!
+
+\f[
+A^{-1} =  \begin{array}{16}{c} 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+ 0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+ -3 & 3 & 0 & 0 & -2 & -1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+ 2 & -2 & 0 & 0 & 1 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+ 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+ 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 \\
+ 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & -3 & 3 & 0 & 0 & -2 & -1 & 0 & 0 \\
+ 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 2 & -2 & 0 & 0 & 1 & 1 & 0 & 0 \\
+ -3 & 0 & 3 & 0 & 0 & 0 & 0 & 0 & -2 & 0 & -1 & 0 & 0 & 0 & 0 & 0 \\
+ 0 & 0 & 0 & 0 & -3 & 0 & 3 & 0 & 0 & 0 & 0 & 0 & -2 & 0 & -1 & 0 \\
+ 9 & -9 & -9 & 9 & 6 & 3 & -6 & -3 & 6 & -6 & 3 & -3 & 4 & 2 & 2 & 1 \\
+ -6 & 6 & 6 & -6 & -3 & -3 & 3 & 3 & -4 & 4 & -2 & 2 & -2 & -2 & -1 & -1 \\
+ 2 & 0 & -2 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 1 & 0 & 0 & 0 & 0 & 0 \\
+ 0 & 0 & 0 & 0 & 2 & 0 & -2 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 1 & 0 \\
+ -6 & 6 & 6 & -6 & -4 & -2 & 4 & 2 & -3 & 3 & -3 & 3 & -2 & -1 & -2 & -1 \\
+ 4 & -4 & -4 & 4 & 2 & 2 & -2 & -2 & 2 & -2 & 2 & -2 & 1 & 1 & 1 & 1 \end{array}
+ \f]
+
+ \f[
+ x = \frac{h-h_i}{h_{i+1}-h_i}
+ \f]
+ \f[
+ \frac{\partial x}{\partial h} = \frac{1}{h_{i+1}-h_i}
+ \f]
+ \f[
+ \frac{\partial h}{\partial x} = h_{i+1}-h_i
+ \f]
+
+ \f[
+ y = \frac{p-p_j}{p_{j+1}-p_j}
+ \f]
+ \f[
+ \frac{\partial y}{\partial p} = \frac{1}{p_{j+1}-p_j}
+ \f]
+  \f[
+ \frac{\partial p}{\partial y} = p_{j+1}-p_j
+ \f]
+
+ \f[
+ \frac{\partial f}{\partial x} = \frac{\partial f}{\partial h}\cdot\frac{\partial h}{\partial x}
+ \f]
+ \
+*/
+double TTSESinglePhaseTableClass::interpolate_bicubic_ph(long iParam, double pval, double logp, double hval)
+{
+	// A pointer to the values of the coefficients for the bicubic interpolation
+	std::vector<double> *alpha;
+
+	int i = (int)round(((hval-hmin)/(hmax-hmin)*(Nh-1)));
+	int j = (int)round((logp-logpmin)/logpratio);
+
+	if (i<0 || i>(int)Nh-1 || j<0 || j>(int)Np-1)
+	{
+		throw ValueError(format("Input to TTSE [p = %0.16g, h = %0.16g] is out of range",p,h));
+	}
+	
+	if (hval < h[i])
+	{
+		i -= 1;
+	}
+	if (pval < p[j])
+	{
+		j -= 1;
+	}
+	double dhdx = (h[i+1]-h[i]);
+	double dpdy = (p[j+1]-p[j]);
+	double x = (hval-h[i])/dhdx;
+	double y = (pval-p[j])/dpdy;
+	
+	// CHECK THAT i+1 and j+1 are also valid
+
+	// x array of points for this cell
+	switch (iParam)
+	{
+	case iS:
+		// If the bicubic coefficients are already calculated, just use them
+		if (!bicubic_cells.cells[i][j].alpha_s_hp.empty())
+		{
+			// Make alpha point to the pre-calculated values
+			alpha = &bicubic_cells.cells[i][j].alpha_s_hp;
+			break;
+		}
+		// Otherwise we neeed to calculate them for this cell
+		else
+		{
+			z_bicubic[0] = s[i][j];
+			z_bicubic[1] = s[i+1][j];
+			z_bicubic[2] = s[i][j+1];
+			z_bicubic[3] = s[i+1][j+1];
+			
+			z_bicubic[4] = dsdh[i][j]*dhdx;
+			z_bicubic[5] = dsdh[i+1][j]*dhdx;
+			z_bicubic[6] = dsdh[i][j+1]*dhdx;
+			z_bicubic[7] = dsdh[i+1][j+1]*dhdx;
+			
+			z_bicubic[8] = dsdp[i][j]*dpdy;
+			z_bicubic[9] = dsdp[i+1][j]*dpdy;
+			z_bicubic[10] = dsdp[i][j+1]*dpdy;
+			z_bicubic[11] = dsdp[i+1][j+1]*dpdy;
+
+			z_bicubic[12] = d2sdhdp[i][j]*dpdy*dhdx;
+			z_bicubic[13] = d2sdhdp[i+1][j]*dpdy*dhdx;
+			z_bicubic[14] = d2sdhdp[i][j+1]*dpdy*dhdx;
+			z_bicubic[15] = d2sdhdp[i+1][j+1]*dpdy*dhdx;
+
+			// Find the alpha values by doing the matrix operation alpha = Ainv*z
+			matrix_vector_product(&z_bicubic, &alpha_bicubic);
+			// Set the pointer in this function
+			alpha = &alpha_bicubic;
+			// Store this array of bicubic coefficients
+			bicubic_cells.cells[i][j].alpha_s_hp = alpha_bicubic;
+		}
+		break;
+	};
+
+	double x_0 = 1, x_1 = x, x_2 = x*x, x_3 = x*x*x;
+	double y_0 = 1, y_1 = y, y_2 = y*y, y_3 = y*y*y;
+
+	double summer;
+	// Old version was "summer += (*alpha)[ii+jj*4]*x_i*y_j;"
+	summer = (*alpha)[0+0*4]*x_0*y_0+(*alpha)[0+1*4]*x_0*y_1+(*alpha)[0+2*4]*x_0*y_2+(*alpha)[0+3*4]*x_0*y_3
+		    +(*alpha)[1+0*4]*x_1*y_0+(*alpha)[1+1*4]*x_1*y_1+(*alpha)[1+2*4]*x_1*y_2+(*alpha)[1+3*4]*x_1*y_3
+			+(*alpha)[2+0*4]*x_2*y_0+(*alpha)[2+1*4]*x_2*y_1+(*alpha)[2+2*4]*x_2*y_2+(*alpha)[2+3*4]*x_2*y_3
+			+(*alpha)[3+0*4]*x_3*y_0+(*alpha)[3+1*4]*x_3*y_1+(*alpha)[3+2*4]*x_3*y_2+(*alpha)[3+3*4]*x_3*y_3;
+	
+	return summer;
+}
+
 bool isbetween(double x1, double x2, double x)
 {
 	return ((x>=x1 && x <= x2) || (x>=x2 && x <= x1));

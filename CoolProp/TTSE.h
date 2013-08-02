@@ -5,6 +5,18 @@
 
 class Fluid;
 
+class BiCubicCellClass
+{
+public:
+	std::vector<double> alpha_s_hp, alpha_rho_hp, alpha_T_hp;
+};
+
+class BiCubicCellsContainerClass
+{
+public:
+	std::vector< std::vector<BiCubicCellClass> > cells;
+};
+
 class TTSETwoPhaseTableClass
 {
 protected:
@@ -92,6 +104,11 @@ public:
 	bool enable_writing_tables_to_files;
 	bool enable_transport;
 
+	// Storage vectors for bicubic to keep from having to remake them every time (SLOW!)
+	std::vector<double> alpha_bicubic, z_bicubic;
+
+	BiCubicCellsContainerClass bicubic_cells;
+
 	// Variables with h, p as inputs
 	std::vector<std::vector<double> > T,dTdh,dTdp,d2Tdh2,d2Tdp2,d2Tdhdp;
 	std::vector<std::vector<double> > rho,drhodh,drhodp,d2rhodh2,d2rhodp2,d2rhodhdp;
@@ -162,6 +179,13 @@ public:
 	/// @param iParam Index of desired output
 	/// @param N Number of runs to do
  	double evaluate_randomly(long iParam, unsigned int N);
+
+	/// Randomly evaluate a property in the two-phase region using the TTSE method
+	/// @param iParam Index of desired output
+	/// @param p Pressure [kPa]
+	/// @param logp Logarithm of the pressure [log(kPa)]
+	/// @param h Enthalpy [kJ/kg]
+	double interpolate_bicubic_ph(long iParam, double p, double logp, double h);
 
 	/// Randomly select a point within the range, and evaluate the property using TTSE and the EOS
 	/// @param iParam Index of desired output
