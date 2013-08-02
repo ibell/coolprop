@@ -31,9 +31,14 @@ THETEST          =coolPropLibTest
 #  binary files created in this makefile. 
 ###########################################################
 SRCDIR     =./src
-DYMDIR     =/opt/dymola
-LIBINST    =$(DYMDIR)/bin/lib
-HEADINST   =$(DYMDIR)/source
+# For Dymola integration
+# DYMDIR     =/opt/dymola
+# LIBINST    =$(DYMDIR)/bin/lib
+# HEADINST   =$(DYMDIR)/source
+# For OpenModelica integration
+LIBINST    =/usr/lib/omc
+HEADINST   =/usr/include/omc
+# For system-wide installation
 # LIBINST    =/usr/local/lib
 # HEADINST   =/usr/local/include
 BINDIR     =./bin/LinuxGCC

@@ -154,6 +154,8 @@ void *getFunctionPointer(char * name)
 		return (void *) GetProcAddress(RefpropdllInstance,name);
 	#elif defined(__ISLINUX__)
 		return dlsym(RefpropdllInstance,name);
+	#elif defined(__ISAPPLE__)
+		return dlsym(RefpropdllInstance,name);
 	#else
 		throw NotImplementedError("This function should not be called.");
 		return NULL;
@@ -291,6 +293,8 @@ std::string get_REFPROP_fluid_path()
 		return rpPath;
 	#elif defined(__ISLINUX__)
 		return rpPath + std::string("/fluids/");
+	#elif defined(__ISAPPLE__)
+		return rpPath + std::string("/fluids/");
 	#else
 		throw NotImplementedError("This function should not be called.");
 		return rpPath;
@@ -337,6 +341,9 @@ bool load_REFPROP()
 			#elif defined(__ISLINUX__)
 				fputs (dlerror(), stderr);
 				printf("Could not load librefprop.so\n\n");
+			#elif defined(__ISAPPLE__)
+				fputs (dlerror(), stderr);
+				printf("Could not load librefprop.dylib\n\n");
 			#else
 				throw NotImplementedError("You should not be here.");
 			#endif
