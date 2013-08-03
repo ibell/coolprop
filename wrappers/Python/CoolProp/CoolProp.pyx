@@ -625,6 +625,16 @@ cpdef bint IsFluidType(bytes_or_str Fluid, bytes_or_str Type):
     else:
         return False
     
+cpdef bint set_TTSE_mode(char* FluidName, char* Value): 
+    """ Set the mode of the TTSE table, one of ``"TTSE"`` or ``"BICUBIC"``
+    """
+    return _set_TTSE_mode(FluidName, Value)
+
+cpdef str get_TTSE_mode(string fluid):
+    """ Get the mode of the TTSE table, one of ``"TTSE"`` or ``"BICUBIC"``
+    """
+    return _get_TTSE_mode(fluid).encode('ascii')
+
 #: Enable the TTSE
 cpdef bint enable_TTSE_LUT(char *FluidName): return _enable_TTSE_LUT(FluidName)
 #: Check if TTSE is enabled

@@ -116,7 +116,7 @@ PropyneClass::PropyneClass()
 	params.Ttriple = 170.5;
 	params.accentricfactor = 0.204;
 	params.R_u = 8.3143;
-	params.ptriple = 0.1863;
+	params.ptriple = 263.566905989;
 
 	// Limits of EOS
 	limits.Tmin = 273;

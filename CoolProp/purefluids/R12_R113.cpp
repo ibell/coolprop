@@ -22,7 +22,7 @@ R12Class::R12Class()
 	params.Ttriple = 116.099;
 	params.accentricfactor = 0.17947831734355124;
 	params.R_u = 8.314471;
-	params.ptriple = 0.25e-3;
+	params.ptriple = 0.000242549651843;
 
 	// Limits of EOS
 	limits.Tmin = params.Ttriple;

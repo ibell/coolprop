@@ -83,6 +83,8 @@ You might want to start by looking at CoolProp.h
 	EXPORT_CODE long CONVENTION get_CAS_code(char * fluid, char *output);
 	EXPORT_CODE void CONVENTION get_index_units(long param, char * units);
 
+	
+
 	EXPORT_CODE int CONVENTION get_debug();
 	EXPORT_CODE void CONVENTION debug(int level);
 
@@ -114,6 +116,11 @@ You might want to start by looking at CoolProp.h
 	EXPORT_CODE bool CONVENTION set_TTSESinglePhase_LUT_range(char *FluidName, double hmin, double hmax, double pmin, double pmax);
 	/// Get the current range of the single-phase LUT
 	EXPORT_CODE bool CONVENTION get_TTSESinglePhase_LUT_range(char *FluidName, double *hmin, double *hmax, double *pmin, double *pmax);
+
+	/// Get the TTSE mode (normal or bicubic)
+	EXPORT_CODE int CONVENTION get_TTSE_mode(char *FluidName, char * Value);
+	/// Set the TTSE mode (normal or bicubic)
+	EXPORT_CODE int CONVENTION set_TTSE_mode(char *FluidName, char * Value);
 
 	// Expose some functions that are useful for ECS debugging
 	EXPORT_CODE double CONVENTION viscosity_dilute(char* FluidName, double T);
@@ -153,6 +160,7 @@ You might want to start by looking at CoolProp.h
 	std::string get_REFPROPname(std::string Ref);
 	std::string get_errstring(void);
 	std::string get_version(void);
+	std::string get_TTSE_mode(std::string FluidName);
 	bool add_REFPROP_fluid(std::string FluidName);
 
 	long get_param_index(std::string param);

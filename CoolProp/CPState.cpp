@@ -185,7 +185,7 @@ void CoolPropStateClass::update(long iInput1, double Value1, long iInput2, doubl
 	}
 	else
 	{
-		// Try to build the LUT
+		// Try to build the LUT; Nothing will happen if the tables are already built
 		pFluid->build_TTSE_LUT();
 
 		// If inputs are in range of LUT, use it, otherwise just use the EOS

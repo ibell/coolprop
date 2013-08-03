@@ -118,7 +118,7 @@ R21Class::R21Class()
 	params.Ttriple = 142.8;
 	params.accentricfactor = 0.2061;
 	params.R_u = 8.31451;
-	params.ptriple = 0.00006828;
+	params.ptriple = 0.872834974943;
 
 	// Limits of EOS
 	limits.Tmin = 200;
@@ -210,7 +210,7 @@ R114Class::R114Class()
 	params.Ttriple = 180.63;
 	params.accentricfactor = 0.2523;
 	params.R_u = 8.31451;
-	params.ptriple = 0.2021;
+	params.ptriple = 88.1623867625;
 
 	// Limits of EOS
 	limits.Tmin = 273.15;
@@ -302,7 +302,7 @@ R13Class::R13Class()
 	params.Ttriple = 92;
 	params.accentricfactor = 0.1723;
 	params.R_u = 8.31451;
-	params.ptriple = 0.0003288;
+	params.ptriple =  0.000896002851564;
 
 	// Limits of EOS
 	limits.Tmin = 98.15;
@@ -397,7 +397,7 @@ R14Class::R14Class()
 	params.Ttriple = 89.54;
 	params.accentricfactor = 0.1785;
 	params.R_u = 8.31451;
-	params.ptriple = 0.1012;
+	params.ptriple =  11.2943290448;
 
 	// Limits of EOS
 	limits.Tmin = 120;

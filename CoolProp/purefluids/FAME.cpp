@@ -223,7 +223,7 @@ MethylOleateClass::MethylOleateClass()
 	params.Ttriple = 253.47; // From REFPROP, not provided in paper
 	params.accentricfactor = 0.90584935998790117;
 	params.R_u = 8.314472;
-	params.ptriple = 3.7666888692665290e-010;
+	params.ptriple = 7.283926368e-11;
 
 	// Limits of EOS
 	limits.Tmin = params.Ttriple;
@@ -323,7 +323,7 @@ MethylLinoleateClass::MethylLinoleateClass()
 	params.Ttriple = 260;
 	params.accentricfactor = 0.80540638705564849;
 	params.R_u = 8.314472;
-	params.ptriple = 7.7198861810445706e-012;
+	params.ptriple = 1.37170480867e-09;
 
 	// Limits of EOS
 	limits.Tmin = params.Ttriple;
@@ -421,7 +421,7 @@ MethylLinolenateClass::MethylLinolenateClass()
 	params.Ttriple = 260;
 	params.accentricfactor = 1.1426052586734956;
 	params.R_u = 8.314472;
-	params.ptriple = 8.2813864418489102e-015;
+	params.ptriple = 4.25028035475e-10;
 
 	// Limits of EOS
 	limits.Tmin = params.Ttriple;

@@ -194,6 +194,8 @@ cdef extern from "CoolProp.h":
     string _get_ASHRAE34 "get_ASHRAE34"(string Fluid)
     string _get_CAS_code "get_CAS_code"(string Fluid)
     char * get_errstringc()
+    string _get_TTSE_mode "get_TTSE_mode"(string Fluid)
+    int _set_TTSE_mode "set_TTSE_mode"(char* Fluid, char* Value)
     
     #Ancillary equations
     double _psatL_anc "psatL_anc"(char*Fluid, double T)

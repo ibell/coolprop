@@ -45,7 +45,7 @@ DeuteriumClass::DeuteriumClass()
 	params.molemass = 4.0282;
 	params.Ttriple = 18.724;
 	params.ptriple = 17.202;
-	params.accentricfactor = _HUGE;
+	params.accentricfactor = -0.136290274128;
 	params.R_u = 8.3144621;
 
 	// Limits of EOS
@@ -141,7 +141,7 @@ OrthoDeuteriumClass::OrthoDeuteriumClass()
 	params.molemass = 4.0282;
 	params.Ttriple = 18.724;
 	params.ptriple = 17.202;
-	params.accentricfactor = _HUGE;
+	params.accentricfactor = -0.136290274128;
 	params.R_u = 8.3144621;
 
 	// Limits of EOS
@@ -229,7 +229,7 @@ ParaDeuteriumClass::ParaDeuteriumClass()
 	params.molemass = 4.0282;
 	params.Ttriple = 18.724;
 	params.ptriple = 17.202;
-	params.accentricfactor = _HUGE;
+	params.accentricfactor = -0.136290274128;
 	params.R_u = 8.3144621;
 
 	// Limits of EOS

@@ -33,7 +33,7 @@
 #endif
 
 // The revision of the TTSE tables, only use tables with the same revision.  Increment this macro if any non-forward compatible changes are made
-#define TTSEREV 2
+#define TTSEREV 3
 
 
 std::string get_home_dir(void)
@@ -136,10 +136,30 @@ TTSESinglePhaseTableClass::TTSESinglePhaseTableClass(Fluid *pFluid)
 	SatL = NULL;
 	SatV = NULL;
 
-	// Instantiate the storage vectors for bicubic interpolation
+	// Instantiate the storage vectors for bicubic interpolation; instantiated once since instantation is quite slow
 	alpha_bicubic = std::vector<double>(16);
 	z_bicubic = std::vector<double>(16);
 
+	std::cout << "Creating new CPState" << std::endl;
+	// Default to use the "normal" TTSE evaluation
+	mode = TTSE_MODE_TTSE;
+}
+int TTSESinglePhaseTableClass::get_mode()
+{
+	return this->mode;
+}
+int TTSESinglePhaseTableClass::set_mode(int mode)
+{
+	if (mode == TTSE_MODE_TTSE || mode == TTSE_MODE_BICUBIC)
+	{
+		this->mode = mode; 
+		std::cout << "set TTSE mode to "<< this->mode << std::endl;
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }
 void TTSESinglePhaseTableClass::set_size_ph(unsigned int Np, unsigned int Nh)
 {
@@ -1291,6 +1311,10 @@ double TTSESinglePhaseTableClass::evaluate_randomly(long iParam, unsigned int N)
 
 double TTSESinglePhaseTableClass::evaluate(long iParam, double p, double logp, double h)
 {
+	// Use Bicubic interpolation if requested
+	if (mode == TTSE_MODE_BICUBIC){ 
+		return interpolate_bicubic_ph(iParam,p,logp,h);
+	}
 	int i = (int)round(((h-hmin)/(hmax-hmin)*(Nh-1)));
 	int j = (int)round((logp-logpmin)/logpratio);
 	
@@ -1372,7 +1396,8 @@ A^{-1} =  \begin{array}{16}{c} 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0
 double TTSESinglePhaseTableClass::interpolate_bicubic_ph(long iParam, double pval, double logp, double hval)
 {
 	// A pointer to the values of the coefficients for the bicubic interpolation
-	std::vector<double> *alpha;
+	std::vector<double> *alpha = NULL;
+	std::vector< std::vector<double> > *f = NULL, *dfdp = NULL, *dfdh = NULL, *d2fdhdp = NULL;
 
 	int i = (int)round(((hval-hmin)/(hmax-hmin)*(Nh-1)));
 	int j = (int)round((logp-logpmin)/logpratio);
@@ -1397,55 +1422,218 @@ double TTSESinglePhaseTableClass::interpolate_bicubic_ph(long iParam, double pva
 	
 	// CHECK THAT i+1 and j+1 are also valid
 
-	// x array of points for this cell
-	switch (iParam)
+
+	// Find the coefficients for the bicubic
+	switch(iParam)
 	{
 	case iS:
-		// If the bicubic coefficients are already calculated, just use them
 		if (!bicubic_cells.cells[i][j].alpha_s_hp.empty())
 		{
 			// Make alpha point to the pre-calculated values
 			alpha = &bicubic_cells.cells[i][j].alpha_s_hp;
 			break;
 		}
-		// Otherwise we neeed to calculate them for this cell
 		else
 		{
-			z_bicubic[0] = s[i][j];
-			z_bicubic[1] = s[i+1][j];
-			z_bicubic[2] = s[i][j+1];
-			z_bicubic[3] = s[i+1][j+1];
-			
-			z_bicubic[4] = dsdh[i][j]*dhdx;
-			z_bicubic[5] = dsdh[i+1][j]*dhdx;
-			z_bicubic[6] = dsdh[i][j+1]*dhdx;
-			z_bicubic[7] = dsdh[i+1][j+1]*dhdx;
-			
-			z_bicubic[8] = dsdp[i][j]*dpdy;
-			z_bicubic[9] = dsdp[i+1][j]*dpdy;
-			z_bicubic[10] = dsdp[i][j+1]*dpdy;
-			z_bicubic[11] = dsdp[i+1][j+1]*dpdy;
-
-			z_bicubic[12] = d2sdhdp[i][j]*dpdy*dhdx;
-			z_bicubic[13] = d2sdhdp[i+1][j]*dpdy*dhdx;
-			z_bicubic[14] = d2sdhdp[i][j+1]*dpdy*dhdx;
-			z_bicubic[15] = d2sdhdp[i+1][j+1]*dpdy*dhdx;
-
-			// Find the alpha values by doing the matrix operation alpha = Ainv*z
-			matrix_vector_product(&z_bicubic, &alpha_bicubic);
-			// Set the pointer in this function
-			alpha = &alpha_bicubic;
-			// Store this array of bicubic coefficients
-			bicubic_cells.cells[i][j].alpha_s_hp = alpha_bicubic;
+			f = &s; dfdh = &dsdh; dfdp = &dsdp; d2fdhdp = &d2sdhdp; break;
 		}
-		break;
-	};
+	case iT:
+		if (!bicubic_cells.cells[i][j].alpha_T_hp.empty())
+		{
+			// Make alpha point to the pre-calculated values
+			alpha = &bicubic_cells.cells[i][j].alpha_T_hp;
+			break;
+		}
+		else
+		{
+			f = &T; dfdh = &dTdh; dfdp = &dTdp; d2fdhdp = &d2Tdhdp; break;
+		}
+	case iD:
+		if (!bicubic_cells.cells[i][j].alpha_rho_hp.empty())
+		{
+			// Make alpha point to the pre-calculated values
+			alpha = &bicubic_cells.cells[i][j].alpha_rho_hp;
+			break;
+		}
+		else
+		{
+			f = &rho; dfdh = &drhodh; dfdp = &drhodp; d2fdhdp = &d2rhodhdp; break;
+		}
+	default:
+		throw ValueError("iParam is invalid");
+	}
+
+	if (alpha == NULL)
+	{
+		z_bicubic[0] = (*f)[i][j];
+		z_bicubic[1] = (*f)[i+1][j];
+		z_bicubic[2] = (*f)[i][j+1];
+		z_bicubic[3] = (*f)[i+1][j+1];
+		
+		z_bicubic[4] = (*dfdh)[i][j]*dhdx;
+		z_bicubic[5] = (*dfdh)[i+1][j]*dhdx;
+		z_bicubic[6] = (*dfdh)[i][j+1]*dhdx;
+		z_bicubic[7] = (*dfdh)[i+1][j+1]*dhdx;
+		
+		z_bicubic[8] = (*dfdp)[i][j]*dpdy;
+		z_bicubic[9] = (*dfdp)[i+1][j]*dpdy;
+		z_bicubic[10] = (*dfdp)[i][j+1]*dpdy;
+		z_bicubic[11] = (*dfdp)[i+1][j+1]*dpdy;
+
+		z_bicubic[12] = (*d2fdhdp)[i][j]*dpdy*dhdx;
+		z_bicubic[13] = (*d2fdhdp)[i+1][j]*dpdy*dhdx;
+		z_bicubic[14] = (*d2fdhdp)[i][j+1]*dpdy*dhdx;
+		z_bicubic[15] = (*d2fdhdp)[i+1][j+1]*dpdy*dhdx;
+
+		// Find the alpha values by doing the matrix operation alpha = Ainv*z
+		matrix_vector_product(&z_bicubic, &alpha_bicubic);
+		// Set the pointer in this function
+		alpha = &alpha_bicubic;
+		
+		// Store this array of bicubic coefficients
+		switch (iParam)
+		{
+		case iS:	
+			bicubic_cells.cells[i][j].alpha_s_hp = alpha_bicubic; break;
+		case iT:
+			bicubic_cells.cells[i][j].alpha_T_hp = alpha_bicubic; break;
+		case iD:
+			bicubic_cells.cells[i][j].alpha_rho_hp = alpha_bicubic; break;
+		default:
+			throw ValueError("iParam is invalid");
+		}
+	}
 
 	double x_0 = 1, x_1 = x, x_2 = x*x, x_3 = x*x*x;
 	double y_0 = 1, y_1 = y, y_2 = y*y, y_3 = y*y*y;
 
 	double summer;
-	// Old version was "summer += (*alpha)[ii+jj*4]*x_i*y_j;"
+	// Old version was "summer += (*alpha)[ii+jj*4]*x^i*y^j" for i in [0,3] and j in [0,3]
+	summer = (*alpha)[0+0*4]*x_0*y_0+(*alpha)[0+1*4]*x_0*y_1+(*alpha)[0+2*4]*x_0*y_2+(*alpha)[0+3*4]*x_0*y_3
+		    +(*alpha)[1+0*4]*x_1*y_0+(*alpha)[1+1*4]*x_1*y_1+(*alpha)[1+2*4]*x_1*y_2+(*alpha)[1+3*4]*x_1*y_3
+			+(*alpha)[2+0*4]*x_2*y_0+(*alpha)[2+1*4]*x_2*y_1+(*alpha)[2+2*4]*x_2*y_2+(*alpha)[2+3*4]*x_2*y_3
+			+(*alpha)[3+0*4]*x_3*y_0+(*alpha)[3+1*4]*x_3*y_1+(*alpha)[3+2*4]*x_3*y_2+(*alpha)[3+3*4]*x_3*y_3;
+	
+	return summer;
+}
+
+double TTSESinglePhaseTableClass::interpolate_bicubic_Trho(long iParam, double Tval, double rhoval, double logrho)
+{
+	// A pointer to the values of the coefficients for the bicubic interpolation
+	std::vector<double> *alpha = NULL;
+	std::vector< std::vector<double> > *f = NULL, *dfdT = NULL, *dfdrho = NULL, *d2fdTdrho = NULL;
+
+	int i = (int)round((Tval-Tmin)/(Tmax-Tmin)*(NT-1));
+	int j = (int)round((logrho-logrhomin)/logrhoratio);
+
+	if (i<0 || i>(int)NT-1 || j<0 || j>(int)Nrho-1)
+	{
+		throw ValueError(format("Input to TTSE [T = %0.16g, rho = %0.16g] is out of range",Tval,rhoval));
+	}
+	
+	if (Tval < T_Trho[i])
+	{
+		i -= 1;
+	}
+	if (rhoval < rho_Trho[j])
+	{
+		j -= 1;
+	}
+	std::cout << "Boundaries on T are " << T_Trho[i] << " " << T_Trho[i+1] << std::endl;
+	std::cout << "Boundaries on rho are " << rho_Trho[i] << " " << rho_Trho[i+1] << std::endl;
+	double dTdx = (T_Trho[i+1]-T_Trho[i]);
+	double drhody = (rho_Trho[j+1]-rho_Trho[j]);
+	double x = (Tval-T_Trho[i])/dTdx;
+	double y = (rhoval-rho_Trho[j])/drhody;
+	
+	// CHECK THAT i+1 and j+1 are also valid
+
+	// Find the coefficients for the bicubic function
+	switch(iParam)
+	{
+	case iS:
+		if (!bicubic_cells.cells[i][j].alpha_s_Trho.empty())
+		{
+			// Make alpha point to the pre-calculated values
+			alpha = &bicubic_cells.cells[i][j].alpha_s_Trho;
+			break;
+		}
+		else
+		{
+			f = &s_Trho; dfdT = &dsdT_Trho; dfdrho = &dsdrho_Trho; d2fdTdrho = &d2sdTdrho_Trho; break;
+		}
+	case iH:
+		if (!bicubic_cells.cells[i][j].alpha_h_Trho.empty())
+		{
+			// Make alpha point to the pre-calculated values
+			alpha = &bicubic_cells.cells[i][j].alpha_h_Trho;
+			break;
+		}
+		else
+		{
+			f = &h_Trho; dfdT = &dhdT_Trho; dfdrho = &dhdrho_Trho; d2fdTdrho = &d2hdTdrho_Trho; break;
+		}
+	case iP:
+		if (!bicubic_cells.cells[i][j].alpha_p_Trho.empty())
+		{
+			// Make alpha point to the pre-calculated values
+			alpha = &bicubic_cells.cells[i][j].alpha_p_Trho;
+			break;
+		}
+		else
+		{
+			f = &p_Trho; dfdT = &dpdT_Trho; dfdrho = &dpdrho_Trho; d2fdTdrho = &d2pdTdrho_Trho; break;
+		}
+	default:
+		throw ValueError("iParam is invalid");
+	}
+
+	if (alpha == NULL)
+	{
+		z_bicubic[0] = (*f)[i][j];
+		z_bicubic[1] = (*f)[i+1][j];
+		z_bicubic[2] = (*f)[i][j+1];
+		z_bicubic[3] = (*f)[i+1][j+1];
+		
+		z_bicubic[4] = (*dfdT)[i][j]*dTdx;
+		z_bicubic[5] = (*dfdT)[i+1][j]*dTdx;
+		z_bicubic[6] = (*dfdT)[i][j+1]*dTdx;
+		z_bicubic[7] = (*dfdT)[i+1][j+1]*dTdx;
+		
+		z_bicubic[8] = (*dfdrho)[i][j]*drhody;
+		z_bicubic[9] = (*dfdrho)[i+1][j]*drhody;
+		z_bicubic[10] = (*dfdrho)[i][j+1]*drhody;
+		z_bicubic[11] = (*dfdrho)[i+1][j+1]*drhody;
+
+		z_bicubic[12] = (*d2fdTdrho)[i][j]*drhody*dTdx;
+		z_bicubic[13] = (*d2fdTdrho)[i+1][j]*drhody*dTdx;
+		z_bicubic[14] = (*d2fdTdrho)[i][j+1]*drhody*dTdx;
+		z_bicubic[15] = (*d2fdTdrho)[i+1][j+1]*drhody*dTdx;
+
+		// Find the alpha values by doing the matrix operation alpha = Ainv*z
+		matrix_vector_product(&z_bicubic, &alpha_bicubic);
+		// Set the pointer in this function
+		alpha = &alpha_bicubic;
+		
+		// Store this array of bicubic coefficients
+		switch (iParam)
+		{
+		case iS:	
+			bicubic_cells.cells[i][j].alpha_s_Trho = alpha_bicubic; break;
+		case iH:
+			bicubic_cells.cells[i][j].alpha_h_Trho = alpha_bicubic; break;
+		case iP:
+			bicubic_cells.cells[i][j].alpha_p_Trho = alpha_bicubic; break;
+		default:
+			throw ValueError("iParam is invalid");
+		}
+	}
+
+	double x_0 = 1, x_1 = x, x_2 = x*x, x_3 = x*x*x;
+	double y_0 = 1, y_1 = y, y_2 = y*y, y_3 = y*y*y;
+
+	double summer;
+	// Old version was "summer += (*alpha)[ii+jj*4]*x^i*y^j" for i in [0,3] and j in [0,3]
 	summer = (*alpha)[0+0*4]*x_0*y_0+(*alpha)[0+1*4]*x_0*y_1+(*alpha)[0+2*4]*x_0*y_2+(*alpha)[0+3*4]*x_0*y_3
 		    +(*alpha)[1+0*4]*x_1*y_0+(*alpha)[1+1*4]*x_1*y_1+(*alpha)[1+2*4]*x_1*y_2+(*alpha)[1+3*4]*x_1*y_3
 			+(*alpha)[2+0*4]*x_2*y_0+(*alpha)[2+1*4]*x_2*y_1+(*alpha)[2+2*4]*x_2*y_2+(*alpha)[2+3*4]*x_2*y_3
@@ -1713,6 +1901,11 @@ double TTSESinglePhaseTableClass::evaluate_one_other_input(long iInput1, double 
 
 double TTSESinglePhaseTableClass::evaluate_Trho(long iOutput, double T, double rho, double logrho)
 {
+	// Use Bicubic interpolation if requested
+	if (this->mode == TTSE_MODE_BICUBIC){
+		return interpolate_bicubic_Trho(iOutput,T,rho,logrho);
+	}
+
 	int i = (int)round((T-Tmin)/(Tmax-Tmin)*(NT-1));
 	int j = (int)round((logrho-logrhomin)/logrhoratio);
 	

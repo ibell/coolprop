@@ -843,7 +843,7 @@ TetradecamethylhexasiloxaneClass::TetradecamethylhexasiloxaneClass()
 	params.accentricfactor=0.82464714726429245;
     params.R_u = 8.314472;
 	// Caution calculated at Tmin
-	params.ptriple = 4.5904570360324528e-005;
+	params.ptriple = 0.00109337696739;
 
 
     // Limits of EOS
@@ -1174,7 +1174,7 @@ DecamethylcyclopentasiloxaneClass::DecamethylcyclopentasiloxaneClass()
     params.R_u = 8.314472;
 
 	// Calculated at Tmin
-	params.ptriple = 0.0023224722375495980;
+	params.ptriple = 0.0275116653286;
 
     // Limits of EOS
     limits.Tmin = 300;

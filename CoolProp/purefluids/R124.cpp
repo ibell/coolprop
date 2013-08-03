@@ -20,7 +20,7 @@ R124Class::R124Class()
 	params.Ttriple = 75;
 	params.accentricfactor = 0.28809508422142915;
 	params.R_u = 8.314471;
-	params.ptriple = 6.81291620381e-14;
+	params.ptriple = 2.67380659624e-05;
 
 	// Limits of EOS
 	limits.Tmin = 120;

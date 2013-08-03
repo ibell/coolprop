@@ -22,7 +22,7 @@ HFE143mClass::HFE143mClass()
 	params.Ttriple = 240;
 	params.accentricfactor = 0.28887136567003235;
 	params.R_u = 8.314472;
-	params.ptriple = 0.00091975626399793732;
+	params.ptriple = 65.359393007;
 
 	// Limits of EOS
 	limits.Tmin = 240;

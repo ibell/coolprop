@@ -372,6 +372,87 @@ std::string get_ASHRAE34(std::string fluid)
 		return "Fluid name invalid";
 	}
 }
+
+EXPORT_CODE int CONVENTION get_TTSE_mode(char* fluid, char *value)
+{
+	long iFluid = get_Fluid_index(fluid);
+	if (iFluid > -1)
+	{
+		Fluid *pFluid = get_fluid(iFluid);
+		int iMode = pFluid->TTSESinglePhase.get_mode();
+		switch (iMode)
+		{
+		case TTSE_MODE_TTSE:
+			strcpy(value,"TTSE"); 
+			std::cout << "set TTSE mode to "<< value << std::endl;
+			return true;
+		case TTSE_MODE_BICUBIC:
+			strcpy(value,"BICUBIC"); 
+			std::cout << "set TTSE mode to "<< value << std::endl;
+			return true;
+		default:
+			strcpy(value,"UNKNOWN"); return false;
+		}
+	}
+	else
+	{
+		return false;
+	}
+}
+std::string get_TTSE_mode(std::string fluid)
+{
+	long iFluid = get_Fluid_index(fluid);
+	if (iFluid > -1)
+	{
+		Fluid *pFluid = get_fluid(iFluid);
+		int iMode = pFluid->TTSESinglePhase.get_mode();
+		switch (iMode)
+		{
+		case TTSE_MODE_TTSE:
+			return "TTSE";
+		case TTSE_MODE_BICUBIC:
+			return "BICUBIC"; 
+		default:
+			return "UNKNOWN";
+		}
+	}
+	else
+	{
+		return false;
+	}
+}
+
+EXPORT_CODE int CONVENTION set_TTSE_mode(char* fluid, char *value)
+{
+	long iFluid = get_Fluid_index(fluid);
+	if (iFluid > -1)
+	{
+		Fluid *pFluid = get_fluid(iFluid);
+		
+		// Try to build the LUT; Nothing will happen if the tables are already built
+		CoolPropStateClass C(fluid);
+		pFluid->build_TTSE_LUT();
+
+		if (!strcmp(value,"TTSE"))
+		{
+			pFluid->TTSESinglePhase.set_mode(TTSE_MODE_TTSE); return true;
+		}
+		else if (!strcmp(value,"BICUBIC"))
+		{
+			pFluid->TTSESinglePhase.set_mode(TTSE_MODE_BICUBIC); return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+	else
+	{
+		return false;
+	}
+}
+
+
 EXPORT_CODE long CONVENTION get_ASHRAE34(char* fluid, char *value)
 {
 	strcpy(value, (char*)get_ASHRAE34(fluid).c_str());

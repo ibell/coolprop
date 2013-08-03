@@ -25,7 +25,8 @@ def check_ptriple(Fluid):
     Tmin = max(Props(Fluid,'Tmin'), Props(Fluid,'Ttriple'))
     ptriple = Props(Fluid,'ptriple')
     ptripleEOS = Props('P','T',Tmin,'Q',1,Fluid)
-    assert abs(ptriple/ptripleEOS-1) < 0.01
+    if not abs(ptriple/ptripleEOS-1) < 0.01:
+        raise ValueError('ptriple should be: '+str(ptripleEOS))
 
 ###############################################################################
 ###############################################################################
@@ -35,9 +36,17 @@ def test_accentric():
         yield check_accentric,Fluid
         
 def check_accentric(Fluid):
-    accentric = Props(Fluid,'accentric')
-    accentricEOS = -log10(Props("P",'Q',1,'T',Props(Fluid,"Tcrit")*0.7,Fluid)/Props(Fluid,"pcrit"))-1
-    assert (accentric/accentricEOS-1) < 0.01
+    if Props(Fluid,"Tmin") < 0.7*Props(Fluid,'Tcrit'):
+        accentricEOS = -log10(Props("P",'Q',1,'T',Props(Fluid,"Tcrit")*0.7,Fluid)/Props(Fluid,"pcrit"))-1
+    else:
+        return
+    try:
+        accentric = Props(Fluid,'accentric')
+    except ValueError:
+        raise ValueError('accentric should be: '+str(accentricEOS))
+    
+    if not (accentric/accentricEOS-1) < 0.01:
+        raise ValueError('accentric should be: '+str(accentricEOS))
     
 if __name__=='__main__':
     import nose

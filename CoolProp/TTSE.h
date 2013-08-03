@@ -5,10 +5,12 @@
 
 class Fluid;
 
+enum TTSE_MODES{ TTSE_MODE_TTSE,TTSE_MODE_BICUBIC};
+
 class BiCubicCellClass
 {
 public:
-	std::vector<double> alpha_s_hp, alpha_rho_hp, alpha_T_hp;
+	std::vector<double> alpha_s_hp, alpha_rho_hp, alpha_T_hp, alpha_s_Trho, alpha_h_Trho, alpha_p_Trho;
 };
 
 class BiCubicCellsContainerClass
@@ -92,6 +94,7 @@ protected:
 	double pratio,logpratio,logpmin;
 	double rhoratio,logrhoratio,logrhomin;
 	int jpcrit_floor, jpcrit_ceil;
+	int mode;
 public:
 	TTSESinglePhaseTableClass();
 	TTSESinglePhaseTableClass(Fluid *pFluid);
@@ -127,6 +130,8 @@ public:
 	/// from pmin to pmax.  If supercritical, IL and IV entries both -1
 	std::vector<int> IL, IV;
 
+	int set_mode(int mode);
+	int get_mode();
 	bool read_all_from_file(std::string root_path);
 	void write_all_to_file(std::string root_path = std::string());
 	void matrix_to_file(std::string fName, std::vector< std::vector<double> > *A);
@@ -174,6 +179,13 @@ public:
 	/// @param T Temperature [K]
 	/// @param rho Density [kg/m^3]
 	double evaluate_Trho(long iOutput, double T, double rho, double logrho);
+
+	/// Evaluate a property in the two-phase region using bicubic interpolation with T,rho as inputs
+	/// @param iParam Index of desired output
+	/// @param T Pressure [kPa]
+	/// @param rho Logarithm of the pressure [kg/m^3]
+	/// @param logrho Logarithm of the density [log(kg/m^3)]
+	double interpolate_bicubic_Trho(long iParam, double T, double rho, double logrho);
 
 	/// Randomly evaluate a property in the single phase region using the TTSE method
 	/// @param iParam Index of desired output
