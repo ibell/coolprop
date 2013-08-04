@@ -140,7 +140,6 @@ TTSESinglePhaseTableClass::TTSESinglePhaseTableClass(Fluid *pFluid)
 	alpha_bicubic = std::vector<double>(16);
 	z_bicubic = std::vector<double>(16);
 
-	std::cout << "Creating new CPState" << std::endl;
 	// Default to use the "normal" TTSE evaluation
 	mode = TTSE_MODE_TTSE;
 }
@@ -153,7 +152,6 @@ int TTSESinglePhaseTableClass::set_mode(int mode)
 	if (mode == TTSE_MODE_TTSE || mode == TTSE_MODE_BICUBIC)
 	{
 		this->mode = mode; 
-		std::cout << "set TTSE mode to "<< this->mode << std::endl;
 		return true;
 	}
 	else
@@ -297,6 +295,96 @@ void TTSESinglePhaseTableClass::nearest_good_neighbor(int *i, int *j)
 	else
 	{
 		throw ValueError(format("No neighbors found for %d,%d",i,j));
+		return;
+	}
+}
+
+void TTSESinglePhaseTableClass::nearest_good_neighbor_Trho_interpolate(int *i, int *j)
+{
+	if (bicubic_cells.cells[*i][*j].valid_Trho){
+		return;
+	}
+	else if (bicubic_cells.cells[*i+1][*j].valid_Trho)
+	{
+		*i += 1; return;
+	}
+	else if (bicubic_cells.cells[*i-1][*j].valid_Trho)
+	{
+		*i -= 1; return;
+	}
+	else if (bicubic_cells.cells[*i][*j-1].valid_Trho)
+	{
+		*j -= 1; return;
+	}
+	else if (bicubic_cells.cells[*i][*j+1].valid_Trho)
+	{
+		*j += 1; return;
+	}
+	
+	else if (bicubic_cells.cells[*i+1][*j+1].valid_Trho)
+	{
+		*i += 1; *j += 1; return;
+	}
+	else if (bicubic_cells.cells[*i-1][*j-1].valid_Trho)
+	{
+		*i -= 1; *j -= 1; return;
+	}
+	else if (bicubic_cells.cells[*i+1][*j-1].valid_Trho)
+	{
+		*j -= 1; *i += 1; return;
+	}
+	else if (bicubic_cells.cells[*i-1][*j+1].valid_Trho)
+	{
+		*j += 1; *i -= 1; return;
+	}
+	else
+	{
+		throw ValueError(format("No neighbors found for %d,%d",*i,*j));
+		return;
+	}
+}
+
+void TTSESinglePhaseTableClass::nearest_good_neighbor_ph_interpolate(int *i, int *j)
+{
+	if (bicubic_cells.cells[*i][*j].valid_hp){
+		return;
+	}
+	else if (bicubic_cells.cells[*i+1][*j].valid_hp)
+	{
+		*i += 1; return;
+	}
+	else if (bicubic_cells.cells[*i-1][*j].valid_hp)
+	{
+		*i -= 1; return;
+	}
+	else if (bicubic_cells.cells[*i][*j-1].valid_hp)
+	{
+		*j -= 1; return;
+	}
+	else if (bicubic_cells.cells[*i][*j+1].valid_hp)
+	{
+		*j += 1; return;
+	}
+	
+	else if (bicubic_cells.cells[*i+1][*j+1].valid_hp)
+	{
+		*i += 1; *j += 1; return;
+	}
+	else if (bicubic_cells.cells[*i-1][*j-1].valid_hp)
+	{
+		*i -= 1; *j -= 1; return;
+	}
+	else if (bicubic_cells.cells[*i+1][*j-1].valid_hp)
+	{
+		*j -= 1; *i += 1; return;
+	}
+	else if (bicubic_cells.cells[*i-1][*j+1].valid_hp)
+	{
+		*j += 1; *i -= 1; return;
+	}
+	else
+	{
+		throw ValueError(format("No neighbors found for %d,%d",*i,*j));
 		return;
 	}
 }
@@ -635,7 +723,10 @@ bool TTSESinglePhaseTableClass::read_all_from_file(std::string root_path)
 	this->logrhomin = log(rhomin);
 	this->jpcrit_floor = (int)floor((log(pFluid->reduce.p)-logpmin)/logpratio);
 	this->jpcrit_ceil = (int)ceil((log(pFluid->reduce.p)-logpmin)/logpratio);
+	
 	update_saturation_boundary_indices();
+
+	update_cell_validity();
 
 	return true;
 }
@@ -914,6 +1005,9 @@ double TTSESinglePhaseTableClass::build_ph(double hmin, double hmax, double pmin
 	// Update the boundaries of the points within the single-phase regions
 	update_saturation_boundary_indices();
 	
+	// Update the cell validity for all cells
+	update_cell_validity();
+
 	return elap;
 }
 double TTSESinglePhaseTableClass::build_Trho(double Tmin, double Tmax, double rhomin, double rhomax, TTSETwoPhaseTableClass *SatL, TTSETwoPhaseTableClass *SatV)
@@ -964,6 +1058,7 @@ double TTSESinglePhaseTableClass::build_Trho(double Tmin, double Tmax, double rh
 
 	clock_t t1,t2;
 	t1 = clock();
+
 	for (unsigned int i = 0; i<NT; i++)
 	{
 		double Tval = Tmin + i*dT;
@@ -1020,6 +1115,7 @@ double TTSESinglePhaseTableClass::build_Trho(double Tmin, double Tmax, double rh
 				d2pdTdrho_Trho[i][j] = CPS.d2pdrhodT();
 				d2pdrho2_Trho[i][j] = CPS.d2pdrho2_constT();
 
+				
 				/// Transport properties
 				///
 				// Using second-order centered finite differences to calculate the transport property derivatives
@@ -1111,7 +1207,48 @@ double TTSESinglePhaseTableClass::build_Trho(double Tmin, double Tmax, double rh
 	// Update the boundaries of the points within the single-phase regions
 	update_saturation_boundary_indices();
 
+	update_cell_validity();
+
 	return elap;
+}
+
+void TTSESinglePhaseTableClass::update_cell_validity()
+{
+	for (unsigned int i = 0; i < NT; i++)
+	{
+		for (unsigned int j = 0; j < Nrho; j++)
+		{
+			if (i < NT-1 && j < Nrho-1)
+			{ 
+				if(ValidNumber(s_Trho[i][j]) && ValidNumber(s_Trho[i][j+1]) && ValidNumber(s_Trho[i+1][j]) && ValidNumber(s_Trho[i+1][j+1]))
+				{
+					bicubic_cells.cells[i][j].valid_Trho = true;
+				}
+				else
+				{
+					bicubic_cells.cells[i][j].valid_Trho = false;
+				}
+			}
+		}
+	}
+
+	for (unsigned int i = 0; i < Nh; i++)
+	{
+		for (unsigned int j = 0; j < Np; j++)
+		{
+			if (i < Nh-1 && j < Np-1)
+			{ 
+				if(ValidNumber(s[i][j]) && ValidNumber(s[i][j+1]) && ValidNumber(s[i+1][j]) && ValidNumber(s[i+1][j+1]))
+				{
+					bicubic_cells.cells[i][j].valid_hp = true;
+				}
+				else
+				{
+					bicubic_cells.cells[i][j].valid_hp = false;
+				}
+			}
+		}
+	}
 }
 //void TTSESinglePhaseTableClass::update_Trho_map()
 //{
@@ -1415,13 +1552,13 @@ double TTSESinglePhaseTableClass::interpolate_bicubic_ph(long iParam, double pva
 	{
 		j -= 1;
 	}
+
+	nearest_good_neighbor_ph_interpolate(&i, &j);
+
 	double dhdx = (h[i+1]-h[i]);
 	double dpdy = (p[j+1]-p[j]);
 	double x = (hval-h[i])/dhdx;
 	double y = (pval-p[j])/dpdy;
-	
-	// CHECK THAT i+1 and j+1 are also valid
-
 
 	// Find the coefficients for the bicubic
 	switch(iParam)
@@ -1539,14 +1676,13 @@ double TTSESinglePhaseTableClass::interpolate_bicubic_Trho(long iParam, double T
 	{
 		j -= 1;
 	}
-	std::cout << "Boundaries on T are " << T_Trho[i] << " " << T_Trho[i+1] << std::endl;
-	std::cout << "Boundaries on rho are " << rho_Trho[i] << " " << rho_Trho[i+1] << std::endl;
+
+	nearest_good_neighbor_Trho_interpolate(&i, &j);
+
 	double dTdx = (T_Trho[i+1]-T_Trho[i]);
 	double drhody = (rho_Trho[j+1]-rho_Trho[j]);
 	double x = (Tval-T_Trho[i])/dTdx;
 	double y = (rhoval-rho_Trho[j])/drhody;
-	
-	// CHECK THAT i+1 and j+1 are also valid
 
 	// Find the coefficients for the bicubic function
 	switch(iParam)
@@ -1584,8 +1720,30 @@ double TTSESinglePhaseTableClass::interpolate_bicubic_Trho(long iParam, double T
 		{
 			f = &p_Trho; dfdT = &dpdT_Trho; dfdrho = &dpdrho_Trho; d2fdTdrho = &d2pdTdrho_Trho; break;
 		}
+	case iV:
+		if (!bicubic_cells.cells[i][j].alpha_mu_Trho.empty())
+		{
+			// Make alpha point to the pre-calculated values
+			alpha = &bicubic_cells.cells[i][j].alpha_mu_Trho;
+			break;
+		}
+		else
+		{
+			f = &mu_Trho; dfdT = &dmudT_Trho; dfdrho = &dmudrho_Trho; d2fdTdrho = &d2mudTdrho_Trho; break;
+		}
+	case iL:
+		if (!bicubic_cells.cells[i][j].alpha_k_Trho.empty())
+		{
+			// Make alpha point to the pre-calculated values
+			alpha = &bicubic_cells.cells[i][j].alpha_k_Trho;
+			break;
+		}
+		else
+		{
+			f = &k_Trho; dfdT = &dkdT_Trho; dfdrho = &dkdrho_Trho; d2fdTdrho = &d2kdTdrho_Trho; break;
+		}
 	default:
-		throw ValueError("iParam is invalid");
+		throw ValueError(format("iParam [%d] is invalid",iParam).c_str());
 	}
 
 	if (alpha == NULL)
@@ -1624,8 +1782,12 @@ double TTSESinglePhaseTableClass::interpolate_bicubic_Trho(long iParam, double T
 			bicubic_cells.cells[i][j].alpha_h_Trho = alpha_bicubic; break;
 		case iP:
 			bicubic_cells.cells[i][j].alpha_p_Trho = alpha_bicubic; break;
+		case iV:
+			bicubic_cells.cells[i][j].alpha_mu_Trho = alpha_bicubic; break;
+		case iL:
+			bicubic_cells.cells[i][j].alpha_k_Trho = alpha_bicubic; break;
 		default:
-			throw ValueError("iParam is invalid");
+			throw ValueError(format("iParam [%d] is invalid",iParam).c_str());
 		}
 	}
 

@@ -10,7 +10,9 @@ enum TTSE_MODES{ TTSE_MODE_TTSE,TTSE_MODE_BICUBIC};
 class BiCubicCellClass
 {
 public:
-	std::vector<double> alpha_s_hp, alpha_rho_hp, alpha_T_hp, alpha_s_Trho, alpha_h_Trho, alpha_p_Trho;
+	std::vector<double> alpha_s_hp, alpha_rho_hp, alpha_T_hp, alpha_s_Trho, alpha_h_Trho, alpha_p_Trho, alpha_mu_Trho, alpha_k_Trho;
+	bool valid_hp,valid_Trho;
+	BiCubicCellClass(){valid_hp = false; valid_Trho = false;};
 };
 
 class BiCubicCellsContainerClass
@@ -146,6 +148,8 @@ public:
 
 	void update_saturation_boundary_indices();
 
+	void update_cell_validity();
+
 	/// Build the tables with p,h as the independent variables
 	/// @param hmin Minimum enthalpy [kJ/kg]
 	/// @param hmax Maximum enthalpy [kJ/kg]
@@ -229,6 +233,16 @@ public:
 	/// @param i Index in T
 	/// @param j Index in rho
 	void nearest_good_neighbor_Trho(int *i, int *j);
+
+	/// Find the nearest neighbor indices that have good values if i,j are not good for p,h for the interpolator
+	/// @param i Index in h
+	/// @param j Index in p
+	void nearest_good_neighbor_ph_interpolate(int *i, int *j);
+
+	/// Find the nearest neighbor indices that have good values if i,j are not good for T,rho for the interpolator
+	/// @param i Index in T
+	/// @param j Index in rho
+	void nearest_good_neighbor_Trho_interpolate(int *i, int *j);
 
 	/// Evaluate the first partial derivative
 	/// @param iOF Index in numerator
