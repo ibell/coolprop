@@ -11,7 +11,7 @@ Bibliographic Information
 =========================
 **Equation of State**: Span, R.; Wagner, W., 2003, Equations of State for Technical Applications. II. Results for Nonpolar Fluids, *International Journal of Thermophysics*, 24:41-109
 
-**Ideal-gas Specific Heat**: Penoncello, S. G.; Jacobsen, R. T; Goodwin, A. R. H., 1995, A Thermodynamic Property Formulation for Cyclohexane, *Int. J. Thermophys.*, 16:519-531
+**Ideal-Gas Specific Heat**: Penoncello, S. G.; Jacobsen, R. T; Goodwin, A. R. H., 1995, A Thermodynamic Property Formulation for Cyclohexane, *Int. J. Thermophys.*, 16:519-531
 
 **Surface Tension**: Mulero, A.; Cachadiña, I.; Parra, M. I., 2012, Recommended Correlations for the Surface Tension of Common Fluids, *J. Phys. Chem. Ref. Data*, 41:043105-1:13
 

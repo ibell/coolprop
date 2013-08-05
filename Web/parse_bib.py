@@ -27,7 +27,10 @@ def count_substr(s, ss):
     return c
 
 def DE(s):
-    return s.decode('ascii').encode('utf-8')
+    try:
+        return s.decode('ascii').encode('utf-8')
+    except UnicodeEncodeError:
+        print 'Decoding error for',s
     
 class BibTeXerClass:
     
@@ -46,7 +49,10 @@ class BibTeXerClass:
         if entry is None:
             return ''
             
-        authors = '; '.join([accent_substitutions(unicode(author).decode('ascii').encode('utf-8')) for author in entry.persons['author']])
+        try:
+            authors = '; '.join([accent_substitutions(unicode(author).decode('ascii').encode('utf-8')) for author in entry.persons['author']])
+        except UnicodeEncodeError:
+            print 'Decoding error for',[author for author in entry.persons['author']]
             
         if authors.find('{') > -1:
             print authors
