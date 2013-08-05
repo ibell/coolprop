@@ -251,7 +251,8 @@ R290Class::R290Class()
 							"\"Recommended Correlations for the Surface Tension of Common Fluids\""
 							", J. Phys. Chem. Ref. Data, Vol. 41, No. 4, 2012");
 
-	name.assign("Propane");
+	name.assign("n-Propane");
+	aliases.push_back("Propane");
 	aliases.push_back("propane");
 	aliases.push_back("R290");
 	aliases.push_back("C3H8");

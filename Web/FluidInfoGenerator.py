@@ -335,7 +335,7 @@ def fluid_header(Fluid):
     if EOSkey:
         BibInfo += '**Equation of State**: ' + BTC.entry2rst(EOSkey) + '\n\n'
     if CP0key:
-        BibInfo += '**Ideal-gas Specific Heat**: ' + BTC.entry2rst(CP0key) + '\n\n'
+        BibInfo += '**Ideal-Gas Specific Heat**: ' + BTC.entry2rst(CP0key) + '\n\n'
     if SURFACE_TENSIONkey:
         BibInfo += '**Surface Tension**: ' + BTC.entry2rst(SURFACE_TENSIONkey) + '\n\n'
     if VISCOSITYkey:
@@ -500,7 +500,7 @@ Fluid Name                   Description
 ``NaK``                      Nitrate Salt Blend (+300 to +600 C)
 ==========================   ===================================================
 
-All fluids are implemented with polynomials for density and heat capacity with typically 4 coefficients C and hence a third order polynomial. Thermal conductivity is a second order polynomial and viscosity and vapour pressure are exponential functions. 
+All fluids are implemented with polynomials for density and heat capacity with typically 4 coefficients and hence a third order polynomial. Thermal conductivity is a second order polynomial and viscosity and vapour pressure are exponential functions. 
 
 .. math::
 

@@ -286,8 +286,9 @@ DecaneClass::DecaneClass()
     EOSReference.assign("Lemmon, E.W., and R. Span, \"Short Fundamental Equations of State for 20 Industrial Fluids,\", J. Chem. Eng. Data, 51:785-850, 2006.");
     TransportReference.assign("Using ECS");
 
-    name.assign("Decane");
-    aliases.push_back(std::string("decane")); 
+    name.assign("n-Decane");
+    aliases.push_back("Decane"); 
+	aliases.push_back("decane"); 
     REFPROPname.assign("decane");
 
 	BibTeXKeys.EOS = "Lemmon-JCED-2006";

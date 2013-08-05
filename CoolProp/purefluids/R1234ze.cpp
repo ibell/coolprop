@@ -265,6 +265,8 @@ R1234zeZClass::R1234zeZClass()
 
 	aliases.push_back("R1234ze(Z)");
 	name.assign("R1234ze(Z)");
+
+	BibTeXKeys.EOS = "Akasaka-DELFT-2013";
 }
 double R1234zeZClass::psat(double T)
 {
