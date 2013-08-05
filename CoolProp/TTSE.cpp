@@ -1541,7 +1541,7 @@ double TTSESinglePhaseTableClass::interpolate_bicubic_ph(long iParam, double pva
 
 	if (i<0 || i>(int)Nh-1 || j<0 || j>(int)Np-1)
 	{
-		throw ValueError(format("Input to TTSE [p = %0.16g, h = %0.16g] is out of range",p,h));
+		throw ValueError(format("Input to TTSE [p = %0.16g, h = %0.16g] is out of range",pval,hval));
 	}
 	
 	if (hval < h[i])

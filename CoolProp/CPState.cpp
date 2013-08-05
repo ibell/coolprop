@@ -132,6 +132,8 @@ void CoolPropStateClass::update(long iInput1, double Value1, long iInput2, doubl
 	|  S,P
 	|  P,Q
 	|  T,Q
+	|  H,S
+	|  P,D
 	*/
 	bool using_EOS = true;
 
@@ -676,7 +678,7 @@ void CoolPropStateClass::update_TTSE_LUT(long iInput1, double Value1, long iInpu
 		double h = Value2;
 
 		// If enthalpy is outside the saturation region or flag_SinglePhase is set, it is single-phase
-		if (p > pFluid->reduce.p || p < pFluid->params.ptriple ||  h < pFluid->TTSESatL.evaluate(iH,p)  || h > pFluid->TTSESatV.evaluate(iH,p) || flag_SinglePhase)
+		if (p > pFluid->reduce.p || p < pFluid->params.ptriple || flag_SinglePhase ||  h < pFluid->TTSESatL.evaluate(iH,p)  || h > pFluid->TTSESatV.evaluate(iH,p))
 		{
 			TwoPhase = false;
 			SinglePhase = true;
