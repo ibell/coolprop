@@ -1,12 +1,3 @@
-header = """// This file contains the environmental data provided by the Danish Techological University (DTU)
-//  
-//
-
-void syaml_build()
-{
-    std::map<std::string, double> fluid_map;
-    
-"""
 
 fluids = """:'1BUTENE.FLD','ACETONE.FLD','AIR.PPF','AMMONIA.FLD','ARGON.FLD',
 :'BENZENE.FLD','BUTANE.FLD','C1CC6.FLD','C2BUTENE.FLD','C3CC6.FLD',
@@ -108,23 +99,6 @@ pp_PH = PH.replace(':','').replace('\n','').replace("'",'').split(",")
 HH_dict = {k:v for k,v in zip(pp_fluids,pp_HH)}
 FH_dict = {k:v for k,v in zip(pp_fluids,pp_FH)}
 PH_dict = {k:v for k,v in zip(pp_fluids,pp_PH)}
-    
-f = open('../../CoolProp/EnvironmentalData.h','w')
-
-f.write(header)
-
-template = """    fluid_map.clear();
-    fluid_map["HH"] = {HH:s};
-    fluid_map["FH"] = {FH:s};
-    fluid_map["PH"] = {PH:s};
-    fluid_map["GWP20"] = {GWP20:s};
-    fluid_map["GWP100"] = {GWP100:s};
-    fluid_map["GWP500"] = {GWP500:s};
-    fluid_map["ODP"] = {ODP:s};
-    ASHRAE34_map()["{fluid:s}"] = "{ASHRAE34:s}";
-    syaml_environmental_map()["{fluid:s}"] = fluid_map;
-
-"""
 
 from fluid_lookup import *
 

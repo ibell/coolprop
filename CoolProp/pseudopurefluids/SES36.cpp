@@ -169,6 +169,8 @@ SES36Class::SES36Class()
 							  "Number 2 (2007), 449-480, DOI: 10.1007/s10765-007-0178-y");
 
 	name.assign("SES36");
+    
+    BibTeXKeys.EOS = "Thol-2012";
 }
 double SES36Class::psatL(double T)
 {

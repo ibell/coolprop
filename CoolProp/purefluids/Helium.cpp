@@ -256,6 +256,11 @@ HeliumClass::HeliumClass()
 	name.assign("Helium");
 	aliases.push_back("helium");
 	aliases.push_back("He");
+
+	BibTeXKeys.EOS = "OrtizVega-2010";
+	BibTeXKeys.VISCOSITY = "ARP-NIST-1998";
+	BibTeXKeys.CONDUCTIVITY = "Hands-CRYO-1981";
+	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
 }
 
 double HeliumClass::viscosity_Trho(double T, double rho)

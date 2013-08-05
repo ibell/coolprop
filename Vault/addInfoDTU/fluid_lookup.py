@@ -23,7 +23,7 @@ D2O	deuterium oxide	DeuteriumOxide	CoolProp error: Your fluid name [DeuteriumOxi
 D4	octamethylcyclotetrasiloxane	D4	586.5		N/A	N/A	N/A	-	-	-	N/A	-	-	-	-	-	-	-	-	-	-	-	-	-
 D5	decamethylcyclotetrasiloxane	D5	619.15		N/A	N/A	N/A	-	-	-	N/A	-	-	-	-	-	-	-	-	-	-	-	-	-
 D6	dodecamethylcyclotetrasiloxane	D6	645.78		N/A	N/A	N/A	-	-	-	N/A	-	-	-	-	-	-	-	-	-	-	-	-	-
-DECANE	decane	Decane	617.7		*	*	*	-	-	-	2.45	0.4	0.5	0.509	3.84E-01	-	-	-	-	-	-	-	-	-
+DECANE	decane	n-Decane	617.7		*	*	*	-	-	-	2.45	0.4	0.5	0.509	3.84E-01	-	-	-	-	-	-	-	-	-
 DMC	dimethyl carbonate	DimethylCarbonate	557		N/A	N/A	N/A	-	-	-	N/A	-	-	-	2.50E-02	-	-	-	-	-	-	-	-	-
 DME	dimethylether	DimethylEther	400.378		1	1	<<1	-	-	-	1.66	0.3	0.3		1.89E-01	-	-	-	-	-	-	-	-	-
 ETHANE	ethane	Ethane	305.322	R-170	N/A	2.9	N/A	-	-	-	1.46	0.1	0.1	0.121	1.23E-01	-	-	-	-	-	-	-	-	-
@@ -64,7 +64,7 @@ ORTHOHYD	orthohydrogen	OrthoHydrogen	33.22		-	-	-	-	-	-	N/A	-	-	-	-	-	-	-	-	-	-	
 OXYGEN	oxygen	Oxygen	154.581		-	-	-	-	-	-	N/A	-	-	-	-	-	-	-	-	-	-	-	-	-
 PARAHYD	parahydrogen	ParaHydrogen	32.938		-	-	-	-	-	-	N/A	-	-	-	-	-	-	-	-	-	-	-	-	-
 PENTANE	pentane	n-Pentane	469.7	R-601	*	*	*	-	-	-	N/A	0.3	0.4	0.387	3.95E-01	-	-	-	-	-	-	-	-	-
-PROPANE	propane	Propane	369.89	R-290	*	3	*	-	-	-	2.24	0.5	0.4	0.518	1.76E-01	-	-	-	-	-	-	-	-	-
+PROPANE	propane	n-Propane	369.89	R-290	*	3	*	-	-	-	2.24	0.5	0.4	0.518	1.76E-01	-	-	-	-	-	-	-	-	-
 PROPYLEN	propylene	Propylene	364.211		*	3.1	*	-	-	-	2.64	0.6	1	1.06	1.12E+00	-	-	-	-	-	-	-	-	-
 PROPYNE	propyne/methylacetylene	Propyne	CoolProp error: Your fluid name [Propyne] is not a CoolProp fluid, a REFPROP fluid, a brine or a liquid		*	*	*	-	-	-	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A
 R11	trichlorofluoromethane 	R11	471.06	CFC-11	6730	4750	1620	1	1	1	541	-	-	-	-	-	-	-	-	-	-	-	-	-
@@ -75,7 +75,7 @@ R116	hexafluoroethane/perfluoroethane	R116	293.03	FC-116	N/A	9200-12200 (2003)	N
 R12	dichlorodifluoromethane  	R12	CoolProp error: Your fluid name [R12] is not a CoolProp fluid, a REFPROP fluid, a brine or a liquid	CFC-12	11000	10900	5200	1	1	1	1040	-	-	-	-	-	-	-	-	-	-	-	-	-
 R123	2,2-dichloro-1,1,1-trifluoroethane 	R123	456.82	HCFC-123	273	77	24	0.02	0.02	0.02	12.3	-	-	-	-	-	-	-	-	-	-	-	-	-
 R1234YF	2,3,3,3-tetrafluoroprop-1-ene	R1234yf	367.85	R-1234yf/HFO-1234yf	N/A	4	N/A	-	-	-	N/A	-	-	-	-	-	-	-	-	-	-	-	-	-
-R1234ZE	trans-1,3,3,3-tetrafluoropropene 	R1234ze	382.52	R-1234ze	N/A	6	N/A	-	-	-	N/A	-	-	-	-	-	-	-	-	-	-	-	-	-
+R1234ZE	trans-1,3,3,3-tetrafluoropropene 	R1234ze(E)	382.52	R-1234ze	N/A	6	N/A	-	-	-	N/A	-	-	-	-	-	-	-	-	-	-	-	-	-
 R124	1-chloro-1,2,2,2-tetrafluoroethane	R124	395.425	HCFC-124	2070	609	185	0.022	0.022	0.022	55.3	-	-	-	-	-	-	-	-	-	-	-	-	-
 R125	pentafluoroethane	R125	339.173	HFC-125  	6350	3500	1100	-	-	-	354	-	-	-	-	-	-	-	-	-	-	-	-	-
 R13	chlorotrifluoromethane	R13	CoolProp error: Your fluid name [R13] is not a CoolProp fluid, a REFPROP fluid, a brine or a liquid	CFC-13 	10800	14400	16400	1	1	-	1390	-	-	-	-	-	-	-	-	-	-	-	-	-
@@ -159,7 +159,9 @@ PROPYLEN	A3
 R404A	A1
 R507A	A1
 R410A	A1
-R407C	A1"""
+R407C	A1
+PROPANE A3
+"""
 
 ASHRAE34_dict = {}
 for row in ASHRAE34data.split('\n'):
