@@ -404,13 +404,11 @@ FluidsContainer::FluidsContainer()
 	FluidsList.push_back(new R407CClass());
 	FluidsList.push_back(new R507AClass());
 
-
-
 	// The gas-only EOS
 	//FluidsList.push_back(new R290Gas());
 
 	// Includes the C++ JSON code for all the fluids as the variable JSON_code
-	#include "../CoolProp/JSON_code.h"
+	#include "JSON_code.h"
 
 	JSON.Parse<0>(JSON_code);
 
