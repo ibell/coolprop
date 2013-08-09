@@ -1,6 +1,13 @@
 Changelog for CoolProp
 ======================
 
+3.3.0 (revision 660)
+--------------------
+* MAJOR: Added bicubic interpolation to TTSE method.  Enable by calling ``set_TTSE_mode(Fluid,"TTSE")`` or ``set_TTSE_mode(Fluid,"BICUBIC")`` (for bicubic interpolation).  Default is normal TTSE interpolation
+* Added deuterium and its isomers from preprint
+* Isobutane aliases added
+* More work on incompressible liquids
+
 3.2.0 (revision 619)
 --------------------
 * Added the function PropsU to python wrapper which allows for use of SI of kSI set of units

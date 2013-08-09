@@ -296,6 +296,12 @@ class CoolPropPINVOKE {
   [DllImport("CoolProp", EntryPoint="CSharp_get_TTSESinglePhase_LUT_range")]
   public static extern bool get_TTSESinglePhase_LUT_range(string jarg1, HandleRef jarg2, HandleRef jarg3, HandleRef jarg4, HandleRef jarg5);
 
+  [DllImport("CoolProp", EntryPoint="CSharp_get_TTSE_mode__SWIG_0")]
+  public static extern int get_TTSE_mode__SWIG_0(string jarg1, string jarg2);
+
+  [DllImport("CoolProp", EntryPoint="CSharp_set_TTSE_mode")]
+  public static extern int set_TTSE_mode(string jarg1, string jarg2);
+
   [DllImport("CoolProp", EntryPoint="CSharp_viscosity_dilute")]
   public static extern double viscosity_dilute(string jarg1, double jarg2);
 
@@ -376,6 +382,9 @@ class CoolPropPINVOKE {
 
   [DllImport("CoolProp", EntryPoint="CSharp_get_version__SWIG_1")]
   public static extern string get_version__SWIG_1();
+
+  [DllImport("CoolProp", EntryPoint="CSharp_get_TTSE_mode__SWIG_1")]
+  public static extern string get_TTSE_mode__SWIG_1(string jarg1);
 
   [DllImport("CoolProp", EntryPoint="CSharp_add_REFPROP_fluid")]
   public static extern bool add_REFPROP_fluid(string jarg1);

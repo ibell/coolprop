@@ -4,3 +4,5 @@ It offers similar functionality to REFPROP, but CoolProp is open-source and free
 
 It was originally developed by Ian Bell, currently a post-doc at the University of Liege, in Liege, Belgium.
 
+To see whats new, go to http://coolprop.sourceforge.net/changelog.html
+

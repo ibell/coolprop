@@ -183,6 +183,16 @@ public class CoolProp {
     return ret;
   }
 
+  public static int get_TTSE_mode(string FluidName, string Value) {
+    int ret = CoolPropPINVOKE.get_TTSE_mode__SWIG_0(FluidName, Value);
+    return ret;
+  }
+
+  public static int set_TTSE_mode(string FluidName, string Value) {
+    int ret = CoolPropPINVOKE.set_TTSE_mode(FluidName, Value);
+    return ret;
+  }
+
   public static double viscosity_dilute(string FluidName, double T) {
     double ret = CoolPropPINVOKE.viscosity_dilute(FluidName, T);
     return ret;
@@ -327,6 +337,12 @@ public class CoolProp {
 
   public static string get_version() {
     string ret = CoolPropPINVOKE.get_version__SWIG_1();
+    return ret;
+  }
+
+  public static string get_TTSE_mode(string FluidName) {
+    string ret = CoolPropPINVOKE.get_TTSE_mode__SWIG_1(FluidName);
+    if (CoolPropPINVOKE.SWIGPendingException.Pending) throw CoolPropPINVOKE.SWIGPendingException.Retrieve();
     return ret;
   }
 

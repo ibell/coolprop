@@ -1243,26 +1243,59 @@ void Fluid::saturation_T(double T, bool UseLUT, double *psatLout, double *psatVo
 				*psatVout = *psatLout;
 				return;
 			}
+			
 			try{
-				rhosatPure_Akasaka(T,rhosatLout,rhosatVout,&p);
-				*psatLout = p;
-				*psatVout = p;
-				return;
+				// Reduce omega in uniform steps
+				double omega = 1.0;
+				do
+				{
+					try{
+						rhosatPure_Akasaka(T, rhosatLout, rhosatVout, &p, omega); *psatLout = p; *psatVout = p; return;
+						break;
+					}
+					catch (std::exception)
+					{
+						omega -= 0.3;
+					}
+				}
+				while(omega > 0);
+
+				// We ran out of steps in omega
+				if (omega < 0.05)
+				{
+					throw ValueError();
+				}
 			}
-			catch (std::exception){
+			catch(std::exception)
+			{
 				try{
 
-					rhosatPure(T,rhosatLout,rhosatVout,&p);
-					*psatLout = p;
-					*psatVout = p;
-					return;
+					// Reduce omega in uniform steps
+					double omega = 1.0;
+					do
+					{
+						try{
+							rhosatPure(T,rhosatLout,rhosatVout,&p, omega); *psatLout = p; *psatVout = p; return;
+							break;
+						}
+						catch (std::exception)
+						{
+							omega -= 0.3;
+						}
+					}
+					while(omega > 0);
+
+					// We ran out of steps in omega
+					if (omega < 0.05)
+					{
+						throw ValueError();
+					}
 				}
 				catch (std::exception){
 
 					rhosatPure_Brent(T,rhosatLout,rhosatVout,&p);
 					*psatLout = p;
 					*psatVout = p;
-				
 					return;
 				}
 			}
@@ -1361,7 +1394,7 @@ void Fluid::rhosatPure_BrentrhoV(double T, double *rhoLout, double *rhoVout, dou
 
 /// This function implements the method of Akasaka to do analytic Newton-Raphson for the 
 /// saturation calcs
-void Fluid::rhosatPure_Akasaka(double T, double *rhoLout, double *rhoVout, double *pout)
+void Fluid::rhosatPure_Akasaka(double T, double *rhoLout, double *rhoVout, double *pout, double omega = 1.0)
 {
 	/*
 	This function implements the method of Akasaka 
@@ -1373,13 +1406,22 @@ void Fluid::rhosatPure_Akasaka(double T, double *rhoLout, double *rhoVout, doubl
 	Ancillary equations are used to get a sensible starting point
 	*/
 	double rhoL,rhoV,dphirL,dphirV,ddphirL,ddphirV,phirL,phirV,JL,JV,KL,KV,dJL,dJV,dKL,dKV;
-	double DELTA, deltaL=0, deltaV=0, tau=0, gamma = 1, error, PL, PV, stepL, stepV, dP;
+	double DELTA, deltaL=0, deltaV=0, tau=0, error, PL, PV, stepL, stepV, dP;
 	int iter=0;
 	// Use the density ancillary function as the starting point for the solver
     try
 	{
-		rhoL=rhosatL(T);
-		rhoV=rhosatV(T);
+		// If very close to the critical temp, evaluate the ancillaries for a slightly lower temperature
+		if (T > 0.99*reduce.T)
+		{
+			rhoL=rhosatL(T-1);
+			rhoV=rhosatV(T-1);
+		}
+		else
+		{
+			rhoL=rhosatL(T);
+			rhoV=rhosatV(T);
+		}
 
 		deltaL = rhoL/reduce.rho;
 		deltaV = rhoV/reduce.rho;
@@ -1423,8 +1465,8 @@ void Fluid::rhosatPure_Akasaka(double T, double *rhoLout, double *rhoVout, doubl
 		error = fabs(KL-KV)+fabs(JL-JV);
 
 		//Get the step
-		stepL = gamma/DELTA*( (KV-KL)*dJV-(JV-JL)*dKV);
-		stepV = gamma/DELTA*( (KV-KL)*dJL-(JV-JL)*dKL);
+		stepL = omega/DELTA*( (KV-KL)*dJV-(JV-JL)*dKV);
+		stepV = omega/DELTA*( (KV-KL)*dJL-(JV-JL)*dKL);
 		
 		if (deltaL+stepL > 1 && deltaV+stepV < 1 && deltaV+stepV > 0)
 		{
@@ -1458,7 +1500,7 @@ void Fluid::rhosatPure_Akasaka(double T, double *rhoLout, double *rhoVout, doubl
 	
 	return;
 }
-void Fluid::rhosatPure(double T, double *rhoLout, double *rhoVout, double *pout)
+void Fluid::rhosatPure(double T, double *rhoLout, double *rhoVout, double *pout, double omega = 1.0)
 {
     // Only works for pure fluids (no blends)
     // At equilibrium, saturated vapor and saturated liquid are at the same pressure and the same Gibbs energy
@@ -1492,7 +1534,7 @@ void Fluid::rhosatPure(double T, double *rhoLout, double *rhoVout, double *pout)
         else //(iter>1)
         {
             y2=f;
-            x3=x2-y2/(y2-y1)*(x2-x1);
+            x3=omega*x2-y2/(y2-y1)*(x2-x1);
             error=f;
             y1=y2; x1=x2; x2=x3;
         }

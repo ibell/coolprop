@@ -56,7 +56,7 @@ You might want to start by looking at CoolProp.h
 	EXPORT_CODE double CONVENTION IProps(long iOutput, long iName1, double Prop1, long iName2, double Prop2, long iFluid);
 
 	EXPORT_CODE double CONVENTION Props(char *Output,char Name1, double Prop1, char Name2, double Prop2, char * Ref);
-	EXPORT_CODE double CONVENTION Props1(char *Output, char * Ref);
+	EXPORT_CODE double CONVENTION Props1(char *Ref, char * Output);
 
 	// Convenience functions
 	EXPORT_CODE int CONVENTION IsFluidType(char *Ref, char *Type);

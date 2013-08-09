@@ -736,6 +736,7 @@ double HexamethyldisiloxaneClass::rhosatL(double T)
 	double theta = 1-T/reduce.T;
 	double RHS,rho;
 
+	if (theta < 0) theta = 1e-6;
 	// Max error is 0.177687 %
 	RHS = +4.701517*pow(theta,0.429578)-3.554857*pow(theta,0.485308)+0.461167*pow(theta,4.050387)-0.438751*pow(theta,4.407893)-0.107601*pow(theta,5.383350)+0.294769*pow(theta,6.326992);
 	rho = exp(RHS)*reduce.rho;
@@ -746,6 +747,7 @@ double HexamethyldisiloxaneClass::rhosatV(double T)
 	double theta = 1-T/reduce.T;
 	double RHS,rho;
 
+	if (theta < 0) theta = 1e-6;
 	// Max error is 0.625617 %
 	RHS = -3.349640*pow(theta,0.363375)-3.919482*pow(theta,1.308131)-5.046495*pow(theta,5.251634)-3.395130*pow(theta,4.732761)-1.880353*pow(theta,5.885600)-0.727824*pow(theta,6.806098);
 	rho = exp(RHS*reduce.T/T)*reduce.rho;
@@ -756,6 +758,7 @@ double HexamethyldisiloxaneClass::psat(double T)
     double theta = 1-T/reduce.T;
 	double RHS,p;
 
+	if (theta < 0) theta = 1e-6;
 	// Max error is 0.636597 %
 	RHS = -6.993179*pow(theta,0.968165)-3.963479*pow(theta,3.066906)-1.333772*pow(theta,4.415999)-0.096273*pow(theta,4.801166)+0.499673*pow(theta,5.391500);
 	p = exp(RHS*reduce.T/T)*reduce.p;

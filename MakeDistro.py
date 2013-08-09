@@ -2,11 +2,11 @@ import subprocess,os,shutil
 
 #These should be paths to python executables that you want want use to build versions of CoolProp
 PYTHONVERSIONS=['python.exe', #This is python 2.7 on my computer
-##                 'c:\\python\\py27_x64\\python.exe',
-##                 'c:\\python\\py32\\python.exe',
-##                 'c:\\python\\py32_x64\\python.exe',
-##                 'c:\\python\\py33\\python.exe',
-##                 'c:\\python\\py33_x64\\python.exe',
+                'c:\\python\\py27_x64\\python.exe',
+                'c:\\python\\py32\\python.exe',
+                'c:\\python\\py32_x64\\python.exe',
+                'c:\\python\\py33\\python.exe',
+                'c:\\python\\py33_x64\\python.exe',
                 ]
 
 if not os.path.exists('_deps'):
@@ -218,7 +218,7 @@ if __name__=='__main__':
 ##     InstallPrereqs()  #This is optional if you think any of the pre-reqs have been updated
 ##     DLL_and_Excel()
 ##     Source()
-    Python()
+##     Python()
 ##     Csharp()
 ##     Octave()
 ##     MATLAB()
@@ -229,5 +229,5 @@ if __name__=='__main__':
 ##     PYPI()
 ##     UploadSourceForge()
     
-##     BuildDocs()
-##     UploadDocs()
+    BuildDocs()
+    UploadDocs()

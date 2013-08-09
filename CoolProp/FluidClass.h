@@ -494,7 +494,8 @@ class Fluid
 		/// @param pout Saturated pressure [kPa(abs)]
 		/// @param rhoLout Saturated liquid pressure [kg/m3]
 		/// @param rhoVout Saturated vapor pressure [kg/m3]
-		void rhosatPure(double T, double *rhoLout, double *rhoVout, double *pout);
+		/// @param omega Relaxation parameter [-]
+		void rhosatPure(double T, double *rhoLout, double *rhoVout, double *pout, double omega);
 
 		/// NB: Only valid for pure fluids - no pseudo-pure or mixtures.
 		/// Get the saturated liquid, vapor densities and the saturated pressure using the method from Akasaka given by
@@ -503,7 +504,8 @@ class Fluid
 		/// @param pout Saturated pressure [kPa(abs)]
 		/// @param rhoLout Saturated liquid pressure [kg/m3]
 		/// @param rhoVout Saturated vapor pressure [kg/m3]
-		void rhosatPure_Akasaka(double T, double *rhoLout, double *rhoVout, double *pout);
+		/// @param omega Relaxation parameter [-]
+		void rhosatPure_Akasaka(double T, double *rhoLout, double *rhoVout, double *pout, double omega);
 
 		/// Get the saturated liquid, vapor densities and the saturated pressure using Brent's method and adjusting the pressure
 		/// @param T Temperature [K]]
