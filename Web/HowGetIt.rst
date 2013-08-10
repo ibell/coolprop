@@ -36,15 +36,15 @@ Or using pip::
 Option 3 (developers and the courageous)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-CoolProp is an open-source project, and is actively looking for developers.  The project is hosted in a subversion repository at::
+CoolProp is an open-source project, and is actively looking for developers.  The project is hosted in a git repository on github at::
 
-    svn+ssh://svn.code.sf.net/p/coolprop/code/trunk
+    https://github.com/ibell/coolprop
     
 and you can check out the sources by doing::
 
-    svn checkout svn://svn.code.sf.net/p/coolprop/code/trunk coolprop-code
+    svn checkout https://github.com/ibell/coolprop coolprop-code
 
-or if you want to just browse the repository, you can go to https://sourceforge.net/p/coolprop/code/.
+or if you want to just browse the repository, you can go to https://github.com/ibell/coolprop.
 
 Compiler Configuration
 ----------------------
