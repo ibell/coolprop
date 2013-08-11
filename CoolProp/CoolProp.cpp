@@ -44,7 +44,7 @@ static int debug_level=0;
 static Fluid * pFluid;
 
 // This is very hacky, but pull the subversion revision from the file
-#include "svnrevision.h" // Contents are like "long svnrevision = 286;"
+#include "gitrevision.h" // Contents are like "long gitrevision = "aa121435436ggregrea4t43t433";"
 #include "version.h" // Contents are like "char version [] ="2.5";"
 
 int global_Phase = -1;
@@ -143,7 +143,12 @@ std::map<long, std::string> units_map(units_data,
 
 FluidsContainer Fluids = FluidsContainer();
 
-EXPORT_CODE long CONVENTION get_svnrevision(){return svnrevision;}
+std::string get_gitrevision(){return gitrevision;}
+
+EXPORT_CODE long CONVENTION get_gitrevision(char * pversion){
+	strcpy(pversion,gitrevision.c_str());
+	return 0;
+}
 EXPORT_CODE long CONVENTION get_version(char * pversion){
 	strcpy(pversion,version);
 	return 0;

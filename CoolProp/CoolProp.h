@@ -75,7 +75,7 @@ You might want to start by looking at CoolProp.h
 	EXPORT_CODE void CONVENTION get_errstring(char*);
 	EXPORT_CODE char* CONVENTION get_errstringc(void);
 	EXPORT_CODE long CONVENTION get_errstring_copy(char *);
-	EXPORT_CODE long CONVENTION get_svnrevision(void);
+	EXPORT_CODE long CONVENTION get_gitrevision(char * pversion);
 	EXPORT_CODE long CONVENTION get_version(char * pversion);
 	EXPORT_CODE long CONVENTION get_param_index(char * param);
 	EXPORT_CODE long CONVENTION get_Fluid_index(char * param);
@@ -160,6 +160,7 @@ You might want to start by looking at CoolProp.h
 	std::string get_REFPROPname(std::string Ref);
 	std::string get_errstring(void);
 	std::string get_version(void);
+	std::string get_gitrevision(void);
 	std::string get_TTSE_mode(std::string FluidName);
 	bool add_REFPROP_fluid(std::string FluidName);
 

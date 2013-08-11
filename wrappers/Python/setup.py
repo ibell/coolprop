@@ -66,34 +66,43 @@ version = open(os.path.join(CProot,'version.txt'),'r').read().strip()
 
 if __name__=='__main__':
 
-    def svnrev_to_file():
+    def gitrev_to_file():
         """
         If a svn repo, use subversion to update the file in revision
         """
         try:
-            subprocess.call(['svn','update'], shell = True)
-            p = subprocess.Popen(['svn','info'], 
+            subprocess.call(['git','fetch'], shell = True)
+            p = subprocess.Popen(['git','rev-parse','HEAD'], 
                                  stdout=subprocess.PIPE, 
                                  stderr=subprocess.PIPE)
             stdout, stderr = p.communicate()
             
-            for line in str(stdout).split('\n'):
-                if line.startswith('Revision'):
-                    rev = line.split(':')[1].strip()
-                    svnstring = 'long svnrevision = '+rev+';'
-                    #Check if it is different than the current version
-                    f = open(os.path.join(CPSourceDir,'svnrevision.h'),'r')
-                    current_svn = f.read()
-                    f.close()
-                    if not current_svn.strip() == svnstring.strip():                
-                        f = open(os.path.join(CPSourceDir,'svnrevision.h'),'w')
-                        f.write(svnstring)
-                        f.close()
-                    break
+            rev = stdout.strip()
+            
+            gitstring = 'std::string gitrevision = "'+rev+'";'
+            _write = False
+            if not os.path.exists(os.path.join(CPSourceDir,'gitrevision.h')):
+                _write = True
+            else:
+                
+                #  Check if it is different than the current version
+                f = open(os.path.join(CPSourceDir,'gitrevision.h'),'r')
+                current_git = f.read()
+                f.close()
+                if not current_git.strip() == gitstring.strip():
+                    _write = True
+                else:
+                    _write = False
+                
+            if _write:
+                f = open(os.path.join(CPSourceDir,'gitrevision.h'),'w')
+                f.write(gitstring)
+                f.close()
         except (subprocess.CalledProcessError,OSError):
             pass
         
-    svnrev_to_file()
+    gitrev_to_file()
+    quit()
 
     def version_to_file():
         string_for_file = 'char version [] ="{v:s}";'.format(v = version)

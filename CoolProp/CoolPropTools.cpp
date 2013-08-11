@@ -92,26 +92,6 @@ double interp1d(std::vector<double> *x, std::vector<double> *y, double x0)
 		return QuadInterp((*x)[i],(*x)[i-1],(*x)[i-2],(*y)[i],(*y)[i-1],(*y)[i-2],x0);
     }
 }
-
-static bool isNAN(double x)
-{
-	// recommendation from http://www.devx.com/tips/Tip/42853
-	return x != x;
-}
-static bool isINFINITY(double x)
-{
-	// recommendation from http://www.devx.com/tips/Tip/42853
-	if ((x == x) && ((x - x) != 0.0)){
-		return 1;//return (x < 0.0 ? -1 : 1); // This will tell you whether positive or negative infinity
-	}
-	else{
-		return 0;
-	}
-}
-bool ValidNumber(double x)
-{
-	return (x <= DBL_MAX && x >= -DBL_MAX); //(!isNAN(x) && !isINFINITY(x));
-}
 double powInt(double x, int y)
 {
     // Raise a double to an integer power

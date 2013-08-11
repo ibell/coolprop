@@ -16,6 +16,7 @@
 	#include <string>
 	#include <vector>
 	#include <cmath>
+	#include "float.h"
 
 	#ifndef M_PI
 	#define M_PI 3.14159265358979323846
@@ -47,6 +48,12 @@
 		}
 	}
 	#endif
+
+	inline bool ValidNumber(double x)
+	{
+		// Idea from http://www.johndcook.com/IEEE_exceptions_in_cpp.html
+		return (x <= DBL_MAX && x >= -DBL_MAX);
+	};
 
 	#include <algorithm> 
 	#include <functional> 
