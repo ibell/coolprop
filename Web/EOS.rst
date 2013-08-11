@@ -14,7 +14,7 @@ Sample Code
     
     In [1]: print CP.__version__
     
-    In [1]: print CP.__svnrevision__
+    In [1]: print CP.__gitrevision__
     
     #Import the things you need 
     In [1]: from CoolProp.CoolProp import Props

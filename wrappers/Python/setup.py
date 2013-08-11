@@ -102,7 +102,6 @@ if __name__=='__main__':
             pass
         
     gitrev_to_file()
-    quit()
 
     def version_to_file():
         string_for_file = 'char version [] ="{v:s}";'.format(v = version)
@@ -141,15 +140,15 @@ if __name__=='__main__':
     #Unpack the __init__.py file template and add some things to the __init__ file
     lines=open('__init__.py.template','r').readlines()
 
-    f = open(os.path.join(CPSourceDir,'svnrevision.h'),'r')
-    rev = f.read().strip().split('=')[1].strip(';').strip()
+    f = open(os.path.join(CPSourceDir,'gitrevision.h'),'r')
+    rev = f.read().strip().split('=')[1].strip('";').strip()
     f.close()
-    svnstring = '__svnrevision__ ='+rev+'\n'
+    gitstring = '__gitrevision__ ='+rev+'"\n'
     
     for i in range(len(lines)-1,-1,-1):
         if lines[i].strip().startswith('#') or len(lines[i].strip())==0: 
             lines.pop(i)
-    lines=['from __future__ import absolute_import\n']+['__version__=\''+version+'\'\n']+[svnstring]+lines
+    lines=['from __future__ import absolute_import\n']+['__version__=\''+version+'\'\n']+[gitstring]+lines
     fp=open(os.path.join('CoolProp','__init__.py'),'w')
     for line in lines:
         fp.write(line)
