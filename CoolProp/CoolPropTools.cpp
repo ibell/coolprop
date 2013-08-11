@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include "math.h"
 #include "stdio.h"
+#include "float.h"
 #include <string.h>
 #include "CoolPropTools.h"
 
@@ -109,7 +110,7 @@ static bool isINFINITY(double x)
 }
 bool ValidNumber(double x)
 {
-	return (!isNAN(x) && !isINFINITY(x));
+	return (x <= DBL_MAX && x >= -DBL_MAX); //(!isNAN(x) && !isINFINITY(x));
 }
 double powInt(double x, int y)
 {

@@ -135,6 +135,7 @@ void CoolPropStateClass::update(long iInput1, double Value1, long iInput2, doubl
 	|  H,S
 	|  P,D
 	*/
+
 	bool using_EOS = true;
 
 	if (debug()>3){
@@ -235,6 +236,7 @@ void CoolPropStateClass::update(long iInput1, double Value1, long iInput2, doubl
 	{
 		// Update using the LUT
 		update_TTSE_LUT(iInput1, Value1, iInput2, Value2);
+		
 		// Calculate the log of the pressure since a lot of terms need it and log() is a very slow function
 		if (!ValidNumber(_logp)) _logp = log(_p);
 		if (!ValidNumber(_logrho)) _logrho = log(_rho);
