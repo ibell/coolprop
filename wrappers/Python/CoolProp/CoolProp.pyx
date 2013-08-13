@@ -98,11 +98,22 @@ cpdef long get_Fluid_index(str Fluid):
     """
     return _get_Fluid_index(Fluid.encode('ascii'))
     
-cpdef double IProps(long iOutput, long iInput1, double Input1, long iInput2, double Input2, long iFluid):
+cpdef double IProps(long iOutput, long iInput1, double Input1, long iInput2, double Input2, long iFluid) except *:
     """
+    This is a more computationally efficient version of the Props() function as it uses integer keys for the input and output codes as well as the fluid index for the fluid.  It can only be used with CoolProp fluids.  An example of how it should be used:
+    
     
     """
-    return _IProps(iOutput, iInput1, Input2, iInput2, Input2, iFluid)
+    cdef double val = _IProps(iOutput, iInput1, Input1, iInput2, Input2, iFluid)
+    
+    if math.isinf(val) or math.isnan(val):
+        err_string = _get_errstring()
+        if not len(err_string) == 0:
+            raise ValueError("{err:s} :: inputs were :{iin1:d},{in1:g},{iin2:d},{in2:g},{iFluid:d}".format(err= err_string,iin1=iInput1,in1=Input1,iin2=iInput2,in2=Input2,iFluid = iFluid))
+        else:
+            raise ValueError("IProps failed ungracefully with inputs:\"{in1:s}\",\"{in2:s}\"; please file a ticket at https://sourceforge.net/p/coolprop/tickets/".format(in1=in1,in2=in2))
+    else:
+        return val
 
 def get_factorSICP(what):
     """Get the conversion factor between SI and CoolProp units. 

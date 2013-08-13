@@ -30,3 +30,15 @@ cdef extern from "CoolProp.h":
 		iDrhodT_p
 		iTmin
 		iDipole
+		iPhase
+		iPHASE_LIQUID
+		iPHASE_GAS
+		iPHASE_SUPERCRITICAL
+		iPHASE_TWOPHASE
+		iODP
+		iGWP20
+		iGWP100
+		iGWP500
+		iCritSplineT
+		iHcrit
+		iScrit
