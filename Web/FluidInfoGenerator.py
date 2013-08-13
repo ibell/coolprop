@@ -498,6 +498,7 @@ Fluid Name                   Description
 ``DowQ``                     Dowtherm Q (-35 to +360 C)
 ``TX22``                     Texatherm 22 (+0 to +350 C)
 ``NaK``                      Nitrate Salt Blend (+300 to +600 C)
+``XLT``                      Syltherm XLT (-100 to +260 C)
 ==========================   ===================================================
 
 All fluids are implemented with polynomials for density and heat capacity with typically 4 coefficients and hence a third order polynomial. Thermal conductivity is a second order polynomial and viscosity and vapour pressure are exponential functions. 
