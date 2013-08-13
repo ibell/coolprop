@@ -96,4 +96,10 @@ sfpdf:
 	cd _build/latex; \
 	scp sampledoc.pdf jdh2358,matplotlib@web.sf.net:/home/groups/m/ma/matplotlib/htdocs/sampledoc/
 
+rst: FluidInfoGenerator.py
+	python FluidInfoGenerator.py
+	mv Fluids/FluidInformation.rst Fluids/FluidInformation.rst.2
+	rm Fluids/*.rst
+	mv Fluids/FluidInformation.rst.2 Fluids/FluidInformation.rst
+	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) _build/html
 
