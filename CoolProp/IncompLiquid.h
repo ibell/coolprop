@@ -902,4 +902,43 @@ public:
 };
 
 
+class SylthermXLTClass : public SimpleIncompressible{
+public:
+	SylthermXLTClass(){
+
+        name = std::string("XLT");
+        description = std::string("SylthermXLT");
+        reference = std::string("Dow Chemicals data sheet");
+
+        Tmin     = 173.15;
+        Tmax     = 533.15;
+        TminPsat = 533.15;
+
+        cRho.clear();
+        cRho.push_back(+1.1563685147E+03);
+        cRho.push_back(-1.0269048053E+00);
+        cRho.push_back(-9.3505449092E-07);
+        cRho.push_back(+1.0368054566E-09);
+
+        cCp.clear();
+        cCp.push_back(+1.1122510494E+00);
+        cCp.push_back(+2.5171817500E-03);
+        cCp.push_back(-1.2392094684E-06);
+        cCp.push_back(+1.1624033307E-09);
+
+        cCond.clear();
+        cCond.push_back(+1.6121957379E-04);
+        cCond.push_back(-1.3023781944E-07);
+        cCond.push_back(-1.4395238759E-10);
+
+        cVisc.clear();
+        cVisc.push_back(+1.0337654975E+03);
+        cVisc.push_back(-4.3322764492E+01);
+        cVisc.push_back(+1.0715062353E+01);
+
+        cPsat.clear();
+    };
+};
+
+
 #endif

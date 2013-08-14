@@ -258,7 +258,7 @@ class IncompLiquidFit(object):
 
 
 ### Load the data 
-from data_incompressible import NitrateSalt as DataContainer
+from data_incompressible import SylthermXLT as DataContainer
 data = DataContainer()
 
 
