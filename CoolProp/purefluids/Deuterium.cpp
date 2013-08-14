@@ -152,6 +152,7 @@ OrthoDeuteriumClass::OrthoDeuteriumClass()
 
 	name.assign("OrthoDeuterium");
 	aliases.push_back("orthodeuterium");
+	REFPROPname = "N/A";
 
 	BibTeXKeys.EOS = "Richardson-JPCRD-2013";
 }
@@ -240,6 +241,7 @@ ParaDeuteriumClass::ParaDeuteriumClass()
 
 	name.assign("ParaDeuterium");
 	aliases.push_back("paradeuterium");
+	REFPROPname = "N/A";
 
 	BibTeXKeys.EOS = "Richardson-JPCRD-2013";
 }

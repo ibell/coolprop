@@ -380,13 +380,14 @@ void CoolPropStateClass::update_Trho(long iInput1, double Value1, long iInput2, 
 		_TwoPhase = true;
 	}
 	else{
-		_TwoPhase = !pFluid->phase_Trho(_T,_rho,&psatL,&psatV,&rhosatL,&rhosatV).compare("Two-Phase");
+		// Set _TwoPhase to true if the state is two phase
+		_TwoPhase = (pFluid->phase_Trho_indices(_T,_rho,&psatL,&psatV,&rhosatL,&rhosatV) == iTwoPhase);
 	}
 
 	if (_TwoPhase)
 	{
 		if (flag_TwoPhase){
-			pFluid->phase_Trho(_T,_rho,&psatL,&psatV,&rhosatL,&rhosatV);
+			pFluid->phase_Trho_indices(_T,_rho,&psatL,&psatV,&rhosatL,&rhosatV);
 		}
 		TsatV = _T;
 		TsatL = _T;
@@ -485,7 +486,7 @@ void CoolPropStateClass::update_Tp(long iInput1, double Value1, long iInput2, do
 		_TwoPhase = true;
 	}
 	else{
-		_TwoPhase = !pFluid->phase_Tp(_T,_p,&psatL,&psatV,&rhosatL,&rhosatV).compare("Two-Phase");
+		_TwoPhase = pFluid->phase_Tp_indices(_T,_p,&psatL,&psatV,&rhosatL,&rhosatV) == iTwoPhase;
 	}
 
 	if (_TwoPhase)

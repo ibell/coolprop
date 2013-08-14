@@ -100,9 +100,17 @@ cpdef long get_Fluid_index(str Fluid):
     
 cpdef double IProps(long iOutput, long iInput1, double Input1, long iInput2, double Input2, long iFluid) except *:
     """
-    This is a more computationally efficient version of the Props() function as it uses integer keys for the input and output codes as well as the fluid index for the fluid.  It can only be used with CoolProp fluids.  An example of how it should be used:
+    This is a more computationally efficient version of the Props() function as it uses integer keys for the input and output codes as well as the fluid index for the fluid.  It can only be used with CoolProp fluids.  An example of how it should be used::
     
-    
+        #  These should be run once in the header of your file
+        from CoolProp.CoolProp import IProps, get_Fluid_index
+        from CoolProp import param_constants
+        iPropane = get_Fluid_index('Propane')
+        
+        #  This should be run using the cached values - much faster !
+        IProps(param_constants.iP,param_constants.iT,0.8*Tc,param_constants.iQ,1,iPropane)
+        
+    The reason that this function is significantly faster than Props is that it skips all the string comparisons which slows down the Props function quite a lot.  At the C++ level, IProps
     """
     cdef double val = _IProps(iOutput, iInput1, Input1, iInput2, Input2, iFluid)
     

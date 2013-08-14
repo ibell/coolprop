@@ -593,7 +593,7 @@ void Fluid::post_load(rapidjson::Document &JSON)
 	HS.a_hs_satL = JSON_lookup_dblvector(JSON,this->name,"a_hs_satL");
 	HS.n_hs_satL = JSON_lookup_intvector(JSON,this->name,"n_hs_satL");
 	
-	// Limits for the entropy at the minimum temperature (usually the triple point temperature)
+	//// Limits for the entropy at the minimum temperature (usually the triple point temperature)
 	double pL,pV,rhoL,rhoV;
 	saturation_T(limits.Tmin, false, &pL, &pV, &rhoL, &rhoV);
 	HS.sV_Tmin = entropy_Trho(limits.Tmin, rhoV);
@@ -1029,31 +1029,62 @@ double Fluid::density_Tp(double T, double p)
 
 double Fluid::density_Tp(double T, double p, double rho_guess)
 {
-    double delta,tau,dpdrho,error=999,R,p_EOS,rho,change=999;
-    R=params.R_u/params.molemass;
-	tau=reduce.T/T;
+    double delta,tau,dpdrho__constT,dpddelta__constT,error=999,R,p_EOS,rho,change=999;
+	double x1, x2, x3, y1, y2;
+
+    R = params.R_u/params.molemass;
+	tau = reduce.T/T;
 
 	if (debug()>8){
 		std::cout<<__FILE__<<':'<<__LINE__<<": Fluid::density_Tp(double T, double p, double rho_guess): "<<T<<","<<p<<","<<rho_guess<<std::endl;
 	}
 	// Start with the guess value
+	// The first step, use the derivative of dp/drho|T in order to get the next value
+	// In subsequent steps, use secant method because each evaluation of newton step requires two evaluations of derivatives with respect to delta
 	rho=rho_guess;
     int iter=1;
-    while (fabs(error)>1e-8 && fabs(change)>1e-10)
+	
+	delta = rho/reduce.rho;
+	
+    while (fabs(error) > 1e-10 && fabs(change)>1e-10)
     {
-        delta=rho/reduce.rho;
+		if (iter == 1){ x1 = delta;}
+		else if (iter > 1){ x2 = delta;}
+
+		// Needed for both kinds
 		// Run and save to cut down on calculations
-		double dphirdDelta = dphir_dDelta(tau,delta);
-        // Use Newton's method to find the density since the derivative of pressure w.r.t. density is known from EOS
-        dpdrho=R*T*(1+2*delta*dphirdDelta+delta*delta*d2phir_dDelta2(tau,delta));
+		double dphirdDelta = dphir_dDelta(tau, delta);
 		// Pressure from equation of state
-		p_EOS = rho*R*T*(1+delta*dphirdDelta);
-        // Update the step using Newton's method
-        rho = rho-(p_EOS-p)/dpdrho;
-		change = fabs((p_EOS-p)/dpdrho);
-        // Residual
+		p_EOS = delta*reduce.rho*R*T*(1+delta*dphirdDelta);
+		
+		// Residual
         error = p_EOS-p;
-        iter++;
+
+		// Cache the error
+		if (iter ==1){ y1 = error;}
+		else{y2 = error;}
+		
+		if (iter == 1)
+		{
+			// Use Newton's method to find the density since the derivative of pressure w.r.t. density is known from EOS
+			dpdrho__constT = R*T*(1+2*delta*dphirdDelta+delta*delta*d2phir_dDelta2(tau,delta));
+			dpddelta__constT = dpdrho__constT*reduce.rho;
+
+			// Update the step using Newton's method
+			delta = delta -(p_EOS-p)/dpddelta__constT;
+			change = fabs((p_EOS-p)/dpddelta__constT);
+		}
+		else
+		{
+			// Use secant method to find the new density
+			x3 = x2-y2/(y2-y1)*(x2-x1);
+            change = fabs(y2/(y2-y1)*(x2-x1));
+            y1=y2; x1=x2; x2=x3;
+			delta = x3;
+		}
+        
+		iter++;
+
         if (iter>30)
         {
 			throw SolutionError(format("Number of steps in density_TP has exceeded 30 with inputs T=%g,p=%g,rho_guess=%g for fluid %s\n",T,p,rho_guess,name.c_str()));
@@ -1067,7 +1098,7 @@ double Fluid::density_Tp(double T, double p, double rho_guess)
 		std::cout<<__FILE__<<':'<<__LINE__<<": Fluid::density_Tp(double T, double p, double rho_guess): "<<T<<","<<p<<","<<rho_guess<<" = "<<rho<<std::endl;
 
 	}
-    return rho;
+    return delta*reduce.rho;
 }
 
 double Fluid::viscosity_Trho( double T, double rho)
@@ -1610,7 +1641,6 @@ double Fluid::_get_rho_guess(double T, double p)
 	}
 	else if (phase == iSupercritical)
 	{
-
 		// Use Soave to get first guess
 		rho_simple = density_Tp_Soave(T,p);
 	}

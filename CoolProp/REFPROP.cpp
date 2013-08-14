@@ -622,6 +622,9 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 		}
 		T = Prop1; p = Prop2;
 
+		if (iOutput == iP){ return p; }
+		if (iOutput == iT){ return T; }
+
 		// Use flash routine to find properties
 		TPFLSHdll(&T,&p,x,&d,&dl,&dv,xliq,xvap,&q,&e,&h,&s,&cv,&cp,&w,&ierr,herr,errormessagelength);
 		if (iOutput==iH) return h/MW;
@@ -630,7 +633,6 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 		else if (iOutput==iU) return e/MW;
 		else if (iOutput==iC) return cp/MW;
 		else if (iOutput==iO) return cv/MW;
-		else if (iOutput==iP) return p;
 		else if (iOutput==iA) return w;
 		else if (iOutput==iV) 
 		{
@@ -652,6 +654,8 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 			std::swap(Prop1,Prop2);
 		}
 		T = Prop1; rho = Prop2/MW;
+		if (iOutput==iT) { return Prop1; }
+		if (iOutput==iD) { return Prop2; }
 		
 		// This is the explicit formulation of the EOS
 		TDFLSHdll(&T,&rho,x,&p,&dl,&dv,xliq,xvap,&q,&e,&h,&s,&cv,&cp,&w,&ierr,herr,errormessagelength);
@@ -698,10 +702,6 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 			TRNPRPdll(&T,&rho,x,&eta,&tcx,&ierr,herr,errormessagelength);
 			return tcx/1000.0; //W/m-K to kW/m-K
 		}
-		else if (iOutput==iD)
-		{
-			return rho*MW;
-		}
 		else
 			return _HUGE;
 	}
@@ -714,6 +714,7 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 		}
 		T = Prop1; Q = Prop2;
 		
+		if (iOutput == iT){return T;}
 		if (iOutput == iQ){return Q;}
 
 		// Saturation Density

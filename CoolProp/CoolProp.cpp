@@ -956,7 +956,7 @@ double Props(std::string Output,char Name1, double Prop1, char Name2, double Pro
 	}
 }
 // Make this a wrapped function so that error bubbling can be done properly
-double _Props(std::string Output,std::string Name1, double Prop1, std::string Name2, double Prop2, std::string Ref)
+double _Props(std::string Output, std::string Name1, double Prop1, std::string Name2, double Prop2, std::string Ref)
 {
 	if (debug()>5){
 		std::cout<<__FILE__<<": "<<Output.c_str()<<","<<Name1.c_str()<<","<<Prop1<<","<<Name2.c_str()<<","<<Prop2<<","<<Ref.c_str()<<std::endl;

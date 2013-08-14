@@ -10,7 +10,7 @@ fig = plt.figure()
 ax = fig.add_subplot(111)
 
 for Fluid in CoolProp.__fluids__:
-    if Fluid == 'n-Undecane': continue
+    
     ax.cla()
     
     hL_Tmin = Props('H','T',Props(Fluid,"Tmin"),'Q',0,Fluid)
@@ -54,5 +54,5 @@ for Fluid in CoolProp.__fluids__:
 ##         plt.plot(sL,hL,'d')
 ##         plt.gca().axvline(s)
 ##         plt.gca().axhline(268.75968916316691)
-
-    fig.savefig(Fluid+'.png')
+    
+    fig.savefig('figs/'+Fluid+'.png')
