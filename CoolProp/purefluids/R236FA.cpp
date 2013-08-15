@@ -61,46 +61,46 @@ R236FAClass::R236FAClass()
 	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
 }
 
+
 double R236FAClass::psat(double T)
 {
-    // Maximum absolute error is 0.030234 % between 179.520001 K and 398.069990 K
-    const double ti[]={0,1.0,1.5,2.3,3.6,5.2,7.3,9};
-    const double Ni[]={0,-7.8508917792245674, 1.4567640808160465, -0.062102900606892143, -9.3819597000175285, 14.550729344612401, -36.422971826769853, 37.644436183238703 };
+    // Maximum absolute error is 0.285075 % between 179.600000 K and 398.069990 K
+    const double t[]={0, 1, 2, 3, 7, 12};
+    const double N[]={0, -0.074010270442998988, -7.3799415448066368, 0.62864198968378115, -4.474719533800668, -2.5381523046399947};
     double summer=0,theta;
-    int i;
     theta=1-T/reduce.T;
-    for (i=1;i<=7;i++)
+    for (int i=1;i<=4;i++)
     {
-        summer=summer+Ni[i]*pow(theta,ti[i]);
+        summer += N[i]*pow(theta,t[i]/2);
     }
     return reduce.p*exp(reduce.T/T*summer);
 }
+
 double R236FAClass::rhosatL(double T)
 {
-    // Maximum absolute error is 0.043993 % between 179.520001 K and 398.069990 K
-    const double ti[]={0,0.67593967200386329, 1.0388728256250355, 1.0958022963770171, 1.2075666821666764, 1.4489255803047685, 1.534595334230606, 1.8422228222992407};
-    const double Ni[]={0,33.66527737771591, -3018.4889875066406, 5655.5413015392987, -3680.3090670411439, 2448.5303944282114, -1498.7494751321274, 61.236298277462517};
-    double summer=0;
-    int i;
-    double theta;
-    theta=1-T/reduce.T;
-    for (i=1;i<=7;i++)
-    {
-        summer+=Ni[i]*pow(theta,ti[i]);
-    }
-    return reduce.rho*exp(summer);
+    // Maximum absolute error is 0.239080 % between 179.600000 K and 398.070000 K
+    const double t[] = {0, 0.6666666666666666, 0.8333333333333334, 1.0, 1.1666666666666667, 1.3333333333333333, 1.5, 1.6666666666666667};
+    const double N[] = {0, 110.99431711060721, -653.8278250306164, 1808.4970386386176, -2819.9588105709872, 2549.3846572841617, -1252.0268343097021, 259.90253247283982};
+    double summer=0,theta;
+    theta=1-T/reduce.T; 	
+	for (int i=1; i<=7; i++)
+	{
+		summer += N[i]*pow(theta,t[i]);
+	}
+	return reduce.rho*(summer+1);
 }
+
 double R236FAClass::rhosatV(double T)
 {
-    // Maximum absolute error is 0.099088 % between 179.520001 K and 398.069990 K
-    const double ti[]={0,0.50195291798025177, 1.3220357032983603, 2.5731594638194166, 2.4474465250730582, 2.4731206226774058, 3.0334887073286887, 6.1686391096790096};
-    const double Ni[]={0,-4.3707771378161109, -7.2992995710239832, 6024.9834521647063, 17995.745586913225, -23734.497572478816, -289.70356229231936, 4.6891629794522327};
+    // Maximum absolute error is 0.372237 % between 179.600000 K and 398.070000 K
+    const double t[] = {0, 0.6666666666666666, 0.8333333333333334, 1.0, 1.1666666666666667, 1.3333333333333333, 1.5, 1.6666666666666667, 1.8333333333333333};
+    const double N[] = {0, -11.794124580366443, -645.63181864379703, 5244.661122543529, -18060.343097280878, 33869.097416810924, -36245.578523710719, 20887.554530748635, -5050.4457446082124};
     double summer=0,theta;
-    int i;
-    theta=1.0-T/reduce.T;
-    for (i=1;i<=7;i++)
-    {
-        summer=summer+Ni[i]*pow(theta,ti[i]);
-    }
-    return reduce.rho*exp(crit.T/T*summer);
+    theta=1-T/reduce.T; 	
+	for (int i=1; i<=8; i++)
+	{
+		summer += N[i]*pow(theta,t[i]);
+	}
+	return reduce.rho*exp(reduce.T/T*summer);
+
 }

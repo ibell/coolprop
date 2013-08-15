@@ -200,8 +200,10 @@ cpdef Props(str in1, str in2, in3 = None, in4 = None, in5 = None, in6 = None, in
     
     =============  ============================
     ``Tcrit``      Critical temperature [K]
+    ``Treduce``    Reducing temperature [K]
     ``pcrit``      Critical pressure [kPa]
     ``rhocrit``    Critical density [kg/m3]
+    ``rhoreduce``  Reducing density [kg/m3]
     ``molemass``   Molecular mass [kg/kmol]
     ``Ttriple``    Triple-point temperature [K]
     ``Tmin``       Minimum temperature [K]

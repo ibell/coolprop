@@ -49,14 +49,14 @@ You might want to start by looking at CoolProp.h
     // EXPORT_CODE void CONVENTION AFunction(double, double);
 	// will be exported to the DLL
 
-	// They can only use data types that play well with DLL wrapping
-
+	// They can only use data types that play well with DLL wrapping (int, long, double, char*, void, etc.)
+	
+	EXPORT_CODE double CONVENTION Props(char *Output,char Name1, double Prop1, char Name2, double Prop2, char * Ref);
+	EXPORT_CODE double CONVENTION Props1(char *Ref, char * Output);
+	
 	// This version uses the indices in place of the strings for speed.  Get the parameter indices
 	// from get_param_index('D') for instance and the Fluid index from get_Fluid_index('Air') for instance
 	EXPORT_CODE double CONVENTION IProps(long iOutput, long iName1, double Prop1, long iName2, double Prop2, long iFluid);
-
-	EXPORT_CODE double CONVENTION Props(char *Output,char Name1, double Prop1, char Name2, double Prop2, char * Ref);
-	EXPORT_CODE double CONVENTION Props1(char *Ref, char * Output);
 
 	// Convenience functions
 	EXPORT_CODE int CONVENTION IsFluidType(char *Ref, char *Type);
@@ -82,8 +82,6 @@ You might want to start by looking at CoolProp.h
 	EXPORT_CODE long CONVENTION get_ASHRAE34(char * fluid, char *output);
 	EXPORT_CODE long CONVENTION get_CAS_code(char * fluid, char *output);
 	EXPORT_CODE void CONVENTION get_index_units(long param, char * units);
-
-	
 
 	EXPORT_CODE int CONVENTION get_debug();
 	EXPORT_CODE void CONVENTION debug(int level);
@@ -129,6 +127,9 @@ You might want to start by looking at CoolProp.h
 	EXPORT_CODE double CONVENTION conductivity_background(char* FluidName, double T, double rho);
 	EXPORT_CODE double CONVENTION conformal_Trho(char* FluidName, char* ReferenceFluidName, double T, double rho, double *Tconform, double *rhoconform);
 
+
+
+
 	// ------------------------------------------------------------------------------------------------
 	// All the functions below this comment do NOT get exported to REFPROP DLL due to the fact that the 
 	// DLL MUST use extern "C" for all exported functions, which does not allow for function overloads 
@@ -171,6 +172,6 @@ You might want to start by looking at CoolProp.h
 	Fluid * get_fluid(long iFluid);
 
 	// Define some constants that will be used throughout
-	enum params {iB,iT,iP,iD,iC,iC0,iO,iU,iH,iS,iA,iG,iQ,iV,iL,iI,iMM,iTcrit,iTtriple,iPtriple,iPcrit,iRhocrit,iAccentric,iDpdT,iDrhodT_p,iTmin,iDipole,iPhase,iPHASE_LIQUID,iPHASE_GAS,iPHASE_SUPERCRITICAL,iPHASE_TWOPHASE,iODP,iGWP20,iGWP100,iGWP500, iCritSplineT,iHcrit,iScrit};
+	enum params {iB,iT,iP,iD,iC,iC0,iO,iU,iH,iS,iA,iG,iQ,iV,iL,iI,iMM,iTcrit,iTtriple,iTreduce,iPtriple,iPcrit,iRhocrit,iRhoreduce,iAccentric,iDpdT,iDrhodT_p,iTmin,iDipole,iPhase,iPHASE_LIQUID,iPHASE_GAS,iPHASE_SUPERCRITICAL,iPHASE_TWOPHASE,iODP,iGWP20,iGWP100,iGWP500, iCritSplineT,iHcrit,iScrit};
 	enum phases {iLiquid, iSupercritical, iGas, iTwoPhase};
 #endif

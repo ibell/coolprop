@@ -5,6 +5,7 @@ import scipy.optimize, random
 import matplotlib.pyplot as plt
 import textwrap
 import random
+from CoolProp.CoolProp import Props, get_REFPROPname
 
 def rsquared(x, y):
     """ 
@@ -15,7 +16,6 @@ def rsquared(x, y):
     import scipy.stats
     slope, intercept, r_value, p_value, std_err = scipy.stats.linregress(x, y)
     return r_value**2
-
 
 def saturation_density(Ref, ClassName, form = 'A', LV = 'L', perc_error_allowed = 0.3, fName = None):
     """
@@ -29,18 +29,23 @@ def saturation_density(Ref, ClassName, form = 'A', LV = 'L', perc_error_allowed 
         If ``'A'``, use a term of the form 
     """
     
-    from CoolProp.CoolProp import Props
-    
     if fName is None:
         Tc = Props(Ref,'Tcrit')
         pc = Props(Ref,'pcrit')
         rhoc = Props(Ref,'rhocrit')
         Tmin = Props(Ref,'Tmin')
+        print Ref,Tmin,Props(Ref,'Ttriple')
         
-        TT = np.linspace(Tmin+1e-6, Tc-0.00001, 300)
-        p = [Props('P','T',T,'Q',0,Ref) for T in TT]
-        rhoL = [Props('D','T',T,'Q',0,Ref) for T in TT]
-        rhoV = [Props('D','T',T,'Q',1,Ref) for T in TT]
+        TT = np.linspace(Tmin, Tc-0.00001, 1000)
+        TT = list(TT)
+        # Add temperatures around the critical temperature
+        for dT in [1e-10,1e-9,1e-8,1e-7,1e-6,1e-5,1e-4,1e-3,1e-2,1e-1]:
+            TT.append(Tc-dT)
+        TT = np.array(sorted(TT))
+        
+        p = Props('P','T',TT,'Q',0,Ref)
+        rhoL = Props('D','T',TT,'Q',0,Ref)
+        rhoV = Props('D','T',TT,'Q',1,Ref)
     else:
         Tc = 423.27
         pc = 3533
@@ -61,14 +66,18 @@ def saturation_density(Ref, ClassName, form = 'A', LV = 'L', perc_error_allowed 
     n = [i/6.0 for i in range(1,200)]#+[0.35+i/200.0 for i in range(1,70)]+[0.05+0.01*i for i in range(1,70)]
     
     x = 1.0-TT/Tc
-    if form == 'A' and LV == 'L':
-        y = np.array(rhoL)/rhoc-1
-    elif form == 'A' and LV == 'V':
-        y = np.array(rhoV)/rhoc-1
-    elif form == 'B' and LV == 'L':
-        y = (np.log(rhoL)-np.log(rhoc))*TT/Tc
-    elif form == 'B' and LV == 'V':
-        y = (np.log(rhoV)-np.log(rhoc))*TT/Tc
+    
+    if LV == 'L':
+        rho_EOS = rhoL
+    elif LV == 'V':
+        rho_EOS = rhoV
+    else:
+        raise ValueError
+        
+    if form == 'A':
+        y = np.array(rho_EOS)/rhoc-1
+    elif form == 'B':
+        y = (np.log(rho_EOS)-np.log(rhoc))*TT/Tc
     else:
         raise ValueError
         
@@ -95,11 +104,10 @@ def saturation_density(Ref, ClassName, form = 'A', LV = 'L', perc_error_allowed 
             rho_fit = np.exp(f_p(myoutput.beta,x)*Tc/TT)*rhoc
         else:
             raise ValueError
+            
+        print 'first,last',TT[0],TT[-1],rho_fit[0],rho_fit[-1], rho_EOS[0], rho_EOS[-1]
         
-        if LV == 'L':
-            max_abserror = np.max(np.abs(rho_fit/rhoL-1))*100
-        else:
-            max_abserror = np.max(np.abs(rho_fit/rhoV-1))*100
+        max_abserror = np.max(np.abs(rho_fit/rho_EOS-1))*100
             
         dropped_indices = [i for i in range(len(n)) if abs(sd[i])<1e-15 ]
         if dropped_indices:
@@ -170,8 +178,6 @@ def saturation_density(Ref, ClassName, form = 'A', LV = 'L', perc_error_allowed 
 
 def saturation_pressure_brute(Ref, ClassName):
     
-    from CoolProp.CoolProp import Props
-    
     Tc = Props(Ref,'Tcrit')
     pc = Props(Ref,'pcrit')
     rhoc = Props(Ref,'rhocrit')
@@ -227,9 +233,7 @@ def saturation_pressure_brute(Ref, ClassName):
             betabest = myoutput.beta
             print abserror, myoutput.sum_square, myoutput.sd_beta/myoutput.beta
         
-def saturation_pressure(Ref, ClassName, fName):
-    
-    from CoolProp.CoolProp import Props
+def saturation_pressure(Ref, ClassName, fName = None):
     
     if fName is None:
         Tc = Props(Ref,'Tcrit')
@@ -290,7 +294,7 @@ def saturation_pressure(Ref, ClassName, fName):
             n.pop(random.choice(dropped_indices))
             continue
         
-        if max_abserror < 0.1: #Max error is 0.1%
+        if max_abserror < 0.5: #Max error is 0.5%
             Ncoeffs = str(list(myoutput.beta)).lstrip('[').rstrip(']')
             tcoeffs = str(n).lstrip('[').rstrip(']')
             maxerror = max_abserror
@@ -333,9 +337,9 @@ def saturation_pressure(Ref, ClassName, fName):
     return
                       
                       
-for RPFluid,Fluid in [('REFPROP-R22','R1234zeZ'),
+for RPFluid,Fluid in [('REFPROP-'+get_REFPROPname('n-Hexane'),'n-Hexane'),
                     ]:
     #saturation_pressure_brute(RPFluid, Fluid
-    saturation_pressure(RPFluid, Fluid, fName = 'R1234zeZ.txt')
-    saturation_density(RPFluid, Fluid, form='A', LV='L', fName = 'R1234zeZ.txt')
-    saturation_density(RPFluid, Fluid, form='B', LV='V', perc_error_allowed = 0.4, fName = 'R1234zeZ.txt')
+    saturation_pressure(RPFluid, Fluid)
+    saturation_density(RPFluid, Fluid, form='A', LV='L')
+    saturation_density(RPFluid, Fluid, form='B', LV='V', perc_error_allowed = 0.4)

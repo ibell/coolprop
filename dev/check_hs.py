@@ -11,8 +11,14 @@ ax = fig.add_subplot(111)
 
 for Fluid in CoolProp.__fluids__:
     
+    if Fluid == 'SES36':
+        continue
+        
     ax.cla()
     
+    h_crit = Props('H','T',Props(Fluid,"Tcrit"),'D',Props(Fluid,"rhocrit"),Fluid)
+    s_crit = Props('S','T',Props(Fluid,"Tcrit"),'D',Props(Fluid,"rhocrit"),Fluid)
+   
     hL_Tmin = Props('H','T',Props(Fluid,"Tmin"),'Q',0,Fluid)
     hV_Tmin = Props('H','T',Props(Fluid,"Tmin"),'Q',1,Fluid)
     sL_Tmin = Props('S','T',Props(Fluid,"Tmin"),'Q',0,Fluid)
@@ -29,19 +35,27 @@ for Fluid in CoolProp.__fluids__:
 ##             except ValueError:
 ##                 ax.plot(s,h,'bo')
 ##                 print '"T","S",',s,',"H",',h,',"'+Fluid+'"'
+##     
+##     for h in np.linspace(hL_Tmin, hV_Tmin + 1500,100):
+##         for s in np.linspace(sL_Tmin+0.01,sV_Tmin,100):
+##             h_pmax = Props('H','S',s,'P',5*Props(Fluid,'pcrit'),Fluid)
+##             htriple_s = (hV_Tmin-hL_Tmin)/(sV_Tmin-sL_Tmin)*(s-sL_Tmin)+hL_Tmin
+##             if h < htriple_s or h > h_pmax: continue
+##             try:
+##                 T = Props("T",'S',s,'H',h,Fluid)
+##                 ax.plot(s,h,'o',mfc='none',ms=6)
+##             except ValueError:
+##                 ax.plot(s,h,'bo',ms = 6)
+##     
+##     ax.axvline(s_crit)
     
-    for h in np.linspace(hL_Tmin, hV_Tmin + 1500,100):
-        for s in np.linspace(sL_Tmin+0.01,sV_Tmin,100):
-            h_pmax = Props('H','S',s,'P',5*Props(Fluid,'pcrit'),Fluid)
-            htriple_s = (hV_Tmin-hL_Tmin)/(sV_Tmin-sL_Tmin)*(s-sL_Tmin)+hL_Tmin
-            if h < htriple_s or h > h_pmax: continue
-            try:
-                T = Props("T",'S',s,'H',h,Fluid)
-                ax.plot(s,h,'o',mfc='none',ms=6)
-            except ValueError:
-                ax.plot(s,h,'bo',ms = 6)
-    
+
+
     hs(Fluid, axis = ax)
+    plt.plot(s_crit,h_crit,'d')
+    plt.plot([sL_Tmin,sV_Tmin],[hL_Tmin,hV_Tmin],'--')
+    plt.gca().axhline(h_crit)
+    plt.gca().axhline(hV_Tmin)
 
 ##     if Fluid =='Propane':
 ##         ps = Props("P",'T',300,'Q',0,Fluid);
@@ -55,4 +69,4 @@ for Fluid in CoolProp.__fluids__:
 ##         plt.gca().axvline(s)
 ##         plt.gca().axhline(268.75968916316691)
     
-    fig.savefig('figs/'+Fluid+'.png')
+    fig.savefig('figs/'+Fluid+'.png',dpi=200)

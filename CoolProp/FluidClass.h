@@ -479,14 +479,22 @@ class Fluid
 		/// @param Q Quality [kg/kg]
 		/// @param Tsatout Saturated temperature [K]
 		/// @param rhoout Saturated density [kg/m3]
-		virtual void saturation_h(double h, double Tmin, double Tmax, int Q, double *Tsatout, double *rhoout);
+		/// @param TsatLout Saturated liquid temperature [K]
+		/// @param TsatVout Saturated vapor temperature [K]
+		/// @param rhoLout Saturated liquid density [kg/m3]
+		/// @param rhoVout Saturated vapor density [kg/m3]
+		virtual void saturation_h(double h, double Tmin, double Tmax, int Q, double *Tsatout, double *rhoout, double *TsatLout, double *TsatVout, double *rhoLout, double *rhoVout);
 
 		/// Saturation temperature and saturated liquid and vapor densities as a function of the entropy. (The phase must be provided)
 		/// @param s Entropy [kJ/kg/K]
 		/// @param Q quality [kg/kg]
 		/// @param Tsatout Saturated temperature [K]
 		/// @param rhoout Saturated density [kg/m3]
-		virtual void saturation_s(double s, int Q, double *Tsatout, double *rhoout);
+		/// @param TsatLout Saturated liquid temperature [K]
+		/// @param TsatVout Saturated vapor temperature [K]
+		/// @param rhoLout Saturated liquid density [kg/m3]
+		/// @param rhoVout Saturated vapor density [kg/m3]
+		virtual void saturation_s(double s, int Q, double *Tsatout, double *rhoout, double *TsatLout, double *TsatVout, double *rhoLout, double *rhoVout);
 		
 		/// NB: Only valid for pure fluids - no pseudo-pure or mixtures.
 		/// Get the saturated liquid, vapor densities and the saturated pressure

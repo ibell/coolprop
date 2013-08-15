@@ -1116,7 +1116,7 @@ double Fluid::conductivity_Trho( double T, double rho)
 	return lambda;
 }
 
-void Fluid::saturation_s(double s, int Q, double *Tsatout, double *rhoout)
+void Fluid::saturation_s(double s, int Q, double *Tsatout, double *rhoout, double *TLout, double *TVout, double *rhoLout, double *rhoVout)
 {
 	class SatFuncClass : public FuncWrapper1D
 	{
@@ -1125,7 +1125,7 @@ void Fluid::saturation_s(double s, int Q, double *Tsatout, double *rhoout)
 		double s;
 		Fluid * pFluid;
 	public:
-		double rho,pL,pV,rhoL,rhoV;
+		double rho,pL,pV,rhoL,rhoV,T;
 		SatFuncClass(double s, int Q, Fluid *pFluid){
 			this->s = s;
 			this->Q = Q;
@@ -1144,6 +1144,7 @@ void Fluid::saturation_s(double s, int Q, double *Tsatout, double *rhoout)
 			else{
 				throw ValueError("Q must be 0 or 1");
 			}
+			this->T = T;
 		};
 	} SatFunc(s, Q, this);
 
@@ -1162,11 +1163,15 @@ void Fluid::saturation_s(double s, int Q, double *Tsatout, double *rhoout)
 			std::string errstr;
 			*Tsatout = Brent(&SatFunc,limits.Tmin,crit.T,1e-16,1e-8,100,&errstr);
 			*rhoout = SatFunc.rho;
+			*rhoLout = SatFunc.rhoL;
+			*rhoVout = SatFunc.rhoV;
+			*TLout = SatFunc.T;
+			*TVout = SatFunc.T;
 		}
 	}
 	else
 	{ 
-		throw NotImplementedError("Pseudo-pure not currently supported");
+		throw NotImplementedError("Pseudo-pure not currently supported for saturation_s");
 		//// Pseudo-pure fluid
 		//*psatLout = psatL(T);
 		//*psatVout = psatV(T);
@@ -1182,7 +1187,7 @@ void Fluid::saturation_s(double s, int Q, double *Tsatout, double *rhoout)
 		//return;
 	}
 }
-void Fluid::saturation_h(double h, double Tmin, double Tmax, int Q, double *Tsatout, double *rhoout)
+void Fluid::saturation_h(double h, double Tmin, double Tmax, int Q, double *Tsatout, double *rhoout, double *TsatLout, double *TsatVout, double *rhoLout, double *rhoVout)
 {
 	class SatFuncClass : public FuncWrapper1D
 	{
@@ -1191,13 +1196,14 @@ void Fluid::saturation_h(double h, double Tmin, double Tmax, int Q, double *Tsat
 		double h;
 		Fluid * pFluid;
 	public:
-		double rho,pL,pV,rhoL,rhoV;
+		double rho,pL,pV,rhoL,rhoV,T;
 		SatFuncClass(double h, int Q, Fluid *pFluid){
 			this->h = h;
 			this->Q = Q;
 			this->pFluid = pFluid;
 		};
 		double call(double T){
+			this->T = T;
 			pFluid->saturation_T(T, false, &pL, &pV, &rhoL, &rhoV);
 			if (Q == 0){
 				this->rho = rhoL;
@@ -1210,11 +1216,12 @@ void Fluid::saturation_h(double h, double Tmin, double Tmax, int Q, double *Tsat
 			else{
 				throw ValueError("Q must be 0 or 1");
 			}
+			
 		};
 	} SatFunc(h, Q, this);
 
 	if (debug()>5){
-		std::cout<<format("%s:%d: Fluid::saturation_s(%g,%d) \n",__FILE__,__LINE__,h,Q).c_str();
+		std::cout<<format("%s:%d: Fluid::saturation_h(%g,%d) \n",__FILE__,__LINE__,h,Q).c_str();
 	}
 	if (isPure == true)
 	{
@@ -1228,6 +1235,10 @@ void Fluid::saturation_h(double h, double Tmin, double Tmax, int Q, double *Tsat
 			std::string errstr;
 			*Tsatout = Brent(&SatFunc,Tmin,Tmax,1e-16,1e-8,100,&errstr);
 			*rhoout = SatFunc.rho;
+			*rhoLout = SatFunc.rhoL;
+			*rhoVout = SatFunc.rhoV;
+			*TsatLout = SatFunc.T;
+			*TsatVout = SatFunc.T;
 		}
 	}
 	else
@@ -1495,7 +1506,7 @@ void Fluid::rhosatPure_Akasaka(double T, double *rhoLout, double *rhoVout, doubl
 
 		error = fabs(KL-KV)+fabs(JL-JV);
 
-		//Get the step
+		//  Get the predicted step
 		stepL = omega/DELTA*( (KV-KL)*dJV-(JV-JL)*dKV);
 		stepV = omega/DELTA*( (KV-KL)*dJL-(JV-JL)*dKL);
 		
@@ -1508,26 +1519,25 @@ void Fluid::rhosatPure_Akasaka(double T, double *rhoLout, double *rhoVout, doubl
 		{
 			throw ValueError(format("rhosatPure_Akasaka failed"));
 		}
-		iter=iter+1;
+		iter++;
 		if (iter > 100)
 		{
 			throw SolutionError(format("Akasaka solver did not converge after 100 iterations"));
 		}
 	}
-	while (error > 1e-10 || fabs(dP)/PL > 0.01);
+	while (error > 1e-10);
 	
-	*pout = 0.5*(PL+PV);
-	if (fabs(PL-PV)/PV > 1e-6 && T<0.5*reduce.T)
-	{
-		// Using the average pressure, re-calculate the densities
-		*rhoLout = density_Tp(T,*pout,deltaL*reduce.rho);
-		*rhoVout = density_Tp(T,*pout,deltaV*reduce.rho);
+	if (fabs(PL-PV)/PV > 1e-8)
+	{	
+		rhosatPure(T,rhoLout,rhoVout,pout,1);
 	}
 	else
 	{
 		*rhoLout = deltaL*reduce.rho;
 		*rhoVout = deltaV*reduce.rho;
+		*pout = 0.5*(PL+PV);
 	}
+	
 	
 	return;
 }
@@ -1565,7 +1575,7 @@ void Fluid::rhosatPure(double T, double *rhoLout, double *rhoVout, double *pout,
         else //(iter>1)
         {
             y2=f;
-            x3=omega*x2-y2/(y2-y1)*(x2-x1);
+            x3=x2-omega*y2/(y2-y1)*(x2-x1);
             error=f;
             y1=y2; x1=x2; x2=x3;
         }
@@ -1834,16 +1844,16 @@ long Fluid::phase_Trho_indices(double T, double rho, double *pL, double *pV, dou
 	*/
 	// If temperature is below the critical temperature, it is either 
 	// subcooled liquid, superheated vapor, or two-phase
-	if (T<reduce.T)
+	if (T < crit.T)
 	{
 		// Start to think about the saturation stuff
 		// First try to use the ancillary equations if you are far enough away
 		// Ancillary equations are good to within 1% in pressure in general
 		// Some industrial fluids might not be within 3%
-		if (rho<0.95*rhosatV(T)){
+		if (rho < 0.95*rhosatV(T)){
 			return iGas;
 		}
-		else if (rho>1.05*rhosatL(T)){
+		else if (rho > 1.05*rhosatL(T)){
 			return iLiquid;
 		}
 		else{
@@ -1851,11 +1861,12 @@ long Fluid::phase_Trho_indices(double T, double rho, double *pL, double *pV, dou
 			// For the given temperature, find the saturation state
 			// Run the saturation routines to determine the saturation densities and pressures
 			// Use the passed in variables to save calls to the saturation routine so the values can be re-used again
-			saturation_T(T,enabled_TTSE_LUT,pL,pV,rhoL,rhoV);
-			if (rho>*rhoL){
+			saturation_T(T, enabled_TTSE_LUT, pL, pV, rhoL, rhoV);
+			double Q = (1/rho-1/(*rhoL))/(1/(*rhoV)-1/(*rhoL));
+			if (Q < -100*DBL_EPSILON){
 				return iLiquid;
 			}
-			else if (rho<*rhoV){
+			else if (Q > 1+100*DBL_EPSILON){
 				return iGas;
 			}
 			else{
@@ -1895,10 +1906,11 @@ long Fluid::phase_prho_indices(double p, double rho, double *T, double *TL, doub
 		// Run the saturation routines to determine the saturation densities and pressures
 		// Use the passed in variables to save calls to the saturation routine so the values can be re-used again
 		saturation_p(p,false,TL,TV,rhoL,rhoV);
-		if (rho>*rhoL){
+		double Q = (1/rho-1/(*rhoL))/(1/(*rhoV)-1/(*rhoL));
+		if (Q < -1e-10){
 			return iLiquid;
 		}
-		else if (rho<*rhoV){
+		else if (Q > 1+1e-10){
 			return iGas;
 		}
 		else{
@@ -2059,7 +2071,7 @@ void Fluid::temperature_ph(double p, double h, double *Tout, double *rhoout, dou
 				}
 			}
 			
-			if (delta<0) // No solution found using ancillary equations (or the saturation LUT is in use) - need to use saturation call (or LUT)
+			if (delta < 0) // No solution found using ancillary equations (or the saturation LUT is in use) - need to use saturation call (or LUT)
 			{
 				//**************************************************
 				// Step 2: Not far away from saturation (or it is two-phase) - need to solve saturation as a function of p :( - this is slow
@@ -2077,7 +2089,19 @@ void Fluid::temperature_ph(double p, double h, double *Tout, double *rhoout, dou
 				*TsatLout = TsatL;
 				*TsatVout = TsatV;
 				
-				if (h > hsatV)
+				if (fabs(h-hsatL) < 1e-8)
+				{
+					*Tout = TsatL;
+					*rhoout = *rhoLout;
+					return;
+				}
+				else if (fabs(h-hsatV) < 1e-8)
+				{
+					*Tout = TsatV;
+					*rhoout = *rhoVout;
+					return;
+				}
+				else if (h > hsatV)
 				{
 					// Start at saturated vapor
 					rho1 = rhoV;
@@ -2288,7 +2312,19 @@ void Fluid::temperature_ps(double p, double s, double *Tout, double *rhoout, dou
 			*TsatLout = TsatL;
 			*TsatVout = TsatV;
 
-			if (s > ssatV)
+			if (fabs(s-ssatL) < 1e-8)
+			{
+				*Tout = TsatL;
+				*rhoout = *rhoLout;
+				return;
+			}
+			else if (fabs(s-ssatV) < 1e-8)
+			{
+				*Tout = TsatV;
+				*rhoout = *rhoVout;
+				return;
+			}
+			else if (s > ssatV)
 			{
 				T_guess = TsatV+30;
 				s_guess = entropy_Trho(T_guess,rhoV);
@@ -2414,21 +2450,38 @@ public:
 
 void Fluid::temperature_hs(double h, double s, double *Tout, double *rhoout, double *rhoLout, double *rhoVout, double *TsatLout, double *TsatVout)
 {
+	bool singlephase_initialized = false, TsatL_initialized = false, TsatV_initialized = false;
 	int iter;
 	double A[2][2], B[2][2], T_guess;
 	double dar_ddelta,da0_dtau,d2a0_dtau2,dar_dtau,d2ar_ddelta_dtau,d2ar_ddelta2,d2ar_dtau2,d2a0_ddelta_dtau,a0,ar,da0_ddelta;
 	double f1,f2,df1_dtau,df1_ddelta,df2_ddelta,df2_dtau;
-    double tau,delta,worst_error,rho_guess, hsat, ssat, htriple_s;
-	double ssat_tol = 0.1;
+    double tau,delta,worst_error,rho_guess, ssat, htriple_s;
+	double ssat_tol = 0.0001, TsatV_candidate, TsatL_candidate;
 	std::string errstr;
 
-	// The enthalpy at the triple point (or minimum) temperature corresponding to the enthalpy
+	// The enthalpy at the triple point (or minimum) temperature corresponding to the entropy
 	// Might not be in the two-phase region
 	htriple_s = (HS.hV_Tmin-HS.hL_Tmin)/(HS.sV_Tmin-HS.sL_Tmin)*(s-HS.sL_Tmin)+HS.hL_Tmin;
 
-	// If above the critical enthalpy, no need to do any saturation calls, just determine 
+	// It's a solid state - not allowed
+	if (h < htriple_s)
+	{
+		throw ValueError(format("HS inputs are solid - not allowed h: %g s: %g",h,s).c_str());
+	}
+	// If you are AT the critical point, yield the critical point data
+	else if (fabs(h-crit.h) < 1e-6 && fabs(s-crit.s) < 1e-6)
+	{
+		*Tout = crit.T;
+		*rhoout = crit.rho;
+		*rhoLout = crit.rho;
+		*rhoVout = crit.rho;
+		*TsatLout = crit.T;
+		*TsatVout = crit.T;
+		return;
+	}
+	// If above the maximum enthalpy, no need to do any saturation calls, just determine 
 	// your state using interval bisection on the pressure using the p-h code (slow)
-	if (h > HS.hmax)
+	else if (h > HS.hmax)
 	{
 		int iter = 0;
 		double logpL, logpR, logpM, TM,rhoM,dummy, sM;
@@ -2450,72 +2503,61 @@ void Fluid::temperature_hs(double h, double s, double *Tout, double *rhoout, dou
 
 		rho_guess = rhoM;
 		T_guess = TM;
+		singlephase_initialized = true;
 	}
+
 	// Branch #1
-	// In the range between sL_Tmin and crit.s it is possible that there is a two-phase 
-	// solution, a liquid solution, a vapor solution or perhaps a solid solution (not allowed)
-	else if (s < crit.s && s > HS.sL_Tmin)
+	if (h < HS.hV_Tmin && h < crit.h && !singlephase_initialized)
 	{
-		double Tsat,rhosat;
-		// Get the saturated liquid state for the given entropy
-		this->saturation_s(s, 0, &Tsat, &rhosat);
-		// Check the saturated enthalpy for the given value of the entropy
-		hsat = this->enthalpy_Trho(Tsat, rhosat);
-		
-		if (h > hsat) // It's subcooled liquid
-		{
-			rho_guess = rhosat;
-			T_guess = Tsat;
-		}
-		else // Two-phase, vapor, or solid
-		{
-			// First check for two-phase
-			HSSatFuncClass SatFunc(h,s,this);
-			try{
-				*Tout = Brent(&SatFunc, limits.Tmin, Tsat, 1e-16, 1e-8, 100, &errstr);
-				if (SatFunc.Q >1 || SatFunc.Q < 0){ throw ValueError("Solution must be within the two-phase region"); } 
-				// It is two-phase, we are done, no exceptions were raised
-				*rhoout = SatFunc.rho;
-				*rhoLout = SatFunc.rhoL;
-				*rhoVout = SatFunc.rhoV;
-				*TsatLout = *Tout;
-				*TsatVout = *Tout;
-				return;
-			}
-			catch(std::exception){
-				*rhoout = _HUGE; *rhoLout = _HUGE; *rhoVout = _HUGE; *TsatLout = _HUGE; *TsatVout = _HUGE;
-				return;
-			}
-		}
-	}
-	// Branch #2 for h,s in the rectangle defined by the hmax point and the critical point
-	else if (h > crit.h && h < HS.hmax && s > crit.s && s < HS.s_hmax)
-	{
-		double Tsat,rhosat;
-		// Get the saturated vapor state for the given enthalpy
-		this->saturation_h(h, HS.T_hmax, crit.T, 1, &Tsat, &rhosat);
+		double Tsat,rhosat,TL,TV,rhoL,rhoV;
+		// Get the saturated liquid state for the given enthalpy
+		this->saturation_h(h, limits.Tmin, crit.T, 0, &Tsat, &rhosat, &TL, &TV, &rhoL, &rhoV);
 		// Check the saturated entropy for the given value of the entropy
 		ssat = this->entropy_Trho(Tsat, rhosat);
-		// If entropy greater than ssat, two-phase solution
-		if (s > ssat)
+		
+		if (fabs(s - ssat) < ssat_tol) // It's saturated liquid
+		{
+			*Tout = Tsat; *rhoout = rhoL; *rhoLout = rhoL;  *rhoVout = rhoV; *TsatLout = TL; *TsatVout = TV;
+			return;
+		}
+		// If entropy greater than ssat, two-phase solution 
+		// (or it solid which is handled above)
+		else if (s > ssat)
 		{
 			// First check for two-phase
-			HSSatFuncClass SatFunc(h,s,this);
+			HSSatFuncClass SatFunc(h, s, this);
 			try{
-				*Tout = Brent(&SatFunc, HS.T_hmax, crit.T, 1e-16, 1e-8, 100, &errstr);
-				if (SatFunc.Q >1 || SatFunc.Q < 0){ throw ValueError("Solution must be within the two-phase region"); } 
+				*Tout = Brent(&SatFunc, limits.Tmin, crit.T-1e-4, 1e-16, 1e-8, 100, &errstr);
+				if (SatFunc.Q > 1+1e-8 || SatFunc.Q < 0-1e-8){ throw ValueError("Solution must be within the two-phase region"); } 
 				// It is two-phase, we are done, no exceptions were raised
-				*rhoout = SatFunc.rho;
-				*rhoLout = SatFunc.rhoL;
-				*rhoVout = SatFunc.rhoV;
-				*TsatLout = *Tout;
-				*TsatVout = *Tout;
-				return;
 			}
-			catch(std::exception){
-				*rhoout = _HUGE; *rhoLout = _HUGE; *rhoVout = _HUGE; *TsatLout = _HUGE; *TsatVout = _HUGE;
-				return;
+			catch(std::exception)
+			{
+				// Split the range into two pieces
+				try
+				{
+					*Tout = Brent(&SatFunc, (limits.Tmin+crit.T)/2.0, crit.T-1e-4, 1e-16, 1e-8, 100, &errstr);
+					if (SatFunc.Q > 1+1e-8 || SatFunc.Q < 0-1e-8){ throw ValueError("Solution must be within the two-phase region"); } 
+				}
+				catch(std::exception)
+				{
+					try
+					{
+						*Tout = Brent(&SatFunc, limits.Tmin, (limits.Tmin+crit.T)/2.0, 1e-16, 1e-8, 100, &errstr);
+						if (SatFunc.Q > 1+1e-8 || SatFunc.Q < 0-1e-8){ throw ValueError("Solution must be within the two-phase region"); } 
+					}
+					catch (std::exception)
+					{
+						throw ValueError(format("For HS:Branch1, twophase failed").c_str());
+					}
+				}
 			}
+			*rhoout = SatFunc.rho;
+			*rhoLout = SatFunc.rhoL;
+			*rhoVout = SatFunc.rhoV;
+			*TsatLout = *Tout;
+			*TsatVout = *Tout;
+			return;
 		}
 		else // It's subcooled liquid
 		{
@@ -2540,38 +2582,31 @@ void Fluid::temperature_hs(double h, double s, double *Tout, double *rhoout, dou
 
 			rho_guess = rhoM;
 			T_guess = TM;
+			singlephase_initialized = true;
 		}
 	}
-	// Branch #3 between hmax and the triple point along the vapor curve
-	else if (h < HS.hmax && h > HS.hV_Tmin)
+
+
+
+	// Branch #2 between hmax and the maximum of the enthalpy corresponding to the 
+	// critical point and the enthalpy corresponding to the
+	// saturated vapor at the minimum temperature
+	if ((h > HS.hV_Tmin || h > crit.h) && !singlephase_initialized)
 	{
-		double Tsat,rhosat;
+		double Tsat,rhosat,TL,TV,rhoL,rhoV;
+		
 		// Get the saturated vapor state for the given enthalpy
-		this->saturation_h(h, limits.Tmin, HS.T_hmax, 1, &Tsat, &rhosat);
-		// Check the saturated entropy for the given value of the entropy
+		this->saturation_h(h, limits.Tmin, HS.T_hmax, 1, &Tsat, &rhosat, &TL, &TV, &rhoL, &rhoV);
+		
+		// Get the saturated vapor entropy for the given value of the enthalpy
 		ssat = this->entropy_Trho(Tsat, rhosat);
-		// If entropy less than ssat, two-phase solution
-		if (s < ssat)
+		
+		if (fabs(s-ssat) < ssat_tol) // It's saturated vapor
 		{
-			// First check for two-phase
-			HSSatFuncClass SatFunc(h,s,this);
-			try{
-				*Tout = Brent(&SatFunc, limits.Tmin, HS.T_hmax, 1e-16, 1e-8, 100, &errstr);
-				if (SatFunc.Q >1 || SatFunc.Q < 0){ throw ValueError("Solution must be within the two-phase region"); } 
-				// It is two-phase, we are done, no exceptions were raised
-				*rhoout = SatFunc.rho;
-				*rhoLout = SatFunc.rhoL;
-				*rhoVout = SatFunc.rhoV;
-				*TsatLout = *Tout;
-				*TsatVout = *Tout;
-				return;
-			}
-			catch(std::exception){
-				*rhoout = _HUGE; *rhoLout = _HUGE; *rhoVout = _HUGE; *TsatLout = _HUGE; *TsatVout = _HUGE;
-				return;
-			}
+			*Tout = Tsat; *rhoout = rhoV; *rhoLout = rhoL; *rhoVout = rhoV; *TsatLout = TL; *TsatVout = TV;
+			return;
 		}
-		else // It's superheated vapor
+		else if (s > ssat) // It's superheated vapor
 		{
 			int iter = 0;
 			double logpL, logpR, logpM, TM,rhoM,dummy,sM;
@@ -2593,46 +2628,137 @@ void Fluid::temperature_hs(double h, double s, double *Tout, double *rhoout, dou
 
 			rho_guess = rhoM;
 			T_guess = TM;
-		}
-	}
-	// Branch #4 Triangle formed by sv_Tmin, crit.s and triple point h-s line
-	else if (s < HS.sV_Tmin && h >= htriple_s)
-	{
-		double Tsat, rhosat, Tmax;
-		if ( HS.hV_Tmin < crit.h)
-		{
-			// Get the saturated vapor state for the given entropy
-			this->saturation_s(s, 1, &Tsat, &rhosat);
-			Tmax = Tsat;
+			singlephase_initialized = true;
 		}
 		else
 		{
-			Tmax = crit.T;
+			TsatV_candidate = Tsat;
+			TsatV_initialized = true;
 		}
+	}
+
+	
+	// Branch #3 for enthalpy between critical enthalpy and maximum saturated enthalpy
+	if (h > crit.h && !singlephase_initialized) // By the above conditional the enthalpy is below max
+	{
+		double Tsat,rhosat,TL,TV,rhoL,rhoV;
+
+		// Get the saturated vapor state for the given enthalpy
+		this->saturation_h(h, HS.T_hmax, crit.T, 1, &Tsat, &rhosat, &TL, &TV, &rhoL, &rhoV);
+
+		// Check the saturated entropy for the given value of the enthalpy
+		ssat = this->entropy_Trho(Tsat, rhosat);
+		
+		if (fabs(s - ssat) < ssat_tol) // It's saturated vapor
+		{
+			*Tout = Tsat; *rhoout = rhoV; *rhoLout = rhoL; *rhoVout = rhoV; *TsatLout = TL; *TsatVout = TV;
+			return;
+		}
+		else if (s < ssat)// It's subcooled liquid
+		{
+			int iter = 0;
+			double logpL, logpR, logpM,TM,rhoM,dummy, sM;
+			
+			logpL = log(pressure_Trho(Tsat,rhosat));  logpR = log(10*crit.p);
+			
+			do
+			{
+				logpM = (logpL + logpR)/2;
+				temperature_ph(exp(logpM),h,&TM,&rhoM,&dummy,&dummy,&dummy,&dummy);
+				sM = entropy_Trho(TM,rhoM);
+				if (sM < s) 
+					{logpR = logpM;} // Keep the left half of the domain
+				else
+					{logpL = logpM;}// Keep the right half of the domain
+				iter += 1;
+			}
+			while (iter < 10);
+
+			rho_guess = rhoM;
+			T_guess = TM;
+		}
+		// If entropy greater than ssat, two-phase solution
+		else 
+		{
+			TsatL_candidate = Tsat;
+			TsatL_initialized = true;
+		}
+	}
+
+
+	// Branch #4 for enthalpy between critical enthalpy and minimum of enthalpy corresponding to the 
+	// critical point and the enthalpy corresponding to the
+	// saturated vapor at the minimum temperature
+	// (This branch might not exist)
+	else if (crit.h > HS.hV_Tmin && !singlephase_initialized)
+	{
+		double Tsat,rhosat,TL,TV,rhoL,rhoV;
+
+		// Get the saturated liquid state for the given enthalpy
+		this->saturation_h(h, limits.Tmin, crit.T, 0, &Tsat, &rhosat, &TL, &TV, &rhoL, &rhoV);
+
+		// Check the saturated entropy for the given value of the entropy
+		ssat = this->entropy_Trho(Tsat, rhosat);
+		
+		if (fabs(s - ssat) < ssat_tol) // It's saturated liquid
+		{
+			*Tout = Tsat;  *rhoout = rhoL; *rhoLout = rhoL; *rhoVout = rhoV; *TsatLout = TL; *TsatVout = TV;			
+			return;
+		}
+		else if (s < ssat) // It's subcooled liquid
+		{
+			int iter = 0;
+			double logpL, logpR, logpM,TM,rhoM,dummy, sM;
+			
+			logpL = log(pressure_Trho(Tsat,rhosat));
+			logpR = log(10*crit.p);
+			
+			do
+			{
+				logpM = (logpL + logpR)/2;
+				temperature_ph(exp(logpM),h,&TM,&rhoM,&dummy,&dummy,&dummy,&dummy);
+				sM = entropy_Trho(TM,rhoM);
+				if (sM < s) 
+					{logpR = logpM;} // Keep the left half of the domain
+				else
+					{logpL = logpM;}// Keep the right half of the domain
+				iter += 1;
+			}
+			while (iter < 10);
+
+			rho_guess = rhoM;
+			T_guess = TM;
+		}
+		else 
+		{
+			TsatL_candidate = Tsat;
+			TsatL_initialized = true;
+		}
+		
+	}
+
+	// Two-phase solutions not handled in branch #1 that are not saturated
+	if (!singlephase_initialized && TsatL_initialized && TsatV_initialized)
+	{
 		// First check for two-phase
 		HSSatFuncClass SatFunc(h,s,this);
 		try{
-			*Tout = Brent(&SatFunc, limits.Tmin, Tmax, 1e-16, 1e-12, 100, &errstr);
-			if (SatFunc.Q > 1 + 1e-10 || SatFunc.Q-1e-10 < 0){ 
+			*Tout = Brent(&SatFunc, TsatL_candidate, TsatV_candidate, 1e-16, 1e-8, 100, &errstr);
+			if (SatFunc.Q > 1+1e-8 || SatFunc.Q < 0-1e-8){ 
 				throw ValueError("Solution must be within the two-phase region"); 
 			} 
 			// It is two-phase, we are done, no exceptions were raised
-			*rhoout = SatFunc.rho;
-			*rhoLout = SatFunc.rhoL;
-			*rhoVout = SatFunc.rhoV;
-			*TsatLout = *Tout;
-			*TsatVout = *Tout;
+			*rhoout = SatFunc.rho; *rhoLout = SatFunc.rhoL;  *rhoVout = SatFunc.rhoV; *TsatLout = *Tout; *TsatVout = *Tout;
 			return;
 		}
 		catch(std::exception){
-			*rhoout = _HUGE; *rhoLout = _HUGE; *rhoVout = _HUGE; *TsatLout = _HUGE; *TsatVout = _HUGE;
-			return;
+			throw ValueError(format("HS:2phase failed").c_str());
 		}
 	}
-	else // Not two-phase
+
+	if (!singlephase_initialized)
 	{
-		rho_guess = 1;
-		T_guess = 300;
+		throw ValueError(format("HS:1phase, but not initialized").c_str());
 	}
 
 	//HSSatFuncClass SatFunc(h,s,this);

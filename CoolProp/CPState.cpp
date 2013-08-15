@@ -882,6 +882,8 @@ double CoolPropStateClass::keyed_output(long iOutput)
 			return pFluid->crit.p;
 		case iTcrit:
 			return pFluid->crit.T;
+		case iTreduce:
+			return pFluid->reduce.T;
 		case iScrit:
 			return pFluid->crit.s;
 		case iHcrit:
@@ -892,6 +894,8 @@ double CoolPropStateClass::keyed_output(long iOutput)
 			return pFluid->params.ptriple;
 		case iRhocrit:
 			return pFluid->crit.rho;
+		case iRhoreduce:
+			return pFluid->reduce.rho;
 		case iAccentric: 
 			return pFluid->params.accentricfactor;
 		case iTmin:

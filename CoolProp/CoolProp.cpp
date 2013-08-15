@@ -71,6 +71,8 @@ std::pair<std::string, long> map_data[] = {
 	std::make_pair(std::string("ptriple"),iPtriple),
 	std::make_pair(std::string("rhocrit"),iRhocrit),
 	std::make_pair(std::string("Tcrit"),iTcrit),
+	std::make_pair(std::string("Treduce"),iTreduce),
+	std::make_pair(std::string("rhoreduce"),iRhoreduce),
 	std::make_pair(std::string("Hcrit"),iHcrit),
 	std::make_pair(std::string("Scrit"),iScrit),
 
@@ -1093,6 +1095,8 @@ double _CoolProp_Fluid_Props(long iOutput, long iName1, double Prop1, long iName
 		case iCritSplineT:
 		case iScrit:
 		case iHcrit:
+		case iTreduce:
+		case iRhoreduce:
 			return CPS.keyed_output(iOutput);
 	}
 

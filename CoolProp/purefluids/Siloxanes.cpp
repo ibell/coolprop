@@ -421,35 +421,47 @@ DodecamethylpentasiloxaneClass::DodecamethylpentasiloxaneClass()
 	BibTeXKeys.EOS = "Colonna-FPE-2008";
 	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
 }
-double DodecamethylpentasiloxaneClass::rhosatL(double T) 
+double DodecamethylpentasiloxaneClass::psat(double T)
 {
-	double theta = 1-T/reduce.T;
-	double RHS,rho;
-
-	// Max error is 0.189418 %
-	RHS = +1.444130*pow(theta,0.283323)-0.302728*pow(theta,2.044798)+0.541210*pow(theta,3.052636)+0.068940*pow(theta,4.204474)-0.201696*pow(theta,5.091646)-0.097683*pow(theta,5.995629);
-	rho = exp(RHS)*reduce.rho;
-	return rho;
+    // Maximum absolute error is 0.049309 % between 192.000000 K and 628.359990 K
+    const double t[]={0, 1, 2, 3, 4, 5, 8, 11, 17, 25, 33};
+    const double N[]={0, 0.012903285471939724, -9.3742788200323659, 1.6784591228500836, 1.2447272687580349, -6.5315300223352475, -3.4994781732561626, -5.8756308387516496, 12.286874007595406, -38.863256533012382, 41.889816184388344};
+    double summer=0,theta;
+    theta=1-T/reduce.T;
+    for (int i=1;i<=9;i++)
+    {
+        summer += N[i]*pow(theta,t[i]/2);
+    }
+    return reduce.p*exp(reduce.T/T*summer);
 }
-double DodecamethylpentasiloxaneClass::rhosatV(double T) 
-{
-	double theta = 1-T/reduce.T;
-	double RHS,rho;
 
-	// Max error is 0.438429 %
-	RHS = -0.684316*pow(theta,0.224289)-5.775962*pow(theta,0.647314)-4.949845*pow(theta,12.992735)-5.441576*pow(theta,2.995052)-4.656813*pow(theta,3.081345)-2.895576*pow(theta,5.572842);
-	rho = exp(RHS*reduce.T/T)*reduce.rho;
-	return rho;
+double DodecamethylpentasiloxaneClass::rhosatL(double T)
+{
+    // Maximum absolute error is 0.288378 % between 192.000000 K and 628.360000 K
+    const double t[] = {0, 0.3333333333333333, 0.5, 0.6666666666666666, 0.8333333333333334, 1.0, 1.1666666666666667, 1.3333333333333333, 1.5, 1.6666666666666667, 1.8333333333333333};
+    const double N[] = {0, -2.8756454677232282, 58.702098949984546, -312.49817605073389, 1216.0740391388877, -3953.7402984826108, 9489.6576229693947, -14861.937754088141, 14106.261719203909, -7352.4250932407413, 1616.4437867458232};
+    double summer=0,theta;
+    theta=1-T/reduce.T;
+    	
+	for (int i=1; i<=10; i++)
+	{
+		summer += N[i]*pow(theta,t[i]);
+	}
+	return reduce.rho*(summer+1);
 }
-double DodecamethylpentasiloxaneClass::psat(double T) 
-{
-    double theta = 1-T/reduce.T;
-	double RHS,p;
 
-	// Max error is 1.742903 %
-	RHS = -9.420404*pow(theta,1.006686)-196.634130*pow(theta,11.675161)-33.068505*pow(theta,29.446680)-75.039718*pow(theta,5.418764)-24.437771*pow(theta,2.613191);
-	p = exp(RHS)*reduce.p;
-	return p;
+double DodecamethylpentasiloxaneClass::rhosatV(double T)
+{
+    // Maximum absolute error is 0.165855 % between 192.000000 K and 628.360000 K
+    const double t[] = {0, 0.3333333333333333, 0.5, 0.6666666666666666, 0.8333333333333334, 1.0, 1.1666666666666667, 1.3333333333333333, 1.5, 1.6666666666666667, 1.8333333333333333, 2.0, 2.3333333333333335, 2.6666666666666665, 3.0, 3.3333333333333335};
+    const double N[] = {0, -8.1412243969392986, 465.78213307742897, -10070.395070453211, 113934.3138003942, -797658.75904416665, 3713183.847053702, -11886054.42914509, 26400426.037794076, -40022635.392553486, 38973041.838086836, -19997978.986398581, 4823720.3256814424, -1716855.6651460216, 473036.175360589, -66568.844348660248};
+    double summer=0,theta;
+    theta=1-T/reduce.T;	
+	for (int i=1; i<=15; i++)
+	{
+		summer += N[i]*pow(theta,t[i]);
+	}
+	return reduce.rho*exp(reduce.T/T*summer);
 }
 
 //D6
