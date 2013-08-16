@@ -168,16 +168,6 @@ void CoolPropStateClass::update(long iInput1, double Value1, long iInput2, doubl
 		}
 	}
 
-	// Pseudo-pure fluids cannot use T,Q as inputs if Q is not 0 or 1
-	if (!pFluid->pure() && match_pair(iInput1,iInput2,iT,iQ))
-	{
-		// Sort so they are in the order T, Q
-		sort_pair(&iInput1,&Value1,&iInput2,&Value2,iT,iQ);
-		if (!(fabs(Value2) < 10*DBL_EPSILON) && !(fabs(Value2-1) < 10*DBL_EPSILON)){
-			throw ValueError(format("Pseudo-pure fluids cannot use temperature-quality as inputs if Q is not 1 or 0"));
-		}
-	}
-
 	// Don't know if it is single phase or not, so assume it isn't
 	SinglePhase = false;
 	
@@ -316,9 +306,15 @@ void CoolPropStateClass::update_twophase(long iInput1, double Value1, long iInpu
 	else{
 		// Sort so they are in the order T, Q
 		sort_pair(&iInput1,&Value1,&iInput2,&Value2,iT,iQ);
+
+		// Pseudo-pure fluids cannot use T,Q as inputs if Q is not 0 or 1
+		if (!pFluid->pure() && !(fabs(Value2) < 10*DBL_EPSILON) && !(fabs(Value2-1) < 10*DBL_EPSILON))
+		{
+			throw ValueError(format("Pseudo-pure fluids cannot use temperature-quality as inputs if Q is not 1 or 0"));
+		}
 		
 		// Out-of-range checks
-		if (Value1 < pFluid->limits.Tmin-10*DBL_EPSILON || Value1 > pFluid->crit.T+1e-8){ throw ValueError(format("Your saturation temperature [%f K] is out of range [%f K, %f K]",Value1,pFluid->limits.Tmin, pFluid->crit.T ));}
+		if (Value1 < pFluid->limits.Tmin-10*DBL_EPSILON || Value1 > pFluid->crit.T+10*DBL_EPSILON){ throw ValueError(format("Your saturation temperature [%f K] is out of range [%f K, %f K]",Value1,pFluid->limits.Tmin, pFluid->crit.T ));}
 		if (Value2 > 1+10*DBL_EPSILON || Value2 < -10*DBL_EPSILON){ throw ValueError(format("Your quality [%f] is out of range (0, 1)",Value2 )); }
 		
 		// Carry out the saturation call to get the temperature and density for each phases
