@@ -32,7 +32,7 @@ def test_subcrit_twophase_consistency():
     for Fluid in reversed(sorted(CoolProp.__fluids__)):
         Tmin = Props(Fluid,'Tmin')
         Tcrit = Props(Fluid,'Tcrit')
-        for T in [Tmin + 1, (Tmin+Tcrit)/2.0]:
+        for T in [(Tmin+Tcrit)/2.0, 0.95*Tcrit]:
             for mode in modes:
                 rhoL = Props('D','T',T,'Q',0,Fluid)
                 rhoV = Props('D','T',T,'Q',1,Fluid)

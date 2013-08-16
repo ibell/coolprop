@@ -11,8 +11,8 @@ def accent_substitutions(name):
                ("{\\`a}",'\xe0'), # à
                ("{\\'i}",'\xed'), # í
                ("{\\'i}",'\xed'), # í
-               ('{\\"o}','\xf6'), # ö
-               ('{\\"u}','\xfc'), # ü
+               ('{\\\"o}','\xf6'), # ö
+               ('{\\\"u}','\xfc'), # ü
                ('{\\v s}','\x161'), # š
                ]
     for old, new in mapping:

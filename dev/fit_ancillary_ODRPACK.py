@@ -336,8 +336,8 @@ def saturation_pressure(Ref, ClassName, fName = None):
     f.close()
     return
                       
-                      
-for RPFluid,Fluid in [('REFPROP-'+get_REFPROPname('R161'),'R161'),
+#for RPFluid,Fluid in [('REFPROP-'+get_REFPROPname('R11'),'R11'),                      
+for RPFluid,Fluid in [('R11','R11'),
                     ]:
     #saturation_pressure_brute(RPFluid, Fluid
     saturation_pressure(RPFluid, Fluid)
