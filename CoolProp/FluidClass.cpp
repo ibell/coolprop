@@ -1089,11 +1089,11 @@ double Fluid::density_Tp(double T, double p, double rho_guess)
 
         if (iter>30)
         {
-			throw SolutionError(format("Number of steps in density_TP has exceeded 30 with inputs T=%g,p=%g,rho_guess=%g for fluid %s\n",T,p,rho_guess,name.c_str()));
+			throw SolutionError(format("Number of steps in density_TP has exceeded 30 with inputs T=%g,p=%g,rho_guess=%g for fluid %s",T,p,rho_guess,name.c_str()));
         }
 		if (!ValidNumber(rho))
 		{
-			throw SolutionError(format("Non-numeric density obtained in density_TP with inputs T=%g,p=%g,rho_guess=%g for fluid %s\n",T,p,rho_guess,name.c_str()));
+			throw SolutionError(format("Non-numeric density obtained in density_TP with inputs T=%g,p=%g,rho_guess=%g for fluid %s",T,p,rho_guess,name.c_str()));
 		}
     }	
 	if (debug()>8){
@@ -1235,7 +1235,7 @@ void Fluid::saturation_h(double h, double Tmin, double Tmax, int Q, double *Tsat
 		else
 		{
 			std::string errstr;
-			*Tsatout = Brent(&SatFunc,Tmin,Tmax,1e-16,1e-8,100,&errstr);
+			*Tsatout = Brent(&SatFunc,Tmin,Tmax,1e-16,1e-10,100,&errstr);
 			*rhoout = SatFunc.rho;
 			*rhoLout = SatFunc.rhoL;
 			*rhoVout = SatFunc.rhoV;
@@ -2504,7 +2504,7 @@ void Fluid::temperature_hs(double h, double s, double *Tout, double *rhoout, dou
 		singlephase_initialized = true;
 	}
 
-	// Branch #1
+	// Branch #1 (liquid curve)
 	if (h < HS.hV_Tmin && h < crit.h && !singlephase_initialized)
 	{
 		double Tsat,rhosat,TL,TV,rhoL,rhoV;
@@ -2593,7 +2593,7 @@ void Fluid::temperature_hs(double h, double s, double *Tout, double *rhoout, dou
 
 
 
-	// Branch #2 between hmax and the maximum of the enthalpy corresponding to the 
+	// Branch #2 (vapor curve) between hmax and the maximum of the enthalpy corresponding to the 
 	// critical point and the enthalpy corresponding to the
 	// saturated vapor at the minimum temperature
 	if ((h > HS.hV_Tmin && h > crit.h) && !singlephase_initialized)
@@ -2646,7 +2646,7 @@ void Fluid::temperature_hs(double h, double s, double *Tout, double *rhoout, dou
 	}
 
 	
-	// Branch #3 for enthalpy between critical enthalpy and maximum saturated enthalpy
+	// Branch #3 (vapor curve) for enthalpy between critical enthalpy and maximum saturated enthalpy
 	if (h > crit.h && !singlephase_initialized) // By the above conditional the enthalpy is below max
 	{
 		double Tsat,rhosat,TL,TV,rhoL,rhoV;
@@ -2697,7 +2697,7 @@ void Fluid::temperature_hs(double h, double s, double *Tout, double *rhoout, dou
 	}
 
 
-	// Branch #4 for enthalpy between critical enthalpy and minimum of enthalpy corresponding to the 
+	// Branch #4 (liquid curve) for enthalpy between critical enthalpy and minimum of enthalpy corresponding to the 
 	// critical point and the enthalpy corresponding to the
 	// saturated vapor at the minimum temperature
 	// (This branch might not exist)

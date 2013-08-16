@@ -318,7 +318,7 @@ void CoolPropStateClass::update_twophase(long iInput1, double Value1, long iInpu
 		sort_pair(&iInput1,&Value1,&iInput2,&Value2,iT,iQ);
 		
 		// Out-of-range checks
-		if (Value1 < pFluid->limits.Tmin-10*DBL_EPSILON || Value1 > pFluid->crit.T+10*DBL_EPSILON){ throw ValueError(format("Your saturation temperature [%f K] is out of range [%f K, %f K]",Value1,pFluid->limits.Tmin, pFluid->reduce.T ));}
+		if (Value1 < pFluid->limits.Tmin-10*DBL_EPSILON || Value1 > pFluid->crit.T+1e-8){ throw ValueError(format("Your saturation temperature [%f K] is out of range [%f K, %f K]",Value1,pFluid->limits.Tmin, pFluid->crit.T ));}
 		if (Value2 > 1+10*DBL_EPSILON || Value2 < -10*DBL_EPSILON){ throw ValueError(format("Your quality [%f] is out of range (0, 1)",Value2 )); }
 		
 		// Carry out the saturation call to get the temperature and density for each phases

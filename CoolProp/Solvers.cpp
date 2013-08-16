@@ -68,7 +68,7 @@ double Secant(FuncWrapper1D *f, double x0, double dx, double tol, int maxiter, s
 	*errstring=std::string("");
 	
 	if (fabs(dx)==0){ *errstring=std::string("dx cannot be zero"); return _HUGE;}
-    while ((iter<=3 || fabs(fval)>tol) && iter<100)
+    while ((iter<=2 || fabs(fval)>tol) && iter<100)
     {
         if (iter==1){x1=x0; x=x1;}
         if (iter==2){x2=x0+dx; x=x2;}
@@ -86,6 +86,59 @@ double Secant(FuncWrapper1D *f, double x0, double dx, double tol, int maxiter, s
 		{
 			*errstring=std::string("reached maximum number of iterations");
 			throw SolutionError(format("Secant reached maximum number of iterations"));
+		}
+        iter=iter+1;
+    }
+    return x3;
+}
+
+/**
+In the secant function, a 1-D Newton-Raphson solver is implemented.  An initial guess for the solution is provided.
+
+@param f A pointer to an instance of the FuncWrapper1D class that implements the call() function 
+@param x0 The inital guess for the solution
+@param xmax The upper bound for the solution
+@param xmin The lower bound for the solution
+@param dx The initial amount that is added to x in order to build the numerical derivative
+@param tol The absolute value of the tolerance accepted for the objective function
+@param maxiter Maximum number of iterations
+@param errstring A pointer to the std::string that returns the error from Secant.  Length is zero if no errors are found
+@returns If no errors are found, the solution, otherwise the value _HUGE, the value for infinity
+*/
+double BoundedSecant(FuncWrapper1D *f, double x0, double xmin, double xmax, double dx, double tol, int maxiter, std::string *errstring)
+{
+	double x1=0,x2=0,x3=0,y1=0,y2=0,x,fval=999;
+    int iter=1;
+	*errstring=std::string("");
+	
+	if (fabs(dx)==0){ *errstring=std::string("dx cannot be zero"); return _HUGE;}
+    while ((iter<=3 || fabs(fval)>tol) && iter<100)
+    {
+        if (iter==1){x1=x0; x=x1;}
+        if (iter==2){x2=x0+dx; x=x2;}
+        if (iter>2) {x=x2;}
+			fval=f->call(x);
+        if (iter==1){y1=fval;}
+        if (iter>1)
+        {
+            y2=fval;
+            x3=x2-y2/(y2-y1)*(x2-x1);
+			// Check bounds, go half the way to the limit if limit is exceeded
+			if (x3 < xmin)
+			{
+				x3 = (xmin + x2)/2;
+			}
+			if (x3 > xmax)
+			{
+				x3 = (xmax + x2)/2;
+			}
+            y1=y2; x1=x2; x2=x3;
+			
+        }
+		if (iter>maxiter)
+		{
+			*errstring=std::string("reached maximum number of iterations");
+			throw SolutionError(format("BoundedSecant reached maximum number of iterations"));
 		}
         iter=iter+1;
     }

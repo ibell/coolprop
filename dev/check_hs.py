@@ -25,7 +25,7 @@ for Fluid in CoolProp.__fluids__:
     sV_Tmin = Props('S','T',Props(Fluid,"Tmin"),'Q',1,Fluid)
     
     hs(Fluid, axis = ax)
-    plt.plot(s_crit,h_crit,'d')
+    plt.plot(s_crit,h_crit,'rd')
     plt.plot([sL_Tmin,sV_Tmin],[hL_Tmin,hV_Tmin],'--')
     plt.gca().axhline(h_crit)
     plt.gca().axhline(hV_Tmin)
@@ -37,10 +37,10 @@ for Fluid in CoolProp.__fluids__:
                 h = Props("H",'Q',Q,'T',T,Fluid)
                 s = Props("S",'Q',Q,'T',T,Fluid)
                 T = Props("T",'S',s,'H',h,Fluid)
+                #ax.plot(s,h,'o',mfc='none')
+            except ValueError as VE:
+                print T, Q , '|||', '"T","S",',s,',"H",',h,',"'+Fluid+'"', '|||', VE
                 ax.plot(s,h,'o',mfc='none')
-            except ValueError:
-                print T, Q , '|||', '"T","S",',s,',"H",',h,',"'+Fluid+'"'
-                ax.plot(s,h,'bo')
                 
 ##     
 ##     for h in np.linspace(hL_Tmin, hV_Tmin + 1500,100):
@@ -70,3 +70,4 @@ for Fluid in CoolProp.__fluids__:
 ##         plt.gca().axhline(268.75968916316691)
     
     fig.savefig('figs/'+Fluid+'.png',dpi=200)
+    fig.savefig('figs/'+Fluid+'.pdf')
