@@ -23,18 +23,25 @@ for Fluid in CoolProp.__fluids__:
     hV_Tmin = Props('H','T',Props(Fluid,"Tmin"),'Q',1,Fluid)
     sL_Tmin = Props('S','T',Props(Fluid,"Tmin"),'Q',0,Fluid)
     sV_Tmin = Props('S','T',Props(Fluid,"Tmin"),'Q',1,Fluid)
-
-##     # Two-Phase
-##     for T in np.linspace(Props(Fluid,"Tmin")+0.1,Props(Fluid,"Tcrit"),30):
-##         for Q in np.linspace(0,1,30):
-##             try:
-##                 h = Props("H",'Q',Q,'T',T,Fluid)
-##                 s = Props("S",'Q',Q,'T',T,Fluid)
-##                 T = Props("T",'S',s,'H',h,Fluid)
-##                 ax.plot(s,h,'o',mfc='none')
-##             except ValueError:
-##                 ax.plot(s,h,'bo')
-##                 print '"T","S",',s,',"H",',h,',"'+Fluid+'"'
+    
+    hs(Fluid, axis = ax)
+    plt.plot(s_crit,h_crit,'d')
+    plt.plot([sL_Tmin,sV_Tmin],[hL_Tmin,hV_Tmin],'--')
+    plt.gca().axhline(h_crit)
+    plt.gca().axhline(hV_Tmin)
+    
+    # Two-Phase
+    for T in np.linspace(Props(Fluid,"Tmin")+0.1,Props(Fluid,"Tcrit"),30):
+        for Q in np.linspace(0, 1, 30):
+            try:
+                h = Props("H",'Q',Q,'T',T,Fluid)
+                s = Props("S",'Q',Q,'T',T,Fluid)
+                T = Props("T",'S',s,'H',h,Fluid)
+                ax.plot(s,h,'o',mfc='none')
+            except ValueError:
+                print T, Q , '|||', '"T","S",',s,',"H",',h,',"'+Fluid+'"'
+                ax.plot(s,h,'bo')
+                
 ##     
 ##     for h in np.linspace(hL_Tmin, hV_Tmin + 1500,100):
 ##         for s in np.linspace(sL_Tmin+0.01,sV_Tmin,100):
@@ -48,14 +55,7 @@ for Fluid in CoolProp.__fluids__:
 ##                 ax.plot(s,h,'bo',ms = 6)
 ##     
 ##     ax.axvline(s_crit)
-    
-
-
-    hs(Fluid, axis = ax)
-    plt.plot(s_crit,h_crit,'d')
-    plt.plot([sL_Tmin,sV_Tmin],[hL_Tmin,hV_Tmin],'--')
-    plt.gca().axhline(h_crit)
-    plt.gca().axhline(hV_Tmin)
+   
 
 ##     if Fluid =='Propane':
 ##         ps = Props("P",'T',300,'Q',0,Fluid);

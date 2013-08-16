@@ -94,7 +94,7 @@ cpdef add_REFPROP_fluid(str FluidName):
     
 cpdef long get_Fluid_index(str Fluid):
     """
-    
+    Gets the integer index of the given CoolProp fluid (primarily for use in ``IProps`` function)
     """
     return _get_Fluid_index(Fluid.encode('ascii'))
     
@@ -188,7 +188,6 @@ def PropsU(in1, in2, in3 = None, in4 = None, in5 = None, in6 = None, in7 = None)
         msg = 'Your requested unit set '+str(in7)+' is not supported, valid unit definitions are kSI and SI only.'
         #print msg
         raise ValueError(msg)
-    
     
 cpdef Props(str in1, str in2, in3 = None, in4 = None, in5 = None, in6 = None, in7 = None):
     """
@@ -399,7 +398,7 @@ cpdef Props(str in1, str in2, in3 = None, in4 = None, in5 = None, in6 = None, in
 def DerivTermsU(in1, T, rho, fluid, units = None):
     """Make the DerivTerms function handle different kinds of unit sets. Use 
     kSI or SI to identify your desired unit system. Both input and output 
-    values have to be from the same unit set.  
+    values have to be from the same unit set.
     """
     if units is None or units == 'kSI':
         return DerivTermsU(in1, T, rho, fluid)
@@ -409,7 +408,7 @@ def DerivTermsU(in1, T, rho, fluid, units = None):
         #print msg
         raise ValueError(msg)
    
-cpdef double DerivTerms(bytes_or_str Output, double T, double rho, bytes_or_str Fluid):
+cpdef double DerivTerms(string Output, double T, double rho, string Fluid):
     """
 
     .. |cubed| replace:: \ :sup:`3`\ 
@@ -450,19 +449,19 @@ cpdef double DerivTerms(bytes_or_str Output, double T, double rho, bytes_or_str 
     |IC|                      Isothermal compressibility [1/kPa]
     ========================  =====================================================================================================================================
     """
-    cdef bytes _Fluid = Fluid if bytes_or_str is bytes else Fluid.encode('ascii')
-    cdef bytes _Output = Output if bytes_or_str is bytes else Output.encode('ascii')
+    cdef bytes _Fluid = Fluid.encode('ascii')
+    cdef bytes _Output = Output.encode('ascii')
     return _DerivTerms(_Output,T,rho,_Fluid)
 
-cpdef string Phase_Tp(bytes_or_str Fluid, double T, double p):
-    cdef bytes _Fluid = Fluid if bytes_or_str is bytes else Fluid.encode('ascii')
+cpdef string Phase_Tp(str Fluid, double T, double p):
+    cdef bytes _Fluid = Fluid.encode('ascii')
     return _Phase_Tp(_Fluid,T,p)
     
-cpdef string Phase_Trho(bytes_or_str Fluid, double T, double rho):
-    cdef bytes _Fluid = Fluid if bytes_or_str is bytes else Fluid.encode('ascii')
+cpdef string Phase_Trho(str Fluid, double T, double rho):
+    cdef bytes _Fluid = Fluid.encode('ascii')
     return _Phase_Trho(_Fluid,T,rho)
     
-cpdef string Phase(bytes_or_str Fluid, double T, double p):
+cpdef string Phase(str Fluid, double T, double p):
     """
     Given a set of temperature and pressure, returns one of the following strings
 
@@ -491,16 +490,16 @@ cpdef string Phase(bytes_or_str Fluid, double T, double p):
            b: critical point
            a-b: Saturation line
     """
-    cdef bytes _Fluid = Fluid if bytes_or_str is bytes else Fluid.encode('ascii')
+    cdef bytes _Fluid = Fluid.encode('ascii')
     return _Phase(_Fluid,T,p)
 
-cpdef F2K(double T_F):
+cpdef double F2K(double T_F):
     """
     Convert temperature in degrees Fahrenheit to Kelvin
     """
     return _F2K(T_F)
 
-cpdef K2F(double T_K):
+cpdef double K2F(double T_K):
     """
     Convert temperature in Kelvin to degrees Fahrenheit
     """
@@ -528,11 +527,11 @@ cpdef list FluidsList():
     cdef string FL = _FluidsList()
     return [F.encode('ascii') for F in FL.decode('ascii').split(',')]
 
-cpdef get_aliases(bytes_or_str Fluid):
+cpdef get_aliases(str Fluid):
     """
     Return a comma separated string of aliases for the given fluid
     """
-    cdef bytes _Fluid = Fluid if bytes_or_str is bytes else Fluid.encode('ascii')
+    cdef bytes _Fluid = Fluid.encode('ascii')
     return [F.encode('ascii') for F in (_get_aliases(_Fluid).encode('ascii')).decode('ascii').split(',')]
 
 cpdef get_ASHRAE34(str Fluid):
@@ -542,7 +541,7 @@ cpdef get_ASHRAE34(str Fluid):
     cdef bytes _Fluid = Fluid.encode('ascii')
     return _get_ASHRAE34(_Fluid)
     
-cpdef string get_REFPROPname(bytes_or_str Fluid):
+cpdef string get_REFPROPname(str Fluid):
     """
     Return the REFPROP compatible name for the fluid (only useful on windows)
     
@@ -558,7 +557,7 @@ cpdef string get_REFPROPname(bytes_or_str Fluid):
        
        In [2]: Props('D', 'T', 300, 'P', 300, Fluid)
     """
-    cdef bytes _Fluid = Fluid if bytes_or_str is bytes else Fluid.encode('ascii')
+    cdef bytes _Fluid = Fluid.encode('ascii')
     return _get_REFPROPname(_Fluid)
 
 cpdef string get_BibTeXKey(str Fluid, str key):
@@ -609,39 +608,25 @@ cpdef get_debug():
     """
     return _get_debug()
     
-cpdef string get_CAS_code(bytes_or_str Fluid):
+cpdef string get_CAS_code(string Fluid):
     """
-    Return a string with the CAS number for the fluids
+    Return a string with the CAS number for the given fluid
     """
-    cdef bytes _Fluid = Fluid if bytes_or_str is bytes else Fluid.encode('ascii')
-    return _get_CAS_code(_Fluid)
+    return _get_CAS_code(Fluid)
     
-cpdef string get_EOSReference(bytes_or_str Fluid):
-    """
-    Return a string with the reference for the equation of state
-    """
-    cdef bytes _Fluid = Fluid if bytes_or_str is bytes else Fluid.encode('ascii')
-    return _get_EOSReference(_Fluid)
-
-cpdef string get_TransportReference(bytes_or_str Fluid):
-    """
-    Return a string with the reference for the transport properties (thermal conductivity, viscosity, surface tension)
-    """
-    cdef bytes _Fluid = Fluid if bytes_or_str is bytes else Fluid.encode('ascii')
-    return _get_TransportReference(_Fluid)
-    
-cpdef bint IsFluidType(bytes_or_str Fluid, bytes_or_str Type):
+cpdef bint IsFluidType(string Fluid, string Type):
     """
     Check if a fluid is of a given type
     
     Valid types are:
-    - Brine
-    - PseudoPure (or equivalently PseudoPureFluid)
-    - PureFluid
+    
+    * ``Brine``
+    * ``PseudoPure`` (or equivalently ``PseudoPureFluid``)
+    * ``PureFluid``
     """
-    cdef bytes _Fluid = Fluid if bytes_or_str is bytes else Fluid.encode('ascii')
-    cdef bytes _Type = Type if bytes_or_str is bytes else Type.encode('ascii')
-    if _IsFluidType(_Fluid, _Type):
+    cdef bytes _Fluid = Fluid.encode('ascii')
+    cdef bytes _Type = Type.encode('ascii')
+    if _IsFluidType(_Fluid,_Type):
         return True
     else:
         return False
@@ -684,6 +669,7 @@ cpdef tuple get_TTSESinglePhase_LUT_range(char *FluidName):
     Returns
     -------
     tuple of hmin,hmax,pmin,pmax
+    
     """
     cdef double hmin = 0, hmax = 0, pmin = 0, pmax = 0
     #In cython, hmin[0] to get pointer rather than &hmin
@@ -780,20 +766,21 @@ cdef class State:
     
     Let's suppose that you have inputs of pressure and temperature and you want
     to calculate the enthalpy and pressure.  Since the Equations of State are
-    all explicit in temperature and density, each time you call something like
+    all explicit in temperature and density, each time you call something like::
     
         h = Props('H','T',T','P',P,Fluid)
         s = Props('S','T',T','P',P,Fluid)
         
     the solver is used to carry out the T-P flash calculation. And if you wanted
-    entropy as well you could either intermediately calculate ``T``,``rho`` and then use
-    ``T``, ``rho`` in the EOS in a manner like
+    entropy as well you could either intermediately calculate ``T``, ``rho`` and then use
+    ``T``, ``rho`` in the EOS in a manner like::
     
         rho = Props('D','T',T','P',P,Fluid)
         h = Props('H','T',T','D',rho,Fluid)
         s = Props('S','T',T','D',rho,Fluid)
         
-    Instead in this class all that is handled internally. 
+    Instead in this class all that is handled internally. So the call to update
+    sets the internal variables in the most computationally efficient way possible
     """
         
     def __init__(self, bytes Fluid, dict StateDict, double xL=-1.0, object Liquid = None, object phase = None):
@@ -804,7 +791,7 @@ cdef class State:
         StateDict, dictionary
             The state of the fluid - passed to the update function
         phase, string
-            The phase of the fluid, it it is known.  One of 'Gas','Liquid','Supercritical','TwoPhase'
+            The phase of the fluid, it it is known.  One of ``Gas``,``Liquid``,``Supercritical``,``TwoPhase``
         xL, float
             Liquid mass fraction (not currently supported)
         Liquid, string

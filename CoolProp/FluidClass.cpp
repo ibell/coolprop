@@ -968,7 +968,8 @@ double Fluid::density_Tp_PengRobinson(double T, double p, int solution)
 
 /*!
 
-\[\begin{array}{l}
+\f[
+\begin{array}{l}
 p = \frac{{RT}}{{v - b}} - \frac{{a\alpha }}{{v\left( {v + b} \right)}}\\
 \alpha  = \left( {1 + \kappa \left( {1 - \sqrt {{T_r}} } \right)} \right)\left( {1 + \kappa \left( {1 - \sqrt {{T_r}} } \right)} \right) = 1 + 2\kappa \left( {1 - \sqrt {{T_r}} } \right) + {\kappa ^2}{\left( {1 - \sqrt {{T_r}} } \right)^2}\\
 \alpha  = 1 + 2\kappa \left( {1 - \sqrt {{T_r}} } \right) + {\kappa ^2}{\left( {1 - \sqrt {{T_r}} } \right)^2}\\
@@ -982,7 +983,8 @@ p = \frac{{R{T_r}{T_c}}}{{v - b}} - \frac{{a\left( {1 + 2\kappa  + {\kappa ^2} -
 p = \frac{{R{T_r}{T_c}}}{{v - b}} - \frac{{a\left( {1 + 2\kappa  + {\kappa ^2} - 2\kappa (1 + \kappa )\sqrt {{T_r}}  + {\kappa ^2}{T_r}} \right)}}{{v\left( {v + b} \right)}}\\
 p = \frac{{R{T_r}{T_c}}}{{v - b}} - \frac{{a\left( {1 + 2\kappa  + {\kappa ^2}} \right)}}{{v\left( {v + b} \right)}} + \frac{{2a\kappa (1 + \kappa )}}{{v\left( {v + b} \right)}}\sqrt {{T_r}}  - \frac{{a{\kappa ^2}}}{{v\left( {v + b} \right)}}{T_r}\\
 0 = \left[ {\frac{{R{T_c}}}{{v - b}} - \frac{{a{\kappa ^2}}}{{v\left( {v + b} \right)}}} \right]{T_r} + \frac{{2a\kappa (1 + \kappa )}}{{v\left( {v + b} \right)}}\sqrt {{T_r}}  - \frac{{a\left( {1 + 2\kappa  + {\kappa ^2}} \right)}}{{v\left( {v + b} \right)}} - p
-\end{array}\]
+\end{array}
+\f]
 
 */
 double Fluid::temperature_prho_PengRobinson(double p, double rho)
@@ -2441,22 +2443,23 @@ public:
 		hV = pFluid->enthalpy_Trho(T,rhoV);
 		sL = pFluid->entropy_Trho(T,rhoL);
 		sV = pFluid->entropy_Trho(T,rhoV);
-		r = (this->h-hL)/(hV-hL)-(this->s-sL)/(sV-sL);
-		Q = (this->s-sL)/(sV-sL);
+		// Enthalpy from the linear h-s curve for the isotherm through the two-phase
+		double h_s = (hV-hL)/(sV-sL)*(this->s-sL)+hL;
+		Q = (h-hL)/(hV-hL);
 		rho = 1/(Q/rhoV+(1-Q)/rhoL);
-		return r;
+		return this->h-h_s;
 	};
 };
 
 void Fluid::temperature_hs(double h, double s, double *Tout, double *rhoout, double *rhoLout, double *rhoVout, double *TsatLout, double *TsatVout)
 {
-	bool singlephase_initialized = false, TsatL_initialized = false, TsatV_initialized = false;
+	bool singlephase_initialized = false;
 	int iter;
 	double A[2][2], B[2][2], T_guess;
 	double dar_ddelta,da0_dtau,d2a0_dtau2,dar_dtau,d2ar_ddelta_dtau,d2ar_ddelta2,d2ar_dtau2,d2a0_ddelta_dtau,a0,ar,da0_ddelta;
 	double f1,f2,df1_dtau,df1_ddelta,df2_ddelta,df2_dtau;
     double tau,delta,worst_error,rho_guess, ssat, htriple_s;
-	double ssat_tol = 0.0001, TsatV_candidate, TsatL_candidate;
+	double ssat_tol = 0.0001;
 	std::string errstr;
 
 	// The enthalpy at the triple point (or minimum) temperature corresponding to the entropy
@@ -2471,12 +2474,7 @@ void Fluid::temperature_hs(double h, double s, double *Tout, double *rhoout, dou
 	// If you are AT the critical point, yield the critical point data
 	else if (fabs(h-crit.h) < 1e-6 && fabs(s-crit.s) < 1e-6)
 	{
-		*Tout = crit.T;
-		*rhoout = crit.rho;
-		*rhoLout = crit.rho;
-		*rhoVout = crit.rho;
-		*TsatLout = crit.T;
-		*TsatVout = crit.T;
+		*Tout = crit.T; *rhoout = crit.rho; *rhoLout = crit.rho; *rhoVout = crit.rho; *TsatLout = crit.T; *TsatVout = crit.T;
 		return;
 	}
 	// If above the maximum enthalpy, no need to do any saturation calls, just determine 
@@ -2527,8 +2525,8 @@ void Fluid::temperature_hs(double h, double s, double *Tout, double *rhoout, dou
 			// First check for two-phase
 			HSSatFuncClass SatFunc(h, s, this);
 			try{
-				*Tout = Brent(&SatFunc, limits.Tmin, crit.T-1e-4, 1e-16, 1e-8, 100, &errstr);
-				if (SatFunc.Q > 1+1e-8 || SatFunc.Q < 0-1e-8){ throw ValueError("Solution must be within the two-phase region"); } 
+				*Tout = Secant(&SatFunc,limits.Tmin,1,1e-8,100,&errstr);
+				if (SatFunc.Q > 1+1e-8 || SatFunc.Q < 0-1e-8){ throw ValueError("Solution must be within the two-phase region"); } 				
 				// It is two-phase, we are done, no exceptions were raised
 			}
 			catch(std::exception)
@@ -2536,19 +2534,26 @@ void Fluid::temperature_hs(double h, double s, double *Tout, double *rhoout, dou
 				// Split the range into two pieces
 				try
 				{
-					*Tout = Brent(&SatFunc, (limits.Tmin+crit.T)/2.0, crit.T-1e-4, 1e-16, 1e-8, 100, &errstr);
+					*Tout = Brent(&SatFunc, limits.Tmin, crit.T-1e-4, 1e-16, 1e-8, 100, &errstr);
 					if (SatFunc.Q > 1+1e-8 || SatFunc.Q < 0-1e-8){ throw ValueError("Solution must be within the two-phase region"); } 
 				}
 				catch(std::exception)
 				{
 					try
 					{
-						*Tout = Brent(&SatFunc, limits.Tmin, (limits.Tmin+crit.T)/2.0, 1e-16, 1e-8, 100, &errstr);
+						*Tout = Brent(&SatFunc, (limits.Tmin+crit.T)/2.0, crit.T-1e-4, 1e-16, 1e-8, 100, &errstr);
 						if (SatFunc.Q > 1+1e-8 || SatFunc.Q < 0-1e-8){ throw ValueError("Solution must be within the two-phase region"); } 
 					}
 					catch (std::exception)
 					{
-						throw ValueError(format("For HS:Branch1, twophase failed").c_str());
+						try{
+							*Tout = Brent(&SatFunc, limits.Tmin, (limits.Tmin+crit.T)/2.0, 1e-16, 1e-8, 100, &errstr);
+							if (SatFunc.Q > 1+1e-8 || SatFunc.Q < 0-1e-8){ throw ValueError("Solution must be within the two-phase region"); } 
+						}
+						catch (std::exception)
+						{
+							throw ValueError(format("For HS:Branch1, twophase failed").c_str());
+						}
 					}
 				}
 			}
@@ -2591,7 +2596,7 @@ void Fluid::temperature_hs(double h, double s, double *Tout, double *rhoout, dou
 	// Branch #2 between hmax and the maximum of the enthalpy corresponding to the 
 	// critical point and the enthalpy corresponding to the
 	// saturated vapor at the minimum temperature
-	if ((h > HS.hV_Tmin || h > crit.h) && !singlephase_initialized)
+	if ((h > HS.hV_Tmin && h > crit.h) && !singlephase_initialized)
 	{
 		double Tsat,rhosat,TL,TV,rhoL,rhoV;
 		
@@ -2632,8 +2637,11 @@ void Fluid::temperature_hs(double h, double s, double *Tout, double *rhoout, dou
 		}
 		else
 		{
-			TsatV_candidate = Tsat;
-			TsatV_initialized = true;
+			HSSatFuncClass SatFunc(h,s,this);
+			*Tout = Secant(&SatFunc,limits.Tmin,0.4*(crit.T-limits.Tmin),1e-8,100,&errstr);
+			// It is two-phase, we are done, no exceptions were raised
+			*rhoout = SatFunc.rho; *rhoLout = SatFunc.rhoL;  *rhoVout = SatFunc.rhoV; *TsatLout = *Tout; *TsatVout = *Tout;
+			return;
 		}
 	}
 
@@ -2680,8 +2688,11 @@ void Fluid::temperature_hs(double h, double s, double *Tout, double *rhoout, dou
 		// If entropy greater than ssat, two-phase solution
 		else 
 		{
-			TsatL_candidate = Tsat;
-			TsatL_initialized = true;
+			HSSatFuncClass SatFunc(h,s,this);
+			*Tout = Secant(&SatFunc,limits.Tmin,0.4*(crit.T-limits.Tmin),1e-8,100,&errstr);
+			// It is two-phase, we are done, no exceptions were raised
+			*rhoout = SatFunc.rho; *rhoLout = SatFunc.rhoL;  *rhoVout = SatFunc.rhoV; *TsatLout = *Tout; *TsatVout = *Tout;
+			return;
 		}
 	}
 
@@ -2731,30 +2742,32 @@ void Fluid::temperature_hs(double h, double s, double *Tout, double *rhoout, dou
 		}
 		else 
 		{
-			TsatL_candidate = Tsat;
-			TsatL_initialized = true;
-		}
-		
-	}
-
-	// Two-phase solutions not handled in branch #1 that are not saturated
-	if (!singlephase_initialized && TsatL_initialized && TsatV_initialized)
-	{
-		// First check for two-phase
-		HSSatFuncClass SatFunc(h,s,this);
-		try{
-			*Tout = Brent(&SatFunc, TsatL_candidate, TsatV_candidate, 1e-16, 1e-8, 100, &errstr);
-			if (SatFunc.Q > 1+1e-8 || SatFunc.Q < 0-1e-8){ 
-				throw ValueError("Solution must be within the two-phase region"); 
-			} 
+			HSSatFuncClass SatFunc(h,s,this);
+			*Tout = Secant(&SatFunc,limits.Tmin,0.4*(crit.T-limits.Tmin),1e-8,100,&errstr);
 			// It is two-phase, we are done, no exceptions were raised
 			*rhoout = SatFunc.rho; *rhoLout = SatFunc.rhoL;  *rhoVout = SatFunc.rhoV; *TsatLout = *Tout; *TsatVout = *Tout;
 			return;
 		}
-		catch(std::exception){
-			throw ValueError(format("HS:2phase failed").c_str());
-		}
 	}
+
+	//// Two-phase solutions not handled in branch #1 that are not saturated
+	//if (!singlephase_initialized && TsatL_initialized && TsatV_initialized)
+	//{
+	//	// First check for two-phase
+	//	HSSatFuncClass SatFunc(h,s,this);
+	//	try{
+	//		*Tout = Brent(&SatFunc, TsatL_candidate, TsatV_candidate, 1e-16, 1e-8, 100, &errstr);
+	//		if (SatFunc.Q > 1+1e-8 || SatFunc.Q < 0-1e-8){ 
+	//			throw ValueError("Solution must be within the two-phase region"); 
+	//		} 
+	//		// It is two-phase, we are done, no exceptions were raised
+	//		*rhoout = SatFunc.rho; *rhoLout = SatFunc.rhoL;  *rhoVout = SatFunc.rhoV; *TsatLout = *Tout; *TsatVout = *Tout;
+	//		return;
+	//	}
+	//	catch(std::exception){
+	//		throw ValueError(format("HS:2phase failed").c_str());
+	//	}
+	//}
 
 	if (!singlephase_initialized)
 	{

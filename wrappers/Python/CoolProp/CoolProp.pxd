@@ -177,7 +177,7 @@ cdef extern from "CoolProp.h":
     string _Phase "Phase"(char *Fluid, double T, double p)
     string _Phase_Tp "Phase_Tp"(string Fluid, double T, double p)
     string _Phase_Trho "Phase_Trho"(string Fluid, double T, double rho)
-    double _DerivTerms "DerivTerms"(char *Term, double T, double rho, char * Ref)
+    double _DerivTerms "DerivTerms"(char* Term, double T, double rho, char* Ref)
     
     # Conversion functions
     double _F2K "F2K"(double T_F)
@@ -219,7 +219,7 @@ cdef extern from "CoolProp.h":
     string _get_TransportReference "get_TransportReference"(string Ref)
     
     # Convenience functions
-    int _IsFluidType "IsFluidType"(char *Ref, char *Type)
+    int _IsFluidType "IsFluidType"(char* Ref, char* Type)
     
     # Enable the TTSE
     bint _enable_TTSE_LUT "enable_TTSE_LUT"(char *FluidName)

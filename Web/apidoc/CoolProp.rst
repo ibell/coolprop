@@ -2,6 +2,7 @@ CoolProp Module
 ===============
 
 .. automodule:: CoolProp.CoolProp 
+    :synopsis:
     :members:
     :undoc-members:
     :show-inheritance:

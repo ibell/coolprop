@@ -127,9 +127,6 @@ You might want to start by looking at CoolProp.h
 	EXPORT_CODE double CONVENTION conductivity_background(char* FluidName, double T, double rho);
 	EXPORT_CODE double CONVENTION conformal_Trho(char* FluidName, char* ReferenceFluidName, double T, double rho, double *Tconform, double *rhoconform);
 
-
-
-
 	// ------------------------------------------------------------------------------------------------
 	// All the functions below this comment do NOT get exported to REFPROP DLL due to the fact that the 
 	// DLL MUST use extern "C" for all exported functions, which does not allow for function overloads 
