@@ -85,6 +85,27 @@ void sort_pair(long *iInput1, double *Value1, long *iInput2, double *Value2, lon
 		std::swap(*Value1,*Value2);
 	}
 }
+double CoolPropStateClass::Tsat(double Q){
+	double mach_eps = 10*DBL_EPSILON;
+	double T,rhoL,rhoV, pL, pV;
+
+	pFluid->saturation_T(T,false,&pL,&pV,&rhoL,&rhoV);
+
+	if (fabs(Q-1) < mach_eps){
+		return rhoV;	
+	}
+	else if (fabs(Q) < mach_eps){
+		return rhoL;
+	}
+	else{
+		throw ValueError();
+	}
+}
+double CoolPropStateClass::superheat(void){
+	return _T - Tsat(1.0);
+}
+
+
 void CoolPropStateClass::check_saturated_quality(double Q){
 	double mach_eps = 10*DBL_EPSILON;
 
@@ -409,6 +430,8 @@ void CoolPropStateClass::update_Trho(long iInput1, double Value1, long iInput2, 
 // Updater if p,rho are inputs
 void CoolPropStateClass::update_prho(long iInput1, double Value1, long iInput2, double Value2)
 {
+	double T0;
+	long phase;
 	// Get them in the right order
 	sort_pair(&iInput1,&Value1,&iInput2,&Value2,iP,iD);
 
@@ -432,7 +455,8 @@ void CoolPropStateClass::update_prho(long iInput1, double Value1, long iInput2, 
 		_TwoPhase = true;
 	}
 	else{
-		_TwoPhase = (pFluid->phase_prho_indices(_p,_rho,&_T,&TsatL,&TsatV,&rhosatL,&rhosatV) == iTwoPhase);
+		phase = pFluid->phase_prho_indices(_p,_rho,&_T,&TsatL,&TsatV,&rhosatL,&rhosatV);
+		_TwoPhase = (phase == iTwoPhase);
 	}
 
 	if (_TwoPhase)
@@ -454,8 +478,16 @@ void CoolPropStateClass::update_prho(long iInput1, double Value1, long iInput2, 
 		SinglePhase = true;
 		SaturatedL = false;
 		SaturatedV = false;
-		if (!ValidNumber(_T)){
-			double T0 = pFluid->temperature_prho_PengRobinson(_p,_rho);
+		if (!ValidNumber(_T))
+		{
+			if (phase == iLiquid)
+			{
+				T0 = TsatL;
+			}
+			else
+			{
+				T0 = pFluid->temperature_prho_PengRobinson(_p,_rho);
+			}
 			_T = pFluid->temperature_prho(_p, _rho, T0);
 		}
 	}

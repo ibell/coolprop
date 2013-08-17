@@ -18,15 +18,15 @@ singlephase_inputs = [('T','D'),('T','P'),('P','H'),('P','S'),('P','D'),('H','S'
 
 singlephase_outputs = ['T','P','H','S','A','O','C','G','V','L','C0','U']
 
-## def test_subcrit_singlephase_consistency():
-##     for Fluid in sorted(CoolProp.__fluids__):
-##         T = (Props(Fluid,'Tmin')+Props(Fluid,'Tcrit'))/2.0
-##         for mode in modes:
-##             rhoL = Props('D','T',T,'Q',0,Fluid)
-##             rhoV = Props('D','T',T,'Q',1,Fluid)
-##             for rho in [rhoL+0.1, rhoV*0.9]:
-##                 for inputs in singlephase_inputs:
-##                     yield check_consistency,Fluid,mode,T,rho,inputs
+def test_subcrit_singlephase_consistency():
+    for Fluid in sorted(CoolProp.__fluids__):
+        T = (Props(Fluid,'Tmin')+Props(Fluid,'Tcrit'))/2.0
+        for mode in modes:
+            rhoL = Props('D','T',T,'Q',0,Fluid)
+            rhoV = Props('D','T',T,'Q',1,Fluid)
+            for rho in [rhoL+0.1, rhoV*0.9]:
+                for inputs in singlephase_inputs:
+                    yield check_consistency,Fluid,mode,T,rho,inputs
                     
 def test_subcrit_twophase_consistency():
     for Fluid in reversed(sorted(CoolProp.__fluids__)):

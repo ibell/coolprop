@@ -88,11 +88,12 @@ if l==0, then
 class phir_power : public phi_BC{
 	
 private:
+	unsigned int iStart,iEnd;
 	std::vector<double> n, ///< The coefficients multiplying each term
 		                d, ///< The power for the delta terms
 						t, ///< The powers for the tau terms
-						l; ///< The powers for delta in the exp terms
-	unsigned int iStart,iEnd;
+						l //< The powers for delta in the exp terms
+						;
 public:
 	// Default Constructor
 	phir_power(){};
@@ -105,6 +106,8 @@ public:
 	phir_power(const double[], const double[], const double[], const double[],int,int,int);
 	phir_power(double[],double[],double[],double[],int,int,int);
 	
+	/// Cache some terms for internal use
+	void cache();
 
 	///< Destructor for the phir_power class.  No implementation
 	~phir_power(){};

@@ -31,7 +31,7 @@ for Fluid in CoolProp.__fluids__:
     plt.gca().axhline(hV_Tmin)
     
     # Two-Phase
-    for T in np.linspace(Props(Fluid,"Tmin")+0.1,Props(Fluid,"Tcrit"),30):
+    for T in np.linspace(Props(Fluid,"Tmin")+0.1,Props(Fluid,"Tcrit")-1e-3,30):
         for Q in np.linspace(0, 1, 30):
             try:
                 h = Props("H",'Q',Q,'T',T,Fluid)
@@ -42,7 +42,6 @@ for Fluid in CoolProp.__fluids__:
                 print T, Q , '|||', '"T","S",',s,',"H",',h,',"'+Fluid+'"', '|||', VE
                 ax.plot(s,h,'o',mfc='none')
                 
-##     
 ##     for h in np.linspace(hL_Tmin, hV_Tmin + 1500,100):
 ##         for s in np.linspace(sL_Tmin+0.01,sV_Tmin,100):
 ##             h_pmax = Props('H','S',s,'P',5*Props(Fluid,'pcrit'),Fluid)
@@ -50,11 +49,9 @@ for Fluid in CoolProp.__fluids__:
 ##             if h < htriple_s or h > h_pmax: continue
 ##             try:
 ##                 T = Props("T",'S',s,'H',h,Fluid)
-##                 ax.plot(s,h,'o',mfc='none',ms=6)
+##                 #ax.plot(s,h,'o',mfc='none',ms=6)
 ##             except ValueError:
-##                 ax.plot(s,h,'bo',ms = 6)
-##     
-##     ax.axvline(s_crit)
+##                 ax.plot(s,h,'o',mfc='none')
    
 
 ##     if Fluid =='Propane':

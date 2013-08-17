@@ -93,6 +93,14 @@ public:
 	// Destructor to clear SatL and SatV
 	~CoolPropStateClass();
 
+	/// Saturation temperature
+	double Tsat(double Q);
+
+	double superheat(void);
+
+	/// Get the name of the fluid
+	std::string get_name(void){return _Fluid;};
+
 	/// Stop it from adding the SatL and SatV class pointers
 	void no_SatLSatV(void){_noSatLSatV = true;};
 

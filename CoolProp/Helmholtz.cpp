@@ -60,6 +60,7 @@ phir_power::phir_power(std::vector<double> n_in,std::vector<double> d_in,std::ve
 	l=l_in;
 	iStart=iStart_in;
 	iEnd=iEnd_in;
+	cache();
 }
 phir_power::phir_power(std::vector<double> n_in,std::vector<double> d_in,std::vector<double> t_in,int iStart_in,int iEnd_in)
 {
@@ -69,6 +70,7 @@ phir_power::phir_power(std::vector<double> n_in,std::vector<double> d_in,std::ve
 	l.assign(d.size(),0.0);
 	iStart=iStart_in;
 	iEnd=iEnd_in;
+	cache();
 }
 phir_power::phir_power(const double n_in[], const double d_in[], const double t_in[],int iStart_in,int iEnd_in, int N)
 {
@@ -78,6 +80,7 @@ phir_power::phir_power(const double n_in[], const double d_in[], const double t_
 	l.assign(d.size(),0.0);
 	iStart=iStart_in;
 	iEnd=iEnd_in;
+	cache();
 }
 phir_power::phir_power(double n_in[], double d_in[], double t_in[],int iStart_in,int iEnd_in, int N)
 {
@@ -87,6 +90,7 @@ phir_power::phir_power(double n_in[], double d_in[], double t_in[],int iStart_in
 	l.assign(d.size(),0.0);
 	iStart=iStart_in;
 	iEnd=iEnd_in;
+	cache();
 }
 phir_power::phir_power(double n_in[], double d_in[], double t_in[], double l_in[], int iStart_in,int iEnd_in, int N)
 {
@@ -96,6 +100,7 @@ phir_power::phir_power(double n_in[], double d_in[], double t_in[], double l_in[
 	l=std::vector<double>(l_in,l_in+N);
 	iStart=iStart_in;
 	iEnd=iEnd_in;
+	cache();
 }
 phir_power::phir_power(const double n_in[], const double d_in[], const double t_in[], const double l_in[], int iStart_in,int iEnd_in, int N)
 {
@@ -105,6 +110,18 @@ phir_power::phir_power(const double n_in[], const double d_in[], const double t_
 	l=std::vector<double>(l_in,l_in+N);
 	iStart=iStart_in;
 	iEnd=iEnd_in;
+	cache();
+}
+void phir_power::cache()
+{
+	// Check that taking the integer representation of each of the powers of delta (delta^l_i) all yield integer
+	for (unsigned int i=iStart;i<=iEnd;i++)
+	{
+		if ( fabs((double)((int)(l[i])) - l[i]) > DBL_EPSILON)
+		{
+			throw ValueError(format("coefficient %0.16f does not round to integer within DBL_EPSILON",l[i]).c_str());
+		}
+	}
 }
 
 // Term and its derivatives
@@ -114,7 +131,7 @@ double phir_power::base(double tau, double delta) throw()
 	for (unsigned int i=iStart;i<=iEnd;i++)
 	{
 		if (l[i]>0)
-			summer+=n[i]*exp(t[i]*log_tau+d[i]*log_delta-pow(delta,l[i]));
+			summer+=n[i]*exp(t[i]*log_tau+d[i]*log_delta-pow(delta,(int)l[i]));
 		else
 			summer+=n[i]*exp(t[i]*log_tau+d[i]*log_delta);
 	}
@@ -126,7 +143,7 @@ double phir_power::dTau(double tau, double delta) throw()
 	for (unsigned int i=iStart;i<=iEnd;i++)
 	{
 		if (l[i]>0)
-			summer+=n[i]*t[i]*exp((t[i]-1)*log_tau+d[i]*log_delta-pow(delta,l[i]));
+			summer+=n[i]*t[i]*exp((t[i]-1)*log_tau+d[i]*log_delta-pow(delta,(int)l[i]));
 		else
 			summer+=n[i]*t[i]*exp((t[i]-1)*log_tau+d[i]*log_delta);
 	}
@@ -138,7 +155,7 @@ double phir_power::dTau2(double tau, double delta) throw()
 	for (unsigned int i=iStart;i<=iEnd;i++)
 	{
 		if (l[i]>0)
-			summer+=n[i]*t[i]*(t[i]-1)*exp((t[i]-2)*log_tau+d[i]*log_delta-pow(delta,l[i]));
+			summer+=n[i]*t[i]*(t[i]-1)*exp((t[i]-2)*log_tau+d[i]*log_delta-pow(delta,(int)l[i]));
 		else
 			summer+=n[i]*t[i]*(t[i]-1)*exp((t[i]-2)*log_tau+d[i]*log_delta);
 	}
@@ -150,7 +167,7 @@ double phir_power::dTau3(double tau, double delta) throw()
 	for (unsigned int i=iStart;i<=iEnd;i++)
 	{
 		if (l[i]>0)
-			summer+=n[i]*t[i]*(t[i]-1)*(t[i]-2)*exp((t[i]-3)*log_tau+d[i]*log_delta-pow(delta,l[i]));
+			summer+=n[i]*t[i]*(t[i]-1)*(t[i]-2)*exp((t[i]-3)*log_tau+d[i]*log_delta-pow(delta,(int)l[i]));
 		else
 			summer+=n[i]*t[i]*(t[i]-1)*(t[i]-2)*exp((t[i]-3)*log_tau+d[i]*log_delta);
 	}
@@ -162,7 +179,7 @@ double phir_power::dDelta_dTau2(double tau, double delta) throw()
 	for (unsigned int i=iStart;i<=iEnd;i++)
 	{
 		if (l[i]>0){
-			double pow_delta_li = pow(delta,l[i]);
+			double pow_delta_li = pow(delta,(int)l[i]);
 			summer+=n[i]*t[i]*(t[i]-1)*(d[i]-l[i]*pow_delta_li)*exp((t[i]-2)*log_tau+(d[i]-1)*log_delta-pow_delta_li);
 		}
 		else
@@ -172,15 +189,18 @@ double phir_power::dDelta_dTau2(double tau, double delta) throw()
 }
 double phir_power::dDelta(double tau, double delta) throw()
 {
-	double summer=0, log_tau = log(tau), log_delta = log(delta), pow_delta_li;
-	for (unsigned int i=iStart;i<=iEnd;i++)
+	double summer=0, log_tau = log(tau), log_delta = log(delta), pow_delta_li, li, ni, di, ti;
+	for (unsigned int i=iStart;i<=iEnd;++i)
 	{	
-		if (l[i]>0){
-			pow_delta_li = pow(delta,l[i]);
-			summer += n[i]*(d[i]-l[i]*pow_delta_li)*exp(t[i]*log_tau+(d[i]-1)*log_delta-pow_delta_li);
+		ni = n[i]; di = d[i]; ti = t[i]; li = l[i]; 
+		if (li > 0){
+			pow_delta_li = pow(delta,(int)li);
+			summer += ni*(di-li*pow_delta_li)*exp(ti*log_tau+(di-1)*log_delta-pow_delta_li);
 		}
 		else
-			summer += n[i]*d[i]*exp(t[i]*log_tau+(d[i]-1)*log_delta);
+		{
+			summer += ni*di*exp(ti*log_tau+(di-1)*log_delta);
+		}
 	}
 	return summer;
 }
@@ -191,7 +211,7 @@ double phir_power::dDelta2(double tau, double delta) throw()
 	{
 		
 		if (l[i]>0){
-			double pow_delta_li = pow(delta,l[i]);
+			double pow_delta_li = pow(delta,(int)l[i]);
 			summer+=n[i]*((d[i]-l[i]*pow_delta_li)*(d[i]-1.0-l[i]*pow_delta_li) - l[i]*l[i]*pow_delta_li)*exp(t[i]*log_tau+(d[i]-2)*log_delta-pow_delta_li);
 		}
 		else
@@ -206,7 +226,7 @@ double phir_power::dDelta3(double tau, double delta) throw()
 	{
 		if (l[i]>0)
 		{
-			double pow_delta_li = pow(delta,l[i]);
+			double pow_delta_li = pow(delta,(int)l[i]);
 			double bracket = (d[i]*(d[i]-1)*(d[i]-2)+pow_delta_li*(-2*l[i]+6*d[i]*l[i]-3*d[i]*d[i]*l[i]-3*d[i]*l[i]*l[i]+3*l[i]*l[i]-l[i]*l[i]*l[i])+pow_delta_li*pow_delta_li*(3*d[i]*l[i]*l[i]-3*l[i]*l[i]+3*l[i]*l[i]*l[i])-l[i]*l[i]*l[i]*pow_delta_li*pow_delta_li*pow_delta_li);
 			summer+=n[i]*bracket*exp(t[i]*log_tau+(d[i]-3)*log_delta-pow_delta_li);
 		}
@@ -222,7 +242,7 @@ double phir_power::dDelta2_dTau(double tau, double delta) throw()
 	for (unsigned int i=iStart;i<=iEnd;i++)
 	{
 		if (l[i]>0){
-			double pow_delta_li = pow(delta,l[i]);
+			double pow_delta_li = pow(delta,(int)l[i]);
 			summer+=n[i]*t[i]*(((d[i]-l[i]*pow_delta_li))*(d[i]-1-l[i]*pow_delta_li)-l[i]*l[i]*pow_delta_li)*exp((t[i]-1)*log_tau+(d[i]-2)*log_delta-pow_delta_li);
 		}
 		else
@@ -236,7 +256,7 @@ double phir_power::dDelta_dTau(double tau, double delta) throw()
 	for (unsigned int i=iStart;i<=iEnd;i++)
 	{
 		if (l[i]>0){
-			double pow_delta_li = pow(delta,l[i]);
+			double pow_delta_li = pow(delta,(int)l[i]);
 			summer+=n[i]*t[i]*(d[i]-l[i]*pow_delta_li)*exp((t[i]-1)*log_tau+(d[i]-1)*log_delta-pow_delta_li);
 		}
 		else

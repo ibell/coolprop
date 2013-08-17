@@ -1201,7 +1201,7 @@ cdef class State:
         cdef long ID = 'D'
         import CoolProp as CP
         
-        print 'Call to the Python call layer'
+        print 'Call to the Python call layer (CoolProp.CoolProp.Props)'
         print "'M' involves basically no computational effort and is a good measure of the function call overhead"
         keys = ['H','P','S','U','C','O','V','L','M','C0','dpdT']
         for key in keys:
@@ -1211,7 +1211,7 @@ cdef class State:
             t2=clock()
             print 'Elapsed time for {0:d} calls for "{1:s}" at {2:g} us/call'.format(N,key,(t2-t1)/N*1e6)
             
-        print 'Direct c++ call to CoolProp without the Python call layer'
+        print 'Direct c++ call to CoolProp without the Python call layer (_Props function)'
         print "'M' involves basically no computational effort and is a good measure of the function call overhead"
         keys = ['H','P','S','U','C','O','V','L','M','C0','dpdT']
         for key in keys:
@@ -1234,22 +1234,11 @@ cdef class State:
         keys = [iH,iP,iS,iU,iC,iO,iV,iL,iMM,iC0,iDpdT]
         for key in keys:
             t1=clock()
-            self.PFC.update(iT,self.T_,iD,self.rho_)
             for i in range(N):
+                self.PFC.update(iT,self.T_,iD,self.rho_)
                 self.PFC.keyed_output(key)
             t2=clock()
             print 'Elapsed time for {0:d} calls for "{1:s}" at {2:g} us/call'.format(N,paras[key],(t2-t1)/N*1e6)
-        
-        print 'Using CoolPropStateClass with T,rho'
-        keys = [iH,iP,iC,iO,iDpdT]
-        t1=clock()
-        for i in range(N):
-            self.PFC.update(iT,self.T_,iD,self.rho_)
-            for key in keys:
-                self.PFC.keyed_output(key)
-        t2=clock()
-        print 'Elapsed time for {0:d} calls of iH,iP,iC,iO,iDpdT takes {1:g} us/call'.format(N,(t2-t1)/N*1e6)
-            
         
         keys = [iH,iP,iS,iU,iC,iO,iV,iL,iMM,iC0,iDpdT]
         isenabled = _isenabled_TTSE_LUT(<bytes>Fluid)
@@ -1325,6 +1314,7 @@ cdef class State:
         cdef State S = State.__new__(State)
         S.set_Fluid(self.Fluid)
         S.update_Trho(self.T_, self.rho_)
+        S.phase = self.phase
         return S
     
 def rebuildState(d):
