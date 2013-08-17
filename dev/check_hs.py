@@ -42,16 +42,20 @@ for Fluid in CoolProp.__fluids__:
                 print T, Q , '|||', '"T","S",',s,',"H",',h,',"'+Fluid+'"', '|||', VE
                 ax.plot(s,h,'o',mfc='none')
                 
-##     for h in np.linspace(hL_Tmin, hV_Tmin + 1500,100):
-##         for s in np.linspace(sL_Tmin+0.01,sV_Tmin,100):
-##             h_pmax = Props('H','S',s,'P',5*Props(Fluid,'pcrit'),Fluid)
-##             htriple_s = (hV_Tmin-hL_Tmin)/(sV_Tmin-sL_Tmin)*(s-sL_Tmin)+hL_Tmin
-##             if h < htriple_s or h > h_pmax: continue
-##             try:
-##                 T = Props("T",'S',s,'H',h,Fluid)
-##                 #ax.plot(s,h,'o',mfc='none',ms=6)
-##             except ValueError:
-##                 ax.plot(s,h,'o',mfc='none')
+        
+    for h in np.linspace(hL_Tmin, hV_Tmin + 1500,100):
+        for s in np.linspace(sL_Tmin+0.01,sV_Tmin,100):
+            try:
+                h_pmax = Props('H','S',s,'P',6*Props(Fluid,'pcrit'),Fluid)
+            except ValueError:
+                h_pmax = 0
+            htriple_s = (hV_Tmin-hL_Tmin)/(sV_Tmin-sL_Tmin)*(s-sL_Tmin)+hL_Tmin
+            if h < htriple_s or h > h_pmax: continue
+            try:
+                T = Props("T",'S',s,'H',h,Fluid)
+                #ax.plot(s,h,'o',mfc='none',ms=6)
+            except ValueError:
+                ax.plot(s,h,'s',mfc='none')
    
 
 ##     if Fluid =='Propane':

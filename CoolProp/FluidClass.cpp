@@ -2684,6 +2684,7 @@ void Fluid::temperature_hs(double h, double s, double *Tout, double *rhoout, dou
 
 			rho_guess = rhoM;
 			T_guess = TM;
+			singlephase_initialized = true;
 		}
 		// If entropy greater than ssat, two-phase solution
 		else 
@@ -2707,6 +2708,7 @@ void Fluid::temperature_hs(double h, double s, double *Tout, double *rhoout, dou
 
 		// Get the saturated liquid state for the given enthalpy
 		this->saturation_h(h, limits.Tmin, crit.T, 0, &Tsat, &rhosat, &TL, &TV, &rhoL, &rhoV);
+		double hcheck = this->enthalpy_Trho(TL,rhoL);
 
 		// Check the saturated entropy for the given value of the entropy
 		ssat = this->entropy_Trho(Tsat, rhosat);
@@ -2739,6 +2741,7 @@ void Fluid::temperature_hs(double h, double s, double *Tout, double *rhoout, dou
 
 			rho_guess = rhoM;
 			T_guess = TM;
+			singlephase_initialized = true;
 		}
 		else 
 		{
