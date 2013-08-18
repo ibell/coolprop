@@ -7,7 +7,7 @@ install: "pip install Cython --use-mirrors"
 # command to run tests
 script: 
   - python setup.py install # Install CoolProp
-  - "from CoolProp.tests.runner import run; run()"
+  - python -c "from CoolProp.tests.runner import run; run()"
 
 notifications:
   email:
