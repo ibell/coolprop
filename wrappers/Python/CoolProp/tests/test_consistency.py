@@ -4,15 +4,15 @@ from CoolProp.CoolProp import Props, get_REFPROPname, IsFluidType
 import numpy as np
 
 modes = []
-modes = ['pure']
+#modes = ['pure']
 #modes.append('pseudo-pure')
 
 # Check if REFPROP is supported, the Props call should work without throwing exception if it is supported
-## try:
-##     Props('D','T',300,'Q',1,'REFPROP-Propane')
-##     modes.append('REFPROP')
-## except ValueError:
-##     pass
+try:
+    Props('D','T',300,'Q',1,'REFPROP-Propane')
+    modes.append('REFPROP')
+except ValueError:
+    pass
             
 twophase_inputs = [('T','D'),('T','Q'),('P','Q'),('P','H'),('P','S'),('P','D'),('H','S')]
 singlephase_inputs = [('T','D'),('T','P'),('P','H'),('P','S'),('P','D'),('H','S')]
