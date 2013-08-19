@@ -165,6 +165,32 @@ def drawLines(Ref,lines,axis,plt_kwargs=None):
 
     return plottedLines 
 
+def plotRound(values):
+    """ 
+    A function round an array-like object while maintaining the 
+    amount of entries. This is needed for the isolines since we
+    want the labels to look pretty (=rounding), but we do not 
+    know the spacing of the lines. A fixed number of digits after
+    rounding might lead to reduced array size.
+    """
+    input   = numpy.unique(numpy.sort(numpy.array(values)))
+    output  = input[1:] * 0.0 
+    digits  = -1
+    # remove less from the numbers until same length, 
+    # more than 10 significant digits does not really 
+    # make sense, does it?
+    while len(input) > len(output) and digits < 10:
+        digits += 1  
+        val     = (numpy.around(numpy.log10(numpy.abs(input))) * -1) + digits + 1
+        output  = numpy.zeros(input.shape)
+        for i in range(len(input)):
+            output[i] = numpy.around(input[i],decimals=int(val[i]))
+        output = numpy.unique(output)
+    print digits
+    print input 
+    print output
+    return output 
+        
 
 def getIsoLines(Ref, plot, iName, iValues=[], num=0, axis=None):
     """
@@ -298,16 +324,16 @@ def getIsoLines(Ref, plot, iName, iValues=[], num=0, axis=None):
     # Get isoline spacing while honouring the inputs
     if len(iValues)<1: # No values given, use plot boundaries to determine limits
         raise ValueError('Automatic interval detection for isoline boundaries is not supported yet, use the iValues=[min, max] parameter.')
-        iVal = [CP.Props(iName,'T',T_c[i],'D',rho_c[i],Ref) for i in range(len(T_c))]
-        iVal = patterns[iName]([numpy.min(iVal),numpy.max(iVal),num]) 
+        #iVal = [CP.Props(iName,'T',T_c[i],'D',rho_c[i],Ref) for i in range(len(T_c))]
+        #iVal = patterns[iName]([numpy.min(iVal),numpy.max(iVal),num]) 
     elif 1<len(iValues)<num: # We need more numbers
         iNum = num - len(iValues) 
         iVal = patterns[iName]([numpy.min(iValues),numpy.max(iValues),iNum+2]) # include min and max
         iVal = numpy.append(iVal[1:-1],iValues) # exclude min and max again
+        iVal = plotRound(iVal)
     else: # Either len(iValues)==1 or len(iValues)>=num
         iVal = numpy.array(iValues)
-         
-    iVal = numpy.sort(iVal) # sort again
+        iVal = numpy.sort(numpy.unique(iVal)) # sort again
         
     
     if iName=='Q':
@@ -756,6 +782,14 @@ if __name__=='__main__':
 #    matplotlib.pyplot.show()
 #    hs('n-Pentane', show = True)
 #    raw_input("Press Enter to continue...")
+
+#    # test the rounding function
+#    testarr = numpy.logspace(math.log(0.1,2.), math.log(0.11,2.), num=10, base=2.)
+#    print testarr
+#    print plotRound(testarr)
+
+
+    # The older test cases.
     hs('R245fa', show = True)
     raw_input("Press Enter to continue...")
     PT('R245fa', show = True)
