@@ -192,129 +192,6 @@ def plotRound(values):
     return output
 
 
-def getIsoLines(Ref, plot, iName, iValues=[], num=0, axis=None):
-    """
-    This is the core method to obtain lines in the dimensions defined
-    by 'plot' that describe the behaviour of fluid 'Ref'. The constant
-    value is determined by 'iName' and has the values of 'iValues'.
-
-    'iValues' is an array-like object holding at least one element. Lines
-    are calculated for every entry in 'iValues'. If the input 'num' is
-    larger than the amount of entries in 'iValues', an internally defined
-    pattern is used to calculate an appropriate line spacing between the maximum
-    and minimum values provided in 'iValues'.
-
-    Returns lines[num] - an array of dicts containing 'x' and 'y'
-    coordinates for bubble and dew line. Additionally, the dict holds
-    the keys 'label' and 'opts', those can be used for plotting as well.
-    """
-    if axis is None:
-        axis=matplotlib.pyplot.gca()
-
-    if not isinstance(plot, str):
-        raise ValueError('You have to specify the kind of plot.')
-
-    which = False
-    xName, yName, plot = _plotXY(plot)
-    if iName is not None:
-        if (iName in _getIsoLineIds(plot)) or (iName == 'Q'):
-            which = True
-
-    if not which:
-        raise ValueError('This kind of isoline is not supported for a ' \
-                         + str(plot) + \
-                         '-plot. Please choose from '\
-                         + str(_getIsoLineIds(plot)) + ' or Q.')
-
-    # Enforce the bounds!
-    ((Axmin, Axmax), (Aymin, Aymax)) = _setBounds(Ref, plot, axis=axis)
-
-    switch_xy = {'D': ['TS', 'PH', 'PS'],
-                 'S': ['PH', 'PD', 'PT'],
-                 'T': ['PH', 'PS'],
-                 'H': ['PD']}
-    #TS: TD is defined, SD is not
-    #PH: PD is defined, HD is not
-    #PS: PD is defined, SD is not
-    #PH: PS is more stable than HS
-    #PD: PS is defined, DS is not
-    #PT: PS is defined, TS is not
-    #PH: PT is defined, HT is not
-    #PS: PT is defined, ST is not
-    #PD: PH is defined, DH is not
-
-    switchXY = False
-    if iName in ['D', 'S', 'T', 'H'] and plot in switch_xy[iName]:
-            switchXY = True
-
-    iso_error = {'TD': ['S', 'H'],
-                 'HS': ['T', 'D'],}
-
-    if plot in ['TD', 'HS'] and iName in iso_error[plot]:
-            raise ValueError('You should not reach this point!')
-
-    if switchXY:
-        xmin = Aymin
-        xmax = Aymax
-        tmpName = yName
-        yName = xName
-        xName = tmpName
-    else:
-        xmin = Axmin
-        xmax = Axmax
-
-    # Calculate the points
-    x0 = numpy.linspace(xmin,xmax,1000.)
-
-    def generate_ranges(xmin, xmax, num):
-        if iName in ['P', 'D']:
-            return numpy.logspace(math.log(xmin, 2.),
-                                  math.log(xmax, 2.),
-                                  num=num,
-                                  base=2.)
-        else:
-            return numpy.linspace(xmin, xmax, num=num)
-
-    # Get isoline spacing while honouring the inputs
-    if not iValues: # No values given, use plot boundaries to determine limits
-        raise ValueError('Automatic interval detection for isoline \
-                          boundaries is not supported yet, use the \
-                          iValues=[min, max] parameter.')
-        #iVal = [CP.Props(iName,'T',T_c[i],'D',rho_c[i],Ref) for i in range(len(T_c))]
-        #iVal = patterns[iName]([numpy.min(iVal),numpy.max(iVal),num])
-
-    if len(iValues) == 2:
-        iVal = generate_ranges(iValues[0], iValues[1], num)
-        iVal = plotRound(iVal)
-    else:
-        iVal = numpy.array(set(iValues.sort()))
-
-    if iName == 'Q':
-        lines = _getSatLines(Ref, plot, x=iVal)
-        return lines
-
-    # TODO: Determine saturation state if two phase region present
-    xVal = [x0 for i in iVal]
-
-    (X,Y) = _getI_YX(Ref,iName,xName,yName,iVal,xVal)
-
-    if switchXY:
-        tmpY = Y
-        Y    = X
-        X    = tmpY
-
-    lines = []
-    for j in range(len(X)):
-        line = {
-          'x' : X[j],
-          'y' : Y[j],
-          'label' : _getIsoLineLabel(iName,iVal[j]),
-          'opts': { 'color':getIsoLineColour(iName), 'lw':0.75, 'alpha':0.5 }
-          }
-        lines.append(line)
-
-    return lines
-
 def _satBounds(Ref,kind,xmin=None,xmax=None):
     """
     Generates limits for the saturation line in either T or p determined by 'kind'.
@@ -566,6 +443,163 @@ def _getIsoLineLabel(which,num):
     l = labelMap[str(which)]
     val = l[0]+str(num)+l[1]
     return val
+
+
+class IsoLines(object):
+    COLOR_MAP = {'T': 'Darkred',
+                 'P': 'DarkCyan',
+                 'H': 'DarkGreen',
+                 'D': 'DarkBlue',
+                 'S': 'DarkOrange',
+                 'Q': 'black',}
+
+    LINE_IDS = {'TS': ['P', 'D'], #'H'],
+                'PH': ['S', 'T', 'D'],
+                'HS': ['P'], #'T', 'D'],
+                'PS': ['H', 'T', 'D'],
+                'PD': ['T', 'S', 'H'],
+                'TD': ['P'], #'S', 'H'],
+                'PT': ['D', 'P', 'S'],}
+
+    def __init__(self, fluid_ref, graph_type, iso_type, **kwargs):
+        if not isinstance(iso_type, str):
+            raise ValueError('You have to specify the kind of plot.')
+
+        if iso_type.upper() not in self.COLOR_MAP.keys():
+            raise ValueError("Invalid iso_type selected")
+
+        self.fluid_ref = fluid_ref
+        self.graph_type = graph_type.upper()
+        self.iso_type = iso_type.upper()
+
+        self.figure = kwargs.get('fig', matplotlib.pyplot.figure())
+        self.axis = kwargs.get('axis', matplotlib.pyplot.gca())
+        self.t_min = kwargs.get('t_min', None)
+        self.t_max = kwargs.get('t_max', None)
+
+    def getIsoLines(self, iso_range=[], num=None):
+        """
+        This is the core method to obtain lines in the dimensions defined
+        by 'plot' that describe the behaviour of fluid 'Ref'. The constant
+        value is determined by 'iName' and has the values of 'iValues'.
+
+        'iValues' is an array-like object holding at least one element. Lines
+        are calculated for every entry in 'iValues'. If the input 'num' is
+        larger than the amount of entries in 'iValues', an internally defined
+        pattern is used to calculate an appropriate line spacing between the maximum
+        and minimum values provided in 'iValues'.
+
+        Returns lines[num] - an array of dicts containing 'x' and 'y'
+        coordinates for bubble and dew line. Additionally, the dict holds
+        the keys 'label' and 'opts', those can be used for plotting as well.
+        """
+        if not iso_range or len(iso_range) == 1:
+            raise ValueError('Automatic interval detection for isoline \
+                              boundaries is not supported yet, use the \
+                              iso_range=[min, max] parameter.')
+
+        if len(iso_range) == 2 and num is None:
+            raise ValueError('Please specify the number of isoline you want \
+                              e.g. num=10')
+
+        which = False
+        xName, yName, plot = _plotXY(plot)
+        if iName is not None:
+            if (iName in _getIsoLineIds(plot)) or (iName == 'Q'):
+                which = True
+
+        if not which:
+            raise ValueError('This kind of isoline is not supported for a ' \
+                             + str(plot) + \
+                             '-plot. Please choose from '\
+                             + str(_getIsoLineIds(plot)) + ' or Q.')
+
+        # Enforce the bounds!
+        ((Axmin, Axmax), (Aymin, Aymax)) = _setBounds(Ref, plot, axis=axis)
+
+        switch_xy = {'D': ['TS', 'PH', 'PS'],
+                     'S': ['PH', 'PD', 'PT'],
+                     'T': ['PH', 'PS'],
+                     'H': ['PD']}
+        #TS: TD is defined, SD is not
+        #PH: PD is defined, HD is not
+        #PS: PD is defined, SD is not
+        #PH: PS is more stable than HS
+        #PD: PS is defined, DS is not
+        #PT: PS is defined, TS is not
+        #PH: PT is defined, HT is not
+        #PS: PT is defined, ST is not
+        #PD: PH is defined, DH is not
+
+        switchXY = False
+        if iName in ['D', 'S', 'T', 'H'] and plot in switch_xy[iName]:
+                switchXY = True
+
+        iso_error = {'TD': ['S', 'H'],
+                     'HS': ['T', 'D'],}
+
+        if plot in ['TD', 'HS'] and iName in iso_error[plot]:
+                raise ValueError('You should not reach this point!')
+
+        if switchXY:
+            xmin = Aymin
+            xmax = Aymax
+            tmpName = yName
+            yName = xName
+            xName = tmpName
+        else:
+            xmin = Axmin
+            xmax = Axmax
+
+        # Calculate the points
+        x0 = numpy.linspace(xmin,xmax,1000.)
+
+        def generate_ranges(xmin, xmax, num):
+            if iName in ['P', 'D']:
+                return numpy.logspace(math.log(xmin, 2.),
+                                      math.log(xmax, 2.),
+                                      num=num,
+                                      base=2.)
+            else:
+                return numpy.linspace(xmin, xmax, num=num)
+
+        # Get isoline spacing while honouring the inputs
+
+            #iVal = [CP.Props(iName,'T',T_c[i],'D',rho_c[i],Ref) for i in range(len(T_c))]
+            #iVal = patterns[iName]([numpy.min(iVal),numpy.max(iVal),num])
+
+        if len(iValues) == 2:
+            iVal = generate_ranges(iValues[0], iValues[1], num)
+            iVal = plotRound(iVal)
+        else:
+            iVal = numpy.array(set(iValues.sort()))
+
+        if iName == 'Q':
+            lines = _getSatLines(Ref, plot, x=iVal)
+            return lines
+
+        # TODO: Determine saturation state if two phase region present
+        xVal = [x0 for i in iVal]
+
+        (X,Y) = _getI_YX(Ref,iName,xName,yName,iVal,xVal)
+
+        if switchXY:
+            tmpY = Y
+            Y    = X
+            X    = tmpY
+
+        lines = []
+        for j in range(len(X)):
+            line = {
+              'x' : X[j],
+              'y' : Y[j],
+              'label' : _getIsoLineLabel(iName,iVal[j]),
+              'opts': { 'color':getIsoLineColour(iName), 'lw':0.75, 'alpha':0.5 }
+              }
+            lines.append(line)
+
+        return lines
+
 
 
 class Graph(object):
