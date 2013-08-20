@@ -228,40 +228,30 @@ def getIsoLines(Ref, plot, iName, iValues=[], num=0, axis=None):
 
     # Enforce the bounds!
     ((Axmin, Axmax), (Aymin, Aymax)) = _setBounds(Ref, plot, axis=axis)
+
+    switch_xy = {'D': ['TS', 'PH', 'PS'],
+                 'S': ['PH', 'PD', 'PT'],
+                 'T': ['PH', 'PS'],
+                 'H': ['PD']}
+    #TS: TD is defined, SD is not
+    #PH: PD is defined, HD is not
+    #PS: PD is defined, SD is not
+    #PH: PS is more stable than HS
+    #PD: PS is defined, DS is not
+    #PT: PS is defined, TS is not
+    #PH: PT is defined, HT is not
+    #PS: PT is defined, ST is not
+    #PD: PH is defined, DH is not
+
     switchXY = False
-    if plot=='TS':
-        if iName=='D':
-            switchXY = True # TD is defined, SD is not
-    elif plot=='PH':
-        if iName=='S':
-            switchXY = True # PS is more stable than HS
-        if iName=='T':
-            switchXY = True # PT is defined, HT is not
-        if iName=='D':
-            switchXY = True # PD is defined, HD is not
-    elif plot=='HS':
-        if iName=='T':
+    if iName in ['D', 'S', 'T', 'H'] and plot in switch_xy[iName]:
+            switchXY = True
+
+    iso_error = {'TD': ['S', 'H'],
+                 'HS': ['T', 'D'],}
+
+    if plot in ['TD', 'HS'] and iName in iso_error[plot]:
             raise ValueError('You should not reach this point!')
-        if iName=='D':
-            raise ValueError('You should not reach this point!')
-    elif plot=='PS':
-        if iName=='T':
-            switchXY = True # PT is defined, ST is not
-        if iName=='D':
-            switchXY = True # PD is defined, SD is not
-    elif plot=='PD':
-        if iName=='S':
-            switchXY = True # PS is defined, DS is not
-        if iName=='H':
-            switchXY = True # PH is defined, DH is not
-    elif plot=='TD':
-        if iName=='S':
-            raise ValueError('You should not reach this point!')
-        if iName=='H':
-            raise ValueError('You should not reach this point!')
-    elif plot=='PT':
-        if iName=='S':
-            switchXY = True # PS is defined, TS is not
 
     if switchXY:
         xmin = Aymin
