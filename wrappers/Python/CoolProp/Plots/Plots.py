@@ -364,28 +364,6 @@ def _getI_YX(Ref,iName,xName,yName,iVal,xVal):
     return x,y
 
 
-def _plotXY(plot):
-    """
-    Creates strings for the x and y-axis values from a given plot
-    name like Ts, Ph, hs, Ps, Prho, Trho and PT.
-    """
-
-    # check if plot has the right format
-    plots = ['TS','PH','HS','PS','PD','TD','PT']
-
-    rhoPat = re.compile("rho", re.IGNORECASE)
-    plot = rhoPat.sub("D", plot).upper()
-
-    if not plot in plots:
-        raise ValueError('You have to specify the kind of plot, use Ts, Ph, hs, Ps, Prho, Trho or PT.')
-
-    # Get strings to feed to Props function
-    yName = str(plot[0] )
-    xName = str(plot[1:])
-
-    return xName,yName,yName+xName
-
-
 def _getIsoLineLabel(which,num):
     labelMap = {
       'T' : [r'$T = ','$ K'],
@@ -417,20 +395,33 @@ class IsoLines(object):
                 'PT': ['D', 'P', 'S'],}
 
     def __init__(self, fluid_ref, graph_type, iso_type, **kwargs):
-        if not isinstance(iso_type, str):
-            raise ValueError('You have to specify the kind of plot.')
+        if not isinstance(graph_type, str):
+            raise TypeError("Invalid graph_type input, expeceted a string")
 
-        if iso_type.upper() not in self.COLOR_MAP.keys():
-            raise ValueError("Invalid iso_type selected")
+        if not isinstance(iso_type, str):
+            raise TypeError("Invalid iso_type input, expeceted a string")
+
+        graph_type = graph_type.upper()
+        if len(graph_type) >= 2 and graph_type[1:len(graph_type)] == 'RHO':
+            graph_type = graph_type[0] + graph_type[1:len(graph_type)]
+
+        if graph_type.upper() not in self.LINE_IDS.keys():
+            raise ValueError("You have to specify the kind of plot, use " \
+                              + str(self.LINE_IDS.keys()))
+
+        iso_type = iso_type.upper()
+        if iso_type not in self.COLOR_MAP.keys() and iso_type != 'Q':
+            raise ValueError('This kind of isoline is not supported for a ' \
+                             + str(graph_type) + \
+                             ' plot. Please choose from '\
+                             + str(self.COLOR_MAP.keys()) + ' or Q.')
 
         self.fluid_ref = fluid_ref
-        self.graph_type = graph_type.upper()
-        self.iso_type = iso_type.upper()
+        self.graph_type = graph_type
+        self.iso_type = iso_type
 
         self.figure = kwargs.get('fig', matplotlib.pyplot.figure())
         self.axis = kwargs.get('axis', matplotlib.pyplot.gca())
-        self.t_min = kwargs.get('t_min', None)
-        self.t_max = kwargs.get('t_max', None)
 
     def getIsoLines(self, iso_range=[], num=None):
         """
@@ -456,18 +447,6 @@ class IsoLines(object):
         if len(iso_range) == 2 and num is None:
             raise ValueError('Please specify the number of isoline you want \
                               e.g. num=10')
-
-        which = False
-        xName, yName, plot = _plotXY(plot)
-        if iName is not None:
-            if (iName in _getIsoLineIds(plot)) or (iName == 'Q'):
-                which = True
-
-        if not which:
-            raise ValueError('This kind of isoline is not supported for a ' \
-                             + str(plot) + \
-                             '-plot. Please choose from '\
-                             + str(_getIsoLineIds(plot)) + ' or Q.')
 
         # Enforce the bounds!
         ((Axmin, Axmax), (Aymin, Aymax)) = _setBounds(Ref, plot, axis=axis)
