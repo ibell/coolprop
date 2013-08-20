@@ -266,31 +266,30 @@ def getIsoLines(Ref, plot, iName, iValues=[], num=0, axis=None):
     # Calculate the points
     x0 = numpy.linspace(xmin,xmax,1000.)
 
-    patterns = {
-      'P' : (lambda x: numpy.logspace(math.log(x[0],2.), math.log(x[1],2.), num=x[2], base=2.)),
-      'D' : (lambda x: numpy.logspace(math.log(x[0],2.), math.log(x[1],2.), num=x[2], base=2.)),
-      'H' : (lambda x: numpy.linspace(x[0], x[1], num=x[2])),
-      'T' : (lambda x: numpy.linspace(x[0], x[1], num=x[2])),
-      'S' : (lambda x: numpy.linspace(x[0], x[1], num=x[2])),
-      'Q' : (lambda x: numpy.linspace(x[0], x[1], num=x[2]))
-    }
+    def generate_ranges(xmin, xmax, num):
+        if iName in ['P', 'D']:
+            return numpy.logspace(math.log(xmin, 2.),
+                                  math.log(xmax, 2.),
+                                  num=num,
+                                  base=2.)
+        else:
+            return numpy.linspace(xmin, xmax, num=num)
 
     # Get isoline spacing while honouring the inputs
-    if len(iValues)<1: # No values given, use plot boundaries to determine limits
-        raise ValueError('Automatic interval detection for isoline boundaries is not supported yet, use the iValues=[min, max] parameter.')
+    if not iValues: # No values given, use plot boundaries to determine limits
+        raise ValueError('Automatic interval detection for isoline \
+                          boundaries is not supported yet, use the \
+                          iValues=[min, max] parameter.')
         #iVal = [CP.Props(iName,'T',T_c[i],'D',rho_c[i],Ref) for i in range(len(T_c))]
         #iVal = patterns[iName]([numpy.min(iVal),numpy.max(iVal),num])
-    elif 1<len(iValues)<num: # We need more numbers
-        iNum = num - len(iValues)
-        iVal = patterns[iName]([numpy.min(iValues),numpy.max(iValues),iNum+2]) # include min and max
-        iVal = numpy.append(iVal[1:-1],iValues) # exclude min and max again
+
+    if len(iValues) == 2:
+        iVal = generate_ranges(iValues[0], iValues[1], num)
         iVal = plotRound(iVal)
-    else: # Either len(iValues)==1 or len(iValues)>=num
-        iVal = numpy.array(iValues)
-        iVal = numpy.sort(numpy.unique(iVal)) # sort again
+    else:
+        iVal = numpy.array(set(iValues.sort()))
 
-
-    if iName=='Q':
+    if iName == 'Q':
         lines = _getSatLines(Ref, plot, x=iVal)
         return lines
 
