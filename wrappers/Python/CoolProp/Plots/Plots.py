@@ -503,7 +503,7 @@ class IsoLines(object):
 
         return lines
 
-    def drawIsoLines(Ref, plot, which, iValues=[], num=0, axis=None, fig=None):
+    def draw_isolines(self, iso_range=[], num=None):
         """
         Draw lines with constant values of type 'which' in terms of x and y as
         defined by 'plot'. 'iMin' and 'iMax' are minimum and maximum value between
@@ -511,27 +511,29 @@ class IsoLines(object):
 
         There should also be helpful error messages...
         """
+        if not iso_range or len(iso_range) == 1:
+            raise ValueError('Automatic interval detection for isoline \
+                              boundaries is not supported yet, use the \
+                              iso_range=[min, max] parameter.')
 
-        if axis is None:
-            axis=matplotlib.pyplot.gca()
+        if len(iso_range) == 2 and num is None:
+            raise ValueError('Please specify the number of isoline you want \
+                              e.g. num=10')
 
-        if fig is None:
-            fig=matplotlib.pyplot.gcf()
+        if self.iso_type == 'all':
+            raise ValueError('Plotting all lines automatically is not \
+                              supported, yet..')
 
-        if not plot is None:
-            if not which is None:
-                if not which=='all':
-                    lines = getIsoLines(Ref, plot, which, iValues=iValues, num=num, axis=axis)
-                    return drawLines(Ref,lines,axis)
-                else:
-                    # TODO: assign limits to values automatically
-                    raise ValueError('Plotting all lines automatically is not supported, yet..')
-
-                    ll = _getIsoLineIds(plot)
-                    if not len(ll)==len(iValues):
-                        raise ValueError('Please provide a properly sized array of bounds.')
-                    for c,l in enumerate(ll):
-                        drawIsoLines(Ref, plot, l, iValues=iValues[c], num=num, axis=axis, fig=fig)
+        if self.iso_type != 'all':
+            lines = self.getIsoLines(iso_range, num)
+            return drawLines(self.fluid_ref, lines, self.axis)
+        #else:
+        #    # TODO: assign limits to values automatically
+        #    ll = _getIsoLineIds(plot)
+        #    if not len(ll)==len(iValues):
+        #        raise ValueError('Please provide a properly sized array of bounds.')
+        #    for c,l in enumerate(ll):
+        #        drawIsoLines(Ref, plot, l, iValues=iValues[c], num=num, axis=axis, fig=fig)
 
 
 
