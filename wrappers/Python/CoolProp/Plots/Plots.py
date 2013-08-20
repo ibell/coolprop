@@ -684,6 +684,15 @@ class Graph(object):
         self.__draw_region_lines()
         self.__set_axis_labels()
 
+    def draw_isolines(self, iso_type, iso_range, num=10):
+        drawIsoLines(self.fluid_ref,
+                     self.graph_type,
+                     iso_type,
+                     iso_range,
+                     num,
+                     self.axis,
+                     self.figure)
+
     def figure(self):
         self.__draw_graph()
         return self.figure
@@ -757,4 +766,5 @@ if __name__=='__main__':
     fluid_ref = 'R245fa'
     for graph_type in ['pt', 'ph', 'ps', 'ts', 'pt', 'prho', 'trho']:
         graph = Graph(fluid_ref, graph_type)
+        graph.draw_isolines('Q', [0.1, 0.9])
         graph.show()
