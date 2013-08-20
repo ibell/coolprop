@@ -176,7 +176,7 @@ std::string get_file_contents(const char *filename)
 	{
 		std::string contents;
 		in.seekg(0, std::ios::end);
-		contents.resize(in.tellg());
+		contents.resize((unsigned int) in.tellg());
 		in.seekg(0, std::ios::beg);
 		in.read(&contents[0], contents.size());
 		in.close();
