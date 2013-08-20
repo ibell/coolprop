@@ -386,51 +386,6 @@ def _plotXY(plot):
     return xName,yName,yName+xName
 
 
-def _getIsoLineIds(plot):
-    # define which isolines are allowed for the different plots
-#    plots = {
-#      'TS' : ['P','H'],#,'D'],
-#      'PH' : ['S'],#,'T','D'],
-#      'HS' : ['P'],#,'T','D'],
-#      'PS' : ['H'],#,'T','D'],
-#      'PD' : ['T'],#,'S','H'],
-#      'TD' : ['P'],#,'S','H'],
-#      'PT' : ['D','P']#,'S']
-#    }
-    # Changing the XY coordinates allows for more
-    # combinations of isolines.
-    plots = {
-      'TS' : ['P','D'],#,'H'],
-      'PH' : ['S','T','D'],
-      'HS' : ['P'],#,'T','D'],
-      'PS' : ['H','T','D'],
-      'PD' : ['T','S','H'],
-      'TD' : ['P'],#,'S','H'],
-      'PT' : ['D','P','S']
-    }
-    return plots[str(plot)]
-
-
-def getIsoLineColour(which):
-#    colourMap = {
-#      'T' : 'red',
-#      'P' : 'cyan',
-#      'H' : 'green',
-#      'D' : 'blue',
-#      'S' : 'yellow',
-#      'Q' : 'black'
-#    }
-    colourMap = {
-      'T' : 'Darkred',
-      'P' : 'DarkCyan',
-      'H' : 'DarkGreen',
-      'D' : 'DarkBlue',
-      'S' : 'DarkOrange',
-      'Q' : 'black'
-    }
-    return colourMap[str(which)]
-
-
 def _getIsoLineLabel(which,num):
     labelMap = {
       'T' : [r'$T = ','$ K'],
