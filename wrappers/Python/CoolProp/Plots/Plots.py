@@ -624,6 +624,30 @@ class Graph(object):
                    'RHO': ["Density", r"[$kg/m^3$]"]}
 
     def __init__(self, fluid_ref, graph_type, **kwargs):
+        """
+        Create graph for the specified fluid properties
+
+        Parameters
+        -----------
+        fluid_ref : str
+            The refence fluid
+        graph_type : str
+            The graph type to be plotted
+        axis : :func:`matplotlib.pyplot.gca()`, Optional
+            TODO
+        fig : :func:`matplotlib.pyplot.figure()`, Optional
+            TODO
+
+        Examples
+        ---------
+        >>> graph = Graph('Water', 'Ph')
+        >>> graph.show()
+
+        .. note::
+
+            See the online documentation for a the available fluids and
+            graph types
+        """
         self.fluid_ref = fluid_ref
         self.graph_type = graph_type.upper()
 
