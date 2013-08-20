@@ -211,25 +211,20 @@ def getIsoLines(Ref, plot, iName, iValues=[], num=0, axis=None):
     if axis is None:
         axis=matplotlib.pyplot.gca()
 
-    which = False
-    if not plot is None:
-        xName,yName,plot = _plotXY(plot)
-        if not iName is None:
-            if (iName in _getIsoLineIds(plot)) or (iName=='Q'):
-                which = True
-            else:
-                which=False
-        else:
-            which=False
-    else:
-        plot = False
-
-    if not plot:
+    if not isinstance(plot, str):
         raise ValueError('You have to specify the kind of plot.')
 
-    #xName,yName,plot = _plotXY(plot)
+    which = False
+    xName, yName, plot = _plotXY(plot)
+    if iName is not None:
+        if (iName in _getIsoLineIds(plot)) or (iName == 'Q'):
+            which = True
+
     if not which:
-        raise ValueError('This kind of isoline is not supported for a '+str(plot)+'-plot. Please choose from '+str(_getIsoLineIds(plot))+' or Q.')
+        raise ValueError('This kind of isoline is not supported for a ' \
+                         + str(plot) + \
+                         '-plot. Please choose from '\
+                         + str(_getIsoLineIds(plot)) + ' or Q.')
 
     # Enforce the bounds!
     ((Axmin,Axmax), (Aymin,Aymax)) = _setBounds(Ref, plot, axis=axis)
