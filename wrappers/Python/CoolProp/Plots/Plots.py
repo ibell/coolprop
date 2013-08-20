@@ -227,40 +227,9 @@ def getIsoLines(Ref, plot, iName, iValues=[], num=0, axis=None):
                          + str(_getIsoLineIds(plot)) + ' or Q.')
 
     # Enforce the bounds!
-    ((Axmin,Axmax), (Aymin,Aymax)) = _setBounds(Ref, plot, axis=axis)
+    ((Axmin, Axmax), (Aymin, Aymax)) = _setBounds(Ref, plot, axis=axis)
     switchXY = False
-#    # Problematic inputs that cannot be handled by the
-#    # internal CoolProp solver have to be avoided.
-#    # Converting everything to TD values:
-#    rho_0 =  CP.Props(Ref,'rhocrit')
-#    T_0   = (CP.Props(Ref,'Tcrit')+CP.Props(Ref,'Tmin'))/2.
-#    # Promote to lists for the 4 corners of the plot
-#    rho_c = [rho_0, rho_0, rho_0, rho_0]
-#    T_c   = [T_0  , T_0  , T_0  , T_0]
-#    # find s from T and D inputs, solve for D
-#    bounds_rho = (0.0                 , 1e10)
-#    bounds_T   = (CP.Props(Ref,'Tmin'), 1e10)
     if plot=='TS':
-#        # SciPy for scalar functions
-#        from scipy.optimize._minimize import minimize_scalar
-#        # residual from known x and y to find i
-#        def f(i,x,y): return numpy.power((CP.Props('S','T',y,'D',i,Ref)-x),2)
-#        # first case, upper right corner
-#        res = minimize_scalar(f, rho_0, bounds=bounds_rho, args=(Axmax, Aymax), method='bounded')
-#        T_c[0]   = Aymax
-#        rho_c[0] = res.x
-#        # second case, upper left corner
-#        res = minimize_scalar(f, rho_0, bounds=bounds_rho, args=(Axmin, Aymax), method='bounded')
-#        T_c[1]   = Aymax
-#        rho_c[1] = res.x
-#        # third case, lower left corner
-#        res = minimize_scalar(f, rho_0, bounds=bounds_rho, args=(Axmin, Aymin), method='bounded')
-#        T_c[2]   = Aymin
-#        rho_c[2] = res.x
-#        # fourth case, lower right corner
-#        res = minimize_scalar(f, rho_0, bounds=bounds_rho, args=(Axmax, Aymin), method='bounded')
-#        T_c[3]   = Aymin
-#        rho_c[3] = res.x
         if iName=='D':
             switchXY = True # TD is defined, SD is not
     elif plot=='PH':
