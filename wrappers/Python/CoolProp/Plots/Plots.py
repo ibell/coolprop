@@ -615,139 +615,62 @@ def _getIsoLineLabel(which,num):
     return val
 
 
-def Ts(Ref,Tmin=None, Tmax=None, show=False, axis=None, **kwargs):
-    """
-    Make a temperature-entropy plot for the given fluid
+class Graph(object):
+    AXIS_LABLES = {'T': ["Temperature", r"[$K$]"],
+                   'P': ["Pressure", r"[$kPa$]"],
+                   'S': ["Entropy", r"[$kJ/kg K$]"],
+                   'H': ["Enthalpy", r"[$kJ/kg$]"],
+                   'V': [],
+                   'RHO': ["Density", r"[$kg/m^3$]"]}
 
-    Will plot in the current axis unless the optional parameter *axis* gives the name for the axis to use
-    """
+    def __init__(self, fluid_ref, graph_type, **kwargs):
+        self.fluid_ref = fluid_ref
+        self.graph_type = graph_type.upper()
 
-    ax = axis if axis is not None else matplotlib.pyplot.gca()
-    lines = _getSatLines(Ref, 'Ts', kind='T', kmin=Tmin, kmax=Tmax)
-    drawLines(Ref,lines,ax)
-    # or alternatively:
-    #drawIsoLines(Ref, 0, 1, which='Q', plot='Ts', axis=ax)
+        self.figure = kwargs.get('fig', matplotlib.pyplot.figure())
+        self.axis = kwargs.get('axis', matplotlib.pyplot.gca())
+        self.t_min = kwargs.get('t_min', None)
+        self.t_max = kwargs.get('t_max', None)
 
-    ax.set_xlabel('Entropy [kJ/kg$\cdot$K]')
-    ax.set_ylabel('Temperature [K]')
-    ax.autoscale(enable=True)
-    if show:
+    def __set_axis_labels(self):
+        if len(self.graph_type) == 2:
+            y_axis_id = self.graph_type[0]
+            x_axis_id = self.graph_type[1]
+        else:
+            y_axis_id = self.graph_type[0]
+            x_axis_id = self.graph_type[1:len(self.graph_type)]
+
+        tl_str = "%s - %s Graph for %s"
+        self.axis.set_title(tl_str % (self.AXIS_LABLES[y_axis_id][0],
+                                      self.AXIS_LABLES[x_axis_id][0],
+                                      self.fluid_ref))
+        self.axis.set_xlabel(' '.join(self.AXIS_LABLES[x_axis_id]))
+        self.axis.set_ylabel(' '.join(self.AXIS_LABLES[y_axis_id]))
+        self.axis.autoscale(enable=True)
+
+    def __draw_region_lines(self):
+        lines = _getSatLines(self.fluid_ref,
+                             self.graph_type,
+                             kind='T',
+                             kmin=self.t_min,
+                             kmax=self.t_max)
+        drawLines(self.fluid_ref, lines, self.axis)
+
+    def __draw_graph(self):
+        self.__draw_region_lines()
+        self.__set_axis_labels()
+
+    def figure(self):
+        self.__draw_graph()
+        return self.figure
+
+    def axis(self):
+        self.__draw_graph()
+        return self.axis
+
+    def show(self):
+        self.__draw_graph()
         matplotlib.pyplot.show()
-    return ax
-
-
-def Ph(Ref, Tmin=None, Tmax = None, show = False, axis=None, **kwargs):
-    """
-    Make a pressure-enthalpy plot for the given fluid
-
-    Will plot in the current axis unless the optional parameter *axis* gives the name for the axis to use
-    """
-
-    ax = axis if axis is not None else matplotlib.pyplot.gca()
-    lines  = _getSatLines(Ref, 'ph', kind='T', kmin=Tmin, kmax=Tmax)
-    drawLines(Ref,lines,ax)
-
-    ax.set_xlabel('Enthalpy [kJ/kg]')
-    ax.set_ylabel('Pressure [kPa]')
-    ax.autoscale(enable=True)
-    if show:
-        matplotlib.pyplot.show()
-    return ax
-
-
-def hs(Ref, Tmin=None, Tmax = None, show = False, axis = None, **kwargs):
-    """
-    Make a enthalpy-entropy plot for the given fluid
-
-    Will plot in the current axis unless the optional parameter *axis* gives the name for the axis to use
-    """
-
-    ax = axis if axis is not None else matplotlib.pyplot.gca()
-    lines  = _getSatLines(Ref, 'hs', kind='T', kmin=Tmin, kmax=Tmax)
-    drawLines(Ref,lines,ax)
-
-    ax.set_xlabel('Entropy [kJ/kg/K]')
-    ax.set_ylabel('Enthalpy [kJ/kg]')
-    ax.autoscale(enable=True)
-    if show:
-        matplotlib.pyplot.show()
-    return ax
-
-
-def Ps(Ref, Tmin=None, Tmax = None, show = False, axis = None, **kwargs):
-    """
-    Make a pressure-entropy plot for the given fluid
-
-    Will plot in the current axis unless the optional parameter *axis* gives the name for the axis to use
-    """
-
-    ax = axis if axis is not None else matplotlib.pyplot.gca()
-    lines  = _getSatLines(Ref, 'ps', kind='T', kmin=Tmin, kmax=Tmax)
-    drawLines(Ref,lines,ax)
-
-    ax.set_xlabel('Entropy [kJ/kg/K]')
-    ax.set_ylabel('Pressure [kPa]')
-    ax.autoscale(enable=True)
-    if show:
-        matplotlib.pyplot.show()
-    return ax
-
-
-def Prho(Ref, Tmin=None, Tmax = None, show = False, axis = None, **kwargs):
-    """
-    Make a pressure-density plot for the given fluid
-
-    Will plot in the current axis unless the optional parameter *axis* gives the name for the axis to use
-    """
-
-    ax = axis if axis is not None else matplotlib.pyplot.gca()
-    lines  = _getSatLines(Ref, 'pd', kind='T', kmin=Tmin, kmax=Tmax)
-    drawLines(Ref,lines,ax)
-
-    ax.set_xlabel('Density [kg/m$^3$]')
-    ax.set_ylabel('Pressure [kPa]')
-    ax.autoscale(enable=True)
-    if show:
-        matplotlib.pyplot.show()
-    return ax
-
-
-def Trho(Ref, Tmin=None, Tmax = None, show = False, axis = None, **kwargs):
-    """
-    Make a temperature-density plot for the given fluid
-
-    Will plot in the current axis unless the optional parameter *axis* gives the name for the axis to use
-    """
-
-    ax = axis if axis is not None else matplotlib.pyplot.gca()
-    lines  = _getSatLines(Ref, 'Td', kind='T', kmin=Tmin, kmax=Tmax)
-    drawLines(Ref,lines,ax)
-
-    ax.set_xlabel('Density [kg/m$^3$]')
-    ax.set_ylabel('Temperature [K]')
-    ax.autoscale(enable=True)
-    if show:
-        matplotlib.pyplot.show()
-    return ax
-
-
-def PT(Ref, Tmin=None, Tmax = None, show = False, axis = None, **kwargs):
-    """
-    Make a pressure-temperature plot for the given fluid
-
-    Will plot in the current axis unless the optional parameter *axis* gives the name for the axis to use
-    """
-
-    ax = axis if axis is not None else matplotlib.pyplot.gca()
-    lines  = _getSatLines(Ref, 'pT', kind='T', kmin=Tmin, kmax=Tmax)
-    drawLines(Ref,lines,ax)
-
-    ax.set_xlabel('Temperature [K]')
-    ax.set_ylabel('Pressure [kPa]')
-    ax.autoscale(enable=True)
-    if show:
-        matplotlib.pyplot.show()
-    return ax
 
 
 if __name__=='__main__':
@@ -789,20 +712,25 @@ if __name__=='__main__':
 #    print plotRound(testarr)
 
 
-    # The older test cases.
-    hs('R245fa', show = True)
-    raw_input("Press Enter to continue...")
-    PT('R245fa', show = True)
-    raw_input("Press Enter to continue...")
-    Ph('Helium', show = True)
-    raw_input("Press Enter to continue...")
-    Trho('R245fa', show = True)
-    raw_input("Press Enter to continue...")
-    Prho('R245fa', show = True)
-    raw_input("Press Enter to continue...")
-    Ps('R290', show = True)
-    raw_input("Press Enter to continue...")
-    Ph('R290', show = True)
-    raw_input("Press Enter to continue...")
-    Ts('R290', show = True)
-    raw_input("Press Enter to continue...")
+#    # The older test cases.
+#    hs('R245fa', show = True)
+#    raw_input("Press Enter to continue...")
+#    PT('R245fa', show = True)
+#    raw_input("Press Enter to continue...")
+#    Ph('Helium', show = True)
+#    raw_input("Press Enter to continue...")
+#    Trho('R245fa', show = True)
+#    raw_input("Press Enter to continue...")
+#    Prho('R245fa', show = True)
+#    raw_input("Press Enter to continue...")
+#    Ps('R290', show = True)
+#    raw_input("Press Enter to continue...")
+#    Ph('R290', show = True)
+#    raw_input("Press Enter to continue...")
+#    Ts('R290', show = True)
+#    raw_input("Press Enter to continue...")
+
+    fluid_ref = 'R245fa'
+    for graph_type in ['pt', 'ph', 'ps', 'ts', 'pt', 'prho', 'trho']:
+        graph = Graph(fluid_ref, graph_type)
+        graph.show()
