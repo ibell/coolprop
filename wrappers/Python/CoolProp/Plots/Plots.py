@@ -660,62 +660,6 @@ class Graph(object):
 
 
 if __name__=='__main__':
-#    import matplotlib
-#    matplotlib.use('Qt4Agg')
-#
-#    import matplotlib.pyplot
-#
-#    fluid = "n-Pentane"
-#    # define custom styles
-#    plt_kwargs_1 = {"color": "green","linewidth": 1.5}
-#    plt_kwargs_2 = {"color": "red","linewidth": 0.75}
-#
-#    raw_input("Press Enter to draw quality lines...")
-#    fig, ((ax1, ax2)) = matplotlib.pyplot.subplots(1, 2, sharey='row')
-#    drawIsoLines(fluid, 'Ts', 'Q', [0.0, 1.0], axis=ax1) # for predefined styles
-#    drawIsoLines(fluid, 'Ts', 'Q', [0.3, 0.7], axis=ax1) # for predefined styles
-#    # Get the data points
-#    saturation = getIsoLines(fluid, 'Ts', 'Q', [0.0,  1.0 ], axis=ax2)
-#    quality    = getIsoLines(fluid, 'Ts', 'Q', [0.3,  0.7 ], axis=ax2)
-#    # and draw the lines
-#    drawLines(fluid,saturation[:],ax2,plt_kwargs=plt_kwargs_1)
-#    drawLines(fluid,quality[:],ax2,plt_kwargs=plt_kwargs_2)
-#    matplotlib.pyplot.show()
-#    raw_input("Press Enter to draw more lines...")
-#    fig, (ax1) = matplotlib.pyplot.subplots(1, 1)
-#    drawLines(fluid,saturation,ax1)
-#    drawIsoLines(fluid, 'Ts', 'Q', [0.0, 1.0], axis=ax1) # for predefined styles
-#    drawIsoLines(fluid, 'Ts', 'Q', [0.25, 0.75], num=3, axis=ax1) # for predefined styles
-#    drawIsoLines(fluid, 'Ts', 'H', [50,  100], num=10, axis=ax1) # for predefined styles
-#    drawIsoLines(fluid, 'Ts', 'P', [10,  5000], num=10, axis=ax1) # for predefined styles
-#    matplotlib.pyplot.show()
-#    hs('n-Pentane', show = True)
-#    raw_input("Press Enter to continue...")
-
-#    # test the rounding function
-#    testarr = numpy.logspace(math.log(0.1,2.), math.log(0.11,2.), num=10, base=2.)
-#    print testarr
-#    print plotRound(testarr)
-
-
-#    # The older test cases.
-#    hs('R245fa', show = True)
-#    raw_input("Press Enter to continue...")
-#    PT('R245fa', show = True)
-#    raw_input("Press Enter to continue...")
-#    Ph('Helium', show = True)
-#    raw_input("Press Enter to continue...")
-#    Trho('R245fa', show = True)
-#    raw_input("Press Enter to continue...")
-#    Prho('R245fa', show = True)
-#    raw_input("Press Enter to continue...")
-#    Ps('R290', show = True)
-#    raw_input("Press Enter to continue...")
-#    Ph('R290', show = True)
-#    raw_input("Press Enter to continue...")
-#    Ts('R290', show = True)
-#    raw_input("Press Enter to continue...")
-
     fluid_ref = 'R245fa'
     for graph_type in ['pt', 'ph', 'ps', 'ts', 'pt', 'prho', 'trho']:
         graph = Graph(fluid_ref, graph_type)
