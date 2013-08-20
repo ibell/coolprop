@@ -97,37 +97,6 @@ def show():
     matplotlib.pyplot.show()
 
 
-def drawIsoLines(Ref, plot, which, iValues=[], num=0, axis=None, fig=None):
-    """
-    Draw lines with constant values of type 'which' in terms of x and y as
-    defined by 'plot'. 'iMin' and 'iMax' are minimum and maximum value between
-    which 'num' get drawn.
-
-    There should also be helpful error messages...
-    """
-
-    if axis is None:
-        axis=matplotlib.pyplot.gca()
-
-    if fig is None:
-        fig=matplotlib.pyplot.gcf()
-
-    if not plot is None:
-        if not which is None:
-            if not which=='all':
-                lines = getIsoLines(Ref, plot, which, iValues=iValues, num=num, axis=axis)
-                return drawLines(Ref,lines,axis)
-            else:
-                # TODO: assign limits to values automatically
-                raise ValueError('Plotting all lines automatically is not supported, yet..')
-
-                ll = _getIsoLineIds(plot)
-                if not len(ll)==len(iValues):
-                    raise ValueError('Please provide a properly sized array of bounds.')
-                for c,l in enumerate(ll):
-                    drawIsoLines(Ref, plot, l, iValues=iValues[c], num=num, axis=axis, fig=fig)
-
-
 def drawLines(Ref,lines,axis,plt_kwargs=None):
     """
     Just an internal method to systematically plot values from
@@ -533,6 +502,36 @@ class IsoLines(object):
             lines.append(line)
 
         return lines
+
+    def drawIsoLines(Ref, plot, which, iValues=[], num=0, axis=None, fig=None):
+        """
+        Draw lines with constant values of type 'which' in terms of x and y as
+        defined by 'plot'. 'iMin' and 'iMax' are minimum and maximum value between
+        which 'num' get drawn.
+
+        There should also be helpful error messages...
+        """
+
+        if axis is None:
+            axis=matplotlib.pyplot.gca()
+
+        if fig is None:
+            fig=matplotlib.pyplot.gcf()
+
+        if not plot is None:
+            if not which is None:
+                if not which=='all':
+                    lines = getIsoLines(Ref, plot, which, iValues=iValues, num=num, axis=axis)
+                    return drawLines(Ref,lines,axis)
+                else:
+                    # TODO: assign limits to values automatically
+                    raise ValueError('Plotting all lines automatically is not supported, yet..')
+
+                    ll = _getIsoLineIds(plot)
+                    if not len(ll)==len(iValues):
+                        raise ValueError('Please provide a properly sized array of bounds.')
+                    for c,l in enumerate(ll):
+                        drawIsoLines(Ref, plot, l, iValues=iValues[c], num=num, axis=axis, fig=fig)
 
 
 
