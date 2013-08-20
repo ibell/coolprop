@@ -263,26 +263,6 @@ def _getSatLines(Ref, plot, kind=None, kmin=None, kmax=None, x=[0.,1.]):
     return lines
 
 
-def _getI_YX(Ref,iName,xName,yName,iVal,xVal):
-    """
-    Calculates lines for constant iName (iVal) over an interval of xName (xVal).
-
-    Returns (x[],y[]) - a tuple of arrays containing the values in x and y dimensions.
-    """
-
-    if (len(iVal)!=len(xVal)):
-        raise ValueError('We need the same number of x value arrays as iso quantities.')
-
-    y  = []
-    x  = []
-    for j in range(len(iVal)):
-        jiVal = iVal[j] #constant quantity
-        jxVal = xVal[j] #x-axis array
-        Y = numpy.array([CP.Props(yName,iName,[jiVal],xName,ijxVal,Ref) for ijxVal in jxVal])
-        y.append(Y)
-        x.append(jxVal)
-
-    return x,y
 
 
 def _getIsoLineLabel(which,num):
@@ -387,6 +367,26 @@ class IsoLines(object):
         [cuiY,cuaY] = axis.get_ylim()
 
         return ((cuiX,cuaX),(cuiY,cuaY))
+    def __get_isolines_data(self, iso_range, x_values):
+        """
+        Calculates lines for constant iName (iVal) over an interval of xName (xVal).
+
+        Returns (x[],y[]) - a tuple of arrays containing the values in x and y dimensions.
+        """
+
+        if (len(iVal)!=len(xVal)):
+            raise ValueError('We need the same number of x value arrays as iso quantities.')
+
+        y  = []
+        x  = []
+        for j in range(len(iVal)):
+            jiVal = iVal[j] #constant quantity
+            jxVal = xVal[j] #x-axis array
+            Y = numpy.array([CP.Props(yName,iName,[jiVal],xName,ijxVal,Ref) for ijxVal in jxVal])
+            y.append(Y)
+            x.append(jxVal)
+
+        return [x, y]
 
         """
         This is the core method to obtain lines in the dimensions defined
