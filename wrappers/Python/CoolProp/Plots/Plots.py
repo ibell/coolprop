@@ -199,54 +199,6 @@ def _satBounds(Ref,kind,xmin=None,xmax=None):
     return (xmin,xmax)
 
 
-def _setBounds(Ref, plot, axis=None):
-    """
-    Generates limits for the axes in terms of x,y defined by 'plot'
-    based on temperature and pressure.
-
-    Returns a tuple containing ((xmin,xmax), (ymin,ymax))
-    """
-
-    xName,yName,plot = _plotXY(plot)
-
-    # Get current axis limits, be sure to set those before drawing isolines
-    # if no limits are set, use triple point and critical conditions
-    X = []
-    X.append(CP.Props(xName,'T',1.5*CP.Props(Ref,'Tcrit'), 'P',   CP.Props(Ref,'ptriple'),Ref))
-    X.append(CP.Props(xName,'T',1.1*CP.Props(Ref,'Tmin') , 'P', 1.5*CP.Props(Ref,'pcrit'),Ref))
-    X.append(CP.Props(xName,'T',1.5*CP.Props(Ref,'Tcrit'), 'P', 1.5*CP.Props(Ref,'pcrit'),Ref))
-    X.append(CP.Props(xName,'T',1.1*CP.Props(Ref,'Tmin') , 'P',   CP.Props(Ref,'ptriple'),Ref))
-    Y = []
-    Y.append(CP.Props(yName,'T',1.5*CP.Props(Ref,'Tcrit'), 'P',   CP.Props(Ref,'ptriple'),Ref))
-    Y.append(CP.Props(yName,'T',1.1*CP.Props(Ref,'Tmin') , 'P', 1.5*CP.Props(Ref,'pcrit'),Ref))
-    Y.append(CP.Props(yName,'T',1.1*CP.Props(Ref,'Tcrit'), 'P', 1.5*CP.Props(Ref,'pcrit'),Ref))
-    Y.append(CP.Props(yName,'T',1.5*CP.Props(Ref,'Tmin') , 'P',   CP.Props(Ref,'ptriple'),Ref))
-
-    minX = numpy.min(X)
-    maxX = numpy.max(X)
-    minY = numpy.min(Y)
-    maxY = numpy.max(Y)
-
-    if axis.get_autoscalex_on():
-        axis.set_xlim([minX,maxX])
-    else:
-        [cuiX,cuaX] = axis.get_xlim()
-        axis.set_xlim(left=numpy.max([minX,cuiX]))
-        #axis.set_xlim(right=numpy.min(maxX,cuaX))
-
-    if axis.get_autoscaley_on():
-        axis.set_ylim([minY,maxY])
-    else:
-        [cuiY,cuaY] = axis.get_ylim()
-        axis.set_ylim(bottom=numpy.max([minY,cuiY]))
-        #axis.set_ylim(right=numpy.min(maxY,cuaY))
-
-    [cuiX,cuaX] = axis.get_xlim()
-    [cuiY,cuaY] = axis.get_ylim()
-
-    return ((cuiX,cuaX),(cuiY,cuaY))
-
-
 def _getSatLines(Ref, plot, kind=None, kmin=None, kmax=None, x=[0.,1.]):
     """
     Calculates bubble and dew line in the quantities for your plot.
@@ -392,7 +344,50 @@ class IsoLines(object):
         self.figure = kwargs.get('fig', matplotlib.pyplot.figure())
         self.axis = kwargs.get('axis', matplotlib.pyplot.gca())
 
-    def getIsoLines(self, iso_range=[], num=None):
+    def __set_axis_limits(self):
+        """
+        Generates limits for the axes in terms of x,y defined by 'plot'
+        based on temperature and pressure.
+
+        Returns a tuple containing ((xmin, xmax), (ymin, ymax))
+        """
+        # Get current axis limits, be sure to set those before drawing isolines
+        # if no limits are set, use triple point and critical conditions
+        X = []
+        X.append(CP.Props(xName,'T',1.5*CP.Props(Ref,'Tcrit'), 'P',   CP.Props(Ref,'ptriple'),Ref))
+        X.append(CP.Props(xName,'T',1.1*CP.Props(Ref,'Tmin') , 'P', 1.5*CP.Props(Ref,'pcrit'),Ref))
+        X.append(CP.Props(xName,'T',1.5*CP.Props(Ref,'Tcrit'), 'P', 1.5*CP.Props(Ref,'pcrit'),Ref))
+        X.append(CP.Props(xName,'T',1.1*CP.Props(Ref,'Tmin') , 'P',   CP.Props(Ref,'ptriple'),Ref))
+        Y = []
+        Y.append(CP.Props(yName,'T',1.5*CP.Props(Ref,'Tcrit'), 'P',   CP.Props(Ref,'ptriple'),Ref))
+        Y.append(CP.Props(yName,'T',1.1*CP.Props(Ref,'Tmin') , 'P', 1.5*CP.Props(Ref,'pcrit'),Ref))
+        Y.append(CP.Props(yName,'T',1.1*CP.Props(Ref,'Tcrit'), 'P', 1.5*CP.Props(Ref,'pcrit'),Ref))
+        Y.append(CP.Props(yName,'T',1.5*CP.Props(Ref,'Tmin') , 'P',   CP.Props(Ref,'ptriple'),Ref))
+
+        minX = numpy.min(X)
+        maxX = numpy.max(X)
+        minY = numpy.min(Y)
+        maxY = numpy.max(Y)
+
+        if axis.get_autoscalex_on():
+            axis.set_xlim([minX,maxX])
+        else:
+            [cuiX,cuaX] = axis.get_xlim()
+            axis.set_xlim(left=numpy.max([minX,cuiX]))
+            #axis.set_xlim(right=numpy.min(maxX,cuaX))
+
+        if axis.get_autoscaley_on():
+            axis.set_ylim([minY,maxY])
+        else:
+            [cuiY,cuaY] = axis.get_ylim()
+            axis.set_ylim(bottom=numpy.max([minY,cuiY]))
+            #axis.set_ylim(right=numpy.min(maxY,cuaY))
+
+        [cuiX,cuaX] = axis.get_xlim()
+        [cuiY,cuaY] = axis.get_ylim()
+
+        return ((cuiX,cuaX),(cuiY,cuaY))
+
         """
         This is the core method to obtain lines in the dimensions defined
         by 'plot' that describe the behaviour of fluid 'Ref'. The constant
