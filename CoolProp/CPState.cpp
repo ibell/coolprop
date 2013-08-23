@@ -423,7 +423,13 @@ void CoolPropStateClass::update_Trho(long iInput1, double Value1, long iInput2, 
 		SinglePhase = true;
 		SaturatedL = false;
 		SaturatedV = false;
-		_p = pFluid->pressure_Trho(_T,_rho);
+
+		// Reduced parameters
+		double delta = this->_rho/pFluid->reduce.rho;
+		double tau = pFluid->reduce.T/this->_T;
+		
+		// Use the local function for dphir_dDelta to ensure that dphir_dDelta gets cached
+		_p = pFluid->R()*_T*_rho*(1.0 + delta*dphir_dDelta(tau,delta));
 	}
 }
 

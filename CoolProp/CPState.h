@@ -99,7 +99,7 @@ public:
 	double superheat(void);
 
 	/// Get the name of the fluid
-	std::string get_name(void){return _Fluid;};
+	std::string get_name(void){return pFluid->get_name();};
 
 	/// Stop it from adding the SatL and SatV class pointers
 	void no_SatLSatV(void){_noSatLSatV = true;};
