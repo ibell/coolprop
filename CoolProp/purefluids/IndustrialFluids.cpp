@@ -1226,7 +1226,7 @@ R141bClass::R141bClass()
 
     // Critical parameters
     crit.rho = 458.55946002;
-    crit.p = 4212.0;
+    crit.p = PressureUnit(4212.0,UNIT_KPA);
     crit.T = 477.5;
     crit.v = 1.0/crit.rho;
 
@@ -1741,7 +1741,7 @@ double AcetoneClass::psat(double T)
     {
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 double AcetoneClass::rhosatL(double T)
 {
@@ -1785,7 +1785,7 @@ double NitrousOxideClass::psat(double T)
     {
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 double NitrousOxideClass::rhosatL(double T)
 {
@@ -1829,7 +1829,7 @@ double SulfurDioxideClass::psat(double T)
     {
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 double SulfurDioxideClass::rhosatL(double T)
 {
@@ -1873,7 +1873,7 @@ double R141bClass::psat(double T)
     {
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 //double R141bClass::rhosatL(double T)
 //{
@@ -1917,7 +1917,7 @@ double R142bClass::psat(double T)
     {
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 double R142bClass::rhosatL(double T)
 {
@@ -1961,7 +1961,7 @@ double R218Class::psat(double T)
     {
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 double R218Class::rhosatL(double T)
 {
@@ -2005,7 +2005,7 @@ double R245faClass::psat(double T)
     {
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 
 double R245faClass::rhosatV(double T)
@@ -2035,7 +2035,7 @@ double R41Class::psat(double T)
     {
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 double R41Class::rhosatL(double T)
 {
@@ -2079,7 +2079,7 @@ double CarbonMonoxideClass::psat(double T)
     {
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 double CarbonMonoxideClass::rhosatL(double T)
 {
@@ -2123,7 +2123,7 @@ double CarbonylSulfideClass::psat(double T)
     {
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 double CarbonylSulfideClass::rhosatL(double T)
 {
@@ -2167,7 +2167,7 @@ double DecaneClass::psat(double T)
     {
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 double DecaneClass::rhosatL(double T)
 {
@@ -2211,7 +2211,7 @@ double HydrogenSulfideClass::psat(double T)
     {
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 double HydrogenSulfideClass::rhosatL(double T)
 {
@@ -2255,7 +2255,7 @@ double IsopentaneClass::psat(double T)
     {
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 double IsopentaneClass::rhosatL(double T)
 {
@@ -2299,7 +2299,7 @@ double NeopentaneClass::psat(double T)
     {
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 double NeopentaneClass::rhosatL(double T)
 {
@@ -2343,7 +2343,7 @@ double IsohexaneClass::psat(double T)
     {
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 double IsohexaneClass::rhosatV(double T)
 {
@@ -2372,7 +2372,7 @@ double KryptonClass::psat(double T)
     {
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 double KryptonClass::rhosatL(double T)
 {
@@ -2416,7 +2416,7 @@ double NonaneClass::psat(double T)
     {
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 double NonaneClass::rhosatL(double T)
 {
@@ -2460,7 +2460,7 @@ double TolueneClass::psat(double T)
     {
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 double TolueneClass::rhosatL(double T)
 {
@@ -2505,7 +2505,7 @@ double XenonClass::psat(double T)
     {
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 double XenonClass::rhosatL(double T)
 {
@@ -2549,7 +2549,7 @@ double R116Class::psat(double T)
     {
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 double R116Class::rhosatL(double T)
 {

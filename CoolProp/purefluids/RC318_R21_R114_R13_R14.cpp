@@ -68,7 +68,7 @@ double RC318Class::psat(double T)
     {
         summer += N[i]*pow(theta,t[i]/2);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 
 double RC318Class::rhosatL(double T)
@@ -160,7 +160,7 @@ double R21Class::psat(double T)
     {
         summer += N[i]*pow(theta,t[i]/2);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 
 double R21Class::rhosatL(double T)
@@ -252,7 +252,7 @@ double R114Class::psat(double T)
     {
         summer += N[i]*pow(theta,t[i]/2);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 
 double R114Class::rhosatL(double T)
@@ -347,7 +347,7 @@ double R13Class::psat(double T)
     {
         summer += N[i]*pow(theta,t[i]/2);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 
 double R13Class::rhosatL(double T)
@@ -447,7 +447,7 @@ double R14Class::psat(double T)
     {
         summer += N[i]*pow(theta,t[i]/2);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 
 double R14Class::rhosatL(double T)

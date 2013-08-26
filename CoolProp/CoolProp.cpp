@@ -43,7 +43,7 @@ static std::string err_string;
 static int debug_level=0;
 static Fluid * pFluid;
 
-// This is very hacky, but pull the subversion revision from the file
+// This is very hacky, but pull the git revision from the file
 #include "gitrevision.h" // Contents are like "long gitrevision = "aa121435436ggregrea4t43t433";"
 #include "version.h" // Contents are like "char version [] ="2.5";"
 
@@ -51,6 +51,10 @@ int global_Phase = -1;
 bool global_SinglePhase = false;
 bool global_SaturatedL = false;
 bool global_SaturatedV = false;
+
+int unit_system = UNIT_SYSTEM_KSI;
+
+
 
 // This is a map of all possible strings to a unique identifier
 std::pair<std::string, long> map_data[] = {

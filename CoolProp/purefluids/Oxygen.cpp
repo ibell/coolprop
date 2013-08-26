@@ -314,7 +314,7 @@ double OxygenClass::X_tilde(double T,double tau,double delta)
 	double drho_dp,R_Oxygen;
 	R_Oxygen=params.R_u/params.molemass;
 	drho_dp=1.0/(R_Oxygen*T*(1+2*delta*dphir_dDelta(tau,delta)+delta*delta*d2phir_dDelta2(tau,delta)));
-	return reduce.p*delta/reduce.rho*drho_dp;
+	return reduce.p.Pa*delta/reduce.rho*drho_dp;
 }
 
 double OxygenClass::conductivity_Trho(double T, double rho)
@@ -419,7 +419,7 @@ double OxygenClass::psat(double T)
     {
         summer=summer+Ni[i]*pow(1-T/reduce.T,ti[i]);
     }
-	double p = reduce.p*exp(reduce.T/T*summer);
+	double p = reduce.p.Pa*exp(reduce.T/T*summer);
 	return p;
 }
 double OxygenClass::rhosatV(double T)

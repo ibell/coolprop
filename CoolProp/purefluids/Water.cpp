@@ -594,7 +594,7 @@ double WaterClass::psat(double T)
     {
         summer=summer+ai[i]*pow(1-T/reduce.T,ti[i]);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 double WaterClass::rhosatL(double T)
 {

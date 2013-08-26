@@ -154,7 +154,7 @@ double R1234zeClass::psat(double T)
     {
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 double R1234zeClass::rhosatL(double T)
 {
@@ -280,7 +280,7 @@ double R1234zeZClass::psat(double T)
     {
         summer += N[i]*pow(theta,t[i]/2);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 
 double R1234zeZClass::rhosatL(double T)

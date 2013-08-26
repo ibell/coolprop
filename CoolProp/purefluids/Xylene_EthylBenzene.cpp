@@ -72,7 +72,7 @@ double oXyleneClass::psat(double T)
     {
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 double oXyleneClass::rhosatL(double T)
 {
@@ -172,7 +172,7 @@ double mXyleneClass::psat(double T)
     {
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 double mXyleneClass::rhosatL(double T)
 {
@@ -272,7 +272,7 @@ double pXyleneClass::psat(double T)
     {
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 double pXyleneClass::rhosatL(double T)
 {
@@ -371,7 +371,7 @@ double EthylBenzeneClass::psat(double T)
     {
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 double EthylBenzeneClass::rhosatL(double T)
 {

@@ -194,7 +194,7 @@ double nPentaneClass::psat(double T)
     {
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 double nPentaneClass::rhosatL(double T)
 {
@@ -310,7 +310,7 @@ double nHexaneClass::psat(double T)
     {
         summer += N[i]*pow(theta,t[i]/2);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 
 double nHexaneClass::rhosatL(double T)
@@ -445,7 +445,7 @@ double nHeptaneClass::psat(double T)
     {
         summer += N[i]*pow(theta,t[i]/2);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 
 double nHeptaneClass::rhosatL(double T)
@@ -583,7 +583,7 @@ double nOctaneClass::psat(double T)
     {
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 double nOctaneClass::rhosatL(double T)
 {
@@ -741,7 +741,7 @@ double nDodecaneClass::psat(double T)
     {
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 double nDodecaneClass::rhosatL(double T)
 {
@@ -928,7 +928,7 @@ double CyclohexaneClass::psat(double T)
     {
         summer += N[i]*pow(theta,t[i]/2);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 
 double CyclohexaneClass::rhosatL(double T)
@@ -1016,7 +1016,7 @@ double R152AClass::psat(double T)
     {
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 double R152AClass::rhosatL(double T)
 {
@@ -1152,7 +1152,7 @@ double R123Class::psat(double T)
     {
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 double R123Class::rhosatL(double T)
 {
@@ -1291,7 +1291,7 @@ double R11Class::psat(double T)
     {
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 double R11Class::rhosatL(double T)
 {

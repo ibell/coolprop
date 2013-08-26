@@ -70,7 +70,7 @@ double MethylPalmitateClass::psat(double T)
     {
         summer += N[i]*pow(theta,t[i]/2);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 
 double MethylPalmitateClass::rhosatL(double T)
@@ -169,7 +169,7 @@ double MethylStearateClass::psat(double T)
     {
         summer += N[i]*pow(theta,t[i]/2);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 
 double MethylStearateClass::rhosatL(double T)
@@ -282,7 +282,7 @@ double MethylOleateClass::psat(double T)
     {
         summer=summer+N[i]*pow(theta,t[i]/2);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 double MethylOleateClass::rhosatV(double T)
 {
@@ -365,7 +365,7 @@ double MethylLinoleateClass::psat(double T)
     {
         summer += N[i]*pow(theta,t[i]/2);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 
 double MethylLinoleateClass::rhosatL(double T)
@@ -464,7 +464,7 @@ double MethylLinolenateClass::psat(double T)
     {
         summer += N[i]*pow(theta,t[i]/2);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 double MethylLinolenateClass::rhosatL(double T)
 {

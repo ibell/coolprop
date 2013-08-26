@@ -71,7 +71,7 @@ double MethanolClass::psat(double T)
     {
         summer += N[i]*pow(theta,t[i]);
     }
-    return reduce.p*exp(T/reduce.T*summer);
+    return reduce.p.Pa*exp(T/reduce.T*summer);
 }
 
 double MethanolClass::rhosatL(double T)

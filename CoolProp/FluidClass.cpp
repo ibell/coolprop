@@ -919,10 +919,10 @@ double Fluid::density_Tp_PengRobinson(double T, double p, int solution)
 	double Rbar = 8.314472;
 
 	b = 0.077796074*(Rbar*reduce.T)/(reduce.p)*1000;
-	B = 0.077796074*p/reduce.p*reduce.T/T;
+	B = 0.077796074*p/reduce.p.Pa*reduce.T/T;
 
 	m = 0.37464 + 1.54226*params.accentricfactor-0.26992*pow(params.accentricfactor,2);
-	a = 0.45724*pow(Rbar*reduce.T,2)/reduce.p*pow(1+m*(1-sqrt(T/reduce.T)),2)*1000;
+	a = 0.45724*pow(Rbar*reduce.T,2)/reduce.p.Pa*pow(1+m*(1-sqrt(T/reduce.T)),2)*1000;
 	A = a*p/(Rbar*Rbar*T*T)/1000;
 
 	std::vector<double> solns = solve_cubic(1, -1+B, A-3*B*B-2*B, -A*B+B*B+B*B*B);

@@ -850,7 +850,7 @@ double TTSESinglePhaseTableClass::build_ph(double hmin, double hmax, double pmin
 			
 			// Check whether the point is single phase
 			// If pressure between ptriple point and pcrit, might be two-phase or single phase, otherwise definitely single phase
-			if (pval <= pFluid->reduce.p && pval >= pFluid->params.ptriple)
+			if (pval <= pFluid->reduce.p. && pval >= pFluid->params.ptriple)
 			{
 				if (SatL == NULL || SatV == NULL){
 					// Not using TTSE method, use saturation (slow...)

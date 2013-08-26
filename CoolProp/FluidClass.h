@@ -12,6 +12,7 @@
 #include "CoolPropTools.h"
 #include "Helmholtz.h"
 #include "TTSE.h"
+#include "Units.h"
 
 #include "rapidjson/rapidjson.h"
 #include "rapidjson/document.h"
@@ -35,7 +36,8 @@ struct OtherParameters
 };
 struct CriticalStruct
 {
-	double rho, T, p, v, h, s, rhobar;
+	PressureUnit p;
+	double rho, T, v, h, s, rhobar;
 };
 struct FluidLimits
 {

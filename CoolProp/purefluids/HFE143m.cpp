@@ -84,7 +84,7 @@ double HFE143mClass::psat(double T)
     {
         summer += Ni[i]*pow(theta,ti[i]);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 double HFE143mClass::rhosatL(double T)
 {

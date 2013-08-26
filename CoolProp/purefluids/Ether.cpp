@@ -73,7 +73,7 @@ double DimethylEtherClass::psat(double T)
     {
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 double DimethylEtherClass::rhosatL(double T)
 {

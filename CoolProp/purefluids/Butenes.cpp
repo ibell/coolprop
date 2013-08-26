@@ -119,7 +119,7 @@ double OneButeneClass::psat(double T)
     {
         summer += Ni[i]*pow(theta,ti[i]);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 double OneButeneClass::rhosatL(double T)
 {
@@ -212,7 +212,7 @@ double IsoButeneClass::psat(double T)
     {
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 double IsoButeneClass::rhosatL(double T)
 {
@@ -303,7 +303,7 @@ double Cis2ButeneClass::psat(double T)
     {
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 double Cis2ButeneClass::rhosatL(double T)
 {
@@ -394,7 +394,7 @@ double Trans2ButeneClass::psat(double T)
     {
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 double Trans2ButeneClass::rhosatL(double T)
 {

@@ -62,8 +62,8 @@ double CycloPropaneClass::psat(double T)
     {
         summer += N[i]*pow(theta,t[i]/2);
     }
-	double r = reduce.p*exp(reduce.T/T*summer);
-    return reduce.p*exp(reduce.T/T*summer);
+	double r = reduce.p.Pa*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 
 double CycloPropaneClass::rhosatL(double T)
@@ -161,7 +161,7 @@ double PropyneClass::psat(double T)
     {
         summer += N[i]*pow(theta,t[i]/2);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 
 double PropyneClass::rhosatL(double T)

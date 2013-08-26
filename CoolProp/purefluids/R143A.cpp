@@ -62,7 +62,7 @@ double R143AClass::psat(double T)
     {
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
-    return reduce.p*exp(crit.T/T*summer);
+    return reduce.p.Pa*exp(crit.T/T*summer);
 }
 double R143AClass::rhosatL(double T)
 {

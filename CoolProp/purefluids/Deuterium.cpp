@@ -74,7 +74,7 @@ double DeuteriumClass::psat(double T)
     {
         summer += Ni[i]*pow(theta,ti[i]);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 double DeuteriumClass::rhosatL(double T)
 {
@@ -168,7 +168,7 @@ double OrthoDeuteriumClass::psat(double T)
     {
         summer += Ni[i]*pow(theta,ti[i]);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 double OrthoDeuteriumClass::rhosatL(double T)
 {
@@ -257,7 +257,7 @@ double ParaDeuteriumClass::psat(double T)
     {
         summer += Ni[i]*pow(theta,ti[i]);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 double ParaDeuteriumClass::rhosatL(double T)
 {

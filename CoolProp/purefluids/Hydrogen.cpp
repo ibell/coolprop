@@ -192,7 +192,7 @@ double HydrogenClass::psat(double T)
     {
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 double HydrogenClass::rhosatL(double T)
 {
@@ -364,7 +364,7 @@ double ParaHydrogenClass::psat(double T)
     {
         summer += N[i]*pow(theta,t[i]/2);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 
 double ParaHydrogenClass::rhosatL(double T)
@@ -536,7 +536,7 @@ double OrthoHydrogenClass::psat(double T)
     {
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 double OrthoHydrogenClass::rhosatL(double T)
 {

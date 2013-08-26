@@ -127,6 +127,8 @@ You might want to start by looking at CoolProp.h
 	EXPORT_CODE double CONVENTION conductivity_background(char* FluidName, double T, double rho);
 	EXPORT_CODE double CONVENTION conformal_Trho(char* FluidName, char* ReferenceFluidName, double T, double rho, double *Tconform, double *rhoconform);
 
+
+
 	// ------------------------------------------------------------------------------------------------
 	// All the functions below this comment do NOT get exported to REFPROP DLL due to the fact that the 
 	// DLL MUST use extern "C" for all exported functions, which does not allow for function overloads 
@@ -167,8 +169,10 @@ You might want to start by looking at CoolProp.h
 	std::string get_index_units(long index);
 
 	Fluid * get_fluid(long iFluid);
+	double to_SI(long iValue, double value);
 
 	// Define some constants that will be used throughout
 	enum params {iB,iT,iP,iD,iC,iC0,iO,iU,iH,iS,iA,iG,iQ,iV,iL,iI,iMM,iTcrit,iTtriple,iTreduce,iPtriple,iPcrit,iRhocrit,iRhoreduce,iAccentric,iDpdT,iDrhodT_p,iTmin,iDipole,iPhase,iPHASE_LIQUID,iPHASE_GAS,iPHASE_SUPERCRITICAL,iPHASE_TWOPHASE,iODP,iGWP20,iGWP100,iGWP500, iCritSplineT,iHcrit,iScrit};
 	enum phases {iLiquid, iSupercritical, iGas, iTwoPhase};
+	enum unit_systems{UNIT_SYSTEM_SI, UNIT_SYSTEM_KSI, UNIT_SYSTEM_KSI_MOLAR, UNIT_SYSTEM_SI_MOLAR};
 #endif

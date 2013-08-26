@@ -63,7 +63,7 @@ double FluorineClass::psat(double T)
     {
         summer += N[i]*pow(theta,t[i]);
     }
-    return reduce.p*exp(T/reduce.T*summer);
+    return reduce.p.Pa*exp(T/reduce.T*summer);
 }
 
 double FluorineClass::rhosatL(double T)

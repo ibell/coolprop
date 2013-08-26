@@ -82,7 +82,7 @@ double SulfurHexafluorideClass::psat(double T)
     {
         summer += N[i]*pow(theta,t[i]/2);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 
 double SulfurHexafluorideClass::rhosatL(double T)
