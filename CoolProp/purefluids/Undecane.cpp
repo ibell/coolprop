@@ -13,7 +13,7 @@ UndecaneClass::UndecaneClass()
 
 	//Critical parameters
 	crit.rho = 1.5149*156.31; //[kg/m^3]
-	crit.p = 1990.4; //[kPa]
+	crit.p = PressureUnit(1990.4, UNIT_KPA); //[kPa]
 	crit.T = 638.8; //[K]
 	crit.v = 1/crit.rho; 
 

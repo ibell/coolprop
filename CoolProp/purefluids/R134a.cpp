@@ -161,12 +161,12 @@ R134aClass::R134aClass()
 
 	// Critical parameters
 	crit.rho = 5.017053*params.molemass;
-	crit.p = 4059.28;
+	crit.p = PressureUnit(4059.28, UNIT_KPA);
 	crit.T = 374.21;
 	crit.v = 1.0/crit.rho;
 
 	// Reducing parameters used in EOS
-	reduce.p = crit.p;
+	reduce.p = PressureUnit(4059.28, UNIT_KPA);
 	reduce.T = 374.18;
 	reduce.rho = 4.978830171*params.molemass;
 	reduce.v = 1.0/reduce.rho;
@@ -345,7 +345,7 @@ double R134aClass::psat(double T)
     {
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
-    return crit.p*exp(summer*crit.T/T);
+    return crit.p.Pa*exp(summer*crit.T/T);
 }
 double R134aClass::rhosatL(double T)
 {

@@ -854,8 +854,8 @@ double Fluid::density_Tp_Soave(double T, double p, int iValue)
 	omega = params.accentricfactor;
 	R = params.R_u/params.molemass;
 	m = 0.480+1.574*omega-0.176*omega*omega;
-	a = 0.42747*R*R*crit.T*crit.T/crit.p*pow(1+m*(1-sqrt(T/reduce.T)),2);
-	b = 0.08664*R*crit.T/crit.p;
+	a = 0.42747*R*R*crit.T*crit.T/crit.p.Pa*pow(1+m*(1-sqrt(T/reduce.T)),2);
+	b = 0.08664*R*crit.T/crit.p.Pa;
 	A = a*p/(R*R*T*T);
 	B = b*p/(R*T);
 
@@ -916,9 +916,9 @@ double Fluid::density_Tp_PengRobinson(double T, double p, int solution)
 {
 	double A, B, m, a, b, Z, rhobar;
 
-	double Rbar = 8.314472;
+	double Rbar = 8314.472; // Using SI units internally
 
-	b = 0.077796074*(Rbar*reduce.T)/(reduce.p)*1000;
+	b = 0.077796074*(Rbar*reduce.T)/(reduce.p.Pa);
 	B = 0.077796074*p/reduce.p.Pa*reduce.T/T;
 
 	m = 0.37464 + 1.54226*params.accentricfactor-0.26992*pow(params.accentricfactor,2);
@@ -994,8 +994,8 @@ double Fluid::temperature_prho_PengRobinson(double p, double rho)
 	R = params.R_u/params.molemass;
 
 	kappa = 0.37464+1.54226*omega-0.26992*omega*omega;
-	a = 0.457235*R*R*crit.T*crit.T/crit.p;
-	b = 0.077796*R*crit.T/crit.p;
+	a = 0.457235*R*R*crit.T*crit.T/crit.p.Pa;
+	b = 0.077796*R*crit.T/crit.p.Pa;
 	double den = V*V+2*b*V-b*b;
 
 	// A sqrt(Tr)^2 + B sqrt(Tr) + C = 0
@@ -1012,9 +1012,9 @@ double Fluid::temperature_prho_PengRobinson(double p, double rho)
 
 double Fluid::temperature_prho_VanDerWaals(double p, double rho)
 {
-	double R = 8.314472;
-	double a = 27*pow(R*reduce.T,2)/(64*reduce.p);
-	double b = 8.314472*reduce.T/(8*reduce.p);
+	double R = 8314.472; // Using SI units internally
+	double a = 27*pow(R*reduce.T,2)/(64*reduce.p.Pa);
+	double b = R*reduce.T/(8*reduce.p.Pa);
 	double Vm = 1/rho*params.molemass;
 	return 1.0/R*(p+a/Vm/Vm)*(Vm-b);
 }
@@ -1396,7 +1396,7 @@ void Fluid::rhosatPure_Brent(double T, double *rhoLout, double *rhoVout, double 
 	} SatFunc(T,this);
 
 	std::string errstr;
-	double pmax = reduce.p;
+	double pmax = reduce.p.Pa;
 	double pmin = psatV_anc(T-0.1);
 	if (pmin < params.ptriple)
 		pmin = params.ptriple;
@@ -1747,13 +1747,13 @@ long Fluid::phase_Tp_indices(double T, double p, double *pL, double *pV, double 
 		std::cout<<__FILE__<<format(": phase_Tp_indices(%g,%g)\n",T,p).c_str();
 	}
 
-	if (T>crit.T && p>=crit.p){
+	if (T>crit.T && p>=crit.p.Pa){
 		return iSupercritical;
 	}
-	else if (T>crit.T && p<crit.p){
+	else if (T>crit.T && p<crit.p.Pa){
 		return iGas;
 	}
-	else if (T<crit.T && p>crit.p){
+	else if (T<crit.T && p>crit.p.Pa){
 		return iLiquid;
 	}
 	else if (p<params.ptriple){
@@ -1879,13 +1879,13 @@ long Fluid::phase_Trho_indices(double T, double rho, double *pL, double *pV, dou
 	// Now check the states above the critical temperature
 	double p = pressure_Trho(T,rho);
 
-	if (T>reduce.T && p>reduce.p){
+	if (T>reduce.T && p>reduce.p.Pa){
 		return iSupercritical;
 	}
-	else if (T>reduce.T && p<reduce.p){
+	else if (T>reduce.T && p<reduce.p.Pa){
 		return iGas;
 	}
-	else if (T<reduce.T && p>reduce.p){
+	else if (T<reduce.T && p>reduce.p.Pa){
 		return iLiquid;
 	}
 	else if (p<params.ptriple){
@@ -1901,7 +1901,7 @@ long Fluid::phase_prho_indices(double p, double rho, double *T, double *TL, doub
 
 	// If temperature is below the critical temperature, it is either 
 	// subcooled liquid, superheated vapor, or two-phase
-	if (p < crit.p)
+	if (p < crit.p.Pa)
 	{	
 		// Actually have to use saturation information sadly
 		// For the given temperature, find the saturation state
@@ -1977,7 +1977,7 @@ void Fluid::temperature_ph(double p, double h, double *Tout, double *rhoout, dou
 	else
 	{
 		// It is supercritical pressure	(or just below the critical pressure)
-		if (p > 0.999*crit.p)
+		if (p > 0.999*crit.p.Pa)
 		{
 			hc = enthalpy_Trho(crit.T+0.001,crit.rho);
 			if (h > hc)
@@ -2223,7 +2223,7 @@ void Fluid::temperature_ps(double p, double s, double *Tout, double *rhoout, dou
 	double s_guess, sc, rho_guess;
 	double ssat_tol = 0.1;
 	// It is supercritical pressure	(or just below the critical pressure)
-	if (p > 0.999*crit.p) 
+	if (p > 0.999*crit.p.Pa) 
 	{
 		sc = entropy_Trho(crit.T+0.001,crit.rho);
 		if (s > sc)
@@ -2484,7 +2484,7 @@ void Fluid::temperature_hs(double h, double s, double *Tout, double *rhoout, dou
 		int iter = 0;
 		double logpL, logpR, logpM, TM,rhoM,dummy, sM;
 		logpL = log(1e-10);
-		logpR = log(100*crit.p);
+		logpR = log(100*crit.p.Pa);
 		
 		do
 		{
@@ -2570,7 +2570,7 @@ void Fluid::temperature_hs(double h, double s, double *Tout, double *rhoout, dou
 			double logpL, logpR, logpM,TM,rhoM,dummy, sM;
 			
 			logpL = log(pressure_Trho(Tsat,rhosat));
-			logpR = log(10*crit.p);
+			logpR = log(10*crit.p.Pa);
 			
 			do
 			{
@@ -2667,7 +2667,7 @@ void Fluid::temperature_hs(double h, double s, double *Tout, double *rhoout, dou
 			int iter = 0;
 			double logpL, logpR, logpM,TM,rhoM,dummy, sM;
 			
-			logpL = log(pressure_Trho(Tsat,rhosat));  logpR = log(10*crit.p);
+			logpL = log(pressure_Trho(Tsat,rhosat));  logpR = log(10*crit.p.Pa);
 			
 			do
 			{
@@ -2724,7 +2724,7 @@ void Fluid::temperature_hs(double h, double s, double *Tout, double *rhoout, dou
 			double logpL, logpR, logpM,TM,rhoM,dummy, sM;
 			
 			logpL = log(pressure_Trho(Tsat,rhosat));
-			logpR = log(10*crit.p);
+			logpR = log(10*crit.p.Pa);
 			
 			do
 			{
@@ -3147,7 +3147,7 @@ void Fluid::saturation_p(double p, bool UseLUT, double *TsatL, double *TsatV, do
 	// For some EOS, pc != p(Tc,rhoc)
 	double pc_EOS = pressure_Trho(reduce.T,reduce.rho);
 
-	if (fabs(p-reduce.p)<DBL_EPSILON || p > pc_EOS)
+	if (fabs(p-reduce.p.Pa)<DBL_EPSILON || p > pc_EOS)
 	{
 		*TsatL = reduce.T;
 		*TsatV = reduce.T;
@@ -3310,6 +3310,11 @@ double Fluid::Tsat(double p, double Q, double T_guess, bool UseLUT, double *rhoL
 	}
 }
 
+double Fluid::R()
+{
+	return params.R_u*1000/params.molemass;
+}
+
 double Fluid::viscosity_dilute(double T, double e_k, double sigma)
 {	
 	// T in [K], e_k in [K], sigma in [nm]
@@ -3338,7 +3343,7 @@ double Fluid::conductivity_critical(double T, double rho, double qd, double GAMM
 		R0=1.03,
 		gamma=1.239,
 		nu=0.63,
-		Pcrit = reduce.p, //[kPa]
+		Pcrit = reduce.p.Pa, //[Pa]
 		Tref = 1.5*reduce.T, //[K]
 		cp,cv,delta,num,zeta,mu,
 		OMEGA_tilde,OMEGA_tilde0,pi=M_PI,tau;
@@ -3613,8 +3618,8 @@ double Fluid::viscosity_ECS_Trho(double T, double rho, Fluid * ReferenceFluid)
 		double omega = params.accentricfactor;
 		double omega0 = ReferenceFluid->params.accentricfactor;
 		double Tstar = T/reduce.T;
-		Zc = reduce.p/(reduce.rho*R()*reduce.T);
-		Zc0 = ReferenceFluid->reduce.p/(ReferenceFluid->reduce.rho*ReferenceFluid->R()*ReferenceFluid->reduce.T);
+		Zc = reduce.p.Pa/(reduce.rho*R()*reduce.T);
+		Zc0 = ReferenceFluid->reduce.p.Pa/(ReferenceFluid->reduce.rho*ReferenceFluid->R()*ReferenceFluid->reduce.T);
 		Bstar = -6.207612-15.37641*omega-0.574946*pow(10,-omega);
 		Bstar0 = -6.207612-15.37641*omega0-0.574946*pow(10,-omega0);
 		Cstar = 8/3+9*Bstar/5.0/log(10.0);
@@ -3641,7 +3646,7 @@ double Fluid::viscosity_ECS_Trho(double T, double rho, Fluid * ReferenceFluid)
 	double tau = reduce.T/T;
 	double Z = 1+delta*dphir_dDelta(tau,delta);
 	double p0 = Z*R()*T0*rho0;
-	if (Z<0.3 || p0>1.1*ReferenceFluid->reduce.p || rho0>ReferenceFluid->reduce.rho){
+	if (Z<0.3 || p0>1.1*ReferenceFluid->reduce.p.Pa || rho0>ReferenceFluid->reduce.rho){
 		// Use the code to calculate the conformal state
 		x0=ConformalTemperature(this,ReferenceFluid,T,rho,T0,rho0,&errstring);
 		T0=x0[0];
@@ -3726,7 +3731,7 @@ double Fluid::conductivity_ECS_Trho(double T, double rho, Fluid * ReferenceFluid
 	double tau = reduce.T/T;
 	double Z = 1+delta*dphir_dDelta(tau,delta);
 	double p0 = Z*R()*T0*rho0;
-	if (Z<0.3 || p0 > 1.1*ReferenceFluid->reduce.p || rho0 > ReferenceFluid->reduce.rho){
+	if (Z<0.3 || p0 > 1.1*ReferenceFluid->reduce.p.Pa || rho0 > ReferenceFluid->reduce.rho){
 		// Use the code to calculate the conformal state
 		x0=ConformalTemperature(this,ReferenceFluid,T,rho,T0,rho0,&errstring);
 		T0=x0[0];
@@ -3771,7 +3776,7 @@ bool Fluid::build_TTSE_LUT(bool force_build)
 			{
 				pmin_TTSE = psatL;
 			}
-			pmax_TTSE = 2*reduce.p;
+			pmax_TTSE = 2*reduce.p.Pa;
 		}
 
 		// Turn off the use of LUT while you are building it, 
@@ -3782,7 +3787,7 @@ bool Fluid::build_TTSE_LUT(bool force_build)
 		TTSESatL.set_size(Nsat_TTSE);
 		TTSESatV = TTSETwoPhaseTableClass(this,1);
 		TTSESatV.set_size(Nsat_TTSE);
-		TTSESatV.build(pmin_TTSE,crit.p,&TTSESatL);
+		TTSESatV.build(pmin_TTSE,crit.p.Pa,&TTSESatL);
 
 		TTSESinglePhase = TTSESinglePhaseTableClass(this);
 		TTSESinglePhase.enable_writing_tables_to_files = enable_writing_tables_to_files;

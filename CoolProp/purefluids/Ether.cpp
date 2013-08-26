@@ -18,7 +18,7 @@ DimethylEtherClass::DimethylEtherClass()
 
 	//Critical parameters
 	crit.rho = 5.940*46.06844; //[kg/m^3]
-	crit.p = 5336.8; //[kPa]
+	crit.p = PressureUnit(5336.8, UNIT_KPA); //[kPa]
 	crit.T = 400.378; //[K]
 	crit.v = 1/crit.rho; 
 

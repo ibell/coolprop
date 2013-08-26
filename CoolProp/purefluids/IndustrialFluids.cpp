@@ -123,7 +123,7 @@ CarbonMonoxideClass::CarbonMonoxideClass()
 
     // Critical parameters
     crit.rho = 303.909585;
-    crit.p = 3494.0;
+    crit.p = PressureUnit(3494.0, UNIT_KPA);
     crit.T = 132.86;
     crit.v = 1.0/crit.rho;
 
@@ -185,7 +185,7 @@ CarbonylSulfideClass::CarbonylSulfideClass()
 
     // Critical parameters
     crit.rho = 445.156491;
-    crit.p = 6370.0;
+    crit.p = PressureUnit(6370.0, UNIT_KPA);
     crit.T = 378.77;
     crit.v = 1.0/crit.rho;
 
@@ -244,7 +244,7 @@ DecaneClass::DecaneClass()
 
     // Critical parameters
     crit.rho = 233.3419552;
-    crit.p = 2103.0;
+    crit.p = PressureUnit(2103.0, UNIT_KPA);
     crit.T = 617.7;
     crit.v = 1.0/crit.rho;
 
@@ -368,7 +368,7 @@ HydrogenSulfideClass::HydrogenSulfideClass()
 
     // Critical parameters
     crit.rho = 347.2841672;
-    crit.p = 9000.0;
+    crit.p = PressureUnit(9000.0, UNIT_KPA);
     crit.T = 373.1;
     crit.v = 1.0/crit.rho;
 
@@ -479,7 +479,7 @@ IsopentaneClass::IsopentaneClass()
 
     // Critical parameters
     crit.rho = 235.99865938;
-    crit.p = 3378.0;
+    crit.p = PressureUnit(3378.0, UNIT_KPA);
     crit.T = 460.35;
     crit.v = 1.0/crit.rho;
 
@@ -538,7 +538,7 @@ NeopentaneClass::NeopentaneClass()
 
     // Critical parameters
     crit.rho = 235.9265106;
-    crit.p = 3196.0;
+    crit.p = PressureUnit(3196.0, UNIT_KPA);
     crit.T = 433.74;
     crit.v = 1.0/crit.rho;
 
@@ -596,7 +596,7 @@ IsohexaneClass::IsohexaneClass()
 
     // Critical parameters
     crit.rho = 233.9661024;
-    crit.p = 3040.0;
+    crit.p = PressureUnit(3040.0, UNIT_KPA);
     crit.T = 497.7;
     crit.v = 1.0/crit.rho;
 
@@ -654,7 +654,7 @@ KryptonClass::KryptonClass()
 
     // Critical parameters
     crit.rho = 909.2083;
-    crit.p = 5525.0;
+    crit.p = PressureUnit(5525.0, UNIT_KPA);
     crit.T = 209.48;
     crit.v = 1.0/crit.rho;
 
@@ -709,7 +709,7 @@ NonaneClass::NonaneClass()
 
     // Critical parameters
     crit.rho = 232.141731;
-    crit.p = 2281.0;
+    crit.p = PressureUnit(2281.0, UNIT_KPA);
     crit.T = 594.55;
     crit.v = 1.0/crit.rho;
 
@@ -832,7 +832,7 @@ TolueneClass::TolueneClass()
 
     // Critical parameters
     crit.rho = 291.98665298;
-    crit.p = 4126.0;
+    crit.p = PressureUnit(4126.0, UNIT_KPA);
     crit.T = 591.75;
     crit.v = 1.0/crit.rho;
 
@@ -909,7 +909,7 @@ XenonClass::XenonClass()
 
     // Critical parameters
     crit.rho = 1102.8612;
-    crit.p = 5842.0;
+    crit.p = PressureUnit(5842.0, UNIT_KPA);
     crit.T = 289.733;
     crit.v = 1.0/crit.rho;
 
@@ -967,7 +967,7 @@ R116Class::R116Class()
 
     // Critical parameters
     crit.rho = 613.32452808;
-    crit.p = 3048.0;
+    crit.p = PressureUnit(3048.0, UNIT_KPA);
     crit.T = 293.03;
     crit.v = 1.0/crit.rho;
 
@@ -1044,7 +1044,7 @@ AcetoneClass::AcetoneClass()
 
     // Critical parameters
     crit.rho = 272.971958;
-    crit.p = 4700.0;
+    crit.p = PressureUnit(4700.0, UNIT_KPA);
     crit.T = 508.1;
     crit.v = 1.0/crit.rho;
 
@@ -1103,7 +1103,7 @@ NitrousOxideClass::NitrousOxideClass()
 
     // Critical parameters
     crit.rho = 452.011456;
-    crit.p = 7245.0;
+    crit.p = PressureUnit(7245.0, UNIT_KPA);
     crit.T = 309.52;
     crit.v = 1.0/crit.rho;
 
@@ -1165,7 +1165,7 @@ SulfurDioxideClass::SulfurDioxideClass()
 
     // Critical parameters
     crit.rho = 525.002841;
-    crit.p = 7884.0;
+    crit.p = PressureUnit(7884.0, UNIT_KPA);
     crit.T = 430.64;
     crit.v = 1.0/crit.rho;
 
@@ -1306,7 +1306,7 @@ R142bClass::R142bClass()
 
     // Critical parameters
     crit.rho = 445.99694314;
-    crit.p = 4055.0;
+    crit.p = PressureUnit(4055.0, UNIT_KPA);
     crit.T = 410.26;
     crit.v = 1.0/crit.rho;
 
@@ -1385,7 +1385,7 @@ R218Class::R218Class()
 
     // Critical parameters
     crit.rho = 627.9845622;
-    crit.p = 2640.0;
+    crit.p = PressureUnit(2640.0, UNIT_KPA);
     crit.T = 345.02;
     crit.v = 1.0/crit.rho;
 
@@ -1476,7 +1476,7 @@ R245faClass::R245faClass()
 
     // Critical parameters
     crit.rho = 516.084569;
-    crit.p = 3651.0;
+    crit.p = PressureUnit(3651.0, UNIT_KPA);
     crit.T = 427.16;
     crit.v = 1.0/crit.rho;
 
@@ -1648,7 +1648,7 @@ R41Class::R41Class()
 
     // Critical parameters
     crit.rho = 316.506156;
-    crit.p = 5897.0;
+    crit.p = PressureUnit(5897.0, UNIT_KPA);
     crit.T = 317.28;
     crit.v = 1.0/crit.rho;
 

@@ -1033,7 +1033,7 @@ REFPROPFluidClass::REFPROPFluidClass(std::string FluidName, std::vector<double> 
 	INFOdll(&i,&MW,&Ttriple,&tnbpt,&Tcrit,&pcrit,&dcrit,&Zcrit,&acf,&dip,&Rgas);
 	crit.T = Tcrit;
 	crit.rho = dcrit*MW;
-	crit.p = pcrit;
+	crit.p = PressureUnit(pcrit,UNIT_KPA);
 
 	params.accentricfactor = acf;
 	params.R_u = Rgas;

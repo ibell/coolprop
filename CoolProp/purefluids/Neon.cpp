@@ -33,7 +33,7 @@ NeonClass::NeonClass()
 
 	// Critical parameters
 	crit.rho = 23.882*20.179;
-	crit.p = 2680.0;
+	crit.p = PressureUnit(2680.0, UNIT_KPA);
 	crit.T = 44.4918;
 	crit.v = 1.0/crit.rho;
 

@@ -37,7 +37,7 @@ DeuteriumClass::DeuteriumClass()
 
 	// Critical parameters
 	crit.rho = 17.23*4.0282;
-	crit.p = 1679.6;
+	crit.p = PressureUnit(1679.6, UNIT_KPA);
 	crit.T = 38.34;
 	crit.v = 1.0/crit.rho;
 
@@ -133,7 +133,7 @@ OrthoDeuteriumClass::OrthoDeuteriumClass()
 
 	// Critical parameters
 	crit.rho = 17.23*4.0282;
-	crit.p = 1679.6;
+	crit.p = PressureUnit(1679.6, UNIT_KPA);
 	crit.T = 38.34;
 	crit.v = 1.0/crit.rho;
 
@@ -222,7 +222,7 @@ ParaDeuteriumClass::ParaDeuteriumClass()
 
 	// Critical parameters
 	crit.rho = 17.23*4.0282;
-	crit.p = 1679.6;
+	crit.p = PressureUnit(1679.6, UNIT_KPA);
 	crit.T = 38.34;
 	crit.v = 1.0/crit.rho;
 

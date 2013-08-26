@@ -65,7 +65,7 @@ OctamethyltrisiloxaneClass::OctamethyltrisiloxaneClass()
 
     // Critical parameters
     crit.rho = 256.739908797209;
-    crit.p = 1415;
+    crit.p = PressureUnit(1415, UNIT_KPA);
     crit.T = 564.09;
     crit.v = 1.0/crit.rho;
 
@@ -150,7 +150,7 @@ double OctamethyltrisiloxaneClass::psat(double T)
 
 	// Max error is 1.053362 %
 	RHS = -7.765160*pow(theta,0.984389)-5.002622*pow(theta,3.506411)-2.478207*pow(theta,4.186938)-1.023016*pow(theta,4.808272)-0.201986*pow(theta,5.513089);
-	p = exp(RHS*reduce.T/T)*reduce.p;
+	p = exp(RHS*reduce.T/T)*reduce.p.Pa;
 	return p;
 }
 
@@ -214,7 +214,7 @@ DecamethyltetrasiloxaneClass::DecamethyltetrasiloxaneClass()
 
     // Critical parameters
     crit.rho=284.171639662027;
-	crit.p=1227;
+	crit.p= PressureUnit(1227, UNIT_KPA);
 	crit.T=599.4;
     crit.v = 1.0/crit.rho;
 
@@ -299,7 +299,7 @@ double DecamethyltetrasiloxaneClass::psat(double T)
 
 	// Max error is 0.653417 %
 	RHS = -10.255244*pow(theta,1.003893)-14.680968*pow(theta,8.315832)-8.013482*pow(theta,2.914286)+3.386436*pow(theta,1.418176)+14.914376*pow(theta,9.632505);
-	p = exp(RHS*reduce.T/T)*reduce.p;
+	p = exp(RHS*reduce.T/T)*reduce.p.Pa;
 	return p;
 }
 
@@ -363,7 +363,7 @@ DodecamethylpentasiloxaneClass::DodecamethylpentasiloxaneClass()
 
     // Critical parameters
     crit.rho=263.921879135305;
-	crit.p=945;
+	crit.p= PressureUnit(945, UNIT_KPA);
 	crit.T=628.36;
     crit.v = 1.0/crit.rho;
 
@@ -525,7 +525,7 @@ DodecamethylcyclohexasiloxaneClass::DodecamethylcyclohexasiloxaneClass()
 
     // Critical parameters
 	crit.rho=279.095729841367;
-	crit.p=961;
+	crit.p= PressureUnit(961, UNIT_KPA);
 	crit.T=645.78;
     crit.v = 1.0/crit.rho;
 
@@ -610,7 +610,7 @@ double DodecamethylcyclohexasiloxaneClass::psat(double T)
 
 	// Max error is 1.754539 %
 	RHS = -10.075325*pow(theta,1.012056)-134.690578*pow(theta,9.074796)-43.425090*pow(theta,5.030680)-32.551643*pow(theta,11.673831)-27.321344*pow(theta,2.821284);
-	p = exp(RHS)*reduce.p;
+	p = exp(RHS)*reduce.p.Pa;
 	return p;
 }
 
@@ -677,13 +677,13 @@ HexamethyldisiloxaneClass::HexamethyldisiloxaneClass()
 
     // Critical parameters
 	crit.rho = 258.151840734;
-	crit.p = 1939.0;
+	crit.p = PressureUnit(1939.0, UNIT_KPA);
 	crit.T = 518.75;
     crit.v = 1.0/crit.rho;
 
 	// Load up a new structure with reducing parameters
 	reduce.rho = 1.87467076*162.37752;
-	reduce.p = 1939.39;
+	reduce.p = PressureUnit(1939.39, UNIT_KPA);
 	reduce.T = 518.69997204;
     reduce.v = 1.0/reduce.rho;
 	
@@ -773,7 +773,7 @@ double HexamethyldisiloxaneClass::psat(double T)
 	if (theta < 0) theta = 1e-6;
 	// Max error is 0.636597 %
 	RHS = -6.993179*pow(theta,0.968165)-3.963479*pow(theta,3.066906)-1.333772*pow(theta,4.415999)-0.096273*pow(theta,4.801166)+0.499673*pow(theta,5.391500);
-	p = exp(RHS*reduce.T/T)*reduce.p;
+	p = exp(RHS*reduce.T/T)*reduce.p.Pa;
 	return p;
 }
 
@@ -840,13 +840,13 @@ TetradecamethylhexasiloxaneClass::TetradecamethylhexasiloxaneClass()
 
     // Critical parameters
 	crit.rho = 278.177742672768;
-	crit.p = 877.0;
+	crit.p = PressureUnit(877.0, UNIT_KPA);
 	crit.T =653.2;
     crit.v = 1.0/crit.rho;
 
 	// Load up a new structure with reducing parameters
 	reduce.rho = 285.657653221363;
-	reduce.p = 877.47;
+	reduce.p = PressureUnit(877.47, UNIT_KPA);
 	reduce.T = 653.2;
     reduce.v = 1.0/reduce.rho;
 	
@@ -937,7 +937,7 @@ double TetradecamethylhexasiloxaneClass::psat(double T)
 
 	// Max error is 0.104803 %
 	RHS = -9.945866*pow(theta,0.993284)-113.010891*pow(theta,7.297341)-38.114082*pow(theta,24.782767)-33.140158*pow(theta,4.160418)-21.201196*pow(theta,2.574117);
-	p = exp(RHS)*reduce.p;
+	p = exp(RHS)*reduce.p.Pa;
 	return p;
 }
 
@@ -1004,13 +1004,13 @@ OctamethylcyclotetrasiloxaneClass::OctamethylcyclotetrasiloxaneClass()
 
     // Critical parameters
 	crit.rho = 305.78949222528007;
-	crit.p = 1332.0;
+	crit.p = PressureUnit(1332.0, UNIT_KPA);
 	crit.T = 586.5;
     crit.v = 1.0/crit.rho;
 
 	// Load up a new structure with reducing parameters
 	reduce.rho = 307.033590673606;
-	reduce.p = 1332;
+	reduce.p = PressureUnit(1332, UNIT_KPA);
 	reduce.T = 586.49127187;
     reduce.v = 1.0/reduce.rho;
 	
@@ -1100,7 +1100,7 @@ double OctamethylcyclotetrasiloxaneClass::psat(double T)
 
 	// Max error is 1.931173 %
 	RHS = -8.107067*pow(theta,0.989493)-15.105377*pow(theta,2.829970)-7.034093*pow(theta,5.585178)+7.153378*pow(theta,2.409375)+9.431011*pow(theta,5.477738);
-	p = exp(RHS*reduce.T/T)*reduce.p;
+	p = exp(RHS*reduce.T/T)*reduce.p.Pa;
 	return p;
 }
 
@@ -1170,13 +1170,13 @@ DecamethylcyclopentasiloxaneClass::DecamethylcyclopentasiloxaneClass()
 
     // Critical parameters
 	crit.rho = 304.90928495748;
-	crit.p = 1160;
+	crit.p = PressureUnit(1160, UNIT_KPA);
 	crit.T = 619.15;
     crit.v = 1.0/crit.rho;
 
 	// Load up a new structure with reducing parameters
 	reduce.rho = 292.570762680819;
-	reduce.p = 1161.46;
+	reduce.p = PressureUnit(1161.46, UNIT_KPA);
 	reduce.T = 619.23462341;
     reduce.v = 1.0/reduce.rho;
 	
@@ -1267,6 +1267,6 @@ double DecamethylcyclopentasiloxaneClass::psat(double T)
 
 	// Max error is 1.040101 %
 	RHS = -9.243668*pow(theta,0.996513)-98.611662*pow(theta,6.934223)-32.083059*pow(theta,2.871414)-18.793106*pow(theta,8.376677)-12.211323*pow(theta,9.708690)-6.644894*pow(theta,10.070804);
-	p = exp(RHS)*reduce.p;
+	p = exp(RHS)*reduce.p.Pa;
 	return p;
 }

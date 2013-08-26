@@ -192,7 +192,7 @@ HeliumClass::HeliumClass()
 
 	// Critical parameters
 	crit.rho = 4.002602 * 18.13;
-	crit.p = 227.6;
+	crit.p = PressureUnit(227.6, UNIT_KPA);
 	crit.T = 5.1953;
 	crit.v = 1.0/crit.rho;
 

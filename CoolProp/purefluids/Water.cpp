@@ -379,7 +379,7 @@ WaterClass::WaterClass()
 
 	// Critical parameters
 	crit.rho = 322;
-	crit.p = 22064;
+	crit.p = PressureUnit(22064, UNIT_KPA);
 	crit.T = 647.096;
 	crit.v = 1.0/crit.rho;
 
@@ -542,7 +542,7 @@ double WaterClass::viscosity_Trho(double T, double rho)
 	
 	Tbar=T/reduce.T;
 	rhobar=rho/reduce.rho;
-	R_Water=8.31447215/params.molemass;
+	R_Water=R();
 
 	// Dilute and finite gas portions
 	visc_Helper(Tbar,rhobar,&mubar_0,&mubar_1);
@@ -552,11 +552,11 @@ double WaterClass::viscosity_Trho(double T, double rho)
 	// "Normal" calculation
 	tau=1/Tbar;
 	drhodp=1/(R_Water*T*(1+2*delta*dphir_dDelta(tau,delta)+delta*delta*d2phir_dDelta2(tau,delta)));
-	drhobar_dpbar=reduce.p/reduce.rho*drhodp;
+	drhobar_dpbar=reduce.p.Pa/reduce.rho*drhodp;
 	// "Reducing" calculation
 	tau=1/Tbar_R;
 	drhodp_R=1/(R_Water*Tbar_R*reduce.T*(1+2*delta*dphir_dDelta(tau,delta)+delta*delta*d2phir_dDelta2(tau,delta)));
-	drhobar_dpbar_R=reduce.p/reduce.rho*drhodp_R;
+	drhobar_dpbar_R=reduce.p.Pa/reduce.rho*drhodp_R;
 	
 	DeltaChibar=rhobar*(drhobar_dpbar-drhobar_dpbar_R*Tbar_R/Tbar);
 	if (DeltaChibar<0)

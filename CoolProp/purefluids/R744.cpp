@@ -276,7 +276,7 @@ R744Class::R744Class()
 
 	// Critical parameters
 	crit.rho = 44.0098*10.6249063;
-	crit.p = 7377.3;
+	crit.p = PressureUnit(7377.3, UNIT_KPA);
 	crit.T = 304.1282;
 	crit.v = 1.0/crit.rho;
 
@@ -318,7 +318,7 @@ double R744Class::conductivity_critical(double T, double rho)
 {
 	double k=1.380658e-23, //[J/K]
 		Tref = 1.5*reduce.T, //[K]
-		Pcrit = reduce.p, //[kPa]
+		Pcrit = reduce.p.Pa, //[kPa]
 
 		//Critical exponents
 		nu=0.63,
@@ -438,7 +438,7 @@ double R744Class::psat(double T)
     {
         summer=summer+ai[i]*pow(1-T/crit.T,ti[i]);
     }
-    return crit.p*exp(crit.T/T*summer);
+    return crit.p.Pa*exp(crit.T/T*summer);
 }
 double R744Class::rhosatL(double T)
 {

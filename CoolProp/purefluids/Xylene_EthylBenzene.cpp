@@ -17,7 +17,7 @@ oXyleneClass::oXyleneClass()
 
 	//Critical parameters
 	crit.rho = 2.6845*106.165; //[kg/m^3]
-	crit.p = 3737.5; //[kPa]
+	crit.p = PressureUnit(3737.5, UNIT_KPA); //[kPa]
 	crit.T = 630.259; //[K]
 	crit.v = 1/crit.rho; 
 
@@ -117,7 +117,7 @@ mXyleneClass::mXyleneClass()
 
 	//Critical parameters
 	crit.rho = 2.665*106.165; //[kg/m^3]
-	crit.p = 3534.6; //[kPa]
+	crit.p = PressureUnit(3534.6, UNIT_KPA); //[kPa]
 	crit.T = 616.89; //[K]
 	crit.v = 1/crit.rho; 
 
@@ -217,7 +217,7 @@ pXyleneClass::pXyleneClass()
 
 	//Critical parameters
 	crit.rho = 2.69392*106.165; //[kg/m^3]
-	crit.p = 3531.5; //[kPa]
+	crit.p = PressureUnit(3531.5, UNIT_KPA); //[kPa]
 	crit.T = 616.168; //[K]
 	crit.v = 1/crit.rho; 
 
@@ -317,7 +317,7 @@ EthylBenzeneClass::EthylBenzeneClass()
 
 	//Critical parameters
 	crit.rho = 2.741016*106.165; //[kg/m^3]
-	crit.p = 3622.4; //[kPa]
+	crit.p = PressureUnit(3622.4, UNIT_KPA); //[kPa]
 	crit.T = 617.12; //[K]
 	crit.v = 1/crit.rho; 
 

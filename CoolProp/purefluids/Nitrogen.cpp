@@ -274,7 +274,7 @@ NitrogenClass::NitrogenClass()
 
 	// Critical parameters
 	crit.rho = 313.3;
-	crit.p = 3395.8;
+	crit.p = PressureUnit(3395.8, UNIT_KPA);
 	crit.T = 126.192;
 	crit.v = 1.0/crit.rho;
 

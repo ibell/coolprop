@@ -162,7 +162,7 @@ R717Class::R717Class()
 
 	// Critical parameters
 	crit.rho = 225;
-	crit.p = 11333;
+	crit.p = PressureUnit(11333, UNIT_KPA);
 	crit.T = 405.40;
 	crit.v = 1.0/crit.rho;
 

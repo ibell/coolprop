@@ -87,15 +87,15 @@ void sort_pair(long *iInput1, double *Value1, long *iInput2, double *Value2, lon
 }
 double CoolPropStateClass::Tsat(double Q){
 	double mach_eps = 10*DBL_EPSILON;
-	double T,rhoL,rhoV, pL, pV;
+	double rhoL,rhoV, TL, TV;
 
-	pFluid->saturation_T(T,false,&pL,&pV,&rhoL,&rhoV);
+	pFluid->saturation_p(_p,false,&TL,&TV,&rhoL,&rhoV);
 
 	if (fabs(Q-1) < mach_eps){
-		return rhoV;	
+		return TV;	
 	}
 	else if (fabs(Q) < mach_eps){
-		return rhoL;
+		return TL;
 	}
 	else{
 		throw ValueError();
@@ -302,9 +302,12 @@ void CoolPropStateClass::update_twophase(long iInput1, double Value1, long iInpu
 	if (match_pair(iInput1,iInput2,iP,iQ)){
 		// Sort so they are in the order P, Q
 		sort_pair(&iInput1,&Value1,&iInput2,&Value2,iP,iQ);
+		
+		// Convert pressure from standard units to SI units (Pa)
+		Value1 = convert_between_unit_systems(iInput1, Value1, get_standard_unit_system(), UNIT_SYSTEM_SI);
 
 		// Out-of-range checks
-		if (Value1 < pFluid->params.ptriple-100*DBL_EPSILON || Value1 > pFluid->crit.p+100*DBL_EPSILON){ throw ValueError(format("Your saturation pressure [%f kPa] is out of range [%f kPa, %f kPa]",Value1,pFluid->params.ptriple,pFluid->crit.p ));}
+		if (Value1 < pFluid->params.ptriple-100*DBL_EPSILON || Value1 > pFluid->crit.p.Pa+100*DBL_EPSILON){ throw ValueError(format("Your saturation pressure [%f Pa] is out of range [%f Pa, %f Pa]",Value1,pFluid->params.ptriple,pFluid->crit.p.Pa ));}
 		if (Value2 > 1+10*DBL_EPSILON || Value2 < -10*DBL_EPSILON){ throw ValueError(format("Your quality [%f] is out of range (0, 1)",Value2 )); }
 
 		// Carry out the saturation call to get the temperature and density for each phases
@@ -711,11 +714,11 @@ void CoolPropStateClass::update_TTSE_LUT(long iInput1, double Value1, long iInpu
 		// Sort in the right order (P,H)
 		sort_pair(&iInput1,&Value1,&iInput2,&Value2,iP,iH);
 
-		double p = Value1; 
-		double h = Value2;
+		double p = convert_between_unit_systems(iInput1, Value1, get_standard_unit_system(), UNIT_SYSTEM_SI);
+		double h = convert_between_unit_systems(iInput2, Value2, get_standard_unit_system(), UNIT_SYSTEM_SI);
 
 		// If enthalpy is outside the saturation region or flag_SinglePhase is set, it is single-phase
-		if (p > pFluid->reduce.p || p < pFluid->params.ptriple || flag_SinglePhase ||  h < pFluid->TTSESatL.evaluate(iH,p)  || h > pFluid->TTSESatV.evaluate(iH,p))
+		if (p > pFluid->reduce.p.Pa || p < pFluid->params.ptriple || flag_SinglePhase ||  h < pFluid->TTSESatL.evaluate(iH,p)  || h > pFluid->TTSESatV.evaluate(iH,p))
 		{
 			TwoPhase = false;
 			SinglePhase = true;
@@ -766,11 +769,11 @@ void CoolPropStateClass::update_TTSE_LUT(long iInput1, double Value1, long iInpu
 		// Sort in the right order (P,D)
 		sort_pair(&iInput1,&Value1,&iInput2,&Value2,iP,iD);
 
-		double p = Value1;
-		double rho = Value2;
+		double p = convert_between_unit_systems(iInput1, Value1, get_standard_unit_system(), UNIT_SYSTEM_SI);
+		double rho = convert_between_unit_systems(iInput2, Value2, get_standard_unit_system(), UNIT_SYSTEM_SI);
 
 		// If density is outside the saturation region, it is single-phase
-		if (p > pFluid->reduce.p || p < pFluid->params.ptriple ||  rho < pFluid->TTSESatV.evaluate(iD,p)  || rho > pFluid->TTSESatL.evaluate(iD,p))
+		if (p > pFluid->reduce.p.Pa || p < pFluid->params.ptriple ||  rho < pFluid->TTSESatV.evaluate(iD,p)  || rho > pFluid->TTSESatL.evaluate(iD,p))
 		{
 			TwoPhase = false;
 			SinglePhase = true;
@@ -809,14 +812,14 @@ void CoolPropStateClass::update_TTSE_LUT(long iInput1, double Value1, long iInpu
 		// Sort in the right order (P,S)
 		sort_pair(&iInput1,&Value1,&iInput2,&Value2,iP,iS);
 		
-		double p = Value1;
-		double s = Value2;
+		double p = convert_between_unit_systems(iInput1, Value1, get_standard_unit_system(), UNIT_SYSTEM_SI);
+		double s = convert_between_unit_systems(iInput2, Value2, get_standard_unit_system(), UNIT_SYSTEM_SI);
 
 		_p = p;
 		_s = s;
 
 		// If entropy is outside the saturation region, it is single-phase
-		if (p > pFluid->reduce.p || p < pFluid->params.ptriple ||  s > pFluid->TTSESatV.evaluate(iS,p)  || s < pFluid->TTSESatL.evaluate(iS,p))
+		if (p > pFluid->reduce.p.Pa || p < pFluid->params.ptriple ||  s > pFluid->TTSESatV.evaluate(iS,p)  || s < pFluid->TTSESatL.evaluate(iS,p))
 		{
 			TwoPhase = false;
 			SinglePhase = true;
@@ -854,8 +857,9 @@ void CoolPropStateClass::update_TTSE_LUT(long iInput1, double Value1, long iInpu
 		// Sort in the right order (T,D)
 		sort_pair(&iInput1,&Value1,&iInput2,&Value2,iT,iD);
 
-		_T = Value1;
-		_rho = Value2;
+		_T = convert_between_unit_systems(iInput1, Value1, get_standard_unit_system(), UNIT_SYSTEM_SI);
+		_rho = convert_between_unit_systems(iInput2, Value2, get_standard_unit_system(), UNIT_SYSTEM_SI);
+
 		_logrho = log(_rho);
 
 		// If density is outside the saturation region, it is single-phase
@@ -913,7 +917,7 @@ double CoolPropStateClass::keyed_output(long iOutput)
 		case iMM:
 			return pFluid->params.molemass;
 		case iPcrit:
-			return pFluid->crit.p;
+			return convert_from_SI_to_unit_system(iP, pFluid->crit.p.Pa,get_standard_unit_system());
 		case iTcrit:
 			return pFluid->crit.T;
 		case iTreduce:
@@ -925,7 +929,7 @@ double CoolPropStateClass::keyed_output(long iOutput)
 		case iTtriple:
 			return pFluid->params.Ttriple;
 		case iPtriple:
-			return pFluid->params.ptriple;
+			return convert_from_SI_to_unit_system(iP, pFluid->params.ptriple, get_standard_unit_system());
 		case iRhocrit:
 			return pFluid->crit.rho;
 		case iRhoreduce:
@@ -969,7 +973,7 @@ double CoolPropStateClass::keyed_output(long iOutput)
 		case iD:
 			return _rho;
 		case iP:
-			return _p;
+			return convert_from_SI_to_unit_system(iP, _p, get_standard_unit_system());
 		case iC:
 			return cp();
 		case iC0:

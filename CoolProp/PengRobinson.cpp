@@ -11,8 +11,8 @@ std::vector<double> PRGuess_rho(Fluid * pFluid, double T, double p)
 	double alpha,kappa,omega,Tc,pc,a,b,c,d,A,B,DELTA,R,delta,Z,Q,Z1,Z2,Z3,sqrt3,rho;
 	omega = pFluid->params.accentricfactor;
 	Tc = pFluid->reduce.T;
-	pc = pFluid->reduce.p;
-	R = pFluid->params.R_u/pFluid->params.molemass;
+	pc = pFluid->reduce.p.Pa;
+	R = pFluid->params.R_u*1000/pFluid->params.molemass;
 
 	kappa = 0.37464 + 1.54225 * omega - 0.26992 * omega*omega;
 	alpha = pow(1+kappa*(1-sqrt(T/Tc)),2);

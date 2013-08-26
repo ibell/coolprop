@@ -36,8 +36,8 @@ struct OtherParameters
 };
 struct CriticalStruct
 {
-	PressureUnit p;
 	double rho, T, v, h, s, rhobar;
+	PressureUnit p;
 };
 struct FluidLimits
 {
@@ -227,8 +227,8 @@ class Fluid
 		std::vector<std::string> get_aliases(){return aliases;};
 		/// Returns true if the fluid is pure, false if pseudo-pure or a mixture
 		bool pure(){return isPure;};
-		/// Returns the mass-specific gas constant for the fluid [kJ/kg/K]
-		double R(){return params.R_u/params.molemass;};
+		/// Returns the mass-specific gas constant for the fluid in the desired units
+		double R();
 
 		// These MUST be implemented by derived class
         virtual double conductivity_Trho(double T, double rho);

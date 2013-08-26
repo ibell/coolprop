@@ -14,7 +14,7 @@ FluorineClass::FluorineClass()
 
     // Critical parameters
     crit.rho = 15.603*37.99681;
-    crit.p = 5172.4;
+    crit.p = PressureUnit(5172.4, UNIT_KPA);
     crit.T = 144.414;
     crit.v = 1.0/crit.rho;
 

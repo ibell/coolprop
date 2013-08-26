@@ -44,6 +44,7 @@ You might want to start by looking at CoolProp.h
 	#endif
 
 	#include "FluidClass.h"
+	#include "Units.h"
 	
 	// Functions with the call type like
     // EXPORT_CODE void CONVENTION AFunction(double, double);
@@ -171,8 +172,8 @@ You might want to start by looking at CoolProp.h
 	Fluid * get_fluid(long iFluid);
 	double to_SI(long iValue, double value);
 
-	// Define some constants that will be used throughout
-	enum params {iB,iT,iP,iD,iC,iC0,iO,iU,iH,iS,iA,iG,iQ,iV,iL,iI,iMM,iTcrit,iTtriple,iTreduce,iPtriple,iPcrit,iRhocrit,iRhoreduce,iAccentric,iDpdT,iDrhodT_p,iTmin,iDipole,iPhase,iPHASE_LIQUID,iPHASE_GAS,iPHASE_SUPERCRITICAL,iPHASE_TWOPHASE,iODP,iGWP20,iGWP100,iGWP500, iCritSplineT,iHcrit,iScrit};
-	enum phases {iLiquid, iSupercritical, iGas, iTwoPhase};
-	enum unit_systems{UNIT_SYSTEM_SI, UNIT_SYSTEM_KSI, UNIT_SYSTEM_KSI_MOLAR, UNIT_SYSTEM_SI_MOLAR};
+	int get_standard_unit_system();
+	void set_standard_unit_system(int);
+
+	#include "GlobalConstants.h"
 #endif

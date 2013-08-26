@@ -17,7 +17,7 @@ EthanolClass::EthanolClass()
 
     // Critical parameters
     crit.rho = 5.93*46.06844;
-    crit.p = 6268.0;
+    crit.p = PressureUnit(6268.0, UNIT_KPA);
     crit.T = 514.71;
     crit.v = 1.0/crit.rho;
 

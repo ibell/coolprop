@@ -19,7 +19,7 @@ DimethylCarbonateClass::DimethylCarbonateClass()
 
 	//Critical parameters
 	crit.rho = 4*90.0779; //[kg/m^3]
-	crit.p = 4908.8; //[kPa]
+	crit.p = PressureUnit(4908.8, UNIT_KPA); //[kPa]
 	crit.T = 557; //[K]
 	crit.v = 1/crit.rho; 
 

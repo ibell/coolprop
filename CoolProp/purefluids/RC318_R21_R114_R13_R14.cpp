@@ -14,7 +14,7 @@ RC318Class::RC318Class()
 
 	//Critical parameters
 	crit.rho = 3.09938*200.0312; //[kg/m^3]
-	crit.p = 3099.38; //[kPa]
+	crit.p = PressureUnit(3099.38, UNIT_KPA); //[kPa]
 	crit.T = 388.38; //[K]
 	crit.v = 1/crit.rho; 
 
@@ -109,7 +109,7 @@ R21Class::R21Class()
 
 	//Critical parameters
 	crit.rho = 5.1107656*102.9227; //[kg/m^3]
-	crit.p = 5181.2; //[kPa]
+	crit.p = PressureUnit(5181.2, UNIT_KPA); //[kPa]
 	crit.T = 451.48; //[K]
 	crit.v = 1/crit.rho; 
 
@@ -201,7 +201,7 @@ R114Class::R114Class()
 
 	//Critical parameters
 	crit.rho = 3.3932*170.921; //[kg/m^3]
-	crit.p = 3257.0; //[kPa]
+	crit.p = PressureUnit(3257.0, UNIT_KPA); //[kPa]
 	crit.T = 418.83; //[K]
 	crit.v = 1/crit.rho; 
 
@@ -293,7 +293,7 @@ R13Class::R13Class()
 
 	//Critical parameters
 	crit.rho = 5.58*104.459; //[kg/m^3]
-	crit.p = 3879.0; //[kPa]
+	crit.p = PressureUnit(3879.0, UNIT_KPA); //[kPa]
 	crit.T = 301.88; //[K]
 	crit.v = 1/crit.rho; 
 
@@ -391,7 +391,7 @@ R14Class::R14Class()
 
 	//Critical parameters
 	crit.rho = 7.1094194*88.0046; //[kg/m^3]
-	crit.p = 3750.0; //[kPa]
+	crit.p = PressureUnit(3750.0, UNIT_KPA); //[kPa]
 	crit.T = 227.51; //[K]
 	crit.v = 1/crit.rho; 
 

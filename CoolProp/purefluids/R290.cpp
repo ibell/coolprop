@@ -219,7 +219,7 @@ R290Class::R290Class()
 
 	// Critical parameters
 	crit.rho = 220.4781;
-	crit.p = 4251.2;
+	crit.p = PressureUnit(4251.2, UNIT_KPA);
 	crit.T = 369.89;
 	crit.v = 1.0/crit.rho;
 

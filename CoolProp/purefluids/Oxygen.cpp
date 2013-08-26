@@ -222,7 +222,7 @@ OxygenClass::OxygenClass()
 
 	// Critical parameters
 	crit.rho = 13.63*31.9988;
-	crit.p = 5043.0;
+	crit.p = PressureUnit(5043.0, UNIT_KPA);
 	crit.T = 154.581;
 	crit.v = 1.0/crit.rho;
 

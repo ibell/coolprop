@@ -17,7 +17,7 @@ R227EAClass::R227EAClass()
 
 	//Critical parameters
 	crit.rho = 3.495*170.02886; //[kg/m^3]
-	crit.p = 2925; //[kPa]
+	crit.p = PressureUnit(2925, UNIT_KPA); //[kPa]
 	crit.T = 374.9; //[K]
 	crit.v = 1/crit.rho; 
 
@@ -120,7 +120,7 @@ R365MFCClass::R365MFCClass()
 
 	//Critical parameters
 	crit.rho = 3.2*148.07452 ; //[kg/m^3]
-	crit.p = 3266; //[kPa]
+	crit.p = PressureUnit(3266, UNIT_KPA); //[kPa]
 	crit.T = 460.0; //[K]
 	crit.v = 1/crit.rho; 
 

@@ -54,7 +54,13 @@ bool global_SaturatedV = false;
 
 int unit_system = UNIT_SYSTEM_KSI;
 
+int get_standard_unit_system(){
+	return unit_system;
+}
 
+void set_standard_unit_system(int unit_sys){
+	unit_system = unit_sys;
+}
 
 // This is a map of all possible strings to a unique identifier
 std::pair<std::string, long> map_data[] = {

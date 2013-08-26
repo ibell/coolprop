@@ -33,7 +33,7 @@
 #endif
 
 // The revision of the TTSE tables, only use tables with the same revision.  Increment this macro if any non-forward compatible changes are made
-#define TTSEREV 3
+#define TTSEREV 4
 
 
 std::string get_home_dir(void)
@@ -721,8 +721,8 @@ bool TTSESinglePhaseTableClass::read_all_from_file(std::string root_path)
 	this->rhoratio = pow(rhomax/rhomin,1/((double)Nrho-1));
 	this->logrhoratio = log(rhoratio); // For speed since log() is a slow function
 	this->logrhomin = log(rhomin);
-	this->jpcrit_floor = (int)floor((log(pFluid->reduce.p)-logpmin)/logpratio);
-	this->jpcrit_ceil = (int)ceil((log(pFluid->reduce.p)-logpmin)/logpratio);
+	this->jpcrit_floor = (int)floor((log(pFluid->reduce.p.Pa)-logpmin)/logpratio);
+	this->jpcrit_ceil = (int)ceil((log(pFluid->reduce.p.Pa)-logpmin)/logpratio);
 	
 	update_saturation_boundary_indices();
 
@@ -850,7 +850,7 @@ double TTSESinglePhaseTableClass::build_ph(double hmin, double hmax, double pmin
 			
 			// Check whether the point is single phase
 			// If pressure between ptriple point and pcrit, might be two-phase or single phase, otherwise definitely single phase
-			if (pval <= pFluid->reduce.p. && pval >= pFluid->params.ptriple)
+			if (pval <= pFluid->reduce.p.Pa && pval >= pFluid->params.ptriple)
 			{
 				if (SatL == NULL || SatV == NULL){
 					// Not using TTSE method, use saturation (slow...)
@@ -1308,7 +1308,7 @@ void TTSESinglePhaseTableClass::update_saturation_boundary_indices()
 
 	for (unsigned int j = 0; j < Np; j++)
 	{
-		if (p[j] < pFluid->reduce.p)
+		if (p[j] < pFluid->reduce.p.Pa)
 		{
 			IL[j] = -1;
 			// Sweep left to right to find a phase boundary, use the first one that fails in the saturation region

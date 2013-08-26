@@ -248,7 +248,7 @@ R22Class::R22Class()
 
 	// Critical parameters
 	crit.rho = 6.05822*params.molemass;
-	crit.p = 4990;
+	crit.p = PressureUnit(4990, UNIT_KPA);
 	crit.T = 369.295;
 	crit.v = 1.0/crit.rho;
 
@@ -309,7 +309,7 @@ double R22Class::psat(double T)
     {
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
-    return crit.p*exp(summer*crit.T/T);
+    return crit.p.Pa*exp(summer*crit.T/T);
 }
 double R22Class::ECS_f_int(double T)
 {

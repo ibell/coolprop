@@ -63,7 +63,7 @@ OneButeneClass::OneButeneClass()
 
 	//Critical parameters
 	crit.rho = 4.24*56.10632; //[kg/m^3]
-	crit.p = 4005.1; //[kPa]
+	crit.p = PressureUnit(4005.1, UNIT_KPA); //[kPa]
 	crit.T = 419.29; //[K]
 	crit.v = 1/crit.rho; 
 
@@ -157,7 +157,7 @@ IsoButeneClass::IsoButeneClass()
 
 	//Critical parameters
 	crit.rho = 4.17*56.10632; //[kg/m^3]
-	crit.p = 4009.8; //[kPa]
+	crit.p = PressureUnit(4009.8, UNIT_KPA); //[kPa]
 	crit.T = 418.09; //[K]
 	crit.v = 1/crit.rho; 
 
@@ -250,7 +250,7 @@ Cis2ButeneClass::Cis2ButeneClass()
 
 	//Critical parameters
 	crit.rho = 4.244*56.10632; //[kg/m^3]
-	crit.p = 4225.5; //[kPa]
+	crit.p = PressureUnit(4225.5, UNIT_KPA); //[kPa]
 	crit.T = 435.75; //[K]
 	crit.v = 1/crit.rho; 
 
@@ -341,7 +341,7 @@ Trans2ButeneClass::Trans2ButeneClass()
 
 	//Critical parameters
 	crit.rho = 4.213*56.10632; //[kg/m^3]
-	crit.p = 4027.3; //[kPa]
+	crit.p = PressureUnit(4027.3, UNIT_KPA); //[kPa]
 	crit.T = 428.61; //[K]
 	crit.v = 1/crit.rho; 
 

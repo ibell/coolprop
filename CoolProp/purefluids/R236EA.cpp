@@ -17,7 +17,7 @@ R236EAClass::R236EAClass()
 
 	//Critical parameters
 	crit.rho = 3.716*152.0384; //[kg/m^3]
-	crit.p = 3420; //[kPa]
+	crit.p = PressureUnit(3420, UNIT_KPA); //[kPa]
 	crit.T = 412.44; //[K]
 	crit.v = 1/crit.rho; 
 

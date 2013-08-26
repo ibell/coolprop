@@ -27,7 +27,7 @@ EthyleneClass::EthyleneClass()
 
 	//Critical parameters
 	crit.rho = 214.24; //[kg/m^3]
-	crit.p = 5041.8; //[kPa]
+	crit.p = PressureUnit(5041.8, UNIT_KPA); //[kPa]
 	crit.T = 282.35; //[K]
 	crit.v = 1/crit.rho; 
 

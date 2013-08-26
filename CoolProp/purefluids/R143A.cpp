@@ -14,7 +14,7 @@ R143AClass::R143AClass()
 
 	//Critical parameters
 	crit.rho = 5.12845*84.041; //[kg/m^3]
-	crit.p = 3761; //[kPa]
+	crit.p = PressureUnit(3761, UNIT_KPA); //[kPa]
 	crit.T = 345.857; //[K]
 	crit.v = 1/crit.rho;
 

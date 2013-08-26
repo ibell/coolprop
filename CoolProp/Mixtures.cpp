@@ -6,7 +6,7 @@
 enum PengRobinsonOptions{PR_SATL, PR_SATV};
 Mixture::Mixture(std::vector<Fluid *> pFluids)
 {
-	Rbar = 8.314472;
+	Rbar = 8314.472;
 	this->pFluids = pFluids;
 	
 	std::vector<double> z(2, 0.5);
@@ -128,7 +128,7 @@ Mixture::~Mixture()
 }
 double Mixture::Wilson_lnK_factor(double T, double p, int i)
 {
-	return log(pFluids[i]->reduce.p/p)+5.373*(1+pFluids[i]->params.accentricfactor)*(1-pFluids[i]->reduce.T/T);
+	return log(pFluids[i]->reduce.p.Pa/p)+5.373*(1+pFluids[i]->params.accentricfactor)*(1-pFluids[i]->reduce.T/T);
 }
 double Mixture::fugacity(double tau, double delta, std::vector<double> *x, int i)
 {
@@ -586,7 +586,7 @@ double Mixture::rhobar_pengrobinson(double T, double p, std::vector<double> *x, 
 	for (unsigned int i = 0; i < (*x).size(); i++)
 	{
 		m_i = 0.37464 + 1.54226*pFluids[i]->params.accentricfactor-0.26992*pow(pFluids[i]->params.accentricfactor,2);
-		b_i = 0.077796074*(Rbar*pFluids[i]->reduce.T)/(pFluids[i]->reduce.p);
+		b_i = 0.077796074*(Rbar*pFluids[i]->reduce.T)/(pFluids[i]->reduce.p.Pa);
 
 		B += (*x)[i]*b_i*p/(Rbar*T);
 
