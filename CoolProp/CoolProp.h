@@ -66,8 +66,8 @@ You might want to start by looking at CoolProp.h
 	EXPORT_CODE long CONVENTION Phase_Trho(char *Fluid, double T, double p, char *Phase_str);
 	EXPORT_CODE long CONVENTION Phase_Tp(char *Fluid, double T, double rho, char *Phase_str);
 	EXPORT_CODE void CONVENTION set_phase(char *Phase_str);
-	EXPORT_CODE double CONVENTION F2K(double T_F);
-	EXPORT_CODE double CONVENTION K2F(double T);
+	EXPORT_CODE double CONVENTION F2K(double T_F); // Keeping this since it is useful for debugging
+	EXPORT_CODE double CONVENTION K2F(double T_K); // Keeping this since it is useful for debugging
 	EXPORT_CODE void CONVENTION PrintSaturationTable(char *FileName, char * Ref, double Tmin, double Tmax);
 	
 	EXPORT_CODE void CONVENTION FluidsList(char*);
@@ -84,13 +84,13 @@ You might want to start by looking at CoolProp.h
 	EXPORT_CODE long CONVENTION get_CAS_code(char * fluid, char *output);
 	EXPORT_CODE void CONVENTION get_index_units(long param, char * units);
 
-	EXPORT_CODE int CONVENTION get_debug();
-	EXPORT_CODE void CONVENTION debug(int level);
+	EXPORT_CODE int CONVENTION get_debug(); // To be removed
+	EXPORT_CODE void CONVENTION debug(int level); // To be removed
 
-	EXPORT_CODE double CONVENTION rhosatL_anc(char* Fluid, double T);
-	EXPORT_CODE double CONVENTION rhosatV_anc(char* Fluid, double T);
-	EXPORT_CODE double CONVENTION psatL_anc(char* Fluid, double T);
-	EXPORT_CODE double CONVENTION psatV_anc(char* Fluid, double T);
+	EXPORT_CODE double CONVENTION rhosatL_anc(char* Fluid, double T); // To be removed
+	EXPORT_CODE double CONVENTION rhosatV_anc(char* Fluid, double T); // To be removed
+	EXPORT_CODE double CONVENTION psatL_anc(char* Fluid, double T); // To be removed
+	EXPORT_CODE double CONVENTION psatV_anc(char* Fluid, double T); // To be removed
 
 	/// -------------------------------------------
 	///     TTSE Tabular Taylor Series Expansion
@@ -122,13 +122,11 @@ You might want to start by looking at CoolProp.h
 	EXPORT_CODE int CONVENTION set_TTSE_mode(char *FluidName, char * Value);
 
 	// Expose some functions that are useful for ECS debugging
-	EXPORT_CODE double CONVENTION viscosity_dilute(char* FluidName, double T);
-	EXPORT_CODE double CONVENTION viscosity_residual(char* FluidName, double T, double rho);
-	EXPORT_CODE double CONVENTION conductivity_critical(char* FluidName, double T, double rho);
-	EXPORT_CODE double CONVENTION conductivity_background(char* FluidName, double T, double rho);
-	EXPORT_CODE double CONVENTION conformal_Trho(char* FluidName, char* ReferenceFluidName, double T, double rho, double *Tconform, double *rhoconform);
-
-
+	EXPORT_CODE double CONVENTION viscosity_dilute(char* FluidName, double T); // To be removed
+	EXPORT_CODE double CONVENTION viscosity_residual(char* FluidName, double T, double rho); // To be removed
+	EXPORT_CODE double CONVENTION conductivity_critical(char* FluidName, double T, double rho); // To be removed
+	EXPORT_CODE double CONVENTION conductivity_background(char* FluidName, double T, double rho); // To be removed
+	EXPORT_CODE double CONVENTION conformal_Trho(char* FluidName, char* ReferenceFluidName, double T, double rho, double *Tconform, double *rhoconform); // To be removed
 
 	// ------------------------------------------------------------------------------------------------
 	// All the functions below this comment do NOT get exported to REFPROP DLL due to the fact that the 
@@ -144,33 +142,34 @@ You might want to start by looking at CoolProp.h
 	double DerivTerms(char *Term, double T, double rho, Fluid * pFluid);
 	double DerivTerms(char *Term, double T, double rho, Fluid * pFluid, bool SinglePhase, bool TwoPhase);
 
-	int debug();
-	void set_debug(int level);
-	void set_phase(std::string Phase_str);
-
 	std::string Phase(std::string Fluid, double T, double p);
 	std::string Phase_Trho(std::string Fluid, double T, double rho);
     std::string Phase_Tp(std::string Fluid, double T, double p);
+
+	// To be grouped into set_param_double and get_param_double and get_param_string and set_param_string
 	std::string get_BibTeXKey(std::string Ref, std::string item);
 	std::string get_EOSReference(std::string Ref);
 	std::string get_TransportReference(std::string Ref);
 	std::string get_ASHRAE34(std::string Ref);
 	std::string get_CAS_code(std::string Ref);
-	std::string FluidsList(void);
 	std::string get_aliases(std::string Ref);
 	std::string get_REFPROPname(std::string Ref);
+	bool add_REFPROP_fluid(std::string FluidName);
+	std::string get_TTSE_mode(std::string FluidName);
+	long get_Fluid_index(std::string Ref);
+	
+	// To be grouped into one function for global variables
+	int debug();
+	void set_debug(int level);
+	void set_phase(std::string Phase_str);
 	std::string get_errstring(void);
 	std::string get_version(void);
 	std::string get_gitrevision(void);
-	std::string get_TTSE_mode(std::string FluidName);
-	bool add_REFPROP_fluid(std::string FluidName);
-
+	std::string FluidsList(void);
 	long get_param_index(std::string param);
-	long get_Fluid_index(std::string param);
 	std::string get_index_units(long index);
 
 	Fluid * get_fluid(long iFluid);
-	double to_SI(long iValue, double value);
 
 	int get_standard_unit_system();
 	void set_standard_unit_system(int);

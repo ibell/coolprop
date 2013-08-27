@@ -754,93 +754,83 @@ bool Fluid::isAlias(std::string name)
 
 double Fluid::pressure_Trho(double T, double rho)
 {
-    double delta,tau,R;
-	R=params.R_u/params.molemass;
+    double delta,tau;
 	tau=reduce.T/T;
 	delta=rho/reduce.rho;
-	return R*T*rho*(1.0+delta*dphir_dDelta(tau,delta));
+	return R()*T*rho*(1.0+delta*dphir_dDelta(tau,delta));
 }
 
 double Fluid::enthalpy_Trho(double T, double rho)
 {
-	double delta,tau,R;
-    R=params.R_u/params.molemass;
+	double delta,tau;
 	tau=reduce.T/T;
 	delta=rho/reduce.rho;
-    return R*T*(1.0+tau*(dphi0_dTau(tau,delta)+dphir_dTau(tau,delta))+delta*dphir_dDelta(tau,delta));
+    return R()*T*(1.0+tau*(dphi0_dTau(tau,delta)+dphir_dTau(tau,delta))+delta*dphir_dDelta(tau,delta));
 }
 
 double Fluid::internal_energy_Trho(double T, double rho)
 {
-    double delta,tau,R;
-    R=params.R_u/params.molemass;
+    double delta,tau;
 	tau=reduce.T/T;
 	delta=rho/reduce.rho;
-    return R*T*tau*(dphi0_dTau(tau,delta)+dphir_dTau(tau,delta));
+    return R()*T*tau*(dphi0_dTau(tau,delta)+dphir_dTau(tau,delta));
 }
 
 double Fluid::entropy_Trho(double T, double rho)
 {
-    double delta,tau,R;
-    R=params.R_u/params.molemass;
+    double delta,tau;
 	tau=reduce.T/T;
 	delta=rho/reduce.rho;
-    return R*(tau*(dphi0_dTau(tau,delta)+dphir_dTau(tau,delta))-phi0(tau,delta)-phir(tau,delta));
+    return R()*(tau*(dphi0_dTau(tau,delta)+dphir_dTau(tau,delta))-phi0(tau,delta)-phir(tau,delta));
 }
 double Fluid::specific_heat_v_Trho(double T, double rho)
 {
-    double delta,tau,R;
-    R=params.R_u/params.molemass;
+    double delta,tau;
 	tau=reduce.T/T;
 	delta=rho/reduce.rho;
-    return -R*tau*tau*(d2phi0_dTau2(tau,delta)+d2phir_dTau2(tau,delta));
+    return -R()*tau*tau*(d2phi0_dTau2(tau,delta)+d2phir_dTau2(tau,delta));
 }
 double Fluid::specific_heat_p_Trho(double T, double rho)
 {
-    double delta,tau,c1,c2,R,dphir_dDelta_;
-    R=params.R_u/params.molemass;
+    double delta,tau,c1,c2,dphir_dDelta_;
 	tau=reduce.T/T;
 	delta=rho/reduce.rho;
 	dphir_dDelta_=dphir_dDelta(tau,delta);
     c1=pow(1.0+delta*dphir_dDelta_-delta*tau*d2phir_dDelta_dTau(tau,delta),2);
     c2=(1.0+2.0*delta*dphir_dDelta_+pow(delta,2)*d2phir_dDelta2(tau,delta));
-	return R*(-pow(tau,2)*(d2phi0_dTau2(tau,delta)+d2phir_dTau2(tau,delta))+c1/c2);
+	return R()*(-pow(tau,2)*(d2phi0_dTau2(tau,delta)+d2phir_dTau2(tau,delta))+c1/c2);
 }
 double Fluid::specific_heat_p_ideal_Trho(double T)
 {
-    double tau,R;
-    R=params.R_u/params.molemass;
+    double tau;
 	tau=reduce.T/T;
-    return R*(1-tau*tau*d2phi0_dTau2(tau, 1e-12));
+    return R()*(1-tau*tau*d2phi0_dTau2(tau, 1e-12));
 }
 double Fluid::speed_sound_Trho(double T, double rho)
 {
-    double delta,tau,c1,c2,R;
-    R=params.R_u/params.molemass;
+    double delta,tau,c1,c2;
 	tau=reduce.T/T;
 	delta=rho/reduce.rho;
 
-    c1=-specific_heat_v_Trho(T,rho)/R;
+    c1=-specific_heat_v_Trho(T,rho)/R();
     c2=(1.0+2.0*delta*dphir_dDelta(tau,delta)+pow(delta,2)*d2phir_dDelta2(tau,delta));
     return sqrt(-c2*T*specific_heat_p_Trho(T,rho)*1000/c1);
 }
 double Fluid::gibbs_Trho(double T,double rho)
 {
-	double delta,tau,R;
-    R=params.R_u/params.molemass;
+	double delta,tau;
 	tau=reduce.T/T;
 	delta=rho/reduce.rho;
 
-    return R*T*(1+phi0(tau,delta)+phir(tau,delta)+delta*dphir_dDelta(tau,delta));
+    return R()*T*(1+phi0(tau,delta)+phir(tau,delta)+delta*dphir_dDelta(tau,delta));
 }
 double Fluid::dpdT_Trho(double T,double rho)
 {
-	double delta,tau,R;
-    R=params.R_u/params.molemass;
+	double delta,tau;
 	tau=reduce.T/T;
 	delta=rho/reduce.rho;
 
-	return rho*R*(1+delta*dphir_dDelta(tau,delta)-delta*tau*d2phir_dDelta_dTau(tau,delta));
+	return rho*R()*(1+delta*dphir_dDelta(tau,delta)-delta*tau*d2phir_dDelta_dTau(tau,delta));
 }
 double Fluid::drhodT_p_Trho(double T,double rho)
 {
@@ -852,7 +842,7 @@ double Fluid::density_Tp_Soave(double T, double p, int iValue)
 {
 	double omega, R, m, a, b, A, B, r, q, D, u, Y, Y1, Y2, Y3, theta, phi, rho;
 	omega = params.accentricfactor;
-	R = params.R_u/params.molemass;
+	R = params.R_u/params.molemass*1000; // SI units are used internally
 	m = 0.480+1.574*omega-0.176*omega*omega;
 	a = 0.42747*R*R*crit.T*crit.T/crit.p.Pa*pow(1+m*(1-sqrt(T/reduce.T)),2);
 	b = 0.08664*R*crit.T/crit.p.Pa;
@@ -1034,7 +1024,7 @@ double Fluid::density_Tp(double T, double p, double rho_guess)
     double delta,tau,dpdrho__constT,dpddelta__constT,error=999,R,p_EOS,rho,change=999;
 	double x1, x2, x3, y1, y2;
 
-    R = params.R_u/params.molemass;
+    R = params.R_u/params.molemass*1000; // SI units are used internally
 	tau = reduce.T/T;
 
 	if (debug()>8){

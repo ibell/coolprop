@@ -304,7 +304,7 @@ void CoolPropStateClass::update_twophase(long iInput1, double Value1, long iInpu
 		sort_pair(&iInput1,&Value1,&iInput2,&Value2,iP,iQ);
 		
 		// Convert pressure from standard units to SI units (Pa)
-		Value1 = convert_between_unit_systems(iInput1, Value1, get_standard_unit_system(), UNIT_SYSTEM_SI);
+		Value1 = convert_from_unit_system_to_SI(iInput1, Value1, get_standard_unit_system());
 
 		// Out-of-range checks
 		if (Value1 < pFluid->params.ptriple-100*DBL_EPSILON || Value1 > pFluid->crit.p.Pa+100*DBL_EPSILON){ throw ValueError(format("Your saturation pressure [%f Pa] is out of range [%f Pa, %f Pa]",Value1,pFluid->params.ptriple,pFluid->crit.p.Pa ));}
@@ -510,7 +510,7 @@ void CoolPropStateClass::update_Tp(long iInput1, double Value1, long iInput2, do
 
 	// Set internal variables
 	_T = Value1;
-	_p = Value2;
+	_p = convert_from_unit_system_to_SI(iP,Value2,get_standard_unit_system());
 
 	// If either SinglePhase or flag_SinglePhase is set to true, it will not make the call to the saturation routine
 	// SinglePhase is set by the class routines, and flag_SinglePhase is a flag that can be set externally
@@ -551,7 +551,7 @@ void CoolPropStateClass::update_ph(long iInput1, double Value1, long iInput2, do
 	pFluid->temperature_ph(Value1, Value2,&_T,&_rho,&rhosatL,&rhosatV,&TsatL,&TsatV, T0, rho0);
 
 	// Set internal variables
-	_p = Value1;
+	_p = convert_from_unit_system_to_SI(iP,Value2,get_standard_unit_system());
 	_h = Value2;
 	h_cached = true;
 
@@ -714,8 +714,8 @@ void CoolPropStateClass::update_TTSE_LUT(long iInput1, double Value1, long iInpu
 		// Sort in the right order (P,H)
 		sort_pair(&iInput1,&Value1,&iInput2,&Value2,iP,iH);
 
-		double p = convert_between_unit_systems(iInput1, Value1, get_standard_unit_system(), UNIT_SYSTEM_SI);
-		double h = convert_between_unit_systems(iInput2, Value2, get_standard_unit_system(), UNIT_SYSTEM_SI);
+		double p = convert_from_unit_system_to_SI(iInput1, Value1, get_standard_unit_system());
+		double h = convert_from_unit_system_to_SI(iInput2, Value2, get_standard_unit_system());
 
 		// If enthalpy is outside the saturation region or flag_SinglePhase is set, it is single-phase
 		if (p > pFluid->reduce.p.Pa || p < pFluid->params.ptriple || flag_SinglePhase ||  h < pFluid->TTSESatL.evaluate(iH,p)  || h > pFluid->TTSESatV.evaluate(iH,p))
@@ -769,8 +769,8 @@ void CoolPropStateClass::update_TTSE_LUT(long iInput1, double Value1, long iInpu
 		// Sort in the right order (P,D)
 		sort_pair(&iInput1,&Value1,&iInput2,&Value2,iP,iD);
 
-		double p = convert_between_unit_systems(iInput1, Value1, get_standard_unit_system(), UNIT_SYSTEM_SI);
-		double rho = convert_between_unit_systems(iInput2, Value2, get_standard_unit_system(), UNIT_SYSTEM_SI);
+		double p = convert_from_unit_system_to_SI(iInput1, Value1, get_standard_unit_system());
+		double rho = convert_from_unit_system_to_SI(iInput2, Value2, get_standard_unit_system());
 
 		// If density is outside the saturation region, it is single-phase
 		if (p > pFluid->reduce.p.Pa || p < pFluid->params.ptriple ||  rho < pFluid->TTSESatV.evaluate(iD,p)  || rho > pFluid->TTSESatL.evaluate(iD,p))
@@ -812,8 +812,8 @@ void CoolPropStateClass::update_TTSE_LUT(long iInput1, double Value1, long iInpu
 		// Sort in the right order (P,S)
 		sort_pair(&iInput1,&Value1,&iInput2,&Value2,iP,iS);
 		
-		double p = convert_between_unit_systems(iInput1, Value1, get_standard_unit_system(), UNIT_SYSTEM_SI);
-		double s = convert_between_unit_systems(iInput2, Value2, get_standard_unit_system(), UNIT_SYSTEM_SI);
+		double p = convert_from_unit_system_to_SI(iInput1, Value1, get_standard_unit_system());
+		double s = convert_from_unit_system_to_SI(iInput2, Value2, get_standard_unit_system());
 
 		_p = p;
 		_s = s;
@@ -857,8 +857,8 @@ void CoolPropStateClass::update_TTSE_LUT(long iInput1, double Value1, long iInpu
 		// Sort in the right order (T,D)
 		sort_pair(&iInput1,&Value1,&iInput2,&Value2,iT,iD);
 
-		_T = convert_between_unit_systems(iInput1, Value1, get_standard_unit_system(), UNIT_SYSTEM_SI);
-		_rho = convert_between_unit_systems(iInput2, Value2, get_standard_unit_system(), UNIT_SYSTEM_SI);
+		_T = convert_from_unit_system_to_SI(iInput1, Value1, get_standard_unit_system());
+		_rho = convert_from_unit_system_to_SI(iInput2, Value2, get_standard_unit_system());
 
 		_logrho = log(_rho);
 
