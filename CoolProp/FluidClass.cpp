@@ -2293,11 +2293,12 @@ void Fluid::temperature_ps(double p, double s, double *Tout, double *rhoout, dou
 			// Step 2: Not far away from saturation (or it is two-phase) - need to solve saturation as a function of p :( - this is slow
 			//**************************************************
 			CoolPropStateClass sat = CoolPropStateClass(name);
-			sat.update(get_param_index((char *)"P"),p,get_param_index((char *)"Q"),0);
+			double p_unit = convert_from_SI_to_unit_system(iP,p,get_standard_unit_system());
+			sat.update(iP,p_unit,iQ,0);
 			rhoL = sat.rhoL();
 			rhoV = sat.rhoV();
-			ssatL = sat.sL();
-			ssatV = sat.sV();
+			ssatL = convert_from_unit_system_to_SI(iS, sat.sL(), get_standard_unit_system());
+			ssatV = convert_from_unit_system_to_SI(iS, sat.sV(), get_standard_unit_system());
 			TsatL = sat.TL();
 			TsatV = sat.TV();
 			*rhoLout = rhoL;
