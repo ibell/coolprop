@@ -140,7 +140,7 @@ public:
 	// If single-phase, just plug into the EOS, otherwise need to do two-phase analysis
 	double T(void){return _T;};
 	double rho(void){return _rho;};
-	double p(void){return _p;};
+	double p(void){return convert_from_SI_to_unit_system(iP,_p,get_standard_unit_system());};
 	double Q(void){return _Q;};
 	double h(void);
 	double s(void);

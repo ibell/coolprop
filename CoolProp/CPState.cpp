@@ -445,7 +445,7 @@ void CoolPropStateClass::update_prho(long iInput1, double Value1, long iInput2, 
 	sort_pair(&iInput1,&Value1,&iInput2,&Value2,iP,iD);
 
 	// Set internal variables
-	_p = Value1;
+	_p = convert_from_unit_system_to_SI(iP, Value1, get_standard_unit_system());
 	_rho = Value2;
 
 	if (Value1 < 0 ){ throw ValueError(format("Your pressure [%f kPa] is less than zero",Value1));}
@@ -547,13 +547,13 @@ void CoolPropStateClass::update_ph(long iInput1, double Value1, long iInput2, do
 
 	if (Value1 < 0 ){ throw ValueError(format("Your pressure [%g kPa] is less than zero",Value1));}
 
-	// Solve for temperature and density with or without the guess values provided
-	pFluid->temperature_ph(Value1, Value2,&_T,&_rho,&rhosatL,&rhosatV,&TsatL,&TsatV, T0, rho0);
-
 	// Set internal variables
-	_p = convert_from_unit_system_to_SI(iP,Value2,get_standard_unit_system());
-	_h = Value2;
+	_p = convert_from_unit_system_to_SI(iP, Value1, get_standard_unit_system());
+	_h = convert_from_unit_system_to_SI(iH, Value2, get_standard_unit_system());
 	h_cached = true;
+
+	// Solve for temperature and density with or without the guess values provided
+	pFluid->temperature_ph(_p, _h, &_T, &_rho, &rhosatL, &rhosatV, &TsatL, &TsatV, T0, rho0);
 
 	// Set the phase flags
 	if ( _T < pFluid->reduce.T && _rho < rhosatL && _rho > rhosatV)
@@ -583,13 +583,13 @@ void CoolPropStateClass::update_ps(long iInput1, double Value1, long iInput2, do
 
 	if (Value1 < 0 ){ throw ValueError(format("Your pressure [%g kPa] is less than zero",Value1));}
 
-	// Solve for temperature and density
-	pFluid->temperature_ps(Value1, Value2,&_T,&_rho,&rhosatL,&rhosatV,&TsatL,&TsatV);
-
 	// Set internal variables
-	_p = Value1;
-	_s = Value2;
+	_p = convert_from_unit_system_to_SI(iP, Value1, get_standard_unit_system());
+	_s = convert_from_unit_system_to_SI(iS, Value2, get_standard_unit_system());
 	s_cached = true;
+
+	// Solve for temperature and density
+	pFluid->temperature_ps(_p, _s, &_T, &_rho, &rhosatL, &rhosatV, &TsatL, &TsatV);
 
 	// Set the phase flags
 	if ( _T < pFluid->reduce.T && _rho < rhosatL && _rho > rhosatV)
@@ -617,15 +617,19 @@ void CoolPropStateClass::update_hs(long iInput1, double Value1, long iInput2, do
 	// Get them in the right order
 	sort_pair(&iInput1,&Value1,&iInput2,&Value2,iH,iS);
 
+	// Set internal variables
+	_h = convert_from_unit_system_to_SI(iH, Value1, get_standard_unit_system());
+	_s = convert_from_unit_system_to_SI(iS, Value2, get_standard_unit_system());
+	h_cached = true;
+	s_cached = true;
+
 	// Solve for temperature and density
 	pFluid->temperature_hs(Value1, Value2,&_T,&_rho,&rhosatL,&rhosatV,&TsatL,&TsatV);
 
-	// Set internal variables
-	_h = Value1;
-	_s = Value2;
-	h_cached = true;
-	s_cached = true;
-	_p = pFluid->pressure_Trho(_T,_rho); // Evaluate the EOS directly to find pressure without a saturation call
+	// Reduced parameters
+	double delta = this->_rho/pFluid->reduce.rho;
+	double tau = pFluid->reduce.T/this->_T;
+	_p = pFluid->R()*_T*_rho*(1.0 + delta*dphir_dDelta(tau, delta));
 
 	// Set the phase flags
 	if ( _T < pFluid->reduce.T && _rho < rhosatL && _rho > rhosatV)
@@ -973,11 +977,11 @@ double CoolPropStateClass::keyed_output(long iOutput)
 		case iD:
 			return _rho;
 		case iP:
-			return convert_from_SI_to_unit_system(iP, _p, get_standard_unit_system());
+			return p();
 		case iC:
 			return cp();
 		case iC0:
-			return pFluid->specific_heat_p_ideal_Trho(_T);
+			return convert_from_SI_to_unit_system(iC0, pFluid->specific_heat_p_ideal_Trho(_T), get_standard_unit_system());
 		case iO:
 			return cv();
 		case iA:
@@ -994,7 +998,7 @@ double CoolPropStateClass::keyed_output(long iOutput)
 		case iS:
 			return s();
 		case iU:
-			return h()-_p/_rho;
+			return h()-p()/_rho;
 
 		case iPhase:
 			return phase();
@@ -1115,7 +1119,8 @@ double CoolPropStateClass::h(void){
 			else
 			{
 				// Use the EOS, using the cached value if possible
-				return pFluid->R()*_T*(1.0+tau*(dphi0_dTau(tau,delta)+dphir_dTau(tau,delta))+delta*dphir_dDelta(tau,delta));
+				double val = pFluid->R()*_T*(1.0+tau*(dphi0_dTau(tau,delta)+dphir_dTau(tau,delta))+delta*dphir_dDelta(tau,delta));
+				return convert_from_SI_to_unit_system(iH, val, get_standard_unit_system());
 			}
 		}
 	}
@@ -1140,7 +1145,8 @@ double CoolPropStateClass::s(void){
 			else
 			{
 				// Use the EOS, using the cached value if possible
-				return pFluid->R()*(tau*(dphi0_dTau(tau,delta)+dphir_dTau(tau,delta))-phi0(tau,delta)-phir(tau,delta));
+				double val = pFluid->R()*(tau*(dphi0_dTau(tau,delta)+dphir_dTau(tau,delta))-phi0(tau,delta)-phir(tau,delta));
+				return convert_from_SI_to_unit_system(iS, val, get_standard_unit_system());
 			}
 		}
 	}
@@ -1160,7 +1166,8 @@ double CoolPropStateClass::cp(void){
 	{
 		double c1 = pow(1.0+delta*dphir_dDelta(tau,delta)-delta*tau*d2phir_dDelta_dTau(tau,delta),2);
 		double c2 = (1.0+2.0*delta*dphir_dDelta(tau,delta)+pow(delta,2)*d2phir_dDelta2(tau,delta));
-		return pFluid->R()*(-pow(tau,2)*(d2phi0_dTau2(tau,delta)+d2phir_dTau2(tau,delta))+c1/c2);
+		double val = pFluid->R()*(-pow(tau,2)*(d2phi0_dTau2(tau,delta)+d2phir_dTau2(tau,delta))+c1/c2);
+		return convert_from_SI_to_unit_system(iC,val,get_standard_unit_system());
 	}
 }
 
@@ -1181,7 +1188,8 @@ double CoolPropStateClass::conductivity(void){
 		return pFluid->TTSESinglePhase.evaluate_Trho(iL,_T,_rho,_logrho);
 	}
 	else{
-		return pFluid->conductivity_Trho(_T,_rho);
+		double val = pFluid->conductivity_Trho(_T,_rho);
+		return convert_from_SI_to_unit_system(iL,val,get_standard_unit_system());
 	}
 }
 
@@ -1219,7 +1227,8 @@ double CoolPropStateClass::cv(void){
 	}
 	else
 	{
-		return -pFluid->R()*pow(tau,2)*(d2phi0_dTau2(tau,delta)+d2phir_dTau2(tau,delta));
+		double val = -pFluid->R()*pow(tau,2)*(d2phi0_dTau2(tau,delta)+d2phir_dTau2(tau,delta));
+		return convert_from_SI_to_unit_system(iO,val,get_standard_unit_system());
 	}
 }
 double CoolPropStateClass::speed_sound(void){
@@ -1566,10 +1575,12 @@ double CoolPropStateClass::drhodT_constp(void){
 	return -dpdT_rho/dpdrho_T;
 }
 double CoolPropStateClass::dpdrho_constT(void){
-	return pFluid->R()*_T*(1+2*delta*dphir_dDelta(tau,delta)+delta*delta*d2phir_dDelta2(tau,delta));
+	double val = pFluid->R()*_T*(1+2*delta*dphir_dDelta(tau,delta)+delta*delta*d2phir_dDelta2(tau,delta)); //[Pa/(kg/m3)]
+	return convert_from_SI_to_unit_system(iP,val,get_standard_unit_system());
 }
 double CoolPropStateClass::dpdT_constrho(void){
-	return pFluid->R()*_rho*(1+delta*dphir_dDelta(tau,delta)-delta*tau*d2phir_dDelta_dTau(tau,delta));
+	double val = pFluid->R()*_rho*(1+delta*dphir_dDelta(tau,delta)-delta*tau*d2phir_dDelta_dTau(tau,delta)); //[Pa/K]
+	return convert_from_SI_to_unit_system(iP,val,get_standard_unit_system());
 }
 double CoolPropStateClass::d2pdrho2_constT(void){
 	return _T*pFluid->R()*(2*delta*d2phir_dDelta2(tau,delta)+2*dphir_dDelta(tau,delta)+2*delta*d2phir_dDelta2(tau,delta)+delta*delta*d3phir_dDelta3(tau,delta))/pFluid->reduce.rho;

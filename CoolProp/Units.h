@@ -86,7 +86,6 @@ public:
 
 double convert_from_unit_system_to_SI(long iInput, double value, int old_system);
 double convert_from_SI_to_unit_system(long iInput, double value, int new_system);
-//double convert_between_unit_systems(long iInput, double value, int old_system, int new_system);
 
 
 #endif

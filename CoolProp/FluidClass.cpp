@@ -3855,8 +3855,8 @@ int AncillaryCurveClass::build(int N)
 		xV.push_back(T);
 		rhoL = pFluid->rhosatL(T);
 		rhoV = pFluid->rhosatV(T);
-		yL.push_back(IProps(iOutput,iT,T,iD,rhoL,iFluid));
-		yV.push_back(IProps(iOutput,iT,T,iD,rhoV,iFluid));
+		yL.push_back(convert_from_unit_system_to_SI(iOutput,IProps(iOutput,iT,T,iD,rhoL,iFluid),get_standard_unit_system()));
+		yV.push_back(convert_from_unit_system_to_SI(iOutput,IProps(iOutput,iT,T,iD,rhoV,iFluid),get_standard_unit_system()));
 	}
 	built = true;
 	return 1;
