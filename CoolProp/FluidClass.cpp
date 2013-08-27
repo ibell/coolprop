@@ -1955,7 +1955,7 @@ void Fluid::temperature_ph(double p, double h, double *Tout, double *rhoout, dou
 	double f1,f2,df1_dtau,df1_ddelta,df2_ddelta,df2_dtau;
     double rhoL, rhoV, hsatL,hsatV,TsatL,TsatV,tau,delta,worst_error;
 	double h_guess, hc, rho_guess, T1, T2, h1, h2, rho1, rho2;
-	double hsat_tol = 0.5;
+	double hsat_tol = 500; //[J/kg]
 	
 	// A starting set of temperature and pressure are provided, use them as the guess value
 	// Their default values are -1 and -1, which are unphysical values
@@ -2021,8 +2021,8 @@ void Fluid::temperature_ph(double p, double h, double *Tout, double *rhoout, dou
 					TsatV = Tsat_anc(p,1);
 				rhoL = rhosatL(TsatL);
 				rhoV = rhosatV(TsatV);
-				hsatL = hsatL_anc(TsatL);
-				hsatV = hsatV_anc(TsatV);
+				hsatL = hsatL_anc(TsatL); //[J/kg]
+				hsatV = hsatV_anc(TsatV); //[J/kg]
 				*rhoLout = -1;
 				*rhoVout = -1;
 				*TsatLout = -1;
@@ -2069,11 +2069,12 @@ void Fluid::temperature_ph(double p, double h, double *Tout, double *rhoout, dou
 				// Step 2: Not far away from saturation (or it is two-phase) - need to solve saturation as a function of p :( - this is slow
 				//**************************************************
  				CoolPropStateClass sat = CoolPropStateClass(name);
-				sat.update(iP,p,iQ,0);
+				double p_unit = convert_from_SI_to_unit_system(iP,p,get_standard_unit_system());
+				sat.update(iP, p_unit, iQ, 0);
 				rhoL = sat.rhoL();
 				rhoV = sat.rhoV();
-				hsatL = sat.hL();
-				hsatV = sat.hV();
+				hsatL = convert_from_unit_system_to_SI(iH, sat.hL(), get_standard_unit_system());
+				hsatV = convert_from_unit_system_to_SI(iH, sat.hV(), get_standard_unit_system());
 				TsatL = sat.TL();
 				TsatV = sat.TV();
 				*rhoLout = rhoL;
@@ -3855,6 +3856,7 @@ int AncillaryCurveClass::build(int N)
 		xV.push_back(T);
 		rhoL = pFluid->rhosatL(T);
 		rhoV = pFluid->rhosatV(T);
+		// IProps will always return value in standard units, convert to SI
 		yL.push_back(convert_from_unit_system_to_SI(iOutput,IProps(iOutput,iT,T,iD,rhoL,iFluid),get_standard_unit_system()));
 		yV.push_back(convert_from_unit_system_to_SI(iOutput,IProps(iOutput,iT,T,iD,rhoV,iFluid),get_standard_unit_system()));
 	}
