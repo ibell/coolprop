@@ -121,10 +121,12 @@ def get_env_data(fluid):
                 a[k] = float(v)
             except ValueError: 
                 a[k] = None
-    try:
-        a['ODP'] = float(a['ODP'])
-    except TypeError:
-        a['ODP'] = 0
+                
+    for term in ['GWP100','GWP20','GWP500','ODP']:
+        try:
+            a[term] = float(a[term])
+        except TypeError:
+            a[term] = -1
         
     if fluid in ASHRAE34_dict:
         a['ASHRAE34'] = ASHRAE34_dict[fluid]
@@ -145,44 +147,3 @@ for fluid in pp_fluids:
 f = open('environmental.json','w')
 print>>f, json.dumps(code, sort_keys=True, indent=2, separators=(',', ': '))
 f.close()
-    
-## for fluid in pp_fluids:
-##             
-##     if name_dict[fluid]:
-##         a = dict(
-##         HH = HH_dict[fluid],
-##         FH = FH_dict[fluid],
-##         PH = PH_dict[fluid],
-##         ODP = ODP_dict[fluid],
-##         GWP20 = GWP20_dict[fluid],
-##         GWP100 = GWP100_dict[fluid],
-##         GWP500 = GWP500_dict[fluid]
-##         )
-##         
-##         for k,v in a.iteritems():
-##             try:
-##                 a[k] = str(float(v))
-##             except ValueError:
-##                 a[k] = '_HUGE'
-##         
-##         if a['ODP'] == '_HUGE': a['ODP'] = '0'
-##             
-##         if fluid in ASHRAE34_dict:
-##             a['ASHRAE34'] = ASHRAE34_dict[fluid]
-##         else:
-##             a['ASHRAE34'] = 'UNKNOWN'
-##         
-##         chunk = template.format(fluid = name_dict[fluid],
-##                                 HH = a['HH'],
-##                                 FH = a['FH'],
-##                                 PH = a['PH'],
-##                                 ODP = a['ODP'],
-##                                 GWP20 = a['GWP20'],
-##                                 GWP100 = a['GWP100'],
-##                                 GWP500 = a['GWP500'],
-##                                 ASHRAE34 = a['ASHRAE34'],
-##                                 )
-##         f.write(chunk)
-##                             
-## f.write('}')
-## f.close()

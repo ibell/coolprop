@@ -5,6 +5,19 @@ from scipy.interpolate import interp1d
 import CoolProp.CoolProp as CP
 
 
+class IsoLine(object):
+    def __init__(self):
+        self.DEBUG = False
+        
+        # direct geometry 
+        self.X     = None # 
+        self.Y     = None # 
+        self.type  = None # 
+        self.value = None #
+        self.unit  = None #
+        self.opts  = None #
+
+
 def InlineLabel(xv,yv,x = None, y= None, axis = None, fig = None):
     """
     This will give the coordinates and rotation required to align a label with
@@ -176,12 +189,16 @@ def plotRound(values):
     input   = numpy.unique(numpy.sort(numpy.array(values)))
     output  = input[1:] * 0.0 
     digits  = -1
+    limit   = 10
+    lim     = input * 0.0 + 10 
     # remove less from the numbers until same length, 
     # more than 10 significant digits does not really 
     # make sense, does it?
-    while len(input) > len(output) and digits < 10:
-        digits += 1  
-        val     = (numpy.around(numpy.log10(numpy.abs(input))) * -1) + digits + 1
+    while len(input) > len(output) and digits < limit:
+        digits += 1
+        val     = ( numpy.around(numpy.log10(numpy.abs(input))) * -1) + digits + 1
+        val     = numpy.where(val < lim, val,  lim)
+        val     = numpy.where(val >-lim, val, -lim)
         output  = numpy.zeros(input.shape)
         for i in range(len(input)):
             output[i] = numpy.around(input[i],decimals=int(val[i]))
@@ -192,7 +209,7 @@ def plotRound(values):
     return output 
         
 
-def getIsoLines(Ref, plot, iName, iValues=[], num=0, axis=None):
+def getIsoLines(Ref, plot, iName, iValues=[], num=0, grid=500, axis=None):
     """
     This is the core method to obtain lines in the dimensions defined
     by 'plot' that describe the behaviour of fluid 'Ref'. The constant 
@@ -206,7 +223,8 @@ def getIsoLines(Ref, plot, iName, iValues=[], num=0, axis=None):
     
     Returns lines[num] - an array of dicts containing 'x' and 'y' 
     coordinates for bubble and dew line. Additionally, the dict holds 
-    the keys 'label' and 'opts', those can be used for plotting as well.
+    the keys 'type', 'value', 'unit' and 'opts', those can be used for 
+    plotting as well.
     """
     if axis is None:
         axis=matplotlib.pyplot.gca()
@@ -310,7 +328,7 @@ def getIsoLines(Ref, plot, iName, iValues=[], num=0, axis=None):
         xmax = Axmax
 
     # Calculate the points
-    x0 = numpy.linspace(xmin,xmax,1000.)
+    x0 = numpy.linspace(xmin,xmax,grid)
 
     patterns = {
       'P' : (lambda x: numpy.logspace(math.log(x[0],2.), math.log(x[1],2.), num=x[2], base=2.)),
@@ -353,10 +371,13 @@ def getIsoLines(Ref, plot, iName, iValues=[], num=0, axis=None):
     lines = []
     for j in range(len(X)):
         line = {
-          'x' : X[j],
-          'y' : Y[j],
-          'label' : _getIsoLineLabel(iName,iVal[j]),
-          'opts': { 'color':getIsoLineColour(iName), 'lw':0.75, 'alpha':0.5 }
+          'x'     : X[j],
+          'y'     : Y[j],
+          #'label' : _getIsoLineLabel(iName,iVal[j]),
+          'type'  : iName,
+          'value' : iVal[j],
+          'unit'  : _getIsoLineUnit(iName),
+          'opts'  : { 'color':getIsoLineColour(iName), 'lw':0.75, 'alpha':0.5 }
           }
         lines.append(line)
         
@@ -448,7 +469,7 @@ def _setBounds(Ref, plot, axis=None):
     return ((cuiX,cuaX),(cuiY,cuaY))
 
 
-def _getSatLines(Ref, plot, kind=None, kmin=None, kmax=None, x=[0.,1.]):
+def _getSatLines(Ref, plot, kind=None, kmin=None, kmax=None, grid=500, x=[0.,1.]):
     """
     Calculates bubble and dew line in the quantities for your plot. 
     
@@ -472,7 +493,7 @@ def _getSatLines(Ref, plot, kind=None, kmin=None, kmax=None, x=[0.,1.]):
         kind = 'T' 
     
     (kmin,kmax) = _satBounds(Ref, kind, xmin=kmin, xmax=kmax)   
-    k0          = numpy.linspace(kmin,kmax,1000)
+    k0          = numpy.linspace(kmin,kmax,grid)
     
     iName       = 'Q'
     iVal        = x
@@ -498,13 +519,22 @@ def _getSatLines(Ref, plot, kind=None, kmin=None, kmax=None, x=[0.,1.]):
           'kmax' : kmax
           }
         if iVal[j]==0.:
-            line['label'] = 'bubble line'
+            #line['label'] = 'bubble line'
+            line['type']  = iName
+            line['value'] = iVal[j]
+            line['unit']  = _getIsoLineUnit(iName)
             line['opts'] = { 'color':getIsoLineColour(iName), 'lw':1.00 }
         elif iVal[j]==1.:
-            line['label'] = 'dew line'
+            #line['label'] = 'dew line'
+            line['type']  = iName
+            line['value'] = iVal[j]
+            line['unit']  = _getIsoLineUnit(iName)
             line['opts'] = { 'color':getIsoLineColour(iName), 'lw':1.00 }
         else:
-            line['label'] = _getIsoLineLabel(iName,iVal[j]),
+            #line['label'] = _getIsoLineLabel(iName,iVal[j]),
+            line['type']  = iName
+            line['value'] = iVal[j]
+            line['unit']  = _getIsoLineUnit(iName)
             line['opts'] = { 'color':getIsoLineColour(iName), 'lw':0.75, 'alpha':0.5}
         
         lines.append(line)
@@ -570,7 +600,7 @@ def _getIsoLineIds(plot):
     # Changing the XY coordinates allows for more
     # combinations of isolines.
     plots = {
-      'TS' : ['P','D'],#,'H'],
+      'TS' : ['P','D','H'],
       'PH' : ['S','T','D'],
       'HS' : ['P'],#,'T','D'],
       'PS' : ['H','T','D'],
@@ -578,7 +608,7 @@ def _getIsoLineIds(plot):
       'TD' : ['P'],#,'S','H'],
       'PT' : ['D','P','S']
     }
-    return plots[str(plot)]
+    return plots[str(plot).upper()]
 
 
 def getIsoLineColour(which):
@@ -598,21 +628,32 @@ def getIsoLineColour(which):
       'S' : 'DarkOrange',
       'Q' : 'black'
     }
-    return colourMap[str(which)]
+    return colourMap[str(which).upper()]
 
 
-def _getIsoLineLabel(which,num):
-    labelMap = {                 
-      'T' : [r'$T = ','$ K'],
-      'P' : [r'$p = ','$ kPa'],
-      'H' : [r'$h = ','$ kJ/kg'],
-      'D' : [r'$\rho = ','$ kg/m$^3$'],
-      'S' : [r'$s = ','$ kJ/kg-K'],
-      'Q' : [r'$x = ','$']
+#def _getIsoLineLabel(which,num):
+#    labelMap = {
+#      'T' : [r'$T = ','$ K'],
+#      'P' : [r'$p = ','$ kPa'],
+#      'H' : [r'$h = ','$ kJ/kg'],
+#      'D' : [r'$\rho = ','$ kg/m$^3$'],
+#      'S' : [r'$s = ','$ kJ/kg-K'],
+#      'Q' : [r'$x = ','$']
+#    }
+#    l = labelMap[str(which).upper()]
+#    val = l[0]+str(num)+l[1]
+#    return val
+
+def _getIsoLineUnit(which):
+    unitMap = {
+      'T' : 'K',
+      'P' : 'kPa',
+      'H' : 'kJ/kg',
+      'D' : 'kg/m$^3$',
+      'S' : 'kJ/kg-K',
+      'Q' : ''
     }
-    l = labelMap[str(which)]
-    val = l[0]+str(num)+l[1]
-    return val
+    return unitMap[str(which).upper()]
 
     
 def Ts(Ref,Tmin=None, Tmax=None, show=False, axis=None, **kwargs):

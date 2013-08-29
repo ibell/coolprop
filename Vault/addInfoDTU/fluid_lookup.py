@@ -160,8 +160,7 @@ R404A	A1
 R507A	A1
 R410A	A1
 R407C	A1
-PROPANE A3
-"""
+PROPANE	A3"""
 
 ASHRAE34_dict = {}
 for row in ASHRAE34data.split('\n'):
