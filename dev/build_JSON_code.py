@@ -33,7 +33,7 @@ def hsatVmax(fluid):
     return h,T,s,rho
     
 def fit_hs(fluid):
-    T = np.linspace(Props(fluid, 'Tmin'), Props(fluid, 'Tcrit'))
+    T = np.linspace(Props(fluid, 'Tmin'), Props(fluid, 'Tcrit')-2)
     sL = Props('S', 'T', T, 'Q', 0, fluid)
     hL = Props('H', 'T', T, 'Q', 0, fluid)
     a = np.polyfit(sL,hL,4)
