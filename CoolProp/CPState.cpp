@@ -624,7 +624,7 @@ void CoolPropStateClass::update_hs(long iInput1, double Value1, long iInput2, do
 	s_cached = true;
 
 	// Solve for temperature and density
-	pFluid->temperature_hs(Value1, Value2,&_T,&_rho,&rhosatL,&rhosatV,&TsatL,&TsatV);
+	pFluid->temperature_hs(_h, _s, &_T,&_rho,&rhosatL,&rhosatV,&TsatL,&TsatV);
 
 	// Reduced parameters
 	double delta = this->_rho/pFluid->reduce.rho;
@@ -921,7 +921,7 @@ double CoolPropStateClass::keyed_output(long iOutput)
 		case iMM:
 			return pFluid->params.molemass;
 		case iPcrit:
-			return convert_from_SI_to_unit_system(iP, pFluid->crit.p.Pa,get_standard_unit_system());
+			return convert_from_SI_to_unit_system(iP, pFluid->crit.p.Pa, get_standard_unit_system());
 		case iTcrit:
 			return pFluid->crit.T;
 		case iTreduce:
