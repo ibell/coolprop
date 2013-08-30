@@ -30,7 +30,7 @@ def hsatVmax(fluid):
     s = Props('S','T',T,'Q',1,fluid)
     rho = Props('D','T',T,'Q',1,fluid)
     
-    return h,T,s,rho
+    return h*1000,T,s*1000,rho
     
 def fit_hs(fluid):
     T = np.linspace(Props(fluid, 'Tmin'), Props(fluid, 'Tcrit')-2)
