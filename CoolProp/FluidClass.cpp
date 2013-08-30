@@ -552,20 +552,18 @@ void Fluid::post_load(rapidjson::Document &JSON)
 	reduce.h = enthalpy_Trho(reduce.T, reduce.rho);
 	reduce.s = entropy_Trho(reduce.T, reduce.rho);
 
-	// Set the triple-point pressure if not set in code
+	//// Limits for the entropy at the minimum temperature (usually the triple point temperature)
+	double pL,pV,rhoL,rhoV;
+	saturation_T(limits.Tmin, false, &pL, &pV, &rhoL, &rhoV);
+	HS.sV_Tmin = entropy_Trho(limits.Tmin, rhoV);
+	HS.sL_Tmin = entropy_Trho(limits.Tmin, rhoL);
+	HS.hV_Tmin = enthalpy_Trho(limits.Tmin, rhoV);
+	HS.hL_Tmin = enthalpy_Trho(limits.Tmin, rhoL);
+
+	// Set the triple-point pressure, over-writing whatever is provided by the class
 	// Use the dewpoint pressure for pseudo-pure fluids
-	if ( fabs(params.ptriple)>1e9 ){
-		double pL, pV, rhoL, rhoV;
-		if (params.Ttriple <= limits.Tmin)
-		{
-			saturation_T(limits.Tmin, false, &pL, &pV, &rhoL, &rhoV);
-		}
-		else
-		{
-			saturation_T(params.Ttriple, false, &pL, &pV, &rhoL, &rhoV);
-		}
-		params.ptriple = pV;
-	}
+	params.ptriple = pV;
+
 	//// Instantiate the ancillary curve classes
 	h_ancillary = new AncillaryCurveClass(this,std::string("H"));
 	s_ancillary = new AncillaryCurveClass(this,std::string("S"));
@@ -593,13 +591,7 @@ void Fluid::post_load(rapidjson::Document &JSON)
 	HS.a_hs_satL = JSON_lookup_dblvector(JSON,this->name,"a_hs_satL");
 	HS.n_hs_satL = JSON_lookup_intvector(JSON,this->name,"n_hs_satL");
 	
-	//// Limits for the entropy at the minimum temperature (usually the triple point temperature)
-	double pL,pV,rhoL,rhoV;
-	saturation_T(limits.Tmin, false, &pL, &pV, &rhoL, &rhoV);
-	HS.sV_Tmin = entropy_Trho(limits.Tmin, rhoV);
-	HS.sL_Tmin = entropy_Trho(limits.Tmin, rhoL);
-	HS.hV_Tmin = enthalpy_Trho(limits.Tmin, rhoV);
-	HS.hL_Tmin = enthalpy_Trho(limits.Tmin, rhoL);
+	
 }
 //--------------------------------------------
 //    Residual Part
@@ -1517,16 +1509,9 @@ void Fluid::rhosatPure_Akasaka(double T, double *rhoLout, double *rhoVout, doubl
 	}
 	while (error > 1e-13*error && fabs(stepL) > 10*DBL_EPSILON*fabs(stepL) && fabs(stepV) > 10*DBL_EPSILON*fabs(stepV));
 	
-	if (fabs(PL-PV)/PV > 1e-8)
-	{	
-		rhosatPure(T,rhoLout,rhoVout,pout,1);
-	}
-	else
-	{
-		*rhoLout = deltaL*reduce.rho;
-		*rhoVout = deltaV*reduce.rho;
-		*pout = 0.5*(PL+PV);
-	}
+	*rhoLout = deltaL*reduce.rho;
+	*rhoVout = deltaV*reduce.rho;
+	*pout = 0.5*(PL+PV);
 	
 	
 	return;
