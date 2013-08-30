@@ -1439,8 +1439,8 @@ void Fluid::rhosatPure_Akasaka(double T, double *rhoLout, double *rhoVout, doubl
 
 	Ancillary equations are used to get a sensible starting point
 	*/
-	double rhoL,rhoV,dphirL,dphirV,ddphirL,ddphirV,phirL,phirV,JL,JV,KL,KV,dJL,dJV,dKL,dKV;
-	double DELTA, deltaL=0, deltaV=0, tau=0, error, PL, PV, stepL, stepV, dP;
+	long double rhoL,rhoV,dphirL,dphirV,ddphirL,ddphirV,phirL,phirV,JL,JV,KL,KV,dJL,dJV,dKL,dKV;
+	long double DELTA, deltaL=0, deltaV=0, tau=0, error, PL, PV, stepL, stepV, dP;
 	int iter=0;
 	// Use the density ancillary function as the starting point for the solver
     try
@@ -1481,14 +1481,12 @@ void Fluid::rhosatPure_Akasaka(double T, double *rhoLout, double *rhoVout, doubl
 		phirL = phir(tau,deltaL);
 		phirV = phir(tau,deltaV);
 		
-		PL = R()*T*deltaL*reduce.rho*(1.0+deltaL*dphirL);
-		PV = R()*T*deltaV*reduce.rho*(1.0+deltaV*dphirV);
-		dP = PL-PV;
-
 		JL = deltaL * (1 + deltaL*dphirL);
 		JV = deltaV * (1 + deltaV*dphirV);
 		KL = deltaL*dphirL + phirL + log(deltaL);
 		KV = deltaV*dphirV + phirV + log(deltaV);
+		
+		// At low pressure, the magnitude of ddphirL and ddphirV are enormous, truncation problems arise for all the partials
 		dJL = 1 + 2*deltaL*dphirL + deltaL*deltaL*ddphirL;
 		dJV = 1 + 2*deltaV*dphirV + deltaV*deltaV*ddphirV;
 		dKL = 2*dphirL + deltaL*ddphirL + 1/deltaL;
@@ -1517,7 +1515,7 @@ void Fluid::rhosatPure_Akasaka(double T, double *rhoLout, double *rhoVout, doubl
 			throw SolutionError(format("Akasaka solver did not converge after 100 iterations"));
 		}
 	}
-	while (error > 1e-10);
+	while (error > 1e-13*error && fabs(stepL) > 10*DBL_EPSILON*fabs(stepL) && fabs(stepV) > 10*DBL_EPSILON*fabs(stepV));
 	
 	if (fabs(PL-PV)/PV > 1e-8)
 	{	
@@ -1575,7 +1573,7 @@ void Fluid::rhosatPure(double T, double *rhoLout, double *rhoVout, double *pout,
         if (iter>100)
         {
         	//ERROR
-            printf("rhosatPure failed, current values of rhoL and rhoV are %g,%g\n",rhoL,rhoV);
+            throw SolutionError(format("rhosatPure failed, current values of rhoL and rhoV are %g,%g\n",rhoL,rhoV).c_str());
             *rhoLout=_HUGE;
             *rhoVout=_HUGE;
             *pout=_HUGE;
