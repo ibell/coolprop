@@ -32,6 +32,8 @@
 #define numparams 72 
 #define maxcoefs 50
 
+std::vector<double> x(ncmax,0);
+
 std::string LoadedREFPROPRef;
 
 #if defined(__ISWINDOWS__)
@@ -515,7 +517,7 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 
 	long ierr=0,iOutput,iName1,iName2;
 	char herr[errormessagelength+1];
-	double x[ncmax],xliq[ncmax],xvap[ncmax];
+	double xliq[ncmax],xvap[ncmax];
 	
 	double T,p=0,d,dl,dv,dl_,dv_,q,e,h,s,cv,cp,w,MW,hl,hv,sl,sv,ul,
 		uv,pl,pv,hjt,eta,tcx,Q,Tcrit,pcrit,dcrit,rho,sigma;
@@ -523,7 +525,7 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 	// First create a pointer to an instance of the library
 	load_REFPROP();
 	
-	set_REFPROP_fluid(Ref, x);
+	set_REFPROP_fluid(Ref, &(x[0]) );
 	
 	strcpy(herr,"Ok");
 	
@@ -532,11 +534,11 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 	iName2 = get_param_index(Name2);
 	
 	// Get the molar mass of the fluid
-	WMOLdll(x,&MW);	
+	WMOLdll(&(x[0]),&MW);	
 	if (iOutput == iTcrit)
 	{
 		// Critical temperature
-		CRITPdll(x,&Tcrit,&pcrit,&dcrit,&ierr,herr,255); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
+		CRITPdll(&(x[0]),&Tcrit,&pcrit,&dcrit,&ierr,herr,255); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
 		return Tcrit;
 	}
 	else if (iOutput==iMM)
@@ -547,13 +549,13 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 	else if (iOutput==iPcrit)
 	{
 		// Critical pressure
-		CRITPdll(x,&Tcrit,&pcrit,&dcrit,&ierr,herr,255); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
+		CRITPdll(&(x[0]),&Tcrit,&pcrit,&dcrit,&ierr,herr,255); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
 		return pcrit;
 	}
 	else if (iOutput ==iRhocrit)
 	{
 		// Critical density
-		CRITPdll(x,&Tcrit,&pcrit,&dcrit,&ierr,herr,255); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
+		CRITPdll(&(x[0]),&Tcrit,&pcrit,&dcrit,&ierr,herr,255); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
 		return dcrit*MW;
 		
 	}
@@ -561,7 +563,7 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 	{
 		// Minimum temperature
 		double tmin,tmax,Dmax,pmax;
-		LIMITSdll((char *)"EOS",x,&tmin,&tmax,&Dmax,&pmax,255); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
+		LIMITSdll((char *)"EOS",&(x[0]),&tmin,&tmax,&Dmax,&pmax,255); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
 		return tmin;
 	}
 	else if (iOutput == iAccentric)
@@ -605,7 +607,7 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 	else if (iOutput==iI)
 	{
 		if (iName1==iT){
-			SURFTdll(&Prop1,&dl,x,&sigma,&i,herr,errormessagelength); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
+			SURFTdll(&Prop1,&dl,&(x[0]),&sigma,&i,herr,errormessagelength); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
 			return sigma;
 		}
 		else{
@@ -626,7 +628,7 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 		if (iOutput == iT){ return T; }
 
 		// Use flash routine to find properties
-		TPFLSHdll(&T,&p,x,&d,&dl,&dv,xliq,xvap,&q,&e,&h,&s,&cv,&cp,&w,&ierr,herr,errormessagelength); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
+		TPFLSHdll(&T,&p,&(x[0]),&d,&dl,&dv,xliq,xvap,&q,&e,&h,&s,&cv,&cp,&w,&ierr,herr,errormessagelength); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
 		
 		if (iOutput==iH) return h/MW;
 		else if (iOutput==iD) return d*MW;
@@ -637,12 +639,12 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 		else if (iOutput==iA) return w;
 		else if (iOutput==iV) 
 		{
-			TRNPRPdll(&T,&d,x,&eta,&tcx,&ierr,herr,errormessagelength); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
+			TRNPRPdll(&T,&d,&(x[0]),&eta,&tcx,&ierr,herr,errormessagelength); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
 			return eta/1.0e6; //uPa-s to Pa-s
 		} 
 		else if (iOutput==iL)
 		{
-			TRNPRPdll(&T,&d,x,&eta,&tcx,&ierr,herr,errormessagelength); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
+			TRNPRPdll(&T,&d,&(x[0]),&eta,&tcx,&ierr,herr,errormessagelength); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
 			return tcx/1000.0; //W/m-K to kW/m-K
 		}
 		else
@@ -659,7 +661,7 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 		if (iOutput==iD) { return Prop2; }
 		
 		// This is the explicit formulation of the EOS
-		TDFLSHdll(&T,&rho,x,&p,&dl,&dv,xliq,xvap,&q,&e,&h,&s,&cv,&cp,&w,&ierr,herr,errormessagelength); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
+		TDFLSHdll(&T,&rho,&(x[0]),&p,&dl,&dv,xliq,xvap,&q,&e,&h,&s,&cv,&cp,&w,&ierr,herr,errormessagelength); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
 		if (iOutput==iP)
 		{
 			return p;
@@ -694,12 +696,12 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 		}
 		else if (iOutput==iV) 
 		{
-			TRNPRPdll(&T,&rho,x,&eta,&tcx,&ierr,herr,errormessagelength); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
+			TRNPRPdll(&T,&rho,&(x[0]),&eta,&tcx,&ierr,herr,errormessagelength); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
 			return eta/1.0e6; //uPa-s to Pa-s
 		} 
 		else if (iOutput==iL)
 		{
-			TRNPRPdll(&T,&rho,x,&eta,&tcx,&ierr,herr,errormessagelength); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
+			TRNPRPdll(&T,&rho,&(x[0]),&eta,&tcx,&ierr,herr,errormessagelength); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
 			return tcx/1000.0; //W/m-K to kW/m-K
 		}
 		else
@@ -719,9 +721,9 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 
 		// Saturation Density
 		ic=1;
-		SATTdll(&T,x,&ic,&pl,&dl,&dv_,xliq,xvap,&ierr,herr,errormessagelength); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
+		SATTdll(&T,&(x[0]),&ic,&pl,&dl,&dv_,xliq,xvap,&ierr,herr,errormessagelength); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
 		ic=2;
-		SATTdll(&T,x,&ic,&pv,&dl_,&dv,xliq,xvap,&ierr,herr,errormessagelength); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
+		SATTdll(&T,&(x[0]),&ic,&pv,&dl_,&dv,xliq,xvap,&ierr,herr,errormessagelength); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
 		if (iOutput==iD) 
 		{
 			return 1/(Q/dv+(1-Q)/dl)*MW;
@@ -733,7 +735,7 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 		else if (iOutput==iA)
 		{
 			rho=1/(Q/dv+(1-Q)/dl);
-			THERMdll(&T,&rho,x,&p,&e,&h,&s,&cv,&cp,&w,&hjt); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
+			THERMdll(&T,&rho,&(x[0]),&p,&e,&h,&s,&cv,&cp,&w,&hjt); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
 			return w;
 		}
 		else if (iOutput==iH) 
@@ -760,25 +762,25 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 		else if (iOutput==iC) 
 		{
 			d=1/(Q/dv+(1-Q)/dl);
-			CVCPdll(&T,&d,x,&cv,&cp); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
+			CVCPdll(&T,&d,&(x[0]),&cv,&cp); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
 			return cp/MW; // J/kg-K to kJ/kg-K
 		}
 		else if (iOutput==iO) 
 		{
 			d=1/(Q/dv+(1-Q)/dl);
-			CVCPdll(&T,&d,x,&cv,&cp); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
+			CVCPdll(&T,&d,&(x[0]),&cv,&cp); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
 			return cv/MW; // J/kg-K to kJ/kg-K
 		}
 		else if (iOutput==iV) 
 		{
 			d=1/(Q/dv+(1-Q)/dl);
-			TRNPRPdll(&T,&d,x,&eta,&tcx,&ierr,herr,errormessagelength); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
+			TRNPRPdll(&T,&d,&(x[0]),&eta,&tcx,&ierr,herr,errormessagelength); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
 			return eta/1.0e6; //uPa-s to Pa-s
 		}
 		else if (iOutput==iL) 
 		{
 			d=1/(Q/dv+(1-Q)/dl);
-			TRNPRPdll(&T,&d,x,&eta,&tcx,&ierr,herr,errormessagelength); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
+			TRNPRPdll(&T,&d,&(x[0]),&eta,&tcx,&ierr,herr,errormessagelength); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
 			return tcx/1000.0; //W/m-K to kW/m-K
 		}
 		else
@@ -796,10 +798,10 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 		
 		// Saturation Density for the liquid
 		long kph = 1;
-		SATPdll(&p,x,&kph,&T,&dl,&dummy,xliq,xvap,&ierr,herr,errormessagelength); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
+		SATPdll(&p,&(x[0]),&kph,&T,&dl,&dummy,xliq,xvap,&ierr,herr,errormessagelength); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
 		// Saturation density for the vapor
 		kph = 2;
-		SATPdll(&p,x,&kph,&T,&dummy,&dv,xliq,xvap,&ierr,herr,errormessagelength); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
+		SATPdll(&p,&(x[0]),&kph,&T,&dummy,&dv,xliq,xvap,&ierr,herr,errormessagelength); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
 		if (iOutput==iT)
 		{
 			return T;
@@ -837,31 +839,31 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 		else if (iOutput==iC) 
 		{
 			d=1/(Q/dv+(1-Q)/dl);
-			CVCPdll(&T,&d,x,&cv,&cp); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
+			CVCPdll(&T,&d,&(x[0]),&cv,&cp); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
 			return cp/MW; // J/kg-K to kJ/kg-K
 		}
 		else if (iOutput==iO) 
 		{
 			d=1/(Q/dv+(1-Q)/dl);
-			CVCPdll(&T,&d,x,&cv,&cp); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
+			CVCPdll(&T,&d,&(x[0]),&cv,&cp); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
 			return cv/MW; // J/kg-K to kJ/kg-K
 		}
 		else if (iOutput==iA)
 		{
 			rho=1/(Q/dv+(1-Q)/dl);
-			THERMdll(&T,&rho,x,&p,&e,&h,&s,&cv,&cp,&w,&hjt); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
+			THERMdll(&T,&rho,&(x[0]),&p,&e,&h,&s,&cv,&cp,&w,&hjt); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
 			return w;
 		}
 		else if (iOutput==iV) 
 		{
 			d=1/(Q/dv+(1-Q)/dl);
-			TRNPRPdll(&T,&d,x,&eta,&tcx,&ierr,herr,errormessagelength); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
+			TRNPRPdll(&T,&d,&(x[0]),&eta,&tcx,&ierr,herr,errormessagelength); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
 			return eta/1.0e6; //uPa-s to Pa-s
 		}
 		else if (iOutput==iL) 
 		{
 			d=1/(Q/dv+(1-Q)/dl);
-			TRNPRPdll(&T,&d,x,&eta,&tcx,&ierr,herr,errormessagelength); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
+			TRNPRPdll(&T,&d,&(x[0]),&eta,&tcx,&ierr,herr,errormessagelength); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
 			return tcx/1000.0; //W/m-K to kW/m-K
 		}
 		else
@@ -876,7 +878,7 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 		p = Prop1; h = Prop2*MW;
 		
 		// Use flash routine to find properties
-		PHFLSHdll(&p,&h,x,&T,&d,&dl,&dv,xliq,xvap,&q,&e,&s,&cv,&cp,&w,&ierr,herr,errormessagelength); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
+		PHFLSHdll(&p,&h,&(x[0]),&T,&d,&dl,&dv,xliq,xvap,&q,&e,&s,&cv,&cp,&w,&ierr,herr,errormessagelength); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
 		if (iOutput==iH) return h/MW;
 		else if (iOutput==iT) return T;
 		else if (iOutput==iD) return d*MW;
@@ -889,12 +891,12 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 		else if (iOutput==iQ) return q;
 		else if (iOutput==iV) 
 		{
-			TRNPRPdll(&T,&d,x,&eta,&tcx,&ierr,herr,errormessagelength); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
+			TRNPRPdll(&T,&d,&(x[0]),&eta,&tcx,&ierr,herr,errormessagelength); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
 			return eta/1.0e6; //uPa-s to Pa-s
 		} 
 		else if (iOutput==iL)
 		{
-			TRNPRPdll(&T,&d,x,&eta,&tcx,&ierr,herr,errormessagelength); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
+			TRNPRPdll(&T,&d,&(x[0]),&eta,&tcx,&ierr,herr,errormessagelength); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
 			return tcx/1000.0; //W/m-K to kW/m-K
 		}
 		else
@@ -909,7 +911,7 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 		p = Prop1; s = Prop2*MW;
 		
 		// Use flash routine to find properties
-		PSFLSHdll(&p,&s,x,&T,&d,&dl,&dv,xliq,xvap,&q,&e,&h,&cv,&cp,&w,&ierr,herr,errormessagelength); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
+		PSFLSHdll(&p,&s,&(x[0]),&T,&d,&dl,&dv,xliq,xvap,&q,&e,&h,&cv,&cp,&w,&ierr,herr,errormessagelength); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
 		if (iOutput==iH) return h/MW;
 		else if (iOutput==iT) return T;
 		else if (iOutput==iD) return d*MW;
@@ -921,12 +923,12 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 		else if (iOutput==iA) return w;
 		else if (iOutput==iV) 
 		{
-			TRNPRPdll(&T,&d,x,&eta,&tcx,&ierr,herr,errormessagelength); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
+			TRNPRPdll(&T,&d,&(x[0]),&eta,&tcx,&ierr,herr,errormessagelength); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
 			return eta/1.0e6; //uPa-s to Pa-s
 		} 
 		else if (iOutput==iL)
 		{
-			TRNPRPdll(&T,&d,x,&eta,&tcx,&ierr,herr,errormessagelength); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
+			TRNPRPdll(&T,&d,&(x[0]),&eta,&tcx,&ierr,herr,errormessagelength); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
 			return tcx/1000.0; //W/m-K to kW/m-K
 		}
 		else
@@ -941,7 +943,7 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 		h = Prop1*MW; s = Prop2*MW;
 		
 		// Use flash routine to find properties
-		HSFLSHdll(&h,&s,x,&T,&p,&d,&dl,&dv,xliq,xvap,&q,&e,&cv,&cp,&w,&ierr,herr,errormessagelength); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
+		HSFLSHdll(&h,&s,&(x[0]),&T,&p,&d,&dl,&dv,xliq,xvap,&q,&e,&cv,&cp,&w,&ierr,herr,errormessagelength); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
 		if (iOutput==iH) return h/MW;
 		else if (iOutput==iT) return T;
 		else if (iOutput==iD) return d*MW;
@@ -954,12 +956,12 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 		else if (iOutput==iQ) return q;
 		else if (iOutput==iV) 
 		{
-			TRNPRPdll(&T,&d,x,&eta,&tcx,&ierr,herr,errormessagelength); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
+			TRNPRPdll(&T,&d,&(x[0]),&eta,&tcx,&ierr,herr,errormessagelength); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
 			return eta/1.0e6; //uPa-s to Pa-s
 		} 
 		else if (iOutput==iL)
 		{
-			TRNPRPdll(&T,&d,x,&eta,&tcx,&ierr,herr,errormessagelength); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
+			TRNPRPdll(&T,&d,&(x[0]),&eta,&tcx,&ierr,herr,errormessagelength); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
 			return tcx/1000.0; //W/m-K to kW/m-K
 		}
 		else
@@ -975,7 +977,7 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 		
 		// Use flash routine to find properties
 		// from REFPROP: subroutine PDFLSH (p,D,z,t,Dl,Dv,x,y,q,e,h,s,cv,cp,w,ierr,herr)
-		PDFLSHdll(&p,&d,x,&T,&dl,&dv,xliq,xvap,&q,&e,&h,&s,&cv,&cp,&w,&ierr,herr,errormessagelength); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
+		PDFLSHdll(&p,&d,&(x[0]),&T,&dl,&dv,xliq,xvap,&q,&e,&h,&s,&cv,&cp,&w,&ierr,herr,errormessagelength); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
 		if (iOutput==iH) return h/MW;
 		else if (iOutput==iT) return T;
 		else if (iOutput==iD) return d*MW;
@@ -988,12 +990,12 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 		else if (iOutput==iQ) return q;
 		else if (iOutput==iV) 
 		{
-			TRNPRPdll(&T,&d,x,&eta,&tcx,&ierr,herr,errormessagelength); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
+			TRNPRPdll(&T,&d,&(x[0]),&eta,&tcx,&ierr,herr,errormessagelength); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
 			return eta/1.0e6; //uPa-s to Pa-s
 		} 
 		else if (iOutput==iL)
 		{
-			TRNPRPdll(&T,&d,x,&eta,&tcx,&ierr,herr,errormessagelength); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
+			TRNPRPdll(&T,&d,&(x[0]),&eta,&tcx,&ierr,herr,errormessagelength); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
 			return tcx/1000.0; //W/m-K to kW/m-K
 		}
 		else
