@@ -339,22 +339,26 @@ bool load_REFPROP()
 //				}
 //				printf(lpBuffer);
 //				printf("\n");
-				printf("Could not load refprop.dll\n\n");
+				              printf("Could not load refprop.dll \n\n");
+				throw AttributeError("Could not load refprop.dll, make sure it is in your system search path.");
 			#elif defined(__ISLINUX__)
 				fputs (dlerror(), stderr);
-				printf("Could not load librefprop.so\n\n");
+				              printf("Could not load librefprop.so \n\n");
+				throw AttributeError("Could not load librefprop.so, make sure it is in your system search path.");
 			#elif defined(__ISAPPLE__)
 				fputs (dlerror(), stderr);
-				printf("Could not load librefprop.dylib\n\n");
+				              printf("Could not load librefprop.dylib \n\n");
+				throw AttributeError("Could not load librefprop.dylib, make sure it is in your system search path.");
 			#else
-				throw NotImplementedError("You should not be here.");
+				throw NotImplementedError("Something is wrong with the platform definition, you should not end up here.");
 			#endif
 			return false;
 		}
 
 		if (setFunctionPointers()!=OK)
 		{
-			printf("There was an error setting the REFPROP function pointers, check types and names in header file.\n");
+			              printf("There was an error setting the REFPROP function pointers, check types and names in header file.\n");
+			throw AttributeError("There was an error setting the REFPROP function pointers, check types and names in header file.");
 			return false;
 		}
 		return true;
