@@ -3,7 +3,11 @@
 
 double convert_from_unit_system_to_SI(long iInput, double value, int old_system)
 {
-	PressureUnit PU;
+	if (old_system == UNIT_SYSTEM_SI)
+	{
+		return value;
+	}
+
 	switch (iInput)
 	{
 	case iP:
@@ -26,13 +30,12 @@ double convert_from_unit_system_to_SI(long iInput, double value, int old_system)
 	case iT:
 		return value;
 	default:
-		return value;
+		throw ValueError(format("index [%d] is invalid",iInput).c_str());
 	}
 }
 
 double convert_from_SI_to_unit_system(long iInput, double value, int new_system)
 {
-	PressureUnit PU;
 	if (new_system == UNIT_SYSTEM_SI)
 	{
 		return value;
@@ -60,6 +63,6 @@ double convert_from_SI_to_unit_system(long iInput, double value, int new_system)
 	case iT:
 		return value;
 	default:
-		return value;
+		throw ValueError(format("index [%d] is invalid",iInput).c_str());
 	}
 }

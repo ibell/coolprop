@@ -23,16 +23,7 @@ You might want to start by looking at CoolProp.h
 	#include "FluidClass.h"
 	#include "CoolPropDLL.h"
 	#include "Units.h"
-	
-	// Functions with the call type like
-    // EXPORT_CODE void CONVENTION AFunction(double, double);
-	// will be exported to the DLL
 
-	// ------------------------------------------------------------------------------------------------
-	// All the functions below this comment do NOT get exported to REFPROP DLL due to the fact that the 
-	// DLL MUST use extern "C" for all exported functions, which does not allow for function overloads 
-	// or the use of any c++ types like std::string or std::vector
-	// ------------------------------------------------------------------------------------------------
 	double Props(std::string Fluid,std::string Output);
 	double Props(char *Fluid, char *Output);
 	double Props1(std::string Fluid,std::string Output);
@@ -43,9 +34,7 @@ You might want to start by looking at CoolProp.h
 	double DerivTerms(char *Term, double T, double rho, Fluid * pFluid, bool SinglePhase, bool TwoPhase);
 
 	std::string get_global_param_string(std::string ParamName);
-	//double get_global_param_double(std::string ParamName);
 	std::string get_fluid_param_string(std::string FluidName, std::string ParamName);
-	//double get_fluid_param_double(std::string FluidName, std::string ParamName);
 
 	// Getter and setter for debug level
 	// ---------------------------------

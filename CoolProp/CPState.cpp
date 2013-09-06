@@ -105,7 +105,6 @@ double CoolPropStateClass::superheat(void){
 	return _T - Tsat(1.0);
 }
 
-
 void CoolPropStateClass::check_saturated_quality(double Q){
 	double mach_eps = 10*DBL_EPSILON;
 
