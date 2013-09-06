@@ -110,7 +110,7 @@ cpdef double IProps(long iOutput, long iInput1, double Input1, long iInput2, dou
         #  This should be run using the cached values - much faster !
         IProps(param_constants.iP,param_constants.iT,0.8*Tc,param_constants.iQ,1,iPropane)
         
-    The reason that this function is significantly faster than Props is that it skips all the string comparisons which slows down the Props function quite a lot.  At the C++ level, IProps
+    The reason that this function is significantly faster than Props is that it skips all the string comparisons which slows down the Props function quite a lot.  At the C++ level, IProps doesn't use any strings and operates on integers and floating point values
     """
     cdef double val = _IProps(iOutput, iInput1, Input1, iInput2, Input2, iFluid)
     

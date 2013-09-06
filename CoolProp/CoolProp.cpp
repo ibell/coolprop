@@ -45,22 +45,18 @@ static Fluid * pFluid;
 
 // This is very hacky, but pull the git revision from the file
 #include "gitrevision.h" // Contents are like "long gitrevision = "aa121435436ggregrea4t43t433";"
-#include "version.h" // Contents are like "char version [] ="2.5";"
+#include "version.h" // Contents are like "char version [] = "2.5";"
 
 int global_Phase = -1;
 bool global_SinglePhase = false;
 bool global_SaturatedL = false;
 bool global_SaturatedV = false;
 
+// Default to the KSI unit system
 int unit_system = UNIT_SYSTEM_KSI;
 
-int get_standard_unit_system(){
-	return unit_system;
-}
-
-void set_standard_unit_system(int unit_sys){
-	unit_system = unit_sys;
-}
+int get_standard_unit_system(){ return unit_system; }
+void set_standard_unit_system(int unit_sys){ unit_system = unit_sys; }
 
 // This is a map of all possible strings to a unique identifier
 std::pair<std::string, long> map_data[] = {
@@ -707,7 +703,9 @@ EXPORT_CODE double CONVENTION IProps(long iOutput, long iName1, double Prop1, lo
 	else{
 		// In this function the error catching happens;
 		try{
-			return _CoolProp_Fluid_Props(iOutput,iName1,Prop1,iName2,Prop2,pFluid);
+			// This is already converted to the right units since it comes from the CoolPropStateClass which
+			// does the unit handling
+			double val = _CoolProp_Fluid_Props(iOutput,iName1,Prop1,iName2,Prop2,pFluid);
 		}
 		catch(std::exception &e){
 			err_string=std::string("CoolProp error: ").append(e.what());
