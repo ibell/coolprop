@@ -183,17 +183,14 @@ cdef extern from "CoolProp.h":
     double _F2K "F2K"(double T_F)
     double _K2F "K2F"(double T)
     
-    string _FluidsList "FluidsList"()
-    string _get_REFPROPname "get_REFPROPname"(string Ref)
-    string _get_errstring "get_errstring"()
-    string _get_aliases "get_aliases"(string Ref)
+    string _get_global_param_string "get_global_param_string"(string ParamName)
+    string _get_fluid_param_string "get_fluid_param_string"(string ParamName, string FluidName)
+    
     long _set_phase "set_phase" (string phase)
     long _get_Fluid_index "get_Fluid_index" (string Fluid)
     long _get_param_index "get_param_index" (string param)
     string _get_index_units "get_index_units" (long index)
-    string _get_ASHRAE34 "get_ASHRAE34"(string Fluid)
-    string _get_CAS_code "get_CAS_code"(string Fluid)
-    char * get_errstringc()
+    
     string _get_TTSE_mode "get_TTSE_mode"(string Fluid)
     int _set_TTSE_mode "set_TTSE_mode"(char* Fluid, char* Value)
     
@@ -211,12 +208,10 @@ cdef extern from "CoolProp.h":
     
     string _add_REFPROP_fluid "add_REFPROP_fluid"(string FluidName)
     
-    int _get_debug "get_debug"()
-    void _debug "debug"(int level)
+    int _get_debug_level "get_debug_level"()
+    void _set_debug_level "set_debug_level"(int level)
     
     string _get_BibTeXKey "get_BibTeXKey"(string Ref, string key)
-    string _get_EOSReference "get_EOSReference"(string Ref)
-    string _get_TransportReference "get_TransportReference"(string Ref)
     
     # Convenience functions
     int _IsFluidType "IsFluidType"(char* Ref, char* Type)

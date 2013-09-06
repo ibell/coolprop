@@ -145,44 +145,11 @@ std::map<long, std::string> units_map(units_data,
 
 FluidsContainer Fluids = FluidsContainer();
 
-std::string get_gitrevision(){return gitrevision;}
+void set_debug_level(int level){debug_level = level;}
+EXPORT_CODE int CONVENTION get_debug_level(){return debug_level;}
 
-EXPORT_CODE long CONVENTION get_gitrevision(char * pversion){
-	strcpy(pversion,gitrevision.c_str());
-	return 0;
-}
-EXPORT_CODE long CONVENTION get_version(char * pversion){
-	strcpy(pversion,version);
-	return 0;
-}
-std::string get_version(){return std::string(version);}
-
-void set_debug(int level){debug_level = level;}
-EXPORT_CODE int CONVENTION get_debug(){return debug_level;}
 int  debug(){return debug_level;}
 EXPORT_CODE void CONVENTION debug(int level){debug_level=level;}
-
-std::string get_errstring(void){
-    std::string temp = err_string;
-    err_string = std::string("");
-    return temp;
-    }
-EXPORT_CODE void CONVENTION get_errstring(char* str){
-    str=(char*) get_errstring().c_str();
-	err_string.clear();
-    };
-
-EXPORT_CODE char * CONVENTION get_errstringc(void){
-    std::string temp = err_string;
-	err_string.clear();
-    return (char*)temp.c_str();
-    }
-
-EXPORT_CODE long CONVENTION get_errstring_copy(char* str){
-    strcpy(str, get_errstring().c_str());
-	err_string.clear();
-	return strlen(str);
-    };
 
 // A function to enforce the state if known
 EXPORT_CODE void CONVENTION set_phase(char *Phase_str){
@@ -1178,12 +1145,12 @@ EXPORT_CODE void CONVENTION PrintSaturationTable(char *FileName, char * Ref, dou
 
 EXPORT_CODE void CONVENTION FluidsList(char* str)
 {
-	str=(char*)FluidsList().c_str();
+	strcpy(str,get_global_param_string("FluidsList").c_str());
 	return;
 }
 std::string FluidsList()
 {
-	return Fluids.FluidList();
+	return get_global_param_string("FluidsList");
 }
 
 EXPORT_CODE double CONVENTION DerivTerms(char *Term, double T, double rho, char * Ref)
@@ -1366,63 +1333,73 @@ std::string get_BibTeXKey(std::string Ref, std::string item)
 	}
 }
 
-std::string get_EOSReference(std::string Ref)
+std::string get_global_param_string(std::string ParamName)
 {
-	pFluid=Fluids.get_fluid(Ref);
-	if (pFluid!=NULL)
+	if (!ParamName.compare("version"))
 	{
-		return pFluid->get_EOSReference();
+		return std::string(version);
+	}
+	else if (!ParamName.compare("errstring"))
+	{
+		std::string temp = err_string;
+		err_string = std::string("");
+		return temp;
+	}
+	else if (!ParamName.compare("gitrevision"))
+	{
+		return gitrevision;
+	}
+	else if (!ParamName.compare("FluidsList") || !ParamName.compare("fluids_list"))
+	{
+		return Fluids.FluidList();
 	}
 	else
-		return std::string("");
-}
-std::string get_TransportReference(std::string Ref)
-{
-	pFluid=Fluids.get_fluid(Ref);
-	if (pFluid!=NULL)
 	{
-		return pFluid->get_TransportReference();
+		return format("Input value [%s] is invalid",ParamName.c_str()).c_str();
 	}
-	else
-		return std::string("");
-}
-EXPORT_CODE void CONVENTION get_aliases(char* Ref, char *aliases)
+};
+std::string get_fluid_param_string(std::string FluidName, std::string ParamName)
 {
-	strcpy(aliases, get_aliases(std::string(Ref)).c_str());
-}
-std::string get_aliases(std::string Ref)
-{
-	pFluid=Fluids.get_fluid(Ref);
+	pFluid = Fluids.get_fluid(FluidName);
+	// Didn't work
 	if (pFluid == NULL){
-		return std::string("Fluid not found");
+		err_string=std::string("CoolProp error: ").append(format("%s is an invalid fluid for get_fluid_param_string",FluidName.c_str()));
+		return format("%s is an invalid fluid for get_fluid_param_string",FluidName.c_str()).c_str();
 	}
-	std::string s;
-	
-	std::vector<std::string> v = pFluid->get_aliases();
-	for (unsigned long i = 0; i< v.size(); i++){
-		if (i==0)
+	else{
+		if (!ParamName.compare("aliases"))
 		{
-			s = v[i];
+			std::vector<std::string> v = pFluid->get_aliases();
+			return strjoin(v,", ");
+		}
+		else if (!ParamName.compare("CAS") || !ParamName.compare("CAS_number"))
+		{
+			return pFluid->params.CAS;
+		}
+		else if (!ParamName.compare("ASHRAE34"))
+		{
+			return pFluid->environment.ASHRAE34;
+		}
+		else if (!ParamName.compare("REFPROPName") || !ParamName.compare("REFPROP_name"))
+		{
+			return pFluid->get_REFPROPname();
+		}
+		else if (!ParamName.compare("TTSE_mode"))
+		{
+			int mode = pFluid->TTSESinglePhase.get_mode();
+			switch (mode)
+			{
+			case TTSE_MODE_TTSE:
+				return "TTSE";
+			case TTSE_MODE_BICUBIC:
+				return "BICUBIC";
+			default:
+				throw ValueError("TTSE mode is invalid");
+			}
 		}
 		else
 		{
-			s += ", " + v[i];
+			return format("Input value [%s] is invalid for Fluid [%s]",ParamName.c_str(),FluidName.c_str()).c_str();
 		}
-	}
-	return s;
-}
-EXPORT_CODE void CONVENTION get_REFPROPname(char* Ref, char * str)
-{
-	str= (char*)get_REFPROPname(std::string(Ref)).c_str();
-}
-std::string get_REFPROPname(std::string Ref)
-{
-	pFluid=Fluids.get_fluid(Ref);
-
-	if ( (pFluid->get_REFPROPname()).size()!=0 ){
-		return pFluid->get_REFPROPname();
-	}
-	else{
-		return pFluid->get_name();
 	}
 }

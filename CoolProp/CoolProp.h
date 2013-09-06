@@ -67,24 +67,13 @@ You might want to start by looking at CoolProp.h
 	EXPORT_CODE void CONVENTION set_phase(char *Phase_str);
 	EXPORT_CODE double CONVENTION F2K(double T_F);
 	EXPORT_CODE double CONVENTION K2F(double T);
-	EXPORT_CODE void CONVENTION PrintSaturationTable(char *FileName, char * Ref, double Tmin, double Tmax);
 	
-	EXPORT_CODE void CONVENTION FluidsList(char*);
-	EXPORT_CODE void CONVENTION get_aliases(char* Ref, char *aliases);
-	EXPORT_CODE void CONVENTION get_REFPROPname(char* Ref, char*);
-	EXPORT_CODE void CONVENTION get_errstring(char*);
-	EXPORT_CODE char* CONVENTION get_errstringc(void);
-	EXPORT_CODE long CONVENTION get_errstring_copy(char *);
-	EXPORT_CODE long CONVENTION get_gitrevision(char * pversion);
-	EXPORT_CODE long CONVENTION get_version(char * pversion);
 	EXPORT_CODE long CONVENTION get_param_index(char * param);
 	EXPORT_CODE long CONVENTION get_Fluid_index(char * param);
-	EXPORT_CODE long CONVENTION get_ASHRAE34(char * fluid, char *output);
-	EXPORT_CODE long CONVENTION get_CAS_code(char * fluid, char *output);
 	EXPORT_CODE void CONVENTION get_index_units(long param, char * units);
 
-	EXPORT_CODE int CONVENTION get_debug();
-	EXPORT_CODE void CONVENTION debug(int level);
+	EXPORT_CODE int CONVENTION get_debug_level();
+	EXPORT_CODE void CONVENTION set_debug_level(int level);
 
 	EXPORT_CODE double CONVENTION rhosatL_anc(char* Fluid, double T);
 	EXPORT_CODE double CONVENTION rhosatV_anc(char* Fluid, double T);
@@ -141,31 +130,33 @@ You might want to start by looking at CoolProp.h
 	double DerivTerms(char *Term, double T, double rho, Fluid * pFluid);
 	double DerivTerms(char *Term, double T, double rho, Fluid * pFluid, bool SinglePhase, bool TwoPhase);
 
-	int debug();
-	void set_debug(int level);
+	std::string get_global_param_string(std::string ParamName);
+	//double get_global_param_double(std::string ParamName);
+	std::string get_fluid_param_string(std::string FluidName, std::string ParamName);
+	//double get_fluid_param_double(std::string FluidName, std::string ParamName);
+
+	// Getter and setter for debug level
+	// ---------------------------------
+	/// Get the debug level
+	/// @returns level The level of the verbosity for the debugging output (0-10) 0: no debgging output
+	int get_debug_level();
+	/// Set the debug level
+	/// @param level The level of the verbosity for the debugging output (0-10) 0: no debgging output
+	void set_debug_level(int level);
+
 	void set_phase(std::string Phase_str);
 
 	std::string Phase(std::string Fluid, double T, double p);
 	std::string Phase_Trho(std::string Fluid, double T, double rho);
     std::string Phase_Tp(std::string Fluid, double T, double p);
+
 	std::string get_BibTeXKey(std::string Ref, std::string item);
-	std::string get_EOSReference(std::string Ref);
-	std::string get_TransportReference(std::string Ref);
-	std::string get_ASHRAE34(std::string Ref);
-	std::string get_CAS_code(std::string Ref);
-	std::string FluidsList(void);
-	std::string get_aliases(std::string Ref);
-	std::string get_REFPROPname(std::string Ref);
-	std::string get_errstring(void);
-	std::string get_version(void);
-	std::string get_gitrevision(void);
-	std::string get_TTSE_mode(std::string FluidName);
+
 	bool add_REFPROP_fluid(std::string FluidName);
 
 	long get_param_index(std::string param);
-	long get_Fluid_index(std::string param);
+	long get_Fluid_index(std::string FluidName);
 	std::string get_index_units(long index);
-
 	Fluid * get_fluid(long iFluid);
 
 	// Define some constants that will be used throughout

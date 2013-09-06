@@ -231,3 +231,13 @@ std::vector<double> solve_cubic(double a, double b, double c, double d)
 
 	return solns;
 }
+
+std::string strjoin(std::vector<std::string> strings, std::string delim)
+{
+	std::string output = strings[0];
+	for (unsigned int i = 1; i < strings.size(); i++)
+	{
+		output += format("%s%s",delim.c_str(),strings[i].c_str());
+	}
+	return output;
+}

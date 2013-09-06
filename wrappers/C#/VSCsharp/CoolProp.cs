@@ -80,8 +80,8 @@ public class CoolProp {
     return ret;
   }
 
-  public static int get_svnrevision() {
-    int ret = CoolPropPINVOKE.get_svnrevision();
+  public static int get_gitrevision(string pversion) {
+    int ret = CoolPropPINVOKE.get_gitrevision__SWIG_0(pversion);
     return ret;
   }
 
@@ -337,6 +337,11 @@ public class CoolProp {
 
   public static string get_version() {
     string ret = CoolPropPINVOKE.get_version__SWIG_1();
+    return ret;
+  }
+
+  public static string get_gitrevision() {
+    string ret = CoolPropPINVOKE.get_gitrevision__SWIG_1();
     return ret;
   }
 

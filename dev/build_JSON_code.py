@@ -14,8 +14,16 @@ def get_environmental_data(fluid):
     if fluid in env_json:
         return env_json[fluid]
     else:
-        print fluid,'not found in env_json'
-        return {}
+        print fluid,'not found in env_json, filling with empty values'
+        return dict(GWP100 = -1, 
+                    GWP20 = -1, 
+                    GWP500 = -1, 
+                    ODP = -1, 
+                    HH = -1,
+                    FH = -1,
+                    PH = -1,
+                    ASHRAE34 = "UNKNOWN"
+                    )
     
 def hsatVmax(fluid):
     Tmin = Props(fluid, 'Tmin')
