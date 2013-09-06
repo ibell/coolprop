@@ -1,0 +1,84 @@
+import CoolProp.CoolProp as CP
+import CoolProp.unit_systems_constants
+from CoolProp import param_constants
+from CoolProp.State import State
+
+S = State('R134a',dict(T=300,D=1))
+
+# factor is kSI / SI value
+State_listing = [('T',1),
+           ('rho',1),
+           ('p',1000),
+           ('h',1000),
+           ('s',1000),
+           ('dpdT',1000),
+           ('cv',1000),
+           ('cp',1000),
+           ('visc',1),
+           ('k',1000),
+           ]
+    
+def test_State():    
+    for parameter,kSI_SI in State_listing:
+        
+        CP.set_standard_unit_system(CoolProp.unit_systems_constants.UNIT_SYSTEM_SI)
+        val_SI = getattr(S, parameter)
+        
+        CP.set_standard_unit_system(CoolProp.unit_systems_constants.UNIT_SYSTEM_KSI)
+        val_kSI = getattr(S, parameter)
+        
+        yield check, val_SI, val_kSI, kSI_SI
+    
+Props_listing = [('T',1),
+           ('D',1),
+           ('P',1000),
+           ('H',1000),
+           ('S',1000),
+           ('dpdT',1000),
+           ('C',1000),
+           ('C0',1000),
+           ('O',1000),
+           ('V',1),
+           ('L',1000),
+           ]
+def test_PROPS():
+    for parameter, kSI_SI in Props_listing:
+        
+        CP.set_standard_unit_system(CoolProp.unit_systems_constants.UNIT_SYSTEM_SI)
+        val_SI = CP.Props(parameter,'T',300,'D',1,'R134a')
+        
+        CP.set_standard_unit_system(CoolProp.unit_systems_constants.UNIT_SYSTEM_KSI)
+        val_kSI = CP.Props(parameter,'T',300,'D',1,'R134a')
+        
+        yield check, val_kSI, val_SI, kSI_SI
+        
+State_Props_listing = [(param_constants.iT,1),
+                       (param_constants.iD,1),
+                       (param_constants.iP,1000),
+                       (param_constants.iH,1000),
+                       (param_constants.iS,1000),
+                       (param_constants.iDpdT,1000),
+                       (param_constants.iC,1000),
+                       (param_constants.iC0,1000),
+                       (param_constants.iO,1000),
+                       (param_constants.iV,1),
+                       (param_constants.iL,1000),
+                       ]
+def test_State_PROPS():
+    for parameter, kSI_SI in State_Props_listing:
+        
+        CP.set_standard_unit_system(CoolProp.unit_systems_constants.UNIT_SYSTEM_SI)
+        val_SI = S.Props(parameter)
+        
+        CP.set_standard_unit_system(CoolProp.unit_systems_constants.UNIT_SYSTEM_KSI)
+        val_kSI = S.Props(parameter)
+        
+        yield check, val_kSI, val_SI, kSI_SI
+    
+def check(val_kSI, val_SI, factor):
+    if not abs(val_SI/val_kSI/factor) > 1e-10:
+        raise ValueError
+        
+if __name__=='__main__':
+    import nose
+    nose.runmodule()
