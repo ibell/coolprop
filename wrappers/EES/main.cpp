@@ -41,6 +41,9 @@
 #include <vector>
 #include "CoolProp.h"
 #include "CoolPropTools.h"
+        
+#include <algorithm>
+#include <string>
 
 // Structure for handling ees calling syntax
 struct EesParamRec {
@@ -58,6 +61,12 @@ extern "C"
 		int NInputs;           // Ninputs is the number of inputs
 		char NInputs_string[3], err_str[1000];
 		std::string fluid_string = std::string(fluid);
+
+
+        std::transform(fluid_string.begin(), fluid_string.end(),fluid_string.begin(), ::toupper);
+
+
+        
 		std::string ErrorMsg, Outstr, In1str, In2str, Fluidstr;
 		std::vector<std::string> fluid_split;
 
@@ -103,10 +112,10 @@ extern "C"
 		
 		//This block can be used to debug the code by writing output or intermediate values to a text file
 
-		//~ FILE *fp;
-		//~ fp = fopen("file.txt","a+");
-		//~ fprintf(fp,"%s %s %g %s %g %s\n",Outstr.c_str(),In1str.c_str(),In1,In2str.c_str(),In2,Fluidstr.c_str());
-		//~ fclose(fp);
+		FILE *fp;
+		fp = fopen("file.txt","a+");
+		fprintf(fp,"%s %s %g %s %g %s\n",Outstr.c_str(),In1str.c_str(),In1,In2str.c_str(),In2,Fluidstr.c_str());
+		fclose(fp);
 
 		//~ // This redirect standard output to file2.txt
 		//~ freopen("file2.txt", "w", stdout);

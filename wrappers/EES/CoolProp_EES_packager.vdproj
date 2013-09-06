@@ -265,7 +265,7 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:CoolProp_EES"
-        "ProductCode" = "8:{B23DC068-996C-4ED4-A2D9-23C27947DC0A}"
+        "ProductCode" = "8:{2B6ECBA6-AB0E-4CB7-BAF6-E040E65BE5A4}"
         "PackageCode" = "8:{3D8D7569-C5A9-4E68-957F-DF921A17A077}"
         "UpgradeCode" = "8:{17A10B62-9D7A-4F1C-9F10-59B1637FF803}"
         "AspNetVersion" = "8:4.0.30319.0"

@@ -120,6 +120,16 @@ std::string JSON_lookup_string(rapidjson::Document &root, std::string FluidName,
 	}
 }
 
+std::string JSON_lookup_CAS(rapidjson::Document &root, std::string FluidName)
+{
+	if (root.HasMember(FluidName.c_str()) && root[FluidName.c_str()].IsString()){
+		return root[FluidName.c_str()].GetString();
+	}
+	else{
+		return "";
+	}
+}
+
 std::vector<double> JSON_lookup_dblvector(rapidjson::Document &root, std::string FluidName, std::string key)
 {
 	std::vector<double> v;
@@ -410,7 +420,11 @@ FluidsContainer::FluidsContainer()
 	// Includes the C++ JSON code for all the fluids as the variable JSON_code
 	#include "JSON_code.h"
 
+	// Includes the C++ JSON code for the CAS number lookup as the variable JSON_cas
+	#include "JSON_cas.h"
+
 	JSON.Parse<0>(JSON_code);
+	JSON_CAS.Parse<0>(JSON_cas);
 
 	// Build the map of fluid names mapping to pointers to the Fluid class instances
 	for (std::vector<Fluid*>::iterator it = FluidsList.begin(); it != FluidsList.end(); it++)
@@ -418,7 +432,7 @@ FluidsContainer::FluidsContainer()
 		//// Load all the parameters related to the Critical point spline
 		set_critical_spline_constants((*it));
 		// Call the post_load routine
-		(*it)->post_load(JSON);
+		(*it)->post_load(JSON, JSON_CAS);
 		// Load up entry in map
 		fluid_name_map[(*it)->get_name()] = *it;
 	}
@@ -537,7 +551,7 @@ Fluid::~Fluid()
 	if (cp_ancillary != NULL){ delete cp_ancillary; cp_ancillary = NULL;}
 	if (drhodT_p_ancillary != NULL){ delete drhodT_p_ancillary; drhodT_p_ancillary = NULL;}
 }
-void Fluid::post_load(rapidjson::Document &JSON)
+void Fluid::post_load(rapidjson::Document &JSON, rapidjson::Document &JSON_CAS)
 {
 	// Set the reducing values from the pointer
 	reduce = *preduce;
@@ -572,18 +586,18 @@ void Fluid::post_load(rapidjson::Document &JSON)
 	cp_ancillary = new AncillaryCurveClass(this,std::string("C"));
 	drhodT_p_ancillary = new AncillaryCurveClass(this,std::string("drhodT|p"));
 
-	// Load up environmental factors for this fluid including ODP, GWP, etc.
-	environment.ODP = JSON_lookup_double(JSON,this->name,"ODP");
-	environment.GWP20 = JSON_lookup_double(JSON,this->name,"GWP20");
-	environment.GWP100 = JSON_lookup_double(JSON,this->name,"GWP100");
-	environment.GWP500 = JSON_lookup_double(JSON,this->name,"GWP500");
-	environment.HH = JSON_lookup_double(JSON,this->name,"HH");
-	environment.FH = JSON_lookup_double(JSON,this->name,"FH");
-	environment.PH = JSON_lookup_double(JSON,this->name,"PH");
-	environment.ASHRAE34 = JSON_lookup_string(JSON,this->name,"ASHRAE34");
-
 	// The CAS number for the fluid
-	params.CAS = JSON_lookup_string(JSON,this->name,"CAS");
+	params.CAS = JSON_lookup_CAS(JSON_CAS,this->name);
+
+	// Load up environmental factors for this fluid including ODP, GWP, etc.
+	environment.ODP = JSON_lookup_double(JSON,this->params.CAS,"ODP");
+	environment.GWP20 = JSON_lookup_double(JSON,this->params.CAS,"GWP20");
+	environment.GWP100 = JSON_lookup_double(JSON,this->params.CAS,"GWP100");
+	environment.GWP500 = JSON_lookup_double(JSON,this->params.CAS,"GWP500");
+	environment.HH = JSON_lookup_double(JSON,this->params.CAS,"HH");
+	environment.FH = JSON_lookup_double(JSON,this->params.CAS,"FH");
+	environment.PH = JSON_lookup_double(JSON,this->params.CAS,"PH");
+	environment.ASHRAE34 = JSON_lookup_string(JSON,this->params.CAS,"ASHRAE34");
 
 	// Inputs for the enthalpy-entropy solver which is the most problematic solver
 	HS.hmax = JSON_lookup_double(JSON,this->name,"hsatVmax");
