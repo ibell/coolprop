@@ -96,11 +96,11 @@ pp_HH = HH.replace(':','').replace('\n','').replace("'",'').split(",")
 pp_FH = FH.replace(':','').replace('\n','').replace("'",'').split(",")
 pp_PH = PH.replace(':','').replace('\n','').replace("'",'').split(",")
 
-HH_dict = {k:v for k,v in zip(pp_fluids,pp_HH)}
-FH_dict = {k:v for k,v in zip(pp_fluids,pp_FH)}
-PH_dict = {k:v for k,v in zip(pp_fluids,pp_PH)}
-
 from fluid_lookup import *
+
+HH_dict = {RP2CAS[k]:v for k,v in zip(pp_fluids,pp_HH)}
+FH_dict = {RP2CAS[k]:v for k,v in zip(pp_fluids,pp_FH)}
+PH_dict = {RP2CAS[k]:v for k,v in zip(pp_fluids,pp_PH)}
 
 def get_env_data(fluid):
     a = dict(
@@ -139,8 +139,9 @@ import json
 
 code = {}
 for fluid in pp_fluids:
+    fluid = RP2CAS[fluid]
     if name_dict[fluid]:
-        code[name_dict[fluid]] = get_env_data(fluid)
+        code[fluid] = get_env_data(fluid)
     else:
         continue
 

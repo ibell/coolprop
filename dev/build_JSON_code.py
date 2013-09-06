@@ -6,16 +6,24 @@ import numpy as np
 import scipy.optimize
 import json
 
-from CAS_data_generator import get_CAS
+from build_DTU_JSON import RP2CAS
 
-env_json = json.loads(open('environmental.json','r').read())
+env_json = json.loads(open('DTU_environmental.json','r').read())
 
 def get_environmental_data(fluid):
     if fluid in env_json:
         return env_json[fluid]
     else:
-        print fluid,'not found in env_json'
-        return {}
+        print fluid,'not found in env_json, filling with empty values'
+        return dict(GWP100 = -1, 
+                    GWP20 = -1, 
+                    GWP500 = -1, 
+                    ODP = -1, 
+                    HH = -1,
+                    FH = -1,
+                    PH = -1,
+                    ASHRAE34 = "UNKNOWN"
+                    )
     
 def hsatVmax(fluid):
     Tmin = Props(fluid, 'Tmin')
@@ -30,7 +38,7 @@ def hsatVmax(fluid):
     s = Props('S','T',T,'Q',1,fluid)
     rho = Props('D','T',T,'Q',1,fluid)
     
-    return h,T,s,rho
+    return h*1000,T,s*1000,rho
     
 def fit_hs(fluid):
     T = np.linspace(Props(fluid, 'Tmin'), Props(fluid, 'Tcrit')-2)
@@ -50,14 +58,24 @@ def fit_hs(fluid):
 
 code = {}
 for fluid in CoolProp.__fluids__:
-    code[fluid] = {}
-    code[fluid]['CAS'] = get_CAS(fluid)
-    code[fluid]['hsatVmax'],code[fluid]['T_hsatVmax'],code[fluid]['s_hsatVmax'],code[fluid]['rho_hsatVmax'] = hsatVmax(fluid)
-    code[fluid].update(get_environmental_data(fluid))
-    if fluid in ['ParaHydrogen','MethylLinoleate','MethylLinolenate','R407C','R507A']:    
-        continue
-    code[fluid].update(fit_hs(fluid))
+    RPName = CoolProp.CoolProp.get_REFPROPname(fluid)
+    try:
+        CAS = RP2CAS[RPName.upper()]
+    except KeyError:
+        NOT_IN_REFPROP_CAS = {'R1234ze(Z)':'29118-25-0',
+                              'ParaDeuterium':'7782-39-0p',
+                              'OrthoDeuterium':'7782-39-0o',
+                              }
+        CAS = NOT_IN_REFPROP_CAS[fluid]
     
+    code[CAS] = {}
+    if CAS.upper().endswith('.PPF'):
+        code[CAS]['CAS'] = 'N/A'
+    else:
+        code[CAS]['CAS'] = CAS
+        
+    code[CAS]['hsatVmax'],code[CAS]['T_hsatVmax'],code[CAS]['s_hsatVmax'],code[CAS]['rho_hsatVmax'] = hsatVmax(fluid)
+    code[CAS].update(get_environmental_data(CAS))
     
 ####################### WRITE THE FILE #################################
 ####################### WRITE THE FILE #################################

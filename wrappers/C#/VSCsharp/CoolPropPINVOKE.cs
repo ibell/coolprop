@@ -233,8 +233,8 @@ class CoolPropPINVOKE {
   [DllImport("CoolProp", EntryPoint="CSharp_get_errstring_copy")]
   public static extern int get_errstring_copy(string jarg1);
 
-  [DllImport("CoolProp", EntryPoint="CSharp_get_svnrevision")]
-  public static extern int get_svnrevision();
+  [DllImport("CoolProp", EntryPoint="CSharp_get_gitrevision__SWIG_0")]
+  public static extern int get_gitrevision__SWIG_0(string jarg1);
 
   [DllImport("CoolProp", EntryPoint="CSharp_get_version__SWIG_0")]
   public static extern int get_version__SWIG_0(string jarg1);
@@ -382,6 +382,9 @@ class CoolPropPINVOKE {
 
   [DllImport("CoolProp", EntryPoint="CSharp_get_version__SWIG_1")]
   public static extern string get_version__SWIG_1();
+
+  [DllImport("CoolProp", EntryPoint="CSharp_get_gitrevision__SWIG_1")]
+  public static extern string get_gitrevision__SWIG_1();
 
   [DllImport("CoolProp", EntryPoint="CSharp_get_TTSE_mode__SWIG_1")]
   public static extern string get_TTSE_mode__SWIG_1(string jarg1);

@@ -198,7 +198,7 @@ class Fluid
 		virtual ~Fluid();
 
 		// Some post-loading things happen here
-		void post_load(rapidjson::Document &JSON);
+		void post_load(rapidjson::Document &JSON, rapidjson::Document &JSON_CAS);
 
 		// Fluid-specific parameters
 		struct CriticalStruct crit;
@@ -589,7 +589,7 @@ class Fluid
 	class FluidsContainer
 	{
 	private:
-		rapidjson::Document JSON;
+		rapidjson::Document JSON, JSON_CAS;
 		std::map<std::string,long> fluid_index_map; ///< maps fluid names to 0-based index
 		std::map<std::string,Fluid*> fluid_name_map; ///< maps fluid names to pointers to the fluid
 		std::vector <Fluid*> FluidsList; ///< A list of pointers to the instances of the fluids

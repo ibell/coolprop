@@ -89,6 +89,9 @@
 
 	#define OK 1
 	#define FAIL 0
+
+	std::string strjoin(std::vector<std::string> strings, std::string delim);
+
 	
 	void MatInv_2(double A[2][2] , double B[2][2]);
 

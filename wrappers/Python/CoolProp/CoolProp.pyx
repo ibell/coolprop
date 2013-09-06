@@ -280,7 +280,7 @@ cpdef Props(str in1, str in2, in3 = None, in4 = None, in5 = None, in6 = None, in
     if (in4 is None and in6 is None and in7 is None):
         val = _Props1(in1.encode('ascii'), in2.encode('ascii'))
         if math.isinf(val) or math.isnan(val):
-            err_string = _get_errstring()
+            err_string = _get_global_param_string('errstring')
             if not len(err_string) == 0:
                 raise ValueError("{err:s} :: inputs were :\"{in1:s}\",\"{in2:s}\"".format(err= err_string,in1=in1,in2=in2))
             else:
@@ -301,7 +301,7 @@ cpdef Props(str in1, str in2, in3 = None, in4 = None, in5 = None, in6 = None, in
             val = _Props(in1.encode('ascii'), in2_char, in3, in4_char, in5, in6.encode('ascii'))
         
             if math.isinf(val) or math.isnan(val):
-                err_string = _get_errstring()
+                err_string = _get_global_param_string('errstring')
                 if not len(err_string) == 0:
                     raise ValueError("{err:s} :: inputs were:\"{in1:s}\",\'{in2:s}\',{in3:0.16e},\'{in4:s}\',{in5:0.16e},\"{in6:s}\"".format(err=err_string,in1=in1,in2=in2,in3=in3,in4=in4,in5=in5,in6=in6))
                 else:
@@ -321,7 +321,7 @@ cpdef Props(str in1, str in2, in3 = None, in4 = None, in5 = None, in6 = None, in
                 val = _Props(in1.encode('ascii'), in2_char, in3, in4_char, _in5, in6.encode('ascii'))
             
                 if math.isinf(val) or math.isnan(val):
-                    err_string = _get_errstring()
+                    err_string = _get_global_param_string('errstring')
                     if not len(err_string) == 0:
                         raise ValueError("{err:s} :: inputs were:\"{in1:s}\",\'{in2:s}\',{in3:0.16e},\'{in4:s}\',{in5:0.16e},\"{in6:s}\"".format(err=err_string,in1=in1,in2=in2,in3=in3,in4=in4,in5=_in5,in6=in6))
                     else:
@@ -346,7 +346,7 @@ cpdef Props(str in1, str in2, in3 = None, in4 = None, in5 = None, in6 = None, in
                 val = _Props(in1.encode('ascii'), in2_char, _in3, in4_char, in5, in6.encode('ascii'))
             
                 if math.isinf(val) or math.isnan(val):
-                    err_string = _get_errstring()
+                    err_string = _get_global_param_string('errstring')
                     if not len(err_string) == 0:
                         raise ValueError("{err:s} :: inputs were:\"{in1:s}\",\'{in2:s}\',{in3:0.16e},\'{in4:s}\',{in5:0.16e},\"{in6:s}\"".format(err=err_string,in1=in1,in2=in2,in3=_in3,in4=in4,in5=in5,in6=in6))
                     else:
@@ -373,7 +373,7 @@ cpdef Props(str in1, str in2, in3 = None, in4 = None, in5 = None, in6 = None, in
                     val = _Props(in1.encode('ascii'), in2_char, _in3, in4_char, _in5, in6.encode('ascii'))
                 
                     if math.isinf(val) or math.isnan(val):
-                        err_string = _get_errstring()
+                        err_string = _get_global_param_string('errstring')
                         if not len(err_string) == 0:
                             raise ValueError("{err:s} :: inputs were:\"{in1:s}\",\'{in2:s}\',{in3:0.16e},\'{in4:s}\',{in5:0.16e},\"{in6:s}\"".format(err=err_string,in1=in1,in2=in2,in3=_in3,in4=in4,in5=_in5,in6=in6))
                         else:
@@ -524,7 +524,7 @@ cpdef list FluidsList():
        In [1]: FluidsList()
        
     """ 
-    cdef string FL = _FluidsList()
+    cdef string FL = _get_global_param_string("FluidsList")
     return [F.encode('ascii') for F in FL.decode('ascii').split(',')]
 
 cpdef get_aliases(str Fluid):
@@ -558,7 +558,7 @@ cpdef string get_REFPROPname(str Fluid):
        In [2]: Props('D', 'T', 300, 'P', 300, Fluid)
     """
     cdef bytes _Fluid = Fluid.encode('ascii')
-    return _get_REFPROPname(_Fluid)
+    return _get_fluid_param_string(_Fluid,'REFPROP_name')
 
 cpdef string get_BibTeXKey(str Fluid, str key):
     """
@@ -587,9 +587,9 @@ cpdef string get_errstr():
     """
     Return the current error string
     """
-    return _get_errstring()
+    return _get_global_param_string("errstring")
 
-cpdef set_debug(int level):
+cpdef set_debug_level(int level):
     """
     Set the current debug level as integer in the range [0,10]
     
@@ -600,13 +600,20 @@ cpdef set_debug(int level):
         some output will be written to screen.  The larger level is, 
         the more verbose the output will be
     """
-    _debug(level)
+    _set_debug_level(level)
 
-cpdef get_debug():
+cpdef get_debug_level():
     """
     Return the current debug level as integer
+    
+    Returns
+    -------
+    level : int
+        If level is 0, no output will be written to screen, if >0, 
+        some output will be written to screen.  The larger level is, 
+        the more verbose the output will be
     """
-    return _get_debug()
+    return _get_debug_level()
     
 cpdef string get_CAS_code(string Fluid):
     """
@@ -639,7 +646,7 @@ cpdef bint set_TTSE_mode(char* FluidName, char* Value):
 cpdef str get_TTSE_mode(string fluid):
     """ Get the mode of the TTSE table, one of ``"TTSE"`` or ``"BICUBIC"``
     """
-    return _get_TTSE_mode(fluid).encode('ascii')
+    return _get_fluid_param_string(fluid,'TTSE_mode').encode('ascii')
 
 #: Enable the TTSE
 cpdef bint enable_TTSE_LUT(char *FluidName): return _enable_TTSE_LUT(FluidName)

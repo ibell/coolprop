@@ -5,7 +5,7 @@ call "C:\Program Files\Microsoft Visual Studio 10.0\VC\vcvarsall.bat"
 REM ******* compile all the sources ***************
 cl /c /I../../CoolProp /EHsc /DCOOLPROP_LIB ../../CoolProp/*.cpp
 
-link /DLL CoolProp.obj *.obj /OUT:CoolProp.dll
+link /DLL *.obj /OUT:CoolProp.dll
 dumpbin /EXPORTS CoolProp.dll > exports.txt
 erase *.obj
 erase *.exp

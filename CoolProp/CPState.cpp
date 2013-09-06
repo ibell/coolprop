@@ -159,7 +159,7 @@ void CoolPropStateClass::update(long iInput1, double Value1, long iInput2, doubl
 
 	bool using_EOS = true;
 
-	if (debug()>3){
+	if (get_debug_level()>3){
 		std::cout<<__FILE__<<" update: "<<iInput1<<","<<Value1<<","<<iInput2<<","<<Value2<<","<<pFluid->get_name().c_str()<<std::endl;
 	}
 
