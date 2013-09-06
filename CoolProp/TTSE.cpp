@@ -118,6 +118,9 @@ TTSESinglePhaseTableClass::TTSESinglePhaseTableClass(){
 	this->enable_transport = true;
 	SatL = NULL; 
 	SatV = NULL;
+
+	// Default to use the "normal" TTSE evaluation
+	mode = TTSE_MODE_TTSE;
 }
 
 TTSESinglePhaseTableClass::TTSESinglePhaseTableClass(Fluid *pFluid) {
