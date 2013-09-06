@@ -21,8 +21,8 @@
 
 // This stuff will get included verbatim in CoolProp_wrap.cpp
 %{
-#include "CoolProp.h"
+#include "CoolPropDLL.h"
 %}
 
-%include "CoolProp.h"
+%include "CoolPropDLL.h"
 

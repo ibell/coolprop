@@ -83,8 +83,6 @@
 	/// Get the current range of the single-phase LUT
 	EXPORT_CODE bool CONVENTION get_TTSESinglePhase_LUT_range(char *FluidName, double *hmin, double *hmax, double *pmin, double *pmax);
 
-	/// Get the TTSE mode (normal or bicubic)
-	EXPORT_CODE int CONVENTION get_TTSE_mode(char *FluidName, char * Value);
 	/// Set the TTSE mode (normal or bicubic)
 	EXPORT_CODE int CONVENTION set_TTSE_mode(char *FluidName, char * Value);
 
