@@ -919,46 +919,55 @@ std::string get_global_param_string(std::string ParamName)
 };
 std::string get_fluid_param_string(std::string FluidName, std::string ParamName)
 {
-	pFluid = Fluids.get_fluid(FluidName);
-	// Didn't work
-	if (pFluid == NULL){
-		err_string=std::string("CoolProp error: ").append(format("%s is an invalid fluid for get_fluid_param_string",FluidName.c_str()));
-		return format("%s is an invalid fluid for get_fluid_param_string",FluidName.c_str()).c_str();
-	}
-	else{
-		if (!ParamName.compare("aliases"))
-		{
-			std::vector<std::string> v = pFluid->get_aliases();
-			return strjoin(v,", ");
+	try{
+		pFluid = Fluids.get_fluid(FluidName);
+		// Didn't work
+		if (pFluid == NULL){
+			err_string=std::string("CoolProp error: ").append(format("%s is an invalid fluid for get_fluid_param_string",FluidName.c_str()));
+			return format("%s is an invalid fluid for get_fluid_param_string",FluidName.c_str()).c_str();
 		}
-		else if (!ParamName.compare("CAS") || !ParamName.compare("CAS_number"))
-		{
-			return pFluid->params.CAS;
-		}
-		else if (!ParamName.compare("ASHRAE34"))
-		{
-			return pFluid->environment.ASHRAE34;
-		}
-		else if (!ParamName.compare("REFPROPName") || !ParamName.compare("REFPROP_name"))
-		{
-			return pFluid->get_REFPROPname();
-		}
-		else if (!ParamName.compare("TTSE_mode"))
-		{
-			int mode = pFluid->TTSESinglePhase.get_mode();
-			switch (mode)
+		else{
+			if (!ParamName.compare("aliases"))
 			{
-			case TTSE_MODE_TTSE:
-				return "TTSE";
-			case TTSE_MODE_BICUBIC:
-				return "BICUBIC";
-			default:
-				throw ValueError("TTSE mode is invalid");
+				std::vector<std::string> v = pFluid->get_aliases();
+				return strjoin(v,", ");
+			}
+			else if (!ParamName.compare("CAS") || !ParamName.compare("CAS_number"))
+			{
+				return pFluid->params.CAS;
+			}
+			else if (!ParamName.compare("ASHRAE34"))
+			{
+				return pFluid->environment.ASHRAE34;
+			}
+			else if (!ParamName.compare("REFPROPName") || !ParamName.compare("REFPROP_name"))
+			{
+				return pFluid->get_REFPROPname();
+			}
+			else if (!ParamName.compare("TTSE_mode"))
+			{
+				int mode = pFluid->TTSESinglePhase.get_mode();
+				switch (mode)
+				{
+				case TTSE_MODE_TTSE:
+					return "TTSE";
+				case TTSE_MODE_BICUBIC:
+					return "BICUBIC";
+				default:
+					throw ValueError("TTSE mode is invalid");
+				}
+			}
+			else
+			{
+				return format("Input value [%s] is invalid for Fluid [%s]",ParamName.c_str(),FluidName.c_str()).c_str();
 			}
 		}
-		else
-		{
-			return format("Input value [%s] is invalid for Fluid [%s]",ParamName.c_str(),FluidName.c_str()).c_str();
-		}
+	}
+	catch(std::exception &e)
+	{
+		return(std::string("CoolProp error: ").append(e.what()));
+	}
+	catch(...){
+		return(std::string("CoolProp error: Indeterminate error"));
 	}
 }

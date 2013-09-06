@@ -123,6 +123,15 @@ cpdef double IProps(long iOutput, long iInput1, double Input1, long iInput2, dou
     else:
         return val
 
+cpdef get_global_param_string(str param):
+    cdef bytes _param = param.encode('ascii')
+    _get_global_param_string(_param)
+    
+cpdef get_fluid_param_string(str fluid, str param):
+    cdef bytes _fluid = fluid.encode('ascii')
+    cdef bytes _param = param.encode('ascii')
+    _get_fluid_param_string(_fluid, _param)
+    
 def get_factorSICP(what):
     """Get the conversion factor between SI and CoolProp units. 
     Returns a tuple of the factor and a boolean telling you if 
@@ -532,7 +541,7 @@ cpdef get_aliases(str Fluid):
     Return a comma separated string of aliases for the given fluid
     """
     cdef bytes _Fluid = Fluid.encode('ascii')
-    return [F.encode('ascii') for F in (_get_aliases(_Fluid).encode('ascii')).decode('ascii').split(',')]
+    return [F.encode('ascii') for F in (_get_fluid_param_string(_Fluid,'aliases').encode('ascii')).decode('ascii').split(',')]
 
 cpdef get_ASHRAE34(str Fluid):
     """
