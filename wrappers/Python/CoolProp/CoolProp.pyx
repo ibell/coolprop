@@ -727,21 +727,12 @@ cpdef conductivity_background(str Fluid, double T, double rho):
 cpdef conductivity_critical(str Fluid, double T, double rho):
     cdef _Fluid = Fluid.encode('ascii')
     return _conductivity_critical(_Fluid,T, rho)
-
-cpdef int debug(int level):
-    """
-    Sets the debug level
     
-    Parameters
-    ----------
-    level : int
-        Flag indicating how verbose the debugging should be.
-            0 : no debugging output
-            ...
-            ...
-            10 : very annoying debugging output - every function call debugged
-    """
-    _debug(level)
+cpdef set_standard_unit_system(int unit_system):
+    _set_standard_unit_system(unit_system)
+        
+cpdef int get_standard_unit_system():
+    return _get_standard_unit_system()
         
 from math import pow as pow_
 
@@ -852,6 +843,8 @@ cdef class State:
         d['phase'] = self.phase
         return rebuildState,(d,)
           
+    
+        
     cpdef set_Fluid(self, bytes Fluid):
         self.Fluid = Fluid
         if self.Fluid.startswith('REFPROP-'):
@@ -1037,27 +1030,27 @@ cdef class State:
     
     cpdef double get_rho(self) except *:
         """ Get the density [kg/m^3] """ 
-        return self.rho_
+        return self.Props(iD)
     property rho:
         """ The density [kg/m^3] """
         def __get__(self):
-            return self.rho_
+            return self.Props(iD)
             
     cpdef double get_p(self) except *:
         """ Get the pressure [kPa] """ 
-        return self.p_
+        return self.Props(iP)
     property p:
-        """ The pressure [K] """
+        """ The pressure [kPa] """
         def __get__(self):
-            return self.p_
+            return self.Props(iP)
     
     cpdef double get_T(self) except *: 
         """ Get the temperature [K] """
-        return self.T_
+        return self.Props(iT)
     property T:
         """ The temperature [K] """
         def __get__(self):
-            return self.T_
+            return self.Props(iT)
     
     cpdef double get_h(self) except *: 
         """ Get the specific enthalpy [kJ/kg] """
@@ -1134,14 +1127,6 @@ cdef class State:
             return None 
         else:
             return CP.Props('T', 'P', self.p_, 'Q', Q, self.Fluid)
-    property Tsat:
-        """ 
-        The saturation temperature, in [K]
-        
-        Returns ``None`` if pressure is not within the two-phase pressure range 
-        """
-        def __get__(self):
-            return self.get_Tsat()
         
     cpdef double get_superheat(self):
         """ 
