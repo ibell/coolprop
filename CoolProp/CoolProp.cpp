@@ -145,92 +145,13 @@ std::map<long, std::string> units_map(units_data,
 
 FluidsContainer Fluids = FluidsContainer();
 
+void set_err_string(std::string error_string)
+{
+	err_string = error_string;
+}
+
 void set_debug_level(int level){debug_level = level;}
-EXPORT_CODE int CONVENTION get_debug_level(){return debug_level;}
-
-int  debug(){return debug_level;}
-EXPORT_CODE void CONVENTION debug(int level){debug_level=level;}
-
-// A function to enforce the state if known
-EXPORT_CODE void CONVENTION set_phase(char *Phase_str){
-	set_phase(std::string(Phase_str));
-}
-
-/// Enable the TTSE for this fluid
-EXPORT_CODE bool CONVENTION enable_TTSE_LUT(char *FluidName){
-	long iFluid = get_Fluid_index(FluidName); if (iFluid<0){ return false; };
-	pFluid = Fluids.get_fluid(iFluid);
-	pFluid->enable_TTSE_LUT();
-	return true;
-};
-/// Check if TTSE is enabled
-EXPORT_CODE bool CONVENTION isenabled_TTSE_LUT(char *FluidName){
-	long iFluid = get_Fluid_index(FluidName); if (iFluid<0){ return false; };
-	pFluid = Fluids.get_fluid(iFluid);
-	return pFluid->isenabled_TTSE_LUT();
-}
-/// Disable the TTSE for this fluid
-EXPORT_CODE bool CONVENTION disable_TTSE_LUT(char *FluidName){
-	long iFluid = get_Fluid_index(FluidName); if (iFluid<0){ return false; };
-	pFluid = Fluids.get_fluid(iFluid);
-	pFluid->disable_TTSE_LUT();
-	return true;
-}
-/// Enable the writing of TTSE tables to file for this fluid
-EXPORT_CODE bool CONVENTION enable_TTSE_LUT_writing(char *FluidName){
-	long iFluid = get_Fluid_index(FluidName); if (iFluid<0){ return true;};
-	pFluid = Fluids.get_fluid(iFluid);
-	pFluid->enable_TTSE_LUT_writing();
-	return true;
-};
-/// Check if the writing of TTSE tables to file is enabled
-EXPORT_CODE bool CONVENTION isenabled_TTSE_LUT_writing(char *FluidName){
-	long iFluid = get_Fluid_index(FluidName); if (iFluid<0){ return false;};
-	pFluid = Fluids.get_fluid(iFluid);
-	return pFluid->isenabled_TTSE_LUT_writing();
-}
-/// Disable the writing of TTSE tables to file for this fluid
-EXPORT_CODE bool CONVENTION disable_TTSE_LUT_writing(char *FluidName){
-	long iFluid = get_Fluid_index(FluidName); if (iFluid<0){ return false;};
-	pFluid = Fluids.get_fluid(iFluid);
-	pFluid->disable_TTSE_LUT_writing();
-	return true;
-}
-/// Over-ride the default size of both of the saturation LUT
-EXPORT_CODE bool CONVENTION set_TTSESat_LUT_size(char *FluidName, int Nsat){
-	long iFluid = get_Fluid_index(FluidName); if (iFluid<0){ return false; };
-	pFluid = Fluids.get_fluid(iFluid);
-	pFluid->set_TTSESat_LUT_size(Nsat);
-	return true;
-}
-/// Over-ride the default size of the single-phase LUT
-EXPORT_CODE bool CONVENTION set_TTSESinglePhase_LUT_size(char *FluidName, int Np, int Nh){
-	long iFluid = get_Fluid_index(FluidName); if (iFluid<0){ return false;};
-	pFluid = Fluids.get_fluid(iFluid);
-	pFluid->set_TTSESinglePhase_LUT_size(Np,Nh);
-	return true;
-}
-/// Over-ride the default range of the single-phase LUT
-EXPORT_CODE bool CONVENTION set_TTSESinglePhase_LUT_range(char *FluidName, double hmin, double hmax, double pmin, double pmax){
-	long iFluid = get_Fluid_index(FluidName); if (iFluid<0){ return false;};
-	pFluid = Fluids.get_fluid(iFluid);
-	pFluid->set_TTSESinglePhase_LUT_range(hmin,hmax,pmin,pmax);
-	return true;
-}
-/// Get the current range of the single-phase LUT
-EXPORT_CODE bool CONVENTION get_TTSESinglePhase_LUT_range(char *FluidName, double *hmin, double *hmax, double *pmin, double *pmax){
-	long iFluid = get_Fluid_index(FluidName); if (iFluid<0){ return false;};
-	pFluid = Fluids.get_fluid(iFluid);
-	pFluid->get_TTSESinglePhase_LUT_range(hmin,hmax,pmin,pmax);
-	if (!ValidNumber(*hmin) && !ValidNumber(*hmax) && !ValidNumber(*pmin) && !ValidNumber(*pmax))
-	{
-		return false;
-	}
-	else
-	{	
-		return true;
-	}
-}
+int get_debug_level(){return debug_level;}
 
 void set_phase(std::string Phase_str){
 	if (!Phase_str.compare("Two-Phase")){
@@ -288,10 +209,6 @@ long get_Fluid_index(std::string FluidName)
 	else
 		return -1;
 }
-EXPORT_CODE long CONVENTION get_Fluid_index(char * param)
-{
-	return get_Fluid_index(std::string(param));
-}
 
 bool add_REFPROP_fluid(std::string FluidName)
 {
@@ -327,11 +244,6 @@ std::string get_index_units(long index)
 		return std::string("Didn't match parameter");
 	}
 }
-EXPORT_CODE void CONVENTION get_index_units(long param, char * units)
-{
-	strcpy(units, (char*)get_index_units(param).c_str());
-	return;
-}
 
 std::string get_ASHRAE34(std::string fluid)
 {
@@ -346,111 +258,6 @@ std::string get_ASHRAE34(std::string fluid)
 		return "Fluid name invalid";
 	}
 }
-
-EXPORT_CODE int CONVENTION get_TTSE_mode(char* fluid, char *value)
-{
-	long iFluid = get_Fluid_index(fluid);
-	if (iFluid > -1)
-	{
-		Fluid *pFluid = get_fluid(iFluid);
-		int iMode = pFluid->TTSESinglePhase.get_mode();
-		switch (iMode)
-		{
-		case TTSE_MODE_TTSE:
-			strcpy(value,"TTSE"); 
-			std::cout << "set TTSE mode to "<< value << std::endl;
-			return true;
-		case TTSE_MODE_BICUBIC:
-			strcpy(value,"BICUBIC"); 
-			std::cout << "set TTSE mode to "<< value << std::endl;
-			return true;
-		default:
-			strcpy(value,"UNKNOWN"); return false;
-		}
-	}
-	else
-	{
-		return false;
-	}
-}
-std::string get_TTSE_mode(std::string fluid)
-{
-	long iFluid = get_Fluid_index(fluid);
-	if (iFluid > -1)
-	{
-		Fluid *pFluid = get_fluid(iFluid);
-		int iMode = pFluid->TTSESinglePhase.get_mode();
-		switch (iMode)
-		{
-		case TTSE_MODE_TTSE:
-			return "TTSE";
-		case TTSE_MODE_BICUBIC:
-			return "BICUBIC"; 
-		default:
-			return "UNKNOWN";
-		}
-	}
-	else
-	{
-		return false;
-	}
-}
-
-EXPORT_CODE int CONVENTION set_TTSE_mode(char* fluid, char *value)
-{
-	long iFluid = get_Fluid_index(fluid);
-	if (iFluid > -1)
-	{
-		Fluid *pFluid = get_fluid(iFluid);
-		
-		// Try to build the LUT; Nothing will happen if the tables are already built
-		CoolPropStateClass C(fluid);
-		pFluid->build_TTSE_LUT();
-
-		if (!strcmp(value,"TTSE"))
-		{
-			pFluid->TTSESinglePhase.set_mode(TTSE_MODE_TTSE); return true;
-		}
-		else if (!strcmp(value,"BICUBIC"))
-		{
-			pFluid->TTSESinglePhase.set_mode(TTSE_MODE_BICUBIC); return true;
-		}
-		else
-		{
-			return false;
-		}
-	}
-	else
-	{
-		return false;
-	}
-}
-
-
-EXPORT_CODE long CONVENTION get_ASHRAE34(char* fluid, char *value)
-{
-	strcpy(value, (char*)get_ASHRAE34(fluid).c_str());
-	return 1;
-}
-std::string get_CAS_code(std::string fluid)
-{
-	long iFluid = get_Fluid_index(fluid);
-	if (iFluid > -1)
-	{
-		Fluid *pFluid = get_fluid(iFluid);
-		return pFluid->params.CAS;
-	}
-	else
-	{
-		return "Fluid name invalid";
-	}
-}
-EXPORT_CODE long CONVENTION get_CAS_code(char* fluid, char *value)
-{
-	strcpy(value, (char*)get_CAS_code(fluid).c_str());
-	return 1;
-}
-
 long get_param_index(std::string param)
 {
 	std::map<std::string,long>::iterator it;
@@ -467,10 +274,7 @@ long get_param_index(std::string param)
 		return -1;
 	}
 }
-EXPORT_CODE long CONVENTION get_param_index(char * param)
-{
-	return get_param_index(std::string(param));
-}
+
 static int IsCoolPropFluid(std::string FluidName)
 {
 	// Try to get the fluid from Fluids by name
@@ -583,152 +387,6 @@ EXPORT_CODE int CONVENTION IsFluidType(char *Ref, char *Type)
         return 0;
     }
 }
-EXPORT_CODE double CONVENTION conformal_Trho(char* FluidName, char* ReferenceFluidName, double T, double rho, double *Tconform, double *rhoconform)
-{
-	long iFluid = get_Fluid_index(FluidName);
-	long iRefFluid = get_Fluid_index(ReferenceFluidName);
-	if (iFluid < 0 || iRefFluid < 0)
-	{
-		return _HUGE;
-	}
-	else
-	{
-		try{
-			Fluid *pFluid = get_fluid(iFluid);
-			Fluid *pRefFluid = get_fluid(iRefFluid);
-
-			double rhobar=rho/pFluid->params.molemass;
-			double rhocbar=pFluid->reduce.rho/pFluid->params.molemass;
-			double Tc=pFluid->reduce.T;
-
-			double Tc0 = pRefFluid->reduce.T;
-			double rhoc0bar=pRefFluid->reduce.rho/pRefFluid->params.molemass;
-			double T0=T*Tc0/Tc;
-			double rho0bar = rhobar*rhoc0bar/rhocbar;  // Must be the ratio of MOLAR densities!!
-			double rho0 = rho0bar*pRefFluid->params.molemass;
-			std::string errstring;
-			std::vector<double> Trho = pFluid->ConformalTemperature(pFluid,pRefFluid,T,rho,T0,rho0,&errstring);
-			if (errstring.size()>0){
-				return _HUGE;
-			}
-			else{
-				*Tconform = Trho[0];
-				*rhoconform = Trho[1];
-				return 0;
-			}
-		}
-		catch (std::exception){
-			return _HUGE;
-		}
-	}
-}
-
-EXPORT_CODE double CONVENTION viscosity_dilute(char* FluidName, double T)
-{
-	long iFluid = get_Fluid_index(FluidName);
-	if (iFluid < 0)
-	{
-		return _HUGE;
-	}
-	else
-	{
-		double e_k, sigma;
-		Fluid *pFluid = get_fluid(iFluid);
-		pFluid->ECSParams(&e_k, &sigma);
-		return pFluid->viscosity_dilute(T,e_k,sigma);
-	}
-}
-EXPORT_CODE double CONVENTION viscosity_residual(char* FluidName, double T, double rho)
-{
-	long iFluid = get_Fluid_index(FluidName);
-	if (iFluid < 0)
-	{
-		return _HUGE;
-	}
-	else
-	{
-		Fluid *pFluid = get_fluid(iFluid);
-		try{
-			return pFluid->viscosity_residual(T,rho);
-		}
-		catch (NotImplementedError)
-		{
-			return _HUGE;
-		}
-	}
-}
-
-EXPORT_CODE double CONVENTION conductivity_critical(char* FluidName, double T, double rho)
-{
-	long iFluid = get_Fluid_index(FluidName);
-	if (iFluid < 0)
-	{
-		return _HUGE;
-	}
-	else
-	{
-		Fluid *pFluid = get_fluid(iFluid);
-		return pFluid->conductivity_critical(T,rho);
-	}
-}
-EXPORT_CODE double CONVENTION conductivity_background(char* FluidName, double T, double rho)
-{
-	long iFluid = get_Fluid_index(FluidName);
-	if (iFluid < 0)
-	{
-		return _HUGE;
-	}
-	else
-	{
-		Fluid *pFluid = get_fluid(iFluid);
-		return pFluid->conductivity_background(T,rho);
-	}
-}
-
-EXPORT_CODE double CONVENTION rhosatL_anc(char* Fluid, double T)
-{
-	try{
-		// Try to load the CoolProp Fluid
-		pFluid = Fluids.get_fluid(std::string(Fluid));
-		return pFluid->rhosatL(T);
-	}
-	catch(NotImplementedError){
-		return -_HUGE;
-	}
-}
-EXPORT_CODE double CONVENTION rhosatV_anc(char* Fluid, double T)
-{
-	try{
-		// Try to load the CoolProp Fluid
-		pFluid = Fluids.get_fluid(std::string(Fluid));
-		return pFluid->rhosatV(T);
-	}
-	catch(NotImplementedError){
-		return -_HUGE;
-	}
-}
-EXPORT_CODE double CONVENTION psatL_anc(char* Fluid, double T)
-{
-	try{
-		// Try to load the CoolProp Fluid
-		pFluid = Fluids.get_fluid(std::string(Fluid));
-		return pFluid->psatL_anc(T);
-	}
-	catch(NotImplementedError){
-		return -_HUGE;
-	}
-}
-EXPORT_CODE double CONVENTION psatV_anc(char* Fluid, double T)
-{
-	try{
-		// Try to load the CoolProp Fluid
-		pFluid = Fluids.get_fluid(std::string(Fluid));
-		return pFluid->psatV_anc(T);
-	}
-	catch(NotImplementedError){
-		return -_HUGE;
-	}
-}
 
 double _T_hp_secant(std::string Ref, double h, double p, double T_guess)
 {
@@ -756,21 +414,6 @@ double _T_hp_secant(std::string Ref, double h, double p, double T_guess)
         }
     }
     return T;
-}
-
-EXPORT_CODE void CONVENTION Phase(char *Fluid,double T, double p, char *Phase_str)
-{
-	strcpy(Phase_str,(char*)Phase(std::string(Fluid),T,p).c_str());
-}
-EXPORT_CODE long CONVENTION Phase_Tp(char *Fluid,double T, double p, char *Phase_str)
-{
-	strcpy(Phase_str,(char*)Phase(std::string(Fluid),T,p).c_str());
-	return 0;
-}
-EXPORT_CODE long CONVENTION Phase_Trho(char *Fluid,double T, double rho, char *Phase_str)
-{
-	strcpy(Phase_str,(char*)Phase_Trho(std::string(Fluid),T,rho).c_str());
-	return 0;
 }
 
 std::string Phase_Trho(std::string Fluid, double T, double rho)
@@ -852,28 +495,6 @@ double _Props1(char *Fluid, char *Output)
 	}
 }
 
-// All the function interfaces that point to the single-input Props function
-EXPORT_CODE double CONVENTION Props1(char* Ref, char * Output)
-{
-	//FILE *fp;
-	//fp = fopen("c:\\CoolProp\\log_Props1.txt", "a");
-	//fprintf(fp,"%s %s\n",Ref,Output);
-	//fclose(fp);
-
-	try{
-	// Redirect to the Props function - should have called it Props1 from the outset
-	return _Props1(Ref, Output);
-	}
-	catch(std::exception &e)
-	{
-		err_string = std::string("CoolProp error: ").append(e.what());
-		return _HUGE;
-	}
-	catch(...){
-		err_string = std::string("CoolProp error: Indeterminate error");
-		return _HUGE;
-	}
-}
 double Props1(std::string Ref, std::string Output)
 {
 	// Redirect to the Props function - should have called it Props1 from the outset
@@ -886,19 +507,6 @@ double Props(std::string Ref, std::string Output)
 double Props(char* Ref, char* Output)
 {
 	return Props1(Ref, Output);
-}
-
-EXPORT_CODE double CONVENTION Props(char *Output,char Name1, double Prop1, char Name2, double Prop2, char * Ref)
-{
-	double val = Props(std::string(Output),Name1,Prop1,Name2,Prop2,std::string(Ref));
-
-	//FILE *fp;
-	//fp = fopen("c:\\CoolProp\\log_Props.txt", "a");
-	//fprintf(fp,"%s,%c,%g,%c,%g,%s-->%g\n",Output,Name1,Prop1,Name2,Prop2,Ref,val);
-	//fclose(fp);
-
-	// Go to the std::string, std::string version
-	return val;
 }
 double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, char* Ref)
 {
@@ -927,7 +535,7 @@ double Props(std::string Output,char Name1, double Prop1, char Name2, double Pro
 // Make this a wrapped function so that error bubbling can be done properly
 double _Props(std::string Output, std::string Name1, double Prop1, std::string Name2, double Prop2, std::string Ref)
 {
-	if (debug()>5){
+	if (get_debug_level()>5){
 		std::cout<<__FILE__<<": "<<Output.c_str()<<","<<Name1.c_str()<<","<<Prop1<<","<<Name2.c_str()<<","<<Prop2<<","<<Ref.c_str()<<std::endl;
 	}
 	/* 
@@ -1031,7 +639,7 @@ double _CoolProp_Fluid_Props(long iOutput, long iName1, double Prop1, long iName
 	double val = _HUGE;
 	// This private method uses the indices directly for speed
 
-	if (debug()>3){
+	if (get_debug_level()>3){
 		std::cout<<__FILE__<<" _CoolProp_Fluid_Props: "<<iOutput<<","<<iName1<<","<<Prop1<<","<<iName2<<","<<Prop2<<","<<pFluid->get_name().c_str()<<std::endl;
 	}
 
@@ -1072,7 +680,7 @@ double _CoolProp_Fluid_Props(long iOutput, long iName1, double Prop1, long iName
 	// Get the output
 	val = CPS.keyed_output(iOutput);
 	
-	if (debug()>5){
+	if (get_debug_level()>5){
 		std::cout<<__FILE__<<" _CoolProp_Fluid_Props return: "<<val<<std::endl;
 	}
 	// Return the value
@@ -1100,63 +708,6 @@ EXPORT_CODE double CONVENTION IProps(long iOutput, long iName1, double Prop1, lo
 			return _HUGE;
 		}
 	}
-}
-
-EXPORT_CODE double CONVENTION K2F(double T)
-{ return T * 9 / 5 - 459.67; }
-
-EXPORT_CODE double CONVENTION F2K(double T_F)
-{ return (T_F + 459.67) * 5 / 9;}
-
-EXPORT_CODE void CONVENTION PrintSaturationTable(char *FileName, char * Ref, double Tmin, double Tmax)
-{
-    double T;
-    FILE *f;
-    f=fopen(FileName,"w");
-    fprintf(f,"T,pL,pV,rhoL,rhoV,uL,uV,hL,hV,sL,sV,cvL,cvV,cpL,cpV,kL,kV,muL,muV\n");
-    fprintf(f,"[K],[kPa],[kPa],[kg/m^3],[kg/m^3],[kJ/kg],[kJ/kg],[kJ/kg],[kJ/kg],[kJ/kg-K],[kJ/kg-K],[kJ/kg-K],[kJ/kg-K],[kJ/kg-K],[kJ/kg-K],[kW/m-K],[kW/m-K],[Pa-s],[Pa-s]\n");
-    fprintf(f,"--------------------------------------------------------------------------\n");
-
-    for (T=Tmin;T<Tmax;T+=1.0)
-    {
-    fprintf(f,"%0.3f,",T);
-    fprintf(f,"%0.6f,",Props('P','T',T,'Q',0,Ref));
-    fprintf(f,"%0.6f,",Props('P','T',T,'Q',1,Ref));
-    fprintf(f,"%0.6f,",Props('D','T',T,'Q',0,Ref));
-    fprintf(f,"%0.6f,",Props('D','T',T,'Q',1,Ref));
-    fprintf(f,"%0.6f,",Props('U','T',T,'Q',0,Ref));
-    fprintf(f,"%0.6f,",Props('U','T',T,'Q',1,Ref));
-    fprintf(f,"%0.6f,",Props('H','T',T,'Q',0,Ref));
-    fprintf(f,"%0.6f,",Props('H','T',T,'Q',1,Ref));
-    fprintf(f,"%0.6f,",Props('S','T',T,'Q',0,Ref));
-    fprintf(f,"%0.6f,",Props('S','T',T,'Q',1,Ref));
-    fprintf(f,"%0.6f,",Props('O','T',T,'Q',0,Ref));
-    fprintf(f,"%0.6f,",Props('O','T',T,'Q',1,Ref));
-    fprintf(f,"%0.6f,",Props('C','T',T,'Q',0,Ref));
-    fprintf(f,"%0.6f,",Props('C','T',T,'Q',1,Ref));
-    fprintf(f,"%0.9f,",Props('L','T',T,'Q',0,Ref));
-    fprintf(f,"%0.9f,",Props('L','T',T,'Q',1,Ref));
-    fprintf(f,"%0.6g,",Props('V','T',T,'Q',0,Ref));
-    fprintf(f,"%0.6g,",Props('V','T',T,'Q',1,Ref));
-    fprintf(f,"\n");
-    }
-    fclose(f);
-}
-
-EXPORT_CODE void CONVENTION FluidsList(char* str)
-{
-	strcpy(str,get_global_param_string("FluidsList").c_str());
-	return;
-}
-std::string FluidsList()
-{
-	return get_global_param_string("FluidsList");
-}
-
-EXPORT_CODE double CONVENTION DerivTerms(char *Term, double T, double rho, char * Ref)
-{
-	pFluid=Fluids.get_fluid(Ref);
-	return DerivTerms(Term,T,rho,pFluid);
 }
 
 /// Calculate some interesting derivatives

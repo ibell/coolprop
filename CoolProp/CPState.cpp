@@ -87,15 +87,15 @@ void sort_pair(long *iInput1, double *Value1, long *iInput2, double *Value2, lon
 }
 double CoolPropStateClass::Tsat(double Q){
 	double mach_eps = 10*DBL_EPSILON;
-	double T,rhoL,rhoV, pL, pV;
+	double rhoL,rhoV, TL, TV;
 
-	pFluid->saturation_T(T,false,&pL,&pV,&rhoL,&rhoV);
+	pFluid->saturation_p(_p,false,&TL,&TV,&rhoL,&rhoV);
 
 	if (fabs(Q-1) < mach_eps){
-		return rhoV;	
+		return TV;	
 	}
 	else if (fabs(Q) < mach_eps){
-		return rhoL;
+		return TL;
 	}
 	else{
 		throw ValueError();

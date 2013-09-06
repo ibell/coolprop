@@ -421,7 +421,7 @@ FluidsContainer::FluidsContainer()
 	#include "JSON_code.h"
 
 	// Includes the C++ JSON code for the CAS number lookup as the variable JSON_cas
-	#include "JSON_cas.h"
+	#include "JSON_CAS.h"
 
 	JSON.Parse<0>(JSON_code);
 	JSON_CAS.Parse<0>(JSON_cas);
