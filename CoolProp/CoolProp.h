@@ -72,11 +72,9 @@ You might want to start by looking at CoolProp.h
 	Fluid * get_fluid(long iFluid);
 	void set_err_string(std::string err_string);
 
-	// Define some constants that will be used throughout
-	enum params {iB,iT,iP,iD,iC,iC0,iO,iU,iH,iS,iA,iG,iQ,iV,iL,iI,iMM,iTcrit,iTtriple,iTreduce,iPtriple,iPcrit,iRhocrit,iRhoreduce,iAccentric,iDpdT,iDrhodT_p,iTmin,iDipole,iPhase,iPHASE_LIQUID,iPHASE_GAS,iPHASE_SUPERCRITICAL,iPHASE_TWOPHASE,iODP,iGWP20,iGWP100,iGWP500, iCritSplineT,iHcrit,iScrit};
-	enum phases {iLiquid, iSupercritical, iGas, iTwoPhase};
 	int get_standard_unit_system();
 	void set_standard_unit_system(int);
 
+	// Define some constants that will be used throughout
 	#include "GlobalConstants.h"
 #endif

@@ -1453,7 +1453,7 @@ void Fluid::rhosatPure_Akasaka(double T, double *rhoLout, double *rhoVout, doubl
 	Ancillary equations are used to get a sensible starting point
 	*/
 	long double rhoL,rhoV,dphirL,dphirV,ddphirL,ddphirV,phirL,phirV,JL,JV,KL,KV,dJL,dJV,dKL,dKV;
-	long double DELTA, deltaL=0, deltaV=0, tau=0, error, PL, PV, stepL, stepV, dP;
+	long double DELTA, deltaL=0, deltaV=0, tau=0, error, PL, PV, stepL, stepV;
 	int iter=0;
 	// Use the density ancillary function as the starting point for the solver
     try
