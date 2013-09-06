@@ -1498,6 +1498,9 @@ void Fluid::rhosatPure_Akasaka(double T, double *rhoLout, double *rhoVout, doubl
 		JV = deltaV * (1 + deltaV*dphirV);
 		KL = deltaL*dphirL + phirL + log(deltaL);
 		KV = deltaV*dphirV + phirV + log(deltaV);
+
+		PL = R()*reduce.rho*T*JL;
+		PV = R()*reduce.rho*T*JV;
 		
 		// At low pressure, the magnitude of ddphirL and ddphirV are enormous, truncation problems arise for all the partials
 		dJL = 1 + 2*deltaL*dphirL + deltaL*deltaL*ddphirL;
@@ -1528,12 +1531,11 @@ void Fluid::rhosatPure_Akasaka(double T, double *rhoLout, double *rhoVout, doubl
 			throw SolutionError(format("Akasaka solver did not converge after 100 iterations"));
 		}
 	}
-	while (error > 1e-13*error && fabs(stepL) > 10*DBL_EPSILON*fabs(stepL) && fabs(stepV) > 10*DBL_EPSILON*fabs(stepV));
+	while (error > 1e-10 && fabs(stepL) > 10*DBL_EPSILON*fabs(stepL) && fabs(stepV) > 10*DBL_EPSILON*fabs(stepV));
 	
 	*rhoLout = deltaL*reduce.rho;
 	*rhoVout = deltaV*reduce.rho;
 	*pout = 0.5*(PL+PV);
-	
 	
 	return;
 }

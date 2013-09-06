@@ -115,11 +115,11 @@ cpdef double IProps(long iOutput, long iInput1, double Input1, long iInput2, dou
     cdef double val = _IProps(iOutput, iInput1, Input1, iInput2, Input2, iFluid)
     
     if math.isinf(val) or math.isnan(val):
-        err_string = _get_errstring()
+        err_string = _get_global_param_string('errstring')
         if not len(err_string) == 0:
             raise ValueError("{err:s} :: inputs were :{iin1:d},{in1:g},{iin2:d},{in2:g},{iFluid:d}".format(err= err_string,iin1=iInput1,in1=Input1,iin2=iInput2,in2=Input2,iFluid = iFluid))
         else:
-            raise ValueError("IProps failed ungracefully with inputs:\"{in1:s}\",\"{in2:s}\"; please file a ticket at https://sourceforge.net/p/coolprop/tickets/".format(in1=in1,in2=in2))
+            raise ValueError("IProps failed ungracefully with inputs:\"{in1:g}\",\"{in2:g}\"; please file a ticket at https://sourceforge.net/p/coolprop/tickets/".format(in1=Input1,in2=Input2))
     else:
         return val
 
@@ -548,7 +548,7 @@ cpdef get_ASHRAE34(str Fluid):
     Return the safety code for the fluid from ASHRAE34 if it is in ASHRAE34
     """
     cdef bytes _Fluid = Fluid.encode('ascii')
-    return _get_ASHRAE34(_Fluid)
+    return _get_fluid_param_string(_Fluid,"ASHRAE34")
     
 cpdef string get_REFPROPname(str Fluid):
     """
@@ -628,7 +628,7 @@ cpdef string get_CAS_code(string Fluid):
     """
     Return a string with the CAS number for the given fluid
     """
-    return _get_CAS_code(Fluid)
+    return _get_fluid_param_string(Fluid,"CAS")
     
 cpdef bint IsFluidType(string Fluid, string Type):
     """

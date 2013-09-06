@@ -43,10 +43,10 @@ def check_accentric(Fluid):
     try:
         accentric = Props(Fluid,'accentric')
     except ValueError:
-        raise ValueError('accentric should be: '+str(accentricEOS))
+        raise ValueError('accentric should be: '+str(accentricEOS)+'; it is '+ str(accentric))
     
     if not (accentric/accentricEOS-1) < 0.01:
-        raise ValueError('accentric should be: '+str(accentricEOS))
+        raise ValueError('accentric should be: '+str(accentricEOS)+'; it is '+ str(accentric))
     
 if __name__=='__main__':
     import nose

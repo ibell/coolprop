@@ -705,7 +705,7 @@ EXPORT_CODE double CONVENTION IProps(long iOutput, long iName1, double Prop1, lo
 		try{
 			// This is already converted to the right units since it comes from the CoolPropStateClass which
 			// does the unit handling
-			double val = _CoolProp_Fluid_Props(iOutput,iName1,Prop1,iName2,Prop2,pFluid);
+			return _CoolProp_Fluid_Props(iOutput,iName1,Prop1,iName2,Prop2,pFluid);
 		}
 		catch(std::exception &e){
 			err_string=std::string("CoolProp error: ").append(e.what());

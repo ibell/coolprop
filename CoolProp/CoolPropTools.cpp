@@ -228,13 +228,12 @@ std::vector<double> solve_cubic(double a, double b, double c, double d)
 		solns.push_back(x2);
 
 	}
-
 	return solns;
 }
 
 std::string strjoin(std::vector<std::string> strings, std::string delim)
 {
-	// Empty
+	// Empty input vector
 	if (strings.empty()){return "";}
 
 	std::string output = strings[0];
