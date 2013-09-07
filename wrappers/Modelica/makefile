@@ -21,7 +21,7 @@ AR    := ar rvs
 
 # used for the output
 MAJORVERSION     =3
-MINORVERSION     =1
+MINORVERSION     =3
 THENAME          =CoolPropLib
 LIBRARYEXTENSION =.a
 THETEST          =coolPropLibTest
@@ -32,12 +32,12 @@ THETEST          =coolPropLibTest
 ###########################################################
 SRCDIR     =./src
 # For Dymola integration
-# DYMDIR     =/opt/dymola
-# LIBINST    =$(DYMDIR)/bin/lib
-# HEADINST   =$(DYMDIR)/source
+DYMDIR     =/opt/dymola
+LIBINST    =$(DYMDIR)/bin/lib
+HEADINST   =$(DYMDIR)/source
 # For OpenModelica integration
-LIBINST    =/usr/lib/omc
-HEADINST   =/usr/include/omc
+# LIBINST    =/usr/lib/omc
+# HEADINST   =/usr/include/omc
 # For system-wide installation
 # LIBINST    =/usr/local/lib
 # HEADINST   =/usr/local/include
