@@ -921,7 +921,7 @@ cdef class State:
             p = _Props('P','T',T,'D',rho,self.Fluid)
         
         if abs(p)<1e90:
-            self.p_=p
+            self.p_ = p
         else:
             errstr = _get_errstring()
             raise ValueError(errstr)
@@ -1051,7 +1051,7 @@ cdef class State:
     property p:
         """ The pressure [kPa] """
         def __get__(self):
-            return self.Props(iP)
+            return self.get_p()
     
     cpdef double get_T(self) except *: 
         """ Get the temperature [K] """
@@ -1059,7 +1059,7 @@ cdef class State:
     property T:
         """ The temperature [K] """
         def __get__(self):
-            return self.Props(iT)
+            return self.get_T()
     
     cpdef double get_h(self) except *: 
         """ Get the specific enthalpy [kJ/kg] """
@@ -1301,7 +1301,7 @@ cdef class State:
                'subcooling':'K',
         }
         s='phase = '+self.phase+'\n'
-        for k in ['T','p','rho','Q','h','u','s','visc','k','cp','cv','dpdT','Prandtl','Tsat','superheat','subcooling']:
+        for k in ['T','p','rho','Q','h','u','s','visc','k','cp','cv','dpdT','Prandtl','superheat','subcooling']:
             if k in units:
                 s+=k+' = '+str(getattr(self,k))+' '+units[k]+'\n'
             else:

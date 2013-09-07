@@ -5,8 +5,9 @@ from CoolProp.State import State
 
 S = State('R134a',dict(T=300,D=1))
 
-# factor is kSI / SI value
+# factor is SI / kSI value
 State_listing = [('T',1),
+            ('get_speed_sound',1),
            ('rho',1),
            ('p',1000),
            ('h',1000),
@@ -30,6 +31,7 @@ def test_State():
         yield check, val_SI, val_kSI, kSI_SI
     
 Props_listing = [('T',1),
+                 ('A',1),
            ('D',1),
            ('P',1000),
            ('H',1000),
@@ -53,6 +55,7 @@ def test_PROPS():
         yield check, val_kSI, val_SI, kSI_SI
         
 State_Props_listing = [(param_constants.iT,1),
+                       (param_constants.iA,1),
                        (param_constants.iD,1),
                        (param_constants.iP,1000),
                        (param_constants.iH,1000),
@@ -76,6 +79,13 @@ def test_State_PROPS():
         yield check, val_kSI, val_SI, kSI_SI
     
 def check(val_kSI, val_SI, factor):
+    
+    try:
+        val_SI = val_SI()
+        val_kSI = val_kSI()
+    except:
+        pass
+            
     if not abs(val_SI/val_kSI/factor) > 1e-10:
         raise ValueError
         
