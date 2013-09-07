@@ -1187,8 +1187,12 @@ double CoolPropStateClass::conductivity(void){
 		return pFluid->TTSESinglePhase.evaluate_Trho(iL,_T,_rho,_logrho);
 	}
 	else{
-		double val = pFluid->conductivity_Trho(_T,_rho);
-		return convert_from_SI_to_unit_system(iL,val,get_standard_unit_system());
+		// All the values come back from the fluids as kW/m/K, so we need to first convert
+		// them to SI, then back to the desired unit system
+		double val_kWmK = pFluid->conductivity_Trho(_T,_rho);
+		double val_WmK = convert_from_unit_system_to_SI(iL,val_kWmK,UNIT_SYSTEM_KSI);
+		double val = convert_from_SI_to_unit_system(iL,val_WmK,get_standard_unit_system());
+		return val;
 	}
 }
 

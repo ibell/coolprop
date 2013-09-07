@@ -485,9 +485,9 @@ double WaterClass::conductivity_Trho(double T, double rho)
 	double tau,xi;
 	int i,j;
 
-	Tbar=T/Tstar;
-	rhobar=rho/rhostar;
-	R_Water=8.31447215/params.molemass;
+	Tbar = T/Tstar;
+	rhobar = rho/rhostar;
+	R_Water = 8314.47215/params.molemass;
 
 	// Dilute gas contribution
 	lambdabar_0=sqrt(Tbar)/(2.443221e-3+1.323095e-2/Tbar+6.770357e-3/pow(Tbar,2)-3.454586e-3/pow(Tbar,3)+4.096266e-4/pow(Tbar,4));
@@ -504,7 +504,8 @@ double WaterClass::conductivity_Trho(double T, double rho)
 	// Finite density contribution
 	lambdabar_1=exp(rhobar*sum);
 
-	double nu=0.630,GAMMA =177.8514,gamma=1.239,xi_0=0.13,Lambda_0=0.06,Tr_bar=1.5,qd_bar=1/0.4,pi=3.141592654,R=0.46151805;
+	double nu=0.630,GAMMA =177.8514,gamma=1.239,xi_0=0.13,Lambda_0=0.06,Tr_bar=1.5,qd_bar=1/0.4,pi=3.141592654,
+		R=461.51805;//J/kg/K
 	rhobar=rho/rhostar;
 	Tbar=T/Tstar;
 	tau=1/Tbar;
@@ -513,9 +514,9 @@ double WaterClass::conductivity_Trho(double T, double rho)
 	double drhobar_dpbar=pstar/rhostar*drhodp;
 	double drhodp_Trbar=1/(R*Tr_bar*Tstar*(1+2*rhobar*dphir_dDelta(1/Tr_bar,rhobar)+rhobar*rhobar*d2phir_dDelta2(1/Tr_bar,rhobar)));
 	double drhobar_dpbar_Trbar=pstar/rhostar*drhodp_Trbar;
-	double cp=specific_heat_p_Trho(T,rho);
-	double cv=specific_heat_v_Trho(T,rho);
-	double cpbar=cp/R;
+	double cp=specific_heat_p_Trho(T,rho); // [J/kg/K]
+	double cv=specific_heat_v_Trho(T,rho); // [J/kg/K]
+	double cpbar=cp/R; //[-]
 	double mubar = viscosity_Trho(T,rho)/mustar;
 	double DELTAchibar_T=rhobar*(drhobar_dpbar-drhobar_dpbar_Trbar*Tr_bar/Tbar);
 	if (DELTAchibar_T<0)

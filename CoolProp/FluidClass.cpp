@@ -460,7 +460,14 @@ bool FluidsContainer::add_REFPROP_fluid(std::string FluidName, std::vector<doubl
 
 Fluid * FluidsContainer::get_fluid(long iFluid)
 {
-	return FluidsList[iFluid];
+	if (iFluid > -1)
+	{
+		return FluidsList[iFluid];
+	}
+	else
+	{
+		return NULL;
+	}
 }
 Fluid * FluidsContainer::get_fluid(std::string name)
 {
@@ -3361,14 +3368,14 @@ double Fluid::conductivity_critical(double T, double rho, double qd, double GAMM
 	else
 		zeta=zeta0*pow(num/GAMMA,nu/gamma); //[m]
 
-	cp = specific_heat_p_Trho(T,rho); //[kJ/kg/K]
-	cv = specific_heat_v_Trho(T,rho); //[kJ/kg/K]
+	cp = specific_heat_p_Trho(T,rho); //[J/kg/K]
+	cv = specific_heat_v_Trho(T,rho); //[J/kg/K]
 	mu = viscosity_Trho(T,rho)*1e6; //[uPa-s]
 
 	OMEGA_tilde=2.0/pi*((cp-cv)/cp*atan(zeta*qd)+cv/cp*(zeta*qd)); //[-]
 	OMEGA_tilde0=2.0/pi*(1.0-exp(-1.0/(1.0/(qd*zeta)+1.0/3.0*(zeta*qd)*(zeta*qd)/delta/delta))); //[-]
 
-	double lambda=rho*cp*1e9*(R0*k*T)/(6*pi*mu*zeta)*(OMEGA_tilde-OMEGA_tilde0); //[W/m/K]
+	double lambda=rho*cp*1e6*(R0*k*T)/(6*pi*mu*zeta)*(OMEGA_tilde-OMEGA_tilde0); //[W/m/K]
 	return lambda/1e3; //[kW/m/K]
 }
 double Fluid::surface_tension_T(double T)
@@ -3705,7 +3712,7 @@ double Fluid::conductivity_ECS_Trho(double T, double rho, Fluid * ReferenceFluid
 	// The dilute portion is for the fluid of interest, not for the reference fluid
 	// It is the viscosity in the limit of zero density
 	// It has units of Pa-s here
-	eta_dilute = viscosity_dilute(T,e_k,sigma);
+	eta_dilute = viscosity_dilute(T,e_k,sigma); //[Pa-s]
 	
 	chi = ECS_chi_conductivity(rho/reduce.rho);
 	f_int = ECS_f_int(T);
@@ -3726,7 +3733,7 @@ double Fluid::conductivity_ECS_Trho(double T, double rho, Fluid * ReferenceFluid
 	double delta = rho/reduce.rho;
 	double tau = reduce.T/T;
 	double Z = 1+delta*dphir_dDelta(tau,delta);
-	double p0 = Z*R()*T0*rho0;
+	double p0 = Z*R()*T0*rho0; //[Pa]
 	if (Z<0.3 || p0 > 1.1*ReferenceFluid->reduce.p.Pa || rho0 > ReferenceFluid->reduce.rho){
 		// Use the code to calculate the conformal state
 		x0=ConformalTemperature(this,ReferenceFluid,T,rho,T0,rho0,&errstring);
@@ -3739,9 +3746,9 @@ double Fluid::conductivity_ECS_Trho(double T, double rho, Fluid * ReferenceFluid
 	f=T/T0;
 	
 	// Ideal-gas specific heat in the limit of zero density
-	double cpstar = specific_heat_p_ideal_Trho(T);
-	lambda_star = 15e-3*R()*(eta_dilute*1e6)/4.0; //[W/m/K]
-	lambda_int = f_int*(eta_dilute*1e6)*(cpstar-5.0/2.0*R() ); //[W/m/K]
+	double cpstar = specific_heat_p_ideal_Trho(T); //[J/kg/K]
+	lambda_star = 15e-3*R()*(eta_dilute*1e3)/4.0; //[W/m/K]
+	lambda_int = f_int*(eta_dilute*1e3)*(cpstar-5.0/2.0*R() ); //[W/m/K]
 	F_lambda = sqrt(f)*pow(h,-2.0/3.0)*sqrt(M0/M); //[-]
 	
 	//Get the background conductivity from the reference fluid
