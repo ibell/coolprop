@@ -1107,7 +1107,7 @@ double CoolPropStateClass::h(void){
 	else{
 		if (h_cached && ValidNumber(_h)){
 			// Use the pre-calculated value
-			return _h;
+			return convert_from_SI_to_unit_system(iH, _h, get_standard_unit_system());
 		}
 		else
 		{
@@ -1133,7 +1133,7 @@ double CoolPropStateClass::s(void){
 		if (s_cached && ValidNumber(_s) && !pFluid->enabled_TTSE_LUT)
 		{
 			// Use the pre-calculated value
-			return _s;
+			return convert_from_SI_to_unit_system(iS, _s, get_standard_unit_system());
 		}
 		else
 		{
@@ -1595,7 +1595,7 @@ double CoolPropStateClass::d2pdT2_constrho(void){
 	return pFluid->R()*_rho*delta*tau*tau/_T*d3phir_dDelta_dTau2(tau,delta);
 }
 
-// DERIVATIVES OF ENTROPY FROM EOS
+// DERIVATIVES OF ENTHALPY FROM EOS
 double CoolPropStateClass::dhdrho_constT(void){
 	return _T*pFluid->R()/_rho*(tau*delta*d2phir_dDelta_dTau(tau,delta)+delta*dphir_dDelta(tau,delta)+delta*delta*d2phir_dDelta2(tau,delta));
 }
