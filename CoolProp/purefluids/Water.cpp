@@ -474,6 +474,8 @@ static void visc_Helper(double Tbar, double rhobar, double *mubar_0, double *mub
 }
 double WaterClass::conductivity_Trho(double T, double rho)
 {
+	// Many thanks to http://twt.mpei.ac.ru/mcs/worksheets/iapws/wspsTCRT.xmcd
+
 	double L[5][6] = {{1.60397357,-0.646013523,0.111443906,0.102997357,-0.0504123634,0.00609859258},
 				{2.33771842,-2.78843778,1.53616167,-0.463045512,0.0832827019,-0.00719201245},
 				{2.19650529,-4.54580785,3.55777244,-1.40944978,0.275418278,-0.0205938816},
@@ -481,7 +483,7 @@ double WaterClass::conductivity_Trho(double T, double rho)
 				{-2.7203370,4.57586331,-3.18369245,1.1168348,-0.19268305,0.012913842}};
 
 	double lambdabar_0,lambdabar_1,lambdabar_2,rhobar,Tbar,sum,R_Water;
-	double Tstar=647.096,rhostar=322,pstar=22064,lambdastar=1e-3,mustar=1e-6;
+	double Tstar=647.096,rhostar=322,pstar=22064000,lambdastar=1e-3,mustar=1e-6;
 	double tau,xi;
 	int i,j;
 
