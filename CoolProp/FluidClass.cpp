@@ -3316,7 +3316,7 @@ double Fluid::Tsat(double p, double Q, double T_guess, bool UseLUT, double *rhoL
 
 double Fluid::R()
 {
-	return params.R_u*1000/params.molemass;
+	return params.R_u*1000.0/params.molemass;
 }
 
 double Fluid::viscosity_dilute(double T, double e_k, double sigma)
