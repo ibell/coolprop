@@ -62,8 +62,7 @@ def check_Props(parameter, SI_over_kSI):
         pass
             
     print val_SI,val_kSI, val_SI/val_kSI - SI_over_kSI
-    raise ValueError
-    if abs(val_SI/val_kSI - SI_over_kSI) > 1e-20:
+    if abs(val_SI/val_kSI - SI_over_kSI) > 1e-12:
         raise ValueError(val_SI/val_kSI-SI_over_kSI)
         
 State_Props_listing = [(param_constants.iT,1),
@@ -98,7 +97,7 @@ def check(val_SI, val_kSI, SI_over_kSI):
     except:
         pass
             
-    if abs(val_SI/val_kSI - SI_over_kSI) > 1e-20:
+    if abs(val_SI/val_kSI - SI_over_kSI) > 1e-12:
         raise ValueError(val_SI/val_kSI-SI_over_kSI)
         
 if __name__=='__main__':

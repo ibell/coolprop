@@ -1001,7 +1001,7 @@ double Fluid::temperature_prho_PengRobinson(double p, double rho)
 {
 	double omega, R, kappa, a, b, A, B, C, D, V= 1/rho;
 	omega = params.accentricfactor;
-	R = params.R_u/params.molemass;
+	R = this->R();
 
 	kappa = 0.37464+1.54226*omega-0.26992*omega*omega;
 	a = 0.457235*R*R*crit.T*crit.T/crit.p.Pa;
@@ -1944,8 +1944,9 @@ double Fluid::temperature_prho(double p, double rho, double T0)
 
 	do
 	{
-		r = CPS.p()-p;
-		drdT = CPS.dpdT_constrho();
+		double pEOS = convert_from_unit_system_to_SI(iP,CPS.p(),get_standard_unit_system());
+		r = pEOS-p;
+		drdT = convert_from_unit_system_to_SI(iP,CPS.dpdT_constrho(),get_standard_unit_system());
 		T -= r/drdT;
 		CPS.update(iT,T,iD,rho);
 		error = fabs(r);
