@@ -204,9 +204,9 @@ def plotRound(values):
         for i in range(len(input)):
             output[i] = numpy.around(input[i],decimals=int(val[i]))
         output = numpy.unique(output)
-    print(digits)
-    print(input)
-    print(output)
+    #print(digits)
+    #print(input)
+    #print(output)
     return output 
         
 
@@ -650,8 +650,8 @@ def _getIsoLineUnit(which):
       'T' : 'K',
       'P' : 'kPa',
       'H' : 'kJ/kg',
-      'D' : 'kg/m$^3$',
-      'S' : 'kJ/kg-K',
+      'D' : 'kg/m$\mathregular{^3}$',
+      'S' : 'kJ/(kg K)',
       'Q' : ''
     }
     return unitMap[str(which).upper()]
