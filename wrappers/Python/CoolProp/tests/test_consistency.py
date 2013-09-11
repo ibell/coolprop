@@ -5,34 +5,33 @@ from CoolProp.CoolProp import Props, get_REFPROPname, IsFluidType, set_standard_
 import numpy as np
 
 modes = []
-modes = ['pure']
+## modes.append('pure')
 #modes.append('pseudo-pure')
 
 # Check if REFPROP is supported, the Props call should work without throwing exception if it is supported
-## try:
-##     Props('D','T',300,'Q',1,'REFPROP-Propane')
-##     modes.append('REFPROP')
-## except ValueError:
-##     pass
+try:
+    Props('D','T',300,'Q',1,'REFPROP-Propane')
+    modes.append('REFPROP')
+except ValueError:
+    pass
             
 twophase_inputs = [('T','D'),('T','Q'),('P','Q'),('P','H'),('P','S'),('P','D'),('H','S')]
 singlephase_inputs = [('T','D'),('T','P'),('P','H'),('P','S'),('P','D'),('H','S')]
 
 singlephase_outputs = ['T','P','H','S','A','O','C','G','V','L','C0','U']
 
-def test_subcrit_singlephase_consistency():
-    for Fluid in sorted(CoolProp.__fluids__):
-        T = (Props(Fluid,'Tmin')+Props(Fluid,'Tcrit'))/2.0
-        for mode in modes:
-            rhoL = Props('D','T',T,'Q',0,Fluid)
-            rhoV = Props('D','T',T,'Q',1,Fluid)
-            for rho in [rhoL+0.1, rhoV*0.9]:
-                for inputs in singlephase_inputs:
-                    for unit_system in [unit_systems_constants.UNIT_SYSTEM_SI,unit_systems_constants.UNIT_SYSTEM_KSI]:
-                        yield check_consistency,Fluid,mode,unit_system,T,rho,inputs
+## def test_subcrit_singlephase_consistency():
+##     for Fluid in sorted(CoolProp.__fluids__):
+##         T = (Props(Fluid,'Tmin')+Props(Fluid,'Tcrit'))/2.0
+##         for mode in modes:
+##             rhoL = Props('D','T',T,'Q',0,Fluid)
+##             rhoV = Props('D','T',T,'Q',1,Fluid)
+##             for rho in [rhoL+0.1, rhoV*0.9]:
+##                 for inputs in singlephase_inputs:
+##                     for unit_system in [unit_systems_constants.UNIT_SYSTEM_SI,unit_systems_constants.UNIT_SYSTEM_KSI]:
+##                         yield check_consistency,Fluid,mode,unit_system,T,rho,inputs
                     
 def test_subcrit_twophase_consistency():
-    
     for Fluid in reversed(sorted(CoolProp.__fluids__)):
         Tmin = Props(Fluid,'Tmin')
         Tcrit = Props(Fluid,'Tcrit')
@@ -43,12 +42,17 @@ def test_subcrit_twophase_consistency():
                 for Q in [0.0, 0.5, 1.0]:
                     rho = 1/((1-Q)/rhoL+Q/rhoV)
                     for inputs in twophase_inputs:
-                        for unit_system in [unit_systems_constants.UNIT_SYSTEM_SI,unit_systems_constants.UNIT_SYSTEM_KSI]:
+                        for unit_system in ['SI','KSI']:
                             yield check_consistency,Fluid,mode,unit_system, T,rho,inputs
 
 def check_consistency(Fluid,mode,unit_system,T,rho,inputs):
         
-    set_standard_unit_system(unit_system)
+    if unit_system == 'SI':
+        set_standard_unit_system(unit_systems_constants.UNIT_SYSTEM_SI)
+    elif unit_system == 'KSI':
+        set_standard_unit_system(unit_systems_constants.UNIT_SYSTEM_KSI)
+    else:
+        raise ValueError
     
     if get_REFPROPname(Fluid) == 'N/A':
         return
@@ -59,7 +63,7 @@ def check_consistency(Fluid,mode,unit_system,T,rho,inputs):
     if mode == 'pure' and not IsFluidType(Fluid,'PureFluid'):
         return
         
-    #  Evaluate the inputs; if inputs is ('T','P'), calculate the temperature and the pressure
+    #  Evaluate the inputs; for instance if inputs is ('T','P'), calculate the temperature and the pressure
     Input1 = Props(inputs[0],'T',T,'D',rho,Fluid)
     Input2 = Props(inputs[1],'T',T,'D',rho,Fluid)
     
