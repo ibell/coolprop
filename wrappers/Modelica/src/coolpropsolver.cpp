@@ -50,7 +50,7 @@ CoolPropSolver::CoolPropSolver(const std::string &mediumName, const std::string 
 					enable_TTSE = false;
 				}
 				else
-					errorMessage((char*)format("I don't know how to handle this option [%s]",name_options[i].c_str()).c_str());
+					throw NotImplementedError((char*)format("I don't know how to handle this option [%s]",name_options[i].c_str()).c_str());
 			}
 			else if (!param_val[0].compare("calc_transport"))
 			{
@@ -456,5 +456,230 @@ void CoolPropSolver::setState_hs(double &h, double &s, int &phase, ExternalTherm
 	{
 		errorMessage((char*)e.what());
 	}
+}
+
+
+double CoolPropSolver::Pr(ExternalThermodynamicState *const properties){
+    // Base function returns an error if called - should be redeclared by the solver object
+	errorMessage((char*)"Internal error: Pr() not implemented in the Solver object");
+	throw NotImplementedError((char*)"Internal error: Pr() not implemented in the Solver object");
+	return 0;
+}
+
+double CoolPropSolver::T(ExternalThermodynamicState *const properties){
+    // Base function returns an error if called - should be redeclared by the solver object
+	errorMessage((char*)"Internal error: T() not implemented in the Solver object");
+	throw NotImplementedError((char*)"Internal error: T() not implemented in the Solver object");
+	return 0;
+}
+
+double CoolPropSolver::a(ExternalThermodynamicState *const properties){
+    // Base function returns an error if called - should be redeclared by the solver object
+	errorMessage((char*)"Internal error: a() not implemented in the Solver object");
+	throw NotImplementedError((char*)"Internal error: a() not implemented in the Solver object");
+	return 0;
+}
+
+double CoolPropSolver::beta(ExternalThermodynamicState *const properties){
+    // Base function returns an error if called - should be redeclared by the solver object
+	errorMessage((char*)"Internal error: beta() not implemented in the Solver object");
+	throw NotImplementedError((char*)"Internal error: beta() not implemented in the Solver object");
+	return 0;
+}
+
+double CoolPropSolver::cp(ExternalThermodynamicState *const properties){
+    // Base function returns an error if called - should be redeclared by the solver object
+	errorMessage((char*)"Internal error: cp() not implemented in the Solver object");
+	throw NotImplementedError((char*)"Internal error: cp() not implemented in the Solver object");
+	return 0;
+}
+
+double CoolPropSolver::cv(ExternalThermodynamicState *const properties){
+    // Base function returns an error if called - should be redeclared by the solver object
+	errorMessage((char*)"Internal error: cv() not implemented in the Solver object");
+	throw NotImplementedError((char*)"Internal error: cv() not implemented in the Solver object");
+	return 0;
+}
+
+double CoolPropSolver::d(ExternalThermodynamicState *const properties){
+    // Base function returns an error if called - should be redeclared by the solver object
+	errorMessage((char*)"Internal error: d() not implemented in the Solver object");
+	throw NotImplementedError((char*)"Internal error: d() not implemented in the Solver object");
+	return 0;
+}
+
+double CoolPropSolver::ddhp(ExternalThermodynamicState *const properties){
+    // Base function returns an error if called - should be redeclared by the solver object
+	errorMessage((char*)"Internal error: ddhp() not implemented in the Solver object");
+	throw NotImplementedError((char*)"Internal error: ddhp() not implemented in the Solver object");
+	return 0;
+}
+
+double CoolPropSolver::ddph(ExternalThermodynamicState *const properties){
+    // Base function returns an error if called - should be redeclared by the solver object
+	errorMessage((char*)"Internal error: ddph() not implemented in the Solver object");
+	throw NotImplementedError((char*)"Internal error: ddph() not implemented in the Solver object");
+	return 0;
+}
+
+double CoolPropSolver::eta(ExternalThermodynamicState *const properties){
+    // Base function returns an error if called - should be redeclared by the solver object
+	errorMessage((char*)"Internal error: eta() not implemented in the Solver object");
+	throw NotImplementedError((char*)"Internal error: eta() not implemented in the Solver object");
+	return 0;
+}
+
+double CoolPropSolver::h(ExternalThermodynamicState *const properties){
+    // Base function returns an error if called - should be redeclared by the solver object
+	errorMessage((char*)"Internal error: h() not implemented in the Solver object");
+	throw NotImplementedError((char*)"Internal error: h() not implemented in the Solver object");
+	return 0;
+}
+
+double CoolPropSolver::kappa(ExternalThermodynamicState *const properties){
+    // Base function returns an error if called - should be redeclared by the solver object
+	errorMessage((char*)"Internal error: kappa() not implemented in the Solver object");
+	throw NotImplementedError((char*)"Internal error: kappa() not implemented in the Solver object");
+	return 0;
+}
+
+double CoolPropSolver::lambda(ExternalThermodynamicState *const properties){
+    // Base function returns an error if called - should be redeclared by the solver object
+	errorMessage((char*)"Internal error: lambda() not implemented in the Solver object");
+	throw NotImplementedError((char*)"Internal error: lambda() not implemented in the Solver object");
+	return 0;
+}
+
+double CoolPropSolver::p(ExternalThermodynamicState *const properties){
+    // Base function returns an error if called - should be redeclared by the solver object
+	errorMessage((char*)"Internal error: p() not implemented in the Solver object");
+	throw NotImplementedError((char*)"Internal error: p() not implemented in the Solver object");
+	return 0;
+}
+
+int CoolPropSolver::phase(ExternalThermodynamicState *const properties){
+    // Base function returns an error if called - should be redeclared by the solver object
+	errorMessage((char*)"Internal error: phase() not implemented in the Solver object");
+	throw NotImplementedError((char*)"Internal error: phase() not implemented in the Solver object");
+	return 0;
+}
+
+double CoolPropSolver::s(ExternalThermodynamicState *const properties){
+    // Base function returns an error if called - should be redeclared by the solver object
+	errorMessage((char*)"Internal error: s() not implemented in the Solver object");
+	throw NotImplementedError((char*)"Internal error: s() not implemented in the Solver object");
+	return 0;
+}
+
+double CoolPropSolver::d_der(ExternalThermodynamicState *const properties){
+    // Base function returns an error if called - should be redeclared by the solver object
+	errorMessage((char*)"Internal error: d_der() not implemented in the Solver object");
+	throw NotImplementedError((char*)"Internal error: d_der() not implemented in the Solver object");
+	return 0;
+}
+
+double CoolPropSolver::isentropicEnthalpy(double &p, ExternalThermodynamicState *const properties){
+    // Base function returns an error if called - should be redeclared by the solver object
+	errorMessage((char*)"Internal error: isentropicEnthalpy() not implemented in the Solver object");
+	throw NotImplementedError((char*)"Internal error: isentropicEnthalpy() not implemented in the Solver object");
+	return 0;
+}
+
+double CoolPropSolver::dTp(ExternalSaturationProperties *const properties){
+    // Base function returns an error if called - should be redeclared by the solver object
+	errorMessage((char*)"Internal error: dTp() not implemented in the Solver object");
+	throw NotImplementedError((char*)"Internal error: dTp() not implemented in the Solver object");
+	return 0;
+}
+
+double CoolPropSolver::ddldp(ExternalSaturationProperties *const properties){
+    // Base function returns an error if called - should be redeclared by the solver object
+	errorMessage((char*)"Internal error: ddldp() not implemented in the Solver object");
+	throw NotImplementedError((char*)"Internal error: ddldp() not implemented in the Solver object");
+	return 0;
+}
+
+double CoolPropSolver::ddvdp(ExternalSaturationProperties *const properties){
+    // Base function returns an error if called - should be redeclared by the solver object
+	errorMessage((char*)"Internal error: ddvdp() not implemented in the Solver object");
+	throw NotImplementedError((char*)"Internal error: ddvdp() not implemented in the Solver object");
+	return 0;
+}
+
+double CoolPropSolver::dhldp(ExternalSaturationProperties *const properties){
+    // Base function returns an error if called - should be redeclared by the solver object
+	errorMessage((char*)"Internal error: dhldp() not implemented in the Solver object");
+	throw NotImplementedError((char*)"Internal error: dhldp() not implemented in the Solver object");
+	return 0;
+}
+
+double CoolPropSolver::dhvdp(ExternalSaturationProperties *const properties){
+    // Base function returns an error if called - should be redeclared by the solver object
+	errorMessage((char*)"Internal error: dhvdp() not implemented in the Solver object");
+	throw NotImplementedError((char*)"Internal error: dhvdp() not implemented in the Solver object");
+	return 0;
+}
+
+double CoolPropSolver::dl(ExternalSaturationProperties *const properties){
+    // Base function returns an error if called - should be redeclared by the solver object
+	errorMessage((char*)"Internal error: dl() not implemented in the Solver object");
+	throw NotImplementedError((char*)"Internal error: dl() not implemented in the Solver object");
+	return 0;
+}
+
+double CoolPropSolver::dv(ExternalSaturationProperties *const properties){
+    // Base function returns an error if called - should be redeclared by the solver object
+	errorMessage((char*)"Internal error: dv() not implemented in the Solver object");
+	throw NotImplementedError((char*)"Internal error: dv() not implemented in the Solver object");
+	return 0;
+}
+
+double CoolPropSolver::hl(ExternalSaturationProperties *const properties){
+    // Base function returns an error if called - should be redeclared by the solver object
+	errorMessage((char*)"Internal error: hl() not implemented in the Solver object");
+	throw NotImplementedError((char*)"Internal error: hl() not implemented in the Solver object");
+	return 0;
+}
+
+double CoolPropSolver::hv(ExternalSaturationProperties *const properties){
+    // Base function returns an error if called - should be redeclared by the solver object
+	errorMessage((char*)"Internal error: hv() not implemented in the Solver object");
+	throw NotImplementedError((char*)"Internal error: hv() not implemented in the Solver object");
+	return 0;
+}
+
+double CoolPropSolver::sigma(ExternalSaturationProperties *const properties){
+    // Base function returns an error if called - should be redeclared by the solver object
+	errorMessage((char*)"Internal error: sigma() not implemented in the Solver object");
+	throw NotImplementedError((char*)"Internal error: sigma() not implemented in the Solver object");
+	return 0;
+}
+
+double CoolPropSolver::sl(ExternalSaturationProperties *const properties){
+    // Base function returns an error if called - should be redeclared by the solver object
+	errorMessage((char*)"Internal error: sl() not implemented in the Solver object");
+	throw NotImplementedError((char*)"Internal error: sl() not implemented in the Solver object");
+	return 0;
+}
+
+double CoolPropSolver::sv(ExternalSaturationProperties *const properties){
+    // Base function returns an error if called - should be redeclared by the solver object
+	errorMessage((char*)"Internal error: sv() not implemented in the Solver object");
+	throw NotImplementedError((char*)"Internal error: sv() not implemented in the Solver object");
+	return 0;
+}
+
+double CoolPropSolver::psat(ExternalSaturationProperties *const properties){
+    // Base function returns an error if called - should be redeclared by the solver object
+	errorMessage((char*)"Internal error: psat() not implemented in the Solver object");
+	throw NotImplementedError((char*)"Internal error: psat() not implemented in the Solver object");
+	return 0;
+}
+
+double CoolPropSolver::Tsat(ExternalSaturationProperties *const properties){
+    // Base function returns an error if called - should be redeclared by the solver object
+	errorMessage((char*)"Internal error: Tsat() not implemented in the Solver object");
+	throw NotImplementedError((char*)"Internal error: Tsat() not implemented in the Solver object");
+	return 0;
 }
 

@@ -894,7 +894,7 @@ cdef class State:
             if abs(T)<1e90:
                 self.T_=T
             else:
-                errstr = _get_errstring()
+                errstr = _get_global_param_string('errstring')
                 raise ValueError(errstr)
             self.rho_ = _Props('D','P',p,'H',h,self.Fluid)
             
@@ -923,7 +923,7 @@ cdef class State:
         if abs(p)<1e90:
             self.p_ = p
         else:
-            errstr = _get_errstring()
+            errstr = _get_global_param_string('errstring')
             raise ValueError(errstr)
         
     cpdef update(self, dict params, double xL=-1.0):
@@ -974,7 +974,7 @@ cdef class State:
                 if abs(rho) < 1e90:
                     self.rho_=rho
                 else:
-                    errstr = _get_errstring()
+                    errstr = _get_global_param_string('errstring')
                     raise ValueError(errstr)
             elif 'D' in params:
                 self.rho_=params['D']
@@ -983,7 +983,7 @@ cdef class State:
                 if abs(p)<1e90:
                     self.p_=p
                 else:
-                    errstr = _get_errstring()
+                    errstr = _get_global_param_string('errstring')
                     raise ValueError(errstr+str(params))
             elif 'Q' in params:
                 p = _Props('P','T',self.T_,'Q',params['Q'],self.Fluid)
@@ -992,7 +992,7 @@ cdef class State:
                 if abs(self.rho_)<1e90:
                     pass
                 else:
-                    errstr = _get_errstring()
+                    errstr = _get_global_param_string('errstring')
                     raise ValueError(errstr+str(params))
             else:
                 raise KeyError("Dictionary must contain the key 'T' and one of 'P' or 'D'")

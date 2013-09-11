@@ -340,7 +340,7 @@ bool load_REFPROP()
 //				printf(lpBuffer);
 //				printf("\n");
 				              printf("Could not load refprop.dll \n\n");
-				throw AttributeError("Could not load refprop.dll, make sure it is in your system search path.");
+				throw AttributeError("Could not load refprop.dll, make sure it is in your system search path. In case you run 64bit and you have a REFPROP license, try installing the 64bit DLL from NIST.");
 			#elif defined(__ISLINUX__)
 				fputs (dlerror(), stderr);
 				              printf("Could not load librefprop.so \n\n");
