@@ -447,8 +447,8 @@ void CoolPropStateClass::update_prho(long iInput1, double Value1, long iInput2, 
 	_p = convert_from_unit_system_to_SI(iP, Value1, get_standard_unit_system());
 	_rho = Value2;
 
-	if (Value1 < 0 ){ throw ValueError(format("Your pressure [%f kPa] is less than zero",Value1));}
-	if (Value2 < 0 ){ throw ValueError(format("Your density [%f kg/m^3] is less than zero",Value2));}
+	if (_p < 0 ){ throw ValueError(format("Your pressure [%f kPa] is less than zero",Value1));}
+	if (_rho < 0 ){ throw ValueError(format("Your density [%f kg/m^3] is less than zero",Value2));}
 
 	if (flag_SinglePhase && flag_TwoPhase) throw ValueError(format("Only one of flag_SinglePhase and flag_TwoPhase may be set to true"));
 
@@ -1143,7 +1143,7 @@ double CoolPropStateClass::s(void){
 			}
 			else
 			{
-				// Use the EOS, using the cached value if possible
+				// Use the EOS, using the cached values if possible
 				double val = pFluid->R()*(tau*(dphi0_dTau(tau,delta)+dphir_dTau(tau,delta))-phi0(tau,delta)-phir(tau,delta));
 				return convert_from_SI_to_unit_system(iS, val, get_standard_unit_system());
 			}
@@ -1230,7 +1230,7 @@ double CoolPropStateClass::cv(void){
 	}
 	else
 	{
-		double val = -pFluid->R()*pow(tau,2)*(d2phi0_dTau2(tau,delta)+d2phir_dTau2(tau,delta));
+		double val = -pFluid->R()*pow(tau,2)*(d2phi0_dTau2(tau,delta)+d2phir_dTau2(tau,delta)); //[J/kg/K]
 		return convert_from_SI_to_unit_system(iO,val,get_standard_unit_system());
 	}
 }
@@ -1259,7 +1259,8 @@ double CoolPropStateClass::speed_sound(void){
 	{
 		double c1 = pow(tau,2)*(d2phi0_dTau2(tau,delta)+d2phir_dTau2(tau,delta));
 		double c2 = (1.0+2.0*delta*dphir_dDelta(tau,delta)+pow(delta,2)*d2phir_dDelta2(tau,delta));
-		return sqrt(-c2*this->_T*this->cp()*1000/c1);
+		double cp_JkgK = convert_from_unit_system_to_SI(iC,this->cp(),get_standard_unit_system());
+		return sqrt(-c2*this->_T*cp_JkgK/c1);
 	}
 }
 
