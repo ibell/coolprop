@@ -6,6 +6,12 @@ Created on Thu Sep 12 15:13:20 2013
 """
 
 import matplotlib
+import numpy
+
+import CoolProp.CoolProp as CP
+
+
+SMALL = 1E-5
 
 
 class BasePlot(object):
@@ -24,12 +30,12 @@ class BasePlot(object):
                  'S': 'DarkOrange',
                  'Q': 'black'}
 
-    SYMBOL_MAP = {'T' : [r'$T = ','$ K'],
-                  'P' : [r'$p = ','$ kPa'],
-                  'H' : [r'$h = ','$ kJ/kg'],
-                  'D' : [r'$\rho = ','$ kg/m$^3$'],
-                  'S' : [r'$s = ','$ kJ/kg-K'],
-                  'Q' : [r'$x = ','$']}
+    SYMBOL_MAP = {'T' : [r'$T = ', r'$ K'],
+                  'P' : [r'$p = ', r'$ kPa'],
+                  'H' : [r'$h = ', r'$ kJ/kg'],
+                  'D' : [r'$\rho = ', r'$ kg/m$^3$'],
+                  'S' : [r'$s = ', r'$ kJ/kg-K'],
+                  'Q' : [r'$x = ', r'$']}
 
     LINE_IDS = {'TS': ['P', 'D'], #'H'],
                 'PH': ['S', 'T', 'D'],
@@ -48,8 +54,9 @@ class BasePlot(object):
             graph_type = graph_type[0] + graph_type[1:len(graph_type)]
 
         if graph_type.upper() not in self.LINE_IDS.keys():
-            raise ValueError("You have to specify the kind of plot, use " \
-                              + str(self.LINE_IDS.keys()))
+            raise ValueError(''.join(["You have to specify the kind of ",
+                                      "plot, use ",
+                                      str(self.LINE_IDS.keys())]))
 
         self.fluid_ref = fluid_ref
         self.graph_type = graph_type.upper()
@@ -59,48 +66,52 @@ class BasePlot(object):
 
     def __sat_bounds(self, kind, smin=None, smax=None):
         """
-        Generates limits for the saturation line in either T or p determined by 'kind'.
-        If xmin or xmax are provided, values will be checked against the allowable
-        range for the EOS and an error might be generated.
+        Generates limits for the saturation line in either T or p determined
+        by 'kind'. If xmin or xmax are provided, values will be checked
+        against the allowable range for the EOS and an error might be
+        generated.
 
         Returns a tuple containing (xmin,xmax)
         """
         if kind == 'P':
             name = 'pressure'
-            minKey = 'ptriple'
+            min_key = 'ptriple'
         elif kind == 'T':
             name = 'temperature'
-            minKey = 'Tmin'
+            min_key = 'Tmin'
 
-        fluid_crit = CP.Props(self.fluid_ref, str(kind) + 'crit')
+        fluid_min = CP.Props(self.fluid_ref, min_key)
+        fluid_crit = CP.Props(self.fluid_ref, ''.join([kind, 'crit']))
 
         if smin is None:
-            smin = CP.Props(self.fluid_ref, str(minKey)) + SMALL
+            smin = fluid_min + SMALL
         elif smin > fluid_crit:
-            raise ValueError('Minimum ' + name +
-                             ' cannot be greater than fluid critical ' +
-                             name + '.')
+            raise ValueError(''.join(['Minimum ', name,
+                             ' cannot be greater than fluid critical ',
+                             name, '.']))
 
         if smax is None:
-            smax = CP.Props(self.fluid_ref, str(kind) + 'crit') - SMALL
+            smax = fluid_crit - SMALL
         elif smax > fluid_crit:
-            raise ValueError('Maximum ' + name +
-                             ' cannot be greater than fluid critical ' +
-                             name + '.')
+            raise ValueError(''.join(['Maximum ', name,
+                             ' cannot be greater than fluid critical ',
+                             name, '.']))
 
-        smin = max(smin, CP.Props(self.fluid_ref, minKey) + SMALL)
-        smax = min(smax, CP.Props(self.fluid_ref, kind + 'crit') - SMALL)
+        smin = max(smin, fluid_min + SMALL)
+        smax = min(smax, fluid_crit - SMALL)
 
         return smin, smax
 
     def _get_fluid_data(self, req_prop, prop1_name,
                         prop2_name, prop1_vals, prop2_vals):
         """
-        Calculates lines for constant iName (iVal) over an interval of xName (xVal).
-        Returns (x[],y[]) - a tuple of arrays containing the values in x and y dimensions.
+        Calculates lines for constant iName (iVal) over an interval of xName
+        (xVal). Returns (x[],y[]) - a tuple of arrays containing the values
+        in x and y dimensions.
         """
         if len(prop1_vals) != len(prop2_vals):
-            raise ValueError('We need the same number of x value arrays as iso quantities.')
+            raise ValueError(''.join(['We need the same number of x value ',
+                                      'arrays as iso quantities.']))
 
         y_vals = []
         x_vals = []
@@ -114,7 +125,8 @@ class BasePlot(object):
                                     self.fluid_ref) for x in prop2_vals[i]])
         return [x_vals, y_vals]
 
-    def _get_sat_lines(self, kind='T', smin=None, smax=None, num=500, x=[0., 1.]):
+    def _get_sat_lines(self, kind='T', smin=None,
+                       smax=None, num=500, x=[0., 1.]):
         """
         Calculates bubble and dew line in the quantities for your plot.
         You can specify if you need evenly spaced entries in either
@@ -122,15 +134,17 @@ class BasePlot(object):
         (default), respectively.
         Limits can be set with kmin (default: minimum from EOS) and
         kmax (default: critical value).
-        Returns lines[] - a 2D array of dicts containing 'x' and 'y' coordinates
-        for bubble and dew line. Additionally, the dict holds the keys
-        'kmax', 'label' and 'opts', those can be used for plotting as well.
+        Returns lines[] - a 2D array of dicts containing 'x' and 'y'
+        coordinates for bubble and dew line. Additionally, the dict holds
+        the keys 'kmax', 'label' and 'opts', those can be used for plotting
+        as well.
         """
         if not kind.upper() in ['T', 'P']:
-            raise ValueError("Invalid input for determining the saturation \
-                              lines... Expected either 'T' or 'P'")
+            raise ValueError(''.join(["Invalid input for determining the ",
+                                      "saturation lines... Expected either ",
+                                      "'T' or 'P'"]))
 
-        smin, smax = self.__sat_bounds(kind, xmin=smin, xmax=smax)
+        smin, smax = self.__sat_bounds(kind, smin=smin, smax=smax)
         sat_range = numpy.linspace(smin, smax, num)
         sat_mesh = [sat_range for i in x]
 
@@ -141,7 +155,7 @@ class BasePlot(object):
                                              kind, x, sat_mesh)
 
         if self.graph_type[0] != kind:
-            _, y_vals = self._get_fluid_data(self.graph_type[0],'Q',
+            _, y_vals = self._get_fluid_data(self.graph_type[0], 'Q',
                                              kind, x, sat_mesh)
 
         # Merge the two lines, capital Y holds important information.
