@@ -367,6 +367,7 @@ class IsoLines(object):
         [cuiY,cuaY] = axis.get_ylim()
 
         return ((cuiX,cuaX),(cuiY,cuaY))
+
     def __get_isolines_data(self, iso_range, x_values):
         """
         Calculates lines for constant iName (iVal) over an interval of xName (xVal).
@@ -602,13 +603,10 @@ class Graph(object):
         self.__set_axis_labels()
 
     def draw_isolines(self, iso_type, iso_range, num=10):
-        drawIsoLines(self.fluid_ref,
-                     self.graph_type,
-                     iso_type,
-                     iso_range,
-                     num,
-                     self.axis,
-                     self.figure)
+        iso_lines = IsoLines(self.fluid_ref,
+                             self.graph_type,
+                             iso_type)
+        iso_lines.draw_isolines(iso_range, num)
 
     def figure(self):
         self.__draw_graph()
