@@ -414,7 +414,6 @@ class Graph(BasePlot):
                                       self.fluid_ref))
         self.axis.set_xlabel(' '.join(self.AXIS_LABLES[x_axis_id]))
         self.axis.set_ylabel(' '.join(self.AXIS_LABLES[y_axis_id]))
-        self.axis.autoscale(enable=True)
 
     def __draw_region_lines(self):
         lines = self._get_sat_lines(kind='T',
