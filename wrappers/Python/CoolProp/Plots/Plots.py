@@ -116,10 +116,10 @@ def drawLines(Ref,lines,axis,plt_kwargs=None):
       ( 0 == lines[0]['value'] and 1 == lines[1]['type'] ) or ( 1 == lines[0]['value'] and 0 == lines[1]['type'] ) ):
         # We plot the saturation curve
         bubble = lines[0]
-        dew    = lines[1]
+        dew = lines[1]
         line, = axis.plot(bubble['x'],bubble['y'],**bubble['opts'])
         plottedLines.extend([line])
-        line, = axis.plot(dew['x'],   dew['y'],   **dew['opts'])
+        line, = axis.plot(dew['x'], dew['y'], **dew['opts'])
         plottedLines.extend([line])
         # Do we need to test if this is T or p?
         Tmax = min(bubble['kmax'],dew['kmax'])
