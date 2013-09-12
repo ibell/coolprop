@@ -167,7 +167,7 @@ class IsoLines(BasePlot):
         BasePlot.__init__(self, fluid_ref, graph_type, **kwargs)
 
         if not isinstance(iso_type, str):
-            raise TypeError("Invalid iso_type input, expeceted a string")
+            raise TypeError("Invalid iso_type input, expected a string")
 
         iso_type = iso_type.upper()
         if iso_type not in self.COLOR_MAP.keys() and iso_type != 'Q':
@@ -233,27 +233,6 @@ class IsoLines(BasePlot):
         xmin, xmax = self.axis.get_xlim()
         ymin, ymax = self.axis.get_ylim()
         return [[xmin, xmax], [ymin, ymax]]
-
-    def __get_isolines_data(self, iso_range, x_values):
-        """
-        Calculates lines for constant iName (iVal) over an interval of xName (xVal).
-
-        Returns (x[],y[]) - a tuple of arrays containing the values in x and y dimensions.
-        """
-
-        if (len(iVal)!=len(xVal)):
-            raise ValueError('We need the same number of x value arrays as iso quantities.')
-
-        y  = []
-        x  = []
-        for j in range(len(iVal)):
-            jiVal = iVal[j] #constant quantity
-            jxVal = xVal[j] #x-axis array
-            Y = numpy.array([CP.Props(yName,iName,[jiVal],xName,ijxVal,Ref) for ijxVal in jxVal])
-            y.append(Y)
-            x.append(jxVal)
-
-        return [x, y]
 
     def get_isolines(self, iso_range=[], num=None):
         """
@@ -358,7 +337,7 @@ class IsoLines(BasePlot):
 
         return lines
 
-    def draw_isolines(self, iso_range=[], num=None):
+    def draw_isolines(self, iso_range, num=None):
         """
         Draw lines with constant values of type 'which' in terms of x and y as
         defined by 'plot'. 'iMin' and 'iMax' are minimum and maximum value between

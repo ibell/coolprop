@@ -94,7 +94,29 @@ class BasePlot(object):
 
         return (xmin,xmax)
 
-    def _get_sat_lines(kind=None, kmin=None, kmax=None, x=[0.,1.]):
+
+    def __get_isolines_data(self, iso_range, x_values):
+        """
+        Calculates lines for constant iName (iVal) over an interval of xName (xVal).
+
+        Returns (x[],y[]) - a tuple of arrays containing the values in x and y dimensions.
+        """
+
+        if (len(iVal)!=len(xVal)):
+            raise ValueError('We need the same number of x value arrays as iso quantities.')
+
+        y  = []
+        x  = []
+        for j in range(len(iVal)):
+            jiVal = iVal[j] #constant quantity
+            jxVal = xVal[j] #x-axis array
+            Y = numpy.array([CP.Props(yName,iName,[jiVal],xName,ijxVal,Ref) for ijxVal in jxVal])
+            y.append(Y)
+            x.append(jxVal)
+
+        return [x, y]
+
+    def _get_sat_lines(iso_type, kmin=None, kmax=None, x=[0., 1.]):
         """
         Calculates bubble and dew line in the quantities for your plot.
 
@@ -109,8 +131,6 @@ class BasePlot(object):
         for bubble and dew line. Additionally, the dict holds the keys
         'kmax', 'label' and 'opts', those can be used for plotting as well.
         """
-
-        xName,yName,plot = _plotXY(plot)
 
         if (str(kind).lower()=='p'):
             kind = 'P'
