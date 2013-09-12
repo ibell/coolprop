@@ -172,7 +172,7 @@ class IsoLines(BasePlot):
 
         self.iso_type = iso_type
 
-    def __set_axis_limits(self):
+    def __set_axis_limits(self, swap_xy):
         """
         Generates limits for the axes in terms of x,y defined by 'plot'
         based on temperature and pressure.
@@ -181,52 +181,50 @@ class IsoLines(BasePlot):
         """
         # Get current axis limits, be sure to set those before drawing isolines
         # if no limits are set, use triple point and critical conditions
-        X = [CP.Props(self.graph_type[0],
+        X = [CP.Props(self.graph_type[1],
                       'T', 1.5*CP.Props(self.fluid_ref, 'Tcrit'),
                       'P', CP.Props(self.fluid_ref, 'ptriple'),
                       self.fluid_ref),
-             CP.Props(self.graph_type[0],
+             CP.Props(self.graph_type[1],
                       'T', 1.1*CP.Props(self.fluid_ref, 'Tmin'),
                       'P', 1.5*CP.Props(self.fluid_ref, 'pcrit'),
                       self.fluid_ref),
-             CP.Props(self.graph_type[0],
+             CP.Props(self.graph_type[1],
                       'T', 1.5*CP.Props(self.fluid_ref, 'Tcrit'),
                       'P', 1.5*CP.Props(self.fluid_ref, 'pcrit'),
                       self.fluid_ref),
-             CP.Props(self.graph_type[0],
+             CP.Props(self.graph_type[1],
                       'T', 1.1*CP.Props(self.fluid_ref, 'Tmin'),
                       'P', CP.Props(self.fluid_ref, 'ptriple'),
                       self.fluid_ref)]
 
-        Y = [CP.Props(self.graph_type[1],
+        Y = [CP.Props(self.graph_type[0],
                       'T', 1.5*CP.Props(self.fluid_ref, 'Tcrit'),
                       'P', CP.Props(self.fluid_ref, 'ptriple'),
                        self.fluid_ref),
-             CP.Props(self.graph_type[1],
+             CP.Props(self.graph_type[0],
                       'T', 1.1*CP.Props(self.fluid_ref, 'Tmin') ,
                       'P', 1.5*CP.Props(self.fluid_ref, 'pcrit'),
                       self.fluid_ref),
-             CP.Props(self.graph_type[1],
+             CP.Props(self.graph_type[0],
                       'T', 1.1*CP.Props(self.fluid_ref, 'Tcrit'),
                       'P', 1.5*CP.Props(self.fluid_ref, 'pcrit'),
                       self.fluid_ref),
-             CP.Props(self.graph_type[1],
+             CP.Props(self.graph_type[0],
                       'T', 1.5*CP.Props(self.fluid_ref, 'Tmin') ,
                       'P', CP.Props(self.fluid_ref, 'ptriple'),
                       self.fluid_ref)]
 
-        if self.axis.get_autoscalex_on():
-            self.axis.set_xlim([min(X), max(X)])
-            self.axis.set_ylim([min(Y), max(Y)])
-        else:
-            new_xmax = max([min(X), min(self.axis.get_xlim())])
-            new_ymax = max([min(Y), min(self.axis.get_ylim())])
-            self.axis.set_xlim(left=new_xmax)
-            self.axis.set_ylim(left=new_ymax)
+        limits = [[min(X), max(X)], [min(Y), max(Y)]]
+        if not self.axis.get_autoscalex_on():
+            limits[0][0] = max([limits[0][0], min(self.axis.get_xlim())])
+            limits[0][1] = min([limits[0][1], max(self.axis.get_xlim())])
+            limits[1][0] = max([limits[1][0], min(self.axis.get_ylim())])
+            limits[1][1] = min([limits[1][1], max(self.axis.get_ylim())])
 
-        xmin, xmax = self.axis.get_xlim()
-        ymin, ymax = self.axis.get_ylim()
-        return [[xmin, xmax], [ymin, ymax]]
+        self.axis.set_xlim(limits[0])
+        self.axis.set_ylim(limits[1])
+        return limits
 
     def get_isolines(self, iso_range=[], num=None):
         """
