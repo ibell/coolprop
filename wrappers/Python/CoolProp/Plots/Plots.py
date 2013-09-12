@@ -333,40 +333,52 @@ class IsoLines(object):
         """
         # Get current axis limits, be sure to set those before drawing isolines
         # if no limits are set, use triple point and critical conditions
-        X = []
-        X.append(CP.Props(xName,'T',1.5*CP.Props(Ref,'Tcrit'), 'P',   CP.Props(Ref,'ptriple'),Ref))
-        X.append(CP.Props(xName,'T',1.1*CP.Props(Ref,'Tmin') , 'P', 1.5*CP.Props(Ref,'pcrit'),Ref))
-        X.append(CP.Props(xName,'T',1.5*CP.Props(Ref,'Tcrit'), 'P', 1.5*CP.Props(Ref,'pcrit'),Ref))
-        X.append(CP.Props(xName,'T',1.1*CP.Props(Ref,'Tmin') , 'P',   CP.Props(Ref,'ptriple'),Ref))
-        Y = []
-        Y.append(CP.Props(yName,'T',1.5*CP.Props(Ref,'Tcrit'), 'P',   CP.Props(Ref,'ptriple'),Ref))
-        Y.append(CP.Props(yName,'T',1.1*CP.Props(Ref,'Tmin') , 'P', 1.5*CP.Props(Ref,'pcrit'),Ref))
-        Y.append(CP.Props(yName,'T',1.1*CP.Props(Ref,'Tcrit'), 'P', 1.5*CP.Props(Ref,'pcrit'),Ref))
-        Y.append(CP.Props(yName,'T',1.5*CP.Props(Ref,'Tmin') , 'P',   CP.Props(Ref,'ptriple'),Ref))
+        X = [CP.Props(self.graph_type[0],
+                      'T', 1.5*CP.Props(self.fluid_ref, 'Tcrit'),
+                      'P', CP.Props(self.fluid_ref, 'ptriple'),
+                      self.fluid_ref),
+             CP.Props(self.graph_type[0],
+                      'T', 1.1*CP.Props(self.fluid_ref, 'Tmin'),
+                      'P', 1.5*CP.Props(self.fluid_ref, 'pcrit'),
+                      self.fluid_ref),
+             CP.Props(self.graph_type[0],
+                      'T', 1.5*CP.Props(self.fluid_ref, 'Tcrit'),
+                      'P', 1.5*CP.Props(self.fluid_ref, 'pcrit'),
+                      self.fluid_ref),
+             CP.Props(self.graph_type[0],
+                      'T', 1.1*CP.Props(self.fluid_ref, 'Tmin'),
+                      'P', CP.Props(self.fluid_ref, 'ptriple'),
+                      self.fluid_ref)]
 
-        minX = numpy.min(X)
-        maxX = numpy.max(X)
-        minY = numpy.min(Y)
-        maxY = numpy.max(Y)
+        Y = [CP.Props(self.graph_type[1],
+                      'T', 1.5*CP.Props(self.fluid_ref, 'Tcrit'),
+                      'P', CP.Props(self.fluid_ref, 'ptriple'),
+                       self.fluid_ref),
+             CP.Props(self.graph_type[1],
+                      'T', 1.1*CP.Props(self.fluid_ref, 'Tmin') ,
+                      'P', 1.5*CP.Props(self.fluid_ref, 'pcrit'),
+                      self.fluid_ref),
+             CP.Props(self.graph_type[1],
+                      'T', 1.1*CP.Props(self.fluid_ref, 'Tcrit'),
+                      'P', 1.5*CP.Props(self.fluid_ref, 'pcrit'),
+                      self.fluid_ref),
+             CP.Props(self.graph_type[1],
+                      'T', 1.5*CP.Props(self.fluid_ref, 'Tmin') ,
+                      'P', CP.Props(self.fluid_ref, 'ptriple'),
+                      self.fluid_ref)]
 
-        if axis.get_autoscalex_on():
-            axis.set_xlim([minX,maxX])
+        if self.axis.get_autoscalex_on():
+            self.axis.set_xlim([min(X), max(X)])
+            self.axis.set_ylim([min(Y), max(Y)])
         else:
-            [cuiX,cuaX] = axis.get_xlim()
-            axis.set_xlim(left=numpy.max([minX,cuiX]))
-            #axis.set_xlim(right=numpy.min(maxX,cuaX))
+            new_xmax = max([min(X), min(self.axis.get_xlim())])
+            new_ymax = max([min(Y), min(self.axis.get_ylim())])
+            self.axis.set_xlim(left=new_xmax)
+            self.axis.set_ylim(left=new_ymax)
 
-        if axis.get_autoscaley_on():
-            axis.set_ylim([minY,maxY])
-        else:
-            [cuiY,cuaY] = axis.get_ylim()
-            axis.set_ylim(bottom=numpy.max([minY,cuiY]))
-            #axis.set_ylim(right=numpy.min(maxY,cuaY))
-
-        [cuiX,cuaX] = axis.get_xlim()
-        [cuiY,cuaY] = axis.get_ylim()
-
-        return ((cuiX,cuaX),(cuiY,cuaY))
+        xmin, xmax = self.axis.get_xlim()
+        ymin, ymax = self.axis.get_ylim()
+        return [[xmin, xmax], [ymin, ymax]]
 
     def __get_isolines_data(self, iso_range, x_values):
         """
