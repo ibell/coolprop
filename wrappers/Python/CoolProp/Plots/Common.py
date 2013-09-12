@@ -95,7 +95,8 @@ class BasePlot(object):
         return (xmin,xmax)
 
 
-    def __get_isolines_data(self, iso_range, x_values):
+    def _get_fluid_data(self, req_prop, prop1_name,
+                        prop2_name, prop1_vals, prop2_vals):
         """
         Calculates lines for constant iName (iVal) over an interval of xName (xVal).
 
