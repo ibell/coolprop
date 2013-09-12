@@ -426,13 +426,30 @@ class IsoLines(object):
             raise ValueError('Please specify the number of isoline you want \
                               e.g. num=10')
 
-        # Enforce the bounds!
-        ((Axmin, Axmax), (Aymin, Aymax)) = _setBounds(Ref, plot, axis=axis)
+        iso_range = numpy.sort(numpy.unique(iso_range))
 
-        switch_xy = {'D': ['TS', 'PH', 'PS'],
-                     'S': ['PH', 'PD', 'PT'],
-                     'T': ['PH', 'PS'],
-                     'H': ['PD']}
+        def generate_ranges(xmin, xmax, num):
+            if self.iso_type in ['P', 'D']:
+                return numpy.logspace(math.log(xmin, 2.),
+                                      math.log(xmax, 2.),
+                                      num=num,
+                                      base=2.)
+            else:
+                return numpy.linspace(xmin, xmax, num=num)
+
+        # Generate iso ranges
+        if len(iso_range) == 2:
+            iso_range = generate_ranges(iso_range[0], iso_range[1], num)
+            iso_range = plotRound(iso_range)
+        #else:
+        #    TODO: Automatic interval detection
+        #    iVal = [CP.Props(iName,'T',T_c[i],'D',rho_c[i],Ref) for i in range(len(T_c))]
+        #    iVal = patterns[iName]([numpy.min(iVal),numpy.max(iVal),num])
+
+        switch_xy_map = {'D': ['TS', 'PH', 'PS'],
+                         'S': ['PH', 'PD', 'PT'],
+                         'T': ['PH', 'PS'],
+                         'H': ['PD']}
         #TS: TD is defined, SD is not
         #PH: PD is defined, HD is not
         #PS: PD is defined, SD is not
@@ -443,70 +460,47 @@ class IsoLines(object):
         #PS: PT is defined, ST is not
         #PD: PH is defined, DH is not
 
-        switchXY = False
-        if iName in ['D', 'S', 'T', 'H'] and plot in switch_xy[iName]:
-                switchXY = True
+        iso_error_map = {'TD': ['S', 'H'],
+                         'HS': ['T', 'D'],}
 
-        iso_error = {'TD': ['S', 'H'],
-                     'HS': ['T', 'D'],}
+        switch_xy = False
+        if self.iso_type in ['D', 'S', 'T', 'H']:
+            if self.graph_type in switch_xy_map[self.iso_type]:
+                switch_xy = True
 
-        if plot in ['TD', 'HS'] and iName in iso_error[plot]:
+        if self.graph_type in ['TD', 'HS']:
+            if self.iso_type in iso_error_map[self.graph_type]:
                 raise ValueError('You should not reach this point!')
 
-        if switchXY:
-            xmin = Aymin
-            xmax = Aymax
-            tmpName = yName
-            yName = xName
-            xName = tmpName
-        else:
-            xmin = Axmin
-            xmax = Axmax
+        # Enforce the bounds!
+        axis_limits = self.__set_axis_limits()
+        if switch_xy:
+            axis_limits.reverse()
 
         # Calculate the points
-        x0 = numpy.linspace(xmin,xmax,1000.)
+        x0 = numpy.linspace(axis_limits[0][0], axis_limits[0][1], 1000.)
 
-        def generate_ranges(xmin, xmax, num):
-            if iName in ['P', 'D']:
-                return numpy.logspace(math.log(xmin, 2.),
-                                      math.log(xmax, 2.),
-                                      num=num,
-                                      base=2.)
-            else:
-                return numpy.linspace(xmin, xmax, num=num)
-
-        # Get isoline spacing while honouring the inputs
-
-            #iVal = [CP.Props(iName,'T',T_c[i],'D',rho_c[i],Ref) for i in range(len(T_c))]
-            #iVal = patterns[iName]([numpy.min(iVal),numpy.max(iVal),num])
-
-        if len(iValues) == 2:
-            iVal = generate_ranges(iValues[0], iValues[1], num)
-            iVal = plotRound(iVal)
-        else:
-            iVal = numpy.array(set(iValues.sort()))
-
-        if iName == 'Q':
-            lines = _getSatLines(Ref, plot, x=iVal)
+        if self.iso_type == 'Q':
+            lines = _getSatLines(self.fluid_ref,
+                                 self.graph_type,
+                                 x=iso_range)
             return lines
 
         # TODO: Determine saturation state if two phase region present
-        xVal = [x0 for i in iVal]
+        xVal = [x0 for i in iso_range]
 
-        (X,Y) = _getI_YX(Ref,iName,xName,yName,iVal,xVal)
+        plot_data = self.__get_isolines_data(iso_range, xVal)
 
-        if switchXY:
-            tmpY = Y
-            Y    = X
-            X    = tmpY
+        if switch_xy:
+            plot_data.reverse()
 
         lines = []
-        for j in range(len(X)):
+        for j in range(len(plot_data[0])):
             line = {
-              'x' : X[j],
-              'y' : Y[j],
-              'label' : _getIsoLineLabel(iName,iVal[j]),
-              'opts': { 'color':getIsoLineColour(iName), 'lw':0.75, 'alpha':0.5 }
+              'x': plot_data[0][j],
+              'y': plot_data[1][j],
+              'label': _getIsoLineLabel(self.iso_type, iso_range[j]),
+              'opts': {'color': self.COLOR_MAP[self.iso_type], 'lw':0.75, 'alpha':0.5 }
               }
             lines.append(line)
 
