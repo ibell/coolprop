@@ -162,44 +162,6 @@ def plotRound(values):
     return output
 
 
-def _satBounds(Ref,kind,xmin=None,xmax=None):
-    """
-    Generates limits for the saturation line in either T or p determined by 'kind'.
-    If xmin or xmax are provided, values will be checked against the allowable
-    range for the EOS and an error might be generated.
-
-    Returns a tuple containing (xmin,xmax)
-    """
-
-    kind = str(kind).upper()
-    name = ''
-    minKey = ''
-    if (str(kind)=='P'):
-        kind = 'p'
-        name = 'pressure'
-        minKey = 'ptriple'
-    elif (str(kind)=='T'):
-        name = 'temperature'
-        minKey = 'Tmin'
-    else:
-        raise ValueError('Saturation curves can only be computed for T or p.')
-
-    if xmin is None:
-        xmin = CP.Props(Ref,str(minKey)     ) + 1e-5
-    if xmax is None:
-        xmax = CP.Props(Ref,str(kind)+'crit') - 1e-5
-
-    if xmin > CP.Props(Ref,str(kind)+'crit'):
-        raise ValueError('Minimum '+str(name)+' cannot be greater than fluid critical '+str(name)+'.')
-    if xmax > CP.Props(Ref,str(kind)+'crit'):
-        raise ValueError('Maximum '+str(name)+' cannot be greater than fluid critical '+str(name)+'.')
-
-    xmin = max(xmin, CP.Props(Ref,str(minKey)    )  + 1e-5)
-    xmax = min(xmax, CP.Props(Ref,str(kind)+'crit') - 1e-5)
-
-    return (xmin,xmax)
-
-
 def _getIsoLineLabel(which,num):
     labelMap = {
       'T' : [r'$T = ','$ K'],
