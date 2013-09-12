@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Thu Sep 12 15:13:20 2013
 
-@author: logan
-"""
+from __future__ import print_function
 
 import matplotlib
 import numpy

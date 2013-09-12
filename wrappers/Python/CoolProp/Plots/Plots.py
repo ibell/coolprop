@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+
+from __future__ import print_function
 
 import numpy, matplotlib, matplotlib.pyplot, math, re
 from scipy.interpolate import interp1d
