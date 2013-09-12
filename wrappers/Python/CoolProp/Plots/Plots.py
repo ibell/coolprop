@@ -102,7 +102,6 @@ def drawLines(Ref,lines,axis,plt_kwargs=None):
     saturation curve. Closes the gap at the critical point and
     adds a marker between the two last points of bubble and
     dew line if they reach up to critical point.
-
     Returns the an array of line objects that can be used to change
     the colour or style afterwards.
     """
@@ -263,8 +262,7 @@ class IsoLines(BasePlot):
                                       math.log(xmax, 2.),
                                       num=num,
                                       base=2.)
-            else:
-                return numpy.linspace(xmin, xmax, num=num)
+            return numpy.linspace(xmin, xmax, num=num)
 
         # Generate iso ranges
         if len(iso_range) == 2:
@@ -332,7 +330,8 @@ class IsoLines(BasePlot):
             line = {
               'x': plot_data[0][j],
               'y': plot_data[1][j],
-              'label': _getIsoLineLabel(self.iso_type, iso_range[j]),
+              # TODO
+              'label': "", #_getIsoLineLabel(self.iso_type, iso_range[j]),
               'opts': {'color': self.COLOR_MAP[self.iso_type], 'lw':0.75, 'alpha':0.5 }
               }
             lines.append(line)
@@ -362,7 +361,7 @@ class IsoLines(BasePlot):
 
         if self.iso_type != 'all':
             lines = self.get_isolines(iso_range, num)
-            return drawLines(self.fluid_ref, lines, self.axis)
+            drawLines(self.fluid_ref, lines, self.axis)
         #else:
         #    # TODO: assign limits to values automatically
         #    ll = _getIsoLineIds(plot)
@@ -421,8 +420,8 @@ class Graph(BasePlot):
 
     def __draw_region_lines(self):
         lines = self._get_sat_lines(kind='T',
-                                    kmin=self.t_min,
-                                    kmax=self.t_max)
+                                    smin=self.t_min,
+                                    smax=self.t_max)
         drawLines(self.fluid_ref, lines, self.axis)
 
     def __draw_graph(self):
