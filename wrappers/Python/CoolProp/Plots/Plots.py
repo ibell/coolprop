@@ -108,8 +108,9 @@ def drawLines(Ref,lines,axis,plt_kwargs=None):
             line['opts'] = plt_kwargs
     plottedLines = []
     if len(lines)==2 and (
-      'bubble' in str(lines[0]['label']).lower()
-      and 'dew' in str(lines[1]['label']).lower()):
+      'q' in str(lines[0]['type']).lower() and 'q' in str(lines[1]['type']).lower()
+      ) and (
+      ( 0 == lines[0]['value'] and 1 == lines[1]['type'] ) or ( 1 == lines[0]['value'] and 0 == lines[1]['type'] ) ):
         # We plot the saturation curve
         bubble = lines[0]
         dew    = lines[1]
