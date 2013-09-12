@@ -41,6 +41,9 @@
 #include <vector>
 #include "CoolProp.h"
 #include "CoolPropTools.h"
+        
+#include <algorithm>
+#include <string>
 
 // Structure for handling ees calling syntax
 struct EesParamRec {
@@ -58,6 +61,10 @@ extern "C"
 		int NInputs;           // Ninputs is the number of inputs
 		char NInputs_string[3], err_str[1000];
 		std::string fluid_string = std::string(fluid);
+
+        // This can be used to convert the string to all caps
+        //std::transform(fluid_string.begin(), fluid_string.end(),fluid_string.begin(), ::toupper);
+        
 		std::string ErrorMsg, Outstr, In1str, In2str, Fluidstr;
 		std::vector<std::string> fluid_split;
 
@@ -116,7 +123,7 @@ extern "C"
 
 		if (fabs(out)>1e90)
 		{
-			strcpy(fluid,get_errstring().c_str());
+			strcpy(fluid,get_global_param_string("errstring").c_str());
 			return 0;
 		}
 		else

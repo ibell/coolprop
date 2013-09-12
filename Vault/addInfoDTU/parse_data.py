@@ -96,11 +96,11 @@ pp_HH = HH.replace(':','').replace('\n','').replace("'",'').split(",")
 pp_FH = FH.replace(':','').replace('\n','').replace("'",'').split(",")
 pp_PH = PH.replace(':','').replace('\n','').replace("'",'').split(",")
 
-HH_dict = {k:v for k,v in zip(pp_fluids,pp_HH)}
-FH_dict = {k:v for k,v in zip(pp_fluids,pp_FH)}
-PH_dict = {k:v for k,v in zip(pp_fluids,pp_PH)}
-
 from fluid_lookup import *
+
+HH_dict = {RP2CAS[k]:v for k,v in zip(pp_fluids,pp_HH)}
+FH_dict = {RP2CAS[k]:v for k,v in zip(pp_fluids,pp_FH)}
+PH_dict = {RP2CAS[k]:v for k,v in zip(pp_fluids,pp_PH)}
 
 def get_env_data(fluid):
     a = dict(
@@ -121,10 +121,12 @@ def get_env_data(fluid):
                 a[k] = float(v)
             except ValueError: 
                 a[k] = None
-    try:
-        a['ODP'] = float(a['ODP'])
-    except TypeError:
-        a['ODP'] = 0
+                
+    for term in ['GWP100','GWP20','GWP500','ODP']:
+        try:
+            a[term] = float(a[term])
+        except TypeError:
+            a[term] = -1
         
     if fluid in ASHRAE34_dict:
         a['ASHRAE34'] = ASHRAE34_dict[fluid]
@@ -137,52 +139,12 @@ import json
 
 code = {}
 for fluid in pp_fluids:
+    fluid = RP2CAS[fluid]
     if name_dict[fluid]:
-        code[name_dict[fluid]] = get_env_data(fluid)
+        code[fluid] = get_env_data(fluid)
     else:
         continue
 
 f = open('environmental.json','w')
 print>>f, json.dumps(code, sort_keys=True, indent=2, separators=(',', ': '))
 f.close()
-    
-## for fluid in pp_fluids:
-##             
-##     if name_dict[fluid]:
-##         a = dict(
-##         HH = HH_dict[fluid],
-##         FH = FH_dict[fluid],
-##         PH = PH_dict[fluid],
-##         ODP = ODP_dict[fluid],
-##         GWP20 = GWP20_dict[fluid],
-##         GWP100 = GWP100_dict[fluid],
-##         GWP500 = GWP500_dict[fluid]
-##         )
-##         
-##         for k,v in a.iteritems():
-##             try:
-##                 a[k] = str(float(v))
-##             except ValueError:
-##                 a[k] = '_HUGE'
-##         
-##         if a['ODP'] == '_HUGE': a['ODP'] = '0'
-##             
-##         if fluid in ASHRAE34_dict:
-##             a['ASHRAE34'] = ASHRAE34_dict[fluid]
-##         else:
-##             a['ASHRAE34'] = 'UNKNOWN'
-##         
-##         chunk = template.format(fluid = name_dict[fluid],
-##                                 HH = a['HH'],
-##                                 FH = a['FH'],
-##                                 PH = a['PH'],
-##                                 ODP = a['ODP'],
-##                                 GWP20 = a['GWP20'],
-##                                 GWP100 = a['GWP100'],
-##                                 GWP500 = a['GWP500'],
-##                                 ASHRAE34 = a['ASHRAE34'],
-##                                 )
-##         f.write(chunk)
-##                             
-## f.write('}')
-## f.close()

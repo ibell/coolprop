@@ -77,8 +77,8 @@ def MATLAB():
         os.makedirs(os.path.join('dist_temp','MATLAB'))
     except os.error: pass
         
-    process = subprocess.Popen(['C:\\MATLAB_32bit\\bin\\matlab','-wait','-nodesktop','-nojvm','-r','MATLABBuilder'],shell=True,cwd=os.path.join('wrappers','MATLAB'))
-    process.wait()
+##     process = subprocess.Popen(['C:\\MATLAB_32bit\\bin\\matlab','-wait','-nodesktop','-nojvm','-r','MATLABBuilder'],shell=True,cwd=os.path.join('wrappers','MATLAB'))
+##     process.wait()
     process = subprocess.Popen(['matlab','-nojvm','-nodesktop','-nosplash','-wait','-r','MATLABBuilder'],shell=True,cwd=os.path.join('wrappers','MATLAB'))
     process.wait()
     shutil.copy2(os.path.join('wrappers','MATLAB','Props.mexw64'),os.path.join('dist_temp','MATLAB','Props.mexw64'))
@@ -221,7 +221,7 @@ if __name__=='__main__':
 ##     Python()
 ##     Csharp()
 ##     Octave()
-##     MATLAB()
+    MATLAB()
 ##     EES()
 ##     Labview()
 ##     Modelica()
@@ -229,5 +229,5 @@ if __name__=='__main__':
 ##     PYPI()
 ##     UploadSourceForge()
     
-    BuildDocs()
-    UploadDocs()
+##     BuildDocs()
+##     UploadDocs()

@@ -79,7 +79,7 @@ if __name__=='__main__':
             
             rev = stdout.strip()
             
-            gitstring = 'std::string gitrevision = "'+rev+'";'
+            gitstring = 'std::string gitrevision = "'+str(rev)+'";'
             _write = False
             if not os.path.exists(os.path.join(CPSourceDir,'gitrevision.h')):
                 _write = True

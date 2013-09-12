@@ -9,6 +9,19 @@ import CoolProp.CoolProp as CP
 from Common import BasePlot #TODO: Change to absolute import
 
 
+class IsoLine(object):
+    def __init__(self):
+        self.DEBUG = False
+
+        # direct geometry
+        self.X     = None #
+        self.Y     = None #
+        self.type  = None #
+        self.value = None #
+        self.unit  = None #
+        self.opts  = None #
+
+
 def InlineLabel(xv,yv,x = None, y= None, axis = None, fig = None):
     """
     This will give the coordinates and rotation required to align a label with
@@ -143,12 +156,16 @@ def plotRound(values):
     input   = numpy.unique(numpy.sort(numpy.array(values)))
     output  = input[1:] * 0.0
     digits  = -1
+    limit   = 10
+    lim     = input * 0.0 + 10
     # remove less from the numbers until same length,
     # more than 10 significant digits does not really
     # make sense, does it?
-    while len(input) > len(output) and digits < 10:
+    while len(input) > len(output) and digits < limit:
         digits += 1
-        val     = (numpy.around(numpy.log10(numpy.abs(input))) * -1) + digits + 1
+        val     = ( numpy.around(numpy.log10(numpy.abs(input))) * -1) + digits + 1
+        val     = numpy.where(val < lim, val,  lim)
+        val     = numpy.where(val >-lim, val, -lim)
         output  = numpy.zeros(input.shape)
         for i in range(len(input)):
             output[i] = numpy.around(input[i],decimals=int(val[i]))

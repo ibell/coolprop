@@ -19,6 +19,8 @@ for fluid in CoolProp.__fluids__:
         
         if not CP.get_CAS_code(fluid) == CAS_number:
             print fluid, CP.get_CAS_code(fluid), CAS_number
+        else:
+            print 'CAS_number is ok for',fluid
         
     except IOError:
         pass#print "didn't find",fluid

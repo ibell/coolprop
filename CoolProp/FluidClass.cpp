@@ -120,6 +120,16 @@ std::string JSON_lookup_string(rapidjson::Document &root, std::string FluidName,
 	}
 }
 
+std::string JSON_lookup_CAS(rapidjson::Document &root, std::string FluidName)
+{
+	if (root.HasMember(FluidName.c_str()) && root[FluidName.c_str()].IsString()){
+		return root[FluidName.c_str()].GetString();
+	}
+	else{
+		return "";
+	}
+}
+
 std::vector<double> JSON_lookup_dblvector(rapidjson::Document &root, std::string FluidName, std::string key)
 {
 	std::vector<double> v;
@@ -410,7 +420,11 @@ FluidsContainer::FluidsContainer()
 	// Includes the C++ JSON code for all the fluids as the variable JSON_code
 	#include "JSON_code.h"
 
+	// Includes the C++ JSON code for the CAS number lookup as the variable JSON_cas
+	#include "JSON_CAS.h"
+
 	JSON.Parse<0>(JSON_code);
+	JSON_CAS.Parse<0>(JSON_cas);
 
 	// Build the map of fluid names mapping to pointers to the Fluid class instances
 	for (std::vector<Fluid*>::iterator it = FluidsList.begin(); it != FluidsList.end(); it++)
@@ -418,7 +432,7 @@ FluidsContainer::FluidsContainer()
 		//// Load all the parameters related to the Critical point spline
 		set_critical_spline_constants((*it));
 		// Call the post_load routine
-		(*it)->post_load(JSON);
+		(*it)->post_load(JSON, JSON_CAS);
 		// Load up entry in map
 		fluid_name_map[(*it)->get_name()] = *it;
 	}
@@ -537,7 +551,7 @@ Fluid::~Fluid()
 	if (cp_ancillary != NULL){ delete cp_ancillary; cp_ancillary = NULL;}
 	if (drhodT_p_ancillary != NULL){ delete drhodT_p_ancillary; drhodT_p_ancillary = NULL;}
 }
-void Fluid::post_load(rapidjson::Document &JSON)
+void Fluid::post_load(rapidjson::Document &JSON, rapidjson::Document &JSON_CAS)
 {
 	// Set the reducing values from the pointer
 	reduce = *preduce;
@@ -551,6 +565,12 @@ void Fluid::post_load(rapidjson::Document &JSON)
 	crit.s = entropy_Trho(crit.T, crit.rho);
 	reduce.h = enthalpy_Trho(reduce.T, reduce.rho);
 	reduce.s = entropy_Trho(reduce.T, reduce.rho);
+
+	// REFPROP name is equal to fluid name if not provided
+	if (REFPROPname.empty())
+	{
+		REFPROPname = name;
+	}
 
 	// Set the triple-point pressure if not set in code
 	// Use the dewpoint pressure for pseudo-pure fluids
@@ -572,18 +592,18 @@ void Fluid::post_load(rapidjson::Document &JSON)
 	cp_ancillary = new AncillaryCurveClass(this,std::string("C"));
 	drhodT_p_ancillary = new AncillaryCurveClass(this,std::string("drhodT|p"));
 
-	// Load up environmental factors for this fluid including ODP, GWP, etc.
-	environment.ODP = JSON_lookup_double(JSON,this->name,"ODP");
-	environment.GWP20 = JSON_lookup_double(JSON,this->name,"GWP20");
-	environment.GWP100 = JSON_lookup_double(JSON,this->name,"GWP100");
-	environment.GWP500 = JSON_lookup_double(JSON,this->name,"GWP500");
-	environment.HH = JSON_lookup_double(JSON,this->name,"HH");
-	environment.FH = JSON_lookup_double(JSON,this->name,"FH");
-	environment.PH = JSON_lookup_double(JSON,this->name,"PH");
-	environment.ASHRAE34 = JSON_lookup_string(JSON,this->name,"ASHRAE34");
-
 	// The CAS number for the fluid
-	params.CAS = JSON_lookup_string(JSON,this->name,"CAS");
+	params.CAS = JSON_lookup_CAS(JSON_CAS,this->name);
+
+	// Load up environmental factors for this fluid including ODP, GWP, etc.
+	environment.ODP = JSON_lookup_double(JSON,this->params.CAS,"ODP");
+	environment.GWP20 = JSON_lookup_double(JSON,this->params.CAS,"GWP20");
+	environment.GWP100 = JSON_lookup_double(JSON,this->params.CAS,"GWP100");
+	environment.GWP500 = JSON_lookup_double(JSON,this->params.CAS,"GWP500");
+	environment.HH = JSON_lookup_double(JSON,this->params.CAS,"HH");
+	environment.FH = JSON_lookup_double(JSON,this->params.CAS,"FH");
+	environment.PH = JSON_lookup_double(JSON,this->params.CAS,"PH");
+	environment.ASHRAE34 = JSON_lookup_string(JSON,this->params.CAS,"ASHRAE34");
 
 	// Inputs for the enthalpy-entropy solver which is the most problematic solver
 	HS.hmax = JSON_lookup_double(JSON,this->name,"hsatVmax");
@@ -1023,7 +1043,7 @@ double Fluid::density_Tp(double T, double p)
 {
 	// If the guess value is not provided, calculate the guess density using Peng-Robinson
 	// This overload is used to pre-calculate the guess for density using PR if possible
-	if (debug()>8){
+	if (get_debug_level()>8){
 		std::cout<<__FILE__<<':'<<__LINE__<<": Fluid::density_Tp(double T, double p): "<<T<<","<<p<<std::endl;
 	}
 	return density_Tp(T,p,_get_rho_guess(T,p));
@@ -1037,7 +1057,7 @@ double Fluid::density_Tp(double T, double p, double rho_guess)
     R = params.R_u/params.molemass;
 	tau = reduce.T/T;
 
-	if (debug()>8){
+	if (get_debug_level()>8){
 		std::cout<<__FILE__<<':'<<__LINE__<<": Fluid::density_Tp(double T, double p, double rho_guess): "<<T<<","<<p<<","<<rho_guess<<std::endl;
 	}
 	// Start with the guess value
@@ -1096,7 +1116,7 @@ double Fluid::density_Tp(double T, double p, double rho_guess)
 			throw SolutionError(format("Non-numeric density obtained in density_TP with inputs T=%g,p=%g,rho_guess=%g for fluid %s",T,p,rho_guess,name.c_str()));
 		}
     }	
-	if (debug()>8){
+	if (get_debug_level()>8){
 		std::cout<<__FILE__<<':'<<__LINE__<<": Fluid::density_Tp(double T, double p, double rho_guess): "<<T<<","<<p<<","<<rho_guess<<" = "<<rho<<std::endl;
 
 	}
@@ -1150,7 +1170,7 @@ void Fluid::saturation_s(double s, int Q, double *Tsatout, double *rhoout, doubl
 		};
 	} SatFunc(s, Q, this);
 
-	if (debug()>5){
+	if (get_debug_level()>5){
 		std::cout<<format("%s:%d: Fluid::saturation_s(%g,%d) \n",__FILE__,__LINE__,s,Q).c_str();
 	}
 	if (isPure == true)
@@ -1222,7 +1242,7 @@ void Fluid::saturation_h(double h, double Tmin, double Tmax, int Q, double *Tsat
 		};
 	} SatFunc(h, Q, this);
 
-	if (debug()>5){
+	if (get_debug_level()>5){
 		std::cout<<format("%s:%d: Fluid::saturation_h(%g,%d) \n",__FILE__,__LINE__,h,Q).c_str();
 	}
 	if (isPure == true)
@@ -1265,7 +1285,7 @@ void Fluid::saturation_h(double h, double Tmin, double Tmax, int Q, double *Tsat
 void Fluid::saturation_T(double T, bool UseLUT, double *psatLout, double *psatVout, double *rhosatLout, double *rhosatVout)
 {
 	double p;
-	if (debug()>5){
+	if (get_debug_level()>5){
 		std::cout<<format("%s:%d: Fluid::saturation_T(%g,%d) \n",__FILE__,__LINE__,T,UseLUT).c_str();
 	}
 	if (T < limits.Tmin){ throw ValueError(format("Your temperature to saturation_T [%g K] is below the minimum temp [%g K]",T,limits.Tmin));} 
@@ -1475,12 +1495,12 @@ void Fluid::rhosatPure_Akasaka(double T, double *rhoLout, double *rhoVout, doubl
 	{
 		std::cout << e.what() << "Ancillary not provided" << std::endl;
 	}
-	if (debug()>5){
+	if (get_debug_level()>5){
 			std::cout << format("%s:%d: Akasaka guess values deltaL = %g deltaV = %g tau = %g\n",__FILE__,__LINE__,deltaL, deltaV, tau).c_str();
 		}
 
 	do{
-		if (debug()>8){
+		if (get_debug_level()>8){
 			std::cout << format("%s:%d: right before the derivs with deltaL = %g deltaV = %g tau = %g\n",__FILE__,__LINE__,deltaL, deltaV, tau).c_str();
 		}
 		// Calculate once to save on calls to EOS
@@ -1642,7 +1662,7 @@ double Fluid::_get_rho_guess(double T, double p)
 
 	long phase = phase_Tp_indices(T,p,&pL,&pV,&rhoL,&rhoV);
 	
-	if (debug()>5){
+	if (get_debug_level()>5){
 		std::cout<<__FILE__<<format(": Fluid::_get_rho_guess(%g,%g) phase =%d\n",T,p,phase).c_str();
 	}
 	// These are very simplistic guesses for the density, but they work ok
@@ -1661,7 +1681,7 @@ double Fluid::_get_rho_guess(double T, double p)
 		// Start at the saturation state, with a known density, using the ancillary
 		double rhoL = rhosatL(T);
 		double pL = psatL_anc(T);
-		if (debug()>5){
+		if (get_debug_level()>5){
 			std::cout<<format("%d:%d: pL = %g rhoL = %g rhoV %g \n",__FILE__,__LINE__,pL,rhoL, rhoV).c_str();
 		}
 		double delta = rhoL / reduce.rho;
@@ -1687,7 +1707,7 @@ double Fluid::_get_rho_guess(double T, double p)
 		// solving and just return a value somewhere in the two-phase region.
 		return (rhoL+rhoV)/2;
 	}
-	if (debug()>5){
+	if (get_debug_level()>5){
 		std::cout<<__FILE__<<": _get_rho_guess = "<<rho_simple<<std::endl;
 	}
 	return rho_simple;
@@ -1698,13 +1718,11 @@ std::string Fluid::phase_Tp(double T, double p, double *pL, double *pV, double *
 {
 	// Get the value from the long-output function
 	long iPhase = phase_Tp_indices(T, p, pL, pV, rhoL, rhoV);
-	if (get_debug()>7)
-	{
-		if (debug()>5){
-			std::cout<<__FILE__<<": phase index is " << iPhase <<std::endl;
-		}
-
+		
+	if (get_debug_level()>5){
+		std::cout<<__FILE__<<": phase index is " << iPhase <<std::endl;
 	}
+
 	// Convert it to a std::string
 	switch (iPhase)
 	{
@@ -1743,7 +1761,7 @@ long Fluid::phase_Tp_indices(double T, double p, double *pL, double *pV, double 
 
 	*/
 
-	if (debug()>5){
+	if (get_debug_level()>5){
 		std::cout<<__FILE__<<format(": phase_Tp_indices(%g,%g)\n",T,p).c_str();
 	}
 
@@ -1799,7 +1817,7 @@ std::string Fluid::phase_Trho(double T, double rho, double *pL, double *pV, doub
 {
 	// Get the value from the long-output function
 	long iPhase = phase_Trho_indices(T, rho, pL, pV, rhoL, rhoV);
-	if (debug()>5){
+	if (get_debug_level()>5){
 		std::cout<<__FILE__<<": phase index is " << iPhase <<std::endl;
 	}
 
@@ -3156,7 +3174,7 @@ void Fluid::saturation_p(double p, bool UseLUT, double *TsatL, double *TsatV, do
 		return;
 	}
 
-	if (debug()>5){
+	if (get_debug_level()>5){
 		std::cout<<format("%s:%d: Fluid::saturation_p(%g,%d) \n",__FILE__,__LINE__,p,UseLUT).c_str();
 	}
 	if (isPure==true)

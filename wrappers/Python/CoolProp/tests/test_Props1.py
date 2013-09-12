@@ -26,7 +26,7 @@ def testAllCoolPropPairs():
 
 def check_param(fluid, param):
     val = Props(fluid,param)
-    assert val > -1
+    assert val > -2
     assert val < 1e9
 
 if __name__=='__main__':

@@ -6,10 +6,14 @@
 
 #if defined(__ISWINDOWS__)
 #include <windows.h> // for the CreateDirectory function
-#elif defined(__ISAPPLE__)
+#else
 #include <pwd.h>
 #include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #endif
+
+
 
 #include "CoolProp.h"
 #include "CPState.h"
@@ -51,47 +55,44 @@ std::string get_home_dir(void)
 //			home = pwd->pw_dir;
 //		}}
 		throw NotImplementedError("This function is not defined for your platform.");
-	return home;
-	return home;
+		return home;
+		return home;
+	#elif defined(__ISWINDOWS__)
+		char * pUSERPROFILE = getenv("USERPROFILE");
+		if (pUSERPROFILE != NULL) {
+			return std::string(pUSERPROFILE);
+		} else {
+			char * pHOMEDRIVE = getenv("HOMEDRIVE");
+			char * pHOMEPATH = getenv("HOMEPATH");
+			if (pHOMEDRIVE != NULL && pHOMEPATH != NULL) {
+				return std::string(pHOMEDRIVE) + std::string(pHOMEPATH);
+			} else {
+				return std::string("");
+			}
+		}
 	#else
-	char * pUSERPROFILE = getenv("USERPROFILE");
-	if (pUSERPROFILE != NULL){
-		return std::string(pUSERPROFILE);
-	}
-	else
-	{
-		char * pHOMEDRIVE = getenv("HOMEDRIVE");
-		char * pHOMEPATH = getenv("HOMEPATH");
-		if (pHOMEDRIVE != NULL && pHOMEPATH != NULL)
-		{
-			return std::string(pHOMEDRIVE) + std::string(pHOMEPATH);
-		}
-		else
-		{
-			return std::string("");
-		}
-	}
+		throw NotImplementedError("This function is not defined for your platform.");
 	#endif
 }
 
 /// The inverse of the A matrix for the bicubic interpolation (http://en.wikipedia.org/wiki/Bicubic_interpolation)
 const static double Ainv[16][16] = {
-	{1 ,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-	{0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-	{-3, 3, 0, 0, -2, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-	{2, -2, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-	{0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0},
-	{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
-	{0, 0, 0, 0, 0, 0, 0, 0, -3, 3, 0, 0, -2, -1, 0, 0},
-	{0, 0, 0, 0, 0, 0, 0, 0, 2, -2, 0, 0, 1, 1, 0, 0},
-	{-3, 0, 3, 0, 0, 0, 0, 0, -2, 0, -1, 0, 0, 0, 0, 0},
-	{0, 0, 0, 0, -3, 0, 3, 0, 0, 0, 0, 0, -2, 0, -1, 0},
-	{9, -9, -9, 9, 6, 3, -6, -3, 6, -6, 3, -3, 4, 2, 2, 1},
-	{-6, 6, 6, -6, -3, -3, 3, 3, -4, 4, -2, 2, -2, -2, -1, -1},
-	{2, 0, -2, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0},
-	{0, 0, 0, 0, 2, 0, -2, 0, 0, 0, 0, 0, 1, 0, 1, 0},
-	{-6, 6, 6, -6, -4, -2, 4, 2, -3, 3, -3, 3, -2, -1, -2, -1},
-	{4, -4, -4, 4, 2, 2, -2, -2, 2, -2, 2, -2, 1, 1, 1, 1}
+	{ 1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0},
+	{ 0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0},
+	{-3,  3,  0,  0, -2, -1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0},
+	{ 2, -2,  0,  0,  1,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0},
+	{ 0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0},
+	{ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0},
+	{ 0,  0,  0,  0,  0,  0,  0,  0, -3,  3,  0,  0, -2, -1,  0,  0},
+	{ 0,  0,  0,  0,  0,  0,  0,  0,  2, -2,  0,  0,  1,  1,  0,  0},
+	{-3,  0,  3,  0,  0,  0,  0,  0, -2,  0, -1,  0,  0,  0,  0,  0},
+	{ 0,  0,  0,  0, -3,  0,  3,  0,  0,  0,  0,  0, -2,  0, -1,  0},
+	{ 9, -9, -9,  9,  6,  3, -6, -3,  6, -6,  3, -3,  4,  2,  2,  1},
+	{-6,  6,  6, -6, -3, -3,  3,  3, -4,  4, -2,  2, -2, -2, -1, -1},
+	{ 2,  0, -2,  0,  0,  0,  0,  0,  1,  0,  1,  0,  0,  0,  0,  0},
+	{ 0,  0,  0,  0,  2,  0, -2,  0,  0,  0,  0,  0,  1,  0,  1,  0},
+	{-6,  6,  6, -6, -4, -2,  4,  2, -3,  3, -3,  3, -2, -1, -2, -1},
+	{ 4, -4, -4,  4,  2,  2, -2, -2,  2, -2,  2, -2,  1,  1,  1,  1}
 	};
 
 double round(double r) {
@@ -119,14 +120,13 @@ TTSESinglePhaseTableClass::TTSESinglePhaseTableClass(){
 	SatV = NULL;
 }
 
-TTSESinglePhaseTableClass::TTSESinglePhaseTableClass(Fluid *pFluid)
-{
+TTSESinglePhaseTableClass::TTSESinglePhaseTableClass(Fluid *pFluid) {
 	this->pFluid = pFluid;
 	// The default data location for the LUT
 	#if defined(__ISWINDOWS__)
-	this->root_path = get_home_dir()+std::string("\\.CoolProp-TTSEData\\")+pFluid->get_name();
+		this->root_path = get_home_dir()+std::string("\\.CoolProp-TTSEData\\")+pFluid->get_name();
 	#else
-	this->root_path = get_home_dir()+std::string("/.CoolProp-TTSEData/")+pFluid->get_name();
+		this->root_path = get_home_dir()+std::string("/.CoolProp-TTSEData/")+pFluid->get_name();
 	#endif
 
 	// Seed the generator for random number generation
@@ -143,24 +143,21 @@ TTSESinglePhaseTableClass::TTSESinglePhaseTableClass(Fluid *pFluid)
 	// Default to use the "normal" TTSE evaluation
 	mode = TTSE_MODE_TTSE;
 }
-int TTSESinglePhaseTableClass::get_mode()
-{
+
+int TTSESinglePhaseTableClass::get_mode() {
 	return this->mode;
 }
-int TTSESinglePhaseTableClass::set_mode(int mode)
-{
-	if (mode == TTSE_MODE_TTSE || mode == TTSE_MODE_BICUBIC)
-	{
+
+int TTSESinglePhaseTableClass::set_mode(int mode) {
+	if (mode == TTSE_MODE_TTSE || mode == TTSE_MODE_BICUBIC) {
 		this->mode = mode; 
 		return true;
-	}
-	else
-	{
+	} else {
 		return false;
 	}
 }
-void TTSESinglePhaseTableClass::set_size_ph(unsigned int Np, unsigned int Nh)
-{
+
+void TTSESinglePhaseTableClass::set_size_ph(unsigned int Np, unsigned int Nh) {
 	this->Nh = Nh;
 	this->Np = Np;
 
@@ -205,8 +202,7 @@ void TTSESinglePhaseTableClass::set_size_ph(unsigned int Np, unsigned int Nh)
 	}
 }
 
-void TTSESinglePhaseTableClass::set_size_Trho(unsigned int NT, unsigned int Nrho)
-{
+void TTSESinglePhaseTableClass::set_size_Trho(unsigned int NT, unsigned int Nrho) {
 	this->NT = NT;
 	this->Nrho = Nrho;
 
@@ -249,8 +245,7 @@ void TTSESinglePhaseTableClass::set_size_Trho(unsigned int NT, unsigned int Nrho
 	d2mudTdrho_Trho.resize(NT, std::vector<double>(Nrho, _HUGE));
 }
 
-void TTSESinglePhaseTableClass::nearest_good_neighbor(int *i, int *j)
-{
+void TTSESinglePhaseTableClass::nearest_good_neighbor(int *i, int *j) {
 	// Left
 	if (*i>0 && ValidNumber(rho[*i-1][*j]) && ValidNumber(T[*i-1][*j])){
 		*i -= 1;
@@ -524,20 +519,30 @@ bool pathExists(std::string path)
 			return false;
 	#elif defined(__ISLINUX__)
 		struct stat st;
-		if(stat(path.c_str(),&st) == 0)
-		    if(st.st_mode & S_IFDIR != 0)
-		        return true;
+//		if(stat(path.c_str(),&st) == 0) {
+//			if(st.st_mode & S_IFDIR != 0) return true;
+//		    if(st.st_mode & S_IFREG != 0) return true;
+//		    return false;
+//		} else {
+//			return false;
+//		}
+		if(lstat(path.c_str(),&st) == 0) {
+			if(S_ISDIR(st.st_mode)) return true;
+			if(S_ISREG(st.st_mode)) return true;
+			return false;
+		} else {
+			return false;
+		}
 
-		return false;
 	#else
 		throw NotImplementedError("This function is not defined for your platform.");
 	#endif
 }
-bool fileExists(const char *fileName)
-{
-	std::ifstream infile(fileName);
-    return infile.good();
-}
+//bool fileExists(const char *fileName)
+//{
+//	std::ifstream infile(fileName);
+//    return infile.good();
+//}
 void make_dirs(std::string file_path)
 {
 	std::vector<std::string> pathsplit = strsplit(file_path,'/');
@@ -567,7 +572,7 @@ void make_dirs(std::string file_path)
 	}
 	else
 	{
-		throw ValueError(format("Could not make path [%s],file_path"));
+		throw ValueError(format("Could not make path [%s]",file_path.c_str()));
 	}
 }
 
@@ -586,27 +591,25 @@ bool TTSESinglePhaseTableClass::read_all_from_file(std::string root_path)
 	if (root_path[root_path.size()-1] == '/')
 		root_path = std::string(root_path,0,root_path.size()-1);
 
-	if (!pathExists(root_path))
-	{
-		return false;
-	}
+	if (!pathExists(root_path)) return false;
 
 	// Append a '/'
 	root_path += format("/");
 
-	if (!pathExists(root_path+format("Info_ph.txt")))
-	{
-		return false;
-	}
+	if (!pathExists(root_path+format("Info_ph.txt"))) return false;
 
 	// Parse the info file to find the dimensions and boundaries and check that they are the same
 	std::string info = get_file_contents((root_path+format("Info_ph.txt")).c_str());
 
 	// Split into lines
+#if defined(__ISWINDOWS__)
 	std::vector<std::string> lines = strsplit(info,'\r');
+#else
+	std::vector<std::string> lines = strsplit(info,'\n');
+#endif
 
-	for (unsigned int i = 0; i< lines.size(); i++)
-	{
+	for (unsigned int i = 0; i< lines.size(); i++) {
+
 		// Split at ':'
 		std::vector<std::string> line = strsplit(lines[i],':');
 		if (line.size() == 1) // No : found
@@ -641,18 +644,18 @@ bool TTSESinglePhaseTableClass::read_all_from_file(std::string root_path)
 		else if (line[0].find("TTSERev")!=  std::string::npos) {
 			TTSERev = (int)strtol(line[1].c_str(),NULL,0);}
 	}
-	
+
 	// Didn't work since at least one of the parameters was different
 	// so we need to build the tables again
-	if (!(!Fluid.compare(pFluid->get_name()) 
+	if (!(!Fluid.compare(pFluid->get_name())
 		  && Nh == this->Nh
 		  && Np == this->Np
 		  && fabs(pmin - this->pmin)<10*DBL_EPSILON
 		  && fabs(pmax - this->pmax)<10*DBL_EPSILON
 		  && fabs(hmin - this->hmin)<10*DBL_EPSILON
 		  && fabs(hmax - this->hmax)<10*DBL_EPSILON
-		  && Nh == this->NT
-		  && Np == this->Nrho
+		  && NT == this->NT
+		  && Nrho == this->Nrho
 		  && fabs(Tmin - this->Tmin)<10*DBL_EPSILON
 		  && fabs(Tmax - this->Tmax)<10*DBL_EPSILON
 		  && fabs(rhomin - this->rhomin)<10*DBL_EPSILON
