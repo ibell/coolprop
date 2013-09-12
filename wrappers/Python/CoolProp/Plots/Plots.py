@@ -401,6 +401,7 @@ class IsoLines(object):
 
         return [x, y]
 
+    def get_isolines(self, iso_range=[], num=None):
         """
         This is the core method to obtain lines in the dimensions defined
         by 'plot' that describe the behaviour of fluid 'Ref'. The constant
