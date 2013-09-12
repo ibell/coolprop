@@ -9,6 +9,7 @@ import matplotlib
 
 
 class BasePlot(object):
+    #TODO: Simplify / Consolidate dictionary maps
     AXIS_LABLES = {'T': ["Temperature", r"[$K$]"],
                    'P': ["Pressure", r"[$kPa$]"],
                    'S': ["Entropy", r"[$kJ/kg K$]"],
@@ -21,7 +22,14 @@ class BasePlot(object):
                  'H': 'DarkGreen',
                  'D': 'DarkBlue',
                  'S': 'DarkOrange',
-                 'Q': 'black',}
+                 'Q': 'black'}
+
+    SYMBOL_MAP = {'T' : [r'$T = ','$ K'],
+                  'P' : [r'$p = ','$ kPa'],
+                  'H' : [r'$h = ','$ kJ/kg'],
+                  'D' : [r'$\rho = ','$ kg/m$^3$'],
+                  'S' : [r'$s = ','$ kJ/kg-K'],
+                  'Q' : [r'$x = ','$']}
 
     LINE_IDS = {'TS': ['P', 'D'], #'H'],
                 'PH': ['S', 'T', 'D'],
@@ -142,6 +150,8 @@ class BasePlot(object):
                 line['label'] = 'dew line'
                 line['opts'] = { 'color':getIsoLineColour(iName), 'lw':1.00 }
             else:
+                l = labelMap[str(which)]
+                val = l[0]+str(num)+l[1]
                 line['label'] = _getIsoLineLabel(iName,iVal[j]),
                 line['opts'] = { 'color':getIsoLineColour(iName), 'lw':0.75, 'alpha':0.5}
 

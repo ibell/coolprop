@@ -162,20 +162,6 @@ def plotRound(values):
     return output
 
 
-def _getIsoLineLabel(which,num):
-    labelMap = {
-      'T' : [r'$T = ','$ K'],
-      'P' : [r'$p = ','$ kPa'],
-      'H' : [r'$h = ','$ kJ/kg'],
-      'D' : [r'$\rho = ','$ kg/m$^3$'],
-      'S' : [r'$s = ','$ kJ/kg-K'],
-      'Q' : [r'$x = ','$']
-    }
-    l = labelMap[str(which)]
-    val = l[0]+str(num)+l[1]
-    return val
-
-
 class IsoLines(BasePlot):
     def __init__(self, fluid_ref, graph_type, iso_type, **kwargs):
         BasePlot.__init__(self, fluid_ref, graph_type, **kwargs)
