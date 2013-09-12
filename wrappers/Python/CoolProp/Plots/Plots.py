@@ -413,11 +413,9 @@ class Graph(BasePlot):
         self.axis.autoscale(enable=True)
 
     def __draw_region_lines(self):
-        lines = _getSatLines(self.fluid_ref,
-                             self.graph_type,
-                             kind='T',
-                             kmin=self.t_min,
-                             kmax=self.t_max)
+        lines = self._get_sat_lines(kind='T',
+                                    kmin=self.t_min,
+                                    kmax=self.t_max)
         drawLines(self.fluid_ref, lines, self.axis)
 
     def __draw_graph(self):
@@ -427,12 +425,9 @@ class Graph(BasePlot):
     def draw_isolines(self, iso_type, iso_range, num=10):
         iso_lines = IsoLines(self.fluid_ref,
                              self.graph_type,
-                             iso_type)
+                             iso_type,
+                             axis=self.axis)
         iso_lines.draw_isolines(iso_range, num)
-
-    def figure(self):
-        self.__draw_graph()
-        return self.figure
 
     def axis(self):
         self.__draw_graph()
@@ -441,11 +436,3 @@ class Graph(BasePlot):
     def show(self):
         self.__draw_graph()
         matplotlib.pyplot.show()
-
-
-if __name__=='__main__':
-    fluid_ref = 'R245fa'
-    for graph_type in ['pt', 'ph', 'ps', 'ts', 'pt', 'prho', 'trho']:
-        graph = Graph(fluid_ref, graph_type)
-        graph.draw_isolines('Q', [0.1, 0.9])
-        graph.show()
