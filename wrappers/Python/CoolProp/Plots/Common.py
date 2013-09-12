@@ -94,7 +94,7 @@ class BasePlot(object):
 
         return (xmin,xmax)
 
-    def __get_sat_lines(kind=None, kmin=None, kmax=None, x=[0.,1.]):
+    def _get_sat_lines(kind=None, kmin=None, kmax=None, x=[0.,1.]):
         """
         Calculates bubble and dew line in the quantities for your plot.
 

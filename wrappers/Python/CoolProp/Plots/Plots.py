@@ -3,7 +3,7 @@ import numpy, matplotlib, matplotlib.pyplot, math, re
 from scipy.interpolate import interp1d
 
 import CoolProp.CoolProp as CP
-from CoolProp.Plots.Common import BasePlot
+from Common import BasePlot #TODO: Change to absolute import
 
 
 def InlineLabel(xv,yv,x = None, y= None, axis = None, fig = None):
@@ -335,9 +335,7 @@ class IsoLines(BasePlot):
         x0 = numpy.linspace(axis_limits[0][0], axis_limits[0][1], 1000.)
 
         if self.iso_type == 'Q':
-            lines = _getSatLines(self.fluid_ref,
-                                 self.graph_type,
-                                 x=iso_range)
+            lines = self._get_sat_lines(x=iso_range)
             return lines
 
         # TODO: Determine saturation state if two phase region present
