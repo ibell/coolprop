@@ -91,12 +91,6 @@ def InlineLabel(xv,yv,x = None, y= None, axis = None, fig = None):
     (x,y)=ToDataCoords(x,y,axis,fig)
     return (x,y,rot)
 
-def show():
-    """
-    A convenience function to call pylab.show()
-    """
-    matplotlib.pyplot.show()
-
 
 def drawLines(Ref,lines,axis,plt_kwargs=None):
     """
