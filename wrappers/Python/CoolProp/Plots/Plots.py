@@ -297,22 +297,28 @@ class IsoLines(BasePlot):
             if self.iso_type in iso_error_map[self.graph_type]:
                 raise ValueError('You should not reach this point!')
 
-        # Enforce the bounds!
-        axis_limits = self.__set_axis_limits()
+        axis_limits = self.__set_axis_limits(switch_xy)
+        req_prop = self.graph_type[0]
+        prop2_name = self.graph_type[1]
         if switch_xy:
             axis_limits.reverse()
+            req_prop = self.graph_type[1]
+            prop2_name = self.graph_type[0]
 
         # Calculate the points
-        x0 = numpy.linspace(axis_limits[0][0], axis_limits[0][1], 1000.)
-
         if self.iso_type == 'Q':
             lines = self._get_sat_lines(x=iso_range)
             return lines
 
         # TODO: Determine saturation state if two phase region present
-        xVal = [x0 for i in iso_range]
+        x_range = numpy.linspace(axis_limits[0][0], axis_limits[0][1], 1000.)
+        x_mesh = [x_range for i in iso_range]
 
-        plot_data = self.__get_isolines_data(iso_range, xVal)
+        plot_data = self._get_fluid_data(req_prop,
+                                         self.iso_type,
+                                         prop2_name,
+                                         iso_range,
+                                         x_mesh)
 
         if switch_xy:
             plot_data.reverse()
