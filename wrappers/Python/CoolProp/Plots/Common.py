@@ -5,6 +5,6 @@ Created on Thu Sep 12 15:13:20 2013
 @author: logan
 """
 
-class BasePlots(object):
+class BasePlot(object):
     def __init__(self):
         pass

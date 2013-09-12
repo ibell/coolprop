@@ -3,6 +3,7 @@ import numpy, matplotlib, matplotlib.pyplot, math, re
 from scipy.interpolate import interp1d
 
 import CoolProp.CoolProp as CP
+from CoolProp.Plots.Common import BasePlot
 
 
 def InlineLabel(xv,yv,x = None, y= None, axis = None, fig = None):
@@ -279,7 +280,7 @@ def _getIsoLineLabel(which,num):
     return val
 
 
-class IsoLines(object):
+class IsoLines(BasePlot):
     COLOR_MAP = {'T': 'Darkred',
                  'P': 'DarkCyan',
                  'H': 'DarkGreen',
@@ -296,6 +297,8 @@ class IsoLines(object):
                 'PT': ['D', 'P', 'S'],}
 
     def __init__(self, fluid_ref, graph_type, iso_type, **kwargs):
+        BasePlot.__init__(self, fluid_ref, graph_type, **kwargs)
+
         if not isinstance(graph_type, str):
             raise TypeError("Invalid graph_type input, expeceted a string")
 
@@ -540,7 +543,7 @@ class IsoLines(object):
 
 
 
-class Graph(object):
+class Graph(BasePlot):
     AXIS_LABLES = {'T': ["Temperature", r"[$K$]"],
                    'P': ["Pressure", r"[$kPa$]"],
                    'S': ["Entropy", r"[$kJ/kg K$]"],
@@ -573,6 +576,8 @@ class Graph(object):
             See the online documentation for a the available fluids and
             graph types
         """
+        BasePlot.__init__(self, fluid_ref, graph_type, **kwargs)
+
         self.fluid_ref = fluid_ref
         self.graph_type = graph_type.upper()
 
