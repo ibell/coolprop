@@ -48,3 +48,66 @@ class BasePlot(object):
 
         self.figure = kwargs.get('fig', matplotlib.pyplot.figure())
         self.axis = kwargs.get('axis', matplotlib.pyplot.gca())
+
+    def __get_sat_lines(kind=None, kmin=None, kmax=None, x=[0.,1.]):
+        """
+        Calculates bubble and dew line in the quantities for your plot.
+
+        You can specify if you need evenly spaced entries in either
+        pressure or temperature by supplying kind='p' and kind='T'
+        (default), respectively.
+
+        Limits can be set with kmin (default: minimum from EOS) and
+        kmax (default: critical value).
+
+        Returns lines[] - a 2D array of dicts containing 'x' and 'y' coordinates
+        for bubble and dew line. Additionally, the dict holds the keys
+        'kmax', 'label' and 'opts', those can be used for plotting as well.
+        """
+
+        xName,yName,plot = _plotXY(plot)
+
+        if (str(kind).lower()=='p'):
+            kind = 'P'
+        else:
+            kind = 'T'
+
+        (kmin,kmax) = _satBounds(Ref, kind, xmin=kmin, xmax=kmax)
+        k0          = numpy.linspace(kmin,kmax,1000)
+
+        iName       = 'Q'
+        iVal        = x
+        kVal        = [k0 for i in iVal]
+
+        if xName!=kind:
+            (Xx,Yx) = _getI_YX(Ref,iName,kind,xName,iVal,kVal)
+        else:
+            (Xx,Yx) = (kVal,kVal)
+
+        if yName!=kind:
+            (Xy,Yy) = _getI_YX(Ref,iName,kind,yName,iVal,kVal)
+        else:
+            (Xy,Yy) = (kVal,kVal)
+
+        # Merge the two lines, capital Y holds important information. We merge on X values
+        # Every entry, eg. Xy, contains two arrays of values.
+        lines = []
+        for j in range(len(Yx)): # two dimensions: i = {0,1}
+            line = {
+              'x' : Yx[j],
+              'y' : Yy[j],
+              'kmax' : kmax
+              }
+            if iVal[j]==0.:
+                line['label'] = 'bubble line'
+                line['opts'] = { 'color':getIsoLineColour(iName), 'lw':1.00 }
+            elif iVal[j]==1.:
+                line['label'] = 'dew line'
+                line['opts'] = { 'color':getIsoLineColour(iName), 'lw':1.00 }
+            else:
+                line['label'] = _getIsoLineLabel(iName,iVal[j]),
+                line['opts'] = { 'color':getIsoLineColour(iName), 'lw':0.75, 'alpha':0.5}
+
+            lines.append(line)
+
+        return lines
