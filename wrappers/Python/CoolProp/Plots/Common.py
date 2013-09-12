@@ -5,6 +5,9 @@ Created on Thu Sep 12 15:13:20 2013
 @author: logan
 """
 
+import matplotlib
+
+
 class BasePlot(object):
     AXIS_LABLES = {'T': ["Temperature", r"[$K$]"],
                    'P': ["Pressure", r"[$kPa$]"],
@@ -39,3 +42,9 @@ class BasePlot(object):
         if graph_type.upper() not in self.LINE_IDS.keys():
             raise ValueError("You have to specify the kind of plot, use " \
                               + str(self.LINE_IDS.keys()))
+
+        self.fluid_ref = fluid_ref
+        self.graph_type = graph_type.upper()
+
+        self.figure = kwargs.get('fig', matplotlib.pyplot.figure())
+        self.axis = kwargs.get('axis', matplotlib.pyplot.gca())

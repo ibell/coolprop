@@ -294,12 +294,7 @@ class IsoLines(BasePlot):
                              ' plot. Please choose from '\
                              + str(self.COLOR_MAP.keys()) + ' or Q.')
 
-        self.fluid_ref = fluid_ref
-        self.graph_type = graph_type
         self.iso_type = iso_type
-
-        self.figure = kwargs.get('fig', matplotlib.pyplot.figure())
-        self.axis = kwargs.get('axis', matplotlib.pyplot.gca())
 
     def __set_axis_limits(self):
         """
@@ -545,11 +540,6 @@ class Graph(BasePlot):
         """
         BasePlot.__init__(self, fluid_ref, graph_type, **kwargs)
 
-        self.fluid_ref = fluid_ref
-        self.graph_type = graph_type.upper()
-
-        self.figure = kwargs.get('fig', matplotlib.pyplot.figure())
-        self.axis = kwargs.get('axis', matplotlib.pyplot.gca())
         self.t_min = kwargs.get('t_min', None)
         self.t_max = kwargs.get('t_max', None)
 
