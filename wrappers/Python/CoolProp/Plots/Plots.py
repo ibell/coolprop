@@ -528,7 +528,7 @@ class IsoLines(object):
                               supported, yet..')
 
         if self.iso_type != 'all':
-            lines = self.getIsoLines(iso_range, num)
+            lines = self.get_isolines(iso_range, num)
             return drawLines(self.fluid_ref, lines, self.axis)
         #else:
         #    # TODO: assign limits to values automatically
