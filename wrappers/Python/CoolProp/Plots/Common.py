@@ -54,11 +54,10 @@ class BasePlot(object):
         self.fluid_ref = fluid_ref
         self.graph_type = graph_type.upper()
 
-        self.figure = kwargs.get('fig', matplotlib.pyplot.figure())
         self.axis = kwargs.get('axis', matplotlib.pyplot.gca())
 
 
-    def __sat_bounds(xmin=None, xmax=None):
+    def __sat_bounds(self, kind, smin=None, smax=None):
         """
         Generates limits for the saturation line in either T or p determined by 'kind'.
         If xmin or xmax are provided, values will be checked against the allowable
@@ -66,34 +65,33 @@ class BasePlot(object):
 
         Returns a tuple containing (xmin,xmax)
         """
-        kind = str(kind).upper()
-        name = ''
-        minKey = ''
-        if (str(kind)=='P'):
-            kind = 'p'
+        if kind == 'P':
             name = 'pressure'
             minKey = 'ptriple'
-        elif (str(kind)=='T'):
+        elif kind == 'T':
             name = 'temperature'
             minKey = 'Tmin'
-        else:
-            raise ValueError('Saturation curves can only be computed for T or p.')
 
-        if xmin is None:
-            xmin = CP.Props(Ref,str(minKey)     ) + 1e-5
-        if xmax is None:
-            xmax = CP.Props(Ref,str(kind)+'crit') - 1e-5
+        fluid_crit = CP.Props(self.fluid_ref, str(kind) + 'crit')
 
-        if xmin > CP.Props(Ref,str(kind)+'crit'):
-            raise ValueError('Minimum '+str(name)+' cannot be greater than fluid critical '+str(name)+'.')
-        if xmax > CP.Props(Ref,str(kind)+'crit'):
-            raise ValueError('Maximum '+str(name)+' cannot be greater than fluid critical '+str(name)+'.')
+        if smin is None:
+            smin = CP.Props(self.fluid_ref, str(minKey)) + SMALL
+        elif smin > fluid_crit:
+            raise ValueError('Minimum ' + name +
+                             ' cannot be greater than fluid critical ' +
+                             name + '.')
 
-        xmin = max(xmin, CP.Props(Ref,str(minKey)    )  + 1e-5)
-        xmax = min(xmax, CP.Props(Ref,str(kind)+'crit') - 1e-5)
+        if smax is None:
+            smax = CP.Props(self.fluid_ref, str(kind) + 'crit') - SMALL
+        elif smax > fluid_crit:
+            raise ValueError('Maximum ' + name +
+                             ' cannot be greater than fluid critical ' +
+                             name + '.')
 
-        return (xmin,xmax)
+        smin = max(smin, CP.Props(self.fluid_ref, minKey) + SMALL)
+        smax = min(smax, CP.Props(self.fluid_ref, kind + 'crit') - SMALL)
 
+        return smin, smax
 
     def _get_fluid_data(self, req_prop, prop1_name,
                         prop2_name, prop1_vals, prop2_vals):
