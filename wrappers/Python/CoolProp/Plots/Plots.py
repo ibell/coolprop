@@ -281,21 +281,6 @@ def _getIsoLineLabel(which,num):
 
 
 class IsoLines(BasePlot):
-    COLOR_MAP = {'T': 'Darkred',
-                 'P': 'DarkCyan',
-                 'H': 'DarkGreen',
-                 'D': 'DarkBlue',
-                 'S': 'DarkOrange',
-                 'Q': 'black',}
-
-    LINE_IDS = {'TS': ['P', 'D'], #'H'],
-                'PH': ['S', 'T', 'D'],
-                'HS': ['P'], #'T', 'D'],
-                'PS': ['H', 'T', 'D'],
-                'PD': ['T', 'S', 'H'],
-                'TD': ['P'], #'S', 'H'],
-                'PT': ['D', 'P', 'S'],}
-
     def __init__(self, fluid_ref, graph_type, iso_type, **kwargs):
         BasePlot.__init__(self, fluid_ref, graph_type, **kwargs)
 
@@ -544,13 +529,6 @@ class IsoLines(BasePlot):
 
 
 class Graph(BasePlot):
-    AXIS_LABLES = {'T': ["Temperature", r"[$K$]"],
-                   'P': ["Pressure", r"[$kPa$]"],
-                   'S': ["Entropy", r"[$kJ/kg K$]"],
-                   'H': ["Enthalpy", r"[$kJ/kg$]"],
-                   'V': [],
-                   'RHO': ["Density", r"[$kg/m^3$]"]}
-
     def __init__(self, fluid_ref, graph_type, **kwargs):
         """
         Create graph for the specified fluid properties
