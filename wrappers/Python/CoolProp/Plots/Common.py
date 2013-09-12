@@ -99,25 +99,22 @@ class BasePlot(object):
                         prop2_name, prop1_vals, prop2_vals):
         """
         Calculates lines for constant iName (iVal) over an interval of xName (xVal).
-
         Returns (x[],y[]) - a tuple of arrays containing the values in x and y dimensions.
         """
-
-        if (len(iVal)!=len(xVal)):
+        if len(prop1_vals) != len(prop2_vals):
             raise ValueError('We need the same number of x value arrays as iso quantities.')
 
-        y  = []
-        x  = []
-        for j in range(len(iVal)):
-            jiVal = iVal[j] #constant quantity
-            jxVal = xVal[j] #x-axis array
-            Y = numpy.array([CP.Props(yName,iName,[jiVal],xName,ijxVal,Ref) for ijxVal in jxVal])
-            y.append(Y)
-            x.append(jxVal)
-
-        return [x, y]
-
-    def _get_sat_lines(iso_type, kmin=None, kmax=None, x=[0., 1.]):
+        y_vals = []
+        x_vals = []
+        for i, p1_val in enumerate(prop1_vals):
+            x_vals.append(prop2_vals[i])
+            y_vals.append([CP.Props(req_prop,
+                                    prop1_name,
+                                    p1_val,
+                                    prop2_name,
+                                    x,
+                                    self.fluid_ref) for x in prop2_vals[i]])
+        return [x_vals, y_vals]
         """
         Calculates bubble and dew line in the quantities for your plot.
 
