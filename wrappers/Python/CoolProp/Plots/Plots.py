@@ -429,6 +429,10 @@ class Graph(BasePlot):
                              axis=self.axis)
         iso_lines.draw_isolines(iso_range, num)
 
+    def set_axis_limits(self, limits):
+        self.axis.set_xlim([limits[0], limits[1]])
+        self.axis.set_ylim([limits[2], limits[3]])
+
     def axis(self):
         self.__draw_graph()
         return self.axis
