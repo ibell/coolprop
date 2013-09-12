@@ -115,64 +115,61 @@ class BasePlot(object):
                                     x,
                                     self.fluid_ref) for x in prop2_vals[i]])
         return [x_vals, y_vals]
+
+    def _get_sat_lines(self, kind='T', smin=None, smax=None, num=500, x=[0., 1.]):
         """
         Calculates bubble and dew line in the quantities for your plot.
-
         You can specify if you need evenly spaced entries in either
         pressure or temperature by supplying kind='p' and kind='T'
         (default), respectively.
-
         Limits can be set with kmin (default: minimum from EOS) and
         kmax (default: critical value).
-
         Returns lines[] - a 2D array of dicts containing 'x' and 'y' coordinates
         for bubble and dew line. Additionally, the dict holds the keys
         'kmax', 'label' and 'opts', those can be used for plotting as well.
         """
+        if not kind.upper() in ['T', 'P']:
+            raise ValueError("Invalid input for determining the saturation \
+                              lines... Expected either 'T' or 'P'")
 
-        if (str(kind).lower()=='p'):
-            kind = 'P'
-        else:
-            kind = 'T'
+        smin, smax = self.__sat_bounds(kind, xmin=smin, xmax=smax)
+        sat_range = numpy.linspace(smin, smax, num)
+        sat_mesh = [sat_range for i in x]
 
-        (kmin,kmax) = _satBounds(Ref, kind, xmin=kmin, xmax=kmax)
-        k0          = numpy.linspace(kmin,kmax,1000)
+        x_vals = sat_mesh
+        y_vals = sat_mesh
+        if self.graph_type[1] != kind:
+            _, x_vals = self._get_fluid_data(self.graph_type[1], 'Q',
+                                             kind, x, sat_mesh)
 
-        iName       = 'Q'
-        iVal        = x
-        kVal        = [k0 for i in iVal]
+        if self.graph_type[0] != kind:
+            _, y_vals = self._get_fluid_data(self.graph_type[0],'Q',
+                                             kind, x, sat_mesh)
 
-        if xName!=kind:
-            (Xx,Yx) = _getI_YX(Ref,iName,kind,xName,iVal,kVal)
-        else:
-            (Xx,Yx) = (kVal,kVal)
-
-        if yName!=kind:
-            (Xy,Yy) = _getI_YX(Ref,iName,kind,yName,iVal,kVal)
-        else:
-            (Xy,Yy) = (kVal,kVal)
-
-        # Merge the two lines, capital Y holds important information. We merge on X values
+        # Merge the two lines, capital Y holds important information.
+        # We merge on X values
         # Every entry, eg. Xy, contains two arrays of values.
-        lines = []
-        for j in range(len(Yx)): # two dimensions: i = {0,1}
-            line = {
-              'x' : Yx[j],
-              'y' : Yy[j],
-              'kmax' : kmax
-              }
-            if iVal[j]==0.:
+        sat_lines = []
+        for i in range(len(x_vals)): # two dimensions: i = {0,1}
+            line = {'x': x_vals[i],
+                    'y': y_vals[i],
+                    'smax': smax}
+
+            line['label'] = self.SYMBOL_MAP['Q'][0] + str(x[i])
+            line['type'] = 'Q'
+            line['value'] = x[i]
+            line['unit'] = self.SYMBOL_MAP['Q'][1]
+            line['opts'] = {'color': self.COLOR_MAP['Q'],
+                            'lw': 1.0}
+
+            if x[i] == 0.:
                 line['label'] = 'bubble line'
-                line['opts'] = { 'color':getIsoLineColour(iName), 'lw':1.00 }
-            elif iVal[j]==1.:
+            elif x[i] == 1.:
                 line['label'] = 'dew line'
-                line['opts'] = { 'color':getIsoLineColour(iName), 'lw':1.00 }
             else:
-                l = labelMap[str(which)]
-                val = l[0]+str(num)+l[1]
-                line['label'] = _getIsoLineLabel(iName,iVal[j]),
-                line['opts'] = { 'color':getIsoLineColour(iName), 'lw':0.75, 'alpha':0.5}
+                line['opts']['lw'] = 0.75
+                line['opts']['alpha'] = 0.5
 
-            lines.append(line)
+            sat_lines.append(line)
 
-        return lines
+        return sat_lines
