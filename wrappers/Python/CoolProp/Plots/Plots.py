@@ -401,14 +401,23 @@ class PropsPlot(BasePlot):
         graph_type : str
             The graph type to be plotted
         axis : :func:`matplotlib.pyplot.gca()`, Optional
-            TODO
+            The current axis system to be plotted to.
+            Default: create a new axis system
         fig : :func:`matplotlib.pyplot.figure()`, Optional
-            TODO
+            The current figure to be plotted to.
+            Default: create a new figure
 
         Examples
         ---------
-        >>> graph = Graph('Water', 'Ph')
-        >>> graph.show()
+        >>> plt = PropsPlot('Water', 'Ph')
+        >>> plt.show()
+
+        >>> plt = PropsPlot('n-Pentane', 'Ts')
+        >>> plt.set_axis_limits([-0.5, 1.5, 300, 530])
+        >>> plt.draw_isolines('Q', [0.1, 0.9])
+        >>> plt.draw_isolines('P', [100, 2000])
+        >>> plt.draw_isolines('D', [2, 600])
+        >>> plt.show()
 
         .. note::
 
