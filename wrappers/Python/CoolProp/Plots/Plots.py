@@ -389,7 +389,7 @@ class IsoLines(BasePlot):
 
 
 
-class Graph(BasePlot):
+class PropsPlot(BasePlot):
     def __init__(self, fluid_ref, graph_type, **kwargs):
         """
         Create graph for the specified fluid properties
