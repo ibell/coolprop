@@ -985,8 +985,6 @@ double CoolPropStateClass::keyed_output(long iOutput)
 			return s();
 		case iU:
 			return h()-_p/_rho;
-		case iR:
-			return pFluid->R();
 
 		case iPhase:
 			return phase();
