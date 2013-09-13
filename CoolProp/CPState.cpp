@@ -240,7 +240,7 @@ void CoolPropStateClass::update(long iInput1, double Value1, long iInput2, doubl
 			throw ValueError(format("Sorry your inputs didn't work; valid pairs are P,Q T,Q T,D T,P P,H P,S"));
 		}
 		// Clear the cached derivative flags
-		this->clear_cache();	
+		this->clear_cache();
 	}
 	else
 	{
@@ -998,6 +998,8 @@ double CoolPropStateClass::keyed_output(long iOutput)
 			return s();
 		case iU:
 			return h()-p()/_rho;
+		case iR:
+			return pFluid->R();
 
 		case iPhase:
 			return phase();
