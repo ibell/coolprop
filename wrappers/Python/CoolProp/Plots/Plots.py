@@ -1,18 +1,22 @@
+# -*- coding: utf-8 -*-
+
 from __future__ import print_function
+
 import numpy, matplotlib, matplotlib.pyplot, math, re
 from scipy.interpolate import interp1d
 
 import CoolProp.CoolProp as CP
+from Common import BasePlot #TODO: Change to absolute import
 
 
 class IsoLine(object):
     def __init__(self):
         self.DEBUG = False
-        
-        # direct geometry 
-        self.X     = None # 
-        self.Y     = None # 
-        self.type  = None # 
+
+        # direct geometry
+        self.X     = None #
+        self.Y     = None #
+        self.type  = None #
         self.value = None #
         self.unit  = None #
         self.opts  = None #
@@ -23,69 +27,69 @@ def InlineLabel(xv,yv,x = None, y= None, axis = None, fig = None):
     This will give the coordinates and rotation required to align a label with
     a line on a plot
     """
-    
+
     def ToPixelCoords(xv,yv,axis,fig):
         [Axmin,Axmax]=axis.get_xlim()
         [Aymin,Aymax]=axis.get_ylim()
         DELTAX_axis=Axmax-Axmin
         DELTAY_axis=Aymax-Aymin
-        
+
         width=fig.get_figwidth()
         height=fig.get_figheight()
         pos=axis.get_position().get_points()
         [[Fxmin,Fymin],[Fxmax,Fymax]]=pos
         DELTAX_fig=width*(Fxmax-Fxmin)
         DELTAY_fig=height*(Fymax-Fymin)
-        
+
         #Convert coords to pixels
         x=(xv-Axmin)/DELTAX_axis*DELTAX_fig+Fxmin
         y=(yv-Aymin)/DELTAY_axis*DELTAY_fig+Fymin
-        
+
         return x,y
-    
+
     def ToDataCoords(xv,yv,axis,fig):
         [Axmin,Axmax]=axis.get_xlim()
         [Aymin,Aymax]=axis.get_ylim()
         DELTAX_axis=Axmax-Axmin
         DELTAY_axis=Aymax-Aymin
-        
+
         width=fig.get_figwidth()
         height=fig.get_figheight()
         pos=axis.get_position().get_points()
         [[Fxmin,Fymin],[Fxmax,Fymax]]=pos
         DELTAX_fig=(Fxmax-Fxmin)*width
         DELTAY_fig=(Fymax-Fymin)*height
-        
+
         #Convert back to measurements
         x=(xv-Fxmin)/DELTAX_fig*DELTAX_axis+Axmin
         y=(yv-Fymin)/DELTAY_fig*DELTAY_axis+Aymin
-        
+
         return x,y
-    
+
     if axis is None:
         axis=matplotlib.pyplot.gca()
-    
+
     if fig is None:
         fig=matplotlib.pyplot.gcf()
-    
-    
-    
+
+
+
     if y is None and x is not None:
         trash=0
         (xv,yv)=ToPixelCoords(xv,yv,axis,fig)
         #x is provided but y isn't
         (x,trash)=ToPixelCoords(x,trash,axis,fig)
-    
+
         #Get the rotation angle
         f = interp1d(xv, yv)
         y = f(x)
         h = 0.001*x
         dy_dx = (f(x+h)-f(x-h))/(2*h)
         rot = numpy.arctan(dy_dx)/numpy.pi*180.
-        
+
     elif x is None and y is not None:
         #y is provided, but x isn't
-        
+
         _xv = xv[::-1]
         _yv = yv[::-1]
         #Find x by interpolation
@@ -93,79 +97,41 @@ def InlineLabel(xv,yv,x = None, y= None, axis = None, fig = None):
         trash=0
         (xv,yv)=ToPixelCoords(xv,yv,axis,fig)
         (x,trash)=ToPixelCoords(x,trash,axis,fig)
-        
+
         f = interp1d(xv, yv)
         y = f(x)
         h = 0.001*x
         dy_dx = (f(x+h)-f(x-h))/(2*h)
         rot = numpy.arctan(dy_dx)/numpy.pi*180.
-        
+
     (x,y)=ToDataCoords(x,y,axis,fig)
     return (x,y,rot)
 
-def show():
-    """
-    A convenience function to call pylab.show()
-    """
-    matplotlib.pyplot.show()
-    
 
-def drawIsoLines(Ref, plot, which, iValues=[], num=0, axis=None, fig=None):
-    """
-    Draw lines with constant values of type 'which' in terms of x and y as 
-    defined by 'plot'. 'iMin' and 'iMax' are minimum and maximum value between
-    which 'num' get drawn. 
-    
-    There should also be helpful error messages...
-    """
-    
-    if axis is None:
-        axis=matplotlib.pyplot.gca()
-        
-    if fig is None:
-        fig=matplotlib.pyplot.gcf()
-    
-    if not plot is None:
-        if not which is None:
-            if not which=='all':
-                lines = getIsoLines(Ref, plot, which, iValues=iValues, num=num, axis=axis)
-                return drawLines(Ref,lines,axis)
-            else:
-                # TODO: assign limits to values automatically
-                raise ValueError('Plotting all lines automatically is not supported, yet..')
-            
-                ll = _getIsoLineIds(plot)    
-                if not len(ll)==len(iValues):
-                    raise ValueError('Please provide a properly sized array of bounds.')
-                for c,l in enumerate(ll):
-                    drawIsoLines(Ref, plot, l, iValues=iValues[c], num=num, axis=axis, fig=fig)
-    
-    
 def drawLines(Ref,lines,axis,plt_kwargs=None):
     """
     Just an internal method to systematically plot values from
     the generated 'line' dicts, method is able to cover the whole
     saturation curve. Closes the gap at the critical point and
-    adds a marker between the two last points of bubble and 
+    adds a marker between the two last points of bubble and
     dew line if they reach up to critical point.
-    
-    Returns the an array of line objects that can be used to change 
-    the colour or style afterwards.  
+    Returns the an array of line objects that can be used to change
+    the colour or style afterwards.
     """
     if not plt_kwargs is None:
         for line in lines:
             line['opts'] = plt_kwargs
     plottedLines = []
     if len(lines)==2 and (
-      'q' in str(lines[0]['type']).lower() and 'q' in str(lines[1]['type']).lower() 
-      ) and ( 
-      ( 0 == lines[0]['value'] and  1 == lines[1]['type'] ) or ( 1 == lines[0]['value'] and  0 == lines[1]['type'] ) ):
+      'q' in str(lines[0]['type']).lower() and 'q' in str(lines[1]['type']).lower()
+      ) and (
+      ( 0 == lines[0]['value'] and 1 == lines[1]['type'] ) or ( 1 == lines[0]['value'] and 0 == lines[1]['type'] ) ):
         # We plot the saturation curve
         bubble = lines[0]
-        dew    = lines[1]
+        dew = lines[1]
         line, = axis.plot(bubble['x'],bubble['y'],**bubble['opts'])
         plottedLines.extend([line])
-        line, = axis.plot(dew['x'],   dew['y'],   **dew['opts'])
+        line, = axis.plot(dew['x'], dew['y'], **dew['opts'])
         plottedLines.extend([line])
         # Do we need to test if this is T or p?
         Tmax = min(bubble['kmax'],dew['kmax'])
@@ -177,23 +143,23 @@ def drawLines(Ref,lines,axis,plt_kwargs=None):
             line, = axis.plot(line['x'],line['y'],**line['opts'])
             plottedLines.extend([line])
 
-    return plottedLines 
+    return plottedLines
 
 def plotRound(values):
-    """ 
-    A function round an array-like object while maintaining the 
+    """
+    A function round an array-like object while maintaining the
     amount of entries. This is needed for the isolines since we
-    want the labels to look pretty (=rounding), but we do not 
+    want the labels to look pretty (=rounding), but we do not
     know the spacing of the lines. A fixed number of digits after
     rounding might lead to reduced array size.
     """
     input   = numpy.unique(numpy.sort(numpy.array(values)))
-    output  = input[1:] * 0.0 
+    output  = input[1:] * 0.0
     digits  = -1
     limit   = 10
-    lim     = input * 0.0 + 10 
-    # remove less from the numbers until same length, 
-    # more than 10 significant digits does not really 
+    lim     = input * 0.0 + 10
+    # remove less from the numbers until same length,
+    # more than 10 significant digits does not really
     # make sense, does it?
     while len(input) > len(output) and digits < limit:
         digits += 1
@@ -207,644 +173,293 @@ def plotRound(values):
     #print(digits)
     #print(input)
     #print(output)
-    return output 
-        
+    return output
 
-def getIsoLines(Ref, plot, iName, iValues=[], num=0, grid=500, axis=None):
-    """
-    This is the core method to obtain lines in the dimensions defined
-    by 'plot' that describe the behaviour of fluid 'Ref'. The constant 
-    value is determined by 'iName' and has the values of 'iValues'. 
-    
-    'iValues' is an array-like object holding at least one element. Lines 
-    are calculated for every entry in 'iValues'. If the input 'num' is 
-    larger than the amount of entries in 'iValues', an internally defined 
-    pattern is used to calculate an appropriate line spacing between the maximum
-    and minimum values provided in 'iValues'. 
-    
-    Returns lines[num] - an array of dicts containing 'x' and 'y' 
-    coordinates for bubble and dew line. Additionally, the dict holds 
-    the keys 'type', 'value', 'unit' and 'opts', those can be used for 
-    plotting as well.
-    """
-    if axis is None:
-        axis=matplotlib.pyplot.gca()
-        
-    which = False
-    if not plot is None:
-        xName,yName,plot = _plotXY(plot)
-        if not iName is None:
-            if (iName in _getIsoLineIds(plot)) or (iName=='Q'):
-                which = True            
-            else:
-                which=False
-        else:
-            which=False
-    else: 
-        plot = False
-        
-    if not plot:
-        raise ValueError('You have to specify the kind of plot.')
-    
-    #xName,yName,plot = _plotXY(plot)
-    if not which:
-        raise ValueError('This kind of isoline is not supported for a '+str(plot)+'-plot. Please choose from '+str(_getIsoLineIds(plot))+' or Q.')
-     
-    # Enforce the bounds!
-    ((Axmin,Axmax), (Aymin,Aymax)) = _setBounds(Ref, plot, axis=axis)
-    switchXY = False
-#    # Problematic inputs that cannot be handled by the 
-#    # internal CoolProp solver have to be avoided. 
-#    # Converting everything to TD values:
-#    rho_0 =  CP.Props(Ref,'rhocrit')
-#    T_0   = (CP.Props(Ref,'Tcrit')+CP.Props(Ref,'Tmin'))/2. 
-#    # Promote to lists for the 4 corners of the plot
-#    rho_c = [rho_0, rho_0, rho_0, rho_0]
-#    T_c   = [T_0  , T_0  , T_0  , T_0]
-#    # find s from T and D inputs, solve for D
-#    bounds_rho = (0.0                 , 1e10)
-#    bounds_T   = (CP.Props(Ref,'Tmin'), 1e10)
-    if plot=='TS':
-#        # SciPy for scalar functions
-#        from scipy.optimize._minimize import minimize_scalar        
-#        # residual from known x and y to find i 
-#        def f(i,x,y): return numpy.power((CP.Props('S','T',y,'D',i,Ref)-x),2)
-#        # first case, upper right corner
-#        res = minimize_scalar(f, rho_0, bounds=bounds_rho, args=(Axmax, Aymax), method='bounded')
-#        T_c[0]   = Aymax
-#        rho_c[0] = res.x
-#        # second case, upper left corner
-#        res = minimize_scalar(f, rho_0, bounds=bounds_rho, args=(Axmin, Aymax), method='bounded')
-#        T_c[1]   = Aymax
-#        rho_c[1] = res.x
-#        # third case, lower left corner
-#        res = minimize_scalar(f, rho_0, bounds=bounds_rho, args=(Axmin, Aymin), method='bounded')
-#        T_c[2]   = Aymin
-#        rho_c[2] = res.x
-#        # fourth case, lower right corner
-#        res = minimize_scalar(f, rho_0, bounds=bounds_rho, args=(Axmax, Aymin), method='bounded')
-#        T_c[3]   = Aymin
-#        rho_c[3] = res.x
-        if iName=='D':
-            switchXY = True # TD is defined, SD is not
-    elif plot=='PH':
-        if iName=='S':
-            switchXY = True # PS is more stable than HS
-        if iName=='T':
-            switchXY = True # PT is defined, HT is not
-        if iName=='D':
-            switchXY = True # PD is defined, HD is not
-    elif plot=='HS':
-        if iName=='T':
-            raise ValueError('You should not reach this point!')
-        if iName=='D':
-            raise ValueError('You should not reach this point!')
-    elif plot=='PS':
-        if iName=='T':
-            switchXY = True # PT is defined, ST is not
-        if iName=='D':
-            switchXY = True # PD is defined, SD is not
-    elif plot=='PD':
-        if iName=='S':
-            switchXY = True # PS is defined, DS is not
-        if iName=='H':
-            switchXY = True # PH is defined, DH is not
-    elif plot=='TD':
-        if iName=='S':
-            raise ValueError('You should not reach this point!')
-        if iName=='H':
-            raise ValueError('You should not reach this point!')
-    elif plot=='PT':
-        if iName=='S':
-            switchXY = True # PS is defined, TS is not
-    
-    if switchXY:
-        xmin = Aymin
-        xmax = Aymax
-        tmpName = yName
-        yName = xName
-        xName = tmpName
-    else:
-        xmin = Axmin
-        xmax = Axmax
 
-    # Calculate the points
-    x0 = numpy.linspace(xmin,xmax,grid)
+class IsoLines(BasePlot):
+    def __init__(self, fluid_ref, graph_type, iso_type, **kwargs):
+        BasePlot.__init__(self, fluid_ref, graph_type, **kwargs)
 
-    patterns = {
-      'P' : (lambda x: numpy.logspace(math.log(x[0],2.), math.log(x[1],2.), num=x[2], base=2.)),
-      'D' : (lambda x: numpy.logspace(math.log(x[0],2.), math.log(x[1],2.), num=x[2], base=2.)),
-      'H' : (lambda x: numpy.linspace(x[0], x[1], num=x[2])),
-      'T' : (lambda x: numpy.linspace(x[0], x[1], num=x[2])),
-      'S' : (lambda x: numpy.linspace(x[0], x[1], num=x[2])),
-      'Q' : (lambda x: numpy.linspace(x[0], x[1], num=x[2]))
-    }
-    
-    # Get isoline spacing while honouring the inputs
-    if len(iValues)<1: # No values given, use plot boundaries to determine limits
-        raise ValueError('Automatic interval detection for isoline boundaries is not supported yet, use the iValues=[min, max] parameter.')
-        #iVal = [CP.Props(iName,'T',T_c[i],'D',rho_c[i],Ref) for i in range(len(T_c))]
-        #iVal = patterns[iName]([numpy.min(iVal),numpy.max(iVal),num]) 
-    elif 1<len(iValues)<num: # We need more numbers
-        iNum = num - len(iValues) 
-        iVal = patterns[iName]([numpy.min(iValues),numpy.max(iValues),iNum+2]) # include min and max
-        iVal = numpy.append(iVal[1:-1],iValues) # exclude min and max again
-        iVal = plotRound(iVal)
-    else: # Either len(iValues)==1 or len(iValues)>=num
-        iVal = numpy.array(iValues)
-        iVal = numpy.sort(numpy.unique(iVal)) # sort again
-        
-    
-    if iName=='Q':
-        lines = _getSatLines(Ref, plot, x=iVal)
+        if not isinstance(iso_type, str):
+            raise TypeError("Invalid iso_type input, expected a string")
+
+        iso_type = iso_type.upper()
+        if iso_type not in self.COLOR_MAP.keys() and iso_type != 'Q':
+            raise ValueError('This kind of isoline is not supported for a ' \
+                             + str(graph_type) + \
+                             ' plot. Please choose from '\
+                             + str(self.COLOR_MAP.keys()) + ' or Q.')
+
+        self.iso_type = iso_type
+
+    def __set_axis_limits(self, swap_xy):
+        """
+        Generates limits for the axes in terms of x,y defined by 'plot'
+        based on temperature and pressure.
+
+        Returns a tuple containing ((xmin, xmax), (ymin, ymax))
+        """
+        # Get current axis limits, be sure to set those before drawing isolines
+        # if no limits are set, use triple point and critical conditions
+        X = [CP.Props(self.graph_type[1],
+                      'T', 1.5*CP.Props(self.fluid_ref, 'Tcrit'),
+                      'P', CP.Props(self.fluid_ref, 'ptriple'),
+                      self.fluid_ref),
+             CP.Props(self.graph_type[1],
+                      'T', 1.1*CP.Props(self.fluid_ref, 'Tmin'),
+                      'P', 1.5*CP.Props(self.fluid_ref, 'pcrit'),
+                      self.fluid_ref),
+             CP.Props(self.graph_type[1],
+                      'T', 1.5*CP.Props(self.fluid_ref, 'Tcrit'),
+                      'P', 1.5*CP.Props(self.fluid_ref, 'pcrit'),
+                      self.fluid_ref),
+             CP.Props(self.graph_type[1],
+                      'T', 1.1*CP.Props(self.fluid_ref, 'Tmin'),
+                      'P', CP.Props(self.fluid_ref, 'ptriple'),
+                      self.fluid_ref)]
+
+        Y = [CP.Props(self.graph_type[0],
+                      'T', 1.5*CP.Props(self.fluid_ref, 'Tcrit'),
+                      'P', CP.Props(self.fluid_ref, 'ptriple'),
+                       self.fluid_ref),
+             CP.Props(self.graph_type[0],
+                      'T', 1.1*CP.Props(self.fluid_ref, 'Tmin') ,
+                      'P', 1.5*CP.Props(self.fluid_ref, 'pcrit'),
+                      self.fluid_ref),
+             CP.Props(self.graph_type[0],
+                      'T', 1.1*CP.Props(self.fluid_ref, 'Tcrit'),
+                      'P', 1.5*CP.Props(self.fluid_ref, 'pcrit'),
+                      self.fluid_ref),
+             CP.Props(self.graph_type[0],
+                      'T', 1.5*CP.Props(self.fluid_ref, 'Tmin') ,
+                      'P', CP.Props(self.fluid_ref, 'ptriple'),
+                      self.fluid_ref)]
+
+        limits = [[min(X), max(X)], [min(Y), max(Y)]]
+        if not self.axis.get_autoscalex_on():
+            limits[0][0] = max([limits[0][0], min(self.axis.get_xlim())])
+            limits[0][1] = min([limits[0][1], max(self.axis.get_xlim())])
+            limits[1][0] = max([limits[1][0], min(self.axis.get_ylim())])
+            limits[1][1] = min([limits[1][1], max(self.axis.get_ylim())])
+
+        self.axis.set_xlim(limits[0])
+        self.axis.set_ylim(limits[1])
+        return limits
+
+    def get_isolines(self, iso_range=[], num=None):
+        """
+        This is the core method to obtain lines in the dimensions defined
+        by 'plot' that describe the behaviour of fluid 'Ref'. The constant
+        value is determined by 'iName' and has the values of 'iValues'.
+
+        'iValues' is an array-like object holding at least one element. Lines
+        are calculated for every entry in 'iValues'. If the input 'num' is
+        larger than the amount of entries in 'iValues', an internally defined
+        pattern is used to calculate an appropriate line spacing between the maximum
+        and minimum values provided in 'iValues'.
+
+        Returns lines[num] - an array of dicts containing 'x' and 'y'
+        coordinates for bubble and dew line. Additionally, the dict holds
+        the keys 'label' and 'opts', those can be used for plotting as well.
+        """
+        if not iso_range or len(iso_range) == 1:
+            raise ValueError('Automatic interval detection for isoline \
+                              boundaries is not supported yet, use the \
+                              iso_range=[min, max] parameter.')
+
+        if len(iso_range) == 2 and num is None:
+            raise ValueError('Please specify the number of isoline you want \
+                              e.g. num=10')
+
+        iso_range = numpy.sort(numpy.unique(iso_range))
+
+        def generate_ranges(xmin, xmax, num):
+            if self.iso_type in ['P', 'D']:
+                return numpy.logspace(math.log(xmin, 2.),
+                                      math.log(xmax, 2.),
+                                      num=num,
+                                      base=2.)
+            return numpy.linspace(xmin, xmax, num=num)
+
+        # Generate iso ranges
+        if len(iso_range) == 2:
+            iso_range = generate_ranges(iso_range[0], iso_range[1], num)
+            iso_range = plotRound(iso_range)
+        #else:
+        #    TODO: Automatic interval detection
+        #    iVal = [CP.Props(iName,'T',T_c[i],'D',rho_c[i],Ref) for i in range(len(T_c))]
+        #    iVal = patterns[iName]([numpy.min(iVal),numpy.max(iVal),num])
+
+        switch_xy_map = {'D': ['TS', 'PH', 'PS'],
+                         'S': ['PH', 'PD', 'PT'],
+                         'T': ['PH', 'PS'],
+                         'H': ['PD']}
+        #TS: TD is defined, SD is not
+        #PH: PD is defined, HD is not
+        #PS: PD is defined, SD is not
+        #PH: PS is more stable than HS
+        #PD: PS is defined, DS is not
+        #PT: PS is defined, TS is not
+        #PH: PT is defined, HT is not
+        #PS: PT is defined, ST is not
+        #PD: PH is defined, DH is not
+
+        iso_error_map = {'TD': ['S', 'H'],
+                         'HS': ['T', 'D'],}
+
+        switch_xy = False
+        if self.iso_type in ['D', 'S', 'T', 'H']:
+            if self.graph_type in switch_xy_map[self.iso_type]:
+                switch_xy = True
+
+        if self.graph_type in ['TD', 'HS']:
+            if self.iso_type in iso_error_map[self.graph_type]:
+                raise ValueError('You should not reach this point!')
+
+        axis_limits = self.__set_axis_limits(switch_xy)
+        req_prop = self.graph_type[0]
+        prop2_name = self.graph_type[1]
+        if switch_xy:
+            axis_limits.reverse()
+            req_prop = self.graph_type[1]
+            prop2_name = self.graph_type[0]
+
+        # Calculate the points
+        if self.iso_type == 'Q':
+            lines = self._get_sat_lines(x=iso_range)
+            return lines
+
+        # TODO: Determine saturation state if two phase region present
+        x_range = numpy.linspace(axis_limits[0][0], axis_limits[0][1], 1000.)
+        x_mesh = [x_range for i in iso_range]
+
+        plot_data = self._get_fluid_data(req_prop,
+                                         self.iso_type,
+                                         prop2_name,
+                                         iso_range,
+                                         x_mesh)
+
+        if switch_xy:
+            plot_data.reverse()
+
+        lines = []
+        for j in range(len(plot_data[0])):
+            line = {
+              'x': plot_data[0][j],
+              'y': plot_data[1][j],
+              # TODO
+              'label': "", #_getIsoLineLabel(self.iso_type, iso_range[j]),
+              'opts': {'color': self.COLOR_MAP[self.iso_type], 'lw':0.75, 'alpha':0.5 }
+              }
+            lines.append(line)
+
         return lines
-    
-    # TODO: Determine saturation state if two phase region present
-    xVal = [x0 for i in iVal]
-    
-    (X,Y) = _getI_YX(Ref,iName,xName,yName,iVal,xVal)
-    
-    if switchXY:
-        tmpY = Y
-        Y    = X
-        X    = tmpY
-        
-    lines = []
-    for j in range(len(X)):
-        line = {
-          'x'     : X[j],
-          'y'     : Y[j],
-          #'label' : _getIsoLineLabel(iName,iVal[j]),
-          'type'  : iName,
-          'value' : iVal[j],
-          'unit'  : _getIsoLineUnit(iName),
-          'opts'  : { 'color':getIsoLineColour(iName), 'lw':0.75, 'alpha':0.5 }
-          }
-        lines.append(line)
-        
-    return lines
-    
-def _satBounds(Ref,kind,xmin=None,xmax=None):
-    """
-    Generates limits for the saturation line in either T or p determined by 'kind'. 
-    If xmin or xmax are provided, values will be checked against the allowable 
-    range for the EOS and an error might be generated. 
-    
-    Returns a tuple containing (xmin,xmax)
-    """
-    
-    kind = str(kind).upper()
-    name = ''
-    minKey = ''
-    if (str(kind)=='P'):
-        kind = 'p'
-        name = 'pressure'
-        minKey = 'ptriple'
-    elif (str(kind)=='T'):
-        name = 'temperature'
-        minKey = 'Tmin'
-    else:
-        raise ValueError('Saturation curves can only be computed for T or p.')
-    
-    if xmin is None:
-        xmin = CP.Props(Ref,str(minKey)     ) + 1e-5
-    if xmax is None:
-        xmax = CP.Props(Ref,str(kind)+'crit') - 1e-5
-        
-    if xmin > CP.Props(Ref,str(kind)+'crit'):
-        raise ValueError('Minimum '+str(name)+' cannot be greater than fluid critical '+str(name)+'.')
-    if xmax > CP.Props(Ref,str(kind)+'crit'):
-        raise ValueError('Maximum '+str(name)+' cannot be greater than fluid critical '+str(name)+'.')
-    
-    xmin = max(xmin, CP.Props(Ref,str(minKey)    )  + 1e-5)
-    xmax = min(xmax, CP.Props(Ref,str(kind)+'crit') - 1e-5)
-    
-    return (xmin,xmax)
+
+    def draw_isolines(self, iso_range, num=None):
+        """
+        Draw lines with constant values of type 'which' in terms of x and y as
+        defined by 'plot'. 'iMin' and 'iMax' are minimum and maximum value between
+        which 'num' get drawn.
+
+        There should also be helpful error messages...
+        """
+        if not iso_range or len(iso_range) == 1:
+            raise ValueError('Automatic interval detection for isoline \
+                              boundaries is not supported yet, use the \
+                              iso_range=[min, max] parameter.')
+
+        if len(iso_range) == 2 and num is None:
+            raise ValueError('Please specify the number of isoline you want \
+                              e.g. num=10')
+
+        if self.iso_type == 'all':
+            raise ValueError('Plotting all lines automatically is not \
+                              supported, yet..')
+
+        if self.iso_type != 'all':
+            lines = self.get_isolines(iso_range, num)
+            drawLines(self.fluid_ref, lines, self.axis)
+        #else:
+        #    # TODO: assign limits to values automatically
+        #    ll = _getIsoLineIds(plot)
+        #    if not len(ll)==len(iValues):
+        #        raise ValueError('Please provide a properly sized array of bounds.')
+        #    for c,l in enumerate(ll):
+        #        drawIsoLines(Ref, plot, l, iValues=iValues[c], num=num, axis=axis, fig=fig)
 
 
-def _setBounds(Ref, plot, axis=None):
-    """
-    Generates limits for the axes in terms of x,y defined by 'plot'
-    based on temperature and pressure.  
-    
-    Returns a tuple containing ((xmin,xmax), (ymin,ymax))    
-    """
-    
-    xName,yName,plot = _plotXY(plot)
-    
-    # Get current axis limits, be sure to set those before drawing isolines
-    # if no limits are set, use triple point and critical conditions
-    X = []
-    X.append(CP.Props(xName,'T',1.5*CP.Props(Ref,'Tcrit'), 'P',   CP.Props(Ref,'ptriple'),Ref))
-    X.append(CP.Props(xName,'T',1.1*CP.Props(Ref,'Tmin') , 'P', 1.5*CP.Props(Ref,'pcrit'),Ref))
-    X.append(CP.Props(xName,'T',1.5*CP.Props(Ref,'Tcrit'), 'P', 1.5*CP.Props(Ref,'pcrit'),Ref))
-    X.append(CP.Props(xName,'T',1.1*CP.Props(Ref,'Tmin') , 'P',   CP.Props(Ref,'ptriple'),Ref))
-    Y = []
-    Y.append(CP.Props(yName,'T',1.5*CP.Props(Ref,'Tcrit'), 'P',   CP.Props(Ref,'ptriple'),Ref))
-    Y.append(CP.Props(yName,'T',1.1*CP.Props(Ref,'Tmin') , 'P', 1.5*CP.Props(Ref,'pcrit'),Ref))
-    Y.append(CP.Props(yName,'T',1.1*CP.Props(Ref,'Tcrit'), 'P', 1.5*CP.Props(Ref,'pcrit'),Ref))
-    Y.append(CP.Props(yName,'T',1.5*CP.Props(Ref,'Tmin') , 'P',   CP.Props(Ref,'ptriple'),Ref))
-    
-    minX = numpy.min(X)
-    maxX = numpy.max(X)
-    minY = numpy.min(Y)
-    maxY = numpy.max(Y)
-    
-    if axis.get_autoscalex_on():
-        axis.set_xlim([minX,maxX])
-    else:
-        [cuiX,cuaX] = axis.get_xlim()
-        axis.set_xlim(left=numpy.max([minX,cuiX]))
-        #axis.set_xlim(right=numpy.min(maxX,cuaX))
-        
-    if axis.get_autoscaley_on():
-        axis.set_ylim([minY,maxY])
-    else:
-        [cuiY,cuaY] = axis.get_ylim()
-        axis.set_ylim(bottom=numpy.max([minY,cuiY]))
-        #axis.set_ylim(right=numpy.min(maxY,cuaY))
-    
-    [cuiX,cuaX] = axis.get_xlim()
-    [cuiY,cuaY] = axis.get_ylim()
-    
-    return ((cuiX,cuaX),(cuiY,cuaY))
 
+class Graph(BasePlot):
+    def __init__(self, fluid_ref, graph_type, **kwargs):
+        """
+        Create graph for the specified fluid properties
 
-def _getSatLines(Ref, plot, kind=None, kmin=None, kmax=None, grid=500, x=[0.,1.]):
-    """
-    Calculates bubble and dew line in the quantities for your plot. 
-    
-    You can specify if you need evenly spaced entries in either 
-    pressure or temperature by supplying kind='p' and kind='T' 
-    (default), respectively.
-    
-    Limits can be set with kmin (default: minimum from EOS) and 
-    kmax (default: critical value). 
-    
-    Returns lines[] - a 2D array of dicts containing 'x' and 'y' coordinates 
-    for bubble and dew line. Additionally, the dict holds the keys 
-    'kmax', 'label' and 'opts', those can be used for plotting as well.
-    """
-    
-    xName,yName,plot = _plotXY(plot)
-    
-    if (str(kind).lower()=='p'):
-        kind = 'P'
-    else:
-        kind = 'T' 
-    
-    (kmin,kmax) = _satBounds(Ref, kind, xmin=kmin, xmax=kmax)   
-    k0          = numpy.linspace(kmin,kmax,grid)
-    
-    iName       = 'Q'
-    iVal        = x
-    kVal        = [k0 for i in iVal]
-    
-    if xName!=kind:
-        (Xx,Yx) = _getI_YX(Ref,iName,kind,xName,iVal,kVal)
-    else:
-        (Xx,Yx) = (kVal,kVal)
-    
-    if yName!=kind:
-        (Xy,Yy) = _getI_YX(Ref,iName,kind,yName,iVal,kVal)
-    else:
-        (Xy,Yy) = (kVal,kVal)
-    
-    # Merge the two lines, capital Y holds important information. We merge on X values
-    # Every entry, eg. Xy, contains two arrays of values.   
-    lines = []
-    for j in range(len(Yx)): # two dimensions: i = {0,1} 
-        line = {
-          'x' : Yx[j],
-          'y' : Yy[j], 
-          'kmax' : kmax
-          }
-        if iVal[j]==0.:
-            #line['label'] = 'bubble line'
-            line['type']  = iName
-            line['value'] = iVal[j]
-            line['unit']  = _getIsoLineUnit(iName)
-            line['opts'] = { 'color':getIsoLineColour(iName), 'lw':1.00 }
-        elif iVal[j]==1.:
-            #line['label'] = 'dew line'
-            line['type']  = iName
-            line['value'] = iVal[j]
-            line['unit']  = _getIsoLineUnit(iName)
-            line['opts'] = { 'color':getIsoLineColour(iName), 'lw':1.00 }
+        Parameters
+        -----------
+        fluid_ref : str
+            The refence fluid
+        graph_type : str
+            The graph type to be plotted
+        axis : :func:`matplotlib.pyplot.gca()`, Optional
+            TODO
+        fig : :func:`matplotlib.pyplot.figure()`, Optional
+            TODO
+
+        Examples
+        ---------
+        >>> graph = Graph('Water', 'Ph')
+        >>> graph.show()
+
+        .. note::
+
+            See the online documentation for a the available fluids and
+            graph types
+        """
+        BasePlot.__init__(self, fluid_ref, graph_type, **kwargs)
+
+        self.t_min = kwargs.get('t_min', None)
+        self.t_max = kwargs.get('t_max', None)
+
+    def __set_axis_labels(self):
+        if len(self.graph_type) == 2:
+            y_axis_id = self.graph_type[0]
+            x_axis_id = self.graph_type[1]
         else:
-            #line['label'] = _getIsoLineLabel(iName,iVal[j]),
-            line['type']  = iName
-            line['value'] = iVal[j]
-            line['unit']  = _getIsoLineUnit(iName)
-            line['opts'] = { 'color':getIsoLineColour(iName), 'lw':0.75, 'alpha':0.5}
-        
-        lines.append(line)
-        
-    return lines
+            y_axis_id = self.graph_type[0]
+            x_axis_id = self.graph_type[1:len(self.graph_type)]
 
+        tl_str = "%s - %s Graph for %s"
+        self.axis.set_title(tl_str % (self.AXIS_LABLES[y_axis_id][0],
+                                      self.AXIS_LABLES[x_axis_id][0],
+                                      self.fluid_ref))
+        self.axis.set_xlabel(' '.join(self.AXIS_LABLES[x_axis_id]))
+        self.axis.set_ylabel(' '.join(self.AXIS_LABLES[y_axis_id]))
 
-def _getI_YX(Ref,iName,xName,yName,iVal,xVal):
-    """
-    Calculates lines for constant iName (iVal) over an interval of xName (xVal). 
-    
-    Returns (x[],y[]) - a tuple of arrays containing the values in x and y dimensions.    
-    """
-    
-    if (len(iVal)!=len(xVal)):
-        raise ValueError('We need the same number of x value arrays as iso quantities.')
-    
-    y  = []
-    x  = []
-    for j in range(len(iVal)):
-        jiVal = iVal[j] #constant quantity
-        jxVal = xVal[j] #x-axis array
-        Y = numpy.array([CP.Props(yName,iName,[jiVal],xName,ijxVal,Ref) for ijxVal in jxVal])
-        y.append(Y)
-        x.append(jxVal)
-        
-    return x,y
+    def __draw_region_lines(self):
+        lines = self._get_sat_lines(kind='T',
+                                    smin=self.t_min,
+                                    smax=self.t_max)
+        drawLines(self.fluid_ref, lines, self.axis)
 
+    def __draw_graph(self):
+        self.__draw_region_lines()
+        self.__set_axis_labels()
 
-def _plotXY(plot):
-    """
-    Creates strings for the x and y-axis values from a given plot 
-    name like Ts, Ph, hs, Ps, Prho, Trho and PT.
-    """
-    
-    # check if plot has the right format    
-    plots = ['TS','PH','HS','PS','PD','TD','PT']
-    
-    rhoPat = re.compile("rho", re.IGNORECASE)
-    plot = rhoPat.sub("D", plot).upper()
-    
-    if not plot in plots:
-        raise ValueError('You have to specify the kind of plot, use Ts, Ph, hs, Ps, Prho, Trho or PT.')
-    
-    # Get strings to feed to Props function
-    yName = str(plot[0] )
-    xName = str(plot[1:])
-    
-    return xName,yName,yName+xName
+    def draw_isolines(self, iso_type, iso_range, num=10):
+        iso_lines = IsoLines(self.fluid_ref,
+                             self.graph_type,
+                             iso_type,
+                             axis=self.axis)
+        iso_lines.draw_isolines(iso_range, num)
 
+    def set_axis_limits(self, limits):
+        self.axis.set_xlim([limits[0], limits[1]])
+        self.axis.set_ylim([limits[2], limits[3]])
 
-def _getIsoLineIds(plot):
-    # define which isolines are allowed for the different plots
-#    plots = {
-#      'TS' : ['P','H'],#,'D'],
-#      'PH' : ['S'],#,'T','D'],
-#      'HS' : ['P'],#,'T','D'],
-#      'PS' : ['H'],#,'T','D'],
-#      'PD' : ['T'],#,'S','H'],
-#      'TD' : ['P'],#,'S','H'],
-#      'PT' : ['D','P']#,'S']
-#    }
-    # Changing the XY coordinates allows for more
-    # combinations of isolines.
-    plots = {
-      'TS' : ['P','D','H'],
-      'PH' : ['S','T','D'],
-      'HS' : ['P'],#,'T','D'],
-      'PS' : ['H','T','D'],
-      'PD' : ['T','S','H'],
-      'TD' : ['P'],#,'S','H'],
-      'PT' : ['D','P','S']
-    }
-    return plots[str(plot).upper()]
+    def axis(self):
+        self.__draw_graph()
+        return self.axis
 
-
-def getIsoLineColour(which):
-#    colourMap = {                 
-#      'T' : 'red',
-#      'P' : 'cyan',
-#      'H' : 'green',
-#      'D' : 'blue',
-#      'S' : 'yellow',
-#      'Q' : 'black'
-#    }
-    colourMap = {                 
-      'T' : 'Darkred',
-      'P' : 'DarkCyan',
-      'H' : 'DarkGreen',
-      'D' : 'DarkBlue',
-      'S' : 'DarkOrange',
-      'Q' : 'black'
-    }
-    return colourMap[str(which).upper()]
-
-
-#def _getIsoLineLabel(which,num):
-#    labelMap = {
-#      'T' : [r'$T = ','$ K'],
-#      'P' : [r'$p = ','$ kPa'],
-#      'H' : [r'$h = ','$ kJ/kg'],
-#      'D' : [r'$\rho = ','$ kg/m$^3$'],
-#      'S' : [r'$s = ','$ kJ/kg-K'],
-#      'Q' : [r'$x = ','$']
-#    }
-#    l = labelMap[str(which).upper()]
-#    val = l[0]+str(num)+l[1]
-#    return val
-
-def _getIsoLineUnit(which):
-    unitMap = {
-      'T' : 'K',
-      'P' : 'kPa',
-      'H' : 'kJ/kg',
-      'D' : 'kg/m$\mathregular{^3}$',
-      'S' : 'kJ/(kg K)',
-      'Q' : ''
-    }
-    return unitMap[str(which).upper()]
-
-    
-def Ts(Ref,Tmin=None, Tmax=None, show=False, axis=None, **kwargs):
-    """
-    Make a temperature-entropy plot for the given fluid
-    
-    Will plot in the current axis unless the optional parameter *axis* gives the name for the axis to use
-    """
-
-    ax = axis if axis is not None else matplotlib.pyplot.gca()
-    lines = _getSatLines(Ref, 'Ts', kind='T', kmin=Tmin, kmax=Tmax)  
-    drawLines(Ref,lines,ax)
-    # or alternatively:
-    #drawIsoLines(Ref, 0, 1, which='Q', plot='Ts', axis=ax)
-    
-    ax.set_xlabel('Entropy [kJ/kg$\cdot$K]')
-    ax.set_ylabel('Temperature [K]')
-    ax.autoscale(enable=True)
-    if show:
+    def show(self):
+        self.__draw_graph()
         matplotlib.pyplot.show()
-    return ax
-
-
-def Ph(Ref, Tmin=None, Tmax = None, show = False, axis=None, **kwargs):
-    """
-    Make a pressure-enthalpy plot for the given fluid
-    
-    Will plot in the current axis unless the optional parameter *axis* gives the name for the axis to use
-    """
-    
-    ax = axis if axis is not None else matplotlib.pyplot.gca()
-    lines  = _getSatLines(Ref, 'ph', kind='T', kmin=Tmin, kmax=Tmax)  
-    drawLines(Ref,lines,ax)
-    
-    ax.set_xlabel('Enthalpy [kJ/kg]')
-    ax.set_ylabel('Pressure [kPa]')
-    ax.autoscale(enable=True)
-    if show:
-        matplotlib.pyplot.show()
-    return ax
-    
-    
-def hs(Ref, Tmin=None, Tmax = None, show = False, axis = None, **kwargs):
-    """
-    Make a enthalpy-entropy plot for the given fluid
-    
-    Will plot in the current axis unless the optional parameter *axis* gives the name for the axis to use
-    """
-    
-    ax = axis if axis is not None else matplotlib.pyplot.gca()
-    lines  = _getSatLines(Ref, 'hs', kind='T', kmin=Tmin, kmax=Tmax)  
-    drawLines(Ref,lines,ax)
-    
-    ax.set_xlabel('Entropy [kJ/kg/K]')
-    ax.set_ylabel('Enthalpy [kJ/kg]')
-    ax.autoscale(enable=True)
-    if show:
-        matplotlib.pyplot.show()
-    return ax
-        
-        
-def Ps(Ref, Tmin=None, Tmax = None, show = False, axis = None, **kwargs):
-    """
-    Make a pressure-entropy plot for the given fluid
-    
-    Will plot in the current axis unless the optional parameter *axis* gives the name for the axis to use
-    """
-    
-    ax = axis if axis is not None else matplotlib.pyplot.gca()
-    lines  = _getSatLines(Ref, 'ps', kind='T', kmin=Tmin, kmax=Tmax)  
-    drawLines(Ref,lines,ax)
-    
-    ax.set_xlabel('Entropy [kJ/kg/K]')
-    ax.set_ylabel('Pressure [kPa]')
-    ax.autoscale(enable=True)
-    if show:
-        matplotlib.pyplot.show()
-    return ax
-        
-        
-def Prho(Ref, Tmin=None, Tmax = None, show = False, axis = None, **kwargs):
-    """
-    Make a pressure-density plot for the given fluid
-    
-    Will plot in the current axis unless the optional parameter *axis* gives the name for the axis to use
-    """
-    
-    ax = axis if axis is not None else matplotlib.pyplot.gca()
-    lines  = _getSatLines(Ref, 'pd', kind='T', kmin=Tmin, kmax=Tmax)  
-    drawLines(Ref,lines,ax)
-    
-    ax.set_xlabel('Density [kg/m$^3$]')
-    ax.set_ylabel('Pressure [kPa]')
-    ax.autoscale(enable=True)
-    if show:
-        matplotlib.pyplot.show()
-    return ax
-        
-        
-def Trho(Ref, Tmin=None, Tmax = None, show = False, axis = None, **kwargs):
-    """
-    Make a temperature-density plot for the given fluid
-    
-    Will plot in the current axis unless the optional parameter *axis* gives the name for the axis to use
-    """
-    
-    ax = axis if axis is not None else matplotlib.pyplot.gca()
-    lines  = _getSatLines(Ref, 'Td', kind='T', kmin=Tmin, kmax=Tmax)  
-    drawLines(Ref,lines,ax)
-    
-    ax.set_xlabel('Density [kg/m$^3$]')
-    ax.set_ylabel('Temperature [K]')
-    ax.autoscale(enable=True)
-    if show:
-        matplotlib.pyplot.show()
-    return ax
-
-
-def PT(Ref, Tmin=None, Tmax = None, show = False, axis = None, **kwargs):
-    """
-    Make a pressure-temperature plot for the given fluid
-    
-    Will plot in the current axis unless the optional parameter *axis* gives the name for the axis to use
-    """
-    
-    ax = axis if axis is not None else matplotlib.pyplot.gca()
-    lines  = _getSatLines(Ref, 'pT', kind='T', kmin=Tmin, kmax=Tmax)  
-    drawLines(Ref,lines,ax)
-    
-    ax.set_xlabel('Temperature [K]')
-    ax.set_ylabel('Pressure [kPa]')
-    ax.autoscale(enable=True)
-    if show:
-        matplotlib.pyplot.show()
-    return ax
-
-        
-if __name__=='__main__':
-#    import matplotlib
-#    matplotlib.use('Qt4Agg')
-#    
-#    import matplotlib.pyplot
-#    
-#    fluid = "n-Pentane"
-#    # define custom styles
-#    plt_kwargs_1 = {"color": "green","linewidth": 1.5}
-#    plt_kwargs_2 = {"color": "red","linewidth": 0.75}
-#    
-#    raw_input("Press Enter to draw quality lines...")
-#    fig, ((ax1, ax2)) = matplotlib.pyplot.subplots(1, 2, sharey='row')
-#    drawIsoLines(fluid, 'Ts', 'Q', [0.0, 1.0], axis=ax1) # for predefined styles
-#    drawIsoLines(fluid, 'Ts', 'Q', [0.3, 0.7], axis=ax1) # for predefined styles
-#    # Get the data points
-#    saturation = getIsoLines(fluid, 'Ts', 'Q', [0.0,  1.0 ], axis=ax2)
-#    quality    = getIsoLines(fluid, 'Ts', 'Q', [0.3,  0.7 ], axis=ax2)
-#    # and draw the lines
-#    drawLines(fluid,saturation[:],ax2,plt_kwargs=plt_kwargs_1)
-#    drawLines(fluid,quality[:],ax2,plt_kwargs=plt_kwargs_2)
-#    matplotlib.pyplot.show()
-#    raw_input("Press Enter to draw more lines...")
-#    fig, (ax1) = matplotlib.pyplot.subplots(1, 1)
-#    drawLines(fluid,saturation,ax1)
-#    drawIsoLines(fluid, 'Ts', 'Q', [0.0, 1.0], axis=ax1) # for predefined styles
-#    drawIsoLines(fluid, 'Ts', 'Q', [0.25, 0.75], num=3, axis=ax1) # for predefined styles
-#    drawIsoLines(fluid, 'Ts', 'H', [50,  100], num=10, axis=ax1) # for predefined styles
-#    drawIsoLines(fluid, 'Ts', 'P', [10,  5000], num=10, axis=ax1) # for predefined styles
-#    matplotlib.pyplot.show()
-#    hs('n-Pentane', show = True)
-#    raw_input("Press Enter to continue...")
-
-#    # test the rounding function
-#    testarr = numpy.logspace(math.log(0.1,2.), math.log(0.11,2.), num=10, base=2.)
-#    print testarr
-#    print plotRound(testarr)
-
-
-    # The older test cases.
-    hs('R245fa', show = True)
-    raw_input("Press Enter to continue...")
-    PT('R245fa', show = True)
-    raw_input("Press Enter to continue...")
-    Ph('Helium', show = True)
-    raw_input("Press Enter to continue...")
-    Trho('R245fa', show = True)
-    raw_input("Press Enter to continue...")
-    Prho('R245fa', show = True)
-    raw_input("Press Enter to continue...")
-    Ps('R290', show = True)
-    raw_input("Press Enter to continue...")
-    Ph('R290', show = True)
-    raw_input("Press Enter to continue...")
-    Ts('R290', show = True)
-    raw_input("Press Enter to continue...")
