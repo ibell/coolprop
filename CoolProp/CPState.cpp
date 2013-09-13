@@ -213,6 +213,9 @@ void CoolPropStateClass::update(long iInput1, double Value1, long iInput2, doubl
 
 	if (using_EOS)
 	{
+		// Clear the cached derivative flags
+		this->clear_cache();
+
 		// If the inputs are P,Q or T,Q , it is guaranteed to require a call to the saturation routine
 		if (match_pair(iInput1,iInput2,iP,iQ) || match_pair(iInput1,iInput2,iT,iQ)){
 			update_twophase(iInput1,Value1,iInput2,Value2);
@@ -239,8 +242,6 @@ void CoolPropStateClass::update(long iInput1, double Value1, long iInput2, doubl
 		{
 			throw ValueError(format("Sorry your inputs didn't work; valid pairs are P,Q T,Q T,D T,P P,H P,S"));
 		}
-		// Clear the cached derivative flags
-		this->clear_cache();
 	}
 	else
 	{
@@ -429,7 +430,7 @@ void CoolPropStateClass::update_Trho(long iInput1, double Value1, long iInput2, 
 		// Reduced parameters
 		double delta = this->_rho/pFluid->reduce.rho;
 		double tau = pFluid->reduce.T/this->_T;
-		
+
 		// Use the local function for dphir_dDelta to ensure that dphir_dDelta gets cached
 		_p = pFluid->R()*_T*_rho*(1.0 + delta*dphir_dDelta(tau,delta));
 	}
