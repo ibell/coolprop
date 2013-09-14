@@ -32,7 +32,7 @@ CoolPropStateClassSI::CoolPropStateClassSI(std::string Fluid){
 	{
 		throw ValueError("Bad Fluid name - not a CoolProp fluid");
 	}
-	this->clear_cache();
+	this->cache.clear();
 
 	// If flag_SinglePhase is true, it will always assume that it is not in the two-phase region
 	// If flag_TwoPhase is true, it it always assume that you are in the two-phase region
@@ -48,7 +48,7 @@ CoolPropStateClassSI::CoolPropStateClassSI(std::string Fluid){
 // Constructor with pointer to fluid
 CoolPropStateClassSI::CoolPropStateClassSI(Fluid * pFluid){
 	this->pFluid = pFluid;
-	this->clear_cache();
+	this->cache.clear();
 
 	// If flag_SinglePhase is true, it will always assume that it is not in the two-phase region
 	// If flag_TwoPhase is true, it it always assume that you are in the two-phase region
@@ -117,30 +117,6 @@ void CoolPropStateClassSI::check_saturated_quality(double Q){
 	else{
 		SaturatedL = false; SaturatedV = false;
 	}
-}
-void CoolPropStateClassSI::clear_cache(void)
-{
-	cached_phi0 = false;
-	cached_dphi0_dDelta = false;
-	cached_dphi0_dTau = false;
-	cached_d2phi0_dDelta2 = false;
-	cached_d2phi0_dDelta_dTau = false;
-	cached_d2phi0_dTau2 = false;
-	cached_d3phi0_dDelta3 = false;
-	cached_d3phi0_dDelta2_dTau = false;
-	cached_d3phi0_dDelta_dTau2 = false;
-	cached_d3phi0_dTau3 = false;
-
-	cached_phir = false;
-	cached_dphir_dDelta = false;
-	cached_dphir_dTau = false;
-	cached_d2phir_dDelta2 = false;
-	cached_d2phir_dDelta_dTau = false;
-	cached_d2phir_dTau2 = false;
-	cached_d3phir_dDelta3 = false;
-	cached_d3phir_dDelta2_dTau = false;
-	cached_d3phir_dDelta_dTau2 = false;
-	cached_d3phir_dTau3 = false;
 }
 
 // Main updater function
@@ -214,7 +190,7 @@ void CoolPropStateClassSI::update(long iInput1, double Value1, long iInput2, dou
 	if (using_EOS)
 	{
 		// Clear the cached derivative flags
-		this->clear_cache();
+		this->cache.clear();
 
 		// If the inputs are P,Q or T,Q , it is guaranteed to require a call to the saturation routine
 		if (match_pair(iInput1,iInput2,iP,iQ) || match_pair(iInput1,iInput2,iT,iQ)){
@@ -1862,88 +1838,81 @@ double CoolPropStateClassSI::drhodT_along_sat_liquid(void)
 
 // All the derivatives of the ideal-gas and residual Helmholtz energy
 double CoolPropStateClassSI::phi0(double tau, double delta){
-	if (cached_phi0) 
+	if (cache.phi0) 
 	{
-		return cachedval_phi0; 
+		return cache.phi0; 
 	}
 	else 
 	{
-		cached_phi0 = true;
-		cachedval_phi0 = pFluid->phi0(tau,delta);
-		return pFluid->phi0(tau,delta);
+		cache.phi0 = pFluid->phi0(tau,delta);
+		return cache.phi0;
 	}
 };
 double CoolPropStateClassSI::dphi0_dDelta(double tau, double delta){
-	if (cached_dphi0_dDelta)
+	if (cache.dphi0_dDelta)
 	{
-		return cachedval_dphi0_dDelta; 
+		return cache.dphi0_dDelta; 
 	}
 	else 
 	{
-		cached_dphi0_dDelta = true;
-		cachedval_dphi0_dDelta = pFluid->dphi0_dDelta(tau,delta);
-		return cachedval_dphi0_dDelta;
+		cache.dphi0_dDelta = pFluid->dphi0_dDelta(tau,delta);
+		return cache.dphi0_dDelta;
 	}
 };
 double CoolPropStateClassSI::dphi0_dTau(double tau, double delta){
-	if (cached_dphi0_dTau)
+	if (cache.dphi0_dTau)
 	{
-		return cachedval_dphi0_dTau; 
+		return cache.dphi0_dTau; 
 	}
 	else 
 	{
-		cached_dphi0_dTau = true;
-		cachedval_dphi0_dTau = pFluid->dphi0_dTau(tau,delta);
-		return cachedval_dphi0_dTau;
+		cache.dphi0_dTau = pFluid->dphi0_dTau(tau,delta);
+		return cache.dphi0_dTau;
 	}
 };
 double CoolPropStateClassSI::d2phi0_dDelta2(double tau, double delta){
-	if (cached_d2phi0_dDelta2) 
+	if (cache.d2phi0_dDelta2) 
 	{
-		return cachedval_d2phi0_dDelta2; 
+		return cache.d2phi0_dDelta2; 
 	}
 	else 
 	{
-		cached_d2phi0_dDelta2 = true;
-		cachedval_d2phi0_dDelta2 = pFluid->d2phi0_dDelta2(tau,delta);
-		return cachedval_d2phi0_dDelta2;
+		cache.d2phi0_dDelta2 = pFluid->d2phi0_dDelta2(tau,delta);
+		return cache.d2phi0_dDelta2;
 	}
 };
 double CoolPropStateClassSI::d2phi0_dDelta_dTau(double tau, double delta){
-	if (cached_d2phi0_dDelta_dTau) 
+	if (cache.d2phi0_dDelta_dTau) 
 	{
-		return cachedval_d2phi0_dDelta_dTau; 
+		return cache.d2phi0_dDelta_dTau; 
 	}
 	else 
 	{
-		cached_d2phi0_dDelta_dTau = true;
-		cachedval_d2phi0_dDelta_dTau = pFluid->d2phi0_dDelta_dTau(tau,delta);
-		return cachedval_d2phi0_dDelta_dTau;
+		cache.d2phi0_dDelta_dTau = pFluid->d2phi0_dDelta_dTau(tau,delta);
+		return cache.d2phi0_dDelta_dTau;
 	}
 };
 double CoolPropStateClassSI::d2phi0_dTau2(double tau, double delta){
-	if (cached_d2phi0_dTau2) 
+	if (cache.d2phi0_dTau2) 
 	{
-		return cachedval_d2phi0_dTau2; 
+		return cache.d2phi0_dTau2; 
 	}
 	else 
 	{
-		cached_d2phi0_dTau2 = true;
-		cachedval_d2phi0_dTau2 = pFluid->d2phi0_dTau2(tau,delta);
-		return cachedval_d2phi0_dTau2;
+		cache.d2phi0_dTau2 = pFluid->d2phi0_dTau2(tau,delta);
+		return cache.d2phi0_dTau2;
 	}
 };
 
 double CoolPropStateClassSI::d3phi0_dTau3(double tau, double delta){
-	if (cached_d3phi0_dTau3) 
+	if (cache.d3phi0_dTau3) 
 	{
-		return cachedval_d3phi0_dTau3; 
+		return cache.d3phi0_dTau3; 
 	}
 	else 
 	{
-		cached_d3phi0_dTau3 = true;
-		cachedval_d3phi0_dTau3 = pFluid->d3phi0_dTau3(tau,delta);
-		return cachedval_d3phi0_dTau3;
+		cache.d3phi0_dTau3 = pFluid->d3phi0_dTau3(tau,delta);
+		return cache.d3phi0_dTau3;
 	}
 };
 
@@ -1956,141 +1925,131 @@ double CoolPropStateClassSI::d3phi0_dDelta2_dTau(double tau, double delta){
 };
 
 double CoolPropStateClassSI::d3phi0_dDelta3(double tau, double delta){
-	if (cached_d3phi0_dDelta3) 
+	if (cache.d3phi0_dDelta3) 
 	{
-		return cachedval_d3phi0_dDelta3; 
+		return cache.d3phi0_dDelta3; 
 	}
 	else 
 	{
-		cached_d3phi0_dDelta3 = true;
-		cachedval_d3phi0_dDelta3 = pFluid->d3phi0_dDelta3(tau,delta);
-		return cachedval_d3phi0_dDelta3;
+		cache.d3phi0_dDelta3 = pFluid->d3phi0_dDelta3(tau,delta);
+		return cache.d3phi0_dDelta3;
 	}
 };
 
 
 double CoolPropStateClassSI::phir(double tau, double delta){
-	if (cached_phir) 
+	if (cache.phir) 
 	{
-		return cachedval_phir; 
+		return cache.phir; 
 	}
 	else 
 	{
-		cached_phir = true;
-		cachedval_phir = pFluid->phir(tau,delta);
-		return pFluid->phir(tau,delta);
+		cache.phir = pFluid->phir(tau,delta);
+		return cache.phir;
 	}
 };
 double CoolPropStateClassSI::dphir_dDelta(double tau, double delta){
-	if (cached_dphir_dDelta)
+	if (cache.dphir_dDelta)
 	{
-		return cachedval_dphir_dDelta; 
+		return cache.dphir_dDelta; 
 	}
 	else 
 	{
-		cached_dphir_dDelta = true;
-		cachedval_dphir_dDelta = pFluid->dphir_dDelta(tau,delta);
-		return cachedval_dphir_dDelta;
+		cache.dphir_dDelta = pFluid->dphir_dDelta(tau,delta);
+		return cache.dphir_dDelta;
 	}
 };
 double CoolPropStateClassSI::dphir_dTau(double tau, double delta){
-	if (cached_dphir_dTau)
+	if (cache.dphir_dTau)
 	{
-		return cachedval_dphir_dTau; 
+		return cache.dphir_dTau; 
 	}
 	else 
 	{
-		cached_dphir_dTau = true;
-		cachedval_dphir_dTau = pFluid->dphir_dTau(tau,delta);
-		return cachedval_dphir_dTau;
+		cache.dphir_dTau = pFluid->dphir_dTau(tau,delta);
+		return cache.dphir_dTau;
 	}
 };
 double CoolPropStateClassSI::d2phir_dDelta2(double tau, double delta){
-	if (cached_d2phir_dDelta2) 
+	if (cache.d2phir_dDelta2) 
 	{
-		return cachedval_d2phir_dDelta2; 
+		return cache.d2phir_dDelta2; 
 	}
 	else 
 	{
-		cached_d2phir_dDelta2 = true;
-		cachedval_d2phir_dDelta2 = pFluid->d2phir_dDelta2(tau,delta);
-		return cachedval_d2phir_dDelta2;
+		cache.d2phir_dDelta2 = true;
+		cache.d2phir_dDelta2 = pFluid->d2phir_dDelta2(tau,delta);
+		return cache.d2phir_dDelta2;
 	}
 };
 double CoolPropStateClassSI::d2phir_dDelta_dTau(double tau, double delta){
-	if (cached_d2phir_dDelta_dTau) 
+	if (cache.d2phir_dDelta_dTau) 
 	{
-		return cachedval_d2phir_dDelta_dTau; 
+		return cache.d2phir_dDelta_dTau; 
 	}
 	else 
 	{
-		cached_d2phir_dDelta_dTau = true;
-		cachedval_d2phir_dDelta_dTau = pFluid->d2phir_dDelta_dTau(tau,delta);
-		return cachedval_d2phir_dDelta_dTau;
+		cache.d2phir_dDelta_dTau = pFluid->d2phir_dDelta_dTau(tau,delta);
+		return cache.d2phir_dDelta_dTau;
 	}
 };
 double CoolPropStateClassSI::d2phir_dTau2(double tau, double delta){
-	if (cached_d2phir_dTau2) 
+	if (cache.d2phir_dTau2) 
 	{
-		return cachedval_d2phir_dTau2; 
+		return cache.d2phir_dTau2; 
 	}
 	else 
 	{
-		cached_d2phir_dTau2 = true;
-		cachedval_d2phir_dTau2 = pFluid->d2phir_dTau2(tau,delta);
-		return cachedval_d2phir_dTau2;
+		cache.d2phir_dTau2 = pFluid->d2phir_dTau2(tau,delta);
+		return cache.d2phir_dTau2;
 	}
 };
 
 double CoolPropStateClassSI::d3phir_dTau3(double tau, double delta){
-	if (cached_d3phir_dTau3) 
+	if (cache.d3phir_dTau3) 
 	{
-		return cachedval_d3phir_dTau3; 
+		return cache.d3phir_dTau3;
 	}
 	else 
 	{
-		cached_d3phir_dTau3 = true;
-		cachedval_d3phir_dTau3 = pFluid->d3phir_dTau3(tau,delta);
-		return cachedval_d3phir_dTau3;
+		cache.d3phir_dTau3 = pFluid->d3phir_dTau3(tau,delta);
+		return cache.d3phir_dTau3;
 	}
 };
 
 double CoolPropStateClassSI::d3phir_dDelta_dTau2(double tau, double delta){
-	if (cached_d3phir_dDelta_dTau2) 
+	if (cache.d3phir_dDelta_dTau2) 
 	{
-		return cachedval_d3phir_dDelta_dTau2; 
+		return cache.d3phir_dDelta_dTau2;
 	}
 	else 
 	{
-		cached_d3phir_dDelta_dTau2 = true;
-		cachedval_d3phir_dDelta_dTau2 = pFluid->d3phir_dDelta_dTau2(tau,delta);
-		return cachedval_d3phir_dDelta_dTau2;
+		cache.d3phir_dDelta_dTau2 = pFluid->d3phir_dDelta_dTau2(tau,delta);
+		return cache.d3phir_dDelta_dTau2;
 	}
 };
 
 double CoolPropStateClassSI::d3phir_dDelta2_dTau(double tau, double delta){
-	if (cached_d3phir_dDelta2_dTau) 
+	if (cache.d3phir_dDelta2_dTau) 
 	{
-		return cachedval_d3phir_dDelta2_dTau; 
+		return cache.d3phir_dDelta2_dTau; 
 	}
 	else 
 	{
-		cached_d3phir_dDelta2_dTau = true;
-		cachedval_d3phir_dDelta2_dTau = pFluid->d3phir_dDelta2_dTau(tau,delta);
-		return cachedval_d3phir_dDelta2_dTau;
+		cache.d3phir_dDelta2_dTau = pFluid->d3phir_dDelta2_dTau(tau,delta);
+		return cache.d3phir_dDelta2_dTau;
 	}
 };
 
 double CoolPropStateClassSI::d3phir_dDelta3(double tau, double delta){
-	if (cached_d3phir_dDelta3) 
+	if (cache.d3phir_dDelta3) 
 	{
-		return cachedval_d3phir_dDelta3; 
+		return cache.d3phir_dDelta3; 
 	}
 	else 
 	{
-		cached_d3phir_dDelta3 = true;
-		cachedval_d3phir_dDelta3 = pFluid->d3phir_dDelta3(tau,delta);
-		return cachedval_d3phir_dDelta3;
+		cache.d3phir_dDelta3 = pFluid->d3phir_dDelta3(tau,delta);
+		return cache.d3phir_dDelta3;
 	}
 };
 

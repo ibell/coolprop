@@ -10,15 +10,82 @@
 bool match_pair(long iI1, long iI2, long I1, long I2);
 void sort_pair(long *iInput1, double *Value1, long *iInput2, double *Value2, long I1, long I2);
 
+/*!
+A class that contains the magic to cache a value.
+
+Includes an "=" assignment operator, casting to boolean
+so you can do something like::
+
+double CoolPropStateClassSI::d3phir_dTau3(double tau, double delta){
+	if (cache.d3phir_dTau3) 
+	{
+		return cache.d3phir_dTau3;
+	}
+	else 
+	{
+		cache.d3phir_dTau3 = pFluid->d3phir_dTau3(tau,delta);
+		return cache.d3phir_dTau3;
+	}
+};
+
+*/
+class CachedElement
+{
+private:
+	bool is_cached;
+	double value;
+public:
+	/// Default constructor
+	CachedElement(){this->clear();};
+	/// Assignment operator - sets the value and sets the flag
+	CachedElement operator=( const double& value){CachedElement c; c._set_value(value); c._set_cached(true); return c;};
+	/// Cast to boolean, for checking if cached
+	operator bool() const {return is_cached;};
+	/// Clear the flag and the value
+	void clear(){is_cached = false; this->value = _HUGE;};
+	/// Set the value of the internal value
+	void _set_value(double value){ this->value = value;};
+	/// Set the value of the internal boolean flag
+	void _set_cached(bool is_cached){ this->is_cached = is_cached;};
+};
+
+class StateCache
+{
+public:
+	StateCache(){};
+	CachedElement phi0, dphi0_dTau, dphi0_dDelta, d2phi0_dTau2, d2phi0_dDelta_dTau, 
+		d2phi0_dDelta2, d3phi0_dTau3, d3phi0_dDelta_dTau2, d3phi0_dDelta2_dTau, 
+		d3phi0_dDelta3, phir, dphir_dTau, dphir_dDelta, d2phir_dTau2, d2phir_dDelta_dTau, 
+		d2phir_dDelta2, d3phir_dTau3, d3phir_dDelta_dTau2, d3phir_dDelta2_dTau, 
+		d3phir_dDelta3;
+	void clear(){phi0.clear();
+				dphi0_dTau.clear(); 
+				dphi0_dDelta.clear(); 
+				d2phi0_dTau2.clear(); 
+				d2phi0_dDelta_dTau.clear(); 
+				d2phi0_dDelta2.clear(); 
+				d3phi0_dTau3.clear(); 
+				d3phi0_dDelta_dTau2.clear(); 
+				d3phi0_dDelta2_dTau.clear(); 
+				d3phi0_dDelta3.clear(); 
+				phir.clear(); 
+				dphir_dTau.clear(); 
+				dphir_dDelta.clear(); 
+				d2phir_dTau2.clear(); 
+				d2phir_dDelta_dTau.clear(); 
+				d2phir_dDelta2.clear(); 
+				d3phir_dTau3.clear(); 
+				d3phir_dDelta_dTau2.clear(); 
+				d3phir_dDelta2_dTau.clear(); 
+				d3phir_dDelta3.clear();
+			};
+};
+
 class CoolPropStateClassSI
 {
 protected:
-	// Helmholtz derivative cache flags
-	bool cached_phi0, cached_dphi0_dTau, cached_dphi0_dDelta,  cached_d2phi0_dTau2, cached_d2phi0_dDelta_dTau, cached_d2phi0_dDelta2, cached_d3phi0_dTau3, cached_d3phi0_dDelta_dTau2, cached_d3phi0_dDelta2_dTau, cached_d3phi0_dDelta3; 
-	double cachedval_phi0, cachedval_dphi0_dTau, cachedval_dphi0_dDelta,  cachedval_d2phi0_dTau2, cachedval_d2phi0_dDelta_dTau, cachedval_d2phi0_dDelta2, cachedval_d3phi0_dTau3,  cachedval_d3phi0_dDelta_dTau2, cachedval_d3phi0_dDelta2_dTau, cachedval_d3phi0_dDelta3;
 
-	bool cached_phir, cached_dphir_dTau, cached_dphir_dDelta,  cached_d2phir_dTau2, cached_d2phir_dDelta_dTau, cached_d2phir_dDelta2, cached_d3phir_dTau3,  cached_d3phir_dDelta_dTau2, cached_d3phir_dDelta2_dTau, cached_d3phir_dDelta3;
-	double cachedval_phir, cachedval_dphir_dTau, cachedval_dphir_dDelta,  cachedval_d2phir_dTau2, cachedval_d2phir_dDelta_dTau, cachedval_d2phir_dDelta2, cachedval_d3phir_dTau3,  cachedval_d3phir_dDelta_dTau2, cachedval_d3phir_dDelta2_dTau, cachedval_d3phir_dDelta3;
+	StateCache cache;	
 
 	std::string _Fluid;
 	
@@ -281,9 +348,6 @@ public:
 	// ----------------------------------------	
 	// Helmholtz Energy Derivatives
 	// ----------------------------------------
-	
-	/// Clear out all the cached values
-	void clear_cache(void);
 
 	double phi0(double tau, double delta);
 	double dphi0_dDelta(double tau, double delta);
