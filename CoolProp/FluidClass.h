@@ -505,7 +505,7 @@ class Fluid
 		/// @param rhoLout Saturated liquid pressure [kg/m3]
 		/// @param rhoVout Saturated vapor pressure [kg/m3]
 		/// @param omega Relaxation parameter [-]
-		void rhosatPure(double T, double *rhoLout, double *rhoVout, double *pout, double omega);
+		void rhosatPure(double T, double *rhoLout, double *rhoVout, double *pout, double omega, bool use_guesses);
 
 		/// NB: Only valid for pure fluids - no pseudo-pure or mixtures.
 		/// Get the saturated liquid, vapor densities and the saturated pressure using the method from Akasaka given by

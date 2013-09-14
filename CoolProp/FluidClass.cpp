@@ -1329,7 +1329,7 @@ void Fluid::saturation_T(double T, bool UseLUT, double *psatLout, double *psatVo
 					do
 					{
 						try{
-							rhosatPure(T,rhosatLout,rhosatVout,&p, omega); *psatLout = p; *psatVout = p; return;
+							rhosatPure(T,rhosatLout,rhosatVout,&p, omega, false); *psatLout = p; *psatVout = p; return;
 							break;
 						}
 						catch (std::exception)
@@ -1543,10 +1543,14 @@ void Fluid::rhosatPure_Akasaka(double T, double *rhoLout, double *rhoVout, doubl
 	*rhoLout = deltaL*reduce.rho;
 	*rhoVout = deltaV*reduce.rho;
 	*pout = 0.5*(PL+PV);
-	
+
+	if (fabs((PL-PV)/PV) > 1e-6)
+	{
+		rhosatPure(T,rhoLout,rhoVout,pout,1,true);
+	}
 	return;
 }
-void Fluid::rhosatPure(double T, double *rhoLout, double *rhoVout, double *pout, double omega = 1.0)
+void Fluid::rhosatPure(double T, double *rhoLout, double *rhoVout, double *pout, double omega = 1.0, bool use_guesses = false)
 {
     // Only works for pure fluids (no blends)
     // At equilibrium, saturated vapor and saturated liquid are at the same pressure and the same Gibbs energy
@@ -1555,14 +1559,23 @@ void Fluid::rhosatPure(double T, double *rhoLout, double *rhoVout, double *pout,
 
     if (T>=crit.T || T<(params.Ttriple-0.0001))
     {
-		throw ValueError(format("Temperature of fluid [%g] is out of range from %g K to %g K",T,params.Ttriple,crit.T));
+		throw ValueError(format("Temperature of fluid [%g] is out of range from %g K to %g K in rhosatPure",T,params.Ttriple,crit.T));
     }
 
-    // Use the density ancillary function as the starting point for the secant solver
-    rhoL=rhosatL(T);
-	rhoV=rhosatV(T);
+	if (!use_guesses)
+	{
+		// Use the density ancillary function as the starting point for the secant solver
+		rhoL = rhosatL(T);
+		rhoV = rhosatV(T);
+	}
+	else
+	{
+		// Use the guesses provided
+		rhoL = *rhoLout;
+		rhoV = *rhoVout;
+	}
 	
-    p_guess=pressure_Trho(T,rhoV);
+    p_guess = pressure_Trho(T,rhoV);
 
     iter=1;
     // Use a secant method to obtain pressure
