@@ -718,15 +718,17 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 			PDFLSHdll(&p,&d,&(x[0]),&T,&dl,&dv,xliq,xvap,&q,&e,&h,&s,&cv,&cp,&w,&ierr,herr,errormessagelength); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
 		}
 
+		// Get the output parameter and convert it to SI units
 		switch (iOutput)
 		{
+		case iP: output_val = p*1000; break;
 		case iT: output_val = T; break;
-		case iH: output_val = h/MW; break;
+		case iH: output_val = h/MW*1000; break;
 		case iD: output_val = d*MW; break;
-		case iS: output_val = s/MW; break;
-		case iU: output_val = e/MW; break;
-		case iC: output_val = cp/MW; break;
-		case iO: output_val = cv/MW; break;
+		case iS: output_val = s/MW*1000; break;
+		case iU: output_val = e/MW*1000; break;
+		case iC: output_val = cp/MW*1000; break;
+		case iO: output_val = cv/MW*1000; break;
 		case iA: output_val = w; break;
 		case iV:
 			TRNPRPdll(&T,&d,&(x[0]),&eta,&tcx,&ierr,herr,errormessagelength); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
@@ -737,7 +739,7 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 			output_val = tcx;
 			break;
 		default:
-			output_val = _HUGE;
+			throw ValueError(format("Output parameter [%d] in invalid",iOutput).c_str());
 		}
 	}
 	// Now the two-phase inputs, either T-Q or P-Q

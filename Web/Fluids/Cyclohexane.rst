@@ -27,7 +27,7 @@ Fluid Parameters
 =========================  ==============================
 Mole Mass [kg/kmol]        84.16080
 Triple Point Temp. [K]     279.470
-Triple Point Press. [kPa]  5.238858276
+Triple Point Press. [kPa]  5.238858173
 Minimum temperature [K]    279.470
 CAS number                 110-82-7
 ASHRAE classification      UNKNOWN
