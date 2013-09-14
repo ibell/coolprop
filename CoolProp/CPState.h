@@ -38,15 +38,13 @@ public:
 	/// Default constructor
 	CachedElement(){this->clear();};
 	/// Assignment operator - sets the value and sets the flag
-	void operator=( const double& value){_set_value(value); _set_cached(true);};
+	void operator=( const double& value){this->value = value; this->is_cached = true;};
 	/// Cast to boolean, for checking if cached
 	operator bool() const {return is_cached;};
+	/// Cast to double, for returning value
+	operator double() const {return value;};
 	/// Clear the flag and the value
 	void clear(){is_cached = false; this->value = _HUGE;};
-	/// Set the value of the internal value
-	void _set_value(double value){ this->value = value;};
-	/// Set the value of the internal boolean flag
-	void _set_cached(bool is_cached){ this->is_cached = is_cached;};
 };
 
 class StateCache

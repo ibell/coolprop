@@ -138,6 +138,9 @@ void CoolPropStateClassSI::update(long iInput1, double Value1, long iInput2, dou
 		std::cout<<__FILE__<<" update: "<<iInput1<<","<<Value1<<","<<iInput2<<","<<Value2<<","<<pFluid->get_name().c_str()<<std::endl;
 	}
 
+	// Clear the cached helmholtz energy derivative terms
+	this->cache.clear();
+
 	// Reset all the internal variables to _HUGE
 	_T = _HUGE;
 	_p = _HUGE;
@@ -189,8 +192,7 @@ void CoolPropStateClassSI::update(long iInput1, double Value1, long iInput2, dou
 
 	if (using_EOS)
 	{
-		// Clear the cached derivative flags
-		this->cache.clear();
+		
 
 		// If the inputs are P,Q or T,Q , it is guaranteed to require a call to the saturation routine
 		if (match_pair(iInput1,iInput2,iP,iQ) || match_pair(iInput1,iInput2,iT,iQ)){
