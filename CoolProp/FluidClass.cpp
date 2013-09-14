@@ -1542,12 +1542,8 @@ void Fluid::rhosatPure_Akasaka(double T, double *rhoLout, double *rhoVout, doubl
 	
 	*rhoLout = deltaL*reduce.rho;
 	*rhoVout = deltaV*reduce.rho;
-	*pout = 0.5*(PL+PV);
+	*pout = PV;
 
-	if (fabs((PL-PV)/PV) > 1e-6)
-	{
-		rhosatPure(T,rhoLout,rhoVout,pout,1,true);
-	}
 	return;
 }
 void Fluid::rhosatPure(double T, double *rhoLout, double *rhoVout, double *pout, double omega = 1.0, bool use_guesses = false)

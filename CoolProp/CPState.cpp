@@ -193,7 +193,6 @@ void CoolPropStateClassSI::update(long iInput1, double Value1, long iInput2, dou
 	if (using_EOS)
 	{
 		
-
 		// If the inputs are P,Q or T,Q , it is guaranteed to require a call to the saturation routine
 		if (match_pair(iInput1,iInput2,iP,iQ) || match_pair(iInput1,iInput2,iT,iQ)){
 			update_twophase(iInput1,Value1,iInput2,Value2);
