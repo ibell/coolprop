@@ -650,7 +650,7 @@ double _CoolProp_Fluid_Props(long iOutput, long iName1, double Prop1, long iName
 	}
 
 	// Generate a State instance wrapped around the Fluid instance
-	CoolPropStateClass CPS = CoolPropStateClass(pFluid);
+	CoolPropStateClass CPS(pFluid);
 
 	// Check if it is an output that doesn't require a state input
 	// Deal with it and return
@@ -971,3 +971,5 @@ std::string get_fluid_param_string(std::string FluidName, std::string ParamName)
 		return(std::string("CoolProp error: Indeterminate error"));
 	}
 }
+
+

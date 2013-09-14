@@ -10,7 +10,7 @@
 bool match_pair(long iI1, long iI2, long I1, long I2);
 void sort_pair(long *iInput1, double *Value1, long *iInput2, double *Value2, long I1, long I2);
 
-class CoolPropStateClass
+class CoolPropStateClassSI
 {
 protected:
 	// Helmholtz derivative cache flags
@@ -28,7 +28,7 @@ protected:
 	double rhosatL, rhosatV, psatL, psatV, TsatL, TsatV;
 
 	// Pointers to the Liquid and Vapor classes
-	CoolPropStateClass *SatL, *SatV;
+	CoolPropStateClassSI *SatL, *SatV;
 
 	void add_saturation_states(void);
 	void remove_saturation_states(void);
@@ -82,16 +82,16 @@ public:
 	bool TwoPhase, SinglePhase, s_cached, h_cached;
 	
 	// Default Constructor
-	CoolPropStateClass(){SatL = NULL; SatV = NULL;};
+	CoolPropStateClassSI(){SatL = NULL; SatV = NULL;};
 
 	// Constructor with fluid name
-	CoolPropStateClass(std::string FluidName);
+	CoolPropStateClassSI(std::string FluidName);
 
 	// Constructor with fluid pointer
-	CoolPropStateClass(Fluid *pFluid);
+	CoolPropStateClassSI(Fluid *pFluid);
 
 	// Destructor to clear SatL and SatV
-	~CoolPropStateClass();
+	~CoolPropStateClassSI();
 
 	/// Saturation temperature
 	double Tsat(double Q);
@@ -140,7 +140,7 @@ public:
 	// If single-phase, just plug into the EOS, otherwise need to do two-phase analysis
 	double T(void){return _T;};
 	double rho(void){return _rho;};
-	double p(void){return convert_from_SI_to_unit_system(iP,_p,get_standard_unit_system());};
+	double p(void){return _p;};
 	double Q(void){return _Q;};
 	double h(void);
 	double s(void);
@@ -306,6 +306,188 @@ public:
 	double d3phir_dDelta2_dTau(double tau, double delta);
 	double d3phir_dDelta_dTau2(double tau, double delta);
 	double d3phir_dTau3(double tau, double delta);
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+class CoolPropStateClass : public CoolPropStateClassSI
+{
+
+public:
+
+	//// Default Constructor
+	CoolPropStateClass(); 
+
+	//// Constructor with fluid name
+	CoolPropStateClass(std::string FluidName); 
+
+	//// Constructor with fluid pointer
+	CoolPropStateClass(Fluid *pFluid); 
+
+	//// Property updater
+	//// Uses the indices in CoolProp for the input parameters
+	void update(long iInput1, double Value1, long iInput2, double Value2);
+
+	/// Returns an output based on the key provided where iInput is one of iT,iP,iH,iS,....
+	double keyed_output(long iInput){return convert_from_SI_to_unit_system(iInput,CoolPropStateClassSI::keyed_output(iInput),get_standard_unit_system());};
+
+	//// Property accessors for saturation parameters directly
+	//// These all are calculated every time if the state is saturated or two-phase
+	double pL(void){return convert_from_SI_to_unit_system(iP,psatL,get_standard_unit_system());};
+	double pV(void){return convert_from_SI_to_unit_system(iP,psatV,get_standard_unit_system());};
+	double TL(void){return convert_from_SI_to_unit_system(iT,TsatL,get_standard_unit_system());};
+	double TV(void){return convert_from_SI_to_unit_system(iT,TsatV,get_standard_unit_system());};
+	//// Derived parameters for the saturation states
+	double hL(void){return convert_from_SI_to_unit_system(iH,CoolPropStateClassSI::hL(),get_standard_unit_system());};
+	double hV(void){return convert_from_SI_to_unit_system(iH,CoolPropStateClassSI::hV(),get_standard_unit_system());};
+	double sL(void){return convert_from_SI_to_unit_system(iS,CoolPropStateClassSI::sL(),get_standard_unit_system());};
+	double sV(void){return convert_from_SI_to_unit_system(iS,CoolPropStateClassSI::sV(),get_standard_unit_system());};
+	double cpL(void){return convert_from_SI_to_unit_system(iC,CoolPropStateClassSI::cpL(),get_standard_unit_system());};
+	double cpV(void){return convert_from_SI_to_unit_system(iC,CoolPropStateClassSI::cpV(),get_standard_unit_system());};
+	double viscL(void){return convert_from_SI_to_unit_system(iV,CoolPropStateClassSI::viscL(),get_standard_unit_system());};
+	double viscV(void){return convert_from_SI_to_unit_system(iV,CoolPropStateClassSI::viscV(),get_standard_unit_system());};
+	double condL(void){return convert_from_SI_to_unit_system(iL,CoolPropStateClassSI::condL(),get_standard_unit_system());};
+	double condV(void){return convert_from_SI_to_unit_system(iL,CoolPropStateClassSI::condV(),get_standard_unit_system());};
+
+	/// Pressure in kPa
+	double p(void){return convert_from_SI_to_unit_system(iP,CoolPropStateClassSI::p(),get_standard_unit_system());};
+	/// Enthalpy in kJ/kg
+	double h(void){return convert_from_SI_to_unit_system(iH,CoolPropStateClassSI::h(),get_standard_unit_system());};
+	/// Entropy in kJ/kg/K
+	double s(void){return convert_from_SI_to_unit_system(iS,CoolPropStateClassSI::s(),get_standard_unit_system());};
+	/// Constant pressure specific heat in kJ/kg/K
+	double cp(void){return convert_from_SI_to_unit_system(iC,CoolPropStateClassSI::cp(),get_standard_unit_system());};
+	/// Constant volume specific heat in kJ/kg/K
+	double cv(void){return convert_from_SI_to_unit_system(iO,CoolPropStateClassSI::cv(),get_standard_unit_system());};
+	/// Thermal conductivity in kJ/kg/K
+	double conductivity(void){return convert_from_SI_to_unit_system(iL,CoolPropStateClassSI::conductivity(),get_standard_unit_system());};
+
+	//double isothermal_compressibility(void);
+	//double isobaric_expansion_coefficient(void);
+	//double drhodh_constp(void);
+	//double drhodp_consth(void);
+	///// A smoothed version of the derivative using a spline curve in the region of x=0 to x=xend
+	//double drhodh_constp_smoothed(double xend);
+	///// A smoothed version of the derivative using a spline curve in the region of x=0 to x=xend
+	//double drhodp_consth_smoothed(double xend);
+	///// Density corresponding to the smoothed derivatives in the region of x=0 to x=xend
+	//void rho_smoothed(double xend, double *rho_spline, double *dsplinedh, double *dsplinedp);
+
+	//// ----------------------------------------	
+	//// TTSE LUT things
+	//// ----------------------------------------
+
+	/// Over-ride the default range of the single-phase LUT
+	void set_TTSESinglePhase_LUT_range(double hmin, double hmax, double pmin, double pmax);
+	/// Get the current range of the single-phase LUT
+	void get_TTSESinglePhase_LUT_range(double *hmin, double *hmax, double *pmin, double *pmax);
+
+	///// Interpolate within the TTSE LUT
+	//double interpolate_in_TTSE_LUT(long iParam, long iInput1, double Input1, long iInput2, double Input2);
+
+	//// ----------------------------------------	
+	//// Derivatives of properties
+	//// ----------------------------------------
+
+	//double dvdp_constT(void);
+	//double dvdT_constp(void);
+
+	//double drhodT_constp(void);
+	//double drhodp_constT(void);
+	//double d2rhodp2_constT(void);
+	//double d2rhodTdp(void);
+	//double d2rhodT2_constp(void);
+	//double d2rhodhdQ(void);
+	//double d2rhodpdQ(void);
+	//double d2rhodhdp(void);
+	//double d2rhodh2_constp(void);
+	//
+	//double dpdrho_constT(void);
+	//double dpdrho_consth(void);
+	//double dpdT_constrho(void);
+	//double dpdT_consth(void);
+	//double d2pdrho2_constT(void);
+	//double d2pdrhodT(void);
+	//double d2pdT2_constrho(void);
+
+	//double dhdrho_constT(void);
+	//double dhdrho_constp(void);
+	//double dhdT_constrho(void);
+	//double dhdT_constp(void);
+	//double dhdp_constT(void);
+	//double d2hdrho2_constT(void);
+	//double d2hdrhodT(void);
+	//double d2hdT2_constrho(void);
+	//double d2hdT2_constp(void);
+	//double d2hdp2_constT(void);
+	//double d2hdTdp(void);
+
+	//double dsdrho_constT(void);
+	//double dsdT_constrho(void);
+	//double dsdrho_constp(void);
+	//double dsdT_constp(void);
+	//double dsdp_constT(void);
+	//double d2sdrho2_constT(void);
+	//double d2sdrhodT(void);
+	//double d2sdT2_constrho(void);
+	//double d2sdT2_constp(void);
+	//double d2sdp2_constT(void);
+	//double d2sdTdp(void);
+
+	//// ----------------------------------------	
+	//// Derivatives along the saturation curve
+	//// ----------------------------------------
+	//
+	///// Derivative of temperature w.r.t. pressure along saturation curve
+	//double dTdp_along_sat(void);
+	///// Second derivative of temperature w.r.t. pressure along saturation curve
+	//double d2Tdp2_along_sat(void);
+	///// Partial derivative w.r.t. pressure of dTdp along saturation curve
+	//double ddp_dTdp_along_sat(void);
+	///// Partial derivative w.r.t. temperature of dTdp along saturation curve
+	//double ddT_dTdp_along_sat(void);
+
+	//double dhdp_along_sat_vapor(void);
+	//double dhdp_along_sat_liquid(void);
+	//double d2hdp2_along_sat_vapor(void);
+	//double d2hdp2_along_sat_liquid(void);
+
+	//double dsdp_along_sat_vapor(void);
+	//double dsdp_along_sat_liquid(void);
+	//double d2sdp2_along_sat_vapor(void);
+	//double d2sdp2_along_sat_liquid(void);
+
+	//double drhodp_along_sat_vapor(void);
+	//double drhodp_along_sat_liquid(void);
+	//double d2rhodp2_along_sat_vapor(void);
+	//double d2rhodp2_along_sat_liquid(void);
+
+	//double drhodT_along_sat_vapor(void);
+	//double drhodT_along_sat_liquid(void);
 };
 
 #endif
