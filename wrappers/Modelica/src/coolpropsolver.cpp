@@ -89,7 +89,7 @@ CoolPropSolver::CoolPropSolver(const std::string &mediumName, const std::string 
 		}
 	}
 
-	state = new CoolPropStateClass(name_options[0]);
+	state = new CoolPropStateClassSI(name_options[0]);
 }
 
 void CoolPropSolver::setFluidConstants(){
@@ -101,9 +101,6 @@ void CoolPropSolver::setFluidConstants(){
 
 void CoolPropSolver::setSat_p(double &p, ExternalSaturationProperties *const properties){
 
-	// Convert to CoolProp input units
-	p /= 1000.0;
-
 	if (debug_level > 5)
 		std::cout << format("setSat_p(%0.16e)\n",p);
 
@@ -114,18 +111,18 @@ void CoolPropSolver::setSat_p(double &p, ExternalSaturationProperties *const pro
 	try
 	{
 		state->update(iP,p,iQ,0); // quality only matters for pseudo-pure fluids
-		properties->psat = p*1000; //[Pa --> kPa]
+		properties->psat = p;
 		properties->Tsat = state->TL(); // Not correct for pseudo-pure fluids
 		properties->dl = state->rhoL();
 		properties->dv = state->rhoV();
-		properties->hl = state->hL()*1000;
-		properties->hv = state->hV()*1000;
-		properties->dTp = state->dTdp_along_sat()/1000; //[1/kPa --> 1/Pa]
+		properties->hl = state->hL();
+		properties->hv = state->hV();
+		properties->dTp = state->dTdp_along_sat();
 		
-		properties->ddldp = state->drhodp_along_sat_liquid()/1000; //[1/kPa -- > 1/Pa]
-		properties->ddvdp = state->drhodp_along_sat_vapor()/1000; //[1/kPa -- > 1/Pa]
-		properties->dhldp = state->dhdp_along_sat_liquid(); // [kJ/kg/kPa --> J/kg/Pa]
-		properties->dhvdp = state->dhdp_along_sat_vapor(); // [kJ/kg/kPa --> J/kg/Pa]
+		properties->ddldp = state->drhodp_along_sat_liquid();
+		properties->ddvdp = state->drhodp_along_sat_vapor();
+		properties->dhldp = state->dhdp_along_sat_liquid();
+		properties->dhvdp = state->dhdp_along_sat_vapor();
 	}
 	catch(std::exception &e)
 	{
@@ -147,17 +144,17 @@ void CoolPropSolver::setSat_T(double &T, ExternalSaturationProperties *const pro
 		state->update(iT,T,iQ,0); // Quality only matters for pseudo-pure fluids
 
 		properties->Tsat = T;
-		properties->psat = state->p()*1000;
+		properties->psat = state->p();
 		properties->dl = state->rhoL();
 		properties->dv = state->rhoV();
-		properties->hl = state->hL()*1000;
-		properties->hv = state->hV()*1000;
-		properties->dTp = state->dTdp_along_sat()/1000; //[1/kPa --> 1/Pa]
+		properties->hl = state->hL();
+		properties->hv = state->hV();
+		properties->dTp = state->dTdp_along_sat();
 		
-		properties->ddldp = state->drhodp_along_sat_liquid()/1000; //[1/kPa -- > 1/Pa]
-		properties->ddvdp = state->drhodp_along_sat_vapor()/1000; //[1/kPa -- > 1/Pa]
-		properties->dhldp = state->dhdp_along_sat_liquid(); // [kJ/kg/kPa --> J/kg/Pa]
-		properties->dhvdp = state->dhdp_along_sat_vapor(); // [kJ/kg/kPa --> J/kg/Pa]
+		properties->ddldp = state->drhodp_along_sat_liquid(); 
+		properties->ddvdp = state->drhodp_along_sat_vapor();
+		properties->dhldp = state->dhdp_along_sat_liquid();
+		properties->dhvdp = state->dhdp_along_sat_vapor();
 	}
 	catch(std::exception &e)
 	{
@@ -167,10 +164,6 @@ void CoolPropSolver::setSat_T(double &T, ExternalSaturationProperties *const pro
 
 // Note: the phase input is currently not supported
 void CoolPropSolver::setState_ph(double &p, double &h, int &phase, ExternalThermodynamicState *const properties){
-
-	//Convert to CoolProp input units
-	h /= 1000; // [J/kg --> kJ/kg]
-	p /= 1000; // [Pa --> kPa]
 
 	if (debug_level > 5)
 		std::cout << format("setState_ph(p=%0.16e,h=%0.16e)\n",p,h);
@@ -188,12 +181,12 @@ void CoolPropSolver::setState_ph(double &p, double &h, int &phase, ExternalTherm
 			throw ValueError(format("p-h [%g, %g] failed for update",p,h));
 		}
 		// Set the values in the output structure
-		properties->p = p*1000;
-		properties->h = h*1000;
+		properties->p = p;
+		properties->h = h;
 
 		properties->d = state->rho();
 		properties->T = state->T();
-		properties->s = state->s()*1000;
+		properties->s = state->s();
 		
 		if (state->TwoPhase){
 			properties->phase = 2; 
@@ -201,14 +194,14 @@ void CoolPropSolver::setState_ph(double &p, double &h, int &phase, ExternalTherm
 		else{
 			properties->phase = 1; 
 		}
-		properties->cp = state->cp()*1000;
-		properties->cv = state->cv()*1000;
+		properties->cp = state->cp();
+		properties->cv = state->cv();
 		properties->a = state->speed_sound();
 		if (state->TwoPhase && state->Q() >= 0 && state->Q() <= twophase_derivsmoothing_xend)
 		{
 			// Use the smoothed derivatives between a quality of 0 and twophase_derivsmoothing_xend
-			properties->ddhp = state->drhodh_constp_smoothed(twophase_derivsmoothing_xend)/1000; // [1/kPa -- > 1/Pa]
-			properties->ddph = state->drhodp_consth_smoothed(twophase_derivsmoothing_xend)/1000; // [1/(kJ/kg) -- > 1/(J/kg)]
+			properties->ddhp = state->drhodh_constp_smoothed(twophase_derivsmoothing_xend); // [1/kPa -- > 1/Pa]
+			properties->ddph = state->drhodp_consth_smoothed(twophase_derivsmoothing_xend); // [1/(kJ/kg) -- > 1/(J/kg)]
 		} 
 		else if (state->TwoPhase && state->Q() >= 0 && state->Q() <= rho_smoothing_xend)
 		{
@@ -217,22 +210,22 @@ void CoolPropSolver::setState_ph(double &p, double &h, int &phase, ExternalTherm
 			double dsplinedh;
 			double dsplinedp;
 			state->rho_smoothed(rho_smoothing_xend, &rho_spline, &dsplinedh, &dsplinedp) ;
-            properties->ddhp = dsplinedh/1000; // [1/kPa -- > 1/Pa]
-            properties->ddph = dsplinedp/1000; // [1/(kJ/kg) -- > 1/(J/kg)]
+            properties->ddhp = dsplinedh;
+            properties->ddph = dsplinedp;
 			properties->d = rho_spline;
 		}
 		else
 		{
-            properties->ddhp = state->drhodh_constp()/1000; // [1/kPa -- > 1/Pa]
-			properties->ddph = state->drhodp_consth()/1000; // [1/(kJ/kg) -- > 1/(J/kg)]
+            properties->ddhp = state->drhodh_constp();
+			properties->ddph = state->drhodp_consth();
 		}
-		properties->kappa = state->isothermal_compressibility()/1000; // [1/kPa -- > 1/Pa]
+		properties->kappa = state->isothermal_compressibility();
 		properties->beta = state->isobaric_expansion_coefficient();
 
 		if (calc_transport)
         {
             properties->eta = state->viscosity();
-            properties->lambda = state->conductivity()*1000; //[kW/m/K --> W/m/K]
+            properties->lambda = state->conductivity(); //[kW/m/K --> W/m/K]
             properties->Pr = properties->cp*properties->eta/properties->lambda;
         }
 	}
@@ -243,9 +236,7 @@ void CoolPropSolver::setState_ph(double &p, double &h, int &phase, ExternalTherm
 }
 
 void CoolPropSolver::setState_pT(double &p, double &T, ExternalThermodynamicState *const properties){
-	//Convert to CoolProp inputs
-	p /= 1000; // [Pa --> kPa]
-
+	
 	if (debug_level > 5)
 		std::cout << format("setState_pT(p=%0.16e,T=%0.16e)\n",p,T);
 
@@ -258,32 +249,32 @@ void CoolPropSolver::setState_pT(double &p, double &T, ExternalThermodynamicStat
 		state->update(iP,p,iT,T);
 
 		// Set the values in the output structure
-		properties->p = p*1000;
+		properties->p = p;
 		properties->T = T;
 		properties->d = state->rho();
-		properties->h = state->h()*1000;
-		properties->s = state->s()*1000;
+		properties->h = state->h();
+		properties->s = state->s();
 		properties->phase = 1; // with pT input, always one-phase conditions!
-		properties->cp = state->cp()*1000;
-		properties->cv = state->cv()*1000;
+		properties->cp = state->cp();
+		properties->cv = state->cv();
 		properties->a = state->speed_sound();
 		if (state->TwoPhase && state->Q() >= 0 && state->Q() <= twophase_derivsmoothing_xend)
 		{
 			// Use the smoothed derivatives between a quality of 0 and twophase_derivsmoothing_xend
-            properties->ddhp = state->drhodh_constp_smoothed(twophase_derivsmoothing_xend)/1000; // [1/kPa -- > 1/Pa]
-            properties->ddph = state->drhodp_consth_smoothed(twophase_derivsmoothing_xend)/1000; // [1/(kJ/kg) -- > 1/(J/kg)]
+            properties->ddhp = state->drhodh_constp_smoothed(twophase_derivsmoothing_xend);
+            properties->ddph = state->drhodp_consth_smoothed(twophase_derivsmoothing_xend);
 		}
 		else
 		{
-            properties->ddhp = state->drhodh_constp()/1000; // [1/kPa -- > 1/Pa]
-			properties->ddph = state->drhodp_consth()/1000; // [1/(kJ/kg) -- > 1/(J/kg)]
+            properties->ddhp = state->drhodh_constp();
+			properties->ddph = state->drhodp_consth();
 		}
-		properties->kappa = properties->d/properties->p/state->dpdrho_constT()/1000; // [1/kPa -- > 1/Pa]  
+		properties->kappa = properties->d/properties->p/state->dpdrho_constT();
 		properties->beta = -1/properties->d*state->drhodT_constp();
 		if (calc_transport)
         {
             properties->eta = state->viscosity();
-            properties->lambda = state->conductivity()*1000; //[kW/m/K --> W/m/K]
+            properties->lambda = state->conductivity();
             properties->Pr = properties->cp*properties->eta/properties->lambda;
         }
 	}
@@ -296,7 +287,6 @@ void CoolPropSolver::setState_pT(double &p, double &T, ExternalThermodynamicStat
 // Note: the phase input is currently not supported
 void CoolPropSolver::setState_dT(double &d, double &T, int &phase, ExternalThermodynamicState *const properties)
 {
-	// Variables are already in the correct units
 
 	if (debug_level > 5)
 		std::cout << format("setState_dT(d=%0.16e,T=%0.16e)\n",d,T);
@@ -313,35 +303,35 @@ void CoolPropSolver::setState_dT(double &d, double &T, int &phase, ExternalTherm
 		// Set the values in the output structure
 		properties->d = d;
 		properties->T = T;
-		properties->h = state->h()*1000;
-		properties->p = state->p()*1000;
-		properties->s = state->s()*1000;
+		properties->h = state->h();
+		properties->p = state->p();
+		properties->s = state->s();
 		if (state->TwoPhase){
 			properties->phase = 2; 
 		}
 		else{
 			properties->phase = 1; 
 		}
-		properties->cp = state->cp()*1000;
-		properties->cv = state->cv()*1000;
+		properties->cp = state->cp();
+		properties->cv = state->cv();
 		properties->a = state->speed_sound();
 		if (state->TwoPhase && state->Q() >= 0 && state->Q() <= twophase_derivsmoothing_xend)
 		{
 			// Use the smoothed derivatives between a quality of 0 and twophase_derivsmoothing_xend
-            properties->ddhp = state->drhodh_constp_smoothed(twophase_derivsmoothing_xend)/1000; // [1/kPa -- > 1/Pa]
-            properties->ddph = state->drhodp_consth_smoothed(twophase_derivsmoothing_xend)/1000; // [1/(kJ/kg) -- > 1/(J/kg)]
+            properties->ddhp = state->drhodh_constp_smoothed(twophase_derivsmoothing_xend);
+            properties->ddph = state->drhodp_consth_smoothed(twophase_derivsmoothing_xend);
 		}
 		else
 		{
-            properties->ddhp = state->drhodh_constp()/1000; // [1/kPa -- > 1/Pa]
-			properties->ddph = state->drhodp_consth()/1000; // [1/(kJ/kg) -- > 1/(J/kg)]
+            properties->ddhp = state->drhodh_constp();
+			properties->ddph = state->drhodp_consth();
 		}
-		properties->kappa = properties->d/properties->p/state->dpdrho_constT()/1000; // [1/kPa -- > 1/Pa]  
+		properties->kappa = properties->d/properties->p/state->dpdrho_constT();
 		properties->beta = -1/properties->d*state->drhodT_constp();
 		if (calc_transport)
         {
             properties->eta = state->viscosity();
-            properties->lambda = state->conductivity()*1000; //[kW/m/K --> W/m/K]
+            properties->lambda = state->conductivity();
             properties->Pr = properties->cp*properties->eta/properties->lambda;
         }
 	}
@@ -353,9 +343,6 @@ void CoolPropSolver::setState_dT(double &d, double &T, int &phase, ExternalTherm
 
 // Note: the phase input is currently not supported
 void CoolPropSolver::setState_ps(double &p, double &s, int &phase, ExternalThermodynamicState *const properties){
-	//Convert to CoolProp inputs
-	s /= 1000; // [J/kg/K --> kJ/kg/K]
-	p /= 1000; // [Pa --> kPa] 
 
 	if (debug_level > 5)
 		std::cout << format("setState_ps(p=%0.16e,s=%0.16e)\n",p,s);
@@ -369,32 +356,32 @@ void CoolPropSolver::setState_ps(double &p, double &s, int &phase, ExternalTherm
 		state->update(iP,p,iS,s);
 
 		// Set the values in the output structure
-		properties->p = p*1000; // [kPa --> Pa]
-		properties->s = s*1000; // [kJ/kg/K --> J/kg/K]
+		properties->p = p;
+		properties->s = s;
 		properties->d = state->rho();
 		properties->T = state->T();
-		properties->h = state->h()*1000; //[kJ/kg/K --> J/kg/K]
+		properties->h = state->h();
 		properties->phase = 1; // with pT input, always one-phase conditions!
-		properties->cp = state->cp()*1000;
-		properties->cv = state->cv()*1000;
+		properties->cp = state->cp();
+		properties->cv = state->cv();
 		properties->a = state->speed_sound();
         if (state->TwoPhase && state->Q() >= 0 && state->Q() <= twophase_derivsmoothing_xend)
 		{
 			// Use the smoothed derivatives between a quality of 0 and twophase_derivsmoothing_xend
-            properties->ddhp = state->drhodh_constp_smoothed(twophase_derivsmoothing_xend)/1000; // [1/kPa -- > 1/Pa]
-            properties->ddph = state->drhodp_consth_smoothed(twophase_derivsmoothing_xend)/1000; // [1/(kJ/kg) -- > 1/(J/kg)]
+            properties->ddhp = state->drhodh_constp_smoothed(twophase_derivsmoothing_xend);
+            properties->ddph = state->drhodp_consth_smoothed(twophase_derivsmoothing_xend);
 		}
 		else
 		{
-            properties->ddhp = state->drhodh_constp()/1000; // [1/kPa -- > 1/Pa]
-			properties->ddph = state->drhodp_consth()/1000; // [1/(kJ/kg) -- > 1/(J/kg)]
+            properties->ddhp = state->drhodh_constp();
+			properties->ddph = state->drhodp_consth();
 		}
-		properties->kappa = properties->d/properties->p/state->dpdrho_constT()/1000; // [1/kPa -- > 1/Pa]  
+		properties->kappa = properties->d/properties->p/state->dpdrho_constT();
 		properties->beta = -1/properties->d*state->drhodT_constp();
         if (calc_transport)
         {
             properties->eta = state->viscosity();
-            properties->lambda = state->conductivity()*1000; //[kW/m/K --> W/m/K]
+            properties->lambda = state->conductivity();
             properties->Pr = properties->cp*properties->eta/properties->lambda;
         }
 	}
@@ -407,9 +394,6 @@ void CoolPropSolver::setState_ps(double &p, double &s, int &phase, ExternalTherm
 
 // Note: the phase input is currently not supported
 void CoolPropSolver::setState_hs(double &h, double &s, int &phase, ExternalThermodynamicState *const properties){
-	//Convert to CoolProp inputs
-	s /= 1000; // [J/kg/K --> kJ/kg/K]
-	h /= 1000; // [J/kg/K --> kJ/kg/K]
 
 	if (debug_level > 5)
 		std::cout << format("setState_hs(h=%0.16e,s=%0.16e)\n",h,s);
@@ -423,32 +407,32 @@ void CoolPropSolver::setState_hs(double &h, double &s, int &phase, ExternalTherm
 		state->update(iH,h,iS,s);
 
 		// Set the values in the output structure
-		properties->h = h*1000; //[kJ/kg/K --> J/kg/K]
-		properties->s = s*1000; // [kJ/kg/K --> J/kg/K]
+		properties->h = h;
+		properties->s = s;
 		properties->d = state->rho();
 		properties->T = state->T();
-		properties->p = state->p()*1000; // [kPa --> Pa]
+		properties->p = state->p();
 		properties->phase = 1; // with pT input, always one-phase conditions!
-		properties->cp = state->cp()*1000;
-		properties->cv = state->cv()*1000;
+		properties->cp = state->cp();
+		properties->cv = state->cv();
 		properties->a = state->speed_sound();
         if (state->TwoPhase && state->Q() >= 0 && state->Q() <= twophase_derivsmoothing_xend)
 		{
 			// Use the smoothed derivatives between a quality of 0 and twophase_derivsmoothing_xend
-            properties->ddhp = state->drhodh_constp_smoothed(twophase_derivsmoothing_xend)/1000; // [1/kPa -- > 1/Pa]
-            properties->ddph = state->drhodp_consth_smoothed(twophase_derivsmoothing_xend)/1000; // [1/(kJ/kg) -- > 1/(J/kg)]
+            properties->ddhp = state->drhodh_constp_smoothed(twophase_derivsmoothing_xend);
+            properties->ddph = state->drhodp_consth_smoothed(twophase_derivsmoothing_xend);
 		}
 		else
 		{
-            properties->ddhp = state->drhodh_constp()/1000; // [1/kPa -- > 1/Pa]
-			properties->ddph = state->drhodp_consth()/1000; // [1/(kJ/kg) -- > 1/(J/kg)]
+            properties->ddhp = state->drhodh_constp();
+			properties->ddph = state->drhodp_consth();
 		}
-		properties->kappa = properties->d/properties->p/state->dpdrho_constT()/1000; // [1/kPa -- > 1/Pa]
+		properties->kappa = properties->d/properties->p/state->dpdrho_constT();
 		properties->beta = -1/properties->d*state->drhodT_constp();
         if (calc_transport)
         {
             properties->eta = state->viscosity();
-            properties->lambda = state->conductivity()*1000; //[kW/m/K --> W/m/K]
+            properties->lambda = state->conductivity();
             properties->Pr = properties->cp*properties->eta/properties->lambda;
         }
 	}
