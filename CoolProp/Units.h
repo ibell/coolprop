@@ -88,5 +88,8 @@ public:
 double convert_from_unit_system_to_SI(long iInput, double value, int old_system);
 double convert_from_SI_to_unit_system(long iInput, double value, int new_system);
 
+// Get a conversion factor from SI to the unit system for string
+// Example num = "T*T" is units of temperature^2, or "P*P" is pressure^2 or "T/P" is temperature/pressure
+double conversion_factor(std::string num);
 
 #endif

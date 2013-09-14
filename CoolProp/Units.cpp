@@ -118,3 +118,37 @@ double convert_from_SI_to_unit_system(long iInput, double value, int new_system)
 		throw ValueError(format("index [%d] is invalid in convert_from_SI_to_unit_system",iInput).c_str());
 	}
 }
+
+double conversion_factor(std::string num)
+{
+	double factor = 1.0;
+	
+	// Parse the first entry
+	if (num[0] != '1')
+	{
+		std::string key;
+		key.resize(1);
+		key[0] = num[0];
+		factor *= convert_from_SI_to_unit_system(get_param_index(key),1,get_standard_unit_system());
+	}
+	
+	for (int i = 1; i < (int)num.size(); i += 2)
+	{
+		char op = num[i];
+
+		std::string key;
+		key.resize(1);
+		key[0] = num[i+1];
+		double term = convert_from_SI_to_unit_system(get_param_index(key),1,get_standard_unit_system());
+		if (op == '*')
+		{
+			factor *= term;
+		}
+		else
+		{
+			factor /= term;
+		}
+
+	}
+	return factor;
+}

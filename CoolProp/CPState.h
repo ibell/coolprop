@@ -386,25 +386,42 @@ public:
 	/// Thermal conductivity in kJ/kg/K
 	double conductivity(void){return convert_from_SI_to_unit_system(iL,CoolPropStateClassSI::conductivity(),get_standard_unit_system());};
 
-	//double isothermal_compressibility(void);
-	//double isobaric_expansion_coefficient(void);
-	//double drhodh_constp(void);
-	//double drhodp_consth(void);
+	double isothermal_compressibility(void){return CoolPropStateClassSI::isothermal_compressibility()*conversion_factor("1/P");};
+	double isobaric_expansion_coefficient(void){return CoolPropStateClassSI::isobaric_expansion_coefficient()*conversion_factor("D/T");};
+	double drhodh_constp(void){return CoolPropStateClassSI::drhodh_constp()*conversion_factor("D/H");};
+	double drhodp_consth(void){return CoolPropStateClassSI::drhodp_consth()*conversion_factor("D/P");};
+
 	///// A smoothed version of the derivative using a spline curve in the region of x=0 to x=xend
-	//double drhodh_constp_smoothed(double xend);
-	///// A smoothed version of the derivative using a spline curve in the region of x=0 to x=xend
-	//double drhodp_consth_smoothed(double xend);
-	///// Density corresponding to the smoothed derivatives in the region of x=0 to x=xend
-	//void rho_smoothed(double xend, double *rho_spline, double *dsplinedh, double *dsplinedp);
+	double drhodh_constp_smoothed(double xend){return CoolPropStateClassSI::drhodh_constp_smoothed(xend)*conversion_factor("D/H");};
+	/// A smoothed version of the derivative using a spline curve in the region of x=0 to x=xend
+	double drhodp_consth_smoothed(double xend){return CoolPropStateClassSI::drhodp_consth_smoothed(xend)*conversion_factor("D/P");};
 
 	//// ----------------------------------------	
 	//// TTSE LUT things
 	//// ----------------------------------------
 
 	/// Over-ride the default range of the single-phase LUT
-	void set_TTSESinglePhase_LUT_range(double hmin, double hmax, double pmin, double pmax);
+	/// Inlet parameters in kJ/kg and kPa
+	void set_TTSESinglePhase_LUT_range(double hmin, double hmax, double pmin, double pmax)
+	{
+		double _hmin = hmin / conversion_factor("H"); // [J/kg]
+		double _hmax = hmax / conversion_factor("H"); // [J/kg]
+		double _pmin = pmin / conversion_factor("P"); // [kPa]
+		double _pmax = pmax / conversion_factor("P"); // [kPa]
+		CoolPropStateClassSI::set_TTSESinglePhase_LUT_range(_hmin,_hmax,_pmin,_pmax);
+	};
 	/// Get the current range of the single-phase LUT
-	void get_TTSESinglePhase_LUT_range(double *hmin, double *hmax, double *pmin, double *pmax);
+	void get_TTSESinglePhase_LUT_range(double *hmin, double *hmax, double *pmin, double *pmax)
+	{
+		// Call the base class function
+		CoolPropStateClassSI::get_TTSESinglePhase_LUT_range(hmin,hmax,pmin,pmax);
+		
+		// Unit conversions
+		*hmin *= conversion_factor("H"); // [kJ/kg]
+		*hmax *= conversion_factor("H"); // [kJ/kg]
+		*pmin *= conversion_factor("P"); // [kPa]
+		*pmax *= conversion_factor("P"); // [kPa]
+	};
 
 	///// Interpolate within the TTSE LUT
 	//double interpolate_in_TTSE_LUT(long iParam, long iInput1, double Input1, long iInput2, double Input2);
@@ -413,81 +430,77 @@ public:
 	//// Derivatives of properties
 	//// ----------------------------------------
 
-	//double dvdp_constT(void);
-	//double dvdT_constp(void);
+	double dvdp_constT(void){return CoolPropStateClassSI::dvdp_constT()*conversion_factor("1/D/P");};
+	double dvdT_constp(void){return CoolPropStateClassSI::dvdT_constp()*conversion_factor("1/D/T");};
 
-	//double drhodT_constp(void);
-	//double drhodp_constT(void);
-	//double d2rhodp2_constT(void);
-	//double d2rhodTdp(void);
-	//double d2rhodT2_constp(void);
-	//double d2rhodhdQ(void);
-	//double d2rhodpdQ(void);
-	//double d2rhodhdp(void);
-	//double d2rhodh2_constp(void);
-	//
-	//double dpdrho_constT(void);
-	//double dpdrho_consth(void);
-	//double dpdT_constrho(void);
-	//double dpdT_consth(void);
-	//double d2pdrho2_constT(void);
-	//double d2pdrhodT(void);
-	//double d2pdT2_constrho(void);
+	double drhodT_constp(void){return CoolPropStateClassSI::drhodT_constp()*conversion_factor("D/T");};
+	double drhodp_constT(void){return CoolPropStateClassSI::drhodp_constT()*conversion_factor("D/P");};
+	double d2rhodp2_constT(void){return CoolPropStateClassSI::d2rhodp2_constT()*conversion_factor("D*D/P/P");};
+	double d2rhodTdp(void){return CoolPropStateClassSI::d2rhodTdp()*conversion_factor("D*D/T/P");};
+	double d2rhodT2_constp(void){return CoolPropStateClassSI::d2rhodT2_constp()*conversion_factor("D*D/T/T");};
+	double d2rhodhdQ(void){return CoolPropStateClassSI::d2rhodhdQ()*conversion_factor("D*D/H/Q");};
+	double d2rhodpdQ(void){return CoolPropStateClassSI::d2rhodpdQ()*conversion_factor("D*D/P/Q");};
+	double d2rhodhdp(void){return CoolPropStateClassSI::d2rhodhdp()*conversion_factor("D*D/H/P");};
+	double d2rhodh2_constp(void){return CoolPropStateClassSI::d2rhodh2_constp()*conversion_factor("D*D/H/H");};
+	
+	double dpdrho_constT(void){return CoolPropStateClassSI::dpdrho_constT()*conversion_factor("P/D");};
+	double dpdrho_consth(void){return CoolPropStateClassSI::dpdrho_consth()*conversion_factor("P/D");};
+	double dpdT_constrho(void){return CoolPropStateClassSI::dpdT_constrho()*conversion_factor("P/T");};
+	double dpdT_consth(void){return CoolPropStateClassSI::dpdT_consth()*conversion_factor("P/T");};
+	double d2pdrho2_constT(void){return CoolPropStateClassSI::d2pdrho2_constT()*conversion_factor("P/D");};
+	double d2pdrhodT(void){return CoolPropStateClassSI::d2pdrhodT()*conversion_factor("P*P/D/T");};
+	double d2pdT2_constrho(void){return CoolPropStateClassSI::d2pdT2_constrho()*conversion_factor("P*P/T/T");};
 
-	//double dhdrho_constT(void);
-	//double dhdrho_constp(void);
-	//double dhdT_constrho(void);
-	//double dhdT_constp(void);
-	//double dhdp_constT(void);
-	//double d2hdrho2_constT(void);
-	//double d2hdrhodT(void);
-	//double d2hdT2_constrho(void);
-	//double d2hdT2_constp(void);
-	//double d2hdp2_constT(void);
-	//double d2hdTdp(void);
+	double dhdrho_constT(void){return CoolPropStateClassSI::dhdrho_constT()*conversion_factor("H/D");};
+	double dhdrho_constp(void){return CoolPropStateClassSI::dhdrho_constp()*conversion_factor("H/D");};
+	double dhdT_constrho(void){return CoolPropStateClassSI::dhdT_constrho()*conversion_factor("H/T");};
+	double dhdT_constp(void){return CoolPropStateClassSI::dhdT_constp()*conversion_factor("H/T");};
+	double dhdp_constT(void){return CoolPropStateClassSI::dhdp_constT()*conversion_factor("H/P");};
+	double d2hdrho2_constT(void){return CoolPropStateClassSI::d2hdrho2_constT()*conversion_factor("H*H/D/D");};
+	double d2hdrhodT(void){return CoolPropStateClassSI::d2hdrhodT()*conversion_factor("H*H/D/T");};
+	double d2hdT2_constrho(void){return CoolPropStateClassSI::d2hdT2_constrho()*conversion_factor("H*H/T/T");};
+	double d2hdT2_constp(void){return CoolPropStateClassSI::d2hdT2_constp()*conversion_factor("H*H/T/T");};
+	double d2hdp2_constT(void){return CoolPropStateClassSI::d2hdp2_constT()*conversion_factor("H*H/P/P");};
+	double d2hdTdp(void){return CoolPropStateClassSI::d2hdTdp()*conversion_factor("H*H/T/P");};
 
-	//double dsdrho_constT(void);
-	//double dsdT_constrho(void);
-	//double dsdrho_constp(void);
-	//double dsdT_constp(void);
-	//double dsdp_constT(void);
-	//double d2sdrho2_constT(void);
-	//double d2sdrhodT(void);
-	//double d2sdT2_constrho(void);
-	//double d2sdT2_constp(void);
-	//double d2sdp2_constT(void);
-	//double d2sdTdp(void);
+	double dsdrho_constT(void){return CoolPropStateClassSI::dTdp_along_sat()*conversion_factor("S/D");};
+	double dsdT_constrho(void){return CoolPropStateClassSI::dTdp_along_sat()*conversion_factor("S/T");};
+	double dsdrho_constp(void){return CoolPropStateClassSI::dTdp_along_sat()*conversion_factor("S/D");};
+	double dsdT_constp(void){return CoolPropStateClassSI::dTdp_along_sat()*conversion_factor("S/T");};
+	double dsdp_constT(void){return CoolPropStateClassSI::dTdp_along_sat()*conversion_factor("S/P");};
+	double d2sdrho2_constT(void){return CoolPropStateClassSI::dTdp_along_sat()*conversion_factor("S*S/D/D");};
+	double d2sdrhodT(void){return CoolPropStateClassSI::dTdp_along_sat()*conversion_factor("S*S/D/T");};
+	double d2sdT2_constrho(void){return CoolPropStateClassSI::dTdp_along_sat()*conversion_factor("S*S/T/T");};
+	double d2sdT2_constp(void){return CoolPropStateClassSI::dTdp_along_sat()*conversion_factor("S*S/T/T");};
+	double d2sdp2_constT(void){return CoolPropStateClassSI::dTdp_along_sat()*conversion_factor("S*S/P/P");};
+	double d2sdTdp(void){return CoolPropStateClassSI::dTdp_along_sat()*conversion_factor("S*S/T/P");};
 
 	//// ----------------------------------------	
 	//// Derivatives along the saturation curve
 	//// ----------------------------------------
 	//
-	///// Derivative of temperature w.r.t. pressure along saturation curve
-	//double dTdp_along_sat(void);
+	/// Derivative of temperature w.r.t. pressure along saturation curve
+	double dTdp_along_sat(void){return CoolPropStateClassSI::dTdp_along_sat()*conversion_factor("T/P");};
 	///// Second derivative of temperature w.r.t. pressure along saturation curve
-	//double d2Tdp2_along_sat(void);
-	///// Partial derivative w.r.t. pressure of dTdp along saturation curve
-	//double ddp_dTdp_along_sat(void);
-	///// Partial derivative w.r.t. temperature of dTdp along saturation curve
-	//double ddT_dTdp_along_sat(void);
+	double d2Tdp2_along_sat(void){return CoolPropStateClassSI::d2Tdp2_along_sat()*conversion_factor("T*T/P/P");};
 
-	//double dhdp_along_sat_vapor(void);
-	//double dhdp_along_sat_liquid(void);
-	//double d2hdp2_along_sat_vapor(void);
-	//double d2hdp2_along_sat_liquid(void);
+	double dhdp_along_sat_vapor(void){return CoolPropStateClassSI::dhdp_along_sat_vapor()*conversion_factor("H/P");};
+	double dhdp_along_sat_liquid(void){return CoolPropStateClassSI::dhdp_along_sat_liquid()*conversion_factor("H/P");};
+	double d2hdp2_along_sat_vapor(void){return CoolPropStateClassSI::d2hdp2_along_sat_vapor()*conversion_factor("H*H/P/P");};
+	double d2hdp2_along_sat_liquid(void){return CoolPropStateClassSI::d2hdp2_along_sat_liquid()*conversion_factor("H*H/P/P");};
 
-	//double dsdp_along_sat_vapor(void);
-	//double dsdp_along_sat_liquid(void);
-	//double d2sdp2_along_sat_vapor(void);
-	//double d2sdp2_along_sat_liquid(void);
+	double dsdp_along_sat_vapor(void){return CoolPropStateClassSI::dsdp_along_sat_vapor()*conversion_factor("S/P");};
+	double dsdp_along_sat_liquid(void){return CoolPropStateClassSI::dsdp_along_sat_liquid()*conversion_factor("S/P");};
+	double d2sdp2_along_sat_vapor(void){return CoolPropStateClassSI::d2sdp2_along_sat_vapor()*conversion_factor("S*S/P/P");};
+	double d2sdp2_along_sat_liquid(void){return CoolPropStateClassSI::d2sdp2_along_sat_liquid()*conversion_factor("S*S/P/P");};
 
-	//double drhodp_along_sat_vapor(void);
-	//double drhodp_along_sat_liquid(void);
-	//double d2rhodp2_along_sat_vapor(void);
-	//double d2rhodp2_along_sat_liquid(void);
+	double drhodp_along_sat_vapor(void){return CoolPropStateClassSI::drhodp_along_sat_vapor()*conversion_factor("D/P");};
+	double drhodp_along_sat_liquid(void){return CoolPropStateClassSI::drhodp_along_sat_liquid()*conversion_factor("D/P");};
+	double d2rhodp2_along_sat_vapor(void){return CoolPropStateClassSI::d2rhodp2_along_sat_vapor()*conversion_factor("D*D/P/P");};
+	double d2rhodp2_along_sat_liquid(void){return CoolPropStateClassSI::d2rhodp2_along_sat_liquid()*conversion_factor("D*D/P/P");};
 
-	//double drhodT_along_sat_vapor(void);
-	//double drhodT_along_sat_liquid(void);
+	double drhodT_along_sat_vapor(void){return CoolPropStateClassSI::drhodT_along_sat_vapor()*conversion_factor("D/T");};
+	double drhodT_along_sat_liquid(void){return CoolPropStateClassSI::drhodT_along_sat_liquid()*conversion_factor("D/T");};
 };
 
 #endif
