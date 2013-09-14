@@ -1083,7 +1083,7 @@ double Fluid::density_Tp(double T, double p, double rho_guess)
 			dpddelta__constT = dpdrho__constT*reduce.rho;
 
 			// Update the step using Newton's method
-			delta = delta -(p_EOS-p)/dpddelta__constT;
+			delta -= -(p_EOS-p)/dpddelta__constT;
 			change = fabs((p_EOS-p)/dpddelta__constT);
 		}
 		else
@@ -3191,7 +3191,7 @@ void Fluid::saturation_p(double p, bool UseLUT, double *TsatL, double *TsatV, do
 			SPGR.rhoL = rhoL;
 			SPGR.rhoV = rhoV;
 			try{
-				Tsat = Secant(&SPGR,Tsat,1e-4,1e-9,50,&errstr);
+				Tsat = Secant(&SPGR,Tsat,1e-4,1e-7,50,&errstr);
 				if (errstr.size()>0 || !ValidNumber(Tsat)|| !ValidNumber(SPGR.rhoV)|| !ValidNumber(SPGR.rhoL))
 					throw SolutionError("Saturation calculation failed");
 				*rhoVout = SPGR.rhoV;
