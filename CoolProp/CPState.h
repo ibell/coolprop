@@ -38,7 +38,7 @@ public:
 	/// Default constructor
 	CachedElement(){this->clear();};
 	/// Assignment operator - sets the value and sets the flag
-	CachedElement operator=( const double& value){CachedElement c; c._set_value(value); c._set_cached(true); return c;};
+	void operator=( const double& value){_set_value(value); _set_cached(true);};
 	/// Cast to boolean, for checking if cached
 	operator bool() const {return is_cached;};
 	/// Clear the flag and the value
