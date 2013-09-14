@@ -796,13 +796,13 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 		{
 			ENTHALdll(&T,&dl,xliq,&hl); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
 			ENTHALdll(&T,&dv,xvap,&hv); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
-			output_val = (hv*Q+hl*(1-Q))/MW*1000; // J/kg to kJ/kg
+			output_val = (hv*Q+hl*(1-Q))/MW*1000; // kJ/kg to J/kg
 		}
 		else if (iOutput==iS) 
 		{
 			ENTROdll(&T,&dl,xliq,&sl); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
 			ENTROdll(&T,&dv,xvap,&sv); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
-			output_val = (sv*Q+sl*(1-Q))/MW*1000; // J/kg-K to kJ/kg-K
+			output_val = (sv*Q+sl*(1-Q))/MW*1000; // kJ/kg-K to J/kg-K
 		}
 		else if (iOutput==iU) 
 		{
@@ -811,19 +811,19 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 			p=pv*Q+pl*(1-Q);
 			ul=hl-p/dl;
 			uv=hv-p/dv;
-			output_val = (uv*Q+ul*(1-Q))/MW*1000; // J/kg to kJ/kg
+			output_val = (uv*Q+ul*(1-Q))/MW*1000; // kJ/kg to J/kg
 		}
 		else if (iOutput==iC) 
 		{
 			d=1/(Q/dv+(1-Q)/dl);
 			CVCPdll(&T,&d,&(x[0]),&cv,&cp); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
-			output_val = cp/MW*1000; // J/kg-K to kJ/kg-K
+			output_val = cp/MW*1000; // kJ/kg-K to J/kg-K
 		}
 		else if (iOutput==iO) 
 		{
 			d=1/(Q/dv+(1-Q)/dl);
 			CVCPdll(&T,&d,&(x[0]),&cv,&cp); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
-			output_val = cv/MW*1000; // J/kg-K to kJ/kg-K
+			output_val = cv/MW*1000; // kJ/kg-K to J/kg-K
 		}
 		else if (iOutput==iV) 
 		{
@@ -945,113 +945,95 @@ bool REFPROPFluidClass::refpropSupported () {
 
 double REFPROPFluidClass::dphir_dDelta(double tau, double delta)
 {
-	double p,T,rho,R,rhobar;
-
-	R = params.R_u/params.molemass;
+	double p,T,rho,rhobar;
 	rho = delta*reduce.rho;
 	rhobar = rho/params.molemass;
 	T = reduce.T/tau;
 	
 	PRESSdll(&T,&rhobar,&(xmol[0]),&p);
-	return 1/delta*(p/(rho*R*T)-1);
+	return 1/delta*(p/(rho*R()*T)-1);
 }
 double REFPROPFluidClass::dphir_dTau(double tau, double delta)
 {
-	double T,rho,R,rhobar,pr,er,hr,sr,cvr,cpr,Ar,Gr;
-
-	R = params.R_u/params.molemass;
+	double T,rho,rhobar,pr,er,hr,sr,cvr,cpr,Ar,Gr;
 	rho = delta*reduce.rho;
 	rhobar = rho/params.molemass;
 	T = reduce.T/tau;
 	
 	RESIDUALdll(&T,&rhobar,&(xmol[0]),&pr,&er,&hr,&sr,&cvr,&cpr,&Ar,&Gr);
-	return er/(R*T*tau)/params.molemass;
+	return er/(R()*T*tau)/params.molemass;
 }
 double REFPROPFluidClass::d2phi0_dTau2(double tau, double delta)
 {
-	double T,rho,R,rhobar,p0,e0,h0,s0,cv0,cp0,w0,A0,G0;
-
-	R = params.R_u/params.molemass;
+	double T,rho,rhobar,p0,e0,h0,s0,cv0,cp0,w0,A0,G0;
 	rho = delta*reduce.rho;
 	rhobar = rho/params.molemass;
 	T = reduce.T/tau;
 	
 	THERM0dll(&T,&rhobar,&(xmol[0]),&p0,&e0,&h0,&s0,&cv0,&cp0,&w0,&A0,&G0);
-	return -cv0/(R*tau*tau)/params.molemass;
+	return -cv0/(R()*tau*tau)/params.molemass;
 }
 double REFPROPFluidClass::d2phir_dTau2(double tau, double delta)
 {
-	double T,rho,R,rhobar,pr,er,hr,sr,cvr,cpr,Ar,Gr;
-
-	R = params.R_u/params.molemass;
+	double T,rho,rhobar,pr,er,hr,sr,cvr,cpr,Ar,Gr;
 	rho = delta*reduce.rho;
 	rhobar = rho/params.molemass;
 	T = reduce.T/tau;
 	
 	RESIDUALdll(&T,&rhobar,&(xmol[0]),&pr,&er,&hr,&sr,&cvr,&cpr,&Ar,&Gr);
-	return -cvr/(R*tau*tau)/params.molemass;
+	return -cvr/(R()*tau*tau)/params.molemass;
 }
 
 double REFPROPFluidClass::d2phir_dDelta_dTau(double tau, double delta)
 {
-	double T,rho,R,rhobar,dpdT_constrho;
-
-	R = params.R_u/params.molemass;
+	double T,rho,rhobar,dpdT_constrho;
 	rho = delta*reduce.rho;
 	rhobar = rho/params.molemass;
 	T = reduce.T/tau;
 	
 	DPDTdll(&T, &rhobar, &(xmol[0]), &dpdT_constrho);
-	return -1/(delta*tau)*(1/(rho*R)*dpdT_constrho-1-delta*this->dphir_dDelta(tau,delta));
+	return -1/(delta*tau)*(1/(rho*R())*dpdT_constrho-1-delta*this->dphir_dDelta(tau,delta));
 }
 double REFPROPFluidClass::d2phir_dDelta2(double tau, double delta)
 {
-	double T,rho,R,rhobar,dpdrhobar_constT;
-
-	R = params.R_u/params.molemass;
+	double T,rho,rhobar,dpdrhobar_constT;
 	rho = delta*reduce.rho;
 	rhobar = rho/params.molemass;
 	T = reduce.T/tau;
 	
 	DPDDdll(&T, &rhobar, &(xmol[0]), &dpdrhobar_constT);
-	return 1/(delta*delta)*(1/(params.R_u*T)*dpdrhobar_constT-1-2*delta*this->dphir_dDelta(tau,delta));
+	return 1/(delta*delta)*(1/(params.R_u*1000*T)*dpdrhobar_constT-1-2*delta*this->dphir_dDelta(tau,delta));
 }
 double REFPROPFluidClass::phir(double tau, double delta)
 {
-	double T,rho,R,rhobar,pr,er,hr,sr,cvr,cpr,Ar,Gr;
-
-	R = params.R_u/params.molemass;
+	double T,rho,rhobar,pr,er,hr,sr,cvr,cpr,Ar,Gr;
 	rho = delta*reduce.rho;
 	rhobar = rho/params.molemass;
 	T = reduce.T/tau;
 	
 	RESIDUALdll(&T,&rhobar,&(xmol[0]),&pr,&er,&hr,&sr,&cvr,&cpr,&Ar,&Gr);
 
-	return tau*this->dphir_dTau(tau,delta)-sr/R/params.molemass;
+	return tau*this->dphir_dTau(tau,delta)-sr/R()/params.molemass;
 }
 double REFPROPFluidClass::dphi0_dTau(double tau, double delta)
 {
-	double T,rho,R,rhobar,p0,e0,h0,s0,cv0,cp0,w0,A0,G0;
-
-	R = params.R_u/params.molemass;
+	double T,rho,rhobar,p0,e0,h0,s0,cv0,cp0,w0,A0,G0;
 	rho = delta*reduce.rho;
 	rhobar = rho/params.molemass;
 	T = reduce.T/tau;
 	
 	THERM0dll(&T,&rhobar,&(xmol[0]),&p0,&e0,&h0,&s0,&cv0,&cp0,&w0,&A0,&G0);
-	return e0/(R*T*tau)/params.molemass;
+	return e0/(R()*T*tau)/params.molemass;
 }
 double REFPROPFluidClass::phi0(double tau, double delta)
 {
-	double T,rho,R,rhobar,p0,e0,h0,s0,cv0,cp0,w0,A0,G0;
-
-	R = params.R_u/params.molemass;
+	double T,rho,rhobar,p0,e0,h0,s0,cv0,cp0,w0,A0,G0;
 	rho = delta*reduce.rho;
 	rhobar = rho/params.molemass;
 	T = reduce.T/tau;
 	
 	THERM0dll(&T,&rhobar,&(xmol[0]),&p0,&e0,&h0,&s0,&cv0,&cp0,&w0,&A0,&G0);
-	return (h0-T*s0)/params.molemass/R/T-1;
+	return (h0-T*s0)/params.molemass/R()/T-1;
 }
 
 double REFPROPFluidClass::viscosity_Trho(double T, double rho)
@@ -1061,7 +1043,7 @@ double REFPROPFluidClass::viscosity_Trho(double T, double rho)
 	double eta,tcx,rhobar = rho/params.molemass;;
 	
 	TRNPRPdll(&T,&rhobar,&(xmol[0]),&eta,&tcx,&ierr,herr,errormessagelength);
-	return eta/1e6;
+	return eta/1e6; //[Pa-s]
 }
 double REFPROPFluidClass::conductivity_Trho(double T, double rho)
 {
@@ -1070,7 +1052,7 @@ double REFPROPFluidClass::conductivity_Trho(double T, double rho)
 	double eta,tcx,rhobar = rho/params.molemass;
 	
 	TRNPRPdll(&T,&rhobar,&(xmol[0]),&eta,&tcx,&ierr,herr,errormessagelength);
-	return tcx/1e3;
+	return tcx; //[W/m/K]
 }
 
 void REFPROPFluidClass::saturation_T(double T, bool UseLUT, double *psatLout, double *psatVout, double *rhosatLout, double *rhosatVout)
@@ -1085,11 +1067,17 @@ void REFPROPFluidClass::saturation_T(double T, bool UseLUT, double *psatLout, do
 	SATTdll(&T,&(xmol[0]),&ic,psatVout,&dummy,rhosatVout,&(xliq[0]),&(xvap[0]),&ierr,herr,errormessagelength);
 	*rhosatLout *= params.molemass;
 	*rhosatVout *= params.molemass;
+
+	// Unit conversions
+	*psatLout *= conversion_factor("P")*1000; // 1000 to go to SI
+	*psatVout *= conversion_factor("P")*1000; // 1000 to go to SI
 }
 void REFPROPFluidClass::saturation_p(double p, bool UseLUT, double *TsatLout, double *TsatVout, double *rhosatLout, double *rhosatVout)
 {
 	long ic,ierr;
 	char herr[errormessagelength+1];
+	p /= conversion_factor("P")*1000; // 1000 to go to SI
+
 	std::vector<double> xliq = std::vector<double>(1,1),xvap = std::vector<double>(1,1);
 	double dummy;
 	ic=1;
@@ -1103,6 +1091,9 @@ void REFPROPFluidClass::temperature_ph(double p, double h, double *Tout, double 
 {
 	long ierr;
 	char herr[errormessagelength+1];
+	p /= conversion_factor("P")*1000; // 1000 to go to SI
+	h /= conversion_factor("H")*1000; // 1000 to go to SI
+
 	std::vector<double> xliq = std::vector<double>(1,1),xvap = std::vector<double>(1,1);
 	double q,e,s,cv,cp,w,hbar = h*params.molemass, dummy1, dummy2;
 	PHFLSHdll(&p,&hbar,&(xmol[0]),Tout,rhoout,rhoLout,rhoVout,&(xliq[0]),&(xvap[0]),&q,&e,&s,&cv,&cp,&w,&ierr,herr,errormessagelength);
@@ -1115,6 +1106,8 @@ void REFPROPFluidClass::temperature_ps(double p, double s, double *Tout, double 
 {
 	long ierr;
 	char herr[errormessagelength+1];
+	p /= conversion_factor("P")*1000; // 1000 to go to SI
+	s /= conversion_factor("S")*1000; // 1000 to go to SI
 	std::vector<double> xliq = std::vector<double>(1,1),xvap = std::vector<double>(1,1);
 	double q,e,h,cv,cp,w,sbar = s*params.molemass;
 	PSFLSHdll(&p,&sbar,&(xmol[0]),Tout,rhoout,rhoLout,rhoVout,&(xliq[0]),&(xvap[0]),&q,&e,&h,&cv,&cp,&w,&ierr,herr,errormessagelength);
@@ -1126,6 +1119,8 @@ void REFPROPFluidClass::temperature_hs(double h, double s, double *Tout, double 
 {
 	long ierr;
 	char herr[errormessagelength+1];
+	h /= conversion_factor("H")*1000; // 1000 to go to SI
+	s /= conversion_factor("S")*1000; // 1000 to go to SI
 	std::vector<double> xliq = std::vector<double>(1,1),xvap = std::vector<double>(1,1);
 	double q,e,cv,cp,w,p,sbar = s*params.molemass, hbar = h*params.molemass, dummy1, dummy2;
 	HSFLSHdll(&hbar,&sbar,&(xmol[0]),Tout,&p,rhoout,rhoLout,rhoVout,&(xliq[0]),&(xvap[0]),&q,&e,&cv,&cp,&w,&ierr,herr,errormessagelength);
@@ -1136,12 +1131,14 @@ void REFPROPFluidClass::temperature_hs(double h, double s, double *Tout, double 
 }
 double REFPROPFluidClass::density_Tp(double T, double p)
 {
+	p /= conversion_factor("P")*1000; // 1000 to go to SI
 	return this->density_Tp(T,p,0);
 }
 double REFPROPFluidClass::density_Tp(double T, double p, double rho_guess)
 {
 	long ierr;
 	char herr[errormessagelength+1];
+	p /= conversion_factor("P")*1000; // 1000 to go to SI
 	std::vector<double> xliq = std::vector<double>(1,1),xvap = std::vector<double>(1,1);
 	double q,e,s,cv,cp,w,h,rho,rhoL,rhoV;
 	TPFLSHdll(&T,&p,&(xmol[0]),&rho,&rhoL,&rhoV,&(xliq[0]),&(xvap[0]),&q,&e,&h,&s,&cv,&cp,&w,&ierr,herr,errormessagelength);
@@ -1158,7 +1155,7 @@ double REFPROPFluidClass::psat(double T)
 	ic=1;
 	SATTdll(&T,&(xmol[0]),&ic,&psatval,&dummy1,&dummy2,&(xliq[0]),&(xvap[0]),&ierr,herr,errormessagelength);
 
-	return psatval;
+	return psatval * conversion_factor("P")*1000; // 1000 to go to SI
 }
 double REFPROPFluidClass::rhosatV(double T)
 {

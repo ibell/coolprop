@@ -12,6 +12,7 @@
 		REFPROPFluidClass();
 		REFPROPFluidClass(std::string FluidName, std::vector<double> xmol);
 
+		double R(void){return params.R_u/params.molemass*1000.0;};
 		static bool refpropSupported();
 
 		double phir(double tau, double delta);
