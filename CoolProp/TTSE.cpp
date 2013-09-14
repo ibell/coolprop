@@ -37,8 +37,7 @@
 #endif
 
 // The revision of the TTSE tables, only use tables with the same revision.  Increment this macro if any non-forward compatible changes are made
-#define TTSEREV 4
-
+#define TTSEREV 5
 
 std::string get_home_dir(void)
 {
@@ -835,7 +834,7 @@ double TTSESinglePhaseTableClass::build_ph(double hmin, double hmax, double pmin
 	this->pmax = pmax;
 	this->logpmin = log(pmin);
 
-	CoolPropStateClass CPS = CoolPropStateClass(pFluid);
+	CoolPropStateClassSI CPS(pFluid);
 
 	long iFluid = get_Fluid_index(CPS.pFluid->get_name());
 
@@ -1056,7 +1055,7 @@ double TTSESinglePhaseTableClass::build_Trho(double Tmin, double Tmax, double rh
 	rhoratio = pow(rhomax/rhomin,1/((double)Nrho-1));
 	logrhoratio = log(rhoratio);
 
-	CoolPropStateClass CPS = CoolPropStateClass(pFluid);
+	CoolPropStateClassSI CPS(pFluid);
 
 	long iFluid = get_Fluid_index(pFluid->get_name());
 
@@ -1393,7 +1392,7 @@ double TTSESinglePhaseTableClass::check_randomly(long iParam, unsigned int N, st
 	EOSv->resize(N);
 	TTSE->resize(N);
 	
-	CoolPropStateClass CPS = CoolPropStateClass(pFluid);
+	CoolPropStateClassSI CPS(pFluid);
 
 	for (unsigned int i = 0; i < N; i++)
 	{
@@ -2205,7 +2204,7 @@ void TTSETwoPhaseTableClass::set_size(unsigned int N)
 
 double TTSETwoPhaseTableClass::build(double pmin, double pmax, TTSETwoPhaseTableClass *other)
 {
-	CoolPropStateClass CPS = CoolPropStateClass(pFluid);
+	CoolPropStateClassSI CPS(pFluid);
 
 	this->pmin = pmin;
 	this->pmax = pmax;
@@ -2446,7 +2445,7 @@ double TTSETwoPhaseTableClass::check_randomly(long iParam, unsigned int N, std::
 	EOSv->resize(N);
 	TTSE->resize(N);
 	
-	CoolPropStateClass CPS = CoolPropStateClass(pFluid);
+	CoolPropStateClassSI CPS(pFluid);
 
 	for (unsigned int i = 0; i < N; i++)
 	{

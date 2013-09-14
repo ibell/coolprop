@@ -301,10 +301,10 @@ void CoolPropStateClassSI::update_twophase(long iInput1, double Value1, long iIn
 
 	if (match_pair(iInput1,iInput2,iP,iQ)){
 		// Sort so they are in the order P, Q
-		sort_pair(&iInput1,&Value1,&iInput2,&Value2,iP,iQ);
+		sort_pair(&iInput1, &Value1, &iInput2, &Value2, iP, iQ);
 
 		// Out-of-range checks
-		if (Value1 < pFluid->params.ptriple-100*DBL_EPSILON || Value1 > pFluid->crit.p.Pa+100*DBL_EPSILON){ throw ValueError(format("Your saturation pressure [%f Pa] is out of range [%f Pa, %f Pa]",Value1,pFluid->params.ptriple,pFluid->crit.p.Pa ));}
+		if (Value1 < pFluid->params.ptriple*0.98 || Value1 > pFluid->crit.p.Pa+100*DBL_EPSILON){ throw ValueError(format("Your saturation pressure [%f Pa] is out of range [%f Pa, %f Pa]",Value1,pFluid->params.ptriple,pFluid->crit.p.Pa ));}
 		if (Value2 > 1+10*DBL_EPSILON || Value2 < -10*DBL_EPSILON){ throw ValueError(format("Your quality [%f] is out of range (0, 1)",Value2 )); }
 
 		// Carry out the saturation call to get the temperature and density for each phases
