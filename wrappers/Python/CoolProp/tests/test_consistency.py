@@ -43,7 +43,7 @@ def test_subcrit_twophase_consistency():
                 for Q in [0.0, 0.5, 1.0]:
                     rho = 1/((1-Q)/rhoL+Q/rhoV)
                     for inputs in twophase_inputs:
-                        for unit_system in ['kSI']:
+                        for unit_system in ['kSI','SI']:
                             yield check_consistency,Fluid,mode,unit_system, T,rho,inputs
 
 def check_consistency(Fluid,mode,unit_system,T,rho,inputs):

@@ -612,14 +612,12 @@ void Fluid::post_load(rapidjson::Document &JSON, rapidjson::Document &JSON_CAS)
 	environment.ASHRAE34 = JSON_lookup_string(JSON,this->params.CAS,"ASHRAE34");
 
 	// Inputs for the enthalpy-entropy solver which is the most problematic solver
-	HS.hmax = JSON_lookup_double(JSON,this->name,"hsatVmax");
-	HS.T_hmax = JSON_lookup_double(JSON,this->name,"T_hsatVmax");
-	HS.s_hmax = JSON_lookup_double(JSON,this->name,"s_hsatVmax");
-	HS.rho_hmax = JSON_lookup_double(JSON,this->name,"rho_hsatVmax");
-	HS.a_hs_satL = JSON_lookup_dblvector(JSON,this->name,"a_hs_satL");
-	HS.n_hs_satL = JSON_lookup_intvector(JSON,this->name,"n_hs_satL");
-	
-	
+	HS.hmax = JSON_lookup_double(JSON,this->params.CAS,"hsatVmax");
+	HS.T_hmax = JSON_lookup_double(JSON,this->params.CAS,"T_hsatVmax");
+	HS.s_hmax = JSON_lookup_double(JSON,this->params.CAS,"s_hsatVmax");
+	HS.rho_hmax = JSON_lookup_double(JSON,this->params.CAS,"rho_hsatVmax");
+	HS.a_hs_satL = JSON_lookup_dblvector(JSON,this->params.CAS,"a_hs_satL");
+	HS.n_hs_satL = JSON_lookup_intvector(JSON,this->params.CAS,"n_hs_satL");
 }
 //--------------------------------------------
 //    Residual Part
@@ -2592,8 +2590,6 @@ void Fluid::temperature_hs(double h, double s, double *Tout, double *rhoout, dou
 			singlephase_initialized = true;
 		}
 	}
-
-
 
 	// Branch #2 (vapor curve) between hmax and the maximum of the enthalpy corresponding to the 
 	// critical point and the enthalpy corresponding to the
