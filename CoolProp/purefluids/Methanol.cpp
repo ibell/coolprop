@@ -15,12 +15,12 @@ MethanolClass::MethanolClass()
 
     // Critical parameters
     crit.rho = 8.6*32.04216;
-    crit.p = 8103.5;
+    crit.p = PressureUnit(8103.5, UNIT_KPA);
     crit.T = 512.6;
     crit.v = 1.0/crit.rho;
 
 	reduce.rho = 8.78517*32.04216;
-    reduce.p = 8215.85;
+    reduce.p = PressureUnit(8215.85, UNIT_KPA);
     reduce.T = 513.38;
     reduce.v = 1.0/crit.rho;
 
@@ -71,7 +71,7 @@ double MethanolClass::psat(double T)
     {
         summer += N[i]*pow(theta,t[i]);
     }
-    return reduce.p*exp(T/reduce.T*summer);
+    return reduce.p.Pa*exp(T/reduce.T*summer);
 }
 
 double MethanolClass::rhosatL(double T)

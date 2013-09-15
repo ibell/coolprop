@@ -171,6 +171,7 @@ cdef extern from "CPState.h":
         
 cdef extern from "CoolProp.h":
     
+    void _set_standard_unit_system "set_standard_unit_system"(int unit_system)
     double _Props "Props"(string Output, char Name1, double Prop1, char Name2, double Prop2, string Ref)
     double _IProps "IProps"(long Output, long Name1, double Prop1, long Name2, double Prop2, long Ref)
     double _Props1 "Props"(string Ref, string Output)

@@ -43,14 +43,20 @@ static std::string err_string;
 static int debug_level=0;
 static Fluid * pFluid;
 
-// This is very hacky, but pull the subversion revision from the file
+// This is very hacky, but pull the git revision from the file
 #include "gitrevision.h" // Contents are like "long gitrevision = "aa121435436ggregrea4t43t433";"
-#include "version.h" // Contents are like "char version [] ="2.5";"
+#include "version.h" // Contents are like "char version [] = "2.5";"
 
 int global_Phase = -1;
 bool global_SinglePhase = false;
 bool global_SaturatedL = false;
 bool global_SaturatedV = false;
+
+// Default to the KSI unit system
+int unit_system = UNIT_SYSTEM_KSI;
+
+int get_standard_unit_system(){ return unit_system; }
+void set_standard_unit_system(int unit_sys){ unit_system = unit_sys; }
 
 // This is a map of all possible strings to a unique identifier
 std::pair<std::string, long> map_data[] = {
@@ -644,7 +650,7 @@ double _CoolProp_Fluid_Props(long iOutput, long iName1, double Prop1, long iName
 	}
 
 	// Generate a State instance wrapped around the Fluid instance
-	CoolPropStateClass CPS = CoolPropStateClass(pFluid);
+	CoolPropStateClass CPS(pFluid);
 
 	// Check if it is an output that doesn't require a state input
 	// Deal with it and return
@@ -697,6 +703,8 @@ EXPORT_CODE double CONVENTION IProps(long iOutput, long iName1, double Prop1, lo
 	else{
 		// In this function the error catching happens;
 		try{
+			// This is already converted to the right units since it comes from the CoolPropStateClass which
+			// does the unit handling
 			return _CoolProp_Fluid_Props(iOutput,iName1,Prop1,iName2,Prop2,pFluid);
 		}
 		catch(std::exception &e){
@@ -911,46 +919,57 @@ std::string get_global_param_string(std::string ParamName)
 };
 std::string get_fluid_param_string(std::string FluidName, std::string ParamName)
 {
-	pFluid = Fluids.get_fluid(FluidName);
-	// Didn't work
-	if (pFluid == NULL){
-		err_string=std::string("CoolProp error: ").append(format("%s is an invalid fluid for get_fluid_param_string",FluidName.c_str()));
-		return format("%s is an invalid fluid for get_fluid_param_string",FluidName.c_str()).c_str();
-	}
-	else{
-		if (!ParamName.compare("aliases"))
-		{
-			std::vector<std::string> v = pFluid->get_aliases();
-			return strjoin(v,", ");
+	try{
+		pFluid = Fluids.get_fluid(FluidName);
+		// Didn't work
+		if (pFluid == NULL){
+			err_string=std::string("CoolProp error: ").append(format("%s is an invalid fluid for get_fluid_param_string",FluidName.c_str()));
+			return format("%s is an invalid fluid for get_fluid_param_string",FluidName.c_str()).c_str();
 		}
-		else if (!ParamName.compare("CAS") || !ParamName.compare("CAS_number"))
-		{
-			return pFluid->params.CAS;
-		}
-		else if (!ParamName.compare("ASHRAE34"))
-		{
-			return pFluid->environment.ASHRAE34;
-		}
-		else if (!ParamName.compare("REFPROPName") || !ParamName.compare("REFPROP_name"))
-		{
-			return pFluid->get_REFPROPname();
-		}
-		else if (!ParamName.compare("TTSE_mode"))
-		{
-			int mode = pFluid->TTSESinglePhase.get_mode();
-			switch (mode)
+		else{
+			if (!ParamName.compare("aliases"))
 			{
-			case TTSE_MODE_TTSE:
-				return "TTSE";
-			case TTSE_MODE_BICUBIC:
-				return "BICUBIC";
-			default:
-				throw ValueError("TTSE mode is invalid");
+				std::vector<std::string> v = pFluid->get_aliases();
+				return strjoin(v,", ");
+			}
+			else if (!ParamName.compare("CAS") || !ParamName.compare("CAS_number"))
+			{
+				return pFluid->params.CAS;
+			}
+			else if (!ParamName.compare("ASHRAE34"))
+			{
+				return pFluid->environment.ASHRAE34;
+			}
+			else if (!ParamName.compare("REFPROPName") || !ParamName.compare("REFPROP_name"))
+			{
+				return pFluid->get_REFPROPname();
+			}
+			else if (!ParamName.compare("TTSE_mode"))
+			{
+				int mode = pFluid->TTSESinglePhase.get_mode();
+				switch (mode)
+				{
+				case TTSE_MODE_TTSE:
+					return "TTSE";
+				case TTSE_MODE_BICUBIC:
+					return "BICUBIC";
+				default:
+					throw ValueError("TTSE mode is invalid");
+				}
+			}
+			else
+			{
+				return format("Input value [%s] is invalid for Fluid [%s]",ParamName.c_str(),FluidName.c_str()).c_str();
 			}
 		}
-		else
-		{
-			return format("Input value [%s] is invalid for Fluid [%s]",ParamName.c_str(),FluidName.c_str()).c_str();
-		}
+	}
+	catch(std::exception &e)
+	{
+		return(std::string("CoolProp error: ").append(e.what()));
+	}
+	catch(...){
+		return(std::string("CoolProp error: Indeterminate error"));
 	}
 }
+
+

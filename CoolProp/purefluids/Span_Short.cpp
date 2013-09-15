@@ -119,7 +119,7 @@ std::vector<double> l_v(c_nonpolar_SpanShort,c_nonpolar_SpanShort+sizeof(c_nonpo
 
 //Critical parameters
 crit.rho = 232; //[kg/m^3]
-crit.p = 3370; //[kPa]
+crit.p = PressureUnit(3370, UNIT_KPA); //[kPa]
 crit.T = 469.7; //[K]
 crit.v = 1/crit.rho; 
 
@@ -194,7 +194,7 @@ double nPentaneClass::psat(double T)
     {
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 double nPentaneClass::rhosatL(double T)
 {
@@ -236,7 +236,7 @@ std::vector<double> l_v(c_nonpolar_SpanShort,c_nonpolar_SpanShort+sizeof(c_nonpo
 
 //Critical parameters
 crit.rho = 233.18; //[kg/m^3]
-crit.p = 3034; //[kPa]
+crit.p = PressureUnit(3034, UNIT_KPA); //[kPa]
 crit.T = 507.82; //[K]
 crit.v = 1/crit.rho; 
 
@@ -310,7 +310,7 @@ double nHexaneClass::psat(double T)
     {
         summer += N[i]*pow(theta,t[i]/2);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 
 double nHexaneClass::rhosatL(double T)
@@ -371,7 +371,7 @@ std::vector<double> l_v(c_nonpolar_SpanShort,c_nonpolar_SpanShort+sizeof(c_nonpo
 
 //Critical parameters
 crit.rho = 232; //[kg/m^3]
-crit.p = 2736; //[kPa]
+crit.p = PressureUnit(2736, UNIT_KPA); //[kPa]
 crit.T = 540.13; //[K]
 crit.v = 1/crit.rho; 
 
@@ -445,7 +445,7 @@ double nHeptaneClass::psat(double T)
     {
         summer += N[i]*pow(theta,t[i]/2);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 
 double nHeptaneClass::rhosatL(double T)
@@ -508,7 +508,7 @@ nOctaneClass::nOctaneClass()
 
 	//Critical parameters
 	crit.rho = 2.0564*114.2285; //[kg/m^3]
-	crit.p = 2497; //[kPa]
+	crit.p = PressureUnit(2497, UNIT_KPA); //[kPa]
 	crit.T = 569.32; //[K]
 	crit.v = 1/crit.rho; 
 
@@ -583,7 +583,7 @@ double nOctaneClass::psat(double T)
     {
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 double nOctaneClass::rhosatL(double T)
 {
@@ -686,7 +686,7 @@ nDodecaneClass::nDodecaneClass()
 
 	//Critical parameters
 	crit.rho = 1.33*170.33484; //[kg/m^3]
-	crit.p = 1817; //[kPa]
+	crit.p = PressureUnit(1817, UNIT_KPA); //[kPa]
 	crit.T = 658.1; //[K]
 	crit.v = 1/crit.rho; 
 
@@ -741,7 +741,7 @@ double nDodecaneClass::psat(double T)
     {
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 double nDodecaneClass::rhosatL(double T)
 {
@@ -853,7 +853,7 @@ CyclohexaneClass::CyclohexaneClass()
 
 	//Critical parameters
 	crit.rho = 273.02; //[kg/m^3]
-	crit.p = 4075; //[kPa]
+	crit.p = PressureUnit(4075, UNIT_KPA); //[kPa]
 	crit.T = 553.64; //[K]
 	crit.v = 1/crit.rho; 
 
@@ -928,7 +928,7 @@ double CyclohexaneClass::psat(double T)
     {
         summer += N[i]*pow(theta,t[i]/2);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 
 double CyclohexaneClass::rhosatL(double T)
@@ -967,7 +967,7 @@ R152AClass::R152AClass()
 	double n0[] = {0,-1.0/4.0,-2,-4};
 	//Critical parameters
 	crit.rho = 368.0; //[kg/m^3]
-	crit.p = 4520; //[kPa]
+	crit.p = PressureUnit(4520, UNIT_KPA); //[kPa]
 	crit.T = 386.411; //[K]
 	crit.v = 1/crit.rho; 
 
@@ -1016,7 +1016,7 @@ double R152AClass::psat(double T)
     {
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 double R152AClass::rhosatL(double T)
 {
@@ -1102,7 +1102,7 @@ R123Class::R123Class()
 	
 	//Critical parameters
 	crit.rho = 553.0; //[kg/m^3]
-	crit.p = 3672; //[kPa]
+	crit.p = PressureUnit(3672, UNIT_KPA); //[kPa]
 	crit.T = 456.82; //[K]
 	crit.v = 1/crit.rho; 
 
@@ -1152,7 +1152,7 @@ double R123Class::psat(double T)
     {
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 double R123Class::rhosatL(double T)
 {
@@ -1235,7 +1235,7 @@ R11Class::R11Class()
 
 	//Critical parameters
 	crit.rho = 565; //[kg/m^3]
-	crit.p = 4394; //[kPa]
+	crit.p = PressureUnit(4394, UNIT_KPA); //[kPa]
 	crit.T = 471.06; //[K]
 	crit.v = 1/crit.rho; 
 
@@ -1291,7 +1291,7 @@ double R11Class::psat(double T)
     {
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 double R11Class::rhosatL(double T)
 {

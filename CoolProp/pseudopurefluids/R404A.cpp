@@ -187,7 +187,7 @@ R404AClass::R404AClass()
 
 	// Critical parameters (max condensing temperature)
 	crit.rho = 482.162772;
-	crit.p = 3734.8;
+	crit.p = PressureUnit(3734.8,UNIT_KPA);
 	crit.T = 345.27;
 	crit.v = 1.0/crit.rho;
 
@@ -266,7 +266,7 @@ double R404AClass::psatL(double T)
     {
         sum+=Nbp[k]*pow(theta,tbp[k]);
     }
-    return reduce.p*exp(reduce.T/T*sum);
+    return reduce.p.Pa*exp(reduce.T/T*sum);
 }
     
 double R404AClass::psatV(double T)
@@ -297,7 +297,7 @@ double R404AClass::psatV(double T)
     {
         sum+=Ndp[k]*pow(theta,tdp[k]);
     }
-    return reduce.p*exp(reduce.T/T*sum);
+    return reduce.p.Pa*exp(reduce.T/T*sum);
 }
 
 double R404AClass::rhosatV(double T)

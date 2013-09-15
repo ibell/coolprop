@@ -27,7 +27,7 @@ EthyleneClass::EthyleneClass()
 
 	//Critical parameters
 	crit.rho = 214.24; //[kg/m^3]
-	crit.p = 5041.8; //[kPa]
+	crit.p = PressureUnit(5041.8, UNIT_KPA); //[kPa]
 	crit.T = 282.35; //[K]
 	crit.v = 1/crit.rho; 
 
@@ -81,7 +81,7 @@ double EthyleneClass::psat(double T)
     {
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 double EthyleneClass::rhosatL(double T)
 {

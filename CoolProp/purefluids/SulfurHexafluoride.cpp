@@ -27,7 +27,7 @@ SulfurHexafluorideClass::SulfurHexafluorideClass()
 
 	//Critical parameters
 	crit.rho = 742.3; //[kg/m^3]
-	crit.p = 3754.983; //[kPa]
+	crit.p = PressureUnit(3754.983, UNIT_KPA); //[kPa]
 	crit.T = 318.7232; //[K]
 	crit.v = 1/crit.rho; 
 
@@ -82,7 +82,7 @@ double SulfurHexafluorideClass::psat(double T)
     {
         summer += N[i]*pow(theta,t[i]/2);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 
 double SulfurHexafluorideClass::rhosatL(double T)

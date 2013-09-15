@@ -191,6 +191,10 @@ if __name__=='__main__':
                             [os.path.join('CoolProp','phase_constants.pyx')],
                             **common_args)
                             
+    unit_systems_constants_module = CyExtension('CoolProp.unit_systems_constants',
+                            [os.path.join('CoolProp','unit_systems_constants.pyx')],
+                            **common_args)
+                            
     #Collect all the header files in the main folder into an include folder
     try:
         os.mkdir(os.path.join('CoolProp','include'))
@@ -215,7 +219,7 @@ if __name__=='__main__':
            url='http://coolprop.sourceforge.net',
            description = """Open-source thermodynamic and transport properties database""",
            packages = ['CoolProp','CoolProp.Plots','CoolProp.tests','CoolProp.GUI'],
-           ext_modules = [CoolProp_module,param_constants_module,phase_constants_module],
+           ext_modules = [CoolProp_module,param_constants_module,phase_constants_module,unit_systems_constants_module],
            package_dir = {'CoolProp':'CoolProp',},
            package_data = {'CoolProp':['State.pxd','CoolProp.pxd','param_constants.pxd','include/*.h','include/rapidjson/*.h','include/rapidjson/internal/*.h','CoolPropBibTeXLibrary.bib']},
            cmdclass={'build_ext': build_ext},

@@ -17,7 +17,7 @@ PropyleneClass::PropyleneClass()
 
 	//Critical parameters
 	crit.rho = 5.457*42.07974; //[kg/m^3]
-	crit.p = 4555.0; //[kPa]
+	crit.p = PressureUnit(4555.0, UNIT_KPA); //[kPa]
 	crit.T = 364.211; //[K]
 	crit.v = 1/crit.rho; 
 
@@ -75,7 +75,7 @@ double PropyleneClass::psat(double T)
     {
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 double PropyleneClass::rhosatL(double T)
 {

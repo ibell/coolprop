@@ -17,7 +17,7 @@ CyclopentaneClass::CyclopentaneClass()
 
 	//Critical parameters
 	crit.rho = 3.82*70.1329; //[kg/m^3]
-	crit.p = 4571.2; //[kPa]
+	crit.p = PressureUnit(4571.2, UNIT_KPA); //[kPa]
 	crit.T = 511.72; //[K]
 	crit.v = 1/crit.rho; 
 
@@ -72,7 +72,7 @@ double CyclopentaneClass::psat(double T)
     {
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 double CyclopentaneClass::rhosatL(double T)
 {

@@ -143,7 +143,7 @@ SES36Class::SES36Class()
 
 	// Critical parameters
 	crit.rho = 2.8*184.85;
-	crit.p = 2849;
+	crit.p = PressureUnit(2849,UNIT_KPA);
 	crit.T = 450.7;
 	crit.v = 1.0/crit.rho;
 
@@ -182,7 +182,7 @@ double SES36Class::psatL(double T)
     {
         summer += Ni[i]*pow(1-T/reduce.T,ti[i]);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 double SES36Class::psatV(double T)
 {

@@ -15,7 +15,7 @@ R125Class::R125Class()
 
 	//Critical parameters
 	crit.rho = 4.779*120.0214; //[kg/m^3]
-	crit.p = 3617.7; //[kPa]
+	crit.p = PressureUnit(3617.7, UNIT_KPA); //[kPa]
 	crit.T = 339.173; //[K]
 	crit.v = 1/crit.rho; 
 
@@ -70,7 +70,7 @@ double R125Class::psat(double T)
     {
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 double R125Class::rhosatL(double T)
 {

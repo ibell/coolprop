@@ -17,7 +17,7 @@ R161Class::R161Class()
 
 	//Critical parameters
 	crit.rho = 6.28*48.0595; //[kg/m^3]
-	crit.p = 5010; //[kPa]
+	crit.p = PressureUnit(5010, UNIT_KPA); //[kPa]
 	crit.T = 375.25; //[K]
 	crit.v = 1/crit.rho; 
 
@@ -69,7 +69,7 @@ double R161Class::psat(double T)
     {
         summer += N[i]*pow(theta,t[i]/2);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 
 double R161Class::rhosatL(double T)

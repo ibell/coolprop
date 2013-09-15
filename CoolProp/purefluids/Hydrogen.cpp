@@ -146,7 +146,7 @@ HydrogenClass::HydrogenClass()
 
 	// Critical parameters
 	crit.rho = 15.508*2.01588;
-	crit.p = 1296.4;
+	crit.p = PressureUnit(1296.4, UNIT_KPA);
 	crit.T = 33.145;
 	crit.v = 1.0/crit.rho;
 
@@ -192,7 +192,7 @@ double HydrogenClass::psat(double T)
     {
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 double HydrogenClass::rhosatL(double T)
 {
@@ -318,7 +318,7 @@ ParaHydrogenClass::ParaHydrogenClass()
 
 	// Critical parameters
 	crit.rho = 15.538*2.01588;
-	crit.p = 1285.8;
+	crit.p = PressureUnit(1285.8, UNIT_KPA);
 	crit.T = 32.938;
 	crit.v = 1.0/crit.rho;
 
@@ -364,7 +364,7 @@ double ParaHydrogenClass::psat(double T)
     {
         summer += N[i]*pow(theta,t[i]/2);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 
 double ParaHydrogenClass::rhosatL(double T)
@@ -491,7 +491,7 @@ OrthoHydrogenClass::OrthoHydrogenClass()
 
 	// Critical parameters
 	crit.rho = 15.445*2.01588;
-	crit.p = 1310.65;
+	crit.p = PressureUnit(1310.65, UNIT_KPA);
 	crit.T = 33.22;
 	crit.v = 1.0/crit.rho;
 
@@ -536,7 +536,7 @@ double OrthoHydrogenClass::psat(double T)
     {
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 double OrthoHydrogenClass::rhosatL(double T)
 {

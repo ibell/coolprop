@@ -178,7 +178,7 @@ R410AClass::R410AClass()
 	
 	// Critical parameters
 	crit.rho = 459.0300696;
-	crit.p = 4901.2;
+	crit.p = PressureUnit(4901.2,UNIT_KPA);
 	crit.T = 344.494;
 	crit.v = 1.0/crit.rho;
 
@@ -230,7 +230,7 @@ double R410AClass::psatL(double T)
     {
         sum+=Nbp[k]*pow(theta,tbp[k]);
     }
-    return reduce.p*exp(reduce.T/T*sum);
+    return reduce.p.Pa*exp(reduce.T/T*sum);
 }
     
 double R410AClass::psatV(double T)
@@ -261,7 +261,7 @@ double R410AClass::psatV(double T)
     {
         sum+=Ndp[k]*pow(theta,tdp[k]);
     }
-    return reduce.p*exp(reduce.T/T*sum);
+    return reduce.p.Pa*exp(reduce.T/T*sum);
 }
 
 double R410AClass::rhosatV(double T)

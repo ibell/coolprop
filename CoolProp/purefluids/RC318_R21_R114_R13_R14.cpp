@@ -14,7 +14,7 @@ RC318Class::RC318Class()
 
 	//Critical parameters
 	crit.rho = 3.09938*200.0312; //[kg/m^3]
-	crit.p = 3099.38; //[kPa]
+	crit.p = PressureUnit(3099.38, UNIT_KPA); //[kPa]
 	crit.T = 388.38; //[K]
 	crit.v = 1/crit.rho; 
 
@@ -68,7 +68,7 @@ double RC318Class::psat(double T)
     {
         summer += N[i]*pow(theta,t[i]/2);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 
 double RC318Class::rhosatL(double T)
@@ -109,7 +109,7 @@ R21Class::R21Class()
 
 	//Critical parameters
 	crit.rho = 5.1107656*102.9227; //[kg/m^3]
-	crit.p = 5181.2; //[kPa]
+	crit.p = PressureUnit(5181.2, UNIT_KPA); //[kPa]
 	crit.T = 451.48; //[K]
 	crit.v = 1/crit.rho; 
 
@@ -160,7 +160,7 @@ double R21Class::psat(double T)
     {
         summer += N[i]*pow(theta,t[i]/2);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 
 double R21Class::rhosatL(double T)
@@ -201,7 +201,7 @@ R114Class::R114Class()
 
 	//Critical parameters
 	crit.rho = 3.3932*170.921; //[kg/m^3]
-	crit.p = 3257.0; //[kPa]
+	crit.p = PressureUnit(3257.0, UNIT_KPA); //[kPa]
 	crit.T = 418.83; //[K]
 	crit.v = 1/crit.rho; 
 
@@ -252,7 +252,7 @@ double R114Class::psat(double T)
     {
         summer += N[i]*pow(theta,t[i]/2);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 
 double R114Class::rhosatL(double T)
@@ -293,7 +293,7 @@ R13Class::R13Class()
 
 	//Critical parameters
 	crit.rho = 5.58*104.459; //[kg/m^3]
-	crit.p = 3879.0; //[kPa]
+	crit.p = PressureUnit(3879.0, UNIT_KPA); //[kPa]
 	crit.T = 301.88; //[K]
 	crit.v = 1/crit.rho; 
 
@@ -347,7 +347,7 @@ double R13Class::psat(double T)
     {
         summer += N[i]*pow(theta,t[i]/2);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 
 double R13Class::rhosatL(double T)
@@ -391,7 +391,7 @@ R14Class::R14Class()
 
 	//Critical parameters
 	crit.rho = 7.1094194*88.0046; //[kg/m^3]
-	crit.p = 3750.0; //[kPa]
+	crit.p = PressureUnit(3750.0, UNIT_KPA); //[kPa]
 	crit.T = 227.51; //[K]
 	crit.v = 1/crit.rho; 
 
@@ -447,7 +447,7 @@ double R14Class::psat(double T)
     {
         summer += N[i]*pow(theta,t[i]/2);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 
 double R14Class::rhosatL(double T)

@@ -17,7 +17,7 @@ oXyleneClass::oXyleneClass()
 
 	//Critical parameters
 	crit.rho = 2.6845*106.165; //[kg/m^3]
-	crit.p = 3737.5; //[kPa]
+	crit.p = PressureUnit(3737.5, UNIT_KPA); //[kPa]
 	crit.T = 630.259; //[K]
 	crit.v = 1/crit.rho; 
 
@@ -72,7 +72,7 @@ double oXyleneClass::psat(double T)
     {
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 double oXyleneClass::rhosatL(double T)
 {
@@ -117,7 +117,7 @@ mXyleneClass::mXyleneClass()
 
 	//Critical parameters
 	crit.rho = 2.665*106.165; //[kg/m^3]
-	crit.p = 3534.6; //[kPa]
+	crit.p = PressureUnit(3534.6, UNIT_KPA); //[kPa]
 	crit.T = 616.89; //[K]
 	crit.v = 1/crit.rho; 
 
@@ -172,7 +172,7 @@ double mXyleneClass::psat(double T)
     {
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 double mXyleneClass::rhosatL(double T)
 {
@@ -217,7 +217,7 @@ pXyleneClass::pXyleneClass()
 
 	//Critical parameters
 	crit.rho = 2.69392*106.165; //[kg/m^3]
-	crit.p = 3531.5; //[kPa]
+	crit.p = PressureUnit(3531.5, UNIT_KPA); //[kPa]
 	crit.T = 616.168; //[K]
 	crit.v = 1/crit.rho; 
 
@@ -272,7 +272,7 @@ double pXyleneClass::psat(double T)
     {
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 double pXyleneClass::rhosatL(double T)
 {
@@ -317,7 +317,7 @@ EthylBenzeneClass::EthylBenzeneClass()
 
 	//Critical parameters
 	crit.rho = 2.741016*106.165; //[kg/m^3]
-	crit.p = 3622.4; //[kPa]
+	crit.p = PressureUnit(3622.4, UNIT_KPA); //[kPa]
 	crit.T = 617.12; //[K]
 	crit.v = 1/crit.rho; 
 
@@ -371,7 +371,7 @@ double EthylBenzeneClass::psat(double T)
     {
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 double EthylBenzeneClass::rhosatL(double T)
 {

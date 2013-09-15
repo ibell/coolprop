@@ -110,7 +110,7 @@ cpdef double IProps(long iOutput, long iInput1, double Input1, long iInput2, dou
         #  This should be run using the cached values - much faster !
         IProps(param_constants.iP,param_constants.iT,0.8*Tc,param_constants.iQ,1,iPropane)
         
-    The reason that this function is significantly faster than Props is that it skips all the string comparisons which slows down the Props function quite a lot.  At the C++ level, IProps
+    The reason that this function is significantly faster than Props is that it skips all the string comparisons which slows down the Props function quite a lot.  At the C++ level, IProps doesn't use any strings and operates on integers and floating point values
     """
     cdef double val = _IProps(iOutput, iInput1, Input1, iInput2, Input2, iFluid)
     
@@ -119,10 +119,19 @@ cpdef double IProps(long iOutput, long iInput1, double Input1, long iInput2, dou
         if not len(err_string) == 0:
             raise ValueError("{err:s} :: inputs were :{iin1:d},{in1:g},{iin2:d},{in2:g},{iFluid:d}".format(err= err_string,iin1=iInput1,in1=Input1,iin2=iInput2,in2=Input2,iFluid = iFluid))
         else:
-            raise ValueError("IProps failed ungracefully with inputs:\"{in1:s}\",\"{in2:s}\"; please file a ticket at https://github.com/ibell/coolprop/issues".format(in1=in1,in2=in2))
+            raise ValueError("IProps failed ungracefully with inputs:\"{in1:g}\",\"{in2:g}\"; please file a ticket at https://sourceforge.net/p/coolprop/tickets/".format(in1=Input1,in2=Input2))
     else:
         return val
 
+cpdef get_global_param_string(str param):
+    cdef bytes _param = param.encode('ascii')
+    _get_global_param_string(_param)
+    
+cpdef get_fluid_param_string(str fluid, str param):
+    cdef bytes _fluid = fluid.encode('ascii')
+    cdef bytes _param = param.encode('ascii')
+    _get_fluid_param_string(_fluid, _param)
+    
 def get_factorSICP(what):
     """Get the conversion factor between SI and CoolProp units. 
     Returns a tuple of the factor and a boolean telling you if 
@@ -532,14 +541,14 @@ cpdef get_aliases(str Fluid):
     Return a comma separated string of aliases for the given fluid
     """
     cdef bytes _Fluid = Fluid.encode('ascii')
-    return [F.encode('ascii') for F in (_get_aliases(_Fluid).encode('ascii')).decode('ascii').split(',')]
+    return [F.encode('ascii') for F in (_get_fluid_param_string(_Fluid,'aliases').encode('ascii')).decode('ascii').split(',')]
 
 cpdef get_ASHRAE34(str Fluid):
     """
     Return the safety code for the fluid from ASHRAE34 if it is in ASHRAE34
     """
     cdef bytes _Fluid = Fluid.encode('ascii')
-    return _get_ASHRAE34(_Fluid)
+    return _get_fluid_param_string(_Fluid,"ASHRAE34")
     
 cpdef string get_REFPROPname(str Fluid):
     """
@@ -619,7 +628,7 @@ cpdef string get_CAS_code(string Fluid):
     """
     Return a string with the CAS number for the given fluid
     """
-    return _get_CAS_code(Fluid)
+    return _get_fluid_param_string(Fluid,"CAS")
     
 cpdef bint IsFluidType(string Fluid, string Type):
     """
@@ -727,21 +736,12 @@ cpdef conductivity_background(str Fluid, double T, double rho):
 cpdef conductivity_critical(str Fluid, double T, double rho):
     cdef _Fluid = Fluid.encode('ascii')
     return _conductivity_critical(_Fluid,T, rho)
-
-cpdef int debug(int level):
-    """
-    Sets the debug level
     
-    Parameters
-    ----------
-    level : int
-        Flag indicating how verbose the debugging should be.
-            0 : no debugging output
-            ...
-            ...
-            10 : very annoying debugging output - every function call debugged
-    """
-    _debug(level)
+cpdef set_standard_unit_system(int unit_system):
+    _set_standard_unit_system(unit_system)
+        
+cpdef int get_standard_unit_system():
+    return _get_standard_unit_system()
         
 from math import pow as pow_
 
@@ -852,6 +852,8 @@ cdef class State:
         d['phase'] = self.phase
         return rebuildState,(d,)
           
+    
+        
     cpdef set_Fluid(self, bytes Fluid):
         self.Fluid = Fluid
         if self.Fluid.startswith('REFPROP-'):
@@ -919,7 +921,7 @@ cdef class State:
             p = _Props('P','T',T,'D',rho,self.Fluid)
         
         if abs(p)<1e90:
-            self.p_=p
+            self.p_ = p
         else:
             errstr = _get_global_param_string('errstring')
             raise ValueError(errstr)
@@ -1037,27 +1039,27 @@ cdef class State:
     
     cpdef double get_rho(self) except *:
         """ Get the density [kg/m^3] """ 
-        return self.rho_
+        return self.Props(iD)
     property rho:
         """ The density [kg/m^3] """
         def __get__(self):
-            return self.rho_
+            return self.Props(iD)
             
     cpdef double get_p(self) except *:
         """ Get the pressure [kPa] """ 
-        return self.p_
+        return self.Props(iP)
     property p:
-        """ The pressure [K] """
+        """ The pressure [kPa] """
         def __get__(self):
-            return self.p_
+            return self.get_p()
     
     cpdef double get_T(self) except *: 
         """ Get the temperature [K] """
-        return self.T_
+        return self.Props(iT)
     property T:
         """ The temperature [K] """
         def __get__(self):
-            return self.T_
+            return self.get_T()
     
     cpdef double get_h(self) except *: 
         """ Get the specific enthalpy [kJ/kg] """
@@ -1134,14 +1136,6 @@ cdef class State:
             return None 
         else:
             return CP.Props('T', 'P', self.p_, 'Q', Q, self.Fluid)
-    property Tsat:
-        """ 
-        The saturation temperature, in [K]
-        
-        Returns ``None`` if pressure is not within the two-phase pressure range 
-        """
-        def __get__(self):
-            return self.get_Tsat()
         
     cpdef double get_superheat(self):
         """ 
@@ -1307,7 +1301,7 @@ cdef class State:
                'subcooling':'K',
         }
         s='phase = '+self.phase+'\n'
-        for k in ['T','p','rho','Q','h','u','s','visc','k','cp','cv','dpdT','Prandtl','Tsat','superheat','subcooling']:
+        for k in ['T','p','rho','Q','h','u','s','visc','k','cp','cv','dpdT','Prandtl','superheat','subcooling']:
             if k in units:
                 s+=k+' = '+str(getattr(self,k))+' '+units[k]+'\n'
             else:

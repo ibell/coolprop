@@ -27,7 +27,7 @@ MethaneClass::MethaneClass()
 
 	//Critical parameters
 	crit.rho = 162.66; //[kg/m^3]
-	crit.p = 4599.2; //[kPa]
+	crit.p = PressureUnit(4599.2,UNIT_KPA); //[kPa]
 	crit.T = 190.564; //[K]
 	crit.v = 1/crit.rho; 
 
@@ -97,7 +97,7 @@ double MethaneClass::rhosatV(double T)
 }
 double MethaneClass::psat(double T)
 {
-	double pc = reduce.p;
+	double pc = reduce.p.Pa;
 	double theta = 1-T/reduce.T;
 	double RHS,p;
 
@@ -427,7 +427,7 @@ double gamma [] =
 
 	//Critical parameters
 	crit.rho = 206.18; //[kg/m^3]
-	crit.p = 4872.2; //[kPa]
+	crit.p = PressureUnit(4872.2,UNIT_KPA); //[kPa]
 	crit.T = 305.322; //[K]
 	crit.v = 1/crit.rho; 
 
@@ -500,7 +500,7 @@ double EthaneClass::rhosatV(double T)
 }
 double EthaneClass::psat(double T)
 {
-	double pc = reduce.p;
+	double pc = reduce.p.Pa;
 	double theta = 1-T/reduce.T;
 	double RHS,p;
 
@@ -602,7 +602,7 @@ nButaneClass::nButaneClass()
 
 	//Critical parameters
 	crit.rho = 228; //[kg/m^3]
-	crit.p = 3796; //[kPa]
+	crit.p = PressureUnit(3796,UNIT_KPA); //[kPa]
 	crit.T = 425.125; //[K]
 	crit.v = 1/crit.rho; 
 
@@ -674,7 +674,7 @@ double nButaneClass::rhosatV(double T)
 }
 double nButaneClass::psat(double T)
 {
-	double pc = reduce.p;
+	double pc = reduce.p.Pa;
 	double theta = 1-T/reduce.T;
 	double RHS,p;
 
@@ -764,7 +764,7 @@ IsoButaneClass::IsoButaneClass()
 
 	//Critical parameters
 	crit.rho = 225.5; //[kg/m^3]
-	crit.p = 3629; //[kPa]
+	crit.p = PressureUnit(3629,UNIT_KPA); //[kPa]
 	crit.T = 407.817; //[K]
 	crit.v = 1/crit.rho; 
 
@@ -838,7 +838,7 @@ double IsoButaneClass::rhosatV(double T)
 }
 double IsoButaneClass::psat(double T)
 {
-	double pc = reduce.p;
+	double pc = reduce.p.Pa;
 	double theta = 1-T/reduce.T;
 	double RHS,p;
 
