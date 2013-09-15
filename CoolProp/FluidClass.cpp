@@ -1041,7 +1041,7 @@ double Fluid::density_Tp(double T, double p)
 
 double Fluid::density_Tp(double T, double p, double rho_guess)
 {
-    double delta,tau,dpdrho__constT,dpddelta__constT,error=999,R,p_EOS,rho,change=999;
+    double delta,tau,dpdrho__constT,error=999,R,p_EOS,rho,change=999;
 	double x1, x2, x3, y1, y2;
 
     R = params.R_u/params.molemass*1000; // SI units are used internally
@@ -1056,35 +1056,26 @@ double Fluid::density_Tp(double T, double p, double rho_guess)
 	rho=rho_guess;
     int iter=1;
 	
-	delta = rho/reduce.rho;
-	
     while (fabs(error) > 1e-10 && fabs(change)>1e-10)
     {
-		if (iter == 1){ x1 = delta;}
-		else if (iter > 1){ x2 = delta;}
-
+		delta = rho/reduce.rho;
 		// Needed for both kinds
 		// Run and save to cut down on calculations
 		double dphirdDelta = dphir_dDelta(tau, delta);
 		// Pressure from equation of state
-		p_EOS = delta*reduce.rho*R*T*(1+delta*dphirdDelta);
+		p_EOS = rho*R*T*(1+delta*dphirdDelta);
 		
 		// Residual
         error = p_EOS-p;
-
-		// Cache the error
-		if (iter ==1){ y1 = error;}
-		else{y2 = error;}
 		
-		if (iter == 1)
+		if (true)
 		{
 			// Use Newton's method to find the density since the derivative of pressure w.r.t. density is known from EOS
 			dpdrho__constT = R*T*(1+2*delta*dphirdDelta+delta*delta*d2phir_dDelta2(tau,delta));
-			dpddelta__constT = dpdrho__constT*reduce.rho;
 
 			// Update the step using Newton's method
-			delta -= -(p_EOS-p)/dpddelta__constT;
-			change = fabs((p_EOS-p)/dpddelta__constT);
+			rho -= (p_EOS-p)/dpdrho__constT;
+			change = fabs((p_EOS-p)/dpdrho__constT);
 		}
 		else
 		{
