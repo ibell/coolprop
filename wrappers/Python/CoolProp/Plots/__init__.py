@@ -72,16 +72,16 @@ def Ph(Ref, Tmin=None, Tmax=None, show=False, axis=None, *args, **kwargs):
 
     Examples
     --------
-    >>> from CoolProp.Plots import Ts
-    >>> Ts('R290', show=True)
+    >>> from CoolProp.Plots import Ph
+    >>> Ph('R290', show=True)
 
-    >>> from CoolProp.Plots import Ts
-    >>> Ts('R290', show=True, Tmin=200, Tmax=300)
+    >>> from CoolProp.Plots import Ph
+    >>> Ph('R290', show=True, Tmin=200, Tmax=300)
 
     >>> from matplotlib import pyplot
     >>> fig = pyplot.figure(1)
     >>> ax = fig.gca()
-    >>> Ts('R290', show=True, axis=ax)
+    >>> Ph('R290', show=True, axis=ax)
     """
     plt = PropsPlot(Ref, 'Ph', smin=Tmin, smax=Tmax)
     if show:
