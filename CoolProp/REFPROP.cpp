@@ -309,11 +309,8 @@ bool load_REFPROP()
 	{
 		// Load it
 		#if defined(__ISWINDOWS__)
-			#if defined(UNICODE)
-				RefpropdllInstance = LoadLibrary((LPCWSTR)"refprop.dll");
-			#else
-				RefpropdllInstance = LoadLibrary((LPCSTR)"refprop.dll");
-			#endif
+			TCHAR refpropdllstring[100] = TEXT("refprop.dll");
+			RefpropdllInstance = LoadLibrary(refpropdllstring);
 		#elif defined(__ISLINUX__)
 			RefpropdllInstance = dlopen ("librefprop.so", RTLD_LAZY);
 		#elif defined(__ISAPPLE__)
