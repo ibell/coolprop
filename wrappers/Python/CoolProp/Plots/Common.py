@@ -59,6 +59,8 @@ class BasePlot(object):
         self.graph_type = graph_type.upper()
 
         self.axis = kwargs.get('axis', matplotlib.pyplot.gca())
+        if self.axis is None:
+            self.axis = matplotlib.pyplot.gca()
 
 
     def __sat_bounds(self, kind, smin=None, smax=None):
