@@ -182,3 +182,10 @@ class BasePlot(object):
             sat_lines.append(line)
 
         return sat_lines
+
+    def _draw_graph(self):
+        pass
+
+    def show(self):
+        self._draw_graph()
+        matplotlib.pyplot.show()
