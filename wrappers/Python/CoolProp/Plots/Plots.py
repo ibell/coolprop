@@ -426,8 +426,8 @@ class PropsPlot(BasePlot):
         """
         BasePlot.__init__(self, fluid_ref, graph_type, **kwargs)
 
-        self.t_min = kwargs.get('t_min', None)
-        self.t_max = kwargs.get('t_max', None)
+        self.smin = kwargs.get('smin', None)
+        self.smax = kwargs.get('smax', None)
 
     def __set_axis_labels(self):
         if len(self.graph_type) == 2:
@@ -446,8 +446,8 @@ class PropsPlot(BasePlot):
 
     def __draw_region_lines(self):
         lines = self._get_sat_lines(kind='T',
-                                    smin=self.t_min,
-                                    smax=self.t_max)
+                                    smin=self.smin,
+                                    smax=self.smax)
         drawLines(self.fluid_ref, lines, self.axis)
 
     def __draw_graph(self):
@@ -465,7 +465,7 @@ class PropsPlot(BasePlot):
         self.axis.set_xlim([limits[0], limits[1]])
         self.axis.set_ylim([limits[2], limits[3]])
 
-    def axis(self):
+    def get_axis(self):
         self.__draw_graph()
         return self.axis
 
