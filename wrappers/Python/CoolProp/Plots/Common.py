@@ -18,7 +18,7 @@ class BasePlot(object):
                    'S': ["Entropy", r"[$kJ/kg K$]"],
                    'H': ["Enthalpy", r"[$kJ/kg$]"],
                    'V': [],
-                   'RHO': ["Density", r"[$kg/m^3$]"]}
+                   'D': ["Density", r"[$kg/m^3$]"]}
 
     COLOR_MAP = {'T': 'Darkred',
                  'P': 'DarkCyan',
@@ -59,6 +59,8 @@ class BasePlot(object):
         self.graph_type = graph_type.upper()
 
         self.axis = kwargs.get('axis', matplotlib.pyplot.gca())
+        if self.axis is None:
+            self.axis = matplotlib.pyplot.gca()
 
 
     def __sat_bounds(self, kind, smin=None, smax=None):
@@ -182,3 +184,10 @@ class BasePlot(object):
             sat_lines.append(line)
 
         return sat_lines
+
+    def _draw_graph(self):
+        pass
+
+    def show(self):
+        self._draw_graph()
+        matplotlib.pyplot.show()

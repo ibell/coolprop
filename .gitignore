@@ -1,7 +1,16 @@
+*~
 *.pyc
-/MSVC
-/Web/_build
+
+/dev/figs
+
 /wrappers/Python/build
+/wrappers/Python/CoolProp/*.o
+/wrappers/Excel/CoolProp_x64.dll
+/wrappers/Excel/CoolProp.dll
+
+/MSVC
+
+/Web/_build
 /Web/Fluids/1-Butene.rst
 /Web/Fluids/Acetone.rst
 /Web/Fluids/Air.rst
@@ -114,6 +123,3 @@
 /Web/Fluids/o-Xylene.rst
 /Web/Fluids/p-Xylene.rst
 /Web/Fluids/trans-2-Butene.rst
-/dev/figs
-/wrappers/Excel/CoolProp_x64.dll
-/wrappers/Excel/CoolProp.dll
