@@ -93,6 +93,222 @@ def Ph(Ref, Tmin=None, Tmax=None, show=False, axis=None, *args, **kwargs):
         plt._draw_graph()
     return plt.axis
 
+
+def Ps(Ref, Tmin=None, Tmax=None, show=False, axis=None, *args, **kwargs):
+    """
+    Make a pressure-entropy plot for the given fluid
+
+    :Note:
+        :func:`CoolProps.Plots.Ps` will be depreciated in future releases
+        and replaced with :func:`CoolProps.Plots.PropsPlot`
+
+    Parameters
+    -----------
+    Ref : str
+        The given reference fluid
+    Tmin : float, Optional
+        Minimum limit for the saturation line
+    Tmax : float, Optional
+        Maximum limit for the saturation line
+    show : bool, Optional
+        Show the current plot
+        (Default: False)
+    axis : :func:`matplotlib.pyplot.gca()`, Optional
+        The current axis system to be plotted to.
+        (Default: create a new axis system)
+
+    Examples
+    --------
+    >>> from CoolProp.Plots import Ps
+    >>> Ps('R290', show=True)
+
+    >>> from CoolProp.Plots import Ps
+    >>> Ps('R290', show=True, Tmin=200, Tmax=300)
+
+    >>> from matplotlib import pyplot
+    >>> fig = pyplot.figure(1)
+    >>> ax = fig.gca()
+    >>> Ps('R290', show=True, axis=ax)
+    """
+    plt = PropsPlot(Ref, 'Ps', smin=Tmin, smax=Tmax, axis=axis)
+    if show:
+        plt.show()
+    else:
+        plt._draw_graph()
+    return plt.axis
+
+def PT(Ref, Tmin=None, Tmax=None, show=False, axis=None, *args, **kwargs):
+    """
+    Make a pressure-temperature plot for the given fluid
+
+    :Note:
+        :func:`CoolProps.Plots.PT` will be depreciated in future releases
+        and replaced with :func:`CoolProps.Plots.PropsPlot`
+
+    Parameters
+    -----------
+    Ref : str
+        The given reference fluid
+    Tmin : float, Optional
+        Minimum limit for the saturation line
+    Tmax : float, Optional
+        Maximum limit for the saturation line
+    show : bool, Optional
+        Show the current plot
+        (Default: False)
+    axis : :func:`matplotlib.pyplot.gca()`, Optional
+        The current axis system to be plotted to.
+        (Default: create a new axis system)
+
+    Examples
+    --------
+    >>> from CoolProp.Plots import PT
+    >>> PT('R290', show=True)
+
+    >>> from CoolProp.Plots import PT
+    >>> PT('R290', show=True, Tmin=200, Tmax=300)
+
+    >>> from matplotlib import pyplot
+    >>> fig = pyplot.figure(1)
+    >>> ax = fig.gca()
+    >>> PT('R290', show=True, axis=ax)
+    """
+    plt = PropsPlot(Ref, 'PT', smin=Tmin, smax=Tmax, axis=axis)
+    if show:
+        plt.show()
+    else:
+        plt._draw_graph()
+    return plt.axis
+
+def Prho(Ref, Tmin=None, Tmax=None, show=False, axis=None, *args, **kwargs):
+    """
+    Make a pressure-density plot for the given fluid
+
+    :Note:
+        :func:`CoolProps.Plots.Prho` will be depreciated in future releases
+        and replaced with :func:`CoolProps.Plots.PropsPlot`
+
+    Parameters
+    -----------
+    Ref : str
+        The given reference fluid
+    Tmin : float, Optional
+        Minimum limit for the saturation line
+    Tmax : float, Optional
+        Maximum limit for the saturation line
+    show : bool, Optional
+        Show the current plot
+        (Default: False)
+    axis : :func:`matplotlib.pyplot.gca()`, Optional
+        The current axis system to be plotted to.
+        (Default: create a new axis system)
+
+    Examples
+    --------
+    >>> from CoolProp.Plots import Prho
+    >>> Prho('R290', show=True)
+
+    >>> from CoolProp.Plots import Prho
+    >>> Prho('R290', show=True, Tmin=200, Tmax=300)
+
+    >>> from matplotlib import pyplot
+    >>> fig = pyplot.figure(1)
+    >>> ax = fig.gca()
+    >>> Prho('R290', show=True, axis=ax)
+    """
+    plt = PropsPlot(Ref, 'PD', smin=Tmin, smax=Tmax, axis=axis)
+    if show:
+        plt.show()
+    else:
+        plt._draw_graph()
+    return plt.axis
+
+def Trho(Ref, Tmin=None, Tmax=None, show=False, axis=None, *args, **kwargs):
+    """
+    Make a temperature-density plot for the given fluid
+
+    :Note:
+        :func:`CoolProps.Plots.Trho` will be depreciated in future releases
+        and replaced with :func:`CoolProps.Plots.PropsPlot`
+
+    Parameters
+    -----------
+    Ref : str
+        The given reference fluid
+    Tmin : float, Optional
+        Minimum limit for the saturation line
+    Tmax : float, Optional
+        Maximum limit for the saturation line
+    show : bool, Optional
+        Show the current plot
+        (Default: False)
+    axis : :func:`matplotlib.pyplot.gca()`, Optional
+        The current axis system to be plotted to.
+        (Default: create a new axis system)
+
+    Examples
+    --------
+    >>> from CoolProp.Plots import Trho
+    >>> Trho('R290', show=True)
+
+    >>> from CoolProp.Plots import Trho
+    >>> Trho('R290', show=True, Tmin=200, Tmax=300)
+
+    >>> from matplotlib import pyplot
+    >>> fig = pyplot.figure(1)
+    >>> ax = fig.gca()
+    >>> Trho('R290', show=True, axis=ax)
+    """
+    plt = PropsPlot(Ref, 'TD', smin=Tmin, smax=Tmax, axis=axis)
+    if show:
+        plt.show()
+    else:
+        plt._draw_graph()
+    return plt.axis
+
+def hs(Ref, Tmin=None, Tmax=None, show=False, axis=None, *args, **kwargs):
+    """
+    Make a enthalpy-entropy plot for the given fluid
+
+    :Note:
+        :func:`CoolProps.Plots.hs` will be depreciated in future releases
+        and replaced with :func:`CoolProps.Plots.PropsPlot`
+
+    Parameters
+    -----------
+    Ref : str
+        The given reference fluid
+    Tmin : float, Optional
+        Minimum limit for the saturation line
+    Tmax : float, Optional
+        Maximum limit for the saturation line
+    show : bool, Optional
+        Show the current plot
+        (Default: False)
+    axis : :func:`matplotlib.pyplot.gca()`, Optional
+        The current axis system to be plotted to.
+        (Default: create a new axis system)
+
+    Examples
+    --------
+    >>> from CoolProp.Plots import hs
+    >>> hs('R290', show=True)
+
+    >>> from CoolProp.Plots import hs
+    >>> hs('R290', show=True, Tmin=200, Tmax=300)
+
+    >>> from matplotlib import pyplot
+    >>> fig = pyplot.figure(1)
+    >>> ax = fig.gca()
+    >>> hs('R290', show=True, axis=ax)
+    """
+    plt = PropsPlot(Ref, 'hs', smin=Tmin, smax=Tmax, axis=axis)
+    if show:
+        plt.show()
+    else:
+        plt._draw_graph()
+    return plt.axis
+
 def drawIsoLines(Ref, plot, which, iValues=[], num=0, show=False, axis=None):
     """
     Draw lines with constant values of type 'which' in terms of x and y as

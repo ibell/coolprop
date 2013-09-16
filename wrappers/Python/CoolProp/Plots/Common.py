@@ -18,7 +18,7 @@ class BasePlot(object):
                    'S': ["Entropy", r"[$kJ/kg K$]"],
                    'H': ["Enthalpy", r"[$kJ/kg$]"],
                    'V': [],
-                   'RHO': ["Density", r"[$kg/m^3$]"]}
+                   'D': ["Density", r"[$kg/m^3$]"]}
 
     COLOR_MAP = {'T': 'Darkred',
                  'P': 'DarkCyan',

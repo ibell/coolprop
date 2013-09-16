@@ -48,33 +48,89 @@ import pylab
 
 
 def test_back_compatibility():
+    fluid_ref = 'R290'
+
     def Ts_plot_tests():
         from CoolProp.Plots import Ts
-        Ts('R290', show=True)
+        Ts(fluid_ref, show=True)
 
         from matplotlib import pyplot
         fig = pyplot.figure(2)
         ax = fig.gca()
-        Ts('R290', show=True, axis=ax)
+        Ts(fluid_ref, show=True, axis=ax)
 
-        Ts('R290', show=True, Tmin=200, Tmax=300)
+        Ts(fluid_ref, show=True, Tmin=200, Tmax=300)
 
     def Ph_plot_tests():
         from CoolProp.Plots import Ph
-        Ph('R290', show=True)
+        Ph(fluid_ref, show=True)
 
         from matplotlib import pyplot
         fig = pyplot.figure(2)
         ax = fig.gca()
-        Ph('R290', show=True, axis=ax)
+        Ph(fluid_ref, show=True, axis=ax)
 
-        Ph('R290', show=True, Tmin=200, Tmax=300)
+        Ph(fluid_ref, show=True, Tmin=200, Tmax=300)
+
+    def PT_plot_tests():
+        from CoolProp.Plots import PT
+        PT(fluid_ref, show=True)
+
+        from matplotlib import pyplot
+        fig = pyplot.figure(2)
+        ax = fig.gca()
+        PT(fluid_ref, show=True, axis=ax)
+
+        PT(fluid_ref, show=True, Tmin=200, Tmax=300)
+
+    def Ps_plot_tests():
+        from CoolProp.Plots import Ps
+        Ps(fluid_ref, show=True)
+
+        from matplotlib import pyplot
+        fig = pyplot.figure(2)
+        ax = fig.gca()
+        Ps(fluid_ref, show=True, axis=ax)
+
+        Ps(fluid_ref, show=True, Tmin=200, Tmax=300)
+
+    def Prho_plot_tests():
+        from CoolProp.Plots import Prho
+        Prho(fluid_ref, show=True)
+
+        from matplotlib import pyplot
+        fig = pyplot.figure(2)
+        ax = fig.gca()
+        Prho(fluid_ref, show=True, axis=ax)
+
+        Prho(fluid_ref, show=True, Tmin=200, Tmax=300)
+
+    def Trho_plot_tests():
+        from CoolProp.Plots import Trho
+        Trho(fluid_ref, show=True)
+
+        from matplotlib import pyplot
+        fig = pyplot.figure(2)
+        ax = fig.gca()
+        Trho(fluid_ref, show=True, axis=ax)
+
+        Trho(fluid_ref, show=True, Tmin=200, Tmax=300)
+
+    def hs_plot_tests():
+        from CoolProp.Plots import hs
+        hs(fluid_ref, show=True)
+
+        from matplotlib import pyplot
+        fig = pyplot.figure(2)
+        ax = fig.gca()
+        hs(fluid_ref, show=True, axis=ax)
+
+        hs(fluid_ref, show=True, Tmin=200, Tmax=300)
 
     def Isolines_plot_tests():
         from matplotlib import pyplot
         from CoolProp.Plots import Ts, drawIsoLines
-        Ref = 'n-Pentane'
-        ax = Ts(Ref)
+        ax = Ts(fluid_ref)
         ax.set_xlim([-0.5, 1.5])
         ax.set_ylim([300, 530])
         quality = drawIsoLines(Ref, 'Ts', 'Q', [0.3, 0.5, 0.7, 0.8], axis=ax)
@@ -84,23 +140,30 @@ def test_back_compatibility():
 
     #Ts_plot_tests()
     #Ph_plot_tests()
-    Isolines_plot_tests()
+    #Ps_plot_tests()
+    #PT_plot_tests()
+    #Prho_plot_tests()
+    Trho_plot_tests()
+    #hs_plot_tests()
+    #Isolines_plot_tests()
 
 
 def test_new_code():
+    fluid_ref = 'Water'
+
     def Ts_plot_tests():
         from CoolProp.Plots import PropsPlot
-        plt = PropsPlot('R290', 'Ts')
+        plt = PropsPlot(fluid_ref, 'Ts')
         plt.show()
 
     def Ph_plot_tests():
         from CoolProp.Plots import PropsPlot
-        plt = PropsPlot('R290', 'Ph')
+        plt = PropsPlot(fluid_ref, 'Ph')
         plt.show()
 
     def Isolines_plot_tests():
         from CoolProp.Plots import PropsPlot
-        plt = PropsPlot('n-Pentane', 'Ts')
+        plt = PropsPlot(fluid_ref, 'Ts')
         plt.set_axis_limits([-0.5, 1.5, 300, 530])
         plt.draw_isolines('Q', [0.3, 0.5, 0.7, 0.8])
         plt.draw_isolines('P', [100, 2000], num=5)
@@ -109,7 +172,7 @@ def test_new_code():
 
     #Ts_plot_tests()
     #Ph_plot_tests()
-    Isolines_plot_tests()
+    #Isolines_plot_tests()
 
 
 if __name__=='__main__':
