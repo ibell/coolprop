@@ -47,7 +47,7 @@ import pylab
 #    #pylab.show()
 
 
-def test_back_compatability():
+def test_back_compatibility():
     def Ts_plot_tests():
         from CoolProp.Plots import Ts
         Ts('R290', show=True)
@@ -70,8 +70,46 @@ def test_back_compatability():
 
         Ph('R290', show=True, Tmin=200, Tmax=300)
 
+    def Isolines_plot_tests():
+        from matplotlib import pyplot
+        from CoolProp.Plots import Ts, drawIsoLines
+        Ref = 'n-Pentane'
+        ax = Ts(Ref)
+        ax.set_xlim([-0.5, 1.5])
+        ax.set_ylim([300, 530])
+        quality = drawIsoLines(Ref, 'Ts', 'Q', [0.3, 0.5, 0.7, 0.8], axis=ax)
+        isobars = drawIsoLines(Ref, 'Ts', 'P', [100, 2000], num=5, axis=ax)
+        isochores = drawIsoLines(Ref, 'Ts', 'D', [2, 600], num=7, axis=ax)
+        pyplot.show()
+
     #Ts_plot_tests()
-    Ph_plot_tests()
+    #Ph_plot_tests()
+    Isolines_plot_tests()
+
+
+def test_new_code():
+    def Ts_plot_tests():
+        from CoolProp.Plots import PropsPlot
+        plt = PropsPlot('R290', 'Ts')
+        plt.show()
+
+    def Ph_plot_tests():
+        from CoolProp.Plots import PropsPlot
+        plt = PropsPlot('R290', 'Ph')
+        plt.show()
+
+    def Isolines_plot_tests():
+        from CoolProp.Plots import PropsPlot
+        plt = PropsPlot('n-Pentane', 'Ts')
+        plt.set_axis_limits([-0.5, 1.5, 300, 530])
+        plt.draw_isolines('Q', [0.3, 0.5, 0.7, 0.8])
+        plt.draw_isolines('P', [100, 2000], num=5)
+        plt.draw_isolines('D', [2, 600], num=7)
+        plt.show()
+
+    #Ts_plot_tests()
+    #Ph_plot_tests()
+    Isolines_plot_tests()
 
 
 if __name__=='__main__':
