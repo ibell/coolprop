@@ -378,7 +378,7 @@ class IsoLines(BasePlot):
 
         if self.iso_type != 'all':
             lines = self.get_isolines(iso_range, num)
-            drawLines(self.fluid_ref, lines, self.axis)
+            return drawLines(self.fluid_ref, lines, self.axis)
         #else:
         #    # TODO: assign limits to values automatically
         #    ll = _getIsoLineIds(plot)
@@ -386,7 +386,6 @@ class IsoLines(BasePlot):
         #        raise ValueError('Please provide a properly sized array of bounds.')
         #    for c,l in enumerate(ll):
         #        drawIsoLines(Ref, plot, l, iValues=iValues[c], num=num, axis=axis, fig=fig)
-
 
 
 class PropsPlot(BasePlot):
