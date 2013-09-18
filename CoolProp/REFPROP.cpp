@@ -541,7 +541,7 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 	
 	double TL, TV, dummy;
 	double T,p=0,d,dl,dv,q,e,h,s,cv,cp,w,MW,hl,hv,sl,sv,ul,
-		uv,pl,pv,hjt,eta,tcx,Q,Tcrit,pcrit,dcrit,rho,sigma;
+		uv,pl,pv,hjt,eta,tcx,Q,Tcrit,pcrit,dcrit,sigma;
 
 	// First create a pointer to an instance of the library
 	load_REFPROP();
@@ -664,10 +664,10 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 			if (iName2 == iT){
 				std::swap(Prop1,Prop2);
 			}
-			T = Prop1; rho = Prop2/MW;
+			T = Prop1; d = Prop2/MW;
 			
 			// This is the explicit formulation of the EOS
-			TDFLSHdll(&T,&rho,&(x[0]),&p,&dl,&dv,xliq,xvap,&q,&e,&h,&s,&cv,&cp,&w,&ierr,herr,errormessagelength); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
+			TDFLSHdll(&T,&d,&(x[0]),&p,&dl,&dv,xliq,xvap,&q,&e,&h,&s,&cv,&cp,&w,&ierr,herr,errormessagelength); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
 		}
 		else if ((iName1==iP && iName2==iH) || (iName2==iP && iName1==iH))
 		{
@@ -718,8 +718,8 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 		// Get the output parameter and convert it to SI units
 		switch (iOutput)
 		{
-		case iP: output_val = p*1000; break;
 		case iT: output_val = T; break;
+		case iP: output_val = p*1000; break;
 		case iH: output_val = h/MW*1000; break;
 		case iD: output_val = d*MW; break;
 		case iS: output_val = s/MW*1000; break;
@@ -776,7 +776,6 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 			T = (TV*Q+TL*(1-Q));
 		}
 
-
 		if (iOutput == iT)
 		{
 			output_val = (TV*Q+TL*(1-Q));
@@ -791,9 +790,8 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 		}
 		else if (iOutput==iA)
 		{
-			rho=1/(Q/dv+(1-Q)/dl);
-			
-			THERMdll(&T,&rho,&(x[0]),&p,&e,&h,&s,&cv,&cp,&w,&hjt); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
+			d=1/(Q/dv+(1-Q)/dl);
+			THERMdll(&T,&d,&(x[0]),&p,&e,&h,&s,&cv,&cp,&w,&hjt); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
 			output_val = w;
 		}
 		else if (iOutput==iH) 
