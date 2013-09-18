@@ -791,6 +791,7 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 		else if (iOutput==iA)
 		{
 			rho=1/(Q/dv+(1-Q)/dl);
+			T = (TV*Q+TL*(1-Q));
 			THERMdll(&T,&rho,&(x[0]),&p,&e,&h,&s,&cv,&cp,&w,&hjt); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
 			output_val = w;
 		}
@@ -818,24 +819,28 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 		else if (iOutput==iC) 
 		{
 			d=1/(Q/dv+(1-Q)/dl);
+			T = (TV*Q+TL*(1-Q));
 			CVCPdll(&T,&d,&(x[0]),&cv,&cp); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
 			output_val = cp/MW*1000; // kJ/kg-K to J/kg-K
 		}
 		else if (iOutput==iO) 
 		{
 			d=1/(Q/dv+(1-Q)/dl);
+			T = (TV*Q+TL*(1-Q));
 			CVCPdll(&T,&d,&(x[0]),&cv,&cp); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
 			output_val = cv/MW*1000; // kJ/kg-K to J/kg-K
 		}
 		else if (iOutput==iV) 
 		{
 			d=1/(Q/dv+(1-Q)/dl);
+			T = (TV*Q+TL*(1-Q));
 			TRNPRPdll(&T,&d,&(x[0]),&eta,&tcx,&ierr,herr,errormessagelength); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
 			output_val = eta/1.0e6; //uPa-s to Pa-s
 		}
 		else if (iOutput==iL) 
 		{
 			d=1/(Q/dv+(1-Q)/dl);
+			T = (TV*Q+TL*(1-Q));
 			TRNPRPdll(&T,&d,&(x[0]),&eta,&tcx,&ierr,herr,errormessagelength); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
 			output_val = tcx;
 		}
