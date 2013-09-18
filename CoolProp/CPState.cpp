@@ -334,7 +334,7 @@ void CoolPropStateClassSI::update_twophase(long iInput1, double Value1, long iIn
 			rhosatL = pFluid->density_Tp(TsatL, psatL, pFluid->rhosatL(TsatL));
 			rhosatV = pFluid->density_Tp(TsatV, psatV, pFluid->rhosatV(TsatV));
 			}
-			catch (std::exception){
+			catch (std::exception &){
 				// Near the critical point, the behavior is not very nice, so we will just use the ancillary near the critical point
 				rhosatL = pFluid->rhosatL(TsatL);
 				rhosatV = pFluid->rhosatV(TsatV);
@@ -1190,17 +1190,32 @@ double CoolPropStateClassSI::cv(void){
 	{
 		if (TwoPhase && _Q>0 && _Q < 1)
 		{
-			return -1;
-//
-//			double sL = pFluid->TTSESatL.evaluate(iS,_p);
-//			double sV = pFluid->TTSESatV.evaluate(iS,_p);
-//			double dsdTL = dsdp_along_sat_liquid();
-//			double dsdTV = dsdp_along_sat_vapor();
-//			double dvdTL = -drhodT_along_sat_liquid()/rhosatL/rhosatL;
-//			double dvdTV = -drhodT_along_sat_vapor()/rhosatV/rhosatV;
-//			double dxdT_v = (_Q*dvdTV + (1-_Q)*dvdTL)/(1/rhosatL-1/rhosatV);
-//			double Tsat = (TsatV - TsatL) * _Q + TsatL;
-//			return Tsat*dsdTL + Tsat*dxdT_v*(sV()-sL()) + _Q*Tsat*(dsdTV - dsdTL);
+			double sL   = pFluid->TTSESatL.evaluate(iS,_p);
+			double sV   = pFluid->TTSESatV.evaluate(iS,_p);
+			double rhoL = pFluid->TTSESatL.evaluate(iD,_p);
+			double rhoV = pFluid->TTSESatV.evaluate(iD,_p);
+			double TL   = pFluid->TTSESatL.evaluate(iT,_p);
+			double TV   = pFluid->TTSESatV.evaluate(iT,_p);
+
+
+			//double dsdTL = pFluid->TTSESatL.evaluate_sat_derivative(iS,_p);
+			//double dsdTV = pFluid->TTSESatV.evaluate_sat_derivative(iS,_p);
+			//double dsdTV = cpL()/TsatL + SatL->isobaric_expansion_coefficient()/rhosatL / dTdp_along_sat();
+			//double dsdTV = cpL()/TsatL + SatV->isobaric_expansion_coefficient()/rhosatV / dTdp_along_sat();
+
+			double dsdTL = pFluid->TTSESatL.evaluate_sat_derivative(iS,_p)/pFluid->TTSESatL.evaluate_sat_derivative(iT,_p);
+			double dsdTV = pFluid->TTSESatV.evaluate_sat_derivative(iS,_p)/pFluid->TTSESatV.evaluate_sat_derivative(iT,_p);
+
+			double drhodTL = pFluid->TTSESatL.evaluate_sat_derivative(iD,_p)/pFluid->TTSESatL.evaluate_sat_derivative(iT,_p);
+			double drhodTV = pFluid->TTSESatV.evaluate_sat_derivative(iD,_p)/pFluid->TTSESatV.evaluate_sat_derivative(iT,_p);
+
+			double dvdTL = -drhodTL/rhoL/rhoL;
+			double dvdTV = -drhodTV/rhoV/rhoV;
+
+			double dxdT_v = (_Q*dvdTV + (1-_Q)*dvdTL)/(1/rhoL-1/rhoV);
+			double Tsat = (TV - TL) * _Q + TL;
+
+			return Tsat*dsdTL + Tsat*dxdT_v*(sV-sL) + _Q*Tsat*(dsdTV - dsdTL);
 		}
 		else
 		{
@@ -1213,26 +1228,6 @@ double CoolPropStateClassSI::cv(void){
 	{
 		if (TwoPhase)
 		{
-//		 //analytical derivatives of u wrt T at constant v (that is cv - compare to dudt_v_num and cv from e.g. FluidProp)
-//		 //From Matthis paper
-//		  cv_new = sat.Tsat*dsldT + sat.Tsat*dxdT_v*(state_v.s-state_l.s) + x*sat.Tsat*(dsvdT - dsldT);
-//		 //From triple product rule (Matthis paper) and bridgeman table...
-//		  dsldT = state_l.cp/sat.Tsat - state_l.beta/state_l.d * sat.dTp^(-1);
-//		  dsvdT = state_v.cp/sat.Tsat - state_v.beta/state_v.d * sat.dTp^(-1);
-//		 //easy
-//		  x = (1/d-1/sat.dl)/(1/sat.dv-1/sat.dl);
-//		 //From Matthis paper
-//		  dxdT_v = (x*dvvdT + (1-x)*dvldT)/(1/state_l.d-1/state_v.d);
-//		 //From triple product rule (Matthis paper) and bridgeman table...
-//		  dvldT = state_l.beta/state_l.d - state_l.kappa/state_l.d * sat.dTp^(-1);
-//		  dvvdT = state_v.beta/state_v.d - state_v.kappa/state_v.d * sat.dTp^(-1);
-//		 //check dxdT_v_num
-//		  sat1 = Medium.setSat_T(sat.Tsat+0.001);
-//		  x1 = (1/d-1/sat1.dl)/(1/sat1.dv-1/sat1.dl);
-//		  dxdT_v_num = (x1-x)/0.001;
-//		 //numerical derivative for cv..
-//		  dudT_v_num = (Medium.specificInternalEnergy(Medium.setState_dTX(d,T+0.1,Medium.X_default)) - Medium.specificInternalEnergy(state))/0.1;
-//
 			double dsdTL = dsdT_along_sat_liquid();
 			double dsdTV = dsdT_along_sat_vapor();
 			double dvdTL = -drhodT_along_sat_liquid()/rhosatL/rhosatL;

@@ -559,6 +559,9 @@ public:
 	double d2sdp2_along_sat_vapor(void){return CoolPropStateClassSI::d2sdp2_along_sat_vapor()*conversion_factor("S*S/P/P");};
 	double d2sdp2_along_sat_liquid(void){return CoolPropStateClassSI::d2sdp2_along_sat_liquid()*conversion_factor("S*S/P/P");};
 
+	double dsdT_along_sat_vapor(void){return CoolPropStateClassSI::dsdT_along_sat_vapor()*conversion_factor("S/T");};
+	double dsdT_along_sat_liquid(void){return CoolPropStateClassSI::dsdT_along_sat_liquid()*conversion_factor("S/T");};
+
 	double drhodp_along_sat_vapor(void){return CoolPropStateClassSI::drhodp_along_sat_vapor()*conversion_factor("D/P");};
 	double drhodp_along_sat_liquid(void){return CoolPropStateClassSI::drhodp_along_sat_liquid()*conversion_factor("D/P");};
 	double d2rhodp2_along_sat_vapor(void){return CoolPropStateClassSI::d2rhodp2_along_sat_vapor()*conversion_factor("D*D/P/P");};
