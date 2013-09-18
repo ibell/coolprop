@@ -335,6 +335,9 @@ public:
 	double d2sdp2_along_sat_vapor(void);
 	double d2sdp2_along_sat_liquid(void);
 
+	double dsdT_along_sat_vapor(void);
+	double dsdT_along_sat_liquid(void);
+
 	double drhodp_along_sat_vapor(void);
 	double drhodp_along_sat_liquid(void);
 	double d2rhodp2_along_sat_vapor(void);

@@ -1191,6 +1191,16 @@ double CoolPropStateClassSI::cv(void){
 		if (TwoPhase && _Q>0 && _Q < 1)
 		{
 			return -1;
+//
+//			double sL = pFluid->TTSESatL.evaluate(iS,_p);
+//			double sV = pFluid->TTSESatV.evaluate(iS,_p);
+//			double dsdTL = dsdp_along_sat_liquid();
+//			double dsdTV = dsdp_along_sat_vapor();
+//			double dvdTL = -drhodT_along_sat_liquid()/rhosatL/rhosatL;
+//			double dvdTV = -drhodT_along_sat_vapor()/rhosatV/rhosatV;
+//			double dxdT_v = (_Q*dvdTV + (1-_Q)*dvdTL)/(1/rhosatL-1/rhosatV);
+//			double Tsat = (TsatV - TsatL) * _Q + TsatL;
+//			return Tsat*dsdTL + Tsat*dxdT_v*(sV()-sL()) + _Q*Tsat*(dsdTV - dsdTL);
 		}
 		else
 		{
@@ -1201,7 +1211,40 @@ double CoolPropStateClassSI::cv(void){
 	}
 	else
 	{
-		return -pFluid->R()*pow(tau,2)*(d2phi0_dTau2(tau,delta)+d2phir_dTau2(tau,delta)); //[J/kg/K]
+		if (TwoPhase)
+		{
+//		 //analytical derivatives of u wrt T at constant v (that is cv - compare to dudt_v_num and cv from e.g. FluidProp)
+//		 //From Matthis paper
+//		  cv_new = sat.Tsat*dsldT + sat.Tsat*dxdT_v*(state_v.s-state_l.s) + x*sat.Tsat*(dsvdT - dsldT);
+//		 //From triple product rule (Matthis paper) and bridgeman table...
+//		  dsldT = state_l.cp/sat.Tsat - state_l.beta/state_l.d * sat.dTp^(-1);
+//		  dsvdT = state_v.cp/sat.Tsat - state_v.beta/state_v.d * sat.dTp^(-1);
+//		 //easy
+//		  x = (1/d-1/sat.dl)/(1/sat.dv-1/sat.dl);
+//		 //From Matthis paper
+//		  dxdT_v = (x*dvvdT + (1-x)*dvldT)/(1/state_l.d-1/state_v.d);
+//		 //From triple product rule (Matthis paper) and bridgeman table...
+//		  dvldT = state_l.beta/state_l.d - state_l.kappa/state_l.d * sat.dTp^(-1);
+//		  dvvdT = state_v.beta/state_v.d - state_v.kappa/state_v.d * sat.dTp^(-1);
+//		 //check dxdT_v_num
+//		  sat1 = Medium.setSat_T(sat.Tsat+0.001);
+//		  x1 = (1/d-1/sat1.dl)/(1/sat1.dv-1/sat1.dl);
+//		  dxdT_v_num = (x1-x)/0.001;
+//		 //numerical derivative for cv..
+//		  dudT_v_num = (Medium.specificInternalEnergy(Medium.setState_dTX(d,T+0.1,Medium.X_default)) - Medium.specificInternalEnergy(state))/0.1;
+//
+			double dsdTL = dsdT_along_sat_liquid();
+			double dsdTV = dsdT_along_sat_vapor();
+			double dvdTL = -drhodT_along_sat_liquid()/rhosatL/rhosatL;
+			double dvdTV = -drhodT_along_sat_vapor()/rhosatV/rhosatV;
+			double dxdT_v = (_Q*dvdTV + (1-_Q)*dvdTL)/(1/rhosatL-1/rhosatV);
+			double Tsat = (TsatV - TsatL) * _Q + TsatL;
+			return Tsat*dsdTL + Tsat*dxdT_v*(sV()-sL()) + _Q*Tsat*(dsdTV - dsdTL);
+		}
+		else
+		{
+			return -pFluid->R()*pow(tau,2)*(d2phi0_dTau2(tau,delta)+d2phir_dTau2(tau,delta)); //[J/kg/K]
+		}
 	}
 }
 double CoolPropStateClassSI::speed_sound(void){
@@ -1209,8 +1252,19 @@ double CoolPropStateClassSI::speed_sound(void){
 	{
 		if (TwoPhase && _Q>0 && _Q < 1)
 		{
-			// Not defined for two-phase
-			return -1;
+			double sL = pFluid->TTSESatL.evaluate(iS,_p);
+			double sV = pFluid->TTSESatV.evaluate(iS,_p);
+			double rhoL = pFluid->TTSESatL.evaluate(iD,_p);
+			double rhoV = pFluid->TTSESatV.evaluate(iD,_p);
+			//
+			double dsdpL = pFluid->TTSESatL.evaluate_sat_derivative(iS,_p);
+			double dsdpV = pFluid->TTSESatV.evaluate_sat_derivative(iS,_p);
+			double dvdpL = -pFluid->TTSESatL.evaluate_sat_derivative(iD,_p)/rhoL/rhoL;
+			double dvdpV = -pFluid->TTSESatV.evaluate_sat_derivative(iD,_p)/rhoV/rhoV;
+			//
+			double dxdp_s = (-_Q*(dsdpV-dsdpL) - dsdpL)/(sV-sL);
+			double dddp_s = -pow(_rho,2)*(dvdpL  + dxdp_s*(1/rhoV - 1/rhoL) + _Q*(dvdpV-dvdpL));
+			return pow(1.0/dddp_s,0.5);
 		}
 		else
 		{
@@ -1225,11 +1279,25 @@ double CoolPropStateClassSI::speed_sound(void){
 			return 1/sqrt((drhodp__h-drhodh__p*dsdp__h/dsdh__p)/1000);
 		}
 	}
-	else
-	{
-		double c1 = pow(tau,2)*(d2phi0_dTau2(tau,delta)+d2phir_dTau2(tau,delta));
-		double c2 = (1.0+2.0*delta*dphir_dDelta(tau,delta)+pow(delta,2)*d2phir_dDelta2(tau,delta));
-		return sqrt(-c2*this->_T*this->cp()/c1);
+	else {
+		if (TwoPhase) {
+			//double dvldp = state_l.beta/state_l.d * sat.dTp - state_l.kappa/state_l.d;
+			double dvdpL = -drhodp_along_sat_liquid()/rhosatL/rhosatL;
+			//double dvvdp = state_v.beta/state_v.d * sat.dTp - state_v.kappa/state_v.d;
+			double dvdpV = -drhodp_along_sat_vapor()/rhosatV/rhosatV;
+			//double dsldp = -state_l.beta/state_l.d + state_l.cp/sat.Tsat * sat.dTp;
+			double dsdpL = dsdp_along_sat_liquid();
+			//double dsvdp = -state_v.beta/state_v.d + state_v.cp/sat.Tsat * sat.dTp;
+			double dsdpV = dsdp_along_sat_vapor();
+			//
+			double dxdp_s = (-_Q*(dsdpV-dsdpL) - dsdpL)/(sV()-sL());
+			double dddp_s = -pow(_rho,2)*(dvdpL  + dxdp_s*(1/rhosatV - 1/rhosatL) + _Q*(dvdpV-dvdpL));
+			return pow(1.0/dddp_s,0.5);
+		} else {
+			double c1 = pow(tau,2)*(d2phi0_dTau2(tau,delta)+d2phir_dTau2(tau,delta));
+			double c2 = (1.0+2.0*delta*dphir_dDelta(tau,delta)+pow(delta,2)*d2phir_dDelta2(tau,delta));
+			return sqrt(-c2*this->_T*this->cp()/c1);
+		}
 	}
 }
 
@@ -1783,6 +1851,17 @@ double CoolPropStateClassSI::d2sdp2_along_sat_liquid(void)
 	double ddp_dsdpsigmaL = SatL->d2sdp2_constT()+SatL->dsdT_constp()*ddp_dTdp_along_sat()+SatL->d2sdTdp()*dTdp_along_sat();
 	double ddT_dsdpsigmaL = SatL->d2sdTdp()+SatL->dsdT_constp()*ddT_dTdp_along_sat()+SatL->d2sdT2_constp()*dTdp_along_sat();
 	return ddp_dsdpsigmaL+ddT_dsdpsigmaL*dTdp_along_sat();
+}
+
+double CoolPropStateClassSI::dsdT_along_sat_liquid(void)
+{
+	if (!TwoPhase){throw ValueError(format("Saturation derivative cannot be called now.  Call update() with a two-phase set of inputs"));}
+	return SatL->dsdT_constp()+SatL->dsdp_constT()/dTdp_along_sat();
+}
+double CoolPropStateClassSI::dsdT_along_sat_vapor(void)
+{
+	if (!TwoPhase){throw ValueError(format("Saturation derivative cannot be called now.  Call update() with a two-phase set of inputs"));}
+	return SatV->dsdT_constp()+SatV->dsdp_constT()/dTdp_along_sat();
 }
 
 double CoolPropStateClassSI::drhodp_along_sat_vapor(void)
