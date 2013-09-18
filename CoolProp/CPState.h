@@ -255,13 +255,8 @@ public:
 
 	/// Evaluate the B term from TTSE method
 	double B_TTSE(double _p, double _h);
-	/// Evaluate the D term from TTSE method
-	double D_TTSE(double _p, double _h);
 	/// Get the ratio directly which is just a bit faster
 	double B_over_D_TTSE(double _p, double _h);
-
-	/// Interpolate within the TTSE LUT
-	double interpolate_in_TTSE_LUT(long iParam, long iInput1, double Input1, long iInput2, double Input2);
 
 	// ----------------------------------------	
 	// Derivatives of properties
