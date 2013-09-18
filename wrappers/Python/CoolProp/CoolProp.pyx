@@ -1187,7 +1187,10 @@ cdef class State:
             return self.cp * self.visc / self.k
             
     cpdef double get_dpdT(self) except *:
-        return self.Props(iDpdT)
+        if self.is_CPFluid:
+            return self.PFC.dpdT_constrho()
+        else:
+            raise ValueError("get_dpdT not supported for fluids that are not in CoolProp")
     property dpdT:
         def __get__(self):
             return self.get_dpdT()

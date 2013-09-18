@@ -338,3 +338,5 @@ cdef class PureFluidClass:
 
     cpdef double drhodT_along_sat_vapor(self)
     cpdef double drhodT_along_sat_liquid(self)
+    
+    cpdef double dpdT_constrho(self)

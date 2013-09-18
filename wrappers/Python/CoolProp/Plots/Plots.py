@@ -378,7 +378,7 @@ class IsoLines(BasePlot):
 
         if self.iso_type != 'all':
             lines = self.get_isolines(iso_range, num)
-            drawLines(self.fluid_ref, lines, self.axis)
+            return drawLines(self.fluid_ref, lines, self.axis)
         #else:
         #    # TODO: assign limits to values automatically
         #    ll = _getIsoLineIds(plot)
@@ -388,8 +388,7 @@ class IsoLines(BasePlot):
         #        drawIsoLines(Ref, plot, l, iValues=iValues[c], num=num, axis=axis, fig=fig)
 
 
-
-class Graph(BasePlot):
+class PropsPlot(BasePlot):
     def __init__(self, fluid_ref, graph_type, **kwargs):
         """
         Create graph for the specified fluid properties
@@ -401,14 +400,23 @@ class Graph(BasePlot):
         graph_type : str
             The graph type to be plotted
         axis : :func:`matplotlib.pyplot.gca()`, Optional
-            TODO
+            The current axis system to be plotted to.
+            Default: create a new axis system
         fig : :func:`matplotlib.pyplot.figure()`, Optional
-            TODO
+            The current figure to be plotted to.
+            Default: create a new figure
 
         Examples
         ---------
-        >>> graph = Graph('Water', 'Ph')
-        >>> graph.show()
+        >>> plt = PropsPlot('Water', 'Ph')
+        >>> plt.show()
+
+        >>> plt = PropsPlot('n-Pentane', 'Ts')
+        >>> plt.set_axis_limits([-0.5, 1.5, 300, 530])
+        >>> plt.draw_isolines('Q', [0.1, 0.9])
+        >>> plt.draw_isolines('P', [100, 2000])
+        >>> plt.draw_isolines('D', [2, 600])
+        >>> plt.show()
 
         .. note::
 
@@ -417,8 +425,8 @@ class Graph(BasePlot):
         """
         BasePlot.__init__(self, fluid_ref, graph_type, **kwargs)
 
-        self.t_min = kwargs.get('t_min', None)
-        self.t_max = kwargs.get('t_max', None)
+        self.smin = kwargs.get('smin', None)
+        self.smax = kwargs.get('smax', None)
 
     def __set_axis_labels(self):
         if len(self.graph_type) == 2:
@@ -437,11 +445,11 @@ class Graph(BasePlot):
 
     def __draw_region_lines(self):
         lines = self._get_sat_lines(kind='T',
-                                    smin=self.t_min,
-                                    smax=self.t_max)
+                                    smin=self.smin,
+                                    smax=self.smax)
         drawLines(self.fluid_ref, lines, self.axis)
 
-    def __draw_graph(self):
+    def _draw_graph(self):
         self.__draw_region_lines()
         self.__set_axis_labels()
 
@@ -455,11 +463,3 @@ class Graph(BasePlot):
     def set_axis_limits(self, limits):
         self.axis.set_xlim([limits[0], limits[1]])
         self.axis.set_ylim([limits[2], limits[3]])
-
-    def axis(self):
-        self.__draw_graph()
-        return self.axis
-
-    def show(self):
-        self.__draw_graph()
-        matplotlib.pyplot.show()

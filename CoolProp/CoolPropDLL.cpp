@@ -100,10 +100,10 @@ EXPORT_CODE long CONVENTION get_Fluid_index(char * param)
 {
 	return get_Fluid_index(std::string(param));
 }
-EXPORT_CODE void CONVENTION get_index_units(long param, char * units)
+EXPORT_CODE long CONVENTION get_index_units(long param, char * units)
 {
 	strcpy(units, (char*)get_index_units(param).c_str());
-	return;
+	return 0;
 }
 EXPORT_CODE int CONVENTION set_TTSE_mode(char* fluid, char *value)
 {
@@ -285,9 +285,16 @@ EXPORT_CODE double CONVENTION psatV_anc(char* FluidName, double T)
 	}
 }
 
-EXPORT_CODE void CONVENTION Phase(char *Fluid,double T, double p, char *Phase_str)
+EXPORT_CODE long CONVENTION get_global_param_string(char *param, char * Output)
+{
+	strcpy(Output,get_global_param_string(std::string(param)).c_str());
+	return 0;
+}
+
+EXPORT_CODE long CONVENTION Phase(char *Fluid,double T, double p, char *Phase_str)
 {
 	strcpy(Phase_str,(char*)Phase(std::string(Fluid),T,p).c_str());
+	return 0;
 }
 EXPORT_CODE long CONVENTION Phase_Tp(char *Fluid,double T, double p, char *Phase_str)
 {

@@ -105,3 +105,7 @@ cdef class PureFluidClass:
         return self.CPS.drhodT_along_sat_vapor()
     cpdef double drhodT_along_sat_liquid(self) except *:
         return self.CPS.drhodT_along_sat_liquid()
+        
+    cpdef double dpdT_constrho(self) except *:
+        return self.CPS.dpdT_constrho()
+        
