@@ -32,6 +32,8 @@
 	
 	EXPORT_CODE double CONVENTION Props(char *Output,char Name1, double Prop1, char Name2, double Prop2, char * Ref);
 	EXPORT_CODE double CONVENTION Props1(char *Ref, char * Output);
+
+	EXPORT_CODE long CONVENTION get_global_param_string(char *param, char * Output);
 	
 	// This version uses the indices in place of the strings for speed.  Get the parameter indices
 	// from get_param_index('D') for instance and the Fluid index from get_Fluid_index('Air') for instance
@@ -40,7 +42,7 @@
 	// Convenience functions
 	EXPORT_CODE int CONVENTION IsFluidType(char *Ref, char *Type);
 	EXPORT_CODE double CONVENTION DerivTerms(char *Term, double T, double rho, char * Ref);
-	EXPORT_CODE void CONVENTION Phase(char *Fluid, double T, double p, char *Phase_str);
+	EXPORT_CODE long CONVENTION Phase(char *Fluid, double T, double p, char *Phase_str);
 	EXPORT_CODE long CONVENTION Phase_Trho(char *Fluid, double T, double p, char *Phase_str);
 	EXPORT_CODE long CONVENTION Phase_Tp(char *Fluid, double T, double rho, char *Phase_str);
 	EXPORT_CODE void CONVENTION set_phase(char *Phase_str);
@@ -49,7 +51,7 @@
 	
 	EXPORT_CODE long CONVENTION get_param_index(char * param);
 	EXPORT_CODE long CONVENTION get_Fluid_index(char * param);
-	EXPORT_CODE void CONVENTION get_index_units(long param, char * units);
+	EXPORT_CODE long CONVENTION get_index_units(long param, char * units);
 
 	/*EXPORT_CODE int CONVENTION get_debug_level();
 	EXPORT_CODE void CONVENTION set_debug_level(int level);*/
