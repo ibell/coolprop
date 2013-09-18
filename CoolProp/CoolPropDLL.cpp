@@ -291,6 +291,12 @@ EXPORT_CODE long CONVENTION get_global_param_string(char *param, char * Output)
 	return 0;
 }
 
+EXPORT_CODE long CONVENTION get_fluid_param_string(char *fluid, char *param, char * Output)
+{
+	strcpy(Output, get_fluid_param_string(std::string(fluid), std::string(param)).c_str());
+	return 0;
+}
+
 EXPORT_CODE long CONVENTION Phase(char *Fluid,double T, double p, char *Phase_str)
 {
 	strcpy(Phase_str,(char*)Phase(std::string(Fluid),T,p).c_str());
