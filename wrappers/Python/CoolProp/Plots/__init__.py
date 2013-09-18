@@ -10,7 +10,7 @@ def Ts(Ref, Tmin=None, Tmax=None, show=False, axis=None, *args, **kwargs):
     Make a temperature-entropy plot for the given fluid
 
     :Note:
-        :func:`CoolProps.Plots.Ts` will be depreciated in future releases
+        :func:`CoolProps.Plots.Ts` will be deprecated in future releases
         and replaced with :func:`CoolProps.Plots.PropsPlot`
 
     Parameters
@@ -55,7 +55,7 @@ def Ph(Ref, Tmin=None, Tmax=None, show=False, axis=None, *args, **kwargs):
     Make a pressure-enthalpy plot for the given fluid
 
     :Note:
-        :func:`CoolProps.Plots.Ph` will be depreciated in future releases
+        :func:`CoolProps.Plots.Ph` will be deprecated in future releases
         and replaced with :func:`CoolProps.Plots.PropsPlot`
 
     Parameters
@@ -99,7 +99,7 @@ def Ps(Ref, Tmin=None, Tmax=None, show=False, axis=None, *args, **kwargs):
     Make a pressure-entropy plot for the given fluid
 
     :Note:
-        :func:`CoolProps.Plots.Ps` will be depreciated in future releases
+        :func:`CoolProps.Plots.Ps` will be deprecated in future releases
         and replaced with :func:`CoolProps.Plots.PropsPlot`
 
     Parameters
@@ -142,7 +142,7 @@ def PT(Ref, Tmin=None, Tmax=None, show=False, axis=None, *args, **kwargs):
     Make a pressure-temperature plot for the given fluid
 
     :Note:
-        :func:`CoolProps.Plots.PT` will be depreciated in future releases
+        :func:`CoolProps.Plots.PT` will be deprecated in future releases
         and replaced with :func:`CoolProps.Plots.PropsPlot`
 
     Parameters
@@ -185,7 +185,7 @@ def Prho(Ref, Tmin=None, Tmax=None, show=False, axis=None, *args, **kwargs):
     Make a pressure-density plot for the given fluid
 
     :Note:
-        :func:`CoolProps.Plots.Prho` will be depreciated in future releases
+        :func:`CoolProps.Plots.Prho` will be deprecated in future releases
         and replaced with :func:`CoolProps.Plots.PropsPlot`
 
     Parameters
@@ -228,7 +228,7 @@ def Trho(Ref, Tmin=None, Tmax=None, show=False, axis=None, *args, **kwargs):
     Make a temperature-density plot for the given fluid
 
     :Note:
-        :func:`CoolProps.Plots.Trho` will be depreciated in future releases
+        :func:`CoolProps.Plots.Trho` will be deprecated in future releases
         and replaced with :func:`CoolProps.Plots.PropsPlot`
 
     Parameters
@@ -271,7 +271,7 @@ def hs(Ref, Tmin=None, Tmax=None, show=False, axis=None, *args, **kwargs):
     Make a enthalpy-entropy plot for the given fluid
 
     :Note:
-        :func:`CoolProps.Plots.hs` will be depreciated in future releases
+        :func:`CoolProps.Plots.hs` will be deprecated in future releases
         and replaced with :func:`CoolProps.Plots.PropsPlot`
 
     Parameters

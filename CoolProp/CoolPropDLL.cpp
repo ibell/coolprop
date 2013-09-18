@@ -284,30 +284,27 @@ EXPORT_CODE double CONVENTION psatV_anc(char* FluidName, double T)
 		return -_HUGE;
 	}
 }
-
 EXPORT_CODE long CONVENTION get_global_param_string(char *param, char * Output)
 {
 	strcpy(Output,get_global_param_string(std::string(param)).c_str());
 	return 0;
 }
-
 EXPORT_CODE long CONVENTION get_fluid_param_string(char *fluid, char *param, char * Output)
 {
 	strcpy(Output, get_fluid_param_string(std::string(fluid), std::string(param)).c_str());
 	return 0;
 }
-
-EXPORT_CODE long CONVENTION Phase(char *Fluid,double T, double p, char *Phase_str)
+EXPORT_CODE long CONVENTION Phase(char *Fluid, double T, double p, char *Phase_str)
 {
 	strcpy(Phase_str,(char*)Phase(std::string(Fluid),T,p).c_str());
 	return 0;
 }
-EXPORT_CODE long CONVENTION Phase_Tp(char *Fluid,double T, double p, char *Phase_str)
+EXPORT_CODE long CONVENTION Phase_Tp(char *Fluid, double T, double p, char *Phase_str)
 {
 	strcpy(Phase_str,(char*)Phase(std::string(Fluid),T,p).c_str());
 	return 0;
 }
-EXPORT_CODE long CONVENTION Phase_Trho(char *Fluid,double T, double rho, char *Phase_str)
+EXPORT_CODE long CONVENTION Phase_Trho(char *Fluid, double T, double rho, char *Phase_str)
 {
 	strcpy(Phase_str,(char*)Phase_Trho(std::string(Fluid),T,rho).c_str());
 	return 0;
