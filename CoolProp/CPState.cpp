@@ -171,11 +171,9 @@ void CoolPropStateClassSI::update(long iInput1, double Value1, long iInput2, dou
 	SinglePhase = false;
 	
 	// Determine whether the EOS or the TTSE will be used
-	if (!pFluid->enabled_TTSE_LUT)
-	{
+	if (!pFluid->enabled_TTSE_LUT) {
 		using_EOS = true;
-	}
-	else
+	} else
 	{
 		// Try to build the LUT; Nothing will happen if the tables are already built
 		pFluid->build_TTSE_LUT();
@@ -969,7 +967,7 @@ double CoolPropStateClassSI::keyed_output(long iOutput)
 			if (TwoPhase)
 				return _Q;
 			else
-				return -1;
+				return -_HUGE;
 		case iH:
 			return h();
 		case iS:
@@ -1127,47 +1125,58 @@ double CoolPropStateClassSI::s(void){
 	}
 }
 double CoolPropStateClassSI::cp(void){
-	if (TwoPhase && _Q > 0 && _Q < 1)
+	if (TwoPhase)
 	{
-		return _HUGE;
-	}
-	else if (pFluid->enabled_TTSE_LUT && within_TTSE_range(iP, p(), iH, h()) )
-	{
-		// cp is also given by (dh/dT)|p, or 1/((dT/dh)|p) which is tabulated
-		_h = h();
-		return 1/pFluid->TTSESinglePhase.evaluate_first_derivative(iT,iH,iP,_p,_logp,_h);
+		return (_Q*cpV() + (1-_Q)*cpL()); // Uses TTSE if enabled
 	}
 	else
 	{
-		double c1 = pow(1.0+delta*dphir_dDelta(tau,delta)-delta*tau*d2phir_dDelta_dTau(tau,delta),2);
-		double c2 = (1.0+2.0*delta*dphir_dDelta(tau,delta)+pow(delta,2)*d2phir_dDelta2(tau,delta));
-		double val = pFluid->R()*(-pow(tau,2)*(d2phi0_dTau2(tau,delta)+d2phir_dTau2(tau,delta))+c1/c2);
-		return val;
+		if (pFluid->enabled_TTSE_LUT && within_TTSE_range(iP, p(), iH, h()) ) {
+			// cp is also given by (dh/dT)|p, or 1/((dT/dh)|p) which is tabulated
+			_h = h();
+			return 1/pFluid->TTSESinglePhase.evaluate_first_derivative(iT,iH,iP,_p,_logp,_h);
+		} else {
+			double c1 = pow(1.0+delta*dphir_dDelta(tau,delta)-delta*tau*d2phir_dDelta_dTau(tau,delta),2);
+			double c2 = (1.0+2.0*delta*dphir_dDelta(tau,delta)+pow(delta,2)*d2phir_dDelta2(tau,delta));
+			double val = pFluid->R()*(-pow(tau,2)*(d2phi0_dTau2(tau,delta)+d2phir_dTau2(tau,delta))+c1/c2);
+			return val;
+		}
 	}
 }
 
 double CoolPropStateClassSI::viscosity(void){
-	if (pFluid->enabled_TTSE_LUT && within_TTSE_range(iP,p(),iH,h()))
-	{
-		return pFluid->TTSESinglePhase.evaluate_Trho(iV,_T,_rho,_logrho);
-	}
-	else
-	{
-		return pFluid->viscosity_Trho(_T,_rho);
+	if (pFluid->enabled_TTSE_LUT && within_TTSE_range(iP,p(),iH,h())){
+		if (TwoPhase && _Q>0 && _Q < 1)	{
+			return -_HUGE;
+		} else {
+			return pFluid->TTSESinglePhase.evaluate_Trho(iV,_T,_rho,_logrho);
+		}
+	} else {
+		if (TwoPhase) {
+			return -_HUGE;
+		} else {
+			return pFluid->viscosity_Trho(_T,_rho);
+		}
 	}
 }
 
 double CoolPropStateClassSI::conductivity(void){
-	if (pFluid->enabled_TTSE_LUT  && within_TTSE_range(iP,p(),iH,h()))
-	{
-		double val_kWmK =  pFluid->TTSESinglePhase.evaluate_Trho(iL,_T,_rho,_logrho);
-		return convert_from_unit_system_to_SI(iL,val_kWmK,UNIT_SYSTEM_KSI);
-	}
-	else{
-		// All the values come back from the fluids as kW/m/K, so we need to first convert
-		// them to SI, then back to the desired unit system
-		double val_kWmK = pFluid->conductivity_Trho(_T,_rho);
-		return convert_from_unit_system_to_SI(iL,val_kWmK,UNIT_SYSTEM_KSI);
+	if (pFluid->enabled_TTSE_LUT  && within_TTSE_range(iP,p(),iH,h())) {
+		if (TwoPhase && _Q>0 && _Q < 1)	{
+			return -_HUGE;
+		} else {
+			double val_kWmK =  pFluid->TTSESinglePhase.evaluate_Trho(iL,_T,_rho,_logrho);
+			return convert_from_unit_system_to_SI(iL,val_kWmK,UNIT_SYSTEM_KSI);
+		}
+	} else {
+		if (TwoPhase) {
+			return -_HUGE;
+		} else {
+			// All the values come back from the fluids as kW/m/K, so we need to first convert
+			// them to SI, then back to the desired unit system
+			double val_kWmK = pFluid->conductivity_Trho(_T,_rho);
+			return convert_from_unit_system_to_SI(iL,val_kWmK,UNIT_SYSTEM_KSI);
+		}
 	}
 }
 
@@ -1293,7 +1302,7 @@ double CoolPropStateClassSI::isothermal_compressibility(void){
 		if (TwoPhase && _Q>0 && _Q < 1)
 		{
 			// Not defined for two-phase
-			return -1;
+			return -_HUGE;
 		} else {
 			_h = h();
 			// isothermal compressibility given by kappa = -1/v*dvdp|T = 1/rho*drhodp|T
@@ -1310,7 +1319,7 @@ double CoolPropStateClassSI::isothermal_compressibility(void){
 	} else {
 		if (TwoPhase) {
 			// Not defined for two-phase
-			return -1;
+			return -_HUGE;
 		} else {
 			return 1/(_rho*dpdrho_constT());
 		}
@@ -1324,7 +1333,7 @@ double CoolPropStateClassSI::isobaric_expansion_coefficient(void){
 		if (TwoPhase && _Q>0 && _Q < 1)
 		{
 			// Not defined for two-phase
-			return -1;
+			return -_HUGE;
 		} else {
 			_h = h();
 			// isobaric expansion coefficient given by kappa = 1/v*dvdT|p = -1/rho*drhodT|p
@@ -1336,7 +1345,7 @@ double CoolPropStateClassSI::isobaric_expansion_coefficient(void){
 	} else {
 		if (TwoPhase) {
 			// Not defined for two-phase
-			return -1;
+			return -_HUGE;
 		} else {
 			return -1/_rho*drhodT_constp();
 		}
@@ -1786,7 +1795,8 @@ double CoolPropStateClassSI::dhdp_along_sat_liquid(void)
 		pFluid->build_TTSE_LUT();
 		return pFluid->TTSESatL.evaluate_sat_derivative(iH,psatL);
 	}
-	else{
+	else
+	{
 		return SatL->dhdp_constT()+SatL->dhdT_constp()*dTdp_along_sat();
 	}
 }
@@ -1797,7 +1807,8 @@ double CoolPropStateClassSI::dhdp_along_sat_vapor(void)
 		pFluid->build_TTSE_LUT();
 		return pFluid->TTSESatV.evaluate_sat_derivative(iH,psatV);
 	}
-	else{
+	else
+	{
 		return SatV->dhdp_constT()+SatV->dhdT_constp()*dTdp_along_sat();
 	}
 }
@@ -1841,17 +1852,6 @@ double CoolPropStateClassSI::d2sdp2_along_sat_liquid(void)
 	return ddp_dsdpsigmaL+ddT_dsdpsigmaL*dTdp_along_sat();
 }
 
-double CoolPropStateClassSI::dsdT_along_sat_liquid(void)
-{
-	if (!TwoPhase){throw ValueError(format("Saturation derivative cannot be called now.  Call update() with a two-phase set of inputs"));}
-	return SatL->dsdT_constp()+SatL->dsdp_constT()/dTdp_along_sat();
-}
-double CoolPropStateClassSI::dsdT_along_sat_vapor(void)
-{
-	if (!TwoPhase){throw ValueError(format("Saturation derivative cannot be called now.  Call update() with a two-phase set of inputs"));}
-	return SatV->dsdT_constp()+SatV->dsdp_constT()/dTdp_along_sat();
-}
-
 double CoolPropStateClassSI::drhodp_along_sat_vapor(void)
 {
 	if (!TwoPhase){throw ValueError(format("Saturation derivative cannot be called now.  Call update() with a two-phase set of inputs"));}
@@ -1891,6 +1891,28 @@ double CoolPropStateClassSI::d2rhodp2_along_sat_liquid(void)
 	double ddp_drhodpsigmaL = SatL->d2rhodp2_constT()+SatL->drhodT_constp()*ddp_dTdp_along_sat()+SatL->d2rhodTdp()*dTdp_along_sat();
 	double ddT_drhodpsigmaL = SatL->d2rhodTdp()+SatL->drhodT_constp()*ddT_dTdp_along_sat()+SatL->d2rhodT2_constp()*dTdp_along_sat();
 	return ddp_drhodpsigmaL+ddT_drhodpsigmaL*dTdp_along_sat();
+}
+
+double CoolPropStateClassSI::dhdT_along_sat_liquid(void)
+{
+	if (!TwoPhase){throw ValueError(format("Saturation derivative cannot be called now.  Call update() with a two-phase set of inputs"));}
+	return SatL->dhdT_constp()+SatL->dhdp_constT()/dTdp_along_sat();
+}
+double CoolPropStateClassSI::dhdT_along_sat_vapor(void)
+{
+	if (!TwoPhase){throw ValueError(format("Saturation derivative cannot be called now.  Call update() with a two-phase set of inputs"));}
+	return SatV->dhdT_constp()+SatV->dhdp_constT()/dTdp_along_sat();
+}
+
+double CoolPropStateClassSI::dsdT_along_sat_liquid(void)
+{
+	if (!TwoPhase){throw ValueError(format("Saturation derivative cannot be called now.  Call update() with a two-phase set of inputs"));}
+	return SatL->dsdT_constp()+SatL->dsdp_constT()/dTdp_along_sat();
+}
+double CoolPropStateClassSI::dsdT_along_sat_vapor(void)
+{
+	if (!TwoPhase){throw ValueError(format("Saturation derivative cannot be called now.  Call update() with a two-phase set of inputs"));}
+	return SatV->dsdT_constp()+SatV->dsdp_constT()/dTdp_along_sat();
 }
 
 double CoolPropStateClassSI::drhodT_along_sat_vapor(void)
