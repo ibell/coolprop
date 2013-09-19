@@ -1017,6 +1017,7 @@ void CoolPropStateClassSI::add_saturation_states(void)
 	SatL->TwoPhase = false;
 
 	SatV->flag_SinglePhase = true;
+	SatL->flag_TwoPhase = false;
 	SatV->update(iT,TsatV,iD,rhosatV);
 	SatV->flag_SinglePhase = false;
 	SatV->SinglePhase = true;
@@ -1127,7 +1128,7 @@ double CoolPropStateClassSI::s(void){
 double CoolPropStateClassSI::cp(void){
 	if (TwoPhase)
 	{
-		return (_Q*cpV() + (1-_Q)*cpL()); // Uses TTSE if enabled
+		return (_Q*cpV() + (1-_Q)*cpL());
 	}
 	else
 	{
@@ -1145,56 +1146,34 @@ double CoolPropStateClassSI::cp(void){
 }
 
 double CoolPropStateClassSI::viscosity(void){
+	if (TwoPhase) {
+		double muL = viscL();
+		double muV = viscV();
+		return muL+_Q*(muV-muL);
+	}
 	if (pFluid->enabled_TTSE_LUT && within_TTSE_range(iP,p(),iH,h())){
-		if (TwoPhase && _Q>0 && _Q < 1)	{
-			double rhoL = pFluid->TTSESatL.evaluate(iD,_p);
-			double rhoV = pFluid->TTSESatV.evaluate(iD,_p);
-			double TL   = pFluid->TTSESatL.evaluate(iT,_p);
-			double TV   = pFluid->TTSESatV.evaluate(iT,_p);
-			double muL = pFluid->TTSESinglePhase.evaluate_Trho(iV,TL,rhoL,log(rhoL));
-			double muV = pFluid->TTSESinglePhase.evaluate_Trho(iV,TV,rhoV,log(rhoV));
-			return muL+_Q*(muV-muL);
-		} else {
-			return pFluid->TTSESinglePhase.evaluate_Trho(iV,_T,_rho,_logrho);
-		}
+		return pFluid->TTSESinglePhase.evaluate_Trho(iV,_T,_rho,_logrho);
 	} else {
-		if (TwoPhase) {
-			double muL = pFluid->viscosity_Trho(TsatL,rhosatL);
-			double muV = pFluid->viscosity_Trho(TsatV,rhosatV);
-			return muL+_Q*(muV-muL);
-		} else {
-			return pFluid->viscosity_Trho(_T,_rho);
-		}
+		return pFluid->viscosity_Trho(_T,_rho);
 	}
 }
 
 double CoolPropStateClassSI::conductivity(void){
+	if (TwoPhase) {
+		double kL = condL();
+		double kV = condV();
+		//double val_kWmK = kL+_Q*(kV-kL);
+		//return convert_from_unit_system_to_SI(iL,val_kWmK,UNIT_SYSTEM_KSI);
+		return kL+_Q*(kV-kL);
+	}
 	if (pFluid->enabled_TTSE_LUT  && within_TTSE_range(iP,p(),iH,h())) {
-		if (TwoPhase && _Q>0 && _Q < 1)	{
-			double rhoL = pFluid->TTSESatL.evaluate(iD,_p);
-			double rhoV = pFluid->TTSESatV.evaluate(iD,_p);
-			double TL   = pFluid->TTSESatL.evaluate(iT,_p);
-			double TV   = pFluid->TTSESatV.evaluate(iT,_p);
-			double kL = pFluid->TTSESinglePhase.evaluate_Trho(iL,TL,rhoL,log(rhoL));
-			double kV = pFluid->TTSESinglePhase.evaluate_Trho(iL,TV,rhoV,log(rhoV));
-			double val_kWmK = kL+_Q*(kV-kL);
-			return convert_from_unit_system_to_SI(iL,val_kWmK,UNIT_SYSTEM_KSI);
-		} else {
-			double val_kWmK =  pFluid->TTSESinglePhase.evaluate_Trho(iL,_T,_rho,_logrho);
-			return convert_from_unit_system_to_SI(iL,val_kWmK,UNIT_SYSTEM_KSI);
-		}
+		double val_kWmK =  pFluid->TTSESinglePhase.evaluate_Trho(iL,_T,_rho,_logrho);
+		return convert_from_unit_system_to_SI(iL,val_kWmK,UNIT_SYSTEM_KSI);
 	} else {
-		if (TwoPhase) {
-			double kL = pFluid->conductivity_Trho(TsatL,rhosatL);
-			double kV = pFluid->conductivity_Trho(TsatV,rhosatV);
-			double val_kWmK = kL+_Q*(kV-kL);
-			return convert_from_unit_system_to_SI(iL,val_kWmK,UNIT_SYSTEM_KSI);
-		} else {
-			// All the values come back from the fluids as kW/m/K, so we need to first convert
-			// them to SI, then back to the desired unit system
-			double val_kWmK = pFluid->conductivity_Trho(_T,_rho);
-			return convert_from_unit_system_to_SI(iL,val_kWmK,UNIT_SYSTEM_KSI);
-		}
+		// All the values come back from the fluids as kW/m/K, so we need to first convert
+		// them to SI, then back to the desired unit system
+		double val_kWmK = pFluid->conductivity_Trho(_T,_rho);
+		return convert_from_unit_system_to_SI(iL,val_kWmK,UNIT_SYSTEM_KSI);
 	}
 }
 
@@ -1319,13 +1298,16 @@ double CoolPropStateClassSI::isothermal_compressibility(void){
 	{
 		if (TwoPhase && _Q>0 && _Q < 1)
 		{
-			// dpdrho_constT not defined in two-phase region, thus linearized in between phases
-			double rhoL = pFluid->TTSESatL.evaluate(iD,_p);
-			double rhoV = pFluid->TTSESatV.evaluate(iD,_p);
-			double dpdrhoL = 1.0/pFluid->TTSESatL.evaluate_sat_derivative(iD,_p);
-			double dpdrhoV = 1.0/pFluid->TTSESatV.evaluate_sat_derivative(iD,_p);
-			
-			return 1.0/((rhoL+_Q*(rhoV-rhoL))*(dpdrhoL+_Q*(dpdrhoV-dpdrhoL)));
+			return -_HUGE;
+//			// dpdrho_constT not defined in two-phase region, thus linearized in between phases
+//			double rhoL = pFluid->TTSESatL.evaluate(iD,_p);
+//			double rhoV = pFluid->TTSESatV.evaluate(iD,_p);
+//			double dpdrhoL = 1.0/pFluid->TTSESatL.evaluate_sat_derivative(iD,_p);
+//			double dpdrhoV = 1.0/pFluid->TTSESatV.evaluate_sat_derivative(iD,_p);
+//			return 1.0/((rhoL+_Q*(rhoV-rhoL))*(dpdrhoL+_Q*(dpdrhoV-dpdrhoL)));
+			double kappaL = SatL->isothermal_compressibility();
+			double kappaV = SatV->isothermal_compressibility();
+			return kappaL+_Q*(kappaV-kappaL);
 		} else {
 			_h = h();
 			// isothermal compressibility given by kappa = -1/v*dvdp|T = 1/rho*drhodp|T
@@ -1335,7 +1317,7 @@ double CoolPropStateClassSI::isothermal_compressibility(void){
 			double drhodp__h = pFluid->TTSESinglePhase.evaluate_first_derivative(iD,iP,iH,_p,_logp,_h);
 
 			double rho = pFluid->TTSESinglePhase.evaluate(iD,_p,_logp,_h);
-			/// 1000 is needed to convert from kJ & kPa to J & Pa    fdgbdsgfrrd
+			/// 1000 is needed to convert from kJ & kPa to J & Pa
 			/// Not anymore, we changed to SI units
 			return 1.0/rho*(drhodp__h-drhodh__p*dTdp__h/dTdh__p);
 		}
@@ -1357,22 +1339,27 @@ double CoolPropStateClassSI::isobaric_expansion_coefficient(void){
 	{
 		if (TwoPhase && _Q>0 && _Q < 1)
 		{
+			return -_HUGE;
 			// drhodT_constp not defined in two-phase region, thus linearized in between phases
-			double rhoL = pFluid->TTSESatL.evaluate(iD,_p);
-			double rhoV = pFluid->TTSESatV.evaluate(iD,_p);
-			double TL   = pFluid->TTSESatL.evaluate(iT,_p);
-			double TV   = pFluid->TTSESatV.evaluate(iT,_p);
-
-			double drhodTL = pFluid->TTSESatL.evaluate_sat_derivative(iD,_p)/pFluid->TTSESatL.evaluate_sat_derivative(iT,_p);
-			double drhodTV = pFluid->TTSESatV.evaluate_sat_derivative(iD,_p)/pFluid->TTSESatV.evaluate_sat_derivative(iT,_p);
-
-			double dvdTL = -drhodTL/rhoL/rhoL;
-			double dvdTV = -drhodTV/rhoV/rhoV;
-
-			return (rhoL+_Q*(rhoV-rhoL))*(dvdTL+_Q*(dvdTV-dvdTL));
+//			double rhoL = pFluid->TTSESatL.evaluate(iD,_p);
+//			double rhoV = pFluid->TTSESatV.evaluate(iD,_p);
+//			double TL   = pFluid->TTSESatL.evaluate(iT,_p);
+//			double TV   = pFluid->TTSESatV.evaluate(iT,_p);
+//
+//			double drhodTL = pFluid->TTSESatL.evaluate_sat_derivative(iD,_p)/pFluid->TTSESatL.evaluate_sat_derivative(iT,_p);
+//			double drhodTV = pFluid->TTSESatV.evaluate_sat_derivative(iD,_p)/pFluid->TTSESatV.evaluate_sat_derivative(iT,_p);
+//
+//			double dvdTL = -drhodTL/rhoL/rhoL;
+//			double dvdTV = -drhodTV/rhoV/rhoV;
+//
+//			//return (rhoL+_Q*(rhoV-rhoL))*(dvdTL+_Q*(dvdTV-dvdTL));
+//			return _rho*(dvdTL+_Q*(dvdTV-dvdTL));
+			double betaL = SatL->isobaric_expansion_coefficient();
+			double betaV = SatV->isobaric_expansion_coefficient();
+			return betaL+_Q*(betaV-betaL);
 		} else {
 			_h = h();
-			// isobaric expansion coefficient given by kappa = 1/v*dvdT|p = -1/rho*drhodT|p
+			// isobaric expansion coefficient given by beta = 1/v*dvdT|p = -1/rho*drhodT|p
 			double dTdh__p = pFluid->TTSESinglePhase.evaluate_first_derivative(iT,iH,iP,_p,_logp,_h);
 			double drhodh__p = pFluid->TTSESinglePhase.evaluate_first_derivative(iD,iH,iP,_p,_logp,_h);
 			double rho = pFluid->TTSESinglePhase.evaluate(iD,_p,_logp,_h);
