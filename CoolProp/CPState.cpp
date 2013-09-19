@@ -422,7 +422,7 @@ void CoolPropStateClassSI::update_prho(long iInput1, double Value1, long iInput2
 	_p = Value1;
 	_rho = Value2;
 
-	if (_p < 0 ){ throw ValueError(format("Your pressure [%f kPa] is less than zero",Value1));}
+	if (_p < 0 ){ throw ValueError(format("Your pressure [%f Pa] is less than zero",Value1));}
 	if (_rho < 0 ){ throw ValueError(format("Your density [%f kg/m^3] is less than zero",Value2));}
 
 	if (flag_SinglePhase && flag_TwoPhase) throw ValueError(format("Only one of flag_SinglePhase and flag_TwoPhase may be set to true"));
@@ -482,6 +482,9 @@ void CoolPropStateClassSI::update_Tp(long iInput1, double Value1, long iInput2, 
 	// Get them in the right order
 	sort_pair(&iInput1,&Value1,&iInput2,&Value2,iT,iP);
 
+	if (Value1 < 0 ){ throw ValueError(format("Your temperature [%g K] is less than zero",Value1));}
+	if (Value2 < 0 ){ throw ValueError(format("Your pressure [%g Pa] is less than zero",Value2));}
+
 	// Set internal variables
 	_T = Value1;
 	_p = Value2;
@@ -519,7 +522,7 @@ void CoolPropStateClassSI::update_ph(long iInput1, double Value1, long iInput2, 
 	// Get them in the right order
 	sort_pair(&iInput1,&Value1,&iInput2,&Value2,iP,iH);
 
-	if (Value1 < 0 ){ throw ValueError(format("Your pressure [%g kPa] is less than zero",Value1));}
+	if (Value1 < 0 ){ throw ValueError(format("Your pressure [%g Pa] is less than zero",Value1));}
 
 	// Set internal variables
 	_p = Value1;
@@ -555,7 +558,7 @@ void CoolPropStateClassSI::update_ps(long iInput1, double Value1, long iInput2, 
 	// Get them in the right order
 	sort_pair(&iInput1,&Value1,&iInput2,&Value2,iP,iS);
 
-	if (Value1 < 0 ){ throw ValueError(format("Your pressure [%g kPa] is less than zero",Value1));}
+	if (Value1 < 0 ){ throw ValueError(format("Your pressure [%g Pa] is less than zero",Value1));}
 
 	// Set internal variables
 	_p = Value1;

@@ -244,8 +244,8 @@ void rebuild_CriticalSplineConstants_T()
 					break;
 				}
 				if (!ValidNumber(drhodTV) || !ValidNumber(drhodTL) || drhodTV*drhodTL > 0){
-					std::cout << format("%0.20g",good) << std::endl;
-					valid = false; 
+					//std::cout << format("%0.20g",good) << std::endl;
+					valid = false;
 					break;
 				}
 				else
@@ -262,6 +262,7 @@ void rebuild_CriticalSplineConstants_T()
 		rhoV = CPS2.rhoV(); rhoL = CPS2.rhoL();
 		drhodTV = CPS2.drhodT_along_sat_vapor(); 
 		drhodTL = CPS2.drhodT_along_sat_liquid();
+		std::cout << format("%0.20g",good) << std::endl;
 		fprintf(fp,"\tstd::make_pair(std::string(\"%s\"),CriticalSplineStruct_T(%0.12e,%0.12e,%0.12e,%0.12e,%0.12e) ),\n",fluid_names[i].c_str(),Tc-good,rhoL,rhoV,drhodTL,drhodTV);
 	}
 	fclose(fp);

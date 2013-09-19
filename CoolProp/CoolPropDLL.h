@@ -34,6 +34,7 @@
 	EXPORT_CODE double CONVENTION Props1(char *Ref, char * Output);
 
 	EXPORT_CODE long CONVENTION get_global_param_string(char *param, char * Output);
+	EXPORT_CODE long CONVENTION get_fluid_param_string(char *fluid, char *param, char * Output);
 	
 	// This version uses the indices in place of the strings for speed.  Get the parameter indices
 	// from get_param_index('D') for instance and the Fluid index from get_Fluid_index('Air') for instance

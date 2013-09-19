@@ -9,7 +9,7 @@ install:
   - python setup.py install # Install CoolProp
 # command to run tests
 script: 
-  - cd wrappers/Python/CoolProp/tests
+  - cd CoolProp/tests
   - nosetests
 
 notifications:

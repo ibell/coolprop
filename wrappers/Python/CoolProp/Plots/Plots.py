@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import print_function
+from __future__ import print_function, absolute_import
 
 import numpy, matplotlib, matplotlib.pyplot, math, re
 from scipy.interpolate import interp1d
 
 import CoolProp.CoolProp as CP
-from Common import BasePlot #TODO: Change to absolute import
-
+from .Common import BasePlot
 
 class IsoLine(object):
     def __init__(self):
@@ -437,11 +436,11 @@ class PropsPlot(BasePlot):
             x_axis_id = self.graph_type[1:len(self.graph_type)]
 
         tl_str = "%s - %s Graph for %s"
-        self.axis.set_title(tl_str % (self.AXIS_LABLES[y_axis_id][0],
-                                      self.AXIS_LABLES[x_axis_id][0],
+        self.axis.set_title(tl_str % (self.AXIS_LABELS[y_axis_id][0],
+                                      self.AXIS_LABELS[x_axis_id][0],
                                       self.fluid_ref))
-        self.axis.set_xlabel(' '.join(self.AXIS_LABLES[x_axis_id]))
-        self.axis.set_ylabel(' '.join(self.AXIS_LABLES[y_axis_id]))
+        self.axis.set_xlabel(' '.join(self.AXIS_LABELS[x_axis_id]))
+        self.axis.set_ylabel(' '.join(self.AXIS_LABELS[y_axis_id]))
 
     def __draw_region_lines(self):
         lines = self._get_sat_lines(kind='T',

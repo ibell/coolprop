@@ -55,6 +55,7 @@ double convert_from_unit_system_to_SI(long iInput, double value, int old_system)
 	case iRhoreduce: 
 	case iAccentric:
 	case iI:
+	case iCritSplineT:
 		return value;
 	default:
 		throw ValueError(format("index [%d] is invalid in convert_from_unit_system_to_SI",iInput).c_str());
@@ -115,6 +116,7 @@ double convert_from_SI_to_unit_system(long iInput, double value, int new_system)
 	case iRhoreduce: 
 	case iAccentric:
 	case iI:
+	case iCritSplineT:
 		return value;
 	default:
 		throw ValueError(format("index [%d] is invalid in convert_from_SI_to_unit_system",iInput).c_str());
