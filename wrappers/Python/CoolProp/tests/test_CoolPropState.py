@@ -116,7 +116,6 @@ def check_sat_first_derivatives(S, func, iVal, Val, iConstant, Constant, deriv_f
         
         
         
-        
 
 def test_sat_second_derivatives():
     S = State('R134a',dict(T=300,Q=1))
