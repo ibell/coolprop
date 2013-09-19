@@ -111,18 +111,35 @@ void CoolPropSolver::setSat_p(double &p, ExternalSaturationProperties *const pro
 	try
 	{
 		state->update(iP,p,iQ,0); // quality only matters for pseudo-pure fluids
-		properties->psat = p;
+
+		//! Saturation temperature
 		properties->Tsat = state->TL(); // Not correct for pseudo-pure fluids
-		properties->dl = state->rhoL();
-		properties->dv = state->rhoV();
-		properties->hl = state->hL();
-		properties->hv = state->hV();
+		//! Derivative of Ts wrt pressure
 		properties->dTp = state->dTdp_along_sat();
-		
-		properties->ddldp = state->drhodp_along_sat_liquid();
-		properties->ddvdp = state->drhodp_along_sat_vapor();
-		properties->dhldp = state->dhdp_along_sat_liquid();
-		properties->dhvdp = state->dhdp_along_sat_vapor();
+		//! Derivative of dls wrt pressure
+	    properties->ddldp = state->drhodp_along_sat_liquid();
+		//! Derivative of dvs wrt pressure
+	    properties->ddvdp = state->drhodp_along_sat_vapor();
+		//! Derivative of hls wrt pressure
+	    properties->dhldp = state->dhdp_along_sat_liquid();
+		//! Derivative of hvs wrt pressure
+	    properties->dhvdp = state->dhdp_along_sat_vapor();
+		//! Density at bubble line (for pressure ps)
+	    properties->dl = state->rhoL();
+		//! Density at dew line (for pressure ps)
+	    properties->dv = state->rhoV();
+		//! Specific enthalpy at bubble line (for pressure ps)
+	    properties->hl = state->hL();
+		//! Specific enthalpy at dew line (for pressure ps)
+	    properties->hv = state->hV();
+		//! Saturation pressure
+	    properties->psat = p;
+		//! Surface tension
+	    properties->sigma = state->surface_tension();
+		//! Specific entropy at bubble line (for pressure ps)
+	    properties->sl = state->sL();
+		//! Specific entropy at dew line (for pressure ps)
+	    properties->sv = state->sV();
 	}
 	catch(std::exception &e)
 	{
