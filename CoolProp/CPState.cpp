@@ -1312,7 +1312,7 @@ double CoolPropStateClassSI::isothermal_compressibility(void){
 			double drhodp__h = pFluid->TTSESinglePhase.evaluate_first_derivative(iD,iP,iH,_p,_logp,_h);
 
 			double rho = pFluid->TTSESinglePhase.evaluate(iD,_p,_logp,_h);
-			/// 1000 is needed to convert from kJ & kPa to J & Pa
+			/// 1000 is needed to convert from kJ & kPa to J & Pa    fdgbdsgfrrd
 			/// Not anymore, we changed to SI units
 			return 1/rho*(drhodp__h-drhodh__p*dTdp__h/dTdh__p);
 		}
