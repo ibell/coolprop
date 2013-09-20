@@ -129,6 +129,11 @@ protected:
 	/// Check whether within the TTSE range
 	bool within_TTSE_range(long iInput1, double Value1, long iInput2, double Value2);
 
+	/// Extended two-phase calculations need different interpolation functions
+	double interp_linear(double Q, double valueL, double valueV);
+	double interp_recip(double Q, double valueL, double valueV);
+
+
 public:
 	Fluid * pFluid;
 
@@ -227,6 +232,17 @@ public:
 	double conductivity(void);
 
 	double surface_tension(void);
+
+
+	// ----------------------------------------
+	// Extended two-phase calculations things
+	// ----------------------------------------
+	/// Enable the extended two-phase calculations
+	void enable_EXTTP(void);
+	/// Check if extended two-phase calculations are enabled
+	bool isenabled_EXTTP(void);
+	/// Disable the extended two-phase calculations
+	void disable_EXTTP(void);
 
 	// ----------------------------------------	
 	// TTSE LUT things

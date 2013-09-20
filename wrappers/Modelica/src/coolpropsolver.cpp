@@ -19,9 +19,10 @@ CoolPropSolver::CoolPropSolver(const std::string &mediumName, const std::string 
 	std::vector<std::string> name_options = strsplit(substanceName,'|');
 	
 	// Set the defaults
-	enable_TTSE = false;
-	debug_level = 0;
-	calc_transport = false;
+	enable_TTSE     = false;
+	debug_level     = 0;
+	calc_transport  = false;
+	extend_twophase = false;
 	twophase_derivsmoothing_xend = 0;
 	rho_smoothing_xend = 0;
 
@@ -58,6 +59,15 @@ CoolPropSolver::CoolPropSolver(const std::string &mediumName, const std::string 
 					calc_transport = true;
 				else if (!param_val[1].compare("0") || !param_val[1].compare("false"))
 					calc_transport = false;
+				else
+					errorMessage((char*)format("I don't know how to handle this option [%s]",name_options[i].c_str()).c_str());
+			}
+			else if (!param_val[0].compare("enable_EXTTP"))
+			{
+				if (!param_val[1].compare("1") || !param_val[1].compare("true"))
+					extend_twophase = true;
+				else if (!param_val[1].compare("0") || !param_val[1].compare("false"))
+					extend_twophase = false;
 				else
 					errorMessage((char*)format("I don't know how to handle this option [%s]",name_options[i].c_str()).c_str());
 			}
@@ -104,10 +114,19 @@ void CoolPropSolver::setSat_p(double &p, ExternalSaturationProperties *const pro
 	if (debug_level > 5)
 		std::cout << format("setSat_p(%0.16e)\n",p);
 
+	//if (calc_twophase)
+	//	state->
+
 	if (enable_TTSE)
 		state->enable_TTSE_LUT();
 	else
 		state->disable_TTSE_LUT();
+
+	if (extend_twophase)
+		state->enable_EXTTP();
+	else
+		state->disable_EXTTP();
+
 	try
 	{
 		state->update(iP,p,iQ,0); // quality only matters for pseudo-pure fluids
@@ -156,6 +175,12 @@ void CoolPropSolver::setSat_T(double &T, ExternalSaturationProperties *const pro
 		state->enable_TTSE_LUT();
 	else
 		state->disable_TTSE_LUT();
+
+	if (extend_twophase)
+		state->enable_EXTTP();
+	else
+		state->disable_EXTTP();
+
 	try
 	{
 		state->update(iT,T,iQ,0); // Quality only matters for pseudo-pure fluids
@@ -189,6 +214,12 @@ void CoolPropSolver::setState_ph(double &p, double &h, int &phase, ExternalTherm
 		state->enable_TTSE_LUT();
 	else
 		state->disable_TTSE_LUT();
+
+	if (extend_twophase)
+		state->enable_EXTTP();
+	else
+		state->disable_EXTTP();
+
 	try{
 		// Update the internal variables in the state instance
 		state->update(iP,p,iH,h);
@@ -261,6 +292,12 @@ void CoolPropSolver::setState_pT(double &p, double &T, ExternalThermodynamicStat
 		state->enable_TTSE_LUT();
 	else
 		state->disable_TTSE_LUT();
+
+	if (extend_twophase)
+		state->enable_EXTTP();
+	else
+		state->disable_EXTTP();
+
 	try{
 		// Update the internal variables in the state instance
 		state->update(iP,p,iT,T);
@@ -312,6 +349,12 @@ void CoolPropSolver::setState_dT(double &d, double &T, int &phase, ExternalTherm
 		state->enable_TTSE_LUT();
 	else
 		state->disable_TTSE_LUT();
+
+	if (extend_twophase)
+		state->enable_EXTTP();
+	else
+		state->disable_EXTTP();
+
 	try{
 
 		// Update the internal variables in the state instance
@@ -368,6 +411,12 @@ void CoolPropSolver::setState_ps(double &p, double &s, int &phase, ExternalTherm
 		state->enable_TTSE_LUT();
 	else
 		state->disable_TTSE_LUT();
+
+	if (extend_twophase)
+		state->enable_EXTTP();
+	else
+		state->disable_EXTTP();
+
 	try{
 		// Update the internal variables in the state instance
 		state->update(iP,p,iS,s);
@@ -419,6 +468,12 @@ void CoolPropSolver::setState_hs(double &h, double &s, int &phase, ExternalTherm
 		state->enable_TTSE_LUT();
 	else
 		state->disable_TTSE_LUT();
+
+	if (extend_twophase)
+		state->enable_EXTTP();
+	else
+		state->disable_EXTTP();
+
 	try{
 		// Update the internal variables in the state instance
 		state->update(iH,h,iS,s);

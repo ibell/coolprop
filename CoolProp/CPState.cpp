@@ -1046,6 +1046,7 @@ double CoolPropStateClassSI::hV(void){
 		return SatV->h();
 	}
 }
+
 double CoolPropStateClassSI::sL(void){
 	if (pFluid->enabled_TTSE_LUT)
 	{
@@ -1079,7 +1080,7 @@ double CoolPropStateClassSI::condV(void){return SatV->keyed_output(iL);};
 double CoolPropStateClassSI::h(void){
 	if (TwoPhase){
 		// This will use the TTSE LUT if enable_TTSE_LUT() has been called
-		return _Q*hV()+(1-_Q)*hL();
+		return interp_linear(_Q,hL(),hV());
 	}
 	else{
 		if (h_cached && ValidNumber(_h)){
@@ -1103,7 +1104,7 @@ double CoolPropStateClassSI::h(void){
 double CoolPropStateClassSI::s(void){
 	if (TwoPhase){
 		// This will use the TTSE LUT if enable_TTSE_LUT() has been called
-		return _Q*sV()+(1-_Q)*sL();
+		return interp_linear(_Q,sL(),sV());
 	}
 	else{
 		if (s_cached && ValidNumber(_s) && !pFluid->enabled_TTSE_LUT)
@@ -1128,7 +1129,11 @@ double CoolPropStateClassSI::s(void){
 double CoolPropStateClassSI::cp(void){
 	if (TwoPhase)
 	{
-		return (_Q*cpV() + (1-_Q)*cpL());
+		if (pFluid->enabled_EXTTP) {
+			return interp_linear(_Q,cpL(),cpV());
+		} else {
+			return -_HUGE;
+		}
 	}
 	else
 	{
@@ -1147,9 +1152,11 @@ double CoolPropStateClassSI::cp(void){
 
 double CoolPropStateClassSI::viscosity(void){
 	if (TwoPhase) {
-		double muL = viscL();
-		double muV = viscV();
-		return muL+_Q*(muV-muL);
+		if (pFluid->enabled_EXTTP) {
+			return interp_recip(_Q,viscL(),viscV());
+		} else {
+			return -_HUGE;
+		}
 	}
 	if (pFluid->enabled_TTSE_LUT && within_TTSE_range(iP,p(),iH,h())){
 		return pFluid->TTSESinglePhase.evaluate_Trho(iV,_T,_rho,_logrho);
@@ -1160,11 +1167,11 @@ double CoolPropStateClassSI::viscosity(void){
 
 double CoolPropStateClassSI::conductivity(void){
 	if (TwoPhase) {
-		double kL = condL();
-		double kV = condV();
-		//double val_kWmK = kL+_Q*(kV-kL);
-		//return convert_from_unit_system_to_SI(iL,val_kWmK,UNIT_SYSTEM_KSI);
-		return kL+_Q*(kV-kL);
+		if (pFluid->enabled_EXTTP) {
+			return interp_linear(_Q,condL(),condV());
+		} else {
+			return -_HUGE;
+		}
 	}
 	if (pFluid->enabled_TTSE_LUT  && within_TTSE_range(iP,p(),iH,h())) {
 		double val_kWmK =  pFluid->TTSESinglePhase.evaluate_Trho(iL,_T,_rho,_logrho);
@@ -1200,26 +1207,15 @@ double CoolPropStateClassSI::cv(void){
 	{
 		if (TwoPhase && _Q>0 && _Q < 1)
 		{
-			double sL   = pFluid->TTSESatL.evaluate(iS,_p);
-			double sV   = pFluid->TTSESatV.evaluate(iS,_p);
-			double rhoL = pFluid->TTSESatL.evaluate(iD,_p);
-			double rhoV = pFluid->TTSESatV.evaluate(iD,_p);
-			double TL   = pFluid->TTSESatL.evaluate(iT,_p);
-			double TV   = pFluid->TTSESatV.evaluate(iT,_p);
-
 			double dsdTL = pFluid->TTSESatL.evaluate_sat_derivative(iS,_p)/pFluid->TTSESatL.evaluate_sat_derivative(iT,_p);
 			double dsdTV = pFluid->TTSESatV.evaluate_sat_derivative(iS,_p)/pFluid->TTSESatV.evaluate_sat_derivative(iT,_p);
-
 			double drhodTL = pFluid->TTSESatL.evaluate_sat_derivative(iD,_p)/pFluid->TTSESatL.evaluate_sat_derivative(iT,_p);
 			double drhodTV = pFluid->TTSESatV.evaluate_sat_derivative(iD,_p)/pFluid->TTSESatV.evaluate_sat_derivative(iT,_p);
-
-			double dvdTL = -drhodTL/rhoL/rhoL;
-			double dvdTV = -drhodTV/rhoV/rhoV;
-
-			double dxdT_v = (_Q*dvdTV + (1-_Q)*dvdTL)/(1/rhoL-1/rhoV);
-			double Tsat = (TV - TL) * _Q + TL;
-
-			return Tsat*dsdTL + Tsat*dxdT_v*(sV-sL) + _Q*Tsat*(dsdTV - dsdTL);
+			double dvdTL = -drhodTL/rhoL()/rhoL();
+			double dvdTV = -drhodTV/rhoV()/rhoV();
+			double dxdT_v = (_Q*dvdTV + (1-_Q)*dvdTL)/(1/rhoL()-1/rhoV());
+			double Tsat = (TV() - TL()) * _Q + TL();
+			return Tsat*dsdTL + Tsat*dxdT_v*(sV()-sL()) + _Q*Tsat*(dsdTV - dsdTL);
 		}
 		else
 		{
@@ -1234,10 +1230,10 @@ double CoolPropStateClassSI::cv(void){
 		{
 			double dsdTL = dsdT_along_sat_liquid();
 			double dsdTV = dsdT_along_sat_vapor();
-			double dvdTL = -drhodT_along_sat_liquid()/rhosatL/rhosatL;
-			double dvdTV = -drhodT_along_sat_vapor()/rhosatV/rhosatV;
-			double dxdT_v = (_Q*dvdTV + (1-_Q)*dvdTL)/(1/rhosatL-1/rhosatV);
-			double Tsat = (TsatV - TsatL) * _Q + TsatL;
+			double dvdTL = -drhodT_along_sat_liquid()/rhoL()/rhoL();
+			double dvdTV = -drhodT_along_sat_vapor()/rhoV()/rhoV();
+			double dxdT_v = (_Q*dvdTV + (1-_Q)*dvdTL)/(1/rhoL()-1/rhoV());
+			double Tsat = (TV() - TL()) * _Q + TL();
 			return Tsat*dsdTL + Tsat*dxdT_v*(sV()-sL()) + _Q*Tsat*(dsdTV - dsdTL);
 		}
 		else
@@ -1251,18 +1247,13 @@ double CoolPropStateClassSI::speed_sound(void){
 	{
 		if (TwoPhase && _Q>0 && _Q < 1)
 		{
-			double sL = pFluid->TTSESatL.evaluate(iS,_p);
-			double sV = pFluid->TTSESatV.evaluate(iS,_p);
-			double rhoL = pFluid->TTSESatL.evaluate(iD,_p);
-			double rhoV = pFluid->TTSESatV.evaluate(iD,_p);
-			//
 			double dsdpL = pFluid->TTSESatL.evaluate_sat_derivative(iS,_p);
 			double dsdpV = pFluid->TTSESatV.evaluate_sat_derivative(iS,_p);
-			double dvdpL = -pFluid->TTSESatL.evaluate_sat_derivative(iD,_p)/rhoL/rhoL;
-			double dvdpV = -pFluid->TTSESatV.evaluate_sat_derivative(iD,_p)/rhoV/rhoV;
+			double dvdpL = -pFluid->TTSESatL.evaluate_sat_derivative(iD,_p)/rhoL()/rhoL();
+			double dvdpV = -pFluid->TTSESatV.evaluate_sat_derivative(iD,_p)/rhoV()/rhoV();
 			//
-			double dxdp_s = (-_Q*(dsdpV-dsdpL) - dsdpL)/(sV-sL);
-			double dddp_s = -pow(_rho,2)*(dvdpL  + dxdp_s*(1/rhoV - 1/rhoL) + _Q*(dvdpV-dvdpL));
+			double dxdp_s = (-_Q*(dsdpV-dsdpL) - dsdpL)/(sV()-sL());
+			double dddp_s = -pow(_rho,2)*(dvdpL  + dxdp_s*(1/rhoV() - 1/rhoL()) + _Q*(dvdpV-dvdpL));
 			return pow(1.0/dddp_s,0.5);
 		}
 		else
@@ -1277,12 +1268,12 @@ double CoolPropStateClassSI::speed_sound(void){
 		}
 	} else {
 		if (TwoPhase) {
-			double dvdpL = -drhodp_along_sat_liquid()/rhosatL/rhosatL;
-			double dvdpV = -drhodp_along_sat_vapor()/rhosatV/rhosatV;
+			double dvdpL = -drhodp_along_sat_liquid()/rhoL()/rhoL();
+			double dvdpV = -drhodp_along_sat_vapor()/rhoV()/rhoV();
 			double dsdpL = dsdp_along_sat_liquid();
 			double dsdpV = dsdp_along_sat_vapor();
 			double dxdp_s = (-_Q*(dsdpV-dsdpL) - dsdpL)/(sV()-sL());
-			double dddp_s = -pow(_rho,2)*(dvdpL  + dxdp_s*(1/rhosatV - 1/rhosatL) + _Q*(dvdpV-dvdpL));
+			double dddp_s = -pow(_rho,2)*(dvdpL  + dxdp_s*(1/rhoV() - 1/rhoL()) + _Q*(dvdpV-dvdpL));
 			return pow(1.0/dddp_s,0.5);
 		} else {
 			double c1 = pow(tau,2)*(d2phi0_dTau2(tau,delta)+d2phir_dTau2(tau,delta));
@@ -1293,87 +1284,56 @@ double CoolPropStateClassSI::speed_sound(void){
 }
 
 double CoolPropStateClassSI::isothermal_compressibility(void){
-
+	if (TwoPhase) {
+		if (pFluid->enabled_EXTTP) {
+			// dpdrho_constT not defined in two-phase region, thus linearized in between phases
+			//double dpdrhoL = SatL->dpdrho_constT();
+			//double dpdrhoV = SatV->dpdrho_constT();
+			//return 1.0/(_rho*(dpdrhoL+_Q*(dpdrhoV-dpdrhoL)));
+			// Simplified approach to give consistent value from standard and TTSE functions
+			return interp_linear(_Q,SatL->isothermal_compressibility(),SatV->isothermal_compressibility());
+		} else {
+			return -_HUGE;
+		}
+	}
 	if (pFluid->enabled_TTSE_LUT && within_TTSE_range(iP, p(), iH, h()) )
 	{
-		if (TwoPhase && _Q>0 && _Q < 1)
-		{
-			return -_HUGE;
-//			// dpdrho_constT not defined in two-phase region, thus linearized in between phases
-//			double rhoL = pFluid->TTSESatL.evaluate(iD,_p);
-//			double rhoV = pFluid->TTSESatV.evaluate(iD,_p);
-//			double dpdrhoL = 1.0/pFluid->TTSESatL.evaluate_sat_derivative(iD,_p);
-//			double dpdrhoV = 1.0/pFluid->TTSESatV.evaluate_sat_derivative(iD,_p);
-//			return 1.0/((rhoL+_Q*(rhoV-rhoL))*(dpdrhoL+_Q*(dpdrhoV-dpdrhoL)));
-			double kappaL = SatL->isothermal_compressibility();
-			double kappaV = SatV->isothermal_compressibility();
-			return kappaL+_Q*(kappaV-kappaL);
-		} else {
-			_h = h();
-			// isothermal compressibility given by kappa = -1/v*dvdp|T = 1/rho*drhodp|T
-			double dTdh__p = pFluid->TTSESinglePhase.evaluate_first_derivative(iT,iH,iP,_p,_logp,_h);
-			double dTdp__h = pFluid->TTSESinglePhase.evaluate_first_derivative(iT,iP,iH,_p,_logp,_h);
-			double drhodh__p = pFluid->TTSESinglePhase.evaluate_first_derivative(iD,iH,iP,_p,_logp,_h);
-			double drhodp__h = pFluid->TTSESinglePhase.evaluate_first_derivative(iD,iP,iH,_p,_logp,_h);
-
-			double rho = pFluid->TTSESinglePhase.evaluate(iD,_p,_logp,_h);
-			/// 1000 is needed to convert from kJ & kPa to J & Pa
-			/// Not anymore, we changed to SI units
-			return 1.0/rho*(drhodp__h-drhodh__p*dTdp__h/dTdh__p);
-		}
+		_h = h();
+		// isothermal compressibility given by kappa = -1/v*dvdp|T = 1/rho*drhodp|T
+		double dTdh__p = pFluid->TTSESinglePhase.evaluate_first_derivative(iT,iH,iP,_p,_logp,_h);
+		double dTdp__h = pFluid->TTSESinglePhase.evaluate_first_derivative(iT,iP,iH,_p,_logp,_h);
+		double drhodh__p = pFluid->TTSESinglePhase.evaluate_first_derivative(iD,iH,iP,_p,_logp,_h);
+		double drhodp__h = pFluid->TTSESinglePhase.evaluate_first_derivative(iD,iP,iH,_p,_logp,_h);
+		double rho = pFluid->TTSESinglePhase.evaluate(iD,_p,_logp,_h);
+		return 1.0/rho*(drhodp__h-drhodh__p*dTdp__h/dTdh__p);
 	} else {
-		if (TwoPhase) {
-			// dpdrho_constT not defined in two-phase region, thus linearized in between phases
-			double dpdrhoL = SatL->dpdrho_constT();
-			double dpdrhoV = SatV->dpdrho_constT();
-			return 1.0/(_rho*(dpdrhoL+_Q*(dpdrhoV-dpdrhoL)));
-		} else {
-			return 1.0/(_rho*dpdrho_constT());
-		}
+		return 1.0/(_rho*dpdrho_constT());
 	}
 }
 
 double CoolPropStateClassSI::isobaric_expansion_coefficient(void){
-
+	if (TwoPhase) {
+		if (pFluid->enabled_EXTTP) {
+			// drhodT_constp not defined in two-phase region, thus linearised in between phases
+			//double dvdTL = -1/(_rho*_rho)*SatL->drhodT_constp();
+			//double dvdTV = -1/(_rho*_rho)*SatV->drhodT_constp();
+			//return _rho*(dvdTL+_Q*(dvdTV-dvdTL));
+			// Simplified approach to give consistent value from standard and TTSE functions
+			return interp_linear(_Q,SatL->isobaric_expansion_coefficient(),SatV->isobaric_expansion_coefficient());
+		} else {
+			return -_HUGE;
+		}
+	}
 	if (pFluid->enabled_TTSE_LUT && within_TTSE_range(iP, p(), iH, h()) )
 	{
-		if (TwoPhase && _Q>0 && _Q < 1)
-		{
-			return -_HUGE;
-			// drhodT_constp not defined in two-phase region, thus linearized in between phases
-//			double rhoL = pFluid->TTSESatL.evaluate(iD,_p);
-//			double rhoV = pFluid->TTSESatV.evaluate(iD,_p);
-//			double TL   = pFluid->TTSESatL.evaluate(iT,_p);
-//			double TV   = pFluid->TTSESatV.evaluate(iT,_p);
-//
-//			double drhodTL = pFluid->TTSESatL.evaluate_sat_derivative(iD,_p)/pFluid->TTSESatL.evaluate_sat_derivative(iT,_p);
-//			double drhodTV = pFluid->TTSESatV.evaluate_sat_derivative(iD,_p)/pFluid->TTSESatV.evaluate_sat_derivative(iT,_p);
-//
-//			double dvdTL = -drhodTL/rhoL/rhoL;
-//			double dvdTV = -drhodTV/rhoV/rhoV;
-//
-//			//return (rhoL+_Q*(rhoV-rhoL))*(dvdTL+_Q*(dvdTV-dvdTL));
-//			return _rho*(dvdTL+_Q*(dvdTV-dvdTL));
-			double betaL = SatL->isobaric_expansion_coefficient();
-			double betaV = SatV->isobaric_expansion_coefficient();
-			return betaL+_Q*(betaV-betaL);
-		} else {
-			_h = h();
-			// isobaric expansion coefficient given by beta = 1/v*dvdT|p = -1/rho*drhodT|p
-			double dTdh__p = pFluid->TTSESinglePhase.evaluate_first_derivative(iT,iH,iP,_p,_logp,_h);
-			double drhodh__p = pFluid->TTSESinglePhase.evaluate_first_derivative(iD,iH,iP,_p,_logp,_h);
-			double rho = pFluid->TTSESinglePhase.evaluate(iD,_p,_logp,_h);
-			return -1/rho*drhodh__p/dTdh__p;
-		}
+		_h = h();
+		// isobaric expansion coefficient given by beta = 1/v*dvdT|p = -1/rho*drhodT|p
+		double dTdh__p = pFluid->TTSESinglePhase.evaluate_first_derivative(iT,iH,iP,_p,_logp,_h);
+		double drhodh__p = pFluid->TTSESinglePhase.evaluate_first_derivative(iD,iH,iP,_p,_logp,_h);
+		double rho = pFluid->TTSESinglePhase.evaluate(iD,_p,_logp,_h);
+		return -1/rho*drhodh__p/dTdh__p;
 	} else {
-		if (TwoPhase) {
-			// drhodT_constp not defined in two-phase region, thus linearized in between phases
-			double dvdTL = -1/(_rho*_rho)*SatL->drhodT_constp();
-			double dvdTV = -1/(_rho*_rho)*SatV->drhodT_constp();
-			return _rho*(dvdTL+_Q*(dvdTV-dvdTL));
-		} else {
-			return -1/_rho*drhodT_constp();
-		}
+		return -1/_rho*drhodT_constp();
 	}
 }
 double CoolPropStateClassSI::surface_tension(void){
@@ -2167,7 +2127,19 @@ double CoolPropStateClassSI::d3phir_dDelta3(double tau, double delta){
 		return cache.d3phir_dDelta3;
 	}
 };
-
+/// Interpolation routines
+double CoolPropStateClassSI::interp_linear(double Q, double valueL, double valueV) {
+	return valueL+Q*(valueV-valueL);
+}
+double CoolPropStateClassSI::interp_recip(double Q, double valueL, double valueV){
+	return 1.0 / interp_linear(Q, 1.0/valueL, 1.0/valueV);
+}
+/// Enable the extended two-phase calculations
+void CoolPropStateClassSI::enable_EXTTP(void){pFluid->enable_EXTTP();};
+/// Check if extended two-phase calculations are enabled
+bool CoolPropStateClassSI::isenabled_EXTTP(void){return pFluid->isenabled_EXTTP();};
+/// Disable the extended two-phase calculations
+void CoolPropStateClassSI::disable_EXTTP(void){pFluid->disable_EXTTP();};
 /// Enable the TTSE
 void CoolPropStateClassSI::enable_TTSE_LUT(void){pFluid->enable_TTSE_LUT();};
 /// Check if TTSE is enabled
