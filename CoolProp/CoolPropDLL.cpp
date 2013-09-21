@@ -11,6 +11,14 @@
 double _Props1(char *Fluid, char *Output);
 double _Props(std::string Output,std::string Name1, double Prop1, std::string Name2, double Prop2, std::string Ref);
 
+EXPORT_CODE int CONVENTION set_reference_stateS(char *Ref, char *reference_state)
+{
+	return set_reference_stateS(std::string(Ref), std::string(reference_state));
+}
+EXPORT_CODE int CONVENTION set_reference_stateD(char *Ref, double T, double rho, double h0, double s0)
+{
+	return set_reference_stateD(std::string(Ref), T, rho, h0, s0);
+}
 EXPORT_CODE double CONVENTION Props(char *Output,char Name1, double Prop1, char Name2, double Prop2, char * Ref)
 {
 	double val = Props(std::string(Output),Name1,Prop1,Name2,Prop2,std::string(Ref));
