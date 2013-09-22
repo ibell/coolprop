@@ -28,13 +28,14 @@ class IdealPartFitter(object):
     def __init__(self, Ref):
         self.Ref = Ref
         self.RefString, N0, T0, D0, L0 = get_fluid_constants(Ref)
-        self.molemass = (8.314472/Props(self.RefString,'molemass'))
+        self.molemass = Props(self.RefString,'molemass')
         self.Tc = Props(self.RefString, 'Tcrit')
         self.rhoc = Props(self.RefString, 'rhocrit')
         self.pc = Props(self.RefString, 'pcrit')
         self.T = np.linspace(100, 450, 200)
         self.C = Props('C', 'T', self.T, 'D', 1e-15, self.RefString)
-        self.cp0_R = self.C/self.molemass
+        R = 8.314472/self.molemass
+        self.cp0_R = self.C/R
         
     def cp0_R_from_fit(self, a_e):
         a = a_e[0:len(a_e)//2]
@@ -174,7 +175,7 @@ class PPFFitterClass(object):
         # First one doesn't get divided by critical temperature, later ones do        
         bcoeffs = '0, '
         bcoeffs += str(self.IPF.e[0])+', '
-        bcoeffs += ', '.join(['-{b:0.4f}/{Tcrit:g}'.format(b=_,Tcrit = self.IPF.Tc) for _ in self.IPF.e[1::]])
+        bcoeffs += ', '.join(['{b:0.4f}/{Tcrit:g}'.format(b=_,Tcrit = self.IPF.Tc) for _ in self.IPF.e[1::]])
             
         ncoeffs = ', '.join(['{a:0.6g}'.format(a=_) for _ in n])
         tcoeffs = ', '.join(['{a:0.6g}'.format(a=_) for _ in t])

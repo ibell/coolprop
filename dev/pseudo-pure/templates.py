@@ -35,23 +35,18 @@ PPF_cpp_template = """
 
 {Ref:s}Class::{Ref:s}Class()
 {{
+    // Constants for the ideal-gas contribution
     static double a[]={{{acoeffs:s}}};
     static double b[]={{{bcoeffs:s}}};
 
+    // Constants for the residual contribution
     static double N[]={{{Ncoeffs:s}}};
     static double t[]={{{tcoeffs:s}}};
     static double d[]={{{dcoeffs:s}}};
     static double l[]={{{Lcoeffs:s}}};
-
-    phirlist.push_back(new phir_power(N,d,t,l,1,{N_phir:d}-1,{N_phir:d}));
-
-    phi0list.push_back(new phi0_lead(0,0));
-    phi0list.push_back(new phi0_logtau(-1.0));
-    phi0list.push_back(new phi0_power(a[0],b[0]));
-    phi0list.push_back(new phi0_cp0_Planck_Einstein(a,b,1,{N_cp0:d}-1,{N_cp0:d}));
-
+    
     // Other fluid parameters
-    params.molemass = {molemass:g}; //[kg/m^3]
+    params.molemass = {molemass:g}; //[kg/kmol]
     params.Ttriple = {Ttriple:g}; //[K]
     params.accentricfactor = {accentric:g}; //[-]
     params.R_u = 8.314472;
@@ -62,6 +57,16 @@ PPF_cpp_template = """
     crit.p = PressureUnit({pcrit:g},UNIT_KPA);
     crit.T = {Tcrit:g};
     crit.v = 1.0/crit.rho;
+    
+    phirlist.push_back(new phir_power(N,d,t,l,1,{N_phir:d}-1,{N_phir:d}));
+
+    phi0list.push_back(new phi0_lead(0, 0));
+    phi0list.push_back(new phi0_logtau(-1.0));
+    phi0list.push_back(new phi0_cp0_poly(a[1],b[1],crit.T,298.15));
+    phi0list.push_back(new phi0_Planck_Einstein(a,b,2,{N_cp0:d},{N_cp0:d}+1));
+
+    // Adjust to the IIR reference state (h=200 kJ/kg, s = 1 kJ/kg for sat. liq at 0C)
+    params.HSReferenceState = "IIR";
 
     // Limits of EOS
     limits.Tmin = params.Ttriple;

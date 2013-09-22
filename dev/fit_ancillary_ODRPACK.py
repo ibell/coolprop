@@ -331,7 +331,7 @@ def saturation_pressure(Ref, ClassName, fName = None, LV = None):
         {{
             summer += N[i]*pow(theta,t[i]/2);
         }}
-        return reduce.p*exp(reduce.T/T*summer);
+        return reduce.p.Pa*exp(reduce.T/T*summer);
     }}
     """)
     the_string = template.format(N = len(n)+1,
