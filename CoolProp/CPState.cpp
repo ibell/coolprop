@@ -1129,7 +1129,7 @@ double CoolPropStateClassSI::s(void){
 double CoolPropStateClassSI::cp(void){
 	if (TwoPhase)
 	{
-		if (pFluid->enabled_EXTTP) {
+		if (pFluid->enabled_EXTTP || SaturatedL || SaturatedV) {
 			return interp_linear(_Q,cpL(),cpV());
 		} else {
 			return -_HUGE;
@@ -1152,7 +1152,7 @@ double CoolPropStateClassSI::cp(void){
 
 double CoolPropStateClassSI::viscosity(void){
 	if (TwoPhase) {
-		if (pFluid->enabled_EXTTP) {
+		if (pFluid->enabled_EXTTP || SaturatedL || SaturatedV) {
 			return interp_recip(_Q,viscL(),viscV());
 		} else {
 			return -_HUGE;
@@ -1167,7 +1167,7 @@ double CoolPropStateClassSI::viscosity(void){
 
 double CoolPropStateClassSI::conductivity(void){
 	if (TwoPhase) {
-		if (pFluid->enabled_EXTTP) {
+		if (pFluid->enabled_EXTTP || SaturatedL || SaturatedV) {
 			return interp_linear(_Q,condL(),condV());
 		} else {
 			return -_HUGE;
@@ -1288,7 +1288,7 @@ double CoolPropStateClassSI::speed_sound(void){
 
 double CoolPropStateClassSI::isothermal_compressibility(void){
 	if (TwoPhase) {
-		if (pFluid->enabled_EXTTP) {
+		if (pFluid->enabled_EXTTP || SaturatedL || SaturatedV) {
 			// dpdrho_constT not defined in two-phase region, thus linearized in between phases
 			//double dpdrhoL = SatL->dpdrho_constT();
 			//double dpdrhoV = SatV->dpdrho_constT();
@@ -1316,7 +1316,7 @@ double CoolPropStateClassSI::isothermal_compressibility(void){
 
 double CoolPropStateClassSI::isobaric_expansion_coefficient(void){
 	if (TwoPhase) {
-		if (pFluid->enabled_EXTTP) {
+		if (pFluid->enabled_EXTTP || SaturatedL || SaturatedV) {
 			// drhodT_constp not defined in two-phase region, thus linearised in between phases
 			//double dvdTL = -1/(_rho*_rho)*SatL->drhodT_constp();
 			//double dvdTV = -1/(_rho*_rho)*SatV->drhodT_constp();

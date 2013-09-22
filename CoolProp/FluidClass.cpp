@@ -43,6 +43,7 @@
 #include "pseudopurefluids/R507A.h"
 #include "pseudopurefluids/R407C.h"
 #include "pseudopurefluids/SES36.h"
+#include "pseudopurefluids/R407F.h"
 
 #include "purefluids/Water.h"
 #include "purefluids/R134a.h"
@@ -90,6 +91,7 @@
 #include "purefluids/RC318_R21_R114_R13_R14.h"
 #include "purefluids/R12_R113.h"
 #include "purefluids/Deuterium.h"
+
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -373,7 +375,6 @@ FluidsContainer::FluidsContainer()
 	FluidsList.push_back(new R123Class());
 	FluidsList.push_back(new R11Class());
 
-
 	// The Siloxanes
 	FluidsList.push_back(new OctamethyltrisiloxaneClass()); //MDM
 	FluidsList.push_back(new DecamethyltetrasiloxaneClass()); //MD2M
@@ -414,6 +415,7 @@ FluidsContainer::FluidsContainer()
 	FluidsList.push_back(new R410AClass());
 	FluidsList.push_back(new R407CClass());
 	FluidsList.push_back(new R507AClass());
+	FluidsList.push_back(new R407FClass());
 
 	// The gas-only EOS
 	//FluidsList.push_back(new R290Gas());
@@ -619,6 +621,12 @@ void Fluid::post_load(rapidjson::Document &JSON, rapidjson::Document &JSON_CAS)
 	HS.rho_hmax = JSON_lookup_double(JSON,this->params.CAS,"rho_hsatVmax");
 	HS.a_hs_satL = JSON_lookup_dblvector(JSON,this->params.CAS,"a_hs_satL");
 	HS.n_hs_satL = JSON_lookup_intvector(JSON,this->params.CAS,"n_hs_satL");
+
+	// REFPROP name is equal to fluid name if not provided
+	if (!params.HSReferenceState.empty())
+	{
+		set_reference_stateP(this,params.HSReferenceState);
+	}
 }
 //--------------------------------------------
 //    Residual Part
