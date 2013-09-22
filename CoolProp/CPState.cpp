@@ -1207,6 +1207,7 @@ double CoolPropStateClassSI::cv(void){
 	{
 		if (TwoPhase && _Q>0 && _Q < 1)
 		{
+			/// As given by Thorade-EES-2013
 			double dsdTL = pFluid->TTSESatL.evaluate_sat_derivative(iS,_p)/pFluid->TTSESatL.evaluate_sat_derivative(iT,_p);
 			double dsdTV = pFluid->TTSESatV.evaluate_sat_derivative(iS,_p)/pFluid->TTSESatV.evaluate_sat_derivative(iT,_p);
 			double drhodTL = pFluid->TTSESatL.evaluate_sat_derivative(iD,_p)/pFluid->TTSESatL.evaluate_sat_derivative(iT,_p);
@@ -1228,6 +1229,7 @@ double CoolPropStateClassSI::cv(void){
 	{
 		if (TwoPhase)
 		{
+			/// As given by Thorade-EES-2013
 			double dsdTL = dsdT_along_sat_liquid();
 			double dsdTV = dsdT_along_sat_vapor();
 			double dvdTL = -drhodT_along_sat_liquid()/rhoL()/rhoL();
@@ -1247,11 +1249,11 @@ double CoolPropStateClassSI::speed_sound(void){
 	{
 		if (TwoPhase && _Q>0 && _Q < 1)
 		{
+			/// As given by Thorade-EES-2013
 			double dsdpL = pFluid->TTSESatL.evaluate_sat_derivative(iS,_p);
 			double dsdpV = pFluid->TTSESatV.evaluate_sat_derivative(iS,_p);
 			double dvdpL = -pFluid->TTSESatL.evaluate_sat_derivative(iD,_p)/rhoL()/rhoL();
 			double dvdpV = -pFluid->TTSESatV.evaluate_sat_derivative(iD,_p)/rhoV()/rhoV();
-			//
 			double dxdp_s = (-_Q*(dsdpV-dsdpL) - dsdpL)/(sV()-sL());
 			double dddp_s = -pow(_rho,2)*(dvdpL  + dxdp_s*(1/rhoV() - 1/rhoL()) + _Q*(dvdpV-dvdpL));
 			return pow(1.0/dddp_s,0.5);
@@ -1268,6 +1270,7 @@ double CoolPropStateClassSI::speed_sound(void){
 		}
 	} else {
 		if (TwoPhase) {
+			/// As given by Thorade-EES-2013
 			double dvdpL = -drhodp_along_sat_liquid()/rhoL()/rhoL();
 			double dvdpV = -drhodp_along_sat_vapor()/rhoV()/rhoV();
 			double dsdpL = dsdp_along_sat_liquid();
