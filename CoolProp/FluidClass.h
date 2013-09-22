@@ -174,6 +174,7 @@ class Fluid
 			params.R_u=8.314472; /// Default molar gas constant [kJ/kmol/K]
 			isPure=true;  /// true if fluid is one-component pure fluid, false otherwise
 
+			enabled_EXTTP = false;
 			// Default parameters for TTSE - others are set in post-load() function
 			built_TTSE_LUT = false;
 			enabled_TTSE_LUT = false;
@@ -555,7 +556,15 @@ class Fluid
 		bool isAlias(std::string name);
 
 		/// Parameters for the Tabular Taylor Series Expansion (TTSE) Method
-		bool enabled_TTSE_LUT, built_TTSE_LUT, enable_writing_tables_to_files;
+		bool enabled_TTSE_LUT, enabled_EXTTP, built_TTSE_LUT, enable_writing_tables_to_files;
+
+		/// Enable the extended two-phase calculations
+		/// If you want to over-ride parameters, must be done before calling this function
+		void enable_EXTTP(void);
+		/// Check if TTSE is enabled
+		bool isenabled_EXTTP(void);
+		/// Disable the TTSE
+		void disable_EXTTP(void);
 
 		/// Enable the TTSE
 		/// If you want to over-ride parameters, must be done before calling this function
