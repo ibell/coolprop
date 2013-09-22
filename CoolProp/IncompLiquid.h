@@ -8,6 +8,7 @@
 #include "CoolProp.h"
 #include <math.h>
 #include "Solvers.h"
+#include "IncompBase.h"
 
 /**
 Notes for developers:
@@ -18,24 +19,9 @@ in IncompLiquid.cpp
 **/
 
 /// The abstract base class for the liquids
-class IncompressibleLiquid{
+class IncompressibleLiquid : public IncompressibleFluid{
 	
-protected:
-	std::string name,description,reference;
-	double Tmin, TminPsat, Tmax, Tref;
-
 public:
-	// Constructor
-	IncompressibleLiquid(){
-		Tmin = -1.;
-		Tmax = -1.;
-		TminPsat = -1.;
-		Tref = 273.15 + 25. ;
-	};
-
-	// Destructor.  No implementation
-	virtual ~IncompressibleLiquid(){};
-
 	/* All functions need T and p as input. Might not be necessary,
 	 * but gives a clearer structure.
 	 */
@@ -58,10 +44,6 @@ public:
 	virtual double psat(double T_K){return -1;};
 	/// Saturation temperature as a function of pressure.
 	virtual double Tsat(double p){return -1;};
-
-	std::string get_name() {
-		return name;
-	}
 
 protected:
 	/* Define internal energy and enthalpy as functions of the
@@ -96,7 +78,7 @@ protected:
 	/// Check validity of temperature input.
 	/** Compares the given temperature T to a stored minimum and
 	 *  maximum temperature. Enforces the redefinition of Tmin and
-	 *  Tmax since the default values cause and error. */
+	 *  Tmax since the default values cause an error. */
 	bool checkT(double T_K){
 		if( Tmin < 0. ) {
 			throw ValueError("Please specify the minimum temperature.");
@@ -114,7 +96,7 @@ protected:
 	/** Compares the given pressure p to the saturation pressure at
 	 *  temperature T and throws and exception if p is lower than
 	 *  the saturation conditions.
-	 *  The default value for psat is -1 yielding true is psat
+	 *  The default value for psat is -1 yielding true if psat
 	 *  is not redefined in the subclass.
 	 *  */
 	bool checkP(double T_K, double p) {
@@ -131,101 +113,6 @@ protected:
 		return (checkT(T) && checkP(T,p));
 	}
 
-	/// Polynomial function generator.
-	/** Base function to produce n-th order polynomials
-	 *  based on the length of the coefficients vector.
-	 *  Starts with only the first coefficient at x^0. */
-	double basePolynomial(std::vector<double> coefficients, double x){
-	    double result = 0.;
-	    for(unsigned int i=0; i<coefficients.size();i++) {
-	    	result += coefficients[i] * pow(x,(int)i);
-	    }
-	    return result;
-	}
-
-	/// Polynomial function generator with check.
-	/** Base function to produce n-th order polynomials
-	 *  based on the length of the coefficients vector.
-	 *  Starts with only the first coefficient at x^0
-	 *  and checks the vector length against parameter n. */
-	double basePolynomial(std::vector<double> coefficients, double x, unsigned int n){
-		if (coefficients.size() == n){
-			return basePolynomial(coefficients, x);
-		} else {
-			throw ValueError(format("The number of coefficients %d does not match with %d. ",coefficients.size(),n));
-		}
-	}
-
-	/// Integrated polynomial function generator.
-	/** Base function to produce integrals of n-th order
-	 *  polynomials based on the length of the coefficients
-	 *  vector. Integrates from x0 to x1.
-	 *  Starts with only the first coefficient at x^0 */
-	double basePolynomialInt(std::vector<double> coefficients, double x1, double x0){
-		double result = 0.;
-		for(unsigned int i=0; i<coefficients.size();i++) {
-			result += 1./(i+1.) * coefficients[i] * (pow(x1,(i+1.)) - pow(x0,(i+1.)));
-		}
-		return result;
-	}
-
-	/// Integrated polynomial function generator with check.
-	/** Calls the base function but checks the vector
-	 *  length against parameter n. */
-	double basePolynomialInt(std::vector<double> coefficients, double x1, double x0, unsigned int n){
-		if (coefficients.size() == n){
-			return basePolynomialInt(coefficients, x1, x0);
-		} else {
-			throw ValueError(format("The number of coefficients %d does not match with %d. ",coefficients.size(),n));
-		}
-	}
-
-	/// Integrated fraction generator.
-	/** Base function to produce integrals of n-th order
-	 *  polynomials divided by their variable based on
-	 *  the length of the coefficients vector.
-	 *  Integrates from x0 to x1, starts with only the
-	 *  first coefficient at x^0 */
-	double baseFractionInt(std::vector<double> coefficients, double x1, double x0){
-		double result = coefficients[0] * log(x1/x0);
-		if (coefficients.size() > 1) {
-			std::vector<double> newCoeffs(coefficients.begin() + 1, coefficients.end());
-			result += basePolynomialInt(newCoeffs,x1,x0);
-		}
-		return result;
-	}
-
-	/// Integrated fraction generator with check.
-	/** Calls the base function but checks the vector
-	 *  length against parameter n before. */
-	double baseFractionInt(std::vector<double> coefficients, double x1, double x0, unsigned int n){
-		if (coefficients.size() == n){
-			return baseFractionInt(coefficients, x1, x0);
-		} else {
-			throw ValueError(format("The number of coefficients %d does not match with %d. ",coefficients.size(),n));
-		}
-	}
-
-	/// Exponential function generator.
-	/** Base function to produce exponential functions
-	 *  based on the input n.
-	 *  An extra check is performed for the length
-	 *  of the vector according to the chosen function. */
-	double baseExponential(std::vector<double> coefficients, double x, int n){
-		double result = 0.;
-		if (n==1) {
-			int c = 3;
-			if (coefficients.size() != c) throw ValueError(format("The number of coefficients %d does not match with %d. ",coefficients.size(),c));
-			result = exp(coefficients[0]/(x+coefficients[1]) - coefficients[2]);
-		} else if (n==2) {
-			int c = 3;
-			if (coefficients.size() != c) throw ValueError(format("The number of coefficients %d does not match with %d. ",coefficients.size(),c));
-			result = exp(basePolynomial(coefficients, x, c));
-		} else {
-			throw ValueError(format("There is no function defined for this input (%d). ",n));
-		}
-	    return result;
-	}
 };
 
 bool IsIncompressibleLiquid(std::string name);

@@ -6,7 +6,6 @@
 #include <vector>
 #include "CPExceptions.h"
 #include "CoolProp.h"
-#include "IncompLiquid.h"
 #include <math.h>
 #include "Solvers.h"
 
@@ -21,14 +20,27 @@ in IncompSolution.cpp
 /// Base class for simplified brine/solution models
 /** Employs the base functions implemented in IncompLiquid.h.
  *  Extends the functions for composition as input. */
-class IncompressibleSolution : public IncompressibleLiquid{
+class IncompressibleSolution{
 
 protected:
-	double xmin, xmax;
+	std::string name,description,reference;
+	double Tmin, TminPsat, Tmax, Tref, xmin, xmax;
+
+	/// Function used to enforce the composition as parameter
+	/** Overwrites the normal functions that only take 2
+	 *  parameters (T,p) and throws an exception. */
+	bool needComposition() {
+		throw NotImplementedError(format("The fluid %s needs an additional input for the composition.",this->name));
+		return false;
+	}
 
 public:
 	// Constructor
 	IncompressibleSolution(){
+		Tmin = -1.;
+		Tmax = -1.;
+		TminPsat = -1.;
+		Tref = 273.15 + 25. ;
 		xmin = -1.;
 		xmax = -1.;
 	};
@@ -36,12 +48,25 @@ public:
 	// Destructor, no implementation
 	virtual ~IncompressibleSolution(){};
 
+	/* All functions need T, p and x as input. Might not
+	 * be necessary, but gives a clearer structure.
+	 */
+    virtual double rho (double T_K, double p, double x);
+    virtual double cp  (double T_K, double p, double x);
+    virtual double h   (double T_K, double p, double x);
+    virtual double s   (double T_K, double p, double x);
+    virtual double visc(double T_K, double p, double x);
+    virtual double cond(double T_K, double p, double x);
+    virtual double u   (double T_K, double p, double x);
+    virtual double psat(double T_K          , double x);
+    virtual double Tsat(            double p, double x);
+    virtual double Tfreeze(         double p, double x);
+
 protected:
 	/// Enthalpy from x, u, p and rho.
 	/** Calculate enthalpy as a function of temperature and
 	 *  pressure employing functions for internal energy and
 	 *  density. Provides consistent formulations. */
-	double h_u(double T_K, double p) {needComposition();return -_HUGE;};
 	double h_u(double T_K, double p, double x) {
 		return u(T_K,p,x)+p/rho(T_K,p,x);
 	};
@@ -50,7 +75,6 @@ protected:
 	/** Calculate internal energy as a function of temperature
 	 *  and pressure employing functions for enthalpy and
 	 *  density. Provides consistent formulations. */
-	double u_h(double T_K, double p) {needComposition();return -_HUGE;};
 	double u_h(double T_K, double p, double x) {
 		return h(T_K,p,x)-p/rho(T_K,p,x);
 	};
@@ -68,13 +92,15 @@ protected:
 	 *  freezing point calculation. This is not necessarily
 	 *  defined for all fluids, default values do not
 	 *  cause errors. */
-	bool checkT(double T_K, double x){
+	bool checkT(double T_K, double p, double x){
 		if( Tmin < 0. ) {
 			throw ValueError("Please specify the minimum temperature.");
 		} else if( Tmax < 0.) {
 			throw ValueError("Please specify the maximum temperature.");
 		} else if ( (Tmin>T_K) || (T_K>Tmax) ) {
 			throw ValueError(format("Your temperature %f is not between %f and %f.",T_K,Tmin,Tmax));
+		} else if (T_K < Tfreeze(p,x)) {
+			throw ValueError("Your temperature %f is below the freezing point of %f.",T_K,Tfreeze(p,x));
 		} else {
 			return true;
 		}
@@ -85,11 +111,11 @@ protected:
 	/** Compares the given pressure p to the saturation pressure at
 	 *  temperature T and throws and exception if p is lower than
 	 *  the saturation conditions.
-	 *  The default value for psat is -1 yielding true is psat
+	 *  The default value for psat is -1 yielding true if psat
 	 *  is not redefined in the subclass.
 	 *  */
-	bool checkP(double T_K, double p) {
-		double ps = psat(T_K);
+	bool checkP(double T_K, double p, double x) {
+		double ps = psat(T_K,x);
 		if (p<ps) {
 			throw ValueError(format("Equations are valid for liquid phase only: %f < %f. ",p,ps));
 		} else {
@@ -97,98 +123,33 @@ protected:
 		}
 	}
 
-	/// Check validity of temperature and pressure input.
-	bool checkTP(double T, double p) {
-		return (checkT(T) && checkP(T,p));
-	}
-
-	/// 2D polynomial function generator.
-	/** Base function to produce n-th order polynomials
-	 *  based on the size of the coefficient matrix.
-	 *  Starts with only the first coefficient at x^0*y^0. */
-	double basePolynomial(std::vector<std::vector<double>> coefficients, double x, double y){
-		double result = 0.;
-		for(unsigned int i=0; i<coefficients.size();i++) {
-			result += pow(x,(int)i) * IncompressibleLiquid::basePolynomial(coefficients[i],y);
-		}
-		return result;
-	}
-
-	/// 2D polynomial function generator with check.
-	/** Base function to produce i-th order polynomials
-	 *  based on the size of the coefficient matrix.
-	 *  Starts with only the first coefficient at x^0*y^0
-	 *  and checks the vector length against parameter n and o. */
-	double basePolynomial(std::vector<std::vector<double>> coefficients, double x, double y, unsigned int n, unsigned int o){
-		if (coefficients.size() == n){
-			double result = 0.;
-			for(unsigned int i=0; i<n; i++) {
-				result += pow(x,(int)i) * IncompressibleLiquid::basePolynomial(coefficients[i],y,o);
-			}
-			return result;
+	/// Check validity of composition input.
+	/** Compares the given composition x to a stored minimum and
+	 *  maximum value. Enforces the redefinition of xmin and
+	 *  xmax since the default values cause an error. */
+	bool checkX(double x){
+		if( xmin < 0. ) {
+			throw ValueError("Please specify the minimum concentration.");
+		} else if( xmax < 0.) {
+			throw ValueError("Please specify the maximum concentration.");
+		} else if ( (xmin>x) || (x>xmax) ) {
+			throw ValueError(format("Your composition %f is not between %f and %f.",x,xmin,xmax));
 		} else {
-			throw ValueError(format("The number of rows %d does not match with %d. ",coefficients.size(),n));
+			return true;
 		}
-	}
-
-	/// Function used to enforce the composition as parameter
-	/** Overwrites the normal functions that only take 2
-	 *  parameters (T,p) and throws an exception. */
-	bool needComposition() {
-		throw ValueError(format("The fluid %s needs an additional input for the composition.",this->name));
 		return false;
 	}
 
-public:
-	/// First we disable all the standard functions ...
-	double rho(double T_K, double p){
-		needComposition();
-		return -_HUGE;
+	/// Check validity of temperature, pressure and composition input.
+	bool checkTP(double T_K, double p){needComposition();return false;}
+	bool checkTPX(double T, double p, double x) {
+		return (checkT(T,p,x) && checkP(T,p,x) && checkX(x));
 	}
-	double cp(double T_K, double p){
-		needComposition();
-		return -_HUGE;
-	}
-	double h(double T_K, double p){
-		needComposition();
-		return -_HUGE;
-	}
-	double s(double T_K, double p){
-		needComposition();
-		return -_HUGE;
-	}
-	double visc(double T_K, double p){
-		needComposition();
-		return -_HUGE;
-	}
-	double cond(double T_K, double p){
-		needComposition();
-		return -_HUGE;
-	}
-	double u(double T_K, double p){
-		needComposition();
-		return -_HUGE;
-	}
-	double psat(double T_K){
-		needComposition();
-		return -_HUGE;
-	};
-	double Tsat(double p){
-		needComposition();
-		return -_HUGE;
-	};
-
-	/// ... and then we define new ones with a composition parameter
-    virtual double rho (double T_K, double p, double x);
-    virtual double cp  (double T_K, double p, double x);
-    virtual double h   (double T_K, double p, double x);
-    virtual double s   (double T_K, double p, double x);
-    virtual double visc(double T_K, double p, double x);
-    virtual double cond(double T_K, double p, double x);
-    virtual double u   (double T_K, double p, double x);
-    virtual double psat(double T_K          , double x);
-    virtual double Tsat(            double p, double x);
 };
+
+bool IsIncompressibleSolution(std::string name);
+double IncompSolution(long iOutput, double T, double p, double x, long iFluid);
+double IncompSolution(long iOutput, double T, double p, double x, std::string name);
 
 /// Class to use the SecCool parameters
 /** Employs some basic wrapper-like functionality
@@ -196,7 +157,7 @@ public:
  *  used in CoolProp and the definition used in
  *  SecCool. Please visit:
  *  http://en.ipu.dk/Indhold/refrigeration-and-energy-technology/seccool.aspx
- *  A big thanks to Morten Juel Skovrup for providing
+ *  Many thanks to Morten Juel Skovrup for providing
  *  this nice piece of software as well as the parameters
  *  needed to calculate the composition based properties. */
 class SecCoolSolution : public IncompressibleSolution{
