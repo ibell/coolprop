@@ -652,42 +652,46 @@ public:
 	double dDelta3(double tau, double delta){return 0;};
 };
 
+/*
+Term is of the form a*tau^b
+Constructor:
+	phi0_power(std::vector<double> a, std::vector<double> b, int iStart, int iEnd)
+*/
 class phi0_power : public phi_BC{
-	/*
-	Term is of the form a_0*tau^b_0
-	Constructor:
-		phi0_power(std::vector<double> a, std::vector<double> theta, int iStart, int iEnd)
-	*/
+	
 private:
 	std::vector<double> a,b; // Use these variables internally
 	int iStart, iEnd;
 public:
 	// Constructor
-	phi0_power(std::vector<double> a, std::vector<double> theta, int iStart, int iEnd)
+	phi0_power(std::vector<double> a, std::vector<double> b, int iStart, int iEnd)
 	{
 		this->a=a; 
-		this->b=theta; 
+		this->b=b; 
 		this->iStart = iStart; 
 		this->iEnd = iEnd;
 	};
-	phi0_power(double a[], double theta[], int iStart, int iEnd, int N)
+	phi0_power(double a[], double b[], int iStart, int iEnd, int N)
 	{
 		this->a = std::vector<double>(a,a+N);
-		this->b = std::vector<double>(theta,theta+N);
+		this->b = std::vector<double>(b,b+N);
 		this->iStart = iStart; 
 		this->iEnd = iEnd;
 	};
-	phi0_power(const double a[], const double theta[], int iStart, int iEnd, int N)
+	phi0_power(const double a[], const double b[], int iStart, int iEnd, int N)
 	{
 		this->a = std::vector<double>(a,a+N);
-		this->b = std::vector<double>(theta,theta+N);
+		this->b = std::vector<double>(b,b+N);
 		this->iStart = iStart; 
 		this->iEnd = iEnd;
 	};
 	// Constructor with just double values
-	phi0_power(double a_in, double theta_in)
+	phi0_power(double a, double b)
 	{
-		a=std::vector<double>(1,a_in); b=std::vector<double>(1,theta_in); iStart = 0; iEnd = 0;
+		this->a=std::vector<double>(1,a); 
+		this->b=std::vector<double>(1,b); 
+		iStart = 0; 
+		iEnd = 0;
 	};
 
 	//Destructor
