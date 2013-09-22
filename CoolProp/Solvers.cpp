@@ -68,7 +68,7 @@ double Secant(FuncWrapper1D *f, double x0, double dx, double tol, int maxiter, s
 	*errstring=std::string("");
 	
 	if (fabs(dx)==0){ *errstring=std::string("dx cannot be zero"); return _HUGE;}
-    while ((iter<=2 || fabs(fval)>tol) && iter<100)
+    while ((iter<=2 || fabs(fval)>tol) && iter<maxiter)
     {
         if (iter==1){x1=x0; x=x1;}
         if (iter==2){x2=x0+dx; x=x2;}

@@ -537,7 +537,7 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 
 	long ierr=0,iOutput,iName1,iName2;
 	char herr[errormessagelength+1];
-	double xliq[ncmax],xvap[ncmax], output_val;
+	double xliq[ncmax],xvap[ncmax], dummyv[ncmax], output_val;
 	
 	double TL, TV, dummy;
 	double T,p=0,d,dl,dv,q,e,h,s,cv,cp,w,MW,hl,hv,sl,sv,ul,
@@ -753,9 +753,9 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 			// Saturation Density
 			long ic;
 			ic=1;
-			SATTdll(&T,&(x[0]),&ic,&pl,&dl,&dummy,xliq,xvap,&ierr,herr,errormessagelength); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
+			SATTdll(&T,&(x[0]),&ic,&pl,&dl,&dummy,xliq,dummyv,&ierr,herr,errormessagelength); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
 			ic=2;
-			SATTdll(&T,&(x[0]),&ic,&pv,&dummy,&dv,xliq,xvap,&ierr,herr,errormessagelength); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
+			SATTdll(&T,&(x[0]),&ic,&pv,&dummy,&dv,dummyv,xvap,&ierr,herr,errormessagelength); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
 
 			p = (pv*Q+pl*(1-Q))*1000; // [Pa]
 		}
@@ -768,10 +768,10 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 			// Saturation Density for the liquid
 			
 			long ic = 1;
-			SATPdll(&p,&(x[0]),&ic,&TL,&dl,&dummy,xliq,xvap,&ierr,herr,errormessagelength); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
+			SATPdll(&p,&(x[0]),&ic,&TL,&dl,&dummy,xliq,dummyv,&ierr,herr,errormessagelength); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
 			// Saturation density for the vapor
 			ic = 2;
-			SATPdll(&p,&(x[0]),&ic,&TV,&dummy,&dv,xliq,xvap,&ierr,herr,errormessagelength); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
+			SATPdll(&p,&(x[0]),&ic,&TV,&dummy,&dv,dummyv,xvap,&ierr,herr,errormessagelength); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
 
 			T = (TV*Q+TL*(1-Q));
 		}

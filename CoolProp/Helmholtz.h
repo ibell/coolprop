@@ -450,6 +450,37 @@ public:
 };
 
 /*!
+\f[
+\phi_0 = a_1+a_2\tau
+\f]
+
+constructor: phi0_enthalpy_entropy_offset(double a1, double a2)
+*/
+class phi0_enthalpy_entropy_offset : public phi_BC{
+private:
+	double c1,c2; // Use these variables internally
+public:
+	// Constructor
+	phi0_enthalpy_entropy_offset(double a1, double a2){c1=a1; c2=a2;};
+
+	//Destructor
+	~phi0_enthalpy_entropy_offset(){};
+
+	// Term and its derivatives
+	double base(double tau, double delta){return c1+c2*tau;};
+	double dTau(double tau, double delta){return c2;};
+	double dTau2(double tau, double delta){return 0.0;};
+	double dDelta(double tau, double delta){return 1.0/delta;};
+	double dDelta2(double tau, double delta){return -1.0/delta/delta;};
+	double dDelta2_dTau(double tau, double delta){return 0.0;};
+	double dDelta_dTau(double tau, double delta){return 0.0;};
+	double dDelta_dTau2(double tau, double delta){return 0.0;};
+	double dTau3(double tau, double delta){return 0.0;};
+	double dDelta3(double tau, double delta){return 2/delta/delta/delta;};
+};
+
+
+/*!
 	Term is of the form 
 	\f[
 	\phi_0 = a_1 \log(\tau)

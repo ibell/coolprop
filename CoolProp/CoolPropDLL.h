@@ -89,6 +89,9 @@
 	/// Set the TTSE mode (normal or bicubic)
 	EXPORT_CODE int CONVENTION set_TTSE_mode(char *FluidName, char * Value);
 
+	EXPORT_CODE int CONVENTION set_reference_stateS(char *Ref, char *reference_state);
+	EXPORT_CODE int CONVENTION set_reference_stateD(char *Ref, double T, double rho, double h0, double s0);
+
 	// Expose some functions that are useful for ECS debugging
 	EXPORT_CODE double CONVENTION viscosity_dilute(char* FluidName, double T);
 	EXPORT_CODE double CONVENTION viscosity_residual(char* FluidName, double T, double rho);

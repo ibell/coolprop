@@ -1055,7 +1055,7 @@ double Fluid::density_Tp(double T, double p, double rho_guess)
 	rho=rho_guess;
     int iter=1;
 	
-    while (fabs(error) > 1e-10 && fabs(change)>1e-10)
+    while (fabs(error) > 1e-10 && fabs(change/rho)>DBL_EPSILON*10)
     {
 		delta = rho/reduce.rho;
 		// Needed for both kinds
@@ -2315,13 +2315,13 @@ void Fluid::temperature_ps(double p, double s, double *Tout, double *rhoout, dou
 			*TsatLout = TsatL;
 			*TsatVout = TsatV;
 
-			if (fabs(s-ssatL) < 1e-8)
+			if (fabs(s-ssatL) < 1e-4)
 			{
 				*Tout = TsatL;
 				*rhoout = *rhoLout;
 				return;
 			}
-			else if (fabs(s-ssatV) < 1e-8)
+			else if (fabs(s-ssatV) < 1e-4)
 			{
 				*Tout = TsatV;
 				*rhoout = *rhoVout;
@@ -2353,8 +2353,7 @@ void Fluid::temperature_ps(double p, double s, double *Tout, double *rhoout, dou
 				// Return the quality weighted values
 				double quality = (s-ssatL)/(ssatV-ssatL);
 				*Tout = quality*TsatV+(1-quality)*TsatL;
-				double v = quality*(1/rhoV)+(1-quality)*1/rhoL;
-				*rhoout = 1/v;
+				*rhoout = 1/(quality/rhoV+(1-quality)/rhoL);
 				return;
 			}
 		}
@@ -3175,7 +3174,7 @@ void Fluid::saturation_p(double p, bool UseLUT, double *TsatL, double *TsatV, do
 			SPGR.rhoL = rhoL;
 			SPGR.rhoV = rhoV;
 			try{
-				Tsat = Secant(&SPGR,Tsat,1e-4,1e-7,50,&errstr);
+				Tsat = Secant(&SPGR,Tsat,1e-2*Tsat,1e-8,50,&errstr);
 				if (errstr.size()>0 || !ValidNumber(Tsat)|| !ValidNumber(SPGR.rhoV)|| !ValidNumber(SPGR.rhoL))
 					throw SolutionError("Saturation calculation failed");
 				*rhoVout = SPGR.rhoV;
