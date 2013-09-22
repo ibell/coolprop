@@ -42,27 +42,25 @@ R407FClass::R407FClass()
     
     phirlist.push_back(new phir_power(N,d,t,l,1,22-1,22));
 
-    phi0list.push_back(new phi0_lead(0,0));
+    phi0list.push_back(new phi0_lead(0, 0));
     phi0list.push_back(new phi0_logtau(-1.0));
     phi0list.push_back(new phi0_cp0_poly(a[1],b[1],crit.T,298.15));
     phi0list.push_back(new phi0_Planck_Einstein(a,b,2,4,4+1));
 
-	params.HSReferenceState = "IIR";
+    // Adjust to the IIR reference state (h=200 kJ/kg, s = 1 kJ/kg for sat. liq at 0C)
+    params.HSReferenceState = "IIR";
 
     // Limits of EOS
     limits.Tmin = params.Ttriple;
 
     name.assign("R407F");
-
 }
-
-
 
 double R407FClass::psatL(double T)
 {
-    // Maximum absolute error is 0.320300 % between 149.496265 K and 355.803836 K
-    const double t[]={0, 1, 2, 3, 7};
-    const double N[]={0, 0.1526407322941514, -7.5051053732508395, 1.2368935727859358, -3.5752506378154121};
+    // Maximum absolute error is 0.269260 % between 149.496265 K and 355.803836 K
+    const double t[]={0, 1, 2, 4, 7};
+    const double N[]={0, 0.10384427420214257, -7.0687195297889271, 1.1653240230726118, -3.9973877499290169};
     double summer=0,theta;
     theta=1-T/reduce.T;
     for (int i=1;i<=4;i++)
@@ -75,9 +73,9 @@ double R407FClass::psatL(double T)
 
 double R407FClass::psatV(double T)
 {
-    // Maximum absolute error is 0.190135 % between 149.496265 K and 355.803836 K
-    const double t[]={0, 1, 2, 3, 5, 9};
-    const double N[]={0, -0.23308294258564521, -6.9866068352166923, 0.72568262854955323, -1.3377527378607106, -4.94392089320006};
+    // Maximum absolute error is 0.250234 % between 149.496265 K and 355.803836 K
+    const double t[]={0, 1, 2, 3, 6, 9};
+    const double N[]={0, -0.24517468140736864, -6.861534752503343, 0.36605042228436802, -1.4746158702880026, -4.470909346945251};
     double summer=0,theta;
     theta=1-T/reduce.T;
     for (int i=1;i<=5;i++)
@@ -90,9 +88,9 @@ double R407FClass::psatV(double T)
 
 double R407FClass::rhosatL(double T)
 {
-    // Maximum absolute error is 0.110596 % between 149.496265 K and 354.803846 K
+    // Maximum absolute error is 0.227206 % between 149.496265 K and 354.803846 K
     const double t[] = {0, 0.16666666666666666, 0.3333333333333333, 0.5, 0.6666666666666666, 0.8333333333333334, 1.0, 1.1666666666666667, 1.5};
-    const double N[] = {0, -25.016336368491949, 275.16509661941035, -1282.9862444814557, 3317.3858644879506, -5014.0917140512256, 4290.9626091919372, -1709.960437659249, 151.99307236915118};
+    const double N[] = {0, -24.737060726816591, 273.58426993811281, -1281.5010722463417, 3325.891487701555, -5041.2138389635147, 4323.0977687148588, -1725.2431955774975, 153.57529856432242};
     double summer=0,theta;
     theta=1-T/reduce.T;
     	
@@ -107,9 +105,9 @@ return reduce.rho*(summer+1);
 
 double R407FClass::rhosatV(double T)
 {
-    // Maximum absolute error is 0.080552 % between 149.496265 K and 354.803846 K
+    // Maximum absolute error is 0.079941 % between 149.496265 K and 354.803846 K
     const double t[] = {0, 0.16666666666666666, 0.3333333333333333, 0.5, 0.6666666666666666, 0.8333333333333334, 1.0, 1.1666666666666667, 1.5, 1.8333333333333333, 2.1666666666666665};
-    const double N[] = {0, 181.83167536143111, -2601.0011679800691, 15966.232630027936, -54673.285181384716, 112341.17583197542, -136049.36963343105, 81465.618886849174, -23037.701739851385, 7910.7331971494532, -1516.858969623562};
+    const double N[] = {0, 181.82633126699102, -2600.9978883137055, 15966.622688274818, -54675.956461439942, 112349.32219323577, -136062.35313491867, 81475.183272830909, -23041.320486947832, 7912.2244219331069, -1517.1758761518065};
     double summer=0,theta;
     theta=1-T/reduce.T;
     	
