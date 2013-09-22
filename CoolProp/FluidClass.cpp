@@ -213,7 +213,7 @@ void rebuild_CriticalSplineConstants_T()
 				good = 1;
 			}
 		}
-		catch(std::exception)
+		catch(std::exception &)
 		{
 			if (CPS.pFluid->reduce.T > 100)
 			{
@@ -239,7 +239,7 @@ void rebuild_CriticalSplineConstants_T()
 					drhodTV = CPS.drhodT_along_sat_vapor();
 					drhodTL = CPS.drhodT_along_sat_liquid();
 				}
-				catch(std::exception){ 
+				catch(std::exception &){
 					valid = false; 
 					break;
 				}
@@ -1310,7 +1310,7 @@ void Fluid::saturation_T(double T, bool UseLUT, double *psatLout, double *psatVo
 					throw ValueError();
 				}
 			}
-			catch(std::exception)
+			catch(std::exception &)
 			{
 				try{
 
@@ -1354,7 +1354,7 @@ void Fluid::saturation_T(double T, bool UseLUT, double *psatLout, double *psatVo
 			*rhosatLout = density_Tp(T, *psatLout, rhosatL(T));
 			*rhosatVout = density_Tp(T, *psatVout, rhosatV(T));
 		}
-		catch (std::exception){
+		catch (std::exception &){
 			// Near the critical point, the behavior is not very nice, so we will just use the ancillary near the critical point
 			*rhosatLout = rhosatL(T);
 			*rhosatVout = rhosatV(T);
@@ -2529,7 +2529,7 @@ void Fluid::temperature_hs(double h, double s, double *Tout, double *rhoout, dou
 				if (SatFunc.Q > 1+1e-8 || SatFunc.Q < 0-1e-8){ throw ValueError("Solution must be within the two-phase region"); } 				
 				// It is two-phase, we are done, no exceptions were raised
 			}
-			catch(std::exception)
+			catch(std::exception &)
 			{
 				// Split the range into two pieces
 				try
@@ -2943,7 +2943,7 @@ double Fluid::Tsat_anc(double p, double Q)
 			throw SolutionError("Saturation calculation failed");
 		return reduce.T/tau;
 	}
-	catch(std::exception)
+	catch(std::exception &)
 	{
 		// At very low pressures the above solver will sometimes fail due to 
 		// the uncertainty of the ancillary pressure equation at low temperature (pressure)
@@ -3183,7 +3183,7 @@ void Fluid::saturation_p(double p, bool UseLUT, double *TsatL, double *TsatV, do
 				*TsatV = Tsat;
 				return;
 			}
-			catch(std::exception) // Whoops that failed...
+			catch(std::exception &) // Whoops that failed...
 			{
 				try{
 					// Now try to get Tsat by using Brent's method on saturation_T calls
@@ -3489,7 +3489,7 @@ std::vector<double> Fluid::ConformalTemperature(Fluid *InterestFluid, Fluid *Ref
 		xout[1] = x0[1];
 		return xout;
 	}
-	catch(std::exception){}
+	catch(std::exception &){}
 	// Ok, that didn't work, so we need to try something more interesting
 	// Local Newton-Raphson solver with bounds checking on the step values
 	error=999;
@@ -3817,6 +3817,14 @@ bool Fluid::build_TTSE_LUT(bool force_build)
 	}
 	return true;
 }
+
+/// Enable the two-phase properties
+/// If you want to over-ride parameters, must be done before calling this function
+void Fluid::enable_EXTTP(void){enabled_EXTTP = true;};
+/// Check if TTSE is enabled
+bool Fluid::isenabled_EXTTP(void){return enabled_EXTTP;};
+/// Disable the TTSE
+void Fluid::disable_EXTTP(void){enabled_EXTTP = false;};
 
 /// Enable the TTSE
 /// If you want to over-ride parameters, must be done before calling this function

@@ -129,6 +129,11 @@ protected:
 	/// Check whether within the TTSE range
 	bool within_TTSE_range(long iInput1, double Value1, long iInput2, double Value2);
 
+	/// Extended two-phase calculations need different interpolation functions
+	double interp_linear(double Q, double valueL, double valueV);
+	double interp_recip(double Q, double valueL, double valueV);
+
+
 public:
 	Fluid * pFluid;
 
@@ -227,6 +232,17 @@ public:
 	double conductivity(void);
 
 	double surface_tension(void);
+
+
+	// ----------------------------------------
+	// Extended two-phase calculations things
+	// ----------------------------------------
+	/// Enable the extended two-phase calculations
+	void enable_EXTTP(void);
+	/// Check if extended two-phase calculations are enabled
+	bool isenabled_EXTTP(void);
+	/// Disable the extended two-phase calculations
+	void disable_EXTTP(void);
 
 	// ----------------------------------------	
 	// TTSE LUT things
@@ -334,6 +350,12 @@ public:
 	double drhodp_along_sat_liquid(void);
 	double d2rhodp2_along_sat_vapor(void);
 	double d2rhodp2_along_sat_liquid(void);
+
+	double dsdT_along_sat_vapor(void);
+	double dsdT_along_sat_liquid(void);
+
+	double dhdT_along_sat_vapor(void);
+	double dhdT_along_sat_liquid(void);
 
 	double drhodT_along_sat_vapor(void);
 	double drhodT_along_sat_liquid(void);
@@ -552,6 +574,12 @@ public:
 	double drhodp_along_sat_liquid(void){return CoolPropStateClassSI::drhodp_along_sat_liquid()*conversion_factor("D/P");};
 	double d2rhodp2_along_sat_vapor(void){return CoolPropStateClassSI::d2rhodp2_along_sat_vapor()*conversion_factor("D*D/P/P");};
 	double d2rhodp2_along_sat_liquid(void){return CoolPropStateClassSI::d2rhodp2_along_sat_liquid()*conversion_factor("D*D/P/P");};
+
+	double dhdT_along_sat_vapor(void){return CoolPropStateClassSI::dhdT_along_sat_vapor()*conversion_factor("H/T");};
+	double dhdT_along_sat_liquid(void){return CoolPropStateClassSI::dhdT_along_sat_liquid()*conversion_factor("H/T");};
+
+	double dsdT_along_sat_vapor(void){return CoolPropStateClassSI::dsdT_along_sat_vapor()*conversion_factor("S/T");};
+	double dsdT_along_sat_liquid(void){return CoolPropStateClassSI::dsdT_along_sat_liquid()*conversion_factor("S/T");};
 
 	double drhodT_along_sat_vapor(void){return CoolPropStateClassSI::drhodT_along_sat_vapor()*conversion_factor("D/T");};
 	double drhodT_along_sat_liquid(void){return CoolPropStateClassSI::drhodT_along_sat_liquid()*conversion_factor("D/T");};
