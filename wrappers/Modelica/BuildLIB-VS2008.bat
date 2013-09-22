@@ -7,5 +7,6 @@ REM ******* compile all the sources from CoolProp ***************
 cl /c /O2 /I../../CoolProp /MD /EHsc ../../CoolProp/*.cpp
 cl /c /O2 /I../../CoolProp /MD /EHsc src/*.cpp
 
-lib CoolProp.obj *.obj /OUT:CoolPropLib.lib
+mkdir bin\VS2008
+lib CoolProp.obj *.obj /OUT:bin/VS2008/CoolPropLib.lib
 erase *.obj
