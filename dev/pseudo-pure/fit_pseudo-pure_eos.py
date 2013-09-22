@@ -3,6 +3,8 @@ from CoolProp.CoolProp import Props
 import matplotlib.pyplot as plt
 import matplotlib.mlab as mlab
 import scipy.optimize
+import h5py
+from templates import *
 
 def get_fluid_constants(Ref):
     if Ref == 'R407F':
@@ -22,12 +24,17 @@ def get_fluid_constants(Ref):
         
     return RefString, N0, T0, D0, L0
 
-class IdealPartFitter():
+class IdealPartFitter(object):
     def __init__(self, Ref):
+        self.Ref = Ref
         self.RefString, N0, T0, D0, L0 = get_fluid_constants(Ref)
+        self.molemass = (8.314472/Props(self.RefString,'molemass'))
+        self.Tc = Props(self.RefString, 'Tcrit')
+        self.rhoc = Props(self.RefString, 'rhocrit')
+        self.pc = Props(self.RefString, 'pcrit')
         self.T = np.linspace(100, 450, 200)
         self.C = Props('C', 'T', self.T, 'D', 1e-15, self.RefString)
-        self.cp0_R = self.C/(8.314472/Props(self.RefString,'molemass'))
+        self.cp0_R = self.C/self.molemass
         
     def cp0_R_from_fit(self, a_e):
         a = a_e[0:len(a_e)//2]
@@ -47,57 +54,172 @@ class IdealPartFitter():
 
         a_e = scipy.optimize.minimize(self.OBJECTIVE_cp0_R, a_e).x
         
+        self.a = a_e[0:len(a_e)//2]
+        self.e = a_e[len(a_e)//2::]
+        
         plt.plot(self.T, (self.cp0_R_from_fit(a_e)/self.cp0_R-1)*100, 'o-')
         plt.xlabel('Temperature [K]')
         plt.ylabel('($c_{p0}/R$ (fit) / $c_{p0}/R$ (REFPROP) -1)*100 [%]')
-        plt.show()
+        plt.close()
 
-def generate_1phase_data(Ref):
-    RefString, N0, T0, D0, L0 = get_fluid_constants(Ref)
+class ResidualPartFitter(object):
     
-    Tc = Props(RefString, 'Tcrit')
-    rhoc = Props(RefString, 'rhocrit')
-    TTT, RHO, PPP = [], [], []
-    
-    for _T in np.linspace(220, 450, 300):
-        print _T
-        for _rho in np.logspace(np.log10(1e-10), np.log10(2.5*rhoc), 300):
-            try:
-                if _T > Tc:
-                    p = Props('P', 'T', _T, 'D', _rho, RefString)
-                else:
-                    DL = Props('D', 'T', _T, 'Q', 0, RefString)
-                    DV = Props('D', 'T', _T, 'Q', 1, RefString)
-                    if _rho < DV or _rho > DL:
-                        p = Props('P', 'T', _T, 'D', _rho, RefString)
+    def __init__(self, Ref):
+        self.Ref = Ref
+        self.RefString, self.N0, self.T0, self.D0, self.L0 = get_fluid_constants(Ref)
+        
+    def generate_1phase_data(self):
+        
+        Tc = Props(self.RefString, 'Tcrit')
+        rhoc = Props(self.RefString, 'rhocrit')
+        TTT, RHO, PPP = [], [], []
+        
+        for _T in np.linspace(220, 450, 300):
+            print _T
+            for _rho in np.logspace(np.log10(1e-10), np.log10(2.5*rhoc), 300):
+                try:
+                    if _T > Tc:
+                        p = Props('P', 'T', _T, 'D', _rho, self.RefString)
                     else:
-                        p = None
-                if p is not None:
-                    TTT.append(_T)
-                    RHO.append(_rho)
-                    PPP.append(p)
-            except ValueError as VE:
-                print VE
-                pass
-                
+                        DL = Props('D', 'T', _T, 'Q', 0, self.RefString)
+                        DV = Props('D', 'T', _T, 'Q', 1, self.RefString)
+                        if _rho < DV or _rho > DL:
+                            p = Props('P', 'T', _T, 'D', _rho, self.RefString)
+                        else:
+                            p = None
+                    if p is not None:
+                        TTT.append(_T)
+                        RHO.append(_rho)
+                        PPP.append(p)
+                except ValueError as VE:
+                    print VE
+                    pass
+                    
+        h = h5py.File('T_rho_p.h5','w')
+        grp = h.create_group(self.Ref)
+        grp.create_dataset("T",data = np.array(TTT),compression = "gzip")
+        grp.create_dataset("rho", data = np.array(RHO),compression = "gzip")
+        grp.create_dataset("p", data = np.array(PPP),compression = "gzip")
+        h.close()
     
-    import h5py
-    h = h5py.File('T_rho_p.h5','w')
-    grp = h.create_group(Ref)
-    grp.create_dataset("T",data = np.array(TTT),compression = "gzip")
-    grp.create_dataset("rho", data = np.array(RHO),compression = "gzip")
-    grp.create_dataset("p", data = np.array(PPP),compression = "gzip")
-    h.close()
+    def load_data(self):
+        h = h5py.File('T_rho_p.h5','r')
+        self.T = h.get(self.Ref + '/T').value
+        self.rho = h.get(self.Ref + '/rho').value
+        self.p = h.get(self.Ref + '/p').value
     
-def load_data(Ref):
-    
-    import h5py
-    h = h5py.File('T_rho_p.h5','r')
-    T = h.get(Ref + '/T').value
-    rho = h.get(Ref + '/rho').value
-    p = h.get(Ref + '/p').value
-    return T,rho,p
+    def pressure_from_EOS(self, N):
+        
+        self.PPF.n = N[0:len(N)//2]
+        self.PPF.t = N[len(N)//2::]
+        
+        ddD1 = self.PPF.dphir_dDelta()
 
+        Tc = Props(self.RefString, 'Tcrit')
+        rhoc = Props(self.RefString, 'rhocrit')
+        R = 8.314472/Props(self.RefString,'molemass')
+        
+        p = (self.rho*R*self.T)*(1+self.rho/rhoc*ddD1)
+        return np.array(p,ndmin=1).T
+    
+    def OBJECTIVE(self, N):
+        pPPF = self.pressure_from_EOS(N)
+        RMS = np.sqrt(np.mean(np.power((pPPF-self.p)/self.p, 2)))
+        print RMS
+        return RMS
+    
+    def fit(self):
+        
+        from summer import PPF_summer
+        Tc = Props(self.RefString, 'Tcrit')
+        rhoc = Props(self.RefString, 'rhocrit')
+        self.PPF = PPF_summer(Tc/self.T,self.rho/rhoc)
+        self.PPF.set_constants(self.T0,self.D0,self.L0,6)
+        
+        self.N = scipy.optimize.minimize(self.OBJECTIVE, np.array(list(self.N0)+list(self.T0)), options = dict(maxiter = 20)).x
+        
+        h = h5py.File('fit_coeffs.h5','a')
+        grp = h.create_group(self.Ref)
+        grp.create_dataset("n", data = np.array(self.N[0:len(self.N)//2]), compression = "gzip")
+        grp.create_dataset("t", data = np.array(self.N[len(self.N)//2::]), compression = "gzip")
+        h.close()
+    
+class PPFFitterClass(object):
+    
+    def __init__(self, Ref, use_saved_data = True):
+        
+        self.Ref = Ref
+        
+        self.IPF = IdealPartFitter(Ref)
+        self.IPF.fit()
+    
+        self.RPF = ResidualPartFitter(Ref)
+        if not use_saved_data:
+            self.RPF.generate_1phase_data()
+        self.RPF.load_data()
+        if not use_saved_data:
+            self.RPF.fit()
+        self.output_files()
+        
+    def output_files(self):
+        h = h5py.File('fit_coeffs.h5','r')
+        n = h.get(self.Ref+'/n').value
+        t = h.get(self.Ref+'/t').value
+
+        # Output the header file
+        header = PPF_h_template.format(Ref = self.Ref, RefUpper = self.Ref.upper())
+
+                                    
+        acoeffs = '0, '+', '.join(['{a:0.6f}'.format(a=_) for _ in self.IPF.a])
+        # First one doesn't get divided by critical temperature, later ones do        
+        bcoeffs = '0, '
+        bcoeffs += str(self.IPF.e[0])+', '
+        bcoeffs += ', '.join(['-{b:0.4f}/{Tcrit:g}'.format(b=_,Tcrit = self.IPF.Tc) for _ in self.IPF.e[1::]])
+            
+        ncoeffs = ', '.join(['{a:0.6g}'.format(a=_) for _ in n])
+        tcoeffs = ', '.join(['{a:0.6g}'.format(a=_) for _ in t])
+        dcoeffs = ', '.join(['{a:0.6g}'.format(a=_) for _ in self.RPF.D0])
+        lcoeffs = ', '.join(['{a:0.6g}'.format(a=_) for _ in self.RPF.L0])
+            
+        import sys
+        sys.path.append('..')
+        from fit_ancillary_ODRPACK import saturation_pressure, saturation_density
+        pL = saturation_pressure(self.IPF.RefString, self.IPF.Ref, LV = 'L')
+        pV = saturation_pressure(self.IPF.RefString, self.IPF.Ref, LV = 'V')
+        rhoL = saturation_density(self.IPF.RefString, self.IPF.Ref, form='A', LV='L', add_critical = False)
+        rhoV = saturation_density(self.IPF.RefString, self.IPF.Ref, form='B', LV='V', add_critical = False)
+        
+        code = PPF_cpp_template.format(Ref = self.Ref,
+                                      RefUpper = self.Ref.upper(),
+                                      acoeffs = acoeffs,
+                                      bcoeffs = bcoeffs,
+                                      Ncoeffs = ncoeffs,
+                                      tcoeffs = tcoeffs,
+                                      dcoeffs = dcoeffs,
+                                      Lcoeffs = lcoeffs,
+                                      N_phir = len(n),
+                                      N_cp0 = len(self.IPF.a),
+                                      molemass = self.IPF.molemass,
+                                      Ttriple = 200,
+                                      accentric = 0.7,
+                                      pcrit = self.IPF.pc,
+                                      Tcrit = self.IPF.Tc,
+                                      rhocrit = self.IPF.rhoc,
+                                      pL = pL,
+                                      pV = pV,
+                                      rhoL = rhoL,
+                                      rhoV = rhoV
+                                      )
+                                      
+        f = open(self.IPF.Ref+'.h','w')
+        f.write(header)
+        f.close()
+        
+        f = open(self.IPF.Ref+'.cpp','w')
+        f.write(code)
+        f.close()
+        
+    
 def pressure_from_PPF(T,rho):
     RefString, N0, T0, D0, L0 = get_fluid_constants(Ref)
     Tc = Props(RefString, 'Tcrit')
@@ -109,55 +231,20 @@ def pressure_from_PPF(T,rho):
         delta = _rho/rhoc
         tau = Tc/_T
         p.append(Props("P",'T',_T,'D',_rho,Ref))
-    
     return p
-    
-def pressure_from_EOS_wrap(N, Ref):
-    return pressure_from_EOS(Ref, N=N)
-    
-def pressure_from_EOS(Ref, T, rho, N = None):
-    
-    RefString, N0, T0, D0, L0 = get_fluid_constants(Ref)
-    
-    if N is not None:
-        PPF.n = N[0:len(N)//2]
-        PPF.t = N[len(N)//2::]
-    
-    ddD1 = PPF.dphir_dDelta()
-
-    Tc = Props(RefString, 'Tcrit')
-    rhoc = Props(RefString, 'rhocrit')
-    R = 8.314472/Props(RefString,'molemass')
-    
-    p = (rho*R*T)*(1+rho/rhoc*ddD1)
-    return np.array(p,ndmin=1).T
-    
-def OBJECTIVE(N, Ref, pMixture):
-    pPPF = pressure_from_EOS(Ref, T, rho, N = N)
-    RMS = np.sqrt(np.mean(np.power((pPPF-pMixture)/pMixture, 2)))
-    print RMS
-    return RMS
-    
-def fit_residual_part(Ref):
-    
-    RefString, N0, T0, D0, L0 = get_fluid_constants(Ref)
-    
-    return scipy.optimize.minimize(OBJECTIVE, np.array(list(N0)+list(T0)), args = (Ref,p), options = dict(maxiter = 20)).x
     
 if __name__=='__main__':
     Ref = 'R407F'
     
-    IPF = IdealPartFitter(Ref)
-    IPF.fit()
+    PPFFitterClass(Ref)
+
     
-    quit()
     
-    generate_1phase_data(Ref)
     
-    T, rho, p = load_data(Ref)
+    
+    
     
 ##     print max(T), min(T)
-    
 ##     # Generate a regular grid to interpolate the data.
 ##     xi = np.linspace(min(T), max(T), 100)
 ##     yi = np.linspace(min(rho), max(rho), 100)
@@ -167,24 +254,4 @@ if __name__=='__main__':
 ##     cont = plt.contourf(yi,xi,zi,30)
 ##     plt.colorbar()
 ##     plt.show()
-
-    plt.plot(rho,T,'o')
-    plt.show()
-    
-    RefString, N0, T0, D0, L0 = get_fluid_constants(Ref)
-    
-    from summer import PPF_summer
-    Tc = Props(RefString, 'Tcrit')
-    rhoc = Props(RefString, 'rhocrit')
-    PPF = PPF_summer(Tc/T,rho/rhoc)
-    PPF.set_constants(T0,D0,L0,6)
-    
-    N = fit_residual_part(Ref)
-    
-    print N
-    
-    pEOS = pressure_from_EOS(Ref, T, rho, N = N)
-    
-    plt.plot(p,pEOS,'o')
-    plt.show()
     

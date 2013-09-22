@@ -17,7 +17,7 @@ def rsquared(x, y):
     slope, intercept, r_value, p_value, std_err = scipy.stats.linregress(x, y)
     return r_value**2
 
-def saturation_density(Ref, ClassName, form = 'A', LV = 'L', perc_error_allowed = 0.3, fName = None):
+def saturation_density(Ref, ClassName, form = 'A', LV = 'L', perc_error_allowed = 0.3, fName = None, add_critical = True):
     """
     
     Parameters
@@ -36,11 +36,12 @@ def saturation_density(Ref, ClassName, form = 'A', LV = 'L', perc_error_allowed 
         Tmin = Props(Ref,'Tmin')
         print Ref,Tmin,Props(Ref,'Ttriple')
         
-        TT = np.linspace(Tmin, Tc-0.00001, 1000)
+        TT = np.linspace(Tmin, Tc-1, 1000)
         TT = list(TT)
         # Add temperatures around the critical temperature
-        for dT in [1e-10,1e-9,1e-8,1e-7,1e-6,1e-5,1e-4,1e-3,1e-2,1e-1]:
-            TT.append(Tc-dT)
+        if add_critical:
+            for dT in [1e-10,1e-9,1e-8,1e-7,1e-6,1e-5,1e-4,1e-3,1e-2,1e-1]:
+                TT.append(Tc-dT)
         TT = np.array(sorted(TT))
         
         p = Props('P','T',TT,'Q',0,Ref)
@@ -163,8 +164,7 @@ def saturation_density(Ref, ClassName, form = 'A', LV = 'L', perc_error_allowed 
         \t{code:s}
     }}
     """)
-    f = open('anc.txt','a')
-    f.write(template.format(tcoeffs = tcoeffs,
+    the_string = template.format(tcoeffs = tcoeffs,
                             Ncoeffs = Ncoeffs,
                             name = ClassName,
                             Tmin = Tmin,
@@ -172,9 +172,11 @@ def saturation_density(Ref, ClassName, form = 'A', LV = 'L', perc_error_allowed 
                             error = maxerror,
                             code = code_template,
                             LV = LV
-                            ))
+                            )
+    f = open('anc.txt','a')
+    f.write(the_string)
     f.close()
-    return
+    return the_string
 
 def saturation_pressure_brute(Ref, ClassName):
     
@@ -233,7 +235,7 @@ def saturation_pressure_brute(Ref, ClassName):
             betabest = myoutput.beta
             print abserror, myoutput.sum_square, myoutput.sd_beta/myoutput.beta
         
-def saturation_pressure(Ref, ClassName, fName = None):
+def saturation_pressure(Ref, ClassName, fName = None, LV = None):
     
     if fName is None:
         Tc = Props(Ref,'Tcrit')
@@ -242,9 +244,10 @@ def saturation_pressure(Ref, ClassName, fName = None):
         Tmin = Props(Ref,'Tmin')
         
         TT = np.linspace(Tmin+1e-6, Tc-0.00001, 300)
-        p = [Props('P','T',T,'Q',0,Ref) for T in TT]
-        rhoL = [Props('D','T',T,'Q',0,Ref) for T in TT]
-        rhoV = [Props('D','T',T,'Q',1,Ref) for T in TT]
+        pL = Props('P','T',TT,'Q',0,Ref)
+        pV = Props('P','T',TT,'Q',1,Ref)
+        rhoL = Props('D','T',TT,'Q',0,Ref)
+        rhoV = Props('D','T',TT,'Q',1,Ref)
     else:
         Tc = 423.27
         pc = 3533
@@ -272,7 +275,10 @@ def saturation_pressure(Ref, ClassName, fName = None):
             return sum([_B*x**(_n/2.0) for _B,_n in zip(B,n)])
 
         x = 1.0-TT/Tc
-        y = (np.log(p)-np.log(pc))*TT/Tc
+        if LV == 'L':
+            y = (np.log(pL)-np.log(pc))*TT/Tc
+        elif LV == 'V' or LV is None:
+            y = (np.log(pV)-np.log(pc))*TT/Tc
         
         linear = Model(f_p)
         mydata = Data(x, y)
@@ -283,7 +289,11 @@ def saturation_pressure(Ref, ClassName, fName = None):
         sd = myoutput.sd_beta
         
         p_fit = np.exp(f_p(myoutput.beta,x)*Tc/TT)*pc
-        max_abserror = np.max(np.abs((p_fit/p)-1)*100)
+        if LV == 'L':
+            max_abserror = np.max(np.abs((p_fit/pL)-1)*100)
+        elif LV == 'V' or LV is None:
+            max_abserror = np.max(np.abs((p_fit/pV)-1)*100)
+            
         print max_abserror
         psat_error = max_abserror
         
@@ -310,7 +320,7 @@ def saturation_pressure(Ref, ClassName, fName = None):
     import textwrap
     template = textwrap.dedent(
     """
-    double {name:s}Class::psat(double T)
+    double {name:s}Class::psat{LV:s}(double T)
     {{
         // Maximum absolute error is {psat_error:f} % between {Tmin:f} K and {Tmax:f} K
         const double t[]={{0, {tcoeffs:s}}};
@@ -324,22 +334,27 @@ def saturation_pressure(Ref, ClassName, fName = None):
         return reduce.p*exp(reduce.T/T*summer);
     }}
     """)
-    f = open('anc.txt','a')
-    f.write(template.format(N = len(n),
+    the_string = template.format(N = len(n)+1,
                             tcoeffs = tcoeffs,
                             Ncoeffs = Ncoeffs,
                             name = ClassName,
                             Tmin = Tmin,
                             Tmax = TT[-1],
                             psat_error = maxerror,
-                            ))
+                            LV = LV if LV in ['L','V'] else ''
+                            )
+                            
+    f = open('anc.txt','a')
+    f.write(the_string)
     f.close()
-    return
+    return the_string
                       
-for RPFluid,Fluid in [('REFPROP-'+get_REFPROPname('R11'),'R11'),
-#for RPFluid,Fluid in [('R11','R11'),
-                    ]:
-    #saturation_pressure_brute(RPFluid, Fluid
-    saturation_pressure(RPFluid, Fluid)
-    saturation_density(RPFluid, Fluid, form='A', LV='L')
-    saturation_density(RPFluid, Fluid, form='B', LV='V', perc_error_allowed = 0.4)
+if __name__ == '__main__':
+    for RPFluid,Fluid in [('REFPROP-MIX:R32[0.47319469]&R125[0.2051091]&R134a[0.32169621]','R407F'),
+    #for RPFluid,Fluid in [('R11','R11'),
+                        ]:
+        # saturation_pressure_brute(RPFluid, Fluid
+        # saturation_pressure(RPFluid, Fluid, LV = 'L')
+        # saturation_pressure(RPFluid, Fluid, LV = 'V')
+        saturation_density(RPFluid, Fluid, form='A', LV='L')
+        saturation_density(RPFluid, Fluid, form='B', LV='V', perc_error_allowed = 0.4)
