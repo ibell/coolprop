@@ -4,10 +4,9 @@
 
 #include <string>
 #include <vector>
-#include "CPExceptions.h"
-#include "CoolProp.h"
 #include <math.h>
-#include "Solvers.h"
+#include "CPExceptions.h"
+#include "CoolPropTools.h"
 #include "IncompBase.h"
 
 /**
@@ -19,31 +18,28 @@ in IncompLiquid.cpp
 **/
 
 /// The abstract base class for the liquids
-class IncompressibleLiquid : public IncompressibleFluid{
+class IncompressibleLiquid : public Incompressible{
 	
 public:
 	/* All functions need T and p as input. Might not be necessary,
 	 * but gives a clearer structure.
 	 */
-
 	/// Density as a function of temperature and pressure.
-	virtual double rho (double T_K, double p){return 0;};
+	virtual double rho (double T_K, double p){return -_HUGE;};
 	/// Isobaric heat capacity as a function of temperature and pressure.
-	virtual double cp  (double T_K, double p){return 0;};
+	virtual double cp  (double T_K, double p){return -_HUGE;};
 	/// Entropy as a function of temperature and pressure.
-	virtual double s   (double T_K, double p){return 0;};
+	virtual double s   (double T_K, double p){return -_HUGE;};
 	/// Internal energy as a function of temperature and pressure.
-	virtual double u   (double T_K, double p){return 0;};
+	virtual double u   (double T_K, double p){return -_HUGE;};
 	/// Enthalpy as a function of temperature and pressure.
-	virtual double h   (double T_K, double p){return 0;};
+	virtual double h   (double T_K, double p){return -_HUGE;};
 	/// Viscosity as a function of temperature and pressure.
-	virtual double visc(double T_K, double p){return 0;};
+	virtual double visc(double T_K, double p){return -_HUGE;};
 	/// Thermal conductivity as a function of temperature and pressure.
-	virtual double cond(double T_K, double p){return 0;};
+	virtual double cond(double T_K, double p){return -_HUGE;};
 	/// Saturation pressure as a function of temperature.
-	virtual double psat(double T_K){return -1;};
-	/// Saturation temperature as a function of pressure.
-	virtual double Tsat(double p){return -1;};
+	virtual double psat(double T_K){return -_HUGE;};
 
 protected:
 	/* Define internal energy and enthalpy as functions of the
@@ -135,38 +131,38 @@ protected:
 
 public:
     double rho(double T_K, double p){
-    	if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
-    	return basePolynomial(cRho, T_K);
+    	checkTP(T_K, p);
+    	return polyval(cRho, T_K);
     }
     double cp(double T_K, double p){
-    	if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
-    	return basePolynomial(cCp, T_K);
+    	checkTP(T_K, p);
+    	return polyval(cCp, T_K);
     }
     double h(double T_K, double p){
-    	if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
-    	return basePolynomialInt(cCp, T_K, Tref);
+    	checkTP(T_K, p);
+    	return polyint(cCp, T_K, Tref);
 	}
 	double s(double T_K, double p){
-		if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
-		return baseFractionInt(cCp, T_K, Tref);
+		checkTP(T_K, p);
+		return fracint(cCp, T_K, Tref);
 	}
 	double visc(double T_K, double p){
-		if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
-		return baseExponential(cVisc, T_K, 1);
+		checkTP(T_K, p);
+		return expval(cVisc, T_K, 1);
 	}
 	double cond(double T_K, double p){
-		if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
-		return basePolynomial(cCond, T_K);
+		checkTP(T_K, p);
+		return polyval(cCond, T_K);
 	}
     double u(double T_K, double p){
     	return u_h(T_K,p);
     }
     double psat(double T_K){
-    	if (!checkT(T_K)) throw ValueError(format("T=%f is out of range.",T_K));
+    	checkT(T_K);
     	if (T_K<TminPsat || TminPsat<0){
     		return -1.;
     	} else {
-    		return baseExponential(cPsat, T_K, 1);
+    		return expval(cPsat, T_K, 1);
     	}
     };
 };
@@ -204,7 +200,7 @@ public:
     };
     double visc(double T_K, double p){
 		if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
-		return baseExponential(cVisc, T_K, 2);
+		return expval(cVisc, T_K, 2);
 	}
     double h(double T_K, double p){
 		return h_u(T_K,p);
@@ -240,11 +236,11 @@ public:
     };
     double u(double T_K, double p){
     	if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
-    	return basePolynomialInt(cCp, T_K, Tref);
+    	return polyint(cCp, T_K, Tref);
 	}
     double visc(double T_K, double p){
 		if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
-		return baseExponential(cVisc, T_K, 2);
+		return expval(cVisc, T_K, 2);
 	}
     double h(double T_K, double p){
 		return h_u(T_K,p);
@@ -280,11 +276,11 @@ public:
     };
     double u(double T_K, double p){
     	if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
-    	return basePolynomialInt(cCp, T_K, Tref);
+    	return polyint(cCp, T_K, Tref);
 	}
     double visc(double T_K, double p){
 		if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
-		return baseExponential(cVisc, T_K, 2);
+		return expval(cVisc, T_K, 2);
 	}
     double h(double T_K, double p){
 		return h_u(T_K,p);
@@ -320,11 +316,11 @@ public:
     };
     double u(double T_K, double p){
     	if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
-    	return basePolynomialInt(cCp, T_K, Tref);
+    	return polyint(cCp, T_K, Tref);
 	}
     double visc(double T_K, double p){
 		if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
-		return baseExponential(cVisc, T_K, 2);
+		return expval(cVisc, T_K, 2);
 	}
     double h(double T_K, double p){
 		return h_u(T_K,p);
@@ -360,11 +356,11 @@ public:
     };
     double u(double T_K, double p){
     	if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
-    	return basePolynomialInt(cCp, T_K, Tref);
+    	return polyint(cCp, T_K, Tref);
 	}
     double visc(double T_K, double p){
 		if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
-		return baseExponential(cVisc, T_K, 2);
+		return expval(cVisc, T_K, 2);
 	}
     double h(double T_K, double p){
 		return h_u(T_K,p);
@@ -400,11 +396,11 @@ public:
     };
     double u(double T_K, double p){
     	if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
-    	return basePolynomialInt(cCp, T_K, Tref);
+    	return polyint(cCp, T_K, Tref);
 	}
     double visc(double T_K, double p){
 		if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
-		return baseExponential(cVisc, T_K, 2);
+		return expval(cVisc, T_K, 2);
 	}
     double h(double T_K, double p){
 		return h_u(T_K,p);
@@ -440,11 +436,11 @@ public:
     };
     double u(double T_K, double p){
     	if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
-    	return basePolynomialInt(cCp, T_K, Tref);
+    	return polyint(cCp, T_K, Tref);
 	}
     double visc(double T_K, double p){
 		if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
-		return baseExponential(cVisc, T_K, 2);
+		return expval(cVisc, T_K, 2);
 	}
     double h(double T_K, double p){
 		return h_u(T_K,p);
@@ -480,11 +476,11 @@ public:
     };
     double u(double T_K, double p){
     	if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
-    	return basePolynomialInt(cCp, T_K, Tref);
+    	return polyint(cCp, T_K, Tref);
 	}
     double visc(double T_K, double p){
 		if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
-		return baseExponential(cVisc, T_K, 2);
+		return expval(cVisc, T_K, 2);
 	}
     double h(double T_K, double p){
 		return h_u(T_K,p);

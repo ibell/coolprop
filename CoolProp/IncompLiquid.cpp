@@ -12,7 +12,7 @@
 #include "stdio.h"
 #include <string.h>
 #include "Brine.h"
-
+#include "CoolPropTools.h"
 #include "CoolProp.h"
 #include "IncompLiquid.h"
 

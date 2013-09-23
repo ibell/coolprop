@@ -4,14 +4,14 @@
 
 #include <string>
 #include <vector>
-#include <valarray>
-#include "CPExceptions.h"
-#include "CoolProp.h"
 #include <math.h>
-#include "Solvers.h"
+#include "CPExceptions.h"
+#include "CoolPropTools.h"
+#include "MatrixMath.h"
+
 
 /// The abstract base class
-class IncompressibleFluid{
+class Incompressible{
 	
 protected:
 	std::string name;
@@ -23,8 +23,19 @@ protected:
 	double Tref;
 
 public:
+	std::string getDescription() const {return description;}
+	std::string getName() const {return name;}
+	// For backwards-compatibility.
+	std::string get_name() const {return getName();}
+	std::string getReference() const {return reference;}
+	double getTmax() const {return Tmax;}
+	double getTmin() const {return Tmin;}
+	double getTminPsat() const {return TminPsat;}
+	double getTref() const {return Tref;}
+
+public:
 	// Constructor
-	IncompressibleFluid(){
+	Incompressible(){
 		name = "";
 		description = "";
 		reference = "";
@@ -35,73 +46,50 @@ public:
 	};
 
 	// Destructor.  No implementation
-	virtual ~IncompressibleFluid(){};
-
-public:
-	std::string getDescription() const {
-		return description;
-	}
-
-	std::string getName() const {
-		return name;
-	}
-
-	std::string getReference() const {
-		return reference;
-	}
-
-	double getTmax() const {
-		return Tmax;
-	}
-
-	double getTmin() const {
-		return Tmin;
-	}
-
-	double getTminPsat() const {
-		return TminPsat;
-	}
-
-	double getTref() const {
-		return Tref;
-	}
-
-protected:
-	void setDescription(std::string description) {
-		this->description = description;
-	}
-
-	void setName(std::string name) {
-		this->name = name;
-	}
-
-	void setReference(std::string reference) {
-		this->reference = reference;
-	}
-
-	void setTmax(double Tmax) {
-		this->Tmax = Tmax;
-	}
-
-	void setTmin(double Tmin) {
-		this->Tmin = Tmin;
-	}
-
-	void setTminPsat(double TminPsat) {
-		this->TminPsat = TminPsat;
-	}
-
-	void setTref(double Tref) {
-		this->Tref = Tref;
-	}
+	virtual ~Incompressible(){};
 
 
 protected:
-	/// Polynomial function generator.
+	/// Basic checks for coefficient vectors.
+	/** Starts with only the first coefficient dimension
+	 *  and checks the vector length against parameter n. */
+	bool checkCoefficients(std::vector<double> coefficients, unsigned int n){
+		if (coefficients.size() == n){
+			return true;
+		} else {
+			throw ValueError(format("The number of coefficients %d does not match with %d. ",coefficients.size(),n));
+		}
+		return false;
+	}
+
+	bool checkCoefficients(std::vector< std::vector<double> > coefficients, unsigned int rows, unsigned int columns){
+		if (coefficients.size() == rows){
+			bool result = true;
+			for(unsigned int i=0; i<rows; i++) {
+				result = result && checkCoefficients(coefficients[i],columns);
+			}
+			return result;
+		} else {
+			throw ValueError(format("The number of rows %d does not match with %d. ",coefficients.size(),rows));
+		}
+		return false;
+	}
+
+private:
+	/** The core of the polynomial wrappers are the different
+	 *  implementations that follow below. In case there are
+	 *  new calculation schemes available, please do not delete
+	 *  the implementations, but mark them as deprecated.
+	 *  The old functions are good for debugging since the
+	 *  structure is easier to read that the backward Horner-scheme
+	 *  or the recursive Horner-scheme.
+	 */
+
+	/// Simple polynomial function generator. <- Deprecated due to poor performance, use Horner-scheme instead
 	/** Base function to produce n-th order polynomials
 	 *  based on the length of the coefficient vector.
 	 *  Starts with only the first coefficient at x^0. */
-	double basePolynomial(std::vector<double> coefficients, double x){
+	DEPRECATED(double simplePolynomial(std::vector<double> coefficients, double x)){
 	    double result = 0.;
 	    for(unsigned int i=0; i<coefficients.size();i++) {
 	    	result += coefficients[i] * pow(x,(int)i);
@@ -109,54 +97,12 @@ protected:
 	    return result;
 	}
 
-	/// Polynomial function generator with check.
-	/** Base function to produce n-th order polynomials
-	 *  based on the length of the coefficient vector.
-	 *  Starts with only the first coefficient at x^0
-	 *  and checks the vector length against parameter n. */
-	double basePolynomial(std::vector<double> coefficients, double x, unsigned int n){
-		if (coefficients.size() == n){
-			return basePolynomial(coefficients, x);
-		} else {
-			throw ValueError(format("The number of coefficients %d does not match with %d. ",coefficients.size(),n));
-		}
-	}
-
-	/// 2D polynomial function generator.
-	/** Base function to produce n-th order polynomials
-	 *  based on the size of the coefficient matrix.
-	 *  Starts with only the first coefficient at x^0*y^0. */
-	double basePolynomial(std::vector<std::vector<double>> coefficients, double x, double y){
-		double result = 0.;
-		for(unsigned int i=0; i<coefficients.size();i++) {
-			result += pow(x,(int)i) * basePolynomial(coefficients[i],y);
-		}
-		return result;
-	}
-
-	/// 2D polynomial function generator with check.
-	/** Base function to produce i-th order polynomials
-	 *  based on the size of the coefficient matrix.
-	 *  Starts with only the first coefficient at x^0*y^0
-	 *  and checks the vector length against parameter n and o. */
-	double basePolynomial(std::vector<std::vector<double>> coefficients, double x, double y, unsigned int n, unsigned int o){
-		if (coefficients.size() == n){
-			double result = 0.;
-			for(unsigned int i=0; i<n; i++) {
-				result += pow(x,(int)i) * basePolynomial(coefficients[i],y,o);
-			}
-			return result;
-		} else {
-			throw ValueError(format("The number of rows %d does not match with %d. ",coefficients.size(),n));
-		}
-	}
-
-	/// Integrated polynomial function generator.
+	/// Simple integrated polynomial function generator. <- Deprecated due to poor performance, use Horner-scheme instead
 	/** Base function to produce integrals of n-th order
 	 *  polynomials based on the length of the coefficient
 	 *  vector. Integrates from x0 to x1.
 	 *  Starts with only the first coefficient at x^0 */
-	double basePolynomialInt(std::vector<double> coefficients, double x1, double x0){
+	DEPRECATED(double simplePolynomialInt(std::vector<double> coefficients, double x1, double x0)){
 		double result = 0.;
 		for(unsigned int i=0; i<coefficients.size();i++) {
 			result += 1./(i+1.) * coefficients[i] * (pow(x1,(i+1.)) - pow(x0,(i+1.)));
@@ -164,109 +110,244 @@ protected:
 		return result;
 	}
 
-	/// Integrated polynomial function generator with check.
-	/** Calls the base function but checks the vector
-	 *  length against parameter n. */
-	double basePolynomialInt(std::vector<double> coefficients, double x1, double x0, unsigned int n){
-		if (coefficients.size() == n){
-			return basePolynomialInt(coefficients, x1, x0);
-		} else {
-			throw ValueError(format("The number of coefficients %d does not match with %d. ",coefficients.size(),n));
+
+	/// Horner function generator implementations
+	/** Represent polynomials according to Horner's scheme.
+	 *  This avoids unnecessary multiplication and thus
+	 *  speeds up calculation.
+	 */
+	double baseHorner(std::vector<double> coefficients, double x){
+		double result = 0;
+		for(int i=coefficients.size()-1; i>=0; i--) {
+			result = result * x + coefficients[i];
 		}
+		return result;
+	}
+	double baseHorner(std::vector< std::vector<double> > coefficients, double x, double y){
+		double result = 0;
+		for(int i=coefficients.size()-1; i>=0; i--) {
+			result = result * x + baseHorner(coefficients[i], y);
+		}
+		return result;
+	}
+	double baseHornerIntegrated(std::vector<double> coefficients, double x){
+		return baseHorner(integrateCoeffs(coefficients),x);
+	}
+	double baseHornerIntegrated(std::vector<double> coefficients, double x1, double x0){
+		std::vector<double> coefficientsInt = integrateCoeffs(coefficients);
+		return baseHorner(coefficientsInt,x1)-baseHorner(coefficientsInt,x0);
+	}
+	double baseHornerIntegrated(std::vector< std::vector<double> > coefficients, double x, double y, unsigned int axis){
+		return baseHorner(integrateCoeffs(coefficients,axis),x,y);
+	}
+	double baseHornerIntegrated(std::vector< std::vector<double> > coefficients, double x, double y1, double y0){
+		std::vector< std::vector<double> > coefficientsInt = integrateCoeffs(coefficients,1);
+		return baseHorner(coefficientsInt,x,y1)-baseHorner(coefficientsInt,x,y0);
 	}
 
-	/// Integrated 2D polynomial function generator.
-	/** Base function to produce integrals of i-th order
-	 *  polynomials based on the size of the coefficient
-	 *  matrix. Integrates from x0 to x1 along only one axis.
-	 *  Starts with only the first coefficient at x^0*y^0 */
-	// vector to valarray: std:valarray<double> corpX(corps_tmp[i].data(), corps_tmp[i].size());
-    // valarray to vector: corps_tmp[i].assign(std::begin(corpX), std::end(corpX));
-	// column major: return m_storage[std::slice(column, m_height, m_stride)][row];
-    // row major:    return m_storage[std::slice(row, m_stride, m_height)][column];
-//	double basePolynomialIntdx(std::valarray<std::valarray<double>> coefficients, double x1, double y, double x0){
-//		double result = 0.;
-//		std::vector<double> tmpCoeff;
-//		for(unsigned int i=0; i<coefficients[0].size();i++) {
-//			tmpCoeff = std::vector(std::begin(coefficients[i]), std::end(coefficients[i]));
-//
-//			result += pow(y,(int)i) * basePolynomialInt(coefficients[std::slice()][i],x1,x0);
-//		}
-//		return result;
-//	}
-	double basePolynomialIntdx(std::vector<std::vector<double>> coefficients, double x1, double y, double x0){
-		double result = 0.;
-		std::vector<double> tmpCoeff;
-		for(unsigned int i=0; i<coefficients[0].size();i++) {
-			tmpCoeff.clear();
-			for (unsigned int j=0; j<coefficients.size();j++) {
-				tmpCoeff.push_back(coefficients[j][i]);
+
+	/** Integrating coefficients for polynomials is done by dividing the
+	 *  original coefficients by (i+1) and elevating the order by 1.
+	 *  Some reslicing needs to be applied to integrate along the x-axis.
+	 *  In the brine/solution equations, reordering of the parameters
+	 *  avoids this expensive operation. However, it is included for the
+	 *  sake of completeness.
+	 */
+	std::vector<double> integrateCoeffs(std::vector<double> coefficients){
+		std::vector<double> newCoefficients;
+		unsigned int sizeX = coefficients.size();
+		if (sizeX<1) throw ValueError(format("You have to provide coefficients, a vector length of %d is not a valid. ",sizeX));
+		// pushing a zero elevates the order by 1
+		newCoefficients.push_back(0.0);
+		for(int i=0; i<coefficients.size(); i++) {
+			newCoefficients.push_back(coefficients[i]/(i+1.));
+		}
+		return newCoefficients;
+	}
+
+	std::vector< std::vector<double> > integrateCoeffs(std::vector< std::vector<double> > coefficients, unsigned int axis){
+		std::vector< std::vector<double> > newCoefficients;
+		unsigned int sizeX = coefficients.size();
+		if (sizeX<1) throw ValueError(format("You have to provide coefficients, a vector length of %d is not a valid. ",sizeX));
+
+		if (axis==0){
+			std::vector< std::vector<double> > tmpCoefficients;
+			tmpCoefficients = transpose(coefficients);
+			unsigned int sizeY = tmpCoefficients.size();
+			for(unsigned int i=0; i<sizeY; i++) {
+				newCoefficients.push_back(integrateCoeffs(tmpCoefficients[i]));
 			}
-			result += pow(y,(int)i) * basePolynomialInt(tmpCoeff,x1,x0);
+			return transpose(newCoefficients);
+		} else if (axis==1){
+			for(unsigned int i=0; i<sizeX; i++) {
+				newCoefficients.push_back(integrateCoeffs(coefficients[i]));
+			}
+			return newCoefficients;
+		} else {
+			throw ValueError(format("You can only use x-axis (0) and y-axis (1) for integration. %d is not a valid input. ",axis));
 		}
-		return result;
-	}
-	/** Base function to produce integrals of i-th order
-	 *  polynomials based on the size of the coefficient
-	 *  matrix. Integrates from y0 to y1 along only one axis.
-	 *  Starts with only the first coefficient at x^0*y^0 */
-	double basePolynomialIntdy(std::vector<std::vector<double>> coefficients, double x, double y1, double y0){
-		double result = 0.;
-		for(unsigned int i=0; i<coefficients.size();i++) {
-			result += pow(x,(int)i) * basePolynomialInt(coefficients[i],y1,y0);
-		}
-		return result;
+		return newCoefficients;
 	}
 
-	/// Integrated fraction generator.
-	/** Base function to produce integrals of n-th order
-	 *  polynomials divided by their variable based on
-	 *  the length of the coefficients vector.
-	 *  Integrates from x0 to x1, starts with only the
-	 *  first coefficient at x^0 */
-	double baseFractionInt(std::vector<double> coefficients, double x1, double x0){
+	/** Deriving coefficients for polynomials is done by multiplying the
+	 *  original coefficients with i and lowering the order by 1.
+	 */
+	std::vector<double> deriveCoeffs(std::vector<double> coefficients){
+		std::vector<double> newCoefficients;
+		unsigned int sizeX = coefficients.size();
+		if (sizeX<1) throw ValueError(format("You have to provide coefficients, a vector length of %d is not a valid. ",sizeX));
+		// skipping the first element lowers the order
+		for(int i=1; i<coefficients.size(); i++) {
+			newCoefficients.push_back(coefficients[i]*i);
+		}
+		return newCoefficients;
+	}
+
+	std::vector< std::vector<double> > deriveCoeffs(std::vector< std::vector<double> > coefficients, unsigned int axis){
+		std::vector< std::vector<double> > newCoefficients;
+		unsigned int sizeX = coefficients.size();
+		if (sizeX<1) throw ValueError(format("You have to provide coefficients, a vector length of %d is not a valid. ",sizeX));
+
+		if (axis==0){
+			std::vector< std::vector<double> > tmpCoefficients;
+			tmpCoefficients = transpose(coefficients);
+			unsigned int sizeY = tmpCoefficients.size();
+			for(unsigned int i=0; i<sizeY; i++) {
+				newCoefficients.push_back(deriveCoeffs(tmpCoefficients[i]));
+			}
+			return transpose(newCoefficients);
+		} else if (axis==1){
+			for(unsigned int i=0; i<sizeX; i++) {
+				newCoefficients.push_back(deriveCoeffs(coefficients[i]));
+			}
+			return newCoefficients;
+		} else {
+			throw ValueError(format("You can only use x-axis (0) and y-axis (1) for derivation. %d is not a valid input. ",axis));
+		}
+		return newCoefficients;
+	}
+
+
+	/** Here we define the functions that should be used by the
+	 *  respective implementations. Please do no use any other
+	 *  method since this would break the purpose of this interface.
+	 */
+public:
+	/// Evaluates a one-dimensional polynomial for the given coefficients
+	/// @param coefficients vector containing the ordered coefficients
+	/// @param x double value that represents the current input
+	double polyval(std::vector<double> coefficients, double x){
+	    return baseHorner(coefficients,x);
+	}
+
+	/// Evaluates a two-dimensional polynomial for the given coefficients
+	/// @param coefficients vector containing the ordered coefficients
+	/// @param x double value that represents the current input in the 1st dimension
+	/// @param y double value that represents the current input in the 2nd dimension
+	double polyval(std::vector< std::vector<double> > coefficients, double x, double y){
+		return baseHorner(coefficients,x,y);
+	}
+
+	/// Evaluates the indefinite integral of a one-dimensional polynomial
+	/// @param coefficients vector containing the ordered coefficients
+	/// @param x double value that represents the current input
+	double polyint(std::vector<double> coefficients, double x){
+		return baseHornerIntegrated(coefficients,x);
+	}
+
+	/// Evaluates the indefinite integral of a two-dimensional polynomial along the 2nd axis (y)
+	/// @param coefficients vector containing the ordered coefficients
+	/// @param x double value that represents the current input in the 1st dimension
+	/// @param y double value that represents the current input in the 2nd dimension
+	double polyint(std::vector< std::vector<double> > coefficients, double x, double y){
+		return baseHornerIntegrated(coefficients,x,y,(unsigned int)1);
+	}
+
+	/// Evaluates the definite integral of a one-dimensional polynomial
+	/// @param coefficients vector containing the ordered coefficients
+	/// @param x1 double value that represents the current position
+	/// @param x0 double value that represents the reference state
+	double polyint(std::vector<double> coefficients, double x1, double x0){
+		return baseHornerIntegrated(coefficients,x1,x0);
+	}
+
+	/// Evaluates the definite integral of a two-dimensional polynomial along the 2nd axis (y)
+	/// @param coefficients vector containing the ordered coefficients
+	/// @param x double value that represents the current input in the 1st dimension
+	/// @param y1 double value that represents the current input in the 2nd dimension
+	/// @param y0 double value that represents the reference state in the 2nd dimension
+	double polyint(std::vector< std::vector<double> > coefficients, double x, double y1, double y0){
+		return baseHornerIntegrated(coefficients,x,y1,y0);
+	}
+
+	/// Evaluates the definite integral of a one-dimensional polynomial divided by its independent variable
+	/// @param coefficients vector containing the ordered coefficients
+	/// @param x1 double value that represents the current position
+	/// @param x0 double value that represents the reference state
+	double fracint(std::vector<double> coefficients, double x1, double x0){
 		double result = coefficients[0] * log(x1/x0);
 		if (coefficients.size() > 1) {
 			std::vector<double> newCoeffs(coefficients.begin() + 1, coefficients.end());
-			result += basePolynomialInt(newCoeffs,x1,x0);
+			result += polyint(newCoeffs,x1,x0);
 		}
 		return result;
 	}
 
-	/// Integrated fraction generator with check.
-	/** Calls the base function but checks the vector
-	 *  length against parameter n before. */
-	double baseFractionInt(std::vector<double> coefficients, double x1, double x0, unsigned int n){
-		if (coefficients.size() == n){
-			return baseFractionInt(coefficients, x1, x0);
-		} else {
-			throw ValueError(format("The number of coefficients %d does not match with %d. ",coefficients.size(),n));
+	/// Evaluates the definite integral of a two-dimensional polynomial divided by its 2nd independent variable
+	/// @param coefficients vector containing the ordered coefficients
+	/// @param x double value that represents the current input in the 1st dimension
+	/// @param y1 double value that represents the current input in the 2nd dimension
+	/// @param y0 double value that represents the reference state in the 2nd dimension
+	double fracint(std::vector< std::vector<double> > coefficients, double x, double y1, double y0){
+		double row    = 0;
+		std::vector<double> newCoeffs;
+		double dlog = log(y1/y0);
+		for (unsigned int i=0; i<coefficients.size(); i++){
+			// process the first entry and remove it from the vector
+			row  = coefficients[i][0] * dlog;
+			if (coefficients[i].size() > 1) {
+				std::vector<double> tmpCoeffs(coefficients[i].begin() + 1, coefficients[i].end());
+				row += polyint(tmpCoeffs,y1,y0);
+			}
+			// save the result in a new vector entry
+			newCoeffs.push_back(row);
 		}
+		// in the end we process the new coefficient vector as polynomial
+		return polyval(newCoeffs,x);
 	}
 
-	/// Exponential function generator.
-	/** Base function to produce exponential functions
-	 *  based on the input n.
-	 *  An extra check is performed for the length
-	 *  of the vector according to the chosen function. */
-	double baseExponential(std::vector<double> coefficients, double x, int n){
+
+	/// Evaluates an exponential function for the given coefficients
+	/// @param coefficients vector containing the ordered coefficients
+	/// @param x double value that represents the current input
+	/// @param n int value that determines the kind of exponential function
+	double expval(std::vector<double> coefficients, double x, int n){
 		double result = 0.;
 		if (n==1) {
-			int c = 3;
-			if (coefficients.size() != c) throw ValueError(format("The number of coefficients %d does not match with %d. ",coefficients.size(),c));
+			checkCoefficients(coefficients,3);
 			result = exp(coefficients[0]/(x+coefficients[1]) - coefficients[2]);
 		} else if (n==2) {
-			int c = 3;
-			if (coefficients.size() != c) throw ValueError(format("The number of coefficients %d does not match with %d. ",coefficients.size(),c));
-			result = exp(basePolynomial(coefficients, x, c));
+			result = exp(polyval(coefficients, x));
 		} else {
 			throw ValueError(format("There is no function defined for this input (%d). ",n));
 		}
 	    return result;
 	}
+
+	/// Evaluates an exponential function for the given coefficients
+	/// @param coefficients vector containing the ordered coefficients
+	/// @param x double value that represents the current input in the 1st dimension
+	/// @param y double value that represents the current input in the 2nd dimension
+	/// @param n int value that determines the kind of exponential function
+	double expval(std::vector< std::vector<double> > coefficients, double x, double y, int n){
+		double result = 0.;
+		if (n==2) {
+			result = exp(polyval(coefficients, x, y));
+		} else {
+			throw ValueError(format("There is no function defined for this input (%d). ",n));
+		}
+		return result;
+	}
 };
-
-
-
 
 #endif
