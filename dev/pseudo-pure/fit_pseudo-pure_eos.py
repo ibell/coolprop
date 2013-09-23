@@ -157,7 +157,19 @@ class PPFFitterClass(object):
         self.RPF = ResidualPartFitter(Ref)
         if not use_saved_data:
             self.RPF.generate_1phase_data()
+            
         self.RPF.load_data()
+
+        # Generate a regular grid to interpolate the data.
+        xi = np.linspace(min(self.RPF.T), max(self.RPF.T), 100)
+        yi = np.linspace(min(self.RPF.rho), max(self.RPF.rho), 100)
+        xi, yi = np.meshgrid(xi, yi)
+        # Interpolate using delaunay triangularization 
+        zi = mlab.griddata(np.array(self.RPF.T),np.array(self.RPF.rho),np.array(self.RPF.p),xi,yi)
+        cont = plt.contourf(yi,xi,zi,30)
+        plt.colorbar()
+        plt.show()
+        
         if not use_saved_data:
             self.RPF.fit()
         self.output_files()
@@ -245,14 +257,5 @@ if __name__=='__main__':
     
     
     
-##     print max(T), min(T)
-##     # Generate a regular grid to interpolate the data.
-##     xi = np.linspace(min(T), max(T), 100)
-##     yi = np.linspace(min(rho), max(rho), 100)
-##     xi, yi = np.meshgrid(xi, yi)
-##     # Interpolate using delaunay triangularization 
-##     zi = mlab.griddata(np.array(T),np.array(rho),np.array(p),xi,yi)
-##     cont = plt.contourf(yi,xi,zi,30)
-##     plt.colorbar()
-##     plt.show()
+
     
