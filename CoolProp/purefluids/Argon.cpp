@@ -255,7 +255,7 @@ ArgonClass::ArgonClass()
 
 	// Critical parameters
 	crit.rho = 535.6;
-	crit.p = 4863.0;
+	crit.p = PressureUnit(4863.0,UNIT_KPA);
 	crit.T = 150.687;
 	crit.v = 1.0/crit.rho;
 
@@ -294,7 +294,7 @@ double ArgonClass::X_tilde(double T,double tau,double delta)
 	double drho_dp,R_Argon;
 	R_Argon=params.R_u/params.molemass;
 	drho_dp=1.0/(R_Argon*T*(1+2*delta*dphir_dDelta(tau,delta)+delta*delta*d2phir_dDelta2(tau,delta)));
-	return reduce.p*delta/reduce.rho*drho_dp;
+	return reduce.p.Pa*delta/reduce.rho*drho_dp;
 }
 double ArgonClass::conductivity_Trho(double T, double rho)
 {
@@ -400,7 +400,7 @@ double ArgonClass::psat(double T)
     {
         summer=summer+ai[i]*pow(1-T/reduce.T,ti[i]);
     }
-	return reduce.p*exp(reduce.T/T*summer);
+	return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 double ArgonClass::rhosatL(double T)
 {

@@ -379,7 +379,7 @@ WaterClass::WaterClass()
 
 	// Critical parameters
 	crit.rho = 322;
-	crit.p = 22064;
+	crit.p = PressureUnit(22064, UNIT_KPA);
 	crit.T = 647.096;
 	crit.v = 1.0/crit.rho;
 
@@ -474,6 +474,8 @@ static void visc_Helper(double Tbar, double rhobar, double *mubar_0, double *mub
 }
 double WaterClass::conductivity_Trho(double T, double rho)
 {
+	// Many thanks to http://twt.mpei.ac.ru/mcs/worksheets/iapws/wspsTCRT.xmcd
+
 	double L[5][6] = {{1.60397357,-0.646013523,0.111443906,0.102997357,-0.0504123634,0.00609859258},
 				{2.33771842,-2.78843778,1.53616167,-0.463045512,0.0832827019,-0.00719201245},
 				{2.19650529,-4.54580785,3.55777244,-1.40944978,0.275418278,-0.0205938816},
@@ -481,13 +483,13 @@ double WaterClass::conductivity_Trho(double T, double rho)
 				{-2.7203370,4.57586331,-3.18369245,1.1168348,-0.19268305,0.012913842}};
 
 	double lambdabar_0,lambdabar_1,lambdabar_2,rhobar,Tbar,sum,R_Water;
-	double Tstar=647.096,rhostar=322,pstar=22064,lambdastar=1e-3,mustar=1e-6;
+	double Tstar=647.096,rhostar=322,pstar=22064000,lambdastar=1e-3,mustar=1e-6;
 	double tau,xi;
 	int i,j;
 
-	Tbar=T/Tstar;
-	rhobar=rho/rhostar;
-	R_Water=8.31447215/params.molemass;
+	Tbar = T/Tstar;
+	rhobar = rho/rhostar;
+	R_Water = 8314.47215/params.molemass;
 
 	// Dilute gas contribution
 	lambdabar_0=sqrt(Tbar)/(2.443221e-3+1.323095e-2/Tbar+6.770357e-3/pow(Tbar,2)-3.454586e-3/pow(Tbar,3)+4.096266e-4/pow(Tbar,4));
@@ -504,7 +506,8 @@ double WaterClass::conductivity_Trho(double T, double rho)
 	// Finite density contribution
 	lambdabar_1=exp(rhobar*sum);
 
-	double nu=0.630,GAMMA =177.8514,gamma=1.239,xi_0=0.13,Lambda_0=0.06,Tr_bar=1.5,qd_bar=1/0.4,pi=3.141592654,R=0.46151805;
+	double nu=0.630,GAMMA =177.8514,gamma=1.239,xi_0=0.13,Lambda_0=0.06,Tr_bar=1.5,qd_bar=1/0.4,pi=3.141592654,
+		R=461.51805;//J/kg/K
 	rhobar=rho/rhostar;
 	Tbar=T/Tstar;
 	tau=1/Tbar;
@@ -513,9 +516,9 @@ double WaterClass::conductivity_Trho(double T, double rho)
 	double drhobar_dpbar=pstar/rhostar*drhodp;
 	double drhodp_Trbar=1/(R*Tr_bar*Tstar*(1+2*rhobar*dphir_dDelta(1/Tr_bar,rhobar)+rhobar*rhobar*d2phir_dDelta2(1/Tr_bar,rhobar)));
 	double drhobar_dpbar_Trbar=pstar/rhostar*drhodp_Trbar;
-	double cp=specific_heat_p_Trho(T,rho);
-	double cv=specific_heat_v_Trho(T,rho);
-	double cpbar=cp/R;
+	double cp=specific_heat_p_Trho(T,rho); // [J/kg/K]
+	double cv=specific_heat_v_Trho(T,rho); // [J/kg/K]
+	double cpbar=cp/R; //[-]
 	double mubar = viscosity_Trho(T,rho)/mustar;
 	double DELTAchibar_T=rhobar*(drhobar_dpbar-drhobar_dpbar_Trbar*Tr_bar/Tbar);
 	if (DELTAchibar_T<0)
@@ -542,7 +545,7 @@ double WaterClass::viscosity_Trho(double T, double rho)
 	
 	Tbar=T/reduce.T;
 	rhobar=rho/reduce.rho;
-	R_Water=8.31447215/params.molemass;
+	R_Water=R();
 
 	// Dilute and finite gas portions
 	visc_Helper(Tbar,rhobar,&mubar_0,&mubar_1);
@@ -552,11 +555,11 @@ double WaterClass::viscosity_Trho(double T, double rho)
 	// "Normal" calculation
 	tau=1/Tbar;
 	drhodp=1/(R_Water*T*(1+2*delta*dphir_dDelta(tau,delta)+delta*delta*d2phir_dDelta2(tau,delta)));
-	drhobar_dpbar=reduce.p/reduce.rho*drhodp;
+	drhobar_dpbar=reduce.p.Pa/reduce.rho*drhodp;
 	// "Reducing" calculation
 	tau=1/Tbar_R;
 	drhodp_R=1/(R_Water*Tbar_R*reduce.T*(1+2*delta*dphir_dDelta(tau,delta)+delta*delta*d2phir_dDelta2(tau,delta)));
-	drhobar_dpbar_R=reduce.p/reduce.rho*drhodp_R;
+	drhobar_dpbar_R=reduce.p.Pa/reduce.rho*drhodp_R;
 	
 	DeltaChibar=rhobar*(drhobar_dpbar-drhobar_dpbar_R*Tbar_R/Tbar);
 	if (DeltaChibar<0)
@@ -594,7 +597,7 @@ double WaterClass::psat(double T)
     {
         summer=summer+ai[i]*pow(1-T/reduce.T,ti[i]);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 double WaterClass::rhosatL(double T)
 {

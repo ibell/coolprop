@@ -37,8 +37,7 @@
 #endif
 
 // The revision of the TTSE tables, only use tables with the same revision.  Increment this macro if any non-forward compatible changes are made
-#define TTSEREV 3
-
+#define TTSEREV 5
 
 std::string get_home_dir(void)
 {
@@ -118,6 +117,9 @@ TTSESinglePhaseTableClass::TTSESinglePhaseTableClass(){
 	this->enable_transport = true;
 	SatL = NULL; 
 	SatV = NULL;
+
+	// Default to use the "normal" TTSE evaluation
+	mode = TTSE_MODE_TTSE;
 }
 
 TTSESinglePhaseTableClass::TTSESinglePhaseTableClass(Fluid *pFluid) {
@@ -724,8 +726,8 @@ bool TTSESinglePhaseTableClass::read_all_from_file(std::string root_path)
 	this->rhoratio = pow(rhomax/rhomin,1/((double)Nrho-1));
 	this->logrhoratio = log(rhoratio); // For speed since log() is a slow function
 	this->logrhomin = log(rhomin);
-	this->jpcrit_floor = (int)floor((log(pFluid->reduce.p)-logpmin)/logpratio);
-	this->jpcrit_ceil = (int)ceil((log(pFluid->reduce.p)-logpmin)/logpratio);
+	this->jpcrit_floor = (int)floor((log(pFluid->reduce.p.Pa)-logpmin)/logpratio);
+	this->jpcrit_ceil = (int)ceil((log(pFluid->reduce.p.Pa)-logpmin)/logpratio);
 	
 	update_saturation_boundary_indices();
 
@@ -832,7 +834,7 @@ double TTSESinglePhaseTableClass::build_ph(double hmin, double hmax, double pmin
 	this->pmax = pmax;
 	this->logpmin = log(pmin);
 
-	CoolPropStateClass CPS = CoolPropStateClass(pFluid);
+	CoolPropStateClassSI CPS(pFluid);
 
 	long iFluid = get_Fluid_index(CPS.pFluid->get_name());
 
@@ -853,7 +855,7 @@ double TTSESinglePhaseTableClass::build_ph(double hmin, double hmax, double pmin
 			
 			// Check whether the point is single phase
 			// If pressure between ptriple point and pcrit, might be two-phase or single phase, otherwise definitely single phase
-			if (pval <= pFluid->reduce.p && pval >= pFluid->params.ptriple)
+			if (pval <= pFluid->reduce.p.Pa && pval >= pFluid->params.ptriple)
 			{
 				if (SatL == NULL || SatV == NULL){
 					// Not using TTSE method, use saturation (slow...)
@@ -1053,7 +1055,7 @@ double TTSESinglePhaseTableClass::build_Trho(double Tmin, double Tmax, double rh
 	rhoratio = pow(rhomax/rhomin,1/((double)Nrho-1));
 	logrhoratio = log(rhoratio);
 
-	CoolPropStateClass CPS = CoolPropStateClass(pFluid);
+	CoolPropStateClassSI CPS(pFluid);
 
 	long iFluid = get_Fluid_index(pFluid->get_name());
 
@@ -1311,7 +1313,7 @@ void TTSESinglePhaseTableClass::update_saturation_boundary_indices()
 
 	for (unsigned int j = 0; j < Np; j++)
 	{
-		if (p[j] < pFluid->reduce.p)
+		if (p[j] < pFluid->reduce.p.Pa)
 		{
 			IL[j] = -1;
 			// Sweep left to right to find a phase boundary, use the first one that fails in the saturation region
@@ -1390,7 +1392,7 @@ double TTSESinglePhaseTableClass::check_randomly(long iParam, unsigned int N, st
 	EOSv->resize(N);
 	TTSE->resize(N);
 	
-	CoolPropStateClass CPS = CoolPropStateClass(pFluid);
+	CoolPropStateClassSI CPS(pFluid);
 
 	for (unsigned int i = 0; i < N; i++)
 	{
@@ -2202,7 +2204,7 @@ void TTSETwoPhaseTableClass::set_size(unsigned int N)
 
 double TTSETwoPhaseTableClass::build(double pmin, double pmax, TTSETwoPhaseTableClass *other)
 {
-	CoolPropStateClass CPS = CoolPropStateClass(pFluid);
+	CoolPropStateClassSI CPS(pFluid);
 
 	this->pmin = pmin;
 	this->pmax = pmax;
@@ -2443,7 +2445,7 @@ double TTSETwoPhaseTableClass::check_randomly(long iParam, unsigned int N, std::
 	EOSv->resize(N);
 	TTSE->resize(N);
 	
-	CoolPropStateClass CPS = CoolPropStateClass(pFluid);
+	CoolPropStateClassSI CPS(pFluid);
 
 	for (unsigned int i = 0; i < N; i++)
 	{

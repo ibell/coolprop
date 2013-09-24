@@ -113,7 +113,7 @@ R1234zeClass::R1234zeClass()
 
 	// Critical parameters
 	crit.rho = 4.29*114.0415928;
-	crit.p = 3636.25;
+	crit.p = PressureUnit(3636.25, UNIT_KPA);
 	crit.T = 382.52;
 	crit.v = 1.0/crit.rho;
 
@@ -154,7 +154,7 @@ double R1234zeClass::psat(double T)
     {
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 double R1234zeClass::rhosatL(double T)
 {
@@ -238,12 +238,12 @@ R1234zeZClass::R1234zeZClass()
 
 	// Critical parameters
 	crit.rho = 470;
-	crit.p = 3533;
+	crit.p = PressureUnit(3533, UNIT_KPA);
 	crit.T = 423.27;
 	crit.v = 1.0/crit.rho;
 
 	// Reducing parameters used in EOS
-	reduce.p = crit.p;
+	reduce.p = PressureUnit(3533, UNIT_KPA);
 	reduce.T = crit.T;
 	reduce.rho = 470.615;
 	reduce.v = 1.0/reduce.rho;
@@ -280,7 +280,7 @@ double R1234zeZClass::psat(double T)
     {
         summer += N[i]*pow(theta,t[i]/2);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 
 double R1234zeZClass::rhosatL(double T)

@@ -19,7 +19,7 @@ DimethylCarbonateClass::DimethylCarbonateClass()
 
 	//Critical parameters
 	crit.rho = 4*90.0779; //[kg/m^3]
-	crit.p = 4908.8; //[kPa]
+	crit.p = PressureUnit(4908.8, UNIT_KPA); //[kPa]
 	crit.T = 557; //[K]
 	crit.v = 1/crit.rho; 
 
@@ -75,7 +75,7 @@ double DimethylCarbonateClass::psat(double T)
     {
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 double DimethylCarbonateClass::rhosatL(double T)
 {

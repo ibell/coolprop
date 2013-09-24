@@ -201,7 +201,7 @@ R1234yfClass::R1234yfClass()
 
 	// Critical parameters
 	crit.rho = 475.553441976;
-	crit.p = 3382.2;
+	crit.p = PressureUnit(3382.2, UNIT_KPA);
 	crit.T = 367.85;
 	crit.v = 1.0/crit.rho;
 
@@ -242,7 +242,7 @@ double R1234yfClass::psat(double T)
     {
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
-    return crit.p*exp(crit.T/T*summer);
+    return crit.p.Pa*exp(crit.T/T*summer);
 }
 double R1234yfClass::rhosatL(double T)
 {

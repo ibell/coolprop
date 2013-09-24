@@ -43,14 +43,20 @@ static std::string err_string;
 static int debug_level=0;
 static Fluid * pFluid;
 
-// This is very hacky, but pull the subversion revision from the file
+// This is very hacky, but pull the git revision from the file
 #include "gitrevision.h" // Contents are like "long gitrevision = "aa121435436ggregrea4t43t433";"
-#include "version.h" // Contents are like "char version [] ="2.5";"
+#include "version.h" // Contents are like "char version [] = "2.5";"
 
 int global_Phase = -1;
 bool global_SinglePhase = false;
 bool global_SaturatedL = false;
 bool global_SaturatedV = false;
+
+// Default to the KSI unit system
+int unit_system = UNIT_SYSTEM_KSI;
+
+int get_standard_unit_system(){ return unit_system; }
+void set_standard_unit_system(int unit_sys){ unit_system = unit_sys; }
 
 // This is a map of all possible strings to a unique identifier
 std::pair<std::string, long> map_data[] = {
@@ -644,7 +650,7 @@ double _CoolProp_Fluid_Props(long iOutput, long iName1, double Prop1, long iName
 	}
 
 	// Generate a State instance wrapped around the Fluid instance
-	CoolPropStateClass CPS = CoolPropStateClass(pFluid);
+	CoolPropStateClass CPS(pFluid);
 
 	// Check if it is an output that doesn't require a state input
 	// Deal with it and return
@@ -697,6 +703,8 @@ EXPORT_CODE double CONVENTION IProps(long iOutput, long iName1, double Prop1, lo
 	else{
 		// In this function the error catching happens;
 		try{
+			// This is already converted to the right units since it comes from the CoolPropStateClass which
+			// does the unit handling
 			return _CoolProp_Fluid_Props(iOutput,iName1,Prop1,iName2,Prop2,pFluid);
 		}
 		catch(std::exception &e){
@@ -865,6 +873,91 @@ double DerivTerms(char *Term, double T, double rho, Fluid * pFluid)
 	}
 }
 
+int set_reference_stateS(std::string Ref, std::string reference_state)
+{
+	Fluid *pFluid=Fluids.get_fluid(Ref);
+	if (pFluid!=NULL)
+	{
+		return set_reference_stateP(pFluid, reference_state);
+	}
+	else{
+		return -1;
+	}
+}
+
+int set_reference_stateP(Fluid *pFluid, std::string reference_state)
+{
+	CoolPropStateClassSI CPS(pFluid);
+	if (!reference_state.compare("IIR"))
+	{
+		CoolPropStateClassSI CPS(pFluid);
+		CPS.update(iT,273.15,iQ,0);
+		// Get current values for the enthalpy and entropy
+		double h1 = CPS.h();
+		double s1 = CPS.s();
+		double deltah = h1-200000; // offset from 200 kJ/kg enthalpy
+		double deltas = s1-1000; // offset from 1 kJ/kg/K entropy
+		double delta_a1 = deltas/((8314.472/pFluid->params.molemass));
+		double delta_a2 = -deltah/((8314.472/pFluid->params.molemass)*pFluid->reduce.T);
+		pFluid->phi0list.push_back(new phi0_enthalpy_entropy_offset(delta_a1, delta_a2));
+		return 0;
+	}
+	else if (!reference_state.compare("ASHRAE"))
+	{
+		CoolPropStateClassSI CPS(pFluid);
+		CPS.update(iT,233.15,iQ,0);
+		// Get current values for the enthalpy and entropy
+		double h1 = CPS.h();
+		double s1 = CPS.s();
+		double deltah = h1-0; // offset from 0 kJ/kg enthalpy
+		double deltas = s1-0; // offset from 0 kJ/kg/K entropy
+		double delta_a1 = deltas/((8314.472/pFluid->params.molemass));
+		double delta_a2 = -deltah/((8314.472/pFluid->params.molemass)*pFluid->reduce.T);
+		pFluid->phi0list.push_back(new phi0_enthalpy_entropy_offset(delta_a1, delta_a2));
+		return 0;
+	}
+	else if (!reference_state.compare("NBP"))
+	{
+		CoolPropStateClassSI CPS(pFluid);
+		CPS.update(iP,101325.0,iQ,0); // Saturated boiling point at 1 atmosphere
+		// Get current values for the enthalpy and entropy
+		double h1 = CPS.h();
+		double s1 = CPS.s();
+		double deltah = h1-0; // offset from 0 kJ/kg enthalpy
+		double deltas = s1-0; // offset from 0 kJ/kg/K entropy
+		double delta_a1 = deltas/((8314.472/pFluid->params.molemass));
+		double delta_a2 = -deltah/((8314.472/pFluid->params.molemass)*pFluid->reduce.T);
+		pFluid->phi0list.push_back(new phi0_enthalpy_entropy_offset(delta_a1, delta_a2));
+		return 0;
+	}
+	else
+	{ 
+		return -1;
+	}
+
+}
+int set_reference_stateD(std::string Ref, double T, double rho, double h0, double s0)
+{
+	pFluid=Fluids.get_fluid(Ref);
+	if (pFluid!=NULL)
+	{
+		CoolPropStateClassSI CPS(pFluid);
+		CPS.update(iT,T,iD,rho);
+		// Get current values for the enthalpy and entropy
+		double h1 = CPS.h();
+		double s1 = CPS.s();
+		double deltah = h1-h0; // offset from given enthalpy in SI units
+		double deltas = s1-s0; // offset from given enthalpy in SI units
+		double delta_a1 = deltas/((8314.472/pFluid->params.molemass));
+		double delta_a2 = -deltah/((8314.472/pFluid->params.molemass)*pFluid->reduce.T);
+		pFluid->phi0list.push_back(new phi0_enthalpy_entropy_offset(delta_a1, delta_a2));
+		return 0;
+	}
+	else{
+		return -1;
+	}
+}
+
 std::string get_BibTeXKey(std::string Ref, std::string item)
 {
 	pFluid=Fluids.get_fluid(Ref);
@@ -911,46 +1004,57 @@ std::string get_global_param_string(std::string ParamName)
 };
 std::string get_fluid_param_string(std::string FluidName, std::string ParamName)
 {
-	pFluid = Fluids.get_fluid(FluidName);
-	// Didn't work
-	if (pFluid == NULL){
-		err_string=std::string("CoolProp error: ").append(format("%s is an invalid fluid for get_fluid_param_string",FluidName.c_str()));
-		return format("%s is an invalid fluid for get_fluid_param_string",FluidName.c_str()).c_str();
-	}
-	else{
-		if (!ParamName.compare("aliases"))
-		{
-			std::vector<std::string> v = pFluid->get_aliases();
-			return strjoin(v,", ");
+	try{
+		pFluid = Fluids.get_fluid(FluidName);
+		// Didn't work
+		if (pFluid == NULL){
+			err_string=std::string("CoolProp error: ").append(format("%s is an invalid fluid for get_fluid_param_string",FluidName.c_str()));
+			return format("%s is an invalid fluid for get_fluid_param_string",FluidName.c_str()).c_str();
 		}
-		else if (!ParamName.compare("CAS") || !ParamName.compare("CAS_number"))
-		{
-			return pFluid->params.CAS;
-		}
-		else if (!ParamName.compare("ASHRAE34"))
-		{
-			return pFluid->environment.ASHRAE34;
-		}
-		else if (!ParamName.compare("REFPROPName") || !ParamName.compare("REFPROP_name"))
-		{
-			return pFluid->get_REFPROPname();
-		}
-		else if (!ParamName.compare("TTSE_mode"))
-		{
-			int mode = pFluid->TTSESinglePhase.get_mode();
-			switch (mode)
+		else{
+			if (!ParamName.compare("aliases"))
 			{
-			case TTSE_MODE_TTSE:
-				return "TTSE";
-			case TTSE_MODE_BICUBIC:
-				return "BICUBIC";
-			default:
-				throw ValueError("TTSE mode is invalid");
+				std::vector<std::string> v = pFluid->get_aliases();
+				return strjoin(v,", ");
+			}
+			else if (!ParamName.compare("CAS") || !ParamName.compare("CAS_number"))
+			{
+				return pFluid->params.CAS;
+			}
+			else if (!ParamName.compare("ASHRAE34"))
+			{
+				return pFluid->environment.ASHRAE34;
+			}
+			else if (!ParamName.compare("REFPROPName") || !ParamName.compare("REFPROP_name"))
+			{
+				return pFluid->get_REFPROPname();
+			}
+			else if (!ParamName.compare("TTSE_mode"))
+			{
+				int mode = pFluid->TTSESinglePhase.get_mode();
+				switch (mode)
+				{
+				case TTSE_MODE_TTSE:
+					return "TTSE";
+				case TTSE_MODE_BICUBIC:
+					return "BICUBIC";
+				default:
+					throw ValueError("TTSE mode is invalid");
+				}
+			}
+			else
+			{
+				return format("Input value [%s] is invalid for Fluid [%s]",ParamName.c_str(),FluidName.c_str()).c_str();
 			}
 		}
-		else
-		{
-			return format("Input value [%s] is invalid for Fluid [%s]",ParamName.c_str(),FluidName.c_str()).c_str();
-		}
+	}
+	catch(std::exception &e)
+	{
+		return(std::string("CoolProp error: ").append(e.what()));
+	}
+	catch(...){
+		return(std::string("CoolProp error: Indeterminate error"));
 	}
 }
+
+

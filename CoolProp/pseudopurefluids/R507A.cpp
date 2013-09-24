@@ -212,7 +212,7 @@ R507AClass::R507AClass()
 
 	// Critical parameters (max condensing temperature)
 	crit.rho = 490.74;
-	crit.p = 3704.9;
+	crit.p = PressureUnit(3704.9,UNIT_KPA);
 	crit.T = 343.765;
 	crit.v = 1.0/crit.rho;
 
@@ -257,7 +257,7 @@ double R507AClass::psatL(double T)
     {
         sum+=Nbp[k]*pow(theta,tbp[k]);
     }
-    return reduce.p*exp(reduce.T/T*sum);
+    return reduce.p.Pa*exp(reduce.T/T*sum);
 }
     
 double R507AClass::psatV(double T)
@@ -271,7 +271,7 @@ double R507AClass::psatV(double T)
     {
         sum+=Ndp[k]*pow(theta,tdp[k]);
     }
-    return reduce.p*exp(reduce.T/T*sum);
+    return reduce.p.Pa*exp(reduce.T/T*sum);
 }
 
 double R507AClass::rhosatV(double T)

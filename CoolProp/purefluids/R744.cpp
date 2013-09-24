@@ -276,7 +276,7 @@ R744Class::R744Class()
 
 	// Critical parameters
 	crit.rho = 44.0098*10.6249063;
-	crit.p = 7377.3;
+	crit.p = PressureUnit(7377.3, UNIT_KPA);
 	crit.T = 304.1282;
 	crit.v = 1.0/crit.rho;
 
@@ -309,6 +309,9 @@ R744Class::R744Class()
 	aliases.push_back("carbondioxide");
 	REFPROPname.assign("CO2");
 
+	// Adjust to the IIR reference state (h=200 kJ/kg, s = 1 kJ/kg for sat. liq at 0C)
+    params.HSReferenceState = "IIR";
+
 	BibTeXKeys.EOS = "Span-JPCRD-1996";
 	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
 	BibTeXKeys.VISCOSITY = "Vesovic-JPCRD-1990";
@@ -318,7 +321,7 @@ double R744Class::conductivity_critical(double T, double rho)
 {
 	double k=1.380658e-23, //[J/K]
 		Tref = 1.5*reduce.T, //[K]
-		Pcrit = reduce.p, //[kPa]
+		Pcrit = reduce.p.Pa, //[kPa]
 
 		//Critical exponents
 		nu=0.63,
@@ -438,7 +441,7 @@ double R744Class::psat(double T)
     {
         summer=summer+ai[i]*pow(1-T/crit.T,ti[i]);
     }
-    return crit.p*exp(crit.T/T*summer);
+    return crit.p.Pa*exp(crit.T/T*summer);
 }
 double R744Class::rhosatL(double T)
 {

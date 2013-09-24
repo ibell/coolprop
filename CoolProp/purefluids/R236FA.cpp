@@ -17,7 +17,7 @@ R236FAClass::R236FAClass()
 
 	//Critical parameters
 	crit.rho = 3.626*152.0384; //[kg/m^3]
-	crit.p = 3200; //[kPa]
+	crit.p = PressureUnit(3200, UNIT_KPA); //[kPa]
 	crit.T = 398.07; //[K]
 	crit.v = 1/crit.rho; 
 
@@ -73,7 +73,7 @@ double R236FAClass::psat(double T)
     {
         summer += N[i]*pow(theta,t[i]/2);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 
 double R236FAClass::rhosatL(double T)

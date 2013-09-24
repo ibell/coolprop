@@ -153,12 +153,12 @@ AirClass::AirClass()
 	
 	// Critical parameters (max condensing temperature)
 	crit.rho = 11.8308*28.96546;
-	crit.p = 3786.0;
+	crit.p = PressureUnit(3786.0,UNIT_KPA);
 	crit.T = 132.5306;
 	crit.v = 1.0/crit.rho;
 
 	maxcondT.rho = 10.4477*28.96546;
-	maxcondT.p = 3785.02;
+	maxcondT.p = PressureUnit(3785.02,UNIT_KPA);
 	maxcondT.T = 132.6312;
 	maxcondT.v = 1.0/maxcondT.rho;
 
@@ -226,7 +226,7 @@ double AirClass::psatL(double T)
     {
         summer=summer+Ni[k]*pow(1-T/reduce.T,((double)k)/2.0);
     }
-	double p = reduce.p*exp(reduce.T/T*summer);
+	double p = reduce.p.Pa*exp(reduce.T/T*summer);
 	return p;
 }
 
@@ -238,7 +238,7 @@ double AirClass::psatV(double T)
     {
         summer=summer+Ni[k]*pow(1-T/reduce.T,((double)k)/2.0);
     }
-	double p =  reduce.p*exp(reduce.T/T*summer);
+	double p =  reduce.p.Pa*exp(reduce.T/T*summer);
 	return p;
 }
 
@@ -288,7 +288,7 @@ double AirClass::X_tilde(double T,double tau,double delta)
 	double drho_dp,R_Air;
     R_Air = params.R_u/params.molemass;
 	drho_dp=1.0/(R_Air*T*(1+2*delta*dphir_dDelta(tau,delta)+delta*delta*d2phir_dDelta2(tau,delta)));
-	return crit.p*delta/crit.rho*drho_dp;
+	return crit.p.Pa*delta/crit.rho*drho_dp;
 }
 
 double AirClass::conductivity_Trho(double T, double rho)

@@ -12,6 +12,7 @@
 #include "CoolPropTools.h"
 #include "Helmholtz.h"
 #include "TTSE.h"
+#include "Units.h"
 
 #include "rapidjson/rapidjson.h"
 #include "rapidjson/document.h"
@@ -32,10 +33,12 @@ struct OtherParameters
 {
 	double molemass, Ttriple, ptriple, accentricfactor, R_u;
 	std::string CAS;
+	std::string HSReferenceState;
 };
 struct CriticalStruct
 {
-	double rho, T, p, v, h, s, rhobar;
+	double rho, T, v, h, s, rhobar;
+	PressureUnit p;
 };
 struct FluidLimits
 {
@@ -172,6 +175,7 @@ class Fluid
 			params.R_u=8.314472; /// Default molar gas constant [kJ/kmol/K]
 			isPure=true;  /// true if fluid is one-component pure fluid, false otherwise
 
+			enabled_EXTTP = false;
 			// Default parameters for TTSE - others are set in post-load() function
 			built_TTSE_LUT = false;
 			enabled_TTSE_LUT = false;
@@ -225,8 +229,8 @@ class Fluid
 		std::vector<std::string> get_aliases(){return aliases;};
 		/// Returns true if the fluid is pure, false if pseudo-pure or a mixture
 		bool pure(){return isPure;};
-		/// Returns the mass-specific gas constant for the fluid [kJ/kg/K]
-		double R(){return params.R_u/params.molemass;};
+		/// Returns the mass-specific gas constant for the fluid in the desired units
+		double R();
 
 		// These MUST be implemented by derived class
         virtual double conductivity_Trho(double T, double rho);
@@ -503,7 +507,7 @@ class Fluid
 		/// @param rhoLout Saturated liquid pressure [kg/m3]
 		/// @param rhoVout Saturated vapor pressure [kg/m3]
 		/// @param omega Relaxation parameter [-]
-		void rhosatPure(double T, double *rhoLout, double *rhoVout, double *pout, double omega);
+		void rhosatPure(double T, double *rhoLout, double *rhoVout, double *pout, double omega, bool use_guesses);
 
 		/// NB: Only valid for pure fluids - no pseudo-pure or mixtures.
 		/// Get the saturated liquid, vapor densities and the saturated pressure using the method from Akasaka given by
@@ -553,7 +557,15 @@ class Fluid
 		bool isAlias(std::string name);
 
 		/// Parameters for the Tabular Taylor Series Expansion (TTSE) Method
-		bool enabled_TTSE_LUT, built_TTSE_LUT, enable_writing_tables_to_files;
+		bool enabled_TTSE_LUT, enabled_EXTTP, built_TTSE_LUT, enable_writing_tables_to_files;
+
+		/// Enable the extended two-phase calculations
+		/// If you want to over-ride parameters, must be done before calling this function
+		void enable_EXTTP(void);
+		/// Check if TTSE is enabled
+		bool isenabled_EXTTP(void);
+		/// Disable the TTSE
+		void disable_EXTTP(void);
 
 		/// Enable the TTSE
 		/// If you want to over-ride parameters, must be done before calling this function

@@ -4,6 +4,7 @@
 #include "pseudopurefluids/R410A.cpp"
 #include "pseudopurefluids/R404A.cpp"
 #include "pseudopurefluids/SES36.cpp"
+#include "pseudopurefluids/R407F.cpp"
 
 #include "purefluids/Argon.cpp"
 #include "purefluids/Alkanes.cpp"

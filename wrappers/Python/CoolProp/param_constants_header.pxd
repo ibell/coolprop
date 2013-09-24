@@ -22,9 +22,11 @@ cdef extern from "CoolProp.h":
 		iMM
 		iTcrit
 		iTtriple
+		iTreduce
 		iPtriple
 		iPcrit
 		iRhocrit
+		iRhoreduce
 		iAccentric
 		iDpdT
 		iDrhodT_p

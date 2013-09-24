@@ -155,7 +155,7 @@ R32Class::R32Class()
 
 	// Critical parameters
 	crit.rho = 8.1500846*52.024;
-	crit.p = 5782;
+	crit.p = PressureUnit(5782, UNIT_KPA);
 	crit.T = 351.255;
 	crit.v = 1.0/crit.rho;
 
@@ -199,7 +199,7 @@ double R32Class::psat(double T)
     {
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
-    return crit.p*exp(summer*crit.T/T);
+    return crit.p.Pa*exp(summer*crit.T/T);
 }
 
 double R32Class::rhosatL(double T)

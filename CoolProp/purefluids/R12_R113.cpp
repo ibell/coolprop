@@ -13,7 +13,7 @@ R12Class::R12Class()
 
 	//Critical parameters
 	crit.rho = 565; //[kg/m^3]
-	crit.p = 4136.1; //[kPa]
+	crit.p = PressureUnit(4136.1, UNIT_KPA); //[kPa]
 	crit.T = 385.12; //[K]
 	crit.v = 1/crit.rho; 
 
@@ -57,7 +57,7 @@ double R12Class::psat(double T)
     {
         summer += N[i]*pow(theta,t[i]/2);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 
 double R12Class::rhosatL(double T)
@@ -97,7 +97,7 @@ R113Class::R113Class()
 
 	//Critical parameters
 	crit.rho = 560; //[kg/m^3]
-	crit.p = 4988.5; //[kPa]
+	crit.p = PressureUnit(4988.5, UNIT_KPA); //[kPa]
 	crit.T = 487.21; //[K]
 	crit.v = 1/crit.rho; 
 
@@ -141,7 +141,7 @@ double R113Class::psat(double T)
     {
         summer += N[i]*pow(theta,t[i]/2);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 
 double R113Class::rhosatL(double T)

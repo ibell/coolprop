@@ -37,7 +37,7 @@ DeuteriumClass::DeuteriumClass()
 
 	// Critical parameters
 	crit.rho = 17.23*4.0282;
-	crit.p = 1679.6;
+	crit.p = PressureUnit(1679.6, UNIT_KPA);
 	crit.T = 38.34;
 	crit.v = 1.0/crit.rho;
 
@@ -74,7 +74,7 @@ double DeuteriumClass::psat(double T)
     {
         summer += Ni[i]*pow(theta,ti[i]);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 double DeuteriumClass::rhosatL(double T)
 {
@@ -133,7 +133,7 @@ OrthoDeuteriumClass::OrthoDeuteriumClass()
 
 	// Critical parameters
 	crit.rho = 17.23*4.0282;
-	crit.p = 1679.6;
+	crit.p = PressureUnit(1679.6, UNIT_KPA);
 	crit.T = 38.34;
 	crit.v = 1.0/crit.rho;
 
@@ -168,7 +168,7 @@ double OrthoDeuteriumClass::psat(double T)
     {
         summer += Ni[i]*pow(theta,ti[i]);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 double OrthoDeuteriumClass::rhosatL(double T)
 {
@@ -222,7 +222,7 @@ ParaDeuteriumClass::ParaDeuteriumClass()
 
 	// Critical parameters
 	crit.rho = 17.23*4.0282;
-	crit.p = 1679.6;
+	crit.p = PressureUnit(1679.6, UNIT_KPA);
 	crit.T = 38.34;
 	crit.v = 1.0/crit.rho;
 
@@ -257,7 +257,7 @@ double ParaDeuteriumClass::psat(double T)
     {
         summer += Ni[i]*pow(theta,ti[i]);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 double ParaDeuteriumClass::rhosatL(double T)
 {

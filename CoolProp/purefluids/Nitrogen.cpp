@@ -274,7 +274,7 @@ NitrogenClass::NitrogenClass()
 
 	// Critical parameters
 	crit.rho = 313.3;
-	crit.p = 3395.8;
+	crit.p = PressureUnit(3395.8, UNIT_KPA);
 	crit.T = 126.192;
 	crit.v = 1.0/crit.rho;
 
@@ -319,7 +319,7 @@ double NitrogenClass::X_tilde(double T,double tau,double delta)
 	double drho_dp,R_Nitrogen;
 	R_Nitrogen=params.R_u/params.molemass;
 	drho_dp=1.0/(R_Nitrogen*T*(1+2*delta*dphir_dDelta(tau,delta)+delta*delta*d2phir_dDelta2(tau,delta)));
-	return reduce.p*delta/reduce.rho*drho_dp;
+	return reduce.p.Pa*delta/reduce.rho*drho_dp;
 }
 
 double NitrogenClass::conductivity_dilute(double T)
@@ -460,7 +460,7 @@ double NitrogenClass::psat(double T)
     {
         summer=summer+Ni[i]*pow(1-T/reduce.T,ti[i]);
     }
-	return reduce.p*exp(reduce.T/T*summer);
+	return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 double NitrogenClass::rhosatL(double T)
 {

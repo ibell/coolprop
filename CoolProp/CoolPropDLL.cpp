@@ -11,6 +11,14 @@
 double _Props1(char *Fluid, char *Output);
 double _Props(std::string Output,std::string Name1, double Prop1, std::string Name2, double Prop2, std::string Ref);
 
+EXPORT_CODE int CONVENTION set_reference_stateS(char *Ref, char *reference_state)
+{
+	return set_reference_stateS(std::string(Ref), std::string(reference_state));
+}
+EXPORT_CODE int CONVENTION set_reference_stateD(char *Ref, double T, double rho, double h0, double s0)
+{
+	return set_reference_stateD(std::string(Ref), T, rho, h0, s0);
+}
 EXPORT_CODE double CONVENTION Props(char *Output,char Name1, double Prop1, char Name2, double Prop2, char * Ref)
 {
 	double val = Props(std::string(Output),Name1,Prop1,Name2,Prop2,std::string(Ref));
@@ -100,10 +108,10 @@ EXPORT_CODE long CONVENTION get_Fluid_index(char * param)
 {
 	return get_Fluid_index(std::string(param));
 }
-EXPORT_CODE void CONVENTION get_index_units(long param, char * units)
+EXPORT_CODE long CONVENTION get_index_units(long param, char * units)
 {
 	strcpy(units, (char*)get_index_units(param).c_str());
-	return;
+	return 0;
 }
 EXPORT_CODE int CONVENTION set_TTSE_mode(char* fluid, char *value)
 {
@@ -284,17 +292,27 @@ EXPORT_CODE double CONVENTION psatV_anc(char* FluidName, double T)
 		return -_HUGE;
 	}
 }
-
-EXPORT_CODE void CONVENTION Phase(char *Fluid,double T, double p, char *Phase_str)
+EXPORT_CODE long CONVENTION get_global_param_string(char *param, char * Output)
 {
-	strcpy(Phase_str,(char*)Phase(std::string(Fluid),T,p).c_str());
+	strcpy(Output,get_global_param_string(std::string(param)).c_str());
+	return 0;
 }
-EXPORT_CODE long CONVENTION Phase_Tp(char *Fluid,double T, double p, char *Phase_str)
+EXPORT_CODE long CONVENTION get_fluid_param_string(char *fluid, char *param, char * Output)
+{
+	strcpy(Output, get_fluid_param_string(std::string(fluid), std::string(param)).c_str());
+	return 0;
+}
+EXPORT_CODE long CONVENTION Phase(char *Fluid, double T, double p, char *Phase_str)
 {
 	strcpy(Phase_str,(char*)Phase(std::string(Fluid),T,p).c_str());
 	return 0;
 }
-EXPORT_CODE long CONVENTION Phase_Trho(char *Fluid,double T, double rho, char *Phase_str)
+EXPORT_CODE long CONVENTION Phase_Tp(char *Fluid, double T, double p, char *Phase_str)
+{
+	strcpy(Phase_str,(char*)Phase(std::string(Fluid),T,p).c_str());
+	return 0;
+}
+EXPORT_CODE long CONVENTION Phase_Trho(char *Fluid, double T, double rho, char *Phase_str)
 {
 	strcpy(Phase_str,(char*)Phase_Trho(std::string(Fluid),T,rho).c_str());
 	return 0;

@@ -13,7 +13,7 @@ HFE143mClass::HFE143mClass()
 
 	//Critical parameters
 	crit.rho = 4.648140744*100.04; //[kg/m^3]
-	crit.p = 3635; //[kPa]
+	crit.p = PressureUnit(3635, UNIT_KPA); //[kPa]
 	crit.T = 377.921; //[K]
 	crit.v = 1/crit.rho; 
 
@@ -84,7 +84,7 @@ double HFE143mClass::psat(double T)
     {
         summer += Ni[i]*pow(theta,ti[i]);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 double HFE143mClass::rhosatL(double T)
 {

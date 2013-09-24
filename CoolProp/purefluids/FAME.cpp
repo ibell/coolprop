@@ -17,7 +17,7 @@ MethylPalmitateClass::MethylPalmitateClass()
 
 	//Critical parameters
 	crit.rho = 0.897*270.45066; //[kg/m^3]
-	crit.p = 1350; //[kPa]
+	crit.p = PressureUnit(1350, UNIT_KPA); //[kPa]
 	crit.T = 755; //[K]
 	crit.v = 1/crit.rho; 
 
@@ -70,7 +70,7 @@ double MethylPalmitateClass::psat(double T)
     {
         summer += N[i]*pow(theta,t[i]/2);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 
 double MethylPalmitateClass::rhosatL(double T)
@@ -117,7 +117,7 @@ MethylStearateClass::MethylStearateClass()
 
 	//Critical parameters
 	crit.rho = 0.7943*298.50382; //[kg/m^3]
-	crit.p = 1350; //[kPa]
+	crit.p = PressureUnit(1350, UNIT_KPA); //[kPa]
 	crit.T = 775; //[K]
 	crit.v = 1/crit.rho; 
 
@@ -169,7 +169,7 @@ double MethylStearateClass::psat(double T)
     {
         summer += N[i]*pow(theta,t[i]/2);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 
 double MethylStearateClass::rhosatL(double T)
@@ -213,7 +213,7 @@ MethylOleateClass::MethylOleateClass()
 
 	//Critical parameters
 	crit.rho = 0.81285*296.48794; //[kg/m^3]
-	crit.p = 1246; //[kPa]
+	crit.p = PressureUnit(1246, UNIT_KPA); //[kPa]
 	crit.T = 782; //[K]
 	crit.v = 1/crit.rho; 
 
@@ -282,7 +282,7 @@ double MethylOleateClass::psat(double T)
     {
         summer=summer+N[i]*pow(theta,t[i]/2);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 double MethylOleateClass::rhosatV(double T)
 {
@@ -313,7 +313,7 @@ MethylLinoleateClass::MethylLinoleateClass()
 
 	//Critical parameters
 	crit.rho = 0.8084*294.47206; //[kg/m^3]
-	crit.p = 1341; //[kPa]
+	crit.p = PressureUnit(1341, UNIT_KPA); //[kPa]
 	crit.T = 799; //[K]
 	crit.v = 1/crit.rho; 
 
@@ -365,7 +365,7 @@ double MethylLinoleateClass::psat(double T)
     {
         summer += N[i]*pow(theta,t[i]/2);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 
 double MethylLinoleateClass::rhosatL(double T)
@@ -411,7 +411,7 @@ MethylLinolenateClass::MethylLinolenateClass()
 
 	//Critical parameters
 	crit.rho = 0.8473*292.45618; //[kg/m^3]
-	crit.p = 1369; //[kPa]
+	crit.p = PressureUnit(1369, UNIT_KPA); //[kPa]
 	crit.T = 772; //[K]
 	crit.v = 1/crit.rho; 
 
@@ -464,7 +464,7 @@ double MethylLinolenateClass::psat(double T)
     {
         summer += N[i]*pow(theta,t[i]/2);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 double MethylLinolenateClass::rhosatL(double T)
 {

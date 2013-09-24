@@ -13,7 +13,7 @@ CycloPropaneClass::CycloPropaneClass()
 
 	//Critical parameters
 	crit.rho = 42.081*6.1429149; //[kg/m^3]
-	crit.p = 5579.7; //[kPa]
+	crit.p = PressureUnit(5579.7, UNIT_KPA); //[kPa]
 	crit.T = 398.3; //[K]
 	crit.v = 1/crit.rho; 
 
@@ -62,8 +62,8 @@ double CycloPropaneClass::psat(double T)
     {
         summer += N[i]*pow(theta,t[i]/2);
     }
-	double r = reduce.p*exp(reduce.T/T*summer);
-    return reduce.p*exp(reduce.T/T*summer);
+	double r = reduce.p.Pa*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 
 double CycloPropaneClass::rhosatL(double T)
@@ -107,7 +107,7 @@ PropyneClass::PropyneClass()
 
 	//Critical parameters
 	crit.rho = 40.06*6.11333; //[kg/m^3]
-	crit.p = 5626; //[kPa]
+	crit.p = PressureUnit(5626, UNIT_KPA); //[kPa]
 	crit.T = 402.38; //[K]
 	crit.v = 1/crit.rho; 
 
@@ -161,7 +161,7 @@ double PropyneClass::psat(double T)
     {
         summer += N[i]*pow(theta,t[i]/2);
     }
-    return reduce.p*exp(reduce.T/T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 
 double PropyneClass::rhosatL(double T)

@@ -7,18 +7,17 @@ import numpy
 
 import CoolProp.CoolProp as CP
 
-
 SMALL = 1E-5
 
 
 class BasePlot(object):
     #TODO: Simplify / Consolidate dictionary maps
-    AXIS_LABLES = {'T': ["Temperature", r"[$K$]"],
-                   'P': ["Pressure", r"[$kPa$]"],
-                   'S': ["Entropy", r"[$kJ/kg K$]"],
-                   'H': ["Enthalpy", r"[$kJ/kg$]"],
+    AXIS_LABELS = {'T': ["Temperature", r"[K]"],
+                   'P': ["Pressure", r"[kPa]"],
+                   'S': ["Entropy", r"[kJ/kg/K]"],
+                   'H': ["Enthalpy", r"[kJ/kg]"],
                    'V': [],
-                   'D': ["Density", r"[$kg/m^3$]"]}
+                   'D': ["Density", r"[kg/m$^3$]"]}
 
     COLOR_MAP = {'T': 'Darkred',
                  'P': 'DarkCyan',
