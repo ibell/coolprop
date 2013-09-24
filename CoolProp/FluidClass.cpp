@@ -3183,7 +3183,8 @@ void Fluid::saturation_p(double p, bool UseLUT, double *TsatL, double *TsatV, do
 			SPGR.rhoL = rhoL;
 			SPGR.rhoV = rhoV;
 			try{
-				Tsat = Secant(&SPGR,Tsat,1e-2*Tsat,1e-8,50,&errstr);
+				//Tsat = Secant(&SPGR,Tsat,1e-2*Tsat,1e-8,50,&errstr);
+				Tsat = Secant(&SPGR,Tsat,1e-4,1e-7,50,&errstr);
 				if (errstr.size()>0 || !ValidNumber(Tsat)|| !ValidNumber(SPGR.rhoV)|| !ValidNumber(SPGR.rhoL))
 					throw SolutionError("Saturation calculation failed");
 				*rhoVout = SPGR.rhoV;
