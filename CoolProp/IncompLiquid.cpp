@@ -34,6 +34,7 @@ public:
 		LiquidsList.push_back(new TherminolD12Class());
 		LiquidsList.push_back(new TherminolVP1Class());
 		LiquidsList.push_back(new Therminol72Class());
+		LiquidsList.push_back(new Therminol66Class());
 
 		LiquidsList.push_back(new DowthermJClass());
 		LiquidsList.push_back(new DowthermQClass());
@@ -126,7 +127,7 @@ double IncompLiquid(long iOutput, double T, double p, std::string name)
 }
 ///
 /// @param T Temperature in K
-/// @param p Pressure in kPa
+/// @param p Pressure in Pa
 /// @param iFluid Index of fluid
 double IncompLiquid(long iOutput, double T, double p, long iFluid)
 {

@@ -211,7 +211,7 @@ protected:
 	 *  based on the input n.
 	 *  An extra check is performed for the length
 	 *  of the vector according to the chosen function. */
-	double baseExponential(std::vector<double> coefficients, double x, int n){
+	double baseExponential(std ::vector<double> coefficients, double x, int n){
 		double result = 0.;
 		if (n==1) {
 			int c = 3;
@@ -257,7 +257,7 @@ public:
     }
     double h(double T_K, double p){
     	if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
-    	return basePolynomialInt(cCp, T_K, Tref);
+    	return basePolynomialInt(cCp, T_K, Tref)+p/rho(T_K,p);
 	}
 	double s(double T_K, double p){
 		if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
@@ -303,8 +303,8 @@ public:
         cRho.push_back(-0.731182);
 
         cCp.clear();
-        cCp.push_back(0.999729);
-        cCp.push_back(0.00287576);
+        cCp.push_back(999.729);
+        cCp.push_back(2.87576);
 
         cVisc.clear();
         cVisc.push_back(3.5503);
@@ -339,8 +339,8 @@ public:
         cRho.push_back(-0.718788);
 
         cCp.clear();
-        cCp.push_back(0.844023);
-        cCp.push_back(0.00431212);
+        cCp.push_back(844.023);
+        cCp.push_back(4.31212);
 
         cVisc.clear();
         cVisc.push_back(18.3237);
@@ -379,8 +379,8 @@ public:
         cRho.push_back(-0.918485);
 
         cCp.clear();
-        cCp.push_back(0.871834);
-        cCp.push_back(0.000858788);
+        cCp.push_back(871.834);
+        cCp.push_back(858788);
 
         cVisc.clear();
         cVisc.push_back(-4.22878);
@@ -419,8 +419,8 @@ public:
         cRho.push_back(-0.9025);
 
         cCp.clear();
-        cCp.push_back(1.22369);
-        cCp.push_back(0.00148417);
+        cCp.push_back(1223.69);
+        cCp.push_back(1.48417);
 
         cVisc.clear();
         cVisc.push_back(6.36183);
@@ -459,8 +459,8 @@ public:
         cRho.push_back(-1.02576);
 
         cCp.clear();
-        cCp.push_back(1.15355);
-        cCp.push_back(0.00210788);
+        cCp.push_back(1153.55);
+        cCp.push_back(2.10788);
 
         cVisc.clear();
         cVisc.push_back(5.66926);
@@ -499,8 +499,8 @@ public:
         cRho.push_back(-0.801667);
 
         cCp.clear();
-        cCp.push_back(1.36094);
-        cCp.push_back(0.00151667);
+        cCp.push_back(1360.94);
+        cCp.push_back(1.51667);
 
         cVisc.clear();
         cVisc.push_back(5.21288);
@@ -539,8 +539,8 @@ public:
         cRho.push_back(-0.772024);
 
         cCp.clear();
-        cCp.push_back(0.761393);
-        cCp.push_back(0.00352976);
+        cCp.push_back(761.393);
+        cCp.push_back(3.52976);
 
         cVisc.clear();
         cVisc.push_back(7.16819);
@@ -579,8 +579,8 @@ public:
         cRho.push_back(-0.778166);
 
         cCp.clear();
-        cCp.push_back(0.223775);
-        cCp.push_back(0.0052159);
+        cCp.push_back(223.775);
+        cCp.push_back(5.2159);
 
         cVisc.clear();
         cVisc.push_back(-3.47971);
@@ -640,10 +640,10 @@ public:
         cRho.push_back(-1.5498115143E-06);
 
         cCp.clear();
-        cCp.push_back(+1.0054715109E+00);
-        cCp.push_back(+3.6645441085E-03);
-        cCp.push_back(-3.5878725087E-07);
-        cCp.push_back(+1.7370907291E-09);
+        cCp.push_back(+1.0054715109E+03);
+        cCp.push_back(+3.6645441085E-00);
+        cCp.push_back(-3.5878725087E-04);
+        cCp.push_back(+1.7370907291E-06);
 
         cCond.clear();
         cCond.push_back(+1.4137409270E-04);
@@ -680,10 +680,10 @@ public:
         cRho.push_back(-1.9310694457E-06);
 
         cCp.clear();
-        cCp.push_back(+6.8006101123E-01);
-        cCp.push_back(+3.2230860459E-03);
-        cCp.push_back(-1.0974690747E-06);
-        cCp.push_back(+8.1520085319E-10);
+        cCp.push_back(+6.8006101123E+02);
+        cCp.push_back(+3.2230860459E-00);
+        cCp.push_back(-1.0974690747E-03);
+        cCp.push_back(+8.1520085319E-07);
 
         cCond.clear();
         cCond.push_back(+1.4898820998E-04);
@@ -720,10 +720,10 @@ public:
         cRho.push_back(-2.3561359575E-07);
 
         cCp.clear();
-        cCp.push_back(+6.9155653776E-01);
-        cCp.push_back(+3.1812352525E-03);
-        cCp.push_back(-1.0707667973E-06);
-        cCp.push_back(+7.8051070556E-10);
+        cCp.push_back(+6.9155653776E+02);
+        cCp.push_back(+3.1812352525E-00);
+        cCp.push_back(-1.0707667973E-03);
+        cCp.push_back(+7.8051070556E-07);
 
         cCond.clear();
         cCond.push_back(+1.7514206629E-04);
@@ -741,6 +741,45 @@ public:
         cPsat.push_back(-1.7271828471E+02);
     };
 };
+
+class Therminol66Class : public SimpleIncompressible{
+public:
+	Therminol66Class(){
+        name = std::string("T66");
+        description = std::string("Therminol 66");
+        reference = std::string("Therminol2007");
+
+		Tmin     = 273.15;
+		Tmax     = 618.15;
+		TminPsat = 273.15;
+
+        cRho.clear();
+        cRho.push_back(+1164.45337);
+        cRho.push_back(-0.4388917);
+        cRho.push_back(-0.000321);
+
+        cCp.clear();
+        cCp.push_back(+657.990904);
+        cCp.push_back(+2.82292602);
+        cCp.push_back(+0.0008970785);
+
+        cCond.clear();
+        cCond.push_back(+0.116116312);
+        cCond.push_back(+0.000048945);
+        cCond.push_back(-1.50000000E-07);
+
+        cVisc.clear();
+        cVisc.push_back(+586.375);
+        cVisc.push_back(-210.6500E0);
+        cVisc.push_back(-2.2809);
+
+        cPsat.clear();
+        cPsat.push_back(-9094.51);
+        cPsat.push_back(+66.8500E0);
+        cPsat.push_back(+24.54486E0);
+    };
+};
+
 
 class DowthermJClass : public SimpleIncompressible{
 public:
@@ -760,10 +799,10 @@ public:
         cRho.push_back(-2.9222650181E-06);
 
         cCp.clear();
-        cCp.push_back(+1.1465102196E+00);
-        cCp.push_back(+2.1016260744E-03);
-        cCp.push_back(-2.2151557961E-07);
-        cCp.push_back(+3.5493927846E-09);
+        cCp.push_back(+1.1465102196E+03);
+        cCp.push_back(+2.1016260744E-00);
+        cCp.push_back(-2.2151557961E-04);
+        cCp.push_back(+3.5493927846E-06);
 
         cCond.clear();
         cCond.push_back(+1.8990894157E-04);
@@ -800,10 +839,10 @@ public:
         cRho.push_back(-1.7756195502E-07);
 
         cCp.clear();
-        cCp.push_back(+6.5777357045E-01);
-        cCp.push_back(+3.6209780444E-03);
-        cCp.push_back(-8.3411429568E-07);
-        cCp.push_back(+2.2428632290E-10);
+        cCp.push_back(+6.5777357045E+02);
+        cCp.push_back(+3.6209780444E-00);
+        cCp.push_back(-8.3411429568E-04);
+        cCp.push_back(+2.2428632290E-07);
 
         cCond.clear();
         cCond.push_back(+1.5381076522E-04);
@@ -841,10 +880,10 @@ public:
         cRho.push_back(-9.5365432963E-07);
 
         cCp.clear();
-        cCp.push_back(+7.5687081085E-01);
-        cCp.push_back(+3.9761218594E-03);
-        cCp.push_back(-5.5667939231E-07);
-        cCp.push_back(+2.5261546566E-10);
+        cCp.push_back(+7.5687081085E+02);
+        cCp.push_back(+3.9761218594E-00);
+        cCp.push_back(-5.5667939231E-04);
+        cCp.push_back(+2.5261546566E-07);
 
         cCond.clear();
         cCond.push_back(+1.5246860039E-04);
@@ -882,10 +921,10 @@ public:
         cRho.push_back(-2.4393584453E-07);
 
         cCp.clear();
-        cCp.push_back(+1.3960182000E+00);
-        cCp.push_back(+1.7200000001E-04);
-        cCp.push_back(-9.4083072373E-18);
-        cCp.push_back(+4.3126550326E-21);
+        cCp.push_back(+1.3960182000E+03);
+        cCp.push_back(+1.7200000001E-01);
+        cCp.push_back(-9.4083072373E-15);
+        cCp.push_back(+4.3126550326E-18);
 
         cCond.clear();
         cCond.push_back(+3.9112042040E-04);
@@ -921,10 +960,10 @@ public:
         cRho.push_back(+1.0368054566E-09);
 
         cCp.clear();
-        cCp.push_back(+1.1122510494E+00);
-        cCp.push_back(+2.5171817500E-03);
-        cCp.push_back(-1.2392094684E-06);
-        cCp.push_back(+1.1624033307E-09);
+        cCp.push_back(+1.1122510494E+03);
+        cCp.push_back(+2.5171817500E-00);
+        cCp.push_back(-1.2392094684E-03);
+        cCp.push_back(+1.1624033307E-06);
 
         cCond.clear();
         cCond.push_back(+1.6121957379E-04);
