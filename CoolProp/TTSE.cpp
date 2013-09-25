@@ -2308,27 +2308,68 @@ double TTSETwoPhaseTableClass::evaluate(long iParam, double p)
 	{
 		throw ValueError(format("p [%g] is out of range[%g,%g], yielded index of: %d",p,pmin,pmax,i));
 	}
-		
-	double log_PI_PIi = logp-this->logp[i];
-	double pi = this->p[i];
-	
-	switch (iParam)
+
+	if (i == N-2)
 	{
-	case iS:
-		return s[i]+log_PI_PIi*pi*dsdp[i]*(1.0+0.5*log_PI_PIi)+0.5*log_PI_PIi*log_PI_PIi*d2sdp2[i]*pi*pi;
-	case iT:
-		return T[i]+log_PI_PIi*pi*dTdp[i]*(1.0+0.5*log_PI_PIi)+0.5*log_PI_PIi*log_PI_PIi*d2Tdp2[i]*pi*pi;
-	case iH:
-		//return h[i]+(pi-this->p[i])*dhdp[i]+0.5*(pi-this->p[i])*(pi-this->p[i])*d2hdp2[i];
-		return h[i]+log_PI_PIi*pi*dhdp[i]*(1.0+0.5*log_PI_PIi)+0.5*log_PI_PIi*log_PI_PIi*d2hdp2[i]*pi*pi;
-	case iD:
+		double log_PI_PIi = logp-this->logp[i];
+		double pi = this->p[i];
+		
+		switch (iParam)
 		{
-		// log(p) v. log(rho) gives close to a line for most of the curve
-		double dRdPI = pi/rho[i]*drhodp[i];
-		return exp(logrho[i]+log_PI_PIi*(1.0+0.5*log_PI_PIi*(1-dRdPI))*dRdPI+0.5*log_PI_PIi*log_PI_PIi*d2rhodp2[i]*pi*pi/rho[i]);
+		case iS:
+			return s[i]+log_PI_PIi*pi*dsdp[i]*(1.0+0.5*log_PI_PIi)+0.5*log_PI_PIi*log_PI_PIi*d2sdp2[i]*pi*pi;
+		case iT:
+			return T[i]+log_PI_PIi*pi*dTdp[i]*(1.0+0.5*log_PI_PIi)+0.5*log_PI_PIi*log_PI_PIi*d2Tdp2[i]*pi*pi;
+		case iH:
+			//return h[i]+(pi-this->p[i])*dhdp[i]+0.5*(pi-this->p[i])*(pi-this->p[i])*d2hdp2[i];
+			return h[i]+log_PI_PIi*pi*dhdp[i]*(1.0+0.5*log_PI_PIi)+0.5*log_PI_PIi*log_PI_PIi*d2hdp2[i]*pi*pi;
+		case iD:
+			{
+			// log(p) v. log(rho) gives close to a line for most of the curve
+			double dRdPI = pi/rho[i]*drhodp[i];
+			return exp(logrho[i]+log_PI_PIi*(1.0+0.5*log_PI_PIi*(1-dRdPI))*dRdPI+0.5*log_PI_PIi*log_PI_PIi*d2rhodp2[i]*pi*pi/rho[i]);
+			}
+		default:
+			throw ValueError();
 		}
-	default:
-		throw ValueError();
+
+	}
+	else
+	{
+		// Spline interpolation http://en.wikipedia.org/wiki/Spline_interpolation since we
+		// know the derivatives and the values at the bounding elements
+		// Independent variable is logp
+		// Dependent variable is varied (entropy, enthalpy, etc...)
+		double x1 = this->logp[i];
+		double x2 = this->logp[i+1];
+		double t = (logp-x1)/(x2-x1);
+		
+		double y1, y2, k1, k2;
+		switch (iParam)
+		{
+		case iS:
+			y1 = this->s[i]; y2 = this->s[i+1]; k1 = this->p[i]*this->dsdp[i]; k2 = this->p[i+1]*this->dsdp[i+1]; break;
+		case iT:
+			y1 = this->T[i]; y2 = this->T[i+1]; k1 = this->p[i]*this->dTdp[i]; k2 = this->p[i+1]*this->dTdp[i+1]; break;
+		case iH:
+			y1 = this->h[i]; y2 = this->h[i+1]; k1 = this->p[i]*this->dhdp[i]; k2 = this->p[i+1]*this->dhdp[i+1]; break;
+		case iD:
+			/// log(p) v. log(rho) gives close to a line for most of the curve
+			/// d(log(p))/d(log(p)) = 1/rho*d(rho)/d(log(p)) = p/rho*drho/dp
+			y1 = this->logrho[i]; y2 = this->logrho[i+1]; k1 = this->p[i]/this->rho[i]*this->drhodp[i]; k2 = this->p[i+1]/this->rho[i+1]*this->drhodp[i+1]; break;
+		default:
+			throw ValueError();
+		}
+		
+		double a = k1*(x2-x1)-(y2-y1);
+		double b = -k2*(x2-x1)+(y2-y1);
+		double y = (1-t)*y1+t*y2+t*(1-t)*(a*(1-t)+b*t);
+		if (iParam == iD){ 
+			return exp(y);
+		}
+		else{
+			return y;
+		}
 	}
 }
 double TTSETwoPhaseTableClass::evaluate_T(double T)
@@ -2340,8 +2381,32 @@ double TTSETwoPhaseTableClass::evaluate_T(double T)
 
 	// Do interval halving over the whole range to find the nearest temperature
 	L = 0; R = N - 2; M = (L+R)/2;
-	if (isbetween(this->T[N-2],pFluid->reduce.T,T)){
+	if (isbetween(this->T[N-2],pFluid->reduce.T,T))
+	{
 		L = N-2;
+		// T = T[i]+log_PI_PIi*pi*dTdp[i]*(1.0+0.5*log_PI_PIi)+0.5*log_PI_PIi*log_PI_PIi*d2Tdp2[i]*pi*pi;
+		// T = T[i]+log_PI_PIi*pi*dTdp[i]+ 0.5*log_PI_PIi^2*pi*dTdp[i]+0.5*log_PI_PIi*log_PI_PIi*d2Tdp2[i]*pi*pi;
+		// 0 = 0.5*log_PI_PIi^2*pi*dTdp[i]+0.5*log_PI_PIi^2*d2Tdp2[i]*pi*pi+log_PI_PIi*pi*dTdp[i]+T[i]-T;
+		pi = this->p[L];
+		a = 0.5*(pi*dTdp[L]+d2Tdp2[L]*pi*pi);
+		b = pi*dTdp[L];
+		c = this->T[L]-T;
+
+		// Solutions from quadratic equation
+		log_PI_PIi1 = (-b+sqrt(b*b-4*a*c))/(2*a);
+		log_PI_PIi2 = (-b-sqrt(b*b-4*a*c))/(2*a);
+
+		// Get the pressures
+		double p1 = exp(log_PI_PIi1+this->logp[L]);
+		double p2 = exp(log_PI_PIi2+this->logp[L]);
+
+		// If only one is less than spacing of enthalpy, thats your solution
+		if (fabs(log_PI_PIi1)<2*logp_spacing && !(fabs(log_PI_PIi2)<2*logp_spacing))
+			return p1;
+		else if (fabs(log_PI_PIi2)<2*logp_spacing && !(fabs(log_PI_PIi1)<2*logp_spacing))
+			return p2;
+		else
+			throw ValueError(format("More than one solution found[%g,%g] in evaluate_T for TTSE for input %g",p1,p2,T));
 	}
 	else
 	{
@@ -2371,29 +2436,7 @@ double TTSETwoPhaseTableClass::evaluate_T(double T)
 		double logp = (1-t)*y1+t*y2+t*(1-t)*(a*(1-t)+b*t);
 		return exp(logp);
 	}
-	// T = T[i]+log_PI_PIi*pi*dTdp[i]*(1.0+0.5*log_PI_PIi)+0.5*log_PI_PIi*log_PI_PIi*d2Tdp2[i]*pi*pi;
-	// T = T[i]+log_PI_PIi*pi*dTdp[i]+ 0.5*log_PI_PIi^2*pi*dTdp[i]+0.5*log_PI_PIi*log_PI_PIi*d2Tdp2[i]*pi*pi;
-	// 0 = 0.5*log_PI_PIi^2*pi*dTdp[i]+0.5*log_PI_PIi^2*d2Tdp2[i]*pi*pi+log_PI_PIi*pi*dTdp[i]+T[i]-T;
-	pi = this->p[L];
-	a = 0.5*(pi*dTdp[L]+d2Tdp2[L]*pi*pi);
-	b = pi*dTdp[L];
-	c = this->T[L]-T;
-
-	// Solutions from quadratic equation
-	log_PI_PIi1 = (-b+sqrt(b*b-4*a*c))/(2*a);
-	log_PI_PIi2 = (-b-sqrt(b*b-4*a*c))/(2*a);
-
-	// Get the pressures
-	double p1 = exp(log_PI_PIi1+this->logp[L]);
-	double p2 = exp(log_PI_PIi2+this->logp[L]);
-
-	// If only one is less than spacing of enthalpy, thats your solution
-	if (fabs(log_PI_PIi1)<2*logp_spacing && !(fabs(log_PI_PIi2)<2*logp_spacing))
-		return p1;
-	else if (fabs(log_PI_PIi2)<2*logp_spacing && !(fabs(log_PI_PIi1)<2*logp_spacing))
-		return p2;
-	else
-		throw ValueError(format("More than one solution found[%g,%g] in evaluate_T for TTSE for input %g",p1,p2,T));
+	
 }
 double TTSETwoPhaseTableClass::evaluate_sat_derivative(long iParam, double p)
 {
