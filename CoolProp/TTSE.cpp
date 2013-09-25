@@ -2345,15 +2345,31 @@ double TTSETwoPhaseTableClass::evaluate_T(double T)
 	}
 	else
 	{
-		while (R - L>1)
+		while (R - L > 1)
 		{
-			if (isbetween(this->T[M],this->T[R],T)){ 
+			if (T > this->T[M]){ 
 				L=M; M=(L+R)/2; continue;
 			}
 			else{ 
 				R=M; M=(L+R)/2; continue;
 			}
 		}
+		// Spline interpolation http://en.wikipedia.org/wiki/Spline_interpolation since we
+		// know the derivatives and the values at the bounding elements
+		// Independent variable is T
+		// Dependent variable is logp
+		double t = (T-this->T[L])/(this->T[R]-this->T[L]);
+		double x1 = this->T[L];
+		double x2 = this->T[R];
+		double y1 = this->logp[L];
+		double y2 = this->logp[R];
+		// y is log(p); d(log(p))/dT = 1/p*(dp/dT) = 1/p/(dT/dp)
+		double k1 = 1/this->p[L]/this->dTdp[L];
+		double k2 = 1/this->p[R]/this->dTdp[R];
+		double a = k1*(x2-x1)-(y2-y1);
+		double b = -k2*(x2-x1)+(y2-y1);
+		double logp = (1-t)*y1+t*y2+t*(1-t)*(a*(1-t)+b*t);
+		return exp(logp);
 	}
 	// T = T[i]+log_PI_PIi*pi*dTdp[i]*(1.0+0.5*log_PI_PIi)+0.5*log_PI_PIi*log_PI_PIi*d2Tdp2[i]*pi*pi;
 	// T = T[i]+log_PI_PIi*pi*dTdp[i]+ 0.5*log_PI_PIi^2*pi*dTdp[i]+0.5*log_PI_PIi*log_PI_PIi*d2Tdp2[i]*pi*pi;
