@@ -1,4 +1,4 @@
-#define _CRT_SECURE_NO_WARNINGS
+﻿#define _CRT_SECURE_NO_WARNINGS
 
 #include <stdlib.h>
 #include <string>
@@ -1063,7 +1063,8 @@ double Fluid::density_Tp(double T, double p, double rho_guess)
 	rho=rho_guess;
     int iter=1;
 	
-    while (fabs(error) > 1e-10 && fabs(change/rho)>DBL_EPSILON*10)
+    //while (fabs(error) > 1e-10 && fabs(change/rho)>DBL_EPSILON*10)
+	while (fabs(error) > 1e-10 && fabs(change)>1e-10) 
     {
 		delta = rho/reduce.rho;
 		// Needed for both kinds
@@ -3182,7 +3183,8 @@ void Fluid::saturation_p(double p, bool UseLUT, double *TsatL, double *TsatV, do
 			SPGR.rhoL = rhoL;
 			SPGR.rhoV = rhoV;
 			try{
-				Tsat = Secant(&SPGR,Tsat,1e-2*Tsat,1e-8,50,&errstr);
+				//Tsat = Secant(&SPGR,Tsat,1e-2*Tsat,1e-8,50,&errstr);
+				Tsat = Secant(&SPGR,Tsat,1e-4,1e-7,50,&errstr);
 				if (errstr.size()>0 || !ValidNumber(Tsat)|| !ValidNumber(SPGR.rhoV)|| !ValidNumber(SPGR.rhoL))
 					throw SolutionError("Saturation calculation failed");
 				*rhoVout = SPGR.rhoV;
