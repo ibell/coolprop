@@ -263,7 +263,7 @@ public:
 	}
 	double s(double T_K, double p){
 		if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
-		return log(T_K/Tref);
+		return baseFractionInt(cHeat, T_K, Tref);
 	}
 	double visc(double T_K, double p){
 		if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
