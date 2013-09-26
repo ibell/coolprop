@@ -915,7 +915,7 @@ double WetbulbTemperature(double T, double p, double psi_w)
 		// Solution obtained is out of range (T>Tmax)
 		if (return_val > Tmax) {throw ValueError();}
 	}
-	catch(std::exception)
+	catch(std::exception &)
 	{
 		// The lowest wetbulb temperature that is possible for a given dry bulb temperature 
 		// is the saturated air temperature which yields the enthalpy of dry air at dry bulb temperature

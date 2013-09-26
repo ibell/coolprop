@@ -43,6 +43,34 @@ public:
 	/// Saturation pressure as a function of temperature.
 	virtual double psat(double T_K){return -_HUGE;};
 
+    void testInputs(double T_K, double p){
+    	double result = 0.;
+        //double x =   0.25;
+        //double T =   5.0 + 273.15;
+        //double p =  300.0;
+
+    	printf(" %s \n"," ");
+    	printf("Testing  %s \n",this->get_name().c_str());
+    	printf("Inputs:  T = %3.3f degC \t p = %2.4f bar \n",T_K-273.15,p/1e5);
+
+        result = this->rho(T_K,p);
+        printf("From object:    rho = %4.2f \t kg/m3    \n",result);
+        result = this->cp(T_K,p);
+        printf("From object:     cp = %1.5f \t kJ/kg-K  \n",result/1e3);
+        result = this->h(T_K,p);
+    	printf("From object:      h = %3.3f \t kJ/kg    \n",result/1e3);
+    	result = this->s(T_K,p);
+    	printf("From object:      s = %1.5f \t kJ/kg-K  \n",result/1e3);
+    	result = this->visc(T_K,p);
+    	printf("From object:    eta = %1.5f \t 1e-5 Pa-s\n",result*1e5);
+    	result = this->cond(T_K,p);
+    	printf("From object: lambda = %1.5f \t W/m-k    \n",result*1e3);
+    	result = this->u(T_K,p);
+    	printf("From object:      u = %3.3f \t kJ/kg    \n",result/1e3);
+    	result = this->psat(T_K);
+    	printf("From object:   psat = %2.4f \t bar      \n",result/1e5);
+    }
+
 protected:
 	/* Define internal energy and enthalpy as functions of the
 	 * other properties to provide data in case there are no
@@ -164,7 +192,7 @@ public:
     	if (T_K<TminPsat || TminPsat<0){
     		return -1.;
     	} else {
-    		return expval(cPsat, T_K, 1);
+    		return expval(cPsat, T_K, 1)*1000.;
     	}
     };
 };

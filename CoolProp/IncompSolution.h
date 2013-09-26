@@ -65,24 +65,24 @@ public:
 
     	printf(" %s \n"," ");
     	printf("Testing  %s \n",this->get_name().c_str());
-    	printf("Inputs:  T = %3.3f degC \t p = %2.4f bar \t x = %1.5f \n",T_K-273.15,p/100.0,x);
+    	printf("Inputs:  T = %3.3f degC \t p = %2.4f bar \t x = %1.5f \n",T_K-273.15,p/1e5,x);
 
         result = this->rho(T_K,p,x);
         printf("From object:    rho = %4.2f \t kg/m3    \n",result);
         result = this->cp(T_K,p,x);
-        printf("From object:     cp = %1.5f \t kJ/kg-K  \n",result);
+        printf("From object:     cp = %1.5f \t kJ/kg-K  \n",result/1e3);
         result = this->h(T_K,p,x);
-    	printf("From object:      h = %3.3f \t kJ/kg    \n",result);
+    	printf("From object:      h = %3.3f \t kJ/kg    \n",result/1e3);
     	result = this->s(T_K,p,x);
-    	printf("From object:      s = %1.5f \t kJ/kg-K  \n",result);
+    	printf("From object:      s = %1.5f \t kJ/kg-K  \n",result/1e3);
     	result = this->visc(T_K,p,x);
     	printf("From object:    eta = %1.5f \t 1e-5 Pa-s\n",result*1e5);
     	result = this->cond(T_K,p,x);
     	printf("From object: lambda = %1.5f \t W/m-k    \n",result*1e3);
     	result = this->u(T_K,p,x);
-    	printf("From object:      u = %3.3f \t kJ/kg    \n",result);
+    	printf("From object:      u = %3.3f \t kJ/kg    \n",result/1e3);
     	result = this->psat(T_K,x);
-    	printf("From object:   psat = %2.4f \t bar      \n",result/100.0);
+    	printf("From object:   psat = %2.4f \t bar      \n",result/1e5);
     	result = this->Tfreeze(p,x);
     	printf("From object:Tfreeze = %3.3f \t degC   \n\n",result-273.15);
     }
@@ -190,7 +190,7 @@ protected:
 	double Tbase;
 	double xbase;
 	std::vector< std::vector<double> > cRho;
-	std::vector< std::vector<double> > cCp;
+	std::vector< std::vector<double> > cHeat;
 	std::vector< std::vector<double> > cVisc;
 	std::vector< std::vector<double> > cCond;
 	std::vector< std::vector<double> > cPsat;
@@ -200,7 +200,7 @@ public:
 	double getTbase() const {return Tbase;}
 	double getxbase() const {return xbase;}
 	std::vector<std::vector<double> > getcCond() const {return cCond;}
-	std::vector<std::vector<double> > getcCp() const {return cCp;}
+	std::vector<std::vector<double> > getcHeat() const {return cHeat;}
 	std::vector<std::vector<double> > getcPsat() const {return cPsat;}
 	std::vector<std::vector<double> > getcRho() const {return cRho;}
 	std::vector<double> getcTfreeze() const {return cTfreeze;}
@@ -305,18 +305,16 @@ public:
 	}
 	double cp(double T_K, double p, double x){
 		checkTPX(T_K, p, x);
-		Incompressible::checkCoefficients(cCp,6,4);
-		return polyval(cCp, getxInput(x), getTInput(T_K))/1e3;
+		Incompressible::checkCoefficients(cHeat,6,4);
+		return polyval(cHeat, getxInput(x), getTInput(T_K));
 	}
 	double h(double T_K, double p, double x){
-		checkTPX(T_K, p, x);
-		Incompressible::checkCoefficients(cCp,6,4);
-		return polyint(cCp, getxInput(x), getTInput(T_K), getTInput(Tref))/1e3;
+		return h_u(T_K,p,x);
 	}
 	double s(double T_K, double p, double x){
 		checkTPX(T_K, p, x);
-		Incompressible::checkCoefficients(cCp,6,4);
-		return fracint(cCp, getxInput(x), getTInput(T_K), getTInput(Tref))/1e3;
+		Incompressible::checkCoefficients(cHeat,6,4);
+		return fracint(cHeat, getxInput(x), getTInput(T_K), getTInput(Tref));
 	}
 	double visc(double T_K, double p, double x){
 		checkTPX(T_K, p, x);
@@ -329,7 +327,9 @@ public:
 		return polyval(cCond, getxInput(x), getTInput(T_K))/1e3;
 	}
 	double u(double T_K, double p, double x){
-		return u_h(T_K,p,x);
+		checkTPX(T_K, p, x);
+		Incompressible::checkCoefficients(cHeat,6,4);
+		return polyint(cHeat, getxInput(x), getTInput(T_K), getTInput(Tref));
 	}
 //	double psat(double T_K, double x){
 //		//checkT(T_K,p,x);
@@ -413,8 +413,8 @@ public:
         tmpVector.push_back( 4.242194E-05);
         tmpVector.push_back( 2.347190E-05);
         tmpVector.push_back(-1.894000E-06);
-		cCp.clear();
-		cCp = makeMatrix(tmpVector);
+		cHeat.clear();
+		cHeat = makeMatrix(tmpVector);
 
 		tmpVector.clear();
 		tmpVector.push_back( 0.4082066700);
