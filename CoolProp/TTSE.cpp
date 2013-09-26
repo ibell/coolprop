@@ -2267,24 +2267,44 @@ double TTSETwoPhaseTableClass::build(double pmin, double pmax, TTSETwoPhaseTable
 			other->d2rhodp2[i] = (other->Q>0.5) ? CPS.d2rhodp2_along_sat_vapor() : CPS.d2rhodp2_along_sat_liquid();
 		}
 	}
-	//// At the last point
-	//CPS.flag_SinglePhase = true; // Don't have it check the state or do a saturation call
-	//p[N-1] = CPS.pFluid->reduce.p;
-	//logp[N-1] = log(p[N-1]);
-	//CPS.update(iT,CPS.pFluid->reduce.T,iD,CPS.pFluid->reduce.rho);
-	//T[N-1] = CPS.T();
-	//dTdp[N-1] = CPS.dTdp_along_sat();
+	// At the last point (the critical point)
+	CPS.flag_SinglePhase = true; // Don't have it check the state or do a saturation call
+	CPS.update(iT,CPS.pFluid->reduce.T+1e-12,iD,CPS.pFluid->reduce.rho+1e-12);
+	p[N-1] = CPS.p();
+	logp[N-1] = log(p[N-1]);
+	T[N-1] = CPS.T();
+	dTdp[N-1] = 1/CPS.dpdT_constrho();
 	//d2Tdp2[N-1] = CPS.d2Tdp2_along_sat();
-	//h[N-1] = CPS.h();
+	h[N-1] = CPS.h();
 	//dhdp[N-1] = (this->Q>0.5) ? CPS.dhdp_along_sat_vapor() : CPS.dhdp_along_sat_liquid();
 	//d2hdp2[N-1] = (this->Q>0.5) ? CPS.d2hdp2_along_sat_vapor() : CPS.d2hdp2_along_sat_liquid();
-	//s[N-1] = CPS.s();
+	s[N-1] = CPS.s();
 	//dsdp[N-1] = (this->Q>0.5) ? CPS.dsdp_along_sat_vapor() : CPS.dsdp_along_sat_liquid();
 	//d2sdp2[N-1] = (this->Q>0.5) ? CPS.d2sdp2_along_sat_vapor() : CPS.d2sdp2_along_sat_liquid();
-	//rho[N-1] = CPS.rho();
-	//logrho[N-1] = log(CPS.rho());
+	rho[N-1] = CPS.rho();
+	logrho[N-1] = log(CPS.rho());
 	//drhodp[N-1] = (this->Q>0.5) ? CPS.drhodp_along_sat_vapor() : CPS.drhodp_along_sat_liquid();
 	//d2rhodp2[N-1] = (this->Q>0.5) ? CPS.d2rhodp2_along_sat_vapor() : CPS.d2rhodp2_along_sat_liquid();
+
+	// If other is provided
+	if (other != NULL)
+	{
+		other->p[N-1] = CPS.p();
+		other->logp[N-1] = log(p[N-1]);
+		other->T[N-1] = CPS.T();
+		other->dTdp[N-1] = 1/CPS.dpdT_constrho();
+		//other->d2Tdp2[N-1] = CPS.d2Tdp2_along_sat();
+		other->h[N-1] = CPS.h();
+		//other->dhdp[N-1] = (this->Q>0.5) ? CPS.dhdp_along_sat_vapor() : CPS.dhdp_along_sat_liquid();
+		//other->d2hdp2[N-1] = (this->Q>0.5) ? CPS.d2hdp2_along_sat_vapor() : CPS.d2hdp2_along_sat_liquid();
+		other->s[N-1] = CPS.s();
+		//other->dsdp[N-1] = (this->Q>0.5) ? CPS.dsdp_along_sat_vapor() : CPS.dsdp_along_sat_liquid();
+		//other->d2sdp2[N-1] = (this->Q>0.5) ? CPS.d2sdp2_along_sat_vapor() : CPS.d2sdp2_along_sat_liquid();
+		other->rho[N-1] = CPS.rho();
+		other->logrho[N-1] = log(CPS.rho());
+		//other->drhodp[N-1] = (this->Q>0.5) ? CPS.drhodp_along_sat_vapor() : CPS.drhodp_along_sat_liquid();
+		//other->d2rhodp2[N-1] = (this->Q>0.5) ? CPS.d2rhodp2_along_sat_vapor() : CPS.d2rhodp2_along_sat_liquid();
+	}
 
 	t2 = clock();
 	std::cout << double(t2-t1)/CLOCKS_PER_SEC << " to build both two phase tables" << std::endl;
@@ -2383,30 +2403,25 @@ double TTSETwoPhaseTableClass::evaluate_T(double T)
 	L = 0; R = N - 2; M = (L+R)/2;
 	if (isbetween(this->T[N-2],pFluid->reduce.T,T))
 	{
+		// According to Matthis Thorade, dTdP|sat at the critical point is equal to dT/dP|rho evaluated at the 
+		// critical temperature and density
 		L = N-2;
-		// T = T[i]+log_PI_PIi*pi*dTdp[i]*(1.0+0.5*log_PI_PIi)+0.5*log_PI_PIi*log_PI_PIi*d2Tdp2[i]*pi*pi;
-		// T = T[i]+log_PI_PIi*pi*dTdp[i]+ 0.5*log_PI_PIi^2*pi*dTdp[i]+0.5*log_PI_PIi*log_PI_PIi*d2Tdp2[i]*pi*pi;
-		// 0 = 0.5*log_PI_PIi^2*pi*dTdp[i]+0.5*log_PI_PIi^2*d2Tdp2[i]*pi*pi+log_PI_PIi*pi*dTdp[i]+T[i]-T;
-		pi = this->p[L];
-		a = 0.5*(pi*dTdp[L]+d2Tdp2[L]*pi*pi);
-		b = pi*dTdp[L];
-		c = this->T[L]-T;
-
-		// Solutions from quadratic equation
-		log_PI_PIi1 = (-b+sqrt(b*b-4*a*c))/(2*a);
-		log_PI_PIi2 = (-b-sqrt(b*b-4*a*c))/(2*a);
-
-		// Get the pressures
-		double p1 = exp(log_PI_PIi1+this->logp[L]);
-		double p2 = exp(log_PI_PIi2+this->logp[L]);
-
-		// If only one is less than spacing of enthalpy, thats your solution
-		if (fabs(log_PI_PIi1)<2*logp_spacing && !(fabs(log_PI_PIi2)<2*logp_spacing))
-			return p1;
-		else if (fabs(log_PI_PIi2)<2*logp_spacing && !(fabs(log_PI_PIi1)<2*logp_spacing))
-			return p2;
-		else
-			throw ValueError(format("More than one solution found[%g,%g] in evaluate_T for TTSE for input %g",p1,p2,T));
+		// Spline interpolation http://en.wikipedia.org/wiki/Spline_interpolation since we
+		// know the derivatives and the values at the bounding elements
+		// Independent variable is T
+		// Dependent variable is logp
+		double t = (T-this->T[L])/(this->T[L+1]-this->T[L]);
+		double x1 = this->T[L];
+		double x2 = this->T[L+1];
+		double y1 = this->logp[L];
+		double y2 = this->logp[L+1];
+		// y is log(p); d(log(p))/dT = 1/p*(dp/dT) = 1/p/(dT/dp)
+		double k1 = 1/this->p[L]/this->dTdp[L];
+		double k2 = 1/this->p[L+1]/this->dTdp[L+1];
+		double a = k1*(x2-x1)-(y2-y1);
+		double b = -k2*(x2-x1)+(y2-y1);
+		double logp = (1-t)*y1+t*y2+t*(1-t)*(a*(1-t)+b*t);
+		return exp(logp);
 	}
 	else
 	{
