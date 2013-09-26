@@ -46,7 +46,7 @@ BINDIR     =./bin/LinuxGCC
 COOLPROPDIR=../../CoolProp
 
 LIBS       =
-OPTFLAGS   =-O3 -ffast-math# -ffloat-store # optimisation, remove for debugging
+OPTFLAGS   =-O3 -funroll-loops -ffast-math# -ffloat-store # optimisation, remove for debugging
 
 # List of files to compile
 OBJS             = \

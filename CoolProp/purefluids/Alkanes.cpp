@@ -804,6 +804,9 @@ IsoButaneClass::IsoButaneClass()
 	aliases.push_back("R600a");
 	REFPROPname.assign("ISOBUTAN");
 
+	// Adjust to the IIR reference state (h=200 kJ/kg, s = 1 kJ/kg for sat. liq at 0C)
+    params.HSReferenceState = "IIR";
+
 	BibTeXKeys.EOS = "Buecker-JPCRD-2006B";
 	BibTeXKeys.VISCOSITY = "Vogel-IJT-2000";
 	BibTeXKeys.ECS_LENNARD_JONES = "Vogel-IJT-2000";

@@ -33,6 +33,7 @@ struct OtherParameters
 {
 	double molemass, Ttriple, ptriple, accentricfactor, R_u;
 	std::string CAS;
+	std::string HSReferenceState;
 };
 struct CriticalStruct
 {

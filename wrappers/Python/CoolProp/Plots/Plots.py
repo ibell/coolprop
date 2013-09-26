@@ -408,6 +408,7 @@ class PropsPlot(BasePlot):
 
         Examples
         ---------
+        >>> from CoolProp.Plots import PropsPlot
         >>> plt = PropsPlot('Water', 'Ph')
         >>> plt.show()
 
