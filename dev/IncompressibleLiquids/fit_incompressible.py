@@ -386,10 +386,10 @@ for Ci in C:
     print "cRho.push_back(%+1.10E);" %(Ci)
     
 print ""
-print "cCp.clear();"
+print "cHeat.clear();"
 C = liqObj.getCoefficients('C')
 for Ci in C:
-    print "cCp.push_back(%+1.10E);" %(Ci)
+    print "cHeat.push_back(%+1.10E);" %(Ci)
 
 print ""
 print "cCond.clear();"

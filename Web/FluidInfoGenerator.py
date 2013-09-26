@@ -505,20 +505,19 @@ All fluids are implemented with polynomials for density and heat capacity with t
 
 .. math::
 
-    \\rho   = \\sum_{i=0}^n C_{\\rho}[i] \\cdot T^i
+    \\rho  = \\sum_{i=0}^n C_{\\rho}[i] \\cdot T^i
     
-    c_p    = \\sum_{i=0}^n C_{c_p}[i] \\cdot T^i
+    c      = \\sum_{i=0}^n C_{c}[i] \\cdot T^i
     
-    h      = \\int_{0}^{1} c_p\\left( T \\right) dT 
-           = \\sum_{i=0}^n \\frac{1}{i+1} \\cdot C_{c_p}[i] 
+    u      = \\int_{0}^{1} c\\left( T \\right) dT 
+           = \\sum_{i=0}^n \\frac{1}{i+1} \\cdot C_{c}[i] 
              \\cdot \\left( T^{i+1} - T_0^{i+1} \\right)
-           
-             
-    s      = \\int_{0}^{1} \\frac{c_p\\left( T \\right)}{T} dT 
-           = C_{c_p}[0] \\cdot \\ln\\left(\\frac{T}{T_0}\\right) 
-             + \\sum_{i=0}^{n-1} \\frac{1}{i+1} \\cdot C_{c_p}[i+1] 
+    
+    s      = \\int_{0}^{1} \\frac{c\\left( T \\right)}{T} dT 
+           = C_{c}[0] \\cdot \\ln\\left(\\frac{T}{T_0}\\right) 
+             + \\sum_{i=0}^{n-1} \\frac{1}{i+1} \\cdot C_{c}[i+1] 
              \\cdot \\left( T^{i+1} - T_0^{i+1} \\right)
-             
+               
     \\lambda= \\sum_{i=0}^n C_{\\lambda}[i] \\cdot T^i
     
     \\mu    = \\exp\\left( \\frac{C_{\\mu}[0]}{T+C_{\\mu}[1]} - C_{\\mu}[2] \\right)

@@ -632,7 +632,7 @@ double _Props(std::string Output, std::string Name1, double Prop1, std::string N
 		}
 		else
 		{
-			throw ValueError("For brine, inputs must be (order doesnt matter) 'T' and 'P', or 'H' and 'P'");
+			throw ValueError("For incompressible fluids, inputs must be (order doesnt matter) 'T' and 'P', or 'H' and 'P'");
 		}
     }
 	else
