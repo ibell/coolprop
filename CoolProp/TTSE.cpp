@@ -2331,28 +2331,34 @@ double TTSETwoPhaseTableClass::evaluate(long iParam, double p)
 
 	if (i == N-2)
 	{
-		double log_PI_PIi = logp-this->logp[i];
-		double pi = this->p[i];
-		
+		double y1, yc, dydp1;
 		switch (iParam)
 		{
 		case iS:
-			return s[i]+log_PI_PIi*pi*dsdp[i]*(1.0+0.5*log_PI_PIi)+0.5*log_PI_PIi*log_PI_PIi*d2sdp2[i]*pi*pi;
+			y1 = s[i]; yc = s[i+1]; dydp1 = dsdp[i]; break;
 		case iT:
-			return T[i]+log_PI_PIi*pi*dTdp[i]*(1.0+0.5*log_PI_PIi)+0.5*log_PI_PIi*log_PI_PIi*d2Tdp2[i]*pi*pi;
+			y1 = T[i]; yc = T[i+1]; dydp1 = dTdp[i]; break;
 		case iH:
-			//return h[i]+(pi-this->p[i])*dhdp[i]+0.5*(pi-this->p[i])*(pi-this->p[i])*d2hdp2[i];
-			return h[i]+log_PI_PIi*pi*dhdp[i]*(1.0+0.5*log_PI_PIi)+0.5*log_PI_PIi*log_PI_PIi*d2hdp2[i]*pi*pi;
+			y1 = h[i]; yc = h[i+1]; dydp1 = dhdp[i]; break;
 		case iD:
-			{
-			// log(p) v. log(rho) gives close to a line for most of the curve
-			double dRdPI = pi/rho[i]*drhodp[i];
-			return exp(logrho[i]+log_PI_PIi*(1.0+0.5*log_PI_PIi*(1-dRdPI))*dRdPI+0.5*log_PI_PIi*log_PI_PIi*d2rhodp2[i]*pi*pi/rho[i]);
-			}
+			y1 = rho[i]; yc = rho[i+1]; dydp1 = drhodp[i]; break;
 		default:
 			throw ValueError();
 		}
 
+		// Here we use interpolation based on a form y = a*x^(1/n) 
+		// where we develop shifted coordinates
+		// Y = y - yc (where y is s, h, rho, etc.)
+		// X = pc - p
+
+		double X = this->p[i+1] - p;
+		double Y1 = y1 - yc;
+		double X1 = this->p[i+1] - this->p[i];
+		double dYdX1 = -dydp1;
+		double n = Y1/(dYdX1*X1);
+		double a = Y1/pow(X1,1/n);
+		double Y = a*pow(X,1.0/n);
+		return Y + yc;
 	}
 	else
 	{
