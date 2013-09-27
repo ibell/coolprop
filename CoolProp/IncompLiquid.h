@@ -18,7 +18,7 @@ in IncompLiquid.cpp
 **/
 
 /// The abstract base class for the liquids
-class IncompressibleLiquid : public Incompressible{
+class IncompressibleLiquid : public IncompressibleClass{
 	
 public:
 	/* All functions need T and p as input. Might not be necessary,
