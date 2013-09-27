@@ -55,6 +55,16 @@
 		return (x <= DBL_MAX && x >= -DBL_MAX);
 	};
 
+	/// Define the deprecated macro to give compile-time warnings
+	#ifdef __GNUC__
+		#define DEPRECATED(func) func __attribute__ ((deprecated))
+	#elif defined(_MSC_VER)
+		#define DEPRECATED(func) __declspec(deprecated) func
+	#else
+		#pragma message("WARNING: You need to implement DEPRECATED for this compiler")
+		#define DEPRECATED(func) func
+	#endif
+
 	#include <algorithm> 
 	#include <functional> 
 	#include <cctype>

@@ -4,10 +4,10 @@
 
 #include <string>
 #include <vector>
-#include "CPExceptions.h"
-#include "CoolProp.h"
 #include <math.h>
-#include "Solvers.h"
+#include "CPExceptions.h"
+#include "CoolPropTools.h"
+#include "IncompBase.h"
 
 /**
 Notes for developers:
@@ -18,52 +18,58 @@ in IncompLiquid.cpp
 **/
 
 /// The abstract base class for the liquids
-class IncompressibleLiquid{
+class IncompressibleLiquid : public IncompressibleClass{
 	
-protected:
-	std::string name,description,reference;
-	double Tmin, TminPsat, Tmax, Tref;
-
 public:
-	// Constructor
-	IncompressibleLiquid(){
-		Tmin = -1.;
-		Tmax = -1.;
-		TminPsat = -1.;
-		Tref = 273.15 + 25. ;
-	};
-
-	// Destructor.  No implementation
-	virtual ~IncompressibleLiquid(){};
-
 	/* All functions need T and p as input. Might not be necessary,
 	 * but gives a clearer structure.
 	 */
-
 	/// Density as a function of temperature and pressure.
-	virtual double rho (double T_K, double p){return 0;};
+	virtual double rho (double T_K, double p){return -_HUGE;};
 	/// Heat capacities as a function of temperature and pressure.
-	virtual double c   (double T_K, double p){return 0;};
+	virtual double c   (double T_K, double p){return -_HUGE;};
 	virtual double cp  (double T_K, double p){return c(T_K,p);};
 	virtual double cv  (double T_K, double p){return c(T_K,p);};
 	/// Entropy as a function of temperature and pressure.
-	virtual double s   (double T_K, double p){return 0;};
+	virtual double s   (double T_K, double p){return -_HUGE;};
 	/// Internal energy as a function of temperature and pressure.
-	virtual double u   (double T_K, double p){return 0;};
+	virtual double u   (double T_K, double p){return -_HUGE;};
 	/// Enthalpy as a function of temperature and pressure.
-	virtual double h   (double T_K, double p){return 0;};
+	virtual double h   (double T_K, double p){return -_HUGE;};
 	/// Viscosity as a function of temperature and pressure.
-	virtual double visc(double T_K, double p){return 0;};
+	virtual double visc(double T_K, double p){return -_HUGE;};
 	/// Thermal conductivity as a function of temperature and pressure.
-	virtual double cond(double T_K, double p){return 0;};
+	virtual double cond(double T_K, double p){return -_HUGE;};
 	/// Saturation pressure as a function of temperature.
-	virtual double psat(double T_K){return -1;};
-	/// Saturation temperature as a function of pressure.
-	virtual double Tsat(double p){return -1;};
+	virtual double psat(double T_K){return -_HUGE;};
 
-	std::string get_name() {
-		return name;
-	}
+    void testInputs(double T_K, double p){
+    	double result = 0.;
+        //double x =   0.25;
+        //double T =   5.0 + 273.15;
+        //double p =  300.0;
+
+    	printf(" %s \n"," ");
+    	printf("Testing  %s \n",this->get_name().c_str());
+    	printf("Inputs:  T = %3.3f degC \t p = %2.4f bar \n",T_K-273.15,p/1e5);
+
+        result = this->rho(T_K,p);
+        printf("From object:    rho = %4.2f \t kg/m3    \n",result);
+        result = this->cp(T_K,p);
+        printf("From object:     cp = %1.5f \t kJ/kg-K  \n",result/1e3);
+        result = this->h(T_K,p);
+    	printf("From object:      h = %3.3f \t kJ/kg    \n",result/1e3);
+    	result = this->s(T_K,p);
+    	printf("From object:      s = %1.5f \t kJ/kg-K  \n",result/1e3);
+    	result = this->visc(T_K,p);
+    	printf("From object:    eta = %1.5f \t 1e-5 Pa-s\n",result*1e5);
+    	result = this->cond(T_K,p);
+    	printf("From object: lambda = %1.5f \t W/m-k    \n",result*1e3);
+    	result = this->u(T_K,p);
+    	printf("From object:      u = %3.3f \t kJ/kg    \n",result/1e3);
+    	result = this->psat(T_K);
+    	printf("From object:   psat = %2.4f \t bar      \n",result/1e5);
+    }
 
 protected:
 	/* Define internal energy and enthalpy as functions of the
@@ -98,7 +104,7 @@ protected:
 	/// Check validity of temperature input.
 	/** Compares the given temperature T to a stored minimum and
 	 *  maximum temperature. Enforces the redefinition of Tmin and
-	 *  Tmax since the default values cause and error. */
+	 *  Tmax since the default values cause an error. */
 	bool checkT(double T_K){
 		if( Tmin < 0. ) {
 			throw ValueError("Please specify the minimum temperature.");
@@ -116,7 +122,7 @@ protected:
 	/** Compares the given pressure p to the saturation pressure at
 	 *  temperature T and throws and exception if p is lower than
 	 *  the saturation conditions.
-	 *  The default value for psat is -1 yielding true is psat
+	 *  The default value for psat is -1 yielding true if psat
 	 *  is not redefined in the subclass.
 	 *  */
 	bool checkP(double T_K, double p) {
@@ -133,101 +139,6 @@ protected:
 		return (checkT(T) && checkP(T,p));
 	}
 
-	/// Polynomial function generator.
-	/** Base function to produce n-th order polynomials
-	 *  based on the length of the coefficients vector.
-	 *  Starts with only the first coefficient at x^0. */
-	double basePolynomial(std::vector<double> coefficients, double x){
-	    double result = 0.;
-	    for(unsigned int i=0; i<coefficients.size();i++) {
-	    	result += coefficients[i] * pow(x,(int)i);
-	    }
-	    return result;
-	}
-
-	/// Polynomial function generator with check.
-	/** Base function to produce n-th order polynomials
-	 *  based on the length of the coefficients vector.
-	 *  Starts with only the first coefficient at x^0
-	 *  and checks the vector length against parameter n. */
-	double basePolynomial(std::vector<double> coefficients, double x, unsigned int n){
-		if (coefficients.size() == n){
-			return basePolynomial(coefficients, x);
-		} else {
-			throw ValueError(format("The number of coefficients %d does not match with %d. ",coefficients.size(),n));
-		}
-	}
-
-	/// Integrated polynomial function generator.
-	/** Base function to produce integrals of n-th order
-	 *  polynomials based on the length of the coefficients
-	 *  vector. Integrates from x0 to x1.
-	 *  Starts with only the first coefficient at x^0 */
-	double basePolynomialInt(std::vector<double> coefficients, double x1, double x0){
-		double result = 0.;
-		for(unsigned int i=0; i<coefficients.size();i++) {
-			result += 1./(i+1.) * coefficients[i] * (pow(x1,(i+1.)) - pow(x0,(i+1.)));
-		}
-		return result;
-	}
-
-	/// Integrated polynomial function generator with check.
-	/** Calls the base function but checks the vector
-	 *  length against parameter n. */
-	double basePolynomialInt(std::vector<double> coefficients, double x1, double x0, unsigned int n){
-		if (coefficients.size() == n){
-			return basePolynomialInt(coefficients, x1, x0);
-		} else {
-			throw ValueError(format("The number of coefficients %d does not match with %d. ",coefficients.size(),n));
-		}
-	}
-
-	/// Integrated fraction generator.
-	/** Base function to produce integrals of n-th order
-	 *  polynomials divided by their variable based on
-	 *  the length of the coefficients vector.
-	 *  Integrates from x0 to x1, starts with only the
-	 *  first coefficient at x^0 */
-	double baseFractionInt(std::vector<double> coefficients, double x1, double x0){
-		double result = coefficients[0] * log(x1/x0);
-		if (coefficients.size() > 1) {
-			std::vector<double> newCoeffs(coefficients.begin() + 1, coefficients.end());
-			result += basePolynomialInt(newCoeffs,x1,x0);
-		}
-		return result;
-	}
-
-	/// Integrated fraction generator with check.
-	/** Calls the base function but checks the vector
-	 *  length against parameter n before. */
-	double baseFractionInt(std::vector<double> coefficients, double x1, double x0, unsigned int n){
-		if (coefficients.size() == n){
-			return baseFractionInt(coefficients, x1, x0);
-		} else {
-			throw ValueError(format("The number of coefficients %d does not match with %d. ",coefficients.size(),n));
-		}
-	}
-
-	/// Exponential function generator.
-	/** Base function to produce exponential functions
-	 *  based on the input n.
-	 *  An extra check is performed for the length
-	 *  of the vector according to the chosen function. */
-	double baseExponential(std ::vector<double> coefficients, double x, int n){
-		double result = 0.;
-		if (n==1) {
-			int c = 3;
-			if (coefficients.size() != c) throw ValueError(format("The number of coefficients %d does not match with %d. ",coefficients.size(),c));
-			result = exp(coefficients[0]/(x+coefficients[1]) - coefficients[2]);
-		} else if (n==2) {
-			int c = 3;
-			if (coefficients.size() != c) throw ValueError(format("The number of coefficients %d does not match with %d. ",coefficients.size(),c));
-			result = exp(basePolynomial(coefficients, x, c));
-		} else {
-			throw ValueError(format("There is no function defined for this input (%d). ",n));
-		}
-	    return result;
-	}
 };
 
 bool IsIncompressibleLiquid(std::string name);
@@ -250,38 +161,38 @@ protected:
 
 public:
     double rho(double T_K, double p){
-    	if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
-    	return basePolynomial(cRho, T_K);
+    	checkTP(T_K, p);
+    	return polyval(cRho, T_K);
     }
     double c(double T_K, double p){
-    	if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
-    	return basePolynomial(cHeat, T_K);
+    	checkTP(T_K, p);
+    	return polyval(cHeat, T_K);
     }
     double h(double T_K, double p){
-    	if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
+    	checkTP(T_K, p);
     	return h_u(T_K,p);
 	}
 	double s(double T_K, double p){
-		if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
-		return baseFractionInt(cHeat, T_K, Tref);
+		checkTP(T_K, p);
+		return fracint(cHeat, T_K, Tref);
 	}
 	double visc(double T_K, double p){
-		if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
-		return baseExponential(cVisc, T_K, 1);
+		checkTP(T_K, p);
+		return expval(cVisc, T_K, 1);
 	}
 	double cond(double T_K, double p){
-		if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
-		return basePolynomial(cCond, T_K);
+		checkTP(T_K, p);
+		return polyval(cCond, T_K);
 	}
     double u(double T_K, double p){
-    	return basePolynomialInt(cHeat, T_K, Tref);
+    	return polyint(cHeat, T_K, Tref);
     }
     double psat(double T_K){
-    	if (!checkT(T_K)) throw ValueError(format("T=%f is out of range.",T_K));
+    	checkT(T_K);
     	if (T_K<TminPsat || TminPsat<0){
     		return -1.;
     	} else {
-    		return baseExponential(cPsat, T_K, 1);
+    		return expval(cPsat, T_K, 1)*1000.;
     	}
     };
 };
@@ -319,10 +230,7 @@ public:
     };
     double visc(double T_K, double p){
 		if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
-		return baseExponential(cVisc, T_K, 2);
-	}
-    double h(double T_K, double p){
-		return h_u(T_K,p);
+		return expval(cVisc, T_K, 2);
 	}
 };
 
@@ -353,16 +261,9 @@ public:
         cCond.push_back(0.000153716);
         cCond.push_back(-1.51212e-07);
     };
-    double u(double T_K, double p){
-    	if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
-    	return basePolynomialInt(cHeat, T_K, Tref);
-	}
     double visc(double T_K, double p){
 		if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
-		return baseExponential(cVisc, T_K, 2);
-	}
-    double h(double T_K, double p){
-		return h_u(T_K,p);
+		return expval(cVisc, T_K, 2);
 	}
 };
 
@@ -393,16 +294,9 @@ public:
         cCond.push_back(9.92958e-05);
         cCond.push_back(-8.33333e-08);
     };
-    double u(double T_K, double p){
-    	if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
-    	return basePolynomialInt(cHeat, T_K, Tref);
-	}
     double visc(double T_K, double p){
 		if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
-		return baseExponential(cVisc, T_K, 2);
-	}
-    double h(double T_K, double p){
-		return h_u(T_K,p);
+		return expval(cVisc, T_K, 2);
 	}
 };
 
@@ -433,16 +327,9 @@ public:
         cCond.push_back(0.000207526);
         cCond.push_back(-2.84167e-07);
     };
-    double u(double T_K, double p){
-    	if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
-    	return basePolynomialInt(cHeat, T_K, Tref);
-	}
     double visc(double T_K, double p){
 		if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
-		return baseExponential(cVisc, T_K, 2);
-	}
-    double h(double T_K, double p){
-		return h_u(T_K,p);
+		return expval(cVisc, T_K, 2);
 	}
 };
 
@@ -473,16 +360,9 @@ public:
         cCond.push_back(0.000172305);
         cCond.push_back(-2.11212e-07);
     };
-    double u(double T_K, double p){
-    	if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
-    	return basePolynomialInt(cHeat, T_K, Tref);
-	}
     double visc(double T_K, double p){
 		if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
-		return baseExponential(cVisc, T_K, 2);
-	}
-    double h(double T_K, double p){
-		return h_u(T_K,p);
+		return expval(cVisc, T_K, 2);
 	}
 };
 
@@ -513,16 +393,9 @@ public:
         cCond.push_back(0.000208374);
         cCond.push_back(-2.61667e-07);
     };
-    double u(double T_K, double p){
-    	if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
-    	return basePolynomialInt(cHeat, T_K, Tref);
-	}
     double visc(double T_K, double p){
 		if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
-		return baseExponential(cVisc, T_K, 2);
-	}
-    double h(double T_K, double p){
-		return h_u(T_K,p);
+		return expval(cVisc, T_K, 2);
 	}
 };
 
@@ -553,16 +426,9 @@ public:
         cCond.push_back(0.000203186);
         cCond.push_back(-2.3869e-07);
     };
-    double u(double T_K, double p){
-    	if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
-    	return basePolynomialInt(cHeat, T_K, Tref);
-	}
     double visc(double T_K, double p){
 		if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
-		return baseExponential(cVisc, T_K, 2);
-	}
-    double h(double T_K, double p){
-		return h_u(T_K,p);
+		return expval(cVisc, T_K, 2);
 	}
 };
 
@@ -593,16 +459,9 @@ public:
         cCond.push_back(0.000174156);
         cCond.push_back(-1.85052e-07);
     };
-    double u(double T_K, double p){
-    	if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
-    	return basePolynomialInt(cHeat, T_K, Tref);
-	}
     double visc(double T_K, double p){
 		if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
-		return baseExponential(cVisc, T_K, 2);
-	}
-    double h(double T_K, double p){
-		return h_u(T_K,p);
+		return expval(cVisc, T_K, 2);
 	}
 };
 
