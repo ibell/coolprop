@@ -81,7 +81,7 @@ std::vector<double> linsolve_Gauss_Jordan(std::vector<std::vector<double> > A, s
 		// Get the pivot element
 		pivot_element = Ab[col][col];
 		// Divide the pivot row by the pivot element
-		divide_row_by(&Ab,col,Ab[col][col]);
+		divide_row_by(&Ab,col,pivot_element);
 
 		if (col < Nrow-1)
 		{

@@ -21,7 +21,7 @@ in IncompSolution.cpp
 /// Base class for simplified brine/solution models
 /** Employs the base functions implemented in IncompBase.h.
  *  Extends the functions for composition as input. */
-class IncompressibleSolutionClass : public IncompressibleClass{
+class IncompressibleSolution : public IncompressibleClass{
 
 protected:
 	double xmin, xmax;
@@ -36,13 +36,13 @@ protected:
 
 public:
 	// Constructor
-	IncompressibleSolutionClass(){
+	IncompressibleSolution(){
 		xmin = -1.;
 		xmax = -1.;
 	};
 
 	// Destructor, no implementation
-	virtual ~IncompressibleSolutionClass(){};
+	virtual ~IncompressibleSolution(){};
 
 	/* All functions need T, p and x as input. Might not
 	 * be necessary, but gives a clearer structure.
@@ -124,7 +124,7 @@ double IncompSolution(long iOutput, double T, double p, double x, std::string na
  *  Many thanks to Morten Juel Skovrup for providing
  *  this nice piece of software as well as the parameters
  *  needed to calculate the composition based properties. */
-class SecCoolSolutionClass : public IncompressibleSolutionClass{
+class SecCoolSolution : public IncompressibleSolution{
 
 protected:
 	double Tbase;
@@ -148,12 +148,12 @@ public:
 
 public:
 	// Constructor
-	SecCoolSolutionClass(){
+	SecCoolSolution(){
 		Tbase = -1.;
 		xbase = -1.;
 	};
 	// Destructor, no implementation
-	~SecCoolSolutionClass(){};
+	~SecCoolSolution(){};
 
 public:
 	double baseFunction(std::vector<double> coefficients, double T_K, double p, double x);
@@ -217,9 +217,9 @@ public:
 	}
 };
 
-class MethanolSolutionClass : public SecCoolSolutionClass{
+class MethanolSolution : public SecCoolSolution{
 public:
-	MethanolSolutionClass(){
+	MethanolSolution(){
 
 		std::vector<double> tmpVector;
 
@@ -335,5 +335,31 @@ public:
     };
 };
 
+//
+///** Handle all the objects in a single list of incompressible liquids
+// *  and a list of solutions / brines. The singleton pattern assures
+// *  there is only one list.
+// */
+//
+//class SolutionsContainer {
+//public:
+//  static SolutionsContainer* Instance();
+//  IncompressibleSolution * get_solution(long index);
+//  IncompressibleSolution * get_solution(std::string name);
+//  void set_solutions(std::vector<IncompressibleSolution*> list);
+//
+//private:
+//  std::vector<IncompressibleSolution*> solution_list;
+//  std::map<std::string,IncompressibleSolution*> solution_map;
+//
+//  static void destruct();
+//
+//  SolutionsContainer();
+//  ~SolutionsContainer(){};
+//
+//  SolutionsContainer(SolutionsContainer const&);            // no copying
+//  SolutionsContainer& operator=(SolutionsContainer const&); // no overwriting
+//  static SolutionsContainer* MInstance;                     // instance
+//};
 
 #endif

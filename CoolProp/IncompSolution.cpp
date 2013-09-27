@@ -12,7 +12,7 @@
 /// Base class for simplified brine/solution models
 /** Employs the base functions implemented in IncompBase.h.
  *  Extends the functions for composition as input. */
-void IncompressibleSolutionClass::testInputs(double T_K, double p, double x){
+void IncompressibleSolution::testInputs(double T_K, double p, double x){
 	double result = 0.;
 	//double x =   0.25;
 	//double T =   5.0 + 273.15;
@@ -56,7 +56,7 @@ void IncompressibleSolutionClass::testInputs(double T_K, double p, double x){
  *  freezing point calculation. This is not necessarily
  *  defined for all fluids, default values do not
  *  cause errors. */
-bool IncompressibleSolutionClass::checkT(double T_K, double p, double x){
+bool IncompressibleSolution::checkT(double T_K, double p, double x){
 	if( Tmin < 0. ) {
 		throw ValueError("Please specify the minimum temperature.");
 	} else if( Tmax < 0.) {
@@ -78,7 +78,7 @@ bool IncompressibleSolutionClass::checkT(double T_K, double p, double x){
  *  The default value for psat is -1 yielding true if psat
  *  is not redefined in the subclass.
  *  */
-bool IncompressibleSolutionClass::checkP(double T_K, double p, double x) {
+bool IncompressibleSolution::checkP(double T_K, double p, double x) {
 	double ps = psat(T_K,x);
 	if (p<ps) {
 		throw ValueError(format("Equations are valid for liquid phase only: %f < %f. ",p,ps));
@@ -91,7 +91,7 @@ bool IncompressibleSolutionClass::checkP(double T_K, double p, double x) {
 /** Compares the given composition x to a stored minimum and
  *  maximum value. Enforces the redefinition of xmin and
  *  xmax since the default values cause an error. */
-bool IncompressibleSolutionClass::checkX(double x){
+bool IncompressibleSolution::checkX(double x){
 	if( xmin < 0. ) {
 		throw ValueError("Please specify the minimum concentration.");
 	} else if( xmax < 0.) {
@@ -105,7 +105,7 @@ bool IncompressibleSolutionClass::checkX(double x){
 }
 
 /// Check validity of temperature, pressure and composition input.
-bool IncompressibleSolutionClass::checkTPX(double T, double p, double x) {
+bool IncompressibleSolution::checkTPX(double T, double p, double x) {
 	return (checkT(T,p,x) && checkP(T,p,x) && checkX(x));
 }
 
@@ -126,7 +126,7 @@ bool IncompressibleSolutionClass::checkTPX(double T, double p, double x) {
  *  Many thanks to Morten Juel Skovrup for providing
  *  this nice piece of software as well as the parameters
  *  needed to calculate the composition based properties. */
-double SecCoolSolutionClass::baseFunction(std::vector<double> coefficients, double T_K, double p, double x){
+double SecCoolSolution::baseFunction(std::vector<double> coefficients, double T_K, double p, double x){
 	IncompressibleClass::checkCoefficients(coefficients,18);
 	return (((((
 			 coefficients[17])*x
@@ -149,7 +149,7 @@ double SecCoolSolutionClass::baseFunction(std::vector<double> coefficients, doub
 			+coefficients[0];
 }
 
-std::vector< std::vector<double> > SecCoolSolutionClass::makeMatrix(std::vector<double> coefficients){
+std::vector< std::vector<double> > SecCoolSolution::makeMatrix(std::vector<double> coefficients){
 	IncompressibleClass::checkCoefficients(coefficients,18);
 	std::vector< std::vector<double> > matrix;
 	std::vector<double> tmpVector;
