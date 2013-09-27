@@ -12,6 +12,7 @@ protected:
 	double SI_val;
 
 public:
+	virtual ~StandardUnit(){};
 	virtual void set_SI(double val) = 0;
 };
 
@@ -68,7 +69,9 @@ public:
 			return kPa;
 		default:
 			throw ValueError(format("Your unit system [%d] is not valid",unit_system).c_str());
+			break;
 		};
+		return _HUGE;
 	};
 
 	/// Return the SI system value (in Pa)

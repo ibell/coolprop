@@ -1,7 +1,11 @@
 
+#include <string>
+#include <vector>
+#include <math.h>
+#include "CoolPropTools.h"
+#include "CPExceptions.h"
+
 #include "MatrixMath.h"
-#include "math.h"
-#include <iostream>
 
 /*
 Owe a debt of gratitude to http://sole.ooz.ie/en - very clear treatment of GJ
@@ -103,3 +107,37 @@ std::vector<double> linsolve_Gauss_Jordan(std::vector<std::vector<double> > A, s
 
 	return x;
 }
+
+
+std::vector< std::vector<double> > transpose(std::vector< std::vector<double> > in){
+	unsigned int sizeX = in.size();
+	if (sizeX<1) throw ValueError(format("You have to provide values, a vector length of %d is not a valid. ",sizeX));
+	unsigned int sizeY    = in[0].size();
+	unsigned int sizeYOld = sizeY;
+	if (sizeY<1) throw ValueError(format("You have to provide values, a vector length of %d is not a valid. ",sizeY));
+	std::vector< std::vector<double> > out(sizeY,std::vector<double>(sizeX));
+	for (unsigned int i = 0; i < sizeX; ++i){
+		sizeY = in[i].size();
+		if (sizeY!=sizeYOld) throw ValueError(format("You have to provide a rectangular matrix: %d is not equal to %d. ",sizeY,sizeYOld));
+		for (unsigned int j = 0; j < sizeY; ++j){
+			out[j][i] = in[i][j];
+		}
+	}
+	return out;
+}
+
+
+std::vector<double> column(std::vector< std::vector<double> > in, unsigned int col){
+	unsigned int sizeX = in.size();
+	if (sizeX<1) throw ValueError(format("You have to provide values, a vector length of %d is not a valid. ",sizeX));
+	unsigned int sizeY    = in[0].size();
+	if (sizeY<1) throw ValueError(format("You have to provide values, a vector length of %d is not a valid. ",sizeY));
+	std::vector<double> out;
+	for (unsigned int i = 0; i < sizeX; ++i){
+		sizeY = in[i].size();
+		if (sizeY-1<col) throw ValueError(format("Your matrix does not have enough entries in row %d, last index %d is less than %d. ",i,sizeY-1,col));
+		out.push_back(in[i][col]);
+	}
+	return out;
+}
+

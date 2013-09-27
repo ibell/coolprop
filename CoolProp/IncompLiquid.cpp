@@ -8,11 +8,12 @@
 #include <stdlib.h>
 #endif
 
+#include "Units.h"
 #include "math.h"
 #include "stdio.h"
 #include <string.h>
 #include "Brine.h"
-
+#include "CoolPropTools.h"
 #include "CoolProp.h"
 #include "IncompLiquid.h"
 
