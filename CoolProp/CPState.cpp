@@ -713,7 +713,7 @@ void CoolPropStateClassSI::update_TTSE_LUT(long iInput1, double Value1, long iIn
 			}
 			else
 			{
-				hsatV = pFluid->TTSESatL.evaluate(iH,p);
+				hsatV = pFluid->TTSESatV.evaluate(iH,p);
 				if (h > hsatV)
 				{
 					_twophase = false;

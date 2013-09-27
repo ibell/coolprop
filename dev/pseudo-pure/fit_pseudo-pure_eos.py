@@ -76,7 +76,6 @@ class ResidualPartFitter(object):
         TTT, RHO, PPP = [], [], []
         
         for _T in np.linspace(220, 450, 300):
-            print _T
             for _rho in np.logspace(np.log10(1e-10), np.log10(2.5*rhoc), 300):
                 try:
                     if _T > Tc:
@@ -160,15 +159,15 @@ class PPFFitterClass(object):
             
         self.RPF.load_data()
 
-        # Generate a regular grid to interpolate the data.
-        xi = np.linspace(min(self.RPF.T), max(self.RPF.T), 100)
-        yi = np.linspace(min(self.RPF.rho), max(self.RPF.rho), 100)
-        xi, yi = np.meshgrid(xi, yi)
-        # Interpolate using delaunay triangularization 
-        zi = mlab.griddata(np.array(self.RPF.T),np.array(self.RPF.rho),np.array(self.RPF.p),xi,yi)
-        cont = plt.contourf(yi,xi,zi,30)
-        plt.colorbar()
-        plt.show()
+##         # Generate a regular grid to interpolate the data.
+##         xi = np.linspace(min(self.RPF.T), max(self.RPF.T), 100)
+##         yi = np.linspace(min(self.RPF.rho), max(self.RPF.rho), 100)
+##         xi, yi = np.meshgrid(xi, yi)
+##         # Interpolate using delaunay triangularization 
+##         zi = mlab.griddata(np.array(self.RPF.T),np.array(self.RPF.rho),np.array(self.RPF.p),xi,yi)
+##         cont = plt.contourf(yi,xi,zi,30)
+##         plt.colorbar()
+##         plt.show()
         
         if not use_saved_data:
             self.RPF.fit()
