@@ -1816,6 +1816,50 @@ double TTSESinglePhaseTableClass::interpolate_bicubic_ph(long iParam, double pva
 	
 	return summer;
 }
+double TTSESinglePhaseTableClass::bicubic_evaluate_first_derivative_ph(long iOF, long iWRT, long iCONSTANT, double p, double logp, double h)
+{
+	std::vector<double> *alpha = NULL;
+	int i, j;
+
+	// Get the i,j coordinates of the cell
+	this->bicubic_cell_coordinates_ph(h, p, logp, &i, &j);
+
+	double dhdx = (this->h[i+1]-this->h[i]);
+	double dpdy = (this->p[j+1]-this->p[j]);
+	double x = (h-this->h[i])/dhdx;
+	double y = (p-this->p[j])/dpdy;
+
+	// Find the coefficients for the cubic
+	alpha = this->bicubic_cell_coeffs_ph(iOF, i, j);
+
+	double x_0 = 1, x_1 = x, x_2 = x*x, x_3 = x*x*x;
+	double y_0 = 1, y_1 = y, y_2 = y*y, y_3 = y*y*y;
+
+	double summer;
+	if (iWRT == iH)
+	{
+		// Old version was "summer += (*alpha)[ii+jj*4]*i*x^(i-1)*y^j" for i in [0,3] and j in [0,3]
+		double dsummer_dx =+(*alpha)[1+0*4]*1*x_0*y_0+(*alpha)[1+1*4]*1*x_0*y_1+(*alpha)[1+2*4]*1*x_0*y_2+(*alpha)[1+3*4]*1*x_0*y_3
+				    +(*alpha)[2+0*4]*2*x_1*y_0+(*alpha)[2+1*4]*2*x_1*y_1+(*alpha)[2+2*4]*2*x_1*y_2+(*alpha)[2+3*4]*2*x_1*y_3
+				    +(*alpha)[3+0*4]*3*x_2*y_0+(*alpha)[3+1*4]*3*x_2*y_1+(*alpha)[3+2*4]*3*x_2*y_2+(*alpha)[3+3*4]*3*x_2*y_3;
+		return dsummer_dx/dhdx;
+	}
+	else if (iWRT == iP)
+	{
+		// Old version was "summer += (*alpha)[ii+jj*4]*j*x^i*y^(j-1)" for i in [0,3] and j in [0,3]
+		double dsummer_dy = (*alpha)[0+1*4]*1*x_0*y_0+(*alpha)[0+2*4]*2*x_0*y_1+(*alpha)[0+3*4]*3*x_0*y_2
+					+(*alpha)[1+1*4]*1*x_1*y_0+(*alpha)[1+2*4]*2*x_1*y_1+(*alpha)[1+3*4]*3*x_1*y_2
+					+(*alpha)[2+1*4]*1*x_2*y_0+(*alpha)[2+2*4]*2*x_2*y_1+(*alpha)[2+3*4]*3*x_2*y_2
+					+(*alpha)[3+1*4]*1*x_3*y_0+(*alpha)[3+2*4]*2*x_3*y_1+(*alpha)[3+3*4]*3*x_3*y_2;
+		return dsummer_dy/dpdy;
+	}
+	else
+	{
+		throw ValueError(format("iWRT [%d] is invalid", iWRT).c_str());
+	}
+	
+	return summer;
+}
 
 double TTSESinglePhaseTableClass::interpolate_bicubic_Trho(long iParam, double Tval, double rhoval, double logrho)
 {
@@ -2149,6 +2193,11 @@ double TTSESinglePhaseTableClass::evaluate_Trho(long iOutput, double T, double r
 
 double TTSESinglePhaseTableClass::evaluate_first_derivative(long iOF, long iWRT, long iCONSTANT, double p, double logp, double h)
 {
+	// Use Bicubic interpolation if requested
+	if (mode == TTSE_MODE_BICUBIC){ 
+		return bicubic_evaluate_first_derivative_ph(iOF, iWRT, iCONSTANT, p, logp, h);
+	}
+
 	int i = (int)round(((h-hmin)/(hmax-hmin)*(Nh-1)));
 	int j = (int)round((logp-logpmin)/logpratio);
 
