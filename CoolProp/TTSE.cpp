@@ -1489,83 +1489,55 @@ double TTSESinglePhaseTableClass::evaluate(long iParam, double p, double logp, d
 	}
 }
 
-/*!
-
-\f[
-A^{-1} =  \left[ \begin{array}{*{16}c} 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
- 0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
- -3 & 3 & 0 & 0 & -2 & -1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
- 2 & -2 & 0 & 0 & 1 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
- 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
- 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 \\
- 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & -3 & 3 & 0 & 0 & -2 & -1 & 0 & 0 \\
- 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 2 & -2 & 0 & 0 & 1 & 1 & 0 & 0 \\
- -3 & 0 & 3 & 0 & 0 & 0 & 0 & 0 & -2 & 0 & -1 & 0 & 0 & 0 & 0 & 0 \\
- 0 & 0 & 0 & 0 & -3 & 0 & 3 & 0 & 0 & 0 & 0 & 0 & -2 & 0 & -1 & 0 \\
- 9 & -9 & -9 & 9 & 6 & 3 & -6 & -3 & 6 & -6 & 3 & -3 & 4 & 2 & 2 & 1 \\
- -6 & 6 & 6 & -6 & -3 & -3 & 3 & 3 & -4 & 4 & -2 & 2 & -2 & -2 & -1 & -1 \\
- 2 & 0 & -2 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 1 & 0 & 0 & 0 & 0 & 0 \\
- 0 & 0 & 0 & 0 & 2 & 0 & -2 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 1 & 0 \\
- -6 & 6 & 6 & -6 & -4 & -2 & 4 & 2 & -3 & 3 & -3 & 3 & -2 & -1 & -2 & -1 \\
- 4 & -4 & -4 & 4 & 2 & 2 & -2 & -2 & 2 & -2 & 2 & -2 & 1 & 1 & 1 & 1 \end{array} \right]
- \f]
-
- \f[
- x = \frac{h-h_i}{h_{i+1}-h_i}
- \f]
- \f[
- \frac{\partial x}{\partial h} = \frac{1}{h_{i+1}-h_i}
- \f]
- \f[
- \frac{\partial h}{\partial x} = h_{i+1}-h_i
- \f]
-
- \f[
- y = \frac{p-p_j}{p_{j+1}-p_j}
- \f]
- \f[
- \frac{\partial y}{\partial p} = \frac{1}{p_{j+1}-p_j}
- \f]
-  \f[
- \frac{\partial p}{\partial y} = p_{j+1}-p_j
- \f]
-
- \f[
- \frac{\partial f}{\partial x} = \frac{\partial f}{\partial h}\cdot\frac{\partial h}{\partial x}
- \f]
- \
-*/
-double TTSESinglePhaseTableClass::interpolate_bicubic_ph(long iParam, double pval, double logp, double hval)
+void TTSESinglePhaseTableClass::bicubic_cell_coordinates_Trho(double Tval, double rhoval, double logrhoval, int *i, int *j)
 {
-	// A pointer to the values of the coefficients for the bicubic interpolation
-	std::vector<double> *alpha = NULL;
-	std::vector< std::vector<double> > *f = NULL, *dfdp = NULL, *dfdh = NULL, *d2fdhdp = NULL;
+	*i = (int)round((Tval-Tmin)/(Tmax-Tmin)*(NT-1));
+	*j = (int)round((logrhoval-logrhomin)/logrhoratio);
 
-	int i = (int)round(((hval-hmin)/(hmax-hmin)*(Nh-1)));
-	int j = (int)round((logp-logpmin)/logpratio);
+	if (*i<0 || *i>(int)NT-1 || *j<0 || *j>(int)Nrho-1)
+	{
+		throw ValueError(format("Input to TTSE [T = %0.16g, logrho = %0.16g] is out of range",Tval,logrhoval));
+	}
+	
+	if (Tval < this->T_Trho[*i])
+	{
+		*i -= 1;
+	}
+	if (rhoval < this->rho_Trho[*j])
+	{
+		*j -= 1;
+	}
 
-	if (i<0 || i>(int)Nh-1 || j<0 || j>(int)Np-1)
+	nearest_good_neighbor_Trho_interpolate(i, j);
+}
+
+void TTSESinglePhaseTableClass::bicubic_cell_coordinates_ph(double hval, double pval, double logpval, int *i, int *j)
+{
+	*i = (int)round(((hval-hmin)/(hmax-hmin)*(Nh-1)));
+	*j = (int)round((logpval-logpmin)/logpratio);
+
+	if (*i<0 || *i>(int)Nh-1 || *j<0 || *j>(int)Np-1)
 	{
 		throw ValueError(format("Input to TTSE [p = %0.16g, h = %0.16g] is out of range",pval,hval));
 	}
 	
-	if (hval < h[i])
+	if (hval < this->h[*i])
 	{
-		i -= 1;
+		*i -= 1;
 	}
-	if (pval < p[j])
+	if (pval < p[*j])
 	{
-		j -= 1;
+		*j -= 1;
 	}
 
-	nearest_good_neighbor_ph_interpolate(&i, &j);
+	nearest_good_neighbor_ph_interpolate(i, j);
+}
 
-	double dhdx = (h[i+1]-h[i]);
-	double dpdy = (p[j+1]-p[j]);
-	double x = (hval-h[i])/dhdx;
-	double y = (pval-p[j])/dpdy;
-
-	// Find the coefficients for the bicubic
+std::vector<double> * TTSESinglePhaseTableClass::bicubic_cell_coeffs_ph(long iParam, int i, int j)
+{
+	std::vector<double> *alpha = NULL;
+	std::vector< std::vector<double> > *f = NULL, *dfdp = NULL, *dfdh = NULL, *d2fdhdp = NULL;
+	
 	switch(iParam)
 	{
 	case iS:
@@ -1607,6 +1579,9 @@ double TTSESinglePhaseTableClass::interpolate_bicubic_ph(long iParam, double pva
 
 	if (alpha == NULL)
 	{
+		double dhdx = (h[i+1]-h[i]);
+		double dpdy = (p[j+1]-p[j]);
+
 		z_bicubic[0] = (*f)[i][j];
 		z_bicubic[1] = (*f)[i+1][j];
 		z_bicubic[2] = (*f)[i][j+1];
@@ -1645,49 +1620,14 @@ double TTSESinglePhaseTableClass::interpolate_bicubic_ph(long iParam, double pva
 			throw ValueError("iParam is invalid");
 		}
 	}
-
-	double x_0 = 1, x_1 = x, x_2 = x*x, x_3 = x*x*x;
-	double y_0 = 1, y_1 = y, y_2 = y*y, y_3 = y*y*y;
-
-	double summer;
-	// Old version was "summer += (*alpha)[ii+jj*4]*x^i*y^j" for i in [0,3] and j in [0,3]
-	summer = (*alpha)[0+0*4]*x_0*y_0+(*alpha)[0+1*4]*x_0*y_1+(*alpha)[0+2*4]*x_0*y_2+(*alpha)[0+3*4]*x_0*y_3
-		    +(*alpha)[1+0*4]*x_1*y_0+(*alpha)[1+1*4]*x_1*y_1+(*alpha)[1+2*4]*x_1*y_2+(*alpha)[1+3*4]*x_1*y_3
-			+(*alpha)[2+0*4]*x_2*y_0+(*alpha)[2+1*4]*x_2*y_1+(*alpha)[2+2*4]*x_2*y_2+(*alpha)[2+3*4]*x_2*y_3
-			+(*alpha)[3+0*4]*x_3*y_0+(*alpha)[3+1*4]*x_3*y_1+(*alpha)[3+2*4]*x_3*y_2+(*alpha)[3+3*4]*x_3*y_3;
-	
-	return summer;
+	return alpha;
 }
 
-double TTSESinglePhaseTableClass::interpolate_bicubic_Trho(long iParam, double Tval, double rhoval, double logrho)
+std::vector<double> * TTSESinglePhaseTableClass::bicubic_cell_coeffs_Trho(long iParam, int i, int j)
 {
-	// A pointer to the values of the coefficients for the bicubic interpolation
+
 	std::vector<double> *alpha = NULL;
 	std::vector< std::vector<double> > *f = NULL, *dfdT = NULL, *dfdrho = NULL, *d2fdTdrho = NULL;
-
-	int i = (int)round((Tval-Tmin)/(Tmax-Tmin)*(NT-1));
-	int j = (int)round((logrho-logrhomin)/logrhoratio);
-
-	if (i<0 || i>(int)NT-1 || j<0 || j>(int)Nrho-1)
-	{
-		throw ValueError(format("Input to TTSE [T = %0.16g, rho = %0.16g] is out of range",Tval,rhoval));
-	}
-	
-	if (Tval < T_Trho[i])
-	{
-		i -= 1;
-	}
-	if (rhoval < rho_Trho[j])
-	{
-		j -= 1;
-	}
-
-	nearest_good_neighbor_Trho_interpolate(&i, &j);
-
-	double dTdx = (T_Trho[i+1]-T_Trho[i]);
-	double drhody = (rho_Trho[j+1]-rho_Trho[j]);
-	double x = (Tval-T_Trho[i])/dTdx;
-	double y = (rhoval-rho_Trho[j])/drhody;
 
 	// Find the coefficients for the bicubic function
 	switch(iParam)
@@ -1753,6 +1693,9 @@ double TTSESinglePhaseTableClass::interpolate_bicubic_Trho(long iParam, double T
 
 	if (alpha == NULL)
 	{
+		double dTdx = (T_Trho[i+1]-T_Trho[i]);
+		double drhody = (rho_Trho[j+1]-rho_Trho[j]);
+
 		z_bicubic[0] = (*f)[i][j];
 		z_bicubic[1] = (*f)[i+1][j];
 		z_bicubic[2] = (*f)[i][j+1];
@@ -1795,6 +1738,101 @@ double TTSESinglePhaseTableClass::interpolate_bicubic_Trho(long iParam, double T
 			throw ValueError(format("iParam [%d] is invalid",iParam).c_str());
 		}
 	}
+
+	return alpha;
+}
+
+/*!
+
+\f[
+A^{-1} =  \left[ \begin{array}{*{16}c} 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+ 0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+ -3 & 3 & 0 & 0 & -2 & -1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+ 2 & -2 & 0 & 0 & 1 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+ 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+ 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 \\
+ 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & -3 & 3 & 0 & 0 & -2 & -1 & 0 & 0 \\
+ 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 2 & -2 & 0 & 0 & 1 & 1 & 0 & 0 \\
+ -3 & 0 & 3 & 0 & 0 & 0 & 0 & 0 & -2 & 0 & -1 & 0 & 0 & 0 & 0 & 0 \\
+ 0 & 0 & 0 & 0 & -3 & 0 & 3 & 0 & 0 & 0 & 0 & 0 & -2 & 0 & -1 & 0 \\
+ 9 & -9 & -9 & 9 & 6 & 3 & -6 & -3 & 6 & -6 & 3 & -3 & 4 & 2 & 2 & 1 \\
+ -6 & 6 & 6 & -6 & -3 & -3 & 3 & 3 & -4 & 4 & -2 & 2 & -2 & -2 & -1 & -1 \\
+ 2 & 0 & -2 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 1 & 0 & 0 & 0 & 0 & 0 \\
+ 0 & 0 & 0 & 0 & 2 & 0 & -2 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 1 & 0 \\
+ -6 & 6 & 6 & -6 & -4 & -2 & 4 & 2 & -3 & 3 & -3 & 3 & -2 & -1 & -2 & -1 \\
+ 4 & -4 & -4 & 4 & 2 & 2 & -2 & -2 & 2 & -2 & 2 & -2 & 1 & 1 & 1 & 1 \end{array} \right]
+ \f]
+
+ \f[
+ x = \frac{h-h_i}{h_{i+1}-h_i}
+ \f]
+ \f[
+ \frac{\partial x}{\partial h} = \frac{1}{h_{i+1}-h_i}
+ \f]
+ \f[
+ \frac{\partial h}{\partial x} = h_{i+1}-h_i
+ \f]
+
+ \f[
+ y = \frac{p-p_j}{p_{j+1}-p_j}
+ \f]
+ \f[
+ \frac{\partial y}{\partial p} = \frac{1}{p_{j+1}-p_j}
+ \f]
+  \f[
+ \frac{\partial p}{\partial y} = p_{j+1}-p_j
+ \f]
+
+ \f[
+ \frac{\partial f}{\partial x} = \frac{\partial f}{\partial h}\cdot\frac{\partial h}{\partial x}
+ \f]
+ \
+*/
+double TTSESinglePhaseTableClass::interpolate_bicubic_ph(long iParam, double pval, double logp, double hval)
+{
+	std::vector<double> *alpha = NULL;
+	int i, j;
+
+	// Get the i,j coordinates of the cell
+	this->bicubic_cell_coordinates_ph(hval, pval,logp, &i, &j);
+
+	double dhdx = (h[i+1]-h[i]);
+	double dpdy = (p[j+1]-p[j]);
+	double x = (hval-h[i])/dhdx;
+	double y = (pval-p[j])/dpdy;
+
+	// Find the coefficients for the cubic
+	alpha = this->bicubic_cell_coeffs_ph(iParam, i, j);
+
+	double x_0 = 1, x_1 = x, x_2 = x*x, x_3 = x*x*x;
+	double y_0 = 1, y_1 = y, y_2 = y*y, y_3 = y*y*y;
+
+	double summer;
+	// Old version was "summer += (*alpha)[ii+jj*4]*x^i*y^j" for i in [0,3] and j in [0,3]
+	summer = (*alpha)[0+0*4]*x_0*y_0+(*alpha)[0+1*4]*x_0*y_1+(*alpha)[0+2*4]*x_0*y_2+(*alpha)[0+3*4]*x_0*y_3
+		    +(*alpha)[1+0*4]*x_1*y_0+(*alpha)[1+1*4]*x_1*y_1+(*alpha)[1+2*4]*x_1*y_2+(*alpha)[1+3*4]*x_1*y_3
+			+(*alpha)[2+0*4]*x_2*y_0+(*alpha)[2+1*4]*x_2*y_1+(*alpha)[2+2*4]*x_2*y_2+(*alpha)[2+3*4]*x_2*y_3
+			+(*alpha)[3+0*4]*x_3*y_0+(*alpha)[3+1*4]*x_3*y_1+(*alpha)[3+2*4]*x_3*y_2+(*alpha)[3+3*4]*x_3*y_3;
+	
+	return summer;
+}
+
+double TTSESinglePhaseTableClass::interpolate_bicubic_Trho(long iParam, double Tval, double rhoval, double logrho)
+{
+	// A pointer to the values of the coefficients for the bicubic interpolation
+	std::vector<double> *alpha = NULL;
+	int i,j;
+	std::vector< std::vector<double> > *f = NULL, *dfdT = NULL, *dfdrho = NULL, *d2fdTdrho = NULL;
+	
+	bicubic_cell_coordinates_Trho(Tval, rhoval, logrho, &i, &j);
+
+	double dTdx = (T_Trho[i+1]-T_Trho[i]);
+	double drhody = (rho_Trho[j+1]-rho_Trho[j]);
+	double x = (Tval-T_Trho[i])/dTdx;
+	double y = (rhoval-rho_Trho[j])/drhody;
+
+	// Find the coefficients for the cubic
+	alpha = this->bicubic_cell_coeffs_Trho(iParam, i, j);
 
 	double x_0 = 1, x_1 = x, x_2 = x*x, x_3 = x*x*x;
 	double y_0 = 1, y_1 = y, y_2 = y*y, y_3 = y*y*y;

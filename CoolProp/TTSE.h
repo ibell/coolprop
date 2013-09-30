@@ -203,6 +203,11 @@ public:
 	/// @param h Enthalpy [kJ/kg]
 	double interpolate_bicubic_ph(long iParam, double p, double logp, double h);
 
+	void bicubic_cell_coordinates_Trho(double Tval, double rho, double logrhoval, int *i, int *j);
+	void bicubic_cell_coordinates_ph(double hval, double p, double logpval, int *i, int *j);
+	std::vector<double> * bicubic_cell_coeffs_Trho(long iParam, int i, int j);
+	std::vector<double> * bicubic_cell_coeffs_ph(long iParam, int i, int j);
+
 	/// Randomly select a point within the range, and evaluate the property using TTSE and the EOS
 	/// @param iParam Index of desired output
 	/// @param N Number of runs to do
