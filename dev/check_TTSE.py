@@ -99,6 +99,6 @@ CB = fig.colorbar(SC1, cax=cbar_ax)
 CB.set_label(r'$(\rho/\rho_{EOS}-1)\times 100$ [%]')
 #CB.set_label(r'$(T/T_{EOS}-1)\times 100$ [%]')
 
-plt.savefig('TTSE_BICUBIC.png', dpi = 300)
+plt.savefig('TTSE_BICUBIC.png', dpi = 300, transparent = True)
 plt.savefig('TTSE_BICUBIC.pdf')
 plt.close()
