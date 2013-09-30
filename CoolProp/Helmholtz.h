@@ -88,13 +88,14 @@ if l==0, then
 class phir_power : public phi_BC{
 	
 private:
+	
+public:
 	unsigned int iStart,iEnd;
 	std::vector<double> n, ///< The coefficients multiplying each term
 		                d, ///< The power for the delta terms
 						t, ///< The powers for the tau terms
 						l //< The powers for delta in the exp terms
 						;
-public:
 	// Default Constructor
 	phir_power(){};
 	// Constructors
@@ -124,6 +125,12 @@ public:
 	double dDelta2_dTau(double tau, double delta) throw();
 	double dDelta_dTau2(double tau, double delta) throw();
 	double dTau3(double tau, double delta) throw();
+
+	/// Vectorized form so iteration happens at c++ level
+	std::vector<double> dDeltaV(std::vector<double> tau, std::vector<double> delta) throw();
+	std::vector<double> dDelta2V(std::vector<double> tau, std::vector<double> delta) throw();
+	std::vector<double> dTau2V(std::vector<double> tau, std::vector<double> delta) throw();
+	std::vector<double> dDelta_dTauV(std::vector<double> tau, std::vector<double> delta) throw();
 };
 
 

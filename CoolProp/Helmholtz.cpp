@@ -264,6 +264,42 @@ double phir_power::dDelta_dTau(double tau, double delta) throw()
 	}
 	return summer;
 }
+std::vector<double> phir_power::dDeltaV(std::vector<double> tau, std::vector<double> delta) throw()
+{
+	std::vector<double> out = tau;
+	for (int i = 0; i < (int)tau.size(); i++)
+	{
+		out[i] = this->dDelta(tau[i],delta[i]);
+	}
+	return out;
+}
+std::vector<double> phir_power::dDelta2V(std::vector<double> tau, std::vector<double> delta) throw()
+{
+	std::vector<double> out = tau;
+	for (int i = 0; i < (int)tau.size(); i++)
+	{
+		out[i] = this->dDelta2(tau[i],delta[i]);
+	}
+	return out;
+}
+std::vector<double> phir_power::dTau2V(std::vector<double> tau, std::vector<double> delta) throw()
+{
+	std::vector<double> out = tau;
+	for (int i = 0; i < (int)tau.size(); i++)
+	{
+		out[i] = this->dTau2(tau[i],delta[i]);
+	}
+	return out;
+}
+std::vector<double> phir_power::dDelta_dTauV(std::vector<double> tau, std::vector<double> delta) throw()
+{
+	std::vector<double> out = tau;
+	for (int i = 0; i < (int)tau.size(); i++)
+	{
+		out[i] = this->dDelta_dTau(tau[i],delta[i]);
+	}
+	return out;
+}
 
 // Constructors
 phir_exponential::phir_exponential(std::vector<double> n, std::vector<double> d, std::vector<double> t, std::vector<double> l, std::vector<double> g, int iStart_in,int iEnd_in)

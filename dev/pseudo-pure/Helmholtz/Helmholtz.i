@@ -27,6 +27,16 @@ namespace std {
    %template(vectord) vector<double>;
 };
 
+%ignore phir_power::phir_power();
+%ignore phir_power::phir_power(std::vector<double>,std::vector< double>,std::vector< double>,int,int);
+%ignore phir_power::phir_power(const double [],const double [], const double [],int,int,int);
+%ignore phir_power::phir_power(double [],double [],double [],int,int,int);
+%ignore phir_power::phir_power(double const [],double const [],double const [],double const [],int,int,int);
+%ignore phir_power::phir_power(double [],double [],double [],double [],int,int,int);
+%ignore phi0_Planck_Einstein::phi0_Planck_Einstein(double [],double [],int,int,int);
+%ignore phi0_Planck_Einstein::phi0_Planck_Einstein(double const [],double const [],int,int,int);
+%ignore phi0_Planck_Einstein::phi0_Planck_Einstein(double,double);
+
 // This stuff will get included verbatim in CoolProp_wrap.cpp
 %{
 #include "../../../CoolProp/Helmholtz.h"
