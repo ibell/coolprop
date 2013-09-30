@@ -1839,18 +1839,18 @@ double TTSESinglePhaseTableClass::bicubic_evaluate_first_derivative_ph(long iOF,
 	if (iWRT == iH)
 	{
 		// Old version was "summer += (*alpha)[ii+jj*4]*i*x^(i-1)*y^j" for i in [0,3] and j in [0,3]
-		double dsummer_dx =+(*alpha)[1+0*4]*1*x_0*y_0+(*alpha)[1+1*4]*1*x_0*y_1+(*alpha)[1+2*4]*1*x_0*y_2+(*alpha)[1+3*4]*1*x_0*y_3
-				    +(*alpha)[2+0*4]*2*x_1*y_0+(*alpha)[2+1*4]*2*x_1*y_1+(*alpha)[2+2*4]*2*x_1*y_2+(*alpha)[2+3*4]*2*x_1*y_3
-				    +(*alpha)[3+0*4]*3*x_2*y_0+(*alpha)[3+1*4]*3*x_2*y_1+(*alpha)[3+2*4]*3*x_2*y_2+(*alpha)[3+3*4]*3*x_2*y_3;
+		double dsummer_dx = +(*alpha)[1+0*4]*1*x_0*y_0+(*alpha)[1+1*4]*1*x_0*y_1+(*alpha)[1+2*4]*1*x_0*y_2+(*alpha)[1+3*4]*1*x_0*y_3
+				            +(*alpha)[2+0*4]*2*x_1*y_0+(*alpha)[2+1*4]*2*x_1*y_1+(*alpha)[2+2*4]*2*x_1*y_2+(*alpha)[2+3*4]*2*x_1*y_3
+				            +(*alpha)[3+0*4]*3*x_2*y_0+(*alpha)[3+1*4]*3*x_2*y_1+(*alpha)[3+2*4]*3*x_2*y_2+(*alpha)[3+3*4]*3*x_2*y_3;
 		return dsummer_dx/dhdx;
 	}
 	else if (iWRT == iP)
 	{
 		// Old version was "summer += (*alpha)[ii+jj*4]*j*x^i*y^(j-1)" for i in [0,3] and j in [0,3]
 		double dsummer_dy = (*alpha)[0+1*4]*1*x_0*y_0+(*alpha)[0+2*4]*2*x_0*y_1+(*alpha)[0+3*4]*3*x_0*y_2
-					+(*alpha)[1+1*4]*1*x_1*y_0+(*alpha)[1+2*4]*2*x_1*y_1+(*alpha)[1+3*4]*3*x_1*y_2
-					+(*alpha)[2+1*4]*1*x_2*y_0+(*alpha)[2+2*4]*2*x_2*y_1+(*alpha)[2+3*4]*3*x_2*y_2
-					+(*alpha)[3+1*4]*1*x_3*y_0+(*alpha)[3+2*4]*2*x_3*y_1+(*alpha)[3+3*4]*3*x_3*y_2;
+					       +(*alpha)[1+1*4]*1*x_1*y_0+(*alpha)[1+2*4]*2*x_1*y_1+(*alpha)[1+3*4]*3*x_1*y_2
+					       +(*alpha)[2+1*4]*1*x_2*y_0+(*alpha)[2+2*4]*2*x_2*y_1+(*alpha)[2+3*4]*3*x_2*y_2
+					       +(*alpha)[3+1*4]*1*x_3*y_0+(*alpha)[3+2*4]*2*x_3*y_1+(*alpha)[3+3*4]*3*x_3*y_2;
 		return dsummer_dy/dpdy;
 	}
 	else
@@ -1896,8 +1896,180 @@ bool isbetween(double x1, double x2, double x)
 	return ((x>=x1 && x <= x2) || (x>=x2 && x <= x1));
 }
 
+double TTSESinglePhaseTableClass::bicubic_evaluate_one_other_input(long iInput1, double Input1, long iOther, double Other)
+{
+	// My goal here is to find deltah
+	int L,R,M,i,j,phase;
+	double p,dh1,dh2,a,b,c,TL, TV, DL, DV, SL, SV, HL, HV, Q, ValV, ValL;
+	std::vector<std::vector<double> > *mat;
+	
+	// Connect a pointer to the array of interest
+	switch (iOther)
+	{
+	case iT:
+		mat = &T; break;
+	case iS:
+		mat = &s; break;
+	case iD:
+		mat = &rho; break;
+	}
+
+	// One is pressure, we are getting enthalpy
+	if (iInput1 == iP)
+	{
+		p = Input1;
+		
+		j = (int)round((log(p)-logpmin)/logpratio);
+
+		if (p > pFluid->reduce.p.Pa)
+		{
+			// It's supercritical, we just need to iterate on the other parameter
+
+			// Do interval halving over the whole range since
+			// there can't be any saturation curve
+			L = 0; R = Nh-1; M = (L+R)/2;
+			while (R-L>1){
+				if (isbetween((*mat)[M][j],(*mat)[R][j],Other)){
+					L=M; M=(L+R)/2; continue;
+				}
+				else{
+					R=M; M=(L+R)/2; continue;
+				}
+			}
+			i = L;
+		}
+		else
+		{
+			// Get the saturation states
+			switch (iOther)
+			{
+			case iT:
+				TL = SatL->evaluate(iT,p); TV = SatV->evaluate(iT,p); ValL = TL; ValV = TV;
+				if (Other > TV){ phase = iPHASE_GAS;} else if  (Other < TL){ phase = iPHASE_LIQUID;} else {phase = iPHASE_TWOPHASE; throw ValueError("Two-phase T,P inputs invalid for TTSE");}
+				break;
+			case iD:
+				DL = SatL->evaluate(iD,p); DV = SatV->evaluate(iD,p); ValL = DL; ValV = DV;
+				if (Other < DV){ phase = iPHASE_GAS;} else if  (Other > DL){ phase = iPHASE_LIQUID;} else {phase = iPHASE_TWOPHASE; Q = (1/Other-1/DL)/(1/DV-1/DL);}
+				break;
+			case iS:
+				SL = SatL->evaluate(iS,p); SV = SatV->evaluate(iS,p); ValL = SL; ValV = SV;
+				if (Other > SV){ phase = iPHASE_GAS;} else if  (Other < SL){ phase = iPHASE_LIQUID;} else {phase = iPHASE_TWOPHASE; Q = (Other-SL)/(SV-SL);}
+				break;
+			}
+
+			if (phase == iPHASE_GAS)
+			{
+				L = IV[j]+1; R = Nh - 1; M = (L+R)/2;
+				// Check if caught
+				if isbetween((*mat)[L],valV,Other)
+				{
+					// If caught, use gas value
+					L = R;
+				}
+			}
+			else if (phase == iPHASE_LIQUID)
+			{
+				L = 0; R = IL[j]-1; M = (L+R)/2;
+				// Check if caught
+				if isbetween((*mat)[R],valL,Other)
+				{
+					// If caught, use liquid value
+					R = L;
+				}
+			}
+			else if (phase == iPHASE_TWOPHASE)
+			{
+				// Two-phase, finished
+				HL = SatL->evaluate(iH,p); HV = SatV->evaluate(iH,p);
+				return HV*Q + (1-Q)*HL;
+			}
+			else
+			{
+				throw ValueError("TTSE BC error on phase");
+			}
+
+			while (R-L>1)
+			{
+				if (isbetween((*mat)[M][j],(*mat)[R][j],Other))
+				{ 
+					L=M; M=(L+R)/2; continue;
+				}
+				else
+				{ 
+					R=M; M=(L+R)/2; continue;
+				}
+			}
+			i = L;
+		}
+		// Get the nearest full cell to this point
+		nearest_good_neighbor_ph_interpolate(&i, &j);
+		
+		// Invert the bicubic to find h
+		// Old version was "summer += (*alpha)[ii+jj*4]*x^i*y^j" for i in [0,3] and j in [0,3]
+		/* 
+		Summation function is 
+		summer = (*alpha)[0+0*4]*x_0*y_0+(*alpha)[0+1*4]*x_0*y_1+(*alpha)[0+2*4]*x_0*y_2+(*alpha)[0+3*4]*x_0*y_3
+		  		+(*alpha)[1+0*4]*x_1*y_0+(*alpha)[1+1*4]*x_1*y_1+(*alpha)[1+2*4]*x_1*y_2+(*alpha)[1+3*4]*x_1*y_3
+				+(*alpha)[2+0*4]*x_2*y_0+(*alpha)[2+1*4]*x_2*y_1+(*alpha)[2+2*4]*x_2*y_2+(*alpha)[2+3*4]*x_2*y_3
+				+(*alpha)[3+0*4]*x_3*y_0+(*alpha)[3+1*4]*x_3*y_1+(*alpha)[3+2*4]*x_3*y_2+(*alpha)[3+3*4]*x_3*y_3;
+
+		but in this case we know y, which is simply
+
+		y = (p-this->p[j])/(this->p[j+1]-this->p[j]);
+
+		and we solve for x, which is cubic.  Convert to a form like
+		
+		0 = ax^3 + b*x^2 + c*x + d
+
+		where 
+
+		x = (h-this->h[i])/(this->h[i+1]-this->h[i]);
+		
+		*/
+		double y = (p-this->p[j])/(this->p[j+1]-this->p[j]);
+		double y_0 = 1, y_1 = y, y_2 = y*y, y_3 = y*y*y;
+
+		// Find the coefficients for the cubic
+		std::vector<double> *alpha = NULL;
+		
+		// Get bicubic coefficients
+		alpha = this->bicubic_cell_coeffs_ph(iOther, i, j);
+
+		double a = (*alpha)[3+0*4]*y_0+(*alpha)[3+1*4]*y_1+(*alpha)[3+2*4]*y_2+(*alpha)[3+3*4]*y_3; // factors of x^3
+		double b = (*alpha)[2+0*4]*y_0+(*alpha)[2+1*4]*y_1+(*alpha)[2+2*4]*y_2+(*alpha)[2+3*4]*y_3; // factors of x^2
+		double c = (*alpha)[1+0*4]*y_0+(*alpha)[1+1*4]*y_1+(*alpha)[1+2*4]*y_2+(*alpha)[1+3*4]*y_3; // factors of x
+		double d = (*alpha)[0+0*4]*y_0+(*alpha)[0+1*4]*y_1+(*alpha)[0+2*4]*y_2+(*alpha)[0+3*4]*y_3 - Other; // constant factors
+		std::vector<double> xsolns = solve_cubic(a,b,c,d);
+		
+		// Only one solution
+		if (xsolns.size() == 1)
+		{
+			return xsolns[0]*(this->h[i+1]-this->h[i])+this->h[i];
+		}
+		else
+		{
+			throw ValueError("Multiple solutions found for cubic in TTSE-BICUBIC-P+Other");
+		}
+	}
+	// One is enthalpy, we are getting pressure
+	else if (iInput1 == iH)
+	{
+		throw ValueError("Sorry enthalpy and something else other than p is not valid for TTSE");
+	}
+	// Oops, neither enthalpy or pressure provided
+	else
+	{
+		throw ValueError("Neither enthalpy nor pressure provided as the first parameter");
+	}
+}
+
+
 double TTSESinglePhaseTableClass::evaluate_one_other_input(long iInput1, double Input1, long iOther, double Other)
 {
+	// Use Bicubic interpolation if requested
+	if (mode == TTSE_MODE_BICUBIC){ 
+		return bicubic_evaluate_one_other_input(iInput1,Input1,iOther,Other);
+	}
 	// My goal here is to find deltah
 	int L,R,M,i;
 	double p,dh1,dh2,a,b,c;

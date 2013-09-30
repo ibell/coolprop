@@ -208,6 +208,7 @@ public:
 	std::vector<double> * bicubic_cell_coeffs_Trho(long iParam, int i, int j);
 	std::vector<double> * bicubic_cell_coeffs_ph(long iParam, int i, int j);
 	double bicubic_evaluate_first_derivative_ph(long iOF, long iWRT, long iCONSTANT, double p, double logp, double h);
+	double bicubic_evaluate_one_other_input(long iInput1, double Input1, long iOther, double Other);
 
 	/// Randomly select a point within the range, and evaluate the property using TTSE and the EOS
 	/// @param iParam Index of desired output
