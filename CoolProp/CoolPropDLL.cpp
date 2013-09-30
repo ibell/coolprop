@@ -19,6 +19,10 @@ EXPORT_CODE int CONVENTION set_reference_stateD(char *Ref, double T, double rho,
 {
 	return set_reference_stateD(std::string(Ref), T, rho, h0, s0);
 }
+EXPORT_CODE double CONVENTION PropsS(char *Output,char* Name1, double Prop1, char* Name2, double Prop2, char * Ref)
+{
+	return Props(Output,Name1[0],Prop1,Name2[0],Prop2,Ref);
+}
 EXPORT_CODE double CONVENTION Props(char *Output,char Name1, double Prop1, char Name2, double Prop2, char * Ref)
 {
 	double val = Props(std::string(Output),Name1,Prop1,Name2,Prop2,std::string(Ref));
