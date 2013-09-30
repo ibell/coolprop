@@ -34,23 +34,28 @@ for a_useless_counter in range(40000):
         CP.disable_TTSE_LUT(Ref)
         rhoEOS = CP.Props('D','P',p,'H',h,Ref)
         TEOS = CP.Props('T','P',p,'H',h,Ref)
+##         cpEOS = CP.Props('C','P',p,'H',h,Ref)
         
         # Using the TTSE method
         CP.enable_TTSE_LUT(Ref)
         CP.set_TTSE_mode(Ref,"TTSE")
         rhoTTSE = CP.Props('D','P',p,'H',h,Ref)
         TTTSE = CP.Props('T','P',p,'H',h,Ref)
+##         cpTTSE = CP.Props('C','P',p,'H',h,Ref)
         
         # Using the Bicubic method
         CP.enable_TTSE_LUT(Ref)
         CP.set_TTSE_mode(Ref,"BICUBIC")
         rhoBICUBIC = CP.Props('D','P',p,'H',h,Ref)
         TBICUBIC = CP.Props('T','P',p,'H',h,Ref)
+##         cpBICUBIC = CP.Props('C','P',p,'H',h,Ref)
         
 ##         errorTTSE = abs(TTTSE/TEOS-1)*100
 ##         errorBICUBIC = abs(TBICUBIC/TEOS-1)*100
         errorTTSE = abs(rhoTTSE/rhoEOS-1)*100
         errorBICUBIC = abs(rhoBICUBIC/rhoEOS-1)*100
+##         errorTTSE = abs(cpTTSE/cpEOS-1)*100
+##         errorBICUBIC = abs(cpBICUBIC/cpEOS-1)*100
         HHH1.append(h)
         PPP1.append(p)
         EEE1.append(errorTTSE)
@@ -61,6 +66,7 @@ for a_useless_counter in range(40000):
         
     except ValueError as VE:
         print VE
+        pass
     
 SC1 = ax1.scatter(HHH1, PPP1, s = 8, c = EEE1, edgecolors = 'none', cmap = plt.get_cmap('jet'), norm = cNorm)
 SC2 = ax2.scatter(HHH2, PPP2, s = 8, c = EEE2, edgecolors = 'none', cmap = plt.get_cmap('jet'), norm = cNorm)
