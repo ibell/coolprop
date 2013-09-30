@@ -1960,8 +1960,8 @@ double TTSESinglePhaseTableClass::bicubic_evaluate_one_other_input(long iInput1,
 			if (phase == iPHASE_GAS)
 			{
 				L = IV[j]+1; R = Nh - 1; M = (L+R)/2;
-				// Check if caught
-				if isbetween((*mat)[L],valV,Other)
+				// Check if caught between saturation curve and first point
+				if (isbetween((*mat)[L][j],ValV,Other))
 				{
 					// If caught, use gas value
 					L = R;
@@ -1970,8 +1970,8 @@ double TTSESinglePhaseTableClass::bicubic_evaluate_one_other_input(long iInput1,
 			else if (phase == iPHASE_LIQUID)
 			{
 				L = 0; R = IL[j]-1; M = (L+R)/2;
-				// Check if caught
-				if isbetween((*mat)[R],valL,Other)
+				// Check if caught between saturation curve and first point
+				if (isbetween((*mat)[R][j],ValL,Other))
 				{
 					// If caught, use liquid value
 					R = L;
@@ -1988,6 +1988,7 @@ double TTSESinglePhaseTableClass::bicubic_evaluate_one_other_input(long iInput1,
 				throw ValueError("TTSE BC error on phase");
 			}
 
+			// Interval bisection
 			while (R-L>1)
 			{
 				if (isbetween((*mat)[M][j],(*mat)[R][j],Other))
@@ -2021,7 +2022,7 @@ double TTSESinglePhaseTableClass::bicubic_evaluate_one_other_input(long iInput1,
 		
 		0 = ax^3 + b*x^2 + c*x + d
 
-		where 
+		for use in solve_cubic where 
 
 		x = (h-this->h[i])/(this->h[i+1]-this->h[i]);
 		
