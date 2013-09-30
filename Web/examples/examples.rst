@@ -72,7 +72,8 @@ and to overlay a simple four-component cycle on a R410A P-h plot.
 .. plot::
     :include-source:
     
-    from CoolProp.Plots.Plots import Ph,SimpleCycle
+    from CoolProp.Plots.Plots import Ph
+    from CoolProp.Plots.SimpleCycles import SimpleCycle
     Ph('R410A')
     SimpleCycle('R410A',250,300,5,5,0.7)
 
