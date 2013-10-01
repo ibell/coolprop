@@ -2,6 +2,7 @@
 #define _CRTDBG_MAP_ALLOC
 #define _CRT_SECURE_NO_WARNINGS
 #include <crtdbg.h>
+#include <sys/stat.h>
 #endif
 
 #include <string>
@@ -352,6 +353,15 @@ bool load_REFPROP()
 			return false;
 		}
 
+		#if defined(__ISWINDOWS__)
+		struct _stat buf;
+		// Get data associated with path using the windows libraries, 
+		// and if you can (result == 0), the path exists
+		if ( _stat( "c:\\Program Files\\REFPROP\\fluids", &buf) != 0){
+			throw ValueError("REFPROP fluid files must be copied to c:\\Program Files\\REFPROP\\fluids");
+		}
+		#endif
+
 		if (setFunctionPointers()!=OK)
 		{
 			              printf("There was an error setting the REFPROP function pointers, check types and names in header file.\n");
@@ -496,9 +506,11 @@ bool set_REFPROP_fluid(std::string Ref, double *x)
 				refpropcharlength*ncmax,refpropcharlength,
 				lengthofreference,errormessagelength);
 		free (hfm);
-		
 
-		if (ierr != 0) printf("REFPROP setup gives this error during SETUP: %s\n",herr);
+		if (ierr != 0){
+			throw ValueError(format("REFPROP: %s",herr).c_str());
+			return false;
+		}
 		//Copy the name of the loaded refrigerant back into the temporary holder
 		LoadedREFPROPRef = std::string(Ref);
 		return true;
@@ -567,8 +579,9 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 	if (iOutput == iTcrit)
 	{
 		// Critical temperature
-		CRITPdll(&(x[0]),&Tcrit,&pcrit,&dcrit,&ierr,herr,255); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
+		CRITPdll(&(x[0]),&Tcrit,&pcrit,&dcrit,&ierr,herr,255); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); } else if {warn(herr)};
 		output_val = Tcrit;
+
 	}
 	else if (iOutput==iMM)
 	{
@@ -675,7 +688,7 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 			if (iName2 == iP){
 				std::swap(Prop1,Prop2);
 			}
-			p = Prop1; h = Prop2*MW/1000; // Want h in J/mol
+			p = Prop1/1000.0; h = Prop2*MW/1000; // Want h in J/mol, want p in kPa
 			
 			// Use flash routine to find properties
 			PHFLSHdll(&p,&h,&(x[0]),&T,&d,&dl,&dv,xliq,xvap,&q,&e,&s,&cv,&cp,&w,&ierr,herr,errormessagelength); if (ierr != 0) { throw ValueError(format("%s",herr).c_str()); }
