@@ -188,6 +188,15 @@ class CoolPropPINVOKE {
   }
 
 
+  [DllImport("CoolProp", EntryPoint="CSharp_PropsS")]
+  public static extern double PropsS(string jarg1, string jarg2, double jarg3, string jarg4, double jarg5, string jarg6);
+
+  [DllImport("CoolProp", EntryPoint="CSharp_Props")]
+  public static extern double Props(string jarg1, char jarg2, double jarg3, char jarg4, double jarg5, string jarg6);
+
+  [DllImport("CoolProp", EntryPoint="CSharp_Props1")]
+  public static extern double Props1(string jarg1, string jarg2);
+
   [DllImport("CoolProp", EntryPoint="CSharp_get_global_param_string")]
   public static extern int get_global_param_string(string jarg1, string jarg2);
 
@@ -212,11 +221,20 @@ class CoolPropPINVOKE {
   [DllImport("CoolProp", EntryPoint="CSharp_Phase_Tp")]
   public static extern int Phase_Tp(string jarg1, double jarg2, double jarg3, string jarg4);
 
+  [DllImport("CoolProp", EntryPoint="CSharp_set_phase")]
+  public static extern void set_phase(string jarg1);
+
   [DllImport("CoolProp", EntryPoint="CSharp_F2K")]
   public static extern double F2K(double jarg1);
 
   [DllImport("CoolProp", EntryPoint="CSharp_K2F")]
   public static extern double K2F(double jarg1);
+
+  [DllImport("CoolProp", EntryPoint="CSharp_get_param_index")]
+  public static extern int get_param_index(string jarg1);
+
+  [DllImport("CoolProp", EntryPoint="CSharp_get_Fluid_index")]
+  public static extern int get_Fluid_index(string jarg1);
 
   [DllImport("CoolProp", EntryPoint="CSharp_get_index_units")]
   public static extern int get_index_units(int jarg1, string jarg2);

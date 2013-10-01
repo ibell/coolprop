@@ -11,6 +11,21 @@ using System;
 using System.Runtime.InteropServices;
 
 public class CoolProp {
+  public static double PropsS(string Output, string Name1, double Prop1, string Name2, double Prop2, string Ref) {
+    double ret = CoolPropPINVOKE.PropsS(Output, Name1, Prop1, Name2, Prop2, Ref);
+    return ret;
+  }
+
+  public static double Props(string Output, char Name1, double Prop1, char Name2, double Prop2, string Ref) {
+    double ret = CoolPropPINVOKE.Props(Output, Name1, Prop1, Name2, Prop2, Ref);
+    return ret;
+  }
+
+  public static double Props1(string Ref, string Output) {
+    double ret = CoolPropPINVOKE.Props1(Ref, Output);
+    return ret;
+  }
+
   public static int get_global_param_string(string param, string Output) {
     int ret = CoolPropPINVOKE.get_global_param_string(param, Output);
     return ret;
@@ -51,6 +66,10 @@ public class CoolProp {
     return ret;
   }
 
+  public static void set_phase(string Phase_str) {
+    CoolPropPINVOKE.set_phase(Phase_str);
+  }
+
   public static double F2K(double T_F) {
     double ret = CoolPropPINVOKE.F2K(T_F);
     return ret;
@@ -58,6 +77,16 @@ public class CoolProp {
 
   public static double K2F(double T) {
     double ret = CoolPropPINVOKE.K2F(T);
+    return ret;
+  }
+
+  public static int get_param_index(string param) {
+    int ret = CoolPropPINVOKE.get_param_index(param);
+    return ret;
+  }
+
+  public static int get_Fluid_index(string param) {
+    int ret = CoolPropPINVOKE.get_Fluid_index(param);
     return ret;
   }
 
