@@ -143,7 +143,7 @@ def test_back_compatibility():
     #Ps_plot_tests()
     #PT_plot_tests()
     #Prho_plot_tests()
-    Trho_plot_tests()
+    #Trho_plot_tests()
     #hs_plot_tests()
     #Isolines_plot_tests()
 
@@ -170,9 +170,24 @@ def test_new_code():
         plt.draw_isolines('D', [2, 600], num=7)
         plt.show()
 
+    def Graph_annotations():
+        from CoolProp.Plots import PropsPlot, IsoLines
+        plt = PropsPlot(fluid_ref, 'Ts')
+        plt.draw_isolines('Q', [0.3, 0.5, 0.7, 0.8])
+        plt.draw_isolines('P', [100, 2000], num=5)
+        plt.draw_isolines('D', [2, 600], num=7)
+        plt.title('New Title')
+        plt.xlabel('New x label')
+        plt.ylabel('New y label')
+        plt.show()
+        plt = IsoLines(fluid_ref, 'Ts', 'P')
+        plt.draw_isolines([100, 2000], num=5)
+        plt.show()
+
     #Ts_plot_tests()
     #Ph_plot_tests()
     #Isolines_plot_tests()
+    Graph_annotations()
 
 
 if __name__=='__main__':

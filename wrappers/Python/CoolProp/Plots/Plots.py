@@ -378,7 +378,9 @@ class IsoLines(BasePlot):
 
         if self.iso_type != 'all':
             lines = self.get_isolines(iso_range, num)
-            return drawLines(self.fluid_ref, lines, self.axis)
+            drawn_lines = drawLines(self.fluid_ref, lines, self.axis)
+            self._plot_default_annotations()
+            return drawn_lines
         #else:
         #    # TODO: assign limits to values automatically
         #    ll = _getIsoLineIds(plot)
@@ -429,21 +431,6 @@ class PropsPlot(BasePlot):
         self.smin = kwargs.get('smin', None)
         self.smax = kwargs.get('smax', None)
 
-    def __set_axis_labels(self):
-        if len(self.graph_type) == 2:
-            y_axis_id = self.graph_type[0]
-            x_axis_id = self.graph_type[1]
-        else:
-            y_axis_id = self.graph_type[0]
-            x_axis_id = self.graph_type[1:len(self.graph_type)]
-
-        tl_str = "%s - %s Graph for %s"
-        self.axis.set_title(tl_str % (self.AXIS_LABELS[y_axis_id][0],
-                                      self.AXIS_LABELS[x_axis_id][0],
-                                      self.fluid_ref))
-        self.axis.set_xlabel(' '.join(self.AXIS_LABELS[x_axis_id]))
-        self.axis.set_ylabel(' '.join(self.AXIS_LABELS[y_axis_id]))
-
     def __draw_region_lines(self):
         lines = self._get_sat_lines(kind='T',
                                     smin=self.smin,
@@ -452,7 +439,7 @@ class PropsPlot(BasePlot):
 
     def _draw_graph(self):
         self.__draw_region_lines()
-        self.__set_axis_labels()
+        self._plot_default_annotations()
 
     def draw_isolines(self, iso_type, iso_range, num=10):
         iso_lines = IsoLines(self.fluid_ref,
@@ -464,7 +451,7 @@ class PropsPlot(BasePlot):
     def set_axis_limits(self, limits):
         self.axis.set_xlim([limits[0], limits[1]])
         self.axis.set_ylim([limits[2], limits[3]])
-        
+
 
 def Ts(Ref, Tmin=None, Tmax=None, show=False, axis=None, *args, **kwargs):
     """
