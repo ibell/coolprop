@@ -40,6 +40,7 @@ double _Props(std::string Output,std::string Name1, double Prop1, std::string Na
 double _CoolProp_Fluid_Props(long iOutput, long iName1, double Value1, long iName2, double Value2, Fluid *pFluid, bool SinglePhase = false);
 
 static std::string err_string;
+static std::string warning_string;
 static int debug_level=0;
 static Fluid * pFluid;
 
@@ -54,6 +55,8 @@ bool global_SaturatedV = false;
 
 // Default to the KSI unit system
 int unit_system = UNIT_SYSTEM_KSI;
+
+void set_warning(std::string warning){ warning_string = warning; }
 
 int get_standard_unit_system(){ return unit_system; }
 void set_standard_unit_system(int unit_sys){ unit_system = unit_sys; }
@@ -990,6 +993,12 @@ std::string get_global_param_string(std::string ParamName)
 	{
 		std::string temp = err_string;
 		err_string = std::string("");
+		return temp;
+	}
+	else if (!ParamName.compare("warnstring"))
+	{
+		std::string temp = warn_string;
+		warning_string = std::string("");
 		return temp;
 	}
 	else if (!ParamName.compare("gitrevision"))

@@ -68,6 +68,8 @@ You might want to start by looking at CoolProp.h
 	int get_standard_unit_system();
 	void set_standard_unit_system(int);
 
+	void set_warning(std::string warning);
+
 	// Define some constants that will be used throughout
 	#include "GlobalConstants.h"
 #endif
