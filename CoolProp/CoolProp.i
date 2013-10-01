@@ -22,7 +22,9 @@
 // This stuff will get included verbatim in CoolProp_wrap.cpp
 %{
 #include "CoolPropDLL.h"
+#include "HumidAirProp.h"
 %}
 
 %include "CoolPropDLL.h"
+%include "HumidAirProp.h"
 

@@ -1489,83 +1489,55 @@ double TTSESinglePhaseTableClass::evaluate(long iParam, double p, double logp, d
 	}
 }
 
-/*!
-
-\f[
-A^{-1} =  \left[ \begin{array}{*{16}c} 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
- 0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
- -3 & 3 & 0 & 0 & -2 & -1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
- 2 & -2 & 0 & 0 & 1 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
- 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
- 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 \\
- 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & -3 & 3 & 0 & 0 & -2 & -1 & 0 & 0 \\
- 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 2 & -2 & 0 & 0 & 1 & 1 & 0 & 0 \\
- -3 & 0 & 3 & 0 & 0 & 0 & 0 & 0 & -2 & 0 & -1 & 0 & 0 & 0 & 0 & 0 \\
- 0 & 0 & 0 & 0 & -3 & 0 & 3 & 0 & 0 & 0 & 0 & 0 & -2 & 0 & -1 & 0 \\
- 9 & -9 & -9 & 9 & 6 & 3 & -6 & -3 & 6 & -6 & 3 & -3 & 4 & 2 & 2 & 1 \\
- -6 & 6 & 6 & -6 & -3 & -3 & 3 & 3 & -4 & 4 & -2 & 2 & -2 & -2 & -1 & -1 \\
- 2 & 0 & -2 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 1 & 0 & 0 & 0 & 0 & 0 \\
- 0 & 0 & 0 & 0 & 2 & 0 & -2 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 1 & 0 \\
- -6 & 6 & 6 & -6 & -4 & -2 & 4 & 2 & -3 & 3 & -3 & 3 & -2 & -1 & -2 & -1 \\
- 4 & -4 & -4 & 4 & 2 & 2 & -2 & -2 & 2 & -2 & 2 & -2 & 1 & 1 & 1 & 1 \end{array} \right]
- \f]
-
- \f[
- x = \frac{h-h_i}{h_{i+1}-h_i}
- \f]
- \f[
- \frac{\partial x}{\partial h} = \frac{1}{h_{i+1}-h_i}
- \f]
- \f[
- \frac{\partial h}{\partial x} = h_{i+1}-h_i
- \f]
-
- \f[
- y = \frac{p-p_j}{p_{j+1}-p_j}
- \f]
- \f[
- \frac{\partial y}{\partial p} = \frac{1}{p_{j+1}-p_j}
- \f]
-  \f[
- \frac{\partial p}{\partial y} = p_{j+1}-p_j
- \f]
-
- \f[
- \frac{\partial f}{\partial x} = \frac{\partial f}{\partial h}\cdot\frac{\partial h}{\partial x}
- \f]
- \
-*/
-double TTSESinglePhaseTableClass::interpolate_bicubic_ph(long iParam, double pval, double logp, double hval)
+void TTSESinglePhaseTableClass::bicubic_cell_coordinates_Trho(double Tval, double rhoval, double logrhoval, int *i, int *j)
 {
-	// A pointer to the values of the coefficients for the bicubic interpolation
-	std::vector<double> *alpha = NULL;
-	std::vector< std::vector<double> > *f = NULL, *dfdp = NULL, *dfdh = NULL, *d2fdhdp = NULL;
+	*i = (int)round((Tval-Tmin)/(Tmax-Tmin)*(NT-1));
+	*j = (int)round((logrhoval-logrhomin)/logrhoratio);
 
-	int i = (int)round(((hval-hmin)/(hmax-hmin)*(Nh-1)));
-	int j = (int)round((logp-logpmin)/logpratio);
+	if (*i<0 || *i>(int)NT-1 || *j<0 || *j>(int)Nrho-1)
+	{
+		throw ValueError(format("Input to TTSE [T = %0.16g, logrho = %0.16g] is out of range",Tval,logrhoval));
+	}
+	
+	if (Tval < this->T_Trho[*i])
+	{
+		*i -= 1;
+	}
+	if (rhoval < this->rho_Trho[*j])
+	{
+		*j -= 1;
+	}
 
-	if (i<0 || i>(int)Nh-1 || j<0 || j>(int)Np-1)
+	nearest_good_neighbor_Trho_interpolate(i, j);
+}
+
+void TTSESinglePhaseTableClass::bicubic_cell_coordinates_ph(double hval, double pval, double logpval, int *i, int *j)
+{
+	*i = (int)round(((hval-hmin)/(hmax-hmin)*(Nh-1)));
+	*j = (int)round((logpval-logpmin)/logpratio);
+
+	if (*i<0 || *i>(int)Nh-1 || *j<0 || *j>(int)Np-1)
 	{
 		throw ValueError(format("Input to TTSE [p = %0.16g, h = %0.16g] is out of range",pval,hval));
 	}
 	
-	if (hval < h[i])
+	if (hval < this->h[*i])
 	{
-		i -= 1;
+		*i -= 1;
 	}
-	if (pval < p[j])
+	if (pval < p[*j])
 	{
-		j -= 1;
+		*j -= 1;
 	}
 
-	nearest_good_neighbor_ph_interpolate(&i, &j);
+	nearest_good_neighbor_ph_interpolate(i, j);
+}
 
-	double dhdx = (h[i+1]-h[i]);
-	double dpdy = (p[j+1]-p[j]);
-	double x = (hval-h[i])/dhdx;
-	double y = (pval-p[j])/dpdy;
-
-	// Find the coefficients for the bicubic
+std::vector<double> * TTSESinglePhaseTableClass::bicubic_cell_coeffs_ph(long iParam, int i, int j)
+{
+	std::vector<double> *alpha = NULL;
+	std::vector< std::vector<double> > *f = NULL, *dfdp = NULL, *dfdh = NULL, *d2fdhdp = NULL;
+	
 	switch(iParam)
 	{
 	case iS:
@@ -1607,6 +1579,9 @@ double TTSESinglePhaseTableClass::interpolate_bicubic_ph(long iParam, double pva
 
 	if (alpha == NULL)
 	{
+		double dhdx = (h[i+1]-h[i]);
+		double dpdy = (p[j+1]-p[j]);
+
 		z_bicubic[0] = (*f)[i][j];
 		z_bicubic[1] = (*f)[i+1][j];
 		z_bicubic[2] = (*f)[i][j+1];
@@ -1645,49 +1620,14 @@ double TTSESinglePhaseTableClass::interpolate_bicubic_ph(long iParam, double pva
 			throw ValueError("iParam is invalid");
 		}
 	}
-
-	double x_0 = 1, x_1 = x, x_2 = x*x, x_3 = x*x*x;
-	double y_0 = 1, y_1 = y, y_2 = y*y, y_3 = y*y*y;
-
-	double summer;
-	// Old version was "summer += (*alpha)[ii+jj*4]*x^i*y^j" for i in [0,3] and j in [0,3]
-	summer = (*alpha)[0+0*4]*x_0*y_0+(*alpha)[0+1*4]*x_0*y_1+(*alpha)[0+2*4]*x_0*y_2+(*alpha)[0+3*4]*x_0*y_3
-		    +(*alpha)[1+0*4]*x_1*y_0+(*alpha)[1+1*4]*x_1*y_1+(*alpha)[1+2*4]*x_1*y_2+(*alpha)[1+3*4]*x_1*y_3
-			+(*alpha)[2+0*4]*x_2*y_0+(*alpha)[2+1*4]*x_2*y_1+(*alpha)[2+2*4]*x_2*y_2+(*alpha)[2+3*4]*x_2*y_3
-			+(*alpha)[3+0*4]*x_3*y_0+(*alpha)[3+1*4]*x_3*y_1+(*alpha)[3+2*4]*x_3*y_2+(*alpha)[3+3*4]*x_3*y_3;
-	
-	return summer;
+	return alpha;
 }
 
-double TTSESinglePhaseTableClass::interpolate_bicubic_Trho(long iParam, double Tval, double rhoval, double logrho)
+std::vector<double> * TTSESinglePhaseTableClass::bicubic_cell_coeffs_Trho(long iParam, int i, int j)
 {
-	// A pointer to the values of the coefficients for the bicubic interpolation
+
 	std::vector<double> *alpha = NULL;
 	std::vector< std::vector<double> > *f = NULL, *dfdT = NULL, *dfdrho = NULL, *d2fdTdrho = NULL;
-
-	int i = (int)round((Tval-Tmin)/(Tmax-Tmin)*(NT-1));
-	int j = (int)round((logrho-logrhomin)/logrhoratio);
-
-	if (i<0 || i>(int)NT-1 || j<0 || j>(int)Nrho-1)
-	{
-		throw ValueError(format("Input to TTSE [T = %0.16g, rho = %0.16g] is out of range",Tval,rhoval));
-	}
-	
-	if (Tval < T_Trho[i])
-	{
-		i -= 1;
-	}
-	if (rhoval < rho_Trho[j])
-	{
-		j -= 1;
-	}
-
-	nearest_good_neighbor_Trho_interpolate(&i, &j);
-
-	double dTdx = (T_Trho[i+1]-T_Trho[i]);
-	double drhody = (rho_Trho[j+1]-rho_Trho[j]);
-	double x = (Tval-T_Trho[i])/dTdx;
-	double y = (rhoval-rho_Trho[j])/drhody;
 
 	// Find the coefficients for the bicubic function
 	switch(iParam)
@@ -1753,6 +1693,9 @@ double TTSESinglePhaseTableClass::interpolate_bicubic_Trho(long iParam, double T
 
 	if (alpha == NULL)
 	{
+		double dTdx = (T_Trho[i+1]-T_Trho[i]);
+		double drhody = (rho_Trho[j+1]-rho_Trho[j]);
+
 		z_bicubic[0] = (*f)[i][j];
 		z_bicubic[1] = (*f)[i+1][j];
 		z_bicubic[2] = (*f)[i][j+1];
@@ -1796,6 +1739,145 @@ double TTSESinglePhaseTableClass::interpolate_bicubic_Trho(long iParam, double T
 		}
 	}
 
+	return alpha;
+}
+
+/*!
+
+\f[
+A^{-1} =  \left[ \begin{array}{*{16}c} 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+ 0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+ -3 & 3 & 0 & 0 & -2 & -1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+ 2 & -2 & 0 & 0 & 1 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+ 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+ 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 \\
+ 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & -3 & 3 & 0 & 0 & -2 & -1 & 0 & 0 \\
+ 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 2 & -2 & 0 & 0 & 1 & 1 & 0 & 0 \\
+ -3 & 0 & 3 & 0 & 0 & 0 & 0 & 0 & -2 & 0 & -1 & 0 & 0 & 0 & 0 & 0 \\
+ 0 & 0 & 0 & 0 & -3 & 0 & 3 & 0 & 0 & 0 & 0 & 0 & -2 & 0 & -1 & 0 \\
+ 9 & -9 & -9 & 9 & 6 & 3 & -6 & -3 & 6 & -6 & 3 & -3 & 4 & 2 & 2 & 1 \\
+ -6 & 6 & 6 & -6 & -3 & -3 & 3 & 3 & -4 & 4 & -2 & 2 & -2 & -2 & -1 & -1 \\
+ 2 & 0 & -2 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 1 & 0 & 0 & 0 & 0 & 0 \\
+ 0 & 0 & 0 & 0 & 2 & 0 & -2 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 1 & 0 \\
+ -6 & 6 & 6 & -6 & -4 & -2 & 4 & 2 & -3 & 3 & -3 & 3 & -2 & -1 & -2 & -1 \\
+ 4 & -4 & -4 & 4 & 2 & 2 & -2 & -2 & 2 & -2 & 2 & -2 & 1 & 1 & 1 & 1 \end{array} \right]
+ \f]
+
+ \f[
+ x = \frac{h-h_i}{h_{i+1}-h_i}
+ \f]
+ \f[
+ \frac{\partial x}{\partial h} = \frac{1}{h_{i+1}-h_i}
+ \f]
+ \f[
+ \frac{\partial h}{\partial x} = h_{i+1}-h_i
+ \f]
+
+ \f[
+ y = \frac{p-p_j}{p_{j+1}-p_j}
+ \f]
+ \f[
+ \frac{\partial y}{\partial p} = \frac{1}{p_{j+1}-p_j}
+ \f]
+  \f[
+ \frac{\partial p}{\partial y} = p_{j+1}-p_j
+ \f]
+
+ \f[
+ \frac{\partial f}{\partial x} = \frac{\partial f}{\partial h}\cdot\frac{\partial h}{\partial x}
+ \f]
+ \
+*/
+double TTSESinglePhaseTableClass::interpolate_bicubic_ph(long iParam, double pval, double logp, double hval)
+{
+	std::vector<double> *alpha = NULL;
+	int i, j;
+
+	// Get the i,j coordinates of the cell
+	this->bicubic_cell_coordinates_ph(hval, pval,logp, &i, &j);
+
+	double dhdx = (h[i+1]-h[i]);
+	double dpdy = (p[j+1]-p[j]);
+	double x = (hval-h[i])/dhdx;
+	double y = (pval-p[j])/dpdy;
+
+	// Find the coefficients for the cubic
+	alpha = this->bicubic_cell_coeffs_ph(iParam, i, j);
+
+	double x_0 = 1, x_1 = x, x_2 = x*x, x_3 = x*x*x;
+	double y_0 = 1, y_1 = y, y_2 = y*y, y_3 = y*y*y;
+
+	double summer;
+	// Old version was "summer += (*alpha)[ii+jj*4]*x^i*y^j" for i in [0,3] and j in [0,3]
+	summer = (*alpha)[0+0*4]*x_0*y_0+(*alpha)[0+1*4]*x_0*y_1+(*alpha)[0+2*4]*x_0*y_2+(*alpha)[0+3*4]*x_0*y_3
+		    +(*alpha)[1+0*4]*x_1*y_0+(*alpha)[1+1*4]*x_1*y_1+(*alpha)[1+2*4]*x_1*y_2+(*alpha)[1+3*4]*x_1*y_3
+			+(*alpha)[2+0*4]*x_2*y_0+(*alpha)[2+1*4]*x_2*y_1+(*alpha)[2+2*4]*x_2*y_2+(*alpha)[2+3*4]*x_2*y_3
+			+(*alpha)[3+0*4]*x_3*y_0+(*alpha)[3+1*4]*x_3*y_1+(*alpha)[3+2*4]*x_3*y_2+(*alpha)[3+3*4]*x_3*y_3;
+	
+	return summer;
+}
+double TTSESinglePhaseTableClass::bicubic_evaluate_first_derivative_ph(long iOF, long iWRT, long iCONSTANT, double p, double logp, double h)
+{
+	std::vector<double> *alpha = NULL;
+	int i, j;
+
+	// Get the i,j coordinates of the cell
+	this->bicubic_cell_coordinates_ph(h, p, logp, &i, &j);
+
+	double dhdx = (this->h[i+1]-this->h[i]);
+	double dpdy = (this->p[j+1]-this->p[j]);
+	double x = (h-this->h[i])/dhdx;
+	double y = (p-this->p[j])/dpdy;
+
+	// Find the coefficients for the cubic
+	alpha = this->bicubic_cell_coeffs_ph(iOF, i, j);
+
+	double x_0 = 1, x_1 = x, x_2 = x*x, x_3 = x*x*x;
+	double y_0 = 1, y_1 = y, y_2 = y*y, y_3 = y*y*y;
+
+	double summer;
+	if (iWRT == iH)
+	{
+		// Old version was "summer += (*alpha)[ii+jj*4]*i*x^(i-1)*y^j" for i in [0,3] and j in [0,3]
+		double dsummer_dx = +(*alpha)[1+0*4]*1*x_0*y_0+(*alpha)[1+1*4]*1*x_0*y_1+(*alpha)[1+2*4]*1*x_0*y_2+(*alpha)[1+3*4]*1*x_0*y_3
+				            +(*alpha)[2+0*4]*2*x_1*y_0+(*alpha)[2+1*4]*2*x_1*y_1+(*alpha)[2+2*4]*2*x_1*y_2+(*alpha)[2+3*4]*2*x_1*y_3
+				            +(*alpha)[3+0*4]*3*x_2*y_0+(*alpha)[3+1*4]*3*x_2*y_1+(*alpha)[3+2*4]*3*x_2*y_2+(*alpha)[3+3*4]*3*x_2*y_3;
+		return dsummer_dx/dhdx;
+	}
+	else if (iWRT == iP)
+	{
+		// Old version was "summer += (*alpha)[ii+jj*4]*j*x^i*y^(j-1)" for i in [0,3] and j in [0,3]
+		double dsummer_dy = (*alpha)[0+1*4]*1*x_0*y_0+(*alpha)[0+2*4]*2*x_0*y_1+(*alpha)[0+3*4]*3*x_0*y_2
+					       +(*alpha)[1+1*4]*1*x_1*y_0+(*alpha)[1+2*4]*2*x_1*y_1+(*alpha)[1+3*4]*3*x_1*y_2
+					       +(*alpha)[2+1*4]*1*x_2*y_0+(*alpha)[2+2*4]*2*x_2*y_1+(*alpha)[2+3*4]*3*x_2*y_2
+					       +(*alpha)[3+1*4]*1*x_3*y_0+(*alpha)[3+2*4]*2*x_3*y_1+(*alpha)[3+3*4]*3*x_3*y_2;
+		return dsummer_dy/dpdy;
+	}
+	else
+	{
+		throw ValueError(format("iWRT [%d] is invalid", iWRT).c_str());
+	}
+	
+	return summer;
+}
+
+double TTSESinglePhaseTableClass::interpolate_bicubic_Trho(long iParam, double Tval, double rhoval, double logrho)
+{
+	// A pointer to the values of the coefficients for the bicubic interpolation
+	std::vector<double> *alpha = NULL;
+	int i,j;
+	std::vector< std::vector<double> > *f = NULL, *dfdT = NULL, *dfdrho = NULL, *d2fdTdrho = NULL;
+	
+	bicubic_cell_coordinates_Trho(Tval, rhoval, logrho, &i, &j);
+
+	double dTdx = (T_Trho[i+1]-T_Trho[i]);
+	double drhody = (rho_Trho[j+1]-rho_Trho[j]);
+	double x = (Tval-T_Trho[i])/dTdx;
+	double y = (rhoval-rho_Trho[j])/drhody;
+
+	// Find the coefficients for the cubic
+	alpha = this->bicubic_cell_coeffs_Trho(iParam, i, j);
+
 	double x_0 = 1, x_1 = x, x_2 = x*x, x_3 = x*x*x;
 	double y_0 = 1, y_1 = y, y_2 = y*y, y_3 = y*y*y;
 
@@ -1814,8 +1896,181 @@ bool isbetween(double x1, double x2, double x)
 	return ((x>=x1 && x <= x2) || (x>=x2 && x <= x1));
 }
 
+double TTSESinglePhaseTableClass::bicubic_evaluate_one_other_input(long iInput1, double Input1, long iOther, double Other)
+{
+	// My goal here is to find deltah
+	int L,R,M,i,j,phase;
+	double p,dh1,dh2,a,b,c,TL, TV, DL, DV, SL, SV, HL, HV, Q, ValV, ValL;
+	std::vector<std::vector<double> > *mat;
+	
+	// Connect a pointer to the array of interest
+	switch (iOther)
+	{
+	case iT:
+		mat = &T; break;
+	case iS:
+		mat = &s; break;
+	case iD:
+		mat = &rho; break;
+	}
+
+	// One is pressure, we are getting enthalpy
+	if (iInput1 == iP)
+	{
+		p = Input1;
+		
+		j = (int)round((log(p)-logpmin)/logpratio);
+
+		if (p > pFluid->reduce.p.Pa)
+		{
+			// It's supercritical, we just need to iterate on the other parameter
+
+			// Do interval halving over the whole range since
+			// there can't be any saturation curve
+			L = 0; R = Nh-1; M = (L+R)/2;
+			while (R-L>1){
+				if (isbetween((*mat)[M][j],(*mat)[R][j],Other)){
+					L=M; M=(L+R)/2; continue;
+				}
+				else{
+					R=M; M=(L+R)/2; continue;
+				}
+			}
+			i = L;
+		}
+		else
+		{
+			// Get the saturation states
+			switch (iOther)
+			{
+			case iT:
+				TL = SatL->evaluate(iT,p); TV = SatV->evaluate(iT,p); ValL = TL; ValV = TV;
+				if (Other > TV){ phase = iPHASE_GAS;} else if  (Other < TL){ phase = iPHASE_LIQUID;} else {phase = iPHASE_TWOPHASE; throw ValueError("Two-phase T,P inputs invalid for TTSE");}
+				break;
+			case iD:
+				DL = SatL->evaluate(iD,p); DV = SatV->evaluate(iD,p); ValL = DL; ValV = DV;
+				if (Other < DV){ phase = iPHASE_GAS;} else if  (Other > DL){ phase = iPHASE_LIQUID;} else {phase = iPHASE_TWOPHASE; Q = (1/Other-1/DL)/(1/DV-1/DL);}
+				break;
+			case iS:
+				SL = SatL->evaluate(iS,p); SV = SatV->evaluate(iS,p); ValL = SL; ValV = SV;
+				if (Other > SV){ phase = iPHASE_GAS;} else if  (Other < SL){ phase = iPHASE_LIQUID;} else {phase = iPHASE_TWOPHASE; Q = (Other-SL)/(SV-SL);}
+				break;
+			}
+
+			if (phase == iPHASE_GAS)
+			{
+				L = IV[j]+1; R = Nh - 1; M = (L+R)/2;
+				// Check if caught between saturation curve and first point
+				if (isbetween((*mat)[L][j],ValV,Other))
+				{
+					// If caught, use gas value
+					L = R;
+				}
+			}
+			else if (phase == iPHASE_LIQUID)
+			{
+				L = 0; R = IL[j]-1; M = (L+R)/2;
+				// Check if caught between saturation curve and first point
+				if (isbetween((*mat)[R][j],ValL,Other))
+				{
+					// If caught, use liquid value
+					R = L;
+				}
+			}
+			else if (phase == iPHASE_TWOPHASE)
+			{
+				// Two-phase, finished
+				HL = SatL->evaluate(iH,p); HV = SatV->evaluate(iH,p);
+				return HV*Q + (1-Q)*HL;
+			}
+			else
+			{
+				throw ValueError("TTSE BC error on phase");
+			}
+
+			// Interval bisection
+			while (R-L>1)
+			{
+				if (isbetween((*mat)[M][j],(*mat)[R][j],Other))
+				{ 
+					L=M; M=(L+R)/2; continue;
+				}
+				else
+				{ 
+					R=M; M=(L+R)/2; continue;
+				}
+			}
+			i = L;
+		}
+		// Get the nearest full cell to this point
+		nearest_good_neighbor_ph_interpolate(&i, &j);
+		
+		// Invert the bicubic to find h
+		// Old version was "summer += (*alpha)[ii+jj*4]*x^i*y^j" for i in [0,3] and j in [0,3]
+		/* 
+		Summation function is 
+		summer = (*alpha)[0+0*4]*x_0*y_0+(*alpha)[0+1*4]*x_0*y_1+(*alpha)[0+2*4]*x_0*y_2+(*alpha)[0+3*4]*x_0*y_3
+		  		+(*alpha)[1+0*4]*x_1*y_0+(*alpha)[1+1*4]*x_1*y_1+(*alpha)[1+2*4]*x_1*y_2+(*alpha)[1+3*4]*x_1*y_3
+				+(*alpha)[2+0*4]*x_2*y_0+(*alpha)[2+1*4]*x_2*y_1+(*alpha)[2+2*4]*x_2*y_2+(*alpha)[2+3*4]*x_2*y_3
+				+(*alpha)[3+0*4]*x_3*y_0+(*alpha)[3+1*4]*x_3*y_1+(*alpha)[3+2*4]*x_3*y_2+(*alpha)[3+3*4]*x_3*y_3;
+
+		but in this case we know y, which is simply
+
+		y = (p-this->p[j])/(this->p[j+1]-this->p[j]);
+
+		and we solve for x, which is cubic.  Convert to a form like
+		
+		0 = ax^3 + b*x^2 + c*x + d
+
+		for use in solve_cubic where 
+
+		x = (h-this->h[i])/(this->h[i+1]-this->h[i]);
+		
+		*/
+		double y = (p-this->p[j])/(this->p[j+1]-this->p[j]);
+		double y_0 = 1, y_1 = y, y_2 = y*y, y_3 = y*y*y;
+
+		// Find the coefficients for the cubic
+		std::vector<double> *alpha = NULL;
+		
+		// Get bicubic coefficients
+		alpha = this->bicubic_cell_coeffs_ph(iOther, i, j);
+
+		double a = (*alpha)[3+0*4]*y_0+(*alpha)[3+1*4]*y_1+(*alpha)[3+2*4]*y_2+(*alpha)[3+3*4]*y_3; // factors of x^3
+		double b = (*alpha)[2+0*4]*y_0+(*alpha)[2+1*4]*y_1+(*alpha)[2+2*4]*y_2+(*alpha)[2+3*4]*y_3; // factors of x^2
+		double c = (*alpha)[1+0*4]*y_0+(*alpha)[1+1*4]*y_1+(*alpha)[1+2*4]*y_2+(*alpha)[1+3*4]*y_3; // factors of x
+		double d = (*alpha)[0+0*4]*y_0+(*alpha)[0+1*4]*y_1+(*alpha)[0+2*4]*y_2+(*alpha)[0+3*4]*y_3 - Other; // constant factors
+		std::vector<double> xsolns = solve_cubic(a,b,c,d);
+		
+		// Only one solution
+		if (xsolns.size() == 1)
+		{
+			return xsolns[0]*(this->h[i+1]-this->h[i])+this->h[i];
+		}
+		else
+		{
+			throw ValueError("Multiple solutions found for cubic in TTSE-BICUBIC-P+Other");
+		}
+	}
+	// One is enthalpy, we are getting pressure
+	else if (iInput1 == iH)
+	{
+		throw ValueError("Sorry enthalpy and something else other than p is not valid for TTSE");
+	}
+	// Oops, neither enthalpy or pressure provided
+	else
+	{
+		throw ValueError("Neither enthalpy nor pressure provided as the first parameter");
+	}
+}
+
+
 double TTSESinglePhaseTableClass::evaluate_one_other_input(long iInput1, double Input1, long iOther, double Other)
 {
+	// Use Bicubic interpolation if requested
+	if (mode == TTSE_MODE_BICUBIC){ 
+		return bicubic_evaluate_one_other_input(iInput1,Input1,iOther,Other);
+	}
 	// My goal here is to find deltah
 	int L,R,M,i;
 	double p,dh1,dh2,a,b,c;
@@ -2111,6 +2366,11 @@ double TTSESinglePhaseTableClass::evaluate_Trho(long iOutput, double T, double r
 
 double TTSESinglePhaseTableClass::evaluate_first_derivative(long iOF, long iWRT, long iCONSTANT, double p, double logp, double h)
 {
+	// Use Bicubic interpolation if requested
+	if (mode == TTSE_MODE_BICUBIC){ 
+		return bicubic_evaluate_first_derivative_ph(iOF, iWRT, iCONSTANT, p, logp, h);
+	}
+
 	int i = (int)round(((h-hmin)/(hmax-hmin)*(Nh-1)));
 	int j = (int)round((logp-logpmin)/logpratio);
 
@@ -2267,24 +2527,44 @@ double TTSETwoPhaseTableClass::build(double pmin, double pmax, TTSETwoPhaseTable
 			other->d2rhodp2[i] = (other->Q>0.5) ? CPS.d2rhodp2_along_sat_vapor() : CPS.d2rhodp2_along_sat_liquid();
 		}
 	}
-	//// At the last point
-	//CPS.flag_SinglePhase = true; // Don't have it check the state or do a saturation call
-	//p[N-1] = CPS.pFluid->reduce.p;
-	//logp[N-1] = log(p[N-1]);
-	//CPS.update(iT,CPS.pFluid->reduce.T,iD,CPS.pFluid->reduce.rho);
-	//T[N-1] = CPS.T();
-	//dTdp[N-1] = CPS.dTdp_along_sat();
+	// At the last point (the critical point)
+	CPS.flag_SinglePhase = true; // Don't have it check the state or do a saturation call
+	CPS.update(iT,CPS.pFluid->reduce.T+1e-12,iD,CPS.pFluid->reduce.rho+1e-12);
+	p[N-1] = CPS.p();
+	logp[N-1] = log(p[N-1]);
+	T[N-1] = CPS.T();
+	dTdp[N-1] = 1/CPS.dpdT_constrho();
 	//d2Tdp2[N-1] = CPS.d2Tdp2_along_sat();
-	//h[N-1] = CPS.h();
+	h[N-1] = CPS.h();
 	//dhdp[N-1] = (this->Q>0.5) ? CPS.dhdp_along_sat_vapor() : CPS.dhdp_along_sat_liquid();
 	//d2hdp2[N-1] = (this->Q>0.5) ? CPS.d2hdp2_along_sat_vapor() : CPS.d2hdp2_along_sat_liquid();
-	//s[N-1] = CPS.s();
+	s[N-1] = CPS.s();
 	//dsdp[N-1] = (this->Q>0.5) ? CPS.dsdp_along_sat_vapor() : CPS.dsdp_along_sat_liquid();
 	//d2sdp2[N-1] = (this->Q>0.5) ? CPS.d2sdp2_along_sat_vapor() : CPS.d2sdp2_along_sat_liquid();
-	//rho[N-1] = CPS.rho();
-	//logrho[N-1] = log(CPS.rho());
+	rho[N-1] = CPS.rho();
+	logrho[N-1] = log(CPS.rho());
 	//drhodp[N-1] = (this->Q>0.5) ? CPS.drhodp_along_sat_vapor() : CPS.drhodp_along_sat_liquid();
 	//d2rhodp2[N-1] = (this->Q>0.5) ? CPS.d2rhodp2_along_sat_vapor() : CPS.d2rhodp2_along_sat_liquid();
+
+	// If other is provided
+	if (other != NULL)
+	{
+		other->p[N-1] = CPS.p();
+		other->logp[N-1] = log(p[N-1]);
+		other->T[N-1] = CPS.T();
+		other->dTdp[N-1] = 1/CPS.dpdT_constrho();
+		//other->d2Tdp2[N-1] = CPS.d2Tdp2_along_sat();
+		other->h[N-1] = CPS.h();
+		//other->dhdp[N-1] = (this->Q>0.5) ? CPS.dhdp_along_sat_vapor() : CPS.dhdp_along_sat_liquid();
+		//other->d2hdp2[N-1] = (this->Q>0.5) ? CPS.d2hdp2_along_sat_vapor() : CPS.d2hdp2_along_sat_liquid();
+		other->s[N-1] = CPS.s();
+		//other->dsdp[N-1] = (this->Q>0.5) ? CPS.dsdp_along_sat_vapor() : CPS.dsdp_along_sat_liquid();
+		//other->d2sdp2[N-1] = (this->Q>0.5) ? CPS.d2sdp2_along_sat_vapor() : CPS.d2sdp2_along_sat_liquid();
+		other->rho[N-1] = CPS.rho();
+		other->logrho[N-1] = log(CPS.rho());
+		//other->drhodp[N-1] = (this->Q>0.5) ? CPS.drhodp_along_sat_vapor() : CPS.drhodp_along_sat_liquid();
+		//other->d2rhodp2[N-1] = (this->Q>0.5) ? CPS.d2rhodp2_along_sat_vapor() : CPS.d2rhodp2_along_sat_liquid();
+	}
 
 	t2 = clock();
 	std::cout << double(t2-t1)/CLOCKS_PER_SEC << " to build both two phase tables" << std::endl;
@@ -2308,27 +2588,74 @@ double TTSETwoPhaseTableClass::evaluate(long iParam, double p)
 	{
 		throw ValueError(format("p [%g] is out of range[%g,%g], yielded index of: %d",p,pmin,pmax,i));
 	}
-		
-	double log_PI_PIi = logp-this->logp[i];
-	double pi = this->p[i];
-	
-	switch (iParam)
+
+	if (i == N-2)
 	{
-	case iS:
-		return s[i]+log_PI_PIi*pi*dsdp[i]*(1.0+0.5*log_PI_PIi)+0.5*log_PI_PIi*log_PI_PIi*d2sdp2[i]*pi*pi;
-	case iT:
-		return T[i]+log_PI_PIi*pi*dTdp[i]*(1.0+0.5*log_PI_PIi)+0.5*log_PI_PIi*log_PI_PIi*d2Tdp2[i]*pi*pi;
-	case iH:
-		//return h[i]+(pi-this->p[i])*dhdp[i]+0.5*(pi-this->p[i])*(pi-this->p[i])*d2hdp2[i];
-		return h[i]+log_PI_PIi*pi*dhdp[i]*(1.0+0.5*log_PI_PIi)+0.5*log_PI_PIi*log_PI_PIi*d2hdp2[i]*pi*pi;
-	case iD:
+		double y1, yc, dydp1;
+		switch (iParam)
 		{
-		// log(p) v. log(rho) gives close to a line for most of the curve
-		double dRdPI = pi/rho[i]*drhodp[i];
-		return exp(logrho[i]+log_PI_PIi*(1.0+0.5*log_PI_PIi*(1-dRdPI))*dRdPI+0.5*log_PI_PIi*log_PI_PIi*d2rhodp2[i]*pi*pi/rho[i]);
+		case iS:
+			y1 = s[i]; yc = s[i+1]; dydp1 = dsdp[i]; break;
+		case iT:
+			y1 = T[i]; yc = T[i+1]; dydp1 = dTdp[i]; break;
+		case iH:
+			y1 = h[i]; yc = h[i+1]; dydp1 = dhdp[i]; break;
+		case iD:
+			y1 = rho[i]; yc = rho[i+1]; dydp1 = drhodp[i]; break;
+		default:
+			throw ValueError();
 		}
-	default:
-		throw ValueError();
+
+		// Here we use interpolation based on a form y = a*x^(1/n) 
+		// where we develop shifted coordinates
+		// Y = y - yc (where y is s, h, rho, etc.)
+		// X = pc - p
+
+		double X = this->p[i+1] - p;
+		double Y1 = y1 - yc;
+		double X1 = this->p[i+1] - this->p[i];
+		double dYdX1 = -dydp1;
+		double n = Y1/(dYdX1*X1);
+		double a = Y1/pow(X1,1/n);
+		double Y = a*pow(X,1.0/n);
+		return Y + yc;
+	}
+	else
+	{
+		// Spline interpolation http://en.wikipedia.org/wiki/Spline_interpolation since we
+		// know the derivatives and the values at the bounding elements
+		// Independent variable is logp
+		// Dependent variable is varied (entropy, enthalpy, etc...)
+		double x1 = this->logp[i];
+		double x2 = this->logp[i+1];
+		double t = (logp-x1)/(x2-x1);
+		
+		double y1, y2, k1, k2;
+		switch (iParam)
+		{
+		case iS:
+			y1 = this->s[i]; y2 = this->s[i+1]; k1 = this->p[i]*this->dsdp[i]; k2 = this->p[i+1]*this->dsdp[i+1]; break;
+		case iT:
+			y1 = this->T[i]; y2 = this->T[i+1]; k1 = this->p[i]*this->dTdp[i]; k2 = this->p[i+1]*this->dTdp[i+1]; break;
+		case iH:
+			y1 = this->h[i]; y2 = this->h[i+1]; k1 = this->p[i]*this->dhdp[i]; k2 = this->p[i+1]*this->dhdp[i+1]; break;
+		case iD:
+			/// log(p) v. log(rho) gives close to a line for most of the curve
+			/// d(log(p))/d(log(p)) = 1/rho*d(rho)/d(log(p)) = p/rho*drho/dp
+			y1 = this->logrho[i]; y2 = this->logrho[i+1]; k1 = this->p[i]/this->rho[i]*this->drhodp[i]; k2 = this->p[i+1]/this->rho[i+1]*this->drhodp[i+1]; break;
+		default:
+			throw ValueError();
+		}
+		
+		double a = k1*(x2-x1)-(y2-y1);
+		double b = -k2*(x2-x1)+(y2-y1);
+		double y = (1-t)*y1+t*y2+t*(1-t)*(a*(1-t)+b*t);
+		if (iParam == iD){ 
+			return exp(y);
+		}
+		else{
+			return y;
+		}
 	}
 }
 double TTSETwoPhaseTableClass::evaluate_T(double T)
@@ -2340,44 +2667,57 @@ double TTSETwoPhaseTableClass::evaluate_T(double T)
 
 	// Do interval halving over the whole range to find the nearest temperature
 	L = 0; R = N - 2; M = (L+R)/2;
-	if (isbetween(this->T[N-2],pFluid->reduce.T,T)){
+	if (isbetween(this->T[N-2],pFluid->reduce.T,T))
+	{
+		// According to Matthis Thorade, dTdP|sat at the critical point is equal to dT/dP|rho evaluated at the 
+		// critical temperature and density
 		L = N-2;
+		// Spline interpolation http://en.wikipedia.org/wiki/Spline_interpolation since we
+		// know the derivatives and the values at the bounding elements
+		// Independent variable is T
+		// Dependent variable is logp
+		double t = (T-this->T[L])/(this->T[L+1]-this->T[L]);
+		double x1 = this->T[L];
+		double x2 = this->T[L+1];
+		double y1 = this->logp[L];
+		double y2 = this->logp[L+1];
+		// y is log(p); d(log(p))/dT = 1/p*(dp/dT) = 1/p/(dT/dp)
+		double k1 = 1/this->p[L]/this->dTdp[L];
+		double k2 = 1/this->p[L+1]/this->dTdp[L+1];
+		double a = k1*(x2-x1)-(y2-y1);
+		double b = -k2*(x2-x1)+(y2-y1);
+		double logp = (1-t)*y1+t*y2+t*(1-t)*(a*(1-t)+b*t);
+		return exp(logp);
 	}
 	else
 	{
-		while (R - L>1)
+		while (R - L > 1)
 		{
-			if (isbetween(this->T[M],this->T[R],T)){ 
+			if (T > this->T[M]){ 
 				L=M; M=(L+R)/2; continue;
 			}
 			else{ 
 				R=M; M=(L+R)/2; continue;
 			}
 		}
+		// Spline interpolation http://en.wikipedia.org/wiki/Spline_interpolation since we
+		// know the derivatives and the values at the bounding elements
+		// Independent variable is T
+		// Dependent variable is logp
+		double t = (T-this->T[L])/(this->T[R]-this->T[L]);
+		double x1 = this->T[L];
+		double x2 = this->T[R];
+		double y1 = this->logp[L];
+		double y2 = this->logp[R];
+		// y is log(p); d(log(p))/dT = 1/p*(dp/dT) = 1/p/(dT/dp)
+		double k1 = 1/this->p[L]/this->dTdp[L];
+		double k2 = 1/this->p[R]/this->dTdp[R];
+		double a = k1*(x2-x1)-(y2-y1);
+		double b = -k2*(x2-x1)+(y2-y1);
+		double logp = (1-t)*y1+t*y2+t*(1-t)*(a*(1-t)+b*t);
+		return exp(logp);
 	}
-	// T = T[i]+log_PI_PIi*pi*dTdp[i]*(1.0+0.5*log_PI_PIi)+0.5*log_PI_PIi*log_PI_PIi*d2Tdp2[i]*pi*pi;
-	// T = T[i]+log_PI_PIi*pi*dTdp[i]+ 0.5*log_PI_PIi^2*pi*dTdp[i]+0.5*log_PI_PIi*log_PI_PIi*d2Tdp2[i]*pi*pi;
-	// 0 = 0.5*log_PI_PIi^2*pi*dTdp[i]+0.5*log_PI_PIi^2*d2Tdp2[i]*pi*pi+log_PI_PIi*pi*dTdp[i]+T[i]-T;
-	pi = this->p[L];
-	a = 0.5*(pi*dTdp[L]+d2Tdp2[L]*pi*pi);
-	b = pi*dTdp[L];
-	c = this->T[L]-T;
-
-	// Solutions from quadratic equation
-	log_PI_PIi1 = (-b+sqrt(b*b-4*a*c))/(2*a);
-	log_PI_PIi2 = (-b-sqrt(b*b-4*a*c))/(2*a);
-
-	// Get the pressures
-	double p1 = exp(log_PI_PIi1+this->logp[L]);
-	double p2 = exp(log_PI_PIi2+this->logp[L]);
-
-	// If only one is less than spacing of enthalpy, thats your solution
-	if (fabs(log_PI_PIi1)<2*logp_spacing && !(fabs(log_PI_PIi2)<2*logp_spacing))
-		return p1;
-	else if (fabs(log_PI_PIi2)<2*logp_spacing && !(fabs(log_PI_PIi1)<2*logp_spacing))
-		return p2;
-	else
-		throw ValueError(format("More than one solution found[%g,%g] in evaluate_T for TTSE for input %g",p1,p2,T));
+	
 }
 double TTSETwoPhaseTableClass::evaluate_sat_derivative(long iParam, double p)
 {

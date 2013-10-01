@@ -29,7 +29,7 @@
 	// will be exported to the DLL
 
 	// They can only use data types that play well with DLL wrapping (int, long, double, char*, void, etc.)
-	
+	EXPORT_CODE double CONVENTION PropsS(char *Output,char* Name1, double Prop1, char* Name2, double Prop2, char * Ref);
 	EXPORT_CODE double CONVENTION Props(char *Output,char Name1, double Prop1, char Name2, double Prop2, char * Ref);
 	EXPORT_CODE double CONVENTION Props1(char *Ref, char * Output);
 

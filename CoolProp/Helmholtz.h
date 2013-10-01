@@ -88,13 +88,14 @@ if l==0, then
 class phir_power : public phi_BC{
 	
 private:
+	
+public:
 	unsigned int iStart,iEnd;
 	std::vector<double> n, ///< The coefficients multiplying each term
 		                d, ///< The power for the delta terms
 						t, ///< The powers for the tau terms
 						l //< The powers for delta in the exp terms
 						;
-public:
 	// Default Constructor
 	phir_power(){};
 	// Constructors
@@ -124,6 +125,12 @@ public:
 	double dDelta2_dTau(double tau, double delta) throw();
 	double dDelta_dTau2(double tau, double delta) throw();
 	double dTau3(double tau, double delta) throw();
+
+	/// Vectorized form so iteration happens at c++ level
+	std::vector<double> dDeltaV(std::vector<double> tau, std::vector<double> delta) throw();
+	std::vector<double> dDelta2V(std::vector<double> tau, std::vector<double> delta) throw();
+	std::vector<double> dTau2V(std::vector<double> tau, std::vector<double> delta) throw();
+	std::vector<double> dDelta_dTauV(std::vector<double> tau, std::vector<double> delta) throw();
 };
 
 
@@ -298,16 +305,16 @@ public:
 					unsigned int iStart_in, 
 					unsigned int iEnd_in, 
 					unsigned int N);
-	phir_GERG_gaussian(const double a_in[],	
-						const double d_in[],
-						const double t_in[], 
-						const double eta_in[], 
-						const double epsilon_in[], 
-						const double beta_in[], 
-						const double gamma_in[],
-						unsigned int iStart_in, 
-						unsigned int iEnd_in, 
-						unsigned int N);
+	//phir_GERG_gaussian(const double a_in[],	
+	//					const double d_in[],
+	//					const double t_in[], 
+	//					const double eta_in[], 
+	//					const double epsilon_in[], 
+	//					const double beta_in[], 
+	//					const double gamma_in[],
+	//					unsigned int iStart_in, 
+	//					unsigned int iEnd_in, 
+	//					unsigned int N);
 
 	// Destructor
 	~phir_GERG_gaussian(){};

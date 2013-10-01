@@ -693,12 +693,39 @@ void CoolPropStateClassSI::update_TTSE_LUT(long iInput1, double Value1, long iIn
 		// Sort in the right order (P,H)
 		sort_pair(&iInput1,&Value1,&iInput2,&Value2,iP,iH);
 
+		bool _twophase = false;
 		double p = Value1;
 		double h = Value2;
+		double hsatL, hsatV;
 
 		// If enthalpy is outside the saturation region or flag_SinglePhase is set, it is single-phase
-		if (p > pFluid->reduce.p.Pa || p < pFluid->params.ptriple || flag_SinglePhase ||  h < pFluid->TTSESatL.evaluate(iH,p)  || h > pFluid->TTSESatV.evaluate(iH,p))
+		// One part at a time to minimize calls to saturation routines
+		if (p > pFluid->reduce.p.Pa || p < pFluid->params.ptriple || flag_SinglePhase)
 		{
+			_twophase = false;
+		}
+		else
+		{
+			hsatL = pFluid->TTSESatL.evaluate(iH,p);
+			if (h < hsatL)
+			{
+				_twophase = false;
+			}
+			else
+			{
+				hsatV = pFluid->TTSESatV.evaluate(iH,p);
+				if (h > hsatV)
+				{
+					_twophase = false;
+				}
+				else
+				{
+					_twophase = true;
+				}
+			}
+		}
+
+		if (!_twophase){
 			TwoPhase = false;
 			SinglePhase = true;
 			_logp = log(p);
@@ -712,8 +739,6 @@ void CoolPropStateClassSI::update_TTSE_LUT(long iInput1, double Value1, long iIn
 			TwoPhase = true;
 			SinglePhase = false;
 
-			double hsatL = pFluid->TTSESatL.evaluate(iH,p);
-			double hsatV = pFluid->TTSESatV.evaluate(iH,p);
 			rhosatL = pFluid->TTSESatL.evaluate(iD,p);
 			rhosatV = pFluid->TTSESatV.evaluate(iD,p);
 			TsatL = pFluid->TTSESatL.evaluate(iT,p);
@@ -1456,11 +1481,11 @@ void CoolPropStateClassSI::rho_smoothed(double xend, double *rho_spline, double 
 	double drhodh_v = CPS.SatV->drhodh_constp();
 
 	// Partial derivatives at the junction (end):
-	double drhodh_end_temp = CPS.drhodh_constp();
-	double drhodp_end_temp = CPS.drhodp_consth();
-	double drhodhdp_end_temp = CPS.d2rhodhdp();
+	//double drhodh_end_temp = CPS.drhodh_constp();
+	//double drhodp_end_temp = CPS.drhodp_consth();
+	//double drhodhdp_end_temp = CPS.d2rhodhdp();
 
-	// Same as above, but detailed:
+	// Calculation of the second order derivative in the two-phase region (not supported in coolprop):
 	double dxdp = ((xend - 1 )* dhldp - xend* dhvdp)/(h_v - h_l);
 	double drhodh_end = pow(rho_end,2)/(rho_l*rho_v) * (rho_v - rho_l)/(h_v - h_l);
 	double dvdh_end = (1/rho_v - 1/rho_l)/(h_v - h_l);

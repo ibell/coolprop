@@ -35,7 +35,7 @@
 #include "purefluids/R134a.h"
 
 // Function prototypes
-double rho_TP(double T, double p);
+//double rho_TP(double T, double p);
 double _Props(std::string Output,std::string Name1, double Prop1, std::string Name2, double Prop2, std::string Ref);
 double _CoolProp_Fluid_Props(long iOutput, long iName1, double Value1, long iName2, double Value2, Fluid *pFluid, bool SinglePhase = false);
 
@@ -288,7 +288,7 @@ static int IsCoolPropFluid(std::string FluidName)
 	{
 		pFluid = Fluids.get_fluid(FluidName);
 	}
-	catch (NotImplementedError)
+	catch (NotImplementedError &)
 	{
 		return false;
 	}
@@ -430,9 +430,10 @@ std::string Phase_Trho(std::string Fluid, double T, double rho)
 		double pL,pV,rhoL,rhoV;
 		return pFluid->phase_Trho(T,rho, &pL, &pV, &rhoL, &rhoV);
 	}
-	catch(NotImplementedError){
+	catch(NotImplementedError &){
 		return std::string("");
 	}
+	return std::string("");
 }
 
 std::string Phase(std::string Fluid, double T, double p)
@@ -443,9 +444,10 @@ std::string Phase(std::string Fluid, double T, double p)
 		double pL,pV,rhoL,rhoV;
 		return pFluid->phase_Tp(T, p, &pL, &pV, &rhoL, &rhoV);
 	}
-	catch(NotImplementedError){
+	catch(NotImplementedError &){
 		return std::string("");
 	}
+	return std::string("");
 }
 
 std::string Phase_Tp(std::string Fluid, double T, double p)
@@ -537,6 +539,7 @@ double Props(std::string Output,char Name1, double Prop1, char Name2, double Pro
 		err_string = std::string("CoolProp error: Indeterminate error");
 		return _HUGE;
 	}
+	return _HUGE;
 }
 // Make this a wrapped function so that error bubbling can be done properly
 double _Props(std::string Output, std::string Name1, double Prop1, std::string Name2, double Prop2, std::string Ref)
@@ -632,7 +635,7 @@ double _Props(std::string Output, std::string Name1, double Prop1, std::string N
 		}
 		else
 		{
-			throw ValueError("For brine, inputs must be (order doesnt matter) 'T' and 'P', or 'H' and 'P'");
+			throw ValueError("For incompressible fluids, inputs must be (order doesnt matter) 'T' and 'P', or 'H' and 'P'");
 		}
     }
 	else

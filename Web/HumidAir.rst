@@ -193,7 +193,7 @@ Values here are obtained at documentation build-time using the Humid Air Propert
 
     In [1]: execfile('Validation/HAValidation.py')
     
-.. comment::
+.. 
 
     Appendices
     ----------

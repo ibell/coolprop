@@ -877,7 +877,7 @@ public:
 	~WetBulbTminSolver(){};
 	double call(double Ts)
 	{
-		RHS = HAProps("H","T",Ts,"P",p,"R",1);
+		RHS = HAProps((char *)"H",(char *)"T",Ts,(char *)"P",p,(char *)"R",1);
 		if (!ValidNumber(RHS)){throw ValueError();}
 		r = RHS - this->hair_dry;
         return r;
@@ -915,7 +915,7 @@ double WetbulbTemperature(double T, double p, double psi_w)
 		// Solution obtained is out of range (T>Tmax)
 		if (return_val > Tmax) {throw ValueError();}
 	}
-	catch(std::exception)
+	catch(std::exception &)
 	{
 		// The lowest wetbulb temperature that is possible for a given dry bulb temperature 
 		// is the saturated air temperature which yields the enthalpy of dry air at dry bulb temperature
@@ -1222,7 +1222,7 @@ EXPORT_CODE double CONVENTION HAProps(char *OutputName, char *Input1Name, double
 					break;
 				}
 			}
-			catch (std::exception){};
+			catch (std::exception &){};
 		}
 		
 		if (T < 0) // No solution found using secant
@@ -1517,10 +1517,11 @@ EXPORT_CODE double CONVENTION HAProps_Aux(char* Name,double T, double p, double 
         return -1;
     }
 	}
-	catch(std::exception)
+	catch(std::exception &)
 	{
 		return _HUGE;
 	}
+	return _HUGE;
 }
 double cair_sat(double T)
 {
