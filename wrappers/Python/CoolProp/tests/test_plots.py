@@ -131,11 +131,11 @@ def test_back_compatibility():
         from matplotlib import pyplot
         from CoolProp.Plots import Ts, drawIsoLines
         ax = Ts(fluid_ref)
-        ax.set_xlim([-0.5, 1.5])
-        ax.set_ylim([300, 530])
-        quality = drawIsoLines(Ref, 'Ts', 'Q', [0.3, 0.5, 0.7, 0.8], axis=ax)
-        isobars = drawIsoLines(Ref, 'Ts', 'P', [100, 2000], num=5, axis=ax)
-        isochores = drawIsoLines(Ref, 'Ts', 'D', [2, 600], num=7, axis=ax)
+        #ax.set_xlim([-0.5, 1.5])
+        #ax.set_ylim([300, 530])
+        quality = drawIsoLines(fluid_ref, 'Ts', 'Q', [0.3, 0.5, 0.7, 0.8], axis=ax)
+        isobars = drawIsoLines(fluid_ref, 'Ts', 'P', [100, 2000], num=5, axis=ax)
+        isochores = drawIsoLines(fluid_ref, 'Ts', 'D', [2, 600], num=7, axis=ax)
         pyplot.show()
 
     #Ts_plot_tests()
@@ -145,7 +145,7 @@ def test_back_compatibility():
     #Prho_plot_tests()
     #Trho_plot_tests()
     #hs_plot_tests()
-    #Isolines_plot_tests()
+    Isolines_plot_tests()
 
 
 def test_new_code():
@@ -164,7 +164,7 @@ def test_new_code():
     def Isolines_plot_tests():
         from CoolProp.Plots import PropsPlot
         plt = PropsPlot(fluid_ref, 'Ts')
-        plt.set_axis_limits([-0.5, 1.5, 300, 530])
+        #plt.set_axis_limits([-0.5, 1.5, 300, 530])
         plt.draw_isolines('Q', [0.3, 0.5, 0.7, 0.8])
         plt.draw_isolines('P', [100, 2000], num=5)
         plt.draw_isolines('D', [2, 600], num=7)
@@ -192,8 +192,8 @@ def test_new_code():
 
     #Ts_plot_tests()
     #Ph_plot_tests()
-    #Isolines_plot_tests()
-    #Graph_annotations()
+    Isolines_plot_tests()
+    Graph_annotations()
     Mixture()
 
 
