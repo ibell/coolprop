@@ -997,7 +997,7 @@ std::string get_global_param_string(std::string ParamName)
 	}
 	else if (!ParamName.compare("warnstring"))
 	{
-		std::string temp = warn_string;
+		std::string temp = warning_string;
 		warning_string = std::string("");
 		return temp;
 	}

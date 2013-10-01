@@ -61,9 +61,6 @@ extern "C"
 		int NInputs;           // Ninputs is the number of inputs
 		char NInputs_string[3], err_str[1000];
 		std::string fluid_string = std::string(fluid);
-
-        // This can be used to convert the string to all caps
-        //std::transform(fluid_string.begin(), fluid_string.end(),fluid_string.begin(), ::toupper);
         
 		std::string ErrorMsg, Outstr, In1str, In2str, Fluidstr;
 		std::vector<std::string> fluid_split;
@@ -106,7 +103,6 @@ extern "C"
 		In1= input_rec->value;
 		input_rec=input_rec->next;
 		In2=input_rec->value;
-
 		
 		//This block can be used to debug the code by writing output or intermediate values to a text file
 
@@ -123,11 +119,21 @@ extern "C"
 
 		if (fabs(out)>1e90)
 		{
+            // There was an error
 			strcpy(fluid,get_global_param_string("errstring").c_str());
 			return 0;
 		}
 		else
+        {
+            // Check if there was a warning
+            std::string warn_string = get_global_param_string("warnstring");
+            if (!warn_string.empty())
+            {
+                // There was a warning, write it back
+                strcpy(fluid, warn_string.c_str());
+            }
 			return out;
+        }
 	}
 
 };

@@ -507,9 +507,13 @@ bool set_REFPROP_fluid(std::string Ref, double *x)
 				lengthofreference,errormessagelength);
 		free (hfm);
 
-		if (ierr != 0){
+		if (ierr > 0){
 			throw ValueError(format("REFPROP: %s",herr).c_str());
 			return false;
+		}
+		else if (ierr < 0)
+		{
+			set_warning(herr);
 		}
 		//Copy the name of the loaded refrigerant back into the temporary holder
 		LoadedREFPROPRef = std::string(Ref);
