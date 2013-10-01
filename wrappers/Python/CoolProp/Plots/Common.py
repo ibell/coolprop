@@ -186,6 +186,21 @@ class BasePlot(object):
         return sat_lines
 
     def _plot_default_annotations(self):
+        def filter_fluid_ref(fluid_ref):
+            fluid_ref_string = fluid_ref
+            if fluid_ref.startswith('REFPROP-MIX'):
+                end = 0
+                fluid_ref_string = ''
+                while fluid_ref.find('[', end + 1) != -1:
+                    start = fluid_ref.find('&', end + 1)
+                    if end == 0:
+                        start = fluid_ref.find(':', end + 1)
+                    end = fluid_ref.find('[', end + 1)
+                    fluid_ref_string = ' '.join([fluid_ref_string,
+                                                fluid_ref[start+1:end], '+'])
+                fluid_ref_string = fluid_ref_string[0:len(fluid_ref_string)-2]
+            return fluid_ref_string
+
         if len(self.graph_type) == 2:
             y_axis_id = self.graph_type[0]
             x_axis_id = self.graph_type[1]
@@ -196,7 +211,7 @@ class BasePlot(object):
         tl_str = "%s - %s Graph for %s"
         self.axis.set_title(tl_str % (self.AXIS_LABELS[y_axis_id][0],
                                       self.AXIS_LABELS[x_axis_id][0],
-                                      self.fluid_ref))
+                                      filter_fluid_ref(self.fluid_ref)))
         self.axis.set_xlabel(' '.join(self.AXIS_LABELS[x_axis_id]))
         self.axis.set_ylabel(' '.join(self.AXIS_LABELS[y_axis_id]))
         self.graph_drawn = True

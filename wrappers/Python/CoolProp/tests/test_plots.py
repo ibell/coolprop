@@ -184,10 +184,17 @@ def test_new_code():
         plt.draw_isolines([100, 2000], num=5)
         plt.show()
 
+    def Mixture():
+        from CoolProp.Plots import PropsPlot
+        plt = PropsPlot('REFPROP-MIX:R32[0.47319469]&R125[0.2051091]&R134a[0.32169621]', 'TD')
+        plt._plot_default_annotations()
+        plt.show()
+
     #Ts_plot_tests()
     #Ph_plot_tests()
     #Isolines_plot_tests()
-    Graph_annotations()
+    #Graph_annotations()
+    Mixture()
 
 
 if __name__=='__main__':
