@@ -30,11 +30,15 @@ double convert_from_unit_system_to_SI(long iInput, double value, int old_system)
 		{
 		case UNIT_SYSTEM_KSI:
 			return value*1000.0;
+			break;
 		case UNIT_SYSTEM_SI:
 			return value;
+			break;
 		default:
 			throw ValueError(format("Unit System [%d] is undefined",old_system).c_str());
+			break;
 		}
+		break;
 	case iD:
 	case iA:
 	case iQ:
@@ -55,10 +59,14 @@ double convert_from_unit_system_to_SI(long iInput, double value, int old_system)
 	case iRhoreduce: 
 	case iAccentric:
 	case iI:
+	case iCritSplineT:
 		return value;
+		break;
 	default:
 		throw ValueError(format("index [%d] is invalid in convert_from_unit_system_to_SI",iInput).c_str());
+		break;
 	}
+	return _HUGE;
 }
 
 double convert_from_SI_to_unit_system(long iInput, double value, int new_system)
@@ -90,11 +98,15 @@ double convert_from_SI_to_unit_system(long iInput, double value, int new_system)
 		{
 		case UNIT_SYSTEM_KSI:
 			return value/1000.0;
+			break;
 		case UNIT_SYSTEM_SI:
 			return value;
+			break;
 		default:
 			throw ValueError(format("Unit System [%d] is undefined",new_system).c_str());
+			break;
 		}
+		break;
 	case iD:
 	case iQ:
 	case iA:
@@ -115,10 +127,14 @@ double convert_from_SI_to_unit_system(long iInput, double value, int new_system)
 	case iRhoreduce: 
 	case iAccentric:
 	case iI:
+	case iCritSplineT:
 		return value;
+		break;
 	default:
 		throw ValueError(format("index [%d] is invalid in convert_from_SI_to_unit_system",iInput).c_str());
+		break;
 	}
+	return _HUGE;
 }
 
 double conversion_factor(std::string num)

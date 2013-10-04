@@ -296,6 +296,7 @@ BibTeXKeys.EOS = "Span-IJT-2003B";
 BibTeXKeys.CP0 = "Jaeschke-IJT-1995";
 BibTeXKeys.ECS_LENNARD_JONES = "Poling-BOOK-2001";
 BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
+BibTeXKeys.VISCOSITY = "Michailidou-JPCRD-2013";
 BibTeXKeys.CONDUCTIVITY = "Assael-JPCRD-2013B";
 
 }
@@ -339,6 +340,29 @@ double nHexaneClass::rhosatV(double T)
 		summer += N[i]*pow(theta,t[i]);
 	}
 	return reduce.rho*exp(reduce.T/T*summer);
+}
+
+double nHexaneClass::viscosity_Trho(double T, double rho)
+{
+	double e_k, sigma;
+	this->ECSParams(&e_k,&sigma);
+	double Tstar = T/e_k, rhor = rho/233.182, Tr = T/reduce.T;
+
+	double log_Tstar = log(Tstar);
+	
+	// Dilute gas
+	double eta_0 = 0.021357*sqrt(params.molemass*T)/(sigma*sigma*exp(0.18760-0.48430*log_Tstar+0.04477*log_Tstar*log_Tstar)); // uPa-s
+
+	// Initial density dependence from Rainwater-Friend
+	double b[] = {-19.572881, 219.73999, -1015.3226, 2471.01251, -3375.1717, 2491.6597, -787.26086, 14.085455, -0.34664158};
+	double Bstar = b[0]*pow(Tstar,-0.25*0)+b[1]*pow(Tstar,-0.25*1)+b[2]*pow(Tstar,-0.25*2)+b[3]*pow(Tstar,-0.25*3)+b[4]*pow(Tstar,-0.25*4)+b[5]*pow(Tstar,-0.25*5)+b[6]*pow(Tstar,-0.25*6)+b[7]*pow(Tstar,-2.5)+b[8]*pow(Tstar,-5.5);
+	double B = Bstar*0.60221415*sigma*sigma*sigma; // L/mol
+
+	double c[] = {2.53402335, -9.724061002, 0.469437316, 158.5571631, 72.42916856, 10.60751253, 8.628373915, -6.61346441, -2.212724566};
+	double eta_r = pow(rhor,2.0/3.0)*sqrt(Tr)*(c[0]/Tr+c[1]/(c[2]+Tr+c[3]*rhor*rhor)+c[4]*(1+rhor)/(c[5]+c[6]*Tr+c[7]*rhor+rhor*rhor+c[8]*rhor*Tr));
+
+	double rhobar = rho/params.molemass; // [mol/L]
+	return (eta_0*(1+B*rhobar) + eta_r)/1e6;
 }
 double nHexaneClass::conductivity_Trho(double T, double rho)
 {

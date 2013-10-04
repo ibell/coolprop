@@ -1,4 +1,4 @@
-#define _CRT_SECURE_NO_WARNINGS
+﻿#define _CRT_SECURE_NO_WARNINGS
 
 #include <stdlib.h>
 #include <string>
@@ -43,6 +43,7 @@
 #include "pseudopurefluids/R507A.h"
 #include "pseudopurefluids/R407C.h"
 #include "pseudopurefluids/SES36.h"
+#include "pseudopurefluids/R407F.h"
 
 #include "purefluids/Water.h"
 #include "purefluids/R134a.h"
@@ -90,6 +91,7 @@
 #include "purefluids/RC318_R21_R114_R13_R14.h"
 #include "purefluids/R12_R113.h"
 #include "purefluids/Deuterium.h"
+
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -213,7 +215,7 @@ void rebuild_CriticalSplineConstants_T()
 				good = 1;
 			}
 		}
-		catch(std::exception)
+		catch(std::exception &)
 		{
 			if (CPS.pFluid->reduce.T > 100)
 			{
@@ -239,13 +241,13 @@ void rebuild_CriticalSplineConstants_T()
 					drhodTV = CPS.drhodT_along_sat_vapor();
 					drhodTL = CPS.drhodT_along_sat_liquid();
 				}
-				catch(std::exception){ 
+				catch(std::exception &){
 					valid = false; 
 					break;
 				}
 				if (!ValidNumber(drhodTV) || !ValidNumber(drhodTL) || drhodTV*drhodTL > 0){
-					std::cout << format("%0.20g",good) << std::endl;
-					valid = false; 
+					//std::cout << format("%0.20g",good) << std::endl;
+					valid = false;
 					break;
 				}
 				else
@@ -262,6 +264,7 @@ void rebuild_CriticalSplineConstants_T()
 		rhoV = CPS2.rhoV(); rhoL = CPS2.rhoL();
 		drhodTV = CPS2.drhodT_along_sat_vapor(); 
 		drhodTL = CPS2.drhodT_along_sat_liquid();
+		std::cout << format("%0.20g",good) << std::endl;
 		fprintf(fp,"\tstd::make_pair(std::string(\"%s\"),CriticalSplineStruct_T(%0.12e,%0.12e,%0.12e,%0.12e,%0.12e) ),\n",fluid_names[i].c_str(),Tc-good,rhoL,rhoV,drhodTL,drhodTV);
 	}
 	fclose(fp);
@@ -372,7 +375,6 @@ FluidsContainer::FluidsContainer()
 	FluidsList.push_back(new R123Class());
 	FluidsList.push_back(new R11Class());
 
-
 	// The Siloxanes
 	FluidsList.push_back(new OctamethyltrisiloxaneClass()); //MDM
 	FluidsList.push_back(new DecamethyltetrasiloxaneClass()); //MD2M
@@ -413,6 +415,7 @@ FluidsContainer::FluidsContainer()
 	FluidsList.push_back(new R410AClass());
 	FluidsList.push_back(new R407CClass());
 	FluidsList.push_back(new R507AClass());
+	FluidsList.push_back(new R407FClass());
 
 	// The gas-only EOS
 	//FluidsList.push_back(new R290Gas());
@@ -618,6 +621,12 @@ void Fluid::post_load(rapidjson::Document &JSON, rapidjson::Document &JSON_CAS)
 	HS.rho_hmax = JSON_lookup_double(JSON,this->params.CAS,"rho_hsatVmax");
 	HS.a_hs_satL = JSON_lookup_dblvector(JSON,this->params.CAS,"a_hs_satL");
 	HS.n_hs_satL = JSON_lookup_intvector(JSON,this->params.CAS,"n_hs_satL");
+
+	// REFPROP name is equal to fluid name if not provided
+	if (!params.HSReferenceState.empty())
+	{
+		set_reference_stateP(this,params.HSReferenceState);
+	}
 }
 //--------------------------------------------
 //    Residual Part
@@ -1054,7 +1063,8 @@ double Fluid::density_Tp(double T, double p, double rho_guess)
 	rho=rho_guess;
     int iter=1;
 	
-    while (fabs(error) > 1e-10 && fabs(change)>1e-10)
+    //while (fabs(error) > 1e-10 && fabs(change/rho)>DBL_EPSILON*10)
+	while (fabs(error) > 1e-10 && fabs(change)>1e-10) 
     {
 		delta = rho/reduce.rho;
 		// Needed for both kinds
@@ -1309,7 +1319,7 @@ void Fluid::saturation_T(double T, bool UseLUT, double *psatLout, double *psatVo
 					throw ValueError();
 				}
 			}
-			catch(std::exception)
+			catch(std::exception &)
 			{
 				try{
 
@@ -1353,7 +1363,7 @@ void Fluid::saturation_T(double T, bool UseLUT, double *psatLout, double *psatVo
 			*rhosatLout = density_Tp(T, *psatLout, rhosatL(T));
 			*rhosatVout = density_Tp(T, *psatVout, rhosatV(T));
 		}
-		catch (std::exception){
+		catch (std::exception &){
 			// Near the critical point, the behavior is not very nice, so we will just use the ancillary near the critical point
 			*rhosatLout = rhosatL(T);
 			*rhosatVout = rhosatV(T);
@@ -2314,13 +2324,13 @@ void Fluid::temperature_ps(double p, double s, double *Tout, double *rhoout, dou
 			*TsatLout = TsatL;
 			*TsatVout = TsatV;
 
-			if (fabs(s-ssatL) < 1e-8)
+			if (fabs(s-ssatL) < 1e-4)
 			{
 				*Tout = TsatL;
 				*rhoout = *rhoLout;
 				return;
 			}
-			else if (fabs(s-ssatV) < 1e-8)
+			else if (fabs(s-ssatV) < 1e-4)
 			{
 				*Tout = TsatV;
 				*rhoout = *rhoVout;
@@ -2352,8 +2362,7 @@ void Fluid::temperature_ps(double p, double s, double *Tout, double *rhoout, dou
 				// Return the quality weighted values
 				double quality = (s-ssatL)/(ssatV-ssatL);
 				*Tout = quality*TsatV+(1-quality)*TsatL;
-				double v = quality*(1/rhoV)+(1-quality)*1/rhoL;
-				*rhoout = 1/v;
+				*rhoout = 1/(quality/rhoV+(1-quality)/rhoL);
 				return;
 			}
 		}
@@ -2529,7 +2538,7 @@ void Fluid::temperature_hs(double h, double s, double *Tout, double *rhoout, dou
 				if (SatFunc.Q > 1+1e-8 || SatFunc.Q < 0-1e-8){ throw ValueError("Solution must be within the two-phase region"); } 				
 				// It is two-phase, we are done, no exceptions were raised
 			}
-			catch(std::exception)
+			catch(std::exception &)
 			{
 				// Split the range into two pieces
 				try
@@ -2943,7 +2952,7 @@ double Fluid::Tsat_anc(double p, double Q)
 			throw SolutionError("Saturation calculation failed");
 		return reduce.T/tau;
 	}
-	catch(std::exception)
+	catch(std::exception &)
 	{
 		// At very low pressures the above solver will sometimes fail due to 
 		// the uncertainty of the ancillary pressure equation at low temperature (pressure)
@@ -3174,6 +3183,7 @@ void Fluid::saturation_p(double p, bool UseLUT, double *TsatL, double *TsatV, do
 			SPGR.rhoL = rhoL;
 			SPGR.rhoV = rhoV;
 			try{
+				//Tsat = Secant(&SPGR,Tsat,1e-2*Tsat,1e-8,50,&errstr);
 				Tsat = Secant(&SPGR,Tsat,1e-4,1e-7,50,&errstr);
 				if (errstr.size()>0 || !ValidNumber(Tsat)|| !ValidNumber(SPGR.rhoV)|| !ValidNumber(SPGR.rhoL))
 					throw SolutionError("Saturation calculation failed");
@@ -3183,7 +3193,7 @@ void Fluid::saturation_p(double p, bool UseLUT, double *TsatL, double *TsatV, do
 				*TsatV = Tsat;
 				return;
 			}
-			catch(std::exception) // Whoops that failed...
+			catch(std::exception &) // Whoops that failed...
 			{
 				try{
 					// Now try to get Tsat by using Brent's method on saturation_T calls
@@ -3489,7 +3499,7 @@ std::vector<double> Fluid::ConformalTemperature(Fluid *InterestFluid, Fluid *Ref
 		xout[1] = x0[1];
 		return xout;
 	}
-	catch(std::exception){}
+	catch(std::exception &){}
 	// Ok, that didn't work, so we need to try something more interesting
 	// Local Newton-Raphson solver with bounds checking on the step values
 	error=999;
@@ -3817,6 +3827,14 @@ bool Fluid::build_TTSE_LUT(bool force_build)
 	}
 	return true;
 }
+
+/// Enable the two-phase properties
+/// If you want to over-ride parameters, must be done before calling this function
+void Fluid::enable_EXTTP(void){enabled_EXTTP = true;};
+/// Check if TTSE is enabled
+bool Fluid::isenabled_EXTTP(void){return enabled_EXTTP;};
+/// Disable the TTSE
+void Fluid::disable_EXTTP(void){enabled_EXTTP = false;};
 
 /// Enable the TTSE
 /// If you want to over-ride parameters, must be done before calling this function

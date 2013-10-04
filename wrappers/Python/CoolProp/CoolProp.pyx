@@ -1136,6 +1136,10 @@ cdef class State:
             return None 
         else:
             return CP.Props('T', 'P', self.p_, 'Q', Q, self.Fluid)
+    property Tsat:
+        """ The saturation temperature (dew) for the given pressure, in [K]"""
+        def __get__(self):
+            return self.get_Tsat(1)
         
     cpdef double get_superheat(self):
         """ 

@@ -132,6 +132,11 @@ protected:
 	/// Check whether within the TTSE range
 	bool within_TTSE_range(long iInput1, double Value1, long iInput2, double Value2);
 
+	/// Extended two-phase calculations need different interpolation functions
+	double interp_linear(double Q, double valueL, double valueV);
+	double interp_recip(double Q, double valueL, double valueV);
+
+
 public:
 	Fluid * pFluid;
 
@@ -231,6 +236,17 @@ public:
 	double conductivity(void);
 
 	double surface_tension(void);
+
+
+	// ----------------------------------------
+	// Extended two-phase calculations things
+	// ----------------------------------------
+	/// Enable the extended two-phase calculations
+	void enable_EXTTP(void);
+	/// Check if extended two-phase calculations are enabled
+	bool isenabled_EXTTP(void);
+	/// Disable the extended two-phase calculations
+	void disable_EXTTP(void);
 
 	// ----------------------------------------	
 	// TTSE LUT things
@@ -338,6 +354,12 @@ public:
 	double drhodp_along_sat_liquid(void);
 	double d2rhodp2_along_sat_vapor(void);
 	double d2rhodp2_along_sat_liquid(void);
+
+	double dsdT_along_sat_vapor(void);
+	double dsdT_along_sat_liquid(void);
+
+	double dhdT_along_sat_vapor(void);
+	double dhdT_along_sat_liquid(void);
 
 	double drhodT_along_sat_vapor(void);
 	double drhodT_along_sat_liquid(void);
@@ -484,9 +506,6 @@ public:
 		*pmax *= conversion_factor("P"); // [kPa]
 	};
 
-	///// Interpolate within the TTSE LUT
-	//double interpolate_in_TTSE_LUT(long iParam, long iInput1, double Input1, long iInput2, double Input2);
-
 	//// ----------------------------------------	
 	//// Derivatives of properties
 	//// ----------------------------------------
@@ -508,7 +527,7 @@ public:
 	double dpdrho_consth(void){return CoolPropStateClassSI::dpdrho_consth()*conversion_factor("P/D");};
 	double dpdT_constrho(void){return CoolPropStateClassSI::dpdT_constrho()*conversion_factor("P/T");};
 	double dpdT_consth(void){return CoolPropStateClassSI::dpdT_consth()*conversion_factor("P/T");};
-	double d2pdrho2_constT(void){return CoolPropStateClassSI::d2pdrho2_constT()*conversion_factor("P/D");};
+	double d2pdrho2_constT(void){return CoolPropStateClassSI::d2pdrho2_constT()*conversion_factor("P*P/D/D");};
 	double d2pdrhodT(void){return CoolPropStateClassSI::d2pdrhodT()*conversion_factor("P*P/D/T");};
 	double d2pdT2_constrho(void){return CoolPropStateClassSI::d2pdT2_constrho()*conversion_factor("P*P/T/T");};
 
@@ -524,17 +543,17 @@ public:
 	double d2hdp2_constT(void){return CoolPropStateClassSI::d2hdp2_constT()*conversion_factor("H*H/P/P");};
 	double d2hdTdp(void){return CoolPropStateClassSI::d2hdTdp()*conversion_factor("H*H/T/P");};
 
-	double dsdrho_constT(void){return CoolPropStateClassSI::dTdp_along_sat()*conversion_factor("S/D");};
-	double dsdT_constrho(void){return CoolPropStateClassSI::dTdp_along_sat()*conversion_factor("S/T");};
-	double dsdrho_constp(void){return CoolPropStateClassSI::dTdp_along_sat()*conversion_factor("S/D");};
-	double dsdT_constp(void){return CoolPropStateClassSI::dTdp_along_sat()*conversion_factor("S/T");};
-	double dsdp_constT(void){return CoolPropStateClassSI::dTdp_along_sat()*conversion_factor("S/P");};
-	double d2sdrho2_constT(void){return CoolPropStateClassSI::dTdp_along_sat()*conversion_factor("S*S/D/D");};
-	double d2sdrhodT(void){return CoolPropStateClassSI::dTdp_along_sat()*conversion_factor("S*S/D/T");};
-	double d2sdT2_constrho(void){return CoolPropStateClassSI::dTdp_along_sat()*conversion_factor("S*S/T/T");};
-	double d2sdT2_constp(void){return CoolPropStateClassSI::dTdp_along_sat()*conversion_factor("S*S/T/T");};
-	double d2sdp2_constT(void){return CoolPropStateClassSI::dTdp_along_sat()*conversion_factor("S*S/P/P");};
-	double d2sdTdp(void){return CoolPropStateClassSI::dTdp_along_sat()*conversion_factor("S*S/T/P");};
+	double dsdrho_constT(void){return CoolPropStateClassSI::dsdrho_constT()*conversion_factor("S/D");};
+	double dsdT_constrho(void){return CoolPropStateClassSI::dsdT_constrho()*conversion_factor("S/T");};
+	double dsdrho_constp(void){return CoolPropStateClassSI::dsdrho_constp()*conversion_factor("S/D");};
+	double dsdT_constp(void){return CoolPropStateClassSI::dsdT_constp()*conversion_factor("S/T");};
+	double dsdp_constT(void){return CoolPropStateClassSI::dsdp_constT()*conversion_factor("S/P");};
+	double d2sdrho2_constT(void){return CoolPropStateClassSI::d2sdrho2_constT()*conversion_factor("S*S/D/D");};
+	double d2sdrhodT(void){return CoolPropStateClassSI::d2sdrhodT()*conversion_factor("S*S/D/T");};
+	double d2sdT2_constrho(void){return CoolPropStateClassSI::d2sdT2_constrho()*conversion_factor("S*S/T/T");};
+	double d2sdT2_constp(void){return CoolPropStateClassSI::d2sdT2_constp()*conversion_factor("S*S/T/T");};
+	double d2sdp2_constT(void){return CoolPropStateClassSI::d2sdp2_constT()*conversion_factor("S*S/P/P");};
+	double d2sdTdp(void){return CoolPropStateClassSI::d2sdTdp()*conversion_factor("S*S/T/P");};
 
 	//// ----------------------------------------	
 	//// Derivatives along the saturation curve
@@ -559,6 +578,12 @@ public:
 	double drhodp_along_sat_liquid(void){return CoolPropStateClassSI::drhodp_along_sat_liquid()*conversion_factor("D/P");};
 	double d2rhodp2_along_sat_vapor(void){return CoolPropStateClassSI::d2rhodp2_along_sat_vapor()*conversion_factor("D*D/P/P");};
 	double d2rhodp2_along_sat_liquid(void){return CoolPropStateClassSI::d2rhodp2_along_sat_liquid()*conversion_factor("D*D/P/P");};
+
+	double dhdT_along_sat_vapor(void){return CoolPropStateClassSI::dhdT_along_sat_vapor()*conversion_factor("H/T");};
+	double dhdT_along_sat_liquid(void){return CoolPropStateClassSI::dhdT_along_sat_liquid()*conversion_factor("H/T");};
+
+	double dsdT_along_sat_vapor(void){return CoolPropStateClassSI::dsdT_along_sat_vapor()*conversion_factor("S/T");};
+	double dsdT_along_sat_liquid(void){return CoolPropStateClassSI::dsdT_along_sat_liquid()*conversion_factor("S/T");};
 
 	double drhodT_along_sat_vapor(void){return CoolPropStateClassSI::drhodT_along_sat_vapor()*conversion_factor("D/T");};
 	double drhodT_along_sat_liquid(void){return CoolPropStateClassSI::drhodT_along_sat_liquid()*conversion_factor("D/T");};

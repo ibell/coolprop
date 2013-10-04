@@ -35,11 +35,12 @@
 #include "purefluids/R134a.h"
 
 // Function prototypes
-double rho_TP(double T, double p);
+//double rho_TP(double T, double p);
 double _Props(std::string Output,std::string Name1, double Prop1, std::string Name2, double Prop2, std::string Ref);
 double _CoolProp_Fluid_Props(long iOutput, long iName1, double Value1, long iName2, double Value2, Fluid *pFluid, bool SinglePhase = false);
 
 static std::string err_string;
+static std::string warning_string;
 static int debug_level=0;
 static Fluid * pFluid;
 
@@ -54,6 +55,8 @@ bool global_SaturatedV = false;
 
 // Default to the KSI unit system
 int unit_system = UNIT_SYSTEM_KSI;
+
+void set_warning(std::string warning){ warning_string = warning; }
 
 int get_standard_unit_system(){ return unit_system; }
 void set_standard_unit_system(int unit_sys){ unit_system = unit_sys; }
@@ -288,7 +291,7 @@ static int IsCoolPropFluid(std::string FluidName)
 	{
 		pFluid = Fluids.get_fluid(FluidName);
 	}
-	catch (NotImplementedError)
+	catch (NotImplementedError &)
 	{
 		return false;
 	}
@@ -430,9 +433,10 @@ std::string Phase_Trho(std::string Fluid, double T, double rho)
 		double pL,pV,rhoL,rhoV;
 		return pFluid->phase_Trho(T,rho, &pL, &pV, &rhoL, &rhoV);
 	}
-	catch(NotImplementedError){
+	catch(NotImplementedError &){
 		return std::string("");
 	}
+	return std::string("");
 }
 
 std::string Phase(std::string Fluid, double T, double p)
@@ -443,9 +447,10 @@ std::string Phase(std::string Fluid, double T, double p)
 		double pL,pV,rhoL,rhoV;
 		return pFluid->phase_Tp(T, p, &pL, &pV, &rhoL, &rhoV);
 	}
-	catch(NotImplementedError){
+	catch(NotImplementedError &){
 		return std::string("");
 	}
+	return std::string("");
 }
 
 std::string Phase_Tp(std::string Fluid, double T, double p)
@@ -537,6 +542,7 @@ double Props(std::string Output,char Name1, double Prop1, char Name2, double Pro
 		err_string = std::string("CoolProp error: Indeterminate error");
 		return _HUGE;
 	}
+	return _HUGE;
 }
 // Make this a wrapped function so that error bubbling can be done properly
 double _Props(std::string Output, std::string Name1, double Prop1, std::string Name2, double Prop2, std::string Ref)
@@ -632,7 +638,7 @@ double _Props(std::string Output, std::string Name1, double Prop1, std::string N
 		}
 		else
 		{
-			throw ValueError("For brine, inputs must be (order doesnt matter) 'T' and 'P', or 'H' and 'P'");
+			throw ValueError("For incompressible fluids, inputs must be (order doesnt matter) 'T' and 'P', or 'H' and 'P'");
 		}
     }
 	else
@@ -873,6 +879,91 @@ double DerivTerms(char *Term, double T, double rho, Fluid * pFluid)
 	}
 }
 
+int set_reference_stateS(std::string Ref, std::string reference_state)
+{
+	Fluid *pFluid=Fluids.get_fluid(Ref);
+	if (pFluid!=NULL)
+	{
+		return set_reference_stateP(pFluid, reference_state);
+	}
+	else{
+		return -1;
+	}
+}
+
+int set_reference_stateP(Fluid *pFluid, std::string reference_state)
+{
+	CoolPropStateClassSI CPS(pFluid);
+	if (!reference_state.compare("IIR"))
+	{
+		CoolPropStateClassSI CPS(pFluid);
+		CPS.update(iT,273.15,iQ,0);
+		// Get current values for the enthalpy and entropy
+		double h1 = CPS.h();
+		double s1 = CPS.s();
+		double deltah = h1-200000; // offset from 200 kJ/kg enthalpy
+		double deltas = s1-1000; // offset from 1 kJ/kg/K entropy
+		double delta_a1 = deltas/((8314.472/pFluid->params.molemass));
+		double delta_a2 = -deltah/((8314.472/pFluid->params.molemass)*pFluid->reduce.T);
+		pFluid->phi0list.push_back(new phi0_enthalpy_entropy_offset(delta_a1, delta_a2));
+		return 0;
+	}
+	else if (!reference_state.compare("ASHRAE"))
+	{
+		CoolPropStateClassSI CPS(pFluid);
+		CPS.update(iT,233.15,iQ,0);
+		// Get current values for the enthalpy and entropy
+		double h1 = CPS.h();
+		double s1 = CPS.s();
+		double deltah = h1-0; // offset from 0 kJ/kg enthalpy
+		double deltas = s1-0; // offset from 0 kJ/kg/K entropy
+		double delta_a1 = deltas/((8314.472/pFluid->params.molemass));
+		double delta_a2 = -deltah/((8314.472/pFluid->params.molemass)*pFluid->reduce.T);
+		pFluid->phi0list.push_back(new phi0_enthalpy_entropy_offset(delta_a1, delta_a2));
+		return 0;
+	}
+	else if (!reference_state.compare("NBP"))
+	{
+		CoolPropStateClassSI CPS(pFluid);
+		CPS.update(iP,101325.0,iQ,0); // Saturated boiling point at 1 atmosphere
+		// Get current values for the enthalpy and entropy
+		double h1 = CPS.h();
+		double s1 = CPS.s();
+		double deltah = h1-0; // offset from 0 kJ/kg enthalpy
+		double deltas = s1-0; // offset from 0 kJ/kg/K entropy
+		double delta_a1 = deltas/((8314.472/pFluid->params.molemass));
+		double delta_a2 = -deltah/((8314.472/pFluid->params.molemass)*pFluid->reduce.T);
+		pFluid->phi0list.push_back(new phi0_enthalpy_entropy_offset(delta_a1, delta_a2));
+		return 0;
+	}
+	else
+	{ 
+		return -1;
+	}
+
+}
+int set_reference_stateD(std::string Ref, double T, double rho, double h0, double s0)
+{
+	pFluid=Fluids.get_fluid(Ref);
+	if (pFluid!=NULL)
+	{
+		CoolPropStateClassSI CPS(pFluid);
+		CPS.update(iT,T,iD,rho);
+		// Get current values for the enthalpy and entropy
+		double h1 = CPS.h();
+		double s1 = CPS.s();
+		double deltah = h1-h0; // offset from given enthalpy in SI units
+		double deltas = s1-s0; // offset from given enthalpy in SI units
+		double delta_a1 = deltas/((8314.472/pFluid->params.molemass));
+		double delta_a2 = -deltah/((8314.472/pFluid->params.molemass)*pFluid->reduce.T);
+		pFluid->phi0list.push_back(new phi0_enthalpy_entropy_offset(delta_a1, delta_a2));
+		return 0;
+	}
+	else{
+		return -1;
+	}
+}
+
 std::string get_BibTeXKey(std::string Ref, std::string item)
 {
 	pFluid=Fluids.get_fluid(Ref);
@@ -902,6 +993,12 @@ std::string get_global_param_string(std::string ParamName)
 	{
 		std::string temp = err_string;
 		err_string = std::string("");
+		return temp;
+	}
+	else if (!ParamName.compare("warnstring"))
+	{
+		std::string temp = warning_string;
+		warning_string = std::string("");
 		return temp;
 	}
 	else if (!ParamName.compare("gitrevision"))

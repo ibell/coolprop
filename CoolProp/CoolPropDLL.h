@@ -29,11 +29,12 @@
 	// will be exported to the DLL
 
 	// They can only use data types that play well with DLL wrapping (int, long, double, char*, void, etc.)
-	
+	EXPORT_CODE double CONVENTION PropsS(char *Output,char* Name1, double Prop1, char* Name2, double Prop2, char * Ref);
 	EXPORT_CODE double CONVENTION Props(char *Output,char Name1, double Prop1, char Name2, double Prop2, char * Ref);
 	EXPORT_CODE double CONVENTION Props1(char *Ref, char * Output);
 
 	EXPORT_CODE long CONVENTION get_global_param_string(char *param, char * Output);
+	EXPORT_CODE long CONVENTION get_fluid_param_string(char *fluid, char *param, char * Output);
 	
 	// This version uses the indices in place of the strings for speed.  Get the parameter indices
 	// from get_param_index('D') for instance and the Fluid index from get_Fluid_index('Air') for instance
@@ -87,6 +88,9 @@
 
 	/// Set the TTSE mode (normal or bicubic)
 	EXPORT_CODE int CONVENTION set_TTSE_mode(char *FluidName, char * Value);
+
+	EXPORT_CODE int CONVENTION set_reference_stateS(char *Ref, char *reference_state);
+	EXPORT_CODE int CONVENTION set_reference_stateD(char *Ref, double T, double rho, double h0, double s0);
 
 	// Expose some functions that are useful for ECS debugging
 	EXPORT_CODE double CONVENTION viscosity_dilute(char* FluidName, double T);

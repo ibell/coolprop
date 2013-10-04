@@ -3,4 +3,75 @@ Copyright (C) Microsoft Corporation.  All rights reserved.
 
 
 Dump of file CoolProp.dll
-LINK : fatal error LNK1181: cannot open input file 'CoolProp.dll'
+
+File Type: DLL
+
+  Section contains the following exports for CoolProp.dll
+
+    00000000 characteristics
+    524AB8E6 time date stamp Tue Oct 01 13:58:30 2013
+        0.00 version
+           1 ordinal base
+          51 number of functions
+          51 number of names
+
+    ordinal hint RVA      name
+
+          1    0 00001380 _CSharp_DerivTerms@24
+          2    1 00001530 _CSharp_F2K@8
+          3    2 00001EE0 _CSharp_HAHelp@0
+          4    3 00001D20 _CSharp_HAProps@40
+          5    4 00001DC0 _CSharp_HAProps_Aux@32
+          6    5 000012C0 _CSharp_IProps@32
+          7    6 00001E30 _CSharp_IceProps@20
+          8    7 00001330 _CSharp_IsFluidType@8
+          9    8 00001560 _CSharp_K2F@8
+         10    9 000013E0 _CSharp_Phase@24
+         11    A 000014A0 _CSharp_Phase_Tp@24
+         12    B 00001440 _CSharp_Phase_Trho@24
+         13    C 000011C0 _CSharp_Props1@8
+         14    D 00001140 _CSharp_Props@32
+         15    E 000010B0 _CSharp_PropsS@32
+         16    F 00001EC0 _CSharp_UseIdealGasEnthalpyCorrelations@4
+         17   10 00001EA0 _CSharp_UseIsothermCompressCorrelation@4
+         18   11 00001E80 _CSharp_UseVirialCorrelations@4
+         19   12 00001F30 _CSharp_cair_sat@8
+         20   13 00001C40 _CSharp_conductivity_background@20
+         21   14 00001BF0 _CSharp_conductivity_critical@20
+         22   15 00001C90 _CSharp_conformal_Trho@32
+         23   16 000017D0 _CSharp_disable_TTSE_LUT@4
+         24   17 00001890 _CSharp_disable_TTSE_LUT_writing@4
+         25   18 00001750 _CSharp_enable_TTSE_LUT@4
+         26   19 00001810 _CSharp_enable_TTSE_LUT_writing@4
+         27   1A 000015D0 _CSharp_get_Fluid_index@4
+         28   1B 000019D0 _CSharp_get_TTSESinglePhase_LUT_range@20
+         29   1C 00001260 _CSharp_get_fluid_param_string@12
+         30   1D 00001210 _CSharp_get_global_param_string@8
+         31   1E 00001610 _CSharp_get_index_units@8
+         32   1F 00001590 _CSharp_get_param_index@4
+         33   20 00001790 _CSharp_isenabled_TTSE_LUT@4
+         34   21 00001850 _CSharp_isenabled_TTSE_LUT_writing@4
+         35   22 000016D0 _CSharp_psatL_anc@12
+         36   23 00001710 _CSharp_psatV_anc@12
+         37   24 00001EF0 _CSharp_returnHumAirCode@4
+         38   25 00001650 _CSharp_rhosatL_anc@12
+         39   26 00001690 _CSharp_rhosatV_anc@12
+         40   27 000018D0 _CSharp_set_TTSESat_LUT_size@8
+         41   28 00001960 _CSharp_set_TTSESinglePhase_LUT_range@36
+         42   29 00001910 _CSharp_set_TTSESinglePhase_LUT_size@12
+         43   2A 00001A50 _CSharp_set_TTSE_mode@8
+         44   2B 00001500 _CSharp_set_phase@4
+         45   2C 00001AF0 _CSharp_set_reference_stateD@36
+         46   2D 00001AA0 _CSharp_set_reference_stateS@8
+         47   2E 00001B60 _CSharp_viscosity_dilute@12
+         48   2F 00001BA0 _CSharp_viscosity_residual@20
+         49   30 00001070 _SWIGRegisterExceptionArgumentCallbacks_CoolProp@12
+         50   31 00001000 _SWIGRegisterExceptionCallbacks_CoolProp@44
+         51   32 000010A0 _SWIGRegisterStringCallback_CoolProp@4
+
+  Summary
+
+        C000 .data
+       5A000 .rdata
+       15000 .reloc
+      136000 .text

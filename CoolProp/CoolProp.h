@@ -61,8 +61,14 @@ You might want to start by looking at CoolProp.h
 	Fluid * get_fluid(long iFluid);
 	void set_err_string(std::string err_string);
 
+	int set_reference_stateP(Fluid *pFluid, std::string reference_state);
+	int set_reference_stateS(std::string Ref, std::string reference_state);
+	int set_reference_stateD(std::string Ref, double T, double rho, double h0, double s0);
+
 	int get_standard_unit_system();
 	void set_standard_unit_system(int);
+
+	void set_warning(std::string warning);
 
 	// Define some constants that will be used throughout
 	#include "GlobalConstants.h"

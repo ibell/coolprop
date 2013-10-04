@@ -309,6 +309,9 @@ R744Class::R744Class()
 	aliases.push_back("carbondioxide");
 	REFPROPname.assign("CO2");
 
+	// Adjust to the IIR reference state (h=200 kJ/kg, s = 1 kJ/kg for sat. liq at 0C)
+    params.HSReferenceState = "IIR";
+
 	BibTeXKeys.EOS = "Span-JPCRD-1996";
 	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
 	BibTeXKeys.VISCOSITY = "Vesovic-JPCRD-1990";

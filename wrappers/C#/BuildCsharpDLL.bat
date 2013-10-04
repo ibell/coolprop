@@ -6,7 +6,7 @@ erase *_wrap.cpp
 swig.exe -csharp -dllimport "CoolProp" -c++ -outcurrentdir ../../CoolProp/CoolProp.i
 cl /c /I../../CoolProp /EHsc CoolProp_wrap.cxx
 
-REM ******* compile all the sources ***************
+REM ~ REM ******* compile all the sources ***************
 cl /c /I../../CoolProp /EHsc ../../CoolProp/*.cpp
 link /DLL CoolProp_wrap.obj *.obj /OUT:CoolProp.dll
 dumpbin /EXPORTS CoolProp.dll > exports.txt
@@ -18,4 +18,4 @@ move *.cs VSCsharp
 move CoolProp.dll VSCsharp
 
 rem **** Make a zip file using 7-zip ***
-7z a -r VSCsharp.zip VSCsharp/*.*
+7z a -r VSCsharp.7z VSCsharp/*.*

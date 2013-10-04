@@ -88,13 +88,14 @@ if l==0, then
 class phir_power : public phi_BC{
 	
 private:
+	
+public:
 	unsigned int iStart,iEnd;
 	std::vector<double> n, ///< The coefficients multiplying each term
 		                d, ///< The power for the delta terms
 						t, ///< The powers for the tau terms
 						l //< The powers for delta in the exp terms
 						;
-public:
 	// Default Constructor
 	phir_power(){};
 	// Constructors
@@ -124,6 +125,12 @@ public:
 	double dDelta2_dTau(double tau, double delta) throw();
 	double dDelta_dTau2(double tau, double delta) throw();
 	double dTau3(double tau, double delta) throw();
+
+	/// Vectorized form so iteration happens at c++ level
+	std::vector<double> dDeltaV(std::vector<double> tau, std::vector<double> delta) throw();
+	std::vector<double> dDelta2V(std::vector<double> tau, std::vector<double> delta) throw();
+	std::vector<double> dTau2V(std::vector<double> tau, std::vector<double> delta) throw();
+	std::vector<double> dDelta_dTauV(std::vector<double> tau, std::vector<double> delta) throw();
 };
 
 
@@ -298,16 +305,16 @@ public:
 					unsigned int iStart_in, 
 					unsigned int iEnd_in, 
 					unsigned int N);
-	phir_GERG_gaussian(const double a_in[],	
-						const double d_in[],
-						const double t_in[], 
-						const double eta_in[], 
-						const double epsilon_in[], 
-						const double beta_in[], 
-						const double gamma_in[],
-						unsigned int iStart_in, 
-						unsigned int iEnd_in, 
-						unsigned int N);
+	//phir_GERG_gaussian(const double a_in[],	
+	//					const double d_in[],
+	//					const double t_in[], 
+	//					const double eta_in[], 
+	//					const double epsilon_in[], 
+	//					const double beta_in[], 
+	//					const double gamma_in[],
+	//					unsigned int iStart_in, 
+	//					unsigned int iEnd_in, 
+	//					unsigned int N);
 
 	// Destructor
 	~phir_GERG_gaussian(){};
@@ -448,6 +455,37 @@ public:
 	double dTau3(double tau, double delta){return 0.0;};
 	double dDelta3(double tau, double delta){return 2/delta/delta/delta;};
 };
+
+/*!
+\f[
+\phi_0 = a_1+a_2\tau
+\f]
+
+constructor: phi0_enthalpy_entropy_offset(double a1, double a2)
+*/
+class phi0_enthalpy_entropy_offset : public phi_BC{
+private:
+	double c1,c2; // Use these variables internally
+public:
+	// Constructor
+	phi0_enthalpy_entropy_offset(double a1, double a2){c1=a1; c2=a2;};
+
+	//Destructor
+	~phi0_enthalpy_entropy_offset(){};
+
+	// Term and its derivatives
+	double base(double tau, double delta){return c1+c2*tau;};
+	double dTau(double tau, double delta){return c2;};
+	double dTau2(double tau, double delta){return 0.0;};
+	double dDelta(double tau, double delta){return 1.0/delta;};
+	double dDelta2(double tau, double delta){return -1.0/delta/delta;};
+	double dDelta2_dTau(double tau, double delta){return 0.0;};
+	double dDelta_dTau(double tau, double delta){return 0.0;};
+	double dDelta_dTau2(double tau, double delta){return 0.0;};
+	double dTau3(double tau, double delta){return 0.0;};
+	double dDelta3(double tau, double delta){return 2/delta/delta/delta;};
+};
+
 
 /*!
 	Term is of the form 
@@ -621,42 +659,46 @@ public:
 	double dDelta3(double tau, double delta){return 0;};
 };
 
+/*
+Term is of the form a*tau^b
+Constructor:
+	phi0_power(std::vector<double> a, std::vector<double> b, int iStart, int iEnd)
+*/
 class phi0_power : public phi_BC{
-	/*
-	Term is of the form a_0*tau^b_0
-	Constructor:
-		phi0_power(std::vector<double> a, std::vector<double> theta, int iStart, int iEnd)
-	*/
+	
 private:
 	std::vector<double> a,b; // Use these variables internally
 	int iStart, iEnd;
 public:
 	// Constructor
-	phi0_power(std::vector<double> a, std::vector<double> theta, int iStart, int iEnd)
+	phi0_power(std::vector<double> a, std::vector<double> b, int iStart, int iEnd)
 	{
 		this->a=a; 
-		this->b=theta; 
+		this->b=b; 
 		this->iStart = iStart; 
 		this->iEnd = iEnd;
 	};
-	phi0_power(double a[], double theta[], int iStart, int iEnd, int N)
+	phi0_power(double a[], double b[], int iStart, int iEnd, int N)
 	{
 		this->a = std::vector<double>(a,a+N);
-		this->b = std::vector<double>(theta,theta+N);
+		this->b = std::vector<double>(b,b+N);
 		this->iStart = iStart; 
 		this->iEnd = iEnd;
 	};
-	phi0_power(const double a[], const double theta[], int iStart, int iEnd, int N)
+	phi0_power(const double a[], const double b[], int iStart, int iEnd, int N)
 	{
 		this->a = std::vector<double>(a,a+N);
-		this->b = std::vector<double>(theta,theta+N);
+		this->b = std::vector<double>(b,b+N);
 		this->iStart = iStart; 
 		this->iEnd = iEnd;
 	};
 	// Constructor with just double values
-	phi0_power(double a_in, double theta_in)
+	phi0_power(double a, double b)
 	{
-		a=std::vector<double>(1,a_in); b=std::vector<double>(1,theta_in); iStart = 0; iEnd = 0;
+		this->a=std::vector<double>(1,a); 
+		this->b=std::vector<double>(1,b); 
+		iStart = 0; 
+		iEnd = 0;
 	};
 
 	//Destructor

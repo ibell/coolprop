@@ -25,8 +25,9 @@ public:
     double psat(double);
     double rhosatL(double);
     double rhosatV(double);
+	double viscosity_Trho(double, double);
 	double conductivity_Trho(double, double);
-	void ECSParams(double *e_k, double *sigma){*e_k = 399.3; *sigma = 0.5949;};
+	void ECSParams(double *e_k, double *sigma){*e_k = 378.4; *sigma = 0.6334;};
 	double surface_tension_T(double T)
 	{
 		// From Mulero, 2012, JPCRD

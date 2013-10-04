@@ -4,10 +4,10 @@
 
 #include <string>
 #include <vector>
-#include "CPExceptions.h"
-#include "CoolProp.h"
 #include <math.h>
-#include "Solvers.h"
+#include "CPExceptions.h"
+#include "CoolPropTools.h"
+#include "IncompBase.h"
 
 /**
 Notes for developers:
@@ -18,50 +18,58 @@ in IncompLiquid.cpp
 **/
 
 /// The abstract base class for the liquids
-class IncompressibleLiquid{
+class IncompressibleLiquid : public IncompressibleClass{
 	
-protected:
-	std::string name,description,reference;
-	double Tmin, TminPsat, Tmax, Tref;
-
 public:
-	// Constructor
-	IncompressibleLiquid(){
-		Tmin = -1.;
-		Tmax = -1.;
-		TminPsat = -1.;
-		Tref = 273.15 + 25. ;
-	};
-
-	// Destructor.  No implementation
-	virtual ~IncompressibleLiquid(){};
-
 	/* All functions need T and p as input. Might not be necessary,
 	 * but gives a clearer structure.
 	 */
-
 	/// Density as a function of temperature and pressure.
-	virtual double rho (double T_K, double p){return 0;};
-	/// Isobaric heat capacity as a function of temperature and pressure.
-	virtual double cp  (double T_K, double p){return 0;};
+	virtual double rho (double T_K, double p){return -_HUGE;};
+	/// Heat capacities as a function of temperature and pressure.
+	virtual double c   (double T_K, double p){return -_HUGE;};
+	virtual double cp  (double T_K, double p){return c(T_K,p);};
+	virtual double cv  (double T_K, double p){return c(T_K,p);};
 	/// Entropy as a function of temperature and pressure.
-	virtual double s   (double T_K, double p){return 0;};
+	virtual double s   (double T_K, double p){return -_HUGE;};
 	/// Internal energy as a function of temperature and pressure.
-	virtual double u   (double T_K, double p){return 0;};
+	virtual double u   (double T_K, double p){return -_HUGE;};
 	/// Enthalpy as a function of temperature and pressure.
-	virtual double h   (double T_K, double p){return 0;};
+	virtual double h   (double T_K, double p){return -_HUGE;};
 	/// Viscosity as a function of temperature and pressure.
-	virtual double visc(double T_K, double p){return 0;};
+	virtual double visc(double T_K, double p){return -_HUGE;};
 	/// Thermal conductivity as a function of temperature and pressure.
-	virtual double cond(double T_K, double p){return 0;};
+	virtual double cond(double T_K, double p){return -_HUGE;};
 	/// Saturation pressure as a function of temperature.
-	virtual double psat(double T_K){return -1;};
-	/// Saturation temperature as a function of pressure.
-	virtual double Tsat(double p){return -1;};
+	virtual double psat(double T_K){return -_HUGE;};
 
-	std::string get_name() {
-		return name;
-	}
+    void testInputs(double T_K, double p){
+    	double result = 0.;
+        //double x =   0.25;
+        //double T =   5.0 + 273.15;
+        //double p =  300.0;
+
+    	printf(" %s \n"," ");
+    	printf("Testing  %s \n",this->get_name().c_str());
+    	printf("Inputs:  T = %3.3f degC \t p = %2.4f bar \n",T_K-273.15,p/1e5);
+
+        result = this->rho(T_K,p);
+        printf("From object:    rho = %4.2f \t kg/m3    \n",result);
+        result = this->cp(T_K,p);
+        printf("From object:     cp = %1.5f \t kJ/kg-K  \n",result/1e3);
+        result = this->h(T_K,p);
+    	printf("From object:      h = %3.3f \t kJ/kg    \n",result/1e3);
+    	result = this->s(T_K,p);
+    	printf("From object:      s = %1.5f \t kJ/kg-K  \n",result/1e3);
+    	result = this->visc(T_K,p);
+    	printf("From object:    eta = %1.5f \t 1e-5 Pa-s\n",result*1e5);
+    	result = this->cond(T_K,p);
+    	printf("From object: lambda = %1.5f \t W/m-k    \n",result*1e3);
+    	result = this->u(T_K,p);
+    	printf("From object:      u = %3.3f \t kJ/kg    \n",result/1e3);
+    	result = this->psat(T_K);
+    	printf("From object:   psat = %2.4f \t bar      \n",result/1e5);
+    }
 
 protected:
 	/* Define internal energy and enthalpy as functions of the
@@ -96,7 +104,7 @@ protected:
 	/// Check validity of temperature input.
 	/** Compares the given temperature T to a stored minimum and
 	 *  maximum temperature. Enforces the redefinition of Tmin and
-	 *  Tmax since the default values cause and error. */
+	 *  Tmax since the default values cause an error. */
 	bool checkT(double T_K){
 		if( Tmin < 0. ) {
 			throw ValueError("Please specify the minimum temperature.");
@@ -114,7 +122,7 @@ protected:
 	/** Compares the given pressure p to the saturation pressure at
 	 *  temperature T and throws and exception if p is lower than
 	 *  the saturation conditions.
-	 *  The default value for psat is -1 yielding true is psat
+	 *  The default value for psat is -1 yielding true if psat
 	 *  is not redefined in the subclass.
 	 *  */
 	bool checkP(double T_K, double p) {
@@ -131,101 +139,6 @@ protected:
 		return (checkT(T) && checkP(T,p));
 	}
 
-	/// Polynomial function generator.
-	/** Base function to produce n-th order polynomials
-	 *  based on the length of the coefficients vector.
-	 *  Starts with only the first coefficient at x^0. */
-	double basePolynomial(std::vector<double> coefficients, double x){
-	    double result = 0.;
-	    for(unsigned int i=0; i<coefficients.size();i++) {
-	    	result += coefficients[i] * pow(x,(int)i);
-	    }
-	    return result;
-	}
-
-	/// Polynomial function generator with check.
-	/** Base function to produce n-th order polynomials
-	 *  based on the length of the coefficients vector.
-	 *  Starts with only the first coefficient at x^0
-	 *  and checks the vector length against parameter n. */
-	double basePolynomial(std::vector<double> coefficients, double x, unsigned int n){
-		if (coefficients.size() == n){
-			return basePolynomial(coefficients, x);
-		} else {
-			throw ValueError(format("The number of coefficients %d does not match with %d. ",coefficients.size(),n));
-		}
-	}
-
-	/// Integrated polynomial function generator.
-	/** Base function to produce integrals of n-th order
-	 *  polynomials based on the length of the coefficients
-	 *  vector. Integrates from x0 to x1.
-	 *  Starts with only the first coefficient at x^0 */
-	double basePolynomialInt(std::vector<double> coefficients, double x1, double x0){
-		double result = 0.;
-		for(unsigned int i=0; i<coefficients.size();i++) {
-			result += 1./(i+1.) * coefficients[i] * (pow(x1,(i+1.)) - pow(x0,(i+1.)));
-		}
-		return result;
-	}
-
-	/// Integrated polynomial function generator with check.
-	/** Calls the base function but checks the vector
-	 *  length against parameter n. */
-	double basePolynomialInt(std::vector<double> coefficients, double x1, double x0, unsigned int n){
-		if (coefficients.size() == n){
-			return basePolynomialInt(coefficients, x1, x0);
-		} else {
-			throw ValueError(format("The number of coefficients %d does not match with %d. ",coefficients.size(),n));
-		}
-	}
-
-	/// Integrated fraction generator.
-	/** Base function to produce integrals of n-th order
-	 *  polynomials divided by their variable based on
-	 *  the length of the coefficients vector.
-	 *  Integrates from x0 to x1, starts with only the
-	 *  first coefficient at x^0 */
-	double baseFractionInt(std::vector<double> coefficients, double x1, double x0){
-		double result = coefficients[0] * log(x1/x0);
-		if (coefficients.size() > 1) {
-			std::vector<double> newCoeffs(coefficients.begin() + 1, coefficients.end());
-			result += basePolynomialInt(newCoeffs,x1,x0);
-		}
-		return result;
-	}
-
-	/// Integrated fraction generator with check.
-	/** Calls the base function but checks the vector
-	 *  length against parameter n before. */
-	double baseFractionInt(std::vector<double> coefficients, double x1, double x0, unsigned int n){
-		if (coefficients.size() == n){
-			return baseFractionInt(coefficients, x1, x0);
-		} else {
-			throw ValueError(format("The number of coefficients %d does not match with %d. ",coefficients.size(),n));
-		}
-	}
-
-	/// Exponential function generator.
-	/** Base function to produce exponential functions
-	 *  based on the input n.
-	 *  An extra check is performed for the length
-	 *  of the vector according to the chosen function. */
-	double baseExponential(std::vector<double> coefficients, double x, int n){
-		double result = 0.;
-		if (n==1) {
-			int c = 3;
-			if (coefficients.size() != c) throw ValueError(format("The number of coefficients %d does not match with %d. ",coefficients.size(),c));
-			result = exp(coefficients[0]/(x+coefficients[1]) - coefficients[2]);
-		} else if (n==2) {
-			int c = 3;
-			if (coefficients.size() != c) throw ValueError(format("The number of coefficients %d does not match with %d. ",coefficients.size(),c));
-			result = exp(basePolynomial(coefficients, x, c));
-		} else {
-			throw ValueError(format("There is no function defined for this input (%d). ",n));
-		}
-	    return result;
-	}
 };
 
 bool IsIncompressibleLiquid(std::string name);
@@ -241,45 +154,45 @@ double IncompLiquid(long iOutput, double T, double p, std::string name);
 class SimpleIncompressible : public IncompressibleLiquid{
 protected:
 	std::vector<double> cRho;
-	std::vector<double> cCp;
+	std::vector<double> cHeat;
 	std::vector<double> cVisc;
 	std::vector<double> cCond;
 	std::vector<double> cPsat;
 
 public:
     double rho(double T_K, double p){
-    	if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
-    	return basePolynomial(cRho, T_K);
+    	checkTP(T_K, p);
+    	return polyval(cRho, T_K);
     }
-    double cp(double T_K, double p){
-    	if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
-    	return basePolynomial(cCp, T_K);
+    double c(double T_K, double p){
+    	checkTP(T_K, p);
+    	return polyval(cHeat, T_K);
     }
     double h(double T_K, double p){
-    	if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
-    	return basePolynomialInt(cCp, T_K, Tref);
+    	checkTP(T_K, p);
+    	return h_u(T_K,p);
 	}
 	double s(double T_K, double p){
-		if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
-		return baseFractionInt(cCp, T_K, Tref);
+		checkTP(T_K, p);
+		return fracint(cHeat, T_K, Tref);
 	}
 	double visc(double T_K, double p){
-		if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
-		return baseExponential(cVisc, T_K, 1);
+		checkTP(T_K, p);
+		return expval(cVisc, T_K, 1);
 	}
 	double cond(double T_K, double p){
-		if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
-		return basePolynomial(cCond, T_K);
+		checkTP(T_K, p);
+		return polyval(cCond, T_K);
 	}
     double u(double T_K, double p){
-    	return u_h(T_K,p);
+    	return polyint(cHeat, T_K, Tref);
     }
     double psat(double T_K){
-    	if (!checkT(T_K)) throw ValueError(format("T=%f is out of range.",T_K));
+    	checkT(T_K);
     	if (T_K<TminPsat || TminPsat<0){
     		return -1.;
     	} else {
-    		return baseExponential(cPsat, T_K, 1);
+    		return expval(cPsat, T_K, 1)*1000.;
     	}
     };
 };
@@ -302,9 +215,9 @@ public:
         cRho.push_back(1076.5);
         cRho.push_back(-0.731182);
 
-        cCp.clear();
-        cCp.push_back(0.999729);
-        cCp.push_back(0.00287576);
+        cHeat.clear();
+        cHeat.push_back(999.729);
+        cHeat.push_back(2.87576);
 
         cVisc.clear();
         cVisc.push_back(3.5503);
@@ -317,10 +230,7 @@ public:
     };
     double visc(double T_K, double p){
 		if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
-		return baseExponential(cVisc, T_K, 2);
-	}
-    double h(double T_K, double p){
-		return h_u(T_K,p);
+		return expval(cVisc, T_K, 2);
 	}
 };
 
@@ -338,9 +248,9 @@ public:
         cRho.push_back(971.725);
         cRho.push_back(-0.718788);
 
-        cCp.clear();
-        cCp.push_back(0.844023);
-        cCp.push_back(0.00431212);
+        cHeat.clear();
+        cHeat.push_back(844.023);
+        cHeat.push_back(4.31212);
 
         cVisc.clear();
         cVisc.push_back(18.3237);
@@ -351,16 +261,9 @@ public:
         cCond.push_back(0.000153716);
         cCond.push_back(-1.51212e-07);
     };
-    double u(double T_K, double p){
-    	if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
-    	return basePolynomialInt(cCp, T_K, Tref);
-	}
     double visc(double T_K, double p){
 		if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
-		return baseExponential(cVisc, T_K, 2);
-	}
-    double h(double T_K, double p){
-		return h_u(T_K,p);
+		return expval(cVisc, T_K, 2);
 	}
 };
 
@@ -378,9 +281,9 @@ public:
         cRho.push_back(1822.37);
         cRho.push_back(-0.918485);
 
-        cCp.clear();
-        cCp.push_back(0.871834);
-        cCp.push_back(0.000858788);
+        cHeat.clear();
+        cHeat.push_back(871.834);
+        cHeat.push_back(858788);
 
         cVisc.clear();
         cVisc.push_back(-4.22878);
@@ -391,16 +294,9 @@ public:
         cCond.push_back(9.92958e-05);
         cCond.push_back(-8.33333e-08);
     };
-    double u(double T_K, double p){
-    	if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
-    	return basePolynomialInt(cCp, T_K, Tref);
-	}
     double visc(double T_K, double p){
 		if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
-		return baseExponential(cVisc, T_K, 2);
-	}
-    double h(double T_K, double p){
-		return h_u(T_K,p);
+		return expval(cVisc, T_K, 2);
 	}
 };
 
@@ -418,9 +314,9 @@ public:
         cRho.push_back(1172.35);
         cRho.push_back(-0.9025);
 
-        cCp.clear();
-        cCp.push_back(1.22369);
-        cCp.push_back(0.00148417);
+        cHeat.clear();
+        cHeat.push_back(1223.69);
+        cHeat.push_back(1.48417);
 
         cVisc.clear();
         cVisc.push_back(6.36183);
@@ -431,16 +327,9 @@ public:
         cCond.push_back(0.000207526);
         cCond.push_back(-2.84167e-07);
     };
-    double u(double T_K, double p){
-    	if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
-    	return basePolynomialInt(cCp, T_K, Tref);
-	}
     double visc(double T_K, double p){
 		if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
-		return baseExponential(cVisc, T_K, 2);
-	}
-    double h(double T_K, double p){
-		return h_u(T_K,p);
+		return expval(cVisc, T_K, 2);
 	}
 };
 
@@ -458,9 +347,9 @@ public:
         cRho.push_back(1155.94);
         cRho.push_back(-1.02576);
 
-        cCp.clear();
-        cCp.push_back(1.15355);
-        cCp.push_back(0.00210788);
+        cHeat.clear();
+        cHeat.push_back(1153.55);
+        cHeat.push_back(2.10788);
 
         cVisc.clear();
         cVisc.push_back(5.66926);
@@ -471,16 +360,9 @@ public:
         cCond.push_back(0.000172305);
         cCond.push_back(-2.11212e-07);
     };
-    double u(double T_K, double p){
-    	if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
-    	return basePolynomialInt(cCp, T_K, Tref);
-	}
     double visc(double T_K, double p){
 		if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
-		return baseExponential(cVisc, T_K, 2);
-	}
-    double h(double T_K, double p){
-		return h_u(T_K,p);
+		return expval(cVisc, T_K, 2);
 	}
 };
 
@@ -498,9 +380,9 @@ public:
         cRho.push_back(1102.34);
         cRho.push_back(-0.801667);
 
-        cCp.clear();
-        cCp.push_back(1.36094);
-        cCp.push_back(0.00151667);
+        cHeat.clear();
+        cHeat.push_back(1360.94);
+        cHeat.push_back(1.51667);
 
         cVisc.clear();
         cVisc.push_back(5.21288);
@@ -511,16 +393,9 @@ public:
         cCond.push_back(0.000208374);
         cCond.push_back(-2.61667e-07);
     };
-    double u(double T_K, double p){
-    	if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
-    	return basePolynomialInt(cCp, T_K, Tref);
-	}
     double visc(double T_K, double p){
 		if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
-		return baseExponential(cVisc, T_K, 2);
-	}
-    double h(double T_K, double p){
-		return h_u(T_K,p);
+		return expval(cVisc, T_K, 2);
 	}
 };
 
@@ -538,9 +413,9 @@ public:
         cRho.push_back(1071.78);
         cRho.push_back(-0.772024);
 
-        cCp.clear();
-        cCp.push_back(0.761393);
-        cCp.push_back(0.00352976);
+        cHeat.clear();
+        cHeat.push_back(761.393);
+        cHeat.push_back(3.52976);
 
         cVisc.clear();
         cVisc.push_back(7.16819);
@@ -551,16 +426,9 @@ public:
         cCond.push_back(0.000203186);
         cCond.push_back(-2.3869e-07);
     };
-    double u(double T_K, double p){
-    	if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
-    	return basePolynomialInt(cCp, T_K, Tref);
-	}
     double visc(double T_K, double p){
 		if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
-		return baseExponential(cVisc, T_K, 2);
-	}
-    double h(double T_K, double p){
-		return h_u(T_K,p);
+		return expval(cVisc, T_K, 2);
 	}
 };
 
@@ -578,9 +446,9 @@ public:
         cRho.push_back(1071.02);
         cRho.push_back(-0.778166);
 
-        cCp.clear();
-        cCp.push_back(0.223775);
-        cCp.push_back(0.0052159);
+        cHeat.clear();
+        cHeat.push_back(223.775);
+        cHeat.push_back(5.2159);
 
         cVisc.clear();
         cVisc.push_back(-3.47971);
@@ -591,16 +459,9 @@ public:
         cCond.push_back(0.000174156);
         cCond.push_back(-1.85052e-07);
     };
-    double u(double T_K, double p){
-    	if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
-    	return basePolynomialInt(cCp, T_K, Tref);
-	}
     double visc(double T_K, double p){
 		if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
-		return baseExponential(cVisc, T_K, 2);
-	}
-    double h(double T_K, double p){
-		return h_u(T_K,p);
+		return expval(cVisc, T_K, 2);
 	}
 };
 
@@ -639,11 +500,11 @@ public:
         cRho.push_back(+1.0537501330E-03);
         cRho.push_back(-1.5498115143E-06);
 
-        cCp.clear();
-        cCp.push_back(+1.0054715109E+00);
-        cCp.push_back(+3.6645441085E-03);
-        cCp.push_back(-3.5878725087E-07);
-        cCp.push_back(+1.7370907291E-09);
+        cHeat.clear();
+        cHeat.push_back(+1.0054715109E+03);
+        cHeat.push_back(+3.6645441085E-00);
+        cHeat.push_back(-3.5878725087E-04);
+        cHeat.push_back(+1.7370907291E-06);
 
         cCond.clear();
         cCond.push_back(+1.4137409270E-04);
@@ -679,11 +540,11 @@ public:
         cRho.push_back(+2.1378377260E-03);
         cRho.push_back(-1.9310694457E-06);
 
-        cCp.clear();
-        cCp.push_back(+6.8006101123E-01);
-        cCp.push_back(+3.2230860459E-03);
-        cCp.push_back(-1.0974690747E-06);
-        cCp.push_back(+8.1520085319E-10);
+        cHeat.clear();
+        cHeat.push_back(+6.8006101123E+02);
+        cHeat.push_back(+3.2230860459E-00);
+        cHeat.push_back(-1.0974690747E-03);
+        cHeat.push_back(+8.1520085319E-07);
 
         cCond.clear();
         cCond.push_back(+1.4898820998E-04);
@@ -719,11 +580,11 @@ public:
         cRho.push_back(+3.3724996764E-04);
         cRho.push_back(-2.3561359575E-07);
 
-        cCp.clear();
-        cCp.push_back(+6.9155653776E-01);
-        cCp.push_back(+3.1812352525E-03);
-        cCp.push_back(-1.0707667973E-06);
-        cCp.push_back(+7.8051070556E-10);
+        cHeat.clear();
+        cHeat.push_back(+6.9155653776E+02);
+        cHeat.push_back(+3.1812352525E-00);
+        cHeat.push_back(-1.0707667973E-03);
+        cHeat.push_back(+7.8051070556E-07);
 
         cCond.clear();
         cCond.push_back(+1.7514206629E-04);
@@ -742,6 +603,45 @@ public:
     };
 };
 
+class Therminol66Class : public SimpleIncompressible{
+public:
+	Therminol66Class(){
+        name = std::string("T66");
+        description = std::string("Therminol 66");
+        reference = std::string("Therminol2007");
+
+		Tmin     = 273.15;
+		Tmax     = 618.15;
+		TminPsat = 273.15;
+
+        cRho.clear();
+        cRho.push_back(+1164.45337);
+        cRho.push_back(-0.4388917);
+        cRho.push_back(-0.000321);
+
+        cHeat.clear();
+        cHeat.push_back(+657.990904);
+        cHeat.push_back(+2.82292602);
+        cHeat.push_back(+0.0008970785);
+
+        cCond.clear();
+        cCond.push_back(+0.116116312);
+        cCond.push_back(+0.000048945);
+        cCond.push_back(-1.50000000E-07);
+
+        cVisc.clear();
+        cVisc.push_back(+586.375);
+        cVisc.push_back(-210.6500E0);
+        cVisc.push_back(-2.2809);
+
+        cPsat.clear();
+        cPsat.push_back(-9094.51);
+        cPsat.push_back(+66.8500E0);
+        cPsat.push_back(+24.54486E0);
+    };
+};
+
+
 class DowthermJClass : public SimpleIncompressible{
 public:
 	DowthermJClass(){
@@ -759,11 +659,11 @@ public:
         cRho.push_back(+2.4904467725E-03);
         cRho.push_back(-2.9222650181E-06);
 
-        cCp.clear();
-        cCp.push_back(+1.1465102196E+00);
-        cCp.push_back(+2.1016260744E-03);
-        cCp.push_back(-2.2151557961E-07);
-        cCp.push_back(+3.5493927846E-09);
+        cHeat.clear();
+        cHeat.push_back(+1.1465102196E+03);
+        cHeat.push_back(+2.1016260744E-00);
+        cHeat.push_back(-2.2151557961E-04);
+        cHeat.push_back(+3.5493927846E-06);
 
         cCond.clear();
         cCond.push_back(+1.8990894157E-04);
@@ -799,11 +699,11 @@ public:
         cRho.push_back(+2.4832944517E-04);
         cRho.push_back(-1.7756195502E-07);
 
-        cCp.clear();
-        cCp.push_back(+6.5777357045E-01);
-        cCp.push_back(+3.6209780444E-03);
-        cCp.push_back(-8.3411429568E-07);
-        cCp.push_back(+2.2428632290E-10);
+        cHeat.clear();
+        cHeat.push_back(+6.5777357045E+02);
+        cHeat.push_back(+3.6209780444E-00);
+        cHeat.push_back(-8.3411429568E-04);
+        cHeat.push_back(+2.2428632290E-07);
 
         cCond.clear();
         cCond.push_back(+1.5381076522E-04);
@@ -840,11 +740,11 @@ public:
         cRho.push_back(+9.2414382570E-04);
         cRho.push_back(-9.5365432963E-07);
 
-        cCp.clear();
-        cCp.push_back(+7.5687081085E-01);
-        cCp.push_back(+3.9761218594E-03);
-        cCp.push_back(-5.5667939231E-07);
-        cCp.push_back(+2.5261546566E-10);
+        cHeat.clear();
+        cHeat.push_back(+7.5687081085E+02);
+        cHeat.push_back(+3.9761218594E-00);
+        cHeat.push_back(-5.5667939231E-04);
+        cHeat.push_back(+2.5261546566E-07);
 
         cCond.clear();
         cCond.push_back(+1.5246860039E-04);
@@ -881,11 +781,11 @@ public:
         cRho.push_back(+5.2992982291E-04);
         cRho.push_back(-2.4393584453E-07);
 
-        cCp.clear();
-        cCp.push_back(+1.3960182000E+00);
-        cCp.push_back(+1.7200000001E-04);
-        cCp.push_back(-9.4083072373E-18);
-        cCp.push_back(+4.3126550326E-21);
+        cHeat.clear();
+        cHeat.push_back(+1.3960182000E+03);
+        cHeat.push_back(+1.7200000001E-01);
+        cHeat.push_back(-9.4083072373E-15);
+        cHeat.push_back(+4.3126550326E-18);
 
         cCond.clear();
         cCond.push_back(+3.9112042040E-04);
@@ -920,11 +820,11 @@ public:
         cRho.push_back(-9.3505449092E-07);
         cRho.push_back(+1.0368054566E-09);
 
-        cCp.clear();
-        cCp.push_back(+1.1122510494E+00);
-        cCp.push_back(+2.5171817500E-03);
-        cCp.push_back(-1.2392094684E-06);
-        cCp.push_back(+1.1624033307E-09);
+        cHeat.clear();
+        cHeat.push_back(+1.1122510494E+03);
+        cHeat.push_back(+2.5171817500E-00);
+        cHeat.push_back(-1.2392094684E-03);
+        cHeat.push_back(+1.1624033307E-06);
 
         cCond.clear();
         cCond.push_back(+1.6121957379E-04);

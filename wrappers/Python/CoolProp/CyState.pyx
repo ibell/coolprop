@@ -88,6 +88,7 @@ cdef class PureFluidClass:
     cpdef double dsdp_along_sat_liquid(self) except *:
         return self.CPS.dsdp_along_sat_liquid()
     cpdef double d2sdp2_along_sat_vapor(self) except *:
+        print self.CPS.d2sdp2_along_sat_vapor()
         return self.CPS.d2sdp2_along_sat_vapor()
     cpdef double d2sdp2_along_sat_liquid(self) except *:
         return self.CPS.d2sdp2_along_sat_liquid()
@@ -106,6 +107,83 @@ cdef class PureFluidClass:
     cpdef double drhodT_along_sat_liquid(self) except *:
         return self.CPS.drhodT_along_sat_liquid()
         
+    cpdef double drhodT_constp(self) except *:
+        return self.CPS.drhodT_constp()
+    cpdef double drhodp_constT(self) except *:
+        return self.CPS.drhodp_constT()
+    cpdef double d2rhodp2_constT(self) except *:
+        return self.CPS.d2rhodp2_constT()
+    cpdef double d2rhodTdp(self) except *:
+        return self.CPS.d2rhodTdp()
+    cpdef double d2rhodT2_constp(self) except *:
+        return self.CPS.d2rhodT2_constp()
+    cpdef double d2rhodhdQ(self) except *:
+        return self.CPS.d2rhodhdQ()
+    cpdef double d2rhodpdQ(self) except *:
+        return self.CPS.d2rhodpdQ()
+    cpdef double d2rhodhdp(self) except *:
+        return self.CPS.d2rhodhdp()
+    cpdef double d2rhodh2_constp(self) except *:
+        return self.CPS.d2rhodh2_constp()
+
+    cpdef double dpdrho_constT(self) except *:
+        return self.CPS.dpdrho_constT()
+    cpdef double dpdrho_consth(self) except *:
+        return self.CPS.dpdrho_consth()
     cpdef double dpdT_constrho(self) except *:
         return self.CPS.dpdT_constrho()
+    cpdef double dpdT_consth(self) except *:
+        return self.CPS.dpdT_consth()
+    cpdef double d2pdrho2_constT(self) except *:
+        return self.CPS.d2pdrho2_constT()
+    cpdef double d2pdrhodT(self) except *:
+        return self.CPS.d2pdrhodT()
+    cpdef double d2pdT2_constrho(self) except *:
+        return self.CPS.d2pdT2_constrho()
+
+    cpdef double dhdrho_constT(self) except *:
+        return self.CPS.dhdrho_constT()
+    cpdef double dhdrho_constp(self) except *:
+        return self.CPS.dhdrho_constp()
+    cpdef double dhdT_constrho(self) except *:
+        return self.CPS.dhdT_constrho()
+    cpdef double dhdT_constp(self) except *:
+        return self.CPS.dhdT_constp()
+    cpdef double dhdp_constT(self) except *:
+        return self.CPS.dhdp_constT()
+    cpdef double d2hdrho2_constT(self) except *:
+        return self.CPS.d2hdrho2_constT()
+    cpdef double d2hdrhodT(self) except *:
+        return self.CPS.d2hdrhodT()
+    cpdef double d2hdT2_constrho(self) except *:
+        return self.CPS.d2hdT2_constrho()
+    cpdef double d2hdT2_constp(self) except *:
+        return self.CPS.d2hdT2_constp()
+    cpdef double d2hdp2_constT(self) except *:
+        return self.CPS.d2hdp2_constT()
+    cpdef double d2hdTdp(self) except *:
+        return self.CPS.d2hdTdp()
+
+    cpdef double dsdrho_constT(self) except *:
+        return self.CPS.dsdrho_constT()
+    cpdef double dsdT_constrho(self) except *:
+        return self.CPS.dsdT_constrho()
+    cpdef double dsdrho_constp(self) except *:
+        return self.CPS.dsdrho_constp()
+    cpdef double dsdT_constp(self) except *:
+        return self.CPS.dsdT_constp()
+    cpdef double dsdp_constT(self) except *:
+        return self.CPS.dsdp_constT()
+    cpdef double d2sdrho2_constT(self) except *:
+        return self.CPS.d2sdrho2_constT()
+    cpdef double d2sdrhodT(self) except *:
+        return self.CPS.d2sdrhodT()
+    cpdef double d2sdT2_constrho(self) except *:
+        return self.CPS.d2sdT2_constrho()
+    cpdef double d2sdT2_constp(self) except *:
+        return self.CPS.d2sdT2_constp()
+    cpdef double d2sdp2_constT(self) except *:
+        return self.CPS.d2sdp2_constT()
+    cpdef double d2sdTdp(self) except *:
+        return self.CPS.d2sdTdp()
         
