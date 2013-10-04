@@ -119,25 +119,8 @@ void CoolPropStateClassSI::check_saturated_quality(double Q){
 	}
 }
 
-// Main updater function
-void CoolPropStateClassSI::update(long iInput1, double Value1, long iInput2, double Value2){
-	/* Options for inputs (in either order) are:
-	|  T,P
-	|  T,D
-	|  H,P
-	|  S,P
-	|  P,Q
-	|  T,Q
-	|  H,S
-	|  P,D
-	*/
-
-	bool using_EOS = true;
-
-	if (get_debug_level()>3){
-		std::cout<<__FILE__<<" update: "<<iInput1<<","<<Value1<<","<<iInput2<<","<<Value2<<","<<pFluid->get_name().c_str()<<std::endl;
-	}
-
+void CoolPropStateClassSI::_pre_update()
+{
 	// Clear the cached helmholtz energy derivative terms
 	this->cache.clear();
 
@@ -169,8 +152,30 @@ void CoolPropStateClassSI::update(long iInput1, double Value1, long iInput2, dou
 
 	// Don't know if it is single phase or not, so assume it isn't
 	SinglePhase = false;
+}
+
+// Main updater function
+void CoolPropStateClassSI::update(long iInput1, double Value1, long iInput2, double Value2, double T0, double rho0){
+	/* Options for inputs (in either order) are:
+	|  T,P
+	|  T,D
+	|  H,P
+	|  S,P
+	|  P,Q
+	|  T,Q
+	|  H,S
+	|  P,D
+	*/
+
+	if (get_debug_level()>3){
+		std::cout<<__FILE__<<" update: "<<iInput1<<","<<Value1<<","<<iInput2<<","<<Value2<<","<<pFluid->get_name().c_str()<<std::endl;
+	}
+
+	// Common code for all updating functions (set flags, clear cache, etc.)
+	this->_pre_update();
 	
 	// Determine whether the EOS or the TTSE will be used
+	bool using_EOS = true;
 	if (!pFluid->enabled_TTSE_LUT)
 	{
 		using_EOS = true;
@@ -204,7 +209,7 @@ void CoolPropStateClassSI::update(long iInput1, double Value1, long iInput2, dou
 			update_Tp(iInput1,Value1,iInput2,Value2);
 		}
 		else if (match_pair(iInput1,iInput2,iP,iH)){
-			update_ph(iInput1,Value1,iInput2,Value2);
+			update_ph(iInput1,Value1,iInput2,Value2, T0, rho0);
 		}
 		else if (match_pair(iInput1,iInput2,iP,iS)){
 			update_ps(iInput1,Value1,iInput2,Value2);
@@ -229,7 +234,13 @@ void CoolPropStateClassSI::update(long iInput1, double Value1, long iInput2, dou
 		if (!ValidNumber(_logp)) _logp = log(_p);
 		if (!ValidNumber(_logrho)) _logrho = log(_rho);
 	}
-	
+
+	// Common code for all updating functions
+	this->_post_update();
+}
+
+void CoolPropStateClassSI::_post_update()
+{
 	if (!_noSatLSatV && TwoPhase && !flag_TwoPhase)
 	{
 		// Update temperature and density for SatL and SatV

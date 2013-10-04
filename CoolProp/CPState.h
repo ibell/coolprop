@@ -98,6 +98,9 @@ protected:
 	void add_saturation_states(void);
 	void remove_saturation_states(void);
 
+	void _pre_update(void);
+	void _post_update(void);
+
 	// To be used to update internal variables if you know that your parameters are T,Q or P,Q
 	void update_twophase(long iInput1, double Value1, long iInput2, double Value2);
 
@@ -171,7 +174,8 @@ public:
 
 	// Property updater
 	// Uses the indices in CoolProp for the input parameters
-	void update(long iInput1, double Value1, long iInput2, double Value2);
+	// If P,H are inputs, can also use the input values of T0,rho0 as start guess for the 2D Newton solver
+	void update(long iInput1, double Value1, long iInput2, double Value2, double T0 = -1, double rho0 = -1);
 
 	// Returns an output based on the key provided
 	// where iInput is one of iT,iP,iH,iS,....
