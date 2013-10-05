@@ -238,15 +238,15 @@ public:
 	double surface_tension(void);
 
 
-	//// ----------------------------------------
-	//// Extended two-phase calculations things
-	//// ----------------------------------------
-	///// Enable the extended two-phase calculations
-	//void enable_EXTTP(void);
-	///// Check if extended two-phase calculations are enabled
-	//bool isenabled_EXTTP(void);
-	///// Disable the extended two-phase calculations
-	//void disable_EXTTP(void);
+	// ----------------------------------------
+	// Extended two-phase calculations things
+	// ----------------------------------------
+	/// Enable the extended two-phase calculations
+	void enable_EXTTP(void);
+	/// Check if extended two-phase calculations are enabled
+	bool isenabled_EXTTP(void);
+	/// Disable the extended two-phase calculations
+	void disable_EXTTP(void);
 
 	// ----------------------------------------	
 	// TTSE LUT things
@@ -579,11 +579,11 @@ public:
 	double d2rhodp2_along_sat_vapor(void){return CoolPropStateClassSI::d2rhodp2_along_sat_vapor()*conversion_factor("D*D/P/P");};
 	double d2rhodp2_along_sat_liquid(void){return CoolPropStateClassSI::d2rhodp2_along_sat_liquid()*conversion_factor("D*D/P/P");};
 
-	double dhdT_along_sat_vapor(void){return CoolPropStateClassSI::dhdT_along_sat_vapor()*conversion_factor("H/T");};
+	/*double dhdT_along_sat_vapor(void){return CoolPropStateClassSI::dhdT_along_sat_vapor()*conversion_factor("H/T");};
 	double dhdT_along_sat_liquid(void){return CoolPropStateClassSI::dhdT_along_sat_liquid()*conversion_factor("H/T");};
 
 	double dsdT_along_sat_vapor(void){return CoolPropStateClassSI::dsdT_along_sat_vapor()*conversion_factor("S/T");};
-	double dsdT_along_sat_liquid(void){return CoolPropStateClassSI::dsdT_along_sat_liquid()*conversion_factor("S/T");};
+	double dsdT_along_sat_liquid(void){return CoolPropStateClassSI::dsdT_along_sat_liquid()*conversion_factor("S/T");};*/
 
 	double drhodT_along_sat_vapor(void){return CoolPropStateClassSI::drhodT_along_sat_vapor()*conversion_factor("D/T");};
 	double drhodT_along_sat_liquid(void){return CoolPropStateClassSI::drhodT_along_sat_liquid()*conversion_factor("D/T");};
