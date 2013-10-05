@@ -129,24 +129,30 @@ COOLOBJ_FILES  := $(addprefix $(BINDIR)/,$(notdir $(COOLCPP_FILES:.cpp=.o)))
  
 # Path for prerequisite files
 vpath %.cpp $(COOLPROPDIR)
- 
+
 # ========================
 # Compile coolprop sources
 # ========================
  
 .PHONY: all
-all: $(COOLCPP_FILES) $(BINDIR)/$(EXECUTABLE)
- 
+all: $(COOLOBJ_FILES) $(BINDIR)/$(EXECUTABLE)
+
+$(COOLOBJ_FILES): | $(BINDIR)
+
+$(BINDIR):
+	$(MK) -m 755 $(BINDIR)
+
 $(BINDIR)/$(EXECUTABLE): $(COOLOBJ_FILES) 
 	$(CC) $(_LIBFLAGS) $(COOLOBJ_FILES) -o $@
  
 $(BINDIR)/%.o : %.cpp
 	$(CC) $(_CPPFLAGS) -c $(_INCLUDES) $< -o $@
-	
+
 # ========================
 # Install and Uninstall
 # ========================
- 
+
+.PHONY : install
 install:
 	$(MK) $(DESTDIR)
 	$(CP) -Rn $(COOLPROPDIR)/* $(DESTDIR)
@@ -158,7 +164,8 @@ install:
 	$(LN) $(DESTDIR)/$(EXECUTABLE) $(LIB)/$(SONAME)
 	$(LD) -n $(DESTDIR)
 	$(LD)
- 
+
+.PHONY : uninstall 
 uninstall:
 	rm -rf $(DESTDIR)
 	rm -rf /usr/lib/$(SONAME)
