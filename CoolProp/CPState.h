@@ -238,15 +238,15 @@ public:
 	double surface_tension(void);
 
 
-	// ----------------------------------------
-	// Extended two-phase calculations things
-	// ----------------------------------------
-	/// Enable the extended two-phase calculations
-	void enable_EXTTP(void);
-	/// Check if extended two-phase calculations are enabled
-	bool isenabled_EXTTP(void);
-	/// Disable the extended two-phase calculations
-	void disable_EXTTP(void);
+	//// ----------------------------------------
+	//// Extended two-phase calculations things
+	//// ----------------------------------------
+	///// Enable the extended two-phase calculations
+	//void enable_EXTTP(void);
+	///// Check if extended two-phase calculations are enabled
+	//bool isenabled_EXTTP(void);
+	///// Disable the extended two-phase calculations
+	//void disable_EXTTP(void);
 
 	// ----------------------------------------	
 	// TTSE LUT things
@@ -355,11 +355,11 @@ public:
 	double d2rhodp2_along_sat_vapor(void);
 	double d2rhodp2_along_sat_liquid(void);
 
-	double dsdT_along_sat_vapor(void);
+	/*double dsdT_along_sat_vapor(void);
 	double dsdT_along_sat_liquid(void);
 
 	double dhdT_along_sat_vapor(void);
-	double dhdT_along_sat_liquid(void);
+	double dhdT_along_sat_liquid(void);*/
 
 	double drhodT_along_sat_vapor(void);
 	double drhodT_along_sat_liquid(void);
