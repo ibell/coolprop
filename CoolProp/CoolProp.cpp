@@ -869,6 +869,27 @@ double DerivTerms(char *Term, double T, double rho, Fluid * pFluid)
 	else if (!strcmp(Term,"drhodp|h")){
 		return CPS.drhodp_consth();
 	}
+	else if (!strcmp(Term,"rho_smoothed")){
+		double rhospline, dsplinedp, dsplinedh;
+		CPS.rho_smoothed(0.1,&rhospline,&dsplinedh,&dsplinedp);
+		return rhospline;
+	}
+	else if (!strcmp(Term,"d(rho_smoothed)/dh")){
+		double rhospline, dsplinedp, dsplinedh;
+		CPS.rho_smoothed(0.1,&rhospline,&dsplinedh,&dsplinedp);
+		return dsplinedh;
+	}
+	else if (!strcmp(Term,"d(rho_smoothed)/dp")){
+		double rhospline, dsplinedp, dsplinedh;
+		CPS.rho_smoothed(0.1,&rhospline,&dsplinedh,&dsplinedp);
+		return dsplinedp;
+	}
+	else if (!strcmp(Term,"drhodh_constp_smoothed")){
+		return CPS.drhodh_constp_smoothed(0.1);
+	}
+	else if (!strcmp(Term,"drhodp_consth_smoothed")){
+		return CPS.drhodp_consth_smoothed(0.1);
+	}
 	else if (!strcmp(Term,"IsothermalCompressibility")){
 		return CPS.isothermal_compressibility();
 	}

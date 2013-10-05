@@ -1428,7 +1428,7 @@ double CoolPropStateClassSI::drhodp_consth_smoothed(double xend){
 
 double CoolPropStateClassSI::drhodh_constp_smoothed(double xend){
 	// Make a state class instance
-	CoolPropStateClass CPS = CoolPropStateClass(pFluid);
+	CoolPropStateClass CPS(pFluid);
 	SplineClass SC = SplineClass();
 	double hL = this->hL();
 	double hV = this->hV();
@@ -1457,23 +1457,23 @@ double CoolPropStateClassSI::drhodh_constp_smoothed(double xend){
 
 void CoolPropStateClassSI::rho_smoothed(double xend, double *rho_spline, double *dsplinedh, double *dsplinedp){
 	// Make a state class instance in two-phase at the junction point (end):
-	CoolPropStateClass CPS = CoolPropStateClass(pFluid);
+	CoolPropStateClassSI CPS(pFluid);
 	CPS.update(iT,TsatL,iQ,xend);
 
 	// A few necessary properties:
-	double h_l = this->hL();
-	double h_v = this->hV();
-	double rho_l = this->rhoL();
-	double rho_v = this->rhoV();
-	double x = _Q;
-	double h_end = xend * h_v + (1-xend)*h_l;
-	double rho_end = (rho_l * rho_v)/(xend * rho_l + (1-xend)*rho_v);
+	double h_l = this->hL(); //[J/kg]
+	double h_v = this->hV(); //[J/kg]
+	double rho_l = this->rhoL(); //[kg/m^3]
+	double rho_v = this->rhoV(); //[kg/m^3]
+	double x = _Q; //[-]
+	double h_end = xend * h_v + (1-xend)*h_l; // [J/kg]
+	double rho_end = (rho_l * rho_v)/(xend * rho_l + (1-xend)*rho_v); //[kg/m^3]
 
 	// Getting the total derivatives along the saturation lines:
-	double drholdp = CPS.drhodp_along_sat_liquid();
-	double dhldp = CPS.dhdp_along_sat_liquid();
-	double drhovdp = CPS.drhodp_along_sat_vapor();
-	double dhvdp = CPS.dhdp_along_sat_vapor();
+	double drholdp = CPS.drhodp_along_sat_liquid(); //[kg/m^3/Pa]
+	double dhldp = CPS.dhdp_along_sat_liquid(); //[J/kg/Pa]
+	double drhovdp = CPS.drhodp_along_sat_vapor(); //[kg/m^3/Pa]
+	double dhvdp = CPS.dhdp_along_sat_vapor(); //[J/kg/Pa]
 
 	// Getting the required partial derivatives just outside the two-phase zone (faking single-phase fluid):
 	double drhodh_l = CPS.SatL->drhodh_constp();
@@ -1528,10 +1528,10 @@ void CoolPropStateClassSI::rho_smoothed(double xend, double *rho_spline, double 
 	//double dvdhdp_3 = (1/rho_hplus_pplus + 1/rho_hminus_pminus - 1/rho_hplus_pminus - 1/rho_hminus_pplus)/(4*step*step);
 
 	// Arguments of the spline function (rho is smoothed as a function of h):
-	double delta = x * (h_v - h_l);
-	double delta_end = h_end - h_l;
-	double ddeltaxdp = xend * (dhvdp - dhldp);
-	double ddeltadp = -dhldp;
+	double delta = x * (h_v - h_l); //[J/kg]
+	double delta_end = h_end - h_l; //[J/kg]
+	double ddeltaxdp = xend * (dhvdp - dhldp); //[J/kg/(Pa)]
+	double ddeltadp = -dhldp; //[J/kg/(Pa)]
 
 	// Coefficients of the spline function
 	double a = 1/pow(delta_end,3) * (2*rho_l - 2*rho_end + delta_end * (drhodh_l + drhodh_end));

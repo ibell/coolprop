@@ -103,7 +103,14 @@ EXPORT_CODE void CONVENTION PrintSaturationTable(char *FileName, char * Ref, dou
 EXPORT_CODE double CONVENTION DerivTerms(char *Term, double T, double rho, char * Ref)
 {
 	Fluid *pFluid=get_fluid(get_Fluid_index(Ref));
-	return DerivTerms(Term,T,rho,pFluid);
+	if (pFluid != NULL)
+	{
+		return DerivTerms(Term,T,rho,pFluid);
+	}
+	else
+	{
+		return _HUGE;
+	}
 }
 
 //EXPORT_CODE int CONVENTION get_debug_level(){return debug_level;}

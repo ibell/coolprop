@@ -65,6 +65,7 @@ for fluid in CoolProp.__fluids__:
         NOT_IN_REFPROP_CAS = {'R1234ze(Z)':'29118-25-0',
                               'ParaDeuterium':'7782-39-0p',
                               'OrthoDeuterium':'7782-39-0o',
+                              'R407F':'N/A',
                               }
         CAS = NOT_IN_REFPROP_CAS[fluid]
     

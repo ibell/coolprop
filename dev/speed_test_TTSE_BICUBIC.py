@@ -5,28 +5,27 @@ def time_check(N, h, p, TTSE = False, mode = 'TTSE'):
 
     if TTSE:
         if mode =='TTSE':
-            setup = "import CoolProp.CoolProp as CP; CP.enable_TTSE_LUT('R245fa'); CP.set_TTSE_mode('R245fa','TTSE'); CP.Props('T','H',250,'P',1000,'R245fa')"
+            setup = "import CoolProp; import CoolProp.CoolProp as CP; CP.enable_TTSE_LUT('Water'); CP.set_TTSE_mode('Water','TTSE'); CP.Props('T','H',500,'P',10000,'Water'); IWater = CP.get_Fluid_index('Water'); from CoolProp.param_constants import iT,iH,iP,iD"
         elif mode =='BICUBIC':
-            setup = "import CoolProp.CoolProp as CP; CP.enable_TTSE_LUT('R245fa'); CP.set_TTSE_mode('R245fa','BICUBIC'); CP.Props('T','H',250,'P',1000,'R245fa')"
+            setup = "import CoolProp; import CoolProp.CoolProp as CP; CP.enable_TTSE_LUT('Water'); CP.set_TTSE_mode('Water','BICUBIC'); CP.Props('T','H',500,'P',10000,'Water'); IWater = CP.get_Fluid_index('Water'); from CoolProp.param_constants import  iT,iH,iP,iD"
         else:
             raise ValueError()
     else:
-        setup = "import CoolProp.CoolProp as CP"
+        setup = "import CoolProp.CoolProp as CP; IWater = CP.get_Fluid_index('Water'); CP.disable_TTSE_LUT('Water'); from CoolProp.param_constants import  iT,iH,iP,iD"
     
-    time = timeit.Timer("CP.Props('D','H',"+str(h)+",'P',"+str(p)+",'R245fa')",setup).timeit(N)/N*1e6
-    value = CP.Props('D','H',h,'P',p,'R245fa')
+    time = timeit.Timer("CP.IProps(iD,iH,"+str(h)+",iP,"+str(p)+",IWater)",setup).timeit(N)/N*1e6
+    value = CP.Props('D','H',h,'P',p,'Water')
     
     return time, value
     
-print 'EOS'
-print time_check(10000,250,1000)
-print time_check(10000,350,1000)
-print time_check(10000,520,1000)
-print 'TTSE'
-print time_check(10000,250,1000,TTSE = True)
-print time_check(10000,350,1000,TTSE = True)
-print time_check(10000,520,1000,TTSE = True)
-print 'BICUBIC'
-print time_check(10000,250,1000,TTSE = True, mode='BICUBIC')
-print time_check(10000,350,1000,TTSE = True, mode='BICUBIC')
-print time_check(10000,520,1000,TTSE = True, mode='BICUBIC')
+values = dict(subcooled = (500,10000), twophase = (2000,10000), superheated = (3000,10000), supercritical = (2000,30000))
+
+N = 10000
+for k in ['subcooled','twophase','superheated','supercritical']:
+    h, p = values[k]
+    
+    time_EOS, value_EOS = time_check(N, h, p, TTSE = False)
+    time_TTSE, value_TTSE = time_check(N, h, p, TTSE = True)
+    time_BICUBIC, value_BICUBIC = time_check(N, h, p, TTSE = True, mode='BICUBIC')
+    
+    print k, h, p, (value_TTSE/value_EOS-1.0)*100, (value_BICUBIC/value_EOS-1.0)*100, time_EOS/time_TTSE, time_EOS/time_BICUBIC
