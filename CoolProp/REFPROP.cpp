@@ -33,6 +33,24 @@
 #define numparams 72 
 #define maxcoefs 50
 
+// Check windows
+#if _WIN32 || _WIN64
+   #if _WIN64
+     #define ENV64BIT
+  #else
+    #define ENV32BIT
+  #endif
+#endif
+
+// Check GCC
+#if __GNUC__
+  #if __x86_64__ || __ppc64__
+    #define ENV64BIT
+  #else
+    #define ENV32BIT
+  #endif
+#endif
+
 std::vector<double> x(ncmax,0);
 
 std::string LoadedREFPROPRef;
@@ -310,8 +328,20 @@ bool load_REFPROP()
 	{
 		// Load it
 		#if defined(__ISWINDOWS__)
-			TCHAR refpropdllstring[100] = TEXT("refprop.dll");
-			RefpropdllInstance = LoadLibrary(refpropdllstring);
+			#if defined(ENV64BIT)
+				// 64-bit code here.
+				TCHAR refpropdllstring[100] = TEXT("refprp64.dll");
+				RefpropdllInstance = LoadLibrary(refpropdllstring);
+			#elif defined (ENV32BIT)
+				// 32-bit code here.
+				TCHAR refpropdllstring[100] = TEXT("refprop.dll");
+				RefpropdllInstance = LoadLibrary(refpropdllstring);
+			#else
+				// INCREASE ROBUSTNESS. ALWAYS THROW AN ERROR ON THE ELSE.
+				#error "Must define either ENV32BIT or ENV64BIT"
+			#endif
+
+			
 		#elif defined(__ISLINUX__)
 			RefpropdllInstance = dlopen ("librefprop.so", RTLD_LAZY);
 		#elif defined(__ISAPPLE__)

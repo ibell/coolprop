@@ -4,7 +4,7 @@
    c++ parts in the header that cannot be easily hidden when compiling */
 double Props(char *Output, char Name1, double Prop1, char Name2, double Prop2, char * Ref);
 double Props1(char *Output, char * Ref);
-long get_errstring_copy(char *);
+long get_global_param_string(char*);
 static bool isNAN(double x)
 {
 	/* recommendation from http://www.devx.com/tips/Tip/42853 */
@@ -60,7 +60,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         /* Otherwise there was an error, return the CoolProp error*/
         else
         {
-            get_errstring_copy(errstr);
+            get_global_param_string("errstring",errstr);
             sprintf(errstr2,"CoolProp Error: %s",errstr);
             mexErrMsgTxt(errstr2);
         }
@@ -99,7 +99,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         /* Otherwise there was an error, return the CoolProp error*/
         else
         {
-            get_errstring_copy(errstr);
+            get_global_param_string("errstring",errstr);
             sprintf(errstr2,"CoolProp Error: %s",errstr);
             mexErrMsgTxt(errstr2);
         }
