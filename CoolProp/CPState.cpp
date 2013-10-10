@@ -1416,11 +1416,6 @@ void CoolPropStateClassSI::rho_smoothed(double xend, double *rho_spline, double 
 	double drhodhdp_l = CPS.SatL->d2rhodhdp();
 	double drhodh_v = CPS.SatV->drhodh_constp();
 
-	// Partial derivatives at the junction (end):
-	double drhodh_end_temp = CPS.drhodh_constp();
-	double drhodp_end_temp = CPS.drhodp_consth();
-	double drhodhdp_end_temp = CPS.d2rhodhdp();
-
 	// Same as above, but detailed:
 	double dxdp = ((xend - 1 )* dhldp - xend* dhvdp)/(h_v - h_l);
 	double drhodh_end = pow(rho_end,2)/(rho_l*rho_v) * (rho_v - rho_l)/(h_v - h_l);

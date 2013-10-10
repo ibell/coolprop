@@ -871,16 +871,19 @@ double DerivTerms(char *Term, double T, double rho, Fluid * pFluid)
 	}
 	else if (!strcmp(Term,"rho_smoothed")){
 		double rhospline, dsplinedp, dsplinedh;
+		CPS.update(iT,T,iQ,rho);
 		CPS.rho_smoothed(0.1,&rhospline,&dsplinedh,&dsplinedp);
 		return rhospline;
 	}
 	else if (!strcmp(Term,"d(rho_smoothed)/dh")){
 		double rhospline, dsplinedp, dsplinedh;
+		CPS.update(iT,T,iQ,rho);
 		CPS.rho_smoothed(0.1,&rhospline,&dsplinedh,&dsplinedp);
 		return dsplinedh;
 	}
 	else if (!strcmp(Term,"d(rho_smoothed)/dp")){
 		double rhospline, dsplinedp, dsplinedh;
+		CPS.update(iT,T,iQ,rho);
 		CPS.rho_smoothed(0.1,&rhospline,&dsplinedh,&dsplinedp);
 		return dsplinedp;
 	}
