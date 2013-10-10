@@ -242,11 +242,11 @@ public:
 	// Extended two-phase calculations things
 	// ----------------------------------------
 	/// Enable the extended two-phase calculations
-	void enable_EXTTP(void);
+	//void enable_EXTTP(void);
 	/// Check if extended two-phase calculations are enabled
-	bool isenabled_EXTTP(void);
+	//bool isenabled_EXTTP(void);
 	/// Disable the extended two-phase calculations
-	void disable_EXTTP(void);
+	//void disable_EXTTP(void);
 
 	// ----------------------------------------	
 	// TTSE LUT things
