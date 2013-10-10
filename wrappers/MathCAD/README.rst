@@ -6,7 +6,7 @@ copyright Scott Polak and Ian Bell, 2013
 To Use
 ======
 
-* Copy the CoolPropMathcadWrapper.dll file to C:\\Program Files (x86)\\Mathcad\\Mathcad 15\userefi or equivalent for your version
+* Copy the CoolPropMathcadWrapper.dll file to C:\\Program Files (x86)\\Mathcad\\Mathcad 15\\userefi or equivalent for your version
 
 * Open the CoolPropFluidProperties.xmcd file in MathCAD, fields should populate
 
