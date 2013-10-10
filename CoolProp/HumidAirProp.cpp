@@ -779,7 +779,7 @@ double DewpointTemperature(double T, double p, double psi_w)
 		if (iter==2){x2 = x1 + 0.1; Tdp=x2;}
 		if (iter>2) {Tdp=x2;}
         
-            if (Tdp >= 273.15)
+            if (Tdp >= 273.16)
             {
                 // Saturation pressure at dewpoint [kPa]
                 p_ws_dp=Props('P','T',Tdp,'Q',0,(char *)"Water");
@@ -829,7 +829,7 @@ public:
 
 		// Enhancement Factor at wetbulb temperature [-]
         f_wb=f_factor(Twb,_p);
-        if (Twb>273.15)
+        if (Twb>273.16)
         {
             // Saturation pressure at wetbulb temperature [kPa]
             p_ws_wb=Props('P','T',Twb,'Q',0,(char *)"Water");
@@ -846,7 +846,7 @@ public:
         W_s_wb=epsilon*p_s_wb/(_p-p_s_wb);
         // wetbulb water mole fraction
         psi_wb=W_s_wb/(epsilon+W_s_wb);
-        if (Twb>273.15)
+        if (Twb>273.16)
         {
             // Enthalpy of water [kJ/kg_water]
             h_w=Props('H','T',Twb,'P',_p,(char *)"Water");
@@ -1034,7 +1034,7 @@ double MoleFractionWater(double T, double p, int HumInput, double InVal)
 double RelativeHumidity(double T, double p, double psi_w)
 {
     double p_ws,f,p_s,W;
-    if (T>=273.15)
+    if (T>=273.16)
     {
         // Saturation pressure [kPa]
         p_ws=Props('P','T',T,'Q',0,(char *)"Water");
@@ -1437,7 +1437,7 @@ EXPORT_CODE double CONVENTION HAProps_Aux(char* Name,double T, double p, double 
     else if (!strcmp(Name,"kT"))
     {
         strcpy(units,"1/Pa");
-        if (T>273.15)
+        if (T>273.16)
         {
             double rho = Props('D','T',T,'P',p,(char *)"Water");
             return DerivTerms((char *)"IsothermalCompressibility",T,rho,(char *)"Water")/1000; //[1/Pa]
@@ -1448,7 +1448,7 @@ EXPORT_CODE double CONVENTION HAProps_Aux(char* Name,double T, double p, double 
     else if (!strcmp(Name,"p_ws"))
     {
         strcpy(units,"kPa");
-        if (T>273.15)
+        if (T>273.16)
             return Props('P','T',T,'Q',0,(char *)"Water");
         else
             return psub_Ice(T);
@@ -1456,7 +1456,7 @@ EXPORT_CODE double CONVENTION HAProps_Aux(char* Name,double T, double p, double 
     else if (!strcmp(Name,"vbar_ws"))
     {
         strcpy(units,"m^3/mol");
-        if (T>273.15)
+        if (T>273.16)
         {
             // It is liquid water
             return 1.0/Props('D','T',T,'Q',0,(char *)"Water")*MM_Water()/1000; //[m^3/mol]
