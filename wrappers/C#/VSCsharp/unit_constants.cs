@@ -7,9 +7,10 @@
  * ----------------------------------------------------------------------------- */
 
 
-public enum phases {
-  iLiquid,
-  iSupercritical,
-  iGas,
-  iTwoPhase
+public enum unit_constants {
+  UNIT_KPA,
+  UNIT_PA,
+  UNIT_BAR,
+  UNIT_KG_M3,
+  UNIT_KG_L
 }

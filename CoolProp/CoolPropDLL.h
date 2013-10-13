@@ -23,6 +23,14 @@
 	#if defined(__powerpc__) || defined(EXTERNC)
 	#define EXPORT_CODE extern "C"
 	#endif
+
+	#ifdef SWIG
+		std::string get_global_param_string(std::string ParamName);
+		std::string get_fluid_param_string(std::string FluidName, std::string ParamName);
+	#else
+		EXPORT_CODE long CONVENTION get_global_param_string(char *param, char * Output);
+		EXPORT_CODE long CONVENTION get_fluid_param_string(char *fluid, char *param, char * Output);
+	#endif
 	
 	// Functions with the call type like
     // EXPORT_CODE void CONVENTION AFunction(double, double);
@@ -32,9 +40,6 @@
 	EXPORT_CODE double CONVENTION PropsS(char *Output,char* Name1, double Prop1, char* Name2, double Prop2, char * Ref);
 	EXPORT_CODE double CONVENTION Props(char *Output,char Name1, double Prop1, char Name2, double Prop2, char * Ref);
 	EXPORT_CODE double CONVENTION Props1(char *Ref, char * Output);
-
-	EXPORT_CODE long CONVENTION get_global_param_string(char *param, char * Output);
-	EXPORT_CODE long CONVENTION get_fluid_param_string(char *fluid, char *param, char * Output);
 	
 	// This version uses the indices in place of the strings for speed.  Get the parameter indices
 	// from get_param_index('D') for instance and the Fluid index from get_Fluid_index('Air') for instance
@@ -91,6 +96,13 @@
 
 	EXPORT_CODE int CONVENTION set_reference_stateS(char *Ref, char *reference_state);
 	EXPORT_CODE int CONVENTION set_reference_stateD(char *Ref, double T, double rho, double h0, double s0);
+
+	/// Returns the value for the integer flag corresponding to the current set of units
+	/// @returns val The integer value for the current set of units, one of enumerated values UNIT_SYSTEM_SI, UNIT_SYSTEM_KSI (see GlobalConstants.h)
+	EXPORT_CODE int CONVENTION get_standard_unit_system();
+	/// Sets the flag for the integer flag corresponding to the current set of units
+	/// @param val The integer value for the current set of units, one of enumerated values UNIT_SYSTEM_SI, UNIT_SYSTEM_KSI (see GlobalConstants.h)
+	EXPORT_CODE void CONVENTION set_standard_unit_system(int val);
 
 	// Expose some functions that are useful for ECS debugging
 	EXPORT_CODE double CONVENTION viscosity_dilute(char* FluidName, double T);

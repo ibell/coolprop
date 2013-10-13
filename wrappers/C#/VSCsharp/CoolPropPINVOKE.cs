@@ -188,6 +188,12 @@ class CoolPropPINVOKE {
   }
 
 
+  [DllImport("CoolProp", EntryPoint="CSharp_get_global_param_string")]
+  public static extern string get_global_param_string(string jarg1);
+
+  [DllImport("CoolProp", EntryPoint="CSharp_get_fluid_param_string")]
+  public static extern string get_fluid_param_string(string jarg1, string jarg2);
+
   [DllImport("CoolProp", EntryPoint="CSharp_PropsS")]
   public static extern double PropsS(string jarg1, string jarg2, double jarg3, string jarg4, double jarg5, string jarg6);
 
@@ -196,12 +202,6 @@ class CoolPropPINVOKE {
 
   [DllImport("CoolProp", EntryPoint="CSharp_Props1")]
   public static extern double Props1(string jarg1, string jarg2);
-
-  [DllImport("CoolProp", EntryPoint="CSharp_get_global_param_string")]
-  public static extern int get_global_param_string(string jarg1, string jarg2);
-
-  [DllImport("CoolProp", EntryPoint="CSharp_get_fluid_param_string")]
-  public static extern int get_fluid_param_string(string jarg1, string jarg2, string jarg3);
 
   [DllImport("CoolProp", EntryPoint="CSharp_IProps")]
   public static extern double IProps(int jarg1, int jarg2, double jarg3, int jarg4, double jarg5, int jarg6);
@@ -289,6 +289,12 @@ class CoolPropPINVOKE {
 
   [DllImport("CoolProp", EntryPoint="CSharp_set_reference_stateD")]
   public static extern int set_reference_stateD(string jarg1, double jarg2, double jarg3, double jarg4, double jarg5);
+
+  [DllImport("CoolProp", EntryPoint="CSharp_get_standard_unit_system")]
+  public static extern int get_standard_unit_system();
+
+  [DllImport("CoolProp", EntryPoint="CSharp_set_standard_unit_system")]
+  public static extern void set_standard_unit_system(int jarg1);
 
   [DllImport("CoolProp", EntryPoint="CSharp_viscosity_dilute")]
   public static extern double viscosity_dilute(string jarg1, double jarg2);

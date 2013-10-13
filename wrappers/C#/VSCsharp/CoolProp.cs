@@ -11,6 +11,18 @@ using System;
 using System.Runtime.InteropServices;
 
 public class CoolProp {
+  public static string get_global_param_string(string ParamName) {
+    string ret = CoolPropPINVOKE.get_global_param_string(ParamName);
+    if (CoolPropPINVOKE.SWIGPendingException.Pending) throw CoolPropPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
+  public static string get_fluid_param_string(string FluidName, string ParamName) {
+    string ret = CoolPropPINVOKE.get_fluid_param_string(FluidName, ParamName);
+    if (CoolPropPINVOKE.SWIGPendingException.Pending) throw CoolPropPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
   public static double PropsS(string Output, string Name1, double Prop1, string Name2, double Prop2, string Ref) {
     double ret = CoolPropPINVOKE.PropsS(Output, Name1, Prop1, Name2, Prop2, Ref);
     return ret;
@@ -23,16 +35,6 @@ public class CoolProp {
 
   public static double Props1(string Ref, string Output) {
     double ret = CoolPropPINVOKE.Props1(Ref, Output);
-    return ret;
-  }
-
-  public static int get_global_param_string(string param, string Output) {
-    int ret = CoolPropPINVOKE.get_global_param_string(param, Output);
-    return ret;
-  }
-
-  public static int get_fluid_param_string(string fluid, string param, string Output) {
-    int ret = CoolPropPINVOKE.get_fluid_param_string(fluid, param, Output);
     return ret;
   }
 
@@ -178,6 +180,15 @@ public class CoolProp {
   public static int set_reference_stateD(string Ref, double T, double rho, double h0, double s0) {
     int ret = CoolPropPINVOKE.set_reference_stateD(Ref, T, rho, h0, s0);
     return ret;
+  }
+
+  public static int get_standard_unit_system() {
+    int ret = CoolPropPINVOKE.get_standard_unit_system();
+    return ret;
+  }
+
+  public static void set_standard_unit_system(int val) {
+    CoolPropPINVOKE.set_standard_unit_system(val);
   }
 
   public static double viscosity_dilute(string FluidName, double T) {

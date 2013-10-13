@@ -144,10 +144,10 @@ You might want to start by looking at CoolProp.h
 	int set_reference_stateD(std::string FluidName, double T, double rho, double h0, double s0);
 	/// Returns the value for the integer flag corresponding to the current set of units
 	/// @returns val The integer value for the current set of units, one of enumerated values UNIT_SYSTEM_SI, UNIT_SYSTEM_KSI (see GlobalConstants.h)
-	int get_standard_unit_system();
+	int _get_standard_unit_system();
 	/// Sets the flag for the integer flag corresponding to the current set of units
 	/// @param val The integer value for the current set of units, one of enumerated values UNIT_SYSTEM_SI, UNIT_SYSTEM_KSI (see GlobalConstants.h)
-	void set_standard_unit_system(int);
+	void _set_standard_unit_system(int);
 	/// An internal function to set the global warning string (API for warnings is not formalized)
 	/// @param warning The string to set as the warning string
 	void set_warning(std::string warning);

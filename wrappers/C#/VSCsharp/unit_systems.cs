@@ -7,9 +7,9 @@
  * ----------------------------------------------------------------------------- */
 
 
-public enum phases {
-  iLiquid,
-  iSupercritical,
-  iGas,
-  iTwoPhase
+public enum unit_systems {
+  UNIT_SYSTEM_SI,
+  UNIT_SYSTEM_KSI,
+  UNIT_SYSTEM_KSI_MOLAR,
+  UNIT_SYSTEM_SI_MOLAR
 }

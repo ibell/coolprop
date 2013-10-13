@@ -303,6 +303,7 @@ EXPORT_CODE double CONVENTION psatV_anc(char* FluidName, double T)
 		return -_HUGE;
 	}
 }
+#ifndef SWIG
 EXPORT_CODE long CONVENTION get_global_param_string(char *param, char * Output)
 {
 	strcpy(Output,get_global_param_string(std::string(param)).c_str());
@@ -313,6 +314,7 @@ EXPORT_CODE long CONVENTION get_fluid_param_string(char *fluid, char *param, cha
 	strcpy(Output, get_fluid_param_string(std::string(fluid), std::string(param)).c_str());
 	return 0;
 }
+#endif
 EXPORT_CODE long CONVENTION Phase(char *Fluid, double T, double p, char *Phase_str)
 {
 	strcpy(Phase_str,(char*)Phase(std::string(Fluid),T,p).c_str());
@@ -410,3 +412,10 @@ EXPORT_CODE bool CONVENTION get_TTSESinglePhase_LUT_range(char *FluidName, doubl
 		return true;
 	}
 }
+
+/// Returns the value for the integer flag corresponding to the current set of units
+/// @returns val The integer value for the current set of units, one of enumerated values UNIT_SYSTEM_SI, UNIT_SYSTEM_KSI (see GlobalConstants.h)
+EXPORT_CODE int CONVENTION get_standard_unit_system(){return _get_standard_unit_system();}
+/// Sets the flag for the integer flag corresponding to the current set of units
+/// @param val The integer value for the current set of units, one of enumerated values UNIT_SYSTEM_SI, UNIT_SYSTEM_KSI (see GlobalConstants.h)
+EXPORT_CODE void CONVENTION set_standard_unit_system(int val){return _set_standard_unit_system(val);}
