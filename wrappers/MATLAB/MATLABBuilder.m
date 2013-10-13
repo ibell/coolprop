@@ -29,12 +29,13 @@ for i=1:size(files,1)
 	o_file = strrep(file,'.cpp','.obj');
 	o_files = [o_files, ' ', o_file];
 	cpp_files = [cpp_files, ' ',file];
-    eval(['mex -v -c', include_string,mexopts_string,' -DCOOLPROP_LIB -outdir . ',file])
+    eval(['mex -c', include_string,mexopts_string,' -DCOOLPROP_LIB -outdir . ',file])
+    disp(file)
 end
 
 %Build the MEX files
-eval(['mex -v ', include_string,mexopts_string,' Props.c *.obj'])
-eval(['mex -v ', include_string,mexopts_string,' HAProps.c *.obj'])
+eval(['mex ', include_string,mexopts_string,' Props.c *.obj'])
+eval(['mex ', include_string,mexopts_string,' HAProps.c *.obj'])
 
 %Clean up - delete the obj files
 delete('*.obj')
