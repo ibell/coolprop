@@ -15,8 +15,6 @@ erase *.obj
 erase CoolProp_wrap.cxx
 erase CoolProp.lib
 erase CoolProp.exp
-move *.cs VSCsharp
-move CoolProp.dll VSCsharp
 
 rem **** Make a zip file using 7-zip ***
-7z a -r VSCsharp.7z VSCsharp/*.*
+7z a -r Csharp.7z *.cs CoolProp.dll
