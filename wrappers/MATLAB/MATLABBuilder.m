@@ -41,4 +41,4 @@ eval(['mex ', include_string,mexopts_string,' HAProps.c *.obj'])
 delete('*.obj')
 
 %Quit MATLAB
-quit
+%quit

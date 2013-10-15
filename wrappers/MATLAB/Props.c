@@ -6,6 +6,9 @@ double Props(char *Output, char Name1, double Prop1, char Name2, double Prop2, c
 double Props1(char *Output, char * Ref);
 long get_global_param_string(char*);
 long get_fluid_param_string(char *fluid, char *param, char * Output);
+long get_standard_unit_system(void);
+void set_standard_unit_system(long);
+#include "GlobalConstants.h"
 
 static bool isNAN(double x)
 {
@@ -66,7 +69,6 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
             disable_TTSE_LUT(Ref);
             return;
         }
-        
         
         // Ok, now try to get the values for the fluid
         
@@ -144,6 +146,29 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         }
         else if (!strcmp(Ref,"gitrevision")){
             get_global_param_string("gitrevision", fluidslist);
+        }
+        else if (!strcmp(Ref,"set_UNIT_SYSTEM_SI"))
+        {
+            set_standard_unit_system(UNIT_SYSTEM_SI);
+            mexPrintf("Unit system set to SI\n");
+            return;
+        }
+        else if (!strcmp(Ref,"set_UNIT_SYSTEM_KSI"))
+        {
+            set_standard_unit_system(UNIT_SYSTEM_KSI);
+            mexPrintf("Unit system set to KSI\n");
+            return;
+        }
+        else if (!strcmp(Ref,"get_unit_system"))
+        {
+            switch (get_standard_unit_system())
+            {
+                case UNIT_SYSTEM_SI:
+                    plhs[0] = mxCreateString("UNIT_SYSTEM_SI"); break;
+                case UNIT_SYSTEM_KSI:
+                    plhs[0] = mxCreateString("UNIT_SYSTEM_SI"); break;
+            }
+            return;
         }
         else
         {

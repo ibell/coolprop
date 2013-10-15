@@ -67,15 +67,15 @@ catch
     disp('************ CANT USE REFPROP ************')
     disp(' ')
 end
-% 
-% print ' '
-% print '************ CHANGE UNIT SYSTEM (default is kSI) *************'
-% print ' '
-% CP.set_standard_unit_system(CoolProp.UNIT_SYSTEM_SI)
-% print 'Vapor pressure of water at 373.15 K in SI units (Pa):', CP.Props('P','T',373.15,'Q',0,'Water')
-% CP.set_standard_unit_system(CoolProp.UNIT_SYSTEM_KSI)
-% print 'Vapor pressure of water at 373.15 K in kSI units (kPa):', CP.Props('P','T',373.15,'Q',0,'Water')
-% 
+ 
+disp(' ')
+disp('************ CHANGE UNIT SYSTEM (default is kSI) *************')
+disp(' ')
+Props('set_UNIT_SYSTEM_SI')
+disp(['Vapor pressure of water at 373.15 K in SI units (Pa): '+ num2str(Props('P','T',373.15,'Q',0,'Water'))])
+Props('set_UNIT_SYSTEM_KSI')
+disp(['Vapor pressure of water at 373.15 K in kSI units (kPa): ' + num2str(Props('P','T',373.15,'Q',0,'Water'))])
+
 disp(' ')
 disp('************ BRINES AND SECONDARY WORKING FLUIDS *************')
 disp(' ')
