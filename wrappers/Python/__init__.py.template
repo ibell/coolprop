@@ -3,6 +3,9 @@
 from . import CoolProp
 from . import HumidAirProp
 from . import State
+from .unit_systems_constants import *
+from .param_constants import *
+from .phase_constants import *
 
 __fluids__ = CoolProp.FluidsList()
 
