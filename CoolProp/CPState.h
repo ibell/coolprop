@@ -515,45 +515,45 @@ public:
 
 	double drhodT_constp(void){return CoolPropStateClassSI::drhodT_constp()*conversion_factor("D/T");};
 	double drhodp_constT(void){return CoolPropStateClassSI::drhodp_constT()*conversion_factor("D/P");};
-	double d2rhodp2_constT(void){return CoolPropStateClassSI::d2rhodp2_constT()*conversion_factor("D*D/P/P");};
-	double d2rhodTdp(void){return CoolPropStateClassSI::d2rhodTdp()*conversion_factor("D*D/T/P");};
-	double d2rhodT2_constp(void){return CoolPropStateClassSI::d2rhodT2_constp()*conversion_factor("D*D/T/T");};
-	double d2rhodhdQ(void){return CoolPropStateClassSI::d2rhodhdQ()*conversion_factor("D*D/H/Q");};
-	double d2rhodpdQ(void){return CoolPropStateClassSI::d2rhodpdQ()*conversion_factor("D*D/P/Q");};
-	double d2rhodhdp(void){return CoolPropStateClassSI::d2rhodhdp()*conversion_factor("D*D/H/P");};
-	double d2rhodh2_constp(void){return CoolPropStateClassSI::d2rhodh2_constp()*conversion_factor("D*D/H/H");};
+	double d2rhodp2_constT(void){return CoolPropStateClassSI::d2rhodp2_constT()*conversion_factor("D/P/P");};
+	double d2rhodTdp(void){return CoolPropStateClassSI::d2rhodTdp()*conversion_factor("D/T/P");};
+	double d2rhodT2_constp(void){return CoolPropStateClassSI::d2rhodT2_constp()*conversion_factor("D/T/T");};
+	double d2rhodhdQ(void){return CoolPropStateClassSI::d2rhodhdQ()*conversion_factor("D/H/Q");};
+	double d2rhodpdQ(void){return CoolPropStateClassSI::d2rhodpdQ()*conversion_factor("D/P/Q");};
+	double d2rhodhdp(void){return CoolPropStateClassSI::d2rhodhdp()*conversion_factor("D/H/P");};
+	double d2rhodh2_constp(void){return CoolPropStateClassSI::d2rhodh2_constp()*conversion_factor("D/H/H");};
 	
 	double dpdrho_constT(void){return CoolPropStateClassSI::dpdrho_constT()*conversion_factor("P/D");};
 	double dpdrho_consth(void){return CoolPropStateClassSI::dpdrho_consth()*conversion_factor("P/D");};
 	double dpdT_constrho(void){return CoolPropStateClassSI::dpdT_constrho()*conversion_factor("P/T");};
 	double dpdT_consth(void){return CoolPropStateClassSI::dpdT_consth()*conversion_factor("P/T");};
-	double d2pdrho2_constT(void){return CoolPropStateClassSI::d2pdrho2_constT()*conversion_factor("P*P/D/D");};
-	double d2pdrhodT(void){return CoolPropStateClassSI::d2pdrhodT()*conversion_factor("P*P/D/T");};
-	double d2pdT2_constrho(void){return CoolPropStateClassSI::d2pdT2_constrho()*conversion_factor("P*P/T/T");};
+	double d2pdrho2_constT(void){return CoolPropStateClassSI::d2pdrho2_constT()*conversion_factor("P/D/D");};
+	double d2pdrhodT(void){return CoolPropStateClassSI::d2pdrhodT()*conversion_factor("P/D/T");};
+	double d2pdT2_constrho(void){return CoolPropStateClassSI::d2pdT2_constrho()*conversion_factor("P/T/T");};
 
 	double dhdrho_constT(void){return CoolPropStateClassSI::dhdrho_constT()*conversion_factor("H/D");};
 	double dhdrho_constp(void){return CoolPropStateClassSI::dhdrho_constp()*conversion_factor("H/D");};
 	double dhdT_constrho(void){return CoolPropStateClassSI::dhdT_constrho()*conversion_factor("H/T");};
 	double dhdT_constp(void){return CoolPropStateClassSI::dhdT_constp()*conversion_factor("H/T");};
 	double dhdp_constT(void){return CoolPropStateClassSI::dhdp_constT()*conversion_factor("H/P");};
-	double d2hdrho2_constT(void){return CoolPropStateClassSI::d2hdrho2_constT()*conversion_factor("H*H/D/D");};
-	double d2hdrhodT(void){return CoolPropStateClassSI::d2hdrhodT()*conversion_factor("H*H/D/T");};
-	double d2hdT2_constrho(void){return CoolPropStateClassSI::d2hdT2_constrho()*conversion_factor("H*H/T/T");};
-	double d2hdT2_constp(void){return CoolPropStateClassSI::d2hdT2_constp()*conversion_factor("H*H/T/T");};
-	double d2hdp2_constT(void){return CoolPropStateClassSI::d2hdp2_constT()*conversion_factor("H*H/P/P");};
-	double d2hdTdp(void){return CoolPropStateClassSI::d2hdTdp()*conversion_factor("H*H/T/P");};
+	double d2hdrho2_constT(void){return CoolPropStateClassSI::d2hdrho2_constT()*conversion_factor("H/D/D");};
+	double d2hdrhodT(void){return CoolPropStateClassSI::d2hdrhodT()*conversion_factor("H/D/T");};
+	double d2hdT2_constrho(void){return CoolPropStateClassSI::d2hdT2_constrho()*conversion_factor("H/T/T");};
+	double d2hdT2_constp(void){return CoolPropStateClassSI::d2hdT2_constp()*conversion_factor("H/T/T");};
+	double d2hdp2_constT(void){return CoolPropStateClassSI::d2hdp2_constT()*conversion_factor("H/P/P");};
+	double d2hdTdp(void){return CoolPropStateClassSI::d2hdTdp()*conversion_factor("H/T/P");};
 
 	double dsdrho_constT(void){return CoolPropStateClassSI::dsdrho_constT()*conversion_factor("S/D");};
 	double dsdT_constrho(void){return CoolPropStateClassSI::dsdT_constrho()*conversion_factor("S/T");};
 	double dsdrho_constp(void){return CoolPropStateClassSI::dsdrho_constp()*conversion_factor("S/D");};
 	double dsdT_constp(void){return CoolPropStateClassSI::dsdT_constp()*conversion_factor("S/T");};
 	double dsdp_constT(void){return CoolPropStateClassSI::dsdp_constT()*conversion_factor("S/P");};
-	double d2sdrho2_constT(void){return CoolPropStateClassSI::d2sdrho2_constT()*conversion_factor("S*S/D/D");};
-	double d2sdrhodT(void){return CoolPropStateClassSI::d2sdrhodT()*conversion_factor("S*S/D/T");};
-	double d2sdT2_constrho(void){return CoolPropStateClassSI::d2sdT2_constrho()*conversion_factor("S*S/T/T");};
-	double d2sdT2_constp(void){return CoolPropStateClassSI::d2sdT2_constp()*conversion_factor("S*S/T/T");};
-	double d2sdp2_constT(void){return CoolPropStateClassSI::d2sdp2_constT()*conversion_factor("S*S/P/P");};
-	double d2sdTdp(void){return CoolPropStateClassSI::d2sdTdp()*conversion_factor("S*S/T/P");};
+	double d2sdrho2_constT(void){return CoolPropStateClassSI::d2sdrho2_constT()*conversion_factor("S/D/D");};
+	double d2sdrhodT(void){return CoolPropStateClassSI::d2sdrhodT()*conversion_factor("S/D/T");};
+	double d2sdT2_constrho(void){return CoolPropStateClassSI::d2sdT2_constrho()*conversion_factor("S/T/T");};
+	double d2sdT2_constp(void){return CoolPropStateClassSI::d2sdT2_constp()*conversion_factor("S/T/T");};
+	double d2sdp2_constT(void){return CoolPropStateClassSI::d2sdp2_constT()*conversion_factor("S/P/P");};
+	double d2sdTdp(void){return CoolPropStateClassSI::d2sdTdp()*conversion_factor("S/T/P");};
 
 	//// ----------------------------------------	
 	//// Derivatives along the saturation curve
@@ -566,18 +566,18 @@ public:
 
 	double dhdp_along_sat_vapor(void){return CoolPropStateClassSI::dhdp_along_sat_vapor()*conversion_factor("H/P");};
 	double dhdp_along_sat_liquid(void){return CoolPropStateClassSI::dhdp_along_sat_liquid()*conversion_factor("H/P");};
-	double d2hdp2_along_sat_vapor(void){return CoolPropStateClassSI::d2hdp2_along_sat_vapor()*conversion_factor("H*H/P/P");};
-	double d2hdp2_along_sat_liquid(void){return CoolPropStateClassSI::d2hdp2_along_sat_liquid()*conversion_factor("H*H/P/P");};
+	double d2hdp2_along_sat_vapor(void){return CoolPropStateClassSI::d2hdp2_along_sat_vapor()*conversion_factor("H/P/P");};
+	double d2hdp2_along_sat_liquid(void){return CoolPropStateClassSI::d2hdp2_along_sat_liquid()*conversion_factor("H/P/P");};
 
 	double dsdp_along_sat_vapor(void){return CoolPropStateClassSI::dsdp_along_sat_vapor()*conversion_factor("S/P");};
 	double dsdp_along_sat_liquid(void){return CoolPropStateClassSI::dsdp_along_sat_liquid()*conversion_factor("S/P");};
-	double d2sdp2_along_sat_vapor(void){return CoolPropStateClassSI::d2sdp2_along_sat_vapor()*conversion_factor("S*S/P/P");};
-	double d2sdp2_along_sat_liquid(void){return CoolPropStateClassSI::d2sdp2_along_sat_liquid()*conversion_factor("S*S/P/P");};
+	double d2sdp2_along_sat_vapor(void){return CoolPropStateClassSI::d2sdp2_along_sat_vapor()*conversion_factor("S/P/P");};
+	double d2sdp2_along_sat_liquid(void){return CoolPropStateClassSI::d2sdp2_along_sat_liquid()*conversion_factor("S/P/P");};
 
 	double drhodp_along_sat_vapor(void){return CoolPropStateClassSI::drhodp_along_sat_vapor()*conversion_factor("D/P");};
 	double drhodp_along_sat_liquid(void){return CoolPropStateClassSI::drhodp_along_sat_liquid()*conversion_factor("D/P");};
-	double d2rhodp2_along_sat_vapor(void){return CoolPropStateClassSI::d2rhodp2_along_sat_vapor()*conversion_factor("D*D/P/P");};
-	double d2rhodp2_along_sat_liquid(void){return CoolPropStateClassSI::d2rhodp2_along_sat_liquid()*conversion_factor("D*D/P/P");};
+	double d2rhodp2_along_sat_vapor(void){return CoolPropStateClassSI::d2rhodp2_along_sat_vapor()*conversion_factor("D/P/P");};
+	double d2rhodp2_along_sat_liquid(void){return CoolPropStateClassSI::d2rhodp2_along_sat_liquid()*conversion_factor("D/P/P");};
 
 	/*double dhdT_along_sat_vapor(void){return CoolPropStateClassSI::dhdT_along_sat_vapor()*conversion_factor("H/T");};
 	double dhdT_along_sat_liquid(void){return CoolPropStateClassSI::dhdT_along_sat_liquid()*conversion_factor("H/T");};
