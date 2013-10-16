@@ -1,6 +1,10 @@
 Changelog for CoolProp
 ======================
 
+4.4.0
+-----
+* MAJOR: Internally all units are SI, functions should do the necessary conversions
+
 3.3.0 (revision 660)
 --------------------
 * MAJOR: Added bicubic interpolation to TTSE method.  Enable by calling ``set_TTSE_mode(Fluid,"TTSE")`` or ``set_TTSE_mode(Fluid,"BICUBIC")`` (for bicubic interpolation).  Default is normal TTSE interpolation
