@@ -100,8 +100,8 @@ namespace ConsoleApplication1
             Console.Write("Humidity ratio of 50% rel. hum. air at 300 K, 101.325 kPa: " + CoolProp.HAProps("W", "T", 300, "P", 101.325, "R", 0.5) + " kg_w/kg_da" + "\n");
             Console.Write("Relative humidity from last calculation: " + CoolProp.HAProps("R", "T", 300, "P", 101.325, "W", CoolProp.HAProps("W", "T", 300, "P", 101.325, "R", 0.5)) + "(fractional)" + "\n");
 
-            Console.Write("Enter to quit");
-            Console.ReadLine();
+            //Console.Write("Enter to quit");
+            //Console.ReadLine();
         }
     }
 }
