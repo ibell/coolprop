@@ -479,6 +479,14 @@ public:
 	/// A smoothed version of the derivative using a spline curve in the region of x=0 to x=xend
 	double drhodp_consth_smoothed(double xend){return CoolPropStateClassSI::drhodp_consth_smoothed(xend)*conversion_factor("D/P");};
 
+	/// Density corresponding to the smoothed derivatives in the region of x=0 to x=xend
+	void rho_smoothed(double xend, double *rho_spline, double *dsplinedh, double *dsplinedp)
+	{
+		CoolPropStateClassSI::rho_smoothed(xend,rho_spline,dsplinedh,dsplinedp);
+		*dsplinedh *= conversion_factor("H");
+		*dsplinedp *= conversion_factor("P");
+	}
+
 	//// ----------------------------------------	
 	//// TTSE LUT things
 	//// ----------------------------------------
