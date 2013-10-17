@@ -231,7 +231,7 @@ class BasePlot(object):
 
     def grid(self, b=None, **kwargs):
         g_map = {'on': True, 'off': False}
-        if b in not None:
+        if b is not None:
             b = g_map[b.lower()]
         if len(kwargs) == 0:
             self.axis.grid(b)

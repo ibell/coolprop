@@ -10,7 +10,7 @@ Plots Package
     :show-inheritance:
 
 :mod:`CoolProp.Plots.Common` Module
-----------------------------------
+-------------------------------------
 
 .. automodule:: CoolProp.Plots.Common
     :members:
@@ -40,4 +40,3 @@ Plots Package
     :members:
     :undoc-members:
     :show-inheritance:
-
