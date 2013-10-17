@@ -1,3 +1,4 @@
+
 # -*- coding: utf-8 -*-
 #
 # sampledoc documentation build configuration file, created by
@@ -99,6 +100,12 @@ pygments_style = 'sphinx'
 
 # A list of ignored prefixes for module index sorting.
 #modindex_common_prefix = []
+
+#This value selects what content will be inserted into the main body of an autoclass directive.
+#'class' - Only the class’ docstring is inserted. This is the default.
+#'init' - Only the __init__ method’s docstring is inserted.
+#'both' - Both the class’ and the __init__ method’s docstring are concatenated and inserted
+autoclass_content = 'both' 
 
 
 # -- Options for HTML output ---------------------------------------------------
