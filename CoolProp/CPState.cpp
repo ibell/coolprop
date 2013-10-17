@@ -1335,7 +1335,7 @@ double CoolPropStateClassSI::drhodh_constp(void){
 
 double CoolPropStateClassSI::drhodp_consth_smoothed(double xend){
 	// Make a state class instance
-	CoolPropStateClass CPS = CoolPropStateClass(pFluid);
+	CoolPropStateClassSI CPS(pFluid);
 	SplineClass SC = SplineClass();
 	double hL = this->hL();
 	double hV = this->hV();
@@ -1364,7 +1364,7 @@ double CoolPropStateClassSI::drhodp_consth_smoothed(double xend){
 
 double CoolPropStateClassSI::drhodh_constp_smoothed(double xend){
 	// Make a state class instance
-	CoolPropStateClass CPS(pFluid);
+	CoolPropStateClassSI CPS(pFluid);
 	SplineClass SC = SplineClass();
 	double hL = this->hL();
 	double hV = this->hV();
