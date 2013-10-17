@@ -1,6 +1,14 @@
 Changelog for CoolProp
 ======================
 
+4.0.0
+-----
+* MAJOR: Internally all units are SI, functions should do the necessary conversions using conversion_factor() and get/set_standard_unit_system()
+* MAJOR: Brines are added to CoolPropStateClass
+* NON-BACKWARDS-COMPATIBLE CHANGE: Some functions have been condensed, functions get_errstring, get_REFPROPname, etc. have been rolled into get_global_param_string
+* Wrappers added for Java, Javascript, MathCAD
+* Added viscosity for n-Hexane
+
 3.3.0 (revision 660)
 --------------------
 * MAJOR: Added bicubic interpolation to TTSE method.  Enable by calling ``set_TTSE_mode(Fluid,"TTSE")`` or ``set_TTSE_mode(Fluid,"BICUBIC")`` (for bicubic interpolation).  Default is normal TTSE interpolation

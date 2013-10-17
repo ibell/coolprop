@@ -3,7 +3,19 @@ Examples
  
 The following examples are written in Python to demonstrate some of the 
 functionalities of CoolProp.  Similar calling conventions are used in the wrappers
-for other programming languages
+for other programming languages, as can be seen in the "other languages" section
+below:
+
+Other Languages
+---------------
+.. toctree::
+    :maxdepth: 1
+
+    MATLAB/example.rst
+    Octave/example.rst
+    CSharp/example.rst
+    Java/example.rst
+    Python/example.rst
 
 Sample Props Code
 -------------------
