@@ -9,6 +9,14 @@ Plots Package
     :undoc-members:
     :show-inheritance:
 
+:mod:`CoolProp.Plots.Common` Module
+----------------------------------
+
+.. automodule:: CoolProp.Plots.Common
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 :mod:`CoolProp.Plots.Plots` Module
 ----------------------------------
 
