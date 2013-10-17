@@ -448,10 +448,6 @@ class PropsPlot(BasePlot):
                              axis=self.axis)
         iso_lines.draw_isolines(iso_range, num)
 
-    def set_axis_limits(self, limits):
-        self.axis.set_xlim([limits[0], limits[1]])
-        self.axis.set_ylim([limits[2], limits[3]])
-
 
 def Ts(Ref, Tmin=None, Tmax=None, show=False, axis=None, *args, **kwargs):
     """

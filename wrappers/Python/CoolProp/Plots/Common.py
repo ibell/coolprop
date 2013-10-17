@@ -58,10 +58,9 @@ class BasePlot(object):
         self.fluid_ref = fluid_ref
         self.graph_type = graph_type.upper()
 
-        self.axis = kwargs.get('axis', matplotlib.pyplot.gca())
+        self.axis = kwargs.get('axis', None)
         if self.axis is None:
             self.axis = matplotlib.pyplot.gca()
-
 
     def __sat_bounds(self, kind, smin=None, smax=None):
         """
@@ -209,36 +208,40 @@ class BasePlot(object):
             x_axis_id = self.graph_type[1:len(self.graph_type)]
 
         tl_str = "%s - %s Graph for %s"
-        self.axis.set_title(tl_str % (self.AXIS_LABELS[y_axis_id][0],
-                                      self.AXIS_LABELS[x_axis_id][0],
-                                      filter_fluid_ref(self.fluid_ref)))
-        self.axis.set_xlabel(' '.join(self.AXIS_LABELS[x_axis_id]))
-        self.axis.set_ylabel(' '.join(self.AXIS_LABELS[y_axis_id]))
-        self.graph_drawn = True
+        if not self.axis.get_title():
+            self.axis.set_title(tl_str % (self.AXIS_LABELS[y_axis_id][0],
+                                          self.AXIS_LABELS[x_axis_id][0],
+                                          filter_fluid_ref(self.fluid_ref)))
+        if not self.axis.get_xlabel():
+            self.axis.set_xlabel(' '.join(self.AXIS_LABELS[x_axis_id]))
+        if not self.axis.get_ylabel():
+            self.axis.set_ylabel(' '.join(self.AXIS_LABELS[y_axis_id]))
 
     def _draw_graph(self):
         return
 
     def title(self, title):
-        if not self.graph_drawn:
-            self._draw_graph()
-            self.graph_drawn = True
         self.axis.set_title(title)
 
     def xlabel(self, xlabel):
-        if not self.graph_drawn:
-            self._draw_graph()
-            self.graph_drawn = True
         self.axis.set_xlabel(xlabel)
 
     def ylabel(self, ylabel):
-        if not self.graph_drawn:
-            self._draw_graph()
-            self.graph_drawn = True
         self.axis.set_ylabel(ylabel)
 
+    def grid(self, b=None, **kwargs):
+        g_map = {'on': True, 'off': False}
+        if b in not None:
+            b = g_map[b.lower()]
+        if len(kwargs) == 0:
+            self.axis.grid(b)
+        else:
+            self.axis.grid(kwargs)
+
+    def set_axis_limits(self, limits):
+        self.axis.set_xlim([limits[0], limits[1]])
+        self.axis.set_ylim([limits[2], limits[3]])
+
     def show(self):
-        if not self.graph_drawn:
-            self._draw_graph()
-            self.graph_drawn = True
+        self._draw_graph()
         matplotlib.pyplot.show()
