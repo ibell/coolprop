@@ -284,7 +284,7 @@ class IsoLines(BasePlot):
         # Generate iso ranges
         if len(iso_range) == 2:
             iso_range = generate_ranges(iso_range[0], iso_range[1], num)
-            iso_range = plotRound(iso_range)
+            #iso_range = plotRound(iso_range)
         #else:
         #    TODO: Automatic interval detection
         #    iVal = [CP.Props(iName,'T',T_c[i],'D',rho_c[i],Ref) for i in range(len(T_c))]
@@ -349,6 +349,7 @@ class IsoLines(BasePlot):
               'y': plot_data[1][j],
               # TODO
               'label': "", #_getIsoLineLabel(self.iso_type, iso_range[j]),
+              'type': self.iso_type,
               'opts': {'color': self.COLOR_MAP[self.iso_type], 'lw':0.75, 'alpha':0.5 }
               }
             lines.append(line)
@@ -447,10 +448,6 @@ class PropsPlot(BasePlot):
                              iso_type,
                              axis=self.axis)
         iso_lines.draw_isolines(iso_range, num)
-
-    def set_axis_limits(self, limits):
-        self.axis.set_xlim([limits[0], limits[1]])
-        self.axis.set_ylim([limits[2], limits[3]])
 
 
 def Ts(Ref, Tmin=None, Tmax=None, show=False, axis=None, *args, **kwargs):
