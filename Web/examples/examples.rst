@@ -2,9 +2,9 @@ Examples
 ========
 
 The following examples are written in Python to demonstrate some of the
-functionalities of CoolProp.  Similar calling conventions are used in the wrappers
-for other programming languages, as can be seen in the "other languages" section
-below:
+functionalities of CoolProp.  Similar calling conventions are used in the
+wrappers for other programming languages, as can be seen in the
+"other languages" section below:
 
 Other Languages
 ---------------
@@ -37,7 +37,8 @@ To use the Props function, import it and do some calls, do something like this
 
 Or go to the :ref:`Fluid-Properties` documentation.
 
-All the possible input and output parameters are listed in the :py:func:`CoolProp.CoolProp.Props` documentation
+All the possible input and output parameters are listed in the
+:py:func:`CoolProp.CoolProp.Props` documentation
 
 Sample HAProps Code
 -------------------
