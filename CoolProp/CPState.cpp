@@ -1344,7 +1344,7 @@ double CoolPropStateClassSI::cv(void){
 	}
 }
 double CoolPropStateClassSI::speed_sound(void){
-	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID){throw ValueError("speed_sound invalid for incompressibles");}
+	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("speed_sound invalid for incompressibles");}
 
 	if (pFluid->enabled_TTSE_LUT && within_TTSE_range(iP, p(), iH, h()) )
 	{
@@ -1375,7 +1375,7 @@ double CoolPropStateClassSI::speed_sound(void){
 }
 
 double CoolPropStateClassSI::isothermal_compressibility(void){
-	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID){throw ValueError("isothermal_compressibility invalid for incompressibles");}
+	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("isothermal_compressibility invalid for incompressibles");}
 	if (pFluid->enabled_TTSE_LUT && within_TTSE_range(iP, p(), iH, h()) )
 	{
 		if (TwoPhase && _Q>0 && _Q < 1)
@@ -1404,7 +1404,7 @@ double CoolPropStateClassSI::isothermal_compressibility(void){
 }
 
 double CoolPropStateClassSI::isobaric_expansion_coefficient(void){
-	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID){throw ValueError("isobaric_expansion_coefficient invalid for incompressibles");}
+	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("isobaric_expansion_coefficient invalid for incompressibles");}
 	if (pFluid->enabled_TTSE_LUT && within_TTSE_range(iP, p(), iH, h()) )
 	{
 		if (TwoPhase && _Q>0 && _Q < 1)
@@ -1428,12 +1428,12 @@ double CoolPropStateClassSI::isobaric_expansion_coefficient(void){
 	}
 }
 double CoolPropStateClassSI::surface_tension(void){
-	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID){throw ValueError("surface_tension invalid for incompressibles");}
+	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("surface_tension invalid for incompressibles");}
 	return pFluid->surface_tension_T(_T);
 }
 
 double CoolPropStateClassSI::drhodh_constp(void){
-	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID){throw ValueError("function invalid for incompressibles");}
+	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
 	if (pFluid->enabled_TTSE_LUT && within_TTSE_range(iP,p(),iH,h()) )
 	{
 		if (TwoPhase && _Q>0 && _Q < 1)
@@ -1462,7 +1462,7 @@ double CoolPropStateClassSI::drhodh_constp(void){
 }
 
 double CoolPropStateClassSI::drhodp_consth_smoothed(double xend){
-	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID){throw ValueError("function invalid for incompressibles");}
+	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
 	// Make a state class instance
 	CoolPropStateClassSI CPS(pFluid);
 	SplineClass SC = SplineClass();
@@ -1492,7 +1492,7 @@ double CoolPropStateClassSI::drhodp_consth_smoothed(double xend){
 }
 
 double CoolPropStateClassSI::drhodh_constp_smoothed(double xend){
-	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID){throw ValueError("function invalid for incompressibles");}
+	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
 	// Make a state class instance
 	CoolPropStateClassSI CPS(pFluid);
 	SplineClass SC = SplineClass();
@@ -1522,7 +1522,7 @@ double CoolPropStateClassSI::drhodh_constp_smoothed(double xend){
 
 
 void CoolPropStateClassSI::rho_smoothed(double xend, double *rho_spline, double *dsplinedh, double *dsplinedp){
-	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID){throw ValueError("function invalid for incompressibles");}
+	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
 	// Make a state class instance in two-phase at the junction point (end):
 	CoolPropStateClassSI CPS(pFluid);
 	CPS.update(iT,TsatL,iQ,xend);
@@ -1617,7 +1617,7 @@ void CoolPropStateClassSI::rho_smoothed(double xend, double *rho_spline, double 
 
 
 double CoolPropStateClassSI::drhodp_consth(void){
-	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID){throw ValueError("function invalid for incompressibles");}
+	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
 
 	if (pFluid->enabled_TTSE_LUT && within_TTSE_range(iP,p(),iH,h()) )
 	{
@@ -1664,7 +1664,7 @@ double CoolPropStateClassSI::drhodp_consth(void){
 }
 
 double CoolPropStateClassSI::d2rhodh2_constp(void){
-	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID){throw ValueError("function invalid for incompressibles");}
+	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
 	if (TwoPhase) { throw ValueError("TwoPhase not supported for d2rhodh2_constp");}
 	double A = dpdT_constrho()*dhdrho_constT()-dpdrho_constT()*dhdT_constrho();
 	double dAdT_constrho = d2pdT2_constrho()*dhdrho_constT()+dpdT_constrho()*d2hdrhodT()-d2pdrhodT()*dhdT_constrho()-dpdrho_constT()*d2hdT2_constrho();
@@ -1675,7 +1675,7 @@ double CoolPropStateClassSI::d2rhodh2_constp(void){
 }
 
 double CoolPropStateClassSI::d2rhodhdp(void){
-	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID){throw ValueError("function invalid for incompressibles");}
+	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
 	if (TwoPhase) { throw ValueError("TwoPhase not supported for d2rhodhdp");}
 	double A = dpdT_constrho()*dhdrho_constT()-dpdrho_constT()*dhdT_constrho();
 	double dAdT_constrho = d2pdT2_constrho()*dhdrho_constT()+dpdT_constrho()*d2hdrhodT()-d2pdrhodT()*dhdT_constrho()-dpdrho_constT()*d2hdT2_constrho();
@@ -1686,188 +1686,188 @@ double CoolPropStateClassSI::d2rhodhdp(void){
 }
 
 double CoolPropStateClassSI::drhodT_constp(void){
-	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID){throw ValueError("function invalid for incompressibles");}
+	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
 	double dpdrho_T = pFluid->R()*_T*(1+2*delta*dphir_dDelta(tau,delta)+delta*delta*d2phir_dDelta2(tau,delta));
 	double dpdT_rho = pFluid->R()*_rho*(1+delta*dphir_dDelta(tau,delta)-delta*tau*d2phir_dDelta_dTau(tau,delta));
 	return -dpdT_rho/dpdrho_T;
 }
 double CoolPropStateClassSI::dpdrho_constT(void){
-	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID){throw ValueError("function invalid for incompressibles");}
+	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
 	return pFluid->R()*_T*(1+2*delta*dphir_dDelta(tau,delta)+delta*delta*d2phir_dDelta2(tau,delta)); //[Pa/(kg/m3)]
 }
 double CoolPropStateClassSI::dpdT_constrho(void){
-	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID){throw ValueError("function invalid for incompressibles");}
+	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
 	return pFluid->R()*_rho*(1+delta*dphir_dDelta(tau,delta)-delta*tau*d2phir_dDelta_dTau(tau,delta)); //[Pa/K]
 }
 double CoolPropStateClassSI::d2pdrho2_constT(void){
-	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID){throw ValueError("function invalid for incompressibles");}
+	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
 	return _T*pFluid->R()*(2*delta*d2phir_dDelta2(tau,delta)+2*dphir_dDelta(tau,delta)+2*delta*d2phir_dDelta2(tau,delta)+delta*delta*d3phir_dDelta3(tau,delta))/pFluid->reduce.rho;
 }
 double CoolPropStateClassSI::d2pdrhodT(void){
-	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID){throw ValueError("function invalid for incompressibles");}
+	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
 	return pFluid->R()*((1+2*delta*dphir_dDelta(tau,delta)+delta*delta*d2phir_dDelta2(tau,delta))+_T*(2*delta*d2phir_dDelta_dTau(tau,delta)+delta*delta*d3phir_dDelta2_dTau(tau,delta))*(-tau/_T));
 }
 double CoolPropStateClassSI::d2pdT2_constrho(void){
-	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID){throw ValueError("function invalid for incompressibles");}
+	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
 	return pFluid->R()*_rho*delta*tau*tau/_T*d3phir_dDelta_dTau2(tau,delta);
 }
 
 // DERIVATIVES OF ENTHALPY FROM EOS
 double CoolPropStateClassSI::dhdrho_constT(void){
-	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID){throw ValueError("function invalid for incompressibles");}
+	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
 	return _T*pFluid->R()/_rho*(tau*delta*d2phir_dDelta_dTau(tau,delta)+delta*dphir_dDelta(tau,delta)+delta*delta*d2phir_dDelta2(tau,delta));
 }
 double CoolPropStateClassSI::dhdT_constrho(void){
-	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID){throw ValueError("function invalid for incompressibles");}
+	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
 	return pFluid->R()*(-tau*tau*(d2phi0_dTau2(tau,delta)+d2phir_dTau2(tau,delta))+1+delta*dphir_dDelta(tau,delta)-delta*tau*d2phir_dDelta_dTau(tau,delta));
 }
 double CoolPropStateClassSI::d2hdrho2_constT(void){
-	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID){throw ValueError("function invalid for incompressibles");}
+	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
 	return _T*pFluid->R()/_rho*(tau*delta*d3phir_dDelta2_dTau(tau,delta)+tau*d2phir_dDelta_dTau(tau,delta)+delta*d2phir_dDelta2(tau,delta)+dphir_dDelta(tau,delta)+delta*delta*d3phir_dDelta3(tau,delta)+2*delta*d2phir_dDelta2(tau,delta))/pFluid->reduce.rho - dhdrho_constT()/_rho;
 }
 double CoolPropStateClassSI::d2hdrhodT(void){
-	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID){throw ValueError("function invalid for incompressibles");}
+	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
 	// d3phi0_dDelta_dTau2V is zero by definition
 	return pFluid->R()*(-tau*tau*d3phir_dDelta_dTau2(tau,delta)+delta*d2phir_dDelta2(tau,delta)+dphir_dDelta(tau,delta)-delta*tau*d3phir_dDelta2_dTau(tau,delta)-tau*d2phir_dDelta_dTau(tau,delta))/pFluid->reduce.rho;
 }
 double CoolPropStateClassSI::d2hdT2_constrho(void){
-	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID){throw ValueError("function invalid for incompressibles");}
+	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
 	return pFluid->R()*(-tau*tau*(d3phi0_dTau3(tau,delta)+d3phir_dTau3(tau,delta))-2*tau*(d2phi0_dTau2(tau,delta)+d2phir_dTau2(tau,delta))-delta*tau*d3phir_dDelta_dTau2(tau,delta))*(-tau/_T);
 }
 
 // DERIVATIVES OF ENTROPY FROM EOS
 double CoolPropStateClassSI::dsdrho_constT(void){
-	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID){throw ValueError("function invalid for incompressibles");}
+	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
 	return -pFluid->R()/_rho*(1+delta*dphir_dDelta(tau,delta)-delta*tau*d2phir_dDelta_dTau(tau,delta));
 }
 double CoolPropStateClassSI::dsdT_constrho(void){
-	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID){throw ValueError("function invalid for incompressibles");}
+	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
 	return -pFluid->R()*tau*tau/_T*(d2phi0_dTau2(tau,delta)+d2phir_dTau2(tau,delta));
 }
 double CoolPropStateClassSI::d2sdT2_constrho(void){
-	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID){throw ValueError("function invalid for incompressibles");}
+	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
 	return -pFluid->R()/_T*(tau*tau*(d3phi0_dTau3(tau,delta)+d3phir_dTau3(tau,delta))+2*tau*(d2phi0_dTau2(tau,delta)+d2phir_dTau2(tau,delta)))*(-tau/_T)+pFluid->R()*tau*tau/_T/_T*(d2phi0_dTau2(tau,delta)+d2phir_dTau2(tau,delta));
 }
 double CoolPropStateClassSI::d2sdrho2_constT(void){
-	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID){throw ValueError("function invalid for incompressibles");}
+	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
 	return -pFluid->R()/_rho*(delta*d2phir_dDelta2(tau,delta)+dphir_dDelta(tau,delta)-tau*delta*d3phir_dDelta2_dTau(tau,delta)-tau*d2phir_dDelta_dTau(tau,delta))/pFluid->reduce.rho+pFluid->R()/_rho/_rho*(1+delta*dphir_dDelta(tau,delta)-delta*tau*d2phir_dDelta_dTau(tau,delta));
 }
 double CoolPropStateClassSI::d2sdrhodT(void){
-	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID){throw ValueError("function invalid for incompressibles");}
+	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
 	// d2phi0_dDelta_dTau2(tau,delta) is zero by definition
 	return -pFluid->R()*tau*tau/_T*d3phir_dDelta_dTau2(tau,delta)/pFluid->reduce.rho;
 }
 
 
 double CoolPropStateClassSI::dvdp_constT(void){
-	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID){throw ValueError("function invalid for incompressibles");}
+	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
 	return -1/(_rho*_rho)/dpdrho_constT();
 }
 double CoolPropStateClassSI::dvdT_constp(void){
-	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID){throw ValueError("function invalid for incompressibles");}
+	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
 	return -1/(_rho*_rho)*drhodT_constp();
 }
 
 double CoolPropStateClassSI::dpdT_consth(void){
-	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID){throw ValueError("function invalid for incompressibles");}
+	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
 	return dpdT_constrho() - dpdrho_constT()*dhdT_constrho()/dhdrho_constT();
 }
 double CoolPropStateClassSI::dpdrho_consth(void){
-	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID){throw ValueError("function invalid for incompressibles");}
+	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
 	return dpdrho_constT() - dpdT_constrho()*dhdrho_constT()/dhdT_constrho();
 }
 // Enthalpy
 double CoolPropStateClassSI::dhdp_constT(void){
-	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID){throw ValueError("function invalid for incompressibles");}
+	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
 	return dhdrho_constT()/dpdrho_constT();
 }
 double CoolPropStateClassSI::dhdT_constp(void){
-	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID){throw ValueError("function invalid for incompressibles");}
+	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
 	return dhdT_constrho() - dhdrho_constT()*dpdT_constrho()/dpdrho_constT();
 }
 double CoolPropStateClassSI::dhdrho_constp(void){
-	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID){throw ValueError("function invalid for incompressibles");}
+	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
 	return dhdrho_constT() - dhdT_constrho()*dpdrho_constT()/dpdT_constrho();
 }
 double CoolPropStateClassSI::d2hdT2_constp(void)
 {
-	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID){throw ValueError("function invalid for incompressibles");}
+	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
 	double ddT_dhdT = d2hdT2_constrho()-1/pow(dpdrho_constT(),2)*(dpdrho_constT()*(dhdrho_constT()*d2pdT2_constrho()+d2hdrhodT()*dpdT_constrho())-dhdrho_constT()*dpdT_constrho()*d2pdrhodT());
 	double drho_dhdT = d2hdrhodT()-1/pow(dpdrho_constT(),2)*(dpdrho_constT()*(dhdrho_constT()*d2pdrhodT()+d2hdrho2_constT()*dpdT_constrho())-dhdrho_constT()*dpdT_constrho()*d2pdrho2_constT());
 	return ddT_dhdT-drho_dhdT*dpdT_constrho()/dpdrho_constT();
 }
 double CoolPropStateClassSI::d2hdp2_constT(void)
 {
-	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID){throw ValueError("function invalid for incompressibles");}
+	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
 	return (d2hdrho2_constT()-dhdp_constT()*d2pdrho2_constT())/pow(dpdrho_constT(),2);
 }
 double CoolPropStateClassSI::d2hdTdp(void)
 {
-	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID){throw ValueError("function invalid for incompressibles");}
+	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
 	return 1/dpdrho_constT()*(d2hdrhodT()-dhdp_constT()*(drhodT_constp()*d2pdrho2_constT()+d2pdrhodT())+d2hdrho2_constT()*drhodT_constp());
 }
 
 // Entropy
 double CoolPropStateClassSI::dsdp_constT(void){
-	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID){throw ValueError("function invalid for incompressibles");}
+	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
 	return dsdrho_constT()/dpdrho_constT();
 }
 double CoolPropStateClassSI::dsdT_constp(void){
-	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID){throw ValueError("function invalid for incompressibles");}
+	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
 	return dsdT_constrho() - dsdrho_constT()*dpdT_constrho()/dpdrho_constT();
 }
 double CoolPropStateClassSI::dsdrho_constp(void){
-	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID){throw ValueError("function invalid for incompressibles");}
+	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
 	return dsdrho_constT() - dsdT_constrho()*dpdrho_constT()/dpdT_constrho();
 }
 double CoolPropStateClassSI::d2sdT2_constp(void)
 {
-	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID){throw ValueError("function invalid for incompressibles");}
+	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
 	double ddT_dsdT = d2sdT2_constrho()-1/pow(dpdrho_constT(),2)*(dpdrho_constT()*(dsdrho_constT()*d2pdT2_constrho()+d2sdrhodT()*dpdT_constrho())-dsdrho_constT()*dpdT_constrho()*d2pdrhodT());
 	double drho_dsdT = d2sdrhodT()-1/pow(dpdrho_constT(),2)*(dpdrho_constT()*(dsdrho_constT()*d2pdrhodT()+d2sdrho2_constT()*dpdT_constrho())-dsdrho_constT()*dpdT_constrho()*d2pdrho2_constT());
 	return ddT_dsdT-drho_dsdT*dpdT_constrho()/dpdrho_constT();
 }
 double CoolPropStateClassSI::d2sdp2_constT(void)
 {
-	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID){throw ValueError("function invalid for incompressibles");}
+	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
 	return (d2sdrho2_constT()-dsdp_constT()*d2pdrho2_constT())/pow(dpdrho_constT(),2);
 }
 double CoolPropStateClassSI::d2sdTdp(void)
 {
-	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID){throw ValueError("function invalid for incompressibles");}
+	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
 	return 1/dpdrho_constT()*(d2sdrhodT()-dsdp_constT()*(drhodT_constp()*d2pdrho2_constT()+d2pdrhodT())+d2sdrho2_constT()*drhodT_constp());
 }
 
 double CoolPropStateClassSI::drhodp_constT(void)
 {
-	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID){throw ValueError("function invalid for incompressibles");}
+	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
 	return 1/dpdrho_constT();
 }
 double CoolPropStateClassSI::d2rhodp2_constT(void)
 {
-	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID){throw ValueError("function invalid for incompressibles");}
+	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
 	return -d2pdrho2_constT()/pow(dpdrho_constT(),3);
 }
 double CoolPropStateClassSI::d2rhodTdp(void)
 {
-	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID){throw ValueError("function invalid for incompressibles");}
+	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
 	return (dpdT_constrho()*d2pdrho2_constT()-dpdrho_constT()*d2pdrhodT())/pow(dpdrho_constT(),3);
 }
 double CoolPropStateClassSI::d2rhodT2_constp(void)
 {
-	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID){throw ValueError("function invalid for incompressibles");}
+	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
 	double ddrho_drhodT_p_constT = (dpdT_constrho()*d2pdrho2_constT()-dpdrho_constT()*d2pdrhodT())/pow(dpdrho_constT(),2);
 	double ddT_drhodT_p_constrho = (dpdT_constrho()*d2pdrhodT()-dpdrho_constT()*d2pdT2_constrho())/pow(dpdrho_constT(),2);
 	return ddT_drhodT_p_constrho+ddrho_drhodT_p_constT*drhodT_constp();
 }
 double CoolPropStateClassSI::d2rhodhdQ(void)
 {
-	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID){throw ValueError("function invalid for incompressibles");}
+	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
 	return 2/_rho*pow(drhodh_constp(),2)*(hV() - hL());
 }
 double CoolPropStateClassSI::d2rhodpdQ(void)
 {
-	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID){throw ValueError("function invalid for incompressibles");}
+	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
 	double d2vdhdp = 1/_T*d2Tdp2_along_sat() - pow(dTdp_along_sat()/_T,2);
 	return (2/_rho*drhodp_consth()*drhodh_constp()-pow(_rho,2)*d2vdhdp)*(hV() - hL());
 }
@@ -1878,7 +1878,7 @@ double CoolPropStateClassSI::d2rhodpdQ(void)
 
 double CoolPropStateClassSI::dTdp_along_sat(void)
 {
-	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID){throw ValueError("function invalid for incompressibles");}
+	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
 	if (!TwoPhase){throw ValueError(format("Saturation derivative cannot be called now.  Call update() with a two-phase set of inputs"));}
 	if (pFluid->enabled_TTSE_LUT)
 	{
@@ -1891,26 +1891,26 @@ double CoolPropStateClassSI::dTdp_along_sat(void)
 }
 double CoolPropStateClassSI::ddp_dTdp_along_sat(void)
 {
-	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID){throw ValueError("function invalid for incompressibles");}
+	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
 	if (!TwoPhase){throw ValueError(format("Saturation derivative cannot be called now.  Call update() with a two-phase set of inputs"));}
 	return 1/(SatV->h()-SatL->h())*(_T*(SatV->dvdp_constT()-SatL->dvdp_constT())-dTdp_along_sat()*(SatV->dhdp_constT()-SatL->dhdp_constT()));
 }
 double CoolPropStateClassSI::ddT_dTdp_along_sat(void)
 {
-	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID){throw ValueError("function invalid for incompressibles");}
+	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
 	if (!TwoPhase){throw ValueError(format("Saturation derivative cannot be called now.  Call update() with a two-phase set of inputs"));}
 	return 1/(SatV->h()-SatL->h())*(_T*(SatV->dvdT_constp()-SatL->dvdT_constp())-dTdp_along_sat()*(SatV->dhdT_constp()-SatL->dhdT_constp())+(1/SatV->rho()-1/SatL->rho()));
 }
 double CoolPropStateClassSI::d2Tdp2_along_sat(void)
 {
-	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID){throw ValueError("function invalid for incompressibles");}
+	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
 	if (!TwoPhase){throw ValueError(format("Saturation derivative cannot be called now.  Call update() with a two-phase set of inputs"));}
 	return ddp_dTdp_along_sat()+ddT_dTdp_along_sat()*dTdp_along_sat();
 }
 
 double CoolPropStateClassSI::dhdp_along_sat_liquid(void)
 {
-	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID){throw ValueError("function invalid for incompressibles");}
+	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
 	if (!TwoPhase){throw ValueError(format("Saturation derivative cannot be called now.  Call update() with a two-phase set of inputs"));}
 	if (pFluid->enabled_TTSE_LUT){
 		pFluid->build_TTSE_LUT();
@@ -1922,7 +1922,7 @@ double CoolPropStateClassSI::dhdp_along_sat_liquid(void)
 }
 double CoolPropStateClassSI::dhdp_along_sat_vapor(void)
 {
-	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID){throw ValueError("function invalid for incompressibles");}
+	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
 	if (!TwoPhase){throw ValueError(format("Saturation derivative cannot be called now.  Call update() with a two-phase set of inputs"));}
 	if (pFluid->enabled_TTSE_LUT){
 		pFluid->build_TTSE_LUT();
@@ -1934,7 +1934,7 @@ double CoolPropStateClassSI::dhdp_along_sat_vapor(void)
 }
 double CoolPropStateClassSI::d2hdp2_along_sat_vapor(void)
 {
-	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID){throw ValueError("function invalid for incompressibles");}
+	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
 	if (!TwoPhase){throw ValueError(format("Saturation derivative cannot be called now.  Call update() with a two-phase set of inputs"));}
 	double ddp_dhdpsigmaV = SatV->d2hdp2_constT()+SatV->dhdT_constp()*ddp_dTdp_along_sat()+SatV->d2hdTdp()*dTdp_along_sat();
 	double ddT_dhdpsigmaV = SatV->d2hdTdp()+SatV->dhdT_constp()*ddT_dTdp_along_sat()+SatV->d2hdT2_constp()*dTdp_along_sat();
@@ -1942,7 +1942,7 @@ double CoolPropStateClassSI::d2hdp2_along_sat_vapor(void)
 }
 double CoolPropStateClassSI::d2hdp2_along_sat_liquid(void)
 {
-	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID){throw ValueError("function invalid for incompressibles");}
+	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
 	if (!TwoPhase){throw ValueError(format("Saturation derivative cannot be called now.  Call update() with a two-phase set of inputs"));}
 	double ddp_dhdpsigmaL = SatL->d2hdp2_constT()+SatL->dhdT_constp()*ddp_dTdp_along_sat()+SatL->d2hdTdp()*dTdp_along_sat();
 	double ddT_dhdpsigmaL = SatL->d2hdTdp()+SatL->dhdT_constp()*ddT_dTdp_along_sat()+SatL->d2hdT2_constp()*dTdp_along_sat();
@@ -1951,19 +1951,19 @@ double CoolPropStateClassSI::d2hdp2_along_sat_liquid(void)
 
 double CoolPropStateClassSI::dsdp_along_sat_liquid(void)
 {
-	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID){throw ValueError("function invalid for incompressibles");}
+	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
 	if (!TwoPhase){throw ValueError(format("Saturation derivative cannot be called now.  Call update() with a two-phase set of inputs"));}
 	return SatL->dsdp_constT()+SatL->dsdT_constp()*dTdp_along_sat();
 }
 double CoolPropStateClassSI::dsdp_along_sat_vapor(void)
 {
-	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID){throw ValueError("function invalid for incompressibles");}
+	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
 	if (!TwoPhase){throw ValueError(format("Saturation derivative cannot be called now.  Call update() with a two-phase set of inputs"));}
 	return SatV->dsdp_constT()+SatV->dsdT_constp()*dTdp_along_sat();
 }
 double CoolPropStateClassSI::d2sdp2_along_sat_vapor(void)
 {
-	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID){throw ValueError("function invalid for incompressibles");}
+	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
 	if (!TwoPhase){throw ValueError(format("Saturation derivative cannot be called now.  Call update() with a two-phase set of inputs"));}
 	double ddp_dsdpsigmaV = SatV->d2sdp2_constT()+SatV->dsdT_constp()*ddp_dTdp_along_sat()+SatV->d2sdTdp()*dTdp_along_sat();
 	double ddT_dsdpsigmaV = SatV->d2sdTdp()+SatV->dsdT_constp()*ddT_dTdp_along_sat()+SatV->d2sdT2_constp()*dTdp_along_sat();
@@ -1971,7 +1971,7 @@ double CoolPropStateClassSI::d2sdp2_along_sat_vapor(void)
 }
 double CoolPropStateClassSI::d2sdp2_along_sat_liquid(void)
 {
-	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID){throw ValueError("function invalid for incompressibles");}
+	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
 	if (!TwoPhase){throw ValueError(format("Saturation derivative cannot be called now.  Call update() with a two-phase set of inputs"));}
 	double ddp_dsdpsigmaL = SatL->d2sdp2_constT()+SatL->dsdT_constp()*ddp_dTdp_along_sat()+SatL->d2sdTdp()*dTdp_along_sat();
 	double ddT_dsdpsigmaL = SatL->d2sdTdp()+SatL->dsdT_constp()*ddT_dTdp_along_sat()+SatL->d2sdT2_constp()*dTdp_along_sat();
@@ -1980,7 +1980,7 @@ double CoolPropStateClassSI::d2sdp2_along_sat_liquid(void)
 
 double CoolPropStateClassSI::drhodp_along_sat_vapor(void)
 {
-	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID){throw ValueError("function invalid for incompressibles");}
+	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
 	if (!TwoPhase){throw ValueError(format("Saturation derivative cannot be called now.  Call update() with a two-phase set of inputs"));}
 	if (pFluid->enabled_TTSE_LUT)
 	{
@@ -1994,7 +1994,7 @@ double CoolPropStateClassSI::drhodp_along_sat_vapor(void)
 }
 double CoolPropStateClassSI::drhodp_along_sat_liquid(void)
 {
-	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID){throw ValueError("function invalid for incompressibles");}
+	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
 	if (!TwoPhase){throw ValueError(format("Saturation derivative cannot be called now.  Call update() with a two-phase set of inputs"));}
 	if (pFluid->enabled_TTSE_LUT)
 	{
@@ -2008,7 +2008,7 @@ double CoolPropStateClassSI::drhodp_along_sat_liquid(void)
 }
 double CoolPropStateClassSI::d2rhodp2_along_sat_vapor(void)
 {
-	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID){throw ValueError("function invalid for incompressibles");}
+	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
 	if (!TwoPhase){throw ValueError(format("Saturation derivative cannot be called now.  Call update() with a two-phase set of inputs"));}
 	double ddp_drhodpsigmaV = SatV->d2rhodp2_constT()+SatV->drhodT_constp()*ddp_dTdp_along_sat()+SatV->d2rhodTdp()*dTdp_along_sat();
 	double ddT_drhodpsigmaV = SatV->d2rhodTdp()+SatV->drhodT_constp()*ddT_dTdp_along_sat()+SatV->d2rhodT2_constp()*dTdp_along_sat();
@@ -2016,7 +2016,7 @@ double CoolPropStateClassSI::d2rhodp2_along_sat_vapor(void)
 }
 double CoolPropStateClassSI::d2rhodp2_along_sat_liquid(void)
 {
-	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID){throw ValueError("function invalid for incompressibles");}
+	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
 	if (!TwoPhase){throw ValueError(format("Saturation derivative cannot be called now.  Call update() with a two-phase set of inputs"));}
 	double ddp_drhodpsigmaL = SatL->d2rhodp2_constT()+SatL->drhodT_constp()*ddp_dTdp_along_sat()+SatL->d2rhodTdp()*dTdp_along_sat();
 	double ddT_drhodpsigmaL = SatL->d2rhodTdp()+SatL->drhodT_constp()*ddT_dTdp_along_sat()+SatL->d2rhodT2_constp()*dTdp_along_sat();
@@ -2025,13 +2025,13 @@ double CoolPropStateClassSI::d2rhodp2_along_sat_liquid(void)
 
 double CoolPropStateClassSI::drhodT_along_sat_vapor(void)
 {
-	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID){throw ValueError("function invalid for incompressibles");}
+	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
 	if (!TwoPhase){throw ValueError(format("Saturation derivative cannot be called now.  Call update() with a two-phase set of inputs"));}
 	return SatV->drhodT_constp()+SatV->drhodp_constT()/dTdp_along_sat();
 }
 double CoolPropStateClassSI::drhodT_along_sat_liquid(void)
 {
-	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID){throw ValueError("function invalid for incompressibles");}
+	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
 	if (!TwoPhase){throw ValueError(format("Saturation derivative cannot be called now.  Call update() with a two-phase set of inputs"));}
 	return SatL->drhodT_constp()+SatL->drhodp_constT()/dTdp_along_sat();
 }
