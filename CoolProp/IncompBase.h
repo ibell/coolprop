@@ -196,6 +196,9 @@ public:
 	double expval(std::vector< std::vector<double> > coefficients, double x, double y, int n);
 };
 
+
+
+
 /** Multiple inheritance could be useful to merge the base classes for
  *  incompressible fluids and the normal fluids. However, It seems like
  *  a lot of work to find ways to redefine all the fluid functions while

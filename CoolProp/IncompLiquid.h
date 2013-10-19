@@ -840,5 +840,48 @@ public:
     };
 };
 
+/** Handle all the objects in a single list of incompressible liquids
+ *  and a list of solutions / brines. The singleton pattern assures
+ *  there is only one list.
+ */
+class LiquidsContainer {
+private:
+  std::vector<IncompressibleLiquid*> liquid_list;
+  std::map<std::string,IncompressibleLiquid*> liquid_map;
+
+public:
+  IncompressibleLiquid * get_liquid(long index);
+  IncompressibleLiquid * get_liquid(std::string name);
+  void set_liquids(std::vector<IncompressibleLiquid*> list);
+
+  LiquidsContainer();
+  ~LiquidsContainer();
+};
+
+///** Handle all the objects in a single list of incompressible liquids
+// *  and a list of solutions / brines. The singleton pattern assures
+// *  there is only one list.
+// */
+//class LiquidsContainer {
+//public:
+//  static LiquidsContainer* Instance();
+//  IncompressibleLiquid * get_liquid(long index);
+//  IncompressibleLiquid * get_liquid(std::string name);
+//  void set_liquids(std::vector<IncompressibleLiquid*> list);
+//
+//private:
+//  std::vector<IncompressibleLiquid*> liquid_list;
+//  std::map<std::string,IncompressibleLiquid*> liquid_map;
+//
+//  static void destruct();
+//
+//  LiquidsContainer();
+//  ~LiquidsContainer();
+//
+//  LiquidsContainer(LiquidsContainer const&);            // no copying
+//  LiquidsContainer& operator=(LiquidsContainer const&); // no overwriting
+//  static LiquidsContainer* MInstance;                   // instance
+//};
+
 
 #endif

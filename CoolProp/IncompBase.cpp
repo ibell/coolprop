@@ -121,7 +121,7 @@ std::vector<double> IncompressibleClass::integrateCoeffs(std::vector<double> coe
 	if (sizeX<1) throw ValueError(format("You have to provide coefficients, a vector length of %d is not a valid. ",sizeX));
 	// pushing a zero elevates the order by 1
 	newCoefficients.push_back(0.0);
-	for(int i=0; i<coefficients.size(); i++) {
+	for(unsigned int i=0; i<coefficients.size(); i++) {
 		newCoefficients.push_back(coefficients[i]/(i+1.));
 	}
 	return newCoefficients;
@@ -159,7 +159,7 @@ std::vector<double> IncompressibleClass::deriveCoeffs(std::vector<double> coeffi
 	unsigned int sizeX = coefficients.size();
 	if (sizeX<1) throw ValueError(format("You have to provide coefficients, a vector length of %d is not a valid. ",sizeX));
 	// skipping the first element lowers the order
-	for(int i=1; i<coefficients.size(); i++) {
+	for(unsigned int i=1; i<coefficients.size(); i++) {
 		newCoefficients.push_back(coefficients[i]*i);
 	}
 	return newCoefficients;
@@ -263,8 +263,6 @@ double IncompressibleClass::expval(std::vector< std::vector<double> > coefficien
 	}
 	return result;
 }
-
-
 
 
 //int main() {
