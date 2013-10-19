@@ -6,6 +6,9 @@
 #include "FluidClass.h"
 #include "CoolProp.h"
 #include "TTSE.h"
+#include "IncompBase.h"
+#include "IncompLiquid.h"
+#include "IncompSolution.h"
 
 bool match_pair(long iI1, long iI2, long I1, long I2);
 void sort_pair(long *iInput1, double *Value1, long *iInput2, double *Value2, long I1, long I2);
@@ -83,7 +86,9 @@ class CoolPropStateClassSI
 {
 protected:
 
-	StateCache cache;	
+	long fluid_type;
+
+	StateCache cache;
 
 	std::string _Fluid;
 	
@@ -126,6 +131,9 @@ protected:
 	// Update using the TTSE lookup tables
 	void update_TTSE_LUT(long iInput1, double Value1, long iInput2, double Value2);
 
+	// Update using the incompressible liquid or incompressible solution
+	void update_incompressible(long iInput1, double Value1, long iInput2, double Value2);
+
 	// Check whether the quality corresponds to saturated liquid or vapor
 	void check_saturated_quality(double Q);
 
@@ -136,8 +144,15 @@ protected:
 	double interp_linear(double Q, double valueL, double valueV);
 	double interp_recip(double Q, double valueL, double valueV);
 
-
 public:
+
+	/// A pointer to the class for an incompressible liquid
+	IncompressibleLiquid * pIncompLiquid;
+
+	/// A pointer to the class for an incompressible solution
+	IncompressibleSolution * pIncompSolution;
+
+	/// A pointer to a CoolProp fluid
 	Fluid * pFluid;
 
 	/// Temporarily set a flag to tell that the next call to update should be special 
