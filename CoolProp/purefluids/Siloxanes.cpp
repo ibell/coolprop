@@ -111,7 +111,7 @@ OctamethyltrisiloxaneClass::OctamethyltrisiloxaneClass()
 	phi_BC * phi0_cp0_AlyLee_ = new phi0_cp0_AlyLee(u0_v,crit.T,T0,params.R_u);
 	phi0list.push_back(phi0_cp0_AlyLee_);
 
-    EOSReference.assign("Colonna, P., N.R. Nannan, A. Guardone, \"Multiparameter equations of state for siloxanes: [(CH3)3-Si-O1/2]2-[O-Si-(CH3)2]i=1,...,3, and [O-Si-(CH3)2]6,\", Fluid Phase Equilibria 263 (2008) 115–130.");
+    EOSReference.assign("Colonna, P., N.R. Nannan, A. Guardone, \"Multiparameter equations of state for siloxanes: [(CH3)3-Si-O1/2]2-[O-Si-(CH3)2]i=1,...,3, and [O-Si-(CH3)2]6,\", Fluid Phase Equilibria 263 (2008) 115-130.");
     TransportReference.assign("Using ECS in fully predictive mode");
 
     name.assign("MDM");
@@ -260,7 +260,7 @@ DecamethyltetrasiloxaneClass::DecamethyltetrasiloxaneClass()
 	phi_BC * phi0_cp0_AlyLee_ = new phi0_cp0_AlyLee(u0_v,crit.T,T0,params.R_u);
 	phi0list.push_back(phi0_cp0_AlyLee_);
 
-    EOSReference.assign("Colonna, P., N.R. Nannan, A. Guardone, \"Multiparameter equations of state for siloxanes: [(CH3)3-Si-O1/2]2-[O-Si-(CH3)2]i=1,...,3, and [O-Si-(CH3)2]6,\", Fluid Phase Equilibria 263 (2008) 115–130.");
+    EOSReference.assign("Colonna, P., N.R. Nannan, A. Guardone, \"Multiparameter equations of state for siloxanes: [(CH3)3-Si-O1/2]2-[O-Si-(CH3)2]i=1,...,3, and [O-Si-(CH3)2]6,\", Fluid Phase Equilibria 263 (2008) 115-130.");
     TransportReference.assign("Using ECS in fully predictive mode");
 
     name.assign("MD2M");
@@ -409,7 +409,7 @@ DodecamethylpentasiloxaneClass::DodecamethylpentasiloxaneClass()
 	phi_BC * phi0_cp0_AlyLee_ = new phi0_cp0_AlyLee(u0_v,crit.T,T0,params.R_u);
 	phi0list.push_back(phi0_cp0_AlyLee_);
 
-    EOSReference.assign("Colonna, P., N.R. Nannan, A. Guardone, \"Multiparameter equations of state for siloxanes: [(CH3)3-Si-O1/2]2-[O-Si-(CH3)2]i=1,...,3, and [O-Si-(CH3)2]6,\", Fluid Phase Equilibria 263 (2008) 115–130.");
+    EOSReference.assign("Colonna, P., N.R. Nannan, A. Guardone, \"Multiparameter equations of state for siloxanes: [(CH3)3-Si-O1/2]2-[O-Si-(CH3)2]i=1,...,3, and [O-Si-(CH3)2]6,\", Fluid Phase Equilibria 263 (2008) 115-130.");
     TransportReference.assign("Using ECS in fully predictive mode");
 
     name.assign("MD3M");
@@ -571,7 +571,7 @@ DodecamethylcyclohexasiloxaneClass::DodecamethylcyclohexasiloxaneClass()
 	phi_BC * phi0_cp0_AlyLee_ = new phi0_cp0_AlyLee(u0_v,crit.T,T0,params.R_u);
 	phi0list.push_back(phi0_cp0_AlyLee_);
 
-    EOSReference.assign("Colonna, P., N.R. Nannan, A. Guardone, \"Multiparameter equations of state for siloxanes: [(CH3)3-Si-O1/2]2-[O-Si-(CH3)2]i=1,...,3, and [O-Si-(CH3)2]6,\", Fluid Phase Equilibria 263 (2008) 115–130.");
+    EOSReference.assign("Colonna, P., N.R. Nannan, A. Guardone, \"Multiparameter equations of state for siloxanes: [(CH3)3-Si-O1/2]2-[O-Si-(CH3)2]i=1,...,3, and [O-Si-(CH3)2]6,\", Fluid Phase Equilibria 263 (2008) 115-130.");
     TransportReference.assign("Using ECS in fully predictive mode");
 
     name.assign("D6");
@@ -731,7 +731,7 @@ HexamethyldisiloxaneClass::HexamethyldisiloxaneClass()
 	
 	phi0list.push_back(new phi0_cp0_poly(u0_v,n0_v,reduce.T,T0,2,4));
 
-    EOSReference.assign("Colonna, P., N.R. Nannan, A. Guardone, E.W. Lemmon, \"Multiparameter equations of state for selected siloxanes\", Fluid Phase Equilibria 244 (2006) 193–211.");
+    EOSReference.assign("Colonna, P., N.R. Nannan, A. Guardone, E.W. Lemmon, \"Multiparameter equations of state for selected siloxanes\", Fluid Phase Equilibria 244 (2006) 193-211.");
     TransportReference.assign("Using ECS in fully predictive mode");
 
     name.assign("MM");
@@ -898,7 +898,7 @@ TetradecamethylhexasiloxaneClass::TetradecamethylhexasiloxaneClass()
 	phi_BC * phi0_cp0_poly_ = new phi0_cp0_poly(u0_v,n0_v,reduce.T,T0,2,4);
 	phi0list.push_back(phi0_cp0_poly_);
 
-    EOSReference.assign("Colonna, P., N.R. Nannan, A. Guardone, E.W. Lemmon, \"Multiparameter equations of state for selected siloxanes\", Fluid Phase Equilibria 244 (2006) 193–211.");
+    EOSReference.assign("Colonna, P., N.R. Nannan, A. Guardone, E.W. Lemmon, \"Multiparameter equations of state for selected siloxanes\", Fluid Phase Equilibria 244 (2006) 193-211.");
     TransportReference.assign("Using ECS in fully predictive mode");
 
     name.assign("MD4M");
@@ -1061,7 +1061,7 @@ OctamethylcyclotetrasiloxaneClass::OctamethylcyclotetrasiloxaneClass()
 	phi_BC * phi0_cp0_poly_ = new phi0_cp0_poly(u0_v,n0_v,reduce.T,T0,2,4);
 	phi0list.push_back(phi0_cp0_poly_);
 
-    EOSReference.assign("Colonna, P., N.R. Nannan, A. Guardone, E.W. Lemmon, \"Multiparameter equations of state for selected siloxanes\", Fluid Phase Equilibria 244 (2006) 193–211.");
+    EOSReference.assign("Colonna, P., N.R. Nannan, A. Guardone, E.W. Lemmon, \"Multiparameter equations of state for selected siloxanes\", Fluid Phase Equilibria 244 (2006) 193-211.");
     TransportReference.assign("Using ECS in fully predictive mode");
 
     name.assign("D4");
@@ -1228,7 +1228,7 @@ DecamethylcyclopentasiloxaneClass::DecamethylcyclopentasiloxaneClass()
 	phi_BC * phi0_cp0_poly_ = new phi0_cp0_poly(u0_v,n0_v,reduce.T,T0,2,4);
 	phi0list.push_back(phi0_cp0_poly_);
 
-    EOSReference.assign("Colonna, P., N.R. Nannan, A. Guardone, E.W. Lemmon, \"Multiparameter equations of state for selected siloxanes\", Fluid Phase Equilibria 244 (2006) 193–211.");
+    EOSReference.assign("Colonna, P., N.R. Nannan, A. Guardone, E.W. Lemmon, \"Multiparameter equations of state for selected siloxanes\", Fluid Phase Equilibria 244 (2006) 193-211.");
     TransportReference.assign("Using ECS in fully predictive mode");
 
     name.assign("D5");

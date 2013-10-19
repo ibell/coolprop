@@ -43,7 +43,7 @@ UndecaneClass::UndecaneClass()
 
 	phi0list.push_back(new phi0_cp0_poly(alpha_v, beta_v, crit.T, 298.15, 0, 5));
 
-	EOSReference.assign("Aleksandrov, I. S. and A. A. Gerasimov and B. A. Grigor’ev \"Using Fundamental Equations of State for Calculating the Thermodynamic Properties of Normal Undecane\" Thermal Engineering, 2011, Vol. 58, No. 8, pp. 691–698");
+	EOSReference.assign("Aleksandrov, I. S. and A. A. Gerasimov and B. A. Grigor'ev \"Using Fundamental Equations of State for Calculating the Thermodynamic Properties of Normal Undecane\" Thermal Engineering, 2011, Vol. 58, No. 8, pp. 691-698");
 	TransportReference.assign("Using ECS in fully predictive mode.");
 
 	name.assign("n-Undecane");
