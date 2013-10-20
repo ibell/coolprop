@@ -1114,7 +1114,14 @@ double CoolPropStateClassSI::keyed_output(long iOutput)
 long CoolPropStateClassSI::phase(void)
 {
 	double pL,pV,rhoL,rhoV;
-	return pFluid->phase_Trho_indices(_T,_rho,&pL,&pV,&rhoL,&rhoV);
+	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION)
+	{
+		return iLiquid;
+	}
+	else
+	{
+		return pFluid->phase_Trho_indices(_T,_rho,&pL,&pV,&rhoL,&rhoV);
+	}
 }
 
 void CoolPropStateClassSI::add_saturation_states(void)
@@ -1195,8 +1202,8 @@ double CoolPropStateClassSI::h(void){
 	else if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION)
 	{
 		// TODO SOLUTION
-		double val = Props("H",'T',_T,'P',_p,brine_string);
-		return convert_from_unit_system_to_SI(iH,val,get_standard_unit_system());
+		double val_kJkg = Props("H",'T',_T,'P',_p,brine_string);
+		return convert_from_unit_system_to_SI(iH,val_kJkg,UNIT_SYSTEM_KSI);
 	}
 	else if (TwoPhase){
 		// This will use the TTSE LUT if enable_TTSE_LUT() has been called
@@ -1229,8 +1236,8 @@ double CoolPropStateClassSI::s(void){
 	else if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION)
 	{
 		// TODO SOLUTION
-		double val = Props("S",'T',_T,'P',_p,brine_string);
-		return convert_from_unit_system_to_SI(iS,val,get_standard_unit_system());
+		double val_kJkgK = Props("S",'T',_T,'P',_p,brine_string);
+		return convert_from_unit_system_to_SI(iS,val_kJkgK,UNIT_SYSTEM_KSI);
 	}
 	else if (TwoPhase){
 		// This will use the TTSE LUT if enable_TTSE_LUT() has been called
