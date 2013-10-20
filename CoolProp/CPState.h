@@ -86,6 +86,9 @@ class CoolPropStateClassSI
 {
 protected:
 
+	/// Temporary until solutions are fixed
+	std::string brine_string;
+
 	long fluid_type;
 
 	StateCache cache;

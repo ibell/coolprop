@@ -31,9 +31,10 @@ CoolPropStateClassSI::CoolPropStateClassSI(std::string Fluid)
 		pIncompLiquid = LiquidsList.get_liquid(Fluid); 
 		fluid_type = FLUID_TYPE_INCOMPRESSIBLE_LIQUID;
 	}
-	/*else if (IsIncompressibleSolution(Fluid)){ 
-		pIncompBase = LiquidsList.get_liquid(Fluid); 
-	}*/
+	else if (IsFluidType((char*)Fluid.c_str(),"Brine")){ // TODO SOLUTION: FIX
+		this->brine_string = Fluid;
+		fluid_type = FLUID_TYPE_INCOMPRESSIBLE_SOLUTION;
+	}
 	else
 	{
 		// Try to get the index of the fluid
@@ -939,6 +940,7 @@ void CoolPropStateClassSI::update_TTSE_LUT(long iInput1, double Value1, long iIn
 		throw ValueError(format("Sorry your inputs don't work for now with TTSE"));
 	}
 }
+
 void CoolPropStateClassSI::update_incompressible(long iInput1, double Value1, long iInput2, double Value2)
 {
 	if (match_pair(iInput1,iInput2,iT,iP))
@@ -948,18 +950,44 @@ void CoolPropStateClassSI::update_incompressible(long iInput1, double Value1, lo
 		_T = Value1; _p = Value2;
 		if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID)
 		{
-			this->_rho = pIncompLiquid->rho(_T, _p);
+			_rho = pIncompLiquid->rho(_T, _p);
 		}
-		else if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID)
+		else if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION)
 		{
-			this->_rho = pIncompSolution->rho(_T, _p, 0.5);
+			_rho = Props("D",'T',_T,'P',_p,brine_string); // TODO SOLUTION
 		}
 	}
 	else if (match_pair(iInput1,iInput2,iH,iP))
 	{
 		// Get them in the right order
 		sort_pair(&iInput1,&Value1,&iInput2,&Value2,iP,iH);
-		double p = Value1, h = Value2;
+		_p = Value1;
+		double  h = Value2;
+
+		double x1=0,x2=0,x3=0,y1=0,y2=0,eps=1e-8,change=999,f=999,T=300;
+		int iter=1;
+		
+		while ((iter<=3 || fabs(f)>eps) && iter<100)
+		{
+			if (iter==1){x1 = 300; _T=x1;}
+			if (iter==2){x2 = 300+0.1; _T=x2;}
+			if (iter>2) {_T=x2;}
+				update_incompressible(iT,_T,iP,_p);
+				f = this->h()-h;
+			if (iter==1){y1=f;}
+			if (iter>1)
+			{
+				y2=f;
+				x3=x2-y2/(y2-y1)*(x2-x1);
+				change=fabs(y2/(y2-y1)*(x2-x1));
+				y1=y2; x1=x2; x2=x3;
+			}
+			iter=iter+1;
+			if (iter>100)
+			{
+				throw SolutionError(format("T_hp not converging with inputs (h=%g,p=%g) value: %0.12g\n",h,_p,_T));
+			}
+		}
 	}
 	else
 	{
@@ -1164,10 +1192,11 @@ double CoolPropStateClassSI::h(void){
 	{
 		return pIncompLiquid->h(_T, _p);
 	}
-	else if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID)
+	else if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION)
 	{
-		throw NotImplementedError("Enthalpy not implemented for solutions yet");
-		//return pIncompSolution->h(_T, _p, 0.5);
+		// TODO SOLUTION
+		double val = Props("H",'T',_T,'P',_p,brine_string);
+		return convert_from_unit_system_to_SI(iH,val,get_standard_unit_system());
 	}
 	else if (TwoPhase){
 		// This will use the TTSE LUT if enable_TTSE_LUT() has been called
@@ -1197,10 +1226,11 @@ double CoolPropStateClassSI::s(void){
 	{
 		return pIncompLiquid->s(_T, _p);
 	}
-	else if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID)
+	else if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION)
 	{
-		throw NotImplementedError("Entropy not implemented for solutions yet");
-		//return pIncompSolution->s(_T, _p, 0.5);
+		// TODO SOLUTION
+		double val = Props("S",'T',_T,'P',_p,brine_string);
+		return convert_from_unit_system_to_SI(iS,val,get_standard_unit_system());
 	}
 	else if (TwoPhase){
 		// This will use the TTSE LUT if enable_TTSE_LUT() has been called
@@ -1231,10 +1261,11 @@ double CoolPropStateClassSI::cp(void){
 	{
 		return pIncompLiquid->c(_T, _p);
 	}
-	else if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID)
+	else if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION)
 	{
-		throw NotImplementedError("Specific heat not implemented for solutions yet");
-		//return pIncompSolution->cp(_T, _p, 0.5);
+		// TODO SOLUTION
+		double val = Props("C",'T',_T,'P',_p,brine_string);
+		return convert_from_unit_system_to_SI(iC,val,get_standard_unit_system());
 	}
 	else if (TwoPhase && _Q > 0 && _Q < 1)
 	{
@@ -1260,10 +1291,11 @@ double CoolPropStateClassSI::viscosity(void){
 	{
 		return pIncompLiquid->visc(_T, _p);
 	}
-	else if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID)
+	else if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION)
 	{
-		throw NotImplementedError("Viscosity not implemented for solutions yet");
-		//return pIncompSolution->h(_T, _p, 0.5);
+		// TODO SOLUTION
+		double val = Props("V",'T',_T,'P',_p,brine_string);
+		return convert_from_unit_system_to_SI(iV,val,get_standard_unit_system());
 	}
 	else if (pFluid->enabled_TTSE_LUT && within_TTSE_range(iP,p(),iH,h()))
 	{
@@ -1280,10 +1312,11 @@ double CoolPropStateClassSI::conductivity(void){
 	{
 		return pIncompLiquid->cond(_T, _p);
 	}
-	else if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID)
+	else if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION)
 	{
-		throw NotImplementedError("Thermal conductivity not implemented for solutions yet");
-		//return pIncompSolution->h(_T, _p, 0.5);
+		// TODO SOLUTION
+		double val = Props("L",'T',_T,'P',_p,brine_string);
+		return convert_from_unit_system_to_SI(iL,val,get_standard_unit_system());
 	}
 	else if (pFluid->enabled_TTSE_LUT  && within_TTSE_range(iP,p(),iH,h()))
 	{
@@ -1320,10 +1353,11 @@ double CoolPropStateClassSI::cv(void){
 	{
 		return pIncompLiquid->c(_T, _p);
 	}
-	else if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID)
+	else if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION)
 	{
-		throw NotImplementedError("Specific heat not implemented for solutions yet");
-		//return pIncompSolution->cp(_T, _p, 0.5);
+		// TODO SOLUTION
+		double val = Props("C",'T',_T,'P',_p,brine_string);
+		return convert_from_unit_system_to_SI(iC,val,get_standard_unit_system());
 	}
 	else if (pFluid->enabled_TTSE_LUT && within_TTSE_range(iP, p(), iH, h()) )
 	{
