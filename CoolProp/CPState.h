@@ -89,7 +89,7 @@ protected:
 	/// Temporary until solutions are fixed
 	std::string brine_string;
 
-	long fluid_type;
+	
 
 	StateCache cache;
 
@@ -149,6 +149,8 @@ protected:
 
 public:
 
+	long fluid_type;
+
 	/// A pointer to the class for an incompressible liquid
 	IncompressibleLiquid * pIncompLiquid;
 
@@ -190,7 +192,20 @@ public:
 	double superheat(void);
 
 	/// Get the name of the fluid
-	std::string get_name(void){return pFluid->get_name();};
+	std::string get_name(void){
+		if (fluid_type == FLUID_TYPE_PURE || fluid_type == FLUID_TYPE_PSEUDOPURE)
+		{
+			return pFluid->get_name();
+		}
+		else if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID)
+		{
+			return this->pIncompLiquid->getName();
+		}
+		else if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION)
+		{
+			return brine_string;
+		}
+	};
 
 	/// Stop it from adding the SatL and SatV class pointers
 	void no_SatLSatV(void){_noSatLSatV = true;};
