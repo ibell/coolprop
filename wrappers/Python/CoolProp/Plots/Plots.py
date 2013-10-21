@@ -191,6 +191,8 @@ class IsoLines(BasePlot):
                              + str(self.COLOR_MAP.keys()) + ' or Q.')
 
         self.iso_type = iso_type
+        self.lines = []
+        self.plotted_lines = []
 
     def __set_axis_limits(self, swap_xy):
         """
@@ -342,19 +344,18 @@ class IsoLines(BasePlot):
         if switch_xy:
             plot_data.reverse()
 
-        lines = []
         for j in range(len(plot_data[0])):
-            line = {
-              'x': plot_data[0][j],
-              'y': plot_data[1][j],
-              # TODO
-              'label': "", #_getIsoLineLabel(self.iso_type, iso_range[j]),
-              'type': self.iso_type,
-              'opts': {'color': self.COLOR_MAP[self.iso_type], 'lw':0.75, 'alpha':0.5 }
-              }
-            lines.append(line)
-
-        return lines
+            line = {'x': plot_data[0][j],
+                    'y': plot_data[1][j],
+                    # TODO
+                    'label': "%.1f %s" % (iso_range[j],
+                                          self.AXIS_LABELS[self.iso_type][1]),
+                    'type': self.iso_type,
+                    'opts': {'color': self.COLOR_MAP[self.iso_type],
+                             'lw': 0.75,
+                             'alpha': 0.5}}
+            self.lines.append(line)
+        return self.lines
 
     def draw_isolines(self, iso_range, num=None):
         """
@@ -379,9 +380,9 @@ class IsoLines(BasePlot):
 
         if self.iso_type != 'all':
             lines = self.get_isolines(iso_range, num)
-            drawn_lines = drawLines(self.fluid_ref, lines, self.axis)
+            self.plotted_lines = drawLines(self.fluid_ref, lines, self.axis)
             self._plot_default_annotations()
-            return drawn_lines
+            return self.plotted_lines
         #else:
         #    # TODO: assign limits to values automatically
         #    ll = _getIsoLineIds(plot)
@@ -389,6 +390,42 @@ class IsoLines(BasePlot):
         #        raise ValueError('Please provide a properly sized array of bounds.')
         #    for c,l in enumerate(ll):
         #        drawIsoLines(Ref, plot, l, iValues=iValues[c], num=num, axis=axis, fig=fig)
+
+    def add_inline_labels(self, xloc=None, method='strict'):
+        bbox_opts = dict(boxstyle='square,pad=0.2',
+                         fc='white', ec='None', alpha = 0.9)
+
+        if not self.lines:
+            raise ValueError('asdasd')
+
+        for line in self.lines:
+            x_vals = line['x']
+            y_vals = line['y']
+
+            if method == 'strict':
+                if xloc is None:
+                    raise ValueError(''.join(["Please enter a xloc value ",
+                                              "for method %s" % method]))
+                loc = numpy.argmin(numpy.abs(x_vals - xloc))
+                theta = math.atan((y_vals[loc+1] - y_vals[loc]) /
+                                  (x_vals[loc+1] - x_vals[loc]))
+                text_loc = numpy.array([x_vals[loc], y_vals[loc]])
+
+            elif method == 'auto':
+                pass
+
+            transform_func = self.axis.transData.transform_angles
+            trans_angle = transform_func(numpy.array((theta,)),
+                                         text_loc.reshape((1, 2)),
+                                         radians=True)
+
+            self.axis.text(text_loc[0], text_loc[1],
+                           line['label'],
+                           verticalalignment='center',
+                           horizontalalignment='center',
+                           color=self.COLOR_MAP[self.iso_type],
+                           bbox=bbox_opts,
+                           rotation=math.degrees(trans_angle))
 
 
 class PropsPlot(BasePlot):
@@ -447,7 +484,7 @@ class PropsPlot(BasePlot):
                              self.graph_type,
                              iso_type,
                              axis=self.axis)
-        iso_lines.draw_isolines(iso_range, num)
+        return iso_lines.draw_isolines(iso_range, num)
 
 
 def Ts(Ref, Tmin=None, Tmax=None, show=False, axis=None, *args, **kwargs):

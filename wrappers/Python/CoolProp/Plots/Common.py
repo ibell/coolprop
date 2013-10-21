@@ -121,7 +121,7 @@ class BasePlot(object):
                                     prop2_name,
                                     x,
                                     self.fluid_ref) for x in prop2_vals[i]])
-        return [x_vals, y_vals]
+        return [numpy.array(x_vals), numpy.array(y_vals)]
 
     def _get_sat_lines(self, kind='T', smin=None,
                        smax=None, num=500, x=[0., 1.]):
