@@ -2,110 +2,12 @@
 
 from __future__ import print_function, absolute_import
 
-import numpy, matplotlib, matplotlib.pyplot, math, re
-from scipy.interpolate import interp1d
+import math
+import numpy
 
 import CoolProp.CoolProp as CP
 
 from .Common import BasePlot
-
-class IsoLine(object):
-    def __init__(self):
-        self.DEBUG = False
-
-        # direct geometry
-        self.X     = None #
-        self.Y     = None #
-        self.type  = None #
-        self.value = None #
-        self.unit  = None #
-        self.opts  = None #
-
-
-def InlineLabel(xv,yv,x = None, y= None, axis = None, fig = None):
-    """
-    This will give the coordinates and rotation required to align a label with
-    a line on a plot
-    """
-
-    def ToPixelCoords(xv,yv,axis,fig):
-        [Axmin,Axmax]=axis.get_xlim()
-        [Aymin,Aymax]=axis.get_ylim()
-        DELTAX_axis=Axmax-Axmin
-        DELTAY_axis=Aymax-Aymin
-
-        width=fig.get_figwidth()
-        height=fig.get_figheight()
-        pos=axis.get_position().get_points()
-        [[Fxmin,Fymin],[Fxmax,Fymax]]=pos
-        DELTAX_fig=width*(Fxmax-Fxmin)
-        DELTAY_fig=height*(Fymax-Fymin)
-
-        #Convert coords to pixels
-        x=(xv-Axmin)/DELTAX_axis*DELTAX_fig+Fxmin
-        y=(yv-Aymin)/DELTAY_axis*DELTAY_fig+Fymin
-
-        return x,y
-
-    def ToDataCoords(xv,yv,axis,fig):
-        [Axmin,Axmax]=axis.get_xlim()
-        [Aymin,Aymax]=axis.get_ylim()
-        DELTAX_axis=Axmax-Axmin
-        DELTAY_axis=Aymax-Aymin
-
-        width=fig.get_figwidth()
-        height=fig.get_figheight()
-        pos=axis.get_position().get_points()
-        [[Fxmin,Fymin],[Fxmax,Fymax]]=pos
-        DELTAX_fig=(Fxmax-Fxmin)*width
-        DELTAY_fig=(Fymax-Fymin)*height
-
-        #Convert back to measurements
-        x=(xv-Fxmin)/DELTAX_fig*DELTAX_axis+Axmin
-        y=(yv-Fymin)/DELTAY_fig*DELTAY_axis+Aymin
-
-        return x,y
-
-    if axis is None:
-        axis=matplotlib.pyplot.gca()
-
-    if fig is None:
-        fig=matplotlib.pyplot.gcf()
-
-
-
-    if y is None and x is not None:
-        trash=0
-        (xv,yv)=ToPixelCoords(xv,yv,axis,fig)
-        #x is provided but y isn't
-        (x,trash)=ToPixelCoords(x,trash,axis,fig)
-
-        #Get the rotation angle
-        f = interp1d(xv, yv)
-        y = f(x)
-        h = 0.001*x
-        dy_dx = (f(x+h)-f(x-h))/(2*h)
-        rot = numpy.arctan(dy_dx)/numpy.pi*180.
-
-    elif x is None and y is not None:
-        #y is provided, but x isn't
-
-        _xv = xv[::-1]
-        _yv = yv[::-1]
-        #Find x by interpolation
-        x = interp1d(yv, xv)(y)
-        trash=0
-        (xv,yv)=ToPixelCoords(xv,yv,axis,fig)
-        (x,trash)=ToPixelCoords(x,trash,axis,fig)
-
-        f = interp1d(xv, yv)
-        y = f(x)
-        h = 0.001*x
-        dy_dx = (f(x+h)-f(x-h))/(2*h)
-        rot = numpy.arctan(dy_dx)/numpy.pi*180.
-
-    (x,y)=ToDataCoords(x,y,axis,fig)
-    return (x,y,rot)
 
 
 def drawLines(Ref,lines,axis,plt_kwargs=None):
@@ -144,36 +46,6 @@ def drawLines(Ref,lines,axis,plt_kwargs=None):
             plottedLines.extend([line])
 
     return plottedLines
-
-def plotRound(values):
-    """
-    A function round an array-like object while maintaining the
-    amount of entries. This is needed for the isolines since we
-    want the labels to look pretty (=rounding), but we do not
-    know the spacing of the lines. A fixed number of digits after
-    rounding might lead to reduced array size.
-    """
-    input   = numpy.unique(numpy.sort(numpy.array(values)))
-    output  = input[1:] * 0.0
-    digits  = -1
-    limit   = 10
-    lim     = input * 0.0 + 10
-    # remove less from the numbers until same length,
-    # more than 10 significant digits does not really
-    # make sense, does it?
-    while len(input) > len(output) and digits < limit:
-        digits += 1
-        val     = ( numpy.around(numpy.log10(numpy.abs(input))) * -1) + digits + 1
-        val     = numpy.where(val < lim, val,  lim)
-        val     = numpy.where(val >-lim, val, -lim)
-        output  = numpy.zeros(input.shape)
-        for i in range(len(input)):
-            output[i] = numpy.around(input[i],decimals=int(val[i]))
-        output = numpy.unique(output)
-    #print(digits)
-    #print(input)
-    #print(output)
-    return output
 
 
 class IsoLines(BasePlot):
