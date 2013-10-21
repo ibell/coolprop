@@ -1,15 +1,25 @@
 Labview wrapper of CoolProp
 ============================
 
-by Ian Bell and Arnaud Legros
+by Ian Bell, Arnaud Legros, Jan Nolens and Sergei Gusev
 
-University of Liege and Bell Thermal Consultants
+University of Liege, Ghent University
 
-February 2013
+October 2013
+
+Available libraries
+-------------------
+CoolProp.vi: 
+Basic Library to get the properties from CoolProp.dll
+
+CoolProp.llb
+More advanced library, allowing to compute thermodynamic diagrams, real-time calculation of properties,
+measurement precessing, etc.
+
 
 To Install
 ----------
-1. Copy the files CoolProp.vi and CoolProp.dll from this folder to somewhere you want
+1. Copy the files CoolProp.vi, Coolprop.llb and CoolProp.dll from this folder to somewhere you want
 2. Add CoolProp module to your code
 
 To Use
