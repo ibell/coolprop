@@ -5,6 +5,10 @@ from __future__ import print_function, absolute_import
 import math
 import numpy
 
+import matplotlib
+from matplotlib import transforms
+from matplotlib.contour import ContourSet
+
 import CoolProp.CoolProp as CP
 
 from .Common import BasePlot
@@ -270,34 +274,48 @@ class IsoLines(BasePlot):
         if not self.lines:
             raise ValueError('asdasd')
 
-        for line in self.lines:
-            x_vals = line['x']
-            y_vals = line['y']
+        if method == 'pyplot':
+            cs_levels = []
+            cs_lines = []
+            for i, line in enumerate(self.lines):
+                x_vals = line['x']
+                y_vals = line['y']
 
-            if method == 'strict':
-                if xloc is None:
-                    raise ValueError(''.join(["Please enter a xloc value ",
-                                              "for method %s" % method]))
+                cs_levels.append(i)
+                cs_lines.append([zip(x_vals, y_vals)])
+
+            matplotlib.rcParams['contour.negative_linestyle'] = 'solid'
+            CS = ContourSet(self.axis, cs_levels, cs_lines,
+                            colors=self.COLOR_MAP[self.iso_type])
+            CS.clabel(use_clabeltext=True)
+            return CS
+
+        if method == 'strict':
+            if xloc is None:
+                raise ValueError(''.join(["Please enter a xloc value ",
+                                          "for method %s" % method]))
+            for i, line in enumerate(self.lines):
+                x_vals = line['x']
+                y_vals = line['y']
+
                 loc = numpy.argmin(numpy.abs(x_vals - xloc))
+
                 theta = math.atan((y_vals[loc+1] - y_vals[loc]) /
                                   (x_vals[loc+1] - x_vals[loc]))
                 text_loc = numpy.array([x_vals[loc], y_vals[loc]])
 
-            elif method == 'auto':
-                pass
+                transform = self.axis.transData
+                trans_angle = transform.transform_angles(numpy.array((theta,)),
+                                                         text_loc.reshape((1, 2)),
+                                                         radians=True)
 
-            transform_func = self.axis.transData.transform_angles
-            trans_angle = transform_func(numpy.array((theta,)),
-                                         text_loc.reshape((1, 2)),
-                                         radians=True)
-
-            self.axis.text(text_loc[0], text_loc[1],
-                           line['label'],
-                           verticalalignment='center',
-                           horizontalalignment='center',
-                           color=self.COLOR_MAP[self.iso_type],
-                           bbox=bbox_opts,
-                           rotation=math.degrees(trans_angle))
+                self.axis.text(text_loc[0], text_loc[1],
+                               line['label'],
+                               verticalalignment='center',
+                               horizontalalignment='center',
+                               color=self.COLOR_MAP[self.iso_type],
+                               bbox=bbox_opts,
+                               rotation=math.degrees(trans_angle))
 
 
 class PropsPlot(BasePlot):
