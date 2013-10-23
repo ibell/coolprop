@@ -247,10 +247,6 @@ double IncompSolution(long iOutput, double T, double p, std::string name){ // TO
 std::string getSolutionName(std::string name){ // TODO Solutions: Remove as soon as possible
 	// Split into fluid, concentration pair
 	std::vector<std::string> fluid_concentration = strsplit(std::string(name),'-');
-	// Check it worked
-	if (fluid_concentration.size() != 2){
-		throw ValueError(format("Format of incompressible solution string [%s] is invalid, should be like \"EG-20%\" or \"EG-0.2\" ", name.c_str()) );
-	}
 	return fluid_concentration[0];
 }
 double getSolutionConc(std::string name){ // TODO Solutions: Remove as soon as possible

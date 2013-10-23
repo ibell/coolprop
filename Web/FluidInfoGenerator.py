@@ -476,24 +476,18 @@ All fluids are implemented with polynomials for density and heat capacity with t
 
 .. math::
 
-    \\rho  = \\sum_{i=0}^n C_{\\rho}[i] \\cdot T^i
-    
-    c      = \\sum_{i=0}^n C_{c}[i] \\cdot T^i
-    
-    u      = \\int_{0}^{1} c\\left( T \\right) dT 
-           = \\sum_{i=0}^n \\frac{1}{i+1} \\cdot C_{c}[i] 
-             \\cdot \\left( T^{i+1} - T_0^{i+1} \\right)
-    
-    s      = \\int_{0}^{1} \\frac{c\\left( T \\right)}{T} dT 
-           = C_{c}[0] \\cdot \\ln\\left(\\frac{T}{T_0}\\right) 
-             + \\sum_{i=0}^{n-1} \\frac{1}{i+1} \\cdot C_{c}[i+1] 
-             \\cdot \\left( T^{i+1} - T_0^{i+1} \\right)
-               
-    \\lambda= \\sum_{i=0}^n C_{\\lambda}[i] \\cdot T^i
-    
-    \\mu    = \\exp\\left( \\frac{C_{\\mu}[0]}{T+C_{\\mu}[1]} - C_{\\mu}[2] \\right)
-    
-    p_{sat}= \\exp\\left( \\frac{C_{sat}[0]}{T+C_{sat}[1]} - C_{sat}[2] \\right)
+    \\rho    &= \\sum_{i=0}^n C_{\\rho}[i] \\cdot T^i \\\\
+    c        &= \\sum_{i=0}^n C_{c}[i] \\cdot T^i \\\\
+    u        &= \\int_{0}^{1} c\\left( T \\right) dT 
+              = \\sum_{i=0}^n \\frac{1}{i+1} \\cdot C_{c}[i] 
+                \\cdot \\left( T^{i+1} - T_0^{i+1} \\right) \\\\
+    s        &= \\int_{0}^{1} \\frac{c\\left( T \\right)}{T} dT
+              = C_{c}[0] \\cdot \\ln\\left(\\frac{T}{T_0}\\right) 
+                + \\sum_{i=0}^{n-1} \\frac{1}{i+1} \\cdot C_{c}[i+1] 
+                \\cdot \\left( T^{i+1} - T_0^{i+1} \\right) \\\\
+    \\lambda &= \\sum_{i=0}^n C_{\\lambda}[i] \\cdot T^i \\\\
+    \\mu     &= \\exp\\left( \\frac{C_{\\mu}[0]}{T+C_{\\mu}[1]} - C_{\\mu}[2] \\right) \\\\
+    p_{sat}  &= \\exp\\left( \\frac{C_{sat}[0]}{T+C_{sat}[1]} - C_{sat}[2] \\right) \\\\
     
     
 Brines and Solutions
@@ -543,25 +537,19 @@ Properties are modelled with the help of polynomials:
 
 .. math::
 
-    \\rho  = \\sum_{i=0}^n \\sum_{j=0}^m C_{\\rho}[i,j] \\cdot x^i  \\cdot T^j
-    
-    c      = \\sum_{i=0}^n \\sum_{j=0}^m C_{c}[i,j] \\cdot x^i  \\cdot T^j
-    
-    u      = \\int_{0}^{1} c\\left( x,T \\right) dT 
-           = \\sum_{i=0}^n x^i \\cdot \\sum_{j=0}^m \\frac{1}{j+1} \\cdot C_{c}[i,j] 
-             \\cdot \\left( T^{j+1} - T_0^{j+1} \\right)
-    
-    s      = \\int_{0}^{1} \\frac{c\\left( x,T \\right)}{T} dT 
-           = \\sum_{i=0}^n x^i \\cdot \\left( 
-             C_{c}[i,0] \\cdot \\ln\\left(\\frac{T}{T_0}\\right) 
-             + \\sum_{j=0}^{m-1} \\frac{1}{j+1} \\cdot C_{c}[i,j+1] \\cdot \\left( T^{j+1} - T_0^{j+1} \\right)
-             \\right)
-               
-    \\lambda= \\sum_{i=0}^n \\sum_{j=0}^m C_{\\lambda}[i,j] \\cdot x^i  \\cdot T^j
-    
-    \\mu    = \\exp \\left( \\sum_{i=0}^n \\sum_{j=0}^m C_{\\mu}[i,j] \\cdot x^i  \\cdot T^j \\right)
-    
-    T_{freeze}= \\sum_{i=0}^n C_{freeze}[i] \\cdot \\left( x - x_0 \\right)^i 
+    \\rho      &= \\sum_{i=0}^n \\sum_{j=0}^m C_{\\rho}[i,j] \\cdot x^i  \\cdot T^j \\\\
+    c          &= \\sum_{i=0}^n \\sum_{j=0}^m C_{c}[i,j] \\cdot x^i  \\cdot T^j \\\\
+    u          &= \\int_{0}^{1} c\\left( x,T \\right) dT 
+                = \\sum_{i=0}^n x^i \\cdot \\sum_{j=0}^m \\frac{1}{j+1} \\cdot C_{c}[i,j] 
+                  \\cdot \\left( T^{j+1} - T_0^{j+1} \\right) \\\\
+    s          &= \\int_{0}^{1} \\frac{c\\left( x,T \\right)}{T} dT 
+                = \\sum_{i=0}^n x^i \\cdot \\left( 
+                  C_{c}[i,0] \\cdot \\ln\\left(\\frac{T}{T_0}\\right) 
+                  + \\sum_{j=0}^{m-1} \\frac{1}{j+1} \\cdot C_{c}[i,j+1] \\cdot \\left( T^{j+1} - T_0^{j+1} \\right)
+                  \\right) \\\\
+    \\lambda   &= \\sum_{i=0}^n \\sum_{j=0}^m C_{\\lambda}[i,j] \\cdot x^i  \\cdot T^j \\\\
+    \\mu       &= \\exp \\left( \\sum_{i=0}^n \\sum_{j=0}^m C_{\\mu}[i,j] \\cdot x^i  \\cdot T^j \\right) \\\\
+    T_{freeze} &= \\sum_{i=0}^n C_{freeze}[i] \\cdot \\left( x - x_0 \\right)^i \\\\
     
     
 """

@@ -202,6 +202,8 @@ double pIncompLiquid(long iOutput, double T, double p, IncompressibleLiquid *pLi
 			out = pLiquid->visc(T,p_SI); break;
 		case iL:
 			out = pLiquid->cond(T,p_SI); break;
+		case iTmin:
+			out = pLiquid->getTmin(); break;
 		case iTmax:
 			out = pLiquid->getTmax(); break;
 		default:
