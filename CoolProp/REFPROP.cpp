@@ -773,6 +773,8 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 		case iC: output_val = cp/MW*1000; break;
 		case iO: output_val = cv/MW*1000; break;
 		case iA: output_val = w; break;
+		case iQ:
+			output_val = (1/d-1/dl)/(1/dv-1/dl); break;
 		case iV:
 			TRNPRPdll(&T,&d,&(x[0]),&eta,&tcx,&ierr,herr,errormessagelength); if (ierr > 0) { throw ValueError(format("%s",herr).c_str()); } else if (ierr < 0) {set_warning(format("%s",herr).c_str());}
 			output_val = eta/1.0e6; //uPa-s to Pa-s
@@ -782,7 +784,7 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 			output_val = tcx;
 			break;
 		default:
-			throw ValueError(format("Output parameter [%d] in invalid",iOutput).c_str());
+			throw ValueError(format("Output parameter [%d] is invalid for REFPROP fluid in REFPROP.cpp",iOutput).c_str());
 		}
 	}
 	// Now the two-phase inputs, either T-Q or P-Q
