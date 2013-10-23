@@ -63,7 +63,7 @@ private:
 	 *  new calculation schemes available, please do not delete
 	 *  the implementations, but mark them as deprecated.
 	 *  The old functions are good for debugging since the
-	 *  structure is easier to read that the backward Horner-scheme
+	 *  structure is easier to read than the backward Horner-scheme
 	 *  or the recursive Horner-scheme.
 	 */
 

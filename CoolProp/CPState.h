@@ -86,9 +86,9 @@ class CoolPropStateClassSI
 {
 protected:
 
+	// TODO Solutions: Remove dummy string
 	/// Temporary until solutions are fixed
 	std::string brine_string;
-
 	
 
 	StateCache cache;
@@ -203,6 +203,7 @@ public:
 		}
 		else if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION)
 		{
+			return this->pIncompSolution->getName();
 			return brine_string;
 		}
 	};

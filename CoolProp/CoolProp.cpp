@@ -99,6 +99,8 @@ std::pair<std::string, long> map_data[] = {
 	std::make_pair(std::string("G"),iG),
 	std::make_pair(std::string("V"),iV),
 	std::make_pair(std::string("L"),iL),
+	std::make_pair(std::string("M"),iM),
+	std::make_pair(std::string("F"),iF),
 	std::make_pair(std::string("I"),iI),
 	std::make_pair(std::string("SurfaceTension"),iI),
 	std::make_pair(std::string("dpdT"),iDpdT),
@@ -143,6 +145,8 @@ std::pair<long, std::string> units_data[] = {
 	std::make_pair(iG, std::string("kJ/kg")),
 	std::make_pair(iV, std::string("Pa*s")),
 	std::make_pair(iL, std::string("kW/m/K")),
+	std::make_pair(iM, std::string("K")),
+	std::make_pair(iF, std::string("K")),
 	std::make_pair(iI, std::string("N/m")),
 	std::make_pair(iDpdT, std::string("kPa/K")),
 	std::make_pair(iDrhodT_p, std::string("kg/K/m^3"))
@@ -613,7 +617,7 @@ double _Props(std::string Output, std::string Name1, double Prop1, std::string N
 		}
     }
 	// It's an incompressible liquid, call the routine
-	else if (IsIncompressibleLiquid((char*)Ref.c_str()))
+	else if (IsIncompressibleLiquid(Ref))
     {
 		//Enthalpy and pressure are the inputs
 		if ((Name1.c_str()[0]=='H' && Name2.c_str()[0]=='P') || (Name2.c_str()[0]=='H' && Name1.c_str()[0]=='P'))
@@ -638,9 +642,38 @@ double _Props(std::string Output, std::string Name1, double Prop1, std::string N
 		}
 		else
 		{
-			throw ValueError("For incompressible fluids, inputs must be (order doesnt matter) 'T' and 'P', or 'H' and 'P'");
+			throw ValueError("For incompressible fluids, inputs must be (order does not matter) 'T' and 'P', or 'H' and 'P'");
 		}
     }
+    // It's an incompressible solution, call the routine
+	else if (IsIncompressibleSolution(Ref))
+	{
+		//Enthalpy and pressure are the inputs
+		if ((Name1.c_str()[0]=='H' && Name2.c_str()[0]=='P') || (Name2.c_str()[0]=='H' && Name1.c_str()[0]=='P'))
+		{
+			if (Name2.c_str()[0]=='H' && Name1.c_str()[0]=='P')
+			{
+				std::swap(Prop1,Prop2);
+				std::swap(Name1,Name2);
+			}
+
+			// Solve for the temperature
+			double T =_T_hp_secant(Ref,Prop1,Prop2,300);
+			// Return whatever property is desired
+			return IncompSolution(get_param_index(Output),T,Prop2,Ref);
+		}
+		else if ((Name1.c_str()[0] == 'T' && Name2.c_str()[0] =='P') || (Name1.c_str()[0] == 'P' && Name2.c_str()[0] == 'T'))
+		{
+			if (Name1.c_str()[0] =='P' && Name2.c_str()[0] =='T'){
+				std::swap(Prop1,Prop2);
+			}
+			return IncompSolution(get_param_index(Output),Prop1,Prop2,Ref);
+		}
+		else
+		{
+			throw ValueError("For incompressible solutions, inputs must be (order does not matter) 'T' and 'P', or 'H' and 'P'");
+		}
+	}
 	else
 	{
 		throw ValueError(format("Your fluid name [%s] is not a CoolProp fluid, a REFPROP fluid, a brine or a liquid",Ref.c_str()));

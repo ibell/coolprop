@@ -43,7 +43,7 @@ bool IncompressibleClass::checkCoefficients(std::vector< std::vector<double> > c
  *  new calculation schemes available, please do not delete
  *  the implementations, but mark them as deprecated.
  *  The old functions are good for debugging since the
- *  structure is easier to read that the backward Horner-scheme
+ *  structure is easier to read than the backward Horner-scheme
  *  or the recursive Horner-scheme.
  */
 
@@ -273,7 +273,7 @@ double IncompressibleClass::expval(std::vector< std::vector<double> > coefficien
 //    liquid->testInputs(AT,Ap);
 //
 //
-//	SecCoolSolutionClass* obj = new MethanolSolutionClass();
+//	SecCoolSolution* obj = new MethanolSolution();
 //    double x      =   0.25;
 //    double T      =   5.0 + 273.15;
 //    double p      =   3e5;

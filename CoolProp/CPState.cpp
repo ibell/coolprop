@@ -15,8 +15,9 @@
 
 #include <stdio.h>
 
-// Container for the liquids
-LiquidsContainer LiquidsList;
+// TODO Fix duplicate objects
+SolutionsContainer SolutionsList = SolutionsContainer();
+LiquidsContainer LiquidsList = LiquidsContainer();
 
 // Constructor with fluid name
 CoolPropStateClassSI::CoolPropStateClassSI(std::string Fluid)
@@ -28,10 +29,12 @@ CoolPropStateClassSI::CoolPropStateClassSI(std::string Fluid)
 	}
 	// If an incompressible liquid, check that 
 	else if(IsIncompressibleLiquid(Fluid)){
-		pIncompLiquid = LiquidsList.get_liquid(Fluid); 
+		pIncompLiquid = LiquidsList.get_liquid(Fluid);
 		fluid_type = FLUID_TYPE_INCOMPRESSIBLE_LIQUID;
 	}
-	else if (IsFluidType((char*)Fluid.c_str(),"Brine")){ // TODO SOLUTION: FIX
+	// If an incompressible solution, check that
+	else if(IsIncompressibleSolution(Fluid)){ // TODO SOLUTION: Check if working
+		pIncompSolution = SolutionsList.get_solution(Fluid);
 		this->brine_string = Fluid;
 		fluid_type = FLUID_TYPE_INCOMPRESSIBLE_SOLUTION;
 	}
@@ -388,7 +391,7 @@ void CoolPropStateClassSI::update_twophase(long iInput1, double Value1, long iIn
 			rhosatL = pFluid->density_Tp(TsatL, psatL, pFluid->rhosatL(TsatL));
 			rhosatV = pFluid->density_Tp(TsatV, psatV, pFluid->rhosatV(TsatV));
 			}
-			catch (std::exception){
+			catch (std::exception &e){
 				// Near the critical point, the behavior is not very nice, so we will just use the ancillary near the critical point
 				rhosatL = pFluid->rhosatL(TsatL);
 				rhosatV = pFluid->rhosatV(TsatV);

@@ -19,47 +19,59 @@ in IncompSolution.cpp
 **/
 
 /// Base class for simplified brine/solution models
-/** Employs the base functions implemented in IncompBase.h.
- *  Extends the functions for composition as input. */
+/** Employs the base functions implemented in IncompBase.h and
+ *  provides properties as function of temperature, pressure
+ *  and composition. */
 class IncompressibleSolution : public IncompressibleClass{
 
+/** A few redefinitions are needed. The base class does not support
+ *  composition as input. We also have to have an additional check
+ *  for maximum and minimum concentration as well as the freezing point.
+ */
 protected:
 	double xmin, xmax;
 
-//	/// Function used to enforce the composition as parameter
-//	/** Overwrites the normal functions that only take 2
-//	 *  parameters (T,p) and throws an exception. */
-//	bool needComposition() {
-//		throw NotImplementedError(format("The fluid %s needs an additional input for the composition.",this->name));
-//		return false;
-//	}
 
 public:
 	// Constructor
 	IncompressibleSolution(){
 		xmin = -1.;
 		xmax = -1.;
-	};
-
-	// Destructor, no implementation
-	virtual ~IncompressibleSolution(){};
+	}
+;
 
 	/* All functions need T, p and x as input. Might not
 	 * be necessary, but gives a clearer structure.
 	 */
+	/// Density as a function of temperature, pressure and composition.
     virtual double rho (double T_K, double p, double x){return -_HUGE;};
-    virtual double cp  (double T_K, double p, double x){return -_HUGE;};
-    virtual double h   (double T_K, double p, double x){return -_HUGE;};
+    /// Heat capacities as a function of temperature, pressure and composition.
+    virtual double c   (double T_K, double p, double x){return -_HUGE;};
+	virtual double cp  (double T_K, double p, double x){return c(T_K,p,x);};
+	virtual double cv  (double T_K, double p, double x){return c(T_K,p,x);};
+    /// Entropy as a function of temperature, pressure and composition.
     virtual double s   (double T_K, double p, double x){return -_HUGE;};
-    virtual double visc(double T_K, double p, double x){return -_HUGE;};
-    virtual double cond(double T_K, double p, double x){return -_HUGE;};
+    /// Internal energy as a function of temperature, pressure and composition.
     virtual double u   (double T_K, double p, double x){return -_HUGE;};
+    /// Enthalpy as a function of temperature, pressure and composition.
+    virtual double h   (double T_K, double p, double x){return -_HUGE;};
+    /// Viscosity as a function of temperature, pressure and composition.
+    virtual double visc(double T_K, double p, double x){return -_HUGE;};
+    /// Thermal conductivity as a function of temperature, pressure and composition.
+    virtual double cond(double T_K, double p, double x){return -_HUGE;};
+    /// Saturation pressure as a function of temperature and composition.
     virtual double psat(double T_K          , double x){return -_HUGE;};
+    /// Freezing temperature as a function of pressure and composition.
     virtual double Tfreeze(         double p, double x){return -_HUGE;};
 
     void testInputs(double T_K, double p, double x);
 
 protected:
+    /* Define internal energy and enthalpy as functions of the
+	 * other properties to provide data in case there are no
+	 * coefficients.
+	 */
+
 	/// Enthalpy from x, u, p and rho.
 	/** Calculate enthalpy as a function of temperature and
 	 *  pressure employing functions for internal energy and
@@ -87,8 +99,7 @@ protected:
 	/// Check validity of temperature input.
 	/** Compares the given temperature T to the result of a
 	 *  freezing point calculation. This is not necessarily
-	 *  defined for all fluids, default values do not
-	 *  cause errors. */
+	 *  defined for all fluids, default values do not cause errors. */
 	bool checkT(double T_K, double p, double x);
 
 	/// Check validity of pressure input.
@@ -110,9 +121,34 @@ protected:
 	bool checkTPX(double T, double p, double x);
 };
 
+
+/** Basic functions to access the list of incompressible fluids.
+ *  Used here for convenience, but does not really contribute
+ *  any functionality.
+ */
 bool IsIncompressibleSolution(std::string name);
 double IncompSolution(long iOutput, double T, double p, double x, long iFluid);
 double IncompSolution(long iOutput, double T, double p, double x, std::string name);
+double IncompSolution(long iOutput, double T, double p, std::string name);  // TODO Solutions: Remove as soon as possible
+std::string getSolutionName(std::string name); // TODO Solutions: Remove as soon as possible
+double getSolutionConc(std::string name); // TODO Solutions: Remove as soon as possible
+
+
+/** Handle all the objects in a single list of incompressible
+ *  solutions and brines. */
+class SolutionsContainer {
+private:
+  std::vector<IncompressibleSolution*> solution_list;
+  std::map<std::string,IncompressibleSolution*> solution_map;
+
+public:
+  IncompressibleSolution * get_solution(long index);
+  IncompressibleSolution * get_solution(std::string name);
+  void set_solutions(std::vector<IncompressibleSolution*> list);
+
+  SolutionsContainer();
+  ~SolutionsContainer();
+};
 
 
 /// Class to use the SecCool parameters
@@ -215,15 +251,23 @@ public:
 		std::vector<double> tmpVector(cTfreeze.begin()+1,cTfreeze.end());
 		return polyval(tmpVector, x*100.0-cTfreeze[0])+273.15;
 	}
+//	/// Function used to enforce the composition as parameter
+//	/** Overwrites the normal functions that only take 2
+//	 *  parameters (T,p) and throws an exception. */
+//	bool needComposition() {
+//		throw NotImplementedError(format("The fluid %s needs an additional input for the composition.",this->name));
+//		return false;
+//	}
+
 };
 
-class MethanolSolution : public SecCoolSolution{
+class TestSolution : public SecCoolSolution{
 public:
-	MethanolSolution(){
+	TestSolution(){
 
 		std::vector<double> tmpVector;
 
-        name = std::string("Test");
+        name = std::string("TestSolution");
         description = std::string("Test Methanol");
         reference = std::string("Test");
 
@@ -335,31 +379,5 @@ public:
     };
 };
 
-//
-///** Handle all the objects in a single list of incompressible liquids
-// *  and a list of solutions / brines. The singleton pattern assures
-// *  there is only one list.
-// */
-//
-//class SolutionsContainer {
-//public:
-//  static SolutionsContainer* Instance();
-//  IncompressibleSolution * get_solution(long index);
-//  IncompressibleSolution * get_solution(std::string name);
-//  void set_solutions(std::vector<IncompressibleSolution*> list);
-//
-//private:
-//  std::vector<IncompressibleSolution*> solution_list;
-//  std::map<std::string,IncompressibleSolution*> solution_map;
-//
-//  static void destruct();
-//
-//  SolutionsContainer();
-//  ~SolutionsContainer(){};
-//
-//  SolutionsContainer(SolutionsContainer const&);            // no copying
-//  SolutionsContainer& operator=(SolutionsContainer const&); // no overwriting
-//  static SolutionsContainer* MInstance;                     // instance
-//};
 
 #endif

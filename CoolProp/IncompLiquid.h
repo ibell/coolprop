@@ -8,6 +8,7 @@
 #include "CPExceptions.h"
 #include "CoolPropTools.h"
 #include "IncompBase.h"
+#include <stdio.h>
 
 /**
 Notes for developers:
@@ -17,7 +18,10 @@ and then add it to the map in the constructor in LiquidsContainer
 in IncompLiquid.cpp
 **/
 
-/// The abstract base class for the liquids
+/// Base class for simplified brine/solution models
+/** Employs the base functions implemented in IncompBase.h and
+ *  provides properties as function of temperature, pressure
+ *  and composition. */
 class IncompressibleLiquid : public IncompressibleClass{
 	
 public:
@@ -43,33 +47,7 @@ public:
 	/// Saturation pressure as a function of temperature.
 	virtual double psat(double T_K){return -_HUGE;};
 
-    void testInputs(double T_K, double p){
-    	double result = 0.;
-        //double x =   0.25;
-        //double T =   5.0 + 273.15;
-        //double p =  300.0;
-
-    	printf(" %s \n"," ");
-    	printf("Testing  %s \n",this->get_name().c_str());
-    	printf("Inputs:  T = %3.3f degC \t p = %2.4f bar \n",T_K-273.15,p/1e5);
-
-        result = this->rho(T_K,p);
-        printf("From object:    rho = %4.2f \t kg/m3    \n",result);
-        result = this->cp(T_K,p);
-        printf("From object:     cp = %1.5f \t kJ/kg-K  \n",result/1e3);
-        result = this->h(T_K,p);
-    	printf("From object:      h = %3.3f \t kJ/kg    \n",result/1e3);
-    	result = this->s(T_K,p);
-    	printf("From object:      s = %1.5f \t kJ/kg-K  \n",result/1e3);
-    	result = this->visc(T_K,p);
-    	printf("From object:    eta = %1.5f \t 1e-5 Pa-s\n",result*1e5);
-    	result = this->cond(T_K,p);
-    	printf("From object: lambda = %1.5f \t W/m-k    \n",result*1e3);
-    	result = this->u(T_K,p);
-    	printf("From object:      u = %3.3f \t kJ/kg    \n",result/1e3);
-    	result = this->psat(T_K);
-    	printf("From object:   psat = %2.4f \t bar      \n",result/1e5);
-    }
+    void testInputs(double T_K, double p);
 
 protected:
 	/* Define internal energy and enthalpy as functions of the
@@ -102,21 +80,10 @@ protected:
 	 */
 
 	/// Check validity of temperature input.
-	/** Compares the given temperature T to a stored minimum and
-	 *  maximum temperature. Enforces the redefinition of Tmin and
-	 *  Tmax since the default values cause an error. */
-	bool checkT(double T_K){
-		if( Tmin < 0. ) {
-			throw ValueError("Please specify the minimum temperature.");
-		} else if( Tmax < 0.) {
-			throw ValueError("Please specify the maximum temperature.");
-		} else if ( (Tmin>T_K) || (T_K>Tmax) ) {
-			throw ValueError(format("Your temperature %f is not between %f and %f.",T_K,Tmin,Tmax));
-		} else {
-			return true;
-		}
-		return false;
-	}
+	/** Compares the given temperature T to a stored minimum
+	 *  and maximum temperature. Enforces the redefinition of
+	 *  Tmin and Tmax since the default values cause an error. */
+	bool checkT(double T_K);
 
 	/// Check validity of pressure input.
 	/** Compares the given pressure p to the saturation pressure at
@@ -125,25 +92,41 @@ protected:
 	 *  The default value for psat is -1 yielding true if psat
 	 *  is not redefined in the subclass.
 	 *  */
-	bool checkP(double T_K, double p) {
-		double ps = psat(T_K);
-		if (p<ps) {
-			throw ValueError(format("Equations are valid for liquid phase only: %f < %f. ",p,ps));
-		} else {
-			return true;
-		}
-	}
+	bool checkP(double T_K, double p);
 
 	/// Check validity of temperature and pressure input.
-	bool checkTP(double T, double p) {
-		return (checkT(T) && checkP(T,p));
-	}
-
+	bool checkTP(double T, double p);
 };
 
+
+/** Basic functions to access the list of incompressible fluids.
+ *  Used here for convenience, but does not really contribute
+ *  any functionality.
+ */
 bool IsIncompressibleLiquid(std::string name);
 double IncompLiquid(long iOutput, double T, double p, long iFluid);
 double IncompLiquid(long iOutput, double T, double p, std::string name);
+// only two functions needed
+// no name processing
+// no concentration issues
+
+
+/** Handle all the objects in a single list of incompressible
+ *  liquids. */
+class LiquidsContainer {
+private:
+  std::vector<IncompressibleLiquid*> liquid_list;
+  std::map<std::string,IncompressibleLiquid*> liquid_map;
+
+public:
+  IncompressibleLiquid * get_liquid(long index);
+  IncompressibleLiquid * get_liquid(std::string name);
+  void set_liquids(std::vector<IncompressibleLiquid*> list);
+
+  LiquidsContainer();
+  ~LiquidsContainer();
+};
+
 
 /// Base class for simplified models
 /** Employs the base functions implemented above, only needs a reduced
@@ -768,8 +751,8 @@ class NitrateSaltClass : public SimpleIncompressible{
 public:
 	NitrateSaltClass(){
         name = std::string("NaK");
-        description = std::string("60% NaNO3 and 40% KNO3");
-        reference = std::string("Solar Power Tower Design Basis Document,  Alexis B. Zavoico, Sandia Labs, USA");
+        description = std::string("Salt mixture with 60% NaNO3 and 40% KNO3");
+        reference = std::string("Zavoico2001");
 
         Tmin     = 573.15;
         Tmax     = 873.15;
@@ -839,49 +822,5 @@ public:
         cPsat.clear();
     };
 };
-
-/** Handle all the objects in a single list of incompressible liquids
- *  and a list of solutions / brines. The singleton pattern assures
- *  there is only one list.
- */
-class LiquidsContainer {
-private:
-  std::vector<IncompressibleLiquid*> liquid_list;
-  std::map<std::string,IncompressibleLiquid*> liquid_map;
-
-public:
-  IncompressibleLiquid * get_liquid(long index);
-  IncompressibleLiquid * get_liquid(std::string name);
-  void set_liquids(std::vector<IncompressibleLiquid*> list);
-
-  LiquidsContainer();
-  ~LiquidsContainer();
-};
-
-///** Handle all the objects in a single list of incompressible liquids
-// *  and a list of solutions / brines. The singleton pattern assures
-// *  there is only one list.
-// */
-//class LiquidsContainer {
-//public:
-//  static LiquidsContainer* Instance();
-//  IncompressibleLiquid * get_liquid(long index);
-//  IncompressibleLiquid * get_liquid(std::string name);
-//  void set_liquids(std::vector<IncompressibleLiquid*> list);
-//
-//private:
-//  std::vector<IncompressibleLiquid*> liquid_list;
-//  std::map<std::string,IncompressibleLiquid*> liquid_map;
-//
-//  static void destruct();
-//
-//  LiquidsContainer();
-//  ~LiquidsContainer();
-//
-//  LiquidsContainer(LiquidsContainer const&);            // no copying
-//  LiquidsContainer& operator=(LiquidsContainer const&); // no overwriting
-//  static LiquidsContainer* MInstance;                   // instance
-//};
-
 
 #endif

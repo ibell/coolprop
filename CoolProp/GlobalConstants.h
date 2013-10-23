@@ -7,7 +7,7 @@
 // --------------------------------------------------
 
 // These are constants for the input and output parameters
-enum params {iB,iT,iP,iD,iC,iC0,iO,iU,iH,iS,iA,iG,iQ,iV,iL,iI,iMM,iTcrit,iTtriple,iTreduce,iPtriple,iPcrit,iRhocrit,iRhoreduce,iAccentric,iDpdT,iDrhodT_p,iTmin,iDipole,iPhase,iPHASE_LIQUID,iPHASE_GAS,iPHASE_SUPERCRITICAL,iPHASE_TWOPHASE,iODP,iGWP20,iGWP100,iGWP500, iCritSplineT,iHcrit,iScrit};
+enum params {iB,iT,iP,iD,iC,iC0,iO,iU,iH,iS,iA,iG,iQ,iV,iL,iM,iF,iI,iMM,iTcrit,iTtriple,iTreduce,iPtriple,iPcrit,iRhocrit,iRhoreduce,iAccentric,iDpdT,iDrhodT_p,iTmin,iDipole,iPhase,iPHASE_LIQUID,iPHASE_GAS,iPHASE_SUPERCRITICAL,iPHASE_TWOPHASE,iODP,iGWP20,iGWP100,iGWP500, iCritSplineT,iHcrit,iScrit};
 
 // These are constants for the phases of the fluid
 enum phases {iLiquid, iSupercritical, iGas, iTwoPhase};

@@ -471,7 +471,7 @@ There is also a selection of incompressible liquids implemented.  These only all
     In [1]: Props('D','T',300,'P',101.325,'HFE')
  
 
-For refrigeration applications, 8 fluids were implemented from Melinder 2010 and coefficients are obtained from a fit between -80 and +100 degrees Celsius. The reference point for 0 entropy and 0 internal energy is 25 degrees Celsius. 
+For refrigeration applications, 8 fluids were implemented from Melinder 2010 and coefficients are obtained from a fit between -80 and +100 degrees Celsius.
 
 ==========================   ===================================================
 Fluid Name                   Description
@@ -494,9 +494,10 @@ Fluid Name                   Description
 ``TD12``                     Therminol D12 (-85 to +230 C)
 ``TVP1``                     Therminol VP-1 (+12 to +397 C)
 ``T72``                      Therminol 72 (-10 to +380 C)
+``T66``                      Therminol 66 (0 to +345 C)
 ``DowJ``                     Dowtherm J (-80 to +345 C)
 ``DowQ``                     Dowtherm Q (-35 to +360 C)
-``TX22``                     Texatherm 22 (+0 to +350 C)
+``TX22``                     Texatherm 22 (0 to +350 C)
 ``NaK``                      Nitrate Salt Blend (+300 to +600 C)
 ``XLT``                      Syltherm XLT (-100 to +260 C)
 ==========================   ===================================================
