@@ -267,7 +267,7 @@ class IsoLines(BasePlot):
         #    for c,l in enumerate(ll):
         #        drawIsoLines(Ref, plot, l, iValues=iValues[c], num=num, axis=axis, fig=fig)
 
-    def add_inline_labels(self, xloc=None, method='strict'):
+    def add_inline_labels(self, xloc=None, method='auto'):
         bbox_opts = dict(boxstyle='square,pad=0.2',
                          fc='white', ec='None', alpha = 0.9)
 
@@ -290,15 +290,29 @@ class IsoLines(BasePlot):
             CS.clabel(use_clabeltext=True)
             return CS
 
-        if method == 'strict':
+        else:
             if xloc is None:
-                raise ValueError(''.join(["Please enter a xloc value ",
-                                          "for method %s" % method]))
+                raise ValueError(''.join(["Please enter a xloc value of a ",
+                                          "list of xloc values for method ",
+                                          "%s" % method]))
+
+            if method == 'center':
+                if not isinstance(xloc, int):
+                    raise TypeError(''.join(["Expected an int xloc value ",
+                                             "for method %s" % method]))
+
+                xloc = [xloc] * len(self.lines)
+
+            if method == 'manual':
+                if not isinstance(xloc, (tuple, list)):
+                    raise TypeError(''.join(["Expected an xloc iterable for ",
+                                             "method %s" % method]))
+
             for i, line in enumerate(self.lines):
                 x_vals = line['x']
                 y_vals = line['y']
 
-                loc = numpy.argmin(numpy.abs(x_vals - xloc))
+                loc = numpy.argmin(numpy.abs(x_vals - xloc[i]))
 
                 theta = math.atan((y_vals[loc+1] - y_vals[loc]) /
                                   (x_vals[loc+1] - x_vals[loc]))
@@ -316,6 +330,7 @@ class IsoLines(BasePlot):
                                color=self.COLOR_MAP[self.iso_type],
                                bbox=bbox_opts,
                                rotation=math.degrees(trans_angle))
+
 
 
 class PropsPlot(BasePlot):
