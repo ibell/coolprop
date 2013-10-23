@@ -428,37 +428,7 @@ You can also use mixtures in REFPROP, there is a special format for the fluid na
     #Saturated R410 vapor density at 1 atmosphere using the mixture properties
     In [1]: Props('D','Q',1,'P',101.325,'REFPROP-MIX:R32[0.697615]&R125[0.302385]')
 
-Brines
-------
-A number of aqueous solutions are implemented using the coefficients from Melinder (2010).  The list of diluents implemented are
-
-==========================   ===================================================
-Fluid Name                   Description
-==========================   ===================================================
-``EG``                       Ethylene Glycol
-``PG``                       Propylene Glycol
-``EA``                       Ethyl Alcohol (Ethanol)
-``MA``                       Methyl Alcohol (Methanol)
-``Glycerol``                 Glycerol
-``NH3``                      Ammonia
-``K2CO3``                    Potassium Carbonate
-``CaCl2``                    Calcium Chloride
-``MgCl2``                    Magnesium Chloride
-``NaCl``                     Sodium Chloride
-``KAC``                      Potassium Acetate
-``KFO``                      Potassium Formate
-``LiCl``                     Lithium Chloride
-==========================   ===================================================
-
-To use them the fluid name is something like ``"EG-20%"`` which is a 20% by mass ethylene glycol solution
-
-.. ipython::
-
-    In [1]: from CoolProp.CoolProp import Props
-    
-    #Specific heat 20% mass ethylene glycol solution at 300 K and 1 atm.
-    In [1]: Props('C','T',300,'P',101.325,'EG-20%')
-    
+   
 Incompressible Liquids
 ----------------------
 There is also a selection of incompressible liquids implemented.  These only allow for calls with temperature and pressure as input and provide only a subset of thermophysical properties, namely: density, heat capacity, internal energy, enthalpy, entropy, viscosity and thermal conductivity.
@@ -524,7 +494,76 @@ All fluids are implemented with polynomials for density and heat capacity with t
     \\mu    = \\exp\\left( \\frac{C_{\\mu}[0]}{T+C_{\\mu}[1]} - C_{\\mu}[2] \\right)
     
     p_{sat}= \\exp\\left( \\frac{C_{sat}[0]}{T+C_{sat}[1]} - C_{sat}[2] \\right)
+    
+    
+Brines and Solutions
+--------------------
+All the brines and solutions can be accessed through the Props function. To use them, the fluid name 
+is something like ``"EG-20%"`` which is a 20% by mass ethylene glycol solution. Note that these fluids
+have an arbitrary reference state: Be careful with enthalpy and entropy calculations. 
 
+.. ipython::
+
+    In [1]: from CoolProp.CoolProp import Props
+    
+    #Specific heat 20% mass ethylene glycol solution at 300 K and 1 atm.
+    In [1]: Props('C','T',300,'P',101.325,'EG-20%')
+
+
+A number of aqueous solutions are implemented using the coefficients from Melinder (2010).  The list of diluents implemented are
+
+==========================   ===================================================
+Fluid Name                   Description
+==========================   ===================================================
+``EG``                       Ethylene Glycol
+``PG``                       Propylene Glycol
+``EA``                       Ethyl Alcohol (Ethanol)
+``MA``                       Methyl Alcohol (Methanol)
+``Glycerol``                 Glycerol
+``NH3``                      Ammonia
+``K2CO3``                    Potassium Carbonate
+``CaCl2``                    Calcium Chloride
+``MgCl2``                    Magnesium Chloride
+``NaCl``                     Sodium Chloride
+``KAC``                      Potassium Acetate
+``KFO``                      Potassium Formate
+``LiCl``                     Lithium Chloride
+==========================   ===================================================
+
+There are also other secondary fluids that can be accessed in the same way. Most information is based on the 
+data compiled by Morten Skovrup in his SecCool software available at http://en.ipu.dk/Indhold/refrigeration-and-energy-technology/seccool.aspx .
+ 
+==========================   ===================================================
+Fluid Name                   Description
+==========================   ===================================================
+``TestSolution``             Methanol-Water mixture for testing
+==========================   ===================================================   
+
+Properties are modelled with the help of polynomials: 
+
+.. math::
+
+    \\rho  = \\sum_{i=0}^n \\sum_{j=0}^m C_{\\rho}[i,j] \\cdot x^i  \\cdot T^j
+    
+    c      = \\sum_{i=0}^n \\sum_{j=0}^m C_{c}[i,j] \\cdot x^i  \\cdot T^j
+    
+    u      = \\int_{0}^{1} c\\left( x,T \\right) dT 
+           = \\sum_{i=0}^n x^i \\cdot \\sum_{j=0}^m \\frac{1}{j+1} \\cdot C_{c}[i,j] 
+             \\cdot \\left( T^{j+1} - T_0^{j+1} \\right)
+    
+    s      = \\int_{0}^{1} \\frac{c\\left( x,T \\right)}{T} dT 
+           = \\sum_{i=0}^n x^i \\cdot \\left( 
+             C_{c}[i,0] \\cdot \\ln\\left(\\frac{T}{T_0}\\right) 
+             + \\sum_{j=0}^{m-1} \\frac{1}{j+1} \\cdot C_{c}[i,j+1] \\cdot \\left( T^{j+1} - T_0^{j+1} \\right)
+             \\right)
+               
+    \\lambda= \\sum_{i=0}^n \\sum_{j=0}^m C_{\\lambda}[i,j] \\cdot x^i  \\cdot T^j
+    
+    \\mu    = \\exp \\left( \\sum_{i=0}^n \\sum_{j=0}^m C_{\\mu}[i,j] \\cdot x^i  \\cdot T^j \\right)
+    
+    T_{freeze}= \\sum_{i=0}^n C_{freeze}[i] \\cdot \\left( x - x_0 \\right)^i 
+    
+    
 """
 )
 fp.close()

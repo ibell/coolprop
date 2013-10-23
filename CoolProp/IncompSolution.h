@@ -209,7 +209,7 @@ public:
 		IncompressibleClass::checkCoefficients(cRho,6,4);
 		return polyval(cRho, getxInput(x), getTInput(T_K));
 	}
-	double cp(double T_K, double p, double x){
+	double c(double T_K, double p, double x){
 		checkTPX(T_K, p, x);
 		IncompressibleClass::checkCoefficients(cHeat,6,4);
 		return polyval(cHeat, getxInput(x), getTInput(T_K));

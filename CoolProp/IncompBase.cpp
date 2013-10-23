@@ -2,14 +2,12 @@
 #include <string>
 #include <vector>
 #include <math.h>
+#include <stdio.h>
 #include "CoolPropTools.h"
 #include "CPExceptions.h"
 #include "IncompBase.h"
 #include "IncompLiquid.h"
 #include "IncompSolution.h"
-
-#include <stdio.h>
-
 
 
 /// Basic checks for coefficient vectors.
