@@ -99,13 +99,12 @@ std::pair<std::string, long> map_data[] = {
 	std::make_pair(std::string("G"),iG),
 	std::make_pair(std::string("V"),iV),
 	std::make_pair(std::string("L"),iL),
-	std::make_pair(std::string("M"),iM),
-	std::make_pair(std::string("F"),iF),
+	std::make_pair(std::string("Tmax"),iTmax),
+	std::make_pair(std::string("Tfreeze"),iTfreeze),
 	std::make_pair(std::string("I"),iI),
 	std::make_pair(std::string("SurfaceTension"),iI),
 	std::make_pair(std::string("dpdT"),iDpdT),
 	std::make_pair(std::string("drhodT|p"),iDrhodT_p),
-	std::make_pair(std::string("M"),iMM),
 	std::make_pair(std::string("Phase"),iPhase),
 	std::make_pair(std::string("PHASE_LIQUID"),iPHASE_LIQUID),
 	std::make_pair(std::string("PHASE_GAS"),iPHASE_GAS),
@@ -130,6 +129,7 @@ std::pair<long, std::string> units_data[] = {
 	std::make_pair(iTtriple, std::string("K")),
 	std::make_pair(iRhocrit, std::string("kg/m^3")),
 	std::make_pair(iTcrit, std::string("K")),
+	std::make_pair(iTmin, std::string("K")),
 
 	std::make_pair(iQ, std::string("")),
 	std::make_pair(iT, std::string("K")),
@@ -145,8 +145,8 @@ std::pair<long, std::string> units_data[] = {
 	std::make_pair(iG, std::string("kJ/kg")),
 	std::make_pair(iV, std::string("Pa*s")),
 	std::make_pair(iL, std::string("kW/m/K")),
-	std::make_pair(iM, std::string("K")),
-	std::make_pair(iF, std::string("K")),
+	std::make_pair(iTmax, std::string("K")),
+	std::make_pair(iTfreeze, std::string("K")),
 	std::make_pair(iI, std::string("N/m")),
 	std::make_pair(iDpdT, std::string("kPa/K")),
 	std::make_pair(iDrhodT_p, std::string("kg/K/m^3"))
@@ -355,8 +355,16 @@ EXPORT_CODE int CONVENTION IsFluidType(char *Ref, char *Type)
 {
 	pFluid = Fluids.get_fluid(Ref);
 
-	if (IsBrine(Ref)){
+	if (IsBrine(Ref)){ // TODO Solution: Remove this part
 		if (!strcmp(Type,"Brine")){
+			return 1;
+		}
+		else{
+			return 0;
+		}
+	}
+	else if (IsIncompressibleSolution(Ref)){
+		if (!strcmp(Type,"Solution")){
 			return 1;
 		}
 		else{
@@ -586,7 +594,7 @@ double _Props(std::string Output, std::string Name1, double Prop1, std::string N
 	}
     
 
-    // It's a brine, call the brine routine
+    // It's a brine, call the brine routine // TODO Solutions: remove this part
 	else if (IsBrine((char*)Ref.c_str()))
     {
 		//Enthalpy and pressure are the inputs
@@ -613,7 +621,7 @@ double _Props(std::string Output, std::string Name1, double Prop1, std::string N
 		}
 		else
 		{
-			throw ValueError("For brine, inputs must be (order doesnt matter) 'T' and 'P', or 'H' and 'P'");
+			throw ValueError("For brine, inputs must be (order does not matter) 'T' and 'P', or 'H' and 'P'");
 		}
     }
 	// It's an incompressible liquid, call the routine
@@ -629,9 +637,11 @@ double _Props(std::string Output, std::string Name1, double Prop1, std::string N
 			}
 			
 			// Solve for the temperature
-			double T =_T_hp_secant(Ref,Prop1,Prop2,300);
+			double Tma     = IncompLiquid(get_param_index(std::string("Tmax")),0.0,0.0,Ref);
+			double T_guess = Tma - 10.0 ;
+			double T =_T_hp_secant(Ref,Prop1,Prop2,T_guess);
 			// Return whatever property is desired
-			return IncompLiquid(get_param_index(Output),T,Prop2,(char*)Ref.c_str());
+			return IncompLiquid(get_param_index(Output),T,Prop2,Ref);
 		}
 		else if ((Name1.c_str()[0] == 'T' && Name2.c_str()[0] =='P') || (Name1.c_str()[0] == 'P' && Name2.c_str()[0] == 'T'))
         {
@@ -658,7 +668,10 @@ double _Props(std::string Output, std::string Name1, double Prop1, std::string N
 			}
 
 			// Solve for the temperature
-			double T =_T_hp_secant(Ref,Prop1,Prop2,300);
+			double Tma     = IncompSolution(get_param_index(std::string("Tmax")),0.0,0.0,Ref);
+			double Tmi     = IncompSolution(get_param_index(std::string("Tmin")),0.0,0.0,Ref);
+			double T_guess = (Tma+Tmi)/2.0 ;
+			double T =_T_hp_secant(Ref,Prop1,Prop2,T_guess);
 			// Return whatever property is desired
 			return IncompSolution(get_param_index(Output),T,Prop2,Ref);
 		}

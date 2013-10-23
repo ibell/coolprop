@@ -6,6 +6,7 @@
 #include <vector>
 #include <math.h>
 #include "FluidClass.h"
+#include "GlobalConstants.h"
 #include "CPExceptions.h"
 #include "CoolPropTools.h"
 #include "MatrixMath.h"

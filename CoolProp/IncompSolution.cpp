@@ -189,7 +189,7 @@ double pIncompSolution(long iOutput, double T, double p, double x, Incompressibl
 		case iT:
 			out = T; break;
 		case iP:
-			out = p; break;
+			out = p_SI; break;
 		case iD:
 			out = pSolution->rho(T,p_SI,x); break;
 		case iC:
@@ -204,9 +204,11 @@ double pIncompSolution(long iOutput, double T, double p, double x, Incompressibl
 			out = pSolution->visc(T,p_SI,x); break;
 		case iL:
 			out = pSolution->cond(T,p_SI,x); break;
-		case iM:
+		case iTmax:
 			out = pSolution->getTmax(); break;
-		case iF:
+		case iTmin:
+			out = pSolution->getTmin(); break;
+		case iTfreeze:
 			out = pSolution->Tfreeze(p_SI,x); break;
 		default:
 			throw ValueError(format("Your index [%d] is invalid for the incompressible solution %s",iOutput,pSolution->getName().c_str()));

@@ -48,6 +48,8 @@ double convert_from_unit_system_to_SI(long iInput, double value, int old_system)
 	case iTtriple: 
 	case iTreduce:
 	case iTmin:
+	case iTmax:
+	case iTfreeze:
 	case iPHASE_LIQUID:
 	case iPHASE_GAS:
 	case iPHASE_SUPERCRITICAL:
@@ -113,6 +115,8 @@ double convert_from_SI_to_unit_system(long iInput, double value, int new_system)
 	case iV:
 	case iT:
 	case iTmin:
+	case iTmax:
+	case iTfreeze:
 	case iTcrit:
 	case iTtriple: 
 	case iTreduce:
