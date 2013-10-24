@@ -491,11 +491,11 @@ vapour pressure are exponential functions.
     c        &= \\sum_{i=0}^n C_{c}[i] \\cdot T^i \\\\
     u        &= \\int_{0}^{1} c\\left( T \\right) dT 
               = \\sum_{i=0}^n \\frac{1}{i+1} \\cdot C_{c}[i] 
-                \\cdot \\left( T^{i+1} - T_0^{i+1} \\right) \\\\
+                \\cdot \\left( T_1^{i+1} - T_0^{i+1} \\right) \\\\
     s        &= \\int_{0}^{1} \\frac{c\\left( T \\right)}{T} dT
-              = C_{c}[0] \\cdot \\ln\\left(\\frac{T}{T_0}\\right) 
+              = C_{c}[0] \\cdot \\ln\\left(\\frac{T_1}{T_0}\\right) 
                 + \\sum_{i=0}^{n-1} \\frac{1}{i+1} \\cdot C_{c}[i+1] 
-                \\cdot \\left( T^{i+1} - T_0^{i+1} \\right) \\\\
+                \\cdot \\left( T_1^{i+1} - T_0^{i+1} \\right) \\\\
     \\lambda &= \\sum_{i=0}^n C_{\\lambda}[i] \\cdot T^i \\\\
     \\mu     &= \\exp\\left( \\frac{C_{\\mu}[0]}{T+C_{\\mu}[1]} - C_{\\mu}[2] \\right) \\\\
     p_{sat}  &= \\exp\\left( \\frac{C_{sat}[0]}{T+C_{sat}[1]} - C_{sat}[2] \\right) \\\\
@@ -522,7 +522,7 @@ and pressure as inputs, but be aware of the reduced computational efficiency.
 
 A number of aqueous solutions are implemented using the coefficients from Aake Melinder "Properties of 
 Secondary Working Fluids for Indirect Systems" published in 2010 by IIR.  According to the book, 2D 
-polynomials are given in a form that satisfies :math:`0 \\leq i \\leq 3`, :math:`0 \\leq j \\leq 5` 
+polynomials are given in a form that satisfies :math:`0 \\leq i \\leq 5`, :math:`0 \\leq j \\leq 3` 
 and :math:`i + j \\leq 5` yielding a triangular matrix of coefficients.
 
 ==========================   ===================================================   
@@ -545,9 +545,8 @@ Melinder Fluids              Description
 
 Furthermore, there is a number of other secondary fluids that can be accessed in the same way. Most 
 information is based on the data compiled by Morten Juel Skovrup in his `SecCool software <http://en.ipu.dk/Indhold/refrigeration-and-energy-technology/seccool.aspx>`_ 
-provided by his employer `IPU <http://en.ipu.dk>`_. The SecCool-based fluids have a similar structure. 
-However, the coefficient matrix is defined slightly different by :math:`0 \\leq i \\leq 5`, 
-:math:`0 \\leq j \\leq 3` and :math:`i + j \\leq 5`.
+provided by his employer `IPU <http://en.ipu.dk>`_. The coefficient matrix of the SecCool-based fluids 
+has the same structure as mentioned above. 
 
 ==========================   ===================================================
 SecCool Fluids               Description
@@ -559,7 +558,10 @@ In both of the above cases, :math:`i` is the exponent for the concentration :mat
 is used with the temperature :math:`T`. Using a centered approach for the independent variables, 
 the fit quality can be enhanced. Therefore, all solutions have a reference temperature and concentration 
 in the original work by Melinder and Skovrup as well as in CoolProp: :math:`x = x_{real} - x_{ref}` 
-and :math:`T = T_{real} - T_{ref}`. Properties are modelled with the following polynomials: 
+and :math:`T = T_{real} - T_{ref}`, this technique is not applied for the temperature when calculating 
+the derived quantities internal energy and entropy since their formulae contain temperature differences. 
+In addition to that, integrating :math:`T^{-1}dT` for the entropy requires the absolute values. 
+Properties are modelled with the following polynomials: 
 
 .. math::
 
@@ -567,11 +569,11 @@ and :math:`T = T_{real} - T_{ref}`. Properties are modelled with the following p
     c          &= \\sum_{i=0}^n x^i  \\cdot \\sum_{j=0}^m C_{c}[i,j] \\cdot T^j \\\\
     u          &= \\int_{0}^{1} c\\left( x,T \\right) dT 
                 = \\sum_{i=0}^n x^i \\cdot \\sum_{j=0}^m \\frac{1}{j+1} \\cdot C_{c}[i,j] 
-                  \\cdot \\left( T^{j+1} - T_0^{j+1} \\right) \\\\
+                  \\cdot \\left( T_1^{j+1} - T_0^{j+1} \\right) \\\\
     s          &= \\int_{0}^{1} \\frac{c\\left( x,T \\right)}{T} dT 
                 = \\sum_{i=0}^n x^i \\cdot \\left( 
-                  C_{c}[i,0] \\cdot \\ln\\left(\\frac{T}{T_0}\\right) 
-                  + \\sum_{j=0}^{m-1} \\frac{1}{j+1} \\cdot C_{c}[i,j+1] \\cdot \\left( T^{j+1} - T_0^{j+1} \\right)
+                  C_{c}[i,0] \\cdot \\ln\\left(\\frac{T_1}{T_0}\\right) 
+                  + \\sum_{j=0}^{m-1} \\frac{1}{j+1} \\cdot C_{c}[i,j+1] \\cdot \\left( T_1^{j+1} - T_0^{j+1} \\right)
                   \\right) \\\\
     \\lambda   &= \\sum_{i=0}^n x^i  \\cdot \\sum_{j=0}^m C_{\\lambda}[i,j] \\cdot T^j \\\\
     \\mu       &= \\exp \\left( \\sum_{i=0}^n x^i  \\cdot \\sum_{j=0}^m C_{\\mu}[i,j] \\cdot T^j \\right) \\\\

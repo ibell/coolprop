@@ -123,7 +123,8 @@ bool IncompressibleSolution::checkTPX(double T, double p, double x) {
 SolutionsContainer::SolutionsContainer() {
 	std::vector<IncompressibleSolution*> tmpVector;
 
-	tmpVector.push_back(new TestSolution());
+	tmpVector.push_back(new SecCoolSolution());
+	tmpVector.push_back(new MelinderSolution());
 
 
 	// Now we store the vector in the variable
@@ -265,16 +266,17 @@ double getSolutionConc(std::string name){ // TODO Solutions: Remove as soon as p
 }
 
 
-/// Class to use the SecCool parameters
+/// Class to use Melinder and SecCool parameters
 /** Employs some basic wrapper-like functionality
  *  to bridge the gap between the solution functions
  *  used in CoolProp and the definition used in
- *  SecCool. Please visit:
+ *  Melinder's book and Ian's original implementation and
+ *  the definition used in SecCool. Please visit:
  *  http://en.ipu.dk/Indhold/refrigeration-and-energy-technology/seccool.aspx
  *  Many thanks to Morten Juel Skovrup for providing
  *  this nice piece of software as well as the parameters
  *  needed to calculate the composition based properties. */
-double SecCoolSolution::baseFunction(std::vector<double>& coefficients, double T_K, double p, double x){
+double BaseSolution::baseFunction(std::vector<double> const& coefficients, double T_K, double p, double x){
 	IncompressibleClass::checkCoefficients(coefficients,18);
 	return (((((
 			 coefficients[17])*x
@@ -297,7 +299,7 @@ double SecCoolSolution::baseFunction(std::vector<double>& coefficients, double T
 			+coefficients[0];
 }
 
-std::vector< std::vector<double> > SecCoolSolution::makeMatrix(std::vector<double>& coefficients){
+std::vector< std::vector<double> > BaseSolution::makeMatrix(std::vector<double> const& coefficients){
 	IncompressibleClass::checkCoefficients(coefficients,18);
 	std::vector< std::vector<double> > matrix;
 	std::vector<double> tmpVector;
@@ -347,4 +349,49 @@ std::vector< std::vector<double> > SecCoolSolution::makeMatrix(std::vector<doubl
 	tmpVector.clear();
 	return matrix;
 }
+
+/// Convert pre-v4.0-style coefficient array to new format
+std::vector<std::vector<double> > MelinderSolution::convertCoeffs(double* oldestCoeffs, const int A, const int B) {
+	const int lengthA = 18;
+	const int lengthB =  5;
+    if ((A==lengthA) && (B==lengthB) ){
+    	/// Rearrange array
+    	double oldCoeffs[lengthA][lengthB];
+		for (int j = 0; j < lengthB; j++) {
+			oldCoeffs[ 0][j] = oldestCoeffs[( 0 * B) + j ];
+			oldCoeffs[ 1][j] = oldestCoeffs[( 4 * B) + j ];
+			oldCoeffs[ 2][j] = oldestCoeffs[( 8 * B) + j ];
+			oldCoeffs[ 3][j] = oldestCoeffs[(12 * B) + j ];
+			oldCoeffs[ 4][j] = oldestCoeffs[(15 * B) + j ];
+			oldCoeffs[ 5][j] = oldestCoeffs[(17 * B) + j ];
+			oldCoeffs[ 6][j] = oldestCoeffs[( 1 * B) + j ];
+			oldCoeffs[ 7][j] = oldestCoeffs[( 5 * B) + j ];
+			oldCoeffs[ 8][j] = oldestCoeffs[( 9 * B) + j ];
+			oldCoeffs[ 9][j] = oldestCoeffs[(13 * B) + j ];
+			oldCoeffs[10][j] = oldestCoeffs[(16 * B) + j ];
+			oldCoeffs[11][j] = oldestCoeffs[( 2 * B) + j ];
+			oldCoeffs[12][j] = oldestCoeffs[( 6 * B) + j ];
+			oldCoeffs[13][j] = oldestCoeffs[(10 * B) + j ];
+			oldCoeffs[14][j] = oldestCoeffs[(14 * B) + j ];
+			oldCoeffs[15][j] = oldestCoeffs[( 3 * B) + j ];
+			oldCoeffs[16][j] = oldestCoeffs[( 7 * B) + j ];
+			oldCoeffs[17][j] = oldestCoeffs[(11 * B) + j ];
+		}
+		std::vector<std::vector<double> > tmpVector;
+		tmpVector.push_back(std::vector<double>());
+		tmpVector.push_back(std::vector<double>());
+		tmpVector.push_back(std::vector<double>());
+		tmpVector.push_back(std::vector<double>());
+		tmpVector.push_back(std::vector<double>());
+		for (int i = 0; i < lengthA; i++) {
+			for (int j = 0; j < lengthB; j++) {
+				if (i<1) tmpVector[j].clear();
+				tmpVector[j].push_back(oldCoeffs[i][j]);
+			}
+		}
+		return tmpVector;
+    }
+    throw ValueError(format("Your array has the dimensions [%d,%d], but only [%d,%d] arrays are supported.",A,B,lengthA,lengthB));
+}
+
 
