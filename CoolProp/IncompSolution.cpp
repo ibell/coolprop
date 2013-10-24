@@ -274,7 +274,7 @@ double getSolutionConc(std::string name){ // TODO Solutions: Remove as soon as p
  *  Many thanks to Morten Juel Skovrup for providing
  *  this nice piece of software as well as the parameters
  *  needed to calculate the composition based properties. */
-double SecCoolSolution::baseFunction(std::vector<double> coefficients, double T_K, double p, double x){
+double SecCoolSolution::baseFunction(std::vector<double>& coefficients, double T_K, double p, double x){
 	IncompressibleClass::checkCoefficients(coefficients,18);
 	return (((((
 			 coefficients[17])*x
@@ -297,7 +297,7 @@ double SecCoolSolution::baseFunction(std::vector<double> coefficients, double T_
 			+coefficients[0];
 }
 
-std::vector< std::vector<double> > SecCoolSolution::makeMatrix(std::vector<double> coefficients){
+std::vector< std::vector<double> > SecCoolSolution::makeMatrix(std::vector<double>& coefficients){
 	IncompressibleClass::checkCoefficients(coefficients,18);
 	std::vector< std::vector<double> > matrix;
 	std::vector<double> tmpVector;

@@ -431,7 +431,12 @@ You can also use mixtures in REFPROP, there is a special format for the fluid na
    
 Incompressible Liquids
 ----------------------
-There is also a selection of incompressible liquids implemented.  These only allow for calls with temperature and pressure as input and provide only a subset of thermophysical properties, namely: density, heat capacity, internal energy, enthalpy, entropy, viscosity and thermal conductivity.
+There is also a selection of incompressible liquids implemented.  These only allow for calls with 
+temperature and pressure as input and provide only a subset of thermophysical properties, namely: 
+density, heat capacity, internal energy, enthalpy, entropy, viscosity and thermal conductivity.
+Hence, the available output keys for the ``Props`` function are: "D", "C", "U", "H", "S", "V", "L", 
+"Tmin", Tmax" and "Psat". An internal iteration allows us to use enthalpy and pressure as inputs, 
+but be aware of the reduced computational efficiency.
 
 .. ipython::
 
@@ -441,7 +446,9 @@ There is also a selection of incompressible liquids implemented.  These only all
     In [1]: Props('D','T',300,'P',101.325,'HFE')
  
 
-For refrigeration applications, 8 fluids were implemented from Melinder 2010 and coefficients are obtained from a fit between -80 and +100 degrees Celsius.
+For refrigeration applications, 8 fluids were implemented from Aake Melinder "Properties of 
+Secondary Working Fluids for Indirect Systems" published in 2010 by IIR and coefficients are 
+obtained from a fit between -80 and +100 degrees Celsius.
 
 ==========================   ===================================================
 Fluid Name                   Description
@@ -456,7 +463,9 @@ Fluid Name                   Description
 ``TCO``                      Terpene from citrus oils
 ==========================   ===================================================
 
-There are also a few high temperature heat transfer fluids with individual temperature ranges. Please refer to the file IncompLiquid.h for a complete overview. For these fluids, information from commercial data sheets was used to obtain coefficients.
+There are also a few high temperature heat transfer fluids with individual temperature ranges. Please 
+refer to the file IncompLiquid.h for a complete overview. For these fluids, information from commercial 
+data sheets was used to obtain coefficients.
 
 ==========================   ===================================================
 Fluid Name                   Description
@@ -472,7 +481,9 @@ Fluid Name                   Description
 ``XLT``                      Syltherm XLT (-100 to +260 C)
 ==========================   ===================================================
 
-All fluids are implemented with polynomials for density and heat capacity with typically 4 coefficients and hence a third order polynomial. Thermal conductivity is a second order polynomial and viscosity and vapour pressure are exponential functions. 
+All fluids are implemented with polynomials for density and heat capacity with typically 4 coefficients 
+and hence a third order polynomial. Thermal conductivity is a second order polynomial and viscosity and 
+vapour pressure are exponential functions. 
 
 .. math::
 
@@ -494,7 +505,12 @@ Brines and Solutions
 --------------------
 All the brines and solutions can be accessed through the Props function. To use them, the fluid name 
 is something like ``"EG-20%"`` which is a 20% by mass ethylene glycol solution. Note that these fluids
-have an arbitrary reference state: Be careful with enthalpy and entropy calculations. 
+have an arbitrary reference state: Be careful with enthalpy and entropy calculations. Again, only 
+temperature and pressure inputs are supported directly to calculate the same subset of thermophysical 
+properties as above , namely: density, heat capacity, internal energy, enthalpy, entropy, viscosity 
+and thermal conductivity. Hence, the available output keys for the ``Props`` function are: "D", "C", 
+"U", "H", "S", "V", "L", "Tmin", Tmax" and "Tfreeze". An internal iteration allows us to use enthalpy 
+and pressure as inputs, but be aware of the reduced computational efficiency.
 
 .. ipython::
 
@@ -504,12 +520,15 @@ have an arbitrary reference state: Be careful with enthalpy and entropy calculat
     In [1]: Props('C','T',300,'P',101.325,'EG-20%')
 
 
-A number of aqueous solutions are implemented using the coefficients from Melinder (2010).  The list of diluents implemented are
+A number of aqueous solutions are implemented using the coefficients from Aake Melinder "Properties of 
+Secondary Working Fluids for Indirect Systems" published in 2010 by IIR.  According to the book, 2D 
+polynomials are given in a form that satisfies :math:`0 \\leq i \\leq 3`, :math:`0 \\leq j \\leq 5` 
+and :math:`i + j \\leq 5` yielding a triangular matrix of coefficients.
 
-==========================   ===================================================
-Fluid Name                   Description
-==========================   ===================================================
-``EG``                       Ethylene Glycol
+==========================   ===================================================   
+Melinder Fluids              Description                                                 
+==========================   ===================================================   
+``EG``                       Ethylene Glycol                                            
 ``PG``                       Propylene Glycol
 ``EA``                       Ethyl Alcohol (Ethanol)
 ``MA``                       Methyl Alcohol (Methanol)
@@ -524,21 +543,28 @@ Fluid Name                   Description
 ``LiCl``                     Lithium Chloride
 ==========================   ===================================================
 
-There are also other secondary fluids that can be accessed in the same way. Most information is based on the 
-data compiled by Morten Skovrup in his SecCool software available at http://en.ipu.dk/Indhold/refrigeration-and-energy-technology/seccool.aspx .
- 
+Furthermore, there is a number of other secondary fluids that can be accessed in the same way. Most 
+information is based on the data compiled by Morten Juel Skovrup in his `SecCool software <http://en.ipu.dk/Indhold/refrigeration-and-energy-technology/seccool.aspx>`_ 
+provided by his employer `IPU <http://en.ipu.dk>`_. The SecCool-based fluids have a similar structure. 
+However, the coefficient matrix is defined slightly different by :math:`0 \\leq i \\leq 5`, 
+:math:`0 \\leq j \\leq 3` and :math:`i + j \\leq 5`.
+
 ==========================   ===================================================
-Fluid Name                   Description
+SecCool Fluids               Description
 ==========================   ===================================================
 ``TestSolution``             Methanol-Water mixture for testing
-==========================   ===================================================   
-
-Properties are modelled with the help of polynomials: 
+==========================   ===================================================
+ 
+In both of the above cases, :math:`i` is the exponent for the concentration :math:`x` and :math:`j` 
+is used with the temperature :math:`T`. Using a centered approach for the independent variables, 
+the fit quality can be enhanced. Therefore, all solutions have a reference temperature and concentration 
+in the original work by Melinder and Skovrup as well as in CoolProp: :math:`x = x_{real} - x_{ref}` 
+and :math:`T = T_{real} - T_{ref}`. Properties are modelled with the following polynomials: 
 
 .. math::
 
-    \\rho      &= \\sum_{i=0}^n \\sum_{j=0}^m C_{\\rho}[i,j] \\cdot x^i  \\cdot T^j \\\\
-    c          &= \\sum_{i=0}^n \\sum_{j=0}^m C_{c}[i,j] \\cdot x^i  \\cdot T^j \\\\
+    \\rho      &= \\sum_{i=0}^n x^i  \\cdot \\sum_{j=0}^m C_{\\rho}[i,j] \\cdot T^j \\\\
+    c          &= \\sum_{i=0}^n x^i  \\cdot \\sum_{j=0}^m C_{c}[i,j] \\cdot T^j \\\\
     u          &= \\int_{0}^{1} c\\left( x,T \\right) dT 
                 = \\sum_{i=0}^n x^i \\cdot \\sum_{j=0}^m \\frac{1}{j+1} \\cdot C_{c}[i,j] 
                   \\cdot \\left( T^{j+1} - T_0^{j+1} \\right) \\\\
@@ -547,9 +573,9 @@ Properties are modelled with the help of polynomials:
                   C_{c}[i,0] \\cdot \\ln\\left(\\frac{T}{T_0}\\right) 
                   + \\sum_{j=0}^{m-1} \\frac{1}{j+1} \\cdot C_{c}[i,j+1] \\cdot \\left( T^{j+1} - T_0^{j+1} \\right)
                   \\right) \\\\
-    \\lambda   &= \\sum_{i=0}^n \\sum_{j=0}^m C_{\\lambda}[i,j] \\cdot x^i  \\cdot T^j \\\\
-    \\mu       &= \\exp \\left( \\sum_{i=0}^n \\sum_{j=0}^m C_{\\mu}[i,j] \\cdot x^i  \\cdot T^j \\right) \\\\
-    T_{freeze} &= \\sum_{i=0}^n C_{freeze}[i] \\cdot \\left( x - x_0 \\right)^i \\\\
+    \\lambda   &= \\sum_{i=0}^n x^i  \\cdot \\sum_{j=0}^m C_{\\lambda}[i,j] \\cdot T^j \\\\
+    \\mu       &= \\exp \\left( \\sum_{i=0}^n x^i  \\cdot \\sum_{j=0}^m C_{\\mu}[i,j] \\cdot T^j \\right) \\\\
+    T_{freeze} &= \\sum_{i=0}^n C_{freeze}[i] \\cdot x^i \\\\
     
     
 """

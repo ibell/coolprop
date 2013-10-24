@@ -13,7 +13,7 @@
 /// Basic checks for coefficient vectors.
 /** Starts with only the first coefficient dimension
  *  and checks the vector length against parameter n. */
-bool IncompressibleClass::checkCoefficients(std::vector<double> coefficients, unsigned int n){
+bool IncompressibleClass::checkCoefficients(std::vector<double> const& coefficients, unsigned int n){
 	if (coefficients.size() == n){
 		return true;
 	} else {
@@ -22,7 +22,7 @@ bool IncompressibleClass::checkCoefficients(std::vector<double> coefficients, un
 	return false;
 }
 
-bool IncompressibleClass::checkCoefficients(std::vector< std::vector<double> > coefficients, unsigned int rows, unsigned int columns){
+bool IncompressibleClass::checkCoefficients(std::vector< std::vector<double> > const& coefficients, unsigned int rows, unsigned int columns){
 	if (coefficients.size() == rows){
 		bool result = true;
 		for(unsigned int i=0; i<rows; i++) {
@@ -49,7 +49,7 @@ bool IncompressibleClass::checkCoefficients(std::vector< std::vector<double> > c
 /** Base function to produce n-th order polynomials
  *  based on the length of the coefficient vector.
  *  Starts with only the first coefficient at x^0. */
-double IncompressibleClass::simplePolynomial(std::vector<double> coefficients, double x){
+double IncompressibleClass::simplePolynomial(std::vector<double> const& coefficients, double x){
 	double result = 0.;
 	for(unsigned int i=0; i<coefficients.size();i++) {
 		result += coefficients[i] * pow(x,(int)i);
@@ -62,7 +62,7 @@ double IncompressibleClass::simplePolynomial(std::vector<double> coefficients, d
  *  polynomials based on the length of the coefficient
  *  vector. Integrates from x0 to x1.
  *  Starts with only the first coefficient at x^0 */
-double IncompressibleClass::simplePolynomialInt(std::vector<double> coefficients, double x1, double x0){
+double IncompressibleClass::simplePolynomialInt(std::vector<double> const& coefficients, double x1, double x0){
 	double result = 0.;
 	for(unsigned int i=0; i<coefficients.size();i++) {
 		result += 1./(i+1.) * coefficients[i] * (pow(x1,(i+1.)) - pow(x0,(i+1.)));
@@ -76,32 +76,34 @@ double IncompressibleClass::simplePolynomialInt(std::vector<double> coefficients
  *  This avoids unnecessary multiplication and thus
  *  speeds up calculation.
  */
-double IncompressibleClass::baseHorner(std::vector<double> coefficients, double x){
+double IncompressibleClass::baseHorner(std::vector<double> const& coefficients, double x){
 	double result = 0;
 	for(int i=coefficients.size()-1; i>=0; i--) {
 		result = result * x + coefficients[i];
 	}
 	return result;
 }
-double IncompressibleClass::baseHorner(std::vector< std::vector<double> > coefficients, double x, double y){
+double IncompressibleClass::baseHorner(std::vector< std::vector<double> > const& coefficients, double x, double y){
 	double result = 0;
 	for(int i=coefficients.size()-1; i>=0; i--) {
 		result = result * x + baseHorner(coefficients[i], y);
 	}
 	return result;
 }
-double IncompressibleClass::baseHornerIntegrated(std::vector<double> coefficients, double x){
-	return baseHorner(integrateCoeffs(coefficients),x);
+double IncompressibleClass::baseHornerIntegrated(std::vector<double> const& coefficients, double x){
+	std::vector<double> coefficientsInt(integrateCoeffs(coefficients));
+	return baseHorner(coefficientsInt,x);
 }
-double IncompressibleClass::baseHornerIntegrated(std::vector<double> coefficients, double x1, double x0){
-	std::vector<double> coefficientsInt = integrateCoeffs(coefficients);
+double IncompressibleClass::baseHornerIntegrated(std::vector<double> const& coefficients, double x1, double x0){
+	std::vector<double> coefficientsInt(integrateCoeffs(coefficients));
 	return baseHorner(coefficientsInt,x1)-baseHorner(coefficientsInt,x0);
 }
-double IncompressibleClass::baseHornerIntegrated(std::vector< std::vector<double> > coefficients, double x, double y, unsigned int axis){
-	return baseHorner(integrateCoeffs(coefficients,axis),x,y);
+double IncompressibleClass::baseHornerIntegrated(std::vector< std::vector<double> > const& coefficients, double x, double y, unsigned int axis){
+	std::vector< std::vector<double> > coefficientsInt(integrateCoeffs(coefficients,axis));
+	return baseHorner(coefficientsInt,x,y);
 }
-double IncompressibleClass::baseHornerIntegrated(std::vector< std::vector<double> > coefficients, double x, double y1, double y0){
-	std::vector< std::vector<double> > coefficientsInt = integrateCoeffs(coefficients,1);
+double IncompressibleClass::baseHornerIntegrated(std::vector< std::vector<double> > const& coefficients, double x, double y1, double y0){
+	std::vector< std::vector<double> > coefficientsInt(integrateCoeffs(coefficients,1));
 	return baseHorner(coefficientsInt,x,y1)-baseHorner(coefficientsInt,x,y0);
 }
 
@@ -113,7 +115,7 @@ double IncompressibleClass::baseHornerIntegrated(std::vector< std::vector<double
  *  avoids this expensive operation. However, it is included for the
  *  sake of completeness.
  */
-std::vector<double> IncompressibleClass::integrateCoeffs(std::vector<double> coefficients){
+std::vector<double> IncompressibleClass::integrateCoeffs(std::vector<double> const& coefficients){
 	std::vector<double> newCoefficients;
 	unsigned int sizeX = coefficients.size();
 	if (sizeX<1) throw ValueError(format("You have to provide coefficients, a vector length of %d is not a valid. ",sizeX));
@@ -125,7 +127,7 @@ std::vector<double> IncompressibleClass::integrateCoeffs(std::vector<double> coe
 	return newCoefficients;
 }
 
-std::vector< std::vector<double> > IncompressibleClass::integrateCoeffs(std::vector< std::vector<double> > coefficients, unsigned int axis){
+std::vector< std::vector<double> > IncompressibleClass::integrateCoeffs(std::vector< std::vector<double> > const& coefficients, unsigned int axis){
 	std::vector< std::vector<double> > newCoefficients;
 	unsigned int sizeX = coefficients.size();
 	if (sizeX<1) throw ValueError(format("You have to provide coefficients, a vector length of %d is not a valid. ",sizeX));
@@ -152,7 +154,7 @@ std::vector< std::vector<double> > IncompressibleClass::integrateCoeffs(std::vec
 /** Deriving coefficients for polynomials is done by multiplying the
  *  original coefficients with i and lowering the order by 1.
  */
-std::vector<double> IncompressibleClass::deriveCoeffs(std::vector<double> coefficients){
+std::vector<double> IncompressibleClass::deriveCoeffs(std::vector<double> const& coefficients){
 	std::vector<double> newCoefficients;
 	unsigned int sizeX = coefficients.size();
 	if (sizeX<1) throw ValueError(format("You have to provide coefficients, a vector length of %d is not a valid. ",sizeX));
@@ -197,7 +199,7 @@ std::vector<double> IncompressibleClass::deriveCoeffs(std::vector<double> coeffi
 /// @param coefficients vector containing the ordered coefficients
 /// @param x1 double value that represents the current position
 /// @param x0 double value that represents the reference state
-double IncompressibleClass::fracint(std::vector<double> coefficients, double x1, double x0){
+double IncompressibleClass::fracint(std::vector<double> const& coefficients, double x1, double x0){
 	double result = coefficients[0] * log(x1/x0);
 	if (coefficients.size() > 1) {
 		std::vector<double> newCoeffs(coefficients.begin() + 1, coefficients.end());
@@ -211,7 +213,7 @@ double IncompressibleClass::fracint(std::vector<double> coefficients, double x1,
 /// @param x double value that represents the current input in the 1st dimension
 /// @param y1 double value that represents the current input in the 2nd dimension
 /// @param y0 double value that represents the reference state in the 2nd dimension
-double IncompressibleClass::fracint(std::vector< std::vector<double> > coefficients, double x, double y1, double y0){
+double IncompressibleClass::fracint(std::vector< std::vector<double> > const& coefficients, double x, double y1, double y0){
 	double row    = 0;
 	std::vector<double> newCoeffs;
 	double dlog = log(y1/y0);
@@ -234,7 +236,7 @@ double IncompressibleClass::fracint(std::vector< std::vector<double> > coefficie
 /// @param coefficients vector containing the ordered coefficients
 /// @param x double value that represents the current input
 /// @param n int value that determines the kind of exponential function
-double IncompressibleClass::expval(std::vector<double> coefficients, double x, int n){
+double IncompressibleClass::expval(std::vector<double> const& coefficients, double x, int n){
 	double result = 0.;
 	if (n==1) {
 		checkCoefficients(coefficients,3);
@@ -252,7 +254,7 @@ double IncompressibleClass::expval(std::vector<double> coefficients, double x, i
 /// @param x double value that represents the current input in the 1st dimension
 /// @param y double value that represents the current input in the 2nd dimension
 /// @param n int value that determines the kind of exponential function
-double IncompressibleClass::expval(std::vector< std::vector<double> > coefficients, double x, double y, int n){
+double IncompressibleClass::expval(std::vector< std::vector<double> > const& coefficients, double x, double y, int n){
 	double result = 0.;
 	if (n==2) {
 		result = exp(polyval(coefficients, x, y));

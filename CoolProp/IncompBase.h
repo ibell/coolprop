@@ -55,8 +55,8 @@ protected:
 	/// Basic checks for coefficient vectors.
 	/** Starts with only the first coefficient dimension
 	 *  and checks the vector length against parameter n. */
-	bool checkCoefficients(std::vector<double> coefficients, unsigned int n);
-	bool checkCoefficients(std::vector< std::vector<double> > coefficients, unsigned int rows, unsigned int columns);
+	bool checkCoefficients(std::vector<double> const& coefficients, unsigned int n);
+	bool checkCoefficients(std::vector< std::vector<double> > const& coefficients, unsigned int rows, unsigned int columns);
 
 private:
 	/** The core of the polynomial wrappers are the different
@@ -72,14 +72,14 @@ private:
 	/** Base function to produce n-th order polynomials
 	 *  based on the length of the coefficient vector.
 	 *  Starts with only the first coefficient at x^0. */
-	DEPRECATED(double simplePolynomial(std::vector<double> coefficients, double x));
+	DEPRECATED(double simplePolynomial(std::vector<double> const& coefficients, double x));
 
 	/// Simple integrated polynomial function generator. <- Deprecated due to poor performance, use Horner-scheme instead
 	/** Base function to produce integrals of n-th order
 	 *  polynomials based on the length of the coefficient
 	 *  vector. Integrates from x0 to x1.
 	 *  Starts with only the first coefficient at x^0 */
-	DEPRECATED(double simplePolynomialInt(std::vector<double> coefficients, double x1, double x0));
+	DEPRECATED(double simplePolynomialInt(std::vector<double> const& coefficients, double x1, double x0));
 
 
 	/// Horner function generator implementations
@@ -87,12 +87,12 @@ private:
 	 *  This avoids unnecessary multiplication and thus
 	 *  speeds up calculation.
 	 */
-	double baseHorner(std::vector<double> coefficients, double x);
-	double baseHorner(std::vector< std::vector<double> > coefficients, double x, double y);
-	double baseHornerIntegrated(std::vector<double> coefficients, double x);
-	double baseHornerIntegrated(std::vector<double> coefficients, double x1, double x0);
-	double baseHornerIntegrated(std::vector< std::vector<double> > coefficients, double x, double y, unsigned int axis);
-	double baseHornerIntegrated(std::vector< std::vector<double> > coefficients, double x, double y1, double y0);
+	double baseHorner(std::vector<double> const& coefficients, double x);
+	double baseHorner(std::vector< std::vector<double> > const& coefficients, double x, double y);
+	double baseHornerIntegrated(std::vector<double> const& coefficients, double x);
+	double baseHornerIntegrated(std::vector<double> const& coefficients, double x1, double x0);
+	double baseHornerIntegrated(std::vector< std::vector<double> > const& coefficients, double x, double y, unsigned int axis);
+	double baseHornerIntegrated(std::vector< std::vector<double> > const& coefficients, double x, double y1, double y0);
 
 
 	/** Integrating coefficients for polynomials is done by dividing the
@@ -102,8 +102,8 @@ private:
 	 *  avoids this expensive operation. However, it is included for the
 	 *  sake of completeness.
 	 */
-	std::vector<double> integrateCoeffs(std::vector<double> coefficients);
-	std::vector< std::vector<double> > integrateCoeffs(std::vector< std::vector<double> > coefficients, unsigned int axis);
+	std::vector<double> integrateCoeffs(std::vector<double> const& coefficients);
+	std::vector< std::vector<double> > integrateCoeffs(std::vector< std::vector<double> > const& coefficients, unsigned int axis);
 
 	/** Deriving coefficients for polynomials is done by multiplying the
 	 *  original coefficients with i and lowering the order by 1.
@@ -111,8 +111,8 @@ private:
 	 *  It is not really deprecated, but untested and therefore a warning
 	 *  is issued. Please check this method before you use it.
 	 */
-	DEPRECATED(std::vector<double> deriveCoeffs(std::vector<double> coefficients));
-	DEPRECATED(std::vector< std::vector<double> > deriveCoeffs(std::vector< std::vector<double> > coefficients, unsigned int axis));
+	DEPRECATED(std::vector<double> deriveCoeffs(std::vector<double> const& coefficients));
+	DEPRECATED(std::vector< std::vector<double> > deriveCoeffs(std::vector< std::vector<double> > const& coefficients, unsigned int axis));
 
 
 public:
@@ -126,7 +126,7 @@ public:
 	/// Evaluates a one-dimensional polynomial for the given coefficients
 	/// @param coefficients vector containing the ordered coefficients
 	/// @param x double value that represents the current input
-	double polyval(std::vector<double> coefficients, double x){
+	double polyval(std::vector<double> const& coefficients, double x){
 	    return baseHorner(coefficients,x);
 	}
 
@@ -134,14 +134,14 @@ public:
 	/// @param coefficients vector containing the ordered coefficients
 	/// @param x double value that represents the current input in the 1st dimension
 	/// @param y double value that represents the current input in the 2nd dimension
-	double polyval(std::vector< std::vector<double> > coefficients, double x, double y){
+	double polyval(std::vector< std::vector<double> > const& coefficients, double x, double y){
 		return baseHorner(coefficients,x,y);
 	}
 
 	/// Evaluates the indefinite integral of a one-dimensional polynomial
 	/// @param coefficients vector containing the ordered coefficients
 	/// @param x double value that represents the current input
-	double polyint(std::vector<double> coefficients, double x){
+	double polyint(std::vector<double> const& coefficients, double x){
 		return baseHornerIntegrated(coefficients,x);
 	}
 
@@ -149,7 +149,7 @@ public:
 	/// @param coefficients vector containing the ordered coefficients
 	/// @param x double value that represents the current input in the 1st dimension
 	/// @param y double value that represents the current input in the 2nd dimension
-	double polyint(std::vector< std::vector<double> > coefficients, double x, double y){
+	double polyint(std::vector< std::vector<double> > const& coefficients, double x, double y){
 		return baseHornerIntegrated(coefficients,x,y,(unsigned int)1);
 	}
 
@@ -157,7 +157,7 @@ public:
 	/// @param coefficients vector containing the ordered coefficients
 	/// @param x1 double value that represents the current position
 	/// @param x0 double value that represents the reference state
-	double polyint(std::vector<double> coefficients, double x1, double x0){
+	double polyint(std::vector<double> const& coefficients, double x1, double x0){
 		return baseHornerIntegrated(coefficients,x1,x0);
 	}
 
@@ -166,7 +166,7 @@ public:
 	/// @param x double value that represents the current input in the 1st dimension
 	/// @param y1 double value that represents the current input in the 2nd dimension
 	/// @param y0 double value that represents the reference state in the 2nd dimension
-	double polyint(std::vector< std::vector<double> > coefficients, double x, double y1, double y0){
+	double polyint(std::vector< std::vector<double> > const& coefficients, double x, double y1, double y0){
 		return baseHornerIntegrated(coefficients,x,y1,y0);
 	}
 
@@ -174,27 +174,27 @@ public:
 	/// @param coefficients vector containing the ordered coefficients
 	/// @param x1 double value that represents the current position
 	/// @param x0 double value that represents the reference state
-	double fracint(std::vector<double> coefficients, double x1, double x0);
+	double fracint(std::vector<double> const& coefficients, double x1, double x0);
 
 	/// Evaluates the definite integral of a two-dimensional polynomial divided by its 2nd independent variable
 	/// @param coefficients vector containing the ordered coefficients
 	/// @param x double value that represents the current input in the 1st dimension
 	/// @param y1 double value that represents the current input in the 2nd dimension
 	/// @param y0 double value that represents the reference state in the 2nd dimension
-	double fracint(std::vector< std::vector<double> > coefficients, double x, double y1, double y0);
+	double fracint(std::vector< std::vector<double> > const& coefficients, double x, double y1, double y0);
 
 	/// Evaluates an exponential function for the given coefficients
 	/// @param coefficients vector containing the ordered coefficients
 	/// @param x double value that represents the current input
 	/// @param n int value that determines the kind of exponential function
-	double expval(std::vector<double> coefficients, double x, int n);
+	double expval(std::vector<double> const& coefficients, double x, int n);
 
 	/// Evaluates an exponential function for the given coefficients
 	/// @param coefficients vector containing the ordered coefficients
 	/// @param x double value that represents the current input in the 1st dimension
 	/// @param y double value that represents the current input in the 2nd dimension
 	/// @param n int value that determines the kind of exponential function
-	double expval(std::vector< std::vector<double> > coefficients, double x, double y, int n);
+	double expval(std::vector< std::vector<double> > const& coefficients, double x, double y, int n);
 };
 
 

@@ -101,6 +101,7 @@ std::pair<std::string, long> map_data[] = {
 	std::make_pair(std::string("L"),iL),
 	std::make_pair(std::string("Tmax"),iTmax),
 	std::make_pair(std::string("Tfreeze"),iTfreeze),
+	std::make_pair(std::string("Psat"),iPsat),
 	std::make_pair(std::string("I"),iI),
 	std::make_pair(std::string("SurfaceTension"),iI),
 	std::make_pair(std::string("dpdT"),iDpdT),
@@ -147,6 +148,7 @@ std::pair<long, std::string> units_data[] = {
 	std::make_pair(iL, std::string("kW/m/K")),
 	std::make_pair(iTmax, std::string("K")),
 	std::make_pair(iTfreeze, std::string("K")),
+	std::make_pair(iPsat, std::string("kPa")),
 	std::make_pair(iI, std::string("N/m")),
 	std::make_pair(iDpdT, std::string("kPa/K")),
 	std::make_pair(iDrhodT_p, std::string("kg/K/m^3"))

@@ -175,12 +175,13 @@ protected:
 public:
 	double getTbase() const {return Tbase;}
 	double getxbase() const {return xbase;}
-	std::vector<std::vector<double> > getcCond() const {return cCond;}
-	std::vector<std::vector<double> > getcHeat() const {return cHeat;}
-	std::vector<std::vector<double> > getcPsat() const {return cPsat;}
 	std::vector<std::vector<double> > getcRho() const {return cRho;}
-	std::vector<double> getcTfreeze() const {return cTfreeze;}
+	std::vector<std::vector<double> > getcHeat() const {return cHeat;}
 	std::vector<std::vector<double> > getcVisc() const {return cVisc;}
+	std::vector<std::vector<double> > getcCond() const {return cCond;}
+	std::vector<std::vector<double> > getcPsat() const {return cPsat;}
+	std::vector<double> getcTfreeze() const {return cTfreeze;}
+
 
 public:
 	// Constructor
@@ -192,9 +193,9 @@ public:
 	~SecCoolSolution(){};
 
 public:
-	double baseFunction(std::vector<double> coefficients, double T_K, double p, double x);
+	double baseFunction(std::vector<double>& coefficients, double T_K, double p, double x);
 
-	std::vector< std::vector<double> > makeMatrix(std::vector<double> coefficients);
+	std::vector< std::vector<double> > makeMatrix(std::vector<double>& coefficients);
 
 	double getTInput(double curTValue){
 		return curTValue-Tbase;
@@ -225,12 +226,12 @@ public:
 	double visc(double T_K, double p, double x){
 		checkTPX(T_K, p, x);
 		IncompressibleClass::checkCoefficients(cVisc,6,4);
-		return expval(cVisc, getxInput(x), getTInput(T_K), 2)/1e5;
+		return expval(cVisc, getxInput(x), getTInput(T_K), 2)/1e3;
 	}
 	double cond(double T_K, double p, double x){
 		checkTPX(T_K, p, x);
 		IncompressibleClass::checkCoefficients(cCond,6,4);
-		return polyval(cCond, getxInput(x), getTInput(T_K))/1e3;
+		return polyval(cCond, getxInput(x), getTInput(T_K));
 	}
 	double u(double T_K, double p, double x){
 		checkTPX(T_K, p, x);

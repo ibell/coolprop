@@ -206,6 +206,8 @@ double pIncompLiquid(long iOutput, double T, double p, IncompressibleLiquid *pLi
 			out = pLiquid->getTmin(); break;
 		case iTmax:
 			out = pLiquid->getTmax(); break;
+		case iPsat:
+			out = pLiquid->psat(T); break;
 		default:
 			throw ValueError(format("Your index [%d] is invalid for the incompressible liquid %s",iOutput,pLiquid->getName().c_str()));
 			out=0; break;
