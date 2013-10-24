@@ -14,8 +14,9 @@ Basic Library to get the properties from CoolProp.dll
 
 CoolProp.llb
 More advanced library, allowing to compute thermodynamic diagrams, real-time calculation of properties,
-measurement precessing, etc.
+measurement processing, etc.
 
+See the Diagrams_coolprop.vi in the LLB to get started.  To use, you must update the path to the CoolProp.dll file in the VI.
 
 To Install
 ----------
