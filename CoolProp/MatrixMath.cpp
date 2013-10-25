@@ -46,7 +46,7 @@ unsigned int get_pivot_row(std::vector<std::vector<double> > *A, unsigned int co
 	return index;
 }
 
-std::vector<double> linsolve_Gauss_Jordan(std::vector<std::vector<double> > A, std::vector<double> b)
+std::vector<double> linsolve_Gauss_Jordan(std::vector<std::vector<double> > const& A, std::vector<double> const& b)
 {
 	std::vector<std::vector<double> > Ab;
 	std::vector<double> x;
@@ -109,7 +109,7 @@ std::vector<double> linsolve_Gauss_Jordan(std::vector<std::vector<double> > A, s
 }
 
 
-std::vector< std::vector<double> > transpose(std::vector< std::vector<double> > in){
+std::vector< std::vector<double> > transpose(std::vector< std::vector<double> > const& in){
 	unsigned int sizeX = in.size();
 	if (sizeX<1) throw ValueError(format("You have to provide values, a vector length of %d is not a valid. ",sizeX));
 	unsigned int sizeY    = in[0].size();
@@ -127,7 +127,7 @@ std::vector< std::vector<double> > transpose(std::vector< std::vector<double> > 
 }
 
 
-std::vector<double> column(std::vector< std::vector<double> > in, unsigned int col){
+std::vector<double> column(std::vector< std::vector<double> > const& in, unsigned int col){
 	unsigned int sizeX = in.size();
 	if (sizeX<1) throw ValueError(format("You have to provide values, a vector length of %d is not a valid. ",sizeX));
 	unsigned int sizeY    = in[0].size();

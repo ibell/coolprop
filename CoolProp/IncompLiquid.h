@@ -157,7 +157,7 @@ public:
 	}
 	double s(double T_K, double p){
 		checkTP(T_K, p);
-		return fracint(cHeat, T_K, Tref);
+		return polyfracint(cHeat, T_K, Tref);
 	}
 	double visc(double T_K, double p){
 		checkTP(T_K, p);

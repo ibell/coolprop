@@ -211,9 +211,14 @@ public:
 	double s(double T_K, double p, double x){
 		checkTPX(T_K, p, x);
 		IncompressibleClass::checkCoefficients(cHeat,6,4);
-		//return fracint(cHeat, getxInput(x), T_K, Tref);
-		return (-1/2)*pow(x,5)*cHeat[5][2]*pow(Tref,2)-x*cHeat[1][1]*Tref-pow(x,4)*cHeat[4][1]*Tref-pow(x,5)*cHeat[5][1]*Tref-log(Tref)*pow(x,5)*cHeat[5][0]-log(Tref)*pow(x,4)*cHeat[4][0]-log(Tref)*x*cHeat[1][0]-log(Tref)*pow(x,2)*cHeat[2][0]+(1/2)*pow(x,5)*cHeat[5][2]*pow(T_K,2)-cHeat[0][1]*Tref-log(Tref)*cHeat[0][0]+(1/3)*cHeat[0][3]*pow(T_K,3)+(1/2)*cHeat[0][2]*pow(T_K,2)+cHeat[0][1]*T_K+log(T_K)*cHeat[0][0]+(1/2)*pow(x,2)*cHeat[2][2]*pow(T_K,2)+log(T_K)*x*cHeat[1][0]+pow(x,4)*cHeat[4][1]*T_K+pow(x,5)*cHeat[5][1]*T_K+(1/3)*pow(x,2)*cHeat[2][3]*pow(T_K,3)+(1/3)*pow(x,3)*cHeat[3][3]*pow(T_K,3)+log(T_K)*pow(x,3)*cHeat[3][0]+log(T_K)*pow(x,5)*cHeat[5][0]+(1/3)*pow(x,4)*cHeat[4][3]*pow(T_K,3)+(1/3)*x*cHeat[1][3]*pow(T_K,3)+(1/3)*pow(x,5)*cHeat[5][3]*pow(T_K,3)-log(Tref)*pow(x,3)*cHeat[3][0]+x*cHeat[1][1]*T_K+pow(x,2)*cHeat[2][1]*T_K+pow(x,3)*cHeat[3][1]*T_K-(1/3)*pow(x,2)*cHeat[2][3]*pow(Tref,3)-(1/3)*pow(x,3)*cHeat[3][3]*pow(Tref,3)-pow(x,3)*cHeat[3][1]*Tref-(1/3)*pow(x,4)*cHeat[4][3]*pow(Tref,3)-(1/3)*x*cHeat[1][3]*pow(Tref,3)-(1/3)*pow(x,5)*cHeat[5][3]*pow(Tref,3)-(1/2)*x*cHeat[1][2]*pow(Tref,2)-(1/2)*pow(x,2)*cHeat[2][2]*pow(Tref,2)-(1/2)*pow(x,3)*cHeat[3][2]*pow(Tref,2)-(1/2)*pow(x,4)*cHeat[4][2]*pow(Tref,2)+log(T_K)*pow(x,4)*cHeat[4][0]+(1/2)*x*cHeat[1][2]*pow(T_K,2)+log(T_K)*pow(x,2)*cHeat[2][0]+(1/2)*pow(x,3)*cHeat[3][2]*pow(T_K,2)+(1/2)*pow(x,4)*cHeat[4][2]*pow(T_K,2)-pow(x,2)*cHeat[2][1]*Tref-(1/3)*cHeat[0][3]*pow(Tref,3)-(1/2)*cHeat[0][2]*pow(Tref,2);
+		return polyfracint(cHeat, getxInput(x), T_K, Tref);
 	}
+//	double s_alt(double T_K, double p, double x){
+//		checkTPX(T_K, p, x);
+//		IncompressibleClass::checkCoefficients(cHeat,6,4);
+//		x = getxInput(x);
+//		return (-1/2)*pow(x,5)*cHeat[5][2]*pow(Tref,2)-x*cHeat[1][1]*Tref-pow(x,4)*cHeat[4][1]*Tref-pow(x,5)*cHeat[5][1]*Tref-log(Tref)*pow(x,5)*cHeat[5][0]-log(Tref)*pow(x,4)*cHeat[4][0]-log(Tref)*x*cHeat[1][0]-log(Tref)*pow(x,2)*cHeat[2][0]+(1/2)*pow(x,5)*cHeat[5][2]*pow(T_K,2)-cHeat[0][1]*Tref-log(Tref)*cHeat[0][0]+(1/3)*cHeat[0][3]*pow(T_K,3)+(1/2)*cHeat[0][2]*pow(T_K,2)+cHeat[0][1]*T_K+log(T_K)*cHeat[0][0]+(1/2)*pow(x,2)*cHeat[2][2]*pow(T_K,2)+log(T_K)*x*cHeat[1][0]+pow(x,4)*cHeat[4][1]*T_K+pow(x,5)*cHeat[5][1]*T_K+(1/3)*pow(x,2)*cHeat[2][3]*pow(T_K,3)+(1/3)*pow(x,3)*cHeat[3][3]*pow(T_K,3)+log(T_K)*pow(x,3)*cHeat[3][0]+log(T_K)*pow(x,5)*cHeat[5][0]+(1/3)*pow(x,4)*cHeat[4][3]*pow(T_K,3)+(1/3)*x*cHeat[1][3]*pow(T_K,3)+(1/3)*pow(x,5)*cHeat[5][3]*pow(T_K,3)-log(Tref)*pow(x,3)*cHeat[3][0]+x*cHeat[1][1]*T_K+pow(x,2)*cHeat[2][1]*T_K+pow(x,3)*cHeat[3][1]*T_K-(1/3)*pow(x,2)*cHeat[2][3]*pow(Tref,3)-(1/3)*pow(x,3)*cHeat[3][3]*pow(Tref,3)-pow(x,3)*cHeat[3][1]*Tref-(1/3)*pow(x,4)*cHeat[4][3]*pow(Tref,3)-(1/3)*x*cHeat[1][3]*pow(Tref,3)-(1/3)*pow(x,5)*cHeat[5][3]*pow(Tref,3)-(1/2)*x*cHeat[1][2]*pow(Tref,2)-(1/2)*pow(x,2)*cHeat[2][2]*pow(Tref,2)-(1/2)*pow(x,3)*cHeat[3][2]*pow(Tref,2)-(1/2)*pow(x,4)*cHeat[4][2]*pow(Tref,2)+log(T_K)*pow(x,4)*cHeat[4][0]+(1/2)*x*cHeat[1][2]*pow(T_K,2)+log(T_K)*pow(x,2)*cHeat[2][0]+(1/2)*pow(x,3)*cHeat[3][2]*pow(T_K,2)+(1/2)*pow(x,4)*cHeat[4][2]*pow(T_K,2)-pow(x,2)*cHeat[2][1]*Tref-(1/3)*cHeat[0][3]*pow(Tref,3)-(1/2)*cHeat[0][2]*pow(Tref,2);
+//	}
 	double visc(double T_K, double p, double x){
 		checkTPX(T_K, p, x);
 		IncompressibleClass::checkCoefficients(cVisc,6,4);
@@ -288,14 +293,14 @@ public:
 		{  -0.00006823		,  -0.0001208		,  -0.003776	,   0.0000002943		,   0.000003038		},//
 		{   0.00000002137	,   0.000002992		,  -0.00005611	,  -0.0000000009646		,  -0.00000007435	},
 		{  -0.0000000004271	,   0.000000001455	,  -0.0000007811,   0.00000000003174	,   0.0000000007442	},
-		{   0.0000001297	,   0.000004927		,  -0.0001504	,  -0.0000000008666		,   0.00000006669	},
+		{   0.0000001297	,   0.000004927		,  -0.0001504	,  -0.0000000008666		,   0.00000006669	},//
 		{  -0.0000000005407	,  -0.0000001325	,   0.000007373	,  -0.0000000000004573	,  -0.0000000009105	},
-		{   0.00000002363	,  -0.00000007727	,   0.000006433	,  -0.0000000002033		,  -0.0000000008472	}};
+		{   0.00000002363	,  -0.00000007727	,   0.000006433	,  -0.0000000002033		,  -0.0000000008472	}};//
 
 	    std::vector<std::vector<double> > tmpVector = convertCoeffs( *oldCoeffs, lengthA, lengthB);
 
-	    //cTfreeze.clear();
-	    //cTfreeze = makeMatrix(tmpVector[0]);
+	    cTfreeze.clear();
+	    cTfreeze = column(makeMatrix(tmpVector[0]),0); // Discard temperature coefficients.
 
         cRho.clear();
         cRho = makeMatrix(tmpVector[1]);
@@ -308,22 +313,13 @@ public:
 
 		cVisc.clear();
 		cVisc = makeMatrix(tmpVector[4]);
-
-//		cTfreeze.clear();
-//		cTfreeze.push_back (27.755555600); // concentration
-//		cTfreeze.push_back(-22.973221700);
-//		cTfreeze.push_back(-1.1040507200);
-//		cTfreeze.push_back(-0.0120762281);
-//		cTfreeze.push_back(-9.343458E-05);
-
     };
 
-//	/// Define freezing point calculations
-//	double Tfreeze(double p, double x){
-//		IncompressibleClass::checkCoefficients(cTfreeze,6,4);
-//		std::vector<double> tmpVector(cTfreeze.begin()+1,cTfreeze.end());
-//		return polyval(tmpVector, x*100.0-cTfreeze[0])+273.15;
-//	}
+	/// Define freezing point calculations
+	double Tfreeze(double p, double x){
+		IncompressibleClass::checkCoefficients(cTfreeze,6);
+		return polyval(cTfreeze, getxInput(x))+273.15;
+	}
 };
 
 
