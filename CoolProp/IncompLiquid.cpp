@@ -48,6 +48,12 @@ LiquidsContainer::LiquidsContainer() {
 	tmpVector.push_back(new NitrateSaltClass());
 
 	tmpVector.push_back(new SylthermXLTClass());
+    tmpVector.push_back(new HC10Class());
+    tmpVector.push_back(new HC20Class());
+    tmpVector.push_back(new HC30Class());
+    tmpVector.push_back(new HC40Class());
+    tmpVector.push_back(new HC50Class());
+    
 
 	// Now we store the vector in the variable
 	// and overwrite the map.

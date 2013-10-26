@@ -62,7 +62,7 @@ public:
     	result = this->s(T_K,p);
     	printf("From object:      s = %1.5f \t kJ/kg-K  \n",result/1e3);
     	result = this->visc(T_K,p);
-    	printf("From object:    eta = %1.5f \t 1e-5 Pa-s\n",result*1e5);
+    	printf("From object:    eta = %1.5f \t uPa-s\n",result*1e6);
     	result = this->cond(T_K,p);
     	printf("From object: lambda = %1.5f \t W/m-k    \n",result*1e3);
     	result = this->u(T_K,p);
@@ -859,15 +859,15 @@ public:
 		cRho.push_back(+6.2219614972E-08);
 
 		cHeat.clear();
-		cHeat.push_back(+2.1012512988E+00);
-		cHeat.push_back(+2.1703060408E-03);
-		cHeat.push_back(-5.8718341941E-07);
-		cHeat.push_back(+5.5598595184E-10);
+		cHeat.push_back(+2.1012512988E+00*1000);
+		cHeat.push_back(+2.1703060408E-03*1000);
+		cHeat.push_back(-5.8718341941E-07*1000);
+		cHeat.push_back(+5.5598595184E-10*1000);
 
 		cCond.clear();
-		cCond.push_back(+2.1115982999E-01);
-		cCond.push_back(+1.0044356726E-03);
-		cCond.push_back(-6.8417472240E-09);
+		cCond.push_back(+2.1115982999E-01*1000);
+		cCond.push_back(+1.0044356726E-03*1000);
+		cCond.push_back(-6.8417472240E-09*1000);
 
 		cVisc.clear();
 		cVisc.push_back(+5.1474949056E+02);
@@ -897,15 +897,15 @@ public:
 	cRho.push_back(+1.2231483134E-07);
 
 	cHeat.clear();
-	cHeat.push_back(+2.2410860976E+00);
-	cHeat.push_back(+2.5277174414E-03);
-	cHeat.push_back(-7.9965585875E-07);
-	cHeat.push_back(+8.4536238136E-10);
+	cHeat.push_back(+2.2410860976E+00*1000);
+	cHeat.push_back(+2.5277174414E-03*1000);
+	cHeat.push_back(-7.9965585875E-07*1000);
+	cHeat.push_back(+8.4536238136E-10*1000);
 
 	cCond.clear();
-	cCond.push_back(+2.1584999976E-01);
-	cCond.push_back(+1.0000000024E-03);
-	cCond.push_back(-4.4103217334E-15);
+	cCond.push_back(+2.1584999976E-01*1000);
+	cCond.push_back(+1.0000000024E-03*1000);
+	cCond.push_back(-4.4103217334E-15*1000);
 
 	cVisc.clear();
 	cVisc.push_back(+6.7794305879E+02);
@@ -935,15 +935,15 @@ public:
 	cRho.push_back(+1.1429738312E-07);
 
 	cHeat.clear();
-	cHeat.push_back(+2.3990868236E+00);
-	cHeat.push_back(+2.3122238723E-03);
-	cHeat.push_back(-1.8976325800E-09);
-	cHeat.push_back(-1.3223671098E-12);
+	cHeat.push_back(+2.3990868236E+00*1000);
+	cHeat.push_back(+2.3122238723E-03*1000);
+	cHeat.push_back(-1.8976325800E-09*1000);
+	cHeat.push_back(-1.3223671098E-12*1000);
 
 	cCond.clear();
-	cCond.push_back(+2.2585018360E-01);
-	cCond.push_back(+9.9999898814E-04);
-	cCond.push_back(+1.3437129242E-12);
+	cCond.push_back(+2.2585018360E-01*1000);
+	cCond.push_back(+9.9999898814E-04*1000);
+	cCond.push_back(+1.3437129242E-12*1000);
 
 	cVisc.clear();
 	cVisc.push_back(+1.4791319309E+03);
@@ -973,15 +973,15 @@ public:
 	cRho.push_back(-3.4661682840E-07);
 
 	cHeat.clear();
-	cHeat.push_back(+2.5205451030E+00);
-	cHeat.push_back(+2.3503848230E-03);
-	cHeat.push_back(+3.4527953793E-08);
-	cHeat.push_back(-3.8071238470E-11);
+	cHeat.push_back(+2.5205451030E+00*1000);
+	cHeat.push_back(+2.3503848230E-03*1000);
+	cHeat.push_back(+3.4527953793E-08*1000);
+	cHeat.push_back(-3.8071238470E-11*1000);
 
 	cCond.clear();
-	cCond.push_back(+2.2984999972E-01);
-	cCond.push_back(+1.0000000020E-03);
-	cCond.push_back(-3.3378980248E-15);
+	cCond.push_back(+2.2984999972E-01*1000);
+	cCond.push_back(+1.0000000020E-03*1000);
+	cCond.push_back(-3.3378980248E-15*1000);
 
 	cVisc.clear();
 	cVisc.push_back(+1.4573630672E+03);
@@ -1011,15 +1011,15 @@ public:
 	cRho.push_back(-3.5344823522E-07);
 
 	cHeat.clear();
-	cHeat.push_back(+2.5783678206E+00);
-	cHeat.push_back(+2.6055330621E-03);
-	cHeat.push_back(-3.4136060497E-07);
-	cHeat.push_back(+3.0258026618E-10);
+	cHeat.push_back(+2.5783678206E+00*1000);
+	cHeat.push_back(+2.6055330621E-03*1000);
+	cHeat.push_back(-3.4136060497E-07*1000);
+	cHeat.push_back(+3.0258026618E-10*1000);
 
 	cCond.clear();
-	cCond.push_back(+2.3085014730E-01);
-	cCond.push_back(+9.9999923606E-04);
-	cCond.push_back(+9.6103310064E-13);
+	cCond.push_back(+2.3085014730E-01*1000);
+	cCond.push_back(+9.9999923606E-04*1000);
+	cCond.push_back(+9.6103310064E-13*1000);
 
 	cVisc.clear();
 	cVisc.push_back(+1.3099267214E+03);
