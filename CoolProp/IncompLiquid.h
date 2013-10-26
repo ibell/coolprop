@@ -844,7 +844,7 @@ class HC50Class : public SimpleIncompressible{
 public:
 	HC50Class(){
 
-        name = std::string("HC-10");
+        name = std::string("DynaleneHC-50");
 		description = std::string("HC-50");
 		reference = std::string("Dynalene data sheet");
 
@@ -882,7 +882,7 @@ class HC40Class : public SimpleIncompressible{
 public:
 	HC40Class(){
 
-    name = std::string("HC-40");
+    name = std::string("DynaleneHC-40");
 	description = std::string("HC-40");
 	reference = std::string("");
 
@@ -920,7 +920,7 @@ class HC30Class : public SimpleIncompressible{
 public:
 	HC30Class(){
 
-	name = std::string("HC-30");
+	name = std::string("DynaleneHC-30");
     description = std::string("HC-30");
 	reference = std::string("");
 
@@ -958,7 +958,7 @@ class HC20Class : public SimpleIncompressible{
 public:
 	HC20Class(){
 
-	name = std::string("HC-20");
+	name = std::string("DynaleneHC-20");
 	description = std::string("HC-20");
 	reference = std::string("");
 
@@ -996,7 +996,7 @@ class HC10Class : public SimpleIncompressible{
 public:
 	HC10Class(){
 
-	name = std::string("HC-10");
+	name = std::string("DynaleneHC-10");
 	description = std::string("HC-10");
 	reference = std::string("");
 
