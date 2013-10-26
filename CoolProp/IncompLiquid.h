@@ -840,6 +840,196 @@ public:
     };
 };
 
+class HC50Class : public SimpleIncompressible{
+public:
+	HC50Class(){
+
+        name = std::string("HC-10");
+		description = std::string("HC-50");
+		reference = std::string("Dynalene data sheet");
+
+		Tmin     = 223.15;
+		Tmax     = 483.15;
+		TminPsat = 483.15;
+
+		cRho.clear();
+		cRho.push_back(+1.4989450831E+03);
+		cRho.push_back(-5.2796479140E-01);
+		cRho.push_back(-7.1686745580E-05);
+		cRho.push_back(+6.2219614972E-08);
+
+		cHeat.clear();
+		cHeat.push_back(+2.1012512988E+00);
+		cHeat.push_back(+2.1703060408E-03);
+		cHeat.push_back(-5.8718341941E-07);
+		cHeat.push_back(+5.5598595184E-10);
+
+		cCond.clear();
+		cCond.push_back(+2.1115982999E-01);
+		cCond.push_back(+1.0044356726E-03);
+		cCond.push_back(-6.8417472240E-09);
+
+		cVisc.clear();
+		cVisc.push_back(+5.1474949056E+02);
+		cVisc.push_back(-1.2991405953E+02);
+		cVisc.push_back(-4.9350210462E+00);
+
+        cPsat.clear();
+    };
+};
+
+class HC40Class : public SimpleIncompressible{
+public:
+	HC40Class(){
+
+    name = std::string("HC-40");
+	description = std::string("HC-40");
+	reference = std::string("");
+
+	Tmin     = 233.15;
+	Tmax     = 473.15;
+	TminPsat = 473.15;
+
+	cRho.clear();
+	cRho.push_back(+1.4720766336E+03);
+	cRho.push_back(-5.0387517166E-01);
+	cRho.push_back(-1.4490394158E-04);
+	cRho.push_back(+1.2231483134E-07);
+
+	cHeat.clear();
+	cHeat.push_back(+2.2410860976E+00);
+	cHeat.push_back(+2.5277174414E-03);
+	cHeat.push_back(-7.9965585875E-07);
+	cHeat.push_back(+8.4536238136E-10);
+
+	cCond.clear();
+	cCond.push_back(+2.1584999976E-01);
+	cCond.push_back(+1.0000000024E-03);
+	cCond.push_back(-4.4103217334E-15);
+
+	cVisc.clear();
+	cVisc.push_back(+6.7794305879E+02);
+	cVisc.push_back(-1.0098293408E+02);
+	cVisc.push_back(-4.3799698273E+00);
+
+	cPsat.clear();
+    };
+};
+
+class HC30Class : public SimpleIncompressible{
+public:
+	HC30Class(){
+
+	name = std::string("HC-30");
+    description = std::string("HC-30");
+	reference = std::string("");
+
+	Tmin     = 243.15;
+	Tmax     = 483.15;
+	TminPsat = 483.15;
+
+	cRho.clear();
+	cRho.push_back(+1.4153035313E+03);
+	cRho.push_back(-4.4327456028E-01);
+	cRho.push_back(-1.5443559875E-04);
+	cRho.push_back(+1.1429738312E-07);
+
+	cHeat.clear();
+	cHeat.push_back(+2.3990868236E+00);
+	cHeat.push_back(+2.3122238723E-03);
+	cHeat.push_back(-1.8976325800E-09);
+	cHeat.push_back(-1.3223671098E-12);
+
+	cCond.clear();
+	cCond.push_back(+2.2585018360E-01);
+	cCond.push_back(+9.9999898814E-04);
+	cCond.push_back(+1.3437129242E-12);
+
+	cVisc.clear();
+	cVisc.push_back(+1.4791319309E+03);
+	cVisc.push_back(+4.3364538779E+00);
+	cVisc.push_back(-2.8745414892E+00);
+
+	cPsat.clear();
+    };
+};
+
+class HC20Class : public SimpleIncompressible{
+public:
+	HC20Class(){
+
+	name = std::string("HC-20");
+	description = std::string("HC-20");
+	reference = std::string("");
+
+	Tmin     = 253.15;
+	Tmax     = 483.15;
+	TminPsat = 483.15;
+
+	cRho.clear();
+	cRho.push_back(+1.4068942630E+03);
+	cRho.push_back(-6.6475125087E-01);
+	cRho.push_back(+3.9405830304E-04);
+	cRho.push_back(-3.4661682840E-07);
+
+	cHeat.clear();
+	cHeat.push_back(+2.5205451030E+00);
+	cHeat.push_back(+2.3503848230E-03);
+	cHeat.push_back(+3.4527953793E-08);
+	cHeat.push_back(-3.8071238470E-11);
+
+	cCond.clear();
+	cCond.push_back(+2.2984999972E-01);
+	cCond.push_back(+1.0000000020E-03);
+	cCond.push_back(-3.3378980248E-15);
+
+	cVisc.clear();
+	cVisc.push_back(+1.4573630672E+03);
+	cVisc.push_back(+8.3287343041E+00);
+	cVisc.push_back(-2.8287864053E+00);
+
+	cPsat.clear();
+    };
+};
+
+class HC10Class : public SimpleIncompressible{
+public:
+	HC10Class(){
+
+	name = std::string("HC-10");
+	description = std::string("HC-10");
+	reference = std::string("");
+
+	Tmin     = 263.15;
+	Tmax     = 491.15;
+	TminPsat = 491.15;
+
+	cRho.clear();
+	cRho.push_back(+1.3448607177E+03);
+	cRho.push_back(-6.2347717503E-01);
+	cRho.push_back(+4.3041878137E-04);
+	cRho.push_back(-3.5344823522E-07);
+
+	cHeat.clear();
+	cHeat.push_back(+2.5783678206E+00);
+	cHeat.push_back(+2.6055330621E-03);
+	cHeat.push_back(-3.4136060497E-07);
+	cHeat.push_back(+3.0258026618E-10);
+
+	cCond.clear();
+	cCond.push_back(+2.3085014730E-01);
+	cCond.push_back(+9.9999923606E-04);
+	cCond.push_back(+9.6103310064E-13);
+
+	cVisc.clear();
+	cVisc.push_back(+1.3099267214E+03);
+	cVisc.push_back(-5.1123038034E+00);
+	cVisc.push_back(-2.9346057722E+00);
+
+	cPsat.clear();
+    };
+};
+
 /** Handle all the objects in a single list of incompressible liquids
  *  and a list of solutions / brines. The singleton pattern assures
  *  there is only one list.

@@ -56,7 +56,7 @@ CoolPropStateClassSI::CoolPropStateClassSI(std::string Fluid)
 		}
 		else
 		{
-			throw ValueError("Bad Fluid name - not a CoolProp fluid");
+			throw ValueError(format("Bad Fluid name [%s] - not a CoolProp fluid",Fluid.c_str()));
 		}
 	}
 	this->cache.clear();
@@ -99,15 +99,18 @@ CoolPropStateClassSI::CoolPropStateClassSI(Fluid * pFluid){
 
 CoolPropStateClassSI::~CoolPropStateClassSI()
 {
-	if (SatL != NULL)
+	if (!_noSatLSatV) // We are de-alllocating one of the saturation classes
 	{
-		delete SatL;
-		SatL = NULL;
-	}
-	if (SatV != NULL)
-	{
-		delete SatV; 
-		SatV = NULL;
+		if (SatL != NULL)
+		{
+			delete SatL;
+			SatL = NULL;
+		}
+		if (SatV != NULL)
+		{
+			delete SatV; 
+			SatV = NULL;
+		}
 	}
 }
 bool match_pair(long iI1, long iI2, long I1, long I2)
@@ -1271,8 +1274,8 @@ double CoolPropStateClassSI::cp(void){
 	else if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION)
 	{
 		// TODO SOLUTION
-		double val = Props("C",'T',_T,'P',_p,brine_string);
-		return convert_from_unit_system_to_SI(iC,val,get_standard_unit_system());
+		double val_kJkgK = Props("C",'T',_T,'P',_p,brine_string);
+		return convert_from_unit_system_to_SI(iC,val_kJkgK,UNIT_SYSTEM_KSI);
 	}
 	else if (TwoPhase && _Q > 0 && _Q < 1)
 	{
@@ -1322,8 +1325,8 @@ double CoolPropStateClassSI::conductivity(void){
 	else if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION)
 	{
 		// TODO SOLUTION
-		double val = Props("L",'T',_T,'P',_p,brine_string);
-		return convert_from_unit_system_to_SI(iL,val,get_standard_unit_system());
+		double val_KSI = Props("L",'T',_T,'P',_p,brine_string);
+		return convert_from_unit_system_to_SI(iL,val_KSI,UNIT_SYSTEM_KSI);
 	}
 	else if (pFluid->enabled_TTSE_LUT  && within_TTSE_range(iP,p(),iH,h()))
 	{
@@ -1363,8 +1366,8 @@ double CoolPropStateClassSI::cv(void){
 	else if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION)
 	{
 		// TODO SOLUTION
-		double val = Props("C",'T',_T,'P',_p,brine_string);
-		return convert_from_unit_system_to_SI(iC,val,get_standard_unit_system());
+		double val_KSI = Props("C",'T',_T,'P',_p,brine_string);
+		return convert_from_unit_system_to_SI(iC,val_KSI,get_standard_unit_system());
 	}
 	else if (pFluid->enabled_TTSE_LUT && within_TTSE_range(iP, p(), iH, h()) )
 	{
