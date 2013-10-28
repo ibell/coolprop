@@ -350,6 +350,33 @@ std::vector< std::vector<double> > BaseSolution::makeMatrix(std::vector<double> 
 	return matrix;
 }
 
+
+/// Overwrite the fraction functions to account for the differential fits
+/** Base function to produce integrals of n-th order
+ *  polynomials based on the length of the coefficient
+ *  vector. Integrates from x0 to x1.
+ *  Starts with only the first coefficient at x^0 */
+double BaseSolution::simpleFracInt(std::vector<double> const& coefficients, double x){
+	double result = coefficients[0] * log(x+Tbase);
+	if (coefficients.size() > 1) {
+		for (unsigned int i=0; i<coefficients.size()-1; i++){
+			result += 1/(i+1) * coefficients[i+1] * pow(x,i+1);
+		}
+	}
+	return result;
+}
+double BaseSolution::simpleFracInt(std::vector<double> const& coefficients, double x1, double x0){
+	double result = coefficients[0] * log((x1+Tbase)/(x0+Tbase));
+	if (coefficients.size() > 1) {
+		for (unsigned int i=0; i<coefficients.size()-1; i++){
+			result += 1/(i+1) * coefficients[i+1] * (pow(x1,i+1)-pow(x0,i+1));
+		}
+	}
+	return result;
+}
+
+
+
 /// Convert pre-v4.0-style coefficient array to new format
 std::vector<std::vector<double> > MelinderSolution::convertCoeffs(double* oldestCoeffs, const int A, const int B) {
 	const int lengthA = 18;

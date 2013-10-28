@@ -30,7 +30,6 @@ class IncompressibleSolution : public IncompressibleClass{
  */
 protected:
 	double xmin, xmax;
-	double Tbase, xbase;
 	std::vector< std::vector<double> > cRho;
 	std::vector< std::vector<double> > cHeat;
 	std::vector< std::vector<double> > cVisc;
@@ -43,12 +42,8 @@ public:
 	IncompressibleSolution(){
 		xmin  = -1.;
 		xmax  = -1.;
-		Tbase = -1.;
-		xbase = -1.;
 	};
 
-	double getTbase() const {return Tbase;}
-	double getxbase() const {return xbase;}
 	std::vector<std::vector<double> > getcRho() const {return cRho;}
 	std::vector<std::vector<double> > getcHeat() const {return cHeat;}
 	std::vector<std::vector<double> > getcVisc() const {return cVisc;}
@@ -181,11 +176,20 @@ public:
 class BaseSolution : public IncompressibleSolution{
 
 protected:
+	double Tbase, xbase;
 	/// Some more general purpose functions
 	double baseFunction(std::vector<double> const& coefficients, double T_K, double p, double x);
 	std::vector< std::vector<double> > makeMatrix(std::vector<double> const& coefficients);
 
 public:
+
+	BaseSolution(){
+		Tbase = -1.;
+		xbase = -1.;
+	};
+
+	double getTbase() const {return Tbase;}
+	double getxbase() const {return xbase;}
 
 	double getTInput(double curTValue){
 		return curTValue-Tbase;
@@ -211,7 +215,8 @@ public:
 	double s(double T_K, double p, double x){
 		checkTPX(T_K, p, x);
 		IncompressibleClass::checkCoefficients(cHeat,6,4);
-		return polyfracint(cHeat, getxInput(x), T_K, Tref);
+		return polyfracint(cHeat, getxInput(x), getTInput(T_K)) - polyfracint(cHeat, getxInput(x), getTInput(Tref));
+		//return polyfracint(cHeat, getxInput(x), T_K, Tref);
 	}
 //	double s_alt(double T_K, double p, double x){
 //		checkTPX(T_K, p, x);
@@ -232,7 +237,7 @@ public:
 	double u(double T_K, double p, double x){
 		checkTPX(T_K, p, x);
 		IncompressibleClass::checkCoefficients(cHeat,6,4);
-		return polyint(cHeat, getxInput(x), T_K, Tref);
+		return polyint(cHeat, getxInput(x), getTInput(T_K))-polyint(cHeat, getxInput(x), getTInput(Tref));
 	}
 //	double psat(double T_K, double x){
 //		//checkT(T_K,p,x);

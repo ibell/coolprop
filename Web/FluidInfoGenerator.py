@@ -556,15 +556,9 @@ SecCool Fluids               Description
 ==========================   ===================================================
 ``TestSolution``             Methanol-Water mixture for testing
 ==========================   ===================================================
- 
+
 In both of the above cases, :math:`i` is the exponent for the concentration :math:`x` and :math:`j` 
-is used with the temperature :math:`T`. Using a centered approach for the independent variables, 
-the fit quality can be enhanced. Therefore, all solutions have a reference temperature and concentration 
-in the original work by Melinder and Skovrup as well as in CoolProp: :math:`x = x_{real} - x_{ref}` 
-and :math:`T = T_{real} - T_{ref}`, this technique is not applied for the temperature when calculating 
-the derived quantities internal energy and entropy since their formulae contain temperature differences. 
-In addition to that, integrating :math:`T^{-1}dT` for the entropy requires the absolute values. 
-Properties are modelled with the following polynomials: 
+is used with the temperature :math:`T`. Properties are modelled with the following polynomials: 
 
 .. math::
 
@@ -581,7 +575,27 @@ Properties are modelled with the following polynomials:
     \\lambda   &= \\sum_{i=0}^n x^i  \\cdot \\sum_{j=0}^m C_{\\lambda}[i,j] \\cdot T^j \\\\
     \\mu       &= \\exp \\left( \\sum_{i=0}^n x^i  \\cdot \\sum_{j=0}^m C_{\\mu}[i,j] \\cdot T^j \\right) \\\\
     T_{freeze} &= \\sum_{i=0}^n C_{freeze}[i] \\cdot x^i \\\\
-    
+
+Using a centered approach for the independent variables, 
+the fit quality can be enhanced. Therefore, all solutions have a reference temperature and concentration 
+in the original work by Melinder and Skovrup as well as in CoolProp: :math:`x = x_{real} - x_{ref}` 
+and :math:`T = T_{real} - T_{ref}`, this technique does not affect the calculation
+of the derived quantity internal energy since the formula contains temperature differences. 
+However, integrating :math:`c(x,T)T^{-1}dT` for the entropy requires some changes due to
+the logarithm.
+
+To structure the problem, we introduce a variable :math:`d(j,T_{real})`, which will be expressed by a third sum.
+As a first step for simplification, one has to expand the the binomial :math:`(T_{real}-T_{ref})^n` to a series. 
+Only containing :math:`j` and :math:`T_{real}`, :math:`d` is independent from :math:`x` and can be 
+computed outside the loop for enhanced computational efficiency. An integration of the expanded binomial 
+then yields the final factor :math:`D` to be multiplied the other coefficients and the concentration. Afterwards, 
+we employ our normal polynomial evaluation routines to obtain the final result.
+
+.. math::
+
+    s          &= \\int_{0}^{1} \\frac{c\\left( x,T \\right)}{T} dT = \\sum_{i=0}^n x^i \\cdot \\sum_{j=0}^m C_{c}[i,j] \\cdot D(j,T_0,T_1) \\\\
+    D          &= (-1)^j \\cdot \\ln \\left( \\frac{T_1}{T_0} \\right) \\cdot T_{ref}^j + \\sum_{k=0}^{j-1} \\binom{j}{k} \\cdot \\frac{(-1)^k}{j-k} \\cdot \\left( T_1^{j-k} - T_0^{j-k} \\right) \\cdot T_{ref}^k
+
     
 """
 )
