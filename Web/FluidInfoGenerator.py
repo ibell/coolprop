@@ -504,7 +504,7 @@ vapour pressure are exponential functions.
 Brines and Solutions
 --------------------
 All the brines and solutions can be accessed through the Props function. To use them, the fluid name 
-is something like ``"EG-20%"`` which is a 20% by mass ethylene glycol solution. Note that these fluids
+is something like ``"MEG-20%"`` which is a 20% by mass ethylene glycol solution. Note that these fluids
 have an arbitrary reference state: Be careful with enthalpy and entropy calculations. Again, only 
 temperature and pressure inputs are supported directly to calculate the same subset of thermophysical 
 properties as above , namely: density, heat capacity, internal energy, enthalpy, entropy, viscosity 
@@ -517,7 +517,7 @@ and pressure as inputs, but be aware of the reduced computational efficiency.
     In [1]: from CoolProp.CoolProp import Props
     
     #Specific heat 20% mass ethylene glycol solution at 300 K and 1 atm.
-    In [1]: Props('C','T',300,'P',101.325,'EG-20%')
+    In [1]: Props('C','T',300,'P',101.325,'MEG-20%')
 
 
 A number of aqueous solutions are implemented using the coefficients from Aake Melinder "Properties of 
@@ -528,23 +528,23 @@ temperature calculation that the implemented procedures differ from what is pres
 book the dependency on the current temperature is removed. In CoolProp, :math:`T_{freeze}` only depends
 on concentration.
 
-==========================   ===================================================   
-Melinder Fluids              Description                                                 
-==========================   ===================================================   
-``EG``                       Ethylene Glycol                                            
-``PG``                       Propylene Glycol
-``EA``                       Ethyl Alcohol (Ethanol)
-``MA``                       Methyl Alcohol (Methanol)
-``Glycerol``                 Glycerol
-``NH3``                      Ammonia
-``K2CO3``                    Potassium Carbonate
-``CaCl2``                    Calcium Chloride
-``MgCl2``                    Magnesium Chloride
-``NaCl``                     Sodium Chloride
-``KAC``                      Potassium Acetate
-``KFO``                      Potassium Formate
-``LiCl``                     Lithium Chloride
-==========================   ===================================================
+==========================   ===================================================   =================   =================
+Melinder Fluids              Description                                           max. T              max. x
+==========================   ===================================================   =================   =================
+``MEG``                      Ethylene Glycol (C2H6O2)                              +100 C              60 %
+``MPG``                      Propylene Glycol (C3H8O2)                             +100 C              60 %
+``MEA``                      Ethyl Alcohol, Ethanol (C2H6O)                        +40 C               60 %
+``MMA``                      Methyl Alcohol, Methanol (CH4O)                       +40 C               60 %
+``MGL``                      Glycerol (C3H8O3)                                     +40 C               60 %
+``MAM``                      Ammonia (NH3)                                         +30 C               30 %
+``MKC``                      Potassium Carbonate (K2CO3)                           +40 C               40 %
+``MCA``                      Calcium Chloride (CaCl2)                              +40 C               30 %
+``MMG``                      Magnesium Chloride (MgCl2)                            +40 C               30 %
+``MNA``                      Sodium Chloride (NaCl)                                +40 C               23 %
+``MKA``                      Potassium Acetate (CH3CO2K)                           +40 C               45 %
+``MKF``                      Potassium Formate (CHKO2)                             +40 C               48 %
+``MLI``                      Lithium Chloride (LiCl)                               +40 C               24 %
+==========================   ===================================================   =================   =================
 
 Furthermore, there is a number of other secondary fluids that can be accessed in the same way. Most 
 information is based on the data compiled by Morten Juel Skovrup in his `SecCool software <http://en.ipu.dk/Indhold/refrigeration-and-energy-technology/seccool.aspx>`_ 
@@ -580,16 +580,14 @@ Using a centered approach for the independent variables,
 the fit quality can be enhanced. Therefore, all solutions have a reference temperature and concentration 
 in the original work by Melinder and Skovrup as well as in CoolProp: :math:`x = x_{real} - x_{ref}` 
 and :math:`T = T_{real} - T_{ref}`, this technique does not affect the calculation
-of the derived quantity internal energy since the formula contains temperature differences. 
+of the derived quantity internal energy since the formula contains temperature differences.
 However, integrating :math:`c(x,T)T^{-1}dT` for the entropy requires some changes due to
-the logarithm.
-
-To structure the problem, we introduce a variable :math:`d(j,T_{real})`, which will be expressed by a third sum.
+the logarithm. To structure the problem, we introduce a variable :math:`d(j,T_{real})`, which will be expressed by a third sum.
 As a first step for simplification, one has to expand the the binomial :math:`(T_{real}-T_{ref})^n` to a series. 
 Only containing :math:`j` and :math:`T_{real}`, :math:`d` is independent from :math:`x` and can be 
 computed outside the loop for enhanced computational efficiency. An integration of the expanded binomial 
 then yields the final factor :math:`D` to be multiplied the other coefficients and the concentration. Afterwards, 
-we employ our normal polynomial evaluation routines to obtain the final result.
+we employ normal evaluation routines to obtain the final result.
 
 .. math::
 

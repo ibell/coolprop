@@ -140,6 +140,75 @@ double IncompressibleClass::simpleFracInt(std::vector< std::vector<double> > con
 	return result;
 }
 
+
+/** Simple integrated centred(!) polynomial function generator divided by independent variable.
+ *  We need to rewrite some of the functions in order to
+ *  use central fit. Having a central temperature Tbase
+ *  allows for a better fit, but requires a different
+ *  formulation of the fracInt function group. Other
+ *  functions are not affected.
+ *  Starts with only the first coefficient at T^0 */
+
+///Helper functions to calculate binomial coefficients: http://rosettacode.org/wiki/Evaluate_binomial_coefficients#C.2B.2B
+//double IncompressibleClass::factorial(double nValue){
+//   double result = nValue;
+//   double result_next;
+//   double pc = nValue;
+//   do {
+//	   result_next = result*(pc-1);
+//	   result = result_next;
+//	   pc--;
+//   } while(pc>2);
+//   nValue = result;
+//   return nValue;
+//}
+//double IncompressibleClass::factorial(double nValue){
+//	if (nValue == 0) return (1);
+//	else return (nValue * factorial(nValue - 1));
+//}
+double IncompressibleClass::factorial(double nValue){
+    double value = 1;
+    for(int i = 2; i <= nValue; i++){
+        value = value * i;
+    }
+    return value;
+}
+double IncompressibleClass::binom(double nValue, double nValue2){
+   double result;
+   if(nValue2 == 1) return nValue;
+   result = (factorial(nValue)) / (factorial(nValue2)*factorial((nValue - nValue2)));
+   nValue2 = result;
+   return nValue2;
+}
+///Helper functions to calculate the D vector:
+std::vector<double> IncompressibleClass::fracIntCentralDvector(int m, double T, double Tbase){
+	std::vector<double> D;
+	double tmp;
+	if (m<1) throw ValueError(format("You have to provide coefficients, a vector length of %d is not a valid. ",m));
+	for (unsigned int j=0; j<m; j++){ // loop through row
+		tmp = pow(-1,j) * log(T) * pow(Tbase,j);
+		for(unsigned int k=0; k<j; k++) { // internal loop for every entry
+			tmp += binom(j,k) * pow(-1,k) / (j-k) * pow(T,j-k) * pow(Tbase,k);
+		}
+		D.push_back(tmp);
+	}
+	return D;
+}
+std::vector<double> IncompressibleClass::fracIntCentralDvector(int m, double T1, double T0, double Tbase){
+	std::vector<double> D;
+	double tmp;
+	if (m<1) throw ValueError(format("You have to provide coefficients, a vector length of %d is not a valid. ",m));
+	for (int j=0; j<m; j++){ // loop through row
+		tmp = pow(-1,j) * log(T1/T0) * pow(Tbase,j);
+		for(int k=0; k<j; k++) { // internal loop for every entry
+			tmp += binom(j,k) * pow(-1,k) / (j-k) * (pow(T1,j-k)-pow(T0,j-k)) * pow(Tbase,k);
+		}
+		D.push_back(tmp);
+	}
+	return D;
+}
+
+
 /// Horner function generator implementations
 /** Represent polynomials according to Horner's scheme.
  *  This avoids unnecessary multiplication and thus

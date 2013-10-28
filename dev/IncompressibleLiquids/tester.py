@@ -11,8 +11,8 @@ print "Pressure:    "+str(P)
 print 
 print "Viscosity: "
 print "{0:14.8f}".format(CP.Props('V','T',T,'P',P,'SecCoolSolution-20%'))
-print "{0:14.8f}".format(CP.Props('V','T',T,'P',P,'MelinderSolution-20%'))
-print "{0:14.8f}".format(CP.Props('V','T',T,'P',P,'MA-20%'))
+print "{0:14.8f}".format(CP.Props('V','T',T,'P',P,'MEG-20%'))
+print "{0:14.8f}".format(CP.Props('V','T',T,'P',P,'EG-20%'))
 print "{0:14.8f}".format(CP.Props('V','T',T,'P',P,'water'))
 #print 
 #print "{0:14.8f}".format(CP.Props('L','D',13,'P',500,'n-Pentane'))
@@ -20,44 +20,44 @@ print "{0:14.8f}".format(CP.Props('V','T',T,'P',P,'water'))
 print 
 print "Conductivity: "
 print "{0:14.8f}".format(CP.Props('L','T',T,'P',P,'SecCoolSolution-20%'))
-print "{0:14.8f}".format(CP.Props('L','T',T,'P',P,'MelinderSolution-20%'))
-print "{0:14.8f}".format(CP.Props('L','T',T,'P',P,'MA-20%'))
+print "{0:14.8f}".format(CP.Props('L','T',T,'P',P,'MEG-20%'))
+print "{0:14.8f}".format(CP.Props('L','T',T,'P',P,'EG-20%'))
 print "{0:14.8f}".format(CP.Props('L','T',T,'P',P,'water'))
 print 
 print "Density: "
 print "{0:14.8f}".format(CP.Props('D','T',T,'P',P,'SecCoolSolution-20%'))
-print "{0:14.8f}".format(CP.Props('D','T',T,'P',P,'MelinderSolution-20%'))
-print "{0:14.8f}".format(CP.Props('D','T',T,'P',P,'MA-20%'))
+print "{0:14.8f}".format(CP.Props('D','T',T,'P',P,'MEG-20%'))
+print "{0:14.8f}".format(CP.Props('D','T',T,'P',P,'EG-20%'))
 print "{0:14.8f}".format(CP.Props('D','T',T,'P',P,'water'))
 print 
 print "Capacity: "
 print "{0:14.8f}".format(CP.Props('C','T',T,'P',P,'SecCoolSolution-20%'))
-print "{0:14.8f}".format(CP.Props('C','T',T,'P',P,'MelinderSolution-20%'))
-print "{0:14.8f}".format(CP.Props('C','T',T,'P',P,'MA-20%'))
+print "{0:14.8f}".format(CP.Props('C','T',T,'P',P,'MEG-20%'))
+print "{0:14.8f}".format(CP.Props('C','T',T,'P',P,'EG-20%'))
 print "{0:14.8f}".format(CP.Props('C','T',T,'P',P,'water'))
 print 
 print "Enthalpy: "
 print "{0:14.8f}".format(CP.Props('H','T',T,'P',P,'SecCoolSolution-20%'))
-print "{0:14.8f}".format(CP.Props('H','T',T,'P',P,'MelinderSolution-20%'))
-print "{0:14.8f}".format(CP.Props('H','T',T,'P',P,'MA-20%'))
+print "{0:14.8f}".format(CP.Props('H','T',T,'P',P,'MEG-20%'))
+print "{0:14.8f}".format(CP.Props('H','T',T,'P',P,'EG-20%'))
 print "{0:14.8f}".format(CP.Props('H','T',T,'P',P,'water'))
 print 
 print "Internal energy: "
 print "{0:14.8f}".format(CP.Props('U','T',T,'P',P,'SecCoolSolution-20%'))
-print "{0:14.8f}".format(CP.Props('U','T',T,'P',P,'MelinderSolution-20%'))
-print "-"#"{0:14.8f}".format(CP.Props('U','T',T,'P',P,'MA-20%'))
+print "{0:14.8f}".format(CP.Props('U','T',T,'P',P,'MEG-20%'))
+print "-"#"{0:14.8f}".format(CP.Props('U','T',T,'P',P,'EG-20%'))
 print "{0:14.8f}".format(CP.Props('U','T',T,'P',P,'water'))
 print 
 print "Entropy: "
 print "{0:14.8f}".format(CP.Props('S','T',T,'P',P,'SecCoolSolution-20%'))
-print "{0:14.8f}".format(CP.Props('S','T',T,'P',P,'MelinderSolution-20%'))
-print "{0:14.8f}".format(CP.Props('S','T',T,'P',P,'MA-20%'))
+print "{0:14.8f}".format(CP.Props('S','T',T,'P',P,'MEG-20%'))
+print "{0:14.8f}".format(CP.Props('S','T',T,'P',P,'EG-20%'))
 print "{0:14.8f}".format(CP.Props('S','T',T,'P',P,'water'))
 print 
 print "Freezing point: "
 print "{0:14.8f}".format(CP.Props('Tfreeze','T',T,'P',P,'SecCoolSolution-20%'))
-print "{0:14.8f}".format(CP.Props('Tfreeze','T',T,'P',P,'MelinderSolution-20%'))
-print "{0:14.8f}".format(CP.Props('F','T',T,'P',P,'MA-20%'))
+print "{0:14.8f}".format(CP.Props('Tfreeze','T',T,'P',P,'MEG-20%'))
+print "{0:14.8f}".format(CP.Props('F','T',T,'P',P,'EG-20%'))
 print 
 print "TX22: "
 print "{0:14.8f}".format(CP.Props('H','T',T+50,'P',P,'TX22'))
@@ -93,11 +93,11 @@ print
 #print CP.Props('C','H',-94,'P',1000,'TestSolution-0.2')
 #print 4.09169432982
 #print 
-#print CP.Props('C','T',275,'P',1000,'MA-20%')
+#print CP.Props('C','T',275,'P',1000,'EG-20%')
 #print 4.07399544409
 #print 
-#print CP.Props('H','T',275,'P',1000,'MA-20%')
+#print CP.Props('H','T',275,'P',1000,'EG-20%')
 #print -5.8439608317
 #print 
-#print CP.Props('C','H',-5.8,'P',1000,'MA-20%')
+#print CP.Props('C','H',-5.8,'P',1000,'EG-20%')
 #print 4.07402880961

@@ -91,8 +91,7 @@ private:
 	/// Simple integrated polynomial function generator divided by independent variable.
 	/** Base function to produce integrals of n-th order
 	 *  polynomials based on the length of the coefficient
-	 *  vector. Integrates from T0 to T1.
-	 *  Starts with only the first coefficient at T^0 */
+	 *  vector. Starts with only the first coefficient at T^0 */
 	///Indefinite integral of a polynomial divided by its independent variable
 	double simpleFracInt(std::vector<double> const& coefficients, double T);
 	///Definite integral from T0 to T1 of a polynomial divided by its independent variable
@@ -101,6 +100,40 @@ private:
 	double simpleFracInt(std::vector<std::vector<double> > const& coefficients, double x, double T);
 	///Definite integral from T0 to T1 of a polynomial divided by its 2nd independent variable
 	double simpleFracInt(std::vector<std::vector<double> > const& coefficients, double x, double T1, double T0);
+
+
+	/** Simple integrated centred(!) polynomial function generator divided by independent variable.
+	 *  We need to rewrite some of the functions in order to
+	 *  use central fit. Having a central temperature Tbase
+	 *  allows for a better fit, but requires a different
+	 *  formulation of the fracInt function group. Other
+	 *  functions are not affected.
+	 *  Starts with only the first coefficient at T^0 */
+	///Helper function to calculate the D vector:
+	double factorial(double nValue);
+	double binom(double nValue, double nValue2);
+	std::vector<double> fracIntCentralDvector(int m, double T, double Tbase);
+	std::vector<double> fracIntCentralDvector(int m, double T1, double T0, double Tbase);
+	///Indefinite integral of a centred polynomial divided by its independent variable
+	double fracIntCentral(std::vector<double> const& coefficients, double T, double Tbase){
+		int m = coefficients.size();
+		std::vector<double> D = fracIntCentralDvector(m, T, Tbase);
+		double result = 0;
+		for(int j=0; j<m; j++) {
+			result += coefficients[j] * D[j];
+		}
+		return result;
+	}
+	///Definite integral from T0 to T1 of a centred polynomial divided by its independent variable
+	double fracIntCentral(std::vector<double> const& coefficients, double T1, double T0, double Tbase){
+		int m = coefficients.size();
+		std::vector<double> D = fracIntCentralDvector(m, T1, T0, Tbase);
+		double result = 0;
+		for(int j=0; j<m; j++) {
+			result += coefficients[j] * D[j];
+		}
+		return result;
+	}
 
 
 	/// Horner function generator implementations
@@ -186,6 +219,22 @@ private:
 		std::vector<double> newCoeffs;
 		for (unsigned int i=0; i<coefficients.size(); i++){
 			newCoeffs.push_back(polyfracint(coefficients[i],T1,T0));
+		}
+		return polyval(newCoeffs,x);
+	}
+	///Indefinite integral of a centred polynomial divided by its 2nd independent variable
+	double fracIntCentral2Steps(std::vector<std::vector<double> > const& coefficients, double x, double T, double Tbase){
+		std::vector<double> newCoeffs;
+		for (unsigned int i=0; i<coefficients.size(); i++){
+			newCoeffs.push_back(fracIntCentral(coefficients[i], T, Tbase));
+		}
+		return polyval(newCoeffs,x);
+	}
+	///Definite integral from T0 to T1 of a centred polynomial divided by its 2nd independent variable
+	double fracIntCentral2Steps(std::vector<std::vector<double> > const& coefficients, double x, double T1, double T0, double Tbase){
+		std::vector<double> newCoeffs;
+		for (unsigned int i=0; i<coefficients.size(); i++){
+			newCoeffs.push_back(fracIntCentral(coefficients[i], T1, T0, Tbase));
 		}
 		return polyval(newCoeffs,x);
 	}
@@ -294,6 +343,44 @@ public:
 		//return baseHornerFracInt(coefficients,x,T1,T0);
 		return fracIntIn2Steps(coefficients,x,T1,T0);
 	}
+
+	/// Evaluates the indefinite integral of a centred one-dimensional polynomial divided by its independent variable
+	/// @param coefficients vector containing the ordered coefficients
+	/// @param T double value that represents the current position
+	/// @param Tbase central temperature for fitted function
+	double polyfracintcentral(std::vector<double> const& coefficients, double T, double Tbase){
+		return fracIntCentral(coefficients,T,Tbase);
+	}
+
+	/// Evaluates the definite integral of a centred one-dimensional polynomial divided by its independent variable
+	/// @param coefficients vector containing the ordered coefficients
+	/// @param T1 double value that represents the current position
+	/// @param T0 double value that represents the reference state
+	/// @param Tbase central temperature for fitted function
+	double polyfracintcentral(std::vector<double> const& coefficients, double T1, double T0, double Tbase){
+		return fracIntCentral(coefficients,T1,T0,Tbase);
+	}
+
+	/// Evaluates the indefinite integral of a centred two-dimensional polynomial divided by its 2nd independent variable
+	/// @param coefficients vector containing the ordered coefficients
+	/// @param x double value that represents the current input in the 1st dimension
+	/// @param T double value that represents the current input in the 2nd dimension
+	/// @param Tbase central temperature for fitted function
+	double polyfracintcentral(std::vector< std::vector<double> > const& coefficients, double x, double T, double Tbase){
+		return fracIntCentral2Steps(coefficients,x,T,Tbase);
+	}
+
+	/// Evaluates the definite integral of a centred two-dimensional polynomial divided by its 2nd independent variable
+	/// @param coefficients vector containing the ordered coefficients
+	/// @param x double value that represents the current input in the 1st dimension
+	/// @param T1 double value that represents the current input in the 2nd dimension
+	/// @param T0 double value that represents the reference state in the 2nd dimension
+	/// @param Tbase central temperature for fitted function
+	double polyfracintcentral(std::vector< std::vector<double> > const& coefficients, double x, double T1, double T0, double Tbase){
+		return fracIntCentral2Steps(coefficients,x,T1,T0,Tbase);
+	}
+
+
 
 	/// Evaluates an exponential function for the given coefficients
 	/// @param coefficients vector containing the ordered coefficients
