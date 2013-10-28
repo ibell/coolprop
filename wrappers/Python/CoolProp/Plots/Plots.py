@@ -6,7 +6,11 @@ import math
 import numpy
 
 import matplotlib
+
 from matplotlib import transforms
+from matplotlib import texmanager
+from matplotlib import mathtext
+from matplotlib import font_manager
 from matplotlib.contour import ContourSet
 
 import CoolProp.CoolProp as CP
@@ -50,6 +54,89 @@ def drawLines(Ref,lines,axis,plt_kwargs=None):
             plottedLines.extend([line])
 
     return plottedLines
+
+class InlineLabel(object):
+    BBOX_OPTS = dict(boxstyle='square,pad=0.2',
+                     fc='white',
+                     ec='None',
+                     alpha=0.9)
+
+    def __init__(self, line, fsize, xloc, axis=None):
+        self.line = line
+        self.fsize = fsize
+        self.xloc = xloc
+        self.axis = axis
+        if axis is None:
+            self.axis = matplotlib.pyplot.gca()
+        self.axis_transform = self.axis.transData
+
+        self.badness = []
+        self.theta = []
+        self.transforms = []
+        self.bounds = []
+
+        self.__init_badness_transforms_bounds()
+
+    def __init_badness_transforms_bounds(self):
+        x_vals = self.line['x']
+        y_vals = self.line['y']
+        loc_index = numpy.argmin(numpy.abs(x_vals - self.xloc))
+        badness = numpy.array([i for i in range(len(x_vals))])
+
+        self.bounds = []
+        self.theta = []
+        self.transforms = []
+        txt_width, txt_height = self.get_text_width_height()
+        for i in range(len(x_vals)-1):
+            rot_transform = transforms.Affine2D()
+            theta = math.atan((y_vals[i+1] - y_vals[i]) /
+                              (x_vals[i+1] - x_vals[i]))
+            rot_transform.rotate(theta)
+            self.transforms.append(self.axis_transform + rot_transform)
+
+            text_loc = numpy.array([x_vals[i], y_vals[i]])
+            trans_angle = self.axis_transform.transform_angles
+            theta = trans_angle(numpy.array((theta,)),
+                                text_loc.reshape((1, 2)),
+                                radians=True)
+            self.theta.append(theta)
+
+        self.theta.append(self.theta[-1])
+        self.transforms.append(self.transforms[-1])
+        self.badness = numpy.abs(badness - loc_index)
+
+    def get_text_width_height(self):
+        #START - Adapted from matplotlib source
+        label, ismath = matplotlib.text.Text.is_math_text(self.line['label'])
+        if ismath == 'TeX':
+            tex_sizes = texmanager.TexManager().get_text_width_height_descent
+            txt_width, txt_height, _ = tex_sizes(label, self.fsize)
+        elif ismath:
+            mathtext_parser = mathtext.MathTextParser('bitmap')
+            labelFontProps = font_manager.FontProperties()
+            img, _ = mathtext_parser.parse(label, dpi=72, prop=labelFontProps)
+            #at dpi=72, the units are PostScript points
+            txt_width = img.get_width()
+            txt_height = img.get_height()
+        else:
+            txt_width = (len(label)) * self.fsize * 0.6
+            txt_height = self.fsize * 0.6
+        #END - Adapted from matplotlib source
+        return txt_width, txt_height
+
+    def place_label(self):
+        x_vals = self.line['x']
+        y_vals = self.line['y']
+        loc_index = numpy.argmin(self.badness)
+        rotation = math.degrees(self.theta[loc_index])
+        text = self.axis.text(x_vals[loc_index], y_vals[loc_index],
+                              self.line['label'],
+                              verticalalignment='center',
+                              horizontalalignment='center',
+                              color='b',
+                              bbox=self.BBOX_OPTS,
+                              rotation=rotation)
+        return text
 
 
 class IsoLines(BasePlot):
@@ -267,70 +354,73 @@ class IsoLines(BasePlot):
         #    for c,l in enumerate(ll):
         #        drawIsoLines(Ref, plot, l, iValues=iValues[c], num=num, axis=axis, fig=fig)
 
-    def add_inline_labels(self, xloc=None, method='auto'):
-        bbox_opts = dict(boxstyle='square,pad=0.2',
-                         fc='white', ec='None', alpha = 0.9)
+    def __add_pyplot_inline_labels(self):
+        cs_levels = []
+        cs_lines = []
+        for i, line in enumerate(self.lines):
+            x_vals = line['x']
+            y_vals = line['y']
 
+            cs_levels.append(i)
+            cs_lines.append([zip(x_vals, y_vals)])
+
+        matplotlib.rcParams['contour.negative_linestyle'] = 'solid'
+        CS = ContourSet(self.axis, cs_levels, cs_lines,
+                        colors=self.COLOR_MAP[self.iso_type])
+        CS.clabel(use_clabeltext=True)
+        return CS
+
+    def __add_auto_inline_labels(self, xloc, auto=True):
+        all_labels = []
+        for i, line in enumerate(self.lines):
+            label = InlineLabel(line, 10, xloc[i], self.axis)
+            if auto:
+                pass
+                #label.update_badness(all_labels)
+            label.place_label()
+
+    def add_inline_labels(self, xloc=None, method='auto'):
         if not self.lines:
-            raise ValueError('asdasd')
+            raise ValueError(''.join(['This function can only be called ',
+                                      'after the IsoLines.draw_isolines ',
+                                      'function']))
 
         if method == 'pyplot':
-            cs_levels = []
-            cs_lines = []
-            for i, line in enumerate(self.lines):
-                x_vals = line['x']
-                y_vals = line['y']
+            return self.__add_pyplot_inline_labels()
 
-                cs_levels.append(i)
-                cs_lines.append([zip(x_vals, y_vals)])
+        elif method == 'center':
+            if not isinstance(xloc, (int, float)):
+                raise TypeError(''.join(["Expected an xloc value ",
+                                         "for method %s" % method]))
+            xloc = [xloc] * len(self.lines)
+            return self.__add_auto_inline_labels(xloc, auto=False)
 
-            matplotlib.rcParams['contour.negative_linestyle'] = 'solid'
-            CS = ContourSet(self.axis, cs_levels, cs_lines,
-                            colors=self.COLOR_MAP[self.iso_type])
-            CS.clabel(use_clabeltext=True)
-            return CS
+        elif method == 'manual':
+            if not isinstance(xloc, (tuple, list)):
+                raise TypeError(''.join(["Expected an xloc iterable for ",
+                                         "method %s" % method]))
+            if len(xloc) != len(self.lines):
+                raise IndexError(''.join(['Expected one xloc value for ',
+                                          'each line. Given %d ' % len(xloc),
+                                          'locations for %d ' % len(self.lines),
+                                          'iso-lines.']))
+            return self.__add_auto_inline_labels(xloc, auto=False)
+
+        elif method == 'auto':
+            if xloc is None:
+                raise TypeError(''.join(["Expected at least one xloc value ",
+                                         "for method %s" % method]))
+            if isinstance(xloc, (tuple, list)) and len(xloc) != len(self.lines):
+                print(''.join(['WARNING: Given %d ' % len(xloc),
+                               'locations for %d ' % len(self.lines),
+                               'iso-lines. Only using the first entry in xloc.']))
+                xloc = [xloc[0]] * len(self.lines)
+            if isinstance(xloc, (int, float)):
+                xloc = [xloc] * len(self.lines)
+            return self.__add_auto_inline_labels(xloc)
 
         else:
-            if xloc is None:
-                raise ValueError(''.join(["Please enter a xloc value of a ",
-                                          "list of xloc values for method ",
-                                          "%s" % method]))
-
-            if method == 'center':
-                if not isinstance(xloc, int):
-                    raise TypeError(''.join(["Expected an int xloc value ",
-                                             "for method %s" % method]))
-
-                xloc = [xloc] * len(self.lines)
-
-            if method == 'manual':
-                if not isinstance(xloc, (tuple, list)):
-                    raise TypeError(''.join(["Expected an xloc iterable for ",
-                                             "method %s" % method]))
-
-            for i, line in enumerate(self.lines):
-                x_vals = line['x']
-                y_vals = line['y']
-
-                loc = numpy.argmin(numpy.abs(x_vals - xloc[i]))
-
-                theta = math.atan((y_vals[loc+1] - y_vals[loc]) /
-                                  (x_vals[loc+1] - x_vals[loc]))
-                text_loc = numpy.array([x_vals[loc], y_vals[loc]])
-
-                transform = self.axis.transData
-                trans_angle = transform.transform_angles(numpy.array((theta,)),
-                                                         text_loc.reshape((1, 2)),
-                                                         radians=True)
-
-                self.axis.text(text_loc[0], text_loc[1],
-                               line['label'],
-                               verticalalignment='center',
-                               horizontalalignment='center',
-                               color=self.COLOR_MAP[self.iso_type],
-                               bbox=bbox_opts,
-                               rotation=math.degrees(trans_angle))
-
+            raise KeyError('Unknown method %s' % method)
 
 
 class PropsPlot(BasePlot):
