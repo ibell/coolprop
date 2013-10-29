@@ -149,6 +149,18 @@ protected:
 
 public:
 
+	//CoolPropStateClassSI(CoolPropStateClassSI const&);  // for copying
+	CoolPropStateClassSI copy(void){
+		if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION)
+		{
+			return CoolPropStateClassSI(this->get_name());
+		}
+		else
+		{
+			return CoolPropStateClassSI(this->pFluid);
+		}
+	};
+
 	long fluid_type;
 
 	/// A pointer to the class for an incompressible liquid
