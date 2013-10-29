@@ -213,7 +213,7 @@ class NitrateSalt(LiquidData):
     c_p     = f_cp(temp)      # J/kg-K
     lam     = f_lam(temp)     # W/m-K
     mu_dyn  = f_mu(temp)/1e3  # Pa-s
-    psat    = temp * 1e3      # Pa 
+    psat    = temp * 0        # Pa 
     Tmin    = numpy.min(T)
     Tmax    = numpy.max(T)
     TminPsat= Tmax 
@@ -253,7 +253,7 @@ class HC50(LiquidData):
     Tmin    = numpy.min(T)
     Tmax    = numpy.max(T)
     TminPsat= 20+273.15 
-    Name    = "HC-50"
+    Name    = "HC50"
     Desc    = "Dynalene "+Name
 
    
@@ -271,7 +271,7 @@ class HC40(LiquidData):
     Tmin    = numpy.min(T)
     Tmax    = numpy.max(T)
     TminPsat= 20+273.15  
-    Name    = "HC-40"
+    Name    = "HC40"
     Desc    = "Dynalene "+Name
 
     
@@ -289,7 +289,7 @@ class HC30(LiquidData):
     Tmin    = numpy.min(T)
     Tmax    = numpy.max(T)
     TminPsat= 20+273.15  
-    Name    = "HC-30"
+    Name    = "HC30"
     Desc    = "Dynalene "+Name
     
     
@@ -307,7 +307,7 @@ class HC20(LiquidData):
     Tmin    = numpy.min(T)
     Tmax    = numpy.max(T)
     TminPsat= 20+273.15  
-    Name    = "HC-20"
+    Name    = "HC20"
     Desc    = "Dynalene "+Name
     
 
@@ -325,7 +325,7 @@ class HC10(LiquidData):
     Tmin    = numpy.min(T)
     Tmax    = numpy.max(T)
     TminPsat= 20+273.15  
-    Name    = "HC-10"
+    Name    = "HC10"
     Desc    = "Dynalene "+Name
   
     

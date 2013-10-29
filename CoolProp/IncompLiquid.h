@@ -175,7 +175,7 @@ public:
     	if (T_K<TminPsat || TminPsat<0){
     		return -1.;
     	} else {
-    		return expval(cPsat, T_K, 1)*1000.;
+    		return expval(cPsat, T_K, 1);
     	}
     };
 };
@@ -473,36 +473,36 @@ public:
         description = std::string("Therminol D12");
         reference = std::string("Therminol2007");
 
-		Tmin     = 188.15;
-		Tmax     = 503.15;
-		TminPsat = 188.15;
+        Tmin     = 188.15;
+        Tmax     = 503.15;
+        TminPsat = 188.15;
 
         cRho.clear();
-        cRho.push_back(+9.8912069747E+02);
-        cRho.push_back(-9.2980872967E-01);
-        cRho.push_back(+1.0537501330E-03);
-        cRho.push_back(-1.5498115143E-06);
+        cRho.push_back(+9.8351112723E+02);
+        cRho.push_back(-9.2980873989E-01);
+        cRho.push_back(+1.0537525196E-03);
+        cRho.push_back(-1.5498113539E-06);
 
         cHeat.clear();
-        cHeat.push_back(+1.0054715109E+03);
-        cHeat.push_back(+3.6645441085E-00);
-        cHeat.push_back(-3.5878725087E-04);
-        cHeat.push_back(+1.7370907291E-06);
+        cHeat.push_back(+9.8364476562E+02);
+        cHeat.push_back(+3.8726050231E+00);
+        cHeat.push_back(-9.8766309005E-04);
+        cHeat.push_back(+2.3435575994E-06);
 
         cCond.clear();
-        cCond.push_back(+1.4137409270E-04);
-        cCond.push_back(-5.9980348657E-08);
-        cCond.push_back(-1.6084318930E-10);
+        cCond.push_back(+1.4137409273E-01);
+        cCond.push_back(-5.9980348818E-05);
+        cCond.push_back(-1.6084318907E-07);
 
         cVisc.clear();
-        cVisc.push_back(+5.6521090296E+02);
-        cVisc.push_back(-1.2468427867E+02);
-        cVisc.push_back(+1.0064677591E+01);
+        cVisc.push_back(+5.6521089774E+02);
+        cVisc.push_back(-1.2468427934E+02);
+        cVisc.push_back(+1.0064677576E+01);
 
         cPsat.clear();
-        cPsat.push_back(-3.4575358244E+03);
-        cPsat.push_back(-8.2860659840E+01);
-        cPsat.push_back(-1.3662144073E+01);
+        cPsat.push_back(-3.4575358232E+03);
+        cPsat.push_back(-8.2860659877E+01);
+        cPsat.push_back(-2.0569899350E+01);
     };
 };
 
@@ -513,76 +513,36 @@ public:
         description = std::string("Therminol VP-1");
         reference = std::string("Therminol2007");
 
-		Tmin     = 285.15;
-		Tmax     = 670.15;
-		TminPsat = 285.15;
+        Tmin     = 285.15;
+        Tmax     = 670.15;
+        TminPsat = 285.15;
 
         cRho.clear();
-        cRho.push_back(+1.4027135186E+03);
-        cRho.push_back(-1.6132555941E+00);
-        cRho.push_back(+2.1378377260E-03);
-        cRho.push_back(-1.9310694457E-06);
+        cRho.push_back(+1.4027134791E+03);
+        cRho.push_back(-1.6132556454E+00);
+        cRho.push_back(+2.1378385004E-03);
+        cRho.push_back(-1.9310694268E-06);
 
         cHeat.clear();
-        cHeat.push_back(+6.8006101123E+02);
-        cHeat.push_back(+3.2230860459E-00);
-        cHeat.push_back(-1.0974690747E-03);
-        cHeat.push_back(+8.1520085319E-07);
+        cHeat.push_back(+2.8811134920E+02);
+        cHeat.push_back(+5.8749383495E+00);
+        cHeat.push_back(-6.8565802314E-03);
+        cHeat.push_back(+4.8441771885E-06);
 
         cCond.clear();
-        cCond.push_back(+1.4898820998E-04);
-        cCond.push_back(+7.4237593304E-09);
-        cCond.push_back(-1.7298441018E-10);
+        cCond.push_back(+1.4898820987E-01);
+        cCond.push_back(+7.4237598012E-06);
+        cCond.push_back(-1.7298441066E-07);
 
         cVisc.clear();
-        cVisc.push_back(+1.0739262832E+03);
-        cVisc.push_back(-8.3841430000E+01);
-        cVisc.push_back(+1.0616847342E+01);
+        cVisc.push_back(+1.0739262698E+03);
+        cVisc.push_back(-8.3841432169E+01);
+        cVisc.push_back(+1.0616847324E+01);
 
         cPsat.clear();
-        cPsat.push_back(-4.3138714899E+03);
-        cPsat.push_back(-8.7431401773E+01);
-        cPsat.push_back(-1.4358490536E+01);
-    };
-};
-
-class Therminol72Class : public SimpleIncompressible{
-public:
-	Therminol72Class(){
-        name = std::string("T72");
-        description = std::string("Therminol 72");
-        reference = std::string("Therminol2007");
-
-		Tmin     = 263.15;
-		Tmax     = 653.15;
-		TminPsat = 263.15;
-
-        cRho.clear();
-        cRho.push_back(+1.3673153689E+03);
-        cRho.push_back(-1.0611213813E+00);
-        cRho.push_back(+3.3724996764E-04);
-        cRho.push_back(-2.3561359575E-07);
-
-        cHeat.clear();
-        cHeat.push_back(+6.9155653776E+02);
-        cHeat.push_back(+3.1812352525E-00);
-        cHeat.push_back(-1.0707667973E-03);
-        cHeat.push_back(+7.8051070556E-07);
-
-        cCond.clear();
-        cCond.push_back(+1.7514206629E-04);
-        cCond.push_back(-1.2131347168E-07);
-        cCond.push_back(-4.0980786601E-14);
-
-        cVisc.clear();
-        cVisc.push_back(+6.8390609525E+02);
-        cVisc.push_back(-1.8024922198E+02);
-        cVisc.push_back(+1.0066296789E+01);
-
-        cPsat.clear();
-        cPsat.push_back(-1.7535987063E+06);
-        cPsat.push_back(+9.8874585029E+03);
-        cPsat.push_back(-1.7271828471E+02);
+        cPsat.push_back(-4.3138714911E+03);
+        cPsat.push_back(-8.7431401731E+01);
+        cPsat.push_back(-2.1266245816E+01);
     };
 };
 
@@ -593,34 +553,76 @@ public:
         description = std::string("Therminol 66");
         reference = std::string("Therminol2007");
 
-		Tmin     = 273.15;
-		Tmax     = 618.15;
-		TminPsat = 273.15;
+        Tmin     = 273.15;
+        Tmax     = 653.15;
+        TminPsat = 343.15;
 
         cRho.clear();
-        cRho.push_back(+1164.45337);
-        cRho.push_back(-0.4388917);
-        cRho.push_back(-0.000321);
+        cRho.push_back(+1.1644533740E+03);
+        cRho.push_back(-4.3889170000E-01);
+        cRho.push_back(-3.2100000000E-04);
+        cRho.push_back(+3.7806951741E-20);
 
         cHeat.clear();
-        cHeat.push_back(+657.990904);
-        cHeat.push_back(+2.82292602);
-        cHeat.push_back(+0.0008970785);
+        cHeat.push_back(+6.5799090444E+02);
+        cHeat.push_back(+2.8229260154E+00);
+        cHeat.push_back(+8.9707850000E-04);
+        cHeat.push_back(-6.3169106168E-20);
 
         cCond.clear();
-        cCond.push_back(+0.116116312);
-        cCond.push_back(+0.000048945);
-        cCond.push_back(-1.50000000E-07);
+        cCond.push_back(+1.1611631163E-01);
+        cCond.push_back(+4.8945000000E-05);
+        cCond.push_back(-1.5000000000E-07);
 
         cVisc.clear();
-        cVisc.push_back(+586.375);
-        cVisc.push_back(-210.6500E0);
-        cVisc.push_back(-2.2809);
+        cVisc.push_back(+6.6720362621E+02);
+        cVisc.push_back(-2.0480017928E+02);
+        cVisc.push_back(+9.5933675483E+00);
 
         cPsat.clear();
-        cPsat.push_back(-9094.51);
-        cPsat.push_back(+66.8500E0);
-        cPsat.push_back(+24.54486E0);
+        cPsat.push_back(-9.0945100000E+03);
+        cPsat.push_back(+6.6850000000E+01);
+        cPsat.push_back(-2.4544855279E+01);
+    };
+};
+
+class Therminol72Class : public SimpleIncompressible{
+public:
+	Therminol72Class(){
+        name = std::string("T72");
+        description = std::string("Therminol 72");
+        reference = std::string("Therminol2007");
+
+        Tmin     = 263.15;
+        Tmax     = 653.15;
+        TminPsat = 263.15;
+
+        cRho.clear();
+        cRho.push_back(+1.3571809600E+03);
+        cRho.push_back(-9.8961574320E-01);
+        cRho.push_back(+1.7605076030E-04);
+        cRho.push_back(-1.1893027931E-07);
+
+        cHeat.clear();
+        cHeat.push_back(+7.5732470240E+02);
+        cHeat.push_back(+2.7131176015E+00);
+        cHeat.push_back(-6.5480236953E-06);
+        cHeat.push_back(+4.2717093140E-09);
+
+        cCond.clear();
+        cCond.push_back(+1.7514206624E-01);
+        cCond.push_back(-1.2131347146E-04);
+        cCond.push_back(-4.0981053641E-11);
+
+        cVisc.clear();
+        cVisc.push_back(+6.8390591135E+02);
+        cVisc.push_back(-1.8024924396E+02);
+        cVisc.push_back(+1.0066296341E+01);
+
+        cPsat.clear();
+        cPsat.push_back(-2.9571373614E+05);
+        cPsat.push_back(+3.7936374754E+03);
+        cPsat.push_back(-7.9704232489E+01);
     };
 };
 
@@ -637,31 +639,31 @@ public:
         TminPsat = 323.15;
 
         cRho.clear();
-        cRho.push_back(+1.1413344279E+03);
-        cRho.push_back(-1.4313342250E+00);
-        cRho.push_back(+2.4904467725E-03);
-        cRho.push_back(-2.9222650181E-06);
+        cRho.push_back(+1.1413344369E+03);
+        cRho.push_back(-1.4313342989E+00);
+        cRho.push_back(+2.4904469643E-03);
+        cRho.push_back(-2.9222651755E-06);
 
         cHeat.clear();
-        cHeat.push_back(+1.1465102196E+03);
-        cHeat.push_back(+2.1016260744E-00);
-        cHeat.push_back(-2.2151557961E-04);
-        cHeat.push_back(+3.5493927846E-06);
+        cHeat.push_back(+9.6069502370E+02);
+        cHeat.push_back(+3.6462333255E+00);
+        cHeat.push_back(-4.2068387567E-03);
+        cHeat.push_back(+6.7827145865E-06);
 
         cCond.clear();
-        cCond.push_back(+1.8990894157E-04);
-        cCond.push_back(-2.0921055014E-07);
-        cCond.push_back(-3.2093835108E-12);
+        cCond.push_back(+1.8990894140E-01);
+        cCond.push_back(-2.0921054918E-04);
+        cCond.push_back(-3.2093847177E-09);
 
         cVisc.clear();
-        cVisc.push_back(+7.0617903908E+02);
-        cVisc.push_back(-6.4144266810E+01);
-        cVisc.push_back(+1.0083412137E+01);
+        cVisc.push_back(+7.0729353166E+02);
+        cVisc.push_back(-6.3966539111E+01);
+        cVisc.push_back(+1.0085461875E+01);
 
         cPsat.clear();
-        cPsat.push_back(-3.1876260646E+03);
-        cPsat.push_back(-9.7927481216E+01);
-        cPsat.push_back(-1.3576473644E+01);
+        cPsat.push_back(-3.1876142878E+03);
+        cPsat.push_back(-9.7928074744E+01);
+        cPsat.push_back(-2.0484211718E+01);
     };
 };
 
@@ -677,31 +679,31 @@ public:
         TminPsat = 393.15;
 
         cRho.clear();
-        cRho.push_back(+1.2033276517E+03);
-        cRho.push_back(-8.6829872708E-01);
-        cRho.push_back(+2.4832944517E-04);
-        cRho.push_back(-1.7756195502E-07);
+        cRho.push_back(+1.2033275827E+03);
+        cRho.push_back(-8.6829833766E-01);
+        cRho.push_back(+2.4832881863E-04);
+        cRho.push_back(-1.7756119683E-07);
 
         cHeat.clear();
-        cHeat.push_back(+6.5777357045E+02);
-        cHeat.push_back(+3.6209780444E-00);
-        cHeat.push_back(-8.3411429568E-04);
-        cHeat.push_back(+2.2428632290E-07);
+        cHeat.push_back(+6.8024152924E+02);
+        cHeat.push_back(+3.4510813383E+00);
+        cHeat.push_back(-4.2748801499E-04);
+        cHeat.push_back(-8.5970499813E-08);
 
         cCond.clear();
-        cCond.push_back(+1.5381076522E-04);
-        cCond.push_back(-9.0635332826E-08);
-        cCond.push_back(-6.2655520375E-11);
+        cCond.push_back(+1.5381076524E-01);
+        cCond.push_back(-9.0635332892E-05);
+        cCond.push_back(-6.2655520296E-08);
 
         cVisc.clear();
-        cVisc.push_back(+8.2860901385E+02);
-        cVisc.push_back(-1.2328762577E+02);
-        cVisc.push_back(+1.0441389876E+01);
+        cVisc.push_back(+8.2860901780E+02);
+        cVisc.push_back(-1.2328762540E+02);
+        cVisc.push_back(+1.0441389885E+01);
 
         cPsat.clear();
-        cPsat.push_back(-2.8419253596E+03);
-        cPsat.push_back(-1.7104225035E+02);
-        cPsat.push_back(-1.2287974574E+01);
+        cPsat.push_back(-2.8419559652E+03);
+        cPsat.push_back(-1.7104073646E+02);
+        cPsat.push_back(-1.9195781229E+01);
     };
 };
 
@@ -718,31 +720,31 @@ public:
         TminPsat = 313.15;
 
         cRho.clear();
-        cRho.push_back(+1.0828544822E+03);
-        cRho.push_back(-9.4455188837E-01);
-        cRho.push_back(+9.2414382570E-04);
-        cRho.push_back(-9.5365432963E-07);
+        cRho.push_back(+1.0828544667E+03);
+        cRho.push_back(-9.4455186919E-01);
+        cRho.push_back(+9.2414399492E-04);
+        cRho.push_back(-9.5365423381E-07);
 
         cHeat.clear();
-        cHeat.push_back(+7.5687081085E+02);
-        cHeat.push_back(+3.9761218594E-00);
-        cHeat.push_back(-5.5667939231E-04);
-        cHeat.push_back(+2.5261546566E-07);
+        cHeat.push_back(+7.7399470257E+02);
+        cHeat.push_back(+3.8528705501E+00);
+        cHeat.push_back(-2.7313597680E-04);
+        cHeat.push_back(+4.3191182489E-08);
 
         cCond.clear();
-        cCond.push_back(+1.5246860039E-04);
-        cCond.push_back(-5.9875212755E-08);
-        cCond.push_back(-1.4202281813E-11);
+        cCond.push_back(+1.5246860010E-01);
+        cCond.push_back(-5.9875211524E-05);
+        cCond.push_back(-1.4202283025E-08);
 
         cVisc.clear();
-        cVisc.push_back(+8.8295946693E+02);
-        cVisc.push_back(-1.7261015850E+02);
-        cVisc.push_back(+9.6466061591E+00);
+        cVisc.push_back(+8.8295948920E+02);
+        cVisc.push_back(-1.7261015666E+02);
+        cVisc.push_back(+9.6466062231E+00);
 
         cPsat.clear();
-        cPsat.push_back(-8.8967639918E+03);
-        cPsat.push_back(-4.3465054898E+01);
-        cPsat.push_back(-1.7472312925E+01);
+        cPsat.push_back(-8.8969171641E+03);
+        cPsat.push_back(-4.3461866340E+01);
+        cPsat.push_back(-2.4380261252E+01);
     };
 };
 
@@ -759,26 +761,26 @@ public:
         TminPsat = 873.15;
 
         cRho.clear();
-        cRho.push_back(+2.3537711479E+03);
-        cRho.push_back(-1.0161832139E+00);
-        cRho.push_back(+5.2992982291E-04);
-        cRho.push_back(-2.4393584453E-07);
+        cRho.push_back(+2.2637234000E+03);
+        cRho.push_back(-6.3600000000E-01);
+        cRho.push_back(-4.4160301079E-16);
+        cRho.push_back(+2.0083875178E-19);
 
         cHeat.clear();
         cHeat.push_back(+1.3960182000E+03);
-        cHeat.push_back(+1.7200000001E-01);
-        cHeat.push_back(-9.4083072373E-15);
-        cHeat.push_back(+4.3126550326E-18);
+        cHeat.push_back(+1.7200000000E-01);
+        cHeat.push_back(-3.4511849814E-17);
+        cHeat.push_back(+1.7449850640E-20);
 
         cCond.clear();
-        cCond.push_back(+3.9112042040E-04);
-        cCond.push_back(+1.8994695528E-07);
-        cCond.push_back(-1.7231213093E-14);
+        cCond.push_back(+3.9110150000E-01);
+        cCond.push_back(+1.9000000000E-04);
+        cCond.push_back(+6.2250839227E-21);
 
         cVisc.clear();
-        cVisc.push_back(+4.7467257729E+02);
-        cVisc.push_back(-3.3943569667E+02);
-        cVisc.push_back(+7.7431109317E+00);
+        cVisc.push_back(+4.7467256848E+02);
+        cVisc.push_back(-3.3943569983E+02);
+        cVisc.push_back(+7.7431109204E+00);
 
         cPsat.clear();
     };
@@ -798,28 +800,233 @@ public:
         TminPsat = 533.15;
 
         cRho.clear();
-        cRho.push_back(+1.1563685147E+03);
-        cRho.push_back(-1.0269048053E+00);
-        cRho.push_back(-9.3505449092E-07);
-        cRho.push_back(+1.0368054566E-09);
+        cRho.push_back(+1.1563685145E+03);
+        cRho.push_back(-1.0269048032E+00);
+        cRho.push_back(-9.3506079577E-07);
+        cRho.push_back(+1.0368116627E-09);
 
         cHeat.clear();
-        cHeat.push_back(+1.1122510494E+03);
-        cHeat.push_back(+2.5171817500E-00);
-        cHeat.push_back(-1.2392094684E-03);
-        cHeat.push_back(+1.1624033307E-06);
+        cHeat.push_back(+1.1562261074E+03);
+        cHeat.push_back(+2.0994549103E+00);
+        cHeat.push_back(+7.7175381057E-07);
+        cHeat.push_back(-3.7008444051E-20);
 
         cCond.clear();
-        cCond.push_back(+1.6121957379E-04);
-        cCond.push_back(-1.3023781944E-07);
-        cCond.push_back(-1.4395238759E-10);
+        cCond.push_back(+1.6121957379E-01);
+        cCond.push_back(-1.3023781944E-04);
+        cCond.push_back(-1.4395238766E-07);
 
         cVisc.clear();
-        cVisc.push_back(+1.0337654975E+03);
-        cVisc.push_back(-4.3322764492E+01);
-        cVisc.push_back(+1.0715062353E+01);
+        cVisc.push_back(+1.0337654989E+03);
+        cVisc.push_back(-4.3322764383E+01);
+        cVisc.push_back(+1.0715062356E+01);
 
         cPsat.clear();
+    };
+};
+
+class HC50Class : public SimpleIncompressible{
+public:
+        HC50Class(){
+
+        description = std::string("Dynalene HC-50");
+        name = std::string("HC50");
+		reference = std::string("Dynalene data sheet");
+
+		Tmin     = 223.15;
+		Tmax     = 483.15;
+		TminPsat = 293.15;
+
+		cRho.clear();
+		cRho.push_back(+1.4989450835E+03);
+		cRho.push_back(-5.2796479536E-01);
+		cRho.push_back(-7.1686735997E-05);
+		cRho.push_back(+6.2219602450E-08);
+
+		cHeat.clear();
+		cHeat.push_back(+2.1287827711E+03);
+		cHeat.push_back(+1.9224638196E+00);
+		cHeat.push_back(+1.3287279132E-04);
+		cHeat.push_back(-1.2116448898E-07);
+
+		cCond.clear();
+		cCond.push_back(+2.1115985069E-01);
+		cCond.push_back(+1.0044355501E-03);
+		cCond.push_back(-6.8418171866E-09);
+
+		cVisc.clear();
+		cVisc.push_back(+5.1474948873E+02);
+		cVisc.push_back(-1.2991405965E+02);
+		cVisc.push_back(+8.8804895031E+00);
+
+		cPsat.clear();
+		cPsat.push_back(-4.1833595311E+03);
+		cPsat.push_back(-3.3779925774E+01);
+		cPsat.push_back(-2.3219027215E+01);
+    };
+};
+
+class HC40Class : public SimpleIncompressible{
+public:
+        HC40Class(){
+
+        description = std::string("Dynalene HC-40");
+        name = std::string("HC40");
+        reference = std::string("Dynalene data sheet");
+
+        Tmin     = 233.15;
+        Tmax     = 473.15;
+        TminPsat = 293.15;
+
+        cRho.clear();
+        cRho.push_back(+1.4720776473E+03);
+        cRho.push_back(-5.0388465311E-01);
+        cRho.push_back(-1.4487525769E-04);
+        cRho.push_back(+1.2228923117E-07);
+
+        cHeat.clear();
+        cHeat.push_back(+2.2849444547E+03);
+        cHeat.push_back(+2.1363723550E+00);
+        cHeat.push_back(+3.3322790115E-04);
+        cHeat.push_back(-2.2099478511E-07);
+
+        cCond.clear();
+        cCond.push_back(+2.1585000000E-01);
+        cCond.push_back(+1.0000000000E-03);
+        cCond.push_back(-1.0218829918E-20);
+
+        cVisc.clear();
+        cVisc.push_back(+6.7794306641E+02);
+        cVisc.push_back(-1.0098293303E+02);
+        cVisc.push_back(+9.4355407493E+00);
+
+        cPsat.clear();
+        cPsat.push_back(-5.5466979146E+03);
+        cPsat.push_back(+1.0982652329E+01);
+        cPsat.push_back(-2.5451884216E+01);
+    };
+};
+
+class HC30Class : public SimpleIncompressible{
+public:
+        HC30Class(){
+
+        description = std::string("Dynalene HC-30");
+        name = std::string("HC30");
+        reference = std::string("Dynalene data sheet");
+
+        Tmin     = 243.15;
+        Tmax     = 483.15;
+        TminPsat = 293.15;
+
+        cRho.clear();
+        cRho.push_back(+1.4153034908E+03);
+        cRho.push_back(-4.4327434107E-01);
+        cRho.push_back(-1.5443642107E-04);
+        cRho.push_back(+1.1429794039E-07);
+
+        cHeat.clear();
+        cHeat.push_back(+2.3846023310E+03);
+        cHeat.push_back(+2.4376868197E+00);
+        cHeat.push_back(-3.5495726496E-04);
+        cHeat.push_back(+3.2206119163E-07);
+
+        cCond.clear();
+        cCond.push_back(+2.2585000000E-01);
+        cCond.push_back(+1.0000000000E-03);
+        cCond.push_back(-7.8145179951E-21);
+
+        cVisc.clear();
+        cVisc.push_back(+1.4791319182E+03);
+        cVisc.push_back(+4.3364527896E+00);
+        cVisc.push_back(+1.0940969046E+01);
+
+        cPsat.clear();
+        cPsat.push_back(-3.9183978747E+03);
+        cPsat.push_back(-4.4556553119E+01);
+        cPsat.push_back(-2.3041842217E+01);
+    };
+};
+
+class HC20Class : public SimpleIncompressible{
+public:
+        HC20Class(){
+
+        description = std::string("DynaleneHC-20");
+        name = std::string("HC20");
+        reference = std::string("Dynalene data sheet");
+
+        Tmin     = 253.15;
+        Tmax     = 483.15;
+        TminPsat = 293.15;
+
+        cRho.clear();
+        cRho.push_back(+1.3918918541E+03);
+        cRho.push_back(-5.3737521962E-01);
+        cRho.push_back(+4.1692735606E-05);
+        cRho.push_back(-2.8527564759E-08);
+
+        cHeat.clear();
+        cHeat.push_back(+2.5186678435E+03);
+        cHeat.push_back(+2.3663436544E+00);
+        cHeat.push_back(-9.6739411954E-06);
+        cHeat.push_back(+1.8768134708E-09);
+
+        cCond.clear();
+        cCond.push_back(+2.2985000000E-01);
+        cCond.push_back(+1.0000000000E-03);
+        cCond.push_back(+4.2380113949E-21);
+
+        cVisc.clear();
+        cVisc.push_back(+1.4573630736E+03);
+        cVisc.push_back(+8.3287350365E+00);
+        cVisc.push_back(+1.0986724162E+01);
+
+        cPsat.clear();
+        cPsat.push_back(-4.2012148268E+03);
+        cPsat.push_back(-3.2285491186E+01);
+        cPsat.push_back(-2.3529315156E+01);
+    };
+};
+
+class HC10Class : public SimpleIncompressible{
+public:
+        HC10Class(){
+
+        description = std::string("Dynalene HC-10");
+        name = std::string("HC10");
+        reference = std::string("Dynalene data sheet");
+
+        Tmin     = 263.15;
+        Tmax     = 491.15;
+        TminPsat = 293.15;
+
+        cRho.clear();
+        cRho.push_back(+1.3210573130E+03);
+        cRho.push_back(-4.2690361588E-01);
+        cRho.push_back(-9.9246921529E-05);
+        cRho.push_back(+1.1284336656E-07);
+
+        cHeat.clear();
+        cHeat.push_back(+2.5991164581E+03);
+        cHeat.push_back(+2.4340563753E+00);
+        cHeat.push_back(+1.2102227066E-04);
+        cHeat.push_back(-1.0475863139E-07);
+
+        cCond.clear();
+        cCond.push_back(+2.3085000000E-01);
+        cCond.push_back(+1.0000000000E-03);
+        cCond.push_back(+4.8188007943E-22);
+
+        cVisc.clear();
+        cVisc.push_back(+1.3099267208E+03);
+        cVisc.push_back(-5.1123036317E+00);
+        cVisc.push_back(+1.0880904782E+01);
+
+        cPsat.clear();
+        cPsat.push_back(-4.0554351446E+03);
+        cPsat.push_back(-3.8590604800E+01);
+        cPsat.push_back(-2.3416001339E+01);
     };
 };
 

@@ -479,6 +479,11 @@ Fluid Name                   Description
 ``TX22``                     Texatherm 22 (0 to +350 C)
 ``NaK``                      Nitrate Salt Blend (+300 to +600 C)
 ``XLT``                      Syltherm XLT (-100 to +260 C)
+``HC10``                     Dynalene HC-10 (-10 to +218 C)
+``HC20``                     Dynalene HC-20 (-20 to +210 C)
+``HC30``                     Dynalene HC-30 (-30 to +210 C)
+``HC40``                     Dynalene HC-40 (-40 to +200 C)
+``HC50``                     Dynalene HC-50 (-50 to +210 C)
 ==========================   ===================================================
 
 All fluids are implemented with polynomials for density and heat capacity with typically 4 coefficients 

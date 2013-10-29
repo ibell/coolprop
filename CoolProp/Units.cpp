@@ -18,6 +18,7 @@ double convert_from_unit_system_to_SI(long iInput, double value, int old_system)
 	case iP:
 	case iPtriple:
 	case iPcrit:
+	case iPsat:
 	case iC:
 	case iC0:
 	case iS:
@@ -88,6 +89,7 @@ double convert_from_SI_to_unit_system(long iInput, double value, int new_system)
 	case iP:
 	case iPtriple:
 	case iPcrit:
+	case iPsat:
 	case iC:
 	case iC0:
 	case iS:
