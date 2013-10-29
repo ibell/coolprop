@@ -78,7 +78,8 @@ double R1233zdEClass::rhosatL(double T)
     {
         summer+=Ni[i]*pow(theta,ti[i]);
     }
-    return reduce.rho*exp(summer);
+	double rho = reduce.rho*(summer+1);
+    return rho;
 }
 double R1233zdEClass::rhosatV(double T)
 {
@@ -91,5 +92,6 @@ double R1233zdEClass::rhosatV(double T)
     {
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
-    return reduce.rho*exp(crit.T/T*summer);
+	double rho = reduce.rho*exp(summer);
+    return rho;
 }
