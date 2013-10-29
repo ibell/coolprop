@@ -9,6 +9,7 @@ class LiquidData(object):
     information came from. 
     """
     Name     = None # Name of the current fluid
+    Desc     = None # Name of the current fluid
     Tmin     = None # Minimum temperature in K
     TminPsat = None # Minimum saturation temperature in K
     Tmax     = None # Maximum temperature in K
@@ -66,8 +67,9 @@ class TherminolD12(LiquidData):
     psat    = numpy.array([+4.75000E-9, +2.07000E-8, +8.08000E-8, +2.81000E-7, +8.86000E-7, +2.56000E-6, +6.82000E-6, +1.70000E-5, +3.96000E-5, +8.75000E-5, +1.84000E-4, +3.68000E-4, +7.06000E-4, +1.30000E-3, +2.33000E-3, +4.02000E-3, +6.75000E-3, +1.10000E-2, +1.76000E-2, +2.73000E-2, +4.16000E-2, +6.21000E-2, +9.10000E-2, +1.31000E-1, +1.86000E-1, +2.59000E-1, +3.56000E-1, +4.84000E-1, +6.48000E-1, +8.59000E-1, +1.13000E+0, +1.46000E+0, +1.88000E+0, +2.39000E+0, +3.01000E+0, +3.77000E+0, +4.68000E+0, +5.76000E+0, +7.05000E+0, +8.57000E+0, +1.03000E+1, +1.24000E+1, +1.48000E+1, +1.76000E+1, +2.08000E+1, +2.44000E+1, +2.85000E+1, +3.32000E+1, +3.84000E+1, +4.43000E+1, +5.09000E+1, +5.83000E+1, +6.64000E+1, +7.55000E+1, +8.55000E+1, +9.65000E+1, +1.09000E+2, +1.22000E+2, +1.36000E+2, +1.52000E+2, +1.69000E+2, +1.88000E+2, +2.08000E+2, +2.29000E+2])*1000.   # Pa 
     Tmin    = numpy.min(T)
     Tmax    = numpy.max(T)
-    TminPsat= Tmin 
-    Name    = "TherminolD12"
+    TminPsat= Tmin
+    Name    = "TD12" 
+    Desc    = "TherminolD12"
 
 class TherminolVP1(LiquidData):
     """ 
@@ -83,7 +85,8 @@ class TherminolVP1(LiquidData):
     Tmin    = numpy.min(T)
     Tmax    = numpy.max(T)
     TminPsat= Tmin 
-    Name    = "TherminolVP1"
+    Name    = "TVP1" 
+    Desc    = "TherminolVP1"
     
     
 class Therminol66(LiquidData):
@@ -114,7 +117,8 @@ class Therminol66(LiquidData):
     Tmin    = numpy.min(T)
     Tmax    = numpy.max(T)
     TminPsat= 70+273.15 
-    Name    = "Therminol66"    
+    Name    = "T66" 
+    Desc    = "Therminol66"    
     
     
 class Therminol72(LiquidData):
@@ -131,7 +135,8 @@ class Therminol72(LiquidData):
     Tmin    = numpy.min(T)
     Tmax    = numpy.max(T)
     TminPsat= Tmin 
-    Name    = "Therminol72"
+    Name    = "T72" 
+    Desc    = "Therminol72"
     
     
     
@@ -149,7 +154,8 @@ class DowthermJ(LiquidData):
     Tmin    = numpy.min(T)
     Tmax    = numpy.max(T)
     TminPsat= 50 + 273.15 
-    Name    = "DowthermJ"
+    Name    = "DowJ" 
+    Desc    = "DowthermJ"
     
 class DowthermQ(LiquidData):
     """ 
@@ -165,7 +171,8 @@ class DowthermQ(LiquidData):
     Tmin    = numpy.min(T)
     Tmax    = numpy.max(T)
     TminPsat= 120 + 273.15 
-    Name    = "DowthermQ"
+    Name    = "DowQ" 
+    Desc    = "DowthermQ"
     
     
 class Texatherm22(LiquidData):
@@ -182,7 +189,8 @@ class Texatherm22(LiquidData):
     Tmin    = numpy.min(T)
     Tmax    = numpy.max(T)
     TminPsat= 40 + 273.15 
-    Name    = "Texatherm22"
+    Name    = "TX22" 
+    Desc    = "Texatherm22"
     
     
 class NitrateSalt(LiquidData):
@@ -209,7 +217,8 @@ class NitrateSalt(LiquidData):
     Tmin    = numpy.min(T)
     Tmax    = numpy.max(T)
     TminPsat= Tmax 
-    Name    = "NitrateSalt"
+    Name    = "NaK" 
+    Desc    = "NitrateSalt"
     
 
 class SylthermXLT(LiquidData):
@@ -226,7 +235,8 @@ class SylthermXLT(LiquidData):
     Tmin    = numpy.min(T)
     Tmax    = numpy.max(T)
     TminPsat= Tmax 
-    Name    = "SylthermXLT"
+    Name    = "XLT" 
+    Desc    = "SylthermXLT"
     
     
 class HC50(LiquidData):
@@ -244,6 +254,7 @@ class HC50(LiquidData):
     Tmax    = numpy.max(T)
     TminPsat= 20+273.15 
     Name    = "HC-50"
+    Desc    = "Dynalene "+Name
 
    
 class HC40(LiquidData):
@@ -261,6 +272,7 @@ class HC40(LiquidData):
     Tmax    = numpy.max(T)
     TminPsat= 20+273.15  
     Name    = "HC-40"
+    Desc    = "Dynalene "+Name
 
     
 class HC30(LiquidData):
@@ -278,6 +290,7 @@ class HC30(LiquidData):
     Tmax    = numpy.max(T)
     TminPsat= 20+273.15  
     Name    = "HC-30"
+    Desc    = "Dynalene "+Name
     
     
 class HC20(LiquidData):
@@ -295,6 +308,7 @@ class HC20(LiquidData):
     Tmax    = numpy.max(T)
     TminPsat= 20+273.15  
     Name    = "HC-20"
+    Desc    = "Dynalene "+Name
     
 
 class HC10(LiquidData):
@@ -312,6 +326,7 @@ class HC10(LiquidData):
     Tmax    = numpy.max(T)
     TminPsat= 20+273.15  
     Name    = "HC-10"
+    Desc    = "Dynalene "+Name
   
     
 

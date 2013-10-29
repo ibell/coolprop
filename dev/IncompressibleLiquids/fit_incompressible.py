@@ -1,4 +1,5 @@
 import numpy, matplotlib.pyplot
+import CoolProp.CoolProp as CP
 from scipy.optimize._minimize import minimize
 
 class IncompLiquidFit(object):
@@ -47,7 +48,7 @@ class IncompLiquidFit(object):
             self._cDensity =        [1, 1, 1, 1]
             self._cHeatCapacity =   [1, 1, 1, 1]
             self._cTConductivity =  [1, 1, 1]
-            self._cViscosity =      [1, 1, 1]
+            self._cViscosity =      [+7.1e+2, +2.3e+2, +3.4e+1]
             self._cPsat =           [-5.3e+3, +3.2e+1, -1.6e+1]
             
 #        elif fluid=='TherminolD12inCelsius':
@@ -118,8 +119,8 @@ class IncompLiquidFit(object):
         with defined coefficients
         """
         #if len(coefficients)==num:
-        if num==1: return numpy.exp(coefficients[0]/(x+coefficients[1]) - coefficients[2])
-        if num==2: return numpy.exp(self._basePolynomial(coefficients, x))
+        if num==1: return numpy.exp(numpy.clip((coefficients[0]/(x+coefficients[1]) - coefficients[2]),-1e20,1e20))
+        if num==2: return numpy.exp(numpy.clip(self._basePolynomial(coefficients, x),-1e20,1e20))
         #else:
         #    print "Error!"
 
@@ -179,7 +180,19 @@ class IncompLiquidFit(object):
             return self._baseExponential(coefficients,T,1)
         else:
             raise (ValueError("Error: You used an unknown property qualifier."))
-        
+    
+    def inCoolProp(self,name,T,p):
+        from CoolProp.CoolProp import FluidsList
+        #print FluidsList() 
+        result = name in FluidsList()
+        if not result:
+            try:
+                CP.PropsU('D','T',T,'P',p,name,"SI")
+                return True
+            except ValueError as e:
+                print e
+                return False
+
         
     def getCoefficients(self,inVal):
         """
@@ -242,6 +255,8 @@ class IncompLiquidFit(object):
                 data       = numpy.array(xData)
             # Fit logarithms for viscosity and saturation pressure
             elif xName=='V' or xName=='Psat':
+                def safe_log(x, minval=1e-10):
+                    return numpy.log(numpy.clip(x, minval))
                 calculated = numpy.log(numpy.array([self._PropsFit(coefficients,xName,T=Ti) for Ti in T])*1e2)
                 data       = numpy.log(numpy.array(xData)*1e2)
             else:
@@ -252,29 +267,42 @@ class IncompLiquidFit(object):
             return res 
         
         initValues = self.getCoefficients(xName)[:]
-        arguments  = (xName,T,xData)
-        options    = {'maxiter': 1e2, 'maxfev': 1e5}
-        tol        = 1e-15
-        res = minimize(fun, initValues, method='Powell', args=arguments, tol=tol, options=options)
-        
-        while ((not res.success) and tol<1e-6):
-            tol *= 1e2
-            print "Fit did not succeed, reducing tolerance to "+str(tol)
+        # Fit logarithms for viscosity and saturation pressure
+        if xName=='V' or xName=='Psat':
+            arguments  = (xName,T,xData)
+            options    = {'maxiter': 1e2, 'maxfev': 1e5}
+            tol        = 1e-11
             res = minimize(fun, initValues, method='Powell', args=arguments, tol=tol, options=options)
             
-        if res.success:
-            return res.x
-        else:
-            print "Fit failed: "
-            print res
-            return False 
+            while ((not res.success) and tol<1e-6):
+                tol *= 1e2
+                print "Fit did not succeed, reducing tolerance to "+str(tol)
+                res = minimize(fun, initValues, method='Powell', args=arguments, tol=tol, options=options)
+                
+            if res.success:
+                return res.x
+            else:
+                print "Fit failed: "
+                print res
+                return False
+            
+        else: # just a polynomial
+            #minCoeff = 1e-50
+            #z = numpy.array([initValues,minCoeff-1]).flat # add a dummy
+            #while (numpy.min(z) < minCoeff):
+            #z = z[0:-1] # remove one element
+            z = initValues
+            print "Fitting polynomial with "+str(len(z))+" coefficients."
+            z = numpy.polyfit(T, xData, len(z)-1)
+                       
+            return z[::-1]
 
 
 ### Load the data 
 from data_incompressible import *
 
 #containerList = [TherminolD12(), TherminolVP1(), Therminol66(), Therminol72(), DowthermJ(), DowthermQ(), Texatherm22(), NitrateSalt(), SylthermXLT(), HC50(), HC40(), HC30(), HC20(), HC10()]
-containerList = [Therminol66(), DowthermQ(), HC30()]
+containerList = [TherminolD12(), HC30()]
 
 for data in containerList:    
     ### Some test case 
@@ -302,8 +330,11 @@ for data in containerList:
     
     ### This is the actual fitting
     tData = data.T
-    tDat1 = numpy.linspace(numpy.min(tData), numpy.max(tData), 100)
+    tDat1 = numpy.linspace(numpy.min(tData)+1, numpy.max(tData)-1, 10)
     Pin = 1e20 # Dummy pressure
+    inCP =liqObj.inCoolProp(data.Name, (data.Tmax-data.Tmin)/2. + data.Tmin, Pin)
+    print "Fluid in CoolProp: "+str(inCP)
+    print 
     
     inVal = 'D'
     xData = data.rho
@@ -315,7 +346,9 @@ for data in containerList:
     liqObj.setCoefficients(inVal,newCoeffs)
     fData = numpy.array([liqObj.Props(inVal, T=Tin, P=Pin) for Tin in tDat1])
     ax1.plot(tData-273.15, xData, 'o', label="Data Sheet")
-    ax1.plot(tDat1-273.15, fData, label="CoolProp")
+    ax1.plot(tDat1-273.15, fData, 'o', label="Python")
+    if inCP:
+        ax1.plot(tDat1-273.15, CP.PropsU(inVal, 'T', tDat1, 'P', Pin*1e3, data.Name, "SI"), label="CoolProp")
     ax1.set_ylabel(r'$\mathregular{Density\/(kg\/m^{-3})}$')
     
     
@@ -329,7 +362,9 @@ for data in containerList:
     liqObj.setCoefficients(inVal,newCoeffs)
     fData = numpy.array([liqObj.Props(inVal, T=Tin, P=Pin) for Tin in tDat1])
     ax2.plot(tData-273.15, xData/1e3, 'o', label="Data Sheet")
-    ax2.plot(tDat1-273.15, fData/1e3, label="CoolProp")
+    ax2.plot(tDat1-273.15, fData/1e3, 'o', label="Python")
+    if inCP:
+        ax2.plot(tDat1-273.15, CP.PropsU(inVal, 'T', tDat1, 'P', Pin*1e3, data.Name, "SI")/1e3, label="CoolProp")
     ax2.set_ylabel(r'$\mathregular{Heat\/Cap.\/(kJ\/kg^{-1}\/K^{-1})}$')
     
     
@@ -342,15 +377,17 @@ for data in containerList:
     print 
     liqObj.setCoefficients(inVal,newCoeffs)
     fData = numpy.array([liqObj.Props(inVal, T=Tin, P=Pin) for Tin in tDat1])
-    ax3.plot(tData-273.15, xData*1e3 , 'o', label="Data Sheet")
-    ax3.plot(tDat1-273.15, fData*1e3 , label="CoolProp")
+    ax3.plot(tData-273.15, xData*1e3, 'o', label="Data Sheet")
+    ax3.plot(tDat1-273.15, fData*1e3, 'o', label="Python")
+    if inCP:
+        ax3.plot(tDat1-273.15, CP.PropsU(inVal, 'T', tDat1, 'P', Pin*1e3, data.Name, "SI")*1e3, label="CoolProp")
     ax3.set_ylabel(r'$\mathregular{Th.\/Cond.\/(mW\/m^{-1}\/K^{-1})}$')
     
     
     inVal = 'V'
     tData = data.T[data.mu_dyn > 0]
     if len(tData>liqObj._minPoints):
-        tDat1 = numpy.linspace(numpy.min(tData), numpy.max(tData), 100)
+        tDat1 = numpy.linspace(numpy.min(tData)+1, numpy.max(tData)-1, 10)
         xData = data.mu_dyn[data.mu_dyn > 0]
         oldCoeffs = liqObj.getCoefficients(inVal)
         newCoeffs = liqObj.fitCoefficients(inVal,T=tData,xData=xData)
@@ -360,7 +397,9 @@ for data in containerList:
         liqObj.setCoefficients(inVal,newCoeffs)
         fData = numpy.array([liqObj.Props(inVal, T=Tin, P=Pin) for Tin in tDat1])
         ax4.plot(tData-273.15, xData*1e3, 'o', label="Data Sheet")
-        ax4.plot(tDat1-273.15, fData*1e3, label="CoolProp")
+        ax4.plot(tDat1-273.15, fData*1e3, 'o', label="Python")
+        if inCP:
+            ax4.plot(tDat1-273.15, CP.PropsU(inVal, 'T', tDat1, 'P', Pin*1e3, data.Name, "SI")*1e3, label="CoolProp")
     
     ax4.set_ylabel(r'$\mathregular{Dyn.\/Viscosity\/(mPa\/s)}$')
     ax4.set_yscale('log')
@@ -370,7 +409,7 @@ for data in containerList:
     mask = numpy.logical_and(numpy.greater_equal(data.T,data.TminPsat),numpy.greater(data.psat,0)) 
     tData = data.T[mask]
     if len(tData>liqObj._minPoints):
-        tDat1 = numpy.linspace(numpy.min(tData), numpy.max(tData), 100)
+        tDat1 = numpy.linspace(numpy.min(tData)+1, numpy.max(tData)-1, 10)
         xData = data.psat[mask]
         oldCoeffs = liqObj.getCoefficients(inVal)
         newCoeffs = liqObj.fitCoefficients(inVal,T=tData,xData=xData)
@@ -380,7 +419,9 @@ for data in containerList:
         liqObj.setCoefficients(inVal,newCoeffs)
         fData = numpy.array([liqObj.Props(inVal, T=Tin, P=Pin) for Tin in tDat1])
         ax5.plot(tData-273.15, xData/1e3, 'o', label="Data Sheet")
-        ax5.plot(tDat1-273.15, fData/1e3, label="CoolProp")
+        ax5.plot(tDat1-273.15, fData/1e3, 'o', label="Python")
+        #if inCP:
+        #    ax5.plot(tDat1-273.15, CP.PropsU(inVal, 'T', tDat1, 'P', Pin*1e3, data.Name, "SI")/1e3, label="CoolProp")
         
     ax5.set_ylabel(r'$\mathregular{Vap.\/Pressure\/(kPa)}$')
     ax5.set_yscale('log')
@@ -393,8 +434,8 @@ for data in containerList:
     matplotlib.pyplot.savefig("fit_"+data.Name+"_std.pdf")
     
     ### Print the output for the C++ file
-    print "name = std::string(\"\");"
-    print "description = std::string(\""+data.Name+"\");"
+    print "name = std::string(\""+data.Name+"\");"
+    print "description = std::string(\""+data.Desc+"\");"
     print "reference = std::string(\"\");"
     print ""
     print "Tmin     = "+str(data.Tmin)+";"
