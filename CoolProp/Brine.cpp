@@ -476,7 +476,7 @@ int Brine(char * Mix, double T, double C, /*in --- out */double *Tfreeze, double
 	else if (!strcmp(Mix,"LiCl"))
 		{ A=&LiCl; xm=14.8000; ym=1.4895; Cmin=0.0; Cmax=24.0; *Tmax=40;}
 	else{
-		throw ValueError(format("The name of your Brine diluant [%s] is invalid",Mix));
+		throw ValueError(format("The name of your Brine diluent [%s] is invalid",Mix));
 	}
 
 	if (C<Cmin || C>Cmax)

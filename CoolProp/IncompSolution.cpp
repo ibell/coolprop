@@ -1,22 +1,30 @@
 
-#include <string>
-#include <vector>
-#include <math.h>
-#include "CPExceptions.h"
+#if defined(_MSC_VER)
+#define _CRTDBG_MAP_ALLOC
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdlib.h>
+#include <crtdbg.h>
+#else
+#include <stdlib.h>
+#endif
+
+#include "Units.h"
+#include "math.h"
+#include "stdio.h"
+#include <string.h>
+#include "Brine.h"
 #include "CoolPropTools.h"
+#include "CoolProp.h"
 #include "IncompBase.h"
 #include "IncompSolution.h"
-#include <stdio.h>
 
 
 /// Base class for simplified brine/solution models
-/** Employs the base functions implemented in IncompBase.h.
- *  Extends the functions for composition as input. */
+/** Employs the base functions implemented in IncompBase.h and
+ *  provides properties as function of temperature, pressure
+ *  and composition. */
 void IncompressibleSolution::testInputs(double T_K, double p, double x){
 	double result = 0.;
-	//double x =   0.25;
-	//double T =   5.0 + 273.15;
-	//double p =  300.0;
 
 	printf(" %s \n"," ");
 	printf("Testing  %s \n",this->get_name().c_str());
@@ -41,7 +49,6 @@ void IncompressibleSolution::testInputs(double T_K, double p, double x){
 	result = this->Tfreeze(p,x);
 	printf("From object:Tfreeze = %3.3f \t degC   \n\n",result-273.15);
 }
-
 
 
 /*
@@ -81,7 +88,7 @@ bool IncompressibleSolution::checkT(double T_K, double p, double x){
 bool IncompressibleSolution::checkP(double T_K, double p, double x) {
 	double ps = psat(T_K,x);
 	if (p<ps) {
-		throw ValueError(format("Equations are valid for liquid phase only: %f < %f. ",p,ps));
+		throw ValueError(format("Equations are valid for solution phase only: %f < %f. ",p,ps));
 	} else {
 		return true;
 	}
@@ -111,22 +118,178 @@ bool IncompressibleSolution::checkTPX(double T, double p, double x) {
 
 
 
-//bool IsIncompressibleSolution(std::string name);
-//double IncompSolution(long iOutput, double T, double p, double x, long iFluid);
-//double IncompSolution(long iOutput, double T, double p, double x, std::string name);
+/** Handle all the objects in a single list of incompressible
+ *  solutions and brines. */
+SolutionsContainer::SolutionsContainer() {
+	std::vector<IncompressibleSolution*> tmpVector;
+
+	tmpVector.push_back(new MelinderSolution());
+	tmpVector.push_back(new EGSolution());
+	tmpVector.push_back(new PGSolution());
+	tmpVector.push_back(new EASolution());
+	tmpVector.push_back(new MASolution());
+	tmpVector.push_back(new GLSolution());
+	tmpVector.push_back(new AMSolution());
+	tmpVector.push_back(new KCSolution());
+	tmpVector.push_back(new CASolution());
+	tmpVector.push_back(new MGSolution());
+	tmpVector.push_back(new NASolution());
+	tmpVector.push_back(new KASolution());
+	tmpVector.push_back(new KFSolution());
+	tmpVector.push_back(new LISolution());
+
+	tmpVector.push_back(new SecCoolSolution());
+
+	// Now we store the vector in the variable
+	// and overwrite the map.
+	set_solutions(tmpVector);
+}
+
+SolutionsContainer::~SolutionsContainer() {
+	while (!solution_list.empty()) {
+		delete solution_list.back();
+		solution_list.pop_back();
+	}
+}
+
+IncompressibleSolution * SolutionsContainer::get_solution(long index){
+	return solution_list[index];
+}
+
+IncompressibleSolution * SolutionsContainer::get_solution(std::string name){
+	std::map<std::string,IncompressibleSolution*>::iterator it;
+	// Try to find using the map if Fluid name is provided
+	it = solution_map.find(name);
+	// If it is found the iterator will not be equal to end
+	if (it != solution_map.end() )
+	{
+		// Return a pointer to the class
+		return (*it).second;
+	}
+	else{
+		return NULL;
+	}
+}
+
+void SolutionsContainer::set_solutions(std::vector<IncompressibleSolution*> list){
+	solution_list = list;
+	// Build the map of fluid names mapping to pointers to the solution class instances
+	for (std::vector<IncompressibleSolution*>::iterator it = solution_list.begin(); it != solution_list.end(); it++)
+	{
+		// Load up entry in map
+		solution_map[(*it)->get_name()] = *it;
+	}
+}
+
+SolutionsContainer Solutions = SolutionsContainer();
+
+bool IsIncompressibleSolution(std::string name)
+{
+	IncompressibleSolution *pSolution = Solutions.get_solution(getSolutionName(name));
+	if (pSolution == NULL){ //Not found since NULL pointer returned
+		return false;
+	}
+	else{
+		return true;
+	}
+}
+
+double pIncompSolution(long iOutput, double T, double p, double x, IncompressibleSolution *pSolution)
+{
+	double p_SI = convert_from_unit_system_to_SI(iP,p,get_standard_unit_system());
+	double out;
+	switch (iOutput)
+	{
+		case iT:
+			out = T; break;
+		case iP:
+			out = p_SI; break;
+		case iD:
+			out = pSolution->rho(T,p_SI,x); break;
+		case iC:
+			out = pSolution->cp(T,p_SI,x); break;
+		case iS:
+			out = pSolution->s(T,p_SI,x); break;
+		case iU:
+			out = pSolution->u(T,p_SI,x); break;
+		case iH:
+			out = pSolution->h(T,p_SI,x); break;
+		case iV:
+			out = pSolution->visc(T,p_SI,x); break;
+		case iL:
+			out = pSolution->cond(T,p_SI,x); break;
+		case iTmax:
+			out = pSolution->getTmax(); break;
+		case iTmin:
+			out = pSolution->getTmin(); break;
+		case iTfreeze:
+			out = pSolution->Tfreeze(p_SI,x); break;
+		default:
+			throw ValueError(format("Your index [%d] is invalid for the incompressible solution %s",iOutput,pSolution->getName().c_str()));
+			out=0; break;
+	}
+	return convert_from_SI_to_unit_system(iOutput,out,get_standard_unit_system());
+}
+
+double IncompSolution(long iOutput, double T, double p, double x, long iFluid)
+{
+	return pIncompSolution(iOutput,T,p,x,Solutions.get_solution(iFluid));
+}
+
+double IncompSolution(long iOutput, double T, double p, double x, std::string name)
+{
+	return pIncompSolution(iOutput,T,p,x,Solutions.get_solution(name));
+}
+
+/** Just some convenience functions to allow for backward compatibility.
+ *  We might end up using them in the beginning until we can
+ *  handle a third parameter properly. */
+double IncompSolution(long iOutput, double T, double p, std::string name){ // TODO Solutions: Remove as soon as possible
+	// Split into fluid, concentration pair
+	std::vector<std::string> fluid_concentration = strsplit(std::string(name),'-');
+	// Check it worked
+	if (fluid_concentration.size() != 2){
+		throw ValueError(format("Format of incompressible solution string [%s] is invalid, should be like \"EG-20%\" or \"EG-0.2\" ", name.c_str()) );
+	}
+	// Convert the concentration into a string
+	char* pEnd;
+	double x = strtod(fluid_concentration[1].c_str(), &pEnd);
+	// Check if per cent or fraction syntax is used
+	if (!strcmp(pEnd,"%")){	x *= 0.01;}
+	return IncompSolution(iOutput, T, p, x, fluid_concentration[0]);
+}
+std::string getSolutionName(std::string name){ // TODO Solutions: Remove as soon as possible
+	// Split into fluid, concentration pair
+	std::vector<std::string> fluid_concentration = strsplit(std::string(name),'-');
+	return fluid_concentration[0];
+}
+double getSolutionConc(std::string name){ // TODO Solutions: Remove as soon as possible
+	// Split into fluid, concentration pair
+	std::vector<std::string> fluid_concentration = strsplit(std::string(name),'-');
+	// Check it worked
+	if (fluid_concentration.size() != 2){
+		throw ValueError(format("Format of incompressible solution string [%s] is invalid, should be like \"EG-20%\" or \"EG-0.2\" ", name.c_str()) );
+	}
+	// Convert the concentration into a string
+	char* pEnd;
+	double x = strtod(fluid_concentration[1].c_str(), &pEnd);
+	// Check if per cent or fraction syntax is used
+	if (!strcmp(pEnd,"%")){	x *= 0.01;}
+	return x;
+}
 
 
-
-/// Class to use the SecCool parameters
+/// Class to use Melinder and SecCool parameters
 /** Employs some basic wrapper-like functionality
  *  to bridge the gap between the solution functions
  *  used in CoolProp and the definition used in
- *  SecCool. Please visit:
+ *  Melinder's book and Ian's original implementation and
+ *  the definition used in SecCool. Please visit:
  *  http://en.ipu.dk/Indhold/refrigeration-and-energy-technology/seccool.aspx
  *  Many thanks to Morten Juel Skovrup for providing
  *  this nice piece of software as well as the parameters
  *  needed to calculate the composition based properties. */
-double SecCoolSolution::baseFunction(std::vector<double> coefficients, double T_K, double p, double x){
+double BaseSolution::baseFunction(std::vector<double> const& coefficients, double T_K, double p, double x){
 	IncompressibleClass::checkCoefficients(coefficients,18);
 	return (((((
 			 coefficients[17])*x
@@ -149,7 +312,7 @@ double SecCoolSolution::baseFunction(std::vector<double> coefficients, double T_
 			+coefficients[0];
 }
 
-std::vector< std::vector<double> > SecCoolSolution::makeMatrix(std::vector<double> coefficients){
+std::vector< std::vector<double> > BaseSolution::makeMatrix(std::vector<double> const& coefficients){
 	IncompressibleClass::checkCoefficients(coefficients,18);
 	std::vector< std::vector<double> > matrix;
 	std::vector<double> tmpVector;
@@ -199,4 +362,49 @@ std::vector< std::vector<double> > SecCoolSolution::makeMatrix(std::vector<doubl
 	tmpVector.clear();
 	return matrix;
 }
+
+/// Convert pre-v4.0-style coefficient array to new format
+std::vector<std::vector<double> > MelinderSolution::convertCoeffs(double* oldestCoeffs, const int A, const int B) {
+	const int lengthA = 18;
+	const int lengthB =  5;
+    if ((A==lengthA) && (B==lengthB) ){
+    	/// Rearrange array
+    	double oldCoeffs[lengthA][lengthB];
+		for (int j = 0; j < lengthB; j++) {
+			oldCoeffs[ 0][j] = oldestCoeffs[( 0 * B) + j ];
+			oldCoeffs[ 1][j] = oldestCoeffs[( 4 * B) + j ];
+			oldCoeffs[ 2][j] = oldestCoeffs[( 8 * B) + j ];
+			oldCoeffs[ 3][j] = oldestCoeffs[(12 * B) + j ];
+			oldCoeffs[ 4][j] = oldestCoeffs[(15 * B) + j ];
+			oldCoeffs[ 5][j] = oldestCoeffs[(17 * B) + j ];
+			oldCoeffs[ 6][j] = oldestCoeffs[( 1 * B) + j ];
+			oldCoeffs[ 7][j] = oldestCoeffs[( 5 * B) + j ];
+			oldCoeffs[ 8][j] = oldestCoeffs[( 9 * B) + j ];
+			oldCoeffs[ 9][j] = oldestCoeffs[(13 * B) + j ];
+			oldCoeffs[10][j] = oldestCoeffs[(16 * B) + j ];
+			oldCoeffs[11][j] = oldestCoeffs[( 2 * B) + j ];
+			oldCoeffs[12][j] = oldestCoeffs[( 6 * B) + j ];
+			oldCoeffs[13][j] = oldestCoeffs[(10 * B) + j ];
+			oldCoeffs[14][j] = oldestCoeffs[(14 * B) + j ];
+			oldCoeffs[15][j] = oldestCoeffs[( 3 * B) + j ];
+			oldCoeffs[16][j] = oldestCoeffs[( 7 * B) + j ];
+			oldCoeffs[17][j] = oldestCoeffs[(11 * B) + j ];
+		}
+		std::vector<std::vector<double> > tmpVector;
+		tmpVector.push_back(std::vector<double>());
+		tmpVector.push_back(std::vector<double>());
+		tmpVector.push_back(std::vector<double>());
+		tmpVector.push_back(std::vector<double>());
+		tmpVector.push_back(std::vector<double>());
+		for (int i = 0; i < lengthA; i++) {
+			for (int j = 0; j < lengthB; j++) {
+				if (i<1) tmpVector[j].clear();
+				tmpVector[j].push_back(oldCoeffs[i][j]);
+			}
+		}
+		return tmpVector;
+    }
+    throw ValueError(format("Your array has the dimensions [%d,%d], but only [%d,%d] arrays are supported.",A,B,lengthA,lengthB));
+}
+
 
