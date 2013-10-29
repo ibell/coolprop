@@ -2,20 +2,18 @@
 #include <string>
 #include <vector>
 #include <math.h>
+#include <stdio.h>
 #include "CoolPropTools.h"
 #include "CPExceptions.h"
 #include "IncompBase.h"
 #include "IncompLiquid.h"
 #include "IncompSolution.h"
 
-#include <stdio.h>
-
-
 
 /// Basic checks for coefficient vectors.
 /** Starts with only the first coefficient dimension
  *  and checks the vector length against parameter n. */
-bool IncompressibleClass::checkCoefficients(std::vector<double> coefficients, unsigned int n){
+bool IncompressibleClass::checkCoefficients(std::vector<double> const& coefficients, unsigned int n){
 	if (coefficients.size() == n){
 		return true;
 	} else {
@@ -24,7 +22,7 @@ bool IncompressibleClass::checkCoefficients(std::vector<double> coefficients, un
 	return false;
 }
 
-bool IncompressibleClass::checkCoefficients(std::vector< std::vector<double> > coefficients, unsigned int rows, unsigned int columns){
+bool IncompressibleClass::checkCoefficients(std::vector< std::vector<double> > const& coefficients, unsigned int rows, unsigned int columns){
 	if (coefficients.size() == rows){
 		bool result = true;
 		for(unsigned int i=0; i<rows; i++) {
@@ -43,33 +41,171 @@ bool IncompressibleClass::checkCoefficients(std::vector< std::vector<double> > c
  *  new calculation schemes available, please do not delete
  *  the implementations, but mark them as deprecated.
  *  The old functions are good for debugging since the
- *  structure is easier to read that the backward Horner-scheme
+ *  structure is easier to read than the backward Horner-scheme
  *  or the recursive Horner-scheme.
  */
 
 /// Simple polynomial function generator. <- Deprecated due to poor performance, use Horner-scheme instead
 /** Base function to produce n-th order polynomials
  *  based on the length of the coefficient vector.
- *  Starts with only the first coefficient at x^0. */
-double IncompressibleClass::simplePolynomial(std::vector<double> coefficients, double x){
+ *  Starts with only the first coefficient at T^0. */
+double IncompressibleClass::simplePolynomial(std::vector<double> const& coefficients, double T){
 	double result = 0.;
 	for(unsigned int i=0; i<coefficients.size();i++) {
-		result += coefficients[i] * pow(x,(int)i);
+		result += coefficients[i] * pow(T,i);
+	}
+	return result;
+}
+double IncompressibleClass::simplePolynomial(std::vector<std::vector<double> > const& coefficients, double x, double T){
+	double result = 0;
+	for(unsigned int i=0; i<coefficients.size();i++) {
+		result += pow(x,i) * simplePolynomial(coefficients[i], T);
 	}
 	return result;
 }
 
-/// Simple integrated polynomial function generator. <- Deprecated due to poor performance, use Horner-scheme instead
+/// Simple integrated polynomial function generator.
 /** Base function to produce integrals of n-th order
  *  polynomials based on the length of the coefficient
- *  vector. Integrates from x0 to x1.
- *  Starts with only the first coefficient at x^0 */
-double IncompressibleClass::simplePolynomialInt(std::vector<double> coefficients, double x1, double x0){
+ *  vector.
+ *  Starts with only the first coefficient at T^0 */
+///Indefinite integral in T-direction
+double IncompressibleClass::simplePolynomialInt(std::vector<double> const& coefficients, double T){
 	double result = 0.;
 	for(unsigned int i=0; i<coefficients.size();i++) {
-		result += 1./(i+1.) * coefficients[i] * (pow(x1,(i+1.)) - pow(x0,(i+1.)));
+		result += 1./(i+1.) * coefficients[i] * pow(T,(i+1.));
 	}
 	return result;
+}
+///Definite integral from T0 to T1
+double IncompressibleClass::simplePolynomialInt(std::vector<double> const& coefficients, double T1, double T0){
+	double result = 0.;
+	for(unsigned int i=0; i<coefficients.size();i++) {
+		result += 1./(i+1.) * coefficients[i] * ( pow(T1,(i+1.)) - pow(T0,(i+1.)) );
+	}
+	return result;
+}
+///Indefinite integral in y-direction only
+double IncompressibleClass::simplePolynomialInt(std::vector<std::vector<double> > const& coefficients, double x, double T){
+	double result = 0.;
+	for(unsigned int i=0; i<coefficients.size();i++) {
+		result += pow(x,i) * simplePolynomialInt(coefficients[i], T);
+	}
+	return result;
+}
+///Definite integral from T0 to T1
+double IncompressibleClass::simplePolynomialInt(std::vector<std::vector<double> > const& coefficients, double x, double T1, double T0){
+	double result = 0.;
+	for(unsigned int i=0; i<coefficients.size();i++) {
+		result += pow(x,i) * simplePolynomialInt(coefficients[i], T1, T0);
+	}
+	return result;
+}
+
+/// Simple integrated polynomial function generator divided by independent variable.
+/** Base function to produce integrals of n-th order
+ *  polynomials based on the length of the coefficient
+ *  vector.
+ *  Starts with only the first coefficient at T^0 */
+double IncompressibleClass::simpleFracInt(std::vector<double> const& coefficients, double T){
+	double result = coefficients[0] * log(T);
+	if (coefficients.size() > 1) {
+		for (unsigned int i=0; i<coefficients.size()-1; i++){
+			result += 1/(i+1) * coefficients[i+1] * pow(T,i+1);
+		}
+	}
+	return result;
+}
+double IncompressibleClass::simpleFracInt(std::vector<double> const& coefficients, double T1, double T0){
+	double result = coefficients[0] * log(T1/T0);
+	if (coefficients.size() > 1) {
+		for (unsigned int i=0; i<coefficients.size()-1; i++){
+			result += 1/(i+1) * coefficients[i+1] * (pow(T1,i+1)-pow(T0,i+1));
+		}
+	}
+	return result;
+}
+double IncompressibleClass::simpleFracInt(std::vector< std::vector<double> > const& coefficients, double x, double T){
+	double result = 0;
+	for (unsigned int i=0; i<coefficients.size(); i++){
+		result += pow(x,i) * polyfracint(coefficients[i],T);
+	}
+	return result;
+}
+double IncompressibleClass::simpleFracInt(std::vector< std::vector<double> > const& coefficients, double x, double T1, double T0){
+	double result = 0;
+	for (unsigned int i=0; i<coefficients.size(); i++){
+		result += pow(x,i) * polyfracint(coefficients[i],T1,T0);
+	}
+	return result;
+}
+
+
+/** Simple integrated centred(!) polynomial function generator divided by independent variable.
+ *  We need to rewrite some of the functions in order to
+ *  use central fit. Having a central temperature Tbase
+ *  allows for a better fit, but requires a different
+ *  formulation of the fracInt function group. Other
+ *  functions are not affected.
+ *  Starts with only the first coefficient at T^0 */
+
+///Helper functions to calculate binomial coefficients: http://rosettacode.org/wiki/Evaluate_binomial_coefficients#C.2B.2B
+//double IncompressibleClass::factorial(double nValue){
+//   double result = nValue;
+//   double result_next;
+//   double pc = nValue;
+//   do {
+//	   result_next = result*(pc-1);
+//	   result = result_next;
+//	   pc--;
+//   } while(pc>2);
+//   nValue = result;
+//   return nValue;
+//}
+//double IncompressibleClass::factorial(double nValue){
+//	if (nValue == 0) return (1);
+//	else return (nValue * factorial(nValue - 1));
+//}
+double IncompressibleClass::factorial(double nValue){
+    double value = 1;
+    for(int i = 2; i <= nValue; i++){
+        value = value * i;
+    }
+    return value;
+}
+double IncompressibleClass::binom(double nValue, double nValue2){
+   double result;
+   if(nValue2 == 1) return nValue;
+   result = (factorial(nValue)) / (factorial(nValue2)*factorial((nValue - nValue2)));
+   nValue2 = result;
+   return nValue2;
+}
+///Helper functions to calculate the D vector:
+std::vector<double> IncompressibleClass::fracIntCentralDvector(int m, double T, double Tbase){
+	std::vector<double> D;
+	double tmp;
+	if (m<1) throw ValueError(format("You have to provide coefficients, a vector length of %d is not a valid. ",m));
+	for (unsigned int j=0; j<m; j++){ // loop through row
+		tmp = pow(-1,j) * log(T) * pow(Tbase,j);
+		for(unsigned int k=0; k<j; k++) { // internal loop for every entry
+			tmp += binom(j,k) * pow(-1,k) / (j-k) * pow(T,j-k) * pow(Tbase,k);
+		}
+		D.push_back(tmp);
+	}
+	return D;
+}
+std::vector<double> IncompressibleClass::fracIntCentralDvector(int m, double T1, double T0, double Tbase){
+	std::vector<double> D;
+	double tmp;
+	if (m<1) throw ValueError(format("You have to provide coefficients, a vector length of %d is not a valid. ",m));
+	for (int j=0; j<m; j++){ // loop through row
+		tmp = pow(-1,j) * log(T1/T0) * pow(Tbase,j);
+		for(int k=0; k<j; k++) { // internal loop for every entry
+			tmp += binom(j,k) * pow(-1,k) / (j-k) * (pow(T1,j-k)-pow(T0,j-k)) * pow(Tbase,k);
+		}
+		D.push_back(tmp);
+	}
+	return D;
 }
 
 
@@ -78,44 +214,27 @@ double IncompressibleClass::simplePolynomialInt(std::vector<double> coefficients
  *  This avoids unnecessary multiplication and thus
  *  speeds up calculation.
  */
-double IncompressibleClass::baseHorner(std::vector<double> coefficients, double x){
+double IncompressibleClass::baseHorner(std::vector<double> const& coefficients, double T){
 	double result = 0;
 	for(int i=coefficients.size()-1; i>=0; i--) {
-		result = result * x + coefficients[i];
+		result = result * T + coefficients[i];
 	}
 	return result;
 }
-double IncompressibleClass::baseHorner(std::vector< std::vector<double> > coefficients, double x, double y){
+double IncompressibleClass::baseHorner(std::vector< std::vector<double> > const& coefficients, double x, double T){
 	double result = 0;
 	for(int i=coefficients.size()-1; i>=0; i--) {
-		result = result * x + baseHorner(coefficients[i], y);
+		result = result * x + baseHorner(coefficients[i], T);
 	}
 	return result;
-}
-double IncompressibleClass::baseHornerIntegrated(std::vector<double> coefficients, double x){
-	return baseHorner(integrateCoeffs(coefficients),x);
-}
-double IncompressibleClass::baseHornerIntegrated(std::vector<double> coefficients, double x1, double x0){
-	std::vector<double> coefficientsInt = integrateCoeffs(coefficients);
-	return baseHorner(coefficientsInt,x1)-baseHorner(coefficientsInt,x0);
-}
-double IncompressibleClass::baseHornerIntegrated(std::vector< std::vector<double> > coefficients, double x, double y, unsigned int axis){
-	return baseHorner(integrateCoeffs(coefficients,axis),x,y);
-}
-double IncompressibleClass::baseHornerIntegrated(std::vector< std::vector<double> > coefficients, double x, double y1, double y0){
-	std::vector< std::vector<double> > coefficientsInt = integrateCoeffs(coefficients,1);
-	return baseHorner(coefficientsInt,x,y1)-baseHorner(coefficientsInt,x,y0);
 }
 
 
 /** Integrating coefficients for polynomials is done by dividing the
  *  original coefficients by (i+1) and elevating the order by 1.
  *  Some reslicing needs to be applied to integrate along the x-axis.
- *  In the brine/solution equations, reordering of the parameters
- *  avoids this expensive operation. However, it is included for the
- *  sake of completeness.
  */
-std::vector<double> IncompressibleClass::integrateCoeffs(std::vector<double> coefficients){
+std::vector<double> IncompressibleClass::integrateCoeffs(std::vector<double> const& coefficients){
 	std::vector<double> newCoefficients;
 	unsigned int sizeX = coefficients.size();
 	if (sizeX<1) throw ValueError(format("You have to provide coefficients, a vector length of %d is not a valid. ",sizeX));
@@ -127,12 +246,13 @@ std::vector<double> IncompressibleClass::integrateCoeffs(std::vector<double> coe
 	return newCoefficients;
 }
 
-std::vector< std::vector<double> > IncompressibleClass::integrateCoeffs(std::vector< std::vector<double> > coefficients, unsigned int axis){
+///Integrating coefficients for polynomial in terms of x(axis=true) or y(axis=false).
+std::vector< std::vector<double> > IncompressibleClass::integrateCoeffs(std::vector< std::vector<double> > const& coefficients, bool axis){
 	std::vector< std::vector<double> > newCoefficients;
 	unsigned int sizeX = coefficients.size();
 	if (sizeX<1) throw ValueError(format("You have to provide coefficients, a vector length of %d is not a valid. ",sizeX));
 
-	if (axis==0){
+	if (axis==true){
 		std::vector< std::vector<double> > tmpCoefficients;
 		tmpCoefficients = transpose(coefficients);
 		unsigned int sizeY = tmpCoefficients.size();
@@ -140,7 +260,7 @@ std::vector< std::vector<double> > IncompressibleClass::integrateCoeffs(std::vec
 			newCoefficients.push_back(integrateCoeffs(tmpCoefficients[i]));
 		}
 		return transpose(newCoefficients);
-	} else if (axis==1){
+	} else if (axis==false){
 		for(unsigned int i=0; i<sizeX; i++) {
 			newCoefficients.push_back(integrateCoeffs(coefficients[i]));
 		}
@@ -154,7 +274,7 @@ std::vector< std::vector<double> > IncompressibleClass::integrateCoeffs(std::vec
 /** Deriving coefficients for polynomials is done by multiplying the
  *  original coefficients with i and lowering the order by 1.
  */
-std::vector<double> IncompressibleClass::deriveCoeffs(std::vector<double> coefficients){
+std::vector<double> IncompressibleClass::deriveCoeffs(std::vector<double> const& coefficients){
 	std::vector<double> newCoefficients;
 	unsigned int sizeX = coefficients.size();
 	if (sizeX<1) throw ValueError(format("You have to provide coefficients, a vector length of %d is not a valid. ",sizeX));
@@ -195,54 +315,17 @@ std::vector<double> IncompressibleClass::deriveCoeffs(std::vector<double> coeffi
  *  method since this would break the purpose of this interface.
  */
 
-/// Evaluates the definite integral of a one-dimensional polynomial divided by its independent variable
-/// @param coefficients vector containing the ordered coefficients
-/// @param x1 double value that represents the current position
-/// @param x0 double value that represents the reference state
-double IncompressibleClass::fracint(std::vector<double> coefficients, double x1, double x0){
-	double result = coefficients[0] * log(x1/x0);
-	if (coefficients.size() > 1) {
-		std::vector<double> newCoeffs(coefficients.begin() + 1, coefficients.end());
-		result += polyint(newCoeffs,x1,x0);
-	}
-	return result;
-}
-
-/// Evaluates the definite integral of a two-dimensional polynomial divided by its 2nd independent variable
-/// @param coefficients vector containing the ordered coefficients
-/// @param x double value that represents the current input in the 1st dimension
-/// @param y1 double value that represents the current input in the 2nd dimension
-/// @param y0 double value that represents the reference state in the 2nd dimension
-double IncompressibleClass::fracint(std::vector< std::vector<double> > coefficients, double x, double y1, double y0){
-	double row    = 0;
-	std::vector<double> newCoeffs;
-	double dlog = log(y1/y0);
-	for (unsigned int i=0; i<coefficients.size(); i++){
-		// process the first entry and remove it from the vector
-		row  = coefficients[i][0] * dlog;
-		if (coefficients[i].size() > 1) {
-			std::vector<double> tmpCoeffs(coefficients[i].begin() + 1, coefficients[i].end());
-			row += polyint(tmpCoeffs,y1,y0);
-		}
-		// save the result in a new vector entry
-		newCoeffs.push_back(row);
-	}
-	// in the end we process the new coefficient vector as polynomial
-	return polyval(newCoeffs,x);
-}
-
-
 /// Evaluates an exponential function for the given coefficients
 /// @param coefficients vector containing the ordered coefficients
-/// @param x double value that represents the current input
+/// @param T double value that represents the current input
 /// @param n int value that determines the kind of exponential function
-double IncompressibleClass::expval(std::vector<double> coefficients, double x, int n){
+double IncompressibleClass::expval(std::vector<double> const& coefficients, double T, int n){
 	double result = 0.;
 	if (n==1) {
 		checkCoefficients(coefficients,3);
-		result = exp(coefficients[0]/(x+coefficients[1]) - coefficients[2]);
+		result = exp(coefficients[0]/(T+coefficients[1]) - coefficients[2]);
 	} else if (n==2) {
-		result = exp(polyval(coefficients, x));
+		result = exp(polyval(coefficients, T));
 	} else {
 		throw ValueError(format("There is no function defined for this input (%d). ",n));
 	}
@@ -252,12 +335,12 @@ double IncompressibleClass::expval(std::vector<double> coefficients, double x, i
 /// Evaluates an exponential function for the given coefficients
 /// @param coefficients vector containing the ordered coefficients
 /// @param x double value that represents the current input in the 1st dimension
-/// @param y double value that represents the current input in the 2nd dimension
+/// @param T double value that represents the current input in the 2nd dimension
 /// @param n int value that determines the kind of exponential function
-double IncompressibleClass::expval(std::vector< std::vector<double> > coefficients, double x, double y, int n){
+double IncompressibleClass::expval(std::vector< std::vector<double> > const& coefficients, double x, double T, int n){
 	double result = 0.;
 	if (n==2) {
-		result = exp(polyval(coefficients, x, y));
+		result = exp(polyval(coefficients, x, T));
 	} else {
 		throw ValueError(format("There is no function defined for this input (%d). ",n));
 	}
@@ -273,7 +356,7 @@ double IncompressibleClass::expval(std::vector< std::vector<double> > coefficien
 //    liquid->testInputs(AT,Ap);
 //
 //
-//	SecCoolSolutionClass* obj = new MethanolSolutionClass();
+//	SecCoolSolution* obj = new MethanolSolution();
 //    double x      =   0.25;
 //    double T      =   5.0 + 273.15;
 //    double p      =   3e5;

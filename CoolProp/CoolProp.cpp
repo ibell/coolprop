@@ -99,11 +99,13 @@ std::pair<std::string, long> map_data[] = {
 	std::make_pair(std::string("G"),iG),
 	std::make_pair(std::string("V"),iV),
 	std::make_pair(std::string("L"),iL),
+	std::make_pair(std::string("Tmax"),iTmax),
+	std::make_pair(std::string("Tfreeze"),iTfreeze),
+	std::make_pair(std::string("Psat"),iPsat),
 	std::make_pair(std::string("I"),iI),
 	std::make_pair(std::string("SurfaceTension"),iI),
 	std::make_pair(std::string("dpdT"),iDpdT),
 	std::make_pair(std::string("drhodT|p"),iDrhodT_p),
-	std::make_pair(std::string("M"),iMM),
 	std::make_pair(std::string("Phase"),iPhase),
 	std::make_pair(std::string("PHASE_LIQUID"),iPHASE_LIQUID),
 	std::make_pair(std::string("PHASE_GAS"),iPHASE_GAS),
@@ -128,6 +130,7 @@ std::pair<long, std::string> units_data[] = {
 	std::make_pair(iTtriple, std::string("K")),
 	std::make_pair(iRhocrit, std::string("kg/m^3")),
 	std::make_pair(iTcrit, std::string("K")),
+	std::make_pair(iTmin, std::string("K")),
 
 	std::make_pair(iQ, std::string("")),
 	std::make_pair(iT, std::string("K")),
@@ -143,6 +146,9 @@ std::pair<long, std::string> units_data[] = {
 	std::make_pair(iG, std::string("kJ/kg")),
 	std::make_pair(iV, std::string("Pa*s")),
 	std::make_pair(iL, std::string("kW/m/K")),
+	std::make_pair(iTmax, std::string("K")),
+	std::make_pair(iTfreeze, std::string("K")),
+	std::make_pair(iPsat, std::string("kPa")),
 	std::make_pair(iI, std::string("N/m")),
 	std::make_pair(iDpdT, std::string("kPa/K")),
 	std::make_pair(iDrhodT_p, std::string("kg/K/m^3"))
@@ -310,27 +316,27 @@ static int IsBrine(char* Ref)
 	// not have a pure-fluid equivalent in CoolProp
     if (
         strcmp(Ref,"HC-10")==0 || 
-        strncmp(Ref,"PG",2)==0 || 
-		strncmp(Ref,"EG",2)==0 || 
-		strncmp(Ref,"EA",2)==0 ||
-		strncmp(Ref,"MA",2)==0 || 
-		strncmp(Ref,"Glycerol",8)==0 ||
-		strncmp(Ref,"K2CO3",5)==0 || 
-		strncmp(Ref,"CaCl2",5)==0 || 
-		strncmp(Ref,"MgCl2",5)==0 || 
-		strncmp(Ref,"NaCl",4)==0 || 
-		strncmp(Ref,"KAC",3)==0 || 
-		strncmp(Ref,"KFO",3)==0 || 
-		strncmp(Ref,"LiCl",3)==0 || 
-        strncmp(Ref,"NH3/H2O",7)==0
+        strncmp(Ref,"PG-",3)==0 ||
+		strncmp(Ref,"EG-",3)==0 ||
+		strncmp(Ref,"EA-",3)==0 ||
+		strncmp(Ref,"MA-",3)==0 ||
+		strncmp(Ref,"Glycerol-",9)==0 ||
+		strncmp(Ref,"K2CO3-",6)==0 ||
+		strncmp(Ref,"CaCl2-",6)==0 ||
+		strncmp(Ref,"MgCl2-",6)==0 ||
+		strncmp(Ref,"NaCl-",5)==0 ||
+		strncmp(Ref,"KAC-",4)==0 ||
+		strncmp(Ref,"KFO-",4)==0 ||
+		strncmp(Ref,"LiCl-",4)==0 ||
+        strncmp(Ref,"NH3/H2O-",8)==0
        )
     {
         return 1;
     }
 	// Then check for diluants that are also pure fluids in CoolProp
-	else if ( (strncmp(Ref,"Methanol",8)==0 && Ref[8] == '-') ||
-		      (strncmp(Ref,"Ethanol",7)==0 && Ref[7] == '-') ||
-			  (strncmp(Ref,"NH3",3)==0 && Ref[3] == '-')
+	else if ( (strncmp(Ref,"Methanol-",9)==0 && Ref[8] == '-') ||
+		      (strncmp(Ref,"Ethanol-",8)==0 && Ref[7] == '-') ||
+			  (strncmp(Ref,"NH3-",4)==0 && Ref[3] == '-')
 		)
 	{
 		return 1;
@@ -351,8 +357,16 @@ EXPORT_CODE int CONVENTION IsFluidType(char *Ref, char *Type)
 {
 	pFluid = Fluids.get_fluid(Ref);
 
-	if (IsBrine(Ref)){
+	if (IsBrine(Ref)){ // TODO Solution: Remove this part
 		if (!strcmp(Type,"Brine")){
+			return 1;
+		}
+		else{
+			return 0;
+		}
+	}
+	else if (IsIncompressibleSolution(Ref)){
+		if (!strcmp(Type,"Solution")){
 			return 1;
 		}
 		else{
@@ -582,7 +596,7 @@ double _Props(std::string Output, std::string Name1, double Prop1, std::string N
 	}
     
 
-    // It's a brine, call the brine routine
+    // It's a brine, call the brine routine // TODO Solutions: remove this part
 	else if (IsBrine((char*)Ref.c_str()))
     {
 		//Enthalpy and pressure are the inputs
@@ -609,11 +623,11 @@ double _Props(std::string Output, std::string Name1, double Prop1, std::string N
 		}
 		else
 		{
-			throw ValueError("For brine, inputs must be (order doesnt matter) 'T' and 'P', or 'H' and 'P'");
+			throw ValueError("For brine, inputs must be (order does not matter) 'T' and 'P', or 'H' and 'P'");
 		}
     }
 	// It's an incompressible liquid, call the routine
-	else if (IsIncompressibleLiquid((char*)Ref.c_str()))
+	else if (IsIncompressibleLiquid(Ref))
     {
 		//Enthalpy and pressure are the inputs
 		if ((Name1.c_str()[0]=='H' && Name2.c_str()[0]=='P') || (Name2.c_str()[0]=='H' && Name1.c_str()[0]=='P'))
@@ -625,9 +639,11 @@ double _Props(std::string Output, std::string Name1, double Prop1, std::string N
 			}
 			
 			// Solve for the temperature
-			double T =_T_hp_secant(Ref,Prop1,Prop2,300);
+			double Tma     = IncompLiquid(get_param_index(std::string("Tmax")),0.0,0.0,Ref);
+			double T_guess = Tma - 10.0 ;
+			double T =_T_hp_secant(Ref,Prop1,Prop2,T_guess);
 			// Return whatever property is desired
-			return IncompLiquid(get_param_index(Output),T,Prop2,(char*)Ref.c_str());
+			return IncompLiquid(get_param_index(Output),T,Prop2,Ref);
 		}
 		else if ((Name1.c_str()[0] == 'T' && Name2.c_str()[0] =='P') || (Name1.c_str()[0] == 'P' && Name2.c_str()[0] == 'T'))
         {
@@ -638,9 +654,41 @@ double _Props(std::string Output, std::string Name1, double Prop1, std::string N
 		}
 		else
 		{
-			throw ValueError("For incompressible fluids, inputs must be (order doesnt matter) 'T' and 'P', or 'H' and 'P'");
+			throw ValueError("For incompressible fluids, inputs must be (order does not matter) 'T' and 'P', or 'H' and 'P'");
 		}
     }
+    // It's an incompressible solution, call the routine
+	else if (IsIncompressibleSolution(Ref))
+	{
+		//Enthalpy and pressure are the inputs
+		if ((Name1.c_str()[0]=='H' && Name2.c_str()[0]=='P') || (Name2.c_str()[0]=='H' && Name1.c_str()[0]=='P'))
+		{
+			if (Name2.c_str()[0]=='H' && Name1.c_str()[0]=='P')
+			{
+				std::swap(Prop1,Prop2);
+				std::swap(Name1,Name2);
+			}
+
+			// Solve for the temperature
+			double Tma     = IncompSolution(get_param_index(std::string("Tmax")),0.0,0.0,Ref);
+			double Tmi     = IncompSolution(get_param_index(std::string("Tmin")),0.0,0.0,Ref);
+			double T_guess = (Tma+Tmi)/2.0 ;
+			double T =_T_hp_secant(Ref,Prop1,Prop2,T_guess);
+			// Return whatever property is desired
+			return IncompSolution(get_param_index(Output),T,Prop2,Ref);
+		}
+		else if ((Name1.c_str()[0] == 'T' && Name2.c_str()[0] =='P') || (Name1.c_str()[0] == 'P' && Name2.c_str()[0] == 'T'))
+		{
+			if (Name1.c_str()[0] =='P' && Name2.c_str()[0] =='T'){
+				std::swap(Prop1,Prop2);
+			}
+			return IncompSolution(get_param_index(Output),Prop1,Prop2,Ref);
+		}
+		else
+		{
+			throw ValueError("For incompressible solutions, inputs must be (order does not matter) 'T' and 'P', or 'H' and 'P'");
+		}
+	}
 	else
 	{
 		throw ValueError(format("Your fluid name [%s] is not a CoolProp fluid, a REFPROP fluid, a brine or a liquid",Ref.c_str()));
