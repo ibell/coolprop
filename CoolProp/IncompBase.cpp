@@ -52,14 +52,14 @@ bool IncompressibleClass::checkCoefficients(std::vector< std::vector<double> > c
 double IncompressibleClass::simplePolynomial(std::vector<double> const& coefficients, double T){
 	double result = 0.;
 	for(unsigned int i=0; i<coefficients.size();i++) {
-		result += coefficients[i] * pow(T,i);
+		result += coefficients[i] * pow(T,(int)i);
 	}
 	return result;
 }
 double IncompressibleClass::simplePolynomial(std::vector<std::vector<double> > const& coefficients, double x, double T){
 	double result = 0;
 	for(unsigned int i=0; i<coefficients.size();i++) {
-		result += pow(x,i) * simplePolynomial(coefficients[i], T);
+		result += pow(x,(int)i) * simplePolynomial(coefficients[i], T);
 	}
 	return result;
 }
@@ -73,7 +73,7 @@ double IncompressibleClass::simplePolynomial(std::vector<std::vector<double> > c
 double IncompressibleClass::simplePolynomialInt(std::vector<double> const& coefficients, double T){
 	double result = 0.;
 	for(unsigned int i=0; i<coefficients.size();i++) {
-		result += 1./(i+1.) * coefficients[i] * pow(T,(i+1.));
+		result += 1./(i+1.) * coefficients[i] * pow(T,(int)(i+1.));
 	}
 	return result;
 }
@@ -81,7 +81,7 @@ double IncompressibleClass::simplePolynomialInt(std::vector<double> const& coeff
 double IncompressibleClass::simplePolynomialInt(std::vector<double> const& coefficients, double T1, double T0){
 	double result = 0.;
 	for(unsigned int i=0; i<coefficients.size();i++) {
-		result += 1./(i+1.) * coefficients[i] * ( pow(T1,(i+1.)) - pow(T0,(i+1.)) );
+		result += 1./(i+1.) * coefficients[i] * ( pow(T1,(int)(i+1.)) - pow(T0,(int)(i+1.)) );
 	}
 	return result;
 }
@@ -89,7 +89,7 @@ double IncompressibleClass::simplePolynomialInt(std::vector<double> const& coeff
 double IncompressibleClass::simplePolynomialInt(std::vector<std::vector<double> > const& coefficients, double x, double T){
 	double result = 0.;
 	for(unsigned int i=0; i<coefficients.size();i++) {
-		result += pow(x,i) * simplePolynomialInt(coefficients[i], T);
+		result += pow(x,(int)i) * simplePolynomialInt(coefficients[i], T);
 	}
 	return result;
 }
@@ -97,7 +97,7 @@ double IncompressibleClass::simplePolynomialInt(std::vector<std::vector<double> 
 double IncompressibleClass::simplePolynomialInt(std::vector<std::vector<double> > const& coefficients, double x, double T1, double T0){
 	double result = 0.;
 	for(unsigned int i=0; i<coefficients.size();i++) {
-		result += pow(x,i) * simplePolynomialInt(coefficients[i], T1, T0);
+		result += pow(x,(int)i) * simplePolynomialInt(coefficients[i], T1, T0);
 	}
 	return result;
 }
@@ -111,7 +111,7 @@ double IncompressibleClass::simpleFracInt(std::vector<double> const& coefficient
 	double result = coefficients[0] * log(T);
 	if (coefficients.size() > 1) {
 		for (unsigned int i=0; i<coefficients.size()-1; i++){
-			result += 1/(i+1) * coefficients[i+1] * pow(T,i+1);
+			result += 1/(i+1) * coefficients[i+1] * pow(T,(int)(i+1));
 		}
 	}
 	return result;
@@ -120,7 +120,7 @@ double IncompressibleClass::simpleFracInt(std::vector<double> const& coefficient
 	double result = coefficients[0] * log(T1/T0);
 	if (coefficients.size() > 1) {
 		for (unsigned int i=0; i<coefficients.size()-1; i++){
-			result += 1/(i+1) * coefficients[i+1] * (pow(T1,i+1)-pow(T0,i+1));
+			result += 1/(i+1) * coefficients[i+1] * (pow(T1,(int)(i+1))-pow(T0,(int)(i+1)));
 		}
 	}
 	return result;
@@ -128,14 +128,14 @@ double IncompressibleClass::simpleFracInt(std::vector<double> const& coefficient
 double IncompressibleClass::simpleFracInt(std::vector< std::vector<double> > const& coefficients, double x, double T){
 	double result = 0;
 	for (unsigned int i=0; i<coefficients.size(); i++){
-		result += pow(x,i) * polyfracint(coefficients[i],T);
+		result += pow(x,(int)i) * polyfracint(coefficients[i],T);
 	}
 	return result;
 }
 double IncompressibleClass::simpleFracInt(std::vector< std::vector<double> > const& coefficients, double x, double T1, double T0){
 	double result = 0;
 	for (unsigned int i=0; i<coefficients.size(); i++){
-		result += pow(x,i) * polyfracint(coefficients[i],T1,T0);
+		result += pow(x,(int)i) * polyfracint(coefficients[i],T1,T0);
 	}
 	return result;
 }
@@ -186,9 +186,9 @@ std::vector<double> IncompressibleClass::fracIntCentralDvector(int m, double T, 
 	double tmp;
 	if (m<1) throw ValueError(format("You have to provide coefficients, a vector length of %d is not a valid. ",m));
 	for (unsigned int j=0; j<m; j++){ // loop through row
-		tmp = pow(-1,j) * log(T) * pow(Tbase,j);
+		tmp = pow(-1.0,(int)j) * log(T) * pow(Tbase,(int)j);
 		for(unsigned int k=0; k<j; k++) { // internal loop for every entry
-			tmp += binom(j,k) * pow(-1,k) / (j-k) * pow(T,j-k) * pow(Tbase,k);
+			tmp += binom(j,k) * pow(-1.0,(int)k) / (j-k) * pow(T,(int)(j-k)) * pow(Tbase,(int)k);
 		}
 		D.push_back(tmp);
 	}
@@ -199,9 +199,9 @@ std::vector<double> IncompressibleClass::fracIntCentralDvector(int m, double T1,
 	double tmp;
 	if (m<1) throw ValueError(format("You have to provide coefficients, a vector length of %d is not a valid. ",m));
 	for (int j=0; j<m; j++){ // loop through row
-		tmp = pow(-1,j) * log(T1/T0) * pow(Tbase,j);
+		tmp = pow(-1.0,(int)j) * log(T1/T0) * pow(Tbase,(double)j);
 		for(int k=0; k<j; k++) { // internal loop for every entry
-			tmp += binom(j,k) * pow(-1,k) / (j-k) * (pow(T1,j-k)-pow(T0,j-k)) * pow(Tbase,k);
+			tmp += binom(j,k) * pow(-1.0,(int)k) / (j-k) * (pow(T1,(int)(j-k))-pow(T0,(int)(j-k))) * pow(Tbase,(int)k);
 		}
 		D.push_back(tmp);
 	}
