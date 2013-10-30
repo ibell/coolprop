@@ -329,4 +329,7 @@ class HC10(LiquidData):
     Desc    = "Dynalene "+Name
   
     
-
+# output 
+#dataObj = Therminol72()
+#for i in range(len(dataObj.T)):
+#    print str(dataObj.T[i])+", "+str(dataObj.mu_dyn[i])
