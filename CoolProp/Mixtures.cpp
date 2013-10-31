@@ -96,9 +96,9 @@ Mixture::Mixture(std::vector<Fluid *> pFluids)
 	{
 		z[0] = x0; z[1] = 1-x0;
 		Tsat = saturation_p(TYPE_BUBBLEPOINT, 1000, &z, &x, &y);
-		std::cout << format("%g %g %g %g",x0,Tsat,y[0],y[1]);
+		std::cout << format("%g %g %g %g",x0,Tsat,y[0],y[1]).c_str();
 		Tsat = saturation_p(TYPE_DEWPOINT, 1000, &z, &x, &y);
-		std::cout << format(" %g %g %g",Tsat,x[0],x[1]);
+		std::cout << format(" %g %g %g",Tsat,x[0],x[1]).c_str()	;
 			
 		std::cout << std::endl;
 	}
@@ -109,7 +109,7 @@ Mixture::Mixture(std::vector<Fluid *> pFluids)
 		z[0] = x0; z[1] = 1-x0;
 		Tsat = saturation_p(TYPE_BUBBLEPOINT, p, &z, &x, &y);
 		if (!ValidNumber(Tsat)){break;}
-		std::cout << format("%g %g %g %g\n",x0,Tsat,y[0],y[1]);
+		std::cout << format("%g %g %g %g\n",x0,Tsat,y[0],y[1]).c_str();
 	}
 
 	double rr = 0;

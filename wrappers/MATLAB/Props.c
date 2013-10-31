@@ -4,7 +4,7 @@
    c++ parts in the header that cannot be easily hidden when compiling */
 double Props(char *Output, char Name1, double Prop1, char Name2, double Prop2, char * Ref);
 double Props1(char *Output, char * Ref);
-long get_global_param_string(char*);
+long get_global_param_string(char*, char*);
 long get_fluid_param_string(char *fluid, char *param, char * Output);
 long get_standard_unit_system(void);
 void set_standard_unit_system(long);

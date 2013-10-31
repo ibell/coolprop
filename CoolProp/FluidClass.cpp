@@ -264,7 +264,7 @@ void rebuild_CriticalSplineConstants_T()
 		rhoV = CPS2.rhoV(); rhoL = CPS2.rhoL();
 		drhodTV = CPS2.drhodT_along_sat_vapor(); 
 		drhodTL = CPS2.drhodT_along_sat_liquid();
-		std::cout << format("%0.20g",good) << std::endl;
+		std::cout << format("%0.20g",good).c_str() << std::endl;
 		fprintf(fp,"\tstd::make_pair(std::string(\"%s\"),CriticalSplineStruct_T(%0.12e,%0.12e,%0.12e,%0.12e,%0.12e) ),\n",fluid_names[i].c_str(),Tc-good,rhoL,rhoV,drhodTL,drhodTV);
 	}
 	fclose(fp);
