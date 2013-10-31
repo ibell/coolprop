@@ -1748,7 +1748,7 @@ double CoolPropStateClassSI::dpdT_constrho(void){
 }
 double CoolPropStateClassSI::d2pdrho2_constT(void){
 	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
-	return _T*pFluid->R()*(2*delta*d2phir_dDelta2(tau,delta)+2*dphir_dDelta(tau,delta)+2*delta*d2phir_dDelta2(tau,delta)+delta*delta*d3phir_dDelta3(tau,delta))/pFluid->reduce.rho;
+	return pFluid->R()*_T/_rho*(2*delta*dphir_dDelta(tau,delta)+4*delta*delta*d2phir_dDelta2(tau,delta)+delta*delta*delta*d3phir_dDelta3(tau,delta));
 }
 double CoolPropStateClassSI::d2pdrhodT(void){
 	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
@@ -1757,6 +1757,24 @@ double CoolPropStateClassSI::d2pdrhodT(void){
 double CoolPropStateClassSI::d2pdT2_constrho(void){
 	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
 	return pFluid->R()*_rho*delta*tau*tau/_T*d3phir_dDelta_dTau2(tau,delta);
+}
+double CoolPropStateClassSI::d2pdrho2_consts(void){
+	double cv = this->cv();
+	// Convert each derivative in terms of volume rather than density
+	// Note d2rhodv2 = 2rho^3 and drhodv = -rho^2
+	double d2pdv2_constT = 2*_rho*_rho*_rho*d2pdrho2_constT();
+	double dpdT_constv = dpdT_constrho();
+	double d2pdvdT = -_rho*_rho*d2pdrhodT();
+	double d2pdT2_constv = d2pdT2_constrho();
+	double dcv_dT_constv = pFluid->R()*tau/_T*(2*tau*(d2phi0_dTau2(tau,delta)+d2phir_dTau2(tau,delta))+tau*tau*(d3phi0_dTau3(tau,delta)+d3phir_dTau3(tau,delta)));
+	double LAMBDA1 = d2pdv2_constT;
+	double LAMBDA2 = -3*_T/cv*dpdT_constv*d2pdvdT;
+	double LAMBDA3 = +pow(_T/cv*dpdT_constv,2)*(3*d2pdT2_constv+1/_T*dpdT_constv*(1-_T/cv*dcv_dT_constv));
+	return LAMBDA1 + LAMBDA2 + LAMBDA3;
+}
+double CoolPropStateClassSI::fundamental_derivative_of_thermodynamics(void)
+{
+	return this->d2pdrho2_consts()/pow(this->speed_sound(),2)/2/pow(this->rho(),3);
 }
 
 // DERIVATIVES OF ENTHALPY FROM EOS

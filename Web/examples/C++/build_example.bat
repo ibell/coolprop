@@ -11,3 +11,4 @@ link *.obj /OUT:Example.exe
 erase *.obj
 
 call Example > Output.txt
+erase Example.exe

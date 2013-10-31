@@ -372,6 +372,11 @@ public:
 	double d2sdp2_constT(void);
 	double d2sdTdp(void);
 
+	// Fundamental derivative of thermodynamics
+	double fundamental_derivative_of_thermodynamics(void);
+
+	double d2pdrho2_consts(void);
+
 	// ----------------------------------------	
 	// Derivatives along the saturation curve
 	// ----------------------------------------
@@ -607,6 +612,8 @@ public:
 	double d2sdT2_constp(void){return CoolPropStateClassSI::d2sdT2_constp()*conversion_factor("S/T/T");};
 	double d2sdp2_constT(void){return CoolPropStateClassSI::d2sdp2_constT()*conversion_factor("S/P/P");};
 	double d2sdTdp(void){return CoolPropStateClassSI::d2sdTdp()*conversion_factor("S/T/P");};
+
+	
 
 	//// ----------------------------------------	
 	//// Derivatives along the saturation curve
