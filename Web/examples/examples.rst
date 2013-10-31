@@ -11,11 +11,13 @@ Other Languages
 .. toctree::
     :maxdepth: 1
 
+    C++/example.rst
     MATLAB/example.rst
     Octave/example.rst
     CSharp/example.rst
     Java/example.rst
     Python/example.rst
+    
 
 Sample Props Code
 -------------------

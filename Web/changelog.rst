@@ -3,11 +3,15 @@ Changelog for CoolProp
 
 4.0.0
 -----
+* API CHANGE: Some functions have been condensed, functions get_errstring, get_REFPROPname, etc. have been rolled into get_global_param_string.
+* MAJOR: Code now is on github (https://github.com/ibell/coolprop)
 * MAJOR: Internally all units are SI, functions should do the necessary conversions using conversion_factor() and get/set_standard_unit_system()
 * MAJOR: Brines are added to CoolPropStateClass
-* NON-BACKWARDS-COMPATIBLE CHANGE: Some functions have been condensed, functions get_errstring, get_REFPROPname, etc. have been rolled into get_global_param_string
 * Wrappers added for Java, Javascript, MathCAD
+* Improved wrapper for Labview (Thanks to the Sergei and guys at UGent)
+* Improved plotting in Python (Thanks Logan)
 * Added viscosity for n-Hexane
+* Added R1233zd(E)
 
 3.3.0 (revision 660)
 --------------------
