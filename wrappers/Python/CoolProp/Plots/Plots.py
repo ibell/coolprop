@@ -59,7 +59,7 @@ class InlineLabel(object):
     BBOX_OPTS = dict(boxstyle='square,pad=0.2',
                      fc='white',
                      ec='None',
-                     alpha=0.9)
+                     alpha=0)
 
     def __init__(self, line, fsize, xloc, axis=None):
         self.line = line
@@ -69,6 +69,7 @@ class InlineLabel(object):
         if axis is None:
             self.axis = matplotlib.pyplot.gca()
         self.axis_transform = self.axis.transData
+        self.axis_transform_inv = self.axis.transData.inverted()
 
         self.badness = []
         self.theta = []
@@ -87,19 +88,35 @@ class InlineLabel(object):
         self.theta = []
         self.transforms = []
         txt_width, txt_height = self.get_text_width_height()
+
         for i in range(len(x_vals)-1):
+            text_loc = numpy.array([x_vals[i], y_vals[i]])
+
             rot_transform = transforms.Affine2D()
             theta = math.atan((y_vals[i+1] - y_vals[i]) /
                               (x_vals[i+1] - x_vals[i]))
-            rot_transform.rotate(theta)
+
+            self.axis_transform = self.axis.transData
+            self.axis_transform_inv = self.axis.transData.inverted()
+            point = self.axis_transform.transform(text_loc)
+            rot_transform.rotate_around(point[0], point[1], theta)
             self.transforms.append(self.axis_transform + rot_transform)
 
-            text_loc = numpy.array([x_vals[i], y_vals[i]])
             trans_angle = self.axis_transform.transform_angles
             theta = trans_angle(numpy.array((theta,)),
                                 text_loc.reshape((1, 2)),
                                 radians=True)
             self.theta.append(theta)
+
+            bounds = [numpy.array([text_loc[0] - txt_width / 2.0,
+                                   text_loc[1] - txt_height / 2.0]),
+                      numpy.array([text_loc[0] - txt_width / 2.0,
+                                   text_loc[1] + txt_height / 2.0]),
+                      numpy.array([text_loc[0] + txt_width / 2.0,
+                                   text_loc[1] + txt_height / 2.0]),
+                      numpy.array([text_loc[0] + txt_width / 2.0,
+                                   text_loc[1] - txt_height / 2.0])]
+            self.bounds.append(bounds)
 
         self.theta.append(self.theta[-1])
         self.transforms.append(self.transforms[-1])
@@ -113,7 +130,7 @@ class InlineLabel(object):
             txt_width, txt_height, _ = tex_sizes(label, self.fsize)
         elif ismath:
             mathtext_parser = mathtext.MathTextParser('bitmap')
-            labelFontProps = font_manager.FontProperties()
+            labelFontProps = font_manager.FontProperties(size=self.fsize)
             img, _ = mathtext_parser.parse(label, dpi=72, prop=labelFontProps)
             #at dpi=72, the units are PostScript points
             txt_width = img.get_width()
@@ -122,20 +139,45 @@ class InlineLabel(object):
             txt_width = (len(label)) * self.fsize * 0.6
             txt_height = self.fsize * 0.6
         #END - Adapted from matplotlib source
-        return txt_width, txt_height
+        point = numpy.array([txt_width, txt_height])
+        self.axis_transform = self.axis.transData
+        self.axis_transform_inv = self.axis.transData.inverted()
+        return (self.axis_transform_inv.transform(point) -
+                self.axis_transform_inv.transform([0, 0]))
+
+    def update_badness(self, sat_lines=[], other_labels=[]):
+        pass
 
     def place_label(self):
         x_vals = self.line['x']
         y_vals = self.line['y']
         loc_index = numpy.argmin(self.badness)
+
+        text_loc = numpy.array([x_vals[loc_index], y_vals[loc_index]])
         rotation = math.degrees(self.theta[loc_index])
-        text = self.axis.text(x_vals[loc_index], y_vals[loc_index],
+
+        text = self.axis.text(text_loc[0], text_loc[1],
                               self.line['label'],
                               verticalalignment='center',
                               horizontalalignment='center',
+                              multialignment='center',
+                              linespacing=0,
                               color='b',
+                              fontsize=20,
                               bbox=self.BBOX_OPTS,
                               rotation=rotation)
+
+        text_trans = text.get_transform()
+        text_trans_inv = text_trans.inverted()
+        bounds = self.bounds[loc_index]
+        for bound in bounds:
+            self.axis_transform = self.axis.transData
+            self.axis_transform_inv = self.axis.transData.inverted()
+            point = text_trans.transform(bound)
+            point = self.axis_transform_inv.transform(point)
+            print(point)
+            matplotlib.pyplot.plot(point[0], point[1], 'r*')
+
         return text
 
 
