@@ -2299,7 +2299,12 @@ double CoolPropStateClassSI::d3phir_dDelta3(double tau, double delta){
 		return cache.d3phir_dDelta3;
 	}
 };
-
+/// Enable the extended two-phase calculations
+void CoolPropStateClassSI::enable_EXTTP(void){pFluid->enable_EXTTP();};
+/// Check if extended two-phase calculations are enabled
+bool CoolPropStateClassSI::isenabled_EXTTP(void){return pFluid->isenabled_EXTTP();};
+/// Disable the extended two-phase calculations
+void CoolPropStateClassSI::disable_EXTTP(void){pFluid->disable_EXTTP();};
 /// Enable the TTSE
 void CoolPropStateClassSI::enable_TTSE_LUT(void){pFluid->enable_TTSE_LUT();};
 /// Check if TTSE is enabled

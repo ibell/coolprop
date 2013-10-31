@@ -2,6 +2,7 @@ import numpy, matplotlib.pyplot
 import CoolProp.CoolProp as CP
 from scipy.optimize._minimize import minimize
 from scipy.optimize.minpack import curve_fit
+from matplotlib.ticker import MaxNLocator
 
 class IncompLiquidFit(object):
     """ 
@@ -273,56 +274,87 @@ class IncompLiquidFit(object):
         initValues = self.getCoefficients(xName)[:]
         # Fit logarithms for viscosity and saturation pressure
         if xName=='V' or xName=='Psat':
-                   
-#            #func = lambda Ti, coefficients: return self._PropsFit(coefficients,xName,T=Ti)
-#            def func(T, *coefficients): return numpy.array([self._PropsFit(coefficients,xName,T=Ti) for Ti in T])
-#            #def func(T, a, b, c): 
-#            #    return numpy.exp((a/(T+b) - c))
-#            #print xData 
-#            #print numpy.log(xData)
-#            popt, pcov = curve_fit(func, T, numpy.array(xData), p0=initValues, maxfev=5800)
-#            print popt 
-#            print pcov
-#            return popt 
-
-
-            print "Fitting exponential with "+str(len(initValues))+" coefficients."
-            arguments  = (xName,T,xData)
-            #options    = {'maxiter': 1e2, 'maxfev': 1e5}
-            if xName=='V':
-                method     = "Powell"
-            elif xName=='Psat':
-                method     = "BFGS"
+            
+                        
+            #fit = "MIN" # use a home-made minimisation with Powell and Broyden-Fletcher-Goldfarb-Shanno
+            #fit = "LMA" # use the Levenberg-Marquardt algorithm from curve_fit 
+            #fit = "POL" # use a polynomial in an exponential function
+            
+            fit     = ["LMA","MIN"] # First try LMA, use MIN as a fall-back solver
+            success = False
+            counter = -1
+            
+            while (not success):
+                counter += 1
                 
-            tolStart   = 1e-13
-            tol        = tolStart
-            res = minimize(fun, initValues, method=method, args=arguments, tol=tol)
-            
-            while ((not res.success) and tol<1e-2):
-                tol *= 1e2
-                print "Fit did not succeed, reducing tolerance to "+str(tol)
-                res = minimize(fun, initValues, method=method, args=arguments, tol=tol)
-            
-            #if res.success and tol>tolStart:
-            #    print "Refitting with new guesses and original tolerance of "+str(tolStart)
-            #    res = minimize(fun, res.x, method=method, args=arguments, tol=tolStart)
-            
-            if res.success:
-                return res.x
-            else:
-                print "Fit failed: "
-                print res
-                return False
-
-#            print "Fitting exponential polynomial with "+str(len(initValues))+" coefficients."
-#            z = numpy.polyfit(T, numpy.log(xData)[:], len(initValues)-1)
-#            return z[::-1]
+                if fit[counter]=="LMA":
+                    xData = numpy.array(xData)
+                    
+                    fit_log = True 
+                    
+                    def func(T, *coefficients):
+                        result = numpy.array([self._PropsFit(coefficients,xName,T=Ti) for Ti in T])
+                        if fit_log: 
+                            return numpy.log(result)
+                        else: 
+                            return result
+                    
+                    if fit_log:
+                        xData = numpy.log(xData)
+                    
+                    try:
+                        # Do the actual fitting
+                        popt, pcov = curve_fit(func, T, xData, p0=initValues, maxfev=1000)
+                        #print popt 
+                        #print pcov
+                        success = True
+                        return popt
+                        
+                    except RuntimeError as e:
+                        print "Exception: "+str(e)
+                        print "Using: "+str(fit[counter+1])+" as a fall-back."
+                        success = False
+                
+                elif fit[counter]=="MIN":
+                    print "Fitting exponential with "+str(len(initValues))+" coefficients."
+                    arguments  = (xName,T,numpy.exp(xData))
+                    #options    = {'maxiter': 1e2, 'maxfev': 1e5}
+                    if xName=='V':
+                        method     = "Powell"
+                    elif xName=='Psat':
+                        method     = "BFGS"
+                    
+                    tolStart   = 1e-13
+                    tol        = tolStart
+                    res = minimize(fun, initValues, method=method, args=arguments, tol=tol)
+                    
+                    while ((not res.success) and tol<1e-2):
+                        tol *= 1e2
+                        print "Fit did not succeed, reducing tolerance to "+str(tol)
+                        res = minimize(fun, initValues, method=method, args=arguments, tol=tol)
+                    
+                    # Include these lines for an additional fit with new guess values. 
+                    #if res.success and tol>tolStart:
+                    #    print "Refitting with new guesses and original tolerance of "+str(tolStart)
+                    #    res = minimize(fun, res.x, method=method, args=arguments, tol=tolStart)
+                    
+                    if res.success:
+                        success = True
+                        return res.x
+                    else:
+                        print "Fit failed: "
+                        print res
+                        success = False
+                    
+                elif fit[counter]=="POL":
+                    print "Fitting exponential polynomial with "+str(len(initValues))+" coefficients."
+                    z = numpy.polyfit(T, numpy.log(xData)[:], len(initValues)-1)
+                    return z[::-1]
+                
+                else:
+                    raise (ValueError("Error: You used an unknown fit method."))
             
         else: # just a polynomial
-            #minCoeff = 1e-50
-            #z = numpy.array([initValues,minCoeff-1]).flat # add a dummy
-            #while (numpy.min(z) < minCoeff):
-            #z = z[0:-1] # remove one element
             print "Fitting polynomial with "+str(len(initValues))+" coefficients."
             z = numpy.polyfit(T, xData, len(initValues)-1)
             return z[::-1]
@@ -332,6 +364,13 @@ class IncompLiquidFit(object):
 from data_incompressible import *
 
 containerList = [TherminolD12(), TherminolVP1(), Therminol66(), Therminol72(), DowthermJ(), DowthermQ(), Texatherm22(), NitrateSalt(), SylthermXLT(), HC50(), HC40(), HC30(), HC20(), HC10()]
+
+def relError(A=[],B=[],PCT=False):
+    result = (numpy.array(A)-numpy.array(B))/numpy.array(B);
+    if PCT:
+        return result * 100. 
+    else:
+        return result
 
 for data in containerList:    
     ### Some test case 
@@ -374,7 +413,7 @@ for data in containerList:
     print "Density, old: "+str(oldCoeffs)
     print "Density, new: "+str(newCoeffs)
     print
-    liqObj.setCoefficients(inVal,newCoeffs)
+    liqObj.setCoefficients(inVal,newCoeffs)   
     fData = numpy.array([liqObj.Props(inVal, T=Tin, P=Pin) for Tin in tDat1])
     ax1.plot(tData-273.15, xData, 'o', label="Data Sheet")
     ax1.plot(tDat1-273.15, fData, 'o', label="Python")
@@ -383,8 +422,11 @@ for data in containerList:
         Tmax = CP.PropsU('Tmax','T',0,'P',0,data.Name,"SI")
         tDat2 = numpy.linspace(Tmin+1, Tmax-1, 100)
         ax1.plot(tDat2-273.15, CP.PropsU(inVal, 'T', tDat2, 'P', Pin*1e3, data.Name, "SI"), label="CoolProp")
+    ax12 = ax1.twinx()
+    fData = numpy.array([liqObj.Props(inVal, T=Tin, P=Pin) for Tin in tData])
+    ax12.plot(tData-273.15, relError(fData, xData, True), 'o', label="Error", alpha=0.25)
+    ax12.set_ylabel(r'$\mathregular{rel.\/Error\/(\%)}$')
     ax1.set_ylabel(r'$\mathregular{Density\/(kg\/m^{-3})}$')
-    
     
     inVal = 'C'
     xData = data.c_p
@@ -399,8 +441,11 @@ for data in containerList:
     ax2.plot(tDat1-273.15, fData/1e3, 'o', label="Python")
     if inCP:
         ax2.plot(tDat2-273.15, CP.PropsU(inVal, 'T', tDat2, 'P', Pin*1e3, data.Name, "SI")/1e3, label="CoolProp")
+    ax22 = ax2.twinx()
+    fData = numpy.array([liqObj.Props(inVal, T=Tin, P=Pin) for Tin in tData])
+    ax22.plot(tData-273.15, relError(fData, xData, True), 'o', label="Error", alpha=0.25)
+    ax22.set_ylabel(r'$\mathregular{rel.\/Error\/(\%)}$')
     ax2.set_ylabel(r'$\mathregular{Heat\/Cap.\/(kJ\/kg^{-1}\/K^{-1})}$')
-    
     
     inVal = 'L'
     xData = data.lam
@@ -415,8 +460,11 @@ for data in containerList:
     ax3.plot(tDat1-273.15, fData*1e3, 'o', label="Python")
     if inCP:
         ax3.plot(tDat2-273.15, CP.PropsU(inVal, 'T', tDat2, 'P', Pin*1e3, data.Name, "SI")*1e3, label="CoolProp")
+    ax32 = ax3.twinx()
+    fData = numpy.array([liqObj.Props(inVal, T=Tin, P=Pin) for Tin in tData])
+    ax32.plot(tData-273.15, relError(fData, xData, True), 'o', label="Error", alpha=0.25)
+    ax32.set_ylabel(r'$\mathregular{rel.\/Error\/(\%)}$')
     ax3.set_ylabel(r'$\mathregular{Th.\/Cond.\/(mW\/m^{-1}\/K^{-1})}$')
-    
     
     inVal = 'V'
     tData = data.T[data.mu_dyn > 0]
@@ -434,10 +482,13 @@ for data in containerList:
         ax4.plot(tDat1-273.15, fData*1e3, 'o', label="Python")
         if inCP:
             ax4.plot(tDat2-273.15, CP.PropsU(inVal, 'T', tDat2, 'P', Pin*1e3, data.Name, "SI")*1e3, label="CoolProp")
+        ax42 = ax4.twinx()
+        fData = numpy.array([liqObj.Props(inVal, T=Tin, P=Pin) for Tin in tData])
+        ax42.plot(tData-273.15, relError(fData, xData, True), 'o', label="Error", alpha=0.25)
+        ax42.set_ylabel(r'$\mathregular{rel.\/Error\/(\%)}$')
     
     ax4.set_ylabel(r'$\mathregular{Dyn.\/Viscosity\/(mPa\/s)}$')
     ax4.set_yscale('log')
-    
     
     inVal = 'Psat'
     mask = numpy.logical_and(numpy.greater_equal(data.T,data.TminPsat),numpy.greater(data.psat,0)) 
@@ -456,12 +507,26 @@ for data in containerList:
         ax5.plot(tDat1-273.15, fData/1e3, 'o', label="Python")
         if inCP:
             ax5.plot(tDat2-273.15, CP.PropsU(inVal, 'T', tDat2, 'P', Pin*1e3, data.Name, "SI")/1e3, label="CoolProp")
+        ax52 = ax5.twinx()
+        fData = numpy.array([liqObj.Props(inVal, T=Tin, P=Pin) for Tin in tData])
+        ax52.plot(tData-273.15, relError(fData, xData, True), 'o', label="Error", alpha=0.25)
+        ax52.set_ylabel(r'$\mathregular{rel.\/Error\/(\%)}$')
         
     ax5.set_ylabel(r'$\mathregular{Vap.\/Pressure\/(kPa)}$')
     ax5.set_yscale('log')
     
     ax5.set_xlabel(ur'$\mathregular{Temperature\/(\u00B0C)}$')
     ax6.set_xlabel(ur'$\mathregular{Temperature\/(\u00B0C)}$')
+    
+    x5min,x5max = ax5.get_xlim()
+    x6min,x6max = ax6.get_xlim()
+    xmin, xmax  = (numpy.min([x5min,x6min]),numpy.max([x5max,x6max]))
+    
+    ax5.set_xlim([xmin,xmax])
+    ax6.set_xlim(ax5.get_xlim())
+    
+    ax5.xaxis.set_major_locator(MaxNLocator(5))
+    ax6.xaxis.set_major_locator(ax5.xaxis.get_major_locator())
     
     tData = numpy.array(data.Tmin + (data.Tmax-data.Tmin)/2.)
     xData = numpy.array(1)
@@ -515,6 +580,6 @@ for data in containerList:
     for Ci in C:
         print "cPsat.push_back(%+1.10E);" %(Ci)
         
-    #raw_input("Finished with "+data.Name+", press Enter to continue...")
+    raw_input("Finished with "+data.Name+", press Enter to continue...")
 
 
