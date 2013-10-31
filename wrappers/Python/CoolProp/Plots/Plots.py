@@ -7,7 +7,8 @@ import numpy
 
 import CoolProp.CoolProp as CP
 
-from .Common import BasePlot
+from CoolProp.Plots.Common import BasePlot
+from CoolProp.Plots.InlineLabels import InlineLabel
 
 
 def drawLines(Ref,lines,axis,plt_kwargs=None):
@@ -64,6 +65,7 @@ class IsoLines(BasePlot):
 
         self.iso_type = iso_type
         self.lines = []
+        self.labels = []
         self.plotted_lines = []
 
     def __set_axis_limits(self, swap_xy):
@@ -204,7 +206,7 @@ class IsoLines(BasePlot):
             return lines
 
         # TODO: Determine saturation state if two phase region present
-        x_range = numpy.linspace(axis_limits[0][0], axis_limits[0][1], 1000.)
+        x_range = numpy.linspace(axis_limits[0][0], axis_limits[0][1], 100.)
         x_mesh = [x_range for i in iso_range]
 
         plot_data = self._get_fluid_data(req_prop,
@@ -251,8 +253,8 @@ class IsoLines(BasePlot):
                               supported, yet..')
 
         if self.iso_type != 'all':
-            lines = self.get_isolines(iso_range, num)
-            self.plotted_lines = drawLines(self.fluid_ref, lines, self.axis)
+            self.lines = self.get_isolines(iso_range, num)
+            self.plotted_lines = drawLines(self.fluid_ref, self.lines, self.axis)
             self._plot_default_annotations()
             return self.plotted_lines
         #else:
@@ -262,6 +264,15 @@ class IsoLines(BasePlot):
         #        raise ValueError('Please provide a properly sized array of bounds.')
         #    for c,l in enumerate(ll):
         #        drawIsoLines(Ref, plot, l, iValues=iValues[c], num=num, axis=axis, fig=fig)
+
+    def add_inline_labels(self, xval=None, yval=None,
+                          method='auto', other_labels=[], sat_lines=[]):
+        all_labels = []
+        for line in self.lines:
+            label = InlineLabel(line, xval, yval, self.axis)
+            label.place_label(method, all_labels, sat_lines)
+            all_labels.append(label)
+        return all_labels
 
 
 class PropsPlot(BasePlot):
@@ -305,22 +316,41 @@ class PropsPlot(BasePlot):
         self.smin = kwargs.get('smin', None)
         self.smax = kwargs.get('smax', None)
 
+        self.labels = []
+        self.lines = []
+        self.plotted_lines = []
+        self.iso_lines = []
+
     def __draw_region_lines(self):
-        lines = self._get_sat_lines(kind='T',
-                                    smin=self.smin,
-                                    smax=self.smax)
-        drawLines(self.fluid_ref, lines, self.axis)
+        self.lines = self._get_sat_lines(kind='T',
+                                         smin=self.smin,
+                                         smax=self.smax)
+        drawLines(self.fluid_ref, self.lines, self.axis)
+        return self.lines
 
     def _draw_graph(self):
         self.__draw_region_lines()
         self._plot_default_annotations()
 
     def draw_isolines(self, iso_type, iso_range, num=10):
-        iso_lines = IsoLines(self.fluid_ref,
-                             self.graph_type,
-                             iso_type,
-                             axis=self.axis)
-        return iso_lines.draw_isolines(iso_range, num)
+        self.iso_lines.append(IsoLines(self.fluid_ref,
+                                       self.graph_type,
+                                       iso_type,
+                                       axis=self.axis))
+        self.plotted_lines = self.iso_lines[-1].draw_isolines(iso_range, num)
+        return self.plotted_lines
+
+    def add_inline_labels(self, xval=None, yval=None,
+                          method='auto', other_labels=[]):
+        if not self.lines:
+            self.__draw_region_lines()
+
+        self.labels.extend(other_labels)
+        for iso_line in self.iso_lines:
+            labels = iso_line.add_inline_labels(xval, yval, method,
+                                                self.labels, self.lines)
+            self.labels.extend(labels)
+        return self.labels
 
 
 def Ts(Ref, Tmin=None, Tmax=None, show=False, axis=None, *args, **kwargs):

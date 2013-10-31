@@ -171,11 +171,12 @@ class InlineLabel(object):
         badness = 0
         bounds = get_inline_label_bounds(self.theta, self.mat_text, self.axis)
         for line in sat_lines:
-            if line['type'] != 'sat_line':
+            if line['type'] != 'Q':
                 continue
 
             for (x, y) in zip(line['x'], line['y']):
-                if point_in_bbox([x, y], bounds):
+                point = self.axis.transData.transform([x, y])
+                if point_in_bbox(point, bounds):
                     badness += 100
                     break
 
@@ -205,12 +206,12 @@ class InlineLabel(object):
         for i, val in enumerate(self.x_vals):
             self.adjust_inline_label(i)
             self.badness[i] += self.get_satline_badness(i, sat_lines)
-            self.badness[i] += self.get_overlap_badness(i, labels)
-            self.badness[i] += self.get_axis_limit_badness(i)
-        print
-        print self.badness
+            #self.badness[i] += self.get_overlap_badness(i, labels)
+            #self.badness[i] += self.get_axis_limit_badness(i)
+        #print
+        #print self.badness
 
-    def place_label(self, method='auto', sat_lines=[], labels=[]):
+    def place_label(self, method='auto', labels=[], sat_lines=[]):
         axis_autoscale = self.axis.get_autoscalex_on()
         self.axis.set_autoscalex_on(False)
 
