@@ -12,6 +12,8 @@ Run the script build_x64.bat - adjust the paths if necessary to the include fold
 
 If on 32-bit windows, run the build_win32.bat file
 
+Each script will put the DLL in the corresponding folder (win32 for 32-bit, x64 for 64-bit)
+
 Running
 =======
 At the console, run::

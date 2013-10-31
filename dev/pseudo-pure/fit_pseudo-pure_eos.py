@@ -10,9 +10,7 @@ import scipy.stats
 import h5py
 from templates import *
 
-
 from Helmholtz import helmholtz
-
 
 def rsquared(x, y):
     """ Return R^2 where x and y are array-like."""
@@ -31,24 +29,27 @@ def get_fluid_constants(Ref):
 ##         D = [1.0,1,1,2,2,4,6]
 ##         L = [0.0,0,0,0,0,0,0]
         
-        D = []
-        L = []
-        T = []
+#         D = []
+#         L = []
+#         T = []
+#         
+#         for l in range(4):
+#             for d in range(9):
+#                 for t in range(4*l, 30, 5):
+#                     L.append(float(l))
+#                     D.append(float(d))
+#                     T.append(float(t)/8.0)
+#                
+#         D0 = np.array(D)
+#         L0 = np.array(L)
+#         T0 = np.array(T)
+#         N0 = 0.1*np.ones_like(D0)
         
-        for l in range(4):
-            for d in range(9):
-                for t in range(4*l, 30, 5):
-                    L.append(float(l))
-                    D.append(float(d))
-                    T.append(float(t)/8.0)
-               
-        print T
-        print D
-        print L
-        D0 = np.array(D)
-        L0 = np.array(L)
-        T0 = np.array(T)
-        N0 = 0.1*np.ones_like(D0)
+        #Values from Span short(2003) (polar)
+        D0 = np.array([0, 1.0, 1.0, 1.0, 3.0, 7.0, 1.0, 2.0, 5.0, 1.0, 1.0, 4.0, 2.0])
+        L0 = np.array([0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 2.0, 2.0, 2.0, 3.0])
+        T0 = np.array([0, 0.25,  1.25,  1.5, 0.25,  0.875, 2.375, 2.0,   2.125, 3.5,   6.5,   4.75,  12.5])
+        N0 = 0.5*np.ones_like(D0)
         
 ##         D0 = np.array([0,1.0, 1, 1, 2, 5, 1, 2, 2, 3, 3, 5, 5, 5, 1, 1, 4, 4, 2, 4, 5, 6])
 ##         L0 = np.array([0,0.0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3])
@@ -136,7 +137,7 @@ class ResidualPartFitter(object):
         
         keepers = []
         values = []
-        print len(self.N0), 'terms to start'
+        print len(self.N0), 'terms at start'
         for i in range(len(self.N0)):
             
             n = helmholtz.vectord([float(1)])
@@ -260,8 +261,9 @@ class ResidualPartFitter(object):
     
     def evaluate_EOS(self, N):
         
-        self.phir.n = helmholtz.vectord(N[0:len(N)//2])
-        self.phir.t = helmholtz.vectord(N[len(N)//2::])
+#         self.phir.n = helmholtz.vectord(N[0:len(N)//2])
+#         self.phir.t = helmholtz.vectord(N[len(N)//2::])
+        self.phir.n = helmholtz.vectord(N)
         
         dDelta = self.phir.dDeltaV(self.tauV,self.deltaV)
         dTau2 = self.phir.dTau2V(self.tauV,self.deltaV)
@@ -306,28 +308,29 @@ class ResidualPartFitter(object):
         w_cp_norm = w_cp/w_total
         w_w_norm = w_w/w_total
         
-        residuals = np.r_[(PPF.p/self.p-1)]#,w_cv_norm*(PPF.cv/self.cv-1),w_cp_norm*(PPF.cp/self.cp-1),w_w_norm*(PPF.w**2/self.speed_sound**2-1)]
+        residuals = np.r_[(PPF.p/self.p-1),w_cv_norm*(PPF.cv/self.cv-1),w_cp_norm*(PPF.cp/self.cp-1)]#,w_w_norm*(PPF.w**2/self.speed_sound**2-1)]
         RMS = np.sqrt(np.mean(np.power(residuals, 2)))
         
-        print RMS
+        print 'RMS:',RMS, '% Max',np.max(residuals),'%'
         return RMS
     
     def fit(self):
         
         # Kill off some not as good terms
-        self.termwise_Rsquared()
+        #self.termwise_Rsquared()
         
         # Load up the residual Helmholtz term with parameters
         n = helmholtz.vectord(self.N0)
         d = helmholtz.vectord(self.D0)
         t = helmholtz.vectord(self.T0)
         l = helmholtz.vectord(self.L0)
-        self.phir = helmholtz.phir_power(n, d, t, l, 1, 21)
+        self.phir = helmholtz.phir_power(n, d, t, l, 1, 12)
         
         # Solve for the coefficients
         Nbounds = [(-10,10) for _ in range(len(self.N0))]
         tbounds = [(-1,30) for _ in range(len(self.T0))]
-        self.N = scipy.optimize.minimize(self.OBJECTIVE, np.array(list(self.N0)+list(self.T0)), method = 'L-BFGS-B', bounds = Nbounds + tbounds, options = dict(maxiter = 100)).x
+        self.N = scipy.optimize.minimize(self.OBJECTIVE, np.array(list(self.N0)), bounds = Nbounds, options = dict(maxiter = 50)).x
+        #self.N = scipy.optimize.minimize(self.OBJECTIVE, np.array(list(self.N0)+list(self.T0)), method = 'L-BFGS-B', bounds = Nbounds + tbounds, options = dict(maxiter = 100)).x
 
         # Write the coefficients to HDF5 file
         h = h5py.File('fit_coeffs.h5','w')
@@ -363,18 +366,21 @@ class ResidualPartFitter(object):
         t = grp.get('t').value
         h.close()
         
-        PPF = self.evaluate_EOS(np.array(list(n)+list(t)))
-        
-        SC1 = plt.scatter(self.rho, self.T, s = 8, c = np.abs(PPF.p/self.p-1)*100, edgecolors = 'none', cmap = plt.get_cmap('jet'))
-        plt.gca().set_xscale('log')
-        plt.colorbar()
-        plt.show()
-        
         import matplotlib.colors as colors
         cNorm  = colors.LogNorm(vmin=1e-3, vmax=50)
+        PPF = self.evaluate_EOS(np.array(list(n)+list(t)))
+        
+        
+        SC1 = plt.scatter(self.rho, self.T, s = 8, c = np.abs(PPF.p/self.p-1)*100, edgecolors = 'none', cmap = plt.get_cmap('jet'), norm = cNorm)
+        plt.gca().set_xscale('log')
+        cb = plt.colorbar()
+        cb.set_label('np.abs(PPF.p/self.p-1)*100')
+        plt.show()
+        
         SC1 = plt.scatter(self.rho, self.T, s = 8, c = np.abs(PPF.cp/self.cp-1)*100, edgecolors = 'none', cmap = plt.get_cmap('jet'), norm = cNorm)
         plt.gca().set_xscale('log')
-        plt.colorbar()
+        cb  = plt.colorbar()
+        cb.set_label('np.abs(PPF.cp/self.cp-1)*100')
         plt.show()
 
 ##         plt.plot(self.T,PPF.p/self.p,'.'); plt.show()
@@ -395,7 +401,6 @@ class PPFFitterClass(object):
         if regenerate_data:
             self.RPF.generate_1phase_data()
             
-        
         self.RPF.load_data()
         
         if fit:

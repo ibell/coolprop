@@ -1,0 +1,76 @@
+Microsoft (R) COFF/PE Dumper Version 10.00.40219.01
+Copyright (C) Microsoft Corporation.  All rights reserved.
+
+
+Dump of file CoolProp.dll
+
+File Type: DLL
+
+  Section contains the following exports for CoolProp.dll
+
+    00000000 characteristics
+    52728519 time date stamp Thu Oct 31 17:28:09 2013
+        0.00 version
+           1 ordinal base
+          50 number of functions
+          50 number of names
+
+    ordinal hint RVA      name
+
+          1    0 000906F0 _Java_CoolPropJNI_DerivTerms@32
+          2    1 00090AD0 _Java_CoolPropJNI_F2K@16
+          3    2 00091CF0 _Java_CoolPropJNI_HAHelp@8
+          4    3 00091980 _Java_CoolPropJNI_HAProps@48
+          5    4 00091B10 _Java_CoolPropJNI_HAProps_1Aux@40
+          6    5 000905C0 _Java_CoolPropJNI_IProps@40
+          7    6 00091C00 _Java_CoolPropJNI_IceProps@28
+          8    7 00090630 _Java_CoolPropJNI_IsFluidType@16
+          9    8 00090B10 _Java_CoolPropJNI_K2F@16
+         10    9 000907D0 _Java_CoolPropJNI_Phase@32
+         11    A 00090990 _Java_CoolPropJNI_Phase_1Tp@32
+         12    B 000908B0 _Java_CoolPropJNI_Phase_1Trho@32
+         13    C 00090500 _Java_CoolPropJNI_Props1@16
+         14    D 00090410 _Java_CoolPropJNI_Props@40
+         15    E 00090290 _Java_CoolPropJNI_PropsS@40
+         16    F 00091CD0 _Java_CoolPropJNI_UseIdealGasEnthalpyCorrelations@12
+         17   10 00091CB0 _Java_CoolPropJNI_UseIsothermCompressCorrelation@12
+         18   11 00091C90 _Java_CoolPropJNI_UseVirialCorrelations@12
+         19   12 00091D70 _Java_CoolPropJNI_cair_1sat@16
+         20   13 000917F0 _Java_CoolPropJNI_conductivity_1background@28
+         21   14 00091760 _Java_CoolPropJNI_conductivity_1critical@28
+         22   15 00091880 _Java_CoolPropJNI_conformal_1Trho@48
+         23   16 00090F90 _Java_CoolPropJNI_disable_1TTSE_1LUT@12
+         24   17 000910E0 _Java_CoolPropJNI_disable_1TTSE_1LUT_1writing@12
+         25   18 00090EB0 _Java_CoolPropJNI_enable_1TTSE_1LUT@12
+         26   19 00091000 _Java_CoolPropJNI_enable_1TTSE_1LUT_1writing@12
+         27   1A 00090BC0 _Java_CoolPropJNI_get_1Fluid_1index@12
+         28   1B 00091310 _Java_CoolPropJNI_get_1TTSESinglePhase_1LUT_1range@44
+         29   1C 00090080 _Java_CoolPropJNI_get_1fluid_1param_1string@16
+         30   1D 0008FF00 _Java_CoolPropJNI_get_1global_1param_1string@12
+         31   1E 00090C30 _Java_CoolPropJNI_get_1index_1units@16
+         32   1F 00090B50 _Java_CoolPropJNI_get_1param_1index@12
+         33   20 00091600 _Java_CoolPropJNI_get_1standard_1unit_1system@8
+         34   21 00090F20 _Java_CoolPropJNI_isenabled_1TTSE_1LUT@12
+         35   22 00091070 _Java_CoolPropJNI_isenabled_1TTSE_1LUT_1writing@12
+         36   23 00090DB0 _Java_CoolPropJNI_psatL_1anc@20
+         37   24 00090E30 _Java_CoolPropJNI_psatV_1anc@20
+         38   25 00091D00 _Java_CoolPropJNI_returnHumAirCode@12
+         39   26 00090CB0 _Java_CoolPropJNI_rhosatL_1anc@20
+         40   27 00090D30 _Java_CoolPropJNI_rhosatV_1anc@20
+         41   28 00091150 _Java_CoolPropJNI_set_1TTSESat_1LUT_1size@16
+         42   29 00091260 _Java_CoolPropJNI_set_1TTSESinglePhase_1LUT_1range@44
+         43   2A 000911D0 _Java_CoolPropJNI_set_1TTSESinglePhase_1LUT_1size@20
+         44   2B 000913D0 _Java_CoolPropJNI_set_1TTSE_1mode@16
+         45   2C 00090A70 _Java_CoolPropJNI_set_1phase@12
+         46   2D 00091550 _Java_CoolPropJNI_set_1reference_1stateD@44
+         47   2E 00091490 _Java_CoolPropJNI_set_1reference_1stateS@16
+         48   2F 00091630 _Java_CoolPropJNI_set_1standard_1unit_1system@12
+         49   30 00091650 _Java_CoolPropJNI_viscosity_1dilute@20
+         50   31 000916D0 _Java_CoolPropJNI_viscosity_1residual@28
+
+  Summary
+
+        C000 .data
+       61000 .rdata
+       17000 .reloc
+      14F000 .text

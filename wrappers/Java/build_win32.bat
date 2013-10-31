@@ -1,3 +1,4 @@
+
 @echo on
 erase CoolProp.dll
 REM ******** set the variables ************
@@ -10,6 +11,7 @@ cl /c /I../../CoolProp /I"C:\Program Files\Java\jdk1.7.0_40\include" /I"C:\Progr
 cl /c /I../../CoolProp /I"C:\Program Files\Java\jdk1.7.0_40\include" /I"C:\Program Files\Java\jdk1.7.0_40\include\win32" /EHsc ../../CoolProp/*.cpp
 link /DLL *.obj /OUT:CoolProp.dll
 dumpbin /EXPORTS CoolProp.dll > exports.txt
+mkdir win32
 move CoolProp.dll win32
 erase *.obj
 erase *.exp

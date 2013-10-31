@@ -38,6 +38,6 @@ def run():
 if __name__=='__main__':
     compile_sources()
     link()
-    closure_compiler()
+    #closure_compiler()
     cleanup()
-    run()
+    #run()

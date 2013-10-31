@@ -1,5 +1,5 @@
-The *.mexw64 files in this folder are wrappers of CoolProp for 64-bit MATLAB
-The *.mexw32 files in this folder are wrappers of CoolProp for 32-bit MATLAB
+The *.mexw64 files in this folder are wrappers of CoolProp for 64-bit MATLAB on Windows
+The *.mexw32 files in this folder are wrappers of CoolProp for 32-bit MATLAB on Windows
 You can tell what type of MATLAB you have when you start up MATLAB.  It will say on the splash screen
 
 Place them somewhere on the MATLAB path, or add their containing folder to the MATLAB path.
@@ -13,7 +13,7 @@ Due to the poor integration of MATLAB and C/C++ code, the wrapper for MATLAB is
 a mess compared with other languages, and does not follow the 
 semantics of the other languages.
 
-So, the "normal" calls of Props(Ref,Output) and Props(Output,Name1,Val1,Name2,Val2,Fluid)
+The "normal" calls of Props(Ref,Output) and Props(Output,Name1,Val1,Name2,Val2,Fluid)
 work just like the other wrappers.  Here is a summary of the other hacky things
 that have been added to the MATLAB wrapper:
 
@@ -40,15 +40,15 @@ For Developers
 ==============
 To build the mex files on windows, you should enter these commands at the command prompt::
 
-    svn checkout svn://svn.code.sf.net/p/coolprop/code/trunk coolprop-code
+    git clone https://github.com/ibell/coolprop coolprop-code
     cd coolprop-code/wrappers/MATLAB
     matlab -r MATLABBuilder.m
 
-You will need to have subversion installed (google it).  You will also need a compiler installed (Visual studio express works).
+You will need to have git installed (google it).  You will also need a compiler installed (Visual studio express works). You might need to run mex -setup to select the compiler
 
 On OSX/Linux, the same idea.  Do this::
 
-    svn checkout svn://svn.code.sf.net/p/coolprop/code/trunk coolprop-code
+    git clone https://github.com/ibell/coolprop coolprop-code
     cd coolprop-code/wrappers/MATLAB
     # Change line 6 MATLABBuilder_OSX.m according to instructions in file.
     matlab -r MATLABBuilder_OSX.m
