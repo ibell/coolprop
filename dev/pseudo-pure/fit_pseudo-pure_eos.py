@@ -308,7 +308,7 @@ class ResidualPartFitter(object):
         w_cp_norm = w_cp/w_total
         w_w_norm = w_w/w_total
         
-        residuals = np.r_[(PPF.p/self.p-1),w_cv_norm*(PPF.cv/self.cv-1),w_cp_norm*(PPF.cp/self.cp-1)]#,w_w_norm*(PPF.w**2/self.speed_sound**2-1)]
+        residuals = np.r_[(PPF.p/self.p-1),w_cv_norm*(PPF.cv/self.cv-1)]#,w_cp_norm*(PPF.cp/self.cp-1)]#,w_w_norm*(PPF.w**2/self.speed_sound**2-1)]
         RMS = np.sqrt(np.mean(np.power(residuals, 2)))
         
         print 'RMS:',RMS, '% Max',np.max(residuals),'%'
@@ -329,7 +329,7 @@ class ResidualPartFitter(object):
         # Solve for the coefficients
         Nbounds = [(-10,10) for _ in range(len(self.N0))]
         tbounds = [(-1,30) for _ in range(len(self.T0))]
-        self.N = scipy.optimize.minimize(self.OBJECTIVE, np.array(list(self.N0)), bounds = Nbounds, options = dict(maxiter = 50)).x
+        self.N = scipy.optimize.minimize(self.OBJECTIVE, np.array(list(self.N0)), bounds = Nbounds, options = dict(maxiter = 40)).x
         #self.N = scipy.optimize.minimize(self.OBJECTIVE, np.array(list(self.N0)+list(self.T0)), method = 'L-BFGS-B', bounds = Nbounds + tbounds, options = dict(maxiter = 100)).x
 
         # Write the coefficients to HDF5 file
@@ -370,17 +370,18 @@ class ResidualPartFitter(object):
         cNorm  = colors.LogNorm(vmin=1e-3, vmax=50)
         PPF = self.evaluate_EOS(np.array(list(n)+list(t)))
         
-        
         SC1 = plt.scatter(self.rho, self.T, s = 8, c = np.abs(PPF.p/self.p-1)*100, edgecolors = 'none', cmap = plt.get_cmap('jet'), norm = cNorm)
         plt.gca().set_xscale('log')
         cb = plt.colorbar()
         cb.set_label('np.abs(PPF.p/self.p-1)*100')
+        plt.savefig('pressure.png')
         plt.show()
         
         SC1 = plt.scatter(self.rho, self.T, s = 8, c = np.abs(PPF.cp/self.cp-1)*100, edgecolors = 'none', cmap = plt.get_cmap('jet'), norm = cNorm)
         plt.gca().set_xscale('log')
         cb  = plt.colorbar()
         cb.set_label('np.abs(PPF.cp/self.cp-1)*100')
+        plt.savefig('cp.png')
         plt.show()
 
 ##         plt.plot(self.T,PPF.p/self.p,'.'); plt.show()
