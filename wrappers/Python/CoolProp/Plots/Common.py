@@ -113,14 +113,16 @@ class BasePlot(object):
 
         y_vals = []
         x_vals = []
+
         for i, p1_val in enumerate(prop1_vals):
             x_vals.append(prop2_vals[i])
-            y_vals.append([CP.Props(req_prop,
+            y_vals.append(CP.Props(req_prop,
                                     prop1_name,
                                     p1_val,
                                     prop2_name,
-                                    x,
-                                    self.fluid_ref) for x in prop2_vals[i]])
+                                    prop2_vals[i],
+                                    self.fluid_ref))
+            
         return [x_vals, y_vals]
 
     def _get_sat_lines(self, kind='T', smin=None,

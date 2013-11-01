@@ -101,7 +101,7 @@ print(' ')
 print('************ BRINES AND SECONDARY WORKING FLUIDS *************')
 print(' ')
 print('Density of 50% (mass) ethylene glycol/water at 300 K, 101.325 kPa:',
-       CP.Props('D', 'T', 300, 'P', 101.325, 'EG-50%'), 'kg/m^3')
+       CP.Props('D', 'T', 300, 'P', 101.325, 'MEG-50%'), 'kg/m^3')
 print('Viscosity of Therminol D12 at 350 K, 101.325 kPa:',
        CP.Props('V', 'T', 350, 'P', 101.325, 'TD12'), 'Pa-s')
 
