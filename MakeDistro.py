@@ -215,7 +215,7 @@ def BuildDocs():
     # Inject the revision number into the docs main pages for the link
     lines = open('Web/_templates/index.html','r').readlines()
     import CoolProp
-    languages = ['Python','Modelica','Labview','MATLAB','EES','Octave','Excel','C#']
+    languages = ['Python','Modelica','Labview','MATLAB','EES','Octave','Excel','C#','Java','Javascript','MathCAD']
     for i in range(len(lines)):
         if (lines[i].find('http://sourceforge.net/projects/coolprop/files/CoolProp/') > -1
             and any([lines[i].find(a) > -1 for a in languages])
@@ -272,7 +272,7 @@ if __name__=='__main__':
 #     MathCAD()
 #     Labview()
 #     Modelica()
-    Superpacks()
+#     Superpacks()
 #     PYPI()
 #     UploadSourceForge()
     

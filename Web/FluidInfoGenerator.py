@@ -604,7 +604,7 @@ we employ normal evaluation routines to obtain the final result.
 )
 fp.close()
 
-pseudo_pure_fluids = ['Air','R404A','R410A','R407C','R507A','SES36']
+pseudo_pure_fluids = ['Air','R404A','R410A','R407C','R507A','SES36','R407F']
 with open(os.path.join('Fluids','PseudoPureFluids.rst'),'w') as fp:
     fp.write('#######################\nPseudo-Pure Fluids\n#######################\n')
     fp.write(index_file(pseudo_pure_fluids))

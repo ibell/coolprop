@@ -1,1 +1,1 @@
-std::string gitrevision = "60e6a3e2c16b2dcb50fccb099991794dd82c9d8b";
+std::string gitrevision = "c44f6a8b2ce07104ffba9287199fd50368847db6";

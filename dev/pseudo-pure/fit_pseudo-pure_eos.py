@@ -329,14 +329,14 @@ class ResidualPartFitter(object):
         # Solve for the coefficients
         Nbounds = [(-10,10) for _ in range(len(self.N0))]
         tbounds = [(-1,30) for _ in range(len(self.T0))]
-        self.N = scipy.optimize.minimize(self.OBJECTIVE, np.array(list(self.N0)), bounds = Nbounds, options = dict(maxiter = 40)).x
+        self.N = scipy.optimize.minimize(self.OBJECTIVE, np.array(list(self.N0)), bounds = Nbounds, options = dict(maxiter = 50)).x
         #self.N = scipy.optimize.minimize(self.OBJECTIVE, np.array(list(self.N0)+list(self.T0)), method = 'L-BFGS-B', bounds = Nbounds + tbounds, options = dict(maxiter = 100)).x
 
         # Write the coefficients to HDF5 file
         h = h5py.File('fit_coeffs.h5','w')
         grp = h.create_group(self.Ref)
-        grp.create_dataset("n", data = np.array(self.N[0:len(self.N)//2]), compression = "gzip")
-        grp.create_dataset("t", data = np.array(self.N[len(self.N)//2::]), compression = "gzip")
+        grp.create_dataset("n", data = np.array(self.N), compression = "gzip")
+        #grp.create_dataset("t", data = np.array(self.N[len(self.N)//2::]), compression = "gzip")
         h.close()
     
     def evaluate_REFPROP(self, Ref, T, rho):
@@ -363,12 +363,11 @@ class ResidualPartFitter(object):
         h = h5py.File('fit_coeffs.h5','r')
         grp = h.get(self.Ref)
         n = grp.get('n').value
-        t = grp.get('t').value
         h.close()
         
         import matplotlib.colors as colors
         cNorm  = colors.LogNorm(vmin=1e-3, vmax=50)
-        PPF = self.evaluate_EOS(np.array(list(n)+list(t)))
+        PPF = self.evaluate_EOS(np.array(list(n)+list(self.T0)))
         
         SC1 = plt.scatter(self.rho, self.T, s = 8, c = np.abs(PPF.p/self.p-1)*100, edgecolors = 'none', cmap = plt.get_cmap('jet'), norm = cNorm)
         plt.gca().set_xscale('log')
@@ -432,7 +431,7 @@ class PPFFitterClass(object):
     def output_files(self):
         h = h5py.File('fit_coeffs.h5','r')
         n = h.get(self.Ref+'/n').value
-        t = h.get(self.Ref+'/t').value
+        #t = h.get(self.Ref+'/t').value
 
         # Output the header file
         header = PPF_h_template.format(Ref = self.Ref, RefUpper = self.Ref.upper())
@@ -444,7 +443,7 @@ class PPFFitterClass(object):
         bcoeffs += ', '.join(['{b:0.4f}/{Tcrit:g}'.format(b=_,Tcrit = self.IPF.Tc) for _ in self.IPF.e[1::]])
             
         ncoeffs = ', '.join(['{a:0.6g}'.format(a=_) for _ in n])
-        tcoeffs = ', '.join(['{a:0.6g}'.format(a=_) for _ in t])
+        tcoeffs = ', '.join(['{a:0.6g}'.format(a=_) for _ in self.RPF.T0])
         dcoeffs = ', '.join(['{a:0.6g}'.format(a=_) for _ in self.RPF.D0])
         lcoeffs = ', '.join(['{a:0.6g}'.format(a=_) for _ in self.RPF.L0])
             
