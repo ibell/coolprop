@@ -1758,7 +1758,7 @@ double CoolPropStateClassSI::d2pdT2_constrho(void){
 	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
 	return pFluid->R()*_rho*delta*tau*tau/_T*d3phir_dDelta_dTau2(tau,delta);
 }
-double CoolPropStateClassSI::d2pdrho2_consts(void){
+double CoolPropStateClassSI::d2pdv2_consts(void){
 	double cv = this->cv();
 	// Convert each derivative in terms of volume rather than density
 	// Note d2rhodv2 = 2rho^3 and drhodv = -rho^2
@@ -1774,7 +1774,7 @@ double CoolPropStateClassSI::d2pdrho2_consts(void){
 }
 double CoolPropStateClassSI::fundamental_derivative_of_thermodynamics(void)
 {
-	return this->d2pdrho2_consts()/pow(this->speed_sound(),2)/2/pow(this->rho(),3);
+	return this->d2pdv2_consts()/pow(this->speed_sound(),2)/2/pow(this->rho(),3);
 }
 
 // DERIVATIVES OF ENTHALPY FROM EOS

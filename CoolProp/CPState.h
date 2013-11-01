@@ -375,7 +375,7 @@ public:
 	// Fundamental derivative of thermodynamics
 	double fundamental_derivative_of_thermodynamics(void);
 
-	double d2pdrho2_consts(void);
+	double d2pdv2_consts(void);
 
 	// ----------------------------------------	
 	// Derivatives along the saturation curve
