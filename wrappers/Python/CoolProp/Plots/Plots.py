@@ -8,6 +8,8 @@ from scipy.interpolate import interp1d
 import CoolProp.CoolProp as CP
 
 from .Common import BasePlot
+from scipy import interpolate
+from scipy.spatial.kdtree import KDTree
 
 class IsoLine(object):
     def __init__(self):
@@ -65,6 +67,48 @@ def InlineLabel(xv,yv,x = None, y= None, axis = None, fig = None):
         y=(yv-Fymin)/DELTAY_fig*DELTAY_axis+Aymin
 
         return x,y
+    
+    def get_x_y_dydx(xv,yv,x):
+        """Get x and y coordinates and the linear interpolation derivative"""
+        # Old implementation:
+        ##Get the rotation angle
+        #f = interp1d(xv, yv)
+        #y = f(x)
+        #h = 0.00001*x
+        #dy_dx = (f(x+h)-f(x-h))/(2*h)
+        #return x,y,dy_dx
+        if len(xv)==len(yv)>1: # assure same length
+            if len(xv)==len(yv)==2: # only two points
+                if numpy.min(xv)<x<numpy.max(xv):
+                    dx    = xv[1] - xv[0]
+                    dy    = yv[1] - yv[0]
+                    dydx  = dy/dx
+                    y     = yv[0] + dydx * (x-xv[0])
+                    return x,y,dydx
+                else:
+                    raise ValueError("Your coordinate has to be between the input values.")
+            else:
+                limit = 1e-10                    # avoid hitting a point directly
+                diff  = numpy.array(xv)-x        # get differences
+                index = numpy.argmin(diff*diff)  # nearest neighbour
+                if (xv[index]<x<xv[index+1]      # nearest below, positive inclination
+                  or xv[index]>x>xv[index+1]):   # nearest above, negative inclination
+                    if diff[index]<limit:
+                        index = [index-1,index+1]
+                    else:
+                        index = [index,  index+1]
+                elif (xv[index-1]<x<xv[index]    # nearest above, positive inclination
+                  or xv[index-1]>x>xv[index]):   # nearest below, negative inclination
+                    if diff[index]<limit:
+                        index = [index-1,index+1]
+                    else:
+                        index = [index-1,index]
+                xvnew = xv[index]
+                yvnew = yv[index]
+                return get_x_y_dydx(xvnew,yvnew,x) # Allow for a single recursion
+        else:
+            raise ValueError("You have to provide the same amount of x- and y-pairs with at least two entries each.")
+        
 
     if axis is None:
         axis=matplotlib.pyplot.gca()
@@ -80,11 +124,8 @@ def InlineLabel(xv,yv,x = None, y= None, axis = None, fig = None):
         #x is provided but y isn't
         (x,trash)=ToPixelCoords(x,trash,axis,fig)
 
-        #Get the rotation angle
-        f = interp1d(xv, yv)
-        y = f(x)
-        h = 0.001*x
-        dy_dx = (f(x+h)-f(x-h))/(2*h)
+        #Get the rotation angle and y-value
+        x,y,dy_dx = get_x_y_dydx(xv,yv,x)
         rot = numpy.arctan(dy_dx)/numpy.pi*180.
 
     elif x is None and y is not None:
@@ -97,16 +138,14 @@ def InlineLabel(xv,yv,x = None, y= None, axis = None, fig = None):
         trash=0
         (xv,yv)=ToPixelCoords(xv,yv,axis,fig)
         (x,trash)=ToPixelCoords(x,trash,axis,fig)
-
-        f = interp1d(xv, yv)
-        y = f(x)
-        h = 0.001*x
-        dy_dx = (f(x+h)-f(x-h))/(2*h)
+        
+        #Get the rotation angle and y-value
+        x,y,dy_dx = get_x_y_dydx(xv,yv,x)
         rot = numpy.arctan(dy_dx)/numpy.pi*180.
 
     (x,y)=ToDataCoords(x,y,axis,fig)
     return (x,y,rot)
-
+ 
 
 def drawLines(Ref,lines,axis,plt_kwargs=None):
     """
@@ -262,7 +301,7 @@ class IsoLines(BasePlot):
         coordinates for bubble and dew line. Additionally, the dict holds
         the keys 'label' and 'opts', those can be used for plotting as well.
         """
-        if not iso_range or len(iso_range) == 1:
+        if not iso_range or (len(iso_range) == 1 and num != 1):
             raise ValueError('Automatic interval detection for isoline \
                               boundaries is not supported yet, use the \
                               iso_range=[min, max] parameter.')
@@ -364,7 +403,7 @@ class IsoLines(BasePlot):
 
         There should also be helpful error messages...
         """
-        if not iso_range or len(iso_range) == 1:
+        if not iso_range or (len(iso_range) == 1 and num != 1):
             raise ValueError('Automatic interval detection for isoline \
                               boundaries is not supported yet, use the \
                               iso_range=[min, max] parameter.')
