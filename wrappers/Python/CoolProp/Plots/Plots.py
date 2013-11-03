@@ -184,36 +184,6 @@ def drawLines(Ref,lines,axis,plt_kwargs=None):
 
     return plottedLines
 
-def plotRound(values):
-    """
-    A function round an array-like object while maintaining the
-    amount of entries. This is needed for the isolines since we
-    want the labels to look pretty (=rounding), but we do not
-    know the spacing of the lines. A fixed number of digits after
-    rounding might lead to reduced array size.
-    """
-    input   = numpy.unique(numpy.sort(numpy.array(values)))
-    output  = input[1:] * 0.0
-    digits  = -1
-    limit   = 10
-    lim     = input * 0.0 + 10
-    # remove less from the numbers until same length,
-    # more than 10 significant digits does not really
-    # make sense, does it?
-    while len(input) > len(output) and digits < limit:
-        digits += 1
-        val     = ( numpy.around(numpy.log10(numpy.abs(input))) * -1) + digits + 1
-        val     = numpy.where(val < lim, val,  lim)
-        val     = numpy.where(val >-lim, val, -lim)
-        output  = numpy.zeros(input.shape)
-        for i in range(len(input)):
-            output[i] = numpy.around(input[i],decimals=int(val[i]))
-        output = numpy.unique(output)
-    #print(digits)
-    #print(input)
-    #print(output)
-    return output
-
 
 class IsoLines(BasePlot):
     def __init__(self, fluid_ref, graph_type, iso_type, **kwargs):
@@ -284,8 +254,35 @@ class IsoLines(BasePlot):
         self.axis.set_xlim(limits[0])
         self.axis.set_ylim(limits[1])
         return limits
+    
+    def __plotRound(self, values):
+        """
+        A function round an array-like object while maintaining the
+        amount of entries. This is needed for the isolines since we
+        want the labels to look pretty (=rounding), but we do not
+        know the spacing of the lines. A fixed number of digits after
+        rounding might lead to reduced array size.
+        """
+        inVal   = numpy.unique(numpy.sort(numpy.array(values)))
+        output  = inVal[1:] * 0.0
+        digits  = -1 
+        limit   = 10
+        lim     = inVal * 0.0 + 10
+        # remove less from the numbers until same length,
+        # more than 10 significant digits does not really
+        # make sense, does it?
+        while len(inVal) > len(output) and digits < limit:
+            digits += 1
+            val     = ( numpy.around(numpy.log10(numpy.abs(inVal))) * -1) + digits + 1
+            val     = numpy.where(val < lim, val,  lim)
+            val     = numpy.where(val >-lim, val, -lim)
+            output  = numpy.zeros(inVal.shape)
+            for i in range(len(inVal)):
+                output[i] = numpy.around(inVal[i],decimals=int(val[i]))
+            output = numpy.unique(output)
+        return output
 
-    def get_isolines(self, iso_range=[], num=None):
+    def get_isolines(self, iso_range=[], num=None, rounding=False):
         """
         This is the core method to obtain lines in the dimensions defined
         by 'plot' that describe the behaviour of fluid 'Ref'. The constant
@@ -328,6 +325,9 @@ class IsoLines(BasePlot):
         #    TODO: Automatic interval detection
         #    iVal = [CP.Props(iName,'T',T_c[i],'D',rho_c[i],Ref) for i in range(len(T_c))]
         #    iVal = patterns[iName]([numpy.min(iVal),numpy.max(iVal),num])
+        
+        if rounding:
+            iso_range = self.__plotRound(iso_range)
 
         switch_xy_map = {'D': ['TS', 'PH', 'PS'],
                          'S': ['PH', 'PD', 'PT'],
@@ -395,7 +395,7 @@ class IsoLines(BasePlot):
 
         return lines
 
-    def draw_isolines(self, iso_range, num=None):
+    def draw_isolines(self, iso_range, num=None, rounding=False):
         """
         Draw lines with constant values of type 'which' in terms of x and y as
         defined by 'plot'. 'iMin' and 'iMax' are minimum and maximum value between
@@ -417,7 +417,7 @@ class IsoLines(BasePlot):
                               supported, yet..')
 
         if self.iso_type != 'all':
-            lines = self.get_isolines(iso_range, num)
+            lines = self.get_isolines(iso_range, num, rounding)
             drawn_lines = drawLines(self.fluid_ref, lines, self.axis)
             self._plot_default_annotations()
             return drawn_lines
@@ -481,12 +481,12 @@ class PropsPlot(BasePlot):
         self.__draw_region_lines()
         self._plot_default_annotations()
 
-    def draw_isolines(self, iso_type, iso_range, num=10):
+    def draw_isolines(self, iso_type, iso_range, num=10, rounding=False):
         iso_lines = IsoLines(self.fluid_ref,
                              self.graph_type,
                              iso_type,
                              axis=self.axis)
-        iso_lines.draw_isolines(iso_range, num)
+        iso_lines.draw_isolines(iso_range, num, rounding)
 
 
 def Ts(Ref, Tmin=None, Tmax=None, show=False, axis=None, *args, **kwargs):

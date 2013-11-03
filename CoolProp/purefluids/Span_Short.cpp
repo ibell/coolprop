@@ -173,6 +173,7 @@ TransportReference.assign("Using ECS in fully predictive mode");
 name.assign("n-Pentane");
 aliases.push_back(std::string("nPentane"));
 aliases.push_back(std::string("Pentane"));
+aliases.push_back(std::string("R601"));
 REFPROPname.assign("PENTANE");
 
 BibTeXKeys.EOS = "Span-IJT-2003B";
