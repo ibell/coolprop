@@ -1772,7 +1772,7 @@ double CoolPropStateClassSI::d2pdv2_consts(void){
 	double LAMBDA3 = +pow(_T/cv*dpdT_constv,2)*(3*d2pdT2_constv+1/_T*dpdT_constv*(1-_T/cv*dcv_dT_constv));
 	return LAMBDA1 + LAMBDA2 + LAMBDA3;
 }
-double CoolPropStateClassSI::fundamental_derivative_of_thermodynamics(void)
+double CoolPropStateClassSI::fundamental_derivative_of_gas_dynamics(void)
 {
 	return this->d2pdv2_consts()/pow(this->speed_sound(),2)/2/pow(this->rho(),3);
 }

@@ -372,8 +372,8 @@ public:
 	double d2sdp2_constT(void);
 	double d2sdTdp(void);
 
-	// Fundamental derivative of thermodynamics
-	double fundamental_derivative_of_thermodynamics(void);
+	// Fundamental derivative of gas dynamics
+	double fundamental_derivative_of_gas_dynamics(void);
 
 	double d2pdv2_consts(void);
 
