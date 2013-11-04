@@ -1,1 +1,1 @@
-char version [] ="4.0.0pre";
+char version [] ="4.0.0beta";
