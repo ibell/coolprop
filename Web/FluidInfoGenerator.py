@@ -556,12 +556,6 @@ information is based on the data compiled by Morten Juel Skovrup in his `SecCool
 provided by his employer `IPU <http://en.ipu.dk>`_. The coefficient matrix of the SecCool-based fluids 
 has the same structure as mentioned above. 
 
-==========================   ===================================================
-SecCool Fluids               Description
-==========================   ===================================================
-``TestSolution``             Methanol-Water mixture for testing
-==========================   ===================================================
-
 In both of the above cases, :math:`i` is the exponent for the concentration :math:`x` and :math:`j` 
 is used with the temperature :math:`T`. Properties are modelled with the following polynomials: 
 

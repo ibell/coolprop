@@ -39,6 +39,8 @@ class IncompLiquidFit(object):
         self._minPoints = 3 
         
         
+        
+        
     def setParams(self,fluid):
         if fluid=='init':
             # initial parameters for the different fits

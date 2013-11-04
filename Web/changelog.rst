@@ -6,12 +6,14 @@ Changelog for CoolProp
 * API CHANGE: Some functions have been condensed, functions get_errstring, get_REFPROPname, etc. have been rolled into get_global_param_string.
 * MAJOR: Code now is on github (https://github.com/ibell/coolprop)
 * MAJOR: Internally all units are SI, functions should do the necessary conversions using conversion_factor() and get/set_standard_unit_system()
-* MAJOR: Brines are added to CoolPropStateClass
+* MAJOR: Brines and incompressible liquids are added to CoolPropStateClass
 * Wrappers added for Java, Javascript, MathCAD
 * Improved wrapper for Labview (Thanks to the Sergei and guys at UGent)
 * Improved plotting in Python (Thanks Logan)
 * Added viscosity for n-Hexane
 * Added R1233zd(E)
+* Added more incompressible liquids: Therminol D12, Therminol VP-1, Therminol 72, Therminol 66, Dowtherm J, Dowtherm Q, Texatherm 22, 
+  Nitrate Salt Blend, Syltherm XLT, Dynalene HC-10, Dynalene HC-20, Dynalene HC-30, Dynalene HC-40, Dynalene HC-50
 
 3.3.0 (revision 660)
 --------------------

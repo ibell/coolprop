@@ -333,3 +333,37 @@ class HC10(LiquidData):
 #dataObj = Therminol72()
 #for i in range(len(dataObj.T)):
 #    print str(dataObj.T[i])+", "+str(dataObj.mu_dyn[i])
+
+class SolutionData(LiquidData):
+    """ 
+    A base class that defines all the variables needed 
+    in order to make a proper fit for solution data.  
+    """
+    Name     = None # Name of the current fluid
+    Desc     = None # Name of the current fluid
+    Tmin     = None # Minimum temperature in K
+    TminPsat = None # Minimum saturation temperature in K
+    Tmax     = None # Maximum temperature in K
+    xmin     = None # Minimum concentration in weight fraction
+    xmax     = None # Minimum concentration in weight fraction
+    Tbase    = None # Base temperature for data fit in K
+    xbase    = None # Base concentration for data fit in weight fraction
+    
+    # Data points 
+    x        = None # Concentration data points in weight fraction
+    T        = None # Temperature for data points in K
+    rho      = None # Density in kg/m3
+    c_p      = None # Heat capacity in J/(kg.K)
+    lam      = None # Thermal conductivity in W/(m.K)
+    mu_dyn   = None # Dynamic viscosity in Pa.s
+    psat     = None # Saturation pressure in Pa    
+    Tfreeze  = None # Freezing temperature in K 
+    
+## Just some notes to myself    
+#Changelog: * Added slurry ice as incompressible solution of either water-ethanol, water-NaCl or water-propylene glycol with solid content as input
+# FluidInfogenerator:
+#==========================   ===================================================   =================   =================
+#SecCool Fluids               Description                                           max. T              max. x
+#==========================   ===================================================   =================   =================
+#``SIceEA``                   Ethanol-Water mixture with slurry ice
+#==========================   ===================================================   =================   =================
