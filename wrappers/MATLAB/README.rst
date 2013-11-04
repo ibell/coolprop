@@ -17,24 +17,24 @@ The "normal" calls of Props(Ref,Output) and Props(Output,Name1,Val1,Name2,Val2,F
 work just like the other wrappers.  Here is a summary of the other hacky things
 that have been added to the MATLAB wrapper:
 
-For a given fluid, you can use one of the following types of calls to get the given output:
+For a given fluid, you can use one of the following types of calls to get the given output::
 
-Props(Fluid,'aliases') : Returns a comma separated string of aliases for a given fluid
-Props(Fluid,'CAS') : Returns CAS code for the given fluid
-Props(Fluid,'ASHRAE34') : Returns ASHRAE 34 safety code
-Props(Fluid,'REFPROPName') : Returns REFPROP name for fluid
-Props(Fluid,'TTSE_mode') : Returns TTSE mode, one of 'TTSE' or 'BICUBIC'
-Props(Fluid,'enable_TTSE') : Turn on tabular interpolation for a given fluid
-Props(Fluid,'disable_TTSE') : Turn on tabular interpolation for a given fluid
+    Props(Fluid,'aliases') : Returns a comma separated string of aliases for a given fluid
+    Props(Fluid,'CAS') : Returns CAS code for the given fluid
+    Props(Fluid,'ASHRAE34') : Returns ASHRAE 34 safety code
+    Props(Fluid,'REFPROPName') : Returns REFPROP name for fluid
+    Props(Fluid,'TTSE_mode') : Returns TTSE mode, one of 'TTSE' or 'BICUBIC'
+    Props(Fluid,'enable_TTSE') : Turn on tabular interpolation for a given fluid
+    Props(Fluid,'disable_TTSE') : Turn on tabular interpolation for a given fluid
 
-Or you can get a global constant using a call like:
+Or you can get a global constant using a call like::
 
-Props('FluidsList') : Returns a comma separated string of fluids in CoolProp
-Props('version') : Returns the version of Coolprop in Use
-Props('gitrevision') : Returns the git revision
-Props('set_UNIT_SYSTEM_SI') : Set the unit system to SI units
-Props('set_UNIT_SYSTEM_KSI') : Set the unit system to kilo-SI units
-Props('get_unit_system') : Get the unit system in use, one of 'UNIT_SYSTEM_SI' or 'UNIT_SYSTEM_KSI'
+    Props('FluidsList') : Returns a comma separated string of fluids in CoolProp
+    Props('version') : Returns the version of Coolprop in Use
+    Props('gitrevision') : Returns the git revision
+    Props('set_UNIT_SYSTEM_SI') : Set the unit system to SI units
+    Props('set_UNIT_SYSTEM_KSI') : Set the unit system to kilo-SI units
+    Props('get_unit_system') : Get the unit system in use, one of 'UNIT_SYSTEM_SI' or 'UNIT_SYSTEM_KSI'
 
 For Developers
 ==============
