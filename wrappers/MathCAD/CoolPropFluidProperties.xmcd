@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?validation-md5-digest 2dc5e956ba5ae75f3ed37b38317cd5e6?>
+<?validation-md5-digest 4d2d61f9e617e5c452b504000025b1a8?>
 <worksheet version="3.0.3" xmlns="http://schemas.mathsoft.com/worksheet30" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ws="http://schemas.mathsoft.com/worksheet30" xmlns:ml="http://schemas.mathsoft.com/math30" xmlns:u="http://schemas.mathsoft.com/units10" xmlns:p="http://schemas.mathsoft.com/provenance10">
 	<pointReleaseData/>
 	<metadata>
@@ -13,9 +13,9 @@
 			<revisedBy>Belli</revisedBy>
 		</userData>
 		<identityInfo>
-			<revision>40</revision>
+			<revision>42</revision>
 			<documentID>2C78F03C-F3AB-48D2-A967-CA877F3AC7C3</documentID>
-			<versionID>75477E02-D213-4AC9-A37D-6A03CADA50DC</versionID>
+			<versionID>6EF227AC-7DBB-44AD-A8B5-5BA10017C271</versionID>
 			<parentVersionID>00000000-0000-0000-0000-000000000000</parentVersionID>
 			<branchID>00000000-0000-0000-0000-000000000000</branchID>
 		</identityInfo>
@@ -114,56 +114,61 @@
 		</editor>
 		<fileFormat image-type="image/png" image-quality="75" save-numeric-results="true" exclude-large-results="true" save-text-images="false" screen-dpi="96"/>
 		<miscellaneous>
-			<handbook handbook-region-tag-ub="855" can-delete-original-handbook-regions="true" can-delete-user-regions="true" can-print="true" can-copy="true" can-save="true" file-permission-mask="4294967295"/>
+			<handbook handbook-region-tag-ub="1034" can-delete-original-handbook-regions="true" can-delete-user-regions="true" can-print="true" can-copy="true" can-save="true" file-permission-mask="4294967295"/>
 		</miscellaneous>
 	</settings>
 	<regions>
-		<region region-id="315" left="6" top="3" width="202.5" height="34.5" align-x="22.5" align-y="30" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
+		<region region-id="956" left="6" top="9" width="202.5" height="34.5" align-x="22.5" align-y="36" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
 			<text use-page-width="false" push-down="false" lock-width="true">
 				<p style="Heading 1" margin-left="inherit" margin-right="inherit" text-indent="inherit" text-align="inherit" list-style-type="inherit" tabs="inherit">Fluid Properties</p>
 			</text>
 		</region>
-		<region region-id="316" left="6" top="38.25" width="456.75" height="54" align-x="20.25" align-y="48" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
+		<region region-id="957" left="6" top="44.25" width="456.75" height="54" align-x="20.25" align-y="54" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
 			<text use-page-width="false" push-down="false" lock-width="true">
-				<p style="Normal" margin-left="inherit" margin-right="inherit" text-indent="inherit" text-align="inherit" list-style-type="inherit" tabs="inherit">This worksheet demonstrates the functions defined in the CoolProp user function (CoolPropMathcadWrapper.dll).<sp count="2"/>CoolProp is an open-source, cross-platform, thermophysical fluid properties database developed by Ian Bell et al. at the University of Liege, Liege, Belgium.<sp count="2"/>The following URL provides full documentation of the CoolProp code: <c val="#000">http://coolprop.sourceforge.net/EOS.html#introduction</c>
+				<p style="Normal" margin-left="inherit" margin-right="inherit" text-indent="inherit" text-align="inherit" list-style-type="inherit" tabs="inherit">This worksheet demonstrates the functions defined in the CoolProp user function (CoolProp Mathcad Wrapper.dll).<sp count="2"/>CoolProp is an open-source, cross-platform, thermophysical fluid properties database developed by Ian Bell et al. at the University of Liege, Liege, Belgium.<sp count="2"/>The following URL provides full documentation of the CoolProp code: <c val="#000">http://coolprop.sourceforge.net/EOS.html#introduction</c>
 				</p>
 			</text>
 		</region>
-		<region region-id="94" left="6" top="110.25" width="249" height="27.75" align-x="21.75" align-y="132" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
+		<region region-id="958" left="6" top="104.25" width="249" height="27.75" align-x="21.75" align-y="126" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
 			<text use-page-width="false" push-down="false" lock-width="true">
 				<p style="Heading 2" margin-left="inherit" margin-right="inherit" text-indent="inherit" text-align="inherit" list-style-type="inherit" tabs="inherit">Revision History</p>
 			</text>
 		</region>
-		<region region-id="142" left="6" top="140.25" width="442.5" height="27" align-x="16.5" align-y="150" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
+		<region region-id="959" left="6" top="134.25" width="442.5" height="40.5" align-x="16.5" align-y="144" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
 			<text use-page-width="false" push-down="false" lock-width="true">
-				<p style="Normal" margin-left="0" margin-right="0" text-indent="0" text-align="left" list-style-type="none" tabs="inherit">2013-10-04: Creation and initial release of the CoolProp Mathcad Wrapper library.<sp count="2"/>S. Polak</p>
-				<p style="Normal" margin-left="0" margin-right="0" text-indent="0" text-align="left" list-style-type="none" tabs="inherit">2013-10-10: Finalization of build process and update of git repo with MathCAD files</p>
+				<p style="Normal" margin-left="0" margin-right="0" text-indent="0" text-align="left" list-style-type="none" tabs="inherit">2013-10-04:<tab/>Creation and initial release of the CoolProp Mathcad Wrapper library.<sp count="2"/>S. Polak</p>
+				<p style="Normal" margin-left="0" margin-right="0" text-indent="0" text-align="left" list-style-type="none" tabs="inherit">2013-11-01:<tab/>Incorporated CoolProp 4.0.0 pre-release code .<sp count="2"/>S. Polak</p>
+				<p style="Normal" margin-left="0" margin-right="0" text-indent="0" text-align="left" list-style-type="none" tabs="inherit">
+					<tab/>
+					<tab/>Replaced FluidsList call with FluidPropsParams<tab/>
+					<tab/>
+				</p>
 			</text>
 		</region>
-		<region region-id="323" left="6" top="176.25" width="327.75" height="27.75" align-x="21.75" align-y="198" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
+		<region region-id="960" left="6" top="212.25" width="327.75" height="27.75" align-x="21.75" align-y="234" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
 			<text use-page-width="false" push-down="false" lock-width="false">
 				<p style="Heading 2" margin-left="inherit" margin-right="inherit" text-indent="inherit" text-align="inherit" list-style-type="inherit" tabs="inherit">Function Explanation &amp; Examples</p>
 			</text>
 		</region>
-		<region region-id="185" left="6" top="215.25" width="218.25" height="16.5" align-x="15.75" align-y="228" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
+		<region region-id="961" left="6" top="251.25" width="409.5" height="16.5" align-x="15.75" align-y="264" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
 			<text use-page-width="false" push-down="false" lock-width="false">
-				<p style="Heading 3" margin-left="inherit" margin-right="inherit" text-indent="inherit" text-align="inherit" list-style-type="inherit" tabs="inherit">List of Fluids in the CoolProp Database</p>
+				<p style="Heading 3" margin-left="inherit" margin-right="inherit" text-indent="inherit" text-align="inherit" list-style-type="inherit" tabs="inherit">List of Fluids in the CoolProp Database (and Other Database Parameters)</p>
 			</text>
 		</region>
-		<region region-id="198" left="6" top="236.25" width="456" height="27" align-x="26.25" align-y="246" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
+		<region region-id="962" left="6" top="272.25" width="456" height="27" align-x="26.25" align-y="282" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
 			<text use-page-width="false" push-down="false" lock-width="true">
-				<p style="Normal" margin-left="inherit" margin-right="inherit" text-indent="inherit" text-align="inherit" list-style-type="inherit" tabs="inherit">Functions to parse the CoolProp FluidsList string are below (hidden for clarity - double click the right-arror to expand the hidden/collapsed area)</p>
+				<p style="Normal" margin-left="inherit" margin-right="inherit" text-indent="inherit" text-align="inherit" list-style-type="inherit" tabs="inherit">Functions to parse the output of CoolProp get_global_param_string are below (hidden for clarity - double click the right-arror to expand the hidden/collapsed area)</p>
 			</text>
 		</region>
-		<region region-id="813" left="0" top="276" width="6008.25" align-x="0" align-y="276" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="" height="362.25">
+		<region region-id="963" left="0" top="312" width="6008.25" align-x="0" align-y="312" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="" height="362.25">
 			<area is-collapsed="true" name="" show-name="false" show-border="true" show-icon="true" show-timestamp="true" allow-expand="false" is-locked="false" timestamp="" top-lock-id="126" bottom-lock-id="128">
 				<region region-id="106" left="6" top="15" width="189.75" height="138.75" align-x="66" align-y="24" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
 					<math optimize="false" disable-calc="false">
 						<ml:provenance expr-id="1" xmlns:ml="http://schemas.mathsoft.com/math30">
-							<originRef doc-id="EFFFDE83-6224-485F-8D21-6B7560FCD05F" version-id="56D02D11-FBE0-49C3-8031-8BEAADDE1D2E" branch-id="00000000-0000-0000-0000-000000000000" revision-num="254403684" is-modified="false" region-id="0" href="C:\Program Files (x86)\Mathcad\Mathcad 15\Resource Center\en\qsheet\Techniques\charstr7.xmcd" xmlns="http://schemas.mathsoft.com/provenance10">
+							<originRef doc-id="EFFFDE83-6224-485F-8D21-6B7560FCD05F" version-id="56D02D11-FBE0-49C3-8031-8BEAADDE1D2E" branch-id="00000000-0000-0000-0000-000000000000" revision-num="139429564" is-modified="false" region-id="0" href="C:\Program Files (x86)\Mathcad\Mathcad 15\Resource Center\en\qsheet\Techniques\charstr7.xmcd" xmlns="http://schemas.mathsoft.com/provenance10">
 								<hash/>
 							</originRef>
-							<parentRef doc-id="EFFFDE83-6224-485F-8D21-6B7560FCD05F" version-id="56D02D11-FBE0-49C3-8031-8BEAADDE1D2E" branch-id="00000000-0000-0000-0000-000000000000" revision-num="254403564" is-modified="false" region-id="0" href="C:\Program Files (x86)\Mathcad\Mathcad 15\Resource Center\en\qsheet\Techniques\charstr7.xmcd" xmlns="http://schemas.mathsoft.com/provenance10">
+							<parentRef doc-id="EFFFDE83-6224-485F-8D21-6B7560FCD05F" version-id="56D02D11-FBE0-49C3-8031-8BEAADDE1D2E" branch-id="00000000-0000-0000-0000-000000000000" revision-num="17843100" is-modified="false" region-id="0" href="C:\Program Files (x86)\Mathcad\Mathcad 15\Resource Center\en\qsheet\Techniques\charstr7.xmcd" xmlns="http://schemas.mathsoft.com/provenance10">
 								<hash/>
 							</parentRef>
 							<comment xmlns="http://schemas.mathsoft.com/provenance10"/>
@@ -390,29 +395,40 @@
 			</area>
 			<rendering item-idref="2"/>
 		</region>
-		<region region-id="161" left="6" top="296.25" width="455.25" height="67.5" align-x="13.5" align-y="306" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
+		<region region-id="964" left="6" top="332.25" width="455.25" height="67.5" align-x="13.5" align-y="342" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
 			<text use-page-width="false" push-down="false" lock-width="true">
-				<p style="Normal" margin-left="inherit" margin-right="inherit" text-indent="inherit" text-align="inherit" list-style-type="inherit" tabs="inherit">The function FluidList(&lt;string&gt;) will output a single string representing all the fluids available in the CoolProp database.<sp count="2"/>The single string-type input argument is trivial (at least one user-function argument is required by Mathcad), and does not affect the output.<sp count="2"/>For clarity, the string parsing functions defined above (hidden by default) split that single string into a vector of strings, providing the scrollable list of fluids as shown below:</p>
+				<p style="Normal" margin-left="inherit" margin-right="inherit" text-indent="inherit" text-align="inherit" list-style-type="inherit" tabs="inherit">The function FluidPropsParams("FluidsList") will output a single string representing all the fluids available in the CoolProp database.<sp count="2"/>The single string-type input argument is trivial (at least one user-function argument is required by Mathcad), and does not affect the output.<sp count="2"/>For clarity, the string parsing functions defined above (hidden by default) split that single string into a vector of strings, providing the scrollable list of fluids as shown below:</p>
 			</text>
 		</region>
-		<region region-id="792" left="306" top="386.25" width="143.25" height="40.5" align-x="315.75" align-y="396" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
+		<region region-id="965" left="336" top="416.25" width="123.75" height="54" align-x="345.75" align-y="426" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
 			<text use-page-width="false" push-down="false" lock-width="true">
 				<p style="Normal" margin-left="inherit" margin-right="inherit" text-indent="inherit" text-align="inherit" list-style-type="inherit" tabs="inherit">Click on the output vector (table) to the left to enable scrolling through the entire list</p>
 			</text>
 		</region>
-		<region region-id="223" left="6" top="364.5" width="237" height="76.5" align-x="129.75" align-y="402" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
+		<region region-id="966" left="6" top="406.5" width="326.25" height="64.5" align-x="194.25" align-y="438" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
 			<math optimize="false" disable-calc="false">
 				<ml:eval placeholderMultiplicationStyle="default" xmlns:ml="http://schemas.mathsoft.com/math30">
-					<ml:apply>
-						<ml:id xml:space="preserve">strSplit</ml:id>
-						<ml:sequence>
-							<ml:apply>
-								<ml:id xml:space="preserve">FluidList</ml:id>
-								<ml:str xml:space="preserve">All</ml:str>
-							</ml:apply>
-							<ml:str xml:space="preserve">,</ml:str>
-						</ml:sequence>
-					</ml:apply>
+					<ml:provenance expr-id="1">
+						<originRef doc-id="2C78F03C-F3AB-48D2-A967-CA877F3AC7C3" version-id="1CC2816F-C302-438D-AAF6-8E7DB47C44C9" branch-id="00000000-0000-0000-0000-000000000000" revision-num="139430364" is-modified="false" region-id="0" href="F:\Users\Scott Polak\Analysis Tools\CoolPropFluidProperties.xmcd" xmlns="http://schemas.mathsoft.com/provenance10">
+							<hash/>
+						</originRef>
+						<parentRef doc-id="2C78F03C-F3AB-48D2-A967-CA877F3AC7C3" version-id="1CC2816F-C302-438D-AAF6-8E7DB47C44C9" branch-id="00000000-0000-0000-0000-000000000000" revision-num="17843100" is-modified="false" region-id="0" href="F:\Users\Scott Polak\Analysis Tools\CoolPropFluidProperties.xmcd" xmlns="http://schemas.mathsoft.com/provenance10">
+							<hash/>
+						</parentRef>
+						<comment xmlns="http://schemas.mathsoft.com/provenance10"/>
+						<originComment xmlns="http://schemas.mathsoft.com/provenance10">CoolProp Fluid Properties Wrapper - Mathcad User Function</originComment>
+						<contentHash xmlns="http://schemas.mathsoft.com/provenance10">3bb0abe261d69d10d6315402872a688c</contentHash>
+						<ml:apply>
+							<ml:id xml:space="preserve">strSplit</ml:id>
+							<ml:sequence>
+								<ml:apply>
+									<ml:id xml:space="preserve">FluidPropsParams</ml:id>
+									<ml:str xml:space="preserve">FluidsList</ml:str>
+								</ml:apply>
+								<ml:str xml:space="preserve">,</ml:str>
+							</ml:sequence>
+						</ml:apply>
+					</ml:provenance>
 					<result xmlns="http://schemas.mathsoft.com/math30">
 						<ml:matrix rows="112" cols="1">
 							<ml:str xml:space="preserve">Water</ml:str>
@@ -534,14 +550,120 @@
 					<table item-idref="3"/>
 				</resultFormat>
 			</math>
-			<rendering item-idref="4"/>
+			<rendering item-idref="4">
+				<element-image-map>
+					<box left="1.5" top="23.25" width="182.25" height="11.25" expr-idref="1" xmlns="http://schemas.mathsoft.com/worksheet30"/>
+				</element-image-map>
+			</rendering>
 		</region>
-		<region region-id="208" left="6" top="473.25" width="226.5" height="16.5" align-x="15.75" align-y="486" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
+		<region region-id="967" left="6" top="501" width="192" height="12.75" align-x="138.75" align-y="510" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
+			<math optimize="false" disable-calc="false">
+				<ml:eval placeholderMultiplicationStyle="default" xmlns:ml="http://schemas.mathsoft.com/math30">
+					<ml:provenance expr-id="1">
+						<originRef doc-id="2C78F03C-F3AB-48D2-A967-CA877F3AC7C3" version-id="1CC2816F-C302-438D-AAF6-8E7DB47C44C9" branch-id="00000000-0000-0000-0000-000000000000" revision-num="17843100" is-modified="false" region-id="0" href="F:\Users\Scott Polak\Analysis Tools\CoolPropFluidProperties.xmcd" xmlns="http://schemas.mathsoft.com/provenance10">
+							<hash/>
+						</originRef>
+						<parentRef doc-id="2C78F03C-F3AB-48D2-A967-CA877F3AC7C3" version-id="1CC2816F-C302-438D-AAF6-8E7DB47C44C9" branch-id="00000000-0000-0000-0000-000000000000" revision-num="139430204" is-modified="false" region-id="0" href="F:\Users\Scott Polak\Analysis Tools\CoolPropFluidProperties.xmcd" xmlns="http://schemas.mathsoft.com/provenance10">
+							<hash/>
+						</parentRef>
+						<comment xmlns="http://schemas.mathsoft.com/provenance10"/>
+						<originComment xmlns="http://schemas.mathsoft.com/provenance10">CoolProp Fluid Properties Wrapper - Mathcad User Function</originComment>
+						<contentHash xmlns="http://schemas.mathsoft.com/provenance10">5007dfe3970c8b9ab53334aa8dfe0148</contentHash>
+						<ml:apply>
+							<ml:id xml:space="preserve">FluidPropsParams</ml:id>
+							<ml:str xml:space="preserve">version</ml:str>
+						</ml:apply>
+					</ml:provenance>
+					<result xmlns="http://schemas.mathsoft.com/math30">
+						<ml:str xml:space="preserve">4.0.0beta</ml:str>
+					</result>
+				</ml:eval>
+			</math>
+			<rendering item-idref="5">
+				<element-image-map>
+					<box left="1.5" top="0.75" width="126.75" height="11.25" expr-idref="1" xmlns="http://schemas.mathsoft.com/worksheet30"/>
+				</element-image-map>
+			</rendering>
+		</region>
+		<region region-id="968" left="240" top="500.25" width="162.75" height="13.5" align-x="242.25" align-y="510" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
+			<text use-page-width="false" push-down="false" lock-width="false">
+				<p style="Normal" margin-left="inherit" margin-right="inherit" text-indent="inherit" text-align="inherit" list-style-type="inherit" tabs="inherit">Current version of the CoolProp library</p>
+			</text>
+		</region>
+		<region region-id="969" left="6" top="525" width="153" height="12.75" align-x="135" align-y="534" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
+			<math optimize="false" disable-calc="false">
+				<ml:eval placeholderMultiplicationStyle="default" xmlns:ml="http://schemas.mathsoft.com/math30">
+					<ml:provenance expr-id="1">
+						<originRef doc-id="2C78F03C-F3AB-48D2-A967-CA877F3AC7C3" version-id="1CC2816F-C302-438D-AAF6-8E7DB47C44C9" branch-id="00000000-0000-0000-0000-000000000000" revision-num="139430284" is-modified="false" region-id="0" href="F:\Users\Scott Polak\Analysis Tools\CoolPropFluidProperties.xmcd" xmlns="http://schemas.mathsoft.com/provenance10">
+							<hash/>
+						</originRef>
+						<parentRef doc-id="2C78F03C-F3AB-48D2-A967-CA877F3AC7C3" version-id="1CC2816F-C302-438D-AAF6-8E7DB47C44C9" branch-id="00000000-0000-0000-0000-000000000000" revision-num="139431164" is-modified="false" region-id="0" href="F:\Users\Scott Polak\Analysis Tools\CoolPropFluidProperties.xmcd" xmlns="http://schemas.mathsoft.com/provenance10">
+							<hash/>
+						</parentRef>
+						<comment xmlns="http://schemas.mathsoft.com/provenance10"/>
+						<originComment xmlns="http://schemas.mathsoft.com/provenance10">CoolProp Fluid Properties Wrapper - Mathcad User Function</originComment>
+						<contentHash xmlns="http://schemas.mathsoft.com/provenance10">d935e31a10bc72b0ada45f4adf660eeb</contentHash>
+						<ml:apply>
+							<ml:id xml:space="preserve">FluidPropsParams</ml:id>
+							<ml:str xml:space="preserve">errstring</ml:str>
+						</ml:apply>
+					</ml:provenance>
+					<result xmlns="http://schemas.mathsoft.com/math30">
+						<ml:str xml:space="preserve"/>
+					</result>
+				</ml:eval>
+			</math>
+			<rendering item-idref="6">
+				<element-image-map>
+					<box left="1.5" top="0.75" width="123" height="11.25" expr-idref="1" xmlns="http://schemas.mathsoft.com/worksheet30"/>
+				</element-image-map>
+			</rendering>
+		</region>
+		<region region-id="970" left="240" top="524.25" width="178.5" height="13.5" align-x="249.75" align-y="534" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
+			<text use-page-width="false" push-down="false" lock-width="false">
+				<p style="Normal" margin-left="inherit" margin-right="inherit" text-indent="inherit" text-align="inherit" list-style-type="inherit" tabs="inherit">Used to retrieve the error message (if any)</p>
+			</text>
+		</region>
+		<region region-id="971" left="6" top="549" width="162" height="12.75" align-x="144" align-y="558" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
+			<math optimize="false" disable-calc="false">
+				<ml:eval placeholderMultiplicationStyle="default" xmlns:ml="http://schemas.mathsoft.com/math30">
+					<ml:provenance expr-id="1">
+						<originRef doc-id="2C78F03C-F3AB-48D2-A967-CA877F3AC7C3" version-id="1CC2816F-C302-438D-AAF6-8E7DB47C44C9" branch-id="00000000-0000-0000-0000-000000000000" revision-num="139430204" is-modified="false" region-id="0" href="F:\Users\Scott Polak\Analysis Tools\CoolPropFluidProperties.xmcd" xmlns="http://schemas.mathsoft.com/provenance10">
+							<hash/>
+						</originRef>
+						<parentRef doc-id="2C78F03C-F3AB-48D2-A967-CA877F3AC7C3" version-id="1CC2816F-C302-438D-AAF6-8E7DB47C44C9" branch-id="00000000-0000-0000-0000-000000000000" revision-num="139430324" is-modified="false" region-id="0" href="F:\Users\Scott Polak\Analysis Tools\CoolPropFluidProperties.xmcd" xmlns="http://schemas.mathsoft.com/provenance10">
+							<hash/>
+						</parentRef>
+						<comment xmlns="http://schemas.mathsoft.com/provenance10"/>
+						<originComment xmlns="http://schemas.mathsoft.com/provenance10">CoolProp Fluid Properties Wrapper - Mathcad User Function</originComment>
+						<contentHash xmlns="http://schemas.mathsoft.com/provenance10">99d3af3fc17bade5fbbbbc86c3790731</contentHash>
+						<ml:apply>
+							<ml:id xml:space="preserve">FluidPropsParams</ml:id>
+							<ml:str xml:space="preserve">warnstring</ml:str>
+						</ml:apply>
+					</ml:provenance>
+					<result xmlns="http://schemas.mathsoft.com/math30">
+						<ml:str xml:space="preserve"/>
+					</result>
+				</ml:eval>
+			</math>
+			<rendering item-idref="7">
+				<element-image-map>
+					<box left="1.5" top="0.75" width="132" height="11.25" expr-idref="1" xmlns="http://schemas.mathsoft.com/worksheet30"/>
+				</element-image-map>
+			</rendering>
+		</region>
+		<region region-id="972" left="240" top="548.25" width="189" height="13.5" align-x="249.75" align-y="558" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
+			<text use-page-width="false" push-down="false" lock-width="false">
+				<p style="Normal" margin-left="inherit" margin-right="inherit" text-indent="inherit" text-align="inherit" list-style-type="inherit" tabs="inherit">Used to retrieve the warning message (if any)</p>
+			</text>
+		</region>
+		<region region-id="973" left="6" top="575.25" width="226.5" height="16.5" align-x="15.75" align-y="588" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
 			<text use-page-width="false" push-down="false" lock-width="false">
 				<p style="Heading 3" margin-left="inherit" margin-right="inherit" text-indent="inherit" text-align="inherit" list-style-type="inherit" tabs="inherit">Fluid Properties Not Dependent on State</p>
 			</text>
 		</region>
-		<region region-id="812" left="6" top="494.25" width="455.25" height="243" align-x="13.5" align-y="504" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
+		<region region-id="974" left="6" top="596.25" width="455.25" height="243" align-x="13.5" align-y="606" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
 			<text use-page-width="false" push-down="false" lock-width="true">
 				<p style="Normal" margin-left="inherit" margin-right="inherit" text-indent="inherit" text-align="inherit" list-style-type="inherit" tabs="inherit">The function FluidProp1 is used to extract fluid-specific parameters that are not dependent on the state.<sp count="2"/>The calling struction of the function is as follows:</p>
 				<p style="Normal" margin-left="inherit" margin-right="inherit" text-indent="inherit" text-align="inherit" list-style-type="inherit" tabs="inherit"/>
@@ -645,44 +767,59 @@
 				</p>
 			</text>
 		</region>
-		<region region-id="284" left="6" top="777" width="84" height="11.25" align-x="21.75" align-y="786" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
+		<region region-id="975" left="6" top="819" width="84" height="11.25" align-x="21.75" align-y="828" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
 			<text use-page-width="false" push-down="false" lock-width="false">
 				<p style="Heading 4" margin-left="inherit" margin-right="inherit" text-indent="inherit" text-align="inherit" list-style-type="inherit" tabs="inherit">Example, FluidProp1</p>
 			</text>
 		</region>
-		<region region-id="307" left="6" top="795" width="168" height="12.75" align-x="140.25" align-y="804" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
+		<region region-id="976" left="6" top="837" width="168" height="12.75" align-x="140.25" align-y="846" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
 			<math optimize="false" disable-calc="false">
 				<ml:eval placeholderMultiplicationStyle="default" xmlns:ml="http://schemas.mathsoft.com/math30">
-					<ml:apply>
-						<ml:id xml:space="preserve">FluidProp1</ml:id>
-						<ml:sequence>
-							<ml:str xml:space="preserve">Argon</ml:str>
-							<ml:str xml:space="preserve">rhocrit</ml:str>
-						</ml:sequence>
-					</ml:apply>
+					<ml:provenance expr-id="1">
+						<originRef doc-id="2C78F03C-F3AB-48D2-A967-CA877F3AC7C3" version-id="1CC2816F-C302-438D-AAF6-8E7DB47C44C9" branch-id="00000000-0000-0000-0000-000000000000" revision-num="17843100" is-modified="false" region-id="0" href="F:\Users\Scott Polak\Analysis Tools\CoolPropFluidProperties.xmcd" xmlns="http://schemas.mathsoft.com/provenance10">
+							<hash/>
+						</originRef>
+						<parentRef doc-id="2C78F03C-F3AB-48D2-A967-CA877F3AC7C3" version-id="1CC2816F-C302-438D-AAF6-8E7DB47C44C9" branch-id="00000000-0000-0000-0000-000000000000" revision-num="139431204" is-modified="false" region-id="0" href="F:\Users\Scott Polak\Analysis Tools\CoolPropFluidProperties.xmcd" xmlns="http://schemas.mathsoft.com/provenance10">
+							<hash/>
+						</parentRef>
+						<comment xmlns="http://schemas.mathsoft.com/provenance10"/>
+						<originComment xmlns="http://schemas.mathsoft.com/provenance10">CoolProp Fluid Properties Wrapper - Mathcad User Function</originComment>
+						<contentHash xmlns="http://schemas.mathsoft.com/provenance10">7253447627bfc83e2eb4db442b0bbb8f</contentHash>
+						<ml:apply>
+							<ml:id xml:space="preserve">FluidProp1</ml:id>
+							<ml:sequence>
+								<ml:str xml:space="preserve">Argon</ml:str>
+								<ml:str xml:space="preserve">rhocrit</ml:str>
+							</ml:sequence>
+						</ml:apply>
+					</ml:provenance>
 					<result xmlns="http://schemas.mathsoft.com/math30">
 						<ml:real>535.6</ml:real>
 					</result>
 				</ml:eval>
 			</math>
-			<rendering item-idref="5"/>
+			<rendering item-idref="8">
+				<element-image-map>
+					<box left="1.5" top="0.75" width="128.25" height="11.25" expr-idref="1" xmlns="http://schemas.mathsoft.com/worksheet30"/>
+				</element-image-map>
+			</rendering>
 		</region>
-		<region region-id="310" left="240" top="794.25" width="201.75" height="13.5" align-x="255.75" align-y="804" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
+		<region region-id="977" left="240" top="836.25" width="201.75" height="13.5" align-x="255.75" align-y="846" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
 			<text use-page-width="false" push-down="false" lock-width="false">
 				<p style="Normal" margin-left="inherit" margin-right="inherit" text-indent="inherit" text-align="inherit" list-style-type="inherit" tabs="inherit">Extracts the critical density of Argon, in kg m^-3</p>
 			</text>
 		</region>
-		<region region-id="312" left="6" top="833.25" width="184.5" height="16.5" align-x="15.75" align-y="846" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
+		<region region-id="978" left="6" top="875.25" width="184.5" height="16.5" align-x="15.75" align-y="888" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
 			<text use-page-width="false" push-down="false" lock-width="false">
 				<p style="Heading 3" margin-left="inherit" margin-right="inherit" text-indent="inherit" text-align="inherit" list-style-type="inherit" tabs="inherit">State Dependent Fluid Properties</p>
 			</text>
 		</region>
-		<region region-id="343" left="6" top="854.25" width="456" height="27" align-x="18" align-y="864" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
+		<region region-id="979" left="6" top="896.25" width="456" height="27" align-x="18" align-y="906" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
 			<text use-page-width="false" push-down="false" lock-width="true">
-				<p style="Normal" margin-left="inherit" margin-right="inherit" text-indent="inherit" text-align="inherit" list-style-type="inherit" tabs="inherit">The function FluidProp is used to extract state-dependent fluid properties.<sp count="2"/>The calling structure of the function is as follows:</p>
+				<p style="Normal" margin-left="inherit" margin-right="inherit" text-indent="inherit" text-align="inherit" list-style-type="inherit" tabs="inherit">The function FluidProp is used to extract state-dependent fluid properties.<sp count="2"/>The calling struction of the function is as follows:</p>
 			</text>
 		</region>
-		<region region-id="358" left="42" top="891" width="147.75" height="67.5" align-x="51.75" align-y="900" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
+		<region region-id="980" left="42" top="933" width="147.75" height="67.5" align-x="51.75" align-y="942" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
 			<text use-page-width="false" push-down="false" lock-width="true">
 				<p style="Normal" margin-left="inherit" margin-right="inherit" text-indent="inherit" text-align="inherit" list-style-type="inherit" tabs="inherit">
 					<f family="Times New Roman" charset="0" size="10">
@@ -712,7 +849,7 @@
 				</p>
 			</text>
 		</region>
-		<region region-id="837" left="6" top="968.25" width="457.5" height="432" align-x="18.75" align-y="978" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
+		<region region-id="1030" left="6" top="1016.25" width="457.5" height="432" align-x="18.75" align-y="1026" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
 			<text use-page-width="false" push-down="false" lock-width="true">
 				<p style="Normal" margin-left="inherit" margin-right="inherit" text-indent="inherit" text-align="inherit" list-style-type="inherit" tabs="inherit">Where "Fluid" is one of the fluid names from the FluidList table above, and "OutputParameter" is one of the property name abbreviations from the table below: </p>
 				<p style="Normal" margin-left="inherit" margin-right="inherit" text-indent="inherit" text-align="inherit" list-style-type="inherit" tabs="inherit"/>
@@ -857,94 +994,124 @@
 				</p>
 			</text>
 		</region>
-		<region region-id="363" left="6" top="1424.25" width="462" height="27" align-x="9" align-y="1434" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
+		<region region-id="982" left="6" top="1466.25" width="462" height="27" align-x="9" align-y="1476" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
 			<text use-page-width="false" push-down="false" lock-width="true">
-				<p style="Normal" margin-left="inherit" margin-right="inherit" text-indent="inherit" text-align="inherit" list-style-type="inherit" tabs="inherit">The defautl units system utilized by CoolProp is a modified SI units system, sometimes refered to as kSI.<sp count="2"/>Default units are shown in the table of variables above </p>
+				<p style="Normal" margin-left="inherit" margin-right="inherit" text-indent="inherit" text-align="inherit" list-style-type="inherit" tabs="inherit">The defautl units system utilized by CoolProp is a modified SI units system, sometimes refered to as kSI.<sp count="2"/>Default units are shown in the table of varialbes above </p>
 			</text>
 		</region>
-		<region region-id="425" left="6" top="1467" width="83.25" height="11.25" align-x="21.75" align-y="1476" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
+		<region region-id="983" left="6" top="1509" width="83.25" height="11.25" align-x="21.75" align-y="1518" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
 			<text use-page-width="false" push-down="false" lock-width="false">
 				<p style="Heading 4" margin-left="inherit" margin-right="inherit" text-indent="inherit" text-align="inherit" list-style-type="inherit" tabs="inherit">Examples, FluidProp</p>
 			</text>
 		</region>
-		<region region-id="842" left="324" top="1472.25" width="148.5" height="40.5" align-x="342" align-y="1482" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
+		<region region-id="984" left="336" top="1520.25" width="129.75" height="40.5" align-x="354" align-y="1530" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
 			<text use-page-width="false" push-down="false" lock-width="true">
 				<p style="Normal" margin-left="inherit" margin-right="inherit" text-indent="inherit" text-align="inherit" list-style-type="inherit" tabs="inherit">Enthalpy of Helium [kJ kg^-1] at a temperature of 300 K and a Pressure of 500 kPa</p>
 			</text>
 		</region>
-		<region region-id="750" left="6" top="1485" width="247.5" height="18.75" align-x="195" align-y="1500" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
+		<region region-id="985" left="6" top="1527" width="247.5" height="18.75" align-x="195" align-y="1542" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
 			<math optimize="false" disable-calc="false">
 				<ml:eval placeholderMultiplicationStyle="default" xmlns:ml="http://schemas.mathsoft.com/math30">
-					<ml:apply>
-						<ml:id xml:space="preserve">FluidProp</ml:id>
-						<ml:sequence>
-							<ml:str xml:space="preserve">H</ml:str>
-							<ml:str xml:space="preserve">T</ml:str>
-							<ml:real>300</ml:real>
-							<ml:str xml:space="preserve">P</ml:str>
-							<ml:real>500</ml:real>
-							<ml:str xml:space="preserve">Helium</ml:str>
-						</ml:sequence>
-					</ml:apply>
+					<ml:provenance expr-id="1">
+						<originRef doc-id="2C78F03C-F3AB-48D2-A967-CA877F3AC7C3" version-id="1CC2816F-C302-438D-AAF6-8E7DB47C44C9" branch-id="00000000-0000-0000-0000-000000000000" revision-num="139430324" is-modified="false" region-id="0" href="F:\Users\Scott Polak\Analysis Tools\CoolPropFluidProperties.xmcd" xmlns="http://schemas.mathsoft.com/provenance10">
+							<hash/>
+						</originRef>
+						<parentRef doc-id="2C78F03C-F3AB-48D2-A967-CA877F3AC7C3" version-id="1CC2816F-C302-438D-AAF6-8E7DB47C44C9" branch-id="00000000-0000-0000-0000-000000000000" revision-num="139431204" is-modified="false" region-id="0" href="F:\Users\Scott Polak\Analysis Tools\CoolPropFluidProperties.xmcd" xmlns="http://schemas.mathsoft.com/provenance10">
+							<hash/>
+						</parentRef>
+						<comment xmlns="http://schemas.mathsoft.com/provenance10"/>
+						<originComment xmlns="http://schemas.mathsoft.com/provenance10">CoolProp Fluid Properties Wrapper - Mathcad User Function</originComment>
+						<contentHash xmlns="http://schemas.mathsoft.com/provenance10">49cc8c8d6d672d1d1ede03de02cf963e</contentHash>
+						<ml:apply>
+							<ml:id xml:space="preserve">FluidProp</ml:id>
+							<ml:sequence>
+								<ml:str xml:space="preserve">H</ml:str>
+								<ml:str xml:space="preserve">T</ml:str>
+								<ml:real>300</ml:real>
+								<ml:str xml:space="preserve">P</ml:str>
+								<ml:real>500</ml:real>
+								<ml:str xml:space="preserve">Helium</ml:str>
+							</ml:sequence>
+						</ml:apply>
+					</ml:provenance>
 					<result xmlns="http://schemas.mathsoft.com/math30">
 						<ml:real>1564.7469379430045</ml:real>
 					</result>
 				</ml:eval>
 			</math>
-			<rendering item-idref="6"/>
+			<rendering item-idref="9">
+				<element-image-map>
+					<box left="1.5" top="6.75" width="183" height="11.25" expr-idref="1" xmlns="http://schemas.mathsoft.com/worksheet30"/>
+				</element-image-map>
+			</rendering>
 		</region>
-		<region region-id="839" left="324" top="1532.25" width="140.25" height="81" align-x="342" align-y="1542" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
+		<region region-id="986" left="336" top="1574.25" width="126" height="94.5" align-x="354" align-y="1584" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
 			<text use-page-width="false" push-down="false" lock-width="true">
 				<p style="Normal" margin-left="inherit" margin-right="inherit" text-indent="inherit" text-align="inherit" list-style-type="inherit" tabs="inherit">Dynamic viscosity of Water [Pa*s] at a temperature of 21 C (converted to the CoolProp temperature units, K) and a Pressure of 60 psi (converetd to the CoolProp pressure units, kPa)</p>
 			</text>
 		</region>
-		<region region-id="752" left="6" top="1544.25" width="275.25" height="27.75" align-x="215.25" align-y="1560" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
+		<region region-id="987" left="6" top="1586.25" width="275.25" height="27.75" align-x="215.25" align-y="1602" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
 			<math optimize="false" disable-calc="false">
 				<ml:eval placeholderMultiplicationStyle="default" xmlns:ml="http://schemas.mathsoft.com/math30">
-					<ml:apply>
-						<ml:id xml:space="preserve">FluidProp</ml:id>
-						<ml:sequence>
-							<ml:str xml:space="preserve">V</ml:str>
-							<ml:str xml:space="preserve">T</ml:str>
-							<ml:apply>
-								<ml:div/>
-								<ml:apply fixity="postfix">
-									<ml:id xml:space="preserve">°C</ml:id>
-									<ml:real>21</ml:real>
-								</ml:apply>
-								<ml:id xml:space="preserve">K</ml:id>
-							</ml:apply>
-							<ml:str xml:space="preserve">P</ml:str>
-							<ml:apply>
-								<ml:div/>
+					<ml:provenance expr-id="1">
+						<originRef doc-id="2C78F03C-F3AB-48D2-A967-CA877F3AC7C3" version-id="1CC2816F-C302-438D-AAF6-8E7DB47C44C9" branch-id="00000000-0000-0000-0000-000000000000" revision-num="139431324" is-modified="false" region-id="0" href="F:\Users\Scott Polak\Analysis Tools\CoolPropFluidProperties.xmcd" xmlns="http://schemas.mathsoft.com/provenance10">
+							<hash/>
+						</originRef>
+						<parentRef doc-id="2C78F03C-F3AB-48D2-A967-CA877F3AC7C3" version-id="1CC2816F-C302-438D-AAF6-8E7DB47C44C9" branch-id="00000000-0000-0000-0000-000000000000" revision-num="139431284" is-modified="false" region-id="0" href="F:\Users\Scott Polak\Analysis Tools\CoolPropFluidProperties.xmcd" xmlns="http://schemas.mathsoft.com/provenance10">
+							<hash/>
+						</parentRef>
+						<comment xmlns="http://schemas.mathsoft.com/provenance10"/>
+						<originComment xmlns="http://schemas.mathsoft.com/provenance10">CoolProp Fluid Properties Wrapper - Mathcad User Function</originComment>
+						<contentHash xmlns="http://schemas.mathsoft.com/provenance10">98a17bb6370337ca9e1e46743f1d40a5</contentHash>
+						<ml:apply>
+							<ml:id xml:space="preserve">FluidProp</ml:id>
+							<ml:sequence>
+								<ml:str xml:space="preserve">V</ml:str>
+								<ml:str xml:space="preserve">T</ml:str>
 								<ml:apply>
-									<ml:mult style="auto-select"/>
-									<ml:real>60</ml:real>
-									<ml:id xml:space="preserve">psi</ml:id>
+									<ml:div/>
+									<ml:apply fixity="postfix">
+										<ml:id xml:space="preserve">°C</ml:id>
+										<ml:real>21</ml:real>
+									</ml:apply>
+									<ml:id xml:space="preserve">K</ml:id>
 								</ml:apply>
-								<ml:id xml:space="preserve">kPa</ml:id>
-							</ml:apply>
-							<ml:str xml:space="preserve">Water</ml:str>
-						</ml:sequence>
-					</ml:apply>
+								<ml:str xml:space="preserve">P</ml:str>
+								<ml:apply>
+									<ml:div/>
+									<ml:apply>
+										<ml:mult style="auto-select"/>
+										<ml:real>60</ml:real>
+										<ml:id xml:space="preserve">psi</ml:id>
+									</ml:apply>
+									<ml:id xml:space="preserve">kPa</ml:id>
+								</ml:apply>
+								<ml:str xml:space="preserve">Water</ml:str>
+							</ml:sequence>
+						</ml:apply>
+					</ml:provenance>
 					<result xmlns="http://schemas.mathsoft.com/math30">
 						<ml:real>0.00097745327129780332</ml:real>
 					</result>
 				</ml:eval>
 			</math>
-			<rendering item-idref="7"/>
+			<rendering item-idref="10">
+				<element-image-map>
+					<box left="1.5" top="0.75" width="203.25" height="26.25" expr-idref="1" xmlns="http://schemas.mathsoft.com/worksheet30"/>
+				</element-image-map>
+			</rendering>
 		</region>
-		<region region-id="460" left="6" top="1625.25" width="150" height="16.5" align-x="15.75" align-y="1638" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
+		<region region-id="988" left="6" top="1661.25" width="150" height="16.5" align-x="15.75" align-y="1674" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
 			<text use-page-width="false" push-down="false" lock-width="false">
 				<p style="Heading 3" margin-left="inherit" margin-right="inherit" text-indent="inherit" text-align="inherit" list-style-type="inherit" tabs="inherit">Humid Air Fluid Properties</p>
 			</text>
 		</region>
-		<region region-id="461" left="6" top="1646.25" width="456" height="81" align-x="18" align-y="1656" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
+		<region region-id="989" left="6" top="1682.25" width="456" height="81" align-x="18" align-y="1692" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
 			<text use-page-width="false" push-down="false" lock-width="true">
-				<p style="Normal" margin-left="0" margin-right="0" text-indent="0" text-align="left" list-style-type="none" tabs="inherit">The function HAProp is used to find fluid properties of humid air.<sp count="2"/>The physics behind the HAProps function is based on the analysis in ASHRAE RP-1845, which is available online: <c val="#000">http://rp.ashrae.biz/page/ASHRAE-D-RP-1485-20091216.pdf</c>.<sp count="2"/>It employs real gas properties for both air and water, as well as the most accurate interaction parameters and enhancement factors.<sp count="3"/>RP-1845 is based largely on the IAPWS-95 formulation for the properties of water.<sp count="2"/>The calling structure of the function is as follows:</p>
+				<p style="Normal" margin-left="0" margin-right="0" text-indent="0" text-align="left" list-style-type="none" tabs="inherit">The function HAProp is used to find fluid properties of humid air.<sp count="2"/>The physics behind the HAProps function is based on the analysis in ASHRAE RP-1845, which is available online: <c val="#000">http://rp.ashrae.biz/page/ASHRAE-D-RP-1485-20091216.pdf</c>.<sp count="2"/>It employs real gas properties for both air and water, as well as the most accurate interaction parameters and enhancement factors.<sp count="3"/>RP-1845 is based largely on the IAPWS-95 formulation for the properties of water.<sp count="2"/>The calling struction of the function is as follows:</p>
 			</text>
 		</region>
-		<region region-id="753" left="42" top="1731" width="147.75" height="78.75" align-x="51.75" align-y="1740" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
+		<region region-id="990" left="42" top="1767" width="147.75" height="78.75" align-x="51.75" align-y="1776" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
 			<text use-page-width="false" push-down="false" lock-width="true">
 				<p style="Normal" margin-left="inherit" margin-right="inherit" text-indent="inherit" text-align="inherit" list-style-type="inherit" tabs="inherit">
 					<f family="Times New Roman" charset="0" size="10">
@@ -978,7 +1145,7 @@
 				</p>
 			</text>
 		</region>
-		<region region-id="520" left="6" top="1832.25" width="387.75" height="202.5" align-x="7.5" align-y="1842" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
+		<region region-id="991" left="6" top="1868.25" width="387.75" height="202.5" align-x="7.5" align-y="1878" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
 			<text use-page-width="false" push-down="false" lock-width="true">
 				<p style="Normal" margin-left="inherit" margin-right="inherit" text-indent="inherit" text-align="inherit" list-style-type="inherit" tabs="inherit">Where "OutputParameter" and all three Input Parameters are variables from the table below:</p>
 				<p style="Normal" margin-left="inherit" margin-right="inherit" text-indent="inherit" text-align="inherit" list-style-type="inherit" tabs="inherit"/>
@@ -1043,151 +1210,211 @@
 					<tab/>Mixture thermal conductivity [W/m/K]</p>
 			</text>
 		</region>
-		<region region-id="542" left="6" top="2061" width="75.75" height="11.25" align-x="21.75" align-y="2070" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
+		<region region-id="992" left="6" top="2079" width="75.75" height="11.25" align-x="21.75" align-y="2088" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
 			<text use-page-width="false" push-down="false" lock-width="false">
 				<p style="Heading 4" margin-left="inherit" margin-right="inherit" text-indent="inherit" text-align="inherit" list-style-type="inherit" tabs="inherit">Examples, HAProp</p>
 			</text>
 		</region>
-		<region region-id="849" left="318" top="2066.25" width="147" height="54" align-x="336" align-y="2076" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
+		<region region-id="993" left="318" top="2084.25" width="147" height="54" align-x="336" align-y="2094" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
 			<text use-page-width="false" push-down="false" lock-width="true">
 				<p style="Normal" margin-left="inherit" margin-right="inherit" text-indent="inherit" text-align="inherit" list-style-type="inherit" tabs="inherit">Enthalpy of humid air [kJ kg^-1] at a dry-bulb temperature of 298.15 K, a Pressure of 101.325 kPa, and relative humidity of 0.5 </p>
 			</text>
 		</region>
-		<region region-id="558" left="6" top="2085" width="262.5" height="12.75" align-x="18.75" align-y="2094" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
+		<region region-id="994" left="6" top="2103" width="262.5" height="12.75" align-x="18.75" align-y="2112" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
 			<math optimize="false" disable-calc="false">
-				<ml:define xmlns:ml="http://schemas.mathsoft.com/math30">
-					<ml:id xml:space="preserve">h</ml:id>
-					<ml:eval placeholderMultiplicationStyle="default">
-						<ml:apply>
-							<ml:id xml:space="preserve">HAProp</ml:id>
-							<ml:sequence>
-								<ml:str xml:space="preserve">H</ml:str>
-								<ml:str xml:space="preserve">T</ml:str>
-								<ml:real>298.15</ml:real>
-								<ml:str xml:space="preserve">P</ml:str>
-								<ml:real>101.325</ml:real>
-								<ml:str xml:space="preserve">R</ml:str>
-								<ml:real>0.5</ml:real>
-							</ml:sequence>
-						</ml:apply>
-						<result xmlns="http://schemas.mathsoft.com/math30">
-							<ml:real>50.424928343310896</ml:real>
-						</result>
-					</ml:eval>
-				</ml:define>
+				<ml:provenance expr-id="1" xmlns:ml="http://schemas.mathsoft.com/math30">
+					<originRef doc-id="2C78F03C-F3AB-48D2-A967-CA877F3AC7C3" version-id="1CC2816F-C302-438D-AAF6-8E7DB47C44C9" branch-id="00000000-0000-0000-0000-000000000000" revision-num="139429924" is-modified="false" region-id="0" href="F:\Users\Scott Polak\Analysis Tools\CoolPropFluidProperties.xmcd" xmlns="http://schemas.mathsoft.com/provenance10">
+						<hash/>
+					</originRef>
+					<parentRef doc-id="2C78F03C-F3AB-48D2-A967-CA877F3AC7C3" version-id="1CC2816F-C302-438D-AAF6-8E7DB47C44C9" branch-id="00000000-0000-0000-0000-000000000000" revision-num="139430204" is-modified="false" region-id="0" href="F:\Users\Scott Polak\Analysis Tools\CoolPropFluidProperties.xmcd" xmlns="http://schemas.mathsoft.com/provenance10">
+						<hash/>
+					</parentRef>
+					<comment xmlns="http://schemas.mathsoft.com/provenance10"/>
+					<originComment xmlns="http://schemas.mathsoft.com/provenance10">CoolProp Fluid Properties Wrapper - Mathcad User Function</originComment>
+					<contentHash xmlns="http://schemas.mathsoft.com/provenance10">24a15a1ff171d5c840c8024d226616e5</contentHash>
+					<ml:define>
+						<ml:id xml:space="preserve">h</ml:id>
+						<ml:eval placeholderMultiplicationStyle="default">
+							<ml:apply>
+								<ml:id xml:space="preserve">HAProp</ml:id>
+								<ml:sequence>
+									<ml:str xml:space="preserve">H</ml:str>
+									<ml:str xml:space="preserve">T</ml:str>
+									<ml:real>298.15</ml:real>
+									<ml:str xml:space="preserve">P</ml:str>
+									<ml:real>101.325</ml:real>
+									<ml:str xml:space="preserve">R</ml:str>
+									<ml:real>0.5</ml:real>
+								</ml:sequence>
+							</ml:apply>
+							<result xmlns="http://schemas.mathsoft.com/math30">
+								<ml:real>50.424928343310896</ml:real>
+							</result>
+						</ml:eval>
+					</ml:define>
+				</ml:provenance>
 			</math>
-			<rendering item-idref="8"/>
+			<rendering item-idref="11">
+				<element-image-map>
+					<box left="1.5" top="0.75" width="261" height="11.25" expr-idref="1" xmlns="http://schemas.mathsoft.com/worksheet30"/>
+				</element-image-map>
+			</rendering>
 		</region>
-		<region region-id="850" left="318" top="2138.25" width="138" height="40.5" align-x="342.75" align-y="2148" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
+		<region region-id="995" left="318" top="2156.25" width="138" height="40.5" align-x="342.75" align-y="2166" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
 			<text use-page-width="false" push-down="false" lock-width="false">
 				<p style="Normal" margin-left="inherit" margin-right="inherit" text-indent="inherit" text-align="inherit" list-style-type="inherit" tabs="inherit">Temperature of saturated air (R=1.0) at the previous enthalphy value </p>
 			</text>
 		</region>
-		<region region-id="555" left="6" top="2145" width="228" height="12.75" align-x="191.25" align-y="2154" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
+		<region region-id="996" left="6" top="2163" width="228" height="12.75" align-x="191.25" align-y="2172" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
 			<math optimize="false" disable-calc="false">
 				<ml:eval placeholderMultiplicationStyle="default" xmlns:ml="http://schemas.mathsoft.com/math30">
-					<ml:apply>
-						<ml:id xml:space="preserve">HAProp</ml:id>
-						<ml:sequence>
-							<ml:str xml:space="preserve">T</ml:str>
-							<ml:str xml:space="preserve">P</ml:str>
-							<ml:real>101.325</ml:real>
-							<ml:str xml:space="preserve">H</ml:str>
-							<ml:id xml:space="preserve">h</ml:id>
-							<ml:str xml:space="preserve">R</ml:str>
-							<ml:real>1.0</ml:real>
-						</ml:sequence>
-					</ml:apply>
+					<ml:provenance expr-id="1">
+						<originRef doc-id="2C78F03C-F3AB-48D2-A967-CA877F3AC7C3" version-id="1CC2816F-C302-438D-AAF6-8E7DB47C44C9" branch-id="00000000-0000-0000-0000-000000000000" revision-num="139430324" is-modified="false" region-id="0" href="F:\Users\Scott Polak\Analysis Tools\CoolPropFluidProperties.xmcd" xmlns="http://schemas.mathsoft.com/provenance10">
+							<hash/>
+						</originRef>
+						<parentRef doc-id="2C78F03C-F3AB-48D2-A967-CA877F3AC7C3" version-id="1CC2816F-C302-438D-AAF6-8E7DB47C44C9" branch-id="00000000-0000-0000-0000-000000000000" revision-num="139431124" is-modified="false" region-id="0" href="F:\Users\Scott Polak\Analysis Tools\CoolPropFluidProperties.xmcd" xmlns="http://schemas.mathsoft.com/provenance10">
+							<hash/>
+						</parentRef>
+						<comment xmlns="http://schemas.mathsoft.com/provenance10"/>
+						<originComment xmlns="http://schemas.mathsoft.com/provenance10">CoolProp Fluid Properties Wrapper - Mathcad User Function</originComment>
+						<contentHash xmlns="http://schemas.mathsoft.com/provenance10">5e028749f2e6f4e7cfba9a365fe137af</contentHash>
+						<ml:apply>
+							<ml:id xml:space="preserve">HAProp</ml:id>
+							<ml:sequence>
+								<ml:str xml:space="preserve">T</ml:str>
+								<ml:str xml:space="preserve">P</ml:str>
+								<ml:real>101.325</ml:real>
+								<ml:str xml:space="preserve">H</ml:str>
+								<ml:id xml:space="preserve">h</ml:id>
+								<ml:str xml:space="preserve">R</ml:str>
+								<ml:real>1.0</ml:real>
+							</ml:sequence>
+						</ml:apply>
+					</ml:provenance>
 					<result xmlns="http://schemas.mathsoft.com/math30">
 						<ml:real>290.96216888804332</ml:real>
 					</result>
 				</ml:eval>
 			</math>
-			<rendering item-idref="9"/>
+			<rendering item-idref="12">
+				<element-image-map>
+					<box left="1.5" top="0.75" width="179.25" height="11.25" expr-idref="1" xmlns="http://schemas.mathsoft.com/worksheet30"/>
+				</element-image-map>
+			</rendering>
 		</region>
-		<region region-id="572" left="6" top="2201.25" width="96" height="16.5" align-x="15.75" align-y="2214" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
+		<region region-id="997" left="6" top="2219.25" width="96" height="16.5" align-x="15.75" align-y="2232" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
 			<text use-page-width="false" push-down="false" lock-width="false">
 				<p style="Heading 3" margin-left="inherit" margin-right="inherit" text-indent="inherit" text-align="inherit" list-style-type="inherit" tabs="inherit">Arrays &amp; Plotting</p>
 			</text>
 		</region>
-		<region region-id="573" left="6" top="2222.25" width="456" height="27" align-x="18" align-y="2232" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
+		<region region-id="998" left="6" top="2240.25" width="456" height="27" align-x="18" align-y="2250" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
 			<text use-page-width="false" push-down="false" lock-width="true">
-				<p style="Normal" margin-left="inherit" margin-right="inherit" text-indent="inherit" text-align="inherit" list-style-type="inherit" tabs="inherit">Like all functions in Mathcad, the CoolProp wrapper function arguments can be array variables.<sp count="2"/>If one or more function arguments are arrays, the output will also be a single or multi-dimensional array.</p>
+				<p style="Normal" margin-left="inherit" margin-right="inherit" text-indent="inherit" text-align="inherit" list-style-type="inherit" tabs="inherit">Like all functions in Mathcad, the CoolProp wrapper function arguments can be array variables.<sp count="2"/>If one or more function arguments are arrays, the output will also be a single or multi-dimensional array. </p>
 			</text>
 		</region>
-		<region region-id="577" left="6" top="2265" width="38.25" height="11.25" align-x="24" align-y="2274" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
+		<region region-id="999" left="6" top="2283" width="38.25" height="11.25" align-x="24" align-y="2292" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
 			<text use-page-width="false" push-down="false" lock-width="false">
 				<p style="Heading 4" margin-left="inherit" margin-right="inherit" text-indent="inherit" text-align="inherit" list-style-type="inherit" tabs="inherit">Examples</p>
 			</text>
 		</region>
-		<region region-id="594" left="6" top="2289" width="123" height="16.5" align-x="36.75" align-y="2298" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
+		<region region-id="1000" left="6" top="2307" width="123" height="16.5" align-x="36.75" align-y="2316" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
 			<math optimize="false" disable-calc="false">
-				<ml:define xmlns:ml="http://schemas.mathsoft.com/math30">
-					<ml:id xml:space="preserve" subscript="H2O">T</ml:id>
-					<ml:range>
-						<ml:sequence>
+				<ml:provenance expr-id="1" xmlns:ml="http://schemas.mathsoft.com/math30">
+					<originRef doc-id="2C78F03C-F3AB-48D2-A967-CA877F3AC7C3" version-id="1CC2816F-C302-438D-AAF6-8E7DB47C44C9" branch-id="00000000-0000-0000-0000-000000000000" revision-num="139431404" is-modified="false" region-id="0" href="F:\Users\Scott Polak\Analysis Tools\CoolPropFluidProperties.xmcd" xmlns="http://schemas.mathsoft.com/provenance10">
+						<hash/>
+					</originRef>
+					<parentRef doc-id="2C78F03C-F3AB-48D2-A967-CA877F3AC7C3" version-id="1CC2816F-C302-438D-AAF6-8E7DB47C44C9" branch-id="00000000-0000-0000-0000-000000000000" revision-num="139430204" is-modified="false" region-id="0" href="F:\Users\Scott Polak\Analysis Tools\CoolPropFluidProperties.xmcd" xmlns="http://schemas.mathsoft.com/provenance10">
+						<hash/>
+					</parentRef>
+					<comment xmlns="http://schemas.mathsoft.com/provenance10"/>
+					<originComment xmlns="http://schemas.mathsoft.com/provenance10">CoolProp Fluid Properties Wrapper - Mathcad User Function</originComment>
+					<contentHash xmlns="http://schemas.mathsoft.com/provenance10">497e47653ea7b8e9bdc78072e57578ec</contentHash>
+					<ml:define>
+						<ml:id xml:space="preserve" subscript="H2O">T</ml:id>
+						<ml:range>
+							<ml:sequence>
+								<ml:apply>
+									<ml:mult/>
+									<ml:real>280</ml:real>
+									<ml:id xml:space="preserve">K</ml:id>
+								</ml:apply>
+								<ml:apply>
+									<ml:mult/>
+									<ml:real>290</ml:real>
+									<ml:id xml:space="preserve">K</ml:id>
+								</ml:apply>
+							</ml:sequence>
 							<ml:apply>
 								<ml:mult/>
-								<ml:real>280</ml:real>
+								<ml:real>400</ml:real>
 								<ml:id xml:space="preserve">K</ml:id>
 							</ml:apply>
-							<ml:apply>
-								<ml:mult/>
-								<ml:real>290</ml:real>
-								<ml:id xml:space="preserve">K</ml:id>
-							</ml:apply>
-						</ml:sequence>
-						<ml:apply>
-							<ml:mult/>
-							<ml:real>400</ml:real>
-							<ml:id xml:space="preserve">K</ml:id>
-						</ml:apply>
-					</ml:range>
-				</ml:define>
+						</ml:range>
+					</ml:define>
+				</ml:provenance>
 			</math>
-			<rendering item-idref="10"/>
+			<rendering item-idref="13">
+				<element-image-map>
+					<box left="1.5" top="0.75" width="121.5" height="15" expr-idref="1" xmlns="http://schemas.mathsoft.com/worksheet30"/>
+				</element-image-map>
+			</rendering>
 		</region>
-		<region region-id="707" left="12" top="2310" width="424.5" height="196.5" align-x="12" align-y="2310" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
-			<plot disable-calc="false" item-idref="11"/>
-			<rendering item-idref="12"/>
+		<region region-id="1001" left="12" top="2328" width="424.5" height="196.5" align-x="12" align-y="2328" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
+			<plot disable-calc="false" item-idref="14"/>
+			<rendering item-idref="15"/>
 		</region>
-		<region region-id="855" left="252" top="2522.25" width="201" height="27" align-x="259.5" align-y="2532" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
+		<region region-id="1034" left="252" top="2534.25" width="201" height="27" align-x="259.5" align-y="2544" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
 			<text use-page-width="false" push-down="false" lock-width="true">
 				<p style="Normal" margin-left="inherit" margin-right="inherit" text-indent="inherit" text-align="inherit" list-style-type="inherit" tabs="inherit">Plot of thermal conductivity of water at 50 psi, over the temperature range defined by T.H2O</p>
 			</text>
 		</region>
-		<region region-id="730" left="24" top="2589" width="119.25" height="16.5" align-x="51" align-y="2598" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
+		<region region-id="1003" left="24" top="2601" width="119.25" height="16.5" align-x="51" align-y="2610" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
 			<math optimize="false" disable-calc="false">
-				<ml:define xmlns:ml="http://schemas.mathsoft.com/math30">
-					<ml:id xml:space="preserve" subscript="HA">T</ml:id>
-					<ml:range>
-						<ml:sequence>
+				<ml:provenance expr-id="1" xmlns:ml="http://schemas.mathsoft.com/math30">
+					<originRef doc-id="2C78F03C-F3AB-48D2-A967-CA877F3AC7C3" version-id="1CC2816F-C302-438D-AAF6-8E7DB47C44C9" branch-id="00000000-0000-0000-0000-000000000000" revision-num="139431124" is-modified="false" region-id="0" href="F:\Users\Scott Polak\Analysis Tools\CoolPropFluidProperties.xmcd" xmlns="http://schemas.mathsoft.com/provenance10">
+						<hash/>
+					</originRef>
+					<parentRef doc-id="2C78F03C-F3AB-48D2-A967-CA877F3AC7C3" version-id="1CC2816F-C302-438D-AAF6-8E7DB47C44C9" branch-id="00000000-0000-0000-0000-000000000000" revision-num="139431204" is-modified="false" region-id="0" href="F:\Users\Scott Polak\Analysis Tools\CoolPropFluidProperties.xmcd" xmlns="http://schemas.mathsoft.com/provenance10">
+						<hash/>
+					</parentRef>
+					<comment xmlns="http://schemas.mathsoft.com/provenance10"/>
+					<originComment xmlns="http://schemas.mathsoft.com/provenance10">CoolProp Fluid Properties Wrapper - Mathcad User Function</originComment>
+					<contentHash xmlns="http://schemas.mathsoft.com/provenance10">22552658325d9c66df492d65948f234d</contentHash>
+					<ml:define>
+						<ml:id xml:space="preserve" subscript="HA">T</ml:id>
+						<ml:range>
+							<ml:sequence>
+								<ml:apply>
+									<ml:mult/>
+									<ml:real>290</ml:real>
+									<ml:id xml:space="preserve">K</ml:id>
+								</ml:apply>
+								<ml:apply>
+									<ml:mult/>
+									<ml:real>300</ml:real>
+									<ml:id xml:space="preserve">K</ml:id>
+								</ml:apply>
+							</ml:sequence>
 							<ml:apply>
 								<ml:mult/>
-								<ml:real>290</ml:real>
+								<ml:real>370</ml:real>
 								<ml:id xml:space="preserve">K</ml:id>
 							</ml:apply>
-							<ml:apply>
-								<ml:mult/>
-								<ml:real>300</ml:real>
-								<ml:id xml:space="preserve">K</ml:id>
-							</ml:apply>
-						</ml:sequence>
-						<ml:apply>
-							<ml:mult/>
-							<ml:real>370</ml:real>
-							<ml:id xml:space="preserve">K</ml:id>
-						</ml:apply>
-					</ml:range>
-				</ml:define>
+						</ml:range>
+					</ml:define>
+				</ml:provenance>
 			</math>
-			<rendering item-idref="13"/>
+			<rendering item-idref="16">
+				<element-image-map>
+					<box left="1.5" top="0.75" width="117.75" height="15" expr-idref="1" xmlns="http://schemas.mathsoft.com/worksheet30"/>
+				</element-image-map>
+			</rendering>
 		</region>
-		<region region-id="748" left="6" top="2610" width="435.75" height="270" align-x="6" align-y="2610" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
-			<plot disable-calc="false" item-idref="14"/>
-			<rendering item-idref="15"/>
+		<region region-id="1004" left="6" top="2622" width="435.75" height="270" align-x="6" align-y="2622" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
+			<plot disable-calc="false" item-idref="17"/>
+			<rendering item-idref="18"/>
 		</region>
-		<region region-id="853" left="234" top="2888.25" width="201" height="40.5" align-x="241.5" align-y="2898" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
+		<region region-id="1032" left="234" top="2894.25" width="201" height="40.5" align-x="241.5" align-y="2904" show-border="false" show-highlight="false" is-protected="true" z-order="0" background-color="inherit" tag="">
 			<text use-page-width="false" push-down="false" lock-width="true">
 				<p style="Normal" margin-left="inherit" margin-right="inherit" text-indent="inherit" text-align="inherit" list-style-type="inherit" tabs="inherit">Plot of the wet bulb temperature of humid air at various dry-bulb temperature and relative humidity ratios, at a pressure of 1 atm</p>
 			</text>
@@ -1211,80 +1438,155 @@ AAAAANAqjaKnYXRj6QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMAUx9ITY+kAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADAdBtLPzGWDgAAAAAAAAAAAAAAAAAAAAAAAAAA
 AAAAAAAAAAAAAEzG0gEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAX9r4AjWeEBz4Z
 ahkAAAAASUVORK5CYII=</item>
-		<item item-id="3" content-encoding="gzip">H4sIAAAAAAAA/+xXzU8TURCf7RdtaYUWisiHfIpfyMcKCFhxSwFjgjQphIMXA3SjNS0FukRJ
-PBDPaExMPGtivBgP3jz6nXjh4+xBveg/YDyYSJ15s7S7BAQVDwammX3vzc5v3nszb6fzPAAg
-IQ8ju0Xfgk+bNqOq5UAkIzuTE5Hxq+qEJiQQRQ4iSLHKju8A8zb58Usc2eUSbOYd8sILbPJk
-ryK0nfrYJfsXUcvpli0FADEXgMuZBg1mcO4pSEAc+5Av355CZRd4ZPcr7OR7GeXZxygvrtI1
-gNqzqB+DQXySDShgnBcK5Yuo9xDZZg2hXoKW4GOhB8AiNYpF+XmtziJeur9YBtRQivBVgDdV
-VCKLPQYA9gufuMKjw/3T5zU1KQkTaA0cRgGuDUqFqlOdjqqX46lJu3jRRuhYaoJlNiHryvra
-kb4y1Zu6zq4dRM5DQTTr7AtkD/kzTtKHPIiYJzSThd9/4AZNWQ6ISPqzM4U0bSY+PqupvL5u
-5AIwUll3rWlcvhazCo5ZeSV7v+Ige79yw5hVse8roZpjVlXDqOpaRtVsErM6xtVAPYenzhSz
-QyyszsWsQb73GvUrDnOsGlB0RHTnG0y7OCrc6sFwhVPJ8RQFiF8UknNRnJOQO4J47J9h+wW9
-dAPbGHImQ9qoGkmo4URcndQERuJvhd0pnohdXvJ9fPC07BOsox6wwmrGBQ6DLIfm5Vj08WqG
-ZmTK7NF/RT+QVw28R7uLopDCnwbV0A+TIjfOrU8Fv6QSsGe/ecoFN6FdqvW9992dB+/oW3uZ
-UXd5KTCQebMoWbH/XE8kYZyd5lXFM/1bcxP5McEa97Nd3IK0tc526U/m30n6m/nJDZTHKSb0
-307/+ZTz93LB7iA7Fn4rWAyOuvk8uE0nwzSgo0ElRjELSvVuDCsiOj0FOtqqQ+IGOFWbVKV8
-zZhP6B19EqtF8o8gIol5II25aAjba9hSdkrCGOaGrenbP7QdpMfIwrvWiWXfo1twv37JvrJW
-DTlhna90MvuPvjFxNwH2Gv7ZGtkSgtZtrGPnSazyGBeiAVqjxGX4sDoTH0tc6ounpxJjc0Op
-mMr6EQE6zgA/yxr1u9EJrpgbN6yzm7heboRmrrObWhjV3Mqolk3qbJlxLXCSS2rZVGe3sbA5
-V2e363ejDr4btZ/iersDX3Xy3aiji+9GnXQ36uaddIqtKxGQTrOgXRgL6kbOsBE6Bj1sJHiW
-jfSQEUVhUE/WihIymFF6c3AlrOOVPjaghIWFftan0ZqJAZPCOaMCSX4CAAD//wMAHyPBG/wO
-AAA=</item>
-		<item item-id="4">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
-AElFTkSuQmCC</item>
-		<item item-id="5">iVBORw0KGgoAAAANSUhEUgAAAOAAAAARCAYAAADE46BdAAAAAXNSR0IArs4c6QAAAARnQU1B
+		<item item-id="3" content-encoding="gzip">H4sIAAAAAAAA/+xYTWwbVRCedeLUdvNjp/mBpEncxBQIdYnXTuw4Iay9jmmgaVASioSQwHG2
+jcGJ03iDmlvECaSAKiFxAgkkBAgOiBsSEuJPlRBSW24gOJQDZw4VFyRivvdm7axDFMJfWtTM
+ava9nTcz70dvvn3z6olIAc+APbLuwLvWXDGMThKkgl2L2am5Z4ysKSU0DR6FkVaj1v1KtF6r
+vv85vpxqG4r1OnXjMxSH1AZNarusb7f6EwSaizxq8xUI3IdVRxPRPHp1u4pk0goGsUx5yqFO
+9erLy1DyUIPq+QKV+kZppTU0sVUjkc+bhvYq9OfpUVgXYF1ELYN6hhZRJy97aSSf+gSs3vIS
+HfZsWRXpNErRN6iZVRqIHMoJnugRuTTuzNJSwUxlzIxDSlvkMskWY8nMmWvTxjmHpU8UUPVo
+LD0Q1oPpcCIZjMRSajAxPBQN6olYNAqZHtXDgZCuq7HQUDqohwfUYCQcSwUTifRQMDYeTSUj
+UT0S0YcDAxYFd3iV6YcXp1yKpqUpTk/SY5iLgdkXUZ+hLFbExOPHmhQw5ww9C3mCllDL0xq0
+xNz9NItW0S6sdKteXs8/rrDwb0JiQP8kXcQ6Z9EqSDmyz3N/Tfcqt8jcHcPbrf02e/+OHvz0
+uNypy5bcT0HwJCQmLcBzRlqW5yX8rWL8WWlfQK2F483VyuHX0qYSNrDWiuG0c2C23qHKOG0n
+ulPGtVs/OzN+YcI0FhU57HpwnV2A3U8dUtVlXJg2zucKS07ZEBHW84Usy2qlbLiCF3XFheVk
+4SJHzWnwIQimK4AxKfyBu6H7MToyUdagPMVhQ5drGIQc5OiUleZKTwnTXMnNrZoGjy8ObiI7
+HY33Vn13lXGnm3Gnq4dxp5v8jDs9xxhB/DviTi8jhp/6GHd6A4w7fXexVWBPuHOcvQTobgaV
+47vgzj2s0mfDnXtb9j2WDnDklpj7zcCRfvXVL7FZu+9j/OjHME7I6np/VWQFZajXA0L0wuJc
+QYAGN3hFwEO8JREhOoofeyOitgdWr+N7FlwqCW2oTuUNPZ/D71PaKCRdc4jLN2yvXfVdf/PD
+jh9pG41RDW2W3FRnkykVax5O2dtmSfTIVDqg/xX9Bt608QHdXjQtgVBA7zhASvym17ZDwa7U
+Rs5KzAsseJ4GlV7f975X1qnh7GVnh1336ev5T+LfXVFwDqFPLSDRJTiaAE3xLv6lvgU1439u
+n89e7V5Q/lxnr/R3+v836Z/0zwdCHBTB4rwpzqEC8w+w4PYgJ5KRuJfoAxfvB0/Vzqj6ENtj
+A9zKgi6rOo8Djtg9TZZ1jWWSs5mLDOgj8I1S9Q69ZOtkEgdBP3gBWJDH46cU3udRqrL9vXPH
+Ot8F5zktIlEeHfm26dKNn+nrd84898t/6HtUCGc3vgplr/nefoneCFx1flM+Dbm2r9WO6ydi
+zGEtorjawM+2im8WyVGe5INouxgj37k0zxgruUz+qVSuuJzPrJ0pzBusPyWN7meDFpYNlO+c
+Qpz7DaicxYV2zP3CnLWFKMK5X3iQc7/IEFsN7in3i7KXQYpxYhfdJfcbZpWILfeLH+R+B7nf
+vuV+I9Yd0ijfIY08wDmgQJUxvkMafZDvkMbEHZKmcXiNyXjUpkjREiwZkVPQkpYfTWdHWlJI
+U+xKS2rj7ExLSW9pthVfZXcP2dxpp+xOJipOHracTEgnj1hOJracnK5SmLQrCMnvAAAA//8D
+AIOMoM30FgAA</item>
+		<item item-id="4">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</item>
+		<item item-id="5">iVBORw0KGgoAAAANSUhEUgAAAPYAAAARCAYAAADuU1HyAAAAAXNSR0IArs4c6QAAAARnQU1B
+AACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAASySURBVHhe7VjRleM6CE1dKch1pAT/
+pYr8ugAX4Z8pIUX4AQYJMLKVGXuyk6d7jrKyhARCXNDsZW5oaPg4NGI3NHwgGrEbGj4QjdgN
+DR8IJvbX3F8v8+Wybtf+C6b7+Xq5ztjdxjB3sKYb+FMj7RHrIj2n4526a4E+7OAX8ZzH+30e
+n9CdHvPtMdHouZjmx+02/0zVlt1wvmsPN3E09n01PTbO9RznO5z7duM9IkQyNLax5kf4/v2b
+ij10LsiBjF0PjQhQQ+wSFsLrPYyuoSOChQnhBLxT9zbQT9rP7yD2Edixm5K8JK+jsKOTSRm7
+EJMZryW5B4x4RDJLEtxMBiWAjfvXeRaxBdUVewNuD6uLK+kvseudureAdlkz8GI5yOBi7y9H
+z7tQYTcm1EN9vq1zGsd5LFVsQxrcJ5AryXyrYhd0rFDhxwLKxB76TORESl953fcqAfinb4HY
+tI6/ZY9eV1LRY/dIsmArrveV96u/8hpo6vlX1A3AubRGNgtsCuUwWEHPwHpxT7Eh6QOEdqGO
+4ImKAUnXCQE0ciDgk/JGlSJfOn1LpHB1wrEUDBKA4yKLos/xzvtAu2c9NlClKmFT40lOzatI
+jey2wNhQd3kAijrBP2ha6SlOftC2g5wnUVFG/DAFPkfQvB5fSL34M/ss32keQ+z7McaK2Cng
+IgLht+4j0nf83DZB7+eSLpFTBJZ1nBzyNjiPzzgly4RYCCNPPJzPz72vYUikiXUDNLnoXE5P
+pVxOULq/bRfZns68h3XGTwFAc0JAeT5G5MMxTgyA5zTBSpGT9VbPEny4Ru1nkousqwPeQ3xk
+XxBUq/aRAM7AjNgitiZjidihjBDXJEbRE92F9JUtuMasz/dSC+0j+qZfBjo6VZawYrs+ojiH
+AVyQAxhdGlv7+28/x+SSuxcCez1F3QL+uzsliZUeRii30wdEdiGxN23yQCKpYEjZXAJNNQog
+GrfEkyphgljL+TW1c5V4+czfAVRSsek8Yttzr0jv78ITWyAvr1OJraED2wd5aY76KiO7ddXE
+dpW+qI/gkglBKqklVhxQLEtGY18T0+spye30E6xdrwd5rqa5WgMomILAKBJPqi+v0XK+Cus5
+v19x/zLKZz6uYkvy0s2Tls6ZWGZfKQklmeDcltgRST2x+Q5oAPvvIDYHZPKvJp6R48sxT9ZM
+jmpiCwFEIeozezpbZA7W9Wr/odvXbZ/DnrB5/bbcTh9+I7vsnpXgDG+DcAm6FLwgEwfgBE/U
+HI3TIyKsDjj8BH2lv8WDAN8D3sOrR/4JkHDWVwI8pzq/nNGgIBP6QYhZuAv2q9hi/34/lNgu
+Qxpv67klOPFCkuwVsi714V+Rc8QrymHb0UXQ+xTH3Rz0lorIjfRsnROw2g/atZs7b9OOXDdk
+PaiCSIsypC+yi/dMSakWGDhBEFBwcYWigFkCbKlYIs+kLcmZwBU5G7B5LFi3C/SRTuDnwxCb
+z+W/1y+UHRnjC2zuPrT/0kaLLWlMy0ir9uOCFE/Q6Jt+/yqIYL8bHGfityvYW4Gvq//NYc9H
+I/Y/Dazmn3SeAuje9Ouq4Wj8YWLrJ+0nBQk+UT856NX/STSchr9dsRsaGgLM839fmqGCoWBj
+2gAAAABJRU5ErkJggg==</item>
+		<item item-id="6">iVBORw0KGgoAAAANSUhEUgAAAMwAAAARCAYAAACRgkMDAAAAAXNSR0IArs4c6QAAAARnQU1B
+AACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAPhSURBVGhD7VnLkcMgDE1dLsh1pATf
+XEWuLsBF+JISXAQrCYSFzM9ZJ3FmeDPsghGSAD0EuzfT0NBQjUaYhoYDaIRpaDiARpiGhgNw
+hHmaobuZ221fuuEJ3YPpbp3Bah6T6WFMP7mmhNcRt0V23o5v2q4FrmEPPxGrmcfRzCtUl4e5
+Pxb6+nks5nG/m/+Zz80F5twNsDtnI2Xz9XUNMszUq+CBIO8HKBRYNYRJwRJJ6ghsTT0FbpRo
+b8A3beeB6yTX+YOEAf3vVF+cCx2ofFCchU8ThlGdYTJQOkJb7uT/UNR+03YO6FfoBm7sA853
+AGzsSDv8DqCd/2aQEirmgofXqfuQsvn6uqYJMw0bQXyw60yh2jti6StQgjA0zrVZxyBPfrYT
+6vCy4CuO15niOXRuDBSR8pO2Adjnx7CyiE9ROdxwsDM5u6iTffD2AFG/0EbkWrLMM2wvYJ3N
+LAMa2iNck+5Q/IbTNzg5Zzg18QoFY4M2jF/nkepURtRtyeK/WaG4HjTDfau9pvkxDDyx+bsr
+7F9yLh4YL2J/T0DKZtmXOHaE8RsZC0xsyzrCt+PXriCYdJ+3xXKCGDzOkW5Tg/2YuoWsCzQb
+iJzWsX9L8c9p8sEYtw2QQUvzUnYq5Tbiy3reL/Ldz7kEDHIXwPS+iAVwLKDxmztZAeuy2KBx
+slYspUfZYD1EEO0L1jEWgZySTBXAvYkvgz58Ralet//jYIZRdUSyDwMjIQcIbEnk9Ou27nNB
+y+vHxNB2krYZ7l3jybez4xCVK9QBMb+QMFmfJOiU58C1heLSn/5WbNcGLA8rH15DJGEAOT1Z
+G5LI2HWcMIfW4Qs4/obRwZPqo7o4LdS4asKozJS0R1AkJfDJHwZsfFOcLDmNdRnw2k5KrlD3
+CP06TpgtU3hkg1mCMwXrOIsw3GYiR3wsIL0OV88wEkHA2I32PsqADuTcBIOryxZ01YThwGKD
+aC/QqXzhPhg3CP1TX7YdXos0EbbxeblCHX7G/Ap1lmDfHT5LwLWoLsMs8C7xDRjGfWcRBvTQ
+u+h14N5UL8MX4Aij2Bt4LPvspuOkvCw80uyDG36znAropByWgi2C1JP8rvqgZk9wV8hObp6A
+nT4oXW967VNBrp82O2iCyIAyZC/ml9PpyV4BClR3klu2iMc7nuy6jeDM4oq4LvFV7f6AR3BK
+zwjETPZF/oDgijBTAK6bPCyvhyDD/BwocK+9wEdw9dO1jNUsi8ovSOxaxuAN4eIL0AhzKWD2
++d354CNf/08Dv1XxhfZS3hCuiR8mjLzaXH+h64HXkl+dz/5KpgkUh3gHXhy/nWEaGj4KY/4A
+KRpELMcTaJMAAAAASUVORK5CYII=</item>
+		<item item-id="7">iVBORw0KGgoAAAANSUhEUgAAANgAAAARCAYAAAC/x2KRAAAAAXNSR0IArs4c6QAAAARnQU1B
+AACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAQhSURBVGhD7VnBlesgDExdKch1uATf
+UkWuLsBF+JISUgRfIwssFMAka2e9/zHvsQsGSwJmEN69uIaGhsPQBNbQcCCawBoaDkQTWEPD
+gRCBPdxwvbjL5bVchwd1D+56uTpUyxhdR+90ozQ1go20L/ZzOH7Tdy2whh39BJ5uut3c9KTq
+fHf9fean58fs7n3vfhZuae60RteBdnNv5Hx+vg9RBhs7QzYSRTdQYSLWCCyHRXjaRuRr7Jjo
+SWEegN/0XQbWSa/ziQVG8Rwbzsbc+cD2B9Fe+LbAPKozWAHGRuxLMsuXWP6bvktAXHEY2Ng7
+5QMCbeyNd/gMQFw/zVBbqJg7Dsdd9y3n8/N9yAtsHFZBBXHYTGTaL0K0V7KMwPg9aXsbg84s
+3k9sI4ylWPG+zUSP4SrvUFFXiqxvAvrCO95YIqbkOGw4+RnFL2z6GII/QjIu+Ehce+Zpou0l
+PCc3LTvM16+er2AL0VHvbxgnba6DC9KH4tVAdm49ncYTncSwQfa5/Vzt6hP6Od1WG9qHHpu1
+yQaK9kHYYEuKJ/Dr3C3AL8WHHZDzuR1LGi8CCxufIjLaug6EdvoaGJHP9gVffpwSkn9PRLqa
+QT+uBmqsEHMhrr82oH+9QjzGMZA37ZugSc7zMn4qx60Hha6X4+LYw5w3ANKKiKhBhBcyAzMR
+AHU9BvUeJ7AluWpzPx6B8N4e+uU54TnP4nN5b9FJzqYRVdb+GjuLWYuvAtjL9LLZw12V2nXe
+AW9mMFMHsn0gUmYcIfKlUbJv27ZPSO7XzwvJ+sn69pDvsiDWFz+C5LiNOiEVFwRWjMkA2Ski
+ODdIbPZ4DRlCCM5iU4LcaPssGF+LFp9BCyUbRfvx4fCJwN5dt2/j/W8wS7ZcH9fV6WLeqxaY
+yXxZfwwjaobPLDHB05siYzlo1LVArJ/cuI16QBzX20SBcChDzXQtWzIFEZXqKz+18FD/TGAL
+xFbIZnsJzLcXEa/265Fft7NnMI2IYAsxQoxaANE4mWB0lVpJWi0wT0TvEP4imyYW30fvDcr+
+2G37jq9pVjjr++VxG3X6mYortlkD+RYSlnOmCddG8FZng08FNpNofQd8rM/3ERjZUTF/Auzl
+W8v2ZYjAjNqjiHXfQhJMKoylj8zlDwz0248zAsiOQ9nwxdB2ss9NH9WWDCGF/ZTmSXixR+Xa
+uc7GtDGuG1c/cMHiwRj2l4pLbIbDoQ5Pzl6h4e6hQWAi+8wg5UYZLvyBAoLTf7AwbSa+z1xS
+gqIgNv+MvvmyNgr+2L72vxblZgNYZ30Ynw9RBvtzYKKfe4HfwdlP4/1BEp5N/sLBUKsw3FhO
+vmBNYKcCstv/NJ8ycI21/1PCsyp98d7rG8s58YcFpq9a51/oeuDa8z/Np4TXK2LdP3HVd+/J
+8bczWEPDqeHcP2NMQh1ULijMAAAAAElFTkSuQmCC</item>
+		<item item-id="8">iVBORw0KGgoAAAANSUhEUgAAAOAAAAARCAYAAADE46BdAAAAAXNSR0IArs4c6QAAAARnQU1B
 AACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAARpSURBVGhD7VjBleMgDE1dKSh1pATf
 UoWvKcBF+DIluAhWEgKEEJhs7M3LLP89ZgwIkJA+glzcwMDAxzAIODDwQQwCDgx8EIOAAwMf
 BBPwx03Xi7tcynKdfqB7ctfL1eFnG093gzG3J1cl4hz2WrTOCfiZru5iKoS63uAvYnPL4+GW
@@ -1307,7 +1609,7 @@ L6yDYxRJbfh3T5HBsnYocBLOhZyS4RJ9SY4K7dYYbBP1Kpk11GFVRWlbumb7oEl11s/UmYGB
 mvXt2xLn72YhxoY8mN+E1Fno4K+dhm4V+bAvsUnI9ZiWZcCvAxHwdaecdpJGbPAQV5RBR/V4
 5AA8p54D5suAh+m5TvsI/ksC+kxx4GmqoB/jCGw7n3/+BvHr4pT8rG43vwRfTEC+bllXzy5g
 sJ7lVHkF82XvMT5QA/r5d5IP8d0ZcGDgq+HcH6iGBo3/UkpDAAAAAElFTkSuQmCC</item>
-		<item item-id="6">iVBORw0KGgoAAAANSUhEUgAAAUoAAAAZCAYAAABXRGfoAAAAAXNSR0IArs4c6QAAAARnQU1B
+		<item item-id="9">iVBORw0KGgoAAAANSUhEUgAAAUoAAAAZCAYAAABXRGfoAAAAAXNSR0IArs4c6QAAAARnQU1B
 AACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAWeSURBVHhe7ZrbleMgDIZTVwpKHSnB
 b6nCrynAReRlSkgRXiQLEDICfM3ORN853sVcBAjxG2d8GQ3DMIwiJpSGYRgVTCgNwzAqmFAa
 hmFUMKE0DOPreA+P8X6/u+sxDm/KLGBCaRjGd/Eexp7UEQWzf2G6hAmlYRjfy6sfHw1HShNK
@@ -1336,7 +1638,7 @@ tR5clb4QbkfNz5Q1ONd5EAM+vEKRo3FT+LxmBwtRryL6XryQ8/4wWLw9GdwYvFAmglbLb55P
 YmWhqFQ/AGvF9jJQ28+aXTUelpGcKH8dKJR6YBzxdG3h2bUI9H4c3d+Z8/lLczkdeKP6RMB/
 AX9aKF3kuCfTzk/YItOJ+LxYPbq/M+fzl+byAXAviFOYsRu/WCjpVQqvUoDABrEAMv4ymVdV
 Y1d+94nSMAzjcMbxH2vvC8RiqG94AAAAAElFTkSuQmCC</item>
-		<item item-id="7">iVBORw0KGgoAAAANSUhEUgAAAW8AAAAlCAYAAACNiGiqAAAAAXNSR0IArs4c6QAAAARnQU1B
+		<item item-id="10">iVBORw0KGgoAAAANSUhEUgAAAW8AAAAlCAYAAACNiGiqAAAAAXNSR0IArs4c6QAAAARnQU1B
 AACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAjQSURBVHhe7Z3Llas4EECdwOQxMTiL
 ScJx9MvAu05hNt56NSsH4Y1DcBBMVelDqSjxlQGjuudwXhswICFdlQq636kxDMMwvo665H2/
 NKfTpbn7j4ZhjOHeXE6n5mIdZ1dUI+/75dScrPUZxmywD52vL//J2Joq5P26ni1qMIwCYF8y
@@ -1380,7 +1682,7 @@ vB3dgQxEb/bOYn/Pe1uOK2+MsqzjDRKEhf9WUV1M3jjtpxSJTxEl8qb9+MDWplNM6MjRZ2n7
 796eY8vbUieDSGEdXuAs7aGVXZM3zUpilG7ypjqwvP/mHFzeAE51raEp+LcpRH7XyTssR5MU
 KzOWN6ZB+v5kA0DCZ9txqTjfa1H3Pji+vAH7ZQLDKITlundDFfJGMKI0gRvGAmwWuyuqkTdy
 +HyuYXwE/sDW2AtVydswDOMYNM3/1Bl0Xf07nagAAAAASUVORK5CYII=</item>
-		<item item-id="8">iVBORw0KGgoAAAANSUhEUgAAAV4AAAARCAYAAACVUsQXAAAAAXNSR0IArs4c6QAAAARnQU1B
+		<item item-id="11">iVBORw0KGgoAAAANSUhEUgAAAV4AAAARCAYAAACVUsQXAAAAAXNSR0IArs4c6QAAAARnQU1B
 AACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAW4SURBVHhe7ZrbleMgDIZTVwpKHSnB
 b6kirynAReQlJaQILxIYhJAAG+yd3eE7x3Nic5EQ4gcnc1kGg8FgcCpDeAeDweBkhvAOBoPB
 yQzhHQwGg5MhwvtabpfLcnu528P4LNP1slyMLbycwdeNPLtOplYMlifOsb7cdZ14615AjG7m
@@ -1410,7 +1712,7 @@ q2/ZFx8/P75vNgYVxZ4UCzr32THAeqWHpEZytkp+Eqjw7psbGXLi/eWg8OoTf9huXOA11Qh+
 P862t4UzffvJcdD4p3Ol+7+T/WyG8K4UhNdkhtnlO+7IReyJ/bxcPNveFs707SfHQeMfzxVc
 e8qb9X/KEF7EvTrhlUsASLjflSCDwbHA2vt9a2oI72AwGJzKsvwBV9hZ3YMjNjUAAAAASUVO
 RK5CYII=</item>
-		<item item-id="9">iVBORw0KGgoAAAANSUhEUgAAATAAAAARCAYAAABafPDUAAAAAXNSR0IArs4c6QAAAARnQU1B
+		<item item-id="12">iVBORw0KGgoAAAANSUhEUgAAATAAAAARCAYAAABafPDUAAAAAXNSR0IArs4c6QAAAARnQU1B
 AACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAU0SURBVHhe7ZrbleMgDIZTVwpKHSnB
 b6nCry7AReQlJaQIryRuQiDAxMlMdvjO8Z6xDUgg8SPP7GkbDAaDL2UI2GAw+FqGgA0Gg69l
 CNhgMPharIA9tul82k4ne10Werpc2LPzBK1i6L1tGxBj2es8yd5HsWyX0wX+RZ7bertt6xN+
@@ -1437,7 +1739,7 @@ eeR7gITEPafLjqvZJ15bn8hmc2xSmyFnzSEZ7nnO9vnqBdevg1hvlR3xZPHh96kt3Eu8EHiN
 asxzMcn5xv0v9WVzd3NVfSgQVWC/jqRaizn6BGphmfaI5mt80tZR/ITPvTY/7euh9t753yi+
 iK8WMIginGzHnUJlTPX4mZz5pK2j+Amfe21+2teD7dG+4BXl3+UXC5gtu5PyX4LJMYI5+Cvg
 vhj57vjdFdhgMBiobNs/2B+rd08W3kUAAAAASUVORK5CYII=</item>
-		<item item-id="10">iVBORw0KGgoAAAANSUhEUgAAAKQAAAAWCAYAAABOtzc/AAAAAXNSR0IArs4c6QAAAARnQU1B
+		<item item-id="13">iVBORw0KGgoAAAANSUhEUgAAAKQAAAAWCAYAAABOtzc/AAAAAXNSR0IArs4c6QAAAARnQU1B
 AACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAL7SURBVGhD7ZndcYMwEIRdFwWpDkrg
 jSp4pQAVwYtLcBHKnf44iZMjsEwgc98Mk4CxtV6WlUgeRhAuhARSuBQSSOFSSCCFSxED+Rw6
 83g82K0bnv6su/AyeuxN3+M2Gv3yh4GXHv3x3ozpC2Zkzl95mqEjvqg5PdYNsPcbdbqmxR9E
@@ -1454,22 +1756,22 @@ VnicBhIo6Wmkk23IEumb140NFLRfOG4DmYXb4USy7/8nzAP3vYUSuwOZh4dvSGiHt+vHQO06
 8o64m+1d+whbvhLIWWXhK00N9vh31pDCPfk4kHYaJ0nDgMZdCFz4t6Ob7rdrrP/ZjsJRKgNZ
 sSCFKXqg+3ZL289N3evrMp0JObsaUhC+jQRSuBQSSOFSSCCFC2HMD4jdyK/L2jBOAAAAAElF
 TkSuQmCC</item>
-		<item item-id="11" content-encoding="gzip">H4sIAAAAAAAA/4xUS09TQRQ+c2+fty3lISJtaQuigo8Cw6MFUSshhAQVgiQmbsilvUIVbC0X
-w7LhB7hz7YafYNwbdsb4h1zUb86pgKycZuY85jvfmXPuTONEpDBfYjqs21gj3odNb7dWfx8k
-M2Ywo9V6RXwB9s0b2EFlfeetV/HZQ5scb2ENHe41lurH4n6GGYZj8xz4HLPbxMeJVoDvSlzY
-ZpxZciiLLJuV3vPkT32/Wds58j3FyAXMJF0egYWRf+wgEwT8puel2aExEw1WQ3rwO1ErGNZf
-IMuhiMhwVGTEERmN6dAPoiUnri0k82OIVME5KlAJbGhEQgd/gifWJfuoxlbWFE3ibPrzGnYS
-1M1bXzEtpUw/SfUw64nTK1E9zDoL1iJYp4j6hLXnmuz3XbD2C2sfXRfW/kusNMCHbkVvaNOZ
-pQE4B1k9GeCiU7r3F/YjaY6tpvDdoyu0T0dUoyptUJPqhPZk9CesrRQNaecMSibLsjyUE5nN
-i8wNi8yP6NeGb9icBZ/8JpunbG4h7agO/wZN/pakHUW1wS0Uu4pi14lus/t01MDXzDHvSHzO
-ODZgj0l8dpy7Vh67K10Z567Mmq7cEwp4AnaDDlEO0X3xjRnfOxTnGuoHQj1kjvAKLp88VM2j
-IM0LT8iXL0yKnJhino+T3Gismu1v5zZNS+DEjHR9Gq5Z6fo0E8+JUWCjKOBQSdiL8yJLC5IF
-Nyqg7BnUBOaHkkl8GjfOZFsUgtIjybYI12NJsMgJnkjZxStNpnKZn2eyqrd3m25jb/tNvXng
-+mEO6jevnN3Lru9KP1KdV2TlsdgkzzJrrhTrxnLc49rhCvPIP0PGvHnVwcpo40cq8//ev+Rh
-v+lWPL1s81a6A8ypblJp1TaaUmmU1M4pS6VthOaUrdKBtvEEgKE2lCAwrTK2QgZjosKMgRIx
-GAOOGh4T7gDD4TFgODwODIcnOBeULsZASRqMActxky+ODrxmreLuS0MifOxVzCquY407aP6u
-nE43r4z4ZeMPAAAA//8DADmrkzqaBQAA</item>
-		<item item-id="12">iVBORw0KGgoAAAANSUhEUgAAAjYAAAEGCAYAAAB2JN8FAAAAAXNSR0IArs4c6QAAAARnQU1B
+		<item item-id="14" content-encoding="gzip">H4sIAAAAAAAA/4xUS09TQRQ+09v2trct5SEibWkLooKPAsOjBVErIYQEFYIkJm7Ipb1CFWwt
+F8Oy4Qe4c+2Gn2DcG3fG+D/8DS7qN+dUQFZOM3Me853vzDl3pnEiUpjPMR3WLawR792mt1ur
+vw2RGTOY0Wq9Ir4g++YN7KCyvvPaq/jsoU2OD2ANH+41lurH4n6CacOxeQZ8itmNmY8TrQB/
+M3Fum/HLkkMFKGCx0nuW/LHvN2s7R76nGLmAmaSLI7gw8o8dYoKg3/S8NDs0ZqLBalgPfiVq
+hWz9CbIcjoi0oyIjjshoTIe/Ey05cR1AMj+GSBWaowKVwIZGJHToB3hiXbKPaiwVmKJJnE1/
+XMNOgrp56zNmQCnTT1I9zHri9EpUD7POgrUI1imiPmHtuSL7fees/cLaR1eFtf8CKw3woVvR
+a9p0ZmkAzkFWTwa46JTu/Yn9SJpjqyl89+gK7dMR1ahKG9SkOqE9Gf0BaytFQ9r5BiWTZVke
+yonM5kXmhkXmR/RLwzdszoJPfp3NUza3kHZU279Bk78haUdRbWgLxa6i2HVcAXafjhr4mjnm
+LYnPGccG7DGJz45z18pjt6Ur49yVWdOVO0IBT9Bq0CHKIborvjHje4PiXEN9T6iHzBFewOWT
+h6p5FKR59oR8+cKkyIkp5nk/yY3Gqtn+cmbTtAROzEjXp+Gala5PM/GcGAU2igIOl4S9OC+y
+tCBZcKOCyppBTWC+L5nEp3HjTLZFISg9kGyLcD2UBIuc4JGUXbzUZCqX+Xkmq3p7t+k29rZf
+1ZsHrm9zUL955exedn1X+pHqvKJAHotF8iyz5kqxbizHPa4drjCP/DNkzJtXHayMNn6kMv/v
+/Utu+0234ulli7fSHWBOdZNKq7bRlEqjpHZOBVTaQmhOWSodbBtPEBhqQwkB0ypjK2wwJspm
+DJSIwRhw1PCYcAcYDo8Bw+FxYDg8wbmgdDEGStJgDFiOm3x2dOA1axV3XxoS4WOvYlZxHWvc
+QfN35XS6eWnELxp/AAAA//8DAOAw4liaBQAA</item>
+		<item item-id="15">iVBORw0KGgoAAAANSUhEUgAAAjYAAAEGCAYAAAB2JN8FAAAAAXNSR0IArs4c6QAAAARnQU1B
 AACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAABcTSURBVHhe7d3ddapKA4DhlHNqsCDr
 yNeBd1bBrQVYhDe7BIvgY/iRH1HBMCjwPGuxTjQmORmJvA6j+ycFAFgJYQMArIawAQBWQ9gA
 AKshbACA1RA2AMBqCBsAYDWEDQCwGsIGAFgNYQMArIawAQiu5/SYXMoLwFIJG4D0kia/v+mv
@@ -1581,7 +1883,7 @@ MvnHu1v03Dy6nsUQNgB8sfYpp59OxYwKm3xGpgib+9mailmbpRM2ACxWa01NY3s0Y7Mvr8/D
 pnFaqlaElLBZLmEDwGKNmbE5HZ6tr6kIm6UTNgAs1tCwCde1bmeNzWoJGwAWa0jYtC+f0kP5
 8f2sjfU1ayBsAFigYe9jc7hbg9OejSnipv58N5JYHmEDAKyGsAEAVkPYAACrIWwAgJVI0/8D
 XKwMhXW4spEAAAAASUVORK5CYII=</item>
-		<item item-id="13">iVBORw0KGgoAAAANSUhEUgAAAJ8AAAAWCAYAAADepE7wAAAAAXNSR0IArs4c6QAAAARnQU1B
+		<item item-id="16">iVBORw0KGgoAAAANSUhEUgAAAJ8AAAAWCAYAAADepE7wAAAAAXNSR0IArs4c6QAAAARnQU1B
 AACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAALGSURBVGhD7ZnddYQgEIW3LguyDkvw
 zSp4tQCL8MUSLILMAMowwvpHFrOZ7xxPInGd6/Uy4ualBaEQEj6hGBI+oRgSPqEYa/imttKv
 1yu6Ve3kjnoisx66RjcNbp0eZjcMzEPnxhutRjeIzIPuIsd7Jt1WxIO6D8eqFvb28fVZnVT9
@@ -1597,31 +1899,31 @@ OLDMCG62nWS0O9tHmNPEb2iqfm5d1NeEx291AtEnSiad0c6XIvyw3zbhgwt12XMXnfHrgAfT
 Q7f/B5eZjdPhO9L5YiHddsdvws503lWE9/xC+OBFI3LM1X/9CN/L7fCZLkemPP03neczLx7C
 3+Jg+A4sIKta1+sxdDHOPisdUHCc6nyCkBMJn1AMCZ9QDAmfUAitfwBvt14XXAMg7QAAAABJ
 RU5ErkJggg==</item>
-		<item item-id="14" content-encoding="gzip">H4sIAAAAAAAA/4yWy1sbVRTA701CXoUGAi2PoNFSq2KBZChS0OrhWRRakCKWt0MIkBZICENB
-QRtptSq04mPhzk3/BD/3fu5c+Jf4H7iI595zZpKRjcN3c849c56/DLlTKYSQuO7gCmvdi5/B
-9PZkei2T3aoQ6rqGK7SSTZHNp209ym0zNb58L52ytEVM6ngPfvp31nP92X0yj+EKoGHScbyl
-YnH9XIW68o+U9ur620NNeYTHq5WoU7zPsvKZ5V0rLbVnLwWXXb7eS659hU7gs/LpdEwbDFxV
-Oa36jcbfhShUBIxfUII/SDIQIhkMkwydMzxY5AHy8Ulvp+gWCSEqte03tAVlwEBbt2gXnZj9
-usqvAwuh84bqrl+NFdHqEU1YbYT/wPvBGi2hOkqyppZktM6I/oWy9oIuslKHAP0jok9MiLzI
-Cmz+ovEMPwt1op4yXWygyPpGkg1NJBtjJJuaScZeMGZVxmaEK/uFeFFvn+vtFDYWNwL/YLrY
-S1Q4jvx8UziYKi5e1sbnceU8qsa4RNFNyjCB+xaKbrxs+P/EYi2v6ADrsrovk0JcoQS493lN
-YYlNjHmVbC3Kdh8HNFXi1yhxgwpUT9Xr2unXep0ooRG2akSF2jeo09YziK4SolbRRoiuthOC
-tg6S7QmSHUmSCYNkspMQGYzoGvVi2Ii6aMjkm1S4y4Wom6bpchBdp+iEjaiHojt6CVHPW4So
-10b0NiXoLUd0g2w9LkTvUOJ2G9G7hKhNP6Pt+Bx20fMPQKCi0EcNA5xBBf3ECm/BANGCfhgk
-HjAAQ6wNwjBrQ3CTtWEYYe0mvEfkYITRwfvUJBkUPBil+dF5jNsZdQGEWzSsMjNCuM1Zhm2I
-MM5ZhmCCOMI4fEAkYcJGCZOcaqIcJtxh67gLJ0xxkUEbKHxIRGGAkXaJBCOdJqQ18BHPMH0W
-6V1GOi1ghpHehVlGNQNzrM3CPGtzsMDaPCyytgBLjHTRRvox97noIDUZxgIsczumG2mKJzZL
-SFc4y7yDNM1Z5mCVkaZhjZGuOkjXOdWqC2mGrWk30ntcZNZBep+RzmCD0pfADrud53SDoFbD
-Jk+xcRbqFkPdEJBlqFuQY1hZ2GYtB3nWtmGHtTxYrO3ALkO1bKgPuFPLgbrHOHZgn9vZc0P9
-hGfeK0H9lLPkHagHnGUbDhnqAXzGUA8dqJ9zqkMX1IdsPXBDLXCRnAP1C4aa1c9pEjvk51TA
-EZ1DAXhEJxkcwWPWHsGXdKrBY/tXFb6iM61kEfCEMqD713SWwRNl/oZOM73B7be8PaLtMQX5
-4YSLHcNT1k7gGZd9Wn6awndcmqwGvl7o8qdc/gS+5/KnyvwD1zulej8yqmPXVyTgJ/0yElkx
-ltbyZm59aTWb3zStgA66gCukzYOmZRKvJuYmanCp9yD16nAFV4PW1S5s7md2hnUeeg/Co1OM
-Sfalq4h/Qjb/f6udPGDlzVTaGPTqWzF2jMtqIWMS/SL+SXFDJPQ3nBBSyhjOVyxZ1Y++9MiY
-F5OWrOp3S3plzFcs91X/eNKHeUWRrUk7bwXmLQDW9atUqoGAjkYlqAJEMS5DqnYRLWH0KSrL
-OfTBXHFZiT46vEr3h8p57YNKRPkoZ5o3cnt3M53PpMwNIhrUc+NhIVZEBv9UcfV2F+av4z9X
-ZfnmXwAAAP//AwDNjqvOyQoAAA==</item>
-		<item item-id="15">iVBORw0KGgoAAAANSUhEUgAAAkUAAAFoCAYAAABZpI+0AAAAAXNSR0IArs4c6QAAAARnQU1B
+		<item item-id="17" content-encoding="gzip">H4sIAAAAAAAA/4yW21sbVRDAZ0nIrdBwa7kEjZZaFQskS5GCVodrUWhBiljuLiFAWiAhLAUF
+baTVqtCKl3df+uAf4Oe7n28++Jf4H/gQ55yZ3STy4vKdzJzZuf6y5GwFABi07tAKad1Dn4Hk
+9mRyLZXeKgd1XaMVXEkn2ObVth7ltpkYX76XTNjaApM6vow+fTvrmf70PpvHaPnJMOk63lKx
+tH6pJJ38q8KFvbr+9nBTZVDm0UqNW7zPtrOp5V07aWjPXlphKL68vZdK9uU6gdfOJpMRbTBp
+VWa06jMbfwfIlfvNn0miL8DSH2QZCLEMnjPLqMgD4uM1PJ3QDTGACm37jWwBw2+SrRvaoZOy
+X1f5dWAueN5U3fWrscJaPeIJq8zQH3Q/UK0lVtWwrK5lWVNn1vxFsvaCLrJSRwB9I9AHE5CF
+NFDzF81n9Jmrg3rOdLGBI+sbWTY0sWyMsGxqZhl5wZxVGZsJrtEP8KLePtfbKWosavr/oXSR
+l7hwlPh5p2gwVRxe1sbnUeU8qsa4xNFNyjBB+xaObrxs+v6kYi2v6AD7srpvxAGucALaez0W
+2LBJMa+yrUXZ7tOAlkr8GiduUIHqqXpdO/1arxPFNMJWjShX+wZ32noG0VVG1AptjOhqOyNo
+62DZHmPZEWcZM1nGOxmRKYiucS+mg6iLh4y/yYW7ShB18zRdLqLrHB1zEPVwdEcvI+p5ixH1
+Ooje5gS9xYhusK2nBNE7nLjdQfQuI2rTz2g7PYdd/PwjMqga7OOGEc+gwn5mRbdwgGlhPw4y
+DxzAIdEGcVi0Ibwp2jCOiHYT32NyOCLo8H1ukg0KHo7y/OQ8Ju2MlgDEWzysMgtCvC1Zhh2I
+OC5ZhnCCOeI4fsAkccJBiZOSaqIYJt4R63gJTpySIoMOUPyQieKAIO2CmCCdZqTV+JHMMH0W
+6V1BOg04I0jv4qygmsE50WZxXrQ5XBBtHhdFW8AlQbroIP1Y+lx0kVoCYwGXpR2rFGlCJrYK
+SFcky7yLNClZ5nBVkCZxTZCuukjXJdVqCdKUWJOlSO9JkVkX6X1BOkMNGt4YddjtPqcbDLUK
+N2WKjbNQtwTqBmBaoG5hRmClcVu0DGZF28Yd0bJoi7aDuwLVdqA+kE5tF+qe4NjBfWlnrxTq
+JzLzXgHqp5Il60I9kCzbeChQD/AzgXroQv1cUh2WQH0o1oNSqDkpknGhfiFQ0/o5jVOH8pwC
+HvE55MdHfJLhET4W7RF+yacaPnZ+VfErPtMKFsAnnIHcv+azDJ8o8zd8mukNbb+V7RFvjznI
+hydS7BifinaCz6Ts0+LTFL+T0mw16fVClz+V8if4vZQ/VeYfpN4p1/tRUB2XfEWAP+mXkfCK
+ubSWtTLrS6vp7KZl+3XQBVpBbR60bIt5NQk3qKal3oPUq8MVWg1aV7uQtZ/aGdZ5+D2Ijk4Y
+M8SXrzz9gdH8/61Ocr+dtRJJc9Cjb0XEMWpUgRExyC/sm4QbENPfcAwMw4jQfPmCVf3oG2VG
+xENJC1b1u2V4jIg3X+yr/vEML+WFvFjjTt5yyptDqutTqVQDfh1NSkAFQD5qBFXtPFlC5JNX
+lnPkQ7miRgX56PBK3R8p57UPKWHlo5x53vDt3c1kNpWwNphoQM9NhwWsQIr+VHH1dheSr+M/
+V0Xx5l8AAAD//wMANWANu8kKAAA=</item>
+		<item item-id="18">iVBORw0KGgoAAAANSUhEUgAAAkUAAAFoCAYAAABZpI+0AAAAAXNSR0IArs4c6QAAAARnQU1B
 AACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAD3vSURBVHhe7Z3bmassG0CnnK+GXZB1
 zN9B7qaK3KaAFDE3KWGK8OdFUMATJqiAa83D3onxBHJYATRfLQAAAAC0SBEAAACAAikCAAAA
 UCBFAAAAAAqkCAAAAECBFAEAAAAokCIAAAAABVIEAAAAoECKAAAAABRIEQAAAIACKQIAAABQ

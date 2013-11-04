@@ -10,6 +10,7 @@
 
 #include "mcadincl.h"
 #include "CoolProp.h"
+#include "FluidClass.h"
 #include "HumidAirProp.h"
 #include "string.h"
 
@@ -28,19 +29,20 @@
     // this code executes the user function FluidLIstMathcad, which is a wrapper for
 	// the CoolProp.FluidsList() function, used to get a list of all the fluids in
 	// the CoolProp database
-    LRESULT  FluidListMathcad(
-        MCSTRING * const FluidListOut, // output list
-		const MCSTRING * const PlaceHolder ) // not needed, but at least one argumanet is required by Mathcad
+    LRESULT  GetCoolPropsParamMathcad(
+        MCSTRING * const ParamValue, // output (value of parameter)
+		const MCSTRING * const ParamName ) // name of parameter (string) to retrieve
     {  
-        // invoke the CoolProp.FluidsList() function, save result to a new string s
-		std::string s = get_global_param_string("FluidsList");
+        // invoke the CoolProp get_global_param_string() function, save result to a new string s
+		//std::string p_name(ParamName->str);
+		std::string s = get_global_param_string(std::string(ParamName->str));
 		char * c = new char [s.size()+1]; // creat a c-string (pointer) c with the same size as s
 		// copy s into c, this process avoids the const-cast type which would result from instead
 		// converting the string using s.c_str()
 		std::copy(s.begin(), s.end(), c); 
 		c[s.size()] = '\0';
 		// assign the fluids list string to the function's output parameter
-		FluidListOut->str = c;
+		ParamValue->str = c;
 
 		// normal return
         return 0;
@@ -89,6 +91,35 @@
         return 0;
     }
 
+	// this code executes the user function CoolPropMathcadI, which is a wrapper for
+	// the CoolProp.CoolProp.IProps() function, used to extract a fluid-specific parameter
+	// that is dependent on the state, using integer values for parameter and fluid indices rather than strings
+    LRESULT  CoolPropMathcadI(
+		COMPLEXSCALAR * const Prop, // pointer to the result
+        const MCSTRING * const OutputName, // string with a valid CoolProp OutputName
+		const MCSTRING * const InputName1, // CoolProp InputName1
+		const COMPLEXSCALAR * const InputProp1, // CoolProp InputProp1
+		const MCSTRING * const InputName2, // CoolProp InputName2
+		const COMPLEXSCALAR * const InputProp2, // CoolProp InputProp2
+		const MCSTRING * const FluidName ) // CoolProp Fluid
+    {  
+		// check that the scalar arguments are real - if not, return an error and highlight the invalid argument in Mathcad
+		if (InputProp1->imag != 0.0)
+			// if not, display "must be real" under scalar argument
+			return MAKELRESULT( MUST_BE_REAL, 3);
+		// check that the scalar arguments are real - if not, return an error and highlight the invalid argument in Mathcad
+		if (InputProp2->imag != 0.0)
+			// if not, display "must be real" under scalar argument
+			return MAKELRESULT( MUST_BE_REAL, 6);
+
+        // pass the arguments to the CoolProp.IProps() function
+
+		Prop->real = IProps(get_param_index(OutputName->str), get_param_index(InputName1->str), InputProp1->real, get_param_index(InputName2->str), InputProp2->real, get_Fluid_index(FluidName->str));
+		
+		// normal return
+        return 0;
+    }
+
 	// this code executes the user function HumidAirPropMathcad, which is a wrapper for
 	// the CoolProp.HumidAirlProp.HAProps() function, used to extract a
 	// fluid-specific parameter that is dependent on the state
@@ -125,28 +156,28 @@
 
 	// fill out a FUNCTIONINFO structure with the information needed for registering
 	// the function with Mathcad
-    FUNCTIONINFO FluidList = 
+    FUNCTIONINFO FluidPropsParams = 
     {
     // Name by which mathcad will recognize the function
-    "FluidList",        
+    "FluidPropsParams",        
     
-    // description of "FluidProp1" parameters to be used by the Insert Function dialog box
-    "string, placeholder because Mathcad requires at least 1 argument - does not affect output",   
+    // description of "GetCoolPropsParam" parameters to be used by the Insert Function dialog box
+    "string, name of the parameter to retrieve",   
     
     // description of the function for the Insert Function dialog box       
-    "returns a list of all the fluids in the CoolProp database",    
+    "returns the value of the requested CoolProps parameter",    
     
     // pointer to the executible code. i.e. code that should be executed
-    // when a user types in "FluidProp1(Fluid,PropName)="
-    (LPCFUNCTION)FluidListMathcad,  
+    // when a user types in "GetCoolPropsParam(ParamName)="
+    (LPCFUNCTION)GetCoolPropsParamMathcad,  
         
-    // FluidProp1(Fluid,PropName) returns a Mathcad string
+    // FluidPropsParams(ParamName) returns a Mathcad string
     STRING,
         
-    // FluidProp1(Fluid,PropName) takes on two arguments
+    // FluidPropsParams(ParamName) takes on one argument
     1,   
     
-    // the first is a Mathcad string, the second is a Mathcad string 
+    // the argument type is a Mathcad string 
     {STRING} 
     };	
 	
@@ -193,6 +224,33 @@
     // pointer to the executible code. i.e. code that should be executed
     // when a user types in "FluidProp(PropName,Input1Name,Input1Value,Input2Name,Input2Value,FluidName)="
     (LPCFUNCTION)CoolPropMathcad,  
+        
+    // FluidProp(Fluid,PropName) returns a Mathcad complex scalar
+    COMPLEX_SCALAR,
+        
+    // FluidProp(Fluid,PropName) takes on two arguments
+    6,   
+    
+    // argument types 
+    {STRING, STRING, COMPLEX_SCALAR, STRING, COMPLEX_SCALAR, STRING} 
+    };
+
+	// fill out a FUNCTIONINFO structure with the information needed for registering
+	// the function with Mathcad
+    FUNCTIONINFO FluidPropI = 
+    {
+    // Name by which mathcad will recognize the function
+    "FluidPropI",        
+    
+    // description of "FluidPropI" parameters to be used by the Insert Function dialog box
+    "Output Name, Input Name 1, Input Property 1, Input Name 2, Input Property 2, Fluid Name",   
+    
+    // description of the function for the Insert Function dialog box       
+    "returns a fluid-specific parameter, where the parameter is dependent on the fluid state, using integer math for faster computation",    
+    
+    // pointer to the executible code. i.e. code that should be executed
+    // when a user types in "FluidProp(PropName,Input1Name,Input1Value,Input2Name,Input2Value,FluidName)="
+    (LPCFUNCTION)CoolPropMathcadI,  
         
     // FluidProp(Fluid,PropName) returns a Mathcad complex scalar
     COMPLEX_SCALAR,
@@ -260,8 +318,9 @@
                         // register user function
                         CreateUserFunction( hDLL, &FluidProp1 );
 						CreateUserFunction( hDLL, &FluidProp );
+						CreateUserFunction( hDLL, &FluidPropI );
 						CreateUserFunction( hDLL, &HAProp );
-						CreateUserFunction( hDLL, &FluidList );
+						CreateUserFunction( hDLL, &FluidPropsParams );
                     break;
 
                 case DLL_THREAD_ATTACH:
