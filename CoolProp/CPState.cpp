@@ -1761,8 +1761,8 @@ double CoolPropStateClassSI::d2pdT2_constrho(void){
 double CoolPropStateClassSI::d2pdv2_consts(void){
 	double cv = this->cv();
 	// Convert each derivative in terms of volume rather than density
-	// Note d2rhodv2 = 2rho^3 and drhodv = -rho^2
-	double d2pdv2_constT = 2*_rho*_rho*_rho*d2pdrho2_constT();
+	// Note drhodv = -rho^2
+	double d2pdv2_constT = _rho*_rho*_rho*_rho*d2pdrho2_constT()+2*_rho*_rho*_rho*dpdrho_constT();
 	double dpdT_constv = dpdT_constrho();
 	double d2pdvdT = -_rho*_rho*d2pdrhodT();
 	double d2pdT2_constv = d2pdT2_constrho();
