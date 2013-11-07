@@ -552,13 +552,13 @@ Melinder Fluids              Description                                        
 ==========================   ===================================================   =================   =================
 
 Furthermore, there is a number of other secondary fluids that can be accessed in the same way. Most 
-information is based on the data compiled by Morten Juel Skovrup in his `SecCool software<http://en.ipu.dk/Indhold/refrigeration-and-energy-technology/seccool.aspx>`_ 
+information is based on the data compiled by Morten Juel Skovrup in his `SecCool software <http://en.ipu.dk/Indhold/refrigeration-and-energy-technology/seccool.aspx>`_ 
 provided by his employer `IPU <http://en.ipu.dk>`_. The coefficient matrix of the SecCool-based fluids 
 has the same structure as mentioned above. 
 
 For slurry ice, the concentration :math:`x` refers to the solid content and the heat capacity includes the heat of fusion. 
 It might be necessary to adjust the solid content during heat transfer. The implementation is based on the data available 
-in SecCool, which was originally recorded at the `Danish Technological Institute (DTI)<http://www.dti.dk/>`_.
+in SecCool, which was originally recorded at the `Danish Technological Institute (DTI) <http://www.dti.dk/>`_.
 
 ==========================   ===================================================   =================   =================
 SecCool Fluids               Description                                           max. T              max. x
