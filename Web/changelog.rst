@@ -14,7 +14,8 @@ Changelog for CoolProp
 * Added R1233zd(E)
 * Added more incompressible liquids: Therminol D12, Therminol VP-1, Therminol 72, Therminol 66, Dowtherm J, Dowtherm Q, Texatherm 22, 
   Nitrate Salt Blend, Syltherm XLT, Dynalene HC-10, Dynalene HC-20, Dynalene HC-30, Dynalene HC-40, Dynalene HC-50
-* Added slurry ice as incompressible solution of either water-ethanol, water-NaCl or water-propylene glycol with solid content as input, also added corrosion inhibitor ZitrecAC
+* Added slurry ice as incompressible solution of either water-ethanol, water-NaCl or water-propylene glycol with solid content as input
+* Added corrosion inhibitor ZitrecAC, anti-freezing agent Pekasol2000
 
 3.3.0 (revision 660)
 --------------------

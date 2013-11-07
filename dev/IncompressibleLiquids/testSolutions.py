@@ -10,7 +10,7 @@ print "Temperature: "+str(T-273.15)+" C"
 print "Pressure:    "+str(P/1e5)+" bar"
 print 
 Melinder = ["MEG", "MPG", "MEA", "MMA", "MGL", "MAM", "MKC", "MCA", "MMG", "MNA", "MKA", "MKF", "MLI"]
-SecCool = ["ZitrecAC", "IceSlurryEA", "IceSlurryPG", "IceSlurryNA"]
+SecCool = ["ZiAC", "IceEA", "IcePG", "IceNA", "PK2000"]
 
 fluids = []
 fluids.extend(Melinder)

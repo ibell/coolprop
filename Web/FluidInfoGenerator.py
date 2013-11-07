@@ -563,11 +563,14 @@ in SecCool, which was originally recorded at the `Danish Technological Institute
 ==========================   ===================================================   =================   =================
 SecCool Fluids               Description                                           max. T              max. x
 ==========================   ===================================================   =================   =================
-``ZitrecAC``                 ZitrecAC (corrosion inhibitor)                        +100 C              50 %
-``IceSlurryEA``              Ethanol-water mixture with slurry ice                 -10 C               35 %
-``IceSlurryPG``              Propylene glycol-water mixture with slurry ice        -10 C               35 %
-``IceSlurryNA``              Sodium chloride-water mixture with slurry ice         -5 C                35 %
+``ZiAC``                     ZitrecAC (corrosion inhibitor)                        +100 C              50 %
+``IceEA``                    Ethanol-water mixture with slurry ice                 -10 C               35 %
+``IcePG``                    Propylene glycol-water mixture with slurry ice        -10 C               35 %
+``IceNA``                    Sodium chloride-water mixture with slurry ice         -5 C                35 %
+``PK2000``                   Pekasol 2000 (Potassium acetate and formate)          +100 C              100 %
 ==========================   ===================================================   =================   =================
+
+
 
 In both of the above cases, :math:`i` is the exponent for the concentration :math:`x` and :math:`j` 
 is used with the temperature :math:`T`. Properties are modelled with the following polynomials: 
