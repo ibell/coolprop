@@ -327,12 +327,13 @@ class HC10(LiquidData):
     TminPsat= 20+273.15  
     Name    = "HC10"
     Desc    = "Dynalene "+Name
+
   
     
 # output 
 #dataObj = Therminol72()
 #for i in range(len(dataObj.T)):
-#    print str(dataObj.T[i])+", "+str(dataObj.mu_dyn[i])
+#    print str(dataObj.T[i])+", "+str(numpy.log(dataObj.mu_dyn[i]))
 
 class SolutionData(LiquidData):
     """ 
@@ -359,11 +360,3 @@ class SolutionData(LiquidData):
     psat     = None # Saturation pressure in Pa    
     Tfreeze  = None # Freezing temperature in K 
     
-## Just some notes to myself    
-#Changelog: * Added slurry ice as incompressible solution of either water-ethanol, water-NaCl or water-propylene glycol with solid content as input
-# FluidInfogenerator:
-#==========================   ===================================================   =================   =================
-#SecCool Fluids               Description                                           max. T              max. x
-#==========================   ===================================================   =================   =================
-#``SIceEA``                   Ethanol-Water mixture with slurry ice
-#==========================   ===================================================   =================   =================

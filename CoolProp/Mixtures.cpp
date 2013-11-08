@@ -737,6 +737,7 @@ double GERGReducingFunction::rhorbar(std::vector<double> *x)
 
 GERGDepartureFunction::GERGDepartureFunction(STLMatrix F)
 {
+	// TODO: get from JSON code or other
 	// Methane-Ethane
 	double d[] = {0, 3, 4, 1, 2, 2, 2, 2, 2, 2, 3, 3, 3};
 	double t[] = {0, 0.65, 1.55, 3.1, 5.9, 7.05, 3.35, 1.2, 5.8, 2.7, 0.45, 0.55, 1.95};
@@ -842,6 +843,8 @@ double GERGDepartureFunction::d2phir_dxi_dTau(double tau, double delta, std::vec
 	}
 	return summer;
 }
+
+
 
 ResidualIdealMixture::ResidualIdealMixture(std::vector<Fluid*> pFluids)
 {

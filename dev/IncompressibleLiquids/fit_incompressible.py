@@ -147,9 +147,6 @@ class IncompLiquidFit(object):
         elif out=='V':
             self._checkTP(T=T,P=P)
             return self._baseExponential(self._cViscosity,T,1)
-#            visc = self._baseExponential(self._cViscosity,T)
-#            if not self._DynVisc: return visc * self.Props('D',T=T,P=P)
-#            else: return visc
         elif out=='Psat':
             self._checkT(T=T)
             if T<self._TminPsat:
@@ -355,7 +352,7 @@ class IncompLiquidFit(object):
                 
                 else:
                     raise (ValueError("Error: You used an unknown fit method."))
-            
+
         else: # just a polynomial
             print "Fitting polynomial with "+str(len(initValues))+" coefficients."
             z = numpy.polyfit(T, xData, len(initValues)-1)
@@ -381,6 +378,9 @@ for data in containerList:
     liqObj.setTmin(data.Tmin)
     liqObj.setTminPsat(data.TminPsat)
     liqObj.setTmax(data.Tmax)    
+    
+    #liqObj._cViscosity[0] = numpy.max(data.mu_dyn)
+    #liqObj._cPsat[0]      = numpy.min(data.psat)
     
     numpy.set_printoptions(formatter={'float': lambda x: format(x, '+1.10E')})
     
@@ -542,7 +542,7 @@ for data in containerList:
              backgroundcolor='white', fontsize=18)
     matplotlib.pyplot.tight_layout()
     matplotlib.pyplot.savefig("fit_current_std.pdf")
-    matplotlib.pyplot.savefig("fit_"+data.Name+"_std.pdf")
+    #matplotlib.pyplot.savefig("fit_"+data.Name+"_std.pdf")
     
     ### Print the output for the C++ file
     print "name = std::string(\""+data.Name+"\");"

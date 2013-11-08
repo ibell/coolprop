@@ -139,6 +139,11 @@ SolutionsContainer::SolutionsContainer() {
 	tmpVector.push_back(new LISolution());
 
 	tmpVector.push_back(new SecCoolSolution());
+	tmpVector.push_back(new ZitrecAC());
+	tmpVector.push_back(new IceSlurryEA());
+	tmpVector.push_back(new IceSlurryPG());
+	tmpVector.push_back(new IceSlurryNA());
+	tmpVector.push_back(new PK2000());
 
 	// Now we store the vector in the variable
 	// and overwrite the map.

@@ -111,6 +111,8 @@ public:
 	double d2phir_dxi_dTau(double tau, double delta, std::vector<double> *x, int i);
 };
 
+
+
 class ResidualIdealMixture
 {
 protected:

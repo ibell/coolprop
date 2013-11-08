@@ -165,6 +165,7 @@ def get_factorSICP(what):
       "Ttriple"   : 1.      ,#Triple-point temperature [K]
       "Tmin"      : 1.      ,#Minimum temperature [K]
       "Tmax"      : 1.      ,#Maximum temperature [K]
+      "Tfreeze"   : 1.      ,#Freezing temperature [K]
       "ptriple"   : 1./1000.,#Triple-point pressure [kPa]
       "accentric" : 1.      ,#Accentric factor [-]
       "GWP100"    : 1.      ,#Global Warming Potential 100 yr

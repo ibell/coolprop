@@ -294,28 +294,18 @@ public:
 				  std::vector<double> epsilon_in, 
 				  std::vector<double> beta_in, 
 				  std::vector<double> gamma_in,
-		unsigned int iStart_in, unsigned int iEnd_in);
+				  unsigned int iStart_in, 
+				  unsigned int iEnd_in);
 	phir_GERG_gaussian(double a_in[], 
-				  double d_in[],
-				  double t_in[], 
-				  double eta_in[], 
-				  double epsilon_in[], 
-				  double beta_in[], 
-				  double gamma_in[],
-					unsigned int iStart_in, 
-					unsigned int iEnd_in, 
-					unsigned int N);
-	//phir_GERG_gaussian(const double a_in[],	
-	//					const double d_in[],
-	//					const double t_in[], 
-	//					const double eta_in[], 
-	//					const double epsilon_in[], 
-	//					const double beta_in[], 
-	//					const double gamma_in[],
-	//					unsigned int iStart_in, 
-	//					unsigned int iEnd_in, 
-	//					unsigned int N);
-
+					   double d_in[],
+					   double t_in[], 
+					   double eta_in[], 
+					   double epsilon_in[], 
+					   double beta_in[], 
+					   double gamma_in[],
+					   unsigned int iStart_in, 
+					   unsigned int iEnd_in, 
+					   unsigned int N);
 	// Destructor
 	~phir_GERG_gaussian(){};
 

@@ -1253,4 +1253,612 @@ public:
 	}
 };
 
+
+class ZitrecAC : public SecCoolSolution{
+public:
+	ZitrecAC(){
+
+		std::vector<double> tmpVector;
+
+        name = std::string("ZiAC");
+        description = std::string("ZitrecAC in water (corrosion inhibitor)");
+        reference = std::string("SecCool Software");
+
+		Tmin     =   0 + 273.15;
+		Tmax     = 100 + 273.15;
+		TminPsat = Tmax;
+
+		xmin     = 0.05;
+		xmax     = 0.50;
+
+		Tbase    = 50.00 + 273.15;
+	    xbase    = 22.75 / 100.0;
+
+	    tmpVector.clear();
+	    tmpVector.push_back( 1003.4314200);
+	    tmpVector.push_back( 0.6164672840);
+	    tmpVector.push_back(-0.0075340011);
+	    tmpVector.push_back( 8.227043E-05);
+	    tmpVector.push_back( 1.416356E-05);
+	    tmpVector.push_back(-3.611589E-07);
+	    tmpVector.push_back(-0.4849253070);
+	    tmpVector.push_back(-0.0015163769);
+	    tmpVector.push_back(-3.076387E-05);
+	    tmpVector.push_back(-4.631673E-07);
+	    tmpVector.push_back( 3.958918E-08);
+	    tmpVector.push_back(-0.0053161289);
+	    tmpVector.push_back(-3.675038E-06);
+	    tmpVector.push_back( 2.245807E-06);
+	    tmpVector.push_back(-5.921160E-08);
+	    tmpVector.push_back(-2.222469E-05);
+	    tmpVector.push_back(-1.016950E-06);
+	    tmpVector.push_back( 1.391098E-08);
+        cRho.clear();
+        cRho = makeMatrix(tmpVector);
+
+        tmpVector.clear();
+        tmpVector.push_back( 4129.8221400);
+        tmpVector.push_back(-2.4602756000);
+        tmpVector.push_back( 0.0024608374);
+        tmpVector.push_back(-0.0018878988);
+        tmpVector.push_back(-7.525318E-05);
+        tmpVector.push_back( 3.812299E-06);
+        tmpVector.push_back( 0.3207990110);
+        tmpVector.push_back(-0.0059380735);
+        tmpVector.push_back(-0.0007210516);
+        tmpVector.push_back( 1.852057E-05);
+        tmpVector.push_back( 1.280127E-07);
+        tmpVector.push_back( 0.0099912322);
+        tmpVector.push_back( 0.0001857846);
+        tmpVector.push_back(-2.266658E-06);
+        tmpVector.push_back(-5.937414E-09);
+        tmpVector.push_back(-0.0001641590);
+        tmpVector.push_back(-1.708329E-06);
+        tmpVector.push_back( 8.577111E-08);
+		cHeat.clear();
+		cHeat = makeMatrix(tmpVector);
+
+		tmpVector.clear();
+		tmpVector.push_back( 0.5997434470);
+        tmpVector.push_back(-0.0014518043);
+        tmpVector.push_back( 7.240125E-06);
+        tmpVector.push_back(-6.458395E-07);
+        tmpVector.push_back(-1.035513E-08);
+        tmpVector.push_back( 6.862018E-10);
+        tmpVector.push_back( 0.0011059284);
+        tmpVector.push_back(-1.686714E-06);
+        tmpVector.push_back(-1.542610E-08);
+        tmpVector.push_back(-3.730822E-09);
+        tmpVector.push_back( 1.286049E-11);
+        tmpVector.push_back(-5.567860E-06);
+        tmpVector.push_back( 5.331112E-08);
+        tmpVector.push_back(-1.738845E-09);
+        tmpVector.push_back( 2.641378E-11);
+        tmpVector.push_back(-1.195582E-08);
+        tmpVector.push_back(-3.329696E-10);
+        tmpVector.push_back( 2.343560E-11);
+		cCond.clear();
+		cCond = makeMatrix(tmpVector);
+
+		tmpVector.clear();
+		tmpVector.push_back(-0.2833999350);
+        tmpVector.push_back( 0.0113457408);
+        tmpVector.push_back(-0.0002173449);
+        tmpVector.push_back( 9.645169E-06);
+        tmpVector.push_back( 6.299118E-07);
+        tmpVector.push_back(-2.190184E-08);
+        tmpVector.push_back(-0.0185725092);
+        tmpVector.push_back(-8.290652E-05);
+        tmpVector.push_back(-2.186512E-06);
+        tmpVector.push_back( 1.126354E-07);
+        tmpVector.push_back(-2.387450E-09);
+        tmpVector.push_back( 0.0001256061);
+        tmpVector.push_back( 1.147598E-06);
+        tmpVector.push_back( 1.128849E-08);
+        tmpVector.push_back(-1.723001E-09);
+        tmpVector.push_back( 7.142151E-07);
+        tmpVector.push_back(-5.140398E-09);
+        tmpVector.push_back( 4.535194E-10);
+		cVisc.clear();
+		cVisc = makeMatrix(tmpVector);
+
+		cTfreeze.clear();
+		cTfreeze.push_back( 22.750000000); // reference concentration in per cent
+		cTfreeze.push_back(-2.2469093100);
+		cTfreeze.push_back(-0.0942887708);
+		cTfreeze.push_back( 0.0002636562);
+		cTfreeze.push_back( 9.008030E-07);
+
+    };
+
+};
+
+
+class IceSlurryEA : public SecCoolSolution{
+public:
+	IceSlurryEA(){
+
+		std::vector<double> tmpVector;
+
+        name = std::string("IceEA");
+        description = std::string("Ethanol-water mixture with slurry ice");
+        reference = std::string("SecCool Software");
+
+		Tmin     = -35 + 273.15;
+		Tmax     = -10 + 273.15;
+		TminPsat = Tmax;
+
+		xmin     = 0.05;
+		xmax     = 0.35;
+
+		Tbase    = -22.5 + 273.15;
+	    xbase    =  20.0 / 100.0;
+
+	    tmpVector.clear();
+	    tmpVector.push_back( 959.65328700);
+	    tmpVector.push_back(-0.6063295290);
+	    tmpVector.push_back(-1.249095E-05);
+	    tmpVector.push_back(-2.175929E-05);
+	    tmpVector.push_back( 1.414141E-06);
+	    tmpVector.push_back( 8.888899E-08);
+	    tmpVector.push_back( 0.4964468440);
+	    tmpVector.push_back(-0.0048152589);
+	    tmpVector.push_back(-3.703183E-05);
+	    tmpVector.push_back( 7.619048E-07);
+	    tmpVector.push_back( 1.454545E-07);
+	    tmpVector.push_back(-0.0105000000);
+	    tmpVector.push_back( 0.0001660431);
+	    tmpVector.push_back( 1.020408E-07);
+	    tmpVector.push_back(-1.587301E-07);
+	    tmpVector.push_back( 0.0003601411);
+	    tmpVector.push_back(-4.814815E-06);
+	    tmpVector.push_back( 1.763668E-08);
+        cRho.clear();
+        cRho = makeMatrix(tmpVector);
+
+        tmpVector.clear();
+        tmpVector.push_back( 8.241062E+04);
+	    tmpVector.push_back( 4133.4319000);
+	    tmpVector.push_back(-0.0525342683);
+	    tmpVector.push_back(-0.0332405251);
+	    tmpVector.push_back(-0.0007070707);
+	    tmpVector.push_back( -9.555626E-05);
+	    tmpVector.push_back(-175.73225900);
+	    tmpVector.push_back(-19.750427100);
+	    tmpVector.push_back(-0.5552331250);
+	    tmpVector.push_back(-0.0024634921);
+	    tmpVector.push_back( 0.0001094372);
+	    tmpVector.push_back(-20.031632700);
+	    tmpVector.push_back(-1.1448185800);
+	    tmpVector.push_back(-0.0049591837);
+	    tmpVector.push_back( 0.0003301587);
+	    tmpVector.push_back(-1.3004938300);
+	    tmpVector.push_back(-0.0241058201);
+	    tmpVector.push_back( 0.0012176367);
+		cHeat.clear();
+		cHeat = makeMatrix(tmpVector);
+
+		tmpVector.clear();
+		tmpVector.push_back( 0.5466734710);
+	    tmpVector.push_back( 0.0098512311);
+	    tmpVector.push_back( 6.916942E-05);
+	    tmpVector.push_back( 4.423616E-07);
+	    tmpVector.push_back( 1.313131E-09);
+	    tmpVector.push_back( 1.333317E-10);
+	    tmpVector.push_back( 0.0064403362);
+	    tmpVector.push_back( 6.261462E-05);
+	    tmpVector.push_back(-1.361660E-07);
+	    tmpVector.push_back(-4.190476E-09);
+	    tmpVector.push_back( 9.350649E-11);
+	    tmpVector.push_back( 1.914626E-05);
+	    tmpVector.push_back(-4.656462E-07);
+	    tmpVector.push_back(-5.544218E-09);
+	    tmpVector.push_back(-4.761923E-11);
+	    tmpVector.push_back( 1.093474E-08);
+	    tmpVector.push_back(-1.322751E-09);
+	    tmpVector.push_back( 1.763668E-11);
+		cCond.clear();
+		cCond = makeMatrix(tmpVector);
+
+		tmpVector.clear();
+		tmpVector.push_back( 3.9714277000);
+	    tmpVector.push_back( 0.0217778490);
+	    tmpVector.push_back(-0.0002520703);
+	    tmpVector.push_back( 3.339905E-06);
+	    tmpVector.push_back(-6.179120E-08);
+	    tmpVector.push_back( 2.654128E-09);
+	    tmpVector.push_back(-0.0820149233);
+	    tmpVector.push_back( 3.060191E-06);
+	    tmpVector.push_back(-1.789494E-07);
+	    tmpVector.push_back(-3.463500E-09);
+	    tmpVector.push_back(-5.507847E-11);
+	    tmpVector.push_back(-0.0010965961);
+	    tmpVector.push_back( 5.631692E-08);
+	    tmpVector.push_back( 1.027114E-08);
+	    tmpVector.push_back(-8.462427E-10);
+	    tmpVector.push_back(1.855647E-05);
+	    tmpVector.push_back( 6.616363E-09);
+	    tmpVector.push_back( 1.185315E-10);
+		cVisc.clear();
+		cVisc = makeMatrix(tmpVector);
+
+		cTfreeze.clear();
+    };
+	/// Define freezing point calculations
+	double Tfreeze(double p, double x){
+		return Tmin;
+	}
+};
+
+
+class IceSlurryPG : public SecCoolSolution{
+public:
+	IceSlurryPG(){
+
+		std::vector<double> tmpVector;
+
+        name = std::string("IcePG");
+        description = std::string("Propylene glycol-water mixture with slurry ice");
+        reference = std::string("SecCool Software");
+
+		Tmin     = -45 + 273.15;
+		Tmax     = -10 + 273.15;
+		TminPsat = Tmax;
+
+		xmin     = 0.05;
+		xmax     = 0.35;
+
+		Tbase    = -27.5 + 273.15;
+	    xbase    =  20.0 / 100.0;
+
+	    tmpVector.clear();
+	    tmpVector.push_back(1026.0807100);
+	    tmpVector.push_back(-1.5901706300);
+	    tmpVector.push_back( 0.0023632306);
+	    tmpVector.push_back(-5.555564E-05);
+	    tmpVector.push_back( 3.787877E-07);
+	    tmpVector.push_back( 1.500003E-07);
+	    tmpVector.push_back(-0.8565823200);
+	    tmpVector.push_back( 0.0158439454);
+	    tmpVector.push_back(-4.885161E-05);
+	    tmpVector.push_back( 5.820106E-07);
+	    tmpVector.push_back(-1.298701E-08);
+	    tmpVector.push_back(-0.0205963719);
+	    tmpVector.push_back( 0.0002962207);
+	    tmpVector.push_back(-3.287982E-07);
+	    tmpVector.push_back( 2.645504E-08);
+	    tmpVector.push_back(-0.0002976431);
+	    tmpVector.push_back( 3.477633E-06);
+	    tmpVector.push_back( 1.827802E-08);
+        cRho.clear();
+        cRho = makeMatrix(tmpVector);
+
+        tmpVector.clear();
+        tmpVector.push_back( 9.202807E+04);
+	    tmpVector.push_back( 4259.8599100);
+	    tmpVector.push_back(-13.425892900);
+	    tmpVector.push_back( 0.1972224350);
+	    tmpVector.push_back( 0.0016666667);
+	    tmpVector.push_back( 2.333263E-05);
+	    tmpVector.push_back(-1347.4964300);
+	    tmpVector.push_back(-40.622180100);
+	    tmpVector.push_back( 1.2466366000);
+	    tmpVector.push_back(-0.0089735450);
+	    tmpVector.push_back(-0.0002542569);
+	    tmpVector.push_back( 9.1439909300);
+	    tmpVector.push_back( 0.3821466440);
+	    tmpVector.push_back(-0.0142154195);
+	    tmpVector.push_back(-0.0004074074);
+	    tmpVector.push_back( 0.4962000960);
+	    tmpVector.push_back( 0.0010591631);
+	    tmpVector.push_back(-0.0011599808);
+		cHeat.clear();
+		cHeat = makeMatrix(tmpVector);
+
+		tmpVector.clear();
+		tmpVector.push_back( 0.5308857010);
+	    tmpVector.push_back( 0.0102779335);
+	    tmpVector.push_back( 6.990287E-05);
+	    tmpVector.push_back( 4.527783E-07);
+	    tmpVector.push_back( 3.030303E-09);
+	    tmpVector.push_back( 9.999831E-11);
+	    tmpVector.push_back( 0.0037803301);
+	    tmpVector.push_back( 3.128644E-05);
+	    tmpVector.push_back(-1.033550E-07);
+	    tmpVector.push_back(-3.809524E-09);
+	    tmpVector.push_back( 4.617604E-11);
+	    tmpVector.push_back( 8.588549E-05);
+	    tmpVector.push_back( 3.319350E-07);
+	    tmpVector.push_back(-5.147392E-09);
+	    tmpVector.push_back(-1.164022E-10);
+	    tmpVector.push_back( 2.443001E-06);
+	    tmpVector.push_back( 8.542569E-09);
+	    tmpVector.push_back(-1.558442E-10);
+		cCond.clear();
+		cCond = makeMatrix(tmpVector);
+
+		tmpVector.clear();
+		tmpVector.push_back( 5.4382616400);
+	    tmpVector.push_back( 0.0178821732);
+	    tmpVector.push_back(-0.0001873851);
+	    tmpVector.push_back( 2.395101E-06);
+	    tmpVector.push_back(-3.751781E-08);
+	    tmpVector.push_back( 5.875223E-10);
+	    tmpVector.push_back(-0.1513106190);
+	    tmpVector.push_back(-6.271586E-06);
+	    tmpVector.push_back( 3.964457E-07);
+	    tmpVector.push_back(-1.180828E-08);
+	    tmpVector.push_back( 9.672800E-11);
+	    tmpVector.push_back(-0.0002684929);
+	    tmpVector.push_back(-1.099919E-07);
+	    tmpVector.push_back( 6.150740E-09);
+	    tmpVector.push_back(-1.902903E-10);
+	    tmpVector.push_back(-4.725022E-06);
+	    tmpVector.push_back(-1.027292E-10);
+	    tmpVector.push_back( 8.515353E-11);
+		cVisc.clear();
+		cVisc = makeMatrix(tmpVector);
+
+		cTfreeze.clear();
+    };
+	/// Define freezing point calculations
+	double Tfreeze(double p, double x){
+		return Tmin;
+	}
+};
+
+
+class IceSlurryNA : public SecCoolSolution{
+public:
+	IceSlurryNA(){
+
+		std::vector<double> tmpVector;
+
+        name = std::string("IceNA");
+        description = std::string("Sodium chloride-water mixture with slurry ice");
+        reference = std::string("SecCool Software");
+
+		Tmin     = -20 + 273.15;
+		Tmax     =  -5 + 273.15;
+		TminPsat = Tmax;
+
+		xmin     = 0.05;
+		xmax     = 0.35;
+
+		Tbase    = -12.5 + 273.15;
+	    xbase    =  20.0 / 100.0;
+
+	    tmpVector.clear();
+	    tmpVector.push_back( 1081.6353100);
+	    tmpVector.push_back(-2.4559523700);
+	    tmpVector.push_back( 0.0058152057);
+	    tmpVector.push_back(-7.500013E-05);
+	    tmpVector.push_back(-7.575759E-07);
+	    tmpVector.push_back( 1.666671E-07);
+	    tmpVector.push_back(-5.6609963900);
+	    tmpVector.push_back( 0.1002726190);
+	    tmpVector.push_back(-0.0004797330);
+	    tmpVector.push_back( 1.333333E-06);
+	    tmpVector.push_back( 3.636364E-08);
+	    tmpVector.push_back(-0.0852857143);
+	    tmpVector.push_back( 0.0007904762);
+	    tmpVector.push_back( 1.428571E-06);
+	    tmpVector.push_back( 6.666668E-07);
+	    tmpVector.push_back(-0.0037650794);
+	    tmpVector.push_back( 3.333333E-05);
+	    tmpVector.push_back( 6.984127E-07);
+        cRho.clear();
+        cRho = makeMatrix(tmpVector);
+
+        tmpVector.clear();
+        tmpVector.push_back( 7.434384E+04);
+	    tmpVector.push_back( 3669.8467100);
+	    tmpVector.push_back(-2.0844426400);
+	    tmpVector.push_back( 0.0312501929);
+	    tmpVector.push_back(-0.0002727273);
+	    tmpVector.push_back(-8.333396E-05);
+	    tmpVector.push_back(-794.24689800);
+	    tmpVector.push_back(-33.895515900);
+	    tmpVector.push_back( 0.3610772000);
+	    tmpVector.push_back(-0.0016888889);
+	    tmpVector.push_back( 0.0001406061);
+	    tmpVector.push_back( 12.209523800);
+	    tmpVector.push_back( 0.3702381290);
+	    tmpVector.push_back(-0.0099523810);
+	    tmpVector.push_back( 0.0001333331);
+	    tmpVector.push_back(-0.1358730160);
+	    tmpVector.push_back( 0.0145714286);
+	    tmpVector.push_back(-0.0014412698);
+		cHeat.clear();
+		cHeat = makeMatrix(tmpVector);
+
+		tmpVector.clear();
+		tmpVector.push_back( 0.7579141770);
+	    tmpVector.push_back( 0.0124563700);
+	    tmpVector.push_back( 5.749080E-05);
+	    tmpVector.push_back( 2.263889E-07);
+	    tmpVector.push_back(-7.575758E-10);
+	    tmpVector.push_back( 1.333333E-10);
+	    tmpVector.push_back( 0.0009894098);
+	    tmpVector.push_back(-5.386429E-05);
+	    tmpVector.push_back( 2.049928E-07);
+	    tmpVector.push_back( 1.333333E-09);
+	    tmpVector.push_back(-3.757576E-10);
+	    tmpVector.push_back( 8.761905E-06);
+	    tmpVector.push_back(-9.531746E-07);
+	    tmpVector.push_back( 3.809524E-09);
+	    tmpVector.push_back( 2.222222E-10);
+	    tmpVector.push_back(-9.777778E-07);
+	    tmpVector.push_back(-5.904762E-08);
+	    tmpVector.push_back(-1.269841E-10);
+		cCond.clear();
+		cCond = makeMatrix(tmpVector);
+
+		tmpVector.clear();
+		tmpVector.push_back( 1.9270346900);
+	    tmpVector.push_back( 0.0216118832);
+	    tmpVector.push_back(-0.0002820062);
+	    tmpVector.push_back( 4.476720E-06);
+	    tmpVector.push_back(-9.032034E-08);
+	    tmpVector.push_back( 2.020892E-09);
+	    tmpVector.push_back(-0.0713269985);
+	    tmpVector.push_back(-2.729779E-05);
+	    tmpVector.push_back( 2.115509E-06);
+	    tmpVector.push_back(-7.777973E-08);
+	    tmpVector.push_back( 2.272317E-09);
+	    tmpVector.push_back( 0.0003930707);
+	    tmpVector.push_back(-7.171429E-07);
+	    tmpVector.push_back( 4.470017E-08);
+	    tmpVector.push_back(-1.194034E-09);
+	    tmpVector.push_back( 2.156903E-05);
+	    tmpVector.push_back(-1.127279E-08);
+	    tmpVector.push_back( 3.086759E-09);
+		cVisc.clear();
+		cVisc = makeMatrix(tmpVector);
+
+		cTfreeze.clear();
+    };
+	/// Define freezing point calculations
+	double Tfreeze(double p, double x){
+		return Tmin;
+	}
+};
+
+
+class PK2000 : public SecCoolSolution{
+protected:
+	std::vector<double> cMaVo;
+public:
+	PK2000(){
+
+		std::vector<double> tmpVector;
+
+        name = std::string("PK2000");
+        description = std::string("Pekasol 2000 in water (Potassium acetate and formate)");
+        reference = std::string("SecCool Software");
+
+		Tmin     = -62 + 273.15;
+		Tmax     = 100 + 273.15;
+		TminPsat = Tmax;
+
+		xmin     = 0.36;
+		xmax     = 1.00;
+
+		Tbase    = 33.31 + 273.15;
+	    xbase    = 67.60 / 100.0; // volume percent!
+
+	    tmpVector.clear();
+	    tmpVector.push_back( 1197.8306300);
+	    tmpVector.push_back( 2.7580390000);
+	    tmpVector.push_back(-0.0046328716);
+	    tmpVector.push_back(-2.118894E-05);
+	    tmpVector.push_back( 5.174717E-08);
+	    tmpVector.push_back( 2.265693E-09);
+	    tmpVector.push_back(-0.5038076360);
+	    tmpVector.push_back(-0.0020754530);
+	    tmpVector.push_back( 7.670317E-06);
+	    tmpVector.push_back( 1.443587E-08);
+	    tmpVector.push_back(-1.451878E-09);
+	    tmpVector.push_back(-0.0015712351);
+	    tmpVector.push_back( 2.546509E-05);
+	    tmpVector.push_back(-8.010506E-08);
+	    tmpVector.push_back(-4.948979E-10);
+	    tmpVector.push_back( 2.947414E-08);
+	    tmpVector.push_back(-4.747692E-09);
+	    tmpVector.push_back( 8.927986E-11);
+        cRho.clear();
+        cRho = makeMatrix(tmpVector);
+
+        tmpVector.clear();
+        tmpVector.push_back( 3012.5363200);
+	    tmpVector.push_back(-11.345089400);
+	    tmpVector.push_back( 0.0512475571);
+	    tmpVector.push_back(-0.0004261743);
+	    tmpVector.push_back( 5.582778E-06);
+	    tmpVector.push_back( 2.339332E-08);
+	    tmpVector.push_back( 1.8771264300);
+	    tmpVector.push_back(-0.0024687047);
+	    tmpVector.push_back(-0.0001136660);
+	    tmpVector.push_back(-3.281309E-06);
+	    tmpVector.push_back(-2.598223E-08);
+	    tmpVector.push_back(-0.0117207757);
+	    tmpVector.push_back( 0.0001728598);
+	    tmpVector.push_back( 2.221588E-06);
+	    tmpVector.push_back(-1.099247E-07);
+	    tmpVector.push_back( 6.566134E-05);
+	    tmpVector.push_back( 3.261243E-06);
+	    tmpVector.push_back(-5.841138E-08);
+		cHeat.clear();
+		cHeat = makeMatrix(tmpVector);
+
+		tmpVector.clear();
+		tmpVector.push_back( 0.5060902210);
+	    tmpVector.push_back(-0.0015058953);
+	    tmpVector.push_back( 4.296707E-06);
+	    tmpVector.push_back(-1.171421E-09);
+	    tmpVector.push_back(-5.116965E-12);
+	    tmpVector.push_back( 8.612329E-14);
+	    tmpVector.push_back( 0.0009077322);
+	    tmpVector.push_back(-4.052813E-06);
+	    tmpVector.push_back( 8.942927E-09);
+	    tmpVector.push_back(-3.126326E-11);
+	    tmpVector.push_back( 1.729361E-12);
+	    tmpVector.push_back( 2.222018E-09);
+	    tmpVector.push_back(-4.276078E-10);
+	    tmpVector.push_back(-3.160239E-11);
+	    tmpVector.push_back( 1.220910E-12);
+	    tmpVector.push_back( 3.600639E-10);
+	    tmpVector.push_back(-3.839049E-11);
+	    tmpVector.push_back( 7.540478E-13);
+		cCond.clear();
+		cCond = makeMatrix(tmpVector);
+
+		tmpVector.clear();
+	    tmpVector.push_back( 0.5631031820);
+	    tmpVector.push_back( 0.0147645079);
+	    tmpVector.push_back(-1.024523E-05);
+	    tmpVector.push_back(-7.780506E-07);
+	    tmpVector.push_back( 1.243805E-08);
+	    tmpVector.push_back( 7.494764E-12);
+	    tmpVector.push_back(-0.0199399025);
+	    tmpVector.push_back(-1.895556E-05);
+	    tmpVector.push_back(-8.956373E-07);
+	    tmpVector.push_back(-1.780877E-08);
+	    tmpVector.push_back( 9.735698E-11);
+	    tmpVector.push_back( 0.0001153086);
+	    tmpVector.push_back( 2.823599E-07);
+	    tmpVector.push_back( 7.608202E-09);
+	    tmpVector.push_back(-3.413081E-10);
+	    tmpVector.push_back(-1.580556E-06);
+	    tmpVector.push_back(-1.693264E-08);
+	    tmpVector.push_back(-1.648529E-10);
+		cVisc.clear();
+		cVisc = makeMatrix(tmpVector);
+
+		cTfreeze.clear();
+		cTfreeze.push_back( 65.000000000); // reference concentration in per cent
+		cTfreeze.push_back(-28.549321300);
+		cTfreeze.push_back(-0.7312947390);
+		cTfreeze.push_back(-0.0061085973);
+		cTfreeze.push_back(-8.714598E-06);
+
+		cMaVo.clear();
+		cMaVo.push_back( 63.693536900);
+		cMaVo.push_back( 1.0864767400);
+		cMaVo.push_back( 0.0033972173);
+		cMaVo.push_back( 1.986130E-05);
+
+    };
+
+	// Redefine x_m to convert from mass to volume fraction
+	// M1 = M-M_m
+	// Vol% = A[1] + A[2]*M1 + A[3]*M1^2 + A[4]*M1^3
+	double getxInput(double curxValue){
+		double xVolume = polyval(cMaVo, (curxValue*100.-69.92));
+		return xVolume-xbase*100.0;
+	}
+
+
+};
+
 #endif

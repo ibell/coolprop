@@ -308,7 +308,7 @@ class ResidualPartFitter(object):
         w_cp_norm = w_cp/w_total
         w_w_norm = w_w/w_total
         
-        residuals = np.r_[(PPF.p/self.p-1),w_cv_norm*(PPF.cv/self.cv-1)]#,w_cp_norm*(PPF.cp/self.cp-1)]#,w_w_norm*(PPF.w**2/self.speed_sound**2-1)]
+        residuals = np.r_[(PPF.p/self.p-1),w_cv_norm*(PPF.cv/self.cv-1),w_cp_norm*(PPF.cp/self.cp-1)]#,w_w_norm*(PPF.w**2/self.speed_sound**2-1)]
         RMS = np.sqrt(np.mean(np.power(residuals, 2)))
         
         print 'RMS:',RMS, '% Max',np.max(residuals),'%'

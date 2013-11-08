@@ -556,6 +556,22 @@ information is based on the data compiled by Morten Juel Skovrup in his `SecCool
 provided by his employer `IPU <http://en.ipu.dk>`_. The coefficient matrix of the SecCool-based fluids 
 has the same structure as mentioned above. 
 
+For slurry ice, the concentration :math:`x` refers to the solid content and the heat capacity includes the heat of fusion. 
+It might be necessary to adjust the solid content during heat transfer. The implementation is based on the data available 
+in SecCool, which was originally recorded at the `Danish Technological Institute (DTI) <http://www.dti.dk/>`_.
+
+==========================   ===================================================   =================   =================
+SecCool Fluids               Description                                           max. T              max. x
+==========================   ===================================================   =================   =================
+``ZiAC``                     ZitrecAC (corrosion inhibitor)                        +100 C              50 %
+``IceEA``                    Ethanol-water mixture with slurry ice                 -10 C               35 %
+``IcePG``                    Propylene glycol-water mixture with slurry ice        -10 C               35 %
+``IceNA``                    Sodium chloride-water mixture with slurry ice         -5 C                35 %
+``PK2000``                   Pekasol 2000 (Potassium acetate and formate)          +100 C              100 %
+==========================   ===================================================   =================   =================
+
+
+
 In both of the above cases, :math:`i` is the exponent for the concentration :math:`x` and :math:`j` 
 is used with the temperature :math:`T`. Properties are modelled with the following polynomials: 
 
@@ -585,8 +601,7 @@ the logarithm. To structure the problem, we introduce a variable :math:`d(j,T_{r
 As a first step for simplification, one has to expand the the binomial :math:`(T_{real}-T_{ref})^n` to a series. 
 Only containing :math:`j` and :math:`T_{real}`, :math:`d` is independent from :math:`x` and can be 
 computed outside the loop for enhanced computational efficiency. An integration of the expanded binomial 
-then yields the final factor :math:`D` to be multiplied the other coefficients and the concentration. Afterwards, 
-we employ normal evaluation routines to obtain the final result.
+then yields the final factor :math:`D` to be multiplied with the other coefficients and the concentration.
 
 .. math::
 
