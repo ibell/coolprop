@@ -173,7 +173,7 @@ AirClass::AirClass()
 
 	// Limits of EOS
 	limits.Tmin = params.Ttriple;
-	limits.Tmax = 200.0;
+	limits.Tmax = 2000.0;
 	limits.pmax = 2000000.0;
 	limits.rhomax = 14.21*params.molemass;
 	
