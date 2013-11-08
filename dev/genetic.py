@@ -5,23 +5,26 @@ import random
 import numpy as np
 from scipy.odr import *
 
+import matplotlib.pyplot as plt
+
 from summer import sum_function
 
-LIBRARY = [i/6.0 for i in range(1,151)]+[0.35+i/2000 for i in range(1,100)]+[0.05+0.001*i for i in range(1,100)]
-
+LIBRARY = [i/6.0 for i in range(1,151)]+[0.35+i/2000 for i in range(1,100)]+[0.05+0.001*i for i in range(1,100)]+[i+0.5 for i in range(10)]
+#LIBRARY = [i+0.5 for i in range(10)]+[i+0.0 for i in range(10)]
+    
 class Sample(object):
     def __init__(self,v):
         self.v = v
     
-class GeneticHelloWorld(object):
+class GeneticAncillaryFitter(object):
     def __init__(self,
-               num_samples = 80, # Have 60 chromos in the sample group
-               num_selected = 20, # Have 10 chromos in the selected group
+               num_samples = 100, # Have this many chromos in the sample group
+               num_selected = 30, # Have this many chromos in the selected group
                mutation_factor = 2, # Randomly mutate 1/n of the chromosomes
-               num_powers = 4, # How many powers in the fit
-               Ref = 'REFPROP-R134a',
+               num_powers = 6, # How many powers in the fit
+               Ref = 'o-Xylene',
                value = 'rhoV',
-               addTr = False
+               addTr = True
                 ):
         self.num_samples = num_samples
         self.num_selected = num_selected
@@ -47,6 +50,20 @@ class GeneticHelloWorld(object):
         self.rhoVrhoc = np.array(self.rhoV)/self.rhoc
         self.logrhoLrhoc = np.log(self.rhoL)-np.log(self.rhoc)
         self.logrhoVrhoc = np.log(self.rhoV)-np.log(self.rhoc)
+        
+        self.x = 1.0-self.T/self.Tc
+        
+        if self.value == 'p':
+            self.LHS = self.logppc.copy()
+        elif self.value == 'rhoL':
+            self.LHS = self.logrhoLrhoc.copy()
+        elif self.value == 'rhoV':
+            self.LHS = self.logrhoVrhoc.copy()
+        elif self.value == 'rhoLnoexp':
+            self.LHS = (self.rhoLrhoc-1).copy()
+            
+        if self.addTr:
+            self.LHS *= self.T/self.Tc
 
     def generate_random_chromosomes(self,):
         ''' 
@@ -61,37 +78,24 @@ class GeneticHelloWorld(object):
         ''' 
         Fitness of a chromo is the sum of the squares of the error of the correlation
         '''
-        x = 1.0-self.T/self.Tc
-        
-        if self.value == 'p':
-            LHS = self.logppc
-        elif self.value == 'rhoL':
-            LHS = self.logrhoLrhoc
-        elif self.value == 'rhoV':
-            LHS = self.logrhoVrhoc
-        elif self.value == 'rhoLnoexp':
-            LHS = self.rhoLrhoc-1
-            
-        if self.addTr:
-            LHS *= self.T/self.Tc
             
         output = np.zeros_like(self.T)
         
-        def f_RHS(B, x):
+        def f_RHS(B,x):
             sum_function(B,x,np.array(chromo.v),output)
             return output
         
         linear = Model(f_RHS)
-        mydata = Data(x, LHS)
-        myodr = ODR(mydata, linear, beta0=[0.0]*self.num_powers)
+        mydata = Data(self.x, self.LHS)
+        myodr = ODR(mydata, linear, beta0=[0.0]*self.num_powers)#, maxit = 100, sstol = 1e-10, partol = 1e-10)
         myoutput = myodr.run()
         
         chromo.beta = myoutput.beta
     
         if self.addTr:
-            RHS = f_RHS(myoutput.beta,x)*self.Tc/self.T
+            RHS = f_RHS(myoutput.beta, self.x)*self.Tc/self.T
         else:
-            RHS = f_RHS(myoutput.beta,x)
+            RHS = f_RHS(myoutput.beta, self.x)
             
         if self.value == 'p':
             fit_value = np.exp(RHS)*self.pc
@@ -110,13 +114,12 @@ class GeneticHelloWorld(object):
         
 #        import matplotlib.pyplot as plt
 #        plt.plot(x,fit_value,x,EOS_value)
-#        plt.show()
+#        plt.show()        
         
         chromo.fitness = max_abserror
         chromo.sum_square = myoutput.sum_square
         chromo.max_abserror = max_abserror
         
-        #print self.Ref, 'rhoL SSE =', myoutput.sum_square, myoutput.beta, max_abserror,'%'
         print '.',
         
         return chromo.fitness
@@ -143,7 +146,6 @@ class GeneticHelloWorld(object):
         new_b = b.v[:splice_pos] + a.v[splice_pos:]
         return Sample(sorted(new_a)), Sample(sorted(new_b))
 
-
     def mutate(self, chromo):
         ''' 
         Mutate a chromosome by changing one of the parameters, but only if it improves the fitness
@@ -153,14 +155,15 @@ class GeneticHelloWorld(object):
             old_fitness = chromo.fitness
         else:
             old_fitness = self.fitness(chromo)
-
-        pos = random.randrange(len(chromo.v))
-        chromo.v[pos] = random.choice(LIBRARY)
-        new_fitness = self.fitness(chromo)
-        if new_fitness < old_fitness:
-            return chromo
-        else:
-            return Sample(sorted(v))
+        
+        for i in range(10):
+            pos = random.randrange(len(chromo.v))
+            chromo.v[pos] = random.choice(LIBRARY)
+            new_fitness = self.fitness(chromo)
+            if new_fitness < old_fitness:
+                return chromo
+            else:
+                return Sample(sorted(v))
 
     def run(self):
         # Create a random sample of chromos
@@ -174,11 +177,14 @@ class GeneticHelloWorld(object):
         decorated = [(sample.fitness,sample) for sample in samples]
         decorated.sort()
         samples = [s for sv,s in decorated]
+        values = [sv for sv,s in decorated]
+        plt.plot(values[0:len(values)//2])
+        plt.show()
 
         # Main loop: each generation select a subset of the sample and breed from
         # them.
         generation = -1
-        while generation < 0 or samples[0].fitness > 0.1 or generation < 3 and generation < 15:
+        while generation < 0 or samples[0].fitness > 0.02 or generation < 3 and generation < 15:
             generation += 1
                 
             # Generate the selected group from sample- take the top 10% of samples
@@ -220,8 +226,8 @@ class GeneticHelloWorld(object):
         return samples[0]
   
 def main():
-    ghw = GeneticHelloWorld()
-    r = ghw.run()
+    gaf = GeneticAncillaryFitter()
+    r = gaf.run()
     
     print r.v
     print list(r.beta)
