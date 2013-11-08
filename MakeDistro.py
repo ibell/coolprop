@@ -62,7 +62,7 @@ def Octave():
     shutil.copy2(os.path.join('wrappers','Octave','3.6.1','CoolProp.oct'),os.path.join('dist_temp','Octave','3.6.1','CoolProp.oct'))
     shutil.copy2(os.path.join('wrappers','Octave','3.6.2','CoolProp.oct'),os.path.join('dist_temp','Octave','3.6.2','CoolProp.oct'))
     shutil.copy2(os.path.join('wrappers','Octave','3.6.4','CoolProp.oct'),os.path.join('dist_temp','Octave','3.6.4','CoolProp.oct'))
-    shutil.copy2(os.path.join('wrappers','Octave','sample_code.m'),os.path.join('dist_temp','Octave','sample_code.m'))
+    shutil.copy2(os.path.join('wrappers','Octave','example.m'),os.path.join('dist_temp','Octave','example.m'))
     shutil.copy2(os.path.join('wrappers','Octave','README.rst'),os.path.join('dist_temp','Octave','README.rst'))
     
 def Csharp():
@@ -237,7 +237,7 @@ def Superpacks():
     
     import CoolProp
     subprocess.check_call(['git','archive','-o','dist_temp/CoolProp-'+CoolProp.__version__+'-source_code.zip','HEAD'])
-    return
+
     ## Windows superpack
     try:
         os.mkdir(os.path.join('dist_temp','windows_superpack'))
@@ -252,6 +252,9 @@ def Superpacks():
     shutil.copytree(os.path.join('dist_temp','EES'), os.path.join('dist_temp','windows_superpack','EES'))
     shutil.copytree(os.path.join('dist_temp','Labview'), os.path.join('dist_temp','windows_superpack','Labview'))
     shutil.copytree(os.path.join('dist_temp','Modelica'), os.path.join('dist_temp','windows_superpack','Modelica'))
+    shutil.copytree(os.path.join('dist_temp','Java'), os.path.join('dist_temp','windows_superpack','Java'))
+    shutil.copytree(os.path.join('dist_temp','Javascript'), os.path.join('dist_temp','windows_superpack','Javascript'))
+    shutil.copytree(os.path.join('dist_temp','MathCAD'), os.path.join('dist_temp','windows_superpack','MathCAD'))
     
     subprocess.check_call(['7z','a','-r','dist_temp/CoolProp-'+CoolProp.__version__+'-windows_superpack.zip','dist_temp/windows_superpack/*.*'])
     shutil.rmtree(os.path.join('dist_temp','windows_superpack'))
@@ -277,4 +280,4 @@ if __name__=='__main__':
 #     UploadSourceForge()
     
     BuildDocs()
-#     UploadDocs()
+    UploadDocs()
