@@ -125,12 +125,12 @@ cpdef double IProps(long iOutput, long iInput1, double Input1, long iInput2, dou
 
 cpdef get_global_param_string(str param):
     cdef bytes _param = param.encode('ascii')
-    _get_global_param_string(_param)
+    return _get_global_param_string(_param)
     
 cpdef get_fluid_param_string(str fluid, str param):
     cdef bytes _fluid = fluid.encode('ascii')
     cdef bytes _param = param.encode('ascii')
-    _get_fluid_param_string(_fluid, _param)
+    return _get_fluid_param_string(_fluid, _param)
     
 def get_factorSICP(what):
     """Get the conversion factor between SI and CoolProp units. 
