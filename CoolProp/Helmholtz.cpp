@@ -986,7 +986,7 @@ double phir_gaussian::dDelta_dTau2(double tau, double delta) throw()
 	return summer;
 }
 
-phir_GERG_gaussian::phir_GERG_gaussian(vector<double> n_in, vector<double> d_in,vector<double> t_in, 
+phir_GERG2008_gaussian::phir_GERG2008_gaussian(vector<double> n_in, vector<double> d_in,vector<double> t_in, 
 	vector<double> eta_in, vector<double> epsilon_in, vector<double> beta_in, vector<double> gamma_in,
 	unsigned int iStart_in, unsigned int iEnd_in)
 {
@@ -1001,7 +1001,7 @@ phir_GERG_gaussian::phir_GERG_gaussian(vector<double> n_in, vector<double> d_in,
 	iEnd=iEnd_in;
 }
 
-phir_GERG_gaussian::phir_GERG_gaussian(double n_in[], double d_in[],double t_in[], double eta_in[], 
+phir_GERG2008_gaussian::phir_GERG2008_gaussian(double n_in[], double d_in[],double t_in[], double eta_in[], 
 							 double epsilon_in[], double beta_in[], double gamma_in[],
 							 unsigned int iStart_in, unsigned int iEnd_in, unsigned int N)
 {
@@ -1015,7 +1015,7 @@ phir_GERG_gaussian::phir_GERG_gaussian(double n_in[], double d_in[],double t_in[
 	iStart=iStart_in;
 	iEnd=iEnd_in;
 }
-double phir_GERG_gaussian::base(double tau, double delta)
+double phir_GERG2008_gaussian::base(double tau, double delta)
 {
 	double summer = 0, psi;
 	for (unsigned int i=iStart;i<=iEnd;i++)
@@ -1025,7 +1025,7 @@ double phir_GERG_gaussian::base(double tau, double delta)
 	}
 	return summer;
 }
-double phir_GERG_gaussian::dDelta(double tau, double delta)
+double phir_GERG2008_gaussian::dDelta(double tau, double delta)
 {
 	double summer = 0, psi;
 	for (unsigned int i=iStart;i<=iEnd;i++)
@@ -1035,7 +1035,7 @@ double phir_GERG_gaussian::dDelta(double tau, double delta)
 	}
 	return summer;
 }
-double phir_GERG_gaussian::dTau(double tau, double delta)
+double phir_GERG2008_gaussian::dTau(double tau, double delta)
 {
 	double summer = 0, psi;
 	for (unsigned int i=iStart;i<=iEnd;i++)
@@ -1045,7 +1045,7 @@ double phir_GERG_gaussian::dTau(double tau, double delta)
 	}
 	return summer;
 }
-double phir_GERG_gaussian::dTau2(double tau, double delta)
+double phir_GERG2008_gaussian::dTau2(double tau, double delta)
 {
 	double summer = 0, psi;
 	for (unsigned int i=iStart;i<=iEnd;i++)
@@ -1055,7 +1055,7 @@ double phir_GERG_gaussian::dTau2(double tau, double delta)
 	}
 	return summer;
 }
-double phir_GERG_gaussian::dDelta_dTau(double tau, double delta)
+double phir_GERG2008_gaussian::dDelta_dTau(double tau, double delta)
 {
 	double summer = 0, psi;
 	for (unsigned int i=iStart;i<=iEnd;i++)

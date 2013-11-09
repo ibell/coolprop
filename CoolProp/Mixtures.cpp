@@ -51,8 +51,8 @@ Mixture::Mixture(std::vector<Fluid *> pFluids)
 	STLMatrix F;
 	F.resize(z.size(),std::vector<double>(z.size(),1.0));
 	/// Methane-Ethane
-	pReducing = new GERGReducingFunction(pFluids, beta_v, gamma_v, beta_T, gamma_T);
-	pExcess = new GERGDepartureFunction(F);
+	pReducing = new GERG2008ReducingFunction(pFluids, beta_v, gamma_v, beta_T, gamma_T);
+	pExcess = new GERG2008DepartureFunction(F);
 	pResidualIdealMix = new ResidualIdealMixture(pFluids);
 
 	double Tr = pReducing->Tr(&z);
@@ -652,7 +652,7 @@ double Mixture::g_RachfordRice(std::vector<double> *z, std::vector<double> *lnK,
 	return summer;
 }
 
-double GERGReducingFunction::Tr(std::vector<double> *x)
+double GERG2008ReducingFunction::Tr(std::vector<double> *x)
 {
 	double Tr = 0;
 	for (unsigned int i = 0; i < N; i++)
@@ -673,7 +673,7 @@ double GERGReducingFunction::Tr(std::vector<double> *x)
 	}
 	return Tr;
 }
-double GERGReducingFunction::dTr_dxi(std::vector<double> *x, int i)
+double GERG2008ReducingFunction::dTr_dxi(std::vector<double> *x, int i)
 {
 	// See Table B9 from Kunz Wagner 2012 (GERG 2008)
 	double xi = (*x)[i];
@@ -694,7 +694,7 @@ double GERGReducingFunction::dTr_dxi(std::vector<double> *x, int i)
 	}
 	return dTr_dxi;
 }
-double GERGReducingFunction::drhorbar_dxi(std::vector<double> *x, int i)
+double GERG2008ReducingFunction::drhorbar_dxi(std::vector<double> *x, int i)
 {
 	// See Table B9 from Kunz Wagner 2012 (GERG 2008)
 	double xi = (*x)[i];
@@ -716,7 +716,7 @@ double GERGReducingFunction::drhorbar_dxi(std::vector<double> *x, int i)
 	return -pow(rhorbar(x),2)*dvrbar_dxi;
 }
 
-double GERGReducingFunction::rhorbar(std::vector<double> *x)
+double GERG2008ReducingFunction::rhorbar(std::vector<double> *x)
 {
 	double vrbar = 0;
 	for (unsigned int i = 0; i < N; i++)
@@ -735,7 +735,7 @@ double GERGReducingFunction::rhorbar(std::vector<double> *x)
 	return 1/vrbar;
 }
 
-GERGDepartureFunction::GERGDepartureFunction(STLMatrix F)
+GERG2008DepartureFunction::GERG2008DepartureFunction(STLMatrix F)
 {
 	// TODO: get from JSON code or other
 	// Methane-Ethane
@@ -748,11 +748,11 @@ GERGDepartureFunction::GERGDepartureFunction(STLMatrix F)
 	double gamma[] = {0, 0, 0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5};
 
 	phi1 = phir_power(n,d,t,1,2,13);
-	phi2 = phir_GERG_gaussian(n,d,t,eta,epsilon,beta,gamma,3,12,13);
+	phi2 = phir_GERG2008_gaussian(n,d,t,eta,epsilon,beta,gamma,3,12,13);
 
 	this->F = F;
 }
-double GERGDepartureFunction::phir(double tau, double delta, std::vector<double> *x)
+double GERG2008DepartureFunction::phir(double tau, double delta, std::vector<double> *x)
 {
 	double term = phi1.base(tau, delta) + phi2.base(tau, delta);
 	double summer = 0;
@@ -765,7 +765,7 @@ double GERGDepartureFunction::phir(double tau, double delta, std::vector<double>
 	}
 	return summer;
 }
-double GERGDepartureFunction::dphir_dDelta(double tau, double delta, std::vector<double> *x)
+double GERG2008DepartureFunction::dphir_dDelta(double tau, double delta, std::vector<double> *x)
 {
 	double term = phi1.dDelta(tau, delta) + phi2.dDelta(tau, delta);
 	double summer = 0;
@@ -778,7 +778,7 @@ double GERGDepartureFunction::dphir_dDelta(double tau, double delta, std::vector
 	}
 	return summer;
 }
-double GERGDepartureFunction::d2phir_dDelta_dTau(double tau, double delta, std::vector<double> *x)
+double GERG2008DepartureFunction::d2phir_dDelta_dTau(double tau, double delta, std::vector<double> *x)
 {
 	double term = phi1.dDelta_dTau(tau, delta) + phi2.dDelta_dTau(tau, delta);
 	double summer = 0;
@@ -791,7 +791,7 @@ double GERGDepartureFunction::d2phir_dDelta_dTau(double tau, double delta, std::
 	}
 	return summer;
 }
-double GERGDepartureFunction::dphir_dTau(double tau, double delta, std::vector<double> *x)
+double GERG2008DepartureFunction::dphir_dTau(double tau, double delta, std::vector<double> *x)
 {
 	double term = phi1.dTau(tau, delta) + phi2.dTau(tau, delta);
 	double summer = 0;
@@ -804,7 +804,7 @@ double GERGDepartureFunction::dphir_dTau(double tau, double delta, std::vector<d
 	}
 	return summer;
 }
-double GERGDepartureFunction::d2phir_dTau2(double tau, double delta, std::vector<double> *x)
+double GERG2008DepartureFunction::d2phir_dTau2(double tau, double delta, std::vector<double> *x)
 {
 	double term = phi1.dTau2(tau, delta) + phi2.dTau2(tau, delta);
 	double summer = 0;
@@ -817,7 +817,7 @@ double GERGDepartureFunction::d2phir_dTau2(double tau, double delta, std::vector
 	}
 	return summer;
 }
-double GERGDepartureFunction::dphir_dxi(double tau, double delta, std::vector<double> *x, int i)
+double GERG2008DepartureFunction::dphir_dxi(double tau, double delta, std::vector<double> *x, int i)
 {
 	double summer = 0;
 	double term = phi1.base(tau, delta) + phi2.base(tau, delta);
@@ -830,7 +830,7 @@ double GERGDepartureFunction::dphir_dxi(double tau, double delta, std::vector<do
 	}
 	return summer;
 }
-double GERGDepartureFunction::d2phir_dxi_dTau(double tau, double delta, std::vector<double> *x, int i)
+double GERG2008DepartureFunction::d2phir_dxi_dTau(double tau, double delta, std::vector<double> *x, int i)
 {
 	double summer = 0;
 	double term = phi1.dTau(tau, delta) + phi2.dTau(tau, delta);

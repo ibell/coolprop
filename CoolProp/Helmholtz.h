@@ -273,21 +273,21 @@ public:
 };
 
 /*!
-The Gaussian term from the GERG mixture
+The Gaussian term from the GERG 2008 mixture formulation
 \f[
 \phi_r = a \delta ^d \tau^t \exp(-\eta(\delta-\epsilon)^2-\beta(\delta-\gamma))
 \f]
 
 */
-class phir_GERG_gaussian : public phi_BC{
+class phir_GERG2008_gaussian : public phi_BC{
 private:
 	std::vector<double> n,d,t,eta,epsilon,beta,gamma;
 	unsigned int iStart,iEnd;
 public:
 	// Default Constructor
-	phir_GERG_gaussian(){};
+	phir_GERG2008_gaussian(){};
 	// Constructors
-	phir_GERG_gaussian(std::vector<double> a_in, 
+	phir_GERG2008_gaussian(std::vector<double> a_in, 
 				  std::vector<double> d_in,
 				  std::vector<double> t_in, 
 				  std::vector<double> eta_in, 
@@ -296,7 +296,7 @@ public:
 				  std::vector<double> gamma_in,
 				  unsigned int iStart_in, 
 				  unsigned int iEnd_in);
-	phir_GERG_gaussian(double a_in[], 
+	phir_GERG2008_gaussian(double a_in[], 
 					   double d_in[],
 					   double t_in[], 
 					   double eta_in[], 
@@ -307,7 +307,7 @@ public:
 					   unsigned int iEnd_in, 
 					   unsigned int N);
 	// Destructor
-	~phir_GERG_gaussian(){};
+	~phir_GERG2008_gaussian(){};
 
 	// Term and its derivatives
 	double base(double tau, double delta);

@@ -32,7 +32,7 @@ public:
 The Reducing parameter model used by the GERG-2008 formulation to yield the
 reducing parameters \f$ \bar\rho_r \f$ and \f$ T_r \f$ and derivatives thereof
 */
-class GERGReducingFunction : public ReducingFunction
+class GERG2008ReducingFunction : public ReducingFunction
 {
 protected:
 	unsigned int N;
@@ -42,7 +42,7 @@ protected:
 	STLMatrix gamma_T; //!< \f$ \gamma_{T,ij} \f$ from GERG-2008
 	std::vector<Fluid *> pFluids; //!< List of pointers to fluids
 public:
-	GERGReducingFunction(std::vector<Fluid *> pFluids, STLMatrix beta_v, STLMatrix gamma_v, STLMatrix beta_T, STLMatrix gamma_T)
+	GERG2008ReducingFunction(std::vector<Fluid *> pFluids, STLMatrix beta_v, STLMatrix gamma_v, STLMatrix beta_T, STLMatrix gamma_T)
 	{
 		this->pFluids = pFluids;
 		this->beta_v = beta_v;
@@ -52,7 +52,7 @@ public:
 		this->N = pFluids.size();
 	};
 	/// Default destructor
-	~GERGReducingFunction(){};
+	~GERG2008ReducingFunction(){};
 	/// The reduced temperature
 	double Tr(std::vector<double> *x);
 	/// The derivative of reduced temperature with respect to component i mole fraction
@@ -94,14 +94,14 @@ public:
 	virtual double d2phir_dxi_dTau(double tau, double delta, std::vector<double> *x, int i) = 0;
 };
 
-class GERGDepartureFunction : public DepartureFunction
+class GERG2008DepartureFunction : public DepartureFunction
 {
 protected:
 	phir_power phi1;
-	phir_GERG_gaussian phi2;
+	phir_GERG2008_gaussian phi2;
 public:
-	GERGDepartureFunction(STLMatrix F);
-	~GERGDepartureFunction(){};
+	GERG2008DepartureFunction(STLMatrix F);
+	~GERG2008DepartureFunction(){};
 	double phir(double tau, double delta, std::vector<double> *x);
 	double dphir_dDelta(double tau, double delta, std::vector<double> *x);
 	double d2phir_dDelta_dTau(double tau, double delta, std::vector<double> *x);
