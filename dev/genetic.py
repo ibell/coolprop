@@ -10,7 +10,6 @@ import matplotlib.pyplot as plt
 from summer import sum_function
 
 LIBRARY = [i/6.0 for i in range(1,151)]+[0.35+i/2000 for i in range(1,100)]+[0.05+0.001*i for i in range(1,100)]+[i+0.5 for i in range(10)]
-#LIBRARY = [i+0.5 for i in range(10)]+[i+0.0 for i in range(10)]
     
 class Sample(object):
     def __init__(self,v):
@@ -22,7 +21,7 @@ class GeneticAncillaryFitter(object):
                num_selected = 30, # Have this many chromos in the selected group
                mutation_factor = 2, # Randomly mutate 1/n of the chromosomes
                num_powers = 6, # How many powers in the fit
-               Ref = 'o-Xylene',
+               Ref = 'n-Octane',
                value = 'rhoV',
                addTr = True
                 ):
@@ -41,7 +40,7 @@ class GeneticAncillaryFitter(object):
         self.rhoc = Props(Ref,'rhocrit')
         self.Tmin = Props(Ref,'Tmin')
         
-        self.T = np.linspace(self.Tmin+1e-6, self.Tc-0.000001,200)
+        self.T = np.linspace(self.Tmin+1e-14, self.Tc-0.000001,200)
         self.p = [Props('P','T',T,'Q',0,Ref) for T in self.T]
         self.rhoL = [Props('D','T',T,'Q',0,Ref) for T in self.T]
         self.rhoV = [Props('D','T',T,'Q',1,Ref) for T in self.T]
@@ -179,7 +178,7 @@ class GeneticAncillaryFitter(object):
         samples = [s for sv,s in decorated]
         values = [sv for sv,s in decorated]
         plt.plot(values[0:len(values)//2])
-        plt.show()
+        plt.close()
 
         # Main loop: each generation select a subset of the sample and breed from
         # them.
@@ -217,7 +216,8 @@ class GeneticAncillaryFitter(object):
             for sample in samples[0:10]:
                 print sample.v, sample.fitness, sample.max_abserror
             
-            print samples[0].v, list(samples[0].beta)
+            print '// Max error is ',samples[0].max_abserror,'% between',np.min(self.T),'and',np.max(self.T),'K'
+            print str(samples[0].v)[1::], str(list(samples[0].beta))[1::]
                 
             # Print useful stats about this generation
             (min, median, max) =  [samples[0].fitness, samples[len(samples)//2].fitness, samples[-1].fitness]

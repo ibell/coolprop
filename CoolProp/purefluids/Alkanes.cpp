@@ -485,18 +485,17 @@ double EthaneClass::rhosatL(double T)
 }
 double EthaneClass::rhosatV(double T)
 {
-	double rhoc = reduce.rho;
-	double theta = 1-T/reduce.T;
-	double RHS,rho;
-
-	RHS = -1.89879145*pow(theta,0.346)
-		  -3.65459262*pow(theta,5.0/6.0)
-		  +0.850562745*pow(theta,1.0)
-		  +0.363965487*pow(theta,2)
-		  -1.50005943*pow(theta,3)
-		  -2.26690389*pow(theta,5);
-	rho = exp(RHS*reduce.T/T)*rhoc;
-	return rho;
+	// Maximum absolute error is 0.270124 % between 178.000001 K and 591.749999 K
+    const double ti[]={0,0.374, 1.0, 1.5, 2.6666666666666665, 3.8333333333333335, 0.38849999999999996};
+    const double Ni[]={0,-1.4796534339188399, -3.1822071897575968, 1.0445932652363741, 0.41065304624296084, -3.5816879898373259, -0.96561226454570503};
+    double summer=0,theta;
+    int i;
+    theta=1.0-T/reduce.T;
+    for (i=1;i<=6;i++)
+    {
+        summer += Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.rho*exp(reduce.T/T*summer);
 }
 double EthaneClass::psat(double T)
 {
@@ -828,16 +827,17 @@ double IsoButaneClass::rhosatL(double T)
 }
 double IsoButaneClass::rhosatV(double T)
 {
-	double rhoc = reduce.rho;
-	double theta = 1-T/reduce.T;
-	double RHS,rho;
-
-	RHS = -2.12933323*pow(theta,0.355)
-		  -2.93790085*pow(theta,5.0/6.0)
-		  -0.89441086*pow(theta,19.0/6.0)
-		  -3.46343707*pow(theta,26.0/6.0);
-	rho = exp(RHS*reduce.T/T)*rhoc;
-	return rho;
+	// Maximum absolute error is 0.270124 % between 178.000001 K and 591.749999 K
+    const double ti[]={0,0.38949999999999996, 0.39899999999999997, 0.8333333333333334, 1.5, 2.6666666666666665, 3.5};
+    const double Ni[]={0,-20.080357830155275, 18.457306494924232, -3.7935794935101383, 0.27898485736137468, 1.7770827488706802, -5.6964841742935048};
+    double summer=0,theta;
+    int i;
+    theta=1.0-T/reduce.T;
+    for (i=1;i<=6;i++)
+    {
+        summer += Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.rho*exp(reduce.T/T*summer);
 }
 double IsoButaneClass::psat(double T)
 {

@@ -122,7 +122,7 @@ if __name__=='__main__':
     if len(sys.argv)==1:
         #sys.argv += ['build_ext','--inplace']
 #        sys.argv += ['build','--compiler=mingw32','--force','install']
-        sys.argv += ['build','install']
+        sys.argv += ['build','--force','install']
         #sys.argv += ['install']
         
     badfiles = [os.path.join('CoolProp','__init__.pyc'),

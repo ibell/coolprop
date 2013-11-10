@@ -59,14 +59,14 @@ RC318Class::RC318Class()
 }
 double RC318Class::psat(double T)
 {
-    // Maximum absolute error is 0.014463 % between 233.350001 K and 388.379990 K
-    const double t[]={0, 1, 2, 3, 4, 8};
-    const double N[]={0, 0.0023402846842672542, -7.8996504796034381, 2.9361667746527802, -2.9819727078129805, -3.7079830133198022};
+	// Max error is  0.0947732998961 % between 233.350001 and 388.379999 K
+    const double t[]={0, 0.371, 0.377, 0.381, 0.38249999999999995, 0.5, 3.5};
+    const double N[]={0, -1213181.4314541968, 6837497.6335908417, -15838804.024912281, 10215393.171714973, -912.01967103772643, -4.9616950711696077};
     double summer=0,theta;
     theta=1-T/reduce.T;
-    for (int i=1;i<=4;i++)
+    for (int i=1;i<=6;i++)
     {
-        summer += N[i]*pow(theta,t[i]/2);
+        summer += N[i]*pow(theta,t[i]);
     }
     return reduce.p.Pa*exp(reduce.T/T*summer);
 }

@@ -408,17 +408,18 @@ double R290Class::psat(double T)
 }
 double R290Class::rhosatL(double T)
 {
-	const double ti[]={0,0.345,0.74,2.6,7.2};
-    const double Ni[]={0,1.82205,0.65802,0.21109,0.083973};
-    double summer=1;
+	// Max error is  0.119362251455 % between 85.525001 and 369.889999 K
+	const double ti[]={0, 0.14500000000000002, 0.379, 0.382, 0.38249999999999995, 2.1666666666666665, 10.0};
+    const double Ni[]={0, -0.071607374253507231, 3339.6797899199069, -23526.337294637724, 20189.131769607058, 0.28614287100950064, 0.16243388519319354};
+    double summer=0;
     int i;
     double theta;
     theta=1-T/reduce.T;
-    for (i=1;i<=4;i++)
+    for (i=1;i<=6;i++)
     {
-        summer+=Ni[i]*pow(theta,ti[i]);
+        summer += Ni[i]*pow(theta,ti[i]);
     }
-    return reduce.rho*summer;
+    return reduce.rho*(summer+1);
 }
 double R290Class::rhosatV(double T)
 {

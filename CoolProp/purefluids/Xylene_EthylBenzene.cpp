@@ -76,28 +76,28 @@ double oXyleneClass::psat(double T)
 }
 double oXyleneClass::rhosatL(double T)
 {
-    // Maximum absolute error is 1.758248 % between 247.985001 K and 630.258990 K
-    const double ti[]={0,0.57845021125158513, 0.73462892915017219, 1.9704181229283253, 2.3913537297744285, 2.1442227226496251};
-    const double Ni[]={0,9.389944423330256, -10.065201566952689, 36.995144332929428, 19.104153002871463, -53.998326006477313};
+	// Max absolute error is 0.131379221168 % between 247.985001 and 630.258999 K
+    const double ti[]={0,0.062, 0.3535, 0.3705, 0.38999999999999996, 0.39499999999999996, 0.6666666666666666};
+    const double Ni[]={0,-0.52054845612929879, 18236.846982733288, -63875.350204561459, 164188.06095048547, -118594.69175232823, 48.553725965189045};
     double summer=0;
     int i;
     double theta;
     theta=1-T/reduce.T;
-    for (i=1;i<=5;i++)
+    for (i=1;i<=6;i++)
     {
-        summer+=Ni[i]*pow(theta,ti[i]);
+        summer += Ni[i]*pow(theta,ti[i]);
     }
-    return reduce.rho*exp(summer);
+    return reduce.rho*(summer+1);
 }
 double oXyleneClass::rhosatV(double T)
 {
-    // Maximum absolute error is 3.076635 % between 247.985001 K and 630.258990 K
-    const double ti[]={0,0.55197055685787888, 3.053372826026405, 3.0213687610765181, 2.9985688560578714, 2.8841097402929057};
-    const double Ni[]={0,-5.2855633441813108, -66889.17640707799, 194634.66961501876, -134548.71734816648, 6797.2028366417326};
+    // Maximum absolute error is <0.7 %
+    const double ti[]={0,0.38599999999999995, 0.39099999999999996, 0.39899999999999997, 0.39899999999999997, 3.5, 25.0};
+    const double Ni[]={0,-1469.8108143372936, 2481.764862707802, -0.045557199577420653, -1017.0406223888718, -5.6398562001391239, 3058.4836702690432};
     double summer=0,theta;
     int i;
     theta=1.0-T/reduce.T;
-    for (i=1;i<=5;i++)
+    for (i=1;i<=6;i++)
     {
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
@@ -277,29 +277,29 @@ double pXyleneClass::psat(double T)
 double pXyleneClass::rhosatL(double T)
 {
     // Maximum absolute error is 0.476482 % between 286.400001 K and 616.167990 K
-    const double ti[]={0,0.36922931174880702, 1.6084186059964691, 1.685317285952024, 1.6737093375890244, 1.6358473659507031};
-    const double Ni[]={0,1.9185912843031041, -9811.8226960758384, 30281.812695478082, -46654.337197534507, 26183.830801897715};
+    const double ti[]={0,0.095, 0.385, 0.39599999999999996, 0.39699999999999996, 0.39749999999999996, 1.1666666666666667};
+    const double Ni[]={0,-0.096794219149070007, 30154.043648793169, -3154534.3342303196, 8710910.2099536695, -5586528.3479336761, 1.3331570656949114};
     double summer=0;
     int i;
     double theta;
     theta=1-T/reduce.T;
-    for (i=1;i<=5;i++)
+    for (i=1;i<=6;i++)
     {
         summer+=Ni[i]*pow(theta,ti[i]);
     }
-    return reduce.rho*exp(summer);
+    return reduce.rho*(summer+1);
 }
 double pXyleneClass::rhosatV(double T)
 {
-    // Maximum absolute error is 2.036894 % between 286.400001 K and 616.167990 K
-    const double ti[]={0,0.060186161740589092, 0.53381625316033809, 5.3043338091148762, 10.872745924810694, 3.0052865665149087};
-    const double Ni[]={0,-0.067596669375935142, -4.962397082005725, -0.97523231532511534, -9.7466146643189031, -4.3322511157907018};
+	// Max error is  0.532607446122 % between 286.400001 and 616.167999 K
+    const double ti[]={0, 0.112, 0.3555, 0.366, 0.3665, 3.3333333333333335, 13.666666666666666};
+    const double Ni[]={0, 0.11459869931296199, -1182.6773331831496, 27631.056723572299, -26453.592086632252, -5.3999174176356473, 28.304064732627904};
     double summer=0,theta;
     int i;
     theta=1.0-T/reduce.T;
-    for (i=1;i<=5;i++)
+    for (i=1;i<=6;i++)
     {
-        summer=summer+Ni[i]*pow(theta,ti[i]);
+        summer += Ni[i]*pow(theta,ti[i]);
     }
     return reduce.rho*exp(crit.T/T*summer);
 }

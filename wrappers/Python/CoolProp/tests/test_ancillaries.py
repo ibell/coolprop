@@ -19,19 +19,21 @@ def check_ancillaries(Fluid,T):
         
     rhoL = Props('D','T',T,'Q',0,RPFluid)
     rhoV = Props('D','T',T,'Q',1,RPFluid)
-    pL = Props('P','T',T,'Q',1,RPFluid)
+    pL = Props('P','T',T,'Q',0,RPFluid)*1000
+    pV = Props('P','T',T,'Q',1,RPFluid)*1000
             
     rhoL_anc = rhosatL_anc(Fluid, T)
     rhoV_anc = rhosatV_anc(Fluid, T)
     pL_anc = psatL_anc(Fluid, T)
+    pV_anc = psatL_anc(Fluid, T)
     
     #  Check they are consistent
-    if abs(rhoL/rhoL_anc-1) > 0.03:
+    if abs(rhoL/rhoL_anc-1) > 0.01:
         raise AssertionError('err: {err:g} % fit: {fit:g} eos: {eos:g}'.format(err = (rhoL/rhoL_anc-1)*100, fit = rhoL_anc, eos = rhoL))
-    if abs(rhoV/rhoV_anc-1) > 0.03:
+    if abs(rhoV/rhoV_anc-1) > 0.01:
         raise AssertionError('err: {err:g} % fit: {fit:g} eos: {eos:g}'.format(err = (rhoV/rhoV_anc-1)*100, fit = rhoV_anc, eos = rhoV))
-##     if abs(pL/pL_anc-1) > 0.05:
-##         raise AssertionError('err: {err:g} % fit: {fit:g} eos: {eos:g}'.format(err = (pL/pL_anc-1)*100, fit = pL_anc, eos = pL))
+    if abs(pL/pL_anc-1) > 0.01:
+        raise AssertionError('err: {err:g} % fit: {fit:g} eos: {eos:g}'.format(err = (pL/pL_anc-1)*100, fit = pL_anc, eos = pL))
     
 if __name__=='__main__':
     import nose
