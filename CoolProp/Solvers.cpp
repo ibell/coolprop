@@ -77,6 +77,8 @@ double Secant(FuncWrapper1D *f, double x0, double dx, double tol, int maxiter, s
         if (iter==1){y1=fval;}
         if (iter>1)
         {
+			double deltax = x2-x1;
+			if (fabs(deltax)<1e-10) { return x; }
             y2=fval;
             x3=x2-y2/(y2-y1)*(x2-x1);
             y1=y2; x1=x2; x2=x3;

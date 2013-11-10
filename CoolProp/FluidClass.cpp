@@ -566,9 +566,9 @@ void Fluid::post_load(rapidjson::Document &JSON, rapidjson::Document &JSON_CAS)
 	// Set the reducing values from the pointer
 	reduce = *preduce;
 
-	// Get the critical molar density in mol/m^3
-	reduce.rhobar = reduce.rho/params.molemass;
-	crit.rhobar = crit.rho/params.molemass;
+	// Get the critical molar density in mol/m^3 (kg/m^3)*(kmol/kg)*(1000 mol/kmol)
+	reduce.rhobar = reduce.rho/params.molemass*1000;
+	crit.rhobar = crit.rho/params.molemass*1000;
 
 	// Set the enthalpy and entropy at the critical point and the reducing point
 	crit.h = enthalpy_Trho(crit.T, crit.rho);
