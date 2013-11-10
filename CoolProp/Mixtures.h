@@ -133,9 +133,9 @@ public:
 	double d2phir_dDelta_dTau(double tau, double delta, std::vector<double> *x);
 	double dphir_dTau(double tau, double delta, std::vector<double> *x);
 	double d2phir_dTau2(double tau, double delta, std::vector<double> *x);
-	double dphir_dxi(double tau, double delta, std::vector<double> *x, int i);
-	double d2phir_dxi_dTau(double tau, double delta, std::vector<double> *x, int i);
-	double d2phir_dxi_dDelta(double tau, double delta, std::vector<double> *x, int i);
+	double dphir_dxi(double tau, double delta, std::vector<double> *x, unsigned int i);
+	double d2phir_dxi_dTau(double tau, double delta, std::vector<double> *x, unsigned int i);
+	double d2phir_dxi_dDelta(double tau, double delta, std::vector<double> *x, unsigned int i);
 	void set_coeffs_from_map(int i, int j, std::map<std::string,std::vector<double> >);
 };
 

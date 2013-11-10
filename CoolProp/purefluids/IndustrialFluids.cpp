@@ -428,8 +428,7 @@ void HydrogenSulfideClass::ECSParams(double *e_k, double *sigma)
 	*sigma = 0.3565;
 }
 double HydrogenSulfideClass::viscosity_Trho(double T, double rho)
-{
-	double Tr = T/crit.T;	
+{	
 
 	// Dilute
 	double a[] = {0.53242, 0.93715, -0.69339, 1.16432, -0.84306, 0.20534};

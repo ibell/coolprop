@@ -970,7 +970,7 @@ void CoolPropStateClassSI::update_incompressible(long iInput1, double Value1, lo
 		_p = Value1;
 		double  h = Value2;
 
-		double x1=0,x2=0,x3=0,y1=0,y2=0,eps=1e-8,change=999,f=999,T=300;
+		double x1=0,x2=0,x3=0,y1=0,y2=0,eps=1e-8,change=999,f=999;
 		int iter=1;
 		
 		while ((iter<=3 || fabs(f)>eps) && iter<100)
@@ -1592,7 +1592,6 @@ void CoolPropStateClassSI::rho_smoothed(double xend, double *rho_spline, double 
 	// Getting the required partial derivatives just outside the two-phase zone (faking single-phase fluid):
 	double drhodh_l = CPS.SatL->drhodh_constp();
 	double drhodhdp_l = CPS.SatL->d2rhodhdp();
-	double drhodh_v = CPS.SatV->drhodh_constp();
 
 	// Same as above, but detailed:
 	double dxdp = ((xend - 1 )* dhldp - xend* dhvdp)/(h_v - h_l);

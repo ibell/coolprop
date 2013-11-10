@@ -102,7 +102,6 @@ double R125Class::rhosatV(double T)
 }
 double R125Class::viscosity_Trho(double T, double rho)
 {
-	double a[] = {0.53583008, -0.45629630, 0.049911282};
 	double b[] = {-19.572881, 219.73999, -1015.3226, 2471.01251, -3375.1717, 2491.6597, -787.26086, 14.085455, -0.34664158};
 	double N_A = 6.0221415e23;
 
@@ -135,7 +134,6 @@ double R125Class::viscosity_Trho(double T, double rho)
 	double eta_r = (sumresid + c1*(delta/(delta_0-delta)-delta/delta_0))*1000; // uPa-s
 	
 	double rhobar = rho/params.molemass; // [mol/L]
-	double mu = eta_0*(1+B*rhobar)+eta_r; // 
 	return (eta_0*(1+B*rhobar)+eta_r)/1e6;
 }
 void R125Class::ECSParams(double *e_k, double *sigma)

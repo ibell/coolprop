@@ -332,7 +332,6 @@ double NitrogenClass::conductivity_dilute(double T)
 
 	double N[]={0,1.511,2.117,-3.332,8.862,31.11,-73.13,20.03,-0.7096,0.2672};
 	double t[]={0,0,-1.0,-0.7,0.0,0.03,0.2,0.8,0.6,1.9};
-	double d[]={0,0,0,0,1,2,3,4,8,10};
 	
 	tau=reduce.T/T;
 	Tstar=T/(e_k);

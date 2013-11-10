@@ -1085,7 +1085,6 @@ double R152AClass::viscosity_Trho(double T, double rho)
 	// Dilute gas
 	this->ECSParams(&e_k, &sigma);
 	double Tstar = T/e_k;
-	double delta = rho/crit.rho;
 	double a[] = {0.4425728, -0.5138403,0.1547566,-0.02821844,0.001578286};
 	double logTstar = log(Tstar);
 	double S_star = exp(a[0]+a[1]*logTstar+a[2]*pow(logTstar,2)+a[3]*pow(logTstar,3)+a[4]*pow(logTstar,4));

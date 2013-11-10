@@ -307,7 +307,7 @@ double R290Class::conductivity_Trho(double T, double rho)
     
     // output in kW/m-K
 
-    double lambda0,lambdar,lambdac,sum=0,tau = 369.85/T;
+    double lambda0,lambdar,lambdac,tau = 369.85/T;
     
 	// The dilute gas contribution [W/m/K]
 	double A[]={0.0, -1.24778e-3, 8.16371e-3, 1.99374e-2};

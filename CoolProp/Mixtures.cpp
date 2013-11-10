@@ -82,7 +82,7 @@ std::map<std::string, double> Mixture::load_reducing_values(int i, int j)
 					}
 					else
 					{
-						throw ValueError(format("This model [%s] is not currently supported\n",Model).c_str());
+						throw ValueError(format("This model [%s] is not currently supported\n",Model.c_str()).c_str());
 					}
 				}
 			}
@@ -172,7 +172,7 @@ std::map<std::string,std::vector<double> > Mixture::load_excess_values(int i, in
 					}
 					else
 					{
-						throw ValueError(format("This model [%s] is not currently supported\n",Model).c_str());
+						throw ValueError(format("This model [%s] is not currently supported\n",Model.c_str()).c_str());
 					}
 				}
 			}
@@ -320,7 +320,6 @@ double Mixture::ndphir_dni(double tau, double delta, std::vector<double> *x, int
 {
 	double Tr = pReducing->Tr(x);
 	double rhorbar = pReducing->rhorbar(x);
-	double T = Tr/tau, rhobar = rhorbar*delta, Rbar = 8.314472;
 
 	double summer_term1 = 0;
 	for (unsigned int k = 0; k < (*x).size(); k++)
@@ -350,7 +349,6 @@ double Mixture::dndphir_dni_dTau(double tau, double delta, std::vector<double> *
 {
 	double Tr = pReducing->Tr(x);
 	double rhorbar = pReducing->rhorbar(x);
-	double T = Tr/tau, rhobar = rhorbar*delta, Rbar = 8.314472;
 
 	double summer_term1 = 0;
 	for (unsigned int k = 0; k < (*x).size(); k++)
@@ -764,7 +762,7 @@ void Mixture::TpzFlash(double T, double p, std::vector<double> *z, double *rhoba
 }
 double Mixture::rhobar_pengrobinson(double T, double p, std::vector<double> *x, int solution)
 {
-	double k_ij = 0, A  = 0, B = 0, m_i, m_j, a_i, a_j, b_i, a = 0, b = 0, Z, rhobar;
+	double A  = 0, B = 0, m_i, m_j, a_i, a_j, b_i, a = 0, b = 0, Z, rhobar;
 
 	for (unsigned int i = 0; i < (*x).size(); i++)
 	{
@@ -1098,7 +1096,7 @@ double ExcessTerm::d2phir_dDelta_dTau(double tau, double delta, std::vector<doub
 	}
 	return summer;
 }
-double ExcessTerm::dphir_dxi(double tau, double delta, std::vector<double> *x, int i)
+double ExcessTerm::dphir_dxi(double tau, double delta, std::vector<double> *x, unsigned int i)
 {
 	double summer = 0;
 	for (unsigned int k = 0; k < (*x).size(); k++)
@@ -1110,7 +1108,7 @@ double ExcessTerm::dphir_dxi(double tau, double delta, std::vector<double> *x, i
 	}
 	return summer;
 }
-double ExcessTerm::d2phir_dxi_dTau(double tau, double delta, std::vector<double> *x, int i)
+double ExcessTerm::d2phir_dxi_dTau(double tau, double delta, std::vector<double> *x, unsigned int i)
 {
 	double summer = 0;
 	for (unsigned int k = 0; k < (*x).size(); k++)
@@ -1122,7 +1120,7 @@ double ExcessTerm::d2phir_dxi_dTau(double tau, double delta, std::vector<double>
 	}
 	return summer;
 }
-double ExcessTerm::d2phir_dxi_dDelta(double tau, double delta, std::vector<double> *x, int i)
+double ExcessTerm::d2phir_dxi_dDelta(double tau, double delta, std::vector<double> *x, unsigned int i)
 {
 	double summer = 0;
 	for (unsigned int k = 0; k < (*x).size(); k++)

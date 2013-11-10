@@ -977,8 +977,8 @@ double Fluid::density_Tp_PengRobinson(double T, double p, int solution)
 	}
 
 	rhobar = p/(Z*Rbar*T); //[mol/L]
-	double vbar = 1/rhobar;
-	double p_check = Rbar*T/(vbar-b)-a/(vbar*vbar+2*b*vbar-b*b);
+	//double vbar = 1/rhobar;
+	//double p_check = Rbar*T/(vbar-b)-a/(vbar*vbar+2*b*vbar-b*b);
 
 	return rhobar*params.molemass;
 }
@@ -1023,7 +1023,7 @@ double Fluid::temperature_prho_PengRobinson(double p, double rho)
 	D = B*B-4*A*C;
 
 	double sqrt_Tr1 = (-B+sqrt(B*B-4*A*C))/(2*A);
-	double sqrt_Tr2 = (-B-sqrt(B*B-4*A*C))/(2*A);
+	//double sqrt_Tr2 = (-B-sqrt(B*B-4*A*C))/(2*A);
 	return sqrt_Tr1*sqrt_Tr1*reduce.T;
 }
 
@@ -2715,7 +2715,7 @@ void Fluid::temperature_hs(double h, double s, double *Tout, double *rhoout, dou
 
 		// Get the saturated liquid state for the given enthalpy
 		this->saturation_h(h, limits.Tmin, crit.T, 0, &Tsat, &rhosat, &TL, &TV, &rhoL, &rhoV);
-		double hcheck = this->enthalpy_Trho(TL,rhoL);
+		//double hcheck = this->enthalpy_Trho(TL,rhoL);
 
 		// Check the saturated entropy for the given value of the entropy
 		ssat = this->entropy_Trho(Tsat, rhosat);
