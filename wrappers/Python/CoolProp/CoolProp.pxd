@@ -173,6 +173,10 @@ cdef extern from "CPState.h":
         double d3phir_dDelta_dTau2(double tau, double delta)
         double d3phir_dTau3(double tau, double delta)
         
+cdef extern from "CoolPropDLL.h":
+    int _set_reference_stateS "set_reference_stateS"(char *, char *)
+    int _set_reference_stateD "set_reference_stateD"(char *, double T, double rho, double h0, double s0)
+    
 cdef extern from "CoolProp.h":
     
     void _set_standard_unit_system "set_standard_unit_system"(int unit_system)

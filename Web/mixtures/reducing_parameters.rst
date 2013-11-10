@@ -43,7 +43,7 @@ From Lemmon, JPCRD, 2000 for the properties of Dry Air
     \alpha^E(\delta,\tau,\mathbf{x}) = \left \lbrace \sum_{i=1}^{2} \sum_{j=i+1}^{3} x_ix_jF_{ij}\right\rbrace \left[-0.00195245\delta^2\tau^{-1.4}+0.00871334\delta^2\tau^{1.5} \right]
 
 
-From Kunz and Wagner, JPCRD, 2012 for GERG 2008
+From Kunz and Wagner, JCED, 2012 for GERG 2008
 
 .. math::
 

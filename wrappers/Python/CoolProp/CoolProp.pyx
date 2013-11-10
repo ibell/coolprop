@@ -81,6 +81,53 @@ cdef _convert_to_default_units(bytes_or_str parameter_type, object parameter):
     #Return the scaled units
     return parameter
     
+def set_reference_state(str FluidName, *args):
+    """
+    Accepts one of two signatures:
+    
+    Type #1:
+    
+    set_reference_state(FluidName,reference_state)
+    
+	FluidName The name of the fluid
+	param reference_state The reference state to use, one of 
+    
+    ==========   ===========================================
+    ``IIR``      (h=200 kJ/kg, s=1 kJ/kg/K at 0C sat. liq.)
+    ``ASHRAE``   (h=0,s=0 @ -40C sat liq)
+    ``NBP``      (h=0,s=0 @ 1.0 bar sat liq.)
+    ==========   ============================================
+    
+    Type #2:
+    
+    set_reference_state(FluidName,T0,rho0,h0,s0)
+    
+	``FluidName`` The name of the fluid
+    
+	``T0`` The temperature at the reference point [K]
+    
+    ``rho0`` The density at the reference point [kg/m^3]
+    
+    ``h0`` The enthalpy at the reference point [J/kg]
+    
+    ``s0`` The entropy at the reference point [J/kg]
+    """
+    
+    cdef bytes _name = FluidName.encode('ascii')
+    cdef bytes _param
+    cdef int retval
+    
+    if len(args) == 1:
+        _param = args[0].encode('ascii')
+        retval = _set_reference_stateS(_name, _param)
+    elif len(args) == 4:
+        retval = _set_reference_stateD(_name, args[0], args[1], args[2], args[3])
+    else:
+        raise ValueError('Invalid number of inputs')
+    
+    if retval < 0:
+        raise ValueError('Unable to set reference state')
+        
 cpdef add_REFPROP_fluid(str FluidName):
     """
     Add a REFPROP fluid to CoolProp internal structure
