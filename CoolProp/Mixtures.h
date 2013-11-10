@@ -92,6 +92,7 @@ public:
 	virtual double dphir_dxi(double tau, double delta, std::vector<double> *x, int i) = 0;
 	virtual double d2phir_dTau2(double tau, double delta, std::vector<double> *x) = 0;
 	virtual double d2phir_dxi_dTau(double tau, double delta, std::vector<double> *x, int i) = 0;
+	virtual void set_coeffs_from_map(std::map<std::string,std::vector<double> >) = 0;
 };
 
 class GERG2008DepartureFunction : public DepartureFunction
@@ -109,8 +110,8 @@ public:
 	double d2phir_dTau2(double tau, double delta, std::vector<double> *x);
 	double dphir_dxi(double tau, double delta, std::vector<double> *x, int i);
 	double d2phir_dxi_dTau(double tau, double delta, std::vector<double> *x, int i);
+	void set_coeffs_from_map(std::map<std::string,std::vector<double> >);
 };
-
 
 
 class ResidualIdealMixture
@@ -172,9 +173,9 @@ public:
 	
 	/*! Density as a function of T,p,z
 	@param T Temperature [K]
-	@param p Pressure [kPa]
+	@param p Pressure [Pa]
 	@param z Bulk mole fractions [-]
-	@param rhobar0 Guess value for molar density [mol/L]
+	@param rhobar0 Guess value for molar density [mol/m^3]
 	*/
 	double rhobar_Tpz(double T, double p, std::vector<double> *z, double rhobar0);
 
@@ -182,7 +183,7 @@ public:
 	@param T Temperature [K]
 	@param p Pressure [kPa]
 	@param z Bulk mole fractions [-]
-	@param rhobar Molar density [mol/L]
+	@param rhobar Molar density [mol/m^3]
 	@param x Liquid mole fractions [-] (if saturated)
 	@param y Vapor mole fractions [-] (if saturated)
 	*/
@@ -229,7 +230,14 @@ public:
 	/*! Calculate the mixture molar density based on the use of the Peng-Robinson equation of state
 	*/
 	double rhobar_pengrobinson(double T, double p, std::vector<double> *x, int solution);
+
+	/*! Load the excess (departure function parameters)
+	@param i 0-based index of first component
+	@param j 0-based index of second component
+	*/
+	std::map<std::string,std::vector<double> > load_excess_values(int i, int j);
 };
+
 
 
 #endif

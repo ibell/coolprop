@@ -6,10 +6,48 @@ import matplotlib.mlab as mlab
 
 import scipy.optimize
 import scipy.stats
-
+import random
 import h5py
 from templates import *
 
+indices = []
+class TermLibrary():
+    """
+    Build a term library using the coefficients from Wagner and Pruss (IAPWS95)
+    """
+    def __init__(self):
+        L,D,T = [],[],[]
+        
+        for i in range(1,6):
+            for j in range(-4,9):
+                T.append(float(j)/8.0)
+                D.append(float(i))
+                L.append(float(0))
+        for i in range(1,16):
+            for j in range(1,16):
+                T.append(float(j))
+                D.append(float(i))
+                L.append(float(1))
+        for i in range(1,13):
+            for j in range(1,11):
+                T.append(float(j))
+                D.append(float(i))
+                L.append(float(2))
+        for i in range(1,6):
+            for j in range(10,24):
+                T.append(float(j))
+                D.append(float(i))
+                L.append(float(3))
+        for i in range(1,10):
+            for j in range(10,21):
+                T.append(float(j))
+                D.append(float(i)*2)
+                L.append(float(4))
+        
+        self.T = T
+        self.D = D
+        self.L = L
+            
 from Helmholtz import helmholtz
 
 def rsquared(x, y):
@@ -21,51 +59,45 @@ def rsquared(x, y):
 def get_fluid_constants(Ref):
     if Ref == 'R407F':
         RefString = 'REFPROP-MIX:R32[0.47319469]&R125[0.2051091]&R134a[0.32169621]'
-        
-        #Values from R407C
-##         N0 = np.array([0,1.0588, -1.12018, 0.629064, -0.351953, 0.00455978, -1.75725, -1.12009, 0.0277353, 0.898881, -1.17591, 0.0818591, -0.0794097, -0.000014047, 0.233779, -0.29179, 0.0154776, -0.0314579, -0.00442552, -0.0101254, 0.00915953, -0.00361575])
-        
-##         T = [0.6,1,5,1,7,0.3,0.7]
-##         D = [1.0,1,1,2,2,4,6]
-##         L = [0.0,0,0,0,0,0,0]
-        
-#         D = []
-#         L = []
-#         T = []
-#         
-#         for l in range(4):
-#             for d in range(9):
-#                 for t in range(4*l, 30, 5):
-#                     L.append(float(l))
-#                     D.append(float(d))
-#                     T.append(float(t)/8.0)
-#                
-#         D0 = np.array(D)
-#         L0 = np.array(L)
-#         T0 = np.array(T)
-#         N0 = 0.1*np.ones_like(D0)
-        
-        #Values from Span short(2003) (polar)
-        D0 = np.array([0, 1.0, 1.0, 1.0, 3.0, 7.0, 1.0, 2.0, 5.0, 1.0, 1.0, 4.0, 2.0])
-        L0 = np.array([0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 2.0, 2.0, 2.0, 3.0])
-        T0 = np.array([0, 0.25,  1.25,  1.5, 0.25,  0.875, 2.375, 2.0,   2.125, 3.5,   6.5,   4.75,  12.5])
-        N0 = 0.5*np.ones_like(D0)
-        
-##         D0 = np.array([0,1.0, 1, 1, 2, 5, 1, 2, 2, 3, 3, 5, 5, 5, 1, 1, 4, 4, 2, 4, 5, 6])
-##         L0 = np.array([0,0.0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3])
-        
-##         # values from R410A
-##         N0 = np.array([0.0, 0.987252, -1.03017, 1.17666, -0.138991, 0.00302373, -2.53639, -1.96680, -0.830480, 0.172477, -0.261116, -0.0745473, 0.679757, -0.652431, 0.0553849, -0.0710970, -0.000875332, 0.0200760, -0.0139761, -0.0185110, 0.0171939, -0.00482049])
-##         T0 = np.array([0.0,0.44,1.2,2.97,2.95,0.2,1.93,1.78,3.0,0.2,0.74,3.0,2.1,4.3,0.25,7.0,4.7,13.0,16.0,25.0,17.0,7.4])
-##         D0 = np.array([0,1.0,1,1,2,5,1,2,3,5,5,5,1,1,4,4,9,2,2,4,5,6])
-##         L0 = np.array([0,0.0,0,0,0,0,1,1,1,1,1,1,2,2,2,2,2,3,3,3,3,3])
     elif Ref == 'R410A':
         RefString = 'REFPROP-MIX:R32[0.6976147]&R125[0.3023853]'
-        # values from R410A
-        N0 = np.array([0.0, 0.987252, -1.03017, 1.17666, -0.138991, 0.00302373, -2.53639, -1.96680, -0.830480, 0.172477, -0.261116, -0.0745473, 0.679757, -0.652431, 0.0553849, -0.0710970, -0.000875332, 0.0200760, -0.0139761, -0.0185110, 0.0171939, -0.00482049])
-        T0 = np.array([0.0,0.44,1.2,2.97,2.95,0.2,1.93,1.78,3.0,0.2,0.74,3.0,2.1,4.3,0.25,7.0,4.7,13.0,16.0,25.0,17.0,7.4])
-        D0 = np.array([0,1.0,1,1,2,5,1,2,3,5,5,5,1,1,4,4,9,2,2,4,5,6])
-        L0 = np.array([0,0.0,0,0,0,0,1,1,1,1,1,1,2,2,2,2,2,3,3,3,3,3])
+        
+    LIBRARY = TermLibrary()
+    
+    # Coefficients for HFC blends
+    LIBRARY.N = np.array([9.87252E-01, -1.03017E+00, 1.17666E+00, 6.10984E+00, -7.79453E+00, 1.83377E-02, 1.05880E+00, -1.12018E+00, 6.29064E-01, 6.24982E+00, -8.07855E+00, 2.64843E-02, -2.53639E+00, 8.50922E-01, -5.20084E-01, -4.64225E-02, -1.75725E+00, 1.38469E+00, -9.22473E-01, -5.03562E-02, 6.79757E-01, -6.52431E-01, 2.33779E-01, -2.91790E-01, -1.38991E-01, 2.62270E-01, -3.51688E-03, -3.51953E-01, 2.86215E-01, -5.07076E-03, -1.96680E+00, 6.21190E-01, -1.95505E-01, -1.12009E+00, 2.77353E-02, 8.22098E-01, -2.77727E-01, -7.58262E-02, -8.15653E-02, 2.00760E-02, -1.39761E-02, 6.89437E-02, -4.42552E-03, 7.55927E-02, -8.30480E-01, 3.36159E-01, 8.98881E-01, -1.17591E+00, 3.58172E-01, -2.21041E-02, -2.33323E-02, -5.07525E-02, -5.42007E-02, 1.16181E-02, 1.09552E-02, -3.76062E-02, -1.26426E-02, 5.53849E-02, -7.10970E-02, 3.10441E-02, 1.32798E-02, 1.54776E-02, -3.14579E-02, 3.52952E-02, 1.59566E-02, -1.85110E-02, -1.01254E-02, 3.02373E-03, 4.55978E-03, 1.72477E-01, -2.61116E-01, -7.45473E-02, 8.18591E-02, -7.94097E-02, -1.04047E-05, 1.71939E-02, 1.61382E-02, 9.15953E-03, 1.70451E-02, 1.05992E-03, 1.16124E-03, -4.82049E-03, -3.61575E-03, -6.36579E-03, -6.07010E-03, -8.75332E-04])    
+    LIBRARY.T = np.array([0.44, 1.2, 2.97, 0.67, 0.91, 5.96, 0.241, 0.69, 2.58, 0.692, 0.943, 5.8, 1.93, 1.7, 3.3, 7, 2.15, 2, 3, 7, 2.1, 4.3, 3.3, 4.7, 2.95, 0.7, 6, 1.15, 0.77, 5.84, 1.78, 2.05, 4.3, 2.43, 5.3, 2.2, 4.3, 12, 12, 13, 16, 13, 16.2, 13, 3, 2.7, 0.76, 1.48, 2.7, 6, 6, 17, 17, 0.3, 0.24, 1.8, 1.2, 0.25, 7, 8.7, 11.6, 0.45, 8.4, 8.5, 11.5, 25, 26, 0.2, 0.248, 0.2, 0.74, 3, 0.24, 2.86, 8, 17, 16, 16, 16.2, 0.7, 0.69, 7.4, 8.7, 1.25, 1.23, 4.7])
+    LIBRARY.D = np.array([1.0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 6, 7, 7, 9])
+    LIBRARY.L = np.array([0.0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 2, 2, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 2, 2, 3, 3, 0, 0, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 0, 0, 1, 1, 1, 1, 1, 1, 3, 3, 3, 3, 0, 0, 3, 3, 1, 1, 2])
+    
+    global indices
+    indices = set()
+    while len(indices) < 23:
+        indices.add(random.randint(0, len(LIBRARY.T)-1))
+    print indices, len(LIBRARY.T)
+    
+    T0 = np.array([LIBRARY.T[i] for i in indices])
+    D0 = np.array([LIBRARY.D[i] for i in indices])
+    L0 = np.array([LIBRARY.L[i] for i in indices])
+    N0 = np.array([LIBRARY.N[i] for i in indices])
+               
+    # Values from Span short(2003) (polar)
+#    D0 = np.array([0, 1.0, 1.0, 1.0, 3.0, 7.0, 1.0, 2.0, 5.0, 1.0, 1.0, 4.0, 2.0])
+#    L0 = np.array([0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 2.0, 2.0, 2.0, 3.0])
+#    T0 = np.array([0, 0.25,  1.25,  1.5, 0.25,  0.875, 2.375, 2.0,   2.125, 3.5,   6.5,   4.75,  12.5])
+#    N0 = 0.5*np.ones_like(D0)
+    
+    # values from R410A
+#    N0 = np.array([0.0, 0.987252, -1.03017, 1.17666, -0.138991, 0.00302373, -2.53639, -1.96680, -0.830480, 0.172477, -0.261116, -0.0745473, 0.679757, -0.652431, 0.0553849, -0.0710970, -0.000875332, 0.0200760, -0.0139761, -0.0185110, 0.0171939, -0.00482049])
+#    T0 = np.array([0.0,0.44,1.2,2.97,2.95,0.2,1.93,1.78,3.0,0.2,0.74,3.0,2.1,4.3,0.25,7.0,4.7,13.0,16.0,25.0,17.0,7.4])
+#    D0 = np.array([0,1.0,1,1,2,5,1,2,3,5,5,5,1,1,4,4,9,2,2,4,5,6])
+#    L0 = np.array([0,0.0,0,0,0,0,1,1,1,1,1,1,2,2,2,2,2,3,3,3,3,3])
+    
+    # values from R407C
+#    N0 = np.array([0.0, 1.0588,-1.12018, 0.629064,-0.351953, 0.00455978,-1.75725,-1.12009, 0.0277353, 0.898881,-1.17591, 0.0818591,-0.0794097,-0.0000104047, 0.233779,-0.291790, 0.0154776,-0.0314579,-0.00442552,-0.0101254, 0.00915953,-0.003615])
+#    T0 = np.array([0.0,0.241,0.69,2.58,1.15,0.248,2.15,2.43,5.3,0.76,1.48,0.24,2.86,8.0,3.3,4.7,0.45,8.4,16.2,26.0,16.0,8.7])
+#    D0 = np.array([0.0,1,1,1,2,5,1,2,2,3,3,5,5,5,1,1,4,4,2,4,5,6])
+#    L0 = np.array([0.0,0,0,0,0,0,1,1,1,1,1,1,1,1,2,2,2,2,3,3,3,3])
         
     return RefString, N0, T0, D0, L0
 
@@ -147,7 +179,7 @@ class ResidualPartFitter(object):
             
             self.phir = helmholtz.phir_power(n, d, t, l, 0, 0)
             
-            PPF = self.evaluate_EOS(np.array(list(n)+list(t)))
+            PPF = self.evaluate_EOS(np.array(list(n)))
             
             R2 = rsquared(PPF.p,self.phir.dDeltaV(self.tauV,self.deltaV))
             
@@ -172,7 +204,7 @@ class ResidualPartFitter(object):
         rhoc = Props(self.RefString, 'rhocrit')
         TTT, RHO, PPP, CPP, CVV, AAA = [], [], [], [], [], []
         
-        for _T in np.linspace(220, 450, 300):
+        for _T in np.linspace(220, 450, 100):
             print _T
             for _rho in np.logspace(np.log10(1e-2), np.log10(rhoc), 100):
                 try:
@@ -261,14 +293,12 @@ class ResidualPartFitter(object):
     
     def evaluate_EOS(self, N):
         
-#         self.phir.n = helmholtz.vectord(N[0:len(N)//2])
-#         self.phir.t = helmholtz.vectord(N[len(N)//2::])
         self.phir.n = helmholtz.vectord(N)
         
-        dDelta = self.phir.dDeltaV(self.tauV,self.deltaV)
-        dTau2 = self.phir.dTau2V(self.tauV,self.deltaV)
-        dDelta2 = self.phir.dDelta2V(self.tauV,self.deltaV)
-        dDelta_dTau = self.phir.dDelta_dTauV(self.tauV,self.deltaV)
+        dDelta = self.phir.dDeltaV(self.tauV, self.deltaV)
+        dTau2 = self.phir.dTau2V(self.tauV, self.deltaV)
+        dDelta2 = self.phir.dDelta2V(self.tauV, self.deltaV)
+        dDelta_dTau = self.phir.dDelta_dTauV(self.tauV, self.deltaV)
         
         # Evaluate the pressure
         p = (self.rho*self.R*self.T)*(1 + self.delta*dDelta)
@@ -276,7 +306,7 @@ class ResidualPartFitter(object):
         cv_over_R = -self.tau**2*(self.d2phi0_dTau2 + dTau2)
         cv = cv_over_R*self.R
         # Evaluate the specific heat at constant pressure
-        cp_over_R = cv_over_R+(1+self.delta*dDelta-self.delta*self.tau*dDelta_dTau)**2/(1+2*self.delta*dDelta+self.delta**2*dDelta2)
+        cp_over_R = cv_over_R+(1.0+self.delta*dDelta-self.delta*self.tau*dDelta_dTau)**2/(1+2*self.delta*dDelta+self.delta**2*dDelta2)
         cp = cp_over_R*self.R
         # Evaluate the speed of sound
         w = np.sqrt(1000*self.R*self.T*cp_over_R/cv_over_R*(1+2*self.delta*dDelta+self.delta**2*dDelta2))
@@ -307,11 +337,12 @@ class ResidualPartFitter(object):
         w_cv_norm = w_cv/w_total
         w_cp_norm = w_cp/w_total
         w_w_norm = w_w/w_total
-        
-        residuals = np.r_[(PPF.p/self.p-1),w_cv_norm*(PPF.cv/self.cv-1),w_cp_norm*(PPF.cp/self.cp-1)]#,w_w_norm*(PPF.w**2/self.speed_sound**2-1)]
+        residuals = np.r_[(PPF.p/self.p-1),(PPF.cv/self.cv-1),(PPF.cp/self.cp-1)]#,(PPF.w**2/self.speed_sound**2-1)]
         RMS = np.sqrt(np.mean(np.power(residuals, 2)))
         
-        print 'RMS:',RMS, '% Max',np.max(residuals),'%'
+        print 'RMS:',RMS*100, '% Max',np.max(np.abs(residuals))*100,'%'
+        self.RMS = RMS
+        self.MaxError = np.max(np.abs(residuals))
         return RMS
     
     def fit(self):
@@ -324,18 +355,21 @@ class ResidualPartFitter(object):
         d = helmholtz.vectord(self.D0)
         t = helmholtz.vectord(self.T0)
         l = helmholtz.vectord(self.L0)
-        self.phir = helmholtz.phir_power(n, d, t, l, 1, 12)
+        self.phir = helmholtz.phir_power(n, d, t, l, 1, len(self.N0)-1)
         
         # Solve for the coefficients
         Nbounds = [(-10,10) for _ in range(len(self.N0))]
         tbounds = [(-1,30) for _ in range(len(self.T0))]
-        self.N = scipy.optimize.minimize(self.OBJECTIVE, np.array(list(self.N0)), bounds = Nbounds, options = dict(maxiter = 50)).x
-        #self.N = scipy.optimize.minimize(self.OBJECTIVE, np.array(list(self.N0)+list(self.T0)), method = 'L-BFGS-B', bounds = Nbounds + tbounds, options = dict(maxiter = 100)).x
+        print self.OBJECTIVE(np.array(list(self.N0)))
+        #self.N = self.N0
+        #self.N = scipy.optimize.minimize(self.OBJECTIVE, np.array(list(self.N0)), bounds = Nbounds, options = dict(maxiter = 5)).x
+        self.N = scipy.optimize.minimize(self.OBJECTIVE, np.array(list(self.N0)), method = 'L-BFGS-B', bounds = Nbounds, options = dict(maxiter = 100)).x
 
         # Write the coefficients to HDF5 file
         h = h5py.File('fit_coeffs.h5','w')
         grp = h.create_group(self.Ref)
         grp.create_dataset("n", data = np.array(self.N), compression = "gzip")
+        print self.N
         #grp.create_dataset("t", data = np.array(self.N[len(self.N)//2::]), compression = "gzip")
         h.close()
     
@@ -365,21 +399,26 @@ class ResidualPartFitter(object):
         n = grp.get('n').value
         h.close()
         
+        print n
+        
         import matplotlib.colors as colors
         cNorm  = colors.LogNorm(vmin=1e-3, vmax=50)
-        PPF = self.evaluate_EOS(np.array(list(n)+list(self.T0)))
+        PPF = self.evaluate_EOS(np.array(list(n)))
+        self.OBJECTIVE(np.array(list(n)))
         
+        print 'max error (p)',np.max(np.abs(PPF.p/self.p-1)*100),'%'
         SC1 = plt.scatter(self.rho, self.T, s = 8, c = np.abs(PPF.p/self.p-1)*100, edgecolors = 'none', cmap = plt.get_cmap('jet'), norm = cNorm)
         plt.gca().set_xscale('log')
         cb = plt.colorbar()
-        cb.set_label('np.abs(PPF.p/self.p-1)*100')
+        cb.set_label('abs(PPF.p/self.p-1)*100')
         plt.savefig('pressure.png')
         plt.show()
         
+        print 'max error (cp)',np.max(np.abs(PPF.cp/self.cp-1)*100),'%'
         SC1 = plt.scatter(self.rho, self.T, s = 8, c = np.abs(PPF.cp/self.cp-1)*100, edgecolors = 'none', cmap = plt.get_cmap('jet'), norm = cNorm)
         plt.gca().set_xscale('log')
         cb  = plt.colorbar()
-        cb.set_label('np.abs(PPF.cp/self.cp-1)*100')
+        cb.set_label('abs(PPF.cp/self.cp-1)*100')
         plt.savefig('cp.png')
         plt.show()
 
@@ -390,22 +429,29 @@ class ResidualPartFitter(object):
     
 class PPFFitterClass(object):
     
-    def __init__(self, Ref, regenerate_data = False, fit = True):
+    def __init__(self, Ref, regenerate_data = True, fit = True):
         
         self.Ref = Ref
         
         self.IPF = IdealPartFitter(Ref)
         self.IPF.fit()
+        for i in range(1):
     
-        self.RPF = ResidualPartFitter(Ref, IPF = self.IPF)
-        if regenerate_data:
-            self.RPF.generate_1phase_data()
+            self.RPF = ResidualPartFitter(Ref, IPF = self.IPF)
+            if regenerate_data:
+                self.RPF.generate_1phase_data()
             
-        self.RPF.load_data()
+            self.RPF.load_data()
         
-        if fit:
-            self.RPF.fit()
+            if fit:
+                self.RPF.fit()
+                
+            f = open('results.txt','a+')
+            print >> f, indices, self.RPF.RMS, self.RPF.MaxError
+            f.close()
+                
         self.RPF.check()
+        quit()
         self.output_files()
 
     def contour_plot(values):
@@ -484,12 +530,9 @@ class PPFFitterClass(object):
         f = open(self.IPF.Ref+'.cpp','w')
         f.write(code)
         f.close()
-        
-    
-
     
 if __name__=='__main__':
-    Ref = 'R407F'
+    Ref = 'R410A'
     
     PPFFitterClass(Ref)
 

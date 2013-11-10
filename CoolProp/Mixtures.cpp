@@ -2,11 +2,111 @@
 #include "Mixtures.h"
 #include "Solvers.h"
 #include "CPExceptions.h"
+#include "mixture_excess_JSON.h" // Loads the JSON code for the excess parameters, and makes a variable mixture_excess_JSON
+
+std::vector<double> JSON_double_array(const rapidjson::Value& a)
+{
+	std::vector<double> v;
+	for (rapidjson::Value::ConstValueIterator itrC = a.Begin(); itrC != a.End(); ++itrC)
+	{
+		v.push_back(itrC->GetDouble());
+	}
+	return v;
+}
+std::map<std::string,std::vector<double> > Mixture::load_excess_values(int i, int j)
+{
+	// Make an output map that maps the necessary keys to the arrays of values
+	std::map<std::string,std::vector<double> > outputmap;
+
+	std::string Model;
+	rapidjson::Document JSON;
+
+	JSON.Parse<0>(mixture_excess_JSON);
+	
+	// Iterate over the entries for the excess term
+	for (rapidjson::Value::ConstValueIterator itr = JSON.Begin(); itr != JSON.End(); ++itr)
+	{
+		// Get the Model
+		if (itr->HasMember("Model") && (*itr)["Model"].IsString())
+		{
+			Model = (*itr)["Model"].GetString();
+		}
+		else
+		{
+			throw ValueError("Model not included for excess term");
+		}
+
+		// Get the coefficients
+		if (itr->HasMember("Coeffs") && (*itr)["Coeffs"].IsArray())
+		{
+			const rapidjson::Value& Coeffs = (*itr)["Coeffs"];
+			
+			// Get the coeffs
+			for (rapidjson::Value::ConstValueIterator itrC = Coeffs.Begin(); itrC != Coeffs.End(); ++itrC)
+			{
+				std::string Name1,Name2,CAS1,CAS2;
+				std::vector<std::string> Names1, Names2, CASs1, CASs2;
+
+				if (itrC->HasMember("Name1") && (*itrC)["Name1"].IsString() && itrC->HasMember("Name2") && (*itrC)["Name2"].IsString())
+				{
+					Name1 = (*itrC)["Name1"].GetString();
+					Name2 = (*itrC)["Name2"].GetString();
+					CAS1 = (*itrC)["CAS1"].GetString();
+					CAS2 = (*itrC)["CAS2"].GetString();
+				}
+				else if (itrC->HasMember("Names1") && (*itrC)["Names1"].IsArray() && itrC->HasMember("Names2") && (*itrC)["Names2"].IsArray())
+				{
+					std::cout << format("Not currently supporting lists of components in excess terms\n").c_str();
+					continue;
+				}				
+				std::string FluidiCAS = pFluids[i]->params.CAS, FluidjCAS = pFluids[j]->params.CAS;
+
+				// Check if CAS codes match with either the i,j or j,i fluids
+				if (
+					(!(FluidiCAS.compare(CAS1)) && !(FluidjCAS.compare(CAS2)))
+					||
+					(!(FluidjCAS.compare(CAS1)) && !(FluidiCAS.compare(CAS2)))
+				   )
+				{
+					// See if it is the GERG-2008 formulation
+					if (!Model.compare("Kunz-JCED-2012"))
+					{
+						const rapidjson::Value& _n = (*itrC)["n"];
+						outputmap.insert(std::pair<std::string,std::vector<double> >("n",JSON_double_array(_n)));
+						const rapidjson::Value& _t = (*itrC)["t"];
+						outputmap.insert(std::pair<std::string,std::vector<double> >("t",JSON_double_array(_t)));
+						const rapidjson::Value& _d = (*itrC)["d"];
+						outputmap.insert(std::pair<std::string,std::vector<double> >("d",JSON_double_array(_d)));
+						const rapidjson::Value& _eta = (*itrC)["eta"];
+						outputmap.insert(std::pair<std::string,std::vector<double> >("eta",JSON_double_array(_eta)));
+						const rapidjson::Value& _epsilon = (*itrC)["epsilon"];
+						outputmap.insert(std::pair<std::string,std::vector<double> >("epsilon",JSON_double_array(_epsilon)));
+						const rapidjson::Value& _beta = (*itrC)["beta"];
+						outputmap.insert(std::pair<std::string,std::vector<double> >("beta",JSON_double_array(_beta)));
+						const rapidjson::Value& _gamma = (*itrC)["gamma"];
+						outputmap.insert(std::pair<std::string,std::vector<double> >("gamma",JSON_double_array(_gamma)));
+
+						return outputmap;
+					}
+					else
+					{
+						throw ValueError(format("This model %s is not currently supported\n",Model).c_str());
+					}
+				}
+			}
+		}
+		else
+		{
+			throw ValueError("Coeffs not included for excess term");
+		}
+	}
+	return outputmap;
+};
 
 enum PengRobinsonOptions{PR_SATL, PR_SATV};
 Mixture::Mixture(std::vector<Fluid *> pFluids)
 {
-	Rbar = 8314.472;
+	Rbar = 8.314472;
 	this->pFluids = pFluids;
 	
 	std::vector<double> z(2, 0.5);
@@ -39,20 +139,23 @@ Mixture::Mixture(std::vector<Fluid *> pFluids)
 		}
 	}
 
-	//// R32/R134a using form from Lemmon
-	//double F_ij = 1.0; // -
-	//double zeta_ij = 7.909; // K
-	//double xi_ij = -0.002039; // [dm^3/mol] or [L/mol]
-	//double N[] = {0,0.22909, 0.094074, 0.00039876, 0.021113};
-	//double t[] = {0,1.9, 0.25, 0.07, 2.0};
-	//double d[] = {0,1,3,8,1};
-	//double l[] = {0,1,1,1,2};
-
 	STLMatrix F;
 	F.resize(z.size(),std::vector<double>(z.size(),1.0));
-	/// Methane-Ethane
+
 	pReducing = new GERG2008ReducingFunction(pFluids, beta_v, gamma_v, beta_T, gamma_T);
-	pExcess = new GERG2008DepartureFunction(F);
+	pExcess = new GERG2008DepartureFunction(F);  // This should be a matrix unfortunately, one entry for each binary pair
+	
+	/*for (unsigned int i = 0; i < z.size(); i++)
+	{
+		for (unsigned int j = 0; j < z.size(); j++)
+		{
+			if (i != j)
+			{
+				pExcess->set_coeffs_from_map(load_excess_values(i,j));
+			}
+		}
+	}*/
+	
 	pResidualIdealMix = new ResidualIdealMixture(pFluids);
 
 	double Tr = pReducing->Tr(&z);
@@ -60,10 +163,9 @@ Mixture::Mixture(std::vector<Fluid *> pFluids)
 	double dTr_dxi = pReducing->dTr_dxi(&z,1);
 	double rhorbar_dxi = pReducing->drhorbar_dxi(&z,1);
 
-	double T = 200;
-	double rhobar = 0.5;
+	double T = 200; //K
+	double rhobar = 0.0002; //mol/m^3
 	double tau = Tr/T;
-	double Rbar = 8.314472;
 	double delta = rhobar/rhorbar;
 
 	double _dphir_dDelta = dphir_dDelta(tau,delta,&z);
@@ -74,13 +176,12 @@ Mixture::Mixture(std::vector<Fluid *> pFluids)
 	_t1 = clock();
 	for (unsigned long long i = 1; i<N; i++)
 	{
-		z[0] = z[0]+1e-100*i;
+		z[0] = z[0]+1e-16*i;
 		Tr = pReducing->Tr(&z);
 	}
 	_t2=clock();
 	double telap = ((double)(_t2-_t1))/CLOCKS_PER_SEC/(double)N*1e6;
 	std::cout << "elap" << telap << std::endl;
-
 
 	double tau_liq = 0.5;
 	double delta_liq  = 0.5;
@@ -95,9 +196,9 @@ Mixture::Mixture(std::vector<Fluid *> pFluids)
 	for (double x0 = 0; x0 <= 1.000000000000001; x0 += 0.01)
 	{
 		z[0] = x0; z[1] = 1-x0;
-		Tsat = saturation_p(TYPE_BUBBLEPOINT, 1000, &z, &x, &y);
+		Tsat = saturation_p(TYPE_BUBBLEPOINT, 1000000, &z, &x, &y);
 		std::cout << format("%g %g %g %g",x0,Tsat,y[0],y[1]).c_str();
-		Tsat = saturation_p(TYPE_DEWPOINT, 1000, &z, &x, &y);
+		Tsat = saturation_p(TYPE_DEWPOINT, 1000000, &z, &x, &y);
 		std::cout << format(" %g %g %g",Tsat,x[0],x[1]).c_str()	;
 			
 		std::cout << std::endl;
@@ -255,7 +356,7 @@ public:
 		Tr = Mix->pReducing->Tr(x);
 		rhorbar = Mix->pReducing->rhorbar(x);
 		tau = Tr/T;
-		Rbar = 8.314472; // kJ/kmol/K
+		Rbar = 8.314472; // J/mol/K
 	};
 	double call(double rhobar){	
 		double delta = rhobar/rhorbar;
@@ -347,7 +448,11 @@ double Mixture::saturation_p(int type, double p, std::vector<double> *z, std::ve
 				T = Secant(&Resid, T_guess, 0.001, 1e-10, 100, &errstr);
 				if (!ValidNumber(T)){throw ValueError();}
 				break;
-			} catch (CoolPropBaseError) {}
+			} 
+			catch (CoolPropBaseError) 
+			{
+				double eee = 0;
+			}
 		}
 	}
 	else if (type == TYPE_DEWPOINT)
@@ -842,6 +947,41 @@ double GERG2008DepartureFunction::d2phir_dxi_dTau(double tau, double delta, std:
 		}
 	}
 	return summer;
+}
+void GERG2008DepartureFunction::set_coeffs_from_map(std::map<std::string,std::vector<double> > m)
+{
+	std::vector<double> n = m.find("n")->second;
+	std::vector<double> t = m.find("t")->second;
+	std::vector<double> d = m.find("d")->second;
+	std::vector<double> eta = m.find("eta")->second;
+	std::vector<double> epsilon = m.find("epsilon")->second;
+	std::vector<double> beta = m.find("beta")->second;
+	std::vector<double> gamma = m.find("gamma")->second;
+
+	int iStart = 0;
+	while (eta[iStart+1] < 0.5)
+	{
+		iStart++;
+	}
+
+	phi1 = phir_power(n,d,t,1,iStart);
+	phi2 = phir_GERG2008_gaussian(n,d,t,eta,epsilon,beta,gamma,iStart+1,eta.size()-1);
+
+	//std::map<std::string,std::vector<double> >::iterator it;
+	//// Try to find using the ma
+	//it = m.find("t")->second;
+	//// If it is found the iterator will not be equal to end
+	//if (it != param_map.end() )
+	//{
+
+	//}
+	//// Try to find using the map
+	//it = m.find("n");
+	//// If it is found the iterator will not be equal to end
+	//if (it != param_map.end() )
+	//{
+
+	//}
 }
 
 
