@@ -26,6 +26,8 @@ public:
 	virtual double rhorbar(std::vector<double> *x) = 0;
 	///Derivative of the molar reducing density with respect to component i mole fraction
 	virtual double drhorbar_dxi(std::vector<double> *x, int i) = 0;
+	/// Set the coefficients based on reducing parameters loaded from JSON
+	virtual void set_coeffs_from_map(int i, int j, std::map<std::string,double >) = 0;
 };
 
 /*! 
@@ -51,6 +53,16 @@ public:
 		this->gamma_T = gamma_T;
 		this->N = pFluids.size();
 	};
+	GERG2008ReducingFunction(std::vector<Fluid *> pFluids)
+	{
+		this->pFluids = pFluids;
+		this->N = pFluids.size();
+		/// Resize reducing parameter matrices to be the same size as x in both directions
+		beta_v.resize(N,std::vector<double>(N,0));
+		gamma_v.resize(N,std::vector<double>(N,0));
+		beta_T.resize(N,std::vector<double>(N,0));
+		gamma_T.resize(N,std::vector<double>(N,0));
+	};
 	/// Default destructor
 	~GERG2008ReducingFunction(){};
 	/// The reduced temperature
@@ -61,6 +73,8 @@ public:
 	double rhorbar(std::vector<double> *x);
 	///Derivative of the molar reducing density with respect to component i mole fraction
 	double drhorbar_dxi(std::vector<double> *x, int i);
+	/// Set the coefficients based on reducing parameters loaded from JSON
+	void set_coeffs_from_map(int i, int j, std::map<std::string,double >);
 };
 
 
@@ -75,12 +89,8 @@ The abstract base class for departure functions for the excess part of the Helmh
 */
 class DepartureFunction
 {
-protected:
-	STLMatrix F; //!< The \f$ F_{ij} \f$ matrix
 public:
 	DepartureFunction(){};
-	/// Instantiator for the ABC for the DepartureFunction
-	DepartureFunction(std::vector<Fluid *> pFluids);
 	virtual ~DepartureFunction(){};
 	
 	/// The excess Helmholtz energy of the binary pair
@@ -89,9 +99,7 @@ public:
 	virtual double dphir_dDelta(double tau, double delta, std::vector<double> *x) = 0;
 	virtual double d2phir_dDelta_dTau(double tau, double delta, std::vector<double> *x) = 0;
 	virtual double dphir_dTau(double tau, double delta, std::vector<double> *x) = 0;
-	virtual double dphir_dxi(double tau, double delta, std::vector<double> *x, int i) = 0;
 	virtual double d2phir_dTau2(double tau, double delta, std::vector<double> *x) = 0;
-	virtual double d2phir_dxi_dTau(double tau, double delta, std::vector<double> *x, int i) = 0;
 	virtual void set_coeffs_from_map(std::map<std::string,std::vector<double> >) = 0;
 };
 
@@ -101,16 +109,34 @@ protected:
 	phir_power phi1;
 	phir_GERG2008_gaussian phi2;
 public:
-	GERG2008DepartureFunction(STLMatrix F);
+	GERG2008DepartureFunction(){};
 	~GERG2008DepartureFunction(){};
 	double phir(double tau, double delta, std::vector<double> *x);
 	double dphir_dDelta(double tau, double delta, std::vector<double> *x);
 	double d2phir_dDelta_dTau(double tau, double delta, std::vector<double> *x);
 	double dphir_dTau(double tau, double delta, std::vector<double> *x);
 	double d2phir_dTau2(double tau, double delta, std::vector<double> *x);
+	void set_coeffs_from_map(std::map<std::string,std::vector<double> >);
+};
+
+class ExcessTerm
+{
+public:
+	int N;
+	std::vector<std::vector<DepartureFunction*> > DepartureFunctionMatrix;
+	std::vector<std::vector<double> > F;
+	ExcessTerm(int N);
+	~ExcessTerm();
+	double phir(double tau, double delta, std::vector<double> *x);
+	double dphir_dDelta(double tau, double delta, std::vector<double> *x);
+	//double d2phir_dDelta2(double tau, double delta, std::vector<double> *x);
+	double d2phir_dDelta_dTau(double tau, double delta, std::vector<double> *x);
+	double dphir_dTau(double tau, double delta, std::vector<double> *x);
+	double d2phir_dTau2(double tau, double delta, std::vector<double> *x);
 	double dphir_dxi(double tau, double delta, std::vector<double> *x, int i);
 	double d2phir_dxi_dTau(double tau, double delta, std::vector<double> *x, int i);
-	void set_coeffs_from_map(std::map<std::string,std::vector<double> >);
+	double d2phir_dxi_dDelta(double tau, double delta, std::vector<double> *x, int i);
+	void set_coeffs_from_map(int i, int j, std::map<std::string,std::vector<double> >);
 };
 
 
@@ -132,11 +158,9 @@ public:
 
 
 
-
 /*! 
 This is the class that actually implements the mixture properties
 */
-
 class Mixture
 {
 	
@@ -149,7 +173,7 @@ public:
 
 	std::vector<Fluid *> pFluids;
 	ReducingFunction * pReducing;
-	DepartureFunction * pExcess;
+	ExcessTerm * pExcess;
 	ResidualIdealMixture * pResidualIdealMix;
 
 	/*! Returns the natural logarithm of K for component i using the method from Wilson as in
@@ -231,13 +255,18 @@ public:
 	*/
 	double rhobar_pengrobinson(double T, double p, std::vector<double> *x, int solution);
 
-	/*! Load the excess (departure function parameters)
+	/*! Load the excess parameters (departure function parameters)
 	@param i 0-based index of first component
 	@param j 0-based index of second component
 	*/
 	std::map<std::string,std::vector<double> > load_excess_values(int i, int j);
-};
 
+	/*! Load the reducing parameters
+	@param i 0-based index of first component
+	@param j 0-based index of second component
+	*/
+	std::map<std::string, double> load_reducing_values(int i, int j);
+};
 
 
 #endif

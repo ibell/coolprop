@@ -16,7 +16,7 @@ From Lemmon, JPCRD, 2000 for the properties of Dry Air, and also from Lemmon, JP
 
     T_r(\bar x) = \sum_{i=1}^mx_iT_{c_i}+\sum_{i=1}^{m-1}\sum_{j=i+1}^mx_ix_j\xi_{ij}
 
-From the GERG 2008 formulation (Kunz and Wagner, JPCRD, 2012)
+From the GERG 2008 formulation (Kunz and Wagner, JCED, 2012)
 
 .. math::
 

@@ -2,7 +2,8 @@
 #include "Mixtures.h"
 #include "Solvers.h"
 #include "CPExceptions.h"
-#include "mixture_excess_JSON.h" // Loads the JSON code for the excess parameters, and makes a variable mixture_excess_JSON
+#include "mixture_excess_JSON.h" // Loads the JSON code for the excess parameters, and makes a variable "std::string mixture_excess_JSON"
+#include "mixture_reducing_JSON.h" // Loads the JSON code for the reducing parameters, and makes a variable "std::string mixture_reducing_JSON"
 
 std::vector<double> JSON_double_array(const rapidjson::Value& a)
 {
@@ -13,6 +14,87 @@ std::vector<double> JSON_double_array(const rapidjson::Value& a)
 	}
 	return v;
 }
+std::map<std::string, double> Mixture::load_reducing_values(int i, int j)
+{
+	// Make an output map that maps the necessary keys to the arrays of values
+	std::map<std::string, double > outputmap;
+
+	std::string Model;
+	rapidjson::Document JSON;
+
+	JSON.Parse<0>(mixture_reducing_JSON.c_str());
+	
+	// Iterate over the entries for the excess term
+	for (rapidjson::Value::ConstValueIterator itr = JSON.Begin(); itr != JSON.End(); ++itr)
+	{
+		// Get the Model
+		if (itr->HasMember("Model") && (*itr)["Model"].IsString())
+		{
+			Model = (*itr)["Model"].GetString();
+		}
+		else
+		{
+			throw ValueError("Model not included for reducing term");
+		}
+
+		// Get the coefficients
+		if (itr->HasMember("Coeffs") && (*itr)["Coeffs"].IsArray())
+		{
+			const rapidjson::Value& Coeffs = (*itr)["Coeffs"];
+			
+			// Get the coeffs
+			for (rapidjson::Value::ConstValueIterator itrC = Coeffs.Begin(); itrC != Coeffs.End(); ++itrC)
+			{
+				std::string Name1,Name2,CAS1,CAS2;
+				std::vector<std::string> Names1, Names2, CASs1, CASs2;
+
+				if (itrC->HasMember("Name1") && (*itrC)["Name1"].IsString() && itrC->HasMember("Name2") && (*itrC)["Name2"].IsString())
+				{
+					Name1 = (*itrC)["Name1"].GetString();
+					Name2 = (*itrC)["Name2"].GetString();
+					CAS1 = (*itrC)["CAS1"].GetString();
+					CAS2 = (*itrC)["CAS2"].GetString();
+				}
+				else if (itrC->HasMember("Names1") && (*itrC)["Names1"].IsArray() && itrC->HasMember("Names2") && (*itrC)["Names2"].IsArray())
+				{
+					std::cout << format("Not currently supporting lists of components in excess terms\n").c_str();
+					continue;
+				}				
+				std::string FluidiCAS = pFluids[i]->params.CAS, FluidjCAS = pFluids[j]->params.CAS;
+
+				// Check if CAS codes match with either the i,j or j,i fluids
+				if (
+					(!(FluidiCAS.compare(CAS1)) && !(FluidjCAS.compare(CAS2)))
+					||
+					(!(FluidjCAS.compare(CAS1)) && !(FluidiCAS.compare(CAS2)))
+				   )
+				{
+					// See if it is the GERG-2008 formulation
+					if (!Model.compare("Kunz-JCED-2012"))
+					{
+						outputmap.insert(std::pair<std::string, double >("betaT",(*itrC)["betaT"].GetDouble()));
+						outputmap.insert(std::pair<std::string, double >("betaV",(*itrC)["betaV"].GetDouble()));
+						outputmap.insert(std::pair<std::string, double >("gammaT",(*itrC)["gammaT"].GetDouble()));
+						outputmap.insert(std::pair<std::string, double >("gammaV",(*itrC)["gammaV"].GetDouble()));
+						outputmap.insert(std::pair<std::string, double >("F",(*itrC)["F"].GetDouble()));
+
+						return outputmap;
+					}
+					else
+					{
+						throw ValueError(format("This model [%s] is not currently supported\n",Model).c_str());
+					}
+				}
+			}
+		}
+		else
+		{
+			throw ValueError("Coeffs not included for reducing term");
+		}
+	}
+	return outputmap;
+};
+
 std::map<std::string,std::vector<double> > Mixture::load_excess_values(int i, int j)
 {
 	// Make an output map that maps the necessary keys to the arrays of values
@@ -21,7 +103,7 @@ std::map<std::string,std::vector<double> > Mixture::load_excess_values(int i, in
 	std::string Model;
 	rapidjson::Document JSON;
 
-	JSON.Parse<0>(mixture_excess_JSON);
+	JSON.Parse<0>(mixture_excess_JSON.c_str());
 	
 	// Iterate over the entries for the excess term
 	for (rapidjson::Value::ConstValueIterator itr = JSON.Begin(); itr != JSON.End(); ++itr)
@@ -90,7 +172,7 @@ std::map<std::string,std::vector<double> > Mixture::load_excess_values(int i, in
 					}
 					else
 					{
-						throw ValueError(format("This model %s is not currently supported\n",Model).c_str());
+						throw ValueError(format("This model [%s] is not currently supported\n",Model).c_str());
 					}
 				}
 			}
@@ -106,57 +188,49 @@ std::map<std::string,std::vector<double> > Mixture::load_excess_values(int i, in
 enum PengRobinsonOptions{PR_SATL, PR_SATV};
 Mixture::Mixture(std::vector<Fluid *> pFluids)
 {
-	Rbar = 8.314491; // As in REFRPOP
+	// Make a copy of the list of pointers to fluids that compose this mixture
 	this->pFluids = pFluids;
+
+	STLMatrix F;
+	F.resize(pFluids.size(),std::vector<double>(pFluids.size(),1.0));
+
+	// One reducing function for the entire mixture
+	pReducing = new GERG2008ReducingFunction(pFluids);
+
+	// One Residual Ideal Mixture term
+	pResidualIdealMix = new ResidualIdealMixture(pFluids);
+
+	// A matrix of departure functions for each binary pair
+	pExcess = new ExcessTerm(pFluids.size());
+
+	for (unsigned int i = 0; i < pFluids.size(); i++)
+	{
+		for (unsigned int j = 0; j < pFluids.size(); j++)
+		{
+			if (i != j)
+			{
+				pExcess->DepartureFunctionMatrix[i][j] = new GERG2008DepartureFunction();
+				std::map<std::string, double > reducing_map = load_reducing_values(i, j);
+				std::map<std::string, std::vector<double> > excess_map = load_excess_values(i, j);
+
+				pExcess->set_coeffs_from_map(i, j, excess_map);
+				pReducing->set_coeffs_from_map(i, j, reducing_map);
+				// TODO: Load F factors into excess term
+			}
+		}
+	}
+
+	///         END OF INITIALIZATION
+	///         END OF INITIALIZATION
+	///         END OF INITIALIZATION
+	///         END OF INITIALIZATION
+	
+	Rbar = 8.314491; // As in REFRPOP TODO: weight based on mole fractions of each component
 	
 	std::vector<double> z(2, 0.5);
 
 	z[0] = 0.5;
 	z[1] = 1-z[0];
-
-	STLMatrix beta_v, gamma_v, beta_T, gamma_T;
-
-	/// Resize reducing parameter matrices to be the same size as x in both directions
-	beta_v.resize(z.size(),std::vector<double>(z.size(),0));
-	gamma_v.resize(z.size(),std::vector<double>(z.size(),0));
-	beta_T.resize(z.size(),std::vector<double>(z.size(),0));
-	gamma_T.resize(z.size(),std::vector<double>(z.size(),0));
-	
-	/// For now, only one combination is supported - binary Methane/Ethane
-	for (unsigned int i = 0; i < z.size(); i++)
-	{
-		for (unsigned int j = 0; j < z.size(); j++)
-		{
-			if ((!pFluids[i]->get_name().compare("Methane") && !pFluids[j]->get_name().compare("Ethane")) || 
-				(!pFluids[j]->get_name().compare("Methane") && !pFluids[i]->get_name().compare("Ethane"))
-				)
-			{
-				beta_v[i][j] = 0.997547866;
-				gamma_v[i][j] = 1.006617867;
-				beta_T[i][j] = 0.996336508;
-				gamma_T[i][j] = 1.049707697;
-			}
-		}
-	}
-
-	STLMatrix F;
-	F.resize(z.size(),std::vector<double>(z.size(),1.0));
-
-	pReducing = new GERG2008ReducingFunction(pFluids, beta_v, gamma_v, beta_T, gamma_T);
-	pExcess = new GERG2008DepartureFunction(F);  // This should be a matrix unfortunately, one entry for each binary pair
-	
-	/*for (unsigned int i = 0; i < z.size(); i++)
-	{
-		for (unsigned int j = 0; j < z.size(); j++)
-		{
-			if (i != j)
-			{
-				pExcess->set_coeffs_from_map(load_excess_values(i,j));
-			}
-		}
-	}*/
-	
-	pResidualIdealMix = new ResidualIdealMixture(pFluids);
 
 	double Tr = pReducing->Tr(&z); //[K]
 	double rhorbar = pReducing->rhorbar(&z); //[mol/m^3]
@@ -164,7 +238,7 @@ Mixture::Mixture(std::vector<Fluid *> pFluids)
 	double rhorbar_dxi = pReducing->drhorbar_dxi(&z,1);
 
 	double T = 200; // [K]
-	double rhobar = 1; // [mol/m^3] to convert from mol/L, multiply by 1000
+	double rhobar = 1; // [mol/m^3]; to convert from mol/L, multiply by 1000
 	double tau = Tr/T;
 	double delta = rhobar/rhorbar;
 
@@ -193,14 +267,14 @@ Mixture::Mixture(std::vector<Fluid *> pFluids)
 	//TpzFlash(T, p, z, &rhobar, &x, &y);
 
 	double Tsat;
+	double psat = 500e3;
 	for (double x0 = 0; x0 <= 1.000000000000001; x0 += 0.01)
 	{
 		z[0] = x0; z[1] = 1-x0;
-		Tsat = saturation_p(TYPE_BUBBLEPOINT, 1000000, &z, &x, &y);
+		Tsat = saturation_p(TYPE_BUBBLEPOINT, psat, &z, &x, &y);
 		std::cout << format("%g %g %g %g",x0,Tsat,y[0],y[1]).c_str();
-		Tsat = saturation_p(TYPE_DEWPOINT, 1000000, &z, &x, &y);
+		Tsat = saturation_p(TYPE_DEWPOINT, psat, &z, &x, &y);
 		std::cout << format(" %g %g %g",Tsat,x[0],x[1]).c_str()	;
-			
 		std::cout << std::endl;
 	}
 
@@ -357,7 +431,7 @@ public:
 		Tr = Mix->pReducing->Tr(x);
 		rhorbar = Mix->pReducing->rhorbar(x);
 		tau = Tr/T;
-		Rbar = 8.314472; // J/mol/K
+		Rbar = Mix->Rbar; // J/mol/K
 	};
 	double call(double rhobar){	
 		double delta = rhobar/rhorbar;
@@ -596,7 +670,7 @@ double Mixture::saturation_p(int type, double p, std::vector<double> *z, std::ve
 		}
 	}
 	while(abs(f) > 1e-8);
-	std::cout << iter << std::endl;
+	//std::cout << iter << std::endl;
 	return T;
 }
 void Mixture::TpzFlash(double T, double p, std::vector<double> *z, double *rhobar, std::vector<double> *x, std::vector<double> *y)
@@ -843,115 +917,60 @@ double GERG2008ReducingFunction::rhorbar(std::vector<double> *x)
 	}
 	return 1/vrbar;
 }
-
-GERG2008DepartureFunction::GERG2008DepartureFunction(STLMatrix F)
+void GERG2008ReducingFunction::set_coeffs_from_map(int i, int j, std::map<std::string,double > m)
 {
-	// TODO: get from JSON code or other
-	// Methane-Ethane
-	double d[] = {0, 3, 4, 1, 2, 2, 2, 2, 2, 2, 3, 3, 3};
-	double t[] = {0, 0.65, 1.55, 3.1, 5.9, 7.05, 3.35, 1.2, 5.8, 2.7, 0.45, 0.55, 1.95};
-	double n[] = {0, -8.0926050298746E-04, -7.5381925080059E-04, -4.1618768891219E-02, -2.3452173681569E-01, 1.4003840584586E-01, 6.3281744807738E-02, -3.4660425848809E-02, -2.3918747334251E-01, 1.9855255066891E-03, 6.1777746171555E+00, -6.9575358271105E+00, 1.0630185306388E+00};
-	double eta[] = {0, 0, 0, 1, 1, 1, 0.875, 0.75, 0.5, 0, 0, 0, 0};
-	double epsilon[] = {0, 0, 0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5};
-	double beta[] = {0, 0, 0, 1, 1, 1, 1.25, 1.5, 2, 3, 3, 3, 3};
-	double gamma[] = {0, 0, 0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5};
+	beta_v[i][j] = m.find("betaV")->second;
+	beta_T[i][j] = m.find("betaT")->second;
+	gamma_v[i][j] = m.find("gammaV")->second;
+	gamma_T[i][j] = m.find("gammaT")->second;
 
-	phi1 = phir_power(n,d,t,1,2,13);
-	phi2 = phir_GERG2008_gaussian(n,d,t,eta,epsilon,beta,gamma,3,12,13);
+	//std::map<std::string,std::vector<double> >::iterator it;
+	//// Try to find using the ma
+	//it = m.find("t")->second;
+	//// If it is found the iterator will not be equal to end
+	//if (it != param_map.end() )
+	//{
 
-	this->F = F;
+	//}
+	//// Try to find using the map
+	//it = m.find("n");
+	//// If it is found the iterator will not be equal to end
+	//if (it != param_map.end() )
+	//{
+
+	//}
 }
+
+//GERG2008DepartureFunction::GERG2008DepartureFunction()
+//{
+//	if (phi1 != NULL){
+//		delete phi1; phi1 = NULL;
+//	}
+//	if (phi2 != NULL){
+//		delete phi2; phi2 = NULL;
+//	}
+//}
 double GERG2008DepartureFunction::phir(double tau, double delta, std::vector<double> *x)
 {
-	double term = phi1.base(tau, delta) + phi2.base(tau, delta);
-	double summer = 0;
-	for (unsigned int i = 0; i < (*x).size()-1; i++)
-	{
-		for (unsigned int j = i + 1; j < (*x).size(); j++)
-		{	
-			summer += (*x)[i]*(*x)[j]*F[i][j]*term;
-		}
-	}
-	return summer;
+	return phi1.base(tau, delta) + phi2.base(tau, delta);
 }
 double GERG2008DepartureFunction::dphir_dDelta(double tau, double delta, std::vector<double> *x)
 {
-	double term = phi1.dDelta(tau, delta) + phi2.dDelta(tau, delta);
-	double summer = 0;
-	for (unsigned int i = 0; i < (*x).size()-1; i++)
-	{
-		for (unsigned int j = i + 1; j < (*x).size(); j++)
-		{	
-			summer += (*x)[i]*(*x)[j]*F[i][j]*term;
-		}
-	}
-	return summer;
+	return phi1.dDelta(tau, delta) + phi2.dDelta(tau, delta);
 }
 double GERG2008DepartureFunction::d2phir_dDelta_dTau(double tau, double delta, std::vector<double> *x)
 {
-	double term = phi1.dDelta_dTau(tau, delta) + phi2.dDelta_dTau(tau, delta);
-	double summer = 0;
-	for (unsigned int i = 0; i < (*x).size()-1; i++)
-	{
-		for (unsigned int j = i + 1; j < (*x).size(); j++)
-		{	
-			summer += (*x)[i]*(*x)[j]*F[i][j]*term;
-		}
-	}
-	return summer;
+	return phi1.dDelta_dTau(tau, delta) + phi2.dDelta_dTau(tau, delta);
 }
 double GERG2008DepartureFunction::dphir_dTau(double tau, double delta, std::vector<double> *x)
 {
-	double term = phi1.dTau(tau, delta) + phi2.dTau(tau, delta);
-	double summer = 0;
-	for (unsigned int i = 0; i < (*x).size()-1; i++)
-	{
-		for (unsigned int j = i + 1; j < (*x).size(); j++)
-		{	
-			summer += (*x)[i]*(*x)[j]*F[i][j]*term;
-		}
-	}
-	return summer;
+	return phi1.dTau(tau, delta) + phi2.dTau(tau, delta);
 }
 double GERG2008DepartureFunction::d2phir_dTau2(double tau, double delta, std::vector<double> *x)
 {
-	double term = phi1.dTau2(tau, delta) + phi2.dTau2(tau, delta);
-	double summer = 0;
-	for (unsigned int i = 0; i < (*x).size()-1; i++)
-	{
-		for (unsigned int j = i + 1; j < (*x).size(); j++)
-		{	
-			summer += (*x)[i]*(*x)[j]*F[i][j]*term;
-		}
-	}
-	return summer;
+	return phi1.dTau2(tau, delta) + phi2.dTau2(tau, delta);
 }
-double GERG2008DepartureFunction::dphir_dxi(double tau, double delta, std::vector<double> *x, int i)
-{
-	double summer = 0;
-	double term = phi1.base(tau, delta) + phi2.base(tau, delta);
-	for (unsigned int k = 0; k < (*x).size(); k++)
-	{
-		if (i != k)
-		{
-			summer += (*x)[k]*F[i][k]*term;
-		}
-	}
-	return summer;
-}
-double GERG2008DepartureFunction::d2phir_dxi_dTau(double tau, double delta, std::vector<double> *x, int i)
-{
-	double summer = 0;
-	double term = phi1.dTau(tau, delta) + phi2.dTau(tau, delta);
-	for (unsigned int k = 0; k < (*x).size(); k++)
-	{
-		if (i != k)
-		{
-			summer += (*x)[k]*F[i][k]*term;
-		}
-	}
-	return summer;
-}
+
 void GERG2008DepartureFunction::set_coeffs_from_map(std::map<std::string,std::vector<double> > m)
 {
 	std::vector<double> n = m.find("n")->second;
@@ -988,7 +1007,137 @@ void GERG2008DepartureFunction::set_coeffs_from_map(std::map<std::string,std::ve
 	//}
 }
 
+ExcessTerm::ExcessTerm(int N)
+{
+	F.resize(N,std::vector<double>(N,0));
+	DepartureFunctionMatrix.resize(N,std::vector<DepartureFunction*>(N,NULL));
+	this->N = N;
+}
+ExcessTerm::~ExcessTerm()
+{
+	for (int i = 0; i < N; i++)
+	{
+		for (int j = 0; j < N; j++)
+		{	
+			if (DepartureFunctionMatrix[i][j] != NULL)
+			{
+				delete DepartureFunctionMatrix[i][j]; DepartureFunctionMatrix[i][j] = NULL;
+			}
+		}
+	}
+}
 
+double ExcessTerm::phir(double tau, double delta, std::vector<double> *x)
+{
+	double summer = 0;
+	for (unsigned int i = 0; i < (*x).size()-1; i++)
+	{
+		for (unsigned int j = i + 1; j < (*x).size(); j++)
+		{	
+			summer += (*x)[i]*(*x)[j]*F[i][j]*DepartureFunctionMatrix[i][j]->phir(tau,delta,x);
+		}
+	}
+	return summer;
+}
+double ExcessTerm::dphir_dTau(double tau, double delta, std::vector<double> *x)
+{
+	double summer = 0;
+	for (unsigned int i = 0; i < (*x).size()-1; i++)
+	{
+		for (unsigned int j = i + 1; j < (*x).size(); j++)
+		{	
+			summer += (*x)[i]*(*x)[j]*F[i][j]*DepartureFunctionMatrix[i][j]->dphir_dTau(tau,delta,x);
+		}
+	}
+	return summer;
+}
+double ExcessTerm::dphir_dDelta(double tau, double delta, std::vector<double> *x)
+{
+	double summer = 0;
+	for (unsigned int i = 0; i < (*x).size()-1; i++)
+	{
+		for (unsigned int j = i + 1; j < (*x).size(); j++)
+		{	
+			summer += (*x)[i]*(*x)[j]*F[i][j]*DepartureFunctionMatrix[i][j]->dphir_dDelta(tau,delta,x);
+		}
+	}
+	return summer;
+}
+//double ExcessTerm::d2phir_dDelta2(double tau, double delta, std::vector<double> *x)
+//{
+//	double summer = 0;
+//	for (unsigned int i = 0; i < (*x).size()-1; i++)
+//	{
+//		for (unsigned int j = i + 1; j < (*x).size(); j++)
+//		{	
+//			summer += (*x)[i]*(*x)[j]*F[i][j]*DepartureFunctionMatrix[i][j]->d2phir_dDelta2(tau,delta,x);
+//		}
+//	}
+//}
+double ExcessTerm::d2phir_dTau2(double tau, double delta, std::vector<double> *x)
+{
+	double summer = 0;
+	for (unsigned int i = 0; i < (*x).size()-1; i++)
+	{
+		for (unsigned int j = i + 1; j < (*x).size(); j++)
+		{	
+			summer += (*x)[i]*(*x)[j]*F[i][j]*DepartureFunctionMatrix[i][j]->d2phir_dTau2(tau,delta,x);
+		}
+	}
+	return summer;
+}
+double ExcessTerm::d2phir_dDelta_dTau(double tau, double delta, std::vector<double> *x)
+{
+	double summer = 0;
+	for (unsigned int i = 0; i < (*x).size()-1; i++)
+	{
+		for (unsigned int j = i + 1; j < (*x).size(); j++)
+		{	
+			summer += (*x)[i]*(*x)[j]*F[i][j]*DepartureFunctionMatrix[i][j]->d2phir_dDelta_dTau(tau,delta,x);
+		}
+	}
+	return summer;
+}
+double ExcessTerm::dphir_dxi(double tau, double delta, std::vector<double> *x, int i)
+{
+	double summer = 0;
+	for (unsigned int k = 0; k < (*x).size(); k++)
+	{
+		if (i != k)
+		{
+			summer += (*x)[k]*F[i][k]*DepartureFunctionMatrix[i][k]->phir(tau,delta,x);
+		}
+	}
+	return summer;
+}
+double ExcessTerm::d2phir_dxi_dTau(double tau, double delta, std::vector<double> *x, int i)
+{
+	double summer = 0;
+	for (unsigned int k = 0; k < (*x).size(); k++)
+	{
+		if (i != k)
+		{
+			summer += (*x)[k]*F[i][k]*DepartureFunctionMatrix[i][k]->dphir_dTau(tau,delta,x);
+		}
+	}
+	return summer;
+}
+double ExcessTerm::d2phir_dxi_dDelta(double tau, double delta, std::vector<double> *x, int i)
+{
+	double summer = 0;
+	for (unsigned int k = 0; k < (*x).size(); k++)
+	{
+		if (i != k)
+		{
+			summer += (*x)[k]*F[i][k]*DepartureFunctionMatrix[i][k]->dphir_dDelta(tau,delta,x);
+		}
+	}
+	return summer;
+}
+void ExcessTerm::set_coeffs_from_map(int i, int j, std::map<std::string, std::vector<double> > m)
+{
+	DepartureFunctionMatrix[i][j]->set_coeffs_from_map(m);
+}
 
 ResidualIdealMixture::ResidualIdealMixture(std::vector<Fluid*> pFluids)
 {
