@@ -390,15 +390,15 @@ double EthylBenzeneClass::rhosatL(double T)
 }
 double EthylBenzeneClass::rhosatV(double T)
 {
-    // Maximum absolute error is 0.430690 % between 178.200001 K and 617.119990 K
-    const double ti[]={0,0.4150387035308935, 0.5921334814842657, 2.4316112759502557, 3.9039286150614494, 2.4445797475912574};
-    const double Ni[]={0,-2.6138578436692339, -1.8758825160832402, -250.15421395285367, -7.1651085385105544, 250.60121693432578};
+	// Max error is  0.190963092799 % between 178.2 and 617.119999 K
+    const double ti[]={0, 0.38, 0.38349999999999995, 0.3755, 1.6666666666666667, 3.6666666666666665, 4.5};
+    const double Ni[]={0, 2196.9520665341693, -1284.9856347722712, -916.25539265836221, -2.0744511223940281, -1.3166442564432972, -3.5997712997431308};
     double summer=0,theta;
     int i;
     theta=1.0-T/reduce.T;
-    for (i=1;i<=5;i++)
+    for (i=1;i<=6;i++)
     {
-        summer=summer+Ni[i]*pow(theta,ti[i]);
+        summer += Ni[i]*pow(theta,ti[i]);
     }
     return reduce.rho*exp(crit.T/T*summer);
 }

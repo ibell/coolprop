@@ -94,15 +94,15 @@ double DimethylCarbonateClass::rhosatL(double T)
 }
 double DimethylCarbonateClass::rhosatV(double T)
 {
-    // Maximum absolute error is 1.260499 % between 277.060001 K and 556.999990 K
-    const double ti[]={0,0.33841607864325307, 0.5933974580623832, 2.886748190301069, 2.9419516518946685, 3.7009082521243766};
-    const double Ni[]={0,-1.6096589892868987, -3.1404499566953206, -152.60727137415188, 163.13818237601296, -17.725607890477058};
+	// Max error is  0.152889150153 % between 277.06 and 556.999999 K
+    const double ti[]={0, 0.384, 0.38649999999999995, 0.39049999999999996, 1.1666666666666667, 1.6666666666666667, 5.0};
+    const double Ni[]={0, -8046.3851723522694, 13270.96908464885, -5230.1789590545313, 3.5069500792786417, -5.1611358518618955, -5.7960154390551759};
     double summer=0,theta;
     int i;
     theta=1.0-T/reduce.T;
-    for (i=1;i<=5;i++)
+    for (i=1;i<=6;i++)
     {
-        summer=summer+Ni[i]*pow(theta,ti[i]);
+        summer += Ni[i]*pow(theta,ti[i]);
     }
     return reduce.rho*exp(crit.T/T*summer);
 }

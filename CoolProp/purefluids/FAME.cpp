@@ -160,14 +160,15 @@ MethylStearateClass::MethylStearateClass()
 }
 double MethylStearateClass::psat(double T)
 {
-    // Maximum absolute error is 0.091329 % between 311.840000 K and 774.999990 K
-    const double t[]={0, 1, 2, 3, 4, 5, 7, 10, 16, 20};
-    const double N[]={0, 0.11195711141009881, -16.433903561479013, 25.008190643456508, -39.105513275035023, 25.800461204830423, -16.769754795540642, 1.2213419494418516, 6.6915822139660524, -19.601599729561766};
+	// Max error is  0.397566439203 % between 311.84 and 774.999999 K
+
+    const double t[]={0, 0.14300000000000002, 0.3585, 0.38599999999999995, 1.3333333333333333, 3.0, 6.5};
+    const double N[]={0, -1.9263224274547197, 52.202696741784585, -54.538101452238379, -5.5909231565565696, -7.4874462624058769, -6.5951175020983355};
     double summer=0,theta;
     theta=1-T/reduce.T;
-    for (int i=1;i<=8;i++)
+    for (int i=1;i<=6;i++)
     {
-        summer += N[i]*pow(theta,t[i]/2);
+        summer += N[i]*pow(theta,t[i]);
     }
     return reduce.p.Pa*exp(reduce.T/T*summer);
 }
@@ -356,14 +357,14 @@ MethylLinoleateClass::MethylLinoleateClass()
 }
 double MethylLinoleateClass::psat(double T)
 {
-    // Maximum absolute error is 0.055640 % between 238.100000 K and 798.999990 K
-    const double t[]={0, 1, 2, 3, 4, 5, 8, 10, 14, 23};
-    const double N[]={0, 0.065255172929352762, -11.948606719227248, 10.437230233816791, -14.996816572280739, 8.1052165119489565, -18.233024296391452, 9.4271410164889886, -5.3345256892493795, -15.419001781015103};
+	// Max error is  0.244108713916 % between 260.0 and 798.999999 K
+    const double t[]={0, 0.3555, 0.3755, 1.0, 4.5, 5.0, 7.833333333333333};
+    const double N[]={0, 3.112535413528013, -3.5179254519786887, -8.5946903762416351, -60.06552122814378, 60.4039958334563, -23.566970610754186};
     double summer=0,theta;
     theta=1-T/reduce.T;
-    for (int i=1;i<=8;i++)
+    for (int i=1; i<=6; i++)
     {
-        summer += N[i]*pow(theta,t[i]/2);
+        summer += N[i]*pow(theta,t[i]);
     }
     return reduce.p.Pa*exp(reduce.T/T*summer);
 }
@@ -385,17 +386,16 @@ double MethylLinoleateClass::rhosatL(double T)
 
 double MethylLinoleateClass::rhosatV(double T)
 {
-    // Maximum absolute error is 0.219323 % between 238.100000 K and 798.999990 K
-    const double t[] = {0, 0.16666666666666666, 0.3333333333333333, 0.5, 0.6666666666666666, 0.8333333333333334, 1.0, 1.1666666666666667, 1.5, 1.8333333333333333, 2.1666666666666665, 2.5, 3.0, 3.5, 4.333333333333333};
-    const double N[] = {0, 182.02164013991489, -6581.1151166952586, 76503.098421155271, -446187.40496668941, 1489052.6067237305, -2870272.4391661282, 2726541.0327074407, -2021632.1147072292, 2114447.0007634028, -1811402.8096443198, 970943.42363578791, -285472.36768498627, 68765.598672813911, -4919.045828483966};
+	// Max error is  0.245037263793 % between 260.0 and 798.999999 K
+    const double t[] = {0, 0.369, 0.39199999999999996, 1.5, 4.0, 8.5, 9.666666666666666};
+    const double N[] = {0, 16.679966544797427, -21.905607838963768, -3.2363141775511135, -14.340084125414874, 28.437620296244379, -43.146148011693199};
     double summer=0,theta;
     theta=1-T/reduce.T; 	
-	for (int i=1; i<=14; i++)
+	for (int i=1; i<=6; i++)
 	{
 		summer += N[i]*pow(theta,t[i]);
 	}
 	return reduce.rho*exp(reduce.T/T*summer);
-
 }
 
 MethylLinolenateClass::MethylLinolenateClass()

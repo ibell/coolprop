@@ -3,7 +3,6 @@
 #include "math.h"
 #include "MatrixMath.h"
 #include <iostream>
-#include "CPExceptions.h"
 #include "CoolPropTools.h"
 /**
 In this formulation of the Multi-Dimensional Newton-Raphson solver the Jacobian matrix is known.
@@ -48,6 +47,37 @@ std::vector<double> NDNewtonRaphson_Jacobian(FuncWrapperND *f, std::vector<doubl
 		iter++;
 	}
 	return x0;
+}
+
+/**
+In the newton function, a 1-D Newton-Raphson solver is implemented using exact solutions.  An initial guess for the solution is provided.
+
+@param f A pointer to an instance of the FuncWrapper1D class that implements the call() function 
+@param x0 The inital guess for the solution
+@param tol The absolute value of the tolerance accepted for the objective function
+@param maxiter Maximum number of iterations
+@param errstring A pointer to the std::string that returns the error from Secant.  Length is zero if no errors are found
+@returns If no errors are found, the solution, otherwise the value _HUGE, the value for infinity
+*/
+double Newton(FuncWrapper1D *f, double x0, double ftol, int maxiter, std::string *errstring)
+{
+	double x, dx, fval=999;
+    int iter=1;
+	*errstring=std::string("");
+	x = x0;
+    while ((iter < 2 || fabs(fval) > ftol) && iter < maxiter)
+    {
+		fval = f->call(x);
+		dx = -fval/f->deriv(x);
+		x += dx;
+		if (iter>maxiter)
+		{
+			*errstring=std::string("reached maximum number of iterations");
+			throw SolutionError(format("Newton reached maximum number of iterations"));
+		}
+        iter=iter+1;
+    }
+    return x;
 }
 
 /**

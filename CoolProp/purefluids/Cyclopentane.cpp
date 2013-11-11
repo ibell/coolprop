@@ -91,15 +91,15 @@ double CyclopentaneClass::rhosatL(double T)
 }
 double CyclopentaneClass::rhosatV(double T)
 {
-    // Maximum absolute error is 0.217987 % between 179.722001 K and 511.689990 K
-    const double ti[]={0,0.41941879364456292, 0.8939569891149981, 1.3470816230741856, 2.3876709991862666, 4.1671679952698675};
-    const double Ni[]={0,-2.402890010296737, -4.0634853640796225, 2.1226652638643659, -1.3549540289342585, -3.8648511713513294};
+	// Max error is  0.844247582929 % between 179.7 and 511.719999 K
+    const double ti[]={0, 0.361, 0.363, 0.377, 0.38049999999999995, 0.38849999999999996, 3.5};
+    const double Ni[]={0, -101264.5398463681, 139115.9812203733, -194012.43385236908, 183634.07798663978, -27477.719590339886, -4.5470018567666193};
     double summer=0,theta;
     int i;
     theta=1.0-T/reduce.T;
-    for (i=1;i<=5;i++)
+    for (i=1;i<=6;i++)
     {
-        summer=summer+Ni[i]*pow(theta,ti[i]);
+        summer += Ni[i]*pow(theta,ti[i]);
     }
     return reduce.rho*exp(crit.T/T*summer);
 }

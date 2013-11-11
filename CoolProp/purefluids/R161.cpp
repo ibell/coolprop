@@ -60,14 +60,14 @@ R161Class::R161Class()
 }
 double R161Class::psat(double T)
 {
-    // Maximum absolute error is 0.387581 % between 130.000000 K and 375.249990 K
-    const double t[]={0, 1, 2, 3, 7, 12};
-    const double N[]={0, -0.073478417180927152, -6.5662355274663859, 0.51799099058776976, -2.3027948463100398, -1.987070268218863};
+	// Max error is  0.230661857744 % between 130.0 and 375.249999 K
+    const double t[]={0, 0.3575, 0.3605, 0.8333333333333334, 1.1666666666666667, 3.6666666666666665, 5.5};
+    const double N[]={0, 0.31348208716072901, -0.23919030666253932, -3.2448016166944127, -3.2492132423845081, -1.5585118618296889, -2.427095112126342};
     double summer=0,theta;
     theta=1-T/reduce.T;
-    for (int i=1;i<=4;i++)
+    for (int i=1; i<=6; i++)
     {
-        summer += N[i]*pow(theta,t[i]/2);
+        summer += N[i]*pow(theta,t[i]);
     }
     return reduce.p.Pa*exp(reduce.T/T*summer);
 }

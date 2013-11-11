@@ -412,6 +412,7 @@ public:
 
 	gRR_resid(Mixture *Mix, std::vector<double> *z, std::vector<double> *lnK){ this->z=z; this->lnK = lnK; this->Mix = Mix; };
 	double call(double beta){return Mix->g_RachfordRice(z, lnK, beta); };
+	double deriv(double beta){return Mix->dgdbeta_RachfordRice(z, lnK, beta); };
 };
 
 /// A wrapper function around the density(T,p,x) residual
@@ -712,7 +713,7 @@ void Mixture::TpzFlash(double T, double p, std::vector<double> *z, double *rhoba
 
 	gRR_resid Resid(this,z,&lnK);
 	std::string errstr;
-	beta = Brent(&Resid,0,1,1e-16,1e-10,300,&errstr);
+	beta = Newton(&Resid,0,1e-10,300,&errstr);
 
 	// Evaluate mole fractions in liquid and vapor
 	for (unsigned int i = 0; i < N; i++)
@@ -829,6 +830,17 @@ double Mixture::g_RachfordRice(std::vector<double> *z, std::vector<double> *lnK,
 	{
 		double Ki = exp((*lnK)[i]);
 		summer += (*z)[i]*(Ki-1)/(1-beta+beta*Ki);
+	}
+	return summer;
+}
+double Mixture::dgdbeta_RachfordRice(std::vector<double> *z, std::vector<double> *lnK, double beta)
+{
+	// derivative of g function from Rashford-Rice with respect to beta
+	double summer = 0;
+	for (unsigned int i = 0; i < (*z).size(); i++)
+	{
+		double Ki = exp((*lnK)[i]);
+		summer += -(*z)[i]*pow((Ki-1)/(1-beta+beta*Ki),2);
 	}
 	return summer;
 }

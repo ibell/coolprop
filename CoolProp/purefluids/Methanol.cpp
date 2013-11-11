@@ -63,28 +63,30 @@ MethanolClass::MethanolClass()
 
 double MethanolClass::psat(double T)
 {
-    const double t[]={0, 1, 1.5, 2, 2.5};
-    const double N[]={0, -8.8738823, 2.3698322, -10.852598, -0.12446396};
-    double summer=0,theta;
-    theta=reduce.T/T-1;
-    for (int i=1;i<=5;i++)
+	// Max error is 0.122089793458 % between 175.61 and 512.599999 K
+    const double t[] = {0, 0.3333333333333333, 0.37, 1.0, 1.5, 1.6666666666666667, 3.5};
+    const double N[] = {0, 0.48654049801262333, -0.61445526792598626, -8.167446701151059, 2.6594046855903932, -3.0656782576281363, -1.9405155656589002};
+    double summer = 0, theta;
+    theta = 1 - T/reduce.T;
+    for (int i=1; i<=6; i++)
     {
-        summer += N[i]*pow(theta,t[i]);
+        summer += N[i]*pow(theta, t[i]);
     }
-    return reduce.p.Pa*exp(T/reduce.T*summer);
+    return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 
 double MethanolClass::rhosatL(double T)
 {
-    const double t[] = {0, 1.0/3.0, 2.0/3.0, 4.0/3.0, 11.0/3.0, 13.0/3.0};
-    const double N[] = {0, 1.8145364, 1.2703194, -1.0182657, 2.7562720, -1.8958692};
+	// Max error is  0.263423898373 % between 175.61 and 512.599999 K
+    const double t[] = {0, 0.124, 0.3545, 0.363, 0.3675, 0.371, 1.3333333333333333};
+    const double N[] = {0, 3.2055533370365001, -27533.588166355163, 154972.04835879192, -224483.68425839255, 97042.684103395717, -0.62377330131596043};
     double summer=0,theta;
-    theta=1-T/reduce.T;
-	for (int i=1; i<=5; i++)
+    theta = 1 - T/reduce.T;
+	for (int i=1; i<=6; i++)
 	{
 		summer += N[i]*pow(theta,t[i]);
 	}
-	return reduce.rho*(summer+1);
+	return reduce.rho*(reduce.T/T*(summer+1));
 }
 
 double MethanolClass::rhosatV(double T)

@@ -223,6 +223,16 @@ public:
 	*/
 	double g_RachfordRice(std::vector<double> *z, std::vector<double> *lnK, double beta);
 
+	/*! Objective function from Rachford-Rice (Not to be confused with the Gibbs function)
+	\f[
+	\frac{dg}{d\beta} = \sum_i z_i\frac{(K_i-1)^2}{(1-\beta+\beta K_i)^2};
+	\f]
+	@param z Bulk mole fractions [-]
+	@param lnK Logarithm of the K factor [-]
+	@param beta Molar fraction in the gas phase [-]
+	*/
+	double dgdbeta_RachfordRice(std::vector<double> *z, std::vector<double> *lnK, double beta);
+
 	/*! The derivative term
 	\f[
 	n\left(\frac{\partial \phi^r}{\partial n_i} \right)_{T,V,n_j}

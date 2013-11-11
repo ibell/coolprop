@@ -66,14 +66,14 @@ NeonClass::NeonClass()
 }
 double NeonClass::psat(double T)
 {
-    // Maximum absolute error is 0.090446 % between 24.556001 K and 44.491790 K
-    const double t[]={0, 1, 2, 3, 6};
-    const double N[]={0, 0.030056278177045211, -5.9517425005604085, 1.4556263648417147, -0.72769727713194987};
+    // Max error is  0.0338668363766 % between 24.56 and 44.491799 K
+    const double t[]={0, 0.373, 0.39149999999999996, 0.39199999999999996, 0.39699999999999996, 0.8333333333333334, 4.333333333333333};
+    const double N[]={0, -607.32379162883592, 125090.01843013773, -134770.7106365099, 10289.950413284598, -6.6808869319498001, -0.71410047975147495};
     double summer=0,theta;
     theta=1-T/reduce.T;
-    for (int i=1;i<=3;i++)
+    for (int i=1; i<=6; i++)
     {
-        summer += N[i]*pow(theta,t[i]/2);
+        summer += N[i]*pow(theta,t[i]);
     }
     return reduce.p.Pa*exp(reduce.T/T*summer);
 }

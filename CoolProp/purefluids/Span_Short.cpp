@@ -303,14 +303,14 @@ BibTeXKeys.CONDUCTIVITY = "Assael-JPCRD-2013B";
 }
 double nHexaneClass::psat(double T)
 {
-    // Maximum absolute error is 0.193723 % between 177.830000 K and 507.819990 K
-    const double t[]={0, 1, 2, 3, 5, 8, 14};
-    const double N[]={0, 0.04869724410462533, -7.8256464543590489, 2.2677267041105349, -2.6196768446816567, -1.9211350257974944, -1.0073711739749556};
+	// Max error is  0.105432451163 % between 177.83 and 507.819999 K
+    const double t[]={0, 0.051000000000000004, 1.0, 1.3333333333333333, 3.1666666666666665, 8.5, 9.666666666666666};
+    const double N[]={0, 0.0052535021674954144, -7.8062705612610275, 1.6043453368140383, -3.550385816986847, -7.245501435072093, 7.4818124089530356};
     double summer=0,theta;
     theta=1-T/reduce.T;
-    for (int i=1;i<=5;i++)
+    for (int i=1; i<=6; i++)
     {
-        summer += N[i]*pow(theta,t[i]/2);
+        summer += N[i]*pow(theta,t[i]);
     }
     return reduce.p.Pa*exp(reduce.T/T*summer);
 }
@@ -637,7 +637,7 @@ double nOctaneClass::rhosatV(double T)
     {
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
-    return reduce.rho*exp(summer);
+    return reduce.rho*exp(reduce.T/T*summer);
 }
 void nOctaneClass::ECSParams(double *e_k, double *sigma)
 {
@@ -944,14 +944,14 @@ CyclohexaneClass::CyclohexaneClass()
 }
 double CyclohexaneClass::psat(double T)
 {
-    // Maximum absolute error is 0.033475 % between 279.470000 K and 553.599990 K
-    const double t[]={0, 1, 2, 3, 5, 9};
-    const double N[]={0, -0.014771672065560456, -6.9136825715987378, 1.3578414838813773, -1.5545770315058565, -3.1163233704436242};
+	// Max error is  0.233590271792 % between 279.47 and 553.639999 K
+    const double t[]={0, 0.10300000000000001, 0.38049999999999995, 0.6666666666666666, 1.3333333333333333, 2.5, 5.833333333333333};
+    const double N[]={0, -0.17233802121779696, 1.2533304819707884, -4.1248342131116029, -3.4866469454507585, -0.72673516850438313, -5.2420350342080013};
     double summer=0,theta;
     theta=1-T/reduce.T;
-    for (int i=1;i<=4;i++)
+    for (int i=1; i<=6; i++)
     {
-        summer += N[i]*pow(theta,t[i]/2);
+        summer += N[i]*pow(theta,t[i]);
     }
     return reduce.p.Pa*exp(reduce.T/T*summer);
 }
@@ -972,12 +972,12 @@ double CyclohexaneClass::rhosatL(double T)
 
 double CyclohexaneClass::rhosatV(double T)
 {
-    // Maximum absolute error is 0.343857 % between 279.470000 K and 553.600000 K
-    const double t[] = {0, 0.6666666666666666, 0.8333333333333334, 1.0, 1.1666666666666667, 1.3333333333333333, 1.5, 1.6666666666666667, 1.8333333333333333};
-    const double N[] = {0, -16.708608611694629, -274.1448229981645, 2270.1138660773854, -7602.4527724648015, 13999.75175994959, -14927.464560876217, 8680.9478780508452, -2139.3601309540518};
+	// Max error is  0.146651285796 % between 279.47 and 553.639999 K
+    const double t[] = {0, 0.39149999999999996, 0.367, 0.3765, 0.38249999999999995, 0.38599999999999995, 4.0};
+    const double N[] = {0, -4200293.8657020703, -1003425.4737526291, 8818731.06305697, -25089440.984318022, 21474423.99292187, -4.8624843691761548};
     double summer=0,theta;
     theta=1-T/reduce.T;	    	
-	for (int i=1; i<=8; i++)
+	for (int i=1; i<=6; i++)
 	{
 		summer += N[i]*pow(theta,t[i]);
 	}
@@ -1060,9 +1060,10 @@ double R152AClass::rhosatL(double T)
 }
 double R152AClass::rhosatV(double T)
 {
-    // Maximum absolute error is 0.432737 % between 154.560001 K and 386.410990 K
-    const double ti[]={0,0.39328996069016242, 1.34023805881669, 2.3366092114916186, 2.1283456467084836, 9.8954288172996652, 6.1580648207424966};
-    const double Ni[]={0,-3.1436325184683249, -6.4620390519723454, -24.354179218952048, 25.871731405407377, 4.4935034132951062, -4.3621465013237293};
+	// Max error is  0.180395311787 % between 154.56 and 386.410999 K
+
+    const double ti[]={0, 0.098, 0.365, 0.378, 0.38, 0.38749999999999996, 3.6666666666666665};
+    const double Ni[]={0, -2.1665803273891777, 33129.223069368025, -600164.85585399868, 661053.48772902705, -94021.00606766867, -4.6394042521818628};
     double summer=0,theta;
     int i;
     theta=1.0-T/reduce.T;
@@ -1305,15 +1306,15 @@ R11Class::R11Class()
 }
 double R11Class::psat(double T)
 {
-    // Maximum absolute error is 0.027723 % between 162.680001 K and 471.109990 K
-    const double ti[]={0,1.0,1.5,2.3,3.6,5.2,7.3,9};
-    const double Ni[]={0,-6.9842594500439841, 1.9949514517876727, -2.6756240798963944, 2.7529403356933746, -9.6524000993633337, 11.060092872347456, -6.562902306656925 };
+	// Max error is  0.101004895012 % between 162.68 and 471.059999 K
+    const double ti[]={0, 0.07, 0.3755, 1.0, 2.0, 3.0, 6.166666666666667};
+    const double Ni[]={0, 0.015192240512549519, -0.073596807283158483, -6.4214975426915206, 1.4226706834098106, -3.0447362413765453, -1.7705707854921364};
     double summer=0,theta;
     int i;
     theta=1-T/reduce.T;
-    for (i=1;i<=7;i++)
+    for (i=1; i<=6; i++)
     {
-        summer=summer+Ni[i]*pow(theta,ti[i]);
+        summer += Ni[i]*pow(theta,ti[i]);
     }
     return reduce.p.Pa*exp(reduce.T/T*summer);
 }

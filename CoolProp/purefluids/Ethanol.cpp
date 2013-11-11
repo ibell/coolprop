@@ -67,14 +67,14 @@ EthanolClass::EthanolClass()
 
 double EthanolClass::psat(double T)
 {
-    // Maximum absolute error is 0.043440 % between 159.000000 K and 514.709990 K
-    const double t[]={0, 1, 2, 3, 4, 5, 7, 10, 15, 21, 29};
-    const double N[]={0, -0.070546949929892369, -7.8769956873747331, -3.3718025009937751, 15.059294948757973, -28.013660686136252, 26.312311986932915, -26.470161878191981, 29.090882227850482, -32.75027309420534, 22.829887834736827};
+	// Max error is 0.154273932042 % between 159.1 and 514.709999 K
+    const double t[]={0, 0.3605, 0.38849999999999996, 0.6666666666666666, 1.5, 3.6666666666666665, 4.5};
+    const double N[]={0, -8.2788207906814932, 10.83033509798233, -6.8342277418303254, -6.0614798949521802, -0.97142162954895606, -0.6904804605817787};
     double summer=0,theta;
     theta=1-T/reduce.T;
-    for (int i=1;i<=9;i++)
+    for (int i=1;i<=6;i++)
     {
-        summer += N[i]*pow(theta,t[i]/2);
+        summer += N[i]*pow(theta,t[i]);
     }
     return reduce.p.Pa*exp(reduce.T/T*summer);
 }

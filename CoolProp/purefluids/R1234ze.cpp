@@ -144,15 +144,15 @@ R1234zeClass::R1234zeClass()
 }
 double R1234zeClass::psat(double T)
 {
-    // Maximum absolute error is 0.028234 % between 168.620001 K and 382.519990 K
-    const double ti[]={0,1.0,1.5,2.3,3.6,5.2,7.3};
-    const double Ni[]={0,-7.6110008912993861, 1.9964392788056975, -2.3807295148484506, -0.34611211743257886, -4.3951234494260758, 3.0431424571889147 };
+	// Max error is  0.164450626904 % between 168.62 and 382.519999 K
+    const double ti[]={0, 0.3333333333333333, 0.39799999999999996, 0.38149999999999995, 1.1666666666666667, 2.5, 2.8333333333333335};
+    const double Ni[]={0, -8.3421563693432379, -40.706881720081284, 47.898700907115519, -6.9428753841743065, 12.088882106622243, -14.335385281674474};
     double summer=0,theta;
     int i;
-    theta=1-T/reduce.T;
-    for (i=1;i<=6;i++)
+    theta=1 - T/reduce.T;
+    for (i=1; i<=6; i++)
     {
-        summer=summer+Ni[i]*pow(theta,ti[i]);
+        summer += Ni[i]*pow(theta,ti[i]);
     }
     return reduce.p.Pa*exp(reduce.T/T*summer);
 }
@@ -271,14 +271,14 @@ R1234zeZClass::R1234zeZClass()
 }
 double R1234zeZClass::psat(double T)
 {
-    // Maximum absolute error is 0.092456 % between 273.000000 K and 423.207000 K
-    const double t[]={0, 1, 2, 3, 7};
-    const double N[]={0, -0.046787485835219293, -7.2639320231259275, 0.72400611949866267, -3.6201632587245687};
+    // Max error is  0.0362197220329 % between 273.0 and 423.269999 K
+    const double t[]={0, 0.3675, 0.378, 0.8333333333333334, 1.1666666666666667, 3.5, 7.5};
+    const double N[]={0, -3.4204004387395877, 3.7549450936800288, -4.2137431456192225, -3.0120279217374324, -2.6348957942753826, -6.8247581635654191};
     double summer=0,theta;
     theta=1-T/reduce.T;
-    for (int i=1;i<=3;i++)
+    for (int i=1; i<=6; i++)
     {
-        summer += N[i]*pow(theta,t[i]/2);
+        summer += N[i]*pow(theta,t[i]);
     }
     return reduce.p.Pa*exp(reduce.T/T*summer);
 }

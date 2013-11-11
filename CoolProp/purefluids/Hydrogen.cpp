@@ -209,15 +209,16 @@ double HydrogenClass::rhosatL(double T)
 }
 double HydrogenClass::rhosatV(double T)
 {
-	double theta = 1-T/reduce.T;
-	double RHS,rho;
-	// Max error is 2.044809 %
-	RHS = -1.120772*pow(theta,0.3)
-          -4.767213*pow(theta,0.9)
-          +1.108207*pow(theta,1.5)
-          -11.752668*pow(theta,3.2);
-	rho = exp(RHS)*reduce.rho;
-	return rho;
+	// Max error is  0.213338271447 % between 13.957 and 33.144999 K
+    const double t[] = {0, 0.3525, 0.3565, 0.367, 0.3765, 0.39249999999999996, 1.3333333333333333};
+	const double N[] = {0, -426795.37901103671, 810857.2657358282, -721220.63750821573, 392092.37071915239, -54938.300252502217, 1.9072707235406241};
+    double summer=0,theta;
+    theta=1-T/reduce.T;    	
+	for (int i=1; i<=6; i++)
+	{
+		summer += N[i]*pow(theta,t[i]);
+	}
+	return reduce.rho*exp(reduce.T/T*summer);
 }
 
 double HydrogenClass::conductivity_Trho(double T, double rho)
@@ -355,14 +356,15 @@ ParaHydrogenClass::ParaHydrogenClass()
 
 double ParaHydrogenClass::psat(double T)
 {
-    // Maximum absolute error is 0.082549 % between 13.803301 K and 32.937990 K
-    const double t[]={0, 1, 2, 4, 9};
-    const double N[]={0, -0.027049627458554038, -4.5916407242885207, 1.4698246592126478, 0.1132067430467493};
+    // Max error is  0.0524435114644 % between 13.8033 and 32.937999 K
+
+    const double t[]={0, 0.132, 0.3605, 1.0, 1.5, 3.3333333333333335, 7.0};
+    const double N[]={0, -0.0031611083814973629, 0.01606103512717301, -5.0101011461385303, 1.3458439473996564, 0.82353198183584131, -0.57502774437436288};
     double summer=0,theta;
     theta=1-T/reduce.T;
-    for (int i=1;i<=3;i++)
+    for (int i=1;i<=6;i++)
     {
-        summer += N[i]*pow(theta,t[i]/2);
+        summer += N[i]*pow(theta,t[i]);
     }
     return reduce.p.Pa*exp(reduce.T/T*summer);
 }
@@ -383,9 +385,9 @@ double ParaHydrogenClass::rhosatL(double T)
 
 double ParaHydrogenClass::rhosatV(double T)
 {
-    // Maximum absolute error is 0.163592 % between 13.803301 K and 32.937990 K
-    const double t[] = {0, 0.5, 0.8333333333333334, 1.0, 1.1666666666666667, 1.3333333333333333, 1.5};
-    const double N[] = {0, -2.7167780467748908, -49.191957630489391, 215.58236480120095, -363.62448142119348, 273.22233911564393, -76.054568441190639};
+	// Max error is  0.213338271447 % between 13.957 and 33.144999 K
+    const double t[] = {0, 0.3525, 0.3565, 0.367, 0.3765, 0.39249999999999996, 1.3333333333333333};
+	const double N[] = {0, -426795.37901103671, 810857.2657358282, -721220.63750821573, 392092.37071915239, -54938.300252502217, 1.9072707235406241};
     double summer=0,theta;
     theta=1-T/reduce.T;    	
 	for (int i=1; i<=6; i++)
@@ -526,9 +528,9 @@ OrthoHydrogenClass::OrthoHydrogenClass()
 
 double OrthoHydrogenClass::psat(double T)
 {
-    // Maximum absolute error is 0.047173 % between 14.008001 K and 33.219990 K
-    const double ti[]={0,1.0,1.5,2.3,3.6,5.2,7.3,9};
-    const double Ni[]={0,-4.883749429447434, 1.0220050049954641, 0.42875096887440467, 0.98888734869446038, -1.5316011040287143, 2.617979751694254, -2.4386324886230284 };
+	// Max error is  0.053161754126 % between 14.008 and 33.219999 K
+    const double ti[]={0, 0.3565, 0.381, 0.6666666666666666, 0.8333333333333334, 3.3333333333333335, 3.5};
+    const double Ni[]={0, 0.23308544489395641, -0.44331497371946116, 2.596446168645369, -6.3537033133836278, 6.8116055471042287, -5.9839832788614595};
     double summer=0,theta;
     int i;
     theta=1-T/reduce.T;

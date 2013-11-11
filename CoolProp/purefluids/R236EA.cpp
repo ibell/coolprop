@@ -63,14 +63,14 @@ R236EAClass::R236EAClass()
 
 double R236EAClass::psat(double T)
 {
-    // Maximum absolute error is 0.145470 % between 240.000000 K and 412.439990 K
-    const double t[]={0, 1, 2, 3, 7};
-    const double N[]={0, -0.034287777833706921, -7.4976581945056457, 0.82988374105581952, -5.0371770082228995};
+	// Max error is 0.0529123403505 % between 243.0 and 412.439999 K
+    const double t[]={0, 0.3525, 0.364, 0.38999999999999996, 1.0, 3.5, 8.5};
+    const double N[]={0, -40.377867678370912, 62.473820408057939, -22.503110890281281, -6.5543045908240307, -4.1160029346162421, -19.382010565649018};
     double summer=0,theta;
     theta=1-T/reduce.T;
-    for (int i=1;i<=3;i++)
+    for (int i=1; i<=6; i++)
     {
-        summer += N[i]*pow(theta,t[i]/2);
+        summer += N[i]*pow(theta,t[i]);
     }
     return reduce.p.Pa*exp(reduce.T/T*summer);
 }

@@ -395,22 +395,24 @@ double R290Class::viscosity_Trho(double T, double rho)
 }
 double R290Class::psat(double T)
 {
-	const double ti[]={0,1.0,1.5,2.2,4.8,6.2};
-    const double Ni[]={0,-6.7722,1.6938,-1.3341,-3.1876,0.94937};
+	// Max error is  0.130389086256 % between 85.525 and 369.889999 K
+
+	const double ti[]={0,0.09, 1.0, 2.1666666666666665, 2.5, 3.5, 6.666666666666667};
+    const double Ni[]={0, -0.0036326603098915731, -6.4417163271195328, 4.2879114303836188, -4.3361540375495373, -1.5330938298966583, -0.8380028193117014};
     double summer=0,theta;
     int i;
     theta=1-T/reduce.T;
-    for (i=1;i<=5;i++)
+    for (i=1;i<=6;i++)
     {
-        summer=summer+Ni[i]*pow(theta,ti[i]);
+        summer += Ni[i]*pow(theta,ti[i]);
     }
     return reduce.p.Pa*exp(reduce.T/T*summer);
 }
 double R290Class::rhosatL(double T)
 {
-	// Max error is  0.119362251455 % between 85.525001 and 369.889999 K
-	const double ti[]={0, 0.14500000000000002, 0.379, 0.382, 0.38249999999999995, 2.1666666666666665, 10.0};
-    const double Ni[]={0, -0.071607374253507231, 3339.6797899199069, -23526.337294637724, 20189.131769607058, 0.28614287100950064, 0.16243388519319354};
+	// Max error is  0.0403333824779 % between 85.525 and 369.889999 K
+	const double ti[]={0, 0.3665, 0.3695, 0.39199999999999996, 0.39749999999999996, 1.5, 3.8333333333333335};
+    const double Ni[]={0, -2544.5789267169393, 3262.5780670317858, -2279.9253725524513, 1564.3230394188856, 0.17057178175644663, 0.1801528182529071};
     double summer=0;
     int i;
     double theta;

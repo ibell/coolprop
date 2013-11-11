@@ -52,15 +52,15 @@ CycloPropaneClass::CycloPropaneClass()
 }
 double CycloPropaneClass::psat(double T)
 {
-    // Maximum absolute error is 0.187882 % between 273.000001 K and 398.299990 K
-    const double t[]={0, 1, 2, 3, 7};
-    const double N[]={0, -0.029915737385806201, -6.3990202086270314, 0.91387815294930119, -2.4469438384812348};
+    // Max error is  0.0119532667406 % between 273.0 and 398.299999 K
+    const double t[]={0, 0.060000000000000005, 0.373, 0.8333333333333334, 0.38699999999999996, 1.0, 6.166666666666667};
+    const double N[]={0, -0.0066049611475060624, -0.033960224958691061, -1.0723103687158344, 0.09566816778003541, -4.8279317520422547, -21.663297696353155};
     double summer=0,theta;
     int i;
     theta=1-T/reduce.T;
-    for (i=1;i<=3;i++)
+    for (i=1; i<=6; i++)
     {
-        summer += N[i]*pow(theta,t[i]/2);
+        summer += N[i]*pow(theta,t[i]);
     }
     return reduce.p.Pa*exp(reduce.T/T*summer);
 }
@@ -150,14 +150,14 @@ PropyneClass::PropyneClass()
 }
 double PropyneClass::psat(double T)
 {
-    // Maximum absolute error is 0.079152 % between 273.000001 K and 402.379990 K
-    const double t[]={0, 1, 2, 3, 5};
-    const double N[]={0, -0.0023415876841627464, -6.8708367701991246, 0.86028907870072446, -0.38264142140219393};
+    // Max error is  0.0257131564429 % between 273.0 and 402.379999 K
+    const double t[]={0, 0.082, 0.363, 1.0, 1.1666666666666667, 3.3333333333333335, 13.333333333333334};
+    const double N[]={0, 0.00010080009642318073, 0.002891896060186386, -7.3925772455032153, 1.1171903341456655, 0.15103683905132995, -9781.2864014399875};
     double summer=0,theta;
     theta=1-T/reduce.T;
-    for (int i=1;i<=3;i++)
+    for (int i=1; i<=6; i++)
     {
-        summer += N[i]*pow(theta,t[i]/2);
+        summer += N[i]*pow(theta,t[i]);
     }
     return reduce.p.Pa*exp(reduce.T/T*summer);
 }

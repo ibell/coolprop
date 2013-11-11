@@ -64,14 +64,14 @@ R236FAClass::R236FAClass()
 
 double R236FAClass::psat(double T)
 {
-    // Maximum absolute error is 0.285075 % between 179.600000 K and 398.069990 K
-    const double t[]={0, 1, 2, 3, 7, 12};
-    const double N[]={0, -0.074010270442998988, -7.3799415448066368, 0.62864198968378115, -4.474719533800668, -2.5381523046399947};
+	// Max error is  0.17009505573 % between 179.6 and 398.069999 K
+    const double t[]={0, 0.12200000000000001, 1.1666666666666667, 1.3333333333333333, 2.3333333333333335, 2.5, 3.5};
+    const double N[]={0, -0.012979211638964282, -28.829423111516142, 28.838546594062379, -75.471830356030637, 78.305145880492105, -15.984987308278052};
     double summer=0,theta;
     theta=1-T/reduce.T;
-    for (int i=1;i<=4;i++)
+    for (int i=1; i<=6; i++)
     {
-        summer += N[i]*pow(theta,t[i]/2);
+        summer += N[i]*pow(theta,t[i]);
     }
     return reduce.p.Pa*exp(reduce.T/T*summer);
 }

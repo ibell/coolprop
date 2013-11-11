@@ -5,6 +5,7 @@
 
 #include <vector>
 #include <string>
+#include "CPExceptions.h"
 
 class FuncWrapper1D
 {
@@ -12,6 +13,7 @@ public:
 	FuncWrapper1D(){};
 	virtual ~FuncWrapper1D(){};
 	virtual double call(double) = 0;
+	virtual double deriv(double){throw NotImplementedError("deriv function not implemented");};
 };
 
 class FuncWrapperND
@@ -25,8 +27,9 @@ public:
 
 // Single-Dimensional solvers
 double Brent(FuncWrapper1D *f, double a, double b, double macheps, double t, int maxiter, std::string *errstr);
-double Secant(FuncWrapper1D *f, double x0, double dx, double tol, int maxiter, std::string *errstring);
-double BoundedSecant(FuncWrapper1D *f, double x0, double xmin, double xmax, double dx, double tol, int maxiter, std::string *errstring);
+double Secant(FuncWrapper1D *f, double x0, double dx, double ftol, int maxiter, std::string *errstring);
+double BoundedSecant(FuncWrapper1D *f, double x0, double xmin, double xmax, double dx, double ftol, int maxiter, std::string *errstring);
+double Newton(FuncWrapper1D *f, double x0, double ftol, int maxiter, std::string *errstring);
 
 // Multi-Dimensional solvers
 std::vector<double> NDNewtonRaphson_Jacobian(FuncWrapperND *f, std::vector<double> x0, double tol, int maxiter, std::string *errstring);

@@ -48,15 +48,16 @@ R124Class::R124Class()
 }
 double R124Class::psat(double T)
 {
-    // Maximum absolute error is 0.083724 % between 120.000001 K and 395.424990 K
-    const double t[]={0, 1, 2, 3, 7, 11, 18};
-    const double N[]={0, -0.032765856125468229, -7.089594008256257, 0.76555366799892233, -3.8099603751012596, -0.48224729093240554, -0.55402025873191829};
+ // Max error is  0.0279351679648 % between 120.0 and 395.424999 K
+
+    const double t[]={0, 1.0, 1.1666666666666667, 2.1666666666666665, 4.0, 0.10300000000000001, 20.5};
+    const double N[]={0, -8.2641394088060451, 1.9700771584419117, -0.68404895752825745, -3.8373863290050365, 0.0010940746131683551, -5.7602251358930756};
     double summer=0,theta;
     int i;
     theta=1-T/reduce.T;
-    for (i=1;i<=5;i++)
+    for (i=1; i<=6; i++)
     {
-        summer += N[i]*pow(theta,t[i]/2);
+        summer += N[i]*pow(theta,t[i]);
     }
     return reduce.p.Pa*exp(reduce.T/T*summer);
 }

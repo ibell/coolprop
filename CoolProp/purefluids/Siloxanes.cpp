@@ -135,13 +135,17 @@ double OctamethyltrisiloxaneClass::rhosatL(double T)
 }
 double OctamethyltrisiloxaneClass::rhosatV(double T) 
 {
-	double theta = 1-T/reduce.T;
-	double RHS,rho;
-
-	// Max error is 1.778104 %
-	RHS = -1.048698*pow(theta,0.247369)-5.092477*pow(theta,0.713675)-3.797490*pow(theta,3.909802)-3.570078*pow(theta,3.001271)-2.125414*pow(theta,3.929410)-0.833132*pow(theta,6.254329);
-	rho = exp(RHS*reduce.T/T)*reduce.rho;
-	return rho;
+	// Max error is 0.455581363816 % between 187.2 and 564.089999 K
+	const double ti[]={0, 0.14700000000000002, 0.3515, 0.39699999999999996, 1.5, 3.8333333333333335, 16.166666666666668};
+    const double Ni[]={0, -1.2376429620882381, 18.16254939596832, -21.7298671811246, -2.318395979212784, -9.020806554399309, -10.84321486627527};
+    double summer=0,theta;
+    int i;
+    theta=1.0-T/reduce.T;
+    for (i=1;i<=6;i++)
+    {
+        summer += Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.rho*exp(crit.T/T*summer);
 }
 double OctamethyltrisiloxaneClass::psat(double T) 
 {
@@ -284,13 +288,17 @@ double DecamethyltetrasiloxaneClass::rhosatL(double T)
 }
 double DecamethyltetrasiloxaneClass::rhosatV(double T) 
 {
-	double theta = 1-T/reduce.T;
-	double RHS,rho;
-
-	// Max error is 1.208888 %
-	RHS = -0.960382*pow(theta,0.278536)-5.480676*pow(theta,0.662789)-2.828222*pow(theta,18.650241)-5.572572*pow(theta,3.335709)-4.457275*pow(theta,3.347180)-0.138084*pow(theta,5.498642);
-	rho = exp(RHS*reduce.T/T)*reduce.rho;
-	return rho;
+	// Max error is  0.169267097925 % between 205.2 and 599.399999 K
+	const double ti[]={0, 0.39199999999999996, 0.39349999999999996, 0.39399999999999996, 1.5, 3.3333333333333335, 18.0};
+    const double Ni[]={0, -52837.662064867334, 213259.90052518147, -160428.17073987963, -0.66311675635221967, -9.8035152206617866, -34.641954872452423};
+    double summer=0,theta;
+    int i;
+    theta=1.0-T/reduce.T;
+    for (i=1;i<=6;i++)
+    {
+        summer += Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.rho*exp(crit.T/T*summer);
 }
 double DecamethyltetrasiloxaneClass::psat(double T) 
 {
@@ -423,14 +431,14 @@ DodecamethylpentasiloxaneClass::DodecamethylpentasiloxaneClass()
 }
 double DodecamethylpentasiloxaneClass::psat(double T)
 {
-    // Maximum absolute error is 0.049309 % between 192.000000 K and 628.359990 K
-    const double t[]={0, 1, 2, 3, 4, 5, 8, 11, 17, 25, 33};
-    const double N[]={0, 0.012903285471939724, -9.3742788200323659, 1.6784591228500836, 1.2447272687580349, -6.5315300223352475, -3.4994781732561626, -5.8756308387516496, 12.286874007595406, -38.863256533012382, 41.889816184388344};
+	// Max error is  0.0600093438283 % between 192.0 and 628.359999 K
+    const double t[]={0, 1.5, 1.0, 1.8333333333333333, 3.1666666666666665, 6.666666666666667, 16.166666666666668};
+    const double N[]={0, 1.3506034234657476, -9.2126060941992307, -0.28939038151557195, -9.0673717965357667, -2.9245800043788388, -10.66550052981526};
     double summer=0,theta;
     theta=1-T/reduce.T;
-    for (int i=1;i<=9;i++)
+    for (int i=1; i<=6; i++)
     {
-        summer += N[i]*pow(theta,t[i]/2);
+        summer += N[i]*pow(theta,t[i]);
     }
     return reduce.p.Pa*exp(reduce.T/T*summer);
 }
@@ -1095,13 +1103,17 @@ double OctamethylcyclotetrasiloxaneClass::rhosatV(double T)
 }
 double OctamethylcyclotetrasiloxaneClass::psat(double T) 
 {
-	double theta = 1-T/reduce.T;
-	double RHS,p;
-
-	// Max error is 1.931173 %
-	RHS = -8.107067*pow(theta,0.989493)-15.105377*pow(theta,2.829970)-7.034093*pow(theta,5.585178)+7.153378*pow(theta,2.409375)+9.431011*pow(theta,5.477738);
-	p = exp(RHS*reduce.T/T)*reduce.p.Pa;
-	return p;
+	// Max error is  0.0796509289458 % between 290.25 and 586.499999 K
+	const double ti[]={0, 0.352, 0.3745, 1.0, 3.5, 4.333333333333333, 5.5};
+    const double Ni[]={0, 0.80415183721176908, -0.93068397535046898, -7.8477917073533066, -13.625622539026633, 13.019220440087111, -10.876350518822491};
+    double summer=0,theta;
+    int i;
+    theta=1.0-T/reduce.T;
+    for (i=1;i<=6;i++)
+    {
+        summer += Ni[i]*pow(theta,ti[i]);
+    }
+    return reduce.p.Pa*exp(crit.T/T*summer);
 }
 
 //D5
