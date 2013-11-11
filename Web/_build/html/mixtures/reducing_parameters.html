@@ -1,0 +1,156 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Mixtures Information &mdash; CoolProp 4.0.0beta documentation</title>
+    
+    <link rel="stylesheet" href="../_static/Coolprop.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '4.0.0beta',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="CoolProp 4.0.0beta documentation" href="../index.html" /> 
+  </head>
+  <body>
+<link rel="shortcut icon" href="_static/favicon.ico">
+
+<div style="background-color: #999999; text-align: left; padding: 10px 10px 15px 15px">
+<a href="../index.html"><img src="../_static/header.png" border="0" alt="matplotlib"/></a>
+</div>
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">Home</a>|&nbsp;</li>
+        <li><a href="../search.html">Search</a>|&nbsp;</li>
+        <li><a href="../examples/examples.html">Examples</a>|&nbsp;</li>
+        <li><a href="../_static/doxygen/html/index.html">Code</a>|&nbsp;</li>
+        <li><a href="../HowGetIt.html">Downloads!</a>|&nbsp;</li>
+        <li><a href="../contents.html">Documentation</a> &raquo;</li>
+ 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../contents.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Mixtures Information</a><ul>
+<li><a class="reference internal" href="#reducing-parameters">Reducing Parameters</a></li>
+<li><a class="reference internal" href="#excess-helmholtz-energy-terms">Excess Helmholtz Energy Terms</a></li>
+</ul>
+</li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/mixtures/reducing_parameters.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="mixtures-information">
+<h1>Mixtures Information<a class="headerlink" href="#mixtures-information" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="reducing-parameters">
+<h2>Reducing Parameters<a class="headerlink" href="#reducing-parameters" title="Permalink to this headline">¶</a></h2>
+<p>From Lemmon, JPCRD, 2000 for the properties of Dry Air, and also from Lemmon, JPCRD, 2004 for the properties of R404A, R410A, etc.</p>
+<div class="math">
+<p><img src="../_images/math/8934f23492d1757481790ad522857e9ac8032f54.png" alt="\rho_r(\bar x) = \left[ \sum_{i=1}^m\frac{x_i}{\rho_{c_i}}+\sum_{i=1}^{m-1}\sum_{j=i+1}^{m}x_ix_j\zeta_{ij}\right]^{-1}"/></p>
+</div><div class="math">
+<p><img src="../_images/math/386b74b9ae71c659fc75126b9328d9574c5c4f2c.png" alt="T_r(\bar x) = \sum_{i=1}^mx_iT_{c_i}+\sum_{i=1}^{m-1}\sum_{j=i+1}^mx_ix_j\xi_{ij}"/></p>
+</div><p>From the GERG 2008 formulation (Kunz and Wagner, JCED, 2012)</p>
+<div class="math">
+<p><img src="../_images/math/d650ed6b4c24473587c19281f95e3319f473e2d4.png" alt="T_r(\bar x) = \sum_{i=1}^{N}x_i^2T_{c,i} + \sum_{i=1}^{N-1}\sum_{j=i+1}^{N}2x_ix_j\beta_{T,ij}\gamma_{T,ij}\frac{x_i+x_j}{\beta_{T,ij}^2x_i+x_j}(T_{c,i}T_{c,j})^{0.5}"/></p>
+</div><div class="math">
+<p><img src="../_images/math/f68fda352a7e42044f521ecdc77f3d2b75772684.png" alt="\frac{1}{\rho_r(\bar x)}=v_r(\bar x) = \sum_{i=1}^{N}x_i^2\frac{1}{\rho_{c,i}} + \sum_{i=1}^{N-1}\sum_{j=i+1}^N2x_ix_j\beta_{v,ij}\gamma_{v,ij}\frac{x_i+x_j}{\beta^2_{v,ij}x_i+x_j}\frac{1}{8}\left(\frac{1}{\rho_{c,i}^{1/3}}+\frac{1}{\rho_{c,j}^{1/3}}\right)^{3}"/></p>
+</div></div>
+<div class="section" id="excess-helmholtz-energy-terms">
+<h2>Excess Helmholtz Energy Terms<a class="headerlink" href="#excess-helmholtz-energy-terms" title="Permalink to this headline">¶</a></h2>
+<p>From Lemmon, JPCRD, 2004 for the properties of R404A, R410A, etc.</p>
+<div class="math">
+<p><img src="../_images/math/f20a6c270afb6f4c12f2e6d2571514d1926fe7aa.png" alt="\alpha^E(\delta,\tau,\mathbf{x}) = \sum_{i=1}^{m-1} \sum_{j=i+1}^{m} \left [ x_ix_jF_{ij} \sum_{k}N_k\delta_{d_k}\tau^{t_k}\exp(-\delta^{l_k})\right]"/></p>
+</div><p>where the terms <img class="math" src="../_images/math/5e08bf10e5ded078ec3ffe6d62cf165d41a00b08.png" alt="N_k,d_k,t_k,l_k"/> correspond to the pair given by the indices <img class="math" src="../_images/math/01d9dbe8588e6243350fc642973b9365304100da.png" alt="i,j"/></p>
+<p>From Lemmon, JPCRD, 2000 for the properties of Dry Air</p>
+<div class="math">
+<p><img src="../_images/math/a2bb77f5e94332a7b8cd597e891e37be5a206c42.png" alt="\alpha^E(\delta,\tau,\mathbf{x}) = \left \lbrace \sum_{i=1}^{2} \sum_{j=i+1}^{3} x_ix_jF_{ij}\right\rbrace \left[-0.00195245\delta^2\tau^{-1.4}+0.00871334\delta^2\tau^{1.5} \right]"/></p>
+</div><p>From Kunz and Wagner, JCED, 2012 for GERG 2008</p>
+<div class="math">
+<p><img src="../_images/math/ec82f0dc1652c565915b074e22167dc5708c4415.png" alt="\alpha^E(\delta,\tau,\mathbf{x}) = \sum_{i=1}^{N-1} \sum_{j=i+1}^{N} x_ix_jF_{ij}\alpha_{ij}^r(\delta,\tau)"/></p>
+</div><p>where</p>
+<div class="math">
+<p><img src="../_images/math/15ff7aab777f7d6db0795ba88bfea8e47bfebaa3.png" alt="\alpha_{ij}^r(\delta,\tau) = \sum_{k=1}^{K_{pol,ij}}\eta_{ij,k}\delta^{d_{ij,k}}\tau^{t_{ij,k}}+\sum_{k=K_{pol,ij}+1}^{K_{pol,ij}+K_{Exp,ij}}\eta_{ij,k}\delta^{d_{ij,k}}\tau^{t_{ij,k}}\exp[-\eta_{ij,k}(\delta-\varepsilon_{ij,k})^2-\beta_{ij,k}(\delta-\gamma_{ij,k})]"/></p>
+</div><p>and is for the particular binary pair given by the indices <img class="math" src="../_images/math/01d9dbe8588e6243350fc642973b9365304100da.png" alt="i,j"/>.  This term is similar in form to other Helmholtz energy terms for pure fluids though the derivatives are slightly special.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">Home</a>|&nbsp;</li>
+        <li><a href="../search.html">Search</a>|&nbsp;</li>
+        <li><a href="../examples/examples.html">Examples</a>|&nbsp;</li>
+        <li><a href="../_static/doxygen/html/index.html">Code</a>|&nbsp;</li>
+        <li><a href="../HowGetIt.html">Downloads!</a>|&nbsp;</li>
+        <li><a href="../contents.html">Documentation</a> &raquo;</li>
+ 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Ian Bell.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,234 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Tabular Taylor Series Extrapolation &mdash; CoolProp 4.0.0beta documentation</title>
+    
+    <link rel="stylesheet" href="_static/Coolprop.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '4.0.0beta',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="CoolProp 4.0.0beta documentation" href="index.html" />
+    <link rel="next" title="Fluid Information" href="Fluids/FluidInformation.html" />
+    <link rel="prev" title="Fluid Properties" href="EOS.html" /> 
+  </head>
+  <body>
+<link rel="shortcut icon" href="_static/favicon.ico">
+
+<div style="background-color: #999999; text-align: left; padding: 10px 10px 15px 15px">
+<a href="index.html"><img src="_static/header.png" border="0" alt="matplotlib"/></a>
+</div>
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="Fluids/FluidInformation.html" title="Fluid Information"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="EOS.html" title="Fluid Properties"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Home</a>|&nbsp;</li>
+        <li><a href="search.html">Search</a>|&nbsp;</li>
+        <li><a href="examples/examples.html">Examples</a>|&nbsp;</li>
+        <li><a href="_static/doxygen/html/index.html">Code</a>|&nbsp;</li>
+        <li><a href="HowGetIt.html">Downloads!</a>|&nbsp;</li>
+        <li><a href="contents.html">Documentation</a> &raquo;</li>
+ 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="contents.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Tabular Taylor Series Extrapolation</a><ul>
+<li><a class="reference internal" href="#introduction">Introduction</a></li>
+<li><a class="reference internal" href="#usage">Usage</a></li>
+<li><a class="reference internal" href="#example-in-python">Example in Python</a></li>
+<li><a class="reference internal" href="#how-it-works-ttse">How it Works (TTSE)</a></li>
+<li><a class="reference internal" href="#how-it-works-bicubic">How it Works (Bicubic)</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="EOS.html"
+                        title="previous chapter">Fluid Properties</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="Fluids/FluidInformation.html"
+                        title="next chapter">Fluid Information</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/TTSE.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="tabular-taylor-series-extrapolation">
+<h1>Tabular Taylor Series Extrapolation<a class="headerlink" href="#tabular-taylor-series-extrapolation" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>Lookup tables are an effective way of greatly speeding up the computational time when the state variable inputs are variables other than temperature and density (upon which the equations of state are based).</p>
+<p>The tables are constructed with enthalpy and pressure as the independent variables.  Other inputs are also possible, but the efficiency of the lookup table method is maximized through the use of these independent variables</p>
+<p>TTSE was added to CoolProp as of version 3.0.  As of version 4.0, bicubic interpolation (see <a class="reference external" href="http://en.wikipedia.org/wiki/Bicubic_interpolation">http://en.wikipedia.org/wiki/Bicubic_interpolation</a>) has been added, which greatly improves the accuracy at a small speed penalty (~10%) over TTSE.</p>
+</div>
+<div class="section" id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
+<p>The tables can be enabled by calling the function <tt class="docutils literal"><span class="pre">enable_TTSE_LUT()</span></tt> of the CoolPropStateClass (only C++), or alternatively, the <tt class="docutils literal"><span class="pre">enable_TTSE_LUT(FluidName)</span></tt> (Python + anything that calls the DLL) function.  This will enable ALL thermodynamic calls for this fluid to use the TTSE method.  The function <tt class="docutils literal"><span class="pre">disable_TTSE_LUT</span></tt> is used to disable the TTSE method</p>
+<p>Two types of tables are built:</p>
+<ol class="arabic simple">
+<li>Tables are constructed along each saturation curve, all the way from the triple point (or minimum) pressure to the critical pressure</li>
+<li>A single-phase table is constructed for the areas outside of the two-phase region</li>
+</ol>
+<p>When the single phase tables are constructed, a default range is employed, which is taken to be from the triple point pressure to the twice the critical pressure, and from the saturated liquid enthalpy at the triple point pressure to an enthalpy that is three times the latent heat at the triple point pressure plus the saturated liquid enthalpy at the triple point pressure.</p>
+<p>If you do not like that default range, BEFORE you call enable_TTSE_LUT(), call <tt class="docutils literal"><span class="pre">set_TTSESinglePhase_LUT_range(FluidName,hmin,hmax,pmin,pmax)</span></tt></p>
+<p>The single-phase (but not the two-phase) tables are stored in binary form in files for faster loading in the HOME/CoolProp-TTSEData/<em>FluidName</em> folder where HOME is your home folder.  If you do not want to save the tables to file, you can call the function disable_TTSE_LUT_writing() to disable the writing of the single phase tables to file BEFORE the tables are built</p>
+</div>
+<div class="section" id="example-in-python">
+<h2>Example in Python<a class="headerlink" href="#example-in-python" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-ipython"><div class="highlight"><pre><span class="c">#import CoolProp module</span>
+<span class="gp">In [1]: </span><span class="kn">import</span> <span class="nn">CoolProp.CoolProp</span> <span class="kn">as</span> <span class="nn">CP</span>
+
+<span class="c">#This will disable the TTSE method for Propane</span>
+<span class="gp">In [2]: </span><span class="n">CP</span><span class="o">.</span><span class="n">disable_TTSE_LUT_writing</span><span class="p">(</span><span class="s">&#39;Propane&#39;</span><span class="p">)</span>
+<span class="go"> Out[2]: True</span>
+
+<span class="c">#This will enable the TTSE method for Propane</span>
+<span class="gp">In [3]: </span><span class="n">CP</span><span class="o">.</span><span class="n">enable_TTSE_LUT</span><span class="p">(</span><span class="s">&#39;Propane&#39;</span><span class="p">)</span>
+<span class="go"> Out[3]: True</span>
+
+<span class="c">#Check if it is enabled for Propane</span>
+<span class="gp">In [4]: </span><span class="n">CP</span><span class="o">.</span><span class="n">isenabled_TTSE_LUT</span><span class="p">(</span><span class="s">&#39;Propane&#39;</span><span class="p">)</span>
+<span class="go"> Out[4]: True</span>
+
+<span class="c">#Calculate something with the tables for Propane</span>
+<span class="gp">In [5]: </span><span class="n">CP</span><span class="o">.</span><span class="n">Props</span><span class="p">(</span><span class="s">&#39;H&#39;</span><span class="p">,</span><span class="s">&#39;P&#39;</span><span class="p">,</span><span class="mi">300</span><span class="p">,</span><span class="s">&#39;Q&#39;</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="s">&#39;Propane&#39;</span><span class="p">)</span>
+<span class="go"> Out[5]: 165.25496936327573</span>
+
+<span class="c">#Check the range for Propane (hmin,hmax,pmin,pmax)</span>
+<span class="gp">In [6]: </span><span class="n">CP</span><span class="o">.</span><span class="n">get_TTSESinglePhase_LUT_range</span><span class="p">(</span><span class="s">&#39;Propane&#39;</span><span class="p">)</span>
+<span class="go"> Out[6]: (-196643.67321201751, 929157.9196160483, 0.0001720461815123372, 8502400.0)</span>
+
+<span class="c">#Calculate something with the tables for Propane (using TTSE method)</span>
+<span class="gp">In [7]: </span><span class="n">CP</span><span class="o">.</span><span class="n">Props</span><span class="p">(</span><span class="s">&#39;T&#39;</span><span class="p">,</span><span class="s">&#39;P&#39;</span><span class="p">,</span><span class="mi">300</span><span class="p">,</span><span class="s">&#39;H&#39;</span><span class="p">,</span><span class="mi">40</span><span class="p">,</span><span class="s">&#39;Propane&#39;</span><span class="p">)</span>
+<span class="go"> Out[7]: 203.36560953822627</span>
+
+<span class="c">#Set the mode to bicubic interpolation</span>
+<span class="gp">In [8]: </span><span class="n">CP</span><span class="o">.</span><span class="n">set_TTSE_mode</span><span class="p">(</span><span class="s">&#39;Propane&#39;</span><span class="p">,</span><span class="s">&#39;BICUBIC&#39;</span><span class="p">)</span> <span class="c"># or could be &#39;TTSE&#39;</span>
+<span class="go"> Out[8]: True</span>
+
+<span class="c">#Calculate something with the tables for Propane (using Bicubic method)</span>
+<span class="gp">In [9]: </span><span class="n">CP</span><span class="o">.</span><span class="n">Props</span><span class="p">(</span><span class="s">&#39;T&#39;</span><span class="p">,</span><span class="s">&#39;P&#39;</span><span class="p">,</span><span class="mi">300</span><span class="p">,</span><span class="s">&#39;H&#39;</span><span class="p">,</span><span class="mi">40</span><span class="p">,</span><span class="s">&#39;Propane&#39;</span><span class="p">)</span>
+<span class="go"> Out[9]: 203.36560971268065</span>
+
+<span class="c">#This will disable the TTSE method for Propane</span>
+<span class="gp">In [10]: </span><span class="n">CP</span><span class="o">.</span><span class="n">disable_TTSE_LUT</span><span class="p">(</span><span class="s">&#39;Propane&#39;</span><span class="p">)</span>
+<span class="gr">Out[10]: </span><span class="bp">True</span>
+
+<span class="c">#Calculate something without the tables for Propane</span>
+<span class="gp">In [11]: </span><span class="n">CP</span><span class="o">.</span><span class="n">Props</span><span class="p">(</span><span class="s">&#39;T&#39;</span><span class="p">,</span><span class="s">&#39;P&#39;</span><span class="p">,</span><span class="mi">300</span><span class="p">,</span><span class="s">&#39;H&#39;</span><span class="p">,</span><span class="mi">40</span><span class="p">,</span><span class="s">&#39;Propane&#39;</span><span class="p">)</span>
+<span class="gr">Out[11]: </span><span class="mf">203.36560971332807</span>
+</pre></div>
+</div>
+<p>Note: most other programming languages that are wrappers around the CoolProp.h header should behave in nearly exactly the same fashion, excepting perhaps the <tt class="docutils literal"><span class="pre">get_TTSESinglePhase_LUT_range</span></tt> function as it uses passing by reference.</p>
+</div>
+<div class="section" id="how-it-works-ttse">
+<h2>How it Works (TTSE)<a class="headerlink" href="#how-it-works-ttse" title="Permalink to this headline">¶</a></h2>
+<p>Tables are built of <img class="math" src="_images/math/fd54a18e5cbc88938c5d0032b0fd9e41d08f9202.png" alt="T(p,h), s(p,h)"/>, and <img class="math" src="_images/math/cfa99aa72adee3f83e9e8bbc9597f0cc14e1b1b3.png" alt="\rho(p,h)"/> as well as the derivatives of each term with respect to p and h.  The property of interest is then expanded around the nearest grid point to yield representations like</p>
+<div class="math">
+<p><img src="_images/math/38a199094c16e0fc27a03f3e93af19ccb534bcaf.png" alt="T = T_{i,j}+\Delta h\left(\frac{\partial T}{\partial h}\right)_{p}+\Delta p\left(\frac{\partial T}{\partial p}\right)_{h}+\frac{1}{2}\Delta h^2\left(\frac{\partial^2 T}{\partial h^2}\right)_{p}+\frac{1}{2}\Delta p^2\left(\frac{\partial^2T}{\partial p^2}\right)_{h}+\Delta h\Delta p\left(\frac{\partial^2T}{\partial p\partial h}\right)
+
+s = s_{i,j}+\Delta h\left(\frac{\partial s}{\partial h}\right)_{p}+\Delta p\left(\frac{\partial s}{\partial p}\right)_{h}+\frac{1}{2}\Delta h^2\left(\frac{\partial^2 s}{\partial h^2}\right)_{p}+\frac{1}{2}\Delta p^2\left(\frac{\partial^2s}{\partial p^2}\right)_{h}+\Delta h\Delta p\left(\frac{\partial^2s}{\partial p\partial h}\right)
+
+\rho = s_{i,j}+\Delta h\left(\frac{\partial \rho}{\partial h}\right)_{p}+\Delta p\left(\frac{\partial \rho}{\partial p}\right)_{h}+\frac{1}{2}\Delta h^2\left(\frac{\partial^2 \rho}{\partial h^2}\right)_{p}+\frac{1}{2}\Delta p^2\left(\frac{\partial^2\rho}{\partial p^2}\right)_{h}+\Delta h\Delta p\left(\frac{\partial^2\rho}{\partial p\partial h}\right)"/></p>
+</div><div class="math">
+<p><img src="_images/math/41d6ea469b3c39f7e1d18d89f3f83125f7a97492.png" alt="\Delta h = h-h_i
+
+\Delta p = p-p_i"/></p>
+</div><p>See the <a class="reference external" href="http://www.iapws.org/relguide/TTSE.pdf">IAPWS TTSE report</a> for a description of the method.  Analytic derivatives are used to build the tables</p>
+</div>
+<div class="section" id="how-it-works-bicubic">
+<h2>How it Works (Bicubic)<a class="headerlink" href="#how-it-works-bicubic" title="Permalink to this headline">¶</a></h2>
+<p>In the TTSE method, the derivatives are calculated at every grid point.  In the bicubic method (see <a class="reference external" href="http://en.wikipedia.org/wiki/Bicubic_interpolation">http://en.wikipedia.org/wiki/Bicubic_interpolation</a>) we use the known derivatives at each grid point in order to develop <img class="math" src="_images/math/70b97eb4ad6e4e7a5a97e2547d9ed6e965960d0c.png" alt="C_1"/> continuous bicubic functions in each cell.  The independent variables (<img class="math" src="_images/math/83ae45488cb82aa3da9ac21b0052e8fc26aec7e8.png" alt="T,\rho"/>) or (<img class="math" src="_images/math/29679085f81b71d925a408b7f67da922b86b562a.png" alt="p,h"/>) are normalized into unit variables that vary between 0 and 1.  Then the bicubic coefficients are found for the cell, and the bicubic form is evaluated.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="Fluids/FluidInformation.html" title="Fluid Information"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="EOS.html" title="Fluid Properties"
+             >previous</a> |</li>
+        <li><a href="index.html">Home</a>|&nbsp;</li>
+        <li><a href="search.html">Search</a>|&nbsp;</li>
+        <li><a href="examples/examples.html">Examples</a>|&nbsp;</li>
+        <li><a href="_static/doxygen/html/index.html">Code</a>|&nbsp;</li>
+        <li><a href="HowGetIt.html">Downloads!</a>|&nbsp;</li>
+        <li><a href="contents.html">Documentation</a> &raquo;</li>
+ 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Ian Bell.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

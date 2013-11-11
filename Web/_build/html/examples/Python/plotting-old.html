@@ -1,0 +1,210 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Old Python Plotting &mdash; CoolProp 4.0.0beta documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/Coolprop.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '4.0.0beta',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="CoolProp 4.0.0beta documentation" href="../../index.html" /> 
+  </head>
+  <body>
+<link rel="shortcut icon" href="_static/favicon.ico">
+
+<div style="background-color: #999999; text-align: left; padding: 10px 10px 15px 15px">
+<a href="../../index.html"><img src="../../_static/header.png" border="0" alt="matplotlib"/></a>
+</div>
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">Home</a>|&nbsp;</li>
+        <li><a href="../../search.html">Search</a>|&nbsp;</li>
+        <li><a href="../examples.html">Examples</a>|&nbsp;</li>
+        <li><a href="../../_static/doxygen/html/index.html">Code</a>|&nbsp;</li>
+        <li><a href="../../HowGetIt.html">Downloads!</a>|&nbsp;</li>
+        <li><a href="../../contents.html">Documentation</a> &raquo;</li>
+ 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../../_sources/examples/Python/plotting-old.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="old-python-plotting">
+<span id="python-plotting-old"></span><h1>Old Python Plotting<a class="headerlink" href="#old-python-plotting" title="Permalink to this headline">¶</a></h1>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The python plotting API has been changed as of v4.0. Examples using the
+new python plotting API can be found here <a class="reference internal" href="plotting.html#python-plotting"><em>Python Plotting</em></a>. Some
+backwards compatability was maintained, so the folling example should
+still work.</p>
+</div>
+<p>The following example can be used to create a Temperature-Entropy plot for
+propane (R290):</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">CoolProp.Plots.Plots</span> <span class="kn">import</span> <span class="n">Ts</span>
+
+<span class="n">Ts</span><span class="p">(</span><span class="s">&#39;R290&#39;</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href="../../examples/Python/plotting-old-1.py">Source code</a>, <a class="reference external" href="../../examples/Python/plotting-old-1.png">png</a>)</p>
+<div class="figure">
+<img alt="../../_images/plotting-old-1.png" src="../../_images/plotting-old-1.png" />
+</div>
+<p>The following example can be used to create a Pressure-Enthalpy plot for R410A:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">CoolProp.Plots.Plots</span> <span class="kn">import</span> <span class="n">Ph</span>
+
+<span class="n">Ph</span><span class="p">(</span><span class="s">&#39;R410A&#39;</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href="../../examples/Python/plotting-old-2.py">Source code</a>, <a class="reference external" href="../../examples/Python/plotting-old-2.png">png</a>)</p>
+<div class="figure">
+<img alt="../../_images/plotting-old-2.png" src="../../_images/plotting-old-2.png" />
+</div>
+<p>The available plots are:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="17%" />
+<col width="83%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>PT</td>
+<td>Pressure-Temperature</td>
+</tr>
+<tr class="row-even"><td>Prho</td>
+<td>Pressure-Density</td>
+</tr>
+<tr class="row-odd"><td>Ph</td>
+<td>Pressure-Enthalpy</td>
+</tr>
+<tr class="row-even"><td>Ps</td>
+<td>Pressure-Entropy</td>
+</tr>
+<tr class="row-odd"><td>Trho</td>
+<td>Temperature-Density</td>
+</tr>
+<tr class="row-even"><td>Ts</td>
+<td>Temperatre-Entropy</td>
+</tr>
+<tr class="row-odd"><td>hs</td>
+<td>Enthalpy-Entropy</td>
+</tr>
+</tbody>
+</table>
+<p>The following example will overlay a simple four-component cycle on a R410A
+Pressure-Enthalpy plot.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">pyplot</span>
+<span class="kn">from</span> <span class="nn">CoolProp.Plots.Plots</span> <span class="kn">import</span> <span class="n">Ph</span>
+<span class="kn">from</span> <span class="nn">CoolProp.Plots.SimpleCycles</span> <span class="kn">import</span> <span class="n">SimpleCycle</span>
+
+<span class="n">Ph</span><span class="p">(</span><span class="s">&#39;R410A&#39;</span><span class="p">)</span>
+<span class="n">SimpleCycle</span><span class="p">(</span><span class="s">&#39;R410A&#39;</span><span class="p">,</span> <span class="mi">250</span><span class="p">,</span> <span class="mi">300</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">)</span>
+<span class="n">pyplot</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href="../../examples/Python/plotting-old-3.py">Source code</a>, <a class="reference external" href="../../examples/Python/plotting-old-3.png">png</a>)</p>
+<div class="figure">
+<img alt="../../_images/plotting-old-3.png" src="../../_images/plotting-old-3.png" />
+</div>
+<p>A more advanced example using built-in functions to draw lines of constant
+properties is given below. Note the different ways to invoke drawIsoLines:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">pyplot</span>
+<span class="kn">from</span> <span class="nn">CoolProp.Plots.Plots</span> <span class="kn">import</span> <span class="n">Ts</span><span class="p">,</span> <span class="n">drawIsoLines</span>
+
+<span class="n">Ref</span> <span class="o">=</span> <span class="s">&#39;n-Pentane&#39;</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">Ts</span><span class="p">(</span><span class="n">Ref</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">([</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">])</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">([</span><span class="mi">300</span><span class="p">,</span> <span class="mi">530</span><span class="p">])</span>
+<span class="n">quality</span> <span class="o">=</span> <span class="n">drawIsoLines</span><span class="p">(</span><span class="n">Ref</span><span class="p">,</span> <span class="s">&#39;Ts&#39;</span><span class="p">,</span> <span class="s">&#39;Q&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+<span class="n">isobars</span> <span class="o">=</span> <span class="n">drawIsoLines</span><span class="p">(</span><span class="n">Ref</span><span class="p">,</span> <span class="s">&#39;Ts&#39;</span><span class="p">,</span> <span class="s">&#39;P&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">2000</span><span class="p">],</span> <span class="n">num</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+<span class="n">isochores</span> <span class="o">=</span> <span class="n">drawIsoLines</span><span class="p">(</span><span class="n">Ref</span><span class="p">,</span> <span class="s">&#39;Ts&#39;</span><span class="p">,</span> <span class="s">&#39;D&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">600</span><span class="p">],</span> <span class="n">num</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+<span class="c">#isenthalps = drawIsoLines(Ref, &#39;Ts&#39;, &#39;H&#39;, [100, 300], num=5, axis=ax)</span>
+<span class="n">pyplot</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href="../../examples/Python/plotting-old-4.py">Source code</a>, <a class="reference external" href="../../examples/Python/plotting-old-4.png">png</a>)</p>
+<div class="figure">
+<img alt="../../_images/plotting-old-4.png" src="../../_images/plotting-old-4.png" />
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">Home</a>|&nbsp;</li>
+        <li><a href="../../search.html">Search</a>|&nbsp;</li>
+        <li><a href="../examples.html">Examples</a>|&nbsp;</li>
+        <li><a href="../../_static/doxygen/html/index.html">Code</a>|&nbsp;</li>
+        <li><a href="../../HowGetIt.html">Downloads!</a>|&nbsp;</li>
+        <li><a href="../../contents.html">Documentation</a> &raquo;</li>
+ 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Ian Bell.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,322 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Example Code for Octave &mdash; CoolProp 4.0.0beta documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/Coolprop.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '4.0.0beta',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="CoolProp 4.0.0beta documentation" href="../../index.html" />
+    <link rel="up" title="Examples" href="../examples.html" />
+    <link rel="next" title="Example Code for C#" href="../CSharp/example.html" />
+    <link rel="prev" title="Example Code for MATLAB" href="../MATLAB/example.html" /> 
+  </head>
+  <body>
+<link rel="shortcut icon" href="_static/favicon.ico">
+
+<div style="background-color: #999999; text-align: left; padding: 10px 10px 15px 15px">
+<a href="../../index.html"><img src="../../_static/header.png" border="0" alt="matplotlib"/></a>
+</div>
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../CSharp/example.html" title="Example Code for C#"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../MATLAB/example.html" title="Example Code for MATLAB"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../../index.html">Home</a>|&nbsp;</li>
+        <li><a href="../../search.html">Search</a>|&nbsp;</li>
+        <li><a href="../examples.html">Examples</a>|&nbsp;</li>
+        <li><a href="../../_static/doxygen/html/index.html">Code</a>|&nbsp;</li>
+        <li><a href="../../HowGetIt.html">Downloads!</a>|&nbsp;</li>
+        <li><a href="../../contents.html">Documentation</a> &raquo;</li>
+
+          <li><a href="../examples.html" accesskey="U">Examples</a> &raquo;</li> 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../contents.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Example Code for Octave</a><ul>
+<li><a class="reference internal" href="#code">Code</a></li>
+<li><a class="reference internal" href="#output">Output</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../MATLAB/example.html"
+                        title="previous chapter">Example Code for MATLAB</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../CSharp/example.html"
+                        title="next chapter">Example Code for C#</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../../_sources/examples/Octave/example.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="example-code-for-octave">
+<h1>Example Code for Octave<a class="headerlink" href="#example-code-for-octave" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="code">
+<h2>Code<a class="headerlink" href="#code" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-octave"><div class="highlight"><pre><span class="c">% Example of CoolProp for Octave</span>
+<span class="c">% Ian Bell, 2013</span>
+
+<span class="n">CoolProp</span>
+<span class="nb">disp</span><span class="p">([</span><span class="s">&#39;CoolProp version: &#39;</span><span class="p">,</span> <span class="n">CoolProp</span><span class="p">.</span><span class="n">get_global_param_string</span><span class="p">(</span><span class="s">&#39;version&#39;</span><span class="p">)])</span>
+<span class="nb">disp</span><span class="p">([</span><span class="s">&#39;CoolProp gitrevision: &#39;</span><span class="p">,</span> <span class="n">CoolProp</span><span class="p">.</span><span class="n">get_global_param_string</span><span class="p">(</span><span class="s">&#39;gitrevision&#39;</span><span class="p">)])</span>
+<span class="nb">disp</span><span class="p">([</span><span class="s">&#39;CoolProp fluids: &#39;</span><span class="p">,</span> <span class="n">CoolProp</span><span class="p">.</span><span class="n">get_global_param_string</span><span class="p">(</span><span class="s">&#39;FluidsList&#39;</span><span class="p">)])</span>
+
+<span class="nb">disp</span><span class="p">(</span><span class="s">&#39; &#39;</span><span class="p">)</span>
+<span class="nb">disp</span><span class="p">(</span><span class="s">&#39;************ USING EOS *************&#39;</span><span class="p">)</span>
+<span class="nb">disp</span><span class="p">(</span><span class="s">&#39; &#39;</span><span class="p">)</span>
+<span class="nb">disp</span><span class="p">(</span><span class="s">&#39;FLUID STATE INDEPENDENT INPUTS&#39;</span><span class="p">)</span>
+<span class="nb">disp</span><span class="p">([</span><span class="s">&#39;Critical Density Propane: &#39;</span><span class="p">,</span> <span class="n">num2str</span><span class="p">(</span><span class="n">CoolProp</span><span class="p">.</span><span class="n">Props1</span><span class="p">(</span><span class="s">&#39;Propane&#39;</span><span class="p">,</span><span class="s">&#39;rhocrit&#39;</span><span class="p">)),</span> <span class="s">&#39; kg/m^3&#39;</span><span class="p">])</span>
+<span class="nb">disp</span><span class="p">([</span><span class="s">&#39;TWO PHASE INPUTS (Pressure)&#39;</span><span class="p">])</span>
+<span class="nb">disp</span><span class="p">([</span><span class="s">&#39;Density of saturated liquid Propane at 101.325 kPa: &#39;</span><span class="p">,</span> <span class="n">num2str</span><span class="p">(</span><span class="n">CoolProp</span><span class="p">.</span><span class="n">Props</span><span class="p">(</span><span class="s">&#39;D&#39;</span><span class="p">,</span><span class="s">&#39;P&#39;</span><span class="p">,</span><span class="mf">101.325</span><span class="p">,</span><span class="s">&#39;Q&#39;</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="s">&#39;Propane&#39;</span><span class="p">)),</span> <span class="s">&#39; kg/m^3&#39;</span><span class="p">])</span>
+<span class="nb">disp</span><span class="p">([</span><span class="s">&#39;Density of saturated vapor R290 at 101.325 kPa: &#39;</span><span class="p">,</span> <span class="n">num2str</span><span class="p">(</span><span class="n">CoolProp</span><span class="p">.</span><span class="n">Props</span><span class="p">(</span><span class="s">&#39;D&#39;</span><span class="p">,</span><span class="s">&#39;P&#39;</span><span class="p">,</span><span class="mf">101.325</span><span class="p">,</span><span class="s">&#39;Q&#39;</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="s">&#39;R290&#39;</span><span class="p">)),</span> <span class="s">&#39; kg/m^3&#39;</span><span class="p">])</span>
+<span class="nb">disp</span><span class="p">([</span><span class="s">&#39;TWO PHASE INPUTS (Temperature)&#39;</span><span class="p">])</span>
+<span class="nb">disp</span><span class="p">([</span><span class="s">&#39;Density of saturated liquid Propane at 300 K: &#39;</span><span class="p">,</span> <span class="n">num2str</span><span class="p">(</span><span class="n">CoolProp</span><span class="p">.</span><span class="n">Props</span><span class="p">(</span><span class="s">&#39;D&#39;</span><span class="p">,</span><span class="s">&#39;T&#39;</span><span class="p">,</span><span class="mi">300</span><span class="p">,</span><span class="s">&#39;Q&#39;</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="s">&#39;Propane&#39;</span><span class="p">)),</span> <span class="s">&#39; kg/m^3&#39;</span><span class="p">])</span>
+<span class="nb">disp</span><span class="p">([</span><span class="s">&#39;Density of saturated vapor R290 at 300 K: &#39;</span><span class="p">,</span> <span class="n">num2str</span><span class="p">(</span><span class="n">CoolProp</span><span class="p">.</span><span class="n">Props</span><span class="p">(</span><span class="s">&#39;D&#39;</span><span class="p">,</span><span class="s">&#39;T&#39;</span><span class="p">,</span><span class="mi">300</span><span class="p">,</span><span class="s">&#39;Q&#39;</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="s">&#39;R290&#39;</span><span class="p">)),</span> <span class="s">&#39; kg/m^3&#39;</span><span class="p">])</span>
+<span class="nb">disp</span><span class="p">([</span><span class="s">&#39;SINGLE PHASE CYCLE (propane)&#39;</span><span class="p">])</span>
+<span class="n">p</span> <span class="p">=</span> <span class="n">CoolProp</span><span class="p">.</span><span class="n">Props</span><span class="p">(</span><span class="s">&#39;P&#39;</span><span class="p">,</span><span class="s">&#39;T&#39;</span><span class="p">,</span><span class="mi">300</span><span class="p">,</span><span class="s">&#39;D&#39;</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="s">&#39;Propane&#39;</span><span class="p">);</span> 
+<span class="n">h</span> <span class="p">=</span> <span class="n">CoolProp</span><span class="p">.</span><span class="n">Props</span><span class="p">(</span><span class="s">&#39;H&#39;</span><span class="p">,</span><span class="s">&#39;T&#39;</span><span class="p">,</span><span class="mi">300</span><span class="p">,</span><span class="s">&#39;D&#39;</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="s">&#39;Propane&#39;</span><span class="p">);</span>
+<span class="nb">disp</span><span class="p">([</span><span class="s">&#39;T,D -&gt; P,H &#39;</span><span class="p">,</span> <span class="n">num2str</span><span class="p">(</span><span class="mi">300</span><span class="p">),</span><span class="s">&#39;,&#39;</span><span class="p">,</span><span class="n">num2str</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="s">&#39; --&gt; &#39;</span><span class="p">,</span><span class="n">num2str</span><span class="p">(</span><span class="n">p</span><span class="p">),</span><span class="s">&#39;,&#39;</span><span class="p">,</span><span class="n">num2str</span><span class="p">(</span><span class="n">h</span><span class="p">)])</span>
+<span class="n">T</span> <span class="p">=</span> <span class="n">CoolProp</span><span class="p">.</span><span class="n">Props</span><span class="p">(</span><span class="s">&#39;T&#39;</span><span class="p">,</span><span class="s">&#39;P&#39;</span><span class="p">,</span><span class="n">p</span><span class="p">,</span><span class="s">&#39;H&#39;</span><span class="p">,</span><span class="n">h</span><span class="p">,</span><span class="s">&#39;Propane&#39;</span><span class="p">);</span> 
+<span class="n">D</span> <span class="p">=</span> <span class="n">CoolProp</span><span class="p">.</span><span class="n">Props</span><span class="p">(</span><span class="s">&#39;D&#39;</span><span class="p">,</span><span class="s">&#39;P&#39;</span><span class="p">,</span><span class="n">p</span><span class="p">,</span><span class="s">&#39;H&#39;</span><span class="p">,</span><span class="n">h</span><span class="p">,</span><span class="s">&#39;Propane&#39;</span><span class="p">);</span>
+<span class="nb">disp</span><span class="p">([</span><span class="s">&#39;P,H -&gt; T,D&#39;</span><span class="p">,</span> <span class="n">num2str</span><span class="p">(</span><span class="n">p</span><span class="p">),</span><span class="s">&#39;,&#39;</span><span class="p">,</span><span class="n">num2str</span><span class="p">(</span><span class="n">h</span><span class="p">),</span><span class="s">&#39;--&gt;&#39;</span><span class="p">,</span><span class="n">num2str</span><span class="p">(</span><span class="n">T</span><span class="p">),</span><span class="s">&#39;,&#39;</span><span class="p">,</span><span class="n">num2str</span><span class="p">(</span><span class="n">D</span><span class="p">)])</span>
+ 
+<span class="nb">disp</span><span class="p">([</span><span class="s">&#39; &#39;</span><span class="p">])</span>
+<span class="nb">disp</span><span class="p">([</span><span class="s">&#39;************ USING TTSE ***************&#39;</span><span class="p">])</span>
+<span class="nb">disp</span><span class="p">([</span><span class="s">&#39; &#39;</span><span class="p">])</span>
+<span class="n">CoolProp</span><span class="p">.</span><span class="n">enable_TTSE_LUT</span><span class="p">(</span><span class="s">&#39;Propane&#39;</span><span class="p">);</span>
+<span class="nb">disp</span><span class="p">([</span><span class="s">&#39;TWO PHASE INPUTS (Pressure)&#39;</span><span class="p">])</span>
+<span class="nb">disp</span><span class="p">([</span><span class="s">&#39;Density of saturated liquid Propane at 101.325 kPa: &#39;</span><span class="p">,</span> <span class="n">num2str</span><span class="p">(</span><span class="n">CoolProp</span><span class="p">.</span><span class="n">Props</span><span class="p">(</span><span class="s">&#39;D&#39;</span><span class="p">,</span><span class="s">&#39;P&#39;</span><span class="p">,</span><span class="mf">101.325</span><span class="p">,</span><span class="s">&#39;Q&#39;</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="s">&#39;Propane&#39;</span><span class="p">)),</span> <span class="s">&#39; kg/m^3&#39;</span><span class="p">])</span>
+<span class="nb">disp</span><span class="p">([</span><span class="s">&#39;Density of saturated vapor R290 at 101.325 kPa: &#39;</span><span class="p">,</span> <span class="n">num2str</span><span class="p">(</span><span class="n">CoolProp</span><span class="p">.</span><span class="n">Props</span><span class="p">(</span><span class="s">&#39;D&#39;</span><span class="p">,</span><span class="s">&#39;P&#39;</span><span class="p">,</span><span class="mf">101.325</span><span class="p">,</span><span class="s">&#39;Q&#39;</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="s">&#39;R290&#39;</span><span class="p">)),</span> <span class="s">&#39; kg/m^3&#39;</span><span class="p">])</span>
+<span class="nb">disp</span><span class="p">([</span><span class="s">&#39;TWO PHASE INPUTS (Temperature)&#39;</span><span class="p">])</span>
+<span class="nb">disp</span><span class="p">([</span><span class="s">&#39;Density of saturated liquid Propane at 300 K: &#39;</span><span class="p">,</span> <span class="n">num2str</span><span class="p">(</span><span class="n">CoolProp</span><span class="p">.</span><span class="n">Props</span><span class="p">(</span><span class="s">&#39;D&#39;</span><span class="p">,</span><span class="s">&#39;T&#39;</span><span class="p">,</span><span class="mi">300</span><span class="p">,</span><span class="s">&#39;Q&#39;</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="s">&#39;Propane&#39;</span><span class="p">)),</span> <span class="s">&#39; kg/m^3&#39;</span><span class="p">])</span>
+<span class="nb">disp</span><span class="p">([</span><span class="s">&#39;Density of saturated vapor R290 at 300 K: &#39;</span><span class="p">,</span> <span class="n">num2str</span><span class="p">(</span><span class="n">CoolProp</span><span class="p">.</span><span class="n">Props</span><span class="p">(</span><span class="s">&#39;D&#39;</span><span class="p">,</span><span class="s">&#39;T&#39;</span><span class="p">,</span><span class="mi">300</span><span class="p">,</span><span class="s">&#39;Q&#39;</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="s">&#39;R290&#39;</span><span class="p">)),</span> <span class="s">&#39; kg/m^3&#39;</span><span class="p">])</span>
+<span class="nb">disp</span><span class="p">([</span><span class="s">&#39;SINGLE PHASE CYCLE (propane)&#39;</span><span class="p">])</span>
+<span class="n">p</span> <span class="p">=</span> <span class="n">CoolProp</span><span class="p">.</span><span class="n">Props</span><span class="p">(</span><span class="s">&#39;P&#39;</span><span class="p">,</span><span class="s">&#39;T&#39;</span><span class="p">,</span><span class="mi">300</span><span class="p">,</span><span class="s">&#39;D&#39;</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="s">&#39;Propane&#39;</span><span class="p">);</span> 
+<span class="n">h</span> <span class="p">=</span> <span class="n">CoolProp</span><span class="p">.</span><span class="n">Props</span><span class="p">(</span><span class="s">&#39;H&#39;</span><span class="p">,</span><span class="s">&#39;T&#39;</span><span class="p">,</span><span class="mi">300</span><span class="p">,</span><span class="s">&#39;D&#39;</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="s">&#39;Propane&#39;</span><span class="p">);</span>
+<span class="nb">disp</span><span class="p">([</span><span class="s">&#39;T,D -&gt; P,H &#39;</span><span class="p">,</span> <span class="n">num2str</span><span class="p">(</span><span class="mi">300</span><span class="p">),</span><span class="s">&#39;,&#39;</span><span class="p">,</span><span class="n">num2str</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="s">&#39; --&gt; &#39;</span><span class="p">,</span><span class="n">num2str</span><span class="p">(</span><span class="n">p</span><span class="p">),</span><span class="s">&#39;,&#39;</span><span class="p">,</span><span class="n">num2str</span><span class="p">(</span><span class="n">h</span><span class="p">)])</span>
+<span class="n">T</span> <span class="p">=</span> <span class="n">CoolProp</span><span class="p">.</span><span class="n">Props</span><span class="p">(</span><span class="s">&#39;T&#39;</span><span class="p">,</span><span class="s">&#39;P&#39;</span><span class="p">,</span><span class="n">p</span><span class="p">,</span><span class="s">&#39;H&#39;</span><span class="p">,</span><span class="n">h</span><span class="p">,</span><span class="s">&#39;Propane&#39;</span><span class="p">);</span> 
+<span class="n">D</span> <span class="p">=</span> <span class="n">CoolProp</span><span class="p">.</span><span class="n">Props</span><span class="p">(</span><span class="s">&#39;D&#39;</span><span class="p">,</span><span class="s">&#39;P&#39;</span><span class="p">,</span><span class="n">p</span><span class="p">,</span><span class="s">&#39;H&#39;</span><span class="p">,</span><span class="n">h</span><span class="p">,</span><span class="s">&#39;Propane&#39;</span><span class="p">);</span>
+<span class="nb">disp</span><span class="p">([</span><span class="s">&#39;P,H -&gt; T,D &#39;</span><span class="p">,</span> <span class="n">num2str</span><span class="p">(</span><span class="n">p</span><span class="p">),</span><span class="s">&#39;,&#39;</span><span class="p">,</span><span class="n">num2str</span><span class="p">(</span><span class="n">h</span><span class="p">),</span><span class="s">&#39; --&gt; &#39;</span><span class="p">,</span><span class="n">num2str</span><span class="p">(</span><span class="n">T</span><span class="p">),</span><span class="s">&#39;,&#39;</span><span class="p">,</span><span class="n">num2str</span><span class="p">(</span><span class="n">D</span><span class="p">)])</span>
+<span class="n">CoolProp</span><span class="p">.</span><span class="n">disable_TTSE_LUT</span><span class="p">(</span><span class="s">&#39;Propane&#39;</span><span class="p">);</span>
+
+<span class="k">try</span>
+    <span class="nb">disp</span><span class="p">(</span><span class="s">&#39; &#39;</span><span class="p">)</span>
+    <span class="nb">disp</span><span class="p">(</span><span class="s">&#39;************ USING REFPROP ***************&#39;</span><span class="p">)</span>
+    <span class="nb">disp</span><span class="p">(</span><span class="s">&#39; &#39;</span><span class="p">)</span>
+    <span class="nb">disp</span><span class="p">(</span><span class="s">&#39;FLUID STATE INDEPENDENT INPUTS&#39;</span><span class="p">)</span>
+    <span class="nb">disp</span><span class="p">([</span><span class="s">&#39;Critical Density Propane:&#39;</span><span class="p">,</span> <span class="n">num2str</span><span class="p">(</span><span class="n">CoolProp</span><span class="p">.</span><span class="n">Props</span><span class="p">(</span><span class="s">&#39;REFPROP-Propane&#39;</span><span class="p">,</span><span class="s">&#39;rhocrit&#39;</span><span class="p">)),</span> <span class="s">&#39;kg/m^3&#39;</span><span class="p">])</span>
+    <span class="nb">disp</span><span class="p">([</span><span class="s">&#39;TWO PHASE INPUTS (Pressure)&#39;</span><span class="p">])</span>
+    <span class="nb">disp</span><span class="p">([</span><span class="s">&#39;Density of saturated liquid Propane at 101.325 kPa: &#39;</span><span class="p">,</span> <span class="n">num2str</span><span class="p">(</span><span class="n">CoolProp</span><span class="p">.</span><span class="n">Props</span><span class="p">(</span><span class="s">&#39;D&#39;</span><span class="p">,</span><span class="s">&#39;P&#39;</span><span class="p">,</span><span class="mf">101.325</span><span class="p">,</span><span class="s">&#39;Q&#39;</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="s">&#39;REFPROP-Propane&#39;</span><span class="p">)),</span> <span class="s">&#39; kg/m^3&#39;</span><span class="p">])</span>
+    <span class="nb">disp</span><span class="p">([</span><span class="s">&#39;Density of saturated vapor R290 at 101.325 kPa: &#39;</span><span class="p">,</span> <span class="n">num2str</span><span class="p">(</span><span class="n">CoolProp</span><span class="p">.</span><span class="n">Props</span><span class="p">(</span><span class="s">&#39;D&#39;</span><span class="p">,</span><span class="s">&#39;P&#39;</span><span class="p">,</span><span class="mf">101.325</span><span class="p">,</span><span class="s">&#39;Q&#39;</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="s">&#39;REFPROP-Propane&#39;</span><span class="p">)),</span> <span class="s">&#39; kg/m^3&#39;</span><span class="p">])</span>
+    <span class="nb">disp</span><span class="p">([</span><span class="s">&#39;TWO PHASE INPUTS (Temperature)&#39;</span><span class="p">])</span>
+    <span class="nb">disp</span><span class="p">([</span><span class="s">&#39;Density of saturated liquid Propane at 300 K: &#39;</span><span class="p">,</span> <span class="n">num2str</span><span class="p">(</span><span class="n">CoolProp</span><span class="p">.</span><span class="n">Props</span><span class="p">(</span><span class="s">&#39;D&#39;</span><span class="p">,</span><span class="s">&#39;T&#39;</span><span class="p">,</span><span class="mi">300</span><span class="p">,</span><span class="s">&#39;Q&#39;</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="s">&#39;REFPROP-Propane&#39;</span><span class="p">)),</span> <span class="s">&#39; kg/m^3&#39;</span><span class="p">])</span>
+    <span class="nb">disp</span><span class="p">([</span><span class="s">&#39;Density of saturated vapor R290 at 300 K: &#39;</span><span class="p">,</span> <span class="n">num2str</span><span class="p">(</span><span class="n">CoolProp</span><span class="p">.</span><span class="n">Props</span><span class="p">(</span><span class="s">&#39;D&#39;</span><span class="p">,</span><span class="s">&#39;T&#39;</span><span class="p">,</span><span class="mi">300</span><span class="p">,</span><span class="s">&#39;Q&#39;</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="s">&#39;REFPROP-Propane&#39;</span><span class="p">)),</span> <span class="s">&#39; kg/m^3&#39;</span><span class="p">])</span>
+    <span class="nb">disp</span><span class="p">([</span><span class="s">&#39;SINGLE PHASE CYCLE (propane)&#39;</span><span class="p">])</span>
+    <span class="n">p</span> <span class="p">=</span> <span class="n">CoolProp</span><span class="p">.</span><span class="n">Props</span><span class="p">(</span><span class="s">&#39;P&#39;</span><span class="p">,</span><span class="s">&#39;T&#39;</span><span class="p">,</span><span class="mi">300</span><span class="p">,</span><span class="s">&#39;D&#39;</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="s">&#39;REFPROP-Propane&#39;</span><span class="p">);</span>
+    <span class="n">h</span> <span class="p">=</span> <span class="n">CoolProp</span><span class="p">.</span><span class="n">Props</span><span class="p">(</span><span class="s">&#39;H&#39;</span><span class="p">,</span><span class="s">&#39;T&#39;</span><span class="p">,</span><span class="mi">300</span><span class="p">,</span><span class="s">&#39;D&#39;</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="s">&#39;REFPROP-Propane&#39;</span><span class="p">);</span>
+    <span class="nb">disp</span><span class="p">([</span><span class="s">&#39;T,D -&gt; P,H &#39;</span><span class="p">,</span> <span class="n">num2str</span><span class="p">(</span><span class="mi">300</span><span class="p">),</span><span class="s">&#39;,&#39;</span><span class="p">,</span><span class="n">num2str</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="s">&#39; --&gt; &#39;</span><span class="p">,</span><span class="n">num2str</span><span class="p">(</span><span class="n">p</span><span class="p">),</span><span class="s">&#39;,&#39;</span><span class="p">,</span><span class="n">num2str</span><span class="p">(</span><span class="n">h</span><span class="p">)])</span>
+    <span class="n">T</span> <span class="p">=</span> <span class="n">CoolProp</span><span class="p">.</span><span class="n">Props</span><span class="p">(</span><span class="s">&#39;T&#39;</span><span class="p">,</span><span class="s">&#39;P&#39;</span><span class="p">,</span><span class="n">p</span><span class="p">,</span><span class="s">&#39;H&#39;</span><span class="p">,</span><span class="n">h</span><span class="p">,</span><span class="s">&#39;REFPROP-Propane&#39;</span><span class="p">);</span> 
+    <span class="n">D</span> <span class="p">=</span> <span class="n">CoolProp</span><span class="p">.</span><span class="n">Props</span><span class="p">(</span><span class="s">&#39;D&#39;</span><span class="p">,</span><span class="s">&#39;P&#39;</span><span class="p">,</span><span class="n">p</span><span class="p">,</span><span class="s">&#39;H&#39;</span><span class="p">,</span><span class="n">h</span><span class="p">,</span><span class="s">&#39;REFPROP-Propane&#39;</span><span class="p">);</span>
+    <span class="nb">disp</span><span class="p">([</span><span class="s">&#39;P,H -&gt; T,D &#39;</span><span class="p">,</span> <span class="n">num2str</span><span class="p">(</span><span class="n">p</span><span class="p">),</span><span class="s">&#39;,&#39;</span><span class="p">,</span><span class="n">num2str</span><span class="p">(</span><span class="n">h</span><span class="p">),</span><span class="s">&#39; --&gt; &#39;</span><span class="p">,</span><span class="n">num2str</span><span class="p">(</span><span class="n">T</span><span class="p">),</span><span class="s">&#39;,&#39;</span><span class="p">,</span><span class="n">num2str</span><span class="p">(</span><span class="n">D</span><span class="p">)])</span>
+<span class="k">catch</span>
+    <span class="nb">disp</span><span class="p">(</span><span class="s">&#39; &#39;</span><span class="p">)</span>
+    <span class="nb">disp</span><span class="p">(</span><span class="s">&#39;************ CANT USE REFPROP ************&#39;</span><span class="p">)</span>
+    <span class="nb">disp</span><span class="p">(</span><span class="s">&#39; &#39;</span><span class="p">)</span>
+<span class="k">end</span>
+ 
+ <span class="nb">disp</span><span class="p">([</span><span class="s">&#39; &#39;</span><span class="p">])</span>
+ <span class="nb">disp</span><span class="p">(</span><span class="s">&#39;************ CHANGE UNIT SYSTEM (default is kSI) *************&#39;</span><span class="p">)</span>
+ <span class="nb">disp</span><span class="p">(</span><span class="s">&#39; &#39;</span><span class="p">)</span>
+ <span class="n">CoolProp</span><span class="p">.</span><span class="n">set_standard_unit_system</span><span class="p">(</span><span class="n">CoolProp</span><span class="p">.</span><span class="n">UNIT_SYSTEM_SI</span><span class="p">)</span>
+ <span class="nb">disp</span><span class="p">([</span><span class="s">&#39;Vapor pressure of water at 373.15 K in SI units (Pa):&#39;</span><span class="p">,</span><span class="n">num2str</span><span class="p">(</span><span class="n">CoolProp</span><span class="p">.</span><span class="n">Props</span><span class="p">(</span><span class="s">&#39;P&#39;</span><span class="p">,</span><span class="s">&#39;T&#39;</span><span class="p">,</span><span class="mf">373.15</span><span class="p">,</span><span class="s">&#39;Q&#39;</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="s">&#39;Water&#39;</span><span class="p">))]);</span>
+ <span class="n">CoolProp</span><span class="p">.</span><span class="n">set_standard_unit_system</span><span class="p">(</span><span class="n">CoolProp</span><span class="p">.</span><span class="n">UNIT_SYSTEM_KSI</span><span class="p">)</span>
+ <span class="nb">disp</span><span class="p">([</span><span class="s">&#39;Vapor pressure of water at 373.15 K in kSI units (kPa):&#39;</span><span class="p">,</span><span class="n">num2str</span><span class="p">(</span><span class="n">CoolProp</span><span class="p">.</span><span class="n">Props</span><span class="p">(</span><span class="s">&#39;P&#39;</span><span class="p">,</span><span class="s">&#39;T&#39;</span><span class="p">,</span><span class="mf">373.15</span><span class="p">,</span><span class="s">&#39;Q&#39;</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="s">&#39;Water&#39;</span><span class="p">))]);</span>
+ 
+<span class="nb">disp</span><span class="p">(</span><span class="s">&#39; &#39;</span><span class="p">)</span>
+<span class="nb">disp</span><span class="p">(</span><span class="s">&#39;************ BRINES AND SECONDARY WORKING FLUIDS *************&#39;</span><span class="p">)</span>
+<span class="nb">disp</span><span class="p">(</span><span class="s">&#39; &#39;</span><span class="p">)</span>
+<span class="nb">disp</span><span class="p">([</span><span class="s">&#39;Density of 50% (mass) ethylene glycol/water at 300 K, 101.325 kPa: &#39;</span><span class="p">,</span> <span class="n">num2str</span><span class="p">(</span><span class="n">CoolProp</span><span class="p">.</span><span class="n">Props</span><span class="p">(</span><span class="s">&#39;D&#39;</span><span class="p">,</span><span class="s">&#39;T&#39;</span><span class="p">,</span><span class="mi">300</span><span class="p">,</span><span class="s">&#39;P&#39;</span><span class="p">,</span><span class="mf">101.325</span><span class="p">,</span><span class="s">&#39;EG-50%&#39;</span><span class="p">)),</span> <span class="s">&#39;kg/m^3&#39;</span><span class="p">])</span>
+<span class="nb">disp</span><span class="p">([</span><span class="s">&#39;Viscosity of Therminol D12 at 350 K, 101.325 kPa: &#39;</span><span class="p">,</span> <span class="n">num2str</span><span class="p">(</span><span class="n">CoolProp</span><span class="p">.</span><span class="n">Props</span><span class="p">(</span><span class="s">&#39;V&#39;</span><span class="p">,</span> <span class="s">&#39;T&#39;</span><span class="p">,</span> <span class="mi">350</span><span class="p">,</span> <span class="s">&#39;P&#39;</span><span class="p">,</span> <span class="mf">101.325</span><span class="p">,</span> <span class="s">&#39;TD12&#39;</span><span class="p">)),</span> <span class="s">&#39;Pa-s&#39;</span><span class="p">])</span>
+
+<span class="nb">disp</span><span class="p">(</span><span class="s">&#39; &#39;</span><span class="p">)</span>
+<span class="nb">disp</span><span class="p">(</span><span class="s">&#39;************ HUMID AIR PROPERTIES *************&#39;</span><span class="p">)</span>
+<span class="nb">disp</span><span class="p">(</span><span class="s">&#39; &#39;</span><span class="p">)</span>
+<span class="nb">disp</span><span class="p">([</span><span class="s">&#39;Humidity ratio of 50% rel. hum. air at 300 K, 101.325 kPa: &#39;</span><span class="p">,</span> <span class="n">num2str</span><span class="p">(</span><span class="n">CoolProp</span><span class="p">.</span><span class="n">HAProps</span><span class="p">(</span><span class="s">&#39;W&#39;</span><span class="p">,</span><span class="s">&#39;T&#39;</span><span class="p">,</span><span class="mi">300</span><span class="p">,</span><span class="s">&#39;P&#39;</span><span class="p">,</span><span class="mf">101.325</span><span class="p">,</span><span class="s">&#39;R&#39;</span><span class="p">,</span><span class="mf">0.5</span><span class="p">)),</span> <span class="s">&#39; kg_w/kg_da&#39;</span><span class="p">])</span>
+<span class="nb">disp</span><span class="p">([</span><span class="s">&#39;Relative humidity from last calculation: &#39;</span><span class="p">,</span> <span class="n">num2str</span><span class="p">(</span><span class="n">CoolProp</span><span class="p">.</span><span class="n">HAProps</span><span class="p">(</span><span class="s">&#39;R&#39;</span><span class="p">,</span><span class="s">&#39;T&#39;</span><span class="p">,</span><span class="mi">300</span><span class="p">,</span><span class="s">&#39;P&#39;</span><span class="p">,</span><span class="mf">101.325</span><span class="p">,</span><span class="s">&#39;W&#39;</span><span class="p">,</span><span class="n">HAProps</span><span class="p">(</span><span class="s">&#39;W&#39;</span><span class="p">,</span><span class="s">&#39;T&#39;</span><span class="p">,</span><span class="mi">300</span><span class="p">,</span><span class="s">&#39;P&#39;</span><span class="p">,</span><span class="mf">101.325</span><span class="p">,</span><span class="s">&#39;R&#39;</span><span class="p">,</span><span class="mf">0.5</span><span class="p">))),</span> <span class="s">&#39;(fractional)&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="output">
+<h2>Output<a class="headerlink" href="#output" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python"><pre>GNU Octave, version 3.6.1
+Copyright (C) 2012 John W. Eaton and others.
+This is free software; see the source code for copying conditions.
+There is ABSOLUTELY NO WARRANTY; not even for MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE.  For details, type `warranty'.
+
+Octave was configured for "i686-pc-mingw32".
+
+Additional information about Octave is available at http://www.octave.org.
+
+Please contribute if you find this software useful.
+For more information, visit http://www.octave.org/help-wanted.html
+
+Read http://www.octave.org/bugs.html to learn how to submit bug reports.
+
+For information about changes from previous versions, type `news'.
+
+ - Use `pkg list' to see a list of installed packages.
+ - MSYS shell available (C:\Program Files (x86)\Octave-3.6.1\msys).
+ - Graphics backend: qt.
+
+CoolProp version: 3.3.0
+CoolProp gitrevision: 7d3d814604457f5c7553ed2f915ff4d42a4163e8
+CoolProp fluids: Water,R134a,Helium,Oxygen,Hydrogen,ParaHydrogen,OrthoHydrogen,Argon,CarbonDioxide,Nitrogen,n-Propane,Ammonia,R1234yf,R1234ze(E),R32,R22,SES36,Ethylene,SulfurHexafluoride,Ethanol,DimethylEther,DimethylCarbonate,R143a,R23,n-Dodecane,Propylene,Cyclopentane,R236FA,R236EA,R227EA,R365MFC,R161,HFE143m,Benzene,n-Undecane,R125,CycloPropane,Neon,R124,Propyne,Fluorine,Methanol,RC318,R21,R114,R13,R14,R12,R113,R1234ze(Z),R245fa,R41,CarbonMonoxide,CarbonylSulfide,n-Decane,HydrogenSulfide,Isopentane,Neopentane,Isohexane,Krypton,n-Nonane,Toluene,Xenon,R116,Acetone,NitrousOxide,SulfurDioxide,R141b,R142b,R218,Methane,Ethane,n-Butane,IsoButane,n-Pentane,n-Hexane,n-Heptane,n-Octane,CycloHexane,R152A,R123,R11,MDM,MD2M,MD3M,D6,MM,MD4M,D4,D5,1-Butene,IsoButene,cis-2-Butene,trans-2-Butene,MethylPalmitate,MethylStearate,MethylOleate,MethylLinoleate,MethylLinolenate,o-Xylene,m-Xylene,p-Xylene,EthylBenzene,Deuterium,ParaDeuterium,OrthoDeuterium,Air,R404A,R410A,R407C,R507A,R407F
+ 
+************ USING EOS *************
+ 
+FLUID STATE INDEPENDENT INPUTS
+Critical Density Propane: 220.48 kg/m^3
+TWO PHASE INPUTS (Pressure)
+Density of saturated liquid Propane at 101.325 kPa: 580.88 kg/m^3
+Density of saturated vapor R290 at 101.325 kPa: 2.4161 kg/m^3
+TWO PHASE INPUTS (Temperature)
+Density of saturated liquid Propane at 300 K: 489.45 kg/m^3
+Density of saturated vapor R290 at 300 K: 21.63 kg/m^3
+SINGLE PHASE CYCLE (propane)
+T,D -&gt; P,H 300,1 --&gt; 56.073,634.73
+P,H -&gt; T,D56.073,634.73--&gt;300,1
+ 
+************ USING TTSE ***************
+ 
+TWO PHASE INPUTS (Pressure)
+0.061 to build both two phase tables
+Density of saturated liquid Propane at 101.325 kPa: 580.88 kg/m^3
+Density of saturated vapor R290 at 101.325 kPa: 2.4161 kg/m^3
+TWO PHASE INPUTS (Temperature)
+Density of saturated liquid Propane at 300 K: 489.45 kg/m^3
+Density of saturated vapor R290 at 300 K: 21.63 kg/m^3
+SINGLE PHASE CYCLE (propane)
+T,D -&gt; P,H 300,1 --&gt; 56.073,634.73
+P,H -&gt; T,D 56.073,634.73 --&gt; 300,1
+ 
+************ USING REFPROP ***************
+ 
+FLUID STATE INDEPENDENT INPUTS
+ 
+************ CANT USE REFPROP ************
+ 
+ 
+************ CHANGE UNIT SYSTEM (default is kSI) *************
+ 
+Vapor pressure of water at 373.15 K in SI units (Pa):1.0142e+005
+Vapor pressure of water at 373.15 K in kSI units (kPa):101.42
+ 
+************ BRINES AND SECONDARY WORKING FLUIDS *************
+ 
+Density of 50% (mass) ethylene glycol/water at 300 K, 101.325 kPa: 1061.2kg/m^3
+Viscosity of Therminol D12 at 350 K, 101.325 kPa: 0.00052288Pa-s
+ 
+************ HUMID AIR PROPERTIES *************
+ 
+Humidity ratio of 50% rel. hum. air at 300 K, 101.325 kPa: 0.011096 kg_w/kg_da
+Relative humidity from last calculation: 0.5(fractional)
+</pre>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../CSharp/example.html" title="Example Code for C#"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../MATLAB/example.html" title="Example Code for MATLAB"
+             >previous</a> |</li>
+        <li><a href="../../index.html">Home</a>|&nbsp;</li>
+        <li><a href="../../search.html">Search</a>|&nbsp;</li>
+        <li><a href="../examples.html">Examples</a>|&nbsp;</li>
+        <li><a href="../../_static/doxygen/html/index.html">Code</a>|&nbsp;</li>
+        <li><a href="../../HowGetIt.html">Downloads!</a>|&nbsp;</li>
+        <li><a href="../../contents.html">Documentation</a> &raquo;</li>
+
+          <li><a href="../examples.html" >Examples</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Ian Bell.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

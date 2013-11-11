@@ -1,0 +1,901 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>State Module &mdash; CoolProp 4.0.0beta documentation</title>
+    
+    <link rel="stylesheet" href="../_static/Coolprop.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '4.0.0beta',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="CoolProp 4.0.0beta documentation" href="../index.html" />
+    <link rel="up" title="CoolProp" href="modules.html" />
+    <link rel="prev" title="Plots Package" href="Plots.html" /> 
+  </head>
+  <body>
+<link rel="shortcut icon" href="_static/favicon.ico">
+
+<div style="background-color: #999999; text-align: left; padding: 10px 10px 15px 15px">
+<a href="../index.html"><img src="../_static/header.png" border="0" alt="matplotlib"/></a>
+</div>
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="Plots.html" title="Plots Package"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">Home</a>|&nbsp;</li>
+        <li><a href="../search.html">Search</a>|&nbsp;</li>
+        <li><a href="../examples/examples.html">Examples</a>|&nbsp;</li>
+        <li><a href="../_static/doxygen/html/index.html">Code</a>|&nbsp;</li>
+        <li><a href="../HowGetIt.html">Downloads!</a>|&nbsp;</li>
+        <li><a href="../contents.html">Documentation</a> &raquo;</li>
+
+          <li><a href="modules.html" accesskey="U">CoolProp</a> &raquo;</li> 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="Plots.html"
+                        title="previous chapter">Plots Package</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/apidoc/State.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-CoolProp.State">
+<span id="state-module"></span><h1>State Module<a class="headerlink" href="#module-CoolProp.State" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="CoolProp.State.State">
+<em class="property">class </em><tt class="descclassname">CoolProp.State.</tt><tt class="descname">State</tt><big>(</big><em>bytes Fluid</em>, <em>dict StateDict</em>, <em>double xL=-1.0</em>, <em>Liquid=None</em>, <em>phase=None</em><big>)</big><a class="headerlink" href="#CoolProp.State.State" title="Permalink to this definition">¶</a></dt>
+<dd><p>A class that contains all the code that represents a thermodynamic state</p>
+<p>The motivation for this class is that it is useful to be able to define the
+state once using whatever state inputs you like and then be able to calculate
+other thermodynamic properties with the minimum of computational work.</p>
+<p>Let&#8217;s suppose that you have inputs of pressure and temperature and you want
+to calculate the enthalpy and pressure.  Since the Equations of State are
+all explicit in temperature and density, each time you call something like:</p>
+<div class="highlight-python"><pre>h = Props('H','T',T','P',P,Fluid)
+s = Props('S','T',T','P',P,Fluid)</pre>
+</div>
+<p>the solver is used to carry out the T-P flash calculation. And if you wanted
+entropy as well you could either intermediately calculate <tt class="docutils literal"><span class="pre">T</span></tt>, <tt class="docutils literal"><span class="pre">rho</span></tt> and then use
+<tt class="docutils literal"><span class="pre">T</span></tt>, <tt class="docutils literal"><span class="pre">rho</span></tt> in the EOS in a manner like:</p>
+<div class="highlight-python"><pre>rho = Props('D','T',T','P',P,Fluid)
+h = Props('H','T',T','D',rho,Fluid)
+s = Props('S','T',T','D',rho,Fluid)</pre>
+</div>
+<p>Instead in this class all that is handled internally. So the call to update
+sets the internal variables in the most computationally efficient way possible</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>Fluid, string</strong> :</p>
+<p><strong>StateDict, dictionary</strong> :</p>
+<blockquote>
+<div><p>The state of the fluid - passed to the update function</p>
+</div></blockquote>
+<p><strong>phase, string</strong> :</p>
+<blockquote>
+<div><p>The phase of the fluid, it it is known.  One of <tt class="docutils literal"><span class="pre">Gas</span></tt>,``Liquid``,``Supercritical``,``TwoPhase``</p>
+</div></blockquote>
+<p><strong>xL, float</strong> :</p>
+<blockquote>
+<div><p>Liquid mass fraction (not currently supported)</p>
+</div></blockquote>
+<p><strong>Liquid, string</strong> :</p>
+<blockquote class="last">
+<div><p>The name of the liquid (not currently supported)</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="CoolProp.State.State.Fluid">
+<tt class="descname">Fluid</tt><a class="headerlink" href="#CoolProp.State.State.Fluid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fluid: bytes</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="CoolProp.State.State.Liquid">
+<tt class="descname">Liquid</tt><a class="headerlink" href="#CoolProp.State.State.Liquid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Liquid: bytes</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="CoolProp.State.State.PFC">
+<tt class="descname">PFC</tt><a class="headerlink" href="#CoolProp.State.State.PFC" title="Permalink to this definition">¶</a></dt>
+<dd><p>PFC: CoolProp.CoolProp.PureFluidClass</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.State.Phase">
+<tt class="descname">Phase</tt><big>(</big><em>self</em><big>)</big> &rarr; long<a class="headerlink" href="#CoolProp.State.State.Phase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an integer flag for the phase of the fluid, where the flag value
+is one of iLiquid, iSupercritical, iGas, iTwoPhase</p>
+<p>These constants are defined in the phase_constants module, and are imported
+into this module</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="CoolProp.State.State.Prandtl">
+<tt class="descname">Prandtl</tt><a class="headerlink" href="#CoolProp.State.State.Prandtl" title="Permalink to this definition">¶</a></dt>
+<dd><p>The Prandtl number (cp*mu/k) [-]</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.State.Props">
+<tt class="descname">Props</tt><big>(</big><em>self</em>, <em>long iOutput</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.State.Props" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="CoolProp.State.State.Q">
+<tt class="descname">Q</tt><a class="headerlink" href="#CoolProp.State.State.Q" title="Permalink to this definition">¶</a></dt>
+<dd><p>The quality [-]</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="CoolProp.State.State.T">
+<tt class="descname">T</tt><a class="headerlink" href="#CoolProp.State.State.T" title="Permalink to this definition">¶</a></dt>
+<dd><p>The temperature [K]</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="CoolProp.State.State.Tsat">
+<tt class="descname">Tsat</tt><a class="headerlink" href="#CoolProp.State.State.Tsat" title="Permalink to this definition">¶</a></dt>
+<dd><p>The saturation temperature (dew) for the given pressure, in [K]</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.State.copy">
+<tt class="descname">copy</tt><big>(</big><em>self</em><big>)</big> &rarr; State<a class="headerlink" href="#CoolProp.State.State.copy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make a copy of this State class</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="CoolProp.State.State.cp">
+<tt class="descname">cp</tt><a class="headerlink" href="#CoolProp.State.State.cp" title="Permalink to this definition">¶</a></dt>
+<dd><p>The specific heat at constant pressure  [kJ/kg]</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="CoolProp.State.State.cv">
+<tt class="descname">cv</tt><a class="headerlink" href="#CoolProp.State.State.cv" title="Permalink to this definition">¶</a></dt>
+<dd><p>The specific heat at constant volume  [kJ/kg]</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="CoolProp.State.State.dpdT">
+<tt class="descname">dpdT</tt><a class="headerlink" href="#CoolProp.State.State.dpdT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.State.get_MM">
+<tt class="descname">get_MM</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.State.get_MM" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the mole mass [kg/kmol] or [g/mol]</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.State.get_Q">
+<tt class="descname">get_Q</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.State.get_Q" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the quality [-]</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.State.get_T">
+<tt class="descname">get_T</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.State.get_T" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the temperature [K]</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.State.get_Tsat">
+<tt class="descname">get_Tsat</tt><big>(</big><em>self</em>, <em>double Q=1</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.State.get_Tsat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the saturation temperature, in [K]</p>
+<p>Returns <tt class="docutils literal"><span class="pre">None</span></tt> if pressure is not within the two-phase pressure range</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.State.get_cond">
+<tt class="descname">get_cond</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.State.get_cond" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the thermal conductivity, in [kW/m/K]</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.State.get_cp">
+<tt class="descname">get_cp</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.State.get_cp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the specific heat at constant pressure  [kJ/kg]</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.State.get_cp0">
+<tt class="descname">get_cp0</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.State.get_cp0" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the specific heat at constant pressure for the ideal gas [kJ/kg]</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.State.get_cv">
+<tt class="descname">get_cv</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.State.get_cv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the specific heat at constant volume  [kJ/kg]</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.State.get_dpdT">
+<tt class="descname">get_dpdT</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.State.get_dpdT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.State.get_h">
+<tt class="descname">get_h</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.State.get_h" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the specific enthalpy [kJ/kg]</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.State.get_p">
+<tt class="descname">get_p</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.State.get_p" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the pressure [kPa]</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.State.get_rho">
+<tt class="descname">get_rho</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.State.get_rho" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the density [kg/m^3]</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.State.get_s">
+<tt class="descname">get_s</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.State.get_s" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the specific enthalpy [kJ/kg/K]</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.State.get_speed_sound">
+<tt class="descname">get_speed_sound</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.State.get_speed_sound" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the speed of sound  [m/s]</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.State.get_subcooling">
+<tt class="descname">get_subcooling</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.State.get_subcooling" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the amount of subcooling below the saturation temperature corresponding to the pressure, in [K]</p>
+<p>Returns <tt class="docutils literal"><span class="pre">None</span></tt> if pressure is not within the two-phase pressure range</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.State.get_superheat">
+<tt class="descname">get_superheat</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.State.get_superheat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the amount of superheat above the saturation temperature corresponding to the pressure, in [K]</p>
+<p>Returns <tt class="docutils literal"><span class="pre">None</span></tt> if pressure is not within the two-phase pressure range</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.State.get_u">
+<tt class="descname">get_u</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.State.get_u" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the specific internal energy [kJ/kg]</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.State.get_visc">
+<tt class="descname">get_visc</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.State.get_visc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the viscosity, in [Pa-s]</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="CoolProp.State.State.h">
+<tt class="descname">h</tt><a class="headerlink" href="#CoolProp.State.State.h" title="Permalink to this definition">¶</a></dt>
+<dd><p>The specific enthalpy [kJ/kg]</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="CoolProp.State.State.hasLiquid">
+<tt class="descname">hasLiquid</tt><a class="headerlink" href="#CoolProp.State.State.hasLiquid" title="Permalink to this definition">¶</a></dt>
+<dd><p>hasLiquid: &#8216;int&#8217;</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="CoolProp.State.State.is_CPFluid">
+<tt class="descname">is_CPFluid</tt><a class="headerlink" href="#CoolProp.State.State.is_CPFluid" title="Permalink to this definition">¶</a></dt>
+<dd><p>is_CPFluid: &#8216;int&#8217;</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="CoolProp.State.State.k">
+<tt class="descname">k</tt><a class="headerlink" href="#CoolProp.State.State.k" title="Permalink to this definition">¶</a></dt>
+<dd><p>The thermal conductivity, in [kW/m/K]</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="CoolProp.State.State.p">
+<tt class="descname">p</tt><a class="headerlink" href="#CoolProp.State.State.p" title="Permalink to this definition">¶</a></dt>
+<dd><p>The pressure [kPa]</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="CoolProp.State.State.phase">
+<tt class="descname">phase</tt><a class="headerlink" href="#CoolProp.State.State.phase" title="Permalink to this definition">¶</a></dt>
+<dd><p>phase: bytes</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="CoolProp.State.State.rho">
+<tt class="descname">rho</tt><a class="headerlink" href="#CoolProp.State.State.rho" title="Permalink to this definition">¶</a></dt>
+<dd><p>The density [kg/m^3]</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="CoolProp.State.State.s">
+<tt class="descname">s</tt><a class="headerlink" href="#CoolProp.State.State.s" title="Permalink to this definition">¶</a></dt>
+<dd><p>The specific enthalpy [kJ/kg/K]</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.State.set_Fluid">
+<tt class="descname">set_Fluid</tt><big>(</big><em>self</em>, <em>bytes Fluid</em><big>)</big><a class="headerlink" href="#CoolProp.State.State.set_Fluid" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.State.speed_test">
+<tt class="descname">speed_test</tt><big>(</big><em>self</em>, <em>int N</em><big>)</big><a class="headerlink" href="#CoolProp.State.State.speed_test" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="CoolProp.State.State.subcooling">
+<tt class="descname">subcooling</tt><a class="headerlink" href="#CoolProp.State.State.subcooling" title="Permalink to this definition">¶</a></dt>
+<dd><p>The amount of subcooling below the saturation temperature corresponding to the pressure, in [K]</p>
+<p>Returns <tt class="docutils literal"><span class="pre">None</span></tt> if pressure is not within the two-phase pressure range</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="CoolProp.State.State.superheat">
+<tt class="descname">superheat</tt><a class="headerlink" href="#CoolProp.State.State.superheat" title="Permalink to this definition">¶</a></dt>
+<dd><p>The amount of superheat above the saturation temperature corresponding to the pressure, in [K]</p>
+<p>Returns <tt class="docutils literal"><span class="pre">None</span></tt> if pressure is not within the two-phase pressure range</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="CoolProp.State.State.u">
+<tt class="descname">u</tt><a class="headerlink" href="#CoolProp.State.State.u" title="Permalink to this definition">¶</a></dt>
+<dd><p>The internal energy [kJ/kg]</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.State.update">
+<tt class="descname">update</tt><big>(</big><em>self</em>, <em>dict params</em>, <em>double xL=-1.0</em><big>)</big><a class="headerlink" href="#CoolProp.State.State.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parameters
+params, dictionary</p>
+<blockquote>
+<div>A dictionary of terms to be updated, with keys equal to single-char inputs to the Props function,
+for instance <tt class="docutils literal"><span class="pre">dict(T=298,</span> <span class="pre">P</span> <span class="pre">=</span> <span class="pre">101.325)</span></tt> would be one standard atmosphere</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.State.update_Trho">
+<tt class="descname">update_Trho</tt><big>(</big><em>self</em>, <em>double T</em>, <em>double rho</em><big>)</big><a class="headerlink" href="#CoolProp.State.State.update_Trho" title="Permalink to this definition">¶</a></dt>
+<dd><p>Just use the temperature and density directly for speed</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>T: float</strong> :</p>
+<blockquote>
+<div><p>Temperature [K]</p>
+</div></blockquote>
+<p><strong>rho: float</strong> :</p>
+<blockquote class="last">
+<div><p>Density [kg/m^3]</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.State.update_ph">
+<tt class="descname">update_ph</tt><big>(</big><em>self</em>, <em>double p</em>, <em>double h</em><big>)</big><a class="headerlink" href="#CoolProp.State.State.update_ph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use the pressure and enthalpy directly</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>p: float</strong> :</p>
+<blockquote>
+<div><p>Pressure (absolute) [kPa]</p>
+</div></blockquote>
+<p><strong>h: float</strong> :</p>
+<blockquote class="last">
+<div><p>Enthalpy [kJ/kg]</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="CoolProp.State.State.visc">
+<tt class="descname">visc</tt><a class="headerlink" href="#CoolProp.State.State.visc" title="Permalink to this definition">¶</a></dt>
+<dd><p>The viscosity, in [Pa-s]</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="CoolProp.State.PureFluidClass">
+<em class="property">class </em><tt class="descclassname">CoolProp.State.</tt><tt class="descname">PureFluidClass</tt><a class="headerlink" href="#CoolProp.State.PureFluidClass" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="CoolProp.State.PureFluidClass.T">
+<tt class="descname">T</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.PureFluidClass.T" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.PureFluidClass.TL">
+<tt class="descname">TL</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.PureFluidClass.TL" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.PureFluidClass.TV">
+<tt class="descname">TV</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.PureFluidClass.TV" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.PureFluidClass.cp">
+<tt class="descname">cp</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.PureFluidClass.cp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.PureFluidClass.cv">
+<tt class="descname">cv</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.PureFluidClass.cv" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.PureFluidClass.d2Tdp2_along_sat">
+<tt class="descname">d2Tdp2_along_sat</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.PureFluidClass.d2Tdp2_along_sat" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.PureFluidClass.d2hdT2_constp">
+<tt class="descname">d2hdT2_constp</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.PureFluidClass.d2hdT2_constp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.PureFluidClass.d2hdT2_constrho">
+<tt class="descname">d2hdT2_constrho</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.PureFluidClass.d2hdT2_constrho" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.PureFluidClass.d2hdTdp">
+<tt class="descname">d2hdTdp</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.PureFluidClass.d2hdTdp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.PureFluidClass.d2hdp2_along_sat_liquid">
+<tt class="descname">d2hdp2_along_sat_liquid</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.PureFluidClass.d2hdp2_along_sat_liquid" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.PureFluidClass.d2hdp2_along_sat_vapor">
+<tt class="descname">d2hdp2_along_sat_vapor</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.PureFluidClass.d2hdp2_along_sat_vapor" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.PureFluidClass.d2hdp2_constT">
+<tt class="descname">d2hdp2_constT</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.PureFluidClass.d2hdp2_constT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.PureFluidClass.d2hdrho2_constT">
+<tt class="descname">d2hdrho2_constT</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.PureFluidClass.d2hdrho2_constT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.PureFluidClass.d2hdrhodT">
+<tt class="descname">d2hdrhodT</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.PureFluidClass.d2hdrhodT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.PureFluidClass.d2pdT2_constrho">
+<tt class="descname">d2pdT2_constrho</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.PureFluidClass.d2pdT2_constrho" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.PureFluidClass.d2pdrho2_constT">
+<tt class="descname">d2pdrho2_constT</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.PureFluidClass.d2pdrho2_constT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.PureFluidClass.d2pdrhodT">
+<tt class="descname">d2pdrhodT</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.PureFluidClass.d2pdrhodT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.PureFluidClass.d2rhodT2_constp">
+<tt class="descname">d2rhodT2_constp</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.PureFluidClass.d2rhodT2_constp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.PureFluidClass.d2rhodTdp">
+<tt class="descname">d2rhodTdp</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.PureFluidClass.d2rhodTdp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.PureFluidClass.d2rhodh2_constp">
+<tt class="descname">d2rhodh2_constp</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.PureFluidClass.d2rhodh2_constp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.PureFluidClass.d2rhodhdQ">
+<tt class="descname">d2rhodhdQ</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.PureFluidClass.d2rhodhdQ" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.PureFluidClass.d2rhodhdp">
+<tt class="descname">d2rhodhdp</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.PureFluidClass.d2rhodhdp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.PureFluidClass.d2rhodp2_along_sat_liquid">
+<tt class="descname">d2rhodp2_along_sat_liquid</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.PureFluidClass.d2rhodp2_along_sat_liquid" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.PureFluidClass.d2rhodp2_along_sat_vapor">
+<tt class="descname">d2rhodp2_along_sat_vapor</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.PureFluidClass.d2rhodp2_along_sat_vapor" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.PureFluidClass.d2rhodp2_constT">
+<tt class="descname">d2rhodp2_constT</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.PureFluidClass.d2rhodp2_constT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.PureFluidClass.d2rhodpdQ">
+<tt class="descname">d2rhodpdQ</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.PureFluidClass.d2rhodpdQ" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.PureFluidClass.d2sdT2_constp">
+<tt class="descname">d2sdT2_constp</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.PureFluidClass.d2sdT2_constp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.PureFluidClass.d2sdT2_constrho">
+<tt class="descname">d2sdT2_constrho</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.PureFluidClass.d2sdT2_constrho" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.PureFluidClass.d2sdTdp">
+<tt class="descname">d2sdTdp</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.PureFluidClass.d2sdTdp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.PureFluidClass.d2sdp2_along_sat_liquid">
+<tt class="descname">d2sdp2_along_sat_liquid</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.PureFluidClass.d2sdp2_along_sat_liquid" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.PureFluidClass.d2sdp2_along_sat_vapor">
+<tt class="descname">d2sdp2_along_sat_vapor</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.PureFluidClass.d2sdp2_along_sat_vapor" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.PureFluidClass.d2sdp2_constT">
+<tt class="descname">d2sdp2_constT</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.PureFluidClass.d2sdp2_constT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.PureFluidClass.d2sdrho2_constT">
+<tt class="descname">d2sdrho2_constT</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.PureFluidClass.d2sdrho2_constT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.PureFluidClass.d2sdrhodT">
+<tt class="descname">d2sdrhodT</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.PureFluidClass.d2sdrhodT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.PureFluidClass.dTdp_along_sat">
+<tt class="descname">dTdp_along_sat</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.PureFluidClass.dTdp_along_sat" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.PureFluidClass.dhdT_constp">
+<tt class="descname">dhdT_constp</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.PureFluidClass.dhdT_constp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.PureFluidClass.dhdT_constrho">
+<tt class="descname">dhdT_constrho</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.PureFluidClass.dhdT_constrho" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.PureFluidClass.dhdp_along_sat_liquid">
+<tt class="descname">dhdp_along_sat_liquid</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.PureFluidClass.dhdp_along_sat_liquid" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.PureFluidClass.dhdp_along_sat_vapor">
+<tt class="descname">dhdp_along_sat_vapor</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.PureFluidClass.dhdp_along_sat_vapor" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.PureFluidClass.dhdp_constT">
+<tt class="descname">dhdp_constT</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.PureFluidClass.dhdp_constT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.PureFluidClass.dhdrho_constT">
+<tt class="descname">dhdrho_constT</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.PureFluidClass.dhdrho_constT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.PureFluidClass.dhdrho_constp">
+<tt class="descname">dhdrho_constp</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.PureFluidClass.dhdrho_constp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.PureFluidClass.disable_TTSE_LUT">
+<tt class="descname">disable_TTSE_LUT</tt><big>(</big><em>self</em><big>)</big><a class="headerlink" href="#CoolProp.State.PureFluidClass.disable_TTSE_LUT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.PureFluidClass.dpdT_consth">
+<tt class="descname">dpdT_consth</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.PureFluidClass.dpdT_consth" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.PureFluidClass.dpdT_constrho">
+<tt class="descname">dpdT_constrho</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.PureFluidClass.dpdT_constrho" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.PureFluidClass.dpdrho_constT">
+<tt class="descname">dpdrho_constT</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.PureFluidClass.dpdrho_constT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.PureFluidClass.dpdrho_consth">
+<tt class="descname">dpdrho_consth</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.PureFluidClass.dpdrho_consth" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.PureFluidClass.drhodT_along_sat_liquid">
+<tt class="descname">drhodT_along_sat_liquid</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.PureFluidClass.drhodT_along_sat_liquid" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.PureFluidClass.drhodT_along_sat_vapor">
+<tt class="descname">drhodT_along_sat_vapor</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.PureFluidClass.drhodT_along_sat_vapor" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.PureFluidClass.drhodT_constp">
+<tt class="descname">drhodT_constp</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.PureFluidClass.drhodT_constp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.PureFluidClass.drhodp_along_sat_liquid">
+<tt class="descname">drhodp_along_sat_liquid</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.PureFluidClass.drhodp_along_sat_liquid" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.PureFluidClass.drhodp_along_sat_vapor">
+<tt class="descname">drhodp_along_sat_vapor</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.PureFluidClass.drhodp_along_sat_vapor" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.PureFluidClass.drhodp_constT">
+<tt class="descname">drhodp_constT</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.PureFluidClass.drhodp_constT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.PureFluidClass.dsdT_constp">
+<tt class="descname">dsdT_constp</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.PureFluidClass.dsdT_constp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.PureFluidClass.dsdT_constrho">
+<tt class="descname">dsdT_constrho</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.PureFluidClass.dsdT_constrho" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.PureFluidClass.dsdp_along_sat_liquid">
+<tt class="descname">dsdp_along_sat_liquid</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.PureFluidClass.dsdp_along_sat_liquid" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.PureFluidClass.dsdp_along_sat_vapor">
+<tt class="descname">dsdp_along_sat_vapor</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.PureFluidClass.dsdp_along_sat_vapor" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.PureFluidClass.dsdp_constT">
+<tt class="descname">dsdp_constT</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.PureFluidClass.dsdp_constT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.PureFluidClass.dsdrho_constT">
+<tt class="descname">dsdrho_constT</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.PureFluidClass.dsdrho_constT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.PureFluidClass.dsdrho_constp">
+<tt class="descname">dsdrho_constp</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.PureFluidClass.dsdrho_constp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.PureFluidClass.enable_TTSE_LUT">
+<tt class="descname">enable_TTSE_LUT</tt><big>(</big><em>self</em><big>)</big><a class="headerlink" href="#CoolProp.State.PureFluidClass.enable_TTSE_LUT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.PureFluidClass.h">
+<tt class="descname">h</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.PureFluidClass.h" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.PureFluidClass.hL">
+<tt class="descname">hL</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.PureFluidClass.hL" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.PureFluidClass.hV">
+<tt class="descname">hV</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.PureFluidClass.hV" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.PureFluidClass.isenabled_TTSE_LUT">
+<tt class="descname">isenabled_TTSE_LUT</tt><big>(</big><em>self</em><big>)</big> &rarr; int<a class="headerlink" href="#CoolProp.State.PureFluidClass.isenabled_TTSE_LUT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.PureFluidClass.keyed_output">
+<tt class="descname">keyed_output</tt><big>(</big><em>self</em>, <em>long iOutput</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.PureFluidClass.keyed_output" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.PureFluidClass.p">
+<tt class="descname">p</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.PureFluidClass.p" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.PureFluidClass.pL">
+<tt class="descname">pL</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.PureFluidClass.pL" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.PureFluidClass.pV">
+<tt class="descname">pV</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.PureFluidClass.pV" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.PureFluidClass.phase">
+<tt class="descname">phase</tt><big>(</big><em>self</em><big>)</big> &rarr; long<a class="headerlink" href="#CoolProp.State.PureFluidClass.phase" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.PureFluidClass.rho">
+<tt class="descname">rho</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.PureFluidClass.rho" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.PureFluidClass.rhoL">
+<tt class="descname">rhoL</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.PureFluidClass.rhoL" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.PureFluidClass.rhoV">
+<tt class="descname">rhoV</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.PureFluidClass.rhoV" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.PureFluidClass.s">
+<tt class="descname">s</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.PureFluidClass.s" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.PureFluidClass.sL">
+<tt class="descname">sL</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.PureFluidClass.sL" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.PureFluidClass.sV">
+<tt class="descname">sV</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.PureFluidClass.sV" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.PureFluidClass.speed_sound">
+<tt class="descname">speed_sound</tt><big>(</big><em>self</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.State.PureFluidClass.speed_sound" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.State.PureFluidClass.update">
+<tt class="descname">update</tt><big>(</big><em>self</em>, <em>long iInput1</em>, <em>double Value1</em>, <em>long iInput2</em>, <em>double Value2</em><big>)</big><a class="headerlink" href="#CoolProp.State.PureFluidClass.update" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="Plots.html" title="Plots Package"
+             >previous</a> |</li>
+        <li><a href="../index.html">Home</a>|&nbsp;</li>
+        <li><a href="../search.html">Search</a>|&nbsp;</li>
+        <li><a href="../examples/examples.html">Examples</a>|&nbsp;</li>
+        <li><a href="../_static/doxygen/html/index.html">Code</a>|&nbsp;</li>
+        <li><a href="../HowGetIt.html">Downloads!</a>|&nbsp;</li>
+        <li><a href="../contents.html">Documentation</a> &raquo;</li>
+
+          <li><a href="modules.html" >CoolProp</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Ian Bell.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

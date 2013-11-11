@@ -1,0 +1,794 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>CoolProp Module &mdash; CoolProp 4.0.0beta documentation</title>
+    
+    <link rel="stylesheet" href="../_static/Coolprop.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '4.0.0beta',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="CoolProp 4.0.0beta documentation" href="../index.html" />
+    <link rel="up" title="CoolProp" href="modules.html" />
+    <link rel="next" title="HumidAirProp Module" href="HumidAirProp.html" />
+    <link rel="prev" title="CoolProp" href="modules.html" /> 
+  </head>
+  <body>
+<link rel="shortcut icon" href="_static/favicon.ico">
+
+<div style="background-color: #999999; text-align: left; padding: 10px 10px 15px 15px">
+<a href="../index.html"><img src="../_static/header.png" border="0" alt="matplotlib"/></a>
+</div>
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="HumidAirProp.html" title="HumidAirProp Module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="modules.html" title="CoolProp"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">Home</a>|&nbsp;</li>
+        <li><a href="../search.html">Search</a>|&nbsp;</li>
+        <li><a href="../examples/examples.html">Examples</a>|&nbsp;</li>
+        <li><a href="../_static/doxygen/html/index.html">Code</a>|&nbsp;</li>
+        <li><a href="../HowGetIt.html">Downloads!</a>|&nbsp;</li>
+        <li><a href="../contents.html">Documentation</a> &raquo;</li>
+
+          <li><a href="modules.html" accesskey="U">CoolProp</a> &raquo;</li> 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="modules.html"
+                        title="previous chapter">CoolProp</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="HumidAirProp.html"
+                        title="next chapter">HumidAirProp Module</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/apidoc/CoolProp.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-CoolProp.CoolProp">
+<span id="coolprop-module"></span><h1>CoolProp Module<a class="headerlink" href="#module-CoolProp.CoolProp" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="CoolProp.CoolProp.DerivTerms">
+<tt class="descclassname">CoolProp.CoolProp.</tt><tt class="descname">DerivTerms</tt><big>(</big><em>string Output</em>, <em>double T</em>, <em>double rho</em>, <em>string Fluid</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.CoolProp.DerivTerms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Call signature:</p>
+<div class="highlight-python"><pre>DerivTerms(OutputName, T, rho, Fluid) --&gt; float</pre>
+</div>
+<p>where <tt class="docutils literal"><span class="pre">Fluid</span></tt> is a string with a valid CoolProp fluid name, and <tt class="docutils literal"><span class="pre">T</span></tt> and <tt class="docutils literal"><span class="pre">rho</span></tt> are the temperature in K and density in kg/m <sup>3</sup> .  The value 
+<tt class="docutils literal"><span class="pre">OutputName</span></tt> is one of the strings in the table below:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="15%" />
+<col width="85%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">OutputName</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">dpdT</span></tt></td>
+<td>Derivative of pressure with respect to temperature at constant density [kPa/K]</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">dpdrho</span></tt></td>
+<td>Derivative of pressure with respect to density at constant temperature [kPa/(kg/m<sup>3</sup>)]</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">Z</span></tt></td>
+<td>Compressibility factor [-]</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">dZ_dDelta</span></tt></td>
+<td>Derivative of Z with respect to reduced density [-]</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">dZ_dTau</span></tt></td>
+<td>Derivative of Z with respect to inverse reduced temperature [-]</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">B</span></tt></td>
+<td>Second virial coefficient [m<sup>3</sup>/kg]</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">dBdT</span></tt></td>
+<td>Derivative of second virial coefficient with respect to temperature [m<sup>3</sup>/kg/K]</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">C</span></tt></td>
+<td>Third virial coefficient [m<sup>6</sup>/kg<sup>2</sup>]</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">dCdT</span></tt></td>
+<td>Derivative of third virial coefficient with respect to temperature [m<sup>6</sup>/kg<sup>2</sup>/K]</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">phir</span></tt></td>
+<td>Residual non-dimensionalized Helmholtz energy [-]</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">dphir_dTau</span></tt></td>
+<td>Partial of residual non-dimensionalized Helmholtz energy with respect to inverse reduced temperature [-]</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">d2phir_dTau2</span></tt></td>
+<td>Second partial of residual non-dimensionalized Helmholtz energy with respect to inverse reduced temperature [-]</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">dphir_dDelta</span></tt></td>
+<td>Partial of residual non-dimensionalized Helmholtz energy with respect to reduced density [-]</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">d2phir_dDelta2</span></tt></td>
+<td>Second partial of residual non-dimensionalized Helmholtz energy with respect to reduced density [-]</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">d2phir_dDelta_dTau</span></tt></td>
+<td>First cross-partial of residual non-dimensionalized Helmholtz energy [-]</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">d3phir_dDelta2_dTau</span></tt></td>
+<td>Second cross-partial of residual non-dimensionalized Helmholtz energy [-]</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">phi0</span></tt></td>
+<td>Ideal-gas non-dimensionalized Helmholtz energy [-]</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">dphi0_dTau</span></tt></td>
+<td>Partial of ideal-gas non-dimensionalized Helmholtz energy with respect to inverse reduced temperature [-]</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">d2phi0_dTau2</span></tt></td>
+<td>Second partial of ideal-gas non-dimensionalized Helmholtz energy with respect to inverse reduced temperature [-]</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">dphi0_dDelta</span></tt></td>
+<td>Partial of ideal-gas non-dimensionalized Helmholtz energy with respect to reduced density [-]</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">d2phi0_dDelta2</span></tt></td>
+<td>Second partial of ideal-gas non-dimensionalized Helmholtz energy with respect to reduced density [-]</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">IsothermalCompressibility</span></tt></td>
+<td>Isothermal compressibility [1/kPa]</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="CoolProp.CoolProp.DerivTermsU">
+<tt class="descclassname">CoolProp.CoolProp.</tt><tt class="descname">DerivTermsU</tt><big>(</big><em>in1</em>, <em>T</em>, <em>rho</em>, <em>fluid</em>, <em>units=None</em><big>)</big><a class="headerlink" href="#CoolProp.CoolProp.DerivTermsU" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make the DerivTerms function handle different kinds of unit sets. Use 
+kSI or SI to identify your desired unit system. Both input and output 
+values have to be from the same unit set.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="CoolProp.CoolProp.F2K">
+<tt class="descclassname">CoolProp.CoolProp.</tt><tt class="descname">F2K</tt><big>(</big><em>double T_F</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.CoolProp.F2K" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert temperature in degrees Fahrenheit to Kelvin</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="CoolProp.CoolProp.FluidsList">
+<tt class="descclassname">CoolProp.CoolProp.</tt><tt class="descname">FluidsList</tt><big>(</big><big>)</big> &rarr; list<a class="headerlink" href="#CoolProp.CoolProp.FluidsList" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a list of strings of all fluid names</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>FluidsList</strong> : list of strings of fluid names</p>
+<blockquote class="last">
+<div><p>All the fluids that are included in CoolProp</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>Here is an example:</p>
+<div class="highlight-python"><pre>In [0]: from CoolProp.CoolProp import FluidsList
+
+In [1]: FluidsList()</pre>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="CoolProp.CoolProp.IProps">
+<tt class="descclassname">CoolProp.CoolProp.</tt><tt class="descname">IProps</tt><big>(</big><em>long iOutput</em>, <em>long iInput1</em>, <em>double Input1</em>, <em>long iInput2</em>, <em>double Input2</em>, <em>long iFluid</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.CoolProp.IProps" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is a more computationally efficient version of the Props() function as it uses integer keys for the input and output codes as well as the fluid index for the fluid.  It can only be used with CoolProp fluids.  An example of how it should be used:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c">#  These should be run once in the header of your file</span>
+<span class="kn">from</span> <span class="nn">CoolProp.CoolProp</span> <span class="kn">import</span> <span class="n">IProps</span><span class="p">,</span> <span class="n">get_Fluid_index</span>
+<span class="kn">from</span> <span class="nn">CoolProp</span> <span class="kn">import</span> <span class="n">param_constants</span>
+<span class="n">iPropane</span> <span class="o">=</span> <span class="n">get_Fluid_index</span><span class="p">(</span><span class="s">&#39;Propane&#39;</span><span class="p">)</span>
+
+<span class="c">#  This should be run using the cached values - much faster !</span>
+<span class="n">IProps</span><span class="p">(</span><span class="n">param_constants</span><span class="o">.</span><span class="n">iP</span><span class="p">,</span><span class="n">param_constants</span><span class="o">.</span><span class="n">iT</span><span class="p">,</span><span class="mf">0.8</span><span class="o">*</span><span class="n">Tc</span><span class="p">,</span><span class="n">param_constants</span><span class="o">.</span><span class="n">iQ</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">iPropane</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The reason that this function is significantly faster than Props is that it skips all the string comparisons which slows down the Props function quite a lot.  At the C++ level, IProps doesn&#8217;t use any strings and operates on integers and floating point values</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="CoolProp.CoolProp.IsFluidType">
+<tt class="descclassname">CoolProp.CoolProp.</tt><tt class="descname">IsFluidType</tt><big>(</big><em>string Fluid</em>, <em>string Type</em><big>)</big> &rarr; int<a class="headerlink" href="#CoolProp.CoolProp.IsFluidType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if a fluid is of a given type</p>
+<p>Valid types are:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">Brine</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">PseudoPure</span></tt> (or equivalently <tt class="docutils literal"><span class="pre">PseudoPureFluid</span></tt>)</li>
+<li><tt class="docutils literal"><span class="pre">PureFluid</span></tt></li>
+</ul>
+</dd></dl>
+
+<dl class="function">
+<dt id="CoolProp.CoolProp.K2F">
+<tt class="descclassname">CoolProp.CoolProp.</tt><tt class="descname">K2F</tt><big>(</big><em>double T_K</em><big>)</big> &rarr; double<a class="headerlink" href="#CoolProp.CoolProp.K2F" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert temperature in Kelvin to degrees Fahrenheit</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="CoolProp.CoolProp.Phase">
+<tt class="descclassname">CoolProp.CoolProp.</tt><tt class="descname">Phase</tt><big>(</big><em>str Fluid</em>, <em>double T</em>, <em>double p</em><big>)</big> &rarr; string<a class="headerlink" href="#CoolProp.CoolProp.Phase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a set of temperature and pressure, returns one of the following strings</p>
+<ul class="simple">
+<li>Gas</li>
+<li>Liquid</li>
+<li>Supercritical</li>
+<li>Two-Phase</li>
+</ul>
+<p>Phase diagram:</p>
+<div class="highlight-python"><pre>    |         |     
+    |         |    Supercritical
+    |         |
+p   | Liquid (b)------------
+    |        /
+    |       / 
+    |      /       Gas
+    |     / 
+    |   (a)
+    |  /
+    |------------------------
+
+               T
+
+   a: triple point
+   b: critical point
+   a-b: Saturation line</pre>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="CoolProp.CoolProp.Phase_Tp">
+<tt class="descclassname">CoolProp.CoolProp.</tt><tt class="descname">Phase_Tp</tt><big>(</big><em>str Fluid</em>, <em>double T</em>, <em>double p</em><big>)</big> &rarr; string<a class="headerlink" href="#CoolProp.CoolProp.Phase_Tp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="CoolProp.CoolProp.Phase_Trho">
+<tt class="descclassname">CoolProp.CoolProp.</tt><tt class="descname">Phase_Trho</tt><big>(</big><em>str Fluid</em>, <em>double T</em>, <em>double rho</em><big>)</big> &rarr; string<a class="headerlink" href="#CoolProp.CoolProp.Phase_Trho" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="CoolProp.CoolProp.Props">
+<tt class="descclassname">CoolProp.CoolProp.</tt><tt class="descname">Props</tt><big>(</big><em>str in1</em>, <em>str in2</em>, <em>in3=None</em>, <em>in4=None</em>, <em>in5=None</em>, <em>in6=None</em>, <em>in7=None</em><big>)</big><a class="headerlink" href="#CoolProp.CoolProp.Props" title="Permalink to this definition">¶</a></dt>
+<dd><p>Call Type #1:</p>
+<div class="highlight-python"><pre>Props(Fluid,PropName) --&gt; float</pre>
+</div>
+<p>Where <tt class="docutils literal"><span class="pre">Fluid</span></tt> is a string with a valid CoolProp fluid name, and <tt class="docutils literal"><span class="pre">PropName</span></tt> is one of the following strings:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="30%" />
+<col width="70%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">Tcrit</span></tt></td>
+<td>Critical temperature [K]</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">Treduce</span></tt></td>
+<td>Reducing temperature [K]</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">pcrit</span></tt></td>
+<td>Critical pressure [kPa]</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">rhocrit</span></tt></td>
+<td>Critical density [kg/m3]</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">rhoreduce</span></tt></td>
+<td>Reducing density [kg/m3]</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">molemass</span></tt></td>
+<td>Molecular mass [kg/kmol]</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">Ttriple</span></tt></td>
+<td>Triple-point temperature [K]</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">Tmin</span></tt></td>
+<td>Minimum temperature [K]</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">ptriple</span></tt></td>
+<td>Triple-point pressure [kPa]</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">accentric</span></tt></td>
+<td>Accentric factor [-]</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">GWP100</span></tt></td>
+<td>Global Warming Potential 100 yr</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">ODP</span></tt></td>
+<td>Ozone Depletion Potential</td>
+</tr>
+</tbody>
+</table>
+<p>This type of call is used to get fluid-specific parameters that are not 
+dependent on the state</p>
+<p>Call Type #2:</p>
+<p>Alternatively, Props can be called in the form:</p>
+<div class="highlight-python"><pre>Props(OutputName,InputName1,InputProp1,InputName2,InputProp2,Fluid) --&gt; float</pre>
+</div>
+<p>where <tt class="docutils literal"><span class="pre">Fluid</span></tt> is a string with a valid CoolProp fluid name.  The value 
+<tt class="docutils literal"><span class="pre">OutputName</span></tt> is either a single-character or a string alias.  This list 
+shows the possible values</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="33%" />
+<col width="68%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><tt class="docutils literal"><span class="pre">OutputName</span></tt></th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">Q</span></tt></td>
+<td>Quality [-]</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">T</span></tt></td>
+<td>Temperature [K]</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">P</span></tt></td>
+<td>Pressure [kPa]</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">D</span></tt></td>
+<td>Density [kg/m3]</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">C0</span></tt></td>
+<td>Ideal-gas specific heat at constant pressure [kJ/kg]</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">C</span></tt></td>
+<td>Specific heat at constant pressure [kJ/kg]</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">O</span></tt></td>
+<td>Specific heat at constant volume [kJ/kg]</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">U</span></tt></td>
+<td>Internal energy [kJ/kg]</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">H</span></tt></td>
+<td>Enthalpy [kJ/kg]</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">S</span></tt></td>
+<td>Entropy [kJ/kg/K]</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">A</span></tt></td>
+<td>Speed of sound [m/s]</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">G</span></tt></td>
+<td>Gibbs function [kJ/kg]</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">V</span></tt></td>
+<td>Dynamic viscosity [Pa-s]</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">L</span></tt></td>
+<td>Thermal conductivity [kW/m/K]</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">I</span></tt> or <cite>SurfaceTension</cite></td>
+<td>Surface Tension [N/m]</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">w</span></tt> or <cite>accentric</cite></td>
+<td>Accentric Factor [-]</td>
+</tr>
+</tbody>
+</table>
+<p>The following sets of input values are valid (order doesn&#8217;t matter):</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="40%" />
+<col width="60%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><tt class="docutils literal"><span class="pre">InputName1</span></tt></th>
+<th class="head"><tt class="docutils literal"><span class="pre">InputName2</span></tt></th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">T</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">P</span></tt></td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">T</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">D</span></tt></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">P</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">D</span></tt></td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">T</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">Q</span></tt></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">P</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">Q</span></tt></td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">H</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">P</span></tt></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">S</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">P</span></tt></td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">S</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">H</span></tt></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Python Only</strong> : InputProp1 and InputProp2 can be lists or numpy arrays.  If both are iterables, they must be the same size.</p>
+<p>If <cite>InputName1</cite> is <cite>T</cite> and <cite>OutputName</cite> is <tt class="docutils literal"><span class="pre">I</span></tt> or <tt class="docutils literal"><span class="pre">SurfaceTension</span></tt>, the second input is neglected
+since surface tension is only a function of temperature</p>
+<p>Call Type #3:
+New in 2.2
+If you provide InputName1 or InputName2 as a derived class of Quantity, the value will be internally
+converted to the required units as long as it is dimensionally correct.  Otherwise a ValueError will 
+be raised by the conversion</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="CoolProp.CoolProp.PropsU">
+<tt class="descclassname">CoolProp.CoolProp.</tt><tt class="descname">PropsU</tt><big>(</big><em>in1</em>, <em>in2</em>, <em>in3=None</em>, <em>in4=None</em>, <em>in5=None</em>, <em>in6=None</em>, <em>in7=None</em><big>)</big><a class="headerlink" href="#CoolProp.CoolProp.PropsU" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make the Props function handle different kinds of unit sets. Use 
+kSI or SI to identify your desired unit system. Both input and output 
+values have to be from the same unit set.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="CoolProp.CoolProp.add_REFPROP_fluid">
+<tt class="descclassname">CoolProp.CoolProp.</tt><tt class="descname">add_REFPROP_fluid</tt><big>(</big><em>str FluidName</em><big>)</big><a class="headerlink" href="#CoolProp.CoolProp.add_REFPROP_fluid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a REFPROP fluid to CoolProp internal structure</p>
+<p>example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">add_REFPROP_fluid</span><span class="p">(</span><span class="s">&quot;REFPROP-PROPANE&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="CoolProp.CoolProp.conductivity_background">
+<tt class="descclassname">CoolProp.CoolProp.</tt><tt class="descname">conductivity_background</tt><big>(</big><em>str Fluid</em>, <em>double T</em>, <em>double rho</em><big>)</big><a class="headerlink" href="#CoolProp.CoolProp.conductivity_background" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="CoolProp.CoolProp.conductivity_critical">
+<tt class="descclassname">CoolProp.CoolProp.</tt><tt class="descname">conductivity_critical</tt><big>(</big><em>str Fluid</em>, <em>double T</em>, <em>double rho</em><big>)</big><a class="headerlink" href="#CoolProp.CoolProp.conductivity_critical" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="CoolProp.CoolProp.conformal_Trho">
+<tt class="descclassname">CoolProp.CoolProp.</tt><tt class="descname">conformal_Trho</tt><big>(</big><em>str Fluid</em>, <em>str ReferenceFluid</em>, <em>double T</em>, <em>double rho</em><big>)</big> &rarr; tuple<a class="headerlink" href="#CoolProp.CoolProp.conformal_Trho" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="CoolProp.CoolProp.disable_TTSE_LUT">
+<tt class="descclassname">CoolProp.CoolProp.</tt><tt class="descname">disable_TTSE_LUT</tt><big>(</big><em>char *FluidName</em><big>)</big> &rarr; int<a class="headerlink" href="#CoolProp.CoolProp.disable_TTSE_LUT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="CoolProp.CoolProp.disable_TTSE_LUT_writing">
+<tt class="descclassname">CoolProp.CoolProp.</tt><tt class="descname">disable_TTSE_LUT_writing</tt><big>(</big><em>char *FluidName</em><big>)</big> &rarr; int<a class="headerlink" href="#CoolProp.CoolProp.disable_TTSE_LUT_writing" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="CoolProp.CoolProp.enable_TTSE_LUT">
+<tt class="descclassname">CoolProp.CoolProp.</tt><tt class="descname">enable_TTSE_LUT</tt><big>(</big><em>char *FluidName</em><big>)</big> &rarr; int<a class="headerlink" href="#CoolProp.CoolProp.enable_TTSE_LUT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="CoolProp.CoolProp.enable_TTSE_LUT_writing">
+<tt class="descclassname">CoolProp.CoolProp.</tt><tt class="descname">enable_TTSE_LUT_writing</tt><big>(</big><em>char *FluidName</em><big>)</big> &rarr; int<a class="headerlink" href="#CoolProp.CoolProp.enable_TTSE_LUT_writing" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="CoolProp.CoolProp.get_ASHRAE34">
+<tt class="descclassname">CoolProp.CoolProp.</tt><tt class="descname">get_ASHRAE34</tt><big>(</big><em>str Fluid</em><big>)</big><a class="headerlink" href="#CoolProp.CoolProp.get_ASHRAE34" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the safety code for the fluid from ASHRAE34 if it is in ASHRAE34</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="CoolProp.CoolProp.get_BibTeXKey">
+<tt class="descclassname">CoolProp.CoolProp.</tt><tt class="descname">get_BibTeXKey</tt><big>(</big><em>str Fluid</em>, <em>str key</em><big>)</big> &rarr; string<a class="headerlink" href="#CoolProp.CoolProp.get_BibTeXKey" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the BibTeX key for the given fluid.</p>
+<p>The possible keys are</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">EOS</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">CP0</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">VISCOSITY</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">CONDUCTIVITY</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">ECS_LENNARD_JONES</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">ECS_FITS</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">SURFACE_TENSION</span></tt></li>
+</ul>
+<p>BibTeX keys refer to the BibTeX file in the trunk/CoolProp folder</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>key, string</strong> :</p>
+<blockquote class="last">
+<div><p>empty string if Fluid not in CoolProp, &#8220;Bad key&#8221; if key is invalid</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="CoolProp.CoolProp.get_CAS_code">
+<tt class="descclassname">CoolProp.CoolProp.</tt><tt class="descname">get_CAS_code</tt><big>(</big><em>string Fluid</em><big>)</big> &rarr; string<a class="headerlink" href="#CoolProp.CoolProp.get_CAS_code" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a string with the CAS number for the given fluid</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="CoolProp.CoolProp.get_Fluid_index">
+<tt class="descclassname">CoolProp.CoolProp.</tt><tt class="descname">get_Fluid_index</tt><big>(</big><em>str Fluid</em><big>)</big> &rarr; long<a class="headerlink" href="#CoolProp.CoolProp.get_Fluid_index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the integer index of the given CoolProp fluid (primarily for use in <tt class="docutils literal"><span class="pre">IProps</span></tt> function)</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="CoolProp.CoolProp.get_REFPROPname">
+<tt class="descclassname">CoolProp.CoolProp.</tt><tt class="descname">get_REFPROPname</tt><big>(</big><em>str Fluid</em><big>)</big> &rarr; string<a class="headerlink" href="#CoolProp.CoolProp.get_REFPROPname" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the REFPROP compatible name for the fluid (only useful on windows)</p>
+<p>Some fluids do not use the REFPROP name.  For instance, 
+ammonia is R717, and propane is R290.  You can still can still call CoolProp
+using the name ammonia or R717, but REFPROP requires that you use a limited
+subset of names.  Therefore, this function that returns the REFPROP compatible
+name.  To then use this to call REFPROP, you would do something like:</p>
+<div class="highlight-python"><pre>In [0]: from CoolProp.CoolProp import get_REFPROPname, Props
+
+In [1]: Fluid = 'REFPROP-' + get_REFPROPname('R290')
+
+In [2]: Props('D', 'T', 300, 'P', 300, Fluid)</pre>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="CoolProp.CoolProp.get_TTSESinglePhase_LUT_range">
+<tt class="descclassname">CoolProp.CoolProp.</tt><tt class="descname">get_TTSESinglePhase_LUT_range</tt><big>(</big><em>char *FluidName</em><big>)</big> &rarr; tuple<a class="headerlink" href="#CoolProp.CoolProp.get_TTSESinglePhase_LUT_range" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the current range of the single-phase LUT</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns :</th><td class="field-body"><strong>tuple of hmin,hmax,pmin,pmax</strong> :</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="CoolProp.CoolProp.get_TTSE_mode">
+<tt class="descclassname">CoolProp.CoolProp.</tt><tt class="descname">get_TTSE_mode</tt><big>(</big><em>string fluid</em><big>)</big> &rarr; str<a class="headerlink" href="#CoolProp.CoolProp.get_TTSE_mode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the mode of the TTSE table, one of <tt class="docutils literal"><span class="pre">&quot;TTSE&quot;</span></tt> or <tt class="docutils literal"><span class="pre">&quot;BICUBIC&quot;</span></tt></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="CoolProp.CoolProp.get_aliases">
+<tt class="descclassname">CoolProp.CoolProp.</tt><tt class="descname">get_aliases</tt><big>(</big><em>str Fluid</em><big>)</big><a class="headerlink" href="#CoolProp.CoolProp.get_aliases" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a comma separated string of aliases for the given fluid</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="CoolProp.CoolProp.get_debug_level">
+<tt class="descclassname">CoolProp.CoolProp.</tt><tt class="descname">get_debug_level</tt><big>(</big><big>)</big><a class="headerlink" href="#CoolProp.CoolProp.get_debug_level" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the current debug level as integer</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>level</strong> : int</p>
+<blockquote class="last">
+<div><p>If level is 0, no output will be written to screen, if &gt;0, 
+some output will be written to screen.  The larger level is, 
+the more verbose the output will be</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="CoolProp.CoolProp.get_errstr">
+<tt class="descclassname">CoolProp.CoolProp.</tt><tt class="descname">get_errstr</tt><big>(</big><big>)</big> &rarr; string<a class="headerlink" href="#CoolProp.CoolProp.get_errstr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the current error string</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="CoolProp.CoolProp.get_factorSICP">
+<tt class="descclassname">CoolProp.CoolProp.</tt><tt class="descname">get_factorSICP</tt><big>(</big><em>what</em><big>)</big><a class="headerlink" href="#CoolProp.CoolProp.get_factorSICP" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the conversion factor between SI and CoolProp units. 
+Returns a tuple of the factor and a boolean telling you if 
+the given key matches with a fluid constant.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="CoolProp.CoolProp.get_fluid_param_string">
+<tt class="descclassname">CoolProp.CoolProp.</tt><tt class="descname">get_fluid_param_string</tt><big>(</big><em>str fluid</em>, <em>str param</em><big>)</big><a class="headerlink" href="#CoolProp.CoolProp.get_fluid_param_string" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="CoolProp.CoolProp.get_global_param_string">
+<tt class="descclassname">CoolProp.CoolProp.</tt><tt class="descname">get_global_param_string</tt><big>(</big><em>str param</em><big>)</big><a class="headerlink" href="#CoolProp.CoolProp.get_global_param_string" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="CoolProp.CoolProp.get_standard_unit_system">
+<tt class="descclassname">CoolProp.CoolProp.</tt><tt class="descname">get_standard_unit_system</tt><big>(</big><big>)</big> &rarr; int<a class="headerlink" href="#CoolProp.CoolProp.get_standard_unit_system" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="CoolProp.CoolProp.isenabled_TTSE_LUT">
+<tt class="descclassname">CoolProp.CoolProp.</tt><tt class="descname">isenabled_TTSE_LUT</tt><big>(</big><em>char *FluidName</em><big>)</big> &rarr; int<a class="headerlink" href="#CoolProp.CoolProp.isenabled_TTSE_LUT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="CoolProp.CoolProp.isenabled_TTSE_LUT_writing">
+<tt class="descclassname">CoolProp.CoolProp.</tt><tt class="descname">isenabled_TTSE_LUT_writing</tt><big>(</big><em>char *FluidName</em><big>)</big> &rarr; int<a class="headerlink" href="#CoolProp.CoolProp.isenabled_TTSE_LUT_writing" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="CoolProp.CoolProp.psatL_anc">
+<tt class="descclassname">CoolProp.CoolProp.</tt><tt class="descname">psatL_anc</tt><big>(</big><em>signatures</em>, <em>args</em>, <em>kwargs</em>, <em>defaults</em><big>)</big><a class="headerlink" href="#CoolProp.CoolProp.psatL_anc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="CoolProp.CoolProp.psatV_anc">
+<tt class="descclassname">CoolProp.CoolProp.</tt><tt class="descname">psatV_anc</tt><big>(</big><em>signatures</em>, <em>args</em>, <em>kwargs</em>, <em>defaults</em><big>)</big><a class="headerlink" href="#CoolProp.CoolProp.psatV_anc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="CoolProp.CoolProp.rebuildState">
+<tt class="descclassname">CoolProp.CoolProp.</tt><tt class="descname">rebuildState</tt><big>(</big><em>d</em><big>)</big><a class="headerlink" href="#CoolProp.CoolProp.rebuildState" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="CoolProp.CoolProp.rhosatL_anc">
+<tt class="descclassname">CoolProp.CoolProp.</tt><tt class="descname">rhosatL_anc</tt><big>(</big><em>signatures</em>, <em>args</em>, <em>kwargs</em>, <em>defaults</em><big>)</big><a class="headerlink" href="#CoolProp.CoolProp.rhosatL_anc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="CoolProp.CoolProp.rhosatV_anc">
+<tt class="descclassname">CoolProp.CoolProp.</tt><tt class="descname">rhosatV_anc</tt><big>(</big><em>signatures</em>, <em>args</em>, <em>kwargs</em>, <em>defaults</em><big>)</big><a class="headerlink" href="#CoolProp.CoolProp.rhosatV_anc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="CoolProp.CoolProp.set_TTSESat_LUT_size">
+<tt class="descclassname">CoolProp.CoolProp.</tt><tt class="descname">set_TTSESat_LUT_size</tt><big>(</big><em>char *FluidName</em>, <em>int N</em><big>)</big> &rarr; int<a class="headerlink" href="#CoolProp.CoolProp.set_TTSESat_LUT_size" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="CoolProp.CoolProp.set_TTSESinglePhase_LUT_range">
+<tt class="descclassname">CoolProp.CoolProp.</tt><tt class="descname">set_TTSESinglePhase_LUT_range</tt><big>(</big><em>char *FluidName</em>, <em>double hmin</em>, <em>double hmax</em>, <em>double pmin</em>, <em>double pmax</em><big>)</big> &rarr; int<a class="headerlink" href="#CoolProp.CoolProp.set_TTSESinglePhase_LUT_range" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="CoolProp.CoolProp.set_TTSESinglePhase_LUT_size">
+<tt class="descclassname">CoolProp.CoolProp.</tt><tt class="descname">set_TTSESinglePhase_LUT_size</tt><big>(</big><em>char *FluidName</em>, <em>int Np</em>, <em>int Nh</em><big>)</big> &rarr; int<a class="headerlink" href="#CoolProp.CoolProp.set_TTSESinglePhase_LUT_size" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="CoolProp.CoolProp.set_TTSE_mode">
+<tt class="descclassname">CoolProp.CoolProp.</tt><tt class="descname">set_TTSE_mode</tt><big>(</big><em>char *FluidName</em>, <em>char *Value</em><big>)</big> &rarr; int<a class="headerlink" href="#CoolProp.CoolProp.set_TTSE_mode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the mode of the TTSE table, one of <tt class="docutils literal"><span class="pre">&quot;TTSE&quot;</span></tt> or <tt class="docutils literal"><span class="pre">&quot;BICUBIC&quot;</span></tt></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="CoolProp.CoolProp.set_debug_level">
+<tt class="descclassname">CoolProp.CoolProp.</tt><tt class="descname">set_debug_level</tt><big>(</big><em>int level</em><big>)</big><a class="headerlink" href="#CoolProp.CoolProp.set_debug_level" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the current debug level as integer in the range [0,10]</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>level</strong> : int</p>
+<blockquote class="last">
+<div><p>If level is 0, no output will be written to screen, if &gt;0, 
+some output will be written to screen.  The larger level is, 
+the more verbose the output will be</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="CoolProp.CoolProp.set_standard_unit_system">
+<tt class="descclassname">CoolProp.CoolProp.</tt><tt class="descname">set_standard_unit_system</tt><big>(</big><em>int unit_system</em><big>)</big><a class="headerlink" href="#CoolProp.CoolProp.set_standard_unit_system" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="CoolProp.CoolProp.viscosity_dilute">
+<tt class="descclassname">CoolProp.CoolProp.</tt><tt class="descname">viscosity_dilute</tt><big>(</big><em>str Fluid</em>, <em>double T</em><big>)</big><a class="headerlink" href="#CoolProp.CoolProp.viscosity_dilute" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="CoolProp.CoolProp.viscosity_residual">
+<tt class="descclassname">CoolProp.CoolProp.</tt><tt class="descname">viscosity_residual</tt><big>(</big><em>str Fluid</em>, <em>double T</em>, <em>double rho</em><big>)</big><a class="headerlink" href="#CoolProp.CoolProp.viscosity_residual" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="HumidAirProp.html" title="HumidAirProp Module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="modules.html" title="CoolProp"
+             >previous</a> |</li>
+        <li><a href="../index.html">Home</a>|&nbsp;</li>
+        <li><a href="../search.html">Search</a>|&nbsp;</li>
+        <li><a href="../examples/examples.html">Examples</a>|&nbsp;</li>
+        <li><a href="../_static/doxygen/html/index.html">Code</a>|&nbsp;</li>
+        <li><a href="../HowGetIt.html">Downloads!</a>|&nbsp;</li>
+        <li><a href="../contents.html">Documentation</a> &raquo;</li>
+
+          <li><a href="modules.html" >CoolProp</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Ian Bell.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,830 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Plots Package &mdash; CoolProp 4.0.0beta documentation</title>
+    
+    <link rel="stylesheet" href="../_static/Coolprop.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '4.0.0beta',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="CoolProp 4.0.0beta documentation" href="../index.html" /> 
+  </head>
+  <body>
+<link rel="shortcut icon" href="_static/favicon.ico">
+
+<div style="background-color: #999999; text-align: left; padding: 10px 10px 15px 15px">
+<a href="../index.html"><img src="../_static/header.png" border="0" alt="matplotlib"/></a>
+</div>
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">Home</a>|&nbsp;</li>
+        <li><a href="../search.html">Search</a>|&nbsp;</li>
+        <li><a href="../examples/examples.html">Examples</a>|&nbsp;</li>
+        <li><a href="../_static/doxygen/html/index.html">Code</a>|&nbsp;</li>
+        <li><a href="../HowGetIt.html">Downloads!</a>|&nbsp;</li>
+        <li><a href="../contents.html">Documentation</a> &raquo;</li>
+ 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../contents.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Plots Package</a><ul>
+<li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">Plots</span></tt> Package</a></li>
+<li><a class="reference internal" href="#module-CoolProp.Plots.Plots"><tt class="docutils literal"><span class="pre">Plots</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-CoolProp.Plots.PsychChart"><tt class="docutils literal"><span class="pre">PsychChart</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-CoolProp.Plots.SimpleCycles"><tt class="docutils literal"><span class="pre">SimpleCycles</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/apidoc/CoolProp.Plots.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="plots-package">
+<h1>Plots Package<a class="headerlink" href="#plots-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2><tt class="xref py py-mod docutils literal"><span class="pre">Plots</span></tt> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-CoolProp.Plots"></span></div>
+<div class="section" id="module-CoolProp.Plots.Plots">
+<span id="plots-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">Plots</span></tt> Module<a class="headerlink" href="#module-CoolProp.Plots.Plots" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="CoolProp.Plots.Plots.InlineLabel">
+<tt class="descclassname">CoolProp.Plots.Plots.</tt><tt class="descname">InlineLabel</tt><big>(</big><em>xv</em>, <em>yv</em>, <em>x=None</em>, <em>y=None</em>, <em>axis=None</em>, <em>fig=None</em><big>)</big><a class="headerlink" href="#CoolProp.Plots.Plots.InlineLabel" title="Permalink to this definition">¶</a></dt>
+<dd><p>This will give the coordinates and rotation required to align a label with
+a line on a plot</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="CoolProp.Plots.Plots.IsoLine">
+<em class="property">class </em><tt class="descclassname">CoolProp.Plots.Plots.</tt><tt class="descname">IsoLine</tt><a class="headerlink" href="#CoolProp.Plots.Plots.IsoLine" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="CoolProp.Plots.Plots.IsoLines">
+<em class="property">class </em><tt class="descclassname">CoolProp.Plots.Plots.</tt><tt class="descname">IsoLines</tt><big>(</big><em>fluid_ref</em>, <em>graph_type</em>, <em>iso_type</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#CoolProp.Plots.Plots.IsoLines" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="Plots.html#CoolProp.Plots.Common.BasePlot" title="CoolProp.Plots.Common.BasePlot"><tt class="xref py py-class docutils literal"><span class="pre">CoolProp.Plots.Common.BasePlot</span></tt></a></p>
+<dl class="method">
+<dt id="CoolProp.Plots.Plots.IsoLines.draw_isolines">
+<tt class="descname">draw_isolines</tt><big>(</big><em>iso_range</em>, <em>num=None</em>, <em>rounding=False</em><big>)</big><a class="headerlink" href="#CoolProp.Plots.Plots.IsoLines.draw_isolines" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draw lines with constant values of type &#8216;which&#8217; in terms of x and y as
+defined by &#8216;plot&#8217;. &#8216;iMin&#8217; and &#8216;iMax&#8217; are minimum and maximum value between
+which &#8216;num&#8217; get drawn.</p>
+<p>There should also be helpful error messages...</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="CoolProp.Plots.Plots.IsoLines.get_isolines">
+<tt class="descname">get_isolines</tt><big>(</big><em>iso_range=</em><span class="optional">[</span><span class="optional">]</span>, <em>num=None</em>, <em>rounding=False</em><big>)</big><a class="headerlink" href="#CoolProp.Plots.Plots.IsoLines.get_isolines" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is the core method to obtain lines in the dimensions defined
+by &#8216;plot&#8217; that describe the behaviour of fluid &#8216;Ref&#8217;. The constant
+value is determined by &#8216;iName&#8217; and has the values of &#8216;iValues&#8217;.</p>
+<p>&#8216;iValues&#8217; is an array-like object holding at least one element. Lines
+are calculated for every entry in &#8216;iValues&#8217;. If the input &#8216;num&#8217; is
+larger than the amount of entries in &#8216;iValues&#8217;, an internally defined
+pattern is used to calculate an appropriate line spacing between the maximum
+and minimum values provided in &#8216;iValues&#8217;.</p>
+<p>Returns lines[num] - an array of dicts containing &#8216;x&#8217; and &#8216;y&#8217;
+coordinates for bubble and dew line. Additionally, the dict holds
+the keys &#8216;label&#8217; and &#8216;opts&#8217;, those can be used for plotting as well.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="CoolProp.Plots.Plots.PT">
+<tt class="descclassname">CoolProp.Plots.Plots.</tt><tt class="descname">PT</tt><big>(</big><em>Ref</em>, <em>Tmin=None</em>, <em>Tmax=None</em>, <em>show=False</em>, <em>axis=None</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#CoolProp.Plots.Plots.PT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make a pressure-temperature plot for the given fluid</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Note :</th><td class="field-body"><p class="first"><tt class="xref py py-func docutils literal"><span class="pre">CoolProps.Plots.PT()</span></tt> will be deprecated in future releases
+and replaced with <tt class="xref py py-func docutils literal"><span class="pre">CoolProps.Plots.PropsPlot()</span></tt></p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>Ref</strong> : str</p>
+<blockquote>
+<div><p>The given reference fluid</p>
+</div></blockquote>
+<p><strong>Tmin</strong> : float, Optional</p>
+<blockquote>
+<div><p>Minimum limit for the saturation line</p>
+</div></blockquote>
+<p><strong>Tmax</strong> : float, Optional</p>
+<blockquote>
+<div><p>Maximum limit for the saturation line</p>
+</div></blockquote>
+<p><strong>show</strong> : bool, Optional</p>
+<blockquote>
+<div><p>Show the current plot
+(Default: False)</p>
+</div></blockquote>
+<p><strong>axis</strong> : <tt class="xref py py-func docutils literal"><span class="pre">matplotlib.pyplot.gca()</span></tt>, Optional</p>
+<blockquote class="last">
+<div><p>The current axis system to be plotted to.
+(Default: create a new axis system)</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">CoolProp.Plots</span> <span class="kn">import</span> <span class="n">PT</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">PT</span><span class="p">(</span><span class="s">&#39;R290&#39;</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">CoolProp.Plots</span> <span class="kn">import</span> <span class="n">PT</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">PT</span><span class="p">(</span><span class="s">&#39;R290&#39;</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">Tmin</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">Tmax</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">pyplot</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fig</span> <span class="o">=</span> <span class="n">pyplot</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">PT</span><span class="p">(</span><span class="s">&#39;R290&#39;</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="CoolProp.Plots.Plots.Ph">
+<tt class="descclassname">CoolProp.Plots.Plots.</tt><tt class="descname">Ph</tt><big>(</big><em>Ref</em>, <em>Tmin=None</em>, <em>Tmax=None</em>, <em>show=False</em>, <em>axis=None</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#CoolProp.Plots.Plots.Ph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make a pressure-enthalpy plot for the given fluid</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Note :</th><td class="field-body"><p class="first"><tt class="xref py py-func docutils literal"><span class="pre">CoolProps.Plots.Ph()</span></tt> will be deprecated in future releases
+and replaced with <tt class="xref py py-func docutils literal"><span class="pre">CoolProps.Plots.PropsPlot()</span></tt></p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>Ref</strong> : str</p>
+<blockquote>
+<div><p>The given reference fluid</p>
+</div></blockquote>
+<p><strong>Tmin</strong> : float, Optional</p>
+<blockquote>
+<div><p>Minimum limit for the saturation line</p>
+</div></blockquote>
+<p><strong>Tmax</strong> : float, Optional</p>
+<blockquote>
+<div><p>Maximum limit for the saturation line</p>
+</div></blockquote>
+<p><strong>show</strong> : bool, Optional</p>
+<blockquote>
+<div><p>Show the current plot
+(Default: False)</p>
+</div></blockquote>
+<p><strong>axis</strong> : <tt class="xref py py-func docutils literal"><span class="pre">matplotlib.pyplot.gca()</span></tt>, Optional</p>
+<blockquote class="last">
+<div><p>The current axis system to be plotted to.
+(Default: create a new axis system)</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">CoolProp.Plots</span> <span class="kn">import</span> <span class="n">Ph</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Ph</span><span class="p">(</span><span class="s">&#39;R290&#39;</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">CoolProp.Plots</span> <span class="kn">import</span> <span class="n">Ph</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Ph</span><span class="p">(</span><span class="s">&#39;R290&#39;</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">Tmin</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">Tmax</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">pyplot</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fig</span> <span class="o">=</span> <span class="n">pyplot</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Ph</span><span class="p">(</span><span class="s">&#39;R290&#39;</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="CoolProp.Plots.Plots.Prho">
+<tt class="descclassname">CoolProp.Plots.Plots.</tt><tt class="descname">Prho</tt><big>(</big><em>Ref</em>, <em>Tmin=None</em>, <em>Tmax=None</em>, <em>show=False</em>, <em>axis=None</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#CoolProp.Plots.Plots.Prho" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make a pressure-density plot for the given fluid</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Note :</th><td class="field-body"><p class="first"><tt class="xref py py-func docutils literal"><span class="pre">CoolProps.Plots.Prho()</span></tt> will be deprecated in future releases
+and replaced with <tt class="xref py py-func docutils literal"><span class="pre">CoolProps.Plots.PropsPlot()</span></tt></p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>Ref</strong> : str</p>
+<blockquote>
+<div><p>The given reference fluid</p>
+</div></blockquote>
+<p><strong>Tmin</strong> : float, Optional</p>
+<blockquote>
+<div><p>Minimum limit for the saturation line</p>
+</div></blockquote>
+<p><strong>Tmax</strong> : float, Optional</p>
+<blockquote>
+<div><p>Maximum limit for the saturation line</p>
+</div></blockquote>
+<p><strong>show</strong> : bool, Optional</p>
+<blockquote>
+<div><p>Show the current plot
+(Default: False)</p>
+</div></blockquote>
+<p><strong>axis</strong> : <tt class="xref py py-func docutils literal"><span class="pre">matplotlib.pyplot.gca()</span></tt>, Optional</p>
+<blockquote class="last">
+<div><p>The current axis system to be plotted to.
+(Default: create a new axis system)</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">CoolProp.Plots</span> <span class="kn">import</span> <span class="n">Prho</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Prho</span><span class="p">(</span><span class="s">&#39;R290&#39;</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">CoolProp.Plots</span> <span class="kn">import</span> <span class="n">Prho</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Prho</span><span class="p">(</span><span class="s">&#39;R290&#39;</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">Tmin</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">Tmax</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">pyplot</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fig</span> <span class="o">=</span> <span class="n">pyplot</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Prho</span><span class="p">(</span><span class="s">&#39;R290&#39;</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="CoolProp.Plots.Plots.PropsPlot">
+<em class="property">class </em><tt class="descclassname">CoolProp.Plots.Plots.</tt><tt class="descname">PropsPlot</tt><big>(</big><em>fluid_ref</em>, <em>graph_type</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#CoolProp.Plots.Plots.PropsPlot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="Plots.html#CoolProp.Plots.Common.BasePlot" title="CoolProp.Plots.Common.BasePlot"><tt class="xref py py-class docutils literal"><span class="pre">CoolProp.Plots.Common.BasePlot</span></tt></a></p>
+<p>Create graph for the specified fluid properties</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>fluid_ref</strong> : str</p>
+<blockquote>
+<div><p>The refence fluid</p>
+</div></blockquote>
+<p><strong>graph_type</strong> : str</p>
+<blockquote>
+<div><p>The graph type to be plotted</p>
+</div></blockquote>
+<p><strong>axis</strong> : <tt class="xref py py-func docutils literal"><span class="pre">matplotlib.pyplot.gca()</span></tt>, Optional</p>
+<blockquote>
+<div><p>The current axis system to be plotted to.
+Default: create a new axis system</p>
+</div></blockquote>
+<p><strong>fig</strong> : <tt class="xref py py-func docutils literal"><span class="pre">matplotlib.pyplot.figure()</span></tt>, Optional</p>
+<blockquote class="last">
+<div><p>The current figure to be plotted to.
+Default: create a new figure</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">CoolProp.Plots</span> <span class="kn">import</span> <span class="n">PropsPlot</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span> <span class="o">=</span> <span class="n">PropsPlot</span><span class="p">(</span><span class="s">&#39;Water&#39;</span><span class="p">,</span> <span class="s">&#39;Ph&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span> <span class="o">=</span> <span class="n">PropsPlot</span><span class="p">(</span><span class="s">&#39;n-Pentane&#39;</span><span class="p">,</span> <span class="s">&#39;Ts&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">set_axis_limits</span><span class="p">([</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mi">300</span><span class="p">,</span> <span class="mi">530</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">draw_isolines</span><span class="p">(</span><span class="s">&#39;Q&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">draw_isolines</span><span class="p">(</span><span class="s">&#39;P&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">2000</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">draw_isolines</span><span class="p">(</span><span class="s">&#39;D&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">600</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">See the online documentation for a the available fluids and
+graph types</p>
+</div>
+<dl class="method">
+<dt id="CoolProp.Plots.Plots.PropsPlot.draw_isolines">
+<tt class="descname">draw_isolines</tt><big>(</big><em>iso_type</em>, <em>iso_range</em>, <em>num=10</em>, <em>rounding=False</em><big>)</big><a class="headerlink" href="#CoolProp.Plots.Plots.PropsPlot.draw_isolines" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="CoolProp.Plots.Plots.Ps">
+<tt class="descclassname">CoolProp.Plots.Plots.</tt><tt class="descname">Ps</tt><big>(</big><em>Ref</em>, <em>Tmin=None</em>, <em>Tmax=None</em>, <em>show=False</em>, <em>axis=None</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#CoolProp.Plots.Plots.Ps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make a pressure-entropy plot for the given fluid</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Note :</th><td class="field-body"><p class="first"><tt class="xref py py-func docutils literal"><span class="pre">CoolProps.Plots.Ps()</span></tt> will be deprecated in future releases
+and replaced with <tt class="xref py py-func docutils literal"><span class="pre">CoolProps.Plots.PropsPlot()</span></tt></p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>Ref</strong> : str</p>
+<blockquote>
+<div><p>The given reference fluid</p>
+</div></blockquote>
+<p><strong>Tmin</strong> : float, Optional</p>
+<blockquote>
+<div><p>Minimum limit for the saturation line</p>
+</div></blockquote>
+<p><strong>Tmax</strong> : float, Optional</p>
+<blockquote>
+<div><p>Maximum limit for the saturation line</p>
+</div></blockquote>
+<p><strong>show</strong> : bool, Optional</p>
+<blockquote>
+<div><p>Show the current plot
+(Default: False)</p>
+</div></blockquote>
+<p><strong>axis</strong> : <tt class="xref py py-func docutils literal"><span class="pre">matplotlib.pyplot.gca()</span></tt>, Optional</p>
+<blockquote class="last">
+<div><p>The current axis system to be plotted to.
+(Default: create a new axis system)</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">CoolProp.Plots</span> <span class="kn">import</span> <span class="n">Ps</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Ps</span><span class="p">(</span><span class="s">&#39;R290&#39;</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">CoolProp.Plots</span> <span class="kn">import</span> <span class="n">Ps</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Ps</span><span class="p">(</span><span class="s">&#39;R290&#39;</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">Tmin</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">Tmax</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">pyplot</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fig</span> <span class="o">=</span> <span class="n">pyplot</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Ps</span><span class="p">(</span><span class="s">&#39;R290&#39;</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="CoolProp.Plots.Plots.Trho">
+<tt class="descclassname">CoolProp.Plots.Plots.</tt><tt class="descname">Trho</tt><big>(</big><em>Ref</em>, <em>Tmin=None</em>, <em>Tmax=None</em>, <em>show=False</em>, <em>axis=None</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#CoolProp.Plots.Plots.Trho" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make a temperature-density plot for the given fluid</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Note :</th><td class="field-body"><p class="first"><tt class="xref py py-func docutils literal"><span class="pre">CoolProps.Plots.Trho()</span></tt> will be deprecated in future releases
+and replaced with <tt class="xref py py-func docutils literal"><span class="pre">CoolProps.Plots.PropsPlot()</span></tt></p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>Ref</strong> : str</p>
+<blockquote>
+<div><p>The given reference fluid</p>
+</div></blockquote>
+<p><strong>Tmin</strong> : float, Optional</p>
+<blockquote>
+<div><p>Minimum limit for the saturation line</p>
+</div></blockquote>
+<p><strong>Tmax</strong> : float, Optional</p>
+<blockquote>
+<div><p>Maximum limit for the saturation line</p>
+</div></blockquote>
+<p><strong>show</strong> : bool, Optional</p>
+<blockquote>
+<div><p>Show the current plot
+(Default: False)</p>
+</div></blockquote>
+<p><strong>axis</strong> : <tt class="xref py py-func docutils literal"><span class="pre">matplotlib.pyplot.gca()</span></tt>, Optional</p>
+<blockquote class="last">
+<div><p>The current axis system to be plotted to.
+(Default: create a new axis system)</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">CoolProp.Plots</span> <span class="kn">import</span> <span class="n">Trho</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Trho</span><span class="p">(</span><span class="s">&#39;R290&#39;</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">CoolProp.Plots</span> <span class="kn">import</span> <span class="n">Trho</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Trho</span><span class="p">(</span><span class="s">&#39;R290&#39;</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">Tmin</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">Tmax</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">pyplot</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fig</span> <span class="o">=</span> <span class="n">pyplot</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Trho</span><span class="p">(</span><span class="s">&#39;R290&#39;</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="CoolProp.Plots.Plots.Ts">
+<tt class="descclassname">CoolProp.Plots.Plots.</tt><tt class="descname">Ts</tt><big>(</big><em>Ref</em>, <em>Tmin=None</em>, <em>Tmax=None</em>, <em>show=False</em>, <em>axis=None</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#CoolProp.Plots.Plots.Ts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make a temperature-entropy plot for the given fluid</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Note :</th><td class="field-body"><p class="first"><tt class="xref py py-func docutils literal"><span class="pre">CoolProps.Plots.Ts()</span></tt> will be deprecated in future releases
+and replaced with <tt class="xref py py-func docutils literal"><span class="pre">CoolProps.Plots.PropsPlot()</span></tt></p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>Ref</strong> : str</p>
+<blockquote>
+<div><p>The given reference fluid</p>
+</div></blockquote>
+<p><strong>Tmin</strong> : float, Optional</p>
+<blockquote>
+<div><p>Minimum limit for the saturation line</p>
+</div></blockquote>
+<p><strong>Tmax</strong> : float, Optional</p>
+<blockquote>
+<div><p>Maximum limit for the saturation line</p>
+</div></blockquote>
+<p><strong>show</strong> : bool, Optional</p>
+<blockquote>
+<div><p>Show the current plot
+(Default: False)</p>
+</div></blockquote>
+<p><strong>axis</strong> : <tt class="xref py py-func docutils literal"><span class="pre">matplotlib.pyplot.gca()</span></tt>, Optional</p>
+<blockquote class="last">
+<div><p>The current axis system to be plotted to.
+(Default: create a new axis system)</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">CoolProp.Plots</span> <span class="kn">import</span> <span class="n">Ts</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Ts</span><span class="p">(</span><span class="s">&#39;R290&#39;</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">CoolProp.Plots</span> <span class="kn">import</span> <span class="n">Ts</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Ts</span><span class="p">(</span><span class="s">&#39;R290&#39;</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">Tmin</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">Tmax</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">pyplot</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fig</span> <span class="o">=</span> <span class="n">pyplot</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Ts</span><span class="p">(</span><span class="s">&#39;R290&#39;</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="CoolProp.Plots.Plots.drawIsoLines">
+<tt class="descclassname">CoolProp.Plots.Plots.</tt><tt class="descname">drawIsoLines</tt><big>(</big><em>Ref</em>, <em>plot</em>, <em>which</em>, <em>iValues=</em><span class="optional">[</span><span class="optional">]</span>, <em>num=0</em>, <em>show=False</em>, <em>axis=None</em><big>)</big><a class="headerlink" href="#CoolProp.Plots.Plots.drawIsoLines" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draw lines with constant values of type &#8216;which&#8217; in terms of x and y as
+defined by &#8216;plot&#8217;. &#8216;iMin&#8217; and &#8216;iMax&#8217; are minimum and maximum value
+between which &#8216;num&#8217; get drawn.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Note :</th><td class="field-body"><p class="first"><tt class="xref py py-func docutils literal"><span class="pre">CoolProps.Plots.drawIsoLines()</span></tt> will be depreciated in future
+releases and replaced with <tt class="xref py py-func docutils literal"><span class="pre">CoolProps.Plots.IsoLines()</span></tt></p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>Ref</strong> : str</p>
+<blockquote>
+<div><p>The given reference fluid</p>
+</div></blockquote>
+<p><strong>plot</strong> : str</p>
+<blockquote>
+<div><p>The plot type used</p>
+</div></blockquote>
+<p><strong>which</strong> : str</p>
+<blockquote>
+<div><p>The iso line type</p>
+</div></blockquote>
+<p><strong>iValues</strong> : list</p>
+<blockquote>
+<div><p>The list of constant iso line values</p>
+</div></blockquote>
+<p><strong>num</strong> : int, Optional</p>
+<blockquote>
+<div><p>The number of iso lines
+(Default: 0 - Use iValues list only)</p>
+</div></blockquote>
+<p><strong>show</strong> : bool, Optional</p>
+<blockquote>
+<div><p>Show the current plot
+(Default: False)</p>
+</div></blockquote>
+<p><strong>axis</strong> : <tt class="xref py py-func docutils literal"><span class="pre">matplotlib.pyplot.gca()</span></tt>, Optional</p>
+<blockquote class="last">
+<div><p>The current axis system to be plotted to.
+(Default: create a new axis system)</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">pyplot</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">CoolProp.Plots</span> <span class="kn">import</span> <span class="n">Ts</span><span class="p">,</span> <span class="n">drawIsoLines</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Ref</span> <span class="o">=</span> <span class="s">&#39;n-Pentane&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span> <span class="o">=</span> <span class="n">Ts</span><span class="p">(</span><span class="n">Ref</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">([</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">([</span><span class="mi">300</span><span class="p">,</span> <span class="mi">530</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">quality</span> <span class="o">=</span> <span class="n">drawIsoLines</span><span class="p">(</span><span class="n">Ref</span><span class="p">,</span> <span class="s">&#39;Ts&#39;</span><span class="p">,</span> <span class="s">&#39;Q&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">isobars</span> <span class="o">=</span> <span class="n">drawIsoLines</span><span class="p">(</span><span class="n">Ref</span><span class="p">,</span> <span class="s">&#39;Ts&#39;</span><span class="p">,</span> <span class="s">&#39;P&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">2000</span><span class="p">],</span> <span class="n">num</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">isochores</span> <span class="o">=</span> <span class="n">drawIsoLines</span><span class="p">(</span><span class="n">Ref</span><span class="p">,</span> <span class="s">&#39;Ts&#39;</span><span class="p">,</span> <span class="s">&#39;D&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">600</span><span class="p">],</span> <span class="n">num</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pyplot</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="CoolProp.Plots.Plots.drawLines">
+<tt class="descclassname">CoolProp.Plots.Plots.</tt><tt class="descname">drawLines</tt><big>(</big><em>Ref</em>, <em>lines</em>, <em>axis</em>, <em>plt_kwargs=None</em><big>)</big><a class="headerlink" href="#CoolProp.Plots.Plots.drawLines" title="Permalink to this definition">¶</a></dt>
+<dd><p>Just an internal method to systematically plot values from
+the generated &#8216;line&#8217; dicts, method is able to cover the whole
+saturation curve. Closes the gap at the critical point and
+adds a marker between the two last points of bubble and
+dew line if they reach up to critical point.
+Returns the an array of line objects that can be used to change
+the colour or style afterwards.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="CoolProp.Plots.Plots.hs">
+<tt class="descclassname">CoolProp.Plots.Plots.</tt><tt class="descname">hs</tt><big>(</big><em>Ref</em>, <em>Tmin=None</em>, <em>Tmax=None</em>, <em>show=False</em>, <em>axis=None</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#CoolProp.Plots.Plots.hs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make a enthalpy-entropy plot for the given fluid</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Note :</th><td class="field-body"><p class="first"><tt class="xref py py-func docutils literal"><span class="pre">CoolProps.Plots.hs()</span></tt> will be deprecated in future releases
+and replaced with <tt class="xref py py-func docutils literal"><span class="pre">CoolProps.Plots.PropsPlot()</span></tt></p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>Ref</strong> : str</p>
+<blockquote>
+<div><p>The given reference fluid</p>
+</div></blockquote>
+<p><strong>Tmin</strong> : float, Optional</p>
+<blockquote>
+<div><p>Minimum limit for the saturation line</p>
+</div></blockquote>
+<p><strong>Tmax</strong> : float, Optional</p>
+<blockquote>
+<div><p>Maximum limit for the saturation line</p>
+</div></blockquote>
+<p><strong>show</strong> : bool, Optional</p>
+<blockquote>
+<div><p>Show the current plot
+(Default: False)</p>
+</div></blockquote>
+<p><strong>axis</strong> : <tt class="xref py py-func docutils literal"><span class="pre">matplotlib.pyplot.gca()</span></tt>, Optional</p>
+<blockquote class="last">
+<div><p>The current axis system to be plotted to.
+(Default: create a new axis system)</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">CoolProp.Plots</span> <span class="kn">import</span> <span class="n">hs</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hs</span><span class="p">(</span><span class="s">&#39;R290&#39;</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">CoolProp.Plots</span> <span class="kn">import</span> <span class="n">hs</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hs</span><span class="p">(</span><span class="s">&#39;R290&#39;</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">Tmin</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">Tmax</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">pyplot</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fig</span> <span class="o">=</span> <span class="n">pyplot</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hs</span><span class="p">(</span><span class="s">&#39;R290&#39;</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="module-CoolProp.Plots.PsychChart">
+<span id="psychchart-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">PsychChart</span></tt> Module<a class="headerlink" href="#module-CoolProp.Plots.PsychChart" title="Permalink to this headline">¶</a></h2>
+<p>This file implements a psychrometric chart for air at 1 atm</p>
+<dl class="class">
+<dt id="CoolProp.Plots.PsychChart.EnthalpyLines">
+<em class="property">class </em><tt class="descclassname">CoolProp.Plots.PsychChart.</tt><tt class="descname">EnthalpyLines</tt><big>(</big><em>H_values</em><big>)</big><a class="headerlink" href="#CoolProp.Plots.PsychChart.EnthalpyLines" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<dl class="method">
+<dt id="CoolProp.Plots.PsychChart.EnthalpyLines.plot">
+<tt class="descname">plot</tt><big>(</big><em>ax</em><big>)</big><a class="headerlink" href="#CoolProp.Plots.PsychChart.EnthalpyLines.plot" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="CoolProp.Plots.PsychChart.HumidityLabels">
+<em class="property">class </em><tt class="descclassname">CoolProp.Plots.PsychChart.</tt><tt class="descname">HumidityLabels</tt><big>(</big><em>RH_values</em>, <em>h</em><big>)</big><a class="headerlink" href="#CoolProp.Plots.PsychChart.HumidityLabels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<dl class="method">
+<dt id="CoolProp.Plots.PsychChart.HumidityLabels.plot">
+<tt class="descname">plot</tt><big>(</big><em>ax</em><big>)</big><a class="headerlink" href="#CoolProp.Plots.PsychChart.HumidityLabels.plot" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="CoolProp.Plots.PsychChart.HumidityLines">
+<em class="property">class </em><tt class="descclassname">CoolProp.Plots.PsychChart.</tt><tt class="descname">HumidityLines</tt><big>(</big><em>RH_values</em><big>)</big><a class="headerlink" href="#CoolProp.Plots.PsychChart.HumidityLines" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<dl class="method">
+<dt id="CoolProp.Plots.PsychChart.HumidityLines.plot">
+<tt class="descname">plot</tt><big>(</big><em>ax</em><big>)</big><a class="headerlink" href="#CoolProp.Plots.PsychChart.HumidityLines.plot" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="CoolProp.Plots.PsychChart.PlotFormatting">
+<em class="property">class </em><tt class="descclassname">CoolProp.Plots.PsychChart.</tt><tt class="descname">PlotFormatting</tt><a class="headerlink" href="#CoolProp.Plots.PsychChart.PlotFormatting" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<dl class="method">
+<dt id="CoolProp.Plots.PsychChart.PlotFormatting.plot">
+<tt class="descname">plot</tt><big>(</big><em>ax</em><big>)</big><a class="headerlink" href="#CoolProp.Plots.PsychChart.PlotFormatting.plot" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="CoolProp.Plots.PsychChart.SaturationLine">
+<em class="property">class </em><tt class="descclassname">CoolProp.Plots.PsychChart.</tt><tt class="descname">SaturationLine</tt><a class="headerlink" href="#CoolProp.Plots.PsychChart.SaturationLine" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<dl class="method">
+<dt id="CoolProp.Plots.PsychChart.SaturationLine.plot">
+<tt class="descname">plot</tt><big>(</big><em>ax</em><big>)</big><a class="headerlink" href="#CoolProp.Plots.PsychChart.SaturationLine.plot" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-CoolProp.Plots.SimpleCycles">
+<span id="simplecycles-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">SimpleCycles</span></tt> Module<a class="headerlink" href="#module-CoolProp.Plots.SimpleCycles" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="CoolProp.Plots.SimpleCycles.EconomizedCycle">
+<tt class="descclassname">CoolProp.Plots.SimpleCycles.</tt><tt class="descname">EconomizedCycle</tt><big>(</big><em>Ref</em>, <em>Qin</em>, <em>Te</em>, <em>Tc</em>, <em>DTsh</em>, <em>DTsc</em>, <em>eta_oi</em>, <em>f_p</em>, <em>Ti</em>, <em>Ts_Ph='Ts'</em>, <em>skipPlot=False</em>, <em>axis=None</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#CoolProp.Plots.SimpleCycles.EconomizedCycle" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function plots an economized cycle, on the current axis, or that given by the optional parameter <em>axis</em></p>
+<p>Required parameters:</p>
+<ul class="simple">
+<li>Ref : Refrigerant [string]</li>
+<li>Qin : Cooling capacity [W]</li>
+<li>Te : Evap Temperature [K]</li>
+<li>Tc : Condensing Temperature [K]</li>
+<li>DTsh : Evaporator outlet superheat [K]</li>
+<li>DTsc : Condenser outlet subcooling [K]</li>
+<li>eta_oi : Adiabatic efficiency of compressor (no units) in range [0,1]</li>
+<li>f_p : fraction of compressor power lost as ambient heat transfer in range [0,1]</li>
+<li>Ti : Saturation temperature corresponding to intermediate pressure [K]</li>
+</ul>
+<p>Optional parameters:</p>
+<ul class="simple">
+<li>Ts_Ph : &#8216;Ts&#8217; for a Temperature-Entropy plot, &#8216;Ph&#8217; for a Pressure-Enthalpy</li>
+<li>axis : An axis to use instead of the active axis</li>
+<li>skipPlot : If True, won&#8217;t actually plot anything, just print COP</li>
+</ul>
+</dd></dl>
+
+<dl class="function">
+<dt id="CoolProp.Plots.SimpleCycles.SimpleCycle">
+<tt class="descclassname">CoolProp.Plots.SimpleCycles.</tt><tt class="descname">SimpleCycle</tt><big>(</big><em>Ref</em>, <em>Te</em>, <em>Tc</em>, <em>DTsh</em>, <em>DTsc</em>, <em>eta_a</em>, <em>Ts_Ph='Ph'</em>, <em>skipPlot=False</em>, <em>axis=None</em><big>)</big><a class="headerlink" href="#CoolProp.Plots.SimpleCycles.SimpleCycle" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function plots a simple four-component cycle, on the current axis, or that given by the optional parameter <em>axis</em></p>
+<p>Required parameters:</p>
+<ul class="simple">
+<li>Ref : A string for the refrigerant</li>
+<li>Te : Evap Temperature in K</li>
+<li>Tc : Condensing Temperature in K</li>
+<li>DTsh : Evaporator outlet superheat in K</li>
+<li>DTsc : Condenser outlet subcooling in K</li>
+<li>eta_a : Adiabatic efficiency of compressor (no units) in range [0,1]</li>
+</ul>
+<p>Optional parameters:</p>
+<ul class="simple">
+<li>Ts_Ph : &#8216;Ts&#8217; for a Temperature-Entropy plot, &#8216;Ph&#8217; for a Pressure-Enthalpy</li>
+<li>axis : An axis to use instead of the active axis</li>
+<li>skipPlot : If True, won&#8217;t actually plot anything, just print COP</li>
+</ul>
+</dd></dl>
+
+<dl class="function">
+<dt id="CoolProp.Plots.SimpleCycles.TwoStage">
+<tt class="descclassname">CoolProp.Plots.SimpleCycles.</tt><tt class="descname">TwoStage</tt><big>(</big><em>Ref</em>, <em>Q</em>, <em>Te</em>, <em>Tc</em>, <em>DTsh</em>, <em>DTsc</em>, <em>eta_oi</em>, <em>f_p</em>, <em>Tsat_ic</em>, <em>DTsh_ic</em>, <em>Ts_Ph='Ph'</em>, <em>prints=False</em>, <em>skipPlot=False</em>, <em>axis=None</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#CoolProp.Plots.SimpleCycles.TwoStage" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function plots a two-stage cycle, on the current axis, or that given by the optional parameter <em>axis</em></p>
+<p>Required parameters:</p>
+<ul class="simple">
+<li>Ref : Refrigerant [string]</li>
+<li>Q : Cooling capacity [W]</li>
+<li>Te : Evap Temperature [K]</li>
+<li>Tc : Condensing Temperature [K]</li>
+<li>DTsh : Evaporator outlet superheat [K]</li>
+<li>DTsc : Condenser outlet subcooling [K]</li>
+<li>eta_oi : Adiabatic efficiency of compressor (no units) in range [0,1]</li>
+<li>f_p : fraction of compressor power lost as ambient heat transfer in range [0,1]</li>
+<li>Tsat_ic : Saturation temperature corresponding to intermediate pressure [K]</li>
+<li>DTsh_ic : Superheating at outlet of intermediate stage [K]</li>
+</ul>
+<p>Optional parameters:</p>
+<ul class="simple">
+<li>Ts_Ph : &#8216;Ts&#8217; for a Temperature-Entropy plot, &#8216;Ph&#8217; for a Pressure-Enthalpy</li>
+<li>prints : True to print out some values</li>
+<li>axis : An axis to use instead of the active axis</li>
+<li>skipPlot : If True, won&#8217;t actually plot anything, just print COP</li>
+</ul>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">Home</a>|&nbsp;</li>
+        <li><a href="../search.html">Search</a>|&nbsp;</li>
+        <li><a href="../examples/examples.html">Examples</a>|&nbsp;</li>
+        <li><a href="../_static/doxygen/html/index.html">Code</a>|&nbsp;</li>
+        <li><a href="../HowGetIt.html">Downloads!</a>|&nbsp;</li>
+        <li><a href="../contents.html">Documentation</a> &raquo;</li>
+ 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Ian Bell.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>
