@@ -70,6 +70,12 @@ double Newton(FuncWrapper1D *f, double x0, double ftol, int maxiter, std::string
 		fval = f->call(x);
 		dx = -fval/f->deriv(x);
 		x += dx;
+		
+		if (fabs(dx/x) < 10*DBL_EPSILON)
+		{
+			return x;
+		}
+
 		if (iter>maxiter)
 		{
 			*errstring=std::string("reached maximum number of iterations");

@@ -97,6 +97,7 @@ public:
 	/// Pure-virtual function (must be implemented in derived class
 	virtual double phir(double tau, double delta, std::vector<double> *x) = 0;
 	virtual double dphir_dDelta(double tau, double delta, std::vector<double> *x) = 0;
+	virtual double d2phir_dDelta2(double tau, double delta, std::vector<double> *x) = 0;
 	virtual double d2phir_dDelta_dTau(double tau, double delta, std::vector<double> *x) = 0;
 	virtual double dphir_dTau(double tau, double delta, std::vector<double> *x) = 0;
 	virtual double d2phir_dTau2(double tau, double delta, std::vector<double> *x) = 0;
@@ -115,6 +116,7 @@ public:
 	double dphir_dDelta(double tau, double delta, std::vector<double> *x);
 	double d2phir_dDelta_dTau(double tau, double delta, std::vector<double> *x);
 	double dphir_dTau(double tau, double delta, std::vector<double> *x);
+	double d2phir_dDelta2(double tau, double delta, std::vector<double> *x);
 	double d2phir_dTau2(double tau, double delta, std::vector<double> *x);
 	void set_coeffs_from_map(std::map<std::string,std::vector<double> >);
 };
@@ -129,7 +131,7 @@ public:
 	~ExcessTerm();
 	double phir(double tau, double delta, std::vector<double> *x);
 	double dphir_dDelta(double tau, double delta, std::vector<double> *x);
-	//double d2phir_dDelta2(double tau, double delta, std::vector<double> *x);
+	double d2phir_dDelta2(double tau, double delta, std::vector<double> *x);
 	double d2phir_dDelta_dTau(double tau, double delta, std::vector<double> *x);
 	double dphir_dTau(double tau, double delta, std::vector<double> *x);
 	double d2phir_dTau2(double tau, double delta, std::vector<double> *x);
@@ -148,6 +150,7 @@ public:
 	ResidualIdealMixture(std::vector<Fluid*> pFluids);
 	double phir(double tau, double delta, std::vector<double> *x);
 	double dphir_dDelta(double tau, double delta, std::vector<double> *x);
+	double d2phir_dDelta2(double tau, double delta, std::vector<double> *x);
 	double d2phir_dDelta_dTau(double tau, double delta, std::vector<double> *x);
 	double d2phir_dTau2(double tau, double delta, std::vector<double> *x);
 	double dphir_dTau(double tau, double delta, std::vector<double> *x);
@@ -178,7 +181,7 @@ public:
 
 	/*! Returns the natural logarithm of K for component i using the method from Wilson as in
 	\f[
-	\ln K = \ln\left(\frac{p_{c,i}}{p}\right)+5.373(1+\omega_i)\left(1-\frac{T_{c,i}}{T}\right)
+	\ln K_i = \ln\left(\frac{p_{c,i}}{p}\right)+5.373(1+\omega_i)\left(1-\frac{T_{c,i}}{T}\right)
 	\f]
 	@param T Temperature [K]
 	@param p Pressure [kPa]
@@ -189,6 +192,7 @@ public:
 	double d2phir_dDelta_dTau(double tau, double delta, std::vector<double> *x);
 	double d2phir_dTau2(double tau, double delta, std::vector<double> *x);
 	double dphir_dDelta(double tau, double delta, std::vector<double> *x);
+	double d2phir_dDelta2(double tau, double delta, std::vector<double> *x);
 	double dphir_dTau(double tau, double delta, std::vector<double> *x);
 	double dphir_dxi(double tau, double delta, std::vector<double> *x, int i);
 	double d2phir_dxi_dTau(double tau, double delta, std::vector<double> *x, int i);

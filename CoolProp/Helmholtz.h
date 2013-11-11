@@ -314,7 +314,7 @@ public:
 	double dDelta(double tau, double delta);
 	double dTau(double tau, double delta);
 	
-	double dDelta2(double tau, double delta){throw ValueError();};
+	double dDelta2(double tau, double delta);
 	double dDelta_dTau(double tau, double delta);
 	double dTau2(double tau, double delta);
 	

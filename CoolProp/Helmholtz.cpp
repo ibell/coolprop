@@ -1035,6 +1035,16 @@ double phir_GERG2008_gaussian::dDelta(double tau, double delta)
 	}
 	return summer;
 }
+double phir_GERG2008_gaussian::dDelta2(double tau, double delta)
+{
+	double summer = 0, psi;
+	for (unsigned int i=iStart;i<=iEnd;i++)
+	{
+		psi = exp(-eta[i]*pow(delta-epsilon[i],2)-beta[i]*(delta-gamma[i]));
+		summer += n[i]*pow(tau,t[i])*pow(delta,d[i])*psi*(pow(d[i]/delta-2*eta[i]*(delta-epsilon[i])-beta[i],2)-d[i]/delta/delta-2*eta[i]);
+	}
+	return summer;
+}
 double phir_GERG2008_gaussian::dTau(double tau, double delta)
 {
 	double summer = 0, psi;
