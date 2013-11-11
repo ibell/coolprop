@@ -483,39 +483,44 @@ class bubblepoint_WilsonK_resid : public FuncWrapper1D
 {
 public:
 	double p;
-	std::vector<double> *z;
+	std::vector<double> *z, K;
 	Mixture *Mix;
 
 	bubblepoint_WilsonK_resid(Mixture *Mix, double p, std::vector<double> *z){ 
 		this->z=z; this->p = p; this->Mix = Mix; 
+		K = std::vector<double>((*z).size(),_HUGE);
 	};
 	double call(double T){
 		double summer = 0;
-		for (unsigned int i = 0; i< (*z).size(); i++) { summer += (*z)[i]*exp(Mix->Wilson_lnK_factor(T,p,i)); }
+		for (unsigned int i = 0; i< (*z).size(); i++) { 
+			K[i] = exp(Mix->Wilson_lnK_factor(T,p,i));
+			summer += (*z)[i]*K[i]; 
+		}
 		return summer - 1; // 1 comes from the sum of the z_i which must sum to 1
 	};
 };
 /*! A wrapper function around the residual to find the initial guess for the dew point temperature
 \f[
-r = 1- \sum_i \left[z_i/K_i\right]
+r = 1- \sum_i \left[\frac{z_i}{K_i}\right]
 \f]
 */
 class dewpoint_WilsonK_resid : public FuncWrapper1D
 {
 public:
 	double p;
-	std::vector<double> *z;
+	std::vector<double> *z,K;
 	Mixture *Mix;
 
 	dewpoint_WilsonK_resid(Mixture *Mix, double p, std::vector<double> *z){ 
 		this->z=z; this->p = p; this->Mix = Mix; 
+		K = std::vector<double>((*z).size(),_HUGE);
 	};
 	double call(double T){
 		double summer = 1;
 		for (unsigned int i = 0; i < (*z).size(); i++) 
 		{ 
-			double K = exp(Mix->Wilson_lnK_factor(T,p,i));
-			summer -= (*z)[i]/K; 
+			K[i] = exp(Mix->Wilson_lnK_factor(T,p,i));
+			summer -= (*z)[i]/K[i]; 
 		}
 		return summer;
 	};
@@ -543,29 +548,32 @@ double Mixture::saturation_p(int type, double p, std::vector<double> *z, std::ve
 
 		if (fabs((*z)[i]-1) < 10*DBL_EPSILON)
 		{
+			// Mole fractions are equal to bulk composition
 			(*x) = (*z);
 			(*y) = (*z);
 			// Get temperature from pure-fluid saturation call
 			double TL=0, TV=0, rhoL=0, rhoV=0;
 			pFluids[i]->saturation_p(p,false,&TL,&TV,&rhoL,&rhoV);
-			return TL;
+			return TL; // Also equal to TV for pure fluid
 		}
 	}
 
 	(*x).resize(N);
 	(*y).resize(N);
 
-	double T_guess = (log(pseudo_Tcrit)-log(pseudo_Ttriple))/(pseudo_pcrit-pseudo_ptriple)*(log(p)-log(pseudo_ptriple))+pseudo_Ttriple;
+	// Preliminary guess based on interpolation of log(p) v. T
+	double T_guess = (pseudo_Tcrit-pseudo_Ttriple)/(pseudo_pcrit/pseudo_ptriple)*(p/pseudo_ptriple)+pseudo_Ttriple;
 
+	std::string errstr;
 	if (type == TYPE_BUBBLEPOINT)
 	{
 		// Liquid is at the bulk composition
 		*x = (*z);
 		// Find first guess for T using Wilson K-factors
 		bubblepoint_WilsonK_resid Resid(this,p,z); //sum(z_i*K_i) - 1
-		std::string errstr;
 		T = Secant(&Resid, T_guess, 0.001, 1e-10, 100, &errstr);
-		if (!ValidNumber(T)){throw ValueError();}
+		// Get the K factors from the residual wrapper
+		K = Resid.K;
 	}
 	else if (type == TYPE_DEWPOINT)
 	{
@@ -573,28 +581,30 @@ double Mixture::saturation_p(int type, double p, std::vector<double> *z, std::ve
 		*y = (*z);
 		// Find first guess for T using Wilson K-factors
 		dewpoint_WilsonK_resid Resid(this,p,z); //1-sum(z_i/K_i)
-		std::string errstr;
 		T = Secant(&Resid, T_guess, 0.001, 1e-10, 100, &errstr);
-		if (!ValidNumber(T)){throw ValueError();}
+		// Get the K factors from the residual wrapper
+		K = Resid.K;
 	}
 	else
 	{
 		throw ValueError("Invalid type to saturation_p");
 	}
-
-	// Calculate the K factors for each component
-	for (unsigned int i = 0; i < N; i++)
-	{
-		K[i] = exp(Wilson_lnK_factor(T,p,i));
-	}	
+	if (!ValidNumber(T)){throw ValueError();}
 
 	// Initial guess for mole fractions in the other phase
 	if (type == TYPE_BUBBLEPOINT)
 	{
+		double sumy = 0;
 		// Calculate the vapor molar fractions using the K factor and Rachford-Rice
 		for (unsigned int i = 0; i < N; i++)
 		{
 			(*y)[i] = K[i]*(*z)[i];
+			sumy += (*y)[i];
+		}
+		// Normalize the components
+		for (unsigned int i = 0; i < N; i++)
+		{
+			(*y)[i] /= sumy;
 		}
 	}
 	else
@@ -613,14 +623,10 @@ double Mixture::saturation_p(int type, double p, std::vector<double> *z, std::ve
 		}
 	}
 
-	double rhobar_liq = rhobar_pengrobinson(T,p,x,PR_SATL); // [kg/m^3]
-	double rhobar_vap = rhobar_pengrobinson(T,p,y,PR_SATV); // [kg/m^3]
+	double rhobar_liq = rhobar_pengrobinson(T, p, x, PR_SATL); // [kg/m^3]
+	double rhobar_vap = rhobar_pengrobinson(T, p, y, PR_SATV); // [kg/m^3]
 	do
 	{
-		//// Recalculate using Peng-Robinson
-		//rhobar_liq = rhobar_pengrobinson(T,p,x,PR_SATL); // [kg/m^3]
-		//rhobar_vap = rhobar_pengrobinson(T,p,y,PR_SATV); // [kg/m^3]
-
 		rhobar_liq_new = rhobar_Tpz(T, p, x, rhobar_liq); // [kg/m^3]
 		rhobar_vap_new = rhobar_Tpz(T, p, y, rhobar_vap); // [kg/m^3]
 		if (!ValidNumber(rhobar_vap_new))
@@ -662,15 +668,15 @@ double Mixture::saturation_p(int type, double p, std::vector<double> *z, std::ve
 			double dln_phi_liq_dT = dphir_liq_dT + dndphir_dni_dTau(tau_liq, delta_liq, x, i)*dtau_dT_liq-1/Z_liq*dZ_liq_dT;
 			double dln_phi_vap_dT = dphir_vap_dT + dndphir_dni_dTau(tau_vap, delta_vap, y, i)*dtau_dT_vap-1/Z_vap*dZ_vap_dT;
 
-			double Ki = exp(ln_phi_liq[i] - ln_phi_vap[i]);
+			K[i] = exp(ln_phi_liq[i] - ln_phi_vap[i]);
 			
 			if (type == TYPE_BUBBLEPOINT){
-				f += (*z)[i]*(Ki-1);
-				dfdT += (*z)[i]*Ki*(dln_phi_liq_dT-dln_phi_vap_dT);
+				f += (*z)[i]*(K[i]-1);
+				dfdT += (*z)[i]*K[i]*(dln_phi_liq_dT-dln_phi_vap_dT);
 			}
 			else{
-				f += (*z)[i]*(1-1/Ki);
-				dfdT += (*z)[i]/Ki*(dln_phi_liq_dT-dln_phi_vap_dT);
+				f += (*z)[i]*(1-1/K[i]);
+				dfdT += (*z)[i]/K[i]*(dln_phi_liq_dT-dln_phi_vap_dT);
 			}
 		}
 
@@ -687,7 +693,7 @@ double Mixture::saturation_p(int type, double p, std::vector<double> *z, std::ve
 			double sumy = 0;
 			for (unsigned int i = 0; i < N; i++)
 			{
-				(*y)[i] = (*z)[i]*exp(ln_phi_liq[i]-ln_phi_vap[i]);
+				(*y)[i] = (*z)[i]*K[i];
 				sumy += (*y)[i];
 			}
 			// Normalize the components
@@ -702,7 +708,7 @@ double Mixture::saturation_p(int type, double p, std::vector<double> *z, std::ve
 			double sumx = 0;
 			for (unsigned int i = 0; i < N; i++)
 			{
-				(*x)[i] = (*z)[i]*exp(ln_phi_vap[i]-ln_phi_liq[i]);
+				(*x)[i] = (*z)[i]/K[i];
 				sumx += (*x)[i];
 			}
 			// Normalize the components
@@ -710,9 +716,7 @@ double Mixture::saturation_p(int type, double p, std::vector<double> *z, std::ve
 			{
 				(*x)[i] /= sumx;
 			}
-			
 		}
-		
 
 		iter += 1;
 		if (iter > 50)
