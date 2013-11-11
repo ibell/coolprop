@@ -186,6 +186,7 @@ std::map<std::string,std::vector<double> > Mixture::load_excess_values(int i, in
 };
 
 enum PengRobinsonOptions{PR_SATL, PR_SATV};
+
 Mixture::Mixture(std::vector<Fluid *> pFluids)
 {
 	// Make a copy of the list of pointers to fluids that compose this mixture
@@ -282,13 +283,15 @@ Mixture::Mixture(std::vector<Fluid *> pFluids)
 		std::cout << std::endl;
 	}
 
+	double x0 = 0.5;
+	z[0] = x0; z[1] = 1-x0;
+	double TL, TV;
 	for (double p = 100; p <= 1e9; p *= 1.5)
 	{
-		double x0 = 0.5;
-		z[0] = x0; z[1] = 1-x0;
-		Tsat = saturation_p(TYPE_BUBBLEPOINT, p, &z, &x, &y);
+		TL = saturation_p(TYPE_BUBBLEPOINT, p, &z, &x, &y);
+		TV = saturation_p(TYPE_DEWPOINT, p, &z, &x, &y);
 		if (!ValidNumber(Tsat)){break;}
-		std::cout << format("%g %g %g %g %g\n",x0,Tsat,y[0],y[1],p).c_str();
+		std::cout << format("%g %g %g\n",TL,TV,p).c_str();
 	}
 
 	double rr = 0;
@@ -552,6 +555,8 @@ double Mixture::saturation_p(int type, double p, std::vector<double> *z, std::ve
 	(*x).resize(N);
 	(*y).resize(N);
 
+	double T_guess = (log(pseudo_Tcrit)-log(pseudo_Ttriple))/(pseudo_pcrit-pseudo_ptriple)*(log(p)-log(pseudo_ptriple))+pseudo_Ttriple;
+
 	if (type == TYPE_BUBBLEPOINT)
 	{
 		// Liquid is at the bulk composition
@@ -559,20 +564,8 @@ double Mixture::saturation_p(int type, double p, std::vector<double> *z, std::ve
 		// Find first guess for T using Wilson K-factors
 		bubblepoint_WilsonK_resid Resid(this,p,z); //sum(z_i*K_i) - 1
 		std::string errstr;
-		double Tr = pReducing->Tr(z);
-		// Try a range of different values for the temperature, hopefully one works
-		for (double T_guess = Tr*0.9; T_guess > 0; T_guess -= Tr*0.1)
-		{
-			try{
-				T = Secant(&Resid, T_guess, 0.001, 1e-10, 100, &errstr);
-				if (!ValidNumber(T)){throw ValueError();}
-				break;
-			} 
-			catch (CoolPropBaseError) 
-			{
-				double eee = 0;
-			}
-		}
+		T = Secant(&Resid, T_guess, 0.001, 1e-10, 100, &errstr);
+		if (!ValidNumber(T)){throw ValueError();}
 	}
 	else if (type == TYPE_DEWPOINT)
 	{
@@ -581,7 +574,6 @@ double Mixture::saturation_p(int type, double p, std::vector<double> *z, std::ve
 		// Find first guess for T using Wilson K-factors
 		dewpoint_WilsonK_resid Resid(this,p,z); //1-sum(z_i/K_i)
 		std::string errstr;
-		double T_guess = (pseudo_Tcrit-pseudo_Ttriple)/(pseudo_pcrit-pseudo_ptriple)*(p-pseudo_ptriple)+pseudo_Ttriple;
 		T = Secant(&Resid, T_guess, 0.001, 1e-10, 100, &errstr);
 		if (!ValidNumber(T)){throw ValueError();}
 	}
@@ -590,17 +582,11 @@ double Mixture::saturation_p(int type, double p, std::vector<double> *z, std::ve
 		throw ValueError("Invalid type to saturation_p");
 	}
 
-	double res_dew = 0;
-	double res_bub = 0;
 	// Calculate the K factors for each component
 	for (unsigned int i = 0; i < N; i++)
 	{
 		K[i] = exp(Wilson_lnK_factor(T,p,i));
-		res_dew += (*z)[i]/K[i];
-		res_bub += (*z)[i]*K[i];
 	}	
-	res_dew = 1-res_dew;
-	res_bub -= 1;
 
 	// Initial guess for mole fractions in the other phase
 	if (type == TYPE_BUBBLEPOINT)
@@ -701,7 +687,7 @@ double Mixture::saturation_p(int type, double p, std::vector<double> *z, std::ve
 			double sumy = 0;
 			for (unsigned int i = 0; i < N; i++)
 			{
-				(*y)[i] = (*z)[i]*exp(ln_phi_liq[i])/exp(ln_phi_vap[i]);
+				(*y)[i] = (*z)[i]*exp(ln_phi_liq[i]-ln_phi_vap[i]);
 				sumy += (*y)[i];
 			}
 			// Normalize the components
@@ -716,7 +702,7 @@ double Mixture::saturation_p(int type, double p, std::vector<double> *z, std::ve
 			double sumx = 0;
 			for (unsigned int i = 0; i < N; i++)
 			{
-				(*x)[i] = (*z)[i]/exp(ln_phi_liq[i])*exp(ln_phi_vap[i]);
+				(*x)[i] = (*z)[i]*exp(ln_phi_vap[i]-ln_phi_liq[i]);
 				sumx += (*x)[i];
 			}
 			// Normalize the components
