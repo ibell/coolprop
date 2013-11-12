@@ -26,6 +26,14 @@ CoolPropStateClassSI::CoolPropStateClassSI(std::string Fluid)
 	if (Fluid.find("REFPROP-")==0){ 
 		add_REFPROP_fluid(Fluid); 
 		fluid_type = FLUID_TYPE_REFPROP;
+		// Try to get the index of the fluid
+		long iFluid = get_Fluid_index(Fluid);
+		// If iFluid is greater than -1, it is a CoolProp Fluid, otherwise not
+		if (iFluid > -1)
+		{
+			// Get a pointer to the fluid object
+			pFluid = get_fluid(iFluid);
+		}
 	}
 	// If an incompressible liquid, check that 
 	else if(IsIncompressibleLiquid(Fluid)){
