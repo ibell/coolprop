@@ -3781,11 +3781,7 @@ bool Fluid::build_TTSE_LUT(bool force_build)
 			double hV = enthalpy_Trho(limits.Tmin,rhoV);
 			hmin_TTSE = hL;
 			hmax_TTSE = hL+(hV-hL)*2;
-			pmin_TTSE = params.ptriple;
-			if (pmin_TTSE<psatL)
-			{
-				pmin_TTSE = psatL;
-			}
+			pmin_TTSE = std::min(psatL, psatV);
 			pmax_TTSE = 2*reduce.p.Pa;
 		}
 
