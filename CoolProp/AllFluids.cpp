@@ -33,6 +33,7 @@
 #include "purefluids/R125.cpp"
 #include "purefluids/R1234yf.cpp"
 #include "purefluids/R1234ze.cpp"
+#include "purefluids/R1233zd(E).cpp"
 #include "purefluids/R134a.cpp"
 #include "purefluids/R143A.cpp"
 #include "purefluids/R161.cpp"
