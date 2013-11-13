@@ -175,7 +175,7 @@ public:
 	Mixture(std::vector<Fluid *> pFluids);
 	~Mixture();
 
-	double Rbar;
+	double Rbar(std::vector<double> *x);
 
 	std::vector<Fluid *> pFluids;
 	ReducingFunction * pReducing;

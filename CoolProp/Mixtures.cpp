@@ -187,6 +187,15 @@ std::map<std::string,std::vector<double> > Mixture::load_excess_values(int i, in
 
 enum PengRobinsonOptions{PR_SATL, PR_SATV};
 
+double Mixture::Rbar(std::vector<double> *x)
+{
+	double R = 0;
+	for (unsigned int i = 0; i < (*x).size(); i++)
+	{
+		R += (*x)[i]*pFluids[i]->params.R_u;
+	}
+	return R;
+}
 Mixture::Mixture(std::vector<Fluid *> pFluids)
 {
 	// Make a copy of the list of pointers to fluids that compose this mixture
@@ -231,12 +240,6 @@ Mixture::Mixture(std::vector<Fluid *> pFluids)
 	z[0] = 0.5;
 	z[1] = 1-z[0];
 
-	Rbar = 0;
-	for (unsigned int i = 0; i < pFluids.size(); i++)
-	{
-		Rbar += z[i]*pFluids[i]->params.R_u;
-	}
-
 	double Tr = pReducing->Tr(&z); //[K]
 	double rhorbar = pReducing->rhorbar(&z); //[mol/m^3]
 
@@ -247,49 +250,18 @@ Mixture::Mixture(std::vector<Fluid *> pFluids)
 	double dtau_dT = -Tr/T/T;
 
 	double _dphir_dDelta = dphir_dDelta(tau, delta, &z);
-	double p = Rbar*rhobar*T*(1 + delta*_dphir_dDelta)/1000; //[kPa]
-
-	double phi1 = exp(ln_fugacity_coefficient(tau, delta, &z, 0));
-	double phi2 = exp(ln_fugacity_coefficient(tau, delta, &z, 1));
-
-	double dlnphi1_dTau = (ln_fugacity_coefficient(tau + 1e-7, delta, &z, 0)-ln_fugacity_coefficient(tau, delta, &z, 0))/1e-7;
-	double dlnphi2_dTau = (ln_fugacity_coefficient(tau + 1e-7, delta, &z, 1)-ln_fugacity_coefficient(tau, delta, &z, 1))/1e-7;
-
-	double dlnphi1_dT = dtau_dT*dlnphi1_dTau;
-	double dlnphi2_dT = dtau_dT*dlnphi2_dTau;
-
-	double dlnphi1_dT_ = dln_fugacity_coefficient_dT__constp_n(tau, delta, &z, 0);
-	double dlnphi2_dT_ = dln_fugacity_coefficient_dT__constp_n(tau, delta, &z, 1);
-
+	double p = Rbar(&z)*rhobar*T*(1 + delta*_dphir_dDelta)/1000; //[kPa]
 
 	double rhobar_pr = rhobar_pengrobinson(T, p, &z, PR_SATV);
-
-	//clock_t _t1,_t2;
-	//long N = 1000000;
-	//_t1 = clock();
-	//for (unsigned long long i = 1; i<N; i++)
-	//{
-	//	z[0] = z[0]+1e-16*i;
-	//	Tr = pReducing->Tr(&z);
-	//}
-	//_t2=clock();
-	//double telap = ((double)(_t2-_t1))/CLOCKS_PER_SEC/(double)N*1e6;
-	//std::cout << "elap" << telap << std::endl;
-
-	//double tau_liq = 0.5;
-	//double delta_liq  = 0.5;
-	//double dd1 = (phir(tau_liq+0.0001,delta_liq,&z)- phir(tau_liq-0.0001,delta_liq,&z) )/(2*0.0001);
-	//double dd2 = dphir_dTau(tau_liq+0.0001,delta_liq,&z);
 
 	//p = 595.61824;
 	std::vector<double> x,y;
 	//TpzFlash(T, p, z, &rhobar, &x, &y);
-
 	
 	double Tsat;
 	double psat = 1e3;
 
-	Tsat = saturation_p(TYPE_BUBBLEPOINT, 440000, &z, &x, &y);
+	Tsat = saturation_p(TYPE_DEWPOINT, 440000, &z, &x, &y);
 
 	for (double x0 = 0; x0 <= 1.000000000000001; x0 += 0.01)
 	{
@@ -367,7 +339,7 @@ double Mixture::dln_fugacity_coefficient_dT__constp_n(double tau, double delta, 
 	double Tr = pReducing->Tr(x); // [K]
 	double T = Tr/tau;
 	double dtau_dT = -tau/T;
-	return d2nphir_dni_dT(tau, delta, x, i) + 1/T-this->partial_molar_volume(tau,delta,x,i)/(Rbar*T)*dpdT__constV_n(tau,delta,x,i);
+	return d2nphir_dni_dT(tau, delta, x, i) + 1/T-this->partial_molar_volume(tau,delta,x,i)/(Rbar(x)*T)*dpdT__constV_n(tau,delta,x,i);
 }
 double Mixture::partial_molar_volume(double tau, double delta, std::vector<double> *x, int i)
 {
@@ -377,7 +349,7 @@ double Mixture::dpdT__constV_n(double tau, double delta, std::vector<double> *x,
 {
 	double rhorbar = pReducing->rhorbar(x);
 	double rhobar = rhorbar*delta;
-	return rhobar*Rbar*(1+delta*dphir_dDelta(tau,delta,x)-delta*tau*d2phir_dDelta_dTau(tau, delta, x));
+	return rhobar*Rbar(x)*(1+delta*dphir_dDelta(tau,delta,x)-delta*tau*d2phir_dDelta_dTau(tau, delta, x));
 }
 double Mixture::ndpdV__constT_n(double tau, double delta,std::vector<double> *x, int i)
 {
@@ -385,7 +357,7 @@ double Mixture::ndpdV__constT_n(double tau, double delta,std::vector<double> *x,
 	double rhobar = rhorbar*delta;
 	double Tr = pReducing->Tr(x); // [K]
 	double T = Tr/tau;
-	return -rhobar*rhobar*Rbar*T*(1+2*delta*dphir_dDelta(tau,delta,x)+delta*delta*d2phir_dDelta2(tau, delta, x));
+	return -rhobar*rhobar*Rbar(x)*T*(1+2*delta*dphir_dDelta(tau,delta,x)+delta*delta*d2phir_dDelta2(tau, delta, x));
 }
 double Mixture::ndpdni__constT_V_nj(double tau, double delta, std::vector<double> *x, int i)
 {
@@ -402,7 +374,7 @@ double Mixture::ndpdni__constT_V_nj(double tau, double delta, std::vector<double
 		summer += (*x)[k]*d2phir_dxi_dDelta(tau,delta,x,i);
 	}
 	double nd2phir_dni_dDelta = delta*d2phir_dDelta2(tau,delta,x)*(1-1/rhorbar*ndrhorbar_dni__constnj)+tau*d2phir_dDelta_dTau(tau,delta,x)/Tr*ndTr_dni__constnj+d2phir_dxi_dDelta(tau,delta,x,i)-summer;
-	return rhobar*Rbar*T*(1+delta*dphir_dDelta(tau,delta,x)*(2-1/rhorbar*ndrhorbar_dni__constnj)+delta*nd2phir_dni_dDelta);
+	return rhobar*Rbar(x)*T*(1+delta*dphir_dDelta(tau,delta,x)*(2-1/rhorbar*ndrhorbar_dni__constnj)+delta*nd2phir_dni_dDelta);
 }
 
 double Mixture::ndphir_dni(double tau, double delta, std::vector<double> *x, int i)
@@ -527,7 +499,7 @@ public:
 		Tr = Mix->pReducing->Tr(x);
 		rhorbar = Mix->pReducing->rhorbar(x);
 		tau = Tr/T;
-		Rbar = Mix->Rbar; // J/mol/K
+		Rbar = Mix->Rbar(x); // J/mol/K
 	};
 	double call(double rhobar){	
 		double delta = rhobar/rhorbar;
@@ -887,18 +859,12 @@ void Mixture::TpzFlash(double T, double p, std::vector<double> *z, double *rhoba
 	double rhorbar_vap = pReducing->rhorbar(y);
 	double delta_liq = rhobar_liq/rhorbar_liq; 
 	double delta_vap = rhobar_vap/rhorbar_vap; 
-
-	double Z_liq = p/(Rbar*rhobar_liq*T);
-	double Z_vap = p/(Rbar*rhobar_vap*T);
-	
-	double phir_liq =this->phir(tau_liq, delta_liq, x); 
-	double phir_vap =this->phir(tau_vap, delta_vap, y);
 	
 	// Evaluate fugacity coefficients in liquid and vapor
 	for (unsigned int i = 0; i < N; i++)
 	{
-		double ln_phi_liq = phir_liq + this->ndphir_dni(tau_liq,delta_liq,x,i)-log(Z_liq);
-		double ln_phi_vap = phir_vap + this->ndphir_dni(tau_vap,delta_vap,y,i)-log(Z_vap);
+		double ln_phi_liq = ln_fugacity_coefficient(tau_liq, delta_vap, x, i);
+		double ln_phi_vap = ln_fugacity_coefficient(tau_vap, delta_liq, x, i);
 		
 		double lnKold = lnK[i];
 		// Recalculate the K-factor (log(exp(ln_phi_liq)/exp(ln_phi_vap)))
@@ -914,23 +880,23 @@ void Mixture::TpzFlash(double T, double p, std::vector<double> *z, double *rhoba
 }
 double Mixture::rhobar_pengrobinson(double T, double p, std::vector<double> *x, int solution)
 {
-	double A  = 0, B = 0, m_i, m_j, a_i, a_j, b_i, a = 0, b = 0, Z, rhobar;
+	double A  = 0, B = 0, m_i, m_j, a_i, a_j, b_i, a = 0, b = 0, Z, rhobar, R = Rbar(x);
 
 	for (unsigned int i = 0; i < (*x).size(); i++)
 	{
 		m_i = 0.37464 + 1.54226*pFluids[i]->params.accentricfactor-0.26992*pow(pFluids[i]->params.accentricfactor,2);
-		b_i = 0.077796074*(Rbar*pFluids[i]->reduce.T)/(pFluids[i]->reduce.p.Pa);
+		b_i = 0.077796074*(R*pFluids[i]->reduce.T)/(pFluids[i]->reduce.p.Pa);
 
-		B += (*x)[i]*b_i*p/(Rbar*T);
+		B += (*x)[i]*b_i*p/(R*T);
 
 		for (unsigned int j = 0; j < (*x).size(); j++)
 		{
 			
 			m_j = 0.37464 + 1.54226*pFluids[j]->params.accentricfactor-0.26992*pow(pFluids[j]->params.accentricfactor,2);
-			a_i = 0.45724*pow(Rbar*pFluids[i]->reduce.T,2)/pFluids[i]->reduce.p.Pa*pow(1+m_i*(1-sqrt(T/pFluids[i]->reduce.T)),2)*1000;
-			a_j = 0.45724*pow(Rbar*pFluids[j]->reduce.T,2)/pFluids[j]->reduce.p.Pa*pow(1+m_j*(1-sqrt(T/pFluids[j]->reduce.T)),2)*1000;	
+			a_i = 0.45724*pow(R*pFluids[i]->reduce.T,2)/pFluids[i]->reduce.p.Pa*pow(1+m_i*(1-sqrt(T/pFluids[i]->reduce.T)),2)*1000;
+			a_j = 0.45724*pow(R*pFluids[j]->reduce.T,2)/pFluids[j]->reduce.p.Pa*pow(1+m_j*(1-sqrt(T/pFluids[j]->reduce.T)),2)*1000;	
 
-			A += (*x)[i]*(*x)[j]*sqrt(a_i*a_j)*p/(Rbar*Rbar*T*T)/1000;
+			A += (*x)[i]*(*x)[j]*sqrt(a_i*a_j)*p/(R*R*T*T)/1000;
 		}
 	}
 
@@ -947,8 +913,8 @@ double Mixture::rhobar_pengrobinson(double T, double p, std::vector<double> *x, 
 		}
 		else
 		{
-			double v = (solns[i]*Rbar*T)/p; //[mol/L]
-			double dpdrho = -v*v*(-Rbar*T/pow(v-b,2)+a*(2*v+2*b)/pow(v*v+2*b*v-b*b,2));
+			double v = (solns[i]*R*T)/p; //[mol/L]
+			double dpdrho = -v*v*(-R*T/pow(v-b,2)+a*(2*v+2*b)/pow(v*v+2*b*v-b*b,2));
 			if (dpdrho < 0)
 			{
 				solns.erase(solns.begin()+i);
@@ -969,7 +935,7 @@ double Mixture::rhobar_pengrobinson(double T, double p, std::vector<double> *x, 
 		throw ValueError();
 	}
 
-	rhobar = p/(Z*Rbar*T);
+	rhobar = p/(Z*R*T);
 
 	return rhobar;
 }
