@@ -258,8 +258,8 @@ Mixture::Mixture(std::vector<Fluid *> pFluids)
 	double dlnphi1_dT = dtau_dT*dlnphi1_dTau;
 	double dlnphi2_dT = dtau_dT*dlnphi2_dTau;
 
-	double dlnphi1_dT_ = dln_fugacity_coefficient_dT(tau, delta, &z, 0);
-	double dlnphi2_dT_ = dln_fugacity_coefficient_dT(tau, delta, &z, 1);
+	double dlnphi1_dT_ = dln_fugacity_coefficient_dT__constp_n(tau, delta, &z, 0);
+	double dlnphi2_dT_ = dln_fugacity_coefficient_dT__constp_n(tau, delta, &z, 1);
 
 
 	double rhobar_pr = rhobar_pengrobinson(T, p, &z, PR_SATV);
@@ -348,7 +348,7 @@ double Mixture::ln_fugacity_coefficient(double tau, double delta, std::vector<do
 {
 	return phir(tau,delta,x) + ndphir_dni(tau,delta,x,i)-log(1+delta*dphir_dDelta(tau,delta,x));
 }
-double Mixture::dln_fugacity_coefficient_dT(double tau, double delta, std::vector<double> *x, int i)
+double Mixture::dln_fugacity_coefficient_dT__constrho(double tau, double delta, std::vector<double> *x, int i)
 {
 	double Tr = pReducing->Tr(x); // [K]
 	double T = Tr/tau;
@@ -356,6 +356,54 @@ double Mixture::dln_fugacity_coefficient_dT(double tau, double delta, std::vecto
 	return (dphir_dTau(tau,delta,x) + dndphir_dni_dTau(tau,delta,x,i)-1/(1+delta*dphir_dDelta(tau,delta,x))*(delta*d2phir_dDelta_dTau(tau,delta,x)))*dtau_dT;
 }
 
+double Mixture::d2nphir_dni_dT(double tau, double delta, std::vector<double> *x, int i)
+{
+	double Tr = pReducing->Tr(x); // [K]
+	double T = Tr/tau;
+	return -tau/T*(dphir_dTau(tau,delta,x) + dndphir_dni_dTau(tau,delta,x,i));
+}
+double Mixture::dln_fugacity_coefficient_dT__constp_n(double tau, double delta, std::vector<double> *x, int i)
+{
+	double Tr = pReducing->Tr(x); // [K]
+	double T = Tr/tau;
+	double dtau_dT = -tau/T;
+	return d2nphir_dni_dT(tau, delta, x, i) + 1/T-this->partial_molar_volume(tau,delta,x,i)/(Rbar*T)*dpdT__constV_n(tau,delta,x,i);
+}
+double Mixture::partial_molar_volume(double tau, double delta, std::vector<double> *x, int i)
+{
+	return -ndpdni__constT_V_nj(tau,delta,x,i)/ndpdV__constT_n(tau,delta,x,i);
+}
+double Mixture::dpdT__constV_n(double tau, double delta, std::vector<double> *x, int i)
+{
+	double rhorbar = pReducing->rhorbar(x);
+	double rhobar = rhorbar*delta;
+	return rhobar*Rbar*(1+delta*dphir_dDelta(tau,delta,x)-delta*tau*d2phir_dDelta_dTau(tau, delta, x));
+}
+double Mixture::ndpdV__constT_n(double tau, double delta,std::vector<double> *x, int i)
+{
+	double rhorbar = pReducing->rhorbar(x);
+	double rhobar = rhorbar*delta;
+	double Tr = pReducing->Tr(x); // [K]
+	double T = Tr/tau;
+	return -rhobar*rhobar*Rbar*T*(1+2*delta*dphir_dDelta(tau,delta,x)+delta*delta*d2phir_dDelta2(tau, delta, x));
+}
+double Mixture::ndpdni__constT_V_nj(double tau, double delta, std::vector<double> *x, int i)
+{
+	// Eqn 7.64 and 7.63
+	double rhorbar = pReducing->rhorbar(x);
+	double rhobar = rhorbar*delta;
+	double Tr = pReducing->Tr(x); // [K]
+	double T = Tr/tau;
+	double ndrhorbar_dni__constnj = pReducing->ndrhorbar_dni__constnj(x,i);
+	double ndTr_dni__constnj = pReducing->ndTr_dni__constnj(x,i);
+	double summer = 0;
+	for (unsigned int k = 0; k < (*x).size(); k++)
+	{
+		summer += (*x)[k]*d2phir_dxi_dDelta(tau,delta,x,i);
+	}
+	double nd2phir_dni_dDelta = delta*d2phir_dDelta2(tau,delta,x)*(1-1/rhorbar*ndrhorbar_dni__constnj)+tau*d2phir_dDelta_dTau(tau,delta,x)/Tr*ndTr_dni__constnj+d2phir_dxi_dDelta(tau,delta,x,i)-summer;
+	return rhobar*Rbar*T*(1+delta*dphir_dDelta(tau,delta,x)*(2-1/rhorbar*ndrhorbar_dni__constnj)+delta*nd2phir_dni_dDelta);
+}
 
 double Mixture::ndphir_dni(double tau, double delta, std::vector<double> *x, int i)
 {
@@ -426,6 +474,10 @@ double Mixture::dphir_dxi(double tau, double delta, std::vector<double> *x, int 
 double Mixture::d2phir_dxi_dTau(double tau, double delta, std::vector<double> *x, int i)
 {	
 	return pFluids[i]->dphir_dTau(tau,delta) + pExcess->d2phir_dxi_dTau(tau,delta,x,i);
+}
+double Mixture::d2phir_dxi_dDelta(double tau, double delta, std::vector<double> *x, int i)
+{	
+	return pFluids[i]->dphir_dDelta(tau,delta) + pExcess->d2phir_dxi_dDelta(tau,delta,x,i);
 }
 double Mixture::dphir_dDelta(double tau, double delta, std::vector<double> *x)
 {
@@ -599,7 +651,7 @@ double Mixture::saturation_p(int type, double p, std::vector<double> *z, std::ve
 	if (type == TYPE_BUBBLEPOINT)
 	{
 		// Liquid is at the bulk composition
-		*x = (*z);
+		*x = *z;
 		// Find first guess for T using Wilson K-factors
 		bubblepoint_WilsonK_resid Resid(this,p,z); //sum(z_i*K_i) - 1
 		T = Secant(&Resid, T_guess, 0.001, 1e-10, 100, &errstr);
@@ -609,7 +661,7 @@ double Mixture::saturation_p(int type, double p, std::vector<double> *z, std::ve
 	else if (type == TYPE_DEWPOINT)
 	{
 		// Vapor is at the bulk composition
-		*y = (*z);
+		*y = *z;
 		// Find first guess for T using Wilson K-factors
 		dewpoint_WilsonK_resid Resid(this,p,z); //1-sum(z_i/K_i)
 		T = Secant(&Resid, T_guess, 0.001, 1e-10, 100, &errstr);
@@ -622,7 +674,7 @@ double Mixture::saturation_p(int type, double p, std::vector<double> *z, std::ve
 	}
 	if (!ValidNumber(T)){throw ValueError();}
 
-	// Initial guess for mole fractions in the other phase
+	// Initial guess for mole fractions in the incipient phase
 	if (type == TYPE_BUBBLEPOINT)
 	{
 		double sumy = 0;
@@ -654,12 +706,8 @@ double Mixture::saturation_p(int type, double p, std::vector<double> *z, std::ve
 		}
 	}
 
-	
-
 	double rhobar_liq = rhobar_pengrobinson(T, p, x, PR_SATL); // [kg/m^3]
 	double rhobar_vap = rhobar_pengrobinson(T, p, y, PR_SATV); // [kg/m^3]
-	
-	//T += 0.1;
 
 	do
 	{
@@ -671,47 +719,45 @@ double Mixture::saturation_p(int type, double p, std::vector<double> *z, std::ve
 		}
 		rhobar_liq = rhobar_liq_new;
 		rhobar_vap = rhobar_vap_new;
+
 		double Tr_liq = pReducing->Tr(x); // [K]
 		double Tr_vap = pReducing->Tr(y);  // [K]
 		double tau_liq = Tr_liq/T; // [-]
 		double tau_vap = Tr_vap/T; // [-]
+
 		double rhorbar_liq = pReducing->rhorbar(x); //[kg/m^3]
 		double rhorbar_vap = pReducing->rhorbar(y); //[kg/m^3]
 		double delta_liq = rhobar_liq/rhorbar_liq;  //[-]
 		double delta_vap = rhobar_vap/rhorbar_vap;  //[-] 
+		
 		double dtau_dT_liq = -Tr_liq/T/T;
 		double dtau_dT_vap = -Tr_vap/T/T;
-
-		double Z_liq = p/(Rbar*rhobar_liq*T); //[-]
-		double Z_vap = p/(Rbar*rhobar_vap*T); //[-]
-
-		double dZ_liq_dT = -p/(Rbar*rhobar_liq*T*T);
-		double dZ_vap_dT = -p/(Rbar*rhobar_vap*T*T);
-
-		double dphir_liq_dT = dphir_dTau(tau_liq, delta_liq, x)*dtau_dT_liq;
-		double dphir_vap_dT = dphir_dTau(tau_vap, delta_vap, y)*dtau_dT_vap;
 
 		f = 0;
 		dfdT = 0;
 		for (unsigned int i=0; i < N; i++)
 		{
+
 			ln_phi_liq[i] = ln_fugacity_coefficient(tau_liq, delta_liq, x, i);
 			ln_phi_vap[i] = ln_fugacity_coefficient(tau_vap, delta_vap, y, i);
 
-			double dln_phi_liq_dT2 = (ln_fugacity_coefficient(tau_liq+1e-10, delta_liq, x, i) - ln_fugacity_coefficient(tau_liq, delta_liq, x, i))/1e-10*dtau_dT_liq;
-			double dln_phi_liq_dT3 = dln_fugacity_coefficient_dT(tau_liq, delta_liq,x,i);
+			double dln_phi_liq_dT = dln_fugacity_coefficient_dT__constp_n(tau_liq, delta_liq, x, i);
+			double dln_phi_vap_dT = dln_fugacity_coefficient_dT__constp_n(tau_vap, delta_vap, y, i);
 
-			double dln_phi_vap_dT2 = (ln_fugacity_coefficient(tau_vap+1e-10, delta_vap, y, i) - ln_fugacity_coefficient(tau_vap, delta_vap, y, i))/1e-10*dtau_dT_vap;
-			double dln_phi_vap_dT3 = dln_fugacity_coefficient_dT(tau_vap,delta_vap,y,i);
+			//double dphir_liq_dT = dphir_dTau(tau_liq, delta_liq, x)*dtau_dT_liq;
+			//double dphir_vap_dT = dphir_dTau(tau_vap, delta_vap, y)*dtau_dT_vap;
+			//double Z_liq = p/(Rbar*rhobar_liq*T); //[-]
+			//double Z_vap = p/(Rbar*rhobar_vap*T); //[-]
+			//double dZ_liq_dT = -p/(Rbar*rhobar_liq*T*T);
+			//double dZ_vap_dT = -p/(Rbar*rhobar_vap*T*T);
+			 double phi_liq = exp(ln_phi_liq[i]);
+			 double phi_vap = exp(ln_phi_vap[i]);
+			// double dln_phi_liq_dT2 = (ln_fugacity_coefficient(tau_liq+1e-10, delta_liq, x, i) - ln_fugacity_coefficient(tau_liq, delta_liq, x, i))/1e-10*dtau_dT_liq;
+			// double dln_phi_vap_dT2 = (ln_fugacity_coefficient(tau_vap+1e-10, delta_vap, y, i) - ln_fugacity_coefficient(tau_vap, delta_vap, y, i))/1e-10*dtau_dT_vap;
+			// double dln_phi_liq_dT3 = dphir_liq_dT + dndphir_dni_dTau(tau_liq, delta_liq, x, i)*dtau_dT_liq-1/Z_liq*dZ_liq_dT;
+			// double dln_phi_vap_dT3 = dphir_vap_dT + dndphir_dni_dTau(tau_vap, delta_vap, y, i)*dtau_dT_vap-1/Z_vap*dZ_vap_dT;
 
-			double dln_phi_liq_dT = dphir_liq_dT + dndphir_dni_dTau(tau_liq, delta_liq, x, i)*dtau_dT_liq-1/Z_liq*dZ_liq_dT;
-			double dln_phi_vap_dT = dphir_vap_dT + dndphir_dni_dTau(tau_vap, delta_vap, y, i)*dtau_dT_vap-1/Z_vap*dZ_vap_dT;
-
-			// SOMETHING WRONG HERE - analytic solution for derivative agrees with finite difference solution, but form with Z doesnt agree with them both. Calculating
-			
-			//std::cout << format("%g %g %g %g %g \n",T,ln_phi_liq[i],ln_phi_vap[i],dln_phi_liq_dT,dln_phi_vap_dT);
-
-			K[i] = exp(ln_phi_liq[i] - ln_phi_vap[i]);
+			K[i] = phi_liq/phi_vap;
 			
 			if (type == TYPE_BUBBLEPOINT){
 				f += (*z)[i]*(K[i]-1);
@@ -721,10 +767,14 @@ double Mixture::saturation_p(int type, double p, std::vector<double> *z, std::ve
 				f += (*z)[i]*(1-1/K[i]);
 				dfdT += (*z)[i]/K[i]*(dln_phi_liq_dT-dln_phi_vap_dT);
 			}
+			//std::cout << format("%g %g %g\n",K[i], dln_phi_liq_dT, dln_phi_vap_dT);
 		}
 		
-
 		change = -f/dfdT;
+
+		//std::cout << format("%g %g %g\n", T, f, dfdT, change);
+		//change = 0;
+		//f = 0;
 
 		if (!ValidNumber(change))
 		{
@@ -1312,4 +1362,23 @@ double ResidualIdealMixture::d2phir_dTau2(double tau, double delta, std::vector<
 		summer += (*x)[i]*pFluids[i]->d2phir_dTau2(tau,delta);
 	}
 	return summer;
+}
+
+double ReducingFunction::ndrhorbar_dni__constnj(std::vector<double> *x, int i)
+{
+	double summer_term1 = 0;
+	for (unsigned int j = 0; j < (*x).size(); j++)
+	{
+		summer_term1 += (*x)[j]*drhorbar_dxi(x,j);
+	}
+	return drhorbar_dxi(x,i)-summer_term1;
+}
+double ReducingFunction::ndTr_dni__constnj(std::vector<double> *x, int i)
+{
+	double summer_term1 = 0;
+	for (unsigned int j = 0; j < (*x).size(); j++)
+	{
+		summer_term1 += (*x)[j]*dTr_dxi(x,j);
+	}
+	return dTr_dxi(x,i)-summer_term1;
 }

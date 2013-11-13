@@ -28,6 +28,9 @@ public:
 	virtual double drhorbar_dxi(std::vector<double> *x, int i) = 0;
 	/// Set the coefficients based on reducing parameters loaded from JSON
 	virtual void set_coeffs_from_map(int i, int j, std::map<std::string,double >) = 0;
+
+	virtual double ndrhorbar_dni__constnj(std::vector<double> *x, int i);
+	virtual double ndTr_dni__constnj(std::vector<double> *x, int i);
 };
 
 /*! 
@@ -196,6 +199,7 @@ public:
 	double dphir_dTau(double tau, double delta, std::vector<double> *x);
 	double dphir_dxi(double tau, double delta, std::vector<double> *x, int i);
 	double d2phir_dxi_dTau(double tau, double delta, std::vector<double> *x, int i);
+	double d2phir_dxi_dDelta(double tau, double delta, std::vector<double> *x, int i);
 	/// Returns the fugacity for the given component for the given total reduced density and reciprocal reduced temperature
 	double fugacity(double tau, double delta, std::vector<double> *x, int i);
 	
@@ -251,7 +255,36 @@ public:
 	*/
 	double ndphir_dni(double tau, double delta, std::vector<double> *x, int i);
 
+
+	/*! The partial molar volume
+	\f[
+	\hat v_i = \left( \frac{\partial V}{\partial n_i}\right)_{T,p,n_j} = \frac{-\left(\dfrac{\partial p}{\partial n_i}\right)_{T,V,n_j}}{\left(\dfrac{\partial p}{\partial V}\right)_{T,\bar n}}
+	\f]
+	from GERG monograph eqn 7.32
+	*/
+	double partial_molar_volume(double tau, double delta, std::vector<double> *x, int i);
+
 	/*! The derivative term
+	\f[
+	\left(\frac{\ln \phi_i}{\partial T} \right)_{p,\bar n} = \left(\frac{\partial^2n\alpha^r}{\partial T\partial n_i} \right)_{V,n_j} + \frac{1}{T}-\frac{\hat v}{RT}\left(\frac{\partial p}{\partial T}\right)_{V,\bar n}
+	\f]
+	GERG 2004 Monograph Eqn. 7.29
+	*/
+	double dln_fugacity_coefficient_dT__constp_n(double tau, double delta, std::vector<double> *x, int i);
+
+	/*!
+	\f[
+	\left(\frac{\partial^2n\alpha^r}{\partial T\partial n_i} \right)_{V,n_j} = \left( \frac{\partial}{\partial T}\left(\frac{\partial n \alpha^r}{\partial n_i}\right)_{T,V,n_j} \right)_{V,\bar n}
+	\f]
+	\f[
+	\left(\frac{\partial^2n\alpha^r}{\partial T\partial n_i} \right)_{V,n_j} = -\frac{\tau}{T}\left[\alpha_{\tau}^r +\left( \frac{\partial}{\partial \tau}\left(n\left(\frac{\partial \alpha^r}{\partial n_i}\right)_{T,V,n_j}\right)\right)_{\delta,\bar x}\right]
+	\f]
+	GERG 2004 Monograph, equations 7.44 and 7.51
+	*/
+	double d2nphir_dni_dT(double tau, double delta, std::vector<double> *x, int i); // Implemented
+
+	/*! 
+	The derivative term
 	\f[
 	\frac{\partial }{\partial \tau} \left( n\left(\frac{\partial \phi^r}{\partial n_i} \right)_{T,V,n_j} \right)
 	\f]
@@ -265,6 +298,30 @@ public:
 	*/
 	double dndphir_dni_dTau(double tau, double delta, std::vector<double> *x, int i);
 
+	/*! The derivative term
+	\f[
+	\left(\frac{\partial p}{\partial T} \right)_{V,\bar n} = \rho R(1+\delta \alpha_{\delta}^r-\delta \tau \alpha^r_{\delta\tau})
+	\f]
+	GERG 2004 Monograph equation 7.61
+	*/
+	double dpdT__constV_n(double tau, double delta, std::vector<double> *x, int i);
+
+	/*! The derivative term
+	\f[
+	n\left(\frac{\partial p}{\partial V} \right)_{T,\bar n} = -\rho^2 RT(1+2\delta \alpha_{\delta}^r+\delta^2\alpha^r_{\delta\delta})
+	\f]
+	GERG 2004 Monograph equation 7.62
+	*/
+	double ndpdV__constT_n(double tau, double delta, std::vector<double> *x, int i);
+
+	/*! The derivative term
+	\f[
+	n\left(\frac{\partial p}{\partial n_i} \right)_{T,V,n_j} = \rho RT\left[1+\delta\alpha_{\delta}^r\left[2- \frac{1}{\rho_r}\cdot n\left( \frac{\partial \rho_r}{\partial n_i}\right)_{n_j}\right] +\delta\cdot n\left(\frac{\partial\alpha_{\delta}^r}{\partial n_i}\right)_{T,V,n_j}\right]
+	\f]
+	GERG 2004 Monograph equation 7.63
+	*/
+	double ndpdni__constT_V_nj(double tau, double delta, std::vector<double> *x, int i);
+
 	double saturation_p(int type, double p, std::vector<double> *z, std::vector<double> *x, std::vector<double> *y);
 
 	/*!
@@ -275,7 +332,7 @@ public:
 	/*!
 	Derivative of the natural logarithm of the fugacity coefficient with respect to T
 	*/
-	double dln_fugacity_coefficient_dT(double tau, double delta, std::vector<double> *x, int i);
+	double dln_fugacity_coefficient_dT__constrho(double tau, double delta, std::vector<double> *x, int i);
 
 	/*! Calculate the mixture molar density based on the use of the Peng-Robinson equation of state
 	*/
