@@ -247,6 +247,7 @@ public:
 	&& +\tau \phi^r_{\tau}\frac{1}{T_r}\left[\left(\frac{\partial T_r}{\partial x_i}\right)_{x_j} - \sum_{k=1}^N x_k\left(\frac{\partial T_r}{\partial x_k}\right)_{x_j}  \right]\\
 	&& +\phi^r_{x_i}-\sum_{k=1}^{N}x_k\phi^r_{x_k}
 	\f}
+	See Table B4, Kunz, JCED, 2012 for the original term and the subsequent substitutions
 	*/
 	double ndphir_dni(double tau, double delta, std::vector<double> *x, int i);
 
@@ -260,10 +261,21 @@ public:
 	&& +(\tau \phi^r_{\tau\tau}+\phi^r_{\tau})\frac{1}{T_r}\left[\left(\frac{\partial T_r}{\partial x_i}\right)_{x_j} - \sum_{k=1}^N x_k\left(\frac{\partial T_r}{\partial x_k}\right)_{x_j}  \right]\\
 	&& +\phi^r_{x_i\tau}-\sum_{k=1}^{N}x_k\phi^r_{x_k\tau}
 	\f}
+	See Table B4, Kunz, JCED, 2012 and 7.51 from GERG 2004 Monograph
 	*/
 	double dndphir_dni_dTau(double tau, double delta, std::vector<double> *x, int i);
 
 	double saturation_p(int type, double p, std::vector<double> *z, std::vector<double> *x, std::vector<double> *y);
+
+	/*!
+	Natural logarithm of the fugacity coefficient
+	*/
+	double ln_fugacity_coefficient(double tau, double delta, std::vector<double> *x, int i);
+
+	/*!
+	Derivative of the natural logarithm of the fugacity coefficient with respect to T
+	*/
+	double dln_fugacity_coefficient_dT(double tau, double delta, std::vector<double> *x, int i);
 
 	/*! Calculate the mixture molar density based on the use of the Peng-Robinson equation of state
 	*/

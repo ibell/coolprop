@@ -216,7 +216,7 @@ Mixture::Mixture(std::vector<Fluid *> pFluids)
 
 				pExcess->set_coeffs_from_map(i, j, excess_map);
 				pReducing->set_coeffs_from_map(i, j, reducing_map);
-				// TODO: Load F factors into excess term
+				std::cout << "TODO: Load F factors into excess term" << std::endl;
 			}
 		}
 	}
@@ -226,25 +226,41 @@ Mixture::Mixture(std::vector<Fluid *> pFluids)
 	///         END OF INITIALIZATION
 	///         END OF INITIALIZATION
 	
-	Rbar = 8.314491; // As in REFRPOP TODO: weight based on mole fractions of each component
-	
 	std::vector<double> z(2, 0.5);
 
-	z[0] = 0.0;
+	z[0] = 0.5;
 	z[1] = 1-z[0];
+
+	Rbar = 0;
+	for (unsigned int i = 0; i < pFluids.size(); i++)
+	{
+		Rbar += z[i]*pFluids[i]->params.R_u;
+	}
 
 	double Tr = pReducing->Tr(&z); //[K]
 	double rhorbar = pReducing->rhorbar(&z); //[mol/m^3]
-	double dTr_dxi = pReducing->dTr_dxi(&z,1);
-	double rhorbar_dxi = pReducing->drhorbar_dxi(&z,1);
 
 	double T = 145; // [K]
 	double rhobar = 4; // [mol/m^3]; to convert from mol/L, multiply by 1000
 	double tau = Tr/T;
 	double delta = rhobar/rhorbar;
+	double dtau_dT = -Tr/T/T;
 
-	double _dphir_dDelta = dphir_dDelta(tau,delta,&z);
-	double p = Rbar*rhobar*T*(1 + delta*_dphir_dDelta);
+	double _dphir_dDelta = dphir_dDelta(tau, delta, &z);
+	double p = Rbar*rhobar*T*(1 + delta*_dphir_dDelta)/1000; //[kPa]
+
+	double phi1 = exp(ln_fugacity_coefficient(tau, delta, &z, 0));
+	double phi2 = exp(ln_fugacity_coefficient(tau, delta, &z, 1));
+
+	double dlnphi1_dTau = (ln_fugacity_coefficient(tau + 1e-7, delta, &z, 0)-ln_fugacity_coefficient(tau, delta, &z, 0))/1e-7;
+	double dlnphi2_dTau = (ln_fugacity_coefficient(tau + 1e-7, delta, &z, 1)-ln_fugacity_coefficient(tau, delta, &z, 1))/1e-7;
+
+	double dlnphi1_dT = dtau_dT*dlnphi1_dTau;
+	double dlnphi2_dT = dtau_dT*dlnphi2_dTau;
+
+	double dlnphi1_dT_ = dln_fugacity_coefficient_dT(tau, delta, &z, 0);
+	double dlnphi2_dT_ = dln_fugacity_coefficient_dT(tau, delta, &z, 1);
+
 
 	double rhobar_pr = rhobar_pengrobinson(T, p, &z, PR_SATV);
 
@@ -272,6 +288,8 @@ Mixture::Mixture(std::vector<Fluid *> pFluids)
 	
 	double Tsat;
 	double psat = 1e3;
+
+	Tsat = saturation_p(TYPE_BUBBLEPOINT, 440000, &z, &x, &y);
 
 	for (double x0 = 0; x0 <= 1.000000000000001; x0 += 0.01)
 	{
@@ -326,6 +344,19 @@ double Mixture::fugacity(double tau, double delta, std::vector<double> *x, int i
 	double f_i = (*x)[i]*rhobar*Rbar*T*exp(dnphir_dni);
 	return f_i;
 }
+double Mixture::ln_fugacity_coefficient(double tau, double delta, std::vector<double> *x, int i)
+{
+	return phir(tau,delta,x) + ndphir_dni(tau,delta,x,i)-log(1+delta*dphir_dDelta(tau,delta,x));
+}
+double Mixture::dln_fugacity_coefficient_dT(double tau, double delta, std::vector<double> *x, int i)
+{
+	double Tr = pReducing->Tr(x); // [K]
+	double T = Tr/tau;
+	double dtau_dT = -tau/T;
+	return (dphir_dTau(tau,delta,x) + dndphir_dni_dTau(tau,delta,x,i)-1/(1+delta*dphir_dDelta(tau,delta,x))*(delta*d2phir_dDelta_dTau(tau,delta,x)))*dtau_dT;
+}
+
+
 double Mixture::ndphir_dni(double tau, double delta, std::vector<double> *x, int i)
 {
 	double Tr = pReducing->Tr(x);
@@ -623,8 +654,13 @@ double Mixture::saturation_p(int type, double p, std::vector<double> *z, std::ve
 		}
 	}
 
+	
+
 	double rhobar_liq = rhobar_pengrobinson(T, p, x, PR_SATL); // [kg/m^3]
 	double rhobar_vap = rhobar_pengrobinson(T, p, y, PR_SATV); // [kg/m^3]
+	
+	//T += 0.1;
+
 	do
 	{
 		rhobar_liq_new = rhobar_Tpz(T, p, x, rhobar_liq); // [kg/m^3]
@@ -652,9 +688,6 @@ double Mixture::saturation_p(int type, double p, std::vector<double> *z, std::ve
 		double dZ_liq_dT = -p/(Rbar*rhobar_liq*T*T);
 		double dZ_vap_dT = -p/(Rbar*rhobar_vap*T*T);
 
-		double phir_liq = phir(tau_liq, delta_liq, x);
-		double phir_vap = phir(tau_vap, delta_vap, y);
-
 		double dphir_liq_dT = dphir_dTau(tau_liq, delta_liq, x)*dtau_dT_liq;
 		double dphir_vap_dT = dphir_dTau(tau_vap, delta_vap, y)*dtau_dT_vap;
 
@@ -662,11 +695,21 @@ double Mixture::saturation_p(int type, double p, std::vector<double> *z, std::ve
 		dfdT = 0;
 		for (unsigned int i=0; i < N; i++)
 		{
-			ln_phi_liq[i] = phir_liq + ndphir_dni(tau_liq,delta_liq,x,i)-log(Z_liq);
-			ln_phi_vap[i] = phir_vap + ndphir_dni(tau_vap,delta_vap,y,i)-log(Z_vap);
+			ln_phi_liq[i] = ln_fugacity_coefficient(tau_liq, delta_liq, x, i);
+			ln_phi_vap[i] = ln_fugacity_coefficient(tau_vap, delta_vap, y, i);
+
+			double dln_phi_liq_dT2 = (ln_fugacity_coefficient(tau_liq+1e-10, delta_liq, x, i) - ln_fugacity_coefficient(tau_liq, delta_liq, x, i))/1e-10*dtau_dT_liq;
+			double dln_phi_liq_dT3 = dln_fugacity_coefficient_dT(tau_liq, delta_liq,x,i);
+
+			double dln_phi_vap_dT2 = (ln_fugacity_coefficient(tau_vap+1e-10, delta_vap, y, i) - ln_fugacity_coefficient(tau_vap, delta_vap, y, i))/1e-10*dtau_dT_vap;
+			double dln_phi_vap_dT3 = dln_fugacity_coefficient_dT(tau_vap,delta_vap,y,i);
 
 			double dln_phi_liq_dT = dphir_liq_dT + dndphir_dni_dTau(tau_liq, delta_liq, x, i)*dtau_dT_liq-1/Z_liq*dZ_liq_dT;
 			double dln_phi_vap_dT = dphir_vap_dT + dndphir_dni_dTau(tau_vap, delta_vap, y, i)*dtau_dT_vap-1/Z_vap*dZ_vap_dT;
+
+			// SOMETHING WRONG HERE - analytic solution for derivative agrees with finite difference solution, but form with Z doesnt agree with them both. Calculating
+			
+			//std::cout << format("%g %g %g %g %g \n",T,ln_phi_liq[i],ln_phi_vap[i],dln_phi_liq_dT,dln_phi_vap_dT);
 
 			K[i] = exp(ln_phi_liq[i] - ln_phi_vap[i]);
 			
@@ -679,6 +722,7 @@ double Mixture::saturation_p(int type, double p, std::vector<double> *z, std::ve
 				dfdT += (*z)[i]/K[i]*(dln_phi_liq_dT-dln_phi_vap_dT);
 			}
 		}
+		
 
 		change = -f/dfdT;
 
@@ -910,7 +954,7 @@ double GERG2008ReducingFunction::Tr(std::vector<double> *x)
 		double xi = (*x)[i], Tci = pFluids[i]->reduce.T;
 		Tr += xi*xi*Tci;
 		
-		// The last term is only used for the pure component
+		// The last term is only used for the pure component, as it is sum_{i=1}^{N-1}sum_{j=1}^{N}
 		if (i==N-1){
 			break;
 		}
@@ -1080,7 +1124,7 @@ void GERG2008DepartureFunction::set_coeffs_from_map(std::map<std::string,std::ve
 
 ExcessTerm::ExcessTerm(int N)
 {
-	F.resize(N,std::vector<double>(N,0));
+	F.resize(N,std::vector<double>(N,1.0));
 	DepartureFunctionMatrix.resize(N,std::vector<DepartureFunction*>(N,NULL));
 	this->N = N;
 }
