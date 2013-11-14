@@ -161,7 +161,20 @@ public:
 
 
 
+/*!
+A class to do successive substitution given guess values.  This class will then be included in the Mixture class
 
+A class is used rather than a function so that it is easier to store iteration histories, other output values, etc.
+*/
+class SuccessiveSubstitution
+{
+public:
+	int Nsteps;
+	int Nmax;
+
+	SuccessiveSubstitution();
+	void call(int type, std::vector<double> *z, std::vector<double> *y, std::vector<double> *x);
+};
 
 
 /*! 

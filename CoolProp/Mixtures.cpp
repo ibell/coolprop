@@ -4,6 +4,7 @@
 #include "CPExceptions.h"
 #include "mixture_excess_JSON.h" // Loads the JSON code for the excess parameters, and makes a variable "std::string mixture_excess_JSON"
 #include "mixture_reducing_JSON.h" // Loads the JSON code for the reducing parameters, and makes a variable "std::string mixture_reducing_JSON"
+#include <numeric>
 
 std::vector<double> JSON_double_array(const rapidjson::Value& a)
 {
@@ -183,6 +184,16 @@ std::map<std::string,std::vector<double> > Mixture::load_excess_values(int i, in
 		}
 	}
 	return outputmap;
+};
+
+void normalize_vector(std::vector<double> *x)
+{
+	double sumx = std::accumulate( (*x).begin(), (*x).end(), (double)0 );
+	// Normalize the components
+	for (unsigned int i = 0; i < (*x).size(); i++)
+	{
+		(*x)[i] /= sumx;
+	}
 };
 
 enum PengRobinsonOptions{PR_SATL, PR_SATV};
@@ -654,13 +665,8 @@ double Mixture::saturation_p(int type, double p, std::vector<double> *z, std::ve
 		for (unsigned int i = 0; i < N; i++)
 		{
 			(*y)[i] = K[i]*(*z)[i];
-			sumy += (*y)[i];
 		}
-		// Normalize the components
-		for (unsigned int i = 0; i < N; i++)
-		{
-			(*y)[i] /= sumy;
-		}
+		normalize_vector(y);
 	}
 	else
 	{
@@ -669,13 +675,9 @@ double Mixture::saturation_p(int type, double p, std::vector<double> *z, std::ve
 		for (unsigned int i = 0; i < N; i++)
 		{
 			(*x)[i] = (*z)[i]/K[i];
-			sumx += (*x)[i];
 		}
 		// Normalize the components
-		for (unsigned int i = 0; i < N; i++)
-		{
-			(*x)[i] /= sumx;
-		}
+		normalize_vector(x);
 	}
 
 	double rhobar_liq = rhobar_pengrobinson(T, p, x, PR_SATL); // [kg/m^3]
