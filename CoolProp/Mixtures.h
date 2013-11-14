@@ -159,7 +159,7 @@ public:
 	double dphir_dTau(double tau, double delta, std::vector<double> *x);
 };
 
-
+class Mixture;
 
 /*!
 A class to do successive substitution given guess values.  This class will then be included in the Mixture class
@@ -171,9 +171,11 @@ class SuccessiveSubstitution
 public:
 	int Nsteps;
 	int Nmax;
+	Mixture *Mix;
+	std::vector<double> K, ln_phi_liq, ln_phi_vap;
 
-	SuccessiveSubstitution();
-	void call(int type, std::vector<double> *z, std::vector<double> *y, std::vector<double> *x);
+	SuccessiveSubstitution(){};
+	double call(int type, double T, double p, std::vector<double> *z, std::vector<double> *x, std::vector<double> *y);
 };
 
 
@@ -194,6 +196,8 @@ public:
 	ReducingFunction * pReducing;
 	ExcessTerm * pExcess;
 	ResidualIdealMixture * pResidualIdealMix;
+
+	SuccessiveSubstitution SS;
 
 	/*! Returns the natural logarithm of K for component i using the method from Wilson as in
 	\f[

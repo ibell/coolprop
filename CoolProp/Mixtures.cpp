@@ -212,6 +212,9 @@ Mixture::Mixture(std::vector<Fluid *> pFluids)
 	// Make a copy of the list of pointers to fluids that compose this mixture
 	this->pFluids = pFluids;
 
+	// Give successive substitution class a pointer to this class
+	SS.Mix = this;
+
 	STLMatrix F;
 	F.resize(pFluids.size(),std::vector<double>(pFluids.size(),1.0));
 
@@ -595,7 +598,7 @@ public:
 double Mixture::saturation_p(int type, double p, std::vector<double> *z, std::vector<double> *x, std::vector<double> *y)
 {
 	int iter = 0;
-	double change, T, f, dfdT, rhobar_liq_new, rhobar_vap_new;
+	double T;
 	unsigned int N = (*z).size();
 	std::vector<double> K(N), ln_phi_liq(N), ln_phi_vap(N);
 
@@ -680,122 +683,7 @@ double Mixture::saturation_p(int type, double p, std::vector<double> *z, std::ve
 		normalize_vector(x);
 	}
 
-	double rhobar_liq = rhobar_pengrobinson(T, p, x, PR_SATL); // [kg/m^3]
-	double rhobar_vap = rhobar_pengrobinson(T, p, y, PR_SATV); // [kg/m^3]
-
-	do
-	{
-		rhobar_liq_new = rhobar_Tpz(T, p, x, rhobar_liq); // [kg/m^3]
-		rhobar_vap_new = rhobar_Tpz(T, p, y, rhobar_vap); // [kg/m^3]
-		if (!ValidNumber(rhobar_vap_new))
-		{
-			rhobar_vap = rhobar_Tpz(T, p, y, rhobar_pengrobinson(T,p,y,PR_SATV)); // [kg/m^3]
-		}
-		rhobar_liq = rhobar_liq_new;
-		rhobar_vap = rhobar_vap_new;
-
-		double Tr_liq = pReducing->Tr(x); // [K]
-		double Tr_vap = pReducing->Tr(y);  // [K]
-		double tau_liq = Tr_liq/T; // [-]
-		double tau_vap = Tr_vap/T; // [-]
-
-		double rhorbar_liq = pReducing->rhorbar(x); //[kg/m^3]
-		double rhorbar_vap = pReducing->rhorbar(y); //[kg/m^3]
-		double delta_liq = rhobar_liq/rhorbar_liq;  //[-]
-		double delta_vap = rhobar_vap/rhorbar_vap;  //[-] 
-		
-		double dtau_dT_liq = -Tr_liq/T/T;
-		double dtau_dT_vap = -Tr_vap/T/T;
-
-		f = 0;
-		dfdT = 0;
-		for (unsigned int i=0; i < N; i++)
-		{
-
-			ln_phi_liq[i] = ln_fugacity_coefficient(tau_liq, delta_liq, x, i);
-			ln_phi_vap[i] = ln_fugacity_coefficient(tau_vap, delta_vap, y, i);
-
-			double dln_phi_liq_dT = dln_fugacity_coefficient_dT__constp_n(tau_liq, delta_liq, x, i);
-			double dln_phi_vap_dT = dln_fugacity_coefficient_dT__constp_n(tau_vap, delta_vap, y, i);
-
-			//double dphir_liq_dT = dphir_dTau(tau_liq, delta_liq, x)*dtau_dT_liq;
-			//double dphir_vap_dT = dphir_dTau(tau_vap, delta_vap, y)*dtau_dT_vap;
-			//double Z_liq = p/(Rbar*rhobar_liq*T); //[-]
-			//double Z_vap = p/(Rbar*rhobar_vap*T); //[-]
-			//double dZ_liq_dT = -p/(Rbar*rhobar_liq*T*T);
-			//double dZ_vap_dT = -p/(Rbar*rhobar_vap*T*T);
-			 double phi_liq = exp(ln_phi_liq[i]);
-			 double phi_vap = exp(ln_phi_vap[i]);
-			// double dln_phi_liq_dT2 = (ln_fugacity_coefficient(tau_liq+1e-10, delta_liq, x, i) - ln_fugacity_coefficient(tau_liq, delta_liq, x, i))/1e-10*dtau_dT_liq;
-			// double dln_phi_vap_dT2 = (ln_fugacity_coefficient(tau_vap+1e-10, delta_vap, y, i) - ln_fugacity_coefficient(tau_vap, delta_vap, y, i))/1e-10*dtau_dT_vap;
-			// double dln_phi_liq_dT3 = dphir_liq_dT + dndphir_dni_dTau(tau_liq, delta_liq, x, i)*dtau_dT_liq-1/Z_liq*dZ_liq_dT;
-			// double dln_phi_vap_dT3 = dphir_vap_dT + dndphir_dni_dTau(tau_vap, delta_vap, y, i)*dtau_dT_vap-1/Z_vap*dZ_vap_dT;
-
-			K[i] = phi_liq/phi_vap;
-			
-			if (type == TYPE_BUBBLEPOINT){
-				f += (*z)[i]*(K[i]-1);
-				dfdT += (*z)[i]*K[i]*(dln_phi_liq_dT-dln_phi_vap_dT);
-			}
-			else{
-				f += (*z)[i]*(1-1/K[i]);
-				dfdT += (*z)[i]/K[i]*(dln_phi_liq_dT-dln_phi_vap_dT);
-			}
-			//std::cout << format("%g %g %g\n",K[i], dln_phi_liq_dT, dln_phi_vap_dT);
-		}
-		
-		change = -f/dfdT;
-
-		//std::cout << format("%g %g %g\n", T, f, dfdT, change);
-		//change = 0;
-		//f = 0;
-
-		if (!ValidNumber(change))
-		{
-			double rr = 0;
-		}
-		T += change;
-		if (type == TYPE_BUBBLEPOINT)
-		{
-			// Calculate the vapor molar fractions using the K factor and Rachford-Rice
-			double sumy = 0;
-			for (unsigned int i = 0; i < N; i++)
-			{
-				(*y)[i] = (*z)[i]*K[i];
-				sumy += (*y)[i];
-			}
-			// Normalize the components
-			for (unsigned int i = 0; i < N; i++)
-			{
-				(*y)[i] /= sumy;
-			}
-		}
-		else
-		{
-			// Calculate the liquid molar fractions using the K factor and Rachford-Rice
-			double sumx = 0;
-			for (unsigned int i = 0; i < N; i++)
-			{
-				(*x)[i] = (*z)[i]/K[i];
-				sumx += (*x)[i];
-			}
-			// Normalize the components
-			for (unsigned int i = 0; i < N; i++)
-			{
-				(*x)[i] /= sumx;
-			}
-		}
-
-		iter += 1;
-		if (iter > 50)
-		{
-			return _HUGE;
-			//throw ValueError(format("saturation_p was unable to reach a solution within 50 iterations"));
-		}
-	}
-	while(abs(f) > 1e-8);
-	//std::cout << iter << std::endl;
-	return T;
+	return SS.call(type,T,p,z,x,y);
 }
 void Mixture::TpzFlash(double T, double p, std::vector<double> *z, double *rhobar, std::vector<double> *x, std::vector<double> *y)
 {
@@ -1349,4 +1237,114 @@ double ReducingFunction::ndTr_dni__constnj(std::vector<double> *x, int i)
 		summer_term1 += (*x)[j]*dTr_dxi(x,j);
 	}
 	return dTr_dxi(x,i)-summer_term1;
+}
+
+double SuccessiveSubstitution::call(int type, double T, double p, std::vector<double> *z, std::vector<double> *x, std::vector<double> *y)
+{
+	int iter = 1;
+	double change, f, dfdT, rhobar_liq_new, rhobar_vap_new;
+	unsigned int N = (*z).size();
+	K.resize(N); ln_phi_liq.resize(N); ln_phi_vap.resize(N);
+
+	double rhobar_liq = Mix->rhobar_pengrobinson(T, p, x, PR_SATL); // [kg/m^3]
+	double rhobar_vap = Mix->rhobar_pengrobinson(T, p, y, PR_SATV); // [kg/m^3]
+
+	do
+	{
+		rhobar_liq_new = Mix->rhobar_Tpz(T, p, x, rhobar_liq); // [kg/m^3]
+		rhobar_vap_new = Mix->rhobar_Tpz(T, p, y, rhobar_vap); // [kg/m^3]
+		if (!ValidNumber(rhobar_vap_new))
+		{
+			rhobar_vap = Mix->rhobar_Tpz(T, p, y, Mix->rhobar_pengrobinson(T,p,y,PR_SATV)); // [kg/m^3]
+		}
+		rhobar_liq = rhobar_liq_new;
+		rhobar_vap = rhobar_vap_new;
+
+		double Tr_liq = Mix->pReducing->Tr(x); // [K]
+		double Tr_vap = Mix->pReducing->Tr(y);  // [K]
+		double tau_liq = Tr_liq/T; // [-]
+		double tau_vap = Tr_vap/T; // [-]
+
+		double rhorbar_liq = Mix->pReducing->rhorbar(x); //[kg/m^3]
+		double rhorbar_vap = Mix->pReducing->rhorbar(y); //[kg/m^3]
+		double delta_liq = rhobar_liq/rhorbar_liq;  //[-]
+		double delta_vap = rhobar_vap/rhorbar_vap;  //[-] 
+		
+		double dtau_dT_liq = -Tr_liq/T/T;
+		double dtau_dT_vap = -Tr_vap/T/T;
+
+		f = 0;
+		dfdT = 0;
+		for (unsigned int i=0; i < N; i++)
+		{
+
+			ln_phi_liq[i] = Mix->ln_fugacity_coefficient(tau_liq, delta_liq, x, i);
+			ln_phi_vap[i] = Mix->ln_fugacity_coefficient(tau_vap, delta_vap, y, i);
+
+			double dln_phi_liq_dT = Mix->dln_fugacity_coefficient_dT__constp_n(tau_liq, delta_liq, x, i);
+			double dln_phi_vap_dT = Mix->dln_fugacity_coefficient_dT__constp_n(tau_vap, delta_vap, y, i);
+
+			//double dphir_liq_dT = dphir_dTau(tau_liq, delta_liq, x)*dtau_dT_liq;
+			//double dphir_vap_dT = dphir_dTau(tau_vap, delta_vap, y)*dtau_dT_vap;
+			//double Z_liq = p/(Rbar*rhobar_liq*T); //[-]
+			//double Z_vap = p/(Rbar*rhobar_vap*T); //[-]
+			//double dZ_liq_dT = -p/(Rbar*rhobar_liq*T*T);
+			//double dZ_vap_dT = -p/(Rbar*rhobar_vap*T*T);
+			//double phi_liq = exp(ln_phi_liq[i]);
+			//double phi_vap = exp(ln_phi_vap[i]);
+			// double dln_phi_liq_dT2 = (ln_fugacity_coefficient(tau_liq+1e-10, delta_liq, x, i) - ln_fugacity_coefficient(tau_liq, delta_liq, x, i))/1e-10*dtau_dT_liq;
+			// double dln_phi_vap_dT2 = (ln_fugacity_coefficient(tau_vap+1e-10, delta_vap, y, i) - ln_fugacity_coefficient(tau_vap, delta_vap, y, i))/1e-10*dtau_dT_vap;
+			// double dln_phi_liq_dT3 = dphir_liq_dT + dndphir_dni_dTau(tau_liq, delta_liq, x, i)*dtau_dT_liq-1/Z_liq*dZ_liq_dT;
+			// double dln_phi_vap_dT3 = dphir_vap_dT + dndphir_dni_dTau(tau_vap, delta_vap, y, i)*dtau_dT_vap-1/Z_vap*dZ_vap_dT;
+
+			K[i] = exp(ln_phi_liq[i]-ln_phi_vap[i]);
+			
+			if (type == TYPE_BUBBLEPOINT){
+				f += (*z)[i]*(K[i]-1);
+				dfdT += (*z)[i]*K[i]*(dln_phi_liq_dT-dln_phi_vap_dT);
+			}
+			else{
+				f += (*z)[i]*(1-1/K[i]);
+				dfdT += (*z)[i]/K[i]*(dln_phi_liq_dT-dln_phi_vap_dT);
+			}
+		}
+		
+		change = -f/dfdT;
+
+		if (!ValidNumber(change))
+		{
+			double rr = 0;
+		}
+		T += change;
+		if (type == TYPE_BUBBLEPOINT)
+		{
+			// Calculate the vapor molar fractions using the K factor and Rachford-Rice
+			double sumy = 0;
+			for (unsigned int i = 0; i < N; i++)
+			{
+				(*y)[i] = (*z)[i]*K[i];
+			}
+			normalize_vector(y);
+		}
+		else
+		{
+			// Calculate the liquid molar fractions using the K factor and Rachford-Rice
+			double sumx = 0;
+			for (unsigned int i = 0; i < N; i++)
+			{
+				(*x)[i] = (*z)[i]/K[i];
+			}
+			normalize_vector(x);
+		}
+
+		iter += 1;
+		if (iter > 50)
+		{
+			return _HUGE;
+			//throw ValueError(format("saturation_p was unable to reach a solution within 50 iterations"));
+		}
+	}
+	while(abs(f) > 1e-8);
+	//std::cout << iter << std::endl;
+	return T;
 }
