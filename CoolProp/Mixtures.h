@@ -26,11 +26,20 @@ public:
 	virtual double rhorbar(std::vector<double> *x) = 0;
 	///Derivative of the molar reducing density with respect to component i mole fraction
 	virtual double drhorbar_dxi(std::vector<double> *x, int i) = 0;
+
 	/// Set the coefficients based on reducing parameters loaded from JSON
 	virtual void set_coeffs_from_map(int i, int j, std::map<std::string,double >) = 0;
 
-	virtual double ndrhorbar_dni__constnj(std::vector<double> *x, int i);
-	virtual double ndTr_dni__constnj(std::vector<double> *x, int i);
+	virtual double d2rhorbardxi2__constxj(std::vector<double> *x, int i) = 0;
+	virtual double d2rhorbardxidxj(std::vector<double> *x, int i) = 0;
+	virtual double d2Trdxi2__constxj(std::vector<double> *x, int i) = 0;
+	virtual double d2Trdxidxj(std::vector<double> *x, int i) = 0;
+
+	double dndTr_dni_dxj__constxi(std::vector<double> *x, int i);
+	double dndrhorbar_dni_dxj__constxi(std::vector<double> *x, int i);
+
+	double ndrhorbar_dni__constnj(std::vector<double> *x, int i);
+	double ndTr_dni__constnj(std::vector<double> *x, int i);
 };
 
 /*! 
@@ -76,6 +85,14 @@ public:
 	double rhorbar(std::vector<double> *x);
 	///Derivative of the molar reducing density with respect to component i mole fraction
 	double drhorbar_dxi(std::vector<double> *x, int i);
+
+	double d2rhorbardxi2__constxj(std::vector<double> *x, int i){throw 1;};
+	double d2rhorbardxidxj(std::vector<double> *x, int i){throw 1;};
+	double d2Trdxi2__constxj(std::vector<double> *x, int i){throw 1;};
+	double d2Trdxidxj(std::vector<double> *x, int i){throw 1;};
+
+	//double 
+
 	/// Set the coefficients based on reducing parameters loaded from JSON
 	void set_coeffs_from_map(int i, int j, std::map<std::string,double >);
 };
@@ -159,7 +176,17 @@ public:
 	double dphir_dTau(double tau, double delta, std::vector<double> *x);
 };
 
-class Mixture;
+class Mixture;  // Forward declaration since some classes that are members of Mixture take pointers to Mixture
+
+struct SuccessiveSubstitutionStep
+{
+	double T, ///< Temperature [K]
+		   p; ///< Pressure [kPa]
+	std::vector<double> K, ///< K-factor [-]
+						lnK, ///< Natural logarithm of K-factor [-]
+						ln_phi_liq, ///< Natural logarithm of fugacity coeff. in liq. phase [-]
+						ln_phi_vap; ///< Natural logarithm of fugacity coeff. in vapor phase [-]
+};
 
 /*!
 A class to do successive substitution given guess values.  This class will then be included in the Mixture class
@@ -169,10 +196,12 @@ A class is used rather than a function so that it is easier to store iteration h
 class SuccessiveSubstitution
 {
 public:
+	bool logging;
 	int Nsteps;
 	int Nmax;
 	Mixture *Mix;
 	std::vector<double> K, ln_phi_liq, ln_phi_vap;
+	std::vector<SuccessiveSubstitutionStep> step_logger;
 
 	SuccessiveSubstitution(){};
 	double call(int type, double T, double p, std::vector<double> *z, std::vector<double> *x, std::vector<double> *y);
@@ -272,7 +301,6 @@ public:
 	*/
 	double ndphir_dni(double tau, double delta, std::vector<double> *x, int i);
 
-
 	/*! The partial molar volume
 	\f[
 	\hat v_i = \left( \frac{\partial V}{\partial n_i}\right)_{T,p,n_j} = \frac{-\left(\dfrac{\partial p}{\partial n_i}\right)_{T,V,n_j}}{\left(\dfrac{\partial p}{\partial V}\right)_{T,\bar n}}
@@ -280,40 +308,6 @@ public:
 	from GERG monograph eqn 7.32
 	*/
 	double partial_molar_volume(double tau, double delta, std::vector<double> *x, int i);
-
-	/*! The derivative term
-	\f[
-	\left(\frac{\ln \phi_i}{\partial T} \right)_{p,\bar n} = \left(\frac{\partial^2n\alpha^r}{\partial T\partial n_i} \right)_{V,n_j} + \frac{1}{T}-\frac{\hat v}{RT}\left(\frac{\partial p}{\partial T}\right)_{V,\bar n}
-	\f]
-	GERG 2004 Monograph Eqn. 7.29
-	*/
-	double dln_fugacity_coefficient_dT__constp_n(double tau, double delta, std::vector<double> *x, int i);
-
-	/*!
-	\f[
-	\left(\frac{\partial^2n\alpha^r}{\partial T\partial n_i} \right)_{V,n_j} = \left( \frac{\partial}{\partial T}\left(\frac{\partial n \alpha^r}{\partial n_i}\right)_{T,V,n_j} \right)_{V,\bar n}
-	\f]
-	\f[
-	\left(\frac{\partial^2n\alpha^r}{\partial T\partial n_i} \right)_{V,n_j} = -\frac{\tau}{T}\left[\alpha_{\tau}^r +\left( \frac{\partial}{\partial \tau}\left(n\left(\frac{\partial \alpha^r}{\partial n_i}\right)_{T,V,n_j}\right)\right)_{\delta,\bar x}\right]
-	\f]
-	GERG 2004 Monograph, equations 7.44 and 7.51
-	*/
-	double d2nphir_dni_dT(double tau, double delta, std::vector<double> *x, int i); // Implemented
-
-	/*! 
-	The derivative term
-	\f[
-	\frac{\partial }{\partial \tau} \left( n\left(\frac{\partial \phi^r}{\partial n_i} \right)_{T,V,n_j} \right)
-	\f]
-	which is equal to
-	\f{eqnarray*}{
-	\frac{\partial }{\partial \tau} \left( n\left(\frac{\partial \phi^r}{\partial n_i} \right)_{T,V,n_j} \right) &=& \delta \phi^r_{\delta\tau}\left[ 1-\frac{1}{\rho_r}\left[\left(\frac{\partial \rho_r}{\partial x_i}\right)_{x_j} - \sum_{k=1}^N x_k\left(\frac{\partial \rho_r}{\partial x_k}\right)_{x_j}  \right]\right]\\
-	&& +(\tau \phi^r_{\tau\tau}+\phi^r_{\tau})\frac{1}{T_r}\left[\left(\frac{\partial T_r}{\partial x_i}\right)_{x_j} - \sum_{k=1}^N x_k\left(\frac{\partial T_r}{\partial x_k}\right)_{x_j}  \right]\\
-	&& +\phi^r_{x_i\tau}-\sum_{k=1}^{N}x_k\phi^r_{x_k\tau}
-	\f}
-	See Table B4, Kunz, JCED, 2012 and 7.51 from GERG 2004 Monograph
-	*/
-	double dndphir_dni_dTau(double tau, double delta, std::vector<double> *x, int i);
 
 	/*! The derivative term
 	\f[
@@ -339,8 +333,6 @@ public:
 	*/
 	double ndpdni__constT_V_nj(double tau, double delta, std::vector<double> *x, int i);
 
-	double saturation_p(int type, double p, std::vector<double> *z, std::vector<double> *x, std::vector<double> *y);
-
 	/*!
 	Natural logarithm of the fugacity coefficient
 	*/
@@ -350,6 +342,93 @@ public:
 	Derivative of the natural logarithm of the fugacity coefficient with respect to T
 	*/
 	double dln_fugacity_coefficient_dT__constrho(double tau, double delta, std::vector<double> *x, int i);
+
+	/*! The derivative term
+	\f[
+	\left(\frac{\partial \ln \phi_i}{\partial T} \right)_{p,\bar n} = \left(\frac{\partial^2n\alpha^r}{\partial T\partial n_i} \right)_{V,n_j} + \frac{1}{T}-\frac{\hat v}{RT}\left(\frac{\partial p}{\partial T}\right)_{V,\bar n}
+	\f]
+	GERG 2004 Monograph Eqn. 7.29
+	*/
+	double dln_fugacity_coefficient_dT__constp_n(double tau, double delta, std::vector<double> *x, int i);
+
+	/*! The derivative term
+	\f[
+	\left(\frac{\partial \ln \phi_i}{\partial p} \right)_{T,\bar n} = \frac{\hat v_i}{RT}-\frac{1}{p}
+	\f]
+	GERG 2004 Monograph Eqn. 7.30
+	*/
+	double dln_fugacity_coefficient_dp__constT_n(double tau, double delta, std::vector<double> *x, int i);
+
+	/*!
+	\f[
+	n\left(\frac{\partial \ln \phi_i}{\partial n_j}\right)_{T,p} = n\left(\frac{\partial^2n\alpha^r}{\partial n_j \partial n_i} \right)_{T,V}+1+\frac{n}{RT}\frac{\left(\frac{\partial p}{\partial n_j}\right)_{T,V,n_i}\left(\frac{\partial p}{\partial n_i}\right)_{T,V,n_j}}{\left(\frac{\partial p}{\partial V}\right)_{T,\bar n}}
+	\f]
+	which is also equal to 
+	\f[
+	n\left(\frac{\partial \ln \phi_i}{\partial n_j}\right)_{T,p} = n\left(\frac{\partial^2n\alpha^r}{\partial n_j \partial n_i} \right)_{T,V}+1-\frac{\hat v_i}{RT}\left[n\left(\frac{\partial p}{\partial n_j}\right)_{T,V,n_i}\right]
+	\f]
+	GERG 2004 Monograph Equation 7.31
+	*/
+	double ndln_fugacity_coefficient_dnj__constT_p(double tau, double delta, std::vector<double> *x, int i);
+
+	/*!
+	\f[
+	\left(\frac{\partial^2n\alpha^r}{\partial T\partial n_i} \right)_{V,n_j} = \left( \frac{\partial}{\partial T}\left(\frac{\partial n \alpha^r}{\partial n_i}\right)_{T,V,n_j} \right)_{V,\bar n}
+	\f]
+	\f[
+	\left(\frac{\partial^2n\alpha^r}{\partial T\partial n_i} \right)_{V,n_j} = -\frac{\tau}{T}\left[\alpha_{\tau}^r +\left( \frac{\partial}{\partial \tau}\left(n\left(\frac{\partial \alpha^r}{\partial n_i}\right)_{T,V,n_j}\right)\right)_{\delta,\bar x}\right]
+	\f]
+	GERG 2004 Monograph, equations 7.44 and 7.51
+	*/
+	double d2nphir_dni_dT(double tau, double delta, std::vector<double> *x, int i); // Implemented
+
+	
+
+	/*! The derivative term
+	\f{eqnarray*}{
+	\frac{\partial }{\partial \tau} \left( n\left(\frac{\partial \phi^r}{\partial n_i} \right)_{T,V,n_j} \right) &=& \delta \phi^r_{\delta\tau}\left[ 1-\frac{1}{\rho_r}\left[\left(\frac{\partial \rho_r}{\partial x_i}\right)_{x_j} - \sum_{k=1}^N x_k\left(\frac{\partial \rho_r}{\partial x_k}\right)_{x_j}  \right]\right]\\
+	&& +(\tau \phi^r_{\tau\tau}+\phi^r_{\tau})\frac{1}{T_r}\left[\left(\frac{\partial T_r}{\partial x_i}\right)_{x_j} - \sum_{k=1}^N x_k\left(\frac{\partial T_r}{\partial x_k}\right)_{x_j}  \right]\\
+	&& +\phi^r_{x_i\tau}-\sum_{k=1}^{N}x_k\phi^r_{x_k\tau}
+	\f}
+	GERG 2004 Monograph Equation 7.51 and Table B4, Kunz, JCED, 2012
+	*/
+	double dndphir_dni_dTau(double tau, double delta, std::vector<double> *x, int i);
+
+	/*! The derivative term
+	\f{eqnarray*}{
+	\left(\frac{\partial }{\partial \delta} \left( n\left(\frac{\partial \phi^r}{\partial n_i} \right)_{T,V,n_j} \right)\right)_{\tau,\bar x} &=& (\alpha_{\delta}^r+\delta\alpha_{\delta\delta}^r)\left[1-\frac{1}{\rho_r}\cdot n\left(\frac{\partial \rho_r}{\partial n_i}\right)_{n_j} \right] \\
+	&+&\tau\alpha^r_{\delta\tau}\frac{1}{T_r}\cdot n\left(\frac{\partial T_r}{\partial n_i}\right)_{n_j}\\
+	&+&\phi^r_{\delta x_i}-\sum_{k=1}^{N}x_k\phi^r_{\delta x_k}
+	\f}
+	GERG 2004 Monograph Equation 7.50 and Table B4, Kunz, JCED, 2012
+	*/
+	double dndphir_dni_dDelta(double tau, double delta, std::vector<double> *x, int i);
+
+	/*!GERG 2004 Monograph equation 7.41:
+	\f[
+	n\left(\frac{\partial^2n\alpha^r}{\partial n_i \partial n_j} \right)_{T,V} = n\left( \frac{\partial}{\partial n_j}\left(\frac{\partial n\alpha^r}{\partial n_i}\right)_{T,V,n_j}\right)_{T,V,n_i}
+	\f]
+	and
+	GERG 2004 Monograph equation 7.46:
+	\f[
+	n\left( \frac{\partial}{\partial n_j}\left(\frac{\partial n\alpha^r}{\partial n_i}\right)_{T,V,n_j}\right)_{T,V,n_i} = n\left( \frac{\partial \alpha^r}{\partial n_j}\right)_{T,V,n_i} + n\left( \frac{\partial}{\partial n_j}\left(n\left(\frac{\partial \alpha^r}{\partial n_i}\right)_{T,V,n_j} \right) \right)_{T,V,n_i}
+	\f]
+	GERG 2004 Monograph equation 7.47:
+	\f[
+	n\left( \frac{\partial}{\partial n_j}\left(n\left(\frac{\partial \alpha^r}{\partial n_i}\right)_{T,V,n_j} \right) \right)_{T,V,n_i} = ....
+	\f]
+	*/
+	double nd2nphirdnidnj__constT_V(double tau, double delta, std::vector<double> *x, int i){throw 1;};
+
+	double nddeltadnj__constT_V_ni(double tau, double delta, std::vector<double> *x, int ){throw 1;};
+
+	double ndtaudnj__constT_V_n(double tau, double delta, std::vector<double> *x, int ){throw 1;};
+
+	/*!GERG 2004 Monograph equation 7.52:
+	*/
+	double dndphirdni_dxj__constdelta_tau_xi(double tau, double delta, std::vector<double> *x, int i){throw 1;};
+
+	double saturation_p(int type, double p, std::vector<double> *z, std::vector<double> *x, std::vector<double> *y);
 
 	/*! Calculate the mixture molar density based on the use of the Peng-Robinson equation of state
 	*/

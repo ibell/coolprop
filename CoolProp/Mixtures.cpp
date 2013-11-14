@@ -271,6 +271,8 @@ Mixture::Mixture(std::vector<Fluid *> pFluids)
 	//p = 595.61824;
 	std::vector<double> x,y;
 	//TpzFlash(T, p, z, &rhobar, &x, &y);
+
+	//ndln_fugacity_coefficient_dnj__constT_p(tau,delta,&z,0);
 	
 	double Tsat;
 	double psat = 1e3;
@@ -355,6 +357,19 @@ double Mixture::dln_fugacity_coefficient_dT__constp_n(double tau, double delta, 
 	double dtau_dT = -tau/T;
 	return d2nphir_dni_dT(tau, delta, x, i) + 1/T-this->partial_molar_volume(tau,delta,x,i)/(Rbar(x)*T)*dpdT__constV_n(tau,delta,x,i);
 }
+double Mixture::dln_fugacity_coefficient_dp__constT_n(double tau, double delta, std::vector<double> *x, int i)
+{
+	// GERG equation 7.30
+	double Tr = pReducing->Tr(x); // [K]
+	double T = Tr/tau;
+	double dtau_dT = -tau/T;
+	double rhorbar = pReducing->rhorbar(x);
+	double rhobar = rhorbar*delta;
+	double RT = Rbar(x)*T;
+	double p = rhobar*RT*(1+delta*dphir_dDelta(tau, delta, x));
+	return this->partial_molar_volume(tau,delta,x,i)/RT - 1/p;
+}
+
 double Mixture::partial_molar_volume(double tau, double delta, std::vector<double> *x, int i)
 {
 	return -ndpdni__constT_V_nj(tau,delta,x,i)/ndpdV__constT_n(tau,delta,x,i);
@@ -419,26 +434,42 @@ double Mixture::ndphir_dni(double tau, double delta, std::vector<double> *x, int
 	}
 	return term1 + term2 + term3;
 }
+double Mixture::ndln_fugacity_coefficient_dnj__constT_p(double tau, double delta, std::vector<double> *x, int i)
+{
+	double Tr = pReducing->Tr(x);
+	double T = Tr/tau;
+	return nd2nphirdnidnj__constT_V(tau, delta, x, i) + 1 - partial_molar_volume(tau,delta,x,i)/(Rbar(x)*T)*ndpdni__constT_V_nj(tau,delta,x,i);
+}
+double Mixture::dndphir_dni_dDelta(double tau, double delta, std::vector<double> *x, int i)
+{
+	double Tr = pReducing->Tr(x);
+	double rhorbar = pReducing->rhorbar(x);
+
+	// The first line
+	double term1 = (delta*d2phir_dDelta2(tau,delta,x)+dphir_dDelta(tau,delta,x))*(1-1/rhorbar*pReducing->ndrhorbar_dni__constnj(x,i));
+
+	// The second line
+	double term2 = tau*d2phir_dDelta_dTau(tau,delta,x)*(1/Tr)*pReducing->ndTr_dni__constnj(x,i);
+
+	// The third line
+	double term3 = d2phir_dxi_dDelta(tau,delta,x,i);
+	for (unsigned int k = 0; k < (*x).size(); k++)
+	{
+		term3 -= (*x)[k]*d2phir_dxi_dDelta(tau,delta,x,k);
+	}
+	return term1 + term2 + term3;
+}
 
 double Mixture::dndphir_dni_dTau(double tau, double delta, std::vector<double> *x, int i)
 {
 	double Tr = pReducing->Tr(x);
 	double rhorbar = pReducing->rhorbar(x);
 
-	double summer_term1 = 0;
-	for (unsigned int k = 0; k < (*x).size(); k++)
-	{
-		summer_term1 += (*x)[k]*pReducing->drhorbar_dxi(x,k);
-	}
-	double term1 = delta*d2phir_dDelta_dTau(tau,delta,x)*(1-1/rhorbar*(pReducing->drhorbar_dxi(x,i)-summer_term1));
+	// The first line
+	double term1 = delta*d2phir_dDelta_dTau(tau,delta,x)*(1-1/rhorbar*pReducing->ndrhorbar_dni__constnj(x,i));
 
 	// The second line
-	double summer_term2 = 0;
-	for (unsigned int k = 0; k < (*x).size(); k++)
-	{
-		summer_term2 += (*x)[k]*pReducing->dTr_dxi(x,k);
-	}
-	double term2 = (tau*d2phir_dTau2(tau,delta,x)+dphir_dTau(tau,delta,x))*(pReducing->dTr_dxi(x,i)-summer_term2)/Tr;
+	double term2 = (tau*d2phir_dTau2(tau,delta,x)+dphir_dTau(tau,delta,x))*(1/Tr)*pReducing->ndTr_dni__constnj(x,i);
 
 	// The third line
 	double term3 = d2phir_dxi_dTau(tau,delta,x,i);
@@ -663,27 +694,25 @@ double Mixture::saturation_p(int type, double p, std::vector<double> *z, std::ve
 	// Initial guess for mole fractions in the incipient phase
 	if (type == TYPE_BUBBLEPOINT)
 	{
-		double sumy = 0;
-		// Calculate the vapor molar fractions using the K factor and Rachford-Rice
+		// Calculate the vapor molar fractions using the K factor
 		for (unsigned int i = 0; i < N; i++)
 		{
 			(*y)[i] = K[i]*(*z)[i];
 		}
-		normalize_vector(y);
+		normalize_vector(y); // Normalize the components
 	}
 	else
 	{
-		double sumx = 0;
-		// Calculate the liquid molar fractions using the K factor and Rachford-Rice
+		// Calculate the liquid molar fractions using the K factor
 		for (unsigned int i = 0; i < N; i++)
 		{
 			(*x)[i] = (*z)[i]/K[i];
 		}
-		// Normalize the components
-		normalize_vector(x);
+		normalize_vector(x); // Normalize the components
 	}
 
-	return SS.call(type,T,p,z,x,y);
+	// Call the successive substitution routine with the guess values provided here from Wilson
+	return SS.call(type, T, p, z, x, y);
 }
 void Mixture::TpzFlash(double T, double p, std::vector<double> *z, double *rhobar, std::vector<double> *x, std::vector<double> *y)
 {
