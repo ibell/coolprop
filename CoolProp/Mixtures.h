@@ -35,8 +35,8 @@ public:
 	virtual double d2Trdxi2__constxj(std::vector<double> *x, int i) = 0;
 	virtual double d2Trdxidxj(std::vector<double> *x, int i, int j) = 0;
 
-	double dndTr_dni_dxj__constxi(std::vector<double> *x, int i);
-	double dndrhorbar_dni_dxj__constxi(std::vector<double> *x, int i);
+	double d_ndTrdni_dxj__constxi(std::vector<double> *x, int i);
+	double d_ndrhorbardni_dxj__constxi(std::vector<double> *x, int i);
 
 	double ndrhorbar_dni__constnj(std::vector<double> *x, int i);
 	double ndTr_dni__constnj(std::vector<double> *x, int i);
@@ -111,10 +111,6 @@ public:
 
 	double c_Y_ij(int i, int j, std::vector< std::vector< double> > * beta, std::vector< std::vector< double> > *gamma, std::vector< std::vector< double> > *Y_c);
 	double f_Y_ij(std::vector<double> *x, int i, int j, std::vector< std::vector< double> > * beta);
-
-	//double dYrdxi__constxj(std::vector<double> *x, int i){throw 1;};
-	//double d2Yrdxi2__constxj(std::vector<double> *x, int i){throw 1;};
-	//double d2Yrdxidxj(std::vector<double> *x, int i){throw 1;};
 
 	double dfYkidxi__constxk(std::vector<double> *x, int k, int i,std::vector< std::vector< double> > * beta);
 	double dfYikdxi__constxk(std::vector<double> *x, int i, int k, std::vector< std::vector< double> > * beta);
@@ -395,7 +391,7 @@ public:
 	\f]
 	GERG 2004 Monograph Equation 7.31
 	*/
-	double ndln_fugacity_coefficient_dnj__constT_p(double tau, double delta, std::vector<double> *x, int i);
+	double ndln_fugacity_coefficient_dnj__constT_p(double tau, double delta, std::vector<double> *x, int i, int j);
 
 	/*!
 	\f[
@@ -406,9 +402,7 @@ public:
 	\f]
 	GERG 2004 Monograph, equations 7.44 and 7.51
 	*/
-	double d2nphir_dni_dT(double tau, double delta, std::vector<double> *x, int i); // Implemented
-
-	
+	double d2nphir_dni_dT(double tau, double delta, std::vector<double> *x, int i);
 
 	/*! The derivative term
 	\f{eqnarray*}{
@@ -418,7 +412,7 @@ public:
 	\f}
 	GERG 2004 Monograph Equation 7.51 and Table B4, Kunz, JCED, 2012
 	*/
-	double dndphir_dni_dTau(double tau, double delta, std::vector<double> *x, int i);
+	double d_ndphirdni_dTau(double tau, double delta, std::vector<double> *x, int i);
 
 	/*! The derivative term
 	\f{eqnarray*}{
@@ -428,7 +422,7 @@ public:
 	\f}
 	GERG 2004 Monograph Equation 7.50 and Table B4, Kunz, JCED, 2012
 	*/
-	double dndphir_dni_dDelta(double tau, double delta, std::vector<double> *x, int i);
+	double d_ndphirdni_dDelta(double tau, double delta, std::vector<double> *x, int i);
 
 	/*!GERG 2004 Monograph equation 7.41:
 	\f[
@@ -440,19 +434,56 @@ public:
 	n\left( \frac{\partial}{\partial n_j}\left(\frac{\partial n\alpha^r}{\partial n_i}\right)_{T,V,n_j}\right)_{T,V,n_i} = n\left( \frac{\partial \alpha^r}{\partial n_j}\right)_{T,V,n_i} + n\left( \frac{\partial}{\partial n_j}\left(n\left(\frac{\partial \alpha^r}{\partial n_i}\right)_{T,V,n_j} \right) \right)_{T,V,n_i}
 	\f]
 	GERG 2004 Monograph equation 7.47:
-	\f[
-	n\left( \frac{\partial}{\partial n_j}\left(n\left(\frac{\partial \alpha^r}{\partial n_i}\right)_{T,V,n_j} \right) \right)_{T,V,n_i} = ....
-	\f]
+	\f{eqnarray*}{
+	n\left( \frac{\partial}{\partial n_j}\left(n\left(\frac{\partial \alpha^r}{\partial n_i}\right)_{T,V,n_j} \right) \right)_{T,V,n_i} &=& \left( \frac{\partial}{\partial \delta}\left(n\left(\frac{\partial\alpha^r}{\partial n_i}\right)_{T,V,n_j}\right)\right)_{\tau,\bar x}\cdot n\left(\frac{\partial\delta}{\partial n_j}\right)_{T,V,n_i}\\ 
+	&+& \left( \frac{\partial}{\partial \tau}\left(n\left(\frac{\partial\alpha^r}{\partial n_i}\right)_{T,V,n_j}\right)\right)_{\tau,\bar x}\cdot n\left(\frac{\partial\tau}{\partial n_j}\right)_{T,V,n_i}\\
+	&+& \left( \frac{\partial}{\partial x_j}\left(n\left(\frac{\partial\alpha^r}{\partial n_i}\right)_{T,V,n_j}\right)\right)_{\delta,\tau,x_i}-\sum_{k=1}^{N}x_k \left( \frac{\partial}{\partial x_k}\left(n\left(\frac{\partial\alpha^r}{\partial n_i}\right)_{T,V,n_j}\right)\right)_{\delta,\tau,x_i}\\
+	\f}
 	*/
-	double nd2nphirdnidnj__constT_V(double tau, double delta, std::vector<double> *x, int i){throw 1;};
+	double nd2nphirdnidnj__constT_V(double tau, double delta, std::vector<double> *x, int i, int j);
 
-	double nddeltadnj__constT_V_ni(double tau, double delta, std::vector<double> *x, int ){throw 1;};
 
-	double ndtaudnj__constT_V_n(double tau, double delta, std::vector<double> *x, int ){throw 1;};
+	/*! 
+	\f[
+	n\left(\frac{\partial \delta}{\partial n_i} \right)_{T,V,n_j} = \delta - \frac{\delta}{\rho_r}\cdot n\left(\frac{\partial \rho_r}{\partial n_i} \right)_{n_j}
+	\f]
+	GERG 2004 Monograph equation 7.48
+	*/
+	double nddeltadni__constT_V_nj(double tau, double delta, std::vector<double> *x, int i);
+	/*! 
+	\f[
+	n\left(\frac{\partial \tau}{\partial n_i} \right)_{T,V,n_j} = \frac{\tau}{T_r}\cdot n\left(\frac{\partial T_r}{\partial n_i} \right)_{n_j}
+	\f]
+	GERG 2004 Monograph equation 7.49
+	*/
+	double ndtaudni__constT_V_nj(double tau, double delta, std::vector<double> *x, int i);
+
+	/*! 
+	\f[
+	\left(\frac{\partial}{\partial x_j}\left(n\left(\frac{\partial T_r}{\partial n_i} \right)_{n_j}\right)\right)_{x_i} = \left(\frac{\partial^2T_r}{\partial x_j \partial x_i}\right)-\left(\frac{\partial T_r}{\partial x_j}\right)_{x_i}-sum_{k=1}^Nx_k\left(\frac{\partial^2T_r}{\partial x_j \partial x_k}\right)
+	\f]
+	GERG 2004 Monograph equation 7.56
+	*/
+	double d_ndTrdni_dxj__constxi(double tau, double delta, std::vector<double> *x, int i, int j){throw 1;};
+
+	/*! 
+	\f[
+	\left(\frac{\partial}{\partial x_j}\left(n\left(\frac{\partial \rho_r}{\partial n_i} \right)_{n_j}\right)\right)_{x_i} = \left(\frac{\partial^2\rho_r}{\partial x_j \partial x_i}\right)-\left(\frac{\partial \rho_r}{\partial x_j}\right)_{x_i}-\sum_{k=1}^Nx_k\left(\frac{\partial^2\rho_r}{\partial x_j \partial x_k}\right)
+	\f]
+	GERG 2004 Monograph equation 7.55
+	*/
+	double d_ndrhorbardni_dxj__constxi(double tau, double delta, std::vector<double> *x, int i, int j);
 
 	/*!GERG 2004 Monograph equation 7.52:
+	\f{eqnarray*}{
+	\left( \frac{\partial}{\partial x_j}\left(n\left(\frac{\partial\alpha^r}{\partial n_i}\right)_{T,V,n_j}\right)\right)_{\delta,\tau,x_i} &=& \delta\alpha_{\delta x_j}^{r}\left[ 1-\frac{1}{\rho_r}\cdot n\left(\frac{\partial \rho_r}{\partial n_i}\right)_{n_j}\right] \\
+	&-& \delta\alpha_{\delta}^{r}\frac{1}{\rho_r}\left[ \left(\frac{\partial}{\partial x_j}\left(n\left(\frac{\partial \rho_r}{\partial n_i}\right)_{n_j}\right)\right)_{x_i}-\frac{1}{\rho_r}\left(\frac{\partial \rho_r}{\partial x_j}\right)_{x_i}\cdot n\left(\frac{\partial \rho_r}{\partial n_i}\right)_{n_j}\right] \\
+	&+& \tau\alpha_{\tau x_j}^r\frac{1}{T_r}\cdot n\left(\frac{\partial T_r}{\partial n_i}\right)_{n_j}\\
+	&+& \tau\alpha_{\tau}^{r}\frac{1}{T_r}\left[ \left(\frac{\partial}{\partial x_j}\left(n\left(\frac{\partial T_r}{\partial n_i}\right)_{n_j}\right)\right)_{x_i}-\frac{1}{T_r}\left(\frac{\partial T_r}{\partial x_j}\right)_{x_i}\cdot n\left(\frac{\partial T_r}{\partial n_i}\right)_{n_j}\right] \\
+	&+& \alpha_{x_ix_j}^r-\alpha_{x_j}^r-\sum_{m=1}^Nx_m\alpha_{x_jx_m}^r
+	\f}
 	*/
-	double dndphirdni_dxj__constdelta_tau_xi(double tau, double delta, std::vector<double> *x, int i){throw 1;};
+	double d_ndphirdni_dxj__constdelta_tau_xi(double tau, double delta, std::vector<double> *x, int i, int j){throw 1;};
 
 	double saturation_p(int type, double p, std::vector<double> *z, std::vector<double> *x, std::vector<double> *y);
 

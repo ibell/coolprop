@@ -272,7 +272,7 @@ Mixture::Mixture(std::vector<Fluid *> pFluids)
 	std::vector<double> x,y;
 	//TpzFlash(T, p, z, &rhobar, &x, &y);
 
-	//ndln_fugacity_coefficient_dnj__constT_p(tau,delta,&z,0);
+	double deriv = ndln_fugacity_coefficient_dnj__constT_p(tau,delta,&z,0,1);
 	
 	double Tsat;
 	double psat = 1e3;
@@ -341,14 +341,14 @@ double Mixture::dln_fugacity_coefficient_dT__constrho(double tau, double delta, 
 	double Tr = pReducing->Tr(x); // [K]
 	double T = Tr/tau;
 	double dtau_dT = -tau/T;
-	return (dphir_dTau(tau,delta,x) + dndphir_dni_dTau(tau,delta,x,i)-1/(1+delta*dphir_dDelta(tau,delta,x))*(delta*d2phir_dDelta_dTau(tau,delta,x)))*dtau_dT;
+	return (dphir_dTau(tau,delta,x) + d_ndphirdni_dTau(tau,delta,x,i)-1/(1+delta*dphir_dDelta(tau,delta,x))*(delta*d2phir_dDelta_dTau(tau,delta,x)))*dtau_dT;
 }
 
 double Mixture::d2nphir_dni_dT(double tau, double delta, std::vector<double> *x, int i)
 {
 	double Tr = pReducing->Tr(x); // [K]
 	double T = Tr/tau;
-	return -tau/T*(dphir_dTau(tau,delta,x) + dndphir_dni_dTau(tau,delta,x,i));
+	return -tau/T*(dphir_dTau(tau,delta,x) + d_ndphirdni_dTau(tau,delta,x,i));
 }
 double Mixture::dln_fugacity_coefficient_dT__constp_n(double tau, double delta, std::vector<double> *x, int i)
 {
@@ -434,13 +434,40 @@ double Mixture::ndphir_dni(double tau, double delta, std::vector<double> *x, int
 	}
 	return term1 + term2 + term3;
 }
-double Mixture::ndln_fugacity_coefficient_dnj__constT_p(double tau, double delta, std::vector<double> *x, int i)
+double Mixture::ndln_fugacity_coefficient_dnj__constT_p(double tau, double delta, std::vector<double> *x, int i, int j)
 {
 	double Tr = pReducing->Tr(x);
 	double T = Tr/tau;
-	return nd2nphirdnidnj__constT_V(tau, delta, x, i) + 1 - partial_molar_volume(tau,delta,x,i)/(Rbar(x)*T)*ndpdni__constT_V_nj(tau,delta,x,i);
+	return nd2nphirdnidnj__constT_V(tau, delta, x, i, j) + 1 - partial_molar_volume(tau,delta,x,i)/(Rbar(x)*T)*ndpdni__constT_V_nj(tau,delta,x,i);
 }
-double Mixture::dndphir_dni_dDelta(double tau, double delta, std::vector<double> *x, int i)
+double Mixture::nddeltadni__constT_V_nj(double tau, double delta, std::vector<double> *x, int i)
+{
+	double rhorbar = pReducing->rhorbar(x);
+	return delta-delta/rhorbar*pReducing->ndrhorbar_dni__constnj(x,i);
+}
+double Mixture::ndtaudni__constT_V_nj(double tau, double delta, std::vector<double> *x, int i)
+{
+	double Tr = pReducing->Tr(x);
+	return tau/Tr*pReducing->ndTr_dni__constnj(x,i);
+}
+double Mixture::nd2nphirdnidnj__constT_V(double tau, double delta, std::vector<double> *x, int i, int j)
+{
+	double rhorbar = pReducing->rhorbar(x);
+	double rhobar = rhorbar*delta;
+	double Tr = pReducing->Tr(x); // [K]
+	double T = Tr/tau;
+	
+	double line1 = this->d_ndphirdni_dDelta(tau, delta, x, i)*this->nddeltadni__constT_V_nj(tau,delta,x,i);
+	double line2 = this->d_ndphirdni_dTau(tau, delta, x, i)*this->ndtaudni__constT_V_nj(tau,delta,x,i);
+	double summer = 0;
+	for (unsigned int k = 0; k < (*x).size(); k++)
+	{
+		summer += (*x)[k]*this->d_ndphirdni_dxj__constdelta_tau_xi(tau, delta, x, i, k);
+	}
+	double line3 = this->d_ndphirdni_dxj__constdelta_tau_xi(tau, delta, x, i, j)-summer;
+	return line1 + line2 + line3;
+}
+double Mixture::d_ndphirdni_dDelta(double tau, double delta, std::vector<double> *x, int i)
 {
 	double Tr = pReducing->Tr(x);
 	double rhorbar = pReducing->rhorbar(x);
@@ -460,7 +487,7 @@ double Mixture::dndphir_dni_dDelta(double tau, double delta, std::vector<double>
 	return term1 + term2 + term3;
 }
 
-double Mixture::dndphir_dni_dTau(double tau, double delta, std::vector<double> *x, int i)
+double Mixture::d_ndphirdni_dTau(double tau, double delta, std::vector<double> *x, int i)
 {
 	double Tr = pReducing->Tr(x);
 	double rhorbar = pReducing->rhorbar(x);
