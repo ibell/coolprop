@@ -35,11 +35,21 @@ public:
 	virtual double d2Trdxi2__constxj(std::vector<double> *x, int i) = 0;
 	virtual double d2Trdxidxj(std::vector<double> *x, int i, int j) = 0;
 
-	double d_ndTrdni_dxj__constxi(std::vector<double> *x, int i);
-	double d_ndrhorbardni_dxj__constxi(std::vector<double> *x, int i);
+	/*! GERG 2004 Monograph equation 7.56:
+	\f[
+	\left(\frac{\partial}{\partial x_j}\left(n\left(\frac{\partial T_r}{\partial n_i} \right)_{n_j}\right)\right)_{x_i} = \left(\frac{\partial^2T_r}{\partial x_j \partial x_i}\right)-\left(\frac{\partial T_r}{\partial x_j}\right)_{x_i}-\sum_{k=1}^Nx_k\left(\frac{\partial^2T_r}{\partial x_j \partial x_k}\right)
+	\f]
+	*/
+	double d_ndTrdni_dxj__constxi(std::vector<double> *x, int i, int j){throw 1;};
+	/*! GERG 2004 Monograph equation 7.55:
+	\f[
+	\left(\frac{\partial}{\partial x_j}\left(n\left(\frac{\partial \rho_r}{\partial n_i} \right)_{n_j}\right)\right)_{x_i} = \left(\frac{\partial^2\rho_r}{\partial x_j \partial x_i}\right)-\left(\frac{\partial \rho_r}{\partial x_j}\right)_{x_i}-\sum_{k=1}^Nx_k\left(\frac{\partial^2\rho_r}{\partial x_j \partial x_k}\right)
+	\f]
+	*/
+	double d_ndrhorbardni_dxj__constxi(std::vector<double> *x, int i, int j){throw 1;};
 
-	double ndrhorbar_dni__constnj(std::vector<double> *x, int i);
-	double ndTr_dni__constnj(std::vector<double> *x, int i);
+	double ndrhorbardni__constnj(std::vector<double> *x, int i);
+	double ndTrdni__constnj(std::vector<double> *x, int i);
 };
 
 /*! 
@@ -442,7 +452,6 @@ public:
 	*/
 	double nd2nphirdnidnj__constT_V(double tau, double delta, std::vector<double> *x, int i, int j);
 
-
 	/*! 
 	\f[
 	n\left(\frac{\partial \delta}{\partial n_i} \right)_{T,V,n_j} = \delta - \frac{\delta}{\rho_r}\cdot n\left(\frac{\partial \rho_r}{\partial n_i} \right)_{n_j}
@@ -458,21 +467,7 @@ public:
 	*/
 	double ndtaudni__constT_V_nj(double tau, double delta, std::vector<double> *x, int i);
 
-	/*! 
-	\f[
-	\left(\frac{\partial}{\partial x_j}\left(n\left(\frac{\partial T_r}{\partial n_i} \right)_{n_j}\right)\right)_{x_i} = \left(\frac{\partial^2T_r}{\partial x_j \partial x_i}\right)-\left(\frac{\partial T_r}{\partial x_j}\right)_{x_i}-sum_{k=1}^Nx_k\left(\frac{\partial^2T_r}{\partial x_j \partial x_k}\right)
-	\f]
-	GERG 2004 Monograph equation 7.56
-	*/
-	double d_ndTrdni_dxj__constxi(double tau, double delta, std::vector<double> *x, int i, int j){throw 1;};
-
-	/*! 
-	\f[
-	\left(\frac{\partial}{\partial x_j}\left(n\left(\frac{\partial \rho_r}{\partial n_i} \right)_{n_j}\right)\right)_{x_i} = \left(\frac{\partial^2\rho_r}{\partial x_j \partial x_i}\right)-\left(\frac{\partial \rho_r}{\partial x_j}\right)_{x_i}-\sum_{k=1}^Nx_k\left(\frac{\partial^2\rho_r}{\partial x_j \partial x_k}\right)
-	\f]
-	GERG 2004 Monograph equation 7.55
-	*/
-	double d_ndrhorbardni_dxj__constxi(double tau, double delta, std::vector<double> *x, int i, int j);
+	
 
 	/*!GERG 2004 Monograph equation 7.52:
 	\f{eqnarray*}{
