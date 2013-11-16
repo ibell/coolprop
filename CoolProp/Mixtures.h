@@ -25,15 +25,15 @@ public:
 	/// The molar reducing density
 	virtual double rhorbar(std::vector<double> *x) = 0;
 	///Derivative of the molar reducing density with respect to component i mole fraction
-	virtual double drhorbar_dxi(std::vector<double> *x, int i) = 0;
+	virtual double drhorbardxi__constxj(std::vector<double> *x, int i) = 0;
 
 	/// Set the coefficients based on reducing parameters loaded from JSON
 	virtual void set_coeffs_from_map(int i, int j, std::map<std::string,double >) = 0;
 
 	virtual double d2rhorbardxi2__constxj(std::vector<double> *x, int i) = 0;
-	virtual double d2rhorbardxidxj(std::vector<double> *x, int i) = 0;
+	virtual double d2rhorbardxidxj(std::vector<double> *x, int i, int j) = 0;
 	virtual double d2Trdxi2__constxj(std::vector<double> *x, int i) = 0;
-	virtual double d2Trdxidxj(std::vector<double> *x, int i) = 0;
+	virtual double d2Trdxidxj(std::vector<double> *x, int i, int j) = 0;
 
 	double dndTr_dni_dxj__constxi(std::vector<double> *x, int i);
 	double dndrhorbar_dni_dxj__constxi(std::vector<double> *x, int i);
@@ -50,6 +50,8 @@ class GERG2008ReducingFunction : public ReducingFunction
 {
 protected:
 	unsigned int N;
+	STLMatrix v_c;
+	STLMatrix T_c; //!< \f$ 
 	STLMatrix beta_v; //!< \f$ \beta_{v,ij} \f$ from GERG-2008
 	STLMatrix gamma_v; //!< \f$ \gamma_{v,ij} \f$ from GERG-2008
 	STLMatrix beta_T; //!< \f$ \beta_{T,ij} \f$ from GERG-2008
@@ -74,6 +76,16 @@ public:
 		gamma_v.resize(N,std::vector<double>(N,0));
 		beta_T.resize(N,std::vector<double>(N,0));
 		gamma_T.resize(N,std::vector<double>(N,0));
+		T_c.resize(N,std::vector<double>(N,0));
+		v_c.resize(N,std::vector<double>(N,0));
+		for (unsigned int i = 0; i < N; i++)
+		{
+			for (unsigned int j = 0; j < N; j++)
+			{
+				T_c[i][j] = sqrt(pFluids[i]->reduce.T*pFluids[j]->reduce.T);
+				v_c[i][j] = 1.0/8.0*pow(pow(pFluids[i]->reduce.rhobar, -1.0/3.0)+pow(pFluids[j]->reduce.rhobar, -1.0/3.0),(int)3);
+			}
+		}
 	};
 	/// Default destructor
 	~GERG2008ReducingFunction(){};
@@ -84,17 +96,31 @@ public:
 	/// The molar reducing density
 	double rhorbar(std::vector<double> *x);
 	///Derivative of the molar reducing density with respect to component i mole fraction
-	double drhorbar_dxi(std::vector<double> *x, int i);
+	double drhorbardxi__constxj(std::vector<double> *x, int i);
+	double dvrbardxi__constxj(std::vector<double> *x, int i);
 
-	double d2rhorbardxi2__constxj(std::vector<double> *x, int i){throw 1;};
-	double d2rhorbardxidxj(std::vector<double> *x, int i){throw 1;};
-	double d2Trdxi2__constxj(std::vector<double> *x, int i){throw 1;};
-	double d2Trdxidxj(std::vector<double> *x, int i){throw 1;};
-
-	//double 
+	double d2vrbardxi2__constxj(std::vector<double> *x, int i);
+	double d2rhorbardxi2__constxj(std::vector<double> *x, int i);
+	double d2vrbardxidxj(std::vector<double> *x, int i, int j);
+	double d2rhorbardxidxj(std::vector<double> *x, int i, int j);
+	double d2Trdxi2__constxj(std::vector<double> *x, int i);
+	double d2Trdxidxj(std::vector<double> *x, int i, int j);
 
 	/// Set the coefficients based on reducing parameters loaded from JSON
 	void set_coeffs_from_map(int i, int j, std::map<std::string,double >);
+
+	double c_Y_ij(int i, int j, std::vector< std::vector< double> > * beta, std::vector< std::vector< double> > *gamma, std::vector< std::vector< double> > *Y_c);
+	double f_Y_ij(std::vector<double> *x, int i, int j, std::vector< std::vector< double> > * beta);
+
+	//double dYrdxi__constxj(std::vector<double> *x, int i){throw 1;};
+	//double d2Yrdxi2__constxj(std::vector<double> *x, int i){throw 1;};
+	//double d2Yrdxidxj(std::vector<double> *x, int i){throw 1;};
+
+	double dfYkidxi__constxk(std::vector<double> *x, int k, int i,std::vector< std::vector< double> > * beta);
+	double dfYikdxi__constxk(std::vector<double> *x, int i, int k, std::vector< std::vector< double> > * beta);
+	double d2fYkidxi2__constxk(std::vector<double> *x, int k, int i, std::vector< std::vector< double> > * beta);
+	double d2fYikdxi2__constxk(std::vector<double> *x, int i, int k, std::vector< std::vector< double> > * beta);
+	double d2fYijdxidxj(std::vector<double> *x, int i, int k, std::vector< std::vector< double> > * beta);
 };
 
 
