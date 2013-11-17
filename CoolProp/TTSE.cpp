@@ -650,8 +650,8 @@ bool TTSESinglePhaseTableClass::read_all_from_file(std::string root_path)
 	// Didn't work since at least one of the parameters was different
 	// so we need to build the tables again
 	if (!(!Fluid.compare(pFluid->get_name())
-		  && Nh == this->Nh
-		  && Np == this->Np
+		  && Nh == (int)this->Nh
+		  && Np == (int)this->Np
 		  && fabs(pmin - this->pmin)<10*DBL_EPSILON
 		  && fabs(pmax - this->pmax)<10*DBL_EPSILON
 		  && fabs(hmin - this->hmin)<10*DBL_EPSILON
@@ -2582,14 +2582,14 @@ double TTSETwoPhaseTableClass::evaluate(long iParam, double p)
 	// or between the critical pressure and the next lowest point,
 	// just just the next lowest point to avoid some of the 
 	// derivatives that are infinite at the critical point
-	if (i == N || i == N-1 ) i = N-2;
+	if (i == (int)N || i == (int)N-1 ) i = N-2;
 	// If it is really out of the range, throw an error
 	if (i<0 || i>(int)N-1)
 	{
 		throw ValueError(format("p [%g] is out of range[%g,%g], yielded index of: %d",p,pmin,pmax,i));
 	}
 
-	if (i == N-2)
+	if (i == (int)N-2)
 	{
 		double y1, yc, dydp1;
 		switch (iParam)
@@ -2726,7 +2726,7 @@ double TTSETwoPhaseTableClass::evaluate_sat_derivative(long iParam, double p)
 	// If the value is just a little bit out of the range, clip 
 	// it back to the range of the LUT
 	if (i == -1) i = 0;
-	if (i == N) i = N-1;
+	if (i == (int)N) i = N-1;
 	// If it is really out of the range, throw an error
 	if (i<0 || i>(int)N-1)
 	{
