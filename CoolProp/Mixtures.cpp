@@ -272,8 +272,10 @@ Mixture::Mixture(std::vector<Fluid *> pFluids)
 	std::vector<double> x,y;
 	//TpzFlash(T, p, z, &rhobar, &x, &y);
 
-	double deriv = ndln_fugacity_coefficient_dnj__constT_p(tau,delta,&z,0,1);
-	double deriv2 = dln_fugacity_coefficient_dp__constT_n(tau,delta,&z,0);
+	double rhor = pReducing->rhorbar(&z);
+	
+	check();
+	
 	
 	double Tsat;
 	double psat = 1e3;
@@ -303,6 +305,109 @@ Mixture::Mixture(std::vector<Fluid *> pFluids)
 
 	double rr = 0;
 }
+void Mixture::check()
+{
+	std::vector<double> z(2, 0.5);
+
+	z[0] = 0.5;
+	z[1] = 1-z[0];
+
+	double Tr = pReducing->Tr(&z);
+	double Tr_RP91 = 250.57185990876351; // [K]
+	if (fabs(Tr/Tr_RP91-1) > 1e-9){throw ValueError();}
+
+	double rhorbar = pReducing->rhorbar(&z);
+	double rhorbar_RP91 = 8205.7858837320694; //[mol/m^3]
+	if (fabs(rhorbar/rhorbar_RP91-1) > 1e-9){throw ValueError();}
+
+	double T = 145; // [K]
+	double rhobar = 4; // [mol/m^3]; to convert from mol/L, multiply by 1000
+	
+	double tau = Tr/T;
+	double delta = rhobar/rhorbar;
+
+	double dtdn0 = pReducing->ndTrdni__constnj(&z,0);
+	double dtdn0_RP91 = -56.914351037292874;
+	if (fabs(dtdn0/dtdn0_RP91-1) > 1e-10){throw ValueError();}
+
+	double dtdn1 = pReducing->ndTrdni__constnj(&z,1);
+	double dtdn1_RP91 = 56.914351037292874;
+	if (fabs(dtdn1/dtdn1_RP91-1) > 1e-10){throw ValueError();}
+
+	double drhodn0 = pReducing->ndrhorbardni__constnj(&z,0);
+	double drhodn0_RP91 = 1579.4307575322835;
+	if (fabs(drhodn0/drhodn0_RP91-1) > 1e-10){throw ValueError();}
+
+	double dadxi0 = this->dphir_dxi(tau, delta, &z, 0);
+	double dadxi0_RP91 = -1.66733159546361936E-003;
+	if (fabs(dadxi0/dadxi0_RP91-1) > 1e-10){throw ValueError();}
+
+	double dadxi1 = this->dphir_dxi(tau, delta, &z, 1);
+	double dadxi1_RP91 = -1.82138497681156902E-003;
+	if (fabs(dadxi1/dadxi1_RP91-1) > 1e-10){throw ValueError();}
+
+	double drhodn1 = pReducing->ndrhorbardni__constnj(&z,1);
+	double drhodn1_RP91 = -1579.4307575322843;
+	if (fabs(drhodn1/drhodn1_RP91-1) > 1e-10){throw ValueError();}
+
+	double daddx0 = this->d2phir_dxi_dDelta(tau,delta,&z,0);
+	double daddx0_RP91 = -3.4250061506157587;
+	if (fabs(daddx0/daddx0_RP91-1) > 1e-10){throw ValueError();}
+
+	double dadtx0 = this->d2phir_dxi_dTau(tau,delta,&z,0);
+	double dadtx0_RP91 = -1.94597122635832131E-003;
+	if (fabs(dadtx0/dadtx0_RP91-1) > 1e-10){throw ValueError();}
+
+	double daddx1 = this->d2phir_dxi_dDelta(tau,delta,&z,1);
+	double daddx1_RP91 = -3.7448162669516916;
+	if (fabs(daddx1/daddx1_RP91-1) > 1e-10){throw ValueError();}
+
+	double dadtx1 = this->d2phir_dxi_dTau(tau,delta,&z,1);
+	double dadtx1_RP91 = -2.15974774776696646E-003;
+	if (fabs(dadtx1/dadtx1_RP91-1) > 1e-10){throw ValueError();}
+
+	double dadn0 = this->ndphir_dni__constT_V_nj(tau, delta, &z, 0);
+	double dadn0_RP91 = -5.24342982584834368E-004;
+	if (fabs(dadn0-dadn0_RP91) > 1e-10){throw ValueError();}
+
+	double dadn1 = this->ndphir_dni__constT_V_nj(tau, delta, &z, 1);
+	double dadn1_RP91 = -2.89676062124885614E-003;
+	if (fabs(dadn1-dadn1_RP91) > 1e-10){throw ValueError();}
+
+	double dpdn0 = ndpdni__constT_V_nj(tau, delta, &z, 0);
+	double dpdn0_RP91 = 4811.6359520642318;
+	if (fabs(dpdn0-dpdn0_RP91) > 1e-10){throw ValueError();}
+
+	double dpdn1 = ndpdni__constT_V_nj(tau, delta, &z, 1);
+	double dpdn1_RP91 = 4800.1319544625067;
+	if (fabs(dpdn1-dpdn1_RP91) > 1e-8){throw ValueError();}
+
+	double dphidT0 = dln_fugacity_coefficient_dT__constp_n(tau,delta,&z,0);
+	double dphidT0_RP91 = 8.84377505112714235E-006;
+	if (fabs(dphidT0-dphidT0_RP91) > 1e-8){throw ValueError();}
+
+	double dphidT1 = dln_fugacity_coefficient_dT__constp_n(tau,delta,&z,1);
+	double dphidT1_RP91 = 6.21123852185909847E-005;
+	if (fabs(dphidT1-dphidT1_RP91) > 1e-8){throw ValueError();}
+
+	double dphidP0 = dln_fugacity_coefficient_dp__constT_n(tau,delta,&z,0);
+	double dphidP0_RP91 = -1.07128474189810419E-007;
+	if (fabs(dphidP0-dphidP0_RP91) > 1e-8){throw ValueError();}
+
+	double dphidP1 = dln_fugacity_coefficient_dp__constT_n(tau,delta,&z,1);
+	double dphidP1_RP91 = -6.03505693277411881E-007;
+	if (fabs(dphidP1-dphidP1_RP91) > 1e-8){throw ValueError();}
+
+	double vhat0 = partial_molar_volume(tau, delta, &z, 0);
+	double vhat0_RP91 = 0.25029921648425145;
+	if (fabs(vhat0-vhat0_RP91) > 1e-8){throw ValueError();}
+	
+	double vhat1 = partial_molar_volume(tau, delta, &z, 1);
+	double vhat1_RP91 = 0.24970078351574867;
+	if (fabs(vhat1-vhat1_RP91) > 1e-8){throw ValueError();}
+
+	double rr = 0;
+}
 Mixture::~Mixture()
 {
 	if (pReducing != NULL){
@@ -328,14 +433,14 @@ double Mixture::fugacity(double tau, double delta, std::vector<double> *x, int i
 	double rhorbar = pReducing->rhorbar(x);
 	double T = Tr/tau, rhobar = rhorbar*delta, Rbar = 8.314472;
 
-	double dnphir_dni = phir(tau,delta,x) + ndphir_dni(tau,delta,x,i);
+	double dnphir_dni = phir(tau,delta,x) + ndphir_dni__constT_V_nj(tau,delta,x,i);
 
 	double f_i = (*x)[i]*rhobar*Rbar*T*exp(dnphir_dni);
 	return f_i;
 }
 double Mixture::ln_fugacity_coefficient(double tau, double delta, std::vector<double> *x, int i)
 {
-	return phir(tau,delta,x) + ndphir_dni(tau,delta,x,i)-log(1+delta*dphir_dDelta(tau,delta,x));
+	return phir(tau,delta,x) + ndphir_dni__constT_V_nj(tau,delta,x,i)-log(1+delta*dphir_dDelta(tau,delta,x));
 }
 double Mixture::dln_fugacity_coefficient_dT__constrho(double tau, double delta, std::vector<double> *x, int i)
 {
@@ -366,9 +471,11 @@ double Mixture::dln_fugacity_coefficient_dp__constT_n(double tau, double delta, 
 	double dtau_dT = -tau/T;
 	double rhorbar = pReducing->rhorbar(x);
 	double rhobar = rhorbar*delta;
-	double RT = Rbar(x)*T;
-	double p = rhobar*RT*(1+delta*dphir_dDelta(tau, delta, x));
-	return this->partial_molar_volume(tau,delta,x,i)/RT - 1/p;
+	double RT = Rbar(x)*T; // J/mol/K*K = J/mol = N*m/mol
+	double p = rhobar*RT*(1+delta*dphir_dDelta(tau, delta, x)); // [Pa]
+	double partial_molar_volume = this->partial_molar_volume(tau,delta,x,i); // [m^3/mol]
+	double term1 = partial_molar_volume/RT; // m^3/mol/(N*m)*mol = m^2/N = 1/Pa
+	return term1 - 1/p;
 }
 
 double Mixture::partial_molar_volume(double tau, double delta, std::vector<double> *x, int i)
@@ -401,39 +508,26 @@ double Mixture::ndpdni__constT_V_nj(double tau, double delta, std::vector<double
 	double summer = 0;
 	for (unsigned int k = 0; k < (*x).size(); k++)
 	{
-		summer += (*x)[k]*d2phir_dxi_dDelta(tau,delta,x,i);
+		summer += (*x)[k]*d2phir_dxi_dDelta(tau,delta,x,k);
 	}
 	double nd2phir_dni_dDelta = delta*d2phir_dDelta2(tau,delta,x)*(1-1/rhorbar*ndrhorbar_dni__constnj)+tau*d2phir_dDelta_dTau(tau,delta,x)/Tr*ndTr_dni__constnj+d2phir_dxi_dDelta(tau,delta,x,i)-summer;
 	return rhobar*Rbar(x)*T*(1+delta*dphir_dDelta(tau,delta,x)*(2-1/rhorbar*ndrhorbar_dni__constnj)+delta*nd2phir_dni_dDelta);
 }
 
-double Mixture::ndphir_dni(double tau, double delta, std::vector<double> *x, int i)
+double Mixture::ndphir_dni__constT_V_nj(double tau, double delta, std::vector<double> *x, int i)
 {
 	double Tr = pReducing->Tr(x);
 	double rhorbar = pReducing->rhorbar(x);
 
-	double summer_term1 = 0;
-	for (unsigned int k = 0; k < (*x).size(); k++)
-	{
-		summer_term1 += (*x)[k]*pReducing->drhorbardxi__constxj(x,k);
-	}
-	double term1 = delta*dphir_dDelta(tau,delta,x)*(1-1/rhorbar*(pReducing->drhorbardxi__constxj(x,i)-summer_term1));
+	double term1 = delta*dphir_dDelta(tau,delta,x)*(1-1/rhorbar*pReducing->ndrhorbardni__constnj(x,i));
+	double term2 = tau*dphir_dTau(tau,delta,x)*(1/Tr)*pReducing->ndTrdni__constnj(x,i);
 
-	// The second line
-	double summer_term2 = 0;
+	double s = 0;
 	for (unsigned int k = 0; k < (*x).size(); k++)
 	{
-		summer_term2 += (*x)[k]*pReducing->dTr_dxi(x,k);
+		s += (*x)[k]*dphir_dxi(tau,delta,x,k);
 	}
-	double term2 = tau*dphir_dTau(tau,delta,x)*(pReducing->dTr_dxi(x,i)-summer_term2)/Tr;
-
-	// The third line
-	double term3 = dphir_dxi(tau,delta,x,i);
-	for (unsigned int k = 0; k < (*x).size(); k++)
-	{
-		term3 -= (*x)[k]*dphir_dxi(tau,delta,x,k);
-	}
-	return term1 + term2 + term3;
+	return term1 + term2 + dphir_dxi(tau,delta,x,i) - s;
 }
 double Mixture::ndln_fugacity_coefficient_dnj__constT_p(double tau, double delta, std::vector<double> *x, int i, int j)
 {
@@ -923,9 +1017,7 @@ double GERG2008ReducingFunction::Tr(std::vector<double> *x)
 
 		for (unsigned int j = i+1; j < N; j++)
 		{
-			double xj = (*x)[j], beta_T_ij = beta_T[i][j];
-			//Tr += 2*xi*xj*beta_T_ij*gamma_T[i][j]*(xi+xj)/(beta_T_ij*beta_T_ij*xi+xj)*sqrt(Tci*pFluids[j]->reduce.T);
-			Tr += c_Y_ij(i,j,&beta_T,&gamma_T,&T_c)*f_Y_ij(x, i, j, &beta_T);
+			Tr += c_Y_ij(i, j, &beta_T, &gamma_T, &T_c)*f_Y_ij(x, i, j, &beta_T);
 		}
 	}
 	return Tr;

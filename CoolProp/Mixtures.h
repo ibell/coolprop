@@ -50,6 +50,7 @@ public:
 
 	double ndrhorbardni__constnj(std::vector<double> *x, int i);
 	double ndTrdni__constnj(std::vector<double> *x, int i);
+
 };
 
 /*! 
@@ -331,7 +332,7 @@ public:
 	\f}
 	See Table B4, Kunz, JCED, 2012 for the original term and the subsequent substitutions
 	*/
-	double ndphir_dni(double tau, double delta, std::vector<double> *x, int i);
+	double ndphir_dni__constT_V_nj(double tau, double delta, std::vector<double> *x, int i);
 
 	/*! The partial molar volume
 	\f[
@@ -497,6 +498,8 @@ public:
 	@param j 0-based index of second component
 	*/
 	std::map<std::string, double> load_reducing_values(int i, int j);
+
+	void check();
 };
 
 
