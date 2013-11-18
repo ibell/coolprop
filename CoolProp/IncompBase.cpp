@@ -185,10 +185,10 @@ std::vector<double> IncompressibleClass::fracIntCentralDvector(int m, double T, 
 	std::vector<double> D;
 	double tmp;
 	if (m<1) throw ValueError(format("You have to provide coefficients, a vector length of %d is not a valid. ",m));
-	for (unsigned int j=0; j<m; j++){ // loop through row
-		tmp = pow(-1.0,(int)j) * log(T) * pow(Tbase,(int)j);
-		for(unsigned int k=0; k<j; k++) { // internal loop for every entry
-			tmp += binom(j,k) * pow(-1.0,(int)k) / (j-k) * pow(T,(int)(j-k)) * pow(Tbase,(int)k);
+	for (int j=0; j<m; j++){ // loop through row
+		tmp = pow(-1.0,j) * log(T) * pow(Tbase,(int)j);
+		for(int k=0; k<j; k++) { // internal loop for every entry
+			tmp += binom(j,k) * pow(-1.0,k) / (j-k) * pow(T,j-k) * pow(Tbase,k);
 		}
 		D.push_back(tmp);
 	}
