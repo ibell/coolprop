@@ -274,7 +274,7 @@ Mixture::Mixture(std::vector<Fluid *> pFluids)
 
 	double rhor = pReducing->rhorbar(&z);
 	
-	check();
+	//check();
 	
 	
 	double Tsat;
@@ -405,6 +405,8 @@ void Mixture::check()
 	double vhat1 = partial_molar_volume(tau, delta, &z, 1);
 	double vhat1_RP91 = 0.24970078351574867;
 	if (fabs(vhat1-vhat1_RP91) > 1e-8){throw ValueError();}
+
+	double aa0 = ndln_fugacity_coefficient_dnj__constT_p(tau,delta,&z,0,1);
 
 	double rr = 0;
 }
