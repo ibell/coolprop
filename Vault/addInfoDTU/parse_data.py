@@ -145,6 +145,8 @@ for fluid in pp_fluids:
     else:
         continue
 
-f = open('environmental.json','w')
-print>>f, json.dumps(code, sort_keys=True, indent=2, separators=(',', ': '))
-f.close()
+if __name__=='__main__':
+    print "DO NOT USE THIS SCRIPT! Use the new one in dev/build_JSON_code.py  instead"
+    f = open('environmental.json','w')
+    print>>f, json.dumps(code, sort_keys=True, indent=2, separators=(',', ': '))
+    f.close()
