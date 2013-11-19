@@ -274,7 +274,7 @@ Mixture::Mixture(std::vector<Fluid *> pFluids)
 
 	double rhor = pReducing->rhorbar(&z);
 	
-	//check();
+	check();
 	
 	
 	double Tsat;
@@ -338,6 +338,42 @@ void Mixture::check()
 	double drhodn0_RP91 = 1579.4307575322835;
 	if (fabs(drhodn0/drhodn0_RP91-1) > 1e-10){throw ValueError();}
 
+	double drhodn1 = pReducing->ndrhorbardni__constnj(&z,1);
+	double drhodn1_RP91 = -1579.4307575322843;
+	if (fabs(drhodn1/drhodn1_RP91-1) > 1e-10){throw ValueError();}
+
+	double ddrdxn00 = pReducing->d_ndrhorbardni_dxj__constxi(&z,0,0);
+	double ddrdxn00_RP91 = 10652.242638037194;
+	if (fabs(ddrdxn00/ddrdxn00_RP91-1) > 1e-8){throw ValueError();}
+
+	double ddrdxn01 = pReducing->d_ndrhorbardni_dxj__constxi(&z,0,1);
+	double ddrdxn01_RP91 = 12694.316351697381;
+	if (fabs(ddrdxn01/ddrdxn01_RP91-1) > 1e-8){throw ValueError();}
+
+	double ddrdxn10 = pReducing->d_ndrhorbardni_dxj__constxi(&z,1,0);
+	double ddrdxn10_RP91 = 19012.039381826526;
+	if (fabs(ddrdxn10/ddrdxn10_RP91-1) > 1e-8){throw ValueError();}
+
+	double ddrdxn11 = pReducing->d_ndrhorbardni_dxj__constxi(&z,1,1);
+	double ddrdxn11_RP91 = 23287.688698295469;
+	if (fabs(ddrdxn11/ddrdxn11_RP91-1) > 1e-8){throw ValueError();}
+
+	double dtrdxn00 = pReducing->d_ndTrdni_dxj__constxi(&z,0,0);
+	double dtrdxn00_RP91 = -506.39802892344619;
+	if (fabs(dtrdxn00/dtrdxn00_RP91-1) > 1e-8){throw ValueError();}
+
+	double dtrdxn01 = pReducing->d_ndTrdni_dxj__constxi(&z,0,1);
+	double dtrdxn01_RP91 = -609.71811278619361;
+	if (fabs(dtrdxn01/dtrdxn01_RP91-1) > 1e-8){throw ValueError();}
+	
+	double dtrdxn10 = pReducing->d_ndTrdni_dxj__constxi(&z,1,0);
+	double dtrdxn10_RP91 = -382.06070863702217;
+	if (fabs(dtrdxn10/dtrdxn10_RP91-1) > 1e-8){throw ValueError();}
+	
+	double dtrdxn11 = pReducing->d_ndTrdni_dxj__constxi(&z,1,1);
+	double dtrdxn11_RP91 = -506.39802892344630;
+	if (fabs(dtrdxn11/dtrdxn11_RP91-1) > 1e-8){throw ValueError();}
+
 	double dadxi0 = this->dphir_dxi(tau, delta, &z, 0);
 	double dadxi0_RP91 = -1.66733159546361936E-003;
 	if (fabs(dadxi0/dadxi0_RP91-1) > 1e-10){throw ValueError();}
@@ -345,10 +381,6 @@ void Mixture::check()
 	double dadxi1 = this->dphir_dxi(tau, delta, &z, 1);
 	double dadxi1_RP91 = -1.82138497681156902E-003;
 	if (fabs(dadxi1/dadxi1_RP91-1) > 1e-10){throw ValueError();}
-
-	double drhodn1 = pReducing->ndrhorbardni__constnj(&z,1);
-	double drhodn1_RP91 = -1579.4307575322843;
-	if (fabs(drhodn1/drhodn1_RP91-1) > 1e-10){throw ValueError();}
 
 	double daddx0 = this->d2phir_dxi_dDelta(tau,delta,&z,0);
 	double daddx0_RP91 = -3.4250061506157587;
@@ -368,45 +400,123 @@ void Mixture::check()
 
 	double dadn0 = this->ndphir_dni__constT_V_nj(tau, delta, &z, 0);
 	double dadn0_RP91 = -5.24342982584834368E-004;
-	if (fabs(dadn0-dadn0_RP91) > 1e-10){throw ValueError();}
+	if (fabs(dadn0/dadn0_RP91-1) > 1e-10){throw ValueError();}
 
 	double dadn1 = this->ndphir_dni__constT_V_nj(tau, delta, &z, 1);
 	double dadn1_RP91 = -2.89676062124885614E-003;
-	if (fabs(dadn1-dadn1_RP91) > 1e-10){throw ValueError();}
+	if (fabs(dadn1/dadn1_RP91-1) > 1e-10){throw ValueError();}
 
 	double dpdn0 = ndpdni__constT_V_nj(tau, delta, &z, 0);
 	double dpdn0_RP91 = 4811.6359520642318;
-	if (fabs(dpdn0-dpdn0_RP91) > 1e-10){throw ValueError();}
+	if (fabs(dpdn0/dpdn0_RP91-1) > 1e-10){throw ValueError();}
 
 	double dpdn1 = ndpdni__constT_V_nj(tau, delta, &z, 1);
 	double dpdn1_RP91 = 4800.1319544625067;
-	if (fabs(dpdn1-dpdn1_RP91) > 1e-8){throw ValueError();}
+	if (fabs(dpdn1/dpdn1_RP91-1) > 1e-8){throw ValueError();}
 
 	double dphidT0 = dln_fugacity_coefficient_dT__constp_n(tau,delta,&z,0);
 	double dphidT0_RP91 = 8.84377505112714235E-006;
-	if (fabs(dphidT0-dphidT0_RP91) > 1e-8){throw ValueError();}
+	if (fabs(dphidT0/dphidT0_RP91-1) > 1e-8){throw ValueError();}
 
 	double dphidT1 = dln_fugacity_coefficient_dT__constp_n(tau,delta,&z,1);
 	double dphidT1_RP91 = 6.21123852185909847E-005;
-	if (fabs(dphidT1-dphidT1_RP91) > 1e-8){throw ValueError();}
+	if (fabs(dphidT1/dphidT1_RP91-1) > 1e-8){throw ValueError();}
 
 	double dphidP0 = dln_fugacity_coefficient_dp__constT_n(tau,delta,&z,0);
 	double dphidP0_RP91 = -1.07128474189810419E-007;
-	if (fabs(dphidP0-dphidP0_RP91) > 1e-8){throw ValueError();}
+	if (fabs(dphidP0/dphidP0_RP91-1) > 1e-8){throw ValueError();}
 
 	double dphidP1 = dln_fugacity_coefficient_dp__constT_n(tau,delta,&z,1);
 	double dphidP1_RP91 = -6.03505693277411881E-007;
-	if (fabs(dphidP1-dphidP1_RP91) > 1e-8){throw ValueError();}
+	if (fabs(dphidP1/dphidP1_RP91-1) > 1e-8){throw ValueError();}
 
 	double vhat0 = partial_molar_volume(tau, delta, &z, 0);
 	double vhat0_RP91 = 0.25029921648425145;
-	if (fabs(vhat0-vhat0_RP91) > 1e-8){throw ValueError();}
+	if (fabs(vhat0/vhat0_RP91-1) > 1e-8){throw ValueError();}
 	
 	double vhat1 = partial_molar_volume(tau, delta, &z, 1);
 	double vhat1_RP91 = 0.24970078351574867;
-	if (fabs(vhat1-vhat1_RP91) > 1e-8){throw ValueError();}
+	if (fabs(vhat1/vhat1_RP91-1) > 1e-8){throw ValueError();}
 
-	double aa0 = ndln_fugacity_coefficient_dnj__constT_p(tau,delta,&z,0,1);
+	double dadxij00 = d2phirdxidxj(tau, delta, &z, 0, 0);
+	double dadxij00_RP91 = 0.0;
+	if (fabs(dadxij00-dadxij00_RP91) > 1e-8){throw ValueError();}
+
+	double dadxij01 = d2phirdxidxj(tau, delta, &z, 0, 1);
+	double dadxij01_RP91 = -1.44900341276804124E-004;
+	if (fabs(dadxij01-dadxij01_RP91) > 1e-8){throw ValueError();}
+	
+	double dadxij10 = d2phirdxidxj(tau, delta, &z, 1, 0);
+	double dadxij10_RP91 = -1.44900341276804124E-004;
+	if (fabs(dadxij10-dadxij10_RP91) > 1e-8){throw ValueError();}
+
+	double dadxij11 = d2phirdxidxj(tau, delta, &z, 1, 1);
+	double dadxij11_RP91 = 0.0;
+	if (fabs(dadxij11-dadxij11_RP91) > 1e-8){throw ValueError();}
+
+	double d2adxn00 = d_ndphirdni_dxj__constdelta_tau_xi(tau,delta,&z,0,0);
+	double d2adxn00_RP91 = 9.52786141739760811E-003;
+	if (fabs(d2adxn00-d2adxn00_RP91) > 1e-8){throw ValueError();}
+
+	double d2adxn01 = d_ndphirdni_dxj__constdelta_tau_xi(tau,delta,&z,0,1);
+	double d2adxn01_RP91 = 1.11090273394917772E-002;
+	if (fabs(d2adxn01-d2adxn01_RP91) > 1e-8){throw ValueError();}
+	
+	double d2adxn10 = d_ndphirdni_dxj__constdelta_tau_xi(tau,delta,&z,1,0);
+	double d2adxn10_RP91 = 8.82661064281056729E-003;
+	if (fabs(d2adxn10-d2adxn10_RP91) > 1e-8){throw ValueError();}
+	
+	double d2adxn11 = d_ndphirdni_dxj__constdelta_tau_xi(tau,delta,&z,1,1);
+	double d2adxn11_RP91 = 1.16784901260031035E-002;
+	if (fabs(d2adxn11-d2adxn11_RP91) > 1e-8){throw ValueError();}
+
+	double d2addn0 = d_ndphirdni_dDelta(tau,delta,&z,0);
+	double d2addn0_RP91 = -1.0719438474166139;
+	if (fabs(d2addn0-d2addn0_RP91) > 1e-8){throw ValueError();}
+
+	double d2addn1 = d_ndphirdni_dDelta(tau,delta,&z,1);
+	double d2addn1_RP91 = -5.9657336386754745;
+	if (fabs(d2addn1-d2addn1_RP91) > 1e-8){throw ValueError();}
+
+	double d2adtn0 = d_ndphirdni_dTau(tau,delta,&z,0);
+	double d2adtn0_RP91 = -4.58046408525892678E-004;
+	if (fabs(d2adtn0-d2adtn0_RP91) > 1e-8){throw ValueError();}
+	
+	double d2adtn1 = d_ndphirdni_dTau(tau,delta,&z,1);
+	double d2adtn1_RP91 = -3.54010070086436396E-003;
+	if (fabs(d2adtn1-d2adtn1_RP91) > 1e-8){throw ValueError();}
+
+	double d2ann00 = nd2nphirdnidnj__constT_V(tau, delta, &z, 0, 0);
+	double d2dnn00_RP91 = -1.55709211017489475E-003;
+	if (fabs(d2ann00-d2dnn00_RP91) > 1e-8){throw ValueError();}
+
+	double d2ann01 = nd2nphirdnidnj__constT_V(tau, delta, &z, 0, 1);
+	double d2dnn01_RP91 = -2.90907297842576788E-003;
+	if (fabs(d2ann01-d2dnn01_RP91) > 1e-8){throw ValueError();}
+	
+	double d2ann10 = nd2nphirdnidnj__constT_V(tau, delta, &z, 1, 0);
+	double d2dnn10_RP91 = -2.90907297842577049E-003;
+	if (fabs(d2ann10-d2dnn10_RP91) > 1e-8){throw ValueError();}
+	
+	double d2ann11 = nd2nphirdnidnj__constT_V(tau, delta, &z, 1, 1);
+	double d2dnn11_RP91 = -6.32815473413224101E-003;
+	if (fabs(d2ann11-d2dnn11_RP91) > 1e-8){throw ValueError();}
+
+	double dphidnj00 = ndln_fugacity_coefficient_dnj__constT_p(tau,delta,&z,0,0);
+	double dphidnj00_RP91 = -5.18202802448741728E-004;
+	if (fabs(dphidnj00-dphidnj00_RP91) > 1e-8){throw ValueError();}
+	
+	double dphidnj01 = ndln_fugacity_coefficient_dnj__constT_p(tau,delta,&z,0,1);
+	double dphidnj01_RP91 = 5.18202802448741728E-004;
+	if (fabs(dphidnj01-dphidnj01_RP91) > 1e-8){throw ValueError();}
+	
+	double dphidnj10 = ndln_fugacity_coefficient_dnj__constT_p(tau,delta,&z,1,0);
+	double dphidnj10_RP91 = 5.18202802448741728E-004;
+	if (fabs(dphidnj10-dphidnj10_RP91) > 1e-8){throw ValueError();}
+
+	double dphidnj11 = ndln_fugacity_coefficient_dnj__constT_p(tau,delta,&z,1,1);
+	double dphidnj11_RP91 = -5.18202802448741728E-004;
+	if (fabs(dphidnj11-dphidnj11_RP91) > 1e-8){throw ValueError();}
 
 	double rr = 0;
 }
@@ -529,13 +639,14 @@ double Mixture::ndphir_dni__constT_V_nj(double tau, double delta, std::vector<do
 	{
 		s += (*x)[k]*dphir_dxi(tau,delta,x,k);
 	}
+	double ddd = dphir_dxi(tau,delta,x,i);
 	return term1 + term2 + dphir_dxi(tau,delta,x,i) - s;
 }
 double Mixture::ndln_fugacity_coefficient_dnj__constT_p(double tau, double delta, std::vector<double> *x, int i, int j)
 {
 	double Tr = pReducing->Tr(x);
 	double T = Tr/tau;
-	return nd2nphirdnidnj__constT_V(tau, delta, x, i, j) + 1 - partial_molar_volume(tau,delta,x,i)/(Rbar(x)*T)*ndpdni__constT_V_nj(tau,delta,x,i);
+	return nd2nphirdnidnj__constT_V(tau, delta, x, j, i) + 1 - partial_molar_volume(tau,delta,x,i)/(Rbar(x)*T)*ndpdni__constT_V_nj(tau,delta,x,j);
 }
 double Mixture::nddeltadni__constT_V_nj(double tau, double delta, std::vector<double> *x, int i)
 {
@@ -547,6 +658,25 @@ double Mixture::ndtaudni__constT_V_nj(double tau, double delta, std::vector<doub
 	double Tr = pReducing->Tr(x);
 	return tau/Tr*pReducing->ndTrdni__constnj(x,i);
 }
+double Mixture::d_ndphirdni_dxj__constdelta_tau_xi(double tau, double delta, std::vector<double> *x, int i, int j)
+{
+	double rhorbar = pReducing->rhorbar(x);
+	double rhobar = rhorbar*delta;
+	double Tr = pReducing->Tr(x); // [K]
+	double T = Tr/tau;
+
+	double line1 = delta*d2phir_dxi_dDelta(tau,delta,x,j)*(1-1/rhorbar*pReducing->ndrhorbardni__constnj(x,i));
+	double line2 = -delta*dphir_dDelta(tau,delta,x)*(1/rhorbar)*(pReducing->d_ndrhorbardni_dxj__constxi(x,i,j)-1/rhorbar*pReducing->drhorbardxi__constxj(x,j)*pReducing->ndrhorbardni__constnj(x,i));
+	double line3 = tau*d2phir_dxi_dTau(tau,delta,x,j)*(1/Tr)*pReducing->ndTrdni__constnj(x,i);
+	double line4 = tau*dphir_dTau(tau,delta,x)*(1/Tr)*(pReducing->d_ndTrdni_dxj__constxi(x,i,j)-1/Tr*pReducing->dTrdxi__constxj(x,j)*pReducing->ndTrdni__constnj(x,i));
+	double s = 0;
+	for (unsigned int m = 0; m < (*x).size(); m++)
+	{
+		s += (*x)[m]*d2phirdxidxj(tau,delta,x,j,m);
+	}
+	double line5 = d2phirdxidxj(tau,delta,x,i,j)-dphir_dxi(tau,delta,x,j)-s;
+	return line1+line2+line3+line4+line5;
+}
 double Mixture::nd2nphirdnidnj__constT_V(double tau, double delta, std::vector<double> *x, int i, int j)
 {
 	double rhorbar = pReducing->rhorbar(x);
@@ -554,15 +684,16 @@ double Mixture::nd2nphirdnidnj__constT_V(double tau, double delta, std::vector<d
 	double Tr = pReducing->Tr(x); // [K]
 	double T = Tr/tau;
 	
-	double line1 = this->d_ndphirdni_dDelta(tau, delta, x, i)*this->nddeltadni__constT_V_nj(tau,delta,x,i);
-	double line2 = this->d_ndphirdni_dTau(tau, delta, x, i)*this->ndtaudni__constT_V_nj(tau,delta,x,i);
+	double line0 = ndphir_dni__constT_V_nj(tau, delta, x, j); // First term from 7.46
+	double line1 = this->d_ndphirdni_dDelta(tau, delta, x, i)*this->nddeltadni__constT_V_nj(tau,delta,x,j);
+	double line2 = this->d_ndphirdni_dTau(tau, delta, x, i)*this->ndtaudni__constT_V_nj(tau,delta,x,j);
 	double summer = 0;
 	for (unsigned int k = 0; k < (*x).size(); k++)
 	{
 		summer += (*x)[k]*this->d_ndphirdni_dxj__constdelta_tau_xi(tau, delta, x, i, k);
 	}
 	double line3 = this->d_ndphirdni_dxj__constdelta_tau_xi(tau, delta, x, i, j)-summer;
-	return line1 + line2 + line3;
+	return line0 + line1 + line2 + line3;
 }
 double Mixture::d_ndphirdni_dDelta(double tau, double delta, std::vector<double> *x, int i)
 {
@@ -611,6 +742,10 @@ double Mixture::phir(double tau, double delta, std::vector<double> *x)
 double Mixture::dphir_dxi(double tau, double delta, std::vector<double> *x, int i)
 {	
 	return pFluids[i]->phir(tau,delta) + pExcess->dphir_dxi(tau,delta,x,i);
+}
+double Mixture::d2phirdxidxj(double tau, double delta, std::vector<double> *x, int i, int j)
+{	
+	return 0                           + pExcess->d2phirdxidxj(tau,delta,x,i,j);
 }
 double Mixture::d2phir_dxi_dTau(double tau, double delta, std::vector<double> *x, int i)
 {	
@@ -1024,7 +1159,7 @@ double GERG2008ReducingFunction::Tr(std::vector<double> *x)
 	}
 	return Tr;
 }
-double GERG2008ReducingFunction::dTr_dxi(std::vector<double> *x, int i)
+double GERG2008ReducingFunction::dTrdxi__constxj(std::vector<double> *x, int i)
 {
 	// See Table B9 from Kunz Wagner 2012 (GERG 2008)
 	double xi = (*x)[i];
@@ -1056,8 +1191,15 @@ double GERG2008ReducingFunction::d2Trdxi2__constxj(std::vector<double> *x, int i
 }
 double GERG2008ReducingFunction::d2Trdxidxj(std::vector<double> *x, int i, int j)
 {
-	// See Table B9 from Kunz Wagner 2012 (GERG 2008)
-	return c_Y_ij(i,j,&beta_T,&gamma_T,&T_c)*d2fYijdxidxj(x,i,j,&beta_T);
+	if (i == j)
+	{
+		return d2Trdxi2__constxj(x,i);
+	}
+	else
+	{
+		// See Table B9 from Kunz Wagner 2012 (GERG 2008)
+		return c_Y_ij(i,j,&beta_T,&gamma_T,&T_c)*d2fYijdxidxj(x,i,j,&beta_T);
+	}
 }
 double GERG2008ReducingFunction::dvrbardxi__constxj(std::vector<double> *x, int i)
 {
@@ -1077,7 +1219,14 @@ double GERG2008ReducingFunction::dvrbardxi__constxj(std::vector<double> *x, int 
 }
 double GERG2008ReducingFunction::d2vrbardxidxj(std::vector<double> *x, int i, int j)
 {
-	return c_Y_ij(i, j, &beta_v, &gamma_v, &v_c)*d2fYijdxidxj(x, i, j, &beta_v);
+	if (i == j)
+	{
+		return d2vrbardxi2__constxj(x, i);
+	}
+	else
+	{
+		return c_Y_ij(i, j, &beta_v, &gamma_v, &v_c)*d2fYijdxidxj(x, i, j, &beta_v);
+	}
 }
 double GERG2008ReducingFunction::drhorbardxi__constxj(std::vector<double> *x, int i)
 {
@@ -1102,14 +1251,14 @@ double GERG2008ReducingFunction::d2vrbardxi2__constxj(std::vector<double> *x, in
 double GERG2008ReducingFunction::d2rhorbardxi2__constxj(std::vector<double> *x, int i)
 {
 	double rhor = this->rhorbar(x);
-	double dvrbardxi = this->d2vrbardxi2__constxj(x,i);
+	double dvrbardxi = this->dvrbardxi__constxj(x,i);
 	return 2*pow(rhor,(int)3)*pow(dvrbardxi,(int)2)-pow(rhor,(int)2)*this->d2vrbardxi2__constxj(x,i);
 }
 double GERG2008ReducingFunction::d2rhorbardxidxj(std::vector<double> *x, int i, int j)
 {
 	double rhor = this->rhorbar(x);
-	double dvrbardxi = this->d2vrbardxi2__constxj(x,i);
-	double dvrbardxj = this->d2vrbardxi2__constxj(x,j);
+	double dvrbardxi = this->dvrbardxi__constxj(x,i);
+	double dvrbardxj = this->dvrbardxi__constxj(x,j);
 	return 2*pow(rhor,(int)3)*dvrbardxi*dvrbardxj-pow(rhor,(int)2)*this->d2vrbardxidxj(x,i,j);
 }
 
@@ -1364,6 +1513,17 @@ double ExcessTerm::dphir_dxi(double tau, double delta, std::vector<double> *x, u
 	}
 	return summer;
 }
+double ExcessTerm::d2phirdxidxj(double tau, double delta, std::vector<double> *x, unsigned int i, unsigned int j)
+{
+	if (i != j)
+	{
+		return F[i][j]*DepartureFunctionMatrix[i][j]->phir(tau,delta,x);
+	}
+	else
+	{
+		return 0;
+	}
+}
 double ExcessTerm::d2phir_dxi_dTau(double tau, double delta, std::vector<double> *x, unsigned int i)
 {
 	double summer = 0;
@@ -1451,7 +1611,24 @@ double ResidualIdealMixture::d2phir_dTau2(double tau, double delta, std::vector<
 	}
 	return summer;
 }
-
+double ReducingFunction::d_ndTrdni_dxj__constxi(std::vector<double> *x, int i, int j)
+{
+	double s = 0;
+	for (unsigned int k = 0; k < (*x).size(); k++)
+	{
+		s += (*x)[k]*d2Trdxidxj(x,j,k);
+	}
+	return d2Trdxidxj(x,i,j)-dTrdxi__constxj(x,j)-s;
+}
+double ReducingFunction::d_ndrhorbardni_dxj__constxi(std::vector<double> *x, int i, int j)
+{
+	double s = 0;
+	for (unsigned int k = 0; k < (*x).size(); k++)
+	{
+		s += (*x)[k]*d2rhorbardxidxj(x,j,k);
+	}
+	return d2rhorbardxidxj(x,j,i)-drhorbardxi__constxj(x,j)-s;
+}
 double ReducingFunction::ndrhorbardni__constnj(std::vector<double> *x, int i)
 {
 	double summer_term1 = 0;
@@ -1466,9 +1643,9 @@ double ReducingFunction::ndTrdni__constnj(std::vector<double> *x, int i)
 	double summer_term1 = 0;
 	for (unsigned int j = 0; j < (*x).size(); j++)
 	{
-		summer_term1 += (*x)[j]*dTr_dxi(x,j);
+		summer_term1 += (*x)[j]*dTrdxi__constxj(x,j);
 	}
-	return dTr_dxi(x,i)-summer_term1;
+	return dTrdxi__constxj(x,i)-summer_term1;
 }
 
 double SuccessiveSubstitution::call(int type, double T, double p, std::vector<double> *z, std::vector<double> *x, std::vector<double> *y)

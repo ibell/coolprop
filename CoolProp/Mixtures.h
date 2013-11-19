@@ -21,7 +21,7 @@ public:
 	/// The reduced temperature
 	virtual double Tr(std::vector<double> *x) = 0;
 	/// The derivative of reduced temperature with respect to component i mole fraction
-	virtual double dTr_dxi(std::vector<double> *x, int i) = 0;
+	virtual double dTrdxi__constxj(std::vector<double> *x, int i) = 0;
 	/// The molar reducing density
 	virtual double rhorbar(std::vector<double> *x) = 0;
 	///Derivative of the molar reducing density with respect to component i mole fraction
@@ -40,13 +40,13 @@ public:
 	\left(\frac{\partial}{\partial x_j}\left(n\left(\frac{\partial T_r}{\partial n_i} \right)_{n_j}\right)\right)_{x_i} = \left(\frac{\partial^2T_r}{\partial x_j \partial x_i}\right)-\left(\frac{\partial T_r}{\partial x_j}\right)_{x_i}-\sum_{k=1}^Nx_k\left(\frac{\partial^2T_r}{\partial x_j \partial x_k}\right)
 	\f]
 	*/
-	double d_ndTrdni_dxj__constxi(std::vector<double> *x, int i, int j){throw 1;};
+	double d_ndTrdni_dxj__constxi(std::vector<double> *x, int i, int j);
 	/*! GERG 2004 Monograph equation 7.55:
 	\f[
 	\left(\frac{\partial}{\partial x_j}\left(n\left(\frac{\partial \rho_r}{\partial n_i} \right)_{n_j}\right)\right)_{x_i} = \left(\frac{\partial^2\rho_r}{\partial x_j \partial x_i}\right)-\left(\frac{\partial \rho_r}{\partial x_j}\right)_{x_i}-\sum_{k=1}^Nx_k\left(\frac{\partial^2\rho_r}{\partial x_j \partial x_k}\right)
 	\f]
 	*/
-	double d_ndrhorbardni_dxj__constxi(std::vector<double> *x, int i, int j){throw 1;};
+	double d_ndrhorbardni_dxj__constxi(std::vector<double> *x, int i, int j);
 
 	double ndrhorbardni__constnj(std::vector<double> *x, int i);
 	double ndTrdni__constnj(std::vector<double> *x, int i);
@@ -103,7 +103,7 @@ public:
 	/// The reduced temperature
 	double Tr(std::vector<double> *x);
 	/// The derivative of reduced temperature with respect to component i mole fraction
-	double dTr_dxi(std::vector<double> *x, int i);
+	double dTrdxi__constxj(std::vector<double> *x, int i);
 	/// The molar reducing density
 	double rhorbar(std::vector<double> *x);
 	///Derivative of the molar reducing density with respect to component i mole fraction
@@ -189,6 +189,7 @@ public:
 	double dphir_dTau(double tau, double delta, std::vector<double> *x);
 	double d2phir_dTau2(double tau, double delta, std::vector<double> *x);
 	double dphir_dxi(double tau, double delta, std::vector<double> *x, unsigned int i);
+	double d2phirdxidxj(double tau, double delta, std::vector<double> *x, unsigned int i, unsigned int j);
 	double d2phir_dxi_dTau(double tau, double delta, std::vector<double> *x, unsigned int i);
 	double d2phir_dxi_dDelta(double tau, double delta, std::vector<double> *x, unsigned int i);
 	void set_coeffs_from_map(int i, int j, std::map<std::string,std::vector<double> >);
@@ -279,6 +280,8 @@ public:
 	double dphir_dxi(double tau, double delta, std::vector<double> *x, int i);
 	double d2phir_dxi_dTau(double tau, double delta, std::vector<double> *x, int i);
 	double d2phir_dxi_dDelta(double tau, double delta, std::vector<double> *x, int i);
+	double d2phirdxidxj(double tau, double delta, std::vector<double> *x, int i, int j);
+
 	/// Returns the fugacity for the given component for the given total reduced density and reciprocal reduced temperature
 	double fugacity(double tau, double delta, std::vector<double> *x, int i);
 	
@@ -479,7 +482,7 @@ public:
 	&+& \alpha_{x_ix_j}^r-\alpha_{x_j}^r-\sum_{m=1}^Nx_m\alpha_{x_jx_m}^r
 	\f}
 	*/
-	double d_ndphirdni_dxj__constdelta_tau_xi(double tau, double delta, std::vector<double> *x, int i, int j){throw 1;};
+	double d_ndphirdni_dxj__constdelta_tau_xi(double tau, double delta, std::vector<double> *x, int i, int j);
 
 	double saturation_p(int type, double p, std::vector<double> *z, std::vector<double> *x, std::vector<double> *y);
 
