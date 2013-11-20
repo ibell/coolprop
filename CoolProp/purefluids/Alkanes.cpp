@@ -31,6 +31,14 @@ MethaneClass::MethaneClass()
 	crit.T = 190.564; //[K]
 	crit.v = 1/crit.rho; 
 
+	// Reducing parameters used in EOS
+	reduce.p = PressureUnit(4599.2, UNIT_KPA);
+	reduce.T = 190.564; //[K]
+	reduce.rho = 10.139128*16.0428; //[kg/m^3]
+	reduce.v = 1.0/reduce.rho;
+
+	preduce = &reduce;
+
 	// Other fluid parameters
 	params.molemass = 16.0428;
 	params.Ttriple = 90.6941;
