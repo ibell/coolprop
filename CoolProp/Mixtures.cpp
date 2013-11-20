@@ -1169,7 +1169,7 @@ void GERG2008DepartureFunction::set_coeffs_from_map(std::map<std::string,std::ve
 ExcessTerm::ExcessTerm(int N)
 {
 	F.resize(N,std::vector<double>(N,1.0));
-	DepartureFunctionMatrix.resize(N,std::vector<DepartureFunction*>(N,NULL));
+	DepartureFunctionMatrix.resize(N,std::vector<DepartureFunction*>(N));
 	this->N = N;
 }
 ExcessTerm::~ExcessTerm()

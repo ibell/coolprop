@@ -298,7 +298,7 @@ public:
 	    std::vector<std::vector<double> > tmpVector = convertCoeffs( *oldCoeffs, lengthA, lengthB);
 
 	    cTfreeze.clear();
-	    cTfreeze = column(makeMatrix(tmpVector[0]),0); // Discard temperature coefficients.
+	    cTfreeze = get_col(makeMatrix(tmpVector[0]),0); // Discard temperature coefficients.
 
         cRho.clear();
         cRho = makeMatrix(tmpVector[1]);
@@ -365,7 +365,7 @@ public:
 	    std::vector<std::vector<double> > tmpVector = convertCoeffs( *oldCoeffs, lengthA, lengthB);
 
 	    cTfreeze.clear();
-	    cTfreeze = column(makeMatrix(tmpVector[0]),0); // Discard temperature coefficients.
+	    cTfreeze = get_col(makeMatrix(tmpVector[0]),0); // Discard temperature coefficients.
 
         cRho.clear();
         cRho = makeMatrix(tmpVector[1]);
@@ -432,7 +432,7 @@ public:
 	    std::vector<std::vector<double> > tmpVector = convertCoeffs( *oldCoeffs, lengthA, lengthB);
 
 	    cTfreeze.clear();
-	    cTfreeze = column(makeMatrix(tmpVector[0]),0); // Discard temperature coefficients.
+	    cTfreeze = get_col(makeMatrix(tmpVector[0]),0); // Discard temperature coefficients.
 
         cRho.clear();
         cRho = makeMatrix(tmpVector[1]);
@@ -493,7 +493,7 @@ public:
 	    std::vector<std::vector<double> > tmpVector = convertCoeffs( *oldCoeffs, lengthA, lengthB);
 
 	    cTfreeze.clear();
-	    cTfreeze = column(makeMatrix(tmpVector[0]),0); // Discard temperature coefficients.
+	    cTfreeze = get_col(makeMatrix(tmpVector[0]),0); // Discard temperature coefficients.
 
         cRho.clear();
         cRho = makeMatrix(tmpVector[1]);
@@ -555,7 +555,7 @@ public:
 	    std::vector<std::vector<double> > tmpVector = convertCoeffs( *oldCoeffs, lengthA, lengthB);
 
 	    cTfreeze.clear();
-	    cTfreeze = column(makeMatrix(tmpVector[0]),0); // Discard temperature coefficients.
+	    cTfreeze = get_col(makeMatrix(tmpVector[0]),0); // Discard temperature coefficients.
 
         cRho.clear();
         cRho = makeMatrix(tmpVector[1]);
@@ -616,7 +616,7 @@ public:
 	    std::vector<std::vector<double> > tmpVector = convertCoeffs( *oldCoeffs, lengthA, lengthB);
 
 	    cTfreeze.clear();
-	    cTfreeze = column(makeMatrix(tmpVector[0]),0); // Discard temperature coefficients.
+	    cTfreeze = get_col(makeMatrix(tmpVector[0]),0); // Discard temperature coefficients.
 
         cRho.clear();
         cRho = makeMatrix(tmpVector[1]);
@@ -677,7 +677,7 @@ public:
 	    std::vector<std::vector<double> > tmpVector = convertCoeffs( *oldCoeffs, lengthA, lengthB);
 
 	    cTfreeze.clear();
-	    cTfreeze = column(makeMatrix(tmpVector[0]),0); // Discard temperature coefficients.
+	    cTfreeze = get_col(makeMatrix(tmpVector[0]),0); // Discard temperature coefficients.
 
         cRho.clear();
         cRho = makeMatrix(tmpVector[1]);
@@ -738,7 +738,7 @@ public:
 	    std::vector<std::vector<double> > tmpVector = convertCoeffs( *oldCoeffs, lengthA, lengthB);
 
 	    cTfreeze.clear();
-	    cTfreeze = column(makeMatrix(tmpVector[0]),0); // Discard temperature coefficients.
+	    cTfreeze = get_col(makeMatrix(tmpVector[0]),0); // Discard temperature coefficients.
 
         cRho.clear();
         cRho = makeMatrix(tmpVector[1]);
@@ -799,7 +799,7 @@ public:
 	    std::vector<std::vector<double> > tmpVector = convertCoeffs( *oldCoeffs, lengthA, lengthB);
 
 	    cTfreeze.clear();
-	    cTfreeze = column(makeMatrix(tmpVector[0]),0); // Discard temperature coefficients.
+	    cTfreeze = get_col(makeMatrix(tmpVector[0]),0); // Discard temperature coefficients.
 
         cRho.clear();
         cRho = makeMatrix(tmpVector[1]);
@@ -860,7 +860,7 @@ public:
 	    std::vector<std::vector<double> > tmpVector = convertCoeffs( *oldCoeffs, lengthA, lengthB);
 
 	    cTfreeze.clear();
-	    cTfreeze = column(makeMatrix(tmpVector[0]),0); // Discard temperature coefficients.
+	    cTfreeze = get_col(makeMatrix(tmpVector[0]),0); // Discard temperature coefficients.
 
         cRho.clear();
         cRho = makeMatrix(tmpVector[1]);
@@ -921,7 +921,7 @@ public:
 	    std::vector<std::vector<double> > tmpVector = convertCoeffs( *oldCoeffs, lengthA, lengthB);
 
 	    cTfreeze.clear();
-	    cTfreeze = column(makeMatrix(tmpVector[0]),0); // Discard temperature coefficients.
+	    cTfreeze = get_col(makeMatrix(tmpVector[0]),0); // Discard temperature coefficients.
 
         cRho.clear();
         cRho = makeMatrix(tmpVector[1]);
@@ -982,7 +982,7 @@ public:
 	    std::vector<std::vector<double> > tmpVector = convertCoeffs( *oldCoeffs, lengthA, lengthB);
 
 	    cTfreeze.clear();
-	    cTfreeze = column(makeMatrix(tmpVector[0]),0); // Discard temperature coefficients.
+	    cTfreeze = get_col(makeMatrix(tmpVector[0]),0); // Discard temperature coefficients.
 
         cRho.clear();
         cRho = makeMatrix(tmpVector[1]);
@@ -1043,7 +1043,7 @@ public:
 	    std::vector<std::vector<double> > tmpVector = convertCoeffs( *oldCoeffs, lengthA, lengthB);
 
 	    cTfreeze.clear();
-	    cTfreeze = column(makeMatrix(tmpVector[0]),0); // Discard temperature coefficients.
+	    cTfreeze = get_col(makeMatrix(tmpVector[0]),0); // Discard temperature coefficients.
 
         cRho.clear();
         cRho = makeMatrix(tmpVector[1]);
@@ -1104,7 +1104,7 @@ public:
 	    std::vector<std::vector<double> > tmpVector = convertCoeffs( *oldCoeffs, lengthA, lengthB);
 
 	    cTfreeze.clear();
-	    cTfreeze = column(makeMatrix(tmpVector[0]),0); // Discard temperature coefficients.
+	    cTfreeze = get_col(makeMatrix(tmpVector[0]),0); // Discard temperature coefficients.
 
         cRho.clear();
         cRho = makeMatrix(tmpVector[1]);

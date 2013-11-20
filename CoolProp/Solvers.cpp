@@ -35,7 +35,7 @@ std::vector<double> NDNewtonRaphson_Jacobian(FuncWrapperND *f, std::vector<doubl
 		negative_f0 = f0;
 		for (unsigned int i = 0; i<f0.size(); i++){ negative_f0[i] *= -1;}
 		// find v from J*v = -f
-		v = linsolve_Gauss_Jordan(J, negative_f0);
+		v = linsolve(J, negative_f0);
 		// Update the guess
 		x0[0] += v[0];
 		x0[1] += v[1];
