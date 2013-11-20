@@ -14,7 +14,7 @@ bool SplineClass::build()
 {
 	if (Nconstraints == 4)
 	{
-		std::vector<double> abcd = linsolve_Gauss_Jordan(A,B);
+		std::vector<double> abcd = linsolve(A,B);
 		a = abcd[0];
 		b = abcd[1];
 		c = abcd[2];
