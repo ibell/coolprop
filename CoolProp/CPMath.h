@@ -220,3 +220,10 @@
 //#endif
 //
 //
+
+#include <stdio.h>
+#include "MatrixMath.h"
+int main( int argc, const char* argv[] )
+{
+	printf( "\nHello World\n\n" );
+}

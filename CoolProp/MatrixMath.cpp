@@ -12,31 +12,31 @@
 /*
 Owe a debt of gratitude to http://sole.ooz.ie/en - very clear treatment of GJ
 */
-void swap_rows(std::vector<std::vector<double> > *A, unsigned int row1, unsigned int row2)
+void swap_rows(std::vector<std::vector<double> > *A, size_t row1, size_t row2)
 {
-	for (unsigned int col = 0; col < (*A)[0].size(); col++){
+	for (size_t col = 0; col < (*A)[0].size(); col++){
 		std::swap((*A)[row1][col],(*A)[row2][col]);
 	}
 }
-void subtract_row_multiple(std::vector<std::vector<double> > *A, unsigned int row, double multiple, unsigned int pivot_row)
+void subtract_row_multiple(std::vector<std::vector<double> > *A, size_t row, double multiple, size_t pivot_row)
 {
-	for (unsigned int col = 0; col < (*A)[0].size(); col++){
+	for (size_t col = 0; col < (*A)[0].size(); col++){
 		(*A)[row][col] -= multiple*(*A)[pivot_row][col];
 	}
 }
-void divide_row_by(std::vector<std::vector<double> > *A, unsigned int row, double value)
+void divide_row_by(std::vector<std::vector<double> > *A, size_t row, double value)
 {
-	for (unsigned int col = 0; col < (*A)[0].size(); col++){
+	for (size_t col = 0; col < (*A)[0].size(); col++){
 		(*A)[row][col] /= value;
 	}
 }
 
-unsigned int get_pivot_row(std::vector<std::vector<double> > *A, unsigned int col)
+size_t get_pivot_row(std::vector<std::vector<double> > *A, size_t col)
 {
 	int index = col;
 	double max = 0, val;
 
-	for (unsigned int row = col; row < (*A).size(); row++)
+	for (size_t row = col; row < (*A).size(); row++)
 	{
 		val = (*A)[row][col];
 		if (fabs(val) > max)
@@ -48,72 +48,156 @@ unsigned int get_pivot_row(std::vector<std::vector<double> > *A, unsigned int co
 	return index;
 }
 
-std::vector<double> linsolve_Gauss_Jordan(std::vector<std::vector<double> > const& A, std::vector<double> const& b)
-{
-	std::vector<std::vector<double> > Ab;
-	std::vector<double> x;
-	unsigned int pivot_row;
+
+std::vector<std::vector<double> > linsolve_Gauss_Jordan(std::vector<std::vector<double> > const& A, std::vector<std::vector<double> > const& B) {
+	std::vector<std::vector<double> > AB;
+	std::vector<std::vector<double> > X;
+	size_t pivot_row;
 	double pivot_element;
 
-	Ab.resize(A.size(), std::vector<double>(A[0].size()+1, 0));
-	x.resize(A.size(), 0);
+	size_t NrowA = num_rows(A);
+	size_t NrowB = num_rows(B);
+	size_t NcolA = num_cols(A);
+	size_t NcolB = num_cols(B);
 
-	unsigned int Nrow = A.size();
-	unsigned int Ncol = A[0].size();
+	if (NrowA!=NrowB) throw ValueError(format("You have to provide matrices with the same number of rows: %d is not %d. ",NrowA,NrowB));
+
+	AB.resize(NrowA, std::vector<double>(NcolA+NcolB, 0));
+	 X.resize(NrowA, std::vector<double>(NcolB, 0));
 
 	// Build the augmented matrix
-	for (unsigned int row = 0; row < Nrow; row++)
-	{
-		for (unsigned int col = 0; col < Ncol; col++)
-		{
-			Ab[row][col] = A[row][col];
+	for (size_t row = 0; row < NrowA; row++){
+		for (size_t col  = 0; col < NcolA; col++){
+			AB[row][col] = A[row][col];
 		}
-		Ab[row][Ncol] = b[row];
+		for (size_t col  = NcolA; col < NcolA+NcolB; col++){
+			AB[row][col] = B[row][col-NcolA];
+		}
 	}
 
-	for (unsigned int col = 0; col < Ncol; col++)
-	{
+	for (size_t col = 0; col < NcolA; col++){
 		// Find the pivot value
-		pivot_row = get_pivot_row(&Ab, col);
+		pivot_row = get_pivot_row(&AB, col);
+
+		if (AB[pivot_row][col]<1./HUGE) throw ValueError(format("Zero occurred in row %d, the matrix is singular. ",pivot_row));
 
 		if (pivot_row>=col){
 			// Swap pivot row and current row
-			swap_rows(&Ab, col, pivot_row);
+			swap_rows(&AB, col, pivot_row);
 		}
 		// Get the pivot element
-		pivot_element = Ab[col][col];
+		pivot_element = AB[col][col];
 		// Divide the pivot row by the pivot element
-		divide_row_by(&Ab,col,pivot_element);
+		divide_row_by(&AB,col,pivot_element);
 
-		if (col < Nrow-1)
+		if (col < NrowA-1)
 		{
 			// All the rest of the rows, subtract the value of the [r][c] combination
-			for (unsigned int row = col + 1; row < Ab.size(); row++)
+			for (size_t row = col + 1; row < NrowA; row++)
 			{
-				subtract_row_multiple(&Ab,row,Ab[row][col],col);
+				subtract_row_multiple(&AB,row,AB[row][col],col);
 			}
 		}
 	}
-	for (int col = Ncol - 1; col > 0; col--)
+	for (int col = NcolA - 1; col > 0; col--)
 	{
 		for (int row = col - 1; row >=0; row--)
 		{
-			subtract_row_multiple(&Ab,row,Ab[row][col],col);
+			subtract_row_multiple(&AB,row,AB[row][col],col);
 		}
-		// Set the output value
-		x[col] = Ab[col][Ncol];
 	}
-	// The last output value
-	x[0] = Ab[0][Ncol];
-
-
-	return x;
+	// Set the output value
+	for (size_t row = 0; row < NrowA; row++){
+		for (size_t col  = 0; col < NcolB; col++){
+			X[row][col] = AB[row][NcolA+col];
+		}
+	}
+	return X;
 }
 
-std::vector<double> linsolve(std::vector<std::vector<double> > const& A, std::vector<double> const& b){
-	return linsolve_Gauss_Jordan(A, b);
+
+//std::vector<std::vector<double> > linsolve_Gauss_Jordan_reimpl(std::vector<std::vector<double> > const& A, std::vector<std::vector<double> > const& B) {
+//	std::vector<std::vector<double> > AB;
+//	std::vector<std::vector<double> > X;
+//	size_t pivot_row;
+//	double pivot_element;
+//	double tmp_element;
+//
+//	size_t NrowA = num_rows(A);
+//	size_t NrowB = num_rows(B);
+//	size_t NcolA = num_cols(A);
+//	size_t NcolB = num_cols(B);
+//
+//	if (NrowA!=NrowB) throw ValueError(format("You have to provide matrices with the same number of rows: %d is not %d. ",NrowA,NrowB));
+//
+//	AB.resize(NrowA, std::vector<double>(NcolA+NcolB, 0));
+//	 X.resize(NrowA, std::vector<double>(NcolB, 0));
+//
+//	// Build the augmented matrix
+//	for (size_t row = 0; row < NrowA; row++){
+//		for (size_t col  = 0; col < NcolA; col++){
+//			AB[row][col] = A[row][col];
+//		}
+//		for (size_t col  = NcolA; col < NcolA+NcolB; col++){
+//			AB[row][col] = B[row][col-NcolA];
+//		}
+//	}
+//
+//	for (size_t col = 0; col < NcolA; col++){
+//		// Find the pivot row
+//		pivot_row     = 0;
+//		pivot_element = 0.0;
+//		for (size_t row = col; row < NrowA; row++){
+//			tmp_element = fabs(AB[row][col]);
+//			if (tmp_element>pivot_element) {
+//				pivot_element = tmp_element;
+//				pivot_row = row;
+//			}
+//		}
+//		// Check for errors
+//		if (AB[pivot_row][col]<1./HUGE) throw ValueError(format("Zero occurred in row %d, the matrix is singular. ",pivot_row));
+//		// Swap the rows
+//		if (pivot_row>col) {
+//			for (size_t colInt = 0; colInt < NcolA; colInt++){
+//				std::swap(AB[pivot_row][colInt],AB[pivot_row][colInt]);
+//			}
+//		}
+//		// Process the entries below current element
+//		for (size_t row = col; row < NrowA; row++){
+//			// Entries to the right of current element (until end of A)
+//			for (size_t colInt = col+1; colInt < NcolA; colInt++){
+//				// All entries in augmented matrix
+//				for (size_t colFull = col; colFull < NcolA+NcolB; colFull++){
+//					AB[colInt][colFull] -= AB[col][colFull] * AB[colInt][col] / AB[col][col];
+//				}
+//				AB[colInt][col] = 0.0;
+//			}
+//		}
+//	}
+//	return AB;
+//}
+
+
+
+
+
+
+std::vector<std::vector<double> > linsolve(std::vector<std::vector<double> > const& A, std::vector<std::vector<double> > const& B){
+	return linsolve_Gauss_Jordan(A, B);
 }
 
+std::vector<double>               linsolve(std::vector<std::vector<double> > const& A,             std::vector<double>   const& b){
+	std::vector<std::vector<double> > B;
+	for (size_t i = 0; i < b.size(); i++){
+		B.push_back(std::vector<double>(1,b[i]));
+	}
+	B = linsolve(A, B);
+	B[0].resize(B.size(),0.0);
+	for (size_t i = 1; i < B.size(); i++){
+		B[0][i] = B[i][0];
+	}
+	return B[0];
+}
 
 
 /// Some shortcuts and regularly needed operations
@@ -138,11 +222,11 @@ std::size_t         max_cols  (std::vector<std::vector<double> > const& in){
     }
 	return cols;
 }
-std::vector<double> get_row(std::vector< std::vector<double> > const& in, unsigned int row) { return in[row]; }
-std::vector<double> get_col(std::vector< std::vector<double> > const& in, unsigned int col) {
+std::vector<double> get_row(std::vector< std::vector<double> > const& in, size_t row) { return in[row]; }
+std::vector<double> get_col(std::vector< std::vector<double> > const& in, size_t col) {
 	std::size_t sizeX  = in.size();
 	if (sizeX<1) throw ValueError(format("You have to provide values, a vector length of %d is not valid. ",sizeX));
-	unsigned int sizeY = in[0].size();
+	size_t sizeY = in[0].size();
 	if (sizeY<1) throw ValueError(format("You have to provide values, a vector length of %d is not valid. ",sizeY));
 	std::vector<double> out;
 	for (std::size_t i = 0; i < sizeX; i++) {
@@ -195,17 +279,18 @@ std::vector<std::vector<double> > make_squared(std::vector<std::vector<double> >
     return dot_product(a,b);
 
 }
-//            std::vector<double>   multiply(std::vector<std::vector<double> > const& A,             std::vector<double>   const& b){
-//    std::vector<std::vector<double> > tmpMat;
-//                std::vector<double>   tmpVec;
-//    tmpMat.clear();
-//    for (size_t i = 0; i < b.size(); i++){
-//		tmpVec.clear();
-//		tmpVec.push_back(b[i]);
-//		tmpMat.push_back(tmpVec);
-//	}
-//    return multiply(A,tmpMat);
-//}
+            std::vector<double>   multiply(std::vector<std::vector<double> > const& A,             std::vector<double>   const& b){
+	std::vector<std::vector<double> > B;
+	for (size_t i = 0; i < b.size(); i++){
+		B.push_back(std::vector<double>(1,b[i]));
+	}
+	B = multiply(A, B);
+	B[0].resize(B.size(),0.0);
+	for (size_t i = 1; i < B.size(); i++){
+		B[0][i] = B[i][0];
+	}
+	return B[0];
+}
 
 std::vector<std::vector<double> > multiply(std::vector<std::vector<double> > const& A, std::vector<std::vector<double> > const& B){
 	if (num_cols(A) != num_rows(B)){
@@ -260,7 +345,21 @@ std::vector< std::vector<double> > transpose(std::vector<std::vector<double> > c
 }
 
 std::vector< std::vector<double> >    invert(std::vector<std::vector<double> > const& in){
-	throw NotImplementedError("The invert function has not been implemented, yet");
+	if (!is_squared(in)) throw ValueError(format("Only square matrices can be inverted: %d is not equal to %d. ",num_rows(in),num_cols(in)));
+	std::vector<std::vector<double> > identity;
+	// Build the identity matrix
+	size_t dim = num_rows(in);
+	identity.resize(dim, std::vector<double>(dim, 0));
+	for (size_t row = 0; row < dim; row++){
+		identity[row][row] = 1.0;
+	}
+	return linsolve(in,identity);
+}
+
+std::string vec_to_string(                        double    const& a){
+	std::stringstream out;
+	out << format("[ %7.3f ]",a);
+	return out.str();
 }
 
 std::string vec_to_string(            std::vector<double>   const& a) {
@@ -268,11 +367,11 @@ std::string vec_to_string(            std::vector<double>   const& a) {
 		return std::string("");
 	} else {
 		std::stringstream out;
-		out << a[0];
+		out << format("[ %7.3f",a[0]);
 		for (size_t j = 1; j < a.size(); j++) {
-			out << ' ' << a[j];
+			out << format(", %7.3f",a[j]);
 		}
-		out << '\n';
+		out << " ] \n";
 		return out.str();
 	}
 }
