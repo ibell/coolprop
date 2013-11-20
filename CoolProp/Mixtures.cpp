@@ -2,6 +2,7 @@
 #include "Mixtures.h"
 #include "Solvers.h"
 #include "CPExceptions.h"
+#include "MatrixMath.h"
 #include "mixture_excess_JSON.h" // Loads the JSON code for the excess parameters, and makes a variable "std::string mixture_excess_JSON"
 #include "mixture_reducing_JSON.h" // Loads the JSON code for the reducing parameters, and makes a variable "std::string mixture_reducing_JSON"
 #include <numeric>
@@ -214,6 +215,7 @@ Mixture::Mixture(std::vector<Fluid *> pFluids)
 
 	// Give successive substitution class a pointer to this class
 	SS.Mix = this;
+	NRVLE.Mix = this;
 
 	STLMatrix F;
 	F.resize(pFluids.size(),std::vector<double>(pFluids.size(),1.0));
@@ -274,8 +276,7 @@ Mixture::Mixture(std::vector<Fluid *> pFluids)
 
 	double rhor = pReducing->rhorbar(&z);
 	
-	check();
-	
+	//check();
 	
 	double Tsat;
 	double psat = 1e3;
@@ -518,7 +519,6 @@ void Mixture::check()
 	double dphidnj11_RP91 = -5.18202802448741728E-004;
 	if (fabs(dphidnj11-dphidnj11_RP91) > 1e-8){throw ValueError();}
 
-	double rr = 0;
 }
 Mixture::~Mixture()
 {
@@ -1648,7 +1648,7 @@ double ReducingFunction::ndTrdni__constnj(std::vector<double> *x, int i)
 	return dTrdxi__constxj(x,i)-summer_term1;
 }
 
-double SuccessiveSubstitution::call(int type, double T, double p, std::vector<double> *z, std::vector<double> *x, std::vector<double> *y)
+double SuccessiveSubstitutionVLE::call(int type, double T, double p, std::vector<double> *z, std::vector<double> *x, std::vector<double> *y)
 {
 	int iter = 1;
 	double change, f, dfdT, rhobar_liq_new, rhobar_vap_new;
@@ -1692,19 +1692,6 @@ double SuccessiveSubstitution::call(int type, double T, double p, std::vector<do
 
 			double dln_phi_liq_dT = Mix->dln_fugacity_coefficient_dT__constp_n(tau_liq, delta_liq, x, i);
 			double dln_phi_vap_dT = Mix->dln_fugacity_coefficient_dT__constp_n(tau_vap, delta_vap, y, i);
-
-			//double dphir_liq_dT = dphir_dTau(tau_liq, delta_liq, x)*dtau_dT_liq;
-			//double dphir_vap_dT = dphir_dTau(tau_vap, delta_vap, y)*dtau_dT_vap;
-			//double Z_liq = p/(Rbar*rhobar_liq*T); //[-]
-			//double Z_vap = p/(Rbar*rhobar_vap*T); //[-]
-			//double dZ_liq_dT = -p/(Rbar*rhobar_liq*T*T);
-			//double dZ_vap_dT = -p/(Rbar*rhobar_vap*T*T);
-			//double phi_liq = exp(ln_phi_liq[i]);
-			//double phi_vap = exp(ln_phi_vap[i]);
-			// double dln_phi_liq_dT2 = (ln_fugacity_coefficient(tau_liq+1e-10, delta_liq, x, i) - ln_fugacity_coefficient(tau_liq, delta_liq, x, i))/1e-10*dtau_dT_liq;
-			// double dln_phi_vap_dT2 = (ln_fugacity_coefficient(tau_vap+1e-10, delta_vap, y, i) - ln_fugacity_coefficient(tau_vap, delta_vap, y, i))/1e-10*dtau_dT_vap;
-			// double dln_phi_liq_dT3 = dphir_liq_dT + dndphir_dni_dTau(tau_liq, delta_liq, x, i)*dtau_dT_liq-1/Z_liq*dZ_liq_dT;
-			// double dln_phi_vap_dT3 = dphir_vap_dT + dndphir_dni_dTau(tau_vap, delta_vap, y, i)*dtau_dT_vap-1/Z_vap*dZ_vap_dT;
 
 			K[i] = exp(ln_phi_liq[i]-ln_phi_vap[i]);
 			
@@ -1753,7 +1740,119 @@ double SuccessiveSubstitution::call(int type, double T, double p, std::vector<do
 			//throw ValueError(format("saturation_p was unable to reach a solution within 50 iterations"));
 		}
 	}
-	while(abs(f) > 1e-8);
+	while(abs(f) > 1e-16 && iter < 3);
+	double beta;
+	//std::cout << iter << std::endl;
+	if (type == TYPE_BUBBLEPOINT)
+	{
+		beta = 0;
+	}
+	else
+	{
+		beta = 1;
+	}
+	Mix->NRVLE.call(beta,T,p,rhobar_liq,rhobar_vap,z,&K);
+
+	return T;
+}
+
+double NewtonRaphsonVLE::call(double beta, double T, double p, double rhobar_liq, double rhobar_vap, std::vector<double> *z, std::vector<double> *K)
+{
+	int iter = 1;
+	double change, rhobar_liq_new, rhobar_vap_new, error_rms;
+	unsigned int N = (*z).size();
+	ln_phi_liq.resize(N); ln_phi_vap.resize(N); x.resize(N); y.resize(N);
+
+	do
+	{
+		for (unsigned int i=0; i < N; i++)
+		{
+			double denominator = (1-beta+beta*(*K)[i]); // Common denominator
+			x[i] = (*z)[i]/denominator;
+			y[i] = (*K)[i]*(*z)[i]/denominator;
+		}
+		normalize_vector(&x);
+		normalize_vector(&y);
+
+		// Step 1:
+		// -------
+		// Calculate the new reducing and reduced parameters for each phase
+		// based on the current values of the molar fractions
+		rhobar_liq = Mix->rhobar_Tpz(T, p, &x, rhobar_liq); // [kg/m^3] (Not exact due to solver convergence)
+		rhobar_vap = Mix->rhobar_Tpz(T, p, &y, rhobar_vap); // [kg/m^3] (Not exact due to solver convergence)
+
+		double Tr_liq = Mix->pReducing->Tr(&x); // [K]
+		double Tr_vap = Mix->pReducing->Tr(&y);  // [K]
+		double tau_liq = Tr_liq/T; // [-]
+		double tau_vap = Tr_vap/T; // [-]
+
+		double rhorbar_liq = Mix->pReducing->rhorbar(&x); //[kg/m^3]
+		double rhorbar_vap = Mix->pReducing->rhorbar(&y); //[kg/m^3]
+		double delta_liq = rhobar_liq/rhorbar_liq;  //[-]
+		double delta_vap = rhobar_vap/rhorbar_vap;  //[-]
+
+		// Step 2:
+		// -------
+		// Build the residual vector and the Jacobian matrix
+
+		std::vector<double> r(N+1,0);
+		J.resize(N+1,std::vector<double>(N+1,0));
+
+		// For the residuals F_i
+		for (unsigned int i = 0; i < N; i++)
+		{
+			ln_phi_vap[i] = Mix->ln_fugacity_coefficient(tau_vap, delta_vap, &y, i);
+			ln_phi_liq[i] = Mix->ln_fugacity_coefficient(tau_liq, delta_liq, &x, i);
+			
+			r[i] = ln_phi_vap[i] - ln_phi_liq[i] + log((*K)[i]);
+			for (unsigned int j = 0; j < N; j++)
+			{
+				// 7.126 from Gerg monograph
+				double phi_ij_vap = Mix->ndln_fugacity_coefficient_dnj__constT_p(tau_vap,delta_vap,&y,i,j);
+				double phi_ij_liq = Mix->ndln_fugacity_coefficient_dnj__constT_p(tau_liq,delta_liq,&x,i,j);
+				double Kronecker_ij;
+				if (i == j) {Kronecker_ij = 1;} else {Kronecker_ij = 0;}
+				J[i][j] = (*K)[j]*(*z)[j]/pow(1-beta+beta*(*K)[j],(int)2)*((1-beta)*phi_ij_vap+beta*phi_ij_liq)+Kronecker_ij;
+			}
+			// dF_{i}/d(ln(T))
+			double phi_iT_vap = Mix->dln_fugacity_coefficient_dT__constp_n(tau_vap, delta_vap, &y, i);
+			double phi_iT_liq = Mix->dln_fugacity_coefficient_dT__constp_n(tau_liq, delta_liq, &x, i);
+			J[i][N] = T*(phi_iT_vap-phi_iT_liq);
+		}
+		double rN = 0;
+		for (unsigned int i = 0; i < N; i++)
+		{
+			r[N] += ((*K)[i]-1)*(*z)[i]/(1-beta+beta*(*K)[i]);
+			//r[N] += y[i]-x[i];
+			// dF_{N+1}/d(ln(K_j))
+			for (unsigned int j = 0; j < N; j++)
+			{
+				J[N][j] = (*K)[j]*(*z)[j]/pow(1-beta+beta*(*K)[j],(int)2);
+			}
+		}
+
+		// Flip all the signs of the entries in the residual vector since we are solving Jv = -r, not Jv=r
+		// Also calculate the rms error at this step
+		error_rms = 0;
+		for (unsigned int i = 0; i < N+1; i++)
+		{
+			r[i] *= -1;
+			error_rms += r[i]*r[i]; // Sum the squares
+		}
+		error_rms = sqrt(error_rms); // Square-root (The R in RMS)
+
+		// Solve for the step
+		std::vector<double> v = linsolve_Gauss_Jordan(J,r);
+
+		for (unsigned int i = 0; i < N; i++)
+		{
+			(*K)[i] = exp(log((*K)[i])+v[i]);
+		}
+		T = exp(log(T)+v[N]);
+		
+		iter++;
+	}
+	while(error_rms > 1e-8 && iter < 5);
 	//std::cout << iter << std::endl;
 	return T;
 }

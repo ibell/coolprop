@@ -212,6 +212,10 @@ public:
 
 class Mixture;  // Forward declaration since some classes that are members of Mixture take pointers to Mixture
 
+/*!
+A structure to hold information at one iteration of successive substitution for later checking, plotting, etc.
+By default this is not used, but it can be enabled.
+*/
 struct SuccessiveSubstitutionStep
 {
 	double T, ///< Temperature [K]
@@ -223,11 +227,11 @@ struct SuccessiveSubstitutionStep
 };
 
 /*!
-A class to do successive substitution given guess values.  This class will then be included in the Mixture class
+A class to do successive substitution given guess values for vapor-liquid equilibria.  This class will then be included in the Mixture class
 
-A class is used rather than a function so that it is easier to store iteration histories, other output values, etc.
+A class is used rather than a function so that it is easier to store iteration histories, additional output values, etc.
 */
-class SuccessiveSubstitution
+class SuccessiveSubstitutionVLE
 {
 public:
 	bool logging;
@@ -237,10 +241,43 @@ public:
 	std::vector<double> K, ln_phi_liq, ln_phi_vap;
 	std::vector<SuccessiveSubstitutionStep> step_logger;
 
-	SuccessiveSubstitution(){};
+	SuccessiveSubstitutionVLE(){};
+
 	double call(int type, double T, double p, std::vector<double> *z, std::vector<double> *x, std::vector<double> *y);
 };
 
+/*!
+A class to do newton raphson solver for VLE given guess values for vapor-liquid equilibria.  This class will then be included in the Mixture class
+
+A class is used rather than a function so that it is easier to store iteration histories, additional output values, etc.
+*/
+class NewtonRaphsonVLE
+{
+public:
+	bool logging;
+	int Nsteps;
+	int Nmax;
+	Mixture *Mix;
+	STLMatrix J;
+	std::vector<double> K, ln_phi_liq, ln_phi_vap, x, y;
+	std::vector<SuccessiveSubstitutionStep> step_logger;
+
+	NewtonRaphsonVLE(){};
+	/*! Call the Newton-Raphson VLE Solver
+
+	This solver must be passed reasonable guess values for the mole fractions, 
+	densities, etc.  You may want to take a few steps of successive substitution
+	before you start with Newton Raphson.
+
+	@param T Temperature [K]
+	@param p Pressure [Pa]
+	@param rhobar_liq Current value of molar density of the liquid [mol/m^3]
+	@param rhobar_vap Current value of molar density of the vapor [mol/m^3]
+	@param z Bulk mole fractions [-]
+	@param K Array of K-factors [-]
+	*/
+	double call(double beta, double T, double p, double rhobar_liq, double rhobar_vap, std::vector<double> *z, std::vector<double> *K);
+};
 
 /*! 
 This is the class that actually implements the mixture properties
@@ -260,7 +297,9 @@ public:
 	ExcessTerm * pExcess;
 	ResidualIdealMixture * pResidualIdealMix;
 
-	SuccessiveSubstitution SS;
+	SuccessiveSubstitutionVLE SS;
+	NewtonRaphsonVLE NRVLE;
+
 
 	/*! Returns the natural logarithm of K for component i using the method from Wilson as in
 	\f[
