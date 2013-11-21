@@ -185,7 +185,7 @@ std::string get_file_contents(const char *filename)
 	throw(errno);
 }
 
-std::vector<double> solve_cubic(double a, double b, double c, double d)
+void solve_cubic(double a, double b, double c, double d, double *x0, double *x1, double *x2)
 {
 	// 0 = ax^3 + b*x^2 + c*x + d
 
@@ -195,8 +195,6 @@ std::vector<double> solve_cubic(double a, double b, double c, double d)
 	// Coefficients for the depressed cubic t^3+p*t+q = 0
 	double p = (3*a*c-b*b)/(3*a*a);
 	double q = (2*b*b*b-9*a*b*c+27*a*a*d)/(27*a*a*a);
-
-	std::vector<double> solns;
 
 	if (DELTA<0)
 	{
@@ -210,7 +208,9 @@ std::vector<double> solve_cubic(double a, double b, double c, double d)
 		{
 			t0 = -2.0*sqrt(p/3.0)*sinh(1.0/3.0*asinh(3.0*q/(2.0*p)*sqrt(3.0/p)));
 		}
-		solns.push_back(t0-b/(3*a));
+		*x0 = t0-b/(3*a);
+		*x1 = t0-b/(3*a);
+		*x2 = t0-b/(3*a);
 	}
 	else //(DELTA>0)
 	{
@@ -219,16 +219,10 @@ std::vector<double> solve_cubic(double a, double b, double c, double d)
 		double t1 = 2.0*sqrt(-p/3.0)*cos(1.0/3.0*acos(3.0*q/(2.0*p)*sqrt(-3.0/p))-1*2.0*M_PI/3.0);
 		double t2 = 2.0*sqrt(-p/3.0)*cos(1.0/3.0*acos(3.0*q/(2.0*p)*sqrt(-3.0/p))-2*2.0*M_PI/3.0);
 
-		double x0 = t0-b/(3*a);
-		double x1 = t1-b/(3*a);
-		double x2 = t2-b/(3*a);
-
-		solns.push_back(x0);
-		solns.push_back(x1);
-		solns.push_back(x2);
-
+		*x0 = t0-b/(3*a);
+		*x1 = t1-b/(3*a);
+		*x2 = t2-b/(3*a);
 	}
-	return solns;
 }
 
 std::string strjoin(std::vector<std::string> strings, std::string delim)

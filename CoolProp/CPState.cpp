@@ -402,7 +402,7 @@ void CoolPropStateClassSI::update_twophase(long iInput1, double Value1, long iIn
 			rhosatL = pFluid->density_Tp(TsatL, psatL, pFluid->rhosatL(TsatL));
 			rhosatV = pFluid->density_Tp(TsatV, psatV, pFluid->rhosatV(TsatV));
 			}
-			catch (std::exception &e){
+			catch (std::exception &){
 				// Near the critical point, the behavior is not very nice, so we will just use the ancillary near the critical point
 				rhosatL = pFluid->rhosatL(TsatL);
 				rhosatV = pFluid->rhosatV(TsatV);

@@ -130,10 +130,21 @@ struct EnvironmentalFactorsStruct
 
 double syaml_lookup(std::string key1, std::string key2);
 
+struct FluidCacheElement
+{
+	double tau, delta, cached_val;
+};
+
+struct FluidCache
+{
+	FluidCacheElement phir,dphir_dDelta,dphir_dTau,d2phir_dDelta2,d2phir_dTau2,d2phir_dDelta_dTau;
+};
+
 /// Fluid is the abstract base class that is employed by all the other fluids
 class Fluid
 {
 	protected:
+		FluidCache cache; /// A container to hold the cache for residual Helmholtz derivatives 
 		std::string name; /// The name of the fluid
 		std::string REFPROPname; /// The REFPROP-compliant name if REFPROP-"name" is not a compatible fluid name.  If not included, "name" is assumed to be a valid name for REFPROP
 		std::vector <std::string> aliases; /// A list of aliases of names for the Fluid, each element is a std::string instance

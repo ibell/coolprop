@@ -15,6 +15,8 @@ reducing parameters \f$ \bar\rho_r \f$ and \f$ T_r \f$
 */
 class ReducingFunction
 {
+protected:
+	unsigned int N;
 public:
 	ReducingFunction(){};
 	virtual ~ReducingFunction(){};
@@ -60,7 +62,7 @@ reducing parameters \f$ \bar\rho_r \f$ and \f$ T_r \f$ and derivatives thereof
 class GERG2008ReducingFunction : public ReducingFunction
 {
 protected:
-	unsigned int N;
+	
 	STLMatrix v_c;
 	STLMatrix T_c; //!< \f$ 
 	STLMatrix beta_v; //!< \f$ \beta_{v,ij} \f$ from GERG-2008
@@ -148,36 +150,47 @@ public:
 	
 	/// The excess Helmholtz energy of the binary pair
 	/// Pure-virtual function (must be implemented in derived class
-	virtual double phir(double tau, double delta, std::vector<double> *x) = 0;
-	virtual double dphir_dDelta(double tau, double delta, std::vector<double> *x) = 0;
-	virtual double d2phir_dDelta2(double tau, double delta, std::vector<double> *x) = 0;
-	virtual double d2phir_dDelta_dTau(double tau, double delta, std::vector<double> *x) = 0;
-	virtual double dphir_dTau(double tau, double delta, std::vector<double> *x) = 0;
-	virtual double d2phir_dTau2(double tau, double delta, std::vector<double> *x) = 0;
+	virtual double phir(double tau, double delta) = 0;
+	virtual double dphir_dDelta(double tau, double delta) = 0;
+	virtual double d2phir_dDelta2(double tau, double delta) = 0;
+	virtual double d2phir_dDelta_dTau(double tau, double delta) = 0;
+	virtual double dphir_dTau(double tau, double delta) = 0;
+	virtual double d2phir_dTau2(double tau, double delta) = 0;
 	virtual void set_coeffs_from_map(std::map<std::string,std::vector<double> >) = 0;
+};
+
+struct GERG2008DepartureFunctionCacheElement
+{
+	double tau, delta, cached_val;
+};
+
+struct GERG2008DepartureFunctionCache
+{
+	GERG2008DepartureFunctionCacheElement phir,dphir_dDelta,dphir_dTau,d2phir_dDelta2,d2phir_dTau2,d2phir_dDelta_dTau;
 };
 
 class GERG2008DepartureFunction : public DepartureFunction
 {
 protected:
+	GERG2008DepartureFunctionCache cache;
 	phir_power phi1;
 	phir_GERG2008_gaussian phi2;
 public:
 	GERG2008DepartureFunction(){};
 	~GERG2008DepartureFunction(){};
-	double phir(double tau, double delta, std::vector<double> *x);
-	double dphir_dDelta(double tau, double delta, std::vector<double> *x);
-	double d2phir_dDelta_dTau(double tau, double delta, std::vector<double> *x);
-	double dphir_dTau(double tau, double delta, std::vector<double> *x);
-	double d2phir_dDelta2(double tau, double delta, std::vector<double> *x);
-	double d2phir_dTau2(double tau, double delta, std::vector<double> *x);
+	double phir(double tau, double delta);
+	double dphir_dDelta(double tau, double delta);
+	double d2phir_dDelta_dTau(double tau, double delta);
+	double dphir_dTau(double tau, double delta);
+	double d2phir_dDelta2(double tau, double delta);
+	double d2phir_dTau2(double tau, double delta);
 	void set_coeffs_from_map(std::map<std::string,std::vector<double> >);
 };
 
 class ExcessTerm
 {
 public:
-	int N;
+	unsigned int N;
 	std::vector<std::vector<DepartureFunction*> > DepartureFunctionMatrix;
 	std::vector<std::vector<double> > F;
 	ExcessTerm(int N);
@@ -199,6 +212,7 @@ public:
 class ResidualIdealMixture
 {
 protected:
+	unsigned int N;
 	std::vector<Fluid*> pFluids;
 public:
 	ResidualIdealMixture(std::vector<Fluid*> pFluids);
@@ -284,9 +298,10 @@ This is the class that actually implements the mixture properties
 */
 class Mixture
 {
-	
+
 public:
 
+	unsigned int N;
 	Mixture(std::vector<Fluid *> pFluids);
 	~Mixture();
 

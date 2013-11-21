@@ -202,7 +202,7 @@ enum PengRobinsonOptions{PR_SATL, PR_SATV};
 double Mixture::Rbar(std::vector<double> *x)
 {
 	double R = 0;
-	for (unsigned int i = 0; i < (*x).size(); i++)
+	for (unsigned int i = 0; i < N; i++)
 	{
 		R += (*x)[i]*pFluids[i]->params.R_u;
 	}
@@ -212,6 +212,7 @@ Mixture::Mixture(std::vector<Fluid *> pFluids)
 {
 	// Make a copy of the list of pointers to fluids that compose this mixture
 	this->pFluids = pFluids;
+	this->N = pFluids.size();
 
 	// Give successive substitution class a pointer to this class
 	SS.Mix = this;
@@ -256,6 +257,11 @@ Mixture::Mixture(std::vector<Fluid *> pFluids)
 	z[0] = 0.5;
 	z[1] = 1-z[0];
 
+	std::vector<double*> pz(2,NULL);
+
+	pz[0] = &(z[0]);
+	pz[1] = &(z[1]);
+
 	double Tr = pReducing->Tr(&z); //[K]
 	double rhorbar = pReducing->rhorbar(&z); //[mol/m^3]
 
@@ -268,7 +274,18 @@ Mixture::Mixture(std::vector<Fluid *> pFluids)
 	double _dphir_dDelta = dphir_dDelta(tau, delta, &z);
 	double p = Rbar(&z)*rhobar*T*(1 + delta*_dphir_dDelta)/1000; //[kPa]
 
-	double rhobar_pr = rhobar_pengrobinson(T, p, &z, PR_SATV);
+	
+	
+/*	time_t t1,t2;
+	unsigned int N = 100000;
+	double TTE = 0;
+	t1 = clock();
+	for (unsigned int i = 0; i < N; i++)
+	{
+		TTE += partial_molar_volume(tau, delta, &z, 0);
+	}
+	t2 = clock();
+	printf("val %g elapsed time/call %g us\n", TTE/(double)N, (double)(t2-t1)/(double)CLOCKS_PER_SEC/N*1e6);*/
 
 	//p = 595.61824;
 	std::vector<double> x,y;
@@ -1057,17 +1074,17 @@ void Mixture::TpzFlash(double T, double p, std::vector<double> *z, double *rhoba
 	return;
 }
 double Mixture::rhobar_pengrobinson(double T, double p, std::vector<double> *x, int solution)
-{
-	double A  = 0, B = 0, m_i, m_j, a_i, a_j, b_i, a = 0, b = 0, Z, rhobar, R = Rbar(x);
+{ 
+	double A  = 0, B = 0, m_i, m_j, a_i, a_j, b_i, a = 0, b = 0, R = Rbar(x);
 
-	for (unsigned int i = 0; i < (*x).size(); i++)
+	for (unsigned int i = 0; i < N; i++)
 	{
 		m_i = 0.37464 + 1.54226*pFluids[i]->params.accentricfactor-0.26992*pow(pFluids[i]->params.accentricfactor,2);
 		b_i = 0.077796074*(R*pFluids[i]->reduce.T)/(pFluids[i]->reduce.p.Pa);
 
 		B += (*x)[i]*b_i*p/(R*T);
 
-		for (unsigned int j = 0; j < (*x).size(); j++)
+		for (unsigned int j = 0; j < N; j++)
 		{
 			
 			m_j = 0.37464 + 1.54226*pFluids[j]->params.accentricfactor-0.26992*pow(pFluids[j]->params.accentricfactor,2);
@@ -1077,45 +1094,49 @@ double Mixture::rhobar_pengrobinson(double T, double p, std::vector<double> *x, 
 			A += (*x)[i]*(*x)[j]*sqrt(a_i*a_j)*p/(R*R*T*T)/1000;
 		}
 	}
+	
+	double Z0, Z1, Z2;
+	solve_cubic(1, -1+B, A-3*B*B-2*B, -A*B+B*B+B*B*B, &Z0, &Z1, &Z2);
+	//return min3(Z0,Z1,Z2);
 
-	std::vector<double> solns = solve_cubic(1, -1+B, A-3*B*B-2*B, -A*B+B*B+B*B*B);
+	/*std::vector<double> solns;
+	solns.push_back(x0);
+	solns.push_back(x1);
+	solns.push_back(x2);*/
+	
+	//return 0;
 
-	// Erase negative solutions and unstable solutions
-	// Stable solutions are those for which dpdrho is positive
-	for (int i = (int)solns.size()-1; i >= 0; i--)
-	{
-		
-		if (solns[i] < 0)
-		{
-			solns.erase(solns.begin()+i);
-		}
-		else
-		{
-			double v = (solns[i]*R*T)/p; //[mol/L]
-			double dpdrho = -v*v*(-R*T/pow(v-b,2)+a*(2*v+2*b)/pow(v*v+2*b*v-b*b,2));
-			if (dpdrho < 0)
-			{
-				solns.erase(solns.begin()+i);
-			}
-		}
-	}
+	//// Erase negative solutions and unstable solutions
+	//// Stable solutions are those for which dpdrho is positive
+	//for (int i = (int)solns.size()-1; i >= 0; i--)
+	//{
+	//	if (solns[i] < 0)
+	//	{
+	//		solns.erase(solns.begin()+i);
+	//	}
+	//	else
+	//	{
+	//		double v = (solns[i]*R*T)/p; //[mol/L]
+	//		double dpdrho = -v*v*(-R*T/pow(v-b,2)+a*(2*v+2*b)/pow(v*v+2*b*v-b*b,2));
+	//		if (dpdrho < 0)
+	//		{
+	//			solns.erase(solns.begin()+i);
+	//		}
+	//	}
+	//}
 
 	if (solution == PR_SATL)
 	{
-		Z = *std::min_element(solns.begin(), solns.end());
+		return p/(min3(Z0,Z1,Z2)*R*T);
 	}
 	else if (solution == PR_SATV)
 	{
-		Z = *std::max_element(solns.begin(), solns.end());
+		return p/(max3(Z0,Z1,Z2)*R*T);
 	}
 	else 
 	{
 		throw ValueError();
 	}
-
-	rhobar = p/(Z*R*T);
-
-	return rhobar;
 }
 
 double Mixture::g_RachfordRice(std::vector<double> *z, std::vector<double> *lnK, double beta)
@@ -1348,29 +1369,95 @@ void GERG2008ReducingFunction::set_coeffs_from_map(int i, int j, std::map<std::s
 //		delete phi2; phi2 = NULL;
 //	}
 //}
-double GERG2008DepartureFunction::phir(double tau, double delta, std::vector<double> *x)
+double GERG2008DepartureFunction::phir(double tau, double delta)
 {
-	return phi1.base(tau, delta) + phi2.base(tau, delta);
+	if (double_equal(tau,cache.phir.tau) && double_equal(delta,cache.phir.delta))
+	{
+		return cache.phir.cached_val;
+	}
+	else
+	{
+		double sum = phi1.base(tau, delta) + phi2.base(tau, delta);
+		cache.phir.tau = tau;
+		cache.phir.delta = delta;
+		cache.phir.cached_val = sum;
+		return sum;
+	}
 }
-double GERG2008DepartureFunction::dphir_dDelta(double tau, double delta, std::vector<double> *x)
+double GERG2008DepartureFunction::dphir_dDelta(double tau, double delta)
 {
-	return phi1.dDelta(tau, delta) + phi2.dDelta(tau, delta);
+	if (double_equal(tau,cache.dphir_dDelta.tau) && double_equal(delta,cache.dphir_dDelta.delta))
+	{
+		return cache.dphir_dDelta.cached_val;
+	}
+	else
+	{
+		double sum = phi1.dDelta(tau, delta) + phi2.dDelta(tau, delta);
+		cache.dphir_dDelta.tau = tau;
+		cache.dphir_dDelta.delta = delta;
+		cache.dphir_dDelta.cached_val = sum;
+		return sum;
+	}
 }
-double GERG2008DepartureFunction::d2phir_dDelta2(double tau, double delta, std::vector<double> *x)
+double GERG2008DepartureFunction::d2phir_dDelta2(double tau, double delta)
 {
-	return phi1.dDelta2(tau, delta) + phi2.dDelta2(tau, delta);
+	if (double_equal(tau,cache.d2phir_dDelta2.tau) && double_equal(delta,cache.d2phir_dDelta2.delta))
+	{
+		return cache.d2phir_dDelta2.cached_val;
+	}
+	else
+	{
+		double sum = phi1.dDelta2(tau, delta) + phi2.dDelta2(tau, delta);
+		cache.d2phir_dDelta2.tau = tau;
+		cache.d2phir_dDelta2.delta = delta;
+		cache.d2phir_dDelta2.cached_val = sum;
+		return sum;
+	}
 }
-double GERG2008DepartureFunction::d2phir_dDelta_dTau(double tau, double delta, std::vector<double> *x)
+double GERG2008DepartureFunction::d2phir_dDelta_dTau(double tau, double delta)
 {
-	return phi1.dDelta_dTau(tau, delta) + phi2.dDelta_dTau(tau, delta);
+	if (double_equal(tau,cache.d2phir_dDelta_dTau.tau) && double_equal(delta,cache.d2phir_dDelta_dTau.delta))
+	{
+		return cache.d2phir_dDelta_dTau.cached_val;
+	}
+	else
+	{
+		double sum = phi1.dDelta_dTau(tau, delta) + phi2.dDelta_dTau(tau, delta);
+		cache.d2phir_dDelta_dTau.tau = tau;
+		cache.d2phir_dDelta_dTau.delta = delta;
+		cache.d2phir_dDelta_dTau.cached_val = sum;
+		return sum;
+	}
 }
-double GERG2008DepartureFunction::dphir_dTau(double tau, double delta, std::vector<double> *x)
+double GERG2008DepartureFunction::dphir_dTau(double tau, double delta)
 {
-	return phi1.dTau(tau, delta) + phi2.dTau(tau, delta);
+	if (double_equal(tau,cache.dphir_dTau.tau) && double_equal(delta,cache.dphir_dTau.delta))
+	{
+		return cache.dphir_dTau.cached_val;
+	}
+	else
+	{
+		double sum = phi1.dTau(tau, delta) + phi2.dTau(tau, delta);
+		cache.dphir_dTau.tau = tau;
+		cache.dphir_dTau.delta = delta;
+		cache.dphir_dTau.cached_val = sum;
+		return sum;
+	}
 }
-double GERG2008DepartureFunction::d2phir_dTau2(double tau, double delta, std::vector<double> *x)
+double GERG2008DepartureFunction::d2phir_dTau2(double tau, double delta)
 {
-	return phi1.dTau2(tau, delta) + phi2.dTau2(tau, delta);
+	if (double_equal(tau,cache.d2phir_dTau2.tau) && double_equal(delta,cache.d2phir_dTau2.delta))
+	{
+		return cache.d2phir_dTau2.cached_val;
+	}
+	else
+	{
+		double sum = phi1.dTau2(tau, delta) + phi2.dTau2(tau, delta);
+		cache.d2phir_dTau2.tau = tau;
+		cache.d2phir_dTau2.delta = delta;
+		cache.d2phir_dTau2.cached_val = sum;
+		return sum;
+	}
 }
 
 void GERG2008DepartureFunction::set_coeffs_from_map(std::map<std::string,std::vector<double> > m)
@@ -1417,9 +1504,9 @@ ExcessTerm::ExcessTerm(int N)
 }
 ExcessTerm::~ExcessTerm()
 {
-	for (int i = 0; i < N; i++)
+	for (unsigned int i = 0; i < N; i++)
 	{
-		for (int j = 0; j < N; j++)
+		for (unsigned int j = 0; j < N; j++)
 		{	
 			if (DepartureFunctionMatrix[i][j] != NULL)
 			{
@@ -1432,11 +1519,11 @@ ExcessTerm::~ExcessTerm()
 double ExcessTerm::phir(double tau, double delta, std::vector<double> *x)
 {
 	double summer = 0;
-	for (unsigned int i = 0; i < (*x).size()-1; i++)
+	for (unsigned int i = 0; i < N-1; i++)
 	{
-		for (unsigned int j = i + 1; j < (*x).size(); j++)
+		for (unsigned int j = i + 1; j < N; j++)
 		{	
-			summer += (*x)[i]*(*x)[j]*F[i][j]*DepartureFunctionMatrix[i][j]->phir(tau,delta,x);
+			summer += (*x)[i]*(*x)[j]*F[i][j]*DepartureFunctionMatrix[i][j]->phir(tau,delta);
 		}
 	}
 	return summer;
@@ -1444,11 +1531,11 @@ double ExcessTerm::phir(double tau, double delta, std::vector<double> *x)
 double ExcessTerm::dphir_dTau(double tau, double delta, std::vector<double> *x)
 {
 	double summer = 0;
-	for (unsigned int i = 0; i < (*x).size()-1; i++)
+	for (unsigned int i = 0; i < N-1; i++)
 	{
-		for (unsigned int j = i + 1; j < (*x).size(); j++)
+		for (unsigned int j = i + 1; j < N; j++)
 		{	
-			summer += (*x)[i]*(*x)[j]*F[i][j]*DepartureFunctionMatrix[i][j]->dphir_dTau(tau,delta,x);
+			summer += (*x)[i]*(*x)[j]*F[i][j]*DepartureFunctionMatrix[i][j]->dphir_dTau(tau,delta);
 		}
 	}
 	return summer;
@@ -1456,11 +1543,11 @@ double ExcessTerm::dphir_dTau(double tau, double delta, std::vector<double> *x)
 double ExcessTerm::dphir_dDelta(double tau, double delta, std::vector<double> *x)
 {
 	double summer = 0;
-	for (unsigned int i = 0; i < (*x).size()-1; i++)
+	for (unsigned int i = 0; i < N-1; i++)
 	{
-		for (unsigned int j = i + 1; j < (*x).size(); j++)
+		for (unsigned int j = i + 1; j < N; j++)
 		{	
-			summer += (*x)[i]*(*x)[j]*F[i][j]*DepartureFunctionMatrix[i][j]->dphir_dDelta(tau,delta,x);
+			summer += (*x)[i]*(*x)[j]*F[i][j]*DepartureFunctionMatrix[i][j]->dphir_dDelta(tau,delta);
 		}
 	}
 	return summer;
@@ -1468,11 +1555,11 @@ double ExcessTerm::dphir_dDelta(double tau, double delta, std::vector<double> *x
 double ExcessTerm::d2phir_dDelta2(double tau, double delta, std::vector<double> *x)
 {
 	double summer = 0;
-	for (unsigned int i = 0; i < (*x).size()-1; i++)
+	for (unsigned int i = 0; i < N-1; i++)
 	{
-		for (unsigned int j = i + 1; j < (*x).size(); j++)
+		for (unsigned int j = i + 1; j < N; j++)
 		{	
-			summer += (*x)[i]*(*x)[j]*F[i][j]*DepartureFunctionMatrix[i][j]->d2phir_dDelta2(tau,delta,x);
+			summer += (*x)[i]*(*x)[j]*F[i][j]*DepartureFunctionMatrix[i][j]->d2phir_dDelta2(tau,delta);
 		}
 	}
 	return summer;
@@ -1480,11 +1567,11 @@ double ExcessTerm::d2phir_dDelta2(double tau, double delta, std::vector<double> 
 double ExcessTerm::d2phir_dTau2(double tau, double delta, std::vector<double> *x)
 {
 	double summer = 0;
-	for (unsigned int i = 0; i < (*x).size()-1; i++)
+	for (unsigned int i = 0; i < N-1; i++)
 	{
-		for (unsigned int j = i + 1; j < (*x).size(); j++)
+		for (unsigned int j = i + 1; j < N; j++)
 		{	
-			summer += (*x)[i]*(*x)[j]*F[i][j]*DepartureFunctionMatrix[i][j]->d2phir_dTau2(tau,delta,x);
+			summer += (*x)[i]*(*x)[j]*F[i][j]*DepartureFunctionMatrix[i][j]->d2phir_dTau2(tau,delta);
 		}
 	}
 	return summer;
@@ -1492,11 +1579,11 @@ double ExcessTerm::d2phir_dTau2(double tau, double delta, std::vector<double> *x
 double ExcessTerm::d2phir_dDelta_dTau(double tau, double delta, std::vector<double> *x)
 {
 	double summer = 0;
-	for (unsigned int i = 0; i < (*x).size()-1; i++)
+	for (unsigned int i = 0; i < N-1; i++)
 	{
-		for (unsigned int j = i + 1; j < (*x).size(); j++)
+		for (unsigned int j = i + 1; j < N; j++)
 		{	
-			summer += (*x)[i]*(*x)[j]*F[i][j]*DepartureFunctionMatrix[i][j]->d2phir_dDelta_dTau(tau,delta,x);
+			summer += (*x)[i]*(*x)[j]*F[i][j]*DepartureFunctionMatrix[i][j]->d2phir_dDelta_dTau(tau,delta);
 		}
 	}
 	return summer;
@@ -1504,11 +1591,11 @@ double ExcessTerm::d2phir_dDelta_dTau(double tau, double delta, std::vector<doub
 double ExcessTerm::dphir_dxi(double tau, double delta, std::vector<double> *x, unsigned int i)
 {
 	double summer = 0;
-	for (unsigned int k = 0; k < (*x).size(); k++)
+	for (unsigned int k = 0; k < N; k++)
 	{
 		if (i != k)
 		{
-			summer += (*x)[k]*F[i][k]*DepartureFunctionMatrix[i][k]->phir(tau,delta,x);
+			summer += (*x)[k]*F[i][k]*DepartureFunctionMatrix[i][k]->phir(tau,delta);
 		}
 	}
 	return summer;
@@ -1517,7 +1604,7 @@ double ExcessTerm::d2phirdxidxj(double tau, double delta, std::vector<double> *x
 {
 	if (i != j)
 	{
-		return F[i][j]*DepartureFunctionMatrix[i][j]->phir(tau,delta,x);
+		return F[i][j]*DepartureFunctionMatrix[i][j]->phir(tau,delta);
 	}
 	else
 	{
@@ -1527,11 +1614,11 @@ double ExcessTerm::d2phirdxidxj(double tau, double delta, std::vector<double> *x
 double ExcessTerm::d2phir_dxi_dTau(double tau, double delta, std::vector<double> *x, unsigned int i)
 {
 	double summer = 0;
-	for (unsigned int k = 0; k < (*x).size(); k++)
+	for (unsigned int k = 0; k < N; k++)
 	{
 		if (i != k)
 		{
-			summer += (*x)[k]*F[i][k]*DepartureFunctionMatrix[i][k]->dphir_dTau(tau,delta,x);
+			summer += (*x)[k]*F[i][k]*DepartureFunctionMatrix[i][k]->dphir_dTau(tau,delta);
 		}
 	}
 	return summer;
@@ -1539,11 +1626,11 @@ double ExcessTerm::d2phir_dxi_dTau(double tau, double delta, std::vector<double>
 double ExcessTerm::d2phir_dxi_dDelta(double tau, double delta, std::vector<double> *x, unsigned int i)
 {
 	double summer = 0;
-	for (unsigned int k = 0; k < (*x).size(); k++)
+	for (unsigned int k = 0; k < N; k++)
 	{
 		if (i != k)
 		{
-			summer += (*x)[k]*F[i][k]*DepartureFunctionMatrix[i][k]->dphir_dDelta(tau,delta,x);
+			summer += (*x)[k]*F[i][k]*DepartureFunctionMatrix[i][k]->dphir_dDelta(tau,delta);
 		}
 	}
 	return summer;
@@ -1556,11 +1643,12 @@ void ExcessTerm::set_coeffs_from_map(int i, int j, std::map<std::string, std::ve
 ResidualIdealMixture::ResidualIdealMixture(std::vector<Fluid*> pFluids)
 {
 	this->pFluids = pFluids;
+	this->N = pFluids.size();
 }
 double ResidualIdealMixture::phir(double tau, double delta, std::vector<double> *x)
 {
 	double summer = 0;
-	for (unsigned int i = 0; i < (*x).size(); i++)
+	for (unsigned int i = 0; i < N; i++)
 	{
 		summer += (*x)[i]*pFluids[i]->phir(tau,delta);
 	}
@@ -1569,7 +1657,7 @@ double ResidualIdealMixture::phir(double tau, double delta, std::vector<double> 
 double ResidualIdealMixture::dphir_dDelta(double tau, double delta, std::vector<double> *x)
 {
 	double summer = 0;
-	for (unsigned int i = 0; i < (*x).size(); i++)
+	for (unsigned int i = 0; i < N; i++)
 	{
 		summer += (*x)[i]*pFluids[i]->dphir_dDelta(tau,delta);
 	}
@@ -1578,7 +1666,7 @@ double ResidualIdealMixture::dphir_dDelta(double tau, double delta, std::vector<
 double ResidualIdealMixture::d2phir_dDelta2(double tau, double delta, std::vector<double> *x)
 {
 	double summer = 0;
-	for (unsigned int i = 0; i < (*x).size(); i++)
+	for (unsigned int i = 0; i < N; i++)
 	{
 		summer += (*x)[i]*pFluids[i]->d2phir_dDelta2(tau,delta);
 	}
@@ -1587,7 +1675,7 @@ double ResidualIdealMixture::d2phir_dDelta2(double tau, double delta, std::vecto
 double ResidualIdealMixture::d2phir_dDelta_dTau(double tau, double delta, std::vector<double> *x)
 {
 	double summer = 0;
-	for (unsigned int i = 0; i < (*x).size(); i++)
+	for (unsigned int i = 0; i < N; i++)
 	{
 		summer += (*x)[i]*pFluids[i]->d2phir_dDelta_dTau(tau,delta);
 	}
@@ -1596,7 +1684,7 @@ double ResidualIdealMixture::d2phir_dDelta_dTau(double tau, double delta, std::v
 double ResidualIdealMixture::dphir_dTau(double tau, double delta, std::vector<double> *x)
 {
 	double summer = 0;
-	for (unsigned int i = 0; i < (*x).size(); i++)
+	for (unsigned int i = 0; i < N; i++)
 	{
 		summer += (*x)[i]*pFluids[i]->dphir_dTau(tau,delta);
 	}
@@ -1605,7 +1693,7 @@ double ResidualIdealMixture::dphir_dTau(double tau, double delta, std::vector<do
 double ResidualIdealMixture::d2phir_dTau2(double tau, double delta, std::vector<double> *x)
 {
 	double summer = 0;
-	for (unsigned int i = 0; i < (*x).size(); i++)
+	for (unsigned int i = 0; i < N; i++)
 	{
 		summer += (*x)[i]*pFluids[i]->d2phir_dTau2(tau,delta);
 	}
@@ -1614,7 +1702,7 @@ double ResidualIdealMixture::d2phir_dTau2(double tau, double delta, std::vector<
 double ReducingFunction::d_ndTrdni_dxj__constxi(std::vector<double> *x, int i, int j)
 {
 	double s = 0;
-	for (unsigned int k = 0; k < (*x).size(); k++)
+	for (unsigned int k = 0; k < N; k++)
 	{
 		s += (*x)[k]*d2Trdxidxj(x,j,k);
 	}
@@ -1623,7 +1711,7 @@ double ReducingFunction::d_ndTrdni_dxj__constxi(std::vector<double> *x, int i, i
 double ReducingFunction::d_ndrhorbardni_dxj__constxi(std::vector<double> *x, int i, int j)
 {
 	double s = 0;
-	for (unsigned int k = 0; k < (*x).size(); k++)
+	for (unsigned int k = 0; k < N; k++)
 	{
 		s += (*x)[k]*d2rhorbardxidxj(x,j,k);
 	}
@@ -1632,7 +1720,7 @@ double ReducingFunction::d_ndrhorbardni_dxj__constxi(std::vector<double> *x, int
 double ReducingFunction::ndrhorbardni__constnj(std::vector<double> *x, int i)
 {
 	double summer_term1 = 0;
-	for (unsigned int j = 0; j < (*x).size(); j++)
+	for (unsigned int j = 0; j < N; j++)
 	{
 		summer_term1 += (*x)[j]*drhorbardxi__constxj(x,j);
 	}
@@ -1641,7 +1729,7 @@ double ReducingFunction::ndrhorbardni__constnj(std::vector<double> *x, int i)
 double ReducingFunction::ndTrdni__constnj(std::vector<double> *x, int i)
 {
 	double summer_term1 = 0;
-	for (unsigned int j = 0; j < (*x).size(); j++)
+	for (unsigned int j = 0; j < N; j++)
 	{
 		summer_term1 += (*x)[j]*dTrdxi__constxj(x,j);
 	}
@@ -1684,13 +1772,16 @@ double SuccessiveSubstitutionVLE::call(int type, double T, double p, std::vector
 
 		f = 0;
 		dfdT = 0;
+
 		for (unsigned int i=0; i < N; i++)
 		{
-
+			// Loop over the liquids to take advantage of caching since cached derivatives 
+			// will be used as long as tau and delta don't change
 			ln_phi_liq[i] = Mix->ln_fugacity_coefficient(tau_liq, delta_liq, x, i);
-			ln_phi_vap[i] = Mix->ln_fugacity_coefficient(tau_vap, delta_vap, y, i);
-
 			double dln_phi_liq_dT = Mix->dln_fugacity_coefficient_dT__constp_n(tau_liq, delta_liq, x, i);
+
+			// And then loop over the vapors
+			ln_phi_vap[i] = Mix->ln_fugacity_coefficient(tau_vap, delta_vap, y, i);
 			double dln_phi_vap_dT = Mix->dln_fugacity_coefficient_dT__constp_n(tau_vap, delta_vap, y, i);
 
 			K[i] = exp(ln_phi_liq[i]-ln_phi_vap[i]);
@@ -1740,7 +1831,7 @@ double SuccessiveSubstitutionVLE::call(int type, double T, double p, std::vector
 			//throw ValueError(format("saturation_p was unable to reach a solution within 50 iterations"));
 		}
 	}
-	while(abs(f) > 1e-16 && iter < 3);
+	while(abs(f) > 1e-12 && iter < 10);
 	double beta;
 	//std::cout << iter << std::endl;
 	if (type == TYPE_BUBBLEPOINT)
@@ -1759,9 +1850,9 @@ double SuccessiveSubstitutionVLE::call(int type, double T, double p, std::vector
 double NewtonRaphsonVLE::call(double beta, double T, double p, double rhobar_liq, double rhobar_vap, std::vector<double> *z, std::vector<double> *K)
 {
 	int iter = 1;
-	double change, rhobar_liq_new, rhobar_vap_new, error_rms;
-	unsigned int N = (*z).size();
-	ln_phi_liq.resize(N); ln_phi_vap.resize(N); x.resize(N); y.resize(N);
+	double error_rms;
+	unsigned int N = Mix->N;
+	x.resize(N); y.resize(N); ln_phi_liq.resize(N); ln_phi_vap.resize(N);
 
 	do
 	{
@@ -1801,8 +1892,11 @@ double NewtonRaphsonVLE::call(double beta, double T, double p, double rhobar_liq
 		// For the residuals F_i
 		for (unsigned int i = 0; i < N; i++)
 		{
-			ln_phi_vap[i] = Mix->ln_fugacity_coefficient(tau_vap, delta_vap, &y, i);
 			ln_phi_liq[i] = Mix->ln_fugacity_coefficient(tau_liq, delta_liq, &x, i);
+			double phi_iT_liq = Mix->dln_fugacity_coefficient_dT__constp_n(tau_liq, delta_liq, &x, i);
+
+			ln_phi_vap[i] = Mix->ln_fugacity_coefficient(tau_vap, delta_vap, &y, i);
+			double phi_iT_vap = Mix->dln_fugacity_coefficient_dT__constp_n(tau_vap, delta_vap, &y, i);
 			
 			r[i] = ln_phi_vap[i] - ln_phi_liq[i] + log((*K)[i]);
 			for (unsigned int j = 0; j < N; j++)
@@ -1815,8 +1909,7 @@ double NewtonRaphsonVLE::call(double beta, double T, double p, double rhobar_liq
 				J[i][j] = (*K)[j]*(*z)[j]/pow(1-beta+beta*(*K)[j],(int)2)*((1-beta)*phi_ij_vap+beta*phi_ij_liq)+Kronecker_ij;
 			}
 			// dF_{i}/d(ln(T))
-			double phi_iT_vap = Mix->dln_fugacity_coefficient_dT__constp_n(tau_vap, delta_vap, &y, i);
-			double phi_iT_liq = Mix->dln_fugacity_coefficient_dT__constp_n(tau_liq, delta_liq, &x, i);
+			
 			J[i][N] = T*(phi_iT_vap-phi_iT_liq);
 		}
 		double rN = 0;

@@ -1,5 +1,3 @@
-
-
 #ifndef COOLPROPTOOLS_H
 #define COOLPROPTOOLS_H
 
@@ -101,7 +99,6 @@
 	#define FAIL 0
 
 	std::string strjoin(std::vector<std::string> strings, std::string delim);
-
 	
 	void MatInv_2(double A[2][2] , double B[2][2]);
 
@@ -111,6 +108,11 @@
 	double QuadInterp(double x0, double x1, double x2, double f0, double f1, double f2, double x);
 	double CubicInterp( double x0, double x1, double x2, double x3, double f0, double f1, double f2, double f3, double x);
 
-	std::vector<double> solve_cubic(double a, double b, double c, double d);
+	void solve_cubic(double a, double b, double c, double d, double *x0, double *x1, double *x2);
+
+	inline double min3(double x1, double x2, double x3){return std::min(std::min(x1, x2), x3);};
+	inline double max3(double x1, double x2, double x3){return std::max(std::max(x1, x2), x3);};
+
+	inline bool double_equal(double a, double b){return fabs(a - b) <= 16 * DBL_EPSILON * std::max(fabs(a), fabs(b));};
 
 #endif

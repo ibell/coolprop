@@ -1900,7 +1900,7 @@ double TTSESinglePhaseTableClass::bicubic_evaluate_one_other_input(long iInput1,
 {
 	// My goal here is to find deltah
 	int L,R,M,i,j,phase;
-	double p,dh1,dh2,a,b,c,TL, TV, DL, DV, SL, SV, HL, HV, Q, ValV, ValL;
+	double p,TL, TV, DL, DV, SL, SV, HL, HV, Q, ValV, ValL;
 	std::vector<std::vector<double> > *mat;
 	
 	// Connect a pointer to the array of interest
@@ -2040,12 +2040,13 @@ double TTSESinglePhaseTableClass::bicubic_evaluate_one_other_input(long iInput1,
 		double b = (*alpha)[2+0*4]*y_0+(*alpha)[2+1*4]*y_1+(*alpha)[2+2*4]*y_2+(*alpha)[2+3*4]*y_3; // factors of x^2
 		double c = (*alpha)[1+0*4]*y_0+(*alpha)[1+1*4]*y_1+(*alpha)[1+2*4]*y_2+(*alpha)[1+3*4]*y_3; // factors of x
 		double d = (*alpha)[0+0*4]*y_0+(*alpha)[0+1*4]*y_1+(*alpha)[0+2*4]*y_2+(*alpha)[0+3*4]*y_3 - Other; // constant factors
-		std::vector<double> xsolns = solve_cubic(a,b,c,d);
+		double x0,x1,x2;
+		solve_cubic(a,b,c,d,&x0,&x1,&x2);
 		
 		// Only one solution
-		if (xsolns.size() == 1)
+		if (fabs(x0-x1) < 10*DBL_EPSILON &&  fabs(x0-x2) < 10*DBL_EPSILON && fabs(x1-x2) < 10*DBL_EPSILON)
 		{
-			return xsolns[0]*(this->h[i+1]-this->h[i])+this->h[i];
+			return x0*(this->h[i+1]-this->h[i])+this->h[i];
 		}
 		else
 		{
@@ -2661,7 +2662,7 @@ double TTSETwoPhaseTableClass::evaluate(long iParam, double p)
 double TTSETwoPhaseTableClass::evaluate_T(double T)
 {
 	int L,R,M;
-	double a,b,c,pi,log_PI_PIi1,log_PI_PIi2,logp_spacing;
+	double logp_spacing;
 
 	logp_spacing = this->logp[2]-this->logp[1];
 

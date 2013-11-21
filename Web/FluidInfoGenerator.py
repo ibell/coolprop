@@ -529,7 +529,7 @@ A number of aqueous solutions are implemented using the coefficients from Aake M
 Secondary Working Fluids for Indirect Systems" published in 2010 by IIR.  According to the book, 2D 
 polynomials are given in a form that satisfies :math:`0 \\leq i \\leq 5`, :math:`0 \\leq j \\leq 3` 
 and :math:`i + j \\leq 5` yielding a triangular matrix of coefficients. It is only for the freezing 
-temperature calculation that the implemented procedures differ from what is presentedt in Melinder's
+temperature calculation that the implemented procedures differ from what is presented in Melinder's
 book the dependency on the current temperature is removed. In CoolProp, :math:`T_{freeze}` only depends
 on concentration.
 

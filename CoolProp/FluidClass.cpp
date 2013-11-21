@@ -636,26 +636,56 @@ void Fluid::post_load(rapidjson::Document &JSON, rapidjson::Document &JSON_CAS)
 
 double Fluid::phir(double tau, double delta)
 {
-	double summer = 0;
-	for (std::vector<phi_BC*>::iterator it = phirlist.begin(); it != phirlist.end(); it++)
-		summer += (*it)->base(tau,delta);
-	return summer;
+	if (double_equal(tau,cache.phir.tau) && double_equal(delta,cache.phir.delta))
+	{
+		return cache.phir.cached_val;
+	}
+	else
+	{
+		double summer = 0;
+		for (std::vector<phi_BC*>::iterator it = phirlist.begin(); it != phirlist.end(); it++)
+			summer += (*it)->base(tau,delta);
+		cache.phir.tau = tau;
+		cache.phir.delta = delta;
+		cache.phir.cached_val = summer;
+		return summer;
+	}
 }
 double Fluid::dphir_dDelta(double tau, double delta)
 {
-	double summer = 0;
-	for (std::vector<phi_BC*>::iterator it = phirlist.begin(); it != phirlist.end(); it++)
+	if (double_equal(tau,cache.dphir_dDelta.tau) && double_equal(delta,cache.dphir_dDelta.delta))
 	{
-		summer += (*it)->dDelta(tau,delta);
+		return cache.dphir_dDelta.cached_val;
 	}
-	return summer;
+	else
+	{
+		double summer = 0;
+		for (std::vector<phi_BC*>::iterator it = phirlist.begin(); it != phirlist.end(); it++)
+		{
+			summer += (*it)->dDelta(tau,delta);
+		}
+		cache.dphir_dDelta.tau = tau;
+		cache.dphir_dDelta.delta = delta;
+		cache.dphir_dDelta.cached_val = summer;
+		return summer;
+	}
 }
 double Fluid::d2phir_dDelta2(double tau, double delta)
 {
-	double summer = 0;
-	for (std::vector<phi_BC*>::iterator it = phirlist.begin(); it != phirlist.end(); it++)
-		summer += (*it)->dDelta2(tau,delta);
-	return summer;
+	if (double_equal(tau,cache.d2phir_dDelta2.tau) && double_equal(delta,cache.d2phir_dDelta2.delta))
+	{
+		return cache.d2phir_dDelta2.cached_val;
+	}
+	else
+	{
+		double summer = 0;
+		for (std::vector<phi_BC*>::iterator it = phirlist.begin(); it != phirlist.end(); it++)
+			summer += (*it)->dDelta2(tau,delta);
+		cache.d2phir_dDelta2.tau = tau;
+		cache.d2phir_dDelta2.delta = delta;
+		cache.d2phir_dDelta2.cached_val = summer;
+		return summer;
+	}
 }
 double Fluid::d3phir_dDelta3(double tau, double delta)
 {
@@ -675,17 +705,37 @@ double Fluid::d3phir_dDelta_dTau2(double tau, double delta)
 }
 double Fluid::dphir_dTau(double tau, double delta)
 {
-	double summer = 0;
-	for (std::vector<phi_BC*>::iterator it = phirlist.begin(); it != phirlist.end(); it++)
-		summer += (*it)->dTau(tau,delta);
-	return summer;
+	if (double_equal(tau,cache.dphir_dTau.tau) && double_equal(delta,cache.dphir_dTau.delta))
+	{
+		return cache.dphir_dTau.cached_val;
+	}
+	else
+	{
+		double summer = 0;
+		for (std::vector<phi_BC*>::iterator it = phirlist.begin(); it != phirlist.end(); it++)
+			summer += (*it)->dTau(tau,delta);
+		cache.dphir_dTau.tau = tau;
+		cache.dphir_dTau.delta = delta;
+		cache.dphir_dTau.cached_val = summer;
+		return summer;
+	}
 }
 double Fluid::d2phir_dTau2(double tau, double delta)
 {
-	double summer = 0;
-	for (std::vector<phi_BC*>::iterator it = phirlist.begin(); it != phirlist.end(); it++)
-		summer += (*it)->dTau2(tau,delta);
-	return summer;
+	if (double_equal(tau,cache.d2phir_dTau2.tau) && double_equal(delta,cache.d2phir_dTau2.delta))
+	{
+		return cache.d2phir_dTau2.cached_val;
+	}
+	else
+	{
+		double summer = 0;
+		for (std::vector<phi_BC*>::iterator it = phirlist.begin(); it != phirlist.end(); it++)
+			summer += (*it)->dTau2(tau,delta);
+		cache.d2phir_dTau2.tau = tau;
+		cache.d2phir_dTau2.delta = delta;
+		cache.d2phir_dTau2.cached_val = summer;
+		return summer;
+	}
 }
 double Fluid::d3phir_dTau3(double tau, double delta)
 {
@@ -697,10 +747,20 @@ double Fluid::d3phir_dTau3(double tau, double delta)
 
 double Fluid::d2phir_dDelta_dTau(double tau, double delta)
 {
-	double summer = 0;
-	for (std::vector<phi_BC*>::iterator it = phirlist.begin(); it != phirlist.end(); it++)
-		summer += (*it)->dDelta_dTau(tau,delta);
-	return summer;
+	if (double_equal(tau,cache.d2phir_dDelta_dTau.tau) && double_equal(delta,cache.d2phir_dDelta_dTau.delta))
+	{
+		return cache.d2phir_dDelta_dTau.cached_val;
+	}
+	else
+	{
+		double summer = 0;
+		for (std::vector<phi_BC*>::iterator it = phirlist.begin(); it != phirlist.end(); it++)
+			summer += (*it)->dDelta_dTau(tau,delta);
+		cache.d2phir_dDelta_dTau.tau = tau;
+		cache.d2phir_dDelta_dTau.delta = delta;
+		cache.d2phir_dDelta_dTau.cached_val = summer;
+		return summer;
+	}
 }
 double Fluid::d3phir_dDelta2_dTau(double tau, double delta)
 {
@@ -944,7 +1004,12 @@ double Fluid::density_Tp_PengRobinson(double T, double p, int solution)
 	a = 0.45724*pow(Rbar*reduce.T,2)/reduce.p.Pa*pow(1+m*(1-sqrt(T/reduce.T)),2)*1000;
 	A = a*p/(Rbar*Rbar*T*T)/1000;
 
-	std::vector<double> solns = solve_cubic(1, -1+B, A-3*B*B-2*B, -A*B+B*B+B*B*B);
+	double x0, x1, x2;
+	solve_cubic(1, -1+B, A-3*B*B-2*B, -A*B+B*B+B*B*B, &x0, &x1, &x2);
+	std::vector<double> solns;
+	solns.push_back(x0);
+	solns.push_back(x1);
+	solns.push_back(x2);
 
 	// Erase negative solutions and unstable solutions
 	// Stable solutions are those for which dpdrho is positive
