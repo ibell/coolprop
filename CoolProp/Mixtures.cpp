@@ -257,11 +257,6 @@ Mixture::Mixture(std::vector<Fluid *> pFluids)
 	z[0] = 0.5;
 	z[1] = 1-z[0];
 
-	std::vector<double*> pz(2,NULL);
-
-	pz[0] = &(z[0]);
-	pz[1] = &(z[1]);
-
 	double Tr = pReducing->Tr(&z); //[K]
 	double rhorbar = pReducing->rhorbar(&z); //[mol/m^3]
 

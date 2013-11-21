@@ -21,6 +21,7 @@
 
 	// Hack for PowerPC compilation to only use extern "C"
 	#if defined(__powerpc__) || defined(EXTERNC)
+	#undef EXPORT_CODE
 	#define EXPORT_CODE extern "C"
 	#endif
 

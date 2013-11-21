@@ -79,7 +79,7 @@ std::vector<std::vector<double> > linsolve_Gauss_Jordan(std::vector<std::vector<
 		// Find the pivot value
 		pivot_row = get_pivot_row(&AB, col);
 
-		if (AB[pivot_row][col]<1./HUGE) throw ValueError(format("Zero occurred in row %d, the matrix is singular. ",pivot_row));
+		if (AB[pivot_row][col]<1./_HUGE) throw ValueError(format("Zero occurred in row %d, the matrix is singular. ",pivot_row));
 
 		if (pivot_row>=col){
 			// Swap pivot row and current row
@@ -155,7 +155,7 @@ std::vector<std::vector<double> > linsolve_Gauss_Jordan(std::vector<std::vector<
 //			}
 //		}
 //		// Check for errors
-//		if (AB[pivot_row][col]<1./HUGE) throw ValueError(format("Zero occurred in row %d, the matrix is singular. ",pivot_row));
+//		if (AB[pivot_row][col]<1./_HUGE) throw ValueError(format("Zero occurred in row %d, the matrix is singular. ",pivot_row));
 //		// Swap the rows
 //		if (pivot_row>col) {
 //			for (size_t colInt = 0; colInt < NcolA; colInt++){

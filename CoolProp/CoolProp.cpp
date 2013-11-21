@@ -1041,6 +1041,7 @@ std::string get_BibTeXKey(std::string Ref, std::string item)
 	pFluid=Fluids.get_fluid(Ref);
 	if (pFluid!=NULL)
 	{
+		
 		if (!item.compare("EOS")){ return pFluid->BibTeXKeys.EOS; }
 		else if (!item.compare("CP0")){ return pFluid->BibTeXKeys.CP0; }
 		else if (!item.compare("VISCOSITY")){ return pFluid->BibTeXKeys.VISCOSITY; }
@@ -1140,5 +1141,6 @@ std::string get_fluid_param_string(std::string FluidName, std::string ParamName)
 		return(std::string("CoolProp error: Indeterminate error"));
 	}
 }
+
 
 

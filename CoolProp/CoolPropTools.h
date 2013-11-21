@@ -46,6 +46,12 @@
 		}
 	}
 	#endif
+	
+	#if defined(__powerpc__)
+		#undef min
+		#undef max
+		#undef EOS
+	#endif
 
 	inline bool ValidNumber(double x)
 	{
@@ -97,6 +103,8 @@
 
 	#define OK 1
 	#define FAIL 0
+	
+	
 
 	std::string strjoin(std::vector<std::string> strings, std::string delim);
 	
@@ -110,6 +118,8 @@
 
 	void solve_cubic(double a, double b, double c, double d, double *x0, double *x1, double *x2);
 
+	
+	
 	inline double min3(double x1, double x2, double x3){return std::min(std::min(x1, x2), x3);};
 	inline double max3(double x1, double x2, double x3){return std::max(std::max(x1, x2), x3);};
 
