@@ -293,20 +293,20 @@ Mixture::Mixture(std::vector<Fluid *> pFluids)
 
 	double rhor = pReducing->rhorbar(&z);
 	
-	//check();
+	check();
 	
 	double Tsat;
 	double psat = 1e3;
 
-	Tsat = saturation_p(TYPE_DEWPOINT, 440000, &z, &x, &y);
+	//Tsat = saturation_p(TYPE_DEWPOINT, 440000, &z, &x, &y);
 
 	for (double x0 = 0; x0 <= 1.000000000000001; x0 += 0.01)
 	{
 		z[0] = x0; z[1] = 1-x0;
 		Tsat = saturation_p(TYPE_BUBBLEPOINT, psat, &z, &x, &y);
-		std::cout << format("%g %g %g %g",x0,Tsat,y[0],y[1]).c_str();
+		std::cout << format("%g %g %0.9g %0.9g",x0,Tsat,y[0],y[1]).c_str();
 		Tsat = saturation_p(TYPE_DEWPOINT, psat, &z, &x, &y);
-		std::cout << format(" %g %g %g",Tsat,x[0],x[1]).c_str()	;
+		std::cout << format(" %g %0.9g %0.9g",Tsat,x[0],x[1]).c_str()	;
 		std::cout << std::endl;
 	}
 
@@ -838,7 +838,7 @@ double Mixture::rhobar_Tpz(double T, double p, std::vector<double> *x, double rh
 {
 	rho_Tpz_resid Resid(this,T,p,x);
 	std::string errstr;
-	return Newton(&Resid, rhobar0, 1e-7, 100, &errstr);
+	return Newton(&Resid, rhobar0, 1e-10, 100, &errstr);
 }
 
 
@@ -1831,9 +1831,8 @@ double SuccessiveSubstitutionVLE::call(int type, double T, double p, std::vector
 			//throw ValueError(format("saturation_p was unable to reach a solution within 50 iterations"));
 		}
 	}
-	while(abs(f) > 1e-12 && iter < 10);
+	while(abs(f) > 1e-12 && iter < 6);
 	double beta;
-	//std::cout << iter << std::endl;
 	if (type == TYPE_BUBBLEPOINT)
 	{
 		beta = 0;
@@ -1842,9 +1841,8 @@ double SuccessiveSubstitutionVLE::call(int type, double T, double p, std::vector
 	{
 		beta = 1;
 	}
-	Mix->NRVLE.call(beta,T,p,rhobar_liq,rhobar_vap,z,&K);
-
-	return T;
+	// Pass off to Newton-Raphson to polish the solution
+	return Mix->NRVLE.call(beta,T,p,rhobar_liq,rhobar_vap,z,&K);
 }
 
 double NewtonRaphsonVLE::call(double beta, double T, double p, double rhobar_liq, double rhobar_vap, std::vector<double> *z, std::vector<double> *K)
@@ -1852,7 +1850,10 @@ double NewtonRaphsonVLE::call(double beta, double T, double p, double rhobar_liq
 	int iter = 1;
 	double error_rms;
 	unsigned int N = Mix->N;
-	x.resize(N); y.resize(N); ln_phi_liq.resize(N); ln_phi_vap.resize(N);
+	x.resize(N); y.resize(N); ln_phi_liq.resize(N); ln_phi_vap.resize(N); phi_ij_liq.resize(N); phi_ij_vap.resize(N);
+
+	std::vector<double> r(N+1,0);
+	J.resize(N+1,std::vector<double>(N+1,0));
 
 	do
 	{
@@ -1886,38 +1887,35 @@ double NewtonRaphsonVLE::call(double beta, double T, double p, double rhobar_liq
 		// -------
 		// Build the residual vector and the Jacobian matrix
 
-		std::vector<double> r(N+1,0);
-		J.resize(N+1,std::vector<double>(N+1,0));
-
 		// For the residuals F_i
 		for (unsigned int i = 0; i < N; i++)
 		{
 			ln_phi_liq[i] = Mix->ln_fugacity_coefficient(tau_liq, delta_liq, &x, i);
 			double phi_iT_liq = Mix->dln_fugacity_coefficient_dT__constp_n(tau_liq, delta_liq, &x, i);
+			for (unsigned int j = 0; j < N; j++)
+			{
+				phi_ij_liq[j] = Mix->ndln_fugacity_coefficient_dnj__constT_p(tau_liq,delta_liq,&x,i,j); // 7.126 from GERG monograph
+			}
 
 			ln_phi_vap[i] = Mix->ln_fugacity_coefficient(tau_vap, delta_vap, &y, i);
 			double phi_iT_vap = Mix->dln_fugacity_coefficient_dT__constp_n(tau_vap, delta_vap, &y, i);
+			for (unsigned int j = 0; j < N; j++)
+			{
+				phi_ij_vap[j] = Mix->ndln_fugacity_coefficient_dnj__constT_p(tau_vap,delta_vap,&y,i,j); // 7.126 from GERG monograph
+			}
 			
 			r[i] = ln_phi_vap[i] - ln_phi_liq[i] + log((*K)[i]);
 			for (unsigned int j = 0; j < N; j++)
-			{
-				// 7.126 from Gerg monograph
-				double phi_ij_vap = Mix->ndln_fugacity_coefficient_dnj__constT_p(tau_vap,delta_vap,&y,i,j);
-				double phi_ij_liq = Mix->ndln_fugacity_coefficient_dnj__constT_p(tau_liq,delta_liq,&x,i,j);
-				double Kronecker_ij;
-				if (i == j) {Kronecker_ij = 1;} else {Kronecker_ij = 0;}
-				J[i][j] = (*K)[j]*(*z)[j]/pow(1-beta+beta*(*K)[j],(int)2)*((1-beta)*phi_ij_vap+beta*phi_ij_liq)+Kronecker_ij;
+			{	
+				J[i][j] = (*K)[j]*(*z)[j]/pow(1-beta+beta*(*K)[j],(int)2)*((1-beta)*phi_ij_vap[j]+beta*phi_ij_liq[j])+Kronecker_delta(i,j);
 			}
 			// dF_{i}/d(ln(T))
-			
 			J[i][N] = T*(phi_iT_vap-phi_iT_liq);
 		}
 		double rN = 0;
 		for (unsigned int i = 0; i < N; i++)
 		{
-			r[N] += ((*K)[i]-1)*(*z)[i]/(1-beta+beta*(*K)[i]);
-			//r[N] += y[i]-x[i];
-			// dF_{N+1}/d(ln(K_j))
+			r[N] += y[i]-x[i];
 			for (unsigned int j = 0; j < N; j++)
 			{
 				J[N][j] = (*K)[j]*(*z)[j]/pow(1-beta+beta*(*K)[j],(int)2);
@@ -1935,17 +1933,19 @@ double NewtonRaphsonVLE::call(double beta, double T, double p, double rhobar_liq
 		error_rms = sqrt(error_rms); // Square-root (The R in RMS)
 
 		// Solve for the step
-		std::vector<double> v = linsolve_Gauss_Jordan(J,r);
+		std::vector<double> v = linsolve(J,r);
 
 		for (unsigned int i = 0; i < N; i++)
 		{
 			(*K)[i] = exp(log((*K)[i])+v[i]);
 		}
+		double oldT = T;
 		T = exp(log(T)+v[N]);
+		double changeT = T-oldT;
 		
+		//std::cout << iter << " " << error_rms << std::endl;
 		iter++;
 	}
-	while(error_rms > 1e-8 && iter < 5);
-	//std::cout << iter << std::endl;
+	while(error_rms > 1e-10 && iter < 10);
 	return T;
 }

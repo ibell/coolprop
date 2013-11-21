@@ -115,4 +115,6 @@
 
 	inline bool double_equal(double a, double b){return fabs(a - b) <= 16 * DBL_EPSILON * std::max(fabs(a), fabs(b));};
 
+	inline int Kronecker_delta(int i, int j){if (i == j) {return 1;} else {return 0;}};
+
 #endif
