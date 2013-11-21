@@ -65,8 +65,6 @@ check_objectdir :
 	@if [ ! -d "$(OBJ_DIR)" ]; then\
 		mkdir -p $(OBJ_DIR);\
 	fi
-	echo $(OBJECTS)
-	#echo $(patsubst %../../../CoolProp/,PPP,../../../CoolProp/oo.o)
 
 clean :
 	rm -f $(OBJECTS) $(PROJECT_TARGETS) $(wildcard $(OBJ_DIR)/*.unstripped)

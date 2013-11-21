@@ -264,10 +264,10 @@ Mixture::Mixture(std::vector<Fluid *> pFluids)
 	double rhobar = 4; // [mol/m^3]; to convert from mol/L, multiply by 1000
 	double tau = Tr/T;
 	double delta = rhobar/rhorbar;
-	double dtau_dT = -Tr/T/T;
+	//double dtau_dT = -Tr/T/T;
 
-	double _dphir_dDelta = dphir_dDelta(tau, delta, &z);
-	double p = Rbar(&z)*rhobar*T*(1 + delta*_dphir_dDelta)/1000; //[kPa]
+	//double _dphir_dDelta = dphir_dDelta(tau, delta, &z);
+	//double p = Rbar(&z)*rhobar*T*(1 + delta*_dphir_dDelta)/1000; //[kPa]
 
 	
 	
@@ -286,7 +286,7 @@ Mixture::Mixture(std::vector<Fluid *> pFluids)
 	std::vector<double> x,y;
 	//TpzFlash(T, p, z, &rhobar, &x, &y);
 
-	double rhor = pReducing->rhorbar(&z);
+	//double rhor = pReducing->rhorbar(&z);
 	
 	check();
 	
@@ -316,7 +316,6 @@ Mixture::Mixture(std::vector<Fluid *> pFluids)
 		std::cout << format("%g %g %g\n",TL,TV,p).c_str();
 	}
 
-	double rr = 0;
 }
 void Mixture::check()
 {
@@ -584,7 +583,6 @@ double Mixture::dln_fugacity_coefficient_dT__constp_n(double tau, double delta, 
 {
 	double Tr = pReducing->Tr(x); // [K]
 	double T = Tr/tau;
-	double dtau_dT = -tau/T;
 	return d2nphir_dni_dT(tau, delta, x, i) + 1/T-this->partial_molar_volume(tau,delta,x,i)/(Rbar(x)*T)*dpdT__constV_n(tau,delta,x,i);
 }
 double Mixture::dln_fugacity_coefficient_dp__constT_n(double tau, double delta, std::vector<double> *x, int i)
@@ -592,7 +590,6 @@ double Mixture::dln_fugacity_coefficient_dp__constT_n(double tau, double delta, 
 	// GERG equation 7.30
 	double Tr = pReducing->Tr(x); // [K]
 	double T = Tr/tau;
-	double dtau_dT = -tau/T;
 	double rhorbar = pReducing->rhorbar(x);
 	double rhobar = rhorbar*delta;
 	double RT = Rbar(x)*T; // J/mol/K*K = J/mol = N*m/mol
@@ -651,7 +648,6 @@ double Mixture::ndphir_dni__constT_V_nj(double tau, double delta, std::vector<do
 	{
 		s += (*x)[k]*dphir_dxi(tau,delta,x,k);
 	}
-	double ddd = dphir_dxi(tau,delta,x,i);
 	return term1 + term2 + dphir_dxi(tau,delta,x,i) - s;
 }
 double Mixture::ndln_fugacity_coefficient_dnj__constT_p(double tau, double delta, std::vector<double> *x, int i, int j)
@@ -673,9 +669,7 @@ double Mixture::ndtaudni__constT_V_nj(double tau, double delta, std::vector<doub
 double Mixture::d_ndphirdni_dxj__constdelta_tau_xi(double tau, double delta, std::vector<double> *x, int i, int j)
 {
 	double rhorbar = pReducing->rhorbar(x);
-	double rhobar = rhorbar*delta;
 	double Tr = pReducing->Tr(x); // [K]
-	double T = Tr/tau;
 
 	double line1 = delta*d2phir_dxi_dDelta(tau,delta,x,j)*(1-1/rhorbar*pReducing->ndrhorbardni__constnj(x,i));
 	double line2 = -delta*dphir_dDelta(tau,delta,x)*(1/rhorbar)*(pReducing->d_ndrhorbardni_dxj__constxi(x,i,j)-1/rhorbar*pReducing->drhorbardxi__constxj(x,j)*pReducing->ndrhorbardni__constnj(x,i));
@@ -690,12 +684,7 @@ double Mixture::d_ndphirdni_dxj__constdelta_tau_xi(double tau, double delta, std
 	return line1+line2+line3+line4+line5;
 }
 double Mixture::nd2nphirdnidnj__constT_V(double tau, double delta, std::vector<double> *x, int i, int j)
-{
-	double rhorbar = pReducing->rhorbar(x);
-	double rhobar = rhorbar*delta;
-	double Tr = pReducing->Tr(x); // [K]
-	double T = Tr/tau;
-	
+{	
 	double line0 = ndphir_dni__constT_V_nj(tau, delta, x, j); // First term from 7.46
 	double line1 = this->d_ndphirdni_dDelta(tau, delta, x, i)*this->nddeltadni__constT_V_nj(tau,delta,x,j);
 	double line2 = this->d_ndphirdni_dTau(tau, delta, x, i)*this->ndtaudni__constT_V_nj(tau,delta,x,j);
@@ -824,7 +813,6 @@ public:
 	}
 	double deriv(double rhobar){
 		double delta = rhobar/rhorbar;
-		double dDelta_drhobar = 1/rhorbar;
 		double val = Rbar*T*(1 + 2*delta*Mix->dphir_dDelta(tau, delta, x)+delta*delta*Mix->d2phir_dDelta2(tau, delta, x));
 		return val;
 	}
@@ -899,7 +887,6 @@ public:
 
 double Mixture::saturation_p(int type, double p, std::vector<double> *z, std::vector<double> *x, std::vector<double> *y)
 {
-	int iter = 0;
 	double T;
 	unsigned int N = (*z).size();
 	std::vector<double> K(N), ln_phi_liq(N), ln_phi_vap(N);
@@ -988,7 +975,7 @@ double Mixture::saturation_p(int type, double p, std::vector<double> *z, std::ve
 void Mixture::TpzFlash(double T, double p, std::vector<double> *z, double *rhobar, std::vector<double> *x, std::vector<double> *y)
 {
 	unsigned int N = (*z).size();
-	double beta, change;
+	double beta, change = 0;
 	std::vector<double> lnK(N);
 	
 	(*x).resize(N);
@@ -1064,13 +1051,13 @@ void Mixture::TpzFlash(double T, double p, std::vector<double> *z, double *rhoba
 	}
 	
 	}
-	while( abs(change) > 1e-7);
+	while( fabs(change) > 1e-7);
 
 	return;
 }
 double Mixture::rhobar_pengrobinson(double T, double p, std::vector<double> *x, int solution)
 { 
-	double A  = 0, B = 0, m_i, m_j, a_i, a_j, b_i, a = 0, b = 0, R = Rbar(x);
+	double A  = 0, B = 0, m_i, m_j, a_i, a_j, b_i, R = Rbar(x);
 
 	for (unsigned int i = 0; i < N; i++)
 	{
@@ -1193,7 +1180,6 @@ double GERG2008ReducingFunction::dTrdxi__constxj(std::vector<double> *x, int i)
 double GERG2008ReducingFunction::d2Trdxi2__constxj(std::vector<double> *x, int i)
 {
 	// See Table B9 from Kunz Wagner 2012 (GERG 2008)
-	double xi = (*x)[i];
 	double d2Tr_dxi2 = 2*pFluids[i]->reduce.T;
 	for (int k = 0; k < i; k++)
 	{
@@ -1251,7 +1237,6 @@ double GERG2008ReducingFunction::drhorbardxi__constxj(std::vector<double> *x, in
 double GERG2008ReducingFunction::d2vrbardxi2__constxj(std::vector<double> *x, int i)
 {
 	// See Table B9 from Kunz Wagner 2012 (GERG 2008)
-	double xi = (*x)[i];
 	double d2vrbardxi2 = 2/pFluids[i]->reduce.rhobar;
 
 	for (int k = 0; k < i; k++)
@@ -1761,9 +1746,6 @@ double SuccessiveSubstitutionVLE::call(int type, double T, double p, std::vector
 		double rhorbar_vap = Mix->pReducing->rhorbar(y); //[kg/m^3]
 		double delta_liq = rhobar_liq/rhorbar_liq;  //[-]
 		double delta_vap = rhobar_vap/rhorbar_vap;  //[-] 
-		
-		double dtau_dT_liq = -Tr_liq/T/T;
-		double dtau_dT_vap = -Tr_vap/T/T;
 
 		f = 0;
 		dfdT = 0;
@@ -1793,15 +1775,10 @@ double SuccessiveSubstitutionVLE::call(int type, double T, double p, std::vector
 		
 		change = -f/dfdT;
 
-		if (!ValidNumber(change))
-		{
-			double rr = 0;
-		}
 		T += change;
 		if (type == TYPE_BUBBLEPOINT)
 		{
 			// Calculate the vapor molar fractions using the K factor and Rachford-Rice
-			double sumy = 0;
 			for (unsigned int i = 0; i < N; i++)
 			{
 				(*y)[i] = (*z)[i]*K[i];
@@ -1811,7 +1788,6 @@ double SuccessiveSubstitutionVLE::call(int type, double T, double p, std::vector
 		else
 		{
 			// Calculate the liquid molar fractions using the K factor and Rachford-Rice
-			double sumx = 0;
 			for (unsigned int i = 0; i < N; i++)
 			{
 				(*x)[i] = (*z)[i]/K[i];
@@ -1826,7 +1802,7 @@ double SuccessiveSubstitutionVLE::call(int type, double T, double p, std::vector
 			//throw ValueError(format("saturation_p was unable to reach a solution within 50 iterations"));
 		}
 	}
-	while(abs(f) > 1e-12 && iter < 6);
+	while(fabs(f) > 1e-12 && iter < 6);
 	double beta;
 	if (type == TYPE_BUBBLEPOINT)
 	{
@@ -1907,7 +1883,6 @@ double NewtonRaphsonVLE::call(double beta, double T, double p, double rhobar_liq
 			// dF_{i}/d(ln(T))
 			J[i][N] = T*(phi_iT_vap-phi_iT_liq);
 		}
-		double rN = 0;
 		for (unsigned int i = 0; i < N; i++)
 		{
 			r[N] += y[i]-x[i];
@@ -1934,9 +1909,7 @@ double NewtonRaphsonVLE::call(double beta, double T, double p, double rhobar_liq
 		{
 			(*K)[i] = exp(log((*K)[i])+v[i]);
 		}
-		double oldT = T;
 		T = exp(log(T)+v[N]);
-		double changeT = T-oldT;
 		
 		//std::cout << iter << " " << error_rms << std::endl;
 		iter++;

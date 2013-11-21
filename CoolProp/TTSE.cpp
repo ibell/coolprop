@@ -7,7 +7,9 @@
 #if defined(__ISWINDOWS__)
 #include <windows.h> // for the CreateDirectory function
 #else
-#include <pwd.h>
+	#if !defined(__powerpc__)
+	#include <pwd.h>
+	#endif
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
