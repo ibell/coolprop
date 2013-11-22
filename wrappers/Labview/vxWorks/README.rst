@@ -3,7 +3,7 @@ Steps
 
 1. Download a WinXP 32-bit version virtual box image
 2. Install Winxp 32-bit virtual box image, install 7zip, tortoisegit, git
-3. Take the updated_vxworks63gccdist.ZIP from (http://www.ni.com/white-paper/5694/en/) and extract to c:\gccdist so that you have folders c:\gccdist\docs, c:\gccdist\supplemental, c:\gccdist\WindRiver
+3. Take the updated_vxworks63gccdist.ZIP from (http://www.ni.com/white-paper/5694/en/) and extract to c:\\gccdist so that you have folders c:\\gccdist\\docs, c:\\gccdist\\supplemental, c:\\gccdist\\WindRiver
 4. Check out coolprop sources
 5. Open a console and cd to CoolProp sources
 6. cd to wrappers/Labview/vxWorks
