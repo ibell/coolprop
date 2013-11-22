@@ -145,6 +145,8 @@ SolutionsContainer::SolutionsContainer() {
 	tmpVector.push_back(new IceSlurryNA());
 	tmpVector.push_back(new PK2000());
 
+	tmpVector.push_back(new LiBrSolution());
+
 	// Now we store the vector in the variable
 	// and overwrite the map.
 	set_solutions(tmpVector);
@@ -229,6 +231,8 @@ double pIncompSolution(long iOutput, double T, double p, double x, Incompressibl
 			out = pSolution->getTmin(); break;
 		case iTfreeze:
 			out = pSolution->Tfreeze(p_SI,x); break;
+		case iPsat:
+			out = pSolution->psat(T,x); break;
 		default:
 			throw ValueError(format("Your index [%d] is invalid for the incompressible solution %s",iOutput,pSolution->getName().c_str()));
 			out=0; break;
