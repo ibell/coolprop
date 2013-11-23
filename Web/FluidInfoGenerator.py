@@ -524,6 +524,12 @@ and pressure as inputs, but be aware of the reduced computational efficiency.
     #Specific heat 20% mass ethylene glycol solution at 300 K and 1 atm.
     In [1]: Props('C','T',300,'P',101.325,'MEG-20%')
 
+For Lithium-Bromide, the publication by Patek and Klomfar from 2005 was implemented based on the 
+source code provided by the authors. The `paper <http://dx.doi.org/10.1016/j.ijrefrig.2005.10.007>`_ 
+covering the equations can be found in the 
+`International Journal of Refrigeration <http://dx.doi.org/10.1016/j.ijrefrig.2005.10.007>`_. Data is 
+available for temperatures from 0 C to 225 C and for the full composition range. Use ``LiBr`` to acccess
+the functions.
 
 A number of aqueous solutions are implemented using the coefficients from Aake Melinder "Properties of 
 Secondary Working Fluids for Indirect Systems" published in 2010 by IIR.  According to the book, 2D 
