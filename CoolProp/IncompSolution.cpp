@@ -416,4 +416,17 @@ std::vector<std::vector<double> > MelinderSolution::convertCoeffs(double* oldest
     throw ValueError(format("Your array has the dimensions [%d,%d], but only [%d,%d] arrays are supported.",A,B,lengthA,lengthB));
 }
 
+double const LiBrSolution::M_H2O  = 0.018015268; /* kg/mol, molar mass of H2O */
+double const LiBrSolution::M_LiBr = 0.08685; /* kg/mol, molar mass of LiBr */
+double const LiBrSolution::T0     = 221; /* K, constant */
 
+/* Critical point of H2O */
+double const LiBrSolution::Tc_H2O   = 647.096; /* K, temperature  */
+double const LiBrSolution::pc_H2O   = 22.064; /* MPa, pressure */
+double const LiBrSolution::rhoc_H2O = 17873; /* mol/m^3 (322 kg/m^3), molar density */
+double const LiBrSolution::hc_H2O   = 37548.5; /* J/mol, molar enthalpy */
+double const LiBrSolution::sc_H2O   = 79.3933; /* J/(mol.K) molar entropy*/
+
+/*Triple point of H2O */
+double const LiBrSolution::Tt_H2O   = 273.16; /* K, temperature */
+double const LiBrSolution::cpt_H2O  = 76.0226; /* J/(mol.K), molar isobaric heat capacity*/

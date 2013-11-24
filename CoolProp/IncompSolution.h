@@ -174,20 +174,20 @@ public:
 class LiBrSolution : public IncompressibleSolution{
 
 protected:
-	static const double M_H2O  = 0.018015268; /* kg/mol, molar mass of H2O */
-	static const double M_LiBr = 0.08685; /* kg/mol, molar mass of LiBr */
-	static const double T0     = 221; /* K, constant */
+	static double const M_H2O; /* kg/mol, molar mass of H2O */
+	static double const M_LiBr; /* kg/mol, molar mass of LiBr */
+	static double const T0; /* K, constant */
 
 	/* Critical point of H2O */
-	static const double Tc_H2O   = 647.096; /* K, temperature  */
-	static const double pc_H2O   = 22.064; /* MPa, pressure */
-	static const double rhoc_H2O = 17873; /* mol/m^3 (322 kg/m^3), molar density */
-	static const double hc_H2O   = 37548.5; /* J/mol, molar enthalpy */
-	static const double sc_H2O   = 79.3933; /* J/(mol.K) molar entropy*/
+	static double const Tc_H2O; /* K, temperature  */
+	static double const pc_H2O; /* MPa, pressure */
+	static double const rhoc_H2O; /* mol/m^3 (322 kg/m^3), molar density */
+	static double const hc_H2O; /* J/mol, molar enthalpy */
+	static double const sc_H2O; /* J/(mol.K) molar entropy*/
 
 	/*Triple point of H2O */
-	static const double Tt_H2O   = 273.16; /* K, temperature */
-	static const double cpt_H2O  = 76.0226; /* J/(mol.K), molar isobaric heat capacity*/
+	static double const Tt_H2O; /* K, temperature */
+	static double const cpt_H2O; /* J/(mol.K), molar isobaric heat capacity*/
 
 	double ps_mix(double T, double x)
 	/* Equation (1) */
@@ -439,6 +439,7 @@ public:
 
 		xmin     = 0.0;
 		xmax     = 1.0;
+
 	};
 
 	double rho(double T_K, double p, double x){

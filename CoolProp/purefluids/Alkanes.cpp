@@ -26,7 +26,7 @@ MethaneClass::MethaneClass()
 	std::vector<double> gamma_v(_gamma,_gamma+sizeof(_gamma)/sizeof(double));
 
 	//Critical parameters
-	crit.rho = 10.139*16.0428; //[kg/m^3]
+	crit.rho = 10.139128*16.0428; //[kg/m^3]
 	crit.p = PressureUnit(4599.2,UNIT_KPA); //[kPa]
 	crit.T = 190.564; //[K]
 	crit.v = 1/crit.rho; 
@@ -434,7 +434,7 @@ double gamma [] =
 	std::vector<double> gamma_v(gamma,gamma+sizeof(gamma)/sizeof(double));
 
 	//Critical parameters
-	crit.rho = 206.18; //[kg/m^3]
+	crit.rho = 6.856886685*30.06904;// 206.18; //[kg/m^3]
 	crit.p = PressureUnit(4872.2,UNIT_KPA); //[kPa]
 	crit.T = 305.322; //[K]
 	crit.v = 1/crit.rho; 
