@@ -3014,7 +3014,7 @@ double Fluid::Tsat_anc(double p, double Q)
 	std::string errstr;
 	try
 	{
-		double tau = Brent(&SatFunc,tau_min,tau_max,1e-10,1e-4,50,&errstr);
+		double tau = Brent(&SatFunc,tau_min,tau_max,1e-10,1e-8,50,&errstr);
 		if (errstr.size()>0)
 			throw SolutionError("Saturation calculation failed");
 		return reduce.T/tau;
