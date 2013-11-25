@@ -1812,8 +1812,9 @@ double NewtonRaphsonVLE::call(double beta, double T, double p, double rhobar_liq
 	std::vector<double> r(N+2, 0);
 	J.resize(N+2, std::vector<double>(N+2, 0));
 
-	// Specified value
+	// Specified value only allowed to be pressure for now
 	double spec_value = log(p);
+	int spec_index = N+1;
 
 	do
 	{
@@ -1886,8 +1887,14 @@ double NewtonRaphsonVLE::call(double beta, double T, double p, double rhobar_liq
 			}
 		}
 		// For the specification term F_{N+2}
-		r[N+1] = log(p) - spec_value;
-		J[N+1][N+1] = 1;
+		if (spec_index == N)
+			{r[N+1] = log(T) - spec_value;}
+		else if (spec_index == N+1)
+			{r[N+1] = log(p) - spec_value;}
+		else
+			{r[N+1] = log((*K)[spec_index]) - spec_value;}
+
+		J[N+1][spec_index] = 1;
 
 		// Flip all the signs of the entries in the residual vector since we are solving Jv = -r, not Jv=r
 		// Also calculate the rms error of the residual vector at this step
@@ -1902,6 +1909,7 @@ double NewtonRaphsonVLE::call(double beta, double T, double p, double rhobar_liq
 		// Solve for the step; v is the step with the contents [lnK0, lnK1, ..., lnT, lnp]
 		std::vector<double> v = linsolve(J, r);
 
+		// Set the variables again, the same structure independent of the specified variable
 		for (unsigned int i = 0; i < N; i++)
 		{
 			(*K)[i] = exp(log((*K)[i])+v[i]);
