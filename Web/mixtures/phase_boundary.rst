@@ -55,7 +55,11 @@ This is the trickiest part of this method.  There are a lot of derivatives to im
 
     \frac{\partial F_i}{\partial \ln K_j} = \frac{K_jz_j}{(1-\beta+\beta K_j)^2}[(1-\beta)\phi_{ij}''+\beta\phi_{ij}']+\zeta
 
-where :math:`\zeta = 0` for i:math:`\neq`j , and  :math:`\zeta = 0` for i=j
+where :math:`\zeta = 0` for i:math:`\neq`j , and  :math:`\zeta = 0` for i=j.  Also
+
+.. math::
+
+    \phi_{ij} = n\left( \frac{\partial \ln \phi_i}{\partial n_j}\right)_{T,p}
 
 For the :math:`F_{N+1}` term,
 
@@ -71,31 +75,30 @@ and all other partials of :math:`F_{N+1}` in the Jacobian are zero.  For the spe
     
 and all other partials of :math:`F_{N+2}` in the Jacobian are zero.
     
-Onwards...
+..
 
-Gerg 2004 Monograph, Eqn 7.27:
+    Onwards...
 
-.. math::
+    Gerg 2004 Monograph, Eqn 7.27:
 
-    \ln \phi_i  = \left( \frac{\partial n\alpha^r}{\partial n_i}\right)_{T,V,n_j}-\ln Z
+    .. math::
+
+        \ln \phi_i  = \left( \frac{\partial n\alpha^r}{\partial n_i}\right)_{T,V,n_j}-\ln Z
+        
+    and (Kunz, 2012, Table B4)
+
+    .. math::
+
+        \left( \frac{\partial n\alpha^r}{\partial n_i}\right)_{T,V,n_j} = \alpha^r + n\left( \frac{\partial \alpha^r}{\partial n_i}\right)_{T,V,n_j}
+        
+    so
+
+    .. math::
+
+        \ln \phi_i  = \alpha^r + n\left( \frac{\partial \alpha^r}{\partial n_i}\right)_{T,V,n_j}-\ln Z
     
-and (Kunz, 2012, Table B4)
+    and its derivative w.r.t T can be obtained analytically.  What about pressure?
 
-.. math::
-
-    \left( \frac{\partial n\alpha^r}{\partial n_i}\right)_{T,V,n_j} = \alpha^r + n\left( \frac{\partial \alpha^r}{\partial n_i}\right)_{T,V,n_j}
-    
-so
-
-.. math::
-
-    \ln \phi_i  = \alpha^r + n\left( \frac{\partial \alpha^r}{\partial n_i}\right)_{T,V,n_j}-\ln Z
-    
-and its derivative w.r.t T can be obtained analytically.  What about pressure?
-
-.. math::
-
-    \phi_{ij} = n\left( \frac{\partial \ln \phi_i}{\partial n_j}\right)_{T,p}
 
 The fugacity coefficient can be obtained from (Kunz, 2012, equation 29)
 

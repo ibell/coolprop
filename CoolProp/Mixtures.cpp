@@ -6,6 +6,7 @@
 #include "mixture_excess_JSON.h" // Loads the JSON code for the excess parameters, and makes a variable "std::string mixture_excess_JSON"
 #include "mixture_reducing_JSON.h" // Loads the JSON code for the reducing parameters, and makes a variable "std::string mixture_reducing_JSON"
 #include <numeric>
+#include "CoolProp.h"
 
 std::vector<double> JSON_double_array(const rapidjson::Value& a)
 {
@@ -269,21 +270,22 @@ Mixture::Mixture(std::vector<Fluid *> pFluids)
 	//double _dphir_dDelta = dphir_dDelta(tau, delta, &z);
 	//double p = Rbar(&z)*rhobar*T*(1 + delta*_dphir_dDelta)/1000; //[kPa]
 
+	std::vector<double> x, y;
 	
-	
-/*	time_t t1,t2;
-	unsigned int N = 100000;
+	time_t t1,t2;
+	unsigned int N = 100;
 	double TTE = 0;
 	t1 = clock();
 	for (unsigned int i = 0; i < N; i++)
 	{
-		TTE += partial_molar_volume(tau, delta, &z, 0);
+		TTE += saturation_p(TYPE_BUBBLEPOINT,10000,&z,&x,&y);
+		//TTE += Props("T",'P',10,'Q',0,"REFPROP-MIX:Methane[0.5]&Ethane[0.5]");
 	}
 	t2 = clock();
-	printf("val %g elapsed time/call %g us\n", TTE/(double)N, (double)(t2-t1)/(double)CLOCKS_PER_SEC/N*1e6);*/
-
+	printf("val %g elapsed time/call %g us\n", TTE/(double)N, (double)(t2-t1)/(double)CLOCKS_PER_SEC/N*1e6);
+//	return;
 	//p = 595.61824;
-	std::vector<double> x,y;
+	
 	//TpzFlash(T, p, z, &rhobar, &x, &y);
 
 	//double rhor = pReducing->rhorbar(&z);
@@ -321,16 +323,17 @@ void Mixture::check()
 {
 	std::vector<double> z(2, 0.5);
 
+	double tol = 1e-11;
 	z[0] = 0.5;
 	z[1] = 1-z[0];
 
 	double Tr = pReducing->Tr(&z);
 	double Tr_RP91 = 250.57185990876351; // [K]
-	if (fabs(Tr/Tr_RP91-1) > 1e-9){throw ValueError();}
+	if (fabs(Tr/Tr_RP91-1) > tol){throw ValueError();}
 
 	double rhorbar = pReducing->rhorbar(&z);
 	double rhorbar_RP91 = 8205.7858837320694; //[mol/m^3]
-	if (fabs(rhorbar/rhorbar_RP91-1) > 1e-9){throw ValueError();}
+	if (fabs(rhorbar/rhorbar_RP91-1) > tol){throw ValueError();}
 
 	double T = 145; // [K]
 	double rhobar = 4; // [mol/m^3]; to convert from mol/L, multiply by 1000
@@ -338,197 +341,208 @@ void Mixture::check()
 	double tau = Tr/T;
 	double delta = rhobar/rhorbar;
 
+	double RT = Rbar(&z)*T;
+	double p = rhobar*RT*(1+delta*dphir_dDelta(tau, delta,&z));
+
 	double dtdn0 = pReducing->ndTrdni__constnj(&z,0);
 	double dtdn0_RP91 = -56.914351037292874;
-	if (fabs(dtdn0/dtdn0_RP91-1) > 1e-10){throw ValueError();}
+	if (fabs(dtdn0/dtdn0_RP91-1) > tol){throw ValueError();}
 
 	double dtdn1 = pReducing->ndTrdni__constnj(&z,1);
 	double dtdn1_RP91 = 56.914351037292874;
-	if (fabs(dtdn1/dtdn1_RP91-1) > 1e-10){throw ValueError();}
+	if (fabs(dtdn1/dtdn1_RP91-1) > tol){throw ValueError();}
 
 	double drhodn0 = pReducing->ndrhorbardni__constnj(&z,0);
 	double drhodn0_RP91 = 1579.4307575322835;
-	if (fabs(drhodn0/drhodn0_RP91-1) > 1e-10){throw ValueError();}
+	if (fabs(drhodn0/drhodn0_RP91-1) > tol){throw ValueError();}
 
 	double drhodn1 = pReducing->ndrhorbardni__constnj(&z,1);
 	double drhodn1_RP91 = -1579.4307575322843;
-	if (fabs(drhodn1/drhodn1_RP91-1) > 1e-10){throw ValueError();}
+	if (fabs(drhodn1/drhodn1_RP91-1) > tol){throw ValueError();}
 
 	double ddrdxn00 = pReducing->d_ndrhorbardni_dxj__constxi(&z,0,0);
 	double ddrdxn00_RP91 = 10652.242638037194;
-	if (fabs(ddrdxn00/ddrdxn00_RP91-1) > 1e-8){throw ValueError();}
+	if (fabs(ddrdxn00/ddrdxn00_RP91-1) > tol){throw ValueError();}
 
 	double ddrdxn01 = pReducing->d_ndrhorbardni_dxj__constxi(&z,0,1);
 	double ddrdxn01_RP91 = 12694.316351697381;
-	if (fabs(ddrdxn01/ddrdxn01_RP91-1) > 1e-8){throw ValueError();}
+	if (fabs(ddrdxn01/ddrdxn01_RP91-1) > tol){throw ValueError();}
 
 	double ddrdxn10 = pReducing->d_ndrhorbardni_dxj__constxi(&z,1,0);
 	double ddrdxn10_RP91 = 19012.039381826526;
-	if (fabs(ddrdxn10/ddrdxn10_RP91-1) > 1e-8){throw ValueError();}
+	if (fabs(ddrdxn10/ddrdxn10_RP91-1) > tol){throw ValueError();}
 
 	double ddrdxn11 = pReducing->d_ndrhorbardni_dxj__constxi(&z,1,1);
 	double ddrdxn11_RP91 = 23287.688698295469;
-	if (fabs(ddrdxn11/ddrdxn11_RP91-1) > 1e-8){throw ValueError();}
+	if (fabs(ddrdxn11/ddrdxn11_RP91-1) > tol){throw ValueError();}
 
 	double dtrdxn00 = pReducing->d_ndTrdni_dxj__constxi(&z,0,0);
 	double dtrdxn00_RP91 = -506.39802892344619;
-	if (fabs(dtrdxn00/dtrdxn00_RP91-1) > 1e-8){throw ValueError();}
+	if (fabs(dtrdxn00/dtrdxn00_RP91-1) > tol){throw ValueError();}
 
 	double dtrdxn01 = pReducing->d_ndTrdni_dxj__constxi(&z,0,1);
 	double dtrdxn01_RP91 = -609.71811278619361;
-	if (fabs(dtrdxn01/dtrdxn01_RP91-1) > 1e-8){throw ValueError();}
+	if (fabs(dtrdxn01/dtrdxn01_RP91-1) > tol){throw ValueError();}
 	
 	double dtrdxn10 = pReducing->d_ndTrdni_dxj__constxi(&z,1,0);
 	double dtrdxn10_RP91 = -382.06070863702217;
-	if (fabs(dtrdxn10/dtrdxn10_RP91-1) > 1e-8){throw ValueError();}
+	if (fabs(dtrdxn10/dtrdxn10_RP91-1) > tol){throw ValueError();}
 	
 	double dtrdxn11 = pReducing->d_ndTrdni_dxj__constxi(&z,1,1);
 	double dtrdxn11_RP91 = -506.39802892344630;
-	if (fabs(dtrdxn11/dtrdxn11_RP91-1) > 1e-8){throw ValueError();}
+	if (fabs(dtrdxn11/dtrdxn11_RP91-1) > tol){throw ValueError();}
 
 	double dadxi0 = this->dphir_dxi(tau, delta, &z, 0);
 	double dadxi0_RP91 = -1.66733159546361936E-003;
-	if (fabs(dadxi0/dadxi0_RP91-1) > 1e-10){throw ValueError();}
+	if (fabs(dadxi0/dadxi0_RP91-1) > tol){throw ValueError();}
 
 	double dadxi1 = this->dphir_dxi(tau, delta, &z, 1);
 	double dadxi1_RP91 = -1.82138497681156902E-003;
-	if (fabs(dadxi1/dadxi1_RP91-1) > 1e-10){throw ValueError();}
+	if (fabs(dadxi1/dadxi1_RP91-1) > tol){throw ValueError();}
 
 	double daddx0 = this->d2phir_dxi_dDelta(tau,delta,&z,0);
 	double daddx0_RP91 = -3.4250061506157587;
-	if (fabs(daddx0/daddx0_RP91-1) > 1e-10){throw ValueError();}
+	if (fabs(daddx0/daddx0_RP91-1) > tol){throw ValueError();}
 
 	double dadtx0 = this->d2phir_dxi_dTau(tau,delta,&z,0);
 	double dadtx0_RP91 = -1.94597122635832131E-003;
-	if (fabs(dadtx0/dadtx0_RP91-1) > 1e-10){throw ValueError();}
+	if (fabs(dadtx0/dadtx0_RP91-1) > tol){throw ValueError();}
 
 	double daddx1 = this->d2phir_dxi_dDelta(tau,delta,&z,1);
 	double daddx1_RP91 = -3.7448162669516916;
-	if (fabs(daddx1/daddx1_RP91-1) > 1e-10){throw ValueError();}
+	if (fabs(daddx1/daddx1_RP91-1) > tol){throw ValueError();}
 
 	double dadtx1 = this->d2phir_dxi_dTau(tau,delta,&z,1);
 	double dadtx1_RP91 = -2.15974774776696646E-003;
-	if (fabs(dadtx1/dadtx1_RP91-1) > 1e-10){throw ValueError();}
+	if (fabs(dadtx1/dadtx1_RP91-1) > tol){throw ValueError();}
 
 	double dadn0 = this->ndphir_dni__constT_V_nj(tau, delta, &z, 0);
 	double dadn0_RP91 = -5.24342982584834368E-004;
-	if (fabs(dadn0/dadn0_RP91-1) > 1e-10){throw ValueError();}
+	if (fabs(dadn0/dadn0_RP91-1) > tol){throw ValueError();}
 
 	double dadn1 = this->ndphir_dni__constT_V_nj(tau, delta, &z, 1);
 	double dadn1_RP91 = -2.89676062124885614E-003;
-	if (fabs(dadn1/dadn1_RP91-1) > 1e-10){throw ValueError();}
+	if (fabs(dadn1/dadn1_RP91-1) > tol){throw ValueError();}
 
 	double dpdn0 = ndpdni__constT_V_nj(tau, delta, &z, 0);
 	double dpdn0_RP91 = 4811.6359520642318;
-	if (fabs(dpdn0/dpdn0_RP91-1) > 1e-10){throw ValueError();}
+	if (fabs(dpdn0/dpdn0_RP91-1) > tol){throw ValueError();}
 
 	double dpdn1 = ndpdni__constT_V_nj(tau, delta, &z, 1);
 	double dpdn1_RP91 = 4800.1319544625067;
-	if (fabs(dpdn1/dpdn1_RP91-1) > 1e-8){throw ValueError();}
-
-	double dphidT0 = dln_fugacity_coefficient_dT__constp_n(tau,delta,&z,0);
-	double dphidT0_RP91 = 8.84377505112714235E-006;
-	if (fabs(dphidT0/dphidT0_RP91-1) > 1e-8){throw ValueError();}
-
-	double dphidT1 = dln_fugacity_coefficient_dT__constp_n(tau,delta,&z,1);
-	double dphidT1_RP91 = 6.21123852185909847E-005;
-	if (fabs(dphidT1/dphidT1_RP91-1) > 1e-8){throw ValueError();}
-
-	double dphidP0 = dln_fugacity_coefficient_dp__constT_n(tau,delta,&z,0);
-	double dphidP0_RP91 = -1.07128474189810419E-007;
-	if (fabs(dphidP0/dphidP0_RP91-1) > 1e-8){throw ValueError();}
-
-	double dphidP1 = dln_fugacity_coefficient_dp__constT_n(tau,delta,&z,1);
-	double dphidP1_RP91 = -6.03505693277411881E-007;
-	if (fabs(dphidP1/dphidP1_RP91-1) > 1e-8){throw ValueError();}
+	if (fabs(dpdn1/dpdn1_RP91-1) > tol){throw ValueError();}
 
 	double vhat0 = partial_molar_volume(tau, delta, &z, 0);
 	double vhat0_RP91 = 0.25029921648425145;
-	if (fabs(vhat0/vhat0_RP91-1) > 1e-8){throw ValueError();}
+	if (fabs(vhat0/vhat0_RP91-1) > tol){throw ValueError();}
 	
 	double vhat1 = partial_molar_volume(tau, delta, &z, 1);
 	double vhat1_RP91 = 0.24970078351574867;
-	if (fabs(vhat1/vhat1_RP91-1) > 1e-8){throw ValueError();}
+	if (fabs(vhat1/vhat1_RP91-1) > tol){throw ValueError();}
+
+	double d2adbn0 = d2nphir_dni_dT(tau, delta, &z, 0);
+	double d2adbn0_RP91 = 2.91400791470335643E-005;
+	if (fabs(d2adbn0/d2adbn0_RP91-1) > tol){throw ValueError();}
+	
+	double d2adbn1 = d2nphir_dni_dT(tau, delta, &z, 1);
+	double d2adbn1_RP91 = 6.58714026367381391E-005;
+	if (fabs(d2adbn1/d2adbn1_RP91-1) > tol){throw ValueError();}
+
+	double dphidT0 = dln_fugacity_coefficient_dT__constp_n(tau,delta,&z,0);
+	double dphidT0_RP91 = 8.84377505112714235E-006;
+	if (fabs(dphidT0/dphidT0_RP91-1) > tol){throw ValueError();}
+
+	double dphidT1 = dln_fugacity_coefficient_dT__constp_n(tau,delta,&z,1);
+	double dphidT1_RP91 = 6.21123852185909847E-005;
+	if (fabs(dphidT1/dphidT1_RP91-1) > tol){throw ValueError();}
+
+	double dphidP0 = dln_fugacity_coefficient_dp__constT_n(tau,delta,&z,0);
+	double dphidP0_RP91 = -1.07128474189810419E-007;
+	if (fabs(dphidP0/dphidP0_RP91-1) > tol){throw ValueError();}
+
+	double dphidP1 = dln_fugacity_coefficient_dp__constT_n(tau,delta,&z,1);
+	double dphidP1_RP91 = -6.03505693277411881E-007;
+	if (fabs(dphidP1/dphidP1_RP91-1) > tol){throw ValueError();}
 
 	double dadxij00 = d2phirdxidxj(tau, delta, &z, 0, 0);
 	double dadxij00_RP91 = 0.0;
-	if (fabs(dadxij00-dadxij00_RP91) > 1e-8){throw ValueError();}
+	if (fabs(dadxij00-dadxij00_RP91) > tol){throw ValueError();}
 
 	double dadxij01 = d2phirdxidxj(tau, delta, &z, 0, 1);
 	double dadxij01_RP91 = -1.44900341276804124E-004;
-	if (fabs(dadxij01-dadxij01_RP91) > 1e-8){throw ValueError();}
+	if (fabs(dadxij01/dadxij01_RP91-1) > tol){throw ValueError();}
 	
 	double dadxij10 = d2phirdxidxj(tau, delta, &z, 1, 0);
 	double dadxij10_RP91 = -1.44900341276804124E-004;
-	if (fabs(dadxij10-dadxij10_RP91) > 1e-8){throw ValueError();}
+	if (fabs(dadxij10/dadxij10_RP91-1) > tol){throw ValueError();}
 
 	double dadxij11 = d2phirdxidxj(tau, delta, &z, 1, 1);
 	double dadxij11_RP91 = 0.0;
-	if (fabs(dadxij11-dadxij11_RP91) > 1e-8){throw ValueError();}
+	if (fabs(dadxij11-dadxij11_RP91) > tol){throw ValueError();}
 
 	double d2adxn00 = d_ndphirdni_dxj__constdelta_tau_xi(tau,delta,&z,0,0);
 	double d2adxn00_RP91 = 9.52786141739760811E-003;
-	if (fabs(d2adxn00-d2adxn00_RP91) > 1e-8){throw ValueError();}
+	if (fabs(d2adxn00-d2adxn00_RP91) > tol){throw ValueError();}
 
 	double d2adxn01 = d_ndphirdni_dxj__constdelta_tau_xi(tau,delta,&z,0,1);
 	double d2adxn01_RP91 = 1.11090273394917772E-002;
-	if (fabs(d2adxn01-d2adxn01_RP91) > 1e-8){throw ValueError();}
+	if (fabs(d2adxn01/d2adxn01_RP91-1) > tol){throw ValueError();}
 	
 	double d2adxn10 = d_ndphirdni_dxj__constdelta_tau_xi(tau,delta,&z,1,0);
 	double d2adxn10_RP91 = 8.82661064281056729E-003;
-	if (fabs(d2adxn10-d2adxn10_RP91) > 1e-8){throw ValueError();}
+	if (fabs(d2adxn10/d2adxn10_RP91-1) > tol){throw ValueError();}
 	
 	double d2adxn11 = d_ndphirdni_dxj__constdelta_tau_xi(tau,delta,&z,1,1);
 	double d2adxn11_RP91 = 1.16784901260031035E-002;
-	if (fabs(d2adxn11-d2adxn11_RP91) > 1e-8){throw ValueError();}
+	if (fabs(d2adxn11/d2adxn11_RP91-1) > tol){throw ValueError();}
 
 	double d2addn0 = d_ndphirdni_dDelta(tau,delta,&z,0);
 	double d2addn0_RP91 = -1.0719438474166139;
-	if (fabs(d2addn0-d2addn0_RP91) > 1e-8){throw ValueError();}
+	if (fabs(d2addn0/d2addn0_RP91-1) > tol){throw ValueError();}
 
 	double d2addn1 = d_ndphirdni_dDelta(tau,delta,&z,1);
 	double d2addn1_RP91 = -5.9657336386754745;
-	if (fabs(d2addn1-d2addn1_RP91) > 1e-8){throw ValueError();}
+	if (fabs(d2addn1/d2addn1_RP91-1) > tol){throw ValueError();}
 
 	double d2adtn0 = d_ndphirdni_dTau(tau,delta,&z,0);
 	double d2adtn0_RP91 = -4.58046408525892678E-004;
-	if (fabs(d2adtn0-d2adtn0_RP91) > 1e-8){throw ValueError();}
+	if (fabs(d2adtn0/d2adtn0_RP91-1) > tol){throw ValueError();}
 	
 	double d2adtn1 = d_ndphirdni_dTau(tau,delta,&z,1);
 	double d2adtn1_RP91 = -3.54010070086436396E-003;
-	if (fabs(d2adtn1-d2adtn1_RP91) > 1e-8){throw ValueError();}
+	if (fabs(d2adtn1/d2adtn1_RP91-1) > tol){throw ValueError();}
 
 	double d2ann00 = nd2nphirdnidnj__constT_V(tau, delta, &z, 0, 0);
 	double d2dnn00_RP91 = -1.55709211017489475E-003;
-	if (fabs(d2ann00-d2dnn00_RP91) > 1e-8){throw ValueError();}
+	if (fabs(d2ann00/d2dnn00_RP91-1) > tol){throw ValueError();}
 
 	double d2ann01 = nd2nphirdnidnj__constT_V(tau, delta, &z, 0, 1);
 	double d2dnn01_RP91 = -2.90907297842576788E-003;
-	if (fabs(d2ann01-d2dnn01_RP91) > 1e-8){throw ValueError();}
+	if (fabs(d2ann01/d2dnn01_RP91-1) > tol){throw ValueError();}
 	
 	double d2ann10 = nd2nphirdnidnj__constT_V(tau, delta, &z, 1, 0);
 	double d2dnn10_RP91 = -2.90907297842577049E-003;
-	if (fabs(d2ann10-d2dnn10_RP91) > 1e-8){throw ValueError();}
+	if (fabs(d2ann10/d2dnn10_RP91-1) > tol){throw ValueError();}
 	
 	double d2ann11 = nd2nphirdnidnj__constT_V(tau, delta, &z, 1, 1);
 	double d2dnn11_RP91 = -6.32815473413224101E-003;
-	if (fabs(d2ann11-d2dnn11_RP91) > 1e-8){throw ValueError();}
+	if (fabs(d2ann11/d2dnn11_RP91-1) > tol){throw ValueError();}
 
 	double dphidnj00 = ndln_fugacity_coefficient_dnj__constT_p(tau,delta,&z,0,0);
 	double dphidnj00_RP91 = -5.18202802448741728E-004;
-	if (fabs(dphidnj00-dphidnj00_RP91) > 1e-8){throw ValueError();}
+	if (fabs(dphidnj00/dphidnj00_RP91-1) > tol){throw ValueError();}
 	
 	double dphidnj01 = ndln_fugacity_coefficient_dnj__constT_p(tau,delta,&z,0,1);
 	double dphidnj01_RP91 = 5.18202802448741728E-004;
-	if (fabs(dphidnj01-dphidnj01_RP91) > 1e-8){throw ValueError();}
+	if (fabs(dphidnj01/dphidnj01_RP91-1) > tol){throw ValueError();}
 	
 	double dphidnj10 = ndln_fugacity_coefficient_dnj__constT_p(tau,delta,&z,1,0);
 	double dphidnj10_RP91 = 5.18202802448741728E-004;
-	if (fabs(dphidnj10-dphidnj10_RP91) > 1e-8){throw ValueError();}
+	if (fabs(dphidnj10/dphidnj10_RP91-1) > tol){throw ValueError();}
 
 	double dphidnj11 = ndln_fugacity_coefficient_dnj__constT_p(tau,delta,&z,1,1);
 	double dphidnj11_RP91 = -5.18202802448741728E-004;
-	if (fabs(dphidnj11-dphidnj11_RP91) > 1e-8){throw ValueError();}
+	if (fabs(dphidnj11/dphidnj11_RP91-1) > tol){throw ValueError();}
 
 }
 Mixture::~Mixture()
@@ -607,7 +621,7 @@ double Mixture::dpdT__constV_n(double tau, double delta, std::vector<double> *x,
 {
 	double rhorbar = pReducing->rhorbar(x);
 	double rhobar = rhorbar*delta;
-	return rhobar*Rbar(x)*(1+delta*dphir_dDelta(tau,delta,x)-delta*tau*d2phir_dDelta_dTau(tau, delta, x));
+	return rhobar*Rbar(x)*(1+delta*dphir_dDelta(tau, delta, x)-delta*tau*d2phir_dDelta_dTau(tau, delta, x));
 }
 double Mixture::ndpdV__constT_n(double tau, double delta,std::vector<double> *x, int i)
 {
@@ -793,7 +807,7 @@ public:
 class rho_Tpz_resid : public FuncWrapper1D
 {
 protected:
-	double T, p, Rbar, tau, Tr, rhorbar;
+	double T, p, Rbar, tau, Tr, rhorbar,dphir_dDelta;
 public:
 	std::vector<double> *x;
 	Mixture *Mix;
@@ -808,12 +822,13 @@ public:
 	};
 	double call(double rhobar){	
 		double delta = rhobar/rhorbar;
-		double resid = Rbar*rhobar*T*(1 + delta*Mix->dphir_dDelta(tau, delta, x))-p;
+		dphir_dDelta = Mix->dphir_dDelta(tau, delta, x);
+		double resid = Rbar*rhobar*T*(1 + delta*dphir_dDelta)-p;
 		return resid;
 	}
 	double deriv(double rhobar){
 		double delta = rhobar/rhorbar;
-		double val = Rbar*T*(1 + 2*delta*Mix->dphir_dDelta(tau, delta, x)+delta*delta*Mix->d2phir_dDelta2(tau, delta, x));
+		double val = Rbar*T*(1 + 2*delta*dphir_dDelta+delta*delta*Mix->d2phir_dDelta2(tau, delta, x));
 		return val;
 	}
 };
@@ -821,7 +836,7 @@ double Mixture::rhobar_Tpz(double T, double p, std::vector<double> *x, double rh
 {
 	rho_Tpz_resid Resid(this,T,p,x);
 	std::string errstr;
-	return Newton(&Resid, rhobar0, 1e-10, 100, &errstr);
+	return Newton(&Resid, rhobar0, 1e-16, 100, &errstr);
 }
 
 
@@ -1079,33 +1094,6 @@ double Mixture::rhobar_pengrobinson(double T, double p, std::vector<double> *x, 
 	
 	double Z0, Z1, Z2;
 	solve_cubic(1, -1+B, A-3*B*B-2*B, -A*B+B*B+B*B*B, &Z0, &Z1, &Z2);
-	//return min3(Z0,Z1,Z2);
-
-	/*std::vector<double> solns;
-	solns.push_back(x0);
-	solns.push_back(x1);
-	solns.push_back(x2);*/
-	
-	//return 0;
-
-	//// Erase negative solutions and unstable solutions
-	//// Stable solutions are those for which dpdrho is positive
-	//for (int i = (int)solns.size()-1; i >= 0; i--)
-	//{
-	//	if (solns[i] < 0)
-	//	{
-	//		solns.erase(solns.begin()+i);
-	//	}
-	//	else
-	//	{
-	//		double v = (solns[i]*R*T)/p; //[mol/L]
-	//		double dpdrho = -v*v*(-R*T/pow(v-b,2)+a*(2*v+2*b)/pow(v*v+2*b*v-b*b,2));
-	//		if (dpdrho < 0)
-	//		{
-	//			solns.erase(solns.begin()+i);
-	//		}
-	//	}
-	//}
 
 	if (solution == PR_SATL)
 	{
@@ -1723,6 +1711,7 @@ double SuccessiveSubstitutionVLE::call(int type, double T, double p, std::vector
 	unsigned int N = (*z).size();
 	K.resize(N); ln_phi_liq.resize(N); ln_phi_vap.resize(N);
 
+	
 	double rhobar_liq = Mix->rhobar_pengrobinson(T, p, x, PR_SATL); // [kg/m^3]
 	double rhobar_vap = Mix->rhobar_pengrobinson(T, p, y, PR_SATV); // [kg/m^3]
 
@@ -1730,10 +1719,6 @@ double SuccessiveSubstitutionVLE::call(int type, double T, double p, std::vector
 	{
 		rhobar_liq_new = Mix->rhobar_Tpz(T, p, x, rhobar_liq); // [kg/m^3]
 		rhobar_vap_new = Mix->rhobar_Tpz(T, p, y, rhobar_vap); // [kg/m^3]
-		if (!ValidNumber(rhobar_vap_new))
-		{
-			rhobar_vap = Mix->rhobar_Tpz(T, p, y, Mix->rhobar_pengrobinson(T,p,y,PR_SATV)); // [kg/m^3]
-		}
 		rhobar_liq = rhobar_liq_new;
 		rhobar_vap = rhobar_vap_new;
 
@@ -1813,6 +1798,7 @@ double SuccessiveSubstitutionVLE::call(int type, double T, double p, std::vector
 		beta = 1;
 	}
 	// Pass off to Newton-Raphson to polish the solution
+	//return T;
 	return Mix->NRVLE.call(beta,T,p,rhobar_liq,rhobar_vap,z,&K);
 }
 
@@ -1823,11 +1809,17 @@ double NewtonRaphsonVLE::call(double beta, double T, double p, double rhobar_liq
 	unsigned int N = Mix->N;
 	x.resize(N); y.resize(N); ln_phi_liq.resize(N); ln_phi_vap.resize(N); phi_ij_liq.resize(N); phi_ij_vap.resize(N);
 
-	std::vector<double> r(N+1,0);
-	J.resize(N+1,std::vector<double>(N+1,0));
+	std::vector<double> r(N+2, 0);
+	J.resize(N+2, std::vector<double>(N+2, 0));
+
+	// Specified value
+	double spec_value = log(p);
 
 	do
 	{
+		// Step 0:
+		// --------
+		// Calculate the mole fractions in liquid and vapor phases
 		for (unsigned int i=0; i < N; i++)
 		{
 			double denominator = (1-beta+beta*(*K)[i]); // Common denominator
@@ -1843,7 +1835,7 @@ double NewtonRaphsonVLE::call(double beta, double T, double p, double rhobar_liq
 		// based on the current values of the molar fractions
 		rhobar_liq = Mix->rhobar_Tpz(T, p, &x, rhobar_liq); // [kg/m^3] (Not exact due to solver convergence)
 		rhobar_vap = Mix->rhobar_Tpz(T, p, &y, rhobar_vap); // [kg/m^3] (Not exact due to solver convergence)
-
+		
 		double Tr_liq = Mix->pReducing->Tr(&x); // [K]
 		double Tr_vap = Mix->pReducing->Tr(&y);  // [K]
 		double tau_liq = Tr_liq/T; // [-]
@@ -1883,6 +1875,8 @@ double NewtonRaphsonVLE::call(double beta, double T, double p, double rhobar_liq
 			// dF_{i}/d(ln(T))
 			J[i][N] = T*(phi_iT_vap-phi_iT_liq);
 		}
+		r[N] = 0.0;
+		// For the residual term F_{N+1}
 		for (unsigned int i = 0; i < N; i++)
 		{
 			r[N] += y[i]-x[i];
@@ -1891,25 +1885,29 @@ double NewtonRaphsonVLE::call(double beta, double T, double p, double rhobar_liq
 				J[N][j] = (*K)[j]*(*z)[j]/pow(1-beta+beta*(*K)[j],(int)2);
 			}
 		}
+		// For the specification term F_{N+2}
+		r[N+1] = log(p) - spec_value;
+		J[N+1][N+1] = 1;
 
 		// Flip all the signs of the entries in the residual vector since we are solving Jv = -r, not Jv=r
-		// Also calculate the rms error at this step
+		// Also calculate the rms error of the residual vector at this step
 		error_rms = 0;
-		for (unsigned int i = 0; i < N+1; i++)
+		for (unsigned int i = 0; i < N+2; i++)
 		{
 			r[i] *= -1;
 			error_rms += r[i]*r[i]; // Sum the squares
 		}
 		error_rms = sqrt(error_rms); // Square-root (The R in RMS)
 
-		// Solve for the step
-		std::vector<double> v = linsolve(J,r);
+		// Solve for the step; v is the step with the contents [lnK0, lnK1, ..., lnT, lnp]
+		std::vector<double> v = linsolve(J, r);
 
 		for (unsigned int i = 0; i < N; i++)
 		{
 			(*K)[i] = exp(log((*K)[i])+v[i]);
 		}
 		T = exp(log(T)+v[N]);
+		p = exp(log(p)+v[N+1]);
 		
 		//std::cout << iter << " " << error_rms << std::endl;
 		iter++;

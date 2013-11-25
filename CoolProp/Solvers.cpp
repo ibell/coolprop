@@ -54,7 +54,7 @@ In the newton function, a 1-D Newton-Raphson solver is implemented using exact s
 
 @param f A pointer to an instance of the FuncWrapper1D class that implements the call() function 
 @param x0 The inital guess for the solution
-@param tol The absolute value of the tolerance accepted for the objective function
+@param ftol The absolute value of the tolerance accepted for the objective function
 @param maxiter Maximum number of iterations
 @param errstring A pointer to the std::string that returns the error from Secant.  Length is zero if no errors are found
 @returns If no errors are found, the solution, otherwise the value _HUGE, the value for infinity
@@ -63,7 +63,7 @@ double Newton(FuncWrapper1D *f, double x0, double ftol, int maxiter, std::string
 {
 	double x, dx, fval=999;
     int iter=1;
-	*errstring=std::string("");
+	(*errstring).empty();
 	x = x0;
     while ((iter < 2 || fabs(fval) > ftol) && iter < maxiter)
     {
