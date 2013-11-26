@@ -271,7 +271,7 @@ Mixture::Mixture(std::vector<Fluid *> pFluids)
 	//double p = Rbar(&z)*rhobar*T*(1 + delta*_dphir_dDelta)/1000; //[kPa]
 
 	std::vector<double> x, y;
-	
+	check();
 	time_t t1,t2;
 	unsigned int N = 100;
 	double TTE = 0;
@@ -290,7 +290,7 @@ Mixture::Mixture(std::vector<Fluid *> pFluids)
 
 	//double rhor = pReducing->rhorbar(&z);
 	
-	check();
+	
 	
 	double Tsat;
 	double psat = 1e3;
@@ -323,7 +323,7 @@ void Mixture::check()
 {
 	std::vector<double> z(2, 0.5);
 
-	double tol = 1e-11;
+	double tol = 1e-10; // relative tolerance
 	z[0] = 0.5;
 	z[1] = 1-z[0];
 
@@ -343,6 +343,8 @@ void Mixture::check()
 
 	double RT = Rbar(z)*T;
 	double p = rhobar*RT*(1+delta*dphir_dDelta(tau, delta,z));
+	double p_RP91 = 4814.1558068139991;
+	if (fabs(p/p_RP91-1) > tol){throw ValueError();}
 
 	double dtdn0 = pReducing->ndTrdni__constnj(z,0);
 	double dtdn0_RP91 = -56.914351037292874;
@@ -607,10 +609,11 @@ double Mixture::dln_fugacity_coefficient_dp__constT_n(double tau, double delta, 
 	double rhorbar = pReducing->rhorbar(x);
 	double rhobar = rhorbar*delta;
 	double RT = Rbar(x)*T; // J/mol/K*K = J/mol = N*m/mol
-	double p = rhobar*RT*(1+delta*dphir_dDelta(tau, delta, x)); // [Pa]
+	double p = rhobar*RT*(1.0+delta*dphir_dDelta(tau, delta, x)); // [Pa]
 	double partial_molar_volume = this->partial_molar_volume(tau,delta,x,i); // [m^3/mol]
 	double term1 = partial_molar_volume/RT; // m^3/mol/(N*m)*mol = m^2/N = 1/Pa
-	return term1 - 1/p;
+	double term2 = 1.0/p; // equal to 2.07720738615187943E-004 in REFPROP
+	return term1 - term2;
 }
 
 double Mixture::partial_molar_volume(double tau, double delta, const std::vector<double> &x, int i)
@@ -1810,14 +1813,14 @@ double NewtonRaphsonVLE::call(double beta, double T, double p, double rhobar_liq
 	int iter = 1;
 	double error_rms;
 	unsigned int N = Mix->N;
-	x.resize(N); y.resize(N); ln_phi_liq.resize(N); ln_phi_vap.resize(N); phi_ij_liq.resize(N); phi_ij_vap.resize(N);
+	x.resize(N); y.resize(N); phi_ij_liq.resize(N); phi_ij_vap.resize(N);
 
 	std::vector<double> r(N+2, 0);
 	J.resize(N+2, std::vector<double>(N+2, 0));
 
 	// Specified value only allowed to be pressure for now
-	double spec_value = log(T);
-	int spec_index = N;
+	double spec_value = log(p);
+	int spec_index = N+1;
 
 	do
 	{
@@ -1857,7 +1860,7 @@ double NewtonRaphsonVLE::call(double beta, double T, double p, double rhobar_liq
 		// For the residuals F_i
 		for (unsigned int i = 0; i < N; i++)
 		{
-			ln_phi_liq[i] = Mix->ln_fugacity_coefficient(tau_liq, delta_liq, x, i);
+			double ln_phi_liq = Mix->ln_fugacity_coefficient(tau_liq, delta_liq, x, i);
 			double phi_iT_liq = Mix->dln_fugacity_coefficient_dT__constp_n(tau_liq, delta_liq, x, i);
 			double phi_ip_liq = Mix->dln_fugacity_coefficient_dp__constT_n(tau_liq, delta_liq, x, i);
 			for (unsigned int j = 0; j < N; j++)
@@ -1865,7 +1868,7 @@ double NewtonRaphsonVLE::call(double beta, double T, double p, double rhobar_liq
 				phi_ij_liq[j] = Mix->ndln_fugacity_coefficient_dnj__constT_p(tau_liq,delta_liq,x,i,j); // 7.126 from GERG monograph
 			}
 
-			ln_phi_vap[i] = Mix->ln_fugacity_coefficient(tau_vap, delta_vap, y, i);
+			double ln_phi_vap = Mix->ln_fugacity_coefficient(tau_vap, delta_vap, y, i);
 			double phi_iT_vap = Mix->dln_fugacity_coefficient_dT__constp_n(tau_vap, delta_vap, y, i);
 			double phi_ip_vap = Mix->dln_fugacity_coefficient_dp__constT_n(tau_vap, delta_vap, y, i);
 			for (unsigned int j = 0; j < N; j++)
@@ -1873,7 +1876,7 @@ double NewtonRaphsonVLE::call(double beta, double T, double p, double rhobar_liq
 				phi_ij_vap[j] = Mix->ndln_fugacity_coefficient_dnj__constT_p(tau_vap,delta_vap,y,i,j); // 7.126 from GERG monograph
 			}
 			
-			r[i] = ln_phi_vap[i] - ln_phi_liq[i] + log(K[i]);
+			r[i] = ln_phi_vap - ln_phi_liq + log(K[i]);
 			for (unsigned int j = 0; j < N; j++)
 			{	
 				J[i][j] = K[j]*z[j]/pow(1-beta+beta*K[j],(int)2)*((1-beta)*phi_ij_vap[j]+beta*phi_ij_liq[j])+Kronecker_delta(i,j);
@@ -1914,6 +1917,21 @@ double NewtonRaphsonVLE::call(double beta, double T, double p, double rhobar_liq
 		}
 		error_rms = sqrt(error_rms); // Square-root (The R in RMS)
 
+		//for (unsigned int i = 0; i < N+2; i++)
+		//{
+		//	std::cout << "[";
+		//	for (unsigned int j = 0; j < N+2; j++)
+		//	{
+		//		printf("%.20g, ",J[i][j]);
+		//	}
+		//	std::cout << "]" <<std::endl;
+		//}
+		//std::cout << "[" <<std::endl;
+		//for (unsigned int j = 0; j < N+2; j++)
+		//{
+		//	printf("%.20g, ",r[j]);
+		//}
+		//std::cout << "]" <<std::endl;
 		// Solve for the step; v is the step with the contents [lnK0, lnK1, ..., lnT, lnp]
 		std::vector<double> v = linsolve(J, r);
 

@@ -273,7 +273,7 @@ public:
 	int Nmax;
 	Mixture *Mix;
 	STLMatrix J;
-	std::vector<double> K, ln_phi_liq, ln_phi_vap, x, y, phi_ij_liq, phi_ij_vap;
+	std::vector<double> K, x, y, phi_ij_liq, phi_ij_vap;
 	std::vector<SuccessiveSubstitutionStep> step_logger;
 
 	NewtonRaphsonVLE(){};
