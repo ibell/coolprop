@@ -21,37 +21,37 @@ public:
 	ReducingFunction(){};
 	virtual ~ReducingFunction(){};
 	/// The reduced temperature
-	virtual double Tr(std::vector<double> *x) = 0;
+	virtual double Tr(const std::vector<double> &x) = 0;
 	/// The derivative of reduced temperature with respect to component i mole fraction
-	virtual double dTrdxi__constxj(std::vector<double> *x, int i) = 0;
+	virtual double dTrdxi__constxj(const std::vector<double> &x, int i) = 0;
 	/// The molar reducing density
-	virtual double rhorbar(std::vector<double> *x) = 0;
+	virtual double rhorbar(const std::vector<double> &x) = 0;
 	///Derivative of the molar reducing density with respect to component i mole fraction
-	virtual double drhorbardxi__constxj(std::vector<double> *x, int i) = 0;
+	virtual double drhorbardxi__constxj(const std::vector<double> &x, int i) = 0;
 
 	/// Set the coefficients based on reducing parameters loaded from JSON
 	virtual void set_coeffs_from_map(int i, int j, std::map<std::string,double >) = 0;
 
-	virtual double d2rhorbardxi2__constxj(std::vector<double> *x, int i) = 0;
-	virtual double d2rhorbardxidxj(std::vector<double> *x, int i, int j) = 0;
-	virtual double d2Trdxi2__constxj(std::vector<double> *x, int i) = 0;
-	virtual double d2Trdxidxj(std::vector<double> *x, int i, int j) = 0;
+	virtual double d2rhorbardxi2__constxj(const std::vector<double> &x, int i) = 0;
+	virtual double d2rhorbardxidxj(const std::vector<double> &x, int i, int j) = 0;
+	virtual double d2Trdxi2__constxj(const std::vector<double> &x, int i) = 0;
+	virtual double d2Trdxidxj(const std::vector<double> &x, int i, int j) = 0;
 
 	/*! GERG 2004 Monograph equation 7.56:
 	\f[
 	\left(\frac{\partial}{\partial x_j}\left(n\left(\frac{\partial T_r}{\partial n_i} \right)_{n_j}\right)\right)_{x_i} = \left(\frac{\partial^2T_r}{\partial x_j \partial x_i}\right)-\left(\frac{\partial T_r}{\partial x_j}\right)_{x_i}-\sum_{k=1}^Nx_k\left(\frac{\partial^2T_r}{\partial x_j \partial x_k}\right)
 	\f]
 	*/
-	double d_ndTrdni_dxj__constxi(std::vector<double> *x, int i, int j);
+	double d_ndTrdni_dxj__constxi(const std::vector<double> &x, int i, int j);
 	/*! GERG 2004 Monograph equation 7.55:
 	\f[
 	\left(\frac{\partial}{\partial x_j}\left(n\left(\frac{\partial \rho_r}{\partial n_i} \right)_{n_j}\right)\right)_{x_i} = \left(\frac{\partial^2\rho_r}{\partial x_j \partial x_i}\right)-\left(\frac{\partial \rho_r}{\partial x_j}\right)_{x_i}-\sum_{k=1}^Nx_k\left(\frac{\partial^2\rho_r}{\partial x_j \partial x_k}\right)
 	\f]
 	*/
-	double d_ndrhorbardni_dxj__constxi(std::vector<double> *x, int i, int j);
+	double d_ndrhorbardni_dxj__constxi(const std::vector<double> &x, int i, int j);
 
-	double ndrhorbardni__constnj(std::vector<double> *x, int i);
-	double ndTrdni__constnj(std::vector<double> *x, int i);
+	double ndrhorbardni__constnj(const std::vector<double> &x, int i);
+	double ndTrdni__constnj(const std::vector<double> &x, int i);
 
 };
 
@@ -103,33 +103,33 @@ public:
 	/// Default destructor
 	~GERG2008ReducingFunction(){};
 	/// The reduced temperature
-	double Tr(std::vector<double> *x);
+	double Tr(const std::vector<double> &x);
 	/// The derivative of reduced temperature with respect to component i mole fraction
-	double dTrdxi__constxj(std::vector<double> *x, int i);
+	double dTrdxi__constxj(const std::vector<double> &x, int i);
 	/// The molar reducing density
-	double rhorbar(std::vector<double> *x);
+	double rhorbar(const std::vector<double> &x);
 	///Derivative of the molar reducing density with respect to component i mole fraction
-	double drhorbardxi__constxj(std::vector<double> *x, int i);
-	double dvrbardxi__constxj(std::vector<double> *x, int i);
+	double drhorbardxi__constxj(const std::vector<double> &x, int i);
+	double dvrbardxi__constxj(const std::vector<double> &x, int i);
 
-	double d2vrbardxi2__constxj(std::vector<double> *x, int i);
-	double d2rhorbardxi2__constxj(std::vector<double> *x, int i);
-	double d2vrbardxidxj(std::vector<double> *x, int i, int j);
-	double d2rhorbardxidxj(std::vector<double> *x, int i, int j);
-	double d2Trdxi2__constxj(std::vector<double> *x, int i);
-	double d2Trdxidxj(std::vector<double> *x, int i, int j);
+	double d2vrbardxi2__constxj(const std::vector<double> &x, int i);
+	double d2rhorbardxi2__constxj(const std::vector<double> &x, int i);
+	double d2vrbardxidxj(const std::vector<double> &x, int i, int j);
+	double d2rhorbardxidxj(const std::vector<double> &x, int i, int j);
+	double d2Trdxi2__constxj(const std::vector<double> &x, int i);
+	double d2Trdxidxj(const std::vector<double> &x, int i, int j);
 
 	/// Set the coefficients based on reducing parameters loaded from JSON
 	void set_coeffs_from_map(int i, int j, std::map<std::string,double >);
 
 	double c_Y_ij(int i, int j, std::vector< std::vector< double> > * beta, std::vector< std::vector< double> > *gamma, std::vector< std::vector< double> > *Y_c);
-	double f_Y_ij(std::vector<double> *x, int i, int j, std::vector< std::vector< double> > * beta);
+	double f_Y_ij(const std::vector<double> &x, int i, int j, std::vector< std::vector< double> > * beta);
 
-	double dfYkidxi__constxk(std::vector<double> *x, int k, int i,std::vector< std::vector< double> > * beta);
-	double dfYikdxi__constxk(std::vector<double> *x, int i, int k, std::vector< std::vector< double> > * beta);
-	double d2fYkidxi2__constxk(std::vector<double> *x, int k, int i, std::vector< std::vector< double> > * beta);
-	double d2fYikdxi2__constxk(std::vector<double> *x, int i, int k, std::vector< std::vector< double> > * beta);
-	double d2fYijdxidxj(std::vector<double> *x, int i, int k, std::vector< std::vector< double> > * beta);
+	double dfYkidxi__constxk(const std::vector<double> &x, int k, int i,std::vector< std::vector< double> > * beta);
+	double dfYikdxi__constxk(const std::vector<double> &x, int i, int k, std::vector< std::vector< double> > * beta);
+	double d2fYkidxi2__constxk(const std::vector<double> &x, int k, int i, std::vector< std::vector< double> > * beta);
+	double d2fYikdxi2__constxk(const std::vector<double> &x, int i, int k, std::vector< std::vector< double> > * beta);
+	double d2fYijdxidxj(const std::vector<double> &x, int i, int k, std::vector< std::vector< double> > * beta);
 };
 
 
@@ -195,16 +195,16 @@ public:
 	std::vector<std::vector<double> > F;
 	ExcessTerm(int N);
 	~ExcessTerm();
-	double phir(double tau, double delta, std::vector<double> *x);
-	double dphir_dDelta(double tau, double delta, std::vector<double> *x);
-	double d2phir_dDelta2(double tau, double delta, std::vector<double> *x);
-	double d2phir_dDelta_dTau(double tau, double delta, std::vector<double> *x);
-	double dphir_dTau(double tau, double delta, std::vector<double> *x);
-	double d2phir_dTau2(double tau, double delta, std::vector<double> *x);
-	double dphir_dxi(double tau, double delta, std::vector<double> *x, unsigned int i);
-	double d2phirdxidxj(double tau, double delta, std::vector<double> *x, unsigned int i, unsigned int j);
-	double d2phir_dxi_dTau(double tau, double delta, std::vector<double> *x, unsigned int i);
-	double d2phir_dxi_dDelta(double tau, double delta, std::vector<double> *x, unsigned int i);
+	double phir(double tau, double delta, const std::vector<double> &x);
+	double dphir_dDelta(double tau, double delta, const std::vector<double> &x);
+	double d2phir_dDelta2(double tau, double delta, const std::vector<double> &x);
+	double d2phir_dDelta_dTau(double tau, double delta, const std::vector<double> &x);
+	double dphir_dTau(double tau, double delta, const std::vector<double> &x);
+	double d2phir_dTau2(double tau, double delta, const std::vector<double> &x);
+	double dphir_dxi(double tau, double delta, const std::vector<double> &x, unsigned int i);
+	double d2phirdxidxj(double tau, double delta, const std::vector<double> &x, unsigned int i, unsigned int j);
+	double d2phir_dxi_dTau(double tau, double delta, const std::vector<double> &x, unsigned int i);
+	double d2phir_dxi_dDelta(double tau, double delta, const std::vector<double> &x, unsigned int i);
 	void set_coeffs_from_map(int i, int j, std::map<std::string,std::vector<double> >);
 };
 
@@ -216,12 +216,12 @@ protected:
 	std::vector<Fluid*> pFluids;
 public:
 	ResidualIdealMixture(std::vector<Fluid*> pFluids);
-	double phir(double tau, double delta, std::vector<double> *x);
-	double dphir_dDelta(double tau, double delta, std::vector<double> *x);
-	double d2phir_dDelta2(double tau, double delta, std::vector<double> *x);
-	double d2phir_dDelta_dTau(double tau, double delta, std::vector<double> *x);
-	double d2phir_dTau2(double tau, double delta, std::vector<double> *x);
-	double dphir_dTau(double tau, double delta, std::vector<double> *x);
+	double phir(double tau, double delta, const std::vector<double> &x);
+	double dphir_dDelta(double tau, double delta, const std::vector<double> &x);
+	double d2phir_dDelta2(double tau, double delta, const std::vector<double> &x);
+	double d2phir_dDelta_dTau(double tau, double delta, const std::vector<double> &x);
+	double d2phir_dTau2(double tau, double delta, const std::vector<double> &x);
+	double dphir_dTau(double tau, double delta, const std::vector<double> &x);
 };
 
 class Mixture;  // Forward declaration since some classes that are members of Mixture take pointers to Mixture
@@ -257,7 +257,7 @@ public:
 
 	SuccessiveSubstitutionVLE(){};
 
-	double call(int type, double T, double p, std::vector<double> *z, std::vector<double> *x, std::vector<double> *y);
+	double call(int type, double T, double p, std::vector<double> const& z, std::vector<double> &x, std::vector<double> &y);
 };
 
 /*!
@@ -290,7 +290,7 @@ public:
 	@param z Bulk mole fractions [-]
 	@param K Array of K-factors [-]
 	*/
-	double call(double beta, double T, double p, double rhobar_liq, double rhobar_vap, std::vector<double> *z, std::vector<double> *K);
+	double call(double beta, double T, double p, double rhobar_liq, double rhobar_vap, std::vector<double> const& z, std::vector<double> &K);
 };
 
 /*! 
@@ -305,7 +305,7 @@ public:
 	Mixture(std::vector<Fluid *> pFluids);
 	~Mixture();
 
-	double Rbar(std::vector<double> *x);
+	double Rbar(const std::vector<double> &x);
 
 	std::vector<Fluid *> pFluids;
 	ReducingFunction * pReducing;
@@ -325,19 +325,19 @@ public:
 	@param i Index of component [-]
 	*/
 	double Wilson_lnK_factor(double T, double p, int i);
-	double phir(double tau, double delta, std::vector<double> *x);
-	double d2phir_dDelta_dTau(double tau, double delta, std::vector<double> *x);
-	double d2phir_dTau2(double tau, double delta, std::vector<double> *x);
-	double dphir_dDelta(double tau, double delta, std::vector<double> *x);
-	double d2phir_dDelta2(double tau, double delta, std::vector<double> *x);
-	double dphir_dTau(double tau, double delta, std::vector<double> *x);
-	double dphir_dxi(double tau, double delta, std::vector<double> *x, int i);
-	double d2phir_dxi_dTau(double tau, double delta, std::vector<double> *x, int i);
-	double d2phir_dxi_dDelta(double tau, double delta, std::vector<double> *x, int i);
-	double d2phirdxidxj(double tau, double delta, std::vector<double> *x, int i, int j);
+	double phir(double tau, double delta, const std::vector<double> &x);
+	double d2phir_dDelta_dTau(double tau, double delta, const std::vector<double> &x);
+	double d2phir_dTau2(double tau, double delta, const std::vector<double> &x);
+	double dphir_dDelta(double tau, double delta, const std::vector<double> &x);
+	double d2phir_dDelta2(double tau, double delta, const std::vector<double> &x);
+	double dphir_dTau(double tau, double delta, const std::vector<double> &x);
+	double dphir_dxi(double tau, double delta, const std::vector<double> &x, int i);
+	double d2phir_dxi_dTau(double tau, double delta, const std::vector<double> &x, int i);
+	double d2phir_dxi_dDelta(double tau, double delta, const std::vector<double> &x, int i);
+	double d2phirdxidxj(double tau, double delta, const std::vector<double> &x, int i, int j);
 
 	/// Returns the fugacity for the given component for the given total reduced density and reciprocal reduced temperature
-	double fugacity(double tau, double delta, std::vector<double> *x, int i);
+	double fugacity(double tau, double delta, const std::vector<double> &x, int i);
 	
 	/*! Density as a function of T,p,z
 	@param T Temperature [K]
@@ -345,7 +345,7 @@ public:
 	@param z Bulk mole fractions [-]
 	@param rhobar0 Guess value for molar density [mol/m^3]
 	*/
-	double rhobar_Tpz(double T, double p, std::vector<double> *z, double rhobar0);
+	double rhobar_Tpz(double T, double p, const std::vector<double> &z, double rhobar0);
 
 	/*! Temperature-pressure-bulk mole fraction flash calculation
 	@param T Temperature [K]
@@ -355,7 +355,7 @@ public:
 	@param x Liquid mole fractions [-] (if saturated)
 	@param y Vapor mole fractions [-] (if saturated)
 	*/
-	void TpzFlash(double T, double p, std::vector<double> *z, double *rhobar, std::vector<double> *x, std::vector<double> *y);
+	void TpzFlash(double T, double p, const std::vector<double> &z, double &rhobar, std::vector<double> &x, std::vector<double> &y);
 
 	/*! Objective function from Rachford-Rice (Not to be confused with the Gibbs function)
 	\f[
@@ -365,7 +365,7 @@ public:
 	@param lnK Logarithm of the K factor [-]
 	@param beta Molar fraction in the gas phase [-]
 	*/
-	double g_RachfordRice(std::vector<double> *z, std::vector<double> *lnK, double beta);
+	double g_RachfordRice(const std::vector<double> &z, const std::vector<double> &lnK, double beta);
 
 	/*! Objective function from Rachford-Rice (Not to be confused with the Gibbs function)
 	\f[
@@ -375,7 +375,7 @@ public:
 	@param lnK Logarithm of the K factor [-]
 	@param beta Molar fraction in the gas phase [-]
 	*/
-	double dgdbeta_RachfordRice(std::vector<double> *z, std::vector<double> *lnK, double beta);
+	double dgdbeta_RachfordRice(const std::vector<double> &z, const std::vector<double> &lnK, double beta);
 
 	/*! The derivative term
 	\f[
@@ -389,7 +389,7 @@ public:
 	\f}
 	See Table B4, Kunz, JCED, 2012 for the original term and the subsequent substitutions
 	*/
-	double ndphir_dni__constT_V_nj(double tau, double delta, std::vector<double> *x, int i);
+	double ndphir_dni__constT_V_nj(double tau, double delta, const std::vector<double> &x, int i);
 
 	/*! The partial molar volume
 	\f[
@@ -397,7 +397,7 @@ public:
 	\f]
 	from GERG monograph eqn 7.32
 	*/
-	double partial_molar_volume(double tau, double delta, std::vector<double> *x, int i);
+	double partial_molar_volume(double tau, double delta, const std::vector<double> &x, int i);
 
 	/*! The derivative term
 	\f[
@@ -405,7 +405,7 @@ public:
 	\f]
 	GERG 2004 Monograph equation 7.61
 	*/
-	double dpdT__constV_n(double tau, double delta, std::vector<double> *x, int i);
+	double dpdT__constV_n(double tau, double delta, const std::vector<double> &x, int i);
 
 	/*! The derivative term
 	\f[
@@ -413,7 +413,7 @@ public:
 	\f]
 	GERG 2004 Monograph equation 7.62
 	*/
-	double ndpdV__constT_n(double tau, double delta, std::vector<double> *x, int i);
+	double ndpdV__constT_n(double tau, double delta, const std::vector<double> &x, int i);
 
 	/*! The derivative term
 	\f[
@@ -421,17 +421,17 @@ public:
 	\f]
 	GERG 2004 Monograph equation 7.63
 	*/
-	double ndpdni__constT_V_nj(double tau, double delta, std::vector<double> *x, int i);
+	double ndpdni__constT_V_nj(double tau, double delta, const std::vector<double> &x, int i);
 
 	/*!
 	Natural logarithm of the fugacity coefficient
 	*/
-	double ln_fugacity_coefficient(double tau, double delta, std::vector<double> *x, int i);
+	double ln_fugacity_coefficient(double tau, double delta, const std::vector<double> &x, int i);
 
 	/*!
 	Derivative of the natural logarithm of the fugacity coefficient with respect to T
 	*/
-	double dln_fugacity_coefficient_dT__constrho(double tau, double delta, std::vector<double> *x, int i);
+	double dln_fugacity_coefficient_dT__constrho(double tau, double delta, const std::vector<double> &x, int i);
 
 	/*! The derivative term
 	\f[
@@ -439,7 +439,7 @@ public:
 	\f]
 	GERG 2004 Monograph Eqn. 7.29
 	*/
-	double dln_fugacity_coefficient_dT__constp_n(double tau, double delta, std::vector<double> *x, int i);
+	double dln_fugacity_coefficient_dT__constp_n(double tau, double delta, const std::vector<double> &x, int i);
 
 	/*! The derivative term
 	\f[
@@ -447,7 +447,7 @@ public:
 	\f]
 	GERG 2004 Monograph Eqn. 7.30
 	*/
-	double dln_fugacity_coefficient_dp__constT_n(double tau, double delta, std::vector<double> *x, int i);
+	double dln_fugacity_coefficient_dp__constT_n(double tau, double delta, const std::vector<double> &x, int i);
 
 	/*!
 	\f[
@@ -459,7 +459,7 @@ public:
 	\f]
 	GERG 2004 Monograph Equation 7.31
 	*/
-	double ndln_fugacity_coefficient_dnj__constT_p(double tau, double delta, std::vector<double> *x, int i, int j);
+	double ndln_fugacity_coefficient_dnj__constT_p(double tau, double delta, const std::vector<double> &x, int i, int j);
 
 	/*!
 	\f[
@@ -470,7 +470,7 @@ public:
 	\f]
 	GERG 2004 Monograph, equations 7.44 and 7.51
 	*/
-	double d2nphir_dni_dT(double tau, double delta, std::vector<double> *x, int i);
+	double d2nphir_dni_dT(double tau, double delta, const std::vector<double> &x, int i);
 
 	/*! The derivative term
 	\f{eqnarray*}{
@@ -480,7 +480,7 @@ public:
 	\f}
 	GERG 2004 Monograph Equation 7.51 and Table B4, Kunz, JCED, 2012
 	*/
-	double d_ndphirdni_dTau(double tau, double delta, std::vector<double> *x, int i);
+	double d_ndphirdni_dTau(double tau, double delta, const std::vector<double> &x, int i);
 
 	/*! The derivative term
 	\f{eqnarray*}{
@@ -490,7 +490,7 @@ public:
 	\f}
 	GERG 2004 Monograph Equation 7.50 and Table B4, Kunz, JCED, 2012
 	*/
-	double d_ndphirdni_dDelta(double tau, double delta, std::vector<double> *x, int i);
+	double d_ndphirdni_dDelta(double tau, double delta, const std::vector<double> &x, int i);
 
 	/*!GERG 2004 Monograph equation 7.41:
 	\f[
@@ -508,7 +508,7 @@ public:
 	&+& \left( \frac{\partial}{\partial x_j}\left(n\left(\frac{\partial\alpha^r}{\partial n_i}\right)_{T,V,n_j}\right)\right)_{\delta,\tau,x_i}-\sum_{k=1}^{N}x_k \left( \frac{\partial}{\partial x_k}\left(n\left(\frac{\partial\alpha^r}{\partial n_i}\right)_{T,V,n_j}\right)\right)_{\delta,\tau,x_i}\\
 	\f}
 	*/
-	double nd2nphirdnidnj__constT_V(double tau, double delta, std::vector<double> *x, int i, int j);
+	double nd2nphirdnidnj__constT_V(double tau, double delta, const std::vector<double> &x, int i, int j);
 
 	/*! 
 	\f[
@@ -516,14 +516,14 @@ public:
 	\f]
 	GERG 2004 Monograph equation 7.48
 	*/
-	double nddeltadni__constT_V_nj(double tau, double delta, std::vector<double> *x, int i);
+	double nddeltadni__constT_V_nj(double tau, double delta, const std::vector<double> &x, int i);
 	/*! 
 	\f[
 	n\left(\frac{\partial \tau}{\partial n_i} \right)_{T,V,n_j} = \frac{\tau}{T_r}\cdot n\left(\frac{\partial T_r}{\partial n_i} \right)_{n_j}
 	\f]
 	GERG 2004 Monograph equation 7.49
 	*/
-	double ndtaudni__constT_V_nj(double tau, double delta, std::vector<double> *x, int i);
+	double ndtaudni__constT_V_nj(double tau, double delta, const std::vector<double> &x, int i);
 
 	
 
@@ -536,13 +536,13 @@ public:
 	&+& \alpha_{x_ix_j}^r-\alpha_{x_j}^r-\sum_{m=1}^Nx_m\alpha_{x_jx_m}^r
 	\f}
 	*/
-	double d_ndphirdni_dxj__constdelta_tau_xi(double tau, double delta, std::vector<double> *x, int i, int j);
+	double d_ndphirdni_dxj__constdelta_tau_xi(double tau, double delta, const std::vector<double> &x, int i, int j);
 
-	double saturation_p(int type, double p, std::vector<double> *z, std::vector<double> *x, std::vector<double> *y);
+	double saturation_p(int type, double p, const std::vector<double> &z, std::vector<double> &x, std::vector<double> &y);
 
 	/*! Calculate the mixture molar density based on the use of the Peng-Robinson equation of state
 	*/
-	double rhobar_pengrobinson(double T, double p, std::vector<double> *x, int solution);
+	double rhobar_pengrobinson(double T, double p, const std::vector<double> &x, int solution);
 
 	/*! Load the excess parameters (departure function parameters)
 	@param i 0-based index of first component
