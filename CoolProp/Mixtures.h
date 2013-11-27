@@ -268,15 +268,19 @@ A class is used rather than a function so that it is easier to store iteration h
 class NewtonRaphsonVLE
 {
 public:
+	double error_rms;
+	unsigned int N;
 	bool logging;
 	int Nsteps;
 	int Nmax;
 	Mixture *Mix;
 	STLMatrix J;
-	std::vector<double> K, x, y, phi_ij_liq, phi_ij_vap;
+	std::vector<double> K, x, y, phi_ij_liq, phi_ij_vap, r;
 	std::vector<SuccessiveSubstitutionStep> step_logger;
 
 	NewtonRaphsonVLE(){};
+
+	void resize(unsigned int N);
 	/*! Call the Newton-Raphson VLE Solver
 
 	This solver must be passed reasonable guess values for the mole fractions, 
@@ -290,7 +294,20 @@ public:
 	@param z Bulk mole fractions [-]
 	@param K Array of K-factors [-]
 	*/
-	double call(double beta, double T, double p, double rhobar_liq, double rhobar_vap, std::vector<double> const& z, std::vector<double> &K);
+	double call(double beta, double T, double p, double rhobar_liq, double rhobar_vap, const std::vector<double> &z, std::vector<double> &K, int spec_index, double spec_value);
+
+	/*! Build the arrays for the Newton-Raphson solve
+
+	This method builds the Jacobian matrix, the sensitivity matrix, etc.
+
+	@param T Temperature [K]
+	@param p Pressure [Pa]
+	@param rhobar_liq Current value of molar density of the liquid [mol/m^3]
+	@param rhobar_vap Current value of molar density of the vapor [mol/m^3]
+	@param z Bulk mole fractions [-]
+	@param K Array of K-factors [-]
+	*/
+	void build_arrays(double beta, double T, double p, double rhobar_liq, double rhobar_vap, const std::vector<double> &z, std::vector<double> & K, int spec_index, double spec_value);
 };
 
 /*! 

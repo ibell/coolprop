@@ -222,6 +222,8 @@ Mixture::Mixture(std::vector<Fluid *> pFluids)
 	STLMatrix F;
 	F.resize(pFluids.size(),std::vector<double>(pFluids.size(),1.0));
 
+	NRVLE.resize(this->N);
+
 	// One reducing function for the entire mixture
 	pReducing = new GERG2008ReducingFunction(pFluids);
 
@@ -1793,7 +1795,7 @@ double SuccessiveSubstitutionVLE::call(int type, double T, double p, std::vector
 			//throw ValueError(format("saturation_p was unable to reach a solution within 50 iterations"));
 		}
 	}
-	while(fabs(f) > 1e-12 && iter < 6);
+	while(fabs(f) > 1e-10 && iter < 6);
 	double beta;
 	if (type == TYPE_BUBBLEPOINT)
 	{
@@ -1804,134 +1806,31 @@ double SuccessiveSubstitutionVLE::call(int type, double T, double p, std::vector
 		beta = 1;
 	}
 	// Pass off to Newton-Raphson to polish the solution
-	//return T;
-	return Mix->NRVLE.call(beta,T,p,rhobar_liq,rhobar_vap,z,K);
+	return T;
+	//return Mix->NRVLE.call(beta,T,p,rhobar_liq,rhobar_vap,z,K,N+1,log(p));
 }
 
-double NewtonRaphsonVLE::call(double beta, double T, double p, double rhobar_liq, double rhobar_vap, std::vector<double> const& z, std::vector<double> & K)
+void NewtonRaphsonVLE::resize(unsigned int N)
 {
-	int iter = 1;
-	double error_rms;
-	unsigned int N = Mix->N;
+	this->N = N;
 	x.resize(N); y.resize(N); phi_ij_liq.resize(N); phi_ij_vap.resize(N);
 
-	std::vector<double> r(N+2, 0);
+	r.resize(N+2);
 	J.resize(N+2, std::vector<double>(N+2, 0));
+}
+double NewtonRaphsonVLE::call(double beta, double T, double p, double rhobar_liq, double rhobar_vap, const std::vector<double> &z, std::vector<double> & K, int spec_index, double spec_value)
+{
+	int iter = 1;
 
 	// Specified value only allowed to be pressure for now
-	double spec_value = log(p);
-	int spec_index = N+1;
+	spec_value = log(p);
+	spec_index = N+1;
 
 	do
 	{
-		// Step 0:
-		// --------
-		// Calculate the mole fractions in liquid and vapor phases
-		for (unsigned int i=0; i < N; i++)
-		{
-			double denominator = (1-beta+beta*K[i]); // Common denominator
-			x[i] = z[i]/denominator;
-			y[i] = K[i]*z[i]/denominator;
-		}
-		normalize_vector(x);
-		normalize_vector(y);
+		// Build the Jacobian and residual vectors for given inputs
+		build_arrays(beta,T,p,rhobar_liq,rhobar_vap,z,K,spec_index,spec_value);
 
-		// Step 1:
-		// -------
-		// Calculate the new reducing and reduced parameters for each phase
-		// based on the current values of the molar fractions
-		rhobar_liq = Mix->rhobar_Tpz(T, p, x, rhobar_liq); // [kg/m^3] (Not exact due to solver convergence)
-		rhobar_vap = Mix->rhobar_Tpz(T, p, y, rhobar_vap); // [kg/m^3] (Not exact due to solver convergence)
-		
-		double Tr_liq = Mix->pReducing->Tr(x); // [K]
-		double Tr_vap = Mix->pReducing->Tr(y);  // [K]
-		double tau_liq = Tr_liq/T; // [-]
-		double tau_vap = Tr_vap/T; // [-]
-
-		double rhorbar_liq = Mix->pReducing->rhorbar(x); //[kg/m^3]
-		double rhorbar_vap = Mix->pReducing->rhorbar(y); //[kg/m^3]
-		double delta_liq = rhobar_liq/rhorbar_liq;  //[-]
-		double delta_vap = rhobar_vap/rhorbar_vap;  //[-]
-
-		// Step 2:
-		// -------
-		// Build the residual vector and the Jacobian matrix
-
-		// For the residuals F_i
-		for (unsigned int i = 0; i < N; i++)
-		{
-			double ln_phi_liq = Mix->ln_fugacity_coefficient(tau_liq, delta_liq, x, i);
-			double phi_iT_liq = Mix->dln_fugacity_coefficient_dT__constp_n(tau_liq, delta_liq, x, i);
-			double phi_ip_liq = Mix->dln_fugacity_coefficient_dp__constT_n(tau_liq, delta_liq, x, i);
-			for (unsigned int j = 0; j < N; j++)
-			{
-				phi_ij_liq[j] = Mix->ndln_fugacity_coefficient_dnj__constT_p(tau_liq,delta_liq,x,i,j); // 7.126 from GERG monograph
-			}
-
-			double ln_phi_vap = Mix->ln_fugacity_coefficient(tau_vap, delta_vap, y, i);
-			double phi_iT_vap = Mix->dln_fugacity_coefficient_dT__constp_n(tau_vap, delta_vap, y, i);
-			double phi_ip_vap = Mix->dln_fugacity_coefficient_dp__constT_n(tau_vap, delta_vap, y, i);
-			for (unsigned int j = 0; j < N; j++)
-			{
-				phi_ij_vap[j] = Mix->ndln_fugacity_coefficient_dnj__constT_p(tau_vap,delta_vap,y,i,j); // 7.126 from GERG monograph
-			}
-			
-			r[i] = ln_phi_vap - ln_phi_liq + log(K[i]);
-			for (unsigned int j = 0; j < N; j++)
-			{	
-				J[i][j] = K[j]*z[j]/pow(1-beta+beta*K[j],(int)2)*((1-beta)*phi_ij_vap[j]+beta*phi_ij_liq[j])+Kronecker_delta(i,j);
-			}
-			// dF_{i}/d(ln(T))
-			J[i][N] = T*(phi_iT_vap-phi_iT_liq);
-			// dF_{i}/d(ln(p))
-			J[i][N+1] = p*(phi_ip_vap-phi_ip_liq);
-
-		}
-		r[N] = 0.0;
-		// For the residual term F_{N+1}
-		for (unsigned int i = 0; i < N; i++)
-		{
-			r[N] += y[i]-x[i];
-			for (unsigned int j = 0; j < N; j++)
-			{
-				J[N][j] = K[j]*z[j]/pow(1-beta+beta*K[j],(int)2);
-			}
-		}
-		// For the specification term F_{N+2}, with index of N+1
-		if (spec_index == N)
-			{r[N+1] = log(T) - spec_value;}
-		else if (spec_index == N+1)
-			{r[N+1] = log(p) - spec_value;}
-		else
-			{r[N+1] = log(K[spec_index]) - spec_value;}
-
-		J[N+1][spec_index] = 1;
-
-		// Flip all the signs of the entries in the residual vector since we are solving Jv = -r, not Jv=r
-		// Also calculate the rms error of the residual vector at this step
-		error_rms = 0;
-		for (unsigned int i = 0; i < N+2; i++)
-		{
-			r[i] *= -1;
-			error_rms += r[i]*r[i]; // Sum the squares
-		}
-		error_rms = sqrt(error_rms); // Square-root (The R in RMS)
-
-		//for (unsigned int i = 0; i < N+2; i++)
-		//{
-		//	std::cout << "[";
-		//	for (unsigned int j = 0; j < N+2; j++)
-		//	{
-		//		printf("%.20g, ",J[i][j]);
-		//	}
-		//	std::cout << "]" <<std::endl;
-		//}
-		//std::cout << "[" <<std::endl;
-		//for (unsigned int j = 0; j < N+2; j++)
-		//{
-		//	printf("%.20g, ",r[j]);
-		//}
-		//std::cout << "]" <<std::endl;
 		// Solve for the step; v is the step with the contents [lnK0, lnK1, ..., lnT, lnp]
 		std::vector<double> v = linsolve(J, r);
 
@@ -1946,6 +1845,102 @@ double NewtonRaphsonVLE::call(double beta, double T, double p, double rhobar_liq
 		//std::cout << iter << " " << error_rms << std::endl;
 		iter++;
 	}
-	while(error_rms > 1e-13 && iter < 10);
+	while(this->error_rms > 1e-13 && iter < 10);
 	return T;
+}
+
+void NewtonRaphsonVLE::build_arrays(double beta, double T, double p, double rhobar_liq, double rhobar_vap, const std::vector<double> &z, std::vector<double> &K, int spec_index, double spec_value)
+{
+	// Step 0:
+	// --------
+	// Calculate the mole fractions in liquid and vapor phases
+	for (unsigned int i=0; i < N; i++)
+	{
+		double denominator = (1-beta+beta*K[i]); // Common denominator
+		x[i] = z[i]/denominator;
+		y[i] = K[i]*z[i]/denominator;
+	}
+	normalize_vector(x);
+	normalize_vector(y);
+
+	// Step 1:
+	// -------
+	// Calculate the new reducing and reduced parameters for each phase
+	// based on the current values of the molar fractions
+	rhobar_liq = Mix->rhobar_Tpz(T, p, x, rhobar_liq); // [kg/m^3] (Not exact due to solver convergence)
+	rhobar_vap = Mix->rhobar_Tpz(T, p, y, rhobar_vap); // [kg/m^3] (Not exact due to solver convergence)
+	
+	double Tr_liq = Mix->pReducing->Tr(x); // [K]
+	double Tr_vap = Mix->pReducing->Tr(y);  // [K]
+	double tau_liq = Tr_liq/T; // [-]
+	double tau_vap = Tr_vap/T; // [-]
+
+	double rhorbar_liq = Mix->pReducing->rhorbar(x); //[kg/m^3]
+	double rhorbar_vap = Mix->pReducing->rhorbar(y); //[kg/m^3]
+	double delta_liq = rhobar_liq/rhorbar_liq;  //[-]
+	double delta_vap = rhobar_vap/rhorbar_vap;  //[-]
+
+	// Step 2:
+	// -------
+	// Build the residual vector and the Jacobian matrix
+
+	// For the residuals F_i
+	for (unsigned int i = 0; i < N; i++)
+	{
+		double ln_phi_liq = Mix->ln_fugacity_coefficient(tau_liq, delta_liq, x, i);
+		double phi_iT_liq = Mix->dln_fugacity_coefficient_dT__constp_n(tau_liq, delta_liq, x, i);
+		double phi_ip_liq = Mix->dln_fugacity_coefficient_dp__constT_n(tau_liq, delta_liq, x, i);
+		for (unsigned int j = 0; j < N; j++)
+		{
+			phi_ij_liq[j] = Mix->ndln_fugacity_coefficient_dnj__constT_p(tau_liq,delta_liq,x,i,j); // 7.126 from GERG monograph
+		}
+
+		double ln_phi_vap = Mix->ln_fugacity_coefficient(tau_vap, delta_vap, y, i);
+		double phi_iT_vap = Mix->dln_fugacity_coefficient_dT__constp_n(tau_vap, delta_vap, y, i);
+		double phi_ip_vap = Mix->dln_fugacity_coefficient_dp__constT_n(tau_vap, delta_vap, y, i);
+		for (unsigned int j = 0; j < N; j++)
+		{
+			phi_ij_vap[j] = Mix->ndln_fugacity_coefficient_dnj__constT_p(tau_vap,delta_vap,y,i,j); // 7.126 from GERG monograph
+		}
+		
+		r[i] = ln_phi_vap - ln_phi_liq + log(K[i]);
+		for (unsigned int j = 0; j < N; j++)
+		{	
+			J[i][j] = K[j]*z[j]/pow(1-beta+beta*K[j],(int)2)*((1-beta)*phi_ij_vap[j]+beta*phi_ij_liq[j])+Kronecker_delta(i,j);
+		}
+		// dF_{i}/d(ln(T))
+		J[i][N] = T*(phi_iT_vap-phi_iT_liq);
+		// dF_{i}/d(ln(p))
+		J[i][N+1] = p*(phi_ip_vap-phi_ip_liq);
+
+	}
+	r[N] = 0.0;
+	// For the residual term F_{N+1}
+	for (unsigned int i = 0; i < N; i++)
+	{
+		r[N] += y[i]-x[i];
+		for (unsigned int j = 0; j < N; j++)
+		{
+			J[N][j] = K[j]*z[j]/pow(1-beta+beta*K[j],(int)2);
+		}
+	}
+	// For the specification term F_{N+2}, with index of N+1
+	if (spec_index == N)
+		{r[N+1] = log(T) - spec_value;}
+	else if (spec_index == N+1)
+		{r[N+1] = log(p) - spec_value;}
+	else
+		{r[N+1] = log(K[spec_index]) - spec_value;}
+
+	J[N+1][spec_index] = 1;
+
+	// Flip all the signs of the entries in the residual vector since we are solving Jv = -r, not Jv=r
+	// Also calculate the rms error of the residual vector at this step
+	error_rms = 0;
+	for (unsigned int i = 0; i < N+2; i++)
+	{
+		r[i] *= -1;
+		error_rms += r[i]*r[i]; // Sum the squares
+	}
+	error_rms = sqrt(error_rms); // Square-root (The R in RMS)
 }
