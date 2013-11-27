@@ -215,9 +215,10 @@ Mixture::Mixture(std::vector<Fluid *> pFluids)
 	this->pFluids = pFluids;
 	this->N = pFluids.size();
 
-	// Give successive substitution class a pointer to this class
+	// Give child classes a pointer to this class
 	SS.Mix = this;
 	NRVLE.Mix = this;
+	Envelope.Mix = this;
 
 	STLMatrix F;
 	F.resize(pFluids.size(),std::vector<double>(pFluids.size(),1.0));
@@ -257,6 +258,8 @@ Mixture::Mixture(std::vector<Fluid *> pFluids)
 	
 	std::vector<double> z(2, 0.5);
 
+	Envelope.build(100000,z);
+
 	z[0] = 0.5;
 	z[1] = 1-z[0];
 
@@ -273,26 +276,24 @@ Mixture::Mixture(std::vector<Fluid *> pFluids)
 	//double p = Rbar(&z)*rhobar*T*(1 + delta*_dphir_dDelta)/1000; //[kPa]
 
 	std::vector<double> x, y;
-	check();
-	time_t t1,t2;
-	unsigned int N = 100;
-	double TTE = 0;
-	t1 = clock();
-	for (unsigned int i = 0; i < N; i++)
-	{
-		TTE += saturation_p(TYPE_BUBBLEPOINT,10000,z,x,y);
-		//TTE += Props("T",'P',10,'Q',0,"REFPROP-MIX:Methane[0.5]&Ethane[0.5]");
-	}
-	t2 = clock();
-	printf("val %g elapsed time/call %g us\n", TTE/(double)N, (double)(t2-t1)/(double)CLOCKS_PER_SEC/N*1e6);
+	//check();
+	//time_t t1,t2;
+	//unsigned int N = 100;
+	//double TTE = 0;
+	//t1 = clock();
+	//for (unsigned int i = 0; i < N; i++)
+	//{
+	//	TTE += saturation_p(TYPE_BUBBLEPOINT,10000,z,x,y);
+	//	//TTE += Props("T",'P',10,'Q',0,"REFPROP-MIX:Methane[0.5]&Ethane[0.5]");
+	//}
+	//t2 = clock();
+	//printf("val %g elapsed time/call %g us\n", TTE/(double)N, (double)(t2-t1)/(double)CLOCKS_PER_SEC/N*1e6);
 //	return;
 	//p = 595.61824;
 	
 	//TpzFlash(T, p, z, &rhobar, &x, &y);
 
 	//double rhor = pReducing->rhorbar(&z);
-	
-	
 	
 	double Tsat;
 	double psat = 1e3;
@@ -907,13 +908,8 @@ public:
 		return summer;
 	};
 };
-
-double Mixture::saturation_p(int type, double p, std::vector<double> const& z, std::vector<double> &x, std::vector<double> &y)
+double Mixture::saturation_p_preconditioner(double p, const std::vector<double> &z)
 {
-	double T;
-	unsigned int N = z.size();
-	std::vector<double> K(N), ln_phi_liq(N), ln_phi_vap(N);
-
 	double pseudo_ptriple = 0;
 	double pseudo_pcrit = 0;
 	double pseudo_Ttriple = 0;
@@ -926,7 +922,48 @@ double Mixture::saturation_p(int type, double p, std::vector<double> const& z, s
 		pseudo_pcrit += pFluids[i]->crit.p.Pa*z[i];
 		pseudo_Ttriple += pFluids[i]->params.Ttriple*z[i];
 		pseudo_Tcrit += pFluids[i]->crit.T*z[i];
+	}
 
+	// Preliminary guess based on interpolation of log(p) v. T
+	return (pseudo_Tcrit-pseudo_Ttriple)/(pseudo_pcrit/pseudo_ptriple)*(p/pseudo_ptriple)+pseudo_Ttriple;
+}
+double Mixture::saturation_p_Wilson(int type, double p, const std::vector<double> &z, double T_guess, std::vector<double> &K)
+{
+	double T;
+
+	std::string errstr;
+	if (type == TYPE_BUBBLEPOINT)
+	{
+		// Find first guess for T using Wilson K-factors
+		bubblepoint_WilsonK_resid Resid(this,p,z); //sum(z_i*K_i) - 1
+		T = Secant(&Resid, T_guess, 0.001, 1e-10, 100, &errstr);
+		// Get the K factors from the residual wrapper
+		K = Resid.K;
+	}
+	else if (type == TYPE_DEWPOINT)
+	{
+		// Find first guess for T using Wilson K-factors
+		dewpoint_WilsonK_resid Resid(this,p,z); //1-sum(z_i/K_i)
+		T = Secant(&Resid, T_guess, 0.001, 1e-10, 100, &errstr);
+		// Get the K factors from the residual wrapper
+		K = Resid.K;
+	}
+	else
+	{
+		throw ValueError("Invalid type to saturation_p");
+	}
+	if (!ValidNumber(T)){throw ValueError();}
+	return T;
+}
+double Mixture::saturation_p(int type, double p, std::vector<double> const& z, std::vector<double> &x, std::vector<double> &y)
+{
+	double T;
+	unsigned int N = z.size();
+	std::vector<double> K(N), ln_phi_liq(N), ln_phi_vap(N);
+
+	// Check if a pure fluid, if so, mole fractions and saturation temperatures are equal to bulk composition
+	for (unsigned int i = 0; i < N; i++)
+	{
 		if (fabs(z[i]-1) < 10*DBL_EPSILON)
 		{
 			// Mole fractions are equal to bulk composition
@@ -939,61 +976,21 @@ double Mixture::saturation_p(int type, double p, std::vector<double> const& z, s
 		}
 	}
 
-	x.resize(N);
-	y.resize(N);
-
 	// Preliminary guess based on interpolation of log(p) v. T
-	double T_guess = (pseudo_Tcrit-pseudo_Ttriple)/(pseudo_pcrit/pseudo_ptriple)*(p/pseudo_ptriple)+pseudo_Ttriple;
+	double T_guess = saturation_p_preconditioner(p, z);
 
-	std::string errstr;
-	if (type == TYPE_BUBBLEPOINT)
-	{
-		// Liquid is at the bulk composition
-		x = z;
-		// Find first guess for T using Wilson K-factors
-		bubblepoint_WilsonK_resid Resid(this,p,z); //sum(z_i*K_i) - 1
-		T = Secant(&Resid, T_guess, 0.001, 1e-10, 100, &errstr);
-		// Get the K factors from the residual wrapper
-		K = Resid.K;
-	}
-	else if (type == TYPE_DEWPOINT)
-	{
-		// Vapor is at the bulk composition
-		y = z;
-		// Find first guess for T using Wilson K-factors
-		dewpoint_WilsonK_resid Resid(this,p,z); //1-sum(z_i/K_i)
-		T = Secant(&Resid, T_guess, 0.001, 1e-10, 100, &errstr);
-		// Get the K factors from the residual wrapper
-		K = Resid.K;
-	}
-	else
-	{
-		throw ValueError("Invalid type to saturation_p");
-	}
-	if (!ValidNumber(T)){throw ValueError();}
+	// Initialize the call using Wilson to get K-factors and temperature
+	T = saturation_p_Wilson(type, p, z, T_guess, K);
 
-	// Initial guess for mole fractions in the incipient phase
-	if (type == TYPE_BUBBLEPOINT)
-	{
-		// Calculate the vapor molar fractions using the K factor
-		for (unsigned int i = 0; i < N; i++)
-		{
-			y[i] = K[i]*z[i];
-		}
-		normalize_vector(y); // Normalize the components
-	}
-	else
-	{
-		// Calculate the liquid molar fractions using the K factor
-		for (unsigned int i = 0; i < N; i++)
-		{
-			x[i] = z[i]/K[i];
-		}
-		normalize_vector(x); // Normalize the components
-	}
+	// Call the successive substitution routine with the guess values provided above from Wilson
+	// It will call the Newton-Raphson routine after a few steps of successive-substitution
+	T = SS.call(type, T, p, z, K);
 
-	// Call the successive substitution routine with the guess values provided here from Wilson
-	return SS.call(type, T, p, z, x, y);
+	x = SS.x;
+	y = SS.y;
+
+	return T;
+
 }
 void Mixture::TpzFlash(double T, double p, const std::vector<double> &z, double &rhobar, std::vector<double> &x, std::vector<double> &y)
 {
@@ -1077,6 +1074,17 @@ void Mixture::TpzFlash(double T, double p, const std::vector<double> &z, double 
 	while( fabs(change) > 1e-7);
 
 	return;
+}
+void Mixture::x_and_y_from_K(double beta, const std::vector<double> &K, const std::vector<double> &z, std::vector<double> &x, std::vector<double> &y)
+{
+	for (unsigned int i=0; i < N; i++)
+	{
+		double denominator = (1-beta+beta*K[i]); // Common denominator
+		x[i] = z[i]/denominator;
+		y[i] = K[i]*z[i]/denominator;
+	}
+	normalize_vector(x);
+	normalize_vector(y);
 }
 double Mixture::rhobar_pengrobinson(double T, double p, const std::vector<double> &x, int solution)
 { 
@@ -1712,16 +1720,26 @@ double ReducingFunction::ndTrdni__constnj(const std::vector<double> &x, int i)
 	return dTrdxi__constxj(x,i)-summer_term1;
 }
 
-double SuccessiveSubstitutionVLE::call(int type, double T, double p, std::vector<double> const& z, std::vector<double> &x, std::vector<double> &y)
+double SuccessiveSubstitutionVLE::call(int type, double T, double p, const std::vector<double> &z, std::vector<double> &K)
 {
 	int iter = 1;
-	double change, f, dfdT, rhobar_liq_new, rhobar_vap_new;
+	double change, f, dfdT, rhobar_liq_new, rhobar_vap_new, beta;
 	unsigned int N = z.size();
-	K.resize(N); ln_phi_liq.resize(N); ln_phi_vap.resize(N);
+	K.resize(N); ln_phi_liq.resize(N); ln_phi_vap.resize(N); x.resize(N); y.resize(N);
 
+	if (type == TYPE_BUBBLEPOINT)
+	{
+		beta = 0;
+	}
+	else
+	{
+		beta = 1;
+	}
+
+	Mix->x_and_y_from_K(beta, K, z, x, y);
 	
-	double rhobar_liq = Mix->rhobar_pengrobinson(T, p, x, PR_SATL); // [kg/m^3]
-	double rhobar_vap = Mix->rhobar_pengrobinson(T, p, y, PR_SATV); // [kg/m^3]
+	rhobar_liq = Mix->rhobar_pengrobinson(T, p, x, PR_SATL); // [kg/m^3]
+	rhobar_vap = Mix->rhobar_pengrobinson(T, p, y, PR_SATV); // [kg/m^3]
 
 	do
 	{
@@ -1769,24 +1787,8 @@ double SuccessiveSubstitutionVLE::call(int type, double T, double p, std::vector
 		change = -f/dfdT;
 
 		T += change;
-		if (type == TYPE_BUBBLEPOINT)
-		{
-			// Calculate the vapor molar fractions using the K factor and Rachford-Rice
-			for (unsigned int i = 0; i < N; i++)
-			{
-				y[i] = z[i]*K[i];
-			}
-			normalize_vector(y);
-		}
-		else
-		{
-			// Calculate the liquid molar fractions using the K factor and Rachford-Rice
-			for (unsigned int i = 0; i < N; i++)
-			{
-				x[i] = z[i]/K[i];
-			}
-			normalize_vector(x);
-		}
+
+		Mix->x_and_y_from_K(beta,K,z,x,y);
 
 		iter += 1;
 		if (iter > 50)
@@ -1795,19 +1797,17 @@ double SuccessiveSubstitutionVLE::call(int type, double T, double p, std::vector
 			//throw ValueError(format("saturation_p was unable to reach a solution within 50 iterations"));
 		}
 	}
-	while(fabs(f) > 1e-10 && iter < 6);
-	double beta;
-	if (type == TYPE_BUBBLEPOINT)
+	while(fabs(f) > 1e-10 && iter < Nstep_max);
+	
+	if (!useNR)
 	{
-		beta = 0;
+		return T;
 	}
 	else
 	{
-		beta = 1;
+		// Pass off to Newton-Raphson to polish the solution
+		return Mix->NRVLE.call(beta,T,p,rhobar_liq,rhobar_vap,z,K,N+1,log(p));
 	}
-	// Pass off to Newton-Raphson to polish the solution
-	return T;
-	//return Mix->NRVLE.call(beta,T,p,rhobar_liq,rhobar_vap,z,K,N+1,log(p));
 }
 
 void NewtonRaphsonVLE::resize(unsigned int N)
@@ -1817,21 +1817,25 @@ void NewtonRaphsonVLE::resize(unsigned int N)
 
 	r.resize(N+2);
 	J.resize(N+2, std::vector<double>(N+2, 0));
+
+	neg_dFdS.resize(N+2);
+	dXdS.resize(N+2);
+
+	// Fill the vector -dFdS with zeros (Gerg Eqn. 7.132)
+	std::fill(neg_dFdS.begin(), neg_dFdS.end(), (double)0.0);
+	// Last entry is 1
+	neg_dFdS[N+1] = 1.0;
 }
 double NewtonRaphsonVLE::call(double beta, double T, double p, double rhobar_liq, double rhobar_vap, const std::vector<double> &z, std::vector<double> & K, int spec_index, double spec_value)
 {
 	int iter = 1;
-
-	// Specified value only allowed to be pressure for now
-	spec_value = log(p);
-	spec_index = N+1;
 
 	do
 	{
 		// Build the Jacobian and residual vectors for given inputs
 		build_arrays(beta,T,p,rhobar_liq,rhobar_vap,z,K,spec_index,spec_value);
 
-		// Solve for the step; v is the step with the contents [lnK0, lnK1, ..., lnT, lnp]
+		// Solve for the step; v is the step with the contents [delta(lnK0), delta(lnK1), ..., delta(lnT), delta(lnp)]
 		std::vector<double> v = linsolve(J, r);
 
 		// Set the variables again, the same structure independent of the specified variable
@@ -1845,7 +1849,12 @@ double NewtonRaphsonVLE::call(double beta, double T, double p, double rhobar_liq
 		//std::cout << iter << " " << error_rms << std::endl;
 		iter++;
 	}
-	while(this->error_rms > 1e-13 && iter < 10);
+	while(this->error_rms > 1e-10 && iter < Nsteps_max);
+	// Store new values since they were passed by value
+	this->T = T;
+	this->p = p;
+	this->Nsteps = iter;
+
 	return T;
 }
 
@@ -1854,21 +1863,14 @@ void NewtonRaphsonVLE::build_arrays(double beta, double T, double p, double rhob
 	// Step 0:
 	// --------
 	// Calculate the mole fractions in liquid and vapor phases
-	for (unsigned int i=0; i < N; i++)
-	{
-		double denominator = (1-beta+beta*K[i]); // Common denominator
-		x[i] = z[i]/denominator;
-		y[i] = K[i]*z[i]/denominator;
-	}
-	normalize_vector(x);
-	normalize_vector(y);
+	Mix->x_and_y_from_K(beta,K,z,x,y);
 
 	// Step 1:
 	// -------
 	// Calculate the new reducing and reduced parameters for each phase
 	// based on the current values of the molar fractions
-	rhobar_liq = Mix->rhobar_Tpz(T, p, x, rhobar_liq); // [kg/m^3] (Not exact due to solver convergence)
-	rhobar_vap = Mix->rhobar_Tpz(T, p, y, rhobar_vap); // [kg/m^3] (Not exact due to solver convergence)
+	this->rhobar_liq = Mix->rhobar_Tpz(T, p, x, rhobar_liq); // [kg/m^3] (Not exact due to solver convergence)
+	this->rhobar_vap = Mix->rhobar_Tpz(T, p, y, rhobar_vap); // [kg/m^3] (Not exact due to solver convergence)
 	
 	double Tr_liq = Mix->pReducing->Tr(x); // [K]
 	double Tr_vap = Mix->pReducing->Tr(y);  // [K]
@@ -1877,8 +1879,8 @@ void NewtonRaphsonVLE::build_arrays(double beta, double T, double p, double rhob
 
 	double rhorbar_liq = Mix->pReducing->rhorbar(x); //[kg/m^3]
 	double rhorbar_vap = Mix->pReducing->rhorbar(y); //[kg/m^3]
-	double delta_liq = rhobar_liq/rhorbar_liq;  //[-]
-	double delta_vap = rhobar_vap/rhorbar_vap;  //[-]
+	double delta_liq = this->rhobar_liq/rhorbar_liq;  //[-]
+	double delta_vap = this->rhobar_vap/rhorbar_vap;  //[-]
 
 	// Step 2:
 	// -------
@@ -1932,7 +1934,19 @@ void NewtonRaphsonVLE::build_arrays(double beta, double T, double p, double rhob
 	else
 		{r[N+1] = log(K[spec_index]) - spec_value;}
 
-	J[N+1][spec_index] = 1;
+	// The row in the Jacobian for the specification
+	for (unsigned int i = 0; i < N+2; i++)
+	{
+		if ( i != spec_index)
+		{
+			J[N+1][i] = 0;
+		}
+		else
+		{
+			J[N+1][spec_index] = 1;
+		}
+	}
+	
 
 	// Flip all the signs of the entries in the residual vector since we are solving Jv = -r, not Jv=r
 	// Also calculate the rms error of the residual vector at this step
@@ -1943,4 +1957,115 @@ void NewtonRaphsonVLE::build_arrays(double beta, double T, double p, double rhob
 		error_rms += r[i]*r[i]; // Sum the squares
 	}
 	error_rms = sqrt(error_rms); // Square-root (The R in RMS)
+
+	// Step 3:
+	// =======
+	// Calculate the sensitivity vector dXdS
+
+	dXdS = linsolve(J,neg_dFdS);
+}
+
+void PhaseEnvelope::build(double p0, const std::vector<double> &z)
+{
+	double S, DELTAS;
+	K.resize(Mix->N);
+
+	// Use the preconditioner to get the very rough guess for saturation temperature
+	double T_guess = Mix->saturation_p_preconditioner(p0, z);
+
+	// Initialize the call using Wilson to get K-factors and temperature
+	double T = Mix->saturation_p_Wilson(TYPE_BUBBLEPOINT, p0, z, T_guess, K);
+
+	// Limit Successive substitution to 4 iterations and don't call Newton-Raphson directly
+	Mix->SS.Nstep_max = 4;
+	Mix->SS.useNR = false;
+
+	// Call successive substitution to get updated guess
+	Mix->SS.call(TYPE_BUBBLEPOINT, T, p0, z, K);
+
+	double p = p0;
+	double lnT = log(T);
+	double lnP = log(p0);
+
+	// Newton-Raphson full iteration using pressure as specified variable
+	Mix->NRVLE.call(0, T, p0, Mix->SS.rhobar_liq, Mix->SS.rhobar_vap, z, K, Mix->N+1, log(p0));
+	T = Mix->NRVLE.T;
+	p = Mix->NRVLE.p;
+
+	// Find the most sensitive input (the one with the largest absolute value in dX/dS
+	double max_abs_val = -1;
+	int i_S = -1;
+	for (unsigned int i = 0; i < Mix->N+2; i++)
+	{
+		if (fabs(Mix->NRVLE.dXdS[i])>max_abs_val)
+		{
+			max_abs_val = fabs(Mix->NRVLE.dXdS[i]);
+			i_S = i;
+		}
+	}
+	// Determine the value of the specified variable based on the index of the specified variable
+	if (i_S > Mix->N)
+	{
+		if (i_S == Mix->N) 
+			{ S = lnT; }
+		else
+			{ S = lnP; }
+	}
+	else
+	{
+		S = log(K[i_S]);
+	}
+
+	// The initial value for the step (conservative)
+	DELTAS = log(2.0);
+
+	int iter = 1;
+	do
+	{
+		// Run with the selected specified variable
+		// TODO: update the guess values for the phase densities
+		Mix->NRVLE.call(0, T, p, Mix->NRVLE.rhobar_liq, Mix->NRVLE.rhobar_vap, z, K, i_S, S);
+		T = Mix->NRVLE.T;
+		p = Mix->NRVLE.p;
+
+		double _max_abs_val = -1;
+		int iii_S = -1;
+		for (unsigned int i = 0; i < Mix->N+2; i++)
+		{
+			if (fabs(Mix->NRVLE.dXdS[i]) > _max_abs_val)
+			{
+				_max_abs_val = fabs(Mix->NRVLE.dXdS[i]);
+				iii_S = i;
+			}
+		}
+
+		std::cout << format("T,P,Nstep,K : %g %g %d %s %d\n",T,p,Mix->NRVLE.Nsteps,vec_to_string(K,"%15.13g").c_str(),iii_S);
+
+		std::vector<double> DELTAX = Mix->NRVLE.dXdS; //Copy
+		for (unsigned int i = 0; i < Mix->N+2; i++)
+		{
+			DELTAX[i] *= DELTAS;
+		}
+		double DELTALNT = DELTAX[Mix->N];
+		lnT += DELTALNT;
+		T = exp(lnT);
+
+		double DELTALNP = DELTAX[Mix->N+1];
+		lnP += DELTALNP;
+		p = exp(lnP);
+
+		// Set the variables again, the same structure independent of the specified variable
+		for (unsigned int i = 0; i < Mix->N; i++)
+		{
+			K[i] = exp(log(K[i])+DELTAX[i]);
+		}
+
+		// Update the specified variable
+		S += DELTAS;
+		
+		// Update step counter
+		iter ++;
+	}
+	while (iter < 30);
+
 }

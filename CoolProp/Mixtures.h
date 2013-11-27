@@ -248,16 +248,23 @@ A class is used rather than a function so that it is easier to store iteration h
 class SuccessiveSubstitutionVLE
 {
 public:
-	bool logging;
-	int Nsteps;
-	int Nmax;
-	Mixture *Mix;
-	std::vector<double> K, ln_phi_liq, ln_phi_vap;
+	bool useNR; ///< If true (default is false), will call Newton-Raphson after either solving to tolerance, or taking Nmax steps
+	bool logging; ///< If true (default is false), intermediate steps will be stored for each call in the step_logger structure
+	int Nsteps; ///< How many steps were taken to yield tolerance
+	int Nstep_max; ///< The maximum number of steps to take, can be changed as needed
+	Mixture *Mix; ///< Pointer to the Mixture class instance
+	double rhobar_liq, ///< The molar density of the liquid phase [mol/m^3]
+		   rhobar_vap; ///< The molar density of the vapor phase [mol/m^3]
+	std::vector<double> K, 
+					    ln_phi_liq, 
+						ln_phi_vap, 
+						x, 
+						y;
 	std::vector<SuccessiveSubstitutionStep> step_logger;
 
-	SuccessiveSubstitutionVLE(){};
+	SuccessiveSubstitutionVLE(){useNR = false; logging = false; };
 
-	double call(int type, double T, double p, std::vector<double> const& z, std::vector<double> &x, std::vector<double> &y);
+	double call(int type, double T, double p, const std::vector<double> &z, std::vector<double> &K);
 };
 
 /*!
@@ -268,17 +275,17 @@ A class is used rather than a function so that it is easier to store iteration h
 class NewtonRaphsonVLE
 {
 public:
-	double error_rms;
+	double error_rms, rhobar_liq, rhobar_vap, T, p;
 	unsigned int N;
 	bool logging;
 	int Nsteps;
-	int Nmax;
+	int Nsteps_max;
 	Mixture *Mix;
 	STLMatrix J;
-	std::vector<double> K, x, y, phi_ij_liq, phi_ij_vap, r;
+	std::vector<double> K, x, y, phi_ij_liq, phi_ij_vap, r, dXdS, neg_dFdS;
 	std::vector<SuccessiveSubstitutionStep> step_logger;
 
-	NewtonRaphsonVLE(){};
+	NewtonRaphsonVLE(){Nsteps_max = 10;};
 
 	void resize(unsigned int N);
 	/*! Call the Newton-Raphson VLE Solver
@@ -310,6 +317,14 @@ public:
 	void build_arrays(double beta, double T, double p, double rhobar_liq, double rhobar_vap, const std::vector<double> &z, std::vector<double> & K, int spec_index, double spec_value);
 };
 
+class PhaseEnvelope
+{
+public:
+	std::vector<double> K;
+	Mixture *Mix;
+	void build(double p0, const std::vector<double> &z);
+};
+
 /*! 
 This is the class that actually implements the mixture properties
 */
@@ -328,6 +343,8 @@ public:
 	ReducingFunction * pReducing;
 	ExcessTerm * pExcess;
 	ResidualIdealMixture * pResidualIdealMix;
+
+	PhaseEnvelope Envelope;
 
 	SuccessiveSubstitutionVLE SS;
 	NewtonRaphsonVLE NRVLE;
@@ -555,11 +572,18 @@ public:
 	*/
 	double d_ndphirdni_dxj__constdelta_tau_xi(double tau, double delta, const std::vector<double> &x, int i, int j);
 
+	double saturation_p_preconditioner(double p, const std::vector<double> &z);
+
+	double saturation_p_Wilson(int type, double p, const std::vector<double> &z, double T_guess, std::vector<double> &K);
+
 	double saturation_p(int type, double p, const std::vector<double> &z, std::vector<double> &x, std::vector<double> &y);
 
 	/*! Calculate the mixture molar density based on the use of the Peng-Robinson equation of state
 	*/
 	double rhobar_pengrobinson(double T, double p, const std::vector<double> &x, int solution);
+	
+	void x_and_y_from_K(double beta, const std::vector<double> &K, const std::vector<double> &z, std::vector<double> &x, std::vector<double> &y);
+
 
 	/*! Load the excess parameters (departure function parameters)
 	@param i 0-based index of first component
@@ -577,4 +601,7 @@ public:
 };
 
 
+
 #endif
+
+

@@ -32,4 +32,6 @@ std::string vec_to_string(                        double    const& a);
 std::string vec_to_string(            std::vector<double>   const& a);
 std::string vec_to_string(std::vector<std::vector<double> > const& A);
 
+std::string vec_to_string(            std::vector<double>   const& a, const char *fmt);
+std::string vec_to_string(std::vector<std::vector<double> > const& A, const char *fmt);
 #endif

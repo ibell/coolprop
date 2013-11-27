@@ -363,15 +363,20 @@ std::string vec_to_string(                        double    const& a){
 }
 
 std::string vec_to_string(            std::vector<double>   const& a) {
+	return vec_to_string(a,"%7.3g");
+}
+std::string vec_to_string(            std::vector<double>   const& a, const char *fmt) {
 	if (a.size()<1) {
 		return std::string("");
 	} else {
 		std::stringstream out;
-		out << format("[ %7.3f",a[0]);
+		out << format("[ ");
+		out << format(fmt,a[0]);
 		for (size_t j = 1; j < a.size(); j++) {
-			out << format(", %7.3f",a[j]);
+			out << ", ";
+			out << format(fmt,a[j]);
 		}
-		out << " ] \n";
+		out << " ]";
 		return out.str();
 	}
 }
