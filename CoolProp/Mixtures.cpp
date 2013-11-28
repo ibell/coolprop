@@ -1996,12 +1996,12 @@ void NewtonRaphsonVLE::build_arrays(double beta, double T, double p, double rhob
 
 void PhaseEnvelope::build(double p0, const std::vector<double> &z)
 {
-	double S, DELTAS;
+	double S, Sold, DELTAS;
 	K.resize(Mix->N);
 	data.K.resize(Mix->N);
 	data.lnK.resize(Mix->N);
 
-	// Use the preconditioner to get the very rough guess for saturation temperature
+	// Use the preconditioner to get the very rough guess for saturation temperature (interpolation based on pseudo-critical pressure
 	double T_guess = Mix->saturation_p_preconditioner(p0, z);
 
 	// Initialize the call using Wilson to get K-factors and temperature
@@ -2020,10 +2020,10 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z)
 
 	// Newton-Raphson full iteration using pressure as specified variable
 	Mix->NRVLE.call(0, T, p0, Mix->SS.rhobar_liq, Mix->SS.rhobar_vap, z, K, Mix->N+1, log(p0));
+	rhobar_liq = Mix->NRVLE.rhobar_liq;
+	rhobar_vap = Mix->NRVLE.rhobar_vap;
 	T = Mix->NRVLE.T;
 	p = Mix->NRVLE.p;
-	rhobar_liq = Mix->SS.rhobar_liq;
-	rhobar_vap = Mix->SS.rhobar_vap;
 
 	// Find the most sensitive input (the one with the largest absolute value in dX/dS
 	double max_abs_val = -1;
@@ -2040,25 +2040,117 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z)
 	if (i_S > (int)Mix->N)
 	{
 		if (i_S == Mix->N) 
-			{ S = lnT; }
+			{ Sold = lnT; }
 		else
-			{ S = lnP; }
+			{ Sold = lnP; }
 	}
 	else
 	{
-		S = log(K[i_S]);
+		Sold = log(K[i_S]);
 	}
 
 	// The initial value for the step (conservative)
-	DELTAS = log(1.2);
+	DELTAS = log(1.1);
+
+	// Run once with the specified variable set
+	Mix->NRVLE.call(0, T, p, rhobar_liq, rhobar_vap, z, K, i_S, Sold);
 
 	int iter = 1;
 	do
 	{
-		// Run with the selected specified variable
-		Mix->NRVLE.call(0, T, p, rhobar_liq, rhobar_vap, z, K, i_S, S);
-		T = Mix->NRVLE.T;
-		p = Mix->NRVLE.p;
+		bool step_accepted = false;
+		std::vector<double> DELTAXbase = Mix->NRVLE.dXdS; //Copy from the last good run
+
+		while (step_accepted == false)
+		{
+			std::vector<double> DELTAX = DELTAXbase;
+			for (unsigned int i = 0; i < Mix->N+2; i++)
+			{
+				DELTAX[i] *= DELTAS;
+			}
+			double DELTALNT = DELTAX[Mix->N];
+			lnT += DELTALNT;
+			T = exp(lnT);
+
+			double DELTALNP = DELTAX[Mix->N+1];
+			lnP += DELTALNP;
+			double pnew = exp(lnP);
+			double pratio = pnew/p;
+			p = pnew;
+
+			// Set the variables again, the same structure independent of the specified variable
+			for (unsigned int i = 0; i < Mix->N; i++)
+			{
+				K[i] = exp(log(K[i])+DELTAX[i]);
+			}
+
+			// Update the specified variable
+			S = Sold + DELTAS;
+
+			// UPDATE THE GUESSES
+			// The specified variable is known directly. The others must be obtained either through the use of dXdS and/or extrapolation
+			if (data.T.size() > 2)
+			{
+				int M = data.T.size();
+				// Update the densities
+				rhobar_liq = QuadInterp(data.lnK[1][M-3],data.lnK[1][M-2],data.lnK[1][M-1],data.rhobar_liq[M-3],data.rhobar_liq[M-2],data.rhobar_liq[M-1],log(K[1]));
+				rhobar_vap = exp(QuadInterp(data.lnK[1][M-3],data.lnK[1][M-2],data.lnK[1][M-1],log(data.rhobar_vap[M-3]),log(data.rhobar_vap[M-2]),log(data.rhobar_vap[M-1]),log(K[1])));
+				T = exp(QuadInterp(data.lnK[1][M-3],data.lnK[1][M-2],data.lnK[1][M-1],data.lnT[M-3],data.lnT[M-2],data.lnT[M-1],log(K[1])));
+				p = exp(QuadInterp(data.lnK[1][M-3],data.lnK[1][M-2],data.lnK[1][M-1],data.lnp[M-3],data.lnp[M-2],data.lnp[M-1],log(K[1])));
+			}
+			else
+			{
+				// Treat the liquid as being incompressible, don't update the guess
+				// Treat the vapor as being ideal, use pressure ratio to update pressure
+
+				// Start with T&p from the last specified state
+				T = Mix->NRVLE.T;
+				p = Mix->NRVLE.p;
+
+				// Start with the densities from the last specified state
+				rhobar_liq = Mix->NRVLE.rhobar_liq;
+				rhobar_vap = Mix->NRVLE.rhobar_vap;
+			}
+
+			// Run with the selected specified variable
+			try
+			{
+				Mix->NRVLE.call(0, T, p, rhobar_liq, rhobar_vap, z, K, i_S, S);
+			}
+			catch (CoolPropBaseError &)
+			{
+				DELTAS *= 0.1;
+				continue;
+			}
+			T = Mix->NRVLE.T;
+			p = Mix->NRVLE.p;
+
+			
+
+			// Store the variables in the log if the step worked ok
+			data.p.push_back(p);
+			data.T.push_back(T);
+			data.lnT.push_back(log(T));
+			data.lnp.push_back(log(p));
+			data.rhobar_liq.push_back(Mix->NRVLE.rhobar_liq);
+			data.rhobar_vap.push_back(Mix->NRVLE.rhobar_vap);
+			for (unsigned int i = 0; i < Mix->N; i++)
+			{
+				data.K[i].push_back(K[i]);
+				data.lnK[i].push_back(log(K[i]));
+			}
+
+			step_accepted = true;
+
+			if (Mix->NRVLE.Nsteps > 5)
+			{
+				DELTAS *= 0.5;
+			}
+			else if (Mix->NRVLE.Nsteps < 4)
+			{
+				DELTAS *= 1.1;
+			}
+		}
 
 		double _max_abs_val = -1;
 		int iii_S = -1;
@@ -2070,78 +2162,20 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z)
 				iii_S = i;
 			}
 		}
-
-		// Store the variables in the log if the step worked ok
-		data.p.push_back(p);
-		data.T.push_back(T);
-		data.lnT.push_back(log(T));
-		data.lnp.push_back(log(p));
-		data.rhobar_liq.push_back(Mix->NRVLE.rhobar_liq);
-		data.rhobar_vap.push_back(Mix->NRVLE.rhobar_vap);
-		for (unsigned int i = 0; i < Mix->N; i++)
-		{
-			data.K[i].push_back(K[i]);
-			data.lnK[i].push_back(log(K[i]));
-		}
-
-		std::cout << format("T,P,Nstep,K : %g %g %d %g %g %d\n",T,p,Mix->NRVLE.Nsteps,rhobar_liq,rhobar_vap,iii_S);
-
-		std::vector<double> DELTAX = Mix->NRVLE.dXdS; //Copy
-		for (unsigned int i = 0; i < Mix->N+2; i++)
-		{
-			DELTAX[i] *= DELTAS;
-		}
-		double DELTALNT = DELTAX[Mix->N];
-		lnT += DELTALNT;
-		T = exp(lnT);
-
-		double DELTALNP = DELTAX[Mix->N+1];
-		lnP += DELTALNP;
-		double pnew = exp(lnP);
-		double pratio = pnew/p;
-		p = pnew;
-
-		// Set the variables again, the same structure independent of the specified variable
-		for (unsigned int i = 0; i < Mix->N; i++)
-		{
-			K[i] = exp(log(K[i])+DELTAX[i]);
-		}
-
-		// Update the specified variable
-		S += DELTAS;
+		std::cout << format("T,P,Nstep,K : %g %g %d %g %g %d %s\n",T,p,Mix->NRVLE.Nsteps,rhobar_liq,rhobar_vap,iii_S, vec_to_string(Mix->NRVLE.y,"%6.5g").c_str());
 		
 		// Update step counter
 		iter++;
 
-		// The specified variable is known directly. The others must be obtained either through the use of dXdS and/or extrapolation
-
-		if (data.T.size() > 2)
-		{
-			int M = data.T.size();
-			// Update the densities
-			rhobar_liq = QuadInterp(data.lnK[1][M-3],data.lnK[1][M-2],data.lnK[1][M-1],data.rhobar_liq[M-3],data.rhobar_liq[M-2],data.rhobar_liq[M-1],log(K[1]));
-			rhobar_vap = exp(QuadInterp(data.lnK[1][M-3],data.lnK[1][M-2],data.lnK[1][M-1],log(data.rhobar_vap[M-3]),log(data.rhobar_vap[M-2]),log(data.rhobar_vap[M-1]),log(K[1])));
-			T = exp(QuadInterp(data.lnK[1][M-3],data.lnK[1][M-2],data.lnK[1][M-1],data.lnT[M-3],data.lnT[M-2],data.lnT[M-1],log(K[1])));
-			p = exp(QuadInterp(data.lnK[1][M-3],data.lnK[1][M-2],data.lnK[1][M-1],data.lnp[M-3],data.lnp[M-2],data.lnp[M-1],log(K[1])));
-		}
-		else
-		{
-			// Treat the liquid as being incompressible, don't update the guess
-			// Treat the vapor as being ideal, use pressure ratio to update pressure
-
-			// Start with the densities from the last specified state
-			rhobar_liq = Mix->NRVLE.rhobar_liq;
-			rhobar_vap = Mix->NRVLE.rhobar_vap;
-			
-			// Multiply the gas density by the pressure ratio of the step
-			rhobar_vap *= pratio;
-		}
+		// Reset last specified value
+		Sold = S;
+		
 		if (!ValidNumber(T))
 		{
 			double rr = 0;
 		}
 	}
-	while (iter < 1000);
+	while (p > p0 && iter < 1000);
 
 	double rr = 0;
 
