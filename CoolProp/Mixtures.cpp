@@ -298,7 +298,7 @@ Mixture::Mixture(std::vector<Fluid *> pFluids)
 	double Tsat;
 	double psat = 1e3;
 
-	//Tsat = saturation_p(TYPE_DEWPOINT, 440000, &z, &x, &y);
+	Tsat = saturation_p(TYPE_DEWPOINT, 440000, z, x, y);
 
 	for (double x0 = 0; x0 <= 1.000000000000001; x0 += 0.01)
 	{
@@ -320,7 +320,6 @@ Mixture::Mixture(std::vector<Fluid *> pFluids)
 		if (!ValidNumber(Tsat)){break;}
 		std::cout << format("%g %g %g\n",TL,TV,p).c_str();
 	}
-
 }
 void Mixture::check()
 {
@@ -984,6 +983,7 @@ double Mixture::saturation_p(int type, double p, std::vector<double> const& z, s
 
 	// Call the successive substitution routine with the guess values provided above from Wilson
 	// It will call the Newton-Raphson routine after a few steps of successive-substitution
+	SS.useNR = true;
 	T = SS.call(type, T, p, z, K);
 
 	x = SS.x;
@@ -1029,46 +1029,46 @@ void Mixture::TpzFlash(double T, double p, const std::vector<double> &z, double 
 	// TODO: Calculate the dewpoint density
 	do
 	{
-	// Now find the value of beta that satisfies Rachford-Rice using Brent's method
+		// Now find the value of beta that satisfies Rachford-Rice using Brent's method
 
-	gRR_resid Resid(this,z,lnK);
-	std::string errstr;
-	beta = Newton(&Resid,0,1e-10,300,&errstr);
+		gRR_resid Resid(this,z,lnK);
+		std::string errstr;
+		beta = Newton(&Resid,0,1e-10,300,&errstr);
 
-	// Evaluate mole fractions in liquid and vapor
-	for (unsigned int i = 0; i < N; i++)
-	{
-		double Ki = exp(lnK[i]);
-		double den = (1 - beta + beta*Ki); // Common denominator
-		// Liquid mole fraction of component i
-		x[i] = z[i]/den;
-		// Vapor mole fraction of component i
-		y[i] = Ki*z[i]/den;
-	}
+		// Evaluate mole fractions in liquid and vapor
+		for (unsigned int i = 0; i < N; i++)
+		{
+			double Ki = exp(lnK[i]);
+			double den = (1 - beta + beta*Ki); // Common denominator
+			// Liquid mole fraction of component i
+			x[i] = z[i]/den;
+			// Vapor mole fraction of component i
+			y[i] = Ki*z[i]/den;
+		}
 
-	// Reducing parameters for each phase
-	double tau_liq = pReducing->Tr(x)/T;
-	double tau_vap = pReducing->Tr(y)/T;
-	
-	double rhobar_liq = rhobar_Tpz(T, p, x, rhobar_pengrobinson(T,p,x,PR_SATL));
-	double rhobar_vap = rhobar_Tpz(T, p, y, rhobar_pengrobinson(T,p,y,PR_SATV));
-	double rhorbar_liq = pReducing->rhorbar(x);
-	double rhorbar_vap = pReducing->rhorbar(y);
-	double delta_liq = rhobar_liq/rhorbar_liq; 
-	double delta_vap = rhobar_vap/rhorbar_vap; 
-	
-	// Evaluate fugacity coefficients in liquid and vapor
-	for (unsigned int i = 0; i < N; i++)
-	{
-		double ln_phi_liq = ln_fugacity_coefficient(tau_liq, delta_vap, x, i);
-		double ln_phi_vap = ln_fugacity_coefficient(tau_vap, delta_liq, x, i);
+		// Reducing parameters for each phase
+		double tau_liq = pReducing->Tr(x)/T;
+		double tau_vap = pReducing->Tr(y)/T;
 		
-		double lnKold = lnK[i];
-		// Recalculate the K-factor (log(exp(ln_phi_liq)/exp(ln_phi_vap)))
-		lnK[i] = ln_phi_liq - ln_phi_vap;
+		double rhobar_liq = rhobar_Tpz(T, p, x, rhobar_pengrobinson(T,p,x,PR_SATL));
+		double rhobar_vap = rhobar_Tpz(T, p, y, rhobar_pengrobinson(T,p,y,PR_SATV));
+		double rhorbar_liq = pReducing->rhorbar(x);
+		double rhorbar_vap = pReducing->rhorbar(y);
+		double delta_liq = rhobar_liq/rhorbar_liq; 
+		double delta_vap = rhobar_vap/rhorbar_vap; 
+		
+		// Evaluate fugacity coefficients in liquid and vapor
+		for (unsigned int i = 0; i < N; i++)
+		{
+			double ln_phi_liq = ln_fugacity_coefficient(tau_liq, delta_vap, x, i);
+			double ln_phi_vap = ln_fugacity_coefficient(tau_vap, delta_liq, x, i);
+			
+			double lnKold = lnK[i];
+			// Recalculate the K-factor (log(exp(ln_phi_liq)/exp(ln_phi_vap)))
+			lnK[i] = ln_phi_liq - ln_phi_vap;
 
-		change = lnK[i] - lnKold;
-	}
+			change = lnK[i] - lnKold;
+		}
 	
 	}
 	while( fabs(change) > 1e-7);
@@ -1828,11 +1828,11 @@ void NewtonRaphsonVLE::resize(unsigned int N)
 }
 double NewtonRaphsonVLE::call(double beta, double T, double p, double rhobar_liq, double rhobar_vap, const std::vector<double> &z, std::vector<double> & K, int spec_index, double spec_value)
 {
-	int iter = 1;
+	int iter = 0;
 
 	do
 	{
-		// Build the Jacobian and residual vectors for given inputs
+		// Build the Jacobian and residual vectors for given inputs of K_i,T,p
 		build_arrays(beta,T,p,rhobar_liq,rhobar_vap,z,K,spec_index,spec_value);
 
 		// Solve for the step; v is the step with the contents [delta(lnK0), delta(lnK1), ..., delta(lnT), delta(lnp)]
@@ -1845,6 +1845,11 @@ double NewtonRaphsonVLE::call(double beta, double T, double p, double rhobar_liq
 		}
 		T = exp(log(T)+v[N]);
 		p = exp(log(p)+v[N+1]);
+
+		if (fabs(T) > 1e6 || fabs(p) > 1e10)
+		{
+			throw ValueError();
+		}
 		
 		//std::cout << iter << " " << error_rms << std::endl;
 		iter++;
@@ -1864,6 +1869,7 @@ void NewtonRaphsonVLE::build_arrays(double beta, double T, double p, double rhob
 	// --------
 	// Calculate the mole fractions in liquid and vapor phases
 	Mix->x_and_y_from_K(beta,K,z,x,y);
+	//std::cout << "K: " << vec_to_string(K,"%17.16g") << std::endl;
 
 	// Step 1:
 	// -------
@@ -1871,6 +1877,11 @@ void NewtonRaphsonVLE::build_arrays(double beta, double T, double p, double rhob
 	// based on the current values of the molar fractions
 	this->rhobar_liq = Mix->rhobar_Tpz(T, p, x, rhobar_liq); // [kg/m^3] (Not exact due to solver convergence)
 	this->rhobar_vap = Mix->rhobar_Tpz(T, p, y, rhobar_vap); // [kg/m^3] (Not exact due to solver convergence)
+
+	if (!ValidNumber(this->rhobar_liq) || !ValidNumber(this->rhobar_vap))
+	{
+		double rr = 0;
+	}
 	
 	double Tr_liq = Mix->pReducing->Tr(x); // [K]
 	double Tr_vap = Mix->pReducing->Tr(y);  // [K]
@@ -1881,6 +1892,18 @@ void NewtonRaphsonVLE::build_arrays(double beta, double T, double p, double rhob
 	double rhorbar_vap = Mix->pReducing->rhorbar(y); //[kg/m^3]
 	double delta_liq = this->rhobar_liq/rhorbar_liq;  //[-]
 	double delta_vap = this->rhobar_vap/rhorbar_vap;  //[-]
+
+	double p_liq = this->rhobar_liq*Mix->Rbar(x)*T*(1+delta_liq*Mix->dphir_dDelta(tau_liq,delta_liq,x));
+	double p_vap = this->rhobar_vap*Mix->Rbar(y)*T*(1+delta_vap*Mix->dphir_dDelta(tau_vap,delta_vap,y));
+
+	//double summer1 = 0, summer2 = 0;
+	//for (unsigned int j = 0; j < N; j++)
+	//{
+	//	summer1 += K[j]*z[j];
+	//	summer2 += y[j]-x[j];
+	//}
+	//summer1 += 0;
+
 
 	// Step 2:
 	// -------
@@ -1914,18 +1937,24 @@ void NewtonRaphsonVLE::build_arrays(double beta, double T, double p, double rhob
 		J[i][N] = T*(phi_iT_vap-phi_iT_liq);
 		// dF_{i}/d(ln(p))
 		J[i][N+1] = p*(phi_ip_vap-phi_ip_liq);
-
 	}
 	r[N] = 0.0;
 	// For the residual term F_{N+1}
 	for (unsigned int i = 0; i < N; i++)
 	{
-		r[N] += y[i]-x[i];
+		double summer1 = 0;
+		for (unsigned int i = 0; i < N; i++)
+		{
+			summer1 += K[i]*z[i];
+		}
+		r[N] = summer1-1;
+		// r[N] += y[i]-x[i]; This is the definition for this term, why can you not use it directly?
 		for (unsigned int j = 0; j < N; j++)
 		{
 			J[N][j] = K[j]*z[j]/pow(1-beta+beta*K[j],(int)2);
 		}
 	}
+	
 	// For the specification term F_{N+2}, with index of N+1
 	if (spec_index == N)
 		{r[N+1] = log(T) - spec_value;}
@@ -1969,6 +1998,8 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z)
 {
 	double S, DELTAS;
 	K.resize(Mix->N);
+	data.K.resize(Mix->N);
+	data.lnK.resize(Mix->N);
 
 	// Use the preconditioner to get the very rough guess for saturation temperature
 	double T_guess = Mix->saturation_p_preconditioner(p0, z);
@@ -1980,7 +2011,7 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z)
 	Mix->SS.Nstep_max = 4;
 	Mix->SS.useNR = false;
 
-	// Call successive substitution to get updated guess
+	// Call successive substitution to get updated guess for K-factors
 	Mix->SS.call(TYPE_BUBBLEPOINT, T, p0, z, K);
 
 	double p = p0;
@@ -1991,6 +2022,8 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z)
 	Mix->NRVLE.call(0, T, p0, Mix->SS.rhobar_liq, Mix->SS.rhobar_vap, z, K, Mix->N+1, log(p0));
 	T = Mix->NRVLE.T;
 	p = Mix->NRVLE.p;
+	rhobar_liq = Mix->SS.rhobar_liq;
+	rhobar_vap = Mix->SS.rhobar_vap;
 
 	// Find the most sensitive input (the one with the largest absolute value in dX/dS
 	double max_abs_val = -1;
@@ -2004,7 +2037,7 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z)
 		}
 	}
 	// Determine the value of the specified variable based on the index of the specified variable
-	if (i_S > Mix->N)
+	if (i_S > (int)Mix->N)
 	{
 		if (i_S == Mix->N) 
 			{ S = lnT; }
@@ -2017,14 +2050,13 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z)
 	}
 
 	// The initial value for the step (conservative)
-	DELTAS = log(2.0);
+	DELTAS = log(1.2);
 
 	int iter = 1;
 	do
 	{
 		// Run with the selected specified variable
-		// TODO: update the guess values for the phase densities
-		Mix->NRVLE.call(0, T, p, Mix->NRVLE.rhobar_liq, Mix->NRVLE.rhobar_vap, z, K, i_S, S);
+		Mix->NRVLE.call(0, T, p, rhobar_liq, rhobar_vap, z, K, i_S, S);
 		T = Mix->NRVLE.T;
 		p = Mix->NRVLE.p;
 
@@ -2039,7 +2071,20 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z)
 			}
 		}
 
-		std::cout << format("T,P,Nstep,K : %g %g %d %s %d\n",T,p,Mix->NRVLE.Nsteps,vec_to_string(K,"%15.13g").c_str(),iii_S);
+		// Store the variables in the log if the step worked ok
+		data.p.push_back(p);
+		data.T.push_back(T);
+		data.lnT.push_back(log(T));
+		data.lnp.push_back(log(p));
+		data.rhobar_liq.push_back(Mix->NRVLE.rhobar_liq);
+		data.rhobar_vap.push_back(Mix->NRVLE.rhobar_vap);
+		for (unsigned int i = 0; i < Mix->N; i++)
+		{
+			data.K[i].push_back(K[i]);
+			data.lnK[i].push_back(log(K[i]));
+		}
+
+		std::cout << format("T,P,Nstep,K : %g %g %d %g %g %d\n",T,p,Mix->NRVLE.Nsteps,rhobar_liq,rhobar_vap,iii_S);
 
 		std::vector<double> DELTAX = Mix->NRVLE.dXdS; //Copy
 		for (unsigned int i = 0; i < Mix->N+2; i++)
@@ -2052,7 +2097,9 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z)
 
 		double DELTALNP = DELTAX[Mix->N+1];
 		lnP += DELTALNP;
-		p = exp(lnP);
+		double pnew = exp(lnP);
+		double pratio = pnew/p;
+		p = pnew;
 
 		// Set the variables again, the same structure independent of the specified variable
 		for (unsigned int i = 0; i < Mix->N; i++)
@@ -2064,8 +2111,38 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z)
 		S += DELTAS;
 		
 		// Update step counter
-		iter ++;
+		iter++;
+
+		// The specified variable is known directly. The others must be obtained either through the use of dXdS and/or extrapolation
+
+		if (data.T.size() > 2)
+		{
+			int M = data.T.size();
+			// Update the densities
+			rhobar_liq = QuadInterp(data.lnK[1][M-3],data.lnK[1][M-2],data.lnK[1][M-1],data.rhobar_liq[M-3],data.rhobar_liq[M-2],data.rhobar_liq[M-1],log(K[1]));
+			rhobar_vap = exp(QuadInterp(data.lnK[1][M-3],data.lnK[1][M-2],data.lnK[1][M-1],log(data.rhobar_vap[M-3]),log(data.rhobar_vap[M-2]),log(data.rhobar_vap[M-1]),log(K[1])));
+			T = exp(QuadInterp(data.lnK[1][M-3],data.lnK[1][M-2],data.lnK[1][M-1],data.lnT[M-3],data.lnT[M-2],data.lnT[M-1],log(K[1])));
+			p = exp(QuadInterp(data.lnK[1][M-3],data.lnK[1][M-2],data.lnK[1][M-1],data.lnp[M-3],data.lnp[M-2],data.lnp[M-1],log(K[1])));
+		}
+		else
+		{
+			// Treat the liquid as being incompressible, don't update the guess
+			// Treat the vapor as being ideal, use pressure ratio to update pressure
+
+			// Start with the densities from the last specified state
+			rhobar_liq = Mix->NRVLE.rhobar_liq;
+			rhobar_vap = Mix->NRVLE.rhobar_vap;
+			
+			// Multiply the gas density by the pressure ratio of the step
+			rhobar_vap *= pratio;
+		}
+		if (!ValidNumber(T))
+		{
+			double rr = 0;
+		}
 	}
-	while (iter < 30);
+	while (iter < 1000);
+
+	double rr = 0;
 
 }

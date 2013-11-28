@@ -262,7 +262,7 @@ public:
 						y;
 	std::vector<SuccessiveSubstitutionStep> step_logger;
 
-	SuccessiveSubstitutionVLE(){useNR = false; logging = false; };
+	SuccessiveSubstitutionVLE(){useNR = false; logging = false; Nstep_max = 10;};
 
 	double call(int type, double T, double p, const std::vector<double> &z, std::vector<double> &K);
 };
@@ -317,9 +317,16 @@ public:
 	void build_arrays(double beta, double T, double p, double rhobar_liq, double rhobar_vap, const std::vector<double> &z, std::vector<double> & K, int spec_index, double spec_value);
 };
 
+struct PhaseEnvelopeLog
+{
+	std::vector< std::vector<double> > K, lnK;
+	std::vector<double> T, p, lnT, lnp, rhobar_liq, rhobar_vap;
+};
 class PhaseEnvelope
 {
 public:
+	PhaseEnvelopeLog data;
+	double rhobar_liq, rhobar_vap;
 	std::vector<double> K;
 	Mixture *Mix;
 	void build(double p0, const std::vector<double> &z);
