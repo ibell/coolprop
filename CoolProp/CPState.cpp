@@ -1,4 +1,3 @@
-
 #include "CPExceptions.h"
 #include "Solvers.h"
 #include "CPState.h"
@@ -159,10 +158,10 @@ void CoolPropStateClassSI::check_saturated_quality(double Q){
 	double mach_eps = 10*DBL_EPSILON;
 
 	if (fabs(Q-1) < mach_eps){
-		SaturatedL = true; SaturatedV = false;
+		SaturatedL = false; SaturatedV = true;
 	}
 	else if (fabs(Q) < mach_eps){
-		SaturatedL = false; SaturatedV = true;
+		SaturatedL = true; SaturatedV = false;
 	}
 	else{
 		SaturatedL = false; SaturatedV = false;
