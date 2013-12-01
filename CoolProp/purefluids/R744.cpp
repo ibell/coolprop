@@ -317,51 +317,6 @@ R744Class::R744Class()
 	BibTeXKeys.VISCOSITY = "Vesovic-JPCRD-1990";
 	BibTeXKeys.CONDUCTIVITY = "Vesovic-JPCRD-1990";
 }
-double R744Class::conductivity_critical(double T, double rho)
-{
-	double k=1.380658e-23, //[J/K]
-		Tref = 1.5*reduce.T, //[K]
-		Pcrit = reduce.p.Pa, //[kPa]
-
-		//Critical exponents
-		nu=0.63,
-		gamma=1.2415,
-
-		//Critical amplitudes
-		R0=1.01,
-		zeta0=1.50e-10, //[m]
-		GAMMA = 0.052,
-		
-		qd = 1/(4.0e-10), //[1/m]
-		cp,cv,delta,num,zeta,mu,
-		OMEGA_tilde,OMEGA_tilde0,pi=M_PI,tau;
-
-	delta = rho/reduce.rho;
-
-	tau = reduce.T/T;
-	double dp_drho=R()*T*(1+2*delta*dphir_dDelta(tau,delta)+delta*delta*d2phir_dDelta2(tau,delta));
-	double X = Pcrit/pow(reduce.rho,2)*rho/dp_drho;
-	tau = reduce.T/Tref;
-	double dp_drho_ref=R()*Tref*(1+2*delta*dphir_dDelta(tau,delta)+delta*delta*d2phir_dDelta2(tau,delta));
-	double Xref = Pcrit/pow(reduce.rho,2)*rho/dp_drho_ref*Tref/T;
-	num=X-Xref;
-
-	// no critical enhancement if numerator is negative
-	if (num<0)
-		return 0.0;
-	else
-		zeta=zeta0*pow(num/GAMMA,nu/gamma); //[m]
-
-	cp=specific_heat_p_Trho(T,rho); //[kJ/kg/K]
-	cv=specific_heat_v_Trho(T,rho); //[kJ/kg/K]
-	mu=viscosity_Trho(T,rho)*1e6; //[uPa-s]
-
-	OMEGA_tilde=2.0/pi*((cp-cv)/cp*atan(zeta*qd)+cv/cp*(zeta*qd)); //[-]
-	OMEGA_tilde0=2.0/pi*(1.0-exp(-1.0/(1.0/(qd*zeta)+1.0/3.0*(zeta*qd)*(zeta*qd)/delta/delta))); //[-]
-
-	double lambda=rho*cp*1e9*(R0*k*T)/(6*pi*mu*zeta)*(OMEGA_tilde-OMEGA_tilde0); //[W/m/K]
-	return lambda*1e3; //[mW/m/K]
-}
 double R744Class::conductivity_Trho(double T, double rho)
 {
 	double e_k=251.196,Tstar;
@@ -397,7 +352,7 @@ double R744Class::conductivity_Trho(double T, double rho)
 	double delta_lambda = summer;
 
 	// Use the simplified cross-over critical enhancement term
-	double delta_c = conductivity_critical(T,rho); //[mW/m/K]
+	double delta_c = conductivity_critical(T,rho,1/4e-10,0.052,1.50e-10)*1e6; //[mW/m/K]
 
 	return (lambda_0+delta_lambda+delta_c)/1e6; //[kW/m/K]
 }
@@ -409,18 +364,19 @@ double R744Class::viscosity_Trho(double T, double rho)
 	double e[]={0,3.635074e-3,7.209997e-5, 0,0,0,0,3.00306e-20};
 
 	//double d11=0.4071119e-2,d21=0.7198037e-4,d64=0.2411697e-16,d81=0.2971072e-22,d82=-0.1627888e-22;
-	double summer=0;
+	
 	Tstar=T/e_k;
 	for (i=0;i<=4;i++)
 	{
-		sumGstar += a[i]*powInt(log(Tstar),i);
+		sumGstar += a[i]*pow(log(Tstar),(int)i);
 	}
 	Gstar=exp(sumGstar);
-	eta0=1.00697*sqrt(T)/Gstar;
+	eta0=1.00697*sqrt(T)/Gstar; //[mW/m/K]
 
+	double summer=0;
 	for (i=1;i<=7;i++)
-		summer += e[i]*pow(rho,i);
-	double delta_eta_g = summer;
+		summer += e[i]*pow(rho,(int)i);
+	double delta_eta_g = summer; // [mW/m/K]
 
 	// No critical enhancement in viscosity
 	//double delta_eta_c = 0.0;
