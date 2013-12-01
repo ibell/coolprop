@@ -1112,6 +1112,7 @@ double CoolPropStateClassSI::keyed_output(long iOutput)
 			return conductivity();
 		case iI:
 			return surface_tension();
+
 		// -----------------------------------
 		// A few grandfathered derivatives
 		// -----------------------------------
@@ -1119,6 +1120,58 @@ double CoolPropStateClassSI::keyed_output(long iOutput)
 			return dpdT_constrho();
 		case iDrhodT_p:
 			return drhodT_constp();
+
+		// -----------------------------------
+		// Add all other derivatives to remove
+		// DerivTerms from wrappers in future
+		// versions.
+		// -----------------------------------
+		//TODO: implement keyed output
+		case iDERdh_dp__rho:
+		case iDERdh_dp__v:
+		case iDERZ:
+		case iDERdZ_dDelta:
+		case iDERdZ_dTau:
+		case iDERB:
+		case iDERdB_dT:
+		case iDERC:
+		case iDERdC_dT:
+		case iDERphir:
+		case iDERdphir_dTau:
+		case iDERdphir_dDelta:
+		case iDERd2phir_dTau2:
+		case iDERd2phir_dDelta2:
+		case iDERd2phir_dDelta_dTau:
+		case	iDERd3phir_dDelta3:
+		case iDERd3phir_dDelta2_dTau:
+		case iDERd3phir_dDelta_dTau2:
+		case iDERd3phir_dTau3:
+		case iDERphi0:
+		case iDERdphi0_dTau:
+		case iDERd2phi0_dTau2:
+		case iDERdphi0_dDelta:
+		case iDERd2phi0_dDelta2:
+		case iDERd2phi0_dDelta_dTau:
+		case iDERd3phi0_dTau3:
+		case iDERdp_dT:
+		case iDERdp_dT__rho:
+		case iDERdp_drho:
+		case iDERdp_drho__T:
+		case iDERdh_dT:
+		case iDERdh_dT__rho:
+		case iDERdh_drho:
+		case iDERdh_drho__T:
+		case iDERdrho_dT__p:
+		case iDERdrho_dh__p:
+		case iDERdrho_dp__h:
+		case iDERrho_smoothed:
+		case iDERdrho_smoothed_dh:
+		case iDERdrho_smoothed_dp:
+		case iDERdrhodh_constp_smoothed:
+		case iDERdrhodp_consth_smoothed:
+		case iDERIsothermalCompressibility:
+			return derivTerms
+
 		default:
 			throw ValueError(format("Invalid Output index to CPState function keyed_output: %d ",iOutput));
 	}
