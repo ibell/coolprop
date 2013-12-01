@@ -2060,10 +2060,11 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z)
 	{
 		bool step_accepted = false;
 		std::vector<double> DELTAXbase = Mix->NRVLE.dXdS; //Copy from the last good run
-
+		std::vector<double> Kold = K;
 		while (step_accepted == false)
 		{
 			std::vector<double> DELTAX = DELTAXbase;
+			
 			for (unsigned int i = 0; i < Mix->N+2; i++)
 			{
 				DELTAX[i] *= DELTAS;
@@ -2081,7 +2082,7 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z)
 			// Set the variables again, the same structure independent of the specified variable
 			for (unsigned int i = 0; i < Mix->N; i++)
 			{
-				K[i] = exp(log(K[i])+DELTAX[i]);
+				K[i] = exp(log(Kold[i])+DELTAX[i]);
 			}
 
 			// Update the specified variable
@@ -2116,6 +2117,10 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z)
 			try
 			{
 				Mix->NRVLE.call(0, T, p, rhobar_liq, rhobar_vap, z, K, i_S, S);
+				if (!ValidNumber(Mix->NRVLE.T))
+				{
+					throw ValueError(format("T [%g] is not valid",T).c_str());
+				}
 			}
 			catch (CoolPropBaseError &)
 			{
@@ -2124,8 +2129,6 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z)
 			}
 			T = Mix->NRVLE.T;
 			p = Mix->NRVLE.p;
-
-			
 
 			// Store the variables in the log if the step worked ok
 			data.p.push_back(p);
@@ -2150,6 +2153,8 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z)
 			{
 				DELTAS *= 1.1;
 			}
+
+			
 		}
 
 		double _max_abs_val = -1;

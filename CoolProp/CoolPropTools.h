@@ -51,6 +51,7 @@
 		#undef min
 		#undef max
 		#undef EOS
+		#undef OK
 	#endif
 
 	inline bool ValidNumber(double x)
