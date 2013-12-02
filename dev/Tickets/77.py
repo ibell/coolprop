@@ -7,7 +7,7 @@ import CoolProp.CoolProp as CP
 
 print "Testing the derivatives and store results:"
 
-keys = ["dpdT","dpdrho","Z","dZ_dDelta","dZ_dTau","B","dBdT","C","dCdT","phir","dphir_dTau","d2phir_dTau2","dphir_dDelta",
+keys = ["dpdT","dpdrho","Z","dZ_dDelta","dZ_dTau","VB","dBdT","VC","dCdT","phir","dphir_dTau","d2phir_dTau2","dphir_dDelta",
   "d2phir_dDelta2","d2phir_dDelta_dTau","d3phir_dDelta2_dTau","phi0","dphi0_dTau","d2phi0_dTau2","dphi0_dDelta","d2phi0_dDelta2",
   "IsothermalCompressibility"]
 

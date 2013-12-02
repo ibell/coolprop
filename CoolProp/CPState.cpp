@@ -1904,6 +1904,7 @@ double CoolPropStateClassSI::dZdTau(void){
 	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
 	return delta*d2phir_dDelta_dTau(tau,delta);
 }
+// TODO: Fix values
 double CoolPropStateClassSI::B(void){
 	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
 	// given by B*rhoc=lim(delta --> 0) [dphir_ddelta(tau)]
