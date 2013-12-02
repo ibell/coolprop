@@ -217,57 +217,13 @@ double R134aClass::conductivity_residual(double T, double rho)
 	double lambda_r = lambda_reducing*(b1*delta+b2*pow(delta,2)+b3*pow(delta,3)+b4*pow(delta,4)); //[W/m/K]
 	return lambda_r/1000; //[kW/m/K]
 }
-double R134aClass::conductivity_critical(double T, double rho)
-{
-	double k=1.380658e-23, //[J/K]
-		R0=1.03,
-		gamma=1.239,
-		nu=0.63,
-		Pcrit = 4059.28, //[kPa]
-		Tref = 561.411, //[K]
-		GAMMA = 0.0496,
-		zeta0=1.94e-10, //[m]
-		qd = 1.89202e9, //[1/m]
-		cp,cv,delta,num,zeta,mu,
-		OMEGA_tilde,OMEGA_tilde0,pi=M_PI,tau;
-
-	// Here, we use 511.9 kg/m3 and 374.21 K as the "critical" state, even 
-	// though the EOS uses a different state
-	double rhoc = 508, Tc = 374.18;
-	delta = rho/rhoc;
-
-	tau = Tc/T;
-	double dp_drho=R()*T*(1+2*delta*dphir_dDelta(tau,delta)+delta*delta*d2phir_dDelta2(tau,delta));
-	double X = Pcrit/pow(511.9,2)*rho/dp_drho;
-	tau = Tc/Tref;
-	double dp_drho_ref=R()*Tref*(1+2*delta*dphir_dDelta(tau,delta)+delta*delta*d2phir_dDelta2(tau,delta));
-	double Xref = Pcrit/pow(511.9,2)*rho/dp_drho_ref*Tref/T;
-	num=X-Xref;
-
-	// no critical enhancement if numerator is negative
-	if (num<0)
-		return 0.0;
-	else
-		zeta=zeta0*pow(num/GAMMA,nu/gamma); //[m]
-
-	cp=specific_heat_p_Trho(T,rho); //[kJ/kg/K]
-	cv=specific_heat_v_Trho(T,rho); //[kJ/kg/K]
-	mu=viscosity_Trho(T,rho)*1e6; //[uPa-s]
-
-	double delta_visc = rho/511.9;
-	OMEGA_tilde=2.0/pi*((cp-cv)/cp*atan(zeta*qd)+cv/cp*(zeta*qd)); //[-]
-	OMEGA_tilde0=2.0/pi*(1.0-exp(-1.0/(1.0/(qd*zeta)+1.0/3.0*(zeta*qd)*(zeta*qd)/delta_visc/delta_visc))); //[-]
-
-	double lambda=rho*cp*1e9*(R0*k*T)/(6*pi*mu*zeta)*(OMEGA_tilde-OMEGA_tilde0); //[W/m/K]
-	return lambda/1e3; //[kW/m/K]
-}
 double R134aClass::conductivity_background(double T, double rho)
 {
 	return conductivity_residual(T,rho);
 }
 double R134aClass::conductivity_Trho(double T, double rho)
 {
-	return conductivity_dilute(T)+conductivity_residual(T,rho)+conductivity_critical(T,rho);
+	return conductivity_dilute(T)+conductivity_residual(T,rho)+Fluid::conductivity_critical(T,rho,1.89202e9,0.0496,1.94e-10);
 }
 void R134aClass::ECSParams(double *e_k, double *sigma)
 {

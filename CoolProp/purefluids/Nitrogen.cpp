@@ -344,7 +344,7 @@ double NitrogenClass::conductivity_dilute(double T)
 
 	eta0=0.0266958*sqrt(params.molemass*T)/(sigma*sigma*OMEGA);
 	lambda0=N[1]*eta0+N[2]*pow(tau,t[2])+N[3]*pow(tau,t[3]);
-	return lambda0/1e6; //[Pa-s]
+	return lambda0/1e6; //[kW/m/K]
 }
 double NitrogenClass::conductivity_background(double T, double rho)
 {
@@ -364,7 +364,7 @@ double NitrogenClass::conductivity_background(double T, double rho)
 		   +N[7]*pow(tau,t[7])*pow(delta,d[7])*exp(-g[7]*pow(delta,l[7]))
 	 	   +N[8]*pow(tau,t[8])*pow(delta,d[8])*exp(-g[8]*pow(delta,l[8]))
 		   +N[9]*pow(tau,t[9])*pow(delta,d[9])*exp(-g[9]*pow(delta,l[9]));
-	return lambdar/1e6; // [Pa-s]
+	return lambdar/1e6; // [kW/m/K]
 }
 
 double NitrogenClass::conductivity_critical(double T, double rho)
@@ -390,19 +390,20 @@ double NitrogenClass::conductivity_critical(double T, double rho)
 	if (num<0)
 		return 0;
 
-	cp=Props('C','T',T,'D',rho,(char*)"Nitrogen");
-	cv=Props('O','T',T,'D',rho,(char*)"Nitrogen");
-	mu=Props('V','T',T,'D',rho,(char*)"Nitrogen")*1e6; //[uPa-s]
+	cp = specific_heat_p_Trho(T,rho); //[J/kg/K]
+	cv = specific_heat_v_Trho(T,rho); //[J/kg/K]
+	mu = viscosity_Trho(T,rho)*1e6; //[uPa-s]
 
-	zeta=zeta0*pow(num/LAMBDA,nu/gamma); //[nm]
-	OMEGA_tilde=2.0/pi*((cp-cv)/cp*atan(zeta/q_D)+cv/cp*(zeta/q_D));
-	OMEGA_tilde0=2.0/pi*(1.-exp(-1./(q_D/zeta+1.0/3.0*(zeta/q_D)*(zeta/q_D)/delta/delta)));
-	lambdac=rho*(cp*1000.0)*k*R0*T/(6*pi*zeta*mu)*(OMEGA_tilde-OMEGA_tilde0)*1e18; // 1e18 is conversion to mW/m-K (not described in paper)
+	zeta = zeta0*pow(num/LAMBDA,nu/gamma); //[nm]
+	OMEGA_tilde = 2.0/pi*((cp-cv)/cp*atan(zeta/q_D)+cv/cp*(zeta/q_D));
+	OMEGA_tilde0 = 2.0/pi*(1.-exp(-1./(q_D/zeta+1.0/3.0*(zeta/q_D)*(zeta/q_D)/delta/delta)));
+	lambdac = rho*cp*k*R0*T/(6*pi*zeta*mu)*(OMEGA_tilde-OMEGA_tilde0)*1e18; // 1e18 is conversion to mW/m-K (not described in paper)
 
-	return lambdac/1e6; //[Pa-s]
+	return lambdac/1e6; //[kW/m/K]
 }
 double NitrogenClass::conductivity_Trho(double T, double rho)
 {
+	// Each term in kW/m/K
 	return conductivity_dilute(T) + conductivity_background(T,rho) + conductivity_critical(T,rho);
 }
 double NitrogenClass::viscosity_dilute(double T)
