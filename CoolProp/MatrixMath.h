@@ -12,8 +12,8 @@ std::vector<std::vector<double> > linsolve(std::vector<std::vector<double> > con
 std::size_t         num_rows  (std::vector<std::vector<double> > const& in);
 std::size_t         num_cols  (std::vector<std::vector<double> > const& in);
 std::size_t         max_cols  (std::vector<std::vector<double> > const& in);
-std::vector<double> get_row   (std::vector<std::vector<double> > const& in, unsigned int row);
-std::vector<double> get_col   (std::vector<std::vector<double> > const& in, unsigned int col);
+std::vector<double> get_row   (std::vector<std::vector<double> > const& in, size_t row);
+std::vector<double> get_col   (std::vector<std::vector<double> > const& in, size_t col);
 bool                is_squared(std::vector<std::vector<double> > const& in);
 std::vector<std::vector<double> > make_squared(std::vector<std::vector<double> > const& in);
 
