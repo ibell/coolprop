@@ -75,12 +75,29 @@ std::map<std::string, double> Mixture::load_reducing_values(int i, int j)
 					// See if it is the GERG-2008 formulation
 					if (!Model.compare("Kunz-JCED-2012"))
 					{
+						if (!pReducing) 
+						{ 
+							// One reducing function for the entire mixture
+							pReducing = new GERG2008ReducingFunction(pFluids);
+						}
 						outputmap.insert(std::pair<std::string, double >("betaT",(*itrC)["betaT"].GetDouble()));
 						outputmap.insert(std::pair<std::string, double >("betaV",(*itrC)["betaV"].GetDouble()));
 						outputmap.insert(std::pair<std::string, double >("gammaT",(*itrC)["gammaT"].GetDouble()));
 						outputmap.insert(std::pair<std::string, double >("gammaV",(*itrC)["gammaV"].GetDouble()));
 						outputmap.insert(std::pair<std::string, double >("F",(*itrC)["F"].GetDouble()));
 
+						return outputmap;
+					}
+					else if (!Model.compare("Lemmon-JPCRD-2000") || !Model.compare("Lemmon-JPCRD-2004"))
+					{
+						if (!pReducing) 
+						{ 
+							// One reducing function for the entire mixture
+							pReducing = new LemmonAirHFCReducingFunction(pFluids);
+						}
+						outputmap.insert(std::pair<std::string,double>("xi",(*itrC)["xi"].GetDouble()));
+						outputmap.insert(std::pair<std::string,double>("zeta",(*itrC)["zeta"].GetDouble()));
+						outputmap.insert(std::pair<std::string,double>("F",(*itrC)["F"].GetDouble()));		
 						return outputmap;
 					}
 					else
@@ -98,7 +115,7 @@ std::map<std::string, double> Mixture::load_reducing_values(int i, int j)
 	return outputmap;
 };
 
-std::map<std::string,std::vector<double> > Mixture::load_excess_values(int i, int j)
+void Mixture::load_excess_values(int i, int j)
 {
 	// Make an output map that maps the necessary keys to the arrays of values
 	std::map<std::string,std::vector<double> > outputmap;
@@ -118,6 +135,7 @@ std::map<std::string,std::vector<double> > Mixture::load_excess_values(int i, in
 		}
 		else
 		{
+			// It doesn't have the term Model
 			throw ValueError("Model not included for excess term");
 		}
 
@@ -156,6 +174,9 @@ std::map<std::string,std::vector<double> > Mixture::load_excess_values(int i, in
 					// See if it is the GERG-2008 formulation
 					if (!Model.compare("Kunz-JCED-2012"))
 					{
+						// Create an instance for the departure function for GERG formulation
+						pExcess->DepartureFunctionMatrix[i][j] = new GERG2008DepartureFunction();
+
 						const rapidjson::Value& _n = (*itrC)["n"];
 						outputmap.insert(std::pair<std::string,std::vector<double> >("n",JSON_double_array(_n)));
 						const rapidjson::Value& _t = (*itrC)["t"];
@@ -171,7 +192,27 @@ std::map<std::string,std::vector<double> > Mixture::load_excess_values(int i, in
 						const rapidjson::Value& _gamma = (*itrC)["gamma"];
 						outputmap.insert(std::pair<std::string,std::vector<double> >("gamma",JSON_double_array(_gamma)));
 
-						return outputmap;
+						// Set the variables in the class
+						pExcess->DepartureFunctionMatrix[i][j]->set_coeffs_from_map(outputmap);
+						return;
+					}
+					else if (!Model.compare("Lemmon-JPCRD-2004"))
+					{
+						// Create an instance for the departure function for the HFC mixtures
+						pExcess->DepartureFunctionMatrix[i][j] = new LemmonHFCDepartureFunction();
+
+						const rapidjson::Value& _n = (*itrC)["n"];
+						outputmap.insert(std::pair<std::string,std::vector<double> >("n",JSON_double_array(_n)));
+						const rapidjson::Value& _t = (*itrC)["t"];
+						outputmap.insert(std::pair<std::string,std::vector<double> >("t",JSON_double_array(_t)));
+						const rapidjson::Value& _d = (*itrC)["d"];
+						outputmap.insert(std::pair<std::string,std::vector<double> >("d",JSON_double_array(_d)));
+						const rapidjson::Value& _l = (*itrC)["l"];
+						outputmap.insert(std::pair<std::string,std::vector<double> >("l",JSON_double_array(_l)));
+
+						// Set the variables in the class
+						pExcess->DepartureFunctionMatrix[i][j]->set_coeffs_from_map(outputmap);
+						return;
 					}
 					else
 					{
@@ -185,7 +226,7 @@ std::map<std::string,std::vector<double> > Mixture::load_excess_values(int i, in
 			throw ValueError("Coeffs not included for excess term");
 		}
 	}
-	return outputmap;
+	throw ValueError("No excess parameters loaded for this binary pair");
 };
 
 void normalize_vector(std::vector<double> &x)
@@ -225,8 +266,8 @@ Mixture::Mixture(std::vector<Fluid *> pFluids)
 
 	NRVLE.resize(this->N);
 
-	// One reducing function for the entire mixture
-	pReducing = new GERG2008ReducingFunction(pFluids);
+	// Reset the reducing parameter pointer
+	pReducing = NULL;
 
 	// One Residual Ideal Mixture term
 	pResidualIdealMix = new ResidualIdealMixture(pFluids);
@@ -240,28 +281,31 @@ Mixture::Mixture(std::vector<Fluid *> pFluids)
 		{
 			if (i != j)
 			{
-				pExcess->DepartureFunctionMatrix[i][j] = new GERG2008DepartureFunction();
 				std::map<std::string, double > reducing_map = load_reducing_values(i, j);
-				std::map<std::string, std::vector<double> > excess_map = load_excess_values(i, j);
-
-				pExcess->set_coeffs_from_map(i, j, excess_map);
+				load_excess_values(i, j);
 				pReducing->set_coeffs_from_map(i, j, reducing_map);
-				std::cout << "TODO: Load F factors into excess term" << std::endl;
+				pExcess->F[i][j] = reducing_map.find("F")->second;
 			}
 		}
 	}
+}
+
+void Mixture::test()
+{
 
 	///         END OF INITIALIZATION
 	///         END OF INITIALIZATION
 	///         END OF INITIALIZATION
 	///         END OF INITIALIZATION
 	
-	std::vector<double> z(2, 0.5);
+	std::vector<double> x,y,z(2, 0.5);
 
-	Envelope.build(100000,z);
+	//Envelope.build(100000,z);
 
 	z[0] = 0.5;
 	z[1] = 1-z[0];
+
+	double _Tsat = saturation_p(TYPE_BUBBLEPOINT, 440000, z, x, y);
 
 	double Tr = pReducing->Tr(z); //[K]
 	double rhorbar = pReducing->rhorbar(z); //[mol/m^3]
@@ -275,7 +319,7 @@ Mixture::Mixture(std::vector<Fluid *> pFluids)
 	//double _dphir_dDelta = dphir_dDelta(tau, delta, &z);
 	//double p = Rbar(&z)*rhobar*T*(1 + delta*_dphir_dDelta)/1000; //[kPa]
 
-	std::vector<double> x, y;
+	
 	//check();
 	//time_t t1,t2;
 	//unsigned int N = 100;
@@ -1361,7 +1405,13 @@ double GERG2008DepartureFunction::phir(double tau, double delta)
 	}
 	else
 	{
-		double sum = phi1.base(tau, delta) + phi2.base(tau, delta);
+		double sum;
+		if (using_gaussian){
+			sum = phi1.base(tau, delta) + phi2.base(tau, delta);
+		}
+		else{
+			sum = phi1.base(tau, delta);
+		}
 		cache.phir.tau = tau;
 		cache.phir.delta = delta;
 		cache.phir.cached_val = sum;
@@ -1376,7 +1426,13 @@ double GERG2008DepartureFunction::dphir_dDelta(double tau, double delta)
 	}
 	else
 	{
-		double sum = phi1.dDelta(tau, delta) + phi2.dDelta(tau, delta);
+		double sum;
+		if (using_gaussian){
+			sum = phi1.dDelta(tau, delta) + phi2.dDelta(tau, delta);
+		}
+		else{
+			sum = phi1.dDelta(tau, delta);
+		}
 		cache.dphir_dDelta.tau = tau;
 		cache.dphir_dDelta.delta = delta;
 		cache.dphir_dDelta.cached_val = sum;
@@ -1391,7 +1447,13 @@ double GERG2008DepartureFunction::d2phir_dDelta2(double tau, double delta)
 	}
 	else
 	{
-		double sum = phi1.dDelta2(tau, delta) + phi2.dDelta2(tau, delta);
+		double sum;
+		if (using_gaussian){
+			sum = phi1.dDelta2(tau, delta) + phi2.dDelta2(tau, delta);
+		}
+		else{
+			sum = phi1.dDelta2(tau, delta);
+		}
 		cache.d2phir_dDelta2.tau = tau;
 		cache.d2phir_dDelta2.delta = delta;
 		cache.d2phir_dDelta2.cached_val = sum;
@@ -1400,13 +1462,20 @@ double GERG2008DepartureFunction::d2phir_dDelta2(double tau, double delta)
 }
 double GERG2008DepartureFunction::d2phir_dDelta_dTau(double tau, double delta)
 {
+	
 	if (double_equal(tau,cache.d2phir_dDelta_dTau.tau) && double_equal(delta,cache.d2phir_dDelta_dTau.delta))
 	{
 		return cache.d2phir_dDelta_dTau.cached_val;
 	}
 	else
 	{
-		double sum = phi1.dDelta_dTau(tau, delta) + phi2.dDelta_dTau(tau, delta);
+		double sum;
+		if (using_gaussian){
+			sum = phi1.dDelta_dTau(tau, delta) + phi2.dDelta_dTau(tau, delta);
+		}
+		else{
+			sum = phi1.dDelta_dTau(tau, delta);
+		}
 		cache.d2phir_dDelta_dTau.tau = tau;
 		cache.d2phir_dDelta_dTau.delta = delta;
 		cache.d2phir_dDelta_dTau.cached_val = sum;
@@ -1415,13 +1484,20 @@ double GERG2008DepartureFunction::d2phir_dDelta_dTau(double tau, double delta)
 }
 double GERG2008DepartureFunction::dphir_dTau(double tau, double delta)
 {
+	
 	if (double_equal(tau,cache.dphir_dTau.tau) && double_equal(delta,cache.dphir_dTau.delta))
 	{
 		return cache.dphir_dTau.cached_val;
 	}
 	else
 	{
-		double sum = phi1.dTau(tau, delta) + phi2.dTau(tau, delta);
+		double sum;
+		if (using_gaussian){
+			sum = phi1.dTau(tau, delta) + phi2.dTau(tau, delta);
+		}
+		else{
+			sum = phi1.dTau(tau, delta);
+		}
 		cache.dphir_dTau.tau = tau;
 		cache.dphir_dTau.delta = delta;
 		cache.dphir_dTau.cached_val = sum;
@@ -1430,13 +1506,20 @@ double GERG2008DepartureFunction::dphir_dTau(double tau, double delta)
 }
 double GERG2008DepartureFunction::d2phir_dTau2(double tau, double delta)
 {
+	
 	if (double_equal(tau,cache.d2phir_dTau2.tau) && double_equal(delta,cache.d2phir_dTau2.delta))
 	{
 		return cache.d2phir_dTau2.cached_val;
 	}
 	else
 	{
-		double sum = phi1.dTau2(tau, delta) + phi2.dTau2(tau, delta);
+		double sum;
+		if (using_gaussian){
+			sum = phi1.dTau2(tau, delta) + phi2.dTau2(tau, delta);
+		}
+		else{
+			sum = phi1.dTau2(tau, delta);
+		}
 		cache.d2phir_dTau2.tau = tau;
 		cache.d2phir_dTau2.delta = delta;
 		cache.d2phir_dTau2.cached_val = sum;
@@ -1454,14 +1537,26 @@ void GERG2008DepartureFunction::set_coeffs_from_map(std::map<std::string,std::ve
 	std::vector<double> beta = m.find("beta")->second;
 	std::vector<double> gamma = m.find("gamma")->second;
 
-	int iStart = 0;
-	while (eta[iStart+1] < 0.5)
+	unsigned int iStart;
+	// If sum of entries in eta are zero, there is no gaussian term
+	// All terms are power-like
+	if (double_equal(std::accumulate(eta.begin(), eta.end(), 0.0),0.0))
 	{
-		iStart++;
+		using_gaussian = false;
+		iStart = eta.size()-1;
+	}
+	else
+	{
+		using_gaussian = true;
+		iStart = 0;
+		while (eta[iStart+1] < 0.25)
+		{
+			iStart++;
+		}
 	}
 
 	phi1 = phir_power(n,d,t,1,iStart);
-	phi2 = phir_GERG2008_gaussian(n,d,t,eta,epsilon,beta,gamma,iStart+1,eta.size()-1);
+	if (using_gaussian) { phi2 = phir_GERG2008_gaussian(n,d,t,eta,epsilon,beta,gamma,iStart+1,eta.size()-1); }
 
 	//std::map<std::string,std::vector<double> >::iterator it;
 	//// Try to find using the ma
@@ -1478,6 +1573,110 @@ void GERG2008DepartureFunction::set_coeffs_from_map(std::map<std::string,std::ve
 	//{
 
 	//}
+}
+
+double LemmonHFCDepartureFunction::phir(double tau, double delta)
+{
+	if (double_equal(tau,cache.phir.tau) && double_equal(delta,cache.phir.delta))
+	{
+		return cache.phir.cached_val;
+	}
+	else
+	{
+		double sum = phi1.base(tau, delta);
+		cache.phir.tau = tau;
+		cache.phir.delta = delta;
+		cache.phir.cached_val = sum;
+		return sum;
+	}
+}
+double LemmonHFCDepartureFunction::dphir_dDelta(double tau, double delta)
+{
+	if (double_equal(tau,cache.dphir_dDelta.tau) && double_equal(delta,cache.dphir_dDelta.delta))
+	{
+		return cache.dphir_dDelta.cached_val;
+	}
+	else
+	{
+		double sum = phi1.dDelta(tau, delta);
+		cache.dphir_dDelta.tau = tau;
+		cache.dphir_dDelta.delta = delta;
+		cache.dphir_dDelta.cached_val = sum;
+		return sum;
+	}
+}
+double LemmonHFCDepartureFunction::d2phir_dDelta2(double tau, double delta)
+{
+	if (double_equal(tau,cache.d2phir_dDelta2.tau) && double_equal(delta,cache.d2phir_dDelta2.delta))
+	{
+		return cache.d2phir_dDelta2.cached_val;
+	}
+	else
+	{
+		double sum = phi1.dDelta2(tau, delta);
+		cache.d2phir_dDelta2.tau = tau;
+		cache.d2phir_dDelta2.delta = delta;
+		cache.d2phir_dDelta2.cached_val = sum;
+		return sum;
+	}
+}
+double LemmonHFCDepartureFunction::d2phir_dDelta_dTau(double tau, double delta)
+{
+	
+	if (double_equal(tau,cache.d2phir_dDelta_dTau.tau) && double_equal(delta,cache.d2phir_dDelta_dTau.delta))
+	{
+		return cache.d2phir_dDelta_dTau.cached_val;
+	}
+	else
+	{
+		double sum = phi1.dDelta_dTau(tau, delta);
+		cache.d2phir_dDelta_dTau.tau = tau;
+		cache.d2phir_dDelta_dTau.delta = delta;
+		cache.d2phir_dDelta_dTau.cached_val = sum;
+		return sum;
+	}
+}
+double LemmonHFCDepartureFunction::dphir_dTau(double tau, double delta)
+{
+	if (double_equal(tau,cache.dphir_dTau.tau) && double_equal(delta,cache.dphir_dTau.delta))
+	{
+		return cache.dphir_dTau.cached_val;
+	}
+	else
+	{
+		double sum = phi1.dTau(tau, delta);
+		cache.dphir_dTau.tau = tau;
+		cache.dphir_dTau.delta = delta;
+		cache.dphir_dTau.cached_val = sum;
+		return sum;
+	}
+}
+double LemmonHFCDepartureFunction::d2phir_dTau2(double tau, double delta)
+{
+	
+	if (double_equal(tau,cache.d2phir_dTau2.tau) && double_equal(delta,cache.d2phir_dTau2.delta))
+	{
+		return cache.d2phir_dTau2.cached_val;
+	}
+	else
+	{
+		double sum = phi1.dTau2(tau, delta);
+		cache.d2phir_dTau2.tau = tau;
+		cache.d2phir_dTau2.delta = delta;
+		cache.d2phir_dTau2.cached_val = sum;
+		return sum;
+	}
+}
+
+void LemmonHFCDepartureFunction::set_coeffs_from_map(std::map<std::string,std::vector<double> > m)
+{
+	std::vector<double> n = m.find("n")->second;
+	std::vector<double> t = m.find("t")->second;
+	std::vector<double> d = m.find("d")->second;
+	std::vector<double> l = m.find("l")->second;
+
+	// All terms are power-like
+	phi1 = phir_power(n,d,t,l,1,n.size()-1);
 }
 
 
@@ -2094,12 +2293,14 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z)
 	data.K.resize(Mix->N);
 	data.lnK.resize(Mix->N);
 
-	// Use the preconditioner to get the very rough guess for saturation temperature (interpolation based on pseudo-critical pressure
+	// Use the preconditioner to get the very rough guess for saturation temperature 
+	// (interpolation based on pseudo-critical pressure)
 	double T_guess = Mix->saturation_p_preconditioner(p0, z);
 
 	// Initialize the call using Wilson to get K-factors and temperature
 	double T = Mix->saturation_p_Wilson(TYPE_BUBBLEPOINT, p0, z, T_guess, K);
 
+	// Set flags for successive substitution
 	// Limit Successive substitution to 4 iterations and don't call Newton-Raphson directly
 	Mix->SS.Nstep_max = 4;
 	Mix->SS.useNR = false;
@@ -2153,26 +2354,29 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z)
 	{
 		bool step_accepted = false;
 		std::vector<double> DELTAXbase = Mix->NRVLE.dXdS; //Copy from the last good run
-		std::vector<double> Kold = K;
+		std::vector<double> Kold = K; // Copy from the last good run
+		// Loop while the step size isn't small enough
 		while (step_accepted == false)
 		{
+			// Make a copy of the stored values from the last iteration
 			std::vector<double> DELTAX = DELTAXbase;
 			
 			for (unsigned int i = 0; i < Mix->N+2; i++)
 			{
 				DELTAX[i] *= DELTAS;
 			}
+
+			// Update the temperature
 			double DELTALNT = DELTAX[Mix->N];
 			lnT += DELTALNT;
 			T = exp(lnT);
 
+			// Update the pressure
 			double DELTALNP = DELTAX[Mix->N+1];
 			lnP += DELTALNP;
-			double pnew = exp(lnP);
-			double pratio = pnew/p;
-			p = pnew;
+			p = exp(lnP);
 
-			// Set the variables again, the same structure independent of the specified variable
+			// Update the K-factors
 			for (unsigned int i = 0; i < Mix->N; i++)
 			{
 				K[i] = exp(log(Kold[i])+DELTAX[i]);
@@ -2210,6 +2414,7 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z)
 			try
 			{
 				Mix->NRVLE.call(0, T, p, rhobar_liq, rhobar_vap, z, K, i_S, S);
+				// Throw an exception if an invalid value returned but no exception was thrown
 				if (!ValidNumber(Mix->NRVLE.T))
 				{
 					throw ValueError(format("T [%g] is not valid",T).c_str());
@@ -2217,6 +2422,7 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z)
 			}
 			catch (CoolPropBaseError &)
 			{
+				// Decrease the step size by a factor of 10
 				DELTAS *= 0.1;
 				continue;
 			}

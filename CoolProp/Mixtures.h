@@ -144,14 +144,14 @@ protected:
 	STLMatrix xi, ///< Terms for Tr
 		      zeta; ///< Terms for rhorbar/ vrbar
 	std::vector<Fluid *> pFluids; //!< List of pointers to fluids	
-	unsigned int N;
 public:
 	LemmonAirHFCReducingFunction(std::vector<Fluid *> pFluids)
 	{
 		this->pFluids = pFluids;
+		this->N = pFluids.size();
 		zeta.resize(N,std::vector<double>(N,0));
 		xi.resize(N,std::vector<double>(N,0));
-		this->N = pFluids.size();
+		
 	};
 
 	/// The reduced temperature
@@ -204,25 +204,44 @@ public:
 	virtual void set_coeffs_from_map(std::map<std::string,std::vector<double> >) = 0;
 };
 
-struct GERG2008DepartureFunctionCacheElement
+struct DepartureFunctionCacheElement
 {
 	double tau, delta, cached_val;
 };
 
-struct GERG2008DepartureFunctionCache
+struct DepartureFunctionCache
 {
-	GERG2008DepartureFunctionCacheElement phir,dphir_dDelta,dphir_dTau,d2phir_dDelta2,d2phir_dTau2,d2phir_dDelta_dTau;
+	DepartureFunctionCacheElement phir,dphir_dDelta,dphir_dTau,d2phir_dDelta2,d2phir_dTau2,d2phir_dDelta_dTau;
 };
 
 class GERG2008DepartureFunction : public DepartureFunction
 {
 protected:
-	GERG2008DepartureFunctionCache cache;
+	bool using_gaussian;
+	DepartureFunctionCache cache;
 	phir_power phi1;
 	phir_GERG2008_gaussian phi2;
 public:
 	GERG2008DepartureFunction(){};
 	~GERG2008DepartureFunction(){};
+	double phir(double tau, double delta);
+	double dphir_dDelta(double tau, double delta);
+	double d2phir_dDelta_dTau(double tau, double delta);
+	double dphir_dTau(double tau, double delta);
+	double d2phir_dDelta2(double tau, double delta);
+	double d2phir_dTau2(double tau, double delta);
+	void set_coeffs_from_map(std::map<std::string,std::vector<double> >);
+};
+
+class LemmonHFCDepartureFunction : public DepartureFunction
+{
+protected:
+	bool using_gaussian;
+	DepartureFunctionCache cache;
+	phir_power phi1;
+public:
+	LemmonHFCDepartureFunction(){};
+	~LemmonHFCDepartureFunction(){};
 	double phir(double tau, double delta);
 	double dphir_dDelta(double tau, double delta);
 	double d2phir_dDelta_dTau(double tau, double delta);
@@ -639,7 +658,7 @@ public:
 	@param i 0-based index of first component
 	@param j 0-based index of second component
 	*/
-	std::map<std::string,std::vector<double> > load_excess_values(int i, int j);
+	void load_excess_values(int i, int j);
 
 	/*! Load the reducing parameters
 	@param i 0-based index of first component
@@ -648,6 +667,7 @@ public:
 	std::map<std::string, double> load_reducing_values(int i, int j);
 
 	void check();
+	void test();
 };
 
 
