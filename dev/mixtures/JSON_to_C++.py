@@ -1,4 +1,4 @@
-
+import json as pyjson
 
 values = [
     ('mixture_excess_term.json','../../CoolProp/mixture_excess_JSON.h','mixture_excess_JSON'),
@@ -6,6 +6,9 @@ values = [
 ]
 
 for infile,outfile,variable in values:
+    # Check you haven't messed up the JSON file and it will still load
+    pyjson.loads(open(infile,'r').read())
+    
     json = open(infile,'r').read()
     
     # Escape all existing quotations
@@ -14,7 +17,7 @@ for infile,outfile,variable in values:
     # Split into lines
     json = json.split('\n')
     
-    # Add " to beginning and end of every line
+    # Add " to beginning and end of every line and end line with comma
     for i,line in enumerate(json):
         json[i] = '"'+line+'",'
     
