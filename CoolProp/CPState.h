@@ -183,6 +183,9 @@ public:
 	// Bulk values
 	double _rho,_T,_p,_Q,_h,_s,_logp, _logrho, tau, delta;
 
+	// Smoothing values
+	double rhospline, dsplinedp, dsplinedh;
+
 	// Phase flags
 	bool TwoPhase, SinglePhase, s_cached, h_cached;
 	
@@ -376,6 +379,18 @@ public:
 	double fundamental_derivative_of_gas_dynamics(void);
 
 	double d2pdv2_consts(void);
+
+	// Other functions and derivatives
+	double dhdp_constrho(void);
+	double Z(void);
+	double dZdDelta(void);
+	double dZdTau(void);
+	double B(void);
+	double dBdT(void);
+	double C(void);
+	double dCdT(void);
+
+
 
 	// ----------------------------------------	
 	// Derivatives along the saturation curve
@@ -612,8 +627,6 @@ public:
 	double d2sdT2_constp(void){return CoolPropStateClassSI::d2sdT2_constp()*conversion_factor("S/T/T");};
 	double d2sdp2_constT(void){return CoolPropStateClassSI::d2sdp2_constT()*conversion_factor("S/P/P");};
 	double d2sdTdp(void){return CoolPropStateClassSI::d2sdTdp()*conversion_factor("S/T/P");};
-
-	
 
 	//// ----------------------------------------	
 	//// Derivatives along the saturation curve

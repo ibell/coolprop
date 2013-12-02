@@ -460,7 +460,7 @@ def DerivTermsU(in1, T, rho, fluid, units = None):
     values have to be from the same unit set.
     """
     if units is None or units == 'kSI':
-        return DerivTermsU(in1, T, rho, fluid)
+        return DerivTerms(in1, T, rho, fluid)
     else:
         msg = 'Your requested unit set '+str(in1)+' is not supported, valid unit definitions are kSI and SI only.'
         msg = 'Sorry, unit selection is not implemented for this function.'

@@ -65,6 +65,50 @@ double convert_from_unit_system_to_SI(long iInput, double value, int old_system)
 	case iCritSplineT:
 		return value;
 		break;
+	case iDERdh_dp__rho:
+	case iDERdh_dp__v:
+	case iDERZ:
+	case iDERdZ_dDelta:
+	case iDERdZ_dTau:
+	case iDERB:
+	case iDERdB_dT:
+	case iDERC:
+	case iDERdC_dT:
+	case iDERphir:
+	case iDERdphir_dTau:
+	case iDERdphir_dDelta:
+	case iDERd2phir_dTau2:
+	case iDERd2phir_dDelta2:
+	case iDERd2phir_dDelta_dTau:
+	case iDERd3phir_dDelta3:
+	case iDERd3phir_dDelta2_dTau:
+	case iDERd3phir_dDelta_dTau2:
+	case iDERd3phir_dTau3:
+	case iDERphi0:
+	case iDERdphi0_dTau:
+	case iDERd2phi0_dTau2:
+	case iDERdphi0_dDelta:
+	case iDERd2phi0_dDelta2:
+	case iDERd2phi0_dDelta_dTau:
+	case iDERd3phi0_dTau3:
+	case iDERdp_dT__rho:
+	case iDERdp_drho__T:
+	case iDERdh_dT__rho:
+	case iDERdh_drho__T:
+	case iDERdrho_dT__p:
+	case iDERdrho_dh__p:
+	case iDERdrho_dp__h:
+	case iDERrho_smoothed:
+	case iDERdrho_smoothed_dh:
+	case iDERdrho_smoothed_dp:
+	case iDERdrhodh_constp_smoothed:
+	case iDERdrhodp_consth_smoothed:
+	case iDERIsothermalCompressibility:
+		if (get_debug_level()>5){
+			std::cout<<__FILE__<<" Unit conversion omitted for derivative: "<<iInput<<std::endl;
+		}
+		return value;
+		break;
 	default:
 		throw ValueError(format("index [%d] is invalid in convert_from_unit_system_to_SI",iInput).c_str());
 		break;
@@ -134,6 +178,49 @@ double convert_from_SI_to_unit_system(long iInput, double value, int new_system)
 	case iAccentric:
 	case iI:
 	case iCritSplineT:
+		return value;
+		break;
+	case iDERdh_dp__rho:
+	case iDERZ:
+	case iDERdZ_dDelta:
+	case iDERdZ_dTau:
+	case iDERB:
+	case iDERdB_dT:
+	case iDERC:
+	case iDERdC_dT:
+	case iDERphir:
+	case iDERdphir_dTau:
+	case iDERdphir_dDelta:
+	case iDERd2phir_dTau2:
+	case iDERd2phir_dDelta2:
+	case iDERd2phir_dDelta_dTau:
+	case iDERd3phir_dDelta3:
+	case iDERd3phir_dDelta2_dTau:
+	case iDERd3phir_dDelta_dTau2:
+	case iDERd3phir_dTau3:
+	case iDERphi0:
+	case iDERdphi0_dTau:
+	case iDERd2phi0_dTau2:
+	case iDERdphi0_dDelta:
+	case iDERd2phi0_dDelta2:
+	case iDERd2phi0_dDelta_dTau:
+	case iDERd3phi0_dTau3:
+	case iDERdp_dT__rho:
+	case iDERdp_drho__T:
+	case iDERdh_dT__rho:
+	case iDERdh_drho__T:
+	case iDERdrho_dT__p:
+	case iDERdrho_dh__p:
+	case iDERdrho_dp__h:
+	case iDERrho_smoothed:
+	case iDERdrho_smoothed_dh:
+	case iDERdrho_smoothed_dp:
+	case iDERdrhodh_constp_smoothed:
+	case iDERdrhodp_consth_smoothed:
+	case iDERIsothermalCompressibility:
+		if (get_debug_level()>3){
+			std::cout<<__FILE__<<" Unit conversion omitted for derivative: "<<iInput<<std::endl;
+		}
 		return value;
 		break;
 	default:

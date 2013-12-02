@@ -1126,52 +1126,92 @@ double CoolPropStateClassSI::keyed_output(long iOutput)
 		// DerivTerms from wrappers in future
 		// versions.
 		// -----------------------------------
-		//TODO: implement keyed output
 		case iDERdh_dp__rho:
 		case iDERdh_dp__v:
+			return dhdp_constrho();
 		case iDERZ:
+			return Z();
 		case iDERdZ_dDelta:
+			return dZdDelta();
 		case iDERdZ_dTau:
+			return dZdTau();
 		case iDERB:
+			return B();
 		case iDERdB_dT:
+			return dBdT();
 		case iDERC:
+			return C();
 		case iDERdC_dT:
+			return dCdT();
 		case iDERphir:
+			return phir(tau, delta);
 		case iDERdphir_dTau:
+			return dphir_dTau(tau, delta);
 		case iDERdphir_dDelta:
+			return dphir_dDelta(tau, delta);
 		case iDERd2phir_dTau2:
+			return d2phir_dTau2(tau, delta);
 		case iDERd2phir_dDelta2:
+			return d2phir_dDelta2(tau,delta);
 		case iDERd2phir_dDelta_dTau:
-		case	iDERd3phir_dDelta3:
+			return d2phir_dDelta_dTau(tau,delta);
+		case iDERd3phir_dDelta3:
+			return d3phir_dDelta3(tau, delta);
 		case iDERd3phir_dDelta2_dTau:
+			return d3phir_dDelta2_dTau(tau, delta);
 		case iDERd3phir_dDelta_dTau2:
+			return d3phir_dDelta_dTau2(tau, delta);
 		case iDERd3phir_dTau3:
+			return d3phir_dTau3(tau, delta);
 		case iDERphi0:
+			return phi0(tau, delta);
 		case iDERdphi0_dTau:
+			return dphi0_dTau(tau, delta);
 		case iDERd2phi0_dTau2:
+			return d2phi0_dTau2(tau, delta);
 		case iDERdphi0_dDelta:
+			return dphi0_dDelta(tau, delta);
 		case iDERd2phi0_dDelta2:
+			return d2phi0_dDelta2(tau, delta);
 		case iDERd2phi0_dDelta_dTau:
+			return d2phi0_dDelta_dTau(tau, delta);
 		case iDERd3phi0_dTau3:
-		case iDERdp_dT:
+			return d3phi0_dTau3(tau, delta);
 		case iDERdp_dT__rho:
-		case iDERdp_drho:
+			return dpdT_constrho();
 		case iDERdp_drho__T:
-		case iDERdh_dT:
+			return dpdrho_constT();
 		case iDERdh_dT__rho:
-		case iDERdh_drho:
+			return dhdT_constrho();
 		case iDERdh_drho__T:
+			return dhdrho_constT();
 		case iDERdrho_dT__p:
+			return drhodT_constp();
 		case iDERdrho_dh__p:
+			return drhodh_constp();
 		case iDERdrho_dp__h:
+			return drhodp_consth();
 		case iDERrho_smoothed:
+			//double rhospline, dsplinedp, dsplinedh;
+			//update(iT,T,iQ,rho);
+			rho_smoothed(0.1,&rhospline,&dsplinedh,&dsplinedp);
+			return rhospline;
 		case iDERdrho_smoothed_dh:
+			//double rhospline, dsplinedp, dsplinedh;
+			//CPS.update(iT,T,iQ,rho);
+			rho_smoothed(0.1,&rhospline,&dsplinedh,&dsplinedp);
+			return dsplinedh;
 		case iDERdrho_smoothed_dp:
+			//double rhospline, dsplinedp, dsplinedh;
+			//CPS.update(iT,T,iQ,rho);
+			rho_smoothed(0.1,&rhospline,&dsplinedh,&dsplinedp);
+			return dsplinedp;
 		case iDERdrhodh_constp_smoothed:
+			return drhodh_constp_smoothed(0.1);
 		case iDERdrhodp_consth_smoothed:
+			return drhodp_consth_smoothed(0.1);
 		case iDERIsothermalCompressibility:
-			return derivTerms
-
+			return isothermal_compressibility();
 		default:
 			throw ValueError(format("Invalid Output index to CPState function keyed_output: %d ",iOutput));
 	}
@@ -1835,6 +1875,54 @@ double CoolPropStateClassSI::fundamental_derivative_of_gas_dynamics(void)
 {
 	return this->d2pdv2_consts()/pow(this->speed_sound(),2)/2/pow(this->rho(),3);
 }
+
+double CoolPropStateClassSI::dhdp_constrho(void){
+//	double dphir_dDelta = pFluid->dphir_dDelta(tau,delta);
+//	double d2phir_dDelta_dTau = pFluid->d2phir_dDelta_dTau(tau,delta);
+//	double d2phir_dDelta2 = pFluid->d2phir_dDelta2(tau,delta);
+//	double dpdrho = R*T*(1+2*delta*dphir_dDelta+delta*delta*d2phir_dDelta2);
+//	double dpdT = R*rho*(1+delta*dphir_dDelta-delta*tau*d2phir_dDelta_dTau);
+//	double cp = -tau*tau*R*(pFluid->d2phi0_dTau2(tau,delta)+pFluid->d2phir_dTau2(tau,delta))+T/rho/rho*(dpdT*dpdT)/dpdrho;
+
+	double dpdrho = this->dpdrho_constT();
+	double dpdT   = this->dpdT_constrho();
+	double cp     = this->cp();
+	double drhodT = -dpdT/dpdrho;
+	return -cp/dpdrho/drhodT-_T*drhodT*(-1/_rho/_rho)+1/_rho;
+}
+
+
+double CoolPropStateClassSI::Z(void){
+	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
+	return 1+delta*dphir_dDelta(tau,delta);
+}
+double CoolPropStateClassSI::dZdDelta(void){
+	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
+	return delta*d2phir_dDelta2(tau,delta)+dphir_dDelta(tau,delta);
+}
+double CoolPropStateClassSI::dZdTau(void){
+	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
+	return delta*d2phir_dDelta_dTau(tau,delta);
+}
+double CoolPropStateClassSI::B(void){
+	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
+	// given by B*rhoc=lim(delta --> 0) [dphir_ddelta(tau)]
+	return 1.0/pFluid->reduce.rho*dphir_dDelta(tau,1e-12);
+}
+double CoolPropStateClassSI::dBdT(void){
+	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
+	return 1.0/pFluid->reduce.rho*d2phir_dDelta_dTau(tau,1e-12)*-pFluid->reduce.T/_T/_T;
+}
+double CoolPropStateClassSI::C(void){
+	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
+	// given by C*rhoc^2=lim(delta --> 0) [d2phir_dDelta2(tau)]
+	return 1.0/(pFluid->reduce.rho*pFluid->reduce.rho)*d2phir_dDelta2(tau,1e-12);
+}
+double CoolPropStateClassSI::dCdT(void){
+	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
+	return 1.0/(pFluid->reduce.rho*pFluid->reduce.rho)*d3phir_dDelta2_dTau(tau,1e-12)*-pFluid->reduce.T/_T/_T;
+}
+
 
 // DERIVATIVES OF ENTHALPY FROM EOS
 double CoolPropStateClassSI::dhdrho_constT(void){
