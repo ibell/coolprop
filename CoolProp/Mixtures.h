@@ -52,7 +52,6 @@ public:
 
 	double ndrhorbardni__constnj(const std::vector<double> &x, int i);
 	double ndTrdni__constnj(const std::vector<double> &x, int i);
-
 };
 
 /*! 
@@ -62,7 +61,6 @@ reducing parameters \f$ \bar\rho_r \f$ and \f$ T_r \f$ and derivatives thereof
 class GERG2008ReducingFunction : public ReducingFunction
 {
 protected:
-	
 	STLMatrix v_c;
 	STLMatrix T_c; //!< \f$ 
 	STLMatrix beta_v; //!< \f$ \beta_{v,ij} \f$ from GERG-2008
@@ -130,6 +128,53 @@ public:
 	double d2fYkidxi2__constxk(const std::vector<double> &x, int k, int i, std::vector< std::vector< double> > * beta);
 	double d2fYikdxi2__constxk(const std::vector<double> &x, int i, int k, std::vector< std::vector< double> > * beta);
 	double d2fYijdxidxj(const std::vector<double> &x, int i, int k, std::vector< std::vector< double> > * beta);
+};
+
+/*! From Lemmon, JPCRD, 2000 for the properties of Dry Air, and also from Lemmon, JPCRD, 2004 for the properties of R404A, R410A, etc.	
+\f[
+\rho_r(\bar x) = \left[ \sum_{i=1}^m\frac{x_i}{\rho_{c_i}}+\sum_{i=1}^{m-1}\sum_{j=i+1}^{m}x_ix_j\zeta_{ij}\right]^{-1}
+\f]
+\f[
+T_r(\bar x) = \sum_{i=1}^mx_iT_{c_i}+\sum_{i=1}^{m-1}\sum_{j=i+1}^mx_ix_j\xi_{ij}
+\f]
+*/
+class LemmonAirHFCReducingFunction : public ReducingFunction
+{
+protected:
+	STLMatrix xi, ///< Terms for Tr
+		      zeta; ///< Terms for rhorbar/ vrbar
+	std::vector<Fluid *> pFluids; //!< List of pointers to fluids	
+	unsigned int N;
+public:
+	LemmonAirHFCReducingFunction(std::vector<Fluid *> pFluids)
+	{
+		this->pFluids = pFluids;
+		zeta.resize(N,std::vector<double>(N,0));
+		xi.resize(N,std::vector<double>(N,0));
+		this->N = pFluids.size();
+	};
+
+	/// The reduced temperature
+	double Tr(const std::vector<double> &x);
+	double dTrdxi__constxj(const std::vector<double> &x, int i);
+	double d2Trdxi2__constxj(const std::vector<double> &x, int i){return 0;};
+	double d2Trdxidxj(const std::vector<double> &x, int i, int j){return 0;};
+
+	/// The reduced specific volume
+	double vrbar(const std::vector<double> &x);
+	double dvrbardxi__constxj(const std::vector<double> &x, int i);
+	double d2vrbardxi2__constxj(const std::vector<double> &x, int i){return 0;};
+	double d2vrbardxidxj(const std::vector<double> &x, int i, int j){return 0;};
+
+	/// The molar reducing density
+	double rhorbar(const std::vector<double> &x){return 1/vrbar(x);};
+	double drhorbardxi__constxj(const std::vector<double> &x, int i);
+	double d2rhorbardxi2__constxj(const std::vector<double> &x, int i);
+	double d2rhorbardxidxj(const std::vector<double> &x, int i, int j);
+
+	/// Set the coefficients based on reducing parameters loaded from JSON
+	void set_coeffs_from_map(int i, int j, std::map<std::string,double >);
+	
 };
 
 
@@ -356,16 +401,16 @@ public:
 	SuccessiveSubstitutionVLE SS;
 	NewtonRaphsonVLE NRVLE;
 
-
 	/*! Returns the natural logarithm of K for component i using the method from Wilson as in
 	\f[
 	\ln K_i = \ln\left(\frac{p_{c,i}}{p}\right)+5.373(1+\omega_i)\left(1-\frac{T_{c,i}}{T}\right)
 	\f]
 	@param T Temperature [K]
-	@param p Pressure [kPa]
+	@param p Pressure [Pa]
 	@param i Index of component [-]
 	*/
 	double Wilson_lnK_factor(double T, double p, int i);
+
 	double phir(double tau, double delta, const std::vector<double> &x);
 	double d2phir_dDelta_dTau(double tau, double delta, const std::vector<double> &x);
 	double d2phir_dTau2(double tau, double delta, const std::vector<double> &x);
@@ -390,7 +435,7 @@ public:
 
 	/*! Temperature-pressure-bulk mole fraction flash calculation
 	@param T Temperature [K]
-	@param p Pressure [kPa]
+	@param p Pressure [Pa]
 	@param z Bulk mole fractions [-]
 	@param rhobar Molar density [mol/m^3]
 	@param x Liquid mole fractions [-] (if saturated)
@@ -565,8 +610,6 @@ public:
 	GERG 2004 Monograph equation 7.49
 	*/
 	double ndtaudni__constT_V_nj(double tau, double delta, const std::vector<double> &x, int i);
-
-	
 
 	/*!GERG 2004 Monograph equation 7.52:
 	\f{eqnarray*}{

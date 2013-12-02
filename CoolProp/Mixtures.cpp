@@ -1480,6 +1480,99 @@ void GERG2008DepartureFunction::set_coeffs_from_map(std::map<std::string,std::ve
 	//}
 }
 
+
+void LemmonAirHFCReducingFunction::set_coeffs_from_map(int i, int j, std::map<std::string,double > m)
+{
+	xi[i][j] = m.find("xi")->second;
+	zeta[i][j] = m.find("zeta")->second;
+}
+
+double LemmonAirHFCReducingFunction::Tr(const std::vector<double> &x)
+{
+	double Tr = 0;
+	for (unsigned int i = 0; i < N; i++)
+	{
+		Tr += x[i]*pFluids[i]->reduce.T;
+	};
+	for (unsigned int i = 0; i < N-1; i++)
+	{
+		for (unsigned int j = i+1; j < N; j++)
+		{
+			Tr += x[i]*x[j]*xi[i][j];
+		}
+	};
+	return Tr;
+}
+double LemmonAirHFCReducingFunction::dTrdxi__constxj(const std::vector<double> &x, int i)
+{
+	double dTr = 0;
+	for (unsigned int i = 0; i < N; i++)
+	{
+		dTr += pFluids[i]->reduce.T;
+	};
+	for (unsigned int i = 0; i < N-1; i++)
+	{
+		for (unsigned int j = i+1; j < N; j++)
+		{
+			dTr += x[j]*xi[i][j];
+		}
+	};
+	return dTr;
+}
+
+double LemmonAirHFCReducingFunction::vrbar(const std::vector<double> &x)
+{
+	double vrbar = 0;
+	for (unsigned int i = 0; i < N; i++)
+	{
+		vrbar += x[i]/pFluids[i]->reduce.rhobar;
+	};
+	for (unsigned int i = 0; i < N-1; i++)
+	{
+		for (unsigned int j = i+1; j < N; j++)
+		{
+			vrbar += x[i]*x[j]*zeta[i][j];
+		}
+	};
+	return vrbar;
+}
+double LemmonAirHFCReducingFunction::dvrbardxi__constxj(const std::vector<double> &x, int i)
+{
+	double dvrbar = 0;
+	for (unsigned int i = 0; i < N; i++)
+	{
+		dvrbar += 1/pFluids[i]->reduce.rhobar;
+	};
+	for (unsigned int i = 0; i < N-1; i++)
+	{
+		for (unsigned int j = i+1; j < N; j++)
+		{
+			dvrbar += x[j]*zeta[i][j];
+		}
+	};
+	return dvrbar;
+}
+
+double LemmonAirHFCReducingFunction::drhorbardxi__constxj(const std::vector<double> &x, int i)
+{
+	return -pow(rhorbar(x),(int)2)*dvrbardxi__constxj(x,i);
+}
+
+double LemmonAirHFCReducingFunction::d2rhorbardxi2__constxj(const std::vector<double> &x, int i)
+{
+	double rhor = this->rhorbar(x);
+	double dvrbardxi = this->dvrbardxi__constxj(x,i);
+	return 2*pow(rhor,(int)3)*pow(dvrbardxi,(int)2)-pow(rhor,(int)2)*this->d2vrbardxi2__constxj(x,i);
+}
+double LemmonAirHFCReducingFunction::d2rhorbardxidxj(const std::vector<double> &x, int i, int j)
+{
+	double rhor = this->rhorbar(x);
+	double dvrbardxi = this->dvrbardxi__constxj(x,i);
+	double dvrbardxj = this->dvrbardxi__constxj(x,j);
+	return 2*pow(rhor,(int)3)*dvrbardxi*dvrbardxj-pow(rhor,(int)2)*this->d2vrbardxidxj(x,i,j);
+}
+
+
 ExcessTerm::ExcessTerm(int N)
 {
 	F.resize(N,std::vector<double>(N,1.0));
@@ -2153,8 +2246,6 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z)
 			{
 				DELTAS *= 1.1;
 			}
-
-			
 		}
 
 		double _max_abs_val = -1;
