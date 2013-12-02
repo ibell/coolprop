@@ -73,3 +73,9 @@ cpdef tuple HAProps_Aux(str OutputName, double T, double p, double w):
     units = units.strip()
     units = units[0:len(units)-1] #Leave off the null character
     return output, units
+    
+cpdef double cair_sat(double T):
+    """
+    The derivative of the saturation enthalpy cair_sat = d(hsat)/dT
+    """
+    return _cair_sat(T)

@@ -251,6 +251,7 @@ cdef extern from "CoolProp.h":
 cdef extern from "HumidAirProp.h":
     double _HAProps "HAProps"(char *OutputName, char *Input1Name, double Input1, char *Input2Name, double Input2, char *Input3Name, double Input3)
     double _HAProps_Aux "HAProps_Aux"(char* Name,double T, double p, double W, char *units)
+    double _cair_sat "cair_sat"(double T)
        
 cdef class State:
     cdef public PureFluidClass PFC      # hold a PureFluidClass which is the Cython wrapper of CoolPropStateClass
