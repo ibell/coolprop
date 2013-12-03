@@ -800,11 +800,11 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 	// Go to the std::string, std::string version
 	return Props(std::string(1,Output),Name1,Prop1,Name2,Prop2,std::string(Ref));
 }
-double Props(char* Output,char Name1, double Prop1, char Name2, double Prop2, char* Ref)
-{
-	// Go to the std::string, std::string version
-	return Props(std::string(Output),Name1,Prop1,Name2,Prop2,std::string(Ref));
-}
+//double Props(char* Output,char Name1, double Prop1, char Name2, double Prop2, char* Ref)
+//{
+//	// Go to the std::string, std::string version
+//	return Props(std::string(Output),Name1,Prop1,Name2,Prop2,std::string(Ref));
+//}
 double Props(std::string Output,char Name1, double Prop1, char Name2, double Prop2, std::string Ref)
 {
 	// In this function the error catching happens;
@@ -932,10 +932,10 @@ double DerivTerms(std::string Term, double T, double rho, std::string Fluidname)
 			throw ValueError(format("Your fluid name [%s] is not a CoolProp fluid.",Fluidname.c_str()));
 		}
 }
-double DerivTerms(char *Term, double T, double rho, char * FluidName)
-{
-	return DerivTerms(std::string(Term),T,rho,std::string(FluidName));
-}
+//double DerivTerms(char *Term, double T, double rho, char * FluidName)
+//{
+//	return DerivTerms(std::string(Term),T,rho,std::string(FluidName));
+//}
 
 
 

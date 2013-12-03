@@ -48,14 +48,14 @@ You might want to start by looking at CoolProp.h
 	/// @param Prop2 The second state variable value
 	/// @param FluidName The fluid name
 	double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, char * FluidName);
-	/// Return a value that depends on the thermodynamic state
-	/// @param Output The output parameter, one of "T","D","H",etc.
-	/// @param Name1 The first state variable name, one of "T","D","H",etc.
-	/// @param Prop1 The first state variable value
-	/// @param Name2 The second state variable name, one of "T","D","H",etc.
-	/// @param Prop2 The second state variable value
-	/// @param FluidName The fluid name
-	double Props(char * Output,char Name1, double Prop1, char Name2, double Prop2, char * FluidName);
+//	/// Return a value that depends on the thermodynamic state
+//	/// @param Output The output parameter, one of "T","D","H",etc.
+//	/// @param Name1 The first state variable name, one of "T","D","H",etc.
+//	/// @param Prop1 The first state variable value
+//	/// @param Name2 The second state variable name, one of "T","D","H",etc.
+//	/// @param Prop2 The second state variable value
+//	/// @param FluidName The fluid name
+//	double Props(char * Output,char Name1, double Prop1, char Name2, double Prop2, char * FluidName);
 	/// Return a value that depends on the thermodynamic state
 	/// @param Output The output parameter, one of "T","D","H",etc.
 	/// @param Name1 The first state variable name, one of "T","D","H",etc.
@@ -71,12 +71,12 @@ You might want to start by looking at CoolProp.h
 	/// @param rho Density [kg/m^3]
 	/// @param FluidName String
 	double DerivTerms(std::string Term, double T, double rho, std::string FluidName);
-	/// Return some low level derivative terms, see source for a complete list
-	/// @param Term string, some options are "phir" (residual Helmholtz energy),"dphir_dDelta", "dphir_dTau", etc.
-	/// @param T Temperature [K]
-	/// @param rho Density [kg/m^3]
-	/// @param FluidName string
-	double DerivTerms(char *Term, double T, double rho, char * FluidName);
+//	/// Return some low level derivative terms, see source for a complete list
+//	/// @param Term string, some options are "phir" (residual Helmholtz energy),"dphir_dDelta", "dphir_dTau", etc.
+//	/// @param T Temperature [K]
+//	/// @param rho Density [kg/m^3]
+//	/// @param FluidName string
+//	double DerivTerms(char *Term, double T, double rho, char * FluidName);
 	/// Return some low level derivative terms, see source for a complete list
 	/// @param iTerm long desired output
 	/// @param T Temperature [K]
