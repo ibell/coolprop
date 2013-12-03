@@ -395,6 +395,28 @@ static int IsREFPROP(std::string Ref)
     else
         return 0;
 }
+
+long getFluidType(std::string FluidName){
+	if (IsREFPROP(FluidName)) { return FLUID_TYPE_REFPROP;}
+	else if(IsIncompressibleLiquid(FluidName)){ return FLUID_TYPE_INCOMPRESSIBLE_LIQUID;}
+	// TODO SOLUTION: Check if working
+	else if(IsIncompressibleSolution(FluidName)){ return FLUID_TYPE_INCOMPRESSIBLE_SOLUTION; }
+	else {
+		// Try to get the index of the fluid
+		long iFluid = get_Fluid_index(FluidName);
+		// If iFluid is greater than -1, it is a CoolProp Fluid, otherwise not
+		if (iFluid > -1) {
+			// Get a pointer to the fluid object
+			pFluid = get_fluid(iFluid);
+			if (pFluid->pure())	{ return FLUID_TYPE_PURE;}
+			else { return FLUID_TYPE_PSEUDOPURE; }
+		} else {
+			throw ValueError(format("Bad Fluid name [%s] - not a CoolProp fluid",FluidName.c_str()));
+		}
+	}
+	return -1;
+}
+
 EXPORT_CODE int CONVENTION IsFluidType(char *Ref, char *Type)
 {
 	pFluid = Fluids.get_fluid(Ref);

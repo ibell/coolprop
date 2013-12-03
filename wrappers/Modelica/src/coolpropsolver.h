@@ -20,6 +20,11 @@ protected:
 	int debug_level;
 	double twophase_derivsmoothing_xend;
 	double rho_smoothing_xend;
+	long fluidType;
+
+	virtual void  preStateChange(void);
+	virtual void postStateChange(ExternalThermodynamicState *const properties);
+
 public:
 	CoolPropSolver(const std::string &mediumName, const std::string &libraryName, const std::string &substanceName);
 	~CoolPropSolver(){};
