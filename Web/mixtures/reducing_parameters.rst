@@ -56,3 +56,47 @@ where
     \alpha_{ij}^r(\delta,\tau) = \sum_{k=1}^{K_{pol,ij}}\eta_{ij,k}\delta^{d_{ij,k}}\tau^{t_{ij,k}}+\sum_{k=K_{pol,ij}+1}^{K_{pol,ij}+K_{Exp,ij}}\eta_{ij,k}\delta^{d_{ij,k}}\tau^{t_{ij,k}}\exp[-\eta_{ij,k}(\delta-\varepsilon_{ij,k})^2-\beta_{ij,k}(\delta-\gamma_{ij,k})]
     
 and is for the particular binary pair given by the indices :math:`i,j`.  This term is similar in form to other Helmholtz energy terms for pure fluids though the derivatives are slightly special.
+
+Appendix
+--------
+To convert from the form from Lemmon for HFC and Air to that of GERG 2008, the following steps are required:
+
+.. math::
+
+    x_0T_{c0}+(1-x_0)T_{c1}+x_0(1-x_0)\xi = x_0^2T_{c0}+(1-x_0)^2T_{c1} + 2x_0(1-x_0)\beta\gamma\frac{x_0+(1-x_0)}{\beta x_0 + (1-x_0)}\sqrt{T_{c0}T_{c1}}
+    
+set :math:`\beta=1`, solve for :math:`\gamma`.  Equate the terms
+
+.. math::
+
+    x_0T_{c0}+(1-x_0)T_{c1}+x_0(1-x_0)\xi = x_0^2T_{c0}+(1-x_0)^2T_{c1} + 2x_0(1-x_0)\gamma\sqrt{T_{c0}T_{c1}}
+    
+Move to LHS
+
+.. math::
+
+    [x_0-x_0^2]T_{c0}+[(1-x_0)-(1-x_0)^2]T_{c1}+x_0(1-x_0)\xi = 2x_0(1-x_0)\gamma\sqrt{T_{c0}T_{c1}}
+
+Factor
+
+.. math::
+
+    x_0(1-x_0)T_{c0}+(1-x_0)[1-(1-x_0)]T_{c1}+x_0(1-x_0)\xi = 2x_0(1-x_0)\gamma\sqrt{T_{c0}T_{c1}}
+    
+Expand
+
+.. math::
+
+    x_0(1-x_0)T_{c0}+x_0(1-x_0)T_{c1}+x_0(1-x_0)\xi = 2x_0(1-x_0)\gamma\sqrt{T_{c0}T_{c1}}
+    
+Cancel factors of :math:`x_0(1-x_0)`
+
+.. math::
+
+    T_{c0}+T_{c1}+\xi = 2\gamma\sqrt{T_{c0}T_{c1}}
+    
+Answer:
+
+.. math::
+
+    \boxed{\gamma = \dfrac{T_{c0}+T_{c1}+\xi}{2\sqrt{T_{c0}T_{c1}}}}
