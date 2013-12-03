@@ -92,6 +92,15 @@ EXPORT_CODE double CONVENTION DerivTerms(char *Term, double T, double rho, char 
 	return val;
 }
 
+EXPORT_CODE double CONVENTION fromSI(char *input, double value, char *new_system)
+{
+	return convert_from_SI_to_unit_system(input, value, new_system);
+}
+EXPORT_CODE double CONVENTION toSI(char *input, double value, char *old_system)
+{
+	return convert_from_unit_system_to_SI(input, value, old_system);
+}
+
 //EXPORT_CODE int CONVENTION get_debug_level(){return debug_level;}
 //EXPORT_CODE void CONVENTION set_debug_level(int level){debug_level=level;}
 EXPORT_CODE long CONVENTION get_Fluid_index(char * param)

@@ -897,6 +897,10 @@ double DerivTerms(std::string Term, double T, double rho, std::string Fluidname)
 	    if (IsCoolPropFluid(Fluidname))
 		{
 			pFluid = Fluids.get_fluid(Fluidname);
+			// for compatibility, replace B and C with VB and VC
+			if ((!Term.compare("B")) || (!Term.compare("C"))) {
+				Term = std::string("V").append(Term);
+			}
 			// Convert all the parameters to integers
 			long iOutput = get_param_index(Term);
 			if (iOutput<0)

@@ -1904,25 +1904,24 @@ double CoolPropStateClassSI::dZdTau(void){
 	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
 	return delta*d2phir_dDelta_dTau(tau,delta);
 }
-// TODO: Fix values
+
 double CoolPropStateClassSI::B(void){
 	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
 	// given by B*rhoc=lim(delta --> 0) [dphir_ddelta(tau)]
-	std::cout<<__FILE__<<" B(): "<<tau<<","<<pFluid->reduce.rho<<std::endl;
-	return 1.0/pFluid->reduce.rho*dphir_dDelta(tau,1e-12);
+	return 1.0/pFluid->reduce.rho*pFluid->dphir_dDelta(tau,1e-12);
 }
 double CoolPropStateClassSI::dBdT(void){
 	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
-	return 1.0/pFluid->reduce.rho*d2phir_dDelta_dTau(tau,1e-12)*-pFluid->reduce.T/_T/_T;
+	return 1.0/pFluid->reduce.rho*pFluid->d2phir_dDelta_dTau(tau,1e-12)*-pFluid->reduce.T/_T/_T;
 }
 double CoolPropStateClassSI::C(void){
 	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
 	// given by C*rhoc^2=lim(delta --> 0) [d2phir_dDelta2(tau)]
-	return 1.0/(pFluid->reduce.rho*pFluid->reduce.rho)*d2phir_dDelta2(tau,1e-12);
+	return 1.0/(pFluid->reduce.rho*pFluid->reduce.rho)*pFluid->d2phir_dDelta2(tau,1e-12);
 }
 double CoolPropStateClassSI::dCdT(void){
 	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
-	return 1.0/(pFluid->reduce.rho*pFluid->reduce.rho)*d3phir_dDelta2_dTau(tau,1e-12)*-pFluid->reduce.T/_T/_T;
+	return 1.0/(pFluid->reduce.rho*pFluid->reduce.rho)*pFluid->d3phir_dDelta2_dTau(tau,1e-12)*-pFluid->reduce.T/_T/_T;
 }
 
 
