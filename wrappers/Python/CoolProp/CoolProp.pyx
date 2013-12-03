@@ -1,5 +1,6 @@
 #cython: embedsignature = True
 from __future__ import division
+from numexpr.expressions import isConstant
 #
 #
 # This file provides wrapper functions of all the CoolProp functions
@@ -179,30 +180,10 @@ cpdef get_fluid_param_string(str fluid, str param):
     cdef bytes _param = param.encode('ascii')
     return _get_fluid_param_string(_fluid, _param)
     
-def get_factorSICP(what):
-    """Get the conversion factor between SI and CoolProp units. 
-    Returns a tuple of the factor and a boolean telling you if 
+def isConstant(what):
+    """Get the boolean telling you if 
     the given key matches with a fluid constant. 
     """
-    factors = {
-      "Q"  : 1.      ,#Quality [-]
-      "T"  : 1.      ,#Temperature [K]
-      "P"  : 1./1000.,#Pressure [kPa]
-      "D"  : 1.      ,#Density [kg/m3]
-      "C0" : 1./1000.,#Ideal-gas specific heat at constant pressure [kJ/kg]
-      "C"  : 1./1000.,#Specific heat at constant pressure [kJ/kg]
-      "O"  : 1./1000.,#Specific heat at constant volume [kJ/kg]
-      "U"  : 1./1000.,#Internal energy [kJ/kg]
-      "H"  : 1./1000.,#Enthalpy [kJ/kg]
-      "S"  : 1./1000.,#Entropy [kJ/kg/K]
-      "A"  : 1.      ,#Speed of sound [m/s]
-      "G"  : 1./1000.,#Gibbs function [kJ/kg]
-      "V"  : 1.      ,#Viscosity [Pa-s]
-      "L"  : 1./1000.,#Thermal conductivity [kW/m/K]
-      "I"  : 1.      ,#
-      "SurfaceTension" : 1.,#Surface Tension [N/m]
-      "w"  : 1.       #
-    }
     altFactors = {
       "Tcrit"     : 1.      ,#Critical temperature [K]
       "pcrit"     : 1./1000.,#Critical pressure [kPa]
@@ -218,14 +199,13 @@ def get_factorSICP(what):
       "GWP100"    : 1.      ,#Global Warming Potential 100 yr
       "ODP"       : 1.       #Ozone Depletion Potential
     }
-    if what in factors:
-        return factors[what],False
-    elif what in altFactors:
-        return altFactors[what],True
+    if what in altFactors:
+        return True
     else:
-        msg = 'Your input '+str(what)+' does not match any of the stored keys '+str(list(factors.keys()))+'.'
-        print msg
-        raise ValueError(msg)
+        return False
+        #msg = 'Your input '+str(what)+' does not match any of the stored keys '+str(list(factors.keys()))+'.'
+        #print msg
+        #raise ValueError(msg)
 
 def PropsU(in1, in2, in3 = None, in4 = None, in5 = None, in6 = None, in7 = None):
     """Make the Props function handle different kinds of unit sets. Use 
@@ -235,18 +215,32 @@ def PropsU(in1, in2, in3 = None, in4 = None, in5 = None, in6 = None, in7 = None)
     if in7 is None or in7 == 'kSI':
         return Props(in1, in2, in3, in4, in5, in6)
     elif in7 == 'SI':
-        in2Factor,constant = get_factorSICP(in2)
-        if constant: # We ask for a fluid constant
-            return Props(in1, in2, in3, in4, in5, in6)/in2Factor
+        if isConstant(in2):
+            return toSI(in2,Props(in1, in2, in3, in4, in5, in6), 'kSI')
         else:
-            in1Factor,constant = get_factorSICP(in1)
-            #in2Factor,constant = conversionFactorSICP(in2)
-            in4Factor,constant = get_factorSICP(in4)
-            return Props(in1, in2, in3*in2Factor, in4, in5*in4Factor, in6)/in1Factor
+            in3kSI = fromSI(in2, in3, 'kSI')
+            in5kSI = fromSI(in4, in5, 'kSI')
+            return toSI(in1,Props(in1, in2, in3kSI, in4, in5kSI, in6), 'kSI')
     else:
         msg = 'Your requested unit set '+str(in7)+' is not supported, valid unit definitions are kSI and SI only.'
         #print msg
         raise ValueError(msg)
+
+cpdef fromSI(str in1, in2=None, str in3='kSI'):
+    """
+    Call fromSI(Property, Value, Units) to convert from SI units to a given set of units. 
+    At the moment, only kSI is supported. This convenience function is used inside both the
+    PropsU and DerivTermsU functions. 
+    """
+    return _fromSI(in1.encode('ascii'), in2, in3.encode('ascii'))
+
+cpdef toSI(str in1, in2=None, str in3='kSI'):
+    """
+    Call toSI(Property, Value, Units) to convert from a given set of units to SI units. 
+    At the moment, only kSI is supported. This convenience function is used inside both the
+    PropsU and DerivTermsU functions. 
+    """
+    return _toSI(in1.encode('ascii'), in2, in3.encode('ascii'))
     
 cpdef Props(str in1, str in2, in3 = None, in4 = None, in5 = None, in6 = None, in7 = None):
     """
@@ -460,10 +454,11 @@ def DerivTermsU(in1, T, rho, fluid, units = None):
     values have to be from the same unit set.
     """
     if units is None or units == 'kSI':
-        return DerivTermsU(in1, T, rho, fluid)
+        return DerivTerms(in1, T, rho, fluid)
+    elif units == 'SI':
+        return toSI(in1,DerivTerms(in1, T, rho, fluid), 'kSI')
     else:
-        msg = 'Your requested unit set '+str(in1)+' is not supported, valid unit definitions are kSI and SI only.'
-        msg = 'Sorry, unit selection is not implemented for this function.'
+        msg = 'Your requested unit set '+str(units)+' is not supported, valid unit definitions are kSI and SI only.'
         #print msg
         raise ValueError(msg)
    
@@ -489,9 +484,9 @@ cpdef double DerivTerms(str Output, double T, double rho, str Fluid):
     ``Z``                     Compressibility factor [-]
     ``dZ_dDelta``             Derivative of Z with respect to reduced density [-]
     ``dZ_dTau``               Derivative of Z with respect to inverse reduced temperature [-]
-    ``B``                     Second virial coefficient [m\ |cubed|\ /kg]
+    ``VB``                    Second virial coefficient [m\ |cubed|\ /kg]
     ``dBdT``                  Derivative of second virial coefficient with respect to temperature [m\ |cubed|\ /kg/K]
-    ``C``                     Third virial coefficient [m\ :sup:`6`\ /kg\ |squared|\ ]
+    ``VC``                    Third virial coefficient [m\ :sup:`6`\ /kg\ |squared|\ ]
     ``dCdT``                  Derivative of third virial coefficient with respect to temperature [m\ :sup:`6`\ /kg\ |squared|\ /K]
     ``phir``                  Residual non-dimensionalized Helmholtz energy [-]
     ``dphir_dTau``            Partial of residual non-dimensionalized Helmholtz energy with respect to inverse reduced temperature [-]

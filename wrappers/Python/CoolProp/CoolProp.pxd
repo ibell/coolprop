@@ -177,8 +177,11 @@ cdef extern from "CoolPropDLL.h":
     int _set_reference_stateS "set_reference_stateS"(char *, char *)
     int _set_reference_stateD "set_reference_stateD"(char *, double T, double rho, double h0, double s0)
     
-cdef extern from "CoolProp.h":
+cdef extern from "Units.h":    
+    double _fromSI "convert_from_SI_to_unit_system"(string input, double value, string new_system)
+    double _toSI "convert_from_unit_system_to_SI"(string input, double value, string old_system)
     
+cdef extern from "CoolProp.h":
     void _set_standard_unit_system "set_standard_unit_system"(int unit_system)
     double _Props "Props"(string Output, char Name1, double Prop1, char Name2, double Prop2, string Ref)
     double _IProps "IProps"(long Output, long Name1, double Prop1, long Name2, double Prop2, long Ref)

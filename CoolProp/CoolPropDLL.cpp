@@ -8,8 +8,8 @@
 #include "CPState.h"
 #include "FluidClass.h"
 
-double _Props1(char *Fluid, char *Output);
-double _Props(std::string Output,std::string Name1, double Prop1, std::string Name2, double Prop2, std::string Ref);
+//double _Props1(char *Fluid, char *Output);
+//double _Props(std::string Output,std::string Name1, double Prop1, std::string Name2, double Prop2, std::string Ref);
 
 EXPORT_CODE int CONVENTION set_reference_stateS(char *Ref, char *reference_state)
 {
@@ -25,6 +25,7 @@ EXPORT_CODE double CONVENTION PropsS(char *Output,char* Name1, double Prop1, cha
 }
 EXPORT_CODE double CONVENTION Props(char *Output,char Name1, double Prop1, char Name2, double Prop2, char * Ref)
 {
+	// Go to the std::string, std::string version
 	double val = Props(std::string(Output),Name1,Prop1,Name2,Prop2,std::string(Ref));
 
 	//FILE *fp;
@@ -32,31 +33,15 @@ EXPORT_CODE double CONVENTION Props(char *Output,char Name1, double Prop1, char 
 	//fprintf(fp,"%s,%c,%g,%c,%g,%s-->%g\n",Output,Name1,Prop1,Name2,Prop2,Ref,val);
 	//fclose(fp);
 
-	// Go to the std::string, std::string version
 	return val;
 }
 
 // All the function interfaces that point to the single-input Props function
 EXPORT_CODE double CONVENTION Props1(char* Ref, char * Output)
 {
-	//FILE *fp;
-	//fp = fopen("c:\\CoolProp\\log_Props1.txt", "a");
-	//fprintf(fp,"%s %s\n",Ref,Output);
-	//fclose(fp);
-
-	try{
-	// Redirect to the Props function - should have called it Props1 from the outset
-	return _Props1(Ref, Output);
-	}
-	catch(std::exception &e)
-	{
-		set_err_string(std::string("CoolProp error: ").append(e.what()));
-		return _HUGE;
-	}
-	catch(...){
-		set_err_string(std::string("CoolProp error: Indeterminate error"));
-		return _HUGE;
-	}
+	// Go to the std::string, std::string version
+	double val = Props1(std::string(Ref),std::string(Output));
+	return val;
 }
 
 EXPORT_CODE double CONVENTION K2F(double T)
@@ -102,15 +87,18 @@ EXPORT_CODE void CONVENTION PrintSaturationTable(char *FileName, char * Ref, dou
 
 EXPORT_CODE double CONVENTION DerivTerms(char *Term, double T, double rho, char * Ref)
 {
-	Fluid *pFluid=get_fluid(get_Fluid_index(Ref));
-	if (pFluid != NULL)
-	{
-		return DerivTerms(Term,T,rho,pFluid);
-	}
-	else
-	{
-		return _HUGE;
-	}
+	// Go to the std::string, std::string version
+	double val = DerivTerms(std::string(Term),T,rho,std::string(Ref));
+	return val;
+}
+
+EXPORT_CODE double CONVENTION fromSI(char *input, double value, char *new_system)
+{
+	return convert_from_SI_to_unit_system(input, value, new_system);
+}
+EXPORT_CODE double CONVENTION toSI(char *input, double value, char *old_system)
+{
+	return convert_from_unit_system_to_SI(input, value, old_system);
 }
 
 //EXPORT_CODE int CONVENTION get_debug_level(){return debug_level;}
@@ -191,7 +179,7 @@ EXPORT_CODE double CONVENTION conformal_Trho(char* FluidName, char* ReferenceFlu
 				return 0;
 			}
 		}
-		catch (std::exception){
+		catch (std::exception &){
 			return _HUGE;
 		}
 	}
@@ -225,7 +213,7 @@ EXPORT_CODE double CONVENTION viscosity_residual(char* FluidName, double T, doub
 		try{
 			return pFluid->viscosity_residual(T,rho);
 		}
-		catch (NotImplementedError)
+		catch (NotImplementedError &)
 		{
 			return _HUGE;
 		}
@@ -266,9 +254,10 @@ EXPORT_CODE double CONVENTION rhosatL_anc(char* FluidName, double T)
 		Fluid *pFluid = get_fluid(get_Fluid_index(FluidName));
 		return pFluid->rhosatL(T);
 	}
-	catch(NotImplementedError){
+	catch(NotImplementedError &){
 		return -_HUGE;
 	}
+	return -_HUGE;
 }
 EXPORT_CODE double CONVENTION rhosatV_anc(char* FluidName, double T)
 {
@@ -277,9 +266,10 @@ EXPORT_CODE double CONVENTION rhosatV_anc(char* FluidName, double T)
 		Fluid *pFluid = get_fluid(get_Fluid_index(FluidName));
 		return pFluid->rhosatV(T);
 	}
-	catch(NotImplementedError){
+	catch(NotImplementedError &){
 		return -_HUGE;
 	}
+	return -_HUGE;
 }
 EXPORT_CODE double CONVENTION psatL_anc(char* FluidName, double T)
 {
@@ -288,9 +278,10 @@ EXPORT_CODE double CONVENTION psatL_anc(char* FluidName, double T)
 		Fluid *pFluid = get_fluid(get_Fluid_index(FluidName));
 		return pFluid->psatL_anc(T);
 	}
-	catch(NotImplementedError){
+	catch(NotImplementedError &){
 		return -_HUGE;
 	}
+	return -_HUGE;
 }
 EXPORT_CODE double CONVENTION psatV_anc(char* FluidName, double T)
 {
@@ -299,9 +290,10 @@ EXPORT_CODE double CONVENTION psatV_anc(char* FluidName, double T)
 		Fluid *pFluid = get_fluid(get_Fluid_index(FluidName));
 		return pFluid->psatV_anc(T);
 	}
-	catch(NotImplementedError){
+	catch(NotImplementedError &){
 		return -_HUGE;
 	}
+	return -_HUGE;
 }
 #ifndef SWIG
 EXPORT_CODE long CONVENTION get_global_param_string(char *param, char * Output)

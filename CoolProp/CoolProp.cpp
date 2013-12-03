@@ -104,8 +104,6 @@ std::pair<std::string, long> map_data[] = {
 	std::make_pair(std::string("Psat"),iPsat),
 	std::make_pair(std::string("I"),iI),
 	std::make_pair(std::string("SurfaceTension"),iI),
-	std::make_pair(std::string("dpdT"),iDpdT),
-	std::make_pair(std::string("drhodT|p"),iDrhodT_p),
 	std::make_pair(std::string("Phase"),iPhase),
 	std::make_pair(std::string("PHASE_LIQUID"),iPHASE_LIQUID),
 	std::make_pair(std::string("PHASE_GAS"),iPHASE_GAS),
@@ -116,7 +114,49 @@ std::pair<std::string, long> map_data[] = {
 	std::make_pair(std::string("GWP100"),iGWP100),
 	std::make_pair(std::string("GWP500"),iGWP500),
 	std::make_pair(std::string("CritSplineT"),iCritSplineT),
+	// Derivatives
+	std::make_pair(std::string("dhdp|rho"),iDERdh_dp__rho),
+	std::make_pair(std::string("Z"),iDERZ),
+	std::make_pair(std::string("dZ_dDelta"),iDERdZ_dDelta),
+	std::make_pair(std::string("dZ_dTau"),iDERdZ_dTau),
+	std::make_pair(std::string("VB"),iDERB),
+	std::make_pair(std::string("dBdT"),iDERdB_dT),
+	std::make_pair(std::string("VC"),iDERC),
+	std::make_pair(std::string("dCdT"),iDERdC_dT),
+	std::make_pair(std::string("phir"),iDERphir),
+	std::make_pair(std::string("dphir_dTau"),iDERdphir_dTau),
+	std::make_pair(std::string("dphir_dDelta"),iDERdphir_dDelta),
+	std::make_pair(std::string("d2phir_dTau2"),iDERd2phir_dTau2),
+	std::make_pair(std::string("d2phir_dDelta2"),iDERd2phir_dDelta2),
+	std::make_pair(std::string("d2phir_dDelta_dTau"),iDERd2phir_dDelta_dTau),
+	std::make_pair(std::string("d3phir_dDelta3"),iDERd3phir_dDelta3),
+	std::make_pair(std::string("d3phir_dDelta2_dTau"),iDERd3phir_dDelta2_dTau),
+	std::make_pair(std::string("d3phir_dDelta_dTau2"),iDERd3phir_dDelta_dTau2),
+	std::make_pair(std::string("d3phir_dTau3"),iDERd3phir_dTau3),
+	std::make_pair(std::string("phi0"),iDERphi0),
+	std::make_pair(std::string("dphi0_dTau"),iDERdphi0_dTau),
+	std::make_pair(std::string("d2phi0_dTau2"),iDERd2phi0_dTau2),
+	std::make_pair(std::string("dphi0_dDelta"),iDERdphi0_dDelta),
+	std::make_pair(std::string("d2phi0_dDelta2"),iDERd2phi0_dDelta2),
+	std::make_pair(std::string("d2phi0_dDelta_dTau"),iDERd2phi0_dDelta_dTau),
+	std::make_pair(std::string("d3phi0_dTau3"),iDERd3phi0_dTau3),
+	std::make_pair(std::string("dpdT"    ),iDERdp_dT__rho),
+	std::make_pair(std::string("dpdT|rho"),iDERdp_dT__rho),
+	std::make_pair(std::string("dpdrho"  ),iDERdp_drho__T),
+	std::make_pair(std::string("dpdrho|T"),iDERdp_drho__T),
+	std::make_pair(std::string("dhdT|rho"),iDERdh_dT__rho),
+	std::make_pair(std::string("dhdrho|T"),iDERdh_drho__T),
+	std::make_pair(std::string("drhodT|p"),iDERdrho_dT__p),
+	std::make_pair(std::string("drhodh|p"),iDERdrho_dh__p),
+	std::make_pair(std::string("drhodp|h"),iDERdrho_dp__h),
+	std::make_pair(std::string("rho_smoothed"),iDERrho_smoothed),
+	std::make_pair(std::string("d(rho_smoothed)/dh"),iDERdrho_smoothed_dh),
+	std::make_pair(std::string("d(rho_smoothed)/dp"),iDERdrho_smoothed_dp),
+	std::make_pair(std::string("drhodh_constp_smoothed"),iDERdrhodh_constp_smoothed),
+	std::make_pair(std::string("drhodp_consth_smoothed"),iDERdrhodp_consth_smoothed),
+	std::make_pair(std::string("IsothermalCompressibility"),iDERIsothermalCompressibility)
 };
+
 //Now actually construct the map
 std::map<std::string, long> param_map(map_data,
     map_data + sizeof map_data / sizeof map_data[0]);
@@ -151,7 +191,9 @@ std::pair<long, std::string> units_data[] = {
 	std::make_pair(iPsat, std::string("kPa")),
 	std::make_pair(iI, std::string("N/m")),
 	std::make_pair(iDpdT, std::string("kPa/K")),
-	std::make_pair(iDrhodT_p, std::string("kg/K/m^3"))
+	std::make_pair(iDrhodT_p, std::string("kg/K/m^3")),
+	std::make_pair(iDERdp_dT__rho, std::string("kPa/K")),
+	std::make_pair(iDERdrho_dT__p, std::string("kg/K/m^3"))
 };
 
 //Now actually construct the map
@@ -773,184 +815,117 @@ EXPORT_CODE double CONVENTION IProps(long iOutput, long iName1, double Prop1, lo
 }
 
 /// Calculate some interesting derivatives
-double DerivTerms(char *Term, double T, double rho, Fluid * pFluid)
+double _CoolProp_Deriv_Terms(long iTerm, double T, double rho, Fluid * pFluid)
 {
-    double rhoc =pFluid->reduce.rho;
-	double delta=rho/rhoc;
-	double tau=pFluid->reduce.T/T;
-	double R=pFluid->R();
-	double dtau_dT = -pFluid->reduce.T/T/T;
+	double val = _HUGE;
+	// This private method uses the indices directly for speed
 
-	if (!strcmp(Term,"dhdp|rho") || !strcmp(Term,"dhdp|v"))
-	{
-		// All the terms are re-calculated here in order to cut down on the number of calls
-		double dphir_dDelta = pFluid->dphir_dDelta(tau,delta);	
-		double d2phir_dDelta_dTau = pFluid->d2phir_dDelta_dTau(tau,delta);
-		double d2phir_dDelta2 = pFluid->d2phir_dDelta2(tau,delta);
-		
-		double dpdrho = R*T*(1+2*delta*dphir_dDelta+delta*delta*d2phir_dDelta2);
-		double dpdT = R*rho*(1+delta*dphir_dDelta-delta*tau*d2phir_dDelta_dTau);
-		double cp = -tau*tau*R*(pFluid->d2phi0_dTau2(tau,delta)+pFluid->d2phir_dTau2(tau,delta))+T/rho/rho*(dpdT*dpdT)/dpdrho;
-		double drhodT = -dpdT/dpdrho;
-		return -cp/dpdrho/drhodT-T*drhodT*(-1/pow(rho,2))+1/rho;
+	if (get_debug_level()>3){
+		std::cout<<__FILE__<<" _CoolProp_Deriv_Terms return: "<<val<<std::endl;
 	}
-	else if (!strcmp(Term,"Z"))
-	{
-		return 1+delta*pFluid->dphir_dDelta(tau,delta);
-	}
-	else if (!strcmp(Term,"dZ_dDelta"))
-    {
-        return delta*pFluid->d2phir_dDelta2(tau,delta)+pFluid->dphir_dDelta(tau,delta);
-    }
-	else if (!strcmp(Term,"dZ_dTau"))
-    {
-        return delta*pFluid->d2phir_dDelta_dTau(tau,delta);
-    }
-	else if (!strcmp(Term,"B"))
-	{
-		// given by B*rhoc=lim(delta --> 0) [dphir_ddelta(tau)]
-		std::cout<<__FILE__<<" B(): "<<tau<<","<<rhoc<<","<<pFluid->dphir_dDelta(tau,1e-12)<<std::endl;
-		return 1.0/rhoc*pFluid->dphir_dDelta(tau,1e-12);
-	}
-	else if (!strcmp(Term,"dBdT"))
-	{
-		return 1.0/rhoc*pFluid->d2phir_dDelta_dTau(tau,1e-12)*dtau_dT;
-	}
-	else if (!strcmp(Term,"C"))
-	{
-		// given by C*rhoc^2=lim(delta --> 0) [d2phir_dDelta2(tau)]
-		return 1.0/(rhoc*rhoc)*pFluid->d2phir_dDelta2(tau,1e-12);
-	}
-	else if (!strcmp(Term,"dCdT"))
-	{
-		return 1.0/(rhoc*rhoc)*pFluid->d3phir_dDelta2_dTau(tau,1e-12)*dtau_dT;
-    }
-	else if (!strcmp(Term,"phir"))
-    {
-        return pFluid->phir(tau,delta);
-    }
-	else if (!strcmp(Term,"dphir_dTau"))
-    {
-        return pFluid->dphir_dTau(tau,delta);
-    }
-	else if (!strcmp(Term,"dphir_dDelta"))
-    {
-        return pFluid->dphir_dDelta(tau,delta);
-    }
-	else if (!strcmp(Term,"d2phir_dTau2"))
-    {
-        return pFluid->d2phir_dTau2(tau,delta);
-    }
-	else if (!strcmp(Term,"d2phir_dDelta2"))
-    {
-        return pFluid->d2phir_dDelta2(tau,delta);
-    }
-	else if (!strcmp(Term,"d2phir_dDelta_dTau"))
-    {
-        return pFluid->d2phir_dDelta_dTau(tau,delta);
-    }
-	else if (!strcmp(Term,"d3phir_dDelta3"))
-    {
-        return pFluid->d3phir_dDelta3(tau,delta);
-    }
-	else if (!strcmp(Term,"d3phir_dDelta2_dTau"))
-    {
-        return pFluid->d3phir_dDelta2_dTau(tau,delta);
-    }
-	else if (!strcmp(Term,"d3phir_dDelta_dTau2"))
-    {
-        return pFluid->d3phir_dDelta_dTau2(tau,delta);
-    }
-	else if (!strcmp(Term,"d3phir_dTau3"))
-    {
-        return pFluid->d3phir_dTau3(tau,delta);
-    }
-	else if (!strcmp(Term,"phi0"))
-    {
-        return pFluid->phi0(tau,delta);
-    }
-    else if (!strcmp(Term,"dphi0_dTau"))
-    {
-        return pFluid->dphi0_dTau(tau,delta);
-    }
-	else if (!strcmp(Term,"d2phi0_dTau2"))
-    {
-        return pFluid->d2phi0_dTau2(tau,delta);
-    }
-	else if (!strcmp(Term,"dphi0_dDelta"))
-    {
-        return pFluid->dphi0_dDelta(tau,delta);
-    }
-	else if (!strcmp(Term,"d2phi0_dDelta2"))
-    {
-        return pFluid->d2phi0_dDelta2(tau,delta);
-    }
-	else if (!strcmp(Term,"d2phi0_dDelta_dTau"))
-    {
-        return pFluid->d2phi0_dDelta_dTau(tau,delta);
-    }
-	else if (!strcmp(Term,"d3phi0_dTau3"))
-    {
-        return pFluid->d3phi0_dTau3(tau,delta);
-    }
 
-	CoolPropStateClass CPS = CoolPropStateClass(pFluid);
+	// Generate a State instance wrapped around the Fluid instance
+	CoolPropStateClass CPS(pFluid);
+
+	// Update the class
 	CPS.update(iT,T,iD,rho);
 
-	if (!strcmp(Term,"dpdT") || !strcmp(Term,"dpdT|rho")){
-		return CPS.dpdT_constrho();
+	switch (iTerm) {
+	case iDERdh_dp__rho:
+		case iDERdh_dp__v:
+		case iDERZ:
+		case iDERdZ_dDelta:
+		case iDERdZ_dTau:
+		case iDERB:
+		case iDERdB_dT:
+		case iDERC:
+		case iDERdC_dT:
+		case iDERphir:
+		case iDERdphir_dTau:
+		case iDERdphir_dDelta:
+		case iDERd2phir_dTau2:
+		case iDERd2phir_dDelta2:
+		case iDERd2phir_dDelta_dTau:
+		case iDERd3phir_dDelta3:
+		case iDERd3phir_dDelta2_dTau:
+		case iDERd3phir_dDelta_dTau2:
+		case iDERd3phir_dTau3:
+		case iDERphi0:
+		case iDERdphi0_dTau:
+		case iDERd2phi0_dTau2:
+		case iDERdphi0_dDelta:
+		case iDERd2phi0_dDelta2:
+		case iDERd2phi0_dDelta_dTau:
+		case iDERd3phi0_dTau3:
+		case iDERdp_dT__rho:
+		case iDERdp_drho__T:
+		case iDERdh_dT__rho:
+		case iDERdh_drho__T:
+		case iDERdrho_dT__p:
+		case iDERdrho_dh__p:
+		case iDERdrho_dp__h:
+		case iDERrho_smoothed:
+		case iDERdrho_smoothed_dh:
+		case iDERdrho_smoothed_dp:
+		case iDERdrhodh_constp_smoothed:
+		case iDERdrhodp_consth_smoothed:
+		case iDERIsothermalCompressibility:
+			val = CPS.keyed_output(iTerm);
+			break;
+		default:
+			throw ValueError(format("Sorry DerivTerms is a work in progress, your derivative term [%d] is not available!",iTerm));
 	}
-    else if (!strcmp(Term,"dpdrho") || !strcmp(Term,"dpdrho|T")){
-		return CPS.dpdrho_constT();
+
+	if (get_debug_level()>5){
+		std::cout<<__FILE__<<" _CoolProp_Deriv_Terms return: "<<val<<std::endl;
 	}
-	else if (!strcmp(Term,"dhdT") || !strcmp(Term,"dhdT|rho")){
-		return CPS.dhdT_constrho();
-	}
-	else if (!strcmp(Term,"dhdrho") || !strcmp(Term,"dhdrho|T")){
-		return CPS.dhdrho_constT();
-	}
-	else if (!strcmp(Term,"drhodT|p")){
-		return CPS.drhodT_constp();
-	}
-	else if (!strcmp(Term,"drhodh|p")){
-		return CPS.drhodh_constp();
-	}
-	else if (!strcmp(Term,"drhodp|h")){
-		return CPS.drhodp_consth();
-	}
-	else if (!strcmp(Term,"rho_smoothed")){
-		double rhospline, dsplinedp, dsplinedh;
-		CPS.update(iT,T,iQ,rho);
-		CPS.rho_smoothed(0.1,&rhospline,&dsplinedh,&dsplinedp);
-		return rhospline;
-	}
-	else if (!strcmp(Term,"d(rho_smoothed)/dh")){
-		double rhospline, dsplinedp, dsplinedh;
-		CPS.update(iT,T,iQ,rho);
-		CPS.rho_smoothed(0.1,&rhospline,&dsplinedh,&dsplinedp);
-		return dsplinedh;
-	}
-	else if (!strcmp(Term,"d(rho_smoothed)/dp")){
-		double rhospline, dsplinedp, dsplinedh;
-		CPS.update(iT,T,iQ,rho);
-		CPS.rho_smoothed(0.1,&rhospline,&dsplinedh,&dsplinedp);
-		return dsplinedp;
-	}
-	else if (!strcmp(Term,"drhodh_constp_smoothed")){
-		return CPS.drhodh_constp_smoothed(0.1);
-	}
-	else if (!strcmp(Term,"drhodp_consth_smoothed")){
-		return CPS.drhodp_consth_smoothed(0.1);
-	}
-	else if (!strcmp(Term,"IsothermalCompressibility")){
-		return CPS.isothermal_compressibility();
-	}
-	else
-	{
-		printf("Sorry DerivTerms is a work in progress, your derivative term [%s] is not available!!",Term);
-		return _HUGE;
-	}
+	// Return the value
+	return val;
 }
+
+double DerivTerms(long iTerm, double T, double rho, Fluid * pFluid){
+	return _CoolProp_Deriv_Terms(iTerm,T,rho,pFluid);
+}
+
+double DerivTerms(std::string Term, double T, double rho, std::string Fluidname){
+	if (get_debug_level()>5){
+			std::cout<<__FILE__<<": "<<Term.c_str()<<",T="<<T<<",rho="<<rho<<","<<Fluidname.c_str()<<std::endl;
+		}
+		/*
+	    Derivatives are only supported for CoolProp fluids
+	    */
+	    if (IsCoolPropFluid(Fluidname))
+		{
+			pFluid = Fluids.get_fluid(Fluidname);
+			// for compatibility, replace B and C with VB and VC
+			if ((!Term.compare("B")) || (!Term.compare("C"))) {
+				Term = std::string("V").append(Term);
+			}
+			// Convert all the parameters to integers
+			long iOutput = get_param_index(Term);
+			if (iOutput<0)
+				throw ValueError(format("Your output key [%s] is not valid. (names are case sensitive)",Term.c_str()));
+
+			if (T<=0)
+				throw ValueError(format("Your input temperature [%f] is not valid.",T));
+
+			if (rho<=0)
+				throw ValueError(format("Your input density [%f] is not valid.",rho));
+			// Call the internal method that uses the parameters converted to longs
+			return _CoolProp_Deriv_Terms(iOutput,T,rho,pFluid);
+		}
+		else
+		{
+			throw ValueError(format("Your fluid name [%s] is not a CoolProp fluid.",Fluidname.c_str()));
+		}
+}
+
+/// Calculate some interesting derivatives
+//double DerivTerms(char *Term, double T, double rho, char * FluidName)
+//{
+//	// Go to the std::string, std::string version
+//	return DerivTerms(std::string(Term),T,rho,std::string(FluidName));
+//}
 
 int set_reference_stateS(std::string Ref, std::string reference_state)
 {

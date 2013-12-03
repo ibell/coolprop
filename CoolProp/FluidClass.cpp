@@ -923,7 +923,7 @@ double Fluid::dpdT_Trho(double T,double rho)
 }
 double Fluid::drhodT_p_Trho(double T,double rho)
 {
-	return DerivTerms((char *)"drhodT|p",T,rho,this);
+	return DerivTerms(iDERdrho_dT__p,T,rho,this);
 }
 
 /// Get the density using the Soave EOS
@@ -1222,7 +1222,8 @@ void Fluid::saturation_s(double s, int Q, double *Tsatout, double *rhoout, doubl
 			else{
 				throw ValueError("Q must be 0 or 1");
 			}
-			this->T = T;
+			//this->T = T;
+			return -_HUGE;
 		};
 	} SatFunc(s, Q, this);
 
@@ -3053,7 +3054,9 @@ double Fluid::Tsat_anc(double p, double Q)
 
 		//std::cout << "tsat_anc" << psatV_anc(reduce.T/tau_interp) << '\n';
 		return reduce.T/tau_interp;
-	}	
+	}
+	throw ValueError("Something went wrong");
+	return -_HUGE;
 }
 
 
@@ -3503,8 +3506,8 @@ public:
 	std::vector<double> call(std::vector<double> x)
 	{
 		double T0 = x[0]; double rho0 = x[1];
-		double alpha_0 = DerivTerms((char *)"phir",T0,rho0,ReferenceFluid);
-		double Z_0 = DerivTerms((char *)"Z",T0,rho0,ReferenceFluid);
+		double alpha_0 = DerivTerms(iDERphir,T0,rho0,ReferenceFluid);
+		double Z_0 = DerivTerms(iDERZ,T0,rho0,ReferenceFluid);
 		std::vector<double> out = std::vector<double>(2,0);
 		out[0]=alpha_j-alpha_0;
 		out[1]=Z_j-Z_0;
@@ -3518,13 +3521,13 @@ public:
 		std::vector<std::vector<double> > out;
 		out.resize(x.size(),std::vector<double>(x.size(),0));
 		// Terms for the fluid of interest drop out
-		double dalpha_dT0 = -DerivTerms((char *)"dphir_dTau",T0,rho0,ReferenceFluid)*dtau_dT;
+		double dalpha_dT0 = -DerivTerms(iDERdphir_dTau,T0,rho0,ReferenceFluid)*dtau_dT;
 		out[0][0] = dalpha_dT0;
-		double dalpha_drho0 = -DerivTerms((char *)"dphir_dDelta",T0,rho0,ReferenceFluid)*ddelta_drho;
+		double dalpha_drho0 = -DerivTerms(iDERdphir_dDelta,T0,rho0,ReferenceFluid)*ddelta_drho;
 		out[0][1] = dalpha_drho0;
-		double dZ_dT0 = -DerivTerms((char *)"dZ_dTau",T0,rho0,ReferenceFluid)*dtau_dT;
+		double dZ_dT0 = -DerivTerms(iDERdZ_dTau,T0,rho0,ReferenceFluid)*dtau_dT;
 		out[1][0] = dZ_dT0;
-		double dZ_drho0 = -DerivTerms((char *)"dZ_dDelta",T0,rho0,ReferenceFluid)*ddelta_drho;
+		double dZ_drho0 = -DerivTerms(iDERdZ_dDelta,T0,rho0,ReferenceFluid)*ddelta_drho;
 		out[1][1] = dZ_drho0;
 
 		return out;
@@ -3537,8 +3540,8 @@ std::vector<double> Fluid::ConformalTemperature(Fluid *InterestFluid, Fluid *Ref
 	double error,v0,v1,delta,tau,dp_drho;
 	
 	//The values for the fluid of interest that are the target
-	double alpha_j = DerivTerms((char *)"phir",T,rho,InterestFluid);
-	double Z_j = DerivTerms((char *)"Z",T,rho,InterestFluid);
+	double alpha_j = DerivTerms(iDERphir,T,rho,InterestFluid);
+	double Z_j = DerivTerms(iDERZ,T,rho,InterestFluid);
 	
 	std::vector<double> f0,v,negative_f0;
 	std::vector<std::vector<double> > J;
