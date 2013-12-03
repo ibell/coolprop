@@ -809,6 +809,7 @@ double DerivTerms(char *Term, double T, double rho, Fluid * pFluid)
 	else if (!strcmp(Term,"B"))
 	{
 		// given by B*rhoc=lim(delta --> 0) [dphir_ddelta(tau)]
+		std::cout<<__FILE__<<" B(): "<<tau<<","<<rhoc<<","<<pFluid->dphir_dDelta(tau,1e-12)<<std::endl;
 		return 1.0/rhoc*pFluid->dphir_dDelta(tau,1e-12);
 	}
 	else if (!strcmp(Term,"dBdT"))
