@@ -6,6 +6,6 @@ REM ******* compile all the sources ***************
 cl /c /I../../../CoolProp /EHsc /DEXTERNC /DCOOLPROPMATHCADWRAPPER_EXPORTS "CoolProp 4.0 Beta Mathcad Prime 3.0 Wrapper.cpp"
 cl /c /I../../../CoolProp /EHsc /DEXTERNC ../../../CoolProp/*.cpp
 
-link /DLL *.obj mcaduser.lib /OUT:CoolPropMathcadWrapper.dll /ENTRY:"DllMain"
+link /DLL *.obj mcaduser.lib /OUT:CoolPropMathcadWrapper.dll
 dumpbin /EXPORTS CoolPropMathcadWrapper.dll > exports.txt
 erase *.obj
