@@ -28,7 +28,7 @@ You might want to start by looking at CoolProp.h
 	/// @param FluidName The name of the fluid
 	/// @param Output The name of the output parameter, some options are "Ttriple", "Tcrit", "pcrit", "Tmin", "molemass", "rhocrit", "accentric" (not all parameters are valid for all fluids)
 	/// @returns val The value, or _HUGE if not valid
-	double Props(char *Fluid, char *Output);
+	double Props(char *FluidName, char *Output);
 	/// Return a fluid value that does not depend on the thermodynamic state
 	/// @param FluidName The name of the fluid
 	/// @param Output The name of the output parameter, some options are "Ttriple", "Tcrit", "pcrit", "Tmin", "molemass", "rhocrit", "accentric" (not all parameters are valid for all fluids)
@@ -48,6 +48,14 @@ You might want to start by looking at CoolProp.h
 	/// @param Prop2 The second state variable value
 	/// @param FluidName The fluid name
 	double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, char * FluidName);
+	/// Return a value that depends on the thermodynamic state
+	/// @param Output The output parameter, one of "T","D","H",etc.
+	/// @param Name1 The first state variable name, one of "T","D","H",etc.
+	/// @param Prop1 The first state variable value
+	/// @param Name2 The second state variable name, one of "T","D","H",etc.
+	/// @param Prop2 The second state variable value
+	/// @param FluidName The fluid name
+	double Props(char * Output,char Name1, double Prop1, char Name2, double Prop2, char * FluidName);
 	/// Return a value that depends on the thermodynamic state
 	/// @param Output The output parameter, one of "T","D","H",etc.
 	/// @param Name1 The first state variable name, one of "T","D","H",etc.

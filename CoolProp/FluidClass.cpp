@@ -288,7 +288,7 @@ FluidsContainer::FluidsContainer()
 {
 	
 	// The pure fluids
-	FluidsList.push_back(new WaterClass());	
+	FluidsList.push_back(new WaterClass());
 	FluidsList.push_back(new R134aClass());
 	FluidsList.push_back(new HeliumClass());
 	FluidsList.push_back(new OxygenClass());

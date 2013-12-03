@@ -62,8 +62,8 @@ OBJS             = \
 #  compiler or if you would like to use other flags. 
 ###########################################################
 CPPC         =g++
-CPPFLAGS     =$(OPTFLAGS)# -Wall -pedantic -fbounds-check -ansi -Wpadded -Wpacked -malign-double -mpreferred-stack-boundary=8
 DEBUGFLAGS   =-g -O3
+CPPFLAGS     =$(OPTFLAGS)# -Wall -pedantic -fbounds-check -ansi -Wpadded -Wpacked -malign-double -mpreferred-stack-boundary=8
 
 .PHONY          : install
 LIBFILE         =$(THENAME)

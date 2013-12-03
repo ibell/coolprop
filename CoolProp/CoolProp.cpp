@@ -514,41 +514,47 @@ std::string Phase_Tp(std::string Fluid, double T, double p)
 	return Phase(Fluid,T,p);
 }
 
-double _Props1(char *Fluid, char *Output)
+
+/*
+ * Start with the internal functions to handle different inputs
+ * First we handle the constants: Props1
+ */
+// Internal one to do the actual calculations
+double _Props1(std::string FluidName, std::string Output)
 {
 	// Try to load the CoolProp Fluid
-	pFluid = Fluids.get_fluid(Fluid);
+	pFluid = Fluids.get_fluid(FluidName);
 	if (pFluid != NULL)
 	{
 		// It's a CoolProp fluid
 		// Convert the parameter to integer
 		long iOutput = get_param_index(Output);
 		if (iOutput < 0){
-			throw ValueError(format("Your output key [%s] is not valid. (names are case sensitive)",Output));
+			throw ValueError(format("Your output key [%s] is not valid. (names are case sensitive)",Output.c_str()));
 		}
 		// Get the output using the conventional function
 		return _CoolProp_Fluid_Props(iOutput,0,0,0,0,pFluid);
 	}
-	else if (IsREFPROP(Fluid))
+	else if (IsREFPROP(FluidName))
 	{
 		// REFPROP fluid, or something else that is invalid
 		try{
-			if (!strcmp(Output,"Ttriple"))
-				return Props('R','T',0,'P',0,Fluid);
-			else if (!strcmp(Output,"Tcrit"))
-				return Props('B','T',0,'P',0,Fluid);
-			else if (!strcmp(Output,"pcrit"))
-				return Props('E','T',0,'P',0,Fluid);
-			else if (!strcmp(Output,"Tmin"))
-				return Props('t','T',0,'P',0,Fluid);
-			else if (!strcmp(Output,"molemass"))
-				return Props('M','T',0,'P',0,Fluid);
-			else if (!strcmp(Output,"rhocrit"))
-				return Props('N','T',0,'P',0,Fluid);
-			else if (!strcmp(Output,"accentric"))
-				return Props('w','T',0,'P',0,Fluid);
-			else 
-				throw ValueError(format("Output parameter \"%s\" is invalid for REFPROP fluid",Output));
+			long iOutput = get_param_index(Output);
+			switch (iOutput)
+			{
+				case iTtriple:
+				case iTcrit:
+				case iPcrit:
+				case iTmin:
+				case iMM:
+				case iRhocrit:
+				case iAccentric:
+					return Props(Output,'T',0,'P',0,FluidName);
+					break;
+				default:
+					throw ValueError(format("Output parameter \"%s\" is invalid for REFPROP fluid",Output.c_str()));
+					break;
+			}
 		}
 		// Catch any error that subclasses the std::exception
 		catch(std::exception &e){
@@ -558,49 +564,27 @@ double _Props1(char *Fluid, char *Output)
 	}
 	else
 	{
-		throw ValueError(format("Fluid \"%s\" is an invalid fluid",Fluid));
+		throw ValueError(format("Fluid \"%s\" is an invalid fluid",FluidName.c_str()));
 	}
+	return -_HUGE;
+}
+// Define the functions from the header file
+double Props(char *FluidName, char *Output){
+	return _Props1(std::string(FluidName), std::string(Output));
+}
+double Props(std::string FluidName,std::string Output){
+	return _Props1(FluidName, Output);
+}
+double Props1(std::string FluidName,std::string Output){
+	return _Props1(FluidName, Output);
 }
 
-double Props1(std::string Ref, std::string Output)
-{
-	// Redirect to the Props function - should have called it Props1 from the outset
-	return Props1((char*)Ref.c_str(), (char*)Output.c_str());
-}
-double Props(std::string Ref, std::string Output)
-{
-	return Props1((char*)Ref.c_str(), (char*)Output.c_str());
-}
-double Props(char* Ref, char* Output)
-{
-	return Props1(Ref, Output);
-}
-double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, char* Ref)
-{
-	// Go to the std::string, std::string version
-	return Props(std::string(1,Output),Name1,Prop1,Name2,Prop2,std::string(Ref));
-}
-double Props(std::string Output,char Name1, double Prop1, char Name2, double Prop2, std::string Ref)
-{
-	// In this function the error catching happens;
-	try{
-		return _Props(Output,std::string(1,Name1),Prop1,std::string(1,Name2),Prop2,Ref);
-	}
-	catch(const CoolPropBaseError& e){
-		err_string = std::string("CoolProp error: ").append(e.what());
-		return _HUGE;
-	}
-	catch(const std::exception& e){
-			err_string = std::string("CoolProp error: ").append(e.what());
-			return _HUGE;
-		}
-	catch(...){
-		err_string = std::string("CoolProp error: Indeterminate error");
-		return _HUGE;
-	}
-	return _HUGE;
-}
-// Make this a wrapped function so that error bubbling can be done properly
+/*
+ * Now we need an internal functions to handle different
+ * inputs for non-constant values: Props
+ */
+// Internal one to do the actual calculations, make this a wrapped function so
+// that error bubbling can be done properly
 double _Props(std::string Output, std::string Name1, double Prop1, std::string Name2, double Prop2, std::string Ref)
 {
 	if (get_debug_level()>5){
@@ -636,8 +620,6 @@ double _Props(std::string Output, std::string Name1, double Prop1, std::string N
 		// Call the internal method that uses the parameters converted to longs
 		return _CoolProp_Fluid_Props(iOutput,iName1,Prop1,iName2,Prop2,pFluid);
 	}
-    
-
     // It's a brine, call the brine routine // TODO Solutions: remove this part
 	else if (IsBrine((char*)Ref.c_str()))
     {
@@ -813,6 +795,37 @@ EXPORT_CODE double CONVENTION IProps(long iOutput, long iName1, double Prop1, lo
 		}
 	}
 }
+double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, char* Ref)
+{
+	// Go to the std::string, std::string version
+	return Props(std::string(1,Output),Name1,Prop1,Name2,Prop2,std::string(Ref));
+}
+double Props(char* Output,char Name1, double Prop1, char Name2, double Prop2, char* Ref)
+{
+	// Go to the std::string, std::string version
+	return Props(std::string(Output),Name1,Prop1,Name2,Prop2,std::string(Ref));
+}
+double Props(std::string Output,char Name1, double Prop1, char Name2, double Prop2, std::string Ref)
+{
+	// In this function the error catching happens;
+	try{
+		return _Props(Output,std::string(1,Name1),Prop1,std::string(1,Name2),Prop2,Ref);
+	}
+	catch(const CoolPropBaseError& e){
+		err_string = std::string("CoolProp error: ").append(e.what());
+		return _HUGE;
+	}
+	catch(const std::exception& e){
+			err_string = std::string("CoolProp error: ").append(e.what());
+			return _HUGE;
+		}
+	catch(...){
+		err_string = std::string("CoolProp error: Indeterminate error");
+		return _HUGE;
+	}
+	return _HUGE;
+}
+
 
 /// Calculate some interesting derivatives
 double _CoolProp_Deriv_Terms(long iTerm, double T, double rho, Fluid * pFluid)
@@ -883,10 +896,10 @@ double _CoolProp_Deriv_Terms(long iTerm, double T, double rho, Fluid * pFluid)
 	return val;
 }
 
+// Define the functions from the header
 double DerivTerms(long iTerm, double T, double rho, Fluid * pFluid){
 	return _CoolProp_Deriv_Terms(iTerm,T,rho,pFluid);
 }
-
 double DerivTerms(std::string Term, double T, double rho, std::string Fluidname){
 	if (get_debug_level()>5){
 			std::cout<<__FILE__<<": "<<Term.c_str()<<",T="<<T<<",rho="<<rho<<","<<Fluidname.c_str()<<std::endl;
@@ -919,13 +932,12 @@ double DerivTerms(std::string Term, double T, double rho, std::string Fluidname)
 			throw ValueError(format("Your fluid name [%s] is not a CoolProp fluid.",Fluidname.c_str()));
 		}
 }
+double DerivTerms(char *Term, double T, double rho, char * FluidName)
+{
+	return DerivTerms(std::string(Term),T,rho,std::string(FluidName));
+}
 
-/// Calculate some interesting derivatives
-//double DerivTerms(char *Term, double T, double rho, char * FluidName)
-//{
-//	// Go to the std::string, std::string version
-//	return DerivTerms(std::string(Term),T,rho,std::string(FluidName));
-//}
+
 
 int set_reference_stateS(std::string Ref, std::string reference_state)
 {

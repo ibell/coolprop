@@ -37,11 +37,10 @@ EXPORT_CODE double CONVENTION Props(char *Output,char Name1, double Prop1, char 
 }
 
 // All the function interfaces that point to the single-input Props function
-EXPORT_CODE double CONVENTION Props1(char* Ref, char * Output)
+EXPORT_CODE double CONVENTION Props1(char *Ref, char *Output)
 {
 	// Go to the std::string, std::string version
-	double val = Props1(std::string(Ref),std::string(Output));
-	return val;
+	return Props1(std::string(Ref),std::string(Output));
 }
 
 EXPORT_CODE double CONVENTION K2F(double T)
