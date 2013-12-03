@@ -1,6 +1,6 @@
 #cython: embedsignature = True
 from __future__ import division
-from numexpr.expressions import isConstant
+
 #
 #
 # This file provides wrapper functions of all the CoolProp functions
