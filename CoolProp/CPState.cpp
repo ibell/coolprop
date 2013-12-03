@@ -1908,6 +1908,7 @@ double CoolPropStateClassSI::dZdTau(void){
 double CoolPropStateClassSI::B(void){
 	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
 	// given by B*rhoc=lim(delta --> 0) [dphir_ddelta(tau)]
+	std::cout<<__FILE__<<" B(): "<<tau<<","<<pFluid->reduce.rho<<std::endl;
 	return 1.0/pFluid->reduce.rho*dphir_dDelta(tau,1e-12);
 }
 double CoolPropStateClassSI::dBdT(void){
