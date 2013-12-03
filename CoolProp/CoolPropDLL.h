@@ -42,7 +42,7 @@
 	// They can only use data types that play well with DLL wrapping (int, long, double, char*, void, etc.)
 	EXPORT_CODE double CONVENTION PropsS(char *Output,char* Name1, double Prop1, char* Name2, double Prop2, char * Ref);
 	EXPORT_CODE double CONVENTION Props(char *Output,char Name1, double Prop1, char Name2, double Prop2, char * Ref);
-	EXPORT_CODE double CONVENTION Props1(char *Ref, char * Output);
+	EXPORT_CODE double CONVENTION Props1(char *Ref, char *Output);
 	
 	// This version uses the indices in place of the strings for speed.  Get the parameter indices
 	// from get_param_index('D') for instance and the Fluid index from get_Fluid_index('Air') for instance
@@ -58,6 +58,9 @@
 	EXPORT_CODE double CONVENTION F2K(double T_F);
 	EXPORT_CODE double CONVENTION K2F(double T);
 	
+	EXPORT_CODE double CONVENTION fromSI(char *input, double value, char *new_system);
+	EXPORT_CODE double CONVENTION   toSI(char *input, double value, char *old_system);
+
 	EXPORT_CODE long CONVENTION get_param_index(char * param);
 	EXPORT_CODE long CONVENTION get_Fluid_index(char * param);
 	EXPORT_CODE long CONVENTION get_index_units(long param, char * units);

@@ -28,7 +28,7 @@ You might want to start by looking at CoolProp.h
 	/// @param FluidName The name of the fluid
 	/// @param Output The name of the output parameter, some options are "Ttriple", "Tcrit", "pcrit", "Tmin", "molemass", "rhocrit", "accentric" (not all parameters are valid for all fluids)
 	/// @returns val The value, or _HUGE if not valid
-	double Props(char *Fluid, char *Output);
+	double Props(char *FluidName, char *Output);
 	/// Return a fluid value that does not depend on the thermodynamic state
 	/// @param FluidName The name of the fluid
 	/// @param Output The name of the output parameter, some options are "Ttriple", "Tcrit", "pcrit", "Tmin", "molemass", "rhocrit", "accentric" (not all parameters are valid for all fluids)
@@ -48,6 +48,14 @@ You might want to start by looking at CoolProp.h
 	/// @param Prop2 The second state variable value
 	/// @param FluidName The fluid name
 	double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, char * FluidName);
+//	/// Return a value that depends on the thermodynamic state
+//	/// @param Output The output parameter, one of "T","D","H",etc.
+//	/// @param Name1 The first state variable name, one of "T","D","H",etc.
+//	/// @param Prop1 The first state variable value
+//	/// @param Name2 The second state variable name, one of "T","D","H",etc.
+//	/// @param Prop2 The second state variable value
+//	/// @param FluidName The fluid name
+//	double Props(char * Output,char Name1, double Prop1, char Name2, double Prop2, char * FluidName);
 	/// Return a value that depends on the thermodynamic state
 	/// @param Output The output parameter, one of "T","D","H",etc.
 	/// @param Name1 The first state variable name, one of "T","D","H",etc.
@@ -56,20 +64,34 @@ You might want to start by looking at CoolProp.h
 	/// @param Prop2 The second state variable value
 	/// @param FluidName The fluid name
 	double Props(std::string Output,char Name1, double Prop1, char Name2, double Prop2, std::string FluidName);
+
 	/// Return some low level derivative terms, see source for a complete list
 	/// @param Term String, some options are "phir" (residual Helmholtz energy),"dphir_dDelta", "dphir_dTau", etc.
 	/// @param T Temperature [K]
 	/// @param rho Density [kg/m^3]
-	/// @param pFluid Pointer to Fluid instance
-	double DerivTerms(char *Term, double T, double rho, Fluid * pFluid);
+	/// @param FluidName String
+	double DerivTerms(std::string Term, double T, double rho, std::string FluidName);
+//	/// Return some low level derivative terms, see source for a complete list
+//	/// @param Term string, some options are "phir" (residual Helmholtz energy),"dphir_dDelta", "dphir_dTau", etc.
+//	/// @param T Temperature [K]
+//	/// @param rho Density [kg/m^3]
+//	/// @param FluidName string
+//	double DerivTerms(char *Term, double T, double rho, char * FluidName);
 	/// Return some low level derivative terms, see source for a complete list
-	/// @param Term String, some options are "phir" (residual Helmholtz energy),"dphir_dDelta", "dphir_dTau", etc.
+	/// @param iTerm long desired output
 	/// @param T Temperature [K]
 	/// @param rho Density [kg/m^3]
 	/// @param pFluid Pointer to Fluid instance
-	/// @param SinglePhase True if you know it is single phase
-	/// @param TwoPhase True if you know it is two-phase
-	double DerivTerms(char *Term, double T, double rho, Fluid * pFluid, bool SinglePhase, bool TwoPhase);
+	double DerivTerms(long iTerm, double T, double rho, Fluid * pFluid);
+//	/// Return some low level derivative terms, see source for a complete list
+//	/// @param Term String, some options are "phir" (residual Helmholtz energy),"dphir_dDelta", "dphir_dTau", etc.
+//	/// @param T Temperature [K]
+//	/// @param rho Density [kg/m^3]
+//	/// @param pFluid Pointer to Fluid instance
+//	/// @param SinglePhase True if you know it is single phase
+//	/// @param TwoPhase True if you know it is two-phase
+//	double DerivTerms(char *Term, double T, double rho, Fluid * pFluid, bool SinglePhase, bool TwoPhase);
+
 	/// Get a globally-defined string
 	/// @param ParamName A string, one of "version", "errstring", "warnstring", "gitrevision", "FluidsList", "fluids_list"
 	/// @returns str The string, or an error message if not valid input

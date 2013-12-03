@@ -6,18 +6,13 @@
 #include <string>
 #include <stdlib.h>
 
-long iFluid;
 CoolPropSolver::CoolPropSolver(const std::string &mediumName, const std::string &libraryName, const std::string &substanceName)
 	: BaseSolver(mediumName, libraryName, substanceName){
-	setFluidConstants();
-
-	iFluid = get_Fluid_index(substanceName);
 
 	// Fluid name can be used to pass in other parameters.  
 	// The string can be composed like "Propane|enable_TTSE=1|calc_transport=0"
-
 	std::vector<std::string> name_options = strsplit(substanceName,'|');
-	
+
 	// Set the defaults
 	enable_TTSE     = false;
 	debug_level     = 0;
@@ -101,9 +96,13 @@ CoolPropSolver::CoolPropSolver(const std::string &mediumName, const std::string 
 	}
 
 	state = new CoolPropStateClassSI(name_options[0]);
+	if (debug_level > 5) std::cout << "Reducing " << substanceName << " to " << name_options[0] << std::endl;
+	this->substanceName = name_options[0];
+	setFluidConstants();
 }
 
 void CoolPropSolver::setFluidConstants(){
+	if (debug_level > 5) std::cout << format("setting constants for fluid %s \n",substanceName.c_str());
 	_fluidConstants.pc = Props(substanceName,"pcrit");
 	_fluidConstants.Tc = Props(substanceName,"Tcrit");
 	_fluidConstants.MM = Props(substanceName,"molemass");
@@ -618,7 +617,7 @@ int CoolPropSolver::phase(ExternalThermodynamicState *const properties){
     // Base function returns an error if called - should be redeclared by the solver object
 	errorMessage((char*)"Internal error: phase() not implemented in the Solver object");
 	//throw NotImplementedError((char*)"Internal error: phase() not implemented in the Solver object");
-	return -_HUGE;
+	return -1;
 }
 
 double CoolPropSolver::s(ExternalThermodynamicState *const properties){
