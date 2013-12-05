@@ -999,7 +999,7 @@ cdef class State:
         if abs(self.xL)<=1e-15:
             
             if self.is_CPFluid:
-                items = params.items()
+                items = list(params.items())
                 iInput1 = paras_inverse[items[0][0]]
                 iInput2 = paras_inverse[items[1][0]]
                 try: 
