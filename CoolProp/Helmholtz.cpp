@@ -14,7 +14,6 @@
 #include <vector>
 #include <iostream>
 #include "math.h"
-using namespace std;
 #include "Helmholtz.h"
 #include "CoolPropTools.h"
 
@@ -834,8 +833,8 @@ double phir_Lemmon2005::dDelta_dTau(double tau, double delta) throw()
 	return summer;
 }
 
-phir_gaussian::phir_gaussian(vector<double> n_in, vector<double> d_in,vector<double> t_in, 
-	vector<double> alpha_in, vector<double> epsilon_in, vector<double> beta_in, vector<double> gamma_in,
+phir_gaussian::phir_gaussian(std::vector<double> n_in, std::vector<double> d_in, std::vector<double> t_in, 
+							 std::vector<double> alpha_in, std::vector<double> epsilon_in, std::vector<double> beta_in, std::vector<double> gamma_in,
 	unsigned int iStart_in, unsigned int iEnd_in)
 {
 	n=n_in;
@@ -986,8 +985,8 @@ double phir_gaussian::dDelta_dTau2(double tau, double delta) throw()
 	return summer;
 }
 
-phir_GERG2008_gaussian::phir_GERG2008_gaussian(vector<double> n_in, vector<double> d_in,vector<double> t_in, 
-	vector<double> eta_in, vector<double> epsilon_in, vector<double> beta_in, vector<double> gamma_in,
+phir_GERG2008_gaussian::phir_GERG2008_gaussian(std::vector<double> n_in, std::vector<double> d_in, std::vector<double> t_in, 
+											   std::vector<double> eta_in, std::vector<double> epsilon_in, std::vector<double> beta_in, std::vector<double> gamma_in,
 	unsigned int iStart_in, unsigned int iEnd_in)
 {
 	n=n_in;

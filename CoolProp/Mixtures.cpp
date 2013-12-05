@@ -288,21 +288,22 @@ Mixture::Mixture(std::vector<Fluid *> pFluids)
 			}
 		}
 	}
+	
+	///         END OF INITIALIZATION
+	///         END OF INITIALIZATION
+	///         END OF INITIALIZATION
+	///         END OF INITIALIZATION
 }
 
 void Mixture::test()
 {
 
-	///         END OF INITIALIZATION
-	///         END OF INITIALIZATION
-	///         END OF INITIALIZATION
-	///         END OF INITIALIZATION
 	
 	std::vector<double> x,y,z(2, 0.5);
 
 	//Envelope.build(100000,z);
 
-	z[0] = 0.5;
+	z[0] = 0.3;
 	z[1] = 1-z[0];
 
 	double _Tsat = saturation_p(TYPE_BUBBLEPOINT, 440000, z, x, y);

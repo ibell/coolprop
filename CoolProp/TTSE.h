@@ -178,6 +178,11 @@ public:
 	/// Evaluate the TTSE using P,S or P,T
 	double evaluate_one_other_input(long iInput1, double Param1, long iOther, double Other);
 	
+	/// See if the inputs are within range
+	bool within_range_one_other_input(long iInput1, double Input1, long iOther, double Other);
+
+	bool within_range_Trho(long iInput1, double Input1, long iOther, double Other);
+
 	/// Evaluate a property in the single-phase region with T,rho as inputs
 	/// @param iParam Index of desired output
 	/// @param T Temperature [K]

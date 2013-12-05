@@ -2093,7 +2093,65 @@ double TTSESinglePhaseTableClass::bicubic_evaluate_one_other_input(long iInput1,
 	}
 }
 
+bool TTSESinglePhaseTableClass::within_range_Trho(long iInput1, double Input1, long iOther, double Other)
+{
+	int i = (int)round((Input1-Tmin)/(Tmax-Tmin)*(NT-1));
+	int j = (int)round((log(Other)-logrhomin)/logrhoratio);
+	return (0 <= i && i <= NT && 0 <= j && j <= Nrho);
+}
+bool TTSESinglePhaseTableClass::within_range_one_other_input(long iInput1, double Input1, long iOther, double Other)
+{
+	std::vector<std::vector<double> > *mat;
+	if (iInput1 != iP)
+	{
+		throw ValueError("iInput1 must be iP");
+	}
+	// Check if pressure is in range
+	if (Input1 > pmax || Input1 < pmin){ 
+		return false;
+	}
 
+	int j = (int)round((log(Input1)-logpmin)/logpratio);
+
+	if (iOther == iT || iOther == iS)
+	{
+		double right, left;
+		if (iOther == iT) 
+			{ right = this->T[Nh-1][j]; left = this->T[0][j]; }
+		else 
+			{ right = this->s[Nh-1][j]; left = this->s[0][j]; }
+
+		if (ValidNumber(right) && ValidNumber(left))
+		{
+			if (Other > right || Other < left)
+				{ return false;	}
+			else
+				{ return true; }
+		}
+		else
+		{
+			return false;
+		}
+	}
+	else if (iOther = iD)
+	{
+		double right = this->rho[Nh-1][j], left = this->rho[0][j];
+
+		if (ValidNumber(right) && ValidNumber(left))
+		{
+			if (Other < right || Other > left)
+				{ return false;	}
+			else
+				{ return true; }
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
 double TTSESinglePhaseTableClass::evaluate_one_other_input(long iInput1, double Input1, long iOther, double Other)
 {
 	// Use Bicubic interpolation if requested
@@ -2115,13 +2173,17 @@ double TTSESinglePhaseTableClass::evaluate_one_other_input(long iInput1, double 
 	case iD:
 		mat = &rho; break;
 	}
+
 	// One is pressure, we are getting enthalpy
+	// within_TTSE_range() guarantees that the pressure is within range
 	if (iInput1 == iP)
 	{
 		p = Input1;
 		
 		int j = (int)round((log(p)-logpmin)/logpratio);
 		double deltap = p-this->p[j];
+
+		// Check the bounding values for the other input to see if it is within range
 
 		if (j >= jpcrit_ceil) // Is is either supercritical pressure or just a little bit below critical pressure
 		{

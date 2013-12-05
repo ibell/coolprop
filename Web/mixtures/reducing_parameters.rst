@@ -63,40 +63,46 @@ To convert from the form from Lemmon for HFC and Air to that of GERG 2008, the f
 
 .. math::
 
-    x_0T_{c0}+(1-x_0)T_{c1}+x_0(1-x_0)\xi = x_0^2T_{c0}+(1-x_0)^2T_{c1} + 2x_0(1-x_0)\beta\gamma\frac{x_0+(1-x_0)}{\beta x_0 + (1-x_0)}\sqrt{T_{c0}T_{c1}}
+    x_0T_{c0}+(1-x_0)T_{c1}+x_0(1-x_0)\xi_{01} = x_0^2T_{c0}+(1-x_0)^2T_{c1} + 2x_0(1-x_0)\beta\gamma_T\frac{x_0+(1-x_0)}{\beta x_0 + (1-x_0)}\sqrt{T_{c0}T_{c1}}
     
 set :math:`\beta=1`, solve for :math:`\gamma`.  Equate the terms
 
 .. math::
 
-    x_0T_{c0}+(1-x_0)T_{c1}+x_0(1-x_0)\xi = x_0^2T_{c0}+(1-x_0)^2T_{c1} + 2x_0(1-x_0)\gamma\sqrt{T_{c0}T_{c1}}
+    x_0T_{c0}+(1-x_0)T_{c1}+x_0(1-x_0)\xi_{01} = x_0^2T_{c0}+(1-x_0)^2T_{c1} + 2x_0(1-x_0)\gamma_T\sqrt{T_{c0}T_{c1}}
     
 Move to LHS
 
 .. math::
 
-    [x_0-x_0^2]T_{c0}+[(1-x_0)-(1-x_0)^2]T_{c1}+x_0(1-x_0)\xi = 2x_0(1-x_0)\gamma\sqrt{T_{c0}T_{c1}}
+    [x_0-x_0^2]T_{c0}+[(1-x_0)-(1-x_0)^2]T_{c1}+x_0(1-x_0)\xi_{01} = 2x_0(1-x_0)\gamma_T\sqrt{T_{c0}T_{c1}}
 
 Factor
 
 .. math::
 
-    x_0(1-x_0)T_{c0}+(1-x_0)[1-(1-x_0)]T_{c1}+x_0(1-x_0)\xi = 2x_0(1-x_0)\gamma\sqrt{T_{c0}T_{c1}}
+    x_0(1-x_0)T_{c0}+(1-x_0)[1-(1-x_0)]T_{c1}+x_0(1-x_0)\xi_{01} = 2x_0(1-x_0)\gamma_T\sqrt{T_{c0}T_{c1}}
     
 Expand
 
 .. math::
 
-    x_0(1-x_0)T_{c0}+x_0(1-x_0)T_{c1}+x_0(1-x_0)\xi = 2x_0(1-x_0)\gamma\sqrt{T_{c0}T_{c1}}
+    x_0(1-x_0)T_{c0}+x_0(1-x_0)T_{c1}+x_0(1-x_0)\xi_{01} = 2x_0(1-x_0)\gamma_T\sqrt{T_{c0}T_{c1}}
     
 Cancel factors of :math:`x_0(1-x_0)`
 
 .. math::
 
-    T_{c0}+T_{c1}+\xi = 2\gamma\sqrt{T_{c0}T_{c1}}
+    T_{c0}+T_{c1}+\xi_{01} = 2\gamma_T\sqrt{T_{c0}T_{c1}}
     
 Answer:
 
 .. math::
 
-    \boxed{\gamma = \dfrac{T_{c0}+T_{c1}+\xi}{2\sqrt{T_{c0}T_{c1}}}}
+    \boxed{\gamma_T = \dfrac{T_{c0}+T_{c1}+\xi_{01}}{2\sqrt{T_{c0}T_{c1}}}}
+    
+Same idea for the volume
+
+.. math::
+
+    \boxed{\gamma_v = \dfrac{v_{c0}+v_{c1}+\zeta_{01}}{\frac{1}{4}\left(\frac{1}{\rho_{c,i}^{1/3}}+\frac{1}{\rho_{c,j}^{1/3}}\right)^{3}}}

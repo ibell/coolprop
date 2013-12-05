@@ -2,7 +2,6 @@
 #ifndef FLUIDCLASS_H
 #define FLUIDCLASS_H
 
-#include <list>
 #include <map>
 #include <string>
 #include <exception>

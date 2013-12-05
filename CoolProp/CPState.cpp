@@ -310,7 +310,7 @@ void CoolPropStateClassSI::_post_update()
 
 bool CoolPropStateClassSI::within_TTSE_range(long iInput1, double Value1, long iInput2, double Value2)
 {
-	// For now, only allow p,h to use values outside of the TTSE table
+	// For p,h as inputs
 	if (match_pair(iInput1,iInput2,iP,iH)){
 		// Sort in the order p,h
 		sort_pair(&iInput1,&Value1,&iInput2,&Value2,iP,iH);
@@ -318,6 +318,26 @@ bool CoolPropStateClassSI::within_TTSE_range(long iInput1, double Value1, long i
 		double hmin = 0, hmax = 0, pmin = 0, pmax = 0;
 		pFluid->get_TTSESinglePhase_LUT_range(&hmin,&hmax,&pmin,&pmax);
 		return (Value1 > pmin && Value1 < pmax && Value2 > hmin && Value2 < hmax);
+	}
+	else if (match_pair(iInput1,iInput2,iP,iT)){
+		// Sort in the order p, T
+		sort_pair(&iInput1,&Value1,&iInput2,&Value2,iP,iT);
+		return pFluid->TTSESinglePhase.within_range_one_other_input(iP,Value1,iT,Value2);
+	}
+	else if (match_pair(iInput1,iInput2,iP,iD)){
+		// Sort in the order p, D
+		sort_pair(&iInput1,&Value1,&iInput2,&Value2, iP, iD);
+		return pFluid->TTSESinglePhase.within_range_one_other_input(iP,Value1,iD,Value2);
+	}
+	else if (match_pair(iInput1,iInput2,iP,iS)){
+		// Sort in the order p, S
+		sort_pair(&iInput1,&Value1,&iInput2,&Value2, iP, iS);
+		return pFluid->TTSESinglePhase.within_range_one_other_input(iP,Value1,iS,Value2);
+	}
+	else if (match_pair(iInput1,iInput2,iT,iD)){
+		// Sort in the order T, rho
+		sort_pair(&iInput1,&Value1,&iInput2,&Value2, iT, iD);
+		return pFluid->TTSESinglePhase.within_range_Trho(iT,Value1,iD,Value2);
 	}
 	return true;
 }
@@ -1322,7 +1342,7 @@ double CoolPropStateClassSI::h(void){
 		}
 		else
 		{
-			if (pFluid->enabled_TTSE_LUT)
+			if (pFluid->enabled_TTSE_LUT  && within_TTSE_range(iT, _T, iD, _rho) )
 			{
 				return pFluid->TTSESinglePhase.evaluate_Trho(iH,_T,_rho,_logrho);
 			}
