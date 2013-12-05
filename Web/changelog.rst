@@ -7,15 +7,18 @@ Changelog for CoolProp
 * MAJOR: Code now is on github (https://github.com/ibell/coolprop)
 * MAJOR: Internally all units are SI, functions should do the necessary conversions using conversion_factor() and get/set_standard_unit_system()
 * MAJOR: Brines and incompressible liquids are added to CoolPropStateClass
+* MAJOR: Preparing to phase out of DerivTerms function, Props now handles derivatives as well.
 * Wrappers added for Java, Javascript, MathCAD
 * Improved wrapper for Labview (Thanks to the Sergei and guys at UGent)
 * Improved plotting in Python (Thanks Logan)
+* Improved Modelica wrapper and added incompressible fluids with p,T and p,h as state variables
 * Added viscosity for n-Hexane
 * Added R1233zd(E)
 * Added more incompressible liquids: Therminol D12, Therminol VP-1, Therminol 72, Therminol 66, Dowtherm J, Dowtherm Q, Texatherm 22, 
   Nitrate Salt Blend, Syltherm XLT, Dynalene HC-10, Dynalene HC-20, Dynalene HC-30, Dynalene HC-40, Dynalene HC-50
 * Added slurry ice as incompressible solution of either water-ethanol, water-NaCl or water-propylene glycol with solid content as input
 * Added corrosion inhibitor ZitrecAC, anti-freezing agent Pekasol2000
+* Added Lithium-Bromide/water as incompressible solution (Thanks to Jaroslav Pátek)
 
 3.3.0 (revision 660)
 --------------------

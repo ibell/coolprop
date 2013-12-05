@@ -92,6 +92,11 @@ You might want to start by looking at CoolProp.h
 //	/// @param TwoPhase True if you know it is two-phase
 //	double DerivTerms(char *Term, double T, double rho, Fluid * pFluid, bool SinglePhase, bool TwoPhase);
 
+	/// Get a long that represents the fluid type
+	/// @param FluidName The fluid name as a string
+	/// @returns long element from global type enumeration
+	long getFluidType(std::string FluidName);
+
 	/// Get a globally-defined string
 	/// @param ParamName A string, one of "version", "errstring", "warnstring", "gitrevision", "FluidsList", "fluids_list"
 	/// @returns str The string, or an error message if not valid input

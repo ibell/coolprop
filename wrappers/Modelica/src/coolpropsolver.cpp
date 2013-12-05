@@ -14,6 +14,7 @@ CoolPropSolver::CoolPropSolver(const std::string &mediumName, const std::string 
 	std::vector<std::string> name_options = strsplit(substanceName,'|');
 
 	// Set the defaults
+	fluidType       = -1;
 	enable_TTSE     = false;
 	debug_level     = 0;
 	calc_transport  = false;
@@ -94,38 +95,165 @@ CoolPropSolver::CoolPropSolver(const std::string &mediumName, const std::string 
 			std::cout << param_val[0] << " has the value of " << param_val[1] << std::endl;
 		}
 	}
-
-	state = new CoolPropStateClassSI(name_options[0]);
-	if (debug_level > 5) std::cout << "Reducing " << substanceName << " to " << name_options[0] << std::endl;
+	// Handle the name and fill the fluid type
+	if (debug_level > 5) std::cout << "Checking fluid " << name_options[0] << " against database." << std::endl;
+	fluidType = getFluidType(name_options[0]); // Throws an error if unknown fluid
+	if (debug_level > 5) std::cout << "Check passed, reducing " << substanceName << " to " << name_options[0] << std::endl;
 	this->substanceName = name_options[0];
+	state = new CoolPropStateClassSI(name_options[0]);
 	setFluidConstants();
 }
 
 void CoolPropSolver::setFluidConstants(){
-	if (debug_level > 5) std::cout << format("setting constants for fluid %s \n",substanceName.c_str());
-	_fluidConstants.pc = Props(substanceName,"pcrit");
-	_fluidConstants.Tc = Props(substanceName,"Tcrit");
-	_fluidConstants.MM = Props(substanceName,"molemass");
-	_fluidConstants.dc = Props(substanceName,"rhocrit");
+	if ((fluidType==FLUID_TYPE_PURE)||(fluidType==FLUID_TYPE_PSEUDOPURE)||(fluidType==FLUID_TYPE_REFPROP)){
+		if (debug_level > 5) std::cout << format("Setting constants for fluid %s \n",substanceName.c_str());
+		_fluidConstants.pc = Props(substanceName,"pcrit");
+		_fluidConstants.Tc = Props(substanceName,"Tcrit");
+		_fluidConstants.MM = Props(substanceName,"molemass");
+		_fluidConstants.dc = Props(substanceName,"rhocrit");
+		return;
+	}
+	if ((fluidType==FLUID_TYPE_INCOMPRESSIBLE_LIQUID)||(fluidType==FLUID_TYPE_INCOMPRESSIBLE_SOLUTION)){
+		if (debug_level > 5) std::cout << format("Setting constants for incompressible fluid %s \n",substanceName.c_str());
+		_fluidConstants.pc = -1;
+		_fluidConstants.Tc = -1;
+		_fluidConstants.MM = -1;
+		_fluidConstants.dc = -1;
+		return;
+	}
 }
+
+void CoolPropSolver::preStateChange(void) {
+	/// Some common code to avoid pitfalls from incompressibles
+	if ((fluidType==FLUID_TYPE_PURE)||(fluidType==FLUID_TYPE_PSEUDOPURE)||(fluidType==FLUID_TYPE_REFPROP)){
+		try {
+			if (enable_TTSE)
+				state->enable_TTSE_LUT();
+			else
+				state->disable_TTSE_LUT();
+
+			if (extend_twophase)
+				state->enable_EXTTP();
+			else
+				state->disable_EXTTP();
+		}
+		catch(std::exception &e)
+		{
+			errorMessage((char*)e.what());
+			std::cout << format("Exception from state object: %s \n",(char*)e.what());
+		}
+	}
+}
+
+void CoolPropSolver::postStateChange(ExternalThermodynamicState *const properties) {
+	/// Some common code to avoid pitfalls from incompressibles
+	switch (fluidType) {
+		case FLUID_TYPE_PURE:
+		case FLUID_TYPE_PSEUDOPURE:
+		case FLUID_TYPE_REFPROP:
+			try{
+				// Set the values in the output structure
+				properties->p = state->p();
+				properties->T = state->T();
+				properties->d = state->rho();
+				properties->h = state->h();
+				properties->s = state->s();
+				if (state->TwoPhase){
+					properties->phase = 2;
+				}
+				else{
+					properties->phase = 1;
+				}
+				properties->cp = state->cp();
+				properties->cv = state->cv();
+				properties->a = state->speed_sound();
+				if (state->TwoPhase && state->Q() >= 0 && state->Q() <= twophase_derivsmoothing_xend)
+				{
+					// Use the smoothed derivatives between a quality of 0 and twophase_derivsmoothing_xend
+					properties->ddhp = state->drhodh_constp_smoothed(twophase_derivsmoothing_xend); // [1/kPa -- > 1/Pa]
+					properties->ddph = state->drhodp_consth_smoothed(twophase_derivsmoothing_xend); // [1/(kJ/kg) -- > 1/(J/kg)]
+				}
+				else if (state->TwoPhase && state->Q() >= 0 && state->Q() <= rho_smoothing_xend)
+				{
+					// Use the smoothed density between a quality of 0 and rho_smoothing_xend
+					double rho_spline;
+					double dsplinedh;
+					double dsplinedp;
+					state->rho_smoothed(rho_smoothing_xend, &rho_spline, &dsplinedh, &dsplinedp) ;
+					properties->ddhp = dsplinedh;
+					properties->ddph = dsplinedp;
+					properties->d = rho_spline;
+				}
+				else
+				{
+					properties->ddhp = state->drhodh_constp();
+					properties->ddph = state->drhodp_consth();
+				}
+				properties->kappa = state->isothermal_compressibility();
+				properties->beta = state->isobaric_expansion_coefficient();
+
+				if (calc_transport)
+				{
+					properties->eta = state->viscosity();
+					properties->lambda = state->conductivity(); //[kW/m/K --> W/m/K]
+					properties->Pr = properties->cp*properties->eta/properties->lambda;
+				} else {
+					properties->eta    = -_HUGE;
+					properties->lambda = -_HUGE;
+					properties->Pr     = -_HUGE;
+				}
+			}
+			catch(std::exception &e)
+			{
+				errorMessage((char*)e.what());
+			}
+			break;
+		case FLUID_TYPE_INCOMPRESSIBLE_LIQUID:
+		case FLUID_TYPE_INCOMPRESSIBLE_SOLUTION:
+			try{
+				// Set the values in the output structure
+				properties->p = state->p();
+				properties->T = state->T();
+				properties->d = state->rho();
+				properties->h = state->h();
+				properties->s = state->s();
+				properties->phase = 1;
+				properties->cp = state->cp();
+				properties->cv = state->cv();
+				properties->a     = -_HUGE;
+				properties->ddhp  = -_HUGE;
+				properties->ddph  = -_HUGE;
+				properties->kappa = -_HUGE;
+				properties->beta  = -_HUGE;
+				if (calc_transport)
+				{
+					properties->eta = state->viscosity();
+					properties->lambda = state->conductivity(); //[kW/m/K --> W/m/K]
+					properties->Pr = properties->cp*properties->eta/properties->lambda;
+				} else {
+					properties->eta    = -_HUGE;
+					properties->lambda = -_HUGE;
+					properties->Pr     = -_HUGE;
+				}
+			}
+			catch(std::exception &e)
+			{
+				errorMessage((char*)e.what());
+			}
+			break;
+		default:
+			errorMessage("Invalid fluid type!");
+			break;
+	}
+}
+
 
 void CoolPropSolver::setSat_p(double &p, ExternalSaturationProperties *const properties){
 
 	if (debug_level > 5)
 		std::cout << format("setSat_p(%0.16e)\n",p);
 
-	//if (calc_twophase)
-	//	state->
-
-	if (enable_TTSE)
-		state->enable_TTSE_LUT();
-	else
-		state->disable_TTSE_LUT();
-
-	if (extend_twophase)
-		state->enable_EXTTP();
-	else
-		state->disable_EXTTP();
+	this->preStateChange();
 
 	try
 	{
@@ -171,15 +299,7 @@ void CoolPropSolver::setSat_T(double &T, ExternalSaturationProperties *const pro
 	if (debug_level > 5)
 		std::cout << format("setSat_T(%0.16e)\n",T);
 
-	if (enable_TTSE)
-		state->enable_TTSE_LUT();
-	else
-		state->disable_TTSE_LUT();
-
-	if (extend_twophase)
-		state->enable_EXTTP();
-	else
-		state->disable_EXTTP();
+	this->preStateChange();
 
 	try
 	{
@@ -210,15 +330,7 @@ void CoolPropSolver::setState_ph(double &p, double &h, int &phase, ExternalTherm
 	if (debug_level > 5)
 		std::cout << format("setState_ph(p=%0.16e,h=%0.16e)\n",p,h);
 
-	if (enable_TTSE)
-		state->enable_TTSE_LUT();
-	else
-		state->disable_TTSE_LUT();
-
-	if (extend_twophase)
-		state->enable_EXTTP();
-	else
-		state->disable_EXTTP();
+	this->preStateChange();
 
 	try{
 		// Update the internal variables in the state instance
@@ -228,54 +340,9 @@ void CoolPropSolver::setState_ph(double &p, double &h, int &phase, ExternalTherm
 		{
 			throw ValueError(format("p-h [%g, %g] failed for update",p,h));
 		}
+
 		// Set the values in the output structure
-		properties->p = p;
-		properties->h = h;
-
-		properties->d = state->rho();
-		properties->T = state->T();
-		properties->s = state->s();
-		
-		if (state->TwoPhase){
-			properties->phase = 2; 
-		}
-		else{
-			properties->phase = 1; 
-		}
-		properties->cp = state->cp();
-		properties->cv = state->cv();
-		properties->a = state->speed_sound();
-		if (state->TwoPhase && state->Q() >= 0 && state->Q() <= twophase_derivsmoothing_xend)
-		{
-			// Use the smoothed derivatives between a quality of 0 and twophase_derivsmoothing_xend
-			properties->ddhp = state->drhodh_constp_smoothed(twophase_derivsmoothing_xend); // [1/kPa -- > 1/Pa]
-			properties->ddph = state->drhodp_consth_smoothed(twophase_derivsmoothing_xend); // [1/(kJ/kg) -- > 1/(J/kg)]
-		} 
-		else if (state->TwoPhase && state->Q() >= 0 && state->Q() <= rho_smoothing_xend)
-		{
-			// Use the smoothed density between a quality of 0 and rho_smoothing_xend 
-			double rho_spline;
-			double dsplinedh;
-			double dsplinedp;
-			state->rho_smoothed(rho_smoothing_xend, &rho_spline, &dsplinedh, &dsplinedp) ;
-            properties->ddhp = dsplinedh;
-            properties->ddph = dsplinedp;
-			properties->d = rho_spline;
-		}
-		else
-		{
-            properties->ddhp = state->drhodh_constp();
-			properties->ddph = state->drhodp_consth();
-		}
-		properties->kappa = state->isothermal_compressibility();
-		properties->beta = state->isobaric_expansion_coefficient();
-
-		if (calc_transport)
-        {
-            properties->eta = state->viscosity();
-            properties->lambda = state->conductivity(); //[kW/m/K --> W/m/K]
-            properties->Pr = properties->cp*properties->eta/properties->lambda;
-        }
+		this->postStateChange(properties);
 	}
 	catch(std::exception &e)
 	{
@@ -288,49 +355,14 @@ void CoolPropSolver::setState_pT(double &p, double &T, ExternalThermodynamicStat
 	if (debug_level > 5)
 		std::cout << format("setState_pT(p=%0.16e,T=%0.16e)\n",p,T);
 
-	if (enable_TTSE)
-		state->enable_TTSE_LUT();
-	else
-		state->disable_TTSE_LUT();
-
-	if (extend_twophase)
-		state->enable_EXTTP();
-	else
-		state->disable_EXTTP();
+	this->preStateChange();
 
 	try{
 		// Update the internal variables in the state instance
 		state->update(iP,p,iT,T);
 
 		// Set the values in the output structure
-		properties->p = p;
-		properties->T = T;
-		properties->d = state->rho();
-		properties->h = state->h();
-		properties->s = state->s();
-		properties->phase = 1; // with pT input, always one-phase conditions!
-		properties->cp = state->cp();
-		properties->cv = state->cv();
-		properties->a = state->speed_sound();
-		if (state->TwoPhase && state->Q() >= 0 && state->Q() <= twophase_derivsmoothing_xend)
-		{
-			// Use the smoothed derivatives between a quality of 0 and twophase_derivsmoothing_xend
-            properties->ddhp = state->drhodh_constp_smoothed(twophase_derivsmoothing_xend);
-            properties->ddph = state->drhodp_consth_smoothed(twophase_derivsmoothing_xend);
-		}
-		else
-		{
-            properties->ddhp = state->drhodh_constp();
-			properties->ddph = state->drhodp_consth();
-		}
-		properties->kappa = properties->d/properties->p/state->dpdrho_constT();
-		properties->beta = -1/properties->d*state->drhodT_constp();
-		if (calc_transport)
-        {
-            properties->eta = state->viscosity();
-            properties->lambda = state->conductivity();
-            properties->Pr = properties->cp*properties->eta/properties->lambda;
-        }
+		this->postStateChange(properties);
 	}
 	catch(std::exception &e)
 	{
@@ -345,15 +377,7 @@ void CoolPropSolver::setState_dT(double &d, double &T, int &phase, ExternalTherm
 	if (debug_level > 5)
 		std::cout << format("setState_dT(d=%0.16e,T=%0.16e)\n",d,T);
 
-	if (enable_TTSE)
-		state->enable_TTSE_LUT();
-	else
-		state->disable_TTSE_LUT();
-
-	if (extend_twophase)
-		state->enable_EXTTP();
-	else
-		state->disable_EXTTP();
+	this->preStateChange();
 
 	try{
 
@@ -361,39 +385,7 @@ void CoolPropSolver::setState_dT(double &d, double &T, int &phase, ExternalTherm
 		state->update(iD,d,iT,T);
 
 		// Set the values in the output structure
-		properties->d = d;
-		properties->T = T;
-		properties->h = state->h();
-		properties->p = state->p();
-		properties->s = state->s();
-		if (state->TwoPhase){
-			properties->phase = 2; 
-		}
-		else{
-			properties->phase = 1; 
-		}
-		properties->cp = state->cp();
-		properties->cv = state->cv();
-		properties->a = state->speed_sound();
-		if (state->TwoPhase && state->Q() >= 0 && state->Q() <= twophase_derivsmoothing_xend)
-		{
-			// Use the smoothed derivatives between a quality of 0 and twophase_derivsmoothing_xend
-            properties->ddhp = state->drhodh_constp_smoothed(twophase_derivsmoothing_xend);
-            properties->ddph = state->drhodp_consth_smoothed(twophase_derivsmoothing_xend);
-		}
-		else
-		{
-            properties->ddhp = state->drhodh_constp();
-			properties->ddph = state->drhodp_consth();
-		}
-		properties->kappa = properties->d/properties->p/state->dpdrho_constT();
-		properties->beta = -1/properties->d*state->drhodT_constp();
-		if (calc_transport)
-        {
-            properties->eta = state->viscosity();
-            properties->lambda = state->conductivity();
-            properties->Pr = properties->cp*properties->eta/properties->lambda;
-        }
+		this->postStateChange(properties);
 	}
 	catch(std::exception &e)
 	{
@@ -407,49 +399,14 @@ void CoolPropSolver::setState_ps(double &p, double &s, int &phase, ExternalTherm
 	if (debug_level > 5)
 		std::cout << format("setState_ps(p=%0.16e,s=%0.16e)\n",p,s);
 
-	if (enable_TTSE)
-		state->enable_TTSE_LUT();
-	else
-		state->disable_TTSE_LUT();
-
-	if (extend_twophase)
-		state->enable_EXTTP();
-	else
-		state->disable_EXTTP();
+	this->preStateChange();
 
 	try{
 		// Update the internal variables in the state instance
 		state->update(iP,p,iS,s);
 
 		// Set the values in the output structure
-		properties->p = p;
-		properties->s = s;
-		properties->d = state->rho();
-		properties->T = state->T();
-		properties->h = state->h();
-		properties->phase = 1; // with pT input, always one-phase conditions!
-		properties->cp = state->cp();
-		properties->cv = state->cv();
-		properties->a = state->speed_sound();
-        if (state->TwoPhase && state->Q() >= 0 && state->Q() <= twophase_derivsmoothing_xend)
-		{
-			// Use the smoothed derivatives between a quality of 0 and twophase_derivsmoothing_xend
-            properties->ddhp = state->drhodh_constp_smoothed(twophase_derivsmoothing_xend);
-            properties->ddph = state->drhodp_consth_smoothed(twophase_derivsmoothing_xend);
-		}
-		else
-		{
-            properties->ddhp = state->drhodh_constp();
-			properties->ddph = state->drhodp_consth();
-		}
-		properties->kappa = properties->d/properties->p/state->dpdrho_constT();
-		properties->beta = -1/properties->d*state->drhodT_constp();
-        if (calc_transport)
-        {
-            properties->eta = state->viscosity();
-            properties->lambda = state->conductivity();
-            properties->Pr = properties->cp*properties->eta/properties->lambda;
-        }
+		this->postStateChange(properties);
 	}
 	catch(std::exception &e)
 	{
@@ -464,49 +421,14 @@ void CoolPropSolver::setState_hs(double &h, double &s, int &phase, ExternalTherm
 	if (debug_level > 5)
 		std::cout << format("setState_hs(h=%0.16e,s=%0.16e)\n",h,s);
 
-	if (enable_TTSE)
-		state->enable_TTSE_LUT();
-	else
-		state->disable_TTSE_LUT();
-
-	if (extend_twophase)
-		state->enable_EXTTP();
-	else
-		state->disable_EXTTP();
+	this->preStateChange();
 
 	try{
 		// Update the internal variables in the state instance
 		state->update(iH,h,iS,s);
 
 		// Set the values in the output structure
-		properties->h = h;
-		properties->s = s;
-		properties->d = state->rho();
-		properties->T = state->T();
-		properties->p = state->p();
-		properties->phase = 1; // with pT input, always one-phase conditions!
-		properties->cp = state->cp();
-		properties->cv = state->cv();
-		properties->a = state->speed_sound();
-        if (state->TwoPhase && state->Q() >= 0 && state->Q() <= twophase_derivsmoothing_xend)
-		{
-			// Use the smoothed derivatives between a quality of 0 and twophase_derivsmoothing_xend
-            properties->ddhp = state->drhodh_constp_smoothed(twophase_derivsmoothing_xend);
-            properties->ddph = state->drhodp_consth_smoothed(twophase_derivsmoothing_xend);
-		}
-		else
-		{
-            properties->ddhp = state->drhodh_constp();
-			properties->ddph = state->drhodp_consth();
-		}
-		properties->kappa = properties->d/properties->p/state->dpdrho_constT();
-		properties->beta = -1/properties->d*state->drhodT_constp();
-        if (calc_transport)
-        {
-            properties->eta = state->viscosity();
-            properties->lambda = state->conductivity();
-            properties->Pr = properties->cp*properties->eta/properties->lambda;
-        }
+		this->postStateChange(properties);
 	}
 	catch(std::exception &e)
 	{
