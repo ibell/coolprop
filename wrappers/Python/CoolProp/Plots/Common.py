@@ -100,8 +100,9 @@ class BasePlot(object):
 
         return smin, smax
 
-    def _get_fluid_data(self, req_prop, prop1_name,
-                        prop2_name, prop1_vals, prop2_vals):
+    def _get_fluid_data(self, req_prop,
+                        prop1_name, prop1_vals,
+                        prop2_name, prop2_vals):
         """
         Calculates lines for constant iName (iVal) over an interval of xName
         (xVal). Returns (x[],y[]) - a tuple of arrays containing the values
@@ -117,12 +118,10 @@ class BasePlot(object):
         for i, p1_val in enumerate(prop1_vals):
             x_vals.append(prop2_vals[i])
             y_vals.append(CP.Props(req_prop,
-                                    prop1_name,
-                                    p1_val,
-                                    prop2_name,
-                                    prop2_vals[i],
-                                    self.fluid_ref))
-            
+                                   prop1_name, p1_val,
+                                   prop2_name, prop2_vals[i],
+                                   self.fluid_ref))
+
         return [x_vals, y_vals]
 
     def _get_sat_lines(self, kind='T', smin=None,
@@ -151,12 +150,14 @@ class BasePlot(object):
         x_vals = sat_mesh
         y_vals = sat_mesh
         if self.graph_type[1] != kind:
-            _, x_vals = self._get_fluid_data(self.graph_type[1], 'Q',
-                                             kind, x, sat_mesh)
+            _, x_vals = self._get_fluid_data(self.graph_type[1],
+                                             'Q', x,
+                                             kind, sat_mesh)
 
         if self.graph_type[0] != kind:
-            _, y_vals = self._get_fluid_data(self.graph_type[0], 'Q',
-                                             kind, x, sat_mesh)
+            _, y_vals = self._get_fluid_data(self.graph_type[0],
+                                             'Q', x,
+                                             kind, sat_mesh)
 
         # Merge the two lines, capital Y holds important information.
         # We merge on X values
