@@ -67,7 +67,7 @@ def InlineLabel(xv,yv,x = None, y= None, axis = None, fig = None):
         y=(yv-Fymin)/DELTAY_fig*DELTAY_axis+Aymin
 
         return x,y
-    
+
     def get_x_y_dydx(xv,yv,x):
         """Get x and y coordinates and the linear interpolation derivative"""
         # Old implementation:
@@ -108,7 +108,7 @@ def InlineLabel(xv,yv,x = None, y= None, axis = None, fig = None):
                 return get_x_y_dydx(xvnew,yvnew,x) # Allow for a single recursion
         else:
             raise ValueError("You have to provide the same amount of x- and y-pairs with at least two entries each.")
-        
+
 
     if axis is None:
         axis=matplotlib.pyplot.gca()
@@ -138,14 +138,14 @@ def InlineLabel(xv,yv,x = None, y= None, axis = None, fig = None):
         trash=0
         (xv,yv)=ToPixelCoords(xv,yv,axis,fig)
         (x,trash)=ToPixelCoords(x,trash,axis,fig)
-        
+
         #Get the rotation angle and y-value
         x,y,dy_dx = get_x_y_dydx(xv,yv,x)
         rot = numpy.arctan(dy_dx)/numpy.pi*180.
 
     (x,y)=ToDataCoords(x,y,axis,fig)
     return (x,y,rot)
- 
+
 
 def drawLines(Ref,lines,axis,plt_kwargs=None):
     """
@@ -254,7 +254,7 @@ class IsoLines(BasePlot):
         self.axis.set_xlim(limits[0])
         self.axis.set_ylim(limits[1])
         return limits
-    
+
     def __plotRound(self, values):
         """
         A function round an array-like object while maintaining the
@@ -265,7 +265,7 @@ class IsoLines(BasePlot):
         """
         inVal   = numpy.unique(numpy.sort(numpy.array(values)))
         output  = inVal[1:] * 0.0
-        digits  = -1 
+        digits  = -1
         limit   = 10
         lim     = inVal * 0.0 + 10
         # remove less from the numbers until same length,
@@ -298,7 +298,7 @@ class IsoLines(BasePlot):
         coordinates for bubble and dew line. Additionally, the dict holds
         the keys 'label' and 'opts', those can be used for plotting as well.
         """
-        if iso_range==None or (len(iso_range) == 1 and num != 1):
+        if iso_range is None or (len(iso_range) == 1 and num != 1):
             raise ValueError('Automatic interval detection for isoline \
                               boundaries is not supported yet, use the \
                               iso_range=[min, max] parameter.')
@@ -325,7 +325,7 @@ class IsoLines(BasePlot):
         #    TODO: Automatic interval detection
         #    iVal = [CP.Props(iName,'T',T_c[i],'D',rho_c[i],Ref) for i in range(len(T_c))]
         #    iVal = patterns[iName]([numpy.min(iVal),numpy.max(iVal),num])
-        
+
         if rounding:
             iso_range = self.__plotRound(iso_range)
 
@@ -373,13 +373,11 @@ class IsoLines(BasePlot):
         x_mesh = [x_range for i in iso_range]
 
         plot_data = self._get_fluid_data(req_prop,
-                                         self.iso_type,
-                                         prop2_name,
-                                         iso_range,
-                                         x_mesh)
+                                         self.iso_type, iso_range,
+                                         prop2_name, x_mesh)
 
         if switch_xy:
-            plot_data.reverse()
+            plot_data = plot_data[::-1]
 
         lines = []
         for j in range(len(plot_data[0])):
@@ -403,7 +401,7 @@ class IsoLines(BasePlot):
 
         There should also be helpful error messages...
         """
-        if iso_range==None or (len(iso_range) == 1 and num != 1):
+        if iso_range is None or (len(iso_range) == 1 and num != 1):
             raise ValueError('Automatic interval detection for isoline \
                               boundaries is not supported yet, use the \
                               iso_range=[min, max] parameter.')
