@@ -69,7 +69,7 @@ class BasePlot(object):
         against the allowable range for the EOS and an error might be
         generated.
 
-        Returns a tuple containing (xmin,xmax)
+        Returns a tuple containing (xmin, xmax)
         """
         if kind == 'P':
             name = 'pressure'
@@ -98,10 +98,11 @@ class BasePlot(object):
         smin = max(smin, fluid_min + SMALL)
         smax = min(smax, fluid_crit - SMALL)
 
-        return smin, smax
+        return (smin, smax)
 
-    def _get_fluid_data(self, req_prop, prop1_name,
-                        prop2_name, prop1_vals, prop2_vals):
+    def _get_fluid_data(self, req_prop,
+                        prop1_name, prop1_vals,
+                        prop2_name, prop2_vals):
         """
         Calculates lines for constant iName (iVal) over an interval of xName
         (xVal). Returns (x[],y[]) - a tuple of arrays containing the values
@@ -117,13 +118,11 @@ class BasePlot(object):
         for i, p1_val in enumerate(prop1_vals):
             x_vals.append(prop2_vals[i])
             y_vals.append(CP.Props(req_prop,
-                                    prop1_name,
-                                    p1_val,
-                                    prop2_name,
-                                    prop2_vals[i],
-                                    self.fluid_ref))
-            
-        return [x_vals, y_vals]
+                                   prop1_name, p1_val,
+                                   prop2_name, prop2_vals[i],
+                                   self.fluid_ref))
+
+        return numpy.array([x_vals, y_vals])
 
     def _get_sat_lines(self, kind='T', smin=None,
                        smax=None, num=500, x=[0., 1.]):
@@ -146,17 +145,19 @@ class BasePlot(object):
 
         smin, smax = self.__sat_bounds(kind, smin=smin, smax=smax)
         sat_range = numpy.linspace(smin, smax, num)
-        sat_mesh = [sat_range for i in x]
+        sat_mesh = numpy.array([sat_range for i in x])
 
         x_vals = sat_mesh
         y_vals = sat_mesh
         if self.graph_type[1] != kind:
-            _, x_vals = self._get_fluid_data(self.graph_type[1], 'Q',
-                                             kind, x, sat_mesh)
+            _, x_vals = self._get_fluid_data(self.graph_type[1],
+                                             'Q', x,
+                                             kind, sat_mesh)
 
         if self.graph_type[0] != kind:
-            _, y_vals = self._get_fluid_data(self.graph_type[0], 'Q',
-                                             kind, x, sat_mesh)
+            _, y_vals = self._get_fluid_data(self.graph_type[0],
+                                             'Q', x,
+                                             kind, sat_mesh)
 
         # Merge the two lines, capital Y holds important information.
         # We merge on X values

@@ -129,7 +129,7 @@ def set_reference_state(str FluidName, *args):
     if retval < 0:
         raise ValueError('Unable to set reference state')
         
-cpdef add_REFPROP_fluid(str FluidName):
+cpdef add_REFPROP_fluid(bytes FluidName):
     """
     Add a REFPROP fluid to CoolProp internal structure
     
@@ -140,11 +140,11 @@ cpdef add_REFPROP_fluid(str FluidName):
     """
     _add_REFPROP_fluid(FluidName)
     
-cpdef long get_Fluid_index(str Fluid):
+cpdef long get_Fluid_index(bytes Fluid):
     """
     Gets the integer index of the given CoolProp fluid (primarily for use in ``IProps`` function)
     """
-    return _get_Fluid_index(Fluid.encode('ascii'))
+    return _get_Fluid_index(Fluid)
     
 cpdef double IProps(long iOutput, long iInput1, double Input1, long iInput2, double Input2, long iFluid) except *:
     """
@@ -835,7 +835,7 @@ cdef class State:
     sets the internal variables in the most computationally efficient way possible
     """
         
-    def __init__(self, bytes Fluid, dict StateDict, double xL=-1.0, object Liquid = None, object phase = None):
+    def __init__(self, str Fluid, dict StateDict, double xL=-1.0, object Liquid = None, object phase = None):
         """
         Parameters
         ----------
@@ -849,13 +849,13 @@ cdef class State:
         Liquid, string
             The name of the liquid (not currently supported)
         """
-        cdef bytes _Fluid = Fluid
+        cdef bytes _Fluid = Fluid.encode('ascii')
         cdef bytes _Liquid
         
         if Fluid == 'none':
             return
         else:
-            self.set_Fluid(Fluid)
+            self.set_Fluid(_Fluid)
         
         if Liquid is None:
             _Liquid = b''
@@ -902,8 +902,8 @@ cdef class State:
     cpdef set_Fluid(self, bytes Fluid):
         self.Fluid = Fluid
         if self.Fluid.startswith('REFPROP-'):
-            add_REFPROP_fluid(self.Fluid.encode('ascii'))
-        self.iFluid = _get_Fluid_index(Fluid)
+            add_REFPROP_fluid(self.Fluid)
+        self.iFluid = _get_Fluid_index(self.Fluid)
         
         #  Try to get the fluid from CoolProp
         if self.iFluid >= 0:
@@ -999,7 +999,7 @@ cdef class State:
         if abs(self.xL)<=1e-15:
             
             if self.is_CPFluid:
-                items = params.items()
+                items = list(params.items())
                 iInput1 = paras_inverse[items[0][0]]
                 iInput2 = paras_inverse[items[1][0]]
                 try: 
