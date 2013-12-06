@@ -1,4 +1,0 @@
-recursive-include CoolProp *.*
-recursive-include CoolPropSource
-include version.txt
-include __init__.py.template
