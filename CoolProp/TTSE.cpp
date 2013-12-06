@@ -2133,7 +2133,7 @@ bool TTSESinglePhaseTableClass::within_range_one_other_input(long iInput1, doubl
 			return false;
 		}
 	}
-	else if (iOther = iD)
+	else if (iOther == iD)
 	{
 		double right = this->rho[Nh-1][j], left = this->rho[0][j];
 
