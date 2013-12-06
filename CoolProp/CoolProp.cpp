@@ -618,6 +618,7 @@ double _Props(std::string Output, std::string Name1, double Prop1, std::string N
     */
     if (IsREFPROP(Ref))  // First eight characters match "REFPROP-"
     {
+    	if (get_debug_level()>7) std::cout<<__FILE__<<": Identified Refprop fluid - "<<Ref.c_str()<<std::endl;
         // Stop here if there is no REFPROP support
     	if (REFPROPFluidClass::refpropSupported()) {
 			return REFPROP(Output,Name1,Prop1,Name2,Prop2,Ref);
@@ -628,6 +629,7 @@ double _Props(std::string Output, std::string Name1, double Prop1, std::string N
     }
 	else if (IsCoolPropFluid(Ref))
 	{
+		if (get_debug_level()>7) std::cout<<__FILE__<<": Identified CoolProp fluid - "<<Ref.c_str()<<std::endl;
 		pFluid = Fluids.get_fluid(Ref);
 		// Convert all the parameters to integers
 		long iOutput = get_param_index(Output);
@@ -645,6 +647,7 @@ double _Props(std::string Output, std::string Name1, double Prop1, std::string N
     // It's a brine, call the brine routine // TODO Solutions: remove this part
 	else if (IsBrine((char*)Ref.c_str()))
     {
+		if (get_debug_level()>7) std::cout<<__FILE__<<": Identified brine - "<<Ref.c_str()<<std::endl;
 		//Enthalpy and pressure are the inputs
 		if ((Name1.c_str()[0]=='H' && Name2.c_str()[0]=='P') || (Name2.c_str()[0]=='H' && Name1.c_str()[0]=='P'))
         {
@@ -675,6 +678,7 @@ double _Props(std::string Output, std::string Name1, double Prop1, std::string N
 	// It's an incompressible liquid, call the routine
 	else if (IsIncompressibleLiquid(Ref))
     {
+		if (get_debug_level()>7) std::cout<<__FILE__<<": Identified incompressible liquid - "<<Ref.c_str()<<std::endl;
 		//Enthalpy and pressure are the inputs
 		if ((Name1.c_str()[0]=='H' && Name2.c_str()[0]=='P') || (Name2.c_str()[0]=='H' && Name1.c_str()[0]=='P'))
         {
@@ -706,6 +710,7 @@ double _Props(std::string Output, std::string Name1, double Prop1, std::string N
     // It's an incompressible solution, call the routine
 	else if (IsIncompressibleSolution(Ref))
 	{
+		if (get_debug_level()>7) std::cout<<__FILE__<<": Identified incompressible solution - "<<Ref.c_str()<<std::endl;
 		//Enthalpy and pressure are the inputs
 		if ((Name1.c_str()[0]=='H' && Name2.c_str()[0]=='P') || (Name2.c_str()[0]=='H' && Name1.c_str()[0]=='P'))
 		{
