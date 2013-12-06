@@ -19,7 +19,7 @@ P,H -> T,D 56.0727627483 , 634.733625928 --> 300.0 , 1.0
 ************ USING TTSE ***************
  
 TWO PHASE INPUTS (Pressure)
-0.063 to build both two phase tables
+0.065 to build both two phase tables
 Density of saturated liquid Propane at 101.325 kPa: 580.882952266 kg/m^3
 Density of saturated vapor R290 at 101.325 kPa: 2.41613600655 kg/m^3
 TWO PHASE INPUTS (Temperature)
