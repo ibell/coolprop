@@ -69,7 +69,7 @@ class BasePlot(object):
         against the allowable range for the EOS and an error might be
         generated.
 
-        Returns a tuple containing (xmin,xmax)
+        Returns a tuple containing (xmin, xmax)
         """
         if kind == 'P':
             name = 'pressure'
@@ -98,7 +98,7 @@ class BasePlot(object):
         smin = max(smin, fluid_min + SMALL)
         smax = min(smax, fluid_crit - SMALL)
 
-        return smin, smax
+        return (smin, smax)
 
     def _get_fluid_data(self, req_prop,
                         prop1_name, prop1_vals,
@@ -122,7 +122,7 @@ class BasePlot(object):
                                    prop2_name, prop2_vals[i],
                                    self.fluid_ref))
 
-        return [x_vals, y_vals]
+        return numpy.array([x_vals, y_vals])
 
     def _get_sat_lines(self, kind='T', smin=None,
                        smax=None, num=500, x=[0., 1.]):
@@ -145,7 +145,7 @@ class BasePlot(object):
 
         smin, smax = self.__sat_bounds(kind, smin=smin, smax=smax)
         sat_range = numpy.linspace(smin, smax, num)
-        sat_mesh = [sat_range for i in x]
+        sat_mesh = numpy.array([sat_range for i in x])
 
         x_vals = sat_mesh
         y_vals = sat_mesh

@@ -138,13 +138,13 @@ def test_back_compatibility():
         isochores = drawIsoLines(fluid_ref, 'Ts', 'D', [2, 600], num=7, axis=ax)
         pyplot.show()
 
-    #Ts_plot_tests()
-    #Ph_plot_tests()
-    #Ps_plot_tests()
-    #PT_plot_tests()
-    #Prho_plot_tests()
-    #Trho_plot_tests()
-    #hs_plot_tests()
+    Ts_plot_tests()
+    Ph_plot_tests()
+    Ps_plot_tests()
+    PT_plot_tests()
+    Prho_plot_tests()
+    Trho_plot_tests()
+    hs_plot_tests()
     Isolines_plot_tests()
 
 
@@ -190,8 +190,8 @@ def test_new_code():
         plt._plot_default_annotations()
         plt.show()
 
-    #Ts_plot_tests()
-    #Ph_plot_tests()
+    Ts_plot_tests()
+    Ph_plot_tests()
     Isolines_plot_tests()
     Graph_annotations()
     Mixture()

@@ -298,7 +298,7 @@ class IsoLines(BasePlot):
         coordinates for bubble and dew line. Additionally, the dict holds
         the keys 'label' and 'opts', those can be used for plotting as well.
         """
-        if iso_range==None or (len(iso_range) == 1 and num != 1):
+        if not iso_range or (len(iso_range) == 1 and num != 1):
             raise ValueError('Automatic interval detection for isoline \
                               boundaries is not supported yet, use the \
                               iso_range=[min, max] parameter.')
@@ -377,7 +377,7 @@ class IsoLines(BasePlot):
                                          prop2_name, x_mesh)
 
         if switch_xy:
-            plot_data.reverse()
+            plot_data = plot_data[::-1]
 
         lines = []
         for j in range(len(plot_data[0])):
@@ -401,7 +401,7 @@ class IsoLines(BasePlot):
 
         There should also be helpful error messages...
         """
-        if iso_range==None or (len(iso_range) == 1 and num != 1):
+        if iso_range is None or (len(iso_range) == 1 and num != 1):
             raise ValueError('Automatic interval detection for isoline \
                               boundaries is not supported yet, use the \
                               iso_range=[min, max] parameter.')
