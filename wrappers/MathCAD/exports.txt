@@ -8,7 +8,7 @@ File Type: DLL
 
   Summary
 
-        C000 .data
-       60000 .rdata
-       17000 .reloc
-      14D000 .text
+       1D000 .data
+       7E000 .rdata
+       1D000 .reloc
+      17A000 .text

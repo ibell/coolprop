@@ -8,11 +8,17 @@
     #endif
 #endif
 
+#include <string>
+
 #include "mcadincl.h"
+// Why does MathCAD use min and max macros???
+#undef min
+#undef max
+
 #include "CoolProp.h"
 #include "FluidClass.h"
 #include "HumidAirProp.h"
-#include "string.h"
+
 
 #define  MUST_BE_REAL           1
 #define  NUMBER_OF_ERRORS       1   

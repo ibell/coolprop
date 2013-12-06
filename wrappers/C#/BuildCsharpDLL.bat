@@ -8,7 +8,7 @@ swig.exe -csharp -dllimport "CoolProp" -c++ -outcurrentdir ../../CoolProp/CoolPr
 cl /c /I../../CoolProp /EHsc CoolProp_wrap.cxx
 
 REM ~ REM ******* compile all the sources ***************
-cl /c /I../../CoolProp /EHsc ../../CoolProp/*.cpp
+cl /c  /MP4 /I../../CoolProp /EHsc ../../CoolProp/*.cpp
 link /DLL CoolProp_wrap.obj *.obj /OUT:CoolProp.dll
 dumpbin /EXPORTS CoolProp.dll > exports.txt
 erase *.obj

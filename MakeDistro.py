@@ -160,14 +160,19 @@ def Python():
 
 def MathCAD():
     try:
-        os.makedirs(os.path.join('dist_temp','MathCAD'))
+        os.makedirs(os.path.join('dist_temp','MathCAD','Prime'))
     except os.error: pass
         
     process = subprocess.check_output(['BuildDLL.bat'],shell=True,cwd=os.path.join('wrappers','MathCAD'))
+    process = subprocess.check_output(['BuildDLL.bat'],shell=True,cwd=os.path.join('wrappers','MathCAD','Prime'))
         
     shutil.copy2(os.path.join('wrappers','MathCAD','CoolPropMathcadWrapper.dll'),os.path.join('dist_temp','MathCAD','CoolPropMathcadWrapper.dll'))
     shutil.copy2(os.path.join('wrappers','MathCAD','CoolPropFluidProperties.xmcd'),os.path.join('dist_temp','MathCAD','CoolPropFluidProperties.xmcd'))
     shutil.copy2(os.path.join('wrappers','MathCAD','README.rst'),os.path.join('dist_temp','MathCAD','README.rst'))
+    
+    shutil.copy2(os.path.join('wrappers','MathCAD','Prime','CoolPropMathcadWrapper.dll'),os.path.join('dist_temp','MathCAD','Prime','CoolPropMathcadWrapper.dll'))
+    shutil.copy2(os.path.join('wrappers','MathCAD','Prime','CoolPropFluidProperties.mcdx'),os.path.join('dist_temp','MathCAD','Prime','CoolPropFluidProperties.xmcd'))
+    shutil.copy2(os.path.join('wrappers','MathCAD','Prime','README.rst'),os.path.join('dist_temp','MathCAD','Prime','README.rst'))
     
 def Modelica():
     try:
@@ -263,21 +268,21 @@ if __name__=='__main__':
     
 #     InstallPrereqs()  #This is optional if you think any of the pre-reqs have been updated
 
-#     DLL_and_Excel()
-#     Source()
-#     Python()
-#     Csharp()
-#     Octave()
-#     MATLAB()
-#     EES()
-#     Javascript()
-#     Java()
-#     MathCAD()
-#     Labview()
-#     Modelica()
-#     Superpacks()
+    DLL_and_Excel()
+    Source()
+    Python()
+    Csharp()
+    Octave()
+    MATLAB()
+    EES()
+    Javascript()
+    Java()
+    MathCAD()
+    Labview()
+    Modelica()
+    Superpacks()
 #     PYPI()
 #     UploadSourceForge()
     
-    BuildDocs()
-    UploadDocs()
+#     BuildDocs()
+#     UploadDocs()

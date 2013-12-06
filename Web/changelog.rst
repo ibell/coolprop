@@ -8,7 +8,7 @@ Changelog for CoolProp
 * MAJOR: Internally all units are SI, functions should do the necessary conversions using conversion_factor() and get/set_standard_unit_system()
 * MAJOR: Brines and incompressible liquids are added to CoolPropStateClass
 * MAJOR: Preparing to phase out of DerivTerms function, Props now handles derivatives as well.
-* Wrappers added for Java, Javascript, MathCAD
+* Wrappers added for Java, Javascript, MathCAD, MathCAD Prime
 * Improved wrapper for Labview (Thanks to the Sergei and guys at UGent)
 * Improved plotting in Python (Thanks Logan)
 * Improved Modelica wrapper and added incompressible fluids with p,T and p,h as state variables
