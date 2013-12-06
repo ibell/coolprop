@@ -298,7 +298,7 @@ class IsoLines(BasePlot):
         coordinates for bubble and dew line. Additionally, the dict holds
         the keys 'label' and 'opts', those can be used for plotting as well.
         """
-        if not iso_range or (len(iso_range) == 1 and num != 1):
+        if iso_range is None or (len(iso_range) == 1 and num != 1):
             raise ValueError('Automatic interval detection for isoline \
                               boundaries is not supported yet, use the \
                               iso_range=[min, max] parameter.')
