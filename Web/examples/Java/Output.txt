@@ -1,45 +1,45 @@
-CoolProp version: 3.3.0
-CoolProp gitrevision: 6ad31d6883fa7e8d5b19669298010a8f681526f8
-CoolProp fluids: Water,R134a,Helium,Oxygen,Hydrogen,ParaHydrogen,OrthoHydrogen,Argon,CarbonDioxide,Nitrogen,n-Propane,Ammonia,R1234yf,R1234ze(E),R32,R22,SES36,Ethylene,SulfurHexafluoride,Ethanol,DimethylEther,DimethylCarbonate,R143a,R23,n-Dodecane,Propylene,Cyclopentane,R236FA,R236EA,R227EA,R365MFC,R161,HFE143m,Benzene,n-Undecane,R125,CycloPropane,Neon,R124,Propyne,Fluorine,Methanol,RC318,R21,R114,R13,R14,R12,R113,R1234ze(Z),R245fa,R41,CarbonMonoxide,CarbonylSulfide,n-Decane,HydrogenSulfide,Isopentane,Neopentane,Isohexane,Krypton,n-Nonane,Toluene,Xenon,R116,Acetone,NitrousOxide,SulfurDioxide,R141b,R142b,R218,Methane,Ethane,n-Butane,IsoButane,n-Pentane,n-Hexane,n-Heptane,n-Octane,CycloHexane,R152A,R123,R11,MDM,MD2M,MD3M,D6,MM,MD4M,D4,D5,1-Butene,IsoButene,cis-2-Butene,trans-2-Butene,MethylPalmitate,MethylStearate,MethylOleate,MethylLinoleate,MethylLinolenate,o-Xylene,m-Xylene,p-Xylene,EthylBenzene,Deuterium,ParaDeuterium,OrthoDeuterium,Air,R404A,R410A,R407C,R507A,R407F
+CoolProp version: 4.0.0
+CoolProp gitrevision: 8e49e190cfd07ed7e78f71899bef88c736132df9
+CoolProp fluids: Water,R134a,Helium,Oxygen,Hydrogen,ParaHydrogen,OrthoHydrogen,Argon,CarbonDioxide,Nitrogen,n-Propane,Ammonia,R1234yf,R1234ze(E),R32,R22,SES36,Ethylene,SulfurHexafluoride,Ethanol,DimethylEther,DimethylCarbonate,R143a,R23,n-Dodecane,Propylene,Cyclopentane,R236FA,R236EA,R227EA,R365MFC,R161,HFE143m,Benzene,n-Undecane,R125,CycloPropane,Neon,R124,Propyne,Fluorine,Methanol,RC318,R21,R114,R13,R14,R12,R113,R1234ze(Z),R1233zd(E),R245fa,R41,CarbonMonoxide,CarbonylSulfide,n-Decane,HydrogenSulfide,Isopentane,Neopentane,Isohexane,Krypton,n-Nonane,Toluene,Xenon,R116,Acetone,NitrousOxide,SulfurDioxide,R141b,R142b,R218,Methane,Ethane,n-Butane,IsoButane,n-Pentane,n-Hexane,n-Heptane,n-Octane,CycloHexane,R152A,R123,R11,MDM,MD2M,MD3M,D6,MM,MD4M,D4,D5,1-Butene,IsoButene,cis-2-Butene,trans-2-Butene,MethylPalmitate,MethylStearate,MethylOleate,MethylLinoleate,MethylLinolenate,o-Xylene,m-Xylene,p-Xylene,EthylBenzene,Deuterium,ParaDeuterium,OrthoDeuterium,Air,R404A,R410A,R407C,R507A,R407F
  
 ************ USING EOS *************
  
 FLUID STATE INDEPENDENT INPUTS
 Critical Density Propane: 220.4781kg/m^3
 TWO PHASE INPUTS (Pressure)
-Density of saturated liquid Propane at 101.325 kPa: 580.8829519548833 kg/m^3
-Density of saturated vapor R290 at 101.325 kPa: 2.4161360087882895 kg/m^3
+Density of saturated liquid Propane at 101.325 kPa: 580.8829519548221 kg/m^3
+Density of saturated vapor R290 at 101.325 kPa: 2.416136008788186 kg/m^3
 TWO PHASE INPUTS (Temperature)
-Density of saturated liquid Propane at 300 K: 489.4473752519588 kg/m^3
-Density of saturated vapor R290 at 300 K: 21.629532018462207 kg/m^3
+Density of saturated liquid Propane at 300 K: 489.44737525195865 kg/m^3
+Density of saturated vapor R290 at 300 K: 21.62953201846219 kg/m^3
 SINGLE PHASE CYCLE (propane)
 T,D -> P,H 300,1 --> 56.07276274829289,634.7336259284773
-P,H -> T,D 56.07276274829289,634.7336259284773 --> 300.00000000000034,0.9999999999999988
+P,H -> T,D 56.07276274829289,634.7336259284773 --> 300.0000000000003,0.999999999999999
  
 ************ USING TTSE ***************
  
 TWO PHASE INPUTS (Pressure)
-0.089 to build both two phase tables
-Density of saturated liquid Propane at 101.325 kPa: 580.8829522657247 kg/m^3
-Density of saturated vapor R290 at 101.325 kPa: 2.4161360065517705 kg/m^3
+0.1 to build both two phase tables
+Density of saturated liquid Propane at 101.325 kPa: 580.8829522656912 kg/m^3
+Density of saturated vapor R290 at 101.325 kPa: 2.416136006551463 kg/m^3
 TWO PHASE INPUTS (Temperature)
-Density of saturated liquid Propane at 300 K: 489.44737744116964 kg/m^3
-Density of saturated vapor R290 at 300 K: 21.62953187730389 kg/m^3
+Density of saturated liquid Propane at 300 K: 489.4473774411483 kg/m^3
+Density of saturated vapor R290 at 300 K: 21.629531877302085 kg/m^3
 SINGLE PHASE CYCLE (propane)
-T,D -> P,H 300,1 --> 56.07276440582185,634.7336258543331
-P,H -> T,D 56.07276440582185,634.7336258543331 --> 299.9999999067526,0.9999999797332721
+T,D -> P,H 300,1 --> 56.07276440582186,634.7336258543331
+P,H -> T,D 56.07276440582186,634.7336258543331 --> 299.9999999067525,0.9999999797332724
  
 ************ USING REFPROP ***************
  
 TWO PHASE INPUTS (Pressure)
-Density of saturated liquid Propane at 101.325 kPa: 580.8829519548833 kg/m^3
-Density of saturated vapor R290 at 101.325 kPa: 2.4161360087882895 kg/m^3
+Density of saturated liquid Propane at 101.325 kPa: 580.8829519548221 kg/m^3
+Density of saturated vapor R290 at 101.325 kPa: 2.416136008788186 kg/m^3
 TWO PHASE INPUTS (Temperature)
-Density of saturated liquid Propane at 300 K: 489.4473752519588 kg/m^3
-Density of saturated vapor R290 at 300 K: 21.629532018462207 kg/m^3
+Density of saturated liquid Propane at 300 K: 489.44737525195865 kg/m^3
+Density of saturated vapor R290 at 300 K: 21.62953201846219 kg/m^3
 SINGLE PHASE CYCLE (propane)
 T,D -> P,H 300,1 --> 56.07276274829289,634.7336259284773
-P,H -> T,D 56.07276274829289,634.7336259284773 --> 300.00000000000034,0.9999999999999988
+P,H -> T,D 56.07276274829289,634.7336259284773 --> 300.0000000000003,0.999999999999999
  
 ************ CHANGE UNIT SYSTEM (default is kSI) *************
  
@@ -49,7 +49,7 @@ Vapor pressure of water at 373.15 K in kSI units (kPa): 101.41799665995208
 ************ BRINES AND SECONDARY WORKING FLUIDS *************
  
 Density of 50% (mass) ethylene glycol/water at 300 K, 101.325 kPa: 1061.1793077204613kg/m^3
-Viscosity of Therminol D12 at 350 K, 101.325 kPa: 5.228849414210587E-4Pa-s
+Viscosity of Therminol D12 at 350 K, 101.325 kPa: 5.228849410507948E-4Pa-s
  
 ************ HUMID AIR PROPERTIES *************
  

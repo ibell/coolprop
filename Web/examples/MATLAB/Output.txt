@@ -2,9 +2,9 @@
   To get started, type one of these: helpwin, helpdesk, or demo.
   For product information, visit www.mathworks.com.
  
-CoolProp version: 3.3.0
-CoolProp gitrevision: 090ea81cee7431645a34d18a4711544bd9e0efec
-CoolProp fluids: Water,R134a,Helium,Oxygen,Hydrogen,ParaHydrogen,OrthoHydrogen,Argon,CarbonDioxide,Nitrogen,n-Propane,Ammonia,R1234yf,R1234ze(E),R32,R22,SES36,Ethylene,SulfurHexafluoride,Ethanol,DimethylEther,DimethylCarbonate,R143a,R23,n-Dodecane,Propylene,Cyclopentane,R236FA,R236EA,R227EA,R365MFC,R161,HFE143m,Benzene,n-Undecane,R125,CycloPropane,Neon,R124,Propyne,Fluorine,Methanol,RC318,R21,R114,R13,R14,R12,R113,R1234ze(Z),R245fa,R41,CarbonMonoxide,CarbonylSulfide,n-Decane,HydrogenSulfide,Isopentane,Neopentane,Isohexane,Krypton,n-Nonane,Toluene,Xenon,R116,Acetone,NitrousOxide,SulfurDioxide,R141b,R142b,R218,Methane,Ethane,n-Butane,IsoButane,n-Pentane,n-Hexane,n-Heptane,n-Octane,CycloHexane,R152A,R123,R11,MDM,MD2M,MD3M,D6,MM,MD4M,D4,D5,1-Butene,IsoButene,cis-2-Butene,trans-2-Butene,MethylPalmitate,MethylStearate,MethylOleate,MethylLinoleate,MethylLinolenate,o-Xylene,m-Xylene,p-Xylene,EthylBenzene,Deuterium,ParaDeuterium,OrthoDeuterium,Air,R404A,R410A,R407C,R507A,R407F
+CoolProp version: 4.0.0
+CoolProp gitrevision: 8e49e190cfd07ed7e78f71899bef88c736132df9
+CoolProp fluids: Water,R134a,Helium,Oxygen,Hydrogen,ParaHydrogen,OrthoHydrogen,Argon,CarbonDioxide,Nitrogen,n-Propane,Ammonia,R1234yf,R1234ze(E),R32,R22,SES36,Ethylene,SulfurHexafluoride,Ethanol,DimethylEther,DimethylCarbonate,R143a,R23,n-Dodecane,Propylene,Cyclopentane,R236FA,R236EA,R227EA,R365MFC,R161,HFE143m,Benzene,n-Undecane,R125,CycloPropane,Neon,R124,Propyne,Fluorine,Methanol,RC318,R21,R114,R13,R14,R12,R113,R1234ze(Z),R1233zd(E),R245fa,R41,CarbonMonoxide,CarbonylSulfide,n-Decane,HydrogenSulfide,Isopentane,Neopentane,Isohexane,Krypton,n-Nonane,Toluene,Xenon,R116,Acetone,NitrousOxide,SulfurDioxide,R141b,R142b,R218,Methane,Ethane,n-Butane,IsoButane,n-Pentane,n-Hexane,n-Heptane,n-Octane,CycloHexane,R152A,R123,R11,MDM,MD2M,MD3M,D6,MM,MD4M,D4,D5,1-Butene,IsoButene,cis-2-Butene,trans-2-Butene,MethylPalmitate,MethylStearate,MethylOleate,MethylLinoleate,MethylLinolenate,o-Xylene,m-Xylene,p-Xylene,EthylBenzene,Deuterium,ParaDeuterium,OrthoDeuterium,Air,R404A,R410A,R407C,R507A,R407F
  
 ************ USING EOS *************
  

@@ -1,4 +1,5 @@
-// runme.java
+// Example for Java
+// Ian Bell, 2013
 
 public class Example {
     static {
