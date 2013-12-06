@@ -9,62 +9,64 @@ File Type: DLL
   Section contains the following exports for CoolProp.dll
 
     00000000 characteristics
-    527763B3 time date stamp Mon Nov 04 10:06:59 2013
+    52A22F3D time date stamp Fri Dec 06 15:10:37 2013
         0.00 version
            1 ordinal base
-          44 number of functions
-          44 number of names
+          46 number of functions
+          46 number of names
 
     ordinal hint RVA      name
 
-          1    0 0006BED0 DerivTerms = _DerivTerms
-          2    1 0006BA80 F2K = _F2K
-          3    2 000ABEE0 HAProps = _HAProps
-          4    3 000ACEE0 HAProps_Aux = _HAProps_Aux
-          5    4 00065830 IProps = _IProps
-          6    5 000637B0 IsFluidType = _IsFluidType
-          7    6 0006BA60 K2F = _K2F
-          8    7 0006CDD0 Phase = _Phase_Tp
-          9    8 0006CDD0 Phase_Tp = _Phase_Tp
-         10    9 0006CE70 Phase_Trho = _Phase_Trho
-         11    A 0006BAA0 PrintSaturationTable = _PrintSaturationTable
-         12    B 0006B8E0 Props = _Props
-         13    C 0006B980 Props1 = _Props1
-         14    D 0006B8A0 PropsS = _PropsS
-         15    E 0006C900 conductivity_background = _conductivity_background
-         16    F 0006C870 conductivity_critical = _conductivity_critical
-         17   10 0006C520 conformal_Trho = _conformal_Trho
-         18   11 0006D010 disable_TTSE_LUT = _disable_TTSE_LUT
-         19   12 0006D120 disable_TTSE_LUT_writing = _disable_TTSE_LUT_writing
-         20   13 0006CF60 enable_TTSE_LUT = _enable_TTSE_LUT
-         21   14 0006D070 enable_TTSE_LUT_writing = _enable_TTSE_LUT_writing
-         22   15 0006BF40 get_Fluid_index = _get_Fluid_index
-         23   16 0006D2C0 get_TTSESinglePhase_LUT_range = _get_TTSESinglePhase_LUT_range
-         24   17 0006CD20 get_fluid_param_string = _get_fluid_param_string
-         25   18 0006CC90 get_global_param_string = _get_global_param_string
-         26   19 0006BF90 get_index_units = _get_index_units
-         27   1A 0006C4D0 get_param_index = _get_param_index
-         28   1B 0006D3C0 get_standard_unit_system = _get_standard_unit_system
-         29   1C 0006CFC0 isenabled_TTSE_LUT = _isenabled_TTSE_LUT
-         30   1D 0006D0D0 isenabled_TTSE_LUT_writing = _isenabled_TTSE_LUT_writing
-         31   1E 0006CAF0 psatL_anc = _psatL_anc
-         32   1F 0006CBC0 psatV_anc = _psatV_anc
-         33   20 0006C970 rhosatL_anc = _rhosatL_anc
-         34   21 0006CA30 rhosatV_anc = _rhosatV_anc
-         35   22 0006D180 set_TTSESat_LUT_size = _set_TTSESat_LUT_size
-         36   23 0006D240 set_TTSESinglePhase_LUT_range = _set_TTSESinglePhase_LUT_range
-         37   24 0006D1E0 set_TTSESinglePhase_LUT_size = _set_TTSESinglePhase_LUT_size
-         38   25 0006C000 set_TTSE_mode = _set_TTSE_mode
-         39   26 0006CF10 set_phase = _set_phase
-         40   27 0006B830 set_reference_stateD = _set_reference_stateD
-         41   28 0006B7B0 set_reference_stateS = _set_reference_stateS
-         42   29 0006D3D0 set_standard_unit_system = _set_standard_unit_system
-         43   2A 0006C710 viscosity_dilute = _viscosity_dilute
-         44   2B 0006C7B0 viscosity_residual = _viscosity_residual
+          1    0 0006BF60 DerivTerms = _DerivTerms
+          2    1 0006BB10 F2K = _F2K
+          3    2 000AD1C0 HAProps = _HAProps
+          4    3 000AE1B0 HAProps_Aux = _HAProps_Aux
+          5    4 00065DC0 IProps = _IProps
+          6    5 00063E60 IsFluidType = _IsFluidType
+          7    6 0006BAF0 K2F = _K2F
+          8    7 0006CEC0 Phase = _Phase_Tp
+          9    8 0006CEC0 Phase_Tp = _Phase_Tp
+         10    9 0006CF60 Phase_Trho = _Phase_Trho
+         11    A 0006BB30 PrintSaturationTable = _PrintSaturationTable
+         12    B 0006B9D0 Props = _Props
+         13    C 0006BA70 Props1 = _Props1
+         14    D 0006B990 PropsS = _PropsS
+         15    E 0006C9F0 conductivity_background = _conductivity_background
+         16    F 0006C960 conductivity_critical = _conductivity_critical
+         17   10 0006C610 conformal_Trho = _conformal_Trho
+         18   11 0006D100 disable_TTSE_LUT = _disable_TTSE_LUT
+         19   12 0006D210 disable_TTSE_LUT_writing = _disable_TTSE_LUT_writing
+         20   13 0006D050 enable_TTSE_LUT = _enable_TTSE_LUT
+         21   14 0006D160 enable_TTSE_LUT_writing = _enable_TTSE_LUT_writing
+         22   15 0006BFF0 fromSI = _fromSI
+         23   16 0006C050 get_Fluid_index = _get_Fluid_index
+         24   17 0006D3B0 get_TTSESinglePhase_LUT_range = _get_TTSESinglePhase_LUT_range
+         25   18 0006CE10 get_fluid_param_string = _get_fluid_param_string
+         26   19 0006CD80 get_global_param_string = _get_global_param_string
+         27   1A 0006C0A0 get_index_units = _get_index_units
+         28   1B 0006C5C0 get_param_index = _get_param_index
+         29   1C 0006D4B0 get_standard_unit_system = _get_standard_unit_system
+         30   1D 0006D0B0 isenabled_TTSE_LUT = _isenabled_TTSE_LUT
+         31   1E 0006D1C0 isenabled_TTSE_LUT_writing = _isenabled_TTSE_LUT_writing
+         32   1F 0006CBE0 psatL_anc = _psatL_anc
+         33   20 0006CCB0 psatV_anc = _psatV_anc
+         34   21 0006CA60 rhosatL_anc = _rhosatL_anc
+         35   22 0006CB20 rhosatV_anc = _rhosatV_anc
+         36   23 0006D270 set_TTSESat_LUT_size = _set_TTSESat_LUT_size
+         37   24 0006D330 set_TTSESinglePhase_LUT_range = _set_TTSESinglePhase_LUT_range
+         38   25 0006D2D0 set_TTSESinglePhase_LUT_size = _set_TTSESinglePhase_LUT_size
+         39   26 0006C100 set_TTSE_mode = _set_TTSE_mode
+         40   27 0006D000 set_phase = _set_phase
+         41   28 0006B920 set_reference_stateD = _set_reference_stateD
+         42   29 0006B8A0 set_reference_stateS = _set_reference_stateS
+         43   2A 0006D4C0 set_standard_unit_system = _set_standard_unit_system
+         44   2B 0006C020 toSI = _toSI
+         45   2C 0006C800 viscosity_dilute = _viscosity_dilute
+         46   2D 0006C8A0 viscosity_residual = _viscosity_residual
 
   Summary
 
-        C000 .data
-       53000 .rdata
-       15000 .reloc
-      10B000 .text
+       1D000 .data
+       61000 .rdata
+       1B000 .reloc
+      124000 .text

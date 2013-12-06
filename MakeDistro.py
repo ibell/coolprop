@@ -231,6 +231,7 @@ def BuildDocs():
     
     print subprocess.check_output(['doxygen','Doxyfile'],shell=True)
     shutil.rmtree(os.path.join('Web','_build'),ignore_errors = True)
+    print subprocess.check_output(['run_examples.bat'],shell=True,cwd='Web/examples')
     print subprocess.check_output(['BuildCPDocs.bat'],shell=True,cwd='Web')
     
 def UploadDocs():
@@ -268,21 +269,21 @@ if __name__=='__main__':
     
 #     InstallPrereqs()  #This is optional if you think any of the pre-reqs have been updated
 
-    DLL_and_Excel()
-    Source()
-    Python()
-    Csharp()
-    Octave()
-    MATLAB()
-    EES()
-    Javascript()
-    Java()
-    MathCAD()
-    Labview()
-    Modelica()
-    Superpacks()
+#     DLL_and_Excel()
+#     Source()
+#     Python()
+#     Csharp()
+#     Octave()
+#     MATLAB()
+#     EES()
+#     Javascript()
+#     Java()
+#     MathCAD()
+#     Labview()
+#     Modelica()
+#     Superpacks()
 #     PYPI()
 #     UploadSourceForge()
     
-#     BuildDocs()
-#     UploadDocs()
+    BuildDocs()
+    UploadDocs()
