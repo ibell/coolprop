@@ -17,6 +17,7 @@ public:
 	SplineClass();
 	bool build(void);
 	bool add_value_constraint(double x, double y);
+	void add_4value_constraints(double x1, double x2, double x3, double x4, double y1, double y2, double y3, double y4);
 	bool add_derivative_constraint(double x, double dydx);
 	double evaluate(double x);
 };

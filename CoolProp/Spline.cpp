@@ -39,6 +39,13 @@ bool SplineClass::add_value_constraint(double x, double y)
 	Nconstraints++;
 	return true;
 }
+void SplineClass::add_4value_constraints(double x1, double x2, double x3, double x4, double y1, double y2, double y3, double y4)
+{
+	add_value_constraint(x1, y1);
+	add_value_constraint(x2, y2);
+	add_value_constraint(x3, y3);
+	add_value_constraint(x4, y4);
+}
 bool SplineClass::add_derivative_constraint(double x, double dydx)
 {
 	int i = Nconstraints;

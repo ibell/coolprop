@@ -7,6 +7,7 @@
 #include "mixture_reducing_JSON.h" // Loads the JSON code for the reducing parameters, and makes a variable "std::string mixture_reducing_JSON"
 #include <numeric>
 #include "CoolProp.h"
+#include "Spline.h"
 
 std::vector<double> JSON_double_array(const rapidjson::Value& a)
 {
@@ -2322,7 +2323,7 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z)
 	// Find the most sensitive input (the one with the largest absolute value in dX/dS
 	double max_abs_val = -1;
 	int i_S = -1;
-	for (unsigned int i = 0; i < Mix->N+2; i++)
+	for (unsigned int i = 0; i < Mix->N+1; i++) // N+1 because specification not allowed to be selected
 	{
 		if (fabs(Mix->NRVLE.dXdS[i])>max_abs_val)
 		{
@@ -2355,7 +2356,7 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z)
 		bool step_accepted = false;
 		std::vector<double> DELTAXbase = Mix->NRVLE.dXdS; //Copy from the last good run
 		std::vector<double> Kold = K; // Copy from the last good run
-		// Loop while the step size isn't small enough
+		// Loop while the step size isn't small enough - usually only requires one downsizing of the step
 		while (step_accepted == false)
 		{
 			// Make a copy of the stored values from the last iteration
@@ -2387,14 +2388,43 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z)
 
 			// UPDATE THE GUESSES
 			// The specified variable is known directly. The others must be obtained either through the use of dXdS and/or extrapolation
-			if (data.T.size() > 2)
+			if (data.T.size() == 3)
 			{
 				int M = data.T.size();
-				// Update the densities
+				// Update the densities using quadratic extrapolation
 				rhobar_liq = QuadInterp(data.lnK[1][M-3],data.lnK[1][M-2],data.lnK[1][M-1],data.rhobar_liq[M-3],data.rhobar_liq[M-2],data.rhobar_liq[M-1],log(K[1]));
 				rhobar_vap = exp(QuadInterp(data.lnK[1][M-3],data.lnK[1][M-2],data.lnK[1][M-1],log(data.rhobar_vap[M-3]),log(data.rhobar_vap[M-2]),log(data.rhobar_vap[M-1]),log(K[1])));
 				T = exp(QuadInterp(data.lnK[1][M-3],data.lnK[1][M-2],data.lnK[1][M-1],data.lnT[M-3],data.lnT[M-2],data.lnT[M-1],log(K[1])));
 				p = exp(QuadInterp(data.lnK[1][M-3],data.lnK[1][M-2],data.lnK[1][M-1],data.lnp[M-3],data.lnp[M-2],data.lnp[M-1],log(K[1])));
+			}
+			else if (data.T.size() > 3)
+			{
+				int M = data.T.size();
+				// Use a cubic spline to get the guess value for the values
+				SplineClass SC1;
+				SC1.add_4value_constraints(data.lnK[1][M-4],data.lnK[1][M-3],data.lnK[1][M-2],data.lnK[1][M-1],
+					                      data.rhobar_liq[M-4],data.rhobar_liq[M-3],data.rhobar_liq[M-2],data.rhobar_liq[M-1]);
+				SC1.build();
+				rhobar_liq = SC1.evaluate(log(K[1]));
+
+				SplineClass SC2;
+				SC2.add_4value_constraints(data.lnK[1][M-4],data.lnK[1][M-3],data.lnK[1][M-2],data.lnK[1][M-1],
+					                      log(data.rhobar_vap[M-4]),log(data.rhobar_vap[M-3]),log(data.rhobar_vap[M-2]),log(data.rhobar_vap[M-1]));
+				SC2.build();
+				rhobar_vap = exp(SC2.evaluate(log(K[1])));
+
+				SplineClass SC3;
+				SC3.add_4value_constraints(data.lnK[1][M-4], data.lnK[1][M-3], data.lnK[1][M-2], data.lnK[1][M-1],
+					                       data.lnT[M-4], data.lnT[M-3], data.lnT[M-2], data.lnT[M-1]);
+				SC3.build();
+				T = exp(SC3.evaluate(log(K[1])));
+
+				SplineClass SC4;
+				SC4.add_4value_constraints(data.lnK[1][M-4], data.lnK[1][M-3], data.lnK[1][M-2], data.lnK[1][M-1],
+					                       data.lnp[M-4], data.lnp[M-3], data.lnp[M-2], data.lnp[M-1]);
+				SC4.build();
+				p = exp(SC4.evaluate(log(K[1])));
+
 			}
 			else
 			{
@@ -2450,21 +2480,21 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z)
 			}
 			else if (Mix->NRVLE.Nsteps < 4)
 			{
-				DELTAS *= 1.1;
+				DELTAS *= 2;
 			}
-		}
 
-		double _max_abs_val = -1;
-		int iii_S = -1;
-		for (unsigned int i = 0; i < Mix->N+2; i++)
-		{
-			if (fabs(Mix->NRVLE.dXdS[i]) > _max_abs_val)
+			double _max_abs_val = -1;
+			int iii_S = -1;
+			for (unsigned int i = 0; i < Mix->N+1; i++)
 			{
-				_max_abs_val = fabs(Mix->NRVLE.dXdS[i]);
-				iii_S = i;
+				if (fabs(Mix->NRVLE.dXdS[i]) > _max_abs_val)
+				{
+					_max_abs_val = fabs(Mix->NRVLE.dXdS[i]);
+					iii_S = i;
+				}
 			}
+			std::cout << format("T,P,Nstep,K : %g %g %d %g %g %d %s\n",T,p,Mix->NRVLE.Nsteps, rhobar_liq, rhobar_vap, iii_S, vec_to_string(K,"%6.5g").c_str());
 		}
-		std::cout << format("T,P,Nstep,K : %g %g %d %g %g %d %s\n",T,p,Mix->NRVLE.Nsteps,rhobar_liq,rhobar_vap,iii_S, vec_to_string(Mix->NRVLE.y,"%6.5g").c_str());
 		
 		// Update step counter
 		iter++;
