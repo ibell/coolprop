@@ -1683,95 +1683,16 @@ void LemmonHFCDepartureFunction::set_coeffs_from_map(std::map<std::string,std::v
 
 void LemmonAirHFCReducingFunction::set_coeffs_from_map(int i, int j, std::map<std::string,double > m)
 {
-	xi[i][j] = m.find("xi")->second;
-	zeta[i][j] = m.find("zeta")->second;
+	double xi_ij = m.find("xi")->second;
+	double zeta_ij = m.find("zeta")->second;
+	beta_T[i][j] = 1;
+	beta_v[i][j] = 1;
+	gamma_T[i][j] = (pFluids[i]->reduce.T + pFluids[j]->reduce.T + xi_ij)/(2*sqrt(pFluids[i]->reduce.T*pFluids[j]->reduce.T));
+	double v_i = 1/pFluids[i]->reduce.rhobar;
+	double v_j = 1/pFluids[j]->reduce.rhobar;
+	double one_third = 0.33333333333333333;
+	gamma_v[i][j] = (v_i + v_j + zeta_ij)/(0.25*pow(pow(v_i, one_third)+pow(v_j, one_third),(int)3));
 }
-
-double LemmonAirHFCReducingFunction::Tr(const std::vector<double> &x)
-{
-	double Tr = 0;
-	for (unsigned int i = 0; i < N; i++)
-	{
-		Tr += x[i]*pFluids[i]->reduce.T;
-	};
-	for (unsigned int i = 0; i < N-1; i++)
-	{
-		for (unsigned int j = i+1; j < N; j++)
-		{
-			Tr += x[i]*x[j]*xi[i][j];
-		}
-	};
-	return Tr;
-}
-double LemmonAirHFCReducingFunction::dTrdxi__constxj(const std::vector<double> &x, int i)
-{
-	double dTr = 0;
-	for (unsigned int i = 0; i < N; i++)
-	{
-		dTr += pFluids[i]->reduce.T;
-	};
-	for (unsigned int i = 0; i < N-1; i++)
-	{
-		for (unsigned int j = i+1; j < N; j++)
-		{
-			dTr += x[j]*xi[i][j];
-		}
-	};
-	return dTr;
-}
-
-double LemmonAirHFCReducingFunction::vrbar(const std::vector<double> &x)
-{
-	double vrbar = 0;
-	for (unsigned int i = 0; i < N; i++)
-	{
-		vrbar += x[i]/pFluids[i]->reduce.rhobar;
-	};
-	for (unsigned int i = 0; i < N-1; i++)
-	{
-		for (unsigned int j = i+1; j < N; j++)
-		{
-			vrbar += x[i]*x[j]*zeta[i][j];
-		}
-	};
-	return vrbar;
-}
-double LemmonAirHFCReducingFunction::dvrbardxi__constxj(const std::vector<double> &x, int i)
-{
-	double dvrbar = 0;
-	for (unsigned int i = 0; i < N; i++)
-	{
-		dvrbar += 1/pFluids[i]->reduce.rhobar;
-	};
-	for (unsigned int i = 0; i < N-1; i++)
-	{
-		for (unsigned int j = i+1; j < N; j++)
-		{
-			dvrbar += x[j]*zeta[i][j];
-		}
-	};
-	return dvrbar;
-}
-
-double LemmonAirHFCReducingFunction::drhorbardxi__constxj(const std::vector<double> &x, int i)
-{
-	return -pow(rhorbar(x),(int)2)*dvrbardxi__constxj(x,i);
-}
-
-double LemmonAirHFCReducingFunction::d2rhorbardxi2__constxj(const std::vector<double> &x, int i)
-{
-	double rhor = this->rhorbar(x);
-	double dvrbardxi = this->dvrbardxi__constxj(x,i);
-	return 2*pow(rhor,(int)3)*pow(dvrbardxi,(int)2)-pow(rhor,(int)2)*this->d2vrbardxi2__constxj(x,i);
-}
-double LemmonAirHFCReducingFunction::d2rhorbardxidxj(const std::vector<double> &x, int i, int j)
-{
-	double rhor = this->rhorbar(x);
-	double dvrbardxi = this->dvrbardxi__constxj(x,i);
-	double dvrbardxj = this->dvrbardxi__constxj(x,j);
-	return 2*pow(rhor,(int)3)*dvrbardxi*dvrbardxj-pow(rhor,(int)2)*this->d2vrbardxidxj(x,i,j);
-}
-
 
 ExcessTerm::ExcessTerm(int N)
 {

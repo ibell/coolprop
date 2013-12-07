@@ -137,40 +137,30 @@ public:
 \f[
 T_r(\bar x) = \sum_{i=1}^mx_iT_{c_i}+\sum_{i=1}^{m-1}\sum_{j=i+1}^mx_ix_j\xi_{ij}
 \f]
+
+These can be converted to the form of GERG by the following equations:
+\f[
+\beta_T = 1\ \ \ \ \beta_v = 1 
+\f]
+and
+\f[
+    \boxed{\gamma_T = \dfrac{T_{c0}+T_{c1}+\xi_{01}}{2\sqrt{T_{c0}T_{c1}}}}
+\f]
+and
+\f[
+    \boxed{\gamma_v = \dfrac{v_{c0}+v_{c1}+\zeta_{01}}{\frac{1}{4}\left(\frac{1}{\rho_{c,i}^{1/3}}+\frac{1}{\rho_{c,j}^{1/3}}\right)^{3}}}
+\f]
 */
-class LemmonAirHFCReducingFunction : public ReducingFunction
+class LemmonAirHFCReducingFunction : public GERG2008ReducingFunction
 {
 protected:
-	STLMatrix xi, ///< Terms for Tr
-		      zeta; ///< Terms for rhorbar/ vrbar
 	std::vector<Fluid *> pFluids; //!< List of pointers to fluids	
 public:
-	LemmonAirHFCReducingFunction(std::vector<Fluid *> pFluids)
+	LemmonAirHFCReducingFunction(std::vector<Fluid *> pFluids) : GERG2008ReducingFunction(pFluids)
 	{
 		this->pFluids = pFluids;
 		this->N = pFluids.size();
-		zeta.resize(N,std::vector<double>(N,0));
-		xi.resize(N,std::vector<double>(N,0));
-		
 	};
-
-	/// The reduced temperature
-	double Tr(const std::vector<double> &x);
-	double dTrdxi__constxj(const std::vector<double> &x, int i);
-	double d2Trdxi2__constxj(const std::vector<double> &x, int i){return 0;};
-	double d2Trdxidxj(const std::vector<double> &x, int i, int j){return 0;};
-
-	/// The reduced specific volume
-	double vrbar(const std::vector<double> &x);
-	double dvrbardxi__constxj(const std::vector<double> &x, int i);
-	double d2vrbardxi2__constxj(const std::vector<double> &x, int i){return 0;};
-	double d2vrbardxidxj(const std::vector<double> &x, int i, int j){return 0;};
-
-	/// The molar reducing density
-	double rhorbar(const std::vector<double> &x){return 1/vrbar(x);};
-	double drhorbardxi__constxj(const std::vector<double> &x, int i);
-	double d2rhorbardxi2__constxj(const std::vector<double> &x, int i);
-	double d2rhorbardxidxj(const std::vector<double> &x, int i, int j);
 
 	/// Set the coefficients based on reducing parameters loaded from JSON
 	void set_coeffs_from_map(int i, int j, std::map<std::string,double >);

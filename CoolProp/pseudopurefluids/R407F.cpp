@@ -30,7 +30,7 @@ R407FClass::R407FClass()
     // Other fluid parameters
     params.molemass = 82.0583; //[kg/kmol]
     params.Ttriple = 200; //[K]
-    params.accentricfactor = 0.7; //[-]
+    params.accentricfactor = 0.360036864771; //[-]
     params.R_u = 8.314472;
     isPure = false;
     
