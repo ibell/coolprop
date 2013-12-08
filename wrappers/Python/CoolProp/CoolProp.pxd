@@ -264,7 +264,7 @@ cdef class State:
     cdef double T_, rho_, p_, xL
     cdef readonly bint is_CPFluid
     
-    cpdef set_Fluid(self, bytes Fluid)
+    cpdef set_Fluid(self, str Fluid)
     cpdef speed_test(self, int N)
     cpdef update(self,dict params, double xL=*)
     cpdef update_ph(self, double p, double h)
