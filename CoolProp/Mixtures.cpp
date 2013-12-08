@@ -9,6 +9,25 @@
 #include "CoolProp.h"
 #include "Spline.h"
 
+bool has_string_array_member(const rapidjson::Value& a, const char * member)
+{
+	if(a.HasMember(member) && a[member].IsArray())
+	{
+		for (rapidjson::Value::ConstValueIterator itrC = a[member].Begin(); itrC != a[member].End(); ++itrC)
+		{	
+			if (!itrC->IsString())
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
 std::vector<double> JSON_double_array(const rapidjson::Value& a)
 {
 	std::vector<double> v;
@@ -24,6 +43,27 @@ std::vector<double> JSON_double_array(const rapidjson::Value& a)
 		}
 	}
 	return v;
+}
+std::vector<std::string> JSON_string_array(const rapidjson::Value& a)
+{
+	std::vector<std::string> v;
+	for (rapidjson::Value::ConstValueIterator itrC = a.Begin(); itrC != a.End(); ++itrC)
+	{
+		v.push_back(itrC->GetString());
+	}
+	return v;
+}
+bool match_CAS_entry(std::vector<std::string> CAS1, std::vector<std::string> CAS2, std::string FluidiCAS, std::string FluidjCAS)
+{
+	for (unsigned int k = 0; k < CAS1.size(); k++)
+	{
+		if (
+			 (!FluidiCAS.compare(CAS1[k]) && !FluidjCAS.compare(CAS2[k]))
+			 ||
+			 (!FluidjCAS.compare(CAS1[k]) && !FluidiCAS.compare(CAS2[k]))
+			){ 	return true; }
+	}
+	return false;
 }
 std::map<std::string, double> Mixture::load_reducing_values(int i, int j)
 {
@@ -128,6 +168,9 @@ void Mixture::load_excess_values(int i, int j)
 	// Make an output map that maps the necessary keys to the arrays of values
 	std::map<std::string,std::vector<double> > outputmap;
 
+	std::string FluidiCAS = pFluids[i]->params.CAS, 
+		        FluidjCAS = pFluids[j]->params.CAS;
+
 	std::string Model;
 	rapidjson::Document JSON;
 
@@ -155,29 +198,26 @@ void Mixture::load_excess_values(int i, int j)
 			// Get the coeffs
 			for (rapidjson::Value::ConstValueIterator itrC = Coeffs.Begin(); itrC != Coeffs.End(); ++itrC)
 			{
-				std::string Name1,Name2,CAS1,CAS2;
 				std::vector<std::string> Names1, Names2, CASs1, CASs2;
 
 				if (itrC->HasMember("Name1") && (*itrC)["Name1"].IsString() && itrC->HasMember("Name2") && (*itrC)["Name2"].IsString())
 				{
-					Name1 = (*itrC)["Name1"].GetString();
-					Name2 = (*itrC)["Name2"].GetString();
-					CAS1 = (*itrC)["CAS1"].GetString();
-					CAS2 = (*itrC)["CAS2"].GetString();
+					Names1 = std::vector<std::string>(1, (*itrC)["Name1"].GetString());
+					Names2 = std::vector<std::string>(1, (*itrC)["Name2"].GetString());
+					CASs1 = std::vector<std::string>(1, (*itrC)["CAS1"].GetString());
+					CASs2 = std::vector<std::string>(1, (*itrC)["CAS2"].GetString());
 				}
-				else if (itrC->HasMember("Names1") && (*itrC)["Names1"].IsArray() && itrC->HasMember("Names2") && (*itrC)["Names2"].IsArray())
+				else if (has_string_array_member((*itrC), "Name1") && has_string_array_member((*itrC), "Name2") 
+					     && has_string_array_member((*itrC), "CAS1") && has_string_array_member((*itrC), "CAS2"))
 				{
-					std::cout << format("Not currently supporting lists of components in excess terms\n").c_str();
-					continue;
-				}				
-				std::string FluidiCAS = pFluids[i]->params.CAS, FluidjCAS = pFluids[j]->params.CAS;
-
+					Names1 = JSON_string_array((*itrC)["Name1"]);
+					Names2 = JSON_string_array((*itrC)["Name2"]);
+					CASs1 = JSON_string_array((*itrC)["CAS1"]);
+					CASs2 = JSON_string_array((*itrC)["CAS2"]);
+				}			
+				
 				// Check if CAS codes match with either the i,j or j,i fluids
-				if (
-					(!(FluidiCAS.compare(CAS1)) && !(FluidjCAS.compare(CAS2)))
-					||
-					(!(FluidjCAS.compare(CAS1)) && !(FluidiCAS.compare(CAS2)))
-				   )
+				if (match_CAS_entry(CASs1,CASs2,FluidiCAS,FluidjCAS))
 				{
 					// See if it is the GERG-2008 formulation
 					if (!Model.compare("Kunz-JCED-2012"))
