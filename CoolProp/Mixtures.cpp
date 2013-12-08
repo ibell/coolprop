@@ -14,7 +14,14 @@ std::vector<double> JSON_double_array(const rapidjson::Value& a)
 	std::vector<double> v;
 	for (rapidjson::Value::ConstValueIterator itrC = a.Begin(); itrC != a.End(); ++itrC)
 	{
-		v.push_back(itrC->GetDouble());
+		if (itrC->IsInt())
+		{
+			v.push_back((double)itrC->GetInt());
+		}
+		else
+		{
+			v.push_back(itrC->GetDouble());
+		}
 	}
 	return v;
 }
