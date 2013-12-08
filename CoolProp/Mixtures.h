@@ -318,7 +318,7 @@ public:
 
 	SuccessiveSubstitutionVLE(){useNR = false; logging = false; Nstep_max = 10;};
 
-	double call(int type, double T, double p, const std::vector<double> &z, std::vector<double> &K);
+	double call(double beta, double T, double p, const std::vector<double> &z, std::vector<double> &K);
 };
 
 /*!

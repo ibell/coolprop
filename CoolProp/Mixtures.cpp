@@ -1680,7 +1680,6 @@ void LemmonHFCDepartureFunction::set_coeffs_from_map(std::map<std::string,std::v
 	phi1 = phir_power(n,d,t,l,1,n.size()-1);
 }
 
-
 void LemmonAirHFCReducingFunction::set_coeffs_from_map(int i, int j, std::map<std::string,double > m)
 {
 	double xi_ij = m.find("xi")->second;
@@ -1934,21 +1933,12 @@ double ReducingFunction::ndTrdni__constnj(const std::vector<double> &x, int i)
 	return dTrdxi__constxj(x,i)-summer_term1;
 }
 
-double SuccessiveSubstitutionVLE::call(int type, double T, double p, const std::vector<double> &z, std::vector<double> &K)
+double SuccessiveSubstitutionVLE::call(double beta, double T, double p, const std::vector<double> &z, std::vector<double> &K)
 {
 	int iter = 1;
-	double change, f, dfdT, rhobar_liq_new, rhobar_vap_new, beta;
+	double change, f, dfdT, rhobar_liq_new, rhobar_vap_new;
 	unsigned int N = z.size();
 	K.resize(N); ln_phi_liq.resize(N); ln_phi_vap.resize(N); x.resize(N); y.resize(N);
-
-	if (type == TYPE_BUBBLEPOINT)
-	{
-		beta = 0;
-	}
-	else
-	{
-		beta = 1;
-	}
 
 	Mix->x_and_y_from_K(beta, K, z, x, y);
 	
@@ -1988,14 +1978,10 @@ double SuccessiveSubstitutionVLE::call(int type, double T, double p, const std::
 
 			K[i] = exp(ln_phi_liq[i]-ln_phi_vap[i]);
 			
-			if (type == TYPE_BUBBLEPOINT){
-				f += z[i]*(K[i]-1);
-				dfdT += z[i]*K[i]*(dln_phi_liq_dT-dln_phi_vap_dT);
-			}
-			else{
-				f += z[i]*(1-1/K[i]);
-				dfdT += z[i]/K[i]*(dln_phi_liq_dT-dln_phi_vap_dT);
-			}
+			f += z[i]*(K[i]-1)/(1-beta+beta*K[i]);
+
+			double dfdK = K[i]*z[i]/pow(1-beta+beta*K[i],(int)2);
+			dfdT += dfdK*(dln_phi_liq_dT-dln_phi_vap_dT);
 		}
 		
 		change = -f/dfdT;
@@ -2020,7 +2006,7 @@ double SuccessiveSubstitutionVLE::call(int type, double T, double p, const std::
 	else
 	{
 		// Pass off to Newton-Raphson to polish the solution
-		return Mix->NRVLE.call(beta,T,p,rhobar_liq,rhobar_vap,z,K,N+1,log(p));
+		return Mix->NRVLE.call(beta, T, p, rhobar_liq, rhobar_vap, z, K, N+1, log(p));
 	}
 }
 
@@ -2083,7 +2069,6 @@ void NewtonRaphsonVLE::build_arrays(double beta, double T, double p, double rhob
 	// --------
 	// Calculate the mole fractions in liquid and vapor phases
 	Mix->x_and_y_from_K(beta,K,z,x,y);
-	//std::cout << "K: " << vec_to_string(K,"%17.16g") << std::endl;
 
 	// Step 1:
 	// -------
@@ -2159,10 +2144,10 @@ void NewtonRaphsonVLE::build_arrays(double beta, double T, double p, double rhob
 		double summer1 = 0;
 		for (unsigned int i = 0; i < N; i++)
 		{
-			summer1 += K[i]*z[i];
+			summer1 += K[i]*z[i]/(1-beta+beta*K[i]);
 		}
 		r[N] = summer1-1;
-		// r[N] += y[i]-x[i]; This is the definition for this term, why can you not use it directly?
+		// r[N] += y[i]-x[i]; This is the definition for this term, why can you not use it directly? Normalization?
 		for (unsigned int j = 0; j < N; j++)
 		{
 			J[N][j] = K[j]*z[j]/pow(1-beta+beta*K[j],(int)2);
@@ -2253,7 +2238,7 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z)
 		}
 	}
 	// Determine the value of the specified variable based on the index of the specified variable
-	if (i_S > (int)Mix->N)
+	if (i_S >= (int)Mix->N)
 	{
 		if (i_S == Mix->N) 
 			{ Sold = lnT; }
