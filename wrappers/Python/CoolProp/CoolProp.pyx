@@ -129,7 +129,7 @@ def set_reference_state(str FluidName, *args):
     if retval < 0:
         raise ValueError('Unable to set reference state')
         
-cpdef add_REFPROP_fluid(bytes FluidName):
+cpdef add_REFPROP_fluid(str FluidName):
     """
     Add a REFPROP fluid to CoolProp internal structure
     
@@ -138,13 +138,13 @@ cpdef add_REFPROP_fluid(bytes FluidName):
         add_REFPROP_fluid("REFPROP-PROPANE")
          
     """
-    _add_REFPROP_fluid(FluidName)
+    _add_REFPROP_fluid(FluidName.encode('ascii'))
     
-cpdef long get_Fluid_index(bytes Fluid):
+cpdef long get_Fluid_index(str Fluid):
     """
     Gets the integer index of the given CoolProp fluid (primarily for use in ``IProps`` function)
     """
-    return _get_Fluid_index(Fluid)
+    return _get_Fluid_index(Fluid.encode('ascii'))
     
 cpdef double IProps(long iOutput, long iInput1, double Input1, long iInput2, double Input2, long iFluid) except *:
     """
@@ -855,7 +855,7 @@ cdef class State:
         if Fluid == 'none':
             return
         else:
-            self.set_Fluid(_Fluid)
+            self.set_Fluid(Fluid)
         
         if Liquid is None:
             _Liquid = b''
@@ -899,18 +899,19 @@ cdef class State:
           
     
         
-    cpdef set_Fluid(self, bytes Fluid):
-        self.Fluid = Fluid
-        if self.Fluid.startswith('REFPROP-'):
-            add_REFPROP_fluid(self.Fluid)
-        self.iFluid = _get_Fluid_index(self.Fluid)
+    cpdef set_Fluid(self, str Fluid):
+        self.Fluid = Fluid.encode('ascii')
+
+        if Fluid.startswith('REFPROP-'):
+            add_REFPROP_fluid(Fluid)
+        self.iFluid = get_Fluid_index(Fluid)
         
         #  Try to get the fluid from CoolProp
         if self.iFluid >= 0:
             #  It is a CoolProp Fluid so we can use the faster integer passing function
             self.is_CPFluid = True
             #  Instantiate the C++ State class
-            self.PFC = PureFluidClass(Fluid)
+            self.PFC = PureFluidClass(self.Fluid)
         else:
             #  It is not a CoolProp fluid, have to use the slower calls
             self.is_CPFluid = False
@@ -1365,7 +1366,7 @@ cdef class State:
         Make a copy of this State class
         """
         cdef State S = State.__new__(State)
-        S.set_Fluid(self.Fluid)
+        S.set_Fluid(str(self.Fluid.decode('ascii')))
         S.update_Trho(self.T_, self.rho_)
         S.phase = self.phase
         return S
