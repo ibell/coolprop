@@ -4,8 +4,6 @@
 #include "Helmholtz.h"
 #include "FluidClass.h"
 
-enum mix_sat_types {TYPE_BUBBLEPOINT, TYPE_DEWPOINT};
-
 typedef std::vector<std::vector<double> > STLMatrix;
 
 /*! 
@@ -633,9 +631,9 @@ public:
 
 	double saturation_p_preconditioner(double p, const std::vector<double> &z);
 
-	double saturation_p_Wilson(int type, double p, const std::vector<double> &z, double T_guess, std::vector<double> &K);
+	double saturation_p_Wilson(double beta, double p, const std::vector<double> &z, double T_guess, std::vector<double> &K);
 
-	double saturation_p(int type, double p, const std::vector<double> &z, std::vector<double> &x, std::vector<double> &y);
+	double saturation_p(double beta, double p, const std::vector<double> &z, std::vector<double> &x, std::vector<double> &y);
 
 	/*! Calculate the mixture molar density based on the use of the Peng-Robinson equation of state
 	*/

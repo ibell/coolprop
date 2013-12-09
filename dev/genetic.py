@@ -21,9 +21,9 @@ class GeneticAncillaryFitter(object):
                num_selected = 30, # Have this many chromos in the selected group
                mutation_factor = 2, # Randomly mutate 1/n of the chromosomes
                num_powers = 6, # How many powers in the fit
-               Ref = 'R11', 
+               Ref = 'Propane', 
                value = 'rhoV',
-               addTr = False
+               addTr = True
                 ):
         self.num_samples = num_samples
         self.num_selected = num_selected

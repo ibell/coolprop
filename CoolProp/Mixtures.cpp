@@ -354,7 +354,7 @@ void Mixture::test()
 	z[0] = 0.3;
 	z[1] = 1-z[0];
 
-	double _Tsat = saturation_p(TYPE_BUBBLEPOINT, 440000, z, x, y);
+	double _Tsat = saturation_p(0, 440000, z, x, y);
 
 	double Tr = pReducing->Tr(z); //[K]
 	double rhorbar = pReducing->rhorbar(z); //[mol/m^3]
@@ -391,19 +391,19 @@ void Mixture::test()
 	double Tsat;
 	double psat = 1e3;
 
-	Tsat = saturation_p(TYPE_DEWPOINT, 440000, z, x, y);
+	Tsat = saturation_p(0.0, 2000000, z, x, y);
 
 	for (double x0 = 0; x0 <= 1.000000000000001; x0 += 0.01)
 	{
 		z[0] = x0; z[1] = 1-x0;
-		Tsat = saturation_p(TYPE_BUBBLEPOINT, psat, z, x, y);
+		Tsat = saturation_p(0, psat, z, x, y);
 		std::cout << format("%g %g %0.9g %0.9g",x0,Tsat,y[0],y[1]).c_str();
-		Tsat = saturation_p(TYPE_DEWPOINT, psat, z, x, y);
+		Tsat = saturation_p(1, psat, z, x, y);
 		std::cout << format(" %g %0.9g %0.9g",Tsat,x[0],x[1]).c_str()	;
 		std::cout << std::endl;
 	}
 
-	double x0 = 0.5;
+	/*double x0 = 0.5;
 	z[0] = x0; z[1] = 1-x0;
 	double TL, TV;
 	for (double p = 100; p <= 1e9; p *= 1.5)
@@ -412,7 +412,7 @@ void Mixture::test()
 		TV = saturation_p(TYPE_DEWPOINT, p, z, x, y);
 		if (!ValidNumber(Tsat)){break;}
 		std::cout << format("%g %g %g\n",TL,TV,p).c_str();
-	}
+	}*/
 }
 void Mixture::check()
 {
@@ -939,65 +939,30 @@ double Mixture::rhobar_Tpz(double T, double p, const std::vector<double> &x, dou
 }
 
 
-
-//double Mixture::saturation_p_NewtonRaphson(int type, double T, double p, std::vector<double> *z, std::vector<double> *ln_phi_liq, std::vector<double> *ln_phi_vap, std::vector<double> *x, std::vector<double> *y)
-//{
-//
-//	
-//}
-
-
 /*! A wrapper function around the residual to find the initial guess for the bubble point temperature
 \f[
-r = \sum_i \left[z_i\cdot K_i\right] - 1 
+r = \sum_i \frac{z_i(K_i-1)}{1-beta+beta*K_i}
 \f]
 */
-class bubblepoint_WilsonK_resid : public FuncWrapper1D
+class WilsonK_resid : public FuncWrapper1D
 {
 public:
-	double p;
+	double p, beta;
 	const std::vector<double> *z;
 	std::vector<double> K;
 	Mixture *Mix;
 
-	bubblepoint_WilsonK_resid(Mixture *Mix, double p, std::vector<double> const& z){ 
-		this->z=&z; this->p = p; this->Mix = Mix; 
+	WilsonK_resid(Mixture *Mix, double beta, double p, std::vector<double> const& z){ 
+		this->z = &z; this->p = p; this->Mix = Mix, this->beta = beta; 
 		K = std::vector<double>(z.size(),_HUGE);
 	};
 	double call(double T){
 		double summer = 0;
 		for (unsigned int i = 0; i< (*z).size(); i++) {
 			K[i] = exp(Mix->Wilson_lnK_factor(T,p,i));
-			summer += (*z)[i]*K[i]; 
+			summer += (*z)[i]*(K[i]-1)/(1-beta+beta*K[i]);
 		}
-		return summer - 1; // 1 comes from the sum of the z_i which must sum to 1
-	};
-};
-/*! A wrapper function around the residual to find the initial guess for the dew point temperature
-\f[
-r = 1- \sum_i \left[\frac{z_i}{K_i}\right]
-\f]
-*/
-class dewpoint_WilsonK_resid : public FuncWrapper1D
-{
-public:
-	double p;
-	const std::vector<double> *z;
-	std::vector<double> K;
-	Mixture *Mix;
-
-	dewpoint_WilsonK_resid(Mixture *Mix, double p, std::vector<double> const& z){ 
-		this->z = &z; this->p = p; this->Mix = Mix; 
-		K = std::vector<double>(z.size(),_HUGE);
-	};
-	double call(double T){
-		double summer = 1;
-		for (unsigned int i = 0; i < (*z).size(); i++) 
-		{ 
-			K[i] = exp(Mix->Wilson_lnK_factor(T,p,i));
-			summer -= (*z)[i]/K[i]; 
-		}
-		return summer;
+		return summer; // 1 comes from the sum of the z_i which must sum to 1
 	};
 };
 double Mixture::saturation_p_preconditioner(double p, const std::vector<double> &z)
@@ -1019,35 +984,22 @@ double Mixture::saturation_p_preconditioner(double p, const std::vector<double> 
 	// Preliminary guess based on interpolation of log(p) v. T
 	return (pseudo_Tcrit-pseudo_Ttriple)/(pseudo_pcrit/pseudo_ptriple)*(p/pseudo_ptriple)+pseudo_Ttriple;
 }
-double Mixture::saturation_p_Wilson(int type, double p, const std::vector<double> &z, double T_guess, std::vector<double> &K)
+double Mixture::saturation_p_Wilson(double beta, double p, const std::vector<double> &z, double T_guess, std::vector<double> &K)
 {
 	double T;
 
 	std::string errstr;
-	if (type == TYPE_BUBBLEPOINT)
-	{
-		// Find first guess for T using Wilson K-factors
-		bubblepoint_WilsonK_resid Resid(this,p,z); //sum(z_i*K_i) - 1
-		T = Secant(&Resid, T_guess, 0.001, 1e-10, 100, &errstr);
-		// Get the K factors from the residual wrapper
-		K = Resid.K;
-	}
-	else if (type == TYPE_DEWPOINT)
-	{
-		// Find first guess for T using Wilson K-factors
-		dewpoint_WilsonK_resid Resid(this,p,z); //1-sum(z_i/K_i)
-		T = Secant(&Resid, T_guess, 0.001, 1e-10, 100, &errstr);
-		// Get the K factors from the residual wrapper
-		K = Resid.K;
-	}
-	else
-	{
-		throw ValueError("Invalid type to saturation_p");
-	}
+
+	// Find first guess for T using Wilson K-factors
+	WilsonK_resid Resid(this, beta, p, z);
+	T = Secant(&Resid, T_guess, 0.001, 1e-10, 100, &errstr);
+	// Get the K factors from the residual wrapper
+	K = Resid.K;
+	
 	if (!ValidNumber(T)){throw ValueError();}
 	return T;
 }
-double Mixture::saturation_p(int type, double p, std::vector<double> const& z, std::vector<double> &x, std::vector<double> &y)
+double Mixture::saturation_p(double beta, double p, std::vector<double> const& z, std::vector<double> &x, std::vector<double> &y)
 {
 	double T;
 	unsigned int N = z.size();
@@ -1072,12 +1024,12 @@ double Mixture::saturation_p(int type, double p, std::vector<double> const& z, s
 	double T_guess = saturation_p_preconditioner(p, z);
 
 	// Initialize the call using Wilson to get K-factors and temperature
-	T = saturation_p_Wilson(type, p, z, T_guess, K);
+	T = saturation_p_Wilson(beta, p, z, T_guess, K);
 
 	// Call the successive substitution routine with the guess values provided above from Wilson
 	// It will call the Newton-Raphson routine after a few steps of successive-substitution
 	SS.useNR = true;
-	T = SS.call(type, T, p, z, K);
+	T = SS.call(beta, T, p, z, K);
 
 	x = SS.x;
 	y = SS.y;
@@ -2252,7 +2204,7 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z)
 	double T_guess = Mix->saturation_p_preconditioner(p0, z);
 
 	// Initialize the call using Wilson to get K-factors and temperature
-	double T = Mix->saturation_p_Wilson(TYPE_BUBBLEPOINT, p0, z, T_guess, K);
+	double T = Mix->saturation_p_Wilson(0.0, p0, z, T_guess, K);
 
 	// Set flags for successive substitution
 	// Limit Successive substitution to 4 iterations and don't call Newton-Raphson directly
@@ -2260,7 +2212,7 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z)
 	Mix->SS.useNR = false;
 
 	// Call successive substitution to get updated guess for K-factors
-	Mix->SS.call(TYPE_BUBBLEPOINT, T, p0, z, K);
+	Mix->SS.call(0.0, T, p0, z, K);
 
 	double p = p0;
 	double lnT = log(T);
@@ -2446,7 +2398,7 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z)
 					iii_S = i;
 				}
 			}
-			std::cout << format("T,P,Nstep,K : %g %g %d %g %g %d %s\n",T,p,Mix->NRVLE.Nsteps, rhobar_liq, rhobar_vap, iii_S, vec_to_string(K,"%6.5g").c_str());
+			//std::cout << format("T,P,Nstep,K : %g %g %d %g %g %d %s\n",T,p,Mix->NRVLE.Nsteps, rhobar_liq, rhobar_vap, iii_S, vec_to_string(K,"%6.5g").c_str());
 		}
 		
 		// Update step counter
@@ -2462,6 +2414,10 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z)
 	}
 	while (p > p0 && iter < 1000);
 
-	double rr = 0;
+	std::cout << "T = " << vec_to_string(data.T,"%10.9g") <<std::endl;
+	std::cout << "p = " << vec_to_string(data.p,"%10.9g") << std::endl;
+	std::cout << "rhobar_liq = " << vec_to_string(data.rhobar_liq,"%10.9g") << std::endl;
+	std::cout << "rhobar_vap = " << vec_to_string(data.rhobar_vap,"%10.9g") << std::endl;
 
+	double rr = 0;
 }
