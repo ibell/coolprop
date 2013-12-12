@@ -559,29 +559,22 @@ double _Props1(std::string FluidName, std::string Output)
 	}
 	else if (IsREFPROP(FluidName))
 	{
-		// REFPROP fluid, or something else that is invalid
-		try{
-			long iOutput = get_param_index(Output);
-			switch (iOutput)
-			{
-				case iTtriple:
-				case iTcrit:
-				case iPcrit:
-				case iTmin:
-				case iMM:
-				case iRhocrit:
-				case iAccentric:
-					return Props(Output,'T',0,'P',0,FluidName);
-					break;
-				default:
-					throw ValueError(format("Output parameter \"%s\" is invalid for REFPROP fluid",Output.c_str()));
-					break;
-			}
-		}
-		// Catch any error that subclasses the std::exception
-		catch(std::exception &e){
-			err_string = std::string("CoolProp error: ").append(e.what());
-			return _HUGE;
+		// REFPROP fluid
+		long iOutput = get_param_index(Output);
+		switch (iOutput)
+		{
+			case iTtriple:
+			case iTcrit:
+			case iPcrit:
+			case iTmin:
+			case iMM:
+			case iRhocrit:
+			case iAccentric:
+				return Props(Output,'T',0,'P',0,FluidName);
+				break;
+			default:
+				throw ValueError(format("Output parameter \"%s\" is invalid for REFPROP fluid",Output.c_str()));
+				break;
 		}
 	}
 	else
@@ -592,14 +585,33 @@ double _Props1(std::string FluidName, std::string Output)
 }
 // Define the functions from the header file
 double Props(char *FluidName, char *Output){
-	return _Props1(std::string(FluidName), std::string(Output));
-}
-double Props(std::string FluidName,std::string Output){
-	return _Props1(FluidName, Output);
+    // Go to std::string, std::string version
+	return Props(std::string(FluidName), std::string(Output));
 }
 double Props1(std::string FluidName,std::string Output){
-	return _Props1(FluidName, Output);
+    // Redirect to the Props() function
+	return Props(FluidName, Output);
 }
+double Props(std::string FluidName,std::string Output){
+    // In this function the error catching happens;
+	try{
+		return _Props1(FluidName, Output);
+	}
+	catch(const CoolPropBaseError& e){
+		err_string = std::string("CoolProp error: ").append(e.what());
+		return _HUGE;
+	}
+	catch(const std::exception& e){
+			err_string = std::string("CoolProp error: ").append(e.what());
+			return _HUGE;
+		}
+	catch(...){
+		err_string = std::string("CoolProp error: Indeterminate error");
+		return _HUGE;
+	}
+	return _HUGE;
+}
+
 
 /*
  * Now we need an internal functions to handle different
