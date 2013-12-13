@@ -63,7 +63,7 @@ protected:
 	bool checkCoefficients(std::vector<double> const& coefficients, unsigned int n);
 	bool checkCoefficients(std::vector< std::vector<double> > const& coefficients, unsigned int rows, unsigned int columns);
 
-private:
+protected:
 	/** The core of the polynomial wrappers are the different
 	 *  implementations that follow below. In case there are
 	 *  new calculation schemes available, please do not delete
@@ -120,25 +120,9 @@ private:
 	std::vector<double> fracIntCentralDvector(int m, double T, double Tbase);
 	std::vector<double> fracIntCentralDvector(int m, double T1, double T0, double Tbase);
 	///Indefinite integral of a centred polynomial divided by its independent variable
-	double fracIntCentral(std::vector<double> const& coefficients, double T, double Tbase){
-		int m = coefficients.size();
-		std::vector<double> D = fracIntCentralDvector(m, T, Tbase);
-		double result = 0;
-		for(int j=0; j<m; j++) {
-			result += coefficients[j] * D[j];
-		}
-		return result;
-	}
+	double fracIntCentral(std::vector<double> const& coefficients, double T, double Tbase);
 	///Definite integral from T0 to T1 of a centred polynomial divided by its independent variable
-	double fracIntCentral(std::vector<double> const& coefficients, double T1, double T0, double Tbase){
-		int m = coefficients.size();
-		std::vector<double> D = fracIntCentralDvector(m, T1, T0, Tbase);
-		double result = 0;
-		for(int j=0; j<m; j++) {
-			result += coefficients[j] * D[j];
-		}
-		return result;
-	}
+	double fracIntCentral(std::vector<double> const& coefficients, double T1, double T0, double Tbase);
 
 
 	/// Horner function generator implementations
@@ -148,6 +132,22 @@ private:
 	 */
 	double baseHorner(std::vector<double> const& coefficients, double T);
 	double baseHorner(std::vector< std::vector<double> > const& coefficients, double x, double T);
+	///Indefinite integral in T-direction
+	double baseHornerInt(std::vector<double> const& coefficients, double T);
+	///Definite integral from T0 to T1
+	double baseHornerInt(std::vector<double> const& coefficients, double T1, double T0);
+	///Indefinite integral in T-direction only
+	double baseHornerInt(std::vector<std::vector<double> > const& coefficients, double x, double T);
+	///Definite integral from T0 to T1
+	double baseHornerInt(std::vector<std::vector<double> > const& coefficients, double x, double T1, double T0);
+	///Indefinite integral of a polynomial divided by its independent variable
+	double baseHornerFra(std::vector<double> const& coefficients, double T);
+	///Definite integral from T0 to T1 of a polynomial divided by its independent variable
+	double baseHornerFra(std::vector<double> const& coefficients, double T1, double T0);
+	///Indefinite integral of a polynomial divided by its 2nd independent variable
+	double baseHornerFra(std::vector<std::vector<double> > const& coefficients, double x, double T);
+	///Definite integral from T0 to T1 of a polynomial divided by its 2nd independent variable
+	double baseHornerFra(std::vector<std::vector<double> > const& coefficients, double x, double T1, double T0);
 
 
 	/** Integrating coefficients for polynomials is done by dividing the
@@ -176,73 +176,25 @@ private:
 	 *  performance.
 	 */
 	///Indefinite integral in T-direction
-	double integrateIn2Steps(std::vector<double> const& coefficients, double T){
-		return polyval(integrateCoeffs(coefficients),T);
-	}
+	double integrateIn2Steps(std::vector<double> const& coefficients, double T);
 	///Definite integral from T0 to T1
-	double integrateIn2Steps(std::vector<double> const& coefficients, double T1, double T0){
-		std::vector<double> coefficientsInt(integrateCoeffs(coefficients));
-		return polyval(coefficientsInt,T1)-polyval(coefficientsInt,T0);
-	}
+	double integrateIn2Steps(std::vector<double> const& coefficients, double T1, double T0);
 	///Indefinite integral in terms of x(axis=true) or T(axis=false).
-	double integrateIn2Steps(std::vector< std::vector<double> > const& coefficients, double x, double T, bool axis){
-		return polyval(integrateCoeffs(coefficients,axis),x,T);
-	}
+	double integrateIn2Steps(std::vector< std::vector<double> > const& coefficients, double x, double T, bool axis);
 	///Definite integral from T0 to T1
-	double integrateIn2Steps(std::vector< std::vector<double> > const& coefficients, double x, double T1, double T0){
-		std::vector< std::vector<double> > coefficientsInt(integrateCoeffs(coefficients,false));
-		return polyval(coefficientsInt,x,T1)-polyval(coefficientsInt,x,T0);
-	}
+	double integrateIn2Steps(std::vector< std::vector<double> > const& coefficients, double x, double T1, double T0);
 	///Indefinite integral in T-direction of a polynomial divided by its independent variable
-	double fracIntIn2Steps(std::vector<double> const& coefficients, double T){
-		double result = coefficients[0] * log(T);
-		if (coefficients.size() > 1) {
-			std::vector<double> newCoeffs(coefficients.begin() + 1, coefficients.end());
-			result += polyint(newCoeffs,T);
-		}
-		return result;
-	}
+	double fracIntIn2Steps(std::vector<double> const& coefficients, double T);
 	///Definite integral from T0 to T1 of a polynomial divided by its independent variable
-	double fracIntIn2Steps(std::vector<double> const& coefficients, double T1, double T0){
-		double result = coefficients[0] * log(T1/T0);
-		if (coefficients.size() > 1) {
-			std::vector<double> newCoeffs(coefficients.begin() + 1, coefficients.end());
-			result += polyint(newCoeffs,T1,T0);
-		}
-		return result;
-	}
+	double fracIntIn2Steps(std::vector<double> const& coefficients, double T1, double T0);
 	///Indefinite integral in T-direction of a polynomial divided by its 2nd independent variable
-	double fracIntIn2Steps(std::vector<std::vector<double> > const& coefficients, double x, double T){
-		std::vector<double> newCoeffs;
-		for (unsigned int i=0; i<coefficients.size(); i++){
-			newCoeffs.push_back(polyfracint(coefficients[i],T));
-		}
-		return polyval(newCoeffs,x);
-	}
+	double fracIntIn2Steps(std::vector<std::vector<double> > const& coefficients, double x, double T);
 	///Definite integral from T0 to T1 of a polynomial divided by its 2nd independent variable
-	double fracIntIn2Steps(std::vector<std::vector<double> > const& coefficients, double x, double T1, double T0){
-		std::vector<double> newCoeffs;
-		for (unsigned int i=0; i<coefficients.size(); i++){
-			newCoeffs.push_back(polyfracint(coefficients[i],T1,T0));
-		}
-		return polyval(newCoeffs,x);
-	}
+	double fracIntIn2Steps(std::vector<std::vector<double> > const& coefficients, double x, double T1, double T0);
 	///Indefinite integral of a centred polynomial divided by its 2nd independent variable
-	double fracIntCentral2Steps(std::vector<std::vector<double> > const& coefficients, double x, double T, double Tbase){
-		std::vector<double> newCoeffs;
-		for (unsigned int i=0; i<coefficients.size(); i++){
-			newCoeffs.push_back(fracIntCentral(coefficients[i], T, Tbase));
-		}
-		return polyval(newCoeffs,x);
-	}
+	double fracIntCentral2Steps(std::vector<std::vector<double> > const& coefficients, double x, double T, double Tbase);
 	///Definite integral from T0 to T1 of a centred polynomial divided by its 2nd independent variable
-	double fracIntCentral2Steps(std::vector<std::vector<double> > const& coefficients, double x, double T1, double T0, double Tbase){
-		std::vector<double> newCoeffs;
-		for (unsigned int i=0; i<coefficients.size(); i++){
-			newCoeffs.push_back(fracIntCentral(coefficients[i], T1, T0, Tbase));
-		}
-		return polyval(newCoeffs,x);
-	}
+	double fracIntCentral2Steps(std::vector<std::vector<double> > const& coefficients, double x, double T1, double T0, double Tbase);
 
 public:
 	/** Here we define the functions that should be used by the
@@ -272,30 +224,30 @@ public:
 	/// Evaluates the indefinite integral of a one-dimensional polynomial
 	/// @param coefficients vector containing the ordered coefficients
 	/// @param T double value that represents the current input
-	double polyint(std::vector<double> const& coefficients, double T){ //TODO compare speed
+	double polyint(std::vector<double> const& coefficients, double T){
 		//return simplePolynomialInt(coefficients,T);
-		//return baseHornerIntegrated(coefficients,T);
-		return integrateIn2Steps(coefficients,T);
+		return baseHornerInt(coefficients,T);
+		//return integrateIn2Steps(coefficients,T);
 	}
 
 	/// Evaluates the definite integral of a one-dimensional polynomial
 	/// @param coefficients vector containing the ordered coefficients
 	/// @param T1 double value that represents the current position
 	/// @param T0 double value that represents the reference state
-	double polyint(std::vector<double> const& coefficients, double T1, double T0){ //TODO compare speed
+	double polyint(std::vector<double> const& coefficients, double T1, double T0){
 		//return simplePolynomialInt(coefficients,T1,T0);
-		//return baseHornerIntegrated(coefficients,T1,T0);
-		return integrateIn2Steps(coefficients,T1,T0);
+		return baseHornerInt(coefficients,T1,T0);
+		//return integrateIn2Steps(coefficients,T1,T0);
 	}
 
 	/// Evaluates the indefinite integral of a two-dimensional polynomial along the 2nd axis (T)
 	/// @param coefficients vector containing the ordered coefficients
 	/// @param x double value that represents the current input in the 1st dimension
 	/// @param T double value that represents the current input in the 2nd dimension
-	double polyint(std::vector< std::vector<double> > const& coefficients, double x, double T){ //TODO compare speed
+	double polyint(std::vector< std::vector<double> > const& coefficients, double x, double T){
 		//return simplePolynomialInt(coefficients,x,T);
-		//return baseHornerIntegrated(coefficients,x,T,false);
-		return integrateIn2Steps(coefficients,x,T,false);
+		return baseHornerInt(coefficients,x,T);
+		//return integrateIn2Steps(coefficients,x,T,false);
 	}
 
 	/// Evaluates the definite integral of a two-dimensional polynomial along the 2nd axis (T)
@@ -303,26 +255,26 @@ public:
 	/// @param x double value that represents the current input in the 1st dimension
 	/// @param T1 double value that represents the current input in the 2nd dimension
 	/// @param T0 double value that represents the reference state in the 2nd dimension
-	double polyint(std::vector< std::vector<double> > const& coefficients, double x, double T1, double T0){ //TODO compare speed
+	double polyint(std::vector< std::vector<double> > const& coefficients, double x, double T1, double T0){
 		//return simplePolynomialInt(coefficients,x,T1,T0);
-		//return baseHornerIntegrated(coefficients,x,T1,T0);
-		return integrateIn2Steps(coefficients,x,T1,T0);
+		return baseHornerInt(coefficients,x,T1,T0);
+		//return integrateIn2Steps(coefficients,x,T1,T0);
 	}
 
 	/// Evaluates the indefinite integral of a one-dimensional polynomial divided by its independent variable
 	/// @param coefficients vector containing the ordered coefficients
 	/// @param T double value that represents the current position
-	double polyfracint(std::vector<double> const& coefficients, double T){ //TODO compare speed
+	double polyfracint(std::vector<double> const& coefficients, double T){
 		//return simpleFracInt(coefficients,T);
-		//return baseHornerFracInt(coefficients,T);
-		return fracIntIn2Steps(coefficients,T);
+		return baseHornerFra(coefficients,T);
+		//return fracIntIn2Steps(coefficients,T);
 	}
 
 	/// Evaluates the definite integral of a one-dimensional polynomial divided by its independent variable
 	/// @param coefficients vector containing the ordered coefficients
 	/// @param T1 double value that represents the current position
 	/// @param T0 double value that represents the reference state
-	double polyfracint(std::vector<double> const& coefficients, double T1, double T0){ //TODO compare speed
+	double polyfracint(std::vector<double> const& coefficients, double T1, double T0){
 		//return simpleFracInt(coefficients,T1,T0);
 		//return baseHornerFracInt(coefficients,T1,T0);
 		return fracIntIn2Steps(coefficients,T1,T0);
@@ -332,10 +284,10 @@ public:
 	/// @param coefficients vector containing the ordered coefficients
 	/// @param x double value that represents the current input in the 1st dimension
 	/// @param T double value that represents the current input in the 2nd dimension
-	double polyfracint(std::vector< std::vector<double> > const& coefficients, double x, double T){ //TODO compare speed
+	double polyfracint(std::vector< std::vector<double> > const& coefficients, double x, double T){
 		//return simpleFracInt(coefficients,x,T);
-		//return baseHornerFracInt(coefficients,x,T);
-		return fracIntIn2Steps(coefficients,x,T);
+		return baseHornerFra(coefficients,x,T);
+		//return fracIntIn2Steps(coefficients,x,T);
 	}
 
 	/// Evaluates the definite integral of a two-dimensional polynomial divided by its 2nd independent variable
@@ -345,8 +297,8 @@ public:
 	/// @param T0 double value that represents the reference state in the 2nd dimension
 	double polyfracint(std::vector< std::vector<double> > const& coefficients, double x, double T1, double T0){ //TODO compare speed
 		//return simpleFracInt(coefficients,x,T1,T0);
-		//return baseHornerFracInt(coefficients,x,T1,T0);
-		return fracIntIn2Steps(coefficients,x,T1,T0);
+		return baseHornerFra(coefficients,x,T1,T0);
+		//return fracIntIn2Steps(coefficients,x,T1,T0);
 	}
 
 	/// Evaluates the indefinite integral of a centred one-dimensional polynomial divided by its independent variable
@@ -402,8 +354,6 @@ public:
 };
 
 
-
-
 /** Multiple inheritance could be useful to merge the base classes for
  *  incompressible fluids and the normal fluids. However, It seems like
  *  a lot of work to find ways to redefine all the fluid functions while
@@ -412,7 +362,7 @@ public:
  */
 class IncompressibleFluid : public Fluid, public IncompressibleClass {
 public:
-	IncompressibleFluid();
+	IncompressibleFluid(){};
     ~IncompressibleFluid(){};
     // Some functions need top be overwritten!
 };
