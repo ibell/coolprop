@@ -233,7 +233,7 @@ std::map<std::string, double> testObject(IncompressibleTest* fluid, std::vector<
 
 	std::map<std::string, double> results;
 
-	uint64_t runs = 1;
+	uint64_t runs = 10;
 	for (int i=1; i<exponent; i++){
 		runs *= 10;
 	}
