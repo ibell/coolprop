@@ -50,6 +50,9 @@ bool IncompressibleClass::checkCoefficients(std::vector< std::vector<double> > c
  *  based on the length of the coefficient vector.
  *  Starts with only the first coefficient at T^0. */
 double IncompressibleClass::simplePolynomial(std::vector<double> const& coefficients, double T){
+	if (this->DEBUG) {
+		std::cout << "Running simplePolynomial(std::vector<double>, " << T << ") " << std::endl;
+	}
 	double result = 0.;
 	for(unsigned int i=0; i<coefficients.size();i++) {
 		result += coefficients[i] * pow(T,(int)i);
@@ -57,6 +60,9 @@ double IncompressibleClass::simplePolynomial(std::vector<double> const& coeffici
 	return result;
 }
 double IncompressibleClass::simplePolynomial(std::vector<std::vector<double> > const& coefficients, double x, double T){
+	if (this->DEBUG) {
+		std::cout << "Running simplePolynomial(std::vector<std::vector<double> >, " << x << ", " << T << ") " << std::endl;
+	}
 	double result = 0;
 	for(unsigned int i=0; i<coefficients.size();i++) {
 		result += pow(x,(int)i) * simplePolynomial(coefficients[i], T);
@@ -71,6 +77,9 @@ double IncompressibleClass::simplePolynomial(std::vector<std::vector<double> > c
  *  Starts with only the first coefficient at T^0 */
 ///Indefinite integral in T-direction
 double IncompressibleClass::simplePolynomialInt(std::vector<double> const& coefficients, double T){
+	if (this->DEBUG) {
+		std::cout << "Running simplePolynomialInt(std::vector<double>, " << T << ") " << std::endl;
+	}
 	double result = 0.;
 	for(unsigned int i=0; i<coefficients.size();i++) {
 		result += 1./(i+1.) * coefficients[i] * pow(T,(int)(i+1.));
@@ -79,6 +88,9 @@ double IncompressibleClass::simplePolynomialInt(std::vector<double> const& coeff
 }
 ///Definite integral from T0 to T1
 double IncompressibleClass::simplePolynomialInt(std::vector<double> const& coefficients, double T1, double T0){
+	if (this->DEBUG) {
+		std::cout << "Running simplePolynomialInt(std::vector<double>, " << T1 << ", " << T0 << ") " << std::endl;
+	}
 	double result = 0.;
 	for(unsigned int i=0; i<coefficients.size();i++) {
 		result += 1./(i+1.) * coefficients[i] * ( pow(T1,(int)(i+1.)) - pow(T0,(int)(i+1.)) );
@@ -87,6 +99,9 @@ double IncompressibleClass::simplePolynomialInt(std::vector<double> const& coeff
 }
 ///Indefinite integral in y-direction only
 double IncompressibleClass::simplePolynomialInt(std::vector<std::vector<double> > const& coefficients, double x, double T){
+	if (this->DEBUG) {
+		std::cout << "Running simplePolynomialInt(std::vector<std::vector<double> >, " << x << ", " << T << ") " << std::endl;
+	}
 	double result = 0.;
 	for(unsigned int i=0; i<coefficients.size();i++) {
 		result += pow(x,(int)i) * simplePolynomialInt(coefficients[i], T);
@@ -95,6 +110,9 @@ double IncompressibleClass::simplePolynomialInt(std::vector<std::vector<double> 
 }
 ///Definite integral from T0 to T1
 double IncompressibleClass::simplePolynomialInt(std::vector<std::vector<double> > const& coefficients, double x, double T1, double T0){
+	if (this->DEBUG) {
+		std::cout << "Running simplePolynomialInt(std::vector<std::vector<double> >, " << x << ", " << T1 << ", " << T0 << ") " << std::endl;
+	}
 	double result = 0.;
 	for(unsigned int i=0; i<coefficients.size();i++) {
 		result += pow(x,(int)i) * simplePolynomialInt(coefficients[i], T1, T0);
@@ -108,6 +126,9 @@ double IncompressibleClass::simplePolynomialInt(std::vector<std::vector<double> 
  *  vector.
  *  Starts with only the first coefficient at T^0 */
 double IncompressibleClass::simpleFracInt(std::vector<double> const& coefficients, double T){
+	if (this->DEBUG) {
+		std::cout << "Running simpleFracInt(std::vector<double>, " << T << ") " << std::endl;
+	}
 	double result = coefficients[0] * log(T);
 	if (coefficients.size() > 1) {
 		for (unsigned int i=0; i<coefficients.size()-1; i++){
@@ -117,6 +138,9 @@ double IncompressibleClass::simpleFracInt(std::vector<double> const& coefficient
 	return result;
 }
 double IncompressibleClass::simpleFracInt(std::vector<double> const& coefficients, double T1, double T0){
+	if (this->DEBUG) {
+		std::cout << "Running simpleFracInt(std::vector<double>, " << T1 << ", " << T0 << ") " << std::endl;
+	}
 	double result = coefficients[0] * log(T1/T0);
 	if (coefficients.size() > 1) {
 		for (unsigned int i=0; i<coefficients.size()-1; i++){
@@ -126,6 +150,9 @@ double IncompressibleClass::simpleFracInt(std::vector<double> const& coefficient
 	return result;
 }
 double IncompressibleClass::simpleFracInt(std::vector< std::vector<double> > const& coefficients, double x, double T){
+	if (this->DEBUG) {
+		std::cout << "Running simpleFracInt(std::vector<std::vector<double> >, " << x << ", " << T << ") " << std::endl;
+	}
 	double result = 0;
 	for (unsigned int i=0; i<coefficients.size(); i++){
 		result += pow(x,(int)i) * polyfracint(coefficients[i],T);
@@ -133,6 +160,9 @@ double IncompressibleClass::simpleFracInt(std::vector< std::vector<double> > con
 	return result;
 }
 double IncompressibleClass::simpleFracInt(std::vector< std::vector<double> > const& coefficients, double x, double T1, double T0){
+	if (this->DEBUG) {
+		std::cout << "Running simpleFracInt(std::vector<std::vector<double> >, " << x << ", " << T1 << ", " << T0 <<") " << std::endl;
+	}
 	double result = 0;
 	for (unsigned int i=0; i<coefficients.size(); i++){
 		result += pow(x,(int)i) * polyfracint(coefficients[i],T1,T0);
@@ -215,6 +245,9 @@ std::vector<double> IncompressibleClass::fracIntCentralDvector(int m, double T1,
  *  speeds up calculation.
  */
 double IncompressibleClass::baseHorner(std::vector<double> const& coefficients, double T){
+	if (this->DEBUG) {
+		std::cout << "Running baseHorner(std::vector<double>, " << T << ") " << std::endl;
+	}
 	double result = 0;
 	for(int i=coefficients.size()-1; i>=0; i--) {
 		result = result * T + coefficients[i];

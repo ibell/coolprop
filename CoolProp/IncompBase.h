@@ -24,6 +24,8 @@ protected:
 	double Tmax;
 	double Tref;
 
+	bool DEBUG;
+
 public:
 	std::string getDescription() const {return description;}
 	std::string getName() const {return name;}
@@ -35,6 +37,8 @@ public:
 	double getTminPsat() const {return TminPsat;}
 	double getTref() const {return Tref;}
 
+	void setDebug(bool debug) {this->DEBUG = debug;}
+
 public:
 	// Constructor
 	IncompressibleClass(){
@@ -45,6 +49,7 @@ public:
 		Tmax = -1.;
 		TminPsat = -1.;
 		Tref = 273.15 + 25. ;
+		DEBUG = false;
 	};
 
 	// Destructor.  No implementation
