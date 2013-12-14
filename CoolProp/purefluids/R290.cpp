@@ -425,8 +425,9 @@ double R290Class::rhosatL(double T)
 }
 double R290Class::rhosatV(double T)
 {
-	const double ti[]={0,0.38349999999999995, 1.0, 2.3333333333333335, 5.333333333333333, 11.666666666666666, 23.5};
-    const double Ni[]={0,-2.51117688, -4.13789189, -10.22378321, -36.26769491, -77.14114162, -119.24617268};
+	// Max error is  0.119794943361 % between 85.525 and 369.889999 K
+	const double ti[]={0,0.353, 0.374, 1.0, 2.0, 3.6666666666666665, 21.333333333333332};
+    const double Ni[]={0,1.3470928285341803, -3.9397785053443175, -2.9376522081571999, 1.277500738496856, -4.2937206644727439, -2.2870921292077298};
     double summer=0,theta;
     int i;
     theta=1.0-T/reduce.T;
@@ -434,7 +435,7 @@ double R290Class::rhosatV(double T)
     {
         summer=summer+Ni[i]*pow(theta,ti[i]);
     }
-    return reduce.rho*exp(summer);
+	return reduce.rho*exp(reduce.T/T*summer);
 }
 double R290Class::surface_tension_T(double T)
 {
