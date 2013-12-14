@@ -28,10 +28,10 @@ EXPORT_CODE double CONVENTION Props(char *Output,char Name1, double Prop1, char 
 	// Go to the std::string, std::string version
 	double val = Props(std::string(Output),Name1,Prop1,Name2,Prop2,std::string(Ref));
 
-	//FILE *fp;
-	//fp = fopen("c:\\CoolProp\\log_Props.txt", "a");
-	//fprintf(fp,"%s,%c,%g,%c,%g,%s-->%g\n",Output,Name1,Prop1,Name2,Prop2,Ref,val);
-	//fclose(fp);
+	/*FILE *fp;
+	fp = fopen("c:\\log_Props.txt", "a");
+	fprintf(fp,"%s,%c,%g,%c,%g,%s-->%g\n",Output,Name1,Prop1,Name2,Prop2,Ref,val);
+	fclose(fp);*/
 
 	return val;
 }

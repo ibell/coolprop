@@ -51,6 +51,13 @@ struct EesParamRec {
   struct EesParamRec *next;
 };
 
+std::string upper(const std::string str_)
+{
+    std::string str = str_;
+    std::transform(str.begin(), str.end(), str.begin(), ::toupper);
+    return str;
+}
+
 // Tell C++ to use the "C" style calling conventions rather than the C++ mangled names
 
 extern "C"  
@@ -79,10 +86,10 @@ extern "C"
 			return 0;
 		}
 		else{
-			Fluidstr = fluid_split[0];
-			Outstr = fluid_split[1];
-			In1str = fluid_split[2];
-			In2str = fluid_split[3];
+			Fluidstr = upper(fluid_split[0]);
+			Outstr = upper(fluid_split[1]);
+			In1str = upper(fluid_split[2]);
+			In2str = upper(fluid_split[3]);
 		}
 		
 		// Check the number of inputs
