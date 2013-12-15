@@ -60,21 +60,22 @@ int main() {
     try
     {
         printf("\n************ USING REFPROP ***************\n");
+        RPName = get_REFPROPname("Propane");
         printf("TWO PHASE INPUTS (Pressure)");
-        printf("Density of saturated liquid Propane at 101.325 kPa: %f kg/m^3\n", Props("D", 'P', 101.325, 'Q', 0, "Propane"));
-        printf("Density of saturated vapor R290 at 101.325 kPa:     %f kg/m^3\n", Props("D", 'P', 101.325, 'Q', 1, "R290"));
+        printf("Density of saturated liquid Propane at 101.325 kPa: %f kg/m^3\n", Props("D", 'P', 101.325, 'Q', 0, RPName));
+        printf("Density of saturated vapor R290 at 101.325 kPa:     %f kg/m^3\n", Props("D", 'P', 101.325, 'Q', 1, RPName));
 
         printf("\nTWO PHASE INPUTS (Temperature)");
-        printf("Density of saturated liquid Propane at 300 K: %f kg/m^3\n", Props("D", 'T', 300, 'Q', 0, "Propane"));
-        printf("Density of saturated vapor R290 at 300 K:     %f kg/m^3\n", Props("D", 'T', 300, 'Q', 1, "R290"));
+        printf("Density of saturated liquid Propane at 300 K: %f kg/m^3\n", Props("D", 'T', 300, 'Q', 0, RPName));
+        printf("Density of saturated vapor R290 at 300 K:     %f kg/m^3\n", Props("D", 'T', 300, 'Q', 1, RPName));
 
         printf("\nSINGLE PHASE CYCLE (propane)\n");
-        p = Props("P", 'T', 300, 'D', 1, "Propane");
-        h = Props("H", 'T', 300, 'D', 1, "Propane");
+        p = Props("P", 'T', 300, 'D', 1, RPName);
+        h = Props("H", 'T', 300, 'D', 1, RPName);
         printf("T,D -> P,H : 300,1 -> %f,%f\n", p, h);
 
-        T = Props("T", 'P', p, 'H', h, "Propane");
-        D = Props("D", 'P', p, 'H', h, "Propane");
+        T = Props("T", 'P', p, 'H', h, RPName);
+        D = Props("D", 'P', p, 'H', h, RPName);
         printf("P,H -> T,D : %f, %f -> %f, %f\n", p, h, T, D);
     }
     catch (std::exception &e)
