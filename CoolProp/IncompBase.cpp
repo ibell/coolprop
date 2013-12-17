@@ -50,16 +50,34 @@ bool IncompressibleClass::checkCoefficients(std::vector< std::vector<double> > c
  *  based on the length of the coefficient vector.
  *  Starts with only the first coefficient at T^0. */
 double IncompressibleClass::simplePolynomial(std::vector<double> const& coefficients, double T){
+	if (this->DEBUG) {
+		std::cout << "Running simplePolynomial(std::vector, " << T << "): ";
+	}
+	bool db = this->DEBUG;
+	this->DEBUG = false;
 	double result = 0.;
 	for(unsigned int i=0; i<coefficients.size();i++) {
 		result += coefficients[i] * pow(T,(int)i);
 	}
+	this->DEBUG = db;
+	if (this->DEBUG) {
+		std::cout << result << std::endl;
+	}
 	return result;
 }
 double IncompressibleClass::simplePolynomial(std::vector<std::vector<double> > const& coefficients, double x, double T){
+	if (this->DEBUG) {
+		std::cout << "Running simplePolynomial(std::vector, " << x << ", " << T << "): ";
+	}
+	bool db = this->DEBUG;
+	this->DEBUG = false;
 	double result = 0;
 	for(unsigned int i=0; i<coefficients.size();i++) {
 		result += pow(x,(int)i) * simplePolynomial(coefficients[i], T);
+	}
+	this->DEBUG = db;
+	if (this->DEBUG) {
+		std::cout << result << std::endl;
 	}
 	return result;
 }
@@ -71,33 +89,69 @@ double IncompressibleClass::simplePolynomial(std::vector<std::vector<double> > c
  *  Starts with only the first coefficient at T^0 */
 ///Indefinite integral in T-direction
 double IncompressibleClass::simplePolynomialInt(std::vector<double> const& coefficients, double T){
+	if (this->DEBUG) {
+		std::cout << "Running simplePolynomialInt(std::vector, " << T << "): ";
+	}
+	bool db = this->DEBUG;
+	this->DEBUG = false;
 	double result = 0.;
 	for(unsigned int i=0; i<coefficients.size();i++) {
 		result += 1./(i+1.) * coefficients[i] * pow(T,(int)(i+1.));
+	}
+	this->DEBUG = db;
+	if (this->DEBUG) {
+		std::cout << result << std::endl;
 	}
 	return result;
 }
 ///Definite integral from T0 to T1
 double IncompressibleClass::simplePolynomialInt(std::vector<double> const& coefficients, double T1, double T0){
+	if (this->DEBUG) {
+		std::cout << "Running simplePolynomialInt(std::vector, " << T1 << ", " << T0 << "): ";
+	}
+	bool db = this->DEBUG;
+	this->DEBUG = false;
 	double result = 0.;
 	for(unsigned int i=0; i<coefficients.size();i++) {
 		result += 1./(i+1.) * coefficients[i] * ( pow(T1,(int)(i+1.)) - pow(T0,(int)(i+1.)) );
+	}
+	this->DEBUG = db;
+	if (this->DEBUG) {
+		std::cout << result << std::endl;
 	}
 	return result;
 }
 ///Indefinite integral in y-direction only
 double IncompressibleClass::simplePolynomialInt(std::vector<std::vector<double> > const& coefficients, double x, double T){
+	if (this->DEBUG) {
+		std::cout << "Running simplePolynomialInt(std::vector, " << x << ", " << T << "): ";
+	}
+	bool db = this->DEBUG;
+	this->DEBUG = false;
 	double result = 0.;
 	for(unsigned int i=0; i<coefficients.size();i++) {
 		result += pow(x,(int)i) * simplePolynomialInt(coefficients[i], T);
+	}
+	this->DEBUG = db;
+	if (this->DEBUG) {
+		std::cout << result << std::endl;
 	}
 	return result;
 }
 ///Definite integral from T0 to T1
 double IncompressibleClass::simplePolynomialInt(std::vector<std::vector<double> > const& coefficients, double x, double T1, double T0){
+	if (this->DEBUG) {
+		std::cout << "Running simplePolynomialInt(std::vector, " << x << ", " << T1 << ", " << T0 << "): ";
+	}
+	bool db = this->DEBUG;
+	this->DEBUG = false;
 	double result = 0.;
 	for(unsigned int i=0; i<coefficients.size();i++) {
 		result += pow(x,(int)i) * simplePolynomialInt(coefficients[i], T1, T0);
+	}
+	this->DEBUG = db;
+	if (this->DEBUG) {
+		std::cout << result << std::endl;
 	}
 	return result;
 }
@@ -108,34 +162,64 @@ double IncompressibleClass::simplePolynomialInt(std::vector<std::vector<double> 
  *  vector.
  *  Starts with only the first coefficient at T^0 */
 double IncompressibleClass::simpleFracInt(std::vector<double> const& coefficients, double T){
+	if (this->DEBUG) {
+		std::cout << "Running      simpleFracInt(std::vector, " << T << "): ";
+	}
 	double result = coefficients[0] * log(T);
 	if (coefficients.size() > 1) {
-		for (unsigned int i=0; i<coefficients.size()-1; i++){
-			result += 1/(i+1) * coefficients[i+1] * pow(T,(int)(i+1));
+		for (unsigned int i=1; i<coefficients.size(); i++){
+			result += 1./(i) * coefficients[i] * pow(T,(int)(i));
 		}
+	}
+	if (this->DEBUG) {
+		std::cout << result << std::endl;
 	}
 	return result;
 }
 double IncompressibleClass::simpleFracInt(std::vector<double> const& coefficients, double T1, double T0){
+	if (this->DEBUG) {
+		std::cout << "Running      simpleFracInt(std::vector, " << T1 << ", " << T0 << "): ";
+	}
 	double result = coefficients[0] * log(T1/T0);
 	if (coefficients.size() > 1) {
-		for (unsigned int i=0; i<coefficients.size()-1; i++){
-			result += 1/(i+1) * coefficients[i+1] * (pow(T1,(int)(i+1))-pow(T0,(int)(i+1)));
+		for (unsigned int i=1; i<coefficients.size(); i++){
+			result += 1./(i) * coefficients[i] * (pow(T1,(int)(i))-pow(T0,(int)(i)));
 		}
+	}
+	if (this->DEBUG) {
+		std::cout << result << std::endl;
 	}
 	return result;
 }
 double IncompressibleClass::simpleFracInt(std::vector< std::vector<double> > const& coefficients, double x, double T){
+	if (this->DEBUG) {
+		std::cout << "Running      simpleFracInt(std::vector, " << x << ", " << T << "): ";
+	}
+	bool db = this->DEBUG;
+	this->DEBUG = false;
 	double result = 0;
 	for (unsigned int i=0; i<coefficients.size(); i++){
 		result += pow(x,(int)i) * polyfracint(coefficients[i],T);
 	}
+	this->DEBUG = db;
+	if (this->DEBUG) {
+		std::cout << result << std::endl;
+	}
 	return result;
 }
 double IncompressibleClass::simpleFracInt(std::vector< std::vector<double> > const& coefficients, double x, double T1, double T0){
+	if (this->DEBUG) {
+		std::cout << "Running      simpleFracInt(std::vector, " << x << ", " << T1 << ", " << T0 <<"): ";
+	}
+	bool db = this->DEBUG;
+	this->DEBUG = false;
 	double result = 0;
 	for (unsigned int i=0; i<coefficients.size(); i++){
 		result += pow(x,(int)i) * polyfracint(coefficients[i],T1,T0);
+	}
+	this->DEBUG = db;
+	if (this->DEBUG) {
+		std::cout << result << std::endl;
 	}
 	return result;
 }
@@ -207,7 +291,44 @@ std::vector<double> IncompressibleClass::fracIntCentralDvector(int m, double T1,
 	}
 	return D;
 }
-
+///Indefinite integral of a centred polynomial divided by its independent variable
+double IncompressibleClass::fracIntCentral(std::vector<double> const& coefficients, double T, double Tbase){
+	if (this->DEBUG) {
+		std::cout << "Running    fracIntCentral(std::vector, " << T << ", " << Tbase << "): ";
+	}
+	bool db = this->DEBUG;
+	this->DEBUG = false;
+	int m = coefficients.size();
+	std::vector<double> D = fracIntCentralDvector(m, T, Tbase);
+	double result = 0;
+	for(int j=0; j<m; j++) {
+		result += coefficients[j] * D[j];
+	}
+	this->DEBUG = db;
+	if (this->DEBUG) {
+		std::cout << result << std::endl;
+	}
+	return result;
+}
+///Definite integral from T0 to T1 of a centred polynomial divided by its independent variable
+double IncompressibleClass::fracIntCentral(std::vector<double> const& coefficients, double T1, double T0, double Tbase){
+	if (this->DEBUG) {
+		std::cout << "Running    fracIntCentral(std::vector, " << T1 << ", " << T0 << ", " << Tbase << "): ";
+	}
+	bool db = this->DEBUG;
+	this->DEBUG = false;
+	int m = coefficients.size();
+	std::vector<double> D = fracIntCentralDvector(m, T1, T0, Tbase);
+	double result = 0;
+	for(int j=0; j<m; j++) {
+		result += coefficients[j] * D[j];
+	}
+	this->DEBUG = db;
+	if (this->DEBUG) {
+		std::cout << result << std::endl;
+	}
+	return result;
+}
 
 /// Horner function generator implementations
 /** Represent polynomials according to Horner's scheme.
@@ -215,19 +336,215 @@ std::vector<double> IncompressibleClass::fracIntCentralDvector(int m, double T1,
  *  speeds up calculation.
  */
 double IncompressibleClass::baseHorner(std::vector<double> const& coefficients, double T){
+	if (this->DEBUG) {
+		std::cout << "Running       baseHorner(std::vector, " << T << "): ";
+	}
 	double result = 0;
 	for(int i=coefficients.size()-1; i>=0; i--) {
-		result = result * T + coefficients[i];
+		result *= T;
+		result += coefficients[i];
+	}
+	if (this->DEBUG) {
+		std::cout << result << std::endl;
 	}
 	return result;
 }
 double IncompressibleClass::baseHorner(std::vector< std::vector<double> > const& coefficients, double x, double T){
+	if (this->DEBUG) {
+		std::cout << "Running       baseHorner(std::vector, " << x << ", " << T << "): ";
+	}
+	bool db = this->DEBUG;
+	this->DEBUG = false;
 	double result = 0;
 	for(int i=coefficients.size()-1; i>=0; i--) {
-		result = result * x + baseHorner(coefficients[i], T);
+		result *= x;
+		result += baseHorner(coefficients[i], T);
+	}
+	this->DEBUG = db;
+	if (this->DEBUG) {
+		std::cout << result << std::endl;
 	}
 	return result;
 }
+///Indefinite integral in T-direction
+double IncompressibleClass::baseHornerInt(std::vector<double> const& coefficients, double T){
+	if (this->DEBUG) {
+		std::cout << "Running       baseHornerInt(std::vector, " << T << "): ";
+	}
+	double result = 0;
+	for(int i=coefficients.size()-1; i>=0; i--) {
+		result *= T;
+		result += coefficients[i]/(i+1.);
+	}
+	result = result * T;
+	if (this->DEBUG) {
+		std::cout << result << std::endl;
+	}
+	return result;
+}
+///Definite integral from T0 to T1
+double IncompressibleClass::baseHornerInt(std::vector<double> const& coefficients, double T1, double T0){
+	if (this->DEBUG) {
+		std::cout << "Running       baseHornerInt(std::vector, " << T1 << ", " << T0 << "): ";
+	}
+	bool db = this->DEBUG;
+	this->DEBUG = false;
+
+	double result1 = 0;
+	double result0 = 0;
+	for(int i=coefficients.size()-1; i>=0; i--) {
+		result1 *= T1;
+		result1 += coefficients[i]/(i+1.);
+		result0 *= T0;
+		result0 += coefficients[i]/(i+1.);
+	}
+	result1 *= T1;
+	result0 *= T0;
+
+	result1 -= result0;
+
+	this->DEBUG = db;
+	if (this->DEBUG) {
+		std::cout << result1 << std::endl;
+	}
+	return result1;
+}
+///Indefinite integral in T-direction only
+double IncompressibleClass::baseHornerInt(std::vector<std::vector<double> > const& coefficients, double x, double T){
+	if (this->DEBUG) {
+		std::cout << "Running       baseHornerInt(std::vector, " << x << ", " << T << "): ";
+	}
+	bool db = this->DEBUG;
+	this->DEBUG = false;
+	double result = 0;
+	for(int i=coefficients.size()-1; i>=0; i--) {
+		result *= x;
+		result += baseHornerInt(coefficients[i], T);
+	}
+	this->DEBUG = db;
+	if (this->DEBUG) {
+		std::cout << result << std::endl;
+	}
+	return result;
+}
+///Definite integral from T0 to T1
+double IncompressibleClass::baseHornerInt(std::vector<std::vector<double> > const& coefficients, double x, double T1, double T0){
+	if (this->DEBUG) {
+		std::cout << "Running       baseHornerInt(std::vector, " << x << ", " << T1 << ", " << T0 << "): ";
+	}
+	bool db = this->DEBUG;
+	this->DEBUG = false;
+	double result = 0;
+	for(int i=coefficients.size()-1; i>=0; i--) {
+		result *= x;
+		result += baseHornerInt(coefficients[i], T1, T0);
+	}
+	this->DEBUG = db;
+	if (this->DEBUG) {
+		std::cout << result << std::endl;
+	}
+	return result;
+}
+/////Indefinite integral of a polynomial divided by its independent variable
+//double IncompressibleClass::baseHornerFra(std::vector<double> const& coefficients, double T);
+/////Definite integral from T0 to T1 of a polynomial divided by its independent variable
+//double IncompressibleClass::baseHornerFra(std::vector<double> const& coefficients, double T1, double T0);
+/////Indefinite integral of a polynomial divided by its 2nd independent variable
+//double IncompressibleClass::baseHornerFra(std::vector<std::vector<double> > const& coefficients, double x, double T);
+/////Definite integral from T0 to T1 of a polynomial divided by its 2nd independent variable
+//double IncompressibleClass::baseHornerFra(std::vector<std::vector<double> > const& coefficients, double x, double T1, double T0);
+
+///Indefinite integral in T-direction of a polynomial divided by its independent variable
+double IncompressibleClass::baseHornerFra(std::vector<double> const& coefficients, double T){
+	if (this->DEBUG) {
+		std::cout << "Running      baseHornerFra(std::vector, " << T << "): ";
+	}
+	bool db = this->DEBUG;
+	this->DEBUG = false;
+	double result = 0;
+	if (coefficients.size() > 1) {
+		for(int i=coefficients.size()-1; i>=1; i--) {
+			result *= T;
+			result += coefficients[i]/(i);
+		}
+		result *= T;
+	}
+	result += coefficients[0] * log(T);
+	this->DEBUG = db;
+	if (this->DEBUG) {
+		std::cout << result << std::endl;
+	}
+	return result;
+}
+///Definite integral from T0 to T1 of a polynomial divided by its independent variable
+double IncompressibleClass::baseHornerFra(std::vector<double> const& coefficients, double T1, double T0){
+	if (this->DEBUG) {
+		std::cout << "Running      baseHornerFra(std::vector, " << T1 << ", " << T0 << "): ";
+	}
+	bool db = this->DEBUG;
+	this->DEBUG = false;
+
+	double result = 0;
+	if (coefficients.size() > 1) {
+		double result0 = 0;
+		for(int i=coefficients.size()-1; i>=1; i--) {
+			result  *= T1;
+			result  += coefficients[i]/(i);
+			result0 *= T0;
+			result0 += coefficients[i]/(i);
+		}
+		result  *= T1;
+		result0 *= T0;
+		result  -= result0;
+	}
+	result += coefficients[0] * log(T1/T0);
+	this->DEBUG = db;
+	if (this->DEBUG) {
+		std::cout << result << std::endl;
+	}
+	return result;
+}
+///Indefinite integral in T-direction of a polynomial divided by its 2nd independent variable
+double IncompressibleClass::baseHornerFra(std::vector<std::vector<double> > const& coefficients, double x, double T){
+	if (this->DEBUG) {
+		std::cout << "Running      baseHornerFra(std::vector, " << x << ", " << T << "): ";
+	}
+	bool db = this->DEBUG;
+	this->DEBUG = false;
+
+	double result = 0;
+	for(int i=coefficients.size()-1; i>=0; i--) {
+		result *= x;
+		result += baseHornerFra(coefficients[i], T);
+	}
+
+	this->DEBUG = db;
+	if (this->DEBUG) {
+		std::cout << result << std::endl;
+	}
+	return result;
+}
+///Definite integral from T0 to T1 of a polynomial divided by its 2nd independent variable
+double IncompressibleClass::baseHornerFra(std::vector<std::vector<double> > const& coefficients, double x, double T1, double T0){
+	if (this->DEBUG) {
+		std::cout << "Running      baseHornerFra(std::vector, " << x << ", " << T1 << ", " << T0 << "): ";
+	}
+	bool db = this->DEBUG;
+	this->DEBUG = false;
+
+	double result = 0;
+	for(int i=coefficients.size()-1; i>=0; i--) {
+		result *= x;
+		result += baseHornerFra(coefficients[i], T1, T0);
+	}
+
+	this->DEBUG = db;
+	if (this->DEBUG) {
+		std::cout << result << std::endl;
+	}
+	return result;
+}
+
 
 
 /** Integrating coefficients for polynomials is done by dividing the
@@ -308,6 +625,179 @@ std::vector<double> IncompressibleClass::deriveCoeffs(std::vector<double> const&
 //	}
 //	return newCoefficients;
 //}
+
+
+/** Alternatives
+ *  Simple functions that heavily rely on other parts of this file.
+ *  We still need to check which combinations yield the best
+ *  performance.
+ */
+///Indefinite integral in T-direction
+double IncompressibleClass::integrateIn2Steps(std::vector<double> const& coefficients, double T){
+	if (this->DEBUG) {
+		std::cout << "Running   integrateIn2Steps(std::vector, " << T << "): ";
+	}
+	bool db = this->DEBUG;
+	this->DEBUG = false;
+	double result =  polyval(integrateCoeffs(coefficients),T);
+	this->DEBUG = db;
+	if (this->DEBUG) {
+		std::cout << result << std::endl;
+	}
+	return result;
+}
+///Definite integral from T0 to T1
+double IncompressibleClass::integrateIn2Steps(std::vector<double> const& coefficients, double T1, double T0){
+	if (this->DEBUG) {
+		std::cout << "Running   integrateIn2Steps(std::vector, " << T1 << ", " << T0 << "): ";
+	}
+	bool db = this->DEBUG;
+	this->DEBUG = false;
+	std::vector<double> coefficientsInt(integrateCoeffs(coefficients));
+	double result = polyval(coefficientsInt,T1)-polyval(coefficientsInt,T0);
+	this->DEBUG = db;
+	if (this->DEBUG) {
+		std::cout << result << std::endl;
+	}
+	return result;
+}
+///Indefinite integral in terms of x(axis=true) or T(axis=false).
+double IncompressibleClass::integrateIn2Steps(std::vector< std::vector<double> > const& coefficients, double x, double T, bool axis){
+	if (this->DEBUG) {
+		std::cout << "Running   integrateIn2Steps(std::vector, " << x << ", " << T << "): ";
+	}
+	bool db = this->DEBUG;
+	this->DEBUG = false;
+	double result = polyval(integrateCoeffs(coefficients,axis),x,T);
+	this->DEBUG = db;
+	if (this->DEBUG) {
+		std::cout << result << std::endl;
+	}
+	return result;
+}
+///Definite integral from T0 to T1
+double IncompressibleClass::integrateIn2Steps(std::vector< std::vector<double> > const& coefficients, double x, double T1, double T0){
+	if (this->DEBUG) {
+		std::cout << "Running   integrateIn2Steps(std::vector, " << x << ", " << T1 << ", " << T0 << "): ";
+	}
+	bool db = this->DEBUG;
+	this->DEBUG = false;
+	std::vector< std::vector<double> > coefficientsInt(integrateCoeffs(coefficients,false));
+	double result = polyval(coefficientsInt,x,T1)-polyval(coefficientsInt,x,T0);
+	this->DEBUG = db;
+	if (this->DEBUG) {
+		std::cout << result << std::endl;
+	}
+	return result;
+}
+///Indefinite integral in T-direction of a polynomial divided by its independent variable
+double IncompressibleClass::fracIntIn2Steps(std::vector<double> const& coefficients, double T){
+	if (this->DEBUG) {
+		std::cout << "Running    fracIntIn2Steps(std::vector, " << T << "): ";
+	}
+	bool db = this->DEBUG;
+	this->DEBUG = false;
+	double result = coefficients[0] * log(T);
+	if (coefficients.size() > 1) {
+		std::vector<double> newCoeffs(coefficients.begin() + 1, coefficients.end());
+		result += polyint(newCoeffs,T);
+	}
+	this->DEBUG = db;
+	if (this->DEBUG) {
+		std::cout << result << std::endl;
+	}
+	return result;
+}
+///Definite integral from T0 to T1 of a polynomial divided by its independent variable
+double IncompressibleClass::fracIntIn2Steps(std::vector<double> const& coefficients, double T1, double T0){
+	if (this->DEBUG) {
+		std::cout << "Running    fracIntIn2Steps(std::vector, " << T1 << ", " << T0 << "): ";
+	}
+	bool db = this->DEBUG;
+	this->DEBUG = false;
+	double result = coefficients[0] * log(T1/T0);
+	if (coefficients.size() > 1) {
+		std::vector<double> newCoeffs(coefficients.begin() + 1, coefficients.end());
+		result += polyint(newCoeffs,T1,T0);
+	}
+	this->DEBUG = db;
+	if (this->DEBUG) {
+		std::cout << result << std::endl;
+	}
+	return result;
+}
+///Indefinite integral in T-direction of a polynomial divided by its 2nd independent variable
+double IncompressibleClass::fracIntIn2Steps(std::vector<std::vector<double> > const& coefficients, double x, double T){
+	if (this->DEBUG) {
+		std::cout << "Running    fracIntIn2Steps(std::vector, " << x << ", " << T << "): ";
+	}
+	bool db = this->DEBUG;
+	this->DEBUG = false;
+	std::vector<double> newCoeffs;
+	for (unsigned int i=0; i<coefficients.size(); i++){
+		newCoeffs.push_back(polyfracint(coefficients[i],T));
+	}
+	double result = polyval(newCoeffs,x);
+	this->DEBUG = db;
+	if (this->DEBUG) {
+		std::cout << result << std::endl;
+	}
+	return result;
+}
+///Definite integral from T0 to T1 of a polynomial divided by its 2nd independent variable
+double IncompressibleClass::fracIntIn2Steps(std::vector<std::vector<double> > const& coefficients, double x, double T1, double T0){
+	if (this->DEBUG) {
+		std::cout << "Running    fracIntIn2Steps(std::vector, " << x << ", " << T1 << ", " << T0 << "): ";
+	}
+	bool db = this->DEBUG;
+	this->DEBUG = false;
+	std::vector<double> newCoeffs;
+	for (unsigned int i=0; i<coefficients.size(); i++){
+		newCoeffs.push_back(polyfracint(coefficients[i],T1,T0));
+	}
+	double result = polyval(newCoeffs,x);
+	this->DEBUG = db;
+	if (this->DEBUG) {
+		std::cout << result << std::endl;
+	}
+	return result;
+}
+
+double IncompressibleClass::fracIntCentral2Steps(std::vector<std::vector<double> > const& coefficients, double x, double T, double Tbase){
+	if (this->DEBUG) {
+		std::cout << "Running    fracIntCentral2Steps(std::vector, " << x << ", " << T << ", " << Tbase << "): ";
+	}
+	bool db = this->DEBUG;
+	this->DEBUG = false;
+	std::vector<double> newCoeffs;
+	for (unsigned int i=0; i<coefficients.size(); i++){
+		newCoeffs.push_back(fracIntCentral(coefficients[i], T, Tbase));
+	}
+	double result = polyval(newCoeffs,x);
+	this->DEBUG = db;
+	if (this->DEBUG) {
+		std::cout << result << std::endl;
+	}
+	return result;
+}
+///Definite integral from T0 to T1 of a centred polynomial divided by its 2nd independent variable
+double IncompressibleClass::fracIntCentral2Steps(std::vector<std::vector<double> > const& coefficients, double x, double T1, double T0, double Tbase){
+	if (this->DEBUG) {
+		std::cout << "Running    fracIntCentral2Steps(std::vector, " << x << ", " << T1 << ", " << T0 << ", " << Tbase << "): ";
+	}
+	bool db = this->DEBUG;
+	this->DEBUG = false;
+	std::vector<double> newCoeffs;
+	for (unsigned int i=0; i<coefficients.size(); i++){
+		newCoeffs.push_back(fracIntCentral(coefficients[i], T1, T0, Tbase));
+	}
+	double result = polyval(newCoeffs,x);
+	this->DEBUG = db;
+	if (this->DEBUG) {
+		std::cout << result << std::endl;
+	}
+	return result;
+}
 
 
 /** Here we define the functions that should be used by the
