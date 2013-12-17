@@ -71,19 +71,32 @@ std::pair<std::string, long> map_data[] = {
 	std::make_pair(std::string("B"),iTcrit),
 
 	std::make_pair(std::string("pcrit"),iPcrit),
+	std::make_pair(std::string("PCRIT"),iPcrit),
 	std::make_pair(std::string("molemass"),iMM),
+	std::make_pair(std::string("MOLEMASS"),iMM),
 	std::make_pair(std::string("accentric"),iAccentric),
+	std::make_pair(std::string("ACCENTRIC"),iAccentric),
 	std::make_pair(std::string("dipole"),iDipole),
+	std::make_pair(std::string("DIPOLE"),iDipole),
 	std::make_pair(std::string("Tmin"),iTmin),
+	std::make_pair(std::string("TMIN"),iTmin),
 	std::make_pair(std::string("t"),iTmin),
 	std::make_pair(std::string("Ttriple"),iTtriple),
+	std::make_pair(std::string("TTRIPLE"),iTtriple),
 	std::make_pair(std::string("ptriple"),iPtriple),
+	std::make_pair(std::string("PTRIPLE"),iPtriple),
 	std::make_pair(std::string("rhocrit"),iRhocrit),
+	std::make_pair(std::string("RHOCRIT"),iRhocrit),
 	std::make_pair(std::string("Tcrit"),iTcrit),
+	std::make_pair(std::string("TCRIT"),iTcrit),
 	std::make_pair(std::string("Treduce"),iTreduce),
+	std::make_pair(std::string("TREDUCE"),iTreduce),
 	std::make_pair(std::string("rhoreduce"),iRhoreduce),
+	std::make_pair(std::string("RHOREDUCE"),iRhoreduce),
 	std::make_pair(std::string("Hcrit"),iHcrit),
+	std::make_pair(std::string("HCRIT"),iHcrit),
 	std::make_pair(std::string("Scrit"),iScrit),
+	std::make_pair(std::string("SCRIT"),iScrit),
 
 	std::make_pair(std::string("Q"),iQ),
 	std::make_pair(std::string("T"),iT),
@@ -848,7 +861,13 @@ double Props(std::string Output,char Name1, double Prop1, char Name2, double Pro
 {
 	// In this function the error catching happens;
 	try{
-		return _Props(Output,std::string(1,Name1),Prop1,std::string(1,Name2),Prop2,Ref);
+		//FILE *fp;
+		//fp = fopen("c:\\log_Props.txt", "a");
+		//fprintf(fp,"%s,%c,%g,%c,%g,%s\n",Output.c_str(),Name1,Prop1,Name2,Prop2,Ref.c_str());
+		double val = _Props(Output,std::string(1,Name1),Prop1,std::string(1,Name2),Prop2,Ref);
+		//fprintf(fp,"-->%g\n",val);
+		//fclose(fp);
+		return val;
 	}
 	catch(const CoolPropBaseError& e){
 		err_string = std::string("CoolProp error: ").append(e.what());

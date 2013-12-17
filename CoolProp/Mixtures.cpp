@@ -389,18 +389,19 @@ void Mixture::test()
 	//double rhor = pReducing->rhorbar(&z);
 	
 	double Tsat;
-	double psat = 1e3;
 
-	Tsat = saturation_p(0.0, 2000000, z, x, y);
-
-	for (double x0 = 0; x0 <= 1.000000000000001; x0 += 0.01)
+	for (double psat = 1e6; psat < 6.9e6; psat += 1e6)
 	{
-		z[0] = x0; z[1] = 1-x0;
-		Tsat = saturation_p(0, psat, z, x, y);
-		std::cout << format("%g %g %0.9g %0.9g",x0,Tsat,y[0],y[1]).c_str();
-		Tsat = saturation_p(1, psat, z, x, y);
-		std::cout << format(" %g %0.9g %0.9g",Tsat,x[0],x[1]).c_str()	;
-		std::cout << std::endl;
+		std::cout << "psat: " << psat << " Pa" << std::endl;
+		for (double x0 = 0; x0 <= 1.000000000000001; x0 += 0.01)
+		{
+			z[0] = x0; z[1] = 1-x0;
+			Tsat = saturation_p(0, psat, z, x, y);
+			std::cout << format("%g %g %0.9g %0.9g",x0,Tsat,y[0],y[1]).c_str();
+			Tsat = saturation_p(1, psat, z, x, y);
+			std::cout << format(" %g %0.9g %0.9g",Tsat,x[0],x[1]).c_str()	;
+			std::cout << std::endl;
+		}
 	}
 
 	/*double x0 = 0.5;
@@ -962,7 +963,7 @@ public:
 			K[i] = exp(Mix->Wilson_lnK_factor(T,p,i));
 			summer += (*z)[i]*(K[i]-1)/(1-beta+beta*K[i]);
 		}
-		return summer; // 1 comes from the sum of the z_i which must sum to 1
+		return summer;
 	};
 };
 double Mixture::saturation_p_preconditioner(double p, const std::vector<double> &z)
@@ -2199,12 +2200,14 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z)
 	data.K.resize(Mix->N);
 	data.lnK.resize(Mix->N);
 
+	double beta_envelope = 0.0;
+
 	// Use the preconditioner to get the very rough guess for saturation temperature 
 	// (interpolation based on pseudo-critical pressure)
 	double T_guess = Mix->saturation_p_preconditioner(p0, z);
 
 	// Initialize the call using Wilson to get K-factors and temperature
-	double T = Mix->saturation_p_Wilson(0.0, p0, z, T_guess, K);
+	double T = Mix->saturation_p_Wilson(beta_envelope, p0, z, T_guess, K);
 
 	// Set flags for successive substitution
 	// Limit Successive substitution to 4 iterations and don't call Newton-Raphson directly
@@ -2212,14 +2215,14 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z)
 	Mix->SS.useNR = false;
 
 	// Call successive substitution to get updated guess for K-factors
-	Mix->SS.call(0.0, T, p0, z, K);
+	Mix->SS.call(beta_envelope, T, p0, z, K);
 
 	double p = p0;
 	double lnT = log(T);
 	double lnP = log(p0);
 
 	// Newton-Raphson full iteration using pressure as specified variable
-	Mix->NRVLE.call(0, T, p0, Mix->SS.rhobar_liq, Mix->SS.rhobar_vap, z, K, Mix->N+1, log(p0));
+	Mix->NRVLE.call(beta_envelope, T, p0, Mix->SS.rhobar_liq, Mix->SS.rhobar_vap, z, K, Mix->N+1, log(p0));
 	rhobar_liq = Mix->NRVLE.rhobar_liq;
 	rhobar_vap = Mix->NRVLE.rhobar_vap;
 	T = Mix->NRVLE.T;
@@ -2253,7 +2256,20 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z)
 	DELTAS = log(1.1);
 
 	// Run once with the specified variable set
-	Mix->NRVLE.call(0, T, p, rhobar_liq, rhobar_vap, z, K, i_S, Sold);
+	Mix->NRVLE.call(beta_envelope, T, p, rhobar_liq, rhobar_vap, z, K, i_S, Sold);
+
+	// Store the variables in the log if the step worked ok
+	data.p.push_back(p);
+	data.T.push_back(T);
+	data.lnT.push_back(log(T));
+	data.lnp.push_back(log(p));
+	data.rhobar_liq.push_back(Mix->NRVLE.rhobar_liq);
+	data.rhobar_vap.push_back(Mix->NRVLE.rhobar_vap);
+	for (unsigned int i = 0; i < Mix->N; i++)
+	{
+		data.K[i].push_back(K[i]);
+		data.lnK[i].push_back(log(K[i]));
+	}
 
 	int iter = 1;
 	do
@@ -2348,7 +2364,7 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z)
 			// Run with the selected specified variable
 			try
 			{
-				Mix->NRVLE.call(0, T, p, rhobar_liq, rhobar_vap, z, K, i_S, S);
+				Mix->NRVLE.call(beta_envelope, T, p, rhobar_liq, rhobar_vap, z, K, i_S, S);
 				// Throw an exception if an invalid value returned but no exception was thrown
 				if (!ValidNumber(Mix->NRVLE.T))
 				{
@@ -2358,6 +2374,7 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z)
 			catch (CoolPropBaseError &)
 			{
 				// Decrease the step size by a factor of 10
+				printf("Step downsize\n");
 				DELTAS *= 0.1;
 				continue;
 			}
@@ -2398,7 +2415,7 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z)
 					iii_S = i;
 				}
 			}
-			//std::cout << format("T,P,Nstep,K : %g %g %d %g %g %d %s\n",T,p,Mix->NRVLE.Nsteps, rhobar_liq, rhobar_vap, iii_S, vec_to_string(K,"%6.5g").c_str());
+			std::cout << format("T,P,Nstep,K : %g %g %d %g %g %d %s\n",T,p,Mix->NRVLE.Nsteps, rhobar_liq, rhobar_vap, iii_S, vec_to_string(K,"%6.5g").c_str());
 		}
 		
 		// Update step counter
