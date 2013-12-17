@@ -2,7 +2,7 @@
 import subprocess, os
 import glob
 
-exports = ['-s','EXPORTED_FUNCTIONS=\"[\'_main\',\'_F2K\',\'_Props1\',\'_PropsS\']\"']
+exports = ['-s','EXPORTED_FUNCTIONS=\"[\'_main\',\'_F2K\',\'_HAProps\',\'_Props1\',\'_PropsS\']\"']
 optimization = '-O1'
 
 def compile_sources():
