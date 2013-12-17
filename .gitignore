@@ -1,12 +1,12 @@
 *~
 *.pyc
 *.swp
-**.o
-**.obj
-**.h.gch
-**.lib
-**.directory
-**.DS_Store
+*.o
+*.obj
+*.h.gch
+*.lib
+*.directory
+*.DS_Store
 
 /dev/Tickets/oFiles
 
