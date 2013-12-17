@@ -1,5 +1,11 @@
-#ifdef WIN32
+#include "../../CoolProp/CoolPropTools.h"
+#include "../../CoolProp/IncompBase.h"
+#include "../../CoolProp/IncompLiquid.h"
+#include "../../CoolProp/IncompSolution.h"
+
+#if defined(__ISWINDOWS__)
 #include <Windows.h>
+#include "stdafx.h"
 #else
 #include <sys/time.h>
 #include <ctime>
@@ -13,10 +19,6 @@
 #include <map>
 #include <utility>
 
-#include "../../CoolProp/CoolPropTools.h"
-#include "../../CoolProp/IncompBase.h"
-#include "../../CoolProp/IncompLiquid.h"
-#include "../../CoolProp/IncompSolution.h"
 
 /** A class to test the different implementations,
  *  exposes more functions than the other ones.
@@ -147,7 +149,7 @@ public:
  * Taken from http://stackoverflow.com/questions/1861294/how-to-calculate-execution-time-of-a-code-snippet-in-c
  * */
 uint64_t getTimeValue() {
-#ifdef WIN32
+#if defined(__ISWINDOWS__)
 	/* Windows */
 	FILETIME ft;
 	LARGE_INTEGER li;
@@ -158,7 +160,7 @@ uint64_t getTimeValue() {
 	li.LowPart = ft.dwLowDateTime;
 	li.HighPart = ft.dwHighDateTime;
 
-	uint64 ret = li.QuadPart;
+	uint64_t ret = li.QuadPart;
 	ret -= 116444736000000000LL; /* Convert from file time to UNIX epoch time. */
 	ret /= 10; /* From 100 nano seconds (10^-7) to 1 microsecond (10^-6) intervals */
 

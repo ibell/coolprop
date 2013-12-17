@@ -63,7 +63,7 @@ protected:
 	bool checkCoefficients(std::vector<double> const& coefficients, unsigned int n);
 	bool checkCoefficients(std::vector< std::vector<double> > const& coefficients, unsigned int rows, unsigned int columns);
 
-protected:
+private:
 	/** The core of the polynomial wrappers are the different
 	 *  implementations that follow below. In case there are
 	 *  new calculation schemes available, please do not delete

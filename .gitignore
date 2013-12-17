@@ -1,6 +1,14 @@
 *~
 *.pyc
 *.swp
+**.o
+**.obj
+**.h.gch
+**.lib
+**.directory
+**.DS_Store
+
+/dev/Tickets/oFiles
 
 /dev/figs
 
