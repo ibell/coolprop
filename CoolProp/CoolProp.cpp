@@ -813,12 +813,18 @@ double _CoolProp_Fluid_Props(long iOutput, long iName1, double Prop1, long iName
 
 	// Update the class
 	CPS.update(iName1,Prop1,iName2,Prop2);
+
+	// Debug
+	if (get_debug_level()>9){ std::cout << __FILE__ << " State update successful" << std::endl; }
+	
 	// Get the output
 	val = CPS.keyed_output(iOutput);
 	
+	// Debug
 	if (get_debug_level()>5){
 		std::cout<<__FILE__<<" _CoolProp_Fluid_Props return: "<<val<<std::endl;
 	}
+
 	// Return the value
 	return val;
 }

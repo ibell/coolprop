@@ -291,14 +291,21 @@ void CoolPropStateClassSI::update(long iInput1, double Value1, long iInput2, dou
 		if (!ValidNumber(_logrho)) _logrho = log(_rho);
 	}
 
+	if (get_debug_level()>3){
+		std::cout << format("%s updated; T = %15.13g rho = %15.13g \n ", __FILE__, _T, _rho).c_str();
+	}
+
 	// Common code for all updating functions
 	this->_post_update();
 }
 
 void CoolPropStateClassSI::_post_update()
 {
+	if (get_debug_level()>9){ std::cout << format("%s !_noSatLSatV %d TwoPhase %d !flag_TwoPhase %d\n", __FILE__, !_noSatLSatV, TwoPhase, !flag_TwoPhase).c_str(); }
+	
 	if (!_noSatLSatV && TwoPhase && !flag_TwoPhase)
 	{
+		if (get_debug_level()>5){ std::cout << format("%s Adding saturation states \n", __FILE__).c_str(); }	
 		// Update temperature and density for SatL and SatV
 		add_saturation_states();
 	}
@@ -655,8 +662,14 @@ void CoolPropStateClassSI::update_ps(long iInput1, double Value1, long iInput2, 
 	// Solve for temperature and density
 	pFluid->temperature_ps(_p, _s, &_T, &_rho, &rhosatL, &rhosatV, &TsatL, &TsatV);
 
+	if (get_debug_level() > 9)
+	{
+		std::cout << format("pFluid->temperature_ps(_p, _s, &_T, &_rho, &rhosatL, &rhosatV, &TsatL, &TsatV)\n").c_str(); 
+		std::cout << format("pFluid->temperature_ps(%g, %g, %g, %g, %g, %g, %g, %g)\n", _p, _s, _T, _rho, rhosatL, rhosatV, TsatL, TsatV).c_str(); 
+	}
+
 	// Set the phase flags
-	if ( _T < pFluid->reduce.T && _rho < rhosatL && _rho > rhosatV)
+	if ( _p < pFluid->crit.p.Pa && _rho < rhosatL && _rho > rhosatV)
 	{
 		TwoPhase = true;
 		SinglePhase = false;
