@@ -71,6 +71,7 @@ MethaneClass::MethaneClass()
 	name.assign("Methane");
 	aliases.push_back("CH4");
 	aliases.push_back("methane");
+	aliases.push_back("METHANE");
 	REFPROPname.assign("METHANE");
 
 	BibTeXKeys.EOS = "Setzmann-JPCRD-1991";
@@ -470,6 +471,7 @@ double gamma [] =
 
 	name.assign("Ethane");
 	aliases.push_back("ethane");
+	aliases.push_back("ETHANE");
 	REFPROPname.assign("ETHANE");
 
 	BibTeXKeys.EOS = "Buecker-JPCRD-2006";
@@ -645,6 +647,8 @@ nButaneClass::nButaneClass()
 	name.assign("n-Butane");
 	aliases.push_back("nButane");
 	aliases.push_back("butane");
+	aliases.push_back("BUTANE");
+	aliases.push_back("N-BUTANE");
 	REFPROPname.assign("BUTANE");
 
 	BibTeXKeys.EOS = "Buecker-JPCRD-2006B";
@@ -808,6 +812,7 @@ IsoButaneClass::IsoButaneClass()
 	name.assign("IsoButane");
 	aliases.push_back("isobutane");
 	aliases.push_back("Isobutane");
+	aliases.push_back("ISOBUTANE");
 	aliases.push_back("R600A");
 	aliases.push_back("R600a");
 	REFPROPname.assign("ISOBUTAN");

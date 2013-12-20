@@ -98,6 +98,8 @@ OneButeneClass::OneButeneClass()
 
 	name.assign("1-Butene");
 	aliases.push_back(std::string("1Butene"));
+	aliases.push_back(std::string("1BUTENE"));
+	aliases.push_back(std::string("1-BUTENE"));
 	aliases.push_back(std::string("Butene"));
 	REFPROPname.assign("1BUTENE");
 
@@ -192,6 +194,7 @@ IsoButeneClass::IsoButeneClass()
 
 	name.assign("IsoButene");
 	aliases.push_back(std::string("Isobutene"));
+	aliases.push_back(std::string("ISOBUTENE"));
 	REFPROPname.assign("IBUTENE");
 
 	ECSReferenceFluid = "Propane";
@@ -285,6 +288,7 @@ Cis2ButeneClass::Cis2ButeneClass()
 
 	name.assign("cis-2-Butene");
 	aliases.push_back(std::string("Cis-2-Butene"));
+	aliases.push_back(std::string("CIS-2-BUTENE"));
 	REFPROPname.assign("C2BUTENE");
 
 	ECSReferenceFluid = "Propane";
@@ -376,6 +380,7 @@ Trans2ButeneClass::Trans2ButeneClass()
 
 	name.assign("trans-2-Butene");
 	aliases.push_back(std::string("Trans-2-Butene"));
+	aliases.push_back(std::string("TRANS-2-BUTENE"));
 	REFPROPname.assign("T2BUTENE");
 
 	ECSReferenceFluid = "Propane";

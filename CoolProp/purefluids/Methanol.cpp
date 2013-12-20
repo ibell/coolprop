@@ -55,6 +55,7 @@ MethanolClass::MethanolClass()
 
     name.assign("Methanol");
     aliases.push_back("methanol");
+    aliases.push_back(std::string("METHANOL"));
     REFPROPname.assign("METHANOL");
 
 	BibTeXKeys.EOS = "deReuck-BOOK-1993";

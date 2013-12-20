@@ -54,6 +54,7 @@ DimethylEtherClass::DimethylEtherClass()
 		"Using ECS in fully predictive mode for viscosity\n\n"
 		"Lennard-Jones parameters from Chichester NISTIR 6650");
 	name.assign("DimethylEther");
+	aliases.push_back(std::string("DIMETHYLETHER"));
 	REFPROPname.assign("DME");
 
 	BibTeXKeys.EOS = "Wu-JPCRD-2011";

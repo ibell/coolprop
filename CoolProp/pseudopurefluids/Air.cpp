@@ -187,6 +187,7 @@ AirClass::AirClass()
 
 	name.assign("Air");
 	aliases.push_back("air");
+	aliases.push_back(std::string("AIR"));
 
 	BibTeXKeys.EOS = "Lemmon-JPCRD-2000";
 	BibTeXKeys.VISCOSITY = "Lemmon-IJT-2004";

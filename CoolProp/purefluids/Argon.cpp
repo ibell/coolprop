@@ -281,6 +281,7 @@ ArgonClass::ArgonClass()
 
 	name.assign("Argon");
 	aliases.push_back("argon");
+	aliases.push_back("ARGON");
 
 	BibTeXKeys.EOS = "Tegeler-JPCRD-1999";
 	BibTeXKeys.VISCOSITY = "Lemmon-IJT-2004";

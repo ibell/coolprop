@@ -303,6 +303,7 @@ NitrogenClass::NitrogenClass()
 
 	name.assign("Nitrogen");
 	aliases.push_back("nitrogen");
+	aliases.push_back(std::string("NITROGEN"));
 	aliases.push_back("N2");
 
 	BibTeXKeys.EOS = "Span-JPCRD-2000";

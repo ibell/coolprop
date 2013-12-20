@@ -307,6 +307,7 @@ R744Class::R744Class()
 	aliases.push_back("co2");
 	aliases.push_back("CO2");
 	aliases.push_back("carbondioxide");
+	aliases.push_back(std::string("CARBONDIOXIDE"));
 	REFPROPname.assign("CO2");
 
 	// Adjust to the IIR reference state (h=200 kJ/kg, s = 1 kJ/kg for sat. liq at 0C)

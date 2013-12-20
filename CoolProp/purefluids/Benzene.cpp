@@ -48,11 +48,12 @@ BenzeneClass::BenzeneClass()
 
 	phi0list.push_back(new phi0_Planck_Einstein(v0_v,u0_v,1,3));
 
-	EOSReference.assign("Monika Thol and Eric W. Lemmon and Roland Span, \"Equation of state for benzene for temperatures from the melting line up to 725 K with pressures up to 500 MPa\", High Temperatures-High Pressures, Vol. 41, pp. 81–97");
+	EOSReference.assign("Monika Thol and Eric W. Lemmon and Roland Span, \"Equation of state for benzene for temperatures from the melting line up to 725 K with pressures up to 500 MPa\", High Temperatures-High Pressures, Vol. 41, pp. 81ï¿½97");
 	TransportReference.assign("");
 
 	name.assign("Benzene");
 	aliases.push_back(std::string("benzene"));
+	aliases.push_back(std::string("BENZENE"));
 	REFPROPname.assign("BENZENE");
 
 	BibTeXKeys.EOS = "Thol-HTHP-2012";

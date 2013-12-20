@@ -56,6 +56,7 @@ DeuteriumClass::DeuteriumClass()
 
 	name.assign("Deuterium");
 	aliases.push_back("deuterium");
+	aliases.push_back("DEUTERIUM");
 	aliases.push_back("D2");
 	REFPROPname.assign("D2");
 
@@ -152,6 +153,7 @@ OrthoDeuteriumClass::OrthoDeuteriumClass()
 
 	name.assign("OrthoDeuterium");
 	aliases.push_back("orthodeuterium");
+	aliases.push_back("ORTHODEUTERIUM");
 	REFPROPname = "N/A";
 
 	BibTeXKeys.EOS = "Richardson-JPCRD-2013";
@@ -241,6 +243,7 @@ ParaDeuteriumClass::ParaDeuteriumClass()
 
 	name.assign("ParaDeuterium");
 	aliases.push_back("paradeuterium");
+	aliases.push_back("PARADEUTERIUM");
 	REFPROPname = "N/A";
 
 	BibTeXKeys.EOS = "Richardson-JPCRD-2013";

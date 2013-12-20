@@ -48,6 +48,8 @@ UndecaneClass::UndecaneClass()
 
 	name.assign("n-Undecane");
 	aliases.push_back("Undecane");
+	aliases.push_back(std::string("UNDECANE"));
+	aliases.push_back(std::string("N-UNDECANE"));
 	aliases.push_back("C11");
 	REFPROPname.assign("C11");
 	

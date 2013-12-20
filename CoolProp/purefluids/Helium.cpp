@@ -255,6 +255,7 @@ HeliumClass::HeliumClass()
 
 	name.assign("Helium");
 	aliases.push_back("helium");
+	aliases.push_back("HELIUM");
 	aliases.push_back("He");
 
 	BibTeXKeys.EOS = "OrtizVega-2010";

@@ -137,6 +137,7 @@ R1234zeClass::R1234zeClass()
 	name.assign("R1234ze(E)");
 	aliases.push_back("R1234ZEE");
 	aliases.push_back("R1234zeE");
+	aliases.push_back(std::string("R1234ZE(E)"));
 	REFPROPname.assign("R1234ZE");
 
 	BibTeXKeys.EOS = "McLinden-PURDUE-2010";
@@ -263,8 +264,8 @@ R1234zeZClass::R1234zeZClass()
 	limits.pmax = 2200000.0;
 	limits.rhomax = 53.15*params.molemass;
 
-	aliases.push_back("R1234ze(Z)");
 	name.assign("R1234ze(Z)");
+	aliases.push_back("R1234ZE(Z)");
 	REFPROPname = "N/A";
 
 	BibTeXKeys.EOS = "Akasaka-DELFT-2013";

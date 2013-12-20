@@ -53,6 +53,7 @@ PropyleneClass::PropyleneClass()
 
 	name.assign("Propylene");
 	aliases.push_back(std::string("propylene"));
+	aliases.push_back(std::string("PROPYLENE"));
 	REFPROPname.assign("PROPYLEN");
 
 	ECSReferenceFluid = "Propane";

@@ -46,6 +46,7 @@ FluorineClass::FluorineClass()
 
     name.assign("Fluorine");
     aliases.push_back(std::string("fluorine"));
+    aliases.push_back(std::string("FLUORINE"));
     REFPROPname.assign("FLUORINE");
 
 	BibTeXKeys.EOS = "deReuck-BOOK-1990";

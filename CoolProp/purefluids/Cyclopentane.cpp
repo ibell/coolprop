@@ -48,12 +48,13 @@ CyclopentaneClass::CyclopentaneClass()
 
 	phi0list.push_back(new phi0_Planck_Einstein(v0_v,u0_v,1,4));
 
-	EOSReference.assign("Holger Gedanitz, María J. Dávila, Eric W. Lemmon \" Speed of sound measurements and a fundamental equation of state for cyclopentane\" Preprint provided by Eric Lemmon");
+	EOSReference.assign("Holger Gedanitz, Marï¿½a J. Dï¿½vila, Eric W. Lemmon \" Speed of sound measurements and a fundamental equation of state for cyclopentane\" Preprint provided by Eric Lemmon");
 	TransportReference.assign("Using ECS in fully predictive mode.");
 
 	name.assign("Cyclopentane");
 	aliases.push_back(std::string("CycloPentane"));
 	aliases.push_back(std::string("cyclopentane"));
+	aliases.push_back(std::string("CYCLOPENTANE"));
 	REFPROPname.assign("CYCLOPEN");
 
 	BibTeXKeys.EOS = "Gedanitz-PREPRINT-2013";

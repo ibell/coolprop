@@ -116,6 +116,7 @@ OctamethyltrisiloxaneClass::OctamethyltrisiloxaneClass()
 
     name.assign("MDM");
     aliases.push_back(std::string("Octamethyltrisiloxane")); 
+    aliases.push_back(std::string("OCTAMETHYLTRISILOXANE"));
     REFPROPname.assign("MDM");
 
 	ECSReferenceFluid = "Nitrogen";
@@ -269,6 +270,7 @@ DecamethyltetrasiloxaneClass::DecamethyltetrasiloxaneClass()
 
     name.assign("MD2M");
     aliases.push_back(std::string("Decamethyltetrasiloxane")); 
+    aliases.push_back(std::string("DECAMETHYLTETRASILOXANE"));
     REFPROPname.assign("MD2M");
 
 	ECSReferenceFluid = "Nitrogen";
@@ -422,6 +424,7 @@ DodecamethylpentasiloxaneClass::DodecamethylpentasiloxaneClass()
 
     name.assign("MD3M");
     aliases.push_back(std::string("Dodecamethylpentasiloxane")); 
+    aliases.push_back(std::string("DODECAMETHYLPENTASILOXANE"));
     REFPROPname.assign("MD3M");
 
 	ECSReferenceFluid = "Nitrogen";
@@ -584,6 +587,7 @@ DodecamethylcyclohexasiloxaneClass::DodecamethylcyclohexasiloxaneClass()
 
     name.assign("D6");
     aliases.push_back(std::string("Dodecamethylcyclohexasiloxane")); 
+    aliases.push_back(std::string("DODECAMETHYLCYCLOHEXASILOXANE"));
     REFPROPname.assign("D6");
 
 	ECSReferenceFluid = "Nitrogen";
@@ -744,6 +748,7 @@ HexamethyldisiloxaneClass::HexamethyldisiloxaneClass()
 
     name.assign("MM");
     aliases.push_back(std::string("Hexamethyldisiloxane")); 
+    aliases.push_back(std::string("HEXAMETHYLDISILOXANE"));
     REFPROPname.assign("MM");
 
 	ECSReferenceFluid = "Nitrogen";
@@ -911,6 +916,7 @@ TetradecamethylhexasiloxaneClass::TetradecamethylhexasiloxaneClass()
 
     name.assign("MD4M");
     aliases.push_back(std::string("Tetradecamethylhexasiloxane")); 
+    aliases.push_back(std::string("TETRADECAMETHYLHEXASILOXANE"));
     REFPROPname.assign("MD4M");
 
 	ECSReferenceFluid = "Nitrogen";
@@ -1074,6 +1080,7 @@ OctamethylcyclotetrasiloxaneClass::OctamethylcyclotetrasiloxaneClass()
 
     name.assign("D4");
     aliases.push_back(std::string("Octamethylcyclotetrasiloxane")); 
+    aliases.push_back(std::string("OCTAMETHYLCYCLOTETRASILOXANE"));
     REFPROPname.assign("D4");
 
 	ECSReferenceFluid = "Nitrogen";
@@ -1245,6 +1252,7 @@ DecamethylcyclopentasiloxaneClass::DecamethylcyclopentasiloxaneClass()
 
     name.assign("D5");
     aliases.push_back(std::string("Decamethylcyclopentasiloxane")); 
+    aliases.push_back(std::string("DECAMETHYLCYCLOPENTASILOXANE"));
     REFPROPname.assign("D5");
 
 	ECSReferenceFluid = "Nitrogen";

@@ -51,6 +51,7 @@ R1233zdEClass::R1233zdEClass()
 	name.assign("R1233zd(E)");
 	aliases.push_back(std::string("R1233zdE"));
 	aliases.push_back(std::string("R1233ZDE"));
+	aliases.push_back(std::string("R1233ZD(E)"));
 	REFPROPname.assign("R1233zd");
 }
 

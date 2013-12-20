@@ -247,7 +247,7 @@ R290Class::R290Class()
 							"\"Measurement and Correlation of the Thermal Conductivity of"
 							"Propane from 86 K to 600 K at Pressures to 70 MPa\","
 							"J. Chem. Eng. Data 2002, 47, 932-940 (Olchowy-Sengers)\n\n"
-							"Surface Tension: A. Mulero and I. Cachadiña and M. I. Parra"
+							"Surface Tension: A. Mulero and I. Cachadiï¿½a and M. I. Parra"
 							"\"Recommended Correlations for the Surface Tension of Common Fluids\""
 							", J. Phys. Chem. Ref. Data, Vol. 41, No. 4, 2012");
 
@@ -256,6 +256,8 @@ R290Class::R290Class()
 	aliases.push_back("propane");
 	aliases.push_back("R290");
 	aliases.push_back("C3H8");
+	aliases.push_back(std::string("PROPANE"));
+	aliases.push_back(std::string("N-PROPANE"));
 	REFPROPname.assign("PROPANE");
 
 	BibTeXKeys.EOS = "Lemmon-JCED-2009";

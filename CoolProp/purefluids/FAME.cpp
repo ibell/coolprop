@@ -54,6 +54,7 @@ MethylPalmitateClass::MethylPalmitateClass()
 	ECSReferenceFluid = "Propane";
 
 	name.assign("MethylPalmitate");
+	aliases.push_back(std::string("METHYLPALMITATE"));
 	REFPROPname.assign("MPALMITA");
 
 	BibTeXKeys.EOS = "Huber-EF-2009";
@@ -152,6 +153,7 @@ MethylStearateClass::MethylStearateClass()
 	TransportReference.assign("Using ECS in fully predictive mode");
 
 	name.assign("MethylStearate");
+	aliases.push_back(std::string("METHYLSTEARATE"));
 	REFPROPname.assign("MSTEARAT");
 
 	ECSReferenceFluid = "Propane";
@@ -249,6 +251,7 @@ MethylOleateClass::MethylOleateClass()
 	TransportReference.assign("Using ECS in fully predictive mode");
 
 	name.assign("MethylOleate");
+	aliases.push_back(std::string("METHYLOLEATE"));
 	REFPROPname.assign("MOLEATE");
 
 	ECSReferenceFluid = "Propane";
@@ -349,6 +352,7 @@ MethylLinoleateClass::MethylLinoleateClass()
 	TransportReference.assign("Using ECS in fully predictive mode");
 
 	name.assign("MethylLinoleate");
+	aliases.push_back(std::string("METHYLLINOLEATE"));
 	REFPROPname.assign("MLINOLEA");
 
 	ECSReferenceFluid = "Propane";
@@ -446,6 +450,7 @@ MethylLinolenateClass::MethylLinolenateClass()
 	TransportReference.assign("Using ECS in fully predictive mode");
 
 	name.assign("MethylLinolenate");
+	aliases.push_back(std::string("METHYLLINOLENATE"));
 	REFPROPname.assign("MLINOLEN");
 
 	ECSReferenceFluid = "Propane";

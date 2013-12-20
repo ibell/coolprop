@@ -54,7 +54,8 @@ EthanolClass::EthanolClass()
 
     name.assign("Ethanol");
     aliases.push_back(std::string("C2H6O")); 
-	aliases.push_back(std::string("ethanol")); 
+	aliases.push_back(std::string("ethanol"));
+	aliases.push_back(std::string("ETHANOL"));
     REFPROPname.assign("ETHANOL");
 
 	BibTeXKeys.EOS = "Schroeder-MSTHESIS-2011"; 

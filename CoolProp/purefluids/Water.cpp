@@ -406,6 +406,7 @@ WaterClass::WaterClass()
 
 	name.assign("Water");
 	aliases.push_back("water");
+	aliases.push_back(std::string("WATER"));
 	aliases.push_back("H2O");
 	aliases.push_back("h2o");
 

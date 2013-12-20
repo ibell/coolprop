@@ -56,6 +56,7 @@ DimethylCarbonateClass::DimethylCarbonateClass()
 	name.assign("DimethylCarbonate");
 	aliases.push_back(std::string("DMC"));
 	aliases.push_back(std::string("dimethylcarbonate"));
+	aliases.push_back(std::string("DIMETHYLCARBONATE"));
 	REFPROPname.assign("DMC");
 
 	ECSReferenceFluid = "Propane";

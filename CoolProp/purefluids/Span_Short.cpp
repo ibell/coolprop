@@ -173,6 +173,8 @@ TransportReference.assign("Using ECS in fully predictive mode");
 name.assign("n-Pentane");
 aliases.push_back(std::string("nPentane"));
 aliases.push_back(std::string("Pentane"));
+aliases.push_back(std::string("PENTANE"));
+aliases.push_back(std::string("N-PENTANE"));
 aliases.push_back(std::string("R601"));
 REFPROPname.assign("PENTANE");
 
@@ -291,6 +293,8 @@ TransportReference.assign("Using ECS in fully predictive mode");
 name.assign("n-Hexane");
 aliases.push_back("nHexane");
 aliases.push_back("Hexane");
+aliases.push_back(std::string("HEXANE"));
+aliases.push_back(std::string("N-HEXANE"));
 REFPROPname.assign("HEXANE");
 
 BibTeXKeys.EOS = "Span-IJT-2003B";
@@ -450,6 +454,8 @@ TransportReference.assign("Using ECS in fully predictive mode");
 name.assign("n-Heptane");
 aliases.push_back("nHeptane");
 aliases.push_back("Heptane");
+aliases.push_back(std::string("HEPTANE"));
+aliases.push_back(std::string("N-HEPTANE"));
 REFPROPname.assign("HEPTANE");
 
 BibTeXKeys.EOS = "Span-IJT-2003B";
@@ -587,6 +593,8 @@ nOctaneClass::nOctaneClass()
 	name.assign("n-Octane");
 	aliases.push_back("nOctane");
 	aliases.push_back("Octane");
+	aliases.push_back(std::string("OCTANE"));
+	aliases.push_back(std::string("N-OCTANE"));
 	REFPROPname.assign("OCTANE");
 
 	BibTeXKeys.EOS = "Span-IJT-2003B";
@@ -746,6 +754,8 @@ nDodecaneClass::nDodecaneClass()
 	name.assign("n-Dodecane");
 	aliases.push_back("nDodecane");
 	aliases.push_back("Dodecane");
+	aliases.push_back(std::string("DODECANE"));
+	aliases.push_back(std::string("N-DODECANE"));
 	REFPROPname.assign("C12");
 
 	BibTeXKeys.EOS = "Lemmon-EF-2004";
@@ -935,6 +945,7 @@ CyclohexaneClass::CyclohexaneClass()
 
 	name.assign("CycloHexane");
 	aliases.push_back("Cyclohexane");
+	aliases.push_back(std::string("CYCLOHEXANE"));
 	REFPROPname.assign("CYCLOHEX");
 
 	BibTeXKeys.EOS = "Span-IJT-2003B";

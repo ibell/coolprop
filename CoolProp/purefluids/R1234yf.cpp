@@ -222,8 +222,9 @@ R1234yfClass::R1234yfClass()
 						"(R1234yf): Vapor Pressure and p-rho-T Measurements and an Equation of State\""
 						", J. Chem. Eng. Data, v. 56, 2011, pp 3254-3264");
 	TransportReference.assign("Surface Tension: Katsuyuki Tanaka, Yukihiro Higashi, \"Thermodynamic properties of HFO-1234yf (2,3,3,3-tetrafluoropropene)\", International Journal of Refrigeration 33 (2010) 474-479");
-	aliases.push_back("R1234YF");
+
 	name.assign("R1234yf");
+	aliases.push_back("R1234YF");
 
 	BibTeXKeys.EOS = "Richter-JCED-2011";
 	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";

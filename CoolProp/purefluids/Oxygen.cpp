@@ -299,6 +299,7 @@ OxygenClass::OxygenClass()
 
 	name.assign("Oxygen");
 	aliases.push_back("oxygen");
+	aliases.push_back(std::string("OXYGEN"));
 	aliases.push_back("O2");
 
 	BibTeXKeys.EOS = "Stewart-JPCRD-1991";

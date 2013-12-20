@@ -167,7 +167,8 @@ CarbonMonoxideClass::CarbonMonoxideClass()
     TransportReference.assign("Using ECS");
 
     name.assign("CarbonMonoxide");
-    aliases.push_back(std::string("CO")); 
+    aliases.push_back(std::string("CO"));
+    aliases.push_back(std::string("CARBONMONOXIDE"));
     REFPROPname.assign("CO");
 
 	ECSReferenceFluid = "Propane";
@@ -228,7 +229,8 @@ CarbonylSulfideClass::CarbonylSulfideClass()
     TransportReference.assign("Using ECS");
 
     name.assign("CarbonylSulfide");
-    aliases.push_back(std::string("COS")); 
+    aliases.push_back(std::string("COS"));
+    aliases.push_back(std::string("CARBONYLSULFIDE"));
     REFPROPname.assign("COS");
 
 	BibTeXKeys.EOS = "Lemmon-JCED-2006";
@@ -289,6 +291,8 @@ DecaneClass::DecaneClass()
     name.assign("n-Decane");
     aliases.push_back("Decane"); 
 	aliases.push_back("decane"); 
+	aliases.push_back(std::string("DECANE"));
+	aliases.push_back(std::string("N-DECANE"));
     REFPROPname.assign("decane");
 
 	BibTeXKeys.EOS = "Lemmon-JCED-2006";
@@ -413,6 +417,7 @@ HydrogenSulfideClass::HydrogenSulfideClass()
 
     name.assign("HydrogenSulfide");
     aliases.push_back(std::string("H2S")); 
+    aliases.push_back(std::string("HYDROGENSULFIDE"));
     REFPROPname.assign("H2S");
 
 	ECSReferenceFluid = "Propane";
@@ -523,6 +528,7 @@ IsopentaneClass::IsopentaneClass()
     name.assign("Isopentane");
     aliases.push_back(std::string("ipentane"));
     aliases.push_back(std::string("R601a"));
+    aliases.push_back(std::string("ISOPENTANE"));
     REFPROPname.assign("ipentane");
 
 	BibTeXKeys.EOS = "Lemmon-JCED-2006";
@@ -581,7 +587,8 @@ NeopentaneClass::NeopentaneClass()
     TransportReference.assign("Using ECS");
 
     name.assign("Neopentane");
-    aliases.push_back(std::string("neopentn")); 
+    aliases.push_back(std::string("neopentn"));
+    aliases.push_back(std::string("NEOPENTANE"));
     REFPROPname.assign("neopentn");
 
 	BibTeXKeys.EOS = "Lemmon-JCED-2006";
@@ -638,7 +645,8 @@ IsohexaneClass::IsohexaneClass()
     TransportReference.assign("Using ECS");
 
     name.assign("Isohexane");
-    aliases.push_back(std::string("ihexane")); 
+    aliases.push_back(std::string("ihexane"));
+    aliases.push_back(std::string("ISOHEXANE"));
     REFPROPname.assign("ihexane");
 
 	BibTeXKeys.EOS = "Lemmon-JCED-2006";
@@ -694,6 +702,7 @@ KryptonClass::KryptonClass()
 
     name.assign("Krypton");
     aliases.push_back(std::string("krypton")); 
+    aliases.push_back(std::string("KRYPTON"));
     REFPROPname.assign("krypton");
 
 	BibTeXKeys.EOS = "Lemmon-JCED-2006";
@@ -753,6 +762,8 @@ NonaneClass::NonaneClass()
 
     name.assign("n-Nonane");
     aliases.push_back(std::string("nonane")); 
+    aliases.push_back(std::string("NONANE"));
+    aliases.push_back(std::string("N-NONANE"));
     REFPROPname.assign("nonane");
 
 	BibTeXKeys.EOS = "Lemmon-JCED-2006";
@@ -875,6 +886,7 @@ TolueneClass::TolueneClass()
 
     name.assign("Toluene");
     aliases.push_back(std::string("toluene")); 
+    aliases.push_back(std::string("TOLUENE"));
     REFPROPname.assign("toluene");
 
 	BibTeXKeys.EOS = "Lemmon-JCED-2006";
@@ -948,7 +960,9 @@ XenonClass::XenonClass()
     TransportReference.assign("Using ECS");
 
     name.assign("Xenon");
-    aliases.push_back(std::string("Xe")); aliases.push_back(std::string("xenon")); 
+    aliases.push_back(std::string("Xe"));
+    aliases.push_back(std::string("xenon"));
+    aliases.push_back(std::string("XENON"));
     REFPROPname.assign("xenon");
 
 	ECSReferenceFluid = "Propane";
@@ -1087,6 +1101,7 @@ AcetoneClass::AcetoneClass()
 
     name.assign("Acetone");
     aliases.push_back(std::string("acetone")); 
+    aliases.push_back(std::string("ACETONE"));
     REFPROPname.assign("acetone");
 
 	BibTeXKeys.EOS = "Lemmon-JCED-2006";
@@ -1147,6 +1162,7 @@ NitrousOxideClass::NitrousOxideClass()
 
     name.assign("NitrousOxide");
     aliases.push_back(std::string("N2O")); 
+    aliases.push_back(std::string("NITROUSOXIDE"));
     REFPROPname.assign("N2O");
 
 	ECSReferenceFluid = "Nitrogen";
@@ -1210,6 +1226,7 @@ SulfurDioxideClass::SulfurDioxideClass()
 
     name.assign("SulfurDioxide");
     aliases.push_back(std::string("SO2")); 
+    aliases.push_back(std::string("SULFURDIOXIDE"));
     REFPROPname.assign("SO2");
 
 	BibTeXKeys.EOS = "Lemmon-JCED-2006";
@@ -1269,6 +1286,7 @@ R141bClass::R141bClass()
     TransportReference.assign("Using ECS");
 
     name.assign("R141b");
+    aliases.push_back(std::string("R141B"));
 
     REFPROPname.assign("R141b");
 
@@ -1349,6 +1367,8 @@ R142bClass::R142bClass()
     TransportReference.assign("Using ECS");
 
     name.assign("R142b");
+    aliases.push_back(std::string("R142B"));
+
     REFPROPname.assign("R142b");
 
 	ECSReferenceFluid = "Propane";

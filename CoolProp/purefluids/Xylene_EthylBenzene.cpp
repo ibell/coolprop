@@ -56,6 +56,7 @@ oXyleneClass::oXyleneClass()
 	name.assign("o-Xylene");
 	aliases.push_back("oXylene");
 	aliases.push_back("o-xylene");
+	aliases.push_back(std::string("O-XYLENE"));
 	REFPROPname.assign("OXYLENE");
 
 	BibTeXKeys.EOS = "Zhou-JPCRD-2012";
@@ -154,6 +155,7 @@ mXyleneClass::mXyleneClass()
 	name.assign("m-Xylene");
 	aliases.push_back("mXylene");
 	aliases.push_back("m-xylene");
+	aliases.push_back(std::string("M-XYLENE"));
 	REFPROPname.assign("MXYLENE");
 
 	ECSReferenceFluid = "Propane";
@@ -254,6 +256,7 @@ pXyleneClass::pXyleneClass()
 	name.assign("p-Xylene");
 	aliases.push_back("pXylene");
 	aliases.push_back("p-xylene");
+	aliases.push_back(std::string("P-XYLENE"));
 	REFPROPname.assign("PXYLENE");
 
 	ECSReferenceFluid = "Propane";
@@ -353,6 +356,7 @@ EthylBenzeneClass::EthylBenzeneClass()
 
 	name.assign("EthylBenzene");
 	aliases.push_back("ethylbenzene");
+	aliases.push_back(std::string("ETHYLBENZENE"));
 	REFPROPname.assign("EBENZENE");
 
 	ECSReferenceFluid = "Propane";

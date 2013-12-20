@@ -56,6 +56,7 @@ NeonClass::NeonClass()
 
 	name.assign("Neon");
 	aliases.push_back("neon");
+	aliases.push_back(std::string("NEON"));
 	REFPROPname.assign("Neon");
 
 	ECSReferenceFluid = "Nitrogen";

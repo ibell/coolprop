@@ -61,6 +61,7 @@ SulfurHexafluorideClass::SulfurHexafluorideClass()
 	TransportReference.assign("Using ECS in fully predictive mode");
 
 	name.assign("SulfurHexafluoride");
+	aliases.push_back(std::string("SULFURHEXAFLUORIDE"));
 	aliases.push_back("SF6");
 	REFPROPname.assign("SF6");
 	

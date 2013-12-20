@@ -45,6 +45,7 @@ CycloPropaneClass::CycloPropaneClass()
 	name.assign("CycloPropane");
 	aliases.push_back(std::string("cyclopropane"));
 	aliases.push_back(std::string("Cyclopropane"));
+	aliases.push_back(std::string("CYCLOPROPANE"));
 	REFPROPname.assign("CYCLOPRO");
 
 	BibTeXKeys.EOS = "Polt-CT-1992";
@@ -141,6 +142,7 @@ PropyneClass::PropyneClass()
 
 	name.assign("Propyne");
 	aliases.push_back(std::string("propyne"));
+	aliases.push_back(std::string("PROPYNE"));
 	REFPROPname.assign("PROPYNE");
   
 	ECSReferenceFluid = "Propane";

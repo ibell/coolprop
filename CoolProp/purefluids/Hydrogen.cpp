@@ -170,6 +170,7 @@ HydrogenClass::HydrogenClass()
 
 	name.assign("Hydrogen");
 	aliases.push_back("hydrogen");
+	aliases.push_back("HYDROGEN");
 	aliases.push_back("H2");
 	aliases.push_back("R702");
 	REFPROPname.assign("hydrogen");
@@ -347,6 +348,7 @@ ParaHydrogenClass::ParaHydrogenClass()
 	name.assign("ParaHydrogen");
 	aliases.push_back("Parahydrogen");
 	aliases.push_back("parahydrogen");
+	aliases.push_back("PARAHYDROGEN");
 	REFPROPname.assign("PARAHYD");
 
 	BibTeXKeys.EOS = "Leachman-JPCRD-2009";
@@ -521,6 +523,7 @@ OrthoHydrogenClass::OrthoHydrogenClass()
 	name.assign("OrthoHydrogen");
 	aliases.push_back("Orthohydrogen");
 	aliases.push_back("orthohydrogen");
+	aliases.push_back("ORTHOHYDROGEN");
 	REFPROPname.assign("ORTHOHYD");
 
 	BibTeXKeys.EOS = "Leachman-JPCRD-2009";

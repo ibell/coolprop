@@ -200,6 +200,7 @@ R717Class::R717Class()
 	aliases.push_back("NH3");
 	aliases.push_back("ammonia");
 	aliases.push_back("R717");
+	aliases.push_back(std::string("AMMONIA"));
 	REFPROPname.assign("AMMONIA");
 
 	BibTeXKeys.EOS = "TillnerRoth-DKV-1993";
