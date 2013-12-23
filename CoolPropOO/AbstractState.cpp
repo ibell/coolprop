@@ -77,6 +77,11 @@ bool AbstractState::clear() {
 	this->_d3phir_dDelta2_dTau.clear();
 	this->_d3phir_dDelta3.clear();
 
+	this->_dphir_dDelta_lim.clear();
+	this->_d2phir_dDelta2_lim.clear();
+	this->_d2phir_dDelta_dTau_lim.clear();
+	this->_d3phir_dDelta2_dTau_lim.clear();
+
 	return true;
 }
 
@@ -153,7 +158,9 @@ bool AbstractState::clear() {
 	virtual double AbstractState::drhodp_constT(void){
 		return -dpdT_constrho()/dpdrho_constT();
 	}
-	virtual double AbstractState::drhodT_constp(void){return -dpdT_constrho()/dpdrho_constT();}
+	virtual double AbstractState::drhodT_constp(void){
+		return -dpdT_constrho()/dpdrho_constT();
+	}
 	virtual double AbstractState::d2rhodh2_constp(void){
 		//double A = dpdT_constrho()*dhdrho_constT()-dpdrho_constT()*dhdT_constrho();
 		//double dAdT_constrho = d2pdT2_constrho()*dhdrho_constT()+dpdT_constrho()*d2hdrhodT()-d2pdrhodT()*dhdT_constrho()-dpdrho_constT()*d2hdT2_constrho();
@@ -170,11 +177,19 @@ bool AbstractState::clear() {
 		double ddrho_drhodp_h_constT = -1.0/A()*d2hdrhodT()      +1.0/(A()*A())*dAdrho_constT()*dhdT_constrho();
 		return ddT_drhodp_h_constrho/dhdT_constp()+ddrho_drhodp_h_constT/dhdrho_constp();
 	}
-	virtual double AbstractState::d2rhodhdQ(void);//TODO: only two-phase, not here
-	virtual double AbstractState::d2rhodp2_constT(void);
-	virtual double AbstractState::d2rhodpdQ(void);//TODO: only two-phase, not here
-	virtual double AbstractState::d2rhodT2_constp(void);
-	virtual double AbstractState::d2rhodTdp(void);
+	//virtual double AbstractState::d2rhodhdQ(void);//TODO: only two-phase, not here
+	virtual double AbstractState::d2rhodp2_constT(void){
+		return -d2pdrho2_constT()/pow(dpdrho_constT(),3);
+	}
+	//virtual double AbstractState::d2rhodpdQ(void);//TODO: only two-phase, not here
+	virtual double AbstractState::d2rhodT2_constp(void){
+		double ddrho_drhodT_p_constT = (dpdT_constrho()*d2pdrho2_constT()-dpdrho_constT()*d2pdrhodT())/pow(dpdrho_constT(),2);
+		double ddT_drhodT_p_constrho = (dpdT_constrho()*d2pdrhodT()-dpdrho_constT()*d2pdT2_constrho())/pow(dpdrho_constT(),2);
+		return ddT_drhodT_p_constrho+ddrho_drhodT_p_constT*drhodT_constp();
+	}
+	virtual double AbstractState::d2rhodTdp(void){
+		return (dpdT_constrho()*d2pdrho2_constT()-dpdrho_constT()*d2pdrhodT())/pow(dpdrho_constT(),3);
+	}
 
 	// Pressure
 	virtual double AbstractState::dpdrho_consth(void){
@@ -200,31 +215,91 @@ bool AbstractState::clear() {
 	}
 
 	// Enthalpy
-	virtual double AbstractState::dhdp_constrho(void);
-	virtual double AbstractState::dhdp_constT(void);
-	virtual double AbstractState::dhdrho_constp(void);
-	virtual double AbstractState::dhdrho_constT(void);
-	virtual double AbstractState::dhdT_constp(void);
-	virtual double AbstractState::dhdT_constrho(void);
-	virtual double AbstractState::d2hdp2_constT(void);
-	virtual double AbstractState::d2hdrho2_constT(void);
-	virtual double AbstractState::d2hdrhodT(void);
-	virtual double AbstractState::d2hdT2_constp(void);
-	virtual double AbstractState::d2hdT2_constrho(void);
-	virtual double AbstractState::d2hdTdp(void);
+	virtual double AbstractState::dhdp_constrho(void){
+		//	double dphir_dDelta = pFluid->dphir_dDelta(tau,delta);
+		//	double d2phir_dDelta_dTau = pFluid->d2phir_dDelta_dTau(tau,delta);
+		//	double d2phir_dDelta2 = pFluid->d2phir_dDelta2(tau,delta);
+		//	double dpdrho = R*T*(1+2*delta*dphir_dDelta+delta*delta*d2phir_dDelta2);
+		//	double dpdT = R*rho*(1+delta*dphir_dDelta-delta*tau*d2phir_dDelta_dTau);
+		//	double cp = -tau*tau*R*(pFluid->d2phi0_dTau2(tau,delta)+pFluid->d2phir_dTau2(tau,delta))+T/rho/rho*(dpdT*dpdT)/dpdrho;
+		double dpdrho = dpdrho_constT();
+		double dpdT   = dpdT_constrho();
+		double drhodT = -dpdT/dpdrho;
+		return -cp()/dpdrho/drhodT-_T*drhodT*(-1/_rho/_rho)+1/_rho;
+	}
+	virtual double AbstractState::dhdp_constT(void){
+		return dhdrho_constT()/dpdrho_constT();
+	}
+	virtual double AbstractState::dhdrho_constp(void){
+		return dhdrho_constT() - dhdT_constrho()*dpdrho_constT()/dpdT_constrho();
+	}
+	virtual double AbstractState::dhdrho_constT(void){
+		return _T*_R/_rho*(tau*delta*d2phir_dDelta_dTau()+delta*dphir_dDelta()+delta*delta*d2phir_dDelta2());
+	}
+	virtual double AbstractState::dhdT_constp(void){
+		return dhdT_constrho() - dhdrho_constT()*dpdT_constrho()/dpdrho_constT();
+	}
+	virtual double AbstractState::dhdT_constrho(void){
+		return _R*(-tau*tau*(d2phi0_dTau2()+d2phir_dTau2())+1+delta*dphir_dDelta()-delta*tau*d2phir_dDelta_dTau());
+	}
+	virtual double AbstractState::d2hdp2_constT(void){
+		return (d2hdrho2_constT()-dhdp_constT()*d2pdrho2_constT())/pow(dpdrho_constT(),2);
+	}
+	virtual double AbstractState::d2hdrho2_constT(void){
+		return _T*_R/_rho*(tau*delta*d3phir_dDelta2_dTau()+tau*d2phir_dDelta_dTau()+delta*d2phir_dDelta2()+dphir_dDelta()+delta*delta*d3phir_dDelta3()+2*delta*d2phir_dDelta2())/reducing.rho - dhdrho_constT()/_rho;
+	}
+	virtual double AbstractState::d2hdrhodT(void){
+		return _R*(-tau*tau*d3phir_dDelta_dTau2()+delta*d2phir_dDelta2()+dphir_dDelta()-delta*tau*d3phir_dDelta2_dTau()-tau*d2phir_dDelta_dTau())/reducing.rho;
+	}
+	virtual double AbstractState::d2hdT2_constp(void){
+		double ddT_dhdT = d2hdT2_constrho()-1/pow(dpdrho_constT(),2)*(dpdrho_constT()*(dhdrho_constT()*d2pdT2_constrho()+d2hdrhodT()*dpdT_constrho())-dhdrho_constT()*dpdT_constrho()*d2pdrhodT());
+		double drho_dhdT = d2hdrhodT()-1/pow(dpdrho_constT(),2)*(dpdrho_constT()*(dhdrho_constT()*d2pdrhodT()+d2hdrho2_constT()*dpdT_constrho())-dhdrho_constT()*dpdT_constrho()*d2pdrho2_constT());
+		return ddT_dhdT-drho_dhdT*dpdT_constrho()/dpdrho_constT();
+	}
+	virtual double AbstractState::d2hdT2_constrho(void){
+		return _R*(-tau*tau*(d3phi0_dTau3()+d3phir_dTau3())-2*tau*(d2phi0_dTau2()+d2phir_dTau2())-delta*tau*d3phir_dDelta_dTau2())*(-tau/_T);
+	}
+	virtual double AbstractState::d2hdTdp(void){
+		return 1.0/dpdrho_constT()*(d2hdrhodT()-dhdp_constT()*(drhodT_constp()*d2pdrho2_constT()+d2pdrhodT())+d2hdrho2_constT()*drhodT_constp());
+	}
 
 	// Entropy
-	virtual double AbstractState::dsdp_constT(void);
-	virtual double AbstractState::dsdrho_constp(void);
-	virtual double AbstractState::dsdrho_constT(void);
-	virtual double AbstractState::dsdT_constp(void);
-	virtual double AbstractState::dsdT_constrho(void);
-	virtual double AbstractState::d2sdp2_constT(void);
-	virtual double AbstractState::d2sdrho2_constT(void);
-	virtual double AbstractState::d2sdrhodT(void);
-	virtual double AbstractState::d2sdT2_constp(void);
-	virtual double AbstractState::d2sdT2_constrho(void);
-	virtual double AbstractState::d2sdTdp(void);
+	virtual double AbstractState::dsdp_constT(void){
+		return dsdrho_constT()/dpdrho_constT();
+	}
+	virtual double AbstractState::dsdrho_constp(void){
+		return dsdrho_constT() - dsdT_constrho()*dpdrho_constT()/dpdT_constrho();
+	}
+	virtual double AbstractState::dsdrho_constT(void){
+		return -_R/_rho*(1+delta*dphir_dDelta()-delta*tau*d2phir_dDelta_dTau());
+	}
+	virtual double AbstractState::dsdT_constp(void){
+		return dsdT_constrho() - dsdrho_constT()*dpdT_constrho()/dpdrho_constT();
+	}
+	virtual double AbstractState::dsdT_constrho(void){
+		return -_R*tau*tau/_T*(d2phi0_dTau2()+d2phir_dTau2());
+	}
+	virtual double AbstractState::d2sdp2_constT(void){
+		return (d2sdrho2_constT()-dsdp_constT()*d2pdrho2_constT())/pow(dpdrho_constT(),2);
+	}
+	virtual double AbstractState::d2sdrho2_constT(void){
+		return -_R/_rho*(delta*d2phir_dDelta2()+dphir_dDelta()-tau*delta*d3phir_dDelta2_dTau()-tau*d2phir_dDelta_dTau())/reducing.rho+_R/_rho/_rho*(1+delta*dphir_dDelta()-delta*tau*d2phir_dDelta_dTau());
+	}
+	virtual double AbstractState::d2sdrhodT(void){
+		// d2phi0_dDelta_dTau2() is zero by definition
+		return -_R*tau*tau/_T*d3phir_dDelta_dTau2()/reducing.rho;
+	}
+	virtual double AbstractState::d2sdT2_constp(void){
+		double ddT_dsdT  = d2sdT2_constrho()-1/pow(dpdrho_constT(),2)*(dpdrho_constT()*(dsdrho_constT()*d2pdT2_constrho()+d2sdrhodT()*dpdT_constrho())-dsdrho_constT()*dpdT_constrho()*d2pdrhodT());
+		double drho_dsdT = d2sdrhodT()-1/pow(dpdrho_constT(),2)*(dpdrho_constT()*(dsdrho_constT()*d2pdrhodT()+d2sdrho2_constT()*dpdT_constrho())-dsdrho_constT()*dpdT_constrho()*d2pdrho2_constT());
+		return ddT_dsdT-drho_dsdT*dpdT_constrho()/dpdrho_constT();
+	}
+	virtual double AbstractState::d2sdT2_constrho(void){
+		return -_R/_T*(tau*tau*(d3phi0_dTau3()+d3phir_dTau3())+2*tau*(d2phi0_dTau2()+d2phir_dTau2()))*(-tau/_T)+_R*tau*tau/_T/_T*(d2phi0_dTau2()+d2phir_dTau2());
+	}
+	virtual double AbstractState::d2sdTdp(void){
+		return 1.0/dpdrho_constT()*(d2sdrhodT()-dsdp_constT()*(drhodT_constp()*d2pdrho2_constT()+d2pdrhodT())+d2sdrho2_constT()*drhodT_constp());
+	}
 
 	// Fundamental derivative of gas dynamics
 	virtual double AbstractState::fundamental_derivative_of_gas_dynamics(void){
@@ -247,88 +322,41 @@ bool AbstractState::clear() {
 
 	// Other functions and derivatives
 	virtual double AbstractState::A(void){
-		checkCompressible();
 		return dpdT_constrho()*dhdrho_constT()-dpdrho_constT()*dhdT_constrho();
 	}
 	virtual double AbstractState::B(void){
-		checkCompressible();
 		// given by B*rhoc=lim(delta --> 0) [dphir_ddelta(tau)]
 		return 1.0/reducing.rho*dphir_dDelta_lim();
 	}
 	virtual double AbstractState::C(void){
-		checkCompressible();
 		// given by C*rhoc^2=lim(delta --> 0) [d2phir_dDelta2(tau)]
 		return 1.0/(reducing.rho*reducing.rho)*d2phir_dDelta2_lim();
 	}
 	virtual double AbstractState::Z(void){
-		checkCompressible();
 		return 1+delta*dphir_dDelta();
 	}
 	virtual double AbstractState::dAdT_constrho(void){
-		checkCompressible();
 		return d2pdT2_constrho()*dhdrho_constT()+dpdT_constrho()*d2hdrhodT()-d2pdrhodT()*dhdT_constrho()-dpdrho_constT()*d2hdT2_constrho();
 	}
 	virtual double AbstractState::dAdrho_constT(void){
-		checkCompressible();
 		return d2pdrhodT()*dhdrho_constT()+dpdT_constrho()*d2hdrho2_constT()-d2pdrho2_constT()*dhdT_constrho()-dpdrho_constT()*d2hdrhodT();
 	}
 	// TODO: Add constXX qualifier
 	virtual double AbstractState::dBdT(void){
-		checkCompressible();
 		return 1.0/reducing.rho*d2phir_dDelta_dTau_lim()*-reducing.T/_T/_T;
 	}
 	virtual double AbstractState::dCdT(void){
-		checkCompressible();
 		return 1.0/(reducing.rho*reducing.rho)*d3phir_dDelta2_dTau_lim()*-reducing.T/_T/_T;
 	}
 	virtual double AbstractState::dZdDelta(void){
-		checkCompressible();
 		return delta*d2phir_dDelta2()+dphir_dDelta();
 	}
 	virtual double AbstractState::dZdTau(void){
-		checkCompressible();
 		return delta*d2phir_dDelta_dTau();
 	}
 
-	// ----------------------------------------
-	// Derivatives along the saturation curve
-	// ----------------------------------------
-	/// Derivative of temperature w.r.t. pressure along saturation curve
-	virtual double AbstractState::dTdp_along_sat(void);
-	/// Second derivative of temperature w.r.t. pressure along saturation curve
-	virtual double AbstractState::d2Tdp2_along_sat(void);
-	/// Partial derivative w.r.t. pressure of dTdp along saturation curve
-	virtual double AbstractState::ddp_dTdp_along_sat(void);
-	/// Partial derivative w.r.t. temperature of dTdp along saturation curve
-	virtual double AbstractState::ddT_dTdp_along_sat(void);
-
-	virtual double AbstractState::dhdp_along_sat_vapor(void);
-	virtual double AbstractState::dhdp_along_sat_liquid(void);
-	virtual double AbstractState::d2hdp2_along_sat_vapor(void);
-	virtual double AbstractState::d2hdp2_along_sat_liquid(void);
-
-	virtual double AbstractState::dsdp_along_sat_vapor(void);
-	virtual double AbstractState::dsdp_along_sat_liquid(void);
-	virtual double AbstractState::d2sdp2_along_sat_vapor(void);
-	virtual double AbstractState::d2sdp2_along_sat_liquid(void);
-
-	virtual double AbstractState::drhodp_along_sat_vapor(void);
-	virtual double AbstractState::drhodp_along_sat_liquid(void);
-	virtual double AbstractState::d2rhodp2_along_sat_vapor(void);
-	virtual double AbstractState::d2rhodp2_along_sat_liquid(void);
-
-	/*virtual double AbstractState::dsdT_along_sat_vapor(void);
-	virtual double AbstractState::dsdT_along_sat_liquid(void);
-
-	virtual double AbstractState::dhdT_along_sat_vapor(void);
-	virtual double AbstractState::dhdT_along_sat_liquid(void);*/
-
-	virtual double AbstractState::drhodT_along_sat_vapor(void);
-	virtual double AbstractState::drhodT_along_sat_liquid(void);
-
-
 //	// ----------------------------------------
-//	// Helmholtz Energy Derivatives
+//	// Helmholtz energy and derivatives
 //	// ----------------------------------------
 //	virtual double AbstractState::phi0(void);
 //	virtual double AbstractState::dphi0_dDelta(void);

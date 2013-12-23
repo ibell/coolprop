@@ -23,6 +23,11 @@ provide the mechanism to update the values. This has to be implemented in
 a subclass. Most functions are defined as virtual functions allowing us
 redefine them later, for example to implement the TTSE technique. The
 functions defined here are always used as a fall-back.
+
+This base class does not perform any checks on the two-phase conditions and
+alike. Most of the functions defined here only apply to compressible single
+state substances. Make sure you are aware of all the assumptions we made
+when using this class.
 */
 class AbstractState {
 protected:
@@ -110,23 +115,12 @@ public:
 
 
 	// ----------------------------------------
-	// Smoothing functions for density
-	// ----------------------------------------
-	/// A smoothed version of the derivative using a spline curve in the region of x=0 to x=xend
-	virtual double drhodh_constp_smoothed(double xend);
-	/// A smoothed version of the derivative using a spline curve in the region of x=0 to x=xend
-	virtual double drhodp_consth_smoothed(double xend);
-	/// Density corresponding to the smoothed derivatives in the region of x=0 to x=xend
-	virtual void rho_smoothed(double xend, double *rho_spline, double *dsplinedh, double *dsplinedp);
-
-
-	// ----------------------------------------
 	// Transport properties
 	// ----------------------------------------
-	virtual double viscosity(void);
-	virtual double conductivity(void);
+	virtual double viscosity(void) = 0;
+	virtual double conductivity(void) = 0;
 
-	virtual double surface_tension(void);
+	virtual double surface_tension(void) = 0;
 
 
 	// ----------------------------------------
@@ -204,44 +198,7 @@ public:
 
 
 	// ----------------------------------------
-	// Derivatives along the saturation curve
-	// ----------------------------------------
-	/// Derivative of temperature w.r.t. pressure along saturation curve
-	virtual double dTdp_along_sat(void);
-	/// Second derivative of temperature w.r.t. pressure along saturation curve
-	virtual double d2Tdp2_along_sat(void);
-	/// Partial derivative w.r.t. pressure of dTdp along saturation curve
-	virtual double ddp_dTdp_along_sat(void);
-	/// Partial derivative w.r.t. temperature of dTdp along saturation curve
-	virtual double ddT_dTdp_along_sat(void);
-
-	virtual double dhdp_along_sat_vapor(void);
-	virtual double dhdp_along_sat_liquid(void);
-	virtual double d2hdp2_along_sat_vapor(void);
-	virtual double d2hdp2_along_sat_liquid(void);
-
-	virtual double dsdp_along_sat_vapor(void);
-	virtual double dsdp_along_sat_liquid(void);
-	virtual double d2sdp2_along_sat_vapor(void);
-	virtual double d2sdp2_along_sat_liquid(void);
-
-	virtual double drhodp_along_sat_vapor(void);
-	virtual double drhodp_along_sat_liquid(void);
-	virtual double d2rhodp2_along_sat_vapor(void);
-	virtual double d2rhodp2_along_sat_liquid(void);
-
-	/*virtual double dsdT_along_sat_vapor(void);
-	virtual double dsdT_along_sat_liquid(void);
-
-	virtual double dhdT_along_sat_vapor(void);
-	virtual double dhdT_along_sat_liquid(void);*/
-
-	virtual double drhodT_along_sat_vapor(void);
-	virtual double drhodT_along_sat_liquid(void);
-
-
-	// ----------------------------------------
-	// Helmholtz Energy Derivatives
+	// Helmholtz energy and derivatives
 	// ----------------------------------------
 	virtual double phi0(void) = 0;
 	virtual double dphi0_dDelta(void) = 0;
@@ -269,7 +226,7 @@ public:
 	virtual double dphir_dDelta_lim(void) = 0;
 	virtual double d2phir_dDelta2_lim(void) = 0;
 	virtual double d2phir_dDelta_dTau_lim(void) = 0;
-	virtual double d3phir_dDelta2_dTau_lim(void = 0);
+	virtual double d3phir_dDelta2_dTau_lim(void) = 0;
 };
 
 } /* namespace CoolProp */
