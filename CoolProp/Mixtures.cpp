@@ -9,6 +9,8 @@
 #include "CoolProp.h"
 #include "Spline.h"
 
+static const bool use_cache = true;
+
 bool has_string_array_member(const rapidjson::Value& a, const char * member)
 {
 	if(a.HasMember(member) && a[member].IsArray())
@@ -415,7 +417,237 @@ void Mixture::test()
 		std::cout << format("%g %g %g\n",TL,TV,p).c_str();
 	}*/
 }
-void Mixture::check()
+
+void Mixture::check_WaterEthanol()
+{
+	std::vector<double> z(2, 0.5);
+
+	double tol = 1e100; // relative tolerance
+	z[0] = 0.5;
+	z[1] = 1-z[0];
+
+	double Tr = pReducing->Tr(z);
+	double Tr_RP91 = 250.57185990876351; // [K]
+	if (fabs(Tr/Tr_RP91-1) > tol){throw ValueError();}
+
+	double rhorbar = pReducing->rhorbar(z);
+	double rhorbar_RP91 = 8205.7858837320694; //[mol/m^3]
+	if (fabs(rhorbar/rhorbar_RP91-1) > tol){throw ValueError();}
+
+	double T = 500; // [K]
+	double rhobar = 868.40163264165199; // [mol/m^3]; to convert from mol/L, multiply by 1000
+	
+	double tau = Tr/T;
+	double delta = rhobar/rhorbar;
+
+	double RT = Rbar(z)*T;
+	double p = rhobar*RT*(1+delta*dphir_dDelta(tau, delta,z));
+	double p_RP91 = 4814.1558068139991;
+	if (fabs(p/p_RP91-1) > tol){throw ValueError();}
+
+	double dtdn0 = pReducing->ndTrdni__constnj(z,0);
+	double dtdn0_RP91 = -56.914351037292874;
+	if (fabs(dtdn0/dtdn0_RP91-1) > tol){throw ValueError();}
+
+	double dtdn1 = pReducing->ndTrdni__constnj(z,1);
+	double dtdn1_RP91 = 56.914351037292874;
+	if (fabs(dtdn1/dtdn1_RP91-1) > tol){throw ValueError();}
+
+	double drhodn0 = pReducing->ndrhorbardni__constnj(z,0);
+	double drhodn0_RP91 = 1579.4307575322835;
+	if (fabs(drhodn0/drhodn0_RP91-1) > tol){throw ValueError();}
+
+	double drhodn1 = pReducing->ndrhorbardni__constnj(z,1);
+	double drhodn1_RP91 = -1579.4307575322843;
+	if (fabs(drhodn1/drhodn1_RP91-1) > tol){throw ValueError();}
+
+	double ddrdxn00 = pReducing->d_ndrhorbardni_dxj__constxi(z,0,0);
+	double ddrdxn00_RP91 = 10652.242638037194;
+	if (fabs(ddrdxn00/ddrdxn00_RP91-1) > tol){throw ValueError();}
+
+	double ddrdxn01 = pReducing->d_ndrhorbardni_dxj__constxi(z,0,1);
+	double ddrdxn01_RP91 = 12694.316351697381;
+	if (fabs(ddrdxn01/ddrdxn01_RP91-1) > tol){throw ValueError();}
+
+	double ddrdxn10 = pReducing->d_ndrhorbardni_dxj__constxi(z,1,0);
+	double ddrdxn10_RP91 = 19012.039381826526;
+	if (fabs(ddrdxn10/ddrdxn10_RP91-1) > tol){throw ValueError();}
+
+	double ddrdxn11 = pReducing->d_ndrhorbardni_dxj__constxi(z,1,1);
+	double ddrdxn11_RP91 = 23287.688698295469;
+	if (fabs(ddrdxn11/ddrdxn11_RP91-1) > tol){throw ValueError();}
+
+	double dtrdxn00 = pReducing->d_ndTrdni_dxj__constxi(z,0,0);
+	double dtrdxn00_RP91 = -506.39802892344619;
+	if (fabs(dtrdxn00/dtrdxn00_RP91-1) > tol){throw ValueError();}
+
+	double dtrdxn01 = pReducing->d_ndTrdni_dxj__constxi(z,0,1);
+	double dtrdxn01_RP91 = -609.71811278619361;
+	if (fabs(dtrdxn01/dtrdxn01_RP91-1) > tol){throw ValueError();}
+	
+	double dtrdxn10 = pReducing->d_ndTrdni_dxj__constxi(z,1,0);
+	double dtrdxn10_RP91 = -382.06070863702217;
+	if (fabs(dtrdxn10/dtrdxn10_RP91-1) > tol){throw ValueError();}
+	
+	double dtrdxn11 = pReducing->d_ndTrdni_dxj__constxi(z,1,1);
+	double dtrdxn11_RP91 = -506.39802892344630;
+	if (fabs(dtrdxn11/dtrdxn11_RP91-1) > tol){throw ValueError();}
+
+	double dadxi0 = this->dphir_dxi(tau, delta, z, 0);
+	double dadxi0_RP91 = -1.66733159546361936E-003;
+	if (fabs(dadxi0/dadxi0_RP91-1) > tol){throw ValueError();}
+
+	double dadxi1 = this->dphir_dxi(tau, delta, z, 1);
+	double dadxi1_RP91 = -1.82138497681156902E-003;
+	if (fabs(dadxi1/dadxi1_RP91-1) > tol){throw ValueError();}
+
+	double daddx0 = this->d2phir_dxi_dDelta(tau,delta,z,0);
+	double daddx0_RP91 = -3.4250061506157587;
+	if (fabs(daddx0/daddx0_RP91-1) > tol){throw ValueError();}
+
+	double dadtx0 = this->d2phir_dxi_dTau(tau,delta,z,0);
+	double dadtx0_RP91 = -1.94597122635832131E-003;
+	if (fabs(dadtx0/dadtx0_RP91-1) > tol){throw ValueError();}
+
+	double daddx1 = this->d2phir_dxi_dDelta(tau,delta,z,1);
+	double daddx1_RP91 = -3.7448162669516916;
+	if (fabs(daddx1/daddx1_RP91-1) > tol){throw ValueError();}
+
+	double dadtx1 = this->d2phir_dxi_dTau(tau,delta,z,1);
+	double dadtx1_RP91 = -2.15974774776696646E-003;
+	if (fabs(dadtx1/dadtx1_RP91-1) > tol){throw ValueError();}
+
+	double dadn0 = this->ndphir_dni__constT_V_nj(tau, delta, z, 0);
+	double dadn0_RP91 = -5.24342982584834368E-004;
+	if (fabs(dadn0/dadn0_RP91-1) > tol){throw ValueError();}
+
+	double dadn1 = this->ndphir_dni__constT_V_nj(tau, delta, z, 1);
+	double dadn1_RP91 = -2.89676062124885614E-003;
+	if (fabs(dadn1/dadn1_RP91-1) > tol){throw ValueError();}
+
+	double dpdn0 = ndpdni__constT_V_nj(tau, delta, z, 0);
+	double dpdn0_RP91 = 4811.6359520642318;
+	if (fabs(dpdn0/dpdn0_RP91-1) > tol){throw ValueError();}
+
+	double dpdn1 = ndpdni__constT_V_nj(tau, delta, z, 1);
+	double dpdn1_RP91 = 4800.1319544625067;
+	if (fabs(dpdn1/dpdn1_RP91-1) > tol){throw ValueError();}
+
+	double vhat0 = partial_molar_volume(tau, delta, z, 0);
+	double vhat0_RP91 = 0.25029921648425145;
+	if (fabs(vhat0/vhat0_RP91-1) > tol){throw ValueError();}
+	
+	double vhat1 = partial_molar_volume(tau, delta, z, 1);
+	double vhat1_RP91 = 0.24970078351574867;
+	if (fabs(vhat1/vhat1_RP91-1) > tol){throw ValueError();}
+
+	double d2adbn0 = d2nphir_dni_dT(tau, delta, z, 0);
+	double d2adbn0_RP91 = 2.91400791470335643E-005;
+	if (fabs(d2adbn0/d2adbn0_RP91-1) > tol){throw ValueError();}
+	
+	double d2adbn1 = d2nphir_dni_dT(tau, delta, z, 1);
+	double d2adbn1_RP91 = 6.58714026367381391E-005;
+	if (fabs(d2adbn1/d2adbn1_RP91-1) > tol){throw ValueError();}
+
+	double dphidT0 = dln_fugacity_coefficient_dT__constp_n(tau,delta,z,0);
+	double dphidT0_RP91 = 8.84377505112714235E-006;
+	if (fabs(dphidT0/dphidT0_RP91-1) > tol){throw ValueError();}
+
+	double dphidT1 = dln_fugacity_coefficient_dT__constp_n(tau,delta,z,1);
+	double dphidT1_RP91 = 6.21123852185909847E-005;
+	if (fabs(dphidT1/dphidT1_RP91-1) > tol){throw ValueError();}
+
+	double dphidP0 = dln_fugacity_coefficient_dp__constT_n(tau,delta,z,0);
+	double dphidP0_RP91 = -1.07128474189810419E-007;
+	if (fabs(dphidP0/dphidP0_RP91-1) > tol){throw ValueError();}
+
+	double dphidP1 = dln_fugacity_coefficient_dp__constT_n(tau,delta,z,1);
+	double dphidP1_RP91 = -6.03505693277411881E-007;
+	if (fabs(dphidP1/dphidP1_RP91-1) > tol){throw ValueError();}
+
+	double dadxij00 = d2phirdxidxj(tau, delta, z, 0, 0);
+	double dadxij00_RP91 = 0.0;
+	if (fabs(dadxij00-dadxij00_RP91) > tol){throw ValueError();}
+
+	double dadxij01 = d2phirdxidxj(tau, delta, z, 0, 1);
+	double dadxij01_RP91 = -1.44900341276804124E-004;
+	if (fabs(dadxij01/dadxij01_RP91-1) > tol){throw ValueError();}
+	
+	double dadxij10 = d2phirdxidxj(tau, delta, z, 1, 0);
+	double dadxij10_RP91 = -1.44900341276804124E-004;
+	if (fabs(dadxij10/dadxij10_RP91-1) > tol){throw ValueError();}
+
+	double dadxij11 = d2phirdxidxj(tau, delta, z, 1, 1);
+	double dadxij11_RP91 = 0.0;
+	if (fabs(dadxij11-dadxij11_RP91) > tol){throw ValueError();}
+
+	double d2adxn00 = d_ndphirdni_dxj__constdelta_tau_xi(tau,delta,z,0,0);
+	double d2adxn00_RP91 = 9.52786141739760811E-003;
+	if (fabs(d2adxn00-d2adxn00_RP91) > tol){throw ValueError();}
+
+	double d2adxn01 = d_ndphirdni_dxj__constdelta_tau_xi(tau,delta,z,0,1);
+	double d2adxn01_RP91 = 1.11090273394917772E-002;
+	if (fabs(d2adxn01/d2adxn01_RP91-1) > tol){throw ValueError();}
+	
+	double d2adxn10 = d_ndphirdni_dxj__constdelta_tau_xi(tau,delta,z,1,0);
+	double d2adxn10_RP91 = 8.82661064281056729E-003;
+	if (fabs(d2adxn10/d2adxn10_RP91-1) > tol){throw ValueError();}
+	
+	double d2adxn11 = d_ndphirdni_dxj__constdelta_tau_xi(tau,delta,z,1,1);
+	double d2adxn11_RP91 = 1.16784901260031035E-002;
+	if (fabs(d2adxn11/d2adxn11_RP91-1) > tol){throw ValueError();}
+
+	double d2addn0 = d_ndphirdni_dDelta(tau,delta,z,0);
+	double d2addn0_RP91 = -1.0719438474166139;
+	if (fabs(d2addn0/d2addn0_RP91-1) > tol){throw ValueError();}
+
+	double d2addn1 = d_ndphirdni_dDelta(tau,delta,z,1);
+	double d2addn1_RP91 = -5.9657336386754745;
+	if (fabs(d2addn1/d2addn1_RP91-1) > tol){throw ValueError();}
+
+	double d2adtn0 = d_ndphirdni_dTau(tau,delta,z,0);
+	double d2adtn0_RP91 = -4.58046408525892678E-004;
+	if (fabs(d2adtn0/d2adtn0_RP91-1) > tol){throw ValueError();}
+	
+	double d2adtn1 = d_ndphirdni_dTau(tau,delta,z,1);
+	double d2adtn1_RP91 = -3.54010070086436396E-003;
+	if (fabs(d2adtn1/d2adtn1_RP91-1) > tol){throw ValueError();}
+
+	double d2ann00 = nd2nphirdnidnj__constT_V(tau, delta, z, 0, 0);
+	double d2dnn00_RP91 = -1.55709211017489475E-003;
+	if (fabs(d2ann00/d2dnn00_RP91-1) > tol){throw ValueError();}
+
+	double d2ann01 = nd2nphirdnidnj__constT_V(tau, delta, z, 0, 1);
+	double d2dnn01_RP91 = -2.90907297842576788E-003;
+	if (fabs(d2ann01/d2dnn01_RP91-1) > tol){throw ValueError();}
+	
+	double d2ann10 = nd2nphirdnidnj__constT_V(tau, delta, z, 1, 0);
+	double d2dnn10_RP91 = -2.90907297842577049E-003;
+	if (fabs(d2ann10/d2dnn10_RP91-1) > tol){throw ValueError();}
+	
+	double d2ann11 = nd2nphirdnidnj__constT_V(tau, delta, z, 1, 1);
+	double d2dnn11_RP91 = -6.32815473413224101E-003;
+	if (fabs(d2ann11/d2dnn11_RP91-1) > tol){throw ValueError();}
+
+	double dphidnj00 = ndln_fugacity_coefficient_dnj__constT_p(tau,delta,z,0,0);
+	double dphidnj00_RP91 = -5.18202802448741728E-004;
+	if (fabs(dphidnj00/dphidnj00_RP91-1) > tol){throw ValueError();}
+	
+	double dphidnj01 = ndln_fugacity_coefficient_dnj__constT_p(tau,delta,z,0,1);
+	double dphidnj01_RP91 = 5.18202802448741728E-004;
+	if (fabs(dphidnj01/dphidnj01_RP91-1) > tol){throw ValueError();}
+	
+	double dphidnj10 = ndln_fugacity_coefficient_dnj__constT_p(tau,delta,z,1,0);
+	double dphidnj10_RP91 = 5.18202802448741728E-004;
+	if (fabs(dphidnj10/dphidnj10_RP91-1) > tol){throw ValueError();}
+
+	double dphidnj11 = ndln_fugacity_coefficient_dnj__constT_p(tau,delta,z,1,1);
+	double dphidnj11_RP91 = -5.18202802448741728E-004;
+	if (fabs(dphidnj11/dphidnj11_RP91-1) > tol){throw ValueError();}
+
+}
+
+void Mixture::check_MethaneEthane()
 {
 	std::vector<double> z(2, 0.5);
 
@@ -708,7 +940,7 @@ double Mixture::dln_fugacity_coefficient_dp__constT_n(double tau, double delta, 
 	double p = rhobar*RT*(1.0+delta*dphir_dDelta(tau, delta, x)); // [Pa]
 	double partial_molar_volume = this->partial_molar_volume(tau,delta,x,i); // [m^3/mol]
 	double term1 = partial_molar_volume/RT; // m^3/mol/(N*m)*mol = m^2/N = 1/Pa
-	double term2 = 1.0/p; // equal to 2.07720738615187943E-004 in REFPROP
+	double term2 = 1.0/p;
 	return term1 - term2;
 }
 
@@ -761,7 +993,8 @@ double Mixture::ndphir_dni__constT_V_nj(double tau, double delta, const std::vec
 	{
 		s += x[k]*dphir_dxi(tau,delta,x,k);
 	}
-	return term1 + term2 + dphir_dxi(tau,delta,x,i) - s;
+	double term3 = dphir_dxi(tau,delta,x,i);
+	return term1 + term2 + term3 - s;
 }
 double Mixture::ndln_fugacity_coefficient_dnj__constT_p(double tau, double delta, const std::vector<double> &x, int i, int j)
 {
@@ -1114,7 +1347,6 @@ void Mixture::TpzFlash(double T, double p, const std::vector<double> &z, double 
 
 			change = lnK[i] - lnKold;
 		}
-	
 	}
 	while( fabs(change) > 1e-7);
 
@@ -1218,11 +1450,12 @@ double GERG2008ReducingFunction::dTrdxi__constxj(const std::vector<double> &x, i
 	double dTr_dxi = 2*xi*pFluids[i]->reduce.T;
 	for (int k = 0; k < i; k++)
 	{
-		dTr_dxi += c_Y_ij(k,i,&beta_T,&gamma_T,&T_c)*dfYkidxi__constxk(x,k,i,&beta_T);
+		dTr_dxi += c_Y_ji(k,i,&beta_T,&gamma_T,&T_c)*dfYkidxi__constxk(x,k,i,&beta_T);
 	}
 	for (unsigned int k = i+1; k < N; k++)
 	{
 		dTr_dxi += c_Y_ij(i,k,&beta_T,&gamma_T,&T_c)*dfYikdxi__constxk(x,i,k,&beta_T);
+		double ee = 0;
 	}
 	return dTr_dxi;
 }
@@ -1331,7 +1564,7 @@ double GERG2008ReducingFunction::rhorbar(const std::vector<double> &x)
 }
 double GERG2008ReducingFunction::dfYkidxi__constxk(const std::vector<double> &x, int k, int i, std::vector< std::vector< double> > * beta)
 {
-	double xk = x[k], xi = x[i], beta_Y = (*beta)[i][k]; // TODO: double check beta_Y
+	double xk = x[k], xi = x[i], beta_Y = 1/(*beta)[i][k];
 	return xk*(xk+xi)/(beta_Y*beta_Y*xk+xi)+xk*xi/(beta_Y*beta_Y*xk+xi)*(1-(xk+xi)/(beta_Y*beta_Y*xk+xi));
 }
 double GERG2008ReducingFunction::dfYikdxi__constxk(const std::vector<double> &x, int i, int k, std::vector< std::vector< double> > * beta)
@@ -1342,6 +1575,10 @@ double GERG2008ReducingFunction::dfYikdxi__constxk(const std::vector<double> &x,
 double GERG2008ReducingFunction::c_Y_ij(int i, int j, std::vector< std::vector< double> > * beta, std::vector< std::vector< double> > *gamma, std::vector< std::vector< double> > *Y_c)
 {
 	return 2*((*beta)[i][j])*((*gamma)[i][j])*((*Y_c)[i][j]);
+}
+double GERG2008ReducingFunction::c_Y_ji(int j, int i, std::vector< std::vector< double> > * beta, std::vector< std::vector< double> > *gamma, std::vector< std::vector< double> > *Y_c)
+{
+	return 2/((*beta)[j][i])*((*gamma)[i][j])*((*Y_c)[i][j]);
 }
 double GERG2008ReducingFunction::f_Y_ij(const std::vector<double> &x, int i, int j, std::vector< std::vector< double> > * beta)
 {
@@ -1355,7 +1592,7 @@ double GERG2008ReducingFunction::d2fYikdxi2__constxk(const std::vector<double> &
 }
 double GERG2008ReducingFunction::d2fYkidxi2__constxk(const std::vector<double> &x, int i, int k, std::vector< std::vector< double> > * beta)
 {
-	double xi = x[i], xk = x[k], beta_Y = (*beta)[i][k]; // TODO: double check beta_Y
+	double xi = x[i], xk = x[k], beta_Y = 1/(*beta)[i][k];
 	return 1/(beta_Y*beta_Y*xk+xi)*(1-(xk+xi)/(beta_Y*beta_Y*xk+xi))*(2*xk-xk*xi*2/(beta_Y*beta_Y*xk+xi));
 }
 double GERG2008ReducingFunction::d2fYijdxidxj(const std::vector<double> &x, int i, int j, std::vector< std::vector< double> > * beta)
@@ -1369,6 +1606,7 @@ void GERG2008ReducingFunction::set_coeffs_from_map(int i, int j, std::map<std::s
 {
 	beta_v[i][j] = m.find("betaV")->second;
 	beta_T[i][j] = m.find("betaT")->second;
+		
 	gamma_v[i][j] = m.find("gammaV")->second;
 	gamma_T[i][j] = m.find("gammaT")->second;
 
@@ -1578,7 +1816,7 @@ void GERG2008DepartureFunction::set_coeffs_from_map(std::map<std::string,std::ve
 
 double LemmonHFCDepartureFunction::phir(double tau, double delta)
 {
-	if (double_equal(tau,cache.phir.tau) && double_equal(delta,cache.phir.delta))
+	if (use_cache && double_equal(tau,cache.phir.tau) && double_equal(delta,cache.phir.delta))
 	{
 		return cache.phir.cached_val;
 	}
@@ -1593,7 +1831,7 @@ double LemmonHFCDepartureFunction::phir(double tau, double delta)
 }
 double LemmonHFCDepartureFunction::dphir_dDelta(double tau, double delta)
 {
-	if (double_equal(tau,cache.dphir_dDelta.tau) && double_equal(delta,cache.dphir_dDelta.delta))
+	if (use_cache && double_equal(tau,cache.dphir_dDelta.tau) && double_equal(delta,cache.dphir_dDelta.delta))
 	{
 		return cache.dphir_dDelta.cached_val;
 	}
@@ -1608,7 +1846,7 @@ double LemmonHFCDepartureFunction::dphir_dDelta(double tau, double delta)
 }
 double LemmonHFCDepartureFunction::d2phir_dDelta2(double tau, double delta)
 {
-	if (double_equal(tau,cache.d2phir_dDelta2.tau) && double_equal(delta,cache.d2phir_dDelta2.delta))
+	if (use_cache && double_equal(tau,cache.d2phir_dDelta2.tau) && double_equal(delta,cache.d2phir_dDelta2.delta))
 	{
 		return cache.d2phir_dDelta2.cached_val;
 	}
@@ -1624,7 +1862,7 @@ double LemmonHFCDepartureFunction::d2phir_dDelta2(double tau, double delta)
 double LemmonHFCDepartureFunction::d2phir_dDelta_dTau(double tau, double delta)
 {
 	
-	if (double_equal(tau,cache.d2phir_dDelta_dTau.tau) && double_equal(delta,cache.d2phir_dDelta_dTau.delta))
+	if (use_cache && double_equal(tau,cache.d2phir_dDelta_dTau.tau) && double_equal(delta,cache.d2phir_dDelta_dTau.delta))
 	{
 		return cache.d2phir_dDelta_dTau.cached_val;
 	}
@@ -1639,7 +1877,7 @@ double LemmonHFCDepartureFunction::d2phir_dDelta_dTau(double tau, double delta)
 }
 double LemmonHFCDepartureFunction::dphir_dTau(double tau, double delta)
 {
-	if (double_equal(tau,cache.dphir_dTau.tau) && double_equal(delta,cache.dphir_dTau.delta))
+	if (use_cache && double_equal(tau,cache.dphir_dTau.tau) && double_equal(delta,cache.dphir_dTau.delta))
 	{
 		return cache.dphir_dTau.cached_val;
 	}
@@ -1655,7 +1893,7 @@ double LemmonHFCDepartureFunction::dphir_dTau(double tau, double delta)
 double LemmonHFCDepartureFunction::d2phir_dTau2(double tau, double delta)
 {
 	
-	if (double_equal(tau,cache.d2phir_dTau2.tau) && double_equal(delta,cache.d2phir_dTau2.delta))
+	if (use_cache && double_equal(tau,cache.d2phir_dTau2.tau) && double_equal(delta,cache.d2phir_dTau2.delta))
 	{
 		return cache.d2phir_dTau2.cached_val;
 	}
@@ -1925,6 +2163,7 @@ double ReducingFunction::ndrhorbardni__constnj(const std::vector<double> &x, int
 }
 double ReducingFunction::ndTrdni__constnj(const std::vector<double> &x, int i)
 {
+	// GERG Equation 7.54
 	double summer_term1 = 0;
 	for (unsigned int j = 0; j < N; j++)
 	{
@@ -2253,7 +2492,18 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z)
 	}
 
 	// The initial value for the step (conservative)
-	DELTAS = log(1.1);
+	if (double_equal(beta_envelope,1.0))
+	{
+		DELTAS = log(0.99);
+	}
+	else if (double_equal(beta_envelope,0.0))
+	{
+		DELTAS = log(1.1);
+	}
+	else
+	{
+		throw ValueError();
+	}
 
 	// Run once with the specified variable set
 	Mix->NRVLE.call(beta_envelope, T, p, rhobar_liq, rhobar_vap, z, K, i_S, Sold);
@@ -2415,7 +2665,7 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z)
 					iii_S = i;
 				}
 			}
-			std::cout << format("T,P,Nstep,K : %g %g %d %g %g %d %s\n",T,p,Mix->NRVLE.Nsteps, rhobar_liq, rhobar_vap, iii_S, vec_to_string(K,"%6.5g").c_str());
+			//std::cout << format("T,P,Nstep,K : %g %g %d %g %g %d %s\n",T,p,Mix->NRVLE.Nsteps, rhobar_liq, rhobar_vap, iii_S, vec_to_string(K,"%6.5g").c_str());
 		}
 		
 		// Update step counter
@@ -2431,10 +2681,28 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z)
 	}
 	while (p > p0 && iter < 1000);
 
-	std::cout << "T = " << vec_to_string(data.T,"%10.9g") <<std::endl;
-	std::cout << "p = " << vec_to_string(data.p,"%10.9g") << std::endl;
-	std::cout << "rhobar_liq = " << vec_to_string(data.rhobar_liq,"%10.9g") << std::endl;
-	std::cout << "rhobar_vap = " << vec_to_string(data.rhobar_vap,"%10.9g") << std::endl;
+	FILE *fp;
+	if (double_equal(beta_envelope,1.0))
+	{
+		fp = fopen("phase_envelope_dew.py","w");
+	}
+	else if (double_equal(beta_envelope,0.0))
+	{
+		fp = fopen("phase_envelope_bubble.py","w");
+	}
+	
+	fprintf(fp, "import matplotlib.pyplot as plt\n");
+	fprintf(fp, "T = %s\n",vec_to_string(data.T,"%10.9g").c_str());
+	fprintf(fp, "p = %s\n",vec_to_string(data.p,"%10.9g").c_str());
+	fprintf(fp, "rhobar_liq = %s\n", vec_to_string(data.rhobar_liq,"%10.9g").c_str());
+	fprintf(fp, "rhobar_vap = %s\n", vec_to_string(data.rhobar_vap,"%10.9g").c_str());
+	fprintf(fp, "K0 = %s\n", vec_to_string(data.K[0],"%10.9g").c_str());
+	fprintf(fp, "K1 = %s\n", vec_to_string(data.K[1],"%10.9g").c_str());
+	fprintf(fp, "lnK0 = %s\n", vec_to_string(data.lnK[0],"%10.9g").c_str());
+	fprintf(fp, "lnK1 = %s\n", vec_to_string(data.lnK[1],"%10.9g").c_str());
+	fprintf(fp, "if __name__=='__main__':\n\tplt.plot(T,p,'o-')\n\tplt.show()");
+	fprintf(fp, "\n\tplt.plot(K0,p,'o-')\n\tplt.show()");
+	fclose(fp);
 
 	double rr = 0;
 }

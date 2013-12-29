@@ -119,6 +119,7 @@ public:
 	void set_coeffs_from_map(int i, int j, std::map<std::string,double >);
 
 	double c_Y_ij(int i, int j, std::vector< std::vector< double> > * beta, std::vector< std::vector< double> > *gamma, std::vector< std::vector< double> > *Y_c);
+	double c_Y_ji(int j, int i, std::vector< std::vector< double> > * beta, std::vector< std::vector< double> > *gamma, std::vector< std::vector< double> > *Y_c);
 	double f_Y_ij(const std::vector<double> &x, int i, int j, std::vector< std::vector< double> > * beta);
 
 	double dfYkidxi__constxk(const std::vector<double> &x, int k, int i,std::vector< std::vector< double> > * beta);
@@ -654,7 +655,9 @@ public:
 	*/
 	std::map<std::string, double> load_reducing_values(int i, int j);
 
-	void check();
+	void check_MethaneEthane();
+	void check_WaterEthanol();
+
 	void test();
 };
 
