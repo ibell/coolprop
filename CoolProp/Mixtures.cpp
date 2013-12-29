@@ -130,8 +130,16 @@ std::map<std::string, double> Mixture::load_reducing_values(int i, int j)
 							// One reducing function for the entire mixture
 							pReducing = new GERG2008ReducingFunction(pFluids);
 						}
-						outputmap.insert(std::pair<std::string, double >("betaT",(*itrC)["betaT"].GetDouble()));
-						outputmap.insert(std::pair<std::string, double >("betaV",(*itrC)["betaV"].GetDouble()));
+						if (!(FluidiCAS.compare(CAS1)) && !(FluidjCAS.compare(CAS2)))
+						{
+							outputmap.insert(std::pair<std::string, double >("betaT",(*itrC)["betaT"].GetDouble()));
+							outputmap.insert(std::pair<std::string, double >("betaV",(*itrC)["betaV"].GetDouble()));
+						}
+						else
+						{
+							outputmap.insert(std::pair<std::string, double >("betaT",1/(*itrC)["betaT"].GetDouble()));
+							outputmap.insert(std::pair<std::string, double >("betaV",1/(*itrC)["betaV"].GetDouble()));
+						}
 						outputmap.insert(std::pair<std::string, double >("gammaT",(*itrC)["gammaT"].GetDouble()));
 						outputmap.insert(std::pair<std::string, double >("gammaV",(*itrC)["gammaV"].GetDouble()));
 						outputmap.insert(std::pair<std::string, double >("F",(*itrC)["F"].GetDouble()));
@@ -422,16 +430,16 @@ void Mixture::check_WaterEthanol()
 {
 	std::vector<double> z(2, 0.5);
 
-	double tol = 1e100; // relative tolerance
-	z[0] = 0.5;
+	double tol = 1e-10; // relative tolerance
+	z[0] = 0.4;
 	z[1] = 1-z[0];
 
 	double Tr = pReducing->Tr(z);
-	double Tr_RP91 = 250.57185990876351; // [K]
+	double Tr_RP91 = 574.10640748981632; // [K]
 	if (fabs(Tr/Tr_RP91-1) > tol){throw ValueError();}
 
 	double rhorbar = pReducing->rhorbar(z);
-	double rhorbar_RP91 = 8205.7858837320694; //[mol/m^3]
+	double rhorbar_RP91 = 11090.627577544581; //[mol/m^3]
 	if (fabs(rhorbar/rhorbar_RP91-1) > tol){throw ValueError();}
 
 	double T = 500; // [K]
@@ -442,127 +450,127 @@ void Mixture::check_WaterEthanol()
 
 	double RT = Rbar(z)*T;
 	double p = rhobar*RT*(1+delta*dphir_dDelta(tau, delta,z));
-	double p_RP91 = 4814.1558068139991;
+	double p_RP91 = 3011336.2097271665;
 	if (fabs(p/p_RP91-1) > tol){throw ValueError();}
 
 	double dtdn0 = pReducing->ndTrdni__constnj(z,0);
-	double dtdn0_RP91 = -56.914351037292874;
+	double dtdn0_RP91 = -80.606224987885071;
 	if (fabs(dtdn0/dtdn0_RP91-1) > tol){throw ValueError();}
 
 	double dtdn1 = pReducing->ndTrdni__constnj(z,1);
-	double dtdn1_RP91 = 56.914351037292874;
+	double dtdn1_RP91 = 53.737483325256562;
 	if (fabs(dtdn1/dtdn1_RP91-1) > tol){throw ValueError();}
 
 	double drhodn0 = pReducing->ndrhorbardni__constnj(z,0);
-	double drhodn0_RP91 = 1579.4307575322835;
+	double drhodn0_RP91 = -7259.8385028178765;
 	if (fabs(drhodn0/drhodn0_RP91-1) > tol){throw ValueError();}
 
 	double drhodn1 = pReducing->ndrhorbardni__constnj(z,1);
-	double drhodn1_RP91 = -1579.4307575322843;
+	double drhodn1_RP91 = 4839.8923352119168;
 	if (fabs(drhodn1/drhodn1_RP91-1) > tol){throw ValueError();}
 
 	double ddrdxn00 = pReducing->d_ndrhorbardni_dxj__constxi(z,0,0);
-	double ddrdxn00_RP91 = 10652.242638037194;
+	double ddrdxn00_RP91 = 57050.801427407002;
 	if (fabs(ddrdxn00/ddrdxn00_RP91-1) > tol){throw ValueError();}
 
 	double ddrdxn01 = pReducing->d_ndrhorbardni_dxj__constxi(z,0,1);
-	double ddrdxn01_RP91 = 12694.316351697381;
+	double ddrdxn01_RP91 = 35234.083487633299;
 	if (fabs(ddrdxn01/ddrdxn01_RP91-1) > tol){throw ValueError();}
 
 	double ddrdxn10 = pReducing->d_ndrhorbardni_dxj__constxi(z,1,0);
-	double ddrdxn10_RP91 = 19012.039381826526;
+	double ddrdxn10_RP91 = 11034.621811573714;
 	if (fabs(ddrdxn10/ddrdxn10_RP91-1) > tol){throw ValueError();}
 
 	double ddrdxn11 = pReducing->d_ndrhorbardni_dxj__constxi(z,1,1);
-	double ddrdxn11_RP91 = 23287.688698295469;
+	double ddrdxn11_RP91 = 5412.8823747065340;
 	if (fabs(ddrdxn11/ddrdxn11_RP91-1) > tol){throw ValueError();}
 
 	double dtrdxn00 = pReducing->d_ndTrdni_dxj__constxi(z,0,0);
-	double dtrdxn00_RP91 = -506.39802892344619;
+	double dtrdxn00_RP91 = -1078.6599487910798;
 	if (fabs(dtrdxn00/dtrdxn00_RP91-1) > tol){throw ValueError();}
 
 	double dtrdxn01 = pReducing->d_ndTrdni_dxj__constxi(z,0,1);
-	double dtrdxn01_RP91 = -609.71811278619361;
+	double dtrdxn01_RP91 = -1328.9251007518092;
 	if (fabs(dtrdxn01/dtrdxn01_RP91-1) > tol){throw ValueError();}
 	
 	double dtrdxn10 = pReducing->d_ndTrdni_dxj__constxi(z,1,0);
-	double dtrdxn10_RP91 = -382.06070863702217;
+	double dtrdxn10_RP91 = -1060.2376841255259;
 	if (fabs(dtrdxn10/dtrdxn10_RP91-1) > tol){throw ValueError();}
 	
 	double dtrdxn11 = pReducing->d_ndTrdni_dxj__constxi(z,1,1);
-	double dtrdxn11_RP91 = -506.39802892344630;
+	double dtrdxn11_RP91 = -1117.3004300069424;
 	if (fabs(dtrdxn11/dtrdxn11_RP91-1) > tol){throw ValueError();}
 
-	double dadxi0 = this->dphir_dxi(tau, delta, z, 0);
+	/*double dadxi0 = this->dphir_dxi(tau, delta, z, 0);
 	double dadxi0_RP91 = -1.66733159546361936E-003;
 	if (fabs(dadxi0/dadxi0_RP91-1) > tol){throw ValueError();}
 
 	double dadxi1 = this->dphir_dxi(tau, delta, z, 1);
 	double dadxi1_RP91 = -1.82138497681156902E-003;
-	if (fabs(dadxi1/dadxi1_RP91-1) > tol){throw ValueError();}
+	if (fabs(dadxi1/dadxi1_RP91-1) > tol){throw ValueError();}*/
 
 	double daddx0 = this->d2phir_dxi_dDelta(tau,delta,z,0);
-	double daddx0_RP91 = -3.4250061506157587;
+	double daddx0_RP91 = -1.9898117177651518;
 	if (fabs(daddx0/daddx0_RP91-1) > tol){throw ValueError();}
 
-	double dadtx0 = this->d2phir_dxi_dTau(tau,delta,z,0);
-	double dadtx0_RP91 = -1.94597122635832131E-003;
-	if (fabs(dadtx0/dadtx0_RP91-1) > tol){throw ValueError();}
-
 	double daddx1 = this->d2phir_dxi_dDelta(tau,delta,z,1);
-	double daddx1_RP91 = -3.7448162669516916;
+	double daddx1_RP91 = -2.1704856931980134;
 	if (fabs(daddx1/daddx1_RP91-1) > tol){throw ValueError();}
 
+	double dadtx0 = this->d2phir_dxi_dTau(tau,delta,z,0);
+	double dadtx0_RP91 = -0.54706966169729132;
+	if (fabs(dadtx0/dadtx0_RP91-1) > tol){throw ValueError();}
+
 	double dadtx1 = this->d2phir_dxi_dTau(tau,delta,z,1);
-	double dadtx1_RP91 = -2.15974774776696646E-003;
+	double dadtx1_RP91 = -0.45648092575441646;
 	if (fabs(dadtx1/dadtx1_RP91-1) > tol){throw ValueError();}
 
 	double dadn0 = this->ndphir_dni__constT_V_nj(tau, delta, z, 0);
-	double dadn0_RP91 = -5.24342982584834368E-004;
+	double dadn0_RP91 = -0.18827619536857490;
 	if (fabs(dadn0/dadn0_RP91-1) > tol){throw ValueError();}
 
 	double dadn1 = this->ndphir_dni__constT_V_nj(tau, delta, z, 1);
-	double dadn1_RP91 = -2.89676062124885614E-003;
+	double dadn1_RP91 = -0.15092181712014577;
 	if (fabs(dadn1/dadn1_RP91-1) > tol){throw ValueError();}
 
 	double dpdn0 = ndpdni__constT_V_nj(tau, delta, z, 0);
-	double dpdn0_RP91 = 4811.6359520642318;
+	double dpdn0_RP91 = 2359472.7345531628;
 	if (fabs(dpdn0/dpdn0_RP91-1) > tol){throw ValueError();}
 
 	double dpdn1 = ndpdni__constT_V_nj(tau, delta, z, 1);
-	double dpdn1_RP91 = 4800.1319544625067;
+	double dpdn1_RP91 = 2459536.5646813584;
 	if (fabs(dpdn1/dpdn1_RP91-1) > tol){throw ValueError();}
 
 	double vhat0 = partial_molar_volume(tau, delta, z, 0);
-	double vhat0_RP91 = 0.25029921648425145;
+	double vhat0_RP91 = 1.1229663043954532/1000;
 	if (fabs(vhat0/vhat0_RP91-1) > tol){throw ValueError();}
 	
 	double vhat1 = partial_molar_volume(tau, delta, z, 1);
-	double vhat1_RP91 = 0.24970078351574867;
+	double vhat1_RP91 = 1.1705906349830217/1000;
 	if (fabs(vhat1/vhat1_RP91-1) > tol){throw ValueError();}
 
-	double d2adbn0 = d2nphir_dni_dT(tau, delta, z, 0);
+	/*double d2adbn0 = d2nphir_dni_dT(tau, delta, z, 0);
 	double d2adbn0_RP91 = 2.91400791470335643E-005;
 	if (fabs(d2adbn0/d2adbn0_RP91-1) > tol){throw ValueError();}
 	
 	double d2adbn1 = d2nphir_dni_dT(tau, delta, z, 1);
 	double d2adbn1_RP91 = 6.58714026367381391E-005;
-	if (fabs(d2adbn1/d2adbn1_RP91-1) > tol){throw ValueError();}
+	if (fabs(d2adbn1/d2adbn1_RP91-1) > tol){throw ValueError();}*/
 
 	double dphidT0 = dln_fugacity_coefficient_dT__constp_n(tau,delta,z,0);
-	double dphidT0_RP91 = 8.84377505112714235E-006;
+	double dphidT0_RP91 = 1.80275151505261211E-003;
 	if (fabs(dphidT0/dphidT0_RP91-1) > tol){throw ValueError();}
 
 	double dphidT1 = dln_fugacity_coefficient_dT__constp_n(tau,delta,z,1);
-	double dphidT1_RP91 = 6.21123852185909847E-005;
+	double dphidT1_RP91 =  1.24216502708919410E-003;
 	if (fabs(dphidT1/dphidT1_RP91-1) > tol){throw ValueError();}
 
 	double dphidP0 = dln_fugacity_coefficient_dp__constT_n(tau,delta,z,0);
-	double dphidP0_RP91 = -1.07128474189810419E-007;
+	double dphidP0_RP91 = -6.19532350116346726E-005/1000;
 	if (fabs(dphidP0/dphidP0_RP91-1) > tol){throw ValueError();}
 
 	double dphidP1 = dln_fugacity_coefficient_dp__constT_n(tau,delta,z,1);
-	double dphidP1_RP91 = -6.03505693277411881E-007;
+	double dphidP1_RP91 = -5.04973839435411730E-005/1000;
 	if (fabs(dphidP1/dphidP1_RP91-1) > tol){throw ValueError();}
 
 	double dadxij00 = d2phirdxidxj(tau, delta, z, 0, 0);
@@ -570,11 +578,11 @@ void Mixture::check_WaterEthanol()
 	if (fabs(dadxij00-dadxij00_RP91) > tol){throw ValueError();}
 
 	double dadxij01 = d2phirdxidxj(tau, delta, z, 0, 1);
-	double dadxij01_RP91 = -1.44900341276804124E-004;
+	double dadxij01_RP91 = 2.95156019175951646E-003;
 	if (fabs(dadxij01/dadxij01_RP91-1) > tol){throw ValueError();}
 	
 	double dadxij10 = d2phirdxidxj(tau, delta, z, 1, 0);
-	double dadxij10_RP91 = -1.44900341276804124E-004;
+	double dadxij10_RP91 = 2.95156019175951646E-003;
 	if (fabs(dadxij10/dadxij10_RP91-1) > tol){throw ValueError();}
 
 	double dadxij11 = d2phirdxidxj(tau, delta, z, 1, 1);
@@ -582,67 +590,67 @@ void Mixture::check_WaterEthanol()
 	if (fabs(dadxij11-dadxij11_RP91) > tol){throw ValueError();}
 
 	double d2adxn00 = d_ndphirdni_dxj__constdelta_tau_xi(tau,delta,z,0,0);
-	double d2adxn00_RP91 = 9.52786141739760811E-003;
+	double d2adxn00_RP91 = 1.4701046408163372;
 	if (fabs(d2adxn00-d2adxn00_RP91) > tol){throw ValueError();}
 
 	double d2adxn01 = d_ndphirdni_dxj__constdelta_tau_xi(tau,delta,z,0,1);
-	double d2adxn01_RP91 = 1.11090273394917772E-002;
+	double d2adxn01_RP91 = 1.4673267962070480;
 	if (fabs(d2adxn01/d2adxn01_RP91-1) > tol){throw ValueError();}
 	
 	double d2adxn10 = d_ndphirdni_dxj__constdelta_tau_xi(tau,delta,z,1,0);
-	double d2adxn10_RP91 = 8.82661064281056729E-003;
+	double d2adxn10_RP91 = 1.5168952199179448;
 	if (fabs(d2adxn10/d2adxn10_RP91-1) > tol){throw ValueError();}
 	
 	double d2adxn11 = d_ndphirdni_dxj__constdelta_tau_xi(tau,delta,z,1,1);
-	double d2adxn11_RP91 = 1.16784901260031035E-002;
+	double d2adxn11_RP91 = 1.4329117162994811;
 	if (fabs(d2adxn11/d2adxn11_RP91-1) > tol){throw ValueError();}
 
 	double d2addn0 = d_ndphirdni_dDelta(tau,delta,z,0);
-	double d2addn0_RP91 = -1.0719438474166139;
+	double d2addn0_RP91 = -2.3060567022876386;
 	if (fabs(d2addn0/d2addn0_RP91-1) > tol){throw ValueError();}
 
 	double d2addn1 = d_ndphirdni_dDelta(tau,delta,z,1);
-	double d2addn1_RP91 = -5.9657336386754745;
+	double d2addn1_RP91 = -1.9520671401909093;
 	if (fabs(d2addn1/d2addn1_RP91-1) > tol){throw ValueError();}
 
 	double d2adtn0 = d_ndphirdni_dTau(tau,delta,z,0);
-	double d2adtn0_RP91 = -4.58046408525892678E-004;
+	double d2adtn0_RP91 = -0.62562519155517959;
 	if (fabs(d2adtn0/d2adtn0_RP91-1) > tol){throw ValueError();}
 	
 	double d2adtn1 = d_ndphirdni_dTau(tau,delta,z,1);
-	double d2adtn1_RP91 = -3.54010070086436396E-003;
+	double d2adtn1_RP91 = -0.43264230263327769;
 	if (fabs(d2adtn1/d2adtn1_RP91-1) > tol){throw ValueError();}
 
 	double d2ann00 = nd2nphirdnidnj__constT_V(tau, delta, z, 0, 0);
-	double d2dnn00_RP91 = -1.55709211017489475E-003;
+	double d2dnn00_RP91 = -0.38451299457845400;
 	if (fabs(d2ann00/d2dnn00_RP91-1) > tol){throw ValueError();}
 
 	double d2ann01 = nd2nphirdnidnj__constT_V(tau, delta, z, 0, 1);
-	double d2dnn01_RP91 = -2.90907297842576788E-003;
+	double d2dnn01_RP91 = -0.32103958765767326;
 	if (fabs(d2ann01/d2dnn01_RP91-1) > tol){throw ValueError();}
 	
 	double d2ann10 = nd2nphirdnidnj__constT_V(tau, delta, z, 1, 0);
-	double d2dnn10_RP91 = -2.90907297842577049E-003;
+	double d2dnn10_RP91 = -0.32103958765767304;
 	if (fabs(d2ann10/d2dnn10_RP91-1) > tol){throw ValueError();}
 	
 	double d2ann11 = nd2nphirdnidnj__constT_V(tau, delta, z, 1, 1);
-	double d2dnn11_RP91 = -6.32815473413224101E-003;
+	double d2dnn11_RP91 = -0.31715926219249480;
 	if (fabs(d2ann11/d2dnn11_RP91-1) > tol){throw ValueError();}
 
 	double dphidnj00 = ndln_fugacity_coefficient_dnj__constT_p(tau,delta,z,0,0);
-	double dphidnj00_RP91 = -5.18202802448741728E-004;
+	double dphidnj00_RP91 = -2.18661832047073457E-002;
 	if (fabs(dphidnj00/dphidnj00_RP91-1) > tol){throw ValueError();}
 	
 	double dphidnj01 = ndln_fugacity_coefficient_dnj__constT_p(tau,delta,z,0,1);
-	double dphidnj01_RP91 = 5.18202802448741728E-004;
+	double dphidnj01_RP91 = 1.45774554698049341E-002;
 	if (fabs(dphidnj01/dphidnj01_RP91-1) > tol){throw ValueError();}
 	
 	double dphidnj10 = ndln_fugacity_coefficient_dnj__constT_p(tau,delta,z,1,0);
-	double dphidnj10_RP91 = 5.18202802448741728E-004;
+	double dphidnj10_RP91 = 1.45774554698051562E-002;
 	if (fabs(dphidnj10/dphidnj10_RP91-1) > tol){throw ValueError();}
 
 	double dphidnj11 = ndln_fugacity_coefficient_dnj__constT_p(tau,delta,z,1,1);
-	double dphidnj11_RP91 = -5.18202802448741728E-004;
+	double dphidnj11_RP91 = -9.71830364653669676E-003;
 	if (fabs(dphidnj11/dphidnj11_RP91-1) > tol){throw ValueError();}
 
 }
@@ -1161,7 +1169,7 @@ public:
 	}
 	double deriv(double rhobar){
 		double delta = rhobar/rhorbar;
-		double val = Rbar*T*(1 + 2*delta*dphir_dDelta+delta*delta*Mix->d2phir_dDelta2(tau, delta, *x));
+		double val = Rbar*T*(1 + 2*delta*Mix->dphir_dDelta(tau, delta, *x)+delta*delta*Mix->d2phir_dDelta2(tau, delta, *x));
 		return val;
 	}
 };
@@ -1455,7 +1463,6 @@ double GERG2008ReducingFunction::dTrdxi__constxj(const std::vector<double> &x, i
 	for (unsigned int k = i+1; k < N; k++)
 	{
 		dTr_dxi += c_Y_ij(i,k,&beta_T,&gamma_T,&T_c)*dfYikdxi__constxk(x,i,k,&beta_T);
-		double ee = 0;
 	}
 	return dTr_dxi;
 }
@@ -1564,7 +1571,7 @@ double GERG2008ReducingFunction::rhorbar(const std::vector<double> &x)
 }
 double GERG2008ReducingFunction::dfYkidxi__constxk(const std::vector<double> &x, int k, int i, std::vector< std::vector< double> > * beta)
 {
-	double xk = x[k], xi = x[i], beta_Y = 1/(*beta)[i][k];
+	double xk = x[k], xi = x[i], beta_Y = (*beta)[k][i];
 	return xk*(xk+xi)/(beta_Y*beta_Y*xk+xi)+xk*xi/(beta_Y*beta_Y*xk+xi)*(1-(xk+xi)/(beta_Y*beta_Y*xk+xi));
 }
 double GERG2008ReducingFunction::dfYikdxi__constxk(const std::vector<double> &x, int i, int k, std::vector< std::vector< double> > * beta)
@@ -1578,7 +1585,7 @@ double GERG2008ReducingFunction::c_Y_ij(int i, int j, std::vector< std::vector< 
 }
 double GERG2008ReducingFunction::c_Y_ji(int j, int i, std::vector< std::vector< double> > * beta, std::vector< std::vector< double> > *gamma, std::vector< std::vector< double> > *Y_c)
 {
-	return 2/((*beta)[j][i])*((*gamma)[i][j])*((*Y_c)[i][j]);
+	return 2/((*beta)[i][j])*((*gamma)[i][j])*((*Y_c)[i][j]);
 }
 double GERG2008ReducingFunction::f_Y_ij(const std::vector<double> &x, int i, int j, std::vector< std::vector< double> > * beta)
 {
@@ -1590,9 +1597,9 @@ double GERG2008ReducingFunction::d2fYikdxi2__constxk(const std::vector<double> &
 	double xi = x[i], xk = x[k], beta_Y = (*beta)[i][k];
 	return 1/(beta_Y*beta_Y*xi+xk)*(1-beta_Y*beta_Y*(xi+xk)/(beta_Y*beta_Y*xi+xk))*(2*xk-xi*xk*2*beta_Y*beta_Y/(beta_Y*beta_Y*xi+xk));
 }
-double GERG2008ReducingFunction::d2fYkidxi2__constxk(const std::vector<double> &x, int i, int k, std::vector< std::vector< double> > * beta)
+double GERG2008ReducingFunction::d2fYkidxi2__constxk(const std::vector<double> &x, int k, int i, std::vector< std::vector< double> > * beta)
 {
-	double xi = x[i], xk = x[k], beta_Y = 1/(*beta)[i][k];
+	double xi = x[i], xk = x[k], beta_Y = (*beta)[k][i];
 	return 1/(beta_Y*beta_Y*xk+xi)*(1-(xk+xi)/(beta_Y*beta_Y*xk+xi))*(2*xk-xk*xi*2/(beta_Y*beta_Y*xk+xi));
 }
 double GERG2008ReducingFunction::d2fYijdxidxj(const std::vector<double> &x, int i, int j, std::vector< std::vector< double> > * beta)
@@ -2181,7 +2188,7 @@ double SuccessiveSubstitutionVLE::call(double beta, double T, double p, const st
 
 	Mix->x_and_y_from_K(beta, K, z, x, y);
 	
-	rhobar_liq = Mix->rhobar_pengrobinson(T, p, x, PR_SATL); // [kg/m^3]
+	rhobar_liq = 1.3 * Mix->rhobar_pengrobinson(T, p, x, PR_SATL); // [kg/m^3]
 	rhobar_vap = Mix->rhobar_pengrobinson(T, p, y, PR_SATV); // [kg/m^3]
 
 	do
