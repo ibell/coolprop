@@ -2232,6 +2232,7 @@ double SuccessiveSubstitutionVLE::call(double beta, double T, double p, const st
 		
 		change = -f/dfdT;
 
+		double Tnew_over_Told = (T + change)/T;
 		T += change;
 
 		Mix->x_and_y_from_K(beta,K,z,x,y);
@@ -2242,8 +2243,14 @@ double SuccessiveSubstitutionVLE::call(double beta, double T, double p, const st
 			return _HUGE;
 			//throw ValueError(format("saturation_p was unable to reach a solution within 50 iterations"));
 		}
+		// If SS takes a large step, help by re-guessing using Peng-Robinson
+		if (fabs(change) > 3)
+		{
+			rhobar_liq = 1.3 * Mix->rhobar_pengrobinson(T, p, x, PR_SATL); // [kg/m^3]
+			rhobar_vap = Mix->rhobar_pengrobinson(T, p, y, PR_SATV); // [kg/m^3]
+		}
 	}
-	while(fabs(f) > 1e-10 && iter < Nstep_max);
+	while(fabs(f) > 1e-3 && iter < Nstep_max);
 	
 	if (!useNR)
 	{
@@ -2252,7 +2259,10 @@ double SuccessiveSubstitutionVLE::call(double beta, double T, double p, const st
 	else
 	{
 		// Pass off to Newton-Raphson to polish the solution
-		return Mix->NRVLE.call(beta, T, p, rhobar_liq, rhobar_vap, z, K, N+1, log(p));
+		double Treturn = Mix->NRVLE.call(beta, T, p, rhobar_liq, rhobar_vap, z, K, N+1, log(p));
+		this->rhobar_liq = Mix->NRVLE.rhobar_liq;
+		this->rhobar_vap = Mix->NRVLE.rhobar_vap;
+		return Treturn;
 	}
 }
 
@@ -2276,10 +2286,14 @@ double NewtonRaphsonVLE::call(double beta, double T, double p, double rhobar_liq
 {
 	int iter = 0;
 
+	//std::cout << format("NRVLE beta %g, T %g, p %g, rhobar_liq %g, rhobar_vap %g , z %s, K %s, index %d, val %g \n",beta,T,p,rhobar_liq,rhobar_vap,vec_to_string(z,"%4.3g").c_str(),vec_to_string(K,"%4.3g").c_str(),spec_index,spec_value);
+
+	this->rhobar_liq = rhobar_liq;
+	this->rhobar_vap = rhobar_vap;
 	do
 	{
 		// Build the Jacobian and residual vectors for given inputs of K_i,T,p
-		build_arrays(beta,T,p,rhobar_liq,rhobar_vap,z,K,spec_index,spec_value);
+		build_arrays(beta,T,p,z,K,spec_index,spec_value);
 
 		// Solve for the step; v is the step with the contents [delta(lnK0), delta(lnK1), ..., delta(lnT), delta(lnp)]
 		std::vector<double> v = linsolve(J, r);
@@ -2309,7 +2323,7 @@ double NewtonRaphsonVLE::call(double beta, double T, double p, double rhobar_liq
 	return T;
 }
 
-void NewtonRaphsonVLE::build_arrays(double beta, double T, double p, double rhobar_liq, double rhobar_vap, const std::vector<double> &z, std::vector<double> &K, int spec_index, double spec_value)
+void NewtonRaphsonVLE::build_arrays(double beta, double T, double p, const std::vector<double> &z, std::vector<double> &K, int spec_index, double spec_value)
 {
 	// Step 0:
 	// --------
@@ -2320,8 +2334,8 @@ void NewtonRaphsonVLE::build_arrays(double beta, double T, double p, double rhob
 	// -------
 	// Calculate the new reducing and reduced parameters for each phase
 	// based on the current values of the molar fractions
-	this->rhobar_liq = Mix->rhobar_Tpz(T, p, x, rhobar_liq); // [kg/m^3] (Not exact due to solver convergence)
-	this->rhobar_vap = Mix->rhobar_Tpz(T, p, y, rhobar_vap); // [kg/m^3] (Not exact due to solver convergence)
+	this->rhobar_liq = Mix->rhobar_Tpz(T, p, x, this->rhobar_liq); // [kg/m^3] (Not exact due to solver convergence)
+	this->rhobar_vap = Mix->rhobar_Tpz(T, p, y, this->rhobar_vap); // [kg/m^3] (Not exact due to solver convergence)
 
 	if (!ValidNumber(this->rhobar_liq) || !ValidNumber(this->rhobar_vap))
 	{
@@ -2340,15 +2354,6 @@ void NewtonRaphsonVLE::build_arrays(double beta, double T, double p, double rhob
 
 	double p_liq = this->rhobar_liq*Mix->Rbar(x)*T*(1+delta_liq*Mix->dphir_dDelta(tau_liq,delta_liq,x));
 	double p_vap = this->rhobar_vap*Mix->Rbar(y)*T*(1+delta_vap*Mix->dphir_dDelta(tau_vap,delta_vap,y));
-
-	//double summer1 = 0, summer2 = 0;
-	//for (unsigned int j = 0; j < N; j++)
-	//{
-	//	summer1 += K[j]*z[j];
-	//	summer2 += y[j]-x[j];
-	//}
-	//summer1 += 0;
-
 
 	// Step 2:
 	// -------
@@ -2439,14 +2444,12 @@ void NewtonRaphsonVLE::build_arrays(double beta, double T, double p, double rhob
 	dXdS = linsolve(J,neg_dFdS);
 }
 
-void PhaseEnvelope::build(double p0, const std::vector<double> &z)
+void PhaseEnvelope::build(double p0, const std::vector<double> &z, double beta_envelope)
 {
 	double S, Sold, DELTAS;
 	K.resize(Mix->N);
 	data.K.resize(Mix->N);
 	data.lnK.resize(Mix->N);
-
-	double beta_envelope = 0.0;
 
 	// Use the preconditioner to get the very rough guess for saturation temperature 
 	// (interpolation based on pseudo-critical pressure)
@@ -2455,24 +2458,14 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z)
 	// Initialize the call using Wilson to get K-factors and temperature
 	double T = Mix->saturation_p_Wilson(beta_envelope, p0, z, T_guess, K);
 
-	// Set flags for successive substitution
-	// Limit Successive substitution to 4 iterations and don't call Newton-Raphson directly
-	Mix->SS.Nstep_max = 4;
-	Mix->SS.useNR = false;
-
-	// Call successive substitution to get updated guess for K-factors
-	Mix->SS.call(beta_envelope, T, p0, z, K);
+	// Call successive substitution and Newton-Raphson to get updated guess for K-factors using imposed pressure
+	T = Mix->SS.call(beta_envelope, T, p0, z, K);
+	rhobar_liq = Mix->NRVLE.rhobar_liq;
+	rhobar_vap = Mix->NRVLE.rhobar_vap;
 
 	double p = p0;
 	double lnT = log(T);
 	double lnP = log(p0);
-
-	// Newton-Raphson full iteration using pressure as specified variable
-	Mix->NRVLE.call(beta_envelope, T, p0, Mix->SS.rhobar_liq, Mix->SS.rhobar_vap, z, K, Mix->N+1, log(p0));
-	rhobar_liq = Mix->NRVLE.rhobar_liq;
-	rhobar_vap = Mix->NRVLE.rhobar_vap;
-	T = Mix->NRVLE.T;
-	p = Mix->NRVLE.p;
 
 	// Find the most sensitive input (the one with the largest absolute value in dX/dS
 	double max_abs_val = -1;
@@ -2505,7 +2498,7 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z)
 	}
 	else if (double_equal(beta_envelope,0.0))
 	{
-		DELTAS = log(1.1);
+		DELTAS = log(1.01);
 	}
 	else
 	{
@@ -2659,7 +2652,7 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z)
 			}
 			else if (Mix->NRVLE.Nsteps < 4)
 			{
-				DELTAS *= 2;
+				DELTAS *= 1.1;
 			}
 
 			double _max_abs_val = -1;
@@ -2672,7 +2665,7 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z)
 					iii_S = i;
 				}
 			}
-			//std::cout << format("T,P,Nstep,K : %g %g %d %g %g %d %s\n",T,p,Mix->NRVLE.Nsteps, rhobar_liq, rhobar_vap, iii_S, vec_to_string(K,"%6.5g").c_str());
+			std::cout << format("T,P,Nstep,K : %g %g %d %g %g %d %s\n",T,p,Mix->NRVLE.Nsteps, rhobar_liq, rhobar_vap, iii_S, vec_to_string(K,"%6.5g").c_str());
 		}
 		
 		// Update step counter
@@ -2686,7 +2679,7 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z)
 			double rr = 0;
 		}
 	}
-	while (p > p0 && iter < 1000);
+	while ((p > p0 && p < 14e6 && iter < 1000) || iter < 3);
 
 	FILE *fp;
 	if (double_equal(beta_envelope,1.0))

@@ -360,14 +360,13 @@ public:
 
 	This method builds the Jacobian matrix, the sensitivity matrix, etc.
 
+	@param beta Void fraction [-] (0: bubble, 1: dew)
 	@param T Temperature [K]
 	@param p Pressure [Pa]
-	@param rhobar_liq Current value of molar density of the liquid [mol/m^3]
-	@param rhobar_vap Current value of molar density of the vapor [mol/m^3]
 	@param z Bulk mole fractions [-]
 	@param K Array of K-factors [-]
 	*/
-	void build_arrays(double beta, double T, double p, double rhobar_liq, double rhobar_vap, const std::vector<double> &z, std::vector<double> & K, int spec_index, double spec_value);
+	void build_arrays(double beta, double T, double p, const std::vector<double> &z, std::vector<double> & K, int spec_index, double spec_value);
 };
 
 struct PhaseEnvelopeLog
@@ -382,7 +381,7 @@ public:
 	double rhobar_liq, rhobar_vap;
 	std::vector<double> K;
 	Mixture *Mix;
-	void build(double p0, const std::vector<double> &z);
+	void build(double p0, const std::vector<double> &z, double beta_envelope);
 };
 
 /*! 

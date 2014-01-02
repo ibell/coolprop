@@ -124,7 +124,7 @@
 	inline double min3(double x1, double x2, double x3){return std::min(std::min(x1, x2), x3);};
 	inline double max3(double x1, double x2, double x3){return std::max(std::max(x1, x2), x3);};
 
-	inline bool double_equal(double a, double b){return fabs(a - b) <= 16 * DBL_EPSILON * std::max(fabs(a), fabs(b));};
+	inline bool double_equal(double a, double b){return fabs(a - b) <= 1 * DBL_EPSILON * std::max(fabs(a), fabs(b));};
 
 	inline int Kronecker_delta(int i, int j){if (i == j) {return 1;} else {return 0;}};
 

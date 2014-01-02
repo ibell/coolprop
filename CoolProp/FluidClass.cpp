@@ -98,6 +98,8 @@
 #define M_PI 3.14159265358979323846
 #endif
 
+static const bool use_cache = false;
+
 using namespace std;
 
 double JSON_lookup_double(rapidjson::Document &root, std::string FluidName, std::string key)
@@ -636,7 +638,7 @@ void Fluid::post_load(rapidjson::Document &JSON, rapidjson::Document &JSON_CAS)
 
 double Fluid::phir(double tau, double delta)
 {
-	if (double_equal(tau,cache.phir.tau) && double_equal(delta,cache.phir.delta))
+	if (use_cache && double_equal(tau,cache.phir.tau) && double_equal(delta,cache.phir.delta))
 	{
 		return cache.phir.cached_val;
 	}
@@ -653,7 +655,7 @@ double Fluid::phir(double tau, double delta)
 }
 double Fluid::dphir_dDelta(double tau, double delta)
 {
-	if (double_equal(tau,cache.dphir_dDelta.tau) && double_equal(delta,cache.dphir_dDelta.delta))
+	if (use_cache && double_equal(tau,cache.dphir_dDelta.tau) && double_equal(delta,cache.dphir_dDelta.delta))
 	{
 		return cache.dphir_dDelta.cached_val;
 	}
@@ -672,7 +674,7 @@ double Fluid::dphir_dDelta(double tau, double delta)
 }
 double Fluid::d2phir_dDelta2(double tau, double delta)
 {
-	if (double_equal(tau,cache.d2phir_dDelta2.tau) && double_equal(delta,cache.d2phir_dDelta2.delta))
+	if (use_cache && double_equal(tau,cache.d2phir_dDelta2.tau) && double_equal(delta,cache.d2phir_dDelta2.delta))
 	{
 		return cache.d2phir_dDelta2.cached_val;
 	}
@@ -705,7 +707,7 @@ double Fluid::d3phir_dDelta_dTau2(double tau, double delta)
 }
 double Fluid::dphir_dTau(double tau, double delta)
 {
-	if (double_equal(tau,cache.dphir_dTau.tau) && double_equal(delta,cache.dphir_dTau.delta))
+	if (use_cache && double_equal(tau,cache.dphir_dTau.tau) && double_equal(delta,cache.dphir_dTau.delta))
 	{
 		return cache.dphir_dTau.cached_val;
 	}
@@ -722,7 +724,7 @@ double Fluid::dphir_dTau(double tau, double delta)
 }
 double Fluid::d2phir_dTau2(double tau, double delta)
 {
-	if (double_equal(tau,cache.d2phir_dTau2.tau) && double_equal(delta,cache.d2phir_dTau2.delta))
+	if (use_cache && double_equal(tau,cache.d2phir_dTau2.tau) && double_equal(delta,cache.d2phir_dTau2.delta))
 	{
 		return cache.d2phir_dTau2.cached_val;
 	}
@@ -747,7 +749,7 @@ double Fluid::d3phir_dTau3(double tau, double delta)
 
 double Fluid::d2phir_dDelta_dTau(double tau, double delta)
 {
-	if (double_equal(tau,cache.d2phir_dDelta_dTau.tau) && double_equal(delta,cache.d2phir_dDelta_dTau.delta))
+	if (use_cache && double_equal(tau,cache.d2phir_dDelta_dTau.tau) && double_equal(delta,cache.d2phir_dDelta_dTau.delta))
 	{
 		return cache.d2phir_dDelta_dTau.cached_val;
 	}
