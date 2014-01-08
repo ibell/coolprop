@@ -212,7 +212,7 @@ def PropsU(in1, in2, in3 = None, in4 = None, in5 = None, in6 = None, in7 = None)
     kSI or SI to identify your desired unit system. Both input and output 
     values have to be from the same unit set.  
     """
-    if in7 is None or in7 == 'kSI':
+    if in7 is None or in7 == 'kSI': # Nothing has to be done 
         return Props(in1, in2, in3, in4, in5, in6)
     elif in7 == 'SI':
         if isConstant(in2):
@@ -232,7 +232,14 @@ cpdef fromSI(str in1, in2=None, str in3='kSI'):
     At the moment, only kSI is supported. This convenience function is used inside both the
     PropsU and DerivTermsU functions. 
     """
-    return _fromSI(in1.encode('ascii'), in2, in3.encode('ascii'))
+    if isinstance(in2, (int, long, float, complex)): #is not iterable
+        return _fromSI(in1.encode('ascii'), in2, in3.encode('ascii'))
+    else: # iterable or error
+        result = [_fromSI(in1.encode('ascii'), inV, in3.encode('ascii')) for inV in in2]
+        if _numpy_supported:
+            return np.array(result)
+        else:
+            return result
 
 cpdef toSI(str in1, in2=None, str in3='kSI'):
     """
@@ -240,7 +247,14 @@ cpdef toSI(str in1, in2=None, str in3='kSI'):
     At the moment, only kSI is supported. This convenience function is used inside both the
     PropsU and DerivTermsU functions. 
     """
-    return _toSI(in1.encode('ascii'), in2, in3.encode('ascii'))
+    if isinstance(in2, (int, long, float, complex)): #is not iterable
+        return _toSI(in1.encode('ascii'), in2, in3.encode('ascii'))
+    else: # iterable or error
+        result = [_toSI(in1.encode('ascii'), inV, in3.encode('ascii')) for inV in in2]
+        if _numpy_supported:
+            return np.array(result)
+        else:
+            return result
     
 cpdef Props(str in1, str in2, in3 = None, in4 = None, in5 = None, in6 = None, in7 = None):
     """
