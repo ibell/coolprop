@@ -36,12 +36,25 @@ EXPORT_CODE double CONVENTION Props(char *Output,char Name1, double Prop1, char 
 	return val;
 }
 
+EXPORT_CODE double CONVENTION PropsSI(char *Output, char *Name1, double Prop1, char *Name2, double Prop2, char * Ref)
+{
+	// Go to the std::string, std::string version
+	long i1 = get_param_index(Name1);
+	long i2 = get_param_index(Name2);
+	long iOutput = get_param_index(Output);
+	double val1 = convert_from_unit_system_to_SI(i1, Prop1, get_standard_unit_system());
+	double val2 = convert_from_unit_system_to_SI(i2, Prop2, get_standard_unit_system());
+	double val = PropsS(Output, Name1, val1, Name2, val2, Ref);
+	return convert_from_unit_system_to_SI(iOutput,val,get_standard_unit_system());
+}
 // All the function interfaces that point to the single-input Props function
 EXPORT_CODE double CONVENTION Props1(char *Ref, char *Output)
 {
 	// Go to the std::string, std::string version
 	return Props1(std::string(Ref),std::string(Output));
 }
+
+
 
 EXPORT_CODE double CONVENTION K2F(double T)
 { return T * 9 / 5 - 459.67; }
