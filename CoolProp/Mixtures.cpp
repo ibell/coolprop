@@ -355,8 +355,6 @@ Mixture::Mixture(std::vector<Fluid *> pFluids)
 
 void Mixture::test()
 {
-
-	
 	std::vector<double> x,y,z(2, 0.5);
 
 	//Envelope.build(100000,z);
@@ -1373,25 +1371,32 @@ void Mixture::x_and_y_from_K(double beta, const std::vector<double> &K, const st
 }
 double Mixture::rhobar_pengrobinson(double T, double p, const std::vector<double> &x, int solution)
 { 
-	double A  = 0, B = 0, m_i, m_j, a_i, a_j, b_i, R = Rbar(x);
+	double A  = 0, B = 0, a = 0, b = 0, m_i, m_j, a_i, a_j, b_i, R = Rbar(x), s_a;
 
+	
 	for (unsigned int i = 0; i < N; i++)
 	{
-		m_i = 0.37464 + 1.54226*pFluids[i]->params.accentricfactor-0.26992*pow(pFluids[i]->params.accentricfactor,2);
+		
 		b_i = 0.077796074*(R*pFluids[i]->reduce.T)/(pFluids[i]->reduce.p.Pa);
+		b += x[i]*b_i;
 
-		B += x[i]*b_i*p/(R*T);
-
+		s_a = 0.0;
+		double omega_i = pFluids[i]->params.accentricfactor;
+		m_i = 0.480 + 1.574*omega_i-0.176*pow(omega_i,(int)2);
+		//m_i = 0.37464 + 1.54226*omega_i-0.26992*pow(omega_i,(int)2);
 		for (unsigned int j = 0; j < N; j++)
 		{
-			
-			m_j = 0.37464 + 1.54226*pFluids[j]->params.accentricfactor-0.26992*pow(pFluids[j]->params.accentricfactor,2);
-			a_i = 0.45724*pow(R*pFluids[i]->reduce.T,2)/pFluids[i]->reduce.p.Pa*pow(1+m_i*(1-sqrt(T/pFluids[i]->reduce.T)),2)*1000;
-			a_j = 0.45724*pow(R*pFluids[j]->reduce.T,2)/pFluids[j]->reduce.p.Pa*pow(1+m_j*(1-sqrt(T/pFluids[j]->reduce.T)),2)*1000;	
-
-			A += x[i]*x[j]*sqrt(a_i*a_j)*p/(R*R*T*T)/1000;
+			double omega_j = pFluids[j]->params.accentricfactor;
+			//m_j = 0.37464 + 1.54226*omega_j-0.26992*pow(omega_j,(int)2);
+			m_j = 0.480 + 1.574*omega_j - 0.176*pow(omega_j,(int)2);
+			a_i = 0.45724*pow(R*pFluids[i]->reduce.T,2)/pFluids[i]->reduce.p.Pa*pow(1+m_i*(1-sqrt(T/pFluids[i]->reduce.T)),2);
+			a_j = 0.45724*pow(R*pFluids[j]->reduce.T,2)/pFluids[j]->reduce.p.Pa*pow(1+m_j*(1-sqrt(T/pFluids[j]->reduce.T)),2);
+			s_a += x[j]*sqrt(a_i*a_j);
 		}
+		a += x[i]*s_a;
 	}
+	A = a*p/(R*R*T*T);
+	B = b*p/(R*T);
 	
 	double Z0, Z1, Z2;
 	solve_cubic(1, -1+B, A-3*B*B-2*B, -A*B+B*B+B*B*B, &Z0, &Z1, &Z2);
