@@ -382,6 +382,7 @@ public:
 	std::vector<double> K;
 	Mixture *Mix;
 	void build(double p0, const std::vector<double> &z, double beta_envelope);
+	void store_variables(double T, double p, double rhobar_liq, double rhobar_vap, const std::vector<double> & K);
 };
 
 /*! 

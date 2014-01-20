@@ -1174,8 +1174,24 @@ public:
 double Mixture::rhobar_Tpz(double T, double p, const std::vector<double> &x, double rhobar0)
 {
 	rho_Tpz_resid Resid(this,T,p,x);
+	double rhobar;
 	std::string errstr;
-	return Newton(&Resid, rhobar0, 1e-16, 100, &errstr);
+	//FILE *fp;
+	//fp = fopen("rhobar_resid.csv","w");
+	//for (double rhobar = 0; rhobar < 20000; rhobar += 1)
+	//{
+	//	fprintf(fp,"%g, %g\n",rhobar, Resid.call(rhobar));
+	//}
+	//fclose(fp);
+	try{
+		rhobar = Newton(&Resid, rhobar0, 1e-16, 100, &errstr);
+		if (!ValidNumber(rhobar)) { throw ValueError(); }
+	}
+	catch(std::exception)
+	{
+
+	}
+	return rhobar;
 }
 
 
@@ -1371,29 +1387,37 @@ void Mixture::x_and_y_from_K(double beta, const std::vector<double> &K, const st
 }
 double Mixture::rhobar_pengrobinson(double T, double p, const std::vector<double> &x, int solution)
 { 
-	double A  = 0, B = 0, a = 0, b = 0, m_i, m_j, a_i, a_j, b_i, R = Rbar(x), s_a;
-
+	double A  = 0, B = 0, a = 0, b = 0, m_i, m_j, a_i, a_j, b_i, R = Rbar(x), k_ij;
 	
 	for (unsigned int i = 0; i < N; i++)
 	{
 		
 		b_i = 0.077796074*(R*pFluids[i]->reduce.T)/(pFluids[i]->reduce.p.Pa);
 		b += x[i]*b_i;
-
-		s_a = 0.0;
+		
 		double omega_i = pFluids[i]->params.accentricfactor;
-		m_i = 0.480 + 1.574*omega_i-0.176*pow(omega_i,(int)2);
-		//m_i = 0.37464 + 1.54226*omega_i-0.26992*pow(omega_i,(int)2);
+		//m_i = 0.480 + 1.574*omega_i-0.176*pow(omega_i,(int)2);
+		m_i = 0.37464 + 1.54226*omega_i-0.26992*pow(omega_i,(int)2);
+
 		for (unsigned int j = 0; j < N; j++)
 		{
 			double omega_j = pFluids[j]->params.accentricfactor;
-			//m_j = 0.37464 + 1.54226*omega_j-0.26992*pow(omega_j,(int)2);
-			m_j = 0.480 + 1.574*omega_j - 0.176*pow(omega_j,(int)2);
+			m_j = 0.37464 + 1.54226*omega_j-0.26992*pow(omega_j,(int)2);
+			//m_j = 0.480 + 1.574*omega_j - 0.176*pow(omega_j,(int)2);
 			a_i = 0.45724*pow(R*pFluids[i]->reduce.T,2)/pFluids[i]->reduce.p.Pa*pow(1+m_i*(1-sqrt(T/pFluids[i]->reduce.T)),2);
+			
+			
 			a_j = 0.45724*pow(R*pFluids[j]->reduce.T,2)/pFluids[j]->reduce.p.Pa*pow(1+m_j*(1-sqrt(T/pFluids[j]->reduce.T)),2);
-			s_a += x[j]*sqrt(a_i*a_j);
+			if (i!=j)
+			{
+				k_ij = -0.3; // Hard coded for Ethanol-Water
+			}
+			else
+			{
+				k_ij = 0;
+			}
+			a += x[i]*x[j]*sqrt(a_i*a_j)*(1-k_ij);
 		}
-		a += x[i]*s_a;
 	}
 	A = a*p/(R*R*T*T);
 	B = b*p/(R*T);
@@ -2259,6 +2283,8 @@ double SuccessiveSubstitutionVLE::call(double beta, double T, double p, const st
 	
 	if (!useNR)
 	{
+		this->rhobar_liq = rhobar_liq;
+		this->rhobar_vap = rhobar_vap;
 		return T;
 	}
 	else
@@ -2316,10 +2342,10 @@ double NewtonRaphsonVLE::call(double beta, double T, double p, double rhobar_liq
 			throw ValueError();
 		}
 		
-		//std::cout << iter << " " << error_rms << std::endl;
+		std::cout << iter << " " << T << " " << p << " " << error_rms << std::endl;
 		iter++;
 	}
-	while(this->error_rms > 1e-10 && iter < Nsteps_max);
+	while(this->error_rms > 1e-12 && iter < Nsteps_max);
 	// Store new values since they were passed by value
 	this->T = T;
 	this->p = p;
@@ -2449,6 +2475,20 @@ void NewtonRaphsonVLE::build_arrays(double beta, double T, double p, const std::
 	dXdS = linsolve(J,neg_dFdS);
 }
 
+void PhaseEnvelope::store_variables(double T, double p, double rhobar_liq, double rhobar_vap, const std::vector<double> & K)
+{
+	data.p.push_back(p);
+	data.T.push_back(T);
+	data.lnT.push_back(log(T));
+	data.lnp.push_back(log(p));
+	data.rhobar_liq.push_back(rhobar_liq);
+	data.rhobar_vap.push_back(rhobar_vap);
+	for (unsigned int i = 0; i < Mix->N; i++)
+	{
+		data.K[i].push_back(K[i]);
+		data.lnK[i].push_back(log(K[i]));
+	}
+}
 void PhaseEnvelope::build(double p0, const std::vector<double> &z, double beta_envelope)
 {
 	double S, Sold, DELTAS;
@@ -2465,8 +2505,8 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z, double beta_e
 
 	// Call successive substitution and Newton-Raphson to get updated guess for K-factors using imposed pressure
 	T = Mix->SS.call(beta_envelope, T, p0, z, K);
-	rhobar_liq = Mix->NRVLE.rhobar_liq;
-	rhobar_vap = Mix->NRVLE.rhobar_vap;
+	rhobar_liq = Mix->SS.rhobar_liq;
+	rhobar_vap = Mix->SS.rhobar_vap;
 
 	double p = p0;
 	double lnT = log(T);
@@ -2499,7 +2539,7 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z, double beta_e
 	// The initial value for the step (conservative)
 	if (double_equal(beta_envelope,1.0))
 	{
-		DELTAS = log(0.99);
+		DELTAS = log(0.99)/1.5;
 	}
 	else if (double_equal(beta_envelope,0.0))
 	{
@@ -2514,17 +2554,7 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z, double beta_e
 	Mix->NRVLE.call(beta_envelope, T, p, rhobar_liq, rhobar_vap, z, K, i_S, Sold);
 
 	// Store the variables in the log if the step worked ok
-	data.p.push_back(p);
-	data.T.push_back(T);
-	data.lnT.push_back(log(T));
-	data.lnp.push_back(log(p));
-	data.rhobar_liq.push_back(Mix->NRVLE.rhobar_liq);
-	data.rhobar_vap.push_back(Mix->NRVLE.rhobar_vap);
-	for (unsigned int i = 0; i < Mix->N; i++)
-	{
-		data.K[i].push_back(K[i]);
-		data.lnK[i].push_back(log(K[i]));
-	}
+	store_variables(T,p,Mix->NRVLE.rhobar_liq,Mix->NRVLE.rhobar_vap,K);
 
 	int iter = 1;
 	do
@@ -2579,28 +2609,27 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z, double beta_e
 				// Use a cubic spline to get the guess value for the values
 				SplineClass SC1;
 				SC1.add_4value_constraints(data.lnK[1][M-4],data.lnK[1][M-3],data.lnK[1][M-2],data.lnK[1][M-1],
-					                      data.rhobar_liq[M-4],data.rhobar_liq[M-3],data.rhobar_liq[M-2],data.rhobar_liq[M-1]);
+					                      data.rhobar_vap[M-4],data.rhobar_vap[M-3],data.rhobar_vap[M-2],data.rhobar_vap[M-1]);
 				SC1.build();
-				rhobar_liq = SC1.evaluate(log(K[1]));
+				rhobar_vap = SC1.evaluate(log(K[1]));
 
 				SplineClass SC2;
-				SC2.add_4value_constraints(data.lnK[1][M-4],data.lnK[1][M-3],data.lnK[1][M-2],data.lnK[1][M-1],
-					                      log(data.rhobar_vap[M-4]),log(data.rhobar_vap[M-3]),log(data.rhobar_vap[M-2]),log(data.rhobar_vap[M-1]));
+				SC2.add_4value_constraints(log(data.rhobar_vap[M-4]), log(data.rhobar_vap[M-3]), log(data.rhobar_vap[M-2]), log(data.rhobar_vap[M-1]),
+					                       data.lnT[M-4], data.lnT[M-3], data.lnT[M-2], data.lnT[M-1]);
 				SC2.build();
-				rhobar_vap = exp(SC2.evaluate(log(K[1])));
+				T = exp(SC2.evaluate(log(rhobar_vap)));
 
 				SplineClass SC3;
-				SC3.add_4value_constraints(data.lnK[1][M-4], data.lnK[1][M-3], data.lnK[1][M-2], data.lnK[1][M-1],
-					                       data.lnT[M-4], data.lnT[M-3], data.lnT[M-2], data.lnT[M-1]);
+				SC3.add_4value_constraints(log(data.rhobar_vap[M-4]), log(data.rhobar_vap[M-3]), log(data.rhobar_vap[M-2]), log(data.rhobar_vap[M-1]),
+					                       data.lnp[M-4], data.lnp[M-3], data.lnp[M-2], data.lnp[M-1]);
 				SC3.build();
-				T = exp(SC3.evaluate(log(K[1])));
+				p = exp(SC3.evaluate(log(rhobar_vap)));
 
 				SplineClass SC4;
-				SC4.add_4value_constraints(data.lnK[1][M-4], data.lnK[1][M-3], data.lnK[1][M-2], data.lnK[1][M-1],
-					                       data.lnp[M-4], data.lnp[M-3], data.lnp[M-2], data.lnp[M-1]);
+				SC4.add_4value_constraints(log(data.rhobar_vap[M-4]), log(data.rhobar_vap[M-3]), log(data.rhobar_vap[M-2]), log(data.rhobar_vap[M-1]),
+					                       log(data.rhobar_liq[M-4]), log(data.rhobar_liq[M-3]), log(data.rhobar_liq[M-2]), log(data.rhobar_liq[M-1]));
 				SC4.build();
-				p = exp(SC4.evaluate(log(K[1])));
-
+				rhobar_liq = exp(SC4.evaluate(log(rhobar_vap)));
 			}
 			else
 			{
@@ -2657,7 +2686,7 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z, double beta_e
 			}
 			else if (Mix->NRVLE.Nsteps < 4)
 			{
-				DELTAS *= 1.1;
+				DELTAS *= 1.001;
 			}
 
 			double _max_abs_val = -1;
@@ -2684,7 +2713,7 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z, double beta_e
 			double rr = 0;
 		}
 	}
-	while ((p > p0 && p < 14e6 && iter < 1000) || iter < 3);
+	while ((p > p0 && fabs(rhobar_liq/rhobar_vap-1) > 0.01 && iter < 10000) || iter < 3);
 
 	FILE *fp;
 	if (double_equal(beta_envelope,1.0))

@@ -476,7 +476,7 @@ def DerivTermsU(in1, T, rho, fluid, units = None):
         #print msg
         raise ValueError(msg)
    
-cpdef double DerivTerms(str Output, double T, double rho, str Fluid):
+cpdef double DerivTerms(str Output, double T, double rho, str Fluid) except +:
     """
 
     .. |cubed| replace:: \ :sup:`3`\ 
