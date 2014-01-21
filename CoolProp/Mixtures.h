@@ -341,6 +341,24 @@ public:
 	NewtonRaphsonVLE(){Nsteps_max = 10;};
 
 	void resize(unsigned int N);
+	
+	// Reset the state of all the internal variables
+	void pre_call()
+	{
+		K.clear();
+		x.clear();
+		y.clear();
+		phi_ij_liq.clear();
+		phi_ij_vap.clear();
+		Nsteps = 0;
+		step_logger.clear();
+		error_rms = 1e99;
+		rhobar_liq = _HUGE;
+		rhobar_vap = _HUGE;
+		T = _HUGE;
+		p = _HUGE;
+	};
+
 	/*! Call the Newton-Raphson VLE Solver
 
 	This solver must be passed reasonable guess values for the mole fractions, 
@@ -373,6 +391,7 @@ struct PhaseEnvelopeLog
 {
 	std::vector< std::vector<double> > K, lnK;
 	std::vector<double> T, p, lnT, lnp, rhobar_liq, rhobar_vap;
+	std::vector<int> iS;
 };
 class PhaseEnvelope
 {
@@ -382,7 +401,7 @@ public:
 	std::vector<double> K;
 	Mixture *Mix;
 	void build(double p0, const std::vector<double> &z, double beta_envelope);
-	void store_variables(double T, double p, double rhobar_liq, double rhobar_vap, const std::vector<double> & K);
+	void store_variables(const double T, const double p, const double rhobar_liq, const double rhobar_vap, const std::vector<double> & K, const int iS);
 };
 
 /*! 

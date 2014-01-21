@@ -38,14 +38,16 @@ EXPORT_CODE double CONVENTION Props(char *Output,char Name1, double Prop1, char 
 
 EXPORT_CODE double CONVENTION PropsSI(char *Output, char *Name1, double Prop1, char *Name2, double Prop2, char * Ref)
 {
+	long current_unit_system = get_standard_unit_system();
+	// Set current unit system to SI (all inputs are already SI)
+	set_standard_unit_system(UNIT_SYSTEM_SI);
 	// Go to the std::string, std::string version
 	long i1 = get_param_index(Name1);
 	long i2 = get_param_index(Name2);
 	long iOutput = get_param_index(Output);
-	double val1 = convert_from_unit_system_to_SI(i1, Prop1, get_standard_unit_system());
-	double val2 = convert_from_unit_system_to_SI(i2, Prop2, get_standard_unit_system());
-	double val = PropsS(Output, Name1, val1, Name2, val2, Ref);
-	return convert_from_unit_system_to_SI(iOutput,val,get_standard_unit_system());
+	double val = PropsS(Output, Name1, Prop1, Name2, Prop2, Ref);
+	set_standard_unit_system(current_unit_system);
+	return val;
 }
 // All the function interfaces that point to the single-input Props function
 EXPORT_CODE double CONVENTION Props1(char *Ref, char *Output)

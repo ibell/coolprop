@@ -9,6 +9,10 @@
 #include "CoolProp.h"
 #include "Spline.h"
 
+#ifdef MPLSUPPORTED
+#include "MPLPlot.h"
+#endif
+
 static const bool use_cache = true;
 
 bool has_string_array_member(const rapidjson::Value& a, const char * member)
@@ -2300,7 +2304,10 @@ double SuccessiveSubstitutionVLE::call(double beta, double T, double p, const st
 void NewtonRaphsonVLE::resize(unsigned int N)
 {
 	this->N = N;
-	x.resize(N); y.resize(N); phi_ij_liq.resize(N); phi_ij_vap.resize(N);
+	x.resize(N); 
+	y.resize(N); 
+	phi_ij_liq.resize(N); 
+	phi_ij_vap.resize(N);
 
 	r.resize(N+2);
 	J.resize(N+2, std::vector<double>(N+2, 0));
@@ -2317,8 +2324,13 @@ double NewtonRaphsonVLE::call(double beta, double T, double p, double rhobar_liq
 {
 	int iter = 0;
 
+	// Reset all the variables and resize
+	pre_call();
+	resize(K.size());
+
 	//std::cout << format("NRVLE beta %g, T %g, p %g, rhobar_liq %g, rhobar_vap %g , z %s, K %s, index %d, val %g \n",beta,T,p,rhobar_liq,rhobar_vap,vec_to_string(z,"%4.3g").c_str(),vec_to_string(K,"%4.3g").c_str(),spec_index,spec_value);
 
+	double old_rhobar_liq = rhobar_liq, old_rhobar_vap = rhobar_vap;
 	this->rhobar_liq = rhobar_liq;
 	this->rhobar_vap = rhobar_vap;
 	do
@@ -2342,15 +2354,18 @@ double NewtonRaphsonVLE::call(double beta, double T, double p, double rhobar_liq
 			throw ValueError();
 		}
 		
-		std::cout << iter << " " << T << " " << p << " " << error_rms << std::endl;
+		//std::cout << iter << " " << T << " " << p << " " << error_rms << std::endl;
 		iter++;
 	}
 	while(this->error_rms > 1e-12 && iter < Nsteps_max);
 	// Store new values since they were passed by value
 	this->T = T;
 	this->p = p;
+	this->K = K;
 	this->Nsteps = iter;
 
+	//std::cout << format("NRVLE beta %g, T %g, p %g, rhobar_liq %g, rhobar_vap %g , z %s, K %s, index %d, val %g \n",beta,T,p,rhobar_liq,rhobar_vap,vec_to_string(z,"%4.3g").c_str(),vec_to_string(K,"%4.3g").c_str(),spec_index,exp(spec_value));
+	//std::cout << format("liq_change %g vap_change %g\n", this->rhobar_liq/old_rhobar_liq-1, this->rhobar_vap/old_rhobar_vap-1);
 	return T;
 }
 
@@ -2359,7 +2374,7 @@ void NewtonRaphsonVLE::build_arrays(double beta, double T, double p, const std::
 	// Step 0:
 	// --------
 	// Calculate the mole fractions in liquid and vapor phases
-	Mix->x_and_y_from_K(beta,K,z,x,y);
+	Mix->x_and_y_from_K(beta, K, z, x, y);
 
 	// Step 1:
 	// -------
@@ -2368,10 +2383,7 @@ void NewtonRaphsonVLE::build_arrays(double beta, double T, double p, const std::
 	this->rhobar_liq = Mix->rhobar_Tpz(T, p, x, this->rhobar_liq); // [kg/m^3] (Not exact due to solver convergence)
 	this->rhobar_vap = Mix->rhobar_Tpz(T, p, y, this->rhobar_vap); // [kg/m^3] (Not exact due to solver convergence)
 
-	if (!ValidNumber(this->rhobar_liq) || !ValidNumber(this->rhobar_vap))
-	{
-		double rr = 0;
-	}
+	if (!ValidNumber(this->rhobar_liq) || !ValidNumber(this->rhobar_vap)){ 	double rr = 0; }
 	
 	double Tr_liq = Mix->pReducing->Tr(x); // [K]
 	double Tr_vap = Mix->pReducing->Tr(y);  // [K]
@@ -2419,17 +2431,19 @@ void NewtonRaphsonVLE::build_arrays(double beta, double T, double p, const std::
 		// dF_{i}/d(ln(p))
 		J[i][N+1] = p*(phi_ip_vap-phi_ip_liq);
 	}
-	r[N] = 0.0;
+
+	double summer1 = 0;
+	for (unsigned int i = 0; i < N; i++)
+	{
+		summer1 += z[i]*(K[i]-1)/(1-beta+beta*K[i]);
+	}
+	r[N] = summer1;
+
+	//r[N] = 0.0;
 	// For the residual term F_{N+1}
 	for (unsigned int i = 0; i < N; i++)
 	{
-		double summer1 = 0;
-		for (unsigned int i = 0; i < N; i++)
-		{
-			summer1 += K[i]*z[i]/(1-beta+beta*K[i]);
-		}
-		r[N] = summer1-1;
-		// r[N] += y[i]-x[i]; This is the definition for this term, why can you not use it directly? Normalization?
+		//r[N] += y[i]-x[i]; //This is the definition for this term, why can you not use it directly? Normalization?
 		for (unsigned int j = 0; j < N; j++)
 		{
 			J[N][j] = K[j]*z[j]/pow(1-beta+beta*K[j],(int)2);
@@ -2456,7 +2470,6 @@ void NewtonRaphsonVLE::build_arrays(double beta, double T, double p, const std::
 			J[N+1][spec_index] = 1;
 		}
 	}
-	
 
 	// Flip all the signs of the entries in the residual vector since we are solving Jv = -r, not Jv=r
 	// Also calculate the rms error of the residual vector at this step
@@ -2475,7 +2488,7 @@ void NewtonRaphsonVLE::build_arrays(double beta, double T, double p, const std::
 	dXdS = linsolve(J,neg_dFdS);
 }
 
-void PhaseEnvelope::store_variables(double T, double p, double rhobar_liq, double rhobar_vap, const std::vector<double> & K)
+void PhaseEnvelope::store_variables(const double T, const double p, const double rhobar_liq, const double rhobar_vap, const std::vector<double> & K, const int iS)
 {
 	data.p.push_back(p);
 	data.T.push_back(T);
@@ -2483,6 +2496,7 @@ void PhaseEnvelope::store_variables(double T, double p, double rhobar_liq, doubl
 	data.lnp.push_back(log(p));
 	data.rhobar_liq.push_back(rhobar_liq);
 	data.rhobar_vap.push_back(rhobar_vap);
+	data.iS.push_back(iS);
 	for (unsigned int i = 0; i < Mix->N; i++)
 	{
 		data.K[i].push_back(K[i]);
@@ -2527,34 +2541,35 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z, double beta_e
 	if (i_S >= (int)Mix->N)
 	{
 		if (i_S == Mix->N) 
-			{ Sold = lnT; }
+		{ 
+			Sold = lnT; 
+			DELTAS = log(1.01); // Temperatures increase as we approach the critical point for both branches
+		}
 		else
-			{ Sold = lnP; }
+		{ 
+			Sold = lnP; 
+			DELTAS = log(1.01); // Pressures increase as we approach the critical point for both branches
+		}
 	}
 	else
 	{
+		// K will go towards 1 as we move up on the envelope
 		Sold = log(K[i_S]);
-	}
-
-	// The initial value for the step (conservative)
-	if (double_equal(beta_envelope,1.0))
-	{
-		DELTAS = log(0.99)/1.5;
-	}
-	else if (double_equal(beta_envelope,0.0))
-	{
-		DELTAS = log(1.01);
-	}
-	else
-	{
-		throw ValueError();
+		if (Sold < 0) // K_i < 1
+		{
+			DELTAS = log(1.001); // K_i will increase
+		}
+		else
+		{
+			DELTAS = log(0.999); // K_i will decrease
+		}
 	}
 
 	// Run once with the specified variable set
 	Mix->NRVLE.call(beta_envelope, T, p, rhobar_liq, rhobar_vap, z, K, i_S, Sold);
 
 	// Store the variables in the log if the step worked ok
-	store_variables(T,p,Mix->NRVLE.rhobar_liq,Mix->NRVLE.rhobar_vap,K);
+	store_variables(T,p,Mix->NRVLE.rhobar_liq,Mix->NRVLE.rhobar_vap,K,i_S);
 
 	int iter = 1;
 	do
@@ -2606,12 +2621,12 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z, double beta_e
 			else if (data.T.size() > 3)
 			{
 				int M = data.T.size();
-				// Use a cubic spline to get the guess value for the values
+				// First we use a cubic spline to find the next value for the vapor molar density
 				SplineClass SC1;
-				SC1.add_4value_constraints(data.lnK[1][M-4],data.lnK[1][M-3],data.lnK[1][M-2],data.lnK[1][M-1],
+				SC1.add_4value_constraints(data.K[0][M-4],data.K[0][M-3],data.K[0][M-2],data.K[0][M-1],
 					                      data.rhobar_vap[M-4],data.rhobar_vap[M-3],data.rhobar_vap[M-2],data.rhobar_vap[M-1]);
 				SC1.build();
-				rhobar_vap = SC1.evaluate(log(K[1]));
+				rhobar_vap = SC1.evaluate(K[0]);
 
 				SplineClass SC2;
 				SC2.add_4value_constraints(log(data.rhobar_vap[M-4]), log(data.rhobar_vap[M-3]), log(data.rhobar_vap[M-2]), log(data.rhobar_vap[M-1]),
@@ -2645,6 +2660,18 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z, double beta_e
 				rhobar_vap = Mix->NRVLE.rhobar_vap;
 			}
 
+			/*if (data.T.size() > 50)
+			{
+				Dictionary d;
+				d.add("lw", 3.1);
+				d.add("color", "r");
+				d.add("linestyle", "-");
+
+				PyPlotter plt;
+				plt.plot(data.T, data.p, &d);
+				plt.show();
+			}*/
+
 			// Run with the selected specified variable
 			try
 			{
@@ -2654,29 +2681,34 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z, double beta_e
 				{
 					throw ValueError(format("T [%g] is not valid",T).c_str());
 				}
+				
+				T = Mix->NRVLE.T;
+				p = Mix->NRVLE.p;
+
+				//std::vector<double> x(K.size()), y(K.size());
+				//double T2 = Mix->NRVLE.T;
+				//double T3 = Mix->saturation_p(beta_envelope,p,z,x,y);
+				//std::cout << T2 << " " << T3;
 			}
 			catch (CoolPropBaseError &)
 			{
 				// Decrease the step size by a factor of 10
 				printf("Step downsize\n");
+				/*Dictionary d;
+				d.add("lw", 3.1);
+				d.add("color", "r");
+				d.add("linestyle", "-");
+
+				PyPlotter plt;
+				plt.plot(data.T, data.p, &d);
+				plt.show();*/
+
 				DELTAS *= 0.1;
 				continue;
 			}
-			T = Mix->NRVLE.T;
-			p = Mix->NRVLE.p;
 
 			// Store the variables in the log if the step worked ok
-			data.p.push_back(p);
-			data.T.push_back(T);
-			data.lnT.push_back(log(T));
-			data.lnp.push_back(log(p));
-			data.rhobar_liq.push_back(Mix->NRVLE.rhobar_liq);
-			data.rhobar_vap.push_back(Mix->NRVLE.rhobar_vap);
-			for (unsigned int i = 0; i < Mix->N; i++)
-			{
-				data.K[i].push_back(K[i]);
-				data.lnK[i].push_back(log(K[i]));
-			}
+			store_variables(T, p, Mix->NRVLE.rhobar_liq, Mix->NRVLE.rhobar_vap, K, i_S);
 
 			step_accepted = true;
 
@@ -2686,7 +2718,7 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z, double beta_e
 			}
 			else if (Mix->NRVLE.Nsteps < 4)
 			{
-				DELTAS *= 1.001;
+				DELTAS *= 1.1;
 			}
 
 			double _max_abs_val = -1;
@@ -2699,7 +2731,7 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z, double beta_e
 					iii_S = i;
 				}
 			}
-			std::cout << format("T,P,Nstep,K : %g %g %d %g %g %d %s\n",T,p,Mix->NRVLE.Nsteps, rhobar_liq, rhobar_vap, iii_S, vec_to_string(K,"%6.5g").c_str());
+			std::cout << format("T,P,Nstep,K : %g %g %d %g %g %d %d %s\n",T,p,Mix->NRVLE.Nsteps, rhobar_liq, rhobar_vap, iii_S, i_S, vec_to_string(K,"%6.5g").c_str());
 		}
 		
 		// Update step counter
