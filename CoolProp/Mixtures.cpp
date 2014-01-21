@@ -2557,11 +2557,11 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z, double beta_e
 		Sold = log(K[i_S]);
 		if (Sold < 0) // K_i < 1
 		{
-			DELTAS = log(1.001); // K_i will increase
+			DELTAS = log(1.1); // K_i will increase
 		}
 		else
 		{
-			DELTAS = log(0.999); // K_i will decrease
+			DELTAS = log(0.9); // K_i will decrease
 		}
 	}
 
@@ -2694,14 +2694,6 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z, double beta_e
 			{
 				// Decrease the step size by a factor of 10
 				printf("Step downsize\n");
-				/*Dictionary d;
-				d.add("lw", 3.1);
-				d.add("color", "r");
-				d.add("linestyle", "-");
-
-				PyPlotter plt;
-				plt.plot(data.T, data.p, &d);
-				plt.show();*/
 
 				DELTAS *= 0.1;
 				continue;
@@ -2712,13 +2704,13 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z, double beta_e
 
 			step_accepted = true;
 
-			if (Mix->NRVLE.Nsteps > 5)
+			if (Mix->NRVLE.Nsteps > 4)
 			{
 				DELTAS *= 0.5;
 			}
 			else if (Mix->NRVLE.Nsteps < 4)
 			{
-				DELTAS *= 1.1;
+				DELTAS *= 2;
 			}
 
 			double _max_abs_val = -1;
@@ -2756,6 +2748,15 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z, double beta_e
 	{
 		fp = fopen("phase_envelope_bubble.py","w");
 	}
+
+	Dictionary d;
+	d.add("lw", 3.1);
+	d.add("color", "r");
+	d.add("linestyle", "-");
+
+	PyPlotter plt;
+	plt.plot(data.T, data.p, &d);
+	plt.show();
 	
 	fprintf(fp, "import matplotlib.pyplot as plt\n");
 	fprintf(fp, "T = %s\n",vec_to_string(data.T,"%10.9g").c_str());
