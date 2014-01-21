@@ -30,7 +30,7 @@ cpdef double HAProps(str OutputName, str Input1Name, double Input1, str Input2Na
     S         Sda         Mixture entropy [kJ/kg dry air/K]
     C         cp          Mixture specific heat [kJ/kg dry air/K]
     M         Visc        Mixture viscosity [Pa-s]
-    K                     Mixture thermal conductivity [W/m/K]
+    K                     Mixture thermal conductivity [kW/m/K]
     ========  ========    ========================================
 
     There are also strings for the mixture volume and mixture enthalpy that will return the properties on a total humid air flow rate basis, they are given by 'Vha' [units of m^3/kg humid air] and 'Cha' [units of kJ/kg humid air/K] and 'Hha' [units of kJ/kg humid air] respectively.
