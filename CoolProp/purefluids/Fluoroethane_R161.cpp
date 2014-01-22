@@ -10,7 +10,7 @@ by Ian Bell
 #include <string.h>
 #include "CoolProp.h"
 #include "FluidClass.h"
-#include "Fluoroethane.h"
+#include "Fluoroethane_R161.h"
 
 FluoroethaneClass::FluoroethaneClass()
 {
@@ -30,22 +30,22 @@ FluoroethaneClass::FluoroethaneClass()
 
 	phi0list.push_back(new phi0_lead(-6.9187,5.4788));
 	phi0list.push_back(new phi0_logtau(3.0));
-
-	double u0[] = {0, 420/crit.T, 1548/crit.T, 3882/crit.T};
-	double v0[] = {0, 2.059, 9.253, 6.088};
-	phi0list.push_back(new phi0_Planck_Einstein(u0,v0,1,3,4));
-
+	
 	// Critical parameters
 	crit.rho = 6.28*48.0595;
 	crit.p = PressureUnit(5010, UNIT_KPA);
 	crit.T = 375.25;
 	crit.v = 1.0/crit.rho;
 
+	double u0[] = {0, 420/crit.T, 1548/crit.T, 3882/crit.T};
+	double v0[] = {0, 2.059, 9.253, 6.088};
+	phi0list.push_back(new phi0_Planck_Einstein(u0,v0,1,3,4));
+
 	// Other fluid parameters
 	params.molemass = 48.0595;
 	params.Ttriple = 130;
-	params.ptriple = 1.71314090116e-07;
-	params.accentricfactor = 0.22;
+	params.ptriple = 0.005512;
+	params.accentricfactor = 0.21624284106618674;
 	params.R_u = 8.314472;
 
 	// Limits of EOS
@@ -60,6 +60,7 @@ FluoroethaneClass::FluoroethaneClass()
 	REFPROPname.assign("R161");
 
 	BibTeXKeys.EOS = "Wu-IJT-2012";
+	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
 }
 //void FluoroethaneClass::ECSParams(double *e_k, double *sigma)
 //{
@@ -108,7 +109,3 @@ double FluoroethaneClass::rhosatV(double T)
     }
 	return reduce.rho*exp(reduce.T/T*summer);
 }
-//double FluoroethaneClass::surface_tension_T(double T)
-//{
-//	return 0.05334*pow(1-T/reduce.T,1.235)-0.01748*pow(1-T/reduce.T,4.404);
-//}

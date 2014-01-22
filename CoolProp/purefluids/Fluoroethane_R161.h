@@ -10,7 +10,11 @@
 		double rhosatL(double);
 		double rhosatV(double);
 		//void ECSParams(double *e_k, double *sigma);
-		//double surface_tension_T(double T);
+		double surface_tension_T(double T)
+		{
+			// Mulero, 2012
+			return 0.05385*pow(1-T/reduce.T,1.111);
+		}
 	};
 
 #endif
