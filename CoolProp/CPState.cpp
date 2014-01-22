@@ -1613,8 +1613,25 @@ double CoolPropStateClassSI::surface_tension(void){
 }
 
 double CoolPropStateClassSI::drhodh_constp(void){
-	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
-	if (pFluid->enabled_TTSE_LUT && within_TTSE_range(iP,p(),iH,h()) )
+	//if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION)
+	//{
+	//	throw ValueError("function invalid for incompressibles");
+	//}
+	// TODO: reimplement to avoid ugly numerical derivative
+	double deltaT = .5;
+	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID)
+	{
+		double  drho = Props("D",'P',p(),'T',T()+deltaT,pIncompLiquid->getName())-Props("D",'P',p(),'T',T()-deltaT,pIncompLiquid->getName());
+		double  dh   = Props("H",'P',p(),'T',T()+deltaT,pIncompLiquid->getName())-Props("H",'P',p(),'T',T()-deltaT,pIncompLiquid->getName());
+		return (drho/dh);
+	}
+	else if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION)
+	{
+		double  drho = Props("D",'P',p(),'T',T()+deltaT,brine_string)-Props("D",'P',p(),'T',T()-deltaT,brine_string);
+		double  dh   = Props("H",'P',p(),'T',T()+deltaT,brine_string)-Props("H",'P',p(),'T',T()-deltaT,brine_string);
+		return (drho/dh);
+	}
+	else if (pFluid->enabled_TTSE_LUT && within_TTSE_range(iP,p(),iH,h()) )
 	{
 		if (TwoPhase && _Q>0 && _Q < 1)
 		{
@@ -1796,9 +1813,11 @@ void CoolPropStateClassSI::rho_smoothed(double xend, double *rho_spline, double 
 
 
 double CoolPropStateClassSI::drhodp_consth(void){
-	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
-
-	if (pFluid->enabled_TTSE_LUT && within_TTSE_range(iP,p(),iH,h()) )
+	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION)
+	{ // TODO: Fix this
+		throw ValueError("function invalid for incompressibles");
+	}
+	else if (pFluid->enabled_TTSE_LUT && within_TTSE_range(iP,p(),iH,h()) )
 	{
 		if (TwoPhase && _Q>0 && _Q < 1)
 		{
