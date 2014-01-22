@@ -8,9 +8,9 @@
 #include "CPExceptions.h"
 #include "CoolPropTools.h"
 #include "Helmholtz.h"
-#include "TTSE.h"
 #include "Units.h"
 #include "AllFluids.h"
+#include "CriticalSplineConstants.h"
 
 // On PowerPC, we are going to use the stdint.h integer types and not let rapidjson use its own
 #if defined(__powerpc__)
@@ -44,7 +44,6 @@
 #include "purefluids/Ethylene.cpp"
 #include "purefluids/FAME.cpp"
 #include "purefluids/Fluorine.cpp"
-#include "purefluids/Fluoroethane.cpp"
 #include "purefluids/Helium.cpp"
 #include "purefluids/HFE143m.cpp"
 #include "purefluids/Hydrogen.cpp"
@@ -62,7 +61,7 @@
 #include "purefluids/R1233zd(E).cpp"
 #include "purefluids/R134a.cpp"
 #include "purefluids/R143A.cpp"
-#include "purefluids/R161.cpp"
+#include "purefluids/R161_Fluoroethane.cpp"
 #include "purefluids/R22.cpp"
 #include "purefluids/R227EA_R365MFC.cpp"
 #include "purefluids/R23.cpp"
@@ -139,7 +138,7 @@ FluidsContainer::FluidsContainer()
 	FluidsList.push_back(new R113Class());
 	FluidsList.push_back(new R1234zeZClass());
 	FluidsList.push_back(new R1233zdEClass());
-	FluidsList.push_back(new FluoroethaneClass());
+	FluidsList.push_back(new R161Class());
 
 	// The industrial fluids
 	FluidsList.push_back(new R245faClass());
@@ -220,9 +219,6 @@ FluidsContainer::FluidsContainer()
 	FluidsList.push_back(new R507AClass());
 	FluidsList.push_back(new R407FClass());
 
-	// The gas-only EOS
-	//FluidsList.push_back(new R290Gas());
-
 	// Includes the C++ JSON code for all the fluids as the variable JSON_code
 	#include "JSON_code.h"
 
@@ -241,6 +237,14 @@ FluidsContainer::FluidsContainer()
 		(*it)->post_load(JSON, JSON_CAS);
 		// Load up entry in map
 		fluid_name_map[(*it)->get_name()] = *it;
+
+		std::string name = (*it)->get_name();
+		std::string ucasename = upper(name);
+		
+		if (!((*it)->isAlias(ucasename)) && ucasename.compare(name))
+		{
+			(*it)->add_alias(ucasename);
+		}
 	}
 }
 
@@ -326,3 +330,6 @@ std::string FluidsContainer::FluidList()
 	FL = FL.substr (0,FL.length()-1);
 	return FL;
 }
+
+
+

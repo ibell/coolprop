@@ -37,13 +37,12 @@
 	#endif
 #endif
 
-#include "AllFluids.cpp"
-
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
 
 static const bool use_cache = false;
+static bool UseCriticalSpline = true;
 
 using namespace std;
 
@@ -119,113 +118,10 @@ std::vector<int> JSON_lookup_intvector(rapidjson::Document &root, std::string Fl
 	}
 }
 
-static bool UseCriticalSpline = true;
 
-void rebuild_CriticalSplineConstants_T()
-{
-	UseCriticalSpline = false;
-	FluidsContainer Fluids = FluidsContainer();
-	std::vector<std::string> fluid_names = strsplit(Fluids.FluidList(),',');
 
-	double rhoL=0, rhoV=0, drhodTL=0, drhodTV=0;
 
-	FILE *fp;
-	fp = fopen("CriticalSplineConstants_T.h","w");
-	for (unsigned int i = 0; i < fluid_names.size(); i++)
-	{
-		std::cout << format("%s:\n",fluid_names[i].c_str()).c_str();
-		CoolPropStateClass CPS(fluid_names[i]);
-		double Tc = CPS.pFluid->reduce.T;
-		double Tt = CPS.pFluid->params.Ttriple;
-		if (!CPS.pFluid->pure())
-		{
-			// Skip pseudo-pure fluids
-			continue;
-		}
-		double good;
-		try{
-			if (Tc-5>Tt)
-			{
-				CPS.update(iT,Tc-5,iQ,1);
-				rhoV = CPS.rhoV(); rhoL = CPS.rhoL();
-				drhodTV = CPS.drhodT_along_sat_vapor();
-				drhodTL = CPS.drhodT_along_sat_liquid();
-				if (!ValidNumber(drhodTV) || !ValidNumber(drhodTL)){throw ValueError();}
-				good = 5;
-			}
-			else
-			{
-				CPS.update(iT,Tc-1,iQ,1);
-				rhoV = CPS.rhoV(); rhoL = CPS.rhoL();
-				drhodTV = CPS.drhodT_along_sat_vapor();
-				drhodTL = CPS.drhodT_along_sat_liquid();
-				if (!ValidNumber(drhodTV) || !ValidNumber(drhodTL)){throw ValueError();}
-				good = 1;
-			}
-		}
-		catch(std::exception &)
-		{
-			if (CPS.pFluid->reduce.T > 100)
-			{
-				std::cout << format("%s : failed at 20 K \n",fluid_names[i].c_str()).c_str();
-				continue;
-			}
-			else
-			{
-				std::cout << format("%s : failed at 1 K \n",fluid_names[i].c_str()).c_str();
-				continue;
-			}
-		}
-		bool valid = false;
-		
-		for (double step = 0.5; step > 1e-10; step /= 100.0)
-		{
-			valid = true;
-			for (double b = good; b>0; b -= step)
-			{
-				try{
-					CPS.update(iT, Tc - b, iQ, 1);
-					rhoV = CPS.rhoV(); rhoL = CPS.rhoL();
-					drhodTV = CPS.drhodT_along_sat_vapor();
-					drhodTL = CPS.drhodT_along_sat_liquid();
-				}
-				catch(std::exception &){
-					valid = false; 
-					break;
-				}
-				if (!ValidNumber(drhodTV) || !ValidNumber(drhodTL) || drhodTV*drhodTL > 0){
-					//std::cout << format("%0.20g",good) << std::endl;
-					valid = false;
-					break;
-				}
-				else
-				{
-					good = b;
-				}
-			}
-			if (!valid){
-				break;
-			}
-		}
-		CoolPropStateClass CPS2(fluid_names[i]);
-		CPS2.update(iT,Tc-good,iQ,1.0);
-		rhoV = CPS2.rhoV(); rhoL = CPS2.rhoL();
-		drhodTV = CPS2.drhodT_along_sat_vapor(); 
-		drhodTL = CPS2.drhodT_along_sat_liquid();
-		std::cout << format("%0.20g",good).c_str() << std::endl;
-		fprintf(fp,"\tstd::make_pair(std::string(\"%s\"),CriticalSplineStruct_T(%0.12e,%0.12e,%0.12e,%0.12e,%0.12e) ),\n",fluid_names[i].c_str(),Tc-good,rhoL,rhoV,drhodTL,drhodTV);
-	}
-	fclose(fp);
-	UseCriticalSpline = true;
-}
 
-CriticalSplineStruct_T::CriticalSplineStruct_T(double Tend, double rhoendL, double rhoendV, double drhoLdT_sat, double drhoVdT_sat){
-		this->Tend = Tend;
-		this->rhoendL = rhoendL;
-		this->rhoendV = rhoendV;
-		this->drhoLdT_sat = drhoLdT_sat;
-		this->drhoVdT_sat = drhoVdT_sat;
-	};
 
 
 
@@ -3787,4 +3683,104 @@ double CriticalSplineStruct_T::interpolate_rho(Fluid *pFluid, int phase, double 
 	}
 
 	return rhoc*(1+R);
+}
+
+
+
+void rebuild_CriticalSplineConstants_T()
+{
+	UseCriticalSpline = false;
+	FluidsContainer Fluids = FluidsContainer();
+	std::vector<std::string> fluid_names = strsplit(Fluids.FluidList(),',');
+
+	double rhoL=0, rhoV=0, drhodTL=0, drhodTV=0;
+
+	FILE *fp;
+	fp = fopen("CriticalSplineConstants_T.h","w");
+	for (unsigned int i = 0; i < fluid_names.size(); i++)
+	{
+		std::cout << format("%s:\n",fluid_names[i].c_str()).c_str();
+		CoolPropStateClass CPS(fluid_names[i]);
+		double Tc = CPS.pFluid->reduce.T;
+		double Tt = CPS.pFluid->params.Ttriple;
+		if (!CPS.pFluid->pure())
+		{
+			// Skip pseudo-pure fluids
+			continue;
+		}
+		double good;
+		try{
+			if (Tc-5>Tt)
+			{
+				CPS.update(iT,Tc-5,iQ,1);
+				rhoV = CPS.rhoV(); rhoL = CPS.rhoL();
+				drhodTV = CPS.drhodT_along_sat_vapor();
+				drhodTL = CPS.drhodT_along_sat_liquid();
+				if (!ValidNumber(drhodTV) || !ValidNumber(drhodTL)){throw ValueError();}
+				good = 5;
+			}
+			else
+			{
+				CPS.update(iT,Tc-1,iQ,1);
+				rhoV = CPS.rhoV(); rhoL = CPS.rhoL();
+				drhodTV = CPS.drhodT_along_sat_vapor();
+				drhodTL = CPS.drhodT_along_sat_liquid();
+				if (!ValidNumber(drhodTV) || !ValidNumber(drhodTL)){throw ValueError();}
+				good = 1;
+			}
+		}
+		catch(std::exception &)
+		{
+			if (CPS.pFluid->reduce.T > 100)
+			{
+				std::cout << format("%s : failed at 20 K \n",fluid_names[i].c_str()).c_str();
+				continue;
+			}
+			else
+			{
+				std::cout << format("%s : failed at 1 K \n",fluid_names[i].c_str()).c_str();
+				continue;
+			}
+		}
+		bool valid = false;
+		
+		for (double step = 0.5; step > 1e-10; step /= 100.0)
+		{
+			valid = true;
+			for (double b = good; b>0; b -= step)
+			{
+				try{
+					CPS.update(iT, Tc - b, iQ, 1);
+					rhoV = CPS.rhoV(); rhoL = CPS.rhoL();
+					drhodTV = CPS.drhodT_along_sat_vapor();
+					drhodTL = CPS.drhodT_along_sat_liquid();
+				}
+				catch(std::exception &){
+					valid = false; 
+					break;
+				}
+				if (!ValidNumber(drhodTV) || !ValidNumber(drhodTL) || drhodTV*drhodTL > 0){
+					//std::cout << format("%0.20g",good) << std::endl;
+					valid = false;
+					break;
+				}
+				else
+				{
+					good = b;
+				}
+			}
+			if (!valid){
+				break;
+			}
+		}
+		CoolPropStateClass CPS2(fluid_names[i]);
+		CPS2.update(iT,Tc-good,iQ,1.0);
+		rhoV = CPS2.rhoV(); rhoL = CPS2.rhoL();
+		drhodTV = CPS2.drhodT_along_sat_vapor(); 
+		drhodTL = CPS2.drhodT_along_sat_liquid();
+		std::cout << format("%0.20g",good).c_str() << std::endl;
+		fprintf(fp,"\tstd::make_pair(std::string(\"%s\"),CriticalSplineStruct_T(%0.12e,%0.12e,%0.12e,%0.12e,%0.12e) ),\n",fluid_names[i].c_str(),Tc-good,rhoL,rhoV,drhodTL,drhodTV);
+	}
+	fclose(fp);
+	UseCriticalSpline = true;
 }

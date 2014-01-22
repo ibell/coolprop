@@ -123,7 +123,12 @@
 	#define OK 1
 	#define FAIL 0
 	
-	
+	inline std::string upper(const std::string str_)
+	{
+		std::string str = str_;
+		std::transform(str.begin(), str.end(), str.begin(), ::toupper);
+		return str;
+	}
 
 	std::string strjoin(std::vector<std::string> strings, std::string delim);
 	

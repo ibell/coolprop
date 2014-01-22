@@ -2,7 +2,7 @@
 #include <vector>
 #include "CPExceptions.h"
 #include "FluidClass.h"
-#include "R161.h"
+#include "R161_Fluoroethane.h"
 
 R161Class::R161Class()
 {
@@ -46,11 +46,13 @@ R161Class::R161Class()
 
 	phi0list.push_back(new phi0_Planck_Einstein(v0,u0,1,3,4));
 
-	EOSReference.assign("Jiangtao Wu and Yong Zhou, \"An Equation of State for Fluoroethane (R161)\", Int J Thermophys (2012) 33:220�234");
+	EOSReference.assign("Jiangtao Wu and Yong Zhou, \"An Equation of State for Fluoroethane (R161)\", Int J Thermophys (2012) 33:220-234");
 	TransportReference.assign("Using ECS in fully predictive mode.");
 
 	name.assign("R161");
 	aliases.push_back(std::string("Fluoroethane"));
+	aliases.push_back(std::string("FLUOROETHANE"));
+
 	REFPROPname.assign("R161");
 
 	BibTeXKeys.EOS = "Wu-IJT-2012";

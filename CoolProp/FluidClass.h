@@ -12,6 +12,7 @@
 #include "Helmholtz.h"
 #include "TTSE.h"
 #include "Units.h"
+#include "AllFluids.h"
 
 // On PowerPC, we are going to use the stdint.h integer types and not let rapidjson use its own
 #if defined(__powerpc__)
@@ -25,6 +26,9 @@
 #include "rapidjson/prettywriter.h"	// for stringify JSON
 
 class Fluid;
+
+/// Rebuild the constants
+void rebuild_CriticalSplineConstants_T();
 
 /*! A data structure to hold some information for the enthalpy-entropy solver that can be useful
 */
@@ -48,38 +52,6 @@ struct CriticalStruct
 struct FluidLimits
 {
 	double Tmin, Tmax, pmax, rhomax;	
-};
-
-struct SatLUTStruct
-{
-	std::vector<double> T,rhoL,rhoV,p,hL,hV,sL,sV,tau,logp;
-	std::vector<double> T_reversed,rhoL_reversed,rhoV_reversed,p_reversed,hL_reversed,hV_reversed,sL_reversed,sV_reversed,tau_reversed,logp_reversed;
-	int N;
-	bool built;
-	enum flags{ iT,iP,iHL,iHV,iDL,iDV,iSL,iSV};
-};
-
-class CriticalSplineStruct_T
-{
-public:
-	CriticalSplineStruct_T(){};
-	CriticalSplineStruct_T(double Tend, double rhoendL, double rhoendV, double drhoLdT_sat, double drhoVdT_sat);
-	/// Interpolate within the spline to get the density
-	/// @param pFluid Pointer to fluid of interest
-	/// @param phase Integer for phase (0=liquid, 1 = vapor)
-	/// @param T Tempeature [K]
-	double interpolate_rho(Fluid* pFluid, int phase, double T);
-
-	/// The last temperature for which the conventional methods can be used
-	double Tend;
-	/// Saturated liquid density at the last temperature for which the conventional methods can be used
-	double rhoendL;
-	/// Saturated vapor density at the last temperature for which the conventional methods can be used
-	double rhoendV;
-	/// Derivative of density w.r.t. temperature along the saturated liquid curve
-	double drhoLdT_sat;
-	/// Derivative of density w.r.t. temperature along the saturated vapor curve
-	double drhoVdT_sat;
 };
 
 class AncillaryCurveClass
@@ -110,9 +82,37 @@ struct OnePhaseLUTStruct
 	bool built,forcebuild;
 };
 
-/// Rebuild the constants
-void rebuild_CriticalSplineConstants_T();
 
+
+
+class CriticalSplineStruct_T
+{
+public:
+	CriticalSplineStruct_T(){};
+	CriticalSplineStruct_T(double Tend, double rhoendL, double rhoendV, double drhoLdT_sat, double drhoVdT_sat){
+		this->Tend = Tend;
+		this->rhoendL = rhoendL;
+		this->rhoendV = rhoendV;
+		this->drhoLdT_sat = drhoLdT_sat;
+		this->drhoVdT_sat = drhoVdT_sat;
+	};
+	/// Interpolate within the spline to get the density
+	/// @param pFluid Pointer to fluid of interest
+	/// @param phase Integer for phase (0=liquid, 1 = vapor)
+	/// @param T Tempeature [K]
+	double interpolate_rho(Fluid* pFluid, int phase, double T);
+
+	/// The last temperature for which the conventional methods can be used
+	double Tend;
+	/// Saturated liquid density at the last temperature for which the conventional methods can be used
+	double rhoendL;
+	/// Saturated vapor density at the last temperature for which the conventional methods can be used
+	double rhoendV;
+	/// Derivative of density w.r.t. temperature along the saturated liquid curve
+	double drhoLdT_sat;
+	/// Derivative of density w.r.t. temperature along the saturated vapor curve
+	double drhoVdT_sat;
+};
 
 
 struct BibTeXKeysStruct
@@ -132,8 +132,6 @@ struct EnvironmentalFactorsStruct
 	double GWP20, GWP100, GWP500, ODP, HH, PH, FH;
 	std::string ASHRAE34;
 };
-
-double syaml_lookup(std::string key1, std::string key2);
 
 struct FluidCacheElement
 {
@@ -175,7 +173,6 @@ class Fluid
 		double hmin_TTSE, hmax_TTSE, pmin_TTSE, pmax_TTSE;
 		unsigned int Nsat_TTSE, Nh_TTSE, Np_TTSE;
     public:
-		SatLUTStruct SatLUT; /// The private Saturation lookup structure
 
 		BibTeXKeysStruct BibTeXKeys;
 		EnvironmentalFactorsStruct environment;
@@ -217,6 +214,8 @@ class Fluid
 
 		// Some post-loading things happen here
 		void post_load(rapidjson::Document &JSON, rapidjson::Document &JSON_CAS);
+
+		void add_alias(std::string alias){ aliases.push_back(alias);};
 
 		// Fluid-specific parameters
 		struct CriticalStruct crit;
