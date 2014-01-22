@@ -43,16 +43,14 @@ R161Class::R161Class()
 
 	const double u0[] = {0, 420/crit.T, 1548/crit.T, 3882/crit.T};
 	const double v0[] = {0, 2.059, 9.253, 6.088};
-	std::vector<double> u0_v(u0,u0+sizeof(u0)/sizeof(double));
-	std::vector<double> v0_v(v0,v0+sizeof(v0)/sizeof(double));
 
-	phi0list.push_back(new phi0_Planck_Einstein(v0_v,u0_v,1,3));
+	phi0list.push_back(new phi0_Planck_Einstein(v0,u0,1,3,4));
 
 	EOSReference.assign("Jiangtao Wu and Yong Zhou, \"An Equation of State for Fluoroethane (R161)\", Int J Thermophys (2012) 33:220�234");
 	TransportReference.assign("Using ECS in fully predictive mode.");
 
 	name.assign("R161");
-	//aliases.push_back(std::string("R161"));
+	aliases.push_back(std::string("Fluoroethane"));
 	REFPROPname.assign("R161");
 
 	BibTeXKeys.EOS = "Wu-IJT-2012";
