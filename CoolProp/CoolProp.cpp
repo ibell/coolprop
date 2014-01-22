@@ -33,6 +33,7 @@
 #include "TTSE.h"
 #include "purefluids/R290.h"
 #include "purefluids/R134a.h"
+#include "AllFluids.h"
 
 // Function prototypes
 //double rho_TP(double T, double p);
