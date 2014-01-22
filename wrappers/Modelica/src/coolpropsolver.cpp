@@ -221,8 +221,8 @@ void CoolPropSolver::postStateChange(ExternalThermodynamicState *const propertie
 				properties->cp = state->cp();
 				properties->cv = state->cv();
 				properties->a     = -_HUGE;
-				properties->ddhp  = -_HUGE;
-				properties->ddph  = -_HUGE;
+				properties->ddhp = state->drhodh_constp();
+				properties->ddph = 0.0; // TODO: Fix this
 				properties->kappa = -_HUGE;
 				properties->beta  = -_HUGE;
 				if (calc_transport)
@@ -242,7 +242,7 @@ void CoolPropSolver::postStateChange(ExternalThermodynamicState *const propertie
 			}
 			break;
 		default:
-			errorMessage("Invalid fluid type!");
+			errorMessage((char*)"Invalid fluid type!");
 			break;
 	}
 }
