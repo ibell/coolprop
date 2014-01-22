@@ -92,7 +92,7 @@
 #include "purefluids/R12_R113.h"
 #include "purefluids/Deuterium.h"
 #include "purefluids/R1233zd(E).h"
-
+#include "purefluids/Fluoroethane.h"
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -341,6 +341,7 @@ FluidsContainer::FluidsContainer()
 	FluidsList.push_back(new R113Class());
 	FluidsList.push_back(new R1234zeZClass());
 	FluidsList.push_back(new R1233zdEClass());
+	FluidsList.push_back(new FluoroethaneClass());
 
 	// The industrial fluids
 	FluidsList.push_back(new R245faClass());
