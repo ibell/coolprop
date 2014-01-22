@@ -2723,7 +2723,7 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z, double beta_e
 					iii_S = i;
 				}
 			}
-			std::cout << format("T,P,Nstep,K : %g %g %d %g %g %d %d %s\n",T,p,Mix->NRVLE.Nsteps, rhobar_liq, rhobar_vap, iii_S, i_S, vec_to_string(K,"%6.5g").c_str());
+			std::cout << format("T,P,Nstep,K : %g %g %d %g %g %d %d %s\n",T,p,Mix->NRVLE.Nsteps, rhobar_liq, rhobar_vap, iii_S, i_S, vec_to_string(Mix->NRVLE.x,"%6.5g").c_str());
 		}
 		
 		// Update step counter
@@ -2749,14 +2749,14 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z, double beta_e
 		fp = fopen("phase_envelope_bubble.py","w");
 	}
 
-	Dictionary d;
+	/*Dictionary d;
 	d.add("lw", 3.1);
 	d.add("color", "r");
 	d.add("linestyle", "-");
 
 	PyPlotter plt;
 	plt.plot(data.T, data.p, &d);
-	plt.show();
+	plt.show();*/
 	
 	fprintf(fp, "import matplotlib.pyplot as plt\n");
 	fprintf(fp, "T = %s\n",vec_to_string(data.T,"%10.9g").c_str());
