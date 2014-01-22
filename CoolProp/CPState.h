@@ -90,7 +90,6 @@ protected:
 	/// Temporary until solutions are fixed
 	std::string brine_string;
 	
-
 	StateCache cache;
 
 	std::string _Fluid;
@@ -283,6 +282,7 @@ public:
 
 	double viscosity(void);
 	double conductivity(void);
+	double Prandtl(void);
 
 	double surface_tension(void);
 

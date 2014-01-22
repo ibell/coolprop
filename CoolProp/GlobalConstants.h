@@ -9,7 +9,7 @@
 // These are constants for the input and output parameters
 enum params {
 	// Properties and others
-	iB, iT, iP, iD, iC, iC0, iO, iU, iH, iS, iA, iG, iQ, iV, iL, iTfreeze, iPsat, iI, iDpdT, iDrhodT_p, iCritSplineT,
+	iB, iT, iP, iD, iC, iC0, iO, iU, iH, iS, iA, iG, iQ, iV, iL, iTfreeze, iPsat, iI, iDpdT, iDrhodT_p, iCritSplineT, iPrandtl,
 	// Constants
 	iMM, iTmax, iTmin, iAccentric, iDipole, iODP, iGWP20, iGWP100, iGWP500,
 	// Reduced quantities, triple point and critical point

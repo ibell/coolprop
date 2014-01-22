@@ -1145,6 +1145,8 @@ double CoolPropStateClassSI::keyed_output(long iOutput)
 			return conductivity();
 		case iI:
 			return surface_tension();
+		case iPrandtl:
+			return Prandtl();
 
 		// -----------------------------------
 		// A few grandfathered derivatives
@@ -1474,6 +1476,9 @@ double CoolPropStateClassSI::conductivity(void){
 		double val_kWmK = pFluid->conductivity_Trho(_T,_rho);
 		return convert_from_unit_system_to_SI(iL,val_kWmK,UNIT_SYSTEM_KSI);
 	}
+}
+double CoolPropStateClassSI::Prandtl(void){
+	return this->cp()*this->viscosity()/this->conductivity();
 }
 
 double CoolPropStateClassSI::B_TTSE(double p, double h){

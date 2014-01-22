@@ -113,6 +113,8 @@ std::pair<std::string, long> map_data[] = {
 	std::make_pair(std::string("G"),iG),
 	std::make_pair(std::string("V"),iV),
 	std::make_pair(std::string("L"),iL),
+	std::make_pair(std::string("Prandtl"),iPrandtl),
+	std::make_pair(std::string("PRANDTL"),iPrandtl),
 	std::make_pair(std::string("Tmax"),iTmax),
 	std::make_pair(std::string("Tfreeze"),iTfreeze),
 	std::make_pair(std::string("Psat"),iPsat),
