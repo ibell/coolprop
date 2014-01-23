@@ -36,6 +36,14 @@ EXPORT_CODE double CONVENTION Props(char *Output,char Name1, double Prop1, char 
 	return val;
 }
 
+// For debugging with Scilab, but could be generally useful.
+EXPORT_CODE void CONVENTION plus_one(double *in, double *out){*out = *in+1;}
+
+EXPORT_CODE void CONVENTION PropsSIScilab(char *Output, char *Name1, double *Prop1, char *Name2, double *Prop2, char * Ref, double *output)
+{
+	*output = PropsSI(Output,Name1,*Prop1,Name2,*Prop2,Ref);
+}
+
 EXPORT_CODE double CONVENTION PropsSI(char *Output, char *Name1, double Prop1, char *Name2, double Prop2, char * Ref)
 {
 	long current_unit_system = get_standard_unit_system();
@@ -49,6 +57,7 @@ EXPORT_CODE double CONVENTION PropsSI(char *Output, char *Name1, double Prop1, c
 	set_standard_unit_system(current_unit_system);
 	return val;
 }
+
 // All the function interfaces that point to the single-input Props function
 EXPORT_CODE double CONVENTION Props1(char *Ref, char *Output)
 {

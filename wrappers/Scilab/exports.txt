@@ -1,0 +1,76 @@
+Microsoft (R) COFF/PE Dumper Version 9.00.30729.01
+Copyright (C) Microsoft Corporation.  All rights reserved.
+
+
+Dump of file CoolProp_x64.dll
+
+File Type: DLL
+
+  Section contains the following exports for CoolProp_x64.dll
+
+    00000000 characteristics
+    52E1741B time date stamp Thu Jan 23 20:57:15 2014
+        0.00 version
+           1 ordinal base
+          49 number of functions
+          49 number of names
+
+    ordinal hint RVA      name
+
+          1    0 000B8FF0 DerivTerms = DerivTerms
+          2    1 000B8B40 F2K = F2K
+          3    2 0010B5B0 HAProps = HAProps
+          4    3 0010C430 HAProps_Aux = HAProps_Aux
+          5    4 000B1190 IProps = IProps
+          6    5 000AE8C0 IsFluidType = IsFluidType
+          7    6 000B8B20 K2F = K2F
+          8    7 000BA260 Phase = Phase
+          9    8 000BA260 Phase_Tp = Phase
+         10    9 000BA330 Phase_Trho = Phase_Trho
+         11    A 000B8B60 PrintSaturationTable = PrintSaturationTable
+         12    B 000B8720 Props = Props
+         13    C 000B8A80 Props1 = Props1
+         14    D 000B86F0 PropsS = PropsS
+         15    E 000B8940 PropsSI = PropsSI
+         16    F 000B8830 PropsSIScilab = PropsSIScilab
+         17   10 000B9CB0 conductivity_background = conductivity_background
+         18   11 000B9BC0 conductivity_critical = conductivity_critical
+         19   12 000B9710 conformal_Trho = conformal_Trho
+         20   13 000BA590 disable_TTSE_LUT = disable_TTSE_LUT
+         21   14 000BA770 disable_TTSE_LUT_writing = disable_TTSE_LUT_writing
+         22   15 000BA450 enable_TTSE_LUT = enable_TTSE_LUT
+         23   16 000BA630 enable_TTSE_LUT_writing = enable_TTSE_LUT_writing
+         24   17 000B90B0 fromSI = fromSI
+         25   18 000B90D0 get_Fluid_index = get_Fluid_index
+         26   19 000BAA70 get_TTSESinglePhase_LUT_range = get_TTSESinglePhase_LUT_range
+         27   1A 000BA170 get_fluid_param_string = get_fluid_param_string
+         28   1B 000BA0C0 get_global_param_string = get_global_param_string
+         29   1C 000B9120 get_index_units = get_index_units
+         30   1D 000B96C0 get_param_index = get_param_index
+         31   1E 000BABB0 get_standard_unit_system = get_standard_unit_system
+         32   1F 000BA4F0 isenabled_TTSE_LUT = isenabled_TTSE_LUT
+         33   20 000BA6D0 isenabled_TTSE_LUT_writing = isenabled_TTSE_LUT_writing
+         34   21 000B8810 plus_one = plus_one
+         35   22 000B9F00 psatL_anc = psatL_anc
+         36   23 000B9FE0 psatV_anc = psatV_anc
+         37   24 000B9D80 rhosatL_anc = rhosatL_anc
+         38   25 000B9E40 rhosatV_anc = rhosatV_anc
+         39   26 000BA810 set_TTSESat_LUT_size = set_TTSESat_LUT_size
+         40   27 000BA980 set_TTSESinglePhase_LUT_range = set_TTSESinglePhase_LUT_range
+         41   28 000BA8C0 set_TTSESinglePhase_LUT_size = set_TTSESinglePhase_LUT_size
+         42   29 000B9180 set_TTSE_mode = set_TTSE_mode
+         43   2A 000BA400 set_phase = set_phase
+         44   2B 000B8650 set_reference_stateD = set_reference_stateD
+         45   2C 000B85B0 set_reference_stateS = set_reference_stateS
+         46   2D 000BABC0 set_standard_unit_system = set_standard_unit_system
+         47   2E 000B90C0 toSI = toSI
+         48   2F 000B99F0 viscosity_dilute = viscosity_dilute
+         49   30 000B9AE0 viscosity_residual = viscosity_residual
+
+  Summary
+
+       28000 .data
+       1C000 .pdata
+       93000 .rdata
+        6000 .reloc
+      1E1000 .text

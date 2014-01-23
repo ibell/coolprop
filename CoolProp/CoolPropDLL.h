@@ -43,9 +43,10 @@
 	EXPORT_CODE double CONVENTION PropsS(char *Output,char* Name1, double Prop1, char* Name2, double Prop2, char * Ref);
 	EXPORT_CODE double CONVENTION Props(char *Output,char Name1, double Prop1, char Name2, double Prop2, char * Ref);
 	EXPORT_CODE double CONVENTION PropsSI(char *Output,char *Name1, double Prop1, char *Name2, double Prop2, char * Ref);
+	EXPORT_CODE void CONVENTION PropsSIScilab(char *Output,char *Name1, double *Prop1, char *Name2, double *Prop2, char * Ref, double *output);
 	EXPORT_CODE double CONVENTION Props1(char *Ref, char *Output);
 
-	
+	EXPORT_CODE void CONVENTION plus_one(double *in, double *out);
 	// This version uses the indices in place of the strings for speed.  Get the parameter indices
 	// from get_param_index('D') for instance and the Fluid index from get_Fluid_index('Air') for instance
 	EXPORT_CODE double CONVENTION IProps(long iOutput, long iName1, double Prop1, long iName2, double Prop2, long iFluid);
