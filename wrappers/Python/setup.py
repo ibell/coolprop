@@ -68,11 +68,11 @@ if __name__=='__main__':
 
     def gitrev_to_file():
         """
-        If a svn repo, use subversion to update the file in revision
+        If a git repo, use git to update the gitrevision
         """
         try:
-            subprocess.call(['git','fetch'], shell = True)
-            p = subprocess.Popen(['git','rev-parse','HEAD'], 
+            subprocess.call('git fetch', shell = True)
+            p = subprocess.Popen('git rev-parse HEAD', 
                                  stdout=subprocess.PIPE, 
                                  stderr=subprocess.PIPE,
                                  shell = True)
@@ -84,6 +84,8 @@ if __name__=='__main__':
             _write = False
             if not os.path.exists(os.path.join(CPSourceDir,'gitrevision.h')):
                 _write = True
+            elif rev.find(' ') > -1: # if it is something that isn't a git hash
+                _write = False
             else:
                 
                 #  Check if it is different than the current version
