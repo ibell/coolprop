@@ -53,9 +53,6 @@ cdef double _convert_to_desired_units(double value, bytes_or_str parameter_type,
     A convenience function to convert a double value back to the units that
     are desired by the user
     """
-    # Convert to a byte-string
-    cdef bytes _parameter_type = parameter_type if bytes_or_str is bytes else parameter_type.encode('ascii')
-    cdef bytes _desired_units = desired_units if bytes_or_str is bytes else desired_units.encode('ascii')
     # Convert parameter string to index
     cdef long index = _get_param_index(parameter_type)
     # Get the units string by the index
@@ -72,9 +69,8 @@ cdef _convert_to_default_units(bytes_or_str parameter_type, object parameter):
     A convenience function to convert a quantities instance to the default 
     units required for CoolProp
     """
-    cdef bytes _parameter_type = parameter_type if bytes_or_str is bytes else parameter_type.encode('ascii')
     #Convert parameter string to index
-    cdef long index = _get_param_index(_parameter_type)
+    cdef long index = _get_param_index(parameter_type)
     #Get the units string by the index
     cdef bytes default_units = _get_index_units(index)
     #Rescale the units of the parameter to the default units
