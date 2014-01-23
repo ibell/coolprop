@@ -750,47 +750,37 @@ cpdef tuple get_TTSESinglePhase_LUT_range(char *FluidName):
     else:
         raise ValueError("Either your FluidName was invalid or LUT bounds not available since no call has been made to tables")
 
-cpdef tuple conformal_Trho(str Fluid, str ReferenceFluid, double T, double rho):
+cpdef tuple conformal_Trho(bytes_or_str Fluid, bytes_or_str ReferenceFluid, double T, double rho):
     """
     
     """    
     cdef double T0 = 0,rho0= 0
-    cdef bytes _Fluid = Fluid.encode('ascii')
-    cdef bytes _ReferenceFluid = ReferenceFluid.encode('ascii')
-    _conformal_Trho(_Fluid, _ReferenceFluid, T, rho, &T0, &rho0)
+    _conformal_Trho(Fluid, ReferenceFluid, T, rho, &T0, &rho0)
     return T0,rho0
 
 cpdef rhosatL_anc(bytes_or_str Fluid, double T):
-    cdef bytes _Fluid = Fluid if bytes_or_str is bytes else Fluid.encode('ascii')
-    return _rhosatL_anc(_Fluid,T)
+    return _rhosatL_anc(Fluid,T)
 
 cpdef rhosatV_anc(bytes_or_str Fluid, double T):
-    cdef bytes _Fluid = Fluid if bytes_or_str is bytes else Fluid.encode('ascii')
-    return _rhosatV_anc(_Fluid,T)
+    return _rhosatV_anc(Fluid,T)
 
 cpdef psatL_anc(bytes_or_str Fluid, double T):
-    cdef bytes _Fluid = Fluid if bytes_or_str is bytes else Fluid.encode('ascii')
-    return _psatL_anc(_Fluid,T)
+    return _psatL_anc(Fluid,T)
 
 cpdef psatV_anc(bytes_or_str Fluid, double T):
-    cdef bytes _Fluid = Fluid if bytes_or_str is bytes else Fluid.encode('ascii')
-    return _psatV_anc(_Fluid,T)
+    return _psatV_anc(Fluid,T)
 
-cpdef viscosity_residual(str Fluid, double T, double rho):
-    cdef _Fluid = Fluid.encode('ascii')
-    return _viscosity_residual(_Fluid, T, rho)
+cpdef viscosity_residual(bytes_or_str Fluid, double T, double rho):
+    return _viscosity_residual(Fluid, T, rho)
 
-cpdef viscosity_dilute(str Fluid, double T):
-    cdef _Fluid = Fluid.encode('ascii')
-    return _viscosity_dilute(_Fluid,T)
+cpdef viscosity_dilute(bytes_or_str Fluid, double T):
+    return _viscosity_dilute(Fluid,T)
 
-cpdef conductivity_background(str Fluid, double T, double rho):
-    cdef _Fluid = Fluid.encode('ascii')
-    return _conductivity_background(_Fluid,T, rho)
+cpdef conductivity_background(bytes_or_str Fluid, double T, double rho):
+    return _conductivity_background(Fluid,T, rho)
 
-cpdef conductivity_critical(str Fluid, double T, double rho):
-    cdef _Fluid = Fluid.encode('ascii')
-    return _conductivity_critical(_Fluid,T, rho)
+cpdef conductivity_critical(bytes_or_str Fluid, double T, double rho):
+    return _conductivity_critical(Fluid,T, rho)
     
 cpdef set_standard_unit_system(int unit_system):
     _set_standard_unit_system(unit_system)
