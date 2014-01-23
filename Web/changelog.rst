@@ -1,6 +1,17 @@
 Changelog for CoolProp
 ======================
 
+4.1.0
+-----
+* Added ``Prandtl`` as an output variable
+* Predefined mixtures (R404A, R410A, R407C, R507A, Air) can be used with REFPROP using a fluid name like "REFPROP-MIX:R410A"
+* Export HAProps in Javascript
+* Improved some edge cases for ``P``, ``S`` inputs
+* Added wrappers for Maple and Mathematica
+* Added PropsSI function to DLL that always takes and returns SI units
+* Improved EES support for newer versions of EES that broke CoolProp (EES strings are not case sensitive)
+* Added upper-case aliases for all fluids and input variables (to support EES)
+
 4.0.0
 -----
 * API CHANGE: Some functions have been condensed, functions get_errstring, get_REFPROPname, etc. have been rolled into get_global_param_string.
