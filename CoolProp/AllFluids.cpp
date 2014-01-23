@@ -11,6 +11,7 @@
 #include "Units.h"
 #include "AllFluids.h"
 #include "CriticalSplineConstants.h"
+#include "Catch/catch.hpp"
 
 // On PowerPC, we are going to use the stdint.h integer types and not let rapidjson use its own
 #if defined(__powerpc__)
@@ -331,5 +332,48 @@ std::string FluidsContainer::FluidList()
 	return FL;
 }
 
+TEST_CASE("Fluid parameter checks","[fast]")
+{
+	FluidsContainer Fluids = FluidsContainer();
 
-
+	SECTION("Check Tmin > Ttriple")
+	{
+		for (std::vector<Fluid*>::const_iterator it = Fluids.FluidsList.begin(); it != Fluids.FluidsList.end(); it++)
+		{
+			REQUIRE((*it)->params.Ttriple <= (*it)->limits.Tmin);
+		}
+	}
+	SECTION("Check ptriple")
+	{
+		for (std::vector<Fluid*>::const_iterator it = Fluids.FluidsList.begin(); it != Fluids.FluidsList.end(); it++)
+		{
+			std::string name = (*it)->get_name();
+			double pL,pV,rhoL,rhoV;
+			(*it)->saturation_T((*it)->limits.Tmin,false,&pL,&pV,&rhoL,&rhoV);
+			double ptriple_EOS = pV;
+			CAPTURE(name);
+			CAPTURE(ptriple_EOS);
+			WARN(name);
+			REQUIRE((*it)->params.ptriple == ptriple_EOS);
+		}
+	}
+	SECTION("Check accentric factor")
+	{
+		for (std::vector<Fluid*>::const_iterator it = Fluids.FluidsList.begin(); it != Fluids.FluidsList.end(); it++)
+		{
+			if ((*it)->limits.Tmin < 0.7*(*it)->crit.T)
+			{
+				std::string name = (*it)->get_name();
+				double pL,pV,rhoL,rhoV;
+				(*it)->saturation_T((*it)->crit.T*0.7,false,&pL,&pV,&rhoL,&rhoV);
+				double accentric_EOS = -log10(pV/(*it)->crit.p.Pa)-1;
+				double accentric_Fluid = (*it)->params.accentricfactor;
+				CAPTURE(name);
+				CAPTURE(accentric_EOS);
+				CAPTURE(accentric_Fluid);
+				INFO(format("accentric factor should be %0.7g",accentric_EOS));
+				REQUIRE(abs(accentric_Fluid/accentric_EOS-1) < 1e-2);
+			}
+		}
+	}
+}

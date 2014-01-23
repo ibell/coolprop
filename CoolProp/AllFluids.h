@@ -17,8 +17,10 @@ private:
 	rapidjson::Document JSON, JSON_CAS;
 	std::map<std::string,long> fluid_index_map; ///< maps fluid names to 0-based index
 	std::map<std::string,Fluid*> fluid_name_map; ///< maps fluid names to pointers to the fluid
-	std::vector <Fluid*> FluidsList; ///< A list of pointers to the instances of the fluids
+	
 public:
+
+	std::vector <Fluid*> FluidsList; ///< A list of pointers to the instances of the fluids
 	
 	/// Constructor for the FluidsContainer class
 	/// @see FluidsContainer

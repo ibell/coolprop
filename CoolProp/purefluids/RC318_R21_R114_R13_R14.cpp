@@ -21,7 +21,7 @@ RC318Class::RC318Class()
 	// Other fluid parameters
 	params.molemass = 200.0312;
 	params.Ttriple = 233.35;
-	params.accentricfactor = 0.3553;
+	params.accentricfactor = 0.402965515173;
 	params.R_u = 8.31451;
 	params.ptriple = 19.461;
 
@@ -300,7 +300,7 @@ R13Class::R13Class()
 	// Other fluid parameters
 	params.molemass = 104.459;
 	params.Ttriple = 92;
-	params.accentricfactor = 0.1723;
+	params.accentricfactor = 0.174586327798;
 	params.R_u = 8.31451;
 	params.ptriple =  0.000907038339057;
 

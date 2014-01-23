@@ -2612,7 +2612,7 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z, double beta_e
 			// Update the specified variable
 			S = Sold + DELTAS;
 			
-			std::cout << format("S: %g Sold %g DELTAS %g exp(S) %g exp(Sold) %g\n",S,Sold,DELTAS, exp(S), exp(Sold));
+			std::cout << format("S: %g Sold %g DELTAS %g exp(S) %g exp(Sold) %g K %g\n",S,Sold,DELTAS, exp(S), exp(Sold),vec_to_string(K,"%0.5g").c_str());
 
 			// UPDATE THE GUESSES
 			// The specified variable is known directly. The others must be obtained either through the use of dXdS and/or extrapolation

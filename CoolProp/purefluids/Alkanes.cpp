@@ -619,7 +619,7 @@ nButaneClass::nButaneClass()
 	params.molemass = 58.12220;
 	params.Ttriple = 134.895;
 	params.ptriple = 0.000665785834101;
-	params.accentricfactor = 0.099;
+	params.accentricfactor = 0.200810094644;
 	params.R_u = 8.314472;
 
 	// Limits of EOS
@@ -784,7 +784,7 @@ IsoButaneClass::IsoButaneClass()
 	params.molemass = 58.12220;
 	params.Ttriple = 113.73;
 	params.ptriple = 2.28968758984e-05;
-	params.accentricfactor = 0.099;
+	params.accentricfactor = 0.183531783208;
 	params.R_u = 8.314472;
 
 	// Limits of EOS

@@ -388,7 +388,7 @@ WaterClass::WaterClass()
 	params.Ttriple = 273.16;
 	params.ptriple = 0.611699223742;
 	params.R_u = 8.314371357587;
-	params.accentricfactor = 0.3443;
+	params.accentricfactor = 0.3442920843;
 
 	// Fluid limits
 	limits.Tmin = params.Ttriple;

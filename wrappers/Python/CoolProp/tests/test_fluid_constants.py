@@ -45,7 +45,7 @@ def check_accentric(Fluid):
     except ValueError:
         raise ValueError('accentric should be: '+str(accentricEOS)+'; it is '+ str(accentric))
     
-    if not (accentric/accentricEOS-1) < 0.01:
+    if not abs(accentric/accentricEOS-1) < 0.01:
         raise ValueError('accentric should be: '+str(accentricEOS)+'; it is '+ str(accentric))
     
 if __name__=='__main__':

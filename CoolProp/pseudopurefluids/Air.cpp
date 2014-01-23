@@ -166,7 +166,7 @@ AirClass::AirClass()
 	params.molemass = 28.96546;
 	params.Ttriple = 59.75;
 	params.ptriple = 2.44582352329;
-	params.accentricfactor = 0.0335;
+	params.accentricfactor = 0.0816749632704;
 	params.R_u = 8.31451;
 	isPure = false;
 	preduce = &maxcondT;
