@@ -1,4 +1,4 @@
-from __future__ import division
+from __future__ import division, print_function
 import CoolProp.CoolProp as CP
 import CoolProp.unit_systems_constants
 from CoolProp import param_constants
@@ -31,7 +31,7 @@ def second_derivative(S, func, iVal, Val, iConstant, Constant, epsilon = 1.0):
     
     S.update({iVal:Val,iConstant:Constant})
     
-    print val1, val2, val3, S.T, S.p, S.rho, (val1-2*val2+val3)
+    print(val1, val2, val3, S.T, S.p, S.rho, (val1-2*val2+val3))
     
     return (val1-2*val2+val3)/(epsilon*epsilon)
 

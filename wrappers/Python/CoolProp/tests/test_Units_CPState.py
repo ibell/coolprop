@@ -1,3 +1,4 @@
+from __future__ import division, print_function
 import CoolProp.CoolProp as CP
 import CoolProp.unit_systems_constants
 from CoolProp import param_constants
@@ -59,7 +60,7 @@ def check_Props(parameter, SI_over_kSI):
     except:
         pass
             
-    print val_SI,val_kSI, val_SI/val_kSI - SI_over_kSI
+    print(val_SI,val_kSI, val_SI/val_kSI - SI_over_kSI)
     if abs(val_SI/val_kSI - SI_over_kSI) > 1e-12:
         raise ValueError(val_SI/val_kSI-SI_over_kSI)
         

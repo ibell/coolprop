@@ -22,7 +22,7 @@ class GeneticAncillaryFitter(object):
                mutation_factor = 2, # Randomly mutate 1/n of the chromosomes
                num_powers = 10, # How many powers in the fit
                Ref = 'REFPROP-R407C',
-               value = 'rhoV',
+               value = 'p',
                addTr = True
                 ):
         self.num_samples = num_samples
