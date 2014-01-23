@@ -1,4 +1,6 @@
 
+#define _CRT_SECURE_NO_WARNINGS
+
 #include "Mixtures.h"
 #include "Solvers.h"
 #include "CPExceptions.h"
@@ -2575,28 +2577,31 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z, double beta_e
 	do
 	{
 		bool step_accepted = false;
-		std::vector<double> DELTAXbase = Mix->NRVLE.dXdS; //Copy from the last good run
+		std::vector<double> dXdSold = Mix->NRVLE.dXdS; //Copy from the last good run
+		double Told = T; // Copy from the last good run
+		double pold = p; // Copy from the last good run
 		std::vector<double> Kold = K; // Copy from the last good run
+
 		// Loop while the step size isn't small enough - usually only requires one downsizing of the step
 		while (step_accepted == false)
 		{
 			// Make a copy of the stored values from the last iteration
-			std::vector<double> DELTAX = DELTAXbase;
+			std::vector<double> DELTAX(dXdSold.size()), dXdS = dXdSold;
 			
 			for (unsigned int i = 0; i < Mix->N+2; i++)
 			{
-				DELTAX[i] *= DELTAS;
+				DELTAX[i] = dXdS[i]*DELTAS;
 			}
 
 			// Update the temperature
 			double DELTALNT = DELTAX[Mix->N];
-			lnT += DELTALNT;
-			T = exp(lnT);
+			T = exp(log(Told)+DELTALNT);
+			lnT = log(T);
 
 			// Update the pressure
 			double DELTALNP = DELTAX[Mix->N+1];
-			lnP += DELTALNP;
-			p = exp(lnP);
+			p = exp(log(pold)+DELTALNP);
+			lnP = log(p);
 
 			// Update the K-factors
 			for (unsigned int i = 0; i < Mix->N; i++)
@@ -2606,6 +2611,8 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z, double beta_e
 
 			// Update the specified variable
 			S = Sold + DELTAS;
+			
+			std::cout << format("S: %g Sold %g DELTAS %g exp(S) %g exp(Sold) %g\n",S,Sold,DELTAS, exp(S), exp(Sold));
 
 			// UPDATE THE GUESSES
 			// The specified variable is known directly. The others must be obtained either through the use of dXdS and/or extrapolation
@@ -2693,7 +2700,7 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z, double beta_e
 			catch (CoolPropBaseError &)
 			{
 				// Decrease the step size by a factor of 10
-				printf("Step downsize\n");
+				printf("Failure; step downsize\n");
 
 				DELTAS *= 0.1;
 				continue;

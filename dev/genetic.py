@@ -17,12 +17,12 @@ class Sample(object):
     
 class GeneticAncillaryFitter(object):
     def __init__(self,
-               num_samples = 100, # Have this many chromos in the sample group
+               num_samples = 500, # Have this many chromos in the sample group
                num_selected = 30, # Have this many chromos in the selected group
                mutation_factor = 2, # Randomly mutate 1/n of the chromosomes
-               num_powers = 6, # How many powers in the fit
-               Ref = 'REFPROP-R161', 
-               value = 'p',
+               num_powers = 10, # How many powers in the fit
+               Ref = 'R407C',
+               value = 'rhoV',
                addTr = True
                 ):
         self.num_samples = num_samples
@@ -33,14 +33,14 @@ class GeneticAncillaryFitter(object):
         self.value = value
         self.Ref = Ref 
         
-        #THermodynamics
+        #Thermodynamics
         from CoolProp.CoolProp import Props
         self.Tc = Props(Ref,'Tcrit')
         self.pc = Props(Ref,'pcrit')
         self.rhoc = Props(Ref,'rhocrit')
         self.Tmin = Props(Ref,'Tmin')
         
-        self.T = np.linspace(self.Tmin+1e-14, self.Tc-0.0001,200)
+        self.T = np.append(np.linspace(self.Tmin+1e-14, self.Tc-1,150), np.logspace(np.log10(self.Tc-1), np.log10(self.Tc-0.0001),10))
         self.p = [Props('P','T',T,'Q',0,Ref) for T in self.T]
         self.rhoL = [Props('D','T',T,'Q',0,Ref) for T in self.T]
         self.rhoV = [Props('D','T',T,'Q',1,Ref) for T in self.T]
@@ -60,6 +60,8 @@ class GeneticAncillaryFitter(object):
             self.LHS = self.logrhoVrhoc.copy()
         elif self.value == 'rhoLnoexp':
             self.LHS = (self.rhoLrhoc-1).copy()
+        else:
+            raise ValueError
             
         if self.addTr:
             self.LHS *= self.T/self.Tc

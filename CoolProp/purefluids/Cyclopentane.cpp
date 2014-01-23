@@ -48,7 +48,7 @@ CyclopentaneClass::CyclopentaneClass()
 
 	phi0list.push_back(new phi0_Planck_Einstein(v0_v,u0_v,1,4));
 
-	EOSReference.assign("Holger Gedanitz, Mar�a J. D�vila, Eric W. Lemmon \" Speed of sound measurements and a fundamental equation of state for cyclopentane\" Preprint provided by Eric Lemmon");
+	EOSReference.assign("Holger Gedanitz, Maria J. Davila, Eric W. Lemmon \" Speed of sound measurements and a fundamental equation of state for cyclopentane\" Preprint provided by Eric Lemmon");
 	TransportReference.assign("Using ECS in fully predictive mode.");
 
 	name.assign("Cyclopentane");
@@ -77,28 +77,28 @@ double CyclopentaneClass::psat(double T)
 }
 double CyclopentaneClass::rhosatL(double T)
 {
-    // Maximum absolute error is 0.173308 % between 179.722001 K and 511.689990 K
-    const double ti[]={0,0.42306897915936892, 0.76291898937648728, 1.7104617259576966, 3.1003034645307688, 4.5919182427446277};
-    const double Ni[]={0,2.4748358576479279, -1.5745345145906853, 0.59173274091364181, -0.31680778053266645, 0.18008888246191096};
+   // Max error is  0.0537787674075 % between 179.7 and 511.7199 K
+    const double ti[]={0, 0.127, 0.137, 0.14100000000000001, 0.14700000000000002, 0.3505, 0.3685, 0.38699999999999996, 0.39849999999999997, 1.8333333333333333, 3.8333333333333335};
+    const double Ni[]={0, -2949907.6373172961, 26157071.053032953, -34291932.874714434, 11119726.461818002, -2256287.1652462273, 5780550.4968119375, -6150540.6041890942, 2591325.8956157742, -3.4860599305100841, 0.71396246842304301};
     double summer=0;
     int i;
     double theta;
     theta=1-T/reduce.T;
-    for (i=1;i<=5;i++)
+    for (i=1;i <= 10;i++)
     {
-        summer+=Ni[i]*pow(theta,ti[i]);
+        summer += Ni[i]*pow(theta,ti[i]);
     }
-    return reduce.rho*exp(summer);
+    return reduce.rho*(summer+1);
 }
 double CyclopentaneClass::rhosatV(double T)
 {
-	// Max error is  0.844247582929 % between 179.7 and 511.719999 K
-    const double ti[]={0, 0.361, 0.363, 0.377, 0.38049999999999995, 0.38849999999999996, 3.5};
-    const double Ni[]={0, -101264.5398463681, 139115.9812203733, -194012.43385236908, 183634.07798663978, -27477.719590339886, -4.5470018567666193};
+	// Max error is  0.130802597771 % between 179.7 and 511.7199 K
+    const double ti[]={0, 0.053000000000000005, 0.356, 0.3605, 0.364, 0.378, 0.39149999999999996, 0.39549999999999996, 0.8333333333333334, 6.333333333333333, 7.5};
+    const double Ni[]={0, 12.066536979526935, -561852563.38938332, 2137733277.8963461, -1918813779.8001397, 552902395.41400063, -465184138.2543214, 255214994.8445133, -205.13360552504494, -12.344541888181883, 10.571728743217056};
     double summer=0,theta;
     int i;
     theta=1.0-T/reduce.T;
-    for (i=1;i<=6;i++)
+    for (i=1; i<=10; i++)
     {
         summer += Ni[i]*pow(theta,ti[i]);
     }

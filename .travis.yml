@@ -1,15 +1,16 @@
 language: python
 python:
   - "2.7"
+  - "3.2"
   - "3.3"
 # command to install dependencies
 install: 
-  - pip install Cython --use-mirrors
+  - pip -q install cython --install-option="--no-cython-compile"
   - cd wrappers/Python
   - python setup.py install # Install CoolProp
 # command to run tests
 script: 
-  - cd CoolProp/tests
+  - cd CoolProp/tests # relative to wrappers/Python
   - nosetests
 
 notifications:
