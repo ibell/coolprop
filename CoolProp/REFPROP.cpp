@@ -441,71 +441,86 @@ bool set_REFPROP_fluid(std::string Ref, double *x)
 		if (!strncmp(sRef.c_str(),"MIX",3))
 		{
 			// Sample sRef is "MIX:R32[0.697615]&R125[0.302385]" -  this is R410A
-			
+			// Or you could do "MIX:R410A" to use the full mixture model for this predefined mixture
+				
 			// Chop off the MIX by keeping everything after the ':'
 			std::string components_joined = strsplit(sRef,':')[1];
 
-			// Split the components_joined into the components
-			std::vector<std::string> components_split = strsplit(components_joined,'&');
-
-			// Flush out the refrigerant string for REFPROP
-			RefString.clear();
-
-			for (unsigned int j=0;j<components_split.size();j++)
-			{	
-				// Get component name and mole fraction (as strings)
-				std::vector<std::string> comp_fraction = strsplit(components_split[j],'[');
+			if (!components_joined.compare("R507A"))
+			{
+				i = 2;
+				RefString = "R125.fld|R143a.fld";
+				x[0] = 0.411840;
+				x[1] = 0.588160;
+			}
+			else if (!components_joined.compare("R410A"))
+			{
+				i = 2;
+				RefString = "R32.fld|R125.fld";
+				x[0] = 0.697615;
+				x[1] = 0.302385;
+			}
+			else if (!components_joined.compare("R404A"))
+			{
+				i = 3;
+				RefString = "R125.fld|R134a.fld|R143a.fld";
+				x[0] = 0.357817;
+				x[1] = 0.038264;
+				x[2] = 0.603919;
+			}
+			else if (!components_joined.compare("R407C"))
+			{
+				i = 3;
+				RefString = "R32.fld|R125.fld|R134a.fld";
+				x[0] = 0.381109;
+				x[1] = 0.179559;
+				x[2] = 0.439332;
+			}
+			else if (!components_joined.compare("Air"))
+			{
+				i = 3;
+				RefString = "Nitrogen.fld|Oxygen.fld|Argon.fld";
+				x[0]=0.7812;
+				x[1]=0.2096;
+				x[2]=0.0092;
+			}
+			else
+			{
 				
-				// Build the refrigerant string
-				if (j == 0){
-					RefString = fdPath + comp_fraction[0]+".fld";
-				}
-				else{
-					RefString += "|" + fdPath + comp_fraction[0]+".fld";
-				}
-				// Convert the mole fraction (as string) to a number
-				x[j] = strtod(comp_fraction[1].c_str(),NULL);
+				// Split the components_joined into the components
+				std::vector<std::string> components_split = strsplit(components_joined,'&');
 
-				// Update the number of components
-				i = j+1;
+				// Flush out the refrigerant string for REFPROP
+				RefString.clear();
+
+				for (unsigned int j=0;j<components_split.size();j++)
+				{	
+					// Get component name and mole fraction (as strings)
+					std::vector<std::string> comp_fraction = strsplit(components_split[j],'[');
+					
+					// Build the refrigerant string
+					if (j == 0){
+						RefString = fdPath + comp_fraction[0]+".fld";
+					}
+					else{
+						RefString += "|" + fdPath + comp_fraction[0]+".fld";
+					}
+					// Convert the mole fraction (as string) to a number
+					x[j] = strtod(comp_fraction[1].c_str(),NULL);
+
+					// Update the number of components
+					i = j+1;
+				}
 			}
 		}
+		
 		else if (!sRef.compare("Air") || !sRef.compare("R507A") || !sRef.compare("R404A") || !sRef.compare("R410A") || !sRef.compare("R407C") || !sRef.compare("SES36"))
 		{
 			i=1;
 			RefString = fdPath + std::string(sRef)+std::string(".ppf");
 			x[0]=1.0;     //Pseudo-Pure fluid
 		}
-		/*else if (!strcmp(Ref,"R507A"))
-		{
-			i=2;
-			strcpy(RefString,"R23.fld|R116.fld");
-			x[0]=0.62675;
-			x[1]=0.37325;
-		}
-		else if (!strcmp(Ref,"R410A"))
-		{
-			i=2;
-			strcpy(RefString,"R32.fld|R125.fld");
-			x[0]=0.697615;
-			x[1]=0.302385;
-		}
-		else if (!strcmp(Ref,"R404A"))
-		{
-			i=3;
-			strcpy(RefString,"R125.fld|R134a.fld|R143a.fld");
-			x[0]=0.35782;
-			x[1]=0.038264;
-			x[2]=0.60392;
-		}
-		else if (!strcmp(Ref,"Air"))
-		{
-			i=3;
-			strcpy(RefString,"Nitrogen.fld|Oxygen.fld|Argon.fld");
-			x[0]=0.7812;
-			x[1]=0.2096;
-			x[2]=0.0092;
-		}*/
+		
 		else
 		{
 			i=1;

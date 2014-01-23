@@ -21,7 +21,7 @@ class GeneticAncillaryFitter(object):
                num_selected = 30, # Have this many chromos in the selected group
                mutation_factor = 2, # Randomly mutate 1/n of the chromosomes
                num_powers = 10, # How many powers in the fit
-               Ref = 'R407C',
+               Ref = 'REFPROP-R407C',
                value = 'rhoV',
                addTr = True
                 ):
