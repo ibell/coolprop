@@ -82,6 +82,11 @@ if __name__=='__main__':
             
             gitstring = 'std::string gitrevision = "'+str(rev)+'";'
             _write = False
+            try:
+                is_hash = rev.find(' ') > -1 # python 2.x
+            except TypeError:
+                is_hash = ' ' in rev # python 3.x
+                
             if not os.path.exists(os.path.join(CPSourceDir,'gitrevision.h')):
                 _write = True
             elif rev.find(' ') > -1: # if it is something that isn't a git hash
