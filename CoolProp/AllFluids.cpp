@@ -332,6 +332,55 @@ std::string FluidsContainer::FluidList()
 	return FL;
 }
 
+TEST_CASE("Check ancillary curves for pure and pseudo-pure fluids","[slow]")
+{
+	FluidsContainer Fluids = FluidsContainer();
+
+	SECTION("Saturated Liquid Ancillary")
+	{
+		for (std::vector<Fluid*>::const_iterator it = Fluids.FluidsList.begin(); it != Fluids.FluidsList.end(); it++)
+		{
+			std::string name = (*it)->get_name();
+			double Tmin = (*it)->limits.Tmin;
+			double Tmax = (*it)->crit.T-1;
+			int N = 5;
+			for (double T = Tmin; T <= Tmax; T += (Tmax-Tmin)/(N-1))
+			{
+				double pL,pV,rhoL,rhoV;
+				(*it)->saturation_T(T,false,&pL,&pV,&rhoL,&rhoV);
+				double rho_EOS = rhoL;
+				double rho_ancillary = (*it)->rhosatL(T);
+				CAPTURE(name);
+				CAPTURE(rho_EOS);
+				CAPTURE(rho_ancillary);
+				CHECK(fabs(rho_EOS/rho_ancillary -1) <= 2e-2);
+			}
+		}
+	}
+
+	SECTION("Saturated Vapor Ancillary")
+	{
+		for (std::vector<Fluid*>::const_iterator it = Fluids.FluidsList.begin(); it != Fluids.FluidsList.end(); it++)
+		{
+			std::string name = (*it)->get_name();
+			double Tmin = (*it)->limits.Tmin;
+			double Tmax = (*it)->crit.T-1;
+			int N = 5;
+			for (double T = Tmin; T <= Tmax; T += (Tmax-Tmin)/(N-1))
+			{
+				double pL,pV,rhoL,rhoV;
+				(*it)->saturation_T(T,false,&pL,&pV,&rhoL,&rhoV);
+				double rho_EOS = rhoV;
+				double rho_ancillary = (*it)->rhosatV(T);
+				CAPTURE(name);
+				CAPTURE(rho_EOS);
+				CAPTURE(rho_ancillary);
+				CHECK(fabs(rho_EOS/rho_ancillary -1) <= 2e-2);
+			}
+		}
+	}
+}
+
 TEST_CASE("Fluid parameter checks","[fast]")
 {
 	FluidsContainer Fluids = FluidsContainer();
@@ -372,7 +421,7 @@ TEST_CASE("Fluid parameter checks","[fast]")
 				CAPTURE(accentric_EOS);
 				CAPTURE(accentric_Fluid);
 				INFO(format("accentric factor should be %0.7g",accentric_EOS));
-				REQUIRE(abs(accentric_Fluid/accentric_EOS-1) < 1e-2);
+				REQUIRE(fabs(accentric_Fluid/accentric_EOS-1) < 1e-2);
 			}
 		}
 	}
