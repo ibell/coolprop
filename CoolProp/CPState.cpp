@@ -292,7 +292,7 @@ void CoolPropStateClassSI::update(long iInput1, double Value1, long iInput2, dou
 	}
 
 	if (get_debug_level()>3){
-		std::cout << format("%s:%d: updated; T = %15.13g rho = %15.13g \n", __FILE__, __LINE__, _T, _rho).c_str();
+		std::cout << format("%s:%d: StateClassSI updated; T = %15.13g rho = %15.13g \n", __FILE__, __LINE__, _T, _rho).c_str();
 	}
 
 	// Common code for all updating functions
@@ -301,7 +301,7 @@ void CoolPropStateClassSI::update(long iInput1, double Value1, long iInput2, dou
 
 void CoolPropStateClassSI::_post_update()
 {
-	if (get_debug_level()>9){ std::cout << format("%s !_noSatLSatV %d TwoPhase %d !flag_TwoPhase %d\n", __FILE__, !_noSatLSatV, TwoPhase, !flag_TwoPhase).c_str(); }
+	if (get_debug_level()>9){ std::cout << format("%s:%d: StateClassSI::_post_update: !_noSatLSatV %d TwoPhase %d !flag_TwoPhase %d\n", __FILE__,__LINE__,!_noSatLSatV, TwoPhase, !flag_TwoPhase).c_str(); }
 	
 	if (!_noSatLSatV && TwoPhase && !flag_TwoPhase)
 	{
@@ -712,7 +712,7 @@ void CoolPropStateClassSI::update_hs(long iInput1, double Value1, long iInput2, 
 	_p = pFluid->R()*_T*_rho*(1.0 + delta*dphir_dDelta(tau, delta));
 
 	// Set the phase flags
-	if ( _T < pFluid->reduce.T && _rho < rhosatL && _rho > rhosatV)
+	if ( _p < pFluid->crit.p.Pa && _rho < rhosatL && _rho > rhosatV)
 	{
 		TwoPhase = true;
 		SinglePhase = false;

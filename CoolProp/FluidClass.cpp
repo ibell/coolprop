@@ -706,7 +706,7 @@ double Fluid::density_Tp(double T, double p)
 	// If the guess value is not provided, calculate the guess density using Peng-Robinson
 	// This overload is used to pre-calculate the guess for density using PR if possible
 	if (get_debug_level()>8){
-		std::cout<<__FILE__<<':'<<__LINE__<<": Fluid::density_Tp(double T, double p): "<<T<<","<<p<<std::endl;
+		std::cout << format("%s:%d: Fluid::density_Tp(double T, double p)\n", __FILE__, __LINE__, T, p).c_str();
 	}
 	return density_Tp(T,p,_get_rho_guess(T,p));
 }
@@ -720,7 +720,7 @@ double Fluid::density_Tp(double T, double p, double rho_guess)
 	tau = reduce.T/T;
 
 	if (get_debug_level()>8){
-		std::cout<<__FILE__<<':'<<__LINE__<<": Fluid::density_Tp(double T, double p, double rho_guess): "<<T<<","<<p<<","<<rho_guess<<std::endl;
+		std::cout << format("%s:%d: Fluid::density_Tp(T=%g, p=%g, rho_guess=%g)\n",__FILE__,__LINE__,T,p,rho_guess).c_str();
 	}
 	// Start with the guess value
 	// The first step, use the derivative of dp/drho|T in order to get the next value
@@ -771,8 +771,7 @@ double Fluid::density_Tp(double T, double p, double rho_guess)
 		}
     }	
 	if (get_debug_level()>8){
-		std::cout<<__FILE__<<':'<<__LINE__<<": Fluid::density_Tp(double T, double p, double rho_guess): "<<T<<","<<p<<","<<rho_guess<<" = "<<rho<<std::endl;
-
+		std::cout << format("%s:%d: Fluid::density_Tp(T = %g, p = %g, rho_guess = %g) = %g\n",__FILE__,__LINE__,T,p,rho_guess,rho).c_str();
 	}
     return delta*reduce.rho;
 }
@@ -826,7 +825,7 @@ void Fluid::saturation_s(double s, int Q, double *Tsatout, double *rhoout, doubl
 	} SatFunc(s, Q, this);
 
 	if (get_debug_level()>5){
-		std::cout<<format("%s:%d: Fluid::saturation_s(%g,%d) \n",__FILE__,__LINE__,s,Q).c_str();
+		std::cout << format("%s:%d: Fluid::saturation_s(%g,%d) \n",__FILE__,__LINE__,s,Q).c_str();
 	}
 	if (isPure == true)
 	{
@@ -898,7 +897,7 @@ void Fluid::saturation_h(double h, double Tmin, double Tmax, int Q, double *Tsat
 	} SatFunc(h, Q, this);
 
 	if (get_debug_level()>5){
-		std::cout<<format("%s:%d: Fluid::saturation_h(%g,%d) \n",__FILE__,__LINE__,h,Q).c_str();
+		std::cout << format("%s:%d: Fluid::saturation_h(%g,%d) \n",__FILE__,__LINE__,h,Q).c_str();
 	}
 	if (isPure == true)
 	{
@@ -941,7 +940,7 @@ void Fluid::saturation_T(double T, bool UseLUT, double *psatLout, double *psatVo
 {
 	double p;
 	if (get_debug_level()>5){
-		std::cout<<format("%s:%d: Fluid::saturation_T(%g,%d) \n",__FILE__,__LINE__,T,UseLUT).c_str();
+		std::cout << format("%s:%d: Fluid::saturation_T(%g,%d) \n",__FILE__,__LINE__,T,UseLUT).c_str();
 	}
 	if (T < limits.Tmin){ throw ValueError(format("Your temperature to saturation_T [%g K] is below the minimum temp [%g K]",T,limits.Tmin));} 
 	if (isPure==true) 
@@ -1320,7 +1319,7 @@ double Fluid::_get_rho_guess(double T, double p)
 	long phase = phase_Tp_indices(T,p,&pL,&pV,&rhoL,&rhoV);
 	
 	if (get_debug_level()>5){
-		std::cout<<__FILE__<<format(": Fluid::_get_rho_guess(%g,%g) phase =%d\n",T,p,phase).c_str();
+		std::cout << format("%s:%d: Fluid::_get_rho_guess(%g,%g) phase =%d\n",__FILE__,__LINE__,T,p,phase).c_str();
 	}
 	// These are very simplistic guesses for the density, but they work ok
 	if (phase == iGas)
@@ -1365,7 +1364,7 @@ double Fluid::_get_rho_guess(double T, double p)
 		return (rhoL+rhoV)/2;
 	}
 	if (get_debug_level()>5){
-		std::cout<<__FILE__<<": _get_rho_guess = "<<rho_simple<<std::endl;
+		std::cout << format("%s:%d: _get_rho_guess = %g\n",__FILE__,__LINE__,rho_simple).c_str();
 	}
 	return rho_simple;
 }
@@ -1377,7 +1376,7 @@ std::string Fluid::phase_Tp(double T, double p, double *pL, double *pV, double *
 	long iPhase = phase_Tp_indices(T, p, pL, pV, rhoL, rhoV);
 		
 	if (get_debug_level()>5){
-		std::cout<<__FILE__<<": phase index is " << iPhase <<std::endl;
+		std::cout << format("%s:%d: phase_Tp() phase index is %d\n",iPhase).c_str();
 	}
 
 	// Convert it to a std::string
@@ -1419,7 +1418,7 @@ long Fluid::phase_Tp_indices(double T, double p, double *pL, double *pV, double 
 	*/
 
 	if (get_debug_level()>5){
-		std::cout<<__FILE__<<format(": phase_Tp_indices(%g,%g)\n",T,p).c_str();
+		std::cout << format("%s:%d: phase_Tp_indices(%g,%g)\n",__FILE__,__LINE__,T,p).c_str();
 	}
 
 	if (T>crit.T && p>=crit.p.Pa){
@@ -1475,7 +1474,7 @@ std::string Fluid::phase_Trho(double T, double rho, double *pL, double *pV, doub
 	// Get the value from the long-output function
 	long iPhase = phase_Trho_indices(T, rho, pL, pV, rhoL, rhoV);
 	if (get_debug_level()>5){
-		std::cout<<__FILE__<<": phase index is " << iPhase <<std::endl;
+		std::cout << format("%s:%d: phase index is %d\n",__FILE__,__LINE__,iPhase).c_str();
 	}
 
 	// Convert it to a std::string

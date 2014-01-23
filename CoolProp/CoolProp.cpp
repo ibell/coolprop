@@ -638,7 +638,7 @@ double Props(std::string FluidName,std::string Output){
 double _Props(std::string Output, std::string Name1, double Prop1, std::string Name2, double Prop2, std::string Ref)
 {
 	if (get_debug_level()>5){
-		std::cout<<__FILE__<<": "<<Output.c_str()<<","<<Name1.c_str()<<","<<Prop1<<","<<Name2.c_str()<<","<<Prop2<<","<<Ref.c_str()<<std::endl;
+		std::cout << format("%s:%d: _Props(%s,%s,%g,%s,%g,%s)\n",__FILE__,__LINE__,Output.c_str(),Name1.c_str(),Prop1,Name2.c_str(),Prop2,Ref.c_str()).c_str();
 	}
 	/* 
     If the fluid name is not actually a refrigerant name, but a string beginning with "REFPROP-",
@@ -657,7 +657,7 @@ double _Props(std::string Output, std::string Name1, double Prop1, std::string N
     }
 	else if (IsCoolPropFluid(Ref))
 	{
-		if (get_debug_level()>7) std::cout<<__FILE__<<": Identified CoolProp fluid - "<<Ref.c_str()<<std::endl;
+		if (get_debug_level()>7) std::cout << format("%s:%d: Identified CoolProp fluid - %s\n",__FILE__,__LINE__,Ref.c_str()).c_str();
 		pFluid = Fluids.get_fluid(Ref);
 		// Convert all the parameters to integers
 		long iOutput = get_param_index(Output);
@@ -779,7 +779,7 @@ double _CoolProp_Fluid_Props(long iOutput, long iName1, double Prop1, long iName
 	// This private method uses the indices directly for speed
 
 	if (get_debug_level()>3){
-		std::cout<<__FILE__<<" _CoolProp_Fluid_Props: "<<iOutput<<","<<iName1<<","<<Prop1<<","<<iName2<<","<<Prop2<<","<<pFluid->get_name().c_str()<<std::endl;
+		std::cout << format("%s:%d: _CoolProp_Fluid_Props(%d,%d,%g,%d,%g,%s)\n",__FILE__,__LINE__,iOutput,iName1, Prop1, iName2, Prop2, pFluid->get_name().c_str()).c_str();
 	}
 
 	// Generate a State instance wrapped around the Fluid instance
@@ -818,14 +818,16 @@ double _CoolProp_Fluid_Props(long iOutput, long iName1, double Prop1, long iName
 	CPS.update(iName1,Prop1,iName2,Prop2);
 
 	// Debug
-	if (get_debug_level()>9){ std::cout << __FILE__ << " State update successful" << std::endl; }
+	if (get_debug_level()>9){ 
+		std::cout << format("%s:%d: State update successful\n",__FILE__,__LINE__).c_str();
+	}
 	
 	// Get the output
 	val = CPS.keyed_output(iOutput);
 	
 	// Debug
 	if (get_debug_level()>5){
-		std::cout<<__FILE__<<" _CoolProp_Fluid_Props return: "<<val<<std::endl;
+		std::cout << format("%s:%d: _CoolProp_Fluid_Props returns: %g\n",__FILE__,__LINE__).c_str();
 	}
 
 	// Return the value

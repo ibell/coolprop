@@ -6,7 +6,7 @@ double convert_from_unit_system_to_SI(long iInput, double value, int old_system)
 {
 	if (get_debug_level() > 8)
 	{
-		std::cout << format("convert_from_unit_system_to_SI(%d,%g,%d)\n",iInput,value,old_system).c_str();
+		std::cout << format("%s:%d: convert_from_unit_system_to_SI(i=%d,value=%g,old_system=%d)\n",__FILE__,__LINE__,iInput,value,old_system).c_str();
 	}
 	if (old_system == UNIT_SYSTEM_SI)
 	{
@@ -66,6 +66,7 @@ double convert_from_unit_system_to_SI(long iInput, double value, int old_system)
 	case iTcrit:
 	case iTtriple: 
 	case iTreduce:
+	case iPrandtl:
 	case iTmin:
 	case iTmax:
 	case iTfreeze:
@@ -122,7 +123,7 @@ double convert_from_SI_to_unit_system(long iInput, double value, int new_system)
 {
 	if (get_debug_level() > 8)
 	{
-		std::cout << format("convert_from_SI_to_unit_system(%d,%g,%d)\n",iInput,value,new_system).c_str();
+		std::cout << format("%s:%d: convert_from_SI_to_unit_system(%d,%g,%d)\n",__FILE__,__LINE__,iInput,value,new_system).c_str();
 	}
 
 	if (new_system == UNIT_SYSTEM_SI)
