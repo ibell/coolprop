@@ -40,7 +40,7 @@ class GeneticAncillaryFitter(object):
         self.rhoc = Props(Ref,'rhocrit')
         self.Tmin = Props(Ref,'Tmin')
         
-        self.T = np.linspace(self.Tmin+1e-14, self.Tc-1,150)#, np.logspace(np.log10(self.Tc-1), np.log10(self.Tc-0.1),10))
+        self.T = np.linspace(self.Tmin+1e-14, self.Tc-0.5,150)#, np.logspace(np.log10(self.Tc-1), np.log10(self.Tc-0.1),10))
         self.p = [Props('P','T',T,'Q',0,Ref) for T in self.T]
         self.rhoL = [Props('D','T',T,'Q',0,Ref) for T in self.T]
         self.rhoV = [Props('D','T',T,'Q',1,Ref) for T in self.T]

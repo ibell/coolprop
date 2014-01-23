@@ -257,9 +257,15 @@ double R407CClass::psatV(double T)
 
 double R407CClass::rhosatV(double T)
 {
-	double theta;
-	theta=1-T/359.345;
-	return exp(+2.481666724+2.974063949110e+00*pow(theta,-0.023725)-14.334177672*theta+60.7010706462*theta*theta-376.514657192*powInt(theta,3)+1178.57631747*powInt(theta,4)-1999.37929072*powInt(theta,5)+1307.74729667*powInt(theta,6));
+	double summer = 0, theta = 1-T/reduce.T;
+	// Max error is  0.0154605515421 % between 152.391550925 and 358.678402447 K
+    const double t[] = {0, 0.063, 0.07400000000000001, 0.093, 0.11, 0.138, 0.14900000000000002, 0.3505, 0.3765, 0.39699999999999996, 3.8333333333333335};
+    const double N[] = {0, 1380308628.5554051, -4414635502.5100594, 8451212972.9849291, -8373123341.0515318, 6062520352.3892927, -3113524088.4086652, 40948791.692754254, -54686679.455455706, 20978861.073273201, -7.6645426047794984};
+	for (int i=1; i<=10; i++)
+	{
+		summer += N[i]*pow(theta,t[i]);
+	}
+	return reduce.rho*exp(reduce.T/T*summer);
 }
 
 double R407CClass::rhosatL(double T)
