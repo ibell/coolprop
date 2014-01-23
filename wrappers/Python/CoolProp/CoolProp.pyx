@@ -583,8 +583,8 @@ cpdef list FluidsList():
        In [1]: FluidsList()
        
     """ 
-    cdef string FL = _get_global_param_string("FluidsList")
-    return [F.encode('ascii') for F in FL.decode('ascii').split(',')]
+    cdef str FL = _get_global_param_string("FluidsList")
+    return FL.split(',')
 
 cpdef get_aliases(str Fluid):
     """
