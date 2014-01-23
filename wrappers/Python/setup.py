@@ -74,7 +74,8 @@ if __name__=='__main__':
             subprocess.call(['git','fetch'], shell = True)
             p = subprocess.Popen(['git','rev-parse','HEAD'], 
                                  stdout=subprocess.PIPE, 
-                                 stderr=subprocess.PIPE)
+                                 stderr=subprocess.PIPE,
+                                 shell = True)
             stdout, stderr = p.communicate()
             
             rev = stdout.strip()

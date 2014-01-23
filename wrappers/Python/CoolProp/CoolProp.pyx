@@ -78,7 +78,7 @@ cdef _convert_to_default_units(bytes_or_str parameter_type, object parameter):
     #Return the scaled units
     return parameter
     
-def set_reference_state(str FluidName, *args):
+def set_reference_state(bytes_or_str FluidName, *args):
     """
     Accepts one of two signatures:
     
@@ -110,22 +110,21 @@ def set_reference_state(str FluidName, *args):
     ``s0`` The entropy at the reference point [J/kg]
     """
     
-    cdef bytes _name = FluidName.encode('ascii')
     cdef bytes _param
     cdef int retval
     
     if len(args) == 1:
         _param = args[0].encode('ascii')
-        retval = _set_reference_stateS(_name, _param)
+        retval = _set_reference_stateS(FluidName, _param)
     elif len(args) == 4:
-        retval = _set_reference_stateD(_name, args[0], args[1], args[2], args[3])
+        retval = _set_reference_stateD(FluidName, args[0], args[1], args[2], args[3])
     else:
         raise ValueError('Invalid number of inputs')
     
     if retval < 0:
         raise ValueError('Unable to set reference state')
         
-cpdef add_REFPROP_fluid(str FluidName):
+cpdef add_REFPROP_fluid(bytes_or_str FluidName):
     """
     Add a REFPROP fluid to CoolProp internal structure
     
@@ -134,13 +133,13 @@ cpdef add_REFPROP_fluid(str FluidName):
         add_REFPROP_fluid("REFPROP-PROPANE")
          
     """
-    _add_REFPROP_fluid(FluidName.encode('ascii'))
+    _add_REFPROP_fluid(FluidName)
     
-cpdef long get_Fluid_index(str Fluid):
+cpdef long get_Fluid_index(bytes_or_str Fluid):
     """
     Gets the integer index of the given CoolProp fluid (primarily for use in ``IProps`` function)
     """
-    return _get_Fluid_index(Fluid.encode('ascii'))
+    return _get_Fluid_index(Fluid)
     
 cpdef double IProps(long iOutput, long iInput1, double Input1, long iInput2, double Input2, long iFluid) except *:
     """
@@ -167,14 +166,11 @@ cpdef double IProps(long iOutput, long iInput1, double Input1, long iInput2, dou
     else:
         return val
 
-cpdef get_global_param_string(str param):
-    cdef bytes _param = param.encode('ascii')
-    return _get_global_param_string(_param)
+cpdef get_global_param_string(bytes_or_str param):
+    return _get_global_param_string(param)
     
-cpdef get_fluid_param_string(str fluid, str param):
-    cdef bytes _fluid = fluid.encode('ascii')
-    cdef bytes _param = param.encode('ascii')
-    return _get_fluid_param_string(_fluid, _param)
+cpdef get_fluid_param_string(bytes_or_str fluid, bytes_or_str param):
+    return _get_fluid_param_string(fluid, param)
     
 def isConstant(what):
     """Get the boolean telling you if 
@@ -222,31 +218,31 @@ def PropsU(in1, in2, in3 = None, in4 = None, in5 = None, in6 = None, in7 = None)
         #print msg
         raise ValueError(msg)
 
-cpdef fromSI(str in1, in2=None, str in3='kSI'):
+cpdef fromSI(bytes_or_str in1, in2=None, bytes_or_str in3 = 'kSI'.encode('ascii')):
     """
     Call fromSI(Property, Value, Units) to convert from SI units to a given set of units. 
     At the moment, only kSI is supported. This convenience function is used inside both the
     PropsU and DerivTermsU functions. 
     """
     if isinstance(in2, (int, long, float, complex)): #is not iterable
-        return _fromSI(in1.encode('ascii'), in2, in3.encode('ascii'))
+        return _fromSI(in1, in2, in3)
     else: # iterable or error
-        result = [_fromSI(in1.encode('ascii'), inV, in3.encode('ascii')) for inV in in2]
+        result = [_fromSI(in1, inV, in3) for inV in in2]
         if _numpy_supported:
             return np.array(result)
         else:
             return result
 
-cpdef toSI(str in1, in2=None, str in3='kSI'):
+cpdef toSI(str in1, in2=None, bytes_or_str in3='kSI'.encode('ascii')):
     """
     Call toSI(Property, Value, Units) to convert from a given set of units to SI units. 
     At the moment, only kSI is supported. This convenience function is used inside both the
     PropsU and DerivTermsU functions. 
     """
     if isinstance(in2, (int, long, float, complex)): #is not iterable
-        return _toSI(in1.encode('ascii'), in2, in3.encode('ascii'))
+        return _toSI(in1, in2, in3)
     else: # iterable or error
-        result = [_toSI(in1.encode('ascii'), inV, in3.encode('ascii')) for inV in in2]
+        result = [_toSI(in1, inV, in3) for inV in in2]
         if _numpy_supported:
             return np.array(result)
         else:
