@@ -53,13 +53,6 @@ struct EesParamRec {
   struct EesParamRec *next;
 };
 
-std::string upper(const std::string str_)
-{
-    std::string str = str_;
-    std::transform(str.begin(), str.end(), str.begin(), ::toupper);
-    return str;
-}
-
 // Tell C++ to use the "C" style calling conventions rather than the C++ mangled names
 
 extern "C"  
