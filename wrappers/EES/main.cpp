@@ -45,7 +45,7 @@
 #include <algorithm>
 #include <string>
 
-static const bool EES_DEBUG = true;
+static const bool EES_DEBUG = false;
 
 // Structure for handling ees calling syntax
 struct EesParamRec {
