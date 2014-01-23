@@ -217,7 +217,7 @@ void CoolPropStateClassSI::update(long iInput1, double Value1, long iInput2, dou
 	*/
 
 	if (get_debug_level()>3){
-		std::cout<<__FILE__<<" update: "<<iInput1<<","<<Value1<<","<<iInput2<<","<<Value2<<","<<pFluid->get_name().c_str()<<std::endl;
+		std::cout << format("%s:%d: CoolPropStateClassSI::update %d,%g,%d,%g,%s",__FILE__,__LINE__,iInput1,Value1,iInput2,Value2,pFluid->get_name().c_str()).c_str() << std::endl;
 	}
 
 	// Use the liquid or solution updating functions if they are in use
@@ -292,7 +292,7 @@ void CoolPropStateClassSI::update(long iInput1, double Value1, long iInput2, dou
 	}
 
 	if (get_debug_level()>3){
-		std::cout << format("%s updated; T = %15.13g rho = %15.13g \n ", __FILE__, _T, _rho).c_str();
+		std::cout << format("%s:%d: updated; T = %15.13g rho = %15.13g \n", __FILE__, __LINE__, _T, _rho).c_str();
 	}
 
 	// Common code for all updating functions
@@ -623,11 +623,14 @@ void CoolPropStateClassSI::update_ph(long iInput1, double Value1, long iInput2, 
 	_h = Value2;
 	h_cached = true;
 
+	if (get_debug_level() > 8){
+		std::cout << format("%s:%d: CoolPropStateClassSI::update_ph(p=%g,h=%g,T0=%g,rho0=%g)\n",__FILE__,__LINE__, _p, _h, T0, rho0) ;
+	}
 	// Solve for temperature and density with or without the guess values provided
 	pFluid->temperature_ph(_p, _h, &_T, &_rho, &rhosatL, &rhosatV, &TsatL, &TsatV, T0, rho0);
 
 	// Set the phase flags
-	if ( _T < pFluid->reduce.T && _rho < rhosatL && _rho > rhosatV)
+	if ( _p < pFluid->reduce.p.Pa && _rho < rhosatL && _rho > rhosatV)
 	{
 		TwoPhase = true;
 		SinglePhase = false;
@@ -2575,7 +2578,7 @@ void CoolPropStateClass::update(long iInput1, double Value1, long iInput2, doubl
 	double val2 = convert_from_unit_system_to_SI(iInput2, Value2, get_standard_unit_system());
 	if (get_debug_level() > 8)
 	{
-		std::cout << format("CoolPropStateClass::update(%d,%g,%d,%g)\n",iInput1,Value1,iInput2,Value2).c_str();
+		std::cout << format("%s:%d: CoolPropStateClass::update(%d,%g,%d,%g)\n",__FILE__,__LINE__,iInput1,Value1,iInput2,Value2).c_str();
 	}
 	CoolPropStateClassSI::update(iInput1, val1, iInput2, val2);
 }

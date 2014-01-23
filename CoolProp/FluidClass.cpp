@@ -1339,7 +1339,7 @@ double Fluid::_get_rho_guess(double T, double p)
 		double rhoL = rhosatL(T);
 		double pL = psatL_anc(T);
 		if (get_debug_level()>5){
-			std::cout<<format("%d:%d: pL = %g rhoL = %g rhoV %g \n",__FILE__,__LINE__,pL,rhoL, rhoV).c_str();
+			std::cout<<format("%s:%d: pL = %g rhoL = %g \n",__FILE__,__LINE__,pL,rhoL).c_str();
 		}
 		double delta = rhoL / reduce.rho;
 		double tau = reduce.T/T;

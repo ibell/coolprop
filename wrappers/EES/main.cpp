@@ -45,7 +45,7 @@
 #include <algorithm>
 #include <string>
 
-static const bool EES_DEBUG = false;
+static const bool EES_DEBUG = true;
 
 // Structure for handling ees calling syntax
 struct EesParamRec {
@@ -131,7 +131,16 @@ extern "C"
             set_debug_level(10); // Maximum debugging
         }
 
-		out = Props(Outstr, In1str[0], In1, In2str[0], In2, Fluidstr);
+		try
+		{
+			out = Props(Outstr, In1str[0], In1, In2str[0], In2, Fluidstr);
+		}
+		catch(...)
+		{
+			std::string err_str = format("Uncaught error: \"%s\",\"%s\",%g,\"%s\",%g,\"%s\"\n",Outstr.c_str(),In1str.c_str(),In1,In2str.c_str(),In2,Fluidstr.c_str());
+			strcpy(fluid, err_str.c_str());
+			return 0.0;
+		}
 
 		if (fabs(out)>1e90)
 		{
