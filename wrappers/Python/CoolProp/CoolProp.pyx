@@ -218,7 +218,7 @@ def PropsU(in1, in2, in3 = None, in4 = None, in5 = None, in6 = None, in7 = None)
         #print msg
         raise ValueError(msg)
 
-cpdef fromSI(bytes_or_str in1, in2=None, bytes_or_str in3 = 'kSI'.encode('ascii')):
+cpdef fromSI(str in1, in2=None, str in3 = 'kSI'):
     """
     Call fromSI(Property, Value, Units) to convert from SI units to a given set of units. 
     At the moment, only kSI is supported. This convenience function is used inside both the
@@ -233,7 +233,7 @@ cpdef fromSI(bytes_or_str in1, in2=None, bytes_or_str in3 = 'kSI'.encode('ascii'
         else:
             return result
 
-cpdef toSI(str in1, in2=None, bytes_or_str in3='kSI'.encode('ascii')):
+cpdef toSI(str in1, in2=None, str in3='kSI'):
     """
     Call toSI(Property, Value, Units) to convert from a given set of units to SI units. 
     At the moment, only kSI is supported. This convenience function is used inside both the
