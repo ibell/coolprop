@@ -60,7 +60,7 @@ fp_get_global_param_stringdllTYPE get_global_param_stringdll;
 typedef long (__stdcall *fp_redirect_stdoutdllTYPE)(char*);
 fp_redirect_stdoutdllTYPE redirect_stdoutdll;
 
-static const bool EES_DEBUG = true;
+static const bool EES_DEBUG = false;
 
 // Structure for handling ees calling syntax
 struct EesParamRec {
