@@ -8,6 +8,14 @@
 #include "CPState.h"
 #include "FluidClass.h"
 
+static int debug_level=0;
+
+EXPORT_CODE long CONVENTION redirect_stdout(char* file)
+{
+	freopen(file, "a+", stdout);
+	return 0;
+}
+
 //double _Props1(char *Fluid, char *Output);
 //double _Props(std::string Output,std::string Name1, double Prop1, std::string Name2, double Prop2, std::string Ref);
 
@@ -124,8 +132,8 @@ EXPORT_CODE double CONVENTION toSI(char *input, double value, char *old_system)
 	return convert_from_unit_system_to_SI(input, value, old_system);
 }
 
-//EXPORT_CODE int CONVENTION get_debug_level(){return debug_level;}
-//EXPORT_CODE void CONVENTION set_debug_level(int level){debug_level=level;}
+EXPORT_CODE int CONVENTION get_debug_level(){return debug_level;}
+EXPORT_CODE void CONVENTION set_debug_level(int level){debug_level=level;}
 EXPORT_CODE long CONVENTION get_Fluid_index(char * param)
 {
 	return get_Fluid_index(std::string(param));

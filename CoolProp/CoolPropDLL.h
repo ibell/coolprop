@@ -68,8 +68,16 @@
 	EXPORT_CODE long CONVENTION get_Fluid_index(char * param);
 	EXPORT_CODE long CONVENTION get_index_units(long param, char * units);
 
-	/*EXPORT_CODE int CONVENTION get_debug_level();
-	EXPORT_CODE void CONVENTION set_debug_level(int level);*/
+	EXPORT_CODE long CONVENTION redirect_stdout(char* file);
+
+	// Getter and setter for debug level
+	// ---------------------------------
+	/// Get the debug level
+	/// @returns level The level of the verbosity for the debugging output (0-10) 0: no debgging output
+	EXPORT_CODE int CONVENTION get_debug_level();
+	/// Set the debug level
+	/// @param level The level of the verbosity for the debugging output (0-10) 0: no debgging output
+	EXPORT_CODE void CONVENTION set_debug_level(int level);
 
 	EXPORT_CODE double CONVENTION rhosatL_anc(char* Fluid, double T);
 	EXPORT_CODE double CONVENTION rhosatV_anc(char* Fluid, double T);

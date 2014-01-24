@@ -106,14 +106,6 @@ You might want to start by looking at CoolProp.h
 	/// @param ParamName A string, one of "aliases", "CAS", "CAS_number", "ASHRAE34", "REFPROPName","REFPROP_name", "TTSE_mode"		
 	/// @returns str The string, or an error message if not valid input
 	std::string get_fluid_param_string(std::string FluidName, std::string ParamName);
-	// Getter and setter for debug level
-	// ---------------------------------
-	/// Get the debug level
-	/// @returns level The level of the verbosity for the debugging output (0-10) 0: no debgging output
-	int get_debug_level();
-	/// Set the debug level
-	/// @param level The level of the verbosity for the debugging output (0-10) 0: no debgging output
-	void set_debug_level(int level);
 	/// Return the phase of the given state point with temperature, pressure as inputs
 	/// @param FluidName The name of the fluid
 	/// @param T Temperature [K]

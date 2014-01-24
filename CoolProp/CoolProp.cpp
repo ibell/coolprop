@@ -42,7 +42,7 @@ double _CoolProp_Fluid_Props(long iOutput, long iName1, double Value1, long iNam
 
 static std::string err_string;
 static std::string warning_string;
-static int debug_level=0;
+
 static Fluid * pFluid;
 
 // This is very hacky, but pull the git revision from the file
@@ -222,9 +222,6 @@ void set_err_string(std::string error_string)
 {
 	err_string = error_string;
 }
-
-void set_debug_level(int level){debug_level = level;}
-int get_debug_level(){return debug_level;}
 
 void set_phase(std::string Phase_str){
 	if (!Phase_str.compare("Two-Phase")){
@@ -827,7 +824,7 @@ double _CoolProp_Fluid_Props(long iOutput, long iName1, double Prop1, long iName
 	
 	// Debug
 	if (get_debug_level()>5){
-		std::cout << format("%s:%d: _CoolProp_Fluid_Props returns: %g\n",__FILE__,__LINE__).c_str();
+		std::cout << format("%s:%d: _CoolProp_Fluid_Props returns: %g\n",__FILE__,__LINE__,val).c_str();
 	}
 
 	// Return the value
