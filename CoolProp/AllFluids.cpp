@@ -402,7 +402,7 @@ TEST_CASE("Fluid parameter checks","[fast]")
 			double ptriple_EOS = pV;
 			CAPTURE(name);
 			CAPTURE(ptriple_EOS);
-			WARN(name);
+			INFO(name);
 			REQUIRE((*it)->params.ptriple == ptriple_EOS);
 		}
 	}

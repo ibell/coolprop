@@ -161,8 +161,6 @@ class Fluid
 		// The structures that hold onto ancillary data for the fluid
 		AncillaryCurveClass *h_ancillary;
 		AncillaryCurveClass *s_ancillary;
-		AncillaryCurveClass *cp_ancillary;
-		AncillaryCurveClass *drhodT_p_ancillary;
 
 		/// Obtain a guess value for the density of the fluid for a given set of temperature and pressure
 		/// @param T Temperature [K]
@@ -205,8 +203,7 @@ class Fluid
 			preduce = &crit; /// pointer to the reducing parameters
 			h_ancillary = NULL;
 			s_ancillary = NULL;
-			cp_ancillary = NULL;
-			drhodT_p_ancillary = NULL;
+
 			ECSReferenceFluid = "R134a";
 			ECS_qd = 1/(0.5e-9);
 		};

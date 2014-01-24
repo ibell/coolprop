@@ -158,8 +158,6 @@ Fluid::~Fluid()
 	}
 	if (h_ancillary != NULL){ delete h_ancillary; h_ancillary = NULL;}
 	if (s_ancillary != NULL){ delete s_ancillary; s_ancillary = NULL;}
-	if (cp_ancillary != NULL){ delete cp_ancillary; cp_ancillary = NULL;}
-	if (drhodT_p_ancillary != NULL){ delete drhodT_p_ancillary; drhodT_p_ancillary = NULL;}
 }
 void Fluid::post_load(rapidjson::Document &JSON, rapidjson::Document &JSON_CAS)
 {
@@ -198,8 +196,6 @@ void Fluid::post_load(rapidjson::Document &JSON, rapidjson::Document &JSON_CAS)
 	//// Instantiate the ancillary curve classes
 	h_ancillary = new AncillaryCurveClass(this,std::string("H"));
 	s_ancillary = new AncillaryCurveClass(this,std::string("S"));
-	cp_ancillary = new AncillaryCurveClass(this,std::string("C"));
-	drhodT_p_ancillary = new AncillaryCurveClass(this,std::string("drhodT|p"));
 
 	// The CAS number for the fluid
 	params.CAS = JSON_lookup_CAS(JSON_CAS,this->name);
@@ -3545,8 +3541,20 @@ int AncillaryCurveClass::build(int N)
 		rhoL = pFluid->rhosatL(T);
 		rhoV = pFluid->rhosatV(T);
 		// IProps will always return value in standard units, convert to SI
-		yL.push_back(convert_from_unit_system_to_SI(iOutput,IProps(iOutput,iT,T,iD,rhoL,iFluid),get_standard_unit_system()));
-		yV.push_back(convert_from_unit_system_to_SI(iOutput,IProps(iOutput,iT,T,iD,rhoV,iFluid),get_standard_unit_system()));
+		if (iOutput==iH)
+		{
+			yL.push_back(pFluid->enthalpy_Trho(T,rhoL));
+			yV.push_back(pFluid->enthalpy_Trho(T,rhoV));
+		}
+		else if (iOutput == iS)
+		{
+			yL.push_back(pFluid->entropy_Trho(T,rhoL));
+			yV.push_back(pFluid->entropy_Trho(T,rhoV));
+		}
+		else
+		{
+			throw ValueError(format("iOutput [%d] in build is invalid", iOutput).c_str());
+		}
 	}
 	built = true;
 	return 1;
