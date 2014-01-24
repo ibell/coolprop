@@ -27,6 +27,19 @@ def check_T(Fluid, T):
     pmax = Props('P','T',Props(Fluid,'Tcrit'),'D',Props(Fluid,'rhocrit'),Fluid)
     psat = Props('P', 'T', T, 'Q', 1, Fluid)
     
+
+def test_consistency():
+    for Fluid in CoolProp.__fluids__:
+        for T in np.linspace(Props(Fluid,'Tmin')+1e-5, Props(Fluid,'Tcrit')-1e-5,5):
+            yield check_T,Fluid,T
+        
+def test_consistency(Fluid, T):
+    pmin = Props(Fluid,'ptriple')
+    pmax = Props('P','T',Props(Fluid,'Tcrit'),'D',Props(Fluid,'rhocrit'),Fluid)
+    psat = Props('P', 'T', T, 'Q', 1, Fluid)
+    Tnew = Props('T', 'P', psat, 'Q', 1, Fluid)
+    assert (abs(Tnew/T-1) < 0.01)
+    
 if __name__=='__main__':
     import nose
     nose.runmodule()
