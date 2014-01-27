@@ -85,8 +85,8 @@ def set_reference_state(bytes_or_str FluidName, *args):
     
     set_reference_state(FluidName,reference_state)
     
-	FluidName The name of the fluid
-	param reference_state The reference state to use, one of 
+    FluidName The name of the fluid
+    param reference_state The reference state to use, one of 
     
     ==========   ===========================================
     ``IIR``      (h=200 kJ/kg, s=1 kJ/kg/K at 0C sat. liq.)
@@ -98,9 +98,9 @@ def set_reference_state(bytes_or_str FluidName, *args):
     
     set_reference_state(FluidName,T0,rho0,h0,s0)
     
-	``FluidName`` The name of the fluid
+    ``FluidName`` The name of the fluid
     
-	``T0`` The temperature at the reference point [K]
+    ``T0`` The temperature at the reference point [K]
     
     ``rho0`` The density at the reference point [kg/m^3]
     
