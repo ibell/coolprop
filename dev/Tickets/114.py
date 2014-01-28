@@ -57,7 +57,8 @@ def compareProperty(fluid="",p=0,what=""):
         #plt.clf()
     
 
-tests  = ["L","V"]
+#toTest  = ["L","V"]
+toTest  = "V"
 #fluids = ["n-Pentane","R134a"]
 fluids = FluidsList()
 c_diff = 0
@@ -66,10 +67,10 @@ c_exce = 0
 
 for fluid in fluids:
     try: 
-        compareProperty(fluid=fluid,what="L")
+        compareProperty(fluid=fluid,what=toTest)
     except ValueError:
         c_exce += 1
-        print "An exception occurred with "+fluid
+        print "An exception occurred for "+toTest+" with "+fluid
 
 print "Finished testing TTSE:"
 print "Errors occurred in "+str(c_exce)+" out of "+str(len(fluids))+" fluids"
