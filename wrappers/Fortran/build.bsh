@@ -1,0 +1,9 @@
+#!/bin/bash
+gfortran -g -c examplef.for
+g++ -g -I"../../CoolProp" -c examplecpp.cpp
+#gcc -g -c examplec.c 
+gfortran -g -o example examplef.o examplecpp.o -lCoolProp -ldl
+#
+# gfortran -g -c -o ibibliof.o ibiblio.for -lgfortran
+# gcc -g -I"../../CoolProp" -o ibiblioc.o -c ibiblio.c -lCoolProp -lgfortran
+# gfortran -g -o example ibibliof.o ibiblioc.o -lgfortran
