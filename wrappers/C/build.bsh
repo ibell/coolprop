@@ -5,6 +5,11 @@
 # gfortran -g -c -o ibibliof.o ibiblio.for -lgfortran
 # gcc -g -I"../../CoolProp" -o ibiblioc.o -c ibiblio.c -lCoolProp -lgfortran
 # gfortran -g -o example ibibliof.o ibiblioc.o -lgfortran
-g++ -g -c CoolPropC.cpp -lCoolProp -ldl
-gcc -g -c examplec.c -lCoolProp -ldl
-g++ -g -o example examplec.c CoolPropC.o -lCoolProp -ldl
+
+# g++ -g -c CoolPropC.cpp -lCoolProp -ldl
+# gcc -g -c examplec.c -lCoolProp -ldl
+# g++ -g -o example examplec.c CoolPropC.o -lCoolProp -ldl
+
+gcc -g -c examplec.c 
+gcc -g -c standaloneC.c 
+g++ -g -o example examplec.c standaloneC.o -lCoolProp -ldl

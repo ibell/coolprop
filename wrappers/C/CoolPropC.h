@@ -28,7 +28,7 @@ double CONVENTION props1_(char * FluidName, char * Output);
 /// @param Name2 The second state variable name, one of "T","D","H",etc.
 /// @param Prop2 The second state variable value
 /// @param FluidName The fluid name
-double CONVENTION props_(char * Output, char Name1, double Prop1, char Name2, double Prop2, char * FluidName);
+double CONVENTION props_(char * Output, char *Name1, double *Prop1, char *Name2, double *Prop2, char * FluidName);
 //double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, char * FluidName);
 
 /// Return some low level derivative terms, see source for a complete list
@@ -36,7 +36,7 @@ double CONVENTION props_(char * Output, char Name1, double Prop1, char Name2, do
 /// @param T Temperature [K]
 /// @param rho Density [kg/m^3]
 /// @param FluidName String
-double CONVENTION derivterms_(char * Term, double T, double rho, char * FluidName);
+double CONVENTION derivterms_(char * Term, double *T, double *rho, char * FluidName);
 //double DerivTerms(std::string Term, double T, double rho, std::string FluidName);
 
 /// Set the reference state based on a string representation (consistent naming with RFPROP)

@@ -1,28 +1,32 @@
 
 #include "CoolPropC.h"
 
+#include <stdbool.h>
 #include <string>
-#include <CoolProp/CoolProp.h>
 #include <CoolProp/CoolPropDLL.h>
 
 double CONVENTION props1_(char * FluidName, char * Output)
 {
-  return Props1(std::string(FluidName), std::string(Output));
+  //return Props1(std::string(FluidName), std::string(Output));
+  return Props1(FluidName, Output);
 }
 
 double CONVENTION props_(char * Output,char Name1, double Prop1, char Name2, double Prop2, char * FluidName)
 {
-  return Props(std::string(Output), Name1, Prop1, Name2, Prop2, std::string(FluidName));
+  //return Props(std::string(Output), Name1, Prop1, Name2, Prop2, std::string(FluidName));
+  return Props(Output, Name1, Prop1, Name2, Prop2, FluidName);
 }
 
 double CONVENTION derivterms_(char * Term, double T, double rho, char * FluidName)
 {
-  return DerivTerms(std::string(Term), T, rho, std::string(FluidName));
+  //return DerivTerms(std::string(Term), T, rho, std::string(FluidName));
+  return DerivTerms(Term, T, rho, FluidName);
 }
 
 int CONVENTION set_reference_states_(char * FluidName, char * reference_state)
 {
-  return set_reference_stateS(std::string(FluidName), std::string(reference_state));
+  //return set_reference_stateS(std::string(FluidName), std::string(reference_state));
+  return set_reference_stateS(FluidName, reference_state);
 }
 //int set_reference_stateS(std::string FluidName, std::string reference_state);
 
