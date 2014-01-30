@@ -1189,14 +1189,8 @@ double Mixture::rhobar_Tpz(double T, double p, const std::vector<double> &x, dou
 	//	fprintf(fp,"%g, %g\n",rhobar, Resid.call(rhobar));
 	//}
 	//fclose(fp);
-	try{
-		rhobar = Newton(&Resid, rhobar0, 1e-16, 100, &errstr);
-		if (!ValidNumber(rhobar)) { throw ValueError(); }
-	}
-	catch(std::exception)
-	{
-
-	}
+	rhobar = Newton(&Resid, rhobar0, 1e-16, 100, &errstr);
+	if (!ValidNumber(rhobar)) { throw ValueError(); }
 	return rhobar;
 }
 
@@ -2332,7 +2326,12 @@ double NewtonRaphsonVLE::call(double beta, double T, double p, double rhobar_liq
 
 	//std::cout << format("NRVLE beta %g, T %g, p %g, rhobar_liq %g, rhobar_vap %g , z %s, K %s, index %d, val %g \n",beta,T,p,rhobar_liq,rhobar_vap,vec_to_string(z,"%4.3g").c_str(),vec_to_string(K,"%4.3g").c_str(),spec_index,spec_value);
 
-	double old_rhobar_liq = rhobar_liq, old_rhobar_vap = rhobar_vap;
+	double old_rhobar_liq = rhobar_liq, 
+		   old_rhobar_vap = rhobar_vap,
+		   old_T = T,
+		   old_p = p;
+	std::vector<double> old_K = K;
+
 	this->rhobar_liq = rhobar_liq;
 	this->rhobar_vap = rhobar_vap;
 	do
@@ -2340,16 +2339,21 @@ double NewtonRaphsonVLE::call(double beta, double T, double p, double rhobar_liq
 		// Build the Jacobian and residual vectors for given inputs of K_i,T,p
 		build_arrays(beta,T,p,z,K,spec_index,spec_value);
 
-		// Solve for the step; v is the step with the contents [delta(lnK0), delta(lnK1), ..., delta(lnT), delta(lnp)]
+		// Solve for the step; v is the step with the contents 
+		// [delta(lnK0), delta(lnK1), ..., delta(lnT), delta(lnp)]
 		std::vector<double> v = linsolve(J, r);
 
 		// Set the variables again, the same structure independent of the specified variable
 		for (unsigned int i = 0; i < N; i++)
 		{
-			K[i] = exp(log(K[i])+v[i]);
+			K[i] = exp(log(K[i]) + v[i]);
+			if (!ValidNumber(K[i]))
+			{
+				throw ValueError(format("K[i] (%g) is invalid",K[i]).c_str());
+			}
 		}
-		T = exp(log(T)+v[N]);
-		p = exp(log(p)+v[N+1]);
+		T = exp(log(T) + v[N]);
+		p = exp(log(p) + v[N+1]);
 
 		if (fabs(T) > 1e6 || fabs(p) > 1e10)
 		{
@@ -2382,10 +2386,15 @@ void NewtonRaphsonVLE::build_arrays(double beta, double T, double p, const std::
 	// -------
 	// Calculate the new reducing and reduced parameters for each phase
 	// based on the current values of the molar fractions
+	double old_rhobar_liq = this->rhobar_liq;
+	double old_rhobar_vap = this->rhobar_vap;
+	
 	this->rhobar_liq = Mix->rhobar_Tpz(T, p, x, this->rhobar_liq); // [kg/m^3] (Not exact due to solver convergence)
 	this->rhobar_vap = Mix->rhobar_Tpz(T, p, y, this->rhobar_vap); // [kg/m^3] (Not exact due to solver convergence)
+	std::cout << format("rho liq: %g rho vap: %g k: %s T: %g P: %g x: %s\n",this->rhobar_liq, this->rhobar_vap, vec_to_string(K,"%6.5g").c_str(),T,p, vec_to_string(x,"%6.5g").c_str()).c_str();
 
-	if (!ValidNumber(this->rhobar_liq) || !ValidNumber(this->rhobar_vap)){ 	double rr = 0; }
+	if (!ValidNumber(this->rhobar_liq)){ throw ValueError(format("Liquid density solver has failed with guess value %g",old_rhobar_liq).c_str()); }
+	if (!ValidNumber(this->rhobar_vap)){ throw ValueError(format("Vapor density solver has failed with guess value %g",old_rhobar_vap).c_str()); }
 	
 	double Tr_liq = Mix->pReducing->Tr(x); // [K]
 	double Tr_vap = Mix->pReducing->Tr(y);  // [K]
@@ -2483,6 +2492,7 @@ void NewtonRaphsonVLE::build_arrays(double beta, double T, double p, const std::
 	}
 	error_rms = sqrt(error_rms); // Square-root (The R in RMS)
 
+	std::cout << format("r: %s\n",vec_to_string(r,"%6.5g").c_str());
 	// Step 3:
 	// =======
 	// Calculate the sensitivity vector dXdS
@@ -2612,7 +2622,7 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z, double beta_e
 			// Update the specified variable
 			S = Sold + DELTAS;
 			
-			std::cout << format("S: %g Sold %g DELTAS %g exp(S) %g exp(Sold) %g K %g\n",S,Sold,DELTAS, exp(S), exp(Sold),vec_to_string(K,"%0.5g").c_str());
+			std::cout << format("S: %g Sold %g DELTAS %g exp(S) %g exp(Sold) %g K %s\n",S,Sold,DELTAS, exp(S), exp(Sold),vec_to_string(K,"%0.5g").c_str());
 
 			// UPDATE THE GUESSES
 			// The specified variable is known directly. The others must be obtained either through the use of dXdS and/or extrapolation
@@ -2682,23 +2692,27 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z, double beta_e
 			// Run with the selected specified variable
 			try
 			{
+				
 				Mix->NRVLE.call(beta_envelope, T, p, rhobar_liq, rhobar_vap, z, K, i_S, S);
 				// Throw an exception if an invalid value returned but no exception was thrown
 				if (!ValidNumber(Mix->NRVLE.T))
 				{
-					throw ValueError(format("T [%g] is not valid",T).c_str());
+					throw ValueError(format("T [%g] is not valid", Mix->NRVLE.T).c_str());
 				}
 				
 				T = Mix->NRVLE.T;
 				p = Mix->NRVLE.p;
+				rhobar_liq = Mix->NRVLE.rhobar_liq;
+				rhobar_vap = Mix->NRVLE.rhobar_vap;
 
 				//std::vector<double> x(K.size()), y(K.size());
 				//double T2 = Mix->NRVLE.T;
 				//double T3 = Mix->saturation_p(beta_envelope,p,z,x,y);
 				//std::cout << T2 << " " << T3;
 			}
-			catch (CoolPropBaseError &)
+			catch (CoolPropBaseError &e)
 			{
+				printf("%s\n",e.what());
 				// Decrease the step size by a factor of 10
 				printf("Failure; step downsize\n");
 
@@ -2730,7 +2744,7 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z, double beta_e
 					iii_S = i;
 				}
 			}
-			std::cout << format("T,P,Nstep,K : %g %g %d %g %g %d %d %s\n",T,p,Mix->NRVLE.Nsteps, rhobar_liq, rhobar_vap, iii_S, i_S, vec_to_string(Mix->NRVLE.x,"%6.5g").c_str());
+			std::cout << format("T,P,Nstep,K : %g %g %d %g %g %d %d %s %s\n",T,p,Mix->NRVLE.Nsteps, rhobar_liq, rhobar_vap, iii_S, i_S, vec_to_string(Mix->NRVLE.x,"%6.5g").c_str(), vec_to_string(K,"%6.5g").c_str());
 		}
 		
 		// Update step counter

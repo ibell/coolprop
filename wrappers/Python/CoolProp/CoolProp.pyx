@@ -451,7 +451,177 @@ cpdef Props(str in1, str in2, in3 = None, in4 = None, in5 = None, in6 = None, in
                     return type(in3)(vals)
             except TypeError:   
                 raise TypeError('Numerical inputs to Props must be ints, floats, lists, or 1D numpy arrays.')
+                
+cpdef PropsSI(str in1, str in2, in3 = None, in4 = None, in5 = None, in6 = None, in7 = None):
+    """
+    Just like Props(), but this function ALWAYS takes in and returns SI units (K, kg, J/kg, Pa, N/m, etc.)
+    
+    Call Type #1::
+
+        Props(Fluid,PropName) --> float
+
+    Where ``Fluid`` is a string with a valid CoolProp fluid name, and ``PropName`` is one of the following strings:
+    
+    =============  ============================
+    ``Tcrit``      Critical temperature [K]
+    ``Treduce``    Reducing temperature [K]
+    ``pcrit``      Critical pressure [Pa]
+    ``rhocrit``    Critical density [kg/m3]
+    ``rhoreduce``  Reducing density [kg/m3]
+    ``molemass``   Molecular mass [kg/kmol]
+    ``Ttriple``    Triple-point temperature [K]
+    ``Tmin``       Minimum temperature [K]
+    ``ptriple``    Triple-point pressure [Pa]
+    ``accentric``  Accentric factor [-]
+    ``GWP100``     Global Warming Potential 100 yr
+    ``ODP``        Ozone Depletion Potential
+    =============  ============================
+   
+    This type of call is used to get fluid-specific parameters that are not 
+    dependent on the state 
+     
+    Call Type #2:
+    
+    Alternatively, Props can be called in the form::
+    
+        Props(OutputName,InputName1,InputProp1,InputName2,InputProp2,Fluid) --> float
+    
+    where ``Fluid`` is a string with a valid CoolProp fluid name.  The value 
+    ``OutputName`` is either a single-character or a string alias.  This list 
+    shows the possible values
+    
+    ==========================  ======================================================
+    ``OutputName``              Description
+    ==========================  ======================================================
+    ``Q``                       Quality [-]
+    ``T``                       Temperature [K]
+    ``P``                       Pressure [Pa]
+    ``D``                       Density [kg/m3]
+    ``C0``                      Ideal-gas specific heat at constant pressure [J/kg]
+    ``C``                       Specific heat at constant pressure [J/kg]
+    ``O``                       Specific heat at constant volume [J/kg]
+    ``U``                       Internal energy [J/kg]
+    ``H``                       Enthalpy [J/kg]
+    ``S``                       Entropy [J/kg/K]
+    ``A``                       Speed of sound [m/s]
+    ``G``                       Gibbs function [J/kg]
+    ``V``                       Dynamic viscosity [Pa-s]
+    ``L``                       Thermal conductivity [W/m/K]
+    ``I`` or `SurfaceTension`   Surface Tension [N/m]
+    ``w`` or `accentric`        Accentric Factor [-]
+    ==========================  ======================================================
+    
+    The following sets of input values are valid (order doesn't matter):
+    
+    =========================  ======================================
+    ``InputName1``             ``InputName2``
+    =========================  ======================================
+    ``T``                      ``P``
+    ``T``                      ``D``
+    ``P``                      ``D``
+    ``T``                      ``Q``
+    ``P``                      ``Q``
+    ``H``                      ``P``
+    ``S``                      ``P``
+    ``S``                      ``H``
+    =========================  ======================================
+    
+    **Python Only** : InputProp1 and InputProp2 can be lists or numpy arrays.  If both are iterables, they must be the same size. 
+    
+    
+    If `InputName1` is `T` and `OutputName` is ``I`` or ``SurfaceTension``, the second input is neglected
+    since surface tension is only a function of temperature
+    
+    """
+    cdef bytes errs,_in1,_in2,_in4,_in6,_in7
+    cdef double _in3, _in5
+    cdef char in2_char, in4_char
         
+    if (in4 is None and in6 is None and in7 is None):
+        val = _Props1(in1.encode('ascii'), in2.encode('ascii'))
+        if math.isinf(val) or math.isnan(val):
+            err_string = _get_global_param_string('errstring')
+            if not len(err_string) == 0:
+                raise ValueError("{err:s} :: inputs were :\"{in1:s}\",\"{in2:s}\"".format(err= err_string,in1=in1,in2=in2))
+            else:
+                raise ValueError("Props failed ungracefully with inputs:\"{in1:s}\",\"{in2:s}\"; please file a ticket at https://github.com/ibell/coolprop/issues".format(in1=in1,in2=in2))
+        else:
+            return val
+    else:
+        
+        if isinstance(in3, (int, long, float, complex)) and isinstance(in5, (int, long, float, complex)):
+            val = _PropsSI(in1, in2, in3, in4, in5, in6)
+        
+            if math.isinf(val) or math.isnan(val):
+                err_string = _get_global_param_string('errstring')
+                if not len(err_string) == 0:
+                    raise ValueError("{err:s} :: inputs were:\"{in1:s}\",\'{in2:s}\',{in3:0.16e},\'{in4:s}\',{in5:0.16e},\"{in6:s}\"".format(err=err_string,in1=in1,in2=in2,in3=in3,in4=in4,in5=in5,in6=in6))
+                else:
+                    raise ValueError("PropsSI failed ungracefully with inputs:\"{in1:s}\",\'{in2:s}\',{in3:0.16e},\'{in4:s}\',{in5:0.16e},\"{in6:s}\"; please file a ticket at https://github.com/ibell/coolprop/issues".format(in1=in1,in2=in2,in3=in3,in4=in4,in5=in5,in6=in6))
+            
+            return val 
+            
+        elif isinstance(in3, (int, long, float, complex)): #in5 can be an iterable
+            vals = []
+            for _in5 in in5:
+                val = _PropsSI(in1, in2, in3, in4, _in5, in6)
+            
+                if math.isinf(val) or math.isnan(val):
+                    err_string = _get_global_param_string('errstring')
+                    if not len(err_string) == 0:
+                        raise ValueError("{err:s} :: inputs were:\"{in1:s}\",\'{in2:s}\',{in3:0.16e},\'{in4:s}\',{in5:0.16e},\"{in6:s}\"".format(err=err_string,in1=in1,in2=in2,in3=in3,in4=in4,in5=_in5,in6=in6))
+                    else:
+                        raise ValueError("Props failed ungracefully with inputs:\"{in1:s}\",\'{in2:s}\',{in3:0.16e},\'{in4:s}\',{in5:0.16e},\"{in6:s}\"; please file a ticket at https://github.com/ibell/coolprop/issues".format(in1=in1,in2=in2,in3=in3,in4=in4,in5=_in5,in6=in6))
+                
+                vals.append(val)
+                
+            if _numpy_supported and isinstance(in5, np.ndarray):
+                return np.array(vals).reshape(in5.shape)
+            else:
+                return type(in5)(vals)
+        
+        elif isinstance(in5, (int, long, float, complex)): #in3 can be an iterable
+            vals = []
+            for _in3 in in3:
+                val = _PropsSI(in1, in2, _in3, in4, in5, in6)
+            
+                if math.isinf(val) or math.isnan(val):
+                    err_string = _get_global_param_string('errstring')
+                    if not len(err_string) == 0:
+                        raise ValueError("{err:s} :: inputs were:\"{in1:s}\",\'{in2:s}\',{in3:0.16e},\'{in4:s}\',{in5:0.16e},\"{in6:s}\"".format(err=err_string,in1=in1,in2=in2,in3=_in3,in4=in4,in5=in5,in6=in6))
+                    else:
+                        raise ValueError("PropsSI failed ungracefully with inputs:\"{in1:s}\",\'{in2:s}\',{in3:0.16e},\'{in4:s}\',{in5:0.16e},\"{in6:s}\"; please file a ticket at https://github.com/ibell/coolprop/issues".format(in1=in1,in2=in2,in3=_in3,in4=in4,in5=in5,in6=in6))
+                
+                vals.append(val)
+                
+            if _numpy_supported and isinstance(in3, np.ndarray):
+                return np.array(vals).reshape(in3.shape)
+            else:
+                return type(in3)(vals)
+                
+        else: #Either both are iterables or its a failure
+            if not len(in3) == len(in5):
+                raise TypeError('Both iterables must be the same length') 
+            try:
+                vals = []
+                for _in3,_in5 in zip(in3,in5):
+                    val = _PropsSI(in1, in2, _in3, in4, _in5, in6)
+                
+                    if math.isinf(val) or math.isnan(val):
+                        err_string = _get_global_param_string('errstring')
+                        if not len(err_string) == 0:
+                            raise ValueError("{err:s} :: inputs were:\"{in1:s}\",\'{in2:s}\',{in3:0.16e},\'{in4:s}\',{in5:0.16e},\"{in6:s}\"".format(err=err_string,in1=in1,in2=in2,in3=_in3,in4=in4,in5=_in5,in6=in6))
+                        else:
+                            raise ValueError("Props failed ungracefully with inputs:\"{in1:s}\",\'{in2:s}\',{in3:0.16e},\'{in4:s}\',{in5:0.16e},\"{in6:s}\"; please file a ticket at https://github.com/ibell/coolprop/issues".format(in1=in1,in2=in2,in3=_in3,in4=in4,in5=_in5,in6=in6))
+                    
+                    vals.append(val)
+                    
+                if _numpy_supported and isinstance(in3, np.ndarray):
+                    return np.array(vals).reshape(in3.shape)
+                else:
+                    return type(in3)(vals)
+            except TypeError:   
+                raise TypeError('Numerical inputs to Props must be ints, floats, lists, or 1D numpy arrays.')
 
 def DerivTermsU(in1, T, rho, fluid, units = None):
     """Make the DerivTerms function handle different kinds of unit sets. Use 
