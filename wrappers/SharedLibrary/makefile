@@ -86,10 +86,10 @@ WRNFLAGS = -Wall -Wpedantic -Wextra
 # =============================
  
 BASENAME=CoolProp
-VFILE = $(COOLPROPDIR)/version.h
-VERSION=$(shell cat $(VFILE) | grep -e [0-9\.]* -o)
-MAJOR=$(shell cat $(VFILE) | grep -e \"[0-9] -o | grep [0-9] -o)
-MINOR=$(shell cat $(VFILE) | grep -e \\.[0-9]\\. -o | grep [0-9] -o)
+VFILE = $(COOLPROPDIR)/version.h 
+VERSION=$(shell cut -d'"' -f2 $(VFILE))
+MAJOR=$(shell echo $(VERSION) | cut -d'.' -f1 - )
+MINOR=$(shell echo $(VERSION) | cut -d'.' -f2 - )
  
 ifeq ($(LIBTYPE),a)
   LIBTYPECLEAN=a
@@ -133,9 +133,7 @@ else
     _LIBFLAGS=-shared -Wl,-soname,$(LIBNAME)
   endif
   ifeq ($(UNAME), Darwin)
-    _LIBFLAGS=-dynamiclib -Wl,-headerpad_max_install_names,-undefined,dynamic_lookup,\
--compatibility_version,$(MAJOR).$(MINOR),-current_version,$(MAJOR).$(MINOR),\
--install_name,$(LIBNAME)
+    _LIBFLAGS=-dynamiclib -Wl,-headerpad_max_install_names,-undefined,dynamic_lookup,-compatibility_version,$(MAJOR).$(MINOR),-current_version,$(MAJOR).$(MINOR),-install_name,$(LIBNAME)
   endif
 endif
  
@@ -181,40 +179,28 @@ $(BINDIR)/lib$(BASENAME)$(DEBUGCLEAN).a.$(VERSION): $(COOLOBJ_FILES)
 # ========================
 # Install and Uninstall
 # ========================
-#.PHONY : install
-#ifeq ($(UNAME), Linux)
-#  install : install-linux
-#endif
-#ifeq ($(UNAME), Darwin)
-#  install : install-mac
-#endif
-#
-#.PHONY : install-linux
+
 .PHONY : install
-install:
+install: $(BINDIR)/$(EXECUTABLE)
 	$(MK)  $(INCDIR) $(LIBDIR)
 	($(CD) $(COOLPROPDIR) && $(FN) . -name '*.h' -exec $(RS) {} $(INCDIR)/ \; )
 	$(FN)  $(INCDIR) -type d -exec $(CHD)  {} \;
 	$(FN)  $(INCDIR) -type f -exec $(CHF)  {} \;
+ifeq ($(UNAME), Linux)
 	$(CP)  $(BINDIR)/$(EXECUTABLE) $(LIBDIR)
+endif
+ifeq ($(UNAME), Darwin)
+	install -m 644 -o root -g wheel $(BINDIR)/$(EXECUTABLE) $(LIBDIR)/
+endif
 	$(CHF) $(LIBDIR)/$(EXECUTABLE)
 	($(CD) $(LIBDIR) && $(LN) $(EXECUTABLE) $(LIBNAME) )
 	($(CD) $(LIBDIR) && $(LN) $(LIBNAME) $(EXECUTABLE_MAJOR) )
 	($(CD) $(LIBDIR) && $(LN) $(EXECUTABLE_MAJOR) $(EXECUTABLE_BASE) )
+ifeq ($(UNAME), Linux)
 	$(LD) -n $(INCDIR)
 	$(LD) -l $(LIBDIR)/$(EXECUTABLE)
 	$(LD)
-
-# .PHONY : install-mac
-# install-mac : header library install-fluids
-# 	install -d -m 655 -o root -g wheel $(INCDIR) $(LIBDIR)
-# 	#install -m 644 -o root -g wheel $(COOLPROPDIR)/**.h $(HEADINST)
-# 	$(FN) . -name '*.h' -exec $(RS) {} $(INCDIR)/ \;
-# 	install -m 644 -o root -g wheel $(BINDIR)/$(EXECUTABLE) $(LIBDIR)/$(LIBNAME)
-# 	$(LN) $(LIBDIR)/$(EXECUTABLE) $(LIBDIR)/$(LIBNAME)
-# 	$(LN) $(LIBDIR)/$(EXECUTABLE) $(LIBDIR)/$(EXECUTABLE_MAJOR)
-# 	$(LN) $(LIBDIR)/$(EXECUTABLE) $(LIBDIR)/$(EXECUTABLE_BASE)
-
+endif
 
 .PHONY : uninstall
 uninstall:
@@ -223,7 +209,9 @@ uninstall:
 	$(RM)  $(LIBDIR)/$(LIBNAME)
 	$(RM)  $(LIBDIR)/$(EXECUTABLE_MAJOR)
 	$(RM)  $(LIBDIR)/$(EXECUTABLE_BASE)
+ifeq ($(UNAME), Linux)
 	$(LD)
+endif
 	
 # ========================
 # Accessory functions
@@ -236,6 +224,9 @@ clean:
 .PHONY : check_flags
 check_flags:
 	@printf "\nBuild settings:\n\
+	  VERSION=$(VERSION)\n\
+	  MAJOR=$(MAJOR)\n\
+	  MINOR=$(MINOR)\n\
 	  EXECUTABLE=$(EXECUTABLE)\n\
 	  LIBNAME=$(LIBNAME)\n\
 	  LIBFLAGS=$(_LIBFLAGS)\n\

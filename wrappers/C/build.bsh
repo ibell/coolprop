@@ -12,4 +12,4 @@
 
 gcc -g -c examplec.c 
 gcc -g -c standaloneC.c 
-g++ -g -o example examplec.c standaloneC.o -lCoolProp -ldl
+gcc -g -o example examplec.c standaloneC.o -lCoolProp -ldl
