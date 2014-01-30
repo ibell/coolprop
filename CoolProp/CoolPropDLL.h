@@ -1,32 +1,10 @@
 #ifndef COOLPROPDLL_H
 #define COOLPROPDLL_H
 
-	#if defined(COOLPROP_LIB)
-	#define EXPORT_CODE extern "C" __declspec(dllexport)
-	#ifndef CONVENTION
-		#define CONVENTION __stdcall
-	#endif
-	#else
-        #ifndef EXPORT_CODE
-            #if defined(EXTERNC)
-                #define EXPORT_CODE extern "C"
-            #else
-                #define EXPORT_CODE
-            #endif
-        #endif
-		#ifndef CONVENTION
-			#define CONVENTION
-		#endif
-	#endif
-
-	// Hack for PowerPC compilation to only use extern "C"
-	#if defined(__powerpc__) || defined(EXTERNC)
-	#undef EXPORT_CODE
-	#define EXPORT_CODE extern "C"
-	#endif
+#include "CoolPropTools.h"
 
 	// When using SWIG, it is extremely difficult to deal with char* for output strings, so just use 
-    // the std::string version since SWIG can handle std::string just fine
+	// the std::string version since SWIG can handle std::string just fine
 	#ifdef SWIG
 		std::string get_global_param_string(std::string ParamName);
 		std::string get_fluid_param_string(std::string FluidName, std::string ParamName);
@@ -36,7 +14,7 @@
 	#endif
 	
 	// Functions with the call type like
-    // EXPORT_CODE void CONVENTION AFunction(double, double);
+	// EXPORT_CODE void CONVENTION AFunction(double, double);
 	// will be exported to the DLL
 
 	// They can only use data types that play well with DLL wrapping (int, long, double, char*, void, etc.)

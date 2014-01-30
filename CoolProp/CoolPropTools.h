@@ -1,33 +1,54 @@
 #ifndef COOLPROPTOOLS_H
 #define COOLPROPTOOLS_H
 
-	#define _CRT_SECURE_NO_WARNINGS
+#define _CRT_SECURE_NO_WARNINGS
 
-	#if defined(_WIN32) || defined(__WIN32__) || defined(_WIN64) || defined(__WIN64__)
-	  #define __ISWINDOWS__
-	#elif __APPLE__
-      #define __ISAPPLE__
-    #elif __linux
-      #define __ISLINUX__
-    #endif
+#if defined(_WIN32) || defined(__WIN32__) || defined(_WIN64) || defined(__WIN64__)
+#  define __ISWINDOWS__
+#elif __APPLE__
+#  define __ISAPPLE__
+#elif __linux
+#  define __ISLINUX__
+#endif
+    
+#if defined(COOLPROP_LIB)
+#  define EXPORT_CODE extern "C"
+// Define compiler specific calling conventions
+// for the shared library.
+#  if defined(__ISWINDOWS__)
+#    define CONVENTION __declspec(dllexport)
+#  endif
+#endif
+// Hack for PowerPC compilation to only use extern "C"
+#if defined(__powerpc__) || defined(EXTERNC)
+#  undef EXPORT_CODE
+#  define EXPORT_CODE extern "C"
+#endif
+// Fall-back solutions
+#ifndef CONVENTION
+#  define CONVENTION
+#endif
+#ifndef EXPORT_CODE
+#  define EXPORT_CODE
+#endif
 
-	#include <string>
-	#include <vector>
-	#include <cmath>
-	#include "float.h"
+#include <string>
+#include <vector>
+#include <cmath>
+#include "float.h"
 
-	#ifndef M_PI
-	#define M_PI 3.14159265358979323846
-	#endif
+#ifndef M_PI
+#  define M_PI 3.14159265358979323846
+#endif
 
-	#ifdef HUGE_VAL
-	#define _HUGE HUGE_VAL
-	#else
-		// GCC Version of huge value macro
-		#ifdef HUGE 
-		#define _HUGE HUGE
-		#endif
-	#endif
+#ifdef HUGE_VAL
+#  define _HUGE HUGE_VAL
+#else
+// GCC Version of huge value macro
+#ifdef HUGE 
+#  define _HUGE HUGE
+#endif
+#endif
 
 	#if defined(_MSC_VER)
 	// Microsoft version of math.h doesn't include acosh or asinh, so we just define them here.
