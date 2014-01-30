@@ -290,9 +290,9 @@ cpdef Props(str in1, str in2, in3 = None, in4 = None, in5 = None, in6 = None, in
     ``T``                       Temperature [K]
     ``P``                       Pressure [kPa]
     ``D``                       Density [kg/m3]
-    ``C0``                      Ideal-gas specific heat at constant pressure [kJ/kg]
-    ``C``                       Specific heat at constant pressure [kJ/kg]
-    ``O``                       Specific heat at constant volume [kJ/kg]
+    ``C0``                      Ideal-gas specific heat at constant pressure [kJ/kg/K]
+    ``C``                       Specific heat at constant pressure [kJ/kg/K]
+    ``O``                       Specific heat at constant volume [kJ/kg/K]
     ``U``                       Internal energy [kJ/kg]
     ``H``                       Enthalpy [kJ/kg]
     ``S``                       Entropy [kJ/kg/K]
@@ -1297,22 +1297,22 @@ cdef class State:
             return self.get_s()
     
     cpdef double get_cp0(self) except *:
-        """ Get the specific heat at constant pressure for the ideal gas [kJ/kg] """
+        """ Get the specific heat at constant pressure for the ideal gas [kJ/kg/K] """
         return self.Props(iC0)
     
     cpdef double get_cp(self) except *: 
-        """ Get the specific heat at constant pressure  [kJ/kg] """   
+        """ Get the specific heat at constant pressure  [kJ/kg/K] """
         return self.Props(iC)
     property cp:
-        """ The specific heat at constant pressure  [kJ/kg] """
+        """ The specific heat at constant pressure  [kJ/kg/K] """
         def __get__(self):
             return self.get_cp()
             
     cpdef double get_cv(self) except *: 
-        """ Get the specific heat at constant volume  [kJ/kg] """
+        """ Get the specific heat at constant volume  [kJ/kg/K] """
         return self.Props(iO)
     property cv:
-        """ The specific heat at constant volume  [kJ/kg] """
+        """ The specific heat at constant volume  [kJ/kg/K] """
         def __get__(self):
             return self.get_cv()
         

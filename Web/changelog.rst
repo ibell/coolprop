@@ -11,6 +11,8 @@ Changelog for CoolProp
 * Added PropsSI function to DLL that always takes and returns SI units
 * Improved EES support for newer versions of EES that broke CoolProp (EES strings are not case sensitive)
 * Added upper-case aliases for all fluids and input variables (to support EES)
+* Fixed TTSE and dylib compilation on MacOS
+* Added basic wrappers for Fortran and C
 
 4.0.0
 -----

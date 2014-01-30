@@ -49,15 +49,18 @@ std::string get_home_dir(void)
 		home = getenv("HOME");
 		return std::string(home);
 	#elif defined(__ISAPPLE__)
-//		home = getenv("HOME");
-//		if (home==NULL) {
-//		struct passwd* pwd = getpwuid(getuid());
-//		if (pwd) {
-//			home = pwd->pw_dir;
-//		}}
-		throw NotImplementedError("This function is not defined for your platform.");
-		return home;
-		return home;
+		home = getenv("HOME");
+		if (home==NULL) {
+		  struct passwd* pwd = getpwuid(getuid());
+		  if (pwd) {
+			home = pwd->pw_dir;
+		  }
+		}
+		if (home==NULL) {
+		  throw NotImplementedError("Could not detect home directory.");
+		} 
+//		throw NotImplementedError("This function is not defined for your platform.");
+		return std::string(home);
 	#elif defined(__ISWINDOWS__)
 		char * pUSERPROFILE = getenv("USERPROFILE");
 		if (pUSERPROFILE != NULL) {
@@ -521,7 +524,7 @@ bool pathExists(std::string path)
 			return true;
 		else
 			return false;
-	#elif defined(__ISLINUX__)
+	#elif defined(__ISLINUX__) || defined(__ISAPPLE__)
 		struct stat st;
 //		if(stat(path.c_str(),&st) == 0) {
 //			if(st.st_mode & S_IFDIR != 0) return true;
