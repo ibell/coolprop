@@ -3,34 +3,7 @@
 #ifndef HUMAIR_H
 #define HUMAIR_H
 
-#if defined(COOLPROP_LIB)
-	#define EXPORT_CODE extern "C" __declspec(dllexport)
-	#ifndef CONVENTION
-		#define CONVENTION __stdcall
-	#endif
-	#else
-        #ifndef EXPORT_CODE
-            #if defined(EXTERNC)
-                #define EXPORT_CODE extern "C"
-            #else
-                #define EXPORT_CODE
-            #endif
-        #endif
-		#ifndef CONVENTION
-			#define CONVENTION
-		#endif
-	#endif
-
-	// Hack for PowerPC compilation to only use extern "C"
-	#if defined(__powerpc__) || defined(EXTERNC)
-	#define EXPORT_CODE extern "C"
-	#endif
-
-    // Hack for PowerPC compilation to only use extern "C"
-#if defined(__powerpc__) || defined(EXTERNC)
-#define EXPORT_CODE extern "C"
-#endif
-
+#include "CoolPropTools.h"
 
 // -----------------------
 // Standard I/O function

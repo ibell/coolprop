@@ -57,5 +57,5 @@ double props_(char *Output, char *Name1, double *Prop1, char *Name2, double *Pro
 //   double res = Props(str_out, *Name1, *Prop1, *Name2, *Prop2, str_ref);
 //   printf("double for res : %4.1f\n",res);
 //   //*outVal = res;
-  return Props(str_out, *Name1, *Prop1, *Name2, *Prop2, str_ref);
+  return Props(str_out.c_str(), *Name1, *Prop1, *Name2, *Prop2, (char *) str_ref.c_str());
 }
