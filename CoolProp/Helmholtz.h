@@ -417,7 +417,7 @@ public:
 class phir_SAFT_associating : public phi_BC{
 	
 protected:
-	double epsilonbar, vbarn, kappabar;
+	double m,epsilonbar, vbarn, kappabar;
 public:
 	// Constructor
 	phir_SAFT_associating(){};
@@ -465,8 +465,9 @@ public:
 class phir_SAFT_associating_2B : public phir_SAFT_associating{
 
 public:
-	phir_SAFT_associating_2B(double epsilonbar, double vbarn, double kappabar)
+	phir_SAFT_associating_2B(double m, double epsilonbar, double vbarn, double kappabar)
 	{
+		this->m = m;
 		this->epsilonbar = epsilonbar;
 		this->vbarn = vbarn;
 		this->kappabar = kappabar;
@@ -759,7 +760,7 @@ public:
 	{
 		this->a=std::vector<double>(1,a); 
 		this->b=std::vector<double>(1,b); 
-		iStart = 0; 
+		iStart = 0;
 		iEnd = 0;
 	};
 

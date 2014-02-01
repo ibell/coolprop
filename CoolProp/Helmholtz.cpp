@@ -1490,31 +1490,31 @@ double phir_SAFT_associating::eta(double delta){
 double phir_SAFT_associating_2B::base(double tau, double delta)
 {
 	double X = this->X(delta, this->Deltabar(tau, delta));
-    return 2*(log(X)-X/2.0+0.5);
+    return this->m*2*((log(X)-X/2.0+0.5));
 }
 double phir_SAFT_associating_2B::dDelta(double tau, double delta)
 {
 	double X = this->X(delta, this->Deltabar(tau, delta));
-    return 2*(1/X-0.5)*this->dX_ddelta(tau, delta);
+    return this->m*2*(1/X-0.5)*this->dX_ddelta(tau, delta);
 }
 double phir_SAFT_associating_2B::dTau(double tau, double delta)
 {
 	double X = this->X(delta, this->Deltabar(tau, delta));
-    return 2*(1/X-0.5)*this->dX_dtau(tau, delta);
+    return this->m*2*(1/X-0.5)*this->dX_dtau(tau, delta);
 }
 double phir_SAFT_associating_2B::dTau2(double tau, double delta)
 {
 	double X = this->X(delta, this->Deltabar(tau, delta));
 	double X_tau = this->dX_dtau(tau, delta);
     double X_tautau = this->d2X_dtau2(tau, delta);
-    return 2*(1/X-0.5)*X_tautau-2*pow(X_tau/X, 2);
+    return this->m*(2*(1/X-0.5)*X_tautau-2*pow(X_tau/X, 2));
 }
 double phir_SAFT_associating_2B::dDelta2(double tau, double delta)
 {
 	double X = this->X(delta, this->Deltabar(tau, delta));
 	double X_delta = this->dX_ddelta(tau, delta);
     double X_deltadelta = this->d2X_ddelta2(tau, delta);
-    return 2*(1/X-0.5)*X_deltadelta-2*pow(X_delta/X,2);
+    return this->m*(2*(1/X-0.5)*X_deltadelta-2*pow(X_delta/X,2));
 }
 double phir_SAFT_associating_2B::dDelta_dTau(double tau, double delta)
 {
@@ -1523,14 +1523,15 @@ double phir_SAFT_associating_2B::dDelta_dTau(double tau, double delta)
     double X_deltadelta = this->d2X_ddelta2(tau, delta);
     double X_tau = this->dX_dtau(tau, delta);
     double X_deltatau = this->d2X_ddeltadtau(tau, delta);
-    return 2*(-X_tau/X/X)*X_delta+2*X_deltatau*(1/X-0.5);
+    return this->m*(2*(-X_tau/X/X)*X_delta+2*X_deltatau*(1/X-0.5));
 }
 TEST_CASE("SAFT 2B Helmholtz derivative check", "[helmholtz],[fast]")
 {
-	double epsilon =  5.46341463;
+	double m = 0.977118832;
+	double epsilon = 5.46341463;
 	double vbarn = 0.204481952;
 	double kappa = 0.148852832e-2;
-	phir_SAFT_associating_2B phir = phir_SAFT_associating_2B(epsilon,vbarn,kappa);
+	phir_SAFT_associating_2B phir = phir_SAFT_associating_2B(m,epsilon,vbarn,kappa);
 	double eps = sqrt(DBL_EPSILON);
 
 	SECTION("dDelta")
