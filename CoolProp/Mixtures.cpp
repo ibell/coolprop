@@ -2343,17 +2343,22 @@ double NewtonRaphsonVLE::call(double beta, double T, double p, double rhobar_liq
 		// [delta(lnK0), delta(lnK1), ..., delta(lnT), delta(lnp)]
 		std::vector<double> v = linsolve(J, r);
 
+		double w = 1.0;
+		/*if (K[0] < 1.1)
+		{
+			w = 0.5;
+		}*/
 		// Set the variables again, the same structure independent of the specified variable
 		for (unsigned int i = 0; i < N; i++)
 		{
-			K[i] = exp(log(K[i]) + v[i]);
+			K[i] = exp(log(K[i]) + w*v[i]);
 			if (!ValidNumber(K[i]))
 			{
 				throw ValueError(format("K[i] (%g) is invalid",K[i]).c_str());
 			}
 		}
-		T = exp(log(T) + v[N]);
-		p = exp(log(p) + v[N+1]);
+		T = exp(log(T) + w*v[N]);
+		p = exp(log(p) + w*v[N+1]);
 
 		if (fabs(T) > 1e6 || fabs(p) > 1e10)
 		{
@@ -2381,6 +2386,11 @@ void NewtonRaphsonVLE::build_arrays(double beta, double T, double p, const std::
 	// --------
 	// Calculate the mole fractions in liquid and vapor phases
 	Mix->x_and_y_from_K(beta, K, z, x, y);
+
+	/*if (K[0]<1)
+	{
+		std::swap(x,y);
+	}*/
 
 	// Step 1:
 	// -------
@@ -2450,15 +2460,10 @@ void NewtonRaphsonVLE::build_arrays(double beta, double T, double p, const std::
 	}
 	r[N] = summer1;
 
-	//r[N] = 0.0;
 	// For the residual term F_{N+1}
-	for (unsigned int i = 0; i < N; i++)
+	for (unsigned int j = 0; j < N; j++)
 	{
-		//r[N] += y[i]-x[i]; //This is the definition for this term, why can you not use it directly? Normalization?
-		for (unsigned int j = 0; j < N; j++)
-		{
-			J[N][j] = K[j]*z[j]/pow(1-beta+beta*K[j],(int)2);
-		}
+		J[N][j] = K[j]*z[j]/pow(1-beta+beta*K[j],(int)2);
 	}
 	
 	// For the specification term F_{N+2}, with index of N+1
@@ -2472,14 +2477,7 @@ void NewtonRaphsonVLE::build_arrays(double beta, double T, double p, const std::
 	// The row in the Jacobian for the specification
 	for (unsigned int i = 0; i < N+2; i++)
 	{
-		if ( i != spec_index)
-		{
-			J[N+1][i] = 0;
-		}
-		else
-		{
-			J[N+1][spec_index] = 1;
-		}
+		J[N+1][i] = Kronecker_delta(i,spec_index);
 	}
 
 	// Flip all the signs of the entries in the residual vector since we are solving Jv = -r, not Jv=r
@@ -2508,6 +2506,8 @@ void PhaseEnvelope::store_variables(const double T, const double p, const double
 	data.lnp.push_back(log(p));
 	data.rhobar_liq.push_back(rhobar_liq);
 	data.rhobar_vap.push_back(rhobar_vap);
+	data.lnrhobar_liq.push_back(log(rhobar_liq));
+	data.lnrhobar_vap.push_back(log(rhobar_vap));
 	data.iS.push_back(iS);
 	for (unsigned int i = 0; i < Mix->N; i++)
 	{
@@ -2515,6 +2515,7 @@ void PhaseEnvelope::store_variables(const double T, const double p, const double
 		data.lnK[i].push_back(log(K[i]));
 	}
 }
+
 void PhaseEnvelope::build(double p0, const std::vector<double> &z, double beta_envelope)
 {
 	double S, Sold, DELTAS;
@@ -2640,10 +2641,10 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z, double beta_e
 				int M = data.T.size();
 				// First we use a cubic spline to find the next value for the vapor molar density
 				SplineClass SC1;
-				SC1.add_4value_constraints(data.K[0][M-4],data.K[0][M-3],data.K[0][M-2],data.K[0][M-1],
-					                      data.rhobar_vap[M-4],data.rhobar_vap[M-3],data.rhobar_vap[M-2],data.rhobar_vap[M-1]);
+				SC1.add_4value_constraints(data.lnK[0][M-4],data.lnK[0][M-3],data.lnK[0][M-2],data.lnK[0][M-1],
+					                       data.lnrhobar_vap[M-4],data.lnrhobar_vap[M-3],data.lnrhobar_vap[M-2],data.lnrhobar_vap[M-1]);
 				SC1.build();
-				rhobar_vap = SC1.evaluate(K[0]);
+				rhobar_vap = exp(SC1.evaluate(log(K[0])));
 
 				SplineClass SC2;
 				SC2.add_4value_constraints(log(data.rhobar_vap[M-4]), log(data.rhobar_vap[M-3]), log(data.rhobar_vap[M-2]), log(data.rhobar_vap[M-1]),
@@ -2658,10 +2659,14 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z, double beta_e
 				p = exp(SC3.evaluate(log(rhobar_vap)));
 
 				SplineClass SC4;
-				SC4.add_4value_constraints(log(data.rhobar_vap[M-4]), log(data.rhobar_vap[M-3]), log(data.rhobar_vap[M-2]), log(data.rhobar_vap[M-1]),
+				/*SC4.add_4value_constraints(log(data.rhobar_vap[M-4]), log(data.rhobar_vap[M-3]), log(data.rhobar_vap[M-2]), log(data.rhobar_vap[M-1]),
 					                       log(data.rhobar_liq[M-4]), log(data.rhobar_liq[M-3]), log(data.rhobar_liq[M-2]), log(data.rhobar_liq[M-1]));
 				SC4.build();
-				rhobar_liq = exp(SC4.evaluate(log(rhobar_vap)));
+				rhobar_liq = exp(SC4.evaluate(log(rhobar_vap)));*/
+				SC4.add_4value_constraints(data.rhobar_vap[M-4], data.rhobar_vap[M-3], data.rhobar_vap[M-2], data.rhobar_vap[M-1],
+					                       data.rhobar_liq[M-4], data.rhobar_liq[M-3], data.rhobar_liq[M-2], data.rhobar_liq[M-1]);
+				SC4.build();
+				rhobar_liq = SC4.evaluate(rhobar_vap);
 			}
 			else
 			{
@@ -2677,17 +2682,7 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z, double beta_e
 				rhobar_vap = Mix->NRVLE.rhobar_vap;
 			}
 
-			/*if (data.T.size() > 50)
-			{
-				Dictionary d;
-				d.add("lw", 3.1);
-				d.add("color", "r");
-				d.add("linestyle", "-");
-
-				PyPlotter plt;
-				plt.plot(data.T, data.p, &d);
-				plt.show();
-			}*/
+			
 
 			// Run with the selected specified variable
 			try
@@ -2712,13 +2707,35 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z, double beta_e
 			}
 			catch (CoolPropBaseError &e)
 			{
-				printf("%s\n",e.what());
+				printf("error: %s\n",e.what());
 				// Decrease the step size by a factor of 10
 				printf("Failure; step downsize\n");
 
 				DELTAS *= 0.1;
+				
 				continue;
 			}
+
+			/*if (K[0] < 1.05)
+			{
+				DELTAS = -0.0001;
+			}*/
+
+			#ifdef MPLSUPPORTED
+				if (K[0] < 1.02)
+				{
+				Dictionary d;
+				d.add("lw", 1);
+				d.add("color", "r");
+				d.add("linestyle", "-");
+				d.add("marker", "o");
+
+				PyPlotter plt;
+				plt.plot(data.lnK[0],data.rhobar_vap, &d);
+				plt.plot(data.lnK[0],data.rhobar_liq, &d);
+				plt.show();
+				}
+			#endif
 
 			// Store the variables in the log if the step worked ok
 			store_variables(T, p, Mix->NRVLE.rhobar_liq, Mix->NRVLE.rhobar_vap, K, i_S);
@@ -2727,7 +2744,8 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z, double beta_e
 
 			if (Mix->NRVLE.Nsteps > 4)
 			{
-				DELTAS *= 0.5;
+				std::cout << "Downsizing, too many iterations\n";
+				DELTAS *= 0.25;
 			}
 			else if (Mix->NRVLE.Nsteps < 4)
 			{

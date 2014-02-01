@@ -130,9 +130,7 @@ public:
 		s += this->print_calls();
 		s += "plt.savefig('AA.png')\n";
 		s += "plt.show()\n";
-		std::cout << s << std::endl;
 		PyRun_SimpleString(s.c_str());
-		
 	};
 };
 

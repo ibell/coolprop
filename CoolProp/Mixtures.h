@@ -338,7 +338,7 @@ public:
 	std::vector<double> K, x, y, phi_ij_liq, phi_ij_vap, r, dXdS, neg_dFdS;
 	std::vector<SuccessiveSubstitutionStep> step_logger;
 
-	NewtonRaphsonVLE(){Nsteps_max = 10;};
+	NewtonRaphsonVLE(){Nsteps_max = 20;};
 
 	void resize(unsigned int N);
 	
@@ -390,7 +390,7 @@ public:
 struct PhaseEnvelopeLog
 {
 	std::vector< std::vector<double> > K, lnK;
-	std::vector<double> T, p, lnT, lnp, rhobar_liq, rhobar_vap;
+	std::vector<double> T, p, lnT, lnp, rhobar_liq, rhobar_vap, lnrhobar_liq, lnrhobar_vap;
 	std::vector<int> iS;
 };
 class PhaseEnvelope
