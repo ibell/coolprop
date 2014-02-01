@@ -16,6 +16,7 @@
 #include "math.h"
 #include "Helmholtz.h"
 #include "CoolPropTools.h"
+#include "Catch/catch.hpp"
 
 void check_derivatives(phi_BC * phi, double tau, double delta, double ddelta, double dtau)
 {
@@ -1374,6 +1375,196 @@ double phir_critical::dTau3(double tau, double delta) throw()
 	}
 	return summer;
 }
+
+
+double phir_SAFT_associating::Deltabar(double tau, double delta)
+{
+	return this->g(this->eta(delta))*(exp(this->epsilonbar*tau)-1)*this->kappabar;
+}   
+double phir_SAFT_associating::dDeltabar_ddelta__consttau(double tau, double delta)
+{
+    return this->dg_deta(this->eta(delta))*(exp(this->epsilonbar*tau)-1)*this->kappabar*this->vbarn;
+}
+double phir_SAFT_associating::d2Deltabar_ddelta2__consttau(double tau, double delta)
+{
+    return this->d2g_deta2(this->eta(delta))*(exp(this->epsilonbar*tau)-1)*this->kappabar*pow(this->vbarn,(int)2);
+}
+double phir_SAFT_associating::dDeltabar_dtau__constdelta(double tau, double delta)
+{
+    return this->g(this->eta(delta))*this->kappabar*exp(this->epsilonbar*tau)*this->epsilonbar;
+}
+double phir_SAFT_associating::d2Deltabar_dtau2__constdelta(double tau, double delta)
+{
+    return this->g(this->eta(delta))*this->kappabar*exp(this->epsilonbar*tau)*pow(this->epsilonbar,(int)2);
+}
+double phir_SAFT_associating::d2Deltabar_ddelta_dtau(double tau, double delta)
+{
+    return this->dg_deta(this->eta(delta))*exp(this->epsilonbar*tau)*this->epsilonbar*this->kappabar*this->vbarn;
+}
+double phir_SAFT_associating::X(double delta, double Deltabar)
+{
+	return 2/(sqrt(1+4*Deltabar*delta)+1);
+}
+double phir_SAFT_associating::dX_dDeltabar__constdelta(double delta, double Deltabar)
+{
+    double X = this->X(delta,Deltabar);
+    return -delta*X*X/(2*Deltabar*delta*X+1);
+}
+double phir_SAFT_associating::dX_ddelta__constDeltabar(double delta, double Deltabar)
+{
+    double X = this->X(delta,Deltabar);
+    return -Deltabar*X*X/(2*Deltabar*delta*X+1);
+}
+double phir_SAFT_associating::dX_dtau(double tau, double delta)
+{
+    double Deltabar = this->Deltabar(tau, delta);
+    return this->dX_dDeltabar__constdelta(delta, Deltabar)*this->dDeltabar_dtau__constdelta(tau, delta);
+}
+double phir_SAFT_associating::dX_ddelta(double tau, double delta)
+{
+    double Deltabar = this->Deltabar(tau, delta);
+    return (this->dX_ddelta__constDeltabar(delta, Deltabar)
+           + this->dX_dDeltabar__constdelta(delta, Deltabar)*this->dDeltabar_ddelta__consttau(tau, delta));
+}
+double phir_SAFT_associating::d2X_dtau2(double tau, double delta)
+{
+    double Deltabar = this->Deltabar(tau, delta);
+    double X = this->X(delta, Deltabar);
+    double beta = this->dDeltabar_dtau__constdelta(tau, delta);
+    double d_dXdtau_dbeta = -delta*X*X/(2*Deltabar*delta*X+1);
+    double d_dXdtau_dDeltabar = 2*delta*delta*X*X*X/pow(2*Deltabar*delta*X+1,2)*beta;
+    double d_dXdtau_dX = -2*beta*delta*X*(Deltabar*delta*X+1)/pow(2*Deltabar*delta*X+1,2);
+    double dbeta_dtau = this->d2Deltabar_dtau2__constdelta(tau, delta);
+    double dX_dDeltabar = this->dX_dDeltabar__constdelta(delta, Deltabar);
+    return d_dXdtau_dX*dX_dDeltabar*beta+d_dXdtau_dDeltabar*beta+d_dXdtau_dbeta*dbeta_dtau;
+}
+double phir_SAFT_associating::d2X_ddeltadtau(double tau, double delta)
+{
+    double Deltabar = this->Deltabar(tau, delta);
+    double X = this->X(delta, Deltabar);
+    double alpha = this->dDeltabar_ddelta__consttau(tau, delta);
+    double beta = this->dDeltabar_dtau__constdelta(tau, delta);
+    double dalpha_dtau = this->d2Deltabar_ddelta_dtau(tau, delta);
+    double d_dXddelta_dDeltabar = X*X*(2*delta*delta*X*alpha-1)/pow(2*Deltabar*delta*X+1,2);
+    double d_dXddelta_dalpha = -delta*X*X/(2*Deltabar*delta*X+1);
+    double d_dXddelta_dX = -(Deltabar+delta*alpha)*2*(Deltabar*delta*X*X+X)/pow(2*Deltabar*delta*X+1,2);
+    double dX_dDeltabar = this->dX_dDeltabar__constdelta(delta, Deltabar);
+    return d_dXddelta_dX*dX_dDeltabar*beta+d_dXddelta_dDeltabar*beta+d_dXddelta_dalpha*dalpha_dtau;
+}
+double phir_SAFT_associating::d2X_ddelta2(double tau, double delta)
+{
+    double Deltabar = this->Deltabar(tau, delta);
+    double X = this->X(delta, Deltabar);
+    double alpha = this->dDeltabar_ddelta__consttau(tau, delta);
+    double dalpha_ddelta = this->d2Deltabar_ddelta2__consttau(tau, delta);
+    double d_dXddelta_dDeltabar = X*X*(2*delta*delta*X*alpha-1)/pow(2*Deltabar*delta*X+1,2);
+    double d_dXddelta_dalpha = -delta*X*X/(2*Deltabar*delta*X+1);
+    double d_dXddelta_dX = -(Deltabar+delta*alpha)*2*(Deltabar*delta*X*X+X)/pow(2*Deltabar*delta*X+1,2);
+    double dX_dDeltabar = this->dX_dDeltabar__constdelta(delta, Deltabar);
+    double dX_ddelta_constall = X*X*(2*Deltabar*Deltabar*X-alpha)/pow(2*Deltabar*delta*X+1,2);
+    return (dX_ddelta_constall
+            + d_dXddelta_dX*this->dX_ddelta__constDeltabar(delta, Deltabar)
+            + d_dXddelta_dX*dX_dDeltabar*alpha
+            + d_dXddelta_dDeltabar*alpha
+            + d_dXddelta_dalpha*dalpha_ddelta);
+}   
+double phir_SAFT_associating::g(double eta)
+{
+	return 0.5*(2-eta)/pow(1-eta,(int)3);
+}    
+double phir_SAFT_associating::dg_deta(double eta)
+{
+	return 0.5*(5-2*eta)/pow(1-eta,(int)4);
+}
+double phir_SAFT_associating::d2g_deta2(double eta)
+{
+    return 3*(3-eta)/pow(1-eta,(int)5);
+}   
+double phir_SAFT_associating::d3g_deta3(double eta)
+{
+	return 6*(7-2*eta)/pow(1-eta,(int)6);
+}   
+double phir_SAFT_associating::eta(double delta){
+	return this->vbarn*delta;
+}
+double phir_SAFT_associating_2B::base(double tau, double delta)
+{
+	double X = this->X(delta, this->Deltabar(tau, delta));
+    return 2*(log(X)-X/2.0+0.5);
+}
+double phir_SAFT_associating_2B::dDelta(double tau, double delta)
+{
+	double X = this->X(delta, this->Deltabar(tau, delta));
+    return 2*(1/X-0.5)*this->dX_ddelta(tau, delta);
+}
+double phir_SAFT_associating_2B::dTau(double tau, double delta)
+{
+	double X = this->X(delta, this->Deltabar(tau, delta));
+    return 2*(1/X-0.5)*this->dX_dtau(tau, delta);
+}
+double phir_SAFT_associating_2B::dTau2(double tau, double delta)
+{
+	double X = this->X(delta, this->Deltabar(tau, delta));
+	double X_tau = this->dX_dtau(tau, delta);
+    double X_tautau = this->d2X_dtau2(tau, delta);
+    return 2*(1/X-0.5)*X_tautau-2*pow(X_tau/X, 2);
+}
+double phir_SAFT_associating_2B::dDelta2(double tau, double delta)
+{
+	double X = this->X(delta, this->Deltabar(tau, delta));
+	double X_delta = this->dX_ddelta(tau, delta);
+    double X_deltadelta = this->d2X_ddelta2(tau, delta);
+    return 2*(1/X-0.5)*X_deltadelta-2*pow(X_delta/X,2);
+}
+double phir_SAFT_associating_2B::dDelta_dTau(double tau, double delta)
+{
+	double X = this->X(delta, this->Deltabar(tau, delta));
+	double X_delta = this->dX_ddelta(tau, delta);
+    double X_deltadelta = this->d2X_ddelta2(tau, delta);
+    double X_tau = this->dX_dtau(tau, delta);
+    double X_deltatau = this->d2X_ddeltadtau(tau, delta);
+    return 2*(-X_tau/X/X)*X_delta+2*X_deltatau*(1/X-0.5);
+}
+TEST_CASE("SAFT 2B Helmholtz derivative check", "[helmholtz],[fast]")
+{
+	double epsilon =  5.46341463;
+	double vbarn = 0.204481952;
+	double kappa = 0.148852832e-2;
+	phir_SAFT_associating_2B phir = phir_SAFT_associating_2B(epsilon,vbarn,kappa);
+	double eps = sqrt(DBL_EPSILON);
+
+	SECTION("dDelta")
+	{
+		double ANA = phir.dDelta(0.5, 0.5);
+		double NUM = (phir.base(0.5, 0.5+eps) - phir.base(0.5,0.5-eps))/(2*eps);
+		REQUIRE(abs(NUM-ANA) < 1e-6);
+	}
+	SECTION("dTau")
+	{
+		double ANA = phir.dTau(0.5, 0.5);
+		double NUM = (phir.base(0.5+eps, 0.5) - phir.base(0.5-eps,0.5))/(2*eps);
+		REQUIRE(abs(NUM-ANA) < 1e-6);
+	}
+	SECTION("dDelta2")
+	{
+		double ANA = phir.dDelta2(0.5, 0.5);
+		double NUM = (phir.dDelta(0.5, 0.5+eps) - phir.dDelta(0.5,0.5-eps))/(2*eps);
+		REQUIRE(abs(NUM-ANA) < 1e-6);
+	}
+	SECTION("dTau2")
+	{
+		double ANA = phir.dTau2(0.5, 0.5);
+		double NUM = (phir.dTau(0.5+eps, 0.5) - phir.dTau(0.5-eps,0.5))/(2*eps);
+		REQUIRE(abs(NUM-ANA) < 1e-6);
+	}
+	SECTION("dDeltadTau")
+	{
+		double ANA = phir.dDelta_dTau(0.5, 0.5);
+		double NUM = (phir.dTau(0.5, 0.5+eps) - phir.dTau(0.5,0.5-eps))/(2*eps);
+		REQUIRE(abs(NUM-ANA) < 1e-6);
+	}
+}
+
 
 double phi0_Planck_Einstein::base(double tau, double delta)
 {
