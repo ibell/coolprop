@@ -1159,6 +1159,15 @@ double REFPROPFluidClass::phi0(double tau, double delta)
 }
 
 
+
+double REFPROPFluidClass::surface_tension_T(double T)
+{
+	double dl = 1, sigma;
+	long ierr = 0;
+	char herr[errormessagelength+1];
+	SURFTdll(&T,&dl,&(xmol[0]),&sigma,&ierr,herr,errormessagelength);
+	return sigma;
+}
 double REFPROPFluidClass::viscosity_Trho(double T, double rho)
 {
 	long ierr = 0;
