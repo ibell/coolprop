@@ -41,29 +41,21 @@ TEST_CASE( "Check reference state", "[reference_state]" )
 	}
 }
 
+static Catch::Session session; // There must be exactly once instance
+
 int run_fast_tests()
 {
-	Catch::Session session; // There must be exactly once instance
-	
-	char* const argv[] = {"/a/dummy/path","[fast]","-d","yes"};
-	int returnCode = session.applyCommandLine(4, argv);
+	char* const argv[] = {"/a/dummy/path","[fast]"};
+	int returnCode = session.applyCommandLine(2, argv);
     if( returnCode != 0 ) // Indicates a command line error
 	{
 		return returnCode;
 	}
-	time_t t1, t2;
-	t1 = clock();
-	session.run();
-	t2 = clock();
-	printf("Elapsed time for fast tests: %g s",(double)(t2-t1)/CLOCKS_PER_SEC);
-
-	return 1;
+	return session.run();
 }
 
 int run_not_slow_tests()
 {
-	Catch::Session session; // There must be exactly once instance
-	
 	char* const argv[] = {"/a/dummy/path","~[slow]","-d","yes"};
 	int returnCode = session.applyCommandLine(4, argv);
     if( returnCode != 0 ) // Indicates a command line error
@@ -81,7 +73,5 @@ int run_not_slow_tests()
 
 void run_tests()
 {
-	Catch::Session session; // There must be exactly once instance
-
 	session.run();
 }
