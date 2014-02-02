@@ -389,7 +389,7 @@ public:
 
 struct PhaseEnvelopeLog
 {
-	std::vector< std::vector<double> > K, lnK;
+	std::vector< std::vector<double> > K, lnK, x, y;
 	std::vector<double> T, p, lnT, lnp, rhobar_liq, rhobar_vap, lnrhobar_liq, lnrhobar_vap;
 	std::vector<int> iS;
 };
@@ -401,7 +401,7 @@ public:
 	std::vector<double> K;
 	Mixture *Mix;
 	void build(double p0, const std::vector<double> &z, double beta_envelope);
-	void store_variables(const double T, const double p, const double rhobar_liq, const double rhobar_vap, const std::vector<double> & K, const int iS);
+	void store_variables(const double T, const double p, const double rhobar_liq, const double rhobar_vap, const std::vector<double> & K, const int iS, const std::vector<double> & x, const std::vector<double> & y);
 };
 
 /*! 
@@ -414,7 +414,9 @@ public:
 
 	unsigned int N;
 	Mixture(std::vector<Fluid *> pFluids);
+	Mixture(std::string FluidsString);
 	~Mixture();
+	void initialize();
 
 	double Rbar(const std::vector<double> &x);
 
@@ -520,6 +522,15 @@ public:
 	*/
 	double dpdT__constV_n(double tau, double delta, const std::vector<double> &x, int i);
 
+	double ddelta_dxj__constT_V_xi(double tau, double delta, const std::vector<double> &x, int j);
+
+	double dtau_dxj__constT_V_xi(double tau, double delta, const std::vector<double> &x, int j);
+
+	/*!
+	Gernert 3.130 and 3.134
+	*/
+	double dpdxj__constT_V_xi(double tau, double delta, const std::vector<double> &x, int j);
+
 	/*! The derivative term
 	\f[
 	n\left(\frac{\partial p}{\partial V} \right)_{T,\bar n} = -\rho^2 RT(1+2\delta \alpha_{\delta}^r+\delta^2\alpha^r_{\delta\delta})
@@ -573,6 +584,16 @@ public:
 	GERG 2004 Monograph Equation 7.31
 	*/
 	double ndln_fugacity_coefficient_dnj__constT_p(double tau, double delta, const std::vector<double> &x, int i, int j);
+
+	double dln_fugacity_coefficient_dxj__constT_p_xi(double tau, double delta, const std::vector<double> &x, int i, int j);
+
+	double d2nphir_dni_dxj__constT_V(double tau, double delta, const std::vector<double> &x, int i, int j);
+
+	double dphir_dxj__constT_V_xi(double tau, double delta, const std::vector<double> &x, int j);
+
+	double d_ndphirdni_dxj__constT_V_xi(double tau, double delta, const std::vector<double> &x, int i, int j);
+
+	double d_ndphirdni_dxj__consttau_delta_xi(double tau, double delta, const std::vector<double> &x, int i, int j);
 
 	/*!
 	\f[

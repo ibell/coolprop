@@ -10,6 +10,7 @@
 #include <numeric>
 #include "CoolProp.h"
 #include "Spline.h"
+#include "Catch/catch.hpp"
 
 #ifdef MPLSUPPORTED
 #include "MPLPlot.h"
@@ -319,7 +320,34 @@ Mixture::Mixture(std::vector<Fluid *> pFluids)
 	// Make a copy of the list of pointers to fluids that compose this mixture
 	this->pFluids = pFluids;
 	this->N = pFluids.size();
+	
+	// Finish the initalization
+	this->initialize();
 
+}
+Mixture::Mixture(std::string FluidsString)
+{
+	// Split at the '|'
+	std::vector<std::string> fluids = strsplit(FluidsString,'|');
+
+	// Number of components
+	this->N = fluids.size();
+
+	// Resize the pointers
+	pFluids.resize(this->N);
+
+	// Get all the pointers to the components
+	for (unsigned int i = 0; i < fluids.size(); i++)
+	{
+		pFluids[i] = get_fluid(get_Fluid_index(fluids[i]));
+	}
+
+	// Finish the initalization
+	this->initialize();
+}
+
+void Mixture::initialize()
+{
 	// Give child classes a pointer to this class
 	SS.Mix = this;
 	NRVLE.Mix = this;
@@ -955,10 +983,77 @@ double Mixture::dln_fugacity_coefficient_dp__constT_n(double tau, double delta, 
 	double term2 = 1.0/p;
 	return term1 - term2;
 }
+double Mixture::dln_fugacity_coefficient_dxj__constT_p_xi(double tau, double delta, const std::vector<double> &x, int i, int j)
+{
+	// Gernert 3.115
+	double Tr = pReducing->Tr(x); //[K]
+	double T = Tr/tau;
+	// partial molar volume is -dpdn/dpdV, so need to flip the sign here
+	return d2nphir_dni_dxj__constT_V(tau, delta, x, i, j) - this->partial_molar_volume(tau,delta,x,i)/(Rbar(x)*T)*dpdxj__constT_V_xi(tau,delta,x,j);
+}
+
+double Mixture::d2nphir_dni_dxj__constT_V(double tau, double delta, const std::vector<double> &x, int i, int j)
+{
+	// Gernert 3.117
+	return d_ndphirdni_dxj__constT_V_xi(tau, delta, x, i, j) + dphir_dxj__constT_V_xi(tau, delta, x, j);
+}
+double Mixture::dphir_dxj__constT_V_xi(double tau, double delta, const std::vector<double> &x, int j)
+{
+	//Gernert 3.119
+	return dphir_dDelta(tau, delta, x)*ddelta_dxj__constT_V_xi(tau, delta, x, j)+dphir_dTau(tau, delta, x)*dtau_dxj__constT_V_xi(tau, delta, x, j)+dphir_dxi(tau, delta, x, j);
+}
+double Mixture::d_ndphirdni_dxj__consttau_delta_xi(double tau, double delta, const std::vector<double> &x, int i, int j)
+{
+	// Gernert 3.120
+	double Tr = pReducing->Tr(x); // [K]
+	double T = Tr/tau;
+	double rhorbar = pReducing->rhorbar(x);
+	double rhobar = rhorbar*delta;
+	double line1A = delta*d2phir_dxi_dDelta(tau,delta,x,j)*(1-1/rhorbar*pReducing->ndrhorbardni__constnj(x,i));
+	double line1B = tau*d2phir_dxi_dTau(tau,delta,x,j)*(1/Tr)*pReducing->ndTrdni__constnj(x,j);
+	double line2 = -delta*dphir_dDelta(tau,delta,x)/rhorbar*(pReducing->d_ndrhorbardni_dxj__constxi(x,i,j)-1/rhorbar*pReducing->drhorbardxi__constxj(x,j)*pReducing->ndrhorbardni__constnj(x,i));
+	double line3 = +tau*dphir_dTau(tau,delta,x)/Tr*(pReducing->d_ndTrdni_dxj__constxi(x,i,j)-1/Tr*pReducing->dTrdxi__constxj(x,j)*pReducing->ndTrdni__constnj(x,i));
+	double summer = 0;
+	for (unsigned int k = 0; k < x.size()-1; k++)
+	{
+		summer += x[k]*d2phirdxidxj(tau, delta, x, j, k);
+	}
+	double line4 = d2phirdxidxj(tau, delta, x, i, j) - dphir_dxi(tau, delta, x, j) - summer;
+	return line1A + line1B + line2 + line3 + line4;
+}
+double Mixture::d_ndphirdni_dxj__constT_V_xi(double tau, double delta, const std::vector<double> &x, int i, int j)
+{
+	// Gernert 3.118
+	return d_ndphirdni_dxj__consttau_delta_xi(tau,delta,x,i,j) + ddelta_dxj__constT_V_xi(tau,delta,x,j)*d_ndphirdni_dDelta(tau,delta,x,j) + dtau_dxj__constT_V_xi(tau,delta,x,j)*d_ndphirdni_dTau(tau,delta,x,j);
+}
 
 double Mixture::partial_molar_volume(double tau, double delta, const std::vector<double> &x, int i)
 {
 	return -ndpdni__constT_V_nj(tau,delta,x,i)/ndpdV__constT_n(tau,delta,x,i);
+}
+double Mixture::ddelta_dxj__constT_V_xi(double tau, double delta, const std::vector<double> &x, int j)
+{
+	double rhorbar = pReducing->rhorbar(x);
+	double rhobar = rhorbar*delta;
+	return -rhobar/rhorbar/rhorbar*pReducing->drhorbardxi__constxj(x,j);
+}
+double Mixture::dtau_dxj__constT_V_xi(double tau, double delta, const std::vector<double> &x, int j)
+{
+	double Tr = pReducing->Tr(x); //[K]
+	double T = Tr/tau;
+	return 1/T*pReducing->dTrdxi__constxj(x,j);
+}
+double Mixture::dpdxj__constT_V_xi(double tau, double delta, const std::vector<double> &x, int j)
+{
+	double rhorbar = pReducing->rhorbar(x);
+	double rhobar = rhorbar*delta;
+	double Tr = pReducing->Tr(x); //[K]
+	double T = Tr/tau;
+
+	// Gernert Equation 3.134
+	double Gernert_3_134 = d2phir_dDelta2(tau,delta,x)*ddelta_dxj__constT_V_xi(tau, delta, x, j)+d2phir_dDelta_dTau(tau,delta,x)*dtau_dxj__constT_V_xi(tau,delta,x,j)+d2phir_dxi_dDelta(tau,delta,x,j);
+
+	return rhobar*Rbar(x)*T*(-1/rhorbar*pReducing->ndrhorbardni__constnj(x,j)*delta*dphir_dDelta(tau, delta,x)+delta*Gernert_3_134);
 }
 double Mixture::dpdT__constV_n(double tau, double delta, const std::vector<double> &x, int i)
 {
@@ -1189,8 +1284,16 @@ double Mixture::rhobar_Tpz(double T, double p, const std::vector<double> &x, dou
 	//	fprintf(fp,"%g, %g\n",rhobar, Resid.call(rhobar));
 	//}
 	//fclose(fp);
+
 	rhobar = Newton(&Resid, rhobar0, 1e-16, 100, &errstr);
-	if (!ValidNumber(rhobar)) { throw ValueError(); }
+	if (!ValidNumber(rhobar)) 
+	{ 
+		rhobar = Secant(&Resid, rhobar0, 1.001*rhobar0, 1e-16, 100, &errstr);
+		if (!ValidNumber(rhobar)) 
+		{
+			throw ValueError("Density solver failed"); 
+		}
+	}
 	return rhobar;
 }
 
@@ -1252,7 +1355,7 @@ double Mixture::saturation_p_Wilson(double beta, double p, const std::vector<dou
 	// Get the K factors from the residual wrapper
 	K = Resid.K;
 	
-	if (!ValidNumber(T)){throw ValueError();}
+	if (!ValidNumber(T)){throw ValueError("saturation_p_Wilson failed to get good T");}
 	return T;
 }
 double Mixture::saturation_p(double beta, double p, std::vector<double> const& z, std::vector<double> &x, std::vector<double> &y)
@@ -1435,7 +1538,7 @@ double Mixture::rhobar_pengrobinson(double T, double p, const std::vector<double
 	}
 	else 
 	{
-		throw ValueError();
+		throw ValueError("Solution should be one of PR_SATL, PR_SATV");
 	}
 }
 
@@ -2343,26 +2446,23 @@ double NewtonRaphsonVLE::call(double beta, double T, double p, double rhobar_liq
 		// [delta(lnK0), delta(lnK1), ..., delta(lnT), delta(lnp)]
 		std::vector<double> v = linsolve(J, r);
 
-		double w = 1.0;
-		/*if (K[0] < 1.1)
-		{
-			w = 0.5;
-		}*/
 		// Set the variables again, the same structure independent of the specified variable
 		for (unsigned int i = 0; i < N; i++)
 		{
-			K[i] = exp(log(K[i]) + w*v[i]);
+			K[i] = exp(log(K[i]) + v[i]);
 			if (!ValidNumber(K[i]))
 			{
 				throw ValueError(format("K[i] (%g) is invalid",K[i]).c_str());
 			}
 		}
-		T = exp(log(T) + w*v[N]);
-		p = exp(log(p) + w*v[N+1]);
+		T = exp(log(T) + v[N]);
+		p = exp(log(p) + v[N+1]);
 
 		if (fabs(T) > 1e6 || fabs(p) > 1e10)
 		{
-			throw ValueError();
+			/*std::cout << "J = " << vec_to_string(J,"%16.15g");
+			std::cout << "nr = " << vec_to_string(r,"%16.15g");*/
+			throw ValueError("Temperature or p has bad value");
 		}
 		
 		//std::cout << iter << " " << T << " " << p << " " << error_rms << std::endl;
@@ -2387,11 +2487,6 @@ void NewtonRaphsonVLE::build_arrays(double beta, double T, double p, const std::
 	// Calculate the mole fractions in liquid and vapor phases
 	Mix->x_and_y_from_K(beta, K, z, x, y);
 
-	/*if (K[0]<1)
-	{
-		std::swap(x,y);
-	}*/
-
 	// Step 1:
 	// -------
 	// Calculate the new reducing and reduced parameters for each phase
@@ -2401,7 +2496,17 @@ void NewtonRaphsonVLE::build_arrays(double beta, double T, double p, const std::
 	
 	this->rhobar_liq = Mix->rhobar_Tpz(T, p, x, this->rhobar_liq); // [kg/m^3] (Not exact due to solver convergence)
 	this->rhobar_vap = Mix->rhobar_Tpz(T, p, y, this->rhobar_vap); // [kg/m^3] (Not exact due to solver convergence)
-	std::cout << format("rho liq: %g rho vap: %g k: %s T: %g P: %g x: %s\n",this->rhobar_liq, this->rhobar_vap, vec_to_string(K,"%6.5g").c_str(),T,p, vec_to_string(x,"%6.5g").c_str()).c_str();
+
+	if (this->rhobar_vap > this->rhobar_liq)
+	{
+		// Phases are inverted, swap x&y, recalculate densities
+		std::swap(x, y);
+		std::cout << format("Phase inversion");
+		this->rhobar_liq = Mix->rhobar_Tpz(T, p, x, old_rhobar_liq); // [kg/m^3] (Not exact due to solver convergence)
+		this->rhobar_vap = Mix->rhobar_Tpz(T, p, y, old_rhobar_vap); // [kg/m^3] (Not exact due to solver convergence)
+	}
+
+	std::cout << format("rho liq: %g rho vap: %g k: %s T: %g P: %g x: %s\n", this->rhobar_liq, this->rhobar_vap, vec_to_string(K,"%6.5g").c_str(),T,p, vec_to_string(x,"%6.5g").c_str()).c_str();
 
 	if (!ValidNumber(this->rhobar_liq)){ throw ValueError(format("Liquid density solver has failed with guess value %g",old_rhobar_liq).c_str()); }
 	if (!ValidNumber(this->rhobar_vap)){ throw ValueError(format("Vapor density solver has failed with guess value %g",old_rhobar_vap).c_str()); }
@@ -2456,11 +2561,15 @@ void NewtonRaphsonVLE::build_arrays(double beta, double T, double p, const std::
 	double summer1 = 0;
 	for (unsigned int i = 0; i < N; i++)
 	{
-		summer1 += z[i]*(K[i]-1)/(1-beta+beta*K[i]);
+		// Although the definition of this term is given by 
+		// y[i]-x[i], when x and y are normalized, you get 
+		// the wrong values.  Why? No idea.
+		summer1 += z[i]*(K[i]-1)/(1-beta+beta*K[i]); 
 	}
 	r[N] = summer1;
 
-	// For the residual term F_{N+1}
+	// For the residual term F_{N+1}, only non-zero derivatives are with respect
+	// to ln(K[i])
 	for (unsigned int j = 0; j < N; j++)
 	{
 		J[N][j] = K[j]*z[j]/pow(1-beta+beta*K[j],(int)2);
@@ -2498,7 +2607,7 @@ void NewtonRaphsonVLE::build_arrays(double beta, double T, double p, const std::
 	dXdS = linsolve(J,neg_dFdS);
 }
 
-void PhaseEnvelope::store_variables(const double T, const double p, const double rhobar_liq, const double rhobar_vap, const std::vector<double> & K, const int iS)
+void PhaseEnvelope::store_variables(const double T, const double p, const double rhobar_liq, const double rhobar_vap, const std::vector<double> & K, const int iS, const std::vector<double> & x, const std::vector<double> & y)
 {
 	data.p.push_back(p);
 	data.T.push_back(T);
@@ -2512,6 +2621,8 @@ void PhaseEnvelope::store_variables(const double T, const double p, const double
 	for (unsigned int i = 0; i < Mix->N; i++)
 	{
 		data.K[i].push_back(K[i]);
+		data.x[i].push_back(x[i]);
+		data.y[i].push_back(y[i]);
 		data.lnK[i].push_back(log(K[i]));
 	}
 }
@@ -2522,6 +2633,8 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z, double beta_e
 	K.resize(Mix->N);
 	data.K.resize(Mix->N);
 	data.lnK.resize(Mix->N);
+	data.x.resize(Mix->N);
+	data.y.resize(Mix->N);
 
 	// Use the preconditioner to get the very rough guess for saturation temperature 
 	// (interpolation based on pseudo-critical pressure)
@@ -2582,7 +2695,7 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z, double beta_e
 	Mix->NRVLE.call(beta_envelope, T, p, rhobar_liq, rhobar_vap, z, K, i_S, Sold);
 
 	// Store the variables in the log if the step worked ok
-	store_variables(T,p,Mix->NRVLE.rhobar_liq,Mix->NRVLE.rhobar_vap,K,i_S);
+	store_variables(T,p,Mix->NRVLE.rhobar_liq,Mix->NRVLE.rhobar_vap,K,i_S, Mix->NRVLE.x, Mix->NRVLE.y);
 
 	int iter = 1;
 	do
@@ -2598,6 +2711,9 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z, double beta_e
 		{
 			// Make a copy of the stored values from the last iteration
 			std::vector<double> DELTAX(dXdSold.size()), dXdS = dXdSold;
+			T = Told;
+			p = pold;
+			K = Kold;
 			
 			for (unsigned int i = 0; i < Mix->N+2; i++)
 			{
@@ -2682,8 +2798,6 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z, double beta_e
 				rhobar_vap = Mix->NRVLE.rhobar_vap;
 			}
 
-			
-
 			// Run with the selected specified variable
 			try
 			{
@@ -2716,11 +2830,6 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z, double beta_e
 				continue;
 			}
 
-			/*if (K[0] < 1.05)
-			{
-				DELTAS = -0.0001;
-			}*/
-
 			#ifdef MPLSUPPORTED
 				if (K[0] < 1.02)
 				{
@@ -2731,14 +2840,14 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z, double beta_e
 				d.add("marker", "o");
 
 				PyPlotter plt;
-				plt.plot(data.lnK[0],data.rhobar_vap, &d);
-				plt.plot(data.lnK[0],data.rhobar_liq, &d);
+				plt.plot(data.x[0],data.rhobar_vap, &d);
+				plt.plot(data.x[0],data.rhobar_liq, &d);
 				plt.show();
 				}
 			#endif
 
 			// Store the variables in the log if the step worked ok
-			store_variables(T, p, Mix->NRVLE.rhobar_liq, Mix->NRVLE.rhobar_vap, K, i_S);
+			store_variables(T, p, Mix->NRVLE.rhobar_liq, Mix->NRVLE.rhobar_vap, K, i_S, Mix->NRVLE.x, Mix->NRVLE.y);
 
 			step_accepted = true;
 
@@ -2776,7 +2885,7 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z, double beta_e
 			double rr = 0;
 		}
 	}
-	while ((p > p0 && fabs(rhobar_liq/rhobar_vap-1) > 0.01 && iter < 10000) || iter < 3);
+	while ((p > p0 && iter < 10000) || iter < 3);
 
 	FILE *fp;
 	if (double_equal(beta_envelope,1.0))
@@ -2811,4 +2920,98 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z, double beta_e
 	fclose(fp);
 
 	double rr = 0;
+}
+
+
+
+
+
+
+/////    #####################   TESTS #######################
+
+TEST_CASE("Mixture derivative checks", "")
+{
+	Mixture Mix("Methane|Ethane");
+	std::vector<double> z(2,0.5);
+	double rhorbar = Mix.pReducing->rhorbar(z);
+	double Tr = Mix.pReducing->Tr(z);
+	int i = 0;
+	double epsT = 1e-4, epsp = 0.1, epsz = 1e-5;
+
+	SECTION("dlnphi_dT")
+	{
+		double T0 = 300, p0 = 101325;
+		double delta0 = Mix.rhobar_Tpz(T0,p0,z, 5)/rhorbar;
+		double tau0 = Tr/T0;
+		double ANA = Mix.dln_fugacity_coefficient_dT__constp_n(tau0, delta0, z, i);
+
+		double T1 = 300+epsT, p1 = 101325;
+		double delta1 = Mix.rhobar_Tpz(T1,p1,z, 5)/rhorbar;
+		double tau1 = Tr/T1;
+		double f1 = Mix.ln_fugacity_coefficient(tau1, delta1, z, i);
+
+		double T2 = 300-epsT, p2 = 101325;
+		double delta2 = Mix.rhobar_Tpz(T2,p2,z, 5)/rhorbar;
+		double tau2 = Tr/T2;
+		double f2 = Mix.ln_fugacity_coefficient(tau2, delta2, z, i);
+		
+		double NUM = (f1-f2)/(2*epsT);
+		
+		CAPTURE(NUM);
+		CAPTURE(ANA);
+		REQUIRE(fabs(NUM/ANA-1) < 1e-8);
+	}
+	SECTION("dlnphi_dp")
+	{
+		double T0 = 300, p0 = 101325;
+		double delta0 = Mix.rhobar_Tpz(T0,p0,z, 5)/rhorbar;
+		double tau0 = Tr/T0;
+		double ANA = Mix.dln_fugacity_coefficient_dp__constT_n(tau0, delta0, z, i);
+
+		double T1 = 300, p1 = 101325+epsp;
+		double delta1 = Mix.rhobar_Tpz(T1,p1,z, 5)/rhorbar;
+		double tau1 = Tr/T1;
+		double f1 = Mix.ln_fugacity_coefficient(tau1, delta1, z, i);
+
+		double T2 = 300, p2 = 101325-epsp;
+		double delta2 = Mix.rhobar_Tpz(T2,p2,z, 5)/rhorbar;
+		double tau2 = Tr/T2;
+		double f2 = Mix.ln_fugacity_coefficient(tau2, delta2, z, i);
+		
+		double NUM = (f1-f2)/(2*epsp);
+		
+		CAPTURE(NUM);
+		CAPTURE(ANA);
+		REQUIRE(fabs(NUM/ANA-1) < 1e-7);
+	}
+	SECTION("dlnphi_dx0")
+	{
+		int j = 0;
+		double T0 = 300, p0 = 101325;
+		double delta0 = Mix.rhobar_Tpz(T0,p0, z, 5)/rhorbar;
+		double tau0 = Tr/T0;
+		double ANA = Mix.dln_fugacity_coefficient_dxj__constT_p_xi(tau0, delta0, z, i, j);
+
+		std::vector<double> z1 = z;
+		z1[j] += epsz;
+		double delta1 = Mix.rhobar_Tpz(T0, p0, z1, 5)/Mix.pReducing->rhorbar(z1);
+		double tau1 = Mix.pReducing->Tr(z1)/T0;
+		double f1 = Mix.ln_fugacity_coefficient(tau1, delta1, z1, i);
+
+		std::vector<double> z2 = z;
+		z2[j] -= epsz;
+		double delta2 = Mix.rhobar_Tpz(T0, p0, z2, 5)/Mix.pReducing->rhorbar(z2);
+		double tau2 = Mix.pReducing->Tr(z2)/T0;
+		double f2 = Mix.ln_fugacity_coefficient(tau2, delta2, z2, i);
+		
+		double NUM = (f1-f2)/(2*epsz);
+		
+		CAPTURE(NUM);
+		CAPTURE(ANA);
+
+		WARN(NUM);
+		WARN(ANA);
+		WARN(fabs(NUM-ANA));
+		REQUIRE(fabs(NUM-ANA) < 1e-7);
+	}
 }
