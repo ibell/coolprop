@@ -7,8 +7,6 @@ from scipy.odr import *
 
 import matplotlib.pyplot as plt
 
-from summer import sum_function
-
 LIBRARY = [i/6.0 for i in range(1,151)]+[0.35+i/2000 for i in range(1,100)]+[0.05+0.001*i for i in range(1,100)]+[i+0.5 for i in range(10)]
     
 class Sample(object):
@@ -20,10 +18,10 @@ class GeneticAncillaryFitter(object):
                num_samples = 500, # Have this many chromos in the sample group
                num_selected = 30, # Have this many chromos in the selected group
                mutation_factor = 2, # Randomly mutate 1/n of the chromosomes
-               num_powers = 10, # How many powers in the fit
-               Ref = 'REFPROP-MIX:R407C',
-               value = 'rhoV',
-               addTr = True
+               num_powers = 8, # How many powers in the fit
+               Ref = 'Methanol',
+               value = 'rhoLnoexp',
+               addTr = False
                 ):
         self.num_samples = num_samples
         self.num_selected = num_selected
@@ -40,7 +38,7 @@ class GeneticAncillaryFitter(object):
         self.rhoc = Props(Ref,'rhocrit')
         self.Tmin = Props(Ref,'Tmin')
         
-        self.T = np.linspace(self.Tmin+1e-14, self.Tc-0.5,150)#, np.logspace(np.log10(self.Tc-1), np.log10(self.Tc-0.1),10))
+        self.T = np.append(np.linspace(self.Tmin+1e-14, self.Tc-1,150), np.logspace(np.log10(self.Tc-1), np.log10(self.Tc-0.0001),10))
         self.p = [Props('P','T',T,'Q',0,Ref) for T in self.T]
         self.rhoL = [Props('D','T',T,'Q',0,Ref) for T in self.T]
         self.rhoV = [Props('D','T',T,'Q',1,Ref) for T in self.T]

@@ -281,22 +281,6 @@ double Fluid::d2phir_dDelta2(double tau, double delta)
 		return summer;
 	}
 }
-double Fluid::d3phir_dDelta3(double tau, double delta)
-{
-	double summer = 0;
-	for (std::vector<phi_BC*>::iterator it = phirlist.begin(); it != phirlist.end(); it++)
-	{
-		summer += (*it)->dDelta3(tau,delta);
-	}
-	return summer;
-}
-double Fluid::d3phir_dDelta_dTau2(double tau, double delta)
-{
-	double summer = 0;
-	for (std::vector<phi_BC*>::iterator it = phirlist.begin(); it != phirlist.end(); it++)
-		summer += (*it)->dDelta_dTau2(tau,delta);
-	return summer;
-}
 double Fluid::dphir_dTau(double tau, double delta)
 {
 	if (use_cache && double_equal(tau,cache.dphir_dTau.tau) && double_equal(delta,cache.dphir_dTau.delta))
@@ -331,14 +315,6 @@ double Fluid::d2phir_dTau2(double tau, double delta)
 		return summer;
 	}
 }
-double Fluid::d3phir_dTau3(double tau, double delta)
-{
-	double summer = 0;
-	for (std::vector<phi_BC*>::iterator it = phirlist.begin(); it != phirlist.end(); it++)
-		summer += (*it)->dTau3(tau,delta);
-	return summer;
-}
-
 double Fluid::d2phir_dDelta_dTau(double tau, double delta)
 {
 	if (use_cache && double_equal(tau,cache.d2phir_dDelta_dTau.tau) && double_equal(delta,cache.d2phir_dDelta_dTau.delta))
@@ -356,6 +332,30 @@ double Fluid::d2phir_dDelta_dTau(double tau, double delta)
 		return summer;
 	}
 }
+double Fluid::d3phir_dTau3(double tau, double delta)
+{
+	double summer = 0;
+	for (std::vector<phi_BC*>::iterator it = phirlist.begin(); it != phirlist.end(); it++)
+		summer += (*it)->dTau3(tau,delta);
+	return summer;
+}
+double Fluid::d3phir_dDelta3(double tau, double delta)
+{
+	double summer = 0;
+	for (std::vector<phi_BC*>::iterator it = phirlist.begin(); it != phirlist.end(); it++)
+	{
+		summer += (*it)->dDelta3(tau,delta);
+	}
+	return summer;
+}
+double Fluid::d3phir_dDelta_dTau2(double tau, double delta)
+{
+	double summer = 0;
+	for (std::vector<phi_BC*>::iterator it = phirlist.begin(); it != phirlist.end(); it++)
+		summer += (*it)->dDelta_dTau2(tau,delta);
+	return summer;
+}
+
 double Fluid::d3phir_dDelta2_dTau(double tau, double delta)
 {
 	double summer = 0;
