@@ -23,6 +23,8 @@
 #include "string.h"
 #include <stdio.h>
 #include <iostream>
+#include "Catch/catch.hpp"
+
 
 // Some constants for REFPROP... defined by macros for ease of use 
 #define refpropcharlength 255
@@ -961,8 +963,6 @@ REFPROPFluidClass::REFPROPFluidClass(std::string FluidName, std::vector<double> 
 
 	// Set the reducing values from the pointer
 	reduce = *preduce;
-
-	check();
 }
 
 bool REFPROPFluidClass::supported = true; // initialise with true
@@ -1010,43 +1010,60 @@ bool REFPROPFluidClass::refpropSupported () {
 	return false;
 }
 
-bool REFPROPFluidClass::check()
+TEST_CASE("REFPROP Fluid Class Helmholtz derivatives check", "[helmholtz],[fast]")
 {
-	// Each goes into an if block to have a local variable scope (better way?)
-	if (1)
+	std::vector<double> x(1,1);
+	REFPROPFluidClass fluid = REFPROPFluidClass("REFPROP-Water",x);
+	double eps = sqrt(DBL_EPSILON);
+
+	SECTION("dDelta")
 	{
-		double TL,TV,pL,pV,rhoL,rhoV;
-		double T = params.Ttriple*0.5+crit.T*0.5;
-		saturation_T(T,false,&pL,&pV,&rhoL,&rhoV);
-		saturation_p(pL,false,&TL,&TV,&rhoL,&rhoV);
-		if (fabs(TL-T) > 1e-6)
-		{
-			std::cout << "saturation consistency failed";
-		}
+		double ANA = fluid.dphir_dDelta(0.5, 0.5);
+		double NUM = (fluid.phir(0.5, 0.5+eps) - fluid.phir(0.5,0.5-eps))/(2*eps);
+		REQUIRE(abs(NUM-ANA) < 1e-6);
 	}
-
-	// Delta deriatives
-	if (1)
+	SECTION("dTau")
 	{
-		double tau = 1.5, delta = 0.8;
-		double _phir = this->phir(tau,delta);
-		double _d1 = (this->phir(tau,delta+1e-7)-this->phir(tau,delta-1e-7))/(2*1e-7);
-		double _d2 = this->dphir_dDelta(tau,delta);
-		if (fabs(_d1/_d2-1) > 1e-6)
-		{
-			std::cout << "_dphir_dDelta failed";
-		}
-
-		_d1 = (this->phir(tau+1e-7,delta)-this->phir(tau-1e-7,delta))/(2*1e-7);
-		_d2 = this->dphir_dTau(tau,delta);
-		if (fabs(_d1/_d2-1) > 1e-6)
-		{
-			std::cout << "_dphir_dTau failed";
-		}
+		double ANA = fluid.dphir_dTau(0.5, 0.5);
+		double NUM = (fluid.phir(0.5+eps, 0.5) - fluid.phir(0.5-eps,0.5))/(2*eps);
+		REQUIRE(abs(NUM-ANA) < 1e-6);
 	}
-
-	return 0;
+	SECTION("dDelta2")
+	{
+		double ANA = fluid.d2phir_dDelta2(0.5, 0.5);
+		double NUM = (fluid.dphir_dDelta(0.5, 0.5+eps) - fluid.dphir_dDelta(0.5,0.5-eps))/(2*eps);
+		REQUIRE(abs(NUM-ANA) < 1e-6);
+	}
+	SECTION("dTau2")
+	{
+		double ANA = fluid.d2phir_dTau2(0.5, 0.5);
+		double NUM = (fluid.dphir_dTau(0.5+eps, 0.5) - fluid.dphir_dTau(0.5-eps,0.5))/(2*eps);
+		REQUIRE(abs(NUM-ANA) < 1e-6);
+	}
+	SECTION("dDeltadTau")
+	{
+		double ANA = fluid.d2phir_dDelta_dTau(0.5, 0.5);
+		double NUM = (fluid.dphir_dTau(0.5, 0.5+eps) - fluid.dphir_dTau(0.5,0.5-eps))/(2*eps);
+		REQUIRE(abs(NUM-ANA) < 1e-6);
+	}
 }
+
+TEST_CASE("REFPROP Fluid Class check saturation consistency", "")
+{
+	std::vector<double> x(1,1);
+	REFPROPFluidClass fluid = REFPROPFluidClass("REFPROP-Water",x);
+	double eps = sqrt(DBL_EPSILON);
+
+	SECTION("sat")
+	{
+		double T = 313;
+		double p, T2, psatV, TsatV,rhoL,rhoV;
+		fluid.saturation_T(T, false, &p, &psatV, &rhoL, &rhoV);
+		fluid.saturation_p(p, false, &T2, &TsatV, &rhoL, &rhoV);
+		REQUIRE(abs(T2-T) < 1e-5);
+	}
+}
+
 double REFPROPFluidClass::dphir_dDelta(double tau, double delta)
 {
 	double p,T,rho,rhobar;
@@ -1142,7 +1159,6 @@ double REFPROPFluidClass::phi0(double tau, double delta)
 }
 
 
-
 double REFPROPFluidClass::viscosity_Trho(double T, double rho)
 {
 	long ierr = 0;
@@ -1159,7 +1175,8 @@ double REFPROPFluidClass::conductivity_Trho(double T, double rho)
 	double eta,tcx,rhobar = rho/params.molemass;
 	
 	TRNPRPdll(&T,&rhobar,&(xmol[0]),&eta,&tcx,&ierr,herr,errormessagelength);
-	return tcx; //[W/m/K]
+	// REFPROP yields conductivity in W/m/K, CoolProp wants a conductivity in kW/m/K
+	return tcx/1000; //[kW/m/K]
 }
 
 void REFPROPFluidClass::saturation_T(double T, bool UseLUT, double *psatLout, double *psatVout, double *rhosatLout, double *rhosatVout)
@@ -1238,7 +1255,6 @@ void REFPROPFluidClass::temperature_hs(double h, double s, double *Tout, double 
 }
 double REFPROPFluidClass::density_Tp(double T, double p)
 {
-	p /= 1000; // 1000 to go from Pa to kPa
 	return this->density_Tp(T,p,0); // guess value is neglected
 }
 double REFPROPFluidClass::density_Tp(double T, double p, double rho_guess)

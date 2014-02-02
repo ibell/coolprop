@@ -381,7 +381,7 @@ TEST_CASE("Check ancillary curves for pure and pseudo-pure fluids","[slow]")
 	}
 }
 
-TEST_CASE("Fluid parameter checks","[fast]")
+TEST_CASE("Fluid parameter checks not requiring saturation","[fast]")
 {
 	FluidsContainer Fluids = FluidsContainer();
 
@@ -392,6 +392,12 @@ TEST_CASE("Fluid parameter checks","[fast]")
 			REQUIRE((*it)->params.Ttriple <= (*it)->limits.Tmin);
 		}
 	}
+}
+
+TEST_CASE("Fluid parameter checks requiring saturation","[slow]")
+{
+	FluidsContainer Fluids = FluidsContainer();
+
 	SECTION("Check ptriple")
 	{
 		for (std::vector<Fluid*>::const_iterator it = Fluids.FluidsList.begin(); it != Fluids.FluidsList.end(); it++)

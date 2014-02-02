@@ -4,6 +4,7 @@
 #include "float.h"
 #include "math.h"
 #include "Spline.h"
+#include "Catch/catch.hpp"
 
 #ifndef __ISWINDOWS__
 	#ifndef DBL_EPSILON
@@ -2582,4 +2583,93 @@ void CoolPropStateClass::update(long iInput1, double Value1, long iInput2, doubl
 		std::cout << format("%s:%d: CoolPropStateClass::update(%d,%g,%d,%g)\n",__FILE__,__LINE__,iInput1,Value1,iInput2,Value2).c_str();
 	}
 	CoolPropStateClassSI::update(iInput1, val1, iInput2, val2);
+}
+
+
+
+
+///// ###################### TEST CASES ###################
+///// ###################### TEST CASES ###################
+///// ###################### TEST CASES ###################
+
+TEST_CASE("Check REFPROP and coolprop state classes match", "")
+{
+	CoolPropStateClassSI CPWater("Water");
+	CoolPropStateClassSI RPWater("REFPROP-Water");
+
+	double eps = sqrt(DBL_EPSILON);
+
+	SECTION("check T,rho -> p")
+	{
+		double T = 313, rho = 1;
+		CPWater.update(iT,T,iD,rho);
+		RPWater.update(iT,T,iD,rho);
+		REQUIRE(fabs(CPWater.p() - RPWater.p()) < 1e-4);
+	}
+	SECTION("check T,p -> rho")
+	{
+		double T = 313, p = 101325;
+		CPWater.update(iT,T,iP,p);
+		RPWater.update(iT,T,iP,p);
+		double RPrho = RPWater.rho();
+		double CPrho = CPWater.rho();
+		CAPTURE(RPrho); 
+		CAPTURE(CPrho);
+		REQUIRE(fabs(RPrho - CPrho) < 1e-4);
+	}
+	SECTION("check cp")
+	{
+		double T = 313, p = 101325;
+		CPWater.update(iT,T,iP,p);
+		RPWater.update(iT,T,iP,p);
+		double RPcp = RPWater.cp();
+		double CPcp = CPWater.cp();
+		CAPTURE(RPcp); 
+		CAPTURE(CPcp);
+		REQUIRE(fabs(RPcp - CPcp) < 1e-4);
+	}
+	SECTION("check cv")
+	{
+		double T = 313, p = 101325;
+		CPWater.update(iT,T,iP,p);
+		RPWater.update(iT,T,iP,p);
+		double RPcv = RPWater.cv();
+		double CPcv = CPWater.cv();
+		CAPTURE(RPcv); 
+		CAPTURE(CPcv);
+		REQUIRE(fabs(RPcv - CPcv) < 1e-4);
+	}
+	SECTION("check viscosity")
+	{
+		double T = 313, p = 101325;
+		CPWater.update(iT,T,iP,p);
+		RPWater.update(iT,T,iP,p);
+		double RPvisc = RPWater.viscosity();
+		double CPvisc = CPWater.viscosity();
+		CAPTURE(RPvisc); 
+		CAPTURE(CPvisc);
+		REQUIRE(fabs(RPvisc - CPvisc) < 1e-4);
+	}
+	SECTION("check conductivity")
+	{
+		double T = 313, p = 101325;
+		CPWater.update(iT,T,iP,p);
+		RPWater.update(iT,T,iP,p);
+		double RPcond = RPWater.conductivity();
+		double CPcond = CPWater.conductivity();
+		CAPTURE(RPcond); 
+		CAPTURE(CPcond);
+		REQUIRE(fabs(RPcond - CPcond) < 1e-4);
+	}
+	SECTION("check surface tension")
+	{
+		double T = 313, p = 101325;
+		CPWater.update(iT,T,iP,p);
+		RPWater.update(iT,T,iP,p);
+		double RPsigma = RPWater.surface_tension();
+		double CPsigma = CPWater.surface_tension();
+		CAPTURE(RPsigma);
+		CAPTURE(CPsigma);
+		REQUIRE(fabs(RPsigma - CPsigma) < 1e-4);
+	}
 }

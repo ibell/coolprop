@@ -43,8 +43,6 @@
 		double rhosatL(double T);
 		double rhosatV(double T);
 
-		bool check();
-
 	};
 	bool set_REFPROP_fluid(std::string Ref, double *x);
 	std::string get_REFPROP_fluid_path();
