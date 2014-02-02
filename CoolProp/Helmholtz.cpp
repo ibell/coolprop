@@ -50,7 +50,6 @@ void check_derivatives(phi_BC * phi, double tau, double delta, double ddelta, do
 	double d2phir_dDelta2 = 0;
 }
 
-
 // Constructors
 phir_power::phir_power(std::vector<double> n_in,std::vector<double> d_in,std::vector<double> t_in, std::vector<double> l_in, int iStart_in,int iEnd_in)
 {
@@ -1424,7 +1423,6 @@ TEST_CASE("Non-analytic critical point Helmholtz derivative check", "[helmholtz]
 	}
 }
 
-
 double phir_SAFT_associating::Deltabar(double tau, double delta)
 {
 	return this->g(this->eta(delta))*(exp(this->epsilonbar*tau)-1)*this->kappabar;
@@ -1534,6 +1532,85 @@ double phir_SAFT_associating::d3g_deta3(double eta)
 }   
 double phir_SAFT_associating::eta(double delta){
 	return this->vbarn*delta;
+}
+
+double phir_SAFT_associating_1::base(double tau, double delta)
+{
+	double X = this->X(delta, this->Deltabar(tau, delta));
+    return this->m*((log(X)-X/2.0+0.5));
+}
+double phir_SAFT_associating_1::dDelta(double tau, double delta)
+{
+	double X = this->X(delta, this->Deltabar(tau, delta));
+    return this->m*(1/X-0.5)*this->dX_ddelta(tau, delta);
+}
+double phir_SAFT_associating_1::dTau(double tau, double delta)
+{
+	double X = this->X(delta, this->Deltabar(tau, delta));
+    return this->m*(1/X-0.5)*this->dX_dtau(tau, delta);
+}
+double phir_SAFT_associating_1::dTau2(double tau, double delta)
+{
+	double X = this->X(delta, this->Deltabar(tau, delta));
+	double X_tau = this->dX_dtau(tau, delta);
+    double X_tautau = this->d2X_dtau2(tau, delta);
+    return this->m*((1/X-0.5)*X_tautau-pow(X_tau/X, 2));
+}
+double phir_SAFT_associating_1::dDelta2(double tau, double delta)
+{
+	double X = this->X(delta, this->Deltabar(tau, delta));
+	double X_delta = this->dX_ddelta(tau, delta);
+    double X_deltadelta = this->d2X_ddelta2(tau, delta);
+    return this->m*((1/X-0.5)*X_deltadelta-pow(X_delta/X,2));
+}
+double phir_SAFT_associating_1::dDelta_dTau(double tau, double delta)
+{
+	double X = this->X(delta, this->Deltabar(tau, delta));
+	double X_delta = this->dX_ddelta(tau, delta);
+    double X_deltadelta = this->d2X_ddelta2(tau, delta);
+    double X_tau = this->dX_dtau(tau, delta);
+    double X_deltatau = this->d2X_ddeltadtau(tau, delta);
+    return this->m*((-X_tau/X/X)*X_delta+X_deltatau*(1/X-0.5));
+}
+TEST_CASE("SAFT 1 Helmholtz derivative check", "[helmholtz],[fast]")
+{
+	double m = 1.01871348;
+	double vbarn = 0.444215309e-1;
+	double kappabar = 0.109117041e-4;
+	double epsilonbar = 12.2735737;
+	phir_SAFT_associating_1 phir = phir_SAFT_associating_1(m,epsilonbar,vbarn,kappabar);
+	double eps = sqrt(DBL_EPSILON);
+
+	SECTION("dDelta")
+	{
+		double ANA = phir.dDelta(0.5, 0.5);
+		double NUM = (phir.base(0.5, 0.5+eps) - phir.base(0.5,0.5-eps))/(2*eps);
+		REQUIRE(abs(NUM-ANA) < 1e-6);
+	}
+	SECTION("dTau")
+	{
+		double ANA = phir.dTau(0.5, 0.5);
+		double NUM = (phir.base(0.5+eps, 0.5) - phir.base(0.5-eps,0.5))/(2*eps);
+		REQUIRE(abs(NUM-ANA) < 1e-6);
+	}
+	SECTION("dDelta2")
+	{
+		double ANA = phir.dDelta2(0.5, 0.5);
+		double NUM = (phir.dDelta(0.5, 0.5+eps) - phir.dDelta(0.5,0.5-eps))/(2*eps);
+		REQUIRE(abs(NUM-ANA) < 1e-6);
+	}
+	SECTION("dTau2")
+	{
+		double ANA = phir.dTau2(0.5, 0.5);
+		double NUM = (phir.dTau(0.5+eps, 0.5) - phir.dTau(0.5-eps,0.5))/(2*eps);
+		REQUIRE(abs(NUM-ANA) < 1e-6);
+	}
+	SECTION("dDeltadTau")
+	{
+		double ANA = phir.dDelta_dTau(0.5, 0.5);
+		double NUM = (phir.dTau(0.5, 0.5+eps) - phir.dTau(0.5,0.5-eps))/(2*eps);
+		REQUIRE(abs(NUM-ANA) < 1e-6);
+	}
 }
 double phir_SAFT_associating_2B::base(double tau, double delta)
 {

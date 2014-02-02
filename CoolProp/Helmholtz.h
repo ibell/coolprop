@@ -486,6 +486,30 @@ public:
 	double dDelta_dTau2(double tau, double delta){return _HUGE;};
 	double dTau3(double tau, double delta){return _HUGE;};
 };
+class phir_SAFT_associating_1 : public phir_SAFT_associating{
+
+public:
+	phir_SAFT_associating_1(double m, double epsilonbar, double vbarn, double kappabar)
+	{
+		this->m = m;
+		this->epsilonbar = epsilonbar;
+		this->vbarn = vbarn;
+		this->kappabar = kappabar;
+	};
+
+	double base(double tau, double delta);
+	double dDelta(double tau, double delta);
+	double dTau(double tau, double delta);
+	
+	double dDelta2(double tau, double delta);
+	double dDelta_dTau(double tau, double delta);
+	double dTau2(double tau, double delta);
+	
+	double dDelta3(double tau, double delta){return _HUGE;};
+	double dDelta2_dTau(double tau, double delta){return _HUGE;};
+	double dDelta_dTau2(double tau, double delta){return _HUGE;};
+	double dTau3(double tau, double delta){return _HUGE;};
+};
 
 /*!
 
