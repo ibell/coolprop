@@ -382,9 +382,13 @@ std::string vec_to_string(            std::vector<double>   const& a, const char
 }
 
 std::string vec_to_string(std::vector<std::vector<double> > const& A) {
+	return vec_to_string(A, "%7.3g");
+}
+
+std::string vec_to_string(std::vector<std::vector<double> > const& A, const char *fmt) {
 	std::stringstream out;
 	for (size_t j = 0; j < A.size(); j++) {
-		out << vec_to_string(A[j]);
+		out << vec_to_string(A[j], fmt);
     }
     return out.str();
 }
