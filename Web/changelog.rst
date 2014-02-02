@@ -3,13 +3,15 @@ Changelog for CoolProp
 
 4.1.0
 -----
+* MAJOR: Added unit testing at the C++ level based on Catch
+* Added EOS for Methanol from Piazza based on SAFT association term
 * Added ``Prandtl`` as an output variable
 * Predefined mixtures (R404A, R410A, R407C, R507A, Air) can be used with REFPROP using a fluid name like "REFPROP-MIX:R410A"
 * Export HAProps in Javascript
 * Improved some edge cases for ``P``, ``S`` inputs
 * Added wrappers for Maple and Mathematica
 * Added PropsSI function to DLL that always takes and returns SI units
-* Improved EES support for newer versions of EES that broke CoolProp (EES strings are not case sensitive)
+* Improved EES support for newer versions of EES that broke CoolProp support (EES strings are not case sensitive)
 * Added upper-case aliases for all fluids and input variables (to support EES)
 * Fixed TTSE and dylib compilation on MacOS
 * Added basic wrappers for Fortran and C
