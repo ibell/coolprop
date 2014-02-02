@@ -142,7 +142,6 @@
 	std::vector<std::string> strsplit(std::string s, char del);
 
 	#define OK 1
-	#define FAIL 0
 	
 	inline std::string upper(const std::string str_)
 	{
