@@ -2100,11 +2100,10 @@ bool TTSESinglePhaseTableClass::within_range_Trho(long iInput1, double Input1, l
 {
 	int i = (int)round((Input1-Tmin)/(Tmax-Tmin)*(NT-1));
 	int j = (int)round((log(Other)-logrhomin)/logrhoratio);
-	return (0 <= i && i <= NT && 0 <= j && j <= Nrho);
+	return (0 <= i && i <= (int)NT && 0 <= (int)j && j <= (int)Nrho);
 }
 bool TTSESinglePhaseTableClass::within_range_one_other_input(long iInput1, double Input1, long iOther, double Other)
 {
-	std::vector<std::vector<double> > *mat;
 	if (iInput1 != iP)
 	{
 		throw ValueError("iInput1 must be iP");
