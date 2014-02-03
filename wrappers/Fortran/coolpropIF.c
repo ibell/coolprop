@@ -22,7 +22,7 @@ bool CONVENTION disable_TTSE_LUT(char *FluidName);
 int CONVENTION set_TTSE_mode(char *FluidName, char * Value);
 
 
-// Create pointer-only functions for Fortran
+// Create pointer-only functions for Fortran avoiding underscores for f77
 
 double CONVENTION props1_(char *FluidName, char *Output)
 {
@@ -48,7 +48,7 @@ double CONVENTION derivterms_(char *Term, double *T, double *rho, char *FluidNam
   return DerivTerms(Term, *T, *rho, FluidName);
 }
 
-int CONVENTION set_reference_states_(char *FluidName, char *reference_state)
+int CONVENTION setreferencestates_(char *FluidName, char *reference_state)
 {
   //return set_reference_stateS(std::string(FluidName), std::string(reference_state));
   return set_reference_stateS(FluidName, reference_state);
@@ -56,7 +56,7 @@ int CONVENTION set_reference_states_(char *FluidName, char *reference_state)
 //int set_reference_stateS(std::string FluidName, std::string reference_state);
 
 /// Enable the TTSE
-int CONVENTION enable_ttse_lut_(char *FluidName)
+int CONVENTION enablettselut_(char *FluidName)
 {
   if (enable_TTSE_LUT(FluidName)) return 1;
   else return 0;
@@ -64,7 +64,7 @@ int CONVENTION enable_ttse_lut_(char *FluidName)
 //bool CONVENTION enable_TTSE_LUT(char *FluidName);
 
 /// Check if TTSE is enabled
-int CONVENTION isenabled_ttse_lut_(char *FluidName)
+int CONVENTION isenabledttselut_(char *FluidName)
 {
   if (isenabled_TTSE_LUT(FluidName)) return 1;
   else return 0;
@@ -72,7 +72,7 @@ int CONVENTION isenabled_ttse_lut_(char *FluidName)
 //bool CONVENTION isenabled_TTSE_LUT(char *FluidName);
 
 /// Disable the TTSE
-int CONVENTION disable_ttse_lut_(char *FluidName)
+int CONVENTION disablettselut_(char *FluidName)
 {
   if (disable_TTSE_LUT(FluidName)) return 1;
   else return 0;
@@ -80,7 +80,7 @@ int CONVENTION disable_ttse_lut_(char *FluidName)
 //bool CONVENTION disable_TTSE_LUT(char *FluidName);
 
 /// Set the TTSE mode (normal or bicubic)
-int CONVENTION set_ttse_mode_(char *FluidName, char *Value)
+int CONVENTION setttsemode_(char *FluidName, char *Value)
 {
   return set_TTSE_mode(FluidName, Value);
 }

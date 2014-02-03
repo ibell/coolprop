@@ -38,25 +38,25 @@
       write(*,*) "S from standard props : ", outVal
       outVal = derivterms("dpdrho"//CHAR(0), Prop1, D, Ref)
       write(*,*) "dpdrho from derivterms: ", outVal
-      inte = set_reference_states(Ref, "IIR"//CHAR(0))
+      inte = setreferencestates(Ref, "IIR"//CHAR(0))
       write(*,*) "reference to IIR      : ", inte
       outVal = props(Output, Name1, Prop1, Name2, Prop2, Ref)
       write(*,*) "S from standard props : ", outVal
-      inte = set_reference_states(Ref, "ASHRAE"//CHAR(0))
+      inte = setreferencestates(Ref, "ASHRAE"//CHAR(0))
       write(*,*) "reference to ASHRAE   : ", inte
       outVal = props(Output, Name1, Prop1, Name2,Prop2, Ref)
       write(*,*) "S from standard props : ", outVal
-      inte = enable_ttse_lut(Ref)
+      inte = enablettselut(Ref)
       write(*,*) "enabling TTSE         : ", inte
-      inte = isenabled_ttse_lut(Ref)
+      inte = isenabledttselut(Ref)
       write(*,*) "state of TTSE         : ", inte
       outVal = props(Output, Name1, Prop1, Name2, Prop2, Ref)
       write(*,*) "S from TTSE props     : ", outVal
-      inte = set_ttse_mode(Ref , "bicubic"//CHAR(0))
+      inte = setttsemode(Ref , "bicubic"//CHAR(0))
       write(*,*) "TTSE mode to bicubic  : ", inte
       outVal = props(Output, Name1, Prop1, Name2, Prop2, Ref)
       write(*,*) "S from bicubic props  : ", outVal
-      inte = disable_ttse_lut(Ref)
+      inte = disablettselut(Ref)
       write(*,*) "Disabling TTSE        : ", inte
       outVal = props(Output, Name1, Prop1, Name2, Prop2, Ref)
       write(*,*) "S from standard props : ", outVal
