@@ -557,7 +557,7 @@ public:
 	double dln_fugacity_coefficient_dT__constp_n(double tau, double delta, const std::vector<double> &x, int i);
 
 	// GERG Equation 7.42
-	double Mixture::dnphir_dni__constT_V_nj(double tau, double delta, const std::vector<double> &x, int i);
+	double dnphir_dni__constT_V_nj(double tau, double delta, const std::vector<double> &x, int i);
 
 	/*! The derivative term
 	\f[
