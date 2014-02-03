@@ -1,10 +1,11 @@
 ! Example fortran file 
-
-      program EXAMPLE
+! 
       double precision T,Q,D,h,s
       character(LEN=32) Ref
       character(LEN=2) Output, Name1, Name2
       double precision outVal,Prop1,Prop2
+
+      integer inte
 
       T = 285
       Q = 0
@@ -25,36 +26,39 @@
       write(*,*) "Saturation pressure for R134a: "
       outVal = props(Output, Name1, Prop1, Name2, Prop2, Ref)
       write(*,*) "Result was: ", outVal/1e2, " bar"
+      write(*,*) "-----------------------------------------------"
 
       Output = "S"//CHAR(0)
 
+
+
       outVal = props1(Ref , "Tcrit"//CHAR(0))
-      write(*,*) "double for props1    : ", outVal 
+      write(*,*) "Tcrit from props1     : ", outVal 
       outVal = props(Output, Name1, Prop1, Name2, Prop2, Ref)
-      write(*,*) "double for props     : ", outVal
+      write(*,*) "S from standard props : ", outVal
       outVal = derivterms("dpdrho"//CHAR(0), Prop1, D, Ref)
-      write(*,*) "double for deriv     : ", outVal
-      outVal = set_reference_states(Ref, "IIR"//CHAR(0))
-      write(*,*) "int for reference    : ", outVal
+      write(*,*) "dpdrho from derivterms: ", outVal
+      inte = set_reference_states(Ref, "IIR"//CHAR(0))
+      write(*,*) "reference to IIR      : ", inte
       outVal = props(Output, Name1, Prop1, Name2, Prop2, Ref)
-      write(*,*) "double for props     : ", outVal
-      outVal = set_reference_states(Ref, "ASHRAE"//CHAR(0))
-      write(*,*) "int for reference    : ", outVal
+      write(*,*) "S from standard props : ", outVal
+      inte = set_reference_states(Ref, "ASHRAE"//CHAR(0))
+      write(*,*) "reference to ASHRAE   : ", inte
       outVal = props(Output, Name1, Prop1, Name2,Prop2, Ref)
-      write(*,*) "double for props     : ", outVal
-      outVal = enable_ttse_lut(Ref)
-      write(*,*) "bool for enable ttse : ", outVal
-      outVal = isenabled_ttse_lut(Ref)
-      write(*,*) "bool for check ttse  : ", outVal
+      write(*,*) "S from standard props : ", outVal
+      inte = enable_ttse_lut(Ref)
+      write(*,*) "enabling TTSE         : ", inte
+      inte = isenabled_ttse_lut(Ref)
+      write(*,*) "state of TTSE         : ", inte
       outVal = props(Output, Name1, Prop1, Name2, Prop2, Ref)
-      write(*,*) "double for props     : ", outVal
-      outVal = set_ttse_mode(Ref , "bicubic"//CHAR(0))
-      write(*,*) "int for set ttse mode: ", outVal
+      write(*,*) "S from TTSE props     : ", outVal
+      inte = set_ttse_mode(Ref , "bicubic"//CHAR(0))
+      write(*,*) "TTSE mode to bicubic  : ", inte
       outVal = props(Output, Name1, Prop1, Name2, Prop2, Ref)
-      write(*,*) "double for props     : ", outVal
-      outVal = disable_ttse_lut(Ref)
-      write(*,*) "bool for disable ttse: ", outVal
+      write(*,*) "S from bicubic props  : ", outVal
+      inte = disable_ttse_lut(Ref)
+      write(*,*) "Disabling TTSE        : ", inte
       outVal = props(Output, Name1, Prop1, Name2, Prop2, Ref)
-      write(*,*) "double for props     : ", outVal
+      write(*,*) "S from standard props : ", outVal
 
       end program 

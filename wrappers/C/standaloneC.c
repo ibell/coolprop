@@ -11,8 +11,9 @@
 #  define CONVENTION
 #endif
 
-double CONVENTION Props1(char * FluidName, char * Output);
-double CONVENTION Props(char * Output,char Name1, double Prop1, char Name2, double Prop2, char * FluidName);
+double CONVENTION Props1 (char * FluidName, char * Output);
+double CONVENTION Props  (char * Output,char Name1, double Prop1, char Name2, double Prop2, char * FluidName);
+double CONVENTION PropsSI(char * Output,char Name1, double Prop1, char Name2, double Prop2, char * FluidName);
 double CONVENTION DerivTerms(char * Term, double T, double rho, char * FluidName);
 int CONVENTION set_reference_stateS(char * FluidName, char * reference_state);
 bool CONVENTION enable_TTSE_LUT(char *FluidName);
@@ -35,6 +36,12 @@ double CONVENTION props_(char *Output, char *Name1, double *Prop1, char *Name2, 
   return Props(Output, *Name1, *Prop1, *Name2, *Prop2, FluidName);
 }
 
+double CONVENTION propssi_(char *Output, char *Name1, double *Prop1, char *Name2, double *Prop2, char *FluidName)
+{
+  //return Props(std::string(Output), Name1, Prop1, Name2, Prop2, std::string(FluidName));  
+  return PropsSI(Output, *Name1, *Prop1, *Name2, *Prop2, FluidName);
+}
+
 double CONVENTION derivterms_(char *Term, double *T, double *rho, char *FluidName)
 {
   //return DerivTerms(std::string(Term), T, rho, std::string(FluidName));
@@ -49,23 +56,26 @@ int CONVENTION set_reference_states_(char *FluidName, char *reference_state)
 //int set_reference_stateS(std::string FluidName, std::string reference_state);
 
 /// Enable the TTSE
-bool CONVENTION enable_ttse_lut_(char *FluidName)
+int CONVENTION enable_ttse_lut_(char *FluidName)
 {
-  return enable_TTSE_LUT(FluidName);
+  if (enable_TTSE_LUT(FluidName)) return 1;
+  else return 0;
 }
 //bool CONVENTION enable_TTSE_LUT(char *FluidName);
 
 /// Check if TTSE is enabled
-bool CONVENTION isenabled_ttse_lut_(char *FluidName)
+int CONVENTION isenabled_ttse_lut_(char *FluidName)
 {
-  return isenabled_TTSE_LUT(FluidName);
+  if (isenabled_TTSE_LUT(FluidName)) return 1;
+  else return 0;
 }
 //bool CONVENTION isenabled_TTSE_LUT(char *FluidName);
 
 /// Disable the TTSE
-bool CONVENTION disable_ttse_lut_(char *FluidName)
+int CONVENTION disable_ttse_lut_(char *FluidName)
 {
-  return disable_TTSE_LUT(FluidName);
+  if (disable_TTSE_LUT(FluidName)) return 1;
+  else return 0;
 }
 //bool CONVENTION disable_TTSE_LUT(char *FluidName);
 
