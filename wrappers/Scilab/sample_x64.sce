@@ -1,4 +1,4 @@
-link('CoolProp.dll', ['PropsSIScilab','HAPropsScilab'], 'c');
+link('CoolProp_x64.dll', ['PropsSIScilab','HAPropsScilab'], 'c');
 //link('show');
 
 funcprot(0)
