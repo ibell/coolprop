@@ -431,7 +431,7 @@ cpdef Props(str in1, str in2, in3 = None, in4 = None, in5 = None, in6 = None, in
                     val = _Props(in1.encode('ascii'), in2_char, _in3, in4_char, _in5, in6.encode('ascii'))
                 
                     if math.isinf(val) or math.isnan(val):
-                        err_string = _get_global_param_string('errstring')
+                        err_string = _get_global_param_string('errstring') 
                         if not len(err_string) == 0:
                             raise ValueError("{err:s} :: inputs were:\"{in1:s}\",\'{in2:s}\',{in3:0.16e},\'{in4:s}\',{in5:0.16e},\"{in6:s}\"".format(err=err_string,in1=in1,in2=in2,in3=_in3,in4=in4,in5=_in5,in6=in6))
                         else:
