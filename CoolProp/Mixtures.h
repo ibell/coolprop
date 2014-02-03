@@ -522,15 +522,6 @@ public:
 	*/
 	double dpdT__constV_n(double tau, double delta, const std::vector<double> &x, int i);
 
-	double ddelta_dxj__constT_V_xi(double tau, double delta, const std::vector<double> &x, int j);
-
-	double dtau_dxj__constT_V_xi(double tau, double delta, const std::vector<double> &x, int j);
-
-	/*!
-	Gernert 3.130 and 3.134
-	*/
-	double dpdxj__constT_V_xi(double tau, double delta, const std::vector<double> &x, int j);
-
 	/*! The derivative term
 	\f[
 	n\left(\frac{\partial p}{\partial V} \right)_{T,\bar n} = -\rho^2 RT(1+2\delta \alpha_{\delta}^r+\delta^2\alpha^r_{\delta\delta})
@@ -565,6 +556,9 @@ public:
 	*/
 	double dln_fugacity_coefficient_dT__constp_n(double tau, double delta, const std::vector<double> &x, int i);
 
+	// GERG Equation 7.42
+	double Mixture::dnphir_dni__constT_V_nj(double tau, double delta, const std::vector<double> &x, int i);
+
 	/*! The derivative term
 	\f[
 	\left(\frac{\partial \ln \phi_i}{\partial p} \right)_{T,\bar n} = \frac{\hat v_i}{RT}-\frac{1}{p}
@@ -585,15 +579,37 @@ public:
 	*/
 	double ndln_fugacity_coefficient_dnj__constT_p(double tau, double delta, const std::vector<double> &x, int i, int j);
 
-	double dln_fugacity_coefficient_dxj__constT_p_xi(double tau, double delta, const std::vector<double> &x, int i, int j);
 
+	/// Gernert Equation 3.115
+	// Catch test provided
+	double dln_fugacity_coefficient_dxj__constT_p_xi(double tau, double delta, const std::vector<double> &x, int i, int j);
+	
+	/// Gernert Equation 3.130
+	/// Catch test provided
+	double dpdxj__constT_V_xi(double tau, double delta, const std::vector<double> &x, int j);
+
+	/// Gernert Equation 3.117
 	double d2nphir_dni_dxj__constT_V(double tau, double delta, const std::vector<double> &x, int i, int j);
 
+	/// Gernert Equation 3.119
+	/// Catch test provided
 	double dphir_dxj__constT_V_xi(double tau, double delta, const std::vector<double> &x, int j);
 
+	/// Gernert Equation 3.118
+	/// Catch test provided
 	double d_ndphirdni_dxj__constT_V_xi(double tau, double delta, const std::vector<double> &x, int i, int j);
 
-	double d_ndphirdni_dxj__consttau_delta_xi(double tau, double delta, const std::vector<double> &x, int i, int j);
+	/// Gernert Equation 3.134
+	/// Catch test provided
+	double d_dphirddelta_dxj__constT_V_xi(double tau, double delta, const std::vector<double> &x, int j);
+
+	/// Gernert Equation 3.121
+	/// Catch test provided
+	double ddelta_dxj__constT_V_xi(double tau, double delta, const std::vector<double> &x, int j);
+
+	/// Gernert Equation 3.122
+	/// Catch test provided
+	double dtau_dxj__constT_V_xi(double tau, double delta, const std::vector<double> &x, int j);
 
 	/*!
 	\f[

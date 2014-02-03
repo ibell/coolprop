@@ -56,8 +56,8 @@ int run_fast_tests()
 
 int run_not_slow_tests()
 {
-	char* const argv[] = {"/a/dummy/path","~[slow]","-d","yes"};
-	int returnCode = session.applyCommandLine(4, argv);
+	char* const argv[] = {"/a/dummy/path","~[slow]"};
+	int returnCode = session.applyCommandLine(2, argv);
     if( returnCode != 0 ) // Indicates a command line error
 	{
 		return returnCode;
