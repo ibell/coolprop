@@ -969,6 +969,11 @@ double Mixture::dln_fugacity_coefficient_dT__constp_n(double tau, double delta, 
 	double T = Tr/tau;
 	return d2nphir_dni_dT(tau, delta, x, i) + 1/T-this->partial_molar_volume(tau,delta,x,i)/(Rbar(x)*T)*dpdT__constV_n(tau,delta,x,i);
 }
+double Mixture::partial_molar_volume(double tau, double delta, const std::vector<double> &x, int i)
+{
+	return -ndpdni__constT_V_nj(tau,delta,x,i)/ndpdV__constT_n(tau,delta,x,i);
+}
+
 double Mixture::dln_fugacity_coefficient_dp__constT_n(double tau, double delta, const std::vector<double> &x, int i)
 {
 	// GERG equation 7.30
@@ -983,15 +988,32 @@ double Mixture::dln_fugacity_coefficient_dp__constT_n(double tau, double delta, 
 	double term2 = 1.0/p;
 	return term1 - term2;
 }
+
+
+
 double Mixture::dln_fugacity_coefficient_dxj__constT_p_xi(double tau, double delta, const std::vector<double> &x, int i, int j)
 {
 	// Gernert 3.115
 	double Tr = pReducing->Tr(x); //[K]
 	double T = Tr/tau;
+	double term1 = d2nphir_dni_dxj__constT_V(tau, delta, x, i, j);
+	double term2 = - this->partial_molar_volume(tau,delta,x,i)/(Rbar(x)*T)*dpdxj__constT_V_xi(tau,delta,x,j);
 	// partial molar volume is -dpdn/dpdV, so need to flip the sign here
 	return d2nphir_dni_dxj__constT_V(tau, delta, x, i, j) - this->partial_molar_volume(tau,delta,x,i)/(Rbar(x)*T)*dpdxj__constT_V_xi(tau,delta,x,j);
 }
+double Mixture::dpdxj__constT_V_xi(double tau, double delta, const std::vector<double> &x, int j)
+{
+	// Gernert 3.130
+	double rhorbar = pReducing->rhorbar(x);
+	double rhobar = rhorbar*delta;
+	double Tr = pReducing->Tr(x); //[K]
+	double T = Tr/tau;
 
+	// Gernert Equation 3.134
+	double Gernert_3_134 = d2phir_dDelta2(tau,delta,x)*ddelta_dxj__constT_V_xi(tau, delta, x, j)+d2phir_dDelta_dTau(tau,delta,x)*dtau_dxj__constT_V_xi(tau,delta,x,j)+d2phir_dxi_dDelta(tau,delta,x,j);
+
+	return rhobar*Rbar(x)*T*(-1/rhorbar*pReducing->drhorbardxi__constxj(x,j)*delta*dphir_dDelta(tau, delta, x)+delta*Gernert_3_134);
+}
 double Mixture::d2nphir_dni_dxj__constT_V(double tau, double delta, const std::vector<double> &x, int i, int j)
 {
 	// Gernert 3.117
@@ -1002,16 +1024,21 @@ double Mixture::dphir_dxj__constT_V_xi(double tau, double delta, const std::vect
 	//Gernert 3.119
 	return dphir_dDelta(tau, delta, x)*ddelta_dxj__constT_V_xi(tau, delta, x, j)+dphir_dTau(tau, delta, x)*dtau_dxj__constT_V_xi(tau, delta, x, j)+dphir_dxi(tau, delta, x, j);
 }
+double Mixture::d_ndphirdni_dxj__constT_V_xi(double tau, double delta, const std::vector<double> &x, int i, int j)
+{
+	// Gernert 3.118
+	return d_ndphirdni_dxj__consttau_delta_xi(tau,delta,x,i,j)
+		  + ddelta_dxj__constT_V_xi(tau,delta,x,j)*d_ndphirdni_dDelta(tau,delta,x,i) 
+		  + dtau_dxj__constT_V_xi(tau,delta,x,j)*d_ndphirdni_dTau(tau,delta,x,i);
+}
 double Mixture::d_ndphirdni_dxj__consttau_delta_xi(double tau, double delta, const std::vector<double> &x, int i, int j)
 {
-	// Gernert 3.120
+	// Gernert 3.120 (Catch test is below)
 	double Tr = pReducing->Tr(x); // [K]
-	double T = Tr/tau;
 	double rhorbar = pReducing->rhorbar(x);
-	double rhobar = rhorbar*delta;
 	double line1A = delta*d2phir_dxi_dDelta(tau,delta,x,j)*(1-1/rhorbar*pReducing->ndrhorbardni__constnj(x,i));
-	double line1B = tau*d2phir_dxi_dTau(tau,delta,x,j)*(1/Tr)*pReducing->ndTrdni__constnj(x,j);
-	double line2 = -delta*dphir_dDelta(tau,delta,x)/rhorbar*(pReducing->d_ndrhorbardni_dxj__constxi(x,i,j)-1/rhorbar*pReducing->drhorbardxi__constxj(x,j)*pReducing->ndrhorbardni__constnj(x,i));
+	double line1B = tau*d2phir_dxi_dTau(tau,delta,x,j)*(1/Tr)*pReducing->ndTrdni__constnj(x,i);
+	double line2 = -delta*dphir_dDelta(tau,delta,x)*(1/rhorbar)*(pReducing->d_ndrhorbardni_dxj__constxi(x,i,j)-1/rhorbar*pReducing->drhorbardxi__constxj(x,j)*pReducing->ndrhorbardni__constnj(x,i));
 	double line3 = +tau*dphir_dTau(tau,delta,x)/Tr*(pReducing->d_ndTrdni_dxj__constxi(x,i,j)-1/Tr*pReducing->dTrdxi__constxj(x,j)*pReducing->ndTrdni__constnj(x,i));
 	double summer = 0;
 	for (unsigned int k = 0; k < x.size()-1; k++)
@@ -1021,40 +1048,23 @@ double Mixture::d_ndphirdni_dxj__consttau_delta_xi(double tau, double delta, con
 	double line4 = d2phirdxidxj(tau, delta, x, i, j) - dphir_dxi(tau, delta, x, j) - summer;
 	return line1A + line1B + line2 + line3 + line4;
 }
-double Mixture::d_ndphirdni_dxj__constT_V_xi(double tau, double delta, const std::vector<double> &x, int i, int j)
-{
-	// Gernert 3.118
-	return d_ndphirdni_dxj__consttau_delta_xi(tau,delta,x,i,j) + ddelta_dxj__constT_V_xi(tau,delta,x,j)*d_ndphirdni_dDelta(tau,delta,x,j) + dtau_dxj__constT_V_xi(tau,delta,x,j)*d_ndphirdni_dTau(tau,delta,x,j);
-}
-
-double Mixture::partial_molar_volume(double tau, double delta, const std::vector<double> &x, int i)
-{
-	return -ndpdni__constT_V_nj(tau,delta,x,i)/ndpdV__constT_n(tau,delta,x,i);
-}
 double Mixture::ddelta_dxj__constT_V_xi(double tau, double delta, const std::vector<double> &x, int j)
 {
+	// Gernert 3.121
 	double rhorbar = pReducing->rhorbar(x);
 	double rhobar = rhorbar*delta;
-	return -rhobar/rhorbar/rhorbar*pReducing->drhorbardxi__constxj(x,j);
+	return -delta/rhorbar*pReducing->drhorbardxi__constxj(x,j);
 }
 double Mixture::dtau_dxj__constT_V_xi(double tau, double delta, const std::vector<double> &x, int j)
 {
+	// Gernert 3.122
 	double Tr = pReducing->Tr(x); //[K]
 	double T = Tr/tau;
 	return 1/T*pReducing->dTrdxi__constxj(x,j);
 }
-double Mixture::dpdxj__constT_V_xi(double tau, double delta, const std::vector<double> &x, int j)
-{
-	double rhorbar = pReducing->rhorbar(x);
-	double rhobar = rhorbar*delta;
-	double Tr = pReducing->Tr(x); //[K]
-	double T = Tr/tau;
 
-	// Gernert Equation 3.134
-	double Gernert_3_134 = d2phir_dDelta2(tau,delta,x)*ddelta_dxj__constT_V_xi(tau, delta, x, j)+d2phir_dDelta_dTau(tau,delta,x)*dtau_dxj__constT_V_xi(tau,delta,x,j)+d2phir_dxi_dDelta(tau,delta,x,j);
 
-	return rhobar*Rbar(x)*T*(-1/rhorbar*pReducing->ndrhorbardni__constnj(x,j)*delta*dphir_dDelta(tau, delta,x)+delta*Gernert_3_134);
-}
+
 double Mixture::dpdT__constV_n(double tau, double delta, const std::vector<double> &x, int i)
 {
 	double rhorbar = pReducing->rhorbar(x);
@@ -2936,13 +2946,13 @@ TEST_CASE("Mixture derivative checks", "")
 	double rhorbar = Mix.pReducing->rhorbar(z);
 	double Tr = Mix.pReducing->Tr(z);
 	int i = 0;
-	double epsT = 1e-4, epsp = 0.1, epsz = 1e-5;
+	double epsT = 1e-4, epsp = 0.1, epsz = 1e-6;
+	double T0 = 300, p0 = 101325;
+	double delta0 = Mix.rhobar_Tpz(T0,p0, z, 5)/rhorbar;
+	double tau0 = Tr/T0;
 
 	SECTION("dlnphi_dT")
 	{
-		double T0 = 300, p0 = 101325;
-		double delta0 = Mix.rhobar_Tpz(T0,p0,z, 5)/rhorbar;
-		double tau0 = Tr/T0;
 		double ANA = Mix.dln_fugacity_coefficient_dT__constp_n(tau0, delta0, z, i);
 
 		double T1 = 300+epsT, p1 = 101325;
@@ -2963,9 +2973,6 @@ TEST_CASE("Mixture derivative checks", "")
 	}
 	SECTION("dlnphi_dp")
 	{
-		double T0 = 300, p0 = 101325;
-		double delta0 = Mix.rhobar_Tpz(T0,p0,z, 5)/rhorbar;
-		double tau0 = Tr/T0;
 		double ANA = Mix.dln_fugacity_coefficient_dp__constT_n(tau0, delta0, z, i);
 
 		double T1 = 300, p1 = 101325+epsp;
@@ -2986,32 +2993,56 @@ TEST_CASE("Mixture derivative checks", "")
 	}
 	SECTION("dlnphi_dx0")
 	{
-		int j = 0;
-		double T0 = 300, p0 = 101325;
-		double delta0 = Mix.rhobar_Tpz(T0,p0, z, 5)/rhorbar;
-		double tau0 = Tr/T0;
-		double ANA = Mix.dln_fugacity_coefficient_dxj__constT_p_xi(tau0, delta0, z, i, j);
+		for (int i = 0; i < 2; i++)
+		{
+			for (int j = 0; j < 2; j++)
+			{
+				double ANA = Mix.dln_fugacity_coefficient_dxj__constT_p_xi(tau0, delta0, z, i, j);
 
-		std::vector<double> z1 = z;
-		z1[j] += epsz;
-		double delta1 = Mix.rhobar_Tpz(T0, p0, z1, 5)/Mix.pReducing->rhorbar(z1);
-		double tau1 = Mix.pReducing->Tr(z1)/T0;
-		double f1 = Mix.ln_fugacity_coefficient(tau1, delta1, z1, i);
+				std::vector<double> z1 = z;
+				z1[j] += epsz;
+				double delta1 = Mix.rhobar_Tpz(T0, p0, z1, 5)/Mix.pReducing->rhorbar(z1);
+				double tau1 = Mix.pReducing->Tr(z1)/T0;
+				double f1 = Mix.ln_fugacity_coefficient(tau1, delta1, z1, i);
 
-		std::vector<double> z2 = z;
-		z2[j] -= epsz;
-		double delta2 = Mix.rhobar_Tpz(T0, p0, z2, 5)/Mix.pReducing->rhorbar(z2);
-		double tau2 = Mix.pReducing->Tr(z2)/T0;
-		double f2 = Mix.ln_fugacity_coefficient(tau2, delta2, z2, i);
-		
-		double NUM = (f1-f2)/(2*epsz);
-		
-		CAPTURE(NUM);
-		CAPTURE(ANA);
+				std::vector<double> z2 = z;
+				z2[j] -= epsz;
+				double delta2 = Mix.rhobar_Tpz(T0, p0, z2, 5)/Mix.pReducing->rhorbar(z2);
+				double tau2 = Mix.pReducing->Tr(z2)/T0;
+				double f2 = Mix.ln_fugacity_coefficient(tau2, delta2, z2, i);
+				
+				double NUM = (f1-f2)/(2*epsz);
+				
+				CAPTURE(NUM);
+				CAPTURE(ANA);
+				CAPTURE(i);
+				CAPTURE(j);
+				CHECK(fabs(NUM-ANA) < 1e-7);
+			}
+		}
+	}
+	SECTION("d_ndphirdni_dxj__consttau_delta_xi")
+	{
+		for (int i = 0; i < 2; i++)
+		{
+			for (int j = 0; j < 2; j++)
+			{
+				double ANA = Mix.d_ndphirdni_dxj__consttau_delta_xi(tau0, delta0, z, i, j);
+				std::vector<double> z1 = z, z2 = z;
+				
+				z1[j] += epsz;
+				double f1 = Mix.ndphir_dni__constT_V_nj(tau0, delta0, z1, i);
 
-		WARN(NUM);
-		WARN(ANA);
-		WARN(fabs(NUM-ANA));
-		REQUIRE(fabs(NUM-ANA) < 1e-7);
+				z2[j] -= epsz;
+				double f2 = Mix.ndphir_dni__constT_V_nj(tau0, delta0, z2, i);
+
+				double NUM = (f1-f2)/(2*epsz);
+				CAPTURE(NUM);
+				CAPTURE(ANA);
+				CAPTURE(i);
+				CAPTURE(j);
+				CHECK(fabs(NUM/ANA-1) < 1e-10);
+			}
+		}
 	}
 }
