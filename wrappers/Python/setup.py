@@ -71,6 +71,12 @@ if __name__=='__main__':
         If a git repo, use git to update the gitrevision
         """
         try:
+            try:
+                subprocess.check_call('git --version', shell=True)
+                print('git was found')
+            except subprocess.CalledProcessError:
+                print('git was not found')
+                return
             subprocess.call('git fetch', shell = True)
             p = subprocess.Popen('git rev-parse HEAD', 
                                  stdout=subprocess.PIPE, 
@@ -79,6 +85,7 @@ if __name__=='__main__':
             stdout, stderr = p.communicate()
             
             rev = stdout.strip()
+            print('git revision is',rev)
             
             gitstring = 'std::string gitrevision = "'+str(rev)+'";'
             _write = False
