@@ -130,6 +130,9 @@ protected:
 	// To be used to update internal variables if you know that your parameters are H,S
 	void update_hs(long iInput1, double Value1, long iInput2, double Value2);
 
+	// To be used to update internal variables if you know that your parameters are T,S
+	void update_Ts(long iInput1, double Value1, long iInput2, double Value2);
+
 	// Update using the TTSE lookup tables
 	void update_TTSE_LUT(long iInput1, double Value1, long iInput2, double Value2);
 

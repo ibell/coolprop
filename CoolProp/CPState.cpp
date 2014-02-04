@@ -221,6 +221,7 @@ void CoolPropStateClassSI::update(long iInput1, double Value1, long iInput2, dou
 	|  T,Q
 	|  H,S
 	|  P,D
+	|  T,S
 	*/
 
 	if (get_debug_level()>3){
@@ -283,9 +284,12 @@ void CoolPropStateClassSI::update(long iInput1, double Value1, long iInput2, dou
 		else if (match_pair(iInput1,iInput2,iH,iS)){
 			update_hs(iInput1,Value1,iInput2,Value2);
 		}
+		else if (match_pair(iInput1,iInput2,iT,iS)){
+			update_Ts(iInput1,Value1,iInput2,Value2);
+		}
 		else
 		{
-			throw ValueError(format("Sorry your inputs didn't work; valid pairs are P,Q T,Q T,D T,P P,H P,S"));
+			throw ValueError(format("Sorry your inputs didn't work; valid pairs are P,Q T,Q T,D T,P P,H P,S T,S"));
 		}
 	}
 	else
@@ -735,6 +739,48 @@ void CoolPropStateClassSI::update_hs(long iInput1, double Value1, long iInput2, 
 		SinglePhase = true;
 		SaturatedL = false;
 		SaturatedV = true;
+	}
+}
+
+// Updater if T,s are inputs
+void CoolPropStateClassSI::update_Ts(long iInput1, double Value1, long iInput2, double Value2)
+{
+	// Get them in the right order
+	sort_pair(&iInput1,&Value1,&iInput2,&Value2,iT,iS);
+
+	if (Value1 < 0 ){ throw ValueError(format("Your temperature [%g K] is less than zero",Value1));}
+
+	// Set internal variables
+	_T = Value1;
+	_s = Value2;
+	s_cached = true;
+
+	// Solve for density and pressure
+	pFluid->density_Ts(_T, _s, &_rho, &_p, &rhosatL, &rhosatV, &psatL, &psatV);
+
+	if (get_debug_level() > 9)
+	{
+		std::cout << format("pFluid->density_Ts(_T, _s, &_rho, &_p, &rhosatL, &rhosatV, &psatL, &psatV)\n").c_str();
+		std::cout << format("pFluid->density_Ts(%g, %g, %g, %g, %g, %g, %g, %g)\n", _T, _s, _rho, _p, rhosatL, rhosatV, psatL, psatV).c_str();
+	}
+
+	// Set the phase flags
+	if ( _T < pFluid->crit.T && _rho < rhosatL && _rho > rhosatV)
+	{
+		TwoPhase = true;
+		SinglePhase = false;
+		_Q = (1/_rho-1/rhosatL)/(1/rhosatV-1/rhosatL);
+		check_saturated_quality(_Q);
+
+		TsatL = _T;
+		TsatV = _T;
+	}
+	else
+	{
+		TwoPhase = false;
+		SinglePhase = true;
+		SaturatedL = false;
+		SaturatedV = false;
 	}
 }
 
