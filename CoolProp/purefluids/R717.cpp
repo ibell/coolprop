@@ -273,7 +273,7 @@ double R717Class::conductivity_Trho(double T, double rho)
 		DELTA_lambda=0.0;
 	}
 
-	return (lambda_0+lambda_tilde+DELTA_lambda)/1000.0;
+	return lambda_0+lambda_tilde+DELTA_lambda;
 }
 double R717Class::viscosity_Trho(double T, double rho)
 {

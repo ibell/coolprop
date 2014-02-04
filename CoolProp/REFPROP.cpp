@@ -1185,7 +1185,7 @@ double REFPROPFluidClass::conductivity_Trho(double T, double rho)
 	
 	TRNPRPdll(&T,&rhobar,&(xmol[0]),&eta,&tcx,&ierr,herr,errormessagelength);
 	// REFPROP yields conductivity in W/m/K, CoolProp wants a conductivity in kW/m/K
-	return tcx/1000; //[kW/m/K]
+	return tcx; //[W/m/K]
 }
 
 void REFPROPFluidClass::saturation_T(double T, bool UseLUT, double *psatLout, double *psatVout, double *rhosatLout, double *rhosatVout)

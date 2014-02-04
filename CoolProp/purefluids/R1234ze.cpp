@@ -194,17 +194,17 @@ double R1234zeClass::conductivity_Trho(double T, double rho)
 	double B1[] = {0, -0.0428296, 0.0927099, -0.0702107, 0.0249708, -0.00301838};
 	double B2[] = {0, 0.0434288, -0.0605844, 0.0440187, -0.0155082, 0.00210190};
 
-	double lambda_0 = A[0]*pow(T/reduce.T,0)+A[1]*pow(T/reduce.T,1)+A[2]*pow(T/reduce.T,2);
+	double lambda_0 = A[0]*pow(T/reduce.T,0)+A[1]*pow(T/reduce.T,1)+A[2]*pow(T/reduce.T,2); //[W/m/K]
 
 	for (int i = 1; i <= 5; i++)
 	{
 		sumresid += (B1[i]+B2[i]*T/reduce.T)*pow(rho/reduce.rho,i);
 	}
-	double lambda_r = sumresid;
+	double lambda_r = sumresid; //[W/m/K]
 
-	double lambda_c = this->conductivity_critical(T,rho,1/(0.585e-9))*1000;
+	double lambda_c = this->conductivity_critical(T,rho,1/(0.585e-9)); //[W/m/K]
 
-	return (lambda_0+lambda_r+lambda_c)/1000;
+	return (lambda_0+lambda_r+lambda_c); //[W/m/K]
 }
 
 

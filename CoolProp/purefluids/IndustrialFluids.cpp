@@ -359,9 +359,9 @@ double DecaneClass::conductivity_Trho(double T, double rho)
 
 	double lambda_r = sumresid; // [W/m/K]
 
-	double lambda_c = this->conductivity_critical(T,rho,1.41115586e9)*1000; // [W/m/K]
+	double lambda_c = this->conductivity_critical(T,rho,1.41115586e9); // [W/m/K]
 
-	return (lambda_0+lambda_r+lambda_c)/1000;
+	return lambda_0+lambda_r+lambda_c;
 }
 
 HydrogenSulfideClass::HydrogenSulfideClass()
@@ -830,9 +830,9 @@ double NonaneClass::conductivity_Trho(double T, double rho)
 
 	double lambda_r = sumresid; // [W/m/K]
 
-	double lambda_c = this->conductivity_critical(T,rho,9.58722814e8)*1000; // [W/m/K]
+	double lambda_c = this->conductivity_critical(T,rho,9.58722814e8); // [W/m/K]
 
-	return (lambda_0+lambda_r+lambda_c)/1000;
+	return lambda_0+lambda_r+lambda_c;
 }
 
 TolueneClass::TolueneClass()
@@ -908,9 +908,9 @@ double TolueneClass::conductivity_Trho(double T, double rho)
 	}
 	double lambda_r = sumresid;
 
-	double lambda_c = this->conductivity_critical(T,rho,1/(6.2e-10))*1000; //[W/m/K]
+	double lambda_c = this->conductivity_critical(T,rho,1/(6.2e-10)); //[W/m/K]
 
-	return (lambda_0 + lambda_r + lambda_c)/1000; //[kW/m/K]
+	return lambda_0 + lambda_r + lambda_c; //[W/m/K]
 }
 
 XenonClass::XenonClass()

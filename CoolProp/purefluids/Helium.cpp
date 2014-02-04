@@ -329,7 +329,7 @@ double HeliumClass::conductivity_Trho(double T, double rho)
 			   +(c[7]+c[8]*pow(T,1.0/3.0)+c[9]*pow(T,2.0/3.0)+c[10]/T)*rho*rho*log(rho/rhoc);
 	
 	lambda_c = 0.0;
-	return (lambda_0+lambda_e+lambda_c)/1000;
+	return lambda_0+lambda_e+lambda_c;
 }
 double HeliumClass::psat(double T)
 {

@@ -152,5 +152,5 @@ double R23Class::conductivity_Trho(double T, double rho)
 
 	double DELTAlambda_c = 4*DELTAlambda_max/((exp(chi)+exp(-chi))*(exp(tau)+exp(-tau)));
 
-	return (pow((rhoL-rhobar)/rhoL,C1)*lambda_DG+pow(rhobar/rhoL,C1)*lambda_L+DELTAlambda_c)/1e6;
+	return (pow((rhoL-rhobar)/rhoL,C1)*lambda_DG+pow(rhobar/rhoL,C1)*lambda_L+DELTAlambda_c)/1e3;
 }

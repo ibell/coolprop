@@ -120,7 +120,7 @@ double BenzeneClass::conductivity_Trho(double T, double rho)
 	}
 	double lambda_r = sumresid;
 
-	double lambda_c = this->conductivity_critical(T,rho,1/(6.2e-10))*1000; //[W/m/K]
+	double lambda_c = this->conductivity_critical(T,rho,1/(6.2e-10)); //[W/m/K]
 
-	return (lambda_0+lambda_r+lambda_c)/1000;
+	return lambda_0+lambda_r+lambda_c;
 }

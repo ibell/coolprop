@@ -204,7 +204,7 @@ double R134aClass::conductivity_dilute(double T)
 	double a0=-1.05248e-2, //[W/m/K]
 		   a1=8.00982e-5;     //[W/m/K^2]
 	double lambda = (a0+a1*T); //[W/m/K]
-	return lambda/1000; //[kW/m/K]
+	return lambda; //[W/m/K]
 }
 double R134aClass::conductivity_residual(double T, double rho)
 {
@@ -215,9 +215,9 @@ double R134aClass::conductivity_residual(double T, double rho)
 		   lambda_reducing=2.055e-3; //[W/m/K]
 	double delta = rho/(5.049886*params.molemass); // Does not use either the reduce.rho value or crit.rho value !!! Or the value listed in Huber, 2003 either
 	double lambda_r = lambda_reducing*(b1*delta+b2*pow(delta,2)+b3*pow(delta,3)+b4*pow(delta,4)); //[W/m/K]
-	return lambda_r/1000; //[kW/m/K]
+	return lambda_r; //[W/m/K]
 }
-double R134aClass::conductivity_background(double T, double rho)
+double R134aClass::conductivity_background(double T, double rho) 
 {
 	return conductivity_residual(T,rho);
 }

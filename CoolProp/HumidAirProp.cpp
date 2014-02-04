@@ -1333,7 +1333,7 @@ EXPORT_CODE double CONVENTION HAProps(char *OutputName, char *Input1Name, double
 			return -1000;
 		}
 	}
-	catch (std::exception &e)
+	catch (std::exception &)
 	{
 		double rr = 4;
 	}

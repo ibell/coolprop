@@ -345,7 +345,7 @@ double NitrogenClass::conductivity_dilute(double T)
 
 	eta0=0.0266958*sqrt(params.molemass*T)/(sigma*sigma*OMEGA);
 	lambda0=N[1]*eta0+N[2]*pow(tau,t[2])+N[3]*pow(tau,t[3]);
-	return lambda0/1e6; //[kW/m/K]
+	return lambda0/1e3; //[W/m/K]
 }
 double NitrogenClass::conductivity_background(double T, double rho)
 {
@@ -365,7 +365,7 @@ double NitrogenClass::conductivity_background(double T, double rho)
 		   +N[7]*pow(tau,t[7])*pow(delta,d[7])*exp(-g[7]*pow(delta,l[7]))
 	 	   +N[8]*pow(tau,t[8])*pow(delta,d[8])*exp(-g[8]*pow(delta,l[8]))
 		   +N[9]*pow(tau,t[9])*pow(delta,d[9])*exp(-g[9]*pow(delta,l[9]));
-	return lambdar/1e6; // [kW/m/K]
+	return lambdar/1e3; // [W/m/K]
 }
 
 double NitrogenClass::conductivity_critical(double T, double rho)
@@ -400,7 +400,7 @@ double NitrogenClass::conductivity_critical(double T, double rho)
 	OMEGA_tilde0 = 2.0/pi*(1.-exp(-1./(q_D/zeta+1.0/3.0*(zeta/q_D)*(zeta/q_D)/delta/delta)));
 	lambdac = rho*cp*k*R0*T/(6*pi*zeta*mu)*(OMEGA_tilde-OMEGA_tilde0)*1e18; // 1e18 is conversion to mW/m-K (not described in paper)
 
-	return lambdac/1e6; //[kW/m/K]
+	return lambdac/1e3; //[W/m/K]
 }
 double NitrogenClass::conductivity_Trho(double T, double rho)
 {

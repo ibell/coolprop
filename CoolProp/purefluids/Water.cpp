@@ -536,7 +536,7 @@ double WaterClass::conductivity_Trho(double T, double rho)
 		Z=2/(pi*y)*(((1-1/kappa)*atan(y)+y/kappa)-(1-exp(-1/(1/y+y*y/3/rhobar/rhobar))));
 
 	lambdabar_2=GAMMA*rhobar*cpbar*Tbar/mubar*Z;
-	return (lambdabar_0*lambdabar_1+lambdabar_2)*lambdastar/1000.0;
+	return (lambdabar_0*lambdabar_1+lambdabar_2)*lambdastar;
 }
 double WaterClass::viscosity_Trho(double T, double rho)
 {

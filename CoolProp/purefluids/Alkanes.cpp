@@ -162,7 +162,7 @@ double MethaneClass::conductivity_dilute(double T)
 
 	double tau = 190.551/T, Tstar = T/e_k;
 	double fint = 1.458850-0.4377162/Tstar;
-	return 0.51826*(this->viscosity_dilute(T)*1e6)*(3.75-fint*(tau*tau*this->d2phi0_dTau2(tau,0)+1.5))/1e6; //[kW/m/K]
+	return 0.51826*(this->viscosity_dilute(T)*1e6)*(3.75-fint*(tau*tau*this->d2phi0_dTau2(tau,0)+1.5))/1e3; //[W/m/K]
 }
 double MethaneClass::conductivity_residual(double T, double rho)
 {
@@ -186,7 +186,7 @@ double MethaneClass::conductivity_residual(double T, double rho)
 		sum1 += j[i]*pow(delta,r[i])*pow(tau,s[i]);
 	}
 	sum1 += j[7]*delta*delta/delta_sigma_star;
-	return 6.29638*sum1/1e6; //[kW/m/K]
+	return 6.29638*sum1/1e3; //[W/m/K]
 }
 double MethaneClass::conductivity_Trho(double T, double rho)
 {
@@ -569,7 +569,7 @@ double EthaneClass::conductivity_dilute(double T)
 
 	double tau = 305.33/T, Tstar = T/e_k;
 	double fint = 1.7104147-0.6936482/Tstar;
-	return 0.276505*(this->viscosity_dilute(T)*1e6)*(3.75-fint*(tau*tau*this->d2phi0_dTau2(tau,0)+1.5))/1e6; //[kW/m/K]
+	return 0.276505*(this->viscosity_dilute(T)*1e6)*(3.75-fint*(tau*tau*this->d2phi0_dTau2(tau,0)+1.5))/1e3; //[W/m/K]
 }
 double EthaneClass::conductivity_residual(double T, double rho)
 {
@@ -583,7 +583,7 @@ double EthaneClass::conductivity_residual(double T, double rho)
 	{
 		sum1 += j[i]*pow(delta,r[i])*pow(tau,s[i]);
 	}
-	return 4.41786*sum1/1e6; //[kW/m/K]
+	return 4.41786*sum1/1e3; //[W/m/K]
 }
 double EthaneClass::conductivity_Trho(double T, double rho)
 {
@@ -750,9 +750,9 @@ double nButaneClass::conductivity_Trho(double T, double rho)
 
 	double lambda_r = sumresid; // [W/m/K]
 
-	double lambda_c = this->conductivity_critical(T,rho,1.0/(6.12930e-10))*1000; // [W/m/K]
+	double lambda_c = this->conductivity_critical(T,rho,1.0/(6.12930e-10)); // [W/m/K]
 
-	return (lambda_0+lambda_r+lambda_c)/1000;
+	return lambda_0+lambda_r+lambda_c;
 }
 
 IsoButaneClass::IsoButaneClass()
@@ -929,7 +929,7 @@ double IsoButaneClass::conductivity_Trho(double T, double rho)
 
 	double lambda_r = sumresid; // [W/m/K]
 
-	double lambda_c = this->conductivity_critical(T,rho,1.0/(5.37809e-10))*1000; // [W/m/K]
+	double lambda_c = this->conductivity_critical(T,rho,1.0/(5.37809e-10)); // [W/m/K]
 
-	return (lambda_0+lambda_r+lambda_c)/1000;
+	return lambda_0+lambda_r+lambda_c;
 }

@@ -294,7 +294,7 @@ double R1234yfClass::conductivity_Trho(double T, double rho)
 	}
 	double lambda_r = sumresid;
 
-	double lambda_c = this->conductivity_critical(T,rho,1/(0.585e-9))*1000;
+	double lambda_c = this->conductivity_critical(T,rho,1/(0.585e-9));
 
-	return (lambda_0+lambda_r+lambda_c)/1000;
+	return lambda_0+lambda_r+lambda_c;
 }

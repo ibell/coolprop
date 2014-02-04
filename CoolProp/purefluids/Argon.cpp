@@ -357,7 +357,7 @@ double ArgonClass::conductivity_Trho(double T, double rho)
 	OMEGA_tilde0=2.0/pi*(1.-exp(-1./(q_D/zeta+1.0/3.0*(zeta/q_D)*(zeta/q_D)/delta/delta)));
 	lambdac=rho*(cp*1000.0)*k*R0*T/(6*pi*zeta*mu)*(OMEGA_tilde-OMEGA_tilde0)*1e18; // 1e18 is conversion to mW/m-K (not described in paper)
 
-	return (lambda0+lambdar+lambdac)/1e6;
+	return (lambda0+lambdar+lambdac)/1e3; //[W/m/K]
 }
 double ArgonClass::viscosity_Trho(double T, double rho)
 {

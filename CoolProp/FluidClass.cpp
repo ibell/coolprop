@@ -3044,7 +3044,7 @@ double Fluid::conductivity_critical(double T, double rho, double qd, double GAMM
 	OMEGA_tilde0=2.0/pi*(1.0-exp(-1.0/(1.0/(qd*zeta)+1.0/3.0*(zeta*qd)*(zeta*qd)/delta/delta))); //[-]
 
 	double lambda=rho*cp*1e6*(R0*k*T)/(6*pi*mu*zeta)*(OMEGA_tilde-OMEGA_tilde0); //[W/m/K]
-	return lambda/1e3; //[kW/m/K]
+	return lambda; //[W/m/K]
 }
 double Fluid::surface_tension_T(double T)
 {
@@ -3420,11 +3420,11 @@ double Fluid::conductivity_ECS_Trho(double T, double rho, Fluid * ReferenceFluid
 	F_lambda = sqrt(f)*pow(h,-2.0/3.0)*sqrt(M0/M); //[-]
 	
 	//Get the background conductivity from the reference fluid
-	lambda_resid = ReferenceFluid->conductivity_background(T0,rho0*chi)*1e3 ;//[W/m/K]
+	lambda_resid = ReferenceFluid->conductivity_background(T0,rho0*chi);//[W/m/K]
 
-	lambda_crit = conductivity_critical(T,rho)*1000; //[W/m/K]
+	lambda_crit = conductivity_critical(T,rho); //[W/m/K]
 	lambda = lambda_int+lambda_star+lambda_resid*F_lambda+lambda_crit; //[W/m/K]
-	return lambda/1e3; //[kW/m/K]
+	return lambda; //[W/m/K]
 }
 
 bool Fluid::build_TTSE_LUT(bool force_build)

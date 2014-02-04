@@ -372,7 +372,7 @@ double nHexaneClass::viscosity_Trho(double T, double rho)
 double nHexaneClass::conductivity_Trho(double T, double rho)
 {
 	double Tr = T/reduce.T;
-	double lambda_0 = 6.6742-23.7619*Tr+72.0155*Tr*Tr-18.3714*Tr*Tr*Tr; // mW/m/K
+	double lambda_0 = (6.6742-23.7619*Tr+72.0155*Tr*Tr-18.3714*Tr*Tr*Tr)/1000; // W/m/K
 
 	double sumresid = 0;
 	double B1[] = {0, -3.01408e-2, 1.67975e-1, -1.29739e-1, 3.82833e-2, -3.70294e-3};
@@ -384,9 +384,9 @@ double nHexaneClass::conductivity_Trho(double T, double rho)
 
 	double lambda_r = sumresid; // [W/m/K]
 
-	double lambda_c = this->conductivity_critical(T,rho,1.0/(7.37e-10)); // [kW/m/K]
+	double lambda_c = this->conductivity_critical(T,rho,1.0/(7.37e-10)); // [W/m/K]
 
-	return (lambda_0+lambda_r*1e3+lambda_c*1e6)/1e6;
+	return lambda_0+lambda_r+lambda_c;
 }
 
 
@@ -512,7 +512,7 @@ double nHeptaneClass::rhosatV(double T)
 double nHeptaneClass::conductivity_Trho(double T, double rho)
 {
 	double Tr = T/reduce.T;
-	double lambda_0 = (-1.83367 + 16.2572*Tr - 39.0996*Tr*Tr + 47.8594*Tr*Tr*Tr + 15.1925*Tr*Tr*Tr*Tr - 3.39115*Tr*Tr*Tr*Tr*Tr)/(0.250611 - 0.320871*Tr + Tr*Tr); // mW/m/K
+	double lambda_0 = ((-1.83367 + 16.2572*Tr - 39.0996*Tr*Tr + 47.8594*Tr*Tr*Tr + 15.1925*Tr*Tr*Tr*Tr - 3.39115*Tr*Tr*Tr*Tr*Tr)/(0.250611 - 0.320871*Tr + Tr*Tr))/1000; // W/m/K
 
 	double sumresid = 0;
 	double B1[] = {0, 5.17785e-2, -9.24052e-2, 5.11484e-2, -7.76896e-3, 1.21637e-4};
@@ -524,9 +524,9 @@ double nHeptaneClass::conductivity_Trho(double T, double rho)
 
 	double lambda_r = sumresid; // [W/m/K]
 
-	double lambda_c = this->conductivity_critical(T,rho,1.0/(8.0e-10),0.0586,2.45e-10); // [kW/m/K]
+	double lambda_c = this->conductivity_critical(T,rho,1.0/(8.0e-10),0.0586,2.45e-10); // [W/m/K]
 
-	return (lambda_0+lambda_r*1e3+lambda_c*1e6)/1e6;
+	return lambda_0+lambda_r+lambda_c;
 }
 
 nOctaneClass::nOctaneClass()
@@ -705,9 +705,9 @@ double nOctaneClass::conductivity_Trho(double T, double rho)
 
 	double lambda_r = sumresid; // [W/m/K]
 
-	double lambda_c = this->conductivity_critical(T,rho,0.145713e10)*1000; // [W/m/K]
+	double lambda_c = this->conductivity_critical(T,rho,0.145713e10); // [W/m/K]
 
-	return (lambda_0+lambda_r+lambda_c)/1000;
+	return lambda_0+lambda_r+lambda_c;
 }
 
 nDodecaneClass::nDodecaneClass()
@@ -871,15 +871,15 @@ double nDodecaneClass::conductivity_background(double T, double rho)
 		sumresid += (B1[i]+B2[i]*T/crit.T)*pow(rho/crit.rho,i);
 	}
 	double lambda_r = sumresid; // W/m/K
-	return lambda_r/1000;
+	return lambda_r;
 }
 double nDodecaneClass::conductivity_Trho(double T, double rho)
 {
 	double lambda_0 = 0.436343e-2-0.264054e-1*T/crit.T+0.922394e-1*pow(T/crit.T,2)-0.291756e-1*pow(T/crit.T,3); //W/m/K
-	double lambda_r = this->conductivity_background(T,rho)*1000; //[W/m/K]
-	double lambda_c = this->conductivity_critical(T,rho,1/(1.52e-9))*1000; //[W/m/K]
+	double lambda_r = this->conductivity_background(T,rho); //[W/m/K]
+	double lambda_c = this->conductivity_critical(T,rho,1/(1.52e-9)); //[W/m/K]
 
-	return (lambda_0 + lambda_r + lambda_c)/1000; //[kW/m/K]
+	return (lambda_0 + lambda_r + lambda_c); //[W/m/K]
 }
 
 CyclohexaneClass::CyclohexaneClass()

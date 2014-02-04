@@ -295,7 +295,7 @@ double R290Class::conductivity_background(double T, double rho)
     {
         sum+=(B1[i]+B2[i]/tau)*pow(delta,(double)i);
     }
-    return sum/1000;
+    return sum; //[W/m/K]
 }
 double R290Class::conductivity_Trho(double T, double rho)
 {
@@ -307,7 +307,7 @@ double R290Class::conductivity_Trho(double T, double rho)
     The empirical critical enhancement is implemented
     */
     
-    // output in kW/m-K
+    // output in W/m-K
 
     double lambda0,lambdar,lambdac,tau = 369.85/T;
     
@@ -316,12 +316,12 @@ double R290Class::conductivity_Trho(double T, double rho)
     lambda0 = A[1]+A[2]/tau+A[3]/(tau*tau);
     
 	// The background contribution [W/m/K]
-	lambdar = this->conductivity_background(T,rho)*1000;
+	lambdar = this->conductivity_background(T,rho);
 
 	// Critical term from Olchowy and Sengers using the value of qd^-1 from Marsh [W/m/K]
-	lambdac = this->conductivity_critical(T,rho,1/7.16635e-10)*1000;
+	lambdac = this->conductivity_critical(T,rho,1/7.16635e-10);
 
-    return (lambda0+lambdar+lambdac)/1000.0;
+    return lambda0+lambdar+lambdac;
 }
 
 void R290Class::ECSParams(double *e_k, double *sigma)
