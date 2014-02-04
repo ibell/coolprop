@@ -1,4 +1,9 @@
-link('CoolProp.dll', ['PropsSIScilab','HAPropsScilab'], 'c');
+[v, o] = getversion(),
+if o(2) == "x64" then
+    link('CoolProp_x64.dll', ['PropsSIScilab','HAPropsScilab'], 'c');
+else
+    link('CoolProp.dll', ['PropsSIScilab','HAPropsScilab'], 'c');
+end
 //link('show');
 
 funcprot(0)
