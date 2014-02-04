@@ -1030,4 +1030,393 @@ public:
     };
 };
 
+class AS10Class : public SimpleIncompressible{
+public:
+        AS10Class(){
+
+        	name = std::string("AS10");
+        	description = std::string("Aspen Temper -10");
+        	reference = std::string("SecCool Software");
+
+        	Tmin     = 265.0;
+        	Tmax     = 300.0;
+        	TminPsat = 300.0;
+
+        	cRho.clear();
+        	cRho.push_back(+1.1446000000E+03);
+        	cRho.push_back(-2.0000000000E-01);
+        	cRho.push_back(+1.0520504534E-16);
+        	cRho.push_back(-7.3416990543E-20);
+
+        	cHeat.clear();
+        	cHeat.push_back(+2.0019857143E+03);
+        	cHeat.push_back(+9.2664285714E+00);
+        	cHeat.push_back(-1.3285714286E-02);
+        	cHeat.push_back(-1.3575719937E-16);
+
+        	cCond.clear();
+        	cCond.push_back(+1.2439404762E-01);
+        	cCond.push_back(+1.3752380952E-03);
+        	cCond.push_back(+1.9047619048E-07);
+
+        	cVisc.clear();
+        	cVisc.push_back(+4.7558729987E+02);
+        	cVisc.push_back(-1.6103694674E+02);
+        	cVisc.push_back(+1.0129670635E+01);
+
+        	cPsat.clear();
+    };
+};
+
+class AS20Class : public SimpleIncompressible{
+public:
+        AS20Class(){
+
+        	name = std::string("AS20");
+        	description = std::string("Aspen Temper -20");
+        	reference = std::string("SecCool Software");
+
+        	Tmin     = 255.0;
+        	Tmax     = 300.0;
+        	TminPsat = 300.0;
+
+        	cRho.clear();
+        	cRho.push_back(+1.1052186014E+03);
+        	cRho.push_back(+4.9151515152E-01);
+        	cRho.push_back(-1.1118881119E-03);
+        	cRho.push_back(-4.6620046617E-07);
+
+        	cHeat.clear();
+        	cHeat.push_back(+1.5218579021E+03);
+        	cHeat.push_back(+1.0060303030E+01);
+        	cHeat.push_back(-1.4137529138E-02);
+        	cHeat.push_back(+2.3310023312E-06);
+
+        	cCond.clear();
+        	cCond.push_back(+1.1390909091E-01);
+        	cCond.push_back(+1.3430303030E-03);
+        	cCond.push_back(-6.7271158343E-20);
+
+        	cVisc.clear();
+        	cVisc.push_back(+4.8319746232E+02);
+        	cVisc.push_back(-1.5863708418E+02);
+        	cVisc.push_back(+9.9041817702E+00);
+
+        	cPsat.clear();
+
+    };
+};
+
+class AS30Class : public SimpleIncompressible{
+public:
+        AS30Class(){
+
+        	name = std::string("AS30");
+        	description = std::string("Aspen Temper -30");
+        	reference = std::string("SecCool Software");
+
+        	Tmin     = 245.0;
+        	Tmax     = 300.0;
+        	TminPsat = 300.0;
+
+        	cRho.clear();
+        	cRho.push_back(+8.7111547342E+02);
+        	cRho.push_back(+3.7745669146E+00);
+        	cRho.push_back(-1.3928293928E-02);
+        	cRho.push_back(+1.5747215747E-05);
+
+        	cHeat.clear();
+        	cHeat.push_back(+3.0785717616E+02);
+        	cHeat.push_back(+1.7014884005E+01);
+        	cHeat.push_back(-2.4269064269E-02);
+        	cHeat.push_back(-3.4188034188E-06);
+
+        	cCond.clear();
+        	cCond.push_back(+1.1394827672E-01);
+        	cCond.push_back(+1.2806543457E-03);
+        	cCond.push_back(-4.4955044955E-08);
+
+        	cVisc.clear();
+        	cVisc.push_back(+5.1209144775E+02);
+        	cVisc.push_back(-1.5626579962E+02);
+        	cVisc.push_back(+9.9016607949E+00);
+
+        	cPsat.clear();
+
+    };
+};
+
+class AS40Class : public SimpleIncompressible{
+public:
+        AS40Class(){
+
+        	name = std::string("AS40");
+        	description = std::string("Aspen Temper -40");
+        	reference = std::string("SecCool Software");
+
+        	Tmin     = 235.0;
+        	Tmax     = 300.0;
+        	TminPsat = 300.0;
+
+        	cRho.clear();
+        	cRho.push_back(+8.8355972263E+02);
+        	cRho.push_back(+4.0994176412E+00);
+        	cRho.push_back(-1.5309807839E-02);
+        	cRho.push_back(+1.7359111477E-05);
+
+        	cHeat.clear();
+        	cHeat.push_back(-5.1241354234E+02);
+        	cHeat.push_back(+2.3184299720E+01);
+        	cHeat.push_back(-3.7767937944E-02);
+        	cHeat.push_back(-1.2066365007E-06);
+
+        	cCond.clear();
+        	cCond.push_back(+1.3896631868E-01);
+        	cCond.push_back(+1.1308846154E-03);
+        	cCond.push_back(-6.0439560440E-08);
+
+        	cVisc.clear();
+        	cVisc.push_back(+4.7403455568E+02);
+        	cVisc.push_back(-1.6081056499E+02);
+        	cVisc.push_back(+9.4982567299E+00);
+
+        	cPsat.clear();
+
+    };
+};
+
+class AS55Class : public SimpleIncompressible{
+public:
+        AS55Class(){
+
+        	name = std::string("AS55");
+        	description = std::string("Aspen Temper -55");
+        	reference = std::string("SecCool Software");
+
+        	Tmin     = 220.0;
+        	Tmax     = 300.0;
+        	TminPsat = 300.0;
+
+        	cRho.clear();
+        	cRho.push_back(+8.9605196078E+02);
+        	cRho.push_back(+4.5156492948E+00);
+        	cRho.push_back(-1.7100103199E-02);
+        	cRho.push_back(+1.9435844513E-05);
+
+        	cHeat.clear();
+        	cHeat.push_back(+3.6600598555E+02);
+        	cHeat.push_back(+1.5792254902E+01);
+        	cHeat.push_back(-2.4545923633E-02);
+        	cHeat.push_back(-4.1279669761E-07);
+
+        	cCond.clear();
+        	cCond.push_back(+3.3985681115E-01);
+        	cCond.push_back(-3.0877966976E-04);
+        	cCond.push_back(+2.2822497420E-06);
+
+        	cVisc.clear();
+        	cVisc.push_back(+6.1353626424E+02);
+        	cVisc.push_back(-1.5081016752E+02);
+        	cVisc.push_back(+1.0109522524E+01);
+
+        	cPsat.clear();
+
+    };
+};
+
+class ZS10Class : public SimpleIncompressible{
+public:
+        ZS10Class(){
+
+        	name = std::string("ZS10");
+        	description = std::string("Zitrec S -10");
+        	reference = std::string("SecCool Software");
+
+        	Tmin     = 265.0;
+        	Tmax     = 360.0;
+        	TminPsat = 360.0;
+
+        	cRho.clear();
+        	cRho.push_back(+1.2314887434E+03);
+        	cRho.push_back(-5.2375274970E-01);
+        	cRho.push_back(+1.9728931723E-04);
+        	cRho.push_back(-2.1700379757E-07);
+
+        	cHeat.clear();
+        	cHeat.push_back(+2.2183875526E+03);
+        	cHeat.push_back(+7.4287485687E+00);
+        	cHeat.push_back(-9.1301807180E-03);
+        	cHeat.push_back(-1.7295039503E-07);
+
+        	cCond.clear();
+        	cCond.push_back(+1.2534548872E-01);
+        	cCond.push_back(+1.4936591479E-03);
+        	cCond.push_back(-3.0576441103E-07);
+
+        	cVisc.clear();
+        	cVisc.push_back(+5.2976289768E+02);
+        	cVisc.push_back(-1.5197832234E+02);
+        	cVisc.push_back(+1.0073901959E+01);
+
+        	cPsat.clear();
+
+    };
+};
+
+class ZS25Class : public SimpleIncompressible{
+public:
+        ZS25Class(){
+
+        	name = std::string("ZS25");
+        	description = std::string("Zitrec S -25");
+        	reference = std::string("SecCool Software");
+
+        	Tmin     = 250.0;
+        	Tmax     = 360.0;
+        	TminPsat = 360.0;
+
+        	cRho.clear();
+        	cRho.push_back(+1.3386515650E+03);
+        	cRho.push_back(-5.2656222039E-01);
+        	cRho.push_back(-1.5645224340E-05);
+        	cRho.push_back(+1.2161751291E-08);
+
+        	cHeat.clear();
+        	cHeat.push_back(+3.0812417591E+03);
+        	cHeat.push_back(+3.7786772648E-01);
+        	cHeat.push_back(-6.5881944143E-05);
+        	cHeat.push_back(+3.3242120199E-07);
+
+        	cCond.clear();
+        	cCond.push_back(+3.4681146245E-02);
+        	cCond.push_back(+1.9330395257E-03);
+        	cCond.push_back(-1.1992094862E-06);
+
+        	cVisc.clear();
+        	cVisc.push_back(+4.1761158398E+02);
+        	cVisc.push_back(-1.6295200411E+02);
+        	cVisc.push_back(+9.3205072397E+00);
+
+        	cPsat.clear();
+
+    };
+};
+
+class ZS40Class : public SimpleIncompressible{
+public:
+        ZS40Class(){
+
+        	name = std::string("ZS40");
+        	description = std::string("Zitrec S -40");
+        	reference = std::string("SecCool Software");
+
+        	Tmin     = 235.0;
+        	Tmax     = 360.0;
+        	TminPsat = 360.0;
+
+        	cRho.clear();
+        	cRho.push_back(+1.4183190376E+03);
+        	cRho.push_back(-5.8243188235E-01);
+        	cRho.push_back(+5.4922721789E-05);
+        	cRho.push_back(-6.5779076274E-08);
+
+        	cHeat.clear();
+        	cHeat.push_back(+9.5472807318E+02);
+        	cHeat.push_back(+1.6485063272E+01);
+        	cHeat.push_back(-5.3205833713E-02);
+        	cHeat.push_back(+6.2103990740E-05);
+
+        	cCond.clear();
+        	cCond.push_back(+1.5446717460E-01);
+        	cCond.push_back(+1.1457880342E-03);
+        	cCond.push_back(-1.5579975580E-07);
+
+        	cVisc.clear();
+        	cVisc.push_back(+4.6544465976E+02);
+        	cVisc.push_back(-1.5503900008E+02);
+        	cVisc.push_back(+9.2536810485E+00);
+
+        	cPsat.clear();
+
+    };
+};
+
+class ZS45Class : public SimpleIncompressible{
+public:
+        ZS45Class(){
+
+        	name = std::string("ZS45");
+        	description = std::string("Zitrec S -45");
+        	reference = std::string("SecCool Software");
+
+        	Tmin     = 230.0;
+        	Tmax     = 360.0;
+        	TminPsat = 360.0;
+
+        	cRho.clear();
+        	cRho.push_back(+1.4317629296E+03);
+        	cRho.push_back(-5.3989162562E-01);
+        	cRho.push_back(-4.2356111320E-05);
+        	cRho.push_back(+4.7155909223E-08);
+
+        	cHeat.clear();
+        	cHeat.push_back(+2.0449839861E+03);
+        	cHeat.push_back(+2.2070679223E+00);
+        	cHeat.push_back(-4.6369977429E-06);
+        	cHeat.push_back(+5.2395454720E-09);
+
+        	cCond.clear();
+        	cCond.push_back(+2.0207530462E-01);
+        	cCond.push_back(+8.0384160667E-04);
+        	cCond.push_back(+3.6382468107E-07);
+
+        	cVisc.clear();
+        	cVisc.push_back(+4.5803862071E+02);
+        	cVisc.push_back(-1.5592748501E+02);
+        	cVisc.push_back(+9.1329431082E+00);
+
+        	cPsat.clear();
+
+    };
+};
+
+class ZS55Class : public SimpleIncompressible{
+public:
+        ZS55Class(){
+
+        	name = std::string("ZS55");
+        	description = std::string("Zitrec S -55");
+        	reference = std::string("SecCool Software");
+
+        	Tmin     = 220.0;
+        	Tmax     = 360.0;
+        	TminPsat = 360.0;
+
+        	cRho.clear();
+        	cRho.push_back(+1.4861637422E+03);
+        	cRho.push_back(-5.7747246466E-01);
+        	cRho.push_back(-9.0036956000E-05);
+        	cRho.push_back(+9.9350655525E-08);
+
+        	cHeat.clear();
+        	cHeat.push_back(+2.3791157676E+03);
+        	cHeat.push_back(-7.7643011749E-01);
+        	cHeat.push_back(+4.7957532518E-03);
+        	cHeat.push_back(-6.3381598423E-08);
+
+        	cCond.clear();
+        	cCond.push_back(+2.4488072144E-01);
+        	cCond.push_back(+5.5666864417E-04);
+        	cCond.push_back(+5.3163126578E-07);
+
+        	cVisc.clear();
+        	cVisc.push_back(+5.0238871796E+02);
+        	cVisc.push_back(-1.5126152304E+02);
+        	cVisc.push_back(+9.1546618222E+00);
+
+        	cPsat.clear();
+
+    };
+};
+
 #endif

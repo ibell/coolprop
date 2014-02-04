@@ -463,6 +463,27 @@ Fluid Name                   Description
 ``TCO``                      Terpene from citrus oils
 ==========================   ===================================================
 
+Some additional secondary cooling fluids are based on data compiled by Morten Juel Skovrup in 
+his `SecCool software <http://en.ipu.dk/Indhold/refrigeration-and-energy-technology/seccool.aspx>`_ 
+provided by his employer `IPU <http://en.ipu.dk>`_. Fits have been made according to the manufacturer 
+data stored in the sodtware. The Aspen Temper fluids are a blend of potassium formate and sodiumpropionate
+and the Zitrec S group consists mainly of potassium acetate and potassium formate.
+
+==========================   ===================================================
+Fluid Name                   Description
+==========================   ===================================================
+``AS10``                     Aspen Temper -10 (-10 to +27.5 C)
+``AS20``                     Aspen Temper -20 (-20 to +27.5 C)
+``AS30``                     Aspen Temper -30 (-30 to +27.5 C)
+``AS40``                     Aspen Temper -40 (-40 to +27.5 C)
+``AS55``                     Aspen Temper -55 (-55 to +27.5 C)
+``ZS10``                     Zitrec S -10 (-10 to +85 C)
+``ZS25``                     Zitrec S -25 (-25 to +85 C)
+``ZS40``                     Zitrec S -40 (-40 to +85 C)
+``ZS45``                     Zitrec S -45 (-45 to +85 C)
+``ZS55``                     Zitrec S -55 (-55 to +85 C)
+==========================   ===================================================
+
 There are also a few high temperature heat transfer fluids with individual temperature ranges. Please 
 refer to the file IncompLiquid.h for a complete overview. For these fluids, information from commercial 
 data sheets was used to obtain coefficients.
