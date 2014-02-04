@@ -6,7 +6,7 @@ Old Python Plotting
 .. note::
     The python plotting API has been changed as of v4.0. Examples using the
     new python plotting API can be found here :ref:`python-plotting`. Some
-    backwards compatability was maintained, so the folling example should
+    backwards compatability was maintained, so the following example should
     still work.
 
 The following example can be used to create a Temperature-Entropy plot for
