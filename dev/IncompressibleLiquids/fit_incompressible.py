@@ -601,6 +601,7 @@ for data in containerList:
              backgroundcolor='white', fontsize=18)
     matplotlib.pyplot.tight_layout()
     matplotlib.pyplot.savefig("fit_current_std.pdf")
+    #TODO Remove for normal fitting
     matplotlib.pyplot.savefig("fit_"+data.Name+"_std.pdf")
     
     ### Print the output for the C++ file
@@ -641,6 +642,6 @@ for data in containerList:
     for Ci in C:
         print "cPsat.push_back(%+1.10E);" %(Ci)
         
-    #raw_input("Finished with "+data.Name+", press Enter to continue...")
+    raw_input("Finished with "+data.Name+", press Enter to continue...")
 
 

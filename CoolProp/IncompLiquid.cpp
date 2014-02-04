@@ -130,6 +130,18 @@ LiquidsContainer::LiquidsContainer() {
     tmpVector.push_back(new HC40Class());
     tmpVector.push_back(new HC50Class());
     
+    // Add new fluids based SecCool software
+    tmpVector.push_back(new AS10Class());
+    tmpVector.push_back(new AS20Class());
+    tmpVector.push_back(new AS30Class());
+    tmpVector.push_back(new AS40Class());
+    tmpVector.push_back(new AS55Class());
+    tmpVector.push_back(new ZS10Class());
+    tmpVector.push_back(new ZS25Class());
+    tmpVector.push_back(new ZS40Class());
+    tmpVector.push_back(new ZS45Class());
+    tmpVector.push_back(new ZS55Class());
+
 
 	// Now we store the vector in the variable
 	// and overwrite the map.

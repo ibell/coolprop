@@ -15,6 +15,7 @@ Changelog for CoolProp
 * Added upper-case aliases for all fluids and input variables (to support EES)
 * Fixed TTSE and dylib compilation on MacOS
 * Added basic wrappers for Fortran and C
+* Added incompressible fluids AS10, AS20, AS30, AS40, AS55, ZS10, ZS25, ZS40, ZS45, ZS55
 
 4.0.0
 -----
