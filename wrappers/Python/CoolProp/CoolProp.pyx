@@ -317,6 +317,7 @@ cpdef Props(str in1, str in2, in3 = None, in4 = None, in5 = None, in6 = None, in
     ``H``                      ``P``
     ``S``                      ``P``
     ``S``                      ``H``
+    ``T``                      ``S`` 
     =========================  ======================================
     
     **Python Only** : InputProp1 and InputProp2 can be lists or numpy arrays.  If both are iterables, they must be the same size. 
