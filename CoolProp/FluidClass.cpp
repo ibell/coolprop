@@ -2636,7 +2636,7 @@ void Fluid::temperature_hs(double h, double s, double *Tout, double *rhoout, dou
 
 void Fluid::density_Ts(double T, double s, double *rhoout, double *pout, double *rhoLout, double *rhoVout, double *psatLout, double *psatVout)
 {
-	double rho_guess;
+	double rho_guess, ssatL, ssatV;
 	bool _SinglePhase;
 
 	// Density is solved from entropy_Trho method for single phase and from
@@ -2651,13 +2651,15 @@ void Fluid::density_Ts(double T, double s, double *rhoout, double *pout, double 
 		// T < crit.T
 		// First try to define the phase with the ancillary equations, if we are
 		// far enough away from saturation.
-		if (s < 0.95*ssatL_anc(T))
+		ssatL = ssatL_anc(T);
+		ssatV = ssatV_anc(T);
+		if (s < ssatL - 0.05*abs(ssatL))
 		{
 			// liquid
 			_SinglePhase = true;
 			rho_guess = rhosatL(T);
 		}
-		else if (s > 1.05*ssatV_anc(T))
+		else if (s > ssatV + 0.05*abs(ssatV))
 		{
 			// superheated vapor
 			_SinglePhase = true;
@@ -2669,9 +2671,9 @@ void Fluid::density_Ts(double T, double s, double *rhoout, double *pout, double 
 			// For the given temperature, find the saturation state
 			// Run the saturation routines to determine the saturation densities and pressures
 			saturation_T(T, enabled_TTSE_LUT, psatLout, psatVout, rhoLout, rhoVout);
-			double sL = entropy_Trho(T, *rhoLout);
-			double sV = entropy_Trho(T, *rhoVout);
-			double Q = (s-sL)/(sV-sL);
+			ssatL = entropy_Trho(T, *rhoLout);
+			ssatV = entropy_Trho(T, *rhoVout);
+			double Q = (s-ssatL)/(ssatV-ssatL);
 			if (Q < -100*DBL_EPSILON)
 			{
 				// liquid
