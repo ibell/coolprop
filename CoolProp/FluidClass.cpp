@@ -766,7 +766,7 @@ double Fluid::density_Tp(double T, double p, double rho_guess)
 			delta = x3;
 		}
         
-		std::cout << format("%g %d %g %g\n",T, iter-1, rho, error);
+		//std::cout << format("%g %d %g %g\n",T, iter-1, rho, error);
 
 		iter++;
 		
