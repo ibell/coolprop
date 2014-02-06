@@ -497,7 +497,7 @@ double Fluid::speed_sound_Trho(double T, double rho)
 
     c1=-specific_heat_v_Trho(T,rho)/R();
     c2=(1.0+2.0*delta*dphir_dDelta(tau,delta)+pow(delta,2)*d2phir_dDelta2(tau,delta));
-    return sqrt(-c2*T*specific_heat_p_Trho(T,rho)*1000/c1);
+    return sqrt(-c2*T*specific_heat_p_Trho(T,rho)/c1);
 }
 double Fluid::gibbs_Trho(double T,double rho)
 {
@@ -514,6 +514,14 @@ double Fluid::dpdT_Trho(double T,double rho)
 	delta=rho/reduce.rho;
 
 	return rho*R()*(1+delta*dphir_dDelta(tau,delta)-delta*tau*d2phir_dDelta_dTau(tau,delta));
+}
+double Fluid::dpdrho_Trho(double T,double rho)
+{
+	double delta,tau;
+	tau=reduce.T/T;
+	delta=rho/reduce.rho;
+
+	return R()*T*(1+2*delta*dphir_dDelta(tau,delta)+delta*delta*d2phir_dDelta2(tau,delta));
 }
 double Fluid::drhodT_p_Trho(double T,double rho)
 {
@@ -615,12 +623,12 @@ double Fluid::density_Tp_PengRobinson(double T, double p, int solution)
 		}
 		else
 		{
-			double v = (solns[i]*Rbar*T)/p; //[mol/L]
-			double dpdrho = -v*v*(-Rbar*T/pow(v-b,2)+a*(2*v+2*b)/pow(v*v+2*b*v-b*b,2));
-			if (dpdrho < 0)
-			{
-				solns.erase(solns.begin()+i);
-			}
+			//double v = (solns[i]*Rbar*T)/p; //[mol/L]
+			//double dpdrho = -v*v*(-Rbar*T/pow(v-b,2)+a*(2*v+2*b)/pow(v*v+2*b*v-b*b,2));
+			//if (dpdrho < 0)
+			//{
+			//	solns.erase(solns.begin()+i);
+			//}
 		}
 	}
 
@@ -725,7 +733,7 @@ double Fluid::density_Tp(double T, double p, double rho_guess)
     int iter=1;
 	
     //while (fabs(error) > 1e-10 && fabs(change/rho)>DBL_EPSILON*10)
-	while (fabs(error) > 1e-10 && fabs(change)>1e-10) 
+	while (fabs(error) > 1e-9 && fabs(change)>1e-10) 
     {
 		delta = rho/reduce.rho;
 		// Needed for both kinds
@@ -743,8 +751,9 @@ double Fluid::density_Tp(double T, double p, double rho_guess)
 			dpdrho__constT = R*T*(1+2*delta*dphirdDelta+delta*delta*d2phir_dDelta2(tau,delta));
 
 			// Update the step using Newton's method
-			rho -= (p_EOS-p)/dpdrho__constT;
-			change = fabs((p_EOS-p)/dpdrho__constT);
+			change = (p_EOS-p)/dpdrho__constT;
+			rho -= change;
+			
 		}
 		else
 		{
@@ -755,9 +764,11 @@ double Fluid::density_Tp(double T, double p, double rho_guess)
 			delta = x3;
 		}
         
-		iter++;
+		std::cout << format("%g %d %g %g\n",T, iter-1, rho, error);
 
-        if (iter>30)
+		iter++;
+		
+        if (iter>50)
         {
 			throw SolutionError(format("Number of steps in density_TP has exceeded 30 with inputs T=%g,p=%g,rho_guess=%g for fluid %s",T,p,rho_guess,name.c_str()));
         }
@@ -1055,7 +1066,7 @@ void Fluid::rhosatPure_Brent(double T, double *rhoLout, double *rhoVout, double 
 			// Span, 2000 p 56
 			DensityTpResids DTPR = DensityTpResids(this->pFluid,T,p);
 			std::string errstr;
-			this->rhoL = this->pFluid->rhosatL(T);
+			//this->rhoL = this->pFluid->rhosatL(T);
 			//std::cout << Props("D",'Q',0,'T',T,"REFPROP-R245fa") <<std::endl;
 			rhoL = Brent(&DTPR,rhoL+1e-3,rhoL-1e-3,DBL_EPSILON,1e-8,30,&errstr);
 			rhoV = Brent(&DTPR,rhoV,pFluid->crit.rho-10*DBL_EPSILON,DBL_EPSILON,1e-8,40,&errstr);
@@ -1067,7 +1078,15 @@ void Fluid::rhosatPure_Brent(double T, double *rhoLout, double *rhoVout, double 
 
 	std::string errstr;
 	double pmax = reduce.p.Pa;
-	double pmin = psatV_anc(T-0.1);
+	double pmin;
+	try
+	{
+		pmin = psatV_anc(T-0.1);
+	}
+	catch (std::exception)
+	{
+		pmin = 1e-10;
+	}
 	if (pmin < params.ptriple)
 		pmin = params.ptriple;
 	Brent(&SatFunc,pmin,pmax,DBL_EPSILON,1e-8,30,&errstr);
@@ -1108,7 +1127,7 @@ void Fluid::rhosatPure_BrentrhoV(double T, double *rhoLout, double *rhoVout, dou
 
 /// This function implements the method of Akasaka to do analytic Newton-Raphson for the 
 /// saturation calcs
-void Fluid::rhosatPure_Akasaka(double T, double *rhoLout, double *rhoVout, double *pout, double omega = 1.0)
+void Fluid::rhosatPure_Akasaka(double T, double *rhoLout, double *rhoVout, double *pout, double omega = 1.0, bool use_guesses)
 {
 	/*
 	This function implements the method of Akasaka 
@@ -1125,25 +1144,43 @@ void Fluid::rhosatPure_Akasaka(double T, double *rhoLout, double *rhoVout, doubl
 	// Use the density ancillary function as the starting point for the solver
     try
 	{
-		// If very close to the critical temp, evaluate the ancillaries for a slightly lower temperature
-		if (T > 0.99*reduce.T)
+		if (!use_guesses)
 		{
-			rhoL=rhosatL(T-1);
-			rhoV=rhosatV(T-1);
+			// If very close to the critical temp, evaluate the ancillaries for a slightly lower temperature
+			if (T > 0.99*reduce.T)
+			{
+				rhoL=rhosatL(T-1);
+				rhoV=rhosatV(T-1);
+			}
+			else
+			{
+				rhoL=rhosatL(T);
+				rhoV=rhosatV(T);
+			}
 		}
 		else
 		{
-			rhoL=rhosatL(T);
-			rhoV=rhosatV(T);
+			rhoL = *rhoLout;
+			rhoV = *rhoVout;
 		}
 
 		deltaL = rhoL/reduce.rho;
 		deltaV = rhoV/reduce.rho;
 		tau = reduce.T/T;
 	}
-	catch(NotImplementedError &e)
+	catch(NotImplementedError &)
 	{
-		std::cout << e.what() << "Ancillary not provided" << std::endl;
+		double Tc = crit.T;
+		double pc = crit.p.Pa;
+		double w = 6.67228479e-09*Tc*Tc*Tc-7.20464352e-06*Tc*Tc+3.16947758e-03*Tc-2.88760012e-01;
+		double q = -6.08930221451*w -5.42477887222;
+		double pt = exp(q*(Tc/T-1))*pc;
+
+		double rhoL = density_Tp_Soave(T, pt, 0), rhoV = density_Tp_Soave(T, pt, 1);
+
+		deltaL = rhoL/reduce.rho;
+		deltaV = rhoV/reduce.rho;
+		tau = reduce.T/T;
 	}
 	if (get_debug_level()>5){
 			std::cout << format("%s:%d: Akasaka guess values deltaL = %g deltaV = %g tau = %g\n",__FILE__,__LINE__,deltaL, deltaV, tau).c_str();
@@ -1206,6 +1243,34 @@ void Fluid::rhosatPure_Akasaka(double T, double *rhoLout, double *rhoVout, doubl
 
 	return;
 }
+
+void Fluid::saturation_VdW(double T, double &rhoL, double &rhoV, double &p, double s0)
+{
+	class resid : public FuncWrapper1D
+	{
+	protected:
+		double Tr;
+	public:
+		resid(double Tr){this->Tr = Tr;};
+		double call(double s)
+		{
+			double w = sqrt(s*s-32*Tr/s+36-12*s);
+			double val = log((s*(6-s)-(16*Tr/3)+s*w)/(s*(6-s)-(16*Tr/3)-s*w))-3*(6-s)*w/8*Tr;
+			return val;
+		}
+	};
+	resid r(T/this->crit.T);
+	std::string errstr;
+	if (s0 < 0)
+	{
+		s0 = 2;
+	}
+	double v1 = r.call(s0-1);
+	double v2 = r.call(s0);
+	double v3 = r.call(s0+1);
+	double s = Secant(&r,s0,0.01,1e-8,100,&errstr);
+
+}
 void Fluid::rhosatPure(double T, double *rhoLout, double *rhoVout, double *pout, double omega = 1.0, bool use_guesses = false)
 {
     // Only works for pure fluids (no blends)
@@ -1235,7 +1300,7 @@ void Fluid::rhosatPure(double T, double *rhoLout, double *rhoVout, double *pout,
 
     iter=1;
     // Use a secant method to obtain pressure
-    while ((iter<=3 || fabs(error)>1e-10) && iter<100)
+    while ((iter<=3 || fabs(error)>1e-6) && iter<100)
     {
         if (iter==1){x1=p_guess; p=x1;}
         else if (iter==2){x2=1.000001*p_guess; p=x2;}

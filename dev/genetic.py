@@ -19,9 +19,10 @@ class GeneticAncillaryFitter(object):
                num_selected = 30, # Have this many chromos in the selected group
                mutation_factor = 2, # Randomly mutate 1/n of the chromosomes
                num_powers = 8, # How many powers in the fit
-               Ref = 'Methanol',
-               value = 'rhoLnoexp',
-               addTr = False
+               Ref = 'AceticAcid',
+               value = 'rhoV',
+               addTr = True,
+               values = None
                 ):
         self.num_samples = num_samples
         self.num_selected = num_selected
@@ -33,15 +34,26 @@ class GeneticAncillaryFitter(object):
         
         #Thermodynamics
         from CoolProp.CoolProp import Props
-        self.Tc = Props(Ref,'Tcrit')
-        self.pc = Props(Ref,'pcrit')
-        self.rhoc = Props(Ref,'rhocrit')
-        self.Tmin = Props(Ref,'Tmin')
         
-        self.T = np.append(np.linspace(self.Tmin+1e-14, self.Tc-1,150), np.logspace(np.log10(self.Tc-1), np.log10(self.Tc-0.0001),10))
-        self.p = [Props('P','T',T,'Q',0,Ref) for T in self.T]
-        self.rhoL = [Props('D','T',T,'Q',0,Ref) for T in self.T]
-        self.rhoV = [Props('D','T',T,'Q',1,Ref) for T in self.T]
+        if values is None:
+            self.Tc = Props(Ref,'Tcrit')
+            self.pc = Props(Ref,'pcrit')
+            self.rhoc = Props(Ref,'rhocrit')
+            self.Tmin = Props(Ref,'Tmin')
+            self.T = np.append(np.linspace(self.Tmin+1e-14, self.Tc-1,150), np.logspace(np.log10(self.Tc-1), np.log10(self.Tc-0.0001),10))
+            self.p = [Props('P','T',T,'Q',0,Ref) for T in self.T]
+            self.rhoL = [Props('D','T',T,'Q',0,Ref) for T in self.T]
+            self.rhoV = [Props('D','T',T,'Q',1,Ref) for T in self.T]
+        else:
+            self.Tc = values['Tcrit']
+            self.pc = values['pcrit']
+            self.rhoc = values['rhocrit']
+            self.Tmin = values['Tmin']
+            self.T = values['T']
+            self.p = values['p']
+            self.rhoL = values['rhoL']
+            self.rhoV = values['rhoV']
+        
         self.logppc = (np.log(self.p)-np.log(self.pc))
         self.rhoLrhoc = np.array(self.rhoL)/self.rhoc
         self.rhoVrhoc = np.array(self.rhoV)/self.rhoc
@@ -234,4 +246,14 @@ def main():
     print list(r.beta)
 
 if __name__ == "__main__":
-  main() 
+    
+    values = dict(Tcrit = 590.70, rhocrit = 351, pcrit = 5817526.2731115920, Tmin = 289.8)
+    
+    T,p,rhoL,rhoV = zip(*[[float(el) for el in line.strip().split(',')] for line in open('../aceticancillary.csv','r').readlines()])
+    values['T'] = np.array(T)
+    values['p'] = np.array(p)
+    values['rhoL'] = np.array(rhoL)
+    values['rhoV'] = np.array(rhoV)
+    gaf = GeneticAncillaryFitter(value = 'rhoLnoexp', addTr = False, values = values)
+    gaf.run()
+    main() 

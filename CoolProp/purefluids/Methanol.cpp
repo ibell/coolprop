@@ -38,7 +38,9 @@ MethanolClass::MethanolClass()
 	// Ideal-gas part
 	phi0list.push_back(new phi0_lead(13.9864114647, 3.2006369296e3));
 	phi0list.push_back(new phi0_logtau(3.1950423807804));
-	phi0list.push_back(new phi0_power(-1.14289818828912e-3*crit.T, -1));
+	// Methanol uses tao0 = 1/T as the variable for cp0/R rather than tau, 
+	// so we need to convert
+	phi0list.push_back(new phi0_power(-1.14289818828912e-3*crit.T, -1)); 
 	phi0list.push_back(new phi0_power(-2.62687155181005e-7*pow(crit.T,2), -2));
 	phi0list.push_back(new phi0_power(6.42610441977784e-11*pow(crit.T,3), -3));
 	phi0list.push_back(new phi0_Planck_Einstein( 4.70118076896145, 3.7664265756));
@@ -47,6 +49,10 @@ MethanolClass::MethanolClass()
     aliases.push_back("methanol");
     aliases.push_back(std::string("METHANOL"));
     REFPROPname.assign("METHANOL");
+
+	reduce = crit;
+	double ppp = this->pressure_Trho(crit.T,crit.rho);
+	double tr = 0;
 
 	BibTeXKeys.EOS = "Piazza-FPE-2013";
 	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";

@@ -10,7 +10,7 @@
 #include <numeric>
 #include "CoolProp.h"
 #include "Spline.h"
-#include "Catch/catch.hpp"
+
 
 #ifdef MPLSUPPORTED
 #include "MPLPlot.h"
@@ -2929,263 +2929,263 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z, double beta_e
 
 
 
-
-
-
 /////    #####################   TESTS #######################
 
+#ifndef DISABLE_CATCH
+#include "Catch/catch.hpp"
 TEST_CASE("Mixture derivative checks", "")
-{
-	Mixture Mix("Methane|Ethane");
-	std::vector<double> z(2,0.5);
-	double rhorbar = Mix.pReducing->rhorbar(z);
-	double Tr = Mix.pReducing->Tr(z);
-	int i = 0;
-	double epsT = 1e-4, epsp = 0.1, epsz = 1e-5;
-	double T0 = 300, p0 = 101325;
-	double rho0 = Mix.rhobar_Tpz(T0,p0, z, 5);
-	double delta0 = rho0/rhorbar;
-	double tau0 = Tr/T0;
-
-	SECTION("dlnphi_dT")
 	{
-		double ANA = Mix.dln_fugacity_coefficient_dT__constp_n(tau0, delta0, z, i);
+		Mixture Mix("Methane|Ethane");
+		std::vector<double> z(2,0.5);
+		double rhorbar = Mix.pReducing->rhorbar(z);
+		double Tr = Mix.pReducing->Tr(z);
+		int i = 0;
+		double epsT = 1e-4, epsp = 0.1, epsz = 1e-5;
+		double T0 = 300, p0 = 101325;
+		double rho0 = Mix.rhobar_Tpz(T0,p0, z, 5);
+		double delta0 = rho0/rhorbar;
+		double tau0 = Tr/T0;
 
-		double T1 = 300+epsT, p1 = 101325;
-		double delta1 = Mix.rhobar_Tpz(T1,p1,z, 5)/rhorbar;
-		double tau1 = Tr/T1;
-		double f1 = Mix.ln_fugacity_coefficient(tau1, delta1, z, i);
-
-		double T2 = 300-epsT, p2 = 101325;
-		double delta2 = Mix.rhobar_Tpz(T2,p2,z, 5)/rhorbar;
-		double tau2 = Tr/T2;
-		double f2 = Mix.ln_fugacity_coefficient(tau2, delta2, z, i);
-		
-		double NUM = (f1-f2)/(2*epsT);
-		
-		CAPTURE(NUM);
-		CAPTURE(ANA);
-		REQUIRE(fabs(NUM/ANA-1) < 1e-8);
-	}
-	SECTION("dlnphi_dp")
-	{
-		double ANA = Mix.dln_fugacity_coefficient_dp__constT_n(tau0, delta0, z, i);
-
-		double T1 = 300, p1 = 101325+epsp;
-		double delta1 = Mix.rhobar_Tpz(T1,p1,z, 5)/rhorbar;
-		double tau1 = Tr/T1;
-		double f1 = Mix.ln_fugacity_coefficient(tau1, delta1, z, i);
-
-		double T2 = 300, p2 = 101325-epsp;
-		double delta2 = Mix.rhobar_Tpz(T2,p2,z, 5)/rhorbar;
-		double tau2 = Tr/T2;
-		double f2 = Mix.ln_fugacity_coefficient(tau2, delta2, z, i);
-		
-		double NUM = (f1-f2)/(2*epsp);
-		
-		CAPTURE(NUM);
-		CAPTURE(ANA);
-		REQUIRE(fabs(NUM/ANA-1) < 1e-7);
-	}
-	SECTION("dln_fugacity_coefficient_dxj__constT_p_xi")
-	{
-		for (int i = 0; i < 2; i++)
+		SECTION("dlnphi_dT")
 		{
-			for (int j = 0; j < 2; j++)
-			{
-				double ANA = Mix.dln_fugacity_coefficient_dxj__constT_p_xi(tau0, delta0, z, i, j);
+			double ANA = Mix.dln_fugacity_coefficient_dT__constp_n(tau0, delta0, z, i);
 
-				std::vector<double> z1 = z;
-				z1[j] += epsz;
-				double delta1 = Mix.rhobar_Tpz(T0, p0, z1, 5)/Mix.pReducing->rhorbar(z1);
-				double tau1 = Mix.pReducing->Tr(z1)/T0;
-				double f1 = Mix.ln_fugacity_coefficient(tau1, delta1, z1, i);
+			double T1 = 300+epsT, p1 = 101325;
+			double delta1 = Mix.rhobar_Tpz(T1,p1,z, 5)/rhorbar;
+			double tau1 = Tr/T1;
+			double f1 = Mix.ln_fugacity_coefficient(tau1, delta1, z, i);
 
-				std::vector<double> z2 = z;
-				z2[j] -= epsz;
-				double delta2 = Mix.rhobar_Tpz(T0, p0, z2, 5)/Mix.pReducing->rhorbar(z2);
-				double tau2 = Mix.pReducing->Tr(z2)/T0;
-				double f2 = Mix.ln_fugacity_coefficient(tau2, delta2, z2, i);
-				
-				double NUM = (f1-f2)/(2*epsz);
-				
-				CAPTURE(NUM);
-				CAPTURE(ANA);
-				CAPTURE(i);
-				CAPTURE(j);
-				CHECK(fabs(NUM-ANA) < 1e-7);
-			}
-		}
-	}
-	SECTION("d_ndphirdni_dxj__constdelta_tau_xi")
-	{
-		for (int i = 0; i < 2; i++)
-		{
-			for (int j = 0; j < 2; j++)
-			{
-				double ANA = Mix.d_ndphirdni_dxj__constdelta_tau_xi(tau0, delta0, z, i, j);
-				std::vector<double> z1 = z, z2 = z;
-				
-				z1[j] += epsz;
-				double f1 = Mix.ndphir_dni__constT_V_nj(tau0, delta0, z1, i);
-
-				z2[j] -= epsz;
-				double f2 = Mix.ndphir_dni__constT_V_nj(tau0, delta0, z2, i);
-
-				double NUM = (f1-f2)/(2*epsz);
-				CAPTURE(NUM);
-				CAPTURE(ANA);
-				CAPTURE(i);
-				CAPTURE(j);
-				CHECK(fabs(NUM/ANA-1) < 1e-10);
-			}
-		}
-	}
-	SECTION("dphir_dxj__constT_V_xi")
-	{
-		for (int j = 0; j < 2; j++)
-		{
-			double ANA = Mix.dphir_dxj__constT_V_xi(tau0, delta0, z, j);
+			double T2 = 300-epsT, p2 = 101325;
+			double delta2 = Mix.rhobar_Tpz(T2,p2,z, 5)/rhorbar;
+			double tau2 = Tr/T2;
+			double f2 = Mix.ln_fugacity_coefficient(tau2, delta2, z, i);
 			
-			std::vector<double> z1 = z;
-			z1[j] += epsz;
-			double delta1 = rho0/Mix.pReducing->rhorbar(z1);
-			double tau1 = Mix.pReducing->Tr(z1)/T0;
-			double f1 = Mix.phir(tau1, delta1, z1);
-
-			std::vector<double> z2 = z;
-			z2[j] -= epsz;
-			double delta2 = rho0/Mix.pReducing->rhorbar(z2);
-			double tau2 = Mix.pReducing->Tr(z2)/T0;
-			double f2 = Mix.phir(tau2, delta2, z2);
-
-			double NUM = (f1-f2)/(2*epsz);
+			double NUM = (f1-f2)/(2*epsT);
+			
 			CAPTURE(NUM);
 			CAPTURE(ANA);
-			CAPTURE(j);
-			CHECK(fabs(NUM/ANA-1) < 1e-9);
+			REQUIRE(fabs(NUM/ANA-1) < 1e-8);
 		}
-	}
-	SECTION("d_dphirddelta_dxj__constT_V_xi")
-	{
-		for (int j = 0; j < 2; j++)
+		SECTION("dlnphi_dp")
 		{
-			double ANA = Mix.d_dphirddelta_dxj__constT_V_xi(tau0, delta0, z, j);
+			double ANA = Mix.dln_fugacity_coefficient_dp__constT_n(tau0, delta0, z, i);
+
+			double T1 = 300, p1 = 101325+epsp;
+			double delta1 = Mix.rhobar_Tpz(T1,p1,z, 5)/rhorbar;
+			double tau1 = Tr/T1;
+			double f1 = Mix.ln_fugacity_coefficient(tau1, delta1, z, i);
+
+			double T2 = 300, p2 = 101325-epsp;
+			double delta2 = Mix.rhobar_Tpz(T2,p2,z, 5)/rhorbar;
+			double tau2 = Tr/T2;
+			double f2 = Mix.ln_fugacity_coefficient(tau2, delta2, z, i);
 			
-			std::vector<double> z1 = z;
-			z1[j] += epsz;
-			double delta1 = rho0/Mix.pReducing->rhorbar(z1);
-			double tau1 = Mix.pReducing->Tr(z1)/T0;
-			double f1 = Mix.dphir_dDelta(tau1, delta1, z1);
-
-			std::vector<double> z2 = z;
-			z2[j] -= epsz;
-			double delta2 = rho0/Mix.pReducing->rhorbar(z2);
-			double tau2 = Mix.pReducing->Tr(z2)/T0;
-			double f2 = Mix.dphir_dDelta(tau2, delta2, z2);
-
-			double NUM = (f1-f2)/(2*epsz);
+			double NUM = (f1-f2)/(2*epsp);
+			
 			CAPTURE(NUM);
 			CAPTURE(ANA);
-			CAPTURE(j);
-			CHECK(fabs(NUM/ANA-1) < 1e-9);
+			REQUIRE(fabs(NUM/ANA-1) < 1e-7);
 		}
-	}
-	SECTION("d2nphir_dni_dxj__constT_V")
-	{
-		for (int i = 0; i < 2; i++)
+		SECTION("dln_fugacity_coefficient_dxj__constT_p_xi")
+		{
+			for (int i = 0; i < 2; i++)
+			{
+				for (int j = 0; j < 2; j++)
+				{
+					double ANA = Mix.dln_fugacity_coefficient_dxj__constT_p_xi(tau0, delta0, z, i, j);
+
+					std::vector<double> z1 = z;
+					z1[j] += epsz;
+					double delta1 = Mix.rhobar_Tpz(T0, p0, z1, 5)/Mix.pReducing->rhorbar(z1);
+					double tau1 = Mix.pReducing->Tr(z1)/T0;
+					double f1 = Mix.ln_fugacity_coefficient(tau1, delta1, z1, i);
+
+					std::vector<double> z2 = z;
+					z2[j] -= epsz;
+					double delta2 = Mix.rhobar_Tpz(T0, p0, z2, 5)/Mix.pReducing->rhorbar(z2);
+					double tau2 = Mix.pReducing->Tr(z2)/T0;
+					double f2 = Mix.ln_fugacity_coefficient(tau2, delta2, z2, i);
+					
+					double NUM = (f1-f2)/(2*epsz);
+					
+					CAPTURE(NUM);
+					CAPTURE(ANA);
+					CAPTURE(i);
+					CAPTURE(j);
+					CHECK(fabs(NUM-ANA) < 1e-7);
+				}
+			}
+		}
+		SECTION("d_ndphirdni_dxj__constdelta_tau_xi")
+		{
+			for (int i = 0; i < 2; i++)
+			{
+				for (int j = 0; j < 2; j++)
+				{
+					double ANA = Mix.d_ndphirdni_dxj__constdelta_tau_xi(tau0, delta0, z, i, j);
+					std::vector<double> z1 = z, z2 = z;
+					
+					z1[j] += epsz;
+					double f1 = Mix.ndphir_dni__constT_V_nj(tau0, delta0, z1, i);
+
+					z2[j] -= epsz;
+					double f2 = Mix.ndphir_dni__constT_V_nj(tau0, delta0, z2, i);
+
+					double NUM = (f1-f2)/(2*epsz);
+					CAPTURE(NUM);
+					CAPTURE(ANA);
+					CAPTURE(i);
+					CAPTURE(j);
+					CHECK(fabs(NUM/ANA-1) < 1e-10);
+				}
+			}
+		}
+		SECTION("dphir_dxj__constT_V_xi")
 		{
 			for (int j = 0; j < 2; j++)
 			{
-				double ANA = Mix.d2nphir_dni_dxj__constT_V(tau0, delta0, z, i, j);
+				double ANA = Mix.dphir_dxj__constT_V_xi(tau0, delta0, z, j);
 				
 				std::vector<double> z1 = z;
 				z1[j] += epsz;
 				double delta1 = rho0/Mix.pReducing->rhorbar(z1);
 				double tau1 = Mix.pReducing->Tr(z1)/T0;
-				double f1 = Mix.dnphir_dni__constT_V_nj(tau1, delta1, z1, i);
+				double f1 = Mix.phir(tau1, delta1, z1);
 
 				std::vector<double> z2 = z;
 				z2[j] -= epsz;
 				double delta2 = rho0/Mix.pReducing->rhorbar(z2);
 				double tau2 = Mix.pReducing->Tr(z2)/T0;
-				double f2 = Mix.dnphir_dni__constT_V_nj(tau2, delta2, z2, i);
+				double f2 = Mix.phir(tau2, delta2, z2);
 
 				double NUM = (f1-f2)/(2*epsz);
 				CAPTURE(NUM);
 				CAPTURE(ANA);
 				CAPTURE(j);
-				CHECK(fabs(NUM/ANA-1) < 1e-8);
+				CHECK(fabs(NUM/ANA-1) < 1e-9);
+			}
+		}
+		SECTION("d_dphirddelta_dxj__constT_V_xi")
+		{
+			for (int j = 0; j < 2; j++)
+			{
+				double ANA = Mix.d_dphirddelta_dxj__constT_V_xi(tau0, delta0, z, j);
+				
+				std::vector<double> z1 = z;
+				z1[j] += epsz;
+				double delta1 = rho0/Mix.pReducing->rhorbar(z1);
+				double tau1 = Mix.pReducing->Tr(z1)/T0;
+				double f1 = Mix.dphir_dDelta(tau1, delta1, z1);
+
+				std::vector<double> z2 = z;
+				z2[j] -= epsz;
+				double delta2 = rho0/Mix.pReducing->rhorbar(z2);
+				double tau2 = Mix.pReducing->Tr(z2)/T0;
+				double f2 = Mix.dphir_dDelta(tau2, delta2, z2);
+
+				double NUM = (f1-f2)/(2*epsz);
+				CAPTURE(NUM);
+				CAPTURE(ANA);
+				CAPTURE(j);
+				CHECK(fabs(NUM/ANA-1) < 1e-9);
+			}
+		}
+		SECTION("d2nphir_dni_dxj__constT_V")
+		{
+			for (int i = 0; i < 2; i++)
+			{
+				for (int j = 0; j < 2; j++)
+				{
+					double ANA = Mix.d2nphir_dni_dxj__constT_V(tau0, delta0, z, i, j);
+					
+					std::vector<double> z1 = z;
+					z1[j] += epsz;
+					double delta1 = rho0/Mix.pReducing->rhorbar(z1);
+					double tau1 = Mix.pReducing->Tr(z1)/T0;
+					double f1 = Mix.dnphir_dni__constT_V_nj(tau1, delta1, z1, i);
+
+					std::vector<double> z2 = z;
+					z2[j] -= epsz;
+					double delta2 = rho0/Mix.pReducing->rhorbar(z2);
+					double tau2 = Mix.pReducing->Tr(z2)/T0;
+					double f2 = Mix.dnphir_dni__constT_V_nj(tau2, delta2, z2, i);
+
+					double NUM = (f1-f2)/(2*epsz);
+					CAPTURE(NUM);
+					CAPTURE(ANA);
+					CAPTURE(j);
+					CHECK(fabs(NUM/ANA-1) < 1e-8);
+				}
+			}
+		}
+		SECTION("dpdxj__constT_V_xi")
+		{
+			for (int j = 0; j < 2; j++)
+			{
+				double ANA = Mix.dpdxj__constT_V_xi(tau0, delta0, z, j);
+				
+				std::vector<double> z1 = z;
+				z1[j] += epsz;
+				double rho1 = rho0;
+				double delta1 = rho1/Mix.pReducing->rhorbar(z1);
+				double tau1 = Mix.pReducing->Tr(z1)/T0;
+				double f1 = rho1*Mix.Rbar(z1)*T0*(1+delta1*Mix.dphir_dDelta(tau1,delta1,z1));
+
+				std::vector<double> z2 = z;
+				z2[j] -= epsz;
+				double rho2 = rho0;
+				double delta2 = rho2/Mix.pReducing->rhorbar(z2);
+				double tau2 = Mix.pReducing->Tr(z2)/T0;
+				double f2 = rho2*Mix.Rbar(z2)*T0*(1+delta2*Mix.dphir_dDelta(tau2,delta2,z2));
+
+				double NUM = (f1-f2)/(2*epsz);
+				CAPTURE(NUM);
+				CAPTURE(ANA);
+				CAPTURE(j);
+				CHECK(fabs(NUM/ANA-1) < 1e-9);
+			}
+		}
+		SECTION("ddelta_dxj__constT_V_xi")
+		{
+			for (int j = 0; j < 2; j++)
+			{
+				double ANA = Mix.ddelta_dxj__constT_V_xi(tau0, delta0, z, j);
+				
+				std::vector<double> z1 = z;
+				z1[j] += epsz;
+				double f1 = rho0/Mix.pReducing->rhorbar(z1);
+
+				std::vector<double> z2 = z;
+				z2[j] -= epsz;
+				double f2 = rho0/Mix.pReducing->rhorbar(z2);
+
+				double NUM = (f1-f2)/(2*epsz);
+				CAPTURE(NUM);
+				CAPTURE(ANA);
+				CAPTURE(j);
+				CHECK(fabs(NUM/ANA-1) < 1e-10);
+			}
+		}
+		SECTION("ddtau_dxj__constT_V_xi")
+		{
+			for (int j = 0; j < 2; j++)
+			{
+				double ANA = Mix.dtau_dxj__constT_V_xi(tau0, delta0, z, j);
+				
+				std::vector<double> z1 = z;
+				z1[j] += epsz;
+				double f1 = Mix.pReducing->Tr(z1)/T0;
+
+				std::vector<double> z2 = z;
+				z2[j] -= epsz;
+				double f2 = Mix.pReducing->Tr(z2)/T0;
+
+				double NUM = (f1-f2)/(2*epsz);
+				CAPTURE(NUM);
+				CAPTURE(ANA);
+				CAPTURE(j);
+				CHECK(fabs(NUM/ANA-1) < 1e-10);
 			}
 		}
 	}
-	SECTION("dpdxj__constT_V_xi")
-	{
-		for (int j = 0; j < 2; j++)
-		{
-			double ANA = Mix.dpdxj__constT_V_xi(tau0, delta0, z, j);
-			
-			std::vector<double> z1 = z;
-			z1[j] += epsz;
-			double rho1 = rho0;
-			double delta1 = rho1/Mix.pReducing->rhorbar(z1);
-			double tau1 = Mix.pReducing->Tr(z1)/T0;
-			double f1 = rho1*Mix.Rbar(z1)*T0*(1+delta1*Mix.dphir_dDelta(tau1,delta1,z1));
-
-			std::vector<double> z2 = z;
-			z2[j] -= epsz;
-			double rho2 = rho0;
-			double delta2 = rho2/Mix.pReducing->rhorbar(z2);
-			double tau2 = Mix.pReducing->Tr(z2)/T0;
-			double f2 = rho2*Mix.Rbar(z2)*T0*(1+delta2*Mix.dphir_dDelta(tau2,delta2,z2));
-
-			double NUM = (f1-f2)/(2*epsz);
-			CAPTURE(NUM);
-			CAPTURE(ANA);
-			CAPTURE(j);
-			CHECK(fabs(NUM/ANA-1) < 1e-9);
-		}
-	}
-	SECTION("ddelta_dxj__constT_V_xi")
-	{
-		for (int j = 0; j < 2; j++)
-		{
-			double ANA = Mix.ddelta_dxj__constT_V_xi(tau0, delta0, z, j);
-			
-			std::vector<double> z1 = z;
-			z1[j] += epsz;
-			double f1 = rho0/Mix.pReducing->rhorbar(z1);
-
-			std::vector<double> z2 = z;
-			z2[j] -= epsz;
-			double f2 = rho0/Mix.pReducing->rhorbar(z2);
-
-			double NUM = (f1-f2)/(2*epsz);
-			CAPTURE(NUM);
-			CAPTURE(ANA);
-			CAPTURE(j);
-			CHECK(fabs(NUM/ANA-1) < 1e-10);
-		}
-	}
-	SECTION("ddtau_dxj__constT_V_xi")
-	{
-		for (int j = 0; j < 2; j++)
-		{
-			double ANA = Mix.dtau_dxj__constT_V_xi(tau0, delta0, z, j);
-			
-			std::vector<double> z1 = z;
-			z1[j] += epsz;
-			double f1 = Mix.pReducing->Tr(z1)/T0;
-
-			std::vector<double> z2 = z;
-			z2[j] -= epsz;
-			double f2 = Mix.pReducing->Tr(z2)/T0;
-
-			double NUM = (f1-f2)/(2*epsz);
-			CAPTURE(NUM);
-			CAPTURE(ANA);
-			CAPTURE(j);
-			CHECK(fabs(NUM/ANA-1) < 1e-10);
-		}
-	}
-}
+#endif

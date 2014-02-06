@@ -11,7 +11,7 @@
 #include "Units.h"
 #include "AllFluids.h"
 #include "CriticalSplineConstants.h"
-#include "Catch/catch.hpp"
+
 
 // On PowerPC, we are going to use the stdint.h integer types and not let rapidjson use its own
 #if defined(__powerpc__)
@@ -32,6 +32,7 @@
 #include "pseudopurefluids/SES36.cpp"
 #include "pseudopurefluids/R407F.cpp"
 
+#include "purefluids/AceticAcid.cpp"
 #include "purefluids/Argon.cpp"
 #include "purefluids/Alkanes.cpp"
 #include "purefluids/Benzene.cpp"
@@ -140,6 +141,7 @@ FluidsContainer::FluidsContainer()
 	FluidsList.push_back(new R1234zeZClass());
 	FluidsList.push_back(new R1233zdEClass());
 	FluidsList.push_back(new R161Class());
+	FluidsList.push_back(new AceticAcidClass());
 
 	// The industrial fluids
 	FluidsList.push_back(new R245faClass());
@@ -332,6 +334,9 @@ std::string FluidsContainer::FluidList()
 	return FL;
 }
 
+#ifndef DISABLE_CATCH
+#include "Catch/catch.hpp"
+
 TEST_CASE("Check ancillary curves for pure and pseudo-pure fluids","[slow]")
 {
 	FluidsContainer Fluids = FluidsContainer();
@@ -432,3 +437,4 @@ TEST_CASE("Fluid parameter checks requiring saturation","[slow]")
 		}
 	}
 }
+#endif

@@ -23,7 +23,7 @@
 #include "string.h"
 #include <stdio.h>
 #include <iostream>
-#include "Catch/catch.hpp"
+
 
 
 // Some constants for REFPROP... defined by macros for ease of use 
@@ -290,7 +290,7 @@ double setFunctionPointers()
 	WMOLdll = (WMOLdll_POINTER) getFunctionPointer((char *)WMOLdll_NAME);
 	XMASSdll = (XMASSdll_POINTER) getFunctionPointer((char *)XMASSdll_NAME);
 	XMOLEdll = (XMOLEdll_POINTER) getFunctionPointer((char *)XMOLEdll_NAME);
-	return OK;
+	return COOLPROP_OK;
 }
 
 
@@ -394,7 +394,7 @@ bool load_REFPROP()
 		}
 		#endif
 
-		if (setFunctionPointers()!=OK)
+		if (setFunctionPointers()!=COOLPROP_OK)
 		{
 			              printf("There was an error setting the REFPROP function pointers, check types and names in header file.\n");
 			throw AttributeError("There was an error setting the REFPROP function pointers, check types and names in header file.");
@@ -1010,6 +1010,8 @@ bool REFPROPFluidClass::refpropSupported () {
 	return false;
 }
 
+#ifndef DISABLE_CATCH
+#include "Catch/catch.hpp"
 TEST_CASE("REFPROP Fluid Class Helmholtz derivatives check", "[helmholtz],[fast]")
 {
 	std::vector<double> x(1,1);
@@ -1063,6 +1065,7 @@ TEST_CASE("REFPROP Fluid Class check saturation consistency", "")
 		REQUIRE(abs(T2-T) < 1e-5);
 	}
 }
+#endif
 
 double REFPROPFluidClass::dphir_dDelta(double tau, double delta)
 {

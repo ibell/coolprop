@@ -4,7 +4,7 @@
 #include "float.h"
 #include "math.h"
 #include "Spline.h"
-#include "Catch/catch.hpp"
+
 
 #ifndef __ISWINDOWS__
 	#ifndef DBL_EPSILON
@@ -2587,7 +2587,8 @@ void CoolPropStateClass::update(long iInput1, double Value1, long iInput2, doubl
 ///// ###################### TEST CASES ###################
 ///// ###################### TEST CASES ###################
 ///// ###################### TEST CASES ###################
-
+#ifndef DISABLE_CATCH
+#include "Catch/catch.hpp"
 TEST_CASE("Check REFPROP and coolprop state classes match", "")
 {
 	CoolPropStateClassSI CPWater("Water");
@@ -2669,3 +2670,4 @@ TEST_CASE("Check REFPROP and coolprop state classes match", "")
 		REQUIRE(fabs(RPsigma - CPsigma) < 1e-4);
 	}
 }
+#endif

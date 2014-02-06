@@ -288,6 +288,7 @@ class Fluid
 		double specific_heat_v_Trho(double T, double rho);
 		double gibbs_Trho(double T, double rho);
 		double dpdT_Trho(double T,double rho);
+		double dpdrho_Trho(double T,double rho);
 		double drhodT_p_Trho(double T,double rho);
 
 		// Get the density using the Soave EOS
@@ -470,6 +471,8 @@ class Fluid
 
 		virtual double surface_tension_T(double T);
 
+		void saturation_VdW(double T, double &rhoL, double &rhoV, double &p, double s0=-1);
+
 		/// Saturation pressure and saturated liquid and vapor densities as a function of the temperature.
 		/// @param T Temperature [K]
 		/// @param UseLUT If True, use the Saturation Lookup tables, otherwise use the EOS and the equal gibbs function and equal pressure criterion to determine saturation state
@@ -529,7 +532,7 @@ class Fluid
 		/// @param rhoLout Saturated liquid pressure [kg/m3]
 		/// @param rhoVout Saturated vapor pressure [kg/m3]
 		/// @param omega Relaxation parameter [-]
-		void rhosatPure_Akasaka(double T, double *rhoLout, double *rhoVout, double *pout, double omega);
+		void rhosatPure_Akasaka(double T, double *rhoLout, double *rhoVout, double *pout, double omega, bool use_guesses = false);
 
 		/// Get the saturated liquid, vapor densities and the saturated pressure using Brent's method and adjusting the pressure
 		/// @param T Temperature [K]]

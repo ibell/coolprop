@@ -1374,54 +1374,56 @@ double phir_critical::dTau3(double tau, double delta) throw()
 	}
 	return summer;
 }
-TEST_CASE("Non-analytic critical point Helmholtz derivative check", "[helmholtz],[fast]")
-{
-	// From CO2
-	double n[] = {0,-0.666422765408E+00,0.726086323499E+00,0.550686686128E-01};
-	double d[] = {0,2,3,3};
-	double t[] = {0, 1.00, 3.00, 3.00};
-	double a[] = {0, 3.5, 3.5, 3.0};
-	double b[] = {0, 0.875, 0.925, 0.875};
-	double beta[] = {9,0.300, 0.300, 0.300};
-	double A[] = {0, 0.700, 0.700, 0.700};
-	double B[] = {0, 0.3, 0.3, 1.0};
-	double C[] = {0, 10.0, 10.0, 12.5};
-	double D[] = {0, 275.0, 275.0, 275.0};
-	
-	phir_critical phir = phir_critical(n,d,t,a,b,beta,A,B,C,D,1,3,4);
-	double eps = sqrt(DBL_EPSILON);
+#ifndef DISABLE_CATCH
+	TEST_CASE("Non-analytic critical point Helmholtz derivative check", "[helmholtz],[fast]")
+	{
+		// From CO2
+		double n[] = {0,-0.666422765408E+00,0.726086323499E+00,0.550686686128E-01};
+		double d[] = {0,2,3,3};
+		double t[] = {0, 1.00, 3.00, 3.00};
+		double a[] = {0, 3.5, 3.5, 3.0};
+		double b[] = {0, 0.875, 0.925, 0.875};
+		double beta[] = {9,0.300, 0.300, 0.300};
+		double A[] = {0, 0.700, 0.700, 0.700};
+		double B[] = {0, 0.3, 0.3, 1.0};
+		double C[] = {0, 10.0, 10.0, 12.5};
+		double D[] = {0, 275.0, 275.0, 275.0};
+		
+		phir_critical phir = phir_critical(n,d,t,a,b,beta,A,B,C,D,1,3,4);
+		double eps = sqrt(DBL_EPSILON);
 
-	SECTION("dDelta")
-	{
-		double ANA = phir.dDelta(0.5, 0.5);
-		double NUM = (phir.base(0.5, 0.5+eps) - phir.base(0.5,0.5-eps))/(2*eps);
-		REQUIRE(abs(NUM-ANA) < 1e-6);
+		SECTION("dDelta")
+		{
+			double ANA = phir.dDelta(0.5, 0.5);
+			double NUM = (phir.base(0.5, 0.5+eps) - phir.base(0.5,0.5-eps))/(2*eps);
+			REQUIRE(abs(NUM-ANA) < 1e-6);
+		}
+		SECTION("dTau")
+		{
+			double ANA = phir.dTau(0.5, 0.5);
+			double NUM = (phir.base(0.5+eps, 0.5) - phir.base(0.5-eps,0.5))/(2*eps);
+			REQUIRE(abs(NUM-ANA) < 1e-6);
+		}
+		SECTION("dDelta2")
+		{
+			double ANA = phir.dDelta2(0.5, 0.5);
+			double NUM = (phir.dDelta(0.5, 0.5+eps) - phir.dDelta(0.5,0.5-eps))/(2*eps);
+			REQUIRE(abs(NUM-ANA) < 1e-6);
+		}
+		SECTION("dTau2")
+		{
+			double ANA = phir.dTau2(0.5, 0.5);
+			double NUM = (phir.dTau(0.5+eps, 0.5) - phir.dTau(0.5-eps,0.5))/(2*eps);
+			REQUIRE(abs(NUM-ANA) < 1e-6);
+		}
+		SECTION("dDeltadTau")
+		{
+			double ANA = phir.dDelta_dTau(0.5, 0.5);
+			double NUM = (phir.dTau(0.5, 0.5+eps) - phir.dTau(0.5,0.5-eps))/(2*eps);
+			REQUIRE(abs(NUM-ANA) < 1e-6);
+		}
 	}
-	SECTION("dTau")
-	{
-		double ANA = phir.dTau(0.5, 0.5);
-		double NUM = (phir.base(0.5+eps, 0.5) - phir.base(0.5-eps,0.5))/(2*eps);
-		REQUIRE(abs(NUM-ANA) < 1e-6);
-	}
-	SECTION("dDelta2")
-	{
-		double ANA = phir.dDelta2(0.5, 0.5);
-		double NUM = (phir.dDelta(0.5, 0.5+eps) - phir.dDelta(0.5,0.5-eps))/(2*eps);
-		REQUIRE(abs(NUM-ANA) < 1e-6);
-	}
-	SECTION("dTau2")
-	{
-		double ANA = phir.dTau2(0.5, 0.5);
-		double NUM = (phir.dTau(0.5+eps, 0.5) - phir.dTau(0.5-eps,0.5))/(2*eps);
-		REQUIRE(abs(NUM-ANA) < 1e-6);
-	}
-	SECTION("dDeltadTau")
-	{
-		double ANA = phir.dDelta_dTau(0.5, 0.5);
-		double NUM = (phir.dTau(0.5, 0.5+eps) - phir.dTau(0.5,0.5-eps))/(2*eps);
-		REQUIRE(abs(NUM-ANA) < 1e-6);
-	}
-}
+#endif
 
 double phir_SAFT_associating::Deltabar(double tau, double delta)
 {
@@ -1572,46 +1574,48 @@ double phir_SAFT_associating_1::dDelta_dTau(double tau, double delta)
     double X_deltatau = this->d2X_ddeltadtau(tau, delta);
     return this->m*((-X_tau/X/X)*X_delta+X_deltatau*(1/X-0.5));
 }
-TEST_CASE("SAFT 1 Helmholtz derivative check", "[helmholtz],[fast]")
-{
-	double m = 1.01871348;
-	double vbarn = 0.444215309e-1;
-	double kappabar = 0.109117041e-4;
-	double epsilonbar = 12.2735737;
-	phir_SAFT_associating_1 phir = phir_SAFT_associating_1(m,epsilonbar,vbarn,kappabar);
-	double eps = sqrt(DBL_EPSILON);
+#ifndef DISABLE_CATCH
+	TEST_CASE("SAFT 1 Helmholtz derivative check", "[helmholtz],[fast]")
+	{
+		double m = 1.01871348;
+		double vbarn = 0.444215309e-1;
+		double kappabar = 0.109117041e-4;
+		double epsilonbar = 12.2735737;
+		phir_SAFT_associating_1 phir = phir_SAFT_associating_1(m,epsilonbar,vbarn,kappabar);
+		double eps = sqrt(DBL_EPSILON);
 
-	SECTION("dDelta")
-	{
-		double ANA = phir.dDelta(0.5, 0.5);
-		double NUM = (phir.base(0.5, 0.5+eps) - phir.base(0.5,0.5-eps))/(2*eps);
-		REQUIRE(abs(NUM-ANA) < 1e-6);
+		SECTION("dDelta")
+		{
+			double ANA = phir.dDelta(0.5, 0.5);
+			double NUM = (phir.base(0.5, 0.5+eps) - phir.base(0.5,0.5-eps))/(2*eps);
+			REQUIRE(abs(NUM-ANA) < 1e-6);
+		}
+		SECTION("dTau")
+		{
+			double ANA = phir.dTau(0.5, 0.5);
+			double NUM = (phir.base(0.5+eps, 0.5) - phir.base(0.5-eps,0.5))/(2*eps);
+			REQUIRE(abs(NUM-ANA) < 1e-6);
+		}
+		SECTION("dDelta2")
+		{
+			double ANA = phir.dDelta2(0.5, 0.5);
+			double NUM = (phir.dDelta(0.5, 0.5+eps) - phir.dDelta(0.5,0.5-eps))/(2*eps);
+			REQUIRE(abs(NUM-ANA) < 1e-6);
+		}
+		SECTION("dTau2")
+		{
+			double ANA = phir.dTau2(0.5, 0.5);
+			double NUM = (phir.dTau(0.5+eps, 0.5) - phir.dTau(0.5-eps,0.5))/(2*eps);
+			REQUIRE(abs(NUM-ANA) < 1e-6);
+		}
+		SECTION("dDeltadTau")
+		{
+			double ANA = phir.dDelta_dTau(0.5, 0.5);
+			double NUM = (phir.dTau(0.5, 0.5+eps) - phir.dTau(0.5,0.5-eps))/(2*eps);
+			REQUIRE(abs(NUM-ANA) < 1e-6);
+		}
 	}
-	SECTION("dTau")
-	{
-		double ANA = phir.dTau(0.5, 0.5);
-		double NUM = (phir.base(0.5+eps, 0.5) - phir.base(0.5-eps,0.5))/(2*eps);
-		REQUIRE(abs(NUM-ANA) < 1e-6);
-	}
-	SECTION("dDelta2")
-	{
-		double ANA = phir.dDelta2(0.5, 0.5);
-		double NUM = (phir.dDelta(0.5, 0.5+eps) - phir.dDelta(0.5,0.5-eps))/(2*eps);
-		REQUIRE(abs(NUM-ANA) < 1e-6);
-	}
-	SECTION("dTau2")
-	{
-		double ANA = phir.dTau2(0.5, 0.5);
-		double NUM = (phir.dTau(0.5+eps, 0.5) - phir.dTau(0.5-eps,0.5))/(2*eps);
-		REQUIRE(abs(NUM-ANA) < 1e-6);
-	}
-	SECTION("dDeltadTau")
-	{
-		double ANA = phir.dDelta_dTau(0.5, 0.5);
-		double NUM = (phir.dTau(0.5, 0.5+eps) - phir.dTau(0.5,0.5-eps))/(2*eps);
-		REQUIRE(abs(NUM-ANA) < 1e-6);
-	}
-}
+#endif
 double phir_SAFT_associating_2B::base(double tau, double delta)
 {
 	double X = this->X(delta, this->Deltabar(tau, delta));
@@ -1650,47 +1654,49 @@ double phir_SAFT_associating_2B::dDelta_dTau(double tau, double delta)
     double X_deltatau = this->d2X_ddeltadtau(tau, delta);
     return this->m*(2*(-X_tau/X/X)*X_delta+2*X_deltatau*(1/X-0.5));
 }
-TEST_CASE("SAFT 2B Helmholtz derivative check", "[helmholtz],[fast]")
-{
-	double m = 0.977118832;
-	double epsilon = 5.46341463;
-	double vbarn = 0.204481952;
-	double kappa = 0.148852832e-2;
-	phir_SAFT_associating_2B phir = phir_SAFT_associating_2B(m,epsilon,vbarn,kappa);
-	double eps = sqrt(DBL_EPSILON);
+#ifndef DISABLE_CATCH
 
-	SECTION("dDelta")
+	TEST_CASE("SAFT 2B Helmholtz derivative check", "[helmholtz],[fast]")
 	{
-		double ANA = phir.dDelta(0.5, 0.5);
-		double NUM = (phir.base(0.5, 0.5+eps) - phir.base(0.5,0.5-eps))/(2*eps);
-		REQUIRE(abs(NUM-ANA) < 1e-6);
-	}
-	SECTION("dTau")
-	{
-		double ANA = phir.dTau(0.5, 0.5);
-		double NUM = (phir.base(0.5+eps, 0.5) - phir.base(0.5-eps,0.5))/(2*eps);
-		REQUIRE(abs(NUM-ANA) < 1e-6);
-	}
-	SECTION("dDelta2")
-	{
-		double ANA = phir.dDelta2(0.5, 0.5);
-		double NUM = (phir.dDelta(0.5, 0.5+eps) - phir.dDelta(0.5,0.5-eps))/(2*eps);
-		REQUIRE(abs(NUM-ANA) < 1e-6);
-	}
-	SECTION("dTau2")
-	{
-		double ANA = phir.dTau2(0.5, 0.5);
-		double NUM = (phir.dTau(0.5+eps, 0.5) - phir.dTau(0.5-eps,0.5))/(2*eps);
-		REQUIRE(abs(NUM-ANA) < 1e-6);
-	}
-	SECTION("dDeltadTau")
-	{
-		double ANA = phir.dDelta_dTau(0.5, 0.5);
-		double NUM = (phir.dTau(0.5, 0.5+eps) - phir.dTau(0.5,0.5-eps))/(2*eps);
-		REQUIRE(abs(NUM-ANA) < 1e-6);
-	}
-}
+		double m = 0.977118832;
+		double epsilon = 5.46341463;
+		double vbarn = 0.204481952;
+		double kappa = 0.148852832e-2;
+		phir_SAFT_associating_2B phir = phir_SAFT_associating_2B(m,epsilon,vbarn,kappa);
+		double eps = sqrt(DBL_EPSILON);
 
+		SECTION("dDelta")
+		{
+			double ANA = phir.dDelta(0.5, 0.5);
+			double NUM = (phir.base(0.5, 0.5+eps) - phir.base(0.5,0.5-eps))/(2*eps);
+			REQUIRE(abs(NUM-ANA) < 1e-6);
+		}
+		SECTION("dTau")
+		{
+			double ANA = phir.dTau(0.5, 0.5);
+			double NUM = (phir.base(0.5+eps, 0.5) - phir.base(0.5-eps,0.5))/(2*eps);
+			REQUIRE(abs(NUM-ANA) < 1e-6);
+		}
+		SECTION("dDelta2")
+		{
+			double ANA = phir.dDelta2(0.5, 0.5);
+			double NUM = (phir.dDelta(0.5, 0.5+eps) - phir.dDelta(0.5,0.5-eps))/(2*eps);
+			REQUIRE(abs(NUM-ANA) < 1e-6);
+		}
+		SECTION("dTau2")
+		{
+			double ANA = phir.dTau2(0.5, 0.5);
+			double NUM = (phir.dTau(0.5+eps, 0.5) - phir.dTau(0.5-eps,0.5))/(2*eps);
+			REQUIRE(abs(NUM-ANA) < 1e-6);
+		}
+		SECTION("dDeltadTau")
+		{
+			double ANA = phir.dDelta_dTau(0.5, 0.5);
+			double NUM = (phir.dTau(0.5, 0.5+eps) - phir.dTau(0.5,0.5-eps))/(2*eps);
+			REQUIRE(abs(NUM-ANA) < 1e-6);
+		}
+	}
+#endif
 
 double phi0_Planck_Einstein::base(double tau, double delta)
 {

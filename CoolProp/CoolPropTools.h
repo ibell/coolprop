@@ -41,6 +41,10 @@
 #  define M_PI 3.14159265358979323846
 #endif
 
+#ifndef COOLPROP_OK
+#define COOLPROP_OK 1
+#endif
+
 #ifdef HUGE_VAL
 #  define _HUGE HUGE_VAL
 #else
@@ -90,7 +94,6 @@
 		#undef min
 		#undef max
 		#undef EOS
-		#undef OK
 	#endif
 
 	inline bool ValidNumber(double x)
@@ -140,8 +143,6 @@
     std::string format(const char* fmt, ...);
 	// Missing string split - like in Python
 	std::vector<std::string> strsplit(std::string s, char del);
-
-	#define OK 1
 	
 	inline std::string upper(const std::string str_)
 	{
