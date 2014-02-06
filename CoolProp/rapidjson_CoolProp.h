@@ -3,7 +3,8 @@
 
 // On PowerPC, we are going to use the stdint.h integer types and not let rapidjson use its own
 #if defined(__powerpc__)
-#include <stdint.h>
+typedef unsigned int UINT32;
+#include "stdint.h"
 #define RAPIDJSON_NO_INT64DEFINE
 #endif
 

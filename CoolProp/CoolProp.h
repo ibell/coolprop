@@ -180,3 +180,4 @@ You might want to start by looking at CoolProp.h
 	void set_phase(std::string Phase_str);
 
 #endif
+
