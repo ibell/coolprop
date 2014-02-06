@@ -83,6 +83,10 @@ if __name__=='__main__':
                                  stderr=subprocess.PIPE,
                                  shell = True)
             stdout, stderr = p.communicate()
+
+            if p.returncode != 0:
+                print('tried to update git revision, but it failed for some reason (building from zip file?)')
+                return
             
             rev = stdout.strip()
             print('git revision is',rev)
