@@ -73,7 +73,8 @@
 	}
 	#endif
 	#endif
-    	#if defined(__powerpc__)
+    
+	#if defined(__powerpc__)
 	// PPC version of math.h doesn't include acosh or asinh, so we just define them here
 	static double acosh(double x)
 	{

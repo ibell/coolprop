@@ -2,7 +2,7 @@
 # appropriate.
 DEBUG_MODE = 0
 
-ADDED_CFLAGS = -D__powerpc__
+ADDED_CFLAGS = -D__powerpc__ -DDISABLE_CATCH
 
 ifeq ($(DEBUG_MODE),1)
 OBJ_DIR := PPC603gnu_DEBUG
