@@ -12,17 +12,7 @@
 #include "AllFluids.h"
 #include "CriticalSplineConstants.h"
 
-
-// On PowerPC, we are going to use the stdint.h integer types and not let rapidjson use its own
-#if defined(__powerpc__)
-#include <stdint.h>
-#define RAPIDJSON_NO_INT64DEFINE
-#endif
-
-#include "rapidjson/rapidjson.h"
-#include "rapidjson/document.h"
-#include "rapidjson/filestream.h"	// wrapper of C stream for prettywriter as output
-#include "rapidjson/prettywriter.h"	// for stringify JSON
+#include "rapidjson_CoolProp.h"
 
 #include "pseudopurefluids/Air.cpp"
 #include "pseudopurefluids/R507A.cpp"
@@ -32,7 +22,7 @@
 #include "pseudopurefluids/SES36.cpp"
 #include "pseudopurefluids/R407F.cpp"
 
-#include "purefluids/AceticAcid.cpp"
+//#include "purefluids/AceticAcid.cpp"
 #include "purefluids/Argon.cpp"
 #include "purefluids/Alkanes.cpp"
 #include "purefluids/Benzene.cpp"
@@ -141,7 +131,7 @@ FluidsContainer::FluidsContainer()
 	FluidsList.push_back(new R1234zeZClass());
 	FluidsList.push_back(new R1233zdEClass());
 	FluidsList.push_back(new R161Class());
-	FluidsList.push_back(new AceticAcidClass());
+	//FluidsList.push_back(new AceticAcidClass());
 
 	// The industrial fluids
 	FluidsList.push_back(new R245faClass());

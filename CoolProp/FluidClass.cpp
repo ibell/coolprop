@@ -1,5 +1,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 
+#include "rapidjson_CoolProp.h"
+
 #include <stdlib.h>
 #include <string>
 #include <vector>

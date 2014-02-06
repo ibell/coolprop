@@ -1,6 +1,8 @@
 
 #define _CRT_SECURE_NO_WARNINGS
 
+#include "rapidjson_CoolProp.h"
+
 #include "Mixtures.h"
 #include "Solvers.h"
 #include "CPExceptions.h"
