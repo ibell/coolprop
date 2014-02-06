@@ -1,3 +1,9 @@
+// On PowerPC, we are going to use the stdint.h integer types and not let rapidjson use its own
+#if defined(__powerpc__)
+#include "stdint.h"
+#define RAPIDJSON_NO_INT64DEFINE
+#endif
+
 #include "CPExceptions.h"
 #include "Solvers.h"
 #include "CPState.h"

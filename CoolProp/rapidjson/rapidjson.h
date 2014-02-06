@@ -231,6 +231,7 @@ public:
 		return size;
 	}
 
+	#include "stdint.h"
 	//! Allocates a memory block. (concept Allocator)
 	void* Malloc(size_t size) {
 		size = (size + 3) & ~3;	// Force aligning size to 4

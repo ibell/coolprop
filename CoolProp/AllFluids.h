@@ -2,10 +2,7 @@
 #ifndef ALLFLUIDS_H
 #define ALLFLUIDS_H
 
-#include "rapidjson/rapidjson.h"
-#include "rapidjson/document.h"
-#include "rapidjson/filestream.h"	// wrapper of C stream for prettywriter as output
-#include "rapidjson/prettywriter.h"	// for stringify JSON
+#include "rapidjson_CoolProp.h"
 
 #include "FluidClass.h"
 

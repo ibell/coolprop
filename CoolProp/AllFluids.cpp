@@ -5,14 +5,14 @@
 #include <exception>
 #include <vector>
 
+#include "rapidjson_CoolProp.h"
+
 #include "CPExceptions.h"
 #include "CoolPropTools.h"
 #include "Helmholtz.h"
 #include "Units.h"
 #include "AllFluids.h"
 #include "CriticalSplineConstants.h"
-
-#include "rapidjson_CoolProp.h"
 
 #include "pseudopurefluids/Air.cpp"
 #include "pseudopurefluids/R507A.cpp"
