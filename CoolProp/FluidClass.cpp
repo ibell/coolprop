@@ -2723,7 +2723,7 @@ void Fluid::density_Ts(double T, double s, double *rhoout, double *pout, double 
 	{
 		rhoFuncClass rhoFunc(T, s, this);
 		std::string errstr;
-		*rhoout = Secant(&rhoFunc, rho_guess, 1, 1e-8, 100, &errstr);
+		*rhoout = BoundedSecant(&rhoFunc, rho_guess, 0.0, 1e10, 0.1*rho_guess, 1e-8, 100, &errstr);
 		*pout = pressure_Trho(T, *rhoout);
 	}
 }
