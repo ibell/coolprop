@@ -1528,9 +1528,7 @@ cdef class State:
         """
         Make a copy of this State class
         """
-        cdef State S = State.__new__(State)
-        S.set_Fluid(str(self.Fluid.decode('ascii')))
-        S.update_Trho(self.T_, self.rho_)
+        cdef State S = State(self.Fluid,dict(T=self.T_,D=self.rho_))
         S.phase = self.phase
         return S
     
