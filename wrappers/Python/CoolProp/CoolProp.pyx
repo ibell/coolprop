@@ -92,7 +92,7 @@ def set_reference_state(bytes_or_str FluidName, *args):
     ``IIR``      (h=200 kJ/kg, s=1 kJ/kg/K at 0C sat. liq.)
     ``ASHRAE``   (h=0,s=0 @ -40C sat liq)
     ``NBP``      (h=0,s=0 @ 1.0 bar sat liq.)
-    ==========   ============================================
+    ==========   ===========================================
     
     Type #2:
     
@@ -1061,8 +1061,6 @@ cdef class State:
         d['rho']=self.rho_
         d['phase'] = self.phase
         return rebuildState,(d,)
-          
-    
         
     cpdef set_Fluid(self, str Fluid):
         self.Fluid = Fluid.encode('ascii')
