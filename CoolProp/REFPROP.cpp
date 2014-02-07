@@ -405,7 +405,7 @@ bool load_REFPROP()
 	return true;
 }
 
-bool set_REFPROP_fluid(std::string Ref, double *x)
+bool set_REFPROP_fluid(std::string Ref, std::vector<double> &x)
 {
 	long ierr=0;
 	char hf[refpropcharlength*ncmax], herr[errormessagelength+1];
@@ -447,44 +447,38 @@ bool set_REFPROP_fluid(std::string Ref, double *x)
 				
 			// Chop off the MIX by keeping everything after the ':'
 			std::string components_joined = strsplit(sRef,':')[1];
+			
+			// Try to process predefined mixtures with .mix in the file name
+			if (components_joined.find(".mix") != std::string::npos)
+			{
+				char hf[255];
+				char hfiles[10000];
+				char herr[255];
+				double xx[ncmax];
+				strcpy(hf,components_joined.c_str());
 
-			if (!components_joined.compare("R507A"))
-			{
-				i = 2;
-				RefString = "R125.fld|R143a.fld";
-				x[0] = 0.411840;
-				x[1] = 0.588160;
-			}
-			else if (!components_joined.compare("R410A"))
-			{
-				i = 2;
-				RefString = "R32.fld|R125.fld";
-				x[0] = 0.697615;
-				x[1] = 0.302385;
-			}
-			else if (!components_joined.compare("R404A"))
-			{
-				i = 3;
-				RefString = "R125.fld|R134a.fld|R143a.fld";
-				x[0] = 0.357817;
-				x[1] = 0.038264;
-				x[2] = 0.603919;
-			}
-			else if (!components_joined.compare("R407C"))
-			{
-				i = 3;
-				RefString = "R32.fld|R125.fld|R134a.fld";
-				x[0] = 0.381109;
-				x[1] = 0.179559;
-				x[2] = 0.439332;
-			}
-			else if (!components_joined.compare("Air"))
-			{
-				i = 3;
-				RefString = "Nitrogen.fld|Oxygen.fld|Argon.fld";
-				x[0]=0.7812;
-				x[1]=0.2096;
-				x[2]=0.0092;
+				SETMIXdll(hf, hfmix, hrf, 
+					      &i, hfiles, xx,
+						  &ierr, herr,
+						  255,
+						  255,
+						  3, // lengthofreference
+						  10000,
+						  255);
+				// c-string needs to be 0-terminated
+				for (unsigned int j = 0; j < 255*ncmax; j++)
+				{
+					if (hfiles[j] == 32) // empty char
+					{
+						hfiles[j] = 0;
+						break;
+					}
+				}
+				RefString = std::string(hfiles,strlen(hfiles)+1);
+				for (unsigned int j = 0; j < i; j++)
+				{
+					x[j] = xx[j];
+				}
 			}
 			else
 			{
@@ -609,7 +603,7 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 	// First create a pointer to an instance of the library
 	load_REFPROP();
 	
-	set_REFPROP_fluid(Ref, &(x[0]) );
+	set_REFPROP_fluid(Ref, x);
 	
 	strcpy(herr,"Ok");
 	
@@ -937,7 +931,7 @@ REFPROPFluidClass::REFPROPFluidClass(std::string FluidName, std::vector<double> 
 	load_REFPROP();
 
 	// Set the fluid
-	set_REFPROP_fluid(FluidName, &(xmol[0]));
+	set_REFPROP_fluid(FluidName, xmol);
 
 	// Molar mass
 	WMOLdll(&(xmol[0]),&MW);
