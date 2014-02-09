@@ -13,7 +13,6 @@
 #include "CoolProp.h"
 #include "Spline.h"
 
-
 #ifdef MPLSUPPORTED
 #include "MPLPlot.h"
 #endif
@@ -2607,326 +2606,324 @@ void NewtonRaphsonVLE::build_arrays(double beta, double T, double p, const std::
 	error_rms = sqrt(error_rms); // Square-root (The R in RMS)
 
 	std::cout << format("r: %s\n",vec_to_string(r,"%6.5g").c_str());
+	
 	// Step 3:
 	// =======
 	// Calculate the sensitivity vector dXdS
-
 	dXdS = linsolve(J,neg_dFdS);
 }
 
-void PhaseEnvelope::store_variables(const double T, const double p, const double rhobar_liq, const double rhobar_vap, const std::vector<double> & K, const int iS, const std::vector<double> & x, const std::vector<double> & y)
-{
-	data.p.push_back(p);
-	data.T.push_back(T);
-	data.lnT.push_back(log(T));
-	data.lnp.push_back(log(p));
-	data.rhobar_liq.push_back(rhobar_liq);
-	data.rhobar_vap.push_back(rhobar_vap);
-	data.lnrhobar_liq.push_back(log(rhobar_liq));
-	data.lnrhobar_vap.push_back(log(rhobar_vap));
-	data.iS.push_back(iS);
-	for (unsigned int i = 0; i < Mix->N; i++)
-	{
-		data.K[i].push_back(K[i]);
-		data.x[i].push_back(x[i]);
-		data.y[i].push_back(y[i]);
-		data.lnK[i].push_back(log(K[i]));
-	}
-}
 
 void PhaseEnvelope::build(double p0, const std::vector<double> &z, double beta_envelope)
 {
-	double S, Sold, DELTAS;
+	double S, Sold, DELTAS, abs_Kdeviation;
 	K.resize(Mix->N);
-	data.K.resize(Mix->N);
-	data.lnK.resize(Mix->N);
-	data.x.resize(Mix->N);
-	data.y.resize(Mix->N);
+	bubble.K.resize(Mix->N);
+	bubble.lnK.resize(Mix->N);
+	bubble.x.resize(Mix->N);
+	bubble.y.resize(Mix->N);
+	dew.K.resize(Mix->N);
+	dew.lnK.resize(Mix->N);
+	dew.x.resize(Mix->N);
+	dew.y.resize(Mix->N);
 
-	// Use the preconditioner to get the very rough guess for saturation temperature 
-	// (interpolation based on pseudo-critical pressure)
-	double T_guess = Mix->saturation_p_preconditioner(p0, z);
-
-	// Initialize the call using Wilson to get K-factors and temperature
-	double T = Mix->saturation_p_Wilson(beta_envelope, p0, z, T_guess, K);
-
-	// Call successive substitution and Newton-Raphson to get updated guess for K-factors using imposed pressure
-	T = Mix->SS.call(beta_envelope, T, p0, z, K);
-	rhobar_liq = Mix->SS.rhobar_liq;
-	rhobar_vap = Mix->SS.rhobar_vap;
-
-	double p = p0;
-	double lnT = log(T);
-	double lnP = log(p0);
-
-	// Find the most sensitive input (the one with the largest absolute value in dX/dS
-	double max_abs_val = -1;
-	int i_S = -1;
-	for (unsigned int i = 0; i < Mix->N+1; i++) // N+1 because specification not allowed to be selected
+	for (unsigned int betaI = 0; betaI < 2; betaI++)
 	{
-		if (fabs(Mix->NRVLE.dXdS[i])>max_abs_val)
+		// If betaI is 0, use beta_envelope, otherwise use 1-beta_envelope
+		double beta = (betaI==0) ? beta_envelope : 1-beta_envelope;
+		
+		// Reference for data points to either bubble or dew
+		PhaseEnvelopeLog &data = (betaI==0) ? bubble : dew;
+
+		// Use the preconditioner to get the very rough guess for saturation temperature 
+		// (interpolation based on pseudo-critical pressure)
+		double T_guess = Mix->saturation_p_preconditioner(p0, z);
+
+		// Initialize the call using Wilson to get K-factors and temperature
+		double T = Mix->saturation_p_Wilson(beta, p0, z, T_guess, K);
+
+		// Call successive substitution and Newton-Raphson to get updated guess for K-factors using imposed pressure
+		T = Mix->SS.call(beta, T, p0, z, K);
+		rhobar_liq = Mix->SS.rhobar_liq;
+		rhobar_vap = Mix->SS.rhobar_vap;
+
+		double p = p0;
+		double lnT = log(T);
+		double lnP = log(p0);
+
+		// Find the most sensitive input (the one with the largest absolute value in dX/dS
+		double max_abs_val = -1;
+		int i_S = -1;
+		for (unsigned int i = 0; i < Mix->N+1; i++) // N+1 because specification not allowed to be selected
 		{
-			max_abs_val = fabs(Mix->NRVLE.dXdS[i]);
-			i_S = i;
+			if (fabs(Mix->NRVLE.dXdS[i])>max_abs_val)
+			{
+				max_abs_val = fabs(Mix->NRVLE.dXdS[i]);
+				i_S = i;
+			}
 		}
-	}
-	// Determine the value of the specified variable based on the index of the specified variable
-	if (i_S >= (int)Mix->N)
-	{
-		if (i_S == Mix->N) 
-		{ 
-			Sold = lnT; 
-			DELTAS = log(1.01); // Temperatures increase as we approach the critical point for both branches
+		// Determine the value of the specified variable based on the index of the specified variable
+		if (i_S >= (int)Mix->N)
+		{
+			if (i_S == Mix->N) 
+			{ 
+				Sold = lnT; 
+				DELTAS = log(1.01); // Temperatures increase as we approach the critical point for both branches
+			}
+			else
+			{ 
+				Sold = lnP; 
+				DELTAS = log(1.01); // Pressures increase as we approach the critical point for both branches
+			}
 		}
 		else
-		{ 
-			Sold = lnP; 
-			DELTAS = log(1.01); // Pressures increase as we approach the critical point for both branches
-		}
-	}
-	else
-	{
-		// K will go towards 1 as we move up on the envelope
-		Sold = log(K[i_S]);
-		if (Sold < 0) // K_i < 1
 		{
-			DELTAS = log(1.1); // K_i will increase
-		}
-		else
-		{
-			DELTAS = log(0.9); // K_i will decrease
-		}
-	}
-
-	// Run once with the specified variable set
-	Mix->NRVLE.call(beta_envelope, T, p, rhobar_liq, rhobar_vap, z, K, i_S, Sold);
-
-	// Store the variables in the log if the step worked ok
-	store_variables(T,p,Mix->NRVLE.rhobar_liq,Mix->NRVLE.rhobar_vap,K,i_S, Mix->NRVLE.x, Mix->NRVLE.y);
-
-	int iter = 1;
-	do
-	{
-		bool step_accepted = false;
-		std::vector<double> dXdSold = Mix->NRVLE.dXdS; //Copy from the last good run
-		double Told = T; // Copy from the last good run
-		double pold = p; // Copy from the last good run
-		std::vector<double> Kold = K; // Copy from the last good run
-
-		// Loop while the step size isn't small enough - usually only requires one downsizing of the step
-		while (step_accepted == false)
-		{
-			// Make a copy of the stored values from the last iteration
-			std::vector<double> DELTAX(dXdSold.size()), dXdS = dXdSold;
-			T = Told;
-			p = pold;
-			K = Kold;
-			
-			for (unsigned int i = 0; i < Mix->N+2; i++)
+			// K will go towards 1 as we move up on the envelope
+			Sold = log(K[i_S]);
+			if (Sold < 0) // K_i < 1
 			{
-				DELTAX[i] = dXdS[i]*DELTAS;
-			}
-
-			// Update the temperature
-			double DELTALNT = DELTAX[Mix->N];
-			T = exp(log(Told)+DELTALNT);
-			lnT = log(T);
-
-			// Update the pressure
-			double DELTALNP = DELTAX[Mix->N+1];
-			p = exp(log(pold)+DELTALNP);
-			lnP = log(p);
-
-			// Update the K-factors
-			for (unsigned int i = 0; i < Mix->N; i++)
-			{
-				K[i] = exp(log(Kold[i])+DELTAX[i]);
-			}
-
-			// Update the specified variable
-			S = Sold + DELTAS;
-			
-			std::cout << format("S: %g Sold %g DELTAS %g exp(S) %g exp(Sold) %g K %s\n",S,Sold,DELTAS, exp(S), exp(Sold),vec_to_string(K,"%0.5g").c_str());
-
-			// UPDATE THE GUESSES
-			// The specified variable is known directly. The others must be obtained either through the use of dXdS and/or extrapolation
-			if (data.T.size() == 3)
-			{
-				int M = data.T.size();
-				// Update the densities using quadratic extrapolation
-				rhobar_liq = QuadInterp(data.lnK[1][M-3],data.lnK[1][M-2],data.lnK[1][M-1],data.rhobar_liq[M-3],data.rhobar_liq[M-2],data.rhobar_liq[M-1],log(K[1]));
-				rhobar_vap = exp(QuadInterp(data.lnK[1][M-3],data.lnK[1][M-2],data.lnK[1][M-1],log(data.rhobar_vap[M-3]),log(data.rhobar_vap[M-2]),log(data.rhobar_vap[M-1]),log(K[1])));
-				T = exp(QuadInterp(data.lnK[1][M-3],data.lnK[1][M-2],data.lnK[1][M-1],data.lnT[M-3],data.lnT[M-2],data.lnT[M-1],log(K[1])));
-				p = exp(QuadInterp(data.lnK[1][M-3],data.lnK[1][M-2],data.lnK[1][M-1],data.lnp[M-3],data.lnp[M-2],data.lnp[M-1],log(K[1])));
-			}
-			else if (data.T.size() > 3)
-			{
-				int M = data.T.size();
-				// First we use a cubic spline to find the next value for the vapor molar density
-				SplineClass SC1;
-				SC1.add_4value_constraints(data.lnK[0][M-4],data.lnK[0][M-3],data.lnK[0][M-2],data.lnK[0][M-1],
-					                       data.lnrhobar_vap[M-4],data.lnrhobar_vap[M-3],data.lnrhobar_vap[M-2],data.lnrhobar_vap[M-1]);
-				SC1.build();
-				rhobar_vap = exp(SC1.evaluate(log(K[0])));
-
-				SplineClass SC2;
-				SC2.add_4value_constraints(log(data.rhobar_vap[M-4]), log(data.rhobar_vap[M-3]), log(data.rhobar_vap[M-2]), log(data.rhobar_vap[M-1]),
-					                       data.lnT[M-4], data.lnT[M-3], data.lnT[M-2], data.lnT[M-1]);
-				SC2.build();
-				T = exp(SC2.evaluate(log(rhobar_vap)));
-
-				SplineClass SC3;
-				SC3.add_4value_constraints(log(data.rhobar_vap[M-4]), log(data.rhobar_vap[M-3]), log(data.rhobar_vap[M-2]), log(data.rhobar_vap[M-1]),
-					                       data.lnp[M-4], data.lnp[M-3], data.lnp[M-2], data.lnp[M-1]);
-				SC3.build();
-				p = exp(SC3.evaluate(log(rhobar_vap)));
-
-				SplineClass SC4;
-				/*SC4.add_4value_constraints(log(data.rhobar_vap[M-4]), log(data.rhobar_vap[M-3]), log(data.rhobar_vap[M-2]), log(data.rhobar_vap[M-1]),
-					                       log(data.rhobar_liq[M-4]), log(data.rhobar_liq[M-3]), log(data.rhobar_liq[M-2]), log(data.rhobar_liq[M-1]));
-				SC4.build();
-				rhobar_liq = exp(SC4.evaluate(log(rhobar_vap)));*/
-				SC4.add_4value_constraints(data.rhobar_vap[M-4], data.rhobar_vap[M-3], data.rhobar_vap[M-2], data.rhobar_vap[M-1],
-					                       data.rhobar_liq[M-4], data.rhobar_liq[M-3], data.rhobar_liq[M-2], data.rhobar_liq[M-1]);
-				SC4.build();
-				rhobar_liq = SC4.evaluate(rhobar_vap);
+				DELTAS = log(1.1); // K_i will increase
 			}
 			else
 			{
-				// Treat the liquid as being incompressible, don't update the guess
-				// Treat the vapor as being ideal, use pressure ratio to update pressure
-
-				// Start with T&p from the last specified state
-				T = Mix->NRVLE.T;
-				p = Mix->NRVLE.p;
-
-				// Start with the densities from the last specified state
-				rhobar_liq = Mix->NRVLE.rhobar_liq;
-				rhobar_vap = Mix->NRVLE.rhobar_vap;
+				DELTAS = log(0.9); // K_i will decrease
 			}
-
-			// Run with the selected specified variable
-			try
-			{
-				
-				Mix->NRVLE.call(beta_envelope, T, p, rhobar_liq, rhobar_vap, z, K, i_S, S);
-				// Throw an exception if an invalid value returned but no exception was thrown
-				if (!ValidNumber(Mix->NRVLE.T))
-				{
-					throw ValueError(format("T [%g] is not valid", Mix->NRVLE.T).c_str());
-				}
-				
-				T = Mix->NRVLE.T;
-				p = Mix->NRVLE.p;
-				rhobar_liq = Mix->NRVLE.rhobar_liq;
-				rhobar_vap = Mix->NRVLE.rhobar_vap;
-
-				//std::vector<double> x(K.size()), y(K.size());
-				//double T2 = Mix->NRVLE.T;
-				//double T3 = Mix->saturation_p(beta_envelope,p,z,x,y);
-				//std::cout << T2 << " " << T3;
-			}
-			catch (CoolPropBaseError &e)
-			{
-				printf("error: %s\n",e.what());
-				// Decrease the step size by a factor of 10
-				printf("Failure; step downsize\n");
-
-				DELTAS *= 0.1;
-				
-				continue;
-			}
-
-			#ifdef MPLSUPPORTED
-				if (K[0] < 1.02)
-				{
-				Dictionary d;
-				d.add("lw", 1);
-				d.add("color", "r");
-				d.add("linestyle", "-");
-				d.add("marker", "o");
-
-				PyPlotter plt;
-				plt.plot(data.x[0],data.rhobar_vap, &d);
-				plt.plot(data.x[0],data.rhobar_liq, &d);
-				plt.show();
-				}
-			#endif
-
-			// Store the variables in the log if the step worked ok
-			store_variables(T, p, Mix->NRVLE.rhobar_liq, Mix->NRVLE.rhobar_vap, K, i_S, Mix->NRVLE.x, Mix->NRVLE.y);
-
-			step_accepted = true;
-
-			if (Mix->NRVLE.Nsteps > 4)
-			{
-				std::cout << "Downsizing, too many iterations\n";
-				DELTAS *= 0.25;
-			}
-			else if (Mix->NRVLE.Nsteps < 4)
-			{
-				DELTAS *= 2;
-			}
-
-			double _max_abs_val = -1;
-			int iii_S = -1;
-			for (unsigned int i = 0; i < Mix->N+1; i++)
-			{
-				if (fabs(Mix->NRVLE.dXdS[i]) > _max_abs_val)
-				{
-					_max_abs_val = fabs(Mix->NRVLE.dXdS[i]);
-					iii_S = i;
-				}
-			}
-			std::cout << format("T,P,Nstep,K : %g %g %d %g %g %d %d %s %s\n",T,p,Mix->NRVLE.Nsteps, rhobar_liq, rhobar_vap, iii_S, i_S, vec_to_string(Mix->NRVLE.x,"%6.5g").c_str(), vec_to_string(K,"%6.5g").c_str());
 		}
-		
-		// Update step counter
-		iter++;
 
-		// Reset last specified value
-		Sold = S;
-		
-		if (!ValidNumber(T))
+		// Run once with the specified variable set
+		Mix->NRVLE.call(beta, T, p, rhobar_liq, rhobar_vap, z, K, i_S, Sold);
+
+		// Store the variables in the log if the step worked ok
+		data.store_variables(T,p,Mix->NRVLE.rhobar_liq,Mix->NRVLE.rhobar_vap,K,i_S, Mix->NRVLE.x, Mix->NRVLE.y, Mix->N);
+
+		int iter = 1;
+		do
 		{
-			double rr = 0;
+			bool step_accepted = false;
+			std::vector<double> dXdSold = Mix->NRVLE.dXdS; //Copy from the last good run
+			double Told = T; // Copy from the last good run
+			double pold = p; // Copy from the last good run
+			std::vector<double> Kold = K; // Copy from the last good run
+
+			// Loop while the step size isn't small enough - usually only requires one downsizing of the step
+			while (step_accepted == false)
+			{
+				// Make a copy of the stored values from the last iteration
+				std::vector<double> DELTAX(dXdSold.size()), dXdS = dXdSold;
+				T = Told;
+				p = pold;
+				K = Kold;
+				
+				for (unsigned int i = 0; i < Mix->N+2; i++)
+				{
+					DELTAX[i] = dXdS[i]*DELTAS;
+				}
+
+				// Update the temperature
+				double DELTALNT = DELTAX[Mix->N];
+				T = exp(log(Told)+DELTALNT);
+				lnT = log(T);
+
+				// Update the pressure
+				double DELTALNP = DELTAX[Mix->N+1];
+				p = exp(log(pold)+DELTALNP);
+				lnP = log(p);
+
+				// Update the K-factors
+				for (unsigned int i = 0; i < Mix->N; i++)
+				{
+					K[i] = exp(log(Kold[i])+DELTAX[i]);
+				}
+
+				// Update the specified variable
+				S = Sold + DELTAS;
+				
+				std::cout << format("S: %g Sold %g DELTAS %g exp(S) %g exp(Sold) %g K %s\n",S,Sold,DELTAS, exp(S), exp(Sold),vec_to_string(K,"%0.5g").c_str());
+
+				// UPDATE THE GUESSES
+				// The specified variable is known directly. The others must be obtained either through the use of dXdS and/or extrapolation
+				if (data.T.size() > 2)
+				{
+					int M = data.T.size();
+					// Update the densities using quadratic extrapolation
+					rhobar_liq = QuadInterp(data.lnK[1][M-3],data.lnK[1][M-2],data.lnK[1][M-1],data.rhobar_liq[M-3],data.rhobar_liq[M-2],data.rhobar_liq[M-1],log(K[1]));
+					rhobar_vap = exp(QuadInterp(data.lnK[1][M-3],data.lnK[1][M-2],data.lnK[1][M-1],log(data.rhobar_vap[M-3]),log(data.rhobar_vap[M-2]),log(data.rhobar_vap[M-1]),log(K[1])));
+					T = exp(QuadInterp(data.lnK[1][M-3],data.lnK[1][M-2],data.lnK[1][M-1],data.lnT[M-3],data.lnT[M-2],data.lnT[M-1],log(K[1])));
+					p = exp(QuadInterp(data.lnK[1][M-3],data.lnK[1][M-2],data.lnK[1][M-1],data.lnp[M-3],data.lnp[M-2],data.lnp[M-1],log(K[1])));
+				}
+				else if (data.T.size() > 3)
+				{
+					int M = data.T.size();
+					// First we use a cubic spline to find the next value for the vapor molar density
+					SplineClass SC1;
+					SC1.add_4value_constraints(data.lnK[0][M-4],data.lnK[0][M-3],data.lnK[0][M-2],data.lnK[0][M-1],
+											   data.lnrhobar_vap[M-4],data.lnrhobar_vap[M-3],data.lnrhobar_vap[M-2],data.lnrhobar_vap[M-1]);
+					SC1.build();
+					rhobar_vap = exp(SC1.evaluate(log(K[0])));
+
+					SplineClass SC2;
+					SC2.add_4value_constraints(log(data.rhobar_vap[M-4]), log(data.rhobar_vap[M-3]), log(data.rhobar_vap[M-2]), log(data.rhobar_vap[M-1]),
+											   data.lnT[M-4], data.lnT[M-3], data.lnT[M-2], data.lnT[M-1]);
+					SC2.build();
+					T = exp(SC2.evaluate(log(rhobar_vap)));
+
+					SplineClass SC3;
+					SC3.add_4value_constraints(log(data.rhobar_vap[M-4]), log(data.rhobar_vap[M-3]), log(data.rhobar_vap[M-2]), log(data.rhobar_vap[M-1]),
+											   data.lnp[M-4], data.lnp[M-3], data.lnp[M-2], data.lnp[M-1]);
+					SC3.build();
+					p = exp(SC3.evaluate(log(rhobar_vap)));
+
+					SplineClass SC4;
+					/*SC4.add_4value_constraints(log(data.rhobar_vap[M-4]), log(data.rhobar_vap[M-3]), log(data.rhobar_vap[M-2]), log(data.rhobar_vap[M-1]),
+											   log(data.rhobar_liq[M-4]), log(data.rhobar_liq[M-3]), log(data.rhobar_liq[M-2]), log(data.rhobar_liq[M-1]));
+					SC4.build();
+					rhobar_liq = exp(SC4.evaluate(log(rhobar_vap)));*/
+					SC4.add_4value_constraints(data.rhobar_vap[M-4], data.rhobar_vap[M-3], data.rhobar_vap[M-2], data.rhobar_vap[M-1],
+											   data.rhobar_liq[M-4], data.rhobar_liq[M-3], data.rhobar_liq[M-2], data.rhobar_liq[M-1]);
+					SC4.build();
+					rhobar_liq = SC4.evaluate(rhobar_vap);
+				}
+				else
+				{
+					// Treat the liquid as being incompressible, don't update the guess
+					// Treat the vapor as being ideal, use pressure ratio to update pressure
+
+					// Start with T&p from the last specified state
+					T = Mix->NRVLE.T;
+					p = Mix->NRVLE.p;
+
+					// Start with the densities from the last specified state
+					rhobar_liq = Mix->NRVLE.rhobar_liq;
+					rhobar_vap = Mix->NRVLE.rhobar_vap;
+				}
+
+				// Run with the selected specified variable
+				try
+				{
+					
+					Mix->NRVLE.call(beta, T, p, rhobar_liq, rhobar_vap, z, K, i_S, S);
+					// Throw an exception if an invalid value returned but no exception was thrown
+					if (!ValidNumber(Mix->NRVLE.T))
+					{
+						throw ValueError(format("T [%g] is not valid", Mix->NRVLE.T).c_str());
+					}
+					
+					T = Mix->NRVLE.T;
+					p = Mix->NRVLE.p;
+					rhobar_liq = Mix->NRVLE.rhobar_liq;
+					rhobar_vap = Mix->NRVLE.rhobar_vap;
+
+					//std::vector<double> x(K.size()), y(K.size());
+					//double T2 = Mix->NRVLE.T;
+					//double T3 = Mix->saturation_p(beta_envelope,p,z,x,y);
+					//std::cout << T2 << " " << T3;
+				}
+				catch (CoolPropBaseError &e)
+				{
+					printf("error: %s\n",e.what());
+					// Decrease the step size by a factor of 10
+					printf("Failure; step downsize\n");
+
+					DELTAS *= 0.1;
+					
+					continue;
+				}
+
+				#ifdef MPLSUPPORTED
+					if (K[0] < 1.02)
+					{
+					Dictionary d;
+					d.add("lw", 1);
+					d.add("color", "r");
+					d.add("linestyle", "-");
+					d.add("marker", "o");
+
+					PyPlotter plt;
+					plt.plot(data.lnK[0],data.lnrhobar_vap, &d);
+					plt.show();
+					}
+				#endif
+
+				// Store the variables in the log if the step worked ok
+				data.store_variables(T, p, Mix->NRVLE.rhobar_liq, Mix->NRVLE.rhobar_vap, K, i_S, Mix->NRVLE.x, Mix->NRVLE.y, Mix->N);
+
+				step_accepted = true;
+
+				if (Mix->NRVLE.Nsteps > 4)
+				{
+					std::cout << "Downsizing, too many iterations\n";
+					DELTAS *= 0.25;
+				}
+				else if (Mix->NRVLE.Nsteps < 4)
+				{
+					DELTAS *= 2;
+				}
+
+				double _max_abs_val = -1;
+				int iii_S = -1;
+				for (unsigned int i = 0; i < Mix->N+1; i++)
+				{
+					if (fabs(Mix->NRVLE.dXdS[i]) > _max_abs_val)
+					{
+						_max_abs_val = fabs(Mix->NRVLE.dXdS[i]);
+						iii_S = i;
+					}
+				}
+				std::cout << format("T,P,Nstep,K : %g %g %d %g %g %d %d %s %s\n",T,p,Mix->NRVLE.Nsteps, rhobar_liq, rhobar_vap, iii_S, i_S, vec_to_string(Mix->NRVLE.x,"%6.5g").c_str(), vec_to_string(K,"%6.5g").c_str());
+			}
+			
+			// Update step counter
+			iter++;
+
+			// Reset last specified value
+			Sold = S;
+			
+			if (!ValidNumber(T))
+			{
+				double rr = 0;
+			}
+
+			std::vector<double> Kdeviation(K.size(),0);
+			for (unsigned int i = 0; i < Mix->N; i++)
+			{
+				Kdeviation[i] = abs(K[i]-1);
+			}
+			abs_Kdeviation = *std::max_element(Kdeviation.begin(), Kdeviation.end());
 		}
+		while ((p > p0 && abs_Kdeviation > 0.01 && iter < 10000) || iter < 3);
 	}
-	while ((p > p0 && iter < 10000) || iter < 3);
-
-	FILE *fp;
-	if (double_equal(beta_envelope,1.0))
-	{
-		fp = fopen("phase_envelope_dew.py","w");
-	}
-	else if (double_equal(beta_envelope,0.0))
-	{
-		fp = fopen("phase_envelope_bubble.py","w");
-	}
-
-	/*Dictionary d;
-	d.add("lw", 3.1);
-	d.add("color", "r");
-	d.add("linestyle", "-");
-
-	PyPlotter plt;
-	plt.plot(data.T, data.p, &d);
-	plt.show();*/
-	
-	fprintf(fp, "import matplotlib.pyplot as plt\n");
-	fprintf(fp, "T = %s\n",vec_to_string(data.T,"%10.9g").c_str());
-	fprintf(fp, "p = %s\n",vec_to_string(data.p,"%10.9g").c_str());
-	fprintf(fp, "rhobar_liq = %s\n", vec_to_string(data.rhobar_liq,"%10.9g").c_str());
-	fprintf(fp, "rhobar_vap = %s\n", vec_to_string(data.rhobar_vap,"%10.9g").c_str());
-	fprintf(fp, "K0 = %s\n", vec_to_string(data.K[0],"%10.9g").c_str());
-	fprintf(fp, "K1 = %s\n", vec_to_string(data.K[1],"%10.9g").c_str());
-	fprintf(fp, "lnK0 = %s\n", vec_to_string(data.lnK[0],"%10.9g").c_str());
-	fprintf(fp, "lnK1 = %s\n", vec_to_string(data.lnK[1],"%10.9g").c_str());
-	fprintf(fp, "if __name__=='__main__':\n\tplt.plot(T,p,'o-')\n\tplt.show()");
-	fprintf(fp, "\n\tplt.plot(K0,p,'o-')\n\tplt.show()");
-	fclose(fp);
-
 	double rr = 0;
+}
+
+void PhaseEnvelope::to_python_files(std::string base_fname)
+{
+	FILE *fp;
+	for (unsigned int i = 0; i < 2; i++)
+	{	
+		// reference for data points to bubble if i==0, otherwise dew
+		PhaseEnvelopeLog &data = (i==0) ? bubble : dew;
+		std::string fname;
+		if (i==0){ 
+			fname = base_fname+std::string("_bubble.py");
+		}
+		else{
+			fname = base_fname+std::string("_dew.py");
+		}
+		fp = fopen(fname.c_str(), "w");
+		
+		fprintf(fp, "import matplotlib.pyplot as plt\n");
+		fprintf(fp, "T = %s\n",vec_to_string(data.T,"%10.9g").c_str());
+		fprintf(fp, "p = %s\n",vec_to_string(data.p,"%10.9g").c_str());
+		fprintf(fp, "rhobar_liq = %s\n", vec_to_string(data.rhobar_liq,"%10.9g").c_str());
+		fprintf(fp, "rhobar_vap = %s\n", vec_to_string(data.rhobar_vap,"%10.9g").c_str());
+		fprintf(fp, "K0 = %s\n", vec_to_string(data.K[0],"%10.9g").c_str());
+		fprintf(fp, "K1 = %s\n", vec_to_string(data.K[1],"%10.9g").c_str());
+		fprintf(fp, "lnK0 = %s\n", vec_to_string(data.lnK[0],"%10.9g").c_str());
+		fprintf(fp, "lnK1 = %s\n", vec_to_string(data.lnK[1],"%10.9g").c_str());
+		fprintf(fp, "if __name__=='__main__':\n\tplt.plot(T,p,'o-')\n\tplt.show()");
+		fprintf(fp, "\n\tplt.plot(K0,p,'o-')\n\tplt.show()");
+		fclose(fp);
+	}
 }
 
 
