@@ -1799,7 +1799,7 @@ void Fluid::temperature_ph(double p, double h, double *Tout, double *rhoout, dou
 				}
 				else if (h < hsatL - hsat_tol) 
 				{
-					T_guess = 0.1*params.Ttriple+0.9*TsatL;
+					T_guess = params.Ttriple+1;
 					rho_guess = density_Tp(T_guess,p);
 					h_guess = enthalpy_Trho(T_guess,rho_guess);
 					// Update the guess with linear interpolation
