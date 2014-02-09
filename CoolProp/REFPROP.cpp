@@ -488,6 +488,9 @@ bool set_REFPROP_fluid(std::string Ref, std::vector<double> &x)
 				// Flush out the refrigerant string for REFPROP
 				RefString.clear();
 
+				// Resize the vector of mole fractions
+				x.resize(components_split.size());
+
 				for (unsigned int j=0;j<components_split.size();j++)
 				{	
 					// Get component name and mole fraction (as strings)
