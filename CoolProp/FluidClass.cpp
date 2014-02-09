@@ -46,7 +46,6 @@
 static const bool use_cache = false;
 static bool UseCriticalSpline = true;
 
-using namespace std;
 
 double JSON_lookup_double(rapidjson::Document &root, std::string FluidName, std::string key)
 {
@@ -426,7 +425,7 @@ double Fluid::d2phi0_dDelta_dTau(double tau, double delta)
 bool Fluid::isAlias(std::string name)
 {
 	// Returns true if name is an alias of the fluid
-	for (vector<std::string>::iterator it = aliases.begin(); it != aliases.end(); it++)
+	for (std::vector<std::string>::iterator it = aliases.begin(); it != aliases.end(); it++)
 		if (name.compare((*it))==0)
 		{
 			return true;
