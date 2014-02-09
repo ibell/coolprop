@@ -2830,18 +2830,18 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z, double beta_e
 				}
 
 				#ifdef MPLSUPPORTED
-					if (K[0] < 1.02)
-					{
-					Dictionary d;
-					d.add("lw", 1);
-					d.add("color", "r");
-					d.add("linestyle", "-");
-					d.add("marker", "o");
+				if (K[0] < 1.01)
+				{
+				Dictionary d;
+				d.add("lw", 1);
+				d.add("color", "r");
+				d.add("linestyle", "-");
+				d.add("marker", "o");
 
-					PyPlotter plt;
-					plt.plot(data.lnK[0],data.lnrhobar_vap, &d);
-					plt.show();
-					}
+				PyPlotter plt;
+				plt.plot(data.lnK[0],data.lnrhobar_vap, &d);
+				plt.show();
+				}
 				#endif
 
 				// Store the variables in the log if the step worked ok
@@ -2892,7 +2892,6 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z, double beta_e
 		}
 		while ((p > p0 && abs_Kdeviation > 0.01 && iter < 10000) || iter < 3);
 	}
-	double rr = 0;
 }
 
 void PhaseEnvelope::to_python_files(std::string base_fname)

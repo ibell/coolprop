@@ -54,9 +54,9 @@ class BibTeXerClass:
         except UnicodeEncodeError:
             print 'Decoding error for',[author for author in entry.persons['author']]
             
-        if authors.find('{') > -1:
+        if authors.find('{') > -1 or authors.find('}') > -1:
             print authors
-            raise ValueError
+            raise ValueError("authors [{authors:s}] may not have '{{' or '}}' character".format(authors = authors))
             
         fields = entry.fields
             

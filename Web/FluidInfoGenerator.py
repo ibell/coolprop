@@ -4,6 +4,9 @@ import textwrap
 import os
 from parse_bib import BibTeXerClass
 
+if not os.path.exists('Fluids'):
+    os.mkdir('Fluids')
+
 def PropertyConsistency(Fluid):
     
     Tmax = CP.Props(Fluid,"Tcrit")-1 if Fluid == 'SES36' else CP.Props(Fluid,"Tcrit")-0.01
