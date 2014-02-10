@@ -21,7 +21,6 @@
 #include "FluidClass.h"
 #include "CoolProp.h"
 
-#include "PengRobinson.h"
 #include "REFPROP.h"
 #include "Solvers.h"
 #include "CPState.h"

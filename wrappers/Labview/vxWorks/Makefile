@@ -12,7 +12,7 @@ OBJ_DIR := PPC603gnu
 CFLAGS = -Os -fstrength-reduce -fno-builtin -fno-strict-aliasing -mlongcall
 endif
 
-LINKFLAGS = $(CFLAGS)
+LINKFLAGS = $(CFLAGS) -v -lm
 LIBPATH = 
 
 # List all the *compiled* object files here, under the OBJ_DIR

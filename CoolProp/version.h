@@ -1,1 +1,1 @@
-char version [] ="4.0.0";
+static char version [] ="4.0.0";
