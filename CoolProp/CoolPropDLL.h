@@ -1,7 +1,7 @@
 #ifndef COOLPROPDLL_H
 #define COOLPROPDLL_H
 
-#include "CoolPropTools.h"
+    #include "CoolPropTools.h"
 
 	// When using SWIG, it is extremely difficult to deal with char* for output strings, so just use 
 	// the std::string version since SWIG can handle std::string just fine
@@ -18,10 +18,10 @@
 	// will be exported to the DLL
 
 	// They can only use data types that play well with DLL wrapping (int, long, double, char*, void, etc.)
-	EXPORT_CODE double CONVENTION PropsS     (char *Output,char* Name1, double  Prop1, char *Name2, double  Prop2, char *Ref);
-	EXPORT_CODE double CONVENTION Props      (char *Output,char  Name1, double  Prop1, char  Name2, double  Prop2, char *Ref);
-	EXPORT_CODE double CONVENTION PropsSI    (char *Output,char *Name1, double  Prop1, char *Name2, double  Prop2, char *Ref);
-	EXPORT_CODE double CONVENTION Props1     (char *Ref, char *Output);
+	EXPORT_CODE double CONVENTION PropsS(char *Output,char *Name1, double  Prop1, char *Name2, double  Prop2, char *Ref);
+	EXPORT_CODE double CONVENTION Props(char *Output,char  Name1, double  Prop1, char  Name2, double  Prop2, char *Ref);
+	EXPORT_CODE double CONVENTION PropsSI(char *Output,char *Name1, double  Prop1, char *Name2, double  Prop2, char *Ref);
+	EXPORT_CODE double CONVENTION Props1(char *Ref, char *Output);
 
 	// This version uses the indices in place of the strings for speed.  Get the parameter indices
 	// from get_param_index('D') for instance and the Fluid index from get_Fluid_index('Air') for instance

@@ -111,12 +111,9 @@ def EES():
         os.makedirs(os.path.join('dist_temp','EES'))
     except os.error: pass
         
-    process = subprocess.Popen(['BuildLIB.bat'],shell=True,cwd=os.path.join('wrappers','EES'))
-    process.wait()
-    process = subprocess.Popen(['BuildDLF.bat'],shell=True,cwd=os.path.join('wrappers','EES'))
-    process.wait()
-    process = subprocess.Popen(['BuildMSI.bat'],shell=True,cwd=os.path.join('wrappers','EES'))
-    process.wait()
+    subprocess.check_output(['BuildDLL.bat'],shell=True,cwd=os.path.join('wrappers','EES'))
+    subprocess.check_output(['BuildDLF.bat'],shell=True,cwd=os.path.join('wrappers','EES'))
+    subprocess.check_output(['BuildMSI.bat'],shell=True,cwd=os.path.join('wrappers','EES'))
     
     shutil.copy2(os.path.join('wrappers','EES','Debug','CoolProp_EES_installer.msi'),os.path.join('dist_temp','EES','CoolProp_EES_installer.msi'))
     shutil.copy2(os.path.join('wrappers','EES','CoolProp.htm'),os.path.join('dist_temp','EES','CoolProp.htm'))
@@ -158,6 +155,42 @@ def Python():
     for python_install in PYTHONVERSIONS:
         print subprocess.check_output([python_install,'setup.py','bdist','--format=wininst','--dist-dir=../../dist_temp/Python'],shell=True,cwd=os.path.join('wrappers','Python'))
 
+def Maple():
+    try:
+        os.makedirs(os.path.join('dist_temp','Maple'))
+    except os.error: pass
+        
+    process = subprocess.check_output(['BuildDLLx64.bat'],shell=True,cwd=os.path.join('wrappers','Maple'))
+    
+    listing = ['Analysis of a Refrigeration Cycle with CoolProp.mw','sample_file.mw','CoolProp_x64.dll']
+    
+    for file in listing:
+        shutil.copy2(os.path.join('wrappers','Maple',file),os.path.join('dist_temp','Maple',file))
+    
+def Mathematica():
+    try:
+        os.makedirs(os.path.join('dist_temp','Mathematica'))
+    except os.error: pass
+        
+    process = subprocess.check_output(['BuildDLL.bat'],shell=True,cwd=os.path.join('wrappers','Mathematica'))
+    
+    listing = ['README.rst','example.nb','CoolProp.dll']
+    
+    for file in listing:
+        shutil.copy2(os.path.join('wrappers','Mathematica',file),os.path.join('dist_temp','Mathematica',file))
+        
+def Scilab():
+    try:
+        os.makedirs(os.path.join('dist_temp','Scilab'))
+    except os.error: pass
+        
+    process = subprocess.check_output(['BuildDLL.bat'],shell=True,cwd=os.path.join('wrappers','Scilab'))
+    
+    listing = ['README.rst','sample.sce','CoolProp_x64.dll','CoolProp.dll']
+    
+    for file in listing:
+        shutil.copy2(os.path.join('wrappers','Scilab',file),os.path.join('dist_temp','Scilab',file))
+    
 def MathCAD():
     try:
         os.makedirs(os.path.join('dist_temp','MathCAD','Prime'))
@@ -220,7 +253,7 @@ def BuildDocs():
     # Inject the revision number into the docs main pages for the link
     lines = open('Web/_templates/index.html','r').readlines()
     import CoolProp
-    languages = ['Python','Modelica','Labview','MATLAB','EES','Octave','Excel','C#','Java','Javascript','MathCAD']
+    languages = ['Python','Modelica','Labview','MATLAB','EES','Octave','Excel','C#','Java','Javascript','MathCAD','Maple','Mathematica','Scilab']
     for i in range(len(lines)):
         if (lines[i].find('http://sourceforge.net/projects/coolprop/files/CoolProp/') > -1
             and any([lines[i].find(a) > -1 for a in languages])
@@ -229,9 +262,9 @@ def BuildDocs():
             lines[i] = lines[i][:].replace(oldVersion,CoolProp.__version__)
     open('Web/_templates/index.html','w').write(''.join(lines))
     
+    print subprocess.check_output(['run_examples.bat'],shell=True,cwd='Web/examples')
     print subprocess.check_output(['doxygen','Doxyfile'],shell=True)
     shutil.rmtree(os.path.join('Web','_build'),ignore_errors = True)
-    print subprocess.check_output(['run_examples.bat'],shell=True,cwd='Web/examples')
     print subprocess.check_output(['BuildCPDocs.bat'],shell=True,cwd='Web')
     
 def UploadDocs():
@@ -250,17 +283,9 @@ def Superpacks():
     except WindowsError:
         pass
     shutil.copy2(os.path.join('dist_temp/CoolProp-'+CoolProp.__version__+'-source_code.zip'),os.path.join('dist_temp','windows_superpack','CoolProp-'+CoolProp.__version__+'-source_code.zip'))
-    shutil.copytree(os.path.join('dist_temp','Excel and DLL'), os.path.join('dist_temp','windows_superpack','Excel and DLL'))
-    shutil.copytree(os.path.join('dist_temp','Python'), os.path.join('dist_temp','windows_superpack','Python'))
-    shutil.copytree(os.path.join('dist_temp','C#'), os.path.join('dist_temp','windows_superpack','C#'))
-    shutil.copytree(os.path.join('dist_temp','Octave'), os.path.join('dist_temp','windows_superpack','Octave'))
-    shutil.copytree(os.path.join('dist_temp','MATLAB'), os.path.join('dist_temp','windows_superpack','MATLAB'))
-    shutil.copytree(os.path.join('dist_temp','EES'), os.path.join('dist_temp','windows_superpack','EES'))
-    shutil.copytree(os.path.join('dist_temp','Labview'), os.path.join('dist_temp','windows_superpack','Labview'))
-    shutil.copytree(os.path.join('dist_temp','Modelica'), os.path.join('dist_temp','windows_superpack','Modelica'))
-    shutil.copytree(os.path.join('dist_temp','Java'), os.path.join('dist_temp','windows_superpack','Java'))
-    shutil.copytree(os.path.join('dist_temp','Javascript'), os.path.join('dist_temp','windows_superpack','Javascript'))
-    shutil.copytree(os.path.join('dist_temp','MathCAD'), os.path.join('dist_temp','windows_superpack','MathCAD'))
+    
+    for folder in ['Excel and DLL','Python','C#','Octave','MATLAB','EES','Labview','Modelica','Maple','Scilab','Mathematica','Java','Javascript','MathCAD']:
+        shutil.copytree(os.path.join('dist_temp',folder), os.path.join('dist_temp','windows_superpack',folder))
     
     subprocess.check_call(['7z','a','-r','dist_temp/CoolProp-'+CoolProp.__version__+'-windows_superpack.zip','dist_temp/windows_superpack/*.*'])
     shutil.rmtree(os.path.join('dist_temp','windows_superpack'))
@@ -275,6 +300,9 @@ if __name__=='__main__':
 #     Csharp()
 #     Octave()
 #     MATLAB()
+#     Maple()
+#     Mathematica()
+#     Scilab()
 #     EES()
 #     Javascript()
 #     Java()
