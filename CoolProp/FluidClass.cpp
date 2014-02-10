@@ -2634,6 +2634,100 @@ void Fluid::temperature_hs(double h, double s, double *Tout, double *rhoout, dou
 	*rhoout = delta*reduce.rho;
 }
 
+void Fluid::density_Ts(double T, double s, double *rhoout, double *pout, double *rhoLout, double *rhoVout, double *psatLout, double *psatVout)
+{
+	double rho_guess, ssatL, ssatV;
+	bool _SinglePhase;
+
+	// Density is solved from entropy_Trho method for single phase and from
+	// saturation information for two-phase. First get the phase.
+	if (T >= crit.T)
+	{
+		_SinglePhase = true;
+		rho_guess = crit.p.Pa/R()/T;
+	}
+	else
+	{
+		// T < crit.T
+		// First try to define the phase with the ancillary equations, if we are
+		// far enough away from saturation.
+		ssatL = ssatL_anc(T);
+		ssatV = ssatV_anc(T);
+		if (s < ssatL - 0.05*abs(ssatL))
+		{
+			// liquid
+			_SinglePhase = true;
+			rho_guess = rhosatL(T);
+		}
+		else if (s > ssatV + 0.05*abs(ssatV))
+		{
+			// superheated vapor
+			_SinglePhase = true;
+			rho_guess = params.ptriple/R()/T;
+		}
+		else
+		{
+			// Actually have to use saturation information sadly
+			// For the given temperature, find the saturation state
+			// Run the saturation routines to determine the saturation densities and pressures
+			saturation_T(T, enabled_TTSE_LUT, psatLout, psatVout, rhoLout, rhoVout);
+			ssatL = entropy_Trho(T, *rhoLout);
+			ssatV = entropy_Trho(T, *rhoVout);
+			double Q = (s-ssatL)/(ssatV-ssatL);
+			if (Q < -100*DBL_EPSILON)
+			{
+				// liquid
+				_SinglePhase = true;
+				rho_guess = rhosatL(T);
+			}
+			else if (Q > 1+100*DBL_EPSILON)
+			{
+				// superheated vapor
+				_SinglePhase = true;
+				rho_guess = params.ptriple/R()/T;
+			}
+			else
+			{
+				// two-phase
+				// Return the quality weighted values
+				_SinglePhase = false;
+				*rhoout = 1/(Q/ *rhoVout +(1-Q)/ *rhoLout);
+				*pout = Q* *psatVout +(1-Q)* *psatLout;
+				return;
+			}
+		}
+	}
+
+	// Function class for iterative solution of entropy_Trho for rho
+	class rhoFuncClass : public FuncWrapper1D
+	{
+	private:
+		    double T, s;
+		    Fluid *pFluid;
+	public:
+		    rhoFuncClass(double T, double s, Fluid *pFluid)
+			{
+		        this->T = T;
+		        this->s = s;
+		        this->pFluid = pFluid;
+		    };
+
+		    double call(double rho)
+		    {
+		        return pFluid->entropy_Trho(T, rho) - s;
+		    };
+	};
+
+	// Calculate density and pressure for single phase states
+	if (_SinglePhase == true)
+	{
+		rhoFuncClass rhoFunc(T, s, this);
+		std::string errstr;
+		*rhoout = BoundedSecant(&rhoFunc, rho_guess, 0.0, 1e10, 0.1*rho_guess, 1e-8, 100, &errstr);
+		*pout = pressure_Trho(T, *rhoout);
+	}
+}
+
 double Fluid::Tsat_anc(double p, double Q)
 {
 	// This one only uses the ancillary equations
