@@ -903,14 +903,8 @@ double _CoolProp_Deriv_Terms(long iTerm, double T, double rho, Fluid * pFluid)
 		std::cout<<__FILE__<<" _CoolProp_Deriv_Terms return: "<<val<<std::endl;
 	}
 
-	// Generate a State instance wrapped around the Fluid instance
-	CoolPropStateClass CPS(pFluid);
-
-	// Update the class
-	CPS.update(iT,T,iD,rho);
-
 	switch (iTerm) {
-	case iDERdh_dp__rho:
+		case iDERdh_dp__rho:
 		case iDERdh_dp__v:
 		case iDERZ:
 		case iDERdZ_dDelta:
@@ -943,14 +937,39 @@ double _CoolProp_Deriv_Terms(long iTerm, double T, double rho, Fluid * pFluid)
 		case iDERdrho_dT__p:
 		case iDERdrho_dh__p:
 		case iDERdrho_dp__h:
+			{
+			// Generate a State instance wrapped around the Fluid instance
+			CoolPropStateClass CPS(pFluid);
+
+			// Force the update to consider the inputs as single-phase inputs
+			CPS.flag_SinglePhase =  true;
+
+			// Update the class
+			CPS.update(iT,T,iD,rho);
+			
+			// Get the output value
+			val = CPS.keyed_output(iTerm);
+			break;
+			}
+
 		case iDERrho_smoothed:
 		case iDERdrho_smoothed_dh:
 		case iDERdrho_smoothed_dp:
 		case iDERdrhodh_constp_smoothed:
 		case iDERdrhodp_consth_smoothed:
 		case iDERIsothermalCompressibility:
+			{
+			// Generate a State instance wrapped around the Fluid instance
+			CoolPropStateClass CPS(pFluid);
+
+			// Update the class
+			CPS.update(iT,T,iD,rho);
+
+			// Get the output value
 			val = CPS.keyed_output(iTerm);
 			break;
+			}
+			
 		default:
 			throw ValueError(format("Sorry DerivTerms is a work in progress, your derivative term [%d] is not available!",iTerm));
 	}
