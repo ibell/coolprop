@@ -16,7 +16,10 @@
 #include "math.h"
 #include "Helmholtz.h"
 #include "CoolPropTools.h"
+
+#ifndef DISABLE_CATCH
 #include "Catch/catch.hpp"
+#endif
 
 void check_derivatives(phi_BC * phi, double tau, double delta, double ddelta, double dtau)
 {

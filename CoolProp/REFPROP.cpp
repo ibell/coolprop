@@ -295,9 +295,9 @@ double setFunctionPointers()
 
 
 
-long i;
-char hfmix[] = "HMX.BNC";
-char hrf[] = "DEF";
+static long i;
+static char hfmix[] = "HMX.BNC";
+static char hrf[] = "DEF";
 
 #if defined(__ISWINDOWS__)
 char refpropPath[] = "";

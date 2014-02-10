@@ -123,7 +123,7 @@ if __name__=='__main__':
     gitrev_to_file()
 
     def version_to_file():
-        string_for_file = 'char version [] ="{v:s}";'.format(v = version)
+        string_for_file = 'static char version [] ="{v:s}";'.format(v = version)
         f = open(os.path.join(CPSourceDir,'version.h'),'r')
         current_version = f.read()
         f.close()

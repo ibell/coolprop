@@ -297,6 +297,15 @@ class Fluid
 		virtual double density_Tp(double T, double p);
 		virtual double density_Tp(double T, double p, double rho_guess);
 
+		/// Density as a function of temperature and entropy
+		/// @param T Temperature [K]
+		/// @param s Entropy [kJ/kg/K]
+		/// @param rhoout Density [kg/m^3]
+		/// @param pout Pressure [kPa]
+		/// @param rhoLout Saturated liquid density [kg/m^3]
+		/// @param rhoVout Saturated vapor density [kg/m^3]
+		virtual void density_Ts(double T, double s, double *rhoout, double *pout, double *rhoLout, double *rhoVout, double *psatLout, double *psatVout);
+
 		/// Temperature as a function of pressure and entropy
 		/// @param h Enthalpy [kJ/kg/K]
 		/// @param s Entropy [kJ/kg/K]
