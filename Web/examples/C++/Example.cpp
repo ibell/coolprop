@@ -60,7 +60,7 @@ int main() {
     try
     {
         printf("\n************ USING REFPROP ***************\n");
-        RPName = get_REFPROPname("Propane");
+        std::string RPName = get_fluid_param_string("Propane","REFPROPname");
         printf("TWO PHASE INPUTS (Pressure)");
         printf("Density of saturated liquid Propane at 101.325 kPa: %f kg/m^3\n", Props("D", 'P', 101.325, 'Q', 0, RPName));
         printf("Density of saturated vapor R290 at 101.325 kPa:     %f kg/m^3\n", Props("D", 'P', 101.325, 'Q', 1, RPName));

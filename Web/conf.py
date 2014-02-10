@@ -30,12 +30,15 @@ extensions = [#'matplotlib.sphinxext.only_directives',
               'sphinx.ext.autodoc',
               'sphinx.ext.pngmath',
               'ipython_console_highlighting',
+              'sphinxcontrib.napoleon'
               #'inheritance_diagram',
-              'numpydoc',
+              #'numpydoc',
               #'breathe'
               ]
 
 plot_formats = [('png',80)]
+
+numpydoc_show_class_members = False
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -79,7 +82,7 @@ release = ver
 
 # List of directories, relative to source directory, that shouldn't be searched
 # for source files.
-exclude_trees = ['_build']
+exclude_trees = ['_build','sphinxext']
 
 # The reST default role (used for this markup: `text`) to use for all documents.
 #default_role = None

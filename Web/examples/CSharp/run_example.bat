@@ -5,6 +5,8 @@ call "C:\Program Files\Microsoft Visual Studio 9.0\VC\vcvarsall.bat"
 copy ..\..\..\wrappers\C#\Example.cs
 erase *_wrap.cpp
 
+swig.exe -version
+
 swig.exe -csharp -dllimport "CoolProp" -c++ -outcurrentdir ../../../CoolProp/CoolProp.i
 cl /c /I../../../CoolProp /EHsc CoolProp_wrap.cxx
 
