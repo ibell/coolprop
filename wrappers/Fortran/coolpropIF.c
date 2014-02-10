@@ -22,6 +22,12 @@ bool CONVENTION disable_TTSE_LUT(char *FluidName);
 int CONVENTION set_TTSE_mode(char *FluidName, char * Value);
 
 
+void CONVENTION propsmod_(char *Output, char *Name1, double *Prop1, char *Name2, double *Prop2, char *FluidName, double *resu)
+{
+  /* return Props(std::string(Output), Name1, Prop1, Name2, Prop2, std::string(FluidName)); */
+  *resu = Props(Output, *Name1, *Prop1, *Name2, *Prop2, FluidName);
+}
+
 /* Create pointer-only functions for Fortran avoiding underscores for f77 */
 double CONVENTION props1_(char *FluidName, char *Output)
 {

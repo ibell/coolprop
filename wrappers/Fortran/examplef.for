@@ -36,6 +36,9 @@
       write(*,*) "Tcrit from props1     : ", outVal 
       outVal = props(Output, Name1, Prop1, Name2, Prop2, Ref)
       write(*,*) "S from standard props : ", outVal
+      outVal = 0.0
+      CALL propsmod(Output, Name1, Prop1, Name2, Prop2, Ref, outVal)
+      write(*,*) "S from modified props : ", outVal
       outVal = derivterms("dpdrho"//CHAR(0), Prop1, D, Ref)
       write(*,*) "dpdrho from derivterms: ", outVal
       inte = setreferencestates(Ref, "IIR"//CHAR(0))
