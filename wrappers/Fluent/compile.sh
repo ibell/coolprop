@@ -7,7 +7,7 @@ FLUENT_COMPILER=g++
 HOME=`pwd`
 
 # Copy CoolProp sources to a local folder called coolprop
-cp ../CoolProp coolprop
+cp -r ../../CoolProp ./coolprop
 
 cd coolprop
 g++ -c CoolProp/*.cpp -ICoolProp -fPIC -D_GNU_SOURCE -ansi -O -Wall -DPTR_RESTRICT= 
