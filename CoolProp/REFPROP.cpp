@@ -53,7 +53,7 @@
   #endif
 #endif
 
-std::vector<double> x(ncmax,0);
+std::vector<double> x(ncmax,0), LoadedREFPROPx(ncmax,0);
 
 std::string LoadedREFPROPRef;
 
@@ -405,7 +405,7 @@ bool load_REFPROP()
 	return true;
 }
 
-bool set_REFPROP_fluid(std::string Ref, double *x)
+bool set_REFPROP_fluid(std::string Ref, std::vector<double> &x)
 {
 	long ierr=0;
 	char hf[refpropcharlength*ncmax], herr[errormessagelength+1];
@@ -443,57 +443,53 @@ bool set_REFPROP_fluid(std::string Ref, double *x)
 		if (!strncmp(sRef.c_str(),"MIX",3))
 		{
 			// Sample sRef is "MIX:R32[0.697615]&R125[0.302385]" -  this is R410A
-			// Or you could do "MIX:R410A" to use the full mixture model for this predefined mixture
+			// Or you could do "MIX:R410A.mix" to use the full mixture model for this predefined mixture
 				
 			// Chop off the MIX by keeping everything after the ':'
 			std::string components_joined = strsplit(sRef,':')[1];
+			
+			// Try to process predefined mixtures with .mix in the file name
+			if (components_joined.find(".mix") != std::string::npos)
+			{
+				char hf[255];
+				char hfiles[10000];
+				char herr[255];
+				double xx[ncmax];
+				strcpy(hf,components_joined.c_str());
 
-			if (!components_joined.compare("R507A"))
-			{
-				i = 2;
-				RefString = "R125.fld|R143a.fld";
-				x[0] = 0.411840;
-				x[1] = 0.588160;
-			}
-			else if (!components_joined.compare("R410A"))
-			{
-				i = 2;
-				RefString = "R32.fld|R125.fld";
-				x[0] = 0.697615;
-				x[1] = 0.302385;
-			}
-			else if (!components_joined.compare("R404A"))
-			{
-				i = 3;
-				RefString = "R125.fld|R134a.fld|R143a.fld";
-				x[0] = 0.357817;
-				x[1] = 0.038264;
-				x[2] = 0.603919;
-			}
-			else if (!components_joined.compare("R407C"))
-			{
-				i = 3;
-				RefString = "R32.fld|R125.fld|R134a.fld";
-				x[0] = 0.381109;
-				x[1] = 0.179559;
-				x[2] = 0.439332;
-			}
-			else if (!components_joined.compare("Air"))
-			{
-				i = 3;
-				RefString = "Nitrogen.fld|Oxygen.fld|Argon.fld";
-				x[0]=0.7812;
-				x[1]=0.2096;
-				x[2]=0.0092;
+				SETMIXdll(hf, hfmix, hrf, 
+					      &i, hfiles, xx,
+						  &ierr, herr,
+						  255,
+						  255,
+						  3, // lengthofreference
+						  10000,
+						  255);
+				// c-string needs to be 0-terminated
+				for (unsigned int j = 0; j < 255*ncmax; j++)
+				{
+					if (hfiles[j] == 32) // empty char
+					{
+						hfiles[j] = 0;
+						break;
+					}
+				}
+				RefString = std::string(hfiles,strlen(hfiles)+1);
+				for (unsigned int j = 0; j < i; j++)
+				{
+					x[j] = xx[j];
+				}
 			}
 			else
 			{
-				
 				// Split the components_joined into the components
 				std::vector<std::string> components_split = strsplit(components_joined,'&');
 
 				// Flush out the refrigerant string for REFPROP
 				RefString.clear();
+
+				// Resize the vector of mole fractions
+				x.resize(components_split.size());
 
 				for (unsigned int j=0;j<components_split.size();j++)
 				{	
@@ -564,7 +560,26 @@ bool set_REFPROP_fluid(std::string Ref, double *x)
 		}
 		//Copy the name of the loaded refrigerant back into the temporary holder
 		LoadedREFPROPRef = std::string(Ref);
+		
+		unsigned int jmax;
+		for (jmax = 0; jmax < ncmax; jmax++)
+		{
+			if (jmax == x.size())
+			{
+				break;
+			}
+			if (x[jmax] < 1e-13)
+			{
+				break;
+			}
+		}
+		x.resize(jmax);
+		LoadedREFPROPx = x;
 		return true;
+	}
+	else
+	{
+		x = LoadedREFPROPx;
 	}
 	return true;
 }
@@ -609,7 +624,7 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 	// First create a pointer to an instance of the library
 	load_REFPROP();
 	
-	set_REFPROP_fluid(Ref, &(x[0]) );
+	set_REFPROP_fluid(Ref, x);
 	
 	strcpy(herr,"Ok");
 	
@@ -922,7 +937,7 @@ REFPROPFluidClass::REFPROPFluidClass(std::string FluidName, std::vector<double> 
 
 	long ierr,ic;
 	char herr[errormessagelength+1];
-	std::vector<double> xliq = std::vector<double>(1,1), xvap = std::vector<double>(1,1);
+	std::vector<double> xliq = xmol, xvap = xmol;
 	double Tcrit,dcrit,pcrit,MW,Ttriple,tnbpt,acf,Zcrit,dip,Rgas, dummy1, dummy2;
 	
 	// Check platform support
@@ -930,14 +945,14 @@ REFPROPFluidClass::REFPROPFluidClass(std::string FluidName, std::vector<double> 
 	    throw NotImplementedError("You cannot use the REFPROPFluidClass.");
 	  }
 
-	// Copy the molar fractions
-	this->xmol = xmol;
-
 	// Load REFPROP if not already loaded
 	load_REFPROP();
 
 	// Set the fluid
-	set_REFPROP_fluid(FluidName, &(xmol[0]));
+	set_REFPROP_fluid(FluidName, xmol);
+
+	// Copy the molar fractions
+	this->xmol = xmol;
 
 	// Molar mass
 	WMOLdll(&(xmol[0]),&MW);
@@ -954,7 +969,9 @@ REFPROPFluidClass::REFPROPFluidClass(std::string FluidName, std::vector<double> 
 	params.Ttriple = Ttriple;
 	limits.Tmin = Ttriple;
 	
-	ic = 1;
+	ic = xmol.size();
+	xliq.resize(ic);
+	xvap.resize(ic);
 	SATTdll(&(Ttriple),&(xmol[0]),&(ic),&(params.ptriple),&dummy1,&dummy2,&(xliq[0]),&(xvap[0]),&ierr,herr,errormessagelength);
 
 	name.assign(FluidName);
@@ -1195,7 +1212,7 @@ void REFPROPFluidClass::saturation_T(double T, bool UseLUT, double *psatLout, do
 {
 	long ic,ierr;
 	char herr[errormessagelength+1];
-	std::vector<double> xliq = std::vector<double>(1,1),xvap = std::vector<double>(1,1);
+	std::vector<double> xliq = xmol, xvap = xmol;
 	double dummy;
 
 	ic=1;

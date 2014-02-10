@@ -4,6 +4,9 @@
 #include "Helmholtz.h"
 #include "FluidClass.h"
 
+#include <vector>
+#include <string>
+
 typedef std::vector<std::vector<double> > STLMatrix;
 
 /*! 
@@ -392,16 +395,44 @@ struct PhaseEnvelopeLog
 	std::vector< std::vector<double> > K, lnK, x, y;
 	std::vector<double> T, p, lnT, lnp, rhobar_liq, rhobar_vap, lnrhobar_liq, lnrhobar_vap;
 	std::vector<int> iS;
+
+	void store_variables(const double T, 
+		                 const double p, 
+						 const double rhobar_liq, 
+						 const double rhobar_vap, 
+						 const std::vector<double> & K, 
+						 const int iS, 
+						 const std::vector<double> & x, 
+						 const std::vector<double> & y, 
+						 const unsigned int N)
+	{
+		this->p.push_back(p);
+		this->T.push_back(T);
+		this->lnT.push_back(log(T));
+		this->lnp.push_back(log(p));
+		this->rhobar_liq.push_back(rhobar_liq);
+		this->rhobar_vap.push_back(rhobar_vap);
+		this->lnrhobar_liq.push_back(log(rhobar_liq));
+		this->lnrhobar_vap.push_back(log(rhobar_vap));
+		this->iS.push_back(iS);
+		for (unsigned int i = 0; i < N; i++)
+		{
+			this->K[i].push_back(K[i]);
+			this->x[i].push_back(x[i]);
+			this->y[i].push_back(y[i]);
+			this->lnK[i].push_back(log(K[i]));
+		}
+	};
 };
 class PhaseEnvelope
 {
 public:
-	PhaseEnvelopeLog data;
+	PhaseEnvelopeLog bubble, dew;
 	double rhobar_liq, rhobar_vap;
 	std::vector<double> K;
 	Mixture *Mix;
 	void build(double p0, const std::vector<double> &z, double beta_envelope);
-	void store_variables(const double T, const double p, const double rhobar_liq, const double rhobar_vap, const std::vector<double> & K, const int iS, const std::vector<double> & x, const std::vector<double> & y);
+	void to_python_files(std::string fname);
 };
 
 /*! 

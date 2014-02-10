@@ -30,7 +30,7 @@ extensions = [#'matplotlib.sphinxext.only_directives',
               'sphinx.ext.autodoc',
               'sphinx.ext.pngmath',
               'ipython_console_highlighting',
-              'inheritance_diagram',
+              #'inheritance_diagram',
               'numpydoc',
               #'breathe'
               ]

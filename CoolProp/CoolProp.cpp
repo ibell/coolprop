@@ -282,7 +282,7 @@ long get_Fluid_index(std::string FluidName)
 
 bool add_REFPROP_fluid(std::string FluidName)
 {
-	double x[100];
+	std::vector<double> x(100);
 	// Starts with REFPROP- keep going
 	if (!(FluidName.find("REFPROP-") == 0)) return false;
 	// Stop here if there is no REFPROP support

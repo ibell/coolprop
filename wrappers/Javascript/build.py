@@ -3,7 +3,7 @@ import subprocess, os
 import glob
 
 exports = ['-s','EXPORTED_FUNCTIONS=\"[\'_main\',\'_F2K\',\'_HAProps\',\'_Props1\',\'_PropsS\']\"']
-optimization = '-O1'
+optimization = '-O2'
 
 def compile_sources():
     for f in glob.glob(os.path.join('..','..','CoolProp','*.cpp')):

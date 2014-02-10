@@ -42,8 +42,6 @@ Note: Critical enhancement included
 #include "FluidClass.h"
 #include "Argon.h"
 
-using namespace std;
-
 ArgonClass::ArgonClass()
 {
 	static const double n[]={0,

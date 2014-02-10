@@ -6,7 +6,7 @@ Changelog for CoolProp
 * MAJOR: Added unit testing at the C++ level based on Catch
 * Added EOS for Methanol from Piazza based on SAFT association term
 * Added ``Prandtl`` as an output variable
-* Predefined mixtures (R404A, R410A, R407C, R507A, Air) can be used with REFPROP using a fluid name like "REFPROP-MIX:R410A"
+* Predefined mixtures (R404A, R410A, R407C, R507A, Air) can be used with REFPROP using a fluid name like "REFPROP-MIX:R410A.mix" where R410A.mix is a predefined mixture file in the mixtures folder of REFPROP
 * Export HAProps in Javascript
 * Improved some edge cases for ``P``, ``S`` inputs
 * Added wrappers for Maple and Mathematica

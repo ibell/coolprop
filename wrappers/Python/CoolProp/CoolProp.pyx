@@ -92,7 +92,7 @@ def set_reference_state(bytes_or_str FluidName, *args):
     ``IIR``      (h=200 kJ/kg, s=1 kJ/kg/K at 0C sat. liq.)
     ``ASHRAE``   (h=0,s=0 @ -40C sat liq)
     ``NBP``      (h=0,s=0 @ 1.0 bar sat liq.)
-    ==========   ============================================
+    ==========   ===========================================
     
     Type #2:
     
@@ -317,6 +317,7 @@ cpdef Props(str in1, str in2, in3 = None, in4 = None, in5 = None, in6 = None, in
     ``H``                      ``P``
     ``S``                      ``P``
     ``S``                      ``H``
+    ``T``                      ``S`` 
     =========================  ======================================
     
     **Python Only** : InputProp1 and InputProp2 can be lists or numpy arrays.  If both are iterables, they must be the same size. 
@@ -1061,8 +1062,6 @@ cdef class State:
         d['rho']=self.rho_
         d['phase'] = self.phase
         return rebuildState,(d,)
-          
-    
         
     cpdef set_Fluid(self, str Fluid):
         self.Fluid = Fluid.encode('ascii')
@@ -1530,9 +1529,7 @@ cdef class State:
         """
         Make a copy of this State class
         """
-        cdef State S = State.__new__(State)
-        S.set_Fluid(str(self.Fluid.decode('ascii')))
-        S.update_Trho(self.T_, self.rho_)
+        cdef State S = State(self.Fluid,dict(T=self.T_,D=self.rho_))
         S.phase = self.phase
         return S
     
