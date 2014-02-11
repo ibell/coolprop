@@ -14,7 +14,7 @@ RC318Class::RC318Class()
 
 	//Critical parameters
 	crit.rho = 3.09938*200.0312; //[kg/m^3]
-	crit.p = PressureUnit(3099.38, UNIT_KPA); //[kPa]
+	crit.p = PressureUnit(2.7775e+006, UNIT_PA); //[Pa]
 	crit.T = 388.38; //[K]
 	crit.v = 1/crit.rho; 
 

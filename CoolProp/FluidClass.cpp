@@ -753,7 +753,6 @@ double Fluid::density_Tp(double T, double p, double rho_guess)
 			// Update the step using Newton's method
 			change = (p_EOS-p)/dpdrho__constT;
 			rho -= change;
-			
 		}
 		else
 		{

@@ -98,7 +98,7 @@ R113Class::R113Class()
 
 	//Critical parameters
 	crit.rho = 560; //[kg/m^3]
-	crit.p = PressureUnit(4988.5, UNIT_KPA); //[kPa]
+	crit.p = PressureUnit(3.3922e+006, UNIT_PA); //[Pa]
 	crit.T = 487.21; //[K]
 	crit.v = 1/crit.rho; 
 

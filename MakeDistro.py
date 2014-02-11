@@ -239,7 +239,7 @@ def UploadSourceForge():
     os.remove('dist_temp')
     os.remove(version)
     
-def BuildDocs():
+def Doxygen():
     # Open Doxyfile, and update the version number in the file
     lines = open('Doxyfile','r').readlines()
     import CoolProp
@@ -249,6 +249,13 @@ def BuildDocs():
             lines[i]=line
             break
     open('Doxyfile','w').write(''.join(lines))
+    
+    print subprocess.check_output(['doxygen','Doxyfile'],shell=True)
+    
+def RunExamples():
+    print subprocess.check_output(['run_examples.bat'],shell=True,cwd='Web/examples')
+    
+def BuildDocs():
     
     # Inject the revision number into the docs main pages for the link
     lines = open('Web/_templates/index.html','r').readlines()
@@ -262,8 +269,6 @@ def BuildDocs():
             lines[i] = lines[i][:].replace(oldVersion,CoolProp.__version__)
     open('Web/_templates/index.html','w').write(''.join(lines))
     
-    print subprocess.check_output(['run_examples.bat'],shell=True,cwd='Web/examples')
-    print subprocess.check_output(['doxygen','Doxyfile'],shell=True)
     shutil.rmtree(os.path.join('Web','_build'),ignore_errors = True)
     print subprocess.check_output(['BuildCPDocs.bat'],shell=True,cwd='Web')
     
@@ -313,5 +318,7 @@ if __name__=='__main__':
 #     PYPI()
 #     UploadSourceForge()
     
+    Doxygen()
+    RunExamples()
     BuildDocs()
     UploadDocs()
