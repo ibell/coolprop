@@ -107,10 +107,10 @@ CoolPropSolver::CoolPropSolver(const std::string &mediumName, const std::string 
 void CoolPropSolver::setFluidConstants(){
 	if ((fluidType==FLUID_TYPE_PURE)||(fluidType==FLUID_TYPE_PSEUDOPURE)||(fluidType==FLUID_TYPE_REFPROP)){
 		if (debug_level > 5) std::cout << format("Setting constants for fluid %s \n",substanceName.c_str());
-		_fluidConstants.pc = Props(substanceName,"pcrit");
-		_fluidConstants.Tc = Props(substanceName,"Tcrit");
-		_fluidConstants.MM = Props(substanceName,"molemass");
-		_fluidConstants.dc = Props(substanceName,"rhocrit");
+		_fluidConstants.pc = PropsSI((char *)"pcrit"   ,(char *)"T",0,(char *)"P",0,(char *)substanceName.c_str());
+		_fluidConstants.Tc = PropsSI((char *)"Tcrit"   ,(char *)"T",0,(char *)"P",0,(char *)substanceName.c_str());
+		_fluidConstants.MM = PropsSI((char *)"molemass",(char *)"T",0,(char *)"P",0,(char *)substanceName.c_str());
+		_fluidConstants.dc = PropsSI((char *)"rhocrit" ,(char *)"T",0,(char *)"P",0,(char *)substanceName.c_str());
 		return;
 	}
 	if ((fluidType==FLUID_TYPE_INCOMPRESSIBLE_LIQUID)||(fluidType==FLUID_TYPE_INCOMPRESSIBLE_SOLUTION)){

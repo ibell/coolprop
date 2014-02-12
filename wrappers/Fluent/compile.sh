@@ -2,29 +2,39 @@
 
 # Warning: this script deletes directory libudf before creating a new one
 
+# Warning: read README.rst before editing the variables SOLVER and FLUENT_BIN_FOLDER
+
+SOLVER="3ddp"
+FLUENT_BIN_FOLDER="NULL"
+
 FLUENT_COMPILER=g++
 
 HOME=`pwd`
 
 # Copy CoolProp sources to a local folder called coolprop
-cp -r ../../CoolProp ./coolprop
+mkdir coolprop
+cp -r ../../CoolProp ./coolprop/CoolProp
 
 cd coolprop
 g++ -c CoolProp/*.cpp -ICoolProp -fPIC -D_GNU_SOURCE -ansi -O -Wall -DPTR_RESTRICT= 
 cd $HOME
 
 echo exit > exit.jou
-fluent 3ddp -g -env -i exit.jou > FluentEnvironment.dat 2>&1
+then
+	fluent $SOLVER -g -env -i exit.jou > FluentEnvironment.dat 2>&1
+else
+	$FLUENT_BIN_FOLDER"/fluent" $SOLVER -g -env -i exit.jou > FluentEnvironment.dat 2>&1
+fi
 rm exit.jou
 FLUENT_INC=`cat FluentEnvironment.dat | grep FLUENT_INC | sed 's/FLUENT[_A-Z]*=//'`
 FLUENT_ARCH=`cat FluentEnvironment.dat | grep FLUENT_ARCH | sed 's/FLUENT[_A-Z]*=//'`
 FLUENT_PROD_DIR=`cat FluentEnvironment.dat | grep FLUENT_PROD_DIR | sed 's/FLUENT[_A-Z]*=//'`
 PATH_MAKEFILE1=$FLUENT_PROD_DIR"/src/makefile.udf"
 PATH_MAKEFILE2=$FLUENT_PROD_DIR"/src/makefile.udf2"
-PATH_LIBRARY="libudf/"$FLUENT_ARCH"/3ddp"
+PATH_LIBRARY="libudf/"$FLUENT_ARCH"/"$SOLVER
 rm -rf libudf/
 mkdir libudf
-cp $PATH_MAKEFILE2 libudf/Makefile
+cp $PATH_MAKEFILE2 libudf/makefile
 mkdir libudf/src
 cp $PATH_MAKEFILE1 libudf/src/makefile	
 mkdir libudf/$FLUENT_ARCH
