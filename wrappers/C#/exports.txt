@@ -9,99 +9,100 @@ File Type: DLL
   Section contains the following exports for CoolProp.dll
 
     00000000 characteristics
-    52F9452C time date stamp Mon Feb 10 22:31:24 2014
+    52FD36F8 time date stamp Thu Feb 13 22:19:52 2014
         0.00 version
            1 ordinal base
-          81 number of functions
-          81 number of names
+          82 number of functions
+          82 number of names
 
     ordinal hint RVA      name
 
           1    0 000010D0 _CSharp_COOLPROP_OK_get@0
           2    1 00001890 _CSharp_CubicInterp@72
-          3    2 00001FC0 _CSharp_DerivTerms@24
-          4    3 00002170 _CSharp_F2K@8
-          5    4 00002CA0 _CSharp_HAHelp@0
-          6    5 00002AE0 _CSharp_HAProps@40
-          7    6 00002B80 _CSharp_HAProps_Aux@32
-          8    7 00001F00 _CSharp_IProps@32
-          9    8 00002BF0 _CSharp_IceProps@20
-         10    9 00001F70 _CSharp_IsFluidType@8
-         11    A 000021A0 _CSharp_K2F@8
+          3    2 00002010 _CSharp_DerivTerms@24
+          4    3 000021C0 _CSharp_F2K@8
+          5    4 00002CF0 _CSharp_HAHelp@0
+          6    5 00002B30 _CSharp_HAProps@40
+          7    6 00002BD0 _CSharp_HAProps_Aux@32
+          8    7 00001F50 _CSharp_IProps@32
+          9    8 00002C40 _CSharp_IceProps@20
+         10    9 00001FC0 _CSharp_IsFluidType@8
+         11    A 000021F0 _CSharp_K2F@8
          12    B 00001AB0 _CSharp_Kronecker_delta@8
          13    C 000010B0 _CSharp_M_PI_get@0
          14    D 000016A0 _CSharp_MatInv_2@8
-         15    E 00002020 _CSharp_Phase@24
-         16    F 000020E0 _CSharp_Phase_Tp@24
-         17   10 00002080 _CSharp_Phase_Trho@24
-         18   11 00001EB0 _CSharp_Props1@8
-         19   12 00001DA0 _CSharp_Props@32
-         20   13 00001D10 _CSharp_PropsS@32
-         21   14 00001E20 _CSharp_PropsSI@32
-         22   15 00001800 _CSharp_QuadInterp@56
-         23   16 00002C80 _CSharp_UseIdealGasEnthalpyCorrelations@4
-         24   17 00002C60 _CSharp_UseIsothermCompressCorrelation@4
-         25   18 00002C40 _CSharp_UseVirialCorrelations@4
-         26   19 000010F0 _CSharp_ValidNumber@8
-         27   1A 00002CF0 _CSharp_cair_sat@8
-         28   1B 00002A00 _CSharp_conductivity_background@20
-         29   1C 000029B0 _CSharp_conductivity_critical@20
-         30   1D 00002A50 _CSharp_conformal_Trho@32
-         31   1E 00002550 _CSharp_disable_TTSE_LUT@4
-         32   1F 00002610 _CSharp_disable_TTSE_LUT_writing@4
-         33   20 00001A70 _CSharp_double_equal@16
-         34   21 000024D0 _CSharp_enable_TTSE_LUT@4
-         35   22 00002590 _CSharp_enable_TTSE_LUT_writing@4
-         36   23 000012F0 _CSharp_format@4
-         37   24 000021D0 _CSharp_fromSI@16
-         38   25 000022D0 _CSharp_get_Fluid_index@4
-         39   26 00002750 _CSharp_get_TTSESinglePhase_LUT_range@20
-         40   27 00002390 _CSharp_get_debug_level@0
-         41   28 00001270 _CSharp_get_file_contents@4
-         42   29 00001BC0 _CSharp_get_fluid_param_string@8
-         43   2A 00001AF0 _CSharp_get_global_param_string@4
-         44   2B 00002310 _CSharp_get_index_units@8
-         45   2C 00002290 _CSharp_get_param_index@4
-         46   2D 000028E0 _CSharp_get_standard_unit_system@0
-         47   2E 00001760 _CSharp_interp1d@16
-         48   2F 00002510 _CSharp_isenabled_TTSE_LUT@4
-         49   30 000025D0 _CSharp_isenabled_TTSE_LUT_writing@4
-         50   31 00001A20 _CSharp_max3@24
-         51   32 000019D0 _CSharp_min3@24
-         52   33 000017C0 _CSharp_powInt@12
-         53   34 00002450 _CSharp_psatL_anc@12
-         54   35 00002490 _CSharp_psatV_anc@12
-         55   36 00002350 _CSharp_redirect_stdout@4
-         56   37 00002CB0 _CSharp_returnHumAirCode@4
-         57   38 000023D0 _CSharp_rhosatL_anc@12
-         58   39 00002410 _CSharp_rhosatV_anc@12
-         59   3A 000016D0 _CSharp_root_sum_square@4
-         60   3B 00002650 _CSharp_set_TTSESat_LUT_size@8
-         61   3C 000026E0 _CSharp_set_TTSESinglePhase_LUT_range@36
-         62   3D 00002690 _CSharp_set_TTSESinglePhase_LUT_size@12
-         63   3E 000027D0 _CSharp_set_TTSE_mode@8
-         64   3F 000023B0 _CSharp_set_debug_level@4
-         65   40 00002140 _CSharp_set_phase@4
-         66   41 00002870 _CSharp_set_reference_stateD@36
-         67   42 00002820 _CSharp_set_reference_stateS@8
-         68   43 00002900 _CSharp_set_standard_unit_system@4
-         69   44 00001940 _CSharp_solve_cubic@44
-         70   45 00001550 _CSharp_strjoin@8
-         71   46 00001120 _CSharp_strlstrip@4
-         72   47 000011B0 _CSharp_strrstrip@4
-         73   48 00001380 _CSharp_strsplit@8
-         74   49 00001210 _CSharp_strstrip@4
-         75   4A 00002230 _CSharp_toSI@16
-         76   4B 00001480 _CSharp_upper@4
-         77   4C 00002920 _CSharp_viscosity_dilute@12
-         78   4D 00002960 _CSharp_viscosity_residual@20
-         79   4E 00001070 _SWIGRegisterExceptionArgumentCallbacks_CoolProp@12
-         80   4F 00001000 _SWIGRegisterExceptionCallbacks_CoolProp@44
-         81   50 000010A0 _SWIGRegisterStringCallback_CoolProp@4
+         15    E 00002070 _CSharp_Phase@24
+         16    F 00002130 _CSharp_Phase_Tp@24
+         17   10 000020D0 _CSharp_Phase_Trho@24
+         18   11 00001F00 _CSharp_Props1@8
+         19   12 00001EB0 _CSharp_Props1SI@8
+         20   13 00001DA0 _CSharp_Props@32
+         21   14 00001D10 _CSharp_PropsS@32
+         22   15 00001E20 _CSharp_PropsSI@32
+         23   16 00001800 _CSharp_QuadInterp@56
+         24   17 00002CD0 _CSharp_UseIdealGasEnthalpyCorrelations@4
+         25   18 00002CB0 _CSharp_UseIsothermCompressCorrelation@4
+         26   19 00002C90 _CSharp_UseVirialCorrelations@4
+         27   1A 000010F0 _CSharp_ValidNumber@8
+         28   1B 00002D40 _CSharp_cair_sat@8
+         29   1C 00002A50 _CSharp_conductivity_background@20
+         30   1D 00002A00 _CSharp_conductivity_critical@20
+         31   1E 00002AA0 _CSharp_conformal_Trho@32
+         32   1F 000025A0 _CSharp_disable_TTSE_LUT@4
+         33   20 00002660 _CSharp_disable_TTSE_LUT_writing@4
+         34   21 00001A70 _CSharp_double_equal@16
+         35   22 00002520 _CSharp_enable_TTSE_LUT@4
+         36   23 000025E0 _CSharp_enable_TTSE_LUT_writing@4
+         37   24 000012F0 _CSharp_format@4
+         38   25 00002220 _CSharp_fromSI@16
+         39   26 00002320 _CSharp_get_Fluid_index@4
+         40   27 000027A0 _CSharp_get_TTSESinglePhase_LUT_range@20
+         41   28 000023E0 _CSharp_get_debug_level@0
+         42   29 00001270 _CSharp_get_file_contents@4
+         43   2A 00001BC0 _CSharp_get_fluid_param_string@8
+         44   2B 00001AF0 _CSharp_get_global_param_string@4
+         45   2C 00002360 _CSharp_get_index_units@8
+         46   2D 000022E0 _CSharp_get_param_index@4
+         47   2E 00002930 _CSharp_get_standard_unit_system@0
+         48   2F 00001760 _CSharp_interp1d@16
+         49   30 00002560 _CSharp_isenabled_TTSE_LUT@4
+         50   31 00002620 _CSharp_isenabled_TTSE_LUT_writing@4
+         51   32 00001A20 _CSharp_max3@24
+         52   33 000019D0 _CSharp_min3@24
+         53   34 000017C0 _CSharp_powInt@12
+         54   35 000024A0 _CSharp_psatL_anc@12
+         55   36 000024E0 _CSharp_psatV_anc@12
+         56   37 000023A0 _CSharp_redirect_stdout@4
+         57   38 00002D00 _CSharp_returnHumAirCode@4
+         58   39 00002420 _CSharp_rhosatL_anc@12
+         59   3A 00002460 _CSharp_rhosatV_anc@12
+         60   3B 000016D0 _CSharp_root_sum_square@4
+         61   3C 000026A0 _CSharp_set_TTSESat_LUT_size@8
+         62   3D 00002730 _CSharp_set_TTSESinglePhase_LUT_range@36
+         63   3E 000026E0 _CSharp_set_TTSESinglePhase_LUT_size@12
+         64   3F 00002820 _CSharp_set_TTSE_mode@8
+         65   40 00002400 _CSharp_set_debug_level@4
+         66   41 00002190 _CSharp_set_phase@4
+         67   42 000028C0 _CSharp_set_reference_stateD@36
+         68   43 00002870 _CSharp_set_reference_stateS@8
+         69   44 00002950 _CSharp_set_standard_unit_system@4
+         70   45 00001940 _CSharp_solve_cubic@44
+         71   46 00001550 _CSharp_strjoin@8
+         72   47 00001120 _CSharp_strlstrip@4
+         73   48 000011B0 _CSharp_strrstrip@4
+         74   49 00001380 _CSharp_strsplit@8
+         75   4A 00001210 _CSharp_strstrip@4
+         76   4B 00002280 _CSharp_toSI@16
+         77   4C 00001480 _CSharp_upper@4
+         78   4D 00002970 _CSharp_viscosity_dilute@12
+         79   4E 000029B0 _CSharp_viscosity_residual@20
+         80   4F 00001070 _SWIGRegisterExceptionArgumentCallbacks_CoolProp@12
+         81   50 00001000 _SWIGRegisterExceptionCallbacks_CoolProp@44
+         82   51 000010A0 _SWIGRegisterStringCallback_CoolProp@4
 
   Summary
 
        1F000 .data
-       90000 .rdata
-       22000 .reloc
-      1D8000 .text
+       91000 .rdata
+       23000 .reloc
+      1DC000 .text

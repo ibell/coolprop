@@ -12,18 +12,36 @@
 #endif
     
 #if defined(COOLPROP_LIB)
-#  define EXPORT_CODE extern "C"
-// Define compiler specific calling conventions
-// for the shared library.
-#  if defined(__ISWINDOWS__)
-#    define CONVENTION __declspec(dllexport)
-#  endif
+	#ifndef EXPORT_CODE
+		#ifdef __WINDOWS__
+			#define EXPORT_CODE extern "C" __declspec(dllexport)
+		#else
+			#define EXPORT_CODE extern "C"
+		#endif
+	#endif
+
+	#ifndef CONVENTION
+		#define CONVENTION __stdcall
+	#endif
+#else
+    #ifndef EXPORT_CODE
+        #if defined(EXTERNC)
+            #define EXPORT_CODE extern "C"
+        #else
+            #define EXPORT_CODE
+        #endif
+    #endif
+	#ifndef CONVENTION
+		#define CONVENTION
+	#endif
 #endif
+
 // Hack for PowerPC compilation to only use extern "C"
 #if defined(__powerpc__) || defined(EXTERNC)
 #  undef EXPORT_CODE
 #  define EXPORT_CODE extern "C"
 #endif
+
 // Fall-back solutions
 #ifndef CONVENTION
 #  define CONVENTION

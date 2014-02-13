@@ -239,6 +239,9 @@ def UploadSourceForge():
     os.remove('dist_temp')
     os.remove(version)
     
+    
+    
+#######  DOCUMENTATION STUFF ################
 def Doxygen():
     # Open Doxyfile, and update the version number in the file
     lines = open('Doxyfile','r').readlines()
@@ -299,26 +302,26 @@ if __name__=='__main__':
     
 #     InstallPrereqs()  #This is optional if you think any of the pre-reqs have been updated
 
-#     DLL_and_Excel()
-#     Source()
-#     Python()
-#     Csharp()
-#     Octave()
-#     MATLAB()
-#     Maple()
-#     Mathematica()
-#     Scilab()
-#     EES()
-#     Javascript()
-#     Java()
-#     MathCAD()
-#     Labview()
-#     Modelica()
-#     Superpacks()
-#     PYPI()
-#     UploadSourceForge()
+    DLL_and_Excel()
+    Source()
+    Python()
+    Csharp()
+    Octave()
+    MATLAB()
+    Maple()
+    Mathematica()
+    Scilab()
+    EES()
+    Javascript()
+    Java()
+    MathCAD()
+    Labview()
+    Modelica()
+    Superpacks()
+    PYPI()
+    UploadSourceForge()
     
-    Doxygen()
-    RunExamples()
-    BuildDocs()
-    UploadDocs()
+#     Doxygen()
+#     RunExamples()
+#     BuildDocs()
+#     UploadDocs()
