@@ -9,7 +9,7 @@ File Type: DLL
   Section contains the following exports for CoolProp.dll
 
     00000000 characteristics
-    52FD38F1 time date stamp Thu Feb 13 22:28:17 2014
+    52FD58AA time date stamp Fri Feb 14 00:43:38 2014
         0.00 version
            1 ordinal base
           51 number of functions

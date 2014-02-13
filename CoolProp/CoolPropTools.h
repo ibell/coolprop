@@ -13,7 +13,7 @@
     
 #if defined(COOLPROP_LIB)
 	#ifndef EXPORT_CODE
-		#ifdef __WINDOWS__
+		#if defined(__WINDOWS__)
 			#define EXPORT_CODE extern "C" __declspec(dllexport)
 		#else
 			#define EXPORT_CODE extern "C"
@@ -25,11 +25,7 @@
 	#endif
 #else
     #ifndef EXPORT_CODE
-        #if defined(EXTERNC)
-            #define EXPORT_CODE extern "C"
-        #else
-            #define EXPORT_CODE
-        #endif
+        #define EXPORT_CODE
     #endif
 	#ifndef CONVENTION
 		#define CONVENTION
