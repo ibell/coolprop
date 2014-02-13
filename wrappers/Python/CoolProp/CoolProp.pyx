@@ -538,8 +538,8 @@ cpdef PropsSI(str in1, str in2, in3 = None, in4 = None, in5 = None, in6 = None, 
     cdef double _in3, _in5
     cdef char in2_char, in4_char
         
-    if (in4 is None and in6 is None and in7 is None):
-        val = _Props1(in1.encode('ascii'), in2.encode('ascii'))
+    if (in4 is None and in5 is None and in6 is None and in7 is None):
+        val = _Props1SI(in1, in2)
         if math.isinf(val) or math.isnan(val):
             err_string = _get_global_param_string('errstring')
             if not len(err_string) == 0:

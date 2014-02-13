@@ -44,6 +44,16 @@ EXPORT_CODE double CONVENTION Props(char *Output,char Name1, double Prop1, char 
 	return val;
 }
 
+EXPORT_CODE double CONVENTION Props1SI(char *Name, char *Output)
+{
+	long current_unit_system = get_standard_unit_system();
+	// Set current unit system to SI (all inputs are already SI)
+	set_standard_unit_system(UNIT_SYSTEM_SI);
+	double val = Props1(Name, Output);
+	set_standard_unit_system(current_unit_system);
+	return val;
+}
+
 EXPORT_CODE double CONVENTION PropsSI(char *Output, char *Name1, double Prop1, char *Name2, double Prop2, char * Ref)
 {
 	long current_unit_system = get_standard_unit_system();

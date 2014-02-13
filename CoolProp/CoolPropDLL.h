@@ -21,6 +21,13 @@
 	EXPORT_CODE double CONVENTION PropsS(char *Output,char *Name1, double  Prop1, char *Name2, double  Prop2, char *Ref);
 	EXPORT_CODE double CONVENTION Props(char *Output,char  Name1, double  Prop1, char  Name2, double  Prop2, char *Ref);
 	EXPORT_CODE double CONVENTION PropsSI(char *Output,char *Name1, double  Prop1, char *Name2, double  Prop2, char *Ref);
+
+	/// Return a fluid value that does not depend on the thermodynamic state
+	/// @param FluidName The name of the fluid
+	/// @param Output The name of the output parameter, some options are "Ttriple", "Tcrit", "pcrit", "Tmin", "molemass", "rhocrit", "accentric" (not all parameters are valid for all fluids)
+	/// @returns val The value, or _HUGE if not valid
+	EXPORT_CODE double CONVENTION Props1SI(char * FluidName, char* Output);
+
 	EXPORT_CODE double CONVENTION Props1(char *Ref, char *Output);
 
 	// This version uses the indices in place of the strings for speed.  Get the parameter indices
