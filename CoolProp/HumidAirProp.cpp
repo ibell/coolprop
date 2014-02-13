@@ -1336,6 +1336,7 @@ EXPORT_CODE double CONVENTION HAProps(char *OutputName, char *Input1Name, double
 	catch (std::exception &)
 	{
 		double rr = 4;
+        return _HUGE;
 	}
 	catch (...)
 	{
