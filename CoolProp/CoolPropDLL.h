@@ -26,7 +26,7 @@
 	/// @param FluidName The name of the fluid
 	/// @param Output The name of the output parameter, some options are "Ttriple", "Tcrit", "pcrit", "Tmin", "molemass", "rhocrit", "accentric" (not all parameters are valid for all fluids)
 	/// @returns val The value, or _HUGE if not valid
-	EXPORT_CODE double CONVENTION Props1SI(char * FluidName, char* Output);
+	EXPORT_CODE double CONVENTION Props1SI(char *FluidName, char* Output);
 
 	EXPORT_CODE double CONVENTION Props1(char *Ref, char *Output);
 

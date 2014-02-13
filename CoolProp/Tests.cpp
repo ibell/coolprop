@@ -53,11 +53,13 @@
 
 			SECTION("pcrit")
 			{
+				double p_Props1SI = Props1SI("R134a","pcrit");
 				double p_Props1 = Props1("R134a","pcrit")*1000;
 				double p_Props = Props("pcrit",'T',300,'Q',0,"R134a")*1000;
 				double p_PropsSI = PropsSI("pcrit","T",300,"Q",0,"R134a");
 				REQUIRE(fabs(p_Props1/p_Props-1) < 1e-6);
 				REQUIRE(fabs(p_PropsSI/p_Props-1) < 1e-6);
+				REQUIRE(fabs(p_PropsSI/p_Props1SI-1) < 1e-6);
 			}
 		}
 		SECTION("SI")
@@ -66,11 +68,13 @@
 
 			SECTION("pcrit")
 			{
+				double p_Props1SI = Props1("R134a","pcrit");
 				double p_Props1 = Props1("R134a","pcrit");
 				double p_Props = Props("pcrit",'T',300,'Q',0,"R134a");
 				double p_PropsSI = PropsSI("pcrit","T",300,"Q",0,"R134a");
 				REQUIRE(fabs(p_Props1/p_Props-1) < 1e-6);
 				REQUIRE(fabs(p_PropsSI/p_Props-1) < 1e-6);
+				REQUIRE(fabs(p_PropsSI/p_Props1SI-1) < 1e-6);
 			}
 		}
 	}
