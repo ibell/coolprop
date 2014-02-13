@@ -9,4 +9,3 @@ link /DLL *.obj /OUT:CoolProp.dll
 dumpbin /EXPORTS CoolProp.dll > exports.txt
 erase *.obj
 erase *.exp
-erase *.lib

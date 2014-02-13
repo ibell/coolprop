@@ -9,68 +9,69 @@ File Type: DLL
   Section contains the following exports for CoolProp.dll
 
     00000000 characteristics
-    52F94845 time date stamp Mon Feb 10 22:44:37 2014
+    52FCDBF4 time date stamp Thu Feb 13 15:51:32 2014
         0.00 version
            1 ordinal base
-          50 number of functions
-          50 number of names
+          51 number of functions
+          51 number of names
 
     ordinal hint RVA      name
 
-          1    0 000981E0 DerivTerms
-          2    1 00097D30 F2K
-          3    2 000EBF50 HAProps
-          4    3 000ED6A0 HAProps_Aux
-          5    4 00091D30 IProps
-          6    5 0008F350 IsFluidType
-          7    6 00097D10 K2F
-          8    7 00098D00 Phase
-          9    8 00098D70 Phase_Tp
-         10    9 00098DE0 Phase_Trho
-         11    A 00097D50 PrintSaturationTable
-         12    B 00097BE0 Props
-         13    C 00097CD0 Props1
-         14    D 00097BA0 PropsS
-         15    E 00097C40 PropsSI
-         16    F 000988F0 conductivity_background
-         17   10 00098870 conductivity_critical
-         18   11 00098470 conformal_Trho
-         19   12 00098F00 disable_TTSE_LUT
-         20   13 00098FC0 disable_TTSE_LUT_writing
-         21   14 00098E80 enable_TTSE_LUT
-         22   15 00098F40 enable_TTSE_LUT_writing
-         23   16 00098230 fromSI
-         24   17 00098290 get_Fluid_index
-         25   18 000990F0 get_TTSESinglePhase_LUT_range
-         26   19 00098270 get_debug_level
-         27   1A 00098C90 get_fluid_param_string
-         28   1B 00098C30 get_global_param_string
-         29   1C 000982C0 get_index_units
-         30   1D 00098440 get_param_index
-         31   1E 000991B0 get_standard_unit_system
-         32   1F 00098EC0 isenabled_TTSE_LUT
-         33   20 00098F80 isenabled_TTSE_LUT_writing
-         34   21 00098AD0 psatL_anc
-         35   22 00098B80 psatV_anc
-         36   23 00097AE0 redirect_stdout
-         37   24 00098950 rhosatL_anc
-         38   25 00098A10 rhosatV_anc
-         39   26 00099000 set_TTSESat_LUT_size
-         40   27 00099090 set_TTSESinglePhase_LUT_range
-         41   28 00099040 set_TTSESinglePhase_LUT_size
-         42   29 00098310 set_TTSE_mode
-         43   2A 00098280 set_debug_level
-         44   2B 00098E50 set_phase
-         45   2C 00097B50 set_reference_stateD
-         46   2D 00097B10 set_reference_stateS
-         47   2E 000991C0 set_standard_unit_system
-         48   2F 00098250 toSI
-         49   30 00098720 viscosity_dilute
-         50   31 000987A0 viscosity_residual
+          1    0 00098990 DerivTerms
+          2    1 000984E0 F2K
+          3    2 000EC920 HAProps
+          4    3 000EE070 HAProps_Aux
+          5    4 000920E0 IProps
+          6    5 0008F700 IsFluidType
+          7    6 000984C0 K2F
+          8    7 000994B0 Phase
+          9    8 00099520 Phase_Tp
+         10    9 00099590 Phase_Trho
+         11    A 00098500 PrintSaturationTable
+         12    B 00098350 Props
+         13    C 00098480 Props1
+         14    D 000983B0 Props1SI
+         15    E 00098310 PropsS
+         16    F 000983F0 PropsSI
+         17   10 000990A0 conductivity_background
+         18   11 00099020 conductivity_critical
+         19   12 00098C20 conformal_Trho
+         20   13 000996B0 disable_TTSE_LUT
+         21   14 00099770 disable_TTSE_LUT_writing
+         22   15 00099630 enable_TTSE_LUT
+         23   16 000996F0 enable_TTSE_LUT_writing
+         24   17 000989E0 fromSI
+         25   18 00098A40 get_Fluid_index
+         26   19 000998A0 get_TTSESinglePhase_LUT_range
+         27   1A 00098A20 get_debug_level
+         28   1B 00099440 get_fluid_param_string
+         29   1C 000993E0 get_global_param_string
+         30   1D 00098A70 get_index_units
+         31   1E 00098BF0 get_param_index
+         32   1F 00099960 get_standard_unit_system
+         33   20 00099670 isenabled_TTSE_LUT
+         34   21 00099730 isenabled_TTSE_LUT_writing
+         35   22 00099280 psatL_anc
+         36   23 00099330 psatV_anc
+         37   24 00098250 redirect_stdout
+         38   25 00099100 rhosatL_anc
+         39   26 000991C0 rhosatV_anc
+         40   27 000997B0 set_TTSESat_LUT_size
+         41   28 00099840 set_TTSESinglePhase_LUT_range
+         42   29 000997F0 set_TTSESinglePhase_LUT_size
+         43   2A 00098AC0 set_TTSE_mode
+         44   2B 00098A30 set_debug_level
+         45   2C 00099600 set_phase
+         46   2D 000982C0 set_reference_stateD
+         47   2E 00098280 set_reference_stateS
+         48   2F 00099970 set_standard_unit_system
+         49   30 00098A00 toSI
+         50   31 00098ED0 viscosity_dilute
+         51   32 00098F50 viscosity_residual
 
   Summary
 
        1F000 .data
-       90000 .rdata
-       22000 .reloc
-      1D8000 .text
+       91000 .rdata
+       23000 .reloc
+      1DA000 .text

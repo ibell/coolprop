@@ -144,13 +144,57 @@ extern "C"
         if (CoolPropdllInstance == NULL)
         {
             strcpy(fluid, "CoolProp.dll could not be loaded");
+            FILE *fp;
+            fp = fopen("log.txt","a+");
+            fprintf(fp,"CoolProp.dll could not be loaded\n");
+            fclose(fp);
             return 0.0;
         }
-        PropsSdll = (fp_PropsSdllTYPE) GetProcAddress(CoolPropdllInstance,"_PropsS@32");
-        set_debug_leveldll = (fp_set_debug_leveldllTYPE) GetProcAddress(CoolPropdllInstance,"_set_debug_level@4");
-        get_global_param_stringdll = (fp_get_global_param_stringdllTYPE) GetProcAddress(CoolPropdllInstance,"_get_global_param_string@8");
-        redirect_stdoutdll = (fp_redirect_stdoutdllTYPE) GetProcAddress(CoolPropdllInstance,"_redirect_stdout@4");
+        PropsSdll = (fp_PropsSdllTYPE) GetProcAddress(CoolPropdllInstance,"PropsS");
+        set_debug_leveldll = (fp_set_debug_leveldllTYPE) GetProcAddress(CoolPropdllInstance,"set_debug_level");
+        get_global_param_stringdll = (fp_get_global_param_stringdllTYPE) GetProcAddress(CoolPropdllInstance,"get_global_param_string");
+        redirect_stdoutdll = (fp_redirect_stdoutdllTYPE) GetProcAddress(CoolPropdllInstance,"redirect_stdout");
 
+        if (PropsSdll == NULL)
+        {
+            strcpy(fluid, "PropsSdll could not be loaded");
+            FILE *fp;
+            fp = fopen("log.txt","a+");
+            fprintf(fp,"PropsSdll could not be loaded\n");
+            fclose(fp);
+            return 0.0;
+        }
+        
+        if (set_debug_leveldll == NULL)
+        {
+            strcpy(fluid, "set_debug_leveldll could not be loaded");
+            FILE *fp;
+            fp = fopen("log.txt","a+");
+            fprintf(fp,"set_debug_leveldll could not be loaded\n");
+            fclose(fp);
+            return 0.0;
+        }
+        
+        if (get_global_param_stringdll == NULL)
+        {
+            strcpy(fluid, "get_global_param_stringdll could not be loaded");
+            FILE *fp;
+            fp = fopen("log.txt","a+");
+            fprintf(fp,"get_global_param_stringdll could not be loaded\n");
+            fclose(fp);
+            return 0.0;
+        }
+        
+        if (redirect_stdoutdll == NULL)
+        {
+            strcpy(fluid, "redirect_stdoutdll could not be loaded");
+            FILE *fp;
+            fp = fopen("log.txt","a+");
+            fprintf(fp,"redirect_stdoutdll could not be loaded\n");
+            fclose(fp);
+            return 0.0;
+        }
+        
 		if (EES_DEBUG)
         {
             // This redirects all standard output to file
