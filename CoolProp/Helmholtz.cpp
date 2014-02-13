@@ -139,6 +139,7 @@ double phir_power::base(double tau, double delta) throw()
 	}
 	return summer;
 }
+
 double phir_power::dTau(double tau, double delta) throw()
 {
 	double summer=0, log_tau = log(tau), log_delta = log(delta);
@@ -205,6 +206,27 @@ double phir_power::dDelta(double tau, double delta) throw()
 		}
 	}
 	return summer;
+}
+double phir_power::A(double tau, double delta, int i) throw()
+{
+	double log_tau = log(tau), log_delta = log(delta);
+	if (l[i]>0)
+		return exp(t[i]*log_tau+d[i]*log_delta-pow(delta,(int)l[i]));
+	else
+		return exp(t[i]*log_tau+d[i]*log_delta);
+}
+double phir_power::dA_dDelta(double tau, double delta, int i) throw()
+{
+	double log_tau = log(tau), log_delta = log(delta), pow_delta_li, li, ni, di, ti;
+	ni = n[i]; di = d[i]; ti = t[i]; li = l[i]; 
+	if (li > 0){
+		pow_delta_li = pow(delta,(int)li);
+		return (di-li*pow_delta_li)*exp(ti*log_tau+(di-1)*log_delta-pow_delta_li);
+	}
+	else
+	{
+		return di*exp(ti*log_tau+(di-1)*log_delta);
+	}
 }
 double phir_power::dDelta2(double tau, double delta) throw()
 {
@@ -302,6 +324,57 @@ std::vector<double> phir_power::dDelta_dTauV(std::vector<double> tau, std::vecto
 	}
 	return out;
 }
+
+#ifndef DISABLE_CATCH
+TEST_CASE("Power Helmholtz terms", "[helmholtz],[fast]")
+{
+	// From R134a
+	double n[]={0.0, 0.5586817e-1, 0.4982230e0, 0.2458698e-1, 0.8570145e-3, 0.4788584e-3, -0.1800808e1, 0.2671641e0, -0.4781652e-1, 0.1423987e-1, 0.3324062e0, -0.7485907e-2, 0.1017263e-3, -0.5184567e+0, -0.8692288e-1, 0.2057144e+0, -0.5000457e-2, 0.4603262e-3, -0.3497836e-2, 0.6995038e-2, -0.1452184e-1, -0.1285458e-3};
+	double d[]={0,2,1,3,6,6,1,1,2,5,2,2,4,1,4,1,2,4,1,5,3,10};
+	double t[]={0.0,-1.0/2.0,0.0,0.0,0.0,3.0/2.0,3.0/2.0,2.0,2.0,1.0,3.0,5.0,1.0,5.0,5.0,6.0,10.0,10.0,10.0,18.0,22.0,50.0};
+	double c[]={0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,1.0,1.0,2.0,2.0,2.0,2.0,2.0,2.0,3.0,3.0,3.0,4.0};
+	
+	phir_power phir(n,d,t,c,1,21,22);
+	double eps = sqrt(DBL_EPSILON);
+
+	SECTION("dDelta")
+	{
+		double ANA = phir.dDelta(0.5, 0.5);
+		double NUM = (phir.base(0.5, 0.5+eps) - phir.base(0.5,0.5-eps))/(2*eps);
+		REQUIRE(abs(NUM-ANA) < 1e-6);
+	}
+	SECTION("dA_dDelta")
+	{
+		double ANA = phir.dA_dDelta(0.5, 0.5, 1);
+		double NUM = (phir.A(0.5, 0.5+eps, 1) - phir.A(0.5,0.5-eps, 1))/(2*eps);
+		REQUIRE(abs(NUM-ANA) < 1e-6);
+	}
+	SECTION("dTau")
+	{
+		double ANA = phir.dTau(0.5, 0.5);
+		double NUM = (phir.base(0.5+eps, 0.5) - phir.base(0.5-eps,0.5))/(2*eps);
+		REQUIRE(abs(NUM-ANA) < 1e-6);
+	}
+	SECTION("dDelta2")
+	{
+		double ANA = phir.dDelta2(0.5, 0.5);
+		double NUM = (phir.dDelta(0.5, 0.5+eps) - phir.dDelta(0.5,0.5-eps))/(2*eps);
+		REQUIRE(abs(NUM-ANA) < 1e-6);
+	}
+	SECTION("dTau2")
+	{
+		double ANA = phir.dTau2(0.5, 0.5);
+		double NUM = (phir.dTau(0.5+eps, 0.5) - phir.dTau(0.5-eps,0.5))/(2*eps);
+		REQUIRE(abs(NUM-ANA) < 1e-6);
+	}
+	SECTION("dDeltadTau")
+	{
+		double ANA = phir.dDelta_dTau(0.5, 0.5);
+		double NUM = (phir.dTau(0.5, 0.5+eps) - phir.dTau(0.5,0.5-eps))/(2*eps);
+		REQUIRE(abs(NUM-ANA) < 1e-6);
+	}
+}
+#endif
 
 // Constructors
 phir_exponential::phir_exponential(std::vector<double> n, std::vector<double> d, std::vector<double> t, std::vector<double> l, std::vector<double> g, int iStart_in,int iEnd_in)

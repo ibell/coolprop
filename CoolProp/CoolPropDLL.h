@@ -2,6 +2,10 @@
 #define COOLPROPDLL_H
 
     #include "CoolPropTools.h"
+	
+	// Functions with the call type like
+	// EXPORT_CODE void CONVENTION AFunction(double, double);
+	// will be exported to the DLL
 
 	// When using SWIG, it is extremely difficult to deal with char* for output strings, so just use 
 	// the std::string version since SWIG can handle std::string just fine
@@ -12,10 +16,6 @@
 		EXPORT_CODE long CONVENTION get_global_param_string(char *param, char * Output);
 		EXPORT_CODE long CONVENTION get_fluid_param_string(char *fluid, char *param, char * Output);
 	#endif
-	
-	// Functions with the call type like
-	// EXPORT_CODE void CONVENTION AFunction(double, double);
-	// will be exported to the DLL
 
 	// They can only use data types that play well with DLL wrapping (int, long, double, char*, void, etc.)
 	EXPORT_CODE double CONVENTION PropsS(char *Output,char *Name1, double  Prop1, char *Name2, double  Prop2, char *Ref);
