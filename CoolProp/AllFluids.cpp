@@ -394,12 +394,16 @@ TEST_CASE("Fluid parameter checks not requiring saturation","[fast]")
 			for (std::vector<Fluid*>::const_iterator it = Fluids.FluidsList.begin(); it != Fluids.FluidsList.end(); it++)
 			{
 				std::string RPName = std::string("REFPROP-")+get_fluid_param_string((*it)->get_name(), "REFPROPName");
-				double pcrit_CP = (*it)->crit.p.Pa;
-				double pcrit_RP = PropsSI("pcrit","T",300,"D",1e-10,(char*)RPName.c_str());
-				CAPTURE(pcrit_CP);
-				CAPTURE(pcrit_RP);
-				CAPTURE(RPName);
-				CHECK(fabs(pcrit_RP/pcrit_CP-1) < 0.01);
+				if (RPName.compare("REFPROP-N/A"))
+				{
+					// Skip if not in REFPROP
+					double pcrit_CP = (*it)->crit.p.Pa;
+					double pcrit_RP = PropsSI("pcrit","T",300,"D",1e-10,(char*)RPName.c_str());
+					CAPTURE(pcrit_CP);
+					CAPTURE(pcrit_RP);
+					CAPTURE(RPName);
+					CHECK(fabs(pcrit_RP/pcrit_CP-1) < 0.01);
+				}
 			}
 		}
 	}

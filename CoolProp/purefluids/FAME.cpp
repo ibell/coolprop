@@ -118,7 +118,7 @@ MethylStearateClass::MethylStearateClass()
 
 	//Critical parameters
 	crit.rho = 0.7943*298.50382; //[kg/m^3]
-	crit.p = PressureUnit(1350, UNIT_KPA); //[kPa]
+	crit.p = PressureUnit(1239, UNIT_KPA); //[kPa]
 	crit.T = 775; //[K]
 	crit.v = 1/crit.rho; 
 
