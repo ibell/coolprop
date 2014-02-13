@@ -233,7 +233,7 @@ void Mixture::load_excess_values(int i, int j)
 					CASs1 = JSON_string_array((*itrC)["CAS1"]);
 					CASs2 = JSON_string_array((*itrC)["CAS2"]);
 				}			
-				
+
 				// Check if CAS codes match with either the i,j or j,i fluids
 				if (match_CAS_entry(CASs1,CASs2,FluidiCAS,FluidjCAS))
 				{
@@ -2474,7 +2474,7 @@ double NewtonRaphsonVLE::call(double beta, double T, double p, double rhobar_liq
 		//std::cout << iter << " " << T << " " << p << " " << error_rms << std::endl;
 		iter++;
 	}
-	while(this->error_rms > 1e-12 && iter < Nsteps_max);
+	while(this->error_rms > 1e-11 && iter < Nsteps_max);
 	// Store new values since they were passed by value
 	this->T = T;
 	this->p = p;
@@ -2512,7 +2512,7 @@ void NewtonRaphsonVLE::build_arrays(double beta, double T, double p, const std::
 		this->rhobar_vap = Mix->rhobar_Tpz(T, p, y, old_rhobar_vap); // [kg/m^3] (Not exact due to solver convergence)
 	}
 
-	std::cout << format("rho liq: %g rho vap: %g k: %s T: %g P: %g x: %s\n", this->rhobar_liq, this->rhobar_vap, vec_to_string(K,"%6.5g").c_str(),T,p, vec_to_string(x,"%6.5g").c_str()).c_str();
+	//std::cout << format("rho liq: %g rho vap: %g k: %s T: %g P: %g x: %s\n", this->rhobar_liq, this->rhobar_vap, vec_to_string(K,"%6.5g").c_str(),T,p, vec_to_string(x,"%6.5g").c_str()).c_str();
 
 	if (!ValidNumber(this->rhobar_liq)){ throw ValueError(format("Liquid density solver has failed with guess value %g",old_rhobar_liq).c_str()); }
 	if (!ValidNumber(this->rhobar_vap)){ throw ValueError(format("Vapor density solver has failed with guess value %g",old_rhobar_vap).c_str()); }
@@ -2605,7 +2605,7 @@ void NewtonRaphsonVLE::build_arrays(double beta, double T, double p, const std::
 	}
 	error_rms = sqrt(error_rms); // Square-root (The R in RMS)
 
-	std::cout << format("r: %s\n",vec_to_string(r,"%6.5g").c_str());
+	//std::cout << format("r: %s\n",vec_to_string(r,"%6.5g").c_str());
 	
 	// Step 3:
 	// =======
@@ -2738,7 +2738,7 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z, double beta_e
 				// Update the specified variable
 				S = Sold + DELTAS;
 				
-				std::cout << format("S: %g Sold %g DELTAS %g exp(S) %g exp(Sold) %g K %s\n",S,Sold,DELTAS, exp(S), exp(Sold),vec_to_string(K,"%0.5g").c_str());
+				//std::cout << format("S: %g Sold %g DELTAS %g exp(S) %g exp(Sold) %g K %s\n",S,Sold,DELTAS, exp(S), exp(Sold),vec_to_string(K,"%0.5g").c_str());
 
 				// UPDATE THE GUESSES
 				// The specified variable is known directly. The others must be obtained either through the use of dXdS and/or extrapolation
@@ -2869,7 +2869,7 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z, double beta_e
 						iii_S = i;
 					}
 				}
-				std::cout << format("T,P,Nstep,K : %g %g %d %g %g %d %d %s %s\n",T,p,Mix->NRVLE.Nsteps, rhobar_liq, rhobar_vap, iii_S, i_S, vec_to_string(Mix->NRVLE.x,"%6.5g").c_str(), vec_to_string(K,"%6.5g").c_str());
+				//std::cout << format("T,P,Nstep,K : %g %g %d %g %g %d %d %s %s\n",T,p,Mix->NRVLE.Nsteps, rhobar_liq, rhobar_vap, iii_S, i_S, vec_to_string(Mix->NRVLE.x,"%6.5g").c_str(), vec_to_string(K,"%6.5g").c_str());
 			}
 			
 			// Update step counter
