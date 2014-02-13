@@ -54,6 +54,8 @@ R407FClass::R407FClass()
     limits.Tmin = params.Ttriple;
 
     name.assign("R407F");
+	REFPROPname = "N/A";
+	
 }
 
 double R407FClass::psatL(double T)
