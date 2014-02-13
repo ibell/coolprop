@@ -203,6 +203,13 @@ def PropsU(in1, in2, in3 = None, in4 = None, in5 = None, in6 = None, in7 = None)
     kSI or SI to identify your desired unit system. Both input and output 
     values have to be from the same unit set.  
     """
+    # Check for reduced inputs
+    if (     in4 == None 
+         and in5 == None
+         and in6 == None
+         and in7 == None):# Only three arguments given
+        in7 = in3
+    
     if in7 is None or in7 == 'kSI': # Nothing has to be done 
         return Props(in1, in2, in3, in4, in5, in6)
     elif in7 == 'SI':
