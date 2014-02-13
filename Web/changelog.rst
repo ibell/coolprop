@@ -1,6 +1,11 @@
 Changelog for CoolProp
 ======================
 
+4.1.1
+-----
+* Fixed EES wrapper
+* PropsSI function gives correct units for python
+
 4.1.0
 -----
 * MAJOR: Added unit testing at the C++ level based on Catch
