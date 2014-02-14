@@ -52,7 +52,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         Output = mxCalloc(Output_len, sizeof(char));
         status = mxGetString(prhs[1], Output, Output_len);
         
-        // Try to shortcut to get the strings for the fluid
+        /* Try to shortcut to get the strings for the fluid */
         if (!strcmp(Output,"aliases") || !strcmp(Output,"CAS") || !strcmp(Output,"CAS_number") || !strcmp(Output,"ASHRAE34") || !strcmp(Output,"REFPROPName") || !strcmp(Output,"REFPROP_name") || !strcmp(Output,"TTSE_mode"))
         {
             get_fluid_param_string(Ref,Output,fluidslist);
@@ -70,7 +70,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
             return;
         }
         
-        // Ok, now try to get the values for the fluid
+        /* Ok, now try to get the values for the fluid */
         
         /* Create matrix for the return argument. */
         plhs[0] = mxCreateDoubleMatrix(1,1, mxREAL);
