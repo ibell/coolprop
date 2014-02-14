@@ -1,6 +1,10 @@
 Changelog for CoolProp
 ======================
 
+4.1.2
+-----
+* Fixed default calling convention on 32-bit windows to set back to __stdcall.  This change should fix DLL-based wrappers that want __cdecl calling convention
+
 4.1.1
 -----
 * Fixed EES wrapper
