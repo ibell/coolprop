@@ -10,10 +10,10 @@
 #elif __linux
 #  define __ISLINUX__
 #endif
-    
+
 #if defined(COOLPROP_LIB)
 	#ifndef EXPORT_CODE
-		#if defined(__WINDOWS__)
+		#if defined(__ISWINDOWS__)
 			#define EXPORT_CODE extern "C" __declspec(dllexport)
 		#else
 			#define EXPORT_CODE extern "C"

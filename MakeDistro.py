@@ -236,9 +236,6 @@ def UploadSourceForge():
     print 'Calling: '+' '.join(call_str)
     print subprocess.check_output(call_str,shell=True)
     
-    os.remove('dist_temp')
-    os.remove(version)
-    
     
     
 #######  DOCUMENTATION STUFF ################
@@ -321,7 +318,7 @@ if __name__=='__main__':
     PYPI()
     UploadSourceForge()
     
-#     Doxygen()
-#     RunExamples()
-#     BuildDocs()
-#     UploadDocs()
+    Doxygen()
+    RunExamples()
+    BuildDocs()
+    UploadDocs()
