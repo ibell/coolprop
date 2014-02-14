@@ -4,8 +4,13 @@
 
 # Warning: read README.rst before editing the variables SOLVER and FLUENT_BIN_FOLDER
 
-SOLVER="3ddp"
-FLUENT_BIN_FOLDER="NULL"
+SOLVER="$1"
+FLUENT_BIN_FOLDER="$2"
+
+if [ "$SOLVER" = "" ]
+then
+	$SOLVER = "2ddp" #compiles 2d double precision by default
+fi
 
 FLUENT_COMPILER=g++
 
@@ -20,6 +25,7 @@ g++ -c CoolProp/*.cpp -ICoolProp -fPIC -D_GNU_SOURCE -ansi -O -Wall -DPTR_RESTRI
 cd $HOME
 
 echo exit > exit.jou
+if [ "$FLUENT_BIN_FOLDER" = "" ]
 then
 	fluent $SOLVER -g -env -i exit.jou > FluentEnvironment.dat 2>&1
 else
