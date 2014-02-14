@@ -2,7 +2,7 @@
 @echo off
 
 call:defineEnv x86
-cl /c /MP4 /I../../CoolProp /EHsc /DCOOLPROP_LIB ../../CoolProp/*.cpp
+cl /c /MP3 /I../../CoolProp /EHsc /DCOOLPROP_LIB ../../CoolProp/*.cpp
 link /DLL *.obj /OUT:CoolProp.dll
 dumpbin /EXPORTS CoolProp.dll > exports.txt
 erase *.obj
@@ -10,7 +10,7 @@ erase *.exp
 erase *.lib
 
 REM call:defineEnv amd64
-REM cl /c /MP4 /I../../CoolProp /EHsc /DCOOLPROP_LIB ../../CoolProp/*.cpp
+REM cl /c /MP /I../../CoolProp /EHsc /DCOOLPROP_LIB ../../CoolProp/*.cpp
 
 REM link /DLL CoolProp.obj *.obj /OUT:CoolProp_x64.dll
 REM dumpbin /EXPORTS CoolProp_x64.dll > exports_x64.txt

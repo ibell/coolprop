@@ -1,3 +1,4 @@
+from __future__ import print_function
 import subprocess,os,shutil
 
 #These should be paths to python executables that you want want use to build versions of CoolProp
@@ -16,21 +17,21 @@ def InstallPrereqs():
     """ Get the requirements for CoolProp """
     #Collect the source for Cython and put in _deps/cython-master
     import urllib,zipfile
-    print 'getting cython sources'
+    print('getting cython sources')
     urllib.urlretrieve('https://github.com/cython/cython/archive/master.zip', filename = 'master.zip')
     with zipfile.ZipFile('master.zip', 'r') as myzip:
         myzip.extractall(path='_deps')
     os.remove('master.zip')
     for python_install in PYTHONVERSIONS:
         for cwd in ['_deps/cython-master']:
-            print subprocess.check_output([python_install, 'setup.py', 'install'], cwd = cwd)
+            print(subprocess.check_output([python_install, 'setup.py', 'install'], cwd = cwd))
             
     
 def PYPI():
     subprocess.call(['python','setup.py','sdist','upload'],cwd=os.path.join('wrappers','Python'))
     
 def Source():
-    print subprocess.check_output(['python','setup.py','sdist','--dist-dir=../../dist_temp/Python'],shell=True,cwd=os.path.join('wrappers','Python'))
+    print(subprocess.check_output(['python','setup.py','sdist','--dist-dir=../../dist_temp/Python'],shell=True,cwd=os.path.join('wrappers','Python')))
 
 def DLL_and_Excel():
     """ Build a DLL using __stdcall calling convention """
@@ -75,11 +76,12 @@ def Csharp():
     shutil.copy2(os.path.join('wrappers','C#','Csharp.7z'),os.path.join('dist_temp','C#','Csharp.7z'))
     
 def MATLAB():
+    print('MATLAB')
     try:
         os.makedirs(os.path.join('dist_temp','MATLAB'))
     except os.error: pass
         
-    process = subprocess.Popen(['C:\\MATLAB_32bit\\bin\\matlab','-wait','-nodesktop','-nojvm','-r','MATLABBuilder'],shell=True,cwd=os.path.join('wrappers','MATLAB'))
+    process = subprocess.Popen(['C:\\MATLAB_32bit\\bin\\matlab','-wait','-nodesktop','-nosplash','-nojvm','-r','MATLABBuilder'],shell=True,cwd=os.path.join('wrappers','MATLAB'))
     process.wait()
     process = subprocess.Popen(['matlab','-nojvm','-nodesktop','-nosplash','-wait','-r','MATLABBuilder'],shell=True,cwd=os.path.join('wrappers','MATLAB'))
     process.wait()
@@ -91,6 +93,7 @@ def MATLAB():
     shutil.copy2(os.path.join('wrappers','MATLAB','MATLAB_sample.m'),os.path.join('dist_temp','MATLAB','example.m'))
     
 def Labview():
+    print('Labview')
     import CoolProp
     version = CoolProp.__version__
     try:
@@ -105,6 +108,7 @@ def Labview():
     shutil.copy2(os.path.join('wrappers','Labview','README.rst'),os.path.join('dist_temp','Labview','README.rst'))
 
 def EES():
+    print('EES')
     import CoolProp
     version = CoolProp.__version__
     try:
@@ -120,6 +124,7 @@ def EES():
     shutil.copy2(os.path.join('wrappers','EES','README.rst'),os.path.join('dist_temp','EES','README.rst'))
     
 def Javascript():
+    print('Javascript')
     import CoolProp
     version = CoolProp.__version__
     try:
@@ -133,14 +138,15 @@ def Javascript():
     shutil.copy2(os.path.join('wrappers','Javascript','README.rst'),os.path.join('dist_temp','Javascript','README.rst'))
     
 def Java():
+    print('Java')
     import CoolProp
     version = CoolProp.__version__
     try: 
         os.makedirs(os.path.join('dist_temp','Java','win32')) 
-    except os.error as E:  print E
+    except os.error as E:  print(E)
     try: 
         os.makedirs(os.path.join('dist_temp','Java','x64')) 
-    except os.error as E:  print E
+    except os.error as E:  print(E)
         
     subprocess.check_output('build_win32.bat',shell=True,cwd=os.path.join('wrappers','Java'))
     subprocess.check_output('build_x64.bat',shell=True,cwd=os.path.join('wrappers','Java'))
@@ -151,11 +157,13 @@ def Java():
     shutil.copy2(os.path.join('wrappers','Java','README.rst'),os.path.join('dist_temp','Java','README.rst'))
     
 def Python():
-    
+    print('Python')
+    subprocess.check_output(['python','setup.py','install'],shell=True,cwd=os.path.join('wrappers','Python'))
     for python_install in PYTHONVERSIONS:
-        print subprocess.check_output([python_install,'setup.py','bdist','--format=wininst','--dist-dir=../../dist_temp/Python'],shell=True,cwd=os.path.join('wrappers','Python'))
+        subprocess.check_output([python_install,'setup.py','bdist','--format=wininst','--dist-dir=../../dist_temp/Python'],shell=True,cwd=os.path.join('wrappers','Python'))
 
 def Maple():
+    print('Maple')
     try:
         os.makedirs(os.path.join('dist_temp','Maple'))
     except os.error: pass
@@ -168,6 +176,7 @@ def Maple():
         shutil.copy2(os.path.join('wrappers','Maple',file),os.path.join('dist_temp','Maple',file))
     
 def Mathematica():
+    print('Mathematica')
     try:
         os.makedirs(os.path.join('dist_temp','Mathematica'))
     except os.error: pass
@@ -180,6 +189,7 @@ def Mathematica():
         shutil.copy2(os.path.join('wrappers','Mathematica',file),os.path.join('dist_temp','Mathematica',file))
         
 def Scilab():
+    print('Scilab')
     try:
         os.makedirs(os.path.join('dist_temp','Scilab'))
     except os.error: pass
@@ -192,6 +202,7 @@ def Scilab():
         shutil.copy2(os.path.join('wrappers','Scilab',file),os.path.join('dist_temp','Scilab',file))
     
 def MathCAD():
+    print('MathCAD')
     try:
         os.makedirs(os.path.join('dist_temp','MathCAD','Prime'))
     except os.error: pass
@@ -208,6 +219,7 @@ def MathCAD():
     shutil.copy2(os.path.join('wrappers','MathCAD','Prime','README.rst'),os.path.join('dist_temp','MathCAD','Prime','README.rst'))
     
 def Modelica():
+    print('Modelica')
     try:
         os.makedirs(os.path.join('dist_temp','Modelica'))
     except os.error: pass
@@ -229,12 +241,12 @@ def UploadSourceForge():
     except WindowsError: pass
     
     call_str = ['pscp','README.txt','ibell,coolprop@frs.sf.net:/home/pfs/project/c/co/coolprop/CoolProp/']
-    print 'Calling: '+' '.join(call_str)
-    print subprocess.check_output(call_str,shell=True)
+    print('Calling: '+' '.join(call_str))
+    subprocess.check_output(call_str,shell=True)
     
     call_str = ['pscp','-r','-v',CoolProp.__version__,'ibell,coolprop@frs.sf.net:/home/pfs/project/c/co/coolprop/CoolProp/']
-    print 'Calling: '+' '.join(call_str)
-    print subprocess.check_output(call_str,shell=True)
+    print('Calling: '+' '.join(call_str))
+    subprocess.check_output(call_str,shell=True)
     
     
     
@@ -250,10 +262,10 @@ def Doxygen():
             break
     open('Doxyfile','w').write(''.join(lines))
     
-    print subprocess.check_output(['doxygen','Doxyfile'],shell=True)
+    subprocess.check_output(['doxygen','Doxyfile'],shell=True)
     
 def RunExamples():
-    print subprocess.check_output(['run_examples.bat'],shell=True,cwd='Web/examples')
+    subprocess.check_output(['run_examples.bat'],shell=True,cwd='Web/examples')
     
 def BuildDocs():
     
@@ -270,12 +282,12 @@ def BuildDocs():
     open('Web/_templates/index.html','w').write(''.join(lines))
     
     shutil.rmtree(os.path.join('Web','_build'),ignore_errors = True)
-    print subprocess.check_output(['BuildCPDocs.bat'],shell=True,cwd='Web')
+    subprocess.check_output(['BuildCPDocs.bat'],shell=True,cwd='Web')
     
 def UploadDocs():
     call_str = ['pscp','-r','-v','Web/_build/html/*.*','ibell@web.sourceforge.net:/home/groups/coolprop/htdocs']
-    print 'Calling: '+' '.join(call_str)
-    print subprocess.check_output(call_str, shell = True)
+    print('Calling: '+' '.join(call_str))
+    subprocess.check_output(call_str, shell = True)
     
 def Superpacks():
     
@@ -299,26 +311,26 @@ if __name__=='__main__':
     
 #     InstallPrereqs()  #This is optional if you think any of the pre-reqs have been updated
 
-    DLL_and_Excel()
-    Source()
-    Python()
-    Csharp()
-    Octave()
-    MATLAB()
-    Maple()
-    Mathematica()
-    Scilab()
-    EES()
-    Javascript()
-    Java()
-    MathCAD()
-    Labview()
-    Modelica()
-    Superpacks()
-    PYPI()
-    UploadSourceForge()
+#     Python() # This one must be first
+#     DLL_and_Excel()
+#     Source()
+#     Csharp()
+#     Octave()
+#     MATLAB()
+#     Maple()
+#     Mathematica()
+#     Scilab()
+#     EES()
+#     Javascript()
+#     Java()
+#     MathCAD()
+#     Labview()
+#     Modelica()
+#     Superpacks()
+#     RunExamples()
+#     PYPI()
+#     UploadSourceForge()
     
     Doxygen()
-    RunExamples()
     BuildDocs()
     UploadDocs()
