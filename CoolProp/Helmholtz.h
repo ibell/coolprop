@@ -133,8 +133,12 @@ public:
 	std::vector<double> dDelta_dTauV(std::vector<double> tau, std::vector<double> delta) throw();
 
 	/// Derivatives for a single term for use in fitter
-	double A(double tau, double delta, int i) throw();
-	double dA_dDelta(double tau, double delta, int i) throw();
+	double A(double log_tau, double log_delta, double delta, int i) throw();
+	double dA_dDelta(double log_tau, double log_delta, double delta, int i) throw();
+	double dA_dTau(double log_tau, double log_delta, double delta, int i) throw();
+	double d2A_dTau2(double log_tau, double log_delta, double delta, int i) throw();
+	double d2A_dDelta2(double log_tau, double log_delta, double delta, int i) throw();
+	double d2A_dDelta_dTau(double log_tau, double log_delta, double delta, int i) throw();
 };
 
 

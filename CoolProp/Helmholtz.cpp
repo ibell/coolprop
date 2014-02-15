@@ -132,23 +132,16 @@ double phir_power::base(double tau, double delta) throw()
 	double summer=0, log_tau = log(tau), log_delta = log(delta);
 	for (unsigned int i=iStart;i<=iEnd;i++)
 	{
-		if (l[i]>0)
-			summer+=n[i]*exp(t[i]*log_tau+d[i]*log_delta-pow(delta,(int)l[i]));
-		else
-			summer+=n[i]*exp(t[i]*log_tau+d[i]*log_delta);
+		summer += n[i]*A(log_tau,log_delta,delta,i);
 	}
 	return summer;
 }
-
 double phir_power::dTau(double tau, double delta) throw()
 {
 	double summer=0, log_tau = log(tau), log_delta = log(delta);
 	for (unsigned int i=iStart;i<=iEnd;i++)
 	{
-		if (l[i]>0)
-			summer+=n[i]*t[i]*exp((t[i]-1)*log_tau+d[i]*log_delta-pow(delta,(int)l[i]));
-		else
-			summer+=n[i]*t[i]*exp((t[i]-1)*log_tau+d[i]*log_delta);
+		summer += n[i]*dA_dTau(log_tau,log_delta,delta,i);
 	}
 	return summer;
 }
@@ -157,10 +150,7 @@ double phir_power::dTau2(double tau, double delta) throw()
 	double summer=0, log_tau = log(tau), log_delta = log(delta);
 	for (unsigned int i=iStart;i<=iEnd;i++)
 	{
-		if (l[i]>0)
-			summer+=n[i]*t[i]*(t[i]-1)*exp((t[i]-2)*log_tau+d[i]*log_delta-pow(delta,(int)l[i]));
-		else
-			summer+=n[i]*t[i]*(t[i]-1)*exp((t[i]-2)*log_tau+d[i]*log_delta);
+		summer += n[i]*d2A_dTau2(log_tau,log_delta,delta,i);
 	}
 	return summer;
 }
@@ -192,54 +182,19 @@ double phir_power::dDelta_dTau2(double tau, double delta) throw()
 }
 double phir_power::dDelta(double tau, double delta) throw()
 {
-	double summer=0, log_tau = log(tau), log_delta = log(delta), pow_delta_li, li, ni, di, ti;
+	double summer=0, log_tau = log(tau), log_delta = log(delta);
 	for (unsigned int i=iStart;i<=iEnd;++i)
-	{	
-		ni = n[i]; di = d[i]; ti = t[i]; li = l[i]; 
-		if (li > 0){
-			pow_delta_li = pow(delta,(int)li);
-			summer += ni*(di-li*pow_delta_li)*exp(ti*log_tau+(di-1)*log_delta-pow_delta_li);
-		}
-		else
-		{
-			summer += ni*di*exp(ti*log_tau+(di-1)*log_delta);
-		}
+	{
+		summer += n[i]*dA_dDelta(log_tau,log_delta,delta,i);
 	}
 	return summer;
-}
-double phir_power::A(double tau, double delta, int i) throw()
-{
-	double log_tau = log(tau), log_delta = log(delta);
-	if (l[i]>0)
-		return exp(t[i]*log_tau+d[i]*log_delta-pow(delta,(int)l[i]));
-	else
-		return exp(t[i]*log_tau+d[i]*log_delta);
-}
-double phir_power::dA_dDelta(double tau, double delta, int i) throw()
-{
-	double log_tau = log(tau), log_delta = log(delta), pow_delta_li, li, ni, di, ti;
-	ni = n[i]; di = d[i]; ti = t[i]; li = l[i]; 
-	if (li > 0){
-		pow_delta_li = pow(delta,(int)li);
-		return (di-li*pow_delta_li)*exp(ti*log_tau+(di-1)*log_delta-pow_delta_li);
-	}
-	else
-	{
-		return di*exp(ti*log_tau+(di-1)*log_delta);
-	}
 }
 double phir_power::dDelta2(double tau, double delta) throw()
 {
 	double summer=0, log_tau = log(tau), log_delta = log(delta);
 	for (unsigned int i=iStart;i<=iEnd;i++)
 	{
-		
-		if (l[i]>0){
-			double pow_delta_li = pow(delta,(int)l[i]);
-			summer+=n[i]*((d[i]-l[i]*pow_delta_li)*(d[i]-1.0-l[i]*pow_delta_li) - l[i]*l[i]*pow_delta_li)*exp(t[i]*log_tau+(d[i]-2)*log_delta-pow_delta_li);
-		}
-		else
-			summer+=n[i]*d[i]*(d[i]-1.0)*exp(t[i]*log_tau+(d[i]-2)*log_delta);
+		summer += n[i]*d2A_dDelta2(log_tau,log_delta,delta,i);
 	}
 	return summer;
 }
@@ -259,7 +214,6 @@ double phir_power::dDelta3(double tau, double delta) throw()
 	}
 	return summer;
 }
-
 double phir_power::dDelta2_dTau(double tau, double delta) throw()
 {
 	double summer=0, log_tau = log(tau), log_delta = log(delta);
@@ -279,15 +233,66 @@ double phir_power::dDelta_dTau(double tau, double delta) throw()
 	double summer=0, log_tau = log(tau), log_delta = log(delta);
 	for (unsigned int i=iStart;i<=iEnd;i++)
 	{
-		if (l[i]>0){
-			double pow_delta_li = pow(delta,(int)l[i]);
-			summer+=n[i]*t[i]*(d[i]-l[i]*pow_delta_li)*exp((t[i]-1)*log_tau+(d[i]-1)*log_delta-pow_delta_li);
-		}
-		else
-			summer+=n[i]*d[i]*t[i]*exp((t[i]-1)*log_tau+(d[i]-1)*log_delta);
+		summer += n[i]*d2A_dDelta_dTau(log_tau, log_delta, delta, i);
 	}
 	return summer;
 }
+
+double phir_power::A(double log_tau, double log_delta, double delta, int i) throw()
+{
+	if (l[i]>0)
+		return exp(t[i]*log_tau+d[i]*log_delta-pow(delta,(int)l[i]));
+	else
+		return exp(t[i]*log_tau+d[i]*log_delta);
+}
+double phir_power::dA_dDelta(double log_tau, double log_delta, double delta, int i) throw()
+{
+	double pow_delta_li, li, ni, di, ti;
+	ni = n[i]; di = d[i]; ti = t[i]; li = l[i]; 
+	if (li > 0){
+		pow_delta_li = pow(delta,(int)li);
+		return (di-li*pow_delta_li)*exp(ti*log_tau+(di-1)*log_delta-pow_delta_li);
+	}
+	else
+	{
+		return di*exp(ti*log_tau+(di-1)*log_delta);
+	}
+}
+double phir_power::d2A_dDelta2(double log_tau, double log_delta, double delta, int i) throw()
+{
+	if (l[i]>0){
+		double pow_delta_li = pow(delta,(int)l[i]);
+		return ((d[i]-l[i]*pow_delta_li)*(d[i]-1.0-l[i]*pow_delta_li) - l[i]*l[i]*pow_delta_li)*exp(t[i]*log_tau+(d[i]-2)*log_delta-pow_delta_li);
+	}
+	else
+		return d[i]*(d[i]-1.0)*exp(t[i]*log_tau+(d[i]-2)*log_delta);
+}
+double phir_power::d2A_dDelta_dTau(double log_tau, double log_delta, double delta, int i) throw()
+{	
+	if (l[i]>0){
+		double pow_delta_li = pow(delta,(int)l[i]);
+		return t[i]*(d[i]-l[i]*pow_delta_li)*exp((t[i]-1)*log_tau+(d[i]-1)*log_delta-pow_delta_li);
+	}
+	else
+		return d[i]*t[i]*exp((t[i]-1)*log_tau+(d[i]-1)*log_delta);
+}
+
+double phir_power::dA_dTau(double log_tau, double log_delta, double delta, int i) throw()
+{
+	if (l[i]>0)
+		return t[i]*exp((t[i]-1)*log_tau+d[i]*log_delta-pow(delta,(int)l[i]));
+	else
+		return t[i]*exp((t[i]-1)*log_tau+d[i]*log_delta);
+}
+double phir_power::d2A_dTau2(double log_tau, double log_delta, double delta, int i) throw()
+{
+	if (l[i]>0)
+		return t[i]*(t[i]-1)*exp((t[i]-2)*log_tau+d[i]*log_delta-pow(delta,(int)l[i]));
+	else
+		return t[i]*(t[i]-1)*exp((t[i]-2)*log_tau+d[i]*log_delta);
+}
+
+
 std::vector<double> phir_power::dDeltaV(std::vector<double> tau, std::vector<double> delta) throw()
 {
 	std::vector<double> out = tau;
@@ -335,18 +340,12 @@ TEST_CASE("Power Helmholtz terms", "[helmholtz],[fast]")
 	double c[]={0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,1.0,1.0,2.0,2.0,2.0,2.0,2.0,2.0,3.0,3.0,3.0,4.0};
 	
 	phir_power phir(n,d,t,c,1,21,22);
-	double eps = sqrt(DBL_EPSILON);
+	double eps = 10*sqrt(DBL_EPSILON);
 
 	SECTION("dDelta")
 	{
 		double ANA = phir.dDelta(0.5, 0.5);
 		double NUM = (phir.base(0.5, 0.5+eps) - phir.base(0.5,0.5-eps))/(2*eps);
-		REQUIRE(abs(NUM-ANA) < 1e-6);
-	}
-	SECTION("dA_dDelta")
-	{
-		double ANA = phir.dA_dDelta(0.5, 0.5, 1);
-		double NUM = (phir.A(0.5, 0.5+eps, 1) - phir.A(0.5,0.5-eps, 1))/(2*eps);
 		REQUIRE(abs(NUM-ANA) < 1e-6);
 	}
 	SECTION("dTau")

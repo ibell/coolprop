@@ -118,6 +118,7 @@ def EES():
     subprocess.check_output(['BuildDLL.bat'],shell=True,cwd=os.path.join('wrappers','EES'))
     subprocess.check_output(['BuildDLF.bat'],shell=True,cwd=os.path.join('wrappers','EES'))
     subprocess.check_output(['BuildMSI.bat'],shell=True,cwd=os.path.join('wrappers','EES'))
+    subprocess.check_output('C:\EES32\ees.exe C:\EES32\Userlib\CoolProp_EES\CoolProp_EES_Sample.ees /Solve',shell=True)
     
     shutil.copy2(os.path.join('wrappers','EES','Debug','CoolProp_EES_installer.msi'),os.path.join('dist_temp','EES','CoolProp_EES_installer.msi'))
     shutil.copy2(os.path.join('wrappers','EES','CoolProp.htm'),os.path.join('dist_temp','EES','CoolProp.htm'))
@@ -311,7 +312,7 @@ if __name__=='__main__':
     
 #     InstallPrereqs()  #This is optional if you think any of the pre-reqs have been updated
 
-#     Python() # This one must be first
+#     Python() # This one must be first to ensure that version gets rebuild properly
 #     DLL_and_Excel()
 #     Source()
 #     Csharp()
@@ -320,7 +321,7 @@ if __name__=='__main__':
 #     Maple()
 #     Mathematica()
 #     Scilab()
-#     EES()
+    EES()
 #     Javascript()
 #     Java()
 #     MathCAD()
@@ -331,6 +332,6 @@ if __name__=='__main__':
 #     PYPI()
 #     UploadSourceForge()
     
-    Doxygen()
-    BuildDocs()
-    UploadDocs()
+#     Doxygen()
+#     BuildDocs()
+#     UploadDocs()

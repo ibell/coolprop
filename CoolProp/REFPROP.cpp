@@ -641,7 +641,7 @@ double REFPROP(std::string Output, std::string Name1, double Prop1, std::string 
 	Prop2 = convert_from_unit_system_to_SI(iName2,Prop2,get_standard_unit_system());
 	
 	// Get the molar mass of the fluid
-	WMOLdll(&(x[0]),&MW);	
+	WMOLdll(&(x[0]),&MW);
 	if (iOutput == iTcrit)
 	{
 		// Critical temperature
