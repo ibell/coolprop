@@ -1,7 +1,5 @@
 #Everything in this file is added to the bottom of the __init__.py file at buildtime
 
-from __future__ import absolute_import
-
 from . import CoolProp
 from . import HumidAirProp
 from . import State

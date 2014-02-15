@@ -167,7 +167,7 @@ if __name__=='__main__':
     for i in range(len(lines)-1,-1,-1):
         if lines[i].strip().startswith('#') or len(lines[i].strip())==0: 
             lines.pop(i)
-    lines=['__version__=\''+version+'\'\n']+[gitstring]+lines
+    lines=['from __future__ import absolute_import\n']+['__version__=\''+version+'\'\n']+[gitstring]+lines
     fp=open(os.path.join('CoolProp','__init__.py'),'w')
     for line in lines:
         fp.write(line)
