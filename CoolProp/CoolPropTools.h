@@ -12,24 +12,27 @@
 #endif
 
 #if defined(COOLPROP_LIB)
-	#ifndef EXPORT_CODE
-		#if defined(__ISWINDOWS__)
-			#define EXPORT_CODE extern "C" __declspec(dllexport)
-		#else
-			#define EXPORT_CODE extern "C"
-		#endif
-	#endif
-
-	#ifndef CONVENTION
-		#define CONVENTION __stdcall
-	#endif
+#  ifndef EXPORT_CODE
+#    if defined(__ISWINDOWS__)
+#      define EXPORT_CODE extern "C" __declspec(dllexport)
+#    else
+#      define EXPORT_CODE extern "C"
+#    endif
+#  endif
+#  ifndef CONVENTION
+#    if defined(__ISWINDOWS__)
+#      define CONVENTION __stdcall
+#    else
+#      define CONVENTION
+#    endif
+#  endif
 #else
-    #ifndef EXPORT_CODE
-        #define EXPORT_CODE
-    #endif
-	#ifndef CONVENTION
-		#define CONVENTION
-	#endif
+#  ifndef EXPORT_CODE
+#    define EXPORT_CODE
+#  endif
+#  ifndef CONVENTION
+#    define CONVENTION
+#  endif
 #endif
 
 // Hack for PowerPC compilation to only use extern "C"

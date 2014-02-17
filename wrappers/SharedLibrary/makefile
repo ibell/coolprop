@@ -76,7 +76,6 @@ LANG_FLAGS = -D COOLPROP_LIB
 DBGFLAGS = -O0 -g3
 WRNFLAGS = -Wall -Wpedantic -Wextra
  
- 
 # =============================
 # ~ END OF CUSTOMISABLE CODE ~
 # =============================

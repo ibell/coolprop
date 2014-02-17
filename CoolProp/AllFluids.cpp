@@ -9,6 +9,7 @@
 
 #include "CPExceptions.h"
 #include "CoolPropTools.h"
+#include "CoolPropDLL.h"
 #include "Helmholtz.h"
 #include "Units.h"
 #include "AllFluids.h"

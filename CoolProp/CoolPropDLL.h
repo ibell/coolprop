@@ -9,7 +9,7 @@
 
 	// When using SWIG, it is extremely difficult to deal with char* for output strings, so just use 
 	// the std::string version since SWIG can handle std::string just fine
-	#ifdef SWIG
+	#if defined(SWIG)
 		std::string get_global_param_string(std::string ParamName);
 		std::string get_fluid_param_string(std::string FluidName, std::string ParamName);
 	#else
