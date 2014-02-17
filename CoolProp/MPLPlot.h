@@ -125,12 +125,18 @@ public:
 	};
 	void show()
 	{
-		
 		std::string s = "import matplotlib\nmatplotlib.use('TkAgg')\nimport matplotlib.pyplot as plt\n";
 		s += this->print_calls();
 		s += "plt.savefig('AA.png')\n";
 		s += "plt.show()\n";
-		PyRun_SimpleString(s.c_str());
+		if (PyRun_SimpleString(s.c_str()) != 0)
+		{
+			FILE *fp;
+			fp = fopen("errored_plot.py","w");
+			fprintf(fp,"%s",s.c_str());
+			fclose(fp);
+			std::cout << format("plot failed.  Written log to errored_plot.py\n");
+		};
 	};
 };
 

@@ -19,7 +19,7 @@ class GeneticAncillaryFitter(object):
                num_selected = 30, # Have this many chromos in the selected group
                mutation_factor = 2, # Randomly mutate 1/n of the chromosomes
                num_powers = 8, # How many powers in the fit
-               Ref = 'AceticAcid',
+               Ref = 'R407C',
                value = 'rhoV',
                addTr = True,
                values = None
@@ -246,6 +246,9 @@ def main():
     print list(r.beta)
 
 if __name__ == "__main__":
+    
+    gaf = GeneticAncillaryFitter(Ref = 'REFPROP-R407C', value = 'rhoV', addTr = False)
+    gaf.run()
     
     values = dict(Tcrit = 590.70, rhocrit = 351, pcrit = 5817526.2731115920, Tmin = 289.8)
     

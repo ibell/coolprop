@@ -1030,11 +1030,18 @@ void Fluid::saturation_T(double T, bool UseLUT, double *psatLout, double *psatVo
 	else
 	{ 
 		// Pseudo-pure fluid
-		*psatLout = psatL(T);
-		*psatVout = psatV(T);
+		*psatLout = psatL(T); // These ancillaries are used explicitly
+		*psatVout = psatV(T); // These ancillaries are used explicitly
 		try{
+			double rhoLanc = rhosatL(T);
+			double rhoVanc = rhosatV(T);
 			*rhosatLout = density_Tp(T, *psatLout, rhosatL(T));
 			*rhosatVout = density_Tp(T, *psatVout, rhosatV(T));
+			if (!ValidNumber(*rhosatLout) || !ValidNumber(*rhosatVout) || 
+				 fabs(rhoLanc/(*rhosatLout)-1) > 0.1 || fabs(rhoVanc/(*rhosatVout)-1) > 0.1)
+			{
+				throw ValueError("pseudo-pure failed");
+			}
 		}
 		catch (std::exception &){
 			// Near the critical point, the behavior is not very nice, so we will just use the ancillary near the critical point
