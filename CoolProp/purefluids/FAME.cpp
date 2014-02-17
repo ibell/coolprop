@@ -125,7 +125,7 @@ MethylStearateClass::MethylStearateClass()
 	// Other fluid parameters
 	params.molemass = 298.50382; // From REFPROP, not provided in paper (but should be!!)
 	params.Ttriple = 311.84; // From REFPROP, not provided in paper
-	params.accentricfactor = 1.0548242393764551;
+	params.accentricfactor = 1.01756;
 	params.R_u = 8.314472;
 	params.ptriple = 6.0109170319097108e-006;
 

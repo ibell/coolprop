@@ -105,7 +105,7 @@ R113Class::R113Class()
 	// Other fluid parameters
 	params.molemass = 187.375;
 	params.Ttriple = 236.93;
-	params.accentricfactor = 0.42002392161549462;
+	params.accentricfactor = 0.252535;
 	params.R_u = 8.314471;
 	params.ptriple = 1.87;
 
