@@ -12,19 +12,19 @@ BibTeX
 
 BibTeX citation::
 
-    @article{ACSpaper,
-    author = {Ian H. Bell and Jorrit Wronski and Sylvain Quoilin and Vincent Lemort},
-    title = {Pure- and Pseudo-Pure Fluid Thermophysical Property Evaluation
-    and the Open-Source Thermophysical Property Library CoolProp},
-    journal = {Industrial & Engineering Chemistry Research},
-    volume = {0},
-    number = {ja},
-    pages = {null},
-    year = {2014},
-    doi = {10.1021/ie4033999},
-    URL = {http://pubs.acs.org/doi/abs/10.1021/ie4033999},
-    eprint = {http://pubs.acs.org/doi/pdf/10.1021/ie4033999}
-    }
+    @article{doi:10.1021/ie4033999,
+        author = {Bell, Ian H. and Wronski, Jorrit and Quoilin, Sylvain and Lemort, Vincent},
+        title = {Pure and Pseudo-pure Fluid Thermophysical Property Evaluation and the Open-Source Thermophysical Property Library CoolProp},
+        journal = {Industrial & Engineering Chemistry Research},
+        volume = {53},
+        number = {6},
+        pages = {2498-2508},
+        year = {2014},
+        doi = {10.1021/ie4033999},
+
+        URL = {http://pubs.acs.org/doi/abs/10.1021/ie4033999},
+        eprint = {http://pubs.acs.org/doi/pdf/10.1021/ie4033999}
+        }
 
 See Also
 ====
