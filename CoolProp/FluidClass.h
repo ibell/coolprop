@@ -40,7 +40,7 @@ struct HSContainer
 };
 struct OtherParameters
 {
-	double molemass, Ttriple, ptriple, accentricfactor, R_u;
+	double molemass, Ttriple, ptriple, accentricfactor, R_u, rhoVtriple, rhoLtriple;
 	std::string CAS;
 	std::string HSReferenceState;
 };

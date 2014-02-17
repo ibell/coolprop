@@ -188,6 +188,8 @@ void Fluid::post_load(rapidjson::Document &JSON, rapidjson::Document &JSON_CAS)
 	HS.sL_Tmin = entropy_Trho(limits.Tmin, rhoL);
 	HS.hV_Tmin = enthalpy_Trho(limits.Tmin, rhoV);
 	HS.hL_Tmin = enthalpy_Trho(limits.Tmin, rhoL);
+	params.rhoVtriple = rhoV;
+	params.rhoLtriple = rhoL;
 
 	// Set the triple-point pressure, over-writing whatever is provided by the class
 	// Use the dewpoint pressure for pseudo-pure fluids
@@ -1738,6 +1740,12 @@ void Fluid::temperature_ph(double p, double h, double *Tout, double *rhoout, dou
 				delta = rho_guess/reduce.rho;
 			}
 		}
+		else if (p < params.ptriple)
+		{
+			rho_guess = params.rhoVtriple;
+			T_guess = params.ptriple;
+			delta = rho_guess/reduce.rho;
+		}
 		else
 		{
 			// Set to a negative value as a dummy value
@@ -1933,6 +1941,11 @@ void Fluid::temperature_ph(double p, double h, double *Tout, double *rhoout, dou
             worst_error=fabs(f1);
         else
             worst_error=fabs(f2);
+
+		if (!ValidNumber(f1) || !ValidNumber(f2))
+		{
+			throw SolutionError(format("Invalid values for inputs p=%g h=%g for fluid %s",p,h,(char*)name.c_str()));
+		}
 
 		iter+=1;
 		if (iter>100)
