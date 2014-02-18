@@ -392,7 +392,7 @@ bool load_REFPROP()
 		// Get data associated with path using the windows libraries, 
 		// and if you can (result == 0), the path exists
 		#ifdef __MINGW32__
-			if ( stat( "c:\\Program Files\\REFPROP\\fluids", buf) != 0){
+			if ( stat( "c:\\Program Files\\REFPROP\\fluids", &buf) != 0){
 				throw ValueError("REFPROP fluid files must be copied to c:\\Program Files\\REFPROP\\fluids");
 			}
 		#else
