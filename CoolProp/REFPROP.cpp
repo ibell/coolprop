@@ -3,6 +3,8 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <crtdbg.h>
 #include <sys/stat.h>
+#else
+#include <sys/stat.h>
 #endif
 
 #include <string>
