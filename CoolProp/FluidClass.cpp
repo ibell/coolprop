@@ -1035,6 +1035,11 @@ void Fluid::saturation_T(double T, bool UseLUT, double *psatLout, double *psatVo
 		try{
 			double rhoLanc = rhosatL(T);
 			double rhoVanc = rhosatV(T);
+			if (!ValidNumber(rhoLanc) || !ValidNumber(rhoVanc))
+			{
+				throw ValueError("pseudo-pure failed");
+			}
+
 			*rhosatLout = density_Tp(T, *psatLout, rhosatL(T));
 			*rhosatVout = density_Tp(T, *psatVout, rhosatV(T));
 			if (!ValidNumber(*rhosatLout) || !ValidNumber(*rhosatVout) || 

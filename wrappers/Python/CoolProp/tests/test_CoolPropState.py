@@ -18,7 +18,7 @@ def first_derivative(S, func, iVal, Val, iConstant, Constant, epsilon = 1e-3):
     
     return (val2-val1)/epsilon
     
-def second_derivative(S, func, iVal, Val, iConstant, Constant, epsilon = 1.0):
+def second_derivative(S, func, iVal, Val, iConstant, Constant, epsilon = 2):
     
     S.update({iVal:Val-epsilon,iConstant:Constant})
     val1 = func()
@@ -125,7 +125,7 @@ def test_sat_second_derivatives():
     for US in [CoolProp.UNIT_SYSTEM_SI, CoolProp.UNIT_SYSTEM_KSI]:
         CP.set_standard_unit_system(US)
         
-        S = State('R134a',dict(T=300,Q=1))
+        S = State('R134a',dict(T=290,Q=1))
         
         l = [(S.get_T,'P',S.p,'Q',0,S.PFC.d2Tdp2_along_sat),
              (S.get_rho,'P',S.p,'Q',0,S.PFC.d2rhodp2_along_sat_liquid),

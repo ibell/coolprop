@@ -65,7 +65,7 @@ for fluid in CoolProp.__fluids__:
         NOT_IN_REFPROP_CAS = {'R1234ze(Z)':'29118-25-0',
                               'ParaDeuterium':'7782-39-0p',
                               'OrthoDeuterium':'7782-39-0o',
-                              'R407F':'N/A',
+                              'R407F':'R407F.ppf',
                               }
         CAS = NOT_IN_REFPROP_CAS[fluid]
     
@@ -74,6 +74,7 @@ for fluid in CoolProp.__fluids__:
         code[CAS]['CAS'] = 'N/A'
     else:
         code[CAS]['CAS'] = CAS
+    print fluid, RPName, code[CAS]['CAS']
         
     code[CAS]['hsatVmax'],code[CAS]['T_hsatVmax'],code[CAS]['s_hsatVmax'],code[CAS]['rho_hsatVmax'] = hsatVmax(fluid)
     code[CAS].update(get_environmental_data(CAS))
