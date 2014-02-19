@@ -1014,10 +1014,7 @@ double Mixture::dpdxj__constT_V_xi(double tau, double delta, const std::vector<d
 	double Tr = pReducing->Tr(x); //[K]
 	double T = Tr/tau;
 
-	double r1 = d_dphirddelta_dxj__constT_V_xi(tau,delta,x,j);
-	double r2 = d2phir_dxi_dDelta(tau,delta,x,j);
-	return rhobar*Rbar(x)*T*(-delta/rhorbar*pReducing->drhorbardxi__constxj(x,j)*(dphir_dDelta(tau, delta, x)+delta*d2phir_dDelta2(tau,delta,x))
-		                     +delta*r2);
+	return rhobar*Rbar(x)*T*(ddelta_dxj__constT_V_xi(tau,delta,x,j)*dphir_dDelta(tau, delta, x)+delta*d_dphirddelta_dxj__constT_V_xi(tau,delta,x,j));
 }
 
 double Mixture::d_dphirddelta_dxj__constT_V_xi(double tau, double delta, const std::vector<double> &x, int j)
@@ -2938,23 +2935,34 @@ TEST_CASE("Mixture derivative checks", "")
 		double rhorbar = Mix.pReducing->rhorbar(z);
 		double Tr = Mix.pReducing->Tr(z);
 		int i = 0;
-		double epsT = 1e-4, epsp = 0.1, epsz = 1e-5;
-		double T0 = 300, p0 = 101325;
+		double epsT = sqrt(DBL_EPSILON), epsp = 0.1, epsz = 1e-5;
+		double T0 = 300, p0 = 100000;
 		double rho0 = Mix.rhobar_Tpz(T0,p0, z, 5);
 		double delta0 = rho0/rhorbar;
 		double tau0 = Tr/T0;
 
+		SECTION("check against RP9.1")
+		{
+			Mix.check_MethaneEthane();
+		}
+		SECTION("check p")
+		{
+			double p1 = rho0*Mix.Rbar(z)*T0*(1+delta0*Mix.dphir_dDelta(tau0, delta0, z));
+			CAPTURE(p0);
+			CAPTURE(p1);
+			REQUIRE(fabs(p0/p1-1) < 1e-8);
+		}
 		SECTION("dlnphi_dT")
 		{
 			double ANA = Mix.dln_fugacity_coefficient_dT__constp_n(tau0, delta0, z, i);
 
-			double T1 = 300+epsT, p1 = 101325;
-			double delta1 = Mix.rhobar_Tpz(T1,p1,z, 5)/rhorbar;
+			double T1 = T0+epsT;
+			double delta1 = Mix.rhobar_Tpz(T1,p0,z, 5)/rhorbar;
 			double tau1 = Tr/T1;
 			double f1 = Mix.ln_fugacity_coefficient(tau1, delta1, z, i);
 
-			double T2 = 300-epsT, p2 = 101325;
-			double delta2 = Mix.rhobar_Tpz(T2,p2,z, 5)/rhorbar;
+			double T2 = T0-epsT;
+			double delta2 = Mix.rhobar_Tpz(T2,p0,z, 5)/rhorbar;
 			double tau2 = Tr/T2;
 			double f2 = Mix.ln_fugacity_coefficient(tau2, delta2, z, i);
 			
@@ -2968,14 +2976,14 @@ TEST_CASE("Mixture derivative checks", "")
 		{
 			double ANA = Mix.dln_fugacity_coefficient_dp__constT_n(tau0, delta0, z, i);
 
-			double T1 = 300, p1 = 101325+epsp;
-			double delta1 = Mix.rhobar_Tpz(T1,p1,z, 5)/rhorbar;
-			double tau1 = Tr/T1;
+			double p1 = p0+epsp;
+			double delta1 = Mix.rhobar_Tpz(T0,p1,z, 5)/rhorbar;
+			double tau1 = Tr/T0;
 			double f1 = Mix.ln_fugacity_coefficient(tau1, delta1, z, i);
 
-			double T2 = 300, p2 = 101325-epsp;
-			double delta2 = Mix.rhobar_Tpz(T2,p2,z, 5)/rhorbar;
-			double tau2 = Tr/T2;
+			double p2 = p0-epsp;
+			double delta2 = Mix.rhobar_Tpz(T0,p2,z, 5)/rhorbar;
+			double tau2 = Tr/T0;
 			double f2 = Mix.ln_fugacity_coefficient(tau2, delta2, z, i);
 			
 			double NUM = (f1-f2)/(2*epsp);
@@ -3124,19 +3132,17 @@ TEST_CASE("Mixture derivative checks", "")
 				
 				std::vector<double> z1 = z;
 				z1[j] += epsz;
-				double rho1 = rho0;
-				double delta1 = rho1/Mix.pReducing->rhorbar(z1);
+				double delta1 = rho0/Mix.pReducing->rhorbar(z1);
 				double tau1 = Mix.pReducing->Tr(z1)/T0;
-				double f1 = rho1*Mix.Rbar(z1)*T0*(1+delta1*Mix.dphir_dDelta(tau1,delta1,z1));
+				double p1 = rho0*Mix.Rbar(z1)*T0*(1+delta1*Mix.dphir_dDelta(tau1,delta1,z1));
 
 				std::vector<double> z2 = z;
 				z2[j] -= epsz;
-				double rho2 = rho0;
-				double delta2 = rho2/Mix.pReducing->rhorbar(z2);
+				double delta2 = rho0/Mix.pReducing->rhorbar(z2);
 				double tau2 = Mix.pReducing->Tr(z2)/T0;
-				double f2 = rho2*Mix.Rbar(z2)*T0*(1+delta2*Mix.dphir_dDelta(tau2,delta2,z2));
+				double p2 = rho0*Mix.Rbar(z2)*T0*(1+delta2*Mix.dphir_dDelta(tau2,delta2,z2));
 
-				double NUM = (f1-f2)/(2*epsz);
+				double NUM = (p1-p2)/(2*epsz);
 				CAPTURE(NUM);
 				CAPTURE(ANA);
 				CAPTURE(j);

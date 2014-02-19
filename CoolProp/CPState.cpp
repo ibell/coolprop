@@ -587,6 +587,11 @@ void CoolPropStateClassSI::update_Tp(long iInput1, double Value1, long iInput2, 
 	// Get them in the right order
 	sort_pair(&iInput1,&Value1,&iInput2,&Value2,iT,iP);
 
+	if (get_debug_level() > 5)
+	{
+		std::cout << format("%s:%d: CoolPropStateClassSI::update_Tp(%d, %g, %d, %g)\n",__FILE__,__LINE__,iInput1,Value1,iInput2,Value2).c_str();
+	}
+
 	if (Value1 < 0 ){ throw ValueError(format("Your temperature [%g K] is less than zero",Value1));}
 	if (Value2 < 0 ){ throw ValueError(format("Your pressure [%g Pa] is less than zero",Value2));}
 
@@ -605,7 +610,8 @@ void CoolPropStateClassSI::update_Tp(long iInput1, double Value1, long iInput2, 
 		_TwoPhase = true;
 	}
 	else{
-		_TwoPhase = pFluid->phase_Tp_indices(_T,_p,&psatL,&psatV,&rhosatL,&rhosatV) == iTwoPhase;
+		_TwoPhase = (pFluid->phase_Tp_indices(_T,_p,&psatL,&psatV,&rhosatL,&rhosatV) == iTwoPhase);
+		if (get_debug_level() > 5) { std::cout << format("%s:%d: CoolPropStateClass::update_Tp::_TwoPhase : %d\n",__FILE__,__LINE__,_TwoPhase).c_str(); }
 	}
 
 	if (_TwoPhase)

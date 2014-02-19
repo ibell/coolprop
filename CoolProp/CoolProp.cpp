@@ -293,8 +293,11 @@ bool add_REFPROP_fluid(std::string FluidName)
 	if (iFluid < 0 && set_REFPROP_fluid(FluidName, x)) // If you can set the fluid, it's a valid fluid
 	{
 		Fluids.add_REFPROP_fluid(FluidName,std::vector<double>(1,1));
+		if (get_debug_level() > 0)
+		{
+			std::cout << format("%s:%d: Added the fluid %s\n",__FILE__,__LINE__,FluidName.c_str()).c_str();
+		}
 		return true;
-		std::cout << format("Added the fluid %s\n",FluidName.c_str()).c_str();
 	}
 	return true;
 }
