@@ -1291,17 +1291,17 @@ double CoolPropStateClassSI::keyed_output(long iOutput)
 		case iDERrho_smoothed:
 			//double rhospline, dsplinedp, dsplinedh;
 			//update(iT,T,iQ,rho);
-			rho_smoothed(0.1,&rhospline,&dsplinedh,&dsplinedp);
+			rho_smoothed(0.1,rhospline,dsplinedh,dsplinedp);
 			return rhospline;
 		case iDERdrho_smoothed_dh:
 			//double rhospline, dsplinedp, dsplinedh;
 			//CPS.update(iT,T,iQ,rho);
-			rho_smoothed(0.1,&rhospline,&dsplinedh,&dsplinedp);
+			rho_smoothed(0.1,rhospline,dsplinedh,dsplinedp);
 			return dsplinedh;
 		case iDERdrho_smoothed_dp:
 			//double rhospline, dsplinedp, dsplinedh;
 			//CPS.update(iT,T,iQ,rho);
-			rho_smoothed(0.1,&rhospline,&dsplinedh,&dsplinedp);
+			rho_smoothed(0.1,rhospline,dsplinedh,dsplinedp);
 			return dsplinedp;
 		case iDERdrhodh_constp_smoothed:
 			return drhodh_constp_smoothed(0.1);
@@ -1782,7 +1782,7 @@ double CoolPropStateClassSI::drhodh_constp_smoothed(double xend){
 }
 
 
-void CoolPropStateClassSI::rho_smoothed(double xend, double *rho_spline, double *dsplinedh, double *dsplinedp){
+void CoolPropStateClassSI::rho_smoothed(double xend, double &rho_spline, double &dsplinedh, double &dsplinedp){
 	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION){throw ValueError("function invalid for incompressibles");}
 	// Make a state class instance in two-phase at the junction point (end):
 	CoolPropStateClassSI CPS(pFluid);
@@ -1819,36 +1819,6 @@ void CoolPropStateClassSI::rho_smoothed(double xend, double *rho_spline, double 
 	// Derivative at constant quality (xend):
 	double drhoxdp =  pow(rho_end,2)*(xend / pow(rho_v,2) * drhovdp + (1-xend)/pow(rho_l,2) * drholdp);
 
-	//Checking that the derivatives are ok:
-	//double pend = CPS._p;
-	//double step = 0.1;
-	//CPS.update(iH,h_end+step,iP,pend);
-	//double rho_hplus = CPS._rho;
-	//CPS.update(iH,h_end+step,iP,pend+step);
-	//double rho_hplus_pplus = CPS._rho;
-	//CPS.update(iH,h_end,iP,pend+step);
-	//double rho_pplus = CPS._rho;
-	//double dvdh_end_pplus = (1/CPS.rhoV() - 1/CPS.rhoL())/(CPS.hV() - CPS.hL());
-	//double drhodh_check_pplus = -rho_pplus*rho_pplus * dvdh_end_pplus;
-	//double drhodh_check2_pplus = CPS.drhodh_constp();
-	//CPS.update(iH,h_end+step,iP,pend-step);
-	//double rho_hplus_pminus = CPS._rho;
-	//CPS.update(iH,h_end-step,iP,pend+step);
-	//double rho_hminus_pplus = CPS._rho;
-	//CPS.update(iH,h_end-step,iP,pend-step);
-	//double rho_hminus_pminus = CPS._rho;
-	//double dvdhdp_check = (dvdh_end_pplus - dvdh_end)/step;
-	//double drhodhdp_check = -rho_end*rho_end * dvdhdp_check;
-	//double drhodhdp_check2 = (drhodh_check2_pplus - drhodh_end)/step;
-	//double drhodp_hend = (rho_pplus - rho_end)/step;
-	//double drhodp_hplus = (rho_hplus_pplus - rho_hplus)/step;
-	//double drhodh_pend = (rho_hplus - rho_end)/step;
-	//double drhodh_pplus = (rho_hplus_pplus - rho_pplus)/step;
-	//double drhodhdp_1 = (drhodp_hplus - drhodp_hend)/step;
-	//double drhodhdp_2 = (drhodh_pplus - drhodh_pend)/step;	
-	//double drhodhdp_3 = (rho_hplus_pplus + rho_hminus_pminus - rho_hplus_pminus - rho_hminus_pplus)/(4*step*step);
-	//double dvdhdp_3 = (1/rho_hplus_pplus + 1/rho_hminus_pminus - 1/rho_hplus_pminus - 1/rho_hminus_pplus)/(4*step*step);
-
 	// Arguments of the spline function (rho is smoothed as a function of h):
 	double delta = x * (h_v - h_l); //[J/kg]
 	double delta_end = h_end - h_l; //[J/kg]
@@ -1868,12 +1838,134 @@ void CoolPropStateClassSI::rho_smoothed(double xend, double *rho_spline, double 
 	double dddp = drholdp;
 
 	// Computing the final useful values:
-	*rho_spline = a * pow(delta,3) + b * pow(delta,2) + c * delta + d;
-	*dsplinedp = (3*a * pow(delta,2)  +2* b * delta + c)* ddeltadp + pow(delta,3) * dadp + pow(delta,2) * dbdp + delta * dcdp + dddp;
-	*dsplinedh = 3 * a * pow(delta,2) + 2*b * delta + c;
+	rho_spline = a * pow(delta,3) + b * pow(delta,2) + c * delta + d;
+	dsplinedp = (3*a * pow(delta,2)  +2* b * delta + c)* ddeltadp + pow(delta,3) * dadp + pow(delta,2) * dbdp + delta * dcdp + dddp;
+	dsplinedh = 3 * a * pow(delta,2) + 2*b * delta + c;
 	
 }
 
+
+//Checking that the derivatives are ok:
+//double pend = CPS._p;
+//double step = 0.1;
+//CPS.update(iH,h_end+step,iP,pend);
+//double rho_hplus = CPS._rho;
+//CPS.update(iH,h_end+step,iP,pend+step);
+//double rho_hplus_pplus = CPS._rho;
+//CPS.update(iH,h_end,iP,pend+step);
+//double rho_pplus = CPS._rho;
+//double dvdh_end_pplus = (1/CPS.rhoV() - 1/CPS.rhoL())/(CPS.hV() - CPS.hL());
+//double drhodh_check_pplus = -rho_pplus*rho_pplus * dvdh_end_pplus;
+//double drhodh_check2_pplus = CPS.drhodh_constp();
+//CPS.update(iH,h_end+step,iP,pend-step);
+//double rho_hplus_pminus = CPS._rho;
+//CPS.update(iH,h_end-step,iP,pend+step);
+//double rho_hminus_pplus = CPS._rho;
+//CPS.update(iH,h_end-step,iP,pend-step);
+//double rho_hminus_pminus = CPS._rho;
+//double dvdhdp_check = (dvdh_end_pplus - dvdh_end)/step;
+//double drhodhdp_check = -rho_end*rho_end * dvdhdp_check;
+//double drhodhdp_check2 = (drhodh_check2_pplus - drhodh_end)/step;
+//double drhodp_hend = (rho_pplus - rho_end)/step;
+//double drhodp_hplus = (rho_hplus_pplus - rho_hplus)/step;
+//double drhodh_pend = (rho_hplus - rho_end)/step;
+//double drhodh_pplus = (rho_hplus_pplus - rho_pplus)/step;
+//double drhodhdp_1 = (drhodp_hplus - drhodp_hend)/step;
+//double drhodhdp_2 = (drhodh_pplus - drhodh_pend)/step;	
+//double drhodhdp_3 = (rho_hplus_pplus + rho_hminus_pminus - rho_hplus_pminus - rho_hminus_pplus)/(4*step*step);
+//double dvdhdp_3 = (1/rho_hplus_pplus + 1/rho_hminus_pminus - 1/rho_hplus_pminus - 1/rho_hminus_pplus)/(4*step*step);
+
+#ifndef DISABLE_CATCH
+#include "Catch/catch.hpp"
+
+TEST_CASE("Check of density smoothing derivatives","[normal]")
+{
+	int ttse_flag;
+	double rho_spline, dsplinedh, dsplinedp;
+	std::string TTSE;
+
+	WHEN("TTSE is off")
+	{
+		ttse_flag = 0;
+		TTSE = "off";
+		THEN("drho_dh|p")
+		{
+			double x = 0.3;
+			double dh = 0.01;
+			CoolPropStateClassSI CPS("n-Propane");
+			CPS.disable_TTSE_LUT();	
+			CPS.update(iT, 300, iQ, x);
+			CPS.rho_smoothed(0.3,rho_spline, dsplinedh, dsplinedp);
+			CoolPropStateClassSI CPS2("n-Propane");
+			CPS2.disable_TTSE_LUT();
+			CPS2.update(iP, CPS.p(), iH, CPS.h() +dh);
+			double drho_dh__constp_num = (CPS2.rho()-CPS.rho())/dh;
+			double drho_dh__constp = CPS.drhodh_constp();
+			CAPTURE(x); 
+			CAPTURE(TTSE); 
+			CAPTURE(dsplinedh); 
+			CAPTURE(drho_dh__constp);
+			CHECK(fabs(dsplinedh/drho_dh__constp-1) < 1e-4);
+			CHECK(fabs(drho_dh__constp_num/drho_dh__constp-1) < 1e-4);
+		}
+
+		THEN("Smoothed Density")
+		{
+			for (double x = 0; x <=0.31; x+= 0.3)
+			{
+				CoolPropStateClassSI CPS("n-Propane");
+				CPS.update(iT, 300, iQ, x);
+				CPS.disable_TTSE_LUT();
+				CPS.rho_smoothed(0.3, rho_spline, dsplinedh, dsplinedp);
+				double rho_EOS = CPS.rho();
+				CAPTURE(x); 
+				CAPTURE(TTSE); 
+				CAPTURE(rho_spline); 
+				CAPTURE(rho_EOS);
+				CHECK(fabs(rho_spline/rho_EOS-1) < 1e-6);
+			}
+		}
+	}
+	WHEN("TTSE is on")
+	{
+		ttse_flag = 1;
+		TTSE = "on";
+		THEN("drho_dh|p at x = xend")
+		{
+			double x = 0.3;
+			CoolPropStateClassSI CPS("n-Propane");
+			CPS.enable_TTSE_LUT();
+			CPS.update(iT, 300, iQ, x);
+			CPS.rho_smoothed(0.3, rho_spline, dsplinedh, dsplinedp);
+			double drho_dh__constp = CPS.drhodh_constp();
+			CAPTURE(x); 
+			CAPTURE(TTSE); 
+			CAPTURE(dsplinedh); 
+			CAPTURE(drho_dh__constp);
+			CPS.disable_TTSE_LUT();
+			CHECK(fabs(dsplinedh/drho_dh__constp-1) < 1e-2);
+		}
+
+		THEN("Smoothed Density")
+		{
+			for (double x = 0; x <=0.31; x+= 0.3)
+			{
+				CoolPropStateClassSI CPS("n-Propane");
+				CPS.update(iT, 300, iQ, x);
+				CPS.enable_TTSE_LUT();
+				CPS.rho_smoothed(0.3, rho_spline, dsplinedh, dsplinedp);
+				double rho_EOS = CPS.rho();
+				CAPTURE(x); 
+				CAPTURE(TTSE); 
+				CAPTURE(rho_spline); 
+				CAPTURE(rho_EOS);
+				CPS.disable_TTSE_LUT();
+				CHECK(fabs(rho_spline/rho_EOS-1) < 1e-2);
+			}
+		}
+	}
+}
+#endif
 
 
 double CoolPropStateClassSI::drhodp_consth(void){
