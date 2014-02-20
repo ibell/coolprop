@@ -1,22 +1,19 @@
 
 @echo off
 
-call:defineEnv x86
-cl /c /MP3 /I../../CoolProp /EHsc /DCOOLPROP_LIB ../../CoolProp/*.cpp
+call:defineEnv 
+REM Change to "call:defineEnv x86" or "call:defineEnv amd64" according to your needs
+
+cl /c /MP /I../../CoolProp /EHsc /DCOOLPROP_LIB ../../CoolProp/*.cpp
+
 link /DLL *.obj /OUT:CoolProp.dll
-dumpbin /EXPORTS CoolProp.dll > exports.txt
+lib CoolProp.obj *.obj /OUT:CoolProp.lib
+
+dumpbin /EXPORTS CoolProp.dll > exportsDLL.txt
+dumpbin /HEADERS CoolProp.lib > exportsLIB.txt
+
 erase *.obj
 erase *.exp
-erase *.lib
-
-REM call:defineEnv amd64
-REM cl /c /MP /I../../CoolProp /EHsc /DCOOLPROP_LIB ../../CoolProp/*.cpp
-
-REM link /DLL CoolProp.obj *.obj /OUT:CoolProp_x64.dll
-REM dumpbin /EXPORTS CoolProp_x64.dll > exports_x64.txt
-REM erase *.obj
-REM erase *.exp
-REM erase *.lib
 
 goto:eof
 
@@ -30,7 +27,7 @@ set filename=""
 for %%i in (%stdpaths%) do (
   for %%j in (%versions%) do (
     for %%k in (%relPaths%) do (
-      call:loadScript "%%~i%%~j%%~k" %~1
+      call:loadScript "%%~i%%~j%%~k" %%~j %~1
     )
   )
 )
@@ -39,9 +36,13 @@ goto:eof
 :loadScript
 rem echo "%~1" "%~2"
 if exist "%~1" (
-  echo Calling "%~1" %~2 
-  call "%~1" %~2 
-) else (
-  echo Could not find "%~1"
-)
+  echo .
+  echo Found Visual Studio v. %~2
+  echo Calling "%~1" %~3 
+  call "%~1" %~3 
+  echo .
+) 
+REM else (
+REM   echo Could not find "%~1"
+REM )
 goto:eof
