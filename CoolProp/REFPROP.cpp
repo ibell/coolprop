@@ -430,26 +430,24 @@ bool set_REFPROP_fluid(std::string Ref, std::vector<double> &x)
 
 	// Load REFPROP if it isn't loaded yet
 	load_REFPROP();
-
-	// If the fluid name does not start with the string "REFPROP-"
-	if (Ref.find("REFPROP-") == std::string::npos)
-	{
-		// Fail and give error
-		std::cout << "Invalid REFPROP string: " << Ref.c_str() << std::endl;
-	}
-	// Chop off the "REFPROP-"
-	else 
-	{
-		// Keep everything after the "REFPROP-"
-		sRef = Ref.substr(8,Ref.size()-8);
-	}
 	
 	// If the name of the refrigerant doesn't match 
 	// that of the currently loaded refrigerant
 	if (LoadedREFPROPRef.compare(Ref))
 	{
-//		std::string refpropFluidPath(refpropfluidpath);
-//		std::string hfmixStr = refpropFluidPath + std::string(hfmix);
+		// If the fluid name does not start with the string "REFPROP-"
+		if (Ref.find("REFPROP-") == std::string::npos)
+		{
+			// Fail and give error
+			std::cout << "Invalid REFPROP string: " << Ref.c_str() << std::endl;
+		}
+		// Chop off the "REFPROP-"
+		else 
+		{
+			// Keep everything after the "REFPROP-"
+			sRef = Ref.substr(8,Ref.size()-8);
+		}
+
 		if (!strncmp(sRef.c_str(),"MIX",3))
 		{
 			// Sample sRef is "MIX:R32[0.697615]&R125[0.302385]" -  this is R410A
@@ -495,6 +493,11 @@ bool set_REFPROP_fluid(std::string Ref, std::vector<double> &x)
 				// Split the components_joined into the components
 				std::vector<std::string> components_split = strsplit(components_joined,'&');
 
+				if (components_split.size() == 1)
+				{
+					throw ValueError(format("REFPROP mixture specified composition desired [%s], but only one component found",components_joined.c_str()).c_str());
+				}
+
 				// Flush out the refrigerant string for REFPROP
 				RefString.clear();
 
@@ -505,6 +508,11 @@ bool set_REFPROP_fluid(std::string Ref, std::vector<double> &x)
 				{	
 					// Get component name and mole fraction (as strings)
 					std::vector<std::string> comp_fraction = strsplit(components_split[j],'[');
+
+					if (comp_fraction.size() != 2)
+					{
+						throw ValueError(format("Could not parse name[molefraction] [%s]",components_split[j].c_str()).c_str());
+					}
 					
 					// Build the refrigerant string
 					if (j == 0){
@@ -1092,6 +1100,64 @@ TEST_CASE("REFPROP Fluid Class check saturation consistency", "")
 		REQUIRE(abs(T2-T) < 1e-5);
 	}
 }
+
+TEST_CASE("Check fluid names", "[fast]")
+{
+	if (REFPROPFluidClass::refpropSupported()) {
+		SECTION("REFPROP-R134")
+		{
+			REQUIRE_THROWS(set_REFPROP_fluid("REFPROP-R134",std::vector<double>(1,1)));
+		}
+		SECTION("REFPROP-R134a")
+		{
+			REQUIRE_NOTHROW(set_REFPROP_fluid("REFPROP-R134a",std::vector<double>(1,1)));
+		}
+		SECTION("REFPROP-MIX:R410.m")
+		{
+			REQUIRE_THROWS(set_REFPROP_fluid("REFPROP-MIX:R410.m",std::vector<double>(1,1)));
+		}
+		SECTION("REFPROP-MIX:R410")
+		{
+			REQUIRE_THROWS(set_REFPROP_fluid("REFPROP-MIX:R410",std::vector<double>(1,1)));
+		}
+		SECTION("REFPROP-MIX:R32[0.5]R125[0.5]")
+		{
+			REQUIRE_THROWS(set_REFPROP_fluid("REFPROP-MIX:R32[0.5]R125[0.5]",std::vector<double>(1,1)));
+		}
+		SECTION("REFPROP-MIX:R32[0,5]R125[0,5]")
+		{
+			REQUIRE_THROWS(set_REFPROP_fluid("REFPROP-MIX:R32[0,5]R125[0,5]",std::vector<double>(1,1)));
+		}
+		SECTION("REFPROP-MIX:R32[A]&R125[B]")
+		{
+			REQUIRE_THROWS(set_REFPROP_fluid("REFPROP-MIX:R32[A]R125[B]",std::vector<double>(1,1)));
+		}
+		SECTION("REFPROP-MIX:R32[0.697614699375863]&R125[0.302385300624138]")
+		{
+			REQUIRE_NOTHROW(set_REFPROP_fluid("REFPROP-MIX:R32[0.697614699375863]&R125[0.302385300624138]",std::vector<double>(1,1)));
+		}
+		
+
+	}
+}
+
+TEST_CASE("Fluid class for bad fluid", "[fast]")
+{
+	SECTION("REFPROP-R134")
+	{
+		if (REFPROPFluidClass::refpropSupported()) {
+			REQUIRE_THROWS(REFPROPFluidClass("REFPROP-R134",std::vector<double>(1,1)));
+		}
+	}
+	SECTION("REFPROP-R134a")
+	{
+		if (REFPROPFluidClass::refpropSupported()) {
+			REQUIRE_NOTHROW(REFPROPFluidClass("REFPROP-R134a",std::vector<double>(1,1)));
+		}
+	}
+
+}
+
 #endif
 
 double REFPROPFluidClass::dphir_dDelta(double tau, double delta)
