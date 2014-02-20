@@ -38,12 +38,12 @@ CoolPropSolver::CoolPropSolver(const std::string &mediumName, const std::string 
 			{
 				if (!param_val[1].compare("1") || !param_val[1].compare("true"))
 				{
-					std::cout << "TTSE is on";
+					std::cout << "TTSE is on\n";
 					enable_TTSE = true;
 				}
 				else if (!param_val[1].compare("0") || !param_val[1].compare("false"))
 				{
-					std::cout << "TTSE is off";
+					std::cout << "TTSE is off\n";
 					enable_TTSE = false;
 				}
 				else
