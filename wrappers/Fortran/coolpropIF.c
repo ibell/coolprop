@@ -1,7 +1,10 @@
 
 #include <string.h>
 #include <stdio.h>
-#include <stdbool.h>
+
+typedef int bool;
+#define false 0
+#define true 1
 
 #if defined(_WIN32) || defined(__WIN32__) || defined(_WIN64) || defined(__WIN64__)
 #  define CONVENTION __declspec(dllexport)
