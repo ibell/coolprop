@@ -179,7 +179,7 @@ void CoolPropSolver::postStateChange(ExternalThermodynamicState *const propertie
 					double rho_spline;
 					double dsplinedh;
 					double dsplinedp;
-					state->rho_smoothed(rho_smoothing_xend, &rho_spline, &dsplinedh, &dsplinedp) ;
+					state->rho_smoothed(rho_smoothing_xend, rho_spline, dsplinedh, dsplinedp) ;
 					properties->ddhp = dsplinedh;
 					properties->ddph = dsplinedp;
 					properties->d = rho_spline;
