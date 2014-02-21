@@ -1104,40 +1104,39 @@ TEST_CASE("REFPROP Fluid Class check saturation consistency", "")
 TEST_CASE("Check fluid names", "[fast]")
 {
 	if (REFPROPFluidClass::refpropSupported()) {
+		std::vector<double> x1(1,1), x2(2,0.5);
 		SECTION("REFPROP-R134")
 		{
-			REQUIRE_THROWS(set_REFPROP_fluid("REFPROP-R134",std::vector<double>(1,1)));
+			REQUIRE_THROWS(set_REFPROP_fluid("REFPROP-R134",x1));
 		}
 		SECTION("REFPROP-R134a")
 		{
-			REQUIRE_NOTHROW(set_REFPROP_fluid("REFPROP-R134a",std::vector<double>(1,1)));
+			REQUIRE_NOTHROW(set_REFPROP_fluid("REFPROP-R134a",x1));
 		}
 		SECTION("REFPROP-MIX:R410.m")
 		{
-			REQUIRE_THROWS(set_REFPROP_fluid("REFPROP-MIX:R410.m",std::vector<double>(1,1)));
+			REQUIRE_THROWS(set_REFPROP_fluid("REFPROP-MIX:R410.m",x2));
 		}
 		SECTION("REFPROP-MIX:R410")
 		{
-			REQUIRE_THROWS(set_REFPROP_fluid("REFPROP-MIX:R410",std::vector<double>(1,1)));
+			REQUIRE_THROWS(set_REFPROP_fluid("REFPROP-MIX:R410",x2));
 		}
 		SECTION("REFPROP-MIX:R32[0.5]R125[0.5]")
 		{
-			REQUIRE_THROWS(set_REFPROP_fluid("REFPROP-MIX:R32[0.5]R125[0.5]",std::vector<double>(1,1)));
+			REQUIRE_THROWS(set_REFPROP_fluid("REFPROP-MIX:R32[0.5]R125[0.5]",x2));
 		}
 		SECTION("REFPROP-MIX:R32[0,5]R125[0,5]")
 		{
-			REQUIRE_THROWS(set_REFPROP_fluid("REFPROP-MIX:R32[0,5]R125[0,5]",std::vector<double>(1,1)));
+			REQUIRE_THROWS(set_REFPROP_fluid("REFPROP-MIX:R32[0,5]R125[0,5]",x2));
 		}
 		SECTION("REFPROP-MIX:R32[A]&R125[B]")
 		{
-			REQUIRE_THROWS(set_REFPROP_fluid("REFPROP-MIX:R32[A]R125[B]",std::vector<double>(1,1)));
+			REQUIRE_THROWS(set_REFPROP_fluid("REFPROP-MIX:R32[A]R125[B]",x2));
 		}
 		SECTION("REFPROP-MIX:R32[0.697614699375863]&R125[0.302385300624138]")
 		{
-			REQUIRE_NOTHROW(set_REFPROP_fluid("REFPROP-MIX:R32[0.697614699375863]&R125[0.302385300624138]",std::vector<double>(1,1)));
+			REQUIRE_NOTHROW(set_REFPROP_fluid("REFPROP-MIX:R32[0.697614699375863]&R125[0.302385300624138]",x2));
 		}
-		
-
 	}
 }
 
@@ -1323,7 +1322,7 @@ void REFPROPFluidClass::temperature_ph(double p, double h, double *Tout, double 
 	char herr[errormessagelength+1];
 	p /= 1000; // 1000 to go from Pa to kPa
 	h /= 1000; // 1000 to go from J/kg to kJ/kg
-	std::vector<double> xliq = std::vector<double>(1,1),xvap = std::vector<double>(1,1);
+	std::vector<double> xliq = xmol, xvap = xmol;
 	double q,e,s,cv,cp,w,hbar = h*params.molemass, dummy1, dummy2;
 	PHFLSHdll(&p,&hbar,&(xmol[0]),Tout,rhoout,rhoLout,rhoVout,&(xliq[0]),&(xvap[0]),&q,&e,&s,&cv,&cp,&w,&ierr,herr,errormessagelength);
 	*rhoout *= params.molemass;
