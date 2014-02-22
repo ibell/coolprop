@@ -28,7 +28,7 @@ extensions = [#'matplotlib.sphinxext.only_directives',
               'matplotlib.sphinxext.ipython_directive',
               'sphinx.ext.intersphinx',
               'sphinx.ext.autodoc',
-              'sphinx.ext.pngmath',
+              'sphinx.ext.mathjax',
               'ipython_console_highlighting',
               'sphinxcontrib.napoleon'
               #'inheritance_diagram',
@@ -47,7 +47,7 @@ templates_path = ['_templates']
 source_suffix = '.rst'
 
 # The encoding of source files.
-source_encoding = 'latin-1'
+source_encoding = 'utf-8'
 
 # The master toctree document.
 master_doc = 'contents'

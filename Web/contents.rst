@@ -12,8 +12,9 @@ CoolProp is an open-source database of fluid and humid air properties, formulate
     HowGetIt.rst
     examples/examples.rst
     EOS.rst
+    citation.rst
     TTSE.rst
-    Fluids/FluidInformation.rst
+    FluidInformation.rst
     HumidAir.rst
     changelog.rst
     apidoc/modules.rst
