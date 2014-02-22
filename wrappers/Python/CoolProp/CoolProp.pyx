@@ -290,26 +290,26 @@ cpdef Props(str in1, str in2, in3 = None, in4 = None, in5 = None, in6 = None, in
     ``OutputName`` is either a single-character or a string alias.  This list 
     shows the possible values
     
-    ==========================  ======================================================
-    ``OutputName``              Description
-    ==========================  ======================================================
-    ``Q``                       Quality [-]
-    ``T``                       Temperature [K]
-    ``P``                       Pressure [kPa]
-    ``D``                       Density [kg/m3]
-    ``C0``                      Ideal-gas specific heat at constant pressure [kJ/kg/K]
-    ``C``                       Specific heat at constant pressure [kJ/kg/K]
-    ``O``                       Specific heat at constant volume [kJ/kg/K]
-    ``U``                       Internal energy [kJ/kg]
-    ``H``                       Enthalpy [kJ/kg]
-    ``S``                       Entropy [kJ/kg/K]
-    ``A``                       Speed of sound [m/s]
-    ``G``                       Gibbs function [kJ/kg]
-    ``V``                       Dynamic viscosity [Pa-s]
-    ``L``                       Thermal conductivity [kW/m/K]
-    ``I`` or `SurfaceTension`   Surface Tension [N/m]
-    ``w`` or `accentric`        Accentric Factor [-]
-    ==========================  ======================================================
+    ==========================    ======================================================
+    ``OutputName``                Description
+    ==========================    ======================================================
+    ``Q``                         Quality [-]
+    ``T``                         Temperature [K]
+    ``P``                         Pressure [kPa]
+    ``D``                         Density [kg/m3]
+    ``C0``                        Ideal-gas specific heat at constant pressure [kJ/kg/K]
+    ``C``                         Specific heat at constant pressure [kJ/kg/K]
+    ``O``                         Specific heat at constant volume [kJ/kg/K]
+    ``U``                         Internal energy [kJ/kg]
+    ``H``                         Enthalpy [kJ/kg]
+    ``S``                         Entropy [kJ/kg/K]
+    ``A``                         Speed of sound [m/s]
+    ``G``                         Gibbs function [kJ/kg]
+    ``V``                         Dynamic viscosity [Pa-s]
+    ``L``                         Thermal conductivity [kW/m/K]
+    ``I`` or ``SurfaceTension``   Surface Tension [N/m]
+    ``w`` or ``accentric``        Accentric Factor [-]
+    ============================  ======================================================
     
     The following sets of input values are valid (order doesn't matter):
     
@@ -498,26 +498,26 @@ cpdef PropsSI(str in1, str in2, in3 = None, in4 = None, in5 = None, in6 = None, 
     ``OutputName`` is either a single-character or a string alias.  This list 
     shows the possible values
     
-    ==========================  ======================================================
-    ``OutputName``              Description
-    ==========================  ======================================================
-    ``Q``                       Quality [-]
-    ``T``                       Temperature [K]
-    ``P``                       Pressure [Pa]
-    ``D``                       Density [kg/m3]
-    ``C0``                      Ideal-gas specific heat at constant pressure [J/kg]
-    ``C``                       Specific heat at constant pressure [J/kg]
-    ``O``                       Specific heat at constant volume [J/kg]
-    ``U``                       Internal energy [J/kg]
-    ``H``                       Enthalpy [J/kg]
-    ``S``                       Entropy [J/kg/K]
-    ``A``                       Speed of sound [m/s]
-    ``G``                       Gibbs function [J/kg]
-    ``V``                       Dynamic viscosity [Pa-s]
-    ``L``                       Thermal conductivity [W/m/K]
-    ``I`` or `SurfaceTension`   Surface Tension [N/m]
-    ``w`` or `accentric`        Accentric Factor [-]
-    ==========================  ======================================================
+    ==========================    ======================================================
+    ``OutputName``                Description
+    ==========================    ======================================================
+    ``Q``                         Quality [-]
+    ``T``                         Temperature [K]
+    ``P``                         Pressure [Pa]
+    ``D``                         Density [kg/m3]
+    ``C0``                        Ideal-gas specific heat at constant pressure [J/kg]
+    ``C``                         Specific heat at constant pressure [J/kg]
+    ``O``                         Specific heat at constant volume [J/kg]
+    ``U``                         Internal energy [J/kg]
+    ``H``                         Enthalpy [J/kg]
+    ``S``                         Entropy [J/kg/K]
+    ``A``                         Speed of sound [m/s]
+    ``G``                         Gibbs function [J/kg]
+    ``V``                         Dynamic viscosity [Pa-s]
+    ``L``                         Thermal conductivity [W/m/K]
+    ``I`` or ``SurfaceTension``   Surface Tension [N/m]
+    ``w`` or ``accentric``        Accentric Factor [-]
+    ============================  ======================================================
     
     The following sets of input values are valid (order doesn't matter):
     
