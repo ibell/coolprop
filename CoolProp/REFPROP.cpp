@@ -1097,7 +1097,7 @@ TEST_CASE("REFPROP Fluid Class check saturation consistency", "")
 		double p, T2, psatV, TsatV,rhoL,rhoV;
 		fluid.saturation_T(T, false, &p, &psatV, &rhoL, &rhoV);
 		fluid.saturation_p(p, false, &T2, &TsatV, &rhoL, &rhoV);
-		REQUIRE(abs(T2-T) < 1e-5);
+		REQUIRE(fabs(T2-T) < 1e-5);
 	}
 }
 
