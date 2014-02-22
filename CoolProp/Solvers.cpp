@@ -219,12 +219,17 @@ double Brent(FuncWrapper1D *f, double a, double b, double macheps, double t, int
 
 	// If one of the boundaries is to within tolerance, just stop
 	if (fabs(fb) < t) { return b;}
+	if (!ValidNumber(fb)){
+		throw ValueError(format("Brent's method f(b) is NAN for b = %g",b).c_str());
+	}
 	if (fabs(fa) < t) { return a;}
-
-	if (fa*fb>0)
-	{
+	if (!ValidNumber(fa)){
+		throw ValueError(format("Brent's method f(a) is NAN for a = %g",a).c_str());
+	}
+	if (fa*fb>0){
 		throw ValueError(format("Inputs in Brent [%f,%f] do not bracket the root.  Function values are [%f,%f]",a,b,fa,fb));
 	}
+
     c=a;
     fc=fa;
 	iter=1;
@@ -291,6 +296,9 @@ double Brent(FuncWrapper1D *f, double a, double b, double macheps, double t, int
             b+=-tol;
 		}
 		fb=f->call(b);
+		if (!ValidNumber(fb)){
+			throw ValueError(format("Brent's method f(t) is NAN for t = %g",b).c_str());
+		}
 		if (fb*fc>0){
             // Goto int: from Brent ALGOL code
             c=a;
@@ -309,10 +317,14 @@ double Brent(FuncWrapper1D *f, double a, double b, double macheps, double t, int
         m=0.5*(c-b);
         tol=2*macheps*fabs(b)+t;
 		iter+=1;
+		if (!ValidNumber(a)){
+			throw ValueError(format("Brent's method a is NAN").c_str());}
+		if (!ValidNumber(b)){
+			throw ValueError(format("Brent's method b is NAN").c_str());}
+		if (!ValidNumber(c)){
+			throw ValueError(format("Brent's method c is NAN").c_str());}
 		if (iter>maxiter){
-			throw SolutionError(std::string("Reached maximum number of steps ")); 
-			return _HUGE;
-		}
+			throw SolutionError(std::string("Brent's method reached maximum number of steps of %d ", maxiter));}
 	}
     return b;
 }
