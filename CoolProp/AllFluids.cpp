@@ -448,4 +448,53 @@ TEST_CASE("Fluid parameter checks requiring saturation","[slow]")
 		}
 	}
 }
+TEST_CASE( "Saturation consistency checks", "[slow],[consistency]" )
+{
+	FluidsContainer Fluids = FluidsContainer();
+	SECTION("saturation_T")
+	{
+		for (std::vector<Fluid*>::const_iterator it = Fluids.FluidsList.begin(); it != Fluids.FluidsList.end(); it++)
+		{
+			double Tt = (*it)->limits.Tmin;
+			double Tc = (*it)->crit.T;
+			double pc = (*it)->crit.p.Pa;
+			double N = 30;
+			for (double T = Tt; T<Tc; T+=(Tc-Tt)/(N-1))
+			{
+				double p, psatV, TsatV, rhoL, rhoV;
+				std::string name = (*it)->get_name();
+				CAPTURE(name);
+				CAPTURE(T);
+				CAPTURE(Tc);
+				CHECK_NOTHROW((*it)->saturation_T(T, false, &p, &psatV, &rhoL, &rhoV));
+			}
+		}
+	}
+
+	SECTION("T->p->T")
+	{
+		for (std::vector<Fluid*>::const_iterator it = Fluids.FluidsList.begin(); it != Fluids.FluidsList.end(); it++)
+		{
+			double Tt = (*it)->limits.Tmin;
+			double Tc = (*it)->crit.T;
+			double pc = (*it)->crit.p.Pa;
+			double N = 5;
+			for (double T = Tt; T<Tc; T+=(Tc-0.0001-Tt)/(N-1))
+			{
+				double p, T2, psatV, TsatV,rhoL,rhoV;
+				std::string name = (*it)->get_name();
+				CAPTURE(name);
+				CAPTURE(T);
+				CAPTURE(Tc);
+				CHECK_NOTHROW((*it)->saturation_T(T, false, &p, &psatV, &rhoL, &rhoV));
+				CAPTURE(p);
+				CAPTURE(pc);
+				CHECK_NOTHROW((*it)->saturation_p(p, false, &T2, &TsatV, &rhoL, &rhoV));
+				CAPTURE(T2);
+				INFO(name);
+				CHECK(fabs(T/T2-1) < 1e-3);
+			}
+		}
+	}
+}
 #endif

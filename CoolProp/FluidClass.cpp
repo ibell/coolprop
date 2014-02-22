@@ -3040,27 +3040,25 @@ void Fluid::saturation_p(double p, bool UseLUT, double *TsatL, double *TsatV, do
 			}
 			catch(std::exception &) // Whoops that failed...
 			{
-				try{
-					// Now try to get Tsat by using Brent's method on saturation_T calls
-					Saturation_p_IterateSaturationT_Resids SPISTR = Saturation_p_IterateSaturationT_Resids(this,p);
-					Tsat = Tsat_anc(p,0);
-					rhoL = rhosatL(Tsat);
-					rhoV = rhosatV(Tsat);
-					SPGR.rhoL = rhoL;
-					SPGR.rhoV = rhoV;
-					Tsat = Brent(&SPISTR,Tsat-3,reduce.T,DBL_EPSILON,1e-10,30,&errstr);
-					if (errstr.size()>0 || !ValidNumber(Tsat)|| !ValidNumber(SPGR.rhoV)|| !ValidNumber(SPGR.rhoL))
-						throw SolutionError("Saturation calculation failed");
-					*rhoVout = SPGR.rhoV;
-					*rhoLout = SPGR.rhoL;
-					*TsatL = Tsat;
-					*TsatV = Tsat;
-					return;
+				errstr.clear();
+				// Now try to get Tsat by using Brent's method on saturation_T calls
+				Saturation_p_IterateSaturationT_Resids SPISTR = Saturation_p_IterateSaturationT_Resids(this,p);
+				Tsat = Tsat_anc(p,0);
+				if (Tsat > crit.T){
+					Tsat = crit.T-0.001;
 				}
-				catch (std::exception)
-				{
-					throw SolutionError("saturation_p calculation failed");
-				}
+				rhoL = rhosatL(Tsat);
+				rhoV = rhosatV(Tsat);
+				SPGR.rhoL = rhoL;
+				SPGR.rhoV = rhoV;
+				Tsat = Brent(&SPISTR,Tsat-3,reduce.T,DBL_EPSILON,1e-10,30,&errstr);
+				if (errstr.size()>0 || !ValidNumber(Tsat)|| !ValidNumber(SPGR.rhoV)|| !ValidNumber(SPGR.rhoL))
+					throw SolutionError("Saturation calculation yielded invalid number using Brent's method");
+				*rhoVout = SPGR.rhoV;
+				*rhoLout = SPGR.rhoL;
+				*TsatL = Tsat;
+				*TsatV = Tsat;
+				return;
 			}
 		}
 	}
