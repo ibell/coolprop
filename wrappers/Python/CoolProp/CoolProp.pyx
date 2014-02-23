@@ -1,20 +1,10 @@
 #cython: embedsignature = True, c_string_type=str, c_string_encoding=ascii
 from __future__ import division 
 #
-#
 # This file provides wrapper functions of all the CoolProp functions
-#
 #
 # Each of the functions from the CoolProp header are renamed in cython code to
 # an underscored name so that the same name can be used in the exposed functions below
-    
-#Check for the existence of quantities
-cdef bint _quantities_supported
-try:
-    import quantities as pq
-    _quantities_supported = True
-except ImportError:
-    _quantities_supported = False
     
 #Check for the existence of numpy
 cdef bint _numpy_supported
@@ -46,36 +36,6 @@ from phase_constants import *
 from phase_constants_header cimport *
 
 include "HumidAirProp.pyx"
-
-cdef double _convert_to_desired_units(double value, bytes_or_str parameter_type, bytes_or_str desired_units) except *:
-    """
-    A convenience function to convert a double value back to the units that
-    are desired by the user
-    """
-    # Convert parameter string to index
-    cdef long index = _get_param_index(parameter_type)
-    # Get the units string by the index
-    cdef bytes default_units = _get_index_units(index)
-    # Create the Quantity instance
-    old = pq.Quantity(value, default_units)
-    # Convert the units
-    old.units = _desired_units
-    #Return the scaled units
-    return old.magnitude
-
-cdef _convert_to_default_units(bytes_or_str parameter_type, object parameter):
-    """
-    A convenience function to convert a quantities instance to the default 
-    units required for CoolProp
-    """
-    #Convert parameter string to index
-    cdef long index = _get_param_index(parameter_type)
-    #Get the units string by the index
-    cdef bytes default_units = _get_index_units(index)
-    #Rescale the units of the parameter to the default units
-    parameter.units = default_units
-    #Return the scaled units
-    return parameter
     
 def set_reference_state(bytes_or_str FluidName, *args):
     """
@@ -354,11 +314,6 @@ cpdef Props(str in1, str in2, in3 = None, in4 = None, in5 = None, in6 = None, in
         else:
             return val
     else:
-        if _quantities_supported:
-            if isinstance(in3,pq.Quantity):
-                in3 = _convert_to_default_units(in2,in3).magnitude
-            if isinstance(in5,pq.Quantity):
-                in5 = _convert_to_default_units(<bytes?>in4,in5).magnitude
 
         in2_char = (<bytes>(in2.encode('ascii')))[0]
         in4_char = (<bytes>(in4.encode('ascii')))[0]
@@ -373,11 +328,6 @@ cpdef Props(str in1, str in2, in3 = None, in4 = None, in5 = None, in6 = None, in
                 else:
                     raise ValueError("Props failed ungracefully with inputs:\"{in1:s}\",\'{in2:s}\',{in3:0.16e},\'{in4:s}\',{in5:0.16e},\"{in6:s}\"; please file a ticket at https://github.com/ibell/coolprop/issues".format(in1=in1,in2=in2,in3=in3,in4=in4,in5=in5,in6=in6))
             
-            if not _quantities_supported and in7 is not None:
-                raise ValueError("Cannot use output units because quantities package is not installed")
-            elif _quantities_supported and in7 is not None: #Then in7 contains a string representation of the units
-                #Convert the units to the units given by in7
-                return _convert_to_desired_units(val,in1,in7)
             else:
                 return val #Error raised by Props2 on failure
             
@@ -393,11 +343,8 @@ cpdef Props(str in1, str in2, in3 = None, in4 = None, in5 = None, in6 = None, in
                     else:
                         raise ValueError("Props failed ungracefully with inputs:\"{in1:s}\",\'{in2:s}\',{in3:0.16e},\'{in4:s}\',{in5:0.16e},\"{in6:s}\"; please file a ticket at https://github.com/ibell/coolprop/issues".format(in1=in1,in2=in2,in3=in3,in4=in4,in5=_in5,in6=in6))
                 
-                if not _quantities_supported and in7 is not None:
-                    raise ValueError("Cannot use output units because quantities package is not installed")
-                elif _quantities_supported and in7 is not None: #Then in7 contains a string representation of the units
-                    #Convert the units to the units given by in7
-                    val = _convert_to_desired_units(val,in1,in7)
+                #Convert the units to the units given by in7
+                val = _convert_to_desired_units(val,in1,in7)
                 
                 vals.append(val)
                 
@@ -418,11 +365,8 @@ cpdef Props(str in1, str in2, in3 = None, in4 = None, in5 = None, in6 = None, in
                     else:
                         raise ValueError("Props failed ungracefully with inputs:\"{in1:s}\",\'{in2:s}\',{in3:0.16e},\'{in4:s}\',{in5:0.16e},\"{in6:s}\"; please file a ticket at https://github.com/ibell/coolprop/issues".format(in1=in1,in2=in2,in3=_in3,in4=in4,in5=in5,in6=in6))
                 
-                if not _quantities_supported and in7 is not None:
-                    raise ValueError("Cannot use output units because quantities package is not installed")
-                elif _quantities_supported and in7 is not None: #Then in7 contains a string representation of the units
-                    #Convert the units to the units given by in7
-                    val = _convert_to_desired_units(val,in1,in7)
+                #Convert the units to the units given by in7
+                val = _convert_to_desired_units(val,in1,in7)
                 
                 vals.append(val)
                 
@@ -445,11 +389,8 @@ cpdef Props(str in1, str in2, in3 = None, in4 = None, in5 = None, in6 = None, in
                         else:
                             raise ValueError("Props failed ungracefully with inputs:\"{in1:s}\",\'{in2:s}\',{in3:0.16e},\'{in4:s}\',{in5:0.16e},\"{in6:s}\"; please file a ticket at https://github.com/ibell/coolprop/issues".format(in1=in1,in2=in2,in3=_in3,in4=in4,in5=_in5,in6=in6))
                     
-                    if not _quantities_supported and in7 is not None:
-                        raise ValueError("Cannot use output units because quantities package is not installed")
-                    elif _quantities_supported and in7 is not None: #Then in7 contains a string representation of the units
-                        #Convert the units to the units given by in7
-                        val = _convert_to_desired_units(val,in1,in7)
+                    #Convert the units to the units given by in7
+                    val = _convert_to_desired_units(val,in1,in7)
                     
                     vals.append(val)
                     
