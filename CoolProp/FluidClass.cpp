@@ -2785,7 +2785,6 @@ double Fluid::Tsat_anc(double p, double Q)
 		};
 	} SatFunc(p,Q,reduce.T,name,this);
 
-	
 	// Use Brent's method to find tau = Tc/T
 	std::string errstr;
 	try
@@ -3051,7 +3050,11 @@ void Fluid::saturation_p(double p, bool UseLUT, double *TsatL, double *TsatV, do
 				rhoV = rhosatV(Tsat);
 				SPGR.rhoL = rhoL;
 				SPGR.rhoV = rhoV;
-				Tsat = Brent(&SPISTR,Tsat-3,reduce.T,DBL_EPSILON,1e-10,30,&errstr);
+				double Tmin = Tsat-3;
+				if (Tmin < limits.Tmin){
+					Tmin = limits.Tmin;
+				}
+				Tsat = Brent(&SPISTR,Tmin,reduce.T,DBL_EPSILON,1e-10,30,&errstr);
 				if (errstr.size()>0 || !ValidNumber(Tsat)|| !ValidNumber(SPGR.rhoV)|| !ValidNumber(SPGR.rhoL))
 					throw SolutionError("Saturation calculation yielded invalid number using Brent's method");
 				*rhoVout = SPGR.rhoV;
