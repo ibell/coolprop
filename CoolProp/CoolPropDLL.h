@@ -27,7 +27,6 @@
 	/// @param Output The name of the output parameter, some options are "Ttriple", "Tcrit", "pcrit", "Tmin", "molemass", "rhocrit", "accentric" (not all parameters are valid for all fluids)
 	/// @returns val The value, or _HUGE if not valid
 	EXPORT_CODE double CONVENTION Props1SI(char *FluidName, char* Output);
-
 	EXPORT_CODE double CONVENTION Props1(char *Ref, char *Output);
 
 	// This version uses the indices in place of the strings for speed.  Get the parameter indices
@@ -49,8 +48,6 @@
 
 	EXPORT_CODE long CONVENTION get_param_index(char * param);
 	EXPORT_CODE long CONVENTION get_Fluid_index(char * param);
-	EXPORT_CODE long CONVENTION get_index_units(long param, char * units);
-
 	EXPORT_CODE long CONVENTION redirect_stdout(char* file);
 
 	// Getter and setter for debug level

@@ -16,9 +16,8 @@ modes.append('pure')
 ## except ValueError:
 ##     pass
             
-twophase_inputs = [('T','D'),('T','Q'),('P','Q'),('P','H'),('P','S'),('P','D'),('H','S'),('T','S')]
+twophase_inputs = [('T','D'),('T','Q'),('P','Q'),('P','H'),('P','S'),('P','D'),('T','S')] #,('H','S')
 singlephase_inputs = [('T','D'),('T','P'),('P','H'),('P','S'),('P','D'),('H','S'),('T','S')]
-
 singlephase_outputs = ['T','P','H','S','A','O','C','G','V','L','C0','U']
 
 ## def test_subcrit_singlephase_consistency():
@@ -76,7 +75,7 @@ def check_consistency(Fluid,mode,unit_system,T,rho,inputs):
     print 'T',inputs[0],Input1,inputs[1],Input2,Fluid
     #  Check they are consistent
     if abs(TEOS -T) > 1e-1 or abs(DEOS/rho-1) > 0.05:
-        raise AssertionError("{T:g} K {D:g} kg/m^3 inputs: \"D\",'{ins1:s}',{in1:.12f},'{ins2:s}',{in2:.12f},\"{fluid:s}\"  || T: {TEOS:g} D: {DEOS:g}".format(T = T, 
+        raise AssertionError("{T:g} K {D:g} kg/m^3 inputs: \"D\",'{ins1:s}',{in1:.12g},'{ins2:s}',{in2:.12g},\"{fluid:s}\"  || T: {TEOS:g} D: {DEOS:g}".format(T = T, 
                                                                                                                        D = rho, 
                                                                                                                        TEOS = TEOS, 
                                                                                                                        DEOS = DEOS, 

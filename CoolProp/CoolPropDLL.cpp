@@ -140,11 +140,6 @@ EXPORT_CODE long CONVENTION get_Fluid_index(char * param)
 {
 	return get_Fluid_index(std::string(param));
 }
-EXPORT_CODE long CONVENTION get_index_units(long param, char * units)
-{
-	strcpy(units, (char*)get_index_units(param).c_str());
-	return 0;
-}
 EXPORT_CODE int CONVENTION set_TTSE_mode(char* fluid, char *value)
 {
 	long iFluid = get_Fluid_index(fluid);

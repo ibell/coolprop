@@ -177,45 +177,6 @@ std::pair<std::string, long> map_data[] = {
 std::map<std::string, long> param_map(map_data,
     map_data + sizeof map_data / sizeof map_data[0]);
 
-// This is a map of all unique identifiers to std::strings with the default units
-// that are used internally
-std::pair<long, std::string> units_data[] = {
-	std::make_pair(iPcrit, std::string("kPa")),
-	std::make_pair(iMM, std::string("kg/kmol")),
-	std::make_pair(iAccentric, std::string("-")),
-	std::make_pair(iTtriple, std::string("K")),
-	std::make_pair(iRhocrit, std::string("kg/m^3")),
-	std::make_pair(iTcrit, std::string("K")),
-	std::make_pair(iTmin, std::string("K")),
-
-	std::make_pair(iQ, std::string("")),
-	std::make_pair(iT, std::string("K")),
-    std::make_pair(iP, std::string("kPa")),
-	std::make_pair(iD, std::string("kg/m^3")),
-	std::make_pair(iC, std::string("kJ/kg/K")),
-	std::make_pair(iC0, std::string("kJ/kg/K")),
-	std::make_pair(iO, std::string("kJ/kg/K")),
-	std::make_pair(iU, std::string("kJ/kg")),
-	std::make_pair(iH, std::string("kJ/kg")),
-	std::make_pair(iS, std::string("kJ/kg/K")),
-	std::make_pair(iA, std::string("m/s")),
-	std::make_pair(iG, std::string("kJ/kg")),
-	std::make_pair(iV, std::string("Pa*s")),
-	std::make_pair(iL, std::string("kW/m/K")),
-	std::make_pair(iTmax, std::string("K")),
-	std::make_pair(iTfreeze, std::string("K")),
-	std::make_pair(iPsat, std::string("kPa")),
-	std::make_pair(iI, std::string("N/m")),
-	std::make_pair(iDpdT, std::string("kPa/K")),
-	std::make_pair(iDrhodT_p, std::string("kg/K/m^3")),
-	std::make_pair(iDERdp_dT__rho, std::string("kPa/K")),
-	std::make_pair(iDERdrho_dT__p, std::string("kg/K/m^3"))
-};
-
-//Now actually construct the map
-std::map<long, std::string> units_map(units_data,
-		units_data + sizeof units_data / sizeof units_data[0]);
-
 FluidsContainer Fluids = FluidsContainer();
 
 void set_err_string(std::string error_string)
@@ -300,22 +261,6 @@ bool add_REFPROP_fluid(std::string FluidName)
 		return true;
 	}
 	return true;
-}
-std::string get_index_units(long index)
-{
-	std::map<long, std::string>::iterator it;
-	// Try to find using the map
-	it = units_map.find(index);
-	// If it is found the iterator will not be equal to end
-	if (it != units_map.end() )
-	{
-		// Return the index of the parameter
-		return (*it).second;
-	}
-	else
-	{
-		return std::string("Didn't match parameter");
-	}
 }
 
 std::string get_ASHRAE34(std::string fluid)

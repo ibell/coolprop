@@ -1154,7 +1154,6 @@ TEST_CASE("Fluid class for bad fluid", "[fast]")
 			REQUIRE_NOTHROW(REFPROPFluidClass("REFPROP-R134a",std::vector<double>(1,1)));
 		}
 	}
-
 }
 
 #endif
