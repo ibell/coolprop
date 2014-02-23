@@ -14,7 +14,9 @@ install:
   
 # command to run tests
 script: 
-  - cd CoolProp/tests # relative to wrappers/Python
+  - pwd
+  - cd ${HOME}
+  - cd wrappers/CoolProp/tests
   - nosetests
 
 notifications:
