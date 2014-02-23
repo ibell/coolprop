@@ -88,9 +88,5 @@ def check_consistency(Fluid,mode,unit_system,T,rho,inputs):
                             )
     
 if __name__=='__main__':
-    import CoolProp.CoolProp as CP
-    CP.set_debug_level(10)
-    CP.Props("T",'P',5.1477376340434908e+01,'H',-8.0783637583420287e-01,"n-Undecane")
-    quit()
     import nose
     nose.runmodule()

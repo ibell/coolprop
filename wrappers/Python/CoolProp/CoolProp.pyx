@@ -343,9 +343,6 @@ cpdef Props(str in1, str in2, in3 = None, in4 = None, in5 = None, in6 = None, in
                     else:
                         raise ValueError("Props failed ungracefully with inputs:\"{in1:s}\",\'{in2:s}\',{in3:0.16e},\'{in4:s}\',{in5:0.16e},\"{in6:s}\"; please file a ticket at https://github.com/ibell/coolprop/issues".format(in1=in1,in2=in2,in3=in3,in4=in4,in5=_in5,in6=in6))
                 
-                #Convert the units to the units given by in7
-                val = _convert_to_desired_units(val,in1,in7)
-                
                 vals.append(val)
                 
             if _numpy_supported and isinstance(in5, np.ndarray):
@@ -364,9 +361,6 @@ cpdef Props(str in1, str in2, in3 = None, in4 = None, in5 = None, in6 = None, in
                         raise ValueError("{err:s} :: inputs were:\"{in1:s}\",\'{in2:s}\',{in3:0.16e},\'{in4:s}\',{in5:0.16e},\"{in6:s}\"".format(err=err_string,in1=in1,in2=in2,in3=_in3,in4=in4,in5=in5,in6=in6))
                     else:
                         raise ValueError("Props failed ungracefully with inputs:\"{in1:s}\",\'{in2:s}\',{in3:0.16e},\'{in4:s}\',{in5:0.16e},\"{in6:s}\"; please file a ticket at https://github.com/ibell/coolprop/issues".format(in1=in1,in2=in2,in3=_in3,in4=in4,in5=in5,in6=in6))
-                
-                #Convert the units to the units given by in7
-                val = _convert_to_desired_units(val,in1,in7)
                 
                 vals.append(val)
                 
@@ -388,9 +382,6 @@ cpdef Props(str in1, str in2, in3 = None, in4 = None, in5 = None, in6 = None, in
                             raise ValueError("{err:s} :: inputs were:\"{in1:s}\",\'{in2:s}\',{in3:0.16e},\'{in4:s}\',{in5:0.16e},\"{in6:s}\"".format(err=err_string,in1=in1,in2=in2,in3=_in3,in4=in4,in5=_in5,in6=in6))
                         else:
                             raise ValueError("Props failed ungracefully with inputs:\"{in1:s}\",\'{in2:s}\',{in3:0.16e},\'{in4:s}\',{in5:0.16e},\"{in6:s}\"; please file a ticket at https://github.com/ibell/coolprop/issues".format(in1=in1,in2=in2,in3=_in3,in4=in4,in5=_in5,in6=in6))
-                    
-                    #Convert the units to the units given by in7
-                    val = _convert_to_desired_units(val,in1,in7)
                     
                     vals.append(val)
                     

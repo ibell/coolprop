@@ -1663,7 +1663,7 @@ long Fluid::phase_prho_indices(double p, double rho, double &T, double &TL, doub
 double Fluid::temperature_prho(double p, double rho, double T0)
 {
 	// solve for T to yield the desired pressure
-	double error, T, drdT,r;
+	double error, T, drdT, r;
 	int iter = 0;
 	CoolPropStateClassSI CPS(this);
 
@@ -1677,12 +1677,17 @@ double Fluid::temperature_prho(double p, double rho, double T0)
 		drdT = CPS.dpdT_constrho();
 		T -= r/drdT;
 		CPS.update(iT,T,iD,rho);
-		error = fabs(r);
+		error = fabs(r/pEOS);
 		iter++;
+		if (fabs(r/drdT) < 1e-12)
+		{
+			return T;
+			break;
+		}
 		if (iter > 100)
-			throw SolutionError(format("temperature_prho failed with inputs T=%g rho=%g T0=%g for fluid %s",p,rho,T0,name.c_str()));
+			throw SolutionError(format("temperature_prho failed with inputs p=%g rho=%g T0=%g for fluid %s",p,rho,T0,name.c_str()));
 	}
-	while (error > 1e-8 );
+	while (error > 1e-10 );
 	return T;
 }
 
@@ -1872,22 +1877,39 @@ void Fluid::temperature_ph(double p, double h, double &Tout, double &rhoout, dou
 				}
 				else if (h<hsatL)
 				{
+					double rho_mid;
 					T_guess = params.Ttriple;
 					rho_guess = density_Tp(T_guess,p,rhoL);
 					h_guess = enthalpy_Trho(T_guess,rho_guess);
 
 					// Same thing at the midpoint temperature
 					double Tmid = (T_guess + TsatL)/2.0;
-					double rho_mid = density_Tp(Tmid,p,(rho_guess+rhoL)/2.0);
-					double h_mid = enthalpy_Trho(Tmid,rho_mid);
+					try{
+						rho_mid = density_Tp(Tmid, p, (rho_guess+rhoL)/2.0);
 
-					// Quadratic interpolation
-					T_guess = QuadInterp(h_guess, h_mid, hsatL, T_guess, Tmid, TsatL, h);
-					rho_guess = QuadInterp(h_guess, h_mid, hsatL, rho_guess, rho_mid, rhoL, h);
+						if (!ValidNumber(rho_mid)){
+							rho_guess  = (rhoLout-rho_guess)/(hsatL-h_guess)*(h-h_guess) + rho_guess;
+							T_guess = (TsatL-T_guess)/(hsatL-h_guess)*(h-h_guess) + T_guess;
+						}
+						else
+						{
+							double h_mid = enthalpy_Trho(Tmid,rho_mid);
+
+							// Quadratic interpolation
+							T_guess = QuadInterp(h_guess, h_mid, hsatL, T_guess, Tmid, TsatL, h);
+							rho_guess = QuadInterp(h_guess, h_mid, hsatL, rho_guess, rho_mid, rhoL, h);
+						}
+					}
+					catch(std::exception &e)
+					{
+						T_guess = TsatL;
+						rho_guess = rhoLout;
+					}
+					
 
 					delta = rho_guess / reduce.rho;
 					if (get_debug_level() > 8){
-						std::cout << format("%s:%d: temperature_ph; it is liquid, hsatL = %g\n",__FILE__,__LINE__, hsatL) ;
+						std::cout << format("%s:%d: temperature_ph; it is liquid, hsatL = %g, T = %g, rho = %g\n",__FILE__,__LINE__, hsatL, T_guess, rho_guess) ;
 					}
 				}
 				else
