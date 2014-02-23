@@ -15,7 +15,7 @@ install:
 # command to run tests
 script: 
   - pwd
-  - cd $TRAVIS_BUILD_DIR/wrappers/CoolProp/CoolProp/tests
+  - cd $TRAVIS_BUILD_DIR/wrappers/Python/CoolProp/tests
   - nosetests
 
 notifications:
