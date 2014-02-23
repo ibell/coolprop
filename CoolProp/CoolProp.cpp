@@ -525,7 +525,7 @@ std::string Phase_Trho(std::string Fluid, double T, double rho)
 		// Try to load the CoolProp Fluid
 		pFluid = Fluids.get_fluid(Fluid);
 		double pL,pV,rhoL,rhoV;
-		return pFluid->phase_Trho(T,rho, &pL, &pV, &rhoL, &rhoV);
+		return pFluid->phase_Trho(T,rho, pL, pV, rhoL, rhoV);
 	}
 	catch(NotImplementedError &){
 		return std::string("");
@@ -539,7 +539,7 @@ std::string Phase(std::string Fluid, double T, double p)
 		// Try to load the CoolProp Fluid
 		pFluid = Fluids.get_fluid(Fluid);
 		double pL,pV,rhoL,rhoV;
-		return pFluid->phase_Tp(T, p, &pL, &pV, &rhoL, &rhoV);
+		return pFluid->phase_Tp(T, p, pL, pV, rhoL, rhoV);
 	}
 	catch(NotImplementedError &){
 		return std::string("");

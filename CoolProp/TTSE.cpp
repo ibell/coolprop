@@ -891,7 +891,7 @@ double TTSESinglePhaseTableClass::build_ph(double hmin, double hmax, double pmin
 					if (T0 > 0 && rho0 > 0)
 					{
 						// Get T,rho from p,h using our guess value
-						CPS.pFluid->temperature_ph(pval,hval,&T,&rho,&rhoL,&rhoV,&TsatL,&TsatV,T0,rho0);
+						CPS.pFluid->temperature_ph(pval,hval,T,rho,rhoL,rhoV,TsatL,TsatV,T0,rho0);
 						CPS.flag_SinglePhase = true;
 						CPS.update(iT, T, iD, rho);
 					}
@@ -918,7 +918,7 @@ double TTSESinglePhaseTableClass::build_ph(double hmin, double hmax, double pmin
 							// Close to the saturated liquid boundary
 							T0 = SatL->evaluate(iT,pval);
 							rho0 = SatL->evaluate(iD,pval);
-							CPS.pFluid->temperature_ph(pval,hval,&T,&rho,&rhoL,&rhoV,&TsatL,&TsatV,T0,rho0);
+							CPS.pFluid->temperature_ph(pval,hval,T,rho,rhoL,rhoV,TsatL,TsatV,T0,rho0);
 							CPS.flag_SinglePhase = true;
 							CPS.update(iT, T, iD, rho);
 						}
@@ -927,7 +927,7 @@ double TTSESinglePhaseTableClass::build_ph(double hmin, double hmax, double pmin
 							// Close to the saturated vapor boundary
 							T0 = SatV->evaluate(iT,pval);
 							rho0 = SatV->evaluate(iD,pval);
-							CPS.pFluid->temperature_ph(pval,hval,&T,&rho,&rhoL,&rhoV,&TsatL,&TsatV,T0,rho0);
+							CPS.pFluid->temperature_ph(pval,hval,T,rho,rhoL,rhoV,TsatL,TsatV,T0,rho0);
 							CPS.flag_SinglePhase = true;
 							CPS.update(iT, T, iD, rho);
 						}

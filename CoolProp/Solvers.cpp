@@ -114,7 +114,7 @@ double Secant(FuncWrapper1D *f, double x0, double dx, double tol, int maxiter, s
         if (iter>1)
         {
 			double deltax = x2-x1;
-			if (fabs(deltax)<1e-10) 
+			if (fabs(deltax)<1e-14) 
 			{ 
 				if (fabs(fval) < tol*10)
 				{

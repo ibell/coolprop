@@ -1377,7 +1377,7 @@ double Mixture::saturation_p(double beta, double p, std::vector<double> const& z
 			y = z;
 			// Get temperature from pure-fluid saturation call
 			double TL=0, TV=0, rhoL=0, rhoV=0;
-			pFluids[i]->saturation_p(p,false,&TL,&TV,&rhoL,&rhoV);
+			pFluids[i]->saturation_p(p,false, TL, TV, rhoL, rhoV);
 			return TL; // Also equal to TV for pure fluid
 		}
 	}

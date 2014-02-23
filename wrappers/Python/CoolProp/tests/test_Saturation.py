@@ -6,7 +6,7 @@ import numpy as np
 #
 def test_p():
     for Fluid in CoolProp.__fluids__:
-        for p in np.linspace(Props(Fluid,'ptriple')+1e-5, Props(Fluid,'pcrit')-1e-5,5):
+        for p in np.linspace(Props(Fluid,'ptriple')+1e-5, Props(Fluid,'pcrit')-1e-5,50):
             yield check_p,Fluid,p
         
 def check_p(Fluid, p):
@@ -30,7 +30,7 @@ def check_T(Fluid, T):
 
 def test_consistency():
     for Fluid in CoolProp.__fluids__:
-        for T in np.linspace(Props(Fluid,'Tmin')+1e-5, Props(Fluid,'Tcrit')-1,5):
+        for T in np.linspace(Props(Fluid,'Tmin')+1e-5, Props(Fluid,'Tcrit')-1,50):
             yield check_consistency,Fluid,T
         
 def check_consistency(Fluid, T):
@@ -38,7 +38,8 @@ def check_consistency(Fluid, T):
     pmax = Props('P','T',Props(Fluid,'Tcrit'),'D',Props(Fluid,'rhocrit'),Fluid)
     psat = Props('P', 'T', T, 'Q', 1, Fluid)
     Tnew = Props('T', 'P', psat, 'Q', 1, Fluid)
-    assert (abs(Tnew/T-1) < 0.00001)
+    print Fluid,T,Tnew,
+    assert (abs(Tnew/T-1) < 0.001)
     
 if __name__=='__main__':
     import nose

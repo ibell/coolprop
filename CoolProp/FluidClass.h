@@ -304,7 +304,7 @@ class Fluid
 		/// @param pout Pressure [kPa]
 		/// @param rhoLout Saturated liquid density [kg/m^3]
 		/// @param rhoVout Saturated vapor density [kg/m^3]
-		virtual void density_Ts(double T, double s, double *rhoout, double *pout, double *rhoLout, double *rhoVout, double *psatLout, double *psatVout);
+		virtual void density_Ts(double T, double s, double &rhoout, double &pout, double &rhoLout, double &rhoVout, double &psatLout, double &psatVout);
 
 		/// Temperature as a function of pressure and entropy
 		/// @param h Enthalpy [kJ/kg/K]
@@ -313,7 +313,7 @@ class Fluid
 		/// @param rhoout Density [kg/m^3]
 		/// @param rhoL Saturated liquid density [kg/m^3]
 		/// @param rhoV Saturated vapor density [kg/m^3]
-		virtual void temperature_hs(double h, double s, double *Tout, double *rhoout, double *rhoL, double *rhoV, double *TsatLout, double *TsatVout);
+		virtual void temperature_hs(double h, double s, double &Tout, double &rhoout, double &rhoL, double &rhoV, double &TsatLout, double &TsatVout);
 
 		/// Temperature as a function of pressure and entropy
 		/// @param p Pressure [kPa]
@@ -322,7 +322,7 @@ class Fluid
 		/// @param rhoout Density [kg/m^3]
 		/// @param rhoL Saturated liquid density [kg/m^3]
 		/// @param rhoV Saturated vapor density [kg/m^3]
-		virtual void temperature_ps(double p, double s, double *Tout, double *rhoout, double *rhoL, double *rhoV, double *TsatLout, double *TsatVout);
+		virtual void temperature_ps(double p, double s, double &Tout, double &rhoout, double &rhoL, double &rhoV, double &TsatLout, double &TsatVout);
 		
 		/// Temperature as a function of pressure and enthalpy
 		/// @param p Pressure [kPa]
@@ -333,7 +333,7 @@ class Fluid
 		/// @param rhoV Saturated vapor density [kg/m^3]
 		/// @param T0 Starting temperature for the solver
 		/// @param rho0 Starting density value for the solver
-		virtual void temperature_ph(double p, double h, double *Tout, double *rhoout, double *rhoL, double *rhoV, double *TsatLout, double *TsatVout, double T0 = -1, double rho0 = -1);
+		virtual void temperature_ph(double p, double h, double &Tout, double &rhoout, double &rhoL, double &rhoV, double &TsatLout, double &TsatVout, double T0 = -1, double rho0 = -1);
 		
 		double temperature_prho(double p, double rho, double T0);
 
@@ -341,18 +341,18 @@ class Fluid
 		double temperature_prho_PengRobinson(double p, double rho);
 
 		/// Return the phase given the temperature and pressure
-		std::string phase_Tp(double T, double p, double *pL, double *pV, double *rhoL, double *rhoV);
+		std::string phase_Tp(double T, double p, double &pL, double &pV, double &rhoL, double &rhoV);
 		
 		/// Return the phase using the phase flags from phase enum in CoolProp.h
-		long phase_Tp_indices(double T, double p, double *pL, double *pV, double *rhoL, double *rhoV);
+		long phase_Tp_indices(double T, double p, double &pL, double &pV, double &rhoL, double &rhoV);
 		
 		/// Return the phase given the temperature and the density
-		std::string phase_Trho(double T, double rho, double *pL, double *pV, double *rhoL, double *rhoV);
+		std::string phase_Trho(double T, double rho, double &pL, double &pV, double &rhoL, double &rhoV);
 
 		/// Return the phase using the phase flags from phase enum in CoolProp.h
-		long phase_Trho_indices(double T, double rho, double *pL, double *pV, double *rhoL, double *rhoV);
+		long phase_Trho_indices(double T, double rho, double &pL, double &pV, double &rhoL, double &rhoV);
 
-		long phase_prho_indices(double p, double rho, double *T, double *TL, double *TV, double *rhoL, double *rhoV);
+		long phase_prho_indices(double p, double rho, double &T, double &TL, double &TV, double &rhoL, double &rhoV);
 
 		// Optional ancillary functions can be overloaded, will throw a NotImplementedError
 		// to be caught by calling function if not implemented
@@ -489,7 +489,7 @@ class Fluid
 		/// @param psatVout Saturated vapor pressure [kPa(abs)]
 		/// @param rhoLout Saturated liquid density [kg/m3]
 		/// @param rhoVout Saturated vapor density [kg/m3]
-		virtual void saturation_T(double T, bool UseLUT, double *psatLout, double *psatVout, double *rhoLout, double *rhoVout);
+		virtual void saturation_T(double T, bool UseLUT, double &psatLout, double &psatVout, double &rhoLout, double &rhoVout);
 
 		/// Saturation temperature and saturated liquid and vapor densities as a function of the pressure.
 		/// @param p Pressure [kPa(abs)]
@@ -498,7 +498,7 @@ class Fluid
 		/// @param TsatVout Saturated vapor temperature [K]
 		/// @param rhoLout Saturated liquid density [kg/m3]
 		/// @param rhoVout Saturated vapor density [kg/m3]
-		virtual void saturation_p(double p, bool UseLUT, double *TsatLout, double *TsatVout, double *rhoLout, double *rhoVout);
+		virtual void saturation_p(double p, bool UseLUT, double &TsatLout, double &TsatVout, double &rhoLout, double &rhoVout);
 
 		/// Saturation temperature and saturated liquid and vapor densities as a function of the enthalpy. (The phase must be provided)
 		/// @param h Enthalpy [kJ/kg/K]
@@ -511,7 +511,7 @@ class Fluid
 		/// @param TsatVout Saturated vapor temperature [K]
 		/// @param rhoLout Saturated liquid density [kg/m3]
 		/// @param rhoVout Saturated vapor density [kg/m3]
-		virtual void saturation_h(double h, double Tmin, double Tmax, int Q, double *Tsatout, double *rhoout, double *TsatLout, double *TsatVout, double *rhoLout, double *rhoVout);
+		virtual void saturation_h(double h, double Tmin, double Tmax, int Q, double &Tsatout, double &rhoout, double &TsatLout, double &TsatVout, double &rhoLout, double &rhoVout);
 
 		/// Saturation temperature and saturated liquid and vapor densities as a function of the entropy. (The phase must be provided)
 		/// @param s Entropy [kJ/kg/K]
@@ -522,7 +522,7 @@ class Fluid
 		/// @param TsatVout Saturated vapor temperature [K]
 		/// @param rhoLout Saturated liquid density [kg/m3]
 		/// @param rhoVout Saturated vapor density [kg/m3]
-		virtual void saturation_s(double s, int Q, double *Tsatout, double *rhoout, double *TsatLout, double *TsatVout, double *rhoLout, double *rhoVout);
+		virtual void saturation_s(double s, int Q, double &Tsatout, double &rhoout, double &TsatLout, double &TsatVout, double &rhoLout, double &rhoVout);
 		
 		/// NB: Only valid for pure fluids - no pseudo-pure or mixtures.
 		/// Get the saturated liquid, vapor densities and the saturated pressure
@@ -531,7 +531,7 @@ class Fluid
 		/// @param rhoLout Saturated liquid pressure [kg/m3]
 		/// @param rhoVout Saturated vapor pressure [kg/m3]
 		/// @param omega Relaxation parameter [-]
-		void rhosatPure(double T, double *rhoLout, double *rhoVout, double *pout, double omega, bool use_guesses);
+		void rhosatPure(double T, double &rhoLout, double &rhoVout, double &pout, double omega, bool use_guesses);
 
 		/// NB: Only valid for pure fluids - no pseudo-pure or mixtures.
 		/// Get the saturated liquid, vapor densities and the saturated pressure using the method from Akasaka given by
@@ -541,21 +541,21 @@ class Fluid
 		/// @param rhoLout Saturated liquid pressure [kg/m3]
 		/// @param rhoVout Saturated vapor pressure [kg/m3]
 		/// @param omega Relaxation parameter [-]
-		void rhosatPure_Akasaka(double T, double *rhoLout, double *rhoVout, double *pout, double omega, bool use_guesses = false);
+		void rhosatPure_Akasaka(double T, double &rhoLout, double &rhoVout, double &pout, double omega, bool use_guesses = false);
 
 		/// Get the saturated liquid, vapor densities and the saturated pressure using Brent's method and adjusting the pressure
 		/// @param T Temperature [K]]
 		/// @param pout Saturated pressure [kPa(abs)]
 		/// @param rhoLout Saturated liquid pressure [kg/m3]
 		/// @param rhoVout Saturated vapor pressure [kg/m3]
-		void rhosatPure_Brent(double T, double *rhoLout, double *rhoVout, double *pout);
+		void rhosatPure_Brent(double T, double &rhoLout, double &rhoVout, double &pout);
 
 		/// Get the saturated liquid, vapor densities and the saturated pressure using Brent's method and adjusting the density
 		/// @param T Temperature [K]]
 		/// @param pout Saturated pressure [kPa(abs)]
 		/// @param rhoLout Saturated liquid pressure [kg/m3]
 		/// @param rhoVout Saturated vapor pressure [kg/m3]
-		void rhosatPure_BrentrhoV(double T, double *rhoLout, double *rhoVout, double *pout);
+		void rhosatPure_BrentrhoV(double T, double &rhoLout, double &rhoVout, double &pout);
 		
 		/// The saturation temperature of the fluid for a given pressure and quality. If the 
 		/// fluid is pure, the saturated vapor and saturated liquid temperatures are the same.  
@@ -574,7 +574,7 @@ class Fluid
 		/// @param UseLUT Use the Lookup table (True), or not (False)
 		/// @param rhoLout The saturated liquid density [kg/m3]
 		/// @param rhoVout The saturated vapor density [kg/m3]
-		double Tsat(double p, double Q, double T_guess, bool UseLUT, double *rhoLout, double *rhoVout);
+		double Tsat(double p, double Q, double T_guess, bool UseLUT, double &rhoLout, double &rhoVout);
 		
 		/// Returns true if the given name is an alias of the Fluid name.  (Case-sensitive!!)
 		/// @param name The given name

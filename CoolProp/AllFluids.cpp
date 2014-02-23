@@ -344,7 +344,7 @@ TEST_CASE("Check ancillary curves for pure and pseudo-pure fluids","[slow],[anci
 			{
 				CAPTURE(name);
 				double pL,pV,rhoL,rhoV;
-				CHECK_NOTHROW((*it)->saturation_T(T,false,&pL,&pV,&rhoL,&rhoV));
+				CHECK_NOTHROW((*it)->saturation_T(T,false,pL,pV,rhoL,rhoV));
 				double p_EOS = pL;
 				double p_ancillary = (*it)->pure() ? (*it)->psat(T): (*it)->psatL(T);
 				CAPTURE(p_EOS);
@@ -364,7 +364,7 @@ TEST_CASE("Check ancillary curves for pure and pseudo-pure fluids","[slow],[anci
 			for (double T = Tmin; T <= Tmax; T += (Tmax-Tmin)/(N-1))
 			{
 				double pL,pV,rhoL,rhoV;
-				(*it)->saturation_T(T,false,&pL,&pV,&rhoL,&rhoV);
+				(*it)->saturation_T(T,false,pL,pV,rhoL,rhoV);
 				double p_EOS = pV;
 				double p_ancillary = (*it)->pure() ? (*it)->psat(T): (*it)->psatV(T);
 				
@@ -387,7 +387,7 @@ TEST_CASE("Check ancillary curves for pure and pseudo-pure fluids","[slow],[anci
 			for (double T = Tmin; T <= Tmax; T += (Tmax-Tmin)/(N-1))
 			{
 				double pL,pV,rhoL,rhoV;
-				(*it)->saturation_T(T,false,&pL,&pV,&rhoL,&rhoV);
+				(*it)->saturation_T(T,false,pL,pV,rhoL,rhoV);
 				double rho_EOS = rhoL;
 				double rho_ancillary = (*it)->rhosatL(T);
 				CAPTURE(name);
@@ -409,7 +409,7 @@ TEST_CASE("Check ancillary curves for pure and pseudo-pure fluids","[slow],[anci
 			for (double T = Tmin; T <= Tmax; T += (Tmax-Tmin)/(N-1))
 			{
 				double pL,pV,rhoL,rhoV;
-				(*it)->saturation_T(T,false,&pL,&pV,&rhoL,&rhoV);
+				(*it)->saturation_T(T,false,pL,pV,rhoL,rhoV);
 				double rho_EOS = rhoV;
 				double rho_ancillary = (*it)->rhosatV(T);
 				CAPTURE(name);
@@ -464,7 +464,7 @@ TEST_CASE("Fluid parameter checks requiring saturation","[slow]")
 		{
 			std::string name = (*it)->get_name();
 			double pL,pV,rhoL,rhoV;
-			(*it)->saturation_T((*it)->limits.Tmin,false,&pL,&pV,&rhoL,&rhoV);
+			(*it)->saturation_T((*it)->limits.Tmin,false,pL,pV,rhoL,rhoV);
 			double ptriple_EOS = pV;
 			CAPTURE(name);
 			CAPTURE(ptriple_EOS);
@@ -480,7 +480,7 @@ TEST_CASE("Fluid parameter checks requiring saturation","[slow]")
 			{
 				std::string name = (*it)->get_name();
 				double pL,pV,rhoL,rhoV;
-				(*it)->saturation_T((*it)->crit.T*0.7,false,&pL,&pV,&rhoL,&rhoV);
+				(*it)->saturation_T((*it)->crit.T*0.7,false,pL,pV,rhoL,rhoV);
 				double accentric_EOS = -log10(pV/(*it)->crit.p.Pa)-1;
 				double accentric_Fluid = (*it)->params.accentricfactor;
 				CAPTURE(name);
@@ -510,7 +510,7 @@ TEST_CASE( "Saturation consistency checks", "[slow],[consistency]" )
 				CAPTURE(name);
 				CAPTURE(T);
 				CAPTURE(Tc);
-				CHECK_NOTHROW((*it)->saturation_T(T, false, &p, &psatV, &rhoL, &rhoV));
+				CHECK_NOTHROW((*it)->saturation_T(T, false, p, psatV, rhoL, rhoV));
 			}
 		}
 	}
@@ -531,9 +531,9 @@ TEST_CASE( "Saturation consistency checks", "[slow],[consistency]" )
 				CAPTURE(name);
 				CAPTURE(T);
 				CAPTURE(Tc);
-				CHECK_NOTHROW((*it)->saturation_T(T, false, &psatL, &psatV, &rhoL, &rhoV));
+				CHECK_NOTHROW((*it)->saturation_T(T, false, psatL, psatV, rhoL, rhoV));
 				CAPTURE(pc);
-				CHECK_NOTHROW((*it)->saturation_p(psatL, false, &TsatL, &TsatV, &rhoL, &rhoV));
+				CHECK_NOTHROW((*it)->saturation_p(psatL, false, TsatL, TsatV, rhoL, rhoV));
 				CAPTURE(TsatL);
 				INFO(name);
 				CHECK(fabs(T/TsatL-1) < 1e-3);
@@ -556,10 +556,10 @@ TEST_CASE( "Saturation consistency checks", "[slow],[consistency]" )
 				CAPTURE(name);
 				CAPTURE(T);
 				CAPTURE(Tc);
-				CHECK_NOTHROW((*it)->saturation_T(T, false, &psatL, &psatV, &rhoL, &rhoV));
+				CHECK_NOTHROW((*it)->saturation_T(T, false, psatL, psatV, rhoL, rhoV));
 				CAPTURE(psatV);
 				CAPTURE(pc);
-				CHECK_NOTHROW((*it)->saturation_p(psatV, false, &TsatL, &TsatV, &rhoL, &rhoV));
+				CHECK_NOTHROW((*it)->saturation_p(psatV, false, TsatL, TsatV, rhoL, rhoV));
 				CAPTURE(TsatV);
 				INFO(name);
 				CHECK(fabs(T/TsatV-1) < 1e-3);

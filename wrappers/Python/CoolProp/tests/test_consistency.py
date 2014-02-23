@@ -2,6 +2,7 @@ from __future__ import division
 import CoolProp
 from CoolProp import unit_systems_constants
 from CoolProp.CoolProp import Props, get_REFPROPname, IsFluidType, set_standard_unit_system
+import CoolProp.CoolProp as CP
 import numpy as np
 
 modes = []
@@ -72,8 +73,9 @@ def check_consistency(Fluid,mode,unit_system,T,rho,inputs):
     TEOS = Props('T',inputs[0],Input1,inputs[1],Input2,Fluid)
     DEOS = Props('D',inputs[0],Input1,inputs[1],Input2,Fluid)
     
+    print 'T',inputs[0],Input1,inputs[1],Input2,Fluid
     #  Check they are consistent
-    if abs(TEOS/T-1) > 1e-3 or abs(DEOS/rho-1) > 1e-3:
+    if abs(TEOS -T) > 1e-1 or abs(DEOS/rho-1) > 0.05:
         raise AssertionError("{T:g} K {D:g} kg/m^3 inputs: \"D\",'{ins1:s}',{in1:.12f},'{ins2:s}',{in2:.12f},\"{fluid:s}\"  || T: {TEOS:g} D: {DEOS:g}".format(T = T, 
                                                                                                                        D = rho, 
                                                                                                                        TEOS = TEOS, 

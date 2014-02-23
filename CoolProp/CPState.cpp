@@ -145,7 +145,7 @@ double CoolPropStateClassSI::Tsat(double Q){
 	double mach_eps = 10*DBL_EPSILON;
 	double rhoL,rhoV, TL, TV;
 
-	pFluid->saturation_p(_p,false,&TL,&TV,&rhoL,&rhoV);
+	pFluid->saturation_p(_p,false,TL,TV,rhoL,rhoV);
 
 	if (fabs(Q-1) < mach_eps){
 		return TV;	
@@ -391,7 +391,7 @@ void CoolPropStateClassSI::update_twophase(long iInput1, double Value1, long iIn
 
 		// Carry out the saturation call to get the temperature and density for each phases
 		if (pFluid->pure()){
-			pFluid->saturation_p(Value1,pFluid->enabled_TTSE_LUT,&TsatL,&TsatV,&rhosatL,&rhosatV);
+			pFluid->saturation_p(Value1,pFluid->enabled_TTSE_LUT,TsatL,TsatV,rhosatL,rhosatV);
 			TsatV = TsatL;
 			psatV = Value1;
 			psatL = Value1;
@@ -423,7 +423,7 @@ void CoolPropStateClassSI::update_twophase(long iInput1, double Value1, long iIn
 		// Carry out the saturation call to get the temperature and density for each phases
 		// for the given temperature
 		if (pFluid->pure()){
-			pFluid->saturation_T(Value1,pFluid->enabled_TTSE_LUT,&psatL,&psatV,&rhosatL,&rhosatV);
+			pFluid->saturation_T(Value1,pFluid->enabled_TTSE_LUT,psatL,psatV,rhosatL,rhosatV);
 			TsatL = Value1;
 			TsatV = Value1;
 		}
@@ -480,13 +480,13 @@ void CoolPropStateClassSI::update_Trho(long iInput1, double Value1, long iInput2
 	}
 	else{
 		// Set _TwoPhase to true if the state is two phase
-		_TwoPhase = (pFluid->phase_Trho_indices(_T,_rho,&psatL,&psatV,&rhosatL,&rhosatV) == iTwoPhase);
+		_TwoPhase = (pFluid->phase_Trho_indices(_T,_rho,psatL,psatV,rhosatL,rhosatV) == iTwoPhase);
 	}
 
 	if (_TwoPhase)
 	{
 		if (flag_TwoPhase){
-			pFluid->phase_Trho_indices(_T,_rho,&psatL,&psatV,&rhosatL,&rhosatV);
+			pFluid->phase_Trho_indices(_T,_rho,psatL,psatV,rhosatL,rhosatV);
 		}
 		TsatV = _T;
 		TsatL = _T;
@@ -543,14 +543,14 @@ void CoolPropStateClassSI::update_prho(long iInput1, double Value1, long iInput2
 		_TwoPhase = true;
 	}
 	else{
-		phase = pFluid->phase_prho_indices(_p,_rho,&_T,&TsatL,&TsatV,&rhosatL,&rhosatV);
+		phase = pFluid->phase_prho_indices(_p,_rho,_T,TsatL,TsatV,rhosatL,rhosatV);
 		_TwoPhase = (phase == iTwoPhase);
 	}
 
 	if (_TwoPhase)
 	{
 		if (flag_TwoPhase){
-			pFluid->phase_prho_indices(_p,_rho,&_T,&TsatL,&TsatV,&rhosatL,&rhosatV);
+			pFluid->phase_prho_indices(_p,_rho,_T,TsatL,TsatV,rhosatL,rhosatV);
 		}
 		// If it made it to the saturation routine and it is two-phase the saturation variables have been set
 		TwoPhase = true;
@@ -610,7 +610,7 @@ void CoolPropStateClassSI::update_Tp(long iInput1, double Value1, long iInput2, 
 		_TwoPhase = true;
 	}
 	else{
-		_TwoPhase = (pFluid->phase_Tp_indices(_T,_p,&psatL,&psatV,&rhosatL,&rhosatV) == iTwoPhase);
+		_TwoPhase = (pFluid->phase_Tp_indices(_T,_p,psatL,psatV,rhosatL,rhosatV) == iTwoPhase);
 		if (get_debug_level() > 5) { std::cout << format("%s:%d: CoolPropStateClass::update_Tp::_TwoPhase : %d\n",__FILE__,__LINE__,_TwoPhase).c_str(); }
 	}
 
@@ -644,7 +644,7 @@ void CoolPropStateClassSI::update_ph(long iInput1, double Value1, long iInput2, 
 		std::cout << format("%s:%d: CoolPropStateClassSI::update_ph(p=%g,h=%g,T0=%g,rho0=%g)\n",__FILE__,__LINE__, _p, _h, T0, rho0) ;
 	}
 	// Solve for temperature and density with or without the guess values provided
-	pFluid->temperature_ph(_p, _h, &_T, &_rho, &rhosatL, &rhosatV, &TsatL, &TsatV, T0, rho0);
+	pFluid->temperature_ph(_p, _h, _T, _rho, rhosatL, rhosatV, TsatL, TsatV, T0, rho0);
 
 	// Set the phase flags
 	if ( _p < pFluid->reduce.p.Pa && _rho < rhosatL && _rho > rhosatV)
@@ -680,7 +680,7 @@ void CoolPropStateClassSI::update_ps(long iInput1, double Value1, long iInput2, 
 	s_cached = true;
 
 	// Solve for temperature and density
-	pFluid->temperature_ps(_p, _s, &_T, &_rho, &rhosatL, &rhosatV, &TsatL, &TsatV);
+	pFluid->temperature_ps(_p, _s, _T, _rho, rhosatL, rhosatV, TsatL, TsatV);
 
 	if (get_debug_level() > 9)
 	{
@@ -721,7 +721,7 @@ void CoolPropStateClassSI::update_hs(long iInput1, double Value1, long iInput2, 
 	s_cached = true;
 
 	// Solve for temperature and density
-	pFluid->temperature_hs(_h, _s, &_T,&_rho,&rhosatL,&rhosatV,&TsatL,&TsatV);
+	pFluid->temperature_hs(_h, _s, _T, _rho, rhosatL, rhosatV, TsatL, TsatV);
 
 	// Reduced parameters
 	double delta = this->_rho/pFluid->reduce.rho;
@@ -762,7 +762,7 @@ void CoolPropStateClassSI::update_Ts(long iInput1, double Value1, long iInput2, 
 	s_cached = true;
 
 	// Solve for density and pressure
-	pFluid->density_Ts(_T, _s, &_rho, &_p, &rhosatL, &rhosatV, &psatL, &psatV);
+	pFluid->density_Ts(_T, _s, _rho, _p, rhosatL, rhosatV, psatL, psatV);
 
 	if (get_debug_level() > 9)
 	{
@@ -1323,7 +1323,7 @@ long CoolPropStateClassSI::phase(void)
 	}
 	else
 	{
-		return pFluid->phase_Trho_indices(_T,_rho,&pL,&pV,&rhoL,&rhoV);
+		return pFluid->phase_Trho_indices(_T,_rho,pL,pV,rhoL,rhoV);
 	}
 }
 
