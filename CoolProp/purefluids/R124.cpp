@@ -34,7 +34,7 @@ R124Class::R124Class()
 	double t0[] = {0, 0, 0, 0, -1, -2, -3};
 	phi0list.push_back(new phi0_lead(a0[1],a0[2]));
 	phi0list.push_back(new phi0_logtau(a0[3]));
-	phi0list.push_back(new phi0_power(a0,t0,4,7,8));
+	phi0list.push_back(new phi0_power(a0,t0,4,6,7));
 
 	name.assign("R124");
 	REFPROPname.assign("R124");
