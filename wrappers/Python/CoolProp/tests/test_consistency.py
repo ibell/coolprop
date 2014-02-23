@@ -16,7 +16,7 @@ modes.append('pure')
 ## except ValueError:
 ##     pass
             
-twophase_inputs = [('T','D'),('T','Q'),('P','Q'),('P','H'),('P','S'),('P','D'),('T','S')] #,('H','S')
+twophase_inputs = [('T','D'),('T','Q'),('P','Q'),('P','H'),('P','S'),('P','D'),('T','S'),('H','S')] #
 singlephase_inputs = [('T','D'),('T','P'),('P','H'),('P','S'),('P','D'),('H','S'),('T','S')]
 singlephase_outputs = ['T','P','H','S','A','O','C','G','V','L','C0','U']
 

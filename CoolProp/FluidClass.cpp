@@ -3063,7 +3063,7 @@ void Fluid::saturation_p(double p, bool UseLUT, double &TsatL, double &TsatV, do
 				Saturation_p_IterateSaturationT_Resids SPISTR = Saturation_p_IterateSaturationT_Resids(this,p);
 				Tsat = Tsat_anc(p,0);
 				if (Tsat >= crit.T){
-					Tsat = crit.T-0.001;
+					Tsat = crit.T-0.0000001;
 				}
 				rhoL = rhosatL(Tsat);
 				rhoV = rhosatV(Tsat);

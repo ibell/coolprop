@@ -247,7 +247,7 @@ def main():
 
 if __name__ == "__main__":
     
-    gaf = GeneticAncillaryFitter(Ref = 'REFPROP-R407C', value = 'rhoV', addTr = False)
+    gaf = GeneticAncillaryFitter(Ref = 'R14', value = 'rhoL', addTr = False)
     gaf.run()
     
     values = dict(Tcrit = 590.70, rhocrit = 351, pcrit = 5817526.2731115920, Tmin = 289.8)
