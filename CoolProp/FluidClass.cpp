@@ -3040,7 +3040,7 @@ void Fluid::saturation_p(double p, bool UseLUT, double &TsatL, double &TsatV, do
 				// Now try to get Tsat by using Brent's method on saturation_T calls
 				Saturation_p_IterateSaturationT_Resids SPISTR = Saturation_p_IterateSaturationT_Resids(this,p);
 				Tsat = Tsat_anc(p,0);
-				if (Tsat > crit.T){
+				if (Tsat >= crit.T){
 					Tsat = crit.T-0.001;
 				}
 				rhoL = rhosatL(Tsat);
