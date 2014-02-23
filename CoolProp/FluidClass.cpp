@@ -720,7 +720,6 @@ double Fluid::density_Tp(double T, double p)
 double Fluid::density_Tp(double T, double p, double rho_guess)
 {
     double tau,dpdrho__constT,error=999,R,p_EOS,rho,change=999;
-	double x1, x2, x3, y1, y2;
 
     R = params.R_u/params.molemass*1000; // SI units are used internally
 	tau = reduce.T/T;
@@ -753,15 +752,9 @@ double Fluid::density_Tp(double T, double p, double rho_guess)
 
 		double dpddelta__constT = dpdrho__constT*reduce.rho;
 
-		//// Update the step using Newton's method
-		//change = (p_EOS-p)/dpdrho__constT;
-		//rho -= change;
-
 		// Update the step using Newton's method
 		change = (p_EOS-p)/dpddelta__constT;
 		delta -= change;
-        
-		//std::cout << format("%g %d %g %g\n",T, iter-1, rho, error);
 
 		iter++;
 		
@@ -1829,12 +1822,6 @@ void Fluid::temperature_ph(double p, double h, double &Tout, double &rhoout, dou
 				//**************************************************
  				CoolPropStateClassSI sat(name);
 				sat.update(iP, p, iQ, 0);
-				double pp = PropsSI("P","T",sat.T(),"Q",0,(char*)name.c_str());
-				double e = pp/p-1;
-				double h1 = PropsSI("H","P",p,"Q",0,(char*)name.c_str());
-				double h2 = PropsSI("H","T",sat.T(),"Q",0,(char*)name.c_str());
-				double TT = sat.T();
-				double TT2 = PropsSI("T","P",p,"Q",0,(char*)name.c_str());
 				
 				rhoL = sat.rhoL();
 				rhoV = sat.rhoV();

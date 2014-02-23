@@ -647,7 +647,7 @@ void CoolPropStateClassSI::update_ph(long iInput1, double Value1, long iInput2, 
 	pFluid->temperature_ph(_p, _h, _T, _rho, rhosatL, rhosatV, TsatL, TsatV, T0, rho0);
 
 	// Set the phase flags
-	if ( _p < pFluid->reduce.p.Pa && _rho < rhosatL && _rho > rhosatV)
+	if (double_equal(_rho,rhosatL) || double_equal(_rho,rhosatV) ||(_p < pFluid->reduce.p.Pa && _rho <= rhosatL && _rho >= rhosatV))
 	{
 		TwoPhase = true;
 		SinglePhase = false;
@@ -689,7 +689,7 @@ void CoolPropStateClassSI::update_ps(long iInput1, double Value1, long iInput2, 
 	}
 
 	// Set the phase flags
-	if ( _p < pFluid->crit.p.Pa && _rho < rhosatL && _rho > rhosatV)
+	if (double_equal(_rho,rhosatL) || double_equal(_rho,rhosatV) ||(_p < pFluid->reduce.p.Pa && _rho <= rhosatL && _rho >= rhosatV))
 	{
 		TwoPhase = true;
 		SinglePhase = false;
