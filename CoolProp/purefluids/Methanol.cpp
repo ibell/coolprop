@@ -13,7 +13,7 @@ MethanolClass::MethanolClass()
 
     // Critical parameters
     crit.rho = 273;
-    crit.p = PressureUnit(8103.5, UNIT_KPA);
+    crit.p = PressureUnit(8215.85, UNIT_KPA);
     crit.T = 512.50;
     crit.v = 1.0/crit.rho;
 
@@ -21,7 +21,7 @@ MethanolClass::MethanolClass()
     params.molemass = 32.04216;
     params.Ttriple = 175.61;
 	params.ptriple = 0.00018629;
-    params.accentricfactor = 0.5625;
+    params.accentricfactor = 0.5720322;
     params.R_u = 8.314472;
 
     // Limits of EOS
@@ -69,7 +69,7 @@ double MethanolClass::psat(double T)
     {
         summer += N[i]*pow(theta, t[i]);
     }
-    return crit.p.Pa*exp(crit.T/T*summer);
+    return 8103500*exp(crit.T/T*summer);
 }
 
 double MethanolClass::rhosatL(double T)
