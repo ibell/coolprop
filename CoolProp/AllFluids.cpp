@@ -328,11 +328,55 @@ std::string FluidsContainer::FluidList()
 #ifndef DISABLE_CATCH
 #include "Catch/catch.hpp"
 
-TEST_CASE("Check ancillary curves for pure and pseudo-pure fluids","[slow]")
+TEST_CASE("Check ancillary curves for pure and pseudo-pure fluids","[slow],[ancillary]")
 {
 	FluidsContainer Fluids = FluidsContainer();
 
-	SECTION("Saturated Liquid Ancillary")
+	SECTION("Saturated Liquid Pressure Ancillary")
+	{
+		for (std::vector<Fluid*>::const_iterator it = Fluids.FluidsList.begin(); it != Fluids.FluidsList.end(); it++)
+		{
+			std::string name = (*it)->get_name();
+			double Tmin = (*it)->limits.Tmin;
+			double Tmax = (*it)->crit.T-1;
+			int N = 5;
+			for (double T = Tmin; T <= Tmax; T += (Tmax-Tmin)/(N-1))
+			{
+				CAPTURE(name);
+				double pL,pV,rhoL,rhoV;
+				CHECK_NOTHROW((*it)->saturation_T(T,false,&pL,&pV,&rhoL,&rhoV));
+				double p_EOS = pL;
+				double p_ancillary = (*it)->pure() ? (*it)->psat(T): (*it)->psatL(T);
+				CAPTURE(p_EOS);
+				CAPTURE(p_ancillary);
+				CHECK(fabs(p_EOS/p_ancillary -1) <= 2e-2);
+			}
+		}
+	}
+	SECTION("Saturated Vapor Pressure Ancillary")
+	{
+		for (std::vector<Fluid*>::const_iterator it = Fluids.FluidsList.begin(); it != Fluids.FluidsList.end(); it++)
+		{
+			std::string name = (*it)->get_name();
+			double Tmin = (*it)->limits.Tmin;
+			double Tmax = (*it)->crit.T-1;
+			int N = 5;
+			for (double T = Tmin; T <= Tmax; T += (Tmax-Tmin)/(N-1))
+			{
+				double pL,pV,rhoL,rhoV;
+				(*it)->saturation_T(T,false,&pL,&pV,&rhoL,&rhoV);
+				double p_EOS = pV;
+				double p_ancillary = (*it)->pure() ? (*it)->psat(T): (*it)->psatV(T);
+				
+				CAPTURE(name);
+				CAPTURE(p_EOS);
+				CAPTURE(p_ancillary);
+				CHECK(fabs(p_EOS/p_ancillary -1) <= 2e-2);
+			}
+		}
+	}
+
+	SECTION("Saturated Liquid Density Ancillary")
 	{
 		for (std::vector<Fluid*>::const_iterator it = Fluids.FluidsList.begin(); it != Fluids.FluidsList.end(); it++)
 		{
@@ -354,7 +398,7 @@ TEST_CASE("Check ancillary curves for pure and pseudo-pure fluids","[slow]")
 		}
 	}
 
-	SECTION("Saturated Vapor Ancillary")
+	SECTION("Saturated Vapor Density Ancillary")
 	{
 		for (std::vector<Fluid*>::const_iterator it = Fluids.FluidsList.begin(); it != Fluids.FluidsList.end(); it++)
 		{
@@ -461,7 +505,7 @@ TEST_CASE( "Saturation consistency checks", "[slow],[consistency]" )
 			double N = 30;
 			for (double T = Tt; T<Tc; T+=(Tc-Tt)/(N-1))
 			{
-				double p, psatV, TsatV, rhoL, rhoV;
+				double p, psatV, rhoL, rhoV;
 				std::string name = (*it)->get_name();
 				CAPTURE(name);
 				CAPTURE(T);
@@ -471,28 +515,54 @@ TEST_CASE( "Saturation consistency checks", "[slow],[consistency]" )
 		}
 	}
 
-	SECTION("T->p->T")
+	SECTION("TL->pL->TL")
 	{
 		for (std::vector<Fluid*>::const_iterator it = Fluids.FluidsList.begin(); it != Fluids.FluidsList.end(); it++)
 		{
+			if (!(*it)->pure()){continue;}
 			double Tt = (*it)->limits.Tmin;
 			double Tc = (*it)->crit.T;
 			double pc = (*it)->crit.p.Pa;
-			double N = 5;
+			double N = 50;
 			for (double T = Tt; T<Tc; T+=(Tc-0.0001-Tt)/(N-1))
 			{
-				double p, T2, psatV, TsatV,rhoL,rhoV;
+				double psatL, psatV, TsatL, TsatV,rhoL,rhoV;
 				std::string name = (*it)->get_name();
 				CAPTURE(name);
 				CAPTURE(T);
 				CAPTURE(Tc);
-				CHECK_NOTHROW((*it)->saturation_T(T, false, &p, &psatV, &rhoL, &rhoV));
-				CAPTURE(p);
+				CHECK_NOTHROW((*it)->saturation_T(T, false, &psatL, &psatV, &rhoL, &rhoV));
 				CAPTURE(pc);
-				CHECK_NOTHROW((*it)->saturation_p(p, false, &T2, &TsatV, &rhoL, &rhoV));
-				CAPTURE(T2);
+				CHECK_NOTHROW((*it)->saturation_p(psatL, false, &TsatL, &TsatV, &rhoL, &rhoV));
+				CAPTURE(TsatL);
 				INFO(name);
-				CHECK(fabs(T/T2-1) < 1e-3);
+				CHECK(fabs(T/TsatL-1) < 1e-3);
+			}
+		}
+	}
+	SECTION("TV->pV->TV")
+	{
+		for (std::vector<Fluid*>::const_iterator it = Fluids.FluidsList.begin(); it != Fluids.FluidsList.end(); it++)
+		{
+			if (!(*it)->pure()){continue;}
+			double Tt = (*it)->limits.Tmin;
+			double Tc = (*it)->crit.T;
+			double pc = (*it)->crit.p.Pa;
+			double N = 50;
+			for (double T = Tt; T<Tc; T+=(Tc-0.0001-Tt)/(N-1))
+			{
+				double psatL, psatV, TsatL, TsatV, rhoL, rhoV;
+				std::string name = (*it)->get_name();
+				CAPTURE(name);
+				CAPTURE(T);
+				CAPTURE(Tc);
+				CHECK_NOTHROW((*it)->saturation_T(T, false, &psatL, &psatV, &rhoL, &rhoV));
+				CAPTURE(psatV);
+				CAPTURE(pc);
+				CHECK_NOTHROW((*it)->saturation_p(psatV, false, &TsatL, &TsatV, &rhoL, &rhoV));
+				CAPTURE(TsatV);
+				INFO(name);
+				CHECK(fabs(T/TsatV-1) < 1e-3);
 			}
 		}
 	}
