@@ -483,7 +483,7 @@ bool set_REFPROP_fluid(std::string Ref, std::vector<double> &x)
 					}
 				}
 				RefString = std::string(hfiles,strlen(hfiles)+1);
-				for (unsigned int j = 0; j < i; j++)
+				for (int j = 0; j < i; j++)
 				{
 					x[j] = xx[j];
 				}
