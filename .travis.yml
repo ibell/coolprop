@@ -15,7 +15,7 @@ install:
 # command to run tests
 script: 
   - pwd
-  - cd ${HOME}
+  - cd $TRAVIS_BUILD_DIR
   - cd wrappers/CoolProp/tests
   - nosetests
 
