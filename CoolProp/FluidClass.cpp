@@ -1983,7 +1983,7 @@ void Fluid::temperature_ps(double p, double s, double &Tout, double &rhoout, dou
 	double f1,f2,df1_dtau,df1_ddelta,df2_ddelta,df2_dtau;
     double rhoL, rhoV, ssatL,ssatV,TsatL,TsatV,tau,delta,worst_error;
 	double s_guess, sc, rho_guess;
-	double ssat_tol = 0.1;
+	double ssat_tol = 1;
 	// It is supercritical pressure	(or just below the critical pressure)
 	if (p > 0.999*crit.p.Pa) 
 	{
@@ -2099,7 +2099,7 @@ void Fluid::temperature_ps(double p, double s, double &Tout, double &rhoout, dou
 			else if (s < ssatL)
 			{
 				T_guess = params.Ttriple;
-				rho_guess = density_Tp(T_guess,p);
+				rho_guess = density_Tp(T_guess,p,rhoL);
 				s_guess = entropy_Trho(T_guess,rho_guess);
 				// Update the guess with linear interpolation
 				T_guess = (TsatL-T_guess)/(ssatL-s_guess)*(s-s_guess)+T_guess;

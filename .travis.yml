@@ -9,6 +9,8 @@ install:
   - pip -q install cython --install-option="--no-cython-compile"
   - cd wrappers/Python
   - python setup.py install # Install CoolProp
+  - cd ../SharedLibrary/make
+  
 # command to run tests
 script: 
   - cd CoolProp/tests # relative to wrappers/Python
