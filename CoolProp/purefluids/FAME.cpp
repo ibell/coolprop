@@ -149,9 +149,6 @@ MethylStearateClass::MethylStearateClass()
 	phi0list.push_back(new phi0_cp0_poly(247.115/params.R_u,-0.0916606,crit.T,298));
 	phi0list.push_back(new phi0_Planck_Einstein(v0_v,u0_v,1,3));
 
-	EOSReference.assign("Marcia L. Huber, Eric W. Lemmon, Andrei Kazakov, Lisa S. Ott and Thomas J. Bruno, \"Model for the Thermodynamic Properties of a Biodiesel Fuel\", Energy & Fuels 2009, 23, 3790-3797");
-	TransportReference.assign("Using ECS in fully predictive mode");
-
 	name.assign("MethylStearate");
 	aliases.push_back(std::string("METHYLSTEARATE"));
 	REFPROPname.assign("MSTEARAT");
@@ -162,13 +159,12 @@ MethylStearateClass::MethylStearateClass()
 }
 double MethylStearateClass::psat(double T)
 {
-	// Max error is  0.397566439203 % between 311.84 and 774.999999 K
-
-    const double t[]={0, 0.14300000000000002, 0.3585, 0.38599999999999995, 1.3333333333333333, 3.0, 6.5};
-    const double N[]={0, -1.9263224274547197, 52.202696741784585, -54.538101452238379, -5.5909231565565696, -7.4874462624058769, -6.5951175020983355};
+	// Max error is  0.10191611702 % between 311.84 and 774.9999 K for MethylStearate
+    const double t[]={0, 0.3625, 0.385, 0.39449999999999996, 0.8333333333333334, 2.6666666666666665, 2.8333333333333335, 8.5, 8.666666666666666};
+    const double N[]={0, -2.4885073659085553, 3.279204431745173, -0.15737659683502833, -9.0519755309541718, 4.5999899655034167, -14.376181842963176, -53.477254796811415, 47.27745691076538};
     double summer=0,theta;
     theta=1-T/reduce.T;
-    for (int i=1;i<=6;i++)
+    for (int i=1;i<=8;i++)
     {
         summer += N[i]*pow(theta,t[i]);
     }
