@@ -15,10 +15,10 @@ class Sample(object):
     
 class GeneticAncillaryFitter(object):
     def __init__(self,
-               num_samples = 500, # Have this many chromos in the sample group
-               num_selected = 30, # Have this many chromos in the selected group
+               num_samples = 100, # Have this many chromos in the sample group
+               num_selected = 20, # Have this many chromos in the selected group
                mutation_factor = 2, # Randomly mutate 1/n of the chromosomes
-               num_powers = 8, # How many powers in the fit
+               num_powers = 5, # How many powers in the fit
                Ref = 'R407C',
                value = 'rhoV',
                addTr = True,
@@ -40,7 +40,7 @@ class GeneticAncillaryFitter(object):
             self.pc = Props(Ref,'pcrit')
             self.rhoc = Props(Ref,'rhocrit')
             self.Tmin = Props(Ref,'Tmin')
-            self.T = np.append(np.linspace(self.Tmin+1e-14, self.Tc-1,150), np.logspace(np.log10(self.Tc-1), np.log10(self.Tc),40))
+            self.T = np.append(np.linspace(self.Tmin+1e-14, self.Tc-1,150), np.logspace(np.log10(self.Tc-1), np.log10(self.Tc)-1e-15,40))
             self.p = [Props('P','T',T,'Q',0,Ref) for T in self.T]
             self.rhoL = [Props('D','T',T,'Q',0,Ref) for T in self.T]
             self.rhoV = [Props('D','T',T,'Q',1,Ref) for T in self.T]
@@ -89,25 +89,30 @@ class GeneticAncillaryFitter(object):
         ''' 
         Fitness of a chromo is the sum of the squares of the error of the correlation
         '''
-            
-        output = np.zeros_like(self.T)
         
-        def f_RHS(B,x):
-            
-            # see http://stackoverflow.com/questions/21309816/how-can-i-efficiently-use-numpy-to-carry-out-iterated-summation
-            return np.sum(B * x.reshape(-1, 1)**chromo.v, axis = 1)
+        # theta^t where the i-th row is equal to theta^t[i]
+        # We need these terms later on to build the A and b matrices
+        theta_t = (self.x.reshape(-1, 1)**chromo.v).T
         
-        linear = Model(f_RHS)
-        mydata = Data(self.x, self.LHS)
-        myodr = ODR(mydata, linear, beta0=[0.0]*self.num_powers)#, maxit = 100, sstol = 1e-10, partol = 1e-10)
-        myoutput = myodr.run()
+        # TODO: more numpy broadcasting should speed this up even more
+        # Another few times faster ought to be possible
+        I = len(chromo.v)
+        A = np.zeros((I,I))
+        b = np.zeros((I,1))
+        for i in range(I):
+            for j in range(I):
+                A[i,j] = np.sum(theta_t[i]*theta_t[j])
+            b[i] = np.sum(theta_t[i]*self.LHS)
         
-        chromo.beta = myoutput.beta
-    
-        if self.addTr:
-            RHS = f_RHS(myoutput.beta, self.x)*self.Tc/self.T
-        else:
-            RHS = f_RHS(myoutput.beta, self.x)
+        # If you end up with a singular matrix, quit this run
+        try:
+            n = np.linalg.solve(A, b).T
+        except np.linalg.linalg.LinAlgError as E:
+            chromo.fitness = 1e99
+            return
+        
+        chromo.beta = n
+        RHS = np.sum(n * self.x.reshape(-1, 1)**chromo.v, axis = 1)
             
         if self.value == 'p':
             fit_value = np.exp(RHS)*self.pc
@@ -121,18 +126,12 @@ class GeneticAncillaryFitter(object):
         else:
             fit_value = self.rhoc*(1+RHS)
             EOS_value = self.rhoL
-                
+        
         max_abserror = np.max(np.abs((fit_value/EOS_value)-1)*100)
         
-#         import matplotlib.pyplot as plt
-#         plt.plot(self.T,fit_value/EOS_value-1)
-#         plt.show()
-        
         chromo.fitness = max_abserror
-        chromo.sum_square = myoutput.sum_square
+        #chromo.sum_square = myoutput.sum_square
         chromo.max_abserror = max_abserror
-        
-        print '.',
         
         return chromo.fitness
 
@@ -196,7 +195,7 @@ class GeneticAncillaryFitter(object):
         # Main loop: each generation select a subset of the sample and breed from
         # them.
         generation = -1
-        while generation < 0 or samples[0].fitness > 0.02 or generation < 3 and generation < 15:
+        while generation < 0 or samples[0].fitness > 0.02 or (generation < 3 and generation < 15):
             generation += 1
                 
             # Generate the selected group from sample- take the top 10% of samples
@@ -230,11 +229,15 @@ class GeneticAncillaryFitter(object):
                 print sample.v, sample.fitness, sample.max_abserror
             
             print '// Max error is ',samples[0].max_abserror,'% between',np.min(self.T),'and',np.max(self.T),'K'
-            print str(samples[0].v)[1::], str(list(samples[0].beta))[1::]
+            print str(samples[0].v), samples[0].beta.tolist()
                 
             # Print useful stats about this generation
             (min, median, max) =  [samples[0].fitness, samples[len(samples)//2].fitness, samples[-1].fitness]
             print("{0} best value: {1}. fitness: best {2}, median {3}, worst {4}".format(generation, samples[0].v, min, median, max))
+            
+            # If the string representations of all the chromosomes are the same, stop
+            if len(set([str(s.v) for s in samples[0:5]])) == 1:
+                break
     
         return samples[0]
   
@@ -247,7 +250,7 @@ def main():
 
 if __name__ == "__main__":
     
-    gaf = GeneticAncillaryFitter(Ref = 'R11', value = 'rhoLnoexp', addTr = False)
+    gaf = GeneticAncillaryFitter(Ref = 'CO2', value = 'rhoV', addTr = False, num_powers = 8)
     gaf.run()
     
     values = dict(Tcrit = 590.70, rhocrit = 351, pcrit = 5817526.2731115920, Tmin = 289.8)
