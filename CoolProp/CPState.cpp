@@ -1006,7 +1006,6 @@ void CoolPropStateClassSI::update_TTSE_LUT(long iInput1, double Value1, long iIn
 
 		_T = Value1;
 		_rho = Value2;
-
 		_logrho = log(_rho);
 
 		// If density is outside the saturation region, it is single-phase
@@ -1460,7 +1459,12 @@ double CoolPropStateClassSI::s(void){
 		{
 			if (pFluid->enabled_TTSE_LUT && within_TTSE_range(iP, p(), iH, h()) )
 			{
-				return pFluid->TTSESinglePhase.evaluate_Trho(iS,_T,_rho,_logrho);
+				if (h_cached){
+					return pFluid->TTSESinglePhase.evaluate(iS,_p,_logp,_h);
+				}
+				else{
+					return pFluid->TTSESinglePhase.evaluate_Trho(iS,_T,_rho,_logrho);
+				}
 			}
 			else
 			{
