@@ -890,6 +890,7 @@ void CoolPropStateClassSI::update_TTSE_LUT(long iInput1, double Value1, long iIn
 			_T = _Q*TsatV+(1-_Q)*TsatL;
 			_p = _Q*psatV+(1-_Q)*psatL;
 			_h = h;
+			h_cached = true;
 
 			check_saturated_quality(_Q);
 		}
@@ -903,6 +904,7 @@ void CoolPropStateClassSI::update_TTSE_LUT(long iInput1, double Value1, long iIn
 
 		_logp = log(Value1);
 		_h = pFluid->TTSESinglePhase.evaluate_one_other_input(iP,Value1,iT,Value2);
+		h_cached = true;
 		_rho = pFluid->TTSESinglePhase.evaluate(iD,Value1,_logp, _h);
 		_p = Value1;
 		_T = Value2;
@@ -923,6 +925,7 @@ void CoolPropStateClassSI::update_TTSE_LUT(long iInput1, double Value1, long iIn
 			_logp = log(p);
 			// Saturation calls happen again inside evaluate_one_other_input - perhaps pass values
 			_h = pFluid->TTSESinglePhase.evaluate_one_other_input(iP,p,iD,rho);
+			h_cached = true;
 			_T = pFluid->TTSESinglePhase.evaluate(iT,p,_logp,_h);
 			_p = Value1;
 			_rho = Value2;
@@ -968,6 +971,7 @@ void CoolPropStateClassSI::update_TTSE_LUT(long iInput1, double Value1, long iIn
 			SinglePhase = true;
 			_logp = log(p);
 			_h = pFluid->TTSESinglePhase.evaluate_one_other_input(iP,p,iS,s); // Get the enthalpy
+			h_cached = true;
 			_T = pFluid->TTSESinglePhase.evaluate(iT,p,_logp,_h);
 			_rho = pFluid->TTSESinglePhase.evaluate(iD,p,_logp,_h);
 		}
@@ -2739,21 +2743,21 @@ void CoolPropStateClass::update(long iInput1, double Value1, long iInput2, doubl
 ///// ###################### TEST CASES ###################
 #ifndef DISABLE_CATCH
 #include "Catch/catch.hpp"
-TEST_CASE("Check REFPROP and coolprop state classes match", "")
+TEST_CASE((char*)"Check REFPROP and coolprop state classes match", "")
 {
 	CoolPropStateClassSI CPWater("Water");
 	CoolPropStateClassSI RPWater("REFPROP-Water");
 
 	double eps = sqrt(DBL_EPSILON);
 
-	SECTION("check T,rho -> p")
+	SECTION((char*)"check T,rho -> p")
 	{
 		double T = 313, rho = 1;
 		CPWater.update(iT,T,iD,rho);
 		RPWater.update(iT,T,iD,rho);
 		REQUIRE(fabs(CPWater.p() - RPWater.p()) < 1e-4);
 	}
-	SECTION("check T,p -> rho")
+	SECTION((char*)"check T,p -> rho")
 	{
 		double T = 313, p = 101325;
 		CPWater.update(iT,T,iP,p);
@@ -2764,7 +2768,7 @@ TEST_CASE("Check REFPROP and coolprop state classes match", "")
 		CAPTURE(CPrho);
 		REQUIRE(fabs(RPrho - CPrho) < 1e-4);
 	}
-	SECTION("check cp")
+	SECTION((char*)"check cp")
 	{
 		double T = 313, p = 101325;
 		CPWater.update(iT,T,iP,p);
@@ -2775,7 +2779,7 @@ TEST_CASE("Check REFPROP and coolprop state classes match", "")
 		CAPTURE(CPcp);
 		REQUIRE(fabs(RPcp - CPcp) < 1e-4);
 	}
-	SECTION("check cv")
+	SECTION((char*)"check cv")
 	{
 		double T = 313, p = 101325;
 		CPWater.update(iT,T,iP,p);
@@ -2786,7 +2790,7 @@ TEST_CASE("Check REFPROP and coolprop state classes match", "")
 		CAPTURE(CPcv);
 		REQUIRE(fabs(RPcv - CPcv) < 1e-4);
 	}
-	SECTION("check viscosity")
+	SECTION((char*)"check viscosity")
 	{
 		double T = 313, p = 101325;
 		CPWater.update(iT,T,iP,p);
@@ -2797,7 +2801,7 @@ TEST_CASE("Check REFPROP and coolprop state classes match", "")
 		CAPTURE(CPvisc);
 		REQUIRE(fabs(RPvisc - CPvisc) < 1e-4);
 	}
-	SECTION("check conductivity")
+	SECTION((char*)"check conductivity")
 	{
 		double T = 313, p = 101325;
 		CPWater.update(iT,T,iP,p);
@@ -2808,7 +2812,7 @@ TEST_CASE("Check REFPROP and coolprop state classes match", "")
 		CAPTURE(CPcond);
 		REQUIRE(fabs(RPcond - CPcond) < 1e-4);
 	}
-	SECTION("check surface tension")
+	SECTION((char*)"check surface tension")
 	{
 		double T = 313, p = 101325;
 		CPWater.update(iT,T,iP,p);

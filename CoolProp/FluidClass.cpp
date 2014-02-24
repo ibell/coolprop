@@ -247,6 +247,9 @@ double Fluid::phir(double tau, double delta)
 		return summer;
 	}
 }
+
+
+
 double Fluid::dphir_dDelta(double tau, double delta)
 {
 	if (use_cache && double_equal(tau,cache.dphir_dDelta.tau) && double_equal(delta,cache.dphir_dDelta.delta))
@@ -276,7 +279,9 @@ double Fluid::d2phir_dDelta2(double tau, double delta)
 	{
 		double summer = 0;
 		for (std::vector<phi_BC*>::iterator it = phirlist.begin(); it != phirlist.end(); it++)
+		{
 			summer += (*it)->dDelta2(tau,delta);
+		}
 		cache.d2phir_dDelta2.tau = tau;
 		cache.d2phir_dDelta2.delta = delta;
 		cache.d2phir_dDelta2.cached_val = summer;
@@ -719,7 +724,7 @@ double Fluid::density_Tp(double T, double p)
 
 double Fluid::density_Tp(double T, double p, double rho_guess)
 {
-    double tau,dpdrho__constT,error=999,R,p_EOS,rho,change=999;
+    long double tau,dpdrho__constT,dpddelta__constT, error=999,R,p_EOS,rho,change=999;
 
     R = params.R_u/params.molemass*1000; // SI units are used internally
 	tau = reduce.T/T;
@@ -732,25 +737,24 @@ double Fluid::density_Tp(double T, double p, double rho_guess)
 	// In subsequent steps, use secant method because each evaluation of newton step requires two evaluations of derivatives with respect to delta
 	rho=rho_guess;
     int iter=1;
-	double delta = rho/reduce.rho;
+	long double delta = rho/reduce.rho;
 	
-    //while (fabs(error) > 1e-10 && fabs(change/rho)>DBL_EPSILON*10)
-	while (fabs(error) > 1e-12 && fabs(change)>1e-14) 
+	while (fabs(error) > 1e-10 && fabs(change) > 1e-13) 
     {
-		// Needed for both kinds
-		// Run and save to cut down on calculations
-		double dphirdDelta = dphir_dDelta(tau, delta);
+		// Needed for both p and p derivative
+		// Run once to cut down on calculations
+		long double dphirdDelta = dphir_dDelta(tau, delta);
 
 		// Pressure from equation of state
 		p_EOS = reduce.rho*delta*R*T*(1+delta*dphirdDelta);
 		
 		// Residual
-        error = p_EOS-p;
+        error = (p_EOS-p)/p;
 
 		// Use Newton's method to find the density since the derivative of pressure w.r.t. density is known from EOS
 		dpdrho__constT = R*T*(1+2*delta*dphirdDelta+delta*delta*d2phir_dDelta2(tau,delta));
 
-		double dpddelta__constT = dpdrho__constT*reduce.rho;
+		dpddelta__constT = dpdrho__constT*reduce.rho;
 
 		// Update the step using Newton's method
 		change = (p_EOS-p)/dpddelta__constT;
@@ -1695,7 +1699,7 @@ void Fluid::temperature_ph(double p, double h, double &Tout, double &rhoout, dou
 {
 	int iter;
 	bool failed = false;
-	double A[2][2], B[2][2],T_guess, omega =1.0;
+	double A[2][2], B[2][2],T_guess, omega = 1.0;
 	double dar_ddelta,da0_dtau,d2a0_dtau2,dar_dtau,d2ar_ddelta_dtau,d2ar_ddelta2,d2ar_dtau2,d2a0_ddelta_dtau;
 	double f1,f2,df1_dtau,df1_ddelta,df2_ddelta,df2_dtau;
     double rhoL, rhoV, hsatL,hsatV,TsatL,TsatV,tau,delta,worst_error;
@@ -1805,14 +1809,24 @@ void Fluid::temperature_ph(double p, double h, double &Tout, double &rhoout, dou
 				}
 				else if (h < hsatL - hsat_tol) 
 				{
-					T_guess = params.Ttriple+1;
-					rho_guess = density_Tp(T_guess,p);
-					h_guess = enthalpy_Trho(T_guess,rho_guess);
-					// Update the guess with linear interpolation
-					T_guess = (TsatL-T_guess)/(hsatL-h_guess)*(h-h_guess)+T_guess;
-					// Solve for the density
-					rho_guess = density_Tp(T_guess,p,rho_guess);
-					
+					// Away from the critical point, specific heat is non-infinite, use it to guess temperature
+					if (0.9*crit.p.Pa > p && p < 1.1*crit.p.Pa)
+					{
+						double cp = specific_heat_p_Trho(TsatL,rhoL);
+						// hsat-h = cp(Tsat-T)
+						T_guess = TsatL-(hsatL-h)/cp;
+						rho_guess = density_Tp(T_guess,p);
+					}
+					else
+					{
+						T_guess = params.Ttriple+1;
+						rho_guess = density_Tp(T_guess,p);
+						h_guess = enthalpy_Trho(T_guess,rho_guess);
+						// Update the guess with linear interpolation
+						T_guess = (TsatL-T_guess)/(hsatL-h_guess)*(h-h_guess)+T_guess;
+						// Solve for the density
+						rho_guess = density_Tp(T_guess,p,rho_guess);
+					}
 					delta = rho_guess/reduce.rho;
 					if (get_debug_level() > 8){
 						std::cout << format("%s:%d: temperature_ph; it is liquid(anc), hsatL = %g\n",__FILE__,__LINE__, hsatL) ;
@@ -3029,7 +3043,7 @@ void Fluid::saturation_p(double p, bool UseLUT, double &TsatL, double &TsatV, do
 	if (get_debug_level()>5){
 		std::cout<<format("%s:%d: Fluid::saturation_p(%g,%d) \n",__FILE__,__LINE__,p,UseLUT).c_str();
 	}
-	if (isPure==true)
+	if (pure()==true)
 	{
 		if (UseLUT)
 		{

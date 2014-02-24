@@ -16,9 +16,6 @@ EXPORT_CODE long CONVENTION redirect_stdout(char* file)
 	return 0;
 }
 
-//double _Props1(char *Fluid, char *Output);
-//double _Props(std::string Output,std::string Name1, double Prop1, std::string Name2, double Prop2, std::string Ref);
-
 EXPORT_CODE int CONVENTION set_reference_stateS(char *Ref, char *reference_state)
 {
 	return set_reference_stateS(std::string(Ref), std::string(reference_state));
@@ -74,8 +71,6 @@ EXPORT_CODE double CONVENTION Props1(char *Ref, char *Output)
 	// Go to the std::string, std::string version
 	return Props1(std::string(Ref),std::string(Output));
 }
-
-
 
 EXPORT_CODE double CONVENTION K2F(double T)
 { return T * 9 / 5 - 459.67; }

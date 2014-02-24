@@ -1450,7 +1450,7 @@ double phir_critical::dTau3(double tau, double delta) throw()
 	return summer;
 }
 #ifndef DISABLE_CATCH
-	TEST_CASE("Non-analytic critical point Helmholtz derivative check", "[helmholtz],[fast]")
+	TEST_CASE((char*)"Non-analytic critical point Helmholtz derivative check", (char*)"[helmholtz],[fast]")
 	{
 		// From CO2
 		double n[] = {0,-0.666422765408E+00,0.726086323499E+00,0.550686686128E-01};
@@ -1467,35 +1467,35 @@ double phir_critical::dTau3(double tau, double delta) throw()
 		phir_critical phir = phir_critical(n,d,t,a,b,beta,A,B,C,D,1,3,4);
 		double eps = sqrt(DBL_EPSILON);
 
-		SECTION("dDelta")
+		SECTION((char*)"dDelta")
 		{
 			double ANA = phir.dDelta(0.5, 0.5);
 			double NUM = (phir.base(0.5, 0.5+eps) - phir.base(0.5,0.5-eps))/(2*eps);
-			REQUIRE(abs(NUM-ANA) < 1e-6);
+			REQUIRE(abs(NUM-ANA) < 1e-12);
 		}
-		SECTION("dTau")
+		SECTION((char*)"dTau")
 		{
 			double ANA = phir.dTau(0.5, 0.5);
 			double NUM = (phir.base(0.5+eps, 0.5) - phir.base(0.5-eps,0.5))/(2*eps);
-			REQUIRE(abs(NUM-ANA) < 1e-6);
+			REQUIRE(abs(NUM-ANA) < 1e-12);
 		}
-		SECTION("dDelta2")
+		SECTION((char*)"dDelta2")
 		{
 			double ANA = phir.dDelta2(0.5, 0.5);
 			double NUM = (phir.dDelta(0.5, 0.5+eps) - phir.dDelta(0.5,0.5-eps))/(2*eps);
-			REQUIRE(abs(NUM-ANA) < 1e-6);
+			REQUIRE(abs(NUM-ANA) < 1e-12);
 		}
-		SECTION("dTau2")
+		SECTION((char*)"dTau2")
 		{
 			double ANA = phir.dTau2(0.5, 0.5);
 			double NUM = (phir.dTau(0.5+eps, 0.5) - phir.dTau(0.5-eps,0.5))/(2*eps);
-			REQUIRE(abs(NUM-ANA) < 1e-6);
+			REQUIRE(abs(NUM-ANA) < 1e-12);
 		}
-		SECTION("dDeltadTau")
+		SECTION((char*)"dDeltadTau")
 		{
 			double ANA = phir.dDelta_dTau(0.5, 0.5);
 			double NUM = (phir.dTau(0.5, 0.5+eps) - phir.dTau(0.5,0.5-eps))/(2*eps);
-			REQUIRE(abs(NUM-ANA) < 1e-6);
+			REQUIRE(abs(NUM-ANA) < 1e-12);
 		}
 	}
 #endif

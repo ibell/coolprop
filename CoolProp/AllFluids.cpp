@@ -328,11 +328,11 @@ std::string FluidsContainer::FluidList()
 #ifndef DISABLE_CATCH
 #include "Catch/catch.hpp"
 
-TEST_CASE("Check ancillary curves for pure and pseudo-pure fluids","[slow],[ancillary]")
+TEST_CASE((char*)"Check ancillary curves for pure and pseudo-pure fluids","[slow],[ancillary]")
 {
 	FluidsContainer Fluids = FluidsContainer();
 
-	SECTION("Saturated Liquid Pressure Ancillary")
+	SECTION((char*)"Saturated Liquid Pressure Ancillary")
 	{
 		for (std::vector<Fluid*>::const_iterator it = Fluids.FluidsList.begin(); it != Fluids.FluidsList.end(); it++)
 		{
@@ -353,7 +353,7 @@ TEST_CASE("Check ancillary curves for pure and pseudo-pure fluids","[slow],[anci
 			}
 		}
 	}
-	SECTION("Saturated Vapor Pressure Ancillary")
+	SECTION((char*)"Saturated Vapor Pressure Ancillary")
 	{
 		for (std::vector<Fluid*>::const_iterator it = Fluids.FluidsList.begin(); it != Fluids.FluidsList.end(); it++)
 		{
@@ -376,7 +376,7 @@ TEST_CASE("Check ancillary curves for pure and pseudo-pure fluids","[slow],[anci
 		}
 	}
 
-	SECTION("Saturated Liquid Density Ancillary")
+	SECTION((char*)"Saturated Liquid Density Ancillary")
 	{
 		for (std::vector<Fluid*>::const_iterator it = Fluids.FluidsList.begin(); it != Fluids.FluidsList.end(); it++)
 		{
@@ -398,7 +398,7 @@ TEST_CASE("Check ancillary curves for pure and pseudo-pure fluids","[slow],[anci
 		}
 	}
 
-	SECTION("Saturated Vapor Density Ancillary")
+	SECTION((char*)"Saturated Vapor Density Ancillary")
 	{
 		for (std::vector<Fluid*>::const_iterator it = Fluids.FluidsList.begin(); it != Fluids.FluidsList.end(); it++)
 		{
@@ -421,11 +421,11 @@ TEST_CASE("Check ancillary curves for pure and pseudo-pure fluids","[slow],[anci
 	}
 }
 
-TEST_CASE("Fluid parameter checks not requiring saturation","[fast]")
+TEST_CASE((char*)"Fluid parameter checks not requiring saturation","[fast]")
 {
 	FluidsContainer Fluids = FluidsContainer();
 
-	SECTION("Check Tmin > Ttriple")
+	SECTION((char*)"Check Tmin > Ttriple")
 	{
 		for (std::vector<Fluid*>::const_iterator it = Fluids.FluidsList.begin(); it != Fluids.FluidsList.end(); it++)
 		{
@@ -434,7 +434,7 @@ TEST_CASE("Fluid parameter checks not requiring saturation","[fast]")
 	}
 	if (REFPROPFluidClass::refpropSupported())
 	{
-		SECTION("Check pcrit matches REFPROP")
+		SECTION((char*)"Check pcrit matches REFPROP")
 		{
 			for (std::vector<Fluid*>::const_iterator it = Fluids.FluidsList.begin(); it != Fluids.FluidsList.end(); it++)
 			{
@@ -443,7 +443,7 @@ TEST_CASE("Fluid parameter checks not requiring saturation","[fast]")
 				{
 					// Skip if not in REFPROP
 					double pcrit_CP = (*it)->crit.p.Pa;
-					double pcrit_RP = PropsSI("pcrit","T",300,"D",1e-10,(char*)RPName.c_str());
+					double pcrit_RP = PropsSI((char*)"pcrit",(char*)"T",300,(char*)"D",1e-10,(char*)RPName.c_str());
 					CAPTURE(pcrit_CP);
 					CAPTURE(pcrit_RP);
 					CAPTURE(RPName);
@@ -454,11 +454,11 @@ TEST_CASE("Fluid parameter checks not requiring saturation","[fast]")
 	}
 }
 
-TEST_CASE("Fluid parameter checks requiring saturation","[slow]")
+TEST_CASE((char*)"Fluid parameter checks requiring saturation","[slow]")
 {
 	FluidsContainer Fluids = FluidsContainer();
 
-	SECTION("Check ptriple")
+	SECTION((char*)"Check ptriple")
 	{
 		for (std::vector<Fluid*>::const_iterator it = Fluids.FluidsList.begin(); it != Fluids.FluidsList.end(); it++)
 		{
@@ -472,7 +472,7 @@ TEST_CASE("Fluid parameter checks requiring saturation","[slow]")
 			REQUIRE((*it)->params.ptriple == ptriple_EOS);
 		}
 	}
-	SECTION("Check accentric factor")
+	SECTION((char*)"Check accentric factor")
 	{
 		for (std::vector<Fluid*>::const_iterator it = Fluids.FluidsList.begin(); it != Fluids.FluidsList.end(); it++)
 		{
@@ -492,10 +492,10 @@ TEST_CASE("Fluid parameter checks requiring saturation","[slow]")
 		}
 	}
 }
-TEST_CASE( "Saturation consistency checks", "[slow],[consistency]" )
+TEST_CASE((char*)"Saturation consistency checks", (char*)"[slow],[consistency]" )
 {
 	FluidsContainer Fluids = FluidsContainer();
-	SECTION("saturation_T")
+	SECTION((char*)"saturation_T")
 	{
 		for (std::vector<Fluid*>::const_iterator it = Fluids.FluidsList.begin(); it != Fluids.FluidsList.end(); it++)
 		{
@@ -515,7 +515,7 @@ TEST_CASE( "Saturation consistency checks", "[slow],[consistency]" )
 		}
 	}
 
-	SECTION("TL->pL->TL")
+	SECTION((char*)"TL->pL->TL")
 	{
 		for (std::vector<Fluid*>::const_iterator it = Fluids.FluidsList.begin(); it != Fluids.FluidsList.end(); it++)
 		{
@@ -540,7 +540,7 @@ TEST_CASE( "Saturation consistency checks", "[slow],[consistency]" )
 			}
 		}
 	}
-	SECTION("TV->pV->TV")
+	SECTION((char*)"TV->pV->TV")
 	{
 		for (std::vector<Fluid*>::const_iterator it = Fluids.FluidsList.begin(); it != Fluids.FluidsList.end(); it++)
 		{

@@ -40,7 +40,7 @@ class GeneticAncillaryFitter(object):
             self.pc = Props(Ref,'pcrit')
             self.rhoc = Props(Ref,'rhocrit')
             self.Tmin = Props(Ref,'Tmin')
-            self.T = np.append(np.linspace(self.Tmin+1e-14, self.Tc-1,150), np.logspace(np.log10(self.Tc-1), np.log10(self.Tc-0.0001),10))
+            self.T = np.append(np.linspace(self.Tmin+1e-14, self.Tc-1,150), np.logspace(np.log10(self.Tc-1), np.log10(self.Tc),40))
             self.p = [Props('P','T',T,'Q',0,Ref) for T in self.T]
             self.rhoL = [Props('D','T',T,'Q',0,Ref) for T in self.T]
             self.rhoV = [Props('D','T',T,'Q',1,Ref) for T in self.T]
@@ -124,9 +124,9 @@ class GeneticAncillaryFitter(object):
                 
         max_abserror = np.max(np.abs((fit_value/EOS_value)-1)*100)
         
-#        import matplotlib.pyplot as plt
-#        plt.plot(x,fit_value,x,EOS_value)
-#        plt.show()        
+#         import matplotlib.pyplot as plt
+#         plt.plot(self.T,fit_value/EOS_value-1)
+#         plt.show()
         
         chromo.fitness = max_abserror
         chromo.sum_square = myoutput.sum_square
@@ -247,7 +247,7 @@ def main():
 
 if __name__ == "__main__":
     
-    gaf = GeneticAncillaryFitter(Ref = 'R14', value = 'rhoL', addTr = False)
+    gaf = GeneticAncillaryFitter(Ref = 'R11', value = 'rhoLnoexp', addTr = False)
     gaf.run()
     
     values = dict(Tcrit = 590.70, rhocrit = 351, pcrit = 5817526.2731115920, Tmin = 289.8)

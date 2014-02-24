@@ -2074,15 +2074,26 @@ double TTSESinglePhaseTableClass::bicubic_evaluate_one_other_input(long iInput1,
 		double x0,x1,x2;
 		solve_cubic(a,b,c,d,&x0,&x1,&x2);
 		
+		double x;
 		// Only one solution
-		if (fabs(x0-x1) < 10*DBL_EPSILON &&  fabs(x0-x2) < 10*DBL_EPSILON && fabs(x1-x2) < 10*DBL_EPSILON)
-		{
-			return x0*(this->h[i+1]-this->h[i])+this->h[i];
+		if (fabs(x0-x1) < 10*DBL_EPSILON &&  fabs(x0-x2) < 10*DBL_EPSILON && fabs(x1-x2) < 10*DBL_EPSILON){
+			x = x0;
+		}
+		// See if first is good solution 0 < x < 1
+		else if ( 0 <= x0 && x0 <= 1){
+			x = x0;
+		}
+		else if ( 0 <= x1 && x1 <= 1){
+			x = x1;
+		}
+		else if ( 0 <= x2 && x2 <= 1){
+			x = x2;
 		}
 		else
 		{
 			throw ValueError("Multiple solutions found for cubic in TTSE-BICUBIC-P+Other");
 		}
+		return x*(this->h[i+1]-this->h[i])+this->h[i];
 	}
 	// One is enthalpy, we are getting pressure
 	else if (iInput1 == iH)
