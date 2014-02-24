@@ -1161,15 +1161,15 @@ double TTSESinglePhaseTableClass::build_Trho(double Tmin, double Tmax, double rh
 					deltarho = rhoval/100;
 
 				// The viscosity values
-				double muval =             IProps(iV,iT,Tval,       iD,rhoval,         iFluid);
-				double muplusrho =         IProps(iV,iT,Tval,       iD,rhoval+deltarho,iFluid);
-				double muminusrho =        IProps(iV,iT,Tval,       iD,rhoval-deltarho,iFluid);
-				double muplusT =           IProps(iV,iT,Tval+deltaT,iD,rhoval,         iFluid);
-				double muminusT =          IProps(iV,iT,Tval-deltaT,iD,rhoval,         iFluid);
-				double muplusT_plusrho =   IProps(iV,iT,Tval+deltaT,iD,rhoval+deltarho,iFluid);
-				double muplusT_minusrho =  IProps(iV,iT,Tval+deltaT,iD,rhoval-deltarho,iFluid);
-				double muminusT_plusrho =  IProps(iV,iT,Tval-deltaT,iD,rhoval+deltarho,iFluid);
-				double muminusT_minusrho = IProps(iV,iT,Tval-deltaT,iD,rhoval-deltarho,iFluid);
+				double muval =             IPropsSI(iV,iT,Tval,       iD,rhoval,         iFluid);
+				double muplusrho =         IPropsSI(iV,iT,Tval,       iD,rhoval+deltarho,iFluid);
+				double muminusrho =        IPropsSI(iV,iT,Tval,       iD,rhoval-deltarho,iFluid);
+				double muplusT =           IPropsSI(iV,iT,Tval+deltaT,iD,rhoval,         iFluid);
+				double muminusT =          IPropsSI(iV,iT,Tval-deltaT,iD,rhoval,         iFluid);
+				double muplusT_plusrho =   IPropsSI(iV,iT,Tval+deltaT,iD,rhoval+deltarho,iFluid);
+				double muplusT_minusrho =  IPropsSI(iV,iT,Tval+deltaT,iD,rhoval-deltarho,iFluid);
+				double muminusT_plusrho =  IPropsSI(iV,iT,Tval-deltaT,iD,rhoval+deltarho,iFluid);
+				double muminusT_minusrho = IPropsSI(iV,iT,Tval-deltaT,iD,rhoval-deltarho,iFluid);
 
 				mu_Trho[i][j] = muval;
 				dmudT_Trho[i][j] = (-muminusT + muplusT)/(2*deltaT);
@@ -1179,15 +1179,15 @@ double TTSESinglePhaseTableClass::build_Trho(double Tmin, double Tmax, double rh
 				d2mudTdrho_Trho[i][j] = (muplusT_plusrho - muplusT_minusrho - muminusT_plusrho + muminusT_minusrho)/(2*deltaT*deltarho);
 
 				// The thermal conductivity values
-				double kval =             IProps(iL,iT,Tval,       iD,rhoval,         iFluid);
-				double kplusrho =         IProps(iL,iT,Tval,       iD,rhoval+deltarho,iFluid);
-				double kminusrho =        IProps(iL,iT,Tval,       iD,rhoval-deltarho,iFluid);
-				double kplusT =           IProps(iL,iT,Tval+deltaT,iD,rhoval,         iFluid);
-				double kminusT =          IProps(iL,iT,Tval-deltaT,iD,rhoval,         iFluid);
-				double kplusT_plusrho =   IProps(iL,iT,Tval+deltaT,iD,rhoval+deltarho,iFluid);
-				double kplusT_minusrho =  IProps(iL,iT,Tval+deltaT,iD,rhoval-deltarho,iFluid);
-				double kminusT_plusrho =  IProps(iL,iT,Tval-deltaT,iD,rhoval+deltarho,iFluid);
-				double kminusT_minusrho = IProps(iL,iT,Tval-deltaT,iD,rhoval-deltarho,iFluid);
+				double kval =             IPropsSI(iL,iT,Tval,       iD,rhoval,         iFluid);
+				double kplusrho =         IPropsSI(iL,iT,Tval,       iD,rhoval+deltarho,iFluid);
+				double kminusrho =        IPropsSI(iL,iT,Tval,       iD,rhoval-deltarho,iFluid);
+				double kplusT =           IPropsSI(iL,iT,Tval+deltaT,iD,rhoval,         iFluid);
+				double kminusT =          IPropsSI(iL,iT,Tval-deltaT,iD,rhoval,         iFluid);
+				double kplusT_plusrho =   IPropsSI(iL,iT,Tval+deltaT,iD,rhoval+deltarho,iFluid);
+				double kplusT_minusrho =  IPropsSI(iL,iT,Tval+deltaT,iD,rhoval-deltarho,iFluid);
+				double kminusT_plusrho =  IPropsSI(iL,iT,Tval-deltaT,iD,rhoval+deltarho,iFluid);
+				double kminusT_minusrho = IPropsSI(iL,iT,Tval-deltaT,iD,rhoval-deltarho,iFluid);
 
 				k_Trho[i][j] = kval;
 				dkdT_Trho[i][j] = (-kminusT + kplusT)/(2*deltaT);

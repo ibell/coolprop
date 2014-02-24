@@ -803,6 +803,91 @@ EXPORT_CODE double CONVENTION IProps(long iOutput, long iName1, double Prop1, lo
 		}
 	}
 }
+double _CoolProp_Fluid_PropsSI(long iOutput, long iName1, double Prop1, long iName2, double Prop2, Fluid *pFluid)
+{
+	double val = _HUGE;
+	// This private method uses the indices directly for speed
+
+	if (get_debug_level()>3){
+		std::cout << format("%s:%d: _CoolProp_Fluid_PropsSI(%d,%d,%g,%d,%g,%s)\n",__FILE__,__LINE__,iOutput,iName1, Prop1, iName2, Prop2, pFluid->get_name().c_str()).c_str();
+	}
+
+	// Generate a State instance wrapped around the Fluid instance
+	CoolPropStateClassSI CPS(pFluid);
+
+	// Check if it is an output that doesn't require a state input
+	// Deal with it and return
+
+	switch (iOutput)
+	{
+		case iMM:
+		case iPcrit:
+		case iTcrit:
+		case iTtriple:
+		case iPtriple:
+		case iRhocrit:
+		case iTmin:
+		case iAccentric:
+		case iPHASE_LIQUID:
+		case iPHASE_GAS:
+		case iPHASE_SUPERCRITICAL:
+		case iPHASE_TWOPHASE:
+		case iGWP20:
+		case iGWP100:
+		case iGWP500:
+		case iODP:
+		case iCritSplineT:
+		case iScrit:
+		case iHcrit:
+		case iTreduce:
+		case iRhoreduce:
+			return CPS.keyed_output(iOutput);
+	}
+
+	// Update the class
+	CPS.update(iName1,Prop1,iName2,Prop2);
+
+	// Debug
+	if (get_debug_level()>9){
+		std::cout << format("%s:%d: State update successful\n",__FILE__,__LINE__).c_str();
+	}
+
+	// Get the output
+	val = CPS.keyed_output(iOutput);
+
+	// Debug
+	if (get_debug_level()>5){
+		std::cout << format("%s:%d: _CoolProp_Fluid_PropsSI returns: %g\n",__FILE__,__LINE__,val).c_str();
+	}
+
+	// Return the value
+	return val;
+}
+EXPORT_CODE double CONVENTION IPropsSI(long iOutput, long iName1, double Prop1, long iName2, double Prop2, long iFluid)
+{
+	pFluid = Fluids.get_fluid(iFluid);
+	// Didn't work
+	if (pFluid == NULL){
+		err_string=std::string("CoolProp error: ").append(format("%d is an invalid fluid index to IProps",iFluid));
+		return _HUGE;
+	}
+	else{
+		// In this function the error catching happens;
+		try{
+			// This is already converted to the right units since it comes from the CoolPropStateClass which
+			// does the unit handling
+			return _CoolProp_Fluid_PropsSI(iOutput,iName1,Prop1,iName2,Prop2,pFluid);
+		}
+		catch(std::exception &e){
+			err_string=std::string("CoolProp error: ").append(e.what());
+			return _HUGE;
+		}
+		catch(...){
+			err_string=std::string("CoolProp error: Indeterminate error");
+			return _HUGE;
+		}
+	}
+}
 double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, char* Ref)
 {
 	// Go to the std::string, std::string version
