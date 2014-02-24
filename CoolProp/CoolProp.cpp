@@ -558,10 +558,6 @@ double Props(std::string FluidName,std::string Output){
 	try{
 		return _Props1(FluidName, Output);
 	}
-	catch(const CoolPropBaseError& e){
-		err_string = std::string("CoolProp error: ").append(e.what());
-		return _HUGE;
-	}
 	catch(const std::exception& e){
 			err_string = std::string("CoolProp error: ").append(e.what());
 			return _HUGE;
@@ -909,10 +905,6 @@ double Props(std::string Output,char Name1, double Prop1, char Name2, double Pro
 		//fprintf(fp,"-->%g\n",val);
 		//fclose(fp);
 		return val;
-	}
-	catch(const CoolPropBaseError& e){
-		err_string = std::string("CoolProp error: ").append(e.what());
-		return _HUGE;
 	}
 	catch(const std::exception& e){
 			err_string = std::string("CoolProp error: ").append(e.what());
