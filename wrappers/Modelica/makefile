@@ -20,8 +20,8 @@ LT    := libtool
 AR    := ar rvs 
 
 # used for the output
-MAJORVERSION     =3
-MINORVERSION     =3
+MAJORVERSION     =4
+MINORVERSION     =1
 THENAME          =CoolPropLib
 LIBRARYEXTENSION =.a
 THETEST          =coolPropLibTest
