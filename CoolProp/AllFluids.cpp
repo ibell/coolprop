@@ -131,7 +131,6 @@ FluidsContainer::FluidsContainer()
 	FluidsList.push_back(new R113Class());
 	FluidsList.push_back(new R1234zeZClass());
 	FluidsList.push_back(new R1233zdEClass());
-	FluidsList.push_back(new R161Class());
 	//FluidsList.push_back(new AceticAcidClass());
 
 	// The industrial fluids
