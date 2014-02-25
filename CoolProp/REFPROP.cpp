@@ -1315,7 +1315,7 @@ void REFPROPFluidClass::saturation_p(double p, bool UseLUT, double *TsatLout, do
 	*rhosatLout *= params.molemass;
 	*rhosatVout *= params.molemass;
 }
-void REFPROPFluidClass::temperature_ph(double p, double h, double *Tout, double *rhoout, double *rhoLout, double *rhoVout, double *TsatLout, double *TsatVout, double T0, double rho0)
+void REFPROPFluidClass::temperature_ph(double p, double h, double &Tout, double &rhoout, double &rhoLout, double &rhoVout, double &TsatLout, double &TsatVout, double T0, double rho0)
 {
 	long ierr;
 	char herr[errormessagelength+1];
@@ -1323,13 +1323,13 @@ void REFPROPFluidClass::temperature_ph(double p, double h, double *Tout, double 
 	h /= 1000; // 1000 to go from J/kg to kJ/kg
 	std::vector<double> xliq = xmol, xvap = xmol;
 	double q,e,s,cv,cp,w,hbar = h*params.molemass, dummy1, dummy2;
-	PHFLSHdll(&p,&hbar,&(xmol[0]),Tout,rhoout,rhoLout,rhoVout,&(xliq[0]),&(xvap[0]),&q,&e,&s,&cv,&cp,&w,&ierr,herr,errormessagelength);
-	*rhoout *= params.molemass;
-	*rhoLout *= params.molemass;
-	*rhoVout *= params.molemass;
-	this->saturation_p(p,false,TsatLout,TsatVout,&dummy1,&dummy2);
+	PHFLSHdll(&p,&hbar,&(xmol[0]),&Tout,&rhoout,&rhoLout,&rhoVout,&(xliq[0]),&(xvap[0]),&q,&e,&s,&cv,&cp,&w,&ierr,herr,errormessagelength);
+	rhoout *= params.molemass;
+	rhoLout *= params.molemass;
+	rhoVout *= params.molemass;
+	this->saturation_p(p,false,&TsatLout,&TsatVout,&dummy1,&dummy2);
 }
-void REFPROPFluidClass::temperature_ps(double p, double s, double *Tout, double *rhoout, double *rhoLout, double *rhoVout, double *TsatLout, double *TsatVout)
+void REFPROPFluidClass::temperature_ps(double p, double s, double &Tout, double &rhoout, double &rhoLout, double &rhoVout, double &TsatLout, double &TsatVout)
 {
 	long ierr;
 	char herr[errormessagelength+1];
@@ -1337,12 +1337,12 @@ void REFPROPFluidClass::temperature_ps(double p, double s, double *Tout, double 
 	s /= 1000; // 1000 to go from J/kg/K to kJ/kg/K
 	std::vector<double> xliq = xmol, xvap = xmol;
 	double q,e,h,cv,cp,w,sbar = s*params.molemass;
-	PSFLSHdll(&p,&sbar,&(xmol[0]),Tout,rhoout,rhoLout,rhoVout,&(xliq[0]),&(xvap[0]),&q,&e,&h,&cv,&cp,&w,&ierr,herr,errormessagelength);
-	*rhoout *= params.molemass;
-	*rhoLout *= params.molemass;
-	*rhoVout *= params.molemass;
+	PSFLSHdll(&p,&sbar,&(xmol[0]),&Tout,&rhoout,&rhoLout,&rhoVout,&(xliq[0]),&(xvap[0]),&q,&e,&h,&cv,&cp,&w,&ierr,herr,errormessagelength);
+	rhoout *= params.molemass;
+	rhoLout *= params.molemass;
+	rhoVout *= params.molemass;
 }
-void REFPROPFluidClass::temperature_hs(double h, double s, double *Tout, double *rhoout, double *rhoLout, double *rhoVout, double *TsatLout, double *TsatVout)
+void REFPROPFluidClass::temperature_hs(double h, double s, double &Tout, double &rhoout, double &rhoLout, double &rhoVout, double &TsatLout, double &TsatVout)
 {
 	long ierr;
 	char herr[errormessagelength+1];
@@ -1350,11 +1350,11 @@ void REFPROPFluidClass::temperature_hs(double h, double s, double *Tout, double 
 	s /= 1000; // 1000 to go from J/kg/K to kJ/kg/K
 	std::vector<double> xliq = xmol,xvap = xmol;
 	double q,e,cv,cp,w,p,sbar = s*params.molemass, hbar = h*params.molemass, dummy1, dummy2;
-	HSFLSHdll(&hbar,&sbar,&(xmol[0]),Tout,&p,rhoout,rhoLout,rhoVout,&(xliq[0]),&(xvap[0]),&q,&e,&cv,&cp,&w,&ierr,herr,errormessagelength);
-	*rhoout *= params.molemass;
-	*rhoLout *= params.molemass;
-	*rhoVout *= params.molemass;
-	this->saturation_p(p,false,TsatLout,TsatVout,&dummy1,&dummy2);
+	HSFLSHdll(&hbar,&sbar,&(xmol[0]),&Tout,&p,&rhoout,&rhoLout,&rhoVout,&(xliq[0]),&(xvap[0]),&q,&e,&cv,&cp,&w,&ierr,herr,errormessagelength);
+	rhoout *= params.molemass;
+	rhoLout *= params.molemass;
+	rhoVout *= params.molemass;
+	this->saturation_p(p,false,&TsatLout,&TsatVout,&dummy1,&dummy2);
 }
 double REFPROPFluidClass::density_Tp(double T, double p)
 {
