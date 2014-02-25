@@ -859,6 +859,9 @@ void CoolPropStateClassSI::update_TTSE_LUT(long iInput1, double Value1, long iIn
 
 		double p = Value1;
 		double h = Value2;
+		_p = p;
+		_h = h;
+		h_cached = true;
 
 		// If enthalpy is outside the saturation region or flag_SinglePhase is set, it is single-phase
 		if (p > pFluid->reduce.p.Pa || p < pFluid->params.ptriple || flag_SinglePhase ||  h < pFluid->TTSESatL.evaluate(iH,p)  || h > pFluid->TTSESatV.evaluate(iH,p))
@@ -868,8 +871,6 @@ void CoolPropStateClassSI::update_TTSE_LUT(long iInput1, double Value1, long iIn
 			_logp = log(p);
 			_rho = pFluid->TTSESinglePhase.evaluate(iD,p,_logp,h);
 			_T = pFluid->TTSESinglePhase.evaluate(iT,p,_logp,h);
-			_p = p;
-			_h = h;
 		}
 		else
 		{
@@ -889,9 +890,6 @@ void CoolPropStateClassSI::update_TTSE_LUT(long iInput1, double Value1, long iIn
 			_rho = 1/(_Q/rhosatV+(1-_Q)/rhosatL);
 			_T = _Q*TsatV+(1-_Q)*TsatL;
 			_p = _Q*psatV+(1-_Q)*psatL;
-			_h = h;
-			h_cached = true;
-
 			check_saturated_quality(_Q);
 		}
 	}
