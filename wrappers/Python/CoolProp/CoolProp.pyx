@@ -1069,11 +1069,11 @@ cdef class State:
         else:
             p = _Props('P','T',T,'D',rho,self.Fluid)
         
-        if abs(p)<1e90:
+        if _ValidNumber(p):
             self.p_ = p
         else:
             errstr = _get_global_param_string('errstring')
-            raise ValueError(errstr)
+            raise ValueError(errstr+' for T,rho = '+str(T)+','+str(rho)+' '+str(p)+' '+str(_ValidNumber(p)))
         
     cpdef update(self, dict params, double xL=-1.0):
         """
@@ -1113,6 +1113,9 @@ cdef class State:
                 self.T_ = self.PFC.T()
                 self.p_ = self.PFC.p()
                 self.rho_ = self.PFC.rho()
+                
+                if not _ValidNumber(self.T_) or not _ValidNumber(self.p_) or not _ValidNumber(self.rho_):
+                    raise ValueError(str(params))
                 return
             
             #Get the density if T,P provided, or pressure if T,rho provided
