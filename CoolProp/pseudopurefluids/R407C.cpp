@@ -308,7 +308,7 @@ double R407CClass::conductivity_Trho(double T, double rho)
 	//Set constants required
 	double a_0=-9.628e0,a_1=7.638e-2,b_1=2.715e-2,b_2=4.963e-5,b_3=-4.912e-8,b_4=2.884e-11;
 
-	return (a_0+a_1*T+b_1*rho+b_2*rho*rho+b_3*rho*rho*rho+b_4*rho*rho*rho*rho)/1.e6; // from mW/m-K to kW/m-K
+	return (a_0+a_1*T+b_1*rho+b_2*rho*rho+b_3*rho*rho*rho+b_4*rho*rho*rho*rho)/1.e3; // from mW/m-K to W/m-K
 }
 double R407CClass::surface_tension_T(double T)
 {

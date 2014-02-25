@@ -343,5 +343,5 @@ double R410AClass::conductivity_Trho(double T, double rho)
     //Set constants required
     double a_0=-8.872e0,a_1=7.410e-2,b_1=3.576e-2,b_2=-9.045e-6,b_3=4.343e-8,b_4=-3.705e-12;
 
-    return (a_0+a_1*T+b_1*rho+b_2*rho*rho+b_3*rho*rho*rho+b_4*rho*rho*rho*rho)/1.e6; // from mW/m-K to kW/m-K
+    return (a_0+a_1*T+b_1*rho+b_2*rho*rho+b_3*rho*rho*rho+b_4*rho*rho*rho*rho)/1.e3; // from mW/m-K to W/m-K
 }
