@@ -318,6 +318,7 @@ EXPORT_CODE double CONVENTION psatV_anc(char* FluidName, double T)
 	}
 	return -_HUGE;
 }
+
 #ifndef SWIG
 EXPORT_CODE long CONVENTION get_global_param_string(char *param, char * Output)
 {
@@ -330,6 +331,7 @@ EXPORT_CODE long CONVENTION get_fluid_param_string(char *fluid, char *param, cha
 	return 0;
 }
 #endif
+
 EXPORT_CODE long CONVENTION Phase(char *Fluid, double T, double p, char *Phase_str)
 {
 	strcpy(Phase_str,(char*)Phase(std::string(Fluid),T,p).c_str());
