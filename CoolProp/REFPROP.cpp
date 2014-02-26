@@ -420,7 +420,7 @@ bool set_REFPROP_fluid(std::string Ref, std::vector<double> &x)
 {
 	long ierr=0;
 	char hf[refpropcharlength*ncmax], herr[errormessagelength+1];
-	std::string sRef;
+	std::string sRef, components_joined;
 	std::string RefString;
 	std::string fdPath = get_REFPROP_fluid_path();
 
@@ -436,26 +436,14 @@ bool set_REFPROP_fluid(std::string Ref, std::vector<double> &x)
 	// that of the currently loaded refrigerant
 	if (LoadedREFPROPRef.compare(Ref))
 	{
-		// If the fluid name does not start with the string "REFPROP-"
-		if (Ref.find("REFPROP-") == std::string::npos)
+		// If the fluid name starts with the string "REFPROP-MIX:"
+		if (Ref.find("REFPROP-MIX:") == 0)
 		{
-			// Fail and give error
-			std::cout << "Invalid REFPROP string: " << Ref.c_str() << std::endl;
-		}
-		// Chop off the "REFPROP-"
-		else 
-		{
-			// Keep everything after the "REFPROP-"
-			sRef = Ref.substr(8,Ref.size()-8);
-		}
-
-		if (!strncmp(sRef.c_str(),"MIX",3))
-		{
-			// Sample sRef is "MIX:R32[0.697615]&R125[0.302385]" -  this is R410A
-			// Or you could do "MIX:R410A.mix" to use the full mixture model for this predefined mixture
-				
-			// Chop off the MIX by keeping everything after the ':'
-			std::string components_joined = strsplit(sRef,':')[1];
+			// Keep everything after the "REFPROP-MIX:"
+			components_joined = Ref.substr(12,Ref.size()-12);
+		
+			// Sample sRef is "R32[0.697615]&R125[0.302385]" -  this is R410A
+			// Or you could do "R410A.mix" to use the full mixture model for this predefined mixture
 			
 			// Try to process predefined mixtures with .mix or .MIX in the file name
 			if (components_joined.find(".mix") != std::string::npos || components_joined.find(".MIX") != std::string::npos)
@@ -467,7 +455,7 @@ bool set_REFPROP_fluid(std::string Ref, std::vector<double> &x)
 				strcpy(hf,components_joined.c_str());
 
 				SETMIXdll(hf, hfmix, hrf, 
-					      &i, hfiles, xx,
+						  &i, hfiles, xx,
 						  &ierr, herr,
 						  255,
 						  255,
@@ -530,19 +518,28 @@ bool set_REFPROP_fluid(std::string Ref, std::vector<double> &x)
 				}
 			}
 		}
-		
-		else if (!sRef.compare("Air") || !sRef.compare("R507A") || !sRef.compare("R404A") || !sRef.compare("R410A") || !sRef.compare("R407C") || !sRef.compare("SES36"))
+		// Name starts with REFPROP-
+		else if (Ref.find("REFPROP-") == 0)
 		{
-			i=1;
-			RefString = fdPath + std::string(sRef)+std::string(".ppf");
-			x[0]=1.0;     //Pseudo-Pure fluid
+			// Keep everything after the "REFPROP-"
+			sRef = Ref.substr(8,Ref.size()-8);
+
+			if (!sRef.compare("Air") || !sRef.compare("R507A") || !sRef.compare("R404A") || !sRef.compare("R410A") || !sRef.compare("R407C") || !sRef.compare("SES36"))
+			{
+				i=1;
+				RefString = fdPath + std::string(sRef)+std::string(".ppf");
+				x[0]=1.0;     //Pseudo-Pure fluid
+			}
+			else
+			{
+				i=1;
+				RefString = fdPath + std::string(sRef)+std::string(".fld");
+				x[0]=1.0;     //Pure fluid
+			}
 		}
-		
 		else
 		{
-			i=1;
-			RefString = fdPath + std::string(sRef)+std::string(".fld");
-			x[0]=1.0;     //Pure fluid
+			throw ValueError(format("REFPROP fluid string [%s] is invalid", Ref.c_str()));
 		}
 		
 		strcpy(hf,RefString.c_str());
@@ -1137,6 +1134,10 @@ TEST_CASE((char*)"Check fluid names", (char*)"[fast]")
 		SECTION((char*)"REFPROP-MIX:R32[0.697614699375863]&R125[0.302385300624138]")
 		{
 			REQUIRE_NOTHROW(set_REFPROP_fluid((char*)"REFPROP-MIX:R32[0.697614699375863]&R125[0.302385300624138]",x2));
+		}
+		SECTION((char*)"REFPROP-MIXLR410A.mix")
+		{
+			REQUIRE_THROWS(set_REFPROP_fluid((char*)"REFPROP-MIXLR410A.mix",x2));
 		}
 	}
 }
