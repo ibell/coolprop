@@ -361,6 +361,7 @@ cdef extern from "CoolPropDLL.h":
     int _set_reference_stateS "set_reference_stateS"(char *, char *)
     int _set_reference_stateD "set_reference_stateD"(char *, double T, double rho, double h0, double s0)
     int _get_standard_unit_system "get_standard_unit_system"()
+    double _PropsS "PropsS"(char* Output, char* Name1, double Prop1, char* Name2, double Prop2,char* Ref)
     
 cdef extern from "CoolPropTools.h":
     bint _ValidNumber "ValidNumber"(double)

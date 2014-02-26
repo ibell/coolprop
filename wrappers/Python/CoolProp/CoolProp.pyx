@@ -204,6 +204,12 @@ cpdef toSI(str in1, in2=None, str in3='kSI'):
         else:
             return result
     
+cpdef ndarray_or_iterable(object input):
+    if _numpy_supported:
+        return np.array(input)
+    else:
+        return input
+    
 cpdef __Props_err1(in1,in2,errstr):
     if not len(errstr) == 0:
         raise ValueError("{err:s} :: inputs were :\"{in1:s}\",\"{in2:s}\"".format(err= errstr,in1=in1,in2=in2))
@@ -216,7 +222,7 @@ cpdef __Props_err2(in1, in2, in3, in4, in5, in6, errstr):
     else:
         raise ValueError("Props failed ungracefully :: inputs were:\"{in1:s}\",\"{in2:s}\",{in3:0.16e},\"{in4:s}\",{in5:0.16e},\"{in6:s}\"; please file a ticket at https://github.com/ibell/coolprop/issues".format(in1=in1,in2=in2,in3=in3,in4=in4,in5=in5,in6=in6))
         
-cpdef Props(str in1, str in2, in3 = None, in4 = None, in5 = None, in6 = None, in7 = None):
+cpdef Props(in1, in2, in3 = None, in4 = None, in5 = None, in6 = None, in7 = None):
     """
     Call Type #1::
 
@@ -310,24 +316,25 @@ cpdef Props(str in1, str in2, in3 = None, in4 = None, in5 = None, in6 = None, in
             else:
                 return val
         elif iterable(in3) and iterable(in5):
+            if len(in3) != len(in5) : raise TypeError('Lengths of iterables must be the same')
             vals = []
             for _in3, _in5 in zip(in3,in5):
                 val = _PropsS(in1, in2, _in3, in4, _in5, in6)
                 if not _ValidNumber(val):
                     __Props_err2(in1,in2,_in3,in4,_in5,in6,_get_global_param_string('errstring'))
                 vals.append(val)
-            return type(in3)(vals)
+            return ndarray_or_iterable(vals)
         else:
             if iterable(in5) and not iterable(in3):
                 in3, in5 = in5, in3 # swap 3 and 5 so 3 is the iterable
                 in2, in4 = in4, in2 # swap their keys too
             vals = []
-            for _in3 in zip(in3):
+            for _in3 in in3:
                 val = _PropsS(in1, in2, _in3, in4, in5, in6)
                 if not _ValidNumber(val):
                     __Props_err2(in1,in2,_in3,in4,in5,in6,_get_global_param_string('errstring'))
                 vals.append(val)
-            return type(in3)(vals)
+            return ndarray_or_iterable(vals)
        
 cpdef __PropSIs_err1(in1,in2,errstr):
     if not len(errstr) == 0:
@@ -436,24 +443,25 @@ cpdef PropsSI(str in1, str in2, in3 = None, in4 = None, in5 = None, in6 = None, 
             else:
                 return val
         elif iterable(in3) and iterable(in5):
+            if len(in3) != len(in5) : raise TypeError('Lengths of iterables must be the same')
             vals = []
             for _in3, _in5 in zip(in3,in5):
                 val = _PropsSI(in1, in2, _in3, in4, _in5, in6)
                 if not _ValidNumber(val):
                     __PropsSI_err2(in1,in2,_in3,in4,_in5,in6,_get_global_param_string('errstring'))
                 vals.append(val)
-            return type(in3)(vals)
+            return ndarray_or_iterable(vals)
         else:
             if iterable(in5) and not iterable(in3):
                 in3, in5 = in5, in3 # swap 3 and 5 so 3 is the iterable
                 in2, in4 = in4, in2 # swap their keys too
             vals = []
-            for _in3 in zip(in3):
+            for _in3 in in3:
                 val = _PropsSI(in1, in2, _in3, in4, in5, in6)
                 if not _ValidNumber(val):
                     __PropsSI_err2(in1,in2,_in3,in4,in5,in6,_get_global_param_string('errstring'))
                 vals.append(val)
-            return type(in3)(vals)
+            return ndarray_or_iterable(vals)
 
 def DerivTermsU(in1, T, rho, fluid, units = None):
     """Make the DerivTerms function handle different kinds of unit sets. Use 
