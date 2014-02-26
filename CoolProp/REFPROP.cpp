@@ -457,8 +457,8 @@ bool set_REFPROP_fluid(std::string Ref, std::vector<double> &x)
 			// Chop off the MIX by keeping everything after the ':'
 			std::string components_joined = strsplit(sRef,':')[1];
 			
-			// Try to process predefined mixtures with .mix in the file name
-			if (components_joined.find(".mix") != std::string::npos)
+			// Try to process predefined mixtures with .mix or .MIX in the file name
+			if (components_joined.find(".mix") != std::string::npos || components_joined.find(".MIX") != std::string::npos)
 			{
 				char hf[255];
 				char hfiles[10000];
