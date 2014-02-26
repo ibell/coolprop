@@ -884,19 +884,26 @@ double nDodecaneClass::conductivity_Trho(double T, double rho)
 
 CyclohexaneClass::CyclohexaneClass()
 {
-	double n[] = {0.0, 1.0232354, -2.9204964, 1.0736630, -0.19573985, 0.12228111, 0.00028943321, 0.27231767, -0.044833320, -0.38253334, -0.089835333, -0.024874965, 0.010836132};
+	double n[] = {0, 0.0548405, 1.60777, -2.376, -0.51375, 0.18584, -0.90075, -0.5629, 0.2903, -0.3279, -0.03178, 0.8669, -0.1963, -0.1426, 0.004198, 0.1777, -0.04434, -0.03861, 0.0740, 0.02036, 0.0027278};
+	double d[] = {0, 1, 0.37, 0.79, 1.075, 0.37, 2.4, 2.5, 0.5, 3, 1.06, 1.6, 0.37, 1.33, 2.5, 0.9, 0.5, 0.73, 0.2, 1.5, 1.5};
+	double t[] = {0, 4, 1, 1, 2, 3, 1, 3, 2, 2, 7, 1, 1, 3, 3, 2, 2, 3, 2, 3, 2};
+	double l[] = {0, 0, 0, 0, 0, 0, 2, 2, 1, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2};
+	double eta[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.99, 1.43, 0.97, 1.93, 0.92, 1.27, 0.87, 0.82, 1.4, 3};
+	double beta[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.38, 4.2, 1.2, 0.9, 1.2, 2.6, 5.3, 4.4, 4.2, 25};
+	double gamma[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.65, 0.63, 1.14, 0.09, 0.56, 0.4, 1.01, 0.45, 0.85, 0.86};
+	double epsilon[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.73, 0.75, 0.48, 2.32, 0.2, 1.33, 0.68, 1.11, 1.47, 0.99};
 
 	//Critical parameters
-	crit.rho = 273.02; //[kg/m^3]
-	crit.p = PressureUnit(4075, UNIT_KPA); //[kPa]
-	crit.T = 553.64; //[K]
+	crit.rho = 3.224*84.15948; //[kg/m^3]
+	crit.p = PressureUnit(4082.4, UNIT_KPA); //[kPa]
+	crit.T = 553.6; //[K]
 	crit.v = 1/crit.rho; 
 
 	// Other fluid parameters
-	params.molemass = 84.1608;
+	params.molemass = 84.15948;
 	params.Ttriple = 279.47;
 	params.accentricfactor = 0.20926;
-	params.R_u = 8.314510;
+	params.R_u = 8.3144621;
 	params.ptriple = 5.2388581733699020;
 
 	// Limits of EOS
@@ -905,51 +912,22 @@ CyclohexaneClass::CyclohexaneClass()
 	limits.pmax = 100000.0;
 	limits.rhomax = 1000000.0*params.molemass;
 
-	phirlist.push_back(new phir_power( n,d_nonpolar_SpanShort,t_nonpolar_SpanShort,c_nonpolar_SpanShort,1,12,13));
+	phirlist.push_back(new phir_power( n, d, t, l, 1, 10, 21));
+	phirlist.push_back(new phir_gaussian(n, d, t, eta, epsilon, beta, gamma, 11, 20, 21));
 
-	double T0 = 353.885834409,
-	R_ = 8.314510/params.molemass,
-	rho0 = 719.521755268,
-	m,
-	c,
-	H0 = 0.0, // kJ/kmol
-	S0 = 0.0, /// kJ/kmol/K
-	tau0=crit.T/T0,
-	delta0=rho0/crit.rho;
+	phi0list.push_back(new phi0_lead(0.991141, 1.63455));
+	phi0list.push_back(new phi0_logtau(4-1));
 
-	// log(delta)+c+m*tau
-
-	/// c is the constant term
-	c=-S0/R_-1+log(tau0/delta0);/*<< from the leading term*/
-
-	/// m multiplies the tau term in the leading term (slope)
-	m=H0/(R_*crit.T); /*<< from the leading term */
-
-	phi0list.push_back(new phi0_lead(c,m));
-	phi0list.push_back(new phi0_logtau(-1.0));
-
-	// Span and Penoncello use different R values, use correction method from Span
-	double Rr = 8.31434/8.314510;
-	const double a0[] = {0,-Rr*56214088,Rr*0.01526155409,Rr*-0.000003635246755};
-	std::vector<double> a0_v(a0,a0+sizeof(a0)/sizeof(double));
-	const double b0[] = {0,-3,1,2};
-	std::vector<double> b0_v(b0,b0+sizeof(b0)/sizeof(double));
-
-	phi0list.push_back(new phi0_cp0_constant(Rr*9.368327211,crit.T,T0));
-	phi0list.push_back(new phi0_cp0_poly(a0_v,b0_v,crit.T,T0,1,3));
-	phi0list.push_back(new phi0_Planck_Einstein(Rr*23.76658940,2000.0/crit.T));
-
-	static char EOSstr [] = "Span, R. and W. Wagner, \"Equations of State for Technical Applications. II. Results for Nonpolar Fluids\", International Journal of Thermophysics, Vol. 24, No. 1, January 2003. \n\nCp0: Penoncello, S.G., R.T. Jacobsen, A.R.H. Goodwin,\"A Thermodynamic Property Formulation for Cyclohexane \" International Journal of Thermophysics. vol. 16. No. 2, 1995\n\nNote: Results do not agree(01/15/2013) with REFPROP, but it seems REFPROP is in error based on validation data in Span";
-	EOSReference.assign(EOSstr);
-	TransportReference.assign("Using ECS in fully predictive mode. ");
+	double a0[] = {0, 0.83775, 16.036, 24.636, 7.1715};
+	double t0[] = {0, 773/crit.T, 941/crit.T, 2185/crit.T, 4495/crit.T};
+	phi0list.push_back(new phi0_Planck_Einstein(a0, t0, 1, 4, 5));
 
 	name.assign("CycloHexane");
 	aliases.push_back("Cyclohexane");
 	aliases.push_back(std::string("CYCLOHEXANE"));
 	REFPROPname.assign("CYCLOHEX");
 
-	BibTeXKeys.EOS = "Span-IJT-2003B";
-	BibTeXKeys.CP0 = "Penoncello-IJT-1995";
+	BibTeXKeys.EOS = "Zhou-PREPRINT-2014";
 	BibTeXKeys.ECS_LENNARD_JONES = "Chichester-NIST-2008";
 	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
 }
