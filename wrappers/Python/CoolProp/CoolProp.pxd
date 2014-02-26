@@ -1,5 +1,17 @@
 from libcpp.string cimport string
+import cython
+cimport cython
 
+# Default string in Python 3.x is a unicode string (type str)
+# Default string in Python 2.x is a byte string(type bytes) 
+#
+# Create a fused type that allows for either unicode string or bytestring
+# We encode unicode strings using the ASCII encoding since we know they are all
+# ASCII strings 
+ctypedef fused string_like:
+    cython.bytes
+    cython.unicode
+    
 cdef extern from "CPState.h":
     cdef cppclass CoolPropStateClass:
 
@@ -445,7 +457,7 @@ cdef class State:
     cdef double T_, rho_, p_
     cdef readonly bint is_CPFluid
     
-    cpdef set_Fluid(self, str Fluid)
+    cpdef set_Fluid(self, string_like Fluid)
     cpdef speed_test(self, int N)
     cpdef update(self, dict params)
     cpdef update_ph(self, double p, double h)
