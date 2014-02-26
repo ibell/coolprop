@@ -1221,7 +1221,8 @@ EXPORT_CODE double CONVENTION HAProps(char *OutputName, char *Input1Name, double
 			{
 				try{
 					T = Secant_HAProps_T(SecondaryInputName,(char *)"P",p,MainInputName,MainInputValue,SecondaryInputValue,T_guess);
-					if (!ValidNumber(T) || !(T_min < T && T < T_max) || fabs(HAProps(SecondaryInputName,(char *)"T",T,(char *)"P",p,MainInputName,MainInputValue)-SecondaryInputValue)>1e-6)
+					double val = HAProps(SecondaryInputName,(char *)"T",T,(char *)"P",p,MainInputName,MainInputValue);
+					if (!ValidNumber(T) || !ValidNumber(val) || !(T_min < T && T < T_max) || fabs(val-SecondaryInputValue)>1e-6)
 					{ 
 						throw ValueError(); 
 					}
