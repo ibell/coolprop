@@ -27,8 +27,6 @@ ctypedef fused bytes_or_str:
     cython.bytes
     cython.str
 
-include "CyState.pyx"
-
 from param_constants import *
 from param_constants_header cimport *
 
@@ -940,7 +938,7 @@ cdef class State:
     sets the internal variables in the most computationally efficient way possible
     """
         
-    def __init__(self, str Fluid, dict StateDict, double xL=-1.0, object Liquid = None, object phase = None):
+    def __init__(self, str Fluid, dict StateDict, object phase = None):
         """
         Parameters
         ----------
@@ -949,27 +947,13 @@ cdef class State:
             The state of the fluid - passed to the update function
         phase, string
             The phase of the fluid, it it is known.  One of ``Gas``,``Liquid``,``Supercritical``,``TwoPhase``
-        xL, float
-            Liquid mass fraction (not currently supported)
-        Liquid, string
-            The name of the liquid (not currently supported)
         """
         cdef bytes _Fluid = Fluid.encode('ascii')
-        cdef bytes _Liquid
         
         if Fluid == 'none':
             return
         else:
             self.set_Fluid(Fluid)
-        
-        if Liquid is None:
-            _Liquid = b''
-        elif isinstance(Liquid,str):
-            _Liquid = Liquid.encode('ascii')
-        elif isinstance(Liquid,bytes):
-            _Liquid = Liquid
-        else:
-            raise TypeError()
             
         if phase is None:
             _phase = b''
@@ -980,8 +964,6 @@ cdef class State:
         else:
             raise TypeError()
         
-        self.xL = xL
-        self.Liquid = _Liquid
         self.phase = _phase
         #Parse the inputs provided
         self.update(StateDict)
@@ -1014,7 +996,7 @@ cdef class State:
             #  It is a CoolProp Fluid so we can use the faster integer passing function
             self.is_CPFluid = True
             #  Instantiate the C++ State class
-            self.PFC = PureFluidClass(self.Fluid)
+            self.CPS = CoolPropStateClassSI(self.Fluid)
         else:
             #  It is not a CoolProp fluid, have to use the slower calls
             self.is_CPFluid = False
@@ -1031,15 +1013,17 @@ cdef class State:
             Enthalpy [kJ/kg]
         
         """
+        p = _toSIints(iP, p, _get_standard_unit_system());
+        h = _toSIints(iH, h, _get_standard_unit_system());
         self.p_ = p
         cdef double T
         
         if self.is_CPFluid:
-            self.PFC.update(iP, p, iH, h)
-            self.T_ = self.PFC.T()
-            self.rho_ = self.PFC.rho()
+            self.CPS.update(iP, p, iH, h)
+            self.T_ = self.CPS.T()
+            self.rho_ = self.CPS.rho()
         else:
-            T = _Props('T','P',p,'H',h,self.Fluid)
+            T = _PropsSI('T','P',p,'H',h,self.Fluid)
             if abs(T)<1e90:
                 self.T_=T
             else:
@@ -1064,10 +1048,12 @@ cdef class State:
         self.rho_ = rho
         
         if self.is_CPFluid:
-            self.PFC.update(iT,T,iD,rho)
-            p = self.PFC.p()
+            self.CPS.update(iT,T,iD,rho)
+            p = self.CPS.p()
         else:
             p = _Props('P','T',T,'D',rho,self.Fluid)
+        
+        p = _fromSIints(iP, p, _get_standard_unit_system());
         
         if _ValidNumber(p):
             self.p_ = p
@@ -1075,7 +1061,7 @@ cdef class State:
             errstr = _get_global_param_string('errstring')
             raise ValueError(errstr+' for T,rho = '+str(T)+','+str(rho)+' '+str(p)+' '+str(_ValidNumber(p)))
         
-    cpdef update(self, dict params, double xL=-1.0):
+    cpdef update(self, dict params):
         """
         Parameters
         params, dictionary 
@@ -1083,76 +1069,59 @@ cdef class State:
             for instance ``dict(T=298, P = 101.325)`` would be one standard atmosphere
         """
             
-        cdef double p
+        cdef double p, val1, val2
         cdef long iInput1, iInput2
         cdef bytes errstr
-        
-        # If no value for xL is provided, it will have a value of -1 which is 
-        # impossible, so don't update xL
-        if xL > 0:
-            #There is liquid
-            self.xL=xL
-            self.hasLiquid=True
-        else:
-            #There's no liquid
-            self.xL=0.0
-            self.hasLiquid=False
-        
-        #Given temperature and pressure, determine density of gas 
-        # (or gas and oil if xL is provided)
-        if abs(self.xL)<=1e-15:
             
-            if self.is_CPFluid:
-                items = list(params.items())
-                iInput1 = paras_inverse[items[0][0]]
-                iInput2 = paras_inverse[items[1][0]]
-                try: 
-                    self.PFC.update(iInput1, items[0][1], iInput2, items[1][1])
-                except:
-                    raise
-                self.T_ = self.PFC.T()
-                self.p_ = self.PFC.p()
-                self.rho_ = self.PFC.rho()
-                
-                if not _ValidNumber(self.T_) or not _ValidNumber(self.p_) or not _ValidNumber(self.rho_):
-                    raise ValueError(str(params))
-                return
+        if self.is_CPFluid:
+            items = list(params.items())
+            iInput1 = paras_inverse[items[0][0]]
+            iInput2 = paras_inverse[items[1][0]]
+            # Convert to SI units
+            val1 = _toSIints(iInput1, items[0][1], _get_standard_unit_system());
+            val2 = _toSIints(iInput2, items[1][1], _get_standard_unit_system());
+            try: 
+                self.CPS.update(iInput1, val1, iInput2, val2)
+            except:
+                raise
+            self.T_ = self.CPS.T()
+            self.p_ =  _fromSIints(iP, self.CPS.p(), _get_standard_unit_system());
+            self.rho_ = self.CPS.rho()
             
-            #Get the density if T,P provided, or pressure if T,rho provided
-            if 'P' in params:
-                self.p_=params['P']
-                rho = _Props('D','T',self.T_,'P',self.p_,self.Fluid)
-                
-                if abs(rho) < 1e90:
-                    self.rho_=rho
-                else:
-                    errstr = _get_global_param_string('errstring')
-                    raise ValueError(errstr)
-            elif 'D' in params:
-                self.rho_=params['D']
-                p = _Props('P','T',self.T_,'D',self.rho_,self.Fluid)
-                
-                if abs(p)<1e90:
-                    self.p_=p
-                else:
-                    errstr = _get_global_param_string('errstring')
-                    raise ValueError(errstr+str(params))
-            elif 'Q' in params:
-                p = _Props('P','T',self.T_,'Q',params['Q'],self.Fluid)
-                self.rho_ = _Props('D','T',self.T_,'Q',params['Q'],self.Fluid)
-                
-                if abs(self.rho_)<1e90:
-                    pass
-                else:
-                    errstr = _get_global_param_string('errstring')
-                    raise ValueError(errstr+str(params))
+            if not _ValidNumber(self.T_) or not _ValidNumber(self.p_) or not _ValidNumber(self.rho_):
+                raise ValueError(str(params))
+            return
+        
+        #Get the density if T,P provided, or pressure if T,rho provided
+        if 'P' in params:
+            self.p_=params['P']
+            rho = _Props('D','T',self.T_,'P',self.p_,self.Fluid)
+            
+            if abs(rho) < 1e90:
+                self.rho_=rho
             else:
-                raise KeyError("Dictionary must contain the key 'T' and one of 'P' or 'D'")
+                errstr = _get_global_param_string('errstring')
+                raise ValueError(errstr)
+        elif 'D' in params:
+            self.rho_=params['D']
+            p = _Props('P','T',self.T_,'D',self.rho_,self.Fluid)
             
-        elif self.xL>0 and self.xL<=1:
-            raise ValueError('xL is out of range - value for xL is [0,1]')
+            if abs(p)<1e90:
+                self.p_=p
+            else:
+                errstr = _get_global_param_string('errstring')
+                raise ValueError(errstr+str(params))
+        elif 'Q' in params:
+            p = _Props('P','T',self.T_,'Q',params['Q'],self.Fluid)
+            self.rho_ = _Props('D','T',self.T_,'Q',params['Q'],self.Fluid)
+            
+            if abs(self.rho_)<1e90:
+                pass
+            else:
+                errstr = _get_global_param_string('errstring')
+                raise ValueError(errstr+str(params))
         else:
-            raise ValueError('xL must be between 0 and 1')
+            raise KeyError("Dictionary must contain the key 'T' and one of 'P' or 'D'")
         
     cpdef long Phase(self) except *:
         """
@@ -1164,7 +1133,7 @@ cdef class State:
         """
         
         if self.is_CPFluid:
-            return self.PFC.phase()
+            return self.CPS.phase()
         else:
             raise NotImplementedError("Phase not defined for fluids other than CoolProp fluids")
         
@@ -1173,7 +1142,8 @@ cdef class State:
             raise ValueError('Your output is invalid') 
         
         if self.is_CPFluid:
-            return self.PFC.keyed_output(iOutput)
+            val = self.CPS.keyed_output(iOutput)
+            return _fromSIints(iOutput,val,_get_standard_unit_system());
         else:
             return _Props(paras[iOutput],'T',self.T_,'D',self.rho_,self.Fluid)
             
@@ -1283,11 +1253,10 @@ cdef class State:
         
         Returns ``None`` if pressure is not within the two-phase pressure range 
         """
-        import CoolProp as CP
-        if self.p_ > CP.Props(self.Fluid,'pcrit') or self.p_ < CP.Props(self.Fluid,'ptriple'):
+        if self.p_ > _Props1(self.Fluid,'pcrit') or self.p_ < _Props1(self.Fluid,'ptriple'):
             return None 
         else:
-            return CP.Props('T', 'P', self.p_, 'Q', Q, self.Fluid)
+            return _Props('T', 'P', self.p_, 'Q', Q, self.Fluid)
     property Tsat:
         """ The saturation temperature (dew) for the given pressure, in [K]"""
         def __get__(self):
@@ -1344,7 +1313,7 @@ cdef class State:
             
     cpdef double get_dpdT(self) except *:
         if self.is_CPFluid:
-            return self.PFC.dpdT_constrho()
+            return _fromSIints(iDERdp_dT__rho, self.CPS.dpdT_constrho(), _get_standard_unit_system());
         else:
             raise ValueError("get_dpdT not supported for fluids that are not in CoolProp")
     property dpdT:
@@ -1395,8 +1364,8 @@ cdef class State:
         for key in keys:
             t1=clock()
             for i in range(N):
-                self.PFC.update(iT,self.T_,iD,self.rho_)
-                self.PFC.keyed_output(key)
+                self.CPS.update(iT,self.T_,iD,self.rho_)
+                self.CPS.keyed_output(key)
             t2=clock()
             print 'Elapsed time for {0:d} calls for "{1:s}" at {2:g} us/call'.format(N,paras[key],(t2-t1)/N*1e6)
         
@@ -1409,9 +1378,9 @@ cdef class State:
         print "'M' involves basically no computational effort and is a good measure of the function call overhead"
         for ikey in keys:
             t1=clock()
-            self.PFC.update(iT,self.T_,iD,self.rho_)
+            self.CPS.update(iT,self.T_,iD,self.rho_)
             for i in range(N):
-                self.PFC.keyed_output(ikey)
+                self.CPS.keyed_output(ikey)
             t2=clock()
             print 'Elapsed time for {0:d} calls for "{1:s}" at {2:g} us/call'.format(N,paras[ikey],(t2-t1)/N*1e6)
             
@@ -1420,9 +1389,9 @@ cdef class State:
         cdef double hh = self.h
         for ikey in keys:
             t1=clock()
-            self.PFC.update(iP,self.p_,iH,hh)
+            self.CPS.update(iP,self.p_,iH,hh)
             for i in range(N):
-                self.PFC.keyed_output(ikey)
+                self.CPS.keyed_output(ikey)
             t2=clock()
             print 'Elapsed time for {0:d} calls for "{1:s}" at {2:g} us/call'.format(N,paras[ikey],(t2-t1)/N*1e6)
         
@@ -1430,9 +1399,9 @@ cdef class State:
         keys = [iH,iP,iC,iO,iDpdT]
         t1=clock()
         for i in range(N):
-            self.PFC.update(iT,self.T_,iD,self.rho_)
+            self.CPS.update(iT,self.T_,iD,self.rho_)
             for ikey in keys:
-                self.PFC.keyed_output(ikey)
+                self.CPS.keyed_output(ikey)
         t2=clock()
         print 'Elapsed time for {0:d} calls of iH,iP,iC,iO,iDpdT takes {1:g} us/call'.format(N,(t2-t1)/N*1e6)
         
