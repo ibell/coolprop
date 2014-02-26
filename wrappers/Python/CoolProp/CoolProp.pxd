@@ -400,7 +400,7 @@ cdef extern from "CoolProp.h":
     double _conductivity_critical "conductivity_critical"(char* FluidName, double T, double rho)
     double _conformal_Trho "conformal_Trho"(char* FluidName, char* ReferenceFluidName, double T, double rho, double *Tconform, double *rhoconform)
     
-    string _add_REFPROP_fluid "add_REFPROP_fluid"(string FluidName)
+    string _add_REFPROP_fluid "add_REFPROP_fluid"(string FluidName) except +
     
     int _get_debug_level "get_debug_level"()
     void _set_debug_level "set_debug_level"(int level)

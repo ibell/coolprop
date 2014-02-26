@@ -11,7 +11,6 @@
 #include "math.h"
 #include "Spline.h"
 
-
 #ifndef __ISWINDOWS__
 	#ifndef DBL_EPSILON
 		#include <limits>

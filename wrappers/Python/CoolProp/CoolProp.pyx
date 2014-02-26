@@ -970,14 +970,12 @@ cdef class State:
         #Set the phase flag
         if self.phase == str('Gas') or self.phase == str('Liquid') or self.phase == str('Supercritical'):
             if self.is_CPFluid and (self.phase == str('Gas') or self.phase == str('Liquid')):
-                self.PFC.CPS.flag_SinglePhase = True
+                self.CPS.flag_SinglePhase = True
             elif not self.is_CPFluid and self.phase is not None:
                 _set_phase(self.phase)
             
     def __reduce__(self):
         d={}
-        d['xL']=self.xL
-        d['Liquid']=self.Liquid
         d['Fluid']=self.Fluid
         d['T']=self.T_
         d['rho']=self.rho_
@@ -1446,7 +1444,5 @@ cdef class State:
     
 def rebuildState(d):
     S=State(d['Fluid'],{'T':d['T'],'D':d['rho']},phase=d['phase'])
-    S.xL = d['xL']
-    S.Liquid=d['Liquid']
     return S
     
