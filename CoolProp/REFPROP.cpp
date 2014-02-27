@@ -469,6 +469,9 @@ bool set_REFPROP_fluid(std::string Ref, std::vector<double> &x)
 						break;
 					}
 				}
+                // Resize the vector of mole fractions
+				x.resize(i);
+
 				RefString = std::string(hfiles,strlen(hfiles)+1);
 				for (int j = 0; j < i; j++)
 				{
@@ -1041,122 +1044,7 @@ bool REFPROPFluidClass::refpropSupported () {
 	return false;
 }
 
-#ifndef DISABLE_CATCH
-#include "Catch/catch.hpp"
-TEST_CASE((char*)"REFPROP Fluid Class Helmholtz derivatives check", (char*)"[helmholtz],[fast]")
-{
-	std::vector<double> x(1,1);
-	REFPROPFluidClass fluid = REFPROPFluidClass((char*)"REFPROP-Water",x);
-	double eps = sqrt(DBL_EPSILON);
 
-	SECTION((char*)"dDelta")
-	{
-		double ANA = fluid.dphir_dDelta(0.5, 0.5);
-		double NUM = (fluid.phir(0.5, 0.5+eps) - fluid.phir(0.5,0.5-eps))/(2*eps);
-		REQUIRE(abs(NUM-ANA) < 1e-6);
-	}
-	SECTION((char*)"dTau")
-	{
-		double ANA = fluid.dphir_dTau(0.5, 0.5);
-		double NUM = (fluid.phir(0.5+eps, 0.5) - fluid.phir(0.5-eps,0.5))/(2*eps);
-		REQUIRE(abs(NUM-ANA) < 1e-6);
-	}
-	SECTION((char*)"dDelta2")
-	{
-		double ANA = fluid.d2phir_dDelta2(0.5, 0.5);
-		double NUM = (fluid.dphir_dDelta(0.5, 0.5+eps) - fluid.dphir_dDelta(0.5,0.5-eps))/(2*eps);
-		REQUIRE(abs(NUM-ANA) < 1e-6);
-	}
-	SECTION((char*)"dTau2")
-	{
-		double ANA = fluid.d2phir_dTau2(0.5, 0.5);
-		double NUM = (fluid.dphir_dTau(0.5+eps, 0.5) - fluid.dphir_dTau(0.5-eps,0.5))/(2*eps);
-		REQUIRE(abs(NUM-ANA) < 1e-6);
-	}
-	SECTION((char*)"dDeltadTau")
-	{
-		double ANA = fluid.d2phir_dDelta_dTau(0.5, 0.5);
-		double NUM = (fluid.dphir_dTau(0.5, 0.5+eps) - fluid.dphir_dTau(0.5,0.5-eps))/(2*eps);
-		REQUIRE(abs(NUM-ANA) < 1e-6);
-	}
-}
-
-TEST_CASE((char*)"REFPROP Fluid Class check saturation consistency", "")
-{
-	std::vector<double> x(1,1);
-	REFPROPFluidClass fluid = REFPROPFluidClass((char*)"REFPROP-Water",x);
-	double eps = sqrt(DBL_EPSILON);
-
-	SECTION((char*)"sat")
-	{
-		double T = 313;
-		double p, T2, psatV, TsatV,rhoL,rhoV;
-		fluid.saturation_T(T, false, p, psatV, rhoL, rhoV);
-		fluid.saturation_p(p, false, T2, TsatV, rhoL, rhoV);
-		REQUIRE(fabs(T2-T) < 1e-5);
-	}
-}
-
-TEST_CASE((char*)"Check fluid names", (char*)"[fast]")
-{
-	if (REFPROPFluidClass::refpropSupported()) {
-		std::vector<double> x1(1,1), x2(2,0.5);
-		SECTION((char*)"REFPROP-R134")
-		{
-			REQUIRE_THROWS(set_REFPROP_fluid((char*)"REFPROP-R134",x1));
-		}
-		SECTION((char*)"REFPROP-R134a")
-		{
-			REQUIRE_NOTHROW(set_REFPROP_fluid((char*)"REFPROP-R134a",x1));
-		}
-		SECTION((char*)"REFPROP-MIX:R410.m")
-		{
-			REQUIRE_THROWS(set_REFPROP_fluid((char*)"REFPROP-MIX:R410.m",x2));
-		}
-		SECTION((char*)"REFPROP-MIX:R410")
-		{
-			REQUIRE_THROWS(set_REFPROP_fluid((char*)"REFPROP-MIX:R410",x2));
-		}
-		SECTION((char*)"REFPROP-MIX:R32[0.5]R125[0.5]")
-		{
-			REQUIRE_THROWS(set_REFPROP_fluid((char*)"REFPROP-MIX:R32[0.5]R125[0.5]",x2));
-		}
-		SECTION((char*)"REFPROP-MIX:R32[0,5]R125[0,5]")
-		{
-			REQUIRE_THROWS(set_REFPROP_fluid((char*)"REFPROP-MIX:R32[0,5]R125[0,5]",x2));
-		}
-		SECTION((char*)"REFPROP-MIX:R32[A]&R125[B]")
-		{
-			REQUIRE_THROWS(set_REFPROP_fluid((char*)"REFPROP-MIX:R32[A]R125[B]",x2));
-		}
-		SECTION((char*)"REFPROP-MIX:R32[0.697614699375863]&R125[0.302385300624138]")
-		{
-			REQUIRE_NOTHROW(set_REFPROP_fluid((char*)"REFPROP-MIX:R32[0.697614699375863]&R125[0.302385300624138]",x2));
-		}
-		SECTION((char*)"REFPROP-MIXLR410A.mix")
-		{
-			REQUIRE_THROWS(set_REFPROP_fluid((char*)"REFPROP-MIXLR410A.mix",x2));
-		}
-	}
-}
-
-TEST_CASE((char*)"Fluid class for bad fluid", (char*)"[fast]")
-{
-	SECTION((char*)"REFPROP-R134")
-	{
-		if (REFPROPFluidClass::refpropSupported()) {
-			REQUIRE_THROWS(REFPROPFluidClass((char*)"REFPROP-R134",std::vector<double>(1,1)));
-		}
-	}
-	SECTION((char*)"REFPROP-R134a")
-	{
-		if (REFPROPFluidClass::refpropSupported()) {
-			REQUIRE_NOTHROW(REFPROPFluidClass((char*)"REFPROP-R134a",std::vector<double>(1,1)));
-		}
-	}
-}
-
-#endif
 
 double REFPROPFluidClass::dphir_dDelta(double tau, double delta)
 {
@@ -1322,7 +1210,7 @@ void REFPROPFluidClass::temperature_ph(double p, double h, double &Tout, double 
 	std::vector<double> xliq = xmol, xvap = xmol;
 
 	p /= 1000; // 1000 to go from Pa to kPa
-	h /= 1000; // 1000 to go from J/kg to kJ/kg
+    hbar /= 1000; // 1000 to go from J/kmol to J/mol
 	
 	PHFLSHdll(&p,&hbar,&(xmol[0]),&Tout,&rho,&rhoL,&rhoV,&(xliq[0]),&(xvap[0]),&q,&e,&s,&cv,&cp,&w,&ierr,herr,errormessagelength);
 	rho *= params.molemass;
@@ -1341,12 +1229,14 @@ void REFPROPFluidClass::temperature_ph(double p, double h, double &Tout, double 
 }
 void REFPROPFluidClass::temperature_ps(double p, double s, double &Tout, double &rho, double &rhoL, double &rhoV, double &TsatL, double &TsatV)
 {
+    double q,e,h,cv,cp,w,sbar = s*params.molemass, dummy1,dummy2;
 	long ierr;
+    std::vector<double> xliq = xmol, xvap = xmol;
 	char herr[errormessagelength+1];
+
 	p /= 1000; // 1000 to go from Pa to kPa
-	s /= 1000; // 1000 to go from J/kg/K to kJ/kg/K
-	std::vector<double> xliq = xmol, xvap = xmol;
-	double q,e,h,cv,cp,w,sbar = s*params.molemass, dummy1,dummy2;
+    sbar /= 1000; // 1000 to go from J/kmol/K to J/mol/K
+	
 	PSFLSHdll(&p,&sbar,&(xmol[0]),&Tout,&rho,&rhoL,&rhoV,&(xliq[0]),&(xvap[0]),&q,&e,&h,&cv,&cp,&w,&ierr,herr,errormessagelength);
 	rho *= params.molemass;
 	rhoL *= params.molemass;
@@ -1362,19 +1252,31 @@ void REFPROPFluidClass::temperature_ps(double p, double s, double &Tout, double 
 		this->saturation_p(p*1000,false,TsatL,TsatV,dummy1,dummy2);
 	}
 }
-void REFPROPFluidClass::temperature_hs(double h, double s, double &Tout, double &rhoout, double &rhoLout, double &rhoVout, double &TsatLout, double &TsatVout)
+void REFPROPFluidClass::temperature_hs(double h, double s, double &Tout, double &rho, double &rhoL, double &rhoV, double &TsatL, double &TsatV)
 {
+    double q,e,cv,cp,w,p,sbar = s*params.molemass, hbar = h*params.molemass, dummy1, dummy2;
 	long ierr;
+    std::vector<double> xliq = xmol, xvap = xmol;
 	char herr[errormessagelength+1];
-	h /= 1000; // 1000 to go from J/kg to kJ/kg
-	s /= 1000; // 1000 to go from J/kg/K to kJ/kg/K
-	std::vector<double> xliq = xmol,xvap = xmol;
-	double q,e,cv,cp,w,p,sbar = s*params.molemass, hbar = h*params.molemass, dummy1, dummy2;
-	HSFLSHdll(&hbar,&sbar,&(xmol[0]),&Tout,&p,&rhoout,&rhoLout,&rhoVout,&(xliq[0]),&(xvap[0]),&q,&e,&cv,&cp,&w,&ierr,herr,errormessagelength);
-	rhoout *= params.molemass;
-	rhoLout *= params.molemass;
-	rhoVout *= params.molemass;
-	this->saturation_p(p*1000,false,TsatLout,TsatVout,dummy1,dummy2);
+
+	hbar /= 1000; // 1000 to go from J/kmol to J/mol
+	sbar /= 1000; // 1000 to go from J/kmol/K to J/mol/K
+	
+	HSFLSHdll(&hbar,&sbar,&(xmol[0]),&Tout,&p,&rho,&rhoL,&rhoV,&(xliq[0]),&(xvap[0]),&q,&e,&cv,&cp,&w,&ierr,herr,errormessagelength);
+	rho *= params.molemass;
+	rhoL *= params.molemass;
+	rhoV *= params.molemass;
+
+    // If a single-phase solution, yield impossible saturation densities so that the phase will be properly calculated
+	if (double_equal(rhoL, rhoV))
+	{
+		rhoL = -2;
+		rhoV = -1;
+	}
+	else{
+		// *1000 to go from kPa to Pa
+		this->saturation_p(p*1000,false,TsatL,TsatV,dummy1,dummy2);
+	}
 }
 double REFPROPFluidClass::density_Tp(double T, double p)
 {
@@ -1425,3 +1327,135 @@ double REFPROPFluidClass::rhosatL(double T)
 	SATTdll(&T,&(xmol[0]),&ic,&psatval,&rhoL, &dummy1,&(xliq[0]),&(xvap[0]),&ierr,herr,errormessagelength);
 	return rhoL*params.molemass;
 }
+
+
+
+
+/*
+!
+!
+!
+!             CATCH TESTS
+!
+!
+!
+*/
+
+
+
+#ifndef DISABLE_CATCH
+#include "Catch/catch.hpp"
+TEST_CASE((char*)"REFPROP Fluid Class Helmholtz derivatives check", (char*)"[helmholtz],[fast]")
+{
+	std::vector<double> x(1,1);
+	REFPROPFluidClass fluid = REFPROPFluidClass((char*)"REFPROP-Water",x);
+	double eps = sqrt(DBL_EPSILON);
+
+	SECTION((char*)"dDelta")
+	{
+		double ANA = fluid.dphir_dDelta(0.5, 0.5);
+		double NUM = (fluid.phir(0.5, 0.5+eps) - fluid.phir(0.5,0.5-eps))/(2*eps);
+		REQUIRE(abs(NUM-ANA) < 1e-6);
+	}
+	SECTION((char*)"dTau")
+	{
+		double ANA = fluid.dphir_dTau(0.5, 0.5);
+		double NUM = (fluid.phir(0.5+eps, 0.5) - fluid.phir(0.5-eps,0.5))/(2*eps);
+		REQUIRE(abs(NUM-ANA) < 1e-6);
+	}
+	SECTION((char*)"dDelta2")
+	{
+		double ANA = fluid.d2phir_dDelta2(0.5, 0.5);
+		double NUM = (fluid.dphir_dDelta(0.5, 0.5+eps) - fluid.dphir_dDelta(0.5,0.5-eps))/(2*eps);
+		REQUIRE(abs(NUM-ANA) < 1e-6);
+	}
+	SECTION((char*)"dTau2")
+	{
+		double ANA = fluid.d2phir_dTau2(0.5, 0.5);
+		double NUM = (fluid.dphir_dTau(0.5+eps, 0.5) - fluid.dphir_dTau(0.5-eps,0.5))/(2*eps);
+		REQUIRE(abs(NUM-ANA) < 1e-6);
+	}
+	SECTION((char*)"dDeltadTau")
+	{
+		double ANA = fluid.d2phir_dDelta_dTau(0.5, 0.5);
+		double NUM = (fluid.dphir_dTau(0.5, 0.5+eps) - fluid.dphir_dTau(0.5,0.5-eps))/(2*eps);
+		REQUIRE(abs(NUM-ANA) < 1e-6);
+	}
+}
+
+TEST_CASE((char*)"REFPROP Fluid Class check saturation consistency", "")
+{
+	std::vector<double> x(1,1);
+	REFPROPFluidClass fluid = REFPROPFluidClass((char*)"REFPROP-Water",x);
+	double eps = sqrt(DBL_EPSILON);
+
+	SECTION((char*)"sat")
+	{
+		double T = 313;
+		double p, T2, psatV, TsatV,rhoL,rhoV;
+		fluid.saturation_T(T, false, p, psatV, rhoL, rhoV);
+		fluid.saturation_p(p, false, T2, TsatV, rhoL, rhoV);
+		REQUIRE(fabs(T2-T) < 1e-5);
+	}
+}
+
+TEST_CASE((char*)"Check fluid names", (char*)"[fast]")
+{
+	if (REFPROPFluidClass::refpropSupported()) {
+		std::vector<double> x1(1,1), x2(2,0.5);
+		SECTION((char*)"REFPROP-R134")
+		{
+			REQUIRE_THROWS(set_REFPROP_fluid((char*)"REFPROP-R134",x1));
+		}
+		SECTION((char*)"REFPROP-R134a")
+		{
+			REQUIRE_NOTHROW(set_REFPROP_fluid((char*)"REFPROP-R134a",x1));
+		}
+		SECTION((char*)"REFPROP-MIX:R410.m")
+		{
+			REQUIRE_THROWS(set_REFPROP_fluid((char*)"REFPROP-MIX:R410.m",x2));
+		}
+		SECTION((char*)"REFPROP-MIX:R410")
+		{
+			REQUIRE_THROWS(set_REFPROP_fluid((char*)"REFPROP-MIX:R410",x2));
+		}
+		SECTION((char*)"REFPROP-MIX:R32[0.5]R125[0.5]")
+		{
+			REQUIRE_THROWS(set_REFPROP_fluid((char*)"REFPROP-MIX:R32[0.5]R125[0.5]",x2));
+		}
+		SECTION((char*)"REFPROP-MIX:R32[0,5]R125[0,5]")
+		{
+			REQUIRE_THROWS(set_REFPROP_fluid((char*)"REFPROP-MIX:R32[0,5]R125[0,5]",x2));
+		}
+		SECTION((char*)"REFPROP-MIX:R32[A]&R125[B]")
+		{
+			REQUIRE_THROWS(set_REFPROP_fluid((char*)"REFPROP-MIX:R32[A]R125[B]",x2));
+		}
+		SECTION((char*)"REFPROP-MIX:R32[0.697614699375863]&R125[0.302385300624138]")
+		{
+			REQUIRE_NOTHROW(set_REFPROP_fluid((char*)"REFPROP-MIX:R32[0.697614699375863]&R125[0.302385300624138]",x2));
+		}
+		SECTION((char*)"REFPROP-MIXLR410A.mix")
+		{
+			REQUIRE_THROWS(set_REFPROP_fluid((char*)"REFPROP-MIXLR410A.mix",x2));
+		}
+	}
+}
+
+TEST_CASE((char*)"Fluid class for bad fluid", (char*)"[fast]")
+{
+	SECTION((char*)"REFPROP-R134")
+	{
+		if (REFPROPFluidClass::refpropSupported()) {
+			REQUIRE_THROWS(REFPROPFluidClass((char*)"REFPROP-R134",std::vector<double>(1,1)));
+		}
+	}
+	SECTION((char*)"REFPROP-R134a")
+	{
+		if (REFPROPFluidClass::refpropSupported()) {
+			REQUIRE_NOTHROW(REFPROPFluidClass((char*)"REFPROP-R134a",std::vector<double>(1,1)));
+		}
+	}
+}
+
+#endif

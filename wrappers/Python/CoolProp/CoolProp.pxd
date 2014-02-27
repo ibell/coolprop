@@ -482,6 +482,6 @@ cdef class State:
     cpdef double get_MM(self) except *
     cpdef double get_dpdT(self) except *
     cpdef double get_speed_sound(self) except *
-    cpdef double get_Tsat(self, double Q = *)
-    cpdef double get_subcooling(self)
-    cpdef double get_superheat(self)
+    cpdef get_Tsat(self, double Q = *)
+    cpdef get_subcooling(self)
+    cpdef get_superheat(self)
