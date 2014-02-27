@@ -87,7 +87,6 @@
 		validator_element(std::string in1, double in2, std::string in3, double in4, std::string in5, double in6) : in1(in1), in2(in2), in3(in3), in4(in4), in5(in5), in6(in6) {};
 	};
 
-
 	TEST_CASE( (char*)"Cyclohexane", (char*)"[cyclohexane],[validation]" ) 
 	{
 		Fluid *CHEX = get_fluid(get_Fluid_index("Cyclohexane"));
@@ -128,7 +127,7 @@
             CAPTURE(el.in1);
             CAPTURE(el.in3);
             CAPTURE(el.in5);
-			CHECK(fabs(valid/eos-1) < 1e-2);
+			CHECK(fabs(valid/eos-1) < 1e-8);
 		}
 	}
 
