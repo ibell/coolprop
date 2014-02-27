@@ -42,7 +42,7 @@ def second_derivative(S, func, iVal, Val, iConstant, Constant, epsilon = 2):
 
 
 
-def test_1phase_first_derivatives():
+def teest_1phase_first_derivatives():
     
     for US in [CoolProp.UNIT_SYSTEM_SI, CoolProp.UNIT_SYSTEM_KSI]:
         CP.set_standard_unit_system(US)
@@ -91,7 +91,7 @@ def check_1phase_first_derivatives(S, func, iVal, Val, iConstant, Constant, deri
 
 
 
-def test_sat_first_derivatives():
+def teest_sat_first_derivatives():
     
     for US in [CoolProp.UNIT_SYSTEM_SI, CoolProp.UNIT_SYSTEM_KSI]:
         CP.set_standard_unit_system(US)
@@ -121,7 +121,7 @@ def check_sat_first_derivatives(S, func, iVal, Val, iConstant, Constant, deriv_f
         
         
 
-def test_sat_second_derivatives():
+def teest_sat_second_derivatives():
     for US in [CoolProp.UNIT_SYSTEM_SI, CoolProp.UNIT_SYSTEM_KSI]:
         CP.set_standard_unit_system(US)
         
