@@ -64,12 +64,16 @@ class GeneticAncillaryFitter(object):
         
         if self.value == 'p':
             self.LHS = self.logppc.copy()
+            self.EOS_value = self.p
         elif self.value == 'rhoL':
             self.LHS = self.logrhoLrhoc.copy()
+            self.EOS_value = self.rhoL
         elif self.value == 'rhoV':
             self.LHS = self.logrhoVrhoc.copy()
+            self.EOS_value = self.rhoV
         elif self.value == 'rhoLnoexp':
             self.LHS = (self.rhoLrhoc-1).copy()
+            self.EOS_value = self.rhoL
         else:
             raise ValueError
             
@@ -114,23 +118,20 @@ class GeneticAncillaryFitter(object):
         chromo.beta = n
         RHS = np.sum(n * self.x.reshape(-1, 1)**chromo.v, axis = 1)
             
+        if self.addTr:
+            RHS *= self.Tc/self.T
+            
         if self.value == 'p':
             fit_value = np.exp(RHS)*self.pc
-            EOS_value = self.p
         elif self.value in ['rhoL','rhoV']:
             fit_value = np.exp(RHS)*self.rhoc
-            if self.value == 'rhoL':
-                EOS_value = self.rhoL
-            elif self.value == 'rhoV':
-                EOS_value = self.rhoV
         else:
             fit_value = self.rhoc*(1+RHS)
-            EOS_value = self.rhoL
         
-        max_abserror = np.max(np.abs((fit_value/EOS_value)-1)*100)
+        max_abserror = np.max(np.abs((fit_value/self.EOS_value)-1)*100)
         
         chromo.fitness = max_abserror
-        #chromo.sum_square = myoutput.sum_square
+        chromo.fit_value = fit_value
         chromo.max_abserror = max_abserror
         
         return chromo.fitness
@@ -238,28 +239,26 @@ class GeneticAncillaryFitter(object):
             # If the string representations of all the chromosomes are the same, stop
             if len(set([str(s.v) for s in samples[0:5]])) == 1:
                 break
+                
+        self.fitness(samples[0])
     
         return samples[0]
-  
-def main():
-    gaf = GeneticAncillaryFitter()
-    r = gaf.run()
-    
-    print r.v
-    print list(r.beta)
+
+# def test_water():
+#     
+#     gaf = GeneticAncillaryFitter(Ref = 'Water', value = 'p', addTr = False, num_powers = 6)
+#     gaf.run()
+#     
+#     gaf = GeneticAncillaryFitter(Ref = 'Water', value = 'rhoL', addTr = False, num_powers = 6)
+#     gaf.run()
+#     
+#     gaf = GeneticAncillaryFitter(Ref = 'Water', value = 'p', addTr = False, num_powers = 6)
+#     gaf.run()
 
 if __name__ == "__main__":
     
-    gaf = GeneticAncillaryFitter(Ref = 'CO2', value = 'rhoV', addTr = False, num_powers = 6)
+    gaf = GeneticAncillaryFitter(Ref = 'AceticAcid', value = 'rhoV', addTr = True, num_powers = 6)
     gaf.run()
     
-    values = dict(Tcrit = 590.70, rhocrit = 351, pcrit = 5817526.2731115920, Tmin = 289.8)
-    
-    T,p,rhoL,rhoV = zip(*[[float(el) for el in line.strip().split(',')] for line in open('../aceticancillary.csv','r').readlines()])
-    values['T'] = np.array(T)
-    values['p'] = np.array(p)
-    values['rhoL'] = np.array(rhoL)
-    values['rhoV'] = np.array(rhoV)
-    gaf = GeneticAncillaryFitter(value = 'rhoLnoexp', addTr = False, values = values)
-    gaf.run()
-    main() 
+#     import nose
+#     nose.runmodule()
