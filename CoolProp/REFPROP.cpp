@@ -27,8 +27,6 @@
 #include <stdio.h>
 #include <iostream>
 
-
-
 // Some constants for REFPROP... defined by macros for ease of use 
 #define refpropcharlength 255
 #define filepathlength 255

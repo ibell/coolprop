@@ -11,7 +11,7 @@ def test_TRP():
                     yield check_HAProps,o,'T',T,'R',R,'P',p
 
 def check_HAProps(*args):
-    HAProps(*args)
+    val = HAProps(*args)
         
 def test_input_types():
 
