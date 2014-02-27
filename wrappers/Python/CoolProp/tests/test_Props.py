@@ -4,7 +4,7 @@ import CoolProp
 import numpy as np
        
 def test_input_types():
-    for Fluid in CoolProp.__fluids__:
+    for Fluid in ['Water']:
         for Tvals in [0.5*Props(Fluid,'Tmin')+0.5*Props(Fluid,'Tcrit'),
                       [Props(Fluid,'Tmin')+1e-5,Props(Fluid,'Tcrit')-1e-5],
                       np.linspace(Props(Fluid,'Tmin')+1e-5, Props(Fluid,'Tcrit')-1e-5,30)

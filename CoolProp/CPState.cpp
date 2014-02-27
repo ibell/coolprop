@@ -11,7 +11,6 @@
 #include "math.h"
 #include "Spline.h"
 
-
 #ifndef __ISWINDOWS__
 	#ifndef DBL_EPSILON
 		#include <limits>
@@ -312,7 +311,9 @@ void CoolPropStateClassSI::update(long iInput1, double Value1, long iInput2, dou
 
 void CoolPropStateClassSI::_post_update()
 {
+	if (get_debug_level()>9){ std::cout << format("%s:%d: StateClassSI::_post_update: T=%g rho=%g p=%g s=%g h=%g\n", __FILE__,__LINE__,_T,_rho,_p,_s,_h).c_str(); }
 	if (get_debug_level()>9){ std::cout << format("%s:%d: StateClassSI::_post_update: !_noSatLSatV %d TwoPhase %d !flag_TwoPhase %d\n", __FILE__,__LINE__,!_noSatLSatV, TwoPhase, !flag_TwoPhase).c_str(); }
+	
 	
 	if (!_noSatLSatV && TwoPhase && !flag_TwoPhase)
 	{
@@ -1109,115 +1110,119 @@ void CoolPropStateClassSI::update_incompressible(long iInput1, double Value1, lo
 /// Return an output based on the integer key for the term
 double CoolPropStateClassSI::keyed_output(long iOutput)
 {
+	double output;
 	switch (iOutput)
 	{
 		// --------------------------
 		// Fluid constants
 		// --------------------------
 		case iMM:
-			return pFluid->params.molemass;
+			output = pFluid->params.molemass; break;
 		case iPcrit:
-			return pFluid->crit.p.Pa;
+			output = pFluid->crit.p.Pa; break;
 		case iTcrit:
-			return pFluid->crit.T;
+			output = pFluid->crit.T; break;
 		case iTreduce:
-			return pFluid->reduce.T;
+			output = pFluid->reduce.T; break;
 		case iScrit:
-			return pFluid->crit.s;
+			output = pFluid->crit.s; break;
 		case iHcrit:
-			return pFluid->crit.h;
+			output = pFluid->crit.h; break;
 		case iTtriple:
-			return pFluid->params.Ttriple;
+			output = pFluid->params.Ttriple; break;
 		case iPtriple:
-			return pFluid->params.ptriple;
+			output = pFluid->params.ptriple; break;
 		case iRhocrit:
-			return pFluid->crit.rho;
+			output = pFluid->crit.rho; break;
 		case iRhoreduce:
-			return pFluid->reduce.rho;
+			output = pFluid->reduce.rho; break;
 		case iAccentric: 
-			return pFluid->params.accentricfactor;
+			output = pFluid->params.accentricfactor; break;
 		case iTmin:
-			return pFluid->limits.Tmin;
+			output = pFluid->limits.Tmin; break;
 		case iCritSplineT:
-			return pFluid->CriticalSpline_T.Tend;
+			output = pFluid->CriticalSpline_T.Tend; break;
 
 		// --------------------------
 		// Phase Constants
 		// --------------------------
 		case iPHASE_LIQUID:
-			return iLiquid;
+			output = iLiquid; break;
 		case iPHASE_GAS:
-			return iGas;
+			output = iGas; break;
 		case iPHASE_SUPERCRITICAL:
-			return iSupercritical;
+			output = iSupercritical; break;
 		case iPHASE_TWOPHASE:
-			return iTwoPhase;
+			output = iTwoPhase; break;
 
 		// --------------------------
 		// Environmental properties
 		// --------------------------
 		case iODP:
-			return pFluid->environment.ODP;
+			output = pFluid->environment.ODP; break;
 		case iGWP20:
-			return pFluid->environment.GWP20;
+			output = pFluid->environment.GWP20; break;
 		case iGWP100:
-			return pFluid->environment.GWP100;
+			output = pFluid->environment.GWP100; break;
 		case iGWP500:
-			return pFluid->environment.GWP500;
+			output = pFluid->environment.GWP500; break;
 
 		// --------------------------
 		// Thermodynamic properties
 		// --------------------------
 		case iT:
-			return _T;
+			output = _T; break;
 		case iD:
-			return _rho;
+			output = _rho; break;
 		case iP:
-			return p();
+			output = p(); break;
 		case iC:
-			return cp();
+			output = cp(); break;
 		case iC0:
-			return pFluid->specific_heat_p_ideal_Trho(_T);
+			output = pFluid->specific_heat_p_ideal_Trho(_T); break;
 		case iO:
-			return cv();
+			output = cv(); break;
 		case iA:
-			return speed_sound();
+			output = speed_sound(); break;
 		case iG:
-			return h()-_T*s();
+			output = h()-_T*s(); break;
 		case iQ:
-			if (TwoPhase)
-				return _Q;
-			else
-				return -1;
+			{
+				if (TwoPhase)
+					output = _Q; 
+				else
+					output = -1;
+				break;
+			}
 		case iH:
-			return h();
+			output = h(); break;
 		case iS:
-			return s();
+			output = s(); break;
 		case iU:
-			return h()-p()/_rho;
+			output = h()-p()/_rho; break;
 
 		case iPhase:
-			return phase();
+			output = phase(); break;
 		
 		// --------------------------
 		// Transport properties
 		// --------------------------
 		case iV:
-			return viscosity();
+			output = viscosity(); break;
 		case iL:
-			return conductivity();
+			output = conductivity(); break;
 		case iI:
-			return surface_tension();
+			output = surface_tension(); break;
 		case iPrandtl:
-			return Prandtl();
+			output = Prandtl(); break;
 
 		// -----------------------------------
 		// A few grandfathered derivatives
 		// -----------------------------------
 		case iDpdT:
-			return dpdT_constrho();
+			output = dpdT_constrho(); break;
 		case iDrhodT_p:
-			return drhodT_constp();
+			output = drhodT_constp(); break;
 
 		// -----------------------------------
 		// Add all other derivatives to remove
@@ -1226,93 +1231,97 @@ double CoolPropStateClassSI::keyed_output(long iOutput)
 		// -----------------------------------
 		case iDERdh_dp__rho:
 		case iDERdh_dp__v:
-			return dhdp_constrho();
+			output = dhdp_constrho(); break;
 		case iDERZ:
-			return Z();
+			output = Z(); break;
 		case iDERdZ_dDelta:
-			return dZdDelta();
+			output = dZdDelta(); break;
 		case iDERdZ_dTau:
-			return dZdTau();
+			output = dZdTau(); break;
 		case iDERB:
-			return B();
+			output = B(); break;
 		case iDERdB_dT:
-			return dBdT();
+			output = dBdT(); break;
 		case iDERC:
-			return C();
+			output = C(); break;
 		case iDERdC_dT:
-			return dCdT();
+			output = dCdT(); break;
 		case iDERphir:
-			return phir(tau, delta);
+			output = phir(tau, delta); break;
 		case iDERdphir_dTau:
-			return dphir_dTau(tau, delta);
+			output = dphir_dTau(tau, delta); break;
 		case iDERdphir_dDelta:
-			return dphir_dDelta(tau, delta);
+			output = dphir_dDelta(tau, delta); break;
 		case iDERd2phir_dTau2:
-			return d2phir_dTau2(tau, delta);
+			output = d2phir_dTau2(tau, delta); break;
 		case iDERd2phir_dDelta2:
-			return d2phir_dDelta2(tau,delta);
+			output = d2phir_dDelta2(tau,delta); break;
 		case iDERd2phir_dDelta_dTau:
-			return d2phir_dDelta_dTau(tau,delta);
+			output = d2phir_dDelta_dTau(tau,delta); break;
 		case iDERd3phir_dDelta3:
-			return d3phir_dDelta3(tau, delta);
+			output = d3phir_dDelta3(tau, delta); break;
 		case iDERd3phir_dDelta2_dTau:
-			return d3phir_dDelta2_dTau(tau, delta);
+			output = d3phir_dDelta2_dTau(tau, delta); break;
 		case iDERd3phir_dDelta_dTau2:
-			return d3phir_dDelta_dTau2(tau, delta);
+			output = d3phir_dDelta_dTau2(tau, delta); break;
 		case iDERd3phir_dTau3:
-			return d3phir_dTau3(tau, delta);
+			output = d3phir_dTau3(tau, delta); break;
 		case iDERphi0:
-			return phi0(tau, delta);
+			output = phi0(tau, delta); break;
 		case iDERdphi0_dTau:
-			return dphi0_dTau(tau, delta);
+			output = dphi0_dTau(tau, delta); break;
 		case iDERd2phi0_dTau2:
-			return d2phi0_dTau2(tau, delta);
+			output = d2phi0_dTau2(tau, delta); break;
 		case iDERdphi0_dDelta:
-			return dphi0_dDelta(tau, delta);
+			output = dphi0_dDelta(tau, delta); break;
 		case iDERd2phi0_dDelta2:
-			return d2phi0_dDelta2(tau, delta);
+			output = d2phi0_dDelta2(tau, delta); break;
 		case iDERd2phi0_dDelta_dTau:
-			return d2phi0_dDelta_dTau(tau, delta);
+			output = d2phi0_dDelta_dTau(tau, delta); break;
 		case iDERd3phi0_dTau3:
-			return d3phi0_dTau3(tau, delta);
+			output = d3phi0_dTau3(tau, delta); break;
 		case iDERdp_dT__rho:
-			return dpdT_constrho();
+			output = dpdT_constrho(); break;
 		case iDERdp_drho__T:
-			return dpdrho_constT();
+			output = dpdrho_constT(); break;
 		case iDERdh_dT__rho:
-			return dhdT_constrho();
+			output = dhdT_constrho(); break;
 		case iDERdh_drho__T:
-			return dhdrho_constT();
+			output = dhdrho_constT(); break;
 		case iDERdrho_dT__p:
-			return drhodT_constp();
+			output = drhodT_constp(); break;
 		case iDERdrho_dh__p:
-			return drhodh_constp();
+			output = drhodh_constp(); break;
 		case iDERdrho_dp__h:
-			return drhodp_consth();
+			output = drhodp_consth(); break;
 		case iDERrho_smoothed:
 			//double rhospline, dsplinedp, dsplinedh;
 			//update(iT,T,iQ,rho);
 			rho_smoothed(0.1,rhospline,dsplinedh,dsplinedp);
-			return rhospline;
+			output = rhospline; break;
 		case iDERdrho_smoothed_dh:
 			//double rhospline, dsplinedp, dsplinedh;
 			//CPS.update(iT,T,iQ,rho);
 			rho_smoothed(0.1,rhospline,dsplinedh,dsplinedp);
-			return dsplinedh;
+			output = dsplinedh; break;
 		case iDERdrho_smoothed_dp:
 			//double rhospline, dsplinedp, dsplinedh;
 			//CPS.update(iT,T,iQ,rho);
 			rho_smoothed(0.1,rhospline,dsplinedh,dsplinedp);
-			return dsplinedp;
+			output = dsplinedp; break;
 		case iDERdrhodh_constp_smoothed:
-			return drhodh_constp_smoothed(0.1);
+			output = drhodh_constp_smoothed(0.1); break;
 		case iDERdrhodp_consth_smoothed:
-			return drhodp_consth_smoothed(0.1);
+			output = drhodp_consth_smoothed(0.1); break;
 		case iDERIsothermalCompressibility:
-			return isothermal_compressibility();
+			output = isothermal_compressibility(); break;
 		default:
 			throw ValueError(format("Invalid Output index to CPState function keyed_output: %d ",iOutput));
 	}
+	if (get_debug_level() > 8){
+		std::cout << format("%s:%d: CoolPropStateClassSI::keyed_output(%d) -> %g\n",__FILE__,__LINE__, iOutput,output) ;
+	}
+	return output;
 }
 
 long CoolPropStateClassSI::phase(void)
@@ -1399,6 +1408,7 @@ double CoolPropStateClassSI::condL(void){return SatL->keyed_output(iL);};
 double CoolPropStateClassSI::condV(void){return SatV->keyed_output(iL);};
 
 double CoolPropStateClassSI::h(void){
+	if (get_debug_level()>9){ std::cout << format("%s:%d: StateClassSI::h: tau %g delta %g TwoPhase %d\n", __FILE__,__LINE__,tau,delta,TwoPhase).c_str(); }
 	if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID)
 	{
 		return pIncompLiquid->h(_T, _p);
@@ -1427,7 +1437,9 @@ double CoolPropStateClassSI::h(void){
 			else
 			{
 				// Use the EOS, using the cached value if possible
-				return pFluid->R()*_T*(1.0+tau*(dphi0_dTau(tau,delta)+dphir_dTau(tau,delta))+delta*dphir_dDelta(tau,delta));
+				double val = pFluid->R()*_T*(1.0+tau*(dphi0_dTau(tau,delta)+dphir_dTau(tau,delta))+delta*dphir_dDelta(tau,delta));
+				if (get_debug_level()>9){ std::cout << format("%s:%d: StateClassSI::h: h %g\n", __FILE__,__LINE__,val).c_str(); }
+				return val;
 			}
 		}
 	}

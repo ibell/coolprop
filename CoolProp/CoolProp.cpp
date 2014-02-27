@@ -844,17 +844,13 @@ double _CoolProp_Fluid_PropsSI(long iOutput, long iName1, double Prop1, long iNa
 	CPS.update(iName1,Prop1,iName2,Prop2);
 
 	// Debug
-	if (get_debug_level()>9){
-		std::cout << format("%s:%d: State update successful\n",__FILE__,__LINE__).c_str();
-	}
+	if (get_debug_level()>9){std::cout << format("%s:%d: State update successful\n",__FILE__,__LINE__).c_str();}
 
 	// Get the output
 	val = CPS.keyed_output(iOutput);
 
 	// Debug
-	if (get_debug_level()>5){
-		std::cout << format("%s:%d: _CoolProp_Fluid_PropsSI returns: %g\n",__FILE__,__LINE__,val).c_str();
-	}
+	if (get_debug_level()>5){std::cout << format("%s:%d: _CoolProp_Fluid_PropsSI returns: %g\n",__FILE__,__LINE__,val).c_str();}
 
 	// Return the value
 	return val;
@@ -889,11 +885,7 @@ double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, cha
 	// Go to the std::string, std::string version
 	return Props(std::string(1,Output),Name1,Prop1,Name2,Prop2,std::string(Ref));
 }
-//double Props(char* Output,char Name1, double Prop1, char Name2, double Prop2, char* Ref)
-//{
-//	// Go to the std::string, std::string version
-//	return Props(std::string(Output),Name1,Prop1,Name2,Prop2,std::string(Ref));
-//}
+
 double Props(std::string Output,char Name1, double Prop1, char Name2, double Prop2, std::string Ref)
 {
 	// In this function the error catching happens;
@@ -1042,12 +1034,6 @@ double DerivTerms(std::string Term, double T, double rho, std::string Fluidname)
 			throw ValueError(format("Your fluid name [%s] is not a CoolProp fluid.",Fluidname.c_str()));
 		}
 }
-//double DerivTerms(char *Term, double T, double rho, char * FluidName)
-//{
-//	return DerivTerms(std::string(Term),T,rho,std::string(FluidName));
-//}
-
-
 
 int set_reference_stateS(std::string Ref, std::string reference_state)
 {

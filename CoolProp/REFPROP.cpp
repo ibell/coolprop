@@ -20,6 +20,7 @@
 
 #include "REFPROP_lib.h"
 #include "REFPROP.h"
+#include "CoolPropTools.h"
 
 #include <stdlib.h>
 #include "string.h"
@@ -419,7 +420,7 @@ bool set_REFPROP_fluid(std::string Ref, std::vector<double> &x)
 {
 	long ierr=0;
 	char hf[refpropcharlength*ncmax], herr[errormessagelength+1];
-	std::string sRef;
+	std::string sRef, components_joined;
 	std::string RefString;
 	std::string fdPath = get_REFPROP_fluid_path();
 
@@ -435,29 +436,17 @@ bool set_REFPROP_fluid(std::string Ref, std::vector<double> &x)
 	// that of the currently loaded refrigerant
 	if (LoadedREFPROPRef.compare(Ref))
 	{
-		// If the fluid name does not start with the string "REFPROP-"
-		if (Ref.find("REFPROP-") == std::string::npos)
+		// If the fluid name starts with the string "REFPROP-MIX:"
+		if (Ref.find("REFPROP-MIX:") == 0)
 		{
-			// Fail and give error
-			std::cout << "Invalid REFPROP string: " << Ref.c_str() << std::endl;
-		}
-		// Chop off the "REFPROP-"
-		else 
-		{
-			// Keep everything after the "REFPROP-"
-			sRef = Ref.substr(8,Ref.size()-8);
-		}
-
-		if (!strncmp(sRef.c_str(),"MIX",3))
-		{
-			// Sample sRef is "MIX:R32[0.697615]&R125[0.302385]" -  this is R410A
-			// Or you could do "MIX:R410A.mix" to use the full mixture model for this predefined mixture
-				
-			// Chop off the MIX by keeping everything after the ':'
-			std::string components_joined = strsplit(sRef,':')[1];
+			// Keep everything after the "REFPROP-MIX:"
+			components_joined = Ref.substr(12,Ref.size()-12);
+		
+			// Sample sRef is "R32[0.697615]&R125[0.302385]" -  this is R410A
+			// Or you could do "R410A.mix" to use the full mixture model for this predefined mixture
 			
-			// Try to process predefined mixtures with .mix in the file name
-			if (components_joined.find(".mix") != std::string::npos)
+			// Try to process predefined mixtures with .mix or .MIX in the file name
+			if (components_joined.find(".mix") != std::string::npos || components_joined.find(".MIX") != std::string::npos)
 			{
 				char hf[255];
 				char hfiles[10000];
@@ -466,7 +455,7 @@ bool set_REFPROP_fluid(std::string Ref, std::vector<double> &x)
 				strcpy(hf,components_joined.c_str());
 
 				SETMIXdll(hf, hfmix, hrf, 
-					      &i, hfiles, xx,
+						  &i, hfiles, xx,
 						  &ierr, herr,
 						  255,
 						  255,
@@ -529,19 +518,28 @@ bool set_REFPROP_fluid(std::string Ref, std::vector<double> &x)
 				}
 			}
 		}
-		
-		else if (!sRef.compare("Air") || !sRef.compare("R507A") || !sRef.compare("R404A") || !sRef.compare("R410A") || !sRef.compare("R407C") || !sRef.compare("SES36"))
+		// Name starts with REFPROP-
+		else if (Ref.find("REFPROP-") == 0)
 		{
-			i=1;
-			RefString = fdPath + std::string(sRef)+std::string(".ppf");
-			x[0]=1.0;     //Pseudo-Pure fluid
+			// Keep everything after the "REFPROP-"
+			sRef = Ref.substr(8,Ref.size()-8);
+
+			if (!sRef.compare("Air") || !sRef.compare("R507A") || !sRef.compare("R404A") || !sRef.compare("R410A") || !sRef.compare("R407C") || !sRef.compare("SES36"))
+			{
+				i=1;
+				RefString = fdPath + std::string(sRef)+std::string(".ppf");
+				x[0]=1.0;     //Pseudo-Pure fluid
+			}
+			else
+			{
+				i=1;
+				RefString = fdPath + std::string(sRef)+std::string(".fld");
+				x[0]=1.0;     //Pure fluid
+			}
 		}
-		
 		else
 		{
-			i=1;
-			RefString = fdPath + std::string(sRef)+std::string(".fld");
-			x[0]=1.0;     //Pure fluid
+			throw ValueError(format("REFPROP fluid string [%s] is invalid", Ref.c_str()));
 		}
 		
 		strcpy(hf,RefString.c_str());
@@ -1095,8 +1093,8 @@ TEST_CASE((char*)"REFPROP Fluid Class check saturation consistency", "")
 	{
 		double T = 313;
 		double p, T2, psatV, TsatV,rhoL,rhoV;
-		fluid.saturation_T(T, false, &p, &psatV, &rhoL, &rhoV);
-		fluid.saturation_p(p, false, &T2, &TsatV, &rhoL, &rhoV);
+		fluid.saturation_T(T, false, p, psatV, rhoL, rhoV);
+		fluid.saturation_p(p, false, T2, TsatV, rhoL, rhoV);
 		REQUIRE(fabs(T2-T) < 1e-5);
 	}
 }
@@ -1136,6 +1134,10 @@ TEST_CASE((char*)"Check fluid names", (char*)"[fast]")
 		SECTION((char*)"REFPROP-MIX:R32[0.697614699375863]&R125[0.302385300624138]")
 		{
 			REQUIRE_NOTHROW(set_REFPROP_fluid((char*)"REFPROP-MIX:R32[0.697614699375863]&R125[0.302385300624138]",x2));
+		}
+		SECTION((char*)"REFPROP-MIXLR410A.mix")
+		{
+			REQUIRE_THROWS(set_REFPROP_fluid((char*)"REFPROP-MIXLR410A.mix",x2));
 		}
 	}
 }
@@ -1278,11 +1280,10 @@ double REFPROPFluidClass::conductivity_Trho(double T, double rho)
 	double eta,tcx,rhobar = rho/params.molemass;
 	
 	TRNPRPdll(&T,&rhobar,&(xmol[0]),&eta,&tcx,&ierr,herr,errormessagelength);
-	// REFPROP yields conductivity in W/m/K, CoolProp wants a conductivity in kW/m/K
 	return tcx; //[W/m/K]
 }
 
-void REFPROPFluidClass::saturation_T(double T, bool UseLUT, double *psatLout, double *psatVout, double *rhosatLout, double *rhosatVout)
+void REFPROPFluidClass::saturation_T(double T, bool UseLUT, double &psatLout, double &psatVout, double &rhosatLout, double &rhosatVout)
 {
 	long ic,ierr;
 	char herr[errormessagelength+1];
@@ -1290,17 +1291,17 @@ void REFPROPFluidClass::saturation_T(double T, bool UseLUT, double *psatLout, do
 	double dummy;
 
 	ic=1;
-	SATTdll(&T,&(xmol[0]),&ic,psatLout,rhosatLout,&dummy,&(xliq[0]),&(xvap[0]),&ierr,herr,errormessagelength);
+	SATTdll(&T,&(xmol[0]),&ic,&psatLout,&rhosatLout,&dummy,&(xliq[0]),&(xvap[0]),&ierr,herr,errormessagelength);
 	ic=2;
-	SATTdll(&T,&(xmol[0]),&ic,psatVout,&dummy,rhosatVout,&(xliq[0]),&(xvap[0]),&ierr,herr,errormessagelength);
+	SATTdll(&T,&(xmol[0]),&ic,&psatVout,&dummy,&rhosatVout,&(xliq[0]),&(xvap[0]),&ierr,herr,errormessagelength);
 
 	// Unit conversions
-	*rhosatLout *= params.molemass;
-	*rhosatVout *= params.molemass;
-	*psatLout *= 1000; // 1000 to go from kPa to Pa
-	*psatVout *= 1000; // 1000 to go from kPa to Pa
+	rhosatLout *= params.molemass;
+	rhosatVout *= params.molemass;
+	psatLout *= 1000; // 1000 to go from kPa to Pa
+	psatVout *= 1000; // 1000 to go from kPa to Pa
 }
-void REFPROPFluidClass::saturation_p(double p, bool UseLUT, double *TsatLout, double *TsatVout, double *rhosatLout, double *rhosatVout)
+void REFPROPFluidClass::saturation_p(double p, bool UseLUT, double &TsatLout, double &TsatVout, double &rhosatLout, double &rhosatVout)
 {
 	long ic,ierr;
 	char herr[errormessagelength+1];
@@ -1309,38 +1310,59 @@ void REFPROPFluidClass::saturation_p(double p, bool UseLUT, double *TsatLout, do
 	std::vector<double> xliq = xmol,xvap = xmol;
 	double dummy;
 	ic=1;
-	SATPdll(&p,&(xmol[0]),&ic,TsatLout,rhosatLout,&dummy,&(xliq[0]),&(xvap[0]),&ierr,herr,errormessagelength);
+	SATPdll(&p,&(xmol[0]),&ic,&TsatLout,&rhosatLout,&dummy,&(xliq[0]),&(xvap[0]),&ierr,herr,errormessagelength);
 	ic=2;
-	SATPdll(&p,&(xmol[0]),&ic,TsatVout,&dummy,rhosatVout,&(xliq[0]),&(xvap[0]),&ierr,herr,errormessagelength);
-	*rhosatLout *= params.molemass;
-	*rhosatVout *= params.molemass;
+	SATPdll(&p,&(xmol[0]),&ic,&TsatVout,&dummy,&rhosatVout,&(xliq[0]),&(xvap[0]),&ierr,herr,errormessagelength);
+	rhosatLout *= params.molemass;
+	rhosatVout *= params.molemass;
 }
-void REFPROPFluidClass::temperature_ph(double p, double h, double &Tout, double &rhoout, double &rhoLout, double &rhoVout, double &TsatLout, double &TsatVout, double T0, double rho0)
+void REFPROPFluidClass::temperature_ph(double p, double h, double &Tout, double &rho, double &rhoL, double &rhoV, double &TsatL, double &TsatV, double T0, double rho0)
 {
+	double q,e,s,cv,cp,w,hbar = h*params.molemass, dummy1, dummy2;
 	long ierr;
 	char herr[errormessagelength+1];
+	std::vector<double> xliq = xmol, xvap = xmol;
+
 	p /= 1000; // 1000 to go from Pa to kPa
 	h /= 1000; // 1000 to go from J/kg to kJ/kg
-	std::vector<double> xliq = xmol, xvap = xmol;
-	double q,e,s,cv,cp,w,hbar = h*params.molemass, dummy1, dummy2;
-	PHFLSHdll(&p,&hbar,&(xmol[0]),&Tout,&rhoout,&rhoLout,&rhoVout,&(xliq[0]),&(xvap[0]),&q,&e,&s,&cv,&cp,&w,&ierr,herr,errormessagelength);
-	rhoout *= params.molemass;
-	rhoLout *= params.molemass;
-	rhoVout *= params.molemass;
-	this->saturation_p(p,false,&TsatLout,&TsatVout,&dummy1,&dummy2);
+	
+	PHFLSHdll(&p,&hbar,&(xmol[0]),&Tout,&rho,&rhoL,&rhoV,&(xliq[0]),&(xvap[0]),&q,&e,&s,&cv,&cp,&w,&ierr,herr,errormessagelength);
+	rho *= params.molemass;
+	rhoL *= params.molemass;
+	rhoV *= params.molemass;
+	
+	// If a single-phase solution, yield impossible saturation densities so that the phase will be properly calculated
+	if (double_equal(rhoL, rhoV)){
+		rhoL = -2;
+		rhoV = -1;
+	}
+	else{
+		// *1000 to go from kPa to Pa
+		this->saturation_p(p*1000,false,TsatL,TsatV,dummy1,dummy2);
+	}
 }
-void REFPROPFluidClass::temperature_ps(double p, double s, double &Tout, double &rhoout, double &rhoLout, double &rhoVout, double &TsatLout, double &TsatVout)
+void REFPROPFluidClass::temperature_ps(double p, double s, double &Tout, double &rho, double &rhoL, double &rhoV, double &TsatL, double &TsatV)
 {
 	long ierr;
 	char herr[errormessagelength+1];
 	p /= 1000; // 1000 to go from Pa to kPa
 	s /= 1000; // 1000 to go from J/kg/K to kJ/kg/K
 	std::vector<double> xliq = xmol, xvap = xmol;
-	double q,e,h,cv,cp,w,sbar = s*params.molemass;
-	PSFLSHdll(&p,&sbar,&(xmol[0]),&Tout,&rhoout,&rhoLout,&rhoVout,&(xliq[0]),&(xvap[0]),&q,&e,&h,&cv,&cp,&w,&ierr,herr,errormessagelength);
-	rhoout *= params.molemass;
-	rhoLout *= params.molemass;
-	rhoVout *= params.molemass;
+	double q,e,h,cv,cp,w,sbar = s*params.molemass, dummy1,dummy2;
+	PSFLSHdll(&p,&sbar,&(xmol[0]),&Tout,&rho,&rhoL,&rhoV,&(xliq[0]),&(xvap[0]),&q,&e,&h,&cv,&cp,&w,&ierr,herr,errormessagelength);
+	rho *= params.molemass;
+	rhoL *= params.molemass;
+	rhoV *= params.molemass;
+	// If a single-phase solution, yield impossible saturation densities so that the phase will be properly calculated
+	if (double_equal(rhoL, rhoV))
+	{
+		rhoL = -2;
+		rhoV = -1;
+	}
+	else{
+		// *1000 to go from kPa to Pa
+		this->saturation_p(p*1000,false,TsatL,TsatV,dummy1,dummy2);
+	}
 }
 void REFPROPFluidClass::temperature_hs(double h, double s, double &Tout, double &rhoout, double &rhoLout, double &rhoVout, double &TsatLout, double &TsatVout)
 {
@@ -1354,7 +1376,7 @@ void REFPROPFluidClass::temperature_hs(double h, double s, double &Tout, double 
 	rhoout *= params.molemass;
 	rhoLout *= params.molemass;
 	rhoVout *= params.molemass;
-	this->saturation_p(p,false,&TsatLout,&TsatVout,&dummy1,&dummy2);
+	this->saturation_p(p*1000,false,TsatLout,TsatVout,dummy1,dummy2);
 }
 double REFPROPFluidClass::density_Tp(double T, double p)
 {

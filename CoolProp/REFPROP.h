@@ -30,8 +30,8 @@
 		double conductivity_Trho(double T, double rho);
 		double surface_tension_T(double T);
 
-		void saturation_T(double T, bool UseLUT, double *psatLout, double *psatVout, double *rhosatLout, double *rhosatVout);
-		void saturation_p(double p, bool UseLUT, double *TsatLout, double *TsatVout, double *rhosatLout, double *rhosatVout);
+		void saturation_T(double T, bool UseLUT, double &psatLout, double &psatVout, double &rhosatLout, double &rhosatVout);
+		void saturation_p(double p, bool UseLUT, double &TsatLout, double &TsatVout, double &rhosatLout, double &rhosatVout);
 
 		// Flash routines
 		void temperature_ph(double p, double h, double &Tout, double &rhoout, double &rhoLout, double &rhoVout, double &TsatLout, double &TsatVout, double T0, double rho0);

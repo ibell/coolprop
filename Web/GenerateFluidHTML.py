@@ -75,6 +75,10 @@ def index_file(Fluids, header):
                                  header = header,
                                  line = '='*len(header))
 
+# Make this function do everything so that we can use a multiprocessing Pool
+def do_fluid(fluid):
+    pass
+    
 if __name__=='__main__':
     
     if not os.path.exists('Fluids'):

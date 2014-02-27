@@ -8,9 +8,9 @@
 	#include "Tests.h"
 	#define CATCH_CONFIG_RUNNER
 	#include "Catch/catch.hpp"
-	TEST_CASE( "Check reference state", "[reference_state]" ) 
+	TEST_CASE((char*)"Check reference state", (char*)"[reference_state]" ) 
 	{
-		SECTION("IIR")
+		SECTION((char*)"IIR")
 		{
 			set_reference_stateS("Propane","IIR");
 			double h_EOS = PropsSI("H","T",273.15,"Q",0,"Propane");
@@ -21,9 +21,9 @@
 			REQUIRE(abs(h_target-h_EOS) < 1e-6);
 			REQUIRE(abs(s_target-s_EOS) < 1e-6);
 		}
-		SECTION("NBP")
+		SECTION((char*)"NBP")
 		{
-			set_reference_stateS("Propane","NBP");
+			set_reference_stateS((char*)"Propane",(char*)"NBP");
 			double h_EOS = PropsSI("H","P",101325,"Q",0,"Propane");
 			double s_EOS = PropsSI("S","P",101325,"Q",0,"Propane");
 			double h_target = 0;
@@ -34,9 +34,9 @@
 		}
 		SECTION("ASHRAE")
 		{
-			set_reference_stateS("Propane","ASHRAE");
-			double h_EOS = PropsSI("H","T",233.15,"Q",0,"Propane");
-			double s_EOS = PropsSI("S","T",233.15,"Q",0,"Propane");
+			set_reference_stateS((char*)"Propane",(char*)"ASHRAE");
+			double h_EOS = PropsSI((char*)"H",(char*)"T",233.15,(char*)"Q",0,(char*)"Propane");
+			double s_EOS = PropsSI((char*)"S",(char*)"T",233.15,(char*)"Q",0,(char*)"Propane");
 			double h_target = 0;
 			double s_target = 0;
 
@@ -45,33 +45,33 @@
 		}
 	}
 
-	TEST_CASE( "Check units of fluid constants", "[fast]" ) 
+	TEST_CASE( (char*)"Check units of fluid constants", (char*)"[fast]" ) 
 	{
-		SECTION("kSI")
+		SECTION((char*)"kSI")
 		{
 			set_standard_unit_system(UNIT_SYSTEM_KSI);
 
-			SECTION("pcrit")
+			SECTION((char*)"pcrit")
 			{
-				double p_Props1SI = Props1SI("R134a","pcrit");
-				double p_Props1 = Props1("R134a","pcrit")*1000;
-				double p_Props = Props("pcrit",'T',300,'Q',0,"R134a")*1000;
-				double p_PropsSI = PropsSI("pcrit","T",300,"Q",0,"R134a");
+				double p_Props1SI = Props1SI((char*)"R134a",(char*)"pcrit");
+				double p_Props1 = Props1((char*)"R134a",(char*)"pcrit")*1000;
+				double p_Props = Props((char*)"pcrit",'T',300,'Q',0,(char*)"R134a")*1000;
+				double p_PropsSI = PropsSI((char*)"pcrit",(char*)"T",300,(char*)"Q",0,(char*)"R134a");
 				REQUIRE(fabs(p_Props1/p_Props-1) < 1e-6);
 				REQUIRE(fabs(p_PropsSI/p_Props-1) < 1e-6);
 				REQUIRE(fabs(p_PropsSI/p_Props1SI-1) < 1e-6);
 			}
 		}
-		SECTION("SI")
+		SECTION((char*)"SI")
 		{
 			set_standard_unit_system(UNIT_SYSTEM_SI);
 
-			SECTION("pcrit")
+			SECTION((char*)"pcrit")
 			{
-				double p_Props1SI = Props1("R134a","pcrit");
-				double p_Props1 = Props1("R134a","pcrit");
-				double p_Props = Props("pcrit",'T',300,'Q',0,"R134a");
-				double p_PropsSI = PropsSI("pcrit","T",300,"Q",0,"R134a");
+				double p_Props1SI = Props1((char*)"R134a",(char*)"pcrit");
+				double p_Props1 = Props1((char*)"R134a",(char*)"pcrit");
+				double p_Props = Props((char*)"pcrit",'T',300,'Q',0,(char*)"R134a");
+				double p_PropsSI = PropsSI((char*)"pcrit",(char*)"T",300,(char*)"Q",0,(char*)"R134a");
 				REQUIRE(fabs(p_Props1/p_Props-1) < 1e-6);
 				REQUIRE(fabs(p_PropsSI/p_Props-1) < 1e-6);
 				REQUIRE(fabs(p_PropsSI/p_Props1SI-1) < 1e-6);

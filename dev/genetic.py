@@ -250,7 +250,7 @@ def main():
 
 if __name__ == "__main__":
     
-    gaf = GeneticAncillaryFitter(Ref = 'CO2', value = 'rhoV', addTr = False, num_powers = 8)
+    gaf = GeneticAncillaryFitter(Ref = 'CO2', value = 'rhoV', addTr = False, num_powers = 6)
     gaf.run()
     
     values = dict(Tcrit = 590.70, rhocrit = 351, pcrit = 5817526.2731115920, Tmin = 289.8)

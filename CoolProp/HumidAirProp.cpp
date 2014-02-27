@@ -2,6 +2,8 @@
 #define _CRT_SECURE_NO_WARNINGS
 #endif
 
+
+
 #include <stdlib.h>
 #include "math.h"
 #include "time.h"
@@ -14,6 +16,8 @@
 #include "HumidAirProp.h"
 #include "Solvers.h"
 #include "CoolPropTools.h"
+
+static Fluid *pWater, *pAir;
 
 enum givens{GIVEN_TDP,GIVEN_HUMRAT,GIVEN_V,GIVEN_TWB,GIVEN_RH,GIVEN_ENTHALPY,GIVEN_T,GIVEN_P,GIVEN_VISC,GIVEN_COND};
 
@@ -165,12 +169,12 @@ static double Secant_HAProps_W(char *OutputName, char *Input1Name, double Input1
 
 	while ((iter<=3 || fabs(f)>eps) && iter<100)
 	{
-		if (iter==1){x1=W_guess; W=x1;}
-		if (iter==2){x2=W_guess+0.001; W=x2;}
-		if (iter>2) {W=x2;}
-			f=HAProps(OutputName,(char *)"W",W,Input1Name,Input1,Input2Name,Input2)-TargetVal;
-		if (iter==1){y1=f;}
-		if (iter>1)
+		if (iter == 1){x1 = W_guess; W = x1;}
+		if (iter == 2){x2 = W_guess+0.001; W = x2;}
+		if (iter > 2) {W = x2;}
+			f = HAProps(OutputName,(char *)"W",W,Input1Name,Input1,Input2Name,Input2)-TargetVal;
+		if (iter == 1){y1 = f;}
+		if (iter > 1)
 		{
 			y2=f;
 			x3=x2-y2/(y2-y1)*(x2-x1);
@@ -594,21 +598,19 @@ double IdealGasMolarEnthalpy_Water(double T, double v_bar)
 	double hbar_w_0,tau,rhobar,hbar_w,rho;
 	// Ideal-Gas contribution to enthalpy of water
     hbar_w_0=-0.01102303806;//[kJ/kmol]
-    tau=Props((char *)"Water",(char *)"Tcrit")/T;
-    rhobar=1/v_bar; //[kmol/m^3]
-    rho = rhobar * Props((char *)"Water",(char *)"molemass");
-	Fluid * pWater = get_fluid(get_Fluid_index((char *)"Water"));
-	hbar_w=hbar_w_0+R_bar*T*(1+tau*pWater->dphi0_dTau(tau,rho/pWater->reduce.rho));
+    tau = pWater->crit.T/T;
+    rhobar = 1/v_bar; //[kmol/m^3]
+	rho = rhobar * pWater->params.molemass;
+	hbar_w = hbar_w_0+R_bar*T*(1+tau*pWater->dphi0_dTau(tau,rho/pWater->reduce.rho));
 	return hbar_w;
 }
 double IdealGasMolarEntropy_Water(double T, double p)
 {
 	double sbar_w,tau,R_bar,rho;
 	R_bar = 8.314371; //[kJ/kmol/K]
-    tau=Props((char *)"Water",(char *)"Tcrit")/T;
+    tau = pWater->crit.T/T;
 	rho = p/(R_bar/MM_Water()*T); //[kg/m^3]
-	Fluid * pWater = get_fluid(get_Fluid_index((char *)"Water"));
-	sbar_w=R_bar*(tau*pWater->dphi0_dTau(tau,rho/pWater->reduce.rho)-pWater->phi0(tau,rho/pWater->reduce.rho)); //[kJ/kmol/K]
+	sbar_w = R_bar*(tau*pWater->dphi0_dTau(tau,rho/pWater->reduce.rho)-pWater->phi0(tau,rho/pWater->reduce.rho)); //[kJ/kmol/K]
 	return sbar_w; 
 }
 double IdealGasMolarEnthalpy_Air(double T, double v_bar)
@@ -830,7 +832,7 @@ public:
 
 		// Enhancement Factor at wetbulb temperature [-]
         f_wb=f_factor(Twb,_p);
-        if (Twb>273.16)
+        if (Twb > 273.16)
         {
             // Saturation pressure at wetbulb temperature [kPa]
             p_ws_wb=Props('P','T',Twb,'Q',0,(char *)"Water");
@@ -842,12 +844,12 @@ public:
         }
             
         // Vapor pressure
-        p_s_wb=f_wb*p_ws_wb;
+        p_s_wb = f_wb*p_ws_wb;
         // wetbulb humidity ratio
-        W_s_wb=epsilon*p_s_wb/(_p-p_s_wb);
+        W_s_wb = epsilon*p_s_wb/(_p-p_s_wb);
         // wetbulb water mole fraction
-        psi_wb=W_s_wb/(epsilon+W_s_wb);
-        if (Twb>273.16)
+        psi_wb = W_s_wb/(epsilon+W_s_wb);
+        if (Twb > 273.16)
         {
             // Enthalpy of water [kJ/kg_water]
             h_w=Props('H','T',Twb,'P',_p,(char *)"Water");
@@ -890,10 +892,10 @@ double WetbulbTemperature(double T, double p, double psi_w)
     // ------------------------------------------
     // Iteratively find the wetbulb temperature
     // ------------------------------------------
-
-	// The highest wetbulb temperature that is possible is the dry bulb
-	// temperature if the temperature is less than the saturation temperature of water
-	// for the given atmospheric pressure.
+	//  
+	// If the temperature is less than the saturation temperature of water
+	// for the given atmospheric pressure, the highest wetbulb temperature that is possible is the dry bulb
+	// temperature
 	//
 	// If the temperature is above the saturation temperature corresponding to the atmospheric pressure,
 	// then the maximum value for the wetbulb temperature is the saturation temperature
@@ -1064,6 +1066,9 @@ EXPORT_CODE double CONVENTION HAProps(char *OutputName, char *Input1Name, double
 		double vals[3],p,T,RH,W,Tdp,psi_w,M_ha,v_bar,h_bar,s_bar,MainInputValue,SecondaryInputValue,T_guess;
 		double Value1,Value2,W_guess;
 		char MainInputName[100], SecondaryInputName[100],Name1[100],Name2[100];
+
+		pWater = get_fluid(get_Fluid_index("Water"));
+		pAir = get_fluid(get_Fluid_index("Air"));
 	    
 		vals[0]=Input1;
 		vals[1]=Input2;
@@ -1131,7 +1136,7 @@ EXPORT_CODE double CONVENTION HAProps(char *OutputName, char *Input1Name, double
 					return _HUGE;
 				}
 				// Find the value for W
-				W_guess=0.001;
+				W_guess=0.0001;
 				W=Secant_HAProps_W(SecondaryInputName,(char *)"P",p,(char *)"T",T,SecondaryInputValue,W_guess);
 				// Mole fraction of water
 				psi_w=MoleFractionWater(T,p,GIVEN_HUMRAT,W);
@@ -1216,7 +1221,8 @@ EXPORT_CODE double CONVENTION HAProps(char *OutputName, char *Input1Name, double
 			{
 				try{
 					T = Secant_HAProps_T(SecondaryInputName,(char *)"P",p,MainInputName,MainInputValue,SecondaryInputValue,T_guess);
-					if (!ValidNumber(T) || !(T_min < T && T < T_max) || fabs(HAProps(SecondaryInputName,(char *)"T",T,(char *)"P",p,MainInputName,MainInputValue)-SecondaryInputValue)>1e-6)
+					double val = HAProps(SecondaryInputName,(char *)"T",T,(char *)"P",p,MainInputName,MainInputValue);
+					if (!ValidNumber(T) || !ValidNumber(val) || !(T_min < T && T < T_max) || fabs(val-SecondaryInputValue)>1e-6)
 					{ 
 						throw ValueError(); 
 					}

@@ -14,20 +14,7 @@ try:
 except ImportError:
     _numpy_supported = False
 
-import cython
 import math
-
-# Default string in Python 3.x is a unicode string (type str)
-# Default string in Python 2.x is a byte string(type bytes) 
-#
-# Create a fused type that allows for either unicode string or bytestring
-# We encode unicode strings using the ASCII encoding since we know they are all
-# ASCII strings 
-ctypedef fused bytes_or_str:
-    cython.bytes
-    cython.str
-
-include "CyState.pyx"
 
 from param_constants import *
 from param_constants_header cimport *
@@ -35,9 +22,12 @@ from param_constants_header cimport *
 from phase_constants import *
 from phase_constants_header cimport *
 
+cpdef bint iterable(object a):
+    return isinstance(a,(list,tuple, np.ndarray))
+    
 include "HumidAirProp.pyx"
     
-def set_reference_state(bytes_or_str FluidName, *args):
+def set_reference_state(string_like FluidName, *args):
     """
     Accepts one of two signatures:
     
@@ -83,7 +73,7 @@ def set_reference_state(bytes_or_str FluidName, *args):
     if retval < 0:
         raise ValueError('Unable to set reference state')
         
-cpdef add_REFPROP_fluid(bytes_or_str FluidName):
+cpdef add_REFPROP_fluid(string_like FluidName):
     """
     Add a REFPROP fluid to CoolProp internal structure
     
@@ -94,7 +84,7 @@ cpdef add_REFPROP_fluid(bytes_or_str FluidName):
     """
     _add_REFPROP_fluid(FluidName)
     
-cpdef long get_Fluid_index(bytes_or_str Fluid):
+cpdef long get_Fluid_index(string_like Fluid):
     """
     Gets the integer index of the given CoolProp fluid (primarily for use in ``IProps`` function)
     """
@@ -125,10 +115,10 @@ cpdef double IProps(long iOutput, long iInput1, double Input1, long iInput2, dou
     else:
         return val
 
-cpdef get_global_param_string(bytes_or_str param):
+cpdef get_global_param_string(string_like param):
     return _get_global_param_string(param)
     
-cpdef get_fluid_param_string(bytes_or_str fluid, bytes_or_str param):
+cpdef get_fluid_param_string(string_like fluid, string_like param):
     return _get_fluid_param_string(fluid, param)
     
 def isConstant(what):
@@ -214,7 +204,25 @@ cpdef toSI(str in1, in2=None, str in3='kSI'):
         else:
             return result
     
-cpdef Props(str in1, str in2, in3 = None, in4 = None, in5 = None, in6 = None, in7 = None):
+cpdef ndarray_or_iterable(object input):
+    if _numpy_supported:
+        return np.array(input)
+    else:
+        return input
+    
+cpdef __Props_err1(in1,in2,errstr):
+    if not len(errstr) == 0:
+        raise ValueError("{err:s} :: inputs were :\"{in1:s}\",\"{in2:s}\"".format(err= errstr,in1=in1,in2=in2))
+    else:
+        raise ValueError("Props failed ungracefully with inputs:\"{in1:s}\",\"{in2:s}\"; please file a ticket at https://github.com/ibell/coolprop/issues".format(in1=in1,in2=in2))
+        
+cpdef __Props_err2(in1, in2, in3, in4, in5, in6, errstr):
+    if not len(errstr) == 0:
+        raise ValueError("{err:s} :: inputs were:\"{in1:s}\",\"{in2:s}\",{in3:0.16e},\"{in4:s}\",{in5:0.16e},\"{in6:s}\"".format(err=errstr,in1=in1,in2=in2,in3=in3,in4=in4,in5=in5,in6=in6))
+    else:
+        raise ValueError("Props failed ungracefully :: inputs were:\"{in1:s}\",\"{in2:s}\",{in3:0.16e},\"{in4:s}\",{in5:0.16e},\"{in6:s}\"; please file a ticket at https://github.com/ibell/coolprop/issues".format(in1=in1,in2=in2,in3=in3,in4=in4,in5=in5,in6=in6))
+        
+cpdef Props(in1, in2, in3 = None, in4 = None, in5 = None, in6 = None, in7 = None):
     """
     Call Type #1::
 
@@ -289,109 +297,57 @@ cpdef Props(str in1, str in2, in3 = None, in4 = None, in5 = None, in6 = None, in
     
     **Python Only** : InputProp1 and InputProp2 can be lists or numpy arrays.  If both are iterables, they must be the same size. 
     
-    
     If `InputName1` is `T` and `OutputName` is ``I`` or ``SurfaceTension``, the second input is neglected
     since surface tension is only a function of temperature
-    
-    Call Type #3:
-    New in 2.2
-    If you provide InputName1 or InputName2 as a derived class of Quantity, the value will be internally
-    converted to the required units as long as it is dimensionally correct.  Otherwise a ValueError will 
-    be raised by the conversion
     """
-    cdef bytes errs,_in1,_in2,_in4,_in6,_in7
-    cdef double _in3, _in5
-    cdef char in2_char, in4_char
+    cdef double _in3
         
     if (in4 is None and in6 is None and in7 is None):
-        val = _Props1(in1.encode('ascii'), in2.encode('ascii'))
-        if math.isinf(val) or math.isnan(val):
-            err_string = _get_global_param_string('errstring')
-            if not len(err_string) == 0:
-                raise ValueError("{err:s} :: inputs were :\"{in1:s}\",\"{in2:s}\"".format(err= err_string,in1=in1,in2=in2))
-            else:
-                raise ValueError("Props failed ungracefully with inputs:\"{in1:s}\",\"{in2:s}\"; please file a ticket at https://github.com/ibell/coolprop/issues".format(in1=in1,in2=in2))
+        val = _Props1(in1, in2)
+        if not _ValidNumber(val):
+            __Props_err1(in2,in2,_get_global_param_string('errstring'))
         else:
             return val
     else:
-
-        in2_char = (<bytes>(in2.encode('ascii')))[0]
-        in4_char = (<bytes>(in4.encode('ascii')))[0]
-        
-        if isinstance(in3, (int, long, float, complex)) and isinstance(in5, (int, long, float, complex)):
-            val = _Props(in1.encode('ascii'), in2_char, in3, in4_char, in5, in6.encode('ascii'))
-        
-            if math.isinf(val) or math.isnan(val):
-                err_string = _get_global_param_string('errstring')
-                if not len(err_string) == 0:
-                    raise ValueError("{err:s} :: inputs were:\"{in1:s}\",\'{in2:s}\',{in3:0.16e},\'{in4:s}\',{in5:0.16e},\"{in6:s}\"".format(err=err_string,in1=in1,in2=in2,in3=in3,in4=in4,in5=in5,in6=in6))
-                else:
-                    raise ValueError("Props failed ungracefully with inputs:\"{in1:s}\",\'{in2:s}\',{in3:0.16e},\'{in4:s}\',{in5:0.16e},\"{in6:s}\"; please file a ticket at https://github.com/ibell/coolprop/issues".format(in1=in1,in2=in2,in3=in3,in4=in4,in5=in5,in6=in6))
-            
+        if not iterable(in3) and not iterable(in5):
+            val = _PropsS(in1, in2, in3, in4, in5, in6)
+            if not _ValidNumber(val):
+                __Props_err2(in1,in2,in3,in4,in5,in6,_get_global_param_string('errstring'))
             else:
-                return val #Error raised by Props2 on failure
-            
-        elif isinstance(in3, (int, long, float, complex)): #in5 can be an iterable
+                return val
+        elif iterable(in3) and iterable(in5):
+            if len(in3) != len(in5) : raise TypeError('Lengths of iterables must be the same')
             vals = []
-            for _in5 in in5:
-                val = _Props(in1.encode('ascii'), in2_char, in3, in4_char, _in5, in6.encode('ascii'))
-            
-                if math.isinf(val) or math.isnan(val):
-                    err_string = _get_global_param_string('errstring')
-                    if not len(err_string) == 0:
-                        raise ValueError("{err:s} :: inputs were:\"{in1:s}\",\'{in2:s}\',{in3:0.16e},\'{in4:s}\',{in5:0.16e},\"{in6:s}\"".format(err=err_string,in1=in1,in2=in2,in3=in3,in4=in4,in5=_in5,in6=in6))
-                    else:
-                        raise ValueError("Props failed ungracefully with inputs:\"{in1:s}\",\'{in2:s}\',{in3:0.16e},\'{in4:s}\',{in5:0.16e},\"{in6:s}\"; please file a ticket at https://github.com/ibell/coolprop/issues".format(in1=in1,in2=in2,in3=in3,in4=in4,in5=_in5,in6=in6))
-                
+            for _in3, _in5 in zip(in3,in5):
+                val = _PropsS(in1, in2, _in3, in4, _in5, in6)
+                if not _ValidNumber(val):
+                    __Props_err2(in1,in2,_in3,in4,_in5,in6,_get_global_param_string('errstring'))
                 vals.append(val)
-                
-            if _numpy_supported and isinstance(in5, np.ndarray):
-                return np.array(vals).reshape(in5.shape)
-            else:
-                return type(in5)(vals)
-        
-        elif isinstance(in5, (int, long, float, complex)): #in3 can be an iterable
+            return ndarray_or_iterable(vals)
+        else:
+            if iterable(in5) and not iterable(in3):
+                in3, in5 = in5, in3 # swap 3 and 5 so 3 is the iterable
+                in2, in4 = in4, in2 # swap their keys too
             vals = []
             for _in3 in in3:
-                val = _Props(in1.encode('ascii'), in2_char, _in3, in4_char, in5, in6.encode('ascii'))
-            
-                if math.isinf(val) or math.isnan(val):
-                    err_string = _get_global_param_string('errstring')
-                    if not len(err_string) == 0:
-                        raise ValueError("{err:s} :: inputs were:\"{in1:s}\",\'{in2:s}\',{in3:0.16e},\'{in4:s}\',{in5:0.16e},\"{in6:s}\"".format(err=err_string,in1=in1,in2=in2,in3=_in3,in4=in4,in5=in5,in6=in6))
-                    else:
-                        raise ValueError("Props failed ungracefully with inputs:\"{in1:s}\",\'{in2:s}\',{in3:0.16e},\'{in4:s}\',{in5:0.16e},\"{in6:s}\"; please file a ticket at https://github.com/ibell/coolprop/issues".format(in1=in1,in2=in2,in3=_in3,in4=in4,in5=in5,in6=in6))
-                
+                val = _PropsS(in1, in2, _in3, in4, in5, in6)
+                if not _ValidNumber(val):
+                    __Props_err2(in1,in2,_in3,in4,in5,in6,_get_global_param_string('errstring'))
                 vals.append(val)
-                
-            if _numpy_supported and isinstance(in3, np.ndarray):
-                return np.array(vals).reshape(in3.shape)
-            else:
-                return type(in3)(vals)
-        else: #Either both are iterables or its a failure
-            if not len(in3) == len(in5):
-                raise TypeError('Both iterables must be the same length') 
-            try:
-                vals = []
-                for _in3,_in5 in zip(in3,in5):
-                    val = _Props(in1.encode('ascii'), in2_char, _in3, in4_char, _in5, in6.encode('ascii'))
-                
-                    if math.isinf(val) or math.isnan(val):
-                        err_string = _get_global_param_string('errstring') 
-                        if not len(err_string) == 0:
-                            raise ValueError("{err:s} :: inputs were:\"{in1:s}\",\'{in2:s}\',{in3:0.16e},\'{in4:s}\',{in5:0.16e},\"{in6:s}\"".format(err=err_string,in1=in1,in2=in2,in3=_in3,in4=in4,in5=_in5,in6=in6))
-                        else:
-                            raise ValueError("Props failed ungracefully with inputs:\"{in1:s}\",\'{in2:s}\',{in3:0.16e},\'{in4:s}\',{in5:0.16e},\"{in6:s}\"; please file a ticket at https://github.com/ibell/coolprop/issues".format(in1=in1,in2=in2,in3=_in3,in4=in4,in5=_in5,in6=in6))
-                    
-                    vals.append(val)
-                    
-                if _numpy_supported and isinstance(in3, np.ndarray):
-                    return np.array(vals).reshape(in3.shape)
-                else:
-                    return type(in3)(vals)
-            except TypeError:   
-                raise TypeError('Numerical inputs to Props must be ints, floats, lists, or 1D numpy arrays.')
-                
+            return ndarray_or_iterable(vals)
+       
+cpdef __PropSIs_err1(in1,in2,errstr):
+    if not len(errstr) == 0:
+        raise ValueError("{err:s} :: inputs were :\"{in1:s}\",\"{in2:s}\"".format(err= errstr,in1=in1,in2=in2))
+    else:
+        raise ValueError("PropsSI failed ungracefully with inputs:\"{in1:s}\",\"{in2:s}\"; please file a ticket at https://github.com/ibell/coolprop/issues".format(in1=in1,in2=in2))
+        
+cpdef __PropsSI_err2(in1, in2, in3, in4, in5, in6, errstr):
+    if not len(errstr) == 0:
+        raise ValueError("{err:s} :: inputs were:\"{in1:s}\",\"{in2:s}\",{in3:0.16e},\"{in4:s}\",{in5:0.16e},\"{in6:s}\"".format(err=errstr,in1=in1,in2=in2,in3=in3,in4=in4,in5=in5,in6=in6))
+    else:
+        raise ValueError("PropsSI failed ungracefully :: inputs were:\"{in1:s}\",\"{in2:s}\",{in3:0.16e},\"{in4:s}\",{in5:0.16e},\"{in6:s}\"; please file a ticket at https://github.com/ibell/coolprop/issues".format(in1=in1,in2=in2,in3=in3,in4=in4,in5=in5,in6=in6))
+                        
 cpdef PropsSI(str in1, str in2, in3 = None, in4 = None, in5 = None, in6 = None, in7 = None):
     """
     Just like Props(), but this function ALWAYS takes in and returns SI units (K, kg, J/kg, Pa, N/m, etc.)
@@ -473,95 +429,39 @@ cpdef PropsSI(str in1, str in2, in3 = None, in4 = None, in5 = None, in6 = None, 
     since surface tension is only a function of temperature
     
     """
-    cdef bytes errs,_in1,_in2,_in4,_in6,_in7
-    cdef double _in3, _in5
-    cdef char in2_char, in4_char
-        
-    if (in4 is None and in5 is None and in6 is None and in7 is None):
+    if (in4 is None and in6 is None and in7 is None):
         val = _Props1SI(in1, in2)
-        if math.isinf(val) or math.isnan(val):
-            err_string = _get_global_param_string('errstring')
-            if not len(err_string) == 0:
-                raise ValueError("{err:s} :: inputs were :\"{in1:s}\",\"{in2:s}\"".format(err= err_string,in1=in1,in2=in2))
-            else:
-                raise ValueError("Props failed ungracefully with inputs:\"{in1:s}\",\"{in2:s}\"; please file a ticket at https://github.com/ibell/coolprop/issues".format(in1=in1,in2=in2))
+        if not _ValidNumber(val):
+            __Props_err1(in2,in2,_get_global_param_string('errstring'))
         else:
             return val
     else:
-        
-        if isinstance(in3, (int, long, float, complex)) and isinstance(in5, (int, long, float, complex)):
+        if not iterable(in3) and not iterable(in5):
             val = _PropsSI(in1, in2, in3, in4, in5, in6)
-        
-            if math.isinf(val) or math.isnan(val):
-                err_string = _get_global_param_string('errstring')
-                if not len(err_string) == 0:
-                    raise ValueError("{err:s} :: inputs were:\"{in1:s}\",\'{in2:s}\',{in3:0.16e},\'{in4:s}\',{in5:0.16e},\"{in6:s}\"".format(err=err_string,in1=in1,in2=in2,in3=in3,in4=in4,in5=in5,in6=in6))
-                else:
-                    raise ValueError("PropsSI failed ungracefully with inputs:\"{in1:s}\",\'{in2:s}\',{in3:0.16e},\'{in4:s}\',{in5:0.16e},\"{in6:s}\"; please file a ticket at https://github.com/ibell/coolprop/issues".format(in1=in1,in2=in2,in3=in3,in4=in4,in5=in5,in6=in6))
-            
-            return val 
-            
-        elif isinstance(in3, (int, long, float, complex)): #in5 can be an iterable
-            vals = []
-            for _in5 in in5:
-                val = _PropsSI(in1, in2, in3, in4, _in5, in6)
-            
-                if math.isinf(val) or math.isnan(val):
-                    err_string = _get_global_param_string('errstring')
-                    if not len(err_string) == 0:
-                        raise ValueError("{err:s} :: inputs were:\"{in1:s}\",\'{in2:s}\',{in3:0.16e},\'{in4:s}\',{in5:0.16e},\"{in6:s}\"".format(err=err_string,in1=in1,in2=in2,in3=in3,in4=in4,in5=_in5,in6=in6))
-                    else:
-                        raise ValueError("Props failed ungracefully with inputs:\"{in1:s}\",\'{in2:s}\',{in3:0.16e},\'{in4:s}\',{in5:0.16e},\"{in6:s}\"; please file a ticket at https://github.com/ibell/coolprop/issues".format(in1=in1,in2=in2,in3=in3,in4=in4,in5=_in5,in6=in6))
-                
-                vals.append(val)
-                
-            if _numpy_supported and isinstance(in5, np.ndarray):
-                return np.array(vals).reshape(in5.shape)
+            if not _ValidNumber(val):
+                __PropsSI_err2(in1,in2,in3,in4,in5,in6,_get_global_param_string('errstring'))
             else:
-                return type(in5)(vals)
-        
-        elif isinstance(in5, (int, long, float, complex)): #in3 can be an iterable
+                return val
+        elif iterable(in3) and iterable(in5):
+            if len(in3) != len(in5) : raise TypeError('Lengths of iterables must be the same')
+            vals = []
+            for _in3, _in5 in zip(in3,in5):
+                val = _PropsSI(in1, in2, _in3, in4, _in5, in6)
+                if not _ValidNumber(val):
+                    __PropsSI_err2(in1,in2,_in3,in4,_in5,in6,_get_global_param_string('errstring'))
+                vals.append(val)
+            return ndarray_or_iterable(vals)
+        else:
+            if iterable(in5) and not iterable(in3):
+                in3, in5 = in5, in3 # swap 3 and 5 so 3 is the iterable
+                in2, in4 = in4, in2 # swap their keys too
             vals = []
             for _in3 in in3:
                 val = _PropsSI(in1, in2, _in3, in4, in5, in6)
-            
-                if math.isinf(val) or math.isnan(val):
-                    err_string = _get_global_param_string('errstring')
-                    if not len(err_string) == 0:
-                        raise ValueError("{err:s} :: inputs were:\"{in1:s}\",\'{in2:s}\',{in3:0.16e},\'{in4:s}\',{in5:0.16e},\"{in6:s}\"".format(err=err_string,in1=in1,in2=in2,in3=_in3,in4=in4,in5=in5,in6=in6))
-                    else:
-                        raise ValueError("PropsSI failed ungracefully with inputs:\"{in1:s}\",\'{in2:s}\',{in3:0.16e},\'{in4:s}\',{in5:0.16e},\"{in6:s}\"; please file a ticket at https://github.com/ibell/coolprop/issues".format(in1=in1,in2=in2,in3=_in3,in4=in4,in5=in5,in6=in6))
-                
+                if not _ValidNumber(val):
+                    __PropsSI_err2(in1,in2,_in3,in4,in5,in6,_get_global_param_string('errstring'))
                 vals.append(val)
-                
-            if _numpy_supported and isinstance(in3, np.ndarray):
-                return np.array(vals).reshape(in3.shape)
-            else:
-                return type(in3)(vals)
-                
-        else: #Either both are iterables or its a failure
-            if not len(in3) == len(in5):
-                raise TypeError('Both iterables must be the same length') 
-            try:
-                vals = []
-                for _in3,_in5 in zip(in3,in5):
-                    val = _PropsSI(in1, in2, _in3, in4, _in5, in6)
-                
-                    if math.isinf(val) or math.isnan(val):
-                        err_string = _get_global_param_string('errstring')
-                        if not len(err_string) == 0:
-                            raise ValueError("{err:s} :: inputs were:\"{in1:s}\",\'{in2:s}\',{in3:0.16e},\'{in4:s}\',{in5:0.16e},\"{in6:s}\"".format(err=err_string,in1=in1,in2=in2,in3=_in3,in4=in4,in5=_in5,in6=in6))
-                        else:
-                            raise ValueError("Props failed ungracefully with inputs:\"{in1:s}\",\'{in2:s}\',{in3:0.16e},\'{in4:s}\',{in5:0.16e},\"{in6:s}\"; please file a ticket at https://github.com/ibell/coolprop/issues".format(in1=in1,in2=in2,in3=_in3,in4=in4,in5=_in5,in6=in6))
-                    
-                    vals.append(val)
-                    
-                if _numpy_supported and isinstance(in3, np.ndarray):
-                    return np.array(vals).reshape(in3.shape)
-                else:
-                    return type(in3)(vals)
-            except TypeError:   
-                raise TypeError('Numerical inputs to Props must be ints, floats, lists, or 1D numpy arrays.')
+            return ndarray_or_iterable(vals)
 
 def DerivTermsU(in1, T, rho, fluid, units = None):
     """Make the DerivTerms function handle different kinds of unit sets. Use 
@@ -855,7 +755,7 @@ cpdef tuple get_TTSESinglePhase_LUT_range(char *FluidName):
     else:
         raise ValueError("Either your FluidName was invalid or LUT bounds not available since no call has been made to tables")
 
-cpdef tuple conformal_Trho(bytes_or_str Fluid, bytes_or_str ReferenceFluid, double T, double rho):
+cpdef tuple conformal_Trho(string_like Fluid, string_like ReferenceFluid, double T, double rho):
     """
     
     """    
@@ -863,28 +763,28 @@ cpdef tuple conformal_Trho(bytes_or_str Fluid, bytes_or_str ReferenceFluid, doub
     _conformal_Trho(Fluid, ReferenceFluid, T, rho, &T0, &rho0)
     return T0,rho0
 
-cpdef rhosatL_anc(bytes_or_str Fluid, double T):
+cpdef rhosatL_anc(string_like Fluid, double T):
     return _rhosatL_anc(Fluid,T)
 
-cpdef rhosatV_anc(bytes_or_str Fluid, double T):
+cpdef rhosatV_anc(string_like Fluid, double T):
     return _rhosatV_anc(Fluid,T)
 
-cpdef psatL_anc(bytes_or_str Fluid, double T):
+cpdef psatL_anc(string_like Fluid, double T):
     return _psatL_anc(Fluid,T)
 
-cpdef psatV_anc(bytes_or_str Fluid, double T):
+cpdef psatV_anc(string_like Fluid, double T):
     return _psatV_anc(Fluid,T)
 
-cpdef viscosity_residual(bytes_or_str Fluid, double T, double rho):
+cpdef viscosity_residual(string_like Fluid, double T, double rho):
     return _viscosity_residual(Fluid, T, rho)
 
-cpdef viscosity_dilute(bytes_or_str Fluid, double T):
+cpdef viscosity_dilute(string_like Fluid, double T):
     return _viscosity_dilute(Fluid,T)
 
-cpdef conductivity_background(bytes_or_str Fluid, double T, double rho):
+cpdef conductivity_background(string_like Fluid, double T, double rho):
     return _conductivity_background(Fluid,T, rho)
 
-cpdef conductivity_critical(bytes_or_str Fluid, double T, double rho):
+cpdef conductivity_critical(string_like Fluid, double T, double rho):
     return _conductivity_critical(Fluid,T, rho)
     
 cpdef set_standard_unit_system(int unit_system):
@@ -940,7 +840,7 @@ cdef class State:
     sets the internal variables in the most computationally efficient way possible
     """
         
-    def __init__(self, str Fluid, dict StateDict, double xL=-1.0, object Liquid = None, object phase = None):
+    def __init__(self, string Fluid, dict StateDict, object phase = None):
         """
         Parameters
         ----------
@@ -949,27 +849,13 @@ cdef class State:
             The state of the fluid - passed to the update function
         phase, string
             The phase of the fluid, it it is known.  One of ``Gas``,``Liquid``,``Supercritical``,``TwoPhase``
-        xL, float
-            Liquid mass fraction (not currently supported)
-        Liquid, string
-            The name of the liquid (not currently supported)
         """
-        cdef bytes _Fluid = Fluid.encode('ascii')
-        cdef bytes _Liquid
+        cdef bytes _Fluid = Fluid
         
-        if Fluid == 'none':
+        if _Fluid == 'none':
             return
         else:
-            self.set_Fluid(Fluid)
-        
-        if Liquid is None:
-            _Liquid = b''
-        elif isinstance(Liquid,str):
-            _Liquid = Liquid.encode('ascii')
-        elif isinstance(Liquid,bytes):
-            _Liquid = Liquid
-        else:
-            raise TypeError()
+            self.set_Fluid(_Fluid)
             
         if phase is None:
             _phase = b''
@@ -980,33 +866,29 @@ cdef class State:
         else:
             raise TypeError()
         
-        self.xL = xL
-        self.Liquid = _Liquid
         self.phase = _phase
         #Parse the inputs provided
         self.update(StateDict)
         #Set the phase flag
         if self.phase == str('Gas') or self.phase == str('Liquid') or self.phase == str('Supercritical'):
             if self.is_CPFluid and (self.phase == str('Gas') or self.phase == str('Liquid')):
-                self.PFC.CPS.flag_SinglePhase = True
+                self.CPS.flag_SinglePhase = True
             elif not self.is_CPFluid and self.phase is not None:
                 _set_phase(self.phase)
             
     def __reduce__(self):
         d={}
-        d['xL']=self.xL
-        d['Liquid']=self.Liquid
         d['Fluid']=self.Fluid
         d['T']=self.T_
         d['rho']=self.rho_
         d['phase'] = self.phase
         return rebuildState,(d,)
         
-    cpdef set_Fluid(self, str Fluid):
+    cpdef set_Fluid(self, string_like Fluid):
         self.Fluid = Fluid.encode('ascii')
 
         if Fluid.startswith('REFPROP-'):
-            add_REFPROP_fluid(Fluid)
+            _add_REFPROP_fluid(Fluid)
         self.iFluid = get_Fluid_index(Fluid)
         
         #  Try to get the fluid from CoolProp
@@ -1014,7 +896,7 @@ cdef class State:
             #  It is a CoolProp Fluid so we can use the faster integer passing function
             self.is_CPFluid = True
             #  Instantiate the C++ State class
-            self.PFC = PureFluidClass(self.Fluid)
+            self.CPS = CoolPropStateClassSI(self.Fluid)
         else:
             #  It is not a CoolProp fluid, have to use the slower calls
             self.is_CPFluid = False
@@ -1031,15 +913,17 @@ cdef class State:
             Enthalpy [kJ/kg]
         
         """
+        p = _toSIints(iP, p, _get_standard_unit_system());
+        h = _toSIints(iH, h, _get_standard_unit_system());
         self.p_ = p
         cdef double T
         
         if self.is_CPFluid:
-            self.PFC.update(iP, p, iH, h)
-            self.T_ = self.PFC.T()
-            self.rho_ = self.PFC.rho()
+            self.CPS.update(iP, p, iH, h)
+            self.T_ = self.CPS.T()
+            self.rho_ = self.CPS.rho()
         else:
-            T = _Props('T','P',p,'H',h,self.Fluid)
+            T = _PropsSI('T','P',p,'H',h,self.Fluid)
             if abs(T)<1e90:
                 self.T_=T
             else:
@@ -1064,18 +948,20 @@ cdef class State:
         self.rho_ = rho
         
         if self.is_CPFluid:
-            self.PFC.update(iT,T,iD,rho)
-            p = self.PFC.p()
+            self.CPS.update(iT,T,iD,rho)
+            p = self.CPS.p()
         else:
             p = _Props('P','T',T,'D',rho,self.Fluid)
         
-        if abs(p)<1e90:
+        p = _fromSIints(iP, p, _get_standard_unit_system());
+        
+        if _ValidNumber(p):
             self.p_ = p
         else:
             errstr = _get_global_param_string('errstring')
-            raise ValueError(errstr)
+            raise ValueError(errstr+' for T,rho = '+str(T)+','+str(rho)+' '+str(p)+' '+str(_ValidNumber(p)))
         
-    cpdef update(self, dict params, double xL=-1.0):
+    cpdef update(self, dict params):
         """
         Parameters
         params, dictionary 
@@ -1083,73 +969,59 @@ cdef class State:
             for instance ``dict(T=298, P = 101.325)`` would be one standard atmosphere
         """
             
-        cdef double p
+        cdef double p, val1, val2
         cdef long iInput1, iInput2
         cdef bytes errstr
-        
-        # If no value for xL is provided, it will have a value of -1 which is 
-        # impossible, so don't update xL
-        if xL > 0:
-            #There is liquid
-            self.xL=xL
-            self.hasLiquid=True
-        else:
-            #There's no liquid
-            self.xL=0.0
-            self.hasLiquid=False
-        
-        #Given temperature and pressure, determine density of gas 
-        # (or gas and oil if xL is provided)
-        if abs(self.xL)<=1e-15:
             
-            if self.is_CPFluid:
-                items = list(params.items())
-                iInput1 = paras_inverse[items[0][0]]
-                iInput2 = paras_inverse[items[1][0]]
-                try: 
-                    self.PFC.update(iInput1, items[0][1], iInput2, items[1][1])
-                except:
-                    raise
-                self.T_ = self.PFC.T()
-                self.p_ = self.PFC.p()
-                self.rho_ = self.PFC.rho()
-                return
+        if self.is_CPFluid:
+            items = list(params.items())
+            iInput1 = paras_inverse[items[0][0]]
+            iInput2 = paras_inverse[items[1][0]]
+            # Convert to SI units
+            val1 = _toSIints(iInput1, items[0][1], _get_standard_unit_system());
+            val2 = _toSIints(iInput2, items[1][1], _get_standard_unit_system());
+            try: 
+                self.CPS.update(iInput1, val1, iInput2, val2)
+            except:
+                raise
+            self.T_ = self.CPS.T()
+            self.p_ =  _fromSIints(iP, self.CPS.p(), _get_standard_unit_system());
+            self.rho_ = self.CPS.rho()
             
-            #Get the density if T,P provided, or pressure if T,rho provided
-            if 'P' in params:
-                self.p_=params['P']
-                rho = _Props('D','T',self.T_,'P',self.p_,self.Fluid)
-                
-                if abs(rho) < 1e90:
-                    self.rho_=rho
-                else:
-                    errstr = _get_global_param_string('errstring')
-                    raise ValueError(errstr)
-            elif 'D' in params:
-                self.rho_=params['D']
-                p = _Props('P','T',self.T_,'D',self.rho_,self.Fluid)
-                
-                if abs(p)<1e90:
-                    self.p_=p
-                else:
-                    errstr = _get_global_param_string('errstring')
-                    raise ValueError(errstr+str(params))
-            elif 'Q' in params:
-                p = _Props('P','T',self.T_,'Q',params['Q'],self.Fluid)
-                self.rho_ = _Props('D','T',self.T_,'Q',params['Q'],self.Fluid)
-                
-                if abs(self.rho_)<1e90:
-                    pass
-                else:
-                    errstr = _get_global_param_string('errstring')
-                    raise ValueError(errstr+str(params))
+            if not _ValidNumber(self.T_) or not _ValidNumber(self.p_) or not _ValidNumber(self.rho_):
+                raise ValueError(str(params))
+            return
+        
+        #Get the density if T,P provided, or pressure if T,rho provided
+        if 'P' in params:
+            self.p_=params['P']
+            rho = _Props('D','T',self.T_,'P',self.p_,self.Fluid)
+            
+            if abs(rho) < 1e90:
+                self.rho_=rho
             else:
-                raise KeyError("Dictionary must contain the key 'T' and one of 'P' or 'D'")
+                errstr = _get_global_param_string('errstring')
+                raise ValueError(errstr)
+        elif 'D' in params:
+            self.rho_=params['D']
+            p = _Props('P','T',self.T_,'D',self.rho_,self.Fluid)
             
-        elif self.xL>0 and self.xL<=1:
-            raise ValueError('xL is out of range - value for xL is [0,1]')
+            if abs(p)<1e90:
+                self.p_=p
+            else:
+                errstr = _get_global_param_string('errstring')
+                raise ValueError(errstr+str(params))
+        elif 'Q' in params:
+            p = _Props('P','T',self.T_,'Q',params['Q'],self.Fluid)
+            self.rho_ = _Props('D','T',self.T_,'Q',params['Q'],self.Fluid)
+            
+            if abs(self.rho_)<1e90:
+                pass
+            else:
+                errstr = _get_global_param_string('errstring')
+                raise ValueError(errstr+str(params))
         else:
-            raise ValueError('xL must be between 0 and 1')
+            raise KeyError("Dictionary must contain the key 'T' and one of 'P' or 'D'")
         
     cpdef long Phase(self) except *:
         """
@@ -1161,7 +1033,7 @@ cdef class State:
         """
         
         if self.is_CPFluid:
-            return self.PFC.phase()
+            return self.CPS.phase()
         else:
             raise NotImplementedError("Phase not defined for fluids other than CoolProp fluids")
         
@@ -1170,7 +1042,8 @@ cdef class State:
             raise ValueError('Your output is invalid') 
         
         if self.is_CPFluid:
-            return self.PFC.keyed_output(iOutput)
+            val = self.CPS.keyed_output(iOutput)
+            return _fromSIints(iOutput,val,_get_standard_unit_system());
         else:
             return _Props(paras[iOutput],'T',self.T_,'D',self.rho_,self.Fluid)
             
@@ -1280,11 +1153,10 @@ cdef class State:
         
         Returns ``None`` if pressure is not within the two-phase pressure range 
         """
-        import CoolProp as CP
-        if self.p_ > CP.Props(self.Fluid,'pcrit') or self.p_ < CP.Props(self.Fluid,'ptriple'):
+        if self.p_ > _Props1(self.Fluid,'pcrit') or self.p_ < _Props1(self.Fluid,'ptriple'):
             return None 
         else:
-            return CP.Props('T', 'P', self.p_, 'Q', Q, self.Fluid)
+            return _Props('T', 'P', self.p_, 'Q', Q, self.Fluid)
     property Tsat:
         """ The saturation temperature (dew) for the given pressure, in [K]"""
         def __get__(self):
@@ -1341,7 +1213,7 @@ cdef class State:
             
     cpdef double get_dpdT(self) except *:
         if self.is_CPFluid:
-            return self.PFC.dpdT_constrho()
+            return _fromSIints(iDERdp_dT__rho, self.CPS.dpdT_constrho(), _get_standard_unit_system());
         else:
             raise ValueError("get_dpdT not supported for fluids that are not in CoolProp")
     property dpdT:
@@ -1392,8 +1264,8 @@ cdef class State:
         for key in keys:
             t1=clock()
             for i in range(N):
-                self.PFC.update(iT,self.T_,iD,self.rho_)
-                self.PFC.keyed_output(key)
+                self.CPS.update(iT,self.T_,iD,self.rho_)
+                self.CPS.keyed_output(key)
             t2=clock()
             print 'Elapsed time for {0:d} calls for "{1:s}" at {2:g} us/call'.format(N,paras[key],(t2-t1)/N*1e6)
         
@@ -1406,9 +1278,9 @@ cdef class State:
         print "'M' involves basically no computational effort and is a good measure of the function call overhead"
         for ikey in keys:
             t1=clock()
-            self.PFC.update(iT,self.T_,iD,self.rho_)
+            self.CPS.update(iT,self.T_,iD,self.rho_)
             for i in range(N):
-                self.PFC.keyed_output(ikey)
+                self.CPS.keyed_output(ikey)
             t2=clock()
             print 'Elapsed time for {0:d} calls for "{1:s}" at {2:g} us/call'.format(N,paras[ikey],(t2-t1)/N*1e6)
             
@@ -1417,9 +1289,9 @@ cdef class State:
         cdef double hh = self.h
         for ikey in keys:
             t1=clock()
-            self.PFC.update(iP,self.p_,iH,hh)
+            self.CPS.update(iP,self.p_,iH,hh)
             for i in range(N):
-                self.PFC.keyed_output(ikey)
+                self.CPS.keyed_output(ikey)
             t2=clock()
             print 'Elapsed time for {0:d} calls for "{1:s}" at {2:g} us/call'.format(N,paras[ikey],(t2-t1)/N*1e6)
         
@@ -1427,9 +1299,9 @@ cdef class State:
         keys = [iH,iP,iC,iO,iDpdT]
         t1=clock()
         for i in range(N):
-            self.PFC.update(iT,self.T_,iD,self.rho_)
+            self.CPS.update(iT,self.T_,iD,self.rho_)
             for ikey in keys:
-                self.PFC.keyed_output(ikey)
+                self.CPS.keyed_output(ikey)
         t2=clock()
         print 'Elapsed time for {0:d} calls of iH,iP,iC,iO,iDpdT takes {1:g} us/call'.format(N,(t2-t1)/N*1e6)
         
@@ -1474,7 +1346,5 @@ cdef class State:
     
 def rebuildState(d):
     S=State(d['Fluid'],{'T':d['T'],'D':d['rho']},phase=d['phase'])
-    S.xL = d['xL']
-    S.Liquid=d['Liquid']
     return S
     
