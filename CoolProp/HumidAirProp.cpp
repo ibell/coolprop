@@ -17,7 +17,11 @@
 #include "Solvers.h"
 #include "CoolPropTools.h"
 
-static Fluid *pWater, *pAir;
+#include "purefluids/Water.h"
+#include "pseudopurefluids/Air.h"
+
+static WaterClass Water = WaterClass();
+static AirClass Air = AirClass();
 
 enum givens{GIVEN_TDP,GIVEN_HUMRAT,GIVEN_V,GIVEN_TWB,GIVEN_RH,GIVEN_ENTHALPY,GIVEN_T,GIVEN_P,GIVEN_VISC,GIVEN_COND};
 
@@ -29,11 +33,11 @@ double f_factor(double T, double p);
 // A couple of convenience functions that are needed quite a lot
 static double MM_Air(void)
 {
-	return Props('M','T',0,'P',0,(char *)"Air");
+    return Air.params.molemass;
 }
 static double MM_Water(void)
 {
-	return Props('M','T',0,'P',0,(char *)"Water");
+    return Water.params.molemass;
 }
 static double B_Air(double T)
 {
@@ -103,86 +107,86 @@ void UseIdealGasEnthalpyCorrelations(int flag)
 }
 static double Brent_HAProps_T(char *OutputName, char *Input1Name, double Input1, char *Input2Name, double Input2, double TargetVal, double T_min, double T_max)
 {
-	double T;
-	class BrentSolverResids : public FuncWrapper1D
-	{
-	private:
-		double Input1,Input2,TargetVal;
-		char *OutputName,*Input1Name,*Input2Name;
-	public:
-		double rhoL, rhoV;
-		BrentSolverResids(char *OutputName, char *Input1Name, double Input1, char *Input2Name, double Input2, double TargetVal)
-		{
-			this->OutputName = OutputName;
-			this->Input1Name = Input1Name;
-			this->Input2Name = Input2Name;
-			this->Input1 = Input1;
-			this->Input2 = Input2;
-			this->TargetVal = TargetVal;
-		};
-		~BrentSolverResids(){};
-		
-		double call(double T){
-			return HAProps(OutputName,(char *)"T",T,Input1Name,Input1,Input2Name,Input2)-TargetVal;
-		}
-	};
+    double T;
+    class BrentSolverResids : public FuncWrapper1D
+    {
+    private:
+        double Input1,Input2,TargetVal;
+        char *OutputName,*Input1Name,*Input2Name;
+    public:
+        double rhoL, rhoV;
+        BrentSolverResids(char *OutputName, char *Input1Name, double Input1, char *Input2Name, double Input2, double TargetVal)
+        {
+            this->OutputName = OutputName;
+            this->Input1Name = Input1Name;
+            this->Input2Name = Input2Name;
+            this->Input1 = Input1;
+            this->Input2 = Input2;
+            this->TargetVal = TargetVal;
+        };
+        ~BrentSolverResids(){};
+        
+        double call(double T){
+            return HAProps(OutputName,(char *)"T",T,Input1Name,Input1,Input2Name,Input2)-TargetVal;
+        }
+    };
 
     BrentSolverResids *BSR = new BrentSolverResids(OutputName, Input1Name, Input1, Input2Name, Input2, TargetVal);
 
-	std::string errstr;
-	T = Brent(BSR,T_min,T_max,1e-7,1e-4,50,&errstr);
+    std::string errstr;
+    T = Brent(BSR,T_min,T_max,1e-7,1e-4,50,&errstr);
 
-	delete BSR;
-	return T;
+    delete BSR;
+    return T;
 }
 
 static double Secant_HAProps_T(char *OutputName, char *Input1Name, double Input1, char *Input2Name, double Input2, double TargetVal, double T_guess)
 {
     // Use a secant solve in order to yield a target output value for HAProps by altering T
     double x1=0,x2=0,x3=0,y1=0,y2=0,eps=5e-7,f=999,T=300,change;
-	int iter=1;
+    int iter=1;
 
-	while ((iter<=3 || (fabs(f)>eps && fabs(change)>1e-10)) && iter<100)
-	{
-		if (iter==1){x1=T_guess; T=x1;}
-		if (iter==2){x2=T_guess+0.001; T=x2;}
-		if (iter>2) {T=x2;}
-			f=HAProps(OutputName,(char *)"T",T,Input1Name,Input1,Input2Name,Input2)-TargetVal;
-		if (iter==1){y1=f;}
-		if (iter>1)
-		{
-			y2=f;
-			x3=x2-y2/(y2-y1)*(x2-x1);
-			change = y2/(y2-y1)*(x2-x1);
-			y1=y2; x1=x2; x2=x3;
-		}
-		iter=iter+1;
-	}
-	return T;
+    while ((iter<=3 || (fabs(f)>eps && fabs(change)>1e-10)) && iter<100)
+    {
+        if (iter==1){x1=T_guess; T=x1;}
+        if (iter==2){x2=T_guess+0.001; T=x2;}
+        if (iter>2) {T=x2;}
+            f=HAProps(OutputName,(char *)"T",T,Input1Name,Input1,Input2Name,Input2)-TargetVal;
+        if (iter==1){y1=f;}
+        if (iter>1)
+        {
+            y2=f;
+            x3=x2-y2/(y2-y1)*(x2-x1);
+            change = y2/(y2-y1)*(x2-x1);
+            y1=y2; x1=x2; x2=x3;
+        }
+        iter=iter+1;
+    }
+    return T;
 }
 
 static double Secant_HAProps_W(char *OutputName, char *Input1Name, double Input1, char *Input2Name, double Input2, double TargetVal, double W_guess)
 {
     // Use a secant solve in order to yield a target output value for HAProps by altering humidity ratio
     double x1=0,x2=0,x3=0,y1=0,y2=0,eps=1e-8,f=999,W=0.0001;
-	int iter=1;
+    int iter=1;
 
-	while ((iter<=3 || fabs(f)>eps) && iter<100)
-	{
-		if (iter == 1){x1 = W_guess; W = x1;}
-		if (iter == 2){x2 = W_guess+0.001; W = x2;}
-		if (iter > 2) {W = x2;}
-			f = HAProps(OutputName,(char *)"W",W,Input1Name,Input1,Input2Name,Input2)-TargetVal;
-		if (iter == 1){y1 = f;}
-		if (iter > 1)
-		{
-			y2=f;
-			x3=x2-y2/(y2-y1)*(x2-x1);
-			y1=y2; x1=x2; x2=x3;
-		}
-		iter=iter+1;
-	}
-	return W;
+    while ((iter<=3 || fabs(f)>eps) && iter<100)
+    {
+        if (iter == 1){x1 = W_guess; W = x1;}
+        if (iter == 2){x2 = W_guess+0.001; W = x2;}
+        if (iter > 2) {W = x2;}
+            f = HAProps(OutputName,(char *)"W",W,Input1Name,Input1,Input2Name,Input2)-TargetVal;
+        if (iter == 1){y1 = f;}
+        if (iter > 1)
+        {
+            y2=f;
+            x3=x2-y2/(y2-y1)*(x2-x1);
+            y1=y2; x1=x2; x2=x3;
+        }
+        iter=iter+1;
+    }
+    return W;
 }
 
 // Mixed virial components
@@ -392,16 +396,16 @@ double f_factor(double T, double p)
     {
         // It is liquid water
         p_ws=Props('P','T',T,'Q',0,(char *)"Water")*1000;
-		if (FlagUseIsothermCompressCorrelation)
-		{
-			k_T = 1.6261876614E-22*pow(T,6) - 3.3016385196E-19*pow(T,5) + 2.7978984577E-16*pow(T,4)
-				- 1.2672392901E-13*pow(T,3) + 3.2382864853E-11*pow(T,2) - 4.4318979503E-09*T + 2.5455947289E-07;
-		}
+        if (FlagUseIsothermCompressCorrelation)
+        {
+            k_T = 1.6261876614E-22*pow(T,6) - 3.3016385196E-19*pow(T,5) + 2.7978984577E-16*pow(T,4)
+                - 1.2672392901E-13*pow(T,3) + 3.2382864853E-11*pow(T,2) - 4.4318979503E-09*T + 2.5455947289E-07;
+        }
         else
-		{
+        {
             double rho = Props('D','T',T,'P',p/1000,(char *)"Water");
-			k_T=DerivTerms((char *)"IsothermalCompressibility",T,rho,(char *)"Water")/1000; //[1/Pa]
-		}
+            k_T=DerivTerms((char *)"IsothermalCompressibility",T,rho,(char *)"Water")/1000; //[1/Pa]
+        }
         beta_H=HenryConstant(T); //[1/Pa]
         vbar_ws=1.0/Props('D','T',T,'Q',0,(char *)"Water")*MM_Water()/1000; //[m^3/mol]
     }
@@ -425,39 +429,39 @@ double f_factor(double T, double p)
     Tj=132.6312;
     tau_Air=Tj/T;
     tau_Water=Props(ITc,'T',0,'P',0,(char *)"Water")/T;
-	if (FlagUseVirialCorrelations)
-	{
-		B_aa=-0.000721183853646 +1.142682674467e-05*T -8.838228412173e-08*pow(T,2) 
+    if (FlagUseVirialCorrelations)
+    {
+        B_aa=-0.000721183853646 +1.142682674467e-05*T -8.838228412173e-08*pow(T,2) 
         +4.104150642775e-10*pow(T,3) -1.192780880645e-12*pow(T,4) +2.134201312070e-15*pow(T,5) 
         -2.157430412913e-18*pow(T,6) +9.453830907795e-22*pow(T,7);
         B_ww=-10.8963128394 +2.439761625859e-01*T -2.353884845100e-03*pow(T,2) 
         +1.265864734412e-05*pow(T,3) -4.092175700300e-08*pow(T,4) +7.943925411344e-11*pow(T,5) 
         -8.567808759123e-14*pow(T,6) +3.958203548563e-17*pow(T,7);
-		C_aaa=1.29192158975e-08 -1.776054020409e-10*T +1.359641176409e-12*pow(T,2) 
+        C_aaa=1.29192158975e-08 -1.776054020409e-10*T +1.359641176409e-12*pow(T,2) 
         -6.234878717893e-15*pow(T,3) +1.791668730770e-17*pow(T,4) -3.175283581294e-20*pow(T,5) 
         +3.184306136120e-23*pow(T,6) -1.386043640106e-26*pow(T,7);
         C_www=-0.580595811134 +1.365952762696e-02*T -1.375986293288e-04*pow(T,2) 
         +7.687692259692e-07*pow(T,3) -2.571440816920e-09*pow(T,4) +5.147432221082e-12*pow(T,5) 
         -5.708156494894e-15*pow(T,6) +2.704605721778e-18*pow(T,7);
-	}
-	else
-	{
-		B_aa=B_Air(T)*MM_Air()/1e3; //[m^3/kg] to [m^3/mol]
-		C_aaa=C_Air(T)*MM_Air()*MM_Air()/1e6; //[m^6/kg^2] to [m^6/mol^2]
-		B_ww=B_Water(T)*MM_Water()/1e3; //[m^3/kg] to [m^3/mol]
-		C_www=C_Water(T)*MM_Water()*MM_Water()/1e6; //[m^6/kg^2] to [m^6/mol^2]
-	}
-	B_aw=_B_aw(T)/1e3; //[dm^3/mol] to [m^3/mol]
+    }
+    else
+    {
+        B_aa=B_Air(T)*MM_Air()/1e3; //[m^3/kg] to [m^3/mol]
+        C_aaa=C_Air(T)*MM_Air()*MM_Air()/1e6; //[m^6/kg^2] to [m^6/mol^2]
+        B_ww=B_Water(T)*MM_Water()/1e3; //[m^3/kg] to [m^3/mol]
+        C_www=C_Water(T)*MM_Water()*MM_Water()/1e6; //[m^6/kg^2] to [m^6/mol^2]
+    }
+    B_aw=_B_aw(T)/1e3; //[dm^3/mol] to [m^3/mol]
     C_aaw=_C_aaw(T)/1e6; //[dm^6/mol] to [m^6/mol^2]
     C_aww=_C_aww(T)/1e6; //[dm^6/mol] to [m^6/mol^2]
     
     // Use a little secant loop to find f iteratively
     // Start out with a guess value of 1 for f
     while ((iter<=3 || change>eps) && iter<100)
-	{
-		if (iter==1){x1=1.00; f=x1;}
-		if (iter==2){x2=1.00+0.000001; f=x2;}
-		if (iter>2) {f=x2;}
+    {
+        if (iter==1){x1=1.00; f=x1;}
+        if (iter==2){x2=1.00+0.000001; f=x2;}
+        if (iter>2) {f=x2;}
         
             // Left-hand-side of Equation 3.25
             LHS=log(f);
@@ -475,16 +479,16 @@ double f_factor(double T, double p)
             line8=-(2*pow(1-psi_ws,2)*psi_ws*(-2+3*psi_ws)*p*p)/pow(Rbar*T,2)*B_aw*B_aw-(p_ws*p_ws-(4-3*psi_ws)*pow(psi_ws,3)*p*p)/(2*pow(Rbar*T,2))*B_ww*B_ww;
             RHS=line1+line2+line3+line4+line5+line6+line7+line8;
         
-		if (iter==1){y1=LHS-RHS;}
-		if (iter>1)
-		{
-			y2=LHS-RHS;
-			x3=x2-y2/(y2-y1)*(x2-x1);
-			change=fabs(y2/(y2-y1)*(x2-x1));
-			y1=y2; x1=x2; x2=x3;
-		}
-		iter=iter+1;
-	}
+        if (iter==1){y1=LHS-RHS;}
+        if (iter>1)
+        {
+            y2=LHS-RHS;
+            x3=x2-y2/(y2-y1)*(x2-x1);
+            change=fabs(y2/(y2-y1)*(x2-x1));
+            y1=y2; x1=x2; x2=x3;
+        }
+        iter=iter+1;
+    }
     if (f>=1.0)
         return f;
     else
@@ -492,25 +496,25 @@ double f_factor(double T, double p)
 }
 void HAHelp(void)
 {
-	printf("Sorry, Need to update!");
+    printf("Sorry, Need to update!");
 }
 int returnHumAirCode(char * Code)
 {
-	if (!strcmp(Code,"GIVEN_TDP"))
-		return GIVEN_TDP;
-	else if (!strcmp(Code,"GIVEN_HUMRAT"))
-		return GIVEN_HUMRAT;
-	else if (!strcmp(Code,"GIVEN_TWB"))
-		return GIVEN_TWB;
-	else if (!strcmp(Code,"GIVEN_RH"))
-		return GIVEN_RH;
-	else if (!strcmp(Code,"GIVEN_ENTHALPY"))
-		return GIVEN_ENTHALPY;
-	else
-	{
-		fprintf(stderr,"Code to returnHumAirCode in HumAir.c [%s] not understood",Code);
-		return -1;
-	}
+    if (!strcmp(Code,"GIVEN_TDP"))
+        return GIVEN_TDP;
+    else if (!strcmp(Code,"GIVEN_HUMRAT"))
+        return GIVEN_HUMRAT;
+    else if (!strcmp(Code,"GIVEN_TWB"))
+        return GIVEN_TWB;
+    else if (!strcmp(Code,"GIVEN_RH"))
+        return GIVEN_RH;
+    else if (!strcmp(Code,"GIVEN_ENTHALPY"))
+        return GIVEN_ENTHALPY;
+    else
+    {
+        fprintf(stderr,"Code to returnHumAirCode in HumAir.c [%s] not understood",Code);
+        return -1;
+    }
 }
 double Viscosity(double T, double p, double psi_w)
 {
@@ -573,75 +577,75 @@ double MolarVolume(double T, double p, double psi_w)
 
     iter=1; eps=1e-8; resid=999;
     while ((iter<=3 || fabs(resid)>eps) && iter<100)
-	{
-		if (iter==1){x1=v_bar0; v_bar=x1;}
-		if (iter==2){x2=v_bar0+0.000001; v_bar=x2;}
-		if (iter>2) {v_bar=x2;}
+    {
+        if (iter==1){x1=v_bar0; v_bar=x1;}
+        if (iter==2){x2=v_bar0+0.000001; v_bar=x2;}
+        if (iter>2) {v_bar=x2;}
         
             // factor of 1000 is to deal with kmol and mol conversion
             // want v_bar in m^3/mol and R_bar in kJ/mol-K
             resid=p-(R_bar/1000)*T/v_bar*(1+Bm/v_bar+Cm/(v_bar*v_bar));
         
         if (iter==1){y1=resid;}
-		if (iter>1)
-		{
-			y2=resid;
-			x3=x2-y2/(y2-y1)*(x2-x1);
-			y1=y2; x1=x2; x2=x3;
-		}
-		iter=iter+1;
-	}
+        if (iter>1)
+        {
+            y2=resid;
+            x3=x2-y2/(y2-y1)*(x2-x1);
+            y1=y2; x1=x2; x2=x3;
+        }
+        iter=iter+1;
+    }
     return v_bar;
 }
 double IdealGasMolarEnthalpy_Water(double T, double v_bar)
 {
-	double hbar_w_0,tau,rhobar,hbar_w,rho;
-	// Ideal-Gas contribution to enthalpy of water
+    double hbar_w_0,tau,rhobar,hbar_w,rho;
+    // Ideal-Gas contribution to enthalpy of water
     hbar_w_0=-0.01102303806;//[kJ/kmol]
-    tau = pWater->crit.T/T;
+    tau = Water.crit.T/T;
     rhobar = 1/v_bar; //[kmol/m^3]
-	rho = rhobar * pWater->params.molemass;
-	hbar_w = hbar_w_0+R_bar*T*(1+tau*pWater->dphi0_dTau(tau,rho/pWater->reduce.rho));
-	return hbar_w;
+    rho = rhobar * Water.params.molemass;
+    hbar_w = hbar_w_0+R_bar*T*(1+tau*Water.dphi0_dTau(tau,rho/Water.crit.rho));
+    return hbar_w;
 }
 double IdealGasMolarEntropy_Water(double T, double p)
 {
-	double sbar_w,tau,R_bar,rho;
-	R_bar = 8.314371; //[kJ/kmol/K]
-    tau = pWater->crit.T/T;
-	rho = p/(R_bar/MM_Water()*T); //[kg/m^3]
-	sbar_w = R_bar*(tau*pWater->dphi0_dTau(tau,rho/pWater->reduce.rho)-pWater->phi0(tau,rho/pWater->reduce.rho)); //[kJ/kmol/K]
-	return sbar_w; 
+    double sbar_w,tau,R_bar,rho;
+    R_bar = 8.314371; //[kJ/kmol/K]
+    tau = Water.crit.T/T;
+    rho = p/(R_bar/MM_Water()*T); //[kg/m^3]
+    sbar_w = R_bar*(tau*Water.dphi0_dTau(tau,rho/Water.crit.rho)-Water.phi0(tau,rho/Water.crit.rho)); //[kJ/kmol/K]
+    return sbar_w; 
 }
 double IdealGasMolarEnthalpy_Air(double T, double v_bar)
 {
-	double hbar_a_0,tau,rhobar,hbar_a,R_bar_Lemmon, rho;
-	// Ideal-Gas contribution to enthalpy of air
+    double hbar_a_0,tau,rhobar,hbar_a,R_bar_Lemmon, rho;
+    // Ideal-Gas contribution to enthalpy of air
     hbar_a_0=-7914.149298; //[kJ/kmol]
     //Tj and rhoj are given by 132.6312 and 302.5507652 respectively
     tau=132.6312/T;
     rhobar=1/v_bar; //[kmol/m^3]
-	rho = rhobar * Props((char *)"Air",(char *)"molemass");
+    rho = rhobar * Props((char *)"Air",(char *)"molemass");
     R_bar_Lemmon=8.314510; //[kJ/kmol/K]
     hbar_a=hbar_a_0+R_bar_Lemmon*T*(1+tau*DerivTerms((char *)"dphi0_dTau",T,rho,(char *)"Air")); //[kJ/kmol]
-	return hbar_a;
+    return hbar_a;
 }
 double IdealGasMolarEntropy_Air(double T, double v_bar_a)
 {
-	double sbar_0_Lem,tau,sbar_a,R_bar_Lemmon,T0=273.15,p0=101.325,v_0,v_bar_0, rho_a,rho_bar_a, rho_bar_0,rho_0;
-	R_bar_Lemmon=8.314510; //[kJ/kmol/K]
-	// Ideal-Gas contribution to entropy of air
+    double sbar_0_Lem,tau,sbar_a,R_bar_Lemmon,T0=273.15,p0=101.325,v_0,v_bar_0, rho_a,rho_bar_a, rho_bar_0,rho_0;
+    R_bar_Lemmon=8.314510; //[kJ/kmol/K]
+    // Ideal-Gas contribution to entropy of air
     sbar_0_Lem=-196.1375815; //[kJ/kmol/K]
     //Tj and rhoj are given by 132.6312 and 302.5507652 respectively
     tau=132.6312/T; //[no units]
-	v_0 = R_bar_Lemmon/MM_Air()*T0/p0; //[m^3/kg]
-	rho_bar_a = 1/v_bar_a;
-	rho_a = rho_bar_a * Props((char *)"Air",(char *)"molemass");
-	v_bar_0 = R_bar_Lemmon*T0/p0; //[m^3/kmol]
-	rho_bar_0 = 1/v_bar_0;
-	rho_0 = rho_bar_0 * Props((char *)"Air",(char *)"molemass");
+    v_0 = R_bar_Lemmon/MM_Air()*T0/p0; //[m^3/kg]
+    rho_bar_a = 1/v_bar_a;
+    rho_a = rho_bar_a * Props((char *)"Air",(char *)"molemass");
+    v_bar_0 = R_bar_Lemmon*T0/p0; //[m^3/kmol]
+    rho_bar_0 = 1/v_bar_0;
+    rho_0 = rho_bar_0 * Props((char *)"Air",(char *)"molemass");
     sbar_a=sbar_0_Lem+R_bar_Lemmon*(tau*DerivTerms((char *)"dphi0_dTau",T,rho_0,(char *)"Air")-DerivTerms((char *)"phi0",T,rho_0,(char *)"Air"))+R_bar_Lemmon*log(v_bar_a/v_bar_0); //[kJ/kmol/K]
-	return sbar_a; //[kJ/kmol/K]
+    return sbar_a; //[kJ/kmol/K]
 }
 
 double MolarEnthalpy(double T, double p, double psi_w, double v_bar)
@@ -658,26 +662,26 @@ double MolarEnthalpy(double T, double p, double psi_w, double v_bar)
     // Not clear why getting rid of this term yields the correct values in the table, but enthalpies are equal to an additive constant, so not a big deal
     hbar_0=0.0;//2.924425468; //[kJ/kmol]
     
-	if (FlagUseIdealGasEnthalpyCorrelations)
-	{
-	hbar_w=2.7030251618E-03*T*T + 3.1994361015E+01*T + 3.6123174929E+04;
-	hbar_a=9.2486716590E-04*T*T + 2.8557221776E+01*T - 7.8616129429E+03;
-	}
-	else
-	{
+    if (FlagUseIdealGasEnthalpyCorrelations)
+    {
+    hbar_w=2.7030251618E-03*T*T + 3.1994361015E+01*T + 3.6123174929E+04;
+    hbar_a=9.2486716590E-04*T*T + 2.8557221776E+01*T - 7.8616129429E+03;
+    }
+    else
+    {
     hbar_w=IdealGasMolarEnthalpy_Water(T,v_bar);
-	hbar_a=IdealGasMolarEnthalpy_Air(T,v_bar);
-	}
+    hbar_a=IdealGasMolarEnthalpy_Air(T,v_bar);
+    }
     
     hbar=hbar_0+(1-psi_w)*hbar_a+psi_w*hbar_w+R_bar*T*((B_m(T,psi_w)-T*dB_m_dT(T,psi_w))/v_bar+(C_m(T,psi_w)-T/2.0*dC_m_dT(T,psi_w))/(v_bar*v_bar));
     return hbar; //[kJ/kmol]
 }
 double MassEnthalpy(double T, double p, double psi_w)
 {
-	double v_bar = MolarVolume(T, p, psi_w); //[m^3/mol_ha]
+    double v_bar = MolarVolume(T, p, psi_w); //[m^3/mol_ha]
     double h_bar = MolarEnthalpy(T, p, psi_w, v_bar); //[kJ/kmol_ha]
-	double W = HumidityRatio(psi_w); //[kg_w/kg_da]
-	double M_ha = MM_Water()*psi_w+(1-psi_w)*28.966;
+    double W = HumidityRatio(psi_w); //[kg_w/kg_da]
+    double M_ha = MM_Water()*psi_w+(1-psi_w)*28.966;
     return h_bar*(1+W)/M_ha; //[kJ/kg_da]
 }
 
@@ -685,8 +689,8 @@ double MolarEntropy(double T, double p, double psi_w, double v_bar)
 {
     // In units of kJ/kmol/K
 
-	// Serious typo in RP-1485 - should use total pressure rather than
-	// reference pressure in density calculation for water vapor molar entropy
+    // Serious typo in RP-1485 - should use total pressure rather than
+    // reference pressure in density calculation for water vapor molar entropy
     
     // vbar (molar volume) in m^3/kmol
     double x1=0,x2=0,x3=0,y1=0,y2=0,eps=1e-8,f=999,R_bar_Lem=8.314510;
@@ -696,17 +700,17 @@ double MolarEntropy(double T, double p, double psi_w, double v_bar)
     // Constant for entropy
     sbar_0=0.02366427495;  //[kJ/kmol/K]
 
-	//Calculate vbar_a, the molar volume of dry air
-	// B_m, C_m, etc. functions take care of the units
-	Baa = B_m(T,0); 
-	B = B_m(T,psi_w);
-	dBdT = dB_m_dT(T,psi_w);
-	Caaa = C_m(T,0);
-	C = C_m(T,psi_w);
-	dCdT = dC_m_dT(T,psi_w);
+    //Calculate vbar_a, the molar volume of dry air
+    // B_m, C_m, etc. functions take care of the units
+    Baa = B_m(T,0); 
+    B = B_m(T,psi_w);
+    dBdT = dB_m_dT(T,psi_w);
+    Caaa = C_m(T,0);
+    C = C_m(T,psi_w);
+    dCdT = dC_m_dT(T,psi_w);
 
-	vbar_a_guess = R_bar_Lem*T/p; //[m^3/mol] since p in [kPa]
-	
+    vbar_a_guess = R_bar_Lem*T/p; //[m^3/mol] since p in [kPa]
+    
     while ((iter<=3 || fabs(f)>eps) && iter<100)
     {
         if (iter==1){x1=vbar_a_guess; vbar_a=x1;}
@@ -724,24 +728,24 @@ double MolarEntropy(double T, double p, double psi_w, double v_bar)
         if (iter>100){ return _HUGE; }
     }
     
-	if (FlagUseIdealGasEnthalpyCorrelations)
-	{
-		std::cout << "Not implemented" << std::endl;
-	}
-	else
-	{
-		sbar_w=IdealGasMolarEntropy_Water(T,p);
-		sbar_a=IdealGasMolarEntropy_Air(T,vbar_a);
-	}
+    if (FlagUseIdealGasEnthalpyCorrelations)
+    {
+        std::cout << "Not implemented" << std::endl;
+    }
+    else
+    {
+        sbar_w=IdealGasMolarEntropy_Water(T,p);
+        sbar_a=IdealGasMolarEntropy_Air(T,vbar_a);
+    }
     if (psi_w!=0)
-	{
-		sbar=sbar_0+(1-psi_w)*sbar_a+psi_w*sbar_w-R_bar*(
-		(B+T*dBdT)/v_bar+(C+T*dCdT)/(2*pow(v_bar,2))+
-		(1-psi_w)*log(1-psi_w)+psi_w*log(psi_w));
-	}
-	else{
-		sbar=sbar_0+sbar_a;
-	}
+    {
+        sbar=sbar_0+(1-psi_w)*sbar_a+psi_w*sbar_w-R_bar*(
+        (B+T*dBdT)/v_bar+(C+T*dCdT)/(2*pow(v_bar,2))+
+        (1-psi_w)*log(1-psi_w)+psi_w*log(psi_w));
+    }
+    else{
+        sbar=sbar_0+sbar_a;
+    }
     return sbar; //[kJ/kmol/K]
 }
 
@@ -760,27 +764,27 @@ double DewpointTemperature(double T, double p, double psi_w)
     // Iteratively find the dewpoint temperature
     // ------------------------------------------
 
-	// The highest dewpoint temperature possible is the dry-bulb temperature.  
-	// When they are equal, the air is saturated (R=1)
+    // The highest dewpoint temperature possible is the dry-bulb temperature.  
+    // When they are equal, the air is saturated (R=1)
     
     p_w = psi_w*p;
 
-	// 0.61165... is the triple point pressure of water in kPa
-	if (p_w > 0.6116547241637944){
-		T0 = Props('T','P',p_w,'Q',1.0,(char *)"Water");
-	}
-	else{
-		T0 = 268;
-	}
-	// A good guess for Tdp is that enhancement factor is unity, which yields
-	// p_w_s = p_w, and get guess for T from saturation temperature
+    // 0.61165... is the triple point pressure of water in kPa
+    if (p_w > 0.6116547241637944){
+        T0 = Props('T','P',p_w,'Q',1.0,(char *)"Water");
+    }
+    else{
+        T0 = 268;
+    }
+    // A good guess for Tdp is that enhancement factor is unity, which yields
+    // p_w_s = p_w, and get guess for T from saturation temperature
     
     iter=1; eps=1e-8; resid=999;
     while ((iter<=3 || fabs(resid)>eps) && iter<100)
-	{
-		if (iter==1){x1 = T0; Tdp=x1;}
-		if (iter==2){x2 = x1 + 0.1; Tdp=x2;}
-		if (iter>2) {Tdp=x2;}
+    {
+        if (iter==1){x1 = T0; Tdp=x1;}
+        if (iter==2){x2 = x1 + 0.1; Tdp=x2;}
+        if (iter>2) {Tdp=x2;}
         
             if (Tdp >= 273.16)
             {
@@ -798,39 +802,39 @@ double DewpointTemperature(double T, double p, double psi_w)
             resid=p_w-p_ws_dp*f_dp;
         
         if (iter==1){y1=resid;}
-		if (iter>1)
-		{
-			y2=resid;
-			x3=x2-y2/(y2-y1)*(x2-x1);
-			y1=y2; x1=x2; x2=x3;
-		}
-		iter=iter+1;
-	}
+        if (iter>1)
+        {
+            y2=resid;
+            x3=x2-y2/(y2-y1)*(x2-x1);
+            y1=y2; x1=x2; x2=x3;
+        }
+        iter=iter+1;
+    }
     return Tdp;
 }
 
 class WetBulbSolver : public FuncWrapper1D
 {
 private:
-	double _T,_p,_W,LHS,v_bar_w,M_ha;
+    double _T,_p,_W,LHS,v_bar_w,M_ha;
 public:
-	WetBulbSolver(double T, double p, double psi_w){
-		_T = T;
-		_p = p;
-		_W = epsilon*psi_w/(1-psi_w);
+    WetBulbSolver(double T, double p, double psi_w){
+        _T = T;
+        _p = p;
+        _W = epsilon*psi_w/(1-psi_w);
 
-		//These things are all not a function of Twb
-		v_bar_w = MolarVolume(T,p,psi_w);
-		M_ha = MM_Water()*psi_w+(1-psi_w)*28.966;
-		LHS = MolarEnthalpy(T,p,psi_w,v_bar_w)*(1+_W)/M_ha;
-	};
-	~WetBulbSolver(){};
-	double call(double Twb)
-	{
-		double epsilon=0.621945;
-		double f_wb,p_ws_wb,p_s_wb,W_s_wb,h_w,M_ha_wb,psi_wb,v_bar_wb;
+        //These things are all not a function of Twb
+        v_bar_w = MolarVolume(T,p,psi_w);
+        M_ha = MM_Water()*psi_w+(1-psi_w)*28.966;
+        LHS = MolarEnthalpy(T,p,psi_w,v_bar_w)*(1+_W)/M_ha;
+    };
+    ~WetBulbSolver(){};
+    double call(double Twb)
+    {
+        double epsilon=0.621945;
+        double f_wb,p_ws_wb,p_s_wb,W_s_wb,h_w,M_ha_wb,psi_wb,v_bar_wb;
 
-		// Enhancement Factor at wetbulb temperature [-]
+        // Enhancement Factor at wetbulb temperature [-]
         f_wb=f_factor(Twb,_p);
         if (Twb > 273.16)
         {
@@ -864,27 +868,27 @@ public:
         M_ha_wb=MM_Water()*psi_wb+(1-psi_wb)*28.966;
         v_bar_wb=MolarVolume(Twb,_p,psi_wb);
         double RHS = (MolarEnthalpy(Twb,_p,psi_wb,v_bar_wb)*(1+W_s_wb)/M_ha_wb+(_W-W_s_wb)*h_w);
-		if (!ValidNumber(LHS-RHS)){throw ValueError();}
+        if (!ValidNumber(LHS-RHS)){throw ValueError();}
         return LHS - RHS;
-	}
+    }
 };
 
 class WetBulbTminSolver : public FuncWrapper1D
 {
 public:
-	double p,hair_dry,r, RHS;
-	WetBulbTminSolver(double p, double hair_dry){
-		this->p = p;
-		this->hair_dry = hair_dry;
-	};
-	~WetBulbTminSolver(){};
-	double call(double Ts)
-	{
-		RHS = HAProps((char *)"H",(char *)"T",Ts,(char *)"P",p,(char *)"R",1);
-		if (!ValidNumber(RHS)){throw ValueError();}
-		r = RHS - this->hair_dry;
+    double p,hair_dry,r, RHS;
+    WetBulbTminSolver(double p, double hair_dry){
+        this->p = p;
+        this->hair_dry = hair_dry;
+    };
+    ~WetBulbTminSolver(){};
+    double call(double Ts)
+    {
+        RHS = HAProps((char *)"H",(char *)"T",Ts,(char *)"P",p,(char *)"R",1);
+        if (!ValidNumber(RHS)){throw ValueError();}
+        r = RHS - this->hair_dry;
         return r;
-	}
+    }
 };
 
 double WetbulbTemperature(double T, double p, double psi_w)
@@ -892,52 +896,52 @@ double WetbulbTemperature(double T, double p, double psi_w)
     // ------------------------------------------
     // Iteratively find the wetbulb temperature
     // ------------------------------------------
-	//  
-	// If the temperature is less than the saturation temperature of water
-	// for the given atmospheric pressure, the highest wetbulb temperature that is possible is the dry bulb
-	// temperature
-	//
-	// If the temperature is above the saturation temperature corresponding to the atmospheric pressure,
-	// then the maximum value for the wetbulb temperature is the saturation temperature
-	double Tmax = T;
-	double Tsat = Props('T','P',p,'Q',1.0,(char *)"Water");
-	if (T >= Tsat)
-	{
-		Tmax = Tsat;
-	}
+    //  
+    // If the temperature is less than the saturation temperature of water
+    // for the given atmospheric pressure, the highest wetbulb temperature that is possible is the dry bulb
+    // temperature
+    //
+    // If the temperature is above the saturation temperature corresponding to the atmospheric pressure,
+    // then the maximum value for the wetbulb temperature is the saturation temperature
+    double Tmax = T;
+    double Tsat = Props('T','P',p,'Q',1.0,(char *)"Water");
+    if (T >= Tsat)
+    {
+        Tmax = Tsat;
+    }
 
-	// Instantiate the solver container class
-	WetBulbSolver WBS(T,p,psi_w);
+    // Instantiate the solver container class
+    WetBulbSolver WBS(T,p,psi_w);
 
-	std::string errstr;
-	
-	double return_val;
-	try{
-		return_val = Secant(&WBS,Tmax,0.0001,1e-8,50,&errstr);
-		
-		// Solution obtained is out of range (T>Tmax)
-		if (return_val > Tmax) {throw ValueError();}
-	}
-	catch(std::exception &)
-	{
-		// The lowest wetbulb temperature that is possible for a given dry bulb temperature 
-		// is the saturated air temperature which yields the enthalpy of dry air at dry bulb temperature
+    std::string errstr;
+    
+    double return_val;
+    try{
+        return_val = Secant(&WBS,Tmax,0.0001,1e-8,50,&errstr);
+        
+        // Solution obtained is out of range (T>Tmax)
+        if (return_val > Tmax) {throw ValueError();}
+    }
+    catch(std::exception &)
+    {
+        // The lowest wetbulb temperature that is possible for a given dry bulb temperature 
+        // is the saturated air temperature which yields the enthalpy of dry air at dry bulb temperature
 
-		try{
-			double hair_dry = MassEnthalpy(T,p,0);
+        try{
+            double hair_dry = MassEnthalpy(T,p,0);
 
-			// Directly solve for the saturated temperature that yields the enthalpy desired
-			WetBulbTminSolver WBTS(p,hair_dry);
-			double Tmin = Brent(&WBTS,210,Tsat-1,1e-12,1e-12,50,&errstr);
+            // Directly solve for the saturated temperature that yields the enthalpy desired
+            WetBulbTminSolver WBTS(p,hair_dry);
+            double Tmin = Brent(&WBTS,210,Tsat-1,1e-12,1e-12,50,&errstr);
 
-			return_val = Brent(&WBS,Tmin-30,Tmax-1,1e-12,1e-12,50,&errstr);
-		}
-		catch(std::exception)
-		{
-			return_val = _HUGE;
-		}
-	}
-	return return_val;	
+            return_val = Brent(&WBS,Tmin-30,Tmax-1,1e-12,1e-12,50,&errstr);
+        }
+        catch(std::exception)
+        {
+            return_val = _HUGE;
+        }
+    }
+    return return_val;	
 }
 static int Name2Type(char *Name)
 {
@@ -955,7 +959,7 @@ static int Name2Type(char *Name)
         return GIVEN_T;
     else if (!strcmp(Name,"P"))
         return GIVEN_P;
-	else if (!strcmp(Name,"V") || !strcmp(Name,"Vda"))
+    else if (!strcmp(Name,"V") || !strcmp(Name,"Vda"))
         return GIVEN_V;
     else if (!strcmp(Name,"mu") || !strcmp(Name,"Visc") || !strcmp(Name,"M"))
         return GIVEN_VISC;
@@ -991,7 +995,7 @@ double MoleFractionWater(double T, double p, int HumInput, double InVal)
         if (T>=273.16)
         {
             // Saturation pressure [kPa]
-			p_ws=Props('P','T',T,'Q',0,(char *)"Water");
+            p_ws=Props('P','T',T,'Q',0,(char *)"Water");
         }
         else
         {
@@ -1012,14 +1016,14 @@ double MoleFractionWater(double T, double p, int HumInput, double InVal)
     {
         Tdp=InVal;
         // Saturation pressure at dewpoint [kPa]
-		if (Tdp>=273.16)
-		{
-			p_ws_dp=Props('P','T',Tdp,'Q',0,(char *)"Water");
-		}
-		else{
-			// Sublimation pressure [kPa]
+        if (Tdp>=273.16)
+        {
+            p_ws_dp=Props('P','T',Tdp,'Q',0,(char *)"Water");
+        }
+        else{
+            // Sublimation pressure [kPa]
             p_ws_dp=psub_Ice(Tdp);
-		}
+        }
 
         // Enhancement Factor at dewpoint temperature [-]
         f_dp=f_factor(Tdp,p);
@@ -1060,294 +1064,290 @@ double RelativeHumidity(double T, double p, double psi_w)
 }
 EXPORT_CODE double CONVENTION HAProps(char *OutputName, char *Input1Name, double Input1, char *Input2Name, double Input2, char *Input3Name, double Input3)
 {
-	try
-	{
-		int In1Type, In2Type, In3Type,iT,iW,iTdp,iRH,ip,Type1,Type2;
-		double vals[3],p,T,RH,W,Tdp,psi_w,M_ha,v_bar,h_bar,s_bar,MainInputValue,SecondaryInputValue,T_guess;
-		double Value1,Value2,W_guess;
-		char MainInputName[100], SecondaryInputName[100],Name1[100],Name2[100];
+    try
+    {
+        int In1Type, In2Type, In3Type,iT,iW,iTdp,iRH,ip,Type1,Type2;
+        double vals[3],p,T,RH,W,Tdp,psi_w,M_ha,v_bar,h_bar,s_bar,MainInputValue,SecondaryInputValue,T_guess;
+        double Value1,Value2,W_guess;
+        char MainInputName[100], SecondaryInputName[100],Name1[100],Name2[100];
+        
+        vals[0]=Input1;
+        vals[1]=Input2;
+        vals[2]=Input3;
+        
+        // First figure out what kind of inputs you have, convert names to Macro expansions
+        In1Type=Name2Type(Input1Name);
+        In2Type=Name2Type(Input2Name);
+        In3Type=Name2Type(Input3Name);
+        
+        // Pressure must be included
+        ip=TypeMatch(GIVEN_P,Input1Name,Input2Name,Input3Name);
+        if (ip>0)
+            p=vals[ip-1];
+        else
+            return -1000;
 
-		pWater = get_fluid(get_Fluid_index("Water"));
-		pAir = get_fluid(get_Fluid_index("Air"));
-	    
-		vals[0]=Input1;
-		vals[1]=Input2;
-		vals[2]=Input3;
-	    
-		// First figure out what kind of inputs you have, convert names to Macro expansions
-		In1Type=Name2Type(Input1Name);
-		In2Type=Name2Type(Input2Name);
-		In3Type=Name2Type(Input3Name);
-	    
-		// Pressure must be included
-		ip=TypeMatch(GIVEN_P,Input1Name,Input2Name,Input3Name);
-		if (ip>0)
-			p=vals[ip-1];
-		else
-			return -1000;
+        // -----------------------------------------------------------------------------------------------------
+        // Check whether the remaining values give explicit solution for mole fraction of water - nice and fast
+        // -----------------------------------------------------------------------------------------------------
+        
+        // Find the codes if they are there
+        iT=       TypeMatch(GIVEN_T,Input1Name,Input2Name,Input3Name);
+        iRH=     TypeMatch(GIVEN_RH,Input1Name,Input2Name,Input3Name);
+        iW=  TypeMatch(GIVEN_HUMRAT,Input1Name,Input2Name,Input3Name);
+        iTdp=   TypeMatch(GIVEN_TDP,Input1Name,Input2Name,Input3Name);
+        
+        if (iT>0) // Found T (or alias) as an input
+        {
+            T=vals[iT-1];
+            if (iRH>0) //Relative Humidity is provided
+            {
+                RH=vals[iRH-1];
+                psi_w=MoleFractionWater(T,p,GIVEN_RH,RH);
+            }
+            else if (iW>0)
+            {
+                W=vals[iW-1];
+                psi_w=MoleFractionWater(T,p,GIVEN_HUMRAT,W);
+            }
+            else if (iTdp>0)
+            {
+                Tdp=vals[iTdp-1];
+                psi_w=MoleFractionWater(T,p,GIVEN_TDP,Tdp);
+            }
+            else
+            {
+                // Temperature and pressure are known, figure out which variable holds the other value
+                if (In1Type!=GIVEN_T && In1Type!=GIVEN_P)
+                {
+                    strcpy(SecondaryInputName,Input1Name);
+                    SecondaryInputValue=Input1;
+                }
+                else if (In2Type!=GIVEN_T && In2Type!=GIVEN_P)
+                {
+                    strcpy(SecondaryInputName,Input2Name);
+                    SecondaryInputValue=Input2;
+                }
+                else if (In3Type!=GIVEN_T && In3Type!=GIVEN_P)
+                {
+                    strcpy(SecondaryInputName,Input3Name);
+                    SecondaryInputValue=Input3;
+                }
+                else{
+                    return _HUGE;
+                }
+                // Find the value for W
+                W_guess=0.0001;
+                W=Secant_HAProps_W(SecondaryInputName,(char *)"P",p,(char *)"T",T,SecondaryInputValue,W_guess);
+                // Mole fraction of water
+                psi_w=MoleFractionWater(T,p,GIVEN_HUMRAT,W);
+                // And on to output...
+            }
+        }
+        else
+        {
+            // Need to iterate to find dry bulb temperature since temperature is not provided
+            
+            // Pick one input, and alter T to match the other input
+            
+            // Get the variables and their values that are NOT pressure for simplicity
+            // because you know you need pressure as an input and you already have
+            // its value in variable p
+            if (ip==1) // Pressure is in slot 1
+            {
+                strcpy(Name1,Input2Name);
+                Value1=Input2;
+                strcpy(Name2,Input3Name);
+                Value2=Input3;
+            }
+            else if (ip==2) // Pressure is in slot 2
+            {
+                strcpy(Name1,Input1Name);
+                Value1=Input1;
+                strcpy(Name2,Input3Name);
+                Value2=Input3;
+            }
+            else if (ip==3) // Pressure is in slot 3
+            {
+                strcpy(Name1,Input1Name);
+                Value1=Input1;
+                strcpy(Name2,Input2Name);
+                Value2=Input2;
+            }
+            else{
+            return _HUGE;
+            }
+                
+            // Get the integer type codes
+            Type1=Name2Type(Name1);
+            Type2=Name2Type(Name2);
+            
+            // First, if one of the inputs is something that can potentially yield 
+            // an explicit solution at a given iteration of the solver, use it
+            if (Type1==GIVEN_RH || Type1==GIVEN_HUMRAT || Type1==GIVEN_TDP)
+            {
+                // First input variable is a "nice" one
+                
+                // MainInput is the one that you are using in the call to HAProps
+                MainInputValue=Value1;
+                strcpy(MainInputName,Name1);
+                // SecondaryInput is the one that you are trying to match
+                SecondaryInputValue=Value2;
+                strcpy(SecondaryInputName,Name2);
+            }
+            else if (Type2==GIVEN_RH || Type2==GIVEN_HUMRAT || Type2==GIVEN_TDP)
+            {
+                // Second input variable is a "nice" one
+                
+                // MainInput is the one that you are using in the call to HAProps
+                MainInputValue=Value2;
+                strcpy(MainInputName,Name2);
+                // SecondaryInput is the one that you are trying to match
+                SecondaryInputValue=Value1;
+                strcpy(SecondaryInputName,Name1);
+            }
+            else
+            {
+                printf("Sorry, but currently at least one of the variables as an input to HAProps() must be temperature, relative humidity, humidity ratio, or dewpoint\n  Eventually will add a 2-D NR solver to find T and psi_w simultaneously, but not included now\n");
+                return -1000;
+            }
 
-		// -----------------------------------------------------------------------------------------------------
-		// Check whether the remaining values give explicit solution for mole fraction of water - nice and fast
-		// -----------------------------------------------------------------------------------------------------
-	    
-		// Find the codes if they are there
-		iT=       TypeMatch(GIVEN_T,Input1Name,Input2Name,Input3Name);
-		iRH=     TypeMatch(GIVEN_RH,Input1Name,Input2Name,Input3Name);
-		iW=  TypeMatch(GIVEN_HUMRAT,Input1Name,Input2Name,Input3Name);
-		iTdp=   TypeMatch(GIVEN_TDP,Input1Name,Input2Name,Input3Name);
-	    
-		if (iT>0) // Found T (or alias) as an input
-		{
-			T=vals[iT-1];
-			if (iRH>0) //Relative Humidity is provided
-			{
-				RH=vals[iRH-1];
-				psi_w=MoleFractionWater(T,p,GIVEN_RH,RH);
-			}
-			else if (iW>0)
-			{
-				W=vals[iW-1];
-				psi_w=MoleFractionWater(T,p,GIVEN_HUMRAT,W);
-			}
-			else if (iTdp>0)
-			{
-				Tdp=vals[iTdp-1];
-				psi_w=MoleFractionWater(T,p,GIVEN_TDP,Tdp);
-			}
-			else
-			{
-				// Temperature and pressure are known, figure out which variable holds the other value
-				if (In1Type!=GIVEN_T && In1Type!=GIVEN_P)
-				{
-					strcpy(SecondaryInputName,Input1Name);
-					SecondaryInputValue=Input1;
-				}
-				else if (In2Type!=GIVEN_T && In2Type!=GIVEN_P)
-				{
-					strcpy(SecondaryInputName,Input2Name);
-					SecondaryInputValue=Input2;
-				}
-				else if (In3Type!=GIVEN_T && In3Type!=GIVEN_P)
-				{
-					strcpy(SecondaryInputName,Input3Name);
-					SecondaryInputValue=Input3;
-				}
-				else{
-					return _HUGE;
-				}
-				// Find the value for W
-				W_guess=0.0001;
-				W=Secant_HAProps_W(SecondaryInputName,(char *)"P",p,(char *)"T",T,SecondaryInputValue,W_guess);
-				// Mole fraction of water
-				psi_w=MoleFractionWater(T,p,GIVEN_HUMRAT,W);
-				// And on to output...
-			}
-		}
-		else
-		{
-			// Need to iterate to find dry bulb temperature since temperature is not provided
-	        
-			// Pick one input, and alter T to match the other input
-	        
-			// Get the variables and their values that are NOT pressure for simplicity
-			// because you know you need pressure as an input and you already have
-			// its value in variable p
-			if (ip==1) // Pressure is in slot 1
-			{
-				strcpy(Name1,Input2Name);
-				Value1=Input2;
-				strcpy(Name2,Input3Name);
-				Value2=Input3;
-			}
-			else if (ip==2) // Pressure is in slot 2
-			{
-				strcpy(Name1,Input1Name);
-				Value1=Input1;
-				strcpy(Name2,Input3Name);
-				Value2=Input3;
-			}
-			else if (ip==3) // Pressure is in slot 3
-			{
-				strcpy(Name1,Input1Name);
-				Value1=Input1;
-				strcpy(Name2,Input2Name);
-				Value2=Input2;
-			}
-			else{
-			return _HUGE;
-			}
-	            
-			// Get the integer type codes
-			Type1=Name2Type(Name1);
-			Type2=Name2Type(Name2);
-	        
-			// First, if one of the inputs is something that can potentially yield 
-			// an explicit solution at a given iteration of the solver, use it
-			if (Type1==GIVEN_RH || Type1==GIVEN_HUMRAT || Type1==GIVEN_TDP)
-			{
-				// First input variable is a "nice" one
-	            
-				// MainInput is the one that you are using in the call to HAProps
-				MainInputValue=Value1;
-				strcpy(MainInputName,Name1);
-				// SecondaryInput is the one that you are trying to match
-				SecondaryInputValue=Value2;
-				strcpy(SecondaryInputName,Name2);
-			}
-			else if (Type2==GIVEN_RH || Type2==GIVEN_HUMRAT || Type2==GIVEN_TDP)
-			{
-				// Second input variable is a "nice" one
-	            
-				// MainInput is the one that you are using in the call to HAProps
-				MainInputValue=Value2;
-				strcpy(MainInputName,Name2);
-				// SecondaryInput is the one that you are trying to match
-				SecondaryInputValue=Value1;
-				strcpy(SecondaryInputName,Name1);
-			}
-			else
-			{
-				printf("Sorry, but currently at least one of the variables as an input to HAProps() must be temperature, relative humidity, humidity ratio, or dewpoint\n  Eventually will add a 2-D NR solver to find T and psi_w simultaneously, but not included now\n");
-				return -1000;
-			}
+            double T_min = 210;
+            double T_max = 450;
 
-			double T_min = 210;
-			double T_max = 450;
+            T = -1;
 
-			T = -1;
-
-			// First try to use the secant solver to find T at a few different temperatures
-			for (T_guess = 210; T_guess < 450; T_guess += 60)
-			{
-				try{
-					T = Secant_HAProps_T(SecondaryInputName,(char *)"P",p,MainInputName,MainInputValue,SecondaryInputValue,T_guess);
-					double val = HAProps(SecondaryInputName,(char *)"T",T,(char *)"P",p,MainInputName,MainInputValue);
-					if (!ValidNumber(T) || !ValidNumber(val) || !(T_min < T && T < T_max) || fabs(val-SecondaryInputValue)>1e-6)
-					{ 
-						throw ValueError(); 
-					}
-					else
-					{
-						break;
-					}
-				}
-				catch (std::exception &){};
-			}
-			
-			if (T < 0) // No solution found using secant
-			{
-				// Use the Brent's method solver to find T
-				T = Brent_HAProps_T(SecondaryInputName,(char *)"P",p,MainInputName,MainInputValue,SecondaryInputValue,T_min,T_max);
-			}
-	        
-			// If you want the temperature, return it
-			if (Name2Type(OutputName)==GIVEN_T)
-				return T;
-			else
-			{
-				// Otherwise, find psi_w for further calculations in the following section
-				W=HAProps((char *)"W",(char *)"T",T,(char *)"P",p,MainInputName,MainInputValue);
-				psi_w=MoleFractionWater(T,p,GIVEN_HUMRAT,W);
-			}
-		}
-	    
-		M_ha=(1-psi_w)*28.966+MM_Water()*psi_w; //[kg_ha/kmol_ha]
-	    
-		// -----------------------------------------------------------------
-		// Calculate and return the desired value for known set of T,p,psi_w
-		// -----------------------------------------------------------------
-		if (!strcmp(OutputName,"Vda") || !strcmp(OutputName,"V"))
-		{
-			v_bar=MolarVolume(T,p,psi_w); //[m^3/mol_ha]
-			W=HumidityRatio(psi_w);
-			return v_bar*(1+W)/M_ha*1000; //[m^3/kg_da]
-		}
-		else if (!strcmp(OutputName,"Vha"))
-		{
-			v_bar=MolarVolume(T,p,psi_w); //[m^3/mol_ha]
-			return v_bar/M_ha*1000; //[m^3/kg_ha]
-		}
-		else if (!strcmp(OutputName,"Y"))
-		{
-			return psi_w; //[mol_w/mol]
-		}
-		else if (!strcmp(OutputName,"Hda") || !strcmp(OutputName,"H"))
-		{
-			return MassEnthalpy(T,p,psi_w);
-		}
-		else if (!strcmp(OutputName,"Hha"))
-		{
-			v_bar=MolarVolume(T,p,psi_w); //[m^3/mol_ha]
-			h_bar=MolarEnthalpy(T,p,psi_w,v_bar); //[kJ/kmol_ha]
-			return h_bar/M_ha; //[kJ/kg_ha]
-		}
-		else if (!strcmp(OutputName,"S") || !strcmp(OutputName,"Entropy"))
-		{
-			v_bar=MolarVolume(T,p,psi_w); //[m^3/mol_ha]
-			s_bar=MolarEntropy(T,p,psi_w,v_bar); //[kJ/kmol_ha]
-			W=HumidityRatio(psi_w); //[kg_w/kg_da]
-			return s_bar*(1+W)/M_ha; //[kJ/kg_da]
-		}
-		else if (!strcmp(OutputName,"C") || !strcmp(OutputName,"cp"))
-		{
-			double v_bar1,v_bar2,h_bar1,h_bar2, cp_bar, dT = 1e-3;
-			v_bar1=MolarVolume(T-dT,p,psi_w); //[m^3/mol_ha]
-			h_bar1=MolarEnthalpy(T-dT,p,psi_w,v_bar1); //[kJ/kmol_ha]
-			v_bar2=MolarVolume(T+dT,p,psi_w); //[m^3/mol_ha]
-			h_bar2=MolarEnthalpy(T+dT,p,psi_w,v_bar2); //[kJ/kmol_ha]
-			W=HumidityRatio(psi_w); //[kg_w/kg_da]
-			cp_bar = (h_bar2-h_bar1)/(2*dT);
-			return cp_bar*(1+W)/M_ha; //[kJ/kg_da]
-		}
-		else if (!strcmp(OutputName,"Cha") || !strcmp(OutputName,"cp_ha"))
-		{
-			double v_bar1,v_bar2,h_bar1,h_bar2, cp_bar, dT = 1e-3;
-			v_bar1=MolarVolume(T-dT,p,psi_w); //[m^3/mol_ha]
-			h_bar1=MolarEnthalpy(T-dT,p,psi_w,v_bar1); //[kJ/kmol_ha]
-			v_bar2=MolarVolume(T+dT,p,psi_w); //[m^3/mol_ha]
-			h_bar2=MolarEnthalpy(T+dT,p,psi_w,v_bar2); //[kJ/kmol_ha]
-			W=HumidityRatio(psi_w); //[kg_w/kg_da]
-			cp_bar = (h_bar2-h_bar1)/(2*dT);
-			return cp_bar/M_ha; //[kJ/kg_da]
-		}
-		else if (!strcmp(OutputName,"Tdp") || !strcmp(OutputName,"D"))
-		{
-			return DewpointTemperature(T,p,psi_w); //[K]
-		}
-		else if (!strcmp(OutputName,"Twb") || !strcmp(OutputName,"T_wb") || !strcmp(OutputName,"WetBulb") || !strcmp(OutputName,"B"))
-		{
-			return WetbulbTemperature(T,p,psi_w); //[K]
-		}
-		else if (!strcmp(OutputName,"Omega") || !strcmp(OutputName,"HumRat") || !strcmp(OutputName,"W"))
-		{
-			return HumidityRatio(psi_w);
-		}
-		else if (!strcmp(OutputName,"RH") || !strcmp(OutputName,"RelHum") || !strcmp(OutputName,"R"))
-		{
-			return RelativeHumidity(T,p,psi_w);
-		}
-		else if (!strcmp(OutputName,"mu") || !strcmp(OutputName,"Visc") || !strcmp(OutputName,"M"))
-		{
-			return Viscosity(T,p,psi_w);
-		}
-		else if (!strcmp(OutputName,"k") || !strcmp(OutputName,"Conductivity") || !strcmp(OutputName,"K"))
-		{
-			return Conductivity(T,p,psi_w);
-		}
-		else
-		{
-			return -1000;
-		}
-	}
-	catch (std::exception &)
-	{
-		double rr = 4;
+            // First try to use the secant solver to find T at a few different temperatures
+            for (T_guess = 210; T_guess < 450; T_guess += 60)
+            {
+                try{
+                    T = Secant_HAProps_T(SecondaryInputName,(char *)"P",p,MainInputName,MainInputValue,SecondaryInputValue,T_guess);
+                    double val = HAProps(SecondaryInputName,(char *)"T",T,(char *)"P",p,MainInputName,MainInputValue);
+                    if (!ValidNumber(T) || !ValidNumber(val) || !(T_min < T && T < T_max) || fabs(val-SecondaryInputValue)>1e-6)
+                    { 
+                        throw ValueError(); 
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+                catch (std::exception &){};
+            }
+            
+            if (T < 0) // No solution found using secant
+            {
+                // Use the Brent's method solver to find T
+                T = Brent_HAProps_T(SecondaryInputName,(char *)"P",p,MainInputName,MainInputValue,SecondaryInputValue,T_min,T_max);
+            }
+            
+            // If you want the temperature, return it
+            if (Name2Type(OutputName)==GIVEN_T)
+                return T;
+            else
+            {
+                // Otherwise, find psi_w for further calculations in the following section
+                W=HAProps((char *)"W",(char *)"T",T,(char *)"P",p,MainInputName,MainInputValue);
+                psi_w=MoleFractionWater(T,p,GIVEN_HUMRAT,W);
+            }
+        }
+        M_ha=(1-psi_w)*28.966+MM_Water()*psi_w; //[kg_ha/kmol_ha]
+        
+        // -----------------------------------------------------------------
+        // Calculate and return the desired value for known set of T,p,psi_w
+        // -----------------------------------------------------------------
+        if (!strcmp(OutputName,"Vda") || !strcmp(OutputName,"V"))
+        {
+            v_bar=MolarVolume(T,p,psi_w); //[m^3/mol_ha]
+            W=HumidityRatio(psi_w);
+            return v_bar*(1+W)/M_ha*1000; //[m^3/kg_da]
+        }
+        else if (!strcmp(OutputName,"Vha"))
+        {
+            v_bar=MolarVolume(T,p,psi_w); //[m^3/mol_ha]
+            return v_bar/M_ha*1000; //[m^3/kg_ha]
+        }
+        else if (!strcmp(OutputName,"Y"))
+        {
+            return psi_w; //[mol_w/mol]
+        }
+        else if (!strcmp(OutputName,"Hda") || !strcmp(OutputName,"H"))
+        {
+            return MassEnthalpy(T,p,psi_w);
+        }
+        else if (!strcmp(OutputName,"Hha"))
+        {
+            v_bar=MolarVolume(T,p,psi_w); //[m^3/mol_ha]
+            h_bar=MolarEnthalpy(T,p,psi_w,v_bar); //[kJ/kmol_ha]
+            return h_bar/M_ha; //[kJ/kg_ha]
+        }
+        else if (!strcmp(OutputName,"S") || !strcmp(OutputName,"Entropy"))
+        {
+            v_bar=MolarVolume(T,p,psi_w); //[m^3/mol_ha]
+            s_bar=MolarEntropy(T,p,psi_w,v_bar); //[kJ/kmol_ha]
+            W=HumidityRatio(psi_w); //[kg_w/kg_da]
+            return s_bar*(1+W)/M_ha; //[kJ/kg_da]
+        }
+        else if (!strcmp(OutputName,"C") || !strcmp(OutputName,"cp"))
+        {
+            double v_bar1,v_bar2,h_bar1,h_bar2, cp_bar, dT = 1e-3;
+            v_bar1=MolarVolume(T-dT,p,psi_w); //[m^3/mol_ha]
+            h_bar1=MolarEnthalpy(T-dT,p,psi_w,v_bar1); //[kJ/kmol_ha]
+            v_bar2=MolarVolume(T+dT,p,psi_w); //[m^3/mol_ha]
+            h_bar2=MolarEnthalpy(T+dT,p,psi_w,v_bar2); //[kJ/kmol_ha]
+            W=HumidityRatio(psi_w); //[kg_w/kg_da]
+            cp_bar = (h_bar2-h_bar1)/(2*dT);
+            return cp_bar*(1+W)/M_ha; //[kJ/kg_da]
+        }
+        else if (!strcmp(OutputName,"Cha") || !strcmp(OutputName,"cp_ha"))
+        {
+            double v_bar1,v_bar2,h_bar1,h_bar2, cp_bar, dT = 1e-3;
+            v_bar1=MolarVolume(T-dT,p,psi_w); //[m^3/mol_ha]
+            h_bar1=MolarEnthalpy(T-dT,p,psi_w,v_bar1); //[kJ/kmol_ha]
+            v_bar2=MolarVolume(T+dT,p,psi_w); //[m^3/mol_ha]
+            h_bar2=MolarEnthalpy(T+dT,p,psi_w,v_bar2); //[kJ/kmol_ha]
+            W=HumidityRatio(psi_w); //[kg_w/kg_da]
+            cp_bar = (h_bar2-h_bar1)/(2*dT);
+            return cp_bar/M_ha; //[kJ/kg_da]
+        }
+        else if (!strcmp(OutputName,"Tdp") || !strcmp(OutputName,"D"))
+        {
+            return DewpointTemperature(T,p,psi_w); //[K]
+        }
+        else if (!strcmp(OutputName,"Twb") || !strcmp(OutputName,"T_wb") || !strcmp(OutputName,"WetBulb") || !strcmp(OutputName,"B"))
+        {
+            return WetbulbTemperature(T,p,psi_w); //[K]
+        }
+        else if (!strcmp(OutputName,"Omega") || !strcmp(OutputName,"HumRat") || !strcmp(OutputName,"W"))
+        {
+            return HumidityRatio(psi_w);
+        }
+        else if (!strcmp(OutputName,"RH") || !strcmp(OutputName,"RelHum") || !strcmp(OutputName,"R"))
+        {
+            return RelativeHumidity(T,p,psi_w);
+        }
+        else if (!strcmp(OutputName,"mu") || !strcmp(OutputName,"Visc") || !strcmp(OutputName,"M"))
+        {
+            return Viscosity(T,p,psi_w);
+        }
+        else if (!strcmp(OutputName,"k") || !strcmp(OutputName,"Conductivity") || !strcmp(OutputName,"K"))
+        {
+            return Conductivity(T,p,psi_w);
+        }
+        else
+        {
+            return -1000;
+        }
+    }
+    catch (std::exception &e)
+    {
+        set_err_string(e.what());
         return _HUGE;
-	}
-	catch (...)
-	{
-		return _HUGE;
-	}
+    }
+    catch (...)
+    {
+        return _HUGE;
+    }
 }
 
 EXPORT_CODE double CONVENTION HAProps_Aux(char* Name,double T, double p, double W, char *units)
@@ -1363,7 +1363,7 @@ EXPORT_CODE double CONVENTION HAProps_Aux(char* Name,double T, double p, double 
     tau_Air=Tj/T;
     tau_Water=Props(ITc,'T',0,'P',0,(char *)"Water")/T;
     
-	try{
+    try{
     if (!strcmp(Name,"Baa"))
     {
         B_aa=B_Air(T)*MM_Air()/1e3; //[m^3/kg] to [m^3/mol]
@@ -1430,7 +1430,7 @@ EXPORT_CODE double CONVENTION HAProps_Aux(char* Name,double T, double p, double 
         strcpy(units,"m^6/mol^2");
         return C_aaw;
     }
-	else if (!strcmp(Name,"dBaw"))
+    else if (!strcmp(Name,"dBaw"))
     {
         double dB_aw=_dB_aw_dT(T)/1e3; //[dm^3/mol] to [m^3/mol]
         strcpy(units,"m^3/mol");
@@ -1520,55 +1520,117 @@ EXPORT_CODE double CONVENTION HAProps_Aux(char* Name,double T, double p, double 
         //~ delta=rho_Water(T,p,TYPE_TP);tau=647/T;
         return 1+tau*DerivTerms((char *)"dphi0_dTau",tau,delta,(char *)"Water");
     }
-	else if (!strcmp(Name,"hbaro_w"))
-	{
-		v_bar=MolarVolume(T,p,psi_w);
-		return IdealGasMolarEnthalpy_Water(T,v_bar);
-	}
-	else if (!strcmp(Name,"hbaro_a"))
-	{
-		v_bar=MolarVolume(T,p,psi_w);
-		return IdealGasMolarEnthalpy_Air(T,v_bar);
-	}
+    else if (!strcmp(Name,"hbaro_w"))
+    {
+        v_bar=MolarVolume(T,p,psi_w);
+        return IdealGasMolarEnthalpy_Water(T,v_bar);
+    }
+    else if (!strcmp(Name,"hbaro_a"))
+    {
+        v_bar=MolarVolume(T,p,psi_w);
+        return IdealGasMolarEnthalpy_Air(T,v_bar);
+    }
     else
     {
         printf("Sorry I didn't understand your input [%s] to HAProps_Aux\n",Name);
         return -1;
     }
-	}
-	catch(std::exception &)
-	{
-		return _HUGE;
-	}
-	return _HUGE;
+    }
+    catch(std::exception &)
+    {
+        return _HUGE;
+    }
+    return _HUGE;
 }
 double cair_sat(double T)
 {
-	// Air saturation specific heat 
-	// Based on a correlation from EES, good from 250K to 300K.  
-	// No error bound checking is carried out
-	// T: [K]
-	// cair_s: [kJ/kg-K]
-	return 2.14627073E+03-3.28917768E+01*T+1.89471075E-01*T*T-4.86290986E-04*T*T*T+4.69540143E-07*T*T*T*T;
+    // Air saturation specific heat 
+    // Based on a correlation from EES, good from 250K to 300K.  
+    // No error bound checking is carried out
+    // T: [K]
+    // cair_s: [kJ/kg-K]
+    return 2.14627073E+03-3.28917768E+01*T+1.89471075E-01*T*T-4.86290986E-04*T*T*T+4.69540143E-07*T*T*T*T;
 }
 
 double IceProps(char* Name, double T, double p)
 {
-	if (!strcmp(Name,"s"))
-	{
-		return s_Ice(T,p*1000.0);
-	}
-	else if (!strcmp(Name,"rho"))
-	{
-		return rho_Ice(T,p*1000.0);
-	}
-	else if (!strcmp(Name,"h"))
-	{
-		return h_Ice(T,p*1000.0);
-	}
-	else
-	{
-		return 1e99;
-	}
-
+    if (!strcmp(Name,"s"))
+    {
+        return s_Ice(T,p*1000.0);
+    }
+    else if (!strcmp(Name,"rho"))
+    {
+        return rho_Ice(T,p*1000.0);
+    }
+    else if (!strcmp(Name,"h"))
+    {
+        return h_Ice(T,p*1000.0);
+    }
+    else
+    {
+        return 1e99;
+    }
 }
+
+
+#ifndef CATCH_DISABLED
+#include <math.h>
+#include "Catch/catch.hpp"
+TEST_CASE((char*)"Tests from ASHRAE RP-1485",(char*)"[RP1485]")
+{
+    SECTION((char*)"Table A.8.1")
+    {
+        double p1 = 101.325, T= 473.15;
+                              // W      B    V      H      S
+        std::string rows1[] ={ "0.00 45.07 1.341 202.52 0.5558",
+                               "0.05 55.38 1.448 346.49 1.0299",
+                               "0.10 61.85 1.556 490.43 1.4736",
+                               "0.20 69.95 1.771 778.24 2.3336",
+                               "0.30 75.00 1.986 1066.00 3.1751",
+                               "0.40 78.51 2.201 1353.71 4.0059",
+                               "0.50 81.12 2.416 1641.40 4.8295",
+                               "0.60 83.14  2.630 1929.06 5.6479",
+                               "0.70 84.76 2.845 2216.70 6.4623",
+                               "0.80 86.09 3.060 2504.32 7.2736",
+                               "0.90 87.20 3.274 2791.94 8.0824",
+                               "1.00 88.15 3.489 3079.55 8.8890"};
+        for (int i = 0; i < 12; i++)
+        {
+            std::vector<std::string> elements = strsplit(rows1[i],' ');
+            double W = strtod(elements[0].c_str(),NULL);
+            double B = strtod(elements[1].c_str(),NULL);
+            double V = strtod(elements[2].c_str(),NULL);
+            double H = strtod(elements[3].c_str(),NULL);
+            double S = strtod(elements[4].c_str(),NULL);
+            double BCP = HAProps("B","T",T,"W",W,"P",p1) - 273.15;
+            double VCP = HAProps("V","T",T,"W",W,"P",p1);
+            double HCP = HAProps("H","T",T,"W",W,"P",p1);
+            double SCP = HAProps("S","T",T,"W",W,"P",p1);
+            SECTION((char*)"B")
+            {
+                CAPTURE(B);
+                CAPTURE(BCP);
+                CHECK(fabs(BCP-B) < 0.01);
+            }
+            SECTION((char*)"V")
+            {
+                CAPTURE(V);
+                CAPTURE(VCP);
+                CHECK(fabs(VCP-V) < 0.01);
+            }
+            SECTION((char*)"H")
+            {
+                CAPTURE(H);
+                CAPTURE(HCP);
+                CHECK(fabs(HCP-H) < 0.01);
+            }
+            SECTION((char*)"S")
+            {
+                CAPTURE(S);
+                CAPTURE(SCP);
+                CHECK(fabs(SCP-S) < 0.01);
+            }
+        }
+    }
+}
+#endif
