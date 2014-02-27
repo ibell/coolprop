@@ -1598,34 +1598,34 @@ TEST_CASE((char*)"Tests from ASHRAE RP-1485",(char*)"[RP1485]")
         {
             std::vector<std::string> elements = strsplit(rows1[i],' ');
             double W = strtod(elements[0].c_str(),NULL);
-            double B = strtod(elements[1].c_str(),NULL);
-            double V = strtod(elements[2].c_str(),NULL);
-            double H = strtod(elements[3].c_str(),NULL);
-            double S = strtod(elements[4].c_str(),NULL);
-            double BCP = HAProps("B","T",T,"W",W,"P",p1) - 273.15;
-            double VCP = HAProps("V","T",T,"W",W,"P",p1);
-            double HCP = HAProps("H","T",T,"W",W,"P",p1);
-            double SCP = HAProps("S","T",T,"W",W,"P",p1);
             SECTION((char*)"B")
             {
+                double B = strtod(elements[1].c_str(),NULL);
+                double BCP = HAProps("B","T",T,"W",W,"P",p1) - 273.15;
                 CAPTURE(B);
                 CAPTURE(BCP);
                 CHECK(fabs(BCP-B) < 0.01);
             }
             SECTION((char*)"V")
             {
+                double V = strtod(elements[2].c_str(),NULL);
+                double VCP = HAProps("V","T",T,"W",W,"P",p1);
                 CAPTURE(V);
                 CAPTURE(VCP);
                 CHECK(fabs(VCP-V) < 0.01);
             }
             SECTION((char*)"H")
             {
+                double H = strtod(elements[3].c_str(),NULL);
+                double HCP = HAProps("H","T",T,"W",W,"P",p1);
                 CAPTURE(H);
                 CAPTURE(HCP);
                 CHECK(fabs(HCP-H) < 0.01);
             }
             SECTION((char*)"S")
             {
+                double S = strtod(elements[4].c_str(),NULL);
+                double SCP = HAProps("S","T",T,"W",W,"P",p1);
                 CAPTURE(S);
                 CAPTURE(SCP);
                 CHECK(fabs(SCP-S) < 0.01);
