@@ -22,7 +22,8 @@ class GeneticAncillaryFitter(object):
                Ref = 'R407C',
                value = 'rhoV',
                addTr = True,
-               values = None
+               values = None,
+               Tlims = None
                 ):
         self.num_samples = num_samples
         self.num_selected = num_selected
@@ -40,10 +41,13 @@ class GeneticAncillaryFitter(object):
             self.pc = Props(Ref,'pcrit')
             self.rhoc = Props(Ref,'rhocrit')
             self.Tmin = Props(Ref,'Tmin')
-            self.T = np.append(np.linspace(self.Tmin+1e-14, self.Tc-1,150), np.logspace(np.log10(self.Tc-1), np.log10(self.Tc)-1e-15,40))
-            self.p = [Props('P','T',T,'Q',0,Ref) for T in self.T]
-            self.rhoL = [Props('D','T',T,'Q',0,Ref) for T in self.T]
-            self.rhoV = [Props('D','T',T,'Q',1,Ref) for T in self.T]
+            if Tlims is None:
+                self.T = np.append(np.linspace(self.Tmin+1e-14, self.Tc-1,150), np.logspace(np.log10(self.Tc-1), np.log10(self.Tc)-1e-15,40))
+            else:
+                self.T = np.linspace(Tlims[0],Tlims[1])
+            self.p = Props('P','T',self.T,'Q',0,Ref)
+            self.rhoL = Props('D','T',self.T,'Q',0,Ref)
+            self.rhoV = Props('D','T',self.T,'Q',1,Ref)
         else:
             self.Tc = values['Tcrit']
             self.pc = values['pcrit']
@@ -257,8 +261,11 @@ class GeneticAncillaryFitter(object):
 
 if __name__ == "__main__":
     
-    gaf = GeneticAncillaryFitter(Ref = 'AceticAcid', value = 'rhoV', addTr = True, num_powers = 6)
-    gaf.run()
+    gaf = GeneticAncillaryFitter(Ref = 'AceticAcid', value = 'rhoLnoexp', addTr = False, num_powers = 5, Tlims = (290,590))
+    ch = gaf.run()
+    plt.plot(gaf.T, ch.fit_value)
+    plt.plot(gaf.T, gaf.EOS_value)
+    plt.show()
     
 #     import nose
 #     nose.runmodule()

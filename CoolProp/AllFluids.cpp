@@ -23,7 +23,7 @@
 #include "pseudopurefluids/SES36.cpp"
 #include "pseudopurefluids/R407F.cpp"
 
-//#include "purefluids/AceticAcid.cpp"
+#include "purefluids/AceticAcid.cpp"
 #include "purefluids/Argon.cpp"
 #include "purefluids/Alkanes.cpp"
 #include "purefluids/Benzene.cpp"
@@ -131,7 +131,7 @@ FluidsContainer::FluidsContainer()
 	FluidsList.push_back(new R113Class());
 	FluidsList.push_back(new R1234zeZClass());
 	FluidsList.push_back(new R1233zdEClass());
-	//FluidsList.push_back(new AceticAcidClass());
+	FluidsList.push_back(new AceticAcidClass());
 
 	// The industrial fluids
 	FluidsList.push_back(new R245faClass());
