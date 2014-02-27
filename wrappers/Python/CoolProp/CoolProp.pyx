@@ -258,9 +258,9 @@ cpdef Props(in1, in2, in3 = None, in4 = None, in5 = None, in6 = None, in7 = None
     ``OutputName`` is either a single-character or a string alias.  This list 
     shows the possible values
     
-    ==========================    ======================================================
+    ============================  ======================================================
     ``OutputName``                Description
-    ==========================    ======================================================
+    ============================  ======================================================
     ``Q``                         Quality [-]
     ``T``                         Temperature [K]
     ``P``                         Pressure [kPa]
@@ -386,9 +386,9 @@ cpdef PropsSI(str in1, str in2, in3 = None, in4 = None, in5 = None, in6 = None, 
     ``OutputName`` is either a single-character or a string alias.  This list 
     shows the possible values
     
-    ==========================    ======================================================
+    ============================  ======================================================
     ``OutputName``                Description
-    ==========================    ======================================================
+    ============================  ======================================================
     ``Q``                         Quality [-]
     ``T``                         Temperature [K]
     ``P``                         Pressure [Pa]
