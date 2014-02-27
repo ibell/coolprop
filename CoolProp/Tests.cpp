@@ -88,45 +88,47 @@
 	};
 
 
-	TEST_CASE( (char*)"Cyclohexane", (char*)"" ) 
+	TEST_CASE( (char*)"Cyclohexane", (char*)"[cyclohexane],[validation]" ) 
 	{
 		Fluid *CHEX = get_fluid(get_Fluid_index("Cyclohexane"));
 		double mm = CHEX->params.molemass;
 		validator_element data[] = {
 			validator_element("T",300.0,"D",9.4*mm,"P",24.173705*1e6),
-			validator_element("T",300.0,"D",9.4*mm,"O",115.28612/mm),
-			validator_element("T",300.0,"D",9.4*mm,"C",154.76968/mm),
+			validator_element("T",300.0,"D",9.4*mm,"O",115.28612/mm*1000),
+			validator_element("T",300.0,"D",9.4*mm,"C",154.76968/mm*1000),
 			validator_element("T",300.0,"D",9.4*mm,"A",1383.3876),
 			validator_element("T",500.0,"D",6.5*mm,"P",3.9246630*1e6),
-			validator_element("T",500.0,"D",6.5*mm,"O",192.52079/mm),
-			validator_element("T",500.0,"D",6.5*mm,"C",255.57110/mm),
+			validator_element("T",500.0,"D",6.5*mm,"O",192.52079/mm*1000),
+			validator_element("T",500.0,"D",6.5*mm,"C",255.57110/mm*1000),
 			validator_element("T",500.0,"D",6.5*mm,"A",434.13058),
 			validator_element("T",500.0,"D",0.7*mm,"P",1.9981172*1e6),
-			validator_element("T",500.0,"D",0.7*mm,"O",191.96468/mm),
-			validator_element("T",500.0,"D",0.7*mm,"C",235.52304/mm),
+			validator_element("T",500.0,"D",0.7*mm,"O",191.96468/mm*1000),
+			validator_element("T",500.0,"D",0.7*mm,"C",235.52304/mm*1000),
 			validator_element("T",500.0,"D",0.7*mm,"A",155.34798),
 			validator_element("T",600.0,"D",3.5*mm,"P",6.8225506*1e6),  
-			validator_element("T",600.0,"D",3.5*mm,"O",232.79249/mm),
-			validator_element("T",600.0,"D",3.5*mm,"C",388.55212/mm),
+			validator_element("T",600.0,"D",3.5*mm,"O",232.79249/mm*1000),
+			validator_element("T",600.0,"D",3.5*mm,"C",388.55212/mm*1000),
 			validator_element("T",600.0,"D",3.5*mm,"A",150.53314),
 			validator_element("T",553.6,"D",3.3*mm,"P",4.0805433*1e6),
-			validator_element("T",553.6,"D",3.3*mm,"O",224.19580/mm), 
-			validator_element("T",553.6,"D",3.3*mm,"C",199224.62/mm), 
+			validator_element("T",553.6,"D",3.3*mm,"O",224.19580/mm*1000), 
+			validator_element("T",553.6,"D",3.3*mm,"C",199224.62/mm*1000), 
 			validator_element("T",553.6,"D",3.3*mm,"A",87.913862)
 		};
 
 		//Now actually construct the vector
-		std::vector<validator_element> elements(data, data + sizeof(data) / sizeof(data));		
+		std::vector<validator_element> elements(data, data + sizeof(data) / sizeof(validator_element));		
 		
 		for (std::vector<validator_element>::iterator it = elements.begin(); it != elements.end(); it++)
 		{
 			validator_element &el = *it;
-			SECTION((char*)"validate")
-			{
-				double eos = PropsSI((char*)el.in5.c_str(), (char*)el.in1.c_str(), el.in2, (char*)el.in3.c_str(), el.in4, "Cyclohexane");
-				double valid = el.in6;
-				CHECK(valid == eos);
-			}
+			double eos = PropsSI((char*)el.in5.c_str(), (char*)el.in1.c_str(), el.in2, (char*)el.in3.c_str(), el.in4, "Cyclohexane");
+			double valid = el.in6;
+            CAPTURE(eos);
+            CAPTURE(valid);
+            CAPTURE(el.in1);
+            CAPTURE(el.in3);
+            CAPTURE(el.in5);
+			CHECK(fabs(valid/eos-1) < 1e-2);
 		}
 	}
 
