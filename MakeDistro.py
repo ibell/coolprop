@@ -89,6 +89,8 @@ def MATLAB():
     shutil.copy2(os.path.join('wrappers','MATLAB','HAProps.mexw64'),os.path.join('dist_temp','MATLAB','HAProps.mexw64'))
     shutil.copy2(os.path.join('wrappers','MATLAB','Props.mexw32'),os.path.join('dist_temp','MATLAB','Props.mexw32'))
     shutil.copy2(os.path.join('wrappers','MATLAB','HAProps.mexw32'),os.path.join('dist_temp','MATLAB','HAProps.mexw32'))
+    shutil.copy2(os.path.join('wrappers','MATLAB','PropsSI.mexw32'),os.path.join('dist_temp','MATLAB','PropsSI.mexw32'))
+    shutil.copy2(os.path.join('wrappers','MATLAB','PropsSI.mexw64'),os.path.join('dist_temp','MATLAB','PropsSI.mexw64'))
     shutil.copy2(os.path.join('wrappers','MATLAB','README.rst'),os.path.join('dist_temp','MATLAB','README.rst'))
     shutil.copy2(os.path.join('wrappers','MATLAB','MATLAB_sample.m'),os.path.join('dist_temp','MATLAB','example.m'))
     
