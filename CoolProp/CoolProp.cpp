@@ -553,6 +553,10 @@ double Props1(std::string FluidName,std::string Output){
     // Redirect to the Props() function
 	return Props(FluidName, Output);
 }
+double Props1SI(std::string FluidName,std::string Output){
+    // Redirect to the Props() function
+	return Props1SI((char*)FluidName.c_str(), (char*)Output.c_str());
+}
 double Props(std::string FluidName,std::string Output){
     // In this function the error catching happens;
 	try{
@@ -890,6 +894,11 @@ double PropsSI(std::string Output, std::string Name1, double Prop1, std::string 
 {
 	// Go to the std::string version
     return PropsSI((char*)Output.c_str(),(char*)Name1.c_str(),Prop1,(char*)Name2.c_str(),Prop2,(char*)Ref.c_str());
+}
+double Props(std::string Output, std::string Name1, double Prop1, std::string Name2, double Prop2, std::string Ref)
+{
+	// Go to the std::string version
+    return Props((char*)Output.c_str(),(char*)Name1.c_str(),Prop1,(char*)Name2.c_str(),Prop2,(char*)Ref.c_str());
 }
 
 double Props(std::string Output,char Name1, double Prop1, char Name2, double Prop2, std::string Ref)

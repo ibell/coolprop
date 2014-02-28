@@ -313,7 +313,7 @@ cpdef Props(in1, in2, in3 = None, in4 = None, in5 = None, in6 = None, in7 = None
             return val
     else:
         if not iterable(in3) and not iterable(in5):
-            val = _PropsS(in1, in2, in3, in4, in5, in6)
+            val = _Props(in1, in2, in3, in4, in5, in6)
             if not _ValidNumber(val):
                 __Props_err2(in1,in2,in3,in4,in5,in6,_get_global_param_string('errstring'))
             else:
@@ -333,7 +333,7 @@ cpdef Props(in1, in2, in3 = None, in4 = None, in5 = None, in6 = None, in7 = None
                 in2, in4 = in4, in2 # swap their keys too
             vals = []
             for _in3 in in3:
-                val = _PropsS(in1, in2, _in3, in4, in5, in6)
+                val = _Props(in1, in2, _in3, in4, in5, in6)
                 if not _ValidNumber(val):
                     __Props_err2(in1,in2,_in3,in4,in5,in6,_get_global_param_string('errstring'))
                 vals.append(val)
@@ -351,7 +351,7 @@ cpdef __PropsSI_err2(in1, in2, in3, in4, in5, in6, errstr):
     else:
         raise ValueError("PropsSI failed ungracefully :: inputs were:\"{in1:s}\",\"{in2:s}\",{in3:0.16e},\"{in4:s}\",{in5:0.16e},\"{in6:s}\"; please file a ticket at https://github.com/ibell/coolprop/issues".format(in1=in1,in2=in2,in3=in3,in4=in4,in5=in5,in6=in6))
                         
-cpdef PropsSI(string_like in1, string_like in2, in3 = None, in4 = None, in5 = None, in6 = None, in7 = None):
+cpdef PropsSI(in1, in2, in3 = None, in4 = None, in5 = None, in6 = None, in7 = None):
     """
     Just like Props(), but this function ALWAYS takes in and returns SI units (K, kg, J/kg, Pa, N/m, etc.)
     

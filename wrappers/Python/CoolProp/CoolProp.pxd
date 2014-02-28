@@ -361,7 +361,6 @@ cdef extern from "CoolPropDLL.h":
     int _set_reference_stateS "set_reference_stateS"(char *, char *)
     int _set_reference_stateD "set_reference_stateD"(char *, double T, double rho, double h0, double s0)
     int _get_standard_unit_system "get_standard_unit_system"()
-    double _PropsS "PropsS"(char* Output, char* Name1, double Prop1, char* Name2, double Prop2,char* Ref)
     
 cdef extern from "CoolPropTools.h":
     bint _ValidNumber "ValidNumber"(double)
@@ -376,11 +375,13 @@ cdef extern from "CoolProp.h":
     void _set_standard_unit_system "set_standard_unit_system"(int unit_system)
     
     double _PropsSI "PropsSI"(string Output, string Name1, double Prop1, string Name2, double Prop2, string Ref)
-    double _Props1SI "Props1SI"(char* Ref, char* Output)
+    double _Props1SI "Props1SI"(string Ref, string Output)
     
     double _IProps "IProps"(long Output, long Name1, double Prop1, long Name2, double Prop2, long Ref)
+    
+    double _Props "Props"(string Output, string Name1, double Prop1, string Name2, double Prop2, string Ref)
     double _Props1 "Props1"(string Ref, string Output)
-    double _Props "Props"(string Output, char Name1, double Prop1, char Name2, double Prop2, string Ref)
+    
     
     string _Phase "Phase"(char *Fluid, double T, double p)
     string _Phase_Tp "Phase_Tp"(string Fluid, double T, double p)
