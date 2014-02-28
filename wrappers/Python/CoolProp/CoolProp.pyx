@@ -306,9 +306,9 @@ cpdef Props(in1, in2, in3 = None, in4 = None, in5 = None, in6 = None, in7 = None
     cdef double _in3
         
     if (in4 is None and in6 is None and in7 is None):
-        val = _Props1(in1, in2)
+        val = _Props1(in1.encode('ascii'), in2.encode('ascii'))
         if not _ValidNumber(val):
-            __Props_err1(in2,in2,_get_global_param_string('errstring'))
+            __Props_err1(in1,in2,_get_global_param_string('errstring'))
         else:
             return val
     else:
@@ -351,7 +351,7 @@ cpdef __PropsSI_err2(in1, in2, in3, in4, in5, in6, errstr):
     else:
         raise ValueError("PropsSI failed ungracefully :: inputs were:\"{in1:s}\",\"{in2:s}\",{in3:0.16e},\"{in4:s}\",{in5:0.16e},\"{in6:s}\"; please file a ticket at https://github.com/ibell/coolprop/issues".format(in1=in1,in2=in2,in3=in3,in4=in4,in5=in5,in6=in6))
                         
-cpdef PropsSI(str in1, str in2, in3 = None, in4 = None, in5 = None, in6 = None, in7 = None):
+cpdef PropsSI(string_like in1, string_like in2, in3 = None, in4 = None, in5 = None, in6 = None, in7 = None):
     """
     Just like Props(), but this function ALWAYS takes in and returns SI units (K, kg, J/kg, Pa, N/m, etc.)
     
@@ -433,9 +433,9 @@ cpdef PropsSI(str in1, str in2, in3 = None, in4 = None, in5 = None, in6 = None, 
     
     """
     if (in4 is None and in6 is None and in7 is None):
-        val = _Props1SI(in1, in2)
+        val = _Props1SI(in1.encode('ascii'), in2.encode('ascii'))
         if not _ValidNumber(val):
-            __Props_err1(in2,in2,_get_global_param_string('errstring'))
+            __Props_err1(in1,in2,_get_global_param_string('errstring'))
         else:
             return val
     else:
