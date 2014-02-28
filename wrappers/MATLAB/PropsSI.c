@@ -2,7 +2,7 @@
 
 /* Prototype for the Props function to be called.  Can't use the CoolProp.h header because there are a lot of
    c++ parts in the header that cannot be easily hidden when compiling */
-double Props(char *Output, char Name1, double Prop1, char Name2, double Prop2, char * Ref);
+double PropsSI(char *Output, char *Name1, double Prop1, char *Name2, double Prop2, char * Ref);
 double Props1(char *Output, char * Ref);
 long get_global_param_string(char*, char*);
 long get_fluid_param_string(char *fluid, char *param, char * Output);
@@ -85,13 +85,12 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         /* Get the refrigerant (it is a string) (+1 for the NULL terminator)*/
         Ref_len=(mxGetM(prhs[5]) * mxGetN(prhs[5])) + 1;
         Ref = mxCalloc(Ref_len, sizeof(char));
+        mxGetString(prhs[5], Ref, Ref_len);
         
         /* Get the output (it is a string) (+1 for the NULL terminator)*/
         Output_len=(mxGetM(prhs[0]) * mxGetN(prhs[0])) + 1;
         Output = mxCalloc(Output_len, sizeof(char));
-        
-        status = mxGetString(prhs[5], Ref, Ref_len);
-        status = mxGetString(prhs[0], Output, Output_len);
+        mxGetString(prhs[0], Output, Output_len);
         
         Name1_len=(mxGetM(prhs[1]) * mxGetN(prhs[1])) + 1;
         Name1 = mxCalloc(Name1_len, sizeof(char));
@@ -104,7 +103,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         Prop1 = mxGetScalar(prhs[2]);
         Prop2 = mxGetScalar(prhs[4]);
 
-        val = Props(Output,Name1[0],Prop1,Name2[0],Prop2,Ref);
+        val = PropsSI(Output,Name1,Prop1,Name2,Prop2,Ref);
         
         /* If it is a good value, return it */
         if (ValidNumber(val))
@@ -133,29 +132,6 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         }
         else if (!strcmp(Ref,"gitrevision")){
             get_global_param_string("gitrevision", fluidslist);
-        }
-        else if (!strcmp(Ref,"set_UNIT_SYSTEM_SI"))
-        {
-            set_standard_unit_system(UNIT_SYSTEM_SI);
-            mexPrintf("Unit system set to SI\n");
-            return;
-        }
-        else if (!strcmp(Ref,"set_UNIT_SYSTEM_KSI"))
-        {
-            set_standard_unit_system(UNIT_SYSTEM_KSI);
-            mexPrintf("Unit system set to KSI\n");
-            return;
-        }
-        else if (!strcmp(Ref,"get_unit_system"))
-        {
-            switch (get_standard_unit_system())
-            {
-                case UNIT_SYSTEM_SI:
-                    plhs[0] = mxCreateString("UNIT_SYSTEM_SI"); break;
-                case UNIT_SYSTEM_KSI:
-                    plhs[0] = mxCreateString("UNIT_SYSTEM_SI"); break;
-            }
-            return;
         }
         else
         {
