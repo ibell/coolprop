@@ -23,7 +23,10 @@ from phase_constants import *
 from phase_constants_header cimport *
 
 cpdef bint iterable(object a):
-    return isinstance(a,(list,tuple, np.ndarray))
+    if _numpy_supported:
+        return isinstance(a,(list,tuple, np.ndarray))
+    else:
+        return isinstance(a,(list,tuple))
     
 include "HumidAirProp.pyx"
     

@@ -1,3 +1,4 @@
+from __future__ import print_function
 import CoolProp
 from CoolProp.CoolProp import Props
 from math import log10
@@ -38,7 +39,7 @@ def check_consistency(Fluid, T):
     pmax = Props('P','T',Props(Fluid,'Tcrit'),'D',Props(Fluid,'rhocrit'),Fluid)
     psat = Props('P', 'T', T, 'Q', 1, Fluid)
     Tnew = Props('T', 'P', psat, 'Q', 1, Fluid)
-    print Fluid,T,Tnew,
+    print(Fluid,T,Tnew)
     assert (abs(Tnew/T-1) < 0.001)
     
 if __name__=='__main__':
