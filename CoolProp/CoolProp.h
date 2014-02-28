@@ -56,6 +56,14 @@ You might want to start by looking at CoolProp.h
 	/// @param Prop2 The second state variable value
 	/// @param FluidName The fluid name
 	double Props(std::string Output,char Name1, double Prop1, char Name2, double Prop2, std::string FluidName);
+    /// Return a value that depends on the thermodynamic state
+	/// @param Output The output parameter, one of "T","D","H",etc.
+	/// @param Name1 The first state variable name, one of "T","D","H",etc.
+	/// @param Prop1 The first state variable value
+	/// @param Name2 The second state variable name, one of "T","D","H",etc.
+	/// @param Prop2 The second state variable value
+	/// @param FluidName The fluid name
+    double PropsSI(std::string Output,std::string Name1, double Prop1, std::string Name2, double Prop2, std::string FluidName);
 
 	/// Return some low level derivative terms, see source for a complete list
 	/// @param Term String, some options are "phir" (residual Helmholtz energy),"dphir_dDelta", "dphir_dTau", etc.

@@ -1,5 +1,5 @@
 #cython: embedsignature = True, c_string_type=str, c_string_encoding=ascii
-from __future__ import division 
+from __future__ import division
 #
 # This file provides wrapper functions of all the CoolProp functions
 #
@@ -840,7 +840,7 @@ cdef class State:
     sets the internal variables in the most computationally efficient way possible
     """
         
-    def __init__(self, string Fluid, dict StateDict, object phase = None):
+    def __init__(self, object Fluid, dict StateDict, object phase = None):
         """
         Parameters
         ----------
@@ -850,12 +850,12 @@ cdef class State:
         phase, string
             The phase of the fluid, it it is known.  One of ``Gas``,``Liquid``,``Supercritical``,``TwoPhase``
         """
-        cdef bytes _Fluid = Fluid
+        cdef string _Fluid = Fluid
         
-        if _Fluid == 'none':
+        if _Fluid == <string>'none':
             return
         else:
-            self.set_Fluid(_Fluid)
+            self.set_Fluid(<bytes>Fluid)
             
         if phase is None:
             _phase = b''
@@ -870,10 +870,10 @@ cdef class State:
         #Parse the inputs provided
         self.update(StateDict)
         #Set the phase flag
-        if self.phase == str('Gas') or self.phase == str('Liquid') or self.phase == str('Supercritical'):
-            if self.is_CPFluid and (self.phase == str('Gas') or self.phase == str('Liquid')):
+        if self.phase == <string>'Gas' or self.phase == <string>'Liquid' or self.phase == <string>'Supercritical':
+            if self.is_CPFluid and (self.phase == <string>'Gas' or self.phase == <string>'Liquid'):
                 self.CPS.flag_SinglePhase = True
-            elif not self.is_CPFluid and self.phase is not None:
+            elif not self.is_CPFluid and phase is not None:
                 _set_phase(self.phase)
             
     def __reduce__(self):
@@ -887,9 +887,9 @@ cdef class State:
     cpdef set_Fluid(self, string_like Fluid):
         self.Fluid = Fluid.encode('ascii')
 
-        if Fluid.startswith('REFPROP-'):
-            _add_REFPROP_fluid(Fluid)
-        self.iFluid = get_Fluid_index(Fluid)
+        if self.Fluid.startswith('REFPROP-'):
+            _add_REFPROP_fluid(self.Fluid)
+        self.iFluid = _get_Fluid_index(self.Fluid)
         
         #  Try to get the fluid from CoolProp
         if self.iFluid >= 0:
@@ -898,8 +898,7 @@ cdef class State:
             #  Instantiate the C++ State class
             self.CPS = CoolPropStateClassSI(self.Fluid)
         else:
-            #  It is not a CoolProp fluid, have to use the slower calls
-            self.is_CPFluid = False
+            raise ValueError('Invalid fluid name [{n:s}]'.format(n = self.Fluid))
         
     cpdef update_ph(self, double p, double h):
         """

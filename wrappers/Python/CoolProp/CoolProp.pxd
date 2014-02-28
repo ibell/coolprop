@@ -375,7 +375,7 @@ cdef extern from "Units.h":
 cdef extern from "CoolProp.h":
     void _set_standard_unit_system "set_standard_unit_system"(int unit_system)
     
-    double _PropsSI "PropsSI"(char* Output, char* Name1, double Prop1, char* Name2, double Prop2, char* Ref)
+    double _PropsSI "PropsSI"(string Output, string Name1, double Prop1, string Name2, double Prop2, string Ref)
     double _Props1SI "Props1SI"(char* Ref, char* Output)
     
     double _IProps "IProps"(long Output, long Name1, double Prop1, long Name2, double Prop2, long Ref)
@@ -453,7 +453,7 @@ cdef extern from "HumidAirProp.h":
        
 cdef class State:
     cdef CoolPropStateClassSI CPS
-    cdef readonly bytes Fluid, phase
+    cdef readonly string Fluid, phase
     cdef int iFluid,iParam1,iParam2,iOutput
     cdef double T_, rho_, p_
     cdef readonly bint is_CPFluid
