@@ -898,7 +898,7 @@ double PropsSI(std::string Output, std::string Name1, double Prop1, std::string 
 double Props(std::string Output, std::string Name1, double Prop1, std::string Name2, double Prop2, std::string Ref)
 {
 	// Go to the std::string version
-    return Props((char*)Output.c_str(),(char*)Name1.c_str(),Prop1,(char*)Name2.c_str(),Prop2,(char*)Ref.c_str());
+    return PropsS((char*)Output.c_str(),(char*)Name1.c_str(),Prop1,(char*)Name2.c_str(),Prop2,(char*)Ref.c_str());
 }
 
 double Props(std::string Output,char Name1, double Prop1, char Name2, double Prop2, std::string Ref)
