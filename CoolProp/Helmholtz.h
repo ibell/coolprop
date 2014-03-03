@@ -425,7 +425,7 @@ public:
 class phir_SAFT_associating : public phi_BC{
 	
 protected:
-	double m,epsilonbar, vbarn, kappabar;
+	double m,epsilonbar, vbarn, kappabar,a;
 public:
 	// Constructor
 	phir_SAFT_associating(){};
@@ -433,27 +433,16 @@ public:
 	//Destructor
 	~phir_SAFT_associating(){};
 
-	// Term and its derivatives ( will all be reimplemented 
-	// in the derived classes, but need to be implemented to compile)
-	virtual double base(double tau, double delta) = 0;
-	virtual double dDelta(double tau, double delta) = 0;
-	virtual double dTau(double tau, double delta) = 0;
-	
-	virtual double dDelta2(double tau, double delta) = 0;
-	virtual double dDelta_dTau(double tau, double delta) = 0;
-	virtual double dTau2(double tau, double delta) = 0;
-	
-	virtual double dDelta3(double tau, double delta) = 0;
-	virtual double dDelta2_dTau(double tau, double delta) = 0;
-	virtual double dDelta_dTau2(double tau, double delta) = 0;
-	virtual double dTau3(double tau, double delta) = 0;
-
 	double Deltabar(double tau, double delta);
 	double dDeltabar_ddelta__consttau(double tau, double delta);
 	double d2Deltabar_ddelta2__consttau(double tau, double delta);
 	double dDeltabar_dtau__constdelta(double tau, double delta);
 	double d2Deltabar_dtau2__constdelta(double tau, double delta);
 	double d2Deltabar_ddelta_dtau(double tau, double delta);
+    double d3Deltabar_dtau3__constdelta(double tau, double delta);
+    double d3Deltabar_ddelta_dtau2(double tau, double delta);
+    double d3Deltabar_ddelta3__consttau(double tau, double delta);
+    double d3Deltabar_ddelta2_dtau(double tau, double delta);
 
 	double X(double delta, double Deltabar);
 	double dX_dDeltabar__constdelta(double delta, double Deltabar);
@@ -463,11 +452,30 @@ public:
 	double d2X_dtau2(double tau, double delta);
 	double d2X_ddeltadtau(double tau, double delta);
 	double d2X_ddelta2(double tau, double delta);
+
+    double d3X_dtau3(double tau, double delta);
+    double d3X_ddelta3(double tau, double delta);
+    double d3X_ddeltadtau2(double tau, double delta);
+    double d3X_ddelta2dtau(double tau, double delta);
+
 	double g(double eta);
 	double dg_deta(double eta);
 	double d2g_deta2(double eta);   
 	double d3g_deta3(double eta);
 	double eta(double delta);
+
+    double base(double tau, double delta);
+	double dDelta(double tau, double delta);
+	double dTau(double tau, double delta);
+	
+	double dDelta2(double tau, double delta);
+	double dDelta_dTau(double tau, double delta);
+	double dTau2(double tau, double delta);
+	
+	double dDelta3(double tau, double delta);
+	double dDelta2_dTau(double tau, double delta);
+    double dDelta_dTau2(double tau, double delta);
+	double dTau3(double tau, double delta);
 };
 
 class phir_SAFT_associating_2B : public phir_SAFT_associating{
@@ -475,48 +483,24 @@ class phir_SAFT_associating_2B : public phir_SAFT_associating{
 public:
 	phir_SAFT_associating_2B(double m, double epsilonbar, double vbarn, double kappabar)
 	{
+        this->a = 2;
 		this->m = m;
 		this->epsilonbar = epsilonbar;
 		this->vbarn = vbarn;
 		this->kappabar = kappabar;
 	};
-
-	double base(double tau, double delta);
-	double dDelta(double tau, double delta);
-	double dTau(double tau, double delta);
-	
-	double dDelta2(double tau, double delta);
-	double dDelta_dTau(double tau, double delta);
-	double dTau2(double tau, double delta);
-	
-	double dDelta3(double tau, double delta){return _HUGE;};
-	double dDelta2_dTau(double tau, double delta){return _HUGE;};
-	double dDelta_dTau2(double tau, double delta){return _HUGE;};
-	double dTau3(double tau, double delta){return _HUGE;};
 };
 class phir_SAFT_associating_1 : public phir_SAFT_associating{
 
 public:
 	phir_SAFT_associating_1(double m, double epsilonbar, double vbarn, double kappabar)
 	{
+        this->a = 1;
 		this->m = m;
 		this->epsilonbar = epsilonbar;
 		this->vbarn = vbarn;
 		this->kappabar = kappabar;
 	};
-
-	double base(double tau, double delta);
-	double dDelta(double tau, double delta);
-	double dTau(double tau, double delta);
-	
-	double dDelta2(double tau, double delta);
-	double dDelta_dTau(double tau, double delta);
-	double dTau2(double tau, double delta);
-	
-	double dDelta3(double tau, double delta){return _HUGE;};
-	double dDelta2_dTau(double tau, double delta){return _HUGE;};
-	double dDelta_dTau2(double tau, double delta){return _HUGE;};
-	double dTau3(double tau, double delta){return _HUGE;};
 };
 
 /*!
