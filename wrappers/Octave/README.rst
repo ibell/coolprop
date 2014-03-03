@@ -7,6 +7,16 @@ Installation
 Separate versions of the .oct file are available for Octave 3.6.1 and 3.6.2.
 Put the .oct file for the version you have in somewhere in the octave path, or use the ``addpath`` function to add the folder that contains CoolProp.oct to the Octave path
 
+On Linux systems you can put .oct file in
+"/usr/share/octave/?octave.version.number?/m" folder. You will need superuser
+privileges to do this.
+
+If you place .oct file somewhere outside octave path, you have to use
+"addpath" function at begining of your code.
+
+Example: adding the folder that contains CoolProp.oct file to the Octave path:
+    "addpath('/home/?user_name?/Some_folder/CoolProp')"
+
 Developer Notes:
 ===============
 

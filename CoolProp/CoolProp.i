@@ -7,7 +7,7 @@
     %ignore DerivTerms(char *Term, double T, double rho, Fluid * pFluid, bool SinglePhase, bool TwoPhase);
 #endif
 
-// This stuff will get included verbatim in CoolProp_wrap.cpp
+// This stuff will get included verbatim in CoolProp_wrap
 %{
 #include "CoolPropTools.h"
 #include "CoolProp.h"

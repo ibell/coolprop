@@ -188,8 +188,6 @@ You might want to start by looking at CoolProp.h
 
 	//    **************** DEPRECATION WARNING ***********************
 	/// Nearly deprecated function
-	std::string get_index_units(long index);
-	/// Nearly deprecated function
 	void set_phase(std::string Phase_str);
 
 #endif

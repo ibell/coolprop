@@ -1,6 +1,6 @@
 CoolProp version:  4.1.2
-CoolProp gitrevision:  6396c4e238c39f1d449e1d36d8ed18ae89212b84
-CoolProp fluids:  ['Water', 'R134a', 'Helium', 'Oxygen', 'Hydrogen', 'ParaHydrogen', 'OrthoHydrogen', 'Argon', 'CarbonDioxide', 'Nitrogen', 'n-Propane', 'Ammonia', 'R1234yf', 'R1234ze(E)', 'R32', 'R22', 'SES36', 'Ethylene', 'SulfurHexafluoride', 'Ethanol', 'DimethylEther', 'DimethylCarbonate', 'R143a', 'R23', 'n-Dodecane', 'Propylene', 'Cyclopentane', 'R236FA', 'R236EA', 'R227EA', 'R365MFC', 'R161', 'HFE143m', 'Benzene', 'n-Undecane', 'R125', 'CycloPropane', 'Neon', 'R124', 'Propyne', 'Fluorine', 'Methanol', 'RC318', 'R21', 'R114', 'R13', 'R14', 'R12', 'R113', 'R1234ze(Z)', 'R1233zd(E)', 'R161', 'R245fa', 'R41', 'CarbonMonoxide', 'CarbonylSulfide', 'n-Decane', 'HydrogenSulfide', 'Isopentane', 'Neopentane', 'Isohexane', 'Krypton', 'n-Nonane', 'Toluene', 'Xenon', 'R116', 'Acetone', 'NitrousOxide', 'SulfurDioxide', 'R141b', 'R142b', 'R218', 'Methane', 'Ethane', 'n-Butane', 'IsoButane', 'n-Pentane', 'n-Hexane', 'n-Heptane', 'n-Octane', 'CycloHexane', 'R152A', 'R123', 'R11', 'MDM', 'MD2M', 'MD3M', 'D6', 'MM', 'MD4M', 'D4', 'D5', '1-Butene', 'IsoButene', 'cis-2-Butene', 'trans-2-Butene', 'MethylPalmitate', 'MethylStearate', 'MethylOleate', 'MethylLinoleate', 'MethylLinolenate', 'o-Xylene', 'm-Xylene', 'p-Xylene', 'EthylBenzene', 'Deuterium', 'ParaDeuterium', 'OrthoDeuterium', 'Air', 'R404A', 'R410A', 'R407C', 'R507A', 'R407F']
+CoolProp gitrevision:  7ec3ab6a4e95d4481fdf35c134ff278f2317efe1
+CoolProp fluids:  ['Water', 'R134a', 'Helium', 'Oxygen', 'Hydrogen', 'ParaHydrogen', 'OrthoHydrogen', 'Argon', 'CarbonDioxide', 'Nitrogen', 'n-Propane', 'Ammonia', 'R1234yf', 'R1234ze(E)', 'R32', 'R22', 'SES36', 'Ethylene', 'SulfurHexafluoride', 'Ethanol', 'DimethylEther', 'DimethylCarbonate', 'R143a', 'R23', 'n-Dodecane', 'Propylene', 'Cyclopentane', 'R236FA', 'R236EA', 'R227EA', 'R365MFC', 'R161', 'HFE143m', 'Benzene', 'n-Undecane', 'R125', 'CycloPropane', 'Neon', 'R124', 'Propyne', 'Fluorine', 'Methanol', 'RC318', 'R21', 'R114', 'R13', 'R14', 'R12', 'R113', 'R1234ze(Z)', 'R1233zd(E)', 'R245fa', 'R41', 'CarbonMonoxide', 'CarbonylSulfide', 'n-Decane', 'HydrogenSulfide', 'Isopentane', 'Neopentane', 'Isohexane', 'Krypton', 'n-Nonane', 'Toluene', 'Xenon', 'R116', 'Acetone', 'NitrousOxide', 'SulfurDioxide', 'R141b', 'R142b', 'R218', 'Methane', 'Ethane', 'n-Butane', 'IsoButane', 'n-Pentane', 'n-Hexane', 'n-Heptane', 'n-Octane', 'CycloHexane', 'R152A', 'R123', 'R11', 'MDM', 'MD2M', 'MD3M', 'D6', 'MM', 'MD4M', 'D4', 'D5', '1-Butene', 'IsoButene', 'cis-2-Butene', 'trans-2-Butene', 'MethylPalmitate', 'MethylStearate', 'MethylOleate', 'MethylLinoleate', 'MethylLinolenate', 'o-Xylene', 'm-Xylene', 'p-Xylene', 'EthylBenzene', 'Deuterium', 'ParaDeuterium', 'OrthoDeuterium', 'Air', 'R404A', 'R410A', 'R407C', 'R507A', 'R407F']
  
 ************ USING EOS *************
  
@@ -19,7 +19,7 @@ P,H -> T,D 56.0727627483 , 634.733625928 --> 300.0 , 1.0
 ************ USING TTSE ***************
  
 TWO PHASE INPUTS (Pressure)
-0.06 to build both two phase tables
+0.119 to build both two phase tables
 Density of saturated liquid Propane at 101.325 kPa: 580.882952266 kg/m^3
 Density of saturated vapor R290 at 101.325 kPa: 2.41613600655 kg/m^3
 TWO PHASE INPUTS (Temperature)
