@@ -96,7 +96,7 @@ EXPORT_CODE double CONVENTION toSI(const char *input, double value, const char *
 
 EXPORT_CODE int CONVENTION get_debug_level(){return debug_level;}
 EXPORT_CODE void CONVENTION set_debug_level(int level){debug_level=level;}
-EXPORT_CODE long CONVENTION get_Fluid_index(char * param)
+EXPORT_CODE long CONVENTION get_Fluid_index(const char * param)
 {
 	return get_Fluid_index(std::string(param));
 }

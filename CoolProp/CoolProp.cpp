@@ -313,7 +313,7 @@ static int IsCoolPropFluid(std::string FluidName)
 		return false;
 }
 
-static int IsBrine(char* Ref)
+static int IsBrine(const char* Ref)
 {
 	// First check whether it is one of the Brines that does
 	// not have a pure-fluid equivalent in CoolProp
@@ -378,7 +378,7 @@ long getFluidType(std::string FluidName){
 	return -1;
 }
 
-EXPORT_CODE int CONVENTION IsFluidType(char *Ref, char *Type)
+EXPORT_CODE int CONVENTION IsFluidType(const char *Ref, const char *Type)
 {
 	pFluid = Fluids.get_fluid(Ref);
 

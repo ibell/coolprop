@@ -13,8 +13,8 @@
 		std::string get_global_param_string(std::string ParamName);
 		std::string get_fluid_param_string(std::string FluidName, std::string ParamName);
 	#else
-		EXPORT_CODE long CONVENTION get_global_param_string(char *param, char * Output);
-		EXPORT_CODE long CONVENTION get_fluid_param_string(char *fluid, char *param, char * Output);
+		EXPORT_CODE long CONVENTION get_global_param_string(const char *param, char * Output);
+		EXPORT_CODE long CONVENTION get_fluid_param_string(const char *fluid, const char *param, char * Output);
 	#endif
 
 	// They can only use data types that play well with DLL wrapping (int, long, double, char*, void, etc.)
@@ -37,9 +37,9 @@
 	// Convenience functions
 	EXPORT_CODE int CONVENTION IsFluidType(const char *Ref, const char *Type);
 	EXPORT_CODE double CONVENTION DerivTerms(const char *Term, double T, double rho, const char * Ref);
-	EXPORT_CODE long CONVENTION Phase(const char *Fluid, double T, double p, const char *Phase_str);
-	EXPORT_CODE long CONVENTION Phase_Trho(const char *Fluid, double T, double p, const char *Phase_str);
-	EXPORT_CODE long CONVENTION Phase_Tp(const char *Fluid, double T, double rho, const char *Phase_str);
+	EXPORT_CODE long CONVENTION Phase(const char *Fluid, double T, double p, char *Phase_str);
+	EXPORT_CODE long CONVENTION Phase_Trho(const char *Fluid, double T, double p, char *Phase_str);
+	EXPORT_CODE long CONVENTION Phase_Tp(const char *Fluid, double T, double rho, char *Phase_str);
 	EXPORT_CODE void CONVENTION set_phase(const char *Phase_str);
 	EXPORT_CODE double CONVENTION F2K(double T_F);
 	EXPORT_CODE double CONVENTION K2F(double T);
@@ -47,9 +47,9 @@
 	EXPORT_CODE double CONVENTION fromSI(const char *input, const double value, const char *new_system);
 	EXPORT_CODE double CONVENTION   toSI(const char *input, const double value, const char *old_system);
 
-	EXPORT_CODE long CONVENTION get_param_index(char * param);
-	EXPORT_CODE long CONVENTION get_Fluid_index(char * param);
-	EXPORT_CODE long CONVENTION redirect_stdout(char* file);
+	EXPORT_CODE long CONVENTION get_param_index(const char * param);
+	EXPORT_CODE long CONVENTION get_Fluid_index(const char * param);
+	EXPORT_CODE long CONVENTION redirect_stdout(const char* file);
 
 	// Getter and setter for debug level
 	// ---------------------------------
@@ -107,6 +107,6 @@
 	EXPORT_CODE double CONVENTION viscosity_residual(const char* FluidName, double T, double rho);
 	EXPORT_CODE double CONVENTION conductivity_critical(const char* FluidName, double T, double rho);
 	EXPORT_CODE double CONVENTION conductivity_background(const char* FluidName, double T, double rho);
-	EXPORT_CODE double CONVENTION conformal_Trho(const char* FluidName, char* ReferenceFluidName, double T, double rho, double *Tconform, double *rhoconform);
+	EXPORT_CODE double CONVENTION conformal_Trho(const char* FluidName, const char* ReferenceFluidName, double T, double rho, double *Tconform, double *rhoconform);
 
 #endif

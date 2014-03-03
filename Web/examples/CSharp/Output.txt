@@ -19,10 +19,10 @@ P,H -> T,D 56.0727627482929,634.733625928477 --> 300,0.999999999999999
 ************ USING TTSE ***************
  
 TWO PHASE INPUTS (Pressure)
-0.359 to build both two phase tables
-3.349 to build single phase table with p,h
-13.055 to build single phase table for T,rho
-write time: 0.056
+0.348 to build both two phase tables
+2.818 to build single phase table with p,h
+13.613 to build single phase table for T,rho
+write time: 0.062
 Density of saturated liquid Propane at 101.325 kPa: 580.882952265689 kg/m^3
 Density of saturated vapor R290 at 101.325 kPa: 2.41613600655145 kg/m^3
 TWO PHASE INPUTS (Temperature)
