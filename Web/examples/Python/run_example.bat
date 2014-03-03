@@ -1,4 +1,5 @@
-copy ..\..\..\wrappers\Python\Example.py
-cl /c /I../../../CoolProp /EHsc CoolProp_wrap.cxx
+echo off
+copy ..\..\..\wrappers\Python\examples\Example.py
+if %errorlevel% neq 0 exit /b %errorlevel%
 python Example.py > Output.txt
-cl /c /I../../../CoolProp /EHsc CoolProp_wrap.cxx
+if %errorlevel% neq 0 exit /b %errorlevel%
