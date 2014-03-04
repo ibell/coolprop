@@ -17,6 +17,8 @@ enum params {
 	iRhoreduce, iTreduce, iPtriple, iTtriple, iHcrit, iPcrit, iRhocrit, iScrit, iTcrit,
 	/* Phase identifiers */
 	iPhase, iPHASE_LIQUID, iPHASE_GAS, iPHASE_SUPERCRITICAL, iPHASE_TWOPHASE,
+    /* Ancillary equations */
+    iRhosatLanc, iRhosatVanc, iPsatLanc, iPsatVanc,
 	/* Derivatives */
 	iDERdh_dp__rho, iDERdh_dp__v, iDERZ, iDERdZ_dDelta, iDERdZ_dTau, iDERB, iDERdB_dT, iDERC, iDERdC_dT, iDERphir,
 	iDERdphir_dTau, iDERdphir_dDelta, iDERd2phir_dTau2, iDERd2phir_dDelta2, iDERd2phir_dDelta_dTau,	iDERd3phir_dDelta3,

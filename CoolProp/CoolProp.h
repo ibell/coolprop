@@ -186,6 +186,9 @@ You might want to start by looking at CoolProp.h
 	// Define some constants that will be used throughout
 	#include "GlobalConstants.h"
 
+    /// A private method that can throw exceptions
+    double _Props(std::string Output,std::string Name1, double Prop1, std::string Name2, double Prop2, std::string Ref);
+
 	//    **************** DEPRECATION WARNING ***********************
 	/// Nearly deprecated function
 	void set_phase(std::string Phase_str);

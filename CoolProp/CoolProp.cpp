@@ -37,7 +37,6 @@
 
 // Function prototypes
 //double rho_TP(double T, double p);
-double _Props(std::string Output,std::string Name1, double Prop1, std::string Name2, double Prop2, std::string Ref);
 double _CoolProp_Fluid_Props(long iOutput, long iName1, double Value1, long iName2, double Value2, Fluid *pFluid, bool SinglePhase = false);
 
 static std::string err_string;
@@ -120,6 +119,10 @@ std::pair<std::string, long> map_data[] = {
 	std::make_pair(std::string("Psat"),iPsat),
 	std::make_pair(std::string("I"),iI),
 	std::make_pair(std::string("SurfaceTension"),iI),
+    std::make_pair(std::string("rhosatLanc"),iRhosatLanc),
+    std::make_pair(std::string("rhosatVanc"),iRhosatVanc),
+    std::make_pair(std::string("psatLanc"),iPsatLanc),
+    std::make_pair(std::string("psatVanc"),iPsatVanc),
 	std::make_pair(std::string("Phase"),iPhase),
 	std::make_pair(std::string("PHASE_LIQUID"),iPHASE_LIQUID),
 	std::make_pair(std::string("PHASE_GAS"),iPHASE_GAS),
@@ -720,12 +723,16 @@ double _Props(std::string Output, std::string Name1, double Prop1, std::string N
 }
 double _CoolProp_Fluid_Props(long iOutput, long iName1, double Prop1, long iName2, double Prop2, Fluid *pFluid, bool SinglePhase)
 {
-	double val = _HUGE;
+	double val = _HUGE, T = _HUGE;
 	// This private method uses the indices directly for speed
 
 	if (get_debug_level()>3){
 		std::cout << format("%s:%d: _CoolProp_Fluid_Props(%d,%d,%g,%d,%g,%s)\n",__FILE__,__LINE__,iOutput,iName1, Prop1, iName2, Prop2, pFluid->get_name().c_str()).c_str();
 	}
+    if (iName1 == iT){ 
+        T = Prop1;} 
+    else if (iName2 == iT){
+        T = Prop2;} 
 
 	// Generate a State instance wrapped around the Fluid instance
 	CoolPropStateClass CPS(pFluid);
@@ -733,8 +740,43 @@ double _CoolProp_Fluid_Props(long iOutput, long iName1, double Prop1, long iName
 	// Check if it is an output that doesn't require a state input
 	// Deal with it and return
 
-	switch (iOutput)
+    switch (iOutput)
 	{
+        case iI:
+            {
+            if (!ValidNumber(T)){throw ValueError(format("T must be provided as an input to use this output").c_str());}
+            return CPS.pFluid->surface_tension_T(T);
+            }
+        case iRhosatLanc:
+            {
+            if (!ValidNumber(T)){throw ValueError(format("T must be provided as an input to use this output").c_str());}
+            return CPS.pFluid->rhosatL(T);
+            }
+        case iRhosatVanc:
+            {
+            if (!ValidNumber(T)){throw ValueError(format("T must be provided as an input to use this output").c_str());}
+            return CPS.pFluid->rhosatV(T);
+            }
+        case iPsatLanc:
+            {
+            if (!ValidNumber(T)){throw ValueError(format("T must be provided as an input to use this output").c_str());}
+            if (CPS.pFluid->pure()){
+                return CPS.pFluid->psat(T);
+            }
+            else{
+                return CPS.pFluid->psatL(T);
+            }
+            }
+        case iPsatVanc:
+            {
+            if (!ValidNumber(T)){throw ValueError(format("T must be provided as an input to use this output").c_str());}
+            if (CPS.pFluid->pure()){
+                return CPS.pFluid->psat(T);
+            }
+            else{
+                return CPS.pFluid->psatV(T);
+            }
+            }
 		case iMM:
 		case iPcrit:
 		case iTcrit:
@@ -805,21 +847,59 @@ EXPORT_CODE double CONVENTION IProps(long iOutput, long iName1, double Prop1, lo
 }
 double _CoolProp_Fluid_PropsSI(long iOutput, long iName1, double Prop1, long iName2, double Prop2, Fluid *pFluid)
 {
-	double val = _HUGE;
+	double val = _HUGE, T = _HUGE;
 	// This private method uses the indices directly for speed
 
 	if (get_debug_level()>3){
 		std::cout << format("%s:%d: _CoolProp_Fluid_PropsSI(%d,%d,%g,%d,%g,%s)\n",__FILE__,__LINE__,iOutput,iName1, Prop1, iName2, Prop2, pFluid->get_name().c_str()).c_str();
 	}
+    if (iName1 == iT){ 
+        T = Prop1;} 
+    else if (iName2 == iT){
+        T = Prop2;} 
 
 	// Generate a State instance wrapped around the Fluid instance
 	CoolPropStateClassSI CPS(pFluid);
 
 	// Check if it is an output that doesn't require a state input
 	// Deal with it and return
-
 	switch (iOutput)
 	{
+        case iI:
+            {
+            if (!ValidNumber(T)){throw ValueError(format("T must be provided as an input to use this output").c_str());}
+            return CPS.pFluid->surface_tension_T(T);
+            }
+        case iRhosatLanc:
+            {
+            if (!ValidNumber(T)){throw ValueError(format("T must be provided as an input to use this output").c_str());}
+            return CPS.pFluid->rhosatL(T);
+            }
+        case iRhosatVanc:
+            {
+            if (!ValidNumber(T)){throw ValueError(format("T must be provided as an input to use this output").c_str());}
+            return CPS.pFluid->rhosatV(T);
+            }
+        case iPsatLanc:
+            {
+            if (!ValidNumber(T)){throw ValueError(format("T must be provided as an input to use this output").c_str());}
+            if (CPS.pFluid->pure()){
+                return CPS.pFluid->psat(T);
+            }
+            else{
+                return CPS.pFluid->psatL(T);
+            }
+            }
+        case iPsatVanc:
+            {
+            if (!ValidNumber(T)){throw ValueError(format("T must be provided as an input to use this output").c_str());}
+            if (CPS.pFluid->pure()){
+                return CPS.pFluid->psat(T);
+            }
+            else{
+                return CPS.pFluid->psatV(T);
+            }
+            }
 		case iMM:
 		case iPcrit:
 		case iTcrit:

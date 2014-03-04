@@ -8,9 +8,9 @@
 	#include "Tests.h"
 	#define CATCH_CONFIG_RUNNER
 	#include "Catch/catch.hpp"
-	TEST_CASE((char*)"Check reference state", (char*)"[reference_state]" ) 
+	TEST_CASE( "Check reference state",  "[reference_state]" ) 
 	{
-		SECTION((char*)"IIR")
+		SECTION( "IIR")
 		{
 			set_reference_stateS("Propane","IIR");
 			double h_EOS = PropsSI("H","T",273.15,"Q",0,"Propane");
@@ -21,9 +21,9 @@
 			REQUIRE(abs(h_target-h_EOS) < 1e-6);
 			REQUIRE(abs(s_target-s_EOS) < 1e-6);
 		}
-		SECTION((char*)"NBP")
+		SECTION( "NBP")
 		{
-			set_reference_stateS((char*)"Propane",(char*)"NBP");
+			set_reference_stateS( "Propane", "NBP");
 			double h_EOS = PropsSI("H","P",101325,"Q",0,"Propane");
 			double s_EOS = PropsSI("S","P",101325,"Q",0,"Propane");
 			double h_target = 0;
@@ -34,9 +34,9 @@
 		}
 		SECTION("ASHRAE")
 		{
-			set_reference_stateS((char*)"Propane",(char*)"ASHRAE");
-			double h_EOS = PropsSI((char*)"H",(char*)"T",233.15,(char*)"Q",0,(char*)"Propane");
-			double s_EOS = PropsSI((char*)"S",(char*)"T",233.15,(char*)"Q",0,(char*)"Propane");
+			set_reference_stateS( "Propane", "ASHRAE");
+			double h_EOS = PropsSI( "H", "T",233.15, "Q",0, "Propane");
+			double s_EOS = PropsSI( "S", "T",233.15, "Q",0, "Propane");
 			double h_target = 0;
 			double s_target = 0;
 
@@ -45,37 +45,66 @@
 		}
 	}
 
-	TEST_CASE( (char*)"Check units of fluid constants", (char*)"[fast]" ) 
+	TEST_CASE("Check units of fluid constants",  "[fast]" ) 
 	{
-		SECTION((char*)"kSI")
+		SECTION( "kSI")
 		{
 			set_standard_unit_system(UNIT_SYSTEM_KSI);
 
-			SECTION((char*)"pcrit")
+			SECTION( "pcrit")
 			{
-				double p_Props1SI = Props1SI((char*)"R134a",(char*)"pcrit");
-				double p_Props1 = Props1((char*)"R134a",(char*)"pcrit")*1000;
-				double p_Props = Props((char*)"pcrit",'T',300,'Q',0,(char*)"R134a")*1000;
-				double p_PropsSI = PropsSI((char*)"pcrit",(char*)"T",300,(char*)"Q",0,(char*)"R134a");
+				double p_Props1SI = Props1SI( "R134a", "pcrit");
+				double p_Props1 = Props1( "R134a", "pcrit")*1000;
+				double p_Props = Props( "pcrit",'T',300,'Q',0, "R134a")*1000;
+				double p_PropsSI = PropsSI( "pcrit", "T",300, "Q",0, "R134a");
 				REQUIRE(fabs(p_Props1/p_Props-1) < 1e-6);
 				REQUIRE(fabs(p_PropsSI/p_Props-1) < 1e-6);
 				REQUIRE(fabs(p_PropsSI/p_Props1SI-1) < 1e-6);
 			}
 		}
-		SECTION((char*)"SI")
+		SECTION( "SI")
 		{
 			set_standard_unit_system(UNIT_SYSTEM_SI);
 
-			SECTION((char*)"pcrit")
+			SECTION( "pcrit")
 			{
-				double p_Props1SI = Props1((char*)"R134a",(char*)"pcrit");
-				double p_Props1 = Props1((char*)"R134a",(char*)"pcrit");
-				double p_Props = Props((char*)"pcrit",'T',300,'Q',0,(char*)"R134a");
-				double p_PropsSI = PropsSI((char*)"pcrit",(char*)"T",300,(char*)"Q",0,(char*)"R134a");
+				double p_Props1SI = Props1( "R134a", "pcrit");
+				double p_Props1 = Props1( "R134a", "pcrit");
+				double p_Props = Props( "pcrit",'T',300,'Q',0, "R134a");
+				double p_PropsSI = PropsSI( "pcrit", "T",300, "Q",0, "R134a");
 				REQUIRE(fabs(p_Props1/p_Props-1) < 1e-6);
 				REQUIRE(fabs(p_PropsSI/p_Props-1) < 1e-6);
 				REQUIRE(fabs(p_PropsSI/p_Props1SI-1) < 1e-6);
 			}
+		}
+	}
+
+    TEST_CASE("Check ancillaries and surface tension", "[fast]" ) 
+	{
+		SECTION("surface tension")
+		{
+            REQUIRE_THROWS(_Props("I","P",101325,"D",1,"Propane"));
+            REQUIRE_NOTHROW(_Props("I","T",300,"D",1,"Propane"));
+		}
+        SECTION("rhosatLanc")
+		{
+            REQUIRE_THROWS(_Props("rhosatLanc","P",101325,"D",1,"Propane"));
+            REQUIRE_NOTHROW(_Props("rhosatLanc","T",300,"D",1,"Propane"));
+		}
+        SECTION("rhosatVanc")
+		{
+            REQUIRE_THROWS(_Props("rhosatVanc","P",101325,"D",1,"Propane"));
+            REQUIRE_NOTHROW(_Props("rhosatVanc","T",300,"D",1,"Propane"));
+		}
+        SECTION("psatLanc")
+		{
+            REQUIRE_THROWS(_Props("psatLanc","P",101325,"D",1,"Propane"));
+            REQUIRE_NOTHROW(_Props("psatLanc","T",300,"D",1,"Propane"));
+		}
+        SECTION("psatVanc")
+		{
+            REQUIRE_THROWS(_Props("psatVanc","P",101325,"D",1,"Propane"));
+            REQUIRE_NOTHROW(_Props("psatVanc","T",300,"D",1,"Propane"));
 		}
 	}
 	
@@ -87,7 +116,7 @@
 		validator_element(std::string in1, double in2, std::string in3, double in4, std::string in5, double in6) : in1(in1), in2(in2), in3(in3), in4(in4), in5(in5), in6(in6) {};
 	};
 
-	TEST_CASE( (char*)"Cyclohexane", (char*)"[cyclohexane],[validation]" ) 
+	TEST_CASE(  "Cyclohexane",  "[cyclohexane],[validation]" ) 
 	{
 		Fluid *CHEX = get_fluid(get_Fluid_index("Cyclohexane"));
 		double mm = CHEX->params.molemass;
@@ -120,7 +149,7 @@
 		for (std::vector<validator_element>::iterator it = elements.begin(); it != elements.end(); it++)
 		{
 			validator_element &el = *it;
-			double eos = PropsSI((char*)el.in5.c_str(), (char*)el.in1.c_str(), el.in2, (char*)el.in3.c_str(), el.in4, "Cyclohexane");
+			double eos = PropsSI( el.in5.c_str(),  el.in1.c_str(), el.in2,  el.in3.c_str(), el.in4, "Cyclohexane");
 			double valid = el.in6;
             CAPTURE(eos);
             CAPTURE(valid);

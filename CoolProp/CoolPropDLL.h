@@ -42,8 +42,14 @@
 	EXPORT_CODE long CONVENTION Phase_Tp(const char *Fluid, double T, double rho, char *Phase_str);
 	EXPORT_CODE void CONVENTION set_phase(const char *Phase_str);
 	EXPORT_CODE double CONVENTION F2K(double T_F);
-	EXPORT_CODE double CONVENTION K2F(double T);
+	EXPORT_CODE double CONVENTION K2F(double T_K);
 	
+    /// Returns the value for the integer flag corresponding to the current set of units
+	/// @returns val The integer value for the current set of units, one of enumerated values UNIT_SYSTEM_SI, UNIT_SYSTEM_KSI (see GlobalConstants.h)
+	EXPORT_CODE int CONVENTION get_standard_unit_system();
+	/// Sets the flag for the integer flag corresponding to the current set of units
+	/// @param val The integer value for the current set of units, one of enumerated values UNIT_SYSTEM_SI, UNIT_SYSTEM_KSI (see GlobalConstants.h)
+	EXPORT_CODE void CONVENTION set_standard_unit_system(int val);
 	EXPORT_CODE double CONVENTION fromSI(const char *input, const double value, const char *new_system);
 	EXPORT_CODE double CONVENTION   toSI(const char *input, const double value, const char *old_system);
 
@@ -59,11 +65,6 @@
 	/// Set the debug level
 	/// @param level The level of the verbosity for the debugging output (0-10) 0: no debgging output
 	EXPORT_CODE void CONVENTION set_debug_level(int level);
-
-	EXPORT_CODE double CONVENTION rhosatL_anc(const char* Fluid, double T);
-	EXPORT_CODE double CONVENTION rhosatV_anc(const char* Fluid, double T);
-	EXPORT_CODE double CONVENTION psatL_anc(const char* Fluid, double T);
-	EXPORT_CODE double CONVENTION psatV_anc(const char* Fluid, double T);
 
 	/// -------------------------------------------
 	///     TTSE Tabular Taylor Series Expansion
@@ -88,25 +89,12 @@
 	EXPORT_CODE bool CONVENTION set_TTSESinglePhase_LUT_range(const char *FluidName, double hmin, double hmax, double pmin, double pmax);
 	/// Get the current range of the single-phase LUT
 	EXPORT_CODE bool CONVENTION get_TTSESinglePhase_LUT_range(const char *FluidName, double *hmin, double *hmax, double *pmin, double *pmax);
-
 	/// Set the TTSE mode (normal or bicubic)
 	EXPORT_CODE int CONVENTION set_TTSE_mode(const char *FluidName, const char * Value);
 
 	EXPORT_CODE int CONVENTION set_reference_stateS(const char *Ref, const char *reference_state);
 	EXPORT_CODE int CONVENTION set_reference_stateD(const char *Ref, double T, double rho, double h0, double s0);
 
-	/// Returns the value for the integer flag corresponding to the current set of units
-	/// @returns val The integer value for the current set of units, one of enumerated values UNIT_SYSTEM_SI, UNIT_SYSTEM_KSI (see GlobalConstants.h)
-	EXPORT_CODE int CONVENTION get_standard_unit_system();
-	/// Sets the flag for the integer flag corresponding to the current set of units
-	/// @param val The integer value for the current set of units, one of enumerated values UNIT_SYSTEM_SI, UNIT_SYSTEM_KSI (see GlobalConstants.h)
-	EXPORT_CODE void CONVENTION set_standard_unit_system(int val);
-
-	// Expose some functions that are useful for ECS debugging
-	EXPORT_CODE double CONVENTION viscosity_dilute(const char* FluidName, double T);
-	EXPORT_CODE double CONVENTION viscosity_residual(const char* FluidName, double T, double rho);
-	EXPORT_CODE double CONVENTION conductivity_critical(const char* FluidName, double T, double rho);
-	EXPORT_CODE double CONVENTION conductivity_background(const char* FluidName, double T, double rho);
-	EXPORT_CODE double CONVENTION conformal_Trho(const char* FluidName, const char* ReferenceFluidName, double T, double rho, double *Tconform, double *rhoconform);
+	
 
 #endif
