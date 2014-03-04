@@ -629,18 +629,18 @@ double _PropsSI(std::string Output, std::string Name1, double Prop1, std::string
 				std::swap(Name1,Name2);
 			}
 			// Start with a guess of 10 K below max temp of fluid
-			double Tguess = SecFluids('M',Prop1,Prop2,Ref.c_str())-10;
+			double Tguess = SecFluids("Tmax",Prop1,Prop2,Ref)-10;
 			// Solve for the temperature
 			double T =_T_hp_secant(Ref,Prop1,Prop2,Tguess);
 			// Return whatever property is desired
-			return SecFluidsSI(Output[0],T,Prop2,Ref.c_str());
+			return SecFluidsSI(Output,T,Prop2,Ref);
 		}
 		else if ((Name1.c_str()[0] == 'T' && Name2.c_str()[0] =='P') || (Name1.c_str()[0] == 'P' && Name2.c_str()[0] == 'T'))
         {
 			if (Name1.c_str()[0] =='P' && Name2.c_str()[0] =='T'){
 				std::swap(Prop1,Prop2);
 			}
-			return SecFluidsSI(Output[0],Prop1,Prop2,Ref.c_str());
+			return SecFluidsSI(Output,Prop1,Prop2,Ref);
 		}
 		else
 		{
