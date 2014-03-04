@@ -304,7 +304,6 @@ cpdef Props(in1, in2, in3 = None, in4 = None, in5 = None, in6 = None, in7 = None
     If `InputName1` is `T` and `OutputName` is ``I`` or ``SurfaceTension``, the second input is neglected
     since surface tension is only a function of temperature
     """
-    warnings.warn(DeprecationWarning, "The Props function will be removed in a future release, please use the PropsSI function which is entirely in SI units")
     cdef double _in3
         
     if (in4 is None and in6 is None and in7 is None):
