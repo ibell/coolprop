@@ -943,7 +943,7 @@ double WetbulbTemperature(double T, double p, double psi_w)
     }
     return return_val;	
 }
-static int Name2Type(char *Name)
+static int Name2Type(const char *Name)
 {
     if (!strcmp(Name,"Omega") || !strcmp(Name,"HumRat") || !strcmp(Name,"W"))
         return GIVEN_HUMRAT;
@@ -969,7 +969,7 @@ static int Name2Type(char *Name)
         printf("Sorry, your input [%s] was not understood to Name2Type in HumAir.c. Acceptable values are T,P,R,W,D,B,H,M,K and aliases thereof\n",Name);
         return -1;
 }
-int TypeMatch(int TypeCode,char *Input1Name, char *Input2Name, char *Input3Name)
+int TypeMatch(int TypeCode, const char *Input1Name, const char *Input2Name, const char *Input3Name)
 {
     // Return the index of the input variable that matches the input, otherwise return -1 for failure
     if (TypeCode==Name2Type(Input1Name))
@@ -1062,7 +1062,7 @@ double RelativeHumidity(double T, double p, double psi_w)
     // Find relative humidity using W/e=phi*p_s/(p-phi*p_s)
     return W/epsilon*p/(p_s*(1+W/epsilon));
 }
-EXPORT_CODE double CONVENTION HAProps(char *OutputName, char *Input1Name, double Input1, char *Input2Name, double Input2, char *Input3Name, double Input3)
+EXPORT_CODE double CONVENTION HAProps(const char *OutputName, const char *Input1Name, double Input1, const char *Input2Name, double Input2, const char *Input3Name, double Input3)
 {
     try
     {
@@ -1350,7 +1350,7 @@ EXPORT_CODE double CONVENTION HAProps(char *OutputName, char *Input1Name, double
     }
 }
 
-EXPORT_CODE double CONVENTION HAProps_Aux(char* Name,double T, double p, double W, char *units)
+EXPORT_CODE double CONVENTION HAProps_Aux(const char* Name,double T, double p, double W, char *units)
 {
     // This function provides some things that are not usually needed, but could be interesting for debug purposes.
     
@@ -1552,7 +1552,7 @@ double cair_sat(double T)
     return 2.14627073E+03-3.28917768E+01*T+1.89471075E-01*T*T-4.86290986E-04*T*T*T+4.69540143E-07*T*T*T*T;
 }
 
-double IceProps(char* Name, double T, double p)
+double IceProps(const char* Name, double T, double p)
 {
     if (!strcmp(Name,"s"))
     {
