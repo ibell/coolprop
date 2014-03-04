@@ -65,7 +65,7 @@ AceticAcidClass::AceticAcidClass()
 
     name.assign("AceticAcid");
     aliases.push_back(std::string("ACETICACID"));
-    REFPROPname.assign("ACETIC");
+    REFPROPname.assign("N/A");
 
 	BibTeXKeys.EOS = "Piazza-FPE-2011";
 	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
