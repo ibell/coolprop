@@ -37,7 +37,7 @@ AceticAcidClass::AceticAcidClass()
     params.molemass = 60.05196;
     params.Ttriple = 289.8;
 	params.ptriple = _HUGE;
-    params.accentricfactor = _HUGE;
+    params.accentricfactor = 0.48092;
     params.R_u = 8.314472;
 
     // Limits of EOS
@@ -195,7 +195,6 @@ double AceticAcidClass::rhosatV(double T)
 	double val = crit.rho*exp(crit.T/T*summer);
     return val;
 }
-
 
 #ifndef DISABLE_CATCH
 #include "Catch/catch.hpp"
