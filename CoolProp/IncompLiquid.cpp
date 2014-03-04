@@ -246,16 +246,6 @@ double pIncompLiquid(long iOutput, double T, double p, IncompressibleLiquid *pLi
     return convert_from_SI_to_unit_system(iOutput,out,get_standard_unit_system());
 }
 
-double IncompLiquid(long iOutput, double T, double p, long iFluid)
-{
-	return pIncompLiquid(iOutput,T,p,Liquids.get_liquid(iFluid));
-}
-
-double IncompLiquid(long iOutput, double T, double p, std::string name)
-{
-	return pIncompLiquid(iOutput,T,p,Liquids.get_liquid(name));
-}
-
 double IncompLiquidSI(long iOutput, double T, double p_SI, long iFluid)
 {
 	return pIncompLiquidSI(iOutput,T,p_SI,Liquids.get_liquid(iFluid));

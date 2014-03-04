@@ -661,7 +661,7 @@ double _PropsSI(std::string Output, std::string Name1, double Prop1, std::string
 			}
 			
 			// Solve for the temperature
-			double Tma     = IncompLiquid(get_param_index("Tmax"),0.0,0.0,Ref);
+			double Tma     = IncompLiquidSI(get_param_index("Tmax"),0.0,0.0,Ref);
 			double T_guess = Tma - 10.0 ;
 			double T =_T_hp_secant(Ref,Prop1,Prop2,T_guess);
 			// Return whatever property is desired
@@ -693,8 +693,8 @@ double _PropsSI(std::string Output, std::string Name1, double Prop1, std::string
 			}
 
 			// Solve for the temperature
-			double Tma     = IncompSolution(get_param_index("Tmax"),0.0,0.0,Ref);
-			double Tmi     = IncompSolution(get_param_index("Tmin"),0.0,0.0,Ref);
+			double Tma     = IncompSolutionSI(get_param_index("Tmax"),0.0,0.0,Ref);
+			double Tmi     = IncompSolutionSI(get_param_index("Tmin"),0.0,0.0,Ref);
 			double T_guess = (Tma+Tmi)/2.0 ;
 			double T =_T_hp_secant(Ref,Prop1,Prop2,T_guess);
 			// Return whatever property is desired

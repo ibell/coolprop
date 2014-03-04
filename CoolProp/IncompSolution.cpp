@@ -239,24 +239,6 @@ double pIncompSolutionSI(long iOutput, double T, double p_SI, double x, Incompre
 	return out;
 }
 
-double IncompSolution(long iOutput, double T, double p, double x, long iFluid)
-{
-    double p_SI = convert_from_unit_system_to_SI(iP,p,get_standard_unit_system());
-
-	double out = pIncompSolutionSI(iOutput,T,p_SI,x,Solutions.get_solution(iFluid));
-
-    return convert_from_SI_to_unit_system(iOutput,out,get_standard_unit_system());
-}
-
-double IncompSolution(long iOutput, double T, double p, double x, std::string name)
-{
-    double p_SI = convert_from_unit_system_to_SI(iP,p,get_standard_unit_system());
-
-	double out = pIncompSolutionSI(iOutput,T,p_SI,x,Solutions.get_solution(name));
-
-    return convert_from_SI_to_unit_system(iOutput,out,get_standard_unit_system());  
-}
-
 double IncompSolutionSI(long iOutput, double T, double p, double x, long iFluid)
 {
 	return pIncompSolutionSI(iOutput,T,p,x,Solutions.get_solution(iFluid));
@@ -283,23 +265,6 @@ double IncompSolutionSI(long iOutput, double T, double p, std::string name){ // 
 	// Check if per cent or fraction syntax is used
 	if (!strcmp(pEnd,"%")){	x *= 0.01;}
 	return IncompSolutionSI(iOutput, T, p, x, fluid_concentration[0]);
-}
-/** Just some convenience functions to allow for backward compatibility.
- *  We might end up using them in the beginning until we can
- *  handle a third parameter properly. */
-double IncompSolution(long iOutput, double T, double p, std::string name){ // TODO Solutions: Remove as soon as possible
-	// Split into fluid, concentration pair
-	std::vector<std::string> fluid_concentration = strsplit(std::string(name),'-');
-	// Check it worked
-	if (fluid_concentration.size() != 2){
-		throw ValueError(format("Format of incompressible solution string [%s] is invalid, should be like \"EG-20%\" or \"EG-0.2\" ", name.c_str()) );
-	}
-	// Convert the concentration into a string
-	char* pEnd;
-	double x = strtod(fluid_concentration[1].c_str(), &pEnd);
-	// Check if per cent or fraction syntax is used
-	if (!strcmp(pEnd,"%")){	x *= 0.01;}
-	return IncompSolution(iOutput, T, p, x, fluid_concentration[0]);
 }
 std::string getSolutionName(std::string name){ // TODO Solutions: Remove as soon as possible
 	// Split into fluid, concentration pair

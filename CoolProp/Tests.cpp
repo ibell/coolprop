@@ -169,8 +169,6 @@
 		}
 	}
 
-
-
 	static Catch::Session session; // There must be exactly once instance
 
 	int run_fast_tests()
@@ -219,6 +217,9 @@
 
 	void run_tests()
 	{
+        Catch::ConfigData &config = session.configData();
+		config.testsOrTags.clear();
+        session.useConfigData(config);
 		session.run();
 	}
 

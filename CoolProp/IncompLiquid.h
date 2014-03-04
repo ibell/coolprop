@@ -104,8 +104,6 @@ protected:
  *  any functionality.
  */
 bool IsIncompressibleLiquid(std::string name);
-double IncompLiquid(long iOutput, double T, double p, long iFluid);
-double IncompLiquid(long iOutput, double T, double p, std::string name);
 double IncompLiquidSI(long iOutput, double T, double p, long iFluid);
 double IncompLiquidSI(long iOutput, double T, double p, std::string name);
 // only two functions needed
