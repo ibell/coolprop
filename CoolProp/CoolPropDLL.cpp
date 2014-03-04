@@ -24,53 +24,73 @@ EXPORT_CODE int CONVENTION set_reference_stateD(const char *Ref, double T, doubl
 {
 	return set_reference_stateD(std::string(Ref), T, rho, h0, s0);
 }
+
+// All the function interfaces that point to the single-input Props function
+EXPORT_CODE double CONVENTION Props1(const char *FluidName, const char *Output)
+{
+    long iOutput = get_param_index(Output);
+    double val = _Props1SI(FluidName, Output);
+    return convert_from_SI_to_unit_system(iOutput,val,get_standard_unit_system());
+}
+EXPORT_CODE double CONVENTION Props1SI(const char *FluidName, const char *Output)
+{
+    // In this function the error catching happens;
+	try{
+		return _Props1SI(FluidName, Output);
+	}
+	catch(const std::exception& e){
+        set_err_string(std::string("CoolProp error: ").append(e.what()));
+		return _HUGE;
+	}
+	catch(...){
+		set_err_string(std::string("CoolProp error: Indeterminate error"));
+		return _HUGE;
+	}
+	return _HUGE;
+}
+
 EXPORT_CODE double CONVENTION PropsS(const char *Output,const char* Name1, double Prop1, const char* Name2, double Prop2, const char * Ref)
 {
 	return Props(Output,Name1[0],Prop1,Name2[0],Prop2,Ref);
 }
 EXPORT_CODE double CONVENTION Props(const char *Output,char Name1, double Prop1, char Name2, double Prop2, const char * Ref)
 {
-	// Go to the std::string, std::string version
-	double val = Props(std::string(Output),Name1,Prop1,Name2,Prop2,std::string(Ref));
+    // Get parameter indices
+    long iOutput = get_param_index(Output);
+    long iName1 = get_param_index(std::string(1,Name1));
+    long iName2 = get_param_index(std::string(1,Name2));
+    char n1[] = " \0", n2[] = " \0";
+    n1[0] = Name1;
+    n2[0] = Name2;
 
-	/*FILE *fp;
-	fp = fopen("c:\\log_Props.txt", "a");
-	fprintf(fp,"%s,%c,%g,%c,%g,%s-->%g\n",Output,Name1,Prop1,Name2,Prop2,Ref,val);
-	fclose(fp);*/
+    // Convert inputs to SI
+    Prop1 = convert_from_unit_system_to_SI(iName1, Prop1, get_standard_unit_system());
+    Prop2 = convert_from_unit_system_to_SI(iName2, Prop2, get_standard_unit_system());
+    
+	// Call the SI function
+    double val = PropsSI(Output,(const char*)n1,Prop1,(const char*)n2,Prop2,Ref);
 
-	return val;
-}
-
-EXPORT_CODE double CONVENTION Props1SI(const char *Name, const char *Output)
-{
-	long current_unit_system = get_standard_unit_system();
-	// Set current unit system to SI (all inputs are already SI)
-	set_standard_unit_system(UNIT_SYSTEM_SI);
-	double val = Props1(Name, Output);
-	set_standard_unit_system(current_unit_system);
-	return val;
+	// Convert back to unit system
+    return convert_from_SI_to_unit_system(iOutput,val,get_standard_unit_system());
 }
 
 EXPORT_CODE double CONVENTION PropsSI(const char *Output, const char *Name1, double Prop1, const char *Name2, double Prop2, const char * Ref)
 {
-	long current_unit_system = get_standard_unit_system();
-	// Set current unit system to SI (all inputs are already SI)
-	set_standard_unit_system(UNIT_SYSTEM_SI);
-	// Go to the std::string, std::string version
-	long i1 = get_param_index(Name1);
-	long i2 = get_param_index(Name2);
-	long iOutput = get_param_index(Output);
-	double val = PropsS(Output, Name1, Prop1, Name2, Prop2, Ref);
-	set_standard_unit_system(current_unit_system);
-	return val;
+    // In this function the error catching happens;
+	try{
+		return _PropsSI(Output,Name1,Prop1,Name2,Prop2,Ref);
+	}
+	catch(const std::exception& e){
+        set_err_string(std::string("CoolProp error: ").append(e.what()));
+		return _HUGE;
+	}
+	catch(...){
+		set_err_string(std::string("CoolProp error: Indeterminate error"));
+		return _HUGE;
+	}
+	return _HUGE;
 }
 
-// All the function interfaces that point to the single-input Props function
-EXPORT_CODE double CONVENTION Props1(const char *Ref, const char *Output)
-{
-	// Go to the std::string, std::string version
-	return Props1(std::string(Ref),std::string(Output));
-}
 
 EXPORT_CODE double CONVENTION K2F(double T)
 { return T * 9 / 5 - 459.67; }

@@ -24,16 +24,6 @@ You might want to start by looking at CoolProp.h
 	#include "CoolPropDLL.h"
 	#include "Units.h"
 
-	/// Return a fluid value that does not depend on the thermodynamic state (function provided for backwards compatibility, forwards to Props1(string,string)
-	/// @param FluidName The name of the fluid
-	/// @param Output The name of the output parameter, some options are "Ttriple", "Tcrit", "pcrit", "Tmin", "molemass", "rhocrit", "accentric" (not all parameters are valid for all fluids)
-	/// @returns val The value, or _HUGE if not valid
-	double Props(char *FluidName, char *Output);
-	/// Return a fluid value that does not depend on the thermodynamic state
-	/// @param FluidName The name of the fluid
-	/// @param Output The name of the output parameter, some options are "Ttriple", "Tcrit", "pcrit", "Tmin", "molemass", "rhocrit", "accentric" (not all parameters are valid for all fluids)
-	/// @returns val The value, or _HUGE if not valid
-	double Props(std::string FluidName,std::string Output);
 	/// Return a fluid value that does not depend on the thermodynamic state
 	/// @param FluidName The name of the fluid
 	/// @param Output The name of the output parameter, some options are "Ttriple", "Tcrit", "pcrit", "Tmin", "molemass", "rhocrit", "accentric" (not all parameters are valid for all fluids)
@@ -186,8 +176,9 @@ You might want to start by looking at CoolProp.h
 	// Define some constants that will be used throughout
 	#include "GlobalConstants.h"
 
-    /// A private method that can throw exceptions
-    double _Props(std::string Output,std::string Name1, double Prop1, std::string Name2, double Prop2, std::string Ref);
+    /// The lower-level methods that can throw exceptions
+    double _PropsSI(std::string Output,std::string Name1, double Prop1, std::string Name2, double Prop2, std::string Ref);
+    double _Props1SI(std::string FluidName, std::string Output);
 
 	//    **************** DEPRECATION WARNING ***********************
 	/// Nearly deprecated function

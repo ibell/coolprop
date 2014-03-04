@@ -57,9 +57,13 @@
 				double p_Props1 = Props1( "R134a", "pcrit")*1000;
 				double p_Props = Props( "pcrit",'T',300,'Q',0, "R134a")*1000;
 				double p_PropsSI = PropsSI( "pcrit", "T",300, "Q",0, "R134a");
+                double p_IProps = IProps(iPcrit,iT,0,iP,0,get_Fluid_index("R134a"))*1000;
+                double p_IPropsSI = IPropsSI(iPcrit,iT,0,iP,0,get_Fluid_index("R134a"));
 				REQUIRE(fabs(p_Props1/p_Props-1) < 1e-6);
 				REQUIRE(fabs(p_PropsSI/p_Props-1) < 1e-6);
 				REQUIRE(fabs(p_PropsSI/p_Props1SI-1) < 1e-6);
+                REQUIRE(fabs(p_IProps/p_Props1SI-1) < 1e-6);
+                REQUIRE(fabs(p_IProps/p_Props1SI-1) < 1e-6);
 			}
 		}
 		SECTION( "SI")
@@ -72,9 +76,13 @@
 				double p_Props1 = Props1( "R134a", "pcrit");
 				double p_Props = Props( "pcrit",'T',300,'Q',0, "R134a");
 				double p_PropsSI = PropsSI( "pcrit", "T",300, "Q",0, "R134a");
+                double p_IProps = IProps(iPcrit,iT,0,iP,0,get_Fluid_index("R134a"));
+                double p_IPropsSI = IPropsSI(iPcrit,iT,0,iP,0,get_Fluid_index("R134a"));
 				REQUIRE(fabs(p_Props1/p_Props-1) < 1e-6);
 				REQUIRE(fabs(p_PropsSI/p_Props-1) < 1e-6);
 				REQUIRE(fabs(p_PropsSI/p_Props1SI-1) < 1e-6);
+                REQUIRE(fabs(p_IProps/p_Props1SI-1) < 1e-6);
+                REQUIRE(fabs(p_IProps/p_Props1SI-1) < 1e-6);
 			}
 		}
 	}
@@ -83,28 +91,28 @@
 	{
 		SECTION("surface tension")
 		{
-            REQUIRE_THROWS(_Props("I","P",101325,"D",1,"Propane"));
-            REQUIRE_NOTHROW(_Props("I","T",300,"D",1,"Propane"));
+            REQUIRE_THROWS(_PropsSI("I","P",101325,"D",1,"Propane"));
+            REQUIRE_NOTHROW(_PropsSI("I","T",300,"D",1,"Propane"));
 		}
         SECTION("rhosatLanc")
 		{
-            REQUIRE_THROWS(_Props("rhosatLanc","P",101325,"D",1,"Propane"));
-            REQUIRE_NOTHROW(_Props("rhosatLanc","T",300,"D",1,"Propane"));
+            REQUIRE_THROWS(_PropsSI("rhosatLanc","P",101325,"D",1,"Propane"));
+            REQUIRE_NOTHROW(_PropsSI("rhosatLanc","T",300,"D",1,"Propane"));
 		}
         SECTION("rhosatVanc")
 		{
-            REQUIRE_THROWS(_Props("rhosatVanc","P",101325,"D",1,"Propane"));
-            REQUIRE_NOTHROW(_Props("rhosatVanc","T",300,"D",1,"Propane"));
+            REQUIRE_THROWS(_PropsSI("rhosatVanc","P",101325,"D",1,"Propane"));
+            REQUIRE_NOTHROW(_PropsSI("rhosatVanc","T",300,"D",1,"Propane"));
 		}
         SECTION("psatLanc")
 		{
-            REQUIRE_THROWS(_Props("psatLanc","P",101325,"D",1,"Propane"));
-            REQUIRE_NOTHROW(_Props("psatLanc","T",300,"D",1,"Propane"));
+            REQUIRE_THROWS(_PropsSI("psatLanc","P",101325,"D",1,"Propane"));
+            REQUIRE_NOTHROW(_PropsSI("psatLanc","T",300,"D",1,"Propane"));
 		}
         SECTION("psatVanc")
 		{
-            REQUIRE_THROWS(_Props("psatVanc","P",101325,"D",1,"Propane"));
-            REQUIRE_NOTHROW(_Props("psatVanc","T",300,"D",1,"Propane"));
+            REQUIRE_THROWS(_PropsSI("psatVanc","P",101325,"D",1,"Propane"));
+            REQUIRE_NOTHROW(_PropsSI("psatVanc","T",300,"D",1,"Propane"));
 		}
 	}
 	

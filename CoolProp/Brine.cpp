@@ -334,8 +334,15 @@ static int a[18][2]={
 	{4,1},
 	{5,0}
 };
+double SecFluidsSI(char Output, double T, double p, const char * Ref)
+{
+    double p_kSI = convert_from_SI_to_unit_system(iP,p,get_standard_unit_system());
 
-double SecFluids(char Output, double T, double p, char * Ref)
+    double out = SecFluids(Output, T, p_kSI, Ref);
+
+    return convert_from_unit_system_to_SI(get_param_index(std::string((const char*)Output)),out,get_standard_unit_system());
+}
+double SecFluids(char Output, double T, double p, const char * Ref)
 {
 	double Tfreeze,Tmax,rho,cp,k,mu,u,s,TC,C_gly;
 	// Temperature and Pressure are the inputs
@@ -415,7 +422,7 @@ double SecFluids(char Output, double T, double p, char * Ref)
 
 // inputs in C, percent mass,
 // outputs in kg/m^3, J/kg-K, mW/m-K, Pa-s, J/kg, J/kg/K
-int Brine(char * Mix, double T, double C, /*in --- out */double *Tfreeze, double *Tmax, double *rho, double *cp, double *k, double *visc, double *u, double *s)
+int Brine(const char * Mix, double T, double C, /*in --- out */double *Tfreeze, double *Tmax, double *rho, double *cp, double *k, double *visc, double *u, double *s)
 //{
 //	quantity<temperature> _T(0*kelvin); 
 //	quantity<temperature> _Tfreeze(0*kelvin); 

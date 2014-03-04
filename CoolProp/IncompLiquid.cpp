@@ -197,16 +197,16 @@ bool IsIncompressibleLiquid(std::string name)
 	}
 }
 
-double pIncompLiquid(long iOutput, double T, double p, IncompressibleLiquid *pLiquid)
+
+double pIncompLiquidSI(long iOutput, double T, double p_SI, IncompressibleLiquid *pLiquid)
 {
-	double p_SI = convert_from_unit_system_to_SI(iP,p,get_standard_unit_system());
 	double out;
 	switch (iOutput)
 	{
 		case iT:
 			out = T; break;
 		case iP:
-			out = p; break;
+			out = p_SI; break;
 		case iD:
 			out = pLiquid->rho(T,p_SI); break;
 		case iC:
@@ -231,7 +231,19 @@ double pIncompLiquid(long iOutput, double T, double p, IncompressibleLiquid *pLi
 			throw ValueError(format("Your index [%d] is invalid for the incompressible liquid %s",iOutput,pLiquid->getName().c_str()));
 			out=0; break;
 	}
-	return convert_from_SI_to_unit_system(iOutput,out,get_standard_unit_system());
+	return out; 
+}
+
+double pIncompLiquid(long iOutput, double T, double p, IncompressibleLiquid *pLiquid)
+{
+    // Convert to SI pressure
+    double p_SI = convert_from_unit_system_to_SI(iP,p,get_standard_unit_system());
+    
+    // Call the function
+    double out = pIncompLiquidSI(iOutput,T,p_SI,pLiquid);
+    
+    // Convert back to current unit system
+    return convert_from_SI_to_unit_system(iOutput,out,get_standard_unit_system());
 }
 
 double IncompLiquid(long iOutput, double T, double p, long iFluid)
@@ -242,6 +254,16 @@ double IncompLiquid(long iOutput, double T, double p, long iFluid)
 double IncompLiquid(long iOutput, double T, double p, std::string name)
 {
 	return pIncompLiquid(iOutput,T,p,Liquids.get_liquid(name));
+}
+
+double IncompLiquidSI(long iOutput, double T, double p_SI, long iFluid)
+{
+	return pIncompLiquidSI(iOutput,T,p_SI,Liquids.get_liquid(iFluid));
+}
+
+double IncompLiquidSI(long iOutput, double T, double p_SI, std::string name)
+{
+	return pIncompLiquidSI(iOutput,T,p_SI,Liquids.get_liquid(name));
 }
 
 

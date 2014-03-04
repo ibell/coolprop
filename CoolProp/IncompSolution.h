@@ -141,7 +141,10 @@ protected:
 bool IsIncompressibleSolution(std::string name);
 double IncompSolution(long iOutput, double T, double p, double x, long iFluid);
 double IncompSolution(long iOutput, double T, double p, double x, std::string name);
+double IncompSolutionSI(long iOutput, double T, double p, double x, long iFluid);
+double IncompSolutionSI(long iOutput, double T, double p, double x, std::string name);
 double IncompSolution(long iOutput, double T, double p, std::string name);  // TODO Solutions: Remove as soon as possible
+double IncompSolutionSI(long iOutput, double T, double p, std::string name);  // TODO Solutions: Remove as soon as possible
 std::string getSolutionName(std::string name); // TODO Solutions: Remove as soon as possible
 double getSolutionConc(std::string name); // TODO Solutions: Remove as soon as possible
 
