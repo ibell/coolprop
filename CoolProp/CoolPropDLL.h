@@ -7,16 +7,6 @@
 	// EXPORT_CODE void CONVENTION AFunction(double, double);
 	// will be exported to the DLL
 
-	// When using SWIG, it is extremely difficult to deal with char* for output strings, so just use 
-	// the std::string version since SWIG can handle std::string just fine
-	#if defined(SWIG)
-		std::string get_global_param_string(std::string ParamName);
-		std::string get_fluid_param_string(std::string FluidName, std::string ParamName);
-	#else
-		EXPORT_CODE long CONVENTION get_global_param_string(const char *param, char * Output);
-		EXPORT_CODE long CONVENTION get_fluid_param_string(const char *fluid, const char *param, char * Output);
-	#endif
-
 	// They can only use data types that play well with DLL wrapping (int, long, double, char*, void, etc.)
 	EXPORT_CODE double CONVENTION PropsS(const char *Output,const char *Name1, double  Prop1, const char *Name2, double  Prop2, const char *Ref);
 	EXPORT_CODE double CONVENTION Props(const char *Output,const char  Name1, double  Prop1, const char  Name2, double  Prop2, const char *Ref);
@@ -27,7 +17,7 @@
 	/// @param Output The name of the output parameter, some options are "Ttriple", "Tcrit", "pcrit", "Tmin", "molemass", "rhocrit", "accentric" (not all parameters are valid for all fluids)
 	/// @returns val The value, or _HUGE if not valid
 	EXPORT_CODE double CONVENTION Props1SI(const char *FluidName, const char* Output);
-	EXPORT_CODE double CONVENTION Props1(const char *Ref, const char *Output);
+	EXPORT_CODE double CONVENTION Props1(const char *FluidName, const char *Output);
 
 	// This version uses the indices in place of the strings for speed.  Get the parameter indices
 	// from get_param_index('D') for instance and the Fluid index from get_Fluid_index('Air') for instance
@@ -53,6 +43,15 @@
 	EXPORT_CODE double CONVENTION fromSI(const char *input, const double value, const char *new_system);
 	EXPORT_CODE double CONVENTION   toSI(const char *input, const double value, const char *old_system);
 
+    // When using SWIG, it is extremely difficult to deal with char* for output strings, so just use 
+	// the std::string version since SWIG can handle std::string just fine
+	#if defined(SWIG)
+		std::string get_global_param_string(std::string ParamName);
+		std::string get_fluid_param_string(std::string FluidName, std::string ParamName);
+	#else
+		EXPORT_CODE long CONVENTION get_global_param_string(const char *param, char * Output);
+		EXPORT_CODE long CONVENTION get_fluid_param_string(const char *fluid, const char *param, char * Output);
+	#endif
 	EXPORT_CODE long CONVENTION get_param_index(const char * param);
 	EXPORT_CODE long CONVENTION get_Fluid_index(const char * param);
 	EXPORT_CODE long CONVENTION redirect_stdout(const char* file);
