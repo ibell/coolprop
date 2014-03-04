@@ -386,7 +386,7 @@ double SecFluids(std::string Output, double T, double p, std::string Ref)
 	
 	// Check it worked
 	if (fluid_concentration.size() != 2){
-		throw ValueError(format("Format of brine string [%s] is invalid, should be like \"EG-20%\" ", Ref) );
+        throw ValueError(format("Format of brine string [%s] is invalid, should be like \"EG-20%\" ", Ref.c_str()) );
 	}
 
 	// Convert the concentration into a string, discarding anything to the right of the numbers
