@@ -59,7 +59,7 @@ EXPORT_CODE double CONVENTION Props(const char *Output,char Name1, double Prop1,
     long iOutput = get_param_index(Output);
     long iName1 = get_param_index(std::string(1,Name1));
     long iName2 = get_param_index(std::string(1,Name2));
-    char n1[] = " \0", n2[] = " \0";
+    char n1[] = "\0", n2[] = "\0";
     n1[0] = Name1;
     n2[0] = Name2;
 

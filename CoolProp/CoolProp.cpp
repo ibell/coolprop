@@ -562,7 +562,7 @@ double Props1SI(std::string FluidName,std::string Output){
 	}
 	return _HUGE;
 }
-double Props(std::string FluidName, std::string Output){
+double Props1(std::string FluidName, std::string Output){
     return convert_from_SI_to_unit_system(get_param_index(Output), Props1SI(FluidName,Output),get_standard_unit_system());
 }
 
@@ -1142,7 +1142,7 @@ std::string get_fluid_param_string(std::string FluidName, std::string ParamName)
 			{
 				return pFluid->environment.ASHRAE34;
 			}
-			else if (!ParamName.compare("REFPROPName") || !ParamName.compare("REFPROP_name"))
+			else if (!ParamName.compare("REFPROPName") || !ParamName.compare("REFPROP_name") || !ParamName.compare("REFPROPname"))
 			{
 				return pFluid->get_REFPROPname();
 			}

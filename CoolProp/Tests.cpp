@@ -84,6 +84,7 @@
                 REQUIRE(fabs(p_IProps/p_Props1SI-1) < 1e-6);
                 REQUIRE(fabs(p_IProps/p_Props1SI-1) < 1e-6);
 			}
+            set_standard_unit_system(UNIT_SYSTEM_KSI);
 		}
 	}
 

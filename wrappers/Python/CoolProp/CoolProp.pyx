@@ -433,6 +433,7 @@ cpdef PropsSI(in1, in2, in3 = None, in4 = None, in5 = None, in6 = None, in7 = No
     since surface tension is only a function of temperature
     
     """
+    cdef double _in3
     if (in4 is None and in6 is None and in7 is None):
         val = _Props1SI(in1.encode('ascii'), in2.encode('ascii'))
         if not _ValidNumber(val):

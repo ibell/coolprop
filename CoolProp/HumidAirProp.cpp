@@ -498,7 +498,7 @@ void HAHelp(void)
 {
     printf("Sorry, Need to update!");
 }
-int returnHumAirCode(char * Code)
+int returnHumAirCode(const char * Code)
 {
     if (!strcmp(Code,"GIVEN_TDP"))
         return GIVEN_TDP;

@@ -336,11 +336,13 @@ static int a[18][2]={
 };
 double SecFluidsSI(char Output, double T, double p, const char * Ref)
 {
-    double p_kSI = convert_from_SI_to_unit_system(iP,p,get_standard_unit_system());
+    char outname[] = {Output,"\0"};
+
+    double p_kSI = convert_from_SI_to_unit_system(iP,p,UNIT_SYSTEM_KSI);
 
     double out = SecFluids(Output, T, p_kSI, Ref);
 
-    return convert_from_unit_system_to_SI(get_param_index(std::string((const char*)Output)),out,get_standard_unit_system());
+    return convert_from_unit_system_to_SI(get_param_index((const char*)outname),out,get_standard_unit_system());
 }
 double SecFluids(char Output, double T, double p, const char * Ref)
 {

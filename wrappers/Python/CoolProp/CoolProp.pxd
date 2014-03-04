@@ -382,7 +382,6 @@ cdef extern from "CoolProp.h":
     double _Props "Props"(string Output, string Name1, double Prop1, string Name2, double Prop2, string Ref)
     double _Props1 "Props1"(string Ref, string Output)
     
-    
     string _Phase "Phase"(char *Fluid, double T, double p)
     string _Phase_Tp "Phase_Tp"(string Fluid, double T, double p)
     string _Phase_Trho "Phase_Trho"(string Fluid, double T, double rho)

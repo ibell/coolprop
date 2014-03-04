@@ -7,22 +7,33 @@
 	// EXPORT_CODE void CONVENTION AFunction(double, double);
 	// will be exported to the DLL
 
-	// They can only use data types that play well with DLL wrapping (int, long, double, char*, void, etc.)
-	EXPORT_CODE double CONVENTION PropsS(const char *Output,const char *Name1, double  Prop1, const char *Name2, double  Prop2, const char *Ref);
-	EXPORT_CODE double CONVENTION Props(const char *Output,const char  Name1, double  Prop1, const char  Name2, double  Prop2, const char *Ref);
-	EXPORT_CODE double CONVENTION PropsSI(const char *Output,const char *Name1, double  Prop1, const char *Name2, double  Prop2, const char *Ref);
-
-	/// Return a fluid value that does not depend on the thermodynamic state
+    /// Return a fluid value that does not depend on the thermodynamic state (in SI units)
 	/// @param FluidName The name of the fluid
 	/// @param Output The name of the output parameter, some options are "Ttriple", "Tcrit", "pcrit", "Tmin", "molemass", "rhocrit", "accentric" (not all parameters are valid for all fluids)
 	/// @returns val The value, or _HUGE if not valid
-	EXPORT_CODE double CONVENTION Props1SI(const char *FluidName, const char* Output);
+    EXPORT_CODE double CONVENTION Props1SI(const char *FluidName, const char* Output);
+    /// Return a fluid value that does not depend on the thermodynamic state (in SI units)
+	/// @param FluidName The name of the fluid
+	/// @param Name1 The The name of the first input parameter
+	/// @returns val The value, or _HUGE if not valid
+    EXPORT_CODE double CONVENTION PropsSI(const char *Output,const char *Name1, double  Prop1, const char *Name2, double  Prop2, const char *Ref);
+
+    EXPORT_CODE double CONVENTION IPropsSI(long iOutput, long iName1, double Prop1, long iName2, double Prop2, long iFluid);
+
+	// They can only use data types that play well with DLL wrapping (int, long, double, char*, void, etc.)
+	EXPORT_CODE double CONVENTION PropsS(const char *Output,const char *Name1, double  Prop1, const char *Name2, double  Prop2, const char *Ref);
+	EXPORT_CODE double CONVENTION Props(const char *Output,const char  Name1, double  Prop1, const char  Name2, double  Prop2, const char *Ref);
+
+    /// Return a fluid value that does not depend on the thermodynamic state (in the current unit system)
+	/// @param FluidName The name of the fluid
+	/// @param Output The name of the output parameter, some options are "Ttriple", "Tcrit", "pcrit", "Tmin", "molemass", "rhocrit", "accentric" (not all parameters are valid for all fluids)
+	/// @returns val The value, or _HUGE if not valid
 	EXPORT_CODE double CONVENTION Props1(const char *FluidName, const char *Output);
 
 	// This version uses the indices in place of the strings for speed.  Get the parameter indices
 	// from get_param_index('D') for instance and the Fluid index from get_Fluid_index('Air') for instance
 	EXPORT_CODE double CONVENTION IProps(long iOutput, long iName1, double Prop1, long iName2, double Prop2, long iFluid);
-	EXPORT_CODE double CONVENTION IPropsSI(long iOutput, long iName1, double Prop1, long iName2, double Prop2, long iFluid);
+	
 
 	// Convenience functions
 	EXPORT_CODE int CONVENTION IsFluidType(const char *Ref, const char *Type);
