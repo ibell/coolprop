@@ -128,39 +128,6 @@
 		}
 	}
 
-    TEST_CASE("Check ancillaries and surface tension", "[fast]" ) 
-	{
-		SECTION("surface tension")
-		{
-            REQUIRE_THROWS(_PropsSI("I","P",101325,"D",1,"Propane"));
-            REQUIRE_NOTHROW(_PropsSI("I","T",300,"D",1,"Propane"));
-		}
-        SECTION("rhosatLanc")
-		{
-            REQUIRE_THROWS(_PropsSI("rhosatLanc","P",101325,"D",1,"Propane"));
-            REQUIRE_NOTHROW(_PropsSI("rhosatLanc","T",300,"D",1,"Propane"));
-		}
-        SECTION("rhosatVanc")
-		{
-            REQUIRE_THROWS(_PropsSI("rhosatVanc","P",101325,"D",1,"Propane"));
-            REQUIRE_NOTHROW(_PropsSI("rhosatVanc","T",300,"D",1,"Propane"));
-		}
-        SECTION("psatLanc")
-		{
-            REQUIRE_THROWS(_PropsSI("psatLanc","P",101325,"D",1,"Propane"));
-            REQUIRE_NOTHROW(_PropsSI("psatLanc","T",300,"D",1,"Propane"));
-		}
-        SECTION("psatVanc")
-		{
-            REQUIRE_THROWS(_PropsSI("psatVanc","P",101325,"D",1,"Propane"));
-            REQUIRE_NOTHROW(_PropsSI("psatVanc","T",300,"D",1,"Propane"));
-		}
-	}
-	
-	
-
-	
-
 	static Catch::Session session; // There must be exactly once instance
 
 	int run_fast_tests()

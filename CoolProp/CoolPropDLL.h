@@ -33,7 +33,6 @@
 	// This version uses the indices in place of the strings for speed.  Get the parameter indices
 	// from get_param_index('D') for instance and the Fluid index from get_Fluid_index('Air') for instance
 	EXPORT_CODE double CONVENTION IProps(long iOutput, long iName1, double Prop1, long iName2, double Prop2, long iFluid);
-	
 
 	// Convenience functions
 	EXPORT_CODE int CONVENTION IsFluidType(const char *Ref, const char *Type);

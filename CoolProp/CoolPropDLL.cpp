@@ -231,7 +231,11 @@ EXPORT_CODE bool CONVENTION get_TTSESinglePhase_LUT_range(const char *FluidName,
 
 /// Returns the value for the integer flag corresponding to the current set of units
 /// @returns val The integer value for the current set of units, one of enumerated values UNIT_SYSTEM_SI, UNIT_SYSTEM_KSI (see GlobalConstants.h)
-EXPORT_CODE int CONVENTION get_standard_unit_system(void){return _get_standard_unit_system();}
+EXPORT_CODE int CONVENTION get_standard_unit_system(void){
+    return _get_standard_unit_system();
+}
 /// Sets the flag for the integer flag corresponding to the current set of units
 /// @param val The integer value for the current set of units, one of enumerated values UNIT_SYSTEM_SI, UNIT_SYSTEM_KSI (see GlobalConstants.h)
-EXPORT_CODE void CONVENTION set_standard_unit_system(int val){return _set_standard_unit_system(val);}
+EXPORT_CODE void CONVENTION set_standard_unit_system(int val){
+    return _set_standard_unit_system(val);
+}

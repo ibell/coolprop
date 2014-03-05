@@ -176,10 +176,6 @@ You might want to start by looking at CoolProp.h
 	// Define some constants that will be used throughout
 	#include "GlobalConstants.h"
 
-    /// The lower-level methods that can throw exceptions
-    double _PropsSI(std::string Output,std::string Name1, double Prop1, std::string Name2, double Prop2, std::string Ref);
-    double _Props1SI(std::string FluidName, std::string Output);
-
 	//    **************** DEPRECATION WARNING ***********************
 	/// Nearly deprecated function
 	void set_phase(std::string Phase_str);

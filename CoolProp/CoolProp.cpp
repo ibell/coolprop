@@ -34,8 +34,10 @@
 #include "purefluids/R134a.h"
 #include "AllFluids.h"
 
-// Function prototypes
+/// The lower-level methods that can throw exceptions
 double _CoolProp_Fluid_PropsSI(long iOutput, long iName1, double Value1, long iName2, double Value2, Fluid *pFluid);
+double _PropsSI(std::string Output,std::string Name1, double Prop1, std::string Name2, double Prop2, std::string Ref);
+double _Props1SI(std::string FluidName, std::string Output);
 
 static std::string err_string;
 static std::string warning_string;
@@ -1216,4 +1218,34 @@ std::string get_fluid_param_string(std::string FluidName, std::string ParamName)
 }
 
 
-
+#ifndef DISABLE_CATCH
+#include "Catch/catch.hpp"
+TEST_CASE("Check ancillaries and surface tension", "[fast]" ) 
+{
+	SECTION("surface tension")
+	{
+        REQUIRE_THROWS(_PropsSI("I","P",101325,"D",1,"Propane"));
+        REQUIRE_NOTHROW(_PropsSI("I","T",300,"D",1,"Propane"));
+	}
+    SECTION("rhosatLanc")
+	{
+        REQUIRE_THROWS(_PropsSI("rhosatLanc","P",101325,"D",1,"Propane"));
+        REQUIRE_NOTHROW(_PropsSI("rhosatLanc","T",300,"D",1,"Propane"));
+	}
+    SECTION("rhosatVanc")
+	{
+        REQUIRE_THROWS(_PropsSI("rhosatVanc","P",101325,"D",1,"Propane"));
+        REQUIRE_NOTHROW(_PropsSI("rhosatVanc","T",300,"D",1,"Propane"));
+	}
+    SECTION("psatLanc")
+	{
+        REQUIRE_THROWS(_PropsSI("psatLanc","P",101325,"D",1,"Propane"));
+        REQUIRE_NOTHROW(_PropsSI("psatLanc","T",300,"D",1,"Propane"));
+	}
+    SECTION("psatVanc")
+	{
+        REQUIRE_THROWS(_PropsSI("psatVanc","P",101325,"D",1,"Propane"));
+        REQUIRE_NOTHROW(_PropsSI("psatVanc","T",300,"D",1,"Propane"));
+	}
+}
+#endif
