@@ -542,8 +542,6 @@ bool set_REFPROP_fluid(std::string Ref, std::vector<double> &x)
 		{
 			throw ValueError(format("REFPROP fluid string [%s] is invalid", Ref.c_str()));
 		}
-		
-		strcpy(hf,RefString.c_str());
 
 		ierr=999;
 		// Set path to fluid files
@@ -557,14 +555,54 @@ bool set_REFPROP_fluid(std::string Ref, std::vector<double> &x)
 //			free(refproppath);
 //		}
 
-		//...Call SETUP to initialize the program
 		char* hfm = (char*) calloc(refpropcharlength+8, sizeof(char));
 		strcpy(hfm,fdPath.c_str());
 		strcat(hfm,hfmix);
+		strcpy(hf,RefString.c_str());
 
+		//...Call SETUP to initialize the program
 		SETUPdll(&i, hf, hfm, hrf, &ierr, herr,
-				refpropcharlength*ncmax,refpropcharlength,
-				lengthofreference,errormessagelength);
+		  refpropcharlength*ncmax,refpropcharlength,
+		  lengthofreference,errormessagelength);
+
+		if (ierr > 0){
+			//...Call SETUP with capital letters
+			for(int i = 0; i < strlen(hrf); i++)
+			{
+				hrf[i] = toupper(hrf[i]);
+			}
+			for(int i = 0; i < strlen(hfm); i++)
+			{
+				hfm[i] = toupper(hfm[i]);
+			}
+			for(int i = 0; i < strlen(hf); i++)
+			{
+				hf[i] = toupper(hf[i]);
+			}
+			SETUPdll(&i, hf, hfm, hrf, &ierr, herr,
+			  refpropcharlength*ncmax,refpropcharlength,
+			  lengthofreference,errormessagelength);
+		}
+
+		if (ierr > 0){
+			//...Call SETUP with lower case letters
+			for(int i = 0; i < strlen(hrf); i++)
+			{
+				hrf[i] = tolower(hrf[i]);
+			}
+			for(int i = 0; i < strlen(hfm); i++)
+			{
+				hfm[i] = tolower(hfm[i]);
+			}
+			for(int i = 0; i < strlen(hf); i++)
+			{
+				hf[i] = tolower(hf[i]);
+			}
+			SETUPdll(&i, hf, hfm, hrf, &ierr, herr,
+			  refpropcharlength*ncmax,refpropcharlength,
+			  lengthofreference,errormessagelength);
+		}
+
 		free (hfm);
 
 		if (ierr > 0){
