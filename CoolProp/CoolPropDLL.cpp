@@ -15,7 +15,6 @@ EXPORT_CODE long CONVENTION redirect_stdout(const char* file)
 	freopen(file, "a+", stdout);
 	return 0;
 }
-
 EXPORT_CODE int CONVENTION set_reference_stateS(const char *Ref, const char *reference_state)
 {
 	return set_reference_stateS(std::string(Ref), std::string(reference_state));
@@ -24,31 +23,15 @@ EXPORT_CODE int CONVENTION set_reference_stateD(const char *Ref, double T, doubl
 {
 	return set_reference_stateD(std::string(Ref), T, rho, h0, s0);
 }
-
 // All the function interfaces that point to the single-input Props function
 EXPORT_CODE double CONVENTION Props1(const char *FluidName, const char *Output)
 {
-    long iOutput = get_param_index(Output);
-    double val = _Props1SI(FluidName, Output);
-    return convert_from_SI_to_unit_system(iOutput,val,get_standard_unit_system());
+    return Props1(std::string(FluidName), std::string(Output));
 }
 EXPORT_CODE double CONVENTION Props1SI(const char *FluidName, const char *Output)
 {
-    // In this function the error catching happens;
-	try{
-		return _Props1SI(FluidName, Output);
-	}
-	catch(const std::exception& e){
-        set_err_string(std::string("CoolProp error: ").append(e.what()));
-		return _HUGE;
-	}
-	catch(...){
-		set_err_string(std::string("CoolProp error: Indeterminate error"));
-		return _HUGE;
-	}
-	return _HUGE;
+    return Props1SI(std::string(FluidName),std::string(Output));
 }
-
 EXPORT_CODE double CONVENTION PropsS(const char *Output,const char* Name1, double Prop1, const char* Name2, double Prop2, const char * Ref)
 {
 	return Props(Output,Name1[0],Prop1,Name2[0],Prop2,Ref);
@@ -74,24 +57,10 @@ EXPORT_CODE double CONVENTION Props(const char *Output,char Name1, double Prop1,
     return convert_from_SI_to_unit_system(iOutput,val,get_standard_unit_system());
 }
 
-EXPORT_CODE double CONVENTION PropsSI(const char *Output, const char *Name1, double Prop1, const char *Name2, double Prop2, const char * Ref)
+EXPORT_CODE double CONVENTION PropsSI(const char *Output, const char *Name1, double Prop1, const char *Name2, double Prop2, const char * FluidName)
 {
-    // In this function the error catching happens;
-	try{
-		return _PropsSI(Output,Name1,Prop1,Name2,Prop2,Ref);
-	}
-	catch(const std::exception& e){
-        set_err_string(std::string("CoolProp error: ").append(e.what()));
-		return _HUGE;
-	}
-	catch(...){
-		set_err_string(std::string("CoolProp error: Indeterminate error"));
-		return _HUGE;
-	}
-	return _HUGE;
+    return PropsSI(std::string(Output),Name1,Prop1,Name2,Prop2,FluidName);
 }
-
-
 EXPORT_CODE double CONVENTION K2F(double T)
 { return T * 9 / 5 - 459.67; }
 
@@ -153,7 +122,6 @@ EXPORT_CODE long CONVENTION get_param_index(const char * param)
 {
 	return get_param_index(std::string(param));
 }
-
 #ifndef SWIG
 EXPORT_CODE long CONVENTION get_global_param_string(const char *param, char * Output)
 {
@@ -166,7 +134,6 @@ EXPORT_CODE long CONVENTION get_fluid_param_string(const char *fluid, const char
 	return 0;
 }
 #endif
-
 EXPORT_CODE long CONVENTION Phase(const char *Fluid, double T, double p, char *Phase_str)
 {
 	strcpy(Phase_str,(char*)Phase(std::string(Fluid),T,p).c_str());
@@ -182,13 +149,10 @@ EXPORT_CODE long CONVENTION Phase_Trho(const char *Fluid, double T, double rho, 
 	strcpy(Phase_str,(char*)Phase_Trho(std::string(Fluid),T,rho).c_str());
 	return 0;
 }
-
-
 // A function to enforce the state if known
 EXPORT_CODE void CONVENTION set_phase(const char *Phase_str){
 	set_phase(std::string(Phase_str));
 }
-
 /// Enable the TTSE for this fluid
 EXPORT_CODE bool CONVENTION enable_TTSE_LUT(const char *FluidName){
 	long iFluid = get_Fluid_index(FluidName); if (iFluid<0){ return false; };

@@ -545,6 +545,19 @@ double _Props1SI(std::string FluidName, std::string Output)
 	}
 	return -_HUGE;
 }
+double _Props1(std::string FluidName, std::string Output)
+{
+    double val = _Props1SI(FluidName, Output);
+    if (ValidNumber(val))
+    {
+        long iOutput = get_param_index(Output);
+        return convert_from_SI_to_unit_system(iOutput,val,get_standard_unit_system());
+    }
+    else
+    {
+        return _HUGE;
+    }
+}
 // Define the functions from the header file
 double Props1SI(std::string FluidName,std::string Output){
     // Redirect to the Props() function that takes const char *
@@ -563,8 +576,25 @@ double Props1SI(std::string FluidName,std::string Output){
 	return _HUGE;
 }
 double Props1(std::string FluidName, std::string Output){
-    return convert_from_SI_to_unit_system(get_param_index(Output), Props1SI(FluidName,Output),get_standard_unit_system());
+
+    // Redirect to the Props() function that takes const char *
+	// In this function the error catching happens;
+	try{
+		return _Props1(FluidName, Output);
+	}
+	catch(const std::exception& e){
+			err_string = std::string("CoolProp error: ").append(e.what());
+			return _HUGE;
+		}
+	catch(...){
+		err_string = std::string("CoolProp error: Indeterminate error");
+		return _HUGE;
+	}
+	return _HUGE;
 }
+
+
+
 
 /*
  * Now we need an internal functions to handle different
@@ -845,8 +875,19 @@ EXPORT_CODE double CONVENTION IPropsSI(long iOutput, long iName1, double Prop1, 
 
 double PropsSI(std::string Output, std::string Name1, double Prop1, std::string Name2, double Prop2, std::string Ref)
 {
-	// Go to the std::string version
-    return PropsSI(Output.c_str(),Name1.c_str(),Prop1,Name2.c_str(),Prop2,Ref.c_str());
+    // In this function the error catching happens;
+	try{
+		return _PropsSI(Output,Name1,Prop1,Name2,Prop2,Ref);
+	}
+	catch(const std::exception& e){
+        set_err_string(std::string("CoolProp error: ").append(e.what()));
+		return _HUGE;
+	}
+	catch(...){
+		set_err_string(std::string("CoolProp error: Indeterminate error"));
+		return _HUGE;
+	}
+	return _HUGE;
 }
 double Props(std::string Output, std::string Name1, double Prop1, std::string Name2, double Prop2, std::string Ref)
 {
