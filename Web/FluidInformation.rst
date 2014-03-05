@@ -55,7 +55,8 @@ You can also use mixtures in REFPROP, there is a special format for the fluid na
     
     #Saturated R410 vapor density at 1 atmosphere using the mixture properties
     In [1]: Props('D','Q',1,'P',101.325,'REFPROP-MIX:R32[0.697615]&R125[0.302385]')
-
+    
+In Engineering Equation Solver (EES), you can compose a fluid string using something like ``a$='REFPROP-MIX:'||'R32'||'['||yy$||']'||and$||'R125'||'['||xx$||']'`` where ``yy`` and ``xx`` are mole fractions of R32 and R125 respectively.
    
 Incompressible Liquids
 ----------------------
