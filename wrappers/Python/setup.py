@@ -1,4 +1,9 @@
 from __future__ import print_function
+# Use setuptools version of distutils if available
+try:
+    import setuptools
+except ImportError:
+    pass
 #Check for cython >= 0.17 due to the use of STL containers
 try:
     import Cython
