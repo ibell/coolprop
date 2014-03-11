@@ -328,7 +328,7 @@ cpdef Props(in1, in2, in3 = None, in4 = None, in5 = None, in6 = None, in7 = None
             if len(in3) != len(in5) : raise TypeError('Lengths of iterables must be the same')
             vals = []
             for _in3, _in5 in zip(in3,in5):
-                val = _PropsS(_in1, _in2, _in3, _in4, _in5, _in6)
+                val = _Props(_in1, _in2, _in3, _in4, _in5, _in6)
                 if not _ValidNumber(val):
                     __Props_err2(in1,in2,_in3,in4,_in5,in6,_get_global_param_string('errstring'))
                 vals.append(val)
@@ -339,7 +339,7 @@ cpdef Props(in1, in2, in3 = None, in4 = None, in5 = None, in6 = None, in7 = None
                 in2, in4 = in4, in2 # swap their keys too
             vals = []
             for _in3 in in3:
-                val = _PropsS(_in1, _in2, _in3, _in4, in5, _in6)
+                val = _Props(_in1, _in2, _in3, _in4, in5, _in6)
                 if not _ValidNumber(val):
                     __Props_err2(in1,in2,_in3,in4,in5,in6,_get_global_param_string('errstring'))
                 vals.append(val)
