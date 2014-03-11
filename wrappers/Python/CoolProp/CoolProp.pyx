@@ -305,6 +305,7 @@ cpdef Props(in1, in2, in3 = None, in4 = None, in5 = None, in6 = None, in7 = None
     since surface tension is only a function of temperature
     """
     cdef double _in3
+    cdef bytes _in1,_in2,_in4,_in6
         
     if (in4 is None and in6 is None and in7 is None):
         val = _Props1(in1.encode('ascii'), in2.encode('ascii'))
@@ -313,8 +314,12 @@ cpdef Props(in1, in2, in3 = None, in4 = None, in5 = None, in6 = None, in7 = None
         else:
             return val
     else:
+        _in1 = in1.encode('ascii')
+        _in2 = in2.encode('ascii')
+        _in4 = in4.encode('ascii')
+        _in6 = in6.encode('ascii')
         if not iterable(in3) and not iterable(in5):
-            val = _Props(in1, in2, in3, in4, in5, in6)
+            val = _Props(_in1, _in2, in3, _in4, in5, _in6)
             if not _ValidNumber(val):
                 __Props_err2(in1,in2,in3,in4,in5,in6,_get_global_param_string('errstring'))
             else:
@@ -323,7 +328,7 @@ cpdef Props(in1, in2, in3 = None, in4 = None, in5 = None, in6 = None, in7 = None
             if len(in3) != len(in5) : raise TypeError('Lengths of iterables must be the same')
             vals = []
             for _in3, _in5 in zip(in3,in5):
-                val = _PropsS(in1, in2, _in3, in4, _in5, in6)
+                val = _PropsS(_in1, _in2, _in3, _in4, _in5, _in6)
                 if not _ValidNumber(val):
                     __Props_err2(in1,in2,_in3,in4,_in5,in6,_get_global_param_string('errstring'))
                 vals.append(val)
@@ -334,7 +339,7 @@ cpdef Props(in1, in2, in3 = None, in4 = None, in5 = None, in6 = None, in7 = None
                 in2, in4 = in4, in2 # swap their keys too
             vals = []
             for _in3 in in3:
-                val = _Props(in1, in2, _in3, in4, in5, in6)
+                val = _PropsS(_in1, _in2, _in3, _in4, in5, _in6)
                 if not _ValidNumber(val):
                     __Props_err2(in1,in2,_in3,in4,in5,in6,_get_global_param_string('errstring'))
                 vals.append(val)
@@ -434,6 +439,8 @@ cpdef PropsSI(in1, in2, in3 = None, in4 = None, in5 = None, in6 = None, in7 = No
     
     """
     cdef double _in3
+    cdef bytes _in1,_in2,_in4,_in6
+    
     if (in4 is None and in6 is None and in7 is None):
         val = _Props1SI(in1.encode('ascii'), in2.encode('ascii'))
         if not _ValidNumber(val):
@@ -441,8 +448,12 @@ cpdef PropsSI(in1, in2, in3 = None, in4 = None, in5 = None, in6 = None, in7 = No
         else:
             return val
     else:
+        _in1 = in1.encode('ascii')
+        _in2 = in2.encode('ascii')
+        _in4 = in4.encode('ascii')
+        _in6 = in6.encode('ascii')
         if not iterable(in3) and not iterable(in5):
-            val = _PropsSI(in1, in2, in3, in4, in5, in6)
+            val = _PropsSI(_in1, _in2, in3, _in4, in5, _in6)
             if not _ValidNumber(val):
                 __PropsSI_err2(in1,in2,in3,in4,in5,in6,_get_global_param_string('errstring'))
             else:
@@ -451,7 +462,7 @@ cpdef PropsSI(in1, in2, in3 = None, in4 = None, in5 = None, in6 = None, in7 = No
             if len(in3) != len(in5) : raise TypeError('Lengths of iterables must be the same')
             vals = []
             for _in3, _in5 in zip(in3,in5):
-                val = _PropsSI(in1, in2, _in3, in4, _in5, in6)
+                val = _PropsSI(_in1, _in2, _in3, _in4, _in5, _in6)
                 if not _ValidNumber(val):
                     __PropsSI_err2(in1,in2,_in3,in4,_in5,in6,_get_global_param_string('errstring'))
                 vals.append(val)
@@ -462,7 +473,7 @@ cpdef PropsSI(in1, in2, in3 = None, in4 = None, in5 = None, in6 = None, in7 = No
                 in2, in4 = in4, in2 # swap their keys too
             vals = []
             for _in3 in in3:
-                val = _PropsSI(in1, in2, _in3, in4, in5, in6)
+                val = _PropsSI(_in1, _in2, _in3, _in4, in5, _in6)
                 if not _ValidNumber(val):
                     __PropsSI_err2(in1,in2,_in3,in4,in5,in6,_get_global_param_string('errstring'))
                 vals.append(val)
