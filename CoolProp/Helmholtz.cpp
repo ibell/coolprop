@@ -186,7 +186,7 @@ std::string phir_power::to_json()
             _l += format(", %g",l[i]);
         }
 	}
-    std::string s = "{\n  \"type\" : \"alphar_power\"\n  \"n\" : ["+_n+"],\n  \"d\" : ["+_d+"],\n  \"t\" : ["+_t+"],\n  \"l\" : ["+_l+"]\n}";
+    std::string s = "{\n  \"type\" : \"alphar_power\",\n  \"n\" : ["+_n+"],\n  \"d\" : ["+_d+"],\n  \"t\" : ["+_t+"],\n  \"l\" : ["+_l+"]\n}";
     return s;
 }
 double phir_power::dDelta_dTau2(double tau, double delta) throw()
@@ -420,7 +420,7 @@ std::string phir_exponential::to_json()
             _g += format(", %g",g[i]);
         }
 	}
-    std::string s = "{\n  \"type\" : \"alphar_power\"\n  \"n\" : ["+_n+"],\n  \"d\" : ["+_d+"],\n  \"t\" : ["+_t+"],\n  \"l\" : ["+_l+"],\n  \"g\" : ["+_g+"]\n}";
+    std::string s = "{\n  \"type\" : \"alphar_exponential\",\n  \"n\" : ["+_n+"],\n  \"d\" : ["+_d+"],\n  \"t\" : ["+_t+"],\n  \"l\" : ["+_l+"],\n  \"g\" : ["+_g+"]\n}";
     return s;
 }
 
@@ -586,7 +586,7 @@ std::string phir_Lemmon2005::to_json()
             _m += format(", %g",m[i]);
         }
 	}
-    std::string s = "{\n  \"type\" : \"alphar_Lemmon2005\"\n  \"n\" : ["+_n+"],\n  \"d\" : ["+_d+"],\n  \"t\" : ["+_t+"],\n  \"l\" : ["+_l+"],\n  \"m\" : ["+_m+"]\n}";
+    std::string s = "{\n  \"type\" : \"alphar_Lemmon2005\",\n  \"n\" : ["+_n+"],\n  \"d\" : ["+_d+"],\n  \"t\" : ["+_t+"],\n  \"l\" : ["+_l+"],\n  \"m\" : ["+_m+"]\n}";
     return s;
 }
 // Constructors
@@ -911,7 +911,7 @@ std::string phir_gaussian::to_json()
             _gamma += format(", %g",gamma[i]);
         }
 	}
-    std::string s = "{\n  \"type\" : \"alphar_gaussian\"\n  \"n\" : ["+_n+"],\n  \"d\" : ["+_d+"],\n  \"t\" : ["+_t+"],\n  \"alpha\" : ["+_alpha+"],\n  \"epsilon\" : ["+_epsilon+"],\n  \"beta\" : ["+_beta+"],\n  \"gamma\" : ["+_gamma+"]\n}";
+    std::string s = "{\n  \"type\" : \"alphar_gaussian\",\n  \"n\" : ["+_n+"],\n  \"d\" : ["+_d+"],\n  \"t\" : ["+_t+"],\n  \"alpha\" : ["+_alpha+"],\n  \"epsilon\" : ["+_epsilon+"],\n  \"beta\" : ["+_beta+"],\n  \"gamma\" : ["+_gamma+"]\n}";
     return s;
 }
 
@@ -1899,7 +1899,7 @@ std::string phi0_Planck_Einstein::to_json()
             _t += format(", %0.16g",theta[i]);
         }
 	}
-    std::string s = "{\n  \"type\" : \"alpha0_Planck_Einstein\"\n  \"n\" : ["+_n+"],\n  \"t\" : ["+_t+"]\n}";
+    std::string s = "{\n  \"type\" : \"alpha0_Planck_Einstein\",\n  \"n\" : ["+_n+"],\n  \"t\" : ["+_t+"]\n}";
     return s;
 }
 
@@ -1959,7 +1959,7 @@ std::string phi0_Planck_Einstein2::to_json()
             _t += format(", %0.16g", theta[i]);
         }
 	}
-    return "{\n  \"type\" : \"alpha0_Planck_Einstein2\"\n  \"n\" : ["+_n+"],  \"c\" : ["+_c+"],\n  \"t\" : ["+_t+"]\n}";
+    return "{\n  \"type\" : \"alpha0_Planck_Einstein2\",\n  \"n\" : ["+_n+"],  \"c\" : ["+_c+"],\n  \"t\" : ["+_t+"]\n}";
 }
 /*
 Maxima code for the term:
@@ -2023,7 +2023,7 @@ std::string phi0_cp0_AlyLee::to_json(){
             _n += format(", %0.16g", a[i]);
         }
 	}
-    return format("{\n  \"type\" : \"phi0_cp0_AlyLee\"\n  \"n\" : %s,\n  \"Tc\" : %g,\n  \"T0\" : %g,\n  \"R_u\" : %g\n}",_n,Tc,T0,R_u);
+    return format("{\n  \"type\" : \"phi0_cp0_AlyLee\",\n  \"n\" : [%s],\n  \"Tc\" : %g,\n  \"T0\" : %g,\n  \"R_u\" : %0.6g\n}",_n.c_str(),Tc,T0,R_u);
 };
 /*
 Maxima code for the sinh term:
@@ -2110,7 +2110,9 @@ std::string phi0_cp0_poly::to_json()
             _t += format(", %0.16g", tv[i]);
         }
 	}
-    return "{\n  \"type\" : \"alpha0_cp0_poly\"\n  \"a\" : ["+_a+"],  \"t\" : ["+_t+"],\n  \"T0\" : "+_T0+",\n  \"Tc\" : "+_Tc+"\n}";
+    _T0 = format("%0.6g",T0);
+    _Tc = format("%0.6g",Tc);
+    return "{\n  \"type\" : \"alpha0_cp0_poly\",\n  \"a\" : ["+_a+"],\n  \"t\" : ["+_t+"],\n  \"T0\" : "+_T0+",\n  \"Tc\" : "+_Tc+"\n}";
 }
 
 double phi0_cp0_poly::dTau(double tau, double delta)

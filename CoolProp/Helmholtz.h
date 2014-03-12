@@ -500,7 +500,7 @@ public:
 	//Destructor
 	~phi0_lead(){};
 
-    std::string to_json(){return format("{\n  \"type\" : \"alpha0_lead\"\n  \"a1\" : %0.14g,\n  \"a2\" : %0.14g\n}",c1,c2);};
+    std::string to_json(){return format("{\n  \"type\" : \"alpha0_lead\",\n  \"a1\" : %0.14g,\n  \"a2\" : %0.14g\n}",c1,c2);};
 
 	// Term and its derivatives
 	double base(double tau, double delta){return log(delta)+c1+c2*tau;};
@@ -532,7 +532,7 @@ public:
 	//Destructor
 	~phi0_enthalpy_entropy_offset(){};
 
-    std::string to_json(){return format("{\n  \"type\" : \"alpha0_enthalpy_entropy_offset\"\n  \"a1\" : %0.14g,\n  \"a2\" : %0.14g\n}",c1,c2);};
+    std::string to_json(){return format("{\n  \"type\" : \"alpha0_enthalpy_entropy_offset\",\n  \"a1\" : %0.14g,\n  \"a2\" : %0.14g\n}",c1,c2);};
 
 	// Term and its derivatives
 	double base(double tau, double delta){return c1+c2*tau;};
@@ -568,7 +568,7 @@ public:
 	//Destructor
 	~phi0_logtau(){};
 
-    std::string to_json(){return format("{\n  \"type\" : \"alpha0_logtau\"\n  \"a1\" : %0.14g\n}",c1);};
+    std::string to_json(){return format("{\n  \"type\" : \"alpha0_logtau\",\n  \"a1\" : %0.14g\n}",c1);};
 
 	// Term and its derivatives
 	double base(double tau, double delta){return c1*log(tau);};
@@ -860,7 +860,7 @@ public:
 	/// Destructor
 	~phi0_cp0_constant(){};
 
-    std::string to_json(){return format("{\n  \"type\" : \"phi0_cp0_constant\"\n  \"c\" : %0.14g,\n  \"Tc\" : %g,\n  \"T0\" : %g\n}",c,Tc,T0);};
+    std::string to_json(){return format("{\n  \"type\" : \"alpha0_cp0_constant\",\n  \"c\" : %0.14g,\n  \"Tc\" : %g,\n  \"T0\" : %g\n}",c,Tc,T0);};
 
 	// Term and its derivatives
 	double base(double tau, double delta){ 
