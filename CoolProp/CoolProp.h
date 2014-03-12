@@ -74,26 +74,12 @@ You might want to start by looking at CoolProp.h
 	/// @param rho Density [kg/m^3]
 	/// @param FluidName String
 	double DerivTerms(std::string Term, double T, double rho, std::string FluidName);
-//	/// Return some low level derivative terms, see source for a complete list
-//	/// @param Term string, some options are "phir" (residual Helmholtz energy),"dphir_dDelta", "dphir_dTau", etc.
-//	/// @param T Temperature [K]
-//	/// @param rho Density [kg/m^3]
-//	/// @param FluidName string
-//	double DerivTerms(char *Term, double T, double rho, char * FluidName);
 	/// Return some low level derivative terms, see source for a complete list
 	/// @param iTerm long desired output
 	/// @param T Temperature [K]
 	/// @param rho Density [kg/m^3]
 	/// @param pFluid Pointer to Fluid instance
 	double DerivTerms(long iTerm, double T, double rho, Fluid * pFluid);
-//	/// Return some low level derivative terms, see source for a complete list
-//	/// @param Term String, some options are "phir" (residual Helmholtz energy),"dphir_dDelta", "dphir_dTau", etc.
-//	/// @param T Temperature [K]
-//	/// @param rho Density [kg/m^3]
-//	/// @param pFluid Pointer to Fluid instance
-//	/// @param SinglePhase True if you know it is single phase
-//	/// @param TwoPhase True if you know it is two-phase
-//	double DerivTerms(char *Term, double T, double rho, Fluid * pFluid, bool SinglePhase, bool TwoPhase);
 
 	/// Get a long that represents the fluid type
 	/// @param FluidName The fluid name as a string
