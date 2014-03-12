@@ -567,17 +567,17 @@ bool set_REFPROP_fluid(std::string Ref, std::vector<double> &x)
 
 		if (ierr > 0){
 			//...Call SETUP with capital letters
-			for(int i = 0; i < strlen(hrf); i++)
+			for(int j = 0; j < strlen(hrf); j++)
 			{
-				hrf[i] = toupper(hrf[i]);
+				hrf[j] = toupper(hrf[j]);
 			}
-			for(int i = 0; i < strlen(hfm); i++)
+			for(int j = 0; j < strlen(hfm); j++)
 			{
-				hfm[i] = toupper(hfm[i]);
+				hfm[j] = toupper(hfm[j]);
 			}
-			for(int i = 0; i < strlen(hf); i++)
+			for(int j = 0; j < strlen(hf); j++)
 			{
-				hf[i] = toupper(hf[i]);
+				hf[j] = toupper(hf[j]);
 			}
 			SETUPdll(&i, hf, hfm, hrf, &ierr, herr,
 			  refpropcharlength*ncmax,refpropcharlength,
@@ -586,17 +586,17 @@ bool set_REFPROP_fluid(std::string Ref, std::vector<double> &x)
 
 		if (ierr > 0){
 			//...Call SETUP with lower case letters
-			for(int i = 0; i < strlen(hrf); i++)
+			for(int j = 0; j < strlen(hrf); j++)
 			{
-				hrf[i] = tolower(hrf[i]);
+				hrf[j] = tolower(hrf[j]);
 			}
-			for(int i = 0; i < strlen(hfm); i++)
+			for(int j = 0; j < strlen(hfm); j++)
 			{
-				hfm[i] = tolower(hfm[i]);
+				hfm[j] = tolower(hfm[j]);
 			}
-			for(int i = 0; i < strlen(hf); i++)
+			for(int j = 0; j < strlen(hf); j++)
 			{
-				hf[i] = tolower(hf[i]);
+				hf[j] = tolower(hf[j]);
 			}
 			SETUPdll(&i, hf, hfm, hrf, &ierr, herr,
 			  refpropcharlength*ncmax,refpropcharlength,
