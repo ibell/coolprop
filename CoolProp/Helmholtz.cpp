@@ -166,6 +166,29 @@ double phir_power::dTau3(double tau, double delta) throw()
 	}
 	return summer;
 }
+std::string phir_power::to_json()
+{
+    std::string _n,_d,_t,_l;
+    for (unsigned int i=iStart;i<=iEnd;i++)
+	{
+        if (i == iStart)
+        {
+            _n += format("%0.16g",n[i]);
+            _d += format("%g",d[i]);
+            _t += format("%0.4g",t[i]);
+            _l += format("%g",l[i]);
+        }
+        else
+        {
+            _n += format(", %0.16g",n[i]);
+            _d += format(", %g",d[i]);
+            _t += format(", %0.4g",t[i]);
+            _l += format(", %g",l[i]);
+        }
+	}
+    std::string s = "{\n  \"type\" : \"alphar_power\"\n  \"n\" : ["+_n+"],\n  \"d\" : ["+_d+"],\n  \"t\" : ["+_t+"],\n  \"l\" : ["+_l+"]\n}";
+    return s;
+}
 double phir_power::dDelta_dTau2(double tau, double delta) throw()
 {
 	double summer=0, log_tau = log(tau), log_delta = log(delta);
@@ -375,6 +398,32 @@ TEST_CASE("Power Helmholtz terms", "[helmholtz],[fast]")
 }
 #endif
 
+std::string phir_exponential::to_json()
+{
+    std::string _n,_d,_t,_l,_g;
+    for (unsigned int i=iStart;i<=iEnd;i++)
+	{
+        if (i == iStart)
+        {
+            _n += format("%0.16g",n[i]);
+            _d += format("%g",d[i]);
+            _t += format("%0.4g",t[i]);
+            _l += format("%g",l[i]);
+            _g += format("%g",g[i]);
+        }
+        else
+        {
+            _n += format(", %0.16g",n[i]);
+            _d += format(", %g",d[i]);
+            _t += format(", %0.4g",t[i]);
+            _l += format(", %g",l[i]);
+            _g += format(", %g",g[i]);
+        }
+	}
+    std::string s = "{\n  \"type\" : \"alphar_power\"\n  \"n\" : ["+_n+"],\n  \"d\" : ["+_d+"],\n  \"t\" : ["+_t+"],\n  \"l\" : ["+_l+"],\n  \"g\" : ["+_g+"]\n}";
+    return s;
+}
+
 // Constructors
 phir_exponential::phir_exponential(std::vector<double> n, std::vector<double> d, std::vector<double> t, std::vector<double> l, std::vector<double> g, int iStart_in,int iEnd_in)
 {
@@ -515,147 +564,31 @@ double phir_exponential::dDelta_dTau(double tau, double delta) throw()
 	return summer;
 }
 
-// Constructors
-phir_exponential2::phir_exponential2(std::vector<double> n, std::vector<double> d, std::vector<double> l, std::vector<double> a, std::vector<double> g, int iStart_in,int iEnd_in)
+std::string phir_Lemmon2005::to_json()
 {
-	this->n = n;
-	this->d = d;
-	this->l = l;
-	this->a = a;
-	this->g = g;
-	iStart=iStart_in;
-	iEnd=iEnd_in;
-}
-phir_exponential2::phir_exponential2(double n[], double d[], double l[], double a[], double g[], int iStart_in,int iEnd_in, int N)
-{
-	this->n=std::vector<double>(n, n+N);
-	this->d=std::vector<double>(d, d+N);
-	this->a=std::vector<double>(a, a+N);
-	this->l=std::vector<double>(l, l+N);
-	this->g=std::vector<double>(g, g+N);
-	iStart=iStart_in;
-	iEnd=iEnd_in;
-}
-phir_exponential2::phir_exponential2(const double n[], const double d[], const double l[], const double a[], const double g[], int iStart_in,int iEnd_in, int N)
-{
-	this->n = std::vector<double>(n, n+N);
-	this->d = std::vector<double>(d, d+N);
-	this->a = std::vector<double>(a, a+N);
-	this->l = std::vector<double>(l, l+N);
-	this->g = std::vector<double>(g, g+N);
-	iStart = iStart_in;
-	iEnd = iEnd_in;
-}
-
-// Term and its derivatives
-double phir_exponential2::base(double tau, double delta) throw()
-{
-	double summer=0;
-	for (unsigned int i=iStart;i<=iEnd;i++)
+    std::string _n,_d,_t,_l,_m;
+    for (unsigned int i=iStart;i<=iEnd;i++)
 	{
-		summer += n[i]*pow(delta,d[i])*exp(a[i]*tau-g[i]*pow(delta,l[i]));
+        if (i == iStart)
+        {
+            _n += format("%0.16g",n[i]);
+            _d += format("%g",d[i]);
+            _t += format("%0.4g",t[i]);
+            _l += format("%g",l[i]);
+            _m += format("%g",m[i]);
+        }
+        else
+        {
+            _n += format(", %0.16g",n[i]);
+            _d += format(", %g",d[i]);
+            _t += format(", %0.4g",t[i]);
+            _l += format(", %g",l[i]);
+            _m += format(", %g",m[i]);
+        }
 	}
-	return summer;
+    std::string s = "{\n  \"type\" : \"alphar_Lemmon2005\"\n  \"n\" : ["+_n+"],\n  \"d\" : ["+_d+"],\n  \"t\" : ["+_t+"],\n  \"l\" : ["+_l+"],\n  \"m\" : ["+_m+"]\n}";
+    return s;
 }
-double phir_exponential2::dTau(double tau, double delta) throw()
-{
-	double summer=0;
-	for (unsigned int i=iStart;i<=iEnd;i++)
-	{
-		summer += n[i]*pow(delta,d[i])*a[i]*exp(a[i]*tau-g[i]*pow(delta,l[i]));
-	}
-	return summer;
-}
-double phir_exponential2::dTau2(double tau, double delta) throw()
-{
-	double summer = 0;
-	for (unsigned int i=iStart;i<=iEnd;i++)
-	{
-		summer += n[i]*pow(delta,d[i])*a[i]*a[i]*exp(a[i]*tau-g[i]*pow(delta,l[i]));
-	}
-	return summer;
-}
-double phir_exponential2::dTau3(double tau, double delta) throw()
-{
-	double summer = 0;
-	for (unsigned int i=iStart;i<=iEnd;i++)
-	{
-		summer += n[i]*pow(delta,d[i])*a[i]*a[i]*a[i]*exp(a[i]*tau-g[i]*pow(delta,l[i]));
-	}
-	return summer;
-}
-double phir_exponential2::dDelta_dTau2(double tau, double delta) throw()
-{
-	double summer = 0;
-	for (unsigned int i=iStart;i<=iEnd;i++)
-	{
-		double pow_delta_li = pow(delta,l[i]);
-		summer += n[i]*a[i]*a[i]*pow(delta,d[i]-1)*(d[i]-g[i]*l[i]*pow_delta_li)*exp(a[i]*tau-g[i]*pow_delta_li);
-	}
-	return summer;
-}
-double phir_exponential2::dDelta(double tau, double delta) throw()
-{
-	double summer=0, pow_delta_li;
-	for (unsigned int i=iStart;i<=iEnd;i++)
-	{	
-		pow_delta_li = pow(delta,l[i]);
-		summer += n[i]*pow(delta,d[i]-1)*(d[i]-g[i]*l[i]*pow_delta_li)*exp(a[i]*tau-g[i]*pow_delta_li);
-	}
-	return summer;
-}
-double phir_exponential2::dDelta2(double tau, double delta) throw()
-{
-	double summer = 0;
-	for (unsigned int i=iStart;i<=iEnd;i++)
-	{
-		double pow_delta_li = pow(delta,l[i]);
-		// Typo in Span, 2000, re-derived from Sympy
-		double bracket = d[i]*d[i] - 2*d[i]*pow(delta,l[i])*g[i]*l[i] - d[i] + pow(delta,2*l[i])*g[i]*g[i]*l[i]*l[i] - pow(delta,l[i])*g[i]*l[i]*l[i] + pow(delta,l[i])*g[i]*l[i];
-		summer += n[i]*pow(delta,d[i]-2)*bracket*exp(a[i]*tau-g[i]*pow_delta_li);
-	}
-	return summer;
-}
-double phir_exponential2::dDelta3(double tau, double delta) throw()
-{
-	double summer = 0;
-	for (unsigned int i=iStart;i<=iEnd;i++)
-	{
-		// >> Code for sympy: (same result for bracketed term as phir_exponential
-		// >> n_i, tau, t_i, d_i, delta, g_i, l_i, alpha_i = symbols(' n_i tau t_i d_i delta g_i l_i, alpha_i');
-		// >> phir = n_i*delta**d_i*exp(alpha_i*tau-g_i*pow(delta,l_i))
-		// >> simplify(diff(diff(diff(phir,delta),delta),delta))
-		double pow_delta_li = pow(delta,l[i]);
-		double pow_delta_2li = pow(delta,2*l[i]);
-		double pow_delta_3li = pow(delta,3*l[i]);
-		double bracket = d[i]*d[i]*d[i] - 3*d[i]*d[i]*pow_delta_li*g[i]*l[i] - 3*d[i]*d[i] + 3*d[i]*pow_delta_2li*g[i]*g[i]*l[i]*l[i] - 3*d[i]*pow_delta_li*g[i]*l[i]*l[i] + 6*d[i]*pow_delta_li*g[i]*l[i] + 2*d[i] - pow_delta_3li*g[i]*g[i]*g[i]*l[i]*l[i]*l[i] + 3*pow_delta_2li*g[i]*g[i]*l[i]*l[i]*l[i] - 3*pow_delta_2li*g[i]*g[i]*l[i]*l[i] - pow_delta_li*g[i]*l[i]*l[i]*l[i] + 3*pow_delta_li*g[i]*l[i]*l[i] - 2*pow_delta_li*g[i]*l[i];
-		summer += n[i]*bracket*exp(a[i]*tau-g[i]*pow(delta,l[i]));
-	}
-	return summer;
-}
-double phir_exponential2::dDelta2_dTau(double tau, double delta) throw()
-{
-	double summer = 0;
-	for (unsigned int i=iStart;i<=iEnd;i++)
-	{
-		double pow_delta_li = pow(delta,l[i]);
-		// Typo in Span, 2000, re-derived from Sympy
-		double bracket = d[i]*d[i] - 2*d[i]*pow(delta,l[i])*g[i]*l[i] - d[i] + pow(delta,2*l[i])*g[i]*g[i]*l[i]*l[i] - pow(delta,l[i])*g[i]*l[i]*l[i] + pow(delta,l[i])*g[i]*l[i];
-		summer += n[i]*a[i]*pow(delta,d[i]-2)*bracket*exp(a[i]*tau-g[i]*pow_delta_li);
-	}
-	return summer;
-}
-double phir_exponential2::dDelta_dTau(double tau, double delta) throw()
-{
-	double summer=0;
-	for (unsigned int i=iStart;i<=iEnd;i++)
-	{
-		double pow_delta_li = pow(delta,l[i]);
-		summer += n[i]*a[i]*pow(delta,d[i]-1)*(d[i]-g[i]*l[i]*pow_delta_li)*exp(a[i]*tau-g[i]*pow_delta_li);
-	}
-	return summer;
-}
-
 // Constructors
 phir_Lemmon2005::phir_Lemmon2005(std::vector<double> n,std::vector<double> d,std::vector<double> t, std::vector<double> l, std::vector< double> m, int iStart_in,int iEnd_in)
 {
@@ -952,6 +885,37 @@ phir_gaussian::phir_gaussian(const double n_in[], const double d_in[], const dou
 	iEnd=iEnd_in;
 }
 
+std::string phir_gaussian::to_json()
+{
+    std::string _n,_d,_t,_alpha,_epsilon,_beta,_gamma;
+    for (unsigned int i=iStart;i<=iEnd;i++)
+	{
+        if (i == iStart)
+        {
+            _n += format("%0.16g",n[i]);
+            _d += format("%g",d[i]);
+            _t += format("%0.4g",t[i]);
+            _alpha += format("%g",alpha[i]);
+            _epsilon += format("%g",epsilon[i]);
+            _beta += format("%g",beta[i]);
+            _gamma += format("%g",gamma[i]);
+        }
+        else
+        {
+            _n += format(", %0.16g",n[i]);
+            _d += format(", %g",d[i]);
+            _t += format(", %0.4g",t[i]);
+            _alpha += format(", %g",alpha[i]);
+            _epsilon += format(", %g",epsilon[i]);
+            _beta += format(", %g",beta[i]);
+            _gamma += format(", %g",gamma[i]);
+        }
+	}
+    std::string s = "{\n  \"type\" : \"alphar_gaussian\"\n  \"n\" : ["+_n+"],\n  \"d\" : ["+_d+"],\n  \"t\" : ["+_t+"],\n  \"alpha\" : ["+_alpha+"],\n  \"epsilon\" : ["+_epsilon+"],\n  \"beta\" : ["+_beta+"],\n  \"gamma\" : ["+_gamma+"]\n}";
+    return s;
+}
+
+
 // Term and its derivatives
 double phir_gaussian::base(double tau, double delta) throw()
 {
@@ -1075,6 +1039,36 @@ phir_GERG2008_gaussian::phir_GERG2008_gaussian(std::vector<double> n_in, std::ve
 	iEnd=iEnd_in;
 }
 
+std::string phir_GERG2008_gaussian::to_json()
+{
+    std::string _n,_d,_t,_alpha,_epsilon,_beta,_gamma;
+    for (unsigned int i=iStart;i<=iEnd;i++)
+	{
+        if (i == iStart)
+        {
+            _n += format("%0.16g",n[i]);
+            _d += format("%g",d[i]);
+            _t += format("%0.4g",t[i]);
+            _alpha += format("%g",eta[i]);
+            _epsilon += format("%g",epsilon[i]);
+            _beta += format("%g",beta[i]);
+            _gamma += format("%g",gamma[i]);
+        }
+        else
+        {
+            _n += format(", %0.16g",n[i]);
+            _d += format(", %g",d[i]);
+            _t += format(", %0.4g",t[i]);
+            _alpha += format(", %g",eta[i]);
+            _epsilon += format(", %g",epsilon[i]);
+            _beta += format(", %g",beta[i]);
+            _gamma += format(", %g",gamma[i]);
+        }
+	}
+    std::string s = "{\n  \"type\" : \"alphar_GERG2008_gaussian\"\n  \"n\" : ["+_n+"],\n  \"d\" : ["+_d+"],\n  \"t\" : ["+_t+"],\n  \"alpha\" : ["+_alpha+"],\n  \"epsilon\" : ["+_epsilon+"],\n  \"beta\" : ["+_beta+"],\n  \"gamma\" : ["+_gamma+"]\n}";
+    return s;
+}
+
 phir_GERG2008_gaussian::phir_GERG2008_gaussian(double n_in[], double d_in[],double t_in[], double eta_in[], 
 							 double epsilon_in[], double beta_in[], double gamma_in[],
 							 unsigned int iStart_in, unsigned int iEnd_in, unsigned int N)
@@ -1188,6 +1182,38 @@ phir_critical::phir_critical(double n[], double d[], double t[],
 	this->D=std::vector<double>(D,D+N);
 	this->iStart=iStart;
 	this->iEnd=iEnd;
+}
+
+std::string phir_critical::to_json()
+{
+    std::string _n,_d,_t,_a,_b,_beta,_A,_B,_C,_D;
+    for (int i=iStart;i<=iEnd;i++)
+	{
+        if (i == iStart)
+        {
+            _n += format("%0.16g",n[i]);
+            _a += format("%g",a[i]);
+            _b += format("%g",b[i]);
+            _beta += format("%g",beta[i]);
+            _A += format("%g",A[i]);
+            _B += format("%g",B[i]);
+            _C += format("%g",C[i]);
+            _D += format("%g",D[i]);
+        }
+        else
+        {
+            _n += format(", %0.16g",n[i]);
+            _a += format(", %g",a[i]);
+            _b += format(", %g",b[i]);
+            _beta += format(", %g",beta[i]);
+            _A += format(", %g",A[i]);
+            _B += format(", %g",B[i]);
+            _C += format(", %g",C[i]);
+            _D += format(", %g",D[i]);
+        }
+	}
+    std::string s = "{\n  \"type\" : \"alphar_critical\",\n  \"n\" : ["+_n+"],\n  \"a\" : ["+_a+"],\n  \"b\" : ["+_b+"],\n  \"beta\" : ["+_beta+"],\n  \"A\" : ["+_A+"],\n  \"B\" : ["+_B+"],\n  \"C\" : ["+_C+"],\n  \"D\" : ["+_D+"]\n}";
+    return s;
 }
 
 double phir_critical::base(double tau, double delta) throw()
@@ -1500,6 +1526,10 @@ TEST_CASE((char*)"Non-analytic critical point Helmholtz derivative check", (char
 }
 #endif
 
+std::string phir_SAFT_associating::to_json()
+{
+    return format("{\n  \"a\" : %0.15g,\n  \"m\" : %0.15g,\n  \"epsilonbar\" : %0.15g,\n  \"vbarn\" : %0.15g,\n  \"kappabar\" : %0.15g}",a,m,epsilonbar, vbarn, kappabar);
+}
 double phir_SAFT_associating::Deltabar(double tau, double delta)
 {
 	return this->g(this->eta(delta))*(exp(this->epsilonbar*tau)-1)*this->kappabar;
@@ -1853,6 +1883,26 @@ TEST_CASE("SAFT Helmholtz derivative check", "[helmholtz],[fast]")
 }
 #endif
 
+std::string phi0_Planck_Einstein::to_json()
+{
+    std::string _n,_t;
+    for (int i=iStart;i<=iEnd;i++)
+	{
+        if (i == iStart)
+        {
+            _n += format("%0.16g",a[i]);
+            _t += format("%0.16g",theta[i]);
+        }
+        else
+        {
+            _n += format(", %0.16g",a[i]);
+            _t += format(", %0.16g",theta[i]);
+        }
+	}
+    std::string s = "{\n  \"type\" : \"alpha0_Planck_Einstein\"\n  \"n\" : ["+_n+"],\n  \"t\" : ["+_t+"]\n}";
+    return s;
+}
+
 double phi0_Planck_Einstein::base(double tau, double delta)
 {
 	double summer=0;
@@ -1890,6 +1940,27 @@ double phi0_Planck_Einstein::dTau3(double tau, double delta)
 	return summer;
 }
 
+
+std::string phi0_Planck_Einstein2::to_json()
+{
+    std::string _n,_c,_t;
+    for (int i=iStart;i<=iEnd;i++)
+	{
+        if (i == iStart)
+        {
+            _n += format("%0.16g", a[i]);
+            _c += format("%0.16g", c[i]);
+            _t += format("%0.16g", theta[i]);
+        }
+        else
+        {
+            _n += format(", %0.16g", a[i]);
+            _c += format(", %0.16g", c[i]);
+            _t += format(", %0.16g", theta[i]);
+        }
+	}
+    return "{\n  \"type\" : \"alpha0_Planck_Einstein2\"\n  \"n\" : ["+_n+"],  \"c\" : ["+_c+"],\n  \"t\" : ["+_t+"]\n}";
+}
 /*
 Maxima code for the term:
 
@@ -1939,43 +2010,21 @@ double phi0_Planck_Einstein2::dTau3(double tau, double delta)
 	return summer;
 }
 
-double phi0_Planck_Einstein3::base(double tau, double delta)
-{
-	double summer=0;
-	for (int i=iStart;i<=iEnd;i++)
+std::string phi0_cp0_AlyLee::to_json(){
+    std::string _n;
+    for (int i=1;i<=5;i++)
 	{
-		summer += a[i]*log(exp(theta[i]*tau)-1);
+        if (i == 1)
+        {
+            _n += format("%0.16g", a[i]);
+        }
+        else
+        {
+            _n += format(", %0.16g", a[i]);
+        }
 	}
-	return summer;
-}
-double phi0_Planck_Einstein3::dTau(double tau, double delta)
-{
-	double summer=0;
-	for (int i=iStart;i<=iEnd;i++)
-	{
-		summer += a[i]*theta[i]*exp(theta[i]*tau)/(exp(theta[i]*tau)-1);
-	}
-	return summer;
-}
-double phi0_Planck_Einstein3::dTau2(double tau, double delta)
-{
-	double summer=0;
-	for (int i=iStart;i<=iEnd;i++)
-	{
-		summer += -a[i]*pow(theta[i],2.0)*exp(theta[i]*tau)/pow(exp(theta[i]*tau)-1,2.0);
-	}
-	return summer;
-}
-double phi0_Planck_Einstein3::dTau3(double tau, double delta)
-{
-	double summer=0;
-	for (int i=iStart;i<=iEnd;i++)
-	{
-		summer += a[i]*pow(theta[i],3.0)*theta[i]*exp(theta[i]*tau)*(exp(theta[i]*tau)+1)/pow(exp(theta[i]*tau)-1,3.0);
-	}
-	return summer;
-}
-
+    return format("{\n  \"type\" : \"phi0_cp0_AlyLee\"\n  \"n\" : %s,\n  \"Tc\" : %g,\n  \"T0\" : %g,\n  \"R_u\" : %g\n}",_n,Tc,T0,R_u);
+};
 /*
 Maxima code for the sinh term:
 part a)
@@ -2043,6 +2092,25 @@ double phi0_cp0_AlyLee::dTau3(double tau, double delta)
 {
 	// -cp0/tau/tau/R_u = -a[1]/tau^2/R_u-a[2]/R_u*(a[3]/Tc/sinh(a[3]*tau/Tc))^2-a[4]/R_u*(a[5]/Tc/cosh(a[5]*tau/Tc))^2;
 	return 2*a[1]/tau/tau/tau/R_u     -a[2]/R_u*(-2)*pow(a[3]/Tc,3)*cosh(a[3]*tau/Tc)/pow(sinh(a[3]*tau/Tc),3)      -a[4]/R_u*(-2)*pow(a[5]/Tc,3)*sinh(a[5]*tau/Tc)/pow(cosh(a[5]*tau/Tc),3);
+}
+
+std::string phi0_cp0_poly::to_json()
+{
+    std::string _a,_t,_T0,_Tc;
+    for (int i=iStart;i<=iEnd;i++)
+	{
+        if (i == iStart)
+        {
+            _a += format("%0.16g", a[i]);
+            _t += format("%0.16g", tv[i]);
+        }
+        else
+        {
+            _a += format(", %0.16g", a[i]);
+            _t += format(", %0.16g", tv[i]);
+        }
+	}
+    return "{\n  \"type\" : \"alpha0_cp0_poly\"\n  \"a\" : ["+_a+"],  \"t\" : ["+_t+"],\n  \"T0\" : "+_T0+",\n  \"Tc\" : "+_Tc+"\n}";
 }
 
 double phi0_cp0_poly::dTau(double tau, double delta)

@@ -40,7 +40,7 @@ FluorineClass::FluorineClass()
 	double g0[] = {0, -4, -3, 1, 2, 0, 0, 0, 0};
 	phi0list.push_back(new phi0_power(f0, g0,1,4,9));
 	phi0list.push_back(new phi0_logtau(f0[5]));
-	phi0list.push_back(new phi0_Planck_Einstein3(f0[6],f0[7]));
+	phi0list.push_back(new phi0_Planck_Einstein2(f0[6],f0[7],-1));
 	phi0list.push_back(new phi0_power(f0[8], 0));
 	phi0list.push_back(new phi0_lead(0,0)); // This terms is needed, but not listed in Fluorine book
 

@@ -65,6 +65,8 @@ public:
 	/// @param tau Reciprocal reduced temperature where tau=Tc / T
 	/// @param delta Reduced pressure where delta = rho / rhoc 
 	virtual double dDelta3(double tau, double delta) = 0;
+
+    virtual std::string to_json() = 0;
 };
 
 /// Check the derivatives for a Helmholtz energy term
@@ -106,12 +108,15 @@ public:
 	phir_power(double[], double[], double[],int,int,int);
 	phir_power(const double[], const double[], const double[], const double[],int,int,int);
 	phir_power(double[],double[],double[],double[],int,int,int);
+    //std::string to_json();
 	
 	/// Cache some terms for internal use
 	void cache();
 
 	///< Destructor for the phir_power class.  No implementation
 	~phir_power(){};
+
+    std::string to_json();
 
 	double base(double tau, double delta) throw();
 	double dDelta(double tau, double delta) throw();
@@ -167,44 +172,7 @@ public:
 	///< Destructor for the phir_power class.  No implementation
 	~phir_exponential(){};
 
-	double base(double tau, double delta) throw();
-	double dDelta(double tau, double delta) throw();
-	double dTau(double tau, double delta) throw();
-	
-	double dDelta2(double tau, double delta) throw();
-	double dDelta_dTau(double tau, double delta) throw();
-	double dTau2(double tau, double delta) throw();
-	
-	double dDelta3(double tau, double delta) throw();
-	double dDelta2_dTau(double tau, double delta) throw();
-	double dDelta_dTau2(double tau, double delta) throw();
-	double dTau3(double tau, double delta) throw();
-};
-
-/*!
-
-Terms are of the form 
-\f[
-\phi_r = n \delta ^d \exp(\alpha\tau - \gamma \delta^l)
-\f]
-
-*/
-class phir_exponential2 : public phi_BC{
-private:
-	std::vector<double> n, ///< The coefficients multiplying each term
-		                d, ///< The power for the delta terms
-						l, ///< The power of delta in the exponential term
-						a, ///< Alpha in the exponential term
-						g; ///< Gamma in the exponential term
-	unsigned int iStart,iEnd;
-public:
-	// Constructors
-	phir_exponential2(std::vector<double>,std::vector<double>,std::vector<double>,std::vector<double>,std::vector<double>,int,int);
-	phir_exponential2(const double[], const double[], const double[], const double[],const double[],int,int,int);
-	phir_exponential2(double[],double[],double[],double[],double[],int,int,int);
-	
-	///< Destructor for the phir_power class.  No implementation
-	~phir_exponential2(){};
+    std::string to_json();
 
 	double base(double tau, double delta) throw();
 	double dDelta(double tau, double delta) throw();
@@ -264,6 +232,8 @@ public:
 	// Destructor
 	~phir_gaussian(){};
 
+    std::string to_json();
+
 	// Term and its derivatives
 	double base(double tau, double delta) throw();
 	double dDelta(double tau, double delta) throw();
@@ -317,6 +287,8 @@ public:
 	// Destructor
 	~phir_GERG2008_gaussian(){};
 
+    std::string to_json();
+
 	// Term and its derivatives
 	double base(double tau, double delta);
 	double dDelta(double tau, double delta);
@@ -354,6 +326,8 @@ public:
 				  double a[], double b[], double beta[],
 				  double A[], double B[], double C[], 
 				  double D[], int iStart, int iEnd, int N);
+
+    std::string to_json();
 
 	//Destructor
 	~phir_critical(){};
@@ -408,6 +382,8 @@ public:
 	///< Destructor for the phir_Lemmon2005 class.  No implementation
 	~phir_Lemmon2005(){};
 
+    std::string to_json();
+
 	double base(double tau, double delta) throw();
 	double dDelta(double tau, double delta) throw();
 	double dTau(double tau, double delta) throw();
@@ -432,6 +408,8 @@ public:
 
 	//Destructor
 	~phir_SAFT_associating(){};
+
+    std::string to_json();
 
 	double Deltabar(double tau, double delta);
 	double dDeltabar_ddelta__consttau(double tau, double delta);
@@ -522,6 +500,8 @@ public:
 	//Destructor
 	~phi0_lead(){};
 
+    std::string to_json(){return format("{\n  \"type\" : \"alpha0_lead\"\n  \"a1\" : %0.14g,\n  \"a2\" : %0.14g\n}",c1,c2);};
+
 	// Term and its derivatives
 	double base(double tau, double delta){return log(delta)+c1+c2*tau;};
 	double dTau(double tau, double delta){return c2;};
@@ -551,6 +531,8 @@ public:
 
 	//Destructor
 	~phi0_enthalpy_entropy_offset(){};
+
+    std::string to_json(){return format("{\n  \"type\" : \"alpha0_enthalpy_entropy_offset\"\n  \"a1\" : %0.14g,\n  \"a2\" : %0.14g\n}",c1,c2);};
 
 	// Term and its derivatives
 	double base(double tau, double delta){return c1+c2*tau;};
@@ -585,6 +567,8 @@ public:
 
 	//Destructor
 	~phi0_logtau(){};
+
+    std::string to_json(){return format("{\n  \"type\" : \"alpha0_logtau\"\n  \"a1\" : %0.14g\n}",c1);};
 
 	// Term and its derivatives
 	double base(double tau, double delta){return c1*log(tau);};
@@ -638,6 +622,8 @@ public:
 	//Destructor
 	~phi0_Planck_Einstein(){};
 
+    std::string to_json();
+
 	// Term and its derivatives
 	double base(double tau, double delta);
 	double dTau(double tau, double delta);
@@ -662,16 +648,18 @@ private:
 	int iStart, iEnd;
 public:
 	// Constructor
-	phi0_Planck_Einstein2(double a_in, double theta_in, double c_in)
+	phi0_Planck_Einstein2(double a, double theta, double c)
 	{
-		a=std::vector<double> (1,a_in); 
-		theta=std::vector<double> (1,theta_in); 
-		c=std::vector<double> (1,c_in); 
+		this->a=std::vector<double> (1,a); 
+		this->theta=std::vector<double> (1,theta); 
+		this->c=std::vector<double> (1,c); 
 		iStart = 0; iEnd = 0;
 	};
 
 	//Destructor
 	~phi0_Planck_Einstein2(){};
+
+    std::string to_json();
 
 	// Term and its derivatives
 	double base(double tau, double delta);
@@ -686,57 +674,59 @@ public:
 	double dDelta3(double tau, double delta){return 0.0;};
 };
 
-class phi0_Planck_Einstein3 : public phi_BC{
-	/*
-	Term is of the form a_0*log(exp(theta*tau)-1)
-	Constructors: 
-		phi0_Planck_Einstein(std::vector<double> a_in, std::vector<double> theta_in, int iStart_in, int iEnd_in)
-		phi0_Planck_Einstein(double a_in, double theta_in)
-	*/
-private:
-	std::vector<double> a,theta; // Use these variables internally
-	int iStart, iEnd;
-public:
-	// Constructor with std::vector instances
-	phi0_Planck_Einstein3(std::vector<double> a_in, std::vector<double> theta_in, int iStart_in, int iEnd_in)
-	{
-		a=a_in; theta=theta_in; iStart = iStart_in; iEnd = iEnd_in;
-	};
-	phi0_Planck_Einstein3(double a_in[], double theta_in[], int iStart_in, int iEnd_in, int N)
-	{
-		a=std::vector<double>(a_in,a_in+N);
-		theta=std::vector<double>(theta_in,theta_in+N);
-		iStart = iStart_in; iEnd = iEnd_in;
-	};
-	phi0_Planck_Einstein3(const double a_in[], const double theta_in[], int iStart_in, int iEnd_in, int N)
-	{
-		a=std::vector<double>(a_in,a_in+N);
-		theta=std::vector<double>(theta_in,theta_in+N);
-		iStart = iStart_in; iEnd = iEnd_in;
-	};
-	// Constructor with doubles
-	phi0_Planck_Einstein3(double a_in, double theta_in)
-	{
-		a=std::vector<double> (1,a_in); 
-		theta=std::vector<double> (1,theta_in); 
-		iStart = 0; iEnd = 0;
-	};
-
-	//Destructor
-	~phi0_Planck_Einstein3(){};
-
-	// Term and its derivatives
-	double base(double tau, double delta);
-	double dTau(double tau, double delta);
-	double dTau2(double tau, double delta);
-	double dTau3(double tau, double delta);
-	double dDelta(double tau, double delta){return 0.0;};
-	double dDelta2(double tau, double delta){return 0.0;};
-	double dDelta2_dTau(double tau, double delta){return 0.0;};
-	double dDelta_dTau(double tau, double delta){return 0.0;};
-	double dDelta_dTau2(double tau, double delta){return 0.0;};
-	double dDelta3(double tau, double delta){return 0;};
-};
+//class phi0_Planck_Einstein3 : public phi_BC{
+//	/*
+//	Term is of the form a_0*log(exp(theta*tau)-1)
+//	Constructors: 
+//		phi0_Planck_Einstein(std::vector<double> a_in, std::vector<double> theta_in, int iStart_in, int iEnd_in)
+//		phi0_Planck_Einstein(double a_in, double theta_in)
+//	*/
+//private:
+//	std::vector<double> a,theta; // Use these variables internally
+//	int iStart, iEnd;
+//public:
+//	// Constructor with std::vector instances
+//	phi0_Planck_Einstein3(std::vector<double> a_in, std::vector<double> theta_in, int iStart_in, int iEnd_in)
+//	{
+//		a=a_in; theta=theta_in; iStart = iStart_in; iEnd = iEnd_in;
+//	};
+//	phi0_Planck_Einstein3(double a_in[], double theta_in[], int iStart_in, int iEnd_in, int N)
+//	{
+//		a=std::vector<double>(a_in,a_in+N);
+//		theta=std::vector<double>(theta_in,theta_in+N);
+//		iStart = iStart_in; iEnd = iEnd_in;
+//	};
+//	phi0_Planck_Einstein3(const double a_in[], const double theta_in[], int iStart_in, int iEnd_in, int N)
+//	{
+//		a=std::vector<double>(a_in,a_in+N);
+//		theta=std::vector<double>(theta_in,theta_in+N);
+//		iStart = iStart_in; iEnd = iEnd_in;
+//	};
+//	// Constructor with doubles
+//	phi0_Planck_Einstein3(double a_in, double theta_in)
+//	{
+//		a=std::vector<double> (1,a_in); 
+//		theta=std::vector<double> (1,theta_in); 
+//		iStart = 0; iEnd = 0;
+//	};
+//
+//	//Destructor
+//	~phi0_Planck_Einstein3(){};
+//
+//    //std::string to_json();
+//
+//	// Term and its derivatives
+//	double base(double tau, double delta);
+//	double dTau(double tau, double delta);
+//	double dTau2(double tau, double delta);
+//	double dTau3(double tau, double delta);
+//	double dDelta(double tau, double delta){return 0.0;};
+//	double dDelta2(double tau, double delta){return 0.0;};
+//	double dDelta2_dTau(double tau, double delta){return 0.0;};
+//	double dDelta_dTau(double tau, double delta){return 0.0;};
+//	double dDelta_dTau2(double tau, double delta){return 0.0;};
+//	double dDelta3(double tau, double delta){return 0;};
+//};
 
 /*
 Term is of the form a*tau^b
@@ -783,6 +773,25 @@ public:
 	//Destructor
 	~phi0_power(){};
 
+    std::string to_json()
+    {
+        std::string _a, _b;
+        for (int i=iStart;i<=iEnd;i++)
+	    {
+            if (i == iStart)
+            {
+                _a += format("%0.16g",a[i]);
+                _b += format("%0.16g",b[i]);
+            }
+            else
+            {
+                _a += format(", %0.16g",a[i]);
+                _b += format(", %0.16g",b[i]);
+            }
+	    }
+        return  "{\n  \"type\" : \"alpha0_power\",\n  \"a\" : ["+_a+"],\n  \"b\" : ["+_b+"]\n}";
+    };
+
 	// Term and its derivatives
 	double base(double tau, double delta)
 	{
@@ -825,8 +834,6 @@ public:
 	double dDelta3(double tau, double delta){return 0.0;};
 };
 
-
-
 /// Term in the ideal-gas specific heat equation that is constant
 class phi0_cp0_constant : public phi_BC{
 	/*
@@ -848,10 +855,12 @@ private:
 public:
 
 	/// Constructor with just a single double value
-	phi0_cp0_constant(double c_, double Tc_, double T0_) { c=c_; T0=T0_; Tc=Tc_; tau0=Tc/T0;};
+	phi0_cp0_constant(double c, double Tc, double T0) { this->c=c; this->T0=T0; this->Tc=Tc; this->tau0=Tc/T0;};
 
 	/// Destructor
 	~phi0_cp0_constant(){};
+
+    std::string to_json(){return format("{\n  \"type\" : \"phi0_cp0_constant\"\n  \"c\" : %0.14g,\n  \"Tc\" : %g,\n  \"T0\" : %g\n}",c,Tc,T0);};
 
 	// Term and its derivatives
 	double base(double tau, double delta){ 
@@ -930,6 +939,8 @@ public:
 	/// Destructor
 	~phi0_cp0_poly(){};
 
+    std::string to_json();
+
 	// Term and its derivatives
 	double base(double tau, double delta){ 
 		double sum=0;
@@ -978,6 +989,9 @@ public:
 
 	/// Destructor
 	~phi0_cp0_AlyLee(){};
+
+    std::string to_json();
+
 	double base(double tau, double delta);
 	double dTau(double tau, double delta);
 	double dTau2(double tau, double delta);
