@@ -166,28 +166,21 @@ double phir_power::dTau3(double tau, double delta) throw()
 	}
 	return summer;
 }
-std::string phir_power::to_json()
+void phir_power::to_json(rapidjson::Value &el, rapidjson::Document &doc)
 {
-    std::string _n,_d,_t,_l;
+    el.AddMember("type","alphar_power",doc.GetAllocator());
+    rapidjson::Value _n(rapidjson::kArrayType), _d(rapidjson::kArrayType), _t(rapidjson::kArrayType), _l(rapidjson::kArrayType);
     for (unsigned int i=iStart;i<=iEnd;i++)
 	{
-        if (i == iStart)
-        {
-            _n += format("%0.16g",n[i]);
-            _d += format("%g",d[i]);
-            _t += format("%0.4g",t[i]);
-            _l += format("%g",l[i]);
-        }
-        else
-        {
-            _n += format(", %0.16g",n[i]);
-            _d += format(", %g",d[i]);
-            _t += format(", %0.4g",t[i]);
-            _l += format(", %g",l[i]);
-        }
+        _n.PushBack(n[i],doc.GetAllocator());
+        _d.PushBack(d[i],doc.GetAllocator());
+        _t.PushBack(t[i],doc.GetAllocator());
+        _l.PushBack(l[i],doc.GetAllocator());
 	}
-    std::string s = "{\n  \"type\" : \"alphar_power\",\n  \"n\" : ["+_n+"],\n  \"d\" : ["+_d+"],\n  \"t\" : ["+_t+"],\n  \"l\" : ["+_l+"]\n}";
-    return s;
+    el.AddMember("n",_n,doc.GetAllocator());
+    el.AddMember("d",_d,doc.GetAllocator());
+    el.AddMember("t",_t,doc.GetAllocator());
+    el.AddMember("l",_l,doc.GetAllocator());
 }
 double phir_power::dDelta_dTau2(double tau, double delta) throw()
 {
@@ -398,30 +391,23 @@ TEST_CASE("Power Helmholtz terms", "[helmholtz],[fast]")
 }
 #endif
 
-std::string phir_exponential::to_json()
+void phir_exponential::to_json(rapidjson::Value &el, rapidjson::Document &doc)
 {
-    std::string _n,_d,_t,_l,_g;
+    el.AddMember("type","alphar_exponential",doc.GetAllocator());
+    rapidjson::Value _n(rapidjson::kArrayType), _d(rapidjson::kArrayType), _t(rapidjson::kArrayType), _l(rapidjson::kArrayType), _g(rapidjson::kArrayType);
     for (unsigned int i=iStart;i<=iEnd;i++)
 	{
-        if (i == iStart)
-        {
-            _n += format("%0.16g",n[i]);
-            _d += format("%g",d[i]);
-            _t += format("%0.4g",t[i]);
-            _l += format("%g",l[i]);
-            _g += format("%g",g[i]);
-        }
-        else
-        {
-            _n += format(", %0.16g",n[i]);
-            _d += format(", %g",d[i]);
-            _t += format(", %0.4g",t[i]);
-            _l += format(", %g",l[i]);
-            _g += format(", %g",g[i]);
-        }
+        _n.PushBack(n[i],doc.GetAllocator());
+        _d.PushBack(d[i],doc.GetAllocator());
+        _t.PushBack(t[i],doc.GetAllocator());
+        _l.PushBack(l[i],doc.GetAllocator());
+        _g.PushBack(g[i],doc.GetAllocator());
 	}
-    std::string s = "{\n  \"type\" : \"alphar_exponential\",\n  \"n\" : ["+_n+"],\n  \"d\" : ["+_d+"],\n  \"t\" : ["+_t+"],\n  \"l\" : ["+_l+"],\n  \"g\" : ["+_g+"]\n}";
-    return s;
+    el.AddMember("n",_n,doc.GetAllocator());
+    el.AddMember("d",_d,doc.GetAllocator());
+    el.AddMember("t",_t,doc.GetAllocator());
+    el.AddMember("l",_l,doc.GetAllocator());
+    el.AddMember("g",_g,doc.GetAllocator());
 }
 
 // Constructors
@@ -564,31 +550,25 @@ double phir_exponential::dDelta_dTau(double tau, double delta) throw()
 	return summer;
 }
 
-std::string phir_Lemmon2005::to_json()
+void phir_Lemmon2005::to_json(rapidjson::Value &el, rapidjson::Document &doc)
 {
-    std::string _n,_d,_t,_l,_m;
+    el.AddMember("type","alphar_Lemmon2005",doc.GetAllocator());
+    rapidjson::Value _n(rapidjson::kArrayType), _d(rapidjson::kArrayType), _t(rapidjson::kArrayType), _l(rapidjson::kArrayType), _m(rapidjson::kArrayType);
     for (unsigned int i=iStart;i<=iEnd;i++)
 	{
-        if (i == iStart)
-        {
-            _n += format("%0.16g",n[i]);
-            _d += format("%g",d[i]);
-            _t += format("%0.4g",t[i]);
-            _l += format("%g",l[i]);
-            _m += format("%g",m[i]);
-        }
-        else
-        {
-            _n += format(", %0.16g",n[i]);
-            _d += format(", %g",d[i]);
-            _t += format(", %0.4g",t[i]);
-            _l += format(", %g",l[i]);
-            _m += format(", %g",m[i]);
-        }
+        _n.PushBack(n[i],doc.GetAllocator());
+        _d.PushBack(d[i],doc.GetAllocator());
+        _t.PushBack(t[i],doc.GetAllocator());
+        _l.PushBack(l[i],doc.GetAllocator());
+        _m.PushBack(m[i],doc.GetAllocator());
 	}
-    std::string s = "{\n  \"type\" : \"alphar_Lemmon2005\",\n  \"n\" : ["+_n+"],\n  \"d\" : ["+_d+"],\n  \"t\" : ["+_t+"],\n  \"l\" : ["+_l+"],\n  \"m\" : ["+_m+"]\n}";
-    return s;
+    el.AddMember("n",_n,doc.GetAllocator());
+    el.AddMember("d",_d,doc.GetAllocator());
+    el.AddMember("t",_t,doc.GetAllocator());
+    el.AddMember("l",_l,doc.GetAllocator());
+    el.AddMember("m",_m,doc.GetAllocator());
 }
+
 // Constructors
 phir_Lemmon2005::phir_Lemmon2005(std::vector<double> n,std::vector<double> d,std::vector<double> t, std::vector<double> l, std::vector< double> m, int iStart_in,int iEnd_in)
 {
@@ -885,36 +865,29 @@ phir_gaussian::phir_gaussian(const double n_in[], const double d_in[], const dou
 	iEnd=iEnd_in;
 }
 
-std::string phir_gaussian::to_json()
+void phir_gaussian::to_json(rapidjson::Value &el, rapidjson::Document &doc)
 {
-    std::string _n,_d,_t,_alpha,_epsilon,_beta,_gamma;
+    el.AddMember("type","alphar_gaussian",doc.GetAllocator());
+    rapidjson::Value _n(rapidjson::kArrayType), _d(rapidjson::kArrayType), _t(rapidjson::kArrayType), 
+        _alpha(rapidjson::kArrayType), _epsilon(rapidjson::kArrayType), _beta(rapidjson::kArrayType), _gamma(rapidjson::kArrayType);
     for (unsigned int i=iStart;i<=iEnd;i++)
 	{
-        if (i == iStart)
-        {
-            _n += format("%0.16g",n[i]);
-            _d += format("%g",d[i]);
-            _t += format("%0.4g",t[i]);
-            _alpha += format("%g",alpha[i]);
-            _epsilon += format("%g",epsilon[i]);
-            _beta += format("%g",beta[i]);
-            _gamma += format("%g",gamma[i]);
-        }
-        else
-        {
-            _n += format(", %0.16g",n[i]);
-            _d += format(", %g",d[i]);
-            _t += format(", %0.4g",t[i]);
-            _alpha += format(", %g",alpha[i]);
-            _epsilon += format(", %g",epsilon[i]);
-            _beta += format(", %g",beta[i]);
-            _gamma += format(", %g",gamma[i]);
-        }
+        _n.PushBack(n[i],doc.GetAllocator());
+        _d.PushBack(d[i],doc.GetAllocator());
+        _t.PushBack(t[i],doc.GetAllocator());
+        _alpha.PushBack(alpha[i],doc.GetAllocator());
+        _epsilon.PushBack(epsilon[i],doc.GetAllocator());
+        _beta.PushBack(beta[i],doc.GetAllocator());
+        _gamma.PushBack(gamma[i],doc.GetAllocator());
 	}
-    std::string s = "{\n  \"type\" : \"alphar_gaussian\",\n  \"n\" : ["+_n+"],\n  \"d\" : ["+_d+"],\n  \"t\" : ["+_t+"],\n  \"alpha\" : ["+_alpha+"],\n  \"epsilon\" : ["+_epsilon+"],\n  \"beta\" : ["+_beta+"],\n  \"gamma\" : ["+_gamma+"]\n}";
-    return s;
+    el.AddMember("n",_n,doc.GetAllocator());
+    el.AddMember("d",_d,doc.GetAllocator());
+    el.AddMember("t",_t,doc.GetAllocator());
+    el.AddMember("alpha",_alpha,doc.GetAllocator());
+    el.AddMember("epsilon",_epsilon,doc.GetAllocator());
+    el.AddMember("beta",_beta,doc.GetAllocator());
+    el.AddMember("gamma",_gamma,doc.GetAllocator());
 }
-
 
 // Term and its derivatives
 double phir_gaussian::base(double tau, double delta) throw()
@@ -1039,34 +1012,28 @@ phir_GERG2008_gaussian::phir_GERG2008_gaussian(std::vector<double> n_in, std::ve
 	iEnd=iEnd_in;
 }
 
-std::string phir_GERG2008_gaussian::to_json()
+void phir_GERG2008_gaussian::to_json(rapidjson::Value &el, rapidjson::Document &doc)
 {
-    std::string _n,_d,_t,_alpha,_epsilon,_beta,_gamma;
+    el.AddMember("type","alphar_GERG2008_gaussian",doc.GetAllocator());
+    rapidjson::Value _n(rapidjson::kArrayType), _d(rapidjson::kArrayType), _t(rapidjson::kArrayType), 
+        _eta(rapidjson::kArrayType), _epsilon(rapidjson::kArrayType), _beta(rapidjson::kArrayType), _gamma(rapidjson::kArrayType);
     for (unsigned int i=iStart;i<=iEnd;i++)
 	{
-        if (i == iStart)
-        {
-            _n += format("%0.16g",n[i]);
-            _d += format("%g",d[i]);
-            _t += format("%0.4g",t[i]);
-            _alpha += format("%g",eta[i]);
-            _epsilon += format("%g",epsilon[i]);
-            _beta += format("%g",beta[i]);
-            _gamma += format("%g",gamma[i]);
-        }
-        else
-        {
-            _n += format(", %0.16g",n[i]);
-            _d += format(", %g",d[i]);
-            _t += format(", %0.4g",t[i]);
-            _alpha += format(", %g",eta[i]);
-            _epsilon += format(", %g",epsilon[i]);
-            _beta += format(", %g",beta[i]);
-            _gamma += format(", %g",gamma[i]);
-        }
+        _n.PushBack(n[i],doc.GetAllocator());
+        _d.PushBack(d[i],doc.GetAllocator());
+        _t.PushBack(t[i],doc.GetAllocator());
+        _eta.PushBack(eta[i],doc.GetAllocator());
+        _epsilon.PushBack(epsilon[i],doc.GetAllocator());
+        _beta.PushBack(beta[i],doc.GetAllocator());
+        _gamma.PushBack(gamma[i],doc.GetAllocator());
 	}
-    std::string s = "{\n  \"type\" : \"alphar_GERG2008_gaussian\"\n  \"n\" : ["+_n+"],\n  \"d\" : ["+_d+"],\n  \"t\" : ["+_t+"],\n  \"alpha\" : ["+_alpha+"],\n  \"epsilon\" : ["+_epsilon+"],\n  \"beta\" : ["+_beta+"],\n  \"gamma\" : ["+_gamma+"]\n}";
-    return s;
+    el.AddMember("n",_n,doc.GetAllocator());
+    el.AddMember("d",_d,doc.GetAllocator());
+    el.AddMember("t",_t,doc.GetAllocator());
+    el.AddMember("eta",_eta,doc.GetAllocator());
+    el.AddMember("epsilon",_epsilon,doc.GetAllocator());
+    el.AddMember("beta",_beta,doc.GetAllocator());
+    el.AddMember("gamma",_gamma,doc.GetAllocator());
 }
 
 phir_GERG2008_gaussian::phir_GERG2008_gaussian(double n_in[], double d_in[],double t_in[], double eta_in[], 
@@ -1184,36 +1151,31 @@ phir_critical::phir_critical(double n[], double d[], double t[],
 	this->iEnd=iEnd;
 }
 
-std::string phir_critical::to_json()
+void phir_critical::to_json(rapidjson::Value &el, rapidjson::Document &doc)
 {
-    std::string _n,_d,_t,_a,_b,_beta,_A,_B,_C,_D;
-    for (int i=iStart;i<=iEnd;i++)
+    el.AddMember("type","alphar_critical",doc.GetAllocator());
+
+    rapidjson::Value _n(rapidjson::kArrayType), _a(rapidjson::kArrayType), _b(rapidjson::kArrayType), 
+        _beta(rapidjson::kArrayType), _A(rapidjson::kArrayType), _B(rapidjson::kArrayType), _C(rapidjson::kArrayType), _D(rapidjson::kArrayType);
+    for (unsigned int i=iStart;i<=iEnd;i++)
 	{
-        if (i == iStart)
-        {
-            _n += format("%0.16g",n[i]);
-            _a += format("%g",a[i]);
-            _b += format("%g",b[i]);
-            _beta += format("%g",beta[i]);
-            _A += format("%g",A[i]);
-            _B += format("%g",B[i]);
-            _C += format("%g",C[i]);
-            _D += format("%g",D[i]);
-        }
-        else
-        {
-            _n += format(", %0.16g",n[i]);
-            _a += format(", %g",a[i]);
-            _b += format(", %g",b[i]);
-            _beta += format(", %g",beta[i]);
-            _A += format(", %g",A[i]);
-            _B += format(", %g",B[i]);
-            _C += format(", %g",C[i]);
-            _D += format(", %g",D[i]);
-        }
+        _n.PushBack(n[i],doc.GetAllocator());
+        _a.PushBack(a[i],doc.GetAllocator());
+        _b.PushBack(b[i],doc.GetAllocator());
+        _beta.PushBack(beta[i],doc.GetAllocator());
+        _A.PushBack(A[i],doc.GetAllocator());
+        _B.PushBack(B[i],doc.GetAllocator());
+        _C.PushBack(C[i],doc.GetAllocator());
+        _D.PushBack(D[i],doc.GetAllocator());
 	}
-    std::string s = "{\n  \"type\" : \"alphar_critical\",\n  \"n\" : ["+_n+"],\n  \"a\" : ["+_a+"],\n  \"b\" : ["+_b+"],\n  \"beta\" : ["+_beta+"],\n  \"A\" : ["+_A+"],\n  \"B\" : ["+_B+"],\n  \"C\" : ["+_C+"],\n  \"D\" : ["+_D+"]\n}";
-    return s;
+    el.AddMember("n",_n,doc.GetAllocator());
+    el.AddMember("a",_a,doc.GetAllocator());
+    el.AddMember("b",_b,doc.GetAllocator());
+    el.AddMember("beta",_beta,doc.GetAllocator());
+    el.AddMember("A",_A,doc.GetAllocator());
+    el.AddMember("B",_B,doc.GetAllocator());
+    el.AddMember("C",_C,doc.GetAllocator());
+    el.AddMember("D",_D,doc.GetAllocator());
 }
 
 double phir_critical::base(double tau, double delta) throw()
@@ -1526,6 +1488,15 @@ TEST_CASE((char*)"Non-analytic critical point Helmholtz derivative check", (char
 }
 #endif
 
+void phir_SAFT_associating::to_json(rapidjson::Value &el, rapidjson::Document &doc)
+{
+    el.AddMember("type","phir_SAFT_associating",doc.GetAllocator());
+    el.AddMember("a",a,doc.GetAllocator());
+    el.AddMember("m",m,doc.GetAllocator());
+    el.AddMember("epsilonbar",epsilonbar,doc.GetAllocator());
+    el.AddMember("vbarn",vbarn,doc.GetAllocator());
+    el.AddMember("kappabar",kappabar,doc.GetAllocator());
+}
 std::string phir_SAFT_associating::to_json()
 {
     return format("{\n  \"a\" : %0.15g,\n  \"m\" : %0.15g,\n  \"epsilonbar\" : %0.15g,\n  \"vbarn\" : %0.15g,\n  \"kappabar\" : %0.15g}",a,m,epsilonbar, vbarn, kappabar);
@@ -1883,24 +1854,17 @@ TEST_CASE("SAFT Helmholtz derivative check", "[helmholtz],[fast]")
 }
 #endif
 
-std::string phi0_Planck_Einstein::to_json()
+void phi0_Planck_Einstein::to_json(rapidjson::Value &el, rapidjson::Document &doc)
 {
-    std::string _n,_t;
+    el.AddMember("type","alpha0_Planck_Einstein",doc.GetAllocator());
+    rapidjson::Value _n(rapidjson::kArrayType),_t(rapidjson::kArrayType);
     for (int i=iStart;i<=iEnd;i++)
 	{
-        if (i == iStart)
-        {
-            _n += format("%0.16g",a[i]);
-            _t += format("%0.16g",theta[i]);
-        }
-        else
-        {
-            _n += format(", %0.16g",a[i]);
-            _t += format(", %0.16g",theta[i]);
-        }
+        _n.PushBack(a[i],doc.GetAllocator());
+        _t.PushBack(theta[i],doc.GetAllocator());
 	}
-    std::string s = "{\n  \"type\" : \"alpha0_Planck_Einstein\",\n  \"n\" : ["+_n+"],\n  \"t\" : ["+_t+"]\n}";
-    return s;
+    el.AddMember("n",_n,doc.GetAllocator());
+    el.AddMember("t",_t,doc.GetAllocator());
 }
 
 double phi0_Planck_Einstein::base(double tau, double delta)
@@ -1941,26 +1905,21 @@ double phi0_Planck_Einstein::dTau3(double tau, double delta)
 }
 
 
-std::string phi0_Planck_Einstein2::to_json()
+void phi0_Planck_Einstein2::to_json(rapidjson::Value &el, rapidjson::Document &doc)
 {
-    std::string _n,_c,_t;
+    el.AddMember("type","alpha0_Planck_Einstein2",doc.GetAllocator());
+    rapidjson::Value _n(rapidjson::kArrayType),_t(rapidjson::kArrayType),_c(rapidjson::kArrayType);
     for (int i=iStart;i<=iEnd;i++)
 	{
-        if (i == iStart)
-        {
-            _n += format("%0.16g", a[i]);
-            _c += format("%0.16g", c[i]);
-            _t += format("%0.16g", theta[i]);
-        }
-        else
-        {
-            _n += format(", %0.16g", a[i]);
-            _c += format(", %0.16g", c[i]);
-            _t += format(", %0.16g", theta[i]);
-        }
+        _n.PushBack(a[i],doc.GetAllocator());
+        _c.PushBack(c[i],doc.GetAllocator());
+        _t.PushBack(theta[i],doc.GetAllocator());
 	}
-    return "{\n  \"type\" : \"alpha0_Planck_Einstein2\",\n  \"n\" : ["+_n+"],  \"c\" : ["+_c+"],\n  \"t\" : ["+_t+"]\n}";
+    el.AddMember("n",_n,doc.GetAllocator());
+    el.AddMember("c",_c,doc.GetAllocator());
+    el.AddMember("t",_t,doc.GetAllocator());
 }
+
 /*
 Maxima code for the term:
 
@@ -2010,21 +1969,18 @@ double phi0_Planck_Einstein2::dTau3(double tau, double delta)
 	return summer;
 }
 
-std::string phi0_cp0_AlyLee::to_json(){
-    std::string _n;
+void phi0_cp0_AlyLee::to_json(rapidjson::Value &el, rapidjson::Document &doc){
+    el.AddMember("type","alpha0_cp0_AlyLee",doc.GetAllocator());
+    rapidjson::Value _n(rapidjson::kArrayType);
     for (int i=1;i<=5;i++)
 	{
-        if (i == 1)
-        {
-            _n += format("%0.16g", a[i]);
-        }
-        else
-        {
-            _n += format(", %0.16g", a[i]);
-        }
+        _n.PushBack(a[i],doc.GetAllocator());
 	}
-    return format("{\n  \"type\" : \"phi0_cp0_AlyLee\",\n  \"n\" : [%s],\n  \"Tc\" : %g,\n  \"T0\" : %g,\n  \"R_u\" : %0.6g\n}",_n.c_str(),Tc,T0,R_u);
-};
+    el.AddMember("n",_n,doc.GetAllocator());
+    el.AddMember("Tc",Tc,doc.GetAllocator());
+    el.AddMember("T0",T0,doc.GetAllocator());
+    el.AddMember("R_u",R_u,doc.GetAllocator());
+}
 /*
 Maxima code for the sinh term:
 part a)
@@ -2094,25 +2050,21 @@ double phi0_cp0_AlyLee::dTau3(double tau, double delta)
 	return 2*a[1]/tau/tau/tau/R_u     -a[2]/R_u*(-2)*pow(a[3]/Tc,3)*cosh(a[3]*tau/Tc)/pow(sinh(a[3]*tau/Tc),3)      -a[4]/R_u*(-2)*pow(a[5]/Tc,3)*sinh(a[5]*tau/Tc)/pow(cosh(a[5]*tau/Tc),3);
 }
 
-std::string phi0_cp0_poly::to_json()
+
+void phi0_cp0_poly::to_json(rapidjson::Value &el, rapidjson::Document &doc)
 {
-    std::string _a,_t,_T0,_Tc;
+    el.AddMember("type","alpha0_cp0_poly", doc.GetAllocator());
+
+    rapidjson::Value _a(rapidjson::kArrayType), _t(rapidjson::kArrayType);
     for (int i=iStart;i<=iEnd;i++)
 	{
-        if (i == iStart)
-        {
-            _a += format("%0.16g", a[i]);
-            _t += format("%0.16g", tv[i]);
-        }
-        else
-        {
-            _a += format(", %0.16g", a[i]);
-            _t += format(", %0.16g", tv[i]);
-        }
+        _a.PushBack(a[i],doc.GetAllocator());
+        _t.PushBack(tv[i],doc.GetAllocator());
 	}
-    _T0 = format("%0.6g",T0);
-    _Tc = format("%0.6g",Tc);
-    return "{\n  \"type\" : \"alpha0_cp0_poly\",\n  \"a\" : ["+_a+"],\n  \"t\" : ["+_t+"],\n  \"T0\" : "+_T0+",\n  \"Tc\" : "+_Tc+"\n}";
+    el.AddMember("n",_a,doc.GetAllocator());
+    el.AddMember("t",_t,doc.GetAllocator());
+    el.AddMember("Tc",Tc,doc.GetAllocator());
+    el.AddMember("T0",T0,doc.GetAllocator());
 }
 
 double phi0_cp0_poly::dTau(double tau, double delta)

@@ -6,6 +6,7 @@
 #include "math.h"
 #include "CoolPropTools.h"
 #include "CPExceptions.h"
+#include "rapidjson_CoolProp.h"
 
 #ifdef __ISWINDOWS__
 	#define _USE_MATH_DEFINES
@@ -66,7 +67,7 @@ public:
 	/// @param delta Reduced pressure where delta = rho / rhoc 
 	virtual double dDelta3(double tau, double delta) = 0;
 
-    virtual std::string to_json() = 0;
+    virtual void to_json(rapidjson::Value &el, rapidjson::Document &doc) = 0;
 };
 
 /// Check the derivatives for a Helmholtz energy term
@@ -116,7 +117,7 @@ public:
 	///< Destructor for the phir_power class.  No implementation
 	~phir_power(){};
 
-    std::string to_json();
+    void to_json(rapidjson::Value &el, rapidjson::Document &doc);
 
 	double base(double tau, double delta) throw();
 	double dDelta(double tau, double delta) throw();
@@ -172,7 +173,7 @@ public:
 	///< Destructor for the phir_power class.  No implementation
 	~phir_exponential(){};
 
-    std::string to_json();
+    void to_json(rapidjson::Value &el, rapidjson::Document &doc);
 
 	double base(double tau, double delta) throw();
 	double dDelta(double tau, double delta) throw();
@@ -232,7 +233,7 @@ public:
 	// Destructor
 	~phir_gaussian(){};
 
-    std::string to_json();
+    void to_json(rapidjson::Value &el, rapidjson::Document &doc);
 
 	// Term and its derivatives
 	double base(double tau, double delta) throw();
@@ -287,7 +288,7 @@ public:
 	// Destructor
 	~phir_GERG2008_gaussian(){};
 
-    std::string to_json();
+    void to_json(rapidjson::Value &el, rapidjson::Document &doc);
 
 	// Term and its derivatives
 	double base(double tau, double delta);
@@ -327,7 +328,7 @@ public:
 				  double A[], double B[], double C[], 
 				  double D[], int iStart, int iEnd, int N);
 
-    std::string to_json();
+    void to_json(rapidjson::Value &el, rapidjson::Document &doc);
 
 	//Destructor
 	~phir_critical(){};
@@ -382,7 +383,7 @@ public:
 	///< Destructor for the phir_Lemmon2005 class.  No implementation
 	~phir_Lemmon2005(){};
 
-    std::string to_json();
+    void to_json(rapidjson::Value &el, rapidjson::Document &doc);
 
 	double base(double tau, double delta) throw();
 	double dDelta(double tau, double delta) throw();
@@ -408,6 +409,8 @@ public:
 
 	//Destructor
 	~phir_SAFT_associating(){};
+
+    void to_json(rapidjson::Value &el, rapidjson::Document &doc);
 
     std::string to_json();
 
@@ -500,7 +503,11 @@ public:
 	//Destructor
 	~phi0_lead(){};
 
-    std::string to_json(){return format("{\n  \"type\" : \"alpha0_lead\",\n  \"a1\" : %0.14g,\n  \"a2\" : %0.14g\n}",c1,c2);};
+    void to_json(rapidjson::Value &el, rapidjson::Document &doc){
+        el.AddMember("type","alpha0_lead",doc.GetAllocator());
+        el.AddMember("a1",c1,doc.GetAllocator());
+        el.AddMember("a2",c2,doc.GetAllocator());
+    };
 
 	// Term and its derivatives
 	double base(double tau, double delta){return log(delta)+c1+c2*tau;};
@@ -532,7 +539,11 @@ public:
 	//Destructor
 	~phi0_enthalpy_entropy_offset(){};
 
-    std::string to_json(){return format("{\n  \"type\" : \"alpha0_enthalpy_entropy_offset\",\n  \"a1\" : %0.14g,\n  \"a2\" : %0.14g\n}",c1,c2);};
+    void to_json(rapidjson::Value &el, rapidjson::Document &doc){
+        el.AddMember("type","alpha0_enthalpy_entropy_offset",doc.GetAllocator());
+        el.AddMember("a1",c1,doc.GetAllocator());
+        el.AddMember("a2",c2,doc.GetAllocator());
+    };
 
 	// Term and its derivatives
 	double base(double tau, double delta){return c1+c2*tau;};
@@ -568,7 +579,10 @@ public:
 	//Destructor
 	~phi0_logtau(){};
 
-    std::string to_json(){return format("{\n  \"type\" : \"alpha0_logtau\",\n  \"a1\" : %0.14g\n}",c1);};
+    void to_json(rapidjson::Value &el, rapidjson::Document &doc){
+        el.AddMember("type","alpha0_logtau",doc.GetAllocator());
+        el.AddMember("a",c1,doc.GetAllocator());
+    };
 
 	// Term and its derivatives
 	double base(double tau, double delta){return c1*log(tau);};
@@ -621,8 +635,8 @@ public:
 
 	//Destructor
 	~phi0_Planck_Einstein(){};
-
-    std::string to_json();
+  
+    void to_json(rapidjson::Value &el, rapidjson::Document &doc);
 
 	// Term and its derivatives
 	double base(double tau, double delta);
@@ -659,7 +673,7 @@ public:
 	//Destructor
 	~phi0_Planck_Einstein2(){};
 
-    std::string to_json();
+    void to_json(rapidjson::Value &el, rapidjson::Document &doc);
 
 	// Term and its derivatives
 	double base(double tau, double delta);
@@ -673,60 +687,6 @@ public:
 	double dDelta_dTau2(double tau, double delta){return 0.0;};
 	double dDelta3(double tau, double delta){return 0.0;};
 };
-
-//class phi0_Planck_Einstein3 : public phi_BC{
-//	/*
-//	Term is of the form a_0*log(exp(theta*tau)-1)
-//	Constructors: 
-//		phi0_Planck_Einstein(std::vector<double> a_in, std::vector<double> theta_in, int iStart_in, int iEnd_in)
-//		phi0_Planck_Einstein(double a_in, double theta_in)
-//	*/
-//private:
-//	std::vector<double> a,theta; // Use these variables internally
-//	int iStart, iEnd;
-//public:
-//	// Constructor with std::vector instances
-//	phi0_Planck_Einstein3(std::vector<double> a_in, std::vector<double> theta_in, int iStart_in, int iEnd_in)
-//	{
-//		a=a_in; theta=theta_in; iStart = iStart_in; iEnd = iEnd_in;
-//	};
-//	phi0_Planck_Einstein3(double a_in[], double theta_in[], int iStart_in, int iEnd_in, int N)
-//	{
-//		a=std::vector<double>(a_in,a_in+N);
-//		theta=std::vector<double>(theta_in,theta_in+N);
-//		iStart = iStart_in; iEnd = iEnd_in;
-//	};
-//	phi0_Planck_Einstein3(const double a_in[], const double theta_in[], int iStart_in, int iEnd_in, int N)
-//	{
-//		a=std::vector<double>(a_in,a_in+N);
-//		theta=std::vector<double>(theta_in,theta_in+N);
-//		iStart = iStart_in; iEnd = iEnd_in;
-//	};
-//	// Constructor with doubles
-//	phi0_Planck_Einstein3(double a_in, double theta_in)
-//	{
-//		a=std::vector<double> (1,a_in); 
-//		theta=std::vector<double> (1,theta_in); 
-//		iStart = 0; iEnd = 0;
-//	};
-//
-//	//Destructor
-//	~phi0_Planck_Einstein3(){};
-//
-//    //std::string to_json();
-//
-//	// Term and its derivatives
-//	double base(double tau, double delta);
-//	double dTau(double tau, double delta);
-//	double dTau2(double tau, double delta);
-//	double dTau3(double tau, double delta);
-//	double dDelta(double tau, double delta){return 0.0;};
-//	double dDelta2(double tau, double delta){return 0.0;};
-//	double dDelta2_dTau(double tau, double delta){return 0.0;};
-//	double dDelta_dTau(double tau, double delta){return 0.0;};
-//	double dDelta_dTau2(double tau, double delta){return 0.0;};
-//	double dDelta3(double tau, double delta){return 0;};
-//};
 
 /*
 Term is of the form a*tau^b
@@ -773,23 +733,17 @@ public:
 	//Destructor
 	~phi0_power(){};
 
-    std::string to_json()
+    void to_json(rapidjson::Value &el, rapidjson::Document &doc)
     {
-        std::string _a, _b;
+        el.AddMember("type","alpha0_power",doc.GetAllocator());
+        rapidjson::Value _n(rapidjson::kArrayType),_t(rapidjson::kArrayType);
         for (int i=iStart;i<=iEnd;i++)
 	    {
-            if (i == iStart)
-            {
-                _a += format("%0.16g",a[i]);
-                _b += format("%0.16g",b[i]);
-            }
-            else
-            {
-                _a += format(", %0.16g",a[i]);
-                _b += format(", %0.16g",b[i]);
-            }
+            _n.PushBack(a[i],doc.GetAllocator());
+            _t.PushBack(b[i],doc.GetAllocator());
 	    }
-        return  "{\n  \"type\" : \"alpha0_power\",\n  \"a\" : ["+_a+"],\n  \"b\" : ["+_b+"]\n}";
+        el.AddMember("n",_n,doc.GetAllocator());
+        el.AddMember("t",_t,doc.GetAllocator());
     };
 
 	// Term and its derivatives
@@ -860,7 +814,13 @@ public:
 	/// Destructor
 	~phi0_cp0_constant(){};
 
-    std::string to_json(){return format("{\n  \"type\" : \"alpha0_cp0_constant\",\n  \"c\" : %0.14g,\n  \"Tc\" : %g,\n  \"T0\" : %g\n}",c,Tc,T0);};
+    void to_json(rapidjson::Value &el, rapidjson::Document &doc)
+    {
+        el.AddMember("type","alpha0_cp0_constant",doc.GetAllocator());
+        el.AddMember("c",c,doc.GetAllocator());
+        el.AddMember("Tc",Tc,doc.GetAllocator());
+        el.AddMember("T0",T0,doc.GetAllocator());
+    };
 
 	// Term and its derivatives
 	double base(double tau, double delta){ 
@@ -939,7 +899,7 @@ public:
 	/// Destructor
 	~phi0_cp0_poly(){};
 
-    std::string to_json();
+    void to_json(rapidjson::Value &el, rapidjson::Document &doc);
 
 	// Term and its derivatives
 	double base(double tau, double delta){ 
@@ -990,7 +950,7 @@ public:
 	/// Destructor
 	~phi0_cp0_AlyLee(){};
 
-    std::string to_json();
+    void to_json(rapidjson::Value &el, rapidjson::Document &doc);
 
 	double base(double tau, double delta);
 	double dTau(double tau, double delta);

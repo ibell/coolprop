@@ -616,6 +616,9 @@ class Fluid
 		bool build_TTSE_LUT(bool force = false);
 		/// Interpolate within the TTSE LUT
 		double interpolate_in_TTSE_LUT(long iParam, long iInput1, double Input1, long iInput2, double Input2);
+
+        /// Export this fluid as a JSON file;
+        std::string to_json();
 };
 
 	

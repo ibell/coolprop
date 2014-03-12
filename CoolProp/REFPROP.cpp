@@ -567,15 +567,15 @@ bool set_REFPROP_fluid(std::string Ref, std::vector<double> &x)
 
 		if (ierr > 0){
 			//...Call SETUP with capital letters
-			for(int j = 0; j < strlen(hrf); j++)
+			for(unsigned int j = 0; j < strlen(hrf); j++)
 			{
 				hrf[j] = toupper(hrf[j]);
 			}
-			for(int j = 0; j < strlen(hfm); j++)
+			for(unsigned int j = 0; j < strlen(hfm); j++)
 			{
 				hfm[j] = toupper(hfm[j]);
 			}
-			for(int j = 0; j < strlen(hf); j++)
+			for(unsigned int j = 0; j < strlen(hf); j++)
 			{
 				hf[j] = toupper(hf[j]);
 			}
@@ -586,15 +586,15 @@ bool set_REFPROP_fluid(std::string Ref, std::vector<double> &x)
 
 		if (ierr > 0){
 			//...Call SETUP with lower case letters
-			for(int j = 0; j < strlen(hrf); j++)
+			for(unsigned int j = 0; j < strlen(hrf); j++)
 			{
 				hrf[j] = tolower(hrf[j]);
 			}
-			for(int j = 0; j < strlen(hfm); j++)
+			for(unsigned int j = 0; j < strlen(hfm); j++)
 			{
 				hfm[j] = tolower(hfm[j]);
 			}
-			for(int j = 0; j < strlen(hf); j++)
+			for(unsigned int j = 0; j < strlen(hf); j++)
 			{
 				hf[j] = tolower(hf[j]);
 			}
