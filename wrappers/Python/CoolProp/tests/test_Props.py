@@ -13,6 +13,10 @@ def test_input_types():
 
 def check_type(fluid, Tvals):
     Props('P','T',Tvals,'Q',0,fluid)
+
+def test_iterable_inputs():
+    Props('P','T',[280,290,300],'Q',0,'R134a')
+    Props('P','Q',0,'T',[280,290,300],'R134a')
     
 class PropsFailures(unittest.TestCase):
     def testUnmatchedLengths(self):
