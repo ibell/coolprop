@@ -869,13 +869,13 @@ void phir_gaussian::to_json(rapidjson::Value &el, rapidjson::Document &doc)
 {
     el.AddMember("type","alphar_gaussian",doc.GetAllocator());
     rapidjson::Value _n(rapidjson::kArrayType), _d(rapidjson::kArrayType), _t(rapidjson::kArrayType), 
-        _alpha(rapidjson::kArrayType), _epsilon(rapidjson::kArrayType), _beta(rapidjson::kArrayType), _gamma(rapidjson::kArrayType);
+        _eta(rapidjson::kArrayType), _epsilon(rapidjson::kArrayType), _beta(rapidjson::kArrayType), _gamma(rapidjson::kArrayType);
     for (unsigned int i=iStart;i<=iEnd;i++)
 	{
         _n.PushBack(n[i],doc.GetAllocator());
         _d.PushBack(d[i],doc.GetAllocator());
         _t.PushBack(t[i],doc.GetAllocator());
-        _alpha.PushBack(alpha[i],doc.GetAllocator());
+        _eta.PushBack(alpha[i],doc.GetAllocator());
         _epsilon.PushBack(epsilon[i],doc.GetAllocator());
         _beta.PushBack(beta[i],doc.GetAllocator());
         _gamma.PushBack(gamma[i],doc.GetAllocator());
@@ -883,7 +883,7 @@ void phir_gaussian::to_json(rapidjson::Value &el, rapidjson::Document &doc)
     el.AddMember("n",_n,doc.GetAllocator());
     el.AddMember("d",_d,doc.GetAllocator());
     el.AddMember("t",_t,doc.GetAllocator());
-    el.AddMember("alpha",_alpha,doc.GetAllocator());
+    el.AddMember("eta",_eta,doc.GetAllocator());
     el.AddMember("epsilon",_epsilon,doc.GetAllocator());
     el.AddMember("beta",_beta,doc.GetAllocator());
     el.AddMember("gamma",_gamma,doc.GetAllocator());

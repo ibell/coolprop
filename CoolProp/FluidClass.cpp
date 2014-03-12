@@ -4018,6 +4018,11 @@ std::string Fluid::to_json()
     _name.SetString(get_name().c_str(),dd.GetAllocator());
     dd.AddMember("NAME", _name, dd.GetAllocator());
 
+    // CAS code
+    rapidjson::Value _cas(rapidjson::kStringType);
+    _cas.SetString(params.CAS.c_str(),dd.GetAllocator());
+    dd.AddMember("CAS", _cas, dd.GetAllocator());
+
     // Aliases
     rapidjson::Value aliases(rapidjson::kArrayType);
     std::vector<std::string> aliasesv = get_aliases();
