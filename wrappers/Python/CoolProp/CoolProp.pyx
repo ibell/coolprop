@@ -336,12 +336,12 @@ cpdef Props(in1, in2, in3 = None, in4 = None, in5 = None, in6 = None, in7 = None
         else:
             if iterable(in5) and not iterable(in3):
                 in3, in5 = in5, in3 # swap 3 and 5 so 3 is the iterable
-                in2, in4 = in4, in2 # swap their keys too
+                _in2, _in4 = _in4, _in2 # swap their keys too
             vals = []
             for _in3 in in3:
                 val = _Props(_in1, _in2, _in3, _in4, in5, _in6)
                 if not _ValidNumber(val):
-                    __Props_err2(in1,in2,_in3,in4,in5,in6,_get_global_param_string('errstring'))
+                    __Props_err2(in1,_in2,_in3,_in4,in5,in6,_get_global_param_string('errstring'))
                 vals.append(val)
             return ndarray_or_iterable(vals)
        
@@ -470,12 +470,12 @@ cpdef PropsSI(in1, in2, in3 = None, in4 = None, in5 = None, in6 = None, in7 = No
         else:
             if iterable(in5) and not iterable(in3):
                 in3, in5 = in5, in3 # swap 3 and 5 so 3 is the iterable
-                in2, in4 = in4, in2 # swap their keys too
+                _in2, _in4 = _in4, _in2 # swap their keys too
             vals = []
             for _in3 in in3:
                 val = _PropsSI(_in1, _in2, _in3, _in4, in5, _in6)
                 if not _ValidNumber(val):
-                    __PropsSI_err2(in1,in2,_in3,in4,in5,in6,_get_global_param_string('errstring'))
+                    __PropsSI_err2(in1,_in2,_in3,_in4,in5,in6,_get_global_param_string('errstring'))
                 vals.append(val)
             return ndarray_or_iterable(vals)
 
