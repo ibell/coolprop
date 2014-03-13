@@ -223,15 +223,15 @@ class BasePlot(object):
     def _draw_graph(self):
         return
 
-    def _scale_plot(self, units='kSI'):
+    def scale_plot(self, units='kSI'):
         """ Scale plot axis with units system
 
         Fluid properties are calculated in SI units for internal use. Axis ticks
         of the plot can be scaled to show data in other unit systems.
         """
 
-        xscale = CP.fromSI(self.graph_type[1], 1, 'kSI')
-        yscale = CP.fromSI(self.graph_type[0], 1, 'kSI')
+        xscale = CP.fromSI(self.graph_type[1], 1, units)
+        yscale = CP.fromSI(self.graph_type[0], 1, units)
 
         x_fmt = matplotlib.ticker.FuncFormatter(lambda x, pos: '{0:g}'.format(x*xscale))
         y_fmt = matplotlib.ticker.FuncFormatter(lambda y, pos: '{0:g}'.format(y*yscale))

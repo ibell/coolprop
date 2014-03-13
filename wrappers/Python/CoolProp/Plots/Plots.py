@@ -478,7 +478,7 @@ class PropsPlot(BasePlot):
     def _draw_graph(self):
         self.__draw_region_lines()
         self._plot_default_annotations()
-        self._scale_plot(units='kSI')
+        self.scale_plot(units='kSI')
 
     def draw_isolines(self, iso_type, iso_range, num=10, rounding=False, units='kSI'):
         # convert range to SI units for internal use
