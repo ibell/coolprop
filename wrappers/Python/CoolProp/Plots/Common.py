@@ -78,8 +78,8 @@ class BasePlot(object):
             name = 'temperature'
             min_key = 'Tmin'
 
-        fluid_min = CP.Props(self.fluid_ref, min_key)
-        fluid_crit = CP.Props(self.fluid_ref, ''.join([kind, 'crit']))
+        fluid_min = CP.PropsSI(self.fluid_ref, min_key)
+        fluid_crit = CP.PropsSI(self.fluid_ref, ''.join([kind, 'crit']))
 
         if smin is None:
             smin = fluid_min + SMALL
@@ -106,7 +106,7 @@ class BasePlot(object):
         """
         Calculates lines for constant iName (iVal) over an interval of xName
         (xVal). Returns (x[],y[]) - a tuple of arrays containing the values
-        in x and y dimensions.
+        in x and y dimensions in kSI units.
         """
         if len(prop1_vals) != len(prop2_vals):
             raise ValueError(''.join(['We need the same number of x value ',
@@ -117,10 +117,10 @@ class BasePlot(object):
 
         for i, p1_val in enumerate(prop1_vals):
             x_vals.append(prop2_vals[i])
-            y_vals.append(CP.Props(req_prop,
-                                   prop1_name, p1_val,
-                                   prop2_name, prop2_vals[i],
-                                   self.fluid_ref))
+            y_vals.append(CP.PropsSI(req_prop,
+                                     prop1_name, p1_val,
+                                     prop2_name, prop2_vals[i],
+                                     self.fluid_ref))
 
         return numpy.array([x_vals, y_vals])
 
@@ -223,6 +223,22 @@ class BasePlot(object):
     def _draw_graph(self):
         return
 
+    def _scale_plot(self, units='kSI'):
+        """ Scale plot axis with units system
+
+        Fluid properties are calculated in SI units for internal use. Axis ticks
+        of the plot can be scaled to show data in other unit systems.
+        """
+
+        xscale = CP.fromSI(self.graph_type[1], 1, 'kSI')
+        yscale = CP.fromSI(self.graph_type[0], 1, 'kSI')
+
+        x_fmt = matplotlib.ticker.FuncFormatter(lambda x, pos: '{0:g}'.format(x*xscale))
+        y_fmt = matplotlib.ticker.FuncFormatter(lambda y, pos: '{0:g}'.format(y*yscale))
+
+        self.axis.xaxis.set_major_formatter(x_fmt)
+        self.axis.yaxis.set_major_formatter(y_fmt)
+
     def title(self, title):
         self.axis.set_title(title)
 
@@ -241,7 +257,10 @@ class BasePlot(object):
         else:
             self.axis.grid(kwargs)
 
-    def set_axis_limits(self, limits):
+    def set_axis_limits(self, limits, units='kSI'):
+        # convert limits to SI units for internal use
+        limits[0:2] = CP.toSI(self.graph_type[1], limits[0:2], units)
+        limits[2:] = CP.toSI(self.graph_type[0], limits[2:], units)
         self.axis.set_xlim([limits[0], limits[1]])
         self.axis.set_ylim([limits[2], limits[3]])
 
