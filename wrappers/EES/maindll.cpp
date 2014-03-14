@@ -48,16 +48,16 @@
 
 HINSTANCE CoolPropdllInstance;
 
-typedef double (__stdcall *fp_PropsSdllTYPE)(char*, char*, double, char*, double, char*);
+typedef double (__cdecl *fp_PropsSdllTYPE)(const char*, const char*, double, const char*, double, const char*);
 fp_PropsSdllTYPE PropsSdll;
 
-typedef void (__stdcall *fp_set_debug_leveldllTYPE)(int);
+typedef void (__cdecl *fp_set_debug_leveldllTYPE)(int);
 fp_set_debug_leveldllTYPE set_debug_leveldll;
 
-typedef long (__stdcall *fp_get_global_param_stringdllTYPE)(char*, char*);
+typedef long (__cdecl *fp_get_global_param_stringdllTYPE)(const char*, char*);
 fp_get_global_param_stringdllTYPE get_global_param_stringdll;
 
-typedef long (__stdcall *fp_redirect_stdoutdllTYPE)(char*);
+typedef long (__cdecl *fp_redirect_stdoutdllTYPE)(const char*);
 fp_redirect_stdoutdllTYPE redirect_stdoutdll;
 
 static const bool EES_DEBUG = false;
@@ -202,8 +202,8 @@ extern "C"
             set_debug_leveldll(10); // Maximum debugging
         }
         
-        out = PropsSdll((char*)Outstr.c_str(),(char*)In1str.c_str(),In1,(char*)In2str.c_str(),In2,(char*)Fluidstr.c_str());
-
+        out = PropsSdll(Outstr.c_str(),In1str.c_str(),In1,In2str.c_str(),In2,Fluidstr.c_str());
+        
 		if (fabs(out)>1e90)
 		{
             char err_chars[10000];

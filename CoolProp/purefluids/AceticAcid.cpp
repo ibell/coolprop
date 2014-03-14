@@ -70,10 +70,6 @@ AceticAcidClass::AceticAcidClass()
 	BibTeXKeys.EOS = "Piazza-FPE-2011";
 	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
 
-	double Tt = params.Ttriple;
-	double Tc = crit.T;
-	double pc = crit.p.Pa;
-
 	//double w = 6.67228479e-09*Tc*Tc*Tc-7.20464352e-06*Tc*Tc+3.16947758e-03*Tc-2.88760012e-01;
 	//double q = -6.08930221451*w-5.42477887222;
 	//double pt = exp(q*(Tc/Tt-1))*pc;

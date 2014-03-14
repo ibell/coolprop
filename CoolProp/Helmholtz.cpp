@@ -1157,7 +1157,7 @@ void phir_critical::to_json(rapidjson::Value &el, rapidjson::Document &doc)
 
     rapidjson::Value _n(rapidjson::kArrayType), _a(rapidjson::kArrayType), _b(rapidjson::kArrayType), 
         _beta(rapidjson::kArrayType), _A(rapidjson::kArrayType), _B(rapidjson::kArrayType), _C(rapidjson::kArrayType), _D(rapidjson::kArrayType);
-    for (unsigned int i=iStart;i<=iEnd;i++)
+    for (int i=iStart;i<=iEnd;i++)
 	{
         _n.PushBack(n[i],doc.GetAllocator());
         _a.PushBack(a[i],doc.GetAllocator());

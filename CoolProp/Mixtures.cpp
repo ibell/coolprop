@@ -1045,7 +1045,6 @@ double Mixture::ddelta_dxj__constT_V_xi(double tau, double delta, const std::vec
 {
 	// Gernert 3.121 (Catch test provided)
 	double rhorbar = pReducing->rhorbar(x);
-	double rhobar = rhorbar*delta;
 	return -delta/rhorbar*pReducing->drhorbardxi__constxj(x,j);
 }
 double Mixture::dtau_dxj__constT_V_xi(double tau, double delta, const std::vector<double> &x, int j)
@@ -2367,7 +2366,7 @@ double SuccessiveSubstitutionVLE::call(double beta, double T, double p, const st
 		
 		change = -f/dfdT;
 
-		double Tnew_over_Told = (T + change)/T;
+		//double Tnew_over_Told = (T + change)/T;
 		T += change;
 
 		Mix->x_and_y_from_K(beta,K,z,x,y);
@@ -2432,10 +2431,10 @@ double NewtonRaphsonVLE::call(double beta, double T, double p, double rhobar_liq
 
 	//std::cout << format("NRVLE beta %g, T %g, p %g, rhobar_liq %g, rhobar_vap %g , z %s, K %s, index %d, val %g \n",beta,T,p,rhobar_liq,rhobar_vap,vec_to_string(z,"%4.3g").c_str(),vec_to_string(K,"%4.3g").c_str(),spec_index,spec_value);
 
-	double old_rhobar_liq = rhobar_liq, 
-		   old_rhobar_vap = rhobar_vap,
-		   old_T = T,
-		   old_p = p;
+	//~ double old_rhobar_liq = rhobar_liq, 
+		   //~ old_rhobar_vap = rhobar_vap,
+		   //~ old_T = T,
+		   //~ old_p = p;
 	std::vector<double> old_K = K;
 
 	this->rhobar_liq = rhobar_liq;

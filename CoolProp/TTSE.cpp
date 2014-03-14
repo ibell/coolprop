@@ -43,12 +43,14 @@
 
 std::string get_home_dir(void)
 {
-	char *home = NULL;
+	
 	// See http://stackoverflow.com/questions/2552416/how-can-i-find-the-users-home-dir-in-a-cross-platform-manner-using-c
 	#if defined(__ISLINUX__)
+        char *home = NULL;
 		home = getenv("HOME");
 		return std::string(home);
 	#elif defined(__ISAPPLE__)
+        char *home = NULL;
 		home = getenv("HOME");
 		if (home==NULL) {
 		  struct passwd* pwd = getpwuid(getuid());

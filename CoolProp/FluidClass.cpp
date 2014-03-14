@@ -1103,7 +1103,7 @@ public:
 	Fluid * pFluid;
 	double T,gL,gV,rhoL,rhoV,p;
 
-	rhosatPure_BrentrhoVResidClass(double T, Fluid *pFluid):T(T), pFluid(pFluid){
+	rhosatPure_BrentrhoVResidClass(double T, Fluid *pFluid):pFluid(pFluid),T(T) {
 		this->rhoL = pFluid->rhosatL(T);
 	};
 	double call(double rhoV){
@@ -2993,7 +2993,7 @@ private:
 	Fluid *pFluid;
 public:
 	double rhoL, rhoV, resid;
-	SaturationPressureGivenResids(Fluid *pFluid, double p) : pFluid(pFluid), p(p) {};
+	SaturationPressureGivenResids(Fluid *pFluid, double p) : p(p), pFluid(pFluid) {};
 	~SaturationPressureGivenResids(){};
 	double call(double T)
 	{
@@ -3011,7 +3011,7 @@ private:
 	Fluid *pFluid;
 public:
 	double rhoL, rhoV, resid;
-	Saturation_p_IterateSaturationT_Resids(Fluid *pFluid, double p) : pFluid(pFluid), p(p) {};
+	Saturation_p_IterateSaturationT_Resids(Fluid *pFluid, double p) : p(p), pFluid(pFluid) {};
 	~Saturation_p_IterateSaturationT_Resids(){};
 	double call(double T)
 	{
@@ -3741,9 +3741,6 @@ void AncillaryCurveClass::update(Fluid *_pFluid, std::string Output)
 int AncillaryCurveClass::build(int N)
 {
 	double T,rhoV,rhoL;
-
-	// Output values
-	long iFluid = get_Fluid_index(pFluid->get_name());
 
 	double Tmin	= pFluid->params.Ttriple+1e-6;
 	if (Tmin<pFluid->limits.Tmin)

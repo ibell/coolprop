@@ -51,8 +51,6 @@ MethanolClass::MethanolClass()
     REFPROPname.assign("METHANOL");
 
 	reduce = crit;
-	double ppp = this->pressure_Trho(crit.T,crit.rho);
-	double tr = 0;
 
 	BibTeXKeys.EOS = "Piazza-FPE-2013";
 	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
