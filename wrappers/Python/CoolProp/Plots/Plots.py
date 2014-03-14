@@ -174,7 +174,7 @@ def drawLines(Ref,lines,axis,plt_kwargs=None):
         plottedLines.extend([line])
         # Do we need to test if this is T or p?
         Tmax = min(bubble['kmax'],dew['kmax'])
-        if Tmax>CP.Props(Ref,'Tcrit')-2e-5:
+        if Tmax>CP.PropsSI(Ref,'Tcrit')-2e-5:
             axis.plot(numpy.r_[bubble['x'][-1],dew['x'][-1]],numpy.r_[bubble['y'][-1],dew['y'][-1]],**bubble['opts'])
             #axis.plot((bubble['x'][-1]+dew['x'][-1])/2.,(bubble['y'][-1]+dew['y'][-1])/2.,'o',color='Tomato')
     else:
@@ -210,39 +210,39 @@ class IsoLines(BasePlot):
         """
         # Get current axis limits, be sure to set those before drawing isolines
         # if no limits are set, use triple point and critical conditions
-        X = [CP.Props(self.graph_type[1],
-                      'T', 1.5*CP.Props(self.fluid_ref, 'Tcrit'),
-                      'P', CP.Props(self.fluid_ref, 'ptriple'),
-                      self.fluid_ref),
-             CP.Props(self.graph_type[1],
-                      'T', 1.1*CP.Props(self.fluid_ref, 'Tmin'),
-                      'P', 1.5*CP.Props(self.fluid_ref, 'pcrit'),
-                      self.fluid_ref),
-             CP.Props(self.graph_type[1],
-                      'T', 1.5*CP.Props(self.fluid_ref, 'Tcrit'),
-                      'P', 1.5*CP.Props(self.fluid_ref, 'pcrit'),
-                      self.fluid_ref),
-             CP.Props(self.graph_type[1],
-                      'T', 1.1*CP.Props(self.fluid_ref, 'Tmin'),
-                      'P', CP.Props(self.fluid_ref, 'ptriple'),
-                      self.fluid_ref)]
+        X = [CP.PropsSI(self.graph_type[1],
+                        'T', 1.5*CP.PropsSI(self.fluid_ref, 'Tcrit'),
+                        'P', CP.PropsSI(self.fluid_ref, 'ptriple'),
+                        self.fluid_ref),
+             CP.PropsSI(self.graph_type[1],
+                        'T', 1.1*CP.PropsSI(self.fluid_ref, 'Tmin'),
+                        'P', 1.5*CP.PropsSI(self.fluid_ref, 'pcrit'),
+                        self.fluid_ref),
+             CP.PropsSI(self.graph_type[1],
+                        'T', 1.5*CP.PropsSI(self.fluid_ref, 'Tcrit'),
+                        'P', 1.5*CP.PropsSI(self.fluid_ref, 'pcrit'),
+                        self.fluid_ref),
+             CP.PropsSI(self.graph_type[1],
+                        'T', 1.1*CP.PropsSI(self.fluid_ref, 'Tmin'),
+                        'P', CP.PropsSI(self.fluid_ref, 'ptriple'),
+                        self.fluid_ref)]
 
-        Y = [CP.Props(self.graph_type[0],
-                      'T', 1.5*CP.Props(self.fluid_ref, 'Tcrit'),
-                      'P', CP.Props(self.fluid_ref, 'ptriple'),
-                       self.fluid_ref),
-             CP.Props(self.graph_type[0],
-                      'T', 1.1*CP.Props(self.fluid_ref, 'Tmin') ,
-                      'P', 1.5*CP.Props(self.fluid_ref, 'pcrit'),
-                      self.fluid_ref),
-             CP.Props(self.graph_type[0],
-                      'T', 1.1*CP.Props(self.fluid_ref, 'Tcrit'),
-                      'P', 1.5*CP.Props(self.fluid_ref, 'pcrit'),
-                      self.fluid_ref),
-             CP.Props(self.graph_type[0],
-                      'T', 1.5*CP.Props(self.fluid_ref, 'Tmin') ,
-                      'P', CP.Props(self.fluid_ref, 'ptriple'),
-                      self.fluid_ref)]
+        Y = [CP.PropsSI(self.graph_type[0],
+                        'T', 1.5*CP.PropsSI(self.fluid_ref, 'Tcrit'),
+                        'P', CP.PropsSI(self.fluid_ref, 'ptriple'),
+                         self.fluid_ref),
+             CP.PropsSI(self.graph_type[0],
+                        'T', 1.1*CP.PropsSI(self.fluid_ref, 'Tmin') ,
+                        'P', 1.5*CP.PropsSI(self.fluid_ref, 'pcrit'),
+                        self.fluid_ref),
+             CP.PropsSI(self.graph_type[0],
+                        'T', 1.1*CP.PropsSI(self.fluid_ref, 'Tcrit'),
+                        'P', 1.5*CP.PropsSI(self.fluid_ref, 'pcrit'),
+                        self.fluid_ref),
+             CP.PropsSI(self.graph_type[0],
+                        'T', 1.5*CP.PropsSI(self.fluid_ref, 'Tmin') ,
+                        'P', CP.PropsSI(self.fluid_ref, 'ptriple'),
+                        self.fluid_ref)]
 
         limits = [[min(X), max(X)], [min(Y), max(Y)]]
         if not self.axis.get_autoscalex_on():
@@ -323,7 +323,7 @@ class IsoLines(BasePlot):
             #iso_range = plotRound(iso_range)
         #else:
         #    TODO: Automatic interval detection
-        #    iVal = [CP.Props(iName,'T',T_c[i],'D',rho_c[i],Ref) for i in range(len(T_c))]
+        #    iVal = [CP.PropsSI(iName,'T',T_c[i],'D',rho_c[i],Ref) for i in range(len(T_c))]
         #    iVal = patterns[iName]([numpy.min(iVal),numpy.max(iVal),num])
 
         if rounding:
@@ -478,8 +478,11 @@ class PropsPlot(BasePlot):
     def _draw_graph(self):
         self.__draw_region_lines()
         self._plot_default_annotations()
+        self.scale_plot(units='kSI')
 
-    def draw_isolines(self, iso_type, iso_range, num=10, rounding=False):
+    def draw_isolines(self, iso_type, iso_range, num=10, rounding=False, units='kSI'):
+        # convert range to SI units for internal use
+        iso_range = CP.toSI(iso_type, iso_range, units)
         iso_lines = IsoLines(self.fluid_ref,
                              self.graph_type,
                              iso_type,
