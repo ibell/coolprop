@@ -38,9 +38,9 @@ protected:
 	virtual void postStateChange(ExternalThermodynamicState *const properties);
 	
 	ExternalSaturationProperties _satPropsClose2Crit; // saturation properties close to  critical conditions
-	double _p_eps   = 1e-5; // relative tolerance margin for subcritical pressure conditions
-	double _T_eps   = 1e-5; // relative tolerance margin for supercritical temperature conditions
-	double _delta_h = 1e-2; // delta_h for one-phase/two-phase discrimination
+	double _p_eps  ; // relative tolerance margin for subcritical pressure conditions
+	double _T_eps  ; // relative tolerance margin for supercritical temperature conditions
+	double _delta_h; // delta_h for one-phase/two-phase discrimination
 
 public:
 	CoolPropSolver(const std::string &mediumName, const std::string &libraryName, const std::string &substanceName);

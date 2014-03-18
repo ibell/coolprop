@@ -25,6 +25,10 @@ CoolPropSolver::CoolPropSolver(const std::string &mediumName, const std::string 
 	extend_twophase = true;
 	twophase_derivsmoothing_xend = 0;
 	rho_smoothing_xend = 0;
+	
+	_p_eps   = 1e-5; // relative tolerance margin for subcritical pressure conditions
+	_T_eps   = 1e-5; // relative tolerance margin for supercritical temperature conditions
+	_delta_h = 1e-2; // delta_h for one-phase/two-phase discrimination
 
 	if (name_options.size()>1)
 	{
