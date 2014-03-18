@@ -222,11 +222,9 @@ void CoolPropSolver::postStateChange(ExternalThermodynamicState *const propertie
 				{
 					properties->eta = state->viscosity();
 					properties->lambda = state->conductivity(); //[kW/m/K --> W/m/K]
-					properties->Pr = properties->cp*properties->eta/properties->lambda;
 				} else {
 					properties->eta    = -_HUGE;
 					properties->lambda = -_HUGE;
-					properties->Pr     = -_HUGE;
 				}
 			}
 			catch(std::exception &e)
@@ -255,11 +253,9 @@ void CoolPropSolver::postStateChange(ExternalThermodynamicState *const propertie
 				{
 					properties->eta = state->viscosity();
 					properties->lambda = state->conductivity(); //[kW/m/K --> W/m/K]
-					properties->Pr = properties->cp*properties->eta/properties->lambda;
 				} else {
 					properties->eta    = -_HUGE;
 					properties->lambda = -_HUGE;
-					properties->Pr     = -_HUGE;
 				}
 			}
 			catch(std::exception &e)
