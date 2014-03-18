@@ -37,7 +37,7 @@ AceticAcidClass::AceticAcidClass()
     params.molemass = 60.05196;
     params.Ttriple = 289.8;
 	params.ptriple = _HUGE;
-    params.accentricfactor = _HUGE;
+    params.accentricfactor = 0.48092;
     params.R_u = 8.314472;
 
     // Limits of EOS
@@ -65,14 +65,10 @@ AceticAcidClass::AceticAcidClass()
 
     name.assign("AceticAcid");
     aliases.push_back(std::string("ACETICACID"));
-    REFPROPname.assign("ACETIC");
+    REFPROPname.assign("N/A");
 
 	BibTeXKeys.EOS = "Piazza-FPE-2011";
 	BibTeXKeys.SURFACE_TENSION = "Mulero-JPCRD-2012";
-
-	double Tt = params.Ttriple;
-	double Tc = crit.T;
-	double pc = crit.p.Pa;
 
 	//double w = 6.67228479e-09*Tc*Tc*Tc-7.20464352e-06*Tc*Tc+3.16947758e-03*Tc-2.88760012e-01;
 	//double q = -6.08930221451*w-5.42477887222;
@@ -195,7 +191,6 @@ double AceticAcidClass::rhosatV(double T)
 	double val = crit.rho*exp(crit.T/T*summer);
     return val;
 }
-
 
 #ifndef DISABLE_CATCH
 #include "Catch/catch.hpp"

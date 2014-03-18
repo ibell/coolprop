@@ -7,7 +7,6 @@
 #include "CoolProp.h"
 #include "REFPROP.h"
 
-
 #if defined(__ISWINDOWS__)
 #include <windows.h>
 #else
@@ -35,10 +34,10 @@
 #include "purefluids/R134a.h"
 #include "AllFluids.h"
 
-// Function prototypes
-//double rho_TP(double T, double p);
-double _Props(std::string Output,std::string Name1, double Prop1, std::string Name2, double Prop2, std::string Ref);
-double _CoolProp_Fluid_Props(long iOutput, long iName1, double Value1, long iName2, double Value2, Fluid *pFluid, bool SinglePhase = false);
+/// The lower-level methods that can throw exceptions
+double _CoolProp_Fluid_PropsSI(long iOutput, long iName1, double Value1, long iName2, double Value2, Fluid *pFluid);
+double _PropsSI(std::string Output,std::string Name1, double Prop1, std::string Name2, double Prop2, std::string Ref);
+double _Props1SI(std::string FluidName, std::string Output);
 
 static std::string err_string;
 static std::string warning_string;
@@ -64,113 +63,117 @@ void _set_standard_unit_system(int unit_sys){ unit_system = unit_sys; }
 
 // This is a map of all possible strings to a unique identifier
 std::pair<std::string, long> map_data[] = {
-	std::make_pair(std::string("E"),iPcrit),
-	std::make_pair(std::string("M"),iMM),
-	std::make_pair(std::string("w"),iAccentric),
-	std::make_pair(std::string("R"),iTtriple),
-	std::make_pair(std::string("N"),iRhocrit),
-	std::make_pair(std::string("B"),iTcrit),
+	std::make_pair("E",iPcrit),
+	std::make_pair("M",iMM),
+	std::make_pair("w",iAccentric),
+	std::make_pair("R",iTtriple),
+	std::make_pair("N",iRhocrit),
+	std::make_pair("B",iTcrit),
 
-	std::make_pair(std::string("pcrit"),iPcrit),
-	std::make_pair(std::string("PCRIT"),iPcrit),
-	std::make_pair(std::string("molemass"),iMM),
-	std::make_pair(std::string("MOLEMASS"),iMM),
-	std::make_pair(std::string("accentric"),iAccentric),
-	std::make_pair(std::string("ACCENTRIC"),iAccentric),
-	std::make_pair(std::string("dipole"),iDipole),
-	std::make_pair(std::string("DIPOLE"),iDipole),
-	std::make_pair(std::string("Tmin"),iTmin),
-	std::make_pair(std::string("TMIN"),iTmin),
-	std::make_pair(std::string("t"),iTmin),
-	std::make_pair(std::string("Ttriple"),iTtriple),
-	std::make_pair(std::string("TTRIPLE"),iTtriple),
-	std::make_pair(std::string("ptriple"),iPtriple),
-	std::make_pair(std::string("PTRIPLE"),iPtriple),
-	std::make_pair(std::string("rhocrit"),iRhocrit),
-	std::make_pair(std::string("RHOCRIT"),iRhocrit),
-	std::make_pair(std::string("Tcrit"),iTcrit),
-	std::make_pair(std::string("TCRIT"),iTcrit),
-	std::make_pair(std::string("Treduce"),iTreduce),
-	std::make_pair(std::string("TREDUCE"),iTreduce),
-	std::make_pair(std::string("rhoreduce"),iRhoreduce),
-	std::make_pair(std::string("RHOREDUCE"),iRhoreduce),
-	std::make_pair(std::string("Hcrit"),iHcrit),
-	std::make_pair(std::string("HCRIT"),iHcrit),
-	std::make_pair(std::string("Scrit"),iScrit),
-	std::make_pair(std::string("SCRIT"),iScrit),
+	std::make_pair("pcrit",iPcrit),
+	std::make_pair("PCRIT",iPcrit),
+	std::make_pair("molemass",iMM),
+	std::make_pair("MOLEMASS",iMM),
+	std::make_pair("accentric",iAccentric),
+	std::make_pair("ACCENTRIC",iAccentric),
+	std::make_pair("dipole",iDipole),
+	std::make_pair("DIPOLE",iDipole),
+	std::make_pair("Tmin",iTmin),
+	std::make_pair("TMIN",iTmin),
+	std::make_pair("t",iTmin),
+	std::make_pair("Ttriple",iTtriple),
+	std::make_pair("TTRIPLE",iTtriple),
+	std::make_pair("ptriple",iPtriple),
+	std::make_pair("PTRIPLE",iPtriple),
+	std::make_pair("rhocrit",iRhocrit),
+	std::make_pair("RHOCRIT",iRhocrit),
+	std::make_pair("Tcrit",iTcrit),
+	std::make_pair("TCRIT",iTcrit),
+	std::make_pair("Treduce",iTreduce),
+	std::make_pair("TREDUCE",iTreduce),
+	std::make_pair("rhoreduce",iRhoreduce),
+	std::make_pair("RHOREDUCE",iRhoreduce),
+	std::make_pair("Hcrit",iHcrit),
+	std::make_pair("HCRIT",iHcrit),
+	std::make_pair("Scrit",iScrit),
+	std::make_pair("SCRIT",iScrit),
 
-	std::make_pair(std::string("Q"),iQ),
-	std::make_pair(std::string("T"),iT),
-    std::make_pair(std::string("P"),iP),
-	std::make_pair(std::string("D"),iD),
-	std::make_pair(std::string("C"),iC),
-	std::make_pair(std::string("C0"),iC0),
-	std::make_pair(std::string("O"),iO),
-	std::make_pair(std::string("U"),iU),
-	std::make_pair(std::string("H"),iH),
-	std::make_pair(std::string("S"),iS),
-	std::make_pair(std::string("A"),iA),
-	std::make_pair(std::string("G"),iG),
-	std::make_pair(std::string("V"),iV),
-	std::make_pair(std::string("L"),iL),
-	std::make_pair(std::string("Prandtl"),iPrandtl),
-	std::make_pair(std::string("PRANDTL"),iPrandtl),
-	std::make_pair(std::string("Tmax"),iTmax),
-	std::make_pair(std::string("Tfreeze"),iTfreeze),
-	std::make_pair(std::string("Psat"),iPsat),
-	std::make_pair(std::string("I"),iI),
-	std::make_pair(std::string("SurfaceTension"),iI),
-	std::make_pair(std::string("Phase"),iPhase),
-	std::make_pair(std::string("PHASE_LIQUID"),iPHASE_LIQUID),
-	std::make_pair(std::string("PHASE_GAS"),iPHASE_GAS),
-	std::make_pair(std::string("PHASE_SUPERCRITICAL"),iPHASE_SUPERCRITICAL),
-	std::make_pair(std::string("PHASE_TWOPHASE"),iPHASE_TWOPHASE),
-	std::make_pair(std::string("ODP"),iODP),
-	std::make_pair(std::string("GWP20"),iGWP20),
-	std::make_pair(std::string("GWP100"),iGWP100),
-	std::make_pair(std::string("GWP500"),iGWP500),
-	std::make_pair(std::string("CritSplineT"),iCritSplineT),
+	std::make_pair("Q",iQ),
+	std::make_pair("T",iT),
+    std::make_pair("P",iP),
+	std::make_pair("D",iD),
+	std::make_pair("C",iC),
+	std::make_pair("C0",iC0),
+	std::make_pair("O",iO),
+	std::make_pair("U",iU),
+	std::make_pair("H",iH),
+	std::make_pair("S",iS),
+	std::make_pair("A",iA),
+	std::make_pair("G",iG),
+	std::make_pair("V",iV),
+	std::make_pair("L",iL),
+	std::make_pair("Prandtl",iPrandtl),
+	std::make_pair("PRANDTL",iPrandtl),
+	std::make_pair("Tmax",iTmax),
+	std::make_pair("Tfreeze",iTfreeze),
+	std::make_pair("Psat",iPsat),
+	std::make_pair("I",iI),
+	std::make_pair("SurfaceTension",iI),
+    std::make_pair("rhosatLanc",iRhosatLanc),
+    std::make_pair("rhosatVanc",iRhosatVanc),
+    std::make_pair("psatLanc",iPsatLanc),
+    std::make_pair("psatVanc",iPsatVanc),
+	std::make_pair("Phase",iPhase),
+	std::make_pair("PHASE_LIQUID",iPHASE_LIQUID),
+	std::make_pair("PHASE_GAS",iPHASE_GAS),
+	std::make_pair("PHASE_SUPERCRITICAL",iPHASE_SUPERCRITICAL),
+	std::make_pair("PHASE_TWOPHASE",iPHASE_TWOPHASE),
+	std::make_pair("ODP",iODP),
+	std::make_pair("GWP20",iGWP20),
+	std::make_pair("GWP100",iGWP100),
+	std::make_pair("GWP500",iGWP500),
+	std::make_pair("CritSplineT",iCritSplineT),
 	// Derivatives
-	std::make_pair(std::string("dhdp|rho"),iDERdh_dp__rho),
-	std::make_pair(std::string("Z"),iDERZ),
-	std::make_pair(std::string("dZ_dDelta"),iDERdZ_dDelta),
-	std::make_pair(std::string("dZ_dTau"),iDERdZ_dTau),
-	std::make_pair(std::string("VB"),iDERB),
-	std::make_pair(std::string("dBdT"),iDERdB_dT),
-	std::make_pair(std::string("VC"),iDERC),
-	std::make_pair(std::string("dCdT"),iDERdC_dT),
-	std::make_pair(std::string("phir"),iDERphir),
-	std::make_pair(std::string("dphir_dTau"),iDERdphir_dTau),
-	std::make_pair(std::string("dphir_dDelta"),iDERdphir_dDelta),
-	std::make_pair(std::string("d2phir_dTau2"),iDERd2phir_dTau2),
-	std::make_pair(std::string("d2phir_dDelta2"),iDERd2phir_dDelta2),
-	std::make_pair(std::string("d2phir_dDelta_dTau"),iDERd2phir_dDelta_dTau),
-	std::make_pair(std::string("d3phir_dDelta3"),iDERd3phir_dDelta3),
-	std::make_pair(std::string("d3phir_dDelta2_dTau"),iDERd3phir_dDelta2_dTau),
-	std::make_pair(std::string("d3phir_dDelta_dTau2"),iDERd3phir_dDelta_dTau2),
-	std::make_pair(std::string("d3phir_dTau3"),iDERd3phir_dTau3),
-	std::make_pair(std::string("phi0"),iDERphi0),
-	std::make_pair(std::string("dphi0_dTau"),iDERdphi0_dTau),
-	std::make_pair(std::string("d2phi0_dTau2"),iDERd2phi0_dTau2),
-	std::make_pair(std::string("dphi0_dDelta"),iDERdphi0_dDelta),
-	std::make_pair(std::string("d2phi0_dDelta2"),iDERd2phi0_dDelta2),
-	std::make_pair(std::string("d2phi0_dDelta_dTau"),iDERd2phi0_dDelta_dTau),
-	std::make_pair(std::string("d3phi0_dTau3"),iDERd3phi0_dTau3),
-	std::make_pair(std::string("dpdT"    ),iDERdp_dT__rho),
-	std::make_pair(std::string("dpdT|rho"),iDERdp_dT__rho),
-	std::make_pair(std::string("dpdrho"  ),iDERdp_drho__T),
-	std::make_pair(std::string("dpdrho|T"),iDERdp_drho__T),
-	std::make_pair(std::string("dhdT|rho"),iDERdh_dT__rho),
-	std::make_pair(std::string("dhdrho|T"),iDERdh_drho__T),
-	std::make_pair(std::string("drhodT|p"),iDERdrho_dT__p),
-	std::make_pair(std::string("drhodh|p"),iDERdrho_dh__p),
-	std::make_pair(std::string("drhodp|h"),iDERdrho_dp__h),
-	std::make_pair(std::string("rho_smoothed"),iDERrho_smoothed),
-	std::make_pair(std::string("d(rho_smoothed)/dh"),iDERdrho_smoothed_dh),
-	std::make_pair(std::string("d(rho_smoothed)/dp"),iDERdrho_smoothed_dp),
-	std::make_pair(std::string("drhodh_constp_smoothed"),iDERdrhodh_constp_smoothed),
-	std::make_pair(std::string("drhodp_consth_smoothed"),iDERdrhodp_consth_smoothed),
-	std::make_pair(std::string("IsothermalCompressibility"),iDERIsothermalCompressibility)
+	std::make_pair("dhdp|rho",iDERdh_dp__rho),
+	std::make_pair("Z",iDERZ),
+	std::make_pair("dZ_dDelta",iDERdZ_dDelta),
+	std::make_pair("dZ_dTau",iDERdZ_dTau),
+	std::make_pair("VB",iDERB),
+	std::make_pair("dBdT",iDERdB_dT),
+	std::make_pair("VC",iDERC),
+	std::make_pair("dCdT",iDERdC_dT),
+	std::make_pair("phir",iDERphir),
+	std::make_pair("dphir_dTau",iDERdphir_dTau),
+	std::make_pair("dphir_dDelta",iDERdphir_dDelta),
+	std::make_pair("d2phir_dTau2",iDERd2phir_dTau2),
+	std::make_pair("d2phir_dDelta2",iDERd2phir_dDelta2),
+	std::make_pair("d2phir_dDelta_dTau",iDERd2phir_dDelta_dTau),
+	std::make_pair("d3phir_dDelta3",iDERd3phir_dDelta3),
+	std::make_pair("d3phir_dDelta2_dTau",iDERd3phir_dDelta2_dTau),
+	std::make_pair("d3phir_dDelta_dTau2",iDERd3phir_dDelta_dTau2),
+	std::make_pair("d3phir_dTau3",iDERd3phir_dTau3),
+	std::make_pair("phi0",iDERphi0),
+	std::make_pair("dphi0_dTau",iDERdphi0_dTau),
+	std::make_pair("d2phi0_dTau2",iDERd2phi0_dTau2),
+	std::make_pair("dphi0_dDelta",iDERdphi0_dDelta),
+	std::make_pair("d2phi0_dDelta2",iDERd2phi0_dDelta2),
+	std::make_pair("d2phi0_dDelta_dTau",iDERd2phi0_dDelta_dTau),
+	std::make_pair("d3phi0_dTau3",iDERd3phi0_dTau3),
+	std::make_pair("dpdT"    ,iDERdp_dT__rho),
+	std::make_pair("dpdT|rho",iDERdp_dT__rho),
+	std::make_pair("dpdrho"  ,iDERdp_drho__T),
+	std::make_pair("dpdrho|T",iDERdp_drho__T),
+	std::make_pair("dhdT|rho",iDERdh_dT__rho),
+	std::make_pair("dhdrho|T",iDERdh_drho__T),
+	std::make_pair("drhodT|p",iDERdrho_dT__p),
+	std::make_pair("drhodh|p",iDERdrho_dh__p),
+	std::make_pair("drhodp|h",iDERdrho_dp__h),
+	std::make_pair("rho_smoothed",iDERrho_smoothed),
+	std::make_pair("d(rho_smoothed)/dh",iDERdrho_smoothed_dh),
+	std::make_pair("d(rho_smoothed)/dp",iDERdrho_smoothed_dp),
+	std::make_pair("drhodh_constp_smoothed",iDERdrhodh_constp_smoothed),
+	std::make_pair("drhodp_consth_smoothed",iDERdrhodp_consth_smoothed),
+	std::make_pair("IsothermalCompressibility",iDERIsothermalCompressibility)
 };
 
 //Now actually construct the map
@@ -313,7 +316,7 @@ static int IsCoolPropFluid(std::string FluidName)
 		return false;
 }
 
-static int IsBrine(char* Ref)
+static int IsBrine(const char* Ref)
 {
 	// First check whether it is one of the Brines that does
 	// not have a pure-fluid equivalent in CoolProp
@@ -378,7 +381,7 @@ long getFluidType(std::string FluidName){
 	return -1;
 }
 
-EXPORT_CODE int CONVENTION IsFluidType(char *Ref, char *Type)
+EXPORT_CODE int CONVENTION IsFluidType(const char *Ref, const char *Type)
 {
 	pFluid = Fluids.get_fluid(Ref);
 
@@ -497,14 +500,14 @@ std::string Phase_Tp(std::string Fluid, double T, double p)
 	return Phase(Fluid,T,p);
 }
 
-
 /*
  * Start with the internal functions to handle different inputs
  * First we handle the constants: Props1
  */
 // Internal one to do the actual calculations
-double _Props1(std::string FluidName, std::string Output)
+double _Props1SI(std::string FluidName, std::string Output)
 {
+    double out = _HUGE;
 	// Try to load the CoolProp Fluid
 	pFluid = Fluids.get_fluid(FluidName);
 	if (pFluid != NULL)
@@ -516,7 +519,7 @@ double _Props1(std::string FluidName, std::string Output)
 			throw ValueError(format("Your output key [%s] is not valid. (names are case sensitive)",Output.c_str()));
 		}
 		// Get the output using the conventional function
-		return _CoolProp_Fluid_Props(iOutput,0,0,0,0,pFluid);
+		return _CoolProp_Fluid_PropsSI(iOutput,0,0,0,0,pFluid);
 	}
 	else if (IsREFPROP(FluidName))
 	{
@@ -531,12 +534,12 @@ double _Props1(std::string FluidName, std::string Output)
 			case iMM:
 			case iRhocrit:
 			case iAccentric:
-				return Props(Output,'T',0,'P',0,FluidName);
+				out = Props(Output,'T',0,'P',0,FluidName);
 				break;
 			default:
 				throw ValueError(format("Output parameter \"%s\" is invalid for REFPROP fluid",Output.c_str()));
-				break;
 		}
+        return convert_from_SI_to_unit_system(iOutput,out,get_standard_unit_system());
 	}
 	else
 	{
@@ -544,21 +547,40 @@ double _Props1(std::string FluidName, std::string Output)
 	}
 	return -_HUGE;
 }
+double _Props1(std::string FluidName, std::string Output)
+{
+    double val = _Props1SI(FluidName, Output);
+    if (ValidNumber(val))
+    {
+        long iOutput = get_param_index(Output);
+        return convert_from_SI_to_unit_system(iOutput,val,get_standard_unit_system());
+    }
+    else
+    {
+        return _HUGE;
+    }
+}
 // Define the functions from the header file
-double Props(char *FluidName, char *Output){
-    // Go to std::string, std::string version
-	return Props(std::string(FluidName), std::string(Output));
-}
-double Props1(std::string FluidName,std::string Output){
-    // Redirect to the Props() function
-	return Props(FluidName, Output);
-}
 double Props1SI(std::string FluidName,std::string Output){
-    // Redirect to the Props() function
-	return Props1SI((char*)FluidName.c_str(), (char*)Output.c_str());
+    // Redirect to the Props() function that takes const char *
+	// In this function the error catching happens;
+	try{
+		return _Props1SI(FluidName, Output);
+	}
+	catch(const std::exception& e){
+			err_string = std::string("CoolProp error: ").append(e.what());
+			return _HUGE;
+		}
+	catch(...){
+		err_string = std::string("CoolProp error: Indeterminate error");
+		return _HUGE;
+	}
+	return _HUGE;
 }
-double Props(std::string FluidName,std::string Output){
-    // In this function the error catching happens;
+double Props1(std::string FluidName, std::string Output){
+
+    // Redirect to the Props() function that takes const char *
+	// In this function the error catching happens;
 	try{
 		return _Props1(FluidName, Output);
 	}
@@ -574,13 +596,15 @@ double Props(std::string FluidName,std::string Output){
 }
 
 
+
+
 /*
  * Now we need an internal functions to handle different
  * inputs for non-constant values: Props
  */
 // Internal one to do the actual calculations, make this a wrapped function so
 // that error bubbling can be done properly
-double _Props(std::string Output, std::string Name1, double Prop1, std::string Name2, double Prop2, std::string Ref)
+double _PropsSI(std::string Output, std::string Name1, double Prop1, std::string Name2, double Prop2, std::string Ref)
 {
 	if (get_debug_level()>5){
 		std::cout << format("%s:%d: _Props(%s,%s,%g,%s,%g,%s)\n",__FILE__,__LINE__,Output.c_str(),Name1.c_str(),Prop1,Name2.c_str(),Prop2,Ref.c_str()).c_str();
@@ -594,7 +618,14 @@ double _Props(std::string Output, std::string Name1, double Prop1, std::string N
     	if (get_debug_level()>7) std::cout<<__FILE__<<": Identified Refprop fluid - "<<Ref.c_str()<<std::endl;
         // Stop here if there is no REFPROP support
     	if (REFPROPFluidClass::refpropSupported()) {
-			return REFPROP(Output,Name1,Prop1,Name2,Prop2,Ref);
+            long iOutput = get_param_index(Output);
+		    if (iOutput<0) 
+			    throw ValueError(format("Your output key [%s] is not valid. (names are case sensitive)",Output.c_str()));
+		    long iName1 = get_param_index(std::string(Name1));  
+		    if (iName1<0) 
+			    throw ValueError(format("Your input key #1 [%s] is not valid. (names are case sensitive)",Name1.c_str()));
+		    long iName2 = get_param_index(std::string(Name2));  
+			return REFPROPSI(iOutput,iName1,Prop1,iName2,Prop2,Ref);
     	} else {
     		throw AttributeError(format("Your refrigerant [%s] is from REFPROP, but CoolProp does not support REFPROP on this platform, yet.",Ref.c_str()));
     		return -_HUGE;
@@ -615,10 +646,10 @@ double _Props(std::string Output, std::string Name1, double Prop1, std::string N
 		if (iName2<0) 
 			throw ValueError(format("Your input key #2 [%s] is not valid. (names are case sensitive)",Name2.c_str()));
 		// Call the internal method that uses the parameters converted to longs
-		return _CoolProp_Fluid_Props(iOutput,iName1,Prop1,iName2,Prop2,pFluid);
+		return _CoolProp_Fluid_PropsSI(iOutput,iName1,Prop1,iName2,Prop2,pFluid);
 	}
     // It's a brine, call the brine routine // TODO Solutions: remove this part
-	else if (IsBrine((char*)Ref.c_str()))
+	else if (IsBrine(Ref.c_str()))
     {
 		if (get_debug_level()>7) std::cout<<__FILE__<<": Identified brine - "<<Ref.c_str()<<std::endl;
 		//Enthalpy and pressure are the inputs
@@ -630,18 +661,18 @@ double _Props(std::string Output, std::string Name1, double Prop1, std::string N
 				std::swap(Name1,Name2);
 			}
 			// Start with a guess of 10 K below max temp of fluid
-			double Tguess = SecFluids('M',Prop1,Prop2,(char*)Ref.c_str())-10;
+			double Tguess = SecFluids("Tmax",Prop1,Prop2,Ref)-10;
 			// Solve for the temperature
 			double T =_T_hp_secant(Ref,Prop1,Prop2,Tguess);
 			// Return whatever property is desired
-			return SecFluids(Output[0],T,Prop2,(char*)Ref.c_str());
+			return SecFluidsSI(Output,T,Prop2,Ref);
 		}
 		else if ((Name1.c_str()[0] == 'T' && Name2.c_str()[0] =='P') || (Name1.c_str()[0] == 'P' && Name2.c_str()[0] == 'T'))
         {
 			if (Name1.c_str()[0] =='P' && Name2.c_str()[0] =='T'){
 				std::swap(Prop1,Prop2);
 			}
-			return SecFluids(Output[0],Prop1,Prop2,(char*)Ref.c_str());
+			return SecFluidsSI(Output,Prop1,Prop2,Ref);
 		}
 		else
 		{
@@ -662,18 +693,18 @@ double _Props(std::string Output, std::string Name1, double Prop1, std::string N
 			}
 			
 			// Solve for the temperature
-			double Tma     = IncompLiquid(get_param_index(std::string("Tmax")),0.0,0.0,Ref);
+			double Tma     = IncompLiquidSI(get_param_index("Tmax"),0.0,0.0,Ref);
 			double T_guess = Tma - 10.0 ;
 			double T =_T_hp_secant(Ref,Prop1,Prop2,T_guess);
 			// Return whatever property is desired
-			return IncompLiquid(get_param_index(Output),T,Prop2,Ref);
+			return IncompLiquidSI(get_param_index(Output),T,Prop2,Ref);
 		}
 		else if ((Name1.c_str()[0] == 'T' && Name2.c_str()[0] =='P') || (Name1.c_str()[0] == 'P' && Name2.c_str()[0] == 'T'))
         {
 			if (Name1.c_str()[0] =='P' && Name2.c_str()[0] =='T'){
 				std::swap(Prop1,Prop2);
 			}
-			return IncompLiquid(get_param_index(Output),Prop1,Prop2,Ref);
+			return IncompLiquidSI(get_param_index(Output),Prop1,Prop2,Ref);
 		}
 		else
 		{
@@ -694,19 +725,19 @@ double _Props(std::string Output, std::string Name1, double Prop1, std::string N
 			}
 
 			// Solve for the temperature
-			double Tma     = IncompSolution(get_param_index(std::string("Tmax")),0.0,0.0,Ref);
-			double Tmi     = IncompSolution(get_param_index(std::string("Tmin")),0.0,0.0,Ref);
+			double Tma     = IncompSolutionSI(get_param_index("Tmax"),0.0,0.0,Ref);
+			double Tmi     = IncompSolutionSI(get_param_index("Tmin"),0.0,0.0,Ref);
 			double T_guess = (Tma+Tmi)/2.0 ;
 			double T =_T_hp_secant(Ref,Prop1,Prop2,T_guess);
 			// Return whatever property is desired
-			return IncompSolution(get_param_index(Output),T,Prop2,Ref);
+			return IncompSolutionSI(get_param_index(Output),T,Prop2,Ref);
 		}
 		else if ((Name1.c_str()[0] == 'T' && Name2.c_str()[0] =='P') || (Name1.c_str()[0] == 'P' && Name2.c_str()[0] == 'T'))
 		{
 			if (Name1.c_str()[0] =='P' && Name2.c_str()[0] =='T'){
 				std::swap(Prop1,Prop2);
 			}
-			return IncompSolution(get_param_index(Output),Prop1,Prop2,Ref);
+			return IncompSolutionSI(get_param_index(Output),Prop1,Prop2,Ref);
 		}
 		else
 		{
@@ -718,108 +749,68 @@ double _Props(std::string Output, std::string Name1, double Prop1, std::string N
 		throw ValueError(format("Your fluid name [%s] is not a CoolProp fluid, a REFPROP fluid, a brine or a liquid",Ref.c_str()));
 	}
 }
-double _CoolProp_Fluid_Props(long iOutput, long iName1, double Prop1, long iName2, double Prop2, Fluid *pFluid, bool SinglePhase)
-{
-	double val = _HUGE;
-	// This private method uses the indices directly for speed
-
-	if (get_debug_level()>3){
-		std::cout << format("%s:%d: _CoolProp_Fluid_Props(%d,%d,%g,%d,%g,%s)\n",__FILE__,__LINE__,iOutput,iName1, Prop1, iName2, Prop2, pFluid->get_name().c_str()).c_str();
-	}
-
-	// Generate a State instance wrapped around the Fluid instance
-	CoolPropStateClass CPS(pFluid);
-
-	// Check if it is an output that doesn't require a state input
-	// Deal with it and return
-
-	switch (iOutput)
-	{
-		case iMM:
-		case iPcrit:
-		case iTcrit:
-		case iTtriple:
-		case iPtriple:
-		case iRhocrit:
-		case iTmin:
-		case iAccentric:
-		case iPHASE_LIQUID:
-		case iPHASE_GAS:
-		case iPHASE_SUPERCRITICAL:
-		case iPHASE_TWOPHASE:
-		case iGWP20:
-		case iGWP100:
-		case iGWP500:
-		case iODP:
-		case iCritSplineT:
-		case iScrit:
-		case iHcrit:
-		case iTreduce:
-		case iRhoreduce:
-			return CPS.keyed_output(iOutput);
-	}
-
-	// Update the class
-	CPS.update(iName1,Prop1,iName2,Prop2);
-
-	// Debug
-	if (get_debug_level()>9){ 
-		std::cout << format("%s:%d: State update successful\n",__FILE__,__LINE__).c_str();
-	}
-	
-	// Get the output
-	val = CPS.keyed_output(iOutput);
-	
-	// Debug
-	if (get_debug_level()>5){
-		std::cout << format("%s:%d: _CoolProp_Fluid_Props returns: %g\n",__FILE__,__LINE__,val).c_str();
-	}
-
-	// Return the value
-	return val;
-}
 EXPORT_CODE double CONVENTION IProps(long iOutput, long iName1, double Prop1, long iName2, double Prop2, long iFluid)
 {
-	pFluid = Fluids.get_fluid(iFluid);
-	// Didn't work
-	if (pFluid == NULL){
-		err_string=std::string("CoolProp error: ").append(format("%d is an invalid fluid index to IProps",iFluid));
-		return _HUGE;
-	}
-	else{
-		// In this function the error catching happens;
-		try{
-			// This is already converted to the right units since it comes from the CoolPropStateClass which
-			// does the unit handling
-			return _CoolProp_Fluid_Props(iOutput,iName1,Prop1,iName2,Prop2,pFluid);
-		}
-		catch(std::exception &e){
-			err_string=std::string("CoolProp error: ").append(e.what());
-			return _HUGE;
-		}
-		catch(...){
-			err_string=std::string("CoolProp error: Indeterminate error");
-			return _HUGE;
-		}
-	}
+    Prop1 = convert_from_unit_system_to_SI(iName1, Prop1, get_standard_unit_system());
+    Prop2 = convert_from_unit_system_to_SI(iName2, Prop2, get_standard_unit_system());
+	double out = IPropsSI(iOutput,iName1,Prop1,iName2,Prop2,iFluid);
+    return convert_from_SI_to_unit_system(iOutput,out,get_standard_unit_system());
 }
 double _CoolProp_Fluid_PropsSI(long iOutput, long iName1, double Prop1, long iName2, double Prop2, Fluid *pFluid)
 {
-	double val = _HUGE;
+	double val = _HUGE, T = _HUGE;
 	// This private method uses the indices directly for speed
 
 	if (get_debug_level()>3){
 		std::cout << format("%s:%d: _CoolProp_Fluid_PropsSI(%d,%d,%g,%d,%g,%s)\n",__FILE__,__LINE__,iOutput,iName1, Prop1, iName2, Prop2, pFluid->get_name().c_str()).c_str();
 	}
+    if (iName1 == iT){ 
+        T = Prop1;} 
+    else if (iName2 == iT){
+        T = Prop2;} 
 
 	// Generate a State instance wrapped around the Fluid instance
 	CoolPropStateClassSI CPS(pFluid);
 
 	// Check if it is an output that doesn't require a state input
 	// Deal with it and return
-
 	switch (iOutput)
 	{
+        case iI:
+            {
+            if (!ValidNumber(T)){throw ValueError(format("T must be provided as an input to use this output").c_str());}
+            return CPS.pFluid->surface_tension_T(T);
+            }
+        case iRhosatLanc:
+            {
+            if (!ValidNumber(T)){throw ValueError(format("T must be provided as an input to use this output").c_str());}
+            return CPS.pFluid->rhosatL(T);
+            }
+        case iRhosatVanc:
+            {
+            if (!ValidNumber(T)){throw ValueError(format("T must be provided as an input to use this output").c_str());}
+            return CPS.pFluid->rhosatV(T);
+            }
+        case iPsatLanc:
+            {
+            if (!ValidNumber(T)){throw ValueError(format("T must be provided as an input to use this output").c_str());}
+            if (CPS.pFluid->pure()){
+                return CPS.pFluid->psat(T);
+            }
+            else{
+                return CPS.pFluid->psatL(T);
+            }
+            }
+        case iPsatVanc:
+            {
+            if (!ValidNumber(T)){throw ValueError(format("T must be provided as an input to use this output").c_str());}
+            if (CPS.pFluid->pure()){
+                return CPS.pFluid->psat(T);
+            }
+            else{
+                return CPS.pFluid->psatV(T);
+            }
+            }
 		case iMM:
 		case iPcrit:
 		case iTcrit:
@@ -870,8 +861,7 @@ EXPORT_CODE double CONVENTION IPropsSI(long iOutput, long iName1, double Prop1, 
 	else{
 		// In this function the error catching happens;
 		try{
-			// This is already converted to the right units since it comes from the CoolPropStateClass which
-			// does the unit handling
+			// This is already converted to the right units since we take in SI units
 			return _CoolProp_Fluid_PropsSI(iOutput,iName1,Prop1,iName2,Prop2,pFluid);
 		}
 		catch(std::exception &e){
@@ -884,46 +874,32 @@ EXPORT_CODE double CONVENTION IPropsSI(long iOutput, long iName1, double Prop1, 
 		}
 	}
 }
-double Props(char Output,char Name1, double Prop1, char Name2, double Prop2, char* Ref)
-{
-	// Go to the std::string, std::string version
-	return Props(std::string(1,Output),Name1,Prop1,Name2,Prop2,std::string(Ref));
-}
 
 double PropsSI(std::string Output, std::string Name1, double Prop1, std::string Name2, double Prop2, std::string Ref)
 {
-	// Go to the std::string version
-    return PropsSI((char*)Output.c_str(),(char*)Name1.c_str(),Prop1,(char*)Name2.c_str(),Prop2,(char*)Ref.c_str());
-}
-double Props(std::string Output, std::string Name1, double Prop1, std::string Name2, double Prop2, std::string Ref)
-{
-	// Go to the std::string version
-    return PropsS((char*)Output.c_str(),(char*)Name1.c_str(),Prop1,(char*)Name2.c_str(),Prop2,(char*)Ref.c_str());
-}
-
-double Props(std::string Output,char Name1, double Prop1, char Name2, double Prop2, std::string Ref)
-{
-	// In this function the error catching happens;
+    // In this function the error catching happens;
 	try{
-		//FILE *fp;
-		//fp = fopen("c:\\log_Props.txt", "a");
-		//fprintf(fp,"%s,%c,%g,%c,%g,%s\n",Output.c_str(),Name1,Prop1,Name2,Prop2,Ref.c_str());
-		double val = _Props(Output,std::string(1,Name1),Prop1,std::string(1,Name2),Prop2,Ref);
-		//fprintf(fp,"-->%g\n",val);
-		//fclose(fp);
-		return val;
+		return _PropsSI(Output,Name1,Prop1,Name2,Prop2,Ref);
 	}
 	catch(const std::exception& e){
-			err_string = std::string("CoolProp error: ").append(e.what());
-			return _HUGE;
-		}
+        set_err_string(std::string("CoolProp error: ").append(e.what()));
+		return _HUGE;
+	}
 	catch(...){
-		err_string = std::string("CoolProp error: Indeterminate error");
+		set_err_string(std::string("CoolProp error: Indeterminate error"));
 		return _HUGE;
 	}
 	return _HUGE;
 }
-
+double Props(std::string Output, std::string Name1, double Prop1, std::string Name2, double Prop2, std::string Ref)
+{
+	// Go to the std::string version
+    return PropsS(Output.c_str(),Name1.c_str(),Prop1,Name2.c_str(),Prop2,Ref.c_str());
+}
+double Props(std::string Output,char Name1, double Prop1, char Name2, double Prop2, std::string Ref)
+{
+    return Props(Output, std::string(1,Name1), Prop1, std::string(1,Name2), Prop2, Ref);
+}
 
 /// Calculate some interesting derivatives
 double _CoolProp_Deriv_Terms(long iTerm, double T, double rho, Fluid * pFluid)
@@ -1209,7 +1185,7 @@ std::string get_fluid_param_string(std::string FluidName, std::string ParamName)
 			{
 				return pFluid->environment.ASHRAE34;
 			}
-			else if (!ParamName.compare("REFPROPName") || !ParamName.compare("REFPROP_name"))
+			else if (!ParamName.compare("REFPROPName") || !ParamName.compare("REFPROP_name") || !ParamName.compare("REFPROPname"))
 			{
 				return pFluid->get_REFPROPname();
 			}
@@ -1242,4 +1218,34 @@ std::string get_fluid_param_string(std::string FluidName, std::string ParamName)
 }
 
 
-
+#ifndef DISABLE_CATCH
+#include "Catch/catch.hpp"
+TEST_CASE("Check ancillaries and surface tension", "[fast]" ) 
+{
+	SECTION("surface tension")
+	{
+        REQUIRE_THROWS(_PropsSI("I","P",101325,"D",1,"Propane"));
+        REQUIRE_NOTHROW(_PropsSI("I","T",300,"D",1,"Propane"));
+	}
+    SECTION("rhosatLanc")
+	{
+        REQUIRE_THROWS(_PropsSI("rhosatLanc","P",101325,"D",1,"Propane"));
+        REQUIRE_NOTHROW(_PropsSI("rhosatLanc","T",300,"D",1,"Propane"));
+	}
+    SECTION("rhosatVanc")
+	{
+        REQUIRE_THROWS(_PropsSI("rhosatVanc","P",101325,"D",1,"Propane"));
+        REQUIRE_NOTHROW(_PropsSI("rhosatVanc","T",300,"D",1,"Propane"));
+	}
+    SECTION("psatLanc")
+	{
+        REQUIRE_THROWS(_PropsSI("psatLanc","P",101325,"D",1,"Propane"));
+        REQUIRE_NOTHROW(_PropsSI("psatLanc","T",300,"D",1,"Propane"));
+	}
+    SECTION("psatVanc")
+	{
+        REQUIRE_THROWS(_PropsSI("psatVanc","P",101325,"D",1,"Propane"));
+        REQUIRE_NOTHROW(_PropsSI("psatVanc","T",300,"D",1,"Propane"));
+	}
+}
+#endif

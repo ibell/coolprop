@@ -314,6 +314,10 @@ if __name__=='__main__':
     
 #     InstallPrereqs()  #This is optional if you think any of the pre-reqs have been updated
 
+    ## Always run the examples first.  This serves as an integration test of
+    ## CoolProp
+    RunExamples()
+
 #     Python() # This one must be first to ensure that version gets rebuild properly
 #     DLL_and_Excel()
 #     Source()
@@ -328,9 +332,9 @@ if __name__=='__main__':
 #     Java()
 #     MathCAD()
 #     Labview()
-    Modelica()
+#     Modelica()
 #     Superpacks()
-#     RunExamples()
+
 #     PYPI()
 #     UploadSourceForge()
     

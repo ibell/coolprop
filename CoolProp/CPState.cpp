@@ -196,11 +196,11 @@ void CoolPropStateClassSI::_pre_update()
 	// Only build the Saturation classes if this is a top-level CPState for which no_SatLSatV() has not been called
 	if (!_noSatLSatV){
 		if (SatL == NULL){
-			SatL = new CoolPropStateClass(pFluid);
+			SatL = new CoolPropStateClassSI(pFluid);
 			SatL->no_SatLSatV(); // Kill the recursive building of the saturation classes
 		}
 		if (SatV == NULL){
-			SatV = new CoolPropStateClass(pFluid);
+			SatV = new CoolPropStateClassSI(pFluid);
 			SatV->no_SatLSatV(); // Kill the recursive building of the saturation classes
 		}
 	}
@@ -2865,8 +2865,6 @@ TEST_CASE((char*)"Check REFPROP and coolprop state classes match", "")
 {
 	CoolPropStateClassSI CPWater("Water");
 	CoolPropStateClassSI RPWater("REFPROP-Water");
-
-	double eps = sqrt(DBL_EPSILON);
 
 	SECTION((char*)"check T,rho -> p")
 	{

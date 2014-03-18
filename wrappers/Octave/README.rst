@@ -7,14 +7,22 @@ Installation
 Separate versions of the .oct file are available for Octave 3.6.1 and 3.6.2.
 Put the .oct file for the version you have in somewhere in the octave path, or use the ``addpath`` function to add the folder that contains CoolProp.oct to the Octave path
 
+On Linux systems you can put .oct file in
+"/usr/share/octave/?octave.version.number?/m" folder. You will need superuser
+privileges to do this.
+
+If you place .oct file somewhere outside octave path, you have to use
+"addpath" function at begining of your code.
+
+Example: adding the folder that contains CoolProp.oct file to the Octave path:
+    "addpath('/home/?user_name?/Some_folder/CoolProp')"
+
 Developer Notes:
 ===============
 
-A. On windows, only version 2.0.8 of SWIG seems to work!!!!!!!!!!!!!!!!!!!
+A. 3.6.1 needs to use VS 2008 to build; 3.6.2 needs to use VS 2010
 
-B. 3.6.1 needs to use VS 2008 to build; 3.6.2 needs to use VS 2010
-
-C. In the win32 distro of 3.6.2, the hard-coded path in OCTAVE/bin/include/math.h around line 73 might need to be changed to 
+B. In the win32 distro of 3.6.2, the hard-coded path in OCTAVE/bin/include/math.h around line 73 might need to be changed to 
 
 /* Include VC++ original math.h */
 
@@ -27,12 +35,12 @@ Building on Linux (Ubuntu in this case)
 ---------------------------------------
 1. You will need to run 
       sudo apt-get update
-      sudo apt-get install octave liboctave-dev swig subversion
-   to install the necesary dependencies.  The install of octave and subversion might not be necessary but it cant hurt
-2. Check out the full source for coolprop from subversion
-      svn checkout svn://svn.code.sf.net/p/coolprop/code/trunk coolprop-code
+      sudo apt-get install octave liboctave-dev swig
+   to install the necesary dependencies.  The install of octave might not be necessary but it cant hurt
+2. Check out the full source for coolprop from github
+      git clone https://github.com/ibell/coolprop
 3. Change into the coolprop-code/wrappers/Octave folder
-      cd coolprop-code/wrappers/Octave
+      cd coolprop/wrappers/Octave
 4. Call
       octave _OctaveBuilder_Linux.m
 5. Call
@@ -45,9 +53,9 @@ Building on Raspberry PI
       sudo aptitude update
       sudo aptitude install octave liboctave-dev swig subversion
 2. Download all the sources from subversion using
-      svn checkout svn://svn.code.sf.net/p/coolprop/code/trunk coolprop-code
+      git clone https://github.com/ibell/coolprop
 3. Change into the folder
-      cd coolprop-code/wrappers/Octave
+      cd coolprop/wrappers/Octave
 4. Run the build script
       octave _OctaveBuilder_Linux.m
 5. Call 

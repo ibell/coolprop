@@ -24,16 +24,6 @@ You might want to start by looking at CoolProp.h
 	#include "CoolPropDLL.h"
 	#include "Units.h"
 
-	/// Return a fluid value that does not depend on the thermodynamic state (function provided for backwards compatibility, forwards to Props1(string,string)
-	/// @param FluidName The name of the fluid
-	/// @param Output The name of the output parameter, some options are "Ttriple", "Tcrit", "pcrit", "Tmin", "molemass", "rhocrit", "accentric" (not all parameters are valid for all fluids)
-	/// @returns val The value, or _HUGE if not valid
-	double Props(char *FluidName, char *Output);
-	/// Return a fluid value that does not depend on the thermodynamic state
-	/// @param FluidName The name of the fluid
-	/// @param Output The name of the output parameter, some options are "Ttriple", "Tcrit", "pcrit", "Tmin", "molemass", "rhocrit", "accentric" (not all parameters are valid for all fluids)
-	/// @returns val The value, or _HUGE if not valid
-	double Props(std::string FluidName,std::string Output);
 	/// Return a fluid value that does not depend on the thermodynamic state
 	/// @param FluidName The name of the fluid
 	/// @param Output The name of the output parameter, some options are "Ttriple", "Tcrit", "pcrit", "Tmin", "molemass", "rhocrit", "accentric" (not all parameters are valid for all fluids)
@@ -84,26 +74,12 @@ You might want to start by looking at CoolProp.h
 	/// @param rho Density [kg/m^3]
 	/// @param FluidName String
 	double DerivTerms(std::string Term, double T, double rho, std::string FluidName);
-//	/// Return some low level derivative terms, see source for a complete list
-//	/// @param Term string, some options are "phir" (residual Helmholtz energy),"dphir_dDelta", "dphir_dTau", etc.
-//	/// @param T Temperature [K]
-//	/// @param rho Density [kg/m^3]
-//	/// @param FluidName string
-//	double DerivTerms(char *Term, double T, double rho, char * FluidName);
 	/// Return some low level derivative terms, see source for a complete list
 	/// @param iTerm long desired output
 	/// @param T Temperature [K]
 	/// @param rho Density [kg/m^3]
 	/// @param pFluid Pointer to Fluid instance
 	double DerivTerms(long iTerm, double T, double rho, Fluid * pFluid);
-//	/// Return some low level derivative terms, see source for a complete list
-//	/// @param Term String, some options are "phir" (residual Helmholtz energy),"dphir_dDelta", "dphir_dTau", etc.
-//	/// @param T Temperature [K]
-//	/// @param rho Density [kg/m^3]
-//	/// @param pFluid Pointer to Fluid instance
-//	/// @param SinglePhase True if you know it is single phase
-//	/// @param TwoPhase True if you know it is two-phase
-//	double DerivTerms(char *Term, double T, double rho, Fluid * pFluid, bool SinglePhase, bool TwoPhase);
 
 	/// Get a long that represents the fluid type
 	/// @param FluidName The fluid name as a string
@@ -187,8 +163,6 @@ You might want to start by looking at CoolProp.h
 	#include "GlobalConstants.h"
 
 	//    **************** DEPRECATION WARNING ***********************
-	/// Nearly deprecated function
-	std::string get_index_units(long index);
 	/// Nearly deprecated function
 	void set_phase(std::string Phase_str);
 

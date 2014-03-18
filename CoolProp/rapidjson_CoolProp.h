@@ -12,6 +12,6 @@ typedef unsigned int UINT32;
 #include "rapidjson/document.h"
 #include "rapidjson/filestream.h"	// wrapper of C stream for prettywriter as output
 #include "rapidjson/prettywriter.h"	// for stringify JSON
-
+#include "rapidjson/stringbuffer.h" // for string buffer
 
 #endif

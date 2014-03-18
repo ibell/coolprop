@@ -500,7 +500,6 @@ TEST_CASE((char*)"Saturation consistency checks", (char*)"[slow],[consistency]" 
 		{
 			double Tt = (*it)->limits.Tmin;
 			double Tc = (*it)->crit.T;
-			double pc = (*it)->crit.p.Pa;
 			double N = 30;
 			for (double T = Tt; T<Tc; T+=(Tc-Tt)/(N-1))
 			{

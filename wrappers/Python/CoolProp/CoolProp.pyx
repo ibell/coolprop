@@ -15,6 +15,7 @@ except ImportError:
     _numpy_supported = False
 
 import math
+import warnings
 
 from param_constants import *
 from param_constants_header cimport *
@@ -184,9 +185,9 @@ cpdef fromSI(str in1, in2=None, str in3 = 'kSI'):
     PropsU and DerivTermsU functions. 
     """
     if isinstance(in2, (int, long, float, complex)): #is not iterable
-        return _fromSI(in1, in2, in3)
+        return _fromSI(in1.encode('ascii'), in2, in3.encode('ascii'))
     else: # iterable or error
-        result = [_fromSI(in1, inV, in3) for inV in in2]
+        result = [_fromSI(in1.encode('ascii'), inV, in3.encode('ascii')) for inV in in2]
         if _numpy_supported:
             return np.array(result)
         else:
@@ -199,9 +200,9 @@ cpdef toSI(str in1, in2=None, str in3='kSI'):
     PropsU and DerivTermsU functions. 
     """
     if isinstance(in2, (int, long, float, complex)): #is not iterable
-        return _toSI(in1, in2, in3)
+        return _toSI(in1.encode('ascii'), in2, in3.encode('ascii'))
     else: # iterable or error
-        result = [_toSI(in1, inV, in3) for inV in in2]
+        result = [_toSI(in1.encode('ascii'), inV, in3.encode('ascii')) for inV in in2]
         if _numpy_supported:
             return np.array(result)
         else:
@@ -304,6 +305,7 @@ cpdef Props(in1, in2, in3 = None, in4 = None, in5 = None, in6 = None, in7 = None
     since surface tension is only a function of temperature
     """
     cdef double _in3
+    cdef bytes _in1,_in2,_in4,_in6
         
     if (in4 is None and in6 is None and in7 is None):
         val = _Props1(in1.encode('ascii'), in2.encode('ascii'))
@@ -312,8 +314,12 @@ cpdef Props(in1, in2, in3 = None, in4 = None, in5 = None, in6 = None, in7 = None
         else:
             return val
     else:
+        _in1 = in1.encode('ascii')
+        _in2 = in2.encode('ascii')
+        _in4 = in4.encode('ascii')
+        _in6 = in6.encode('ascii')
         if not iterable(in3) and not iterable(in5):
-            val = _Props(in1, in2, in3, in4, in5, in6)
+            val = _Props(_in1, _in2, in3, _in4, in5, _in6)
             if not _ValidNumber(val):
                 __Props_err2(in1,in2,in3,in4,in5,in6,_get_global_param_string('errstring'))
             else:
@@ -322,7 +328,7 @@ cpdef Props(in1, in2, in3 = None, in4 = None, in5 = None, in6 = None, in7 = None
             if len(in3) != len(in5) : raise TypeError('Lengths of iterables must be the same')
             vals = []
             for _in3, _in5 in zip(in3,in5):
-                val = _PropsS(in1, in2, _in3, in4, _in5, in6)
+                val = _Props(_in1, _in2, _in3, _in4, _in5, _in6)
                 if not _ValidNumber(val):
                     __Props_err2(in1,in2,_in3,in4,_in5,in6,_get_global_param_string('errstring'))
                 vals.append(val)
@@ -330,12 +336,12 @@ cpdef Props(in1, in2, in3 = None, in4 = None, in5 = None, in6 = None, in7 = None
         else:
             if iterable(in5) and not iterable(in3):
                 in3, in5 = in5, in3 # swap 3 and 5 so 3 is the iterable
-                in2, in4 = in4, in2 # swap their keys too
+                _in2, _in4 = _in4, _in2 # swap their keys too
             vals = []
             for _in3 in in3:
-                val = _Props(in1, in2, _in3, in4, in5, in6)
+                val = _Props(_in1, _in2, _in3, _in4, in5, _in6)
                 if not _ValidNumber(val):
-                    __Props_err2(in1,in2,_in3,in4,in5,in6,_get_global_param_string('errstring'))
+                    __Props_err2(in1,_in2,_in3,_in4,in5,in6,_get_global_param_string('errstring'))
                 vals.append(val)
             return ndarray_or_iterable(vals)
        
@@ -432,6 +438,9 @@ cpdef PropsSI(in1, in2, in3 = None, in4 = None, in5 = None, in6 = None, in7 = No
     since surface tension is only a function of temperature
     
     """
+    cdef double _in3
+    cdef bytes _in1,_in2,_in4,_in6
+    
     if (in4 is None and in6 is None and in7 is None):
         val = _Props1SI(in1.encode('ascii'), in2.encode('ascii'))
         if not _ValidNumber(val):
@@ -439,8 +448,12 @@ cpdef PropsSI(in1, in2, in3 = None, in4 = None, in5 = None, in6 = None, in7 = No
         else:
             return val
     else:
+        _in1 = in1.encode('ascii')
+        _in2 = in2.encode('ascii')
+        _in4 = in4.encode('ascii')
+        _in6 = in6.encode('ascii')
         if not iterable(in3) and not iterable(in5):
-            val = _PropsSI(in1, in2, in3, in4, in5, in6)
+            val = _PropsSI(_in1, _in2, in3, _in4, in5, _in6)
             if not _ValidNumber(val):
                 __PropsSI_err2(in1,in2,in3,in4,in5,in6,_get_global_param_string('errstring'))
             else:
@@ -449,7 +462,7 @@ cpdef PropsSI(in1, in2, in3 = None, in4 = None, in5 = None, in6 = None, in7 = No
             if len(in3) != len(in5) : raise TypeError('Lengths of iterables must be the same')
             vals = []
             for _in3, _in5 in zip(in3,in5):
-                val = _PropsSI(in1, in2, _in3, in4, _in5, in6)
+                val = _PropsSI(_in1, _in2, _in3, _in4, _in5, _in6)
                 if not _ValidNumber(val):
                     __PropsSI_err2(in1,in2,_in3,in4,_in5,in6,_get_global_param_string('errstring'))
                 vals.append(val)
@@ -457,12 +470,12 @@ cpdef PropsSI(in1, in2, in3 = None, in4 = None, in5 = None, in6 = None, in7 = No
         else:
             if iterable(in5) and not iterable(in3):
                 in3, in5 = in5, in3 # swap 3 and 5 so 3 is the iterable
-                in2, in4 = in4, in2 # swap their keys too
+                _in2, _in4 = _in4, _in2 # swap their keys too
             vals = []
             for _in3 in in3:
-                val = _PropsSI(in1, in2, _in3, in4, in5, in6)
+                val = _PropsSI(_in1, _in2, _in3, _in4, in5, _in6)
                 if not _ValidNumber(val):
-                    __PropsSI_err2(in1,in2,_in3,in4,in5,in6,_get_global_param_string('errstring'))
+                    __PropsSI_err2(in1,_in2,_in3,_in4,in5,in6,_get_global_param_string('errstring'))
                 vals.append(val)
             return ndarray_or_iterable(vals)
 
@@ -756,38 +769,6 @@ cpdef tuple get_TTSESinglePhase_LUT_range(char *FluidName):
         return (hmin, hmax, pmin, pmax)
     else:
         raise ValueError("Either your FluidName was invalid or LUT bounds not available since no call has been made to tables")
-
-cpdef tuple conformal_Trho(string_like Fluid, string_like ReferenceFluid, double T, double rho):
-    """
-    
-    """    
-    cdef double T0 = 0,rho0= 0
-    _conformal_Trho(Fluid, ReferenceFluid, T, rho, &T0, &rho0)
-    return T0,rho0
-
-cpdef rhosatL_anc(string_like Fluid, double T):
-    return _rhosatL_anc(Fluid,T)
-
-cpdef rhosatV_anc(string_like Fluid, double T):
-    return _rhosatV_anc(Fluid,T)
-
-cpdef psatL_anc(string_like Fluid, double T):
-    return _psatL_anc(Fluid,T)
-
-cpdef psatV_anc(string_like Fluid, double T):
-    return _psatV_anc(Fluid,T)
-
-cpdef viscosity_residual(string_like Fluid, double T, double rho):
-    return _viscosity_residual(Fluid, T, rho)
-
-cpdef viscosity_dilute(string_like Fluid, double T):
-    return _viscosity_dilute(Fluid,T)
-
-cpdef conductivity_background(string_like Fluid, double T, double rho):
-    return _conductivity_background(Fluid,T, rho)
-
-cpdef conductivity_critical(string_like Fluid, double T, double rho):
-    return _conductivity_critical(Fluid,T, rho)
     
 cpdef set_standard_unit_system(int unit_system):
     _set_standard_unit_system(unit_system)

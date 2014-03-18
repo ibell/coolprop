@@ -382,7 +382,6 @@ cdef extern from "CoolProp.h":
     double _Props "Props"(string Output, string Name1, double Prop1, string Name2, double Prop2, string Ref)
     double _Props1 "Props1"(string Ref, string Output)
     
-    
     string _Phase "Phase"(char *Fluid, double T, double p)
     string _Phase_Tp "Phase_Tp"(string Fluid, double T, double p)
     string _Phase_Trho "Phase_Trho"(string Fluid, double T, double rho)
@@ -401,18 +400,6 @@ cdef extern from "CoolProp.h":
     
     string _get_TTSE_mode "get_TTSE_mode"(string Fluid)
     int _set_TTSE_mode "set_TTSE_mode"(char* Fluid, char* Value)
-    
-    #Ancillary equations
-    double _psatL_anc "psatL_anc"(char*Fluid, double T)
-    double _psatV_anc "psatV_anc"(char*Fluid, double T)
-    double _rhosatL_anc "rhosatL_anc"(char*Fluid, double T)
-    double _rhosatV_anc "rhosatV_anc"(char*Fluid, double T)
-    
-    double _viscosity_dilute "viscosity_dilute"(char* FluidName, double T)
-    double _viscosity_residual "viscosity_residual"(char* FluidName, double T, double rho)
-    double _conductivity_background "conductivity_background"(char* FluidName, double T, double rho)
-    double _conductivity_critical "conductivity_critical"(char* FluidName, double T, double rho)
-    double _conformal_Trho "conformal_Trho"(char* FluidName, char* ReferenceFluidName, double T, double rho, double *Tconform, double *rhoconform)
     
     string _add_REFPROP_fluid "add_REFPROP_fluid"(string FluidName) except +
     

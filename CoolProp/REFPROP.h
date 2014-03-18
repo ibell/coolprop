@@ -48,6 +48,7 @@
 	bool set_REFPROP_fluid(std::string Ref, std::vector<double> &x);
 	std::string get_REFPROP_fluid_path();
 
+    double REFPROPSI(long iOutput,     long iName1,       double iProp1, long iName2, double iProp2, std::string Ref);
 	double REFPROP(char Output,        char Name1,        double Prop1, char Name2,        double Prop2, char * Ref);
 	double REFPROP(std::string Output, std::string Name1, double Prop1, std::string Name2, double Prop2, std::string Ref);
 

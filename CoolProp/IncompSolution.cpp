@@ -201,9 +201,8 @@ bool IsIncompressibleSolution(std::string name)
 	}
 }
 
-double pIncompSolution(long iOutput, double T, double p, double x, IncompressibleSolution *pSolution)
+double pIncompSolutionSI(long iOutput, double T, double p_SI, double x, IncompressibleSolution *pSolution)
 {
-	double p_SI = convert_from_unit_system_to_SI(iP,p,get_standard_unit_system());
 	double out;
 	switch (iOutput)
 	{
@@ -237,23 +236,23 @@ double pIncompSolution(long iOutput, double T, double p, double x, Incompressibl
 			throw ValueError(format("Your index [%d] is invalid for the incompressible solution %s",iOutput,pSolution->getName().c_str()));
 			out=0; break;
 	}
-	return convert_from_SI_to_unit_system(iOutput,out,get_standard_unit_system());
+	return out;
 }
 
-double IncompSolution(long iOutput, double T, double p, double x, long iFluid)
+double IncompSolutionSI(long iOutput, double T, double p, double x, long iFluid)
 {
-	return pIncompSolution(iOutput,T,p,x,Solutions.get_solution(iFluid));
+	return pIncompSolutionSI(iOutput,T,p,x,Solutions.get_solution(iFluid));
 }
 
-double IncompSolution(long iOutput, double T, double p, double x, std::string name)
+double IncompSolutionSI(long iOutput, double T, double p, double x, std::string name)
 {
-	return pIncompSolution(iOutput,T,p,x,Solutions.get_solution(name));
+	return pIncompSolutionSI(iOutput,T,p,x,Solutions.get_solution(name));
 }
 
 /** Just some convenience functions to allow for backward compatibility.
  *  We might end up using them in the beginning until we can
  *  handle a third parameter properly. */
-double IncompSolution(long iOutput, double T, double p, std::string name){ // TODO Solutions: Remove as soon as possible
+double IncompSolutionSI(long iOutput, double T, double p, std::string name){ // TODO Solutions: Remove as soon as possible
 	// Split into fluid, concentration pair
 	std::vector<std::string> fluid_concentration = strsplit(std::string(name),'-');
 	// Check it worked
@@ -265,7 +264,7 @@ double IncompSolution(long iOutput, double T, double p, std::string name){ // TO
 	double x = strtod(fluid_concentration[1].c_str(), &pEnd);
 	// Check if per cent or fraction syntax is used
 	if (!strcmp(pEnd,"%")){	x *= 0.01;}
-	return IncompSolution(iOutput, T, p, x, fluid_concentration[0]);
+	return IncompSolutionSI(iOutput, T, p, x, fluid_concentration[0]);
 }
 std::string getSolutionName(std::string name){ // TODO Solutions: Remove as soon as possible
 	// Split into fluid, concentration pair

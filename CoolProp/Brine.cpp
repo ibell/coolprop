@@ -334,79 +334,87 @@ static int a[18][2]={
 	{4,1},
 	{5,0}
 };
+double SecFluidsSI(std::string Output, double T, double p, std::string Ref)
+{
+    double p_kSI = convert_from_SI_to_unit_system(iP,p,UNIT_SYSTEM_KSI);
 
-double SecFluids(char Output, double T, double p, char * Ref)
+    double out = SecFluids(Output, T, p_kSI, Ref);
+
+    return convert_from_unit_system_to_SI(get_param_index(Output),out,get_standard_unit_system());
+}
+double SecFluids(std::string Output, double T, double p, std::string Ref)
 {
 	double Tfreeze,Tmax,rho,cp,k,mu,u,s,TC,C_gly;
 	// Temperature and Pressure are the inputs
 
+    long iOutput = get_param_index(Output);
 	// Check for trivial output values
-	if (Output == 'T')
+	if (!Output.compare("T"))
 		return T;
-	else if (Output == 'P')
+	else if (!Output.compare("P"))
 		return p;
 
-	if (!strcmp(Ref,"HC-10"))
+	if (!Ref.compare("HC-10"))
 	{
 		// Curve fits generated from Microsoft Excel fit of manufacturer data
 		// Input temperature is in deg C
 		TC=T-273.15;
-		switch(Output)
+		switch(iOutput)
 		{
-			case 'D':
+			case iD:
 				return -4.52609118E-01*TC + 1.19919457E+03;
-			case 'C':
+			case iC:
 				return 2.4797494E-03*TC + 3.2708330E+00;
-			case 'L':
+			case iL:
 				return 1.00000E-06*TC + 5.04400E-04;
-			case 'V':
+			case iV:
 				return 2.937072591E-12*TC*TC*TC*TC - 1.713938938E-09*TC*TC*TC + 3.826311605E-07*TC*TC - 4.253611683E-05*TC + 2.509839772E-03;
-			case 'F':
+			case iTfreeze:
 				return 263.15;
-			case 'M':
+			case iTmax:
 				return 390;
-			case 'H':
+			case iH:
 				return (2.4797494E-03*TC*TC/2.0 + 3.2708330E+00*TC)/1000+p/(-4.52609118E-01*TC + 1.19919457E+03);
-			case 'S':
+			case iS:
 				return 2.4797494E-03*(T-298.15) + 3.2708330E+00*log(T/298.15);
 			default:
 				return _HUGE;
 		}
 	}
 	// Split into fluid, concentration pair
-	std::vector<std::string> fluid_concentration = strsplit(std::string(Ref),'-');
+	std::vector<std::string> fluid_concentration = strsplit(Ref,'-');
 	
 	// Check it worked
 	if (fluid_concentration.size() != 2){
-		throw ValueError(format("Format of brine string [%s] is invalid, should be like \"EG-20%\" ", Ref) );
+        throw ValueError(format("Format of brine string [%s] is invalid, should be like \"EG-20%\" ", Ref.c_str()) );
 	}
 
 	// Convert the concentration into a string, discarding anything to the right of the numbers
 	C_gly = strtod(fluid_concentration[1].c_str(),NULL);
 		
 	// Set the temperature to within the band to avoid zero
-	if (Output=='M' || Output=='F'){ T=300;}
+	if (iOutput == iTmax || iOutput == iTfreeze){ T=300;}
 
 	// Melinder correlations are in degree C, so need to convert the temp
 	Brine((char *)fluid_concentration[0].c_str(), T - 273.15, C_gly, &Tfreeze, &Tmax, &rho, &cp, &k, &mu,&u,&s);
 
-	switch(Output)
+	switch(iOutput)
 	{
-		case 'D':
+		case iD:
 			return rho;
-		case 'C':
+		case iC:
 			return cp/1000; // J/kg -> kJ/kg
-		case 'L':
+		case iL:
 			return k/1000; // W/m/K -> kW/m/K
-		case 'V':
+		case iV:
 			return mu / 1000.0; // mPa-s --> Pa-s
-		case 'F':
+		case iTfreeze:
 			return Tfreeze+273.15; // C --> K
-		case 'M':
+		case iTmax:
 			return Tmax+273.15; // C --> K
-		case 'H':
+		case iH:
 			return u/1000+p/rho; // J/kg -> kJ/kg
-		case 'S':
+		case iS:
 			return s/1000; // J/kg/K -> kJ/kg/K
 		default:
 			return _HUGE;
@@ -415,32 +423,7 @@ double SecFluids(char Output, double T, double p, char * Ref)
 
 // inputs in C, percent mass,
 // outputs in kg/m^3, J/kg-K, mW/m-K, Pa-s, J/kg, J/kg/K
-int Brine(char * Mix, double T, double C, /*in --- out */double *Tfreeze, double *Tmax, double *rho, double *cp, double *k, double *visc, double *u, double *s)
-//{
-//	quantity<temperature> _T(0*kelvin); 
-//	quantity<temperature> _Tfreeze(0*kelvin); 
-//	quantity<temperature> _Tmax(0*kelvin);
-//	quantity<mass_density> _rho(0*kilogram_per_cubic_meter); 
-//	quantity<specific_heat_capacity> _cp(0*joule_per_kilogram_kelvin);
-//	quantity<thermal_conductivity> _k(0*watt_per_meter_kelvin);
-//	quantity<dynamic_viscosity> _visc(0*pascal_second); 
-//	quantity<specific_energy> _u(0*joule_per_kilogram);
-//	quantity<entropy> _s(0*joule_per_kilogram_kelvin);
-//	Brine(Mix,_T,C,_Tfreeze, _Tmax, _rho, _cp, _k, _visc, _u, _s);
-//}
-//
-//int Brine(char * Mix, 
-//		  quantity<temperature> T, 
-//		  double C, 
-//		  /*in --- out */ 
-//		  quantity<temperature> *Tfreeze, 
-//		  quantity<temperature> *Tmax, 
-//		  quantity<mass_density> *rho, 
-//		  quantity<specific_heat_capacity> *cp, 
-//		  quantity<thermal_conductivity> *k, 
-//		  quantity<dynamic_viscosity> *visc, 
-//		  quantity<specific_energy> *u, 
-//		  quantity<entropy> *s)
+int Brine(const char * Mix, double T, double C, /*in --- out */double *Tfreeze, double *Tmax, double *rho, double *cp, double *k, double *visc, double *u, double *s)
 {
 
 	double (*A)[18][5];

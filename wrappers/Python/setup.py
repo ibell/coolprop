@@ -1,4 +1,9 @@
 from __future__ import print_function
+# Use setuptools version of distutils if available
+try:
+    import setuptools
+except ImportError:
+    pass
 #Check for cython >= 0.17 due to the use of STL containers
 try:
     import Cython
@@ -240,7 +245,7 @@ if __name__=='__main__':
            packages = ['CoolProp','CoolProp.Plots','CoolProp.tests','CoolProp.GUI'],
            ext_modules = [CoolProp_module,param_constants_module,phase_constants_module,unit_systems_constants_module],
            package_dir = {'CoolProp':'CoolProp',},
-           package_data = {'CoolProp':['State.pxd','CoolProp.pxd','param_constants_header.pxd','include/*.h','include/rapidjson/*.h','include/rapidjson/internal/*.h','CoolPropBibTeXLibrary.bib']},
+           package_data = {'CoolProp':['State.pxd','CoolProp.pxd','param_constants_header.pxd','include/*.h','include/rapidjson/*.h','include/rapidjson/internal/*.h','CoolPropBibTeXLibrary.bib','tests/baseline_images/test_plots/*.png']},
            cmdclass={'build_ext': build_ext},
            
            classifiers = [

@@ -1103,7 +1103,7 @@ public:
 	Fluid * pFluid;
 	double T,gL,gV,rhoL,rhoV,p;
 
-	rhosatPure_BrentrhoVResidClass(double T, Fluid *pFluid):T(T), pFluid(pFluid){
+	rhosatPure_BrentrhoVResidClass(double T, Fluid *pFluid):pFluid(pFluid),T(T) {
 		this->rhoL = pFluid->rhosatL(T);
 	};
 	double call(double rhoV){
@@ -1914,7 +1914,7 @@ void Fluid::temperature_ph(double p, double h, double &Tout, double &rhoout, dou
 							rho_guess = QuadInterp(h_guess, h_mid, hsatL, rho_guess, rho_mid, rhoL, h);
 						}
 					}
-					catch(std::exception &e)
+					catch(std::exception &)
 					{
 						T_guess = TsatL;
 						rho_guess = rhoLout;
@@ -2993,7 +2993,7 @@ private:
 	Fluid *pFluid;
 public:
 	double rhoL, rhoV, resid;
-	SaturationPressureGivenResids(Fluid *pFluid, double p) : pFluid(pFluid), p(p) {};
+	SaturationPressureGivenResids(Fluid *pFluid, double p) : p(p), pFluid(pFluid) {};
 	~SaturationPressureGivenResids(){};
 	double call(double T)
 	{
@@ -3011,7 +3011,7 @@ private:
 	Fluid *pFluid;
 public:
 	double rhoL, rhoV, resid;
-	Saturation_p_IterateSaturationT_Resids(Fluid *pFluid, double p) : pFluid(pFluid), p(p) {};
+	Saturation_p_IterateSaturationT_Resids(Fluid *pFluid, double p) : p(p), pFluid(pFluid) {};
 	~Saturation_p_IterateSaturationT_Resids(){};
 	double call(double T)
 	{
@@ -3742,9 +3742,6 @@ int AncillaryCurveClass::build(int N)
 {
 	double T,rhoV,rhoL;
 
-	// Output values
-	long iFluid = get_Fluid_index(pFluid->get_name());
-
 	double Tmin	= pFluid->params.Ttriple+1e-6;
 	if (Tmin<pFluid->limits.Tmin)
 		Tmin = pFluid->limits.Tmin+1e-6;
@@ -4006,4 +4003,60 @@ void rebuild_CriticalSplineConstants_T()
 	}
 	fclose(fp);
 	UseCriticalSpline = true;
+}
+
+std::string Fluid::to_json()
+{
+    rapidjson::Document dd;
+    dd.SetObject();
+
+    // Fluid name
+    rapidjson::Value _name(rapidjson::kStringType);
+    _name.SetString(get_name().c_str(),dd.GetAllocator());
+    dd.AddMember("NAME", _name, dd.GetAllocator());
+
+    // CAS code
+    rapidjson::Value _cas(rapidjson::kStringType);
+    _cas.SetString(params.CAS.c_str(),dd.GetAllocator());
+    dd.AddMember("CAS", _cas, dd.GetAllocator());
+
+    // Aliases
+    rapidjson::Value aliases(rapidjson::kArrayType);
+    std::vector<std::string> aliasesv = get_aliases();
+    for (std::vector<std::string>::iterator it = aliasesv.begin(); it != aliasesv.end(); it++)
+    {
+        rapidjson::Value _aliases(rapidjson::kStringType);
+        _aliases.SetString((*it).c_str(),dd.GetAllocator());
+        aliases.PushBack(_aliases,dd.GetAllocator());
+    }
+    dd.AddMember("ALIASES", aliases, dd.GetAllocator());
+    
+    // The equation(s) of state
+    rapidjson::Value EOS(rapidjson::kArrayType);
+    rapidjson::Value the_EOS(rapidjson::kObjectType);
+    rapidjson::Value alphar(rapidjson::kArrayType);
+    for (std::vector<phi_BC*>::const_iterator it = phirlist.begin(); it != phirlist.end(); it++)
+    {
+        rapidjson::Value entry(rapidjson::kObjectType);
+        (*it)->to_json(entry, dd);
+        alphar.PushBack(entry,dd.GetAllocator());
+    }
+    the_EOS.AddMember("alphar",alphar,dd.GetAllocator());
+    EOS.PushBack(the_EOS,dd.GetAllocator());
+    
+    dd.AddMember("EOS",EOS,dd.GetAllocator());
+
+    rapidjson::StringBuffer buffer;
+    rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buffer);
+
+    dd.Accept(writer);
+    std::string json0 = buffer.GetString();
+    std::cout << json0 << std::endl;
+
+    FILE *fp;
+    fp = fopen((get_name()+".json").c_str(),"w");
+    fprintf(fp,"%s",json0.c_str());
+    fclose(fp);
+    
+    exit(EXIT_FAILURE);
 }
