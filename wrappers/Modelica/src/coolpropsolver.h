@@ -35,6 +35,9 @@ public:
 	virtual void setSat_p(double &p, ExternalSaturationProperties *const properties);
 	virtual void setSat_T(double &T, ExternalSaturationProperties *const properties);
 
+	virtual void setBubbleState(ExternalSaturationProperties *const properties, int phase, ExternalThermodynamicState *const bubbleProperties);
+	virtual void setDewState   (ExternalSaturationProperties *const properties, int phase, ExternalThermodynamicState *const bubbleProperties);
+
 	virtual void setState_ph(double &p, double &h, int &phase, ExternalThermodynamicState *const properties);
 	virtual void setState_pT(double &p, double &T, ExternalThermodynamicState *const properties);
 	virtual void setState_dT(double &d, double &T, int &phase, ExternalThermodynamicState *const properties);
