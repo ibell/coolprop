@@ -41,6 +41,7 @@ double convert_from_unit_system_to_SI(long iInput, double value, int old_system)
 			break;
 		}
 		break;
+	case iMM:
 	case iDERdrho_dh__p:
 	case iDERdrho_dp__h:
 	case iDERdrho_smoothed_dh:
@@ -76,7 +77,6 @@ double convert_from_unit_system_to_SI(long iInput, double value, int old_system)
 	case iPHASE_TWOPHASE:
 	case iODP:
 	case iGWP100:
-	case iMM:
 	case iRhocrit:
 	case iRhoreduce: 
 	case iAccentric:
@@ -159,6 +159,7 @@ double convert_from_SI_to_unit_system(long iInput, double value, int new_system)
 			break;
 		}
 		break;
+	case iMM:
 	case iDERdrho_dh__p:
 	case iDERdrho_dp__h:
 	case iDERdrho_smoothed_dh:
