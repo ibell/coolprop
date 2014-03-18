@@ -153,7 +153,7 @@ void CoolPropSolver::setFluidConstants(){
 	
 	double p_sat2crit = _fluidConstants.pc*(1.0-this->_p_eps);
 	_satPropsClose2Crit.psat = p_sat2crit; // Needs update, setSat_p relies on it
-	setSat_p(p_sat2crit, _satPropsClose2Crit);
+	setSat_p(p_sat2crit, this->_satPropsClose2Crit);
 }
 
 void CoolPropSolver::preStateChange(void) {
