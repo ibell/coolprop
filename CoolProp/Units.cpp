@@ -194,7 +194,6 @@ double convert_from_SI_to_unit_system(long iInput, double value, int new_system)
 	case iPHASE_TWOPHASE:
 	case iODP:
 	case iGWP100:
-	case iMM:
 	case iRhocrit:
 	case iRhoreduce: 
 	case iAccentric:
