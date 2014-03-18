@@ -18,7 +18,7 @@
 class CoolPropSolver : public BaseSolver{
 protected:
 	class CoolPropStateClassSI *state;
-	bool enable_TTSE, calc_transport, extend_twophase;
+	bool enable_TTSE, enable_BICUBIC, calc_transport, extend_twophase;
 	int debug_level;
 	double twophase_derivsmoothing_xend;
 	double rho_smoothing_xend;
