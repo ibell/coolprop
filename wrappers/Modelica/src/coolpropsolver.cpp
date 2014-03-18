@@ -147,7 +147,7 @@ void CoolPropSolver::setFluidConstants(){
 	// Now we fill the close to crit record
 	if (debug_level > 5) std::cout << format("Setting near-critical saturation conditions for fluid %s \n",substanceName.c_str());
 	
-	double p_sat2crit = _fluidConstants.pc*(1.0-_p_eps);
+	double p_sat2crit = _fluidConstants.pc*(1.0-this->_p_eps);
 	_satPropsClose2Crit.psat = p_sat2crit; // Needs update, setSat_p relies on it
 	setSat_p(p_sat2crit, _satPropsClose2Crit);
 }
@@ -387,9 +387,9 @@ void CoolPropSolver::setBubbleState(ExternalSaturationProperties *const properti
 	if (phase == 0)
 		hl = properties->hl;
 	else if (phase == 1) // liquid phase
-		hl = properties->hl-delta_h;
+		hl = properties->hl-this->delta_h;
 	else                 // two-phase mixture
-		hl = properties->hl+delta_h;
+		hl = properties->hl+this->delta_h;
 
 	setState_ph(properties->psat, hl, phase, bubbleProperties);
 }
@@ -400,9 +400,9 @@ void CoolPropSolver::setDewState(ExternalSaturationProperties *const properties,
 	if (phase == 0)
 		hv = properties->hv;
 	else if (phase == 1) // gaseous phase
-		hv = properties->hv+delta_h;
+		hv = properties->hv+this->delta_h;
 	else                 // two-phase mixture
-		hv = properties->hv-delta_h;
+		hv = properties->hv-this->delta_h;
 
 	setState_ph(properties->psat, hv, phase, bubbleProperties);
 }
