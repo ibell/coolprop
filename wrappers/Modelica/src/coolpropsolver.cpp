@@ -346,9 +346,20 @@ void CoolPropSolver::setSat_T(double &T, ExternalSaturationProperties *const pro
 	}
 }
 
+
+double delta_h = 1e-2; // delta_h for one-phase/two-phase discrimination
+
 /// Set bubble state
 void CoolPropSolver::setBubbleState(ExternalSaturationProperties *const properties, int phase, ExternalThermodynamicState *const bubbleProperties){
-	setState_ph(properties->psat, properties->hl, phase, bubbleProperties);
+	double hl;
+	if (phase == 0)
+		hl = properties->hl;
+	else if (phase == 1) // liquid phase
+		hl = properties->hl-delta_h;
+	else                 // two-phase mixture
+		hl = properties->hl+delta_h;
+
+	setState_ph(properties->psat, hl, phase, bubbleProperties);
 }
 
 /// Set dew state
