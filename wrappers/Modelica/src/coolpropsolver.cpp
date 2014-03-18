@@ -354,6 +354,7 @@ void CoolPropSolver::setBubbleState(ExternalSaturationProperties *const properti
 /// Set dew state
 void CoolPropSolver::setDewState(ExternalSaturationProperties *const properties, int phase, ExternalThermodynamicState *const dewProperties){
 	setState_ph(properties->psat, properties->hv, 2, dewProperties);
+}
 
 // Note: the phase input is currently not supported
 void CoolPropSolver::setState_ph(double &p, double &h, int &phase, ExternalThermodynamicState *const properties){
