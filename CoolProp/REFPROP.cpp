@@ -1438,7 +1438,6 @@ TEST_CASE("REFPROP Fluid Class check saturation consistency", "")
 {
 	std::vector<double> x(1,1);
 	REFPROPFluidClass fluid = REFPROPFluidClass("REFPROP-Water",x);
-	double eps = sqrt(DBL_EPSILON);
 
 	SECTION("sat")
 	{

@@ -245,7 +245,7 @@ if __name__=='__main__':
            packages = ['CoolProp','CoolProp.Plots','CoolProp.tests','CoolProp.GUI'],
            ext_modules = [CoolProp_module,param_constants_module,phase_constants_module,unit_systems_constants_module],
            package_dir = {'CoolProp':'CoolProp',},
-           package_data = {'CoolProp':['State.pxd','CoolProp.pxd','param_constants_header.pxd','include/*.h','include/rapidjson/*.h','include/rapidjson/internal/*.h','CoolPropBibTeXLibrary.bib']},
+           package_data = {'CoolProp':['State.pxd','CoolProp.pxd','param_constants_header.pxd','include/*.h','include/rapidjson/*.h','include/rapidjson/internal/*.h','CoolPropBibTeXLibrary.bib','tests/baseline_images/test_plots/*.png']},
            cmdclass={'build_ext': build_ext},
            
            classifiers = [

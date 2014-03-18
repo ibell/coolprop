@@ -1,4 +1,5 @@
 import numpy as np
+from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
 
 def test_back_compatibility():
@@ -109,52 +110,52 @@ def test_back_compatibility():
     Isolines_plot_tests()
 
 
-def test_new_code():
-    fluid_ref = 'Water'
+# test new code
+fluid_ref = 'Water'
 
-    def Ts_plot_tests():
-        from CoolProp.Plots import PropsPlot
-        PP = PropsPlot(fluid_ref, 'Ts')
-        plt.close()
+@image_comparison(baseline_images=['Ts_plot_tests'], extensions=['png'])
+def Ts_plot_tests():
+    from CoolProp.Plots import PropsPlot
+    PP = PropsPlot(fluid_ref, 'Ts')
+    PP._draw_graph()
 
-    def Ph_plot_tests():
-        from CoolProp.Plots import PropsPlot
-        PP = PropsPlot(fluid_ref, 'Ph')
-        plt.close()
+@image_comparison(baseline_images=['Ph_plot_tests'], extensions=['png'])
+def Ph_plot_tests():
+    from CoolProp.Plots import PropsPlot
+    PP = PropsPlot(fluid_ref, 'Ph')
+    PP._draw_graph()
 
-    def Isolines_plot_tests():
-        from CoolProp.Plots import PropsPlot
-        PP = PropsPlot(fluid_ref, 'Ts')
-        #plt.set_axis_limits([-0.5, 1.5, 300, 530])
-        PP.draw_isolines('Q', [0.3, 0.5, 0.7, 0.8])
-        PP.draw_isolines('P', [100, 2000], num=5)
-        PP.draw_isolines('D', [2, 600], num=7)
-        plt.close()
+@image_comparison(baseline_images=['Isolines_plot_tests'], extensions=['png'])
+def Isolines_plot_tests():
+    from CoolProp.Plots import PropsPlot
+    PP = PropsPlot(fluid_ref, 'Ts')
+    PP.set_axis_limits([-0.5, 1.5, 300, 530])
+    PP.draw_isolines('Q', [0.3, 0.5, 0.7, 0.8])
+    PP.draw_isolines('P', [100e3, 2000e3], num=5)
+    PP.draw_isolines('D', [2, 600], num=7)
+    PP._draw_graph()
 
-    def Graph_annotations():
-        from CoolProp.Plots import PropsPlot, IsoLines
-        PP = PropsPlot(fluid_ref, 'Ts')
-        PP.draw_isolines('Q', [0.3, 0.5, 0.7, 0.8])
-        PP.draw_isolines('P', [100, 2000], num=5)
-        PP.draw_isolines('D', [2, 600], num=7)
-        plt.title('New Title')
-        PP.xlabel('New x label')
-        PP.ylabel('New y label')
-        PP = IsoLines(fluid_ref, 'Ts', 'P')
-        PP.draw_isolines([100, 2000], num=5)
-        plt.close()
+@image_comparison(baseline_images=['Graph_annotations_tests'], extensions=['png'])
+def Graph_annotations_tests():
+    from CoolProp.Plots import PropsPlot, IsoLines
+    PP = PropsPlot(fluid_ref, 'Ts')
+    PP.set_axis_limits([-0.5, 1.5, 300, 530])
+    PP.draw_isolines('Q', [0.3, 0.5, 0.7, 0.8])
+    PP.draw_isolines('P', [100e3, 2000e3], num=5)
+    PP.draw_isolines('D', [2, 600], num=7)
+    plt.title('New Title')
+    PP.xlabel('New x label')
+    PP.ylabel('New y label')
+    PP = IsoLines(fluid_ref, 'Ts', 'P')
+    PP.draw_isolines([100e3, 2000e3], num=5)
+    PP._draw_graph()
 
-    def Mixture():
-        from CoolProp.Plots import PropsPlot
-        PP = PropsPlot('REFPROP-MIX:R32[0.47319469]&R125[0.2051091]&R134a[0.32169621]', 'TD')
-        PP._plot_default_annotations()
-        plt.close()
+def Mixture_tests():
+    from CoolProp.Plots import PropsPlot
+    PP = PropsPlot('REFPROP-MIX:R32[0.47319469]&R125[0.2051091]&R134a[0.32169621]', 'TD')
+    PP._plot_default_annotations()
+    PP._draw_graph()
 
-    Ts_plot_tests()
-    Ph_plot_tests()
-    Isolines_plot_tests()
-    Graph_annotations()
-    Mixture()
 
 if __name__=='__main__':
     import nose

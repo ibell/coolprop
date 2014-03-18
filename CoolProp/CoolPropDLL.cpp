@@ -34,7 +34,8 @@ EXPORT_CODE double CONVENTION Props1SI(const char *FluidName, const char *Output
 }
 EXPORT_CODE double CONVENTION PropsS(const char *Output,const char* Name1, double Prop1, const char* Name2, double Prop2, const char * Ref)
 {
-	return Props(Output,Name1[0],Prop1,Name2[0],Prop2,Ref);
+	double val = Props(Output,Name1[0],Prop1,Name2[0],Prop2,Ref);
+	return val;
 }
 EXPORT_CODE double CONVENTION Props(const char *Output,char Name1, double Prop1, char Name2, double Prop2, const char * Ref)
 {
