@@ -21,8 +21,8 @@ CoolPropSolver::CoolPropSolver(const std::string &mediumName, const std::string 
 	enable_TTSE     = false;
 	enable_BICUBIC  = false;
 	debug_level     = 0;
-	calc_transport  = false;
-	extend_twophase = false;
+	calc_transport  = true;
+	extend_twophase = true;
 	twophase_derivsmoothing_xend = 0;
 	rho_smoothing_xend = 0;
 
@@ -130,6 +130,9 @@ void CoolPropSolver::setFluidConstants(){
 		_fluidConstants.pc = PropsSI((char *)"pcrit"   ,(char *)"T",0,(char *)"P",0,(char *)substanceName.c_str());
 		_fluidConstants.Tc = PropsSI((char *)"Tcrit"   ,(char *)"T",0,(char *)"P",0,(char *)substanceName.c_str());
 		_fluidConstants.MM = PropsSI((char *)"molemass",(char *)"T",0,(char *)"P",0,(char *)substanceName.c_str());
+		/* TODO: Fix this dirty, dirty workaround */
+		if (_fluidConstants.MM > 1.0) 
+		  _fluidConstants.MM *= 1e-3;
 		_fluidConstants.dc = PropsSI((char *)"rhocrit" ,(char *)"T",0,(char *)"P",0,(char *)substanceName.c_str());
 		return;
 	}
