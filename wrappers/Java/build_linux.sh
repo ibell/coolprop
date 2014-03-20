@@ -13,4 +13,4 @@ g++ -fpic  ${INCL} -c ${SRCD}/*.cpp
 g++ -shared *.o -o lib${NAME}.so
 javac *.java
 #rm *.o
-java Example.java
+java -Djava.library.path=. Example
