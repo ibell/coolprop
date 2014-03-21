@@ -9,7 +9,7 @@ A compiler (the Visual Studio 2010 C++ Express version should be fine)
 To Build
 --------
 
-**windows**:
+**Windows**:
 
 Run the script build_x64.bat - adjust the paths if necessary to the include folders for your java installation
 
