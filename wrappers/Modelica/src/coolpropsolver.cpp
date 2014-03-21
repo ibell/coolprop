@@ -16,6 +16,7 @@ CoolPropSolver::CoolPropSolver(const std::string &mediumName, const std::string 
 	// Set the defaults
 	fluidType       = -1;
 	enable_TTSE     = false;
+	enable_BICUBIC  = false;
 	debug_level     = 0;
 	calc_transport  = false;
 	extend_twophase = false;
@@ -45,6 +46,22 @@ CoolPropSolver::CoolPropSolver(const std::string &mediumName, const std::string 
 				{
 					std::cout << "TTSE is off\n";
 					enable_TTSE = false;
+				}
+				else
+					errorMessage((char*)format("I don't know how to handle this option [%s]",name_options[i].c_str()).c_str());
+					//throw NotImplementedError((char*)format("I don't know how to handle this option [%s]",name_options[i].c_str()).c_str());
+			}
+			if (!param_val[0].compare("enable_BICUBIC"))
+			{
+				if (!param_val[1].compare("1") || !param_val[1].compare("true"))
+				{
+					std::cout << "BICUBIC is on\n";
+					enable_BICUBIC = true;
+				}
+				else if (!param_val[1].compare("0") || !param_val[1].compare("false"))
+				{
+					std::cout << "BICUBIC is off\n";
+					enable_BICUBIC = false;
 				}
 				else
 					errorMessage((char*)format("I don't know how to handle this option [%s]",name_options[i].c_str()).c_str());
@@ -132,6 +149,12 @@ void CoolPropSolver::preStateChange(void) {
 			else
 				state->disable_TTSE_LUT();
 
+			if (enable_BICUBIC)
+			{
+				state->enable_TTSE_LUT();
+				state->pFluid->TTSESinglePhase.set_mode(TTSE_MODE_BICUBIC);
+			}
+
 			if (extend_twophase)
 				state->enable_EXTTP();
 			else
@@ -196,9 +219,11 @@ void CoolPropSolver::postStateChange(ExternalThermodynamicState *const propertie
 				{
 					properties->eta = state->viscosity();
 					properties->lambda = state->conductivity(); //[kW/m/K --> W/m/K]
+					properties->Pr = properties->cp*properties->eta/properties->lambda;
 				} else {
 					properties->eta    = -_HUGE;
 					properties->lambda = -_HUGE;
+					properties->Pr     = -_HUGE;
 				}
 			}
 			catch(std::exception &e)
@@ -227,9 +252,11 @@ void CoolPropSolver::postStateChange(ExternalThermodynamicState *const propertie
 				{
 					properties->eta = state->viscosity();
 					properties->lambda = state->conductivity(); //[kW/m/K --> W/m/K]
+					properties->Pr = properties->cp*properties->eta/properties->lambda;
 				} else {
 					properties->eta    = -_HUGE;
 					properties->lambda = -_HUGE;
+					properties->Pr     = -_HUGE;
 				}
 			}
 			catch(std::exception &e)

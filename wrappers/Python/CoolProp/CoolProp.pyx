@@ -185,9 +185,9 @@ cpdef fromSI(str in1, in2=None, str in3 = 'kSI'):
     PropsU and DerivTermsU functions. 
     """
     if isinstance(in2, (int, long, float, complex)): #is not iterable
-        return _fromSI(in1, in2, in3)
+        return _fromSI(in1.encode('ascii'), in2, in3.encode('ascii'))
     else: # iterable or error
-        result = [_fromSI(in1, inV, in3) for inV in in2]
+        result = [_fromSI(in1.encode('ascii'), inV, in3.encode('ascii')) for inV in in2]
         if _numpy_supported:
             return np.array(result)
         else:
@@ -200,9 +200,9 @@ cpdef toSI(str in1, in2=None, str in3='kSI'):
     PropsU and DerivTermsU functions. 
     """
     if isinstance(in2, (int, long, float, complex)): #is not iterable
-        return _toSI(in1, in2, in3)
+        return _toSI(in1.encode('ascii'), in2, in3.encode('ascii'))
     else: # iterable or error
-        result = [_toSI(in1, inV, in3) for inV in in2]
+        result = [_toSI(in1.encode('ascii'), inV, in3.encode('ascii')) for inV in in2]
         if _numpy_supported:
             return np.array(result)
         else:
