@@ -11,19 +11,17 @@ To Build
 
 **windows**:
 
----
-
 Run the script build_x64.bat - adjust the paths if necessary to the include folders for your java installation
 
 If on 32-bit windows, run the build_win32.bat file
 
 Each script will put the DLL in the corresponding folder (win32 for 32-bit, x64 for 64-bit)
 
+----
+
 **Linux**: 
 
----
-
-*dependencies*: ``swig``, ``g++``, ``JDK(openjdk or oracle)``
+**dependencies**: ``swig``, ``g++``, ``JDK(openjdk or oracle)``
 
 Use your package manager to install the dependencies, then run ``./build_linux.sh``.
 
@@ -37,6 +35,7 @@ Example:
 export JAVA_HOME="/usr/local/jdk7"
 ./build_linux.sh
 ```
+----
 
 Running
 =======
