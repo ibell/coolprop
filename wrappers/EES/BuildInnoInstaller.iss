@@ -33,6 +33,7 @@ Source: "C:\Users\Belli\Documents\Code\CoolProp\wrappers\EES\CoolProp.htm"; Dest
 Source: "C:\Users\Belli\Documents\Code\CoolProp\wrappers\EES\CoolProp.LIB"; DestDir: "{app}"; Flags: ignoreversion
 Source: "C:\Users\Belli\Documents\Code\CoolProp\wrappers\EES\COOLPROP_EES.dlf"; DestDir: "{app}"; Flags: ignoreversion
 Source: "C:\Users\Belli\Documents\Code\CoolProp\wrappers\EES\CoolProp_EES_Sample.EES"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\Belli\Documents\Code\CoolProp\wrappers\EES\coolpropsi.LIB"; DestDir: "{app}"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
