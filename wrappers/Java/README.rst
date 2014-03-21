@@ -29,13 +29,14 @@ This script will first use the ``$JAVA_HOME`` variable as JDK path. If not set, 
 
 If you are using ``oracle JDK`` or your ``openjdk`` is not in ``/usr/lib/jvm/java-7(6)-openjdk-*``, you should set ``$JAVA_HOME``.
 
-Example:
+**Note**: If you are using ``oracle JDK``, please copy the file ``oracle_jdk_path/include/linux/jni_md.h`` to ``oracle_jdk_path/include/``.
 
-```bash
-export JAVA_HOME="/usr/local/jdk7"
-./build_linux.sh
-```
-----
+Example::
+
+    export JAVA_HOME="/usr/local/jdk1.7.0_45"
+    ./build_linux.sh
+
+Finally, you'll find ``libCoolProp.so`` in current directory. Just copy it to ``java.library.path``.
 
 Running
 =======
@@ -51,4 +52,5 @@ which should output::
 Hiccups
 =======
 If the bin folder of the installation for java is not on the path, you may need to add it.
+
 
