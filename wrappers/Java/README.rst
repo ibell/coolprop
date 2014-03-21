@@ -8,11 +8,35 @@ A compiler (the Visual Studio 2010 C++ Express version should be fine)
 
 To Build
 --------
+
+**windows**:
+
+---
+
 Run the script build_x64.bat - adjust the paths if necessary to the include folders for your java installation
 
 If on 32-bit windows, run the build_win32.bat file
 
 Each script will put the DLL in the corresponding folder (win32 for 32-bit, x64 for 64-bit)
+
+**Linux**: 
+
+---
+
+*dependencies*: ``swig``, ``g++``, ``JDK(openjdk or oracle)``
+
+Use your package manager to install the dependencies, then run ``./build_linux.sh``.
+
+This script will first use the ``$JAVA_HOME`` variable as JDK path. If not set, will search ``/usr/lib/jvm/java-7(6)-openjdk-*`` directory to find out whether ``openjdk`` 7 or 6 is installed.
+
+If you are using ``oracle JDK`` or your ``openjdk`` is not in ``/usr/lib/jvm/java-7(6)-openjdk-*``, you should set ``$JAVA_HOME``.
+
+Example:
+
+```bash
+export JAVA_HOME="/usr/local/jdk7"
+./build_linux.sh
+```
 
 Running
 =======
