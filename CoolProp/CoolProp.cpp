@@ -164,6 +164,7 @@ std::pair<std::string, long> map_data[] = {
 	std::make_pair("dpdrho"  ,iDERdp_drho__T),
 	std::make_pair("dpdrho|T",iDERdp_drho__T),
 	std::make_pair("dhdT|rho",iDERdh_dT__rho),
+    std::make_pair("dhdp|T",iDERdh_dp__T),
 	std::make_pair("dhdrho|T",iDERdh_drho__T),
 	std::make_pair("drhodT|p",iDERdrho_dT__p),
 	std::make_pair("drhodh|p",iDERdrho_dh__p),

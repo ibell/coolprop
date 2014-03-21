@@ -1315,6 +1315,8 @@ double CoolPropStateClassSI::keyed_output(long iOutput)
 			output = drhodp_consth_smoothed(0.1); break;
 		case iDERIsothermalCompressibility:
 			output = isothermal_compressibility(); break;
+        case iDERdh_dp__T:
+            output = dhdp_constT(); break;
 		default:
 			throw ValueError(format("Invalid Output index to CPState function keyed_output: %d ",iOutput));
 	}
