@@ -23,7 +23,7 @@ Each script will put the DLL in the corresponding folder (win32 for 32-bit, x64 
 
 **dependencies**: ``swig``, ``g++``, ``JDK(openjdk or oracle)``
 
-Use your package manager to install the dependencies, then run ``./build_linux.sh``.
+Use your package manager to install the dependencies, then run ``./build_linux.sh``. It will build and install a system-wide shared library.
 
 This script will first use the ``$JAVA_HOME`` variable as JDK path. If not set, will search ``/usr/lib/jvm/java-7(6)-openjdk-*`` directory to find out whether ``openjdk`` 7 or 6 is installed.
 
@@ -35,8 +35,6 @@ Example::
 
     export JAVA_HOME="/usr/local/jdk1.7.0_45"
     ./build_linux.sh
-
-Finally, you'll find ``libCoolProp.so`` in current directory. Just copy it to ``java.library.path``.
 
 Running
 =======
