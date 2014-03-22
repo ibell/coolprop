@@ -35,7 +35,7 @@ Building on Linux (Ubuntu and derivatives)
 ---------------------------------------
 1. You will need to run 
       sudo apt-get update
-      sudo apt-get install octave liboctave-dev swig subversion
+      sudo apt-get install octave liboctave-dev swig
    to install the necesary dependencies.  The install of octave might not be necessary but it cant hurt
 2. Check out the full source for coolprop from github
       git clone https://github.com/ibell/coolprop
@@ -57,7 +57,6 @@ Building on Linux (openSUSE)
       octave-mathgl
       plplot-octave
       swig
-      subversion
    Accept the install of the additional necessary dependencies. The install of octave might not be necessary but it cant hurt
 2. Check out the full source for coolprop from github
       git clone https://github.com/ibell/coolprop
@@ -74,7 +73,7 @@ Building on Raspberry PI
 ------------------------
 1. You will need to run
       sudo aptitude update
-      sudo aptitude install octave liboctave-dev swig subversion
+      sudo aptitude install octave liboctave-dev swig
 2. Download all the sources from subversion using
       git clone https://github.com/ibell/coolprop
 3. Change into the folder
