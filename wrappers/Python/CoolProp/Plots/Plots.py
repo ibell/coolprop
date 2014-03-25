@@ -271,7 +271,7 @@ class IsoLines(BasePlot):
             output = numpy.unique(output)
         return output
 
-    def get_isolines(self, iso_range=[], num=None, rounding=False):
+    def get_isolines(self, iso_range=[], num=None, rounding=False, line_opts=None):
         """
         This is the core method to obtain lines in the dimensions defined
         by 'plot' that describe the behaviour of fluid 'Ref'. The constant
@@ -364,7 +364,7 @@ class IsoLines(BasePlot):
             plot_data = numpy.array([x_vals, y_vals])
 
         elif self.iso_type == 'Q':
-            lines = self._get_sat_lines(x=iso_range)
+            lines = self._get_sat_lines(x=iso_range, line_opts=line_opts)
             return lines
 
         else:
@@ -389,11 +389,15 @@ class IsoLines(BasePlot):
               'type': self.iso_type,
               'opts': {'color': self.COLOR_MAP[self.iso_type], 'lw':0.75, 'alpha':0.5 }
               }
+
+            if line_opts is not None:
+                line['opts'].update(line_opts)
+
             lines.append(line)
 
         return lines
 
-    def draw_isolines(self, iso_range, num=None, rounding=False):
+    def draw_isolines(self, iso_range, num=None, rounding=False, line_opts=None):
         """
         Draw lines with constant values of type 'which' in terms of x and y as
         defined by 'plot'. 'iMin' and 'iMax' are minimum and maximum value between
@@ -415,7 +419,7 @@ class IsoLines(BasePlot):
                               supported, yet..')
 
         if self.iso_type != 'all':
-            lines = self.get_isolines(iso_range, num, rounding)
+            lines = self.get_isolines(iso_range, num, rounding, line_opts)
             drawn_lines = drawLines(self.fluid_ref, lines, self.axis)
             self._plot_default_annotations()
             return drawn_lines
@@ -480,14 +484,32 @@ class PropsPlot(BasePlot):
         self._plot_default_annotations()
         self.scale_plot(units='kSI')
 
-    def draw_isolines(self, iso_type, iso_range, num=10, rounding=False, units='kSI'):
+    def draw_isolines(self, iso_type, iso_range, num=10, rounding=False,
+                      units='kSI', line_opts=None):
+        """ Create isolines
+
+        Parameters
+        ----------
+        iso_type : str
+            Type of the isolines
+        iso_range : list
+            Range between isolines will be created [min, max]
+        num : int
+            Number of the isolines within range, Optional
+        units : str
+            Unit system of the input data ('kSI' or 'SI'), Optional
+        line_opts : dict
+            Line options (please see :func:`matplotlib.pyplot.plot`), Optional
+
+        """
+
         # convert range to SI units for internal use
         iso_range = CP.toSI(iso_type, iso_range, units)
         iso_lines = IsoLines(self.fluid_ref,
                              self.graph_type,
                              iso_type,
                              axis=self.axis)
-        iso_lines.draw_isolines(iso_range, num, rounding)
+        iso_lines.draw_isolines(iso_range, num, rounding, line_opts)
 
 
 def Ts(Ref, Tmin=None, Tmax=None, show=False, axis=None, *args, **kwargs):
@@ -794,7 +816,7 @@ def hs(Ref, Tmin=None, Tmax=None, show=False, axis=None, *args, **kwargs):
         plt._draw_graph()
     return plt.axis
 
-def drawIsoLines(Ref, plot, which, iValues=[], num=0, show=False, axis=None):
+def drawIsoLines(Ref, plot, which, iValues=[], num=0, show=False, axis=None, line_opts=None):
     """
     Draw lines with constant values of type 'which' in terms of x and y as
     defined by 'plot'. 'iMin' and 'iMax' are minimum and maximum value
@@ -823,6 +845,8 @@ def drawIsoLines(Ref, plot, which, iValues=[], num=0, show=False, axis=None):
     axis : :func:`matplotlib.pyplot.gca()`, Optional
         The current axis system to be plotted to.
         (Default: create a new axis system)
+    line_opts : dict
+        Line options (please see :func:`matplotlib.pyplot.plot`), Optional
 
     Examples
     --------
@@ -839,7 +863,7 @@ def drawIsoLines(Ref, plot, which, iValues=[], num=0, show=False, axis=None):
     >>> pyplot.show()
     """
     isolines = IsoLines(Ref, plot, which, axis=axis)
-    lines = isolines.draw_isolines(iValues, num)
+    lines = isolines.draw_isolines(iValues, num=num, line_opts=line_opts)
     if show:
         isolines.show()
     return lines

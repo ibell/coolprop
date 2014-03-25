@@ -125,7 +125,7 @@ class BasePlot(object):
         return numpy.array([x_vals, y_vals])
 
     def _get_sat_lines(self, kind='T', smin=None,
-                       smax=None, num=500, x=[0., 1.]):
+                       smax=None, num=500, x=[0., 1.], line_opts=None):
         """
         Calculates bubble and dew line in the quantities for your plot.
         You can specify if you need evenly spaced entries in either
@@ -182,6 +182,9 @@ class BasePlot(object):
             else:
                 line['opts']['lw'] = 0.75
                 line['opts']['alpha'] = 0.5
+
+            if line_opts is not None:
+                line['opts'].update(line_opts)
 
             sat_lines.append(line)
 
