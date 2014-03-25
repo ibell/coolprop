@@ -24,7 +24,7 @@ enum params {
 	iDERdphir_dTau, iDERdphir_dDelta, iDERd2phir_dTau2, iDERd2phir_dDelta2, iDERd2phir_dDelta_dTau,	iDERd3phir_dDelta3,
 	iDERd3phir_dDelta2_dTau, iDERd3phir_dDelta_dTau2, iDERd3phir_dTau3, iDERphi0, iDERdphi0_dTau, iDERd2phi0_dTau2,
 	iDERdphi0_dDelta, iDERd2phi0_dDelta2, iDERd2phi0_dDelta_dTau, iDERd3phi0_dTau3, iDERdp_dT__rho,
-	iDERdp_drho__T, iDERdh_dT__rho, iDERdh_drho__T, iDERdrho_dT__p, iDERdrho_dh__p,
+	iDERdp_drho__T, iDERdh_dT__rho, iDERdh_drho__T, iDERdrho_dT__p, iDERdrho_dh__p, iDERdh_dp__T,
 	iDERdrho_dp__h, iDERrho_smoothed, iDERdrho_smoothed_dh, iDERdrho_smoothed_dp, iDERdrhodh_constp_smoothed,
 	iDERdrhodp_consth_smoothed, iDERIsothermalCompressibility,
 };

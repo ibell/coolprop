@@ -164,6 +164,7 @@ std::pair<std::string, long> map_data[] = {
 	std::make_pair("dpdrho"  ,iDERdp_drho__T),
 	std::make_pair("dpdrho|T",iDERdp_drho__T),
 	std::make_pair("dhdT|rho",iDERdh_dT__rho),
+    std::make_pair("dhdp|T",iDERdh_dp__T),
 	std::make_pair("dhdrho|T",iDERdh_drho__T),
 	std::make_pair("drhodT|p",iDERdrho_dT__p),
 	std::make_pair("drhodh|p",iDERdrho_dh__p),
@@ -609,6 +610,23 @@ double _PropsSI(std::string Output, std::string Name1, double Prop1, std::string
 	if (get_debug_level()>5){
 		std::cout << format("%s:%d: _Props(%s,%s,%g,%s,%g,%s)\n",__FILE__,__LINE__,Output.c_str(),Name1.c_str(),Prop1,Name2.c_str(),Prop2,Ref.c_str()).c_str();
 	}
+
+    // Convert all the input and output parameters to integers
+	long iOutput = get_param_index(Output);
+	if (iOutput<0) 
+		throw ValueError(format("Your output key [%s] is not valid. (names are case sensitive)",Output.c_str()));
+	long iName1 = get_param_index(std::string(Name1));  
+	if (iName1<0) 
+		throw ValueError(format("Your input key #1 [%s] is not valid. (names are case sensitive)",Name1.c_str()));
+	long iName2 = get_param_index(std::string(Name2));  
+	if (iName2<0) 
+		throw ValueError(format("Your input key #2 [%s] is not valid. (names are case sensitive)",Name2.c_str()));
+
+    if (iOutput == iName1)
+        throw ValueError(format("Input parameter #1 [%s] cannot be the same as the output",Name1.c_str()));
+    if (iOutput == iName2)
+        throw ValueError(format("Input parameter #2 [%s] cannot be the same as the output",Name2.c_str()));
+
 	/* 
     If the fluid name is not actually a refrigerant name, but a string beginning with "REFPROP-",
     then REFPROP is used to calculate the desired property.
@@ -618,16 +636,9 @@ double _PropsSI(std::string Output, std::string Name1, double Prop1, std::string
     	if (get_debug_level()>7) std::cout<<__FILE__<<": Identified Refprop fluid - "<<Ref.c_str()<<std::endl;
         // Stop here if there is no REFPROP support
     	if (REFPROPFluidClass::refpropSupported()) {
-            long iOutput = get_param_index(Output);
-		    if (iOutput<0) 
-			    throw ValueError(format("Your output key [%s] is not valid. (names are case sensitive)",Output.c_str()));
-		    long iName1 = get_param_index(std::string(Name1));  
-		    if (iName1<0) 
-			    throw ValueError(format("Your input key #1 [%s] is not valid. (names are case sensitive)",Name1.c_str()));
-		    long iName2 = get_param_index(std::string(Name2));  
 			return REFPROPSI(iOutput,iName1,Prop1,iName2,Prop2,Ref);
     	} else {
-    		throw AttributeError(format("Your refrigerant [%s] is from REFPROP, but CoolProp does not support REFPROP on this platform, yet.",Ref.c_str()));
+    		throw AttributeError(format("Your fluid [%s] is from REFPROP, but CoolProp does not support REFPROP on this platform, yet.",Ref.c_str()));
     		return -_HUGE;
     	}
     }
@@ -635,16 +646,6 @@ double _PropsSI(std::string Output, std::string Name1, double Prop1, std::string
 	{
 		if (get_debug_level()>7) std::cout << format("%s:%d: Identified CoolProp fluid - %s\n",__FILE__,__LINE__,Ref.c_str()).c_str();
 		pFluid = Fluids.get_fluid(Ref);
-		// Convert all the parameters to integers
-		long iOutput = get_param_index(Output);
-		if (iOutput<0) 
-			throw ValueError(format("Your output key [%s] is not valid. (names are case sensitive)",Output.c_str()));
-		long iName1 = get_param_index(std::string(Name1));  
-		if (iName1<0) 
-			throw ValueError(format("Your input key #1 [%s] is not valid. (names are case sensitive)",Name1.c_str()));
-		long iName2 = get_param_index(std::string(Name2));  
-		if (iName2<0) 
-			throw ValueError(format("Your input key #2 [%s] is not valid. (names are case sensitive)",Name2.c_str()));
 		// Call the internal method that uses the parameters converted to longs
 		return _CoolProp_Fluid_PropsSI(iOutput,iName1,Prop1,iName2,Prop2,pFluid);
 	}
@@ -653,9 +654,9 @@ double _PropsSI(std::string Output, std::string Name1, double Prop1, std::string
     {
 		if (get_debug_level()>7) std::cout<<__FILE__<<": Identified brine - "<<Ref.c_str()<<std::endl;
 		//Enthalpy and pressure are the inputs
-		if ((Name1.c_str()[0]=='H' && Name2.c_str()[0]=='P') || (Name2.c_str()[0]=='H' && Name1.c_str()[0]=='P'))
+		if ((iName1 == iH && iName2 == iP) || (iName2 == iH && iName1 == iP))
         {
-			if (Name2.c_str()[0]=='H' && Name1.c_str()[0]=='P')
+			if (iName2 == iH && iName1 == iP)
 			{
 				std::swap(Prop1,Prop2);
 				std::swap(Name1,Name2);
@@ -667,9 +668,9 @@ double _PropsSI(std::string Output, std::string Name1, double Prop1, std::string
 			// Return whatever property is desired
 			return SecFluidsSI(Output,T,Prop2,Ref);
 		}
-		else if ((Name1.c_str()[0] == 'T' && Name2.c_str()[0] =='P') || (Name1.c_str()[0] == 'P' && Name2.c_str()[0] == 'T'))
+		else if ((iName1 == iT && iName2 == iP) || (iName1 == iP && iName2 == iT))
         {
-			if (Name1.c_str()[0] =='P' && Name2.c_str()[0] =='T'){
+			if (iName1 == iP && iName2 == iT){
 				std::swap(Prop1,Prop2);
 			}
 			return SecFluidsSI(Output,Prop1,Prop2,Ref);
@@ -684,9 +685,9 @@ double _PropsSI(std::string Output, std::string Name1, double Prop1, std::string
     {
 		if (get_debug_level()>7) std::cout<<__FILE__<<": Identified incompressible liquid - "<<Ref.c_str()<<std::endl;
 		//Enthalpy and pressure are the inputs
-		if ((Name1.c_str()[0]=='H' && Name2.c_str()[0]=='P') || (Name2.c_str()[0]=='H' && Name1.c_str()[0]=='P'))
+		if ((iName1 == iH && iName2 == iP) || (iName2 == iH && iName1 == iP))
         {
-			if (Name2.c_str()[0]=='H' && Name1.c_str()[0]=='P')
+			if (iName2 == iH && iName1 == iP)
 			{
 				std::swap(Prop1,Prop2);
 				std::swap(Name1,Name2);
@@ -697,14 +698,14 @@ double _PropsSI(std::string Output, std::string Name1, double Prop1, std::string
 			double T_guess = Tma - 10.0 ;
 			double T =_T_hp_secant(Ref,Prop1,Prop2,T_guess);
 			// Return whatever property is desired
-			return IncompLiquidSI(get_param_index(Output),T,Prop2,Ref);
+			return IncompLiquidSI(iOutput,T,Prop2,Ref);
 		}
-		else if ((Name1.c_str()[0] == 'T' && Name2.c_str()[0] =='P') || (Name1.c_str()[0] == 'P' && Name2.c_str()[0] == 'T'))
+		else if ((iName1 == iT && iName2 == iP) || (iName1 == iP && iName2 == iT))
         {
-			if (Name1.c_str()[0] =='P' && Name2.c_str()[0] =='T'){
-				std::swap(Prop1,Prop2);
+			if (iName1 == iP && iName2 == iT){
+				std::swap(Prop1, Prop2);
 			}
-			return IncompLiquidSI(get_param_index(Output),Prop1,Prop2,Ref);
+			return IncompLiquidSI(iOutput,Prop1,Prop2,Ref);
 		}
 		else
 		{
@@ -716,9 +717,9 @@ double _PropsSI(std::string Output, std::string Name1, double Prop1, std::string
 	{
 		if (get_debug_level()>7) std::cout<<__FILE__<<": Identified incompressible solution - "<<Ref.c_str()<<std::endl;
 		//Enthalpy and pressure are the inputs
-		if ((Name1.c_str()[0]=='H' && Name2.c_str()[0]=='P') || (Name2.c_str()[0]=='H' && Name1.c_str()[0]=='P'))
+		if ((iName1 == iH && iName2 == iP) || (iName2 == iH && iName1 == iP))
 		{
-			if (Name2.c_str()[0]=='H' && Name1.c_str()[0]=='P')
+			if (iName2 == iH && iName1 == iP)
 			{
 				std::swap(Prop1,Prop2);
 				std::swap(Name1,Name2);
@@ -730,14 +731,14 @@ double _PropsSI(std::string Output, std::string Name1, double Prop1, std::string
 			double T_guess = (Tma+Tmi)/2.0 ;
 			double T =_T_hp_secant(Ref,Prop1,Prop2,T_guess);
 			// Return whatever property is desired
-			return IncompSolutionSI(get_param_index(Output),T,Prop2,Ref);
+			return IncompSolutionSI(iOutput,T,Prop2,Ref);
 		}
-		else if ((Name1.c_str()[0] == 'T' && Name2.c_str()[0] =='P') || (Name1.c_str()[0] == 'P' && Name2.c_str()[0] == 'T'))
+		else if ((iName1 == iT && iName2 == iP) || (iName1 == iP && iName2 == iT))
 		{
-			if (Name1.c_str()[0] =='P' && Name2.c_str()[0] =='T'){
+			if (iName1 == iP && iName2 == iT){
 				std::swap(Prop1,Prop2);
 			}
-			return IncompSolutionSI(get_param_index(Output),Prop1,Prop2,Ref);
+			return IncompSolutionSI(iOutput,Prop1,Prop2,Ref);
 		}
 		else
 		{
