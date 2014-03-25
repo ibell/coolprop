@@ -453,6 +453,8 @@ class PropsPlot(BasePlot):
         fig : :func:`matplotlib.pyplot.figure()`, Optional
             The current figure to be plotted to.
             Default: create a new figure
+        plot_units : str
+            Unit system for for plotting (defaults to 'kSI'), Optional
 
         Examples
         ---------
@@ -499,7 +501,7 @@ class PropsPlot(BasePlot):
     def _draw_graph(self):
         self.__draw_region_lines()
         self._plot_default_annotations()
-        self.scale_plot(units='kSI')
+        self.scale_plot(plot_units=self.plot_units)
 
     def draw_isolines(self, iso_type, iso_range, num=10, rounding=False,
                       units='kSI', line_opts=None, axis_limits=None):
