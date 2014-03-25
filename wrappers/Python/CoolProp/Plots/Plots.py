@@ -206,43 +206,32 @@ class IsoLines(BasePlot):
         Generates limits for the axes in terms of x,y defined by 'plot'
         based on temperature and pressure.
 
-        Returns a tuple containing ((xmin, xmax), (ymin, ymax))
+        Returns a list containing [[xmin, xmax], [ymin, ymax]]
         """
+
         # Get current axis limits, be sure to set those before drawing isolines
         # if no limits are set, use triple point and critical conditions
-        X = [CP.PropsSI(self.graph_type[1],
-                        'T', 1.5*CP.PropsSI(self.fluid_ref, 'Tcrit'),
-                        'P', CP.PropsSI(self.fluid_ref, 'ptriple'),
-                        self.fluid_ref),
-             CP.PropsSI(self.graph_type[1],
-                        'T', 1.1*CP.PropsSI(self.fluid_ref, 'Tmin'),
-                        'P', 1.5*CP.PropsSI(self.fluid_ref, 'pcrit'),
-                        self.fluid_ref),
-             CP.PropsSI(self.graph_type[1],
-                        'T', 1.5*CP.PropsSI(self.fluid_ref, 'Tcrit'),
-                        'P', 1.5*CP.PropsSI(self.fluid_ref, 'pcrit'),
-                        self.fluid_ref),
-             CP.PropsSI(self.graph_type[1],
-                        'T', 1.1*CP.PropsSI(self.fluid_ref, 'Tmin'),
-                        'P', CP.PropsSI(self.fluid_ref, 'ptriple'),
-                        self.fluid_ref)]
+        Tcrit = CP.PropsSI(self.fluid_ref, 'Tcrit')
+        Tmin = CP.PropsSI(self.fluid_ref, 'Tmin')
+        pcrit = CP.PropsSI(self.fluid_ref, 'pcrit')
+        ptriple = CP.PropsSI(self.fluid_ref, 'ptriple')
 
-        Y = [CP.PropsSI(self.graph_type[0],
-                        'T', 1.5*CP.PropsSI(self.fluid_ref, 'Tcrit'),
-                        'P', CP.PropsSI(self.fluid_ref, 'ptriple'),
-                         self.fluid_ref),
-             CP.PropsSI(self.graph_type[0],
-                        'T', 1.1*CP.PropsSI(self.fluid_ref, 'Tmin') ,
-                        'P', 1.5*CP.PropsSI(self.fluid_ref, 'pcrit'),
-                        self.fluid_ref),
-             CP.PropsSI(self.graph_type[0],
-                        'T', 1.1*CP.PropsSI(self.fluid_ref, 'Tcrit'),
-                        'P', 1.5*CP.PropsSI(self.fluid_ref, 'pcrit'),
-                        self.fluid_ref),
-             CP.PropsSI(self.graph_type[0],
-                        'T', 1.5*CP.PropsSI(self.fluid_ref, 'Tmin') ,
-                        'P', CP.PropsSI(self.fluid_ref, 'ptriple'),
-                        self.fluid_ref)]
+        T = [1.5*Tcrit, 1.1*Tmin,  1.5*Tcrit, 1.1*Tmin]
+        P = [ptriple,   1.5*pcrit, 1.5*pcrit, ptriple]
+
+        if self.graph_type[1] == 'T':
+            X = T
+        elif self.graph_type[1] == 'P':
+            X = P
+        else:
+            X = CP.PropsSI(self.graph_type[1], 'T', T, 'P', P, self.fluid_ref)
+
+        if self.graph_type[0] == 'T':
+            Y = T
+        elif self.graph_type[0] == 'P':
+            Y = P
+        else:
+            Y = CP.PropsSI(self.graph_type[0], 'T', T, 'P', P, self.fluid_ref)
 
         limits = [[min(X), max(X)], [min(Y), max(Y)]]
         if not self.axis.get_autoscalex_on():
