@@ -352,18 +352,29 @@ class IsoLines(BasePlot):
             req_prop = self.graph_type[1]
             prop2_name = self.graph_type[0]
 
-        # Calculate the points
-        if self.iso_type == 'Q':
+        # Calculate the data points
+        if self.iso_type == req_prop:
+            x_vals = [[axis_limits[0][0], axis_limits[0][1]]] * len(iso_range)
+            y_vals = [[i, i] for i in iso_range]
+            plot_data = numpy.array([x_vals, y_vals])
+
+        elif self.iso_type == prop2_name:
+            x_vals = [[i, i] for i in iso_range]
+            y_vals = [[axis_limits[1][0], axis_limits[1][1]]] * len(iso_range)
+            plot_data = numpy.array([x_vals, y_vals])
+
+        elif self.iso_type == 'Q':
             lines = self._get_sat_lines(x=iso_range)
             return lines
 
-        # TODO: Determine saturation state if two phase region present
-        x_range = numpy.linspace(axis_limits[0][0], axis_limits[0][1], 1000.)
-        x_mesh = [x_range for i in iso_range]
+        else:
+            # TODO: Determine saturation state if two phase region present
+            x_range = numpy.linspace(axis_limits[0][0], axis_limits[0][1], 1000.)
+            x_mesh = [x_range for i in iso_range]
 
-        plot_data = self._get_fluid_data(req_prop,
-                                         self.iso_type, iso_range,
-                                         prop2_name, x_mesh)
+            plot_data = self._get_fluid_data(req_prop,
+                                             self.iso_type, iso_range,
+                                             prop2_name, x_mesh)
 
         if switch_xy:
             plot_data = plot_data[::-1]
