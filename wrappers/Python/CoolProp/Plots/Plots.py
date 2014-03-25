@@ -271,7 +271,8 @@ class IsoLines(BasePlot):
             output = numpy.unique(output)
         return output
 
-    def get_isolines(self, iso_range=[], num=None, rounding=False, line_opts=None):
+    def get_isolines(self, iso_range=[], num=None, rounding=False,
+                     line_opts=None, axis_limits=None):
         """
         This is the core method to obtain lines in the dimensions defined
         by 'plot' that describe the behaviour of fluid 'Ref'. The constant
@@ -344,7 +345,9 @@ class IsoLines(BasePlot):
             if self.iso_type in iso_error_map[self.graph_type]:
                 raise ValueError('You should not reach this point!')
 
-        axis_limits = self.__set_axis_limits(switch_xy)
+        if axis_limits is None:
+            axis_limits = self.__set_axis_limits(switch_xy)
+
         req_prop = self.graph_type[0]
         prop2_name = self.graph_type[1]
         if switch_xy:
@@ -397,7 +400,8 @@ class IsoLines(BasePlot):
 
         return lines
 
-    def draw_isolines(self, iso_range, num=None, rounding=False, line_opts=None):
+    def draw_isolines(self, iso_range, num=None, rounding=False, line_opts=None,
+                      axis_limits=None):
         """
         Draw lines with constant values of type 'which' in terms of x and y as
         defined by 'plot'. 'iMin' and 'iMax' are minimum and maximum value between
@@ -419,7 +423,7 @@ class IsoLines(BasePlot):
                               supported, yet..')
 
         if self.iso_type != 'all':
-            lines = self.get_isolines(iso_range, num, rounding, line_opts)
+            lines = self.get_isolines(iso_range, num, rounding, line_opts, axis_limits)
             drawn_lines = drawLines(self.fluid_ref, lines, self.axis)
             self._plot_default_annotations()
             return drawn_lines
@@ -485,7 +489,7 @@ class PropsPlot(BasePlot):
         self.scale_plot(units='kSI')
 
     def draw_isolines(self, iso_type, iso_range, num=10, rounding=False,
-                      units='kSI', line_opts=None):
+                      units='kSI', line_opts=None, axis_limits=None):
         """ Create isolines
 
         Parameters
@@ -500,16 +504,23 @@ class PropsPlot(BasePlot):
             Unit system of the input data ('kSI' or 'SI'), Optional
         line_opts : dict
             Line options (please see :func:`matplotlib.pyplot.plot`), Optional
+        axis_limits : list
+            Limits for drawing isolines [[xmin, xmax], [ymin, ymax]], Optional
 
         """
 
-        # convert range to SI units for internal use
+        # convert input data to SI units for internal use
         iso_range = CP.toSI(iso_type, iso_range, units)
+        if axis_limits is not None:
+            axis_limits = [CP.toSI(self.graph_type[1].upper(), axis_limits[0], units),
+                           CP.toSI(self.graph_type[0].upper(), axis_limits[1], units),
+                          ]
+
         iso_lines = IsoLines(self.fluid_ref,
                              self.graph_type,
                              iso_type,
                              axis=self.axis)
-        iso_lines.draw_isolines(iso_range, num, rounding, line_opts)
+        iso_lines.draw_isolines(iso_range, num, rounding, line_opts, axis_limits)
 
 
 def Ts(Ref, Tmin=None, Tmax=None, show=False, axis=None, *args, **kwargs):
@@ -816,7 +827,7 @@ def hs(Ref, Tmin=None, Tmax=None, show=False, axis=None, *args, **kwargs):
         plt._draw_graph()
     return plt.axis
 
-def drawIsoLines(Ref, plot, which, iValues=[], num=0, show=False, axis=None, line_opts=None):
+def drawIsoLines(Ref, plot, which, iValues=[], num=0, show=False, axis=None, units='kSI', line_opts=None):
     """
     Draw lines with constant values of type 'which' in terms of x and y as
     defined by 'plot'. 'iMin' and 'iMax' are minimum and maximum value
@@ -845,6 +856,8 @@ def drawIsoLines(Ref, plot, which, iValues=[], num=0, show=False, axis=None, lin
     axis : :func:`matplotlib.pyplot.gca()`, Optional
         The current axis system to be plotted to.
         (Default: create a new axis system)
+    units : str
+        Unit system of the input data ('kSI' or 'SI'), Optional
     line_opts : dict
         Line options (please see :func:`matplotlib.pyplot.plot`), Optional
 
@@ -862,6 +875,10 @@ def drawIsoLines(Ref, plot, which, iValues=[], num=0, show=False, axis=None, lin
     >>> isochores = drawIsoLines(Ref, 'Ts', 'D', [2, 600], num=7, axis=ax)
     >>> pyplot.show()
     """
+
+    # convert input data to SI units for internal use
+    iValues = CP.toSI(which, iValues, units)
+
     isolines = IsoLines(Ref, plot, which, axis=axis)
     lines = isolines.draw_isolines(iValues, num=num, line_opts=line_opts)
     if show:
