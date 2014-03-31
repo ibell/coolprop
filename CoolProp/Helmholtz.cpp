@@ -168,7 +168,7 @@ double phir_power::dTau3(double tau, double delta) throw()
 }
 void phir_power::to_json(rapidjson::Value &el, rapidjson::Document &doc)
 {
-    el.AddMember("type","alphar_power",doc.GetAllocator());
+    el.AddMember("type","ResidualHelmholtzPower",doc.GetAllocator());
     rapidjson::Value _n(rapidjson::kArrayType), _d(rapidjson::kArrayType), _t(rapidjson::kArrayType), _l(rapidjson::kArrayType);
     for (unsigned int i=iStart;i<=iEnd;i++)
 	{
@@ -393,7 +393,7 @@ TEST_CASE("Power Helmholtz terms", "[helmholtz],[fast]")
 
 void phir_exponential::to_json(rapidjson::Value &el, rapidjson::Document &doc)
 {
-    el.AddMember("type","alphar_exponential",doc.GetAllocator());
+    el.AddMember("type","ResidualHelmholtzExponential",doc.GetAllocator());
     rapidjson::Value _n(rapidjson::kArrayType), _d(rapidjson::kArrayType), _t(rapidjson::kArrayType), _l(rapidjson::kArrayType), _g(rapidjson::kArrayType);
     for (unsigned int i=iStart;i<=iEnd;i++)
 	{
@@ -552,7 +552,7 @@ double phir_exponential::dDelta_dTau(double tau, double delta) throw()
 
 void phir_Lemmon2005::to_json(rapidjson::Value &el, rapidjson::Document &doc)
 {
-    el.AddMember("type","alphar_Lemmon2005",doc.GetAllocator());
+    el.AddMember("type","ResidualHelmholtzLemmon2005",doc.GetAllocator());
     rapidjson::Value _n(rapidjson::kArrayType), _d(rapidjson::kArrayType), _t(rapidjson::kArrayType), _l(rapidjson::kArrayType), _m(rapidjson::kArrayType);
     for (unsigned int i=iStart;i<=iEnd;i++)
 	{
@@ -867,7 +867,7 @@ phir_gaussian::phir_gaussian(const double n_in[], const double d_in[], const dou
 
 void phir_gaussian::to_json(rapidjson::Value &el, rapidjson::Document &doc)
 {
-    el.AddMember("type","alphar_gaussian",doc.GetAllocator());
+    el.AddMember("type","ResidualHelmholtzGaussian",doc.GetAllocator());
     rapidjson::Value _n(rapidjson::kArrayType), _d(rapidjson::kArrayType), _t(rapidjson::kArrayType), 
         _eta(rapidjson::kArrayType), _epsilon(rapidjson::kArrayType), _beta(rapidjson::kArrayType), _gamma(rapidjson::kArrayType);
     for (unsigned int i=iStart;i<=iEnd;i++)
@@ -1014,7 +1014,7 @@ phir_GERG2008_gaussian::phir_GERG2008_gaussian(std::vector<double> n_in, std::ve
 
 void phir_GERG2008_gaussian::to_json(rapidjson::Value &el, rapidjson::Document &doc)
 {
-    el.AddMember("type","alphar_GERG2008_gaussian",doc.GetAllocator());
+    el.AddMember("type","ResidualHelmholtzGERG2008Gaussian",doc.GetAllocator());
     rapidjson::Value _n(rapidjson::kArrayType), _d(rapidjson::kArrayType), _t(rapidjson::kArrayType), 
         _eta(rapidjson::kArrayType), _epsilon(rapidjson::kArrayType), _beta(rapidjson::kArrayType), _gamma(rapidjson::kArrayType);
     for (unsigned int i=iStart;i<=iEnd;i++)
@@ -1153,7 +1153,7 @@ phir_critical::phir_critical(double n[], double d[], double t[],
 
 void phir_critical::to_json(rapidjson::Value &el, rapidjson::Document &doc)
 {
-    el.AddMember("type","alphar_critical",doc.GetAllocator());
+    el.AddMember("type","ResidualHelmholtzNonAnalytic",doc.GetAllocator());
 
     rapidjson::Value _n(rapidjson::kArrayType), _a(rapidjson::kArrayType), _b(rapidjson::kArrayType), 
         _beta(rapidjson::kArrayType), _A(rapidjson::kArrayType), _B(rapidjson::kArrayType), _C(rapidjson::kArrayType), _D(rapidjson::kArrayType);
@@ -1490,16 +1490,12 @@ TEST_CASE((char*)"Non-analytic critical point Helmholtz derivative check", (char
 
 void phir_SAFT_associating::to_json(rapidjson::Value &el, rapidjson::Document &doc)
 {
-    el.AddMember("type","phir_SAFT_associating",doc.GetAllocator());
+    el.AddMember("type","ResidualHelmholtzAssociating",doc.GetAllocator());
     el.AddMember("a",a,doc.GetAllocator());
     el.AddMember("m",m,doc.GetAllocator());
     el.AddMember("epsilonbar",epsilonbar,doc.GetAllocator());
     el.AddMember("vbarn",vbarn,doc.GetAllocator());
     el.AddMember("kappabar",kappabar,doc.GetAllocator());
-}
-std::string phir_SAFT_associating::to_json()
-{
-    return format("{\n  \"a\" : %0.15g,\n  \"m\" : %0.15g,\n  \"epsilonbar\" : %0.15g,\n  \"vbarn\" : %0.15g,\n  \"kappabar\" : %0.15g}",a,m,epsilonbar, vbarn, kappabar);
 }
 double phir_SAFT_associating::Deltabar(double tau, double delta)
 {
@@ -1856,7 +1852,7 @@ TEST_CASE("SAFT Helmholtz derivative check", "[helmholtz],[fast]")
 
 void phi0_Planck_Einstein::to_json(rapidjson::Value &el, rapidjson::Document &doc)
 {
-    el.AddMember("type","alpha0_Planck_Einstein",doc.GetAllocator());
+    el.AddMember("type","IdealGasHelmholtzPlanckEinstein",doc.GetAllocator());
     rapidjson::Value _n(rapidjson::kArrayType),_t(rapidjson::kArrayType);
     for (int i=iStart;i<=iEnd;i++)
 	{
@@ -1907,7 +1903,7 @@ double phi0_Planck_Einstein::dTau3(double tau, double delta)
 
 void phi0_Planck_Einstein2::to_json(rapidjson::Value &el, rapidjson::Document &doc)
 {
-    el.AddMember("type","alpha0_Planck_Einstein2",doc.GetAllocator());
+    el.AddMember("type","IdealGasHelmholtzPlanckEinstein2",doc.GetAllocator());
     rapidjson::Value _n(rapidjson::kArrayType),_t(rapidjson::kArrayType),_c(rapidjson::kArrayType);
     for (int i=iStart;i<=iEnd;i++)
 	{
@@ -1970,16 +1966,21 @@ double phi0_Planck_Einstein2::dTau3(double tau, double delta)
 }
 
 void phi0_cp0_AlyLee::to_json(rapidjson::Value &el, rapidjson::Document &doc){
-    el.AddMember("type","alpha0_cp0_AlyLee",doc.GetAllocator());
+    el.AddMember("type","IdealGasHelmholtzCP0AlyLee",doc.GetAllocator());
     rapidjson::Value _n(rapidjson::kArrayType);
     for (int i=1;i<=5;i++)
 	{
-        _n.PushBack(a[i],doc.GetAllocator());
+        if (i==1 || i==2 || i==4){
+            _n.PushBack(a[i]/R_u,doc.GetAllocator());
+        }
+        else
+        {
+            _n.PushBack(a[i],doc.GetAllocator());
+        }
 	}
     el.AddMember("n",_n,doc.GetAllocator());
     el.AddMember("Tc",Tc,doc.GetAllocator());
     el.AddMember("T0",T0,doc.GetAllocator());
-    el.AddMember("R_u",R_u,doc.GetAllocator());
 }
 /*
 Maxima code for the sinh term:
@@ -2053,7 +2054,7 @@ double phi0_cp0_AlyLee::dTau3(double tau, double delta)
 
 void phi0_cp0_poly::to_json(rapidjson::Value &el, rapidjson::Document &doc)
 {
-    el.AddMember("type","alpha0_cp0_poly", doc.GetAllocator());
+    el.AddMember("type","IdealGasHelmholtzCP0PolyT", doc.GetAllocator());
 
     rapidjson::Value _a(rapidjson::kArrayType), _t(rapidjson::kArrayType);
     for (int i=iStart;i<=iEnd;i++)
@@ -2061,7 +2062,7 @@ void phi0_cp0_poly::to_json(rapidjson::Value &el, rapidjson::Document &doc)
         _a.PushBack(a[i],doc.GetAllocator());
         _t.PushBack(tv[i],doc.GetAllocator());
 	}
-    el.AddMember("n",_a,doc.GetAllocator());
+    el.AddMember("c",_a,doc.GetAllocator());
     el.AddMember("t",_t,doc.GetAllocator());
     el.AddMember("Tc",Tc,doc.GetAllocator());
     el.AddMember("T0",T0,doc.GetAllocator());
