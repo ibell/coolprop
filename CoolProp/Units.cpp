@@ -227,6 +227,7 @@ double convert_from_SI_to_unit_system(long iInput, double value, int new_system)
 	case iDERd3phi0_dTau3:
 	case iDERdrho_dT__p:
 	case iDERrho_smoothed:
+    case iDERdh_dp__T:
 		return value;
 		break;
 	default:
