@@ -71,7 +71,7 @@ extern "C"
 		}
 
 		// Split the string that is passed in at the | delimiter that was used to join it
-		fluid_split = strsplit(fluid_string,'|');
+		fluid_split = strsplit(fluid_string,'~');
 		if (fluid_split.size() != 4) 
 		{
 			sprintf(err_str,"fluid[%s] length[%d] not 4 elements long",fluid_string.c_str(),fluid_split.size()); 

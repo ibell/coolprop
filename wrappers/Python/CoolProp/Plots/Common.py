@@ -12,12 +12,19 @@ SMALL = 1E-5
 
 class BasePlot(object):
     #TODO: Simplify / Consolidate dictionary maps
-    AXIS_LABELS = {'T': ["Temperature", r"[K]"],
-                   'P': ["Pressure", r"[kPa]"],
-                   'S': ["Entropy", r"[kJ/kg/K]"],
-                   'H': ["Enthalpy", r"[kJ/kg]"],
-                   'V': [],
-                   'D': ["Density", r"[kg/m$^3$]"]}
+    AXIS_LABELS = {'kSI': {'T': ["Temperature", r"[K]"],
+                           'P': ["Pressure", r"[kPa]"],
+                           'S': ["Entropy", r"[kJ/kg/K]"],
+                           'H': ["Enthalpy", r"[kJ/kg]"],
+                           'V': [],
+                           'D': ["Density", r"[kg/m$^3$]"]},
+                   'SI' : {'T': ["Temperature", r"[K]"],
+                           'P': ["Pressure", r"[Pa]"],
+                           'S': ["Entropy", r"[J/kg/K]"],
+                           'H': ["Enthalpy", r"[J/kg]"],
+                           'V': [],
+                           'D': ["Density", r"[kg/m$^3$]"]}
+                  }
 
     COLOR_MAP = {'T': 'Darkred',
                  'P': 'DarkCyan',
@@ -61,6 +68,7 @@ class BasePlot(object):
         self.axis = kwargs.get('axis', None)
         if self.axis is None:
             self.axis = matplotlib.pyplot.gca()
+        self.plot_units = kwargs.get('plot_units', 'kSI')
 
     def __sat_bounds(self, kind, smin=None, smax=None):
         """
@@ -106,7 +114,7 @@ class BasePlot(object):
         """
         Calculates lines for constant iName (iVal) over an interval of xName
         (xVal). Returns (x[],y[]) - a tuple of arrays containing the values
-        in x and y dimensions in kSI units.
+        in x and y dimensions in SI units.
         """
         if len(prop1_vals) != len(prop2_vals):
             raise ValueError(''.join(['We need the same number of x value ',
@@ -125,7 +133,7 @@ class BasePlot(object):
         return numpy.array([x_vals, y_vals])
 
     def _get_sat_lines(self, kind='T', smin=None,
-                       smax=None, num=500, x=[0., 1.]):
+                       smax=None, num=500, x=[0., 1.], line_opts=None):
         """
         Calculates bubble and dew line in the quantities for your plot.
         You can specify if you need evenly spaced entries in either
@@ -183,6 +191,9 @@ class BasePlot(object):
                 line['opts']['lw'] = 0.75
                 line['opts']['alpha'] = 0.5
 
+            if line_opts is not None:
+                line['opts'].update(line_opts)
+
             sat_lines.append(line)
 
         return sat_lines
@@ -212,26 +223,34 @@ class BasePlot(object):
 
         tl_str = "%s - %s Graph for %s"
         if not self.axis.get_title():
-            self.axis.set_title(tl_str % (self.AXIS_LABELS[y_axis_id][0],
-                                          self.AXIS_LABELS[x_axis_id][0],
+            self.axis.set_title(tl_str % (self.AXIS_LABELS[self.plot_units][y_axis_id][0],
+                                          self.AXIS_LABELS[self.plot_units][x_axis_id][0],
                                           filter_fluid_ref(self.fluid_ref)))
         if not self.axis.get_xlabel():
-            self.axis.set_xlabel(' '.join(self.AXIS_LABELS[x_axis_id]))
+            self.axis.set_xlabel(' '.join(self.AXIS_LABELS[self.plot_units][x_axis_id]))
         if not self.axis.get_ylabel():
-            self.axis.set_ylabel(' '.join(self.AXIS_LABELS[y_axis_id]))
+            self.axis.set_ylabel(' '.join(self.AXIS_LABELS[self.plot_units][y_axis_id]))
 
     def _draw_graph(self):
         return
 
-    def scale_plot(self, units='kSI'):
+    def scale_plot(self, plot_units='kSI'):
         """ Scale plot axis with units system
 
         Fluid properties are calculated in SI units for internal use. Axis ticks
         of the plot can be scaled to show data in other unit systems.
+
+        Parameters
+        ----------
+        plot_units : str
+            Unit system for for plotting ('kSI' or 'SI')
+
         """
 
-        xscale = CP.fromSI(self.graph_type[1], 1, units)
-        yscale = CP.fromSI(self.graph_type[0], 1, units)
+        self.plot_units = plot_units
+
+        xscale = CP.fromSI(self.graph_type[1], 1, self.plot_units)
+        yscale = CP.fromSI(self.graph_type[0], 1, self.plot_units)
 
         x_fmt = matplotlib.ticker.FuncFormatter(lambda x, pos: '{0:g}'.format(x*xscale))
         y_fmt = matplotlib.ticker.FuncFormatter(lambda y, pos: '{0:g}'.format(y*yscale))
@@ -258,6 +277,17 @@ class BasePlot(object):
             self.axis.grid(kwargs)
 
     def set_axis_limits(self, limits, units='kSI'):
+        """ Set limits for axes
+
+        Parameters
+        ----------
+        limits : list
+            List of axis limits [xmin, xmax, ymin, ymax]
+        units : str
+            Unit system of the input data ('kSI' or 'SI'), Optional
+
+        """
+
         # convert limits to SI units for internal use
         limits[0:2] = CP.toSI(self.graph_type[1], limits[0:2], units)
         limits[2:] = CP.toSI(self.graph_type[0], limits[2:], units)

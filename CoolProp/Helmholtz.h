@@ -504,7 +504,7 @@ public:
 	~phi0_lead(){};
 
     void to_json(rapidjson::Value &el, rapidjson::Document &doc){
-        el.AddMember("type","alpha0_lead",doc.GetAllocator());
+        el.AddMember("type","IdealGasHelmholtzLead",doc.GetAllocator());
         el.AddMember("a1",c1,doc.GetAllocator());
         el.AddMember("a2",c2,doc.GetAllocator());
     };
@@ -540,7 +540,7 @@ public:
 	~phi0_enthalpy_entropy_offset(){};
 
     void to_json(rapidjson::Value &el, rapidjson::Document &doc){
-        el.AddMember("type","alpha0_enthalpy_entropy_offset",doc.GetAllocator());
+        el.AddMember("type","IdealGasEnthalpyEntropyOffset",doc.GetAllocator());
         el.AddMember("a1",c1,doc.GetAllocator());
         el.AddMember("a2",c2,doc.GetAllocator());
     };
@@ -560,10 +560,10 @@ public:
 
 
 /*!
-	Term is of the form 
-	\f[
-	\phi_0 = a_1 \log(\tau)
-	\f]
+Term is of the form 
+\f[
+\phi_0 = a_1 \log(\tau)
+\f]
 */
 class phi0_logtau : public phi_BC{
 	/*
@@ -580,7 +580,7 @@ public:
 	~phi0_logtau(){};
 
     void to_json(rapidjson::Value &el, rapidjson::Document &doc){
-        el.AddMember("type","alpha0_logtau",doc.GetAllocator());
+        el.AddMember("type","IdealGasHelmholtzLogTau",doc.GetAllocator());
         el.AddMember("a",c1,doc.GetAllocator());
     };
 
@@ -735,7 +735,7 @@ public:
 
     void to_json(rapidjson::Value &el, rapidjson::Document &doc)
     {
-        el.AddMember("type","alpha0_power",doc.GetAllocator());
+        el.AddMember("type","IdealGasHelmholtzPower",doc.GetAllocator());
         rapidjson::Value _n(rapidjson::kArrayType),_t(rapidjson::kArrayType);
         for (int i=iStart;i<=iEnd;i++)
 	    {
@@ -816,8 +816,8 @@ public:
 
     void to_json(rapidjson::Value &el, rapidjson::Document &doc)
     {
-        el.AddMember("type","alpha0_cp0_constant",doc.GetAllocator());
-        el.AddMember("c",c,doc.GetAllocator());
+        el.AddMember("type","IdealGasHelmholtzCP0Constant",doc.GetAllocator());
+        el.AddMember("cp_over_R",c,doc.GetAllocator());
         el.AddMember("Tc",Tc,doc.GetAllocator());
         el.AddMember("T0",T0,doc.GetAllocator());
     };

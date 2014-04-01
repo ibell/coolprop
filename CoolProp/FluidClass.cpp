@@ -259,7 +259,7 @@ double Fluid::dphir_dDelta(double tau, double delta)
 	else
 	{
 		double summer = 0;
-		for (std::vector<phi_BC*>::iterator it = phirlist.begin(); it != phirlist.end(); it++)
+		for (std::vector<phi_BC*>::iterator it = phirlist.begin(); it != phirlist.end(); ++it)
 		{
 			summer += (*it)->dDelta(tau,delta);
 		}
@@ -739,7 +739,7 @@ double Fluid::density_Tp(double T, double p, double rho_guess)
     int iter=1;
 	long double delta = rho/reduce.rho;
 	
-	while (fabs(error) > 1e-10 && fabs(change) > 1e-13) 
+	while (fabs(error) > 1e-9 && fabs(change) > 1e-13) 
     {
 		// Needed for both p and p derivative
 		// Run once to cut down on calculations
@@ -4032,8 +4032,25 @@ std::string Fluid::to_json()
     dd.AddMember("ALIASES", aliases, dd.GetAllocator());
     
     // The equation(s) of state
+    rapidjson::Value reducing_state(rapidjson::kObjectType);
     rapidjson::Value EOS(rapidjson::kArrayType);
     rapidjson::Value the_EOS(rapidjson::kObjectType);
+    the_EOS.AddMember("gas_constant",params.R_u,dd.GetAllocator());
+    the_EOS.AddMember("gas_constant_units","J/mol/K",dd.GetAllocator());
+    the_EOS.AddMember("molar_mass",params.molemass/1000,dd.GetAllocator());
+    the_EOS.AddMember("molar_mass_units","kg/mol",dd.GetAllocator());
+    the_EOS.AddMember("accentric",params.accentricfactor,dd.GetAllocator());
+    the_EOS.AddMember("accentric_units","-",dd.GetAllocator());
+
+    // The reducing state
+    reducing_state.AddMember("T", reduce.T, dd.GetAllocator());
+    reducing_state.AddMember("T_units", "K", dd.GetAllocator());
+    reducing_state.AddMember("rhomolar", reduce.rho/params.molemass*1000, dd.GetAllocator());
+    reducing_state.AddMember("rhomolar_units", "mol/m^3", dd.GetAllocator());
+    reducing_state.AddMember("p", reduce.p.Pa, dd.GetAllocator());
+    reducing_state.AddMember("p_units", "Pa", dd.GetAllocator());
+
+    the_EOS.AddMember("reducing_state",reducing_state,dd.GetAllocator());
     rapidjson::Value alphar(rapidjson::kArrayType);
     for (std::vector<phi_BC*>::const_iterator it = phirlist.begin(); it != phirlist.end(); it++)
     {
@@ -4042,6 +4059,17 @@ std::string Fluid::to_json()
         alphar.PushBack(entry,dd.GetAllocator());
     }
     the_EOS.AddMember("alphar",alphar,dd.GetAllocator());
+
+    rapidjson::Value alpha0(rapidjson::kArrayType);
+    for (std::vector<phi_BC*>::const_iterator it = phi0list.begin(); it != phi0list.end(); it++)
+    {
+        rapidjson::Value entry(rapidjson::kObjectType);
+        (*it)->to_json(entry, dd);
+        alpha0.PushBack(entry,dd.GetAllocator());
+    }
+    the_EOS.AddMember("alpha0",alpha0,dd.GetAllocator());
+    
+
     EOS.PushBack(the_EOS,dd.GetAllocator());
     
     dd.AddMember("EOS",EOS,dd.GetAllocator());
@@ -4057,6 +4085,7 @@ std::string Fluid::to_json()
     fp = fopen((get_name()+".json").c_str(),"w");
     fprintf(fp,"%s",json0.c_str());
     fclose(fp);
+
+    return std::string();
     
-    exit(EXIT_FAILURE);
 }

@@ -2,7 +2,7 @@
 import subprocess, os
 import glob
 
-exports = ['-s','EXPORTED_FUNCTIONS=\"[\'_main\',\'_F2K\',\'_HAProps\',\'_Props1\',\'_PropsS\']\"']
+exports = ['-s','EXPORTED_FUNCTIONS=\"[\'_main\',\'_F2K\',\'_HAProps\',\'_Props1\',\'_PropsS\',\'_Props1SI\',\'_PropsSI\']\"','-s','DISABLE_EXCEPTION_CATCHING=0']
 optimization = '-O2'
 
 def compile_sources():
@@ -40,4 +40,4 @@ if __name__=='__main__':
     link()
     #closure_compiler()
     cleanup()
-    #run()
+    run()

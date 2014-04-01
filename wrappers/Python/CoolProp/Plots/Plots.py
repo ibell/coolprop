@@ -206,43 +206,32 @@ class IsoLines(BasePlot):
         Generates limits for the axes in terms of x,y defined by 'plot'
         based on temperature and pressure.
 
-        Returns a tuple containing ((xmin, xmax), (ymin, ymax))
+        Returns a list containing [[xmin, xmax], [ymin, ymax]]
         """
+
         # Get current axis limits, be sure to set those before drawing isolines
         # if no limits are set, use triple point and critical conditions
-        X = [CP.PropsSI(self.graph_type[1],
-                        'T', 1.5*CP.PropsSI(self.fluid_ref, 'Tcrit'),
-                        'P', CP.PropsSI(self.fluid_ref, 'ptriple'),
-                        self.fluid_ref),
-             CP.PropsSI(self.graph_type[1],
-                        'T', 1.1*CP.PropsSI(self.fluid_ref, 'Tmin'),
-                        'P', 1.5*CP.PropsSI(self.fluid_ref, 'pcrit'),
-                        self.fluid_ref),
-             CP.PropsSI(self.graph_type[1],
-                        'T', 1.5*CP.PropsSI(self.fluid_ref, 'Tcrit'),
-                        'P', 1.5*CP.PropsSI(self.fluid_ref, 'pcrit'),
-                        self.fluid_ref),
-             CP.PropsSI(self.graph_type[1],
-                        'T', 1.1*CP.PropsSI(self.fluid_ref, 'Tmin'),
-                        'P', CP.PropsSI(self.fluid_ref, 'ptriple'),
-                        self.fluid_ref)]
+        Tcrit = CP.PropsSI(self.fluid_ref, 'Tcrit')
+        Tmin = CP.PropsSI(self.fluid_ref, 'Tmin')
+        pcrit = CP.PropsSI(self.fluid_ref, 'pcrit')
+        ptriple = CP.PropsSI(self.fluid_ref, 'ptriple')
 
-        Y = [CP.PropsSI(self.graph_type[0],
-                        'T', 1.5*CP.PropsSI(self.fluid_ref, 'Tcrit'),
-                        'P', CP.PropsSI(self.fluid_ref, 'ptriple'),
-                         self.fluid_ref),
-             CP.PropsSI(self.graph_type[0],
-                        'T', 1.1*CP.PropsSI(self.fluid_ref, 'Tmin') ,
-                        'P', 1.5*CP.PropsSI(self.fluid_ref, 'pcrit'),
-                        self.fluid_ref),
-             CP.PropsSI(self.graph_type[0],
-                        'T', 1.1*CP.PropsSI(self.fluid_ref, 'Tcrit'),
-                        'P', 1.5*CP.PropsSI(self.fluid_ref, 'pcrit'),
-                        self.fluid_ref),
-             CP.PropsSI(self.graph_type[0],
-                        'T', 1.5*CP.PropsSI(self.fluid_ref, 'Tmin') ,
-                        'P', CP.PropsSI(self.fluid_ref, 'ptriple'),
-                        self.fluid_ref)]
+        T = [1.5*Tcrit, 1.1*Tmin,  1.5*Tcrit, 1.1*Tmin]
+        P = [ptriple,   1.5*pcrit, 1.5*pcrit, ptriple]
+
+        if self.graph_type[1] == 'T':
+            X = T
+        elif self.graph_type[1] == 'P':
+            X = P
+        else:
+            X = CP.PropsSI(self.graph_type[1], 'T', T, 'P', P, self.fluid_ref)
+
+        if self.graph_type[0] == 'T':
+            Y = T
+        elif self.graph_type[0] == 'P':
+            Y = P
+        else:
+            Y = CP.PropsSI(self.graph_type[0], 'T', T, 'P', P, self.fluid_ref)
 
         limits = [[min(X), max(X)], [min(Y), max(Y)]]
         if not self.axis.get_autoscalex_on():
@@ -282,7 +271,8 @@ class IsoLines(BasePlot):
             output = numpy.unique(output)
         return output
 
-    def get_isolines(self, iso_range=[], num=None, rounding=False):
+    def get_isolines(self, iso_range=[], num=None, rounding=False,
+                     line_opts=None, axis_limits=None):
         """
         This is the core method to obtain lines in the dimensions defined
         by 'plot' that describe the behaviour of fluid 'Ref'. The constant
@@ -355,7 +345,9 @@ class IsoLines(BasePlot):
             if self.iso_type in iso_error_map[self.graph_type]:
                 raise ValueError('You should not reach this point!')
 
-        axis_limits = self.__set_axis_limits(switch_xy)
+        if axis_limits is None:
+            axis_limits = self.__set_axis_limits(switch_xy)
+
         req_prop = self.graph_type[0]
         prop2_name = self.graph_type[1]
         if switch_xy:
@@ -363,18 +355,29 @@ class IsoLines(BasePlot):
             req_prop = self.graph_type[1]
             prop2_name = self.graph_type[0]
 
-        # Calculate the points
-        if self.iso_type == 'Q':
-            lines = self._get_sat_lines(x=iso_range)
+        # Calculate the data points
+        if self.iso_type == req_prop:
+            x_vals = [[axis_limits[0][0], axis_limits[0][1]]] * len(iso_range)
+            y_vals = [[i, i] for i in iso_range]
+            plot_data = numpy.array([x_vals, y_vals])
+
+        elif self.iso_type == prop2_name:
+            x_vals = [[i, i] for i in iso_range]
+            y_vals = [[axis_limits[1][0], axis_limits[1][1]]] * len(iso_range)
+            plot_data = numpy.array([x_vals, y_vals])
+
+        elif self.iso_type == 'Q':
+            lines = self._get_sat_lines(x=iso_range, line_opts=line_opts)
             return lines
 
-        # TODO: Determine saturation state if two phase region present
-        x_range = numpy.linspace(axis_limits[0][0], axis_limits[0][1], 1000.)
-        x_mesh = [x_range for i in iso_range]
+        else:
+            # TODO: Determine saturation state if two phase region present
+            x_range = numpy.linspace(axis_limits[0][0], axis_limits[0][1], 1000.)
+            x_mesh = [x_range for i in iso_range]
 
-        plot_data = self._get_fluid_data(req_prop,
-                                         self.iso_type, iso_range,
-                                         prop2_name, x_mesh)
+            plot_data = self._get_fluid_data(req_prop,
+                                             self.iso_type, iso_range,
+                                             prop2_name, x_mesh)
 
         if switch_xy:
             plot_data = plot_data[::-1]
@@ -389,11 +392,16 @@ class IsoLines(BasePlot):
               'type': self.iso_type,
               'opts': {'color': self.COLOR_MAP[self.iso_type], 'lw':0.75, 'alpha':0.5 }
               }
+
+            if line_opts is not None:
+                line['opts'].update(line_opts)
+
             lines.append(line)
 
         return lines
 
-    def draw_isolines(self, iso_range, num=None, rounding=False):
+    def draw_isolines(self, iso_range, num=None, rounding=False, line_opts=None,
+                      axis_limits=None):
         """
         Draw lines with constant values of type 'which' in terms of x and y as
         defined by 'plot'. 'iMin' and 'iMax' are minimum and maximum value between
@@ -415,7 +423,7 @@ class IsoLines(BasePlot):
                               supported, yet..')
 
         if self.iso_type != 'all':
-            lines = self.get_isolines(iso_range, num, rounding)
+            lines = self.get_isolines(iso_range, num, rounding, line_opts, axis_limits)
             drawn_lines = drawLines(self.fluid_ref, lines, self.axis)
             self._plot_default_annotations()
             return drawn_lines
@@ -445,9 +453,12 @@ class PropsPlot(BasePlot):
         fig : :func:`matplotlib.pyplot.figure()`, Optional
             The current figure to be plotted to.
             Default: create a new figure
+        plot_units : str
+            Unit system for for plotting (defaults to 'kSI'), Optional
 
         Examples
         ---------
+        >>> from CoolProp.State import State
         >>> from CoolProp.Plots import PropsPlot
         >>> plt = PropsPlot('Water', 'Ph')
         >>> plt.show()
@@ -458,6 +469,18 @@ class PropsPlot(BasePlot):
         >>> plt.draw_isolines('P', [100, 2000])
         >>> plt.draw_isolines('D', [2, 600])
         >>> plt.show()
+
+        >>> fluid = 'Water'
+        >>> p_min = 20
+        >>> p_max = 15e3
+        >>> T_max = 550 + 273.15
+        >>> S1 = State(fluid, dict(P=p_min, Q=0))     # condenser outlet
+        >>> S2 = State(fluid, dict(P=p_max, S=S1.s))  # isentropic compression
+        >>> S3 = State(fluid, dict(P=p_max, T=T_max)) # isobaric heating
+        >>> S4 = State(fluid, dict(P=p_min, S=S3.s))  # isentropic expansion
+        >>> Ts = PropsPlot(fluid, 'Ts')
+        >>> Ts.draw_process([S1, S2, S3, S4, S1])
+        >>> Ts.show()
 
         .. note::
 
@@ -478,16 +501,93 @@ class PropsPlot(BasePlot):
     def _draw_graph(self):
         self.__draw_region_lines()
         self._plot_default_annotations()
-        self.scale_plot(units='kSI')
+        self.scale_plot(plot_units=self.plot_units)
 
-    def draw_isolines(self, iso_type, iso_range, num=10, rounding=False, units='kSI'):
-        # convert range to SI units for internal use
+    def draw_isolines(self, iso_type, iso_range, num=10, rounding=False,
+                      units='kSI', line_opts=None, axis_limits=None):
+        """ Create isolines
+
+        Parameters
+        ----------
+        iso_type : str
+            Type of the isolines
+        iso_range : list
+            Range between isolines will be created [min, max]
+        num : int
+            Number of the isolines within range, Optional
+        units : str
+            Unit system of the input data ('kSI' or 'SI'), Optional
+        line_opts : dict
+            Line options (please see :func:`matplotlib.pyplot.plot`), Optional
+        axis_limits : list
+            Limits for drawing isolines [[xmin, xmax], [ymin, ymax]], Optional
+
+        """
+
+        # convert input data to SI units for internal use
         iso_range = CP.toSI(iso_type, iso_range, units)
+        if axis_limits is not None:
+            axis_limits = [CP.toSI(self.graph_type[1].upper(), axis_limits[0], units),
+                           CP.toSI(self.graph_type[0].upper(), axis_limits[1], units),
+                          ]
+
         iso_lines = IsoLines(self.fluid_ref,
                              self.graph_type,
                              iso_type,
                              axis=self.axis)
-        iso_lines.draw_isolines(iso_range, num, rounding)
+        iso_lines.draw_isolines(iso_range, num, rounding, line_opts, axis_limits)
+
+    def draw_process(self, states, line_opts={'color' : 'r', 'lw' : 1.5}):
+        """ Draw process or cycle from list of State objects
+
+        Parameters
+        ----------
+        states : list
+            List of CoolProp.State.State objects
+        line_opts : dict
+            Line options (please see :func:`matplotlib.pyplot.plot`), Optional
+
+        """
+
+        # plot above other lines
+        line_opts['zorder'] = 10
+
+        for i, state in enumerate(states):
+            if state.Fluid != self.fluid_ref:
+                raise ValueError('Fluid [{0}] from State object does not match PropsPlot fluid [{1}].'.format(state.Fluid, self.fluid_ref))
+
+            if i == 0: continue
+
+            S2 = states[i]
+            S1 = states[i-1]
+            iso = False
+
+            y_name, x_name = self.graph_type.lower().replace('t', 'T')
+
+            x1 = getattr(S1, x_name)
+            x2 = getattr(S2, x_name)
+            y1 = getattr(S1, y_name)
+            y2 = getattr(S2, y_name)
+
+            # search for equal properties between states
+            for iso_type in ['p', 'T', 's', 'h', 'rho']:
+                if getattr(S1, iso_type) == getattr(S2, iso_type):
+                    axis_limits = [[x1, x2], [y1, y2]]
+                    self.draw_isolines(iso_type.upper(), [getattr(S1, iso_type)],
+                                       num=1, units='kSI', line_opts=line_opts,
+                                       axis_limits=axis_limits)
+                    iso = True
+                    break
+
+            # connect states with straight line
+            if not iso:
+                # convert values to SI for plotting
+                x_val = [CP.toSI(x_name.upper(), x1, 'kSI'),
+                         CP.toSI(x_name.upper(), x2, 'kSI')]
+                y_val = [CP.toSI(y_name.upper(), y1, 'kSI'),
+                         CP.toSI(y_name.upper(), y2, 'kSI')]
+                print(x_val, y_val)
+                self.axis.plot(x_val, y_val, **line_opts)
 
 
 def Ts(Ref, Tmin=None, Tmax=None, show=False, axis=None, *args, **kwargs):
@@ -794,7 +894,7 @@ def hs(Ref, Tmin=None, Tmax=None, show=False, axis=None, *args, **kwargs):
         plt._draw_graph()
     return plt.axis
 
-def drawIsoLines(Ref, plot, which, iValues=[], num=0, show=False, axis=None):
+def drawIsoLines(Ref, plot, which, iValues=[], num=0, show=False, axis=None, units='kSI', line_opts=None):
     """
     Draw lines with constant values of type 'which' in terms of x and y as
     defined by 'plot'. 'iMin' and 'iMax' are minimum and maximum value
@@ -823,6 +923,10 @@ def drawIsoLines(Ref, plot, which, iValues=[], num=0, show=False, axis=None):
     axis : :func:`matplotlib.pyplot.gca()`, Optional
         The current axis system to be plotted to.
         (Default: create a new axis system)
+    units : str
+        Unit system of the input data ('kSI' or 'SI'), Optional
+    line_opts : dict
+        Line options (please see :func:`matplotlib.pyplot.plot`), Optional
 
     Examples
     --------
@@ -838,8 +942,12 @@ def drawIsoLines(Ref, plot, which, iValues=[], num=0, show=False, axis=None):
     >>> isochores = drawIsoLines(Ref, 'Ts', 'D', [2, 600], num=7, axis=ax)
     >>> pyplot.show()
     """
+
+    # convert input data to SI units for internal use
+    iValues = CP.toSI(which, iValues, units)
+
     isolines = IsoLines(Ref, plot, which, axis=axis)
-    lines = isolines.draw_isolines(iValues, num)
+    lines = isolines.draw_isolines(iValues, num=num, line_opts=line_opts)
     if show:
         isolines.show()
     return lines

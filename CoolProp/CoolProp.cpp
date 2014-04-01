@@ -165,6 +165,7 @@ std::pair<std::string, long> map_data[] = {
 	std::make_pair("dpdrho|T",iDERdp_drho__T),
 	std::make_pair("dhdT|rho",iDERdh_dT__rho),
     std::make_pair("dhdp|T",iDERdh_dp__T),
+    std::make_pair("DHDP|T",iDERdh_dp__T),
 	std::make_pair("dhdrho|T",iDERdh_drho__T),
 	std::make_pair("drhodT|p",iDERdrho_dT__p),
 	std::make_pair("drhodh|p",iDERdrho_dh__p),
@@ -622,10 +623,10 @@ double _PropsSI(std::string Output, std::string Name1, double Prop1, std::string
 	if (iName2<0) 
 		throw ValueError(format("Your input key #2 [%s] is not valid. (names are case sensitive)",Name2.c_str()));
 
-    if (iOutput == iName1)
+    /*if (iOutput == iName1)
         throw ValueError(format("Input parameter #1 [%s] cannot be the same as the output",Name1.c_str()));
     if (iOutput == iName2)
-        throw ValueError(format("Input parameter #2 [%s] cannot be the same as the output",Name2.c_str()));
+        throw ValueError(format("Input parameter #2 [%s] cannot be the same as the output",Name2.c_str()));*/
 
 	/* 
     If the fluid name is not actually a refrigerant name, but a string beginning with "REFPROP-",
