@@ -82,6 +82,12 @@ public:
 			};
 };
 
+// A macro to disallow the copy constructor and operator= functions
+// This should be used in the private: declarations for a class
+#define DISALLOW_COPY_AND_ASSIGN(TypeName) \
+  TypeName(const TypeName&);               \
+  void operator=(const TypeName&)
+
 class CoolPropStateClassSI
 {
 protected:
@@ -149,10 +155,10 @@ protected:
 	double interp_linear(double Q, double valueL, double valueV);
 	double interp_recip(double Q, double valueL, double valueV);
 
+    DISALLOW_COPY_AND_ASSIGN(CoolPropStateClassSI);
 public:
 
-	//CoolPropStateClassSI(CoolPropStateClassSI const&);  // for copying
-	CoolPropStateClassSI copy(void){
+	/*CoolPropStateClassSI copy(void){
 		if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION)
 		{
 			return CoolPropStateClassSI(this->get_name());
@@ -161,7 +167,7 @@ public:
 		{
 			return CoolPropStateClassSI(this->pFluid);
 		}
-	};
+	};*/
 
 	long fluid_type;
 
@@ -192,7 +198,7 @@ public:
 	bool TwoPhase, SinglePhase, s_cached, h_cached;
 	
 	// Default Constructor
-	CoolPropStateClassSI(){SatL = NULL; SatV = NULL;};
+	CoolPropStateClassSI(){_noSatLSatV = true; SatL = NULL; SatV = NULL;};
 
 	// Constructor with fluid name
 	CoolPropStateClassSI(std::string FluidName);
