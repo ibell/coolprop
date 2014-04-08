@@ -70,7 +70,7 @@ extern "C"
 			return 0;
 		}
 
-		// Split the string that is passed in at the | delimiter that was used to join it
+		// Split the string that is passed in at the '~' delimiter that was used to join it
 		fluid_split = strsplit(fluid_string,'~');
 		if (fluid_split.size() != 4) 
 		{
@@ -140,7 +140,7 @@ extern "C"
 			return 0.0;
 		}
 
-		if (fabs(out)>1e90)
+		if (!ValidNumber(out))
 		{
             std::string err_str = get_global_param_string("errstring");
             // There was an error

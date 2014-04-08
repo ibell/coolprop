@@ -1978,7 +1978,7 @@ void phi0_cp0_AlyLee::to_json(rapidjson::Value &el, rapidjson::Document &doc){
             _n.PushBack(a[i],doc.GetAllocator());
         }
 	}
-    el.AddMember("n",_n,doc.GetAllocator());
+    el.AddMember("c",_n,doc.GetAllocator());
     el.AddMember("Tc",Tc,doc.GetAllocator());
     el.AddMember("T0",T0,doc.GetAllocator());
 }

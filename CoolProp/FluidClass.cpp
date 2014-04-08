@@ -719,6 +719,10 @@ double Fluid::density_Tp(double T, double p)
 	if (get_debug_level()>8){
 		std::cout << format("%s:%d: Fluid::density_Tp(double T, double p)\n", __FILE__, __LINE__, T, p).c_str();
 	}
+    if (T < 0)
+    {
+        throw ValueError(format("T [%g] is less than zero",T));
+    }
 	return density_Tp(T,p,_get_rho_guess(T,p));
 }
 
@@ -2160,58 +2164,73 @@ void Fluid::temperature_ps(double p, double s, double &Tout, double &rhoout, dou
 	double Tc = reduce.T;
 	double rhoc = reduce.rho;
 
-	// Now we enter into a Jacobian loop that attempts to simultaneously solve 
-	// for temperature and density using Newton-Raphson
-    worst_error=999;
-    iter=0;
-    while (worst_error>1e-6)
+    double tau0 = tau, delta0 = delta;
+    // Relaxation factor for entropy
+    for(double omega = 1.0; omega > 0; omega -= 0.3)
     {
-    	// All the required partial derivatives
-		a0 = phi0(tau,delta);
-    	da0_dtau = dphi0_dTau(tau,delta);
-    	d2a0_dtau2 = d2phi0_dTau2(tau,delta);
-    	da0_ddelta = dphi0_dDelta(tau,delta);
-		d2a0_ddelta_dtau = 0.0;
+        bool failed = false;
+        tau = tau0; delta = delta0;
 
-    	ar = phir(tau,delta);
-		dar_dtau = dphir_dTau(tau,delta);
-		d2ar_dtau2 = d2phir_dTau2(tau,delta);
-		dar_ddelta = dphir_dDelta(tau,delta);
-		d2ar_ddelta2 = d2phir_dDelta2(tau,delta);
-		d2ar_ddelta_dtau = d2phir_dDelta_dTau(tau,delta);
-		
-		// Residual and derivatives thereof for entropy
-		f1 = tau*(da0_dtau+dar_dtau)-ar-a0-s/R();
-		df1_dtau = tau*(d2a0_dtau2 + d2ar_dtau2)+(da0_dtau+dar_dtau)-dar_dtau-da0_dtau;
-		df1_ddelta = tau*(d2a0_ddelta_dtau+d2ar_ddelta_dtau)-dar_ddelta-da0_ddelta;
+        // Now we enter into a Jacobian loop that attempts to simultaneously solve 
+        // for temperature and density using Newton-Raphson
+        worst_error=999;
+        iter=0;
+        while (worst_error>1e-6)
+        {
+            // All the required partial derivatives
+            a0 = phi0(tau,delta);
+            da0_dtau = dphi0_dTau(tau,delta);
+            d2a0_dtau2 = d2phi0_dTau2(tau,delta);
+            da0_ddelta = dphi0_dDelta(tau,delta);
+            d2a0_ddelta_dtau = 0.0;
 
-		// Residual and derivatives thereof for pressure
-		f2 = delta/tau*(1+delta*dar_ddelta)-p/(rhoc*R()*Tc);
-		df2_dtau = (1+delta*dar_ddelta)*(-delta/tau/tau)+delta/tau*(delta*d2ar_ddelta_dtau);
-		df2_ddelta = (1.0/tau)*(1+2.0*delta*dar_ddelta+delta*delta*d2ar_ddelta2);
+            ar = phir(tau,delta);
+            dar_dtau = dphir_dTau(tau,delta);
+            d2ar_dtau2 = d2phir_dTau2(tau,delta);
+            dar_ddelta = dphir_dDelta(tau,delta);
+            d2ar_ddelta2 = d2phir_dDelta2(tau,delta);
+            d2ar_ddelta_dtau = d2phir_dDelta_dTau(tau,delta);
+    		
+            // Residual and derivatives thereof for entropy
+            f1 = tau*(da0_dtau+dar_dtau)-ar-a0-s/R();
+            df1_dtau = tau*(d2a0_dtau2 + d2ar_dtau2)+(da0_dtau+dar_dtau)-dar_dtau-da0_dtau;
+            df1_ddelta = tau*(d2a0_ddelta_dtau+d2ar_ddelta_dtau)-dar_ddelta-da0_ddelta;
 
-		//First index is the row, second index is the column
-		A[0][0]=df1_dtau;
-		A[0][1]=df1_ddelta;
-		A[1][0]=df2_dtau;
-		A[1][1]=df2_ddelta;
+            // Residual and derivatives thereof for pressure
+            f2 = delta/tau*(1+delta*dar_ddelta)-p/(rhoc*R()*Tc);
+            df2_dtau = (1+delta*dar_ddelta)*(-delta/tau/tau)+delta/tau*(delta*d2ar_ddelta_dtau);
+            df2_ddelta = (1.0/tau)*(1+2.0*delta*dar_ddelta+delta*delta*d2ar_ddelta2);
 
-		MatInv_2(A,B);
-		tau -= B[0][0]*f1+B[0][1]*f2;
-		delta -= B[1][0]*f1+B[1][1]*f2;
-		
-        if (fabs(f1)>fabs(f2))
-            worst_error=fabs(f1);
-        else
-            worst_error=fabs(f2);
+            //First index is the row, second index is the column
+            A[0][0]=df1_dtau;
+            A[0][1]=df1_ddelta;
+            A[1][0]=df2_dtau;
+            A[1][1]=df2_ddelta;
 
-		iter+=1;
-		if (iter>100)
-		{
-			throw SolutionError(format("Tsp did not converge with inputs p=%g s=%g for fluid %s",p,s,(char*)name.c_str()));
-			Tout = _HUGE;
-            rhoout = _HUGE;
-		}
+            MatInv_2(A, B);
+            tau -= omega*(B[0][0]*f1+B[0][1]*f2);
+            delta -= omega*(B[1][0]*f1+B[1][1]*f2);
+    		
+            if (fabs(f1)>fabs(f2))
+                worst_error=fabs(f1);
+            else
+                worst_error=fabs(f2);
+
+            if (tau < 0 || delta < 0)
+            {
+                failed = true; break;
+            }
+
+            iter+=1;
+            if (iter>100)
+            {
+	            throw SolutionError(format("Tsp did not converge with inputs p=%g s=%g for fluid %s",p,s,(char*)name.c_str()));
+	            Tout = _HUGE;
+                rhoout = _HUGE;
+            }
+        }
+        // Solver succeeded, break out of iteration on solver relaxation factor
+        if (failed == false){break;}
     }
 
 	Tout = reduce.T/tau;
@@ -4041,6 +4060,11 @@ std::string Fluid::to_json()
     the_EOS.AddMember("molar_mass_units","kg/mol",dd.GetAllocator());
     the_EOS.AddMember("accentric",params.accentricfactor,dd.GetAllocator());
     the_EOS.AddMember("accentric_units","-",dd.GetAllocator());
+    the_EOS.AddMember("ptriple",params.ptriple*1000,dd.GetAllocator());
+    the_EOS.AddMember("ptriple_units","Pa",dd.GetAllocator());
+    the_EOS.AddMember("Ttriple",params.Ttriple,dd.GetAllocator());
+    the_EOS.AddMember("Ttriple_units","K",dd.GetAllocator());
+    the_EOS.AddMember("pseudo_pure", !pure(), dd.GetAllocator());
 
     // The reducing state
     reducing_state.AddMember("T", reduce.T, dd.GetAllocator());

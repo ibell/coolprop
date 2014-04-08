@@ -2113,7 +2113,7 @@ bool TTSESinglePhaseTableClass::within_range_Trho(long iInput1, double Input1, l
 {
 	int i = (int)round((Input1-Tmin)/(Tmax-Tmin)*(NT-1));
 	int j = (int)round((log(Other)-logrhomin)/logrhoratio);
-	return (0 <= i && i <= (int)NT && 0 <= (int)j && j <= (int)Nrho);
+	return (0 <= i && i <= (int)NT-1 && 0 <= (int)j && j <= (int)Nrho-1);
 }
 bool TTSESinglePhaseTableClass::within_range_one_other_input(long iInput1, double Input1, long iOther, double Other)
 {
@@ -2436,8 +2436,8 @@ double TTSESinglePhaseTableClass::evaluate_Trho(long iOutput, double T, double r
 
 	int i = (int)round((T-Tmin)/(Tmax-Tmin)*(NT-1));
 	int j = (int)round((logrho-logrhomin)/logrhoratio);
-	
-	if (i<0 || i>(int)NT-1 || j<0 || j>(int)Nrho-1)
+
+	if (!this->within_range_Trho(iT,T,iD,rho))
 	{
 		throw ValueError(format("Input to TTSE [T = %0.16g, rho = %0.16g] is out of range",T,rho));
 	}

@@ -1156,9 +1156,9 @@ double R152AClass::conductivity_Trho(double T, double rho)
 	for (int i = 1; i<= 4; i++){ summer += L[i]*pow(rho/reduce.rho,i); }
 	double lambda_r = 1.155*summer; // [mW/m/K]
 
-	double lambda_c = this->conductivity_critical(T,rho,1/(4.37e-10))*1e6; //[mW/m/K]
+	double lambda_c = this->conductivity_critical(T,rho,1/(4.37e-10))*1e3; //[mW/m/K]
 
-	return (lambda_0+lambda_r+lambda_c)/1e6; // [kW/m/K]
+	return (lambda_0+lambda_r+lambda_c)/1e3; // [W/m/K]
 }
 
 R123Class::R123Class()
