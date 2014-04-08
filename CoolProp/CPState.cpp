@@ -1434,6 +1434,7 @@ double CoolPropStateClassSI::h(void){
 		{
 			if (pFluid->enabled_TTSE_LUT  && within_TTSE_range(iT, _T, iD, _rho) )
 			{
+				if (get_debug_level()>9){ std::cout << format("%s:%d: StateClassSI::h: _T %g, _rho %g\n", __FILE__,__LINE__,_T,_rho).c_str(); }
 				return pFluid->TTSESinglePhase.evaluate_Trho(iH,_T,_rho,_logrho);
 			}
 			else
