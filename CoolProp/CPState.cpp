@@ -1140,6 +1140,10 @@ double CoolPropStateClassSI::keyed_output(long iOutput)
 			output = pFluid->params.accentricfactor; break;
 		case iTmin:
 			output = pFluid->limits.Tmin; break;
+        case iTmax:
+			output = pFluid->limits.Tmax; break;
+        case iPmax:
+            output = pFluid->limits.pmax; break;
 		case iCritSplineT:
 			output = pFluid->CriticalSpline_T.Tend; break;
 

@@ -81,6 +81,10 @@ std::pair<std::string, long> map_data[] = {
 	std::make_pair("Tmin",iTmin),
 	std::make_pair("TMIN",iTmin),
 	std::make_pair("t",iTmin),
+    std::make_pair("Tmax",iTmax),
+	std::make_pair("TMAX",iTmax),
+    std::make_pair("pmax",iPmax),
+    std::make_pair("PMAX",iPmax),
 	std::make_pair("Ttriple",iTtriple),
 	std::make_pair("TTRIPLE",iTtriple),
 	std::make_pair("ptriple",iPtriple),
@@ -818,6 +822,8 @@ double _CoolProp_Fluid_PropsSI(long iOutput, long iName1, double Prop1, long iNa
 		case iTcrit:
 		case iTtriple:
 		case iPtriple:
+        case iPmax:
+        case iTmax:
 		case iRhocrit:
 		case iTmin:
 		case iAccentric:

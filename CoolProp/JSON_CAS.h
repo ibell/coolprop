@@ -1,6 +1,7 @@
 const char JSON_cas[] = "{"
 ""
 "  \"1-Butene\": \"106-98-9\","
+"  \"AceticAcid\": \"64-19-7\","
 "  \"Acetone\": \"67-64-1\","
 "  \"Air\": \"AIR.PPF\","
 "  \"Ammonia\": \"7664-41-7\","

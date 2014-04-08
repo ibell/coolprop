@@ -212,6 +212,10 @@ void Fluid::post_load(rapidjson::Document &JSON, rapidjson::Document &JSON_CAS)
 	environment.PH = JSON_lookup_double(JSON,this->params.CAS,"PH");
 	environment.ASHRAE34 = JSON_lookup_string(JSON,this->params.CAS,"ASHRAE34");
 
+    limits.Tmin = JSON_lookup_double(JSON,this->params.CAS,"Tmin");
+    limits.Tmax = JSON_lookup_double(JSON,this->params.CAS,"Tmax");
+    limits.pmax = JSON_lookup_double(JSON,this->params.CAS,"pmax");
+
 	// Inputs for the enthalpy-entropy solver which is the most problematic solver
 	HS.hmax = JSON_lookup_double(JSON,this->params.CAS,"hsatVmax");
 	HS.T_hmax = JSON_lookup_double(JSON,this->params.CAS,"T_hsatVmax");
