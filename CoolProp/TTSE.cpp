@@ -2151,6 +2151,7 @@ bool TTSESinglePhaseTableClass::within_range(long iInput1, double Value1, long i
 	//throw ValueError("Your input pair was not valid. Please supply either (P,H), (P,T), (P,D), (P,S) or (T,D) as inputs.");
 	return true;
 }
+
 bool TTSESinglePhaseTableClass::within_range_one_other_input(long iInput1, double Input1, long iOther, double Other)
 {
 	if (iInput1 != iP)
@@ -2158,18 +2159,18 @@ bool TTSESinglePhaseTableClass::within_range_one_other_input(long iInput1, doubl
 		throw ValueError("iInput1 must be iP");
 	}
 	// Check if pressure is in range
-	if (Input1 > pmax || Input1 < pmin){ 
+	if (Input1 > pmax || Input1 < pmin){
 		return false;
 	}
 
 	int j = (int)round((log(Input1)-logpmin)/logpratio);
 	double low, high;
 	if (iOther == iT)
-		{ low  = this->T[Nh-1][j];   high = this->T[0][j];   }
+		{ high  = this->T[Nh-1][j];  low = this->T[0][j];   }
 	else if(iOther == iS)
-		{ low  = this->s[Nh-1][j];   high = this->s[0][j];   }
+		{ high  = this->s[Nh-1][j];  low = this->s[0][j];   }
 	else if(iOther == iD)
-		{ high = this->rho[Nh-1][j];  low = this->rho[0][j]; }
+		{ low = this->rho[Nh-1][j];  high = this->rho[0][j]; }
 	else
 	{
 		throw ValueError("Your input pair was not valid. Please supply either (P,T), (P,S) or (P,D) as inputs.");
@@ -2177,10 +2178,11 @@ bool TTSESinglePhaseTableClass::within_range_one_other_input(long iInput1, doubl
 	}
 
 	if (ValidNumber(high) && ValidNumber(low))
-		{ return (low<Other && Other<high);	}
+		{ return !(low>Other || Other>high); }
 
-	return true;
+	return false;
 }
+
 double TTSESinglePhaseTableClass::evaluate_one_other_input(long iInput1, double Input1, long iOther, double Other)
 {
 	// Use Bicubic interpolation if requested
