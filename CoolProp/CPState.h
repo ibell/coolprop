@@ -85,8 +85,15 @@ public:
 // A macro to disallow the copy constructor and operator= functions
 // This should be used in the private: declarations for a class
 #define DISALLOW_COPY_AND_ASSIGN(TypeName) \
-  TypeName(const TypeName&);               \
-  void operator=(const TypeName&)
+ TypeName(const TypeName&);                \
+ void operator=(const TypeName&)
+
+// Modified Version (no move semantics)
+#define DISALLOW_COPY_MOVE_AND_ASSIGN(TypeName) \
+TypeName(const TypeName&);                      \
+void operator=(const TypeName&);                \
+TypeName(TypeName&&);                           \
+void operator=(const TypeName&&)
 
 class CoolPropStateClassSI
 {
@@ -149,16 +156,19 @@ protected:
 	void check_saturated_quality(double Q);
 
 	/// Check whether within the TTSE range
-	bool within_TTSE_range(long iInput1, double Value1, long iInput2, double Value2);
+	bool within_TTSE_range(long iInput1, double Value1, long iInput2, double Value2)
+	  { return pFluid->TTSESinglePhase.within_range(iInput1,Value1,iInput2,Value2); }
 
 	/// Extended two-phase calculations need different interpolation functions
 	double interp_linear(double Q, double valueL, double valueV);
 	double interp_recip(double Q, double valueL, double valueV);
 
-    DISALLOW_COPY_AND_ASSIGN(CoolPropStateClassSI);
+//private:
+//	DISALLOW_COPY_AND_ASSIGN(CoolPropStateClassSI);
+
 public:
 
-	/*CoolPropStateClassSI copy(void){
+	CoolPropStateClassSI copy(void){
 		if (fluid_type == FLUID_TYPE_INCOMPRESSIBLE_LIQUID || fluid_type == FLUID_TYPE_INCOMPRESSIBLE_SOLUTION)
 		{
 			return CoolPropStateClassSI(this->get_name());
@@ -167,7 +177,10 @@ public:
 		{
 			return CoolPropStateClassSI(this->pFluid);
 		}
-	};*/
+	};
+
+//	CoolPropStateClassSI( const CoolPropStateClassSI& other ); // non construction-copyable
+//	CoolPropStateClassSI& operator=( const CoolPropStateClassSI& ); // non copyable
 
 	long fluid_type;
 

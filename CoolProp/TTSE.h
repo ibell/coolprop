@@ -179,10 +179,11 @@ public:
 	double evaluate_one_other_input(long iInput1, double Param1, long iOther, double Other);
 	
 	/// See if the inputs are within range
+	bool within_range(long iInput1, double Input1, long iInput2, double Input2);
+protected:
 	bool within_range_one_other_input(long iInput1, double Input1, long iOther, double Other);
 
-	bool within_range_Trho(long iInput1, double Input1, long iOther, double Other);
-
+public:
 	/// Evaluate a property in the single-phase region with T,rho as inputs
 	/// @param iParam Index of desired output
 	/// @param T Temperature [K]
