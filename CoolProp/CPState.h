@@ -157,7 +157,10 @@ protected:
 
 	/// Check whether within the TTSE range
 	bool within_TTSE_range(long iInput1, double Value1, long iInput2, double Value2)
-	  { return pFluid->TTSESinglePhase.within_range(iInput1,Value1,iInput2,Value2); }
+	  { if (get_debug_level()>10)
+	  	  { std::cout << format("%s:%d: CoolPropStateClassSI::within_TTSE_range %d,%g,%d,%g,%s",__FILE__,__LINE__,iInput1,Value1,iInput2,Value2,this->pFluid->get_name().c_str()).c_str() << std::endl; }
+		return this->pFluid->TTSESinglePhase.within_range(iInput1,Value1,iInput2,Value2);
+	  }
 
 	/// Extended two-phase calculations need different interpolation functions
 	double interp_linear(double Q, double valueL, double valueV);

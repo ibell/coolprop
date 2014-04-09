@@ -3070,7 +3070,7 @@ void Fluid::saturation_p(double p, bool UseLUT, double &TsatL, double &TsatV, do
 	{
 		if (UseLUT)
 		{
-			throw NotImplementedError();
+			throw NotImplementedError("Saturation calculation is not implemented for LUT.");
 		}
 		else
 		{
