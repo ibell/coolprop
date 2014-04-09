@@ -2115,7 +2115,10 @@ bool TTSESinglePhaseTableClass::within_range(long iInput1, double Value1, long i
 	if (match_pair(iInput1,iInput2,iP,iH)){
 		// Sort in the order p,h
 		sort_pair(&iInput1,&Value1,&iInput2,&Value2,iP,iH);
-		return (Value1 > pmin && Value1 < pmax && Value2 > hmin && Value2 < hmax);
+		//return (Value1 > pmin && Value1 < pmax && Value2 > hmin && Value2 < hmax);
+		int i = (int)round((log(Value1)-logpmin)/logpratio);
+		int j = (int)round((Value2-hmin)/(hmax-hmin)*(Nh-1));
+		return (0 <= i && i <= (int)Np-1 && 0 <= (int)j && j <= (int)Nh-1);
 	}
 	else if (match_pair(iInput1,iInput2,iP,iT)){
 		// Sort in the order p, T
@@ -2135,10 +2138,10 @@ bool TTSESinglePhaseTableClass::within_range(long iInput1, double Value1, long i
 	else if (match_pair(iInput1,iInput2,iT,iD)){
 		// Sort in the order T, rho
 		sort_pair(&iInput1,&Value1,&iInput2,&Value2, iT, iD);
-		return (Value1 > Tmin && Value1 < Tmax && Value2 > rhomin && Value2 < rhomax);
-		//int i = (int)round((Value1-Tmin)/(Tmax-Tmin)*(NT-1));
-		//int j = (int)round((log(Value2)-logrhomin)/logrhoratio);
-		//return (0 <= i && i <= (int)NT-1 && 0 <= (int)j && j <= (int)Nrho-1);
+		//return (Value1 > Tmin && Value1 < Tmax && Value2 > rhomin && Value2 < rhomax);
+		int i = (int)round((Value1-Tmin)/(Tmax-Tmin)*(NT-1));
+		int j = (int)round((log(Value2)-logrhomin)/logrhoratio);
+		return (0 <= i && i <= (int)NT-1 && 0 <= (int)j && j <= (int)Nrho-1);
 	}
 //	else if (match_pair(iInput1,iInput2,iP,iQ) || match_pair(iInput1,iInput2,iT,iQ)){
 //		// TODO: This is a work around to prevent the sat calls from failing. However,
