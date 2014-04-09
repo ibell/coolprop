@@ -2140,7 +2140,7 @@ bool TTSESinglePhaseTableClass::within_range(long iInput1, double Value1, long i
 		//int j = (int)round((log(Value2)-logrhomin)/logrhoratio);
 		//return (0 <= i && i <= (int)NT-1 && 0 <= (int)j && j <= (int)Nrho-1);
 	}
-	throw ValueError("Your input pair was not valid. Please supply either (P,H), (P,T), (P,D), (P,S) or (T,D) as inputs.");
+	//throw ValueError("Your input pair was not valid. Please supply either (P,H), (P,T), (P,D), (P,S) or (T,D) as inputs.");
 	return false;
 }
 bool TTSESinglePhaseTableClass::within_range_one_other_input(long iInput1, double Input1, long iOther, double Other)
