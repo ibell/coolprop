@@ -2179,7 +2179,7 @@ bool TTSESinglePhaseTableClass::within_range_one_other_input(long iInput1, doubl
 	if (ValidNumber(high) && ValidNumber(low))
 		{ return (low<Other && Other<high);	}
 
-	return false;
+	return true;
 }
 double TTSESinglePhaseTableClass::evaluate_one_other_input(long iInput1, double Input1, long iOther, double Other)
 {
