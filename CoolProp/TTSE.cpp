@@ -2112,6 +2112,12 @@ double TTSESinglePhaseTableClass::bicubic_evaluate_one_other_input(long iInput1,
 
 bool TTSESinglePhaseTableClass::within_range(long iInput1, double Value1, long iInput2, double Value2)
 {
+	int buf = 0;
+	// get more for bicubic
+	if (mode == TTSE_MODE_BICUBIC){
+		buf += 2;
+	}
+
 	// For p,h as inputs
 	if (match_pair(iInput1,iInput2,iP,iH)){
 		// Sort in the order p,h
@@ -2119,22 +2125,22 @@ bool TTSESinglePhaseTableClass::within_range(long iInput1, double Value1, long i
 		//return (Value1 > pmin && Value1 < pmax && Value2 > hmin && Value2 < hmax);
 		int i = (int)round((log(Value1)-logpmin)/logpratio);
 		int j = (int)round((Value2-hmin)/(hmax-hmin)*(Nh-1));
-		return (1 <= i && i <= (int)Np-2 && 1 <= (int)j && j <= (int)Nh-2);
+		return (buf <= i && i <= (int)Np-(buf+1) && buf <= (int)j && j <= (int)Nh-(buf+1));
 	}
 	else if (match_pair(iInput1,iInput2,iP,iT)){
 		// Sort in the order p, T
 		sort_pair(&iInput1,&Value1,&iInput2,&Value2,iP,iT);
-		return this->within_range_one_other_input(iP,Value1,iT,Value2);
+		return this->within_range_one_other_input(iP,Value1,iT,Value2,buf);
 	}
 	else if (match_pair(iInput1,iInput2,iP,iD)){
 		// Sort in the order p, D
 		sort_pair(&iInput1,&Value1,&iInput2,&Value2, iP, iD);
-		return this->within_range_one_other_input(iP,Value1,iD,Value2);
+		return this->within_range_one_other_input(iP,Value1,iD,Value2,buf);
 	}
 	else if (match_pair(iInput1,iInput2,iP,iS)){
 		// Sort in the order p, S
 		sort_pair(&iInput1,&Value1,&iInput2,&Value2, iP, iS);
-		return this->within_range_one_other_input(iP,Value1,iS,Value2);
+		return this->within_range_one_other_input(iP,Value1,iS,Value2,buf);
 	}
 	else if (match_pair(iInput1,iInput2,iT,iD)){
 		// Sort in the order T, rho
@@ -2142,36 +2148,31 @@ bool TTSESinglePhaseTableClass::within_range(long iInput1, double Value1, long i
 		//return (Value1 > Tmin && Value1 < Tmax && Value2 > rhomin && Value2 < rhomax);
 		int i = (int)round((Value1-Tmin)/(Tmax-Tmin)*(NT-1));
 		int j = (int)round((log(Value2)-logrhomin)/logrhoratio);
-		return (1 <= i && i <= (int)NT-2 && 1 <= (int)j && j <= (int)Nrho-2);
+		return (buf <= i && i <= (int)NT-(buf+1) && buf <= (int)j && j <= (int)Nrho-(buf+1));
 	}
-//	else if (match_pair(iInput1,iInput2,iP,iQ) || match_pair(iInput1,iInput2,iT,iQ)){
-//		// TODO: This is a work around to prevent the sat calls from failing. However,
-//		//       having quality as input to some single phase table is not ideal...
-//		return true;
-//	}
 	//throw ValueError("Your input pair was not valid. Please supply either (P,H), (P,T), (P,D), (P,S) or (T,D) as inputs.");
 	return true;
 }
 
-bool TTSESinglePhaseTableClass::within_range_one_other_input(long iInput1, double Input1, long iOther, double Other)
+bool TTSESinglePhaseTableClass::within_range_one_other_input(long iInput1, double Input1, long iOther, double Other, int buf)
 {
 	if (iInput1 != iP)
 	{
 		throw ValueError("iInput1 must be iP");
 	}
-	// Check if pressure is in range
-	if (Input1 > pmax || Input1 < pmin){
+
+	int j = (int)round((log(Input1)-logpmin)/logpratio);
+	if (!(buf <= j && j <= (int)Np-(buf+1) )) {
 		return false;
 	}
 
-	int j = (int)round((log(Input1)-logpmin)/logpratio);
 	double low, high;
 	if (iOther == iT)
-		{ high  = this->T[Nh-2][j];  low = this->T[1][j];   }
+		{ high  = this->T[Nh-(buf+1)][j];  low = this->T[buf][j];   }
 	else if(iOther == iS)
-		{ high  = this->s[Nh-2][j];  low = this->s[1][j];   }
+		{ high  = this->s[Nh-(buf+1)][j];  low = this->s[buf][j];   }
 	else if(iOther == iD)
-		{ low = this->rho[Nh-2][j];  high = this->rho[1][j]; }
+		{ low = this->rho[Nh-(buf+1)][j];  high = this->rho[buf][j]; }
 	else
 	{
 		throw ValueError("Your input pair was not valid. Please supply either (P,T), (P,S) or (P,D) as inputs.");
