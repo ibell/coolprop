@@ -2135,18 +2135,18 @@ bool TTSESinglePhaseTableClass::within_range(long iInput1, double Value1, long i
 	else if (match_pair(iInput1,iInput2,iT,iD)){
 		// Sort in the order T, rho
 		sort_pair(&iInput1,&Value1,&iInput2,&Value2, iT, iD);
-		//return (Value1 > Tmin && Value1 < Tmax && Value2 > rhomin && Value2 < rhomax);
-		int i = (int)round((Value1-Tmin)/(Tmax-Tmin)*(NT-1));
-		int j = (int)round((log(Value2)-logrhomin)/logrhoratio);
-		return (0 <= i && i <= (int)NT-1 && 0 <= (int)j && j <= (int)Nrho-1);
+		return (Value1 > Tmin && Value1 < Tmax && Value2 > rhomin && Value2 < rhomax);
+		//int i = (int)round((Value1-Tmin)/(Tmax-Tmin)*(NT-1));
+		//int j = (int)round((log(Value2)-logrhomin)/logrhoratio);
+		//return (0 <= i && i <= (int)NT-1 && 0 <= (int)j && j <= (int)Nrho-1);
 	}
-	else if (match_pair(iInput1,iInput2,iP,iQ) || match_pair(iInput1,iInput2,iT,iQ)){
-		// TODO: This is a work around to prevent the sat calls from failing. However,
-		//       having quality as input to some single phase table is not ideal...
-		return true;
-	}
+//	else if (match_pair(iInput1,iInput2,iP,iQ) || match_pair(iInput1,iInput2,iT,iQ)){
+//		// TODO: This is a work around to prevent the sat calls from failing. However,
+//		//       having quality as input to some single phase table is not ideal...
+//		return true;
+//	}
 	//throw ValueError("Your input pair was not valid. Please supply either (P,H), (P,T), (P,D), (P,S) or (T,D) as inputs.");
-	return false;
+	return true;
 }
 bool TTSESinglePhaseTableClass::within_range_one_other_input(long iInput1, double Input1, long iOther, double Other)
 {
