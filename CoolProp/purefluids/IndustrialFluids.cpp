@@ -464,10 +464,10 @@ double HydrogenSulfideClass::viscosity_Trho(double T, double rho)
 	double kaa = (A0 + A1*psi1 + A2*psi2)*crit.T/T;
 	double krr = (B0 + B1*psi1 + B2*psi2)*crit.T/T;
 
-	double p = this->pressure_Trho(T,rho)/100; // kPa -> bar
-	double pr = T*this->dpdT_Trho(T,rho)/100; // kPa-> bar
+	double p = this->pressure_Trho(T,rho)/1e5; // Pa -> bar
+	double pr = T*this->dpdT_Trho(T,rho)/1e5; // Pa-> bar
 	double pa = p - pr;
-	double pid = rho * R() * T / 100; // kPa -> bar
+	double pid = rho * R() * T / 1e5; // Pa -> bar
 	double deltapr = pr - pid;
 
 	double eta_f = (ka*pa + kr*deltapr + kaa*pa*pa + krr*pr*pr)*1000; //mPa-s --> uPa-s

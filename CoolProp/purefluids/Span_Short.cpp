@@ -1294,7 +1294,7 @@ double R123Class::conductivity_Trho(double T, double rho)
 
 	double lambda_c = a13*exp(a14*pow(tau-1,4)+a15*pow(delta-1,2));
 
-	return (lambda_0 + lambda_r + lambda_c)/1000; // kW/m/K
+	return lambda_0 + lambda_r + lambda_c; // W/m/K
 }
 
 

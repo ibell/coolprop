@@ -156,9 +156,9 @@ double R125Class::conductivity_Trho(double T, double rho)
 	}
 	double lambda_r = sumresid; //[W/m/K]
 
-	double lambda_c = this->conductivity_critical(T,rho,1.7139e9)*1000; //[W/m/K]
+	double lambda_c = this->conductivity_critical(T,rho,1.7139e9); //[W/m/K]
 
-	return (lambda_0 + lambda_r + lambda_c)/1000; //[kW/m/K]
+	return lambda_0 + lambda_r + lambda_c; //[W/m/K]
 }
 
 double R125Class::surface_tension_T(double T)

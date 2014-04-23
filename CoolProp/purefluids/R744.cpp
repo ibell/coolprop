@@ -353,7 +353,7 @@ double R744Class::conductivity_Trho(double T, double rho)
 	double delta_lambda = summer;
 
 	// Use the simplified cross-over critical enhancement term
-	double delta_c = conductivity_critical(T,rho,1/4e-10,0.052,1.50e-10)*1e6; //[mW/m/K]
+	double delta_c = conductivity_critical(T,rho,1/4e-10,0.052,1.50e-10)*1e3; //[mW/m/K]
 
 	return (lambda_0+delta_lambda+delta_c)/1e3; //[W/m/K]
 }

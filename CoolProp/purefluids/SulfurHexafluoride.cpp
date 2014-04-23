@@ -145,10 +145,10 @@ double SulfurHexafluorideClass::viscosity_Trho(double T, double rho)
 	double krrr = (D0 + D1*psi1 + D2*psi2)/Tr;
 	double kaaa = (E0 + E1*psi1 + E2*psi2)/Tr;
 
-	double p = this->pressure_Trho(T,rho)/100; // kPa -> bar
-	double pr = T*this->dpdT_Trho(T,rho)/100; // kPa-> bar
+	double p = this->pressure_Trho(T,rho)/1e5; // Pa -> bar
+	double pr = T*this->dpdT_Trho(T,rho)/1e5; // Pa-> bar
 	double pa = p - pr;
-	double pid = rho * R() * T / 100; // kPa -> bar
+	double pid = rho * R() * T / 1e5; // kPa -> bar
 	double deltapr = pr - pid;
 
 	double eta_f = ka*pa + kr*deltapr + ki*pid + kaa*pa*pa + krr*deltapr*deltapr + kii*pid*pid + krrr*pr*pr*pr + kaaa*pa*pa*pa;
@@ -169,7 +169,7 @@ double SulfurHexafluorideClass::conductivity_Trho(double T, double rho)
 	}
 	double lambda_r = sumresid; //[W/m/K]
 
-	double lambda_c = this->conductivity_critical(T,rho,1/(3.5e-10))*1000; //[W/m/K]
+	double lambda_c = this->conductivity_critical(T,rho,1/(3.5e-10)); //[W/m/K]
 
-	return (lambda_0 + lambda_r + lambda_c)/1000; //[kW/m/K]
+	return lambda_0 + lambda_r + lambda_c; //[W/m/K]
 }

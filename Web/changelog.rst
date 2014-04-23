@@ -1,6 +1,20 @@
 Changelog for CoolProp
 ======================
 
+4.2.0
+-----
+* MAJOR: Fixed the transport properties for a few fluids that had unit errors
+* MAJOR: CoolProp now only used in Modelica through ExternalMedia
+* MINOR: Added acetic acid
+* MINOR: Removed quantities support.  I don't think anyone was using it
+* Added third partials for residual Helmholtz energy for SAFT term
+* Fixed building for MATLAB on linux
+* Fixed some problems with R407C around critical point
+* Rudimentary wrappers for LibreOffice and Scilab added
+* Added improved ancillary fitter
+* Fixed handful of bugs in the humid air routines
+* Many other small bugs
+
 4.1.2
 -----
 * Fixed default calling convention on 32-bit windows to set back to __stdcall.  This change should fix DLL-based wrappers that want __cdecl calling convention

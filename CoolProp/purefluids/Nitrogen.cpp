@@ -398,7 +398,7 @@ double NitrogenClass::conductivity_critical(double T, double rho)
 	zeta = zeta0*pow(num/LAMBDA,nu/gamma); //[nm]
 	OMEGA_tilde = 2.0/pi*((cp-cv)/cp*atan(zeta/q_D)+cv/cp*(zeta/q_D));
 	OMEGA_tilde0 = 2.0/pi*(1.-exp(-1./(q_D/zeta+1.0/3.0*(zeta/q_D)*(zeta/q_D)/delta/delta)));
-	lambdac = rho*cp*k*R0*T/(6*pi*zeta*mu)*(OMEGA_tilde-OMEGA_tilde0)*1e18; // 1e18 is conversion to mW/m-K (not described in paper)
+	lambdac = rho*cp*k*R0*T/(6*pi*zeta*mu)*(OMEGA_tilde-OMEGA_tilde0)*1e18; // 1e18 is conversion to W/m-K (not described in paper)
 
 	return lambdac/1e3; //[W/m/K]
 }
