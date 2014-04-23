@@ -35,10 +35,8 @@ end
 
 %Build the MEX files
 eval(['mex ', include_string,mexopts_string,' Props.c *.obj'])
+eval(['mex ', include_string,mexopts_string,' PropsSI.c *.obj'])
 eval(['mex ', include_string,mexopts_string,' HAProps.c *.obj'])
 
 %Clean up - delete the obj files
 delete('*.obj')
-
-%Quit MATLAB
-quit

@@ -1,19 +1,21 @@
 call "C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\vcvarsall.bat"
 
-swig -octave -c++ -outcurrentdir -o CoolProp_wrap.cpp ../../../CoolProp/CoolProp.i
-    if %errorlevel% neq 0 exit /b %errorlevel%
+copy ..\..\..\wrappers\Octave\Example.m .
 
-REM : %%~nf gives just the file name, no path or extension
-REM : %%f gives the full path and extension
-for %%f in (..\..\..\CoolProp\*.cpp) do mkoctfile -v -c -I..\..\CoolProp -o %%~nf.o %%f
-   if %errorlevel% neq 0 exit /b %errorlevel%
-mkoctfile -v -c -I..\..\..\CoolProp -o CoolProp_wrap.o CoolProp_wrap.cpp
-   if %errorlevel% neq 0 exit /b %errorlevel%
-mkoctfile -v -o CoolProp.oct *.o
-   if %errorlevel% neq 0 exit /b %errorlevel%
-erase *.o
-erase CoolProp.lib
-erase CoolProp.exp
-erase CoolProp_wrap.cpp
+REM ~ c:\swigwin-3.0.0\swig -octave -c++ -outcurrentdir -o CoolProp_wrap.cpp ../../../CoolProp/CoolProp.i
+    REM ~ if %errorlevel% neq 0 exit /b %errorlevel%
+
+REM ~ REM : %%~nf gives just the file name, no path or extension
+REM ~ REM : %%f gives the full path and extension
+REM ~ for %%f in (..\..\..\CoolProp\*.cpp) do mkoctfile -v -c -I..\..\CoolProp -o %%~nf.o %%f
+   REM ~ if %errorlevel% neq 0 exit /b %errorlevel%
+REM ~ mkoctfile -v -c -I..\..\..\CoolProp -o CoolProp_wrap.o CoolProp_wrap.cpp
+   REM ~ if %errorlevel% neq 0 exit /b %errorlevel%
+REM ~ mkoctfile -v -o CoolProp.oct *.o
+   REM ~ if %errorlevel% neq 0 exit /b %errorlevel%
+REM ~ erase *.o
+REM ~ erase CoolProp.lib
+REM ~ erase CoolProp.exp
+REM ~ erase CoolProp_wrap.cpp
 octave Example.m > Output.txt
     if %errorlevel% neq 0 exit /b %errorlevel%

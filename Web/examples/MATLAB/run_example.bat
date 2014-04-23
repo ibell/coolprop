@@ -1,7 +1,5 @@
-copy ..\..\..\wrappers\MATLAB\example.m .
-copy ..\..\..\wrappers\MATLAB\*rops.c .
-matlab -wait -nojvm -nodesktop -r "MATLABBuilder; quit"
-cl /c /I../../../CoolProp /EHsc CoolProp_wrap.cxx
-matlab -nojvm -nodesktop -r "Example; quit" -logfile Output.txt
-cl /c /I../../../CoolProp /EHsc CoolProp_wrap.cxx
+copy ..\..\..\wrappers\MATLAB\Example.m .
+copy ..\..\..\wrappers\MATLAB\*Props*.c .
+matlab -wait -nojvm -nodesktop -r "MATLABBuilder; quit" -logfile build_log.txt
+matlab -wait -nojvm -nodesktop -r "Example; quit" -logfile Output.txt
 erase *Props*.c
