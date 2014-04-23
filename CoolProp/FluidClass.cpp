@@ -1640,9 +1640,16 @@ long Fluid::phase_Trho_indices(double T, double rho, double &pL, double &pV, dou
 long Fluid::phase_prho_indices(double p, double rho, double &T, double &TL, double &TV, double &rhoL, double &rhoV)
 {
 
+    // If pressure is below triple point pressure and density is below triple point temperature saturated vapor density
+    if (p < params.ptriple)
+    {
+        return iGas;
+    }
+
 	// If temperature is below the critical temperature, it is either 
 	// subcooled liquid, superheated vapor, or two-phase
-	if (p < crit.p.Pa)
+	
+    if (p < crit.p.Pa)
 	{	
 		// Actually have to use saturation information sadly
 		// For the given temperature, find the saturation state
@@ -4107,7 +4114,7 @@ std::string Fluid::to_json()
 
     dd.Accept(writer);
     std::string json0 = buffer.GetString();
-    std::cout << json0 << std::endl;
+    //std::cout << json0 << std::endl;
 
     FILE *fp;
     fp = fopen((get_name()+".json").c_str(),"w");
