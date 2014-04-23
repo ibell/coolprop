@@ -49,7 +49,8 @@ class GeneticAncillaryFitter(object):
                 self.T = np.append(np.linspace(self.Tmin+1e-14, self.Tc-1,150), np.logspace(np.log10(self.Tc-1), np.log10(self.Tc)-1e-15,40))
             else:
                 self.T = np.linspace(Tlims[0],Tlims[1])
-            self.p = Props('P','T',self.T,'Q',0,Ref)
+            self.pL = Props('P','T',self.T,'Q',0,Ref)
+            self.pV = Props('P','T',self.T,'Q',1,Ref)
             self.rhoL = Props('D','T',self.T,'Q',0,Ref)
             self.rhoV = Props('D','T',self.T,'Q',1,Ref)
         else:
@@ -62,7 +63,8 @@ class GeneticAncillaryFitter(object):
             self.rhoL = values['rhoL']
             self.rhoV = values['rhoV']
         
-        self.logppc = (np.log(self.p)-np.log(self.pc))
+        self.logpLpc = (np.log(self.pL)-np.log(self.pc))
+        self.logpVpc = (np.log(self.pV)-np.log(self.pc))
         self.rhoLrhoc = np.array(self.rhoL)/self.rhoc
         self.rhoVrhoc = np.array(self.rhoV)/self.rhoc
         self.logrhoLrhoc = np.log(self.rhoL)-np.log(self.rhoc)
@@ -73,13 +75,21 @@ class GeneticAncillaryFitter(object):
         MM = Props(Ref,'molemass')
         self.T_r = self.Tc
         
-        if self.value == 'p':
-            self.LHS = self.logppc.copy()
-            self.EOS_value = self.p
+        if self.value == 'pL':
+            self.LHS = self.logpLpc.copy()
+            self.EOS_value = self.pL.copy()
             if self.addTr == False:
-                self.description = 'p = pc*exp(sum(n_i*theta^t_i))'
+                self.description = "p' = pc*exp(sum(n_i*theta^t_i))"
             else:
-                self.description = 'p = pc*exp(Tc/T*sum(n_i*theta^t_i))'
+                self.description = "p' = pc*exp(Tc/T*sum(n_i*theta^t_i))"
+            self.reducing_value = self.pc*1000
+        elif self.value == 'pV':
+            self.LHS = self.logpVpc.copy()
+            self.EOS_value = self.pV.copy()
+            if self.addTr == False:
+                self.description = "p'' = pc*exp(sum(n_i*theta^t_i))"
+            else:
+                self.description = "p'' = pc*exp(Tc/T*sum(n_i*theta^t_i))"
             self.reducing_value = self.pc*1000
         elif self.value == 'rhoL':
             self.LHS = self.logrhoLrhoc.copy()
@@ -152,12 +162,14 @@ class GeneticAncillaryFitter(object):
         if self.addTr:
             RHS *= self.Tc/self.T
             
-        if self.value == 'p':
+        if self.value in ['pL','pV']:
             fit_value = np.exp(RHS)*self.pc
         elif self.value in ['rhoL','rhoV']:
             fit_value = np.exp(RHS)*self.rhoc
-        else:
+        elif self.value == 'rhoLnoexp':
             fit_value = self.rhoc*(1+RHS)
+        else:
+            raise ValueError
         
         max_abserror = np.max(np.abs((fit_value/self.EOS_value)-1)*100)
         
@@ -215,7 +227,7 @@ class GeneticAncillaryFitter(object):
         # Calculate the fitness for the initial chromosomes
         for chromo in samples:
             self.fitness(chromo)
-        print '#'
+#         print '#'
     
         decorated = [(sample.fitness,sample) for sample in samples]
         decorated.sort()
@@ -250,28 +262,32 @@ class GeneticAncillaryFitter(object):
             
             for chromo in solution:
                 self.fitness(chromo)
-            print '#'
+#             print '#'
 
             decorated = [(sample.fitness,sample) for sample in solution]
             decorated.sort()
             samples = [s for sv,s in decorated]
             
-            print '------------------  Top 10 values  ---------------'
-            for sample in samples[0:10]:
-                print sample.v, sample.fitness, sample.max_abserror
+#             print '------------------  Top 10 values  ---------------'
+#             for sample in samples[0:10]:
+#                 print sample.v, sample.fitness, sample.max_abserror
             
-            print '// Max error is ',samples[0].max_abserror,'% between',np.min(self.T),'and',np.max(self.T),'K'
-            print str(samples[0].v), samples[0].beta.tolist()
+#             print '// Max error is ',samples[0].max_abserror,'% between',np.min(self.T),'and',np.max(self.T),'K'
+#             print str(samples[0].v), samples[0].beta.tolist()
                 
             # Print useful stats about this generation
             (min, median, max) =  [samples[0].fitness, samples[len(samples)//2].fitness, samples[-1].fitness]
-            print("{0} best value: {1}. fitness: best {2}, median {3}, worst {4}".format(generation, samples[0].v, min, median, max))
+#             print("{0} best value: {1}. fitness: best {2}, median {3}, worst {4}".format(generation, samples[0].v, min, median, max))
             
             # If the string representations of all the chromosomes are the same, stop
             if len(set([str(s.v) for s in samples[0:5]])) == 1:
                 break
                 
         self.fitness(samples[0])
+        
+        print self.value
+        print '// Max error is ',samples[0].max_abserror,'% between',np.min(self.T),'and',np.max(self.T),'K'
+#         print str(samples[0].v), samples[0].beta.tolist()
     
         j = dict()
         j['n'] = samples[0].beta.squeeze().tolist()
@@ -293,8 +309,10 @@ def build_ancillaries(name, **kwargs):
     
     j = dict()
     j['ANCILLARIES'] = dict()
-    gaf = GeneticAncillaryFitter(Ref = name, value = 'p', addTr = True, num_powers = 6, **kwargs)
-    j['ANCILLARIES']['p'] = gaf.run()
+    gaf = GeneticAncillaryFitter(Ref = name, value = 'pL', addTr = True, num_powers = 6, **kwargs)
+    j['ANCILLARIES']['pL'] = gaf.run()
+    gaf = GeneticAncillaryFitter(Ref = name, value = 'pV', addTr = True, num_powers = 6, **kwargs)
+    j['ANCILLARIES']['pV'] = gaf.run()
     gaf = GeneticAncillaryFitter(Ref = name, value = 'rhoLnoexp', addTr = False, num_powers = 6, **kwargs)
     j['ANCILLARIES']['rhoL'] = gaf.run()
     gaf = GeneticAncillaryFitter(Ref = name, value = 'rhoV', addTr = True, num_powers = 6, **kwargs)
@@ -305,9 +323,14 @@ def build_ancillaries(name, **kwargs):
     fp.close()
 
 def build_all_ancillaries():
-    for fluid in CoolProp.__fluids__:
-        if fluid == 'SES36':
+    for fluid in sorted(CoolProp.__fluids__):
+        print fluid
+        if fluid in ['SES36']:
             build_ancillaries(fluid, Tlims = [CP.Props(fluid,'Ttriple'), CP.Props(fluid, 'Tcrit')-1])
+        elif fluid == 'R507A':
+            build_ancillaries(fluid, Tlims = [CP.Props(fluid,'Ttriple'), CP.Props(fluid, 'Tcrit')-0.1])
+        elif fluid == 'R407F':
+            build_ancillaries(fluid, Tlims = [CP.Props(fluid,'Ttriple'), CP.Props(fluid, 'Tcrit')-2])
         else:
             build_ancillaries(fluid)
             
@@ -327,15 +350,8 @@ def inject_ancillaries():
         
 if __name__ == "__main__":
     
-    #build_all_ancillaries()
+#     fluid = 'R407F'
+#     build_ancillaries(fluid, Tlims = [CP.Props(fluid,'Ttriple'), CP.Props(fluid, 'Tcrit')-2])
+    
+#     build_all_ancillaries()
     inject_ancillaries()
-        
-    
-#     gaf = GeneticAncillaryFitter(Ref = 'AceticAcid', value = 'rhoLnoexp', addTr = False, num_powers = 5, Tlims = (290,590))
-#     ch = gaf.run()
-#     plt.plot(gaf.T, ch.fit_value)
-#     plt.plot(gaf.T, gaf.EOS_value)
-#     plt.show()
-    
-#     import nose
-#     nose.runmodule()
