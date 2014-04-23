@@ -2,7 +2,7 @@
 import subprocess, os
 import glob
 
-exports = ['-s','EXPORTED_FUNCTIONS=\"[\'_main\',\'_F2K\',\'_HAProps\',\'_Props1\',\'_PropsS\',\'_Props1SI\',\'_PropsSI\']\"','-s','DISABLE_EXCEPTION_CATCHING=0']
+exports = ['-s','EXPORTED_FUNCTIONS=\"[\'_main\',\'_F2K\',\'_HAProps\',\'_Props1SI\',\'_PropsSI\',\'_get_global_param_string\']\"','-s','DISABLE_EXCEPTION_CATCHING=0']
 optimization = '-O2'
 
 def compile_sources():
@@ -36,8 +36,9 @@ def run():
     os.startfile('index.html')
 
 if __name__=='__main__':
-    compile_sources()
-    link()
-    #closure_compiler()
-    cleanup()
-    run()
+#     compile_sources()
+#     link()
+#     cleanup()
+#     run()
+    
+    closure_compiler()
