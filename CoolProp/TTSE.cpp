@@ -1486,17 +1486,18 @@ double TTSESinglePhaseTableClass::evaluate_randomly(long iParam, unsigned int N)
 
 double TTSESinglePhaseTableClass::evaluate(long iParam, double p, double logp, double h)
 {
+	if (!this->within_range(iP,p,iH,h))
+	{
+		throw ValueError(format("Input to TTSE [p = %0.16g, h = %0.16g] is out of range",p,h));
+	}
+
 	// Use Bicubic interpolation if requested
 	if (mode == TTSE_MODE_BICUBIC){ 
 		return interpolate_bicubic_ph(iParam,p,logp,h);
 	}
+
 	int i = (int)round(((h-hmin)/(hmax-hmin)*(Nh-1)));
 	int j = (int)round((logp-logpmin)/logpratio);
-	
-	if (i<0 || i>(int)Nh-1 || j<0 || j>(int)Np-1)
-	{
-		throw ValueError(format("Input to TTSE [p = %0.16g, h = %0.16g] is out of range",p,h));
-	}
 
 	// If the value at i,j is too close to the saturation boundary, the nearest point i,j 
 	// might be in the two-phase region which is not defined for single-phase table.  
@@ -1524,14 +1525,14 @@ double TTSESinglePhaseTableClass::evaluate(long iParam, double p, double logp, d
 
 void TTSESinglePhaseTableClass::bicubic_cell_coordinates_Trho(double Tval, double rhoval, double logrhoval, int *i, int *j)
 {
-	*i = (int)round((Tval-Tmin)/(Tmax-Tmin)*(NT-1));
-	*j = (int)round((logrhoval-logrhomin)/logrhoratio);
-
-	if (*i<0 || *i>(int)NT-1 || *j<0 || *j>(int)Nrho-1)
+	if (!this->within_range(iT,Tval,iD,rhoval))
 	{
 		throw ValueError(format("Input to TTSE [T = %0.16g, logrho = %0.16g] is out of range",Tval,logrhoval));
 	}
 	
+	*i = (int)round((Tval-Tmin)/(Tmax-Tmin)*(NT-1));
+	*j = (int)round((logrhoval-logrhomin)/logrhoratio);
+
 	if (Tval < this->T_Trho[*i])
 	{
 		*i -= 1;
@@ -1546,14 +1547,14 @@ void TTSESinglePhaseTableClass::bicubic_cell_coordinates_Trho(double Tval, doubl
 
 void TTSESinglePhaseTableClass::bicubic_cell_coordinates_ph(double hval, double pval, double logpval, int *i, int *j)
 {
-	*i = (int)round(((hval-hmin)/(hmax-hmin)*(Nh-1)));
-	*j = (int)round((logpval-logpmin)/logpratio);
-
-	if (*i<0 || *i>(int)Nh-1 || *j<0 || *j>(int)Np-1)
+	if (!this->within_range(iP,pval,iH,hval))
 	{
 		throw ValueError(format("Input to TTSE [p = %0.16g, h = %0.16g] is out of range",pval,hval));
 	}
 	
+	*i = (int)round(((hval-hmin)/(hmax-hmin)*(Nh-1)));
+	*j = (int)round((logpval-logpmin)/logpratio);
+
 	if (hval < this->h[*i])
 	{
 		*i -= 1;
@@ -2109,64 +2110,81 @@ double TTSESinglePhaseTableClass::bicubic_evaluate_one_other_input(long iInput1,
 	}
 }
 
-bool TTSESinglePhaseTableClass::within_range_Trho(long iInput1, double Input1, long iOther, double Other)
+bool TTSESinglePhaseTableClass::within_range(long iInput1, double Value1, long iInput2, double Value2)
 {
-	int i = (int)round((Input1-Tmin)/(Tmax-Tmin)*(NT-1));
-	int j = (int)round((log(Other)-logrhomin)/logrhoratio);
-	return (0 <= i && i <= (int)NT-1 && 0 <= (int)j && j <= (int)Nrho-1);
+	int buf = 0;
+	// get more for bicubic
+	if (mode == TTSE_MODE_BICUBIC){
+		buf += 2;
+	}
+
+	// For p,h as inputs
+	if (match_pair(iInput1,iInput2,iP,iH)){
+		// Sort in the order p,h
+		sort_pair(&iInput1,&Value1,&iInput2,&Value2,iP,iH);
+		//return (Value1 > pmin && Value1 < pmax && Value2 > hmin && Value2 < hmax);
+		int i = (int)round((log(Value1)-logpmin)/logpratio);
+		int j = (int)round((Value2-hmin)/(hmax-hmin)*(Nh-1));
+		return (buf <= i && i <= (int)Np-(buf+1) && buf <= (int)j && j <= (int)Nh-(buf+1));
+	}
+	else if (match_pair(iInput1,iInput2,iP,iT)){
+		// Sort in the order p, T
+		sort_pair(&iInput1,&Value1,&iInput2,&Value2,iP,iT);
+		return this->within_range_one_other_input(iP,Value1,iT,Value2,buf);
+	}
+	else if (match_pair(iInput1,iInput2,iP,iD)){
+		// Sort in the order p, D
+		sort_pair(&iInput1,&Value1,&iInput2,&Value2, iP, iD);
+		return this->within_range_one_other_input(iP,Value1,iD,Value2,buf);
+	}
+	else if (match_pair(iInput1,iInput2,iP,iS)){
+		// Sort in the order p, S
+		sort_pair(&iInput1,&Value1,&iInput2,&Value2, iP, iS);
+		return this->within_range_one_other_input(iP,Value1,iS,Value2,buf);
+	}
+	else if (match_pair(iInput1,iInput2,iT,iD)){
+		// Sort in the order T, rho
+		sort_pair(&iInput1,&Value1,&iInput2,&Value2, iT, iD);
+		//return (Value1 > Tmin && Value1 < Tmax && Value2 > rhomin && Value2 < rhomax);
+		int i = (int)round((Value1-Tmin)/(Tmax-Tmin)*(NT-1));
+		int j = (int)round((log(Value2)-logrhomin)/logrhoratio);
+		return (buf <= i && i <= (int)NT-(buf+1) && buf <= (int)j && j <= (int)Nrho-(buf+1));
+	}
+	//throw ValueError("Your input pair was not valid. Please supply either (P,H), (P,T), (P,D), (P,S) or (T,D) as inputs.");
+	return true;
 }
-bool TTSESinglePhaseTableClass::within_range_one_other_input(long iInput1, double Input1, long iOther, double Other)
+
+bool TTSESinglePhaseTableClass::within_range_one_other_input(long iInput1, double Input1, long iOther, double Other, int buf)
 {
 	if (iInput1 != iP)
 	{
 		throw ValueError("iInput1 must be iP");
 	}
-	// Check if pressure is in range
-	if (Input1 > pmax || Input1 < pmin){ 
+
+	int j = (int)round((log(Input1)-logpmin)/logpratio);
+	if (!(buf <= j && j <= (int)Np-(buf+1) )) {
 		return false;
 	}
 
-	int j = (int)round((log(Input1)-logpmin)/logpratio);
-
-	if (iOther == iT || iOther == iS)
+	double low, high;
+	if (iOther == iT)
+		{ high  = this->T[Nh-(buf+1)][j];  low = this->T[buf][j];   }
+	else if(iOther == iS)
+		{ high  = this->s[Nh-(buf+1)][j];  low = this->s[buf][j];   }
+	else if(iOther == iD)
+		{ low = this->rho[Nh-(buf+1)][j];  high = this->rho[buf][j]; }
+	else
 	{
-		double right, left;
-		if (iOther == iT) 
-			{ right = this->T[Nh-1][j]; left = this->T[0][j]; }
-		else 
-			{ right = this->s[Nh-1][j]; left = this->s[0][j]; }
-
-		if (ValidNumber(right) && ValidNumber(left))
-		{
-			if (Other > right || Other < left)
-				{ return false;	}
-			else
-				{ return true; }
-		}
-		else
-		{
-			return false;
-		}
-	}
-	else if (iOther == iD)
-	{
-		double right = this->rho[Nh-1][j], left = this->rho[0][j];
-
-		if (ValidNumber(right) && ValidNumber(left))
-		{
-			if (Other < right || Other > left)
-				{ return false;	}
-			else
-				{ return true; }
-		}
-		else
-		{
-			return false;
-		}
+		throw ValueError("Your input pair was not valid. Please supply either (P,T), (P,S) or (P,D) as inputs.");
+		return false;
 	}
 
-	return true;
+	if (ValidNumber(high) && ValidNumber(low))
+		{ return !(low>Other || Other>high); }
+
+	return false;
 }
+
 double TTSESinglePhaseTableClass::evaluate_one_other_input(long iInput1, double Input1, long iOther, double Other)
 {
 	// Use Bicubic interpolation if requested
@@ -2429,6 +2447,11 @@ double TTSESinglePhaseTableClass::evaluate_one_other_input(long iInput1, double 
 
 double TTSESinglePhaseTableClass::evaluate_Trho(long iOutput, double T, double rho, double logrho)
 {
+	if (!this->within_range(iT,T,iD,rho))
+	{
+		throw ValueError(format("Input to TTSE [T = %0.16g, rho = %0.16g] is out of range",T,rho));
+	}
+
 	// Use Bicubic interpolation if requested
 	if (this->mode == TTSE_MODE_BICUBIC){
 		return interpolate_bicubic_Trho(iOutput,T,rho,logrho);
@@ -2436,11 +2459,6 @@ double TTSESinglePhaseTableClass::evaluate_Trho(long iOutput, double T, double r
 
 	int i = (int)round((T-Tmin)/(Tmax-Tmin)*(NT-1));
 	int j = (int)round((logrho-logrhomin)/logrhoratio);
-
-	if (!this->within_range_Trho(iT,T,iD,rho))
-	{
-		throw ValueError(format("Input to TTSE [T = %0.16g, rho = %0.16g] is out of range",T,rho));
-	}
 
 	// If the value at i,j is too close to the saturation boundary, the nearest point i,j 
 	// might be in the two-phase region which is not defined for single-phase table.  
@@ -2472,6 +2490,12 @@ double TTSESinglePhaseTableClass::evaluate_Trho(long iOutput, double T, double r
 
 double TTSESinglePhaseTableClass::evaluate_first_derivative(long iOF, long iWRT, long iCONSTANT, double p, double logp, double h)
 {
+
+	if (!this->within_range(iP,p,iH,h))
+	{
+		throw ValueError(format("Input to TTSE deriv [p = %0.16g, h = %0.16g] is out of range",p,h));
+	}
+
 	// Use Bicubic interpolation if requested
 	if (mode == TTSE_MODE_BICUBIC){ 
 		return bicubic_evaluate_first_derivative_ph(iOF, iWRT, iCONSTANT, p, logp, h);
@@ -2479,11 +2503,6 @@ double TTSESinglePhaseTableClass::evaluate_first_derivative(long iOF, long iWRT,
 
 	int i = (int)round(((h-hmin)/(hmax-hmin)*(Nh-1)));
 	int j = (int)round((logp-logpmin)/logpratio);
-
-	if (i<0 || i>(int)Nh-1 || j<0 || j>(int)Np-1)
-	{
-		throw ValueError(format("Input to TTSE deriv [p = %0.16g, h = %0.16g] is out of range",p,h));
-	}
 	
 	// If the value at i,j is too close to the saturation boundary, the nearest point i,j 
 	// might be in the two-phase region which is not defined for single-phase table.  
