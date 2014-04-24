@@ -4,9 +4,9 @@ Changelog for CoolProp
 4.2.0
 -----
 * MAJOR: CoolProp now only used in Modelica through ExternalMedia
-* MAJOR: Fixed the transport properties for a few fluids that had unit errors
+* MAJOR: Fixed the transport properties for a few fluids that had unit errors in conversion from kSI to SI units
 * MINOR: Added acetic acid
-* MINOR: Removed quantities support.  I don't think anyone was using it
+* MINOR: Removed quantities support to Props function.  I don't think anyone was using it
 * Added third partials for residual Helmholtz energy for SAFT term
 * Fixed building for MATLAB on linux
 * Fixed some problems with R407C around critical point
