@@ -839,7 +839,7 @@ double REFPROPSI(long iOutput, long iName1, double Prop1, long iName2, double Pr
 		}
 		else if ((iName1==iH && iName2==iS) || (iName2==iH && iName1==iS))
 		{
-			// H in kJ/kg, s in kJ/kg/K
+			// H in kJ/kg, s in J/kg/K
 			if (iName2 == iH){
 				std::swap(Prop1,Prop2);
 			}
@@ -859,6 +859,18 @@ double REFPROPSI(long iOutput, long iName1, double Prop1, long iName2, double Pr
 			// Use flash routine to find properties
 			// from REFPROP: subroutine PDFLSH (p,D,z,t,Dl,Dv,x,y,q,e,h,s,cv,cp,w,ierr,herr)
 			PDFLSHdll(&p,&d,&(x[0]),&T,&dl,&dv,xliq,xvap,&q,&e,&h,&s,&cv,&cp,&w,&ierr,herr,errormessagelength); if (ierr > 0) { throw ValueError(format("%s",herr).c_str()); } else if (ierr < 0) {set_warning(format("%s",herr).c_str());}
+		}
+        else if ((iName1==iS && iName2==iD) || (iName2==iS && iName1==iD))
+		{
+			// s in J/kg/K, rho in kg/m^3
+			if (iName2 == iP){
+				std::swap(Prop1,Prop2);
+			}
+			s = Prop1*MW/1000.0; d = Prop2/MW;
+			
+			// Use flash routine to find properties
+			// from REFPROP: subroutine DSFLSH (D,s,z,t,p,Dl,Dv,x,y,q,e,h,cv,cp,w,ierr,herr)
+			DSFLSHdll(&d,&s,&(x[0]),&T,&p,&dl,&dv,xliq,xvap,&q,&e,&h,&cv,&cp,&w,&ierr,herr,errormessagelength); if (ierr > 0) { throw ValueError(format("%s",herr).c_str()); } else if (ierr < 0) {set_warning(format("%s",herr).c_str());}
 		}
 
 		// Get the output parameter and convert it to SI units
