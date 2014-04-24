@@ -40,7 +40,7 @@ ans = P,H -> T,D 56072.8,634734 --> 300,1
 ************ USING TTSE ***************
  
 TWO PHASE INPUTS (Pressure)
-0.124 to build both two phase tables
+0.156 to build both two phase tables
 ans = Density of saturated liquid Propane at 101325 Pa: 580.883 kg/m^3
 ans = Density of saturated vapor R290 at 101325 Pa: 2.41614 kg/m^3
 TWO PHASE INPUTS (Temperature)

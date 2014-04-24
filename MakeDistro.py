@@ -1,5 +1,5 @@
 from __future__ import print_function
-import subprocess,os,shutil
+import subprocess,os,shutil,sys
 
 #These should be paths to python executables that you want want use to build versions of CoolProp
 PYTHONVERSIONS=['python.exe', #This is python 2.7 on my computer
@@ -34,6 +34,7 @@ def Source():
     print(subprocess.check_output(['python','setup.py','sdist','--dist-dir=../../dist_temp/Python'],shell=True,cwd=os.path.join('wrappers','Python')))
 
 def DLL_and_Excel():
+    print('DLL and Excel')
     """ Build a DLL using __stdcall calling convention """
     subprocess.check_output(['BuildDLL'],shell=True,cwd=os.path.join('wrappers','Excel'))
     subprocess.check_output(['BuildDLLx64'],shell=True,cwd=os.path.join('wrappers','Excel'))
@@ -52,6 +53,7 @@ def DLL_and_Excel():
     shutil.copy2(os.path.join('wrappers','Excel','README.rst'),os.path.join('dist_temp','Excel and DLL','README.rst'))
     
 def Octave():
+    print('Octave')
     try:
         os.makedirs(os.path.join('dist_temp','Octave'))
         os.makedirs(os.path.join('dist_temp','Octave','3.6.1'))
@@ -67,6 +69,7 @@ def Octave():
     shutil.copy2(os.path.join('wrappers','Octave','README.rst'),os.path.join('dist_temp','Octave','README.rst'))
     
 def Csharp():
+    print('C#')
     try:
         os.makedirs(os.path.join('dist_temp','C#'))
     except os.error: pass
@@ -81,16 +84,16 @@ def MATLAB():
         os.makedirs(os.path.join('dist_temp','MATLAB'))
     except os.error: pass
         
-    process = subprocess.Popen(['C:\\MATLAB_32bit\\bin\\matlab','-wait','-nodesktop','-nosplash','-nojvm','-r','MATLABBuilder'],shell=True,cwd=os.path.join('wrappers','MATLAB'))
+    process = subprocess.Popen(['C:\\MATLAB_32bit\\bin\\matlab','-wait','-nodesktop','-nosplash','-nojvm','-r','"MATLABBuilder; quit"'],shell=True,cwd=os.path.join('wrappers','MATLAB'))
     process.wait()
-    process = subprocess.Popen(['matlab','-nojvm','-nodesktop','-nosplash','-wait','-r','MATLABBuilder'],shell=True,cwd=os.path.join('wrappers','MATLAB'))
+    process = subprocess.Popen(['matlab','-nojvm','-nodesktop','-nosplash','-wait','-r','"MATLABBuilder; quit"'],shell=True,cwd=os.path.join('wrappers','MATLAB'))
     process.wait()
-    shutil.copy2(os.path.join('wrappers','MATLAB','Props.mexw64'),os.path.join('dist_temp','MATLAB','Props.mexw64'))
-    shutil.copy2(os.path.join('wrappers','MATLAB','HAProps.mexw64'),os.path.join('dist_temp','MATLAB','HAProps.mexw64'))
-    shutil.copy2(os.path.join('wrappers','MATLAB','Props.mexw32'),os.path.join('dist_temp','MATLAB','Props.mexw32'))
-    shutil.copy2(os.path.join('wrappers','MATLAB','HAProps.mexw32'),os.path.join('dist_temp','MATLAB','HAProps.mexw32'))
     shutil.copy2(os.path.join('wrappers','MATLAB','PropsSI.mexw32'),os.path.join('dist_temp','MATLAB','PropsSI.mexw32'))
     shutil.copy2(os.path.join('wrappers','MATLAB','PropsSI.mexw64'),os.path.join('dist_temp','MATLAB','PropsSI.mexw64'))
+    shutil.copy2(os.path.join('wrappers','MATLAB','Props.mexw32'),os.path.join('dist_temp','MATLAB','Props.mexw32'))
+    shutil.copy2(os.path.join('wrappers','MATLAB','Props.mexw64'),os.path.join('dist_temp','MATLAB','Props.mexw64'))
+    shutil.copy2(os.path.join('wrappers','MATLAB','HAProps.mexw32'),os.path.join('dist_temp','MATLAB','HAProps.mexw32'))
+    shutil.copy2(os.path.join('wrappers','MATLAB','HAProps.mexw64'),os.path.join('dist_temp','MATLAB','HAProps.mexw64'))
     shutil.copy2(os.path.join('wrappers','MATLAB','README.rst'),os.path.join('dist_temp','MATLAB','README.rst'))
     shutil.copy2(os.path.join('wrappers','MATLAB','MATLAB_sample.m'),os.path.join('dist_temp','MATLAB','example.m'))
     
@@ -117,12 +120,11 @@ def EES():
         os.makedirs(os.path.join('dist_temp','EES'))
     except os.error: pass
         
-    subprocess.check_output(['BuildDLL.bat'],shell=True,cwd=os.path.join('wrappers','EES'))
-    subprocess.check_output(['BuildDLF.bat'],shell=True,cwd=os.path.join('wrappers','EES'))
-    subprocess.check_output(['BuildMSI.bat'],shell=True,cwd=os.path.join('wrappers','EES'))
-    subprocess.check_output('C:\EES32\ees.exe C:\EES32\Userlib\CoolProp_EES\CoolProp_EES_Sample.ees /Solve',shell=True)
+    subprocess.check_output('BuildDLF.bat',shell=True,cwd=os.path.join('wrappers','EES'))
+    #Make an installer using InnoSetup
+    subprocess.call(['C:\Program Files (x86)\Inno Setup 5\Compil32.exe','/cc','BuildInnoInstaller.iss'],cwd=os.path.join('wrappers','EES'))
     
-    shutil.copy2(os.path.join('wrappers','EES','Debug','CoolProp_EES_installer.msi'),os.path.join('dist_temp','EES','CoolProp_EES_installer.msi'))
+    shutil.copy2(os.path.join('wrappers','EES','Output','SetupCOOLPROP_EES.exe'),os.path.join('dist_temp','EES','SetupCOOLPROP_EES.exe'))
     shutil.copy2(os.path.join('wrappers','EES','CoolProp.htm'),os.path.join('dist_temp','EES','CoolProp.htm'))
     shutil.copy2(os.path.join('wrappers','EES','README.rst'),os.path.join('dist_temp','EES','README.rst'))
     
@@ -161,9 +163,9 @@ def Java():
     
 def Python():
     print('Python')
-    subprocess.check_output(['python','setup.py','install'],shell=True,cwd=os.path.join('wrappers','Python'))
+    subprocess.call(['python','setup.py','install'],shell=True,cwd=os.path.join('wrappers','Python'))
     for python_install in PYTHONVERSIONS:
-        subprocess.check_output([python_install,'setup.py','bdist','--format=wininst','--dist-dir=../../dist_temp/Python'],shell=True,cwd=os.path.join('wrappers','Python'))
+        subprocess.check_call([python_install,'setup.py','bdist','--format=wininst','--dist-dir=../../dist_temp/Python'],shell=True,cwd=os.path.join('wrappers','Python'))
 
 def Maple():
     print('Maple')
@@ -203,6 +205,15 @@ def Scilab():
     
     for file in listing:
         shutil.copy2(os.path.join('wrappers','Scilab',file),os.path.join('dist_temp','Scilab',file))
+        
+def LibreOffice():
+    print('LibreOffice')
+    try:
+        os.makedirs(os.path.join('dist_temp','LibreOffice'))
+    except os.error: pass
+    
+    shutil.copy2(os.path.join('wrappers','Excel','CoolProp.dll'),os.path.join('dist_temp','LibreOffice','CoolProp.dll'))
+    shutil.copy2(os.path.join('wrappers','LibreOffice','TestLibreOffice.ods'),os.path.join('dist_temp','LibreOffice','TestLibreOffice.ods'))
     
 def MathCAD():
     print('MathCAD')
@@ -221,20 +232,20 @@ def MathCAD():
     shutil.copy2(os.path.join('wrappers','MathCAD','Prime','CoolPropFluidProperties.mcdx'),os.path.join('dist_temp','MathCAD','Prime','CoolPropFluidProperties.xmcd'))
     shutil.copy2(os.path.join('wrappers','MathCAD','Prime','README.rst'),os.path.join('dist_temp','MathCAD','Prime','README.rst'))
     
-def Modelica():
-    print('Modelica')
-    try:
-        os.makedirs(os.path.join('dist_temp','Modelica'))
-    except os.error: pass
-        
-    process = subprocess.Popen(['BuildLIB-VS2008.bat'],shell=True,cwd=os.path.join('wrappers','Modelica')); process.wait()
-    process = subprocess.Popen(['BuildLIB-VS2010.bat'],shell=True,cwd=os.path.join('wrappers','Modelica')); process.wait()
-        
-    shutil.copy2(os.path.join('wrappers','Modelica','README.rst'),os.path.join('dist_temp','Modelica','README.rst'))
-    #shutil.copy2(os.path.join('wrappers','Modelica','src_modelica','CoolProp2Modelica.mo'),os.path.join('dist_temp','Modelica','CoolProp2Modelica.mo'))
-    shutil.copy2(os.path.join('wrappers','Modelica','src','CoolPropLib.h'),os.path.join('dist_temp','Modelica','CoolPropLib.h'))
-    shutil.copytree(os.path.join('wrappers','Modelica','bin','VS2008'),os.path.join('dist_temp','Modelica','VS2008'))
-    shutil.copytree(os.path.join('wrappers','Modelica','bin','VS2010'),os.path.join('dist_temp','Modelica','VS2010'))
+# def Modelica():
+#     print('Modelica')
+#     try:
+#         os.makedirs(os.path.join('dist_temp','Modelica'))
+#     except os.error: pass
+#         
+#     process = subprocess.Popen(['BuildLIB-VS2008.bat'],shell=True,cwd=os.path.join('wrappers','Modelica')); process.wait()
+#     process = subprocess.Popen(['BuildLIB-VS2010.bat'],shell=True,cwd=os.path.join('wrappers','Modelica')); process.wait()
+#         
+#     shutil.copy2(os.path.join('wrappers','Modelica','README.rst'),os.path.join('dist_temp','Modelica','README.rst'))
+#     #shutil.copy2(os.path.join('wrappers','Modelica','src_modelica','CoolProp2Modelica.mo'),os.path.join('dist_temp','Modelica','CoolProp2Modelica.mo'))
+#     shutil.copy2(os.path.join('wrappers','Modelica','src','CoolPropLib.h'),os.path.join('dist_temp','Modelica','CoolPropLib.h'))
+#     shutil.copytree(os.path.join('wrappers','Modelica','bin','VS2008'),os.path.join('dist_temp','Modelica','VS2008'))
+#     shutil.copytree(os.path.join('wrappers','Modelica','bin','VS2010'),os.path.join('dist_temp','Modelica','VS2010'))
     
 def UploadSourceForge():
     #Rename folder to version number
@@ -304,7 +315,7 @@ def Superpacks():
         pass
     shutil.copy2(os.path.join('dist_temp/CoolProp-'+CoolProp.__version__+'-source_code.zip'),os.path.join('dist_temp','windows_superpack','CoolProp-'+CoolProp.__version__+'-source_code.zip'))
     
-    for folder in ['Excel and DLL','Python','C#','Octave','MATLAB','EES','Labview','Modelica','Maple','Scilab','Mathematica','Java','Javascript','MathCAD']:
+    for folder in ['Excel and DLL','Python','C#','Octave','MATLAB','EES','Labview','LibreOffice','Maple','Scilab','Mathematica','Java','Javascript','MathCAD']:
         shutil.copytree(os.path.join('dist_temp',folder), os.path.join('dist_temp','windows_superpack',folder))
     
     subprocess.check_call(['7z','a','-r','dist_temp/CoolProp-'+CoolProp.__version__+'-windows_superpack.zip','dist_temp/windows_superpack/*.*'])
@@ -314,11 +325,12 @@ if __name__=='__main__':
     
 #     InstallPrereqs()  #This is optional if you think any of the pre-reqs have been updated
 
+#     Python() # This one must be first to ensure that version gets rebuild properly
+
     ## Always run the examples first.  This serves as an integration test of
     ## CoolProp
-    RunExamples()
+#     RunExamples()
 
-#     Python() # This one must be first to ensure that version gets rebuild properly
 #     DLL_and_Excel()
 #     Source()
 #     Csharp()
@@ -328,16 +340,17 @@ if __name__=='__main__':
 #     Mathematica()
 #     Scilab()
 #     EES()
+#     LibreOffice()
 #     Javascript()
 #     Java()
 #     MathCAD()
 #     Labview()
-#     Modelica()
-#     Superpacks()
+#     #####################Modelica() DEPRECATED
+    Superpacks()
 
-#     PYPI()
-#     UploadSourceForge()
+    PYPI()
+    UploadSourceForge()
     
-#     Doxygen()
-#     BuildDocs()
-#     UploadDocs()
+    Doxygen()
+    BuildDocs()
+    UploadDocs()

@@ -36,9 +36,8 @@ def run():
     os.startfile('index.html')
 
 if __name__=='__main__':
-#     compile_sources()
-#     link()
-#     cleanup()
+    compile_sources()
+    link()
+    cleanup()
 #     run()
-    
-    closure_compiler()
+#     closure_compiler()
