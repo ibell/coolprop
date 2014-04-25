@@ -586,7 +586,6 @@ class PropsPlot(BasePlot):
                          CP.toSI(x_name.upper(), x2, 'kSI')]
                 y_val = [CP.toSI(y_name.upper(), y1, 'kSI'),
                          CP.toSI(y_name.upper(), y2, 'kSI')]
-                print(x_val, y_val)
                 self.axis.plot(x_val, y_val, **line_opts)
 
 
