@@ -1,4 +1,3 @@
-
 %The path to the main folder of the CoolProp source
 path_to_src = '../../CoolProp/'
 
@@ -27,15 +26,17 @@ for i=1:size(files,1)
 	o_file = strrep(bare_files{i,1},'.cpp','.o');
     o_files = [o_files,' ',o_file];
     disp(file);
-    eval(['mex -DEXTERNC -c', include_string,' -outdir . ',file])
+    eval(['mex -largeArrayDims -DEXTERNC -c', include_string,' -outdir . ',file])
 end
 
 %Build the MEX files
-eval(['mex -v ', include_string,' Props.c ', o_files])
-eval(['mex -v ', include_string,' HAProps.c ', o_files])
+eval(['mex -largeArrayDims -v ', include_string,' Props.c ', o_files])
+eval(['mex -largeArrayDims -v ', include_string,' HAProps.c ', o_files])
+eval(['mex -largeArrayDims -v ', include_string,' PropsSI.c ', o_files])
+eval(['mex -largeArrayDims -v ', include_string,' PropsSIV.c ', o_files])
 
 %Clean up - delete the obj files
-delete('*.o')
+%delete('*.o')
 
 %Quit MATLAB
 %quit
