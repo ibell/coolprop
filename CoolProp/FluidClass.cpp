@@ -4075,6 +4075,20 @@ std::string Fluid::to_json()
     the_EOS.AddMember("ptriple_units","Pa",dd.GetAllocator());
     the_EOS.AddMember("Ttriple",params.Ttriple,dd.GetAllocator());
     the_EOS.AddMember("Ttriple_units","K",dd.GetAllocator());
+
+    double rhoL = PropsSI("D","T",params.Ttriple+1e-3,"Q",0,name.c_str());
+    double rhoV = PropsSI("D","T",params.Ttriple+1e-3,"Q",1,name.c_str());
+    if (!ValidNumber(rhoL)) rhoL = 1e99;
+    if (!ValidNumber(rhoV)) rhoV = 1e99;
+
+    the_EOS.AddMember("rhoLtriple",rhoL/params.molemass*1000,dd.GetAllocator());
+    the_EOS.AddMember("rhoLtriple_units","mol/m^3",dd.GetAllocator());
+    the_EOS.AddMember("rhoVtriple",rhoV/params.molemass*1000,dd.GetAllocator());
+    the_EOS.AddMember("rhoVtriple_units","mol/m^3",dd.GetAllocator());
+
+    the_EOS.AddMember("BibTeX_EOS",BibTeXKeys.EOS.c_str(),dd.GetAllocator());
+    the_EOS.AddMember("BibTeX_CP0",BibTeXKeys.CP0.c_str(),dd.GetAllocator());
+
     the_EOS.AddMember("pseudo_pure", !pure(), dd.GetAllocator());
 
     // The reducing state
@@ -4086,6 +4100,11 @@ std::string Fluid::to_json()
     reducing_state.AddMember("p_units", "Pa", dd.GetAllocator());
 
     the_EOS.AddMember("reducing_state",reducing_state,dd.GetAllocator());
+    the_EOS.AddMember("T_max", limits.Tmax, dd.GetAllocator());
+    the_EOS.AddMember("T_max_units", "K", dd.GetAllocator());
+    the_EOS.AddMember("p_max", limits.pmax, dd.GetAllocator());
+    the_EOS.AddMember("p_max_units", "Pa", dd.GetAllocator());
+
     rapidjson::Value alphar(rapidjson::kArrayType);
     for (std::vector<phi_BC*>::const_iterator it = phirlist.begin(); it != phirlist.end(); it++)
     {
@@ -4103,7 +4122,6 @@ std::string Fluid::to_json()
         alpha0.PushBack(entry,dd.GetAllocator());
     }
     the_EOS.AddMember("alpha0",alpha0,dd.GetAllocator());
-    
 
     EOS.PushBack(the_EOS,dd.GetAllocator());
     

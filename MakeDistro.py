@@ -325,27 +325,26 @@ if __name__=='__main__':
     
 #     InstallPrereqs()  #This is optional if you think any of the pre-reqs have been updated
 
-#     Python() # This one must be first to ensure that version gets rebuild properly
+    Python() # This one must be first to ensure that version gets rebuild properly
 
     ## Always run the examples first.  This serves as an integration test of
     ## CoolProp
-#     RunExamples()
+    RunExamples()
 
-#     DLL_and_Excel()
-#     Source()
-#     Csharp()
-#     Octave()
-#     MATLAB()
-#     Maple()
-#     Mathematica()
-#     Scilab()
-#     EES()
-#     LibreOffice()
-#     Javascript()
-#     Java()
-#     MathCAD()
-#     Labview()
-#     #####################Modelica() DEPRECATED
+    DLL_and_Excel()
+    Source()
+    Csharp()
+    Octave()
+    MATLAB()
+    Maple()
+    Mathematica()
+    Scilab()
+    EES()
+    LibreOffice()
+    Javascript()
+    Java()
+    MathCAD()
+    Labview()
     Superpacks()
 
     PYPI()
