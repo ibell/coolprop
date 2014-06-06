@@ -344,7 +344,7 @@ double ArgonClass::conductivity_Trho(double T, double rho)
 
 	// no critical enhancement if numerator of Eq. 10 is negative
 	if (num<0)
-		return (lambda0+lambdar)/1e6;
+		return (lambda0+lambdar)/1e3;
 
 	cp = specific_heat_p_Trho(T,rho); //[J/kg/K]
 	cv = specific_heat_v_Trho(T,rho); //[J/kg/K]
