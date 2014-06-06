@@ -31,8 +31,9 @@ for i=1:size(files,1)
 end
 
 %Build the MEX files
-eval(['mex -v ', include_string,' Props.c ', o_files])
-eval(['mex -v ', include_string,' HAProps.c ', o_files])
+eval(['mex -Dchar16_t=uint16_T -v ', include_string,' Props.c ', o_files])
+eval(['mex -Dchar16_t=uint16_T -v ', include_string,' PropsSI.c ', o_files])
+eval(['mex -Dchar16_t=uint16_T -v ', include_string,' HAProps.c ', o_files])
 
 %Clean up - delete the obj files
 delete('*.o')
