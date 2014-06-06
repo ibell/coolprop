@@ -365,7 +365,7 @@ double R290Class::viscosity_higher_order(double T, double rho)
 	e[4][0] =  58.9491587759; e[4][1] = -129.740033100; e[4][2] =  76.6280419971;
 	e[5][0] = -9.59407868475; e[5][1] =  21.0726986598; e[5][2] = -14.3971968187;
 	
-	tau = T / 369.82;
+	tau = T / 369.825;
 	delta = rho / (44.09562*5); 
 
 	delta_0=g1*(1+g2*sqrt(tau)); //[no units]
