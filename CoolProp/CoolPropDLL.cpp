@@ -41,8 +41,20 @@ EXPORT_CODE double CONVENTION Props(const char *Output,char Name1, double Prop1,
 {
     // Get parameter indices
     long iOutput = get_param_index(Output);
+    if (iOutput < 0){
+		set_err_string(format("Your output key [%s] is not valid. (names are case sensitive)",Output));
+        return _HUGE;
+    }
     long iName1 = get_param_index(std::string(1,Name1));
+	if (iName1 < 0){
+		set_err_string(format("Your input key #1 [%c] is not valid. (names are case sensitive)",Name1));
+        return _HUGE;
+    }
     long iName2 = get_param_index(std::string(1,Name2));
+    if (iName2 < 0){
+		set_err_string(format("Your input key #2 [%c] is not valid. (names are case sensitive)",Name2));
+        return _HUGE;
+    }
     char n1[] = "\0", n2[] = "\0";
     n1[0] = Name1;
     n2[0] = Name2;
