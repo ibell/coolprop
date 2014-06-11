@@ -1,5 +1,9 @@
 Changelog for CoolProp
 ======================
+4.2.2
+-----
+Bugfix: Fixed crashing behavior with invalid input keys to Props function
+
 4.2.1
 -----
 Bugfix: Fixed bug in conductivity for Air, argon, oxygen at low densities
