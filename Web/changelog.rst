@@ -1,5 +1,9 @@
 Changelog for CoolProp
 ======================
+4.2.3
+-----
+Bugfix: Fixed H,P inputs for incompressibles 
+
 4.2.2
 -----
 Bugfix: Fixed crashing behavior with invalid input keys to Props function
