@@ -455,7 +455,7 @@ double _T_hp_secant(std::string Ref, double h, double p, double T_guess)
         if (iter==1){x1=T_guess; T=x1;}
         if (iter==2){x2=T_guess+0.1; T=x2;}
         if (iter>2) {T=x2;}
-            f=Props("H",'T',T,'P',p,Ref)-h;
+            f=PropsSI("H","T",T,"P",p,Ref)-h;
         if (iter==1){y1=f;}
         if (iter>1)
         {
