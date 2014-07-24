@@ -51,7 +51,7 @@ CoolPropSolver::CoolPropSolver(const std::string &mediumName, const std::string 
 					errorMessage((char*)format("I don't know how to handle this option [%s]",name_options[i].c_str()).c_str());
 					//throw NotImplementedError((char*)format("I don't know how to handle this option [%s]",name_options[i].c_str()).c_str());
 			}
-			if (!param_val[0].compare("enable_BICUBIC"))
+			else if (!param_val[0].compare("enable_BICUBIC"))
 			{
 				if (!param_val[1].compare("1") || !param_val[1].compare("true"))
 				{
