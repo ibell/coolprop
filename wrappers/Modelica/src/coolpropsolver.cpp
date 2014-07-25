@@ -190,13 +190,13 @@ void CoolPropSolver::postStateChange(ExternalThermodynamicState *const propertie
 				properties->cp = state->cp();
 				properties->cv = state->cv();
 				properties->a = state->speed_sound();
-				if (state->TwoPhase && state->Q() >= 0 && state->Q() <= twophase_derivsmoothing_xend)
+				if (state->TwoPhase && state->Q() >= 0 && state->Q() < twophase_derivsmoothing_xend)
 				{
 					// Use the smoothed derivatives between a quality of 0 and twophase_derivsmoothing_xend
 					properties->ddhp = state->drhodh_constp_smoothed(twophase_derivsmoothing_xend); // [1/kPa -- > 1/Pa]
 					properties->ddph = state->drhodp_consth_smoothed(twophase_derivsmoothing_xend); // [1/(kJ/kg) -- > 1/(J/kg)]
 				}
-				else if (state->TwoPhase && state->Q() >= 0 && state->Q() <= rho_smoothing_xend)
+				else if (state->TwoPhase && state->Q() >= 0 && state->Q() < rho_smoothing_xend)
 				{
 					// Use the smoothed density between a quality of 0 and rho_smoothing_xend
 					double rho_spline;
@@ -375,6 +375,7 @@ void CoolPropSolver::setState_ph(double &p, double &h, int &phase, ExternalTherm
 	}
 	catch(std::exception &e)
 	{
+		std::cout << e.what();
 		errorMessage((char*)e.what());
 	}
 }
