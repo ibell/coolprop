@@ -1,8 +1,8 @@
-import matplotlib,numpy
+import matplotlib, numpy
 
-from CoolProp.CoolProp import Props
+import CoolProp
+Props = CoolProp.CoolProp.Props
 from scipy.optimize import newton
-
 
 def SimpleCycle(Ref,Te,Tc,DTsh,DTsc,eta_a,Ts_Ph='Ph',skipPlot=False,axis=None):
     """
@@ -391,7 +391,8 @@ def EconomizedCycle(Ref,Qin,Te,Tc,DTsh,DTsc,eta_oi,f_p,Ti,Ts_Ph='Ts',skipPlot=Fa
     return COP
 
 if __name__=='__main__':
-    from CoolProp.Plots import Ph,Ts
+    Ph = CoolProp.Plots.Plots.Ph
+    Ts = CoolProp.Plots.Plots.Ts
 
     Ref='R290'
     fig=matplotlib.pyplot.figure(figsize=(4,3))

@@ -1,7 +1,8 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
-from CoolProp.HumidAirProp import HAProps
+import CoolProp
+HAProps = CoolProp.HumidAirProp.HAProps
 
 Tdb = np.linspace(-10,55,100)+273.15
 

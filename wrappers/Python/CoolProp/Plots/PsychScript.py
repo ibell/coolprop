@@ -1,7 +1,7 @@
 
 import numpy, matplotlib
-from CoolProp.HumidAirProp import HAProps
-from CoolProp.Plots.Plots import InlineLabel 
+HAProps = CoolProp.HumidAirProp.HAProps
+InlineLabel = CoolProp.Plots.Plots.InlineLabel
 
 p = 101.325
 Tdb = numpy.linspace(-10,60,100)+273.15

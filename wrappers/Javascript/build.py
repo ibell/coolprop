@@ -3,7 +3,7 @@ import subprocess, os
 import glob
 
 exports = ['-s','EXPORTED_FUNCTIONS=\"[\'_main\',\'_F2K\',\'_HAProps\',\'_Props1SI\',\'_PropsSI\',\'_get_global_param_string\']\"','-s','DISABLE_EXCEPTION_CATCHING=0']
-optimization = '-O2'
+optimization = '-O1'
 
 def compile_sources():
     for f in glob.glob(os.path.join('..','..','CoolProp','*.cpp')):
@@ -12,12 +12,12 @@ def compile_sources():
         if f.find('CoolPropDLL.cpp') > -1: 
             continue 
         
-        call = ['em++',optimization,f,'-I../../CoolProp','-c','-DEXTERNC']+ exports
+        call = [r'C:\Users\Belli\Downloads\emsdk-1.16.0-portable-64bit\emscripten\1.16.0\em++',optimization,f,'-I../../CoolProp','-c','-DEXTERNC']+ exports
         print 'Calling:',' '.join(call)
         subprocess.check_output(' '.join(call), shell = True)
 
 def link():
-    call = ['em++',optimization,'-o','coolprop.js','../../CoolProp/CoolPropDLL.cpp']+glob.glob('*.o')+['-I../../CoolProp','-DEXTERNC']  +  exports
+    call = [r'C:\Users\Belli\Downloads\emsdk-1.16.0-portable-64bit\emscripten\1.16.0\em++',optimization,'-o','coolprop.js','../../CoolProp/CoolPropDLL.cpp']+glob.glob('*.o')+['-I../../CoolProp','-DEXTERNC']  +  exports
     print 'Calling:',' '.join(call)
     subprocess.check_output(' '.join(call), shell = True)
 

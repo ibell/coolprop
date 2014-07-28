@@ -5,7 +5,8 @@ from __future__ import print_function
 import matplotlib
 import numpy
 
-import CoolProp.CoolProp as CP
+import CoolProp
+CP = CoolProp.CoolProp
 
 SMALL = 1E-5
 
