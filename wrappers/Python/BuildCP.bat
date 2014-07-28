@@ -1,2 +1,2 @@
 @echo off
-python setup.py install
+c:\Python27\python setup.py clean install

@@ -1210,7 +1210,6 @@ cdef class State:
         cdef string Fluid = self.Fluid
         cdef long IT = 'T'
         cdef long ID = 'D'
-        import CoolProp as CP
         
         print 'Call to the Python call layer (CoolProp.CoolProp.Props)'
         print "'M' involves basically no computational effort and is a good measure of the function call overhead"

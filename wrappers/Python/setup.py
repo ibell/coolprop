@@ -26,17 +26,6 @@ if minor >= 20:
     _profiling_enabled = True
 else:
     _profiling_enabled = False
-
-try:
-    import psutil
-    for proc in psutil.get_process_list():
-        cmdline = proc.cmdline
-        if cmdline and ''.join(cmdline).find('pycompletionserver.py') > 0:
-            proc.terminate()
-            print('Python completion server killed')
-            break
-except ImportError:
-    print('psutil was not found, it is used to kill the python completion server in Eclipse which keeps CoolProp from building sometimes.  psutils can be easy_install-ed')
         
 from distutils.core import setup, Extension
 import subprocess, shutil, os, sys, glob
@@ -146,7 +135,7 @@ if __name__=='__main__':
     if len(sys.argv)==1:
         #sys.argv += ['build_ext','--inplace']
 #        sys.argv += ['build','--compiler=mingw32','--force','install']
-        sys.argv += ['build','install']
+        sys.argv += ['clean','build','install']
         #sys.argv += ['install']
         
     badfiles = [os.path.join('CoolProp','__init__.pyc'),

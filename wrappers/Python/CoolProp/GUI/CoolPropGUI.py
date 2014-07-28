@@ -3,9 +3,10 @@ import wx.grid
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as WXCanvas
 from matplotlib.backends.backend_wxagg import NavigationToolbar2Wx as WXToolbar
 import matplotlib as mpl
-import CoolProp as CP
-from CoolProp.Plots.Plots import Ph, Ts
-from CoolProp.Plots import PsychChart
+import CoolProp
+Ph = CoolProp.Plots.Plots.Ph
+Ts = CoolProp.Plots.Plots.Ts
+PsychChart = CoolProp.Plots.PsychChart
 import numpy as np
 
 # Munge the system path if necessary to add the lib folder (only really needed
@@ -37,7 +38,7 @@ class TSPlotFrame(wx.Frame):
         self.SetSizer(sizer)
         Ts(str(Fluid), 
            axis = self.PP.ax,
-           Tmin = CP.CoolProp.Props(str(Fluid),'Ttriple')+0.01)
+           Tmin = CoolProp.CoolProp.Props(str(Fluid),'Ttriple')+0.01)
         sizer.Layout()
         
         self.add_menu()
@@ -143,7 +144,7 @@ class PHPlotFrame(wx.Frame):
         self.SetSizer(sizer)
         Ph(str(Fluid), 
            axis = self.PP.ax, 
-           Tmin = CP.CoolProp.Props(str(Fluid),'Ttriple')+0.01)
+           Tmin = CoolProp.CoolProp.Props(str(Fluid),'Ttriple')+0.01)
         sizer.Layout()
         
         self.add_menu()
@@ -248,8 +249,8 @@ class SaturationTableDialog(wx.Dialog):
     def OnSelectFluid(self, event = None):
         Fluid = str(self.FluidCombo.GetStringSelection())
         if Fluid:
-            Tcrit = CP.CoolProp.Props(Fluid,'Tcrit')
-            Ttriple = CP.CoolProp.Props(Fluid,'Ttriple')
+            Tcrit = CoolProp.CoolProp.Props(Fluid,'Tcrit')
+            Ttriple = CoolProp.CoolProp.Props(Fluid,'Ttriple')
             self.TcritValue.SetValue(str(Tcrit))
             self.TtripleValue.SetValue(str(Ttriple))
             self.NvalsValue.SetValue('100')
@@ -297,10 +298,10 @@ class SaturationTable(wx.Frame):
         
         for i,T in enumerate(self.Tvals):
             Fluid = self.Fluid
-            pL = CP.CoolProp.Props('P','T',T,'Q',0,Fluid)
-            pV = CP.CoolProp.Props('P','T',T,'Q',1,Fluid)
-            rhoL = CP.CoolProp.Props('D','T',T,'Q',0,Fluid)
-            rhoV = CP.CoolProp.Props('D','T',T,'Q',1,Fluid)
+            pL = CoolProp.CoolProp.Props('P','T',T,'Q',0,Fluid)
+            pV = CoolProp.CoolProp.Props('P','T',T,'Q',1,Fluid)
+            rhoL = CoolProp.CoolProp.Props('D','T',T,'Q',0,Fluid)
+            rhoV = CoolProp.CoolProp.Props('D','T',T,'Q',1,Fluid)
             
             self.tbl.SetCellValue(i,0,str(T))
             self.tbl.SetCellValue(i,1,str(pL))

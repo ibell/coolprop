@@ -1,15 +1,6 @@
 from __future__ import print_function
 import subprocess,os,shutil,sys
 
-#These should be paths to python executables that you want want use to build versions of CoolProp
-PYTHONVERSIONS=['python.exe', #This is python 2.7 on my computer
-                'c:\\python\\py27_x64\\python.exe',
-                'c:\\python\\py32\\python.exe',
-                'c:\\python\\py32_x64\\python.exe',
-                'c:\\python\\py33\\python.exe',
-                'c:\\python\\py33_x64\\python.exe',
-                ]
-
 if not os.path.exists('_deps'):
     os.mkdir('_deps')
         
@@ -25,9 +16,21 @@ def InstallPrereqs():
     for python_install in PYTHONVERSIONS:
         for cwd in ['_deps/cython-master']:
             print(subprocess.check_output([python_install, 'setup.py', 'install'], cwd = cwd))
-            
     
 def PYPI():
+    path_32bit = "c:\\Miniconda32bit\\Scripts\\"
+    path_64bit = 'c:\\Miniconda\\Scripts\\'
+    envs = ['py27','py33','py34']
+    
+    # Build all the wheels
+    for env in envs:
+        for path in [path_64bit, path_32bit]:
+            
+            # Actually build the wheel now
+            subprocess.check_call(path+'activate '+env+' '+'&& python --version && python setup.py bdist_wheel upload',cwd=os.path.join('wrappers','Python'),stdout = sys.stdout, shell = True)
+    
+    # If we get this far, all the wheels built
+    
     subprocess.call(['python','setup.py','sdist','upload'],cwd=os.path.join('wrappers','Python'))
     
 def Source():
@@ -163,9 +166,25 @@ def Java():
     
 def Python():
     print('Python')
-    subprocess.call(['python','setup.py','install'],shell=True,cwd=os.path.join('wrappers','Python'))
-    for python_install in PYTHONVERSIONS:
-        subprocess.check_call([python_install,'setup.py','bdist','--format=wininst','--dist-dir=../../dist_temp/Python'],shell=True,cwd=os.path.join('wrappers','Python'))
+    
+    # subprocess.call(['python','setup.py','install'],shell=True,cwd=os.path.join('wrappers','Python'))
+    
+    path_32bit = "c:\\Miniconda32bit\\Scripts\\"
+    path_64bit = 'c:\\Miniconda\\Scripts\\'
+    envs = ['py27','py33','py34']
+    
+    # Build all the installers
+    for env in envs:
+        for path in [path_64bit, path_32bit]:
+            
+            # Install cython and pip if needed
+            subprocess.check_call(path+'conda install -n '+env+' Cython pip',cwd=os.path.join('wrappers','Python'),stdout = sys.stdout, shell = True)
+            
+            # Install wheel package using pip
+            subprocess.check_call(path+'activate '+env+' '+'&& pip install wheel && deactivate',cwd=os.path.join('wrappers','Python'),stdout = sys.stdout, shell = True)
+            
+            # Build the installer
+            subprocess.check_call([path+'activate',env,'&&','python','setup.py','bdist','--format=wininst','--dist-dir=../../dist_temp/Python'],shell=True,cwd=os.path.join('wrappers','Python'),stdout=sys.stdout)
 
 def Maple():
     print('Maple')
@@ -279,7 +298,7 @@ def Doxygen():
     subprocess.check_output(['doxygen','Doxyfile'],shell=True)
     
 def RunExamples():
-    subprocess.check_output(['run_examples.bat'],shell=True,cwd='Web/examples')
+    subprocess.check_call(['run_examples.bat'],shell=True,cwd='Web/examples',stdout= sys.stdout)
     
 def BuildDocs():
     
@@ -347,9 +366,9 @@ if __name__=='__main__':
     Labview()
     Superpacks()
 
-    PYPI()
-    UploadSourceForge()
-    
-    Doxygen()
-    BuildDocs()
-    UploadDocs()
+    #~ PYPI()
+    #~ UploadSourceForge()
+
+    #~ Doxygen()
+    #~ BuildDocs()
+    #~ UploadDocs()

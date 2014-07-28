@@ -2,8 +2,9 @@
 This file implements a psychrometric chart for air at 1 atm
 """
 
-from CoolProp.HumidAirProp import HAProps
-from CoolProp.Plots.Plots import InlineLabel 
+import CoolProp
+HAProps = CoolProp.HumidAirProp.HAProps
+InlineLabel = CoolProp.Plots.Plots.InlineLabel
 import matplotlib, numpy, textwrap
 
 import_template=(

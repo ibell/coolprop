@@ -5,7 +5,8 @@ from __future__ import print_function, absolute_import
 import numpy, matplotlib, matplotlib.pyplot, math, re
 from scipy.interpolate import interp1d
 
-import CoolProp.CoolProp as CP
+import CoolProp
+CP = CoolProp.CoolProp
 
 from .Common import BasePlot
 from scipy import interpolate

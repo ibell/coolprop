@@ -1,5 +1,9 @@
 Changelog for CoolProp
 ======================
+4.2.4
+-----
+Bugfix: Thermal conductivity for R404A off by a factor of 1000
+
 4.2.3
 -----
 Bugfix: Fixed H,P inputs for incompressibles 

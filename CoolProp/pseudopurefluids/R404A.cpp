@@ -236,7 +236,7 @@ double R404AClass::conductivity_Trho(double T, double rho)
 	//Set constants required
 	double a_0=-8.624e0,a_1=7.360e-2,b_1=3.222e-2,b_2=2.569e-5,b_3=-2.693e-8,b_4=2.007e-11;
 
-	return (a_0+a_1*T+b_1*rho+b_2*rho*rho+b_3*rho*rho*rho+b_4*rho*rho*rho*rho)/1.e6; // from mW/m-K to kW/m-K
+	return (a_0+a_1*T+b_1*rho+b_2*rho*rho+b_3*rho*rho*rho+b_4*rho*rho*rho*rho)/1.e3; // from mW/m-K to kW/m-K
 }
 
 double R404AClass::psatL(double T)
