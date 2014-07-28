@@ -91,7 +91,8 @@ bool IncompressibleLiquid::checkP(double T_K, double p) {
 
 /// Check validity of temperature and pressure input.
 bool IncompressibleLiquid::checkTP(double T, double p) {
-	return (checkT(T) && checkP(T,p));
+	//return (checkT(T) && checkP(T,p));
+	return 1;
 }
 
 
