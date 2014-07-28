@@ -1,10 +1,11 @@
 A wrapper of CoolProp for the Octave programming language (an open-source version of MATLAB)
 
-This CoolProp.oct module is built using SWIG, and is built for octave for windows built with Visual Studio.  
+This CoolProp.oct module is built using SWIG, and is built for octave for windows built with MinGW.  
 
 Installation
 ============
-Separate versions of the .oct file are available for Octave 3.6.1 and 3.6.2. Version 3.8.0 is currently aviable in Ubuntu 14.04 repositories. 
+A version of the .oct file is available for Octave 3.6.4 for mingw on windows. Version 3.8.0 is currently aviable in Ubuntu 14.04 repositories. 
+
 Put the .oct file for the version you have in somewhere in the octave path, or use the ``addpath`` function to add the folder that contains CoolProp.oct to the Octave path
 
 On Linux systems you can put .oct file in
@@ -19,16 +20,6 @@ Example: adding the folder that contains CoolProp.oct file to the Octave path:
 
 Developer Notes:
 ===============
-
-A. 3.6.1 needs to use VS 2008 to build; 3.6.2 needs to use VS 2010
-
-B. In the win32 distro of 3.6.2, the hard-coded path in OCTAVE/bin/include/math.h around line 73 might need to be changed to 
-
-/* Include VC++ original math.h */
-
-#include <c:/Program Files (x86)/Microsoft Visual Studio 10.0/VC/include/math.h>
-
-depending on where your VS is installed
 
 
 Building on Linux (Ubuntu and derivatives)
