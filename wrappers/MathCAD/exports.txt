@@ -9,6 +9,6 @@ File Type: DLL
   Summary
 
        20000 .data
-       9B000 .rdata
+       9C000 .rdata
        25000 .reloc
       1FC000 .text

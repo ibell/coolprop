@@ -1,5 +1,5 @@
-GNU Octave, version 3.6.1
-Copyright (C) 2012 John W. Eaton and others.
+GNU Octave, version 3.6.4
+Copyright (C) 2013 John W. Eaton and others.
 This is free software; see the source code for copying conditions.
 There is ABSOLUTELY NO WARRANTY; not even for MERCHANTABILITY or
 FITNESS FOR A PARTICULAR PURPOSE.  For details, type `warranty'.
@@ -9,60 +9,9 @@ Octave was configured for "i686-pc-mingw32".
 Additional information about Octave is available at http://www.octave.org.
 
 Please contribute if you find this software useful.
-For more information, visit http://www.octave.org/help-wanted.html
+For more information, visit http://www.octave.org/get-involved.html
 
 Read http://www.octave.org/bugs.html to learn how to submit bug reports.
 
 For information about changes from previous versions, type `news'.
 
- - Use `pkg list' to see a list of installed packages.
- - MSYS shell available (C:\Program Files (x86)\Octave-3.6.1\msys).
- - Graphics backend: qt.
-
-CoolProp version: 4.1.2
-CoolProp gitrevision: ccc424c90ec4785971e6ce93d969aba3e8efb9fc
-CoolProp fluids: Water,R134a,Helium,Oxygen,Hydrogen,ParaHydrogen,OrthoHydrogen,Argon,CarbonDioxide,Nitrogen,n-Propane,Ammonia,R1234yf,R1234ze(E),R32,R22,SES36,Ethylene,SulfurHexafluoride,Ethanol,DimethylEther,DimethylCarbonate,R143a,R23,n-Dodecane,Propylene,Cyclopentane,R236FA,R236EA,R227EA,R365MFC,R161,HFE143m,Benzene,n-Undecane,R125,CycloPropane,Neon,R124,Propyne,Fluorine,Methanol,RC318,R21,R114,R13,R14,R12,R113,R1234ze(Z),R1233zd(E),AceticAcid,R245fa,R41,CarbonMonoxide,CarbonylSulfide,n-Decane,HydrogenSulfide,Isopentane,Neopentane,Isohexane,Krypton,n-Nonane,Toluene,Xenon,R116,Acetone,NitrousOxide,SulfurDioxide,R141b,R142b,R218,Methane,Ethane,n-Butane,IsoButane,n-Pentane,n-Hexane,n-Heptane,n-Octane,CycloHexane,R152A,R123,R11,MDM,MD2M,MD3M,D6,MM,MD4M,D4,D5,1-Butene,IsoButene,cis-2-Butene,trans-2-Butene,MethylPalmitate,MethylStearate,MethylOleate,MethylLinoleate,MethylLinolenate,o-Xylene,m-Xylene,p-Xylene,EthylBenzene,Deuterium,ParaDeuterium,OrthoDeuterium,Air,R404A,R410A,R407C,R507A,R407F
- 
-************ USING EOS *************
- 
-FLUID STATE INDEPENDENT INPUTS
-ans = Critical Density Propane: 220.478 kg/m^3
-TWO PHASE INPUTS (Pressure)
-ans = Density of saturated liquid Propane at 101325 Pa: 580.883 kg/m^3
-ans = Density of saturated vapor R290 at 101325 Pa: 2.41614 kg/m^3
-TWO PHASE INPUTS (Temperature)
-ans = Density of saturated liquid Propane at 300 K: 489.447 kg/m^3
-ans = Density of saturated vapor R290 at 300 K: 21.6295 kg/m^3
-SINGLE PHASE CYCLE (propane)
-ans = T,D -> P,H 300,1 --> 56072.8,634734
-ans = P,H -> T,D 56072.8,634734 --> 300,1
- 
-************ USING TTSE ***************
- 
-TWO PHASE INPUTS (Pressure)
-0.156 to build both two phase tables
-ans = Density of saturated liquid Propane at 101325 Pa: 580.883 kg/m^3
-ans = Density of saturated vapor R290 at 101325 Pa: 2.41614 kg/m^3
-TWO PHASE INPUTS (Temperature)
-ans = Density of saturated liquid Propane at 300 K: 489.447 kg/m^3
-ans = Density of saturated vapor R290 at 300 K: 21.6295 kg/m^3
-SINGLE PHASE CYCLE (propane)
-ans = T,D -> P,H 300,1 --> 56072.8,634734
-ans = P,H -> T,D 56072.8,634734 --> 300,1
- 
-************ USING REFPROP ***************
- 
-FLUID STATE INDEPENDENT INPUTS
- 
-************ CANT USE REFPROP ************
- 
- 
-************ BRINES AND SECONDARY WORKING FLUIDS *************
- 
-ans = Density of 50% (mass) ethylene glycol/water at 300 K, 101325 Pa: 1061.18 kg/m^3
-ans = Viscosity of Therminol D12 at 350 K, 101325 Pa: 0.000522885 Pa-s
- 
-************ HUMID AIR PROPERTIES *************
- 
-ans = Humidity ratio of 50% rel. hum. air at 300 K, 101325 kPa: 0.0110962 kg_w/kg_da
-ans = Relative humidity from last calculation: 0.5 (fractional)

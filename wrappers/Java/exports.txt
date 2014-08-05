@@ -9,7 +9,7 @@ File Type: DLL
   Section contains the following exports for CoolProp.dll
 
     00000000 characteristics
-    53590BEF time date stamp Thu Apr 24 15:04:47 2014
+    53D63BF7 time date stamp Mon Jul 28 14:03:03 2014
         0.00 version
            1 ordinal base
           70 number of functions
@@ -17,76 +17,76 @@ File Type: DLL
 
     ordinal hint RVA      name
 
-          1    0 000AA7E0 _Java_CoolPropJNI_COOLPROP_1OK_1get@8
-          2    1 000AB1F0 _Java_CoolPropJNI_CubicInterp@80
-          3    2 000ABAB0 _Java_CoolPropJNI_DerivTerms@32
-          4    3 000AC5B0 _Java_CoolPropJNI_F2K@16
-          5    4 000AD170 _Java_CoolPropJNI_HAHelp@8
-          6    5 000ACE00 _Java_CoolPropJNI_HAProps@48
-          7    6 000ACF90 _Java_CoolPropJNI_HAProps_1Aux@40
-          8    7 000AC540 _Java_CoolPropJNI_IProps@40
-          9    8 000AC4D0 _Java_CoolPropJNI_IPropsSI@40
-         10    9 000AD080 _Java_CoolPropJNI_IceProps@28
-         11    A 000AB9F0 _Java_CoolPropJNI_IsFluidType@16
-         12    B 000AC5F0 _Java_CoolPropJNI_K2F@16
-         13    C 000AB440 _Java_CoolPropJNI_Kronecker_1delta@16
-         14    D 000AA7B0 _Java_CoolPropJNI_M_1PI_1get@8
-         15    E 000AB000 _Java_CoolPropJNI_MatInv_12@24
-         16    F 000ABB90 _Java_CoolPropJNI_Phase@32
-         17   10 000ABD50 _Java_CoolPropJNI_Phase_1Tp@32
-         18   11 000ABC70 _Java_CoolPropJNI_Phase_1Trho@32
-         19   12 000AB930 _Java_CoolPropJNI_Props1@16
-         20   13 000AB480 _Java_CoolPropJNI_Props1SI@16
-         21   14 000AB840 _Java_CoolPropJNI_Props@40
-         22   15 000AB6C0 _Java_CoolPropJNI_PropsS@40
-         23   16 000AB540 _Java_CoolPropJNI_PropsSI@40
-         24   17 000AB160 _Java_CoolPropJNI_QuadInterp@64
-         25   18 000AD150 _Java_CoolPropJNI_UseIdealGasEnthalpyCorrelations@12
-         26   19 000AD130 _Java_CoolPropJNI_UseIsothermCompressCorrelation@12
-         27   1A 000AD110 _Java_CoolPropJNI_UseVirialCorrelations@12
-         28   1B 000AA810 _Java_CoolPropJNI_ValidNumber@16
-         29   1C 000AD1F0 _Java_CoolPropJNI_cair_1sat@16
-         30   1D 000AC900 _Java_CoolPropJNI_disable_1TTSE_1LUT@12
-         31   1E 000ACA50 _Java_CoolPropJNI_disable_1TTSE_1LUT_1writing@12
-         32   1F 000AB3F0 _Java_CoolPropJNI_double_1equal@24
-         33   20 000AC820 _Java_CoolPropJNI_enable_1TTSE_1LUT@12
-         34   21 000AC970 _Java_CoolPropJNI_enable_1TTSE_1LUT_1writing@12
-         35   22 000AAAD0 _Java_CoolPropJNI_format@12
-         36   23 000ABE90 _Java_CoolPropJNI_fromSI@24
-         37   24 000AC6F0 _Java_CoolPropJNI_get_1Fluid_1index@12
-         38   25 000ACC80 _Java_CoolPropJNI_get_1TTSESinglePhase_1LUT_1range@44
-         39   26 000AC7D0 _Java_CoolPropJNI_get_1debug_1level@8
-         40   27 000AAA00 _Java_CoolPropJNI_get_1file_1contents@12
-         41   28 000AC150 _Java_CoolPropJNI_get_1fluid_1param_1string@16
-         42   29 000AC030 _Java_CoolPropJNI_get_1global_1param_1string@12
-         43   2A 000AC680 _Java_CoolPropJNI_get_1param_1index@12
-         44   2B 000AC630 _Java_CoolPropJNI_get_1standard_1unit_1system@8
-         45   2C 000AB0C0 _Java_CoolPropJNI_interp1d@32
-         46   2D 000AC890 _Java_CoolPropJNI_isenabled_1TTSE_1LUT@12
-         47   2E 000AC9E0 _Java_CoolPropJNI_isenabled_1TTSE_1LUT_1writing@12
-         48   2F 000AB390 _Java_CoolPropJNI_max3@32
-         49   30 000AB330 _Java_CoolPropJNI_min3@32
-         50   31 000AB120 _Java_CoolPropJNI_powInt@20
-         51   32 000AC760 _Java_CoolPropJNI_redirect_1stdout@12
-         52   33 000AD180 _Java_CoolPropJNI_returnHumAirCode@12
-         53   34 000AB030 _Java_CoolPropJNI_root_1sum_1square@16
-         54   35 000ACAC0 _Java_CoolPropJNI_set_1TTSESat_1LUT_1size@16
-         55   36 000ACBD0 _Java_CoolPropJNI_set_1TTSESinglePhase_1LUT_1range@44
-         56   37 000ACB40 _Java_CoolPropJNI_set_1TTSESinglePhase_1LUT_1size@20
-         57   38 000ACD40 _Java_CoolPropJNI_set_1TTSE_1mode@16
-         58   39 000AC800 _Java_CoolPropJNI_set_1debug_1level@12
-         59   3A 000ABE30 _Java_CoolPropJNI_set_1phase@12
-         60   3B 000AC420 _Java_CoolPropJNI_set_1reference_1stateD@44
-         61   3C 000AC360 _Java_CoolPropJNI_set_1reference_1stateS@16
-         62   3D 000AC660 _Java_CoolPropJNI_set_1standard_1unit_1system@12
-         63   3E 000AB2A0 _Java_CoolPropJNI_solve_1cubic@64
-         64   3F 000AAE50 _Java_CoolPropJNI_strjoin@20
-         65   40 000AA850 _Java_CoolPropJNI_strlstrip@16
-         66   41 000AA920 _Java_CoolPropJNI_strrstrip@16
-         67   42 000AABB0 _Java_CoolPropJNI_strsplit@16
-         68   43 000AA990 _Java_CoolPropJNI_strstrip@16
-         69   44 000ABF60 _Java_CoolPropJNI_toSI@24
-         70   45 000AAD30 _Java_CoolPropJNI_upper@12
+          1    0 000AA8F0 _Java_CoolPropJNI_COOLPROP_1OK_1get@8
+          2    1 000AB300 _Java_CoolPropJNI_CubicInterp@80
+          3    2 000ABBC0 _Java_CoolPropJNI_DerivTerms@32
+          4    3 000AC6C0 _Java_CoolPropJNI_F2K@16
+          5    4 000AD280 _Java_CoolPropJNI_HAHelp@8
+          6    5 000ACF10 _Java_CoolPropJNI_HAProps@48
+          7    6 000AD0A0 _Java_CoolPropJNI_HAProps_1Aux@40
+          8    7 000AC650 _Java_CoolPropJNI_IProps@40
+          9    8 000AC5E0 _Java_CoolPropJNI_IPropsSI@40
+         10    9 000AD190 _Java_CoolPropJNI_IceProps@28
+         11    A 000ABB00 _Java_CoolPropJNI_IsFluidType@16
+         12    B 000AC700 _Java_CoolPropJNI_K2F@16
+         13    C 000AB550 _Java_CoolPropJNI_Kronecker_1delta@16
+         14    D 000AA8C0 _Java_CoolPropJNI_M_1PI_1get@8
+         15    E 000AB110 _Java_CoolPropJNI_MatInv_12@24
+         16    F 000ABCA0 _Java_CoolPropJNI_Phase@32
+         17   10 000ABE60 _Java_CoolPropJNI_Phase_1Tp@32
+         18   11 000ABD80 _Java_CoolPropJNI_Phase_1Trho@32
+         19   12 000ABA40 _Java_CoolPropJNI_Props1@16
+         20   13 000AB590 _Java_CoolPropJNI_Props1SI@16
+         21   14 000AB950 _Java_CoolPropJNI_Props@40
+         22   15 000AB7D0 _Java_CoolPropJNI_PropsS@40
+         23   16 000AB650 _Java_CoolPropJNI_PropsSI@40
+         24   17 000AB270 _Java_CoolPropJNI_QuadInterp@64
+         25   18 000AD260 _Java_CoolPropJNI_UseIdealGasEnthalpyCorrelations@12
+         26   19 000AD240 _Java_CoolPropJNI_UseIsothermCompressCorrelation@12
+         27   1A 000AD220 _Java_CoolPropJNI_UseVirialCorrelations@12
+         28   1B 000AA920 _Java_CoolPropJNI_ValidNumber@16
+         29   1C 000AD300 _Java_CoolPropJNI_cair_1sat@16
+         30   1D 000ACA10 _Java_CoolPropJNI_disable_1TTSE_1LUT@12
+         31   1E 000ACB60 _Java_CoolPropJNI_disable_1TTSE_1LUT_1writing@12
+         32   1F 000AB500 _Java_CoolPropJNI_double_1equal@24
+         33   20 000AC930 _Java_CoolPropJNI_enable_1TTSE_1LUT@12
+         34   21 000ACA80 _Java_CoolPropJNI_enable_1TTSE_1LUT_1writing@12
+         35   22 000AABE0 _Java_CoolPropJNI_format@12
+         36   23 000ABFA0 _Java_CoolPropJNI_fromSI@24
+         37   24 000AC800 _Java_CoolPropJNI_get_1Fluid_1index@12
+         38   25 000ACD90 _Java_CoolPropJNI_get_1TTSESinglePhase_1LUT_1range@44
+         39   26 000AC8E0 _Java_CoolPropJNI_get_1debug_1level@8
+         40   27 000AAB10 _Java_CoolPropJNI_get_1file_1contents@12
+         41   28 000AC260 _Java_CoolPropJNI_get_1fluid_1param_1string@16
+         42   29 000AC140 _Java_CoolPropJNI_get_1global_1param_1string@12
+         43   2A 000AC790 _Java_CoolPropJNI_get_1param_1index@12
+         44   2B 000AC740 _Java_CoolPropJNI_get_1standard_1unit_1system@8
+         45   2C 000AB1D0 _Java_CoolPropJNI_interp1d@32
+         46   2D 000AC9A0 _Java_CoolPropJNI_isenabled_1TTSE_1LUT@12
+         47   2E 000ACAF0 _Java_CoolPropJNI_isenabled_1TTSE_1LUT_1writing@12
+         48   2F 000AB4A0 _Java_CoolPropJNI_max3@32
+         49   30 000AB440 _Java_CoolPropJNI_min3@32
+         50   31 000AB230 _Java_CoolPropJNI_powInt@20
+         51   32 000AC870 _Java_CoolPropJNI_redirect_1stdout@12
+         52   33 000AD290 _Java_CoolPropJNI_returnHumAirCode@12
+         53   34 000AB140 _Java_CoolPropJNI_root_1sum_1square@16
+         54   35 000ACBD0 _Java_CoolPropJNI_set_1TTSESat_1LUT_1size@16
+         55   36 000ACCE0 _Java_CoolPropJNI_set_1TTSESinglePhase_1LUT_1range@44
+         56   37 000ACC50 _Java_CoolPropJNI_set_1TTSESinglePhase_1LUT_1size@20
+         57   38 000ACE50 _Java_CoolPropJNI_set_1TTSE_1mode@16
+         58   39 000AC910 _Java_CoolPropJNI_set_1debug_1level@12
+         59   3A 000ABF40 _Java_CoolPropJNI_set_1phase@12
+         60   3B 000AC530 _Java_CoolPropJNI_set_1reference_1stateD@44
+         61   3C 000AC470 _Java_CoolPropJNI_set_1reference_1stateS@16
+         62   3D 000AC770 _Java_CoolPropJNI_set_1standard_1unit_1system@12
+         63   3E 000AB3B0 _Java_CoolPropJNI_solve_1cubic@64
+         64   3F 000AAF60 _Java_CoolPropJNI_strjoin@20
+         65   40 000AA960 _Java_CoolPropJNI_strlstrip@16
+         66   41 000AAA30 _Java_CoolPropJNI_strrstrip@16
+         67   42 000AACC0 _Java_CoolPropJNI_strsplit@16
+         68   43 000AAAA0 _Java_CoolPropJNI_strstrip@16
+         69   44 000AC070 _Java_CoolPropJNI_toSI@24
+         70   45 000AAE40 _Java_CoolPropJNI_upper@12
 
   Summary
 
