@@ -77,7 +77,7 @@
 				double p_Props = Props( "pcrit",'T',300,'Q',0, "R134a");
 				double p_PropsSI = PropsSI( "pcrit", "T",300, "Q",0, "R134a");
                 double p_IProps = IProps(iPcrit,iT,0,iP,0,get_Fluid_index("R134a"));
-                double p_IPropsSI = IPropsSI(iPcrit,iT,0,iP,0,get_Fluid_index("R134a"));
+                //double p_IPropsSI = IPropsSI(iPcrit,iT,0,iP,0,get_Fluid_index("R134a"));
 				REQUIRE(fabs(p_Props1/p_Props-1) < 1e-6);
 				REQUIRE(fabs(p_PropsSI/p_Props-1) < 1e-6);
 				REQUIRE(fabs(p_PropsSI/p_Props1SI-1) < 1e-6);

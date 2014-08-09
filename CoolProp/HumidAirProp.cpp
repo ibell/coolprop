@@ -1573,7 +1573,7 @@ double IceProps(const char* Name, double T, double p)
 }
 
 
-#ifndef CATCH_DISABLED
+#ifndef DISABLE_CATCH
 #include <math.h>
 #include "Catch/catch.hpp"
 TEST_CASE((char*)"Tests from ASHRAE RP-1485",(char*)"[RP1485]")

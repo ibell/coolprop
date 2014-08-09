@@ -72,7 +72,8 @@ EXPORT_CODE double CONVENTION Props(const char *Output,char Name1, double Prop1,
 
 EXPORT_CODE double CONVENTION PropsSI(const char *Output, const char *Name1, double Prop1, const char *Name2, double Prop2, const char * FluidName)
 {
-    return PropsSI(std::string(Output),Name1,Prop1,Name2,Prop2,FluidName);
+    double val = PropsSI(std::string(Output),Name1,Prop1,Name2,Prop2,FluidName);
+    return val;
 }
 EXPORT_CODE double CONVENTION K2F(double T)
 { return T * 9 / 5 - 459.67; }
