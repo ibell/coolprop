@@ -163,7 +163,7 @@ def Java():
 def Python():
     print('Python')
     
-    # subprocess.call(['python','setup.py','install'],shell=True,cwd=os.path.join('wrappers','Python'))
+    subprocess.call(['python','setup.py','install'],shell=True,cwd=os.path.join('wrappers','Python'))
     
     path_32bit = "c:\\Miniconda32bit\\Scripts\\"
     path_64bit = 'c:\\Miniconda\\Scripts\\'

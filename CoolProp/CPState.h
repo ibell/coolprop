@@ -166,7 +166,7 @@ protected:
 	double interp_linear(double Q, double valueL, double valueV);
 	double interp_recip(double Q, double valueL, double valueV);
 
-    DISALLOW_COPY_AND_ASSIGN(CoolPropStateClassSI);
+    //DISALLOW_COPY_AND_ASSIGN(CoolPropStateClassSI);
 public:
 
 	CoolPropStateClassSI copy(void){
