@@ -774,7 +774,7 @@ double Fluid::density_Tp(double T, double p, double rho_guess)
         {
 			throw SolutionError(format("Number of steps in density_TP has exceeded 30 with inputs T=%g,p=%g,rho_guess=%g for fluid %s",T,p,rho_guess,name.c_str()));
         }
-		if (!ValidNumber(rho))
+		if (!ValidNumber(delta))
 		{
 			throw SolutionError(format("Non-numeric density obtained in density_TP with inputs T=%g,p=%g,rho_guess=%g for fluid %s",T,p,rho_guess,name.c_str()));
 		}
@@ -1851,6 +1851,7 @@ void Fluid::temperature_ph(double p, double h, double &Tout, double &rhoout, dou
 			
 			if (delta < 0) // No solution found using ancillary equations (or the saturation LUT is in use) - need to use saturation call (or LUT)
 			{
+                
 				//**************************************************
 				// Step 2: Not far away from saturation (or it is two-phase) - need to solve saturation as a function of p :( - this is slow
 				//**************************************************
@@ -1906,7 +1907,11 @@ void Fluid::temperature_ph(double p, double h, double &Tout, double &rhoout, dou
 				}
 				else if (h<hsatL)
 				{
-					double rho_mid;
+                    T_guess = TsatL;
+					rho_guess = rhoLout;
+					
+                    //For some reason this block was causing DLL to not return value to windows.  It makes absolutely no sense
+                    double rho_mid;
 					T_guess = params.Ttriple;
 					rho_guess = density_Tp(T_guess,p,rhoL);
 					h_guess = enthalpy_Trho(T_guess,rho_guess);
@@ -1914,8 +1919,9 @@ void Fluid::temperature_ph(double p, double h, double &Tout, double &rhoout, dou
 					// Same thing at the midpoint temperature
 					double Tmid = (T_guess + TsatL)/2.0;
 					try{
-						rho_mid = density_Tp(Tmid, p, (rho_guess+rhoL)/2.0);
-
+                        
+						rho_mid = density_Tp(Tmid, p, rhoL);
+                        
 						if (!ValidNumber(rho_mid)){
 							rho_guess  = (rhoLout-rho_guess)/(hsatL-h_guess)*(h-h_guess) + rho_guess;
 							T_guess = (TsatL-T_guess)/(hsatL-h_guess)*(h-h_guess) + T_guess;
@@ -1934,7 +1940,6 @@ void Fluid::temperature_ph(double p, double h, double &Tout, double &rhoout, dou
 						T_guess = TsatL;
 						rho_guess = rhoLout;
 					}
-					
 
 					delta = rho_guess / reduce.rho;
 					if (get_debug_level() > 8){
