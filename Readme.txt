@@ -1,8 +1,5 @@
-CoolProp is a thermophysical property database and wrappers for a selection of programming environments
+Its the end of the line for version 4.x - The new shiny v5 of CoolProp is at https://github.com/CoolProp/CoolProp .  Perhaps one or two small bugfixes will be considered.  v5 will mirror almost all the same functionality, and is mostly backwards compatible.  Most users will notice no difference.
 
-It offers similar functionality to REFPROP, but CoolProp is open-source and free, with flexible licensing terms
+We hope that you will all make the transition soon and help us to make CoolProp the most powerful thermophysical property library out there.
 
-It was originally developed by Ian Bell, currently a post-doc at the University of Liege, in Liege, Belgium.
-
-To see whats new, go to http://coolprop.sourceforge.net/changelog.html
-
+Bye, go to https://github.com/CoolProp/CoolProp
