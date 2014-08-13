@@ -324,7 +324,7 @@ std::string FluidsContainer::FluidList()
 	return FL;
 }
 
-#ifndef DISABLE_CATCH
+#if defined(ENABLE_CATCH)
 #include "Catch/catch.hpp"
 
 TEST_CASE((char*)"Check ancillary curves for pure and pseudo-pure fluids","[slow],[ancillary]")

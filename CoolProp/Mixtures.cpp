@@ -2925,7 +2925,7 @@ void PhaseEnvelope::to_python_files(std::string base_fname)
 
 /////    #####################   TESTS #######################
 
-#ifndef DISABLE_CATCH
+#if defined(ENABLE_CATCH)
 #include "Catch/catch.hpp"
 TEST_CASE("Mixture derivative checks", "")
 	{

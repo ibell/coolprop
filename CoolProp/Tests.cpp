@@ -4,7 +4,7 @@
 #include "CoolPropDLL.h"
 #include "CoolProp.h"
 
-#ifndef DISABLE_CATCH
+#if defined(ENABLE_CATCH)
 	#include "Tests.h"
 	#define CATCH_CONFIG_RUNNER
 	#include "Catch/catch.hpp"

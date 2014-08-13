@@ -17,7 +17,7 @@
 #include "Helmholtz.h"
 #include "CoolPropTools.h"
 
-#ifndef DISABLE_CATCH
+#if defined(ENABLE_CATCH)
 #include "Catch/catch.hpp"
 #endif
 
@@ -346,7 +346,7 @@ std::vector<double> phir_power::dDelta_dTauV(std::vector<double> tau, std::vecto
 	return out;
 }
 
-#ifndef DISABLE_CATCH
+#if defined(ENABLE_CATCH)
 TEST_CASE("Power Helmholtz terms", "[helmholtz],[fast]")
 {
 	// From R134a
@@ -1437,7 +1437,7 @@ double phir_critical::dTau3(double tau, double delta) throw()
 	}
 	return summer;
 }
-#ifndef DISABLE_CATCH
+#if defined(DISABLE_CATCH)
 TEST_CASE((char*)"Non-analytic critical point Helmholtz derivative check", (char*)"[helmholtz],[fast]")
 {
 	// From CO2
@@ -1782,7 +1782,7 @@ double phir_SAFT_associating::dDelta3(double tau, double delta)
     double X_ddd = this->d3X_ddelta3(tau, delta);
     return this->m*this->a*((1/X-1.0/2.0)*X_ddd-X_d/pow(X,(int)2)*X_dd-2*(pow(X,(int)2)*(X_d*X_dd)-pow(X_d,(int)2)*(X*X_d))/pow(X,(int)4));
 }
-#ifndef DISABLE_CATCH
+#if defined(ENABLE_CATCH)
 
 TEST_CASE("SAFT Helmholtz derivative check", "[helmholtz],[fast]")
 {
@@ -2134,7 +2134,7 @@ double phi0_cp0_poly::dTau3(double tau, double delta)
 
 
 
-#ifndef DISABLE_CATCH
+#if defined(ENABLE_CATCH)
 
 //class HelmholtzTestsFixture {
 //  private:

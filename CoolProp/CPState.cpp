@@ -1941,7 +1941,7 @@ void CoolPropStateClassSI::rho_smoothed(double xend, double &rho_spline, double 
 //double drhodhdp_3 = (rho_hplus_pplus + rho_hminus_pminus - rho_hplus_pminus - rho_hminus_pplus)/(4*step*step);
 //double dvdhdp_3 = (1/rho_hplus_pplus + 1/rho_hminus_pminus - 1/rho_hplus_pminus - 1/rho_hminus_pplus)/(4*step*step);
 
-#ifndef DISABLE_CATCH
+#if defined(ENABLE_CATCH)
 #include "Catch/catch.hpp"
 
 TEST_CASE("Check of density smoothing derivatives","[normal]")
@@ -2832,7 +2832,7 @@ void CoolPropStateClass::update(long iInput1, double Value1, long iInput2, doubl
 ///// ###################### TEST CASES ###################
 ///// ###################### TEST CASES ###################
 ///// ###################### TEST CASES ###################
-#ifndef DISABLE_CATCH
+#if defined(ENABLE_CATCH)
 #include "Catch/catch.hpp"
 TEST_CASE((char*)"Check REFPROP and coolprop state classes match", "")
 {

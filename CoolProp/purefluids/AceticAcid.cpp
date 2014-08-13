@@ -194,7 +194,7 @@ double AceticAcidClass::rhosatV(double T)
     return val;
 }
 
-#ifndef DISABLE_CATCH
+#if defined(ENABLE_CATCH)
 #include "Catch/catch.hpp"
 TEST_CASE("Acetic acid validation from Piazza, FPE, 2011","[aceticacid],[validation]")
 {

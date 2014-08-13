@@ -1226,7 +1226,7 @@ std::string get_fluid_param_string(std::string FluidName, std::string ParamName)
 }
 
 
-#ifndef DISABLE_CATCH
+#if defined(ENABLE_CATCH)
 #include "Catch/catch.hpp"
 TEST_CASE("Check ancillaries and surface tension", "[fast]" ) 
 {
