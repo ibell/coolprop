@@ -747,7 +747,7 @@ double Fluid::density_Tp(double T, double p, double rho_guess)
     int iter=1;
 	long double delta = rho/reduce.rho;
 	
-	while (fabs(error) > 1e-9 && fabs(change) > 1e-13) 
+	while (std::abs(error) > 1e-9 && std::abs(change) > 1e-13) 
     {
 		// Needed for both p and p derivative
 		// Run once to cut down on calculations
@@ -774,7 +774,7 @@ double Fluid::density_Tp(double T, double p, double rho_guess)
         {
 			throw SolutionError(format("Number of steps in density_TP has exceeded 30 with inputs T=%g,p=%g,rho_guess=%g for fluid %s",T,p,rho_guess,name.c_str()));
         }
-		if (!ValidNumber(rho))
+		if (!ValidNumber(delta))
 		{
 			throw SolutionError(format("Non-numeric density obtained in density_TP with inputs T=%g,p=%g,rho_guess=%g for fluid %s",T,p,rho_guess,name.c_str()));
 		}
@@ -980,7 +980,7 @@ void Fluid::saturation_T(double T, bool UseLUT, double &psatLout, double &psatVo
 						rhosatPure_Akasaka(T, rhosatLout, rhosatVout, p, omega); psatLout = p; psatVout = p; return;
 						break;
 					}
-					catch (std::exception)
+					catch (std::exception &)
 					{
 						omega -= 0.3;
 					}
@@ -1007,7 +1007,7 @@ void Fluid::saturation_T(double T, bool UseLUT, double &psatLout, double &psatVo
 							psatVout = p; 
 							return;
 						}
-						catch (std::exception)
+						catch (std::exception &)
 						{
 							omega -= 0.3;
 						}
@@ -1020,7 +1020,7 @@ void Fluid::saturation_T(double T, bool UseLUT, double &psatLout, double &psatVo
 						throw ValueError();
 					}
 				}
-				catch (std::exception){
+				catch (std::exception &){
 
 					rhosatPure_Brent(T,rhosatLout,rhosatVout,p);
 					psatLout = p;
@@ -1096,7 +1096,7 @@ void Fluid::rhosatPure_Brent(double T, double &rhoLout, double &rhoVout, double 
 	{
 		pmin = psatV_anc(T-0.1);
 	}
-	catch (std::exception)
+	catch (std::exception &)
 	{
 		pmin = 1e-10;
 	}
@@ -1225,7 +1225,7 @@ void Fluid::rhosatPure_Akasaka(double T, double &rhoLout, double &rhoVout, doubl
 		
 		DELTA = dJV*dKL-dJL*dKV;
 
-		error = fabs(KL-KV)+fabs(JL-JV);
+		error = std::abs(KL-KV)+std::abs(JL-JV);
 
 		//  Get the predicted step
 		stepL = omega/DELTA*( (KV-KL)*dJV-(JV-JL)*dKV);
@@ -1246,7 +1246,7 @@ void Fluid::rhosatPure_Akasaka(double T, double &rhoLout, double &rhoVout, doubl
 			throw SolutionError(format("Akasaka solver did not converge after 100 iterations"));
 		}
 	}
-	while (error > 1e-10 && fabs(stepL) > 10*DBL_EPSILON*fabs(stepL) && fabs(stepV) > 10*DBL_EPSILON*fabs(stepV));
+	while (error > 1e-10 && std::abs(stepL) > 10*DBL_EPSILON*std::abs(stepL) && std::abs(stepV) > 10*DBL_EPSILON*std::abs(stepV));
 	
 	rhoLout = deltaL*reduce.rho;
 	rhoVout = deltaV*reduce.rho;
@@ -1276,9 +1276,9 @@ void Fluid::saturation_VdW(double T, double &rhoL, double &rhoV, double &p, doub
 	{
 		s0 = 2;
 	}
-	double v1 = r.call(s0-1);
-	double v2 = r.call(s0);
-	double v3 = r.call(s0+1);
+	//double v1 = r.call(s0-1);
+	//double v2 = r.call(s0);
+	//double v3 = r.call(s0+1);
 	double s = Secant(&r,s0,0.01,1e-8,100,&errstr);
 
 }
@@ -1851,6 +1851,7 @@ void Fluid::temperature_ph(double p, double h, double &Tout, double &rhoout, dou
 			
 			if (delta < 0) // No solution found using ancillary equations (or the saturation LUT is in use) - need to use saturation call (or LUT)
 			{
+                
 				//**************************************************
 				// Step 2: Not far away from saturation (or it is two-phase) - need to solve saturation as a function of p :( - this is slow
 				//**************************************************
@@ -1906,7 +1907,11 @@ void Fluid::temperature_ph(double p, double h, double &Tout, double &rhoout, dou
 				}
 				else if (h<hsatL)
 				{
-					double rho_mid;
+                    T_guess = TsatL;
+					rho_guess = rhoLout;
+					
+                    //For some reason this block was causing DLL to not return value to windows.  It makes absolutely no sense
+                    double rho_mid;
 					T_guess = params.Ttriple;
 					rho_guess = density_Tp(T_guess,p,rhoL);
 					h_guess = enthalpy_Trho(T_guess,rho_guess);
@@ -1914,8 +1919,9 @@ void Fluid::temperature_ph(double p, double h, double &Tout, double &rhoout, dou
 					// Same thing at the midpoint temperature
 					double Tmid = (T_guess + TsatL)/2.0;
 					try{
-						rho_mid = density_Tp(Tmid, p, (rho_guess+rhoL)/2.0);
-
+                        
+						rho_mid = density_Tp(Tmid, p, rhoL);
+                        
 						if (!ValidNumber(rho_mid)){
 							rho_guess  = (rhoLout-rho_guess)/(hsatL-h_guess)*(h-h_guess) + rho_guess;
 							T_guess = (TsatL-T_guess)/(hsatL-h_guess)*(h-h_guess) + T_guess;
@@ -1934,7 +1940,6 @@ void Fluid::temperature_ph(double p, double h, double &Tout, double &rhoout, dou
 						T_guess = TsatL;
 						rho_guess = rhoLout;
 					}
-					
 
 					delta = rho_guess / reduce.rho;
 					if (get_debug_level() > 8){
@@ -2364,20 +2369,20 @@ void Fluid::temperature_hs(double h, double s, double &Tout, double &rhoout, dou
 					Tout = Brent(&SatFunc, limits.Tmin, crit.T-1e-4, 1e-16, 1e-8, 100, &errstr);
 					if (SatFunc.Q > 1+1e-8 || SatFunc.Q < 0-1e-8){ throw ValueError("Solution must be within the two-phase region"); } 
 				}
-				catch(std::exception)
+				catch(std::exception &)
 				{
 					try
 					{
 						Tout = Brent(&SatFunc, (limits.Tmin+crit.T)/2.0, crit.T-1e-4, 1e-16, 1e-8, 100, &errstr);
 						if (SatFunc.Q > 1+1e-8 || SatFunc.Q < 0-1e-8){ throw ValueError("Solution must be within the two-phase region"); } 
 					}
-					catch (std::exception)
+					catch (std::exception &)
 					{
 						try{
 							Tout = Brent(&SatFunc, limits.Tmin, (limits.Tmin+crit.T)/2.0, 1e-16, 1e-8, 100, &errstr);
 							if (SatFunc.Q > 1+1e-8 || SatFunc.Q < 0-1e-8){ throw ValueError("Solution must be within the two-phase region"); } 
 						}
-						catch (std::exception)
+						catch (std::exception &)
 						{
 							throw ValueError(format("For HS:Branch1, twophase failed").c_str());
 						}
@@ -2744,13 +2749,13 @@ void Fluid::density_Ts(double T, double s, double &rhoout, double &pout, double 
 		// far enough away from saturation.
 		ssatL = ssatL_anc(T);
 		ssatV = ssatV_anc(T);
-		if (s < ssatL - 0.05*abs(ssatL))
+		if (s < ssatL - 0.05*std::abs(ssatL))
 		{
 			// liquid
 			_SinglePhase = true;
 			rho_guess = rhosatL(T);
 		}
-		else if (s > ssatV + 0.05*abs(ssatV))
+		else if (s > ssatV + 0.05*std::abs(ssatV))
 		{
 			// superheated vapor
 			_SinglePhase = true;

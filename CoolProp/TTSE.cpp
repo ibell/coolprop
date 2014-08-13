@@ -1900,7 +1900,7 @@ double TTSESinglePhaseTableClass::interpolate_bicubic_Trho(long iParam, double T
 	// A pointer to the values of the coefficients for the bicubic interpolation
 	std::vector<double> *alpha = NULL;
 	int i,j;
-	std::vector< std::vector<double> > *f = NULL, *dfdT = NULL, *dfdrho = NULL, *d2fdTdrho = NULL;
+	//std::vector< std::vector<double> > *f = NULL, *dfdT = NULL, *dfdrho = NULL, *d2fdTdrho = NULL;
 	
 	bicubic_cell_coordinates_Trho(Tval, rhoval, logrho, &i, &j);
 

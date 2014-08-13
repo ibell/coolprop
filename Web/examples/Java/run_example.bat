@@ -3,8 +3,8 @@
 copy ..\..\..\wrappers\Java\Example.java Example.java
 
 REM ******** set the variables ************
-call "C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\vcvarsall.bat"
-call "C:\Program Files\Microsoft Visual Studio 10.0\VC\vcvarsall.bat"
+call "C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\vcvarsall.bat" amd64
+call "C:\Program Files\Microsoft Visual Studio 10.0\VC\vcvarsall.bat" amd64
 
 REM ******* compile all the sources ***************
 swig -java -c++ -outcurrentdir ../../../CoolProp/CoolProp.i
@@ -21,7 +21,7 @@ erase *.lib
 
 javac *.java
 if %errorlevel% neq 0 exit /b %errorlevel%
-java Example > Output.txt
+"C:\Program Files\Java\jdk1.7.0_40\bin\java" Example > Output.txt
 if %errorlevel% neq 0 exit /b %errorlevel%
 
 erase *.java

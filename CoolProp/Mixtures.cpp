@@ -2882,7 +2882,7 @@ void PhaseEnvelope::build(double p0, const std::vector<double> &z, double beta_e
 			std::vector<double> Kdeviation(K.size(),0);
 			for (unsigned int i = 0; i < Mix->N; i++)
 			{
-				Kdeviation[i] = abs(K[i]-1);
+				Kdeviation[i] = std::abs(K[i]-1);
 			}
 			abs_Kdeviation = *std::max_element(Kdeviation.begin(), Kdeviation.end());
 		}

@@ -59,14 +59,10 @@ def Octave():
     print('Octave')
     try:
         os.makedirs(os.path.join('dist_temp','Octave'))
-        os.makedirs(os.path.join('dist_temp','Octave','3.6.1'))
-        os.makedirs(os.path.join('dist_temp','Octave','3.6.2'))
         os.makedirs(os.path.join('dist_temp','Octave','3.6.4'))
     except os.error: pass
         
     subprocess.check_output(['OctaveBuilder.bat'],shell=True,cwd=os.path.join('wrappers','Octave'))
-    shutil.copy2(os.path.join('wrappers','Octave','3.6.1','CoolProp.oct'),os.path.join('dist_temp','Octave','3.6.1','CoolProp.oct'))
-    shutil.copy2(os.path.join('wrappers','Octave','3.6.2','CoolProp.oct'),os.path.join('dist_temp','Octave','3.6.2','CoolProp.oct'))
     shutil.copy2(os.path.join('wrappers','Octave','3.6.4','CoolProp.oct'),os.path.join('dist_temp','Octave','3.6.4','CoolProp.oct'))
     shutil.copy2(os.path.join('wrappers','Octave','example.m'),os.path.join('dist_temp','Octave','example.m'))
     shutil.copy2(os.path.join('wrappers','Octave','README.rst'),os.path.join('dist_temp','Octave','README.rst'))
@@ -167,7 +163,7 @@ def Java():
 def Python():
     print('Python')
     
-    # subprocess.call(['python','setup.py','install'],shell=True,cwd=os.path.join('wrappers','Python'))
+    subprocess.call(['python','setup.py','install'],shell=True,cwd=os.path.join('wrappers','Python'))
     
     path_32bit = "c:\\Miniconda32bit\\Scripts\\"
     path_64bit = 'c:\\Miniconda\\Scripts\\'
@@ -334,7 +330,8 @@ def Superpacks():
         pass
     shutil.copy2(os.path.join('dist_temp/CoolProp-'+CoolProp.__version__+'-source_code.zip'),os.path.join('dist_temp','windows_superpack','CoolProp-'+CoolProp.__version__+'-source_code.zip'))
     
-    for folder in ['Excel and DLL','Python','C#','Octave','MATLAB','EES','Labview','LibreOffice','Maple','Scilab','Mathematica','Java','Javascript','MathCAD']:
+    # Octave removed for now : 'Octave'
+    for folder in ['Excel and DLL','Python','C#','MATLAB','EES','Labview','LibreOffice','Maple','Scilab','Mathematica','Java','Javascript','MathCAD']:
         shutil.copytree(os.path.join('dist_temp',folder), os.path.join('dist_temp','windows_superpack',folder))
     
     subprocess.check_call(['7z','a','-r','dist_temp/CoolProp-'+CoolProp.__version__+'-windows_superpack.zip','dist_temp/windows_superpack/*.*'])
@@ -353,7 +350,7 @@ if __name__=='__main__':
     DLL_and_Excel()
     Source()
     Csharp()
-    Octave()
+    #~ Octave()
     MATLAB()
     Maple()
     Mathematica()
@@ -366,9 +363,9 @@ if __name__=='__main__':
     Labview()
     Superpacks()
 
-    #~ PYPI()
-    #~ UploadSourceForge()
+    PYPI()
+    UploadSourceForge()
 
-    #~ Doxygen()
-    #~ BuildDocs()
-    #~ UploadDocs()
+    Doxygen()
+    BuildDocs()
+    UploadDocs()
