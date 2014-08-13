@@ -56,6 +56,7 @@ R1234zeClass::R1234zeClass()
 	1, //[8]
 	2, //[9]
 	1, //[10]
+	0,0,0,0,0
 	};
 
 	static const double eta[]={

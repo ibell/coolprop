@@ -29,7 +29,7 @@ R. Span and W. Wagner, J. Phys. Chem. Ref. Data, v. 25, 1996
 R744Class::R744Class()
 {
 
-	static double alpha[40],beta[43],GAMMA[40],epsilon[40],a[43],b[43],A[43],B[43],C[43],D[43],a0[9],theta0[9];
+	static double alpha[43],beta[43],GAMMA[43],epsilon[43],a[43],b[43],A[43],B[43],C[43],D[43],a0[9],theta0[9];
 	static double n[]={0,    
 	 0.388568232032E+00,
 	 0.293854759427E+01,
@@ -116,7 +116,7 @@ R744Class::R744Class()
 	2,
 	2,
 	3,
-	3};
+	3,0,0,0};
 
 	static double t[]={0.00,
 	0.00,
@@ -157,7 +157,7 @@ R744Class::R744Class()
 	0.00,
 	1.00,
 	3.00,
-	3.00};
+	3.00,0,0,0,0,0,0};
 
 	static double c[]={0,0,0,0,0,0,0,0,
 	1,
@@ -186,7 +186,7 @@ R744Class::R744Class()
 	4,
 	4,
 	5,
-	6};
+	6,0,0,0,0,0,0,0,0};
 
 	alpha[35]=25.0;
 	alpha[36]=25.0;
@@ -256,15 +256,8 @@ R744Class::R744Class()
 	theta0[7]=11.32384;
 	theta0[8]=27.08792;
 
-	std::vector<double> a_v(a,a+sizeof(a)/sizeof(double));
-	std::vector<double> b_v(b,b+sizeof(b)/sizeof(double));
-	std::vector<double> A_v(A,A+sizeof(A)/sizeof(double));
-	std::vector<double> B_v(B,B+sizeof(B)/sizeof(double));
-	std::vector<double> C_v(C,C+sizeof(C)/sizeof(double));
-	std::vector<double> D_v(D,D+sizeof(D)/sizeof(double));
-
-	phirlist.push_back(new phir_power(n,d,t,c,1,34,35));
-	phirlist.push_back(new phir_gaussian(n,d,t,alpha,epsilon,beta,GAMMA,35,39,40));
+	phirlist.push_back(new phir_power(n,d,t,c,1,34,43));
+	phirlist.push_back(new phir_gaussian(n,d,t,alpha,epsilon,beta,GAMMA,35,39,43));
 	phirlist.push_back(new phir_critical(n,d,t,a,b,beta,A,B,C,D,40,42,43));
 
 	std::vector<double> a0_v(a0,a0+sizeof(a0)/sizeof(double));
