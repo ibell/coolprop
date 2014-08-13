@@ -1,5 +1,15 @@
 Changelog for CoolProp
 ======================
+
+4.2.6
+-----
+CRITICAL BUGFIX: Repaired memory corruptions thanks to clang AddressSanitizer
+All users should install this bugfix!!
+
+4.2.5
+-----
+Bugfix: Fixed mysterious bug referenced in https://github.com/CoolProp/CoolProp/issues/86 .
+
 4.2.4
 -----
 Bugfix: Thermal conductivity for R404A off by a factor of 1000

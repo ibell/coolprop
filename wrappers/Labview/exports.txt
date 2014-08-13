@@ -9,7 +9,7 @@ File Type: DLL
   Section contains the following exports for CoolProp.dll
 
     00000000 characteristics
-    53D63C58 time date stamp Mon Jul 28 14:04:40 2014
+    53E777DB time date stamp Sun Aug 10 15:47:07 2014
         0.00 version
            1 ordinal base
           51 number of functions
@@ -17,57 +17,57 @@ File Type: DLL
 
     ordinal hint RVA      name
 
-          1    0 000856A0 DerivTerms = _DerivTerms
-          2    1 00085680 F2K = _F2K
-          3    2 000D7CE0 HAProps = _HAProps
-          4    3 000D8D40 HAProps_Aux = _HAProps_Aux
-          5    4 0007FA90 IProps = _IProps
-          6    5 000801A0 IPropsSI = _IPropsSI
-          7    6 0007DF20 IsFluidType = _IsFluidType
-          8    7 00085660 K2F = _K2F
-          9    8 00085EF0 Phase = _Phase
-         10    9 00085EF0 Phase_Tp = _Phase
-         11    A 00085F90 Phase_Trho = _Phase_Trho
-         12    B 00085390 Props = _Props
-         13    C 00085250 Props1 = _Props1
-         14    D 000852D0 Props1SI = _Props1SI
-         15    E 00085350 PropsS = _PropsS
-         16    F 00085560 PropsSI = _PropsSI
-         17   10 000A1F00 conductivity_background = _conductivity_background
-         18   11 000A1E70 conductivity_critical = _conductivity_critical
-         19   12 000A1B20 conformal_Trho = _conformal_Trho
-         20   13 00086130 disable_TTSE_LUT = _disable_TTSE_LUT
-         21   14 00086240 disable_TTSE_LUT_writing = _disable_TTSE_LUT_writing
-         22   15 00086080 enable_TTSE_LUT = _enable_TTSE_LUT
-         23   16 00086190 enable_TTSE_LUT_writing = _enable_TTSE_LUT_writing
-         24   17 00085730 fromSI = _fromSI
-         25   18 00085850 get_Fluid_index = _get_Fluid_index
-         26   19 000863E0 get_TTSESinglePhase_LUT_range = _get_TTSESinglePhase_LUT_range
-         27   1A 00085830 get_debug_level = _get_debug_level
-         28   1B 000A2290 get_errstring_copy = _get_errstring_copy
-         29   1C 00085E40 get_fluid_param_string = _get_fluid_param_string
-         30   1D 00085DB0 get_global_param_string = _get_global_param_string
-         31   1E 00085D60 get_param_index = _get_param_index
-         32   1F 000864E0 get_standard_unit_system = _get_standard_unit_system
-         33   20 000860E0 isenabled_TTSE_LUT = _isenabled_TTSE_LUT
-         34   21 000861F0 isenabled_TTSE_LUT_writing = _isenabled_TTSE_LUT_writing
-         35   22 000A20F0 psatL_anc = _psatL_anc
-         36   23 000A21C0 psatV_anc = _psatV_anc
-         37   24 00085140 redirect_stdout = _redirect_stdout
-         38   25 000A1F70 rhosatL_anc = _rhosatL_anc
-         39   26 000A2030 rhosatV_anc = _rhosatV_anc
-         40   27 000862A0 set_TTSESat_LUT_size = _set_TTSESat_LUT_size
-         41   28 00086360 set_TTSESinglePhase_LUT_range = _set_TTSESinglePhase_LUT_range
-         42   29 00086300 set_TTSESinglePhase_LUT_size = _set_TTSESinglePhase_LUT_size
-         43   2A 000858A0 set_TTSE_mode = _set_TTSE_mode
-         44   2B 00085840 set_debug_level = _set_debug_level
-         45   2C 00086030 set_phase = _set_phase
-         46   2D 000851E0 set_reference_stateD = _set_reference_stateD
-         47   2E 00085160 set_reference_stateS = _set_reference_stateS
-         48   2F 000864F0 set_standard_unit_system = _set_standard_unit_system
-         49   30 000857B0 toSI = _toSI
-         50   31 000A1D10 viscosity_dilute = _viscosity_dilute
-         51   32 000A1DB0 viscosity_residual = _viscosity_residual
+          1    0 000857F0 DerivTerms = _DerivTerms
+          2    1 000857D0 F2K = _F2K
+          3    2 000D7E30 HAProps = _HAProps
+          4    3 000D8E90 HAProps_Aux = _HAProps_Aux
+          5    4 0007FC90 IProps = _IProps
+          6    5 000803A0 IPropsSI = _IPropsSI
+          7    6 0007E120 IsFluidType = _IsFluidType
+          8    7 000857B0 K2F = _K2F
+          9    8 00086040 Phase = _Phase_Tp
+         10    9 00086040 Phase_Tp = _Phase_Tp
+         11    A 000860E0 Phase_Trho = _Phase_Trho
+         12    B 000854E0 Props = _Props
+         13    C 000853A0 Props1 = _Props1
+         14    D 00085420 Props1SI = _Props1SI
+         15    E 000854A0 PropsS = _PropsS
+         16    F 000856B0 PropsSI = _PropsSI
+         17   10 000A2090 conductivity_background = _conductivity_background
+         18   11 000A2000 conductivity_critical = _conductivity_critical
+         19   12 000A1CB0 conformal_Trho = _conformal_Trho
+         20   13 00086280 disable_TTSE_LUT = _disable_TTSE_LUT
+         21   14 00086390 disable_TTSE_LUT_writing = _disable_TTSE_LUT_writing
+         22   15 000861D0 enable_TTSE_LUT = _enable_TTSE_LUT
+         23   16 000862E0 enable_TTSE_LUT_writing = _enable_TTSE_LUT_writing
+         24   17 00085880 fromSI = _fromSI
+         25   18 000859A0 get_Fluid_index = _get_Fluid_index
+         26   19 00086530 get_TTSESinglePhase_LUT_range = _get_TTSESinglePhase_LUT_range
+         27   1A 00085980 get_debug_level = _get_debug_level
+         28   1B 000A2420 get_errstring_copy = _get_errstring_copy
+         29   1C 00085F90 get_fluid_param_string = _get_fluid_param_string
+         30   1D 00085F00 get_global_param_string = _get_global_param_string
+         31   1E 00085EB0 get_param_index = _get_param_index
+         32   1F 00086630 get_standard_unit_system = _get_standard_unit_system
+         33   20 00086230 isenabled_TTSE_LUT = _isenabled_TTSE_LUT
+         34   21 00086340 isenabled_TTSE_LUT_writing = _isenabled_TTSE_LUT_writing
+         35   22 000A2280 psatL_anc = _psatL_anc
+         36   23 000A2350 psatV_anc = _psatV_anc
+         37   24 00085290 redirect_stdout = _redirect_stdout
+         38   25 000A2100 rhosatL_anc = _rhosatL_anc
+         39   26 000A21C0 rhosatV_anc = _rhosatV_anc
+         40   27 000863F0 set_TTSESat_LUT_size = _set_TTSESat_LUT_size
+         41   28 000864B0 set_TTSESinglePhase_LUT_range = _set_TTSESinglePhase_LUT_range
+         42   29 00086450 set_TTSESinglePhase_LUT_size = _set_TTSESinglePhase_LUT_size
+         43   2A 000859F0 set_TTSE_mode = _set_TTSE_mode
+         44   2B 00085990 set_debug_level = _set_debug_level
+         45   2C 00086180 set_phase = _set_phase
+         46   2D 00085330 set_reference_stateD = _set_reference_stateD
+         47   2E 000852B0 set_reference_stateS = _set_reference_stateS
+         48   2F 00086640 set_standard_unit_system = _set_standard_unit_system
+         49   30 00085900 toSI = _toSI
+         50   31 000A1EA0 viscosity_dilute = _viscosity_dilute
+         51   32 000A1F40 viscosity_residual = _viscosity_residual
 
   Summary
 
