@@ -540,12 +540,12 @@ double _Props1SI(std::string FluidName, std::string Output)
 			case iMM:
 			case iRhocrit:
 			case iAccentric:
-				out = Props(Output,'T',0,'P',0,FluidName);
+				out = PropsSI(Output, "T", 0, "P", 0, FluidName);
 				break;
 			default:
 				throw ValueError(format("Output parameter \"%s\" is invalid for REFPROP fluid",Output.c_str()));
 		}
-        return convert_from_SI_to_unit_system(iOutput,out,get_standard_unit_system());
+        return out;
 	}
 	else
 	{
@@ -571,7 +571,8 @@ double Props1SI(std::string FluidName,std::string Output){
     // Redirect to the Props() function that takes const char *
 	// In this function the error catching happens;
 	try{
-		return _Props1SI(FluidName, Output);
+		double val = _Props1SI(FluidName, Output);
+        return val;
 	}
 	catch(const std::exception& e){
 			err_string = std::string("CoolProp error: ").append(e.what());
@@ -641,7 +642,8 @@ double _PropsSI(std::string Output, std::string Name1, double Prop1, std::string
     	if (get_debug_level()>7) std::cout<<__FILE__<<": Identified Refprop fluid - "<<Ref.c_str()<<std::endl;
         // Stop here if there is no REFPROP support
     	if (REFPROPFluidClass::refpropSupported()) {
-			return REFPROPSI(iOutput,iName1,Prop1,iName2,Prop2,Ref);
+			double val = REFPROPSI(iOutput,iName1,Prop1,iName2,Prop2,Ref);
+            return val;
     	} else {
     		throw AttributeError(format("Your fluid [%s] is from REFPROP, but CoolProp does not support REFPROP on this platform, yet.",Ref.c_str()));
     		return -_HUGE;
@@ -887,7 +889,8 @@ double PropsSI(std::string Output, std::string Name1, double Prop1, std::string 
 {
     // In this function the error catching happens;
 	try{
-		return _PropsSI(Output,Name1,Prop1,Name2,Prop2,Ref);
+		double val = _PropsSI(Output,Name1,Prop1,Name2,Prop2,Ref);
+        return val;
 	}
 	catch(const std::exception& e){
         set_err_string(std::string("CoolProp error: ").append(e.what()));
