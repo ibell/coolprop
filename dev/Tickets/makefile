@@ -177,6 +177,8 @@ $(SRCDIR)/%.o : %.cpp
 60 : 60.cpp $(COOLOBJ_FILES)
 	$(CPPC) $(CPPFLAGS) -g -o 60 -I$(COOLPROPDIR) -I$(COOLPROPDIR)/purefluids -I$(COOLPROPDIR)/pseudopurefluids -I$(SRCDIR) $< $(COOLOBJ_FILES) -ldl
 
+99 : 99.cpp $(COOLOBJ_FILES)
+	$(CPPC) $(CPPFLAGS) -g -o 60 -I$(COOLPROPDIR) -I$(COOLPROPDIR)/purefluids -I$(COOLPROPDIR)/pseudopurefluids -I$(SRCDIR) $< $(COOLOBJ_FILES) -ldl
 
 ############################################################
 ##  Create the documentation from annotations in the source

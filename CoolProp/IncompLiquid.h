@@ -13,8 +13,8 @@
 /**
 Notes for developers:
 
-If you want to add a fluid, add its definition to the header 
-and then add it to the map in the constructor in LiquidsContainer 
+If you want to add a fluid, add its definition to the header
+and then add it to the map in the constructor in LiquidsContainer
 in IncompLiquid.cpp
 **/
 
@@ -23,7 +23,7 @@ in IncompLiquid.cpp
  *  provides properties as function of temperature, pressure
  *  and composition. */
 class IncompressibleLiquid : public IncompressibleClass{
-	
+
 public:
 	/* All functions need T and p as input. Might not be necessary,
 	 * but gives a clearer structure.
@@ -71,7 +71,7 @@ protected:
 		return h(T_K,p)-p/rho(T_K,p);
 	};
 
-	
+
 	/*
 	 * Some more functions to provide a single implementation
 	 * of important routines.
@@ -208,8 +208,8 @@ public:
         cVisc.push_back(7.03331e-05);
 
         cCond.clear();
-        cCond.push_back(0.000189132);
-        cCond.push_back(-2.06364e-07);
+        cCond.push_back(000.189132);
+        cCond.push_back(-2.06364e-04);
     };
     double visc(double T_K, double p){
 		if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
@@ -241,8 +241,8 @@ public:
         cVisc.push_back(0.000209096);
 
         cCond.clear();
-        cCond.push_back(0.000153716);
-        cCond.push_back(-1.51212e-07);
+        cCond.push_back(000.153716);
+        cCond.push_back(-1.51212e-04);
     };
     double visc(double T_K, double p){
 		if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
@@ -274,8 +274,8 @@ public:
         cVisc.push_back(7.39823e-06);
 
         cCond.clear();
-        cCond.push_back(9.92958e-05);
-        cCond.push_back(-8.33333e-08);
+        cCond.push_back(9.92958e-02);
+        cCond.push_back(-8.33333e-05);
     };
     double visc(double T_K, double p){
 		if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
@@ -307,8 +307,8 @@ public:
         cVisc.push_back(7.51428e-05);
 
         cCond.clear();
-        cCond.push_back(0.000207526);
-        cCond.push_back(-2.84167e-07);
+        cCond.push_back(0000.207526);
+        cCond.push_back(-2.84167e-04);
     };
     double visc(double T_K, double p){
 		if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
@@ -340,8 +340,8 @@ public:
         cVisc.push_back(8.09988e-05);
 
         cCond.clear();
-        cCond.push_back(0.000172305);
-        cCond.push_back(-2.11212e-07);
+        cCond.push_back(0000.172305);
+        cCond.push_back(-2.11212e-04);
     };
     double visc(double T_K, double p){
 		if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
@@ -373,8 +373,8 @@ public:
         cVisc.push_back(8.5066e-05);
 
         cCond.clear();
-        cCond.push_back(0.000208374);
-        cCond.push_back(-2.61667e-07);
+        cCond.push_back(0000.208374);
+        cCond.push_back(-2.61667e-04);
     };
     double visc(double T_K, double p){
 		if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
@@ -406,8 +406,8 @@ public:
         cVisc.push_back(0.000130604);
 
         cCond.clear();
-        cCond.push_back(0.000203186);
-        cCond.push_back(-2.3869e-07);
+        cCond.push_back(0000.203186);
+        cCond.push_back(-2.3869e-04);
     };
     double visc(double T_K, double p){
 		if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
@@ -439,8 +439,8 @@ public:
         cVisc.push_back(1.14086e-06);
 
         cCond.clear();
-        cCond.push_back(0.000174156);
-        cCond.push_back(-1.85052e-07);
+        cCond.push_back(0000.174156);
+        cCond.push_back(-1.85052e-04);
     };
     double visc(double T_K, double p){
 		if (!checkTP(T_K, p)) throw ValueError(format("T=%f or p=%f is out of range.",T_K,p));
