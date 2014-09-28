@@ -1,6 +1,11 @@
 Changelog for CoolProp
 ======================
 
+4.2.7
+-----
+Fixed thermal conductivity for incompressible fluids https://github.com/CoolProp/CoolProp/issues/240
+Updated Helium EOS to 2013 fit of Ortiz-Vega
+
 4.2.6
 -----
 CRITICAL BUGFIX: Repaired memory corruptions thanks to clang AddressSanitizer

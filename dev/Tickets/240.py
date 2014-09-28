@@ -2,9 +2,16 @@
 from __future__ import print_function
 import sys
 import numpy as np
+import CoolProp
 import CoolProp.CoolProp as CP
 
+
 fluids = [ "DEB", "HCM", "HFE", "PMS1", "PMS2", "SAB", "HCB", "TCO" ]
+
+if int(CoolProp.__version__[0])>4:
+    for i in range(len(fluids)):
+	fluids[i] = "INCOMP::{0}".format(fluids[i])
+    
 Tmin = [CP.PropsSI("Tmin","T",0,"P",0,fluid) for fluid in fluids]
 Tmax = [CP.PropsSI("Tmax","T",0,"P",0,fluid) for fluid in fluids]
 T = [np.linspace(Tmin[i]+1,Tmax[i]-1) for i in range(len(fluids))]
