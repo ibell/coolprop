@@ -1437,6 +1437,7 @@ double phir_critical::dTau3(double tau, double delta) throw()
 	}
 	return summer;
 }
+/*
 #if defined(DISABLE_CATCH)
 TEST_CASE((char*)"Non-analytic critical point Helmholtz derivative check", (char*)"[helmholtz],[fast]")
 {
@@ -1487,7 +1488,7 @@ TEST_CASE((char*)"Non-analytic critical point Helmholtz derivative check", (char
 	}
 }
 #endif
-
+*/
 void phir_SAFT_associating::to_json(rapidjson::Value &el, rapidjson::Document &doc)
 {
     el.AddMember("type","ResidualHelmholtzAssociating",doc.GetAllocator());

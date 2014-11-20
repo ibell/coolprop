@@ -1,3 +1,4 @@
+copy ..\Deprecated_functions.cpp ..\..\..\CoolProp
 call c:\gccdist\supp\setup-gcc.bat
 make
 nmppc PPC603gnu/CoolProp.out > exports.txt
